@@ -53,26 +53,26 @@
 class QToolBoxButton : public QButton
 {
 public:
-    QToolBoxButton( QWidget *parent, const char *name )
-	: QButton( parent, name ), selected( FALSE )
+    QToolBoxButton(QWidget *parent, const char *name)
+        : QButton(parent, name), selected(false)
     {
-	setBackgroundRole(QPalette::Background);
-	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
-	setFocusPolicy(NoFocus);
+        setBackgroundRole(QPalette::Background);
+        setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
+        setFocusPolicy(NoFocus);
     }
 
-    inline void setSelected( bool b ) { selected = b; update(); }
-    inline void setTextLabel( const QString &text ) { label = text; update(); }
+    inline void setSelected(bool b) { selected = b; update(); }
+    inline void setTextLabel(const QString &text) { label = text; update(); }
     inline QString textLabel() const { return label; }
-    inline void setIconSet( const QIconSet &is ) { icon = is; update(); }
+    inline void setIconSet(const QIconSet &is) { icon = is; update(); }
     inline QIconSet iconSet() const { return icon; }
 
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
 protected:
-    void drawButton( QPainter * );
-    void drawButtonLabel( QPainter * );
+    void drawButton(QPainter *);
+    void drawButtonLabel(QPainter *);
 
 private:
     bool selected;
@@ -80,7 +80,7 @@ private:
     QIconSet icon;
 };
 
-void QToolBoxButton::drawButtonLabel( QPainter * )
+void QToolBoxButton::drawButtonLabel(QPainter *)
 {
 }
 
@@ -89,35 +89,35 @@ class QToolBoxPrivate
 public:
     struct Page
     {
-	QToolBoxButton *button;
-	QScrollView *sv;
-	QWidget *widget;
-	QString toolTip;
+        QToolBoxButton *button;
+        QScrollView *sv;
+        QWidget *widget;
+        QString toolTip;
 
-	inline void setTextLabel( const QString &text ) { button->setTextLabel(text); }
-	inline void setIconSet( const QIconSet &is ) { button->setIconSet(is); }
-	inline void setToolTip( const QString &tip )
-	{
-	    toolTip = tip;
-	    QToolTip::remove( button );
-	    if ( !tip.isNull() )
-		QToolTip::add( button, tip );
-	}
+        inline void setTextLabel(const QString &text) { button->setTextLabel(text); }
+        inline void setIconSet(const QIconSet &is) { button->setIconSet(is); }
+        inline void setToolTip(const QString &tip)
+        {
+            toolTip = tip;
+            QToolTip::remove(button);
+            if (!tip.isNull())
+                QToolTip::add(button, tip);
+        }
 
-	inline bool operator==(const Page& other) const
-	{
-	    return widget == other.widget;
-	}
+        inline bool operator==(const Page& other) const
+        {
+            return widget == other.widget;
+        }
     };
     typedef QList<Page> PageList;
 
     inline QToolBoxPrivate()
-	: currentPage( 0 )
+        : currentPage(0)
     {
     }
 
-    Page *page( QWidget *widget );
-    Page *page( int index );
+    Page *page(QWidget *widget);
+    Page *page(int index);
 
     void updateTabs();
 
@@ -126,50 +126,50 @@ public:
     Page *currentPage;
 };
 
-QToolBoxPrivate::Page *QToolBoxPrivate::page( QWidget *widget )
+QToolBoxPrivate::Page *QToolBoxPrivate::page(QWidget *widget)
 {
-    if ( !widget )
-	return 0;
+    if (!widget)
+        return 0;
 
-    for ( PageList::ConstIterator i = pageList.constBegin(); i != pageList.constEnd(); ++i )
-	if ( (*i).widget == widget )
-	    return (Page*) &(*i);
+    for (PageList::ConstIterator i = pageList.constBegin(); i != pageList.constEnd(); ++i)
+        if ((*i).widget == widget)
+            return (Page*) &(*i);
     return 0;
 }
 
-QToolBoxPrivate::Page *QToolBoxPrivate::page( int index )
+QToolBoxPrivate::Page *QToolBoxPrivate::page(int index)
 {
-    if (index >= 0 && index < pageList.size() )
-	return &pageList[index];
+    if (index >= 0 && index < pageList.size())
+        return &pageList[index];
     return 0;
 }
 
 void QToolBoxPrivate::updateTabs()
 {
     QToolBoxButton *lastButton = currentPage ? currentPage->button : 0;
-    bool after = FALSE;
-    for ( PageList::ConstIterator i = pageList.constBegin(); i != pageList.constEnd(); ++i ) {
-	QToolBoxButton *tB = (*i).button;
-	QWidget *tW = (*i).widget;
-	if (after) {
-	    QPalette p = tB->palette();
-	    p.setColor(tB->backgroundRole(), tW->palette().color(tW->backgroundRole()));
-	    tB->setPalette(p);
-	    tB->update();
-	} else if ( tB->backgroundRole() != QPalette::Background ) {
-	    tB->setBackgroundRole( QPalette::Background );
-	    tB->update();
-	}
-	after = (*i).button == lastButton;
+    bool after = false;
+    for (PageList::ConstIterator i = pageList.constBegin(); i != pageList.constEnd(); ++i) {
+        QToolBoxButton *tB = (*i).button;
+        QWidget *tW = (*i).widget;
+        if (after) {
+            QPalette p = tB->palette();
+            p.setColor(tB->backgroundRole(), tW->palette().color(tW->backgroundRole()));
+            tB->setPalette(p);
+            tB->update();
+        } else if (tB->backgroundRole() != QPalette::Background) {
+            tB->setBackgroundRole(QPalette::Background);
+            tB->update();
+        }
+        after = (*i).button == lastButton;
     }
 }
 
 QSize QToolBoxButton::sizeHint() const
 {
     QSize iconSize(8, 8);
-    if ( !icon.isNull() )
-	iconSize += icon.pixmap( QIconSet::Small, QIconSet::Normal ).size() + QSize( 2, 0 );
-    QSize textSize = fontMetrics().size( Qt::ShowPrefix, label ) + QSize(0, 8);
+    if (!icon.isNull())
+        iconSize += icon.pixmap(QIconSet::Small, QIconSet::Normal).size() + QSize(2, 0);
+    QSize textSize = fontMetrics().size(Qt::ShowPrefix, label) + QSize(0, 8);
 
     QSize total(iconSize.width() + textSize.width(), qMax(iconSize.height(), textSize.height()));
     return total.expandedTo(QApplication::globalStrut());
@@ -177,79 +177,79 @@ QSize QToolBoxButton::sizeHint() const
 
 QSize QToolBoxButton::minimumSizeHint() const
 {
-    if ( icon.isNull() )
-	return QSize();
-    return QSize(8, 8) + icon.pixmap( QIconSet::Small, QIconSet::Normal ).size();
+    if (icon.isNull())
+        return QSize();
+    return QSize(8, 8) + icon.pixmap(QIconSet::Small, QIconSet::Normal).size();
 }
 
-void QToolBoxButton::drawButton( QPainter *p )
+void QToolBoxButton::drawButton(QPainter *p)
 {
     QStyle::SFlags flags = QStyle::Style_Default;
     const QPalette &pal = palette();
 
-    if ( isEnabled() )
-	flags |= QStyle::Style_Enabled;
-    if ( selected )
-	flags |= QStyle::Style_Selected;
-    if ( hasFocus() )
-	flags |= QStyle::Style_HasFocus;
+    if (isEnabled())
+        flags |= QStyle::Style_Enabled;
+    if (selected)
+        flags |= QStyle::Style_Selected;
+    if (hasFocus())
+        flags |= QStyle::Style_HasFocus;
     if (isDown())
-	flags |= QStyle::Style_Down;
-    style().drawControl( QStyle::CE_ToolBoxTab, p, parentWidget(), rect(), pal, flags );
+        flags |= QStyle::Style_Down;
+    style().drawControl(QStyle::CE_ToolBoxTab, p, parentWidget(), rect(), pal, flags);
 
-    QPixmap pm = icon.pixmap( QIconSet::Small, isEnabled() ? QIconSet::Normal : QIconSet::Disabled );
+    QPixmap pm = icon.pixmap(QIconSet::Small, isEnabled() ? QIconSet::Normal : QIconSet::Disabled);
 
-    QRect cr = style().subRect( QStyle::SR_ToolBoxTabContents, this );
+    QRect cr = style().subRect(QStyle::SR_ToolBoxTabContents, this);
     QRect tr, ir;
     int ih = 0;
-    if ( pm.isNull() ) {
-	tr = cr;
-	tr.addCoords( 4, 0, -8, 0 );
+    if (pm.isNull()) {
+        tr = cr;
+        tr.addCoords(4, 0, -8, 0);
     } else {
-	int iw = pm.width() + 4;
-	ih = pm.height();
-	ir = QRect( cr.left() + 4, cr.top(), iw + 2, ih );
-	tr = QRect( ir.right(), cr.top(), cr.width() - ir.right() - 4, cr.height() );
+        int iw = pm.width() + 4;
+        ih = pm.height();
+        ir = QRect(cr.left() + 4, cr.top(), iw + 2, ih);
+        tr = QRect(ir.right(), cr.top(), cr.width() - ir.right() - 4, cr.height());
     }
 
-    if ( selected && style().styleHint( QStyle::SH_ToolBox_SelectedPageTitleBold ) ) {
-	QFont f( p->font() );
-	f.setBold( TRUE );
-	p->setFont( f );
+    if (selected && style().styleHint(QStyle::SH_ToolBox_SelectedPageTitleBold)) {
+        QFont f(p->font());
+        f.setBold(true);
+        p->setFont(f);
     }
 
     QString txt;
-    if ( p->fontMetrics().width(label) < tr.width() ) {
-	txt = label;
+    if (p->fontMetrics().width(label) < tr.width()) {
+        txt = label;
     } else {
-	txt = label.left( 1 );
-	int ew = p->fontMetrics().width( "..." );
-	int i = 1;
-	while ( p->fontMetrics().width( txt ) + ew +
-		p->fontMetrics().width( label[i] )  < tr.width() )
-	    txt += label[i++];
-	txt += "...";
+        txt = label.left(1);
+        int ew = p->fontMetrics().width("...");
+        int i = 1;
+        while (p->fontMetrics().width(txt) + ew +
+                p->fontMetrics().width(label[i])  < tr.width())
+            txt += label[i++];
+        txt += "...";
     }
 
-    if ( ih )
-	p->drawPixmap( ir.left(), (height() - ih) / 2, pm );
+    if (ih)
+        p->drawPixmap(ir.left(), (height() - ih) / 2, pm);
 
     QToolBox *tb = (QToolBox*)parentWidget();
 
     const QColor* fill = 0;
-    if ( selected &&
-	 style().styleHint( QStyle::SH_ToolBox_SelectedPageTitleBold ) &&
-	 !tb->testAttribute(WA_NoSystemBackground))
-	fill = &pal.color( foregroundRole() );
+    if (selected &&
+         style().styleHint(QStyle::SH_ToolBox_SelectedPageTitleBold) &&
+         !tb->testAttribute(WA_NoSystemBackground))
+        fill = &pal.color(foregroundRole());
 
     int alignment = AlignLeft | AlignVCenter | ShowPrefix;
     if (!style().styleHint(QStyle::SH_UnderlineAccelerator, this))
-	alignment |= NoAccel;
-    style().drawItem( p, tr, alignment, pal,
-		      isEnabled(), 0, txt, -1, fill );
+        alignment |= NoAccel;
+    style().drawItem(p, tr, alignment, pal,
+                      isEnabled(), 0, txt, -1, fill);
 
-    if ( !txt.isEmpty() && hasFocus() )
-	style().drawPrimitive( QStyle::PE_FocusRect, p, tr, pal );
+    if (!txt.isEmpty() && hasFocus())
+        style().drawPrimitive(QStyle::PE_FocusRect, p, tr, pal);
 }
 
 /*!
@@ -289,7 +289,7 @@ void QToolBoxButton::drawButton( QPainter *p )
 */
 
 /*!
-    \fn void QToolBox::currentChanged( int index )
+    \fn void QToolBox::currentChanged(int index)
 
     This signal is emitted when the current item is changed. The new
     current item's index is passed in \a index, or -1 if there is no
@@ -300,12 +300,12 @@ void QToolBoxButton::drawButton( QPainter *p )
     Constructs a toolbox called \a name with parent \a parent and flags \a f.
 */
 
-QToolBox::QToolBox( QWidget *parent, const char *name, WFlags f )
-    :  QFrame( parent, name, f )
+QToolBox::QToolBox(QWidget *parent, const char *name, WFlags f)
+    :  QFrame(parent, name, f)
 {
     d = new QToolBoxPrivate;
-    d->layout = new QVBoxLayout( this );
-    setBackgroundRole( QPalette::Button );
+    d->layout = new QVBoxLayout(this);
+    setBackgroundRole(QPalette::Button);
 }
 
 /*! \reimp */
@@ -316,7 +316,7 @@ QToolBox::~QToolBox()
 }
 
 /*!
-    \fn int QToolBox::addItem( QWidget *w, const QString &label )
+    \fn int QToolBox::addItem(QWidget *w, const QString &label)
     \overload
 
     Adds the widget \a w in a new tab at bottom of the toolbox. The
@@ -324,14 +324,14 @@ QToolBox::~QToolBox()
 */
 
 /*!
-    \fn int QToolBox::addItem( QWidget *item, const QIconSet &iconSet,const QString &label )
+    \fn int QToolBox::addItem(QWidget *item, const QIconSet &iconSet,const QString &label)
     Adds the widget \a item in a new tab at bottom of the toolbox. The
     new tab's label is set to \a label, and the \a iconSet is
     displayed to the left of the \a label.  Returns the new tab's index.
 */
 
 /*!
-    \fn int QToolBox::insertItem( int index, QWidget *item, const QString &label )
+    \fn int QToolBox::insertItem(int index, QWidget *item, const QString &label)
     \overload
 
     Inserts the widget \a item at position \a index, or at the bottom
@@ -346,46 +346,46 @@ QToolBox::~QToolBox()
     the \a label. Returns the new item's index.
 */
 
-int QToolBox::insertItem( int index, QWidget *item, const QIconSet &iconSet,
-			   const QString &label )
+int QToolBox::insertItem(int index, QWidget *item, const QIconSet &iconSet,
+                           const QString &label)
 {
-    if ( !item )
-	return -1;
+    if (!item)
+        return -1;
 
     connect(item, SIGNAL(destroyed(QObject*)), this, SLOT(itemDestroyed(QObject*)));
 
     QToolBoxPrivate::Page c;
     c.widget = item;
-    c.button = new QToolBoxButton( this, label.latin1() );
-    connect( c.button, SIGNAL(clicked()), this, SLOT(buttonClicked()) );
+    c.button = new QToolBoxButton(this, label.latin1());
+    connect(c.button, SIGNAL(clicked()), this, SLOT(buttonClicked()));
 
-    c.sv = new QScrollView( this );
+    c.sv = new QScrollView(this);
     c.sv->hide();
-    c.sv->setResizePolicy( QScrollView::AutoOneFit );
-    c.sv->addChild( item );
-    c.sv->setFrameStyle( QFrame::NoFrame );
+    c.sv->setResizePolicy(QScrollView::AutoOneFit);
+    c.sv->addChild(item);
+    c.sv->setFrameStyle(QFrame::NoFrame);
 
-    c.setTextLabel( label );
-    c.setIconSet( iconSet );
+    c.setTextLabel(label);
+    c.setIconSet(iconSet);
 
-    if ( index < 0 || index >= (int)d->pageList.count() ) {
-	index = d->pageList.count();
-	d->pageList.append( c );
-	d->layout->addWidget( c.button );
-	d->layout->addWidget( c.sv );
-	if ( index == 0 )
-	    setCurrentIndex( index );
+    if (index < 0 || index >= (int)d->pageList.count()) {
+        index = d->pageList.count();
+        d->pageList.append(c);
+        d->layout->addWidget(c.button);
+        d->layout->addWidget(c.sv);
+        if (index == 0)
+            setCurrentIndex(index);
     } else {
-	d->pageList.insert( index, c );
-	relayout();
-	if (d->currentPage) {
-	    QWidget *current = d->currentPage->widget;
-	    int oldindex = indexOf(current);
-	    if ( index <= oldindex ) {
-		d->currentPage = 0; // trigger change
-		setCurrentIndex(oldindex);
-	    }
-	}
+        d->pageList.insert(index, c);
+        relayout();
+        if (d->currentPage) {
+            QWidget *current = d->currentPage->widget;
+            int oldindex = indexOf(current);
+            if (index <= oldindex) {
+                d->currentPage = 0; // trigger change
+                setCurrentIndex(oldindex);
+            }
+        }
     }
 
     c.button->show();
@@ -399,11 +399,11 @@ void QToolBox::buttonClicked()
 {
     QToolBoxButton *tb = ::qt_cast<QToolBoxButton*>(sender());
     QWidget* item = 0;
-    for ( QToolBoxPrivate::PageList::ConstIterator i = d->pageList.constBegin(); i != d->pageList.constEnd(); ++i )
-	if ( (*i).button == tb ) {
-	    item = (*i).widget;
-	    break;
-	}
+    for (QToolBoxPrivate::PageList::ConstIterator i = d->pageList.constBegin(); i != d->pageList.constEnd(); ++i)
+        if ((*i).button == tb) {
+            item = (*i).widget;
+            break;
+        }
 
     setCurrentIndex(indexOf(item));
 }
@@ -418,16 +418,16 @@ int QToolBox::count() const
     return d->pageList.count();
 }
 
-void QToolBox::setCurrentIndex( int index )
+void QToolBox::setCurrentIndex(int index)
 {
     QToolBoxPrivate::Page *c = d->page(index);
-    if ( !c || d->currentPage == c )
-	return;
+    if (!c || d->currentPage == c)
+        return;
 
-    c->button->setSelected( TRUE );
-    if ( d->currentPage ) {
-	d->currentPage->sv->hide();
-	d->currentPage->button->setSelected(FALSE);
+    c->button->setSelected(true);
+    if (d->currentPage) {
+        d->currentPage->sv->hide();
+        d->currentPage->button->setSelected(false);
     }
     d->currentPage = c;
     d->currentPage->sv->show();
@@ -438,10 +438,10 @@ void QToolBox::setCurrentIndex( int index )
 void QToolBox::relayout()
 {
     delete d->layout;
-    d->layout = new QVBoxLayout( this );
-    for ( QToolBoxPrivate::PageList::ConstIterator i = d->pageList.constBegin(); i != d->pageList.constEnd(); ++i ) {
-	d->layout->addWidget( (*i).button );
-	d->layout->addWidget( (*i).sv );
+    d->layout = new QVBoxLayout(this);
+    for (QToolBoxPrivate::PageList::ConstIterator i = d->pageList.constBegin(); i != d->pageList.constEnd(); ++i) {
+        d->layout->addWidget((*i).button);
+        d->layout->addWidget((*i).sv);
     }
 }
 
@@ -451,23 +451,23 @@ void QToolBox::itemDestroyed(QObject *object)
     QWidget *page = (QWidget*)object;
 
     QToolBoxPrivate::Page *c = d->page(page);
-    if ( !page || !c )
-	return;
+    if (!page || !c)
+        return;
 
-    d->layout->removeWidget( c->sv );
-    d->layout->removeWidget( c->button );
+    d->layout->removeWidget(c->sv);
+    d->layout->removeWidget(c->button);
     c->sv->deleteLater(); // page might still be a child of sv
     delete c->button;
 
     bool removeCurrent = c == d->currentPage;
-    d->pageList.remove( *c );
+    d->pageList.remove(*c);
 
-    if ( !d->pageList.count() ) {
-	d->currentPage = 0;
-	emit currentChanged(-1);
-    } else if ( removeCurrent ) {
-	d->currentPage = 0;
-	setCurrentIndex(0);
+    if (!d->pageList.count()) {
+        d->currentPage = 0;
+        emit currentChanged(-1);
+    } else if (removeCurrent) {
+        d->currentPage = 0;
+        setCurrentIndex(0);
     }
 }
 
@@ -477,14 +477,14 @@ void QToolBox::itemDestroyed(QObject *object)
     the widget was not in this tool box.
 */
 
-int QToolBox::removeItem( QWidget *item )
+int QToolBox::removeItem(QWidget *item)
 {
     int index = indexOf(item);
     if (index >= 0) {
-	disconnect(item, SIGNAL(destroyed(QObject*)), this, SLOT(itemDestroyed(QObject*)));
-	item->setParent(this);
-	// destroy internal data
-	itemDestroyed(item);
+        disconnect(item, SIGNAL(destroyed(QObject*)), this, SLOT(itemDestroyed(QObject*)));
+        item->setParent(this);
+        // destroy internal data
+        itemDestroyed(item);
     }
     itemRemoved(index);
     return index;
@@ -500,7 +500,7 @@ int QToolBox::removeItem( QWidget *item )
 
 int QToolBox::currentIndex() const
 {
-    return d->currentPage ? indexOf( d->currentPage->widget ) : -1;
+    return d->currentPage ? indexOf(d->currentPage->widget) : -1;
 }
 
 /*!
@@ -508,10 +508,10 @@ int QToolBox::currentIndex() const
     item.
 */
 
-QWidget *QToolBox::item( int index ) const
+QWidget *QToolBox::item(int index) const
 {
-    if ( index < 0 || index >= (int) d->pageList.size() )
-	return 0;
+    if (index < 0 || index >= (int) d->pageList.size())
+        return 0;
     return d->pageList.at(index).widget;
 }
 
@@ -520,43 +520,43 @@ QWidget *QToolBox::item( int index ) const
     exist.
 */
 
-int QToolBox::indexOf( QWidget *item ) const
+int QToolBox::indexOf(QWidget *item) const
 {
     QToolBoxPrivate::Page *c = d->page(item);
-    return c ? d->pageList.indexOf( *c ) : -1;
+    return c ? d->pageList.indexOf(*c) : -1;
 }
 
 /*!
-    If \a enabled is TRUE then the item at position \a index is enabled; otherwise
+    If \a enabled is true then the item at position \a index is enabled; otherwise
     the item at position \a index is disabled.
 */
 
-void QToolBox::setItemEnabled( int index, bool enabled )
+void QToolBox::setItemEnabled(int index, bool enabled)
 {
-    QToolBoxPrivate::Page *c = d->page( index );
-    if ( !c )
-	return;
+    QToolBoxPrivate::Page *c = d->page(index);
+    if (!c)
+        return;
 
-    c->button->setEnabled( enabled );
-    if ( !enabled && c == d->currentPage ) {
-	int curIndexUp = index;
-	int curIndexDown = curIndexUp;
-	const int count = d->pageList.count();
-	while ( curIndexUp > 0 || curIndexDown < count-1 ) {
-	    if ( curIndexDown < count-1 ) {
-		if (d->page(++curIndexDown)->button->isEnabled()) {
-		    index = curIndexDown;
-		    break;
-		}
-	    }
-	    if ( curIndexUp > 0 ) {
-		if (d->page(--curIndexUp)->button->isEnabled()) {
-		    index = curIndexUp;
-		    break;
-		}
-	    }
-	}
-	setCurrentIndex(index);
+    c->button->setEnabled(enabled);
+    if (!enabled && c == d->currentPage) {
+        int curIndexUp = index;
+        int curIndexDown = curIndexUp;
+        const int count = d->pageList.count();
+        while (curIndexUp > 0 || curIndexDown < count-1) {
+            if (curIndexDown < count-1) {
+                if (d->page(++curIndexDown)->button->isEnabled()) {
+                    index = curIndexDown;
+                    break;
+                }
+            }
+            if (curIndexUp > 0) {
+                if (d->page(--curIndexUp)->button->isEnabled()) {
+                    index = curIndexUp;
+                    break;
+                }
+            }
+        }
+        setCurrentIndex(index);
     }
 }
 
@@ -565,42 +565,42 @@ void QToolBox::setItemEnabled( int index, bool enabled )
     Sets the label of the item at position \a index to \a label.
 */
 
-void QToolBox::setItemLabel( int index, const QString &label )
+void QToolBox::setItemLabel(int index, const QString &label)
 {
-    QToolBoxPrivate::Page *c = d->page( index );
-    if ( c )
-	c->setTextLabel( label );
+    QToolBoxPrivate::Page *c = d->page(index);
+    if (c)
+        c->setTextLabel(label);
 }
 
 /*!
     Sets the icon of the item at position \a index to \a iconSet.
 */
 
-void QToolBox::setItemIconSet( int index, const QIconSet &iconSet )
+void QToolBox::setItemIconSet(int index, const QIconSet &iconSet)
 {
-    QToolBoxPrivate::Page *c = d->page( index );
-    if ( c )
-	c->setIconSet( iconSet );
+    QToolBoxPrivate::Page *c = d->page(index);
+    if (c)
+        c->setIconSet(iconSet);
 }
 
 /*!
     Sets the tooltip of the item at position \a index to \a toolTip.
 */
 
-void QToolBox::setItemToolTip( int index, const QString &toolTip )
+void QToolBox::setItemToolTip(int index, const QString &toolTip)
 {
-    QToolBoxPrivate::Page *c = d->page( index );
-    if ( c )
-	c->setToolTip( toolTip );
+    QToolBoxPrivate::Page *c = d->page(index);
+    if (c)
+        c->setToolTip(toolTip);
 }
 
 /*!
-    Returns TRUE if the item at position \a index is enabled; otherwise returns FALSE.
+    Returns true if the item at position \a index is enabled; otherwise returns false.
 */
 
-bool QToolBox::isItemEnabled( int index ) const
+bool QToolBox::isItemEnabled(int index) const
 {
-    QToolBoxPrivate::Page *c = d->page( index );
+    QToolBoxPrivate::Page *c = d->page(index);
     return c && c->button->isEnabled();
 }
 
@@ -609,10 +609,10 @@ bool QToolBox::isItemEnabled( int index ) const
     \a index is out of range.
 */
 
-QString QToolBox::itemLabel( int index ) const
+QString QToolBox::itemLabel(int index) const
 {
-    QToolBoxPrivate::Page *c = d->page( index );
-    return ( c ? c->button->textLabel() : QString() );
+    QToolBoxPrivate::Page *c = d->page(index);
+    return (c ? c->button->textLabel() : QString());
 }
 
 /*!
@@ -620,10 +620,10 @@ QString QToolBox::itemLabel( int index ) const
     icon if \a index is out of range.
 */
 
-QIconSet QToolBox::itemIconSet( int index ) const
+QIconSet QToolBox::itemIconSet(int index) const
 {
-    QToolBoxPrivate::Page *c = d->page( index );
-    return ( c ? c->button->iconSet() : QIconSet() );
+    QToolBoxPrivate::Page *c = d->page(index);
+    return (c ? c->button->iconSet() : QIconSet());
 }
 
 /*!
@@ -631,23 +631,23 @@ QIconSet QToolBox::itemIconSet( int index ) const
     empty string if \a index is out of range.
 */
 
-QString QToolBox::itemToolTip( int index ) const
+QString QToolBox::itemToolTip(int index) const
 {
-    QToolBoxPrivate::Page *c = d->page( index );
-    return ( c ? c->toolTip : QString() );
+    QToolBoxPrivate::Page *c = d->page(index);
+    return (c ? c->toolTip : QString());
 }
 
 /*! \reimp */
-void QToolBox::showEvent( QShowEvent *e )
+void QToolBox::showEvent(QShowEvent *e)
 {
-    QWidget::showEvent( e );
+    QWidget::showEvent(e);
 }
 
 /*! \reimp */
-void QToolBox::changeEvent( QEvent *ev )
+void QToolBox::changeEvent(QEvent *ev)
 {
     if(ev->type() == QEvent::StyleChange)
-	d->updateTabs();
+        d->updateTabs();
     QFrame::changeEvent(ev);
 }
 
@@ -655,7 +655,7 @@ void QToolBox::changeEvent( QEvent *ev )
   This virtual handler is called after a new item was added or
   inserted at position \a index.
  */
-void QToolBox::itemInserted( int index )
+void QToolBox::itemInserted(int index)
 {
     Q_UNUSED(index)
 }
@@ -664,7 +664,7 @@ void QToolBox::itemInserted( int index )
   This virtual handler is called after an item was removed from
   position \a index.
  */
-void QToolBox::itemRemoved( int index )
+void QToolBox::itemRemoved(int index)
 {
     Q_UNUSED(index)
 }

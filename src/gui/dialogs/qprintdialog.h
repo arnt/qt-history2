@@ -29,33 +29,33 @@ class Q_GUI_EXPORT QPrintDialog : public QDialog
 {
     Q_OBJECT
 public:
-    QPrintDialog( QPrinter *, QWidget* parent=0, const char* name=0 );
+    QPrintDialog(QPrinter *, QWidget* parent=0, const char* name=0);
     ~QPrintDialog();
 
-    static bool getPrinterSetup( QPrinter *, QWidget* = 0 );
-    static void setGlobalPrintDialog( QPrintDialog * );
+    static bool getPrinterSetup(QPrinter *, QWidget* = 0);
+    static void setGlobalPrintDialog(QPrintDialog *);
 
-    void setPrinter( QPrinter *, bool = FALSE );
+    void setPrinter(QPrinter *, bool = false);
     QPrinter * printer() const;
 
-    void addButton( QPushButton *but );
+    void addButton(QPushButton *but);
 
 private slots:
     void browseClicked();
     void okClicked();
 
-    void printerOrFileSelected( int );
-    void landscapeSelected( int );
-    void paperSizeSelected( int );
-    void orientSelected( int );
-    void pageOrderSelected( int );
-    void colorModeSelected( int );
-    void setNumCopies( int );
-    void printRangeSelected( int );
-    void setFirstPage( int );
-    void setLastPage( int );
+    void printerOrFileSelected(int);
+    void landscapeSelected(int);
+    void paperSizeSelected(int);
+    void orientSelected(int);
+    void pageOrderSelected(int);
+    void colorModeSelected(int);
+    void setNumCopies(int);
+    void printRangeSelected(int);
+    void setFirstPage(int);
+    void setLastPage(int);
 
-    void fileNameEditChanged( const QString &text );
+    void fileNameEditChanged(const QString &text);
 
 private:
     QPrintDialogPrivate *d;
@@ -65,10 +65,10 @@ private:
     QGroupBox * setupPaper();
     QGroupBox * setupPrinterSettings();
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QPrintDialog( const QPrintDialog & );
-    QPrintDialog &operator=( const QPrintDialog & );
+    QPrintDialog(const QPrintDialog &);
+    QPrintDialog &operator=(const QPrintDialog &);
 #endif
 };
 

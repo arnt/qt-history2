@@ -31,7 +31,7 @@ public:
     QQuickDrawPaintEngine(QPaintDevice *);
     ~QQuickDrawPaintEngine();
 
-    bool begin(QPaintDevice *pdev, QPainterState *state, bool unclipped = FALSE);
+    bool begin(QPaintDevice *pdev, QPainterState *state, bool unclipped = false);
     bool end();
 
     void updatePen(QPainterState *ps);
@@ -100,7 +100,7 @@ public:
     QCoreGraphicsPaintEngine(QPaintDevice *);
     ~QCoreGraphicsPaintEngine();
 
-    bool begin(QPaintDevice *pdev, QPainterState *state, bool unclipped = FALSE);
+    bool begin(QPaintDevice *pdev, QPainterState *state, bool unclipped = false);
     bool end();
 
     void updatePen(QPainterState *ps);

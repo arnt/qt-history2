@@ -26,8 +26,8 @@ class QTextCodec;
 class Q_CORE_EXPORT QTextCodecFactory
 {
 public:
-    static QTextCodec *createForName( const QString & );
-    static QTextCodec *createForMib( int );
+    static QTextCodec *createForName(const QString &);
+    static QTextCodec *createForMib(int);
 };
 
 #endif // QT_NO_TEXTCODEC

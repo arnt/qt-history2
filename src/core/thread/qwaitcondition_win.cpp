@@ -28,11 +28,11 @@ class QWaitConditionEvent
 public:
     inline QWaitConditionEvent() : priority(0)
     {
-	QT_WA ({
-	    event = CreateEvent(NULL, TRUE, FALSE, NULL);
-	}, {
-	    event = CreateEventA(NULL, TRUE, FALSE, NULL);
-	});
+        QT_WA ({
+            event = CreateEvent(NULL, true, false, NULL);
+        }, {
+            event = CreateEventA(NULL, true, false, NULL);
+        });
     }
     inline ~QWaitConditionEvent() { CloseHandle(event); }
     int priority;
@@ -53,19 +53,19 @@ public:
 
 bool QWaitConditionPrivate::wait(QMutex *mutex, unsigned long time)
 {
-    bool ret = FALSE;
+    bool ret = false;
 
     mtx.lock();
     QWaitConditionEvent *wce =
-	freeQueue.isEmpty() ? new QWaitConditionEvent : freeQueue.takeAt(0);
+        freeQueue.isEmpty() ? new QWaitConditionEvent : freeQueue.takeAt(0);
     wce->priority = GetThreadPriority(GetCurrentThread());
 
     // insert 'wce' into the queue (sorted by priority)
     QWaitConditionEvent *current = queue.first();
     int index;
     for (index = 0; index < queue.size(); ++index) {
-	if (current->priority < wce->priority)
-	    break;
+        if (current->priority < wce->priority)
+            break;
     }
     queue.insert(index, wce);
     mtx.unlock();
@@ -77,8 +77,8 @@ bool QWaitConditionPrivate::wait(QMutex *mutex, unsigned long time)
     default: break;
 
     case WAIT_OBJECT_0:
-	ret = TRUE;
-	break;
+        ret = true;
+        break;
     }
 
     if (mutex) mutex->lock();
@@ -107,25 +107,25 @@ QWaitCondition::~QWaitCondition()
     Q_ASSERT(d->queue.isEmpty());
 
     for(EventQueue::Iterator it = d->freeQueue.begin(); it != d->freeQueue.end(); ++it)
-	delete (*it);
+        delete (*it);
     delete d;
 }
 
-bool QWaitCondition::wait( unsigned long time )
+bool QWaitCondition::wait(unsigned long time)
 {
     return d->wait(0, time);
 }
 
-bool QWaitCondition::wait( QMutex *mutex, unsigned long time)
+bool QWaitCondition::wait(QMutex *mutex, unsigned long time)
 {
-    if ( !mutex )
-	return FALSE;
+    if (!mutex)
+        return false;
 
     if (mutex->d->recursive) {
 #ifdef QT_CHECK_RANGE
-	qWarning("QWaitCondition::wait: Cannot wait on recursive mutexes.");
+        qWarning("QWaitCondition::wait: Cannot wait on recursive mutexes.");
 #endif
-	return FALSE;
+        return false;
     }
     return d->wait(mutex, time);
 }
@@ -136,7 +136,7 @@ void QWaitCondition::wakeOne()
     QMutexLocker locker(&d->mtx);
     QWaitConditionEvent *first = d->queue.first();
     if (first)
-	SetEvent(first->event);
+        SetEvent(first->event);
 }
 
 void QWaitCondition::wakeAll()
@@ -144,7 +144,7 @@ void QWaitCondition::wakeAll()
     // wake up the all threads in the queue
     QMutexLocker locker(&d->mtx);
     for (int i = 0; i < d->queue.size(); ++i) {
-	QWaitConditionEvent *current = d->queue.at(i);
-	SetEvent(current->event);
+        QWaitConditionEvent *current = d->queue.at(i);
+        SetEvent(current->event);
     }
 }

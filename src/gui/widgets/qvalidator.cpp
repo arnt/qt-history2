@@ -102,8 +102,8 @@
     passed on to the QObject constructor.
 */
 
-QValidator::QValidator( QObject * parent, const char *name )
-    : QObject( parent, name )
+QValidator::QValidator(QObject * parent, const char *name)
+    : QObject(parent, name)
 {
 }
 
@@ -119,7 +119,7 @@ QValidator::~QValidator()
 
 
 /*!
-    \fn QValidator::State QValidator::validate( QString& input, int& pos ) const
+    \fn QValidator::State QValidator::validate(QString& input, int& pos) const
 
     This pure virtual function returns \c Invalid if \a input is
     invalid according to this validator's rules, \c Intermediate if it
@@ -134,7 +134,7 @@ QValidator::~QValidator()
 
 
 /*!
-    \fn void QValidator::fixup( QString & input ) const
+    \fn void QValidator::fixup(QString & input) const
 
     This function attempts to change \a input to be valid according to
     this validator's rules. It need not result in a valid string:
@@ -150,7 +150,7 @@ QValidator::~QValidator()
     surnames.
 */
 
-void QValidator::fixup( QString & ) const
+void QValidator::fixup(QString &) const
 {
 }
 
@@ -165,11 +165,11 @@ void QValidator::fixup( QString & ) const
     Example of use:
 
     \code
-    QValidator* validator = new QIntValidator( 100, 999, this );
-    QLineEdit* edit = new QLineEdit( this );
+    QValidator* validator = new QIntValidator(100, 999, this);
+    QLineEdit* edit = new QLineEdit(this);
 
     // the edit lineedit will only accept integers between 100 and 999
-    edit->setValidator( validator );
+    edit->setValidator(validator);
     \endcode
 
     Below we present some examples of validators. In practice they would
@@ -178,26 +178,26 @@ void QValidator::fixup( QString & ) const
     \code
     QString str;
     int pos = 0;
-    QIntValidator v( 100, 999, this );
+    QIntValidator v(100, 999, this);
 
     str = "1";
-    v.validate( str, pos );     // returns Intermediate
+    v.validate(str, pos);     // returns Intermediate
     str = "12";
-    v.validate( str, pos );     // returns Intermediate
+    v.validate(str, pos);     // returns Intermediate
 
     str = "123";
-    v.validate( str, pos );     // returns Acceptable
+    v.validate(str, pos);     // returns Acceptable
     str = "678";
-    v.validate( str, pos );     // returns Acceptable
+    v.validate(str, pos);     // returns Acceptable
 
     str = "1234";
-    v.validate( str, pos );     // returns Invalid
+    v.validate(str, pos);     // returns Invalid
     str = "-123";
-    v.validate( str, pos );     // returns Invalid
+    v.validate(str, pos);     // returns Invalid
     str = "abc";
-    v.validate( str, pos );     // returns Invalid
+    v.validate(str, pos);     // returns Invalid
     str = "12cm";
-    v.validate( str, pos );     // returns Invalid
+    v.validate(str, pos);     // returns Invalid
     \endcode
 
     The minimum and maximum values are set in one call with setRange()
@@ -212,8 +212,8 @@ void QValidator::fixup( QString & ) const
     accepts all integers.
 */
 
-QIntValidator::QIntValidator( QObject * parent, const char *name )
-    : QValidator( parent, name )
+QIntValidator::QIntValidator(QObject * parent, const char *name)
+    : QValidator(parent, name)
 {
     b = INT_MIN;
     t = INT_MAX;
@@ -225,9 +225,9 @@ QIntValidator::QIntValidator( QObject * parent, const char *name )
     accepts integers from \a minimum to \a maximum inclusive.
 */
 
-QIntValidator::QIntValidator( int minimum, int maximum,
-			      QObject * parent, const char* name )
-    : QValidator( parent, name )
+QIntValidator::QIntValidator(int minimum, int maximum,
+                              QObject * parent, const char* name)
+    : QValidator(parent, name)
 {
     b = minimum;
     t = maximum;
@@ -255,34 +255,34 @@ QIntValidator::~QIntValidator()
     \code
     int pos = 0;
     s = "35";
-    v.validate( s, pos ); // returns Acceptable
+    v.validate(s, pos); // returns Acceptable
 
     s = "105";
-    v.validate( s, pos ); // returns Intermediate
+    v.validate(s, pos); // returns Intermediate
 
     s = "abc";
-    v.validate( s, pos ); // returns Invalid
+    v.validate(s, pos); // returns Invalid
 
     \endcode
 */
 
-QValidator::State QIntValidator::validate( QString & input, int & ) const
+QValidator::State QIntValidator::validate(QString & input, int &) const
 {
     if (input.contains(' '))
-	return Invalid;
+        return Invalid;
     if (input.isEmpty() || (b < 0 && input == "-"))
-	return Intermediate;
+        return Intermediate;
     bool ok;
-    long entered = input.toLong( &ok );
-    if ( !ok || (entered < 0 && b >= 0) ) {
-	return Invalid;
-    } else if ( entered >= b && entered <= t ) {
-	return Acceptable;
+    long entered = input.toLong(&ok);
+    if (!ok || (entered < 0 && b >= 0)) {
+        return Invalid;
+    } else if (entered >= b && entered <= t) {
+        return Acceptable;
     } else {
-	if ( entered >= 0 )
-	    return ( entered > t ) ? Invalid : Intermediate;
-	else
-	    return ( entered < b ) ? Invalid : Intermediate;
+        if (entered >= 0)
+            return (entered > t) ? Invalid : Intermediate;
+        else
+            return (entered < b) ? Invalid : Intermediate;
     }
 }
 
@@ -292,7 +292,7 @@ QValidator::State QIntValidator::validate( QString & input, int & ) const
     bottom and \a top inclusive.
 */
 
-void QIntValidator::setRange( int bottom, int top )
+void QIntValidator::setRange(int bottom, int top)
 {
     b = bottom;
     t = top;
@@ -305,9 +305,9 @@ void QIntValidator::setRange( int bottom, int top )
 
     \sa setRange()
 */
-void QIntValidator::setBottom( int bottom )
+void QIntValidator::setBottom(int bottom)
 {
-    setRange( bottom, top() );
+    setRange(bottom, top());
 }
 
 /*!
@@ -316,9 +316,9 @@ void QIntValidator::setBottom( int bottom )
 
     \sa setRange()
 */
-void QIntValidator::setTop( int top )
+void QIntValidator::setTop(int top)
 {
-    setRange( bottom(), top );
+    setRange(bottom(), top);
 }
 
 
@@ -349,8 +349,8 @@ void QIntValidator::setTop( int top )
     name, which accepts any double.
 */
 
-QDoubleValidator::QDoubleValidator( QObject * parent, const char *name )
-    : QValidator( parent, name )
+QDoubleValidator::QDoubleValidator(QObject * parent, const char *name)
+    : QValidator(parent, name)
 {
     b = -HUGE_VAL;
     t = HUGE_VAL;
@@ -364,9 +364,9 @@ QDoubleValidator::QDoubleValidator( QObject * parent, const char *name )
     inclusive, with up to \a decimals digits after the decimal point.
 */
 
-QDoubleValidator::QDoubleValidator( double bottom, double top, int decimals,
-				    QObject * parent, const char* name )
-    : QValidator( parent, name )
+QDoubleValidator::QDoubleValidator(double bottom, double top, int decimals,
+                                    QObject * parent, const char* name)
+    : QValidator(parent, name)
 {
     b = bottom;
     t = top;
@@ -397,49 +397,49 @@ QDoubleValidator::~QDoubleValidator()
     and \a input is a negative double then Invalid is returned.
 */
 
-QValidator::State QDoubleValidator::validate( QString & input, int & ) const
+QValidator::State QDoubleValidator::validate(QString & input, int &) const
 {
     QRegExp empty(QString::fromLatin1("-?\\.?"));
     if (input.contains(' '))
-	return Invalid;
-    if ( b >= 0 && input.startsWith(QString::fromLatin1("-")) )
-	return Invalid;
-    if ( empty.exactMatch(input) )
-	return Intermediate;
-    bool ok = TRUE;
-    double entered = input.toDouble( &ok );
-    int nume = input.count( 'e', QString::CaseInsensitive );
-    if ( !ok ) {
-	// explicit exponent regexp
-	QRegExp expexpexp( QString::fromLatin1("[Ee][+-]?\\d*$") );
-	int eePos = expexpexp.search( input );
-	if ( eePos > 0 && nume == 1 ) {
-	    QString mantissa = input.left( eePos );
-	    entered = mantissa.toDouble( &ok );
-	    if ( !ok )
-		return Invalid;
-	} else if ( eePos == 0 ) {
-	    return Intermediate;
-	} else {
-	    return Invalid;
-	}
+        return Invalid;
+    if (b >= 0 && input.startsWith(QString::fromLatin1("-")))
+        return Invalid;
+    if (empty.exactMatch(input))
+        return Intermediate;
+    bool ok = true;
+    double entered = input.toDouble(&ok);
+    int nume = input.count('e', QString::CaseInsensitive);
+    if (!ok) {
+        // explicit exponent regexp
+        QRegExp expexpexp(QString::fromLatin1("[Ee][+-]?\\d*$"));
+        int eePos = expexpexp.search(input);
+        if (eePos > 0 && nume == 1) {
+            QString mantissa = input.left(eePos);
+            entered = mantissa.toDouble(&ok);
+            if (!ok)
+                return Invalid;
+        } else if (eePos == 0) {
+            return Intermediate;
+        } else {
+            return Invalid;
+        }
     }
 
     int i = input.indexOf('.');
-    if ( i >= 0 && nume == 0 ) {
-	// has decimal point (but no E), now count digits after that
-	i++;
-	int j = i;
-	while( input[j].isDigit() )
-	    j++;
-	if ( j - i > d )
-	    return Intermediate;
+    if (i >= 0 && nume == 0) {
+        // has decimal point (but no E), now count digits after that
+        i++;
+        int j = i;
+        while(input[j].isDigit())
+            j++;
+        if (j - i > d)
+            return Intermediate;
     }
 
-    if ( entered < b || entered > t )
-	return Intermediate;
+    if (entered < b || entered > t)
+        return Intermediate;
     else
-	return Acceptable;
+        return Acceptable;
 }
 
 
@@ -449,7 +449,7 @@ QValidator::State QDoubleValidator::validate( QString & input, int & ) const
     point.
 */
 
-void QDoubleValidator::setRange( double minimum, double maximum, int decimals )
+void QDoubleValidator::setRange(double minimum, double maximum, int decimals)
 {
     b = minimum;
     t = maximum;
@@ -463,9 +463,9 @@ void QDoubleValidator::setRange( double minimum, double maximum, int decimals )
     \sa setRange()
 */
 
-void QDoubleValidator::setBottom( double bottom )
+void QDoubleValidator::setBottom(double bottom)
 {
-    setRange( bottom, top(), decimals() );
+    setRange(bottom, top(), decimals());
 }
 
 
@@ -476,9 +476,9 @@ void QDoubleValidator::setBottom( double bottom )
     \sa setRange()
 */
 
-void QDoubleValidator::setTop( double top )
+void QDoubleValidator::setTop(double top)
 {
-    setRange( bottom(), top, decimals() );
+    setRange(bottom(), top, decimals());
 }
 
 /*!
@@ -488,9 +488,9 @@ void QDoubleValidator::setTop( double top )
     \sa setRange()
 */
 
-void QDoubleValidator::setDecimals( int decimals )
+void QDoubleValidator::setDecimals(int decimals)
 {
-    setRange( bottom(), top(), decimals );
+    setRange(bottom(), top(), decimals);
 }
 
 
@@ -515,11 +515,11 @@ void QDoubleValidator::setDecimals( int decimals )
     Example of use:
     \code
     // regexp: optional '-' followed by between 1 and 3 digits
-    QRegExp rx( "-?\\d{1,3}" );
-    QValidator* validator = new QRegExpValidator( rx, this );
+    QRegExp rx("-?\\d{1,3}");
+    QValidator* validator = new QRegExpValidator(rx, this);
 
-    QLineEdit* edit = new QLineEdit( this );
-    edit->setValidator( validator );
+    QLineEdit* edit = new QLineEdit(this);
+    edit->setValidator(validator);
     \endcode
 
     Below we present some examples of validators. In practice they would
@@ -527,36 +527,36 @@ void QDoubleValidator::setDecimals( int decimals )
 
     \code
     // integers 1 to 9999
-    QRegExp rx( "[1-9]\\d{0,3}" );
+    QRegExp rx("[1-9]\\d{0,3}");
     // the validator treats the regexp as "^[1-9]\\d{0,3}$"
-    QRegExpValidator v( rx, 0 );
+    QRegExpValidator v(rx, 0);
     QString s;
     int pos = 0;
 
-    s = "0";     v.validate( s, pos );    // returns Invalid
-    s = "12345"; v.validate( s, pos );    // returns Invalid
-    s = "1";     v.validate( s, pos );    // returns Acceptable
+    s = "0";     v.validate(s, pos);    // returns Invalid
+    s = "12345"; v.validate(s, pos);    // returns Invalid
+    s = "1";     v.validate(s, pos);    // returns Acceptable
 
-    rx.setPattern( "\\S+" );            // one or more non-whitespace characters
-    v.setRegExp( rx );
-    s = "myfile.txt";  v.validate( s, pos ); // Returns Acceptable
-    s = "my file.txt"; v.validate( s, pos ); // Returns Invalid
+    rx.setPattern("\\S+");            // one or more non-whitespace characters
+    v.setRegExp(rx);
+    s = "myfile.txt";  v.validate(s, pos); // Returns Acceptable
+    s = "my file.txt"; v.validate(s, pos); // Returns Invalid
 
     // A, B or C followed by exactly five digits followed by W, X, Y or Z
-    rx.setPattern( "[A-C]\\d{5}[W-Z]" );
-    v.setRegExp( rx );
-    s = "a12345Z"; v.validate( s, pos );	// Returns Invalid
-    s = "A12345Z"; v.validate( s, pos );	// Returns Acceptable
-    s = "B12";     v.validate( s, pos );	// Returns Intermediate
+    rx.setPattern("[A-C]\\d{5}[W-Z]");
+    v.setRegExp(rx);
+    s = "a12345Z"; v.validate(s, pos);        // Returns Invalid
+    s = "A12345Z"; v.validate(s, pos);        // Returns Acceptable
+    s = "B12";     v.validate(s, pos);        // Returns Intermediate
 
     // match most 'readme' files
-    rx.setPattern( "read\\S?me(\.(txt|asc|1st))?" );
-    rx.setCaseSensitive( FALSE );
-    v.setRegExp( rx );
-    s = "readme";      v.validate( s, pos ); // Returns Acceptable
-    s = "README.1ST";  v.validate( s, pos ); // Returns Acceptable
-    s = "read me.txt"; v.validate( s, pos ); // Returns Invalid
-    s = "readm";       v.validate( s, pos ); // Returns Intermediate
+    rx.setPattern("read\\S?me(\.(txt|asc|1st))?");
+    rx.setCaseSensitive(false);
+    v.setRegExp(rx);
+    s = "readme";      v.validate(s, pos); // Returns Acceptable
+    s = "README.1ST";  v.validate(s, pos); // Returns Acceptable
+    s = "read me.txt"; v.validate(s, pos); // Returns Invalid
+    s = "readm";       v.validate(s, pos); // Returns Intermediate
     \endcode
 
     \sa QRegExp QIntValidator QDoubleValidator
@@ -568,8 +568,8 @@ void QDoubleValidator::setDecimals( int decimals )
     name.
 */
 
-QRegExpValidator::QRegExpValidator( QObject *parent, const char *name )
-    : QValidator( parent, name ), r( QString::fromLatin1(".*") )
+QRegExpValidator::QRegExpValidator(QObject *parent, const char *name)
+    : QValidator(parent, name), r(QString::fromLatin1(".*"))
 {
 }
 
@@ -582,9 +582,9 @@ QRegExpValidator::QRegExpValidator( QObject *parent, const char *name )
     <b>[A-Fa-f0-9]+</b> it will be treated as <b>^[A-Fa-f0-9]+$</b>.
 */
 
-QRegExpValidator::QRegExpValidator( const QRegExp& rx, QObject *parent,
-				    const char *name )
-    : QValidator( parent, name ), r( rx )
+QRegExpValidator::QRegExpValidator(const QRegExp& rx, QObject *parent,
+                                    const char *name)
+    : QValidator(parent, name), r(rx)
 {
 }
 
@@ -611,17 +611,17 @@ QRegExpValidator::~QRegExpValidator()
     \sa QRegExp::exactMatch() QRegExp::search()
 */
 
-QValidator::State QRegExpValidator::validate( QString& input, int& pos ) const
+QValidator::State QRegExpValidator::validate(QString& input, int& pos) const
 {
-    if ( r.exactMatch(input) ) {
-	return Acceptable;
+    if (r.exactMatch(input)) {
+        return Acceptable;
     } else {
-	if ( ((QRegExp&) r).matchedLength() == (int) input.length() ) {
-	    return Intermediate;
-	} else {
-	    pos = input.length();
-	    return Invalid;
-	}
+        if (((QRegExp&) r).matchedLength() == (int) input.length()) {
+            return Intermediate;
+        } else {
+            pos = input.length();
+            return Invalid;
+        }
     }
 }
 
@@ -631,7 +631,7 @@ QValidator::State QRegExpValidator::validate( QString& input, int& pos ) const
     \sa regExp()
 */
 
-void QRegExpValidator::setRegExp( const QRegExp& rx )
+void QRegExpValidator::setRegExp(const QRegExp& rx)
 {
     r = rx;
 }

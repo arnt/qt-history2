@@ -3,13 +3,13 @@
 #include "qdragobject.h"
 
 #if defined(Q_WS_X11)
-#include <X11/Xlib.h>				// needed for systemBitOrder
+#include <X11/Xlib.h>                                // needed for systemBitOrder
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 #endif
 
 #ifndef QT_NO_MIME
-/*! \fn QImage QImage::fromMimeSource( const QString &abs_name )
+/*! \fn QImage QImage::fromMimeSource(const QString &abs_name)
 
     Convenience function. Gets the data associated with the absolute
     name \a abs_name from the default mime source factory and decodes
@@ -17,15 +17,15 @@
 
     \sa QMimeSourceFactory, QImage::fromMimeSource(), QImageDrag::decode()
 */
-QImage qFromMimeSource_helper( const QString &abs_name )
+QImage qFromMimeSource_helper(const QString &abs_name)
 {
-    const QMimeSource *m = QMimeSourceFactory::defaultFactory()->data( abs_name );
-    if ( !m ) {
-	qWarning("QImage::fromMimeSource: Cannot find image \"%s\" in the mime source factory", abs_name.latin1() );
-	return QImage();
+    const QMimeSource *m = QMimeSourceFactory::defaultFactory()->data(abs_name);
+    if (!m) {
+        qWarning("QImage::fromMimeSource: Cannot find image \"%s\" in the mime source factory", abs_name.latin1());
+        return QImage();
     }
     QImage img;
-    QImageDrag::decode( m, img );
+    QImageDrag::decode(m, img);
     return img;
 }
 #endif

@@ -53,7 +53,7 @@ public:
     uint rightMargin;
 };
 
-#define D ( (QPrinterUnixPrivate*) d )
+#define D ((QPrinterUnixPrivate*) d)
 
 /*****************************************************************************
   QPrinter member functions
@@ -87,8 +87,8 @@ static PrinterDefaults * globalPrinterDefaults = 0;
     \sa QPrinter::PrinterMode
 */
 
-QPrinter::QPrinter( PrinterMode m )
-    : QPaintDevice( QInternal::Printer | QInternal::ExternalDevice )
+QPrinter::QPrinter(PrinterMode m)
+    : QPaintDevice(QInternal::Printer | QInternal::ExternalDevice)
 {
     paintEngine = 0;
     pid = 0;
@@ -100,31 +100,31 @@ QPrinter::QPrinter( PrinterMode m )
     printer_name = getenv("PRINTER");
     from_pg = to_pg = min_pg = max_pg = 0;
     state = PST_IDLE;
-    output_file = FALSE;
-    to_edge     = FALSE;
+    output_file = false;
+    to_edge     = false;
     paper_source = OnlyOne;
-    switch ( m ) {
-	case ScreenResolution:
+    switch (m) {
+        case ScreenResolution:
 #ifdef Q_WS_X11
-	    res = QX11Info::appDpiY();
+            res = QX11Info::appDpiY();
 #else
-	    res = 72;
+            res = 72;
 #endif
-	    break;
-	case Compatible:
-	case PrinterResolution:
-	    res = 72;
-	    break;
-	case HighResolution:
-	    res = 600;
+            break;
+        case Compatible:
+        case PrinterResolution:
+            res = 72;
+            break;
+        case HighResolution:
+            res = 600;
     }
 
     d = new QPrinterUnixPrivate;
     D->marginsSpecified = false;
     d->printerOptions = 0;
-    setOptionEnabled( PrintToFile, TRUE );
-    setOptionEnabled( PrintPageRange, TRUE );
-    setPrintRange( AllPages );
+    setOptionEnabled(PrintToFile, true);
+    setOptionEnabled(PrintPageRange, true);
+    setPrintRange(AllPages);
 }
 
 /*!
@@ -134,52 +134,52 @@ QPrinter::QPrinter( PrinterMode m )
 QPrinter::~QPrinter()
 {
     delete paintEngine;
-    if ( pid ) {
-	(void)::kill( pid, 6 );
-	(void)::wait( 0 );
-	pid = 0;
+    if (pid) {
+        (void)::kill(pid, 6);
+        (void)::wait(0);
+        pid = 0;
     }
     delete d;
 }
 
 
 /*!
-    Advances to a new page on the printer. Returns TRUE if successful;
-    otherwise returns FALSE.
+    Advances to a new page on the printer. Returns true if successful;
+    otherwise returns false.
 */
 
 bool QPrinter::newPage()
 {
-    if ( state == PST_ACTIVE && paintEngine )
-	((QPSPrinter*)paintEngine)->newPage();
-    return TRUE;
+    if (state == PST_ACTIVE && paintEngine)
+        ((QPSPrinter*)paintEngine)->newPage();
+    return true;
 }
 
 
 /*!
-    Aborts the print job. Returns TRUE if successful; otherwise
-    returns FALSE.
+    Aborts the print job. Returns true if successful; otherwise
+    returns false.
 
     \sa aborted()
 */
 
 bool QPrinter::abort()
 {
-    if ( state == PST_ACTIVE && paintEngine ) {
-	((QPSPrinter*)paintEngine)->abort();
-	state = PST_ABORTED;
-	if ( pid ) {
-	    (void)::kill( pid, 6 );
-	    (void)::wait( 0 );
-	    pid = 0;
-	}
+    if (state == PST_ACTIVE && paintEngine) {
+        ((QPSPrinter*)paintEngine)->abort();
+        state = PST_ABORTED;
+        if (pid) {
+            (void)::kill(pid, 6);
+            (void)::wait(0);
+            pid = 0;
+        }
     }
     return state == PST_ABORTED;
 }
 
 /*!
-    Returns TRUE if the print job was aborted; otherwise returns
-    FALSE.
+    Returns true if the print job was aborted; otherwise returns
+    false.
 
     \sa abort()
 */
@@ -201,11 +201,11 @@ bool QPrinter::aborted() const
     \sa printerName()
 */
 
-void QPrinter::setPrinterName( const QString &name )
+void QPrinter::setPrinterName(const QString &name)
 {
-    if ( state != 0 ) {
-	qWarning( "QPrinter::setPrinterName: Cannot do this during printing" );
-	return;
+    if (state != 0) {
+        qWarning("QPrinter::setPrinterName: Cannot do this during printing");
+        return;
     }
     printer_name = name;
 }
@@ -225,38 +225,38 @@ static void deleteGlobalPrinterDefaults()
     false.
 */
 
-bool QPrinter::printSetup( QWidget * parent )
+bool QPrinter::printSetup(QWidget * parent)
 {
 #ifndef QT_NO_PRINTDIALOG
-    bool result = QPrintDialog::getPrinterSetup( this, parent  );
+    bool result = QPrintDialog::getPrinterSetup(this, parent );
 #else
-    bool result = FALSE;
+    bool result = false;
 #endif
-    if ( result ) {
-	if ( !globalPrinterDefaults ) {
-	    globalPrinterDefaults = new PrinterDefaults;
-	    qAddPostRoutine( deleteGlobalPrinterDefaults );
-	}
-	globalPrinterDefaults->printerName = printerName();
-	globalPrinterDefaults->outputToFile = outputToFile();
-	globalPrinterDefaults->outputFileName = outputFileName();
-	globalPrinterDefaults->orientation = orientation();
-	globalPrinterDefaults->pageSize = pageSize();
-	globalPrinterDefaults->pageOrder = pageOrder();
-	globalPrinterDefaults->colorMode = colorMode();
+    if (result) {
+        if (!globalPrinterDefaults) {
+            globalPrinterDefaults = new PrinterDefaults;
+            qAddPostRoutine(deleteGlobalPrinterDefaults);
+        }
+        globalPrinterDefaults->printerName = printerName();
+        globalPrinterDefaults->outputToFile = outputToFile();
+        globalPrinterDefaults->outputFileName = outputFileName();
+        globalPrinterDefaults->orientation = orientation();
+        globalPrinterDefaults->pageSize = pageSize();
+        globalPrinterDefaults->pageOrder = pageOrder();
+        globalPrinterDefaults->colorMode = colorMode();
     }
     return result;
 }
 
 
-bool QPrinter::pageSetup( QWidget *parent )
+bool QPrinter::pageSetup(QWidget *parent)
 {
 #ifndef QT_NO_PAGESETUPDIALOG
-    QPageSetupDialog dlg( this, parent, "page_setup" );
+    QPageSetupDialog dlg(this, parent, "page_setup");
     int result = dlg.exec();
     return result == QDialog::Accepted;
 #else
-    return FALSE;
+    return false;
 #endif
 }
 
@@ -273,16 +273,16 @@ static void closeAllOpenFds()
     /* if (rc != NO_ERROR) ... */
     i = (int)handle_count;
 #elif defined(_SC_OPEN_MAX)
-    i = (int)sysconf( _SC_OPEN_MAX );
+    i = (int)sysconf(_SC_OPEN_MAX);
 #elif defined(_POSIX_OPEN_MAX)
     i = (int)_POSIX_OPEN_MAX;
 #elif defined(OPEN_MAX)
     i = (int)OPEN_MAX;
 #else
-    i = qMax( 256, fds[0] );
+    i = qMax(256, fds[0]);
 #endif // Q_OS_OS2EMX           // ways-to-set i
-    while( --i > 0 )
-	::close( i );
+    while(--i > 0)
+        ::close(i);
 }
 
 // ### port
@@ -291,156 +291,156 @@ static void closeAllOpenFds()
   \internal
   Handles painter commands to the printer.
 */
-bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
+bool QPrinter::cmd(int c, QPainter *paint, QPDevCmdParam *p)
 {
-    if ( c ==  PdcBegin ) {
-	if ( state == PST_IDLE ) {
-	    if ( output_file ) {
-		int fd = 0;
-		fd = qt_open( output_filename.local8Bit(),
-		             O_CREAT | O_NOCTTY | O_TRUNC | O_WRONLY,
-		             0666 );
-		if ( fd >= 0 ) {
-		    paintEngine = new QPSPrinter( this, fd );
-		    state = PST_ACTIVE;
-		}
-	    } else {
-		QString pr;
-		if ( !printer_name.isEmpty() )
-		    pr = printer_name;
-		QApplication::flush();
-		int fds[2];
-		if ( pipe( fds ) != 0 ) {
-		    qWarning( "QPSPrinter: could not open pipe to print" );
-		    state = PST_ERROR;
-		    return FALSE;
-		}
+    if (c ==  PdcBegin) {
+        if (state == PST_IDLE) {
+            if (output_file) {
+                int fd = 0;
+                fd = qt_open(output_filename.local8Bit(),
+                             O_CREAT | O_NOCTTY | O_TRUNC | O_WRONLY,
+                             0666);
+                if (fd >= 0) {
+                    paintEngine = new QPSPrinter(this, fd);
+                    state = PST_ACTIVE;
+                }
+            } else {
+                QString pr;
+                if (!printer_name.isEmpty())
+                    pr = printer_name;
+                QApplication::flush();
+                int fds[2];
+                if (pipe(fds) != 0) {
+                    qWarning("QPSPrinter: could not open pipe to print");
+                    state = PST_ERROR;
+                    return false;
+                }
 
 // ### shouldn't we use QProcess here????
 #if 0 && defined(Q_OS_OS2EMX)
-		// this code is still not used, and maybe it's not
-		// usable either, any more.  if you want to use it,
-		// you may need to fix it first.
+                // this code is still not used, and maybe it's not
+                // usable either, any more.  if you want to use it,
+                // you may need to fix it first.
 
-		// old comment:
+                // old comment:
 
-		// this code is usable but not in use.  spawn() is
-		// preferable to fork()/exec() for very large
-		// programs.  if fork()/exec() is a problem and you
-		// use OS/2, remove '0 && ' from the #if.
-		int tmp;
-		tmp = dup(0);
-		dup2( fds[0], 0 );
-		::close( fds[0] );
-		fcntl(tmp, F_SETFD, FD_CLOEXEC);
-		fcntl(fds[1], F_SETFD, FD_CLOEXEC);
-		if ( option_string )
-		    pr.prepend( option_string );
-		else
-		    pr.prepend( "-P" ); // ###
-		if ( spawnlp(P_NOWAIT,print_prog.data(), print_prog.data(),
-		             pr.data(), output->name(), 0) == -1 ) {
-		    ;                   // couldn't exec, ignored
-		}
-		dup2( tmp, 0 );
-		::close( tmp );
-		paintEngine = new QPSPrinter( this, fds[1] );
-		state = PST_ACTIVE;
+                // this code is usable but not in use.  spawn() is
+                // preferable to fork()/exec() for very large
+                // programs.  if fork()/exec() is a problem and you
+                // use OS/2, remove '0 && ' from the #if.
+                int tmp;
+                tmp = dup(0);
+                dup2(fds[0], 0);
+                ::close(fds[0]);
+                fcntl(tmp, F_SETFD, FD_CLOEXEC);
+                fcntl(fds[1], F_SETFD, FD_CLOEXEC);
+                if (option_string)
+                    pr.prepend(option_string);
+                else
+                    pr.prepend("-P"); // ###
+                if (spawnlp(P_NOWAIT,print_prog.data(), print_prog.data(),
+                             pr.data(), output->name(), 0) == -1) {
+                    ;                   // couldn't exec, ignored
+                }
+                dup2(tmp, 0);
+                ::close(tmp);
+                paintEngine = new QPSPrinter(this, fds[1]);
+                state = PST_ACTIVE;
 #else
-		pid = fork();
-		if ( pid == 0 ) {       // child process
-		    // if possible, exit quickly, so the actual lp/lpr
-		    // becomes a child of init, and ::waitpid() is
-		    // guaranteed not to wait.
-		    if ( fork() > 0 ) {
-			closeAllOpenFds();
+                pid = fork();
+                if (pid == 0) {       // child process
+                    // if possible, exit quickly, so the actual lp/lpr
+                    // becomes a child of init, and ::waitpid() is
+                    // guaranteed not to wait.
+                    if (fork() > 0) {
+                        closeAllOpenFds();
 
-			// try to replace this process with "true" - this prevents
-			// global destructors from being called (that could possibly
-			// do wrong things to the parent process)
-			(void)execlp("true", "true", (char *)0);
-			(void)execl("/bin/true", "true", (char *)0);
-			(void)execl("/usr/bin/true", "true", (char *)0);
-			::exit( 0 );
-		    }
-		    dup2( fds[0], 0 );
+                        // try to replace this process with "true" - this prevents
+                        // global destructors from being called (that could possibly
+                        // do wrong things to the parent process)
+                        (void)execlp("true", "true", (char *)0);
+                        (void)execl("/bin/true", "true", (char *)0);
+                        (void)execl("/usr/bin/true", "true", (char *)0);
+                        ::exit(0);
+                    }
+                    dup2(fds[0], 0);
 
-		    closeAllOpenFds();
+                    closeAllOpenFds();
 
-		    if ( !print_prog.isEmpty() ) {
-		        if ( !option_string.isEmpty() )
-		            pr.prepend( option_string );
-			else
-		            pr.prepend( QString::fromLatin1( "-P" ) );
-		        (void)execlp( print_prog.ascii(), print_prog.ascii(),
-		                      pr.ascii(), (char *)0 );
-		    } else {
-			// if no print program has been specified, be smart
-			// about the option string too.
-			const char * lprarg = 0;
-			QString lprhack;
-			const char * lparg = 0;
-			QString lphack;
-			if ( !pr.isEmpty() || !option_string.isEmpty() ) {
-			    lprhack = pr;
-			    if ( !option_string.isEmpty() )
-				lprhack.prepend( option_string );
-			    else
-				lprhack.prepend( QString::fromLatin1( "-P" ) );
-			    lprarg = lprhack.ascii();
-			    lphack = pr;
-			    if ( !option_string.isEmpty() )
-				lphack.prepend( option_string );
-			    else
-				lphack.prepend( QString::fromLatin1( "-d" ) );
-			    lparg = lphack.ascii();
-			}
-			(void)execlp( "lp", "lp", lparg, (char *)0 );
-			(void)execlp( "lpr", "lpr", lprarg, (char *)0 );
-			(void)execl( "/bin/lp", "lp", lparg, (char *)0 );
-			(void)execl( "/bin/lpr", "lpr", lprarg, (char *)0 );
-			(void)execl( "/usr/bin/lp", "lp", lparg, (char *)0 );
-			(void)execl( "/usr/bin/lpr", "lpr", lprarg, (char *)0 );
-		    }
-		    // if we couldn't exec anything, close the fd,
-		    // wait for a second so the parent process (the
-		    // child of the GUI process) has exited.  then
-		    // exit.
-		    ::close( 0 );
-		    (void)::sleep( 1 );
-		    ::exit( 0 );
-		} else {                // parent process
-		    ::close( fds[0] );
-		    paintEngine = new QPSPrinter( this, fds[1] );
-		    state = PST_ACTIVE;
-		}
+                    if (!print_prog.isEmpty()) {
+                        if (!option_string.isEmpty())
+                            pr.prepend(option_string);
+                        else
+                            pr.prepend(QString::fromLatin1("-P"));
+                        (void)execlp(print_prog.ascii(), print_prog.ascii(),
+                                      pr.ascii(), (char *)0);
+                    } else {
+                        // if no print program has been specified, be smart
+                        // about the option string too.
+                        const char * lprarg = 0;
+                        QString lprhack;
+                        const char * lparg = 0;
+                        QString lphack;
+                        if (!pr.isEmpty() || !option_string.isEmpty()) {
+                            lprhack = pr;
+                            if (!option_string.isEmpty())
+                                lprhack.prepend(option_string);
+                            else
+                                lprhack.prepend(QString::fromLatin1("-P"));
+                            lprarg = lprhack.ascii();
+                            lphack = pr;
+                            if (!option_string.isEmpty())
+                                lphack.prepend(option_string);
+                            else
+                                lphack.prepend(QString::fromLatin1("-d"));
+                            lparg = lphack.ascii();
+                        }
+                        (void)execlp("lp", "lp", lparg, (char *)0);
+                        (void)execlp("lpr", "lpr", lprarg, (char *)0);
+                        (void)execl("/bin/lp", "lp", lparg, (char *)0);
+                        (void)execl("/bin/lpr", "lpr", lprarg, (char *)0);
+                        (void)execl("/usr/bin/lp", "lp", lparg, (char *)0);
+                        (void)execl("/usr/bin/lpr", "lpr", lprarg, (char *)0);
+                    }
+                    // if we couldn't exec anything, close the fd,
+                    // wait for a second so the parent process (the
+                    // child of the GUI process) has exited.  then
+                    // exit.
+                    ::close(0);
+                    (void)::sleep(1);
+                    ::exit(0);
+                } else {                // parent process
+                    ::close(fds[0]);
+                    paintEngine = new QPSPrinter(this, fds[1]);
+                    state = PST_ACTIVE;
+                }
 #endif // else part of Q_OS_OS2EMX
-	    }
-	    // ##############################
-// 	    if ( state == PST_ACTIVE && paintEngine )
-// 		return ((QPSPrinter*)paintEngine)->cmd( c, paint, p );
-	} else {
-	    // ignore it?  I don't know
-	}
+            }
+            // ##############################
+//             if (state == PST_ACTIVE && paintEngine)
+//                 return ((QPSPrinter*)paintEngine)->cmd(c, paint, p);
+        } else {
+            // ignore it?  I don't know
+        }
     } else {
-	bool r = FALSE;
-	if ( state == PST_ACTIVE && paintEngine ) {
-	    // ##############################
-// 	    r = ((QPSPrinter*)paintEngine)->cmd( c, paint, p );
-	    if ( c == PdcEnd ) {
-		state = PST_IDLE;
-		delete paintEngine;
-		paintEngine = 0;
-		if ( pid ) {
-		    (void)::waitpid( pid, 0, 0 );
-		    pid = 0;
-		}
-	    }
-	} else if ( state == PST_ABORTED && c == PdcEnd )
-	    state = PST_IDLE;
-	return r;
+        bool r = false;
+        if (state == PST_ACTIVE && paintEngine) {
+            // ##############################
+//             r = ((QPSPrinter*)paintEngine)->cmd(c, paint, p);
+            if (c == PdcEnd) {
+                state = PST_IDLE;
+                delete paintEngine;
+                paintEngine = 0;
+                if (pid) {
+                    (void)::waitpid(pid, 0, 0);
+                    pid = 0;
+                }
+            }
+        } else if (state == PST_ABORTED && c == PdcEnd)
+            state = PST_IDLE;
+        return r;
     }
-    return TRUE;
+    return true;
 }
 #endif // 0
 
@@ -494,62 +494,62 @@ static const PaperSize paperSizes[QPrinter::NPageSize] =
   Hard coded return values for PostScript under X.
 */
 
-int QPrinter::metric( int m ) const
+int QPrinter::metric(int m) const
 {
     int val;
     PageSize s = pageSize();
-    Q_ASSERT( (uint)s < (uint)NPageSize );
-    switch ( m ) {
+    Q_ASSERT((uint)s < (uint)NPageSize);
+    switch (m) {
     case QPaintDeviceMetrics::PdmWidth:
-	val = orient == Portrait ? paperSizes[s].width : paperSizes[s].height;
-	if ( res != 72 )
-	    val = (val * res + 36) / 72;
-	if ( !fullPage() ) {
-	    if ( D->marginsSpecified )
-		val -= D->leftMargin + D->rightMargin;
-	    else
-		val -= 2*margins().width();
-	}
-	break;
+        val = orient == Portrait ? paperSizes[s].width : paperSizes[s].height;
+        if (res != 72)
+            val = (val * res + 36) / 72;
+        if (!fullPage()) {
+            if (D->marginsSpecified)
+                val -= D->leftMargin + D->rightMargin;
+            else
+                val -= 2*margins().width();
+        }
+        break;
     case QPaintDeviceMetrics::PdmHeight:
-	val = orient == Portrait ? paperSizes[s].height : paperSizes[s].width;
-	if ( res != 72 )
-	    val = (val * res + 36) / 72;
-	if ( !fullPage() ) {
-	    if ( D->marginsSpecified )
-		val -= D->topMargin + D->bottomMargin;
-	    else
-		val -= 2*margins().height();
-	}
-	break;
+        val = orient == Portrait ? paperSizes[s].height : paperSizes[s].width;
+        if (res != 72)
+            val = (val * res + 36) / 72;
+        if (!fullPage()) {
+            if (D->marginsSpecified)
+                val -= D->topMargin + D->bottomMargin;
+            else
+                val -= 2*margins().height();
+        }
+        break;
     case QPaintDeviceMetrics::PdmDpiX:
-	val = res;
-	break;
+        val = res;
+        break;
     case QPaintDeviceMetrics::PdmDpiY:
-	val = res;
-	break;
-	case QPaintDeviceMetrics::PdmPhysicalDpiX:
-	case QPaintDeviceMetrics::PdmPhysicalDpiY:
-	    val = 72;
-	    break;
+        val = res;
+        break;
+        case QPaintDeviceMetrics::PdmPhysicalDpiX:
+        case QPaintDeviceMetrics::PdmPhysicalDpiY:
+            val = 72;
+            break;
     case QPaintDeviceMetrics::PdmWidthMM:
-	// double rounding error here.  hooray.
-	val = metric( QPaintDeviceMetrics::PdmWidth );
-	val = (val * 254 + 5*res) / (10*res);
-	break;
+        // double rounding error here.  hooray.
+        val = metric(QPaintDeviceMetrics::PdmWidth);
+        val = (val * 254 + 5*res) / (10*res);
+        break;
     case QPaintDeviceMetrics::PdmHeightMM:
-	val = metric( QPaintDeviceMetrics::PdmHeight );
-	val = (val * 254 + 5*res) / (10*res);
-	break;
+        val = metric(QPaintDeviceMetrics::PdmHeight);
+        val = (val * 254 + 5*res) / (10*res);
+        break;
     case QPaintDeviceMetrics::PdmNumColors:
-	val = 16777216;
-	break;
+        val = 16777216;
+        break;
     case QPaintDeviceMetrics::PdmDepth:
-	val = 24;
-	break;
+        val = 24;
+        break;
     default:
-	val = 0;
-	qWarning( "QPixmap::metric: Invalid metric command" );
+        val = 0;
+        qWarning("QPixmap::metric: Invalid metric command");
     }
     return val;
 }
@@ -560,12 +560,12 @@ int QPrinter::metric( int m ) const
     margin of the printer. On Unix, this is a best-effort guess, not
     based on perfect knowledge.
 
-    If you have called setFullPage( TRUE ), margins().width() may be
+    If you have called setFullPage(true), margins().width() may be
     treated as the smallest sane left margin you can use, and
     margins().height() as the smallest sane top margin you can
     use.
 
-    If you have called setFullPage( FALSE ) (this is the default),
+    If you have called setFullPage(false) (this is the default),
     margins() is automatically subtracted from the pageSize() by
     QPrinter.
 
@@ -573,13 +573,13 @@ int QPrinter::metric( int m ) const
 */
 QSize QPrinter::margins() const
 {
-    if ( D->marginsSpecified )
-	return QSize( D->leftMargin, D->topMargin );
+    if (D->marginsSpecified)
+        return QSize(D->leftMargin, D->topMargin);
 
     if (orient == Portrait)
-	return QSize( res/2, res/3 );
+        return QSize(res/2, res/3);
 
-    return QSize( res/3, res/2 );
+    return QSize(res/3, res/2);
 }
 
 /*!
@@ -589,27 +589,27 @@ QSize QPrinter::margins() const
     printer.  On Unix, this is a best-effort guess, not based on
     perfect knowledge.
 
-    If you have called setFullPage( TRUE ), the four values specify
+    If you have called setFullPage(true), the four values specify
     the smallest sane margins you can use.
 
-    If you have called setFullPage( FALSE ) (this is the default),
+    If you have called setFullPage(false) (this is the default),
     the margins are automatically subtracted from the pageSize() by
     QPrinter.
 
     \sa setFullPage() QPaintDeviceMetrics PageSize
 */
-void QPrinter::margins( uint *top, uint *left, uint *bottom, uint *right ) const
+void QPrinter::margins(uint *top, uint *left, uint *bottom, uint *right) const
 {
-    if ( !D->marginsSpecified ) {
-	int x = orient == Portrait ? res/2 : res/3;
-	int y = orient == Portrait ? res/3 : res/2;
-	*top = *bottom = y;
-	*left = *right = x;
+    if (!D->marginsSpecified) {
+        int x = orient == Portrait ? res/2 : res/3;
+        int y = orient == Portrait ? res/3 : res/2;
+        *top = *bottom = y;
+        *left = *right = x;
     } else {
-	*top = D->topMargin;
-	*left = D->leftMargin;
-	*bottom = D->bottomMargin;
-	*right = D->rightMargin;
+        *top = D->topMargin;
+        *left = D->leftMargin;
+        *bottom = D->bottomMargin;
+        *right = D->rightMargin;
     }
 }
 
@@ -621,21 +621,21 @@ void QPrinter::margins( uint *top, uint *left, uint *bottom, uint *right ) const
 
   \sa margins()
 */
-void QPrinter::setMargins( uint top, uint left, uint bottom, uint right )
+void QPrinter::setMargins(uint top, uint left, uint bottom, uint right)
 {
     D->topMargin = top;
     D->leftMargin = left;
     D->bottomMargin = bottom;
     D->rightMargin = right;
-    D->marginsSpecified = TRUE;
+    D->marginsSpecified = true;
 }
 
 /*! \internal */
 QPaintEngine *QPrinter::engine() const
 {
     if (!paintEngine) { // ### eek! fix me!
-	QPrinter *that = const_cast<QPrinter *>(this);
-	that->paintEngine = new QPSPrinter(that, 0);
+        QPrinter *that = const_cast<QPrinter *>(this);
+        that->paintEngine = new QPSPrinter(that, 0);
     }
     return paintEngine;
 }

@@ -7,7 +7,7 @@ public:
     MacStyle();
 
     QStringList keys() const;
-    QStyle *create( const QString& );
+    QStyle *create(const QString&);
 };
 
 MacStyle::MacStyle() : QStylePlugin()
@@ -18,26 +18,26 @@ QStringList MacStyle::keys() const
 {
     QString mstyle = "Macintosh";
     if(Collection c=NewCollection()) {
-	GetTheme(c);
-	Str255 str;
-	long int s = 256;
-	if(!GetCollectionItem(c, kThemeNameTag, 0, &s, &str)) 
-	    mstyle += " (" + p2qstring(str) + ")";
+        GetTheme(c);
+        Str255 str;
+        long int s = 256;
+        if(!GetCollectionItem(c, kThemeNameTag, 0, &s, &str))
+            mstyle += " (" + p2qstring(str) + ")";
     }
-    if ( !list.contains( mstyle ) )
-	list << mstyle;
+    if (!list.contains(mstyle))
+        list << mstyle;
 
     QStringList list;
     list << mstyle;
     return list;
 }
 
-QStyle* AquaStyle::create( const QString& s )
+QStyle* AquaStyle::create(const QString& s)
 {
-    if ( s.lower().left(9) == "macintosh" )
+    if (s.lower().left(9) == "macintosh")
         return new QMacStyle();
 
     return 0;
 }
 
-Q_EXPORT_PLUGIN( MacStyle )
+Q_EXPORT_PLUGIN(MacStyle)

@@ -132,36 +132,36 @@ static const QWSKeyMap pc101KeyM[] = {
     {   Qt::Key_unknown,    0xffff  , 0xffff  , 0xffff  },
     {   Qt::Key_Enter,      13      , 13      , 0xffff  },
     {   Qt::Key_Control,    0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_Slash,		'/'     , '/'     , 0xffff  },
+    {        Qt::Key_Slash,                '/'     , '/'     , 0xffff  },
     {   Qt::Key_unknown,    0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_Meta,		0xffff  , 0xffff  , 0xffff  }, // 100
-    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  }, // break
-    {	Qt::Key_Home,	    0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_Up,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_Prior,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_Left,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_Right,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_End,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_Down,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_Next,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_Insert,		0xffff  , 0xffff  , 0xffff  }, // 110
-    {	Qt::Key_Delete,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  }, // macro
+    {        Qt::Key_Meta,                0xffff  , 0xffff  , 0xffff  }, // 100
+    {        Qt::Key_unknown,        0xffff  , 0xffff  , 0xffff  }, // break
+    {        Qt::Key_Home,            0xffff  , 0xffff  , 0xffff  },
+    {        Qt::Key_Up,                0xffff  , 0xffff  , 0xffff  },
+    {        Qt::Key_Prior,                0xffff  , 0xffff  , 0xffff  },
+    {        Qt::Key_Left,                0xffff  , 0xffff  , 0xffff  },
+    {        Qt::Key_Right,                0xffff  , 0xffff  , 0xffff  },
+    {        Qt::Key_End,                0xffff  , 0xffff  , 0xffff  },
+    {        Qt::Key_Down,                0xffff  , 0xffff  , 0xffff  },
+    {        Qt::Key_Next,                0xffff  , 0xffff  , 0xffff  },
+    {        Qt::Key_Insert,                0xffff  , 0xffff  , 0xffff  }, // 110
+    {        Qt::Key_Delete,                0xffff  , 0xffff  , 0xffff  },
+    {        Qt::Key_unknown,        0xffff  , 0xffff  , 0xffff  }, // macro
     {   Qt::Key_F13,        0xffff  , 0xffff  , 0xffff  },
     {   Qt::Key_F14,        0xffff  , 0xffff  , 0xffff  },
     {   Qt::Key_Help,       0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  }, // do
+    {        Qt::Key_unknown,        0xffff  , 0xffff  , 0xffff  }, // do
     {   Qt::Key_F17,        0xffff  , 0xffff  , 0xffff  },
     {   Qt::Key_Plus,       '+'     , '-'     , 0xffff  },
-    {	Qt::Key_Pause,		0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
-    {	Qt::Key_unknown,	0xffff  , 0xffff  , 0xffff  },
+    {        Qt::Key_Pause,                0xffff  , 0xffff  , 0xffff  },
+    {        Qt::Key_unknown,        0xffff  , 0xffff  , 0xffff  },
+    {        Qt::Key_unknown,        0xffff  , 0xffff  , 0xffff  },
+    {        Qt::Key_unknown,        0xffff  , 0xffff  , 0xffff  },
+    {        Qt::Key_unknown,        0xffff  , 0xffff  , 0xffff  },
+    {        Qt::Key_unknown,        0xffff  , 0xffff  , 0xffff  },
+    {        Qt::Key_unknown,        0xffff  , 0xffff  , 0xffff  },
+    {        Qt::Key_unknown,        0xffff  , 0xffff  , 0xffff  },
+    {        Qt::Key_unknown,        0xffff  , 0xffff  , 0xffff  },
     {   0,          0xffff  , 0xffff  , 0xffff  }
 };
 
@@ -181,10 +181,10 @@ QWSPC101KeyboardHandler::QWSPC101KeyboardHandler(const QString&)
     extended = 0;
     prevuni = 0;
     prevkey = 0;
-    caps = FALSE;
-#if defined(QT_QWS_IPAQ) 
+    caps = false;
+#if defined(QT_QWS_IPAQ)
     // iPAQ Action Key has ScanCode 0x60: 0x60|0x80 = 0xe0 == extended mode 1 !
-    ipaq_return_pressed = FALSE;
+    ipaq_return_pressed = false;
 #endif
 }
 
@@ -199,7 +199,7 @@ const QWSKeyMap *QWSPC101KeyboardHandler::keyMap() const
 
 #ifdef Q_OS_QNX6
 void QWSPC101KeyboardHandler::doKey(uchar code){};
-void QWSQnxKeyboardHandler::doKey(uchar code) 
+void QWSQnxKeyboardHandler::doKey(uchar code)
 #else
 void QWSPC101KeyboardHandler::doKey(uchar code)
 #endif
@@ -207,152 +207,152 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
     int keyCode = Qt::Key_unknown;
     bool release = false;
     int keypad = 0;
-    bool softwareRepeat = FALSE;
+    bool softwareRepeat = false;
 
 #ifndef QT_QWS_USE_KEYCODES
     // extended?
     if (code == 224
-#if defined(QT_QWS_IPAQ) 
-	&& !ipaq_return_pressed
+#if defined(QT_QWS_IPAQ)
+        && !ipaq_return_pressed
 #endif
-    ) {
-	extended = 1;
-	return;
+   ) {
+        extended = 1;
+        return;
     } else if (code == 225) {
-    	extended = 2;
-    	return;
+        extended = 2;
+        return;
     }
 #endif
 
     if (code & 0x80) {
-	release = true;
-	code &= 0x7f;
+        release = true;
+        code &= 0x7f;
     }
 
 #ifndef QT_QWS_USE_KEYCODES
     if (extended == 1) {
-	switch (code) {
-	case 72:
-	    keyCode = Qt::Key_Up;
-	    break;
-	case 75:
-	    keyCode = Qt::Key_Left;
-	    break;
-	case 77:
-	    keyCode = Qt::Key_Right;
-	    break;
-	case 80:
-	    keyCode = Qt::Key_Down;
-	    break;
-	case 82:
-	    keyCode = Qt::Key_Insert;
-	    break;
-	case 71:
-	    keyCode = Qt::Key_Home;
-	    break;
-	case 73:
-	    keyCode = Qt::Key_Prior;
-	    break;
-	case 83:
-	    keyCode = Qt::Key_Delete;
-	    break;
-	case 79:
-	    keyCode = Qt::Key_End;
-	    break;
-	case 81:
-	    keyCode = Qt::Key_Next;
-	    break;
-	case 28:
-	    keyCode = Qt::Key_Enter;
-	    break;
-	case 53:
-	    keyCode = Qt::Key_Slash;
-	    break;
-	case 0x1d:
-	    keyCode = Qt::Key_Control;
-	    break;
-	case 0x2a:
-	    keyCode = Qt::Key_SysReq;
-	    break;
-	case 0x38:
-	    keyCode = Qt::Key_Alt;
-	    break;
-	case 0x5b:
-	    keyCode = Qt::Key_Super_L;
-	    break;
-	case 0x5c:
-	    keyCode = Qt::Key_Super_R;
-	    break;
-	case 0x5d:
-	    keyCode = Qt::Key_Menu;
-	    break;
-	}
-    } else if ( extended == 2 ) {
-	switch (code) {
-	case 0x1d: 
-	    return;
-	case 0x45:
-	    keyCode = Qt::Key_Pause;
-	    break;
-	}
+        switch (code) {
+        case 72:
+            keyCode = Qt::Key_Up;
+            break;
+        case 75:
+            keyCode = Qt::Key_Left;
+            break;
+        case 77:
+            keyCode = Qt::Key_Right;
+            break;
+        case 80:
+            keyCode = Qt::Key_Down;
+            break;
+        case 82:
+            keyCode = Qt::Key_Insert;
+            break;
+        case 71:
+            keyCode = Qt::Key_Home;
+            break;
+        case 73:
+            keyCode = Qt::Key_Prior;
+            break;
+        case 83:
+            keyCode = Qt::Key_Delete;
+            break;
+        case 79:
+            keyCode = Qt::Key_End;
+            break;
+        case 81:
+            keyCode = Qt::Key_Next;
+            break;
+        case 28:
+            keyCode = Qt::Key_Enter;
+            break;
+        case 53:
+            keyCode = Qt::Key_Slash;
+            break;
+        case 0x1d:
+            keyCode = Qt::Key_Control;
+            break;
+        case 0x2a:
+            keyCode = Qt::Key_SysReq;
+            break;
+        case 0x38:
+            keyCode = Qt::Key_Alt;
+            break;
+        case 0x5b:
+            keyCode = Qt::Key_Super_L;
+            break;
+        case 0x5c:
+            keyCode = Qt::Key_Super_R;
+            break;
+        case 0x5d:
+            keyCode = Qt::Key_Menu;
+            break;
+        }
+    } else if (extended == 2) {
+        switch (code) {
+        case 0x1d:
+            return;
+        case 0x45:
+            keyCode = Qt::Key_Pause;
+            break;
+        }
     } else
 #endif
     {
-	if (code < keyMSize) {
-	    keyCode = pc101KeyM[code].key_code;
-	}
+        if (code < keyMSize) {
+            keyCode = pc101KeyM[code].key_code;
+        }
 
 #if defined(QT_QWS_IPAQ) || defined(QT_QWS_EBX)
-	softwareRepeat = TRUE;
+        softwareRepeat = true;
 
-	switch (code) {
-	    case 0x7a: case 0x7b: case 0x7c: case 0x7d:
-		keyCode = code - 0x7a + Qt::Key_F9;
-		softwareRepeat = FALSE;
-		break;
-	    case 0x79:
-		keyCode = Qt::Key_SysReq;
-		softwareRepeat = FALSE;
-		break;
-	    case 0x78:
+        switch (code) {
+            case 0x7a: case 0x7b: case 0x7c: case 0x7d:
+                keyCode = code - 0x7a + Qt::Key_F9;
+                softwareRepeat = false;
+                break;
+            case 0x79:
+                keyCode = Qt::Key_SysReq;
+                softwareRepeat = false;
+                break;
+            case 0x78:
 # ifdef QT_QWS_IPAQ
-		keyCode = Qt::Key_F24;  // record
+                keyCode = Qt::Key_F24;  // record
 # else
-		keyCode = Qt::Key_Escape;
+                keyCode = Qt::Key_Escape;
 # endif
-		softwareRepeat = FALSE;
-		break;
-	    case 0x60:
-		keyCode = Qt::Key_Return;
+                softwareRepeat = false;
+                break;
+            case 0x60:
+                keyCode = Qt::Key_Return;
 # ifdef QT_QWS_IPAQ
-		ipaq_return_pressed = !release;
+                ipaq_return_pressed = !release;
 # endif
-		break;
-	    case 0x67:
-		keyCode = Qt::Key_Right;
-		break;
-	    case 0x69:
-		keyCode = Qt::Key_Up;
-		break;
-	    case 0x6a:
-		keyCode = Qt::Key_Down;
-		break;
-	    case 0x6c:
-		keyCode = Qt::Key_Left;
-		break;
-	}
+                break;
+            case 0x67:
+                keyCode = Qt::Key_Right;
+                break;
+            case 0x69:
+                keyCode = Qt::Key_Up;
+                break;
+            case 0x6a:
+                keyCode = Qt::Key_Down;
+                break;
+            case 0x6c:
+                keyCode = Qt::Key_Left;
+                break;
+        }
 
-	if ( qt_screen->isTransformed()
-		&& keyCode >= Qt::Key_Left && keyCode <= Qt::Key_Down )
-	{
-	    keyCode = transformDirKey(keyCode);
-	}
+        if (qt_screen->isTransformed()
+                && keyCode >= Qt::Key_Left && keyCode <= Qt::Key_Down)
+        {
+            keyCode = transformDirKey(keyCode);
+        }
 #endif
-	/*
-	  Translate shift+Key_Tab to Key_Backtab
-	*/
-	if (( keyCode == Qt::Key_Tab ) && shift )
-	    keyCode = Qt::Key_Backtab;
+        /*
+          Translate shift+Key_Tab to Key_Backtab
+        */
+        if ((keyCode == Qt::Key_Tab) && shift)
+            keyCode = Qt::Key_Backtab;
     }
 
 #ifndef QT_QWS_USE_KEYCODES
@@ -360,85 +360,85 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
       Keypad consists of extended keys 53 and 28,
       and non-extended keys 55 and 71 through 83.
     */
-    if (( extended == 1 ) ? (code == 53 || code == 28) :
-	 (code == 55 || ( code >= 71 && code <= 83 )) )
+    if ((extended == 1) ? (code == 53 || code == 28) :
+         (code == 55 || (code >= 71 && code <= 83)))
 #else
-    if ( code == 55 || code >= 71 && code <= 83 || code == 96
-	    || code == 98 || code == 118 )
+    if (code == 55 || code >= 71 && code <= 83 || code == 96
+            || code == 98 || code == 118)
 #endif
     {
-	keypad = Qt::Keypad;
+        keypad = Qt::Keypad;
     }
 
     // Ctrl-Alt-Backspace exits qws
     if (ctrl && alt && keyCode == Qt::Key_Backspace) {
-	qApp->quit();
+        qApp->quit();
     }
 
     if (keyCode == Qt::Key_Alt) {
-	alt = !release;
+        alt = !release;
     } else if (keyCode == Qt::Key_Control) {
-	ctrl = !release;
+        ctrl = !release;
     } else if (keyCode == Qt::Key_Shift) {
-	shift = !release;
-    } else if ( keyCode == Qt::Key_CapsLock && release ) {
-	caps = !caps;
+        shift = !release;
+    } else if (keyCode == Qt::Key_CapsLock && release) {
+        caps = !caps;
 #if defined(Q_OS_LINUX)
-	char leds;
-	ioctl(0, KDGETLED, &leds);
-	leds = leds & ~LED_CAP;
-	if ( caps ) leds |= LED_CAP;
-	ioctl(0, KDSETLED, leds);
+        char leds;
+        ioctl(0, KDGETLED, &leds);
+        leds = leds & ~LED_CAP;
+        if (caps) leds |= LED_CAP;
+        ioctl(0, KDSETLED, leds);
 #endif
     }
     if (keyCode != Qt::Key_unknown) {
-	bool bAlt = alt;
-	bool bCtrl = ctrl;
-	bool bShift = shift;
-	int unicode = 0;
-	if (code < keyMSize) {
-	    if (!extended) {
-		bool bCaps = shift ||
-		    (caps ? QChar(keyMap()[code].unicode).isLetter() : FALSE);
-		if (bCtrl)
-		    unicode =  keyMap()[code].ctrl_unicode ?  keyMap()[code].ctrl_unicode : 0xffff;
-		else if (bCaps)
-		    unicode =  keyMap()[code].shift_unicode ?  keyMap()[code].shift_unicode : 0xffff;
-		else
-		    unicode =  keyMap()[code].unicode ?  keyMap()[code].unicode : 0xffff;
+        bool bAlt = alt;
+        bool bCtrl = ctrl;
+        bool bShift = shift;
+        int unicode = 0;
+        if (code < keyMSize) {
+            if (!extended) {
+                bool bCaps = shift ||
+                    (caps ? QChar(keyMap()[code].unicode).isLetter() : false);
+                if (bCtrl)
+                    unicode =  keyMap()[code].ctrl_unicode ?  keyMap()[code].ctrl_unicode : 0xffff;
+                else if (bCaps)
+                    unicode =  keyMap()[code].shift_unicode ?  keyMap()[code].shift_unicode : 0xffff;
+                else
+                    unicode =  keyMap()[code].unicode ?  keyMap()[code].unicode : 0xffff;
 #ifndef QT_QWS_USE_KEYCODES
-	    } else if ( extended==1 ) {
-		if ( code == 53 )
-		    unicode = '/';
+            } else if (extended==1) {
+                if (code == 53)
+                    unicode = '/';
 #endif
-	    }
-	}
+            }
+        }
 
-	modifiers = 0;
-	if ( bAlt ) modifiers |= Qt::AltButton;
-	if ( bCtrl ) modifiers |= Qt::ControlButton;
-	if ( bShift ) modifiers |= Qt::ShiftButton;
-	if ( keypad ) modifiers |= Qt::Keypad;
+        modifiers = 0;
+        if (bAlt) modifiers |= Qt::AltButton;
+        if (bCtrl) modifiers |= Qt::ControlButton;
+        if (bShift) modifiers |= Qt::ShiftButton;
+        if (keypad) modifiers |= Qt::Keypad;
 
-	// looks wrong -- WWA
-	bool repeat = FALSE;
-	if (prevuni == unicode && prevkey == keyCode && !release)
-	    repeat = TRUE;
+        // looks wrong -- WWA
+        bool repeat = false;
+        if (prevuni == unicode && prevkey == keyCode && !release)
+            repeat = true;
 
-	processKeyEvent( unicode, keyCode, modifiers, !release, repeat );
+        processKeyEvent(unicode, keyCode, modifiers, !release, repeat);
 
-	if (!release) {
-	    prevuni = unicode;
-	    prevkey = keyCode;
-	} else {
-	    prevkey = prevuni = 0;
-	}
+        if (!release) {
+            prevuni = unicode;
+            prevkey = keyCode;
+        } else {
+            prevkey = prevuni = 0;
+        }
     }
 
-    if ( softwareRepeat && !release )
-	beginAutoRepeat( prevuni, prevkey, modifiers );
+    if (softwareRepeat && !release)
+        beginAutoRepeat(prevuni, prevkey, modifiers);
     else
-	endAutoRepeat();
+        endAutoRepeat();
 
     extended = 0;
 }

@@ -29,36 +29,36 @@
 template <const int depth, const int type>
 class QQnxFbGfx : public QGfxRaster<depth, type> {
     public:
-	QQnxFbGfx();
-	~QQnxFbGfx();
+        QQnxFbGfx();
+        ~QQnxFbGfx();
 
-	int bitDepth(){ return DISP_BITS_PER_PIXEL ( ctx.dsurf->pixel_format );};
+        int bitDepth(){ return DISP_BITS_PER_PIXEL (ctx.dsurf->pixel_format);};
 
-	void sync ();
-//	void fillRect (int,int,int,int);
-//	void blt (int,int,int,int,int,int);
-//	void hlineUnclipped ( int, int, int);
+        void sync ();
+//        void fillRect (int,int,int,int);
+//        void blt (int,int,int,int,int,int);
+//        void hlineUnclipped (int, int, int);
 
     private:
-	disp_draw_context_t ctx;
+        disp_draw_context_t ctx;
 };
 
 // Screen class
 class QQnxScreen : public QScreen {
     public:
-	QQnxScreen(int display_id):QScreen(display_id){};
-	~QQnxScreen(){};
+        QQnxScreen(int display_id):QScreen(display_id){};
+        ~QQnxScreen(){};
 
-	bool connect(const QString & spec);
-	void disconnect();
+        bool connect(const QString & spec);
+        void disconnect();
 
-	bool initDevice();
-	void shutdownDevice();
-	void setMode(int, int, int);
+        bool initDevice();
+        void shutdownDevice();
+        void setMode(int, int, int);
 
-	QGfx* createGfx (unsigned char*, int, int, int, int);
+        QGfx* createGfx (unsigned char*, int, int, int, int);
 
-	int initCursor(void *, bool);
+        int initCursor(void *, bool);
 };
 
 #ifndef QT_NO_QWS_CURSOR
@@ -68,21 +68,21 @@ public:
     QQnxCursor(){};
     ~QQnxCursor(){};
 
-    virtual void init(SWCursorData *,bool=FALSE);
+    virtual void init(SWCursorData *,bool=false);
 
-    virtual void set( const QImage &image, int hotx, int hoty );
-    virtual void move( int x, int y );
+    virtual void set(const QImage &image, int hotx, int hoty);
+    virtual void move(int x, int y);
     virtual void show();
     virtual void hide();
 
-    virtual bool restoreUnder( const QRect &, QGfxRasterBase * = 0 )
-                { return FALSE; }
+    virtual bool restoreUnder(const QRect &, QGfxRasterBase * = 0)
+                { return false; }
     virtual void saveUnder() {}
     virtual void drawCursor() {}
     virtual void draw() {}
-    virtual bool supportsAlphaCursor() { return FALSE; }
+    virtual bool supportsAlphaCursor() { return false; }
 
-    static bool enabled() { return FALSE; }
+    static bool enabled() { return false; }
 
 private:
     int hotx;

@@ -31,8 +31,8 @@ public:
     virtual ~QWaitCondition();
 
     // default argument causes thread to block indefinately
-    bool wait( unsigned long time = ULONG_MAX );
-    bool wait( QMutex *mutex, unsigned long time = ULONG_MAX );
+    bool wait(unsigned long time = ULONG_MAX);
+    bool wait(QMutex *mutex, unsigned long time = ULONG_MAX);
 
     void wakeOne();
     void wakeAll();
@@ -41,8 +41,8 @@ private:
     QWaitConditionPrivate * d;
 
 #if defined(Q_DISABLE_COPY)
-    QWaitCondition( const QWaitCondition & );
-    QWaitCondition &operator=( const QWaitCondition & );
+    QWaitCondition(const QWaitCondition &);
+    QWaitCondition &operator=(const QWaitCondition &);
 #endif
 };
 

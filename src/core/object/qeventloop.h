@@ -30,35 +30,35 @@ class Q_CORE_EXPORT QEventLoop : public QObject
     Q_DECLARE_PRIVATE(QEventLoop);
 
 public:
-    QEventLoop( QObject *parent = 0);
+    QEventLoop(QObject *parent = 0);
     QEventLoop(QEventLoopPrivate &, QObject *parent);
     ~QEventLoop();
 
     static QEventLoop *instance(Qt::HANDLE thread = 0);
 
     enum ProcessEvents {
-	AllEvents		= 0x00,
-	ExcludeUserInput	= 0x01,
-	ExcludeSocketNotifiers	= 0x02,
-	WaitForMore		= 0x04
+        AllEvents                = 0x00,
+        ExcludeUserInput        = 0x01,
+        ExcludeSocketNotifiers        = 0x02,
+        WaitForMore                = 0x04
     };
     typedef uint ProcessEventsFlags;
 
-    void processEvents( ProcessEventsFlags flags, int maxtime );
-    virtual bool processEvents( ProcessEventsFlags flags );
+    void processEvents(ProcessEventsFlags flags, int maxtime);
+    virtual bool processEvents(ProcessEventsFlags flags);
 
     virtual bool hasPendingEvents() const;
 
-    virtual void registerSocketNotifier( QSocketNotifier * );
-    virtual void unregisterSocketNotifier( QSocketNotifier * );
-    void setSocketNotifierPending( QSocketNotifier * );
+    virtual void registerSocketNotifier(QSocketNotifier *);
+    virtual void unregisterSocketNotifier(QSocketNotifier *);
+    void setSocketNotifierPending(QSocketNotifier *);
     int activateSocketNotifiers();
 
     int activateTimers();
     int timeToWait() const;
 
     virtual int exec();
-    virtual void exit( int retcode = 0 );
+    virtual void exit(int retcode = 0);
 
     virtual int registerTimer(int, QObject *);
     virtual bool unregisterTimer(int);

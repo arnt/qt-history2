@@ -11,12 +11,12 @@ class QItemSelectionRange
 
 public:
     inline QItemSelectionRange(const QItemSelectionRange &other)
-	: p(other.p), t(other.t), l(other.l), b(other.b), r(other.r) {}
+        : p(other.p), t(other.t), l(other.l), b(other.b), r(other.r) {}
     inline QItemSelectionRange(int top = 1, int left = 1, int bottom = -1, int right = -1)
-	: t(top), l(left), b(bottom), r(right) {}
+        : t(top), l(left), b(bottom), r(right) {}
     inline QItemSelectionRange(const QModelIndex &parent,
-			       int top = 1, int left = 1, int bottom = -1, int right = -1)
-	: p(parent), t(top), l(left), b(bottom), r(right) {}
+                               int top = 1, int left = 1, int bottom = -1, int right = -1)
+        : p(parent), t(top), l(left), b(bottom), r(right) {}
 
     inline int top() const { return t; }
     inline int left() const { return l; }
@@ -28,26 +28,26 @@ public:
 
     inline bool contains(const QModelIndex &item, const QAbstractItemModel *model) const
     {
-	return (p == model->parent(item)
-		&& t <= item.row() && l <= item.column()
-		&& b >= item.row() && r >= item.column());
+        return (p == model->parent(item)
+                && t <= item.row() && l <= item.column()
+                && b >= item.row() && r >= item.column());
     }
 
     inline bool intersects(const QItemSelectionRange &other) const
     {
-	return (p == other.p)
-		   && ((t <= other.t && b >= other.t) || (t >= other.t && t <= other.b))
-		   && ((l <= other.l && r >= other.l) || (l >= other.l && l <= other.r));
+        return (p == other.p)
+                   && ((t <= other.t && b >= other.t) || (t >= other.t && t <= other.b))
+                   && ((l <= other.l && r >= other.l) || (l >= other.l && l <= other.r));
     }
 
     inline QItemSelectionRange intersect(const QItemSelectionRange &other) const
-	{ return QItemSelectionRange(p, qMax(t, other.t), qMax(l, other.l), qMin(b, other.b), qMin(r, other.r)); }
+        { return QItemSelectionRange(p, qMax(t, other.t), qMax(l, other.l), qMin(b, other.b), qMin(r, other.r)); }
 
     inline bool operator==(const QItemSelectionRange &other) const
     {
-	return (p == other.p
-		&& t == other.t && l == other.l
-		&& b == other.b && r == other.r);
+        return (p == other.p
+                && t == other.t && l == other.l
+                && b == other.b && r == other.r);
     }
     inline bool operator!=(const QItemSelectionRange &other) const { return !operator==(other); }
     inline bool isValid() const { return (t <= b && l <= r); }
@@ -80,40 +80,40 @@ class Q_GUI_EXPORT QItemSelectionModel : public QObject
 
 public:
     enum SelectionMode {
-	Single,
-	Multi
+        Single,
+        Multi
     };
 
     enum SelectionUpdateMode {
-	NoUpdate,
-	Toggle,
-	ToggleCurrent,
-	ClearAndSelect,
-	Select,
-	SelectCurrent,
-	Remove
+        NoUpdate,
+        Toggle,
+        ToggleCurrent,
+        ClearAndSelect,
+        Select,
+        SelectCurrent,
+        Remove
     };
 
     enum SelectionBehavior {
-	SelectItems,
-	SelectRows
+        SelectItems,
+        SelectRows
     };
 
     QItemSelectionModel(QAbstractItemModel *model, QObject *parent = 0);
     virtual ~QItemSelectionModel();
 
     virtual void select(const QModelIndex &item,
-			SelectionUpdateMode mode,
-			SelectionBehavior behavior);
+                        SelectionUpdateMode mode,
+                        SelectionBehavior behavior);
     virtual void select(const QItemSelection &selection,
-			SelectionUpdateMode mode,
-			SelectionBehavior behavior);
+                        SelectionUpdateMode mode,
+                        SelectionBehavior behavior);
     virtual void clear();
 
     QModelIndex currentItem() const;
     void setCurrentItem(const QModelIndex &item,
-			SelectionUpdateMode mode,
-			SelectionBehavior behavior);
+                        SelectionUpdateMode mode,
+                        SelectionBehavior behavior);
 
     SelectionMode selectionMode() const;
     void setSelectionMode(SelectionMode mode);

@@ -22,7 +22,7 @@
 
 class QAbstractSliderPrivate : public QWidgetPrivate
 {
-    Q_DECLARE_PUBLIC( QAbstractSlider );
+    Q_DECLARE_PUBLIC(QAbstractSlider);
 public:
     QAbstractSliderPrivate();
     ~QAbstractSliderPrivate();

@@ -59,20 +59,20 @@ public:
     // see http://www.unicode.org/reports/tr14/tr14-13.html
     // we don't use the XX and AI properties and map them to AL instead.
     enum LineBreakClass {
-	LineBreak_OP, LineBreak_CL, LineBreak_QU, LineBreak_GL, LineBreak_NS,
-	LineBreak_EX, LineBreak_SY, LineBreak_IS, LineBreak_PR, LineBreak_PO,
-	LineBreak_NU, LineBreak_AL, LineBreak_ID, LineBreak_IN, LineBreak_HY,
-	LineBreak_BA, LineBreak_BB, LineBreak_B2, LineBreak_ZW, LineBreak_CM,
-	LineBreak_SA, LineBreak_BK, LineBreak_CR, LineBreak_LF, LineBreak_SG,
-	LineBreak_CB, LineBreak_SP
+        LineBreak_OP, LineBreak_CL, LineBreak_QU, LineBreak_GL, LineBreak_NS,
+        LineBreak_EX, LineBreak_SY, LineBreak_IS, LineBreak_PR, LineBreak_PO,
+        LineBreak_NU, LineBreak_AL, LineBreak_ID, LineBreak_IN, LineBreak_HY,
+        LineBreak_BA, LineBreak_BB, LineBreak_B2, LineBreak_ZW, LineBreak_CM,
+        LineBreak_SA, LineBreak_BK, LineBreak_CR, LineBreak_LF, LineBreak_SG,
+        LineBreak_CB, LineBreak_SP
     };
 };
 
 
-inline QChar::Category category( const QChar &c )
+inline QChar::Category category(const QChar &c)
 {
 #ifdef QT_NO_UNICODETABLES
-    if ( c.unicode() > 0xff ) return QChar::Letter_Uppercase; //########
+    if (c.unicode() > 0xff) return QChar::Letter_Uppercase; //########
     return (QChar::Category)QUnicodeTables::unicode_info[c.unicode()];
 #else
     register int uc = ((int)QUnicodeTables::unicode_info[c.row()]) << 8;
@@ -81,7 +81,7 @@ inline QChar::Category category( const QChar &c )
 #endif // QT_NO_UNICODETABLES
 }
 
-inline QChar lower( const QChar &c )
+inline QChar lower(const QChar &c)
 {
 #ifndef QT_NO_UNICODETABLES
     int row = c.row();
@@ -90,17 +90,17 @@ inline QChar lower( const QChar &c )
     register int uc = ((int)QUnicodeTables::unicode_info[c.row()]) << 8;
     uc += c.cell();
     if (QUnicodeTables::unicode_info[uc] != QChar::Letter_Uppercase || !ci)
-	return c;
+        return c;
     Q_UINT16 lower = QUnicodeTables::case_info[(ci<<8)+cell];
     return lower ? QChar(lower) : c;
 #else
-    if ( c.row() )
-	return c;
-    return QChar( tolower((uchar) c.latin1()) );
+    if (c.row())
+        return c;
+    return QChar(tolower((uchar) c.latin1()));
 #endif
 }
 
-inline QChar upper( const QChar &c )
+inline QChar upper(const QChar &c)
 {
 #ifndef QT_NO_UNICODETABLES
     int row = c.row();
@@ -109,17 +109,17 @@ inline QChar upper( const QChar &c )
     register int uc = ((int)QUnicodeTables::unicode_info[c.row()]) << 8;
     uc += c.cell();
     if (QUnicodeTables::unicode_info[uc] != QChar::Letter_Lowercase || !ci)
-	return c;
+        return c;
     Q_UINT16 upper = QUnicodeTables::case_info[(ci<<8)+cell];
     return upper ? QChar(upper) : c;
 #else
-    if ( c.row() )
-	return c;
-    return QChar( toupper((uchar) c.latin1()) );
+    if (c.row())
+        return c;
+    return QChar(toupper((uchar) c.latin1()));
 #endif
 }
 
-inline QChar::Direction direction( const QChar &c )
+inline QChar::Direction direction(const QChar &c)
 {
 #ifndef QT_NO_UNICODETABLES
     register int pos = QUnicodeTables::direction_info[c.row()];
@@ -130,35 +130,35 @@ inline QChar::Direction direction( const QChar &c )
 #endif
 }
 
-inline bool mirrored( const QChar &c )
+inline bool mirrored(const QChar &c)
 {
 #ifndef QT_NO_UNICODETABLES
     register int pos = QUnicodeTables::direction_info[c.row()];
     return QUnicodeTables::direction_info[(pos<<8)+c.cell()] > 128;
 #else
     Q_UNUSED(c);
-    return FALSE;
+    return false;
 #endif
 }
 
 
-inline QChar mirroredChar( const QChar &ch )
+inline QChar mirroredChar(const QChar &ch)
 {
 #ifndef QT_NO_UNICODETABLES
-    if(!::mirrored( ch ))
-	return ch;
+    if(!::mirrored(ch))
+        return ch;
 
     int i;
     int c = ch.unicode();
     for (i = 0; i < QUnicodeTables::symmetricPairsSize; i ++) {
-	if (QUnicodeTables::symmetricPairs[i] == c)
-	    return QUnicodeTables::symmetricPairs[(i%2) ? (i-1) : (i+1)];
+        if (QUnicodeTables::symmetricPairs[i] == c)
+            return QUnicodeTables::symmetricPairs[(i%2) ? (i-1) : (i+1)];
     }
 #endif
     return ch;
 }
 
-inline QChar::Joining joining( const QChar &ch )
+inline QChar::Joining joining(const QChar &ch)
 {
 #ifndef QT_NO_UNICODETABLES
     register int pos = QUnicodeTables::direction_info[ch.row()];
@@ -169,13 +169,13 @@ inline QChar::Joining joining( const QChar &ch )
 #endif
 }
 
-inline bool isMark( const QChar &ch )
+inline bool isMark(const QChar &ch)
 {
-    QChar::Category c = ::category( ch );
+    QChar::Category c = ::category(ch);
     return c >= QChar::Mark_NonSpacing && c <= QChar::Mark_Enclosing;
 }
 
-inline unsigned char combiningClass( const QChar &ch )
+inline unsigned char combiningClass(const QChar &ch)
 {
 #ifndef QT_NO_UNICODETABLES
     const int pos = QUnicodeTables::combining_info[ch.row()];
@@ -186,55 +186,55 @@ inline unsigned char combiningClass( const QChar &ch )
 #endif
 }
 
-inline bool isSpace( const QChar &ch )
+inline bool isSpace(const QChar &ch)
 {
-    if( ch.unicode() >= 9 && ch.unicode() <=13 ) return TRUE;
-    QChar::Category c = ::category( ch );
+    if(ch.unicode() >= 9 && ch.unicode() <=13) return true;
+    QChar::Category c = ::category(ch);
     return c >= QChar::Separator_Space && c <= QChar::Separator_Paragraph;
 }
 
-inline int lineBreakClass( const QChar &ch )
+inline int lineBreakClass(const QChar &ch)
 {
 #ifdef QT_NO_UNICODETABLES
     return ch.row() ? (int)QUnicodeTables::LineBreak_AL
-	: (int)QUnicodeTables::latin1_line_break_info[ch.cell()];
+        : (int)QUnicodeTables::latin1_line_break_info[ch.cell()];
 #else
     register int pos = ((int)QUnicodeTables::line_break_info[ch.row()] << 8) + ch.cell();
     return QUnicodeTables::line_break_info[pos];
 #endif
 }
 
-inline int scriptForChar( ushort uc )
+inline int scriptForChar(ushort uc)
 {
     unsigned char script = QUnicodeTables::scriptTable[(uc>>8)];
-    if ( script >= QUnicodeTables::SCRIPTS_INDIC ) {
-	if ( script == QUnicodeTables::SCRIPTS_INDIC ) {
-	    script = QUnicodeTables::indicScripts[ (uc-0x0900)>>7 ];
-	} else {
-	    // 0x80 + SCRIPTS_xx
-	    unsigned char index = script-0x80;
-	    unsigned char cell = uc &0xff;
-	    while( QUnicodeTables::otherScripts[index++] < cell )
-		index++;
-	    script = QUnicodeTables::otherScripts[index];
-	}
+    if (script >= QUnicodeTables::SCRIPTS_INDIC) {
+        if (script == QUnicodeTables::SCRIPTS_INDIC) {
+            script = QUnicodeTables::indicScripts[(uc-0x0900)>>7];
+        } else {
+            // 0x80 + SCRIPTS_xx
+            unsigned char index = script-0x80;
+            unsigned char cell = uc &0xff;
+            while(QUnicodeTables::otherScripts[index++] < cell)
+                index++;
+            script = QUnicodeTables::otherScripts[index];
+        }
     }
     return script;
 }
 
 #ifdef Q_WS_X11
-#define SCRIPT_FOR_CHAR( script, c ) 	\
-do { 						\
-    unsigned short _uc = (c).unicode(); 		\
-    if ( _uc < 0x100 ) {				\
-	script = QFont::Latin;		\
-    } else { 					\
-        script = (QFont::Script)scriptForChar( _uc ); 	\
-    } 						\
-} while( FALSE )
+#define SCRIPT_FOR_CHAR(script, c)         \
+do {                                                 \
+    unsigned short _uc = (c).unicode();                 \
+    if (_uc < 0x100) {                                \
+        script = QFont::Latin;                \
+    } else {                                         \
+        script = (QFont::Script)scriptForChar(_uc);         \
+    }                                                 \
+} while(false)
 #else
-#define SCRIPT_FOR_CHAR( script, c ) \
-    script = (QFont::Script)scriptForChar( (c).unicode() )
+#define SCRIPT_FOR_CHAR(script, c) \
+    script = (QFont::Script)scriptForChar((c).unicode())
 #endif
 
 #endif

@@ -51,10 +51,10 @@
 
     The classification functions include functions like those in
     ctype.h, but operating on the full range of Unicode characters.
-    They all return TRUE if the character is a certain type of
-    character; otherwise they return FALSE. These classification
-    functions are isNull() (returns TRUE if the character is U+0000),
-    isPrint() (TRUE if the character is any sort of printable
+    They all return true if the character is a certain type of
+    character; otherwise they return false. These classification
+    functions are isNull() (returns true if the character is U+0000),
+    isPrint() (true if the character is any sort of printable
     character, including whitespace), isPunct() (any sort of
     punctation), isMark() (Unicode Mark), isLetter (a letter),
     isNumber() (any sort of numeric character), isLetterOrNumber(),
@@ -255,11 +255,11 @@ QChar::QChar(char c)
 {
 #ifndef QT_NO_CODEC_FOR_C_STRINGS
     if (QTextCodec::codecForCStrings())
-	// #####
-	ucs =  QTextCodec::codecForCStrings()->toUnicode(&c, 1).at(0).unicode();
+        // #####
+        ucs =  QTextCodec::codecForCStrings()->toUnicode(&c, 1).at(0).unicode();
     else
 #endif
-	ucs = (unsigned char)c;
+        ucs = (unsigned char)c;
 }
 
 /*!
@@ -269,11 +269,11 @@ QChar::QChar(uchar c)
 {
 #ifndef QT_NO_CODEC_FOR_C_STRINGS
     if (QTextCodec::codecForCStrings())
-	// #####
-	ucs =  QTextCodec::codecForCStrings()->toUnicode((char *)&c, 1).at(0).unicode();
+        // #####
+        ucs =  QTextCodec::codecForCStrings()->toUnicode((char *)&c, 1).at(0).unicode();
     else
 #endif
-	ucs = (unsigned char)c;
+        ucs = (unsigned char)c;
 }
 
 
@@ -323,8 +323,8 @@ QChar::QChar(uchar c)
 /*!
     \fn bool QChar::isNull() const
 
-    Returns TRUE if the character is the Unicode character 0x0000
-    (ASCII NUL); otherwise returns FALSE.
+    Returns true if the character is the Unicode character 0x0000
+    (ASCII NUL); otherwise returns false.
 */
 
 /*!
@@ -341,8 +341,8 @@ QChar::QChar(uchar c)
 */
 
 /*!
-    Returns TRUE if the character is a printable character; otherwise
-    returns FALSE. This is any character not of category Cc or Cn.
+    Returns true if the character is a printable character; otherwise
+    returns false. This is any character not of category Cc or Cn.
 
     Note that this gives no indication of whether the character is
     available in a particular \link QFont font\endlink.
@@ -354,8 +354,8 @@ bool QChar::isPrint() const
 }
 
 /*!
-    Returns TRUE if the character is a separator character
-    (Separator_* categories); otherwise returns FALSE.
+    Returns true if the character is a separator character
+    (Separator_* categories); otherwise returns false.
 */
 bool QChar::isSpace() const
 {
@@ -363,8 +363,8 @@ bool QChar::isSpace() const
 }
 
 /*!
-    Returns TRUE if the character is a mark (Mark_* categories);
-    otherwise returns FALSE.
+    Returns true if the character is a mark (Mark_* categories);
+    otherwise returns false.
 */
 bool QChar::isMark() const
 {
@@ -373,8 +373,8 @@ bool QChar::isMark() const
 }
 
 /*!
-    Returns TRUE if the character is a punctuation mark (Punctuation_*
-    categories); otherwise returns FALSE.
+    Returns true if the character is a punctuation mark (Punctuation_*
+    categories); otherwise returns false.
 */
 bool QChar::isPunct() const
 {
@@ -383,8 +383,8 @@ bool QChar::isPunct() const
 }
 
 /*!
-    Returns TRUE if the character is a letter (Letter_* categories);
-    otherwise returns FALSE.
+    Returns true if the character is a letter (Letter_* categories);
+    otherwise returns false.
 */
 bool QChar::isLetter() const
 {
@@ -393,8 +393,8 @@ bool QChar::isLetter() const
 }
 
 /*!
-    Returns TRUE if the character is a number (of any sort - Number_*
-    categories); otherwise returns FALSE.
+    Returns true if the character is a number (of any sort - Number_*
+    categories); otherwise returns false.
 
     \sa isDigit()
 */
@@ -405,20 +405,20 @@ bool QChar::isNumber() const
 }
 
 /*!
-    Returns TRUE if the character is a letter or number (Letter_* or
-    Number_* categories); otherwise returns FALSE.
+    Returns true if the character is a letter or number (Letter_* or
+    Number_* categories); otherwise returns false.
 */
 bool QChar::isLetterOrNumber() const
 {
     Category c = ::category(*this);
     return (c >= Letter_Uppercase && c <= Letter_Other)
-	|| (c >= Number_DecimalDigit && c <= Number_Other);
+        || (c >= Number_DecimalDigit && c <= Number_Other);
 }
 
 
 /*!
-    Returns TRUE if the character is a decimal digit
-    (Number_DecimalDigit); otherwise returns FALSE.
+    Returns true if the character is a decimal digit
+    (Number_DecimalDigit); otherwise returns false.
 */
 bool QChar::isDigit() const
 {
@@ -427,8 +427,8 @@ bool QChar::isDigit() const
 
 
 /*!
-    Returns TRUE if the character is a symbol (Symbol_* categories);
-    otherwise returns FALSE.
+    Returns true if the character is a symbol (Symbol_* categories);
+    otherwise returns false.
 */
 bool QChar::isSymbol() const
 {
@@ -444,15 +444,15 @@ int QChar::digitValue() const
 {
 #ifndef QT_NO_UNICODETABLES
     register int pos = QUnicodeTables::decimal_info[row()];
-    if( !pos )
-	return -1;
+    if(!pos)
+        return -1;
     return QUnicodeTables::decimal_info[(pos<<8) + cell()];
 #else
     // ##### just latin1
-    if ( ucs < '0' || ucs > '9' )
-	return -1;
+    if (ucs < '0' || ucs > '9')
+        return -1;
     else
-	return ucs - '0';
+        return ucs - '0';
 #endif
 }
 
@@ -490,9 +490,9 @@ QChar::Joining QChar::joining() const
 
 
 /*!
-    Returns TRUE if the character is a mirrored character (one that
+    Returns true if the character is a mirrored character (one that
     should be reversed if the text direction is reversed); otherwise
-    returns FALSE.
+    returns false.
 */
 bool QChar::mirrored() const
 {
@@ -525,7 +525,7 @@ QString QChar::decomposition() const
     QString s;
     Q_UINT16 c;
     while ((c = QUnicodeTables::decomposition_map[pos++]) != 0)
-	s += QChar(c);
+        s += QChar(c);
     return s;
 #else
     return QString();
@@ -602,8 +602,8 @@ char QChar::ascii() const
 {
 #ifndef QT_NO_CODEC_FOR_C_STRINGS
     if (QTextCodec::codecForCStrings())
-	// #####
-	return QTextCodec::codecForCStrings()->fromUnicode(QString(*this)).at(0);
+        // #####
+        return QTextCodec::codecForCStrings()->fromUnicode(QString(*this)).at(0);
 #endif
     return ucs > 0xff ? 0 : (char) ucs;
 }
@@ -627,8 +627,8 @@ QChar QChar::fromAscii(char c)
 {
 #ifndef QT_NO_CODEC_FOR_C_STRINGS
     if (QTextCodec::codecForCStrings())
-	// #####
-	return QTextCodec::codecForCStrings()->toUnicode(&c, 1).at(0).unicode();
+        // #####
+        return QTextCodec::codecForCStrings()->toUnicode(&c, 1).at(0).unicode();
 #endif
     return QChar((ushort) c);
 }
@@ -660,8 +660,8 @@ QChar QChar::fromAscii(char c)
 
     \relates QChar
 
-    Returns TRUE if \a c1 and \a c2 are the same Unicode character;
-    otherwise returns FALSE.
+    Returns true if \a c1 and \a c2 are the same Unicode character;
+    otherwise returns false.
 */
 
 /*!
@@ -669,8 +669,8 @@ QChar QChar::fromAscii(char c)
 
     \relates QChar
 
-    Returns TRUE if \a c1 and \a c2 are not the same Unicode
-    character; otherwise returns FALSE.
+    Returns true if \a c1 and \a c2 are not the same Unicode
+    character; otherwise returns false.
 */
 
 /*!
@@ -678,9 +678,9 @@ QChar QChar::fromAscii(char c)
 
     \relates QChar
 
-    Returns TRUE if the numeric Unicode value of \a c1 is less than
+    Returns true if the numeric Unicode value of \a c1 is less than
     that of \a c2, or they are the same Unicode character; otherwise
-    returns FALSE.
+    returns false.
 */
 
 /*!
@@ -688,9 +688,9 @@ QChar QChar::fromAscii(char c)
 
     \relates QChar
 
-    Returns TRUE if the numeric Unicode value of \a c1 is greater than
+    Returns true if the numeric Unicode value of \a c1 is greater than
     that of \a c2, or they are the same Unicode character; otherwise
-    returns FALSE.
+    returns false.
 */
 
 /*!
@@ -698,8 +698,8 @@ QChar QChar::fromAscii(char c)
 
     \relates QChar
 
-    Returns TRUE if the numeric Unicode value of \a c1 is less than
-    that of \a c2; otherwise returns FALSE.
+    Returns true if the numeric Unicode value of \a c1 is less than
+    that of \a c2; otherwise returns false.
 */
 
 /*!
@@ -707,6 +707,6 @@ QChar QChar::fromAscii(char c)
 
     \relates QChar
 
-    Returns TRUE if the numeric Unicode value of \a c1 is greater than
-    that of \a c2; otherwise returns FALSE.
+    Returns true if the numeric Unicode value of \a c1 is greater than
+    that of \a c2; otherwise returns false.
 */

@@ -32,7 +32,7 @@ public:
     QWin32PaintEngine(QPaintDevice *target);
     ~QWin32PaintEngine();
 
-    bool begin(QPaintDevice *pdev, QPainterState *state, bool unclipped=FALSE);
+    bool begin(QPaintDevice *pdev, QPainterState *state, bool unclipped=false);
     bool end();
 
     void updatePen(QPainterState *state);
@@ -74,16 +74,16 @@ public:
     static void cleanup();
 
     enum { IsActive=0x01, ExtDev=0x02, IsStartingUp=0x04, NoCache=0x08,
-	   VxF=0x10, WxF=0x20, ClipOn=0x40, SafePolygon=0x80, MonoDev=0x100,
-	   DirtyFont=0x200, DirtyPen=0x400, DirtyBrush=0x800,
-	   RGBColor=0x1000, FontMet=0x2000, FontInf=0x4000, CtorBegin=0x8000,
+           VxF=0x10, WxF=0x20, ClipOn=0x40, SafePolygon=0x80, MonoDev=0x100,
+           DirtyFont=0x200, DirtyPen=0x400, DirtyBrush=0x800,
+           RGBColor=0x1000, FontMet=0x2000, FontInf=0x4000, CtorBegin=0x8000,
            UsePrivateCx = 0x10000, VolatileDC = 0x20000, Qt2Compat = 0x40000 };
 
 protected:
     QWin32PaintEngine(QWin32PaintEnginePrivate &dptr, QPaintDevice *target, GCCaps caps);
 
 private:
-    void drawPolyInternal( const QPointArray &a, bool close );
+    void drawPolyInternal(const QPointArray &a, bool close);
 
 protected:
     friend class QPainter;
@@ -97,7 +97,7 @@ public:
     QGdiplusPaintEngine(QPaintDevice *pdev);
     ~QGdiplusPaintEngine();
 
-    bool begin(QPaintDevice *pdev, QPainterState *state, bool unclipped = FALSE);
+    bool begin(QPaintDevice *pdev, QPainterState *state, bool unclipped = false);
     bool end();
 
     void updatePen(QPainterState *ps);

@@ -52,7 +52,7 @@ public:
 
     bool isValid(const QModelIndex &index) const;
     int tableIndex(int row, int column) const;
-    
+
 private:
     int r, c;
     QVector<QTableViewItem> table;
@@ -79,7 +79,7 @@ void QTableModel::setRowCount(int rows)
     table.resize(s); // FIXME: this will destroy the layout
     leftHeader.resize(r);
     for (int j = _r; j < r; ++j)
-	leftHeader[j].setText(QString::number(j));
+        leftHeader[j].setText(QString::number(j));
 
     int top = qMax(r - 1, 0);
     int bottom = qMax(r - 1, 0);
@@ -103,7 +103,7 @@ void QTableModel::setColumnCount(int columns)
     table.resize(s); // FIXME: this will destroy the layout
     topHeader.resize(c);
     for (int j = _c; j < c; ++j)
-	topHeader[j].setText(QString::number(j));
+        topHeader[j].setText(QString::number(j));
 
     int left = qMax(_c - 1, 0);
     int bottom = qMax(r - 1, 0);
@@ -225,20 +225,20 @@ QTableViewItem QTableModel::item(int row, int column) const
 QTableViewItem QTableModel::item(const QModelIndex &index) const
 {
     if (!isValid(index))
-	return QTableViewItem();
+        return QTableViewItem();
     if (index.type() == QModelIndex::VerticalHeader)
-	return leftHeader.at(index.row());
+        return leftHeader.at(index.row());
     else if (index.type() == QModelIndex::HorizontalHeader)
-	return topHeader.at(index.column());
+        return topHeader.at(index.column());
     else
-	return table.at(tableIndex(index.row(), index.column()));
+        return table.at(tableIndex(index.row(), index.column()));
     return QTableViewItem();
 }
 
 QModelIndex QTableModel::index(int row, int column, const QModelIndex &, QModelIndex::Type type) const
 {
     if (row >= 0 && row < r && column >= 0 && column < c)
-	return QModelIndex(row, column, 0, type);
+        return QModelIndex(row, column, 0, type);
     return QModelIndex();
 }
 
@@ -255,20 +255,20 @@ int QTableModel::columnCount(const QModelIndex &) const
 QVariant QTableModel::data(const QModelIndex &index, int role) const
 {
     if (index.isValid())
-	return item(index).data(role);
+        return item(index).data(role);
     return QVariant();
 }
 
 void QTableModel::setData(const QModelIndex &index, int role, const QVariant &value)
 {
     if (!index.isValid())
-	return;
+        return;
     if (index.type() == QModelIndex::VerticalHeader)
-	leftHeader[index.row()].setData(role, value);
+        leftHeader[index.row()].setData(role, value);
     else if (index.type() == QModelIndex::HorizontalHeader)
-	topHeader[index.column()].setData(role, value);
+        topHeader[index.column()].setData(role, value);
     else
-	table[tableIndex(index.row(), index.column())].setData(role, value);
+        table[tableIndex(index.row(), index.column())].setData(role, value);
     emit contentsChanged(index, index);
 }
 
@@ -277,9 +277,9 @@ QModelIndex QTableModel::insertItem(const QModelIndex &index)
 {
     QModelIndex insert = index;
     if (!insert.isValid() ||
-	insert.row() > rowCount() ||
-	insert.column() > 0)
-	insert = QModelIndex(rowCount(), 0, 0);
+        insert.row() > rowCount() ||
+        insert.column() > 0)
+        insert = QModelIndex(rowCount(), 0, 0);
 
     int ti = tableIndex(insert.row(), 0) - 1;
     table.insert(ti, c, QTableViewItem());
@@ -316,14 +316,14 @@ int QTableModel::tableIndex(int row, int column) const
 bool QTableViewItem::operator ==(const QTableViewItem &other) const
 {
     if (values.count() != other.values.count()
-	|| edit != other.edit
-	|| select != other.select)
-	return false;
+        || edit != other.edit
+        || select != other.select)
+        return false;
 
     for (int i = 0; values.count(); ++i)
-	if (values.at(i).role != other.values.at(i).role
-	    || values.at(i).value != other.values.at(i).value)
-	    return false;
+        if (values.at(i).role != other.values.at(i).role
+            || values.at(i).value != other.values.at(i).value)
+            return false;
     return true;
 }
 
@@ -331,8 +331,8 @@ QVariant QTableViewItem::data(int role) const
 {
     role = (role == QAbstractItemModel::Edit ? QAbstractItemModel::Display : role);
     for (int i = 0; i < values.count(); ++i)
-	if (values.at(i).role == role)
-	    return values.at(i).value;
+        if (values.at(i).role == role)
+            return values.at(i).value;
     return QVariant();
 }
 
@@ -340,10 +340,10 @@ void QTableViewItem::setData(int role, const QVariant &value)
 {
     role = (role == QAbstractItemModel::Edit ? QAbstractItemModel::Display : role);
     for (int i = 0; i < values.count(); ++i) {
-	if (values.at(i).role == role) {
-	    values[i].value = value;
-	    return;
-	}
+        if (values.at(i).role == role) {
+            values[i].value = value;
+            return;
+        }
     }
     values.append(Data(role, value));
 }

@@ -64,24 +64,24 @@ static inline int qt_socket_socket(int domain, int type, int protocol)
 #include <sys/types.h>
 
 
-static inline void qt_socket_getportaddr( struct sockaddr *sa,
-					  Q_UINT16 *port, QHostAddress *addr )
+static inline void qt_socket_getportaddr(struct sockaddr *sa,
+                                          Q_UINT16 *port, QHostAddress *addr)
 {
 #if !defined(QT_NO_IPV6)
-    if ( sa->sa_family == AF_INET6 ) {
-	struct sockaddr_in6 *sa6 = ( struct sockaddr_in6 * )sa;
-	Q_IPV6ADDR tmp;
-	memcpy( &tmp, &sa6->sin6_addr.s6_addr, sizeof(tmp) );
-	QHostAddress a( tmp );
-	*addr = a;
-	*port = ntohs( sa6->sin6_port );
-	return;
+    if (sa->sa_family == AF_INET6) {
+        struct sockaddr_in6 *sa6 = (struct sockaddr_in6 *)sa;
+        Q_IPV6ADDR tmp;
+        memcpy(&tmp, &sa6->sin6_addr.s6_addr, sizeof(tmp));
+        QHostAddress a(tmp);
+        *addr = a;
+        *port = ntohs(sa6->sin6_port);
+        return;
     }
 #endif
     struct sockaddr_in *sa4 = (struct sockaddr_in *)sa;
-    QHostAddress a( ntohl( sa4->sin_addr.s_addr ) );
-    *port = ntohs( sa4->sin_port );
-    *addr = QHostAddress( ntohl( sa4->sin_addr.s_addr ) );
+    QHostAddress a(ntohl(sa4->sin_addr.s_addr));
+    *port = ntohs(sa4->sin_port);
+    *addr = QHostAddress(ntohl(sa4->sin_addr.s_addr));
     return;
 }
 
@@ -96,35 +96,35 @@ void QSocketDevice::init()
 
 QSocketDevice::Protocol QSocketDevice::getProtocol() const
 {
-    if ( isValid() ) {
+    if (isValid()) {
 #if !defined (QT_NO_IPV6)
-	struct sockaddr_storage sa;
+        struct sockaddr_storage sa;
 #else
-	struct sockaddr sa;
+        struct sockaddr sa;
 #endif
-	memset( &sa, 0, sizeof(sa) );
-	QT_SOCKLEN_T sz = sizeof( sa );
+        memset(&sa, 0, sizeof(sa));
+        QT_SOCKLEN_T sz = sizeof(sa);
 #if !defined (QT_NO_IPV6)
-	struct sockaddr *sap = reinterpret_cast<struct sockaddr *>(&sa);
-	if ( !::getsockname(fd, sap, &sz) ) {
-	    switch ( sap->sa_family ) {
-		case AF_INET:
-		    return IPv4;
-		case AF_INET6:
-		    return IPv6;
-		default:
-		    return Unknown;
-	    }
-	}
+        struct sockaddr *sap = reinterpret_cast<struct sockaddr *>(&sa);
+        if (!::getsockname(fd, sap, &sz)) {
+            switch (sap->sa_family) {
+                case AF_INET:
+                    return IPv4;
+                case AF_INET6:
+                    return IPv6;
+                default:
+                    return Unknown;
+            }
+        }
 #else
-	if ( !::getsockname(fd, &sa, &sz) ) {
-	    switch ( sa.sa_family ) {
-		case AF_INET:
-		    return IPv4;
-		default:
-		    return Unknown;
-	    }
-	}
+        if (!::getsockname(fd, &sa, &sz)) {
+            switch (sa.sa_family) {
+                case AF_INET:
+                    return IPv4;
+                default:
+                    return Unknown;
+            }
+        }
 #endif
     }
     return Unknown;
@@ -140,35 +140,35 @@ QSocketDevice::Protocol QSocketDevice::getProtocol() const
 int QSocketDevice::createNewSocket()
 {
 #if !defined(QT_NO_IPV6)
-    int s = qt_socket_socket( protocol() == IPv6 ? AF_INET6 : AF_INET,
-			      t == Datagram ? SOCK_DGRAM : SOCK_STREAM, 0 );
+    int s = qt_socket_socket(protocol() == IPv6 ? AF_INET6 : AF_INET,
+                              t == Datagram ? SOCK_DGRAM : SOCK_STREAM, 0);
 #else
-    int s = qt_socket_socket( AF_INET, t==Datagram?SOCK_DGRAM:SOCK_STREAM, 0 );
+    int s = qt_socket_socket(AF_INET, t==Datagram?SOCK_DGRAM:SOCK_STREAM, 0);
 #endif
-    if ( s < 0 ) {
-	switch( errno ) {
-	case EPROTONOSUPPORT:
-	    e = InternalError; // 0 is supposed to work for both types
-	    break;
-	case ENFILE:
-	    e = NoFiles; // special case for this
-	    break;
-	case EACCES:
-	    e = Inaccessible;
-	    break;
-	case ENOBUFS:
-	case ENOMEM:
-	    e = NoResources;
-	    break;
-	case EINVAL:
-	    e = Impossible;
-	    break;
-	default:
-	    e = UnknownError;
-	    break;
-	}
+    if (s < 0) {
+        switch(errno) {
+        case EPROTONOSUPPORT:
+            e = InternalError; // 0 is supposed to work for both types
+            break;
+        case ENFILE:
+            e = NoFiles; // special case for this
+            break;
+        case EACCES:
+            e = Inaccessible;
+            break;
+        case ENOBUFS:
+        case ENOMEM:
+            e = NoResources;
+            break;
+        case EINVAL:
+            e = Impossible;
+            break;
+        default:
+            e = UnknownError;
+            break;
+        }
     } else {
-	return s;
+        return s;
     }
     return -1;
 }
@@ -188,14 +188,14 @@ int QSocketDevice::createNewSocket()
 */
 void QSocketDevice::close()
 {
-    if ( fd == -1 || !isOpen() )		// already closed
-	return;
-    setFlags( IO_Sequential );
+    if (fd == -1 || !isOpen())                // already closed
+        return;
+    setFlags(IO_Sequential);
     resetStatus();
-    setState( 0 );
-    ::close( fd );
+    setState(0);
+    ::close(fd);
 #if defined(QSOCKETDEVICE_DEBUG)
-    qDebug( "QSocketDevice::close: Closed socket %x", fd );
+    qDebug("QSocketDevice::close: Closed socket %x", fd);
 #endif
     fd = -1;
     fetchConnectionParameters();
@@ -203,28 +203,28 @@ void QSocketDevice::close()
 
 
 /*!
-    Returns TRUE if the socket is valid and in blocking mode;
-    otherwise returns FALSE.
+    Returns true if the socket is valid and in blocking mode;
+    otherwise returns false.
 
     Note that this function does not set error().
 
-    \warning On Windows, this function always returns TRUE since the
+    \warning On Windows, this function always returns true since the
     ioctlsocket() function is broken.
 
     \sa setBlocking(), isValid()
 */
 bool QSocketDevice::blocking() const
 {
-    if ( !isValid() )
-	return TRUE;
+    if (!isValid())
+        return true;
     int s = fcntl(fd, F_GETFL, 0);
     return !(s >= 0 && ((s & O_NDELAY) != 0));
 }
 
 
 /*!
-    Makes the socket blocking if \a enable is TRUE or nonblocking if
-    \a enable is FALSE.
+    Makes the socket blocking if \a enable is true or nonblocking if
+    \a enable is false.
 
     Sockets are blocking by default, but we recommend using
     nonblocking socket operations, especially for GUI programs that
@@ -236,25 +236,25 @@ bool QSocketDevice::blocking() const
 
     \sa blocking(), isValid()
 */
-void QSocketDevice::setBlocking( bool enable )
+void QSocketDevice::setBlocking(bool enable)
 {
 #if defined(QSOCKETDEVICE_DEBUG)
-    qDebug( "QSocketDevice::setBlocking( %d )", enable );
+    qDebug("QSocketDevice::setBlocking(%d)", enable);
 #endif
-    if ( !isValid() )
-	return;
+    if (!isValid())
+        return;
     int tmp = ::fcntl(fd, F_GETFL, 0);
-    if ( tmp >= 0 )
-	tmp = ::fcntl( fd, F_SETFL, enable ? (tmp&~O_NDELAY) : (tmp|O_NDELAY) );
-    if ( tmp >= 0 )
-	return;
-    if ( e )
-	return;
-    switch( errno ) {
+    if (tmp >= 0)
+        tmp = ::fcntl(fd, F_SETFL, enable ? (tmp&~O_NDELAY) : (tmp|O_NDELAY));
+    if (tmp >= 0)
+        return;
+    if (e)
+        return;
+    switch(errno) {
     case EACCES:
     case EBADF:
-	e = Impossible;
-	break;
+        e = Impossible;
+        break;
     case EFAULT:
     case EAGAIN:
 #if EAGAIN != EWOULDBLOCK
@@ -267,7 +267,7 @@ void QSocketDevice::setBlocking( bool enable )
     case ENOLCK:
     case EPERM:
     default:
-	e = UnknownError;
+        e = UnknownError;
     }
 }
 
@@ -275,48 +275,48 @@ void QSocketDevice::setBlocking( bool enable )
 /*!
     Returns the value of the socket option \a opt.
 */
-int QSocketDevice::option( Option opt ) const
+int QSocketDevice::option(Option opt) const
 {
-    if ( !isValid() )
-	return -1;
+    if (!isValid())
+        return -1;
     int n = -1;
     int v = -1;
-    switch ( opt ) {
+    switch (opt) {
     case Broadcast:
-	n = SO_BROADCAST;
-	break;
+        n = SO_BROADCAST;
+        break;
     case ReceiveBuffer:
-	n = SO_RCVBUF;
-	break;
+        n = SO_RCVBUF;
+        break;
     case ReuseAddress:
-	n = SO_REUSEADDR;
-	break;
+        n = SO_REUSEADDR;
+        break;
     case SendBuffer:
-	n = SO_SNDBUF;
-	break;
+        n = SO_SNDBUF;
+        break;
     }
-    if ( n != -1 ) {
-	QT_SOCKOPTLEN_T len;
-	len = sizeof(v);
-	int r = ::getsockopt( fd, SOL_SOCKET, n, (char*)&v, &len );
-	if ( r >= 0 )
-	    return v;
-	if ( !e ) {
-	    QSocketDevice *that = (QSocketDevice*)this; // mutable function
-	    switch( errno ) {
-	    case EBADF:
-	    case ENOTSOCK:
-		that->e = Impossible;
-		break;
-	    case EFAULT:
-		that->e = InternalError;
-		break;
-	    default:
-		that->e = UnknownError;
-		break;
-	    }
-	}
-	return -1;
+    if (n != -1) {
+        QT_SOCKOPTLEN_T len;
+        len = sizeof(v);
+        int r = ::getsockopt(fd, SOL_SOCKET, n, (char*)&v, &len);
+        if (r >= 0)
+            return v;
+        if (!e) {
+            QSocketDevice *that = (QSocketDevice*)this; // mutable function
+            switch(errno) {
+            case EBADF:
+            case ENOTSOCK:
+                that->e = Impossible;
+                break;
+            case EFAULT:
+                that->e = InternalError;
+                break;
+            default:
+                that->e = UnknownError;
+                break;
+            }
+        }
+        return -1;
     }
     return v;
 }
@@ -325,58 +325,58 @@ int QSocketDevice::option( Option opt ) const
 /*!
     Sets the socket option \a opt to \a v.
 */
-void QSocketDevice::setOption( Option opt, int v )
+void QSocketDevice::setOption(Option opt, int v)
 {
-    if ( !isValid() )
-	return;
+    if (!isValid())
+        return;
     int n = -1; // for really, really bad compilers
-    switch ( opt ) {
+    switch (opt) {
     case Broadcast:
-	n = SO_BROADCAST;
-	break;
+        n = SO_BROADCAST;
+        break;
     case ReceiveBuffer:
-	n = SO_RCVBUF;
-	break;
+        n = SO_RCVBUF;
+        break;
     case ReuseAddress:
-	n = SO_REUSEADDR;
-	break;
+        n = SO_REUSEADDR;
+        break;
     case SendBuffer:
-	n = SO_SNDBUF;
-	break;
+        n = SO_SNDBUF;
+        break;
     default:
-	return;
+        return;
     }
-    if ( ::setsockopt( fd, SOL_SOCKET, n, (char*)&v, sizeof(v)) < 0 &&
-	 e == NoError ) {
-	switch( errno ) {
-	case EBADF:
-	case ENOTSOCK:
-	    e = Impossible;
-	    break;
-	case EFAULT:
-	    e = InternalError;
-	    break;
-	default:
-	    e = UnknownError;
-	    break;
-	}
+    if (::setsockopt(fd, SOL_SOCKET, n, (char*)&v, sizeof(v)) < 0 &&
+         e == NoError) {
+        switch(errno) {
+        case EBADF:
+        case ENOTSOCK:
+            e = Impossible;
+            break;
+        case EFAULT:
+            e = InternalError;
+            break;
+        default:
+            e = UnknownError;
+            break;
+        }
     }
 }
 
 
 /*!
     Connects to the IP address and port specified by \a addr and \a
-    port. Returns TRUE if it establishes a connection; otherwise returns FALSE.
-    If it returns FALSE, error() explains why.
+    port. Returns true if it establishes a connection; otherwise returns false.
+    If it returns false, error() explains why.
 
     Note that error() commonly returns NoError for non-blocking
     sockets; this just means that you can call connect() again in a
     little while and it'll probably succeed.
 */
-bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
+bool QSocketDevice::connect(const QHostAddress &addr, Q_UINT16 port)
 {
-    if ( !isValid() )
-	return FALSE;
+    if (!isValid())
+        return false;
 
     pa = addr;
     pp = port;
@@ -388,152 +388,152 @@ bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 #if !defined(QT_NO_IPV6)
     struct sockaddr_in6 a6;
 
-    if ( addr.isIPv6Address() ) {
-	memset( &a6, 0, sizeof(a6) );
-	a6.sin6_family = AF_INET6;
-	a6.sin6_port = htons( port );
-	Q_IPV6ADDR ip6 = addr.toIPv6Address();
-	memcpy( &a6.sin6_addr.s6_addr, &ip6, sizeof(ip6) );
+    if (addr.isIPv6Address()) {
+        memset(&a6, 0, sizeof(a6));
+        a6.sin6_family = AF_INET6;
+        a6.sin6_port = htons(port);
+        Q_IPV6ADDR ip6 = addr.toIPv6Address();
+        memcpy(&a6.sin6_addr.s6_addr, &ip6, sizeof(ip6));
 
-	aalen = sizeof( a6 );
-	aa = (struct sockaddr *)&a6;
+        aalen = sizeof(a6);
+        aa = (struct sockaddr *)&a6;
     } else
 #endif
-    if ( addr.isIPv4Address() ) {
-	memset( &a4, 0, sizeof(a4) );
-	a4.sin_family = AF_INET;
-	a4.sin_port = htons( port );
-	a4.sin_addr.s_addr = htonl( addr.toIPv4Address() );
+    if (addr.isIPv4Address()) {
+        memset(&a4, 0, sizeof(a4));
+        a4.sin_family = AF_INET;
+        a4.sin_port = htons(port);
+        a4.sin_addr.s_addr = htonl(addr.toIPv4Address());
 
-	aalen = sizeof(a4);
-	aa = (struct sockaddr *)&a4;
+        aalen = sizeof(a4);
+        aa = (struct sockaddr *)&a4;
     } else {
-	e = Impossible;
-	return FALSE;
+        e = Impossible;
+        return false;
     }
 
-    int r = qt_socket_connect( fd, aa, aalen );
-    if ( r == 0 ) {
-	fetchConnectionParameters();
-	return TRUE;
+    int r = qt_socket_connect(fd, aa, aalen);
+    if (r == 0) {
+        fetchConnectionParameters();
+        return true;
     }
-    if ( errno == EISCONN || errno == EALREADY || errno == EINPROGRESS ) {
-	fetchConnectionParameters();
-	return TRUE;
+    if (errno == EISCONN || errno == EALREADY || errno == EINPROGRESS) {
+        fetchConnectionParameters();
+        return true;
     }
-    if ( e != NoError || errno == EAGAIN || errno == EWOULDBLOCK ) {
-	return FALSE;
+    if (e != NoError || errno == EAGAIN || errno == EWOULDBLOCK) {
+        return false;
     }
-    switch( errno ) {
+    switch(errno) {
     case EBADF:
     case ENOTSOCK:
-	e = Impossible;
-	break;
+        e = Impossible;
+        break;
     case EFAULT:
     case EAFNOSUPPORT:
-	e = InternalError;
-	break;
+        e = InternalError;
+        break;
     case ECONNREFUSED:
-	e = ConnectionRefused;
-	break;
+        e = ConnectionRefused;
+        break;
     case ETIMEDOUT:
     case ENETUNREACH:
-	e = NetworkFailure;
-	break;
+        e = NetworkFailure;
+        break;
     case EADDRINUSE:
-	e = NoResources;
-	break;
+        e = NoResources;
+        break;
     case EACCES:
     case EPERM:
-	e = Inaccessible;
-	break;
+        e = Inaccessible;
+        break;
     default:
-	e = UnknownError;
-	break;
+        e = UnknownError;
+        break;
     }
-    return FALSE;
+    return false;
 }
 
 
 /*!
     Assigns a name to an unnamed socket. The name is the host address
     \a address and the port number \a port. If the operation succeeds,
-    bind() returns TRUE; otherwise it returns FALSE without changing
+    bind() returns true; otherwise it returns false without changing
     what port() and address() return.
 
     bind() is used by servers for setting up incoming connections.
     Call bind() before listen().
 */
-bool QSocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
+bool QSocketDevice::bind(const QHostAddress &address, Q_UINT16 port)
 {
-    if ( !isValid() )
-	return FALSE;
+    if (!isValid())
+        return false;
     int r;
     struct sockaddr_in a4;
 #if !defined(QT_NO_IPV6)
     struct sockaddr_in6 a6;
 
-    if ( address.isIPv6Address() ) {
-	memset( &a6, 0, sizeof(a6) );
-	a6.sin6_family = AF_INET6;
-	a6.sin6_port = htons( port );
-	Q_IPV6ADDR tmp = address.toIPv6Address();
-	memcpy( &a6.sin6_addr.s6_addr, &tmp, sizeof(tmp) );
+    if (address.isIPv6Address()) {
+        memset(&a6, 0, sizeof(a6));
+        a6.sin6_family = AF_INET6;
+        a6.sin6_port = htons(port);
+        Q_IPV6ADDR tmp = address.toIPv6Address();
+        memcpy(&a6.sin6_addr.s6_addr, &tmp, sizeof(tmp));
 
-	r = qt_socket_bind( fd, (struct sockaddr *)&a6, sizeof(a6) );
+        r = qt_socket_bind(fd, (struct sockaddr *)&a6, sizeof(a6));
     } else
 #endif
-    if ( address.isIPv4Address() ) {
-	memset( &a4, 0, sizeof(a4) );
-	a4.sin_family = AF_INET;
-	a4.sin_port = htons( port );
-	a4.sin_addr.s_addr = htonl( address.toIPv4Address() );
+    if (address.isIPv4Address()) {
+        memset(&a4, 0, sizeof(a4));
+        a4.sin_family = AF_INET;
+        a4.sin_port = htons(port);
+        a4.sin_addr.s_addr = htonl(address.toIPv4Address());
 
-	r = qt_socket_bind( fd, (struct sockaddr*)&a4, sizeof(a4) );
+        r = qt_socket_bind(fd, (struct sockaddr*)&a4, sizeof(a4));
     } else {
-	e = Impossible;
-	return FALSE;
+        e = Impossible;
+        return false;
     }
 
-    if ( r < 0 ) {
-	switch( errno ) {
-	case EADDRINUSE:
-	case EINVAL:
-	    e = AlreadyBound;
-	    break;
-	case EACCES:
-	    e = Inaccessible;
-	    break;
-	case ENOMEM:
-	    e = NoResources;
-	    break;
-	case EFAULT: // a was illegal
-	case ENAMETOOLONG: // sz was wrong
-	    e = InternalError;
-	    break;
-	case EBADF: // AF_UNIX only
-	case ENOTSOCK: // AF_UNIX only
-	case EROFS: // AF_UNIX only
-	case ENOENT: // AF_UNIX only
-	case ENOTDIR: // AF_UNIX only
-	case ELOOP: // AF_UNIX only
-	    e = Impossible;
-	    break;
-	default:
-	    e = UnknownError;
-	    break;
-	}
-	return FALSE;
+    if (r < 0) {
+        switch(errno) {
+        case EADDRINUSE:
+        case EINVAL:
+            e = AlreadyBound;
+            break;
+        case EACCES:
+            e = Inaccessible;
+            break;
+        case ENOMEM:
+            e = NoResources;
+            break;
+        case EFAULT: // a was illegal
+        case ENAMETOOLONG: // sz was wrong
+            e = InternalError;
+            break;
+        case EBADF: // AF_UNIX only
+        case ENOTSOCK: // AF_UNIX only
+        case EROFS: // AF_UNIX only
+        case ENOENT: // AF_UNIX only
+        case ENOTDIR: // AF_UNIX only
+        case ELOOP: // AF_UNIX only
+            e = Impossible;
+            break;
+        default:
+            e = UnknownError;
+            break;
+        }
+        return false;
     }
     fetchConnectionParameters();
-    return TRUE;
+    return true;
 }
 
 
 /*!
     Specifies how many pending connections a server socket can have.
-    Returns TRUE if the operation was successful; otherwise returns
-    FALSE. A \a backlog value of 50 is quite common.
+    Returns true if the operation was successful; otherwise returns
+    false. A \a backlog value of 50 is quite common.
 
     The listen() call only applies to sockets where type() is \c
     Stream, i.e. not to \c Datagram sockets. listen() must not be
@@ -541,15 +541,15 @@ bool QSocketDevice::bind( const QHostAddress &address, Q_UINT16 port )
 
     \sa bind(), accept()
 */
-bool QSocketDevice::listen( int backlog )
+bool QSocketDevice::listen(int backlog)
 {
-    if ( !isValid() )
-	return FALSE;
-    if ( qt_socket_listen( fd, backlog ) >= 0 )
-	return TRUE;
-    if ( !e )
-	e = Impossible;
-    return FALSE;
+    if (!isValid())
+        return false;
+    if (qt_socket_listen(fd, backlog) >= 0)
+        return true;
+    if (!e)
+        e = Impossible;
+    return false;
 }
 
 
@@ -562,68 +562,68 @@ bool QSocketDevice::listen( int backlog )
 */
 int QSocketDevice::accept()
 {
-    if ( !isValid() )
-	return -1;
+    if (!isValid())
+        return -1;
 
 #if !defined (QT_NO_IPV6)
     struct sockaddr_storage aa;
 #else
     struct sockaddr aa;
 #endif
-    QT_SOCKLEN_T l = sizeof( aa );
+    QT_SOCKLEN_T l = sizeof(aa);
     bool done;
     int s;
     do {
-        s = qt_socket_accept( fd, (struct sockaddr*)&aa, &l );
+        s = qt_socket_accept(fd, (struct sockaddr*)&aa, &l);
         // we'll blithely throw away the stuff accept() wrote to aa
-        done = TRUE;
-        if ( s < 0 && e == NoError ) {
-            switch( errno ) {
+        done = true;
+        if (s < 0 && e == NoError) {
+            switch(errno) {
             case EINTR:
-                done = FALSE;
+                done = false;
                 break;
 #if defined(EPROTO)
-	    case EPROTO:
+            case EPROTO:
 #endif
 #if defined(ENONET)
-	    case ENONET:
+            case ENONET:
 #endif
-	    case ENOPROTOOPT:
-	    case EHOSTDOWN:
-	    case EOPNOTSUPP:
-	    case EHOSTUNREACH:
-	    case ENETDOWN:
-	    case ENETUNREACH:
-	    case ETIMEDOUT:
-		// in all these cases, an error happened during connection
-		// setup.  we're not interested in what happened, so we
-		// just treat it like the client-closed-quickly case.
-	    case EPERM:
-		// firewalling wouldn't let us accept.  we treat it like
-		// the client-closed-quickly case.
-	    case EAGAIN:
+            case ENOPROTOOPT:
+            case EHOSTDOWN:
+            case EOPNOTSUPP:
+            case EHOSTUNREACH:
+            case ENETDOWN:
+            case ENETUNREACH:
+            case ETIMEDOUT:
+                // in all these cases, an error happened during connection
+                // setup.  we're not interested in what happened, so we
+                // just treat it like the client-closed-quickly case.
+            case EPERM:
+                // firewalling wouldn't let us accept.  we treat it like
+                // the client-closed-quickly case.
+            case EAGAIN:
 #if EAGAIN != EWOULDBLOCK
-	    case EWOULDBLOCK:
+            case EWOULDBLOCK:
 #endif
-		// the client closed the connection before we got around
-		// to accept()ing it.
-		break;
-	    case EBADF:
-	    case ENOTSOCK:
-		e = Impossible;
-		break;
-	    case EFAULT:
-		e = InternalError;
-		break;
-	    case ENOMEM:
-	    case ENOBUFS:
-		e = NoResources;
-		break;
-	    default:
-		e = UnknownError;
-		break;
-	    }
-	}
+                // the client closed the connection before we got around
+                // to accept()ing it.
+                break;
+            case EBADF:
+            case ENOTSOCK:
+                e = Impossible;
+                break;
+            case EFAULT:
+                e = InternalError;
+                break;
+            case ENOMEM:
+            case ENOBUFS:
+                e = NoResources;
+                break;
+            default:
+                e = UnknownError;
+                break;
+            }
+        }
     } while (!done);
     return s;
 }
@@ -635,8 +635,8 @@ int QSocketDevice::accept()
 */
 Q_LONG QSocketDevice::bytesAvailable() const
 {
-    if ( !isValid() )
-	return -1;
+    if (!isValid())
+        return -1;
 
     /*
       Apparently, there is not consistency among different operating
@@ -655,8 +655,8 @@ Q_LONG QSocketDevice::bytesAvailable() const
     */
     size_t nbytes = 0;
     // gives shorter than true amounts on Unix domain sockets.
-    if ( ::ioctl(fd, FIONREAD, (char*)&nbytes) < 0 )
-	return -1;
+    if (::ioctl(fd, FIONREAD, (char*)&nbytes) < 0)
+        return -1;
     return (Q_LONG) *((int *) &nbytes);
 }
 
@@ -669,9 +669,9 @@ Q_LONG QSocketDevice::bytesAvailable() const
     error occurred.
 
     If \a timeout is non-null and no error occurred (i.e. it does not
-    return -1): this function sets \a *timeout to TRUE, if the reason
+    return -1): this function sets \a *timeout to true, if the reason
     for returning was that the timeout was reached; otherwise it sets
-    \a *timeout to FALSE. This is useful to find out if the peer
+    \a *timeout to false. This is useful to find out if the peer
     closed the connection.
 
     \warning This is a blocking call and should be avoided in event
@@ -679,32 +679,32 @@ Q_LONG QSocketDevice::bytesAvailable() const
 
     \sa bytesAvailable()
 */
-Q_LONG QSocketDevice::waitForMore( int msecs, bool *timeout ) const
+Q_LONG QSocketDevice::waitForMore(int msecs, bool *timeout) const
 {
-    if ( !isValid() )
-	return -1;
-    if ( fd >= FD_SETSIZE )
-	return -1;
+    if (!isValid())
+        return -1;
+    if (fd >= FD_SETSIZE)
+        return -1;
 
     fd_set fds;
     struct timeval tv;
 
-    FD_ZERO( &fds );
-    FD_SET( fd, &fds );
+    FD_ZERO(&fds);
+    FD_SET(fd, &fds);
 
     tv.tv_sec = msecs / 1000;
     tv.tv_usec = (msecs % 1000) * 1000;
 
-    int rv = select( fd+1, &fds, 0, 0, msecs < 0 ? 0 : &tv );
+    int rv = select(fd+1, &fds, 0, 0, msecs < 0 ? 0 : &tv);
 
-    if ( rv < 0 )
-	return -1;
+    if (rv < 0)
+        return -1;
 
-    if ( timeout ) {
-	if ( rv == 0 )
-	    *timeout = TRUE;
-	else
-	    *timeout = FALSE;
+    if (timeout) {
+        if (rv == 0)
+            *timeout = true;
+        else
+            *timeout = false;
     }
 
     return bytesAvailable();
@@ -715,79 +715,79 @@ Q_LONG QSocketDevice::waitForMore( int msecs, bool *timeout ) const
     Reads \a maxlen bytes from the socket into \a data and returns the
     number of bytes read. Returns -1 if an error occurred.
 */
-Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
+Q_LONG QSocketDevice::readBlock(char *data, Q_ULONG maxlen)
 {
-    if ( data == 0 && maxlen != 0 ) {
-	qWarning( "QSocketDevice::readBlock: Null pointer error" );
+    if (data == 0 && maxlen != 0) {
+        qWarning("QSocketDevice::readBlock: Null pointer error");
     }
-    if ( !isValid() ) {
-	qWarning( "QSocketDevice::readBlock: Invalid socket" );
-	return -1;
+    if (!isValid()) {
+        qWarning("QSocketDevice::readBlock: Invalid socket");
+        return -1;
     }
-    if ( !isOpen() ) {
-	qWarning( "QSocketDevice::readBlock: Device is not open" );
-	return -1;
+    if (!isOpen()) {
+        qWarning("QSocketDevice::readBlock: Device is not open");
+        return -1;
     }
-    if ( !isReadable() ) {
-	qWarning( "QSocketDevice::readBlock: Read operation not permitted" );
-	return -1;
+    if (!isReadable()) {
+        qWarning("QSocketDevice::readBlock: Read operation not permitted");
+        return -1;
     }
-    bool done = FALSE;
+    bool done = false;
     int r = 0;
-    while ( done == FALSE ) {
-	if ( t == Datagram ) {
+    while (done == false) {
+        if (t == Datagram) {
 #if !defined(QT_NO_IPV6)
             struct sockaddr_storage aa;
 #else
             struct sockaddr_in aa;
 #endif
-	    memset( &aa, 0, sizeof(aa) );
-	    QT_SOCKLEN_T sz;
-	    sz = sizeof( aa );
-	    r = ::recvfrom( fd, data, maxlen, 0,
-			    (struct sockaddr *)&aa, &sz );
+            memset(&aa, 0, sizeof(aa));
+            QT_SOCKLEN_T sz;
+            sz = sizeof(aa);
+            r = ::recvfrom(fd, data, maxlen, 0,
+                            (struct sockaddr *)&aa, &sz);
 
-	    qt_socket_getportaddr( (struct sockaddr *)&aa, &pp, &pa);
+            qt_socket_getportaddr((struct sockaddr *)&aa, &pp, &pa);
 
-	} else {
-	    r = ::read( fd, data, maxlen );
-	}
-	done = TRUE;
-	if ( r >= 0 || errno == EAGAIN || errno == EWOULDBLOCK ) {
-	    // nothing
-	} else if ( errno == EINTR ) {
-	    done = FALSE;
-	} else if ( e == NoError ) {
-	    switch( errno ) {
-	    case EIO:
-	    case EISDIR:
-	    case EBADF:
-	    case EINVAL:
-	    case EFAULT:
-	    case ENOTCONN:
-	    case ENOTSOCK:
-		e = Impossible;
-		break;
+        } else {
+            r = ::read(fd, data, maxlen);
+        }
+        done = true;
+        if (r >= 0 || errno == EAGAIN || errno == EWOULDBLOCK) {
+            // nothing
+        } else if (errno == EINTR) {
+            done = false;
+        } else if (e == NoError) {
+            switch(errno) {
+            case EIO:
+            case EISDIR:
+            case EBADF:
+            case EINVAL:
+            case EFAULT:
+            case ENOTCONN:
+            case ENOTSOCK:
+                e = Impossible;
+                break;
 #if defined(ENONET)
-	    case ENONET:
+            case ENONET:
 #endif
-	    case EHOSTUNREACH:
-	    case ENETDOWN:
-	    case ENETUNREACH:
-	    case ETIMEDOUT:
-		e = NetworkFailure;
-		break;
-	    case EPIPE:
-	    case ECONNRESET:
-		// connection closed
-		close();
-		r = 0;
-		break;
-	    default:
-		e = UnknownError;
-		break;
-	    }
-	}
+            case EHOSTUNREACH:
+            case ENETDOWN:
+            case ENETUNREACH:
+            case ETIMEDOUT:
+                e = NetworkFailure;
+                break;
+            case EPIPE:
+            case ECONNRESET:
+                // connection closed
+                close();
+                r = 0;
+                break;
+            default:
+                e = UnknownError;
+                break;
+            }
+        }
     }
     return r;
 }
@@ -799,70 +799,70 @@ Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
 
     This is used for \c QSocketDevice::Stream sockets.
 */
-Q_LONG QSocketDevice::writeBlock( const char *data, Q_ULONG len )
+Q_LONG QSocketDevice::writeBlock(const char *data, Q_ULONG len)
 {
-    if ( data == 0 && len != 0 ) {
-	qWarning( "QSocketDevice::writeBlock: Null pointer error" );
-	return -1;
+    if (data == 0 && len != 0) {
+        qWarning("QSocketDevice::writeBlock: Null pointer error");
+        return -1;
     }
-    if ( !isValid() ) {
-	qWarning( "QSocketDevice::writeBlock: Invalid socket" );
-	return -1;
+    if (!isValid()) {
+        qWarning("QSocketDevice::writeBlock: Invalid socket");
+        return -1;
     }
-    if ( !isOpen() ) {
-	qWarning( "QSocketDevice::writeBlock: Device is not open" );
-	return -1;
+    if (!isOpen()) {
+        qWarning("QSocketDevice::writeBlock: Device is not open");
+        return -1;
     }
-    if ( !isWritable() ) {
-	qWarning( "QSocketDevice::writeBlock: Write operation not permitted" );
-	return -1;
+    if (!isWritable()) {
+        qWarning("QSocketDevice::writeBlock: Write operation not permitted");
+        return -1;
     }
-    bool done = FALSE;
+    bool done = false;
     int r = 0;
     bool timeout;
-    while ( !done ) {
-	r = ::write( fd, data, len );
-	done = TRUE;
-	if ( r < 0 && e == NoError &&
-	     errno != EAGAIN && errno != EWOULDBLOCK ) {
-	    switch( errno ) {
-	    case EINTR: // signal - call read() or whatever again
-		done = FALSE;
-		break;
-	    case EPIPE:
-		// connection closed
-		close();
-		r = 0;
-		break;
-	    case ENOSPC:
-	    case EIO:
-	    case EISDIR:
-	    case EBADF:
-	    case EINVAL:
-	    case EFAULT:
-	    case ENOTCONN:
-	    case ENOTSOCK:
-		e = Impossible;
-		break;
+    while (!done) {
+        r = ::write(fd, data, len);
+        done = true;
+        if (r < 0 && e == NoError &&
+             errno != EAGAIN && errno != EWOULDBLOCK) {
+            switch(errno) {
+            case EINTR: // signal - call read() or whatever again
+                done = false;
+                break;
+            case EPIPE:
+                // connection closed
+                close();
+                r = 0;
+                break;
+            case ENOSPC:
+            case EIO:
+            case EISDIR:
+            case EBADF:
+            case EINVAL:
+            case EFAULT:
+            case ENOTCONN:
+            case ENOTSOCK:
+                e = Impossible;
+                break;
 #if defined(ENONET)
-	    case ENONET:
+            case ENONET:
 #endif
-	    case EHOSTUNREACH:
-	    case ENETDOWN:
-	    case ENETUNREACH:
-	    case ETIMEDOUT:
-		e = NetworkFailure;
-		break;
-	    default:
-		e = UnknownError;
-		break;
-	    }
-	} else if ( waitForMore( 0, &timeout ) == 0 ) {
-	    if ( !timeout ) {
-		// connection closed
-		close();
-	    }
-	}
+            case EHOSTUNREACH:
+            case ENETDOWN:
+            case ENETUNREACH:
+            case ETIMEDOUT:
+                e = NetworkFailure;
+                break;
+            default:
+                e = UnknownError;
+                break;
+            }
+        } else if (waitForMore(0, &timeout) == 0) {
+            if (!timeout) {
+                // connection closed
+                close();
+            }
+        }
     }
     return r;
 }
@@ -877,96 +877,96 @@ Q_LONG QSocketDevice::writeBlock( const char *data, Q_ULONG len )
     This is used for \c QSocketDevice::Datagram sockets. You must
     specify the \a host and \a port of the destination of the data.
 */
-Q_LONG QSocketDevice::writeBlock( const char * data, Q_ULONG len,
-			       const QHostAddress & host, Q_UINT16 port )
+Q_LONG QSocketDevice::writeBlock(const char * data, Q_ULONG len,
+                               const QHostAddress & host, Q_UINT16 port)
 {
-    if ( t != Datagram ) {
-	qWarning( "QSocketDevice::sendBlock: Not datagram" );
-	return -1; // for now - later we can do t/tcp
+    if (t != Datagram) {
+        qWarning("QSocketDevice::sendBlock: Not datagram");
+        return -1; // for now - later we can do t/tcp
     }
 
-    if ( data == 0 && len != 0 ) {
-	qWarning( "QSocketDevice::sendBlock: Null pointer error" );
-	return -1;
+    if (data == 0 && len != 0) {
+        qWarning("QSocketDevice::sendBlock: Null pointer error");
+        return -1;
     }
-    if ( !isValid() ) {
-	qWarning( "QSocketDevice::sendBlock: Invalid socket" );
-	return -1;
+    if (!isValid()) {
+        qWarning("QSocketDevice::sendBlock: Invalid socket");
+        return -1;
     }
-    if ( !isOpen() ) {
-	qWarning( "QSocketDevice::sendBlock: Device is not open" );
-	return -1;
+    if (!isOpen()) {
+        qWarning("QSocketDevice::sendBlock: Device is not open");
+        return -1;
     }
-    if ( !isWritable() ) {
-	qWarning( "QSocketDevice::sendBlock: Write operation not permitted" );
-	return -1;
+    if (!isWritable()) {
+        qWarning("QSocketDevice::sendBlock: Write operation not permitted");
+        return -1;
     }
     struct sockaddr_in a4;
     struct sockaddr *aa;
     QT_SOCKLEN_T slen;
 #if !defined(QT_NO_IPV6)
     struct sockaddr_in6 a6;
-    if ( host.isIPv6Address() ) {
-	memset( &a6, 0, sizeof(a6) );
-	a6.sin6_family = AF_INET6;
-	a6.sin6_port = htons( port );
+    if (host.isIPv6Address()) {
+        memset(&a6, 0, sizeof(a6));
+        a6.sin6_family = AF_INET6;
+        a6.sin6_port = htons(port);
 
-	Q_IPV6ADDR tmp = host.toIPv6Address();
-	memcpy( &a6.sin6_addr.s6_addr, &tmp, sizeof(tmp) );
-	slen = sizeof( a6 );
-	aa = (struct sockaddr *)&a6;
+        Q_IPV6ADDR tmp = host.toIPv6Address();
+        memcpy(&a6.sin6_addr.s6_addr, &tmp, sizeof(tmp));
+        slen = sizeof(a6);
+        aa = (struct sockaddr *)&a6;
     } else
 #endif
-    if ( host.isIPv4Address() ) {
-	memset( &a4, 0, sizeof(a4) );
-	a4.sin_family = AF_INET;
-	a4.sin_port = htons( port );
-	a4.sin_addr.s_addr = htonl( host.toIPv4Address() );
-	slen = sizeof(a4);
-	aa = (struct sockaddr *)&a4;
+    if (host.isIPv4Address()) {
+        memset(&a4, 0, sizeof(a4));
+        a4.sin_family = AF_INET;
+        a4.sin_port = htons(port);
+        a4.sin_addr.s_addr = htonl(host.toIPv4Address());
+        slen = sizeof(a4);
+        aa = (struct sockaddr *)&a4;
     } else {
-	e = Impossible;
-	return -1;
+        e = Impossible;
+        return -1;
     }
 
     // we'd use MSG_DONTWAIT + MSG_NOSIGNAL if Stevens were right.
     // but apparently Stevens and most implementors disagree
-    bool done = FALSE;
+    bool done = false;
     int r = 0;
-    while ( !done ) {
-	r = ::sendto( fd, data, len, 0, aa, slen);
-	done = TRUE;
-	if ( r < 0 && e == NoError &&
-	     errno != EAGAIN && errno != EWOULDBLOCK ) {
-	    switch( errno ) {
-	    case EINTR: // signal - call read() or whatever again
-		done = FALSE;
-		break;
-	    case ENOSPC:
-	    case EPIPE:
-	    case EIO:
-	    case EISDIR:
-	    case EBADF:
-	    case EINVAL:
-	    case EFAULT:
-	    case ENOTCONN:
-	    case ENOTSOCK:
-		e = Impossible;
-		break;
+    while (!done) {
+        r = ::sendto(fd, data, len, 0, aa, slen);
+        done = true;
+        if (r < 0 && e == NoError &&
+             errno != EAGAIN && errno != EWOULDBLOCK) {
+            switch(errno) {
+            case EINTR: // signal - call read() or whatever again
+                done = false;
+                break;
+            case ENOSPC:
+            case EPIPE:
+            case EIO:
+            case EISDIR:
+            case EBADF:
+            case EINVAL:
+            case EFAULT:
+            case ENOTCONN:
+            case ENOTSOCK:
+                e = Impossible;
+                break;
 #if defined(ENONET)
-	    case ENONET:
+            case ENONET:
 #endif
-	    case EHOSTUNREACH:
-	    case ENETDOWN:
-	    case ENETUNREACH:
-	    case ETIMEDOUT:
-		e = NetworkFailure;
-		break;
-	    default:
-		e = UnknownError;
-		break;
-	    }
-	}
+            case EHOSTUNREACH:
+            case ENETDOWN:
+            case ENETUNREACH:
+            case ETIMEDOUT:
+                e = NetworkFailure;
+                break;
+            default:
+                e = UnknownError;
+                break;
+            }
+        }
     }
     return r;
 }
@@ -978,27 +978,27 @@ Q_LONG QSocketDevice::writeBlock( const char * data, Q_ULONG len,
 */
 void QSocketDevice::fetchConnectionParameters()
 {
-    if ( !isValid() ) {
-	p = 0;
-	a = QHostAddress();
-	pp = 0;
-	pa = QHostAddress();
-	return;
+    if (!isValid()) {
+        p = 0;
+        a = QHostAddress();
+        pp = 0;
+        pa = QHostAddress();
+        return;
     }
 #if !defined(QT_NO_IPV6)
     struct sockaddr_storage sa;
 #else
     struct sockaddr_in sa;
 #endif
-    memset( &sa, 0, sizeof(sa) );
+    memset(&sa, 0, sizeof(sa));
     QT_SOCKLEN_T sz;
-    sz = sizeof( sa );
-    if ( !::getsockname( fd, (struct sockaddr *)(&sa), &sz ) )
-	qt_socket_getportaddr( (struct sockaddr *)&sa, &p, &a );
+    sz = sizeof(sa);
+    if (!::getsockname(fd, (struct sockaddr *)(&sa), &sz))
+        qt_socket_getportaddr((struct sockaddr *)&sa, &p, &a);
 
-    sz = sizeof( sa );
-    if ( !::getpeername( fd, (struct sockaddr *)(&sa), &sz ) )
-	qt_socket_getportaddr( (struct sockaddr *)&sa, &pp, &pa );
+    sz = sizeof(sa);
+    if (!::getpeername(fd, (struct sockaddr *)(&sa), &sz))
+        qt_socket_getportaddr((struct sockaddr *)&sa, &pp, &pa);
 }
 
 

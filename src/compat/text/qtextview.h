@@ -24,23 +24,23 @@
 class Q_GUI_EXPORT QTextView : public QTextEdit
 {
     Q_OBJECT
-    Q_OVERRIDE( int undoDepth DESIGNABLE false SCRIPTABLE false )
-    Q_OVERRIDE( bool overwriteMode DESIGNABLE false SCRIPTABLE false )
-    Q_OVERRIDE( bool modified SCRIPTABLE false)
-    Q_OVERRIDE( bool readOnly DESIGNABLE false SCRIPTABLE false )
-    Q_OVERRIDE( bool undoRedoEnabled DESIGNABLE false SCRIPTABLE false )
+    Q_OVERRIDE(int undoDepth DESIGNABLE false SCRIPTABLE false)
+    Q_OVERRIDE(bool overwriteMode DESIGNABLE false SCRIPTABLE false)
+    Q_OVERRIDE(bool modified SCRIPTABLE false)
+    Q_OVERRIDE(bool readOnly DESIGNABLE false SCRIPTABLE false)
+    Q_OVERRIDE(bool undoRedoEnabled DESIGNABLE false SCRIPTABLE false)
 
 public:
-    QTextView( const QString& text, const QString& context = QString::null,
-	       QWidget* parent=0, const char* name=0);
-    QTextView( QWidget* parent=0, const char* name=0 );
+    QTextView(const QString& text, const QString& context = QString::null,
+               QWidget* parent=0, const char* name=0);
+    QTextView(QWidget* parent=0, const char* name=0);
 
     virtual ~QTextView();
 
 private:
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QTextView( const QTextView & );
-    QTextView &operator=( const QTextView & );
+    QTextView(const QTextView &);
+    QTextView &operator=(const QTextView &);
 #endif
 };
 

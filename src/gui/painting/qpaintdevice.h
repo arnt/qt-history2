@@ -34,7 +34,7 @@ class QX11Info;
 //######################
 //#define QT_OLD_GFX
 
-class Q_GUI_EXPORT QPaintDevice				// device for QPainter
+class Q_GUI_EXPORT QPaintDevice                                // device for QPainter
 {
 public:
     virtual ~QPaintDevice();
@@ -43,10 +43,10 @@ public:
     bool isExtDev() const;
     bool paintingActive() const;
 
-    virtual void setResolution( int );
+    virtual void setResolution(int);
     virtual int resolution() const;
 
-    // Windows:	  get device context
+    // Windows:          get device context
     // X-Windows: get drawable
 #if defined(Q_WS_WIN)
     virtual HDC handle() const;
@@ -66,17 +66,17 @@ public:
     virtual unsigned char * scanLine(int) const;
     virtual int bytesPerLine() const;
 #if 1//def QT_OLD_GFX
-    virtual QGfx * graphicsContext(bool clip_children=TRUE) const;
+    virtual QGfx * graphicsContext(bool clip_children=true) const;
 #endif
 #endif
 
 protected:
-    QPaintDevice( uint devflags );
+    QPaintDevice(uint devflags);
 
 #if defined(Q_WS_WIN)
-    HDC		hdc;				// device context
+    HDC                hdc;                                // device context
 #elif defined(Q_WS_X11)
-    Qt::HANDLE	hd;				// handle to drawable
+    Qt::HANDLE        hd;                                // handle to drawable
     Qt::HANDLE  rendhd;                         // handle to RENDER pict
 #elif defined(Q_WS_MAC)
     Qt::HANDLE hd;
@@ -85,12 +85,12 @@ protected:
     Qt::HANDLE hd;
 #endif
 
-    virtual int	 metric( int ) const;
-    virtual int	 fontMet( QFont *, int, const char * = 0, int = 0 ) const;
-    virtual int	 fontInf( QFont *, int ) const;
+    virtual int         metric(int) const;
+    virtual int         fontMet(QFont *, int, const char * = 0, int = 0) const;
+    virtual int         fontInf(QFont *, int) const;
 
-    ushort	devFlags;			// device flags
-    ushort	painters;			// refcount
+    ushort        devFlags;                        // device flags
+    ushort        painters;                        // refcount
 
     friend class QPainter;
     friend class QPaintDeviceMetrics;
@@ -101,19 +101,19 @@ protected:
     friend class QQuickDrawPaintEngine;
 #endif
 #if !defined(Q_WS_MAC)
-    friend Q_GUI_EXPORT void bitBlt( QPaintDevice *, int, int,
-				     const QPaintDevice *,
-				     int, int, int, int, Qt::RasterOp, bool );
+    friend Q_GUI_EXPORT void bitBlt(QPaintDevice *, int, int,
+                                     const QPaintDevice *,
+                                     int, int, int, int, Qt::RasterOp, bool);
 #endif
 #if defined(Q_WS_X11)
-    friend void qt_init( QApplicationPrivate *, int, Display *, Qt::HANDLE, Qt::HANDLE );
+    friend void qt_init(QApplicationPrivate *, int, Display *, Qt::HANDLE, Qt::HANDLE);
     friend void qt_cleanup();
 #endif
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QPaintDevice( const QPaintDevice & );
-    QPaintDevice &operator=( const QPaintDevice & );
+    QPaintDevice(const QPaintDevice &);
+    QPaintDevice &operator=(const QPaintDevice &);
 #endif
 
 #if defined(Q_WS_X11) && defined(QT_COMPAT)
@@ -145,14 +145,14 @@ public:
 
 
 Q_GUI_EXPORT
-void bitBlt( QPaintDevice *dst, int dx, int dy,
-	     const QPaintDevice *src, int sx=0, int sy=0, int sw=-1, int sh=-1,
-	     Qt::RasterOp = Qt::CopyROP, bool ignoreMask=FALSE );
+void bitBlt(QPaintDevice *dst, int dx, int dy,
+             const QPaintDevice *src, int sx=0, int sy=0, int sw=-1, int sh=-1,
+             Qt::RasterOp = Qt::CopyROP, bool ignoreMask=false);
 
 Q_GUI_EXPORT
-void bitBlt( QPaintDevice *dst, int dx, int dy,
-	     const QImage *src, int sx=0, int sy=0, int sw=-1, int sh=-1,
-	     int conversion_flags=0 );
+void bitBlt(QPaintDevice *dst, int dx, int dy,
+             const QImage *src, int sx=0, int sy=0, int sw=-1, int sh=-1,
+             int conversion_flags=0);
 
 /*****************************************************************************
   Inline functions
@@ -168,11 +168,11 @@ inline bool QPaintDevice::paintingActive() const
 { return painters != 0; }
 
 Q_GUI_EXPORT
-inline void bitBlt( QPaintDevice *dst, const QPoint &dp,
-		    const QPaintDevice *src, const QRect &sr =QRect(0,0,-1,-1),
-		    Qt::RasterOp rop=Qt::CopyROP, bool ignoreMask=FALSE )
+inline void bitBlt(QPaintDevice *dst, const QPoint &dp,
+                    const QPaintDevice *src, const QRect &sr =QRect(0,0,-1,-1),
+                    Qt::RasterOp rop=Qt::CopyROP, bool ignoreMask=false)
 {
-    bitBlt( dst, dp.x(), dp.y(), src, sr.x(), sr.y(), sr.width(), sr.height(),
-	    rop, ignoreMask );
+    bitBlt(dst, dp.x(), dp.y(), src, sr.x(), sr.y(), sr.width(), sr.height(),
+            rop, ignoreMask);
 }
 #endif // QPAINTDEVICE_H

@@ -14,13 +14,13 @@ class QGroupBoxPrivate : public QWidgetPrivate
 public:
 
     QGroupBoxPrivate():
-	spacer( 0 ),
-	checkbox( 0 ),
-	topMargin( 0 ){}
+        spacer(0),
+        checkbox(0),
+        topMargin(0){}
     void skip();
     void init();
     void calculateFrame();
-    void insertWid( QWidget* );
+    void insertWid(QWidget*);
     void setTextSpacer();
 #ifndef QT_NO_CHECKBOX
     void updateCheckBoxGeometry();

@@ -29,28 +29,28 @@ class QPopupMenu;
 class Q_GUI_EXPORT QWorkspace : public QWidget
 {
     Q_OBJECT
-    Q_PROPERTY( bool scrollBarsEnabled READ scrollBarsEnabled WRITE setScrollBarsEnabled )
+    Q_PROPERTY(bool scrollBarsEnabled READ scrollBarsEnabled WRITE setScrollBarsEnabled)
 
 public:
-    QWorkspace( QWidget* parent=0, const char* name=0 );
+    QWorkspace(QWidget* parent=0, const char* name=0);
 
     ~QWorkspace();
 
     enum WindowOrder { CreationOrder, StackingOrder };
 
     QWidget* activeWindow() const;
-    QWidgetList windowList( WindowOrder order = CreationOrder ) const;
+    QWidgetList windowList(WindowOrder order = CreationOrder) const;
 
     QSize sizeHint() const;
 
     bool scrollBarsEnabled() const;
-    void setScrollBarsEnabled( bool enable );
+    void setScrollBarsEnabled(bool enable);
 
-    void setPaletteBackgroundColor( const QColor & );
-    void setPaletteBackgroundPixmap( const QPixmap & );
+    void setPaletteBackgroundColor(const QColor &);
+    void setPaletteBackgroundPixmap(const QPixmap &);
 
 signals:
-    void windowActivated( QWidget* w);
+    void windowActivated(QWidget* w);
 
 public slots:
     void cascade();
@@ -61,22 +61,22 @@ public slots:
     void activatePrevWindow();
 
 protected:
-    void changeEvent( QEvent * );
-    void childEvent( QChildEvent * );
-    void resizeEvent( QResizeEvent * );
-    bool eventFilter( QObject *, QEvent * );
-    void showEvent( QShowEvent *e );
-    void hideEvent( QHideEvent *e );
+    void changeEvent(QEvent *);
+    void childEvent(QChildEvent *);
+    void resizeEvent(QResizeEvent *);
+    bool eventFilter(QObject *, QEvent *);
+    void showEvent(QShowEvent *e);
+    void hideEvent(QHideEvent *e);
 #ifndef QT_NO_WHEELEVENT
-    void wheelEvent( QWheelEvent *e );
+    void wheelEvent(QWheelEvent *e);
 #endif
 
 private slots:
     void normalizeActiveWindow();
     void minimizeActiveWindow();
     void showOperationMenu();
-    void popupOperationMenu( const QPoint& );
-    void operationMenuActivated( int );
+    void popupOperationMenu(const QPoint&);
+    void operationMenuActivated(int);
     void operationMenuAboutToShow();
     void toolMenuAboutToShow();
     void activatePreviousWindow(); // ### remove in Qt 4.0
@@ -84,18 +84,18 @@ private slots:
 
 private:
     void init();
-    void insertIcon( QWidget* w );
-    void removeIcon( QWidget* w );
-    void place( QWidget* );
+    void insertIcon(QWidget* w);
+    void removeIcon(QWidget* w);
+    void place(QWidget*);
 
-    QWorkspaceChild* findChild( QWidget* w );
+    QWorkspaceChild* findChild(QWidget* w);
     void showMaximizeControls();
     void hideMaximizeControls();
-    void activateWindow( QWidget* w, bool change_focus = TRUE );
-    void showWindow( QWidget* w );
-    void maximizeWindow( QWidget* w );
-    void minimizeWindow( QWidget* w );
-    void normalizeWindow( QWidget* w );
+    void activateWindow(QWidget* w, bool change_focus = true);
+    void showWindow(QWidget* w);
+    void maximizeWindow(QWidget* w);
+    void minimizeWindow(QWidget* w);
+    void normalizeWindow(QWidget* w);
 
     QRect updateWorkspace();
 
@@ -105,10 +105,10 @@ private:
     friend class QWorkspacePrivate;
     friend class QWorkspaceChild;
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QWorkspace( const QWorkspace & );
-    QWorkspace& operator=( const QWorkspace & );
+    QWorkspace(const QWorkspace &);
+    QWorkspace& operator=(const QWorkspace &);
 #endif
 };
 

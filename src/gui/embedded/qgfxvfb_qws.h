@@ -30,10 +30,10 @@ class QVFbKeyboardHandler;
 class QVFbScreen : public QScreen
 {
 public:
-    QVFbScreen( int display_id );
+    QVFbScreen(int display_id);
     virtual ~QVFbScreen();
     virtual bool initDevice();
-    virtual bool connect( const QString &displaySpec );
+    virtual bool connect(const QString &displaySpec);
     virtual void disconnect();
     virtual int initCursor(void*, bool);
     virtual void shutdownDevice();
@@ -42,8 +42,8 @@ public:
     virtual void restore();
     virtual void setMode(int nw,int nh,int nd);
 
-    virtual void setDirty( const QRect& r )
-	{ hdr->dirty = TRUE; hdr->update = hdr->update.unite( r ); }
+    virtual void setDirty(const QRect& r)
+        { hdr->dirty = true; hdr->update = hdr->update.unite(r); }
 
     bool success;
     unsigned char *shmrgn;

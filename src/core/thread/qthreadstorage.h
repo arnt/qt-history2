@@ -33,7 +33,7 @@ public:
     bool ensure_constructed(void (*func)(void *));
 };
 
-#if !defined( QT_MOC_CPP )
+#if !defined(QT_MOC_CPP)
 // MOC_SKIP_BEGIN
 
 // pointer specialization

@@ -33,7 +33,7 @@ public:
     ~QMouseDriverPlugin();
 
     virtual QStringList keys() const = 0;
-    virtual QWSMouseHandler* create( const QString& driver, const QString &device ) = 0;
+    virtual QWSMouseHandler* create(const QString& driver, const QString &device) = 0;
 
 private:
     QMouseDriverPluginPrivate *d;

@@ -32,15 +32,15 @@ class Q_GUI_EXPORT_STYLE_COMPACT QCompactStyle : public QWindowsStyle
 public:
     QCompactStyle();
 
-    int pixelMetric( PixelMetric metric, const QWidget *widget = 0 ) const;
+    int pixelMetric(PixelMetric metric, const QWidget *widget = 0) const;
 
-    void drawControl( ControlElement element, QPainter *p, const QWidget *w, const QRect &r,
-		      const QPalette &pal, SFlags how = Style_Default, const QStyleOption& = QStyleOption::Default );
+    void drawControl(ControlElement element, QPainter *p, const QWidget *w, const QRect &r,
+                      const QPalette &pal, SFlags how = Style_Default, const QStyleOption& = QStyleOption::Default);
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QCompactStyle( const QCompactStyle & );
-    QCompactStyle& operator=( const QCompactStyle & );
+    QCompactStyle(const QCompactStyle &);
+    QCompactStyle& operator=(const QCompactStyle &);
 #endif
 };
 

@@ -70,7 +70,7 @@
     \property QCheckBox::checked
     \brief whether the checkbox is checked
 
-    The default is unchecked, i.e. FALSE.
+    The default is unchecked, i.e. false.
 */
 
 /*!
@@ -84,7 +84,7 @@
     \property QCheckBox::tristate
     \brief whether the checkbox is a tri-state checkbox
 
-    The default is two-state, i.e. tri-state is FALSE.
+    The default is two-state, i.e. tri-state is false.
 */
 
 static QPixmap *qt_checkbox_painter_pix = 0;
@@ -96,11 +96,11 @@ static QPixmap *qt_checkbox_painter_pix = 0;
     constructor.
 */
 
-QCheckBox::QCheckBox( QWidget *parent, const char *name )
-	: QButton( parent, name, WMouseNoMask )
+QCheckBox::QCheckBox(QWidget *parent, const char *name)
+        : QButton(parent, name, WMouseNoMask)
 {
-    setToggleButton( TRUE );
-    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
+    setToggleButton(true);
+    setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed));
 }
 
 /*!
@@ -110,12 +110,12 @@ QCheckBox::QCheckBox( QWidget *parent, const char *name )
     constructor.
 */
 
-QCheckBox::QCheckBox( const QString &text, QWidget *parent, const char *name )
-	: QButton( parent, name, WMouseNoMask )
+QCheckBox::QCheckBox(const QString &text, QWidget *parent, const char *name)
+        : QButton(parent, name, WMouseNoMask)
 {
-    setText( text );
-    setToggleButton( TRUE );
-    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
+    setText(text);
+    setToggleButton(true);
+    setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed));
 }
 
 /*!
@@ -125,13 +125,13 @@ QCheckBox::QCheckBox( const QString &text, QWidget *parent, const char *name )
 */
 void QCheckBox::setNoChange()
 {
-    setTristate(TRUE);
-    setState( NoChange );
+    setTristate(true);
+    setState(NoChange);
 }
 
 void QCheckBox::setTristate(bool y)
 {
-    setToggleType( y ? Tristate : Toggle );
+    setToggleType(y ? Tristate : Toggle);
 }
 
 bool QCheckBox::isTristate() const
@@ -149,67 +149,67 @@ QSize QCheckBox::sizeHint() const
 
 
     if(!qt_checkbox_painter_pix)
-	qt_checkbox_painter_pix = new QPixmap(1, 1);
+        qt_checkbox_painter_pix = new QPixmap(1, 1);
     QPainter p(qt_checkbox_painter_pix, this);
-    QSize sz = style().itemRect(&p, QRect(0, 0, 1, 1), ShowPrefix, FALSE,
-				pixmap(), text()).size();
+    QSize sz = style().itemRect(&p, QRect(0, 0, 1, 1), ShowPrefix, false,
+                                pixmap(), text()).size();
 
     return (style().sizeFromContents(QStyle::CT_CheckBox, this, sz).
-	    expandedTo(QApplication::globalStrut()));
+            expandedTo(QApplication::globalStrut()));
 }
 
 
 /*!\reimp
 */
 
-void QCheckBox::drawButton( QPainter *paint )
+void QCheckBox::drawButton(QPainter *paint)
 {
     QPainter *p = paint;
-    QRect irect = QStyle::visualRect( style().subRect(QStyle::SR_CheckBoxIndicator, this), this );
+    QRect irect = QStyle::visualRect(style().subRect(QStyle::SR_CheckBoxIndicator, this), this);
     const QPalette &pal = palette();
 
     QStyle::SFlags flags = QStyle::Style_Default;
-    if ( isEnabled() )
-	flags |= QStyle::Style_Enabled;
-    if ( hasFocus() )
-	flags |= QStyle::Style_HasFocus;
-    if ( isDown() )
-	flags |= QStyle::Style_Down;
-    if ( testAttribute(WA_UnderMouse) )
-	flags |= QStyle::Style_MouseOver;
-    if ( state() == QButton::On )
-	flags |= QStyle::Style_On;
-    else if ( state() == QButton::Off )
-	flags |= QStyle::Style_Off;
-    else if ( state() == QButton::NoChange )
-	flags |= QStyle::Style_NoChange;
+    if (isEnabled())
+        flags |= QStyle::Style_Enabled;
+    if (hasFocus())
+        flags |= QStyle::Style_HasFocus;
+    if (isDown())
+        flags |= QStyle::Style_Down;
+    if (testAttribute(WA_UnderMouse))
+        flags |= QStyle::Style_MouseOver;
+    if (state() == QButton::On)
+        flags |= QStyle::Style_On;
+    else if (state() == QButton::Off)
+        flags |= QStyle::Style_Off;
+    else if (state() == QButton::NoChange)
+        flags |= QStyle::Style_NoChange;
 
     style().drawControl(QStyle::CE_CheckBox, p, this, irect, pal, flags);
 
-    drawButtonLabel( paint );
+    drawButtonLabel(paint);
 }
 
 
 /*!\reimp
 */
-void QCheckBox::drawButtonLabel( QPainter *p )
+void QCheckBox::drawButtonLabel(QPainter *p)
 {
     QRect r =
-	QStyle::visualRect( style().subRect(QStyle::SR_CheckBoxContents, this), this );
+        QStyle::visualRect(style().subRect(QStyle::SR_CheckBoxContents, this), this);
 
     QStyle::SFlags flags = QStyle::Style_Default;
     if (isEnabled())
-	flags |= QStyle::Style_Enabled;
+        flags |= QStyle::Style_Enabled;
     if (hasFocus())
-	flags |= QStyle::Style_HasFocus;
+        flags |= QStyle::Style_HasFocus;
     if (isDown())
-	flags |= QStyle::Style_Down;
+        flags |= QStyle::Style_Down;
     if (state() == QButton::On)
-	flags |= QStyle::Style_On;
+        flags |= QStyle::Style_On;
     else if (state() == QButton::Off)
-	flags |= QStyle::Style_Off;
+        flags |= QStyle::Style_Off;
     else if (state() == QButton::NoChange)
-	flags |= QStyle::Style_NoChange;
+        flags |= QStyle::Style_NoChange;
 
     style().drawControl(QStyle::CE_CheckBoxLabel, p, this, r, palette(), flags);
 }
@@ -217,22 +217,22 @@ void QCheckBox::drawButtonLabel( QPainter *p )
 /*!
   \reimp
 */
-void QCheckBox::resizeEvent( QResizeEvent *e )
+void QCheckBox::resizeEvent(QResizeEvent *e)
 {
     QButton::resizeEvent(e);
-    if ( isVisible() ) {
+    if (isVisible()) {
     if(!qt_checkbox_painter_pix)
-	qt_checkbox_painter_pix = new QPixmap(1, 1);
+        qt_checkbox_painter_pix = new QPixmap(1, 1);
     QPainter p(qt_checkbox_painter_pix, this);
-    QSize isz = style().itemRect(&p, QRect(0, 0, 1, 1), ShowPrefix, FALSE,
-				 pixmap(), text()).size();
+    QSize isz = style().itemRect(&p, QRect(0, 0, 1, 1), ShowPrefix, false,
+                                 pixmap(), text()).size();
     QSize wsz = (style().sizeFromContents(QStyle::CT_CheckBox, this, isz).
-		 expandedTo(QApplication::globalStrut()));
+                 expandedTo(QApplication::globalStrut()));
 
     update(wsz.width(), isz.width(), 0, wsz.height());
     }
     if (autoMask())
-	updateMask();
+        updateMask();
 }
 
 /*!
@@ -241,22 +241,22 @@ void QCheckBox::resizeEvent( QResizeEvent *e )
 void QCheckBox::updateMask()
 {
     QRect irect =
-	QStyle::visualRect( style().subRect(QStyle::SR_CheckBoxIndicator, this), this );
+        QStyle::visualRect(style().subRect(QStyle::SR_CheckBoxIndicator, this), this);
 
     QBitmap bm(width(), height());
     bm.fill(color0);
 
-    QPainter p( &bm, this );
+    QPainter p(&bm, this);
     style().drawControlMask(QStyle::CE_CheckBox, &p, this, irect);
-    if ( ! text().isNull() || ( pixmap() && ! pixmap()->isNull() ) ) {
-	QRect crect =
-	    QStyle::visualRect( style().subRect( QStyle::SR_CheckBoxContents,
-						 this ), this );
-	QRect frect =
-	    QStyle::visualRect( style().subRect( QStyle::SR_CheckBoxFocusRect,
-						 this ), this );
-	QRect label(crect.unite(frect));
-	p.fillRect(label, color1);
+    if (! text().isNull() || (pixmap() && ! pixmap()->isNull())) {
+        QRect crect =
+            QStyle::visualRect(style().subRect(QStyle::SR_CheckBoxContents,
+                                                 this), this);
+        QRect frect =
+            QStyle::visualRect(style().subRect(QStyle::SR_CheckBoxFocusRect,
+                                                 this), this);
+        QRect label(crect.unite(frect));
+        p.fillRect(label, color1);
     }
     p.end();
 
@@ -264,15 +264,15 @@ void QCheckBox::updateMask()
 }
 
 /*!\reimp*/
-bool QCheckBox::hitButton( const QPoint &pos ) const
+bool QCheckBox::hitButton(const QPoint &pos) const
 {
-    QRect r = QStyle::visualRect( style().subRect( QStyle::SR_CheckBoxFocusRect, this ), this );
-    if ( qApp->reverseLayout() ) {
-	r.setRight( width() );
+    QRect r = QStyle::visualRect(style().subRect(QStyle::SR_CheckBoxFocusRect, this), this);
+    if (qApp->reverseLayout()) {
+        r.setRight(width());
     } else {
-	r.setLeft( 0 );
+        r.setLeft(0);
     }
-    return r.contains( pos );
+    return r.contains(pos);
 }
 
 #endif

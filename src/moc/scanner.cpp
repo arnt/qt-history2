@@ -47,7 +47,7 @@ Symbols Scanner::scan(const QByteArray &input)
             switch (token) {
             case QUOTE:
                 while (*data && (*data != '\"'
-                                 || ( *(data-1)=='\\'
+                                 || (*(data-1)=='\\'
                                      && *(data-2)!='\\')))
                     ++data;
                 if (*data)
@@ -56,7 +56,7 @@ Symbols Scanner::scan(const QByteArray &input)
                 break;
             case SINGLEQUOTE:
                 while (*data && (*data != '\''
-                                 || ( *(data-1)=='\\'
+                                 || (*(data-1)=='\\'
                                      && *(data-2)!='\\')))
                     ++data;
                 if (*data)
@@ -68,9 +68,9 @@ Symbols Scanner::scan(const QByteArray &input)
                     ++data;
                 if (!*data || *data != '.') {
                     token = INTEGER_LITERAL;
-                    if ( data - lexem == 1 &&
-                         (*data == 'x' || *data == 'X' )
-                         && *lexem == '0' ) {
+                    if (data - lexem == 1 &&
+                         (*data == 'x' || *data == 'X')
+                         && *lexem == '0') {
                         ++data;
                         while (is_hex_char(*data))
                             ++data;
@@ -111,7 +111,7 @@ Symbols Scanner::scan(const QByteArray &input)
                 continue; //ignore
             }
         }
-        symbols += Symbol( lineNum, token, input, lexem-begin, data-lexem);
+        symbols += Symbol(lineNum, token, input, lexem-begin, data-lexem);
 //      qDebug("%d (%d): %s", lineNum, token, QByteArray(lexem, data-lexem).constData());
     }
 

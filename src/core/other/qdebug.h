@@ -24,10 +24,10 @@
 class Q_CORE_EXPORT QDebug
 {
     struct Stream {
-	Stream():ts(stderr, IO_WriteOnly),ref(1), space(true){}
-	QTextStream ts;
-	int ref;
-	bool space;
+        Stream():ts(stderr, IO_WriteOnly),ref(1), space(true){}
+        QTextStream ts;
+        int ref;
+        bool space;
     } *d;
 public:
     inline QDebug():d(new Stream){}
@@ -56,21 +56,21 @@ public:
     template <class T>
     inline QDebug &operator<<(const QList<T> &list)
     {
-	(*this) << '(';
-	for (Q_TYPENAME QList<T>::size_type i = 0; i < list.count(); ++i) {
-	    if (i)
-		(*this) << ',';
-	    (*this) << list.at(i);
-	}
-	(*this) << ')';
-	return *this;
+        (*this) << '(';
+        for (Q_TYPENAME QList<T>::size_type i = 0; i < list.count(); ++i) {
+            if (i)
+                (*this) << ',';
+            (*this) << list.at(i);
+        }
+        (*this) << ')';
+        return *this;
     }
 
     inline QDebug &operator<<(QTSFUNC f)
-	{ d->ts << f; return *this; }
+        { d->ts << f; return *this; }
 
     inline QDebug &operator<<(QTSManip m)
-	{ d->ts << m; return *this; }
+        { d->ts << m; return *this; }
 };
 inline Q_CORE_EXPORT QDebug qDebug() { return QDebug(); }
 

@@ -36,26 +36,26 @@
 
     public:
 
-	virtual void run();
+        virtual void run();
 
     };
 
     void MyThread::run()
     {
-	for(int count = 0; count < 20; count++) {
-	    sleep(1);
-	    qDebug("Ping!");
-	}
+        for(int count = 0; count < 20; count++) {
+            sleep(1);
+            qDebug("Ping!");
+        }
     }
 
     int main()
     {
-	MyThread a;
-	MyThread b;
-	a.start();
-	b.start();
-	a.wait();
-	b.wait();
+        MyThread a;
+        MyThread b;
+        a.start();
+        b.start();
+        a.wait();
+        b.wait();
     }
     \endcode
 
@@ -134,16 +134,16 @@ QThread::QThread(unsigned int stackSize)
 
     Note that deleting a QThread object will not stop the execution of
     the thread it represents. Deleting a running QThread (i.e.
-    finished() returns FALSE) will probably result in a program crash.
+    finished() returns false) will probably result in a program crash.
     You can wait() on a thread to make sure that it has finished.
 */
 QThread::~QThread()
 {
     QMutexLocker locker(d->mutex());
     if (d->running && !d->finished) {
-	qWarning("QThread object destroyed while thread is still running.");
-	d->orphan = true;
-	return;
+        qWarning("QThread object destroyed while thread is still running.");
+        d->orphan = true;
+        return;
     }
 
     d->deinit();
@@ -169,12 +169,12 @@ void QThread::terminate()
 {
     QMutexLocker locker(d->mutex());
     if (d->finished || !d->running)
-	return;
+        return;
     d->terminate();
 }
 
 /*!
-    Returns true is the thread is finished; otherwise returns FALSE.
+    Returns true is the thread is finished; otherwise returns false.
 */
 bool QThread::isFinished() const
 {
@@ -183,7 +183,7 @@ bool QThread::isFinished() const
 }
 
 /*!
-    Returns true if the thread is running; otherwise returns FALSE.
+    Returns true if the thread is running; otherwise returns false.
 */
 bool QThread::isRunning() const
 {

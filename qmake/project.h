@@ -32,12 +32,12 @@ class QMakeProject
 
     struct ScopeBlock
     {
-	enum TestStatus { TestNone, TestFound, TestSeek };
-	ScopeBlock() : iterate(0), ignore(FALSE), else_status(TestNone) { }
-	ScopeBlock(bool i) : iterate(0), ignore(i), else_status(TestNone) { }
-	~ScopeBlock();
-	ScopeIterator *iterate;
-	uint ignore : 1, else_status : 2;
+        enum TestStatus { TestNone, TestFound, TestSeek };
+        ScopeBlock() : iterate(0), ignore(false), else_status(TestNone) { }
+        ScopeBlock(bool i) : iterate(0), ignore(i), else_status(TestNone) { }
+        ~ScopeBlock();
+        ScopeIterator *iterate;
+        uint ignore : 1, else_status : 2;
     };
 
     QStack<ScopeBlock> scope_blocks;
@@ -48,8 +48,8 @@ class QMakeProject
     void reset();
     QMap<QString, QStringList> vars, base_vars, cache;
     bool parse(const QString &text, QMap<QString, QStringList> &place);
-    bool doProjectInclude(QString file, bool feature, QMap<QString, QStringList> &place, 
-			  const QString &seek_var=QString::null);
+    bool doProjectInclude(QString file, bool feature, QMap<QString, QStringList> &place,
+                          const QString &seek_var=QString::null);
     bool doProjectTest(const QString &func, const QString &params, QMap<QString, QStringList> &place);
     bool doProjectTest(const QString &func, QStringList args, QMap<QString, QStringList> &place);
     bool doProjectCheckReqs(const QStringList &deps, QMap<QString, QStringList> &place);
@@ -60,8 +60,8 @@ public:
     QMakeProject() { init(0); }
     QMakeProject(QMakeProperty *p) { init(p); }
 
-    enum { ReadCache=0x01, ReadConf=0x02, ReadCmdLine=0x04, ReadProFile=0x08, 
-	   ReadPostFiles=0x10, ReadFeatures=0x20, ReadAll=0xFF };
+    enum { ReadCache=0x01, ReadConf=0x02, ReadCmdLine=0x04, ReadProFile=0x08,
+           ReadPostFiles=0x10, ReadFeatures=0x20, ReadAll=0xFF };
     bool read(const QString &project, const QString &pwd, uchar cmd=ReadAll);
     bool read(uchar cmd=ReadAll);
 
@@ -72,7 +72,7 @@ public:
     QStringList &values(const QString &v);
     QString first(const QString &v);
     QMap<QString, QStringList> &variables();
-    bool isActiveConfig(const QString &x, bool regex=FALSE, QMap<QString, QStringList> *place=NULL);
+    bool isActiveConfig(const QString &x, bool regex=false, QMap<QString, QStringList> *place=NULL);
 
 protected:
     friend class MakefileGenerator;
@@ -84,7 +84,7 @@ protected:
 inline QString QMakeProject::projectFile()
 {
     if (pfile == "-")
-	return QString("(stdin)");
+        return QString("(stdin)");
     return pfile;
 }
 
@@ -99,7 +99,7 @@ inline QStringList &QMakeProject::values(const QString &v)
 
 inline QString QMakeProject::first(const QString &v)
 {
-    if (isEmpty(v)) 
+    if (isEmpty(v))
         return QString("");
     return vars[v].first();
 }

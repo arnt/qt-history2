@@ -48,9 +48,9 @@ struct QWaitConditionPrivate {
     QWaitCondition key_pressed;
 
     for (;;) {
-	key_pressed.wait(); // This is a QWaitCondition global variable
-	// Key was pressed, do something interesting
-	do_something();
+        key_pressed.wait(); // This is a QWaitCondition global variable
+        // Key was pressed, do something interesting
+        do_something();
     }
     \endcode
 
@@ -61,10 +61,10 @@ struct QWaitConditionPrivate {
     QWaitCondition key_pressed;
 
     for (;;) {
-	getchar();
-	// Causes any thread in key_pressed.wait() to return from
-	// that method and continue processing
-	key_pressed.wakeAll();
+        getchar();
+        // Causes any thread in key_pressed.wait() to return from
+        // that method and continue processing
+        key_pressed.wakeAll();
     }
     \endcode
 
@@ -82,28 +82,28 @@ struct QWaitConditionPrivate {
 
     // Worker thread code
     for (;;) {
-	key_pressed.wait(); // This is a QWaitCondition global variable
-	mymutex.lock();
-	mycount++;
-	mymutex.unlock();
-	do_something();
-	mymutex.lock();
-	mycount--;
-	mymutex.unlock();
+        key_pressed.wait(); // This is a QWaitCondition global variable
+        mymutex.lock();
+        mycount++;
+        mymutex.unlock();
+        do_something();
+        mymutex.lock();
+        mycount--;
+        mymutex.unlock();
     }
 
     // Key reading thread code
     for (;;) {
-	getchar();
-	mymutex.lock();
-	// Sleep until there are no busy worker threads
-	while( mycount > 0 ) {
-	    mymutex.unlock();
-	    sleep( 1 );
-	    mymutex.lock();
-	}
-	mymutex.unlock();
-	key_pressed.wakeAll();
+        getchar();
+        mymutex.lock();
+        // Sleep until there are no busy worker threads
+        while(mycount > 0) {
+            mymutex.unlock();
+            sleep(1);
+            mymutex.lock();
+        }
+        mymutex.unlock();
+        key_pressed.wakeAll();
     }
     \endcode
 
@@ -121,7 +121,7 @@ QWaitCondition::QWaitCondition()
 
     int ret = pthread_cond_init(&d->cond, NULL);
     if (ret)
-	qWarning( "QWaitCondition: constructor failure: %s", strerror( ret ) );
+        qWarning("QWaitCondition: constructor failure: %s", strerror(ret));
 }
 
 
@@ -132,10 +132,10 @@ QWaitCondition::~QWaitCondition()
 {
     int ret = pthread_cond_destroy(&d->cond);
     if (ret != 0) {
-	qWarning( "QWaitCondition: destructor failure: %s", strerror( ret ) );
+        qWarning("QWaitCondition: destructor failure: %s", strerror(ret));
 
-	// seems we have threads waiting on us, lets wake them up
-	pthread_cond_broadcast(&d->cond);
+        // seems we have threads waiting on us, lets wake them up
+        pthread_cond_broadcast(&d->cond);
     }
 
     delete d;
@@ -152,7 +152,7 @@ void QWaitCondition::wakeOne()
 {
     int ret = pthread_cond_signal(&d->cond);
     if (ret != 0)
-	qWarning("QWaitCondition::wakeOne() failure: %s", strerror(ret));
+        qWarning("QWaitCondition::wakeOne() failure: %s", strerror(ret));
 }
 
 /*!
@@ -166,7 +166,7 @@ void QWaitCondition::wakeAll()
 {
     int ret =pthread_cond_broadcast(&d->cond);
     if (ret != 0)
-	qWarning("QWaitCondition::wakeAll() failure: %s", strerror(ret));
+        qWarning("QWaitCondition::wakeAll() failure: %s", strerror(ret));
 }
 
 /*!
@@ -186,26 +186,26 @@ void QWaitCondition::wakeAll()
 bool QWaitCondition::wait(unsigned long time)
 {
     static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-    pthread_mutex_lock( &mutex );
+    pthread_mutex_lock(&mutex);
 
     int ret;
     if (time != ULONG_MAX) {
-	struct timeval tv;
-	gettimeofday(&tv, 0);
+        struct timeval tv;
+        gettimeofday(&tv, 0);
 
-	timespec ti;
-	ti.tv_nsec = ( tv.tv_usec + ( time % 1000 ) * 1000 ) * 1000;
-	ti.tv_sec = tv.tv_sec + (time / 1000) + ( ti.tv_nsec / 1000000000 );
-	ti.tv_nsec %= 1000000000;
+        timespec ti;
+        ti.tv_nsec = (tv.tv_usec + (time % 1000) * 1000) * 1000;
+        ti.tv_sec = tv.tv_sec + (time / 1000) + (ti.tv_nsec / 1000000000);
+        ti.tv_nsec %= 1000000000;
 
-	ret = pthread_cond_timedwait(&d->cond, &mutex, &ti);
+        ret = pthread_cond_timedwait(&d->cond, &mutex, &ti);
     } else
-	ret = pthread_cond_wait(&d->cond, &mutex);
+        ret = pthread_cond_wait(&d->cond, &mutex);
 
     if (ret && ret != ETIMEDOUT)
-	qWarning("QWaitCondition::wait() failure: %s",strerror(ret));
+        qWarning("QWaitCondition::wait() failure: %s",strerror(ret));
 
-    pthread_mutex_unlock( &mutex );
+    pthread_mutex_unlock(&mutex);
 
     return (ret == 0);
 }
@@ -237,30 +237,30 @@ bool QWaitCondition::wait(unsigned long time)
 bool QWaitCondition::wait(QMutex *mutex, unsigned long time)
 {
     if (! mutex)
-	return false;
+        return false;
 
     if (mutex->d->recursive) {
-	qWarning("QWaitCondition: cannot wait on recursive mutexes");
-	return false;
+        qWarning("QWaitCondition: cannot wait on recursive mutexes");
+        return false;
     }
 
     int ret;
     if (time != ULONG_MAX) {
-	struct timeval tv;
-	gettimeofday(&tv, 0);
+        struct timeval tv;
+        gettimeofday(&tv, 0);
 
-	timespec ti;
-	ti.tv_nsec = ( tv.tv_usec + ( time % 1000 ) * 1000 ) * 1000;
-	ti.tv_sec = tv.tv_sec + (time / 1000) + ( ti.tv_nsec / 1000000000 );
+        timespec ti;
+        ti.tv_nsec = (tv.tv_usec + (time % 1000) * 1000) * 1000;
+        ti.tv_sec = tv.tv_sec + (time / 1000) + (ti.tv_nsec / 1000000000);
         ti.tv_nsec %= 1000000000;
 
-	ret = pthread_cond_timedwait(&d->cond, &mutex->d->mutex, &ti);
+        ret = pthread_cond_timedwait(&d->cond, &mutex->d->mutex, &ti);
     } else {
-	ret = pthread_cond_wait(&d->cond, &mutex->d->mutex);
+        ret = pthread_cond_wait(&d->cond, &mutex->d->mutex);
     }
 
     if (ret && ret != ETIMEDOUT)
-	qWarning("QWaitCondition::wait() failure: %s",strerror(ret));
+        qWarning("QWaitCondition::wait() failure: %s",strerror(ret));
 
     return (ret == 0);
 }

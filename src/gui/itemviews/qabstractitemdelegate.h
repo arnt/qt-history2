@@ -16,10 +16,10 @@ class Q_GUI_EXPORT QItemOptions
 {
 public:
     QItemOptions()
-	: palette(), itemRect(), selected(false), open(false),
-	  focus(false), disabled(false), smallItem(true), editing(false),
-	  iconAlignment(Qt::AlignLeft|Qt::AlignVCenter),
-	  textAlignment(Qt::AlignLeft|Qt::AlignVCenter) {}
+        : palette(), itemRect(), selected(false), open(false),
+          focus(false), disabled(false), smallItem(true), editing(false),
+          iconAlignment(Qt::AlignLeft|Qt::AlignVCenter),
+          textAlignment(Qt::AlignLeft|Qt::AlignVCenter) {}
 
     QPalette palette;
     QRect itemRect;
@@ -38,7 +38,7 @@ class QAbstractItemDelegatePrivate;
 class Q_GUI_EXPORT QAbstractItemDelegate : public QObject
 {
     Q_DECLARE_PRIVATE(QAbstractItemDelegate);
-    
+
 public:
     QAbstractItemDelegate(QAbstractItemModel *model, QObject *parent = 0);
     virtual ~QAbstractItemDelegate();
@@ -46,35 +46,35 @@ public:
     QAbstractItemModel *model() const;
 
     enum EditType {
-	NoEditType,
-	PersistentWidget,
-	WidgetOnTyping,
-	WidgetWhenCurrent,
-	NoWidget
+        NoEditType,
+        PersistentWidget,
+        WidgetOnTyping,
+        WidgetWhenCurrent,
+        NoWidget
     };
 
     enum StartEditAction {
-	NoAction = 0,
-	CurrentChanged = 1,
-	DoubleClicked = 2,
-	SelectedClicked = 4,
-	EditKeyPressed = 8,
-	AnyKeyPressed = 16
+        NoAction = 0,
+        CurrentChanged = 1,
+        DoubleClicked = 2,
+        SelectedClicked = 4,
+        EditKeyPressed = 8,
+        AnyKeyPressed = 16
     };
 
     // painting
     virtual void paint(QPainter *painter, const QItemOptions &options, const QModelIndex &item) const = 0;
     virtual QSize sizeHint(const QFontMetrics &fontMetrics, const QItemOptions &options,
-			   const QModelIndex &item) const = 0;
+                           const QModelIndex &item) const = 0;
 
     // editing
     virtual EditType editType(const QModelIndex &item) const;
     virtual QWidget *createEditor(StartEditAction action, QWidget *parent, const QItemOptions &options,
-				  const QModelIndex &item) const;
+                                  const QModelIndex &item) const;
     virtual void setContentFromEditor(QWidget *editor, const QModelIndex &item) const;
     virtual void updateEditorContents(QWidget *editor, const QModelIndex &item) const;
     virtual void updateEditorGeometry(QWidget *editor, const QItemOptions &options, const QModelIndex &item) const;
-    
+
 protected:
     QAbstractItemDelegate(QAbstractItemDelegatePrivate &, QAbstractItemModel* model, QObject *parent = 0);
 };

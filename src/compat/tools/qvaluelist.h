@@ -32,24 +32,24 @@ template <typename T> class QT_COMPAT QValueListIterator : public QLinkedList<T>
 {
 public:
     inline QValueListIterator<T>() :
-	QLinkedList<T>::Iterator() {}
+        QLinkedList<T>::Iterator() {}
     inline QValueListIterator<T>(const QValueListIterator &o) :
-	QLinkedList<T>::Iterator(o) {}
+        QLinkedList<T>::Iterator(o) {}
     inline QValueListIterator<T>(const typename QLinkedList<T>::Iterator &o) :
-	QLinkedList<T>::Iterator(o) {}
+        QLinkedList<T>::Iterator(o) {}
 };
 
 template <typename T> class QT_COMPAT QValueListConstIterator : public QLinkedList<T>::ConstIterator
 {
 public:
     inline QValueListConstIterator<T>() :
-	QLinkedList<T>::ConstIterator() {}
+        QLinkedList<T>::ConstIterator() {}
     inline QValueListConstIterator<T>(const QValueListConstIterator &o) :
-	QLinkedList<T>::ConstIterator(o) {}
+        QLinkedList<T>::ConstIterator(o) {}
     inline QValueListConstIterator<T>(const typename QLinkedList<T>::ConstIterator &o) :
-	QLinkedList<T>::ConstIterator(o) {}
+        QLinkedList<T>::ConstIterator(o) {}
     inline QValueListConstIterator<T>(const typename QLinkedList<T>::Iterator &o) :
-	QLinkedList<T>::ConstIterator(o) {}
+        QLinkedList<T>::ConstIterator(o) {}
 };
 
 template <typename T>
@@ -79,47 +79,47 @@ public:
     QValueList(const QLinkedList<T>& l) : QLinkedList<T>(l) {}
     QValueList(const QList<T>& l)
     {
-	for (int i = 0; i < l.size(); ++i) append(l.at(i));
+        for (int i = 0; i < l.size(); ++i) append(l.at(i));
     }
 #ifndef QT_NO_STL
     QValueList(const std::list<T>& l)
     {
-	qCopy(l.begin(), l.end(), std::back_inserter(*this));
+        qCopy(l.begin(), l.end(), std::back_inserter(*this));
     }
 #endif
     ~QValueList() {}
 
     QValueList<T>& operator= (const QValueList<T>& l)
     {
-	QLinkedList<T>::operator=(l);
-	return *this;
+        QLinkedList<T>::operator=(l);
+        return *this;
     }
     QValueList<T>& operator= (const QList<T>& l)
     {
-	this->clear();
-	for (int i = 0; i < l.size(); ++i) append(l.at(i));
-	return *this;
+        this->clear();
+        for (int i = 0; i < l.size(); ++i) append(l.at(i));
+        return *this;
     }
 #ifndef QT_NO_STL
     QValueList<T>& operator= (const std::list<T>& l)
     {
-	this->detach();
-	qCopy(l.begin(), l.end(), std::back_inserter(*this));
-	return *this;
+        this->detach();
+        qCopy(l.begin(), l.end(), std::back_inserter(*this));
+        return *this;
     }
     bool operator== (const std::list<T>& l) const
     {
-	if (this->size() != l.size())
-	    return FALSE;
-	typename QValueList<T>::const_iterator it2 = this->begin();
+        if (this->size() != l.size())
+            return false;
+        typename QValueList<T>::const_iterator it2 = this->begin();
 #if !defined(Q_CC_MIPS)
-	typename
+        typename
 #endif
-	    std::list<T>::const_iterator it = l.begin();
-	for (; it2 != this->end(); ++it2, ++it)
-	if (!((*it2) == (*it)))
-	    return FALSE;
-	return TRUE;
+            std::list<T>::const_iterator it = l.begin();
+        for (; it2 != this->end(); ++it2, ++it)
+        if (!((*it2) == (*it)))
+            return false;
+        return true;
     }
 #endif
     bool operator== (const QValueList<T>& l) const { return QLinkedList<T>::operator==(l); }
@@ -128,15 +128,15 @@ public:
     inline QValueList<T>& operator<< (const T& x) { append(x); return *this; }
 
     void insert(typename QValueList<T>::Iterator pos,
-		 typename QValueList<T>::size_type n,
-		 const T& x);
+                 typename QValueList<T>::size_type n,
+                 const T& x);
 
     typename QValueList<T>::Iterator insert(typename QValueList<T>::Iterator pos,
-					     const T& x)
+                                             const T& x)
         { return QLinkedList<T>::insert(pos, x); }
 
     inline QValueList<T> operator+ (const QValueList<T>& l) const
-	{ return static_cast<QValueList<T> >(QLinkedList<T>::operator+(l)); }
+        { return static_cast<QValueList<T> >(QLinkedList<T>::operator+(l)); }
     inline QValueList<T>& operator+= (const QValueList<T>& l)
         { QLinkedList<T>::operator+=(l); return *this; }
 
@@ -150,7 +150,7 @@ public:
     typename QValueList<T>::Iterator prepend(const T& x)
         { QLinkedList<T>::prepend(x); return --this->end(); }
 
-    typename QValueList<T>::Iterator at(typename QValueList<T>::size_type i )
+    typename QValueList<T>::Iterator at(typename QValueList<T>::size_type i)
         { Q_ASSERT(i < this->size()); this->detach(); return this->begin()+i; }
     typename QValueList<T>::ConstIterator at(typename QValueList<T>::size_type i) const
         { Q_ASSERT(i < this->size()); return this->begin()+i; }
@@ -166,10 +166,10 @@ public:
 
 template <typename T>
 Q_OUTOFLINE_TEMPLATE void QValueList<T>::insert(typename QValueList<T>::Iterator pos,
-			   typename QValueList<T>::size_type n, const T& x)
+                           typename QValueList<T>::size_type n, const T& x)
 {
     for (; n > 0; --n)
-	this->insert(pos, x);
+        this->insert(pos, x);
 }
 
 #ifndef QT_NO_DATASTREAM

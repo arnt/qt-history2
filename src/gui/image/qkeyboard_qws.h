@@ -28,7 +28,7 @@ public:
 
 protected:
     virtual void processKeyEvent(int unicode, int keycode, int modifiers,
-			    bool isPress, bool autoRepeat);
+                            bool isPress, bool autoRepeat);
 };
 #endif
 

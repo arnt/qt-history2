@@ -36,33 +36,33 @@ static void registerProtocols();
 class QNetworkProtocolPrivate
 {
 public:
-    QNetworkProtocolPrivate( QNetworkProtocol *p )
+    QNetworkProtocolPrivate(QNetworkProtocol *p)
     {
-	url = 0;
-	opInProgress = 0;
-	opStartTimer = new QTimer( p );
-	removeTimer = new QTimer( p );
-	autoDelete = FALSE;
-	removeInterval = 10000;
+        url = 0;
+        opInProgress = 0;
+        opStartTimer = new QTimer(p);
+        removeTimer = new QTimer(p);
+        autoDelete = false;
+        removeInterval = 10000;
     }
 
     ~QNetworkProtocolPrivate()
     {
-	removeTimer->stop();
-	if ( opInProgress ) {
-	    if (!operationQueue.isEmpty() && opInProgress == operationQueue.first())
-		operationQueue.takeAt(0);
-	    opInProgress->free();
-	}
-	while (!operationQueue.isEmpty()) {
-	    operationQueue.first()->free();
-	    operationQueue.takeAt(0);
-	}
-	while (!oldOps.isEmpty()) {
-	    oldOps.first()->free();
-	    oldOps.removeFirst();
-	}
-	delete opStartTimer;
+        removeTimer->stop();
+        if (opInProgress) {
+            if (!operationQueue.isEmpty() && opInProgress == operationQueue.first())
+                operationQueue.takeAt(0);
+            opInProgress->free();
+        }
+        while (!operationQueue.isEmpty()) {
+            operationQueue.first()->free();
+            operationQueue.takeAt(0);
+        }
+        while (!oldOps.isEmpty()) {
+            oldOps.first()->free();
+            oldOps.removeFirst();
+        }
+        delete opStartTimer;
     }
 
     QUrlOperator *url;
@@ -109,7 +109,7 @@ public:
 */
 
 /*!
-    \fn void QNetworkProtocol::newChildren( const QList<QUrlInfo> &i, QNetworkOperation *op )
+    \fn void QNetworkProtocol::newChildren(const QList<QUrlInfo> &i, QNetworkOperation *op)
 
     This signal is emitted after listChildren() was called and new
     children (files) have been read from the list of files. \a i holds
@@ -130,7 +130,7 @@ public:
 */
 
 /*!
-    \fn void QNetworkProtocol::newChild( const QUrlInfo &i, QNetworkOperation *op )
+    \fn void QNetworkProtocol::newChild(const QUrlInfo &i, QNetworkOperation *op)
 
     This signal is emitted if a new child (file) has been read.
     QNetworkProtocol automatically connects it to a slot which creates
@@ -145,7 +145,7 @@ public:
 */
 
 /*!
-    \fn void QNetworkProtocol::finished( QNetworkOperation *op )
+    \fn void QNetworkProtocol::finished(QNetworkOperation *op)
 
     This signal is emitted when an operation finishes. This signal is
     always emitted, for both success and failure. \a op is the pointer
@@ -160,7 +160,7 @@ public:
 */
 
 /*!
-    \fn void QNetworkProtocol::start( QNetworkOperation *op )
+    \fn void QNetworkProtocol::start(QNetworkOperation *op)
 
     Some operations (such as listChildren()) emit this signal when
     they start processing the operation. \a op is the pointer to the
@@ -173,13 +173,13 @@ public:
 */
 
 /*!
-    \fn void QNetworkProtocol::createdDirectory( const QUrlInfo &i, QNetworkOperation *op )
+    \fn void QNetworkProtocol::createdDirectory(const QUrlInfo &i, QNetworkOperation *op)
 
     This signal is emitted when mkdir() has been successful and the
     directory has been created. \a i holds the information about the
     new directory. \a op is the pointer to the operation object which
     contains all the information about the operation, including the
-    state, etc. Using op->arg( 0 ), you can get the file name of the
+    state, etc. Using op->arg(0), you can get the file name of the
     new directory.
 
     When a protocol emits this signal, QNetworkProtocol is smart
@@ -188,11 +188,11 @@ public:
 */
 
 /*!
-    \fn void QNetworkProtocol::removed( QNetworkOperation *op )
+    \fn void QNetworkProtocol::removed(QNetworkOperation *op)
 
     This signal is emitted when remove() has been successful and the
     file has been removed. \a op holds the file name of the removed
-    file in the first argument, accessible with op->arg( 0 ). \a op is
+    file in the first argument, accessible with op->arg(0). \a op is
     the pointer to the operation object which contains all the
     information about the operation, including the state, etc.
 
@@ -202,12 +202,12 @@ public:
 */
 
 /*!
-    \fn void QNetworkProtocol::itemChanged( QNetworkOperation *op )
+    \fn void QNetworkProtocol::itemChanged(QNetworkOperation *op)
 
     This signal is emitted whenever a file which is a child of this
     URL has been changed, e.g. by successfully calling rename(). \a op
     holds the original and the new file names in the first and second
-    arguments, accessible with op->arg( 0 ) and op->arg( 1 )
+    arguments, accessible with op->arg(0) and op->arg(1)
     respectively. \a op is the pointer to the operation object which
     contains all the information about the operation, including the
     state, etc.
@@ -218,14 +218,14 @@ public:
 */
 
 /*!
-    \fn void QNetworkProtocol::data( const QByteArray &data,
-    QNetworkOperation *op )
+    \fn void QNetworkProtocol::data(const QByteArray &data,
+    QNetworkOperation *op)
 
     This signal is emitted when new \a data has been received after
     calling get() or put(). \a op holds the name of the file from
     which data is retrieved or uploaded in its first argument, and the
     (raw) data in its second argument. You can get them with
-    op->arg( 0 ) and op->rawArg( 1 ). \a op is the pointer to the
+    op->arg(0) and op->rawArg(1). \a op is the pointer to the
     operation object, which contains all the information about the
     operation, including the state, etc.
 
@@ -235,7 +235,7 @@ public:
 */
 
 /*!
-    \fn void QNetworkProtocol::dataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation *op )
+    \fn void QNetworkProtocol::dataTransferProgress(int bytesDone, int bytesTotal, QNetworkOperation *op)
 
     This signal is emitted during the transfer of data (using put() or
     get()). \a bytesDone is how many bytes of \a bytesTotal have been
@@ -250,7 +250,7 @@ public:
 */
 
 /*!
-    \fn void QNetworkProtocol::connectionStateChanged( int state, const QString &data )
+    \fn void QNetworkProtocol::connectionStateChanged(int state, const QString &data)
 
     This signal is emitted whenever the state of the connection of the
     network protocol is changed. \a state describes the new state,
@@ -365,43 +365,43 @@ public:
     QObject constructor.
 */
 
-QNetworkProtocol::QNetworkProtocol( QObject *parent, const char *name )
-    : QObject( parent, name )
+QNetworkProtocol::QNetworkProtocol(QObject *parent, const char *name)
+    : QObject(parent, name)
 {
-    d = new QNetworkProtocolPrivate( this );
+    d = new QNetworkProtocolPrivate(this);
 
-    connect( d->opStartTimer, SIGNAL(timeout()),
-	     this, SLOT(startOps()) );
-    connect( d->removeTimer, SIGNAL(timeout()),
-	     this, SLOT(removeMe()) );
+    connect(d->opStartTimer, SIGNAL(timeout()),
+             this, SLOT(startOps()));
+    connect(d->removeTimer, SIGNAL(timeout()),
+             this, SLOT(removeMe()));
 
-    if ( url() ) {
-	connect( this, SIGNAL(data(QByteArray,QNetworkOperation*)),
-		 url(), SIGNAL(data(QByteArray,QNetworkOperation*)) );
-	connect( this, SIGNAL(finished(QNetworkOperation*)),
-		 url(), SIGNAL(finished(QNetworkOperation*)) );
-	connect( this, SIGNAL(start(QNetworkOperation*)),
-		 url(), SIGNAL(start(QNetworkOperation*)) );
-	connect( this, SIGNAL(newChildren(QList<QUrlInfo>,QNetworkOperation*)),
-		 url(), SIGNAL(newChildren(QList<QUrlInfo>,QNetworkOperation*)) );
-	connect( this, SIGNAL(newChildren(QList<QUrlInfo>,QNetworkOperation*)),
-		 url(), SLOT(addEntry(QList<QUrlInfo>)) );
-	connect( this, SIGNAL(createdDirectory(QUrlInfo,QNetworkOperation*)),
-		 url(), SIGNAL(createdDirectory(QUrlInfo,QNetworkOperation*)) );
-	connect( this, SIGNAL(removed(QNetworkOperation*)),
-		 url(), SIGNAL(removed(QNetworkOperation*)) );
-	connect( this, SIGNAL(itemChanged(QNetworkOperation*)),
-		 url(), SIGNAL(itemChanged(QNetworkOperation*)) );
-	connect( this, SIGNAL(dataTransferProgress(int,int,QNetworkOperation*)),
-		 url(), SIGNAL(dataTransferProgress(int,int,QNetworkOperation*)) );
-	connect( this, SIGNAL(connectionStateChanged(int,QString)),
-		 url(), SIGNAL(connectionStateChanged(int,QString)) );
+    if (url()) {
+        connect(this, SIGNAL(data(QByteArray,QNetworkOperation*)),
+                 url(), SIGNAL(data(QByteArray,QNetworkOperation*)));
+        connect(this, SIGNAL(finished(QNetworkOperation*)),
+                 url(), SIGNAL(finished(QNetworkOperation*)));
+        connect(this, SIGNAL(start(QNetworkOperation*)),
+                 url(), SIGNAL(start(QNetworkOperation*)));
+        connect(this, SIGNAL(newChildren(QList<QUrlInfo>,QNetworkOperation*)),
+                 url(), SIGNAL(newChildren(QList<QUrlInfo>,QNetworkOperation*)));
+        connect(this, SIGNAL(newChildren(QList<QUrlInfo>,QNetworkOperation*)),
+                 url(), SLOT(addEntry(QList<QUrlInfo>)));
+        connect(this, SIGNAL(createdDirectory(QUrlInfo,QNetworkOperation*)),
+                 url(), SIGNAL(createdDirectory(QUrlInfo,QNetworkOperation*)));
+        connect(this, SIGNAL(removed(QNetworkOperation*)),
+                 url(), SIGNAL(removed(QNetworkOperation*)));
+        connect(this, SIGNAL(itemChanged(QNetworkOperation*)),
+                 url(), SIGNAL(itemChanged(QNetworkOperation*)));
+        connect(this, SIGNAL(dataTransferProgress(int,int,QNetworkOperation*)),
+                 url(), SIGNAL(dataTransferProgress(int,int,QNetworkOperation*)));
+        connect(this, SIGNAL(connectionStateChanged(int,QString)),
+                 url(), SIGNAL(connectionStateChanged(int,QString)));
     }
 
-    connect( this, SIGNAL(finished(QNetworkOperation*)),
-	     this, SLOT(processNextOperation(QNetworkOperation*)) );
-    connect( this, SIGNAL(newChild(QUrlInfo,QNetworkOperation*)),
-	     this, SLOT(emitNewChildren(QUrlInfo,QNetworkOperation*)) );
+    connect(this, SIGNAL(finished(QNetworkOperation*)),
+             this, SLOT(processNextOperation(QNetworkOperation*)));
+    connect(this, SIGNAL(newChild(QUrlInfo,QNetworkOperation*)),
+             this, SLOT(emitNewChildren(QUrlInfo,QNetworkOperation*)));
 
 }
 
@@ -420,71 +420,71 @@ QNetworkProtocol::~QNetworkProtocol()
     \sa QUrlOperator
 */
 
-void QNetworkProtocol::setUrl( QUrlOperator *u )
+void QNetworkProtocol::setUrl(QUrlOperator *u)
 {
-    if ( url() ) {
-	disconnect( this, SIGNAL(data(QByteArray,QNetworkOperation*)),
-		    url(), SIGNAL(data(QByteArray,QNetworkOperation*)) );
-	disconnect( this, SIGNAL(finished(QNetworkOperation*)),
-		    url(), SIGNAL(finished(QNetworkOperation*)) );
-	disconnect( this, SIGNAL(start(QNetworkOperation*)),
-		    url(), SIGNAL(start(QNetworkOperation*)) );
-	disconnect( this, SIGNAL(newChildren(QList<QUrlInfo>,QNetworkOperation*)),
-		    url(), SIGNAL(newChildren(QList<QUrlInfo>,QNetworkOperation*)) );
-	disconnect( this, SIGNAL(newChildren(QList<QUrlInfo>,QNetworkOperation*)),
-		    url(), SLOT(addEntry(QList<QUrlInfo>)) );
-	disconnect( this, SIGNAL(createdDirectory(QUrlInfo,QNetworkOperation*)),
-		    url(), SIGNAL(createdDirectory(QUrlInfo,QNetworkOperation*)) );
-	disconnect( this, SIGNAL(removed(QNetworkOperation*)),
-		    url(), SIGNAL(removed(QNetworkOperation*)) );
-	disconnect( this, SIGNAL(itemChanged(QNetworkOperation*)),
-		    url(), SIGNAL(itemChanged(QNetworkOperation*)) );
-	disconnect( this, SIGNAL(dataTransferProgress(int,int,QNetworkOperation*)),
-		    url(), SIGNAL(dataTransferProgress(int,int,QNetworkOperation*)) );
-	disconnect( this, SIGNAL(connectionStateChanged(int,QString)),
-		    url(), SIGNAL(connectionStateChanged(int,QString)) );
+    if (url()) {
+        disconnect(this, SIGNAL(data(QByteArray,QNetworkOperation*)),
+                    url(), SIGNAL(data(QByteArray,QNetworkOperation*)));
+        disconnect(this, SIGNAL(finished(QNetworkOperation*)),
+                    url(), SIGNAL(finished(QNetworkOperation*)));
+        disconnect(this, SIGNAL(start(QNetworkOperation*)),
+                    url(), SIGNAL(start(QNetworkOperation*)));
+        disconnect(this, SIGNAL(newChildren(QList<QUrlInfo>,QNetworkOperation*)),
+                    url(), SIGNAL(newChildren(QList<QUrlInfo>,QNetworkOperation*)));
+        disconnect(this, SIGNAL(newChildren(QList<QUrlInfo>,QNetworkOperation*)),
+                    url(), SLOT(addEntry(QList<QUrlInfo>)));
+        disconnect(this, SIGNAL(createdDirectory(QUrlInfo,QNetworkOperation*)),
+                    url(), SIGNAL(createdDirectory(QUrlInfo,QNetworkOperation*)));
+        disconnect(this, SIGNAL(removed(QNetworkOperation*)),
+                    url(), SIGNAL(removed(QNetworkOperation*)));
+        disconnect(this, SIGNAL(itemChanged(QNetworkOperation*)),
+                    url(), SIGNAL(itemChanged(QNetworkOperation*)));
+        disconnect(this, SIGNAL(dataTransferProgress(int,int,QNetworkOperation*)),
+                    url(), SIGNAL(dataTransferProgress(int,int,QNetworkOperation*)));
+        disconnect(this, SIGNAL(connectionStateChanged(int,QString)),
+                    url(), SIGNAL(connectionStateChanged(int,QString)));
     }
 
 
-    // ### if autoDelete is TRUE, we should delete the QUrlOperator (something
+    // ### if autoDelete is true, we should delete the QUrlOperator (something
     // like below; but that is not possible since it would delete this, too).
-    //if ( d->autoDelete && (d->url!=u) ) {
+    //if (d->autoDelete && (d->url!=u)) {
     //    delete d->url; // destructor deletes the network protocol
     //}
     d->url = u;
 
-    if ( url() ) {
-	connect( this, SIGNAL(data(QByteArray,QNetworkOperation*)),
-		 url(), SIGNAL(data(QByteArray,QNetworkOperation*)) );
-	connect( this, SIGNAL(finished(QNetworkOperation*)),
-		 url(), SIGNAL(finished(QNetworkOperation*)) );
-	connect( this, SIGNAL(start(QNetworkOperation*)),
-		 url(), SIGNAL(start(QNetworkOperation*)) );
-	connect( this, SIGNAL(newChildren(QList<QUrlInfo>,QNetworkOperation*)),
-		 url(), SIGNAL(newChildren(QList<QUrlInfo>,QNetworkOperation*)) );
-	connect( this, SIGNAL(newChildren(QList<QUrlInfo>,QNetworkOperation*)),
-		 url(), SLOT(addEntry(QList<QUrlInfo>)) );
-	connect( this, SIGNAL(createdDirectory(QUrlInfo,QNetworkOperation*)),
-		 url(), SIGNAL(createdDirectory(QUrlInfo,QNetworkOperation*)) );
-	connect( this, SIGNAL(removed(QNetworkOperation*)),
-		 url(), SIGNAL(removed(QNetworkOperation*)) );
-	connect( this, SIGNAL(itemChanged(QNetworkOperation*)),
-		 url(), SIGNAL(itemChanged(QNetworkOperation*)) );
-	connect( this, SIGNAL(dataTransferProgress(int,int,QNetworkOperation*)),
-		 url(), SIGNAL(dataTransferProgress(int,int,QNetworkOperation*)) );
-	connect( this, SIGNAL(connectionStateChanged(int,QString)),
-		 url(), SIGNAL(connectionStateChanged(int,QString)) );
+    if (url()) {
+        connect(this, SIGNAL(data(QByteArray,QNetworkOperation*)),
+                 url(), SIGNAL(data(QByteArray,QNetworkOperation*)));
+        connect(this, SIGNAL(finished(QNetworkOperation*)),
+                 url(), SIGNAL(finished(QNetworkOperation*)));
+        connect(this, SIGNAL(start(QNetworkOperation*)),
+                 url(), SIGNAL(start(QNetworkOperation*)));
+        connect(this, SIGNAL(newChildren(QList<QUrlInfo>,QNetworkOperation*)),
+                 url(), SIGNAL(newChildren(QList<QUrlInfo>,QNetworkOperation*)));
+        connect(this, SIGNAL(newChildren(QList<QUrlInfo>,QNetworkOperation*)),
+                 url(), SLOT(addEntry(QList<QUrlInfo>)));
+        connect(this, SIGNAL(createdDirectory(QUrlInfo,QNetworkOperation*)),
+                 url(), SIGNAL(createdDirectory(QUrlInfo,QNetworkOperation*)));
+        connect(this, SIGNAL(removed(QNetworkOperation*)),
+                 url(), SIGNAL(removed(QNetworkOperation*)));
+        connect(this, SIGNAL(itemChanged(QNetworkOperation*)),
+                 url(), SIGNAL(itemChanged(QNetworkOperation*)));
+        connect(this, SIGNAL(dataTransferProgress(int,int,QNetworkOperation*)),
+                 url(), SIGNAL(dataTransferProgress(int,int,QNetworkOperation*)));
+        connect(this, SIGNAL(connectionStateChanged(int,QString)),
+                 url(), SIGNAL(connectionStateChanged(int,QString)));
     }
 
-    if ( !d->opInProgress && !d->operationQueue.isEmpty() )
-	d->opStartTimer->start( 0, TRUE );
+    if (!d->opInProgress && !d->operationQueue.isEmpty())
+        d->opStartTimer->start(0, true);
 }
 
 /*!
     For processing operations the network protocol base class calls
     this method quite often. This should be reimplemented by new
-    network protocols. It should return TRUE if the connection is OK
-    (open); otherwise it should return FALSE. If the connection is not
+    network protocols. It should return true if the connection is OK
+    (open); otherwise it should return false. If the connection is not
     open the protocol should open it.
 
     If the connection can't be opened (e.g. because you already tried
@@ -495,9 +495,9 @@ void QNetworkProtocol::setUrl( QUrlOperator *u )
     \a op is the operation that needs an open connection.
 */
 
-bool QNetworkProtocol::checkConnection( QNetworkOperation * )
+bool QNetworkProtocol::checkConnection(QNetworkOperation *)
 {
-    return TRUE;
+    return true;
 }
 
 /*!
@@ -518,14 +518,14 @@ int QNetworkProtocol::supportedOperations() const
     immediately.
 */
 
-void QNetworkProtocol::addOperation( QNetworkOperation *op )
+void QNetworkProtocol::addOperation(QNetworkOperation *op)
 {
 #ifdef QNETWORKPROTOCOL_DEBUG
-    qDebug( "QNetworkOperation: addOperation: %p %d", op, op->operation() );
+    qDebug("QNetworkOperation: addOperation: %p %d", op, op->operation());
 #endif
     d->operationQueue.append(op);
-    if ( !d->opInProgress )
-	d->opStartTimer->start( 0, TRUE );
+    if (!d->opInProgress)
+        d->opStartTimer->start(0, true);
 }
 
 /*!
@@ -533,7 +533,7 @@ void QNetworkProtocol::addOperation( QNetworkOperation *op )
     if you have an implementation of NNTP (called Nntp) which is
     derived from QNetworkProtocol, call:
     \code
-    QNetworkProtocol::registerNetworkProtocol( "nntp", new QNetworkProtocolFactory<Nntp> );
+    QNetworkProtocol::registerNetworkProtocol("nntp", new QNetworkProtocolFactory<Nntp>);
     \endcode
     after which your implementation is registered for future nntp
     operations.
@@ -542,13 +542,13 @@ void QNetworkProtocol::addOperation( QNetworkOperation *op )
     the protocol factory is given in \a protocolFactory.
 */
 
-void QNetworkProtocol::registerNetworkProtocol( const QString &protocol,
-						QNetworkProtocolFactoryBase *protocolFactory )
+void QNetworkProtocol::registerNetworkProtocol(const QString &protocol,
+                                                QNetworkProtocolFactoryBase *protocolFactory)
 {
     registerProtocols();
 
     qNetworkProtocolRegister.ensure_constructed();
-    qNetworkProtocolRegister.insert( protocol, protocolFactory );
+    qNetworkProtocolRegister.insert(protocol, protocolFactory);
 }
 
 /*!
@@ -556,7 +556,7 @@ void QNetworkProtocol::registerNetworkProtocol( const QString &protocol,
     protocol. For example, if you need to do some FTP operations, do
     the following:
     \code
-    QFtp *ftp = QNetworkProtocol::getNetworkProtocol( "ftp" );
+    QFtp *ftp = QNetworkProtocol::getNetworkProtocol("ftp");
     \endcode
     This returns a pointer to a new instance of an ftp implementation
     or null if no protocol for ftp was registered. The ownership of
@@ -571,35 +571,35 @@ void QNetworkProtocol::registerNetworkProtocol( const QString &protocol,
     \sa QUrlOperator
 */
 
-QNetworkProtocol *QNetworkProtocol::getNetworkProtocol( const QString &protocol )
+QNetworkProtocol *QNetworkProtocol::getNetworkProtocol(const QString &protocol)
 {
 
-    if ( protocol.isNull() )
-	return 0;
+    if (protocol.isNull())
+        return 0;
 
     registerProtocols();
 
-    QNetworkProtocolFactoryBase *factory = *qNetworkProtocolRegister.find( protocol );
-    if ( factory )
-	return factory->createObject();
+    QNetworkProtocolFactoryBase *factory = *qNetworkProtocolRegister.find(protocol);
+    if (factory)
+        return factory->createObject();
 
     return 0;
 }
 
 /*!
-    Returns TRUE if the only protocol registered is for working on the
-    local filesystem; returns FALSE if other network protocols are
+    Returns true if the only protocol registered is for working on the
+    local filesystem; returns false if other network protocols are
     also registered.
 */
 
 bool QNetworkProtocol::hasOnlyLocalFileSystem()
 {
     QHash<QString, QNetworkProtocolFactoryBase *>::ConstIterator it
-	= qNetworkProtocolRegister.constBegin();
-    for ( ; it != qNetworkProtocolRegister.constEnd(); ++it )
-	if ( it.key() != "file" )
-	    return FALSE;
-    return TRUE;
+        = qNetworkProtocolRegister.constBegin();
+    for (; it != qNetworkProtocolRegister.constEnd(); ++it)
+        if (it.key() != "file")
+            return false;
+    return true;
 }
 
 /*!
@@ -610,42 +610,42 @@ bool QNetworkProtocol::hasOnlyLocalFileSystem()
 void QNetworkProtocol::startOps()
 {
 #ifdef QNETWORKPROTOCOL_DEBUG
-    qDebug( "QNetworkOperation: start processing operations" );
+    qDebug("QNetworkOperation: start processing operations");
 #endif
-    processNextOperation( 0 );
+    processNextOperation(0);
 }
 
 /*!
   \internal
   Processes the operation \a op. It calls the
-  corresponding operation[something]( QNetworkOperation * )
+  corresponding operation[something](QNetworkOperation *)
   methods.
 */
 
-void QNetworkProtocol::processOperation( QNetworkOperation *op )
+void QNetworkProtocol::processOperation(QNetworkOperation *op)
 {
-    if ( !op )
-	return;
+    if (!op)
+        return;
 
-    switch ( op->operation() ) {
+    switch (op->operation()) {
     case OpListChildren:
-	operationListChildren( op );
-	break;
+        operationListChildren(op);
+        break;
     case OpMkDir:
-	operationMkDir( op );
-	break;
+        operationMkDir(op);
+        break;
     case OpRemove:
-	operationRemove( op );
-	break;
+        operationRemove(op);
+        break;
     case OpRename:
-	operationRename( op );
-	break;
+        operationRename(op);
+        break;
     case OpGet:
-	operationGet( op );
-	break;
+        operationGet(op);
+        break;
     case OpPut:
-	operationPut( op );
-	break;
+        operationPut(op);
+        break;
     }
 }
 
@@ -667,7 +667,7 @@ void QNetworkProtocol::processOperation( QNetworkOperation *op )
     state, etc.
 */
 
-void QNetworkProtocol::operationListChildren( QNetworkOperation * )
+void QNetworkProtocol::operationListChildren(QNetworkOperation *)
 {
 }
 
@@ -689,7 +689,7 @@ void QNetworkProtocol::operationListChildren( QNetworkOperation * )
     state, etc.
 */
 
-void QNetworkProtocol::operationMkDir( QNetworkOperation * )
+void QNetworkProtocol::operationMkDir(QNetworkOperation *)
 {
 }
 
@@ -711,7 +711,7 @@ void QNetworkProtocol::operationMkDir( QNetworkOperation * )
     state, etc.
 */
 
-void QNetworkProtocol::operationRemove( QNetworkOperation * )
+void QNetworkProtocol::operationRemove(QNetworkOperation *)
 {
 }
 
@@ -733,7 +733,7 @@ void QNetworkProtocol::operationRemove( QNetworkOperation * )
     state, etc.
 */
 
-void QNetworkProtocol::operationRename( QNetworkOperation * )
+void QNetworkProtocol::operationRename(QNetworkOperation *)
 {
 }
 
@@ -755,7 +755,7 @@ void QNetworkProtocol::operationRename( QNetworkOperation * )
     state, etc.
 */
 
-void QNetworkProtocol::operationGet( QNetworkOperation * )
+void QNetworkProtocol::operationGet(QNetworkOperation *)
 {
 }
 
@@ -777,14 +777,14 @@ void QNetworkProtocol::operationGet( QNetworkOperation * )
     state, etc.
 */
 
-void QNetworkProtocol::operationPut( QNetworkOperation * )
+void QNetworkProtocol::operationPut(QNetworkOperation *)
 {
 }
 
 /*! \internal
 */
 
-void QNetworkProtocol::operationPutChunk( QNetworkOperation * )
+void QNetworkProtocol::operationPutChunk(QNetworkOperation *)
 {
 }
 
@@ -796,46 +796,46 @@ void QNetworkProtocol::operationPutChunk( QNetworkOperation * )
   is open. Otherwise it waits until the protocol opens the connection.
 */
 
-void QNetworkProtocol::processNextOperation( QNetworkOperation *old )
+void QNetworkProtocol::processNextOperation(QNetworkOperation *old)
 {
 #ifdef QNETWORKPROTOCOL_DEBUG
-    qDebug( "QNetworkOperation: process next operation, old: %p", old );
+    qDebug("QNetworkOperation: process next operation, old: %p", old);
 #endif
     d->removeTimer->stop();
 
-    if ( old )
-	d->oldOps.append( old );
-    if ( d->opInProgress && d->opInProgress!=old )
-	d->oldOps.append( d->opInProgress );
+    if (old)
+        d->oldOps.append(old);
+    if (d->opInProgress && d->opInProgress!=old)
+        d->oldOps.append(d->opInProgress);
 
-    if ( d->operationQueue.isEmpty() ) {
-	d->opInProgress = 0;
-	if ( d->autoDelete )
-	    d->removeTimer->start( d->removeInterval, TRUE );
-	return;
+    if (d->operationQueue.isEmpty()) {
+        d->opInProgress = 0;
+        if (d->autoDelete)
+            d->removeTimer->start(d->removeInterval, true);
+        return;
     }
 
     QNetworkOperation *op = d->operationQueue.isEmpty() ? 0 : d->operationQueue.first();
 
     d->opInProgress = op;
 
-    if ( !checkConnection( op ) ) {
-	if ( op->state() != QNetworkProtocol::StFailed ) {
-	    d->opStartTimer->start( 0, TRUE );
-	} else {
-	    if (!d->operationQueue.isEmpty())
-		d->operationQueue.takeAt(0);
-	    clearOperationQueue();
-	    emit finished( op );
-	}
+    if (!checkConnection(op)) {
+        if (op->state() != QNetworkProtocol::StFailed) {
+            d->opStartTimer->start(0, true);
+        } else {
+            if (!d->operationQueue.isEmpty())
+                d->operationQueue.takeAt(0);
+            clearOperationQueue();
+            emit finished(op);
+        }
 
-	return;
+        return;
     }
 
     d->opInProgress = op;
     if (!d->operationQueue.isEmpty())
-	d->operationQueue.takeAt(0);
-    processOperation( op );
+        d->operationQueue.takeAt(0);
+    processOperation(op);
 }
 
 /*!
@@ -864,9 +864,9 @@ QNetworkOperation *QNetworkProtocol::operationInProgress() const
 void QNetworkProtocol::clearOperationQueue()
 {
     if (!d->operationQueue.isEmpty())
-	d->operationQueue.removeFirst();
+        d->operationQueue.removeFirst();
     while (!d->operationQueue.isEmpty())
-	delete d->operationQueue.takeFirst();
+        delete d->operationQueue.takeFirst();
 }
 
 /*!
@@ -878,36 +878,36 @@ void QNetworkProtocol::stop()
 {
     QNetworkOperation *op = d->opInProgress;
     clearOperationQueue();
-    if ( op ) {
-	op->setState( StStopped );
-	op->setProtocolDetail( tr( "Operation stopped by the user" ) );
-	emit finished( op );
-	setUrl( 0 );
-	op->free();
+    if (op) {
+        op->setState(StStopped);
+        op->setProtocolDetail(tr("Operation stopped by the user"));
+        emit finished(op);
+        setUrl(0);
+        op->free();
     }
 }
 
 /*!
     Because it's sometimes hard to take care of removing network
     protocol instances, QNetworkProtocol provides an auto-delete
-    mechanism. If you set \a b to TRUE, the network protocol instance
+    mechanism. If you set \a b to true, the network protocol instance
     is removed after it has been inactive for \a i milliseconds (i.e.
     \a i milliseconds after the last operation has been processed).
-    If you set \a b to FALSE the auto-delete mechanism is switched
+    If you set \a b to false the auto-delete mechanism is switched
     off.
 
     If you switch on auto-delete, the QNetworkProtocol also deletes
     its QUrlOperator.
 */
 
-void QNetworkProtocol::setAutoDelete( bool b, int i )
+void QNetworkProtocol::setAutoDelete(bool b, int i)
 {
     d->autoDelete = b;
     d->removeInterval = i;
 }
 
 /*!
-    Returns TRUE if auto-deleting is enabled; otherwise returns FALSE.
+    Returns true if auto-deleting is enabled; otherwise returns false.
 
     \sa QNetworkProtocol::setAutoDelete()
 */
@@ -923,19 +923,19 @@ bool QNetworkProtocol::autoDelete() const
 
 void QNetworkProtocol::removeMe()
 {
-    if ( d->autoDelete ) {
+    if (d->autoDelete) {
 #ifdef QNETWORKPROTOCOL_DEBUG
-	qDebug( "QNetworkOperation:  autodelete of QNetworkProtocol %p", this );
+        qDebug("QNetworkOperation:  autodelete of QNetworkProtocol %p", this);
 #endif
-	delete d->url; // destructor deletes the network protocol
+        delete d->url; // destructor deletes the network protocol
     }
 }
 
-void QNetworkProtocol::emitNewChildren( const QUrlInfo &i, QNetworkOperation *op )
+void QNetworkProtocol::emitNewChildren(const QUrlInfo &i, QNetworkOperation *op)
 {
     QList<QUrlInfo> lst;
     lst << i;
-    emit newChildren( lst, op );
+    emit newChildren(lst, op);
 }
 
 class QNetworkOperationPrivate
@@ -980,22 +980,22 @@ public:
     \sa QNetworkProtocol::Operation QNetworkProtocol::State
 */
 
-QNetworkOperation::QNetworkOperation( QNetworkProtocol::Operation operation,
-				      const QString &arg0, const QString &arg1,
-				      const QString &arg2 )
+QNetworkOperation::QNetworkOperation(QNetworkProtocol::Operation operation,
+                                      const QString &arg0, const QString &arg1,
+                                      const QString &arg2)
 {
     d = new QNetworkOperationPrivate;
-    d->deleteTimer = new QTimer( this );
-    connect( d->deleteTimer, SIGNAL(timeout()),
-	     this, SLOT(deleteMe()) );
+    d->deleteTimer = new QTimer(this);
+    connect(d->deleteTimer, SIGNAL(timeout()),
+             this, SLOT(deleteMe()));
     d->operation = operation;
     d->state = QNetworkProtocol::StWaiting;
-    d->args[ 0 ] = arg0;
-    d->args[ 1 ] = arg1;
-    d->args[ 2 ] = arg2;
-    d->rawArgs[ 0 ] = QByteArray();
-    d->rawArgs[ 1 ] = QByteArray();
-    d->rawArgs[ 2 ] = QByteArray();
+    d->args[0] = arg0;
+    d->args[1] = arg1;
+    d->args[2] = arg2;
+    d->rawArgs[0] = QByteArray();
+    d->rawArgs[1] = QByteArray();
+    d->rawArgs[2] = QByteArray();
     d->protocolDetail = QString::null;
     d->errorCode = (int)QNetworkProtocol::NoError;
 }
@@ -1009,22 +1009,22 @@ QNetworkOperation::QNetworkOperation( QNetworkProtocol::Operation operation,
     \sa QNetworkProtocol::Operation QNetworkProtocol::State
 */
 
-QNetworkOperation::QNetworkOperation( QNetworkProtocol::Operation operation,
-				      const QByteArray &arg0, const QByteArray &arg1,
-				      const QByteArray &arg2 )
+QNetworkOperation::QNetworkOperation(QNetworkProtocol::Operation operation,
+                                      const QByteArray &arg0, const QByteArray &arg1,
+                                      const QByteArray &arg2)
 {
     d = new QNetworkOperationPrivate;
-    d->deleteTimer = new QTimer( this );
-    connect( d->deleteTimer, SIGNAL(timeout()),
-	     this, SLOT(deleteMe()) );
+    d->deleteTimer = new QTimer(this);
+    connect(d->deleteTimer, SIGNAL(timeout()),
+             this, SLOT(deleteMe()));
     d->operation = operation;
     d->state = QNetworkProtocol::StWaiting;
-    d->args[ 0 ] = QString::null;
-    d->args[ 1 ] = QString::null;
-    d->args[ 2 ] = QString::null;
-    d->rawArgs[ 0 ] = arg0;
-    d->rawArgs[ 1 ] = arg1;
-    d->rawArgs[ 2 ] = arg2;
+    d->args[0] = QString::null;
+    d->args[1] = QString::null;
+    d->args[2] = QString::null;
+    d->rawArgs[0] = arg0;
+    d->rawArgs[1] = arg1;
+    d->rawArgs[2] = arg2;
     d->protocolDetail = QString::null;
     d->errorCode = (int)QNetworkProtocol::NoError;
 }
@@ -1047,11 +1047,11 @@ QNetworkOperation::~QNetworkOperation()
     \sa QNetworkProtocol::State
 */
 
-void QNetworkOperation::setState( QNetworkProtocol::State state )
+void QNetworkOperation::setState(QNetworkProtocol::State state)
 {
-    if ( d->deleteTimer->isActive() ) {
-	d->deleteTimer->stop();
-	d->deleteTimer->start( NETWORK_OP_DELAY );
+    if (d->deleteTimer->isActive()) {
+        d->deleteTimer->stop();
+        d->deleteTimer->start(NETWORK_OP_DELAY);
     }
     d->state = state;
 }
@@ -1061,11 +1061,11 @@ void QNetworkOperation::setState( QNetworkProtocol::State state )
     detail.
 */
 
-void QNetworkOperation::setProtocolDetail( const QString &detail )
+void QNetworkOperation::setProtocolDetail(const QString &detail)
 {
-    if ( d->deleteTimer->isActive() ) {
-	d->deleteTimer->stop();
-	d->deleteTimer->start( NETWORK_OP_DELAY );
+    if (d->deleteTimer->isActive()) {
+        d->deleteTimer->stop();
+        d->deleteTimer->start(NETWORK_OP_DELAY);
     }
     d->protocolDetail = detail;
 }
@@ -1080,11 +1080,11 @@ void QNetworkOperation::setProtocolDetail( const QString &detail )
     \sa setProtocolDetail() QNetworkProtocol::Error
 */
 
-void QNetworkOperation::setErrorCode( int ec )
+void QNetworkOperation::setErrorCode(int ec)
 {
-    if ( d->deleteTimer->isActive() ) {
-	d->deleteTimer->stop();
-	d->deleteTimer->start( NETWORK_OP_DELAY );
+    if (d->deleteTimer->isActive()) {
+        d->deleteTimer->stop();
+        d->deleteTimer->start(NETWORK_OP_DELAY);
     }
     d->errorCode = ec;
 }
@@ -1093,26 +1093,26 @@ void QNetworkOperation::setErrorCode( int ec )
     Sets the network operation's \a{num}-th argument to \a arg.
 */
 
-void QNetworkOperation::setArg( int num, const QString &arg )
+void QNetworkOperation::setArg(int num, const QString &arg)
 {
-    if ( d->deleteTimer->isActive() ) {
-	d->deleteTimer->stop();
-	d->deleteTimer->start( NETWORK_OP_DELAY );
+    if (d->deleteTimer->isActive()) {
+        d->deleteTimer->stop();
+        d->deleteTimer->start(NETWORK_OP_DELAY);
     }
-    d->args[ num ] = arg;
+    d->args[num] = arg;
 }
 
 /*!
     Sets the network operation's \a{num}-th raw data argument to \a arg.
 */
 
-void QNetworkOperation::setRawArg( int num, const QByteArray &arg )
+void QNetworkOperation::setRawArg(int num, const QByteArray &arg)
 {
-    if ( d->deleteTimer->isActive() ) {
-	d->deleteTimer->stop();
-	d->deleteTimer->start( NETWORK_OP_DELAY );
+    if (d->deleteTimer->isActive()) {
+        d->deleteTimer->stop();
+        d->deleteTimer->start(NETWORK_OP_DELAY);
     }
-    d->rawArgs[ num ] = arg;
+    d->rawArgs[num] = arg;
 }
 
 /*!
@@ -1121,9 +1121,9 @@ void QNetworkOperation::setRawArg( int num, const QByteArray &arg )
 
 QNetworkProtocol::Operation QNetworkOperation::operation() const
 {
-    if ( d->deleteTimer->isActive() ) {
-	d->deleteTimer->stop();
-	d->deleteTimer->start( NETWORK_OP_DELAY );
+    if (d->deleteTimer->isActive()) {
+        d->deleteTimer->stop();
+        d->deleteTimer->start(NETWORK_OP_DELAY);
     }
     return d->operation;
 }
@@ -1136,9 +1136,9 @@ QNetworkProtocol::Operation QNetworkOperation::operation() const
 
 QNetworkProtocol::State QNetworkOperation::state() const
 {
-    if ( d->deleteTimer->isActive() ) {
-	d->deleteTimer->stop();
-	d->deleteTimer->start( NETWORK_OP_DELAY );
+    if (d->deleteTimer->isActive()) {
+        d->deleteTimer->stop();
+        d->deleteTimer->start(NETWORK_OP_DELAY);
     }
     return d->state;
 }
@@ -1148,13 +1148,13 @@ QNetworkProtocol::State QNetworkOperation::state() const
     not already set, an empty string is returned.
 */
 
-QString QNetworkOperation::arg( int num ) const
+QString QNetworkOperation::arg(int num) const
 {
-    if ( d->deleteTimer->isActive() ) {
-	d->deleteTimer->stop();
-	d->deleteTimer->start( NETWORK_OP_DELAY );
+    if (d->deleteTimer->isActive()) {
+        d->deleteTimer->stop();
+        d->deleteTimer->start(NETWORK_OP_DELAY);
     }
-    return d->args[ num ];
+    return d->args[num];
 }
 
 /*!
@@ -1162,13 +1162,13 @@ QString QNetworkOperation::arg( int num ) const
     argument was not already set, an empty bytearray is returned.
 */
 
-QByteArray QNetworkOperation::rawArg( int num ) const
+QByteArray QNetworkOperation::rawArg(int num) const
 {
-    if ( d->deleteTimer->isActive() ) {
-	d->deleteTimer->stop();
-	d->deleteTimer->start( NETWORK_OP_DELAY );
+    if (d->deleteTimer->isActive()) {
+        d->deleteTimer->stop();
+        d->deleteTimer->start(NETWORK_OP_DELAY);
     }
-    return d->rawArgs[ num ];
+    return d->rawArgs[num];
 }
 
 /*!
@@ -1178,9 +1178,9 @@ QByteArray QNetworkOperation::rawArg( int num ) const
 
 QString QNetworkOperation::protocolDetail() const
 {
-    if ( d->deleteTimer->isActive() ) {
-	d->deleteTimer->stop();
-	d->deleteTimer->start( NETWORK_OP_DELAY );
+    if (d->deleteTimer->isActive()) {
+        d->deleteTimer->stop();
+        d->deleteTimer->start(NETWORK_OP_DELAY);
     }
     return d->protocolDetail;
 }
@@ -1191,9 +1191,9 @@ QString QNetworkOperation::protocolDetail() const
 
 int QNetworkOperation::errorCode() const
 {
-    if ( d->deleteTimer->isActive() ) {
-	d->deleteTimer->stop();
-	d->deleteTimer->start( NETWORK_OP_DELAY );
+    if (d->deleteTimer->isActive()) {
+        d->deleteTimer->stop();
+        d->deleteTimer->start(NETWORK_OP_DELAY);
     }
     return d->errorCode;
 }
@@ -1202,13 +1202,13 @@ int QNetworkOperation::errorCode() const
   \internal
 */
 
-QByteArray& QNetworkOperation::raw( int num ) const
+QByteArray& QNetworkOperation::raw(int num) const
 {
-    if ( d->deleteTimer->isActive() ) {
-	d->deleteTimer->stop();
-	d->deleteTimer->start( NETWORK_OP_DELAY );
+    if (d->deleteTimer->isActive()) {
+        d->deleteTimer->stop();
+        d->deleteTimer->start(NETWORK_OP_DELAY);
     }
-    return d->rawArgs[ num ];
+    return d->rawArgs[num];
 }
 
 /*!
@@ -1225,7 +1225,7 @@ QByteArray& QNetworkOperation::raw( int num ) const
 
 void QNetworkOperation::free()
 {
-    d->deleteTimer->start( NETWORK_OP_DELAY );
+    d->deleteTimer->start(NETWORK_OP_DELAY);
 }
 
 /*!
@@ -1249,19 +1249,19 @@ class QHttpProtocol : public QNetworkProtocol
 {
     Q_OBJECT
 public:
-    QHttpProtocol( QObject* parent = 0, const char* name = 0 )
-	: QNetworkProtocol(parent, name) { }
+    QHttpProtocol(QObject* parent = 0, const char* name = 0)
+        : QNetworkProtocol(parent, name) { }
 
     int supportedOperations() const;
 
 protected:
-    void operationGet( QNetworkOperation *op );
-    void operationPut( QNetworkOperation *op );
+    void operationGet(QNetworkOperation *op);
+    void operationPut(QNetworkOperation *op);
 
 private slots:
-    void clientReply( const QHttpResponseHeader &rep );
-    void clientDone( bool );
-    void clientStateChanged( int );
+    void clientReply(const QHttpResponseHeader &rep);
+    void clientDone(bool);
+    void clientStateChanged(int);
 
 private:
     QHttp http;
@@ -1277,155 +1277,155 @@ int QHttpProtocol::supportedOperations() const
 
 /*! \reimp
 */
-void QHttpProtocol::operationGet( QNetworkOperation *op )
+void QHttpProtocol::operationGet(QNetworkOperation *op)
 {
-    connect( &http, SIGNAL(readyRead(QHttpResponseHeader)),
-	    this, SLOT(clientReply(QHttpResponseHeader)) );
-    connect( &http, SIGNAL(done(bool)),
-	    this, SLOT(clientDone(bool)) );
-    connect( &http, SIGNAL(stateChanged(int)),
-	    this, SLOT(clientStateChanged(int)) );
+    connect(&http, SIGNAL(readyRead(QHttpResponseHeader)),
+            this, SLOT(clientReply(QHttpResponseHeader)));
+    connect(&http, SIGNAL(done(bool)),
+            this, SLOT(clientDone(bool)));
+    connect(&http, SIGNAL(stateChanged(int)),
+            this, SLOT(clientStateChanged(int)));
 
     bytesRead = 0;
-    op->setState( StInProgress );
-    QUrl u( operationInProgress()->arg( 0 ) );
-    QHttpRequestHeader header( "GET", u.encodedPathAndQuery(), 1, 0 );
-    header.setValue( "Host", u.host() );
-    http.setHost( u.host(), u.port() != -1 ? u.port() : 80 );
-    http.request( header );
+    op->setState(StInProgress);
+    QUrl u(operationInProgress()->arg(0));
+    QHttpRequestHeader header("GET", u.encodedPathAndQuery(), 1, 0);
+    header.setValue("Host", u.host());
+    http.setHost(u.host(), u.port() != -1 ? u.port() : 80);
+    http.request(header);
 }
 
 /*! \reimp
 */
-void QHttpProtocol::operationPut( QNetworkOperation *op )
+void QHttpProtocol::operationPut(QNetworkOperation *op)
 {
-    connect( &http, SIGNAL(readyRead(QHttpResponseHeader)),
-	    this, SLOT(clientReply(QHttpResponseHeader)) );
-    connect( &http, SIGNAL(done(bool)),
-	    this, SLOT(clientDone(bool)) );
-    connect( &http, SIGNAL(stateChanged(int)),
-	    this, SLOT(clientStateChanged(int)) );
+    connect(&http, SIGNAL(readyRead(QHttpResponseHeader)),
+            this, SLOT(clientReply(QHttpResponseHeader)));
+    connect(&http, SIGNAL(done(bool)),
+            this, SLOT(clientDone(bool)));
+    connect(&http, SIGNAL(stateChanged(int)),
+            this, SLOT(clientStateChanged(int)));
 
     bytesRead = 0;
-    op->setState( StInProgress );
-    QUrl u( operationInProgress()->arg( 0 ) );
-    QHttpRequestHeader header( "POST", u.encodedPathAndQuery(), 1, 0 );
-    header.setValue( "Host", u.host() );
-    http.setHost( u.host(), u.port() != -1 ? u.port() : 80 );
-    http.request( header, op->rawArg(1) );
+    op->setState(StInProgress);
+    QUrl u(operationInProgress()->arg(0));
+    QHttpRequestHeader header("POST", u.encodedPathAndQuery(), 1, 0);
+    header.setValue("Host", u.host());
+    http.setHost(u.host(), u.port() != -1 ? u.port() : 80);
+    http.request(header, op->rawArg(1));
 }
 
-void QHttpProtocol::clientReply( const QHttpResponseHeader &rep )
+void QHttpProtocol::clientReply(const QHttpResponseHeader &rep)
 {
     QNetworkOperation *op = operationInProgress();
-    if ( op ) {
-	if ( rep.statusCode() >= 400 && rep.statusCode() < 600 ) {
-	    op->setState( StFailed );
-	    op->setProtocolDetail(
-		    QString("%1 %2").arg(rep.statusCode()).arg(rep.reasonPhrase())
-						    );
-	    switch ( rep.statusCode() ) {
-		case 401:
-		case 403:
-		case 405:
-		    op->setErrorCode( ErrPermissionDenied );
-		    break;
-		case 404:
-		    op->setErrorCode(ErrFileNotExisting );
-		    break;
-		default:
-		    if ( op->operation() == OpGet )
-			op->setErrorCode( ErrGet );
-		    else
-			op->setErrorCode( ErrPut );
-		    break;
-	    }
-	}
-	// ### In cases of an error, should we still emit the data() signals?
-	if ( op->operation() == OpGet && http.bytesAvailable() > 0 ) {
-	    QByteArray ba = http.readAll();
-	    emit data( ba, op );
-	    bytesRead += ba.size();
-	    if ( rep.hasContentLength() ) {
-		emit dataTransferProgress( bytesRead, rep.contentLength(), op );
-	    }
-	}
+    if (op) {
+        if (rep.statusCode() >= 400 && rep.statusCode() < 600) {
+            op->setState(StFailed);
+            op->setProtocolDetail(
+                    QString("%1 %2").arg(rep.statusCode()).arg(rep.reasonPhrase())
+                                                   );
+            switch (rep.statusCode()) {
+                case 401:
+                case 403:
+                case 405:
+                    op->setErrorCode(ErrPermissionDenied);
+                    break;
+                case 404:
+                    op->setErrorCode(ErrFileNotExisting);
+                    break;
+                default:
+                    if (op->operation() == OpGet)
+                        op->setErrorCode(ErrGet);
+                    else
+                        op->setErrorCode(ErrPut);
+                    break;
+            }
+        }
+        // ### In cases of an error, should we still emit the data() signals?
+        if (op->operation() == OpGet && http.bytesAvailable() > 0) {
+            QByteArray ba = http.readAll();
+            emit data(ba, op);
+            bytesRead += ba.size();
+            if (rep.hasContentLength()) {
+                emit dataTransferProgress(bytesRead, rep.contentLength(), op);
+            }
+        }
     }
 }
 
-void QHttpProtocol::clientDone( bool err )
+void QHttpProtocol::clientDone(bool err)
 {
-    disconnect( this, SIGNAL(readyRead(QHttpResponseHeader)),
-	    this, SLOT(clientReply(QHttpResponseHeader)) );
-    disconnect( this, SIGNAL(done(bool)),
-	    this, SLOT(clientDone(bool)) );
-    disconnect( this, SIGNAL(stateChanged(int)),
-	    this, SLOT(clientStateChanged(int)) );
+    disconnect(this, SIGNAL(readyRead(QHttpResponseHeader)),
+            this, SLOT(clientReply(QHttpResponseHeader)));
+    disconnect(this, SIGNAL(done(bool)),
+            this, SLOT(clientDone(bool)));
+    disconnect(this, SIGNAL(stateChanged(int)),
+            this, SLOT(clientStateChanged(int)));
 
-    if ( err ) {
-	QNetworkOperation *op = operationInProgress();
-	if ( op ) {
-	    op->setState( QNetworkProtocol::StFailed );
-	    op->setProtocolDetail( http.errorString() );
-	    switch ( http.error() ) {
-		case QHttp::ConnectionRefused:
-		    op->setErrorCode( ErrHostNotFound );
-		    break;
-		case QHttp::HostNotFound:
-		    op->setErrorCode( ErrHostNotFound );
-		    break;
-		default:
-		    if ( op->operation() == OpGet )
-			op->setErrorCode( ErrGet );
-		    else
-			op->setErrorCode( ErrPut );
-		    break;
-	    }
-	    emit finished( op );
-	}
+    if (err) {
+        QNetworkOperation *op = operationInProgress();
+        if (op) {
+            op->setState(QNetworkProtocol::StFailed);
+            op->setProtocolDetail(http.errorString());
+            switch (http.error()) {
+                case QHttp::ConnectionRefused:
+                    op->setErrorCode(ErrHostNotFound);
+                    break;
+                case QHttp::HostNotFound:
+                    op->setErrorCode(ErrHostNotFound);
+                    break;
+                default:
+                    if (op->operation() == OpGet)
+                        op->setErrorCode(ErrGet);
+                    else
+                        op->setErrorCode(ErrPut);
+                    break;
+            }
+            emit finished(op);
+        }
     } else {
-	QNetworkOperation *op = operationInProgress();
-	if ( op ) {
-	    if ( op->state() != StFailed ) {
-		op->setState( QNetworkProtocol::StDone );
-		op->setErrorCode( QNetworkProtocol::NoError );
-	    }
-	    emit finished( op );
-	}
+        QNetworkOperation *op = operationInProgress();
+        if (op) {
+            if (op->state() != StFailed) {
+                op->setState(QNetworkProtocol::StDone);
+                op->setErrorCode(QNetworkProtocol::NoError);
+            }
+            emit finished(op);
+        }
     }
 
 }
 
-void QHttpProtocol::clientStateChanged( int state )
+void QHttpProtocol::clientStateChanged(int state)
 {
-    if ( url() ) {
-	switch ( (State)state ) {
-	    case QHttp::Connecting:
-		emit connectionStateChanged( ConHostFound, tr( "Host %1 found" ).arg( url()->host() ) );
-		break;
-	    case QHttp::Sending:
-		emit connectionStateChanged( ConConnected, tr( "Connected to host %1" ).arg( url()->host() ) );
-		break;
-	    case QHttp::Unconnected:
-		emit connectionStateChanged( ConClosed, tr( "Connection to %1 closed" ).arg( url()->host() ) );
-		break;
-	    default:
-		break;
-	}
+    if (url()) {
+        switch ((State)state) {
+            case QHttp::Connecting:
+                emit connectionStateChanged(ConHostFound, tr("Host %1 found").arg(url()->host()));
+                break;
+            case QHttp::Sending:
+                emit connectionStateChanged(ConConnected, tr("Connected to host %1").arg(url()->host()));
+                break;
+            case QHttp::Unconnected:
+                emit connectionStateChanged(ConClosed, tr("Connection to %1 closed").arg(url()->host()));
+                break;
+            default:
+                break;
+        }
     } else {
-	switch ( (State)state ) {
-	    case QHttp::Connecting:
-		emit connectionStateChanged( ConHostFound, tr( "Host found" ) );
-		break;
-	    case QHttp::Sending:
-		emit connectionStateChanged( ConConnected, tr( "Connected to host" ) );
-		break;
-	    case QHttp::Unconnected:
-		emit connectionStateChanged( ConClosed, tr( "Connection closed" ) );
-		break;
-	    default:
-		break;
-	}
+        switch ((State)state) {
+            case QHttp::Connecting:
+                emit connectionStateChanged(ConHostFound, tr("Host found"));
+                break;
+            case QHttp::Sending:
+                emit connectionStateChanged(ConConnected, tr("Connected to host"));
+                break;
+            case QHttp::Unconnected:
+                emit connectionStateChanged(ConClosed, tr("Connection closed"));
+                break;
+            default:
+                break;
+        }
     }
 }
 #endif
@@ -1443,26 +1443,26 @@ class QFtpProtocol : public QNetworkProtocol
     Q_OBJECT
 
 public:
-    QFtpProtocol( QObject *parent = 0, const char *name = 0 )
-	: QNetworkProtocol(parent, name) { npWaitForLoginDone = false; }
+    QFtpProtocol(QObject *parent = 0, const char *name = 0)
+        : QNetworkProtocol(parent, name) { npWaitForLoginDone = false; }
 
     int supportedOperations() const;
 
 protected:
-    void operationListChildren( QNetworkOperation *op );
-    void operationMkDir( QNetworkOperation *op );
-    void operationRemove( QNetworkOperation *op );
-    void operationRename( QNetworkOperation *op );
-    void operationGet( QNetworkOperation *op );
-    void operationPut( QNetworkOperation *op );
+    void operationListChildren(QNetworkOperation *op);
+    void operationMkDir(QNetworkOperation *op);
+    void operationRemove(QNetworkOperation *op);
+    void operationRename(QNetworkOperation *op);
+    void operationGet(QNetworkOperation *op);
+    void operationPut(QNetworkOperation *op);
 
-    bool checkConnection( QNetworkOperation *op );
+    bool checkConnection(QNetworkOperation *op);
 
 private slots:
-    void npListInfo( const QUrlInfo & );
-    void npDone( bool );
-    void npStateChanged( int );
-    void npDataTransferProgress( int, int );
+    void npListInfo(const QUrlInfo &);
+    void npDone(bool);
+    void npStateChanged(int);
+    void npDataTransferProgress(int, int);
     void npReadyRead();
 
 private:
@@ -1472,101 +1472,101 @@ private:
 
 /*!  \reimp
 */
-void QFtpProtocol::operationListChildren( QNetworkOperation *op )
+void QFtpProtocol::operationListChildren(QNetworkOperation *op)
 {
-    op->setState( StInProgress );
+    op->setState(StInProgress);
 
-    ftp.cd( ( url()->path().isEmpty() ? QString( "/" ) : url()->path() ) );
+    ftp.cd((url()->path().isEmpty() ? QString("/") : url()->path()));
     ftp.list();
-    emit start( op );
+    emit start(op);
 }
 
 /*!  \reimp
 */
-void QFtpProtocol::operationMkDir( QNetworkOperation *op )
+void QFtpProtocol::operationMkDir(QNetworkOperation *op)
 {
-    op->setState( StInProgress );
+    op->setState(StInProgress);
 
-    ftp.mkdir( op->arg( 0 ) );
+    ftp.mkdir(op->arg(0));
 }
 
 /*!  \reimp
 */
-void QFtpProtocol::operationRemove( QNetworkOperation *op )
+void QFtpProtocol::operationRemove(QNetworkOperation *op)
 {
-    op->setState( StInProgress );
+    op->setState(StInProgress);
 
-    ftp.cd( ( url()->path().isEmpty() ? QString( "/" ) : url()->path() ) );
-    remove( QUrl( op->arg( 0 ) ).path().ascii() );
+    ftp.cd((url()->path().isEmpty() ? QString("/") : url()->path()));
+    remove(QUrl(op->arg(0)).path().ascii());
 }
 
 /*!  \reimp
 */
-void QFtpProtocol::operationRename( QNetworkOperation *op )
+void QFtpProtocol::operationRename(QNetworkOperation *op)
 {
-    op->setState( StInProgress );
+    op->setState(StInProgress);
 
-    ftp.cd( ( url()->path().isEmpty() ? QString( "/" ) : url()->path() ) );
-    ftp.rename( op->arg( 0 ), op->arg( 1 ));
+    ftp.cd((url()->path().isEmpty() ? QString("/") : url()->path()));
+    ftp.rename(op->arg(0), op->arg(1));
 }
 
 /*!  \reimp
 */
-void QFtpProtocol::operationGet( QNetworkOperation *op )
+void QFtpProtocol::operationGet(QNetworkOperation *op)
 {
-    op->setState( StInProgress );
+    op->setState(StInProgress);
 
-    QUrl u( op->arg( 0 ) );
-    ftp.get( u.path() );
+    QUrl u(op->arg(0));
+    ftp.get(u.path());
 }
 
 /*!  \reimp
 */
-void QFtpProtocol::operationPut( QNetworkOperation *op )
+void QFtpProtocol::operationPut(QNetworkOperation *op)
 {
-    op->setState( StInProgress );
+    op->setState(StInProgress);
 
-    QUrl u( op->arg( 0 ) );
-    ftp.put( op->rawArg(1), u.path() );
+    QUrl u(op->arg(0));
+    ftp.put(op->rawArg(1), u.path());
 }
 
 /*!  \reimp
 */
-bool QFtpProtocol::checkConnection( QNetworkOperation *op )
+bool QFtpProtocol::checkConnection(QNetworkOperation *op)
 {
-    if ( ftp.state() == QFtp::Unconnected && !npWaitForLoginDone ) {
-	connect( &ftp, SIGNAL(listInfo(QUrlInfo)),
-		this, SLOT(npListInfo(QUrlInfo)) );
-	connect( &ftp, SIGNAL(done(bool)),
-		this, SLOT(npDone(bool)) );
-	connect( &ftp, SIGNAL(stateChanged(int)),
-		this, SLOT(npStateChanged(int)) );
-	connect( &ftp, SIGNAL(dataTransferProgress(int,int)),
-		this, SLOT(npDataTransferProgress(int,int)) );
-	connect( &ftp, SIGNAL(readyRead()),
-		this, SLOT(npReadyRead()) );
+    if (ftp.state() == QFtp::Unconnected && !npWaitForLoginDone) {
+        connect(&ftp, SIGNAL(listInfo(QUrlInfo)),
+                this, SLOT(npListInfo(QUrlInfo)));
+        connect(&ftp, SIGNAL(done(bool)),
+                this, SLOT(npDone(bool)));
+        connect(&ftp, SIGNAL(stateChanged(int)),
+                this, SLOT(npStateChanged(int)));
+        connect(&ftp, SIGNAL(dataTransferProgress(int,int)),
+                this, SLOT(npDataTransferProgress(int,int)));
+        connect(&ftp, SIGNAL(readyRead()),
+                this, SLOT(npReadyRead()));
 
-	npWaitForLoginDone = TRUE;
-	switch ( op->operation() ) {
-	    case OpGet:
-	    case OpPut:
-		{
-		    QUrl u( op->arg( 0 ) );
-		    ftp.connectToHost( u.host(), u.port() != -1 ? u.port() : 21 );
-		}
-		break;
-	    default:
-		ftp.connectToHost( url()->host(), url()->port() != -1 ? url()->port() : 21 );
-		break;
-	}
-	QString user = url()->user().isEmpty() ? QString( "anonymous" ) : url()->user();
-	QString pass = url()->password().isEmpty() ? QString( "anonymous@" ) : url()->password();
-	ftp.login( user, pass );
+        npWaitForLoginDone = true;
+        switch (op->operation()) {
+            case OpGet:
+            case OpPut:
+                {
+                    QUrl u(op->arg(0));
+                    ftp.connectToHost(u.host(), u.port() != -1 ? u.port() : 21);
+                }
+                break;
+            default:
+                ftp.connectToHost(url()->host(), url()->port() != -1 ? url()->port() : 21);
+                break;
+        }
+        QString user = url()->user().isEmpty() ? QString("anonymous") : url()->user();
+        QString pass = url()->password().isEmpty() ? QString("anonymous@") : url()->password();
+        ftp.login(user, pass);
     }
 
-    if ( ftp.state() == QFtp::LoggedIn )
-	return TRUE;
-    return FALSE;
+    if (ftp.state() == QFtp::LoggedIn)
+        return true;
+    return false;
 }
 
 /*!  \reimp
@@ -1576,121 +1576,121 @@ int QFtpProtocol::supportedOperations() const
     return OpListChildren | OpMkDir | OpRemove | OpRename | OpGet | OpPut;
 }
 
-void QFtpProtocol::npListInfo( const QUrlInfo & i )
+void QFtpProtocol::npListInfo(const QUrlInfo & i)
 {
-    if ( url() ) {
-	QRegExp filt( url()->nameFilter(), QString::CaseInsensitive, TRUE );
-	if ( i.isDir() || filt.search( i.name() ) != -1 ) {
-	    emit newChild( i, operationInProgress() );
-	}
+    if (url()) {
+        QRegExp filt(url()->nameFilter(), QString::CaseInsensitive, true);
+        if (i.isDir() || filt.search(i.name()) != -1) {
+            emit newChild(i, operationInProgress());
+        }
     } else {
-	emit newChild( i, operationInProgress() );
+        emit newChild(i, operationInProgress());
     }
 }
 
-void QFtpProtocol::npDone( bool err )
+void QFtpProtocol::npDone(bool err)
 {
-    bool emitFinishedSignal = FALSE;
+    bool emitFinishedSignal = false;
     QNetworkOperation *op = operationInProgress();
-    if ( op ) {
-	if ( err ) {
-	    op->setProtocolDetail( ftp.errorString() );
-	    op->setState( StFailed );
-	    if ( ftp.error() == QFtp::HostNotFound ) {
-		op->setErrorCode( (int)ErrHostNotFound );
-	    } else {
-		switch ( op->operation() ) {
-		    case OpListChildren:
-			op->setErrorCode( (int)ErrListChildren );
-			break;
-		    case OpMkDir:
-			op->setErrorCode( (int)ErrMkDir );
-			break;
-		    case OpRemove:
-			op->setErrorCode( (int)ErrRemove );
-			break;
-		    case OpRename:
-			op->setErrorCode( (int)ErrRename );
-			break;
-		    case OpGet:
-			op->setErrorCode( (int)ErrGet );
-			break;
-		    case OpPut:
-			op->setErrorCode( (int)ErrPut );
-			break;
-		}
-	    }
-	    emitFinishedSignal = TRUE;
-	} else if ( !npWaitForLoginDone ) {
-	    switch ( op->operation() ) {
-		case OpRemove:
-		    emit removed( op );
-		    break;
-		case OpMkDir:
-		    {
-			QUrlInfo inf( op->arg( 0 ), 0, "", "", 0, QDateTime(),
-				QDateTime(), TRUE, FALSE, FALSE, TRUE, TRUE, TRUE );
-			emit newChild( inf, op );
-			emit createdDirectory( inf, op );
-		    }
-		    break;
-		case OpRename:
-		    emit itemChanged( operationInProgress() );
-		    break;
-		default:
-		    break;
-	    }
-	    op->setState( StDone );
-	    emitFinishedSignal = TRUE;
-	}
+    if (op) {
+        if (err) {
+            op->setProtocolDetail(ftp.errorString());
+            op->setState(StFailed);
+            if (ftp.error() == QFtp::HostNotFound) {
+                op->setErrorCode((int)ErrHostNotFound);
+            } else {
+                switch (op->operation()) {
+                    case OpListChildren:
+                        op->setErrorCode((int)ErrListChildren);
+                        break;
+                    case OpMkDir:
+                        op->setErrorCode((int)ErrMkDir);
+                        break;
+                    case OpRemove:
+                        op->setErrorCode((int)ErrRemove);
+                        break;
+                    case OpRename:
+                        op->setErrorCode((int)ErrRename);
+                        break;
+                    case OpGet:
+                        op->setErrorCode((int)ErrGet);
+                        break;
+                    case OpPut:
+                        op->setErrorCode((int)ErrPut);
+                        break;
+                }
+            }
+            emitFinishedSignal = true;
+        } else if (!npWaitForLoginDone) {
+            switch (op->operation()) {
+                case OpRemove:
+                    emit removed(op);
+                    break;
+                case OpMkDir:
+                    {
+                        QUrlInfo inf(op->arg(0), 0, "", "", 0, QDateTime(),
+                                QDateTime(), true, false, false, true, true, true);
+                        emit newChild(inf, op);
+                        emit createdDirectory(inf, op);
+                    }
+                    break;
+                case OpRename:
+                    emit itemChanged(operationInProgress());
+                    break;
+                default:
+                    break;
+            }
+            op->setState(StDone);
+            emitFinishedSignal = true;
+        }
     }
-    npWaitForLoginDone = FALSE;
+    npWaitForLoginDone = false;
 
-    if ( ftp.state() == QFtp::Unconnected ) {
-	disconnect( &ftp, SIGNAL(listInfo(QUrlInfo)),
-		    this, SLOT(npListInfo(QUrlInfo)) );
-	disconnect( &ftp, SIGNAL(done(bool)),
-		    this, SLOT(npDone(bool)) );
-	disconnect( &ftp, SIGNAL(stateChanged(int)),
-		    this, SLOT(npStateChanged(int)) );
-	disconnect( &ftp, SIGNAL(dataTransferProgress(int,int)),
-		    this, SLOT(npDataTransferProgress(int,int)) );
-	disconnect( &ftp, SIGNAL(readyRead()),
-		    this, SLOT(npReadyRead()) );
+    if (ftp.state() == QFtp::Unconnected) {
+        disconnect(&ftp, SIGNAL(listInfo(QUrlInfo)),
+                    this, SLOT(npListInfo(QUrlInfo)));
+        disconnect(&ftp, SIGNAL(done(bool)),
+                    this, SLOT(npDone(bool)));
+        disconnect(&ftp, SIGNAL(stateChanged(int)),
+                    this, SLOT(npStateChanged(int)));
+        disconnect(&ftp, SIGNAL(dataTransferProgress(int,int)),
+                    this, SLOT(npDataTransferProgress(int,int)));
+        disconnect(&ftp, SIGNAL(readyRead()),
+                    this, SLOT(npReadyRead()));
     }
 
     // emit the finished() signal at the very end to avoid reentrance problems
-    if ( emitFinishedSignal )
-	emit finished( op );
+    if (emitFinishedSignal)
+        emit finished(op);
 }
 
-void QFtpProtocol::npStateChanged( int state )
+void QFtpProtocol::npStateChanged(int state)
 {
-    if ( url() ) {
-	if ( state == QFtp::Connecting )
-	    emit connectionStateChanged( ConHostFound, tr( "Host %1 found" ).arg( url()->host() ) );
-	else if ( state == QFtp::Connected )
-	    emit connectionStateChanged( ConConnected, tr( "Connected to host %1" ).arg( url()->host() ) );
-	else if ( state == QFtp::Unconnected )
-	    emit connectionStateChanged( ConClosed, tr( "Connection to %1 closed" ).arg( url()->host() ) );
+    if (url()) {
+        if (state == QFtp::Connecting)
+            emit connectionStateChanged(ConHostFound, tr("Host %1 found").arg(url()->host()));
+        else if (state == QFtp::Connected)
+            emit connectionStateChanged(ConConnected, tr("Connected to host %1").arg(url()->host()));
+        else if (state == QFtp::Unconnected)
+            emit connectionStateChanged(ConClosed, tr("Connection to %1 closed").arg(url()->host()));
     } else {
-	if ( state == QFtp::Connecting )
-	    emit connectionStateChanged( ConHostFound, tr( "Host found" ) );
-	else if ( state == QFtp::Connected )
-	    emit connectionStateChanged( ConConnected, tr( "Connected to host" ) );
-	else if ( state == QFtp::Unconnected )
-	    emit connectionStateChanged( ConClosed, tr( "Connection closed" ) );
+        if (state == QFtp::Connecting)
+            emit connectionStateChanged(ConHostFound, tr("Host found"));
+        else if (state == QFtp::Connected)
+            emit connectionStateChanged(ConConnected, tr("Connected to host"));
+        else if (state == QFtp::Unconnected)
+            emit connectionStateChanged(ConClosed, tr("Connection closed"));
     }
 }
 
-void QFtpProtocol::npDataTransferProgress( int bDone, int bTotal )
+void QFtpProtocol::npDataTransferProgress(int bDone, int bTotal)
 {
-    emit QNetworkProtocol::dataTransferProgress( bDone, bTotal, operationInProgress() );
+    emit QNetworkProtocol::dataTransferProgress(bDone, bTotal, operationInProgress());
 }
 
 void QFtpProtocol::npReadyRead()
 {
-    emit data( ftp.readAll(), operationInProgress() );
+    emit data(ftp.readAll(), operationInProgress());
 }
 #endif
 
@@ -1700,12 +1700,12 @@ static void registerProtocols()
     if (once) return;
     once = true;
 
-    QNetworkProtocol::registerNetworkProtocol( "file", new QNetworkProtocolFactory< QLocalFs > );
+    QNetworkProtocol::registerNetworkProtocol("file", new QNetworkProtocolFactory< QLocalFs >);
 #ifndef QT_NO_NETWORKPROTOCOL_FTP
-    QNetworkProtocol::registerNetworkProtocol( "ftp", new QNetworkProtocolFactory< QFtpProtocol > );
+    QNetworkProtocol::registerNetworkProtocol("ftp", new QNetworkProtocolFactory< QFtpProtocol >);
 #endif
 #ifndef QT_NO_NETWORKPROTOCOL_HTTP
-    QNetworkProtocol::registerNetworkProtocol( "http", new QNetworkProtocolFactory< QHttpProtocol > );
+    QNetworkProtocol::registerNetworkProtocol("http", new QNetworkProtocolFactory< QHttpProtocol >);
 #endif
 }
 

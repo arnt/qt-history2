@@ -44,18 +44,18 @@
 
     Example of using complex regions:
     \code
-	void MyWidget::paintEvent( QPaintEvent * )
-	{
-	    QPainter p;                         // our painter
-	    QRegion r1( QRect(100,100,200,80),  // r1 = elliptic region
-			QRegion::Ellipse );
-	    QRegion r2( QRect(100,120,90,30) ); // r2 = rectangular region
-	    QRegion r3 = r1.intersect( r2 );    // r3 = intersection
-	    p.begin( this );                    // start painting widget
-	    p.setClipRegion( r3 );              // set clip region
-	    ...                                 // paint clipped graphics
-	    p.end();                            // painting done
-	}
+        void MyWidget::paintEvent(QPaintEvent *)
+        {
+            QPainter p;                         // our painter
+            QRegion r1(QRect(100,100,200,80),  // r1 = elliptic region
+                        QRegion::Ellipse);
+            QRegion r2(QRect(100,120,90,30)); // r2 = rectangular region
+            QRegion r3 = r1.intersect(r2);    // r3 = intersection
+            p.begin(this);                    // start painting widget
+            p.setClipRegion(r3);              // set clip region
+            ...                                 // paint clipped graphics
+            p.end();                            // painting done
+        }
     \endcode
 
     QRegion is an \link shclass.html implicitly shared\endlink class.
@@ -93,7 +93,7 @@
     If \a t is \c Rectangle, the region is the filled rectangle (\a x,
     \a y, \a w, \a h). If \a t is \c Ellipse, the region is the filled
     ellipse with center at (\a x + \a w / 2, \a y + \a h / 2) and size
-    (\a w ,\a h ).
+    (\a w ,\a h).
 */
 QRegion::QRegion(int x, int y, int w, int h, RegionType t)
 {
@@ -111,8 +111,8 @@ QRegion::QRegion(int x, int y, int w, int h, RegionType t)
 
 void QRegion::detach()
 {
-    if ( d->ref != 1 )
-	*this = copy();
+    if (d->ref != 1)
+        *this = copy();
 }
 
 #ifndef QT_NO_DATASTREAM
@@ -126,72 +126,72 @@ void QRegion::detach()
     byte array.
 */
 
-void QRegion::exec( const QByteArray &buffer, int ver )
+void QRegion::exec(const QByteArray &buffer, int ver)
 {
-    QBuffer buf( buffer );
-    QDataStream s( &buf );
-    if ( ver )
-	s.setVersion( ver );
-    buf.open( IO_ReadOnly );
+    QBuffer buf(buffer);
+    QDataStream s(&buf);
+    if (ver)
+        s.setVersion(ver);
+    buf.open(IO_ReadOnly);
     QRegion rgn;
 #ifndef QT_NO_DEBUG
     int test_cnt = 0;
 #endif
-    while ( !s.eof() ) {
-	Q_INT32 id;
-	if ( s.version() == 1 ) {
-	    int id_int;
-	    s >> id_int;
-	    id = id_int;
-	} else {
-	    s >> id;
-	}
+    while (!s.eof()) {
+        Q_INT32 id;
+        if (s.version() == 1) {
+            int id_int;
+            s >> id_int;
+            id = id_int;
+        } else {
+            s >> id;
+        }
 #ifndef QT_NO_DEBUG
-	if ( test_cnt > 0 && id != QRGN_TRANSLATE )
-	    qWarning( "QRegion::exec: Internal error" );
-	test_cnt++;
+        if (test_cnt > 0 && id != QRGN_TRANSLATE)
+            qWarning("QRegion::exec: Internal error");
+        test_cnt++;
 #endif
-	if ( id == QRGN_SETRECT || id == QRGN_SETELLIPSE ) {
-	    QRect r;
-	    s >> r;
-	    rgn = QRegion( r, id == QRGN_SETRECT ? Rectangle : Ellipse );
-	} else if ( id == QRGN_SETPTARRAY_ALT || id == QRGN_SETPTARRAY_WIND ) {
-	    QPointArray a;
-	    s >> a;
-	    rgn = QRegion( a, id == QRGN_SETPTARRAY_WIND );
-	} else if ( id == QRGN_TRANSLATE ) {
-	    QPoint p;
-	    s >> p;
-	    rgn.translate( p.x(), p.y() );
-	} else if ( id >= QRGN_OR && id <= QRGN_XOR ) {
-	    QByteArray bop1, bop2;
-	    QRegion r1, r2;
-	    s >> bop1;	r1.exec( bop1 );
-	    s >> bop2;	r2.exec( bop2 );
-	    switch ( id ) {
-		case QRGN_OR:
-		    rgn = r1.unite( r2 );
-		    break;
-		case QRGN_AND:
-		    rgn = r1.intersect( r2 );
-		    break;
-		case QRGN_SUB:
-		    rgn = r1.subtract( r2 );
-		    break;
-		case QRGN_XOR:
-		    rgn = r1.eor( r2 );
-		    break;
-	    }
-	} else if ( id == QRGN_RECTS ) {
-	    // (This is the only form used in Qt 2.0)
-	    Q_UINT32 n;
-	    s >> n;
-	    QRect r;
-	    for ( int i=0; i<(int)n; i++ ) {
-		s >> r;
-		rgn = rgn.unite( QRegion(r) );
-	    }
-	}
+        if (id == QRGN_SETRECT || id == QRGN_SETELLIPSE) {
+            QRect r;
+            s >> r;
+            rgn = QRegion(r, id == QRGN_SETRECT ? Rectangle : Ellipse);
+        } else if (id == QRGN_SETPTARRAY_ALT || id == QRGN_SETPTARRAY_WIND) {
+            QPointArray a;
+            s >> a;
+            rgn = QRegion(a, id == QRGN_SETPTARRAY_WIND);
+        } else if (id == QRGN_TRANSLATE) {
+            QPoint p;
+            s >> p;
+            rgn.translate(p.x(), p.y());
+        } else if (id >= QRGN_OR && id <= QRGN_XOR) {
+            QByteArray bop1, bop2;
+            QRegion r1, r2;
+            s >> bop1;        r1.exec(bop1);
+            s >> bop2;        r2.exec(bop2);
+            switch (id) {
+                case QRGN_OR:
+                    rgn = r1.unite(r2);
+                    break;
+                case QRGN_AND:
+                    rgn = r1.intersect(r2);
+                    break;
+                case QRGN_SUB:
+                    rgn = r1.subtract(r2);
+                    break;
+                case QRGN_XOR:
+                    rgn = r1.eor(r2);
+                    break;
+            }
+        } else if (id == QRGN_RECTS) {
+            // (This is the only form used in Qt 2.0)
+            Q_UINT32 n;
+            s >> n;
+            QRect r;
+            for (int i=0; i<(int)n; i++) {
+                s >> r;
+                rgn = rgn.unite(QRegion(r));
+            }
+        }
     }
     buf.close();
     *this = rgn;
@@ -211,29 +211,29 @@ void QRegion::exec( const QByteArray &buffer, int ver )
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
-QDataStream &operator<<( QDataStream &s, const QRegion &r )
+QDataStream &operator<<(QDataStream &s, const QRegion &r)
 {
     QVector<QRect> a = r.rects();
-    if ( a.isEmpty() ) {
-	s << (Q_UINT32)0;
+    if (a.isEmpty()) {
+        s << (Q_UINT32)0;
     } else {
-	if ( s.version() == 1 ) {
-	    int i;
-	    for ( i=(int)a.size()-1; i>0; i-- ) {
-		s << (Q_UINT32)(12+i*24);
-		s << (int)QRGN_OR;
-	    }
-	    for ( i=0; i<(int)a.size(); i++ ) {
-		s << (Q_UINT32)(4+8) << (int)QRGN_SETRECT << a[i];
-	    }
-	}
-	else {
-	    s << (Q_UINT32)(4+4+16*a.size()); // 16: storage size of QRect
-	    s << (Q_INT32)QRGN_RECTS;
-	    s << (Q_UINT32)a.size();
-	    for ( int i=0; i<(int)a.size(); i++ )
-		s << a[i];
-	}
+        if (s.version() == 1) {
+            int i;
+            for (i=(int)a.size()-1; i>0; i--) {
+                s << (Q_UINT32)(12+i*24);
+                s << (int)QRGN_OR;
+            }
+            for (i=0; i<(int)a.size(); i++) {
+                s << (Q_UINT32)(4+8) << (int)QRGN_SETRECT << a[i];
+            }
+        }
+        else {
+            s << (Q_UINT32)(4+4+16*a.size()); // 16: storage size of QRect
+            s << (Q_INT32)QRGN_RECTS;
+            s << (Q_UINT32)a.size();
+            for (int i=0; i<(int)a.size(); i++)
+                s << a[i];
+        }
     }
     return s;
 }
@@ -247,11 +247,11 @@ QDataStream &operator<<( QDataStream &s, const QRegion &r )
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
-QDataStream &operator>>( QDataStream &s, QRegion &r )
+QDataStream &operator>>(QDataStream &s, QRegion &r)
 {
     QByteArray b;
     s >> b;
-    r.exec( b, s.version() );
+    r.exec(b, s.version());
     return s;
 }
 #endif //QT_NO_DATASTREAM
@@ -266,7 +266,7 @@ QDataStream &operator>>( QDataStream &s, QRegion &r )
 
     \sa unite(), operator+()
 */
-const QRegion QRegion::operator|( const QRegion &r ) const
+const QRegion QRegion::operator|(const QRegion &r) const
     { return unite(r); }
 
 /*!
@@ -275,7 +275,7 @@ const QRegion QRegion::operator|( const QRegion &r ) const
 
     \sa unite(), operator|()
 */
-const QRegion QRegion::operator+( const QRegion &r ) const
+const QRegion QRegion::operator+(const QRegion &r) const
     { return unite(r); }
 
 /*!
@@ -284,7 +284,7 @@ const QRegion QRegion::operator+( const QRegion &r ) const
 
     \sa intersect()
 */
-const QRegion QRegion::operator&( const QRegion &r ) const
+const QRegion QRegion::operator&(const QRegion &r) const
     { return intersect(r); }
 
 /*!
@@ -293,7 +293,7 @@ const QRegion QRegion::operator&( const QRegion &r ) const
 
     \sa subtract()
 */
-const QRegion QRegion::operator-( const QRegion &r ) const
+const QRegion QRegion::operator-(const QRegion &r) const
     { return subtract(r); }
 
 /*!
@@ -302,7 +302,7 @@ const QRegion QRegion::operator-( const QRegion &r ) const
 
     \sa eor()
 */
-const QRegion QRegion::operator^( const QRegion &r ) const
+const QRegion QRegion::operator^(const QRegion &r) const
     { return eor(r); }
 
 /*!
@@ -312,7 +312,7 @@ const QRegion QRegion::operator^( const QRegion &r ) const
 
     \sa unite()
 */
-QRegion& QRegion::operator|=( const QRegion &r )
+QRegion& QRegion::operator|=(const QRegion &r)
     { return *this = *this | r; }
 
 /*!
@@ -322,7 +322,7 @@ QRegion& QRegion::operator|=( const QRegion &r )
 
     \sa intersect()
 */
-QRegion& QRegion::operator+=( const QRegion &r )
+QRegion& QRegion::operator+=(const QRegion &r)
     { return *this = *this + r; }
 
 /*!
@@ -332,7 +332,7 @@ QRegion& QRegion::operator+=( const QRegion &r )
 
     \sa intersect()
 */
-QRegion& QRegion::operator&=( const QRegion &r )
+QRegion& QRegion::operator&=(const QRegion &r)
     { return *this = *this & r; }
 
 /*!
@@ -342,7 +342,7 @@ QRegion& QRegion::operator&=( const QRegion &r )
 
     \sa subtract()
 */
-QRegion& QRegion::operator-=( const QRegion &r )
+QRegion& QRegion::operator-=(const QRegion &r)
     { return *this = *this - r; }
 
 /*!
@@ -352,5 +352,5 @@ QRegion& QRegion::operator-=( const QRegion &r )
 
     \sa eor()
 */
-QRegion& QRegion::operator^=( const QRegion &r )
+QRegion& QRegion::operator^=(const QRegion &r)
     { return *this = *this ^ r; }

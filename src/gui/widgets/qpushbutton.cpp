@@ -48,7 +48,7 @@
     (signified by preceding it with an ampersand in the text)
     indicates an accelerator key, e.g.
     \code
-	QPushButton *pb = new QPushButton( "&Download", this );
+        QPushButton *pb = new QPushButton("&Download", this);
     \endcode
     In this example the accelerator is \e{Alt+D}, and the label text
     will be displayed as <b><u>D</u>ownload</b>.
@@ -73,7 +73,7 @@
     key in a dialog. You can change this with setAutoDefault(). Note
     that auto-default buttons reserve a little extra space which is
     necessary to draw a default-button indicator. If you do not want
-    this space around your buttons, call setAutoDefault(FALSE).
+    this space around your buttons, call setAutoDefault(false).
 
     Being so central, the button widget has grown to accommodate a
     great many variations in the past decade. The Microsoft style
@@ -135,7 +135,7 @@
     \property QPushButton::autoDefault
     \brief whether the push button is the auto default button
 
-    If this property is set to TRUE then the push button is the auto
+    If this property is set to true then the push button is the auto
     default button in a dialog.
 
     In some GUI styles a default button is drawn with an extra frame
@@ -143,8 +143,8 @@
     space free around auto-default buttons, i.e. auto-default buttons
     may have a slightly larger size hint.
 
-    This property's default is TRUE for buttons that have a QDialog
-    parent; otherwise it defaults to FALSE.
+    This property's default is true for buttons that have a QDialog
+    parent; otherwise it defaults to false.
 
     See the \l default property for details of how \l default and
     auto-default interact.
@@ -161,7 +161,7 @@
     \property QPushButton::default
     \brief whether the push button is the default button
 
-    If this property is set to TRUE then the push button will be
+    If this property is set to true then the push button will be
     pressed if the user presses the Enter (or Return) key in a dialog.
 
     Regardless of focus, if the user presses Enter: If there is a
@@ -180,14 +180,14 @@
     can always be clicked from the keyboard by pressing Enter (or
     Return) or the Spacebar when the button has focus.
 
-    This property's default is FALSE.
+    This property's default is false.
 */
 
 /*!
     \property QPushButton::flat
     \brief whether the border is disabled
 
-    This property's default is FALSE.
+    This property's default is false.
 */
 
 /*!
@@ -202,7 +202,7 @@
     \brief whether the push button is toggled
 
     This property should only be set for toggle push buttons. The
-    default value is FALSE.
+    default value is false.
 
     \sa isOn(), toggle(), toggled(), isToggleButton()
 */
@@ -222,7 +222,7 @@
     \brief whether the push button has a menu button on it
     \obsolete
 
-  If this property is set to TRUE, then a down arrow is drawn on the push
+  If this property is set to true, then a down arrow is drawn on the push
   button to indicate that a menu will pop up if the user clicks on the
   arrow.
 */
@@ -231,12 +231,12 @@ class QPushButtonPrivate
 {
 public:
     QPushButtonPrivate()
-	:iconset( 0 )
+        :iconset(0)
     {}
     ~QPushButtonPrivate()
     {
 #ifndef QT_NO_ICONSET
-	delete iconset;
+        delete iconset;
 #endif
     }
 #ifndef QT_NO_POPUPMENU
@@ -253,8 +253,8 @@ public:
     constructor.
 */
 
-QPushButton::QPushButton( QWidget *parent, const char *name )
-	: QButton( parent, name )
+QPushButton::QPushButton(QWidget *parent, const char *name)
+        : QButton(parent, name)
 {
     init();
 }
@@ -264,12 +264,12 @@ QPushButton::QPushButton( QWidget *parent, const char *name )
     and the text \a text.
 */
 
-QPushButton::QPushButton( const QString &text, QWidget *parent,
-			  const char *name )
-	: QButton( parent, name )
+QPushButton::QPushButton(const QString &text, QWidget *parent,
+                          const char *name)
+        : QButton(parent, name)
 {
     init();
-    setText( text );
+    setText(text);
 }
 
 
@@ -283,13 +283,13 @@ QPushButton::QPushButton( const QString &text, QWidget *parent,
     constructor.
 */
 #ifndef QT_NO_ICONSET
-QPushButton::QPushButton( const QIconSet& icon, const QString &text,
-			  QWidget *parent, const char *name )
-	: QButton( parent, name )
+QPushButton::QPushButton(const QIconSet& icon, const QString &text,
+                          QWidget *parent, const char *name)
+        : QButton(parent, name)
 {
     init();
-    setText( text );
-    setIconSet( icon );
+    setText(text);
+    setIconSet(icon);
 }
 #endif
 
@@ -305,23 +305,23 @@ QPushButton::~QPushButton()
 void QPushButton::init()
 {
     d = 0;
-    defButton = FALSE;
-    lastEnabled = FALSE;
-    hasMenuArrow = FALSE;
-    flt = FALSE;
+    defButton = false;
+    lastEnabled = false;
+    hasMenuArrow = false;
+    flt = false;
 #ifndef QT_NO_DIALOG
     autoDefButton = qt_cast<QDialog*>(topLevelWidget()) != 0;
 #else
-    autoDefButton = FALSE;
+    autoDefButton = false;
 #endif
     setAttribute(WA_BackgroundInherited);
-    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
+    setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed));
 }
 
 
 /*
-  Makes the push button a toggle button if \a enable is TRUE or a normal
-  push button if \a enable is FALSE.
+  Makes the push button a toggle button if \a enable is true or a normal
+  push button if \a enable is false.
 
   Toggle buttons have an on/off state similar to \link QCheckBox check
   boxes. \endlink A push button is initially not a toggle button.
@@ -329,47 +329,47 @@ void QPushButton::init()
   \sa setOn(), toggle(), isToggleButton() toggled()
 */
 
-void QPushButton::setToggleButton( bool enable )
+void QPushButton::setToggleButton(bool enable)
 {
-    QButton::setToggleButton( enable );
+    QButton::setToggleButton(enable);
 }
 
 
 /*
-  Switches a toggle button on if \a enable is TRUE or off if \a enable is
-  FALSE.
+  Switches a toggle button on if \a enable is true or off if \a enable is
+  false.
   \sa isOn(), toggle(), toggled(), isToggleButton()
 */
 
-void QPushButton::setOn( bool enable )
+void QPushButton::setOn(bool enable)
 {
-    if ( !isToggleButton() )
-	return;
-    QButton::setOn( enable );
+    if (!isToggleButton())
+        return;
+    QButton::setOn(enable);
 }
 
-void QPushButton::setAutoDefault( bool enable )
+void QPushButton::setAutoDefault(bool enable)
 {
-    if ( (bool)autoDefButton == enable )
-	return;
+    if ((bool)autoDefButton == enable)
+        return;
     autoDefButton = enable;
     update();
     updateGeometry();
 }
 
 
-void QPushButton::setDefault( bool enable )
+void QPushButton::setDefault(bool enable)
 {
-    if ( (bool)defButton == enable )
-	return;					// no change
+    if ((bool)defButton == enable)
+        return;                                        // no change
     defButton = enable;
 #ifndef QT_NO_DIALOG
-    if ( defButton && qt_cast<QDialog*>(topLevelWidget()) )
- 	((QDialog*)topLevelWidget())->setMainDefault( this );
+    if (defButton && qt_cast<QDialog*>(topLevelWidget()))
+        ((QDialog*)topLevelWidget())->setMainDefault(this);
 #endif
     update();
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
+    QAccessible::updateAccessibility(this, 0, QAccessible::StateChanged);
 #endif
 }
 
@@ -385,116 +385,116 @@ QSize QPushButton::sizeHint() const
 
     // calculate contents size...
 #ifndef QT_NO_ICONSET
-    if ( iconSet() && !iconSet()->isNull() ) {
-	int iw = iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 4;
-	int ih = iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).height();
-	w += iw;
-	h = qMax( h, ih );
+    if (iconSet() && !iconSet()->isNull()) {
+        int iw = iconSet()->pixmap(QIconSet::Small, QIconSet::Normal).width() + 4;
+        int ih = iconSet()->pixmap(QIconSet::Small, QIconSet::Normal).height();
+        w += iw;
+        h = qMax(h, ih);
     }
 #endif
-    if ( isMenuButton() )
-	w += style().pixelMetric(QStyle::PM_MenuButtonIndicator, this);
+    if (isMenuButton())
+        w += style().pixelMetric(QStyle::PM_MenuButtonIndicator, this);
 
-    if ( pixmap() ) {
-	QPixmap *pm = (QPixmap *)pixmap();
-	w += pm->width();
-	h += pm->height();
+    if (pixmap()) {
+        QPixmap *pm = (QPixmap *)pixmap();
+        w += pm->width();
+        h += pm->height();
     } else {
-	QString s( text() );
-	bool empty = s.isEmpty();
-	if ( empty )
-	    s = QString::fromLatin1("XXXX");
-	QFontMetrics fm = fontMetrics();
-	QSize sz = fm.size( ShowPrefix, s );
-	if(!empty || !w)
-	    w += sz.width();
-	if(!empty || !h)
-	    h = qMax(h, sz.height());
+        QString s(text());
+        bool empty = s.isEmpty();
+        if (empty)
+            s = QString::fromLatin1("XXXX");
+        QFontMetrics fm = fontMetrics();
+        QSize sz = fm.size(ShowPrefix, s);
+        if(!empty || !w)
+            w += sz.width();
+        if(!empty || !h)
+            h = qMax(h, sz.height());
     }
 
     return (style().sizeFromContents(QStyle::CT_PushButton, this, QSize(w, h)).
-	    expandedTo(QApplication::globalStrut()));
+            expandedTo(QApplication::globalStrut()));
 }
 
 
 /*!
     \reimp
 */
-void QPushButton::move( int x, int y )
+void QPushButton::move(int x, int y)
 {
-    QWidget::move( x, y );
+    QWidget::move(x, y);
 }
 
 /*!
     \reimp
 */
-void QPushButton::move( const QPoint &p )
+void QPushButton::move(const QPoint &p)
 {
-    move( p.x(), p.y() );
+    move(p.x(), p.y());
 }
 
 /*!
     \reimp
 */
-void QPushButton::resize( int w, int h )
+void QPushButton::resize(int w, int h)
 {
-    QWidget::resize( w, h );
+    QWidget::resize(w, h);
 }
 
 /*!
     \reimp
 */
-void QPushButton::resize( const QSize &s )
+void QPushButton::resize(const QSize &s)
 {
-    resize( s.width(), s.height() );
+    resize(s.width(), s.height());
 }
 
 /*!
     \reimp
 */
-void QPushButton::setGeometry( int x, int y, int w, int h )
+void QPushButton::setGeometry(int x, int y, int w, int h)
 {
-    QWidget::setGeometry( x, y, w, h );
+    QWidget::setGeometry(x, y, w, h);
 }
 
 /*!
     \reimp
 */
-void QPushButton::setGeometry( const QRect &r )
+void QPushButton::setGeometry(const QRect &r)
 {
-    QWidget::setGeometry( r );
+    QWidget::setGeometry(r);
 }
 
 /*!
     \reimp
  */
-void QPushButton::resizeEvent( QResizeEvent * )
+void QPushButton::resizeEvent(QResizeEvent *)
 {
-    if ( autoMask() )
-	updateMask();
+    if (autoMask())
+        updateMask();
 }
 
 /*!
     \reimp
 */
-void QPushButton::drawButton( QPainter *paint )
+void QPushButton::drawButton(QPainter *paint)
 {
     QStyle::SFlags flags = QStyle::Style_Default;
     if (isEnabled())
-	flags |= QStyle::Style_Enabled;
+        flags |= QStyle::Style_Enabled;
     if (hasFocus())
-	flags |= QStyle::Style_HasFocus;
+        flags |= QStyle::Style_HasFocus;
     if (isDown())
-	flags |= QStyle::Style_Down;
+        flags |= QStyle::Style_Down;
     if (isOn())
-	flags |= QStyle::Style_On;
+        flags |= QStyle::Style_On;
     if (! isFlat() && ! isDown())
-	flags |= QStyle::Style_Raised;
+        flags |= QStyle::Style_Raised;
     if (isDefault())
-	flags |= QStyle::Style_ButtonDefault;
+        flags |= QStyle::Style_ButtonDefault;
 
     style().drawControl(QStyle::CE_PushButton, paint, this, rect(), palette(), flags);
-    drawButtonLabel( paint );
+    drawButtonLabel(paint);
 
     lastEnabled = isEnabled();
 }
@@ -503,26 +503,26 @@ void QPushButton::drawButton( QPainter *paint )
 /*!
     \reimp
 */
-void QPushButton::drawButtonLabel( QPainter *paint )
+void QPushButton::drawButtonLabel(QPainter *paint)
 {
 
     QStyle::SFlags flags = QStyle::Style_Default;
     if (isEnabled())
-	flags |= QStyle::Style_Enabled;
+        flags |= QStyle::Style_Enabled;
     if (hasFocus())
-	flags |= QStyle::Style_HasFocus;
+        flags |= QStyle::Style_HasFocus;
     if (isDown())
-	flags |= QStyle::Style_Down;
+        flags |= QStyle::Style_Down;
     if (isOn())
-	flags |= QStyle::Style_On;
+        flags |= QStyle::Style_On;
     if (! isFlat() && ! isDown())
-	flags |= QStyle::Style_Raised;
+        flags |= QStyle::Style_Raised;
     if (isDefault())
-	flags |= QStyle::Style_ButtonDefault;
+        flags |= QStyle::Style_ButtonDefault;
 
     style().drawControl(QStyle::CE_PushButtonLabel, paint, this,
-			style().subRect(QStyle::SR_PushButtonContents, this),
-			palette(), flags);
+                        style().subRect(QStyle::SR_PushButtonContents, this),
+                        palette(), flags);
 }
 
 
@@ -531,48 +531,48 @@ void QPushButton::drawButtonLabel( QPainter *paint )
  */
 void QPushButton::updateMask()
 {
-    QBitmap bm( size() );
-    bm.fill( color0 );
+    QBitmap bm(size());
+    bm.fill(color0);
 
     {
-	QPainter p( &bm, this );
-	style().drawControlMask(QStyle::CE_PushButton, &p, this, rect());
+        QPainter p(&bm, this);
+        style().drawControlMask(QStyle::CE_PushButton, &p, this, rect());
     }
 
-    setMask( bm );
+    setMask(bm);
 }
 
 /*!
     \reimp
 */
-void QPushButton::focusInEvent( QFocusEvent *e )
+void QPushButton::focusInEvent(QFocusEvent *e)
 {
     if (autoDefButton && !defButton) {
-	defButton = TRUE;
+        defButton = true;
 #ifndef QT_NO_DIALOG
-	if ( defButton && qt_cast<QDialog*>(topLevelWidget()) )
- 	    ((QDialog*)topLevelWidget())->setDefault( this );
+        if (defButton && qt_cast<QDialog*>(topLevelWidget()))
+            ((QDialog*)topLevelWidget())->setDefault(this);
 #endif
     }
-    QButton::focusInEvent( e );
+    QButton::focusInEvent(e);
 }
 
 /*!
     \reimp
 */
-void QPushButton::focusOutEvent( QFocusEvent *e )
+void QPushButton::focusOutEvent(QFocusEvent *e)
 {
 #ifndef QT_NO_DIALOG
-    if ( defButton && autoDefButton ) {
-	if ( qt_cast<QDialog*>(topLevelWidget()) )
-	    ((QDialog*)topLevelWidget())->setDefault( 0 );
+    if (defButton && autoDefButton) {
+        if (qt_cast<QDialog*>(topLevelWidget()))
+            ((QDialog*)topLevelWidget())->setDefault(0);
     }
 #endif
 
-    QButton::focusOutEvent( e );
+    QButton::focusOutEvent(e);
 #ifndef QT_NO_POPUPMENU
-    if ( popup() && popup()->isVisible() )	// restore pressed status
-	setDown( TRUE );
+    if (popup() && popup()->isVisible())        // restore pressed status
+        setDown(true);
 #endif
 }
 
@@ -587,30 +587,30 @@ void QPushButton::focusOutEvent( QFocusEvent *e )
 
     \sa popup()
 */
-void QPushButton::setPopup( QPopupMenu* popup )
+void QPushButton::setPopup(QPopupMenu* popup)
 {
-    if ( !d )
-	d = new QPushButtonPrivate;
-    if ( popup && !d->popup )
-	connect( this, SIGNAL(pressed()), this, SLOT(popupPressed()) );
+    if (!d)
+        d = new QPushButtonPrivate;
+    if (popup && !d->popup)
+        connect(this, SIGNAL(pressed()), this, SLOT(popupPressed()));
 
     d->popup = popup;
-    setIsMenuButton( popup != 0 );
+    setIsMenuButton(popup != 0);
 }
 #endif //QT_NO_POPUPMENU
 #ifndef QT_NO_ICONSET
-void QPushButton::setIconSet( const QIconSet& icon )
+void QPushButton::setIconSet(const QIconSet& icon)
 {
-    if ( !d )
-	d = new QPushButtonPrivate;
-    if ( !icon.isNull() ) {
-	if ( d->iconset )
-	    *d->iconset = icon;
-	else
-	    d->iconset = new QIconSet( icon );
-    } else if ( d->iconset) {
-	delete d->iconset;
-	d->iconset = 0;
+    if (!d)
+        d = new QPushButtonPrivate;
+    if (!icon.isNull()) {
+        if (d->iconset)
+            *d->iconset = icon;
+        else
+            d->iconset = new QIconSet(icon);
+    } else if (d->iconset) {
+        delete d->iconset;
+        d->iconset = 0;
     }
 
     update();
@@ -643,54 +643,54 @@ QPopupMenu* QPushButton::popup() const
 void QPushButton::openPopup()
 {
     if (!d || !d->popup)
-	return;
-    setDown(TRUE);
+        return;
+    setDown(true);
     popupPressed();
 }
 
 void QPushButton::popupPressed()
 {
     QPopupMenu* popup = d ? (QPopupMenu*) d->popup : 0;
-    if ( isDown() && popup ) {
-	bool horizontal = TRUE;
-	bool topLeft = TRUE;			// ### always TRUE
+    if (isDown() && popup) {
+        bool horizontal = true;
+        bool topLeft = true;                        // ### always true
 #ifndef QT_NO_TOOLBAR
-	QToolBar *tb = qt_cast<QToolBar*>(parentWidget());
-	if ( tb && tb->orientation() == Vertical )
-	    horizontal = FALSE;
+        QToolBar *tb = qt_cast<QToolBar*>(parentWidget());
+        if (tb && tb->orientation() == Vertical)
+            horizontal = false;
 #endif
-	if ( horizontal ) {
-	    if ( topLeft ) {
-		if ( mapToGlobal( QPoint( 0, rect().bottom() ) ).y() + popup->sizeHint().height() <= qApp->desktop()->height() )
-		    popup->exec( mapToGlobal( rect().bottomLeft() ) );
-		else
-		    popup->exec( mapToGlobal( rect().topLeft() - QPoint( 0, popup->sizeHint().height() ) ) );
-	    } else {
-		QSize sz( popup->sizeHint() );
-		QPoint p = mapToGlobal( rect().topLeft() );
-		p.ry() -= sz.height();
-		popup->exec( p );
-	    }
-	}
-	else {
-	    if ( topLeft ) {
-		if ( mapToGlobal( QPoint( rect().right(), 0 ) ).x() + popup->sizeHint().width() <= qApp->desktop()->width() )
-		    popup->exec( mapToGlobal( rect().topRight() ) );
-		else
-		    popup->exec( mapToGlobal( rect().topLeft() - QPoint( popup->sizeHint().width(), 0 ) ) );
-	    } else {
-		QSize sz( popup->sizeHint() );
-		QPoint p = mapToGlobal( rect().topLeft() );
-		p.rx() -= sz.width();
-		popup->exec( p );
-	    }
-	}
-	setDown( FALSE );
+        if (horizontal) {
+            if (topLeft) {
+                if (mapToGlobal(QPoint(0, rect().bottom())).y() + popup->sizeHint().height() <= qApp->desktop()->height())
+                    popup->exec(mapToGlobal(rect().bottomLeft()));
+                else
+                    popup->exec(mapToGlobal(rect().topLeft() - QPoint(0, popup->sizeHint().height())));
+            } else {
+                QSize sz(popup->sizeHint());
+                QPoint p = mapToGlobal(rect().topLeft());
+                p.ry() -= sz.height();
+                popup->exec(p);
+            }
+        }
+        else {
+            if (topLeft) {
+                if (mapToGlobal(QPoint(rect().right(), 0)).x() + popup->sizeHint().width() <= qApp->desktop()->width())
+                    popup->exec(mapToGlobal(rect().topRight()));
+                else
+                    popup->exec(mapToGlobal(rect().topLeft() - QPoint(popup->sizeHint().width(), 0)));
+            } else {
+                QSize sz(popup->sizeHint());
+                QPoint p = mapToGlobal(rect().topLeft());
+                p.rx() -= sz.width();
+                popup->exec(p);
+            }
+        }
+        setDown(false);
     }
 }
 #endif
 
-void QPushButton::setFlat( bool f )
+void QPushButton::setFlat(bool f)
 {
     flt = f;
     update();
@@ -703,7 +703,7 @@ bool QPushButton::isFlat() const
 
 /*!
     \obsolete
-    \fn virtual void QPushButton::setIsMenuButton( bool enable )
+    \fn virtual void QPushButton::setIsMenuButton(bool enable)
 */
 
 #endif

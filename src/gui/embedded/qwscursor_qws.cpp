@@ -186,29 +186,29 @@ static const uchar vsplitm_bits[] = {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 static const uchar phand_bits[] = {
-    0x00, 0x00, 0x00, 0x00,	0xfe, 0x01, 0x00, 0x00,	0x01, 0x02, 0x00, 0x00,
-    0x7e, 0x04, 0x00, 0x00,	0x08, 0x08, 0x00, 0x00,	0x70, 0x08, 0x00, 0x00,
-    0x08, 0x08, 0x00, 0x00,	0x70, 0x14, 0x00, 0x00,	0x08, 0x22, 0x00, 0x00,
-    0x30, 0x41, 0x00, 0x00,	0xc0, 0x20, 0x00, 0x00,	0x40, 0x12, 0x00, 0x00,
-    0x80, 0x08, 0x00, 0x00,	0x00, 0x05, 0x00, 0x00,	0x00, 0x02, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00 };
+    0x00, 0x00, 0x00, 0x00,        0xfe, 0x01, 0x00, 0x00,        0x01, 0x02, 0x00, 0x00,
+    0x7e, 0x04, 0x00, 0x00,        0x08, 0x08, 0x00, 0x00,        0x70, 0x08, 0x00, 0x00,
+    0x08, 0x08, 0x00, 0x00,        0x70, 0x14, 0x00, 0x00,        0x08, 0x22, 0x00, 0x00,
+    0x30, 0x41, 0x00, 0x00,        0xc0, 0x20, 0x00, 0x00,        0x40, 0x12, 0x00, 0x00,
+    0x80, 0x08, 0x00, 0x00,        0x00, 0x05, 0x00, 0x00,        0x00, 0x02, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00,        0x00, 0x00, 0x00, 0x00,        0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00,        0x00, 0x00, 0x00, 0x00,        0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00,        0x00, 0x00, 0x00, 0x00,        0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00,        0x00, 0x00, 0x00, 0x00,        0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00,        0x00, 0x00, 0x00, 0x00,        0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00,        0x00, 0x00, 0x00, 0x00 };
 static const uchar phandm_bits[] = {
-    0xfe, 0x01, 0x00, 0x00,	0xff, 0x03, 0x00, 0x00,	0xff, 0x07, 0x00, 0x00,
-    0xff, 0x0f, 0x00, 0x00,	0xfe, 0x1f, 0x00, 0x00,	0xf8, 0x1f, 0x00, 0x00,
-    0xfc, 0x1f, 0x00, 0x00,	0xf8, 0x3f, 0x00, 0x00,	0xfc, 0x7f, 0x00, 0x00,
-    0xf8, 0xff, 0x00, 0x00,	0xf0, 0x7f, 0x00, 0x00,	0xe0, 0x3f, 0x00, 0x00,
-    0xc0, 0x1f, 0x00, 0x00,	0x80, 0x0f, 0x00, 0x00,	0x00, 0x07, 0x00, 0x00,
-    0x00, 0x02, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00,
-    0x00, 0x00, 0x00, 0x00,	0x00, 0x00, 0x00, 0x00 };
+    0xfe, 0x01, 0x00, 0x00,        0xff, 0x03, 0x00, 0x00,        0xff, 0x07, 0x00, 0x00,
+    0xff, 0x0f, 0x00, 0x00,        0xfe, 0x1f, 0x00, 0x00,        0xf8, 0x1f, 0x00, 0x00,
+    0xfc, 0x1f, 0x00, 0x00,        0xf8, 0x3f, 0x00, 0x00,        0xfc, 0x7f, 0x00, 0x00,
+    0xf8, 0xff, 0x00, 0x00,        0xf0, 0x7f, 0x00, 0x00,        0xe0, 0x3f, 0x00, 0x00,
+    0xc0, 0x1f, 0x00, 0x00,        0x80, 0x0f, 0x00, 0x00,        0x00, 0x07, 0x00, 0x00,
+    0x00, 0x02, 0x00, 0x00,        0x00, 0x00, 0x00, 0x00,        0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00,        0x00, 0x00, 0x00, 0x00,        0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00,        0x00, 0x00, 0x00, 0x00,        0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00,        0x00, 0x00, 0x00, 0x00,        0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00,        0x00, 0x00, 0x00, 0x00,        0x00, 0x00, 0x00, 0x00,
+    0x00, 0x00, 0x00, 0x00,        0x00, 0x00, 0x00, 0x00 };
 
 static const uchar size_all_data_bits[] = {
    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -290,30 +290,30 @@ void QWSServer::initializeCursor()
 {
     // setup system cursors
 #ifndef QT_NO_QWS_CURSOR
-//    qt_screen->initCursor(sharedram + ramlen,TRUE);
+//    qt_screen->initCursor(sharedram + ramlen,true);
 
     // default cursor
     cursor = 0;
     setCursor(QWSCursor::systemCursor(ArrowCursor));
 #endif
-    sendMouseEvent( QPoint(swidth/2, sheight/2), 0 );
+    sendMouseEvent(QPoint(swidth/2, sheight/2), 0);
 }
 
 void QWSServer::setCursor(QWSCursor *curs)
 {
 #ifndef QT_NO_QWS_CURSOR
     if (cursor == curs)
-    	return;
+        return;
 
     cursor = curs;
 
-    if ( !haveviscurs || !curs )
-	curs = QWSCursor::systemCursor(BlankCursor);
+    if (!haveviscurs || !curs)
+        curs = QWSCursor::systemCursor(BlankCursor);
 
     qt_screencursor->hide();
     qt_screencursor->set(curs->image(),
-			 curs->hotSpot().x(),
-			 curs->hotSpot().y());
+                         curs->hotSpot().x(),
+                         curs->hotSpot().y());
     qt_screencursor->show();
 #endif
 }
@@ -321,112 +321,112 @@ void QWSServer::setCursor(QWSCursor *curs)
 #ifndef QT_NO_QWS_CURSOR
 static void cleanupSystemCursorTable()
 {
-    for ( int i = 0; i <= Qt::LastCursor; i++ )
-	if ( systemCursorTable[i] ) {
-	    delete systemCursorTable[i];
-	    systemCursorTable[i] = 0;
-	}
+    for (int i = 0; i <= Qt::LastCursor; i++)
+        if (systemCursorTable[i]) {
+            delete systemCursorTable[i];
+            systemCursorTable[i] = 0;
+        }
 }
 #endif
 
-void QWSCursor::createSystemCursor( int id )
+void QWSCursor::createSystemCursor(int id)
 {
 #ifndef QT_NO_QWS_CURSOR
-    if ( !systemCursorTableInit ) {
-	for ( int i = 0; i <= LastCursor; i++ )
-	    systemCursorTable[i] = 0;
-	qAddPostRoutine( cleanupSystemCursorTable );
-	systemCursorTableInit = true;
+    if (!systemCursorTableInit) {
+        for (int i = 0; i <= LastCursor; i++)
+            systemCursorTable[i] = 0;
+        qAddPostRoutine(cleanupSystemCursorTable);
+        systemCursorTableInit = true;
     }
-    switch ( id ) {
-	// 16x16 cursors
-	case ArrowCursor:
-	    systemCursorTable[ArrowCursor] =
-		new QWSCursor(cur_arrow_bits, mcur_arrow_bits, 16, 16, 0, 0);
-	    break;
+    switch (id) {
+        // 16x16 cursors
+        case ArrowCursor:
+            systemCursorTable[ArrowCursor] =
+                new QWSCursor(cur_arrow_bits, mcur_arrow_bits, 16, 16, 0, 0);
+            break;
 
-	case UpArrowCursor:
-	    systemCursorTable[UpArrowCursor] =
-		new QWSCursor(cur_up_arrow_bits, mcur_up_arrow_bits, 16, 16, 7, 0);
-	    break;
+        case UpArrowCursor:
+            systemCursorTable[UpArrowCursor] =
+                new QWSCursor(cur_up_arrow_bits, mcur_up_arrow_bits, 16, 16, 7, 0);
+            break;
 
-	case CrossCursor:
-	    systemCursorTable[CrossCursor] =
-		new QWSCursor(cur_cross_bits, mcur_cross_bits, 16, 16, 7, 7);
-	    break;
+        case CrossCursor:
+            systemCursorTable[CrossCursor] =
+                new QWSCursor(cur_cross_bits, mcur_cross_bits, 16, 16, 7, 7);
+            break;
 
-	case IbeamCursor:
-	    systemCursorTable[IbeamCursor] =
-		new QWSCursor(cur_ibeam_bits, mcur_ibeam_bits, 16, 16, 7, 7);
-	    break;
+        case IbeamCursor:
+            systemCursorTable[IbeamCursor] =
+                new QWSCursor(cur_ibeam_bits, mcur_ibeam_bits, 16, 16, 7, 7);
+            break;
 
-	case SizeVerCursor:
-	    systemCursorTable[SizeVerCursor] =
-		new QWSCursor(cur_ver_bits, mcur_ver_bits, 16, 16, 7, 7);
-	    break;
+        case SizeVerCursor:
+            systemCursorTable[SizeVerCursor] =
+                new QWSCursor(cur_ver_bits, mcur_ver_bits, 16, 16, 7, 7);
+            break;
 
-	case SizeHorCursor:
-	    systemCursorTable[SizeHorCursor] =
-		new QWSCursor(cur_hor_bits, mcur_hor_bits, 16, 16, 7, 7);
-	    break;
+        case SizeHorCursor:
+            systemCursorTable[SizeHorCursor] =
+                new QWSCursor(cur_hor_bits, mcur_hor_bits, 16, 16, 7, 7);
+            break;
 
-	case SizeBDiagCursor:
-	    systemCursorTable[SizeBDiagCursor] =
-		new QWSCursor(cur_bdiag_bits, mcur_bdiag_bits, 16, 16, 7, 7);
-	    break;
+        case SizeBDiagCursor:
+            systemCursorTable[SizeBDiagCursor] =
+                new QWSCursor(cur_bdiag_bits, mcur_bdiag_bits, 16, 16, 7, 7);
+            break;
 
-	case SizeFDiagCursor:
-	    systemCursorTable[SizeFDiagCursor] =
-		new QWSCursor(cur_fdiag_bits, mcur_fdiag_bits, 16, 16, 7, 7);
-	    break;
+        case SizeFDiagCursor:
+            systemCursorTable[SizeFDiagCursor] =
+                new QWSCursor(cur_fdiag_bits, mcur_fdiag_bits, 16, 16, 7, 7);
+            break;
 
-	case BlankCursor:
-	    systemCursorTable[BlankCursor] =
-		new QWSCursor(0, 0, 0, 0, 0, 0);
-	    break;
+        case BlankCursor:
+            systemCursorTable[BlankCursor] =
+                new QWSCursor(0, 0, 0, 0, 0, 0);
+            break;
 
-	// 20x20 cursors
-	case ForbiddenCursor:
-	    systemCursorTable[ForbiddenCursor] =
-		new QWSCursor(forbidden_bits, forbiddenm_bits, 20, 20, 10, 10);
-	    break;
+        // 20x20 cursors
+        case ForbiddenCursor:
+            systemCursorTable[ForbiddenCursor] =
+                new QWSCursor(forbidden_bits, forbiddenm_bits, 20, 20, 10, 10);
+            break;
 
-	// 32x32 cursors
-	case WaitCursor:
-	    systemCursorTable[WaitCursor] =
-		new QWSCursor(wait_data_bits, wait_mask_bits, 32, 32, 15, 15);
-	    break;
+        // 32x32 cursors
+        case WaitCursor:
+            systemCursorTable[WaitCursor] =
+                new QWSCursor(wait_data_bits, wait_mask_bits, 32, 32, 15, 15);
+            break;
 
-	case SplitVCursor:
-	    systemCursorTable[SplitVCursor] =
-		new QWSCursor(vsplit_bits, vsplitm_bits, 32, 32, 15, 15);
-	    break;
+        case SplitVCursor:
+            systemCursorTable[SplitVCursor] =
+                new QWSCursor(vsplit_bits, vsplitm_bits, 32, 32, 15, 15);
+            break;
 
-	case SplitHCursor:
-	    systemCursorTable[SplitHCursor] =
-		new QWSCursor(hsplit_bits, hsplitm_bits, 32, 32, 15, 15);
-	    break;
+        case SplitHCursor:
+            systemCursorTable[SplitHCursor] =
+                new QWSCursor(hsplit_bits, hsplitm_bits, 32, 32, 15, 15);
+            break;
 
-	case SizeAllCursor:
-	    systemCursorTable[SizeAllCursor] =
-		new QWSCursor(size_all_data_bits, size_all_mask_bits, 32, 32, 15, 15);
-	    break;
+        case SizeAllCursor:
+            systemCursorTable[SizeAllCursor] =
+                new QWSCursor(size_all_data_bits, size_all_mask_bits, 32, 32, 15, 15);
+            break;
 
-	case PointingHandCursor:
-	    systemCursorTable[PointingHandCursor] =
-		new QWSCursor(phand_bits, phandm_bits, 32, 32, 0, 0);
-	    break;
+        case PointingHandCursor:
+            systemCursorTable[PointingHandCursor] =
+                new QWSCursor(phand_bits, phandm_bits, 32, 32, 0, 0);
+            break;
 
-	case WhatsThisCursor:
-	    systemCursorTable[WhatsThisCursor] =
-		new QWSCursor(whatsthis_bits, whatsthism_bits, 32, 32, 0, 0);
-	    break;
-	case BusyCursor:
-	    systemCursorTable[BusyCursor] =
-		new QWSCursor(busy_bits, busym_bits, 32, 32, 0, 0);
-	    break;
-	default:
-	    qWarning( "Unknown system cursor %d", id );
+        case WhatsThisCursor:
+            systemCursorTable[WhatsThisCursor] =
+                new QWSCursor(whatsthis_bits, whatsthism_bits, 32, 32, 0, 0);
+            break;
+        case BusyCursor:
+            systemCursorTable[BusyCursor] =
+                new QWSCursor(busy_bits, busym_bits, 32, 32, 0, 0);
+            break;
+        default:
+            qWarning("Unknown system cursor %d", id);
     }
 #endif
 }
@@ -436,22 +436,22 @@ QWSCursor *QWSCursor::systemCursor(int id)
     QWSCursor *cursor = 0;
 #ifndef QT_NO_QWS_CURSOR
     if (id >= 0 && id <= LastCursor) {
-	if ( !systemCursorTable[id] )
-	    createSystemCursor(id);
-	cursor = systemCursorTable[id];
+        if (!systemCursorTable[id])
+            createSystemCursor(id);
+        cursor = systemCursorTable[id];
     }
 
     if (cursor == 0) {
-	if ( !systemCursorTable[ArrowCursor] )
-	    createSystemCursor(ArrowCursor);
-	cursor = systemCursorTable[ArrowCursor];
+        if (!systemCursorTable[ArrowCursor])
+            createSystemCursor(ArrowCursor);
+        cursor = systemCursorTable[ArrowCursor];
     }
 #endif
     return cursor;
 }
 
 void QWSCursor::set(const uchar *data, const uchar *mask,
-		    int width, int height, int hx, int hy)
+                    int width, int height, int hx, int hy)
 {
 #ifndef QT_NO_QWS_CURSOR
     hot.setX(hx);
@@ -459,8 +459,8 @@ void QWSCursor::set(const uchar *data, const uchar *mask,
 
     cursor.create(width, height, 8, 3);
 
-    if ( !width || !height || !data || !mask )
-	return;
+    if (!width || !height || !data || !mask)
+        return;
 
     cursor.setColor(0, 0xff000000);
     cursor.setColor(1, 0xffffffff);
@@ -474,40 +474,40 @@ void QWSCursor::set(const uchar *data, const uchar *mask,
 
     for (int i = 0; i < height; i++)
     {
-	for (int j = 0; j < bytesPerLine; j++, data++, mask++)
-	{
-	    for (int b = 0; b < 8 && j*8+b < width; b++)
-	    {
-		d = *data & (1 << b);
-		m = *mask & (1 << b);
-		if (d && m) p = 0;
-		else if (!d && m) p = 1;
-		else p = 2;
-		cursor.setPixel(j*8+b, i, p);
+        for (int j = 0; j < bytesPerLine; j++, data++, mask++)
+        {
+            for (int b = 0; b < 8 && j*8+b < width; b++)
+            {
+                d = *data & (1 << b);
+                m = *mask & (1 << b);
+                if (d && m) p = 0;
+                else if (!d && m) p = 1;
+                else p = 2;
+                cursor.setPixel(j*8+b, i, p);
 
-		// calc region
-		if (x < 0 && m)
-		    x = j*8+b;
-		else if (x >= 0 && !m) {
-		    rgn = rgn.unite(QRect(x, i, w, 1));
-		    x = -1;
-		    w = 0;
-		}
-		if (m)
-		    w++;
-	    }
-	}
-	if (x >= 0) {
-	    rgn = rgn.unite(QRect(x, i, w, 1));
-	    x = -1;
-	    w = 0;
-	}
+                // calc region
+                if (x < 0 && m)
+                    x = j*8+b;
+                else if (x >= 0 && !m) {
+                    rgn = rgn.unite(QRect(x, i, w, 1));
+                    x = -1;
+                    w = 0;
+                }
+                if (m)
+                    w++;
+            }
+        }
+        if (x >= 0) {
+            rgn = rgn.unite(QRect(x, i, w, 1));
+            x = -1;
+            w = 0;
+        }
     }
 
-    if ( qt_screencursor) {
-	if ( qt_screencursor->supportsAlphaCursor() ) {
-	    createDropShadow(5, 2);
-	}
+    if (qt_screencursor) {
+        if (qt_screencursor->supportsAlphaCursor()) {
+            createDropShadow(5, 2);
+        }
     }
 #endif
 }
@@ -517,61 +517,61 @@ void QWSCursor::createDropShadow(int dropx, int dropy)
 {
 #if !defined(QT_NO_QWS_CURSOR) && !defined(QT_NO_QWS_ALPHA_CURSOR)
     if (cursor.width() + dropx > 64 || cursor.height() + dropy > 64)
-	return;
+        return;
 
-    if ( !cursor.hasAlphaBuffer() ) {
-	cursor.setAlphaBuffer(true);
+    if (!cursor.hasAlphaBuffer()) {
+        cursor.setAlphaBuffer(true);
 
-	const int nblur=4;
-	const int darkness=140;
+        const int nblur=4;
+        const int darkness=140;
 
-	QImage drop(cursor.width()+dropx+nblur, cursor.height()+dropy+nblur, 8, 18);
-	drop.setColor(0, 0xff000000); // bg (black)
-	drop.setColor(1, 0xffffffff); // fg (white)
-	for (int i=0; i<16; i++) {
-	    drop.setColor(2+i, (darkness*i/16)<<24);
-	}
-	drop.fill(2); // all trans
-	QImage drop2 = drop.copy();
+        QImage drop(cursor.width()+dropx+nblur, cursor.height()+dropy+nblur, 8, 18);
+        drop.setColor(0, 0xff000000); // bg (black)
+        drop.setColor(1, 0xffffffff); // fg (white)
+        for (int i=0; i<16; i++) {
+            drop.setColor(2+i, (darkness*i/16)<<24);
+        }
+        drop.fill(2); // all trans
+        QImage drop2 = drop.copy();
 
-	int cp;
+        int cp;
 
-	// made solid shadow
-	for (int row = 0; row < cursor.height(); row++) {
-	    for (int col = 0; col < cursor.width(); col++) {
-		cp = cursor.pixelIndex(col, row);
-		if (cp != 2)
-		    drop.setPixel(col+dropx, row+dropy, 17);
-	    }
-	}
+        // made solid shadow
+        for (int row = 0; row < cursor.height(); row++) {
+            for (int col = 0; col < cursor.width(); col++) {
+                cp = cursor.pixelIndex(col, row);
+                if (cp != 2)
+                    drop.setPixel(col+dropx, row+dropy, 17);
+            }
+        }
 
-	// blur shadow
-	for (int blur=0; blur<nblur; blur++) {
-	    QImage& to((blur&1)?drop:drop2);
-	    QImage& from((blur&1)?drop2:drop);
-	    for (int row = 1; row < drop.height()-1; row++) {
-		for (int col = 1; col < drop.width()-1; col++) {
-		    int t=0;
-		    for (int dx=-1; dx<=1; dx++) {
-			for (int dy=-1; dy<=1; dy++) {
-			    t += from.pixelIndex(col+dx,row+dy)-2;
-			}
-		    }
-		    to.setPixel(col,row,2+t/9);
-		}
-	    }
-	}
+        // blur shadow
+        for (int blur=0; blur<nblur; blur++) {
+            QImage& to((blur&1)?drop:drop2);
+            QImage& from((blur&1)?drop2:drop);
+            for (int row = 1; row < drop.height()-1; row++) {
+                for (int col = 1; col < drop.width()-1; col++) {
+                    int t=0;
+                    for (int dx=-1; dx<=1; dx++) {
+                        for (int dy=-1; dy<=1; dy++) {
+                            t += from.pixelIndex(col+dx,row+dy)-2;
+                        }
+                    }
+                    to.setPixel(col,row,2+t/9);
+                }
+            }
+        }
 
-	// copy cursor
-	for (int row = 0; row < cursor.height(); row++) {
-	    for (int col = 0; col < cursor.width(); col++) {
-		cp = cursor.pixelIndex(col, row);
-		if (cp != 2)
-		    drop.setPixel(col, row, cp);
-	    }
-	}
+        // copy cursor
+        for (int row = 0; row < cursor.height(); row++) {
+            for (int col = 0; col < cursor.width(); col++) {
+                cp = cursor.pixelIndex(col, row);
+                if (cp != 2)
+                    drop.setPixel(col, row, cp);
+            }
+        }
 
-	cursor = drop;
+        cursor = drop;
     }
 #endif
 }

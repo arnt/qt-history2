@@ -49,25 +49,25 @@ class Q_GUI_EXPORT QPaintEngine : public Qt
     Q_DECLARE_PRIVATE(QPaintEngine);
 public:
     enum Capability {
-	CoordTransform          = 0x0001,		// Points are transformed
-	PenWidthTransform	= 0x0002, 		// Pen width is transformed
-	PatternTransform        = 0x0004,		// Brush patterns
-	PixmapTransform         = 0x0008,               // Pixmap transforms
-	CanRenderText           = 0x0010,		// Calls drawTextItem directly
-	LinearGradientSupport   = 0x0020,               // Can fill gradient areas.
-	PixmapScale             = 0x0040,               // Can scale pixmaps (without XForm) in drawPixmap
-	UsesFontEngine          = 0x10000000           // Internal use, QWidget and QPixmap
+        CoordTransform          = 0x0001,                // Points are transformed
+        PenWidthTransform        = 0x0002,                 // Pen width is transformed
+        PatternTransform        = 0x0004,                // Brush patterns
+        PixmapTransform         = 0x0008,               // Pixmap transforms
+        CanRenderText           = 0x0010,                // Calls drawTextItem directly
+        LinearGradientSupport   = 0x0020,               // Can fill gradient areas.
+        PixmapScale             = 0x0040,               // Can scale pixmaps (without XForm) in drawPixmap
+        UsesFontEngine          = 0x10000000           // Internal use, QWidget and QPixmap
     };
     Q_DECLARE_FLAGS(GCCaps, Capability);
 
     enum DirtyFlags {
-	DirtyPen              	= 0x0001,
-	DirtyBrush              = 0x0002,
-	DirtyFont               = 0x0004,
-	DirtyBackground         = 0x0008,
- 	DirtyTransform          = 0x0010,
- 	DirtyClip               = 0x0020,
-	DirtyRasterOp 		= 0x0040
+        DirtyPen                      = 0x0001,
+        DirtyBrush              = 0x0002,
+        DirtyFont               = 0x0004,
+        DirtyBackground         = 0x0008,
+        DirtyTransform          = 0x0010,
+        DirtyClip               = 0x0020,
+        DirtyRasterOp                 = 0x0040
     };
 
     QPaintEngine(GCCaps devcaps=0);
@@ -76,7 +76,7 @@ public:
     bool isActive() const { return active; }
     void setActive(bool state) { active = state; }
 
-    virtual bool begin(QPaintDevice *pdev, QPainterState *state, bool unclipped = FALSE) = 0;
+    virtual bool begin(QPaintDevice *pdev, QPainterState *state, bool unclipped = false) = 0;
     virtual bool end() = 0;
 
     virtual void updatePen(QPainterState *ps) = 0;
@@ -120,54 +120,54 @@ public:
     virtual void setRenderHint(QPainter::RenderHint hint, bool enable);
 
     enum Type {
-	//X11
-	X11,
-	//Windows
-	Windows, Gdiplus,
-	//Mac
-	QuickDraw, CoreGraphics,
-	//QWS
-	QWindowSystem,
-	//Magic wrapper type
-	Wrapper,
-	// PostScript
-	PostScript,
-	// OpenGL
-	OpenGL,
-	// Picture
-	Picture,
-	// SVG
-	SVG,
+        //X11
+        X11,
+        //Windows
+        Windows, Gdiplus,
+        //Mac
+        QuickDraw, CoreGraphics,
+        //QWS
+        QWindowSystem,
+        //Magic wrapper type
+        Wrapper,
+        // PostScript
+        PostScript,
+        // OpenGL
+        OpenGL,
+        // Picture
+        Picture,
+        // SVG
+        SVG,
 
-	User = 50,				// first user type id
-	MaxUser = 100				// last user type id
+        User = 50,                                // first user type id
+        MaxUser = 100                                // last user type id
     };
     virtual Type type() const = 0;
 
-    enum { IsActive           	= 0x00000001,
-	   ExtDev             	= 0x00000002,
-	   IsStartingUp       	= 0x00000004,
-	   NoCache    	      	= 0x00000008,
-	   VxF 		      	= 0x00000010,
-	   WxF 			= 0x00000020,
-	   ClipOn 		= 0x00000040,
-	   SafePolygon 		= 0x00000080,
-	   MonoDev 		= 0x00000100,
-// 	   DirtyFont  		= 0x00000200,
-// 	   DirtyPen 		= 0x00000400,
-// 	   DirtyBrush 		= 0x00000800,
-	   RGBColor 		= 0x00001000,
-	   FontMet 		= 0x00002000,
-	   FontInf 		= 0x00004000,
-	   CtorBegin 		= 0x00008000,
-           UsePrivateCx   	= 0x00010000,
-	   VolatileDC 		= 0x00020000,
-	   Qt2Compat 		= 0x00040000 };
-    inline bool testf( uint b ) const { return (flags&b)!=0; }
-    inline void setf( uint b ) { flags |= b; }
-    inline void clearf( uint b ) { flags &= (uint)(~b); }
-    inline void assignf( uint b ) { flags = (uint) b; }
-    inline void fix_neg_rect( int *x, int *y, int *w, int *h );
+    enum { IsActive                   = 0x00000001,
+           ExtDev                     = 0x00000002,
+           IsStartingUp               = 0x00000004,
+           NoCache                    = 0x00000008,
+           VxF                         = 0x00000010,
+           WxF                         = 0x00000020,
+           ClipOn                 = 0x00000040,
+           SafePolygon                 = 0x00000080,
+           MonoDev                 = 0x00000100,
+//            DirtyFont                  = 0x00000200,
+//            DirtyPen                 = 0x00000400,
+//            DirtyBrush                 = 0x00000800,
+           RGBColor                 = 0x00001000,
+           FontMet                 = 0x00002000,
+           FontInf                 = 0x00004000,
+           CtorBegin                 = 0x00008000,
+           UsePrivateCx           = 0x00010000,
+           VolatileDC                 = 0x00020000,
+           Qt2Compat                 = 0x00040000 };
+    inline bool testf(uint b) const { return (flags&b)!=0; }
+    inline void setf(uint b) { flags |= b; }
+    inline void clearf(uint b) { flags &= (uint)(~b); }
+    inline void assignf(uint b) { flags = (uint) b; }
+    inline void fix_neg_rect(int *x, int *y, int *w, int *h);
     inline bool hasClipping() const { return testf(ClipOn); }
 
     inline bool testDirty(DirtyFlags df) { return (dirtyFlag & df) != 0; }
@@ -257,19 +257,19 @@ private:
 inline void QPaintEngine::fix_neg_rect(int *x, int *y, int *w, int *h)
 {
     if (*w < 0) {
-	*w = -*w;
-	*x -= *w - 1;
+        *w = -*w;
+        *x -= *w - 1;
     }
     if (*h < 0) {
-	*h = -*h;
-	*y -= *h - 1;
+        *h = -*h;
+        *y -= *h - 1;
     }
 }
 
 inline void QPaintEngine::updateState(QPainterState *newState, bool updateGC)
 {
     if (dirtyFlag || state!=newState)
-	updateInternal(newState, updateGC);
+        updateInternal(newState, updateGC);
 }
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QPaintEngine::GCCaps);

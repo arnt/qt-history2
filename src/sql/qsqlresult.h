@@ -19,7 +19,7 @@
 #include "qsql.h"
 #endif // QT_H
 
-#if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
+#if !defined(QT_MODULE_SQL) || defined(QT_LICENSE_PROFESSIONAL)
 #define QM_EXPORT_SQL
 #else
 #define QM_EXPORT_SQL Q_SQL_EXPORT
@@ -49,7 +49,7 @@ public:
 protected:
     enum BindMethod { BindByPosition, BindByName };
 
-    QSqlResult(const QSqlDriver * db );
+    QSqlResult(const QSqlDriver * db);
     int at() const;
     QString lastQuery() const;
     QSqlError lastError() const;
@@ -58,39 +58,39 @@ protected:
     bool isSelect() const;
     bool isForwardOnly() const;
     const QSqlDriver* driver() const;
-    virtual void setAt( int at );
-    virtual void setActive( bool a );
-    virtual void setLastError( const QSqlError& e );
-    virtual void setQuery( const QString& query );
-    virtual void setSelect( bool s );
-    virtual void setForwardOnly( bool forward );
+    virtual void setAt(int at);
+    virtual void setActive(bool a);
+    virtual void setLastError(const QSqlError& e);
+    virtual void setQuery(const QString& query);
+    virtual void setSelect(bool s);
+    virtual void setForwardOnly(bool forward);
 
     // prepared query support
     virtual bool exec();
-    virtual bool prepare( const QString& query );
+    virtual bool prepare(const QString& query);
     // ### TODO - find a much better name
     virtual bool savePrepare(const QString& sqlquery);
     virtual void bindValue(int pos, const QCoreVariant& val, QSql::ParamType type);
     virtual void bindValue(const QString& placeholder, const QCoreVariant& val,
                            QSql::ParamType type);
     void addBindValue(const QCoreVariant& val, QSql::ParamType type);
-    QCoreVariant boundValue( const QString& placeholder ) const;
-    QCoreVariant boundValue( int pos ) const;
-    QSql::ParamType bindValueType( const QString& placeholder ) const;
-    QSql::ParamType bindValueType( int pos ) const;
+    QCoreVariant boundValue(const QString& placeholder) const;
+    QCoreVariant boundValue(int pos) const;
+    QSql::ParamType bindValueType(const QString& placeholder) const;
+    QSql::ParamType bindValueType(int pos) const;
     int boundValueCount() const;
     QVector<QCoreVariant>& boundValues() const;
     QString executedQuery() const;
-    QString boundValueName( int pos ) const;
+    QString boundValueName(int pos) const;
     void clear();
     bool hasOutValues() const;
 
     BindMethod bindMethod() const;
 
-    virtual QCoreVariant data( int i ) = 0;
-    virtual bool isNull( int i ) = 0;
-    virtual bool reset ( const QString& sqlquery ) = 0;
-    virtual bool fetch( int i ) = 0;
+    virtual QCoreVariant data(int i) = 0;
+    virtual bool isNull(int i) = 0;
+    virtual bool reset (const QString& sqlquery) = 0;
+    virtual bool fetch(int i) = 0;
     virtual bool fetchNext();
     virtual bool fetchPrev();
     virtual bool fetchFirst() = 0;
@@ -103,10 +103,10 @@ private:
     QSqlResultPrivate* d;
     void resetBindCount(); //HACK
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QSqlResult( const QSqlResult & );
-    QSqlResult &operator=( const QSqlResult & );
+    QSqlResult(const QSqlResult &);
+    QSqlResult &operator=(const QSqlResult &);
 #endif
 };
 

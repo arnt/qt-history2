@@ -33,10 +33,10 @@ public:
     QPalette(const QColor &button);
     QPalette(const QColor &button, const QColor &background);
     QPalette(const QBrush &foreground, const QBrush &button, const QBrush &light,
-	     const QBrush &dark, const QBrush &mid, const QBrush &text,
-	     const QBrush &bright_text, const QBrush &base, const QBrush &background);
+             const QBrush &dark, const QBrush &mid, const QBrush &text,
+             const QBrush &bright_text, const QBrush &base, const QBrush &background);
     QPalette(const QColor &foreground, const QColor &background, const QColor &light,
-	     const QColor &dark, const QColor &mid, const QColor &text, const QColor &base);
+             const QColor &dark, const QColor &mid, const QColor &text, const QColor &base);
 #ifdef QT_COMPAT
     QPalette(const QColorGroup &active, const QColorGroup &disabled, const QColorGroup &inactive);
 #endif
@@ -47,9 +47,9 @@ public:
     // Do not change the order, the serialization format depends on it
     enum ColorGroup { Active, Disabled, Inactive, NColorGroups, Current, All, Normal = Active };
     enum ColorRole { Foreground, Button, Light, Midlight, Dark, Mid,
-		     Text, BrightText, ButtonText, Base, Background, Shadow,
-		     Highlight, HighlightedText, Link, LinkVisited,
-		     NColorRoles };
+                     Text, BrightText, ButtonText, Base, Background, Shadow,
+                     Highlight, HighlightedText, Link, LinkVisited,
+                     NColorRoles };
 
     inline ColorGroup currentColorGroup() const { return (ColorGroup)current_group; }
     inline void setCurrentColorGroup(ColorGroup cg) { current_group = cg; }
@@ -65,9 +65,9 @@ public:
      { setBrush(All, cr, brush); }
     void setBrush(ColorGroup cg, ColorRole cr, const QBrush &brush);
     void setColorGroup(ColorGroup cr, const QBrush &foreground, const QBrush &button,
-		       const QBrush &light, const QBrush &dark, const QBrush &mid,
-		       const QBrush &text, const QBrush &bright_text, const QBrush &base,
-		       const QBrush &background);
+                       const QBrush &light, const QBrush &dark, const QBrush &mid,
+                       const QBrush &text, const QBrush &bright_text, const QBrush &base,
+                       const QBrush &background);
     bool isEqual(ColorGroup cr1, ColorGroup cr2) const;
 
     inline const QColor &color(ColorRole cr) const { return color(Current, cr); }
@@ -108,18 +108,18 @@ public:
 
     int serialNumber() const;
 
-    QPalette resolve( const QPalette & ) const;
+    QPalette resolve(const QPalette &) const;
     inline uint resolve() const { return resolve_mask; }
     inline void resolve(uint mask) { resolve_mask = mask; }
 
 private:
     void setColorGroup(ColorGroup cr, const QBrush &foreground, const QBrush &button,
-		       const QBrush &light, const QBrush &dark, const QBrush &mid,
-		       const QBrush &text, const QBrush &bright_text, const QBrush &base,
-		       const QBrush &background, const QBrush &midlight,
-		       const QBrush &button_text, const QBrush &shadow,
-		       const QBrush &highlight, const QBrush &highlighted_text,
-		       const QBrush &link, const QBrush &link_visited);
+                       const QBrush &light, const QBrush &dark, const QBrush &mid,
+                       const QBrush &text, const QBrush &bright_text, const QBrush &base,
+                       const QBrush &background, const QBrush &midlight,
+                       const QBrush &button_text, const QBrush &shadow,
+                       const QBrush &highlight, const QBrush &highlighted_text,
+                       const QBrush &link, const QBrush &link_visited);
 #ifdef QT_COMPAT
     void setColorGroup(ColorGroup, const QColorGroup &);
     QColorGroup createColorGroup(ColorGroup) const;
@@ -143,13 +143,13 @@ class Q_GUI_EXPORT QColorGroup : public QPalette
 public:
     inline QColorGroup() : QPalette() { is_colorgroup = 1; }
     inline QColorGroup(const QBrush &foreground, const QBrush &button, const QBrush &light,
-		const QBrush &dark, const QBrush &mid, const QBrush &text,
-		const QBrush &bright_text, const QBrush &base, const QBrush &background)
-	: QPalette(foreground, button, light, dark, mid, text, bright_text, base, background)
+                const QBrush &dark, const QBrush &mid, const QBrush &text,
+                const QBrush &bright_text, const QBrush &base, const QBrush &background)
+        : QPalette(foreground, button, light, dark, mid, text, bright_text, base, background)
     { is_colorgroup = 1; }
     inline QColorGroup(const QColor &foreground, const QColor &background, const QColor &light,
-		const QColor &dark, const QColor &mid, const QColor &text, const QColor &base)
-	: QPalette(foreground, background, light, dark, mid, text, base) { is_colorgroup = 1; }
+                const QColor &dark, const QColor &mid, const QColor &text, const QColor &base)
+        : QPalette(foreground, background, light, dark, mid, text, base) { is_colorgroup = 1; }
     inline QColorGroup(const QColorGroup &cg) : QPalette(cg) { is_colorgroup = 1; }
     inline QColorGroup(const QPalette &pal) : QPalette(pal) { is_colorgroup = 1; }
 

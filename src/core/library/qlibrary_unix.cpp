@@ -34,45 +34,45 @@
 
 bool QLibraryPrivate::loadLibrary()
 {
-    if ( pHnd )
-	return TRUE;
+    if (pHnd)
+        return true;
 
     QString filename = library->library();
 
-    pHnd = (void*)shl_load( filename.latin1(), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0 );
+    pHnd = (void*)shl_load(filename.latin1(), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0);
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
-    if ( !pHnd )
-	qWarning( "%s: failed to load library!", filename.latin1() );
+    if (!pHnd)
+        qWarning("%s: failed to load library!", filename.latin1());
 #endif
     return pHnd != 0;
 }
 
 bool QLibraryPrivate::freeLibrary()
 {
-    if ( !pHnd )
-	return TRUE;
+    if (!pHnd)
+        return true;
 
-    if ( shl_unload( (shl_t)pHnd ) ) {
+    if (shl_unload((shl_t)pHnd)) {
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
-	QString filename = library->library();
-	qWarning( "%s: Failed to unload library!", filename.latin1() );
+        QString filename = library->library();
+        qWarning("%s: Failed to unload library!", filename.latin1());
 #endif
-	return FALSE;
+        return false;
     }
     pHnd = 0;
-    return TRUE;
+    return true;
 }
 
-void* QLibraryPrivate::resolveSymbol( const char* symbol )
+void* QLibraryPrivate::resolveSymbol(const char* symbol)
 {
-    if ( !pHnd )
-	return 0;
+    if (!pHnd)
+        return 0;
 
     void* address = 0;
-    if ( shl_findsym( (shl_t*)&pHnd, symbol, TYPE_UNDEFINED, &address ) < 0 ) {
+    if (shl_findsym((shl_t*)&pHnd, symbol, TYPE_UNDEFINED, &address) < 0) {
 #if defined(QT_DEBUG_COMPONENT)
-	QString filename = library->library();
-	qWarning( "%s: couldn't resolve symbol \"%s\"", filename.latin1(), symbol );
+        QString filename = library->library();
+        qWarning("%s: couldn't resolve symbol \"%s\"", filename.latin1(), symbol);
 #endif
     }
     return address;
@@ -83,54 +83,54 @@ void* QLibraryPrivate::resolveSymbol( const char* symbol )
 
 bool QLibraryPrivate::loadLibrary()
 {
-    if ( pHnd )
-	return TRUE;
+    if (pHnd)
+        return true;
 
     QString filename = library->library();
 
-    pHnd = dlopen( filename.latin1(), RTLD_LAZY );
+    pHnd = dlopen(filename.latin1(), RTLD_LAZY);
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
-    if ( !pHnd )
-	qWarning( "%s", dlerror() );
+    if (!pHnd)
+        qWarning("%s", dlerror());
 #endif
     return pHnd != 0;
 }
 
 bool QLibraryPrivate::freeLibrary()
 {
-    if ( !pHnd )
-	return TRUE;
+    if (!pHnd)
+        return true;
 
-    if ( dlclose( pHnd ) ) {
+    if (dlclose(pHnd)) {
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
-	qWarning( "%s", dlerror() );
+        qWarning("%s", dlerror());
 #endif
-	return FALSE;
+        return false;
     }
 
     pHnd = 0;
-    return TRUE;
+    return true;
 }
 
-void* QLibraryPrivate::resolveSymbol( const char* symbol )
+void* QLibraryPrivate::resolveSymbol(const char* symbol)
 {
-    if ( !pHnd )
-	return 0;
+    if (!pHnd)
+        return 0;
 
 #if defined(QT_AOUT_UNDERSCORE)
     // older a.out systems add an underscore in front of symbols
     char* undrscr_symbol = new char[strlen(symbol)+2];
     undrscr_symbol[0] = '_';
     strcpy(undrscr_symbol+1, symbol);
-    void* address = dlsym( pHnd, undrscr_symbol );
+    void* address = dlsym(pHnd, undrscr_symbol);
     delete [] undrscr_symbol;
 #else
-    void* address = dlsym( pHnd, symbol );
+    void* address = dlsym(pHnd, symbol);
 #endif
 #if defined(QT_DEBUG_COMPONENT)
     const char* error = dlerror();
-    if ( error )
-	qWarning( "%s", error );
+    if (error)
+        qWarning("%s", error);
 #endif
     return address;
 }

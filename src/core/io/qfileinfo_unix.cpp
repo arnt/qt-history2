@@ -21,7 +21,7 @@
 #include <limits.h>
 
 /*!
-    Returns true if this object points to a file. Returns FALSE if the
+    Returns true if this object points to a file. Returns false if the
     object points to something which isn't a file, e.g. a directory or
     a symlink.
 
@@ -30,10 +30,10 @@
 bool QFileInfo::isFile() const
 {
     if (!d)
-	return false;
+        return false;
 
-    if ( !d->cache )
-	d->doStat();
+    if (!d->cache)
+        d->doStat();
     return d->could_stat ? (d->st.st_mode & S_IFMT) == S_IFREG : false;
 }
 
@@ -46,10 +46,10 @@ bool QFileInfo::isFile() const
 bool QFileInfo::isDir() const
 {
     if (!d)
-	return false;
+        return false;
 
-    if ( !d->cache )
-	d->doStat();
+    if (!d->cache)
+        d->doStat();
     return d->could_stat ? (d->st.st_mode & S_IFMT) == S_IFDIR : false;
 }
 
@@ -63,10 +63,10 @@ bool QFileInfo::isDir() const
 bool QFileInfo::isSymLink() const
 {
     if (!d)
-	return false;
+        return false;
 
-    if ( !d->cache )
-	d->doStat();
+    if (!d->cache)
+        d->doStat();
     return d->symLink;
 }
 
@@ -84,15 +84,15 @@ bool QFileInfo::isSymLink() const
 QString QFileInfo::readLink() const
 {
 #if defined(Q_OS_UNIX) && !defined(Q_OS_OS2EMX)
-    if ( !d || !d->symLink )
-	return QString();
+    if (!d || !d->symLink)
+        return QString();
 
     QString r;
     char s[PATH_MAX+1];
-    int len = readlink( QFile::encodeName(d->fileName()), s, PATH_MAX );
-    if ( len >= 0 ) {
-	s[len] = '\0';
-	r = QFile::decodeName(QByteArray(s));
+    int len = readlink(QFile::encodeName(d->fileName()), s, PATH_MAX);
+    if (len >= 0) {
+        s[len] = '\0';
+        r = QFile::decodeName(QByteArray(s));
     }
     return r;
 #else
@@ -115,9 +115,9 @@ static const uint nobodyID = (uint) -2;
 
 QString QFileInfo::owner() const
 {
-    passwd *pw = getpwuid( ownerId() );
-    if ( pw )
-	return QFile::decodeName( QByteArray(pw->pw_name) );
+    passwd *pw = getpwuid(ownerId());
+    if (pw)
+        return QFile::decodeName(QByteArray(pw->pw_name));
     return QString::null;
 }
 
@@ -132,10 +132,10 @@ QString QFileInfo::owner() const
 
 uint QFileInfo::ownerId() const
 {
-    if ( !d->cache )
-	d->doStat();
-    if ( d->could_stat )
-	return d->st.st_uid;
+    if (!d->cache)
+        d->doStat();
+    if (d->could_stat)
+        return d->st.st_uid;
     return nobodyID;
 }
 
@@ -152,9 +152,9 @@ uint QFileInfo::ownerId() const
 
 QString QFileInfo::group() const
 {
-    struct group *gr = getgrgid( groupId() );
-    if ( gr )
-	return QFile::decodeName( QByteArray(gr->gr_name) );
+    struct group *gr = getgrgid(groupId());
+    if (gr)
+        return QFile::decodeName(QByteArray(gr->gr_name));
     return QString::null;
 }
 
@@ -169,10 +169,10 @@ QString QFileInfo::group() const
 
 uint QFileInfo::groupId() const
 {
-    if ( !d->cache )
-	d->doStat();
-    if ( d->could_stat )
-	return d->st.st_gid;
+    if (!d->cache)
+        d->doStat();
+    if (d->could_stat)
+        return d->st.st_gid;
     return nobodyID;
 }
 
@@ -187,61 +187,61 @@ uint QFileInfo::groupId() const
 
     Example:
     \code
-	QFileInfo fi( "/tmp/archive.tar.gz" );
-	if ( fi.permission( QFileInfo::WriteUser | QFileInfo::ReadGroup ) )
-	    qWarning( "I can change the file; my group can read the file" );
-	if ( fi.permission( QFileInfo::WriteGroup | QFileInfo::WriteOther ) )
-	    qWarning( "The group or others can change the file" );
+        QFileInfo fi("/tmp/archive.tar.gz");
+        if (fi.permission(QFileInfo::WriteUser | QFileInfo::ReadGroup))
+            qWarning("I can change the file; my group can read the file");
+        if (fi.permission(QFileInfo::WriteGroup | QFileInfo::WriteOther))
+            qWarning("The group or others can change the file");
     \endcode
 
     \sa isReadable(), isWritable(), isExecutable()
 */
 
-bool QFileInfo::permission( int permissionSpec ) const
+bool QFileInfo::permission(int permissionSpec) const
 {
-    if ( !d->cache )
-	d->doStat();
-    if ( d->could_stat ) {
-	uint mask = 0;
-	if ( permissionSpec & ReadOwner )
-	    mask |= S_IRUSR;
-	if ( permissionSpec & WriteOwner )
-	    mask |= S_IWUSR;
-	if ( permissionSpec & ExeOwner )
-	    mask |= S_IXUSR;
-	if ( permissionSpec & ReadUser )
-	    mask |= S_IRUSR;
-	if ( permissionSpec & WriteUser )
-	    mask |= S_IWUSR;
-	if ( permissionSpec & ExeUser )
-	    mask |= S_IXUSR;
-	if ( permissionSpec & ReadGroup )
-	    mask |= S_IRGRP;
-	if ( permissionSpec & WriteGroup )
-	    mask |= S_IWGRP;
-	if ( permissionSpec & ExeGroup )
-	    mask |= S_IXGRP;
-	if ( permissionSpec & ReadOther )
-	    mask |= S_IROTH;
-	if ( permissionSpec & WriteOther )
-	    mask |= S_IWOTH;
-	if ( permissionSpec & ExeOther )
-	    mask |= S_IXOTH;
-	if ( mask ) {
-	   return (d->st.st_mode & mask) == mask;
-	} else {
-	   qWarning( "QFileInfo::permission: permissionSpec is 0" );
-	   return true;
-	}
+    if (!d->cache)
+        d->doStat();
+    if (d->could_stat) {
+        uint mask = 0;
+        if (permissionSpec & ReadOwner)
+            mask |= S_IRUSR;
+        if (permissionSpec & WriteOwner)
+            mask |= S_IWUSR;
+        if (permissionSpec & ExeOwner)
+            mask |= S_IXUSR;
+        if (permissionSpec & ReadUser)
+            mask |= S_IRUSR;
+        if (permissionSpec & WriteUser)
+            mask |= S_IWUSR;
+        if (permissionSpec & ExeUser)
+            mask |= S_IXUSR;
+        if (permissionSpec & ReadGroup)
+            mask |= S_IRGRP;
+        if (permissionSpec & WriteGroup)
+            mask |= S_IWGRP;
+        if (permissionSpec & ExeGroup)
+            mask |= S_IXGRP;
+        if (permissionSpec & ReadOther)
+            mask |= S_IROTH;
+        if (permissionSpec & WriteOther)
+            mask |= S_IWOTH;
+        if (permissionSpec & ExeOther)
+            mask |= S_IXOTH;
+        if (mask) {
+           return (d->st.st_mode & mask) == mask;
+        } else {
+           qWarning("QFileInfo::permission: permissionSpec is 0");
+           return true;
+        }
     } else {
-	return false;
+        return false;
     }
 }
 
 void QFileInfoPrivate::doStat() const
 {
     if (cache)
-	return;
+        return;
 
     symLink = false;
     cache = true;
@@ -249,16 +249,16 @@ void QFileInfoPrivate::doStat() const
 
     symLink = false;
 #if defined(Q_OS_UNIX) && defined(S_IFLNK)
-    if ( ::lstat( QFile::encodeName(fn), &st ) == 0 ) {
-	if ( S_ISLNK( st.st_mode ) )
-	    symLink = true;
-	else
-	    return;
+    if (::lstat(QFile::encodeName(fn), &st) == 0) {
+        if (S_ISLNK(st.st_mode))
+            symLink = true;
+        else
+            return;
     }
 #endif
 
-    if ( ::stat(QFile::encodeName(fn), &st) != 0 && !symLink )
-	could_stat = false;
+    if (::stat(QFile::encodeName(fn), &st) != 0 && !symLink)
+        could_stat = false;
 }
 
 /*!
@@ -269,20 +269,20 @@ void QFileInfoPrivate::doStat() const
     \sa dir(), filePath(), fileName(), isRelative()
 */
 #ifndef QT_NO_DIR
-QString QFileInfo::dirPath( bool absPath ) const
+QString QFileInfo::dirPath(bool absPath) const
 {
     QString s;
-    if ( absPath )
-	s = absFilePath();
+    if (absPath)
+        s = absFilePath();
     else
-	s = d->fileName();
-    int pos = s.lastIndexOf( '/' );
-    if ( pos == -1 ) {
-	return QString::fromLatin1( "." );
+        s = d->fileName();
+    int pos = s.lastIndexOf('/');
+    if (pos == -1) {
+        return QString::fromLatin1(".");
     } else {
-	if ( pos == 0 )
-	    return QString::fromLatin1( "/" );
-	return s.left( pos );
+        if (pos == 0)
+            return QString::fromLatin1("/");
+        return s.left(pos);
     }
 }
 #endif
@@ -292,8 +292,8 @@ QString QFileInfo::dirPath( bool absPath ) const
 
     Example:
     \code
-	QFileInfo fi( "/tmp/archive.tar.gz" );
-	QString name = fi.fileName();		// name = "archive.tar.gz"
+        QFileInfo fi("/tmp/archive.tar.gz");
+        QString name = fi.fileName();                // name = "archive.tar.gz"
     \endcode
 
     \sa isRelative(), filePath(), baseName(), extension()
@@ -302,12 +302,12 @@ QString QFileInfo::dirPath( bool absPath ) const
 QString QFileInfo::fileName() const
 {
     if (!d)
-	return QString();
+        return QString();
 
-    int p = d->fileName().lastIndexOf( '/' );
-    if ( p == -1 ) {
-	return d->fileName();
+    int p = d->fileName().lastIndexOf('/');
+    if (p == -1) {
+        return d->fileName();
     } else {
-	return d->fileName().mid( p + 1 );
+        return d->fileName().mid(p + 1);
     }
 }

@@ -37,9 +37,9 @@
 
     Given a point \e p, the following statements are all equivalent:
     \code
-	p.setX( p.x() + 1 );
-	p += QPoint( 1, 0 );
-	p.rx()++;
+        p.setX(p.x() + 1);
+        p += QPoint(1, 0);
+        p.rx()++;
     \endcode
 
     A QPoint can also be used as a vector. Addition and subtraction
@@ -50,13 +50,13 @@
 
     Example:
     \code
-	//QPoint oldPos is defined somewhere else
-	MyWidget::mouseMoveEvent( QMouseEvent *e )
-	{
-	    QPoint vector = e->pos() - oldPos;
-	    if ( vector.manhattanLength() > 3 )
-	    ... //mouse has moved more than 3 pixels since oldPos
-	}
+        //QPoint oldPos is defined somewhere else
+        MyWidget::mouseMoveEvent(QMouseEvent *e)
+        {
+            QPoint vector = e->pos() - oldPos;
+            if (vector.manhattanLength() > 3)
+            ... //mouse has moved more than 3 pixels since oldPos
+        }
     \endcode
 
     QPoints can be compared for equality or inequality, and they can
@@ -73,11 +73,11 @@
 /*!
     \fn QPoint::QPoint()
 
-    Constructs a point with coordinates (0, 0) (isNull() returns TRUE).
+    Constructs a point with coordinates (0, 0) (isNull() returns true).
 */
 
 /*!
-    \fn QPoint::QPoint( int xpos, int ypos )
+    \fn QPoint::QPoint(int xpos, int ypos)
 
     Constructs a point with x value \a xpos and y value \a ypos.
 */
@@ -85,8 +85,8 @@
 /*!
     \fn bool QPoint::isNull() const
 
-    Returns TRUE if both the x value and the y value are 0; otherwise
-    returns FALSE.
+    Returns true if both the x value and the y value are 0; otherwise
+    returns false.
 */
 
 /*!
@@ -106,7 +106,7 @@
 */
 
 /*!
-    \fn void QPoint::setX( int x )
+    \fn void QPoint::setX(int x)
 
     Sets the x coordinate of the point to \a x.
 
@@ -114,7 +114,7 @@
 */
 
 /*!
-    \fn void QPoint::setY( int y )
+    \fn void QPoint::setY(int y)
 
     Sets the y coordinate of the point to \a y.
 
@@ -131,8 +131,8 @@
 
     Example:
     \code
-	QPoint p( 1, 2 );
-	p.rx()--;         // p becomes (0, 2)
+        QPoint p(1, 2);
+        p.rx()--;         // p becomes (0, 2)
     \endcode
 
     \sa ry()
@@ -147,8 +147,8 @@
 
     Example:
     \code
-	QPoint p( 1, 2 );
-	p.ry()++;         // p becomes (1, 3)
+        QPoint p(1, 2);
+        p.ry()++;         // p becomes (1, 3)
     \endcode
 
     \sa rx()
@@ -156,48 +156,48 @@
 
 
 /*!
-    \fn QPoint &QPoint::operator+=( const QPoint &p )
+    \fn QPoint &QPoint::operator+=(const QPoint &p)
 
     Adds point \a p to this point and returns a reference to this
     point.
 
     Example:
     \code
-	QPoint p(  3, 7 );
-	QPoint q( -1, 4 );
-	p += q;            // p becomes (2,11)
+        QPoint p( 3, 7);
+        QPoint q(-1, 4);
+        p += q;            // p becomes (2,11)
     \endcode
 */
 
 /*!
-    \fn QPoint &QPoint::operator-=( const QPoint &p )
+    \fn QPoint &QPoint::operator-=(const QPoint &p)
 
     Subtracts point \a p from this point and returns a reference to
     this point.
 
     Example:
     \code
-	QPoint p(  3, 7 );
-	QPoint q( -1, 4 );
-	p -= q;            // p becomes (4,3)
+        QPoint p( 3, 7);
+        QPoint q(-1, 4);
+        p -= q;            // p becomes (4,3)
     \endcode
 */
 
 /*!
-    \fn QPoint &QPoint::operator*=( int c )
+    \fn QPoint &QPoint::operator*=(int c)
 
     Multiplies this point's x and y by \a c, and returns a reference
     to this point.
 
     Example:
     \code
-	QPoint p( -1, 4 );
-	p *= 2;            // p becomes (-2,8)
+        QPoint p(-1, 4);
+        p *= 2;            // p becomes (-2,8)
     \endcode
 */
 
 /*!
-    \fn QPoint &QPoint::operator*=( double c )
+    \fn QPoint &QPoint::operator*=(double c)
     \overload
 
     Multiplies this point's x and y by \a c, and returns a reference
@@ -205,8 +205,8 @@
 
     Example:
     \code
-	QPoint p( -1, 4 );
-	p *= 2.5;          // p becomes (-3,10)
+        QPoint p(-1, 4);
+        p *= 2.5;          // p becomes (-3,10)
     \endcode
 
     Note that the result is truncated because points are held as
@@ -215,23 +215,23 @@
 
 
 /*!
-    \fn bool operator==( const QPoint &p1, const QPoint &p2 )
+    \fn bool operator==(const QPoint &p1, const QPoint &p2)
 
     \relates QPoint
 
-    Returns TRUE if \a p1 and \a p2 are equal; otherwise returns FALSE.
+    Returns true if \a p1 and \a p2 are equal; otherwise returns false.
 */
 
 /*!
-    \fn bool operator!=( const QPoint &p1, const QPoint &p2 )
+    \fn bool operator!=(const QPoint &p1, const QPoint &p2)
 
     \relates QPoint
 
-    Returns TRUE if \a p1 and \a p2 are not equal; otherwise returns FALSE.
+    Returns true if \a p1 and \a p2 are not equal; otherwise returns false.
 */
 
 /*!
-    \fn const QPoint operator+( const QPoint &p1, const QPoint &p2 )
+    \fn const QPoint operator+(const QPoint &p1, const QPoint &p2)
 
     \relates QPoint
 
@@ -239,7 +239,7 @@
 */
 
 /*!
-    \fn const QPoint operator-( const QPoint &p1, const QPoint &p2 )
+    \fn const QPoint operator-(const QPoint &p1, const QPoint &p2)
 
     \relates QPoint
 
@@ -248,7 +248,7 @@
 */
 
 /*!
-    \fn const QPoint operator*( const QPoint &p, int c )
+    \fn const QPoint operator*(const QPoint &p, int c)
 
     \relates QPoint
 
@@ -257,7 +257,7 @@
 */
 
 /*!
-    \fn const QPoint operator*( int c, const QPoint &p )
+    \fn const QPoint operator*(int c, const QPoint &p)
     \overload
 
     \relates QPoint
@@ -267,20 +267,7 @@
 */
 
 /*!
-    \fn const QPoint operator*( const QPoint &p, double c )
-    \overload
-
-    \relates QPoint
-
-    Returns the QPoint formed by multiplying both components of \a p
-    by \a c.
-
-    Note that the result is truncated because points are held as
-    integers.
-*/
-
-/*!
-    \fn const QPoint operator*( double c, const QPoint &p )
+    \fn const QPoint operator*(const QPoint &p, double c)
     \overload
 
     \relates QPoint
@@ -293,7 +280,20 @@
 */
 
 /*!
-    \fn const QPoint operator-( const QPoint &p )
+    \fn const QPoint operator*(double c, const QPoint &p)
+    \overload
+
+    \relates QPoint
+
+    Returns the QPoint formed by multiplying both components of \a p
+    by \a c.
+
+    Note that the result is truncated because points are held as
+    integers.
+*/
+
+/*!
+    \fn const QPoint operator-(const QPoint &p)
     \overload
 
     \relates QPoint
@@ -303,20 +303,20 @@
 */
 
 /*!
-    \fn QPoint &QPoint::operator/=( int c )
+    \fn QPoint &QPoint::operator/=(int c)
 
     Divides both x and y by \a c, and returns a reference to this
     point.
 
     Example:
     \code
-	QPoint p( -2, 8 );
-	p /= 2;            // p becomes (-1,4)
+        QPoint p(-2, 8);
+        p /= 2;            // p becomes (-1,4)
     \endcode
 */
 
 /*!
-    \fn QPoint &QPoint::operator/=( double c )
+    \fn QPoint &QPoint::operator/=(double c)
     \overload
 
     Divides both x and y by \a c, and returns a reference to this
@@ -324,8 +324,8 @@
 
     Example:
     \code
-	QPoint p( -3, 10 );
-	p /= 2.5;           // p becomes (-1,4)
+        QPoint p(-3, 10);
+        p /= 2.5;           // p becomes (-1,4)
     \endcode
 
     Note that the result is truncated because points are held as
@@ -333,7 +333,7 @@
 */
 
 /*!
-    \fn const QPoint operator/( const QPoint &p, int c )
+    \fn const QPoint operator/(const QPoint &p, int c)
 
     \relates QPoint
 
@@ -342,7 +342,7 @@
 */
 
 /*!
-    \fn const QPoint operator/( const QPoint &p, double c )
+    \fn const QPoint operator/(const QPoint &p, double c)
     \overload
 
     \relates QPoint
@@ -367,12 +367,12 @@
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
-QDataStream &operator<<( QDataStream &s, const QPoint &p )
+QDataStream &operator<<(QDataStream &s, const QPoint &p)
 {
-    if ( s.version() == 1 )
-	s << (Q_INT16)p.x() << (Q_INT16)p.y();
+    if (s.version() == 1)
+        s << (Q_INT16)p.x() << (Q_INT16)p.y();
     else
-	s << (Q_INT32)p.x() << (Q_INT32)p.y();
+        s << (Q_INT32)p.x() << (Q_INT32)p.y();
     return s;
 }
 
@@ -385,17 +385,17 @@ QDataStream &operator<<( QDataStream &s, const QPoint &p )
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
-QDataStream &operator>>( QDataStream &s, QPoint &p )
+QDataStream &operator>>(QDataStream &s, QPoint &p)
 {
-    if ( s.version() == 1 ) {
-	Q_INT16 x, y;
-	s >> x;  p.rx() = x;
-	s >> y;  p.ry() = y;
+    if (s.version() == 1) {
+        Q_INT16 x, y;
+        s >> x;  p.rx() = x;
+        s >> y;  p.ry() = y;
     }
     else {
-	Q_INT32 x, y;
-	s >> x;  p.rx() = x;
-	s >> y;  p.ry() = y;
+        Q_INT32 x, y;
+        s >> x;  p.rx() = x;
+        s >> y;  p.ry() = y;
     }
     return s;
 }

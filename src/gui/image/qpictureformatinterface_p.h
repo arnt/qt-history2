@@ -32,19 +32,19 @@
 
 #ifndef QT_NO_COMPONENT
 
-// {04903F05-54B1-4726-A849-FB5CB097CA88} 
+// {04903F05-54B1-4726-A849-FB5CB097CA88}
 #ifndef IID_QPictureFormat
-#define IID_QPictureFormat QUuid( 0x04903f05, 0x54b1, 0x4726, 0xa8, 0x49, 0xfb, 0x5c, 0xb0, 0x97, 0xca, 0x88 )
+#define IID_QPictureFormat QUuid(0x04903f05, 0x54b1, 0x4726, 0xa8, 0x49, 0xfb, 0x5c, 0xb0, 0x97, 0xca, 0x88)
 #endif
 
 class QPicutre;
 
 struct Q_GUI_EXPORT QPictureFormatInterface : public QFeatureListInterface
 {
-    virtual QRESULT loadPicture( const QString &format, const QString &filename, QPicture * ) = 0;
-    virtual QRESULT savePicture( const QString &format, const QString &filename, const QPicture & ) = 0;
+    virtual QRESULT loadPicture(const QString &format, const QString &filename, QPicture *) = 0;
+    virtual QRESULT savePicture(const QString &format, const QString &filename, const QPicture &) = 0;
 
-    virtual QRESULT installIOHandler( const QString & ) = 0;
+    virtual QRESULT installIOHandler(const QString &) = 0;
 };
 
 #endif // QT_NO_COMPONENT

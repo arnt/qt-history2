@@ -33,8 +33,8 @@ class QAccessWidget : public QWidget
     friend class QAlphaWidget;
     friend class QRollEffect;
 public:
-    QAccessWidget( QWidget* parent=0, const char* name=0, WFlags f = 0 )
-	: QWidget( parent, name, f ) {}
+    QAccessWidget(QWidget* parent=0, const char* name=0, WFlags f = 0)
+        : QWidget(parent, name, f) {}
 };
 
 /*
@@ -48,14 +48,14 @@ class QAlphaWidget: public QWidget, private QEffects
 {
     Q_OBJECT
 public:
-    QAlphaWidget( QWidget* w, WFlags f = 0 );
+    QAlphaWidget(QWidget* w, WFlags f = 0);
 
-    void run( int time );
+    void run(int time);
 
 protected:
-    void paintEvent( QPaintEvent* e );
-    void closeEvent( QCloseEvent* );
-    bool eventFilter( QObject* o, QEvent* e );
+    void paintEvent(QPaintEvent* e);
+    void closeEvent(QCloseEvent*);
+    bool eventFilter(QObject* o, QEvent* e);
     void alphaBlend();
 
 protected slots:
@@ -80,12 +80,12 @@ static QAlphaWidget* q_blend = 0;
 /*
   Constructs a QAlphaWidget.
 */
-QAlphaWidget::QAlphaWidget( QWidget* w, WFlags f )
-    : QWidget( 0, "qt internal alpha effect widget", f )
+QAlphaWidget::QAlphaWidget(QWidget* w, WFlags f)
+    : QWidget(0, "qt internal alpha effect widget", f)
 {
-    setEnabled( FALSE );
+    setEnabled(false);
 
-    pm.setOptimization( QPixmap::BestOptim );
+    pm.setOptimization(QPixmap::BestOptim);
     setAttribute(WA_NoSystemBackground, true);
     widget = (QAccessWidget*)w;
     alpha = 0;
@@ -94,110 +94,110 @@ QAlphaWidget::QAlphaWidget( QWidget* w, WFlags f )
 /*
   \reimp
 */
-void QAlphaWidget::paintEvent( QPaintEvent* )
+void QAlphaWidget::paintEvent(QPaintEvent*)
 {
-    bitBlt( this, QPoint(0,0), &pm );
+    bitBlt(this, QPoint(0,0), &pm);
 }
 
 /*
   Starts the alphablending animation.
   The animation will take about \a time ms
 */
-void QAlphaWidget::run( int time )
+void QAlphaWidget::run(int time)
 {
     duration = time;
 
-    if ( duration < 0 )
-	duration = 150;
+    if (duration < 0)
+        duration = 150;
 
-    if ( !widget )
-	return;
+    if (!widget)
+        return;
 
     elapsed = 0;
     checkTime.start();
 
-    showWidget = TRUE;
-    qApp->installEventFilter( this );
+    showWidget = true;
+    qApp->installEventFilter(this);
 
-    move( widget->geometry().x(),widget->geometry().y() );
-    resize( widget->size().width(), widget->size().height() );
+    move(widget->geometry().x(),widget->geometry().y());
+    resize(widget->size().width(), widget->size().height());
 
-    front = QImage( widget->size(), 32 );
-    front = QPixmap::grabWidget( widget );
+    front = QImage(widget->size(), 32);
+    front = QPixmap::grabWidget(widget);
 
-    back = QImage( widget->size(), 32 );
-    back = QPixmap::grabWindow( QApplication::desktop()->winId(),
-				widget->geometry().x(), widget->geometry().y(),
-				widget->geometry().width(), widget->geometry().height() );
+    back = QImage(widget->size(), 32);
+    back = QPixmap::grabWindow(QApplication::desktop()->winId(),
+                                widget->geometry().x(), widget->geometry().y(),
+                                widget->geometry().width(), widget->geometry().height());
 
-    if ( !back.isNull() && checkTime.elapsed() < duration / 2 ) {
+    if (!back.isNull() && checkTime.elapsed() < duration / 2) {
         mixed = back.copy();
-	pm = mixed;
-	show();
+        pm = mixed;
+        show();
 
-	connect( &anim, SIGNAL(timeout()), this, SLOT(render()));
-	anim.start( 1 );
+        connect(&anim, SIGNAL(timeout()), this, SLOT(render()));
+        anim.start(1);
     } else {
-	duration = 0;
-	render();
+        duration = 0;
+        render();
     }
 }
 
 /*
   \reimp
 */
-bool QAlphaWidget::eventFilter( QObject* o, QEvent* e )
+bool QAlphaWidget::eventFilter(QObject* o, QEvent* e)
 {
-    switch ( e->type() ) {
+    switch (e->type()) {
     case QEvent::Move:
-	if ( o != widget )
-	    break;
-	move( widget->geometry().x(),widget->geometry().y() );
-	update();
-	break;
+        if (o != widget)
+            break;
+        move(widget->geometry().x(),widget->geometry().y());
+        update();
+        break;
     case QEvent::Hide:
     case QEvent::Close:
-	if ( o != widget )
-	    break;
+        if (o != widget)
+            break;
     case QEvent::MouseButtonPress:
 #ifndef QT_NO_SCROLLVIEW
-	if ( qt_cast<QScrollView*>(o) )
-	    break;
+        if (qt_cast<QScrollView*>(o))
+            break;
 #endif
     case QEvent::MouseButtonDblClick:
-	setEnabled(TRUE);
-	showWidget = FALSE;
-	render();
-	break;
+        setEnabled(true);
+        showWidget = false;
+        render();
+        break;
     case QEvent::KeyPress:
-	{
-	    QKeyEvent *ke = (QKeyEvent*)e;
-	    if ( ke->key() == Key_Escape )
-		showWidget = FALSE;
-	    else
-		duration = 0;
-	    render();
-	    break;
-	}
+        {
+            QKeyEvent *ke = (QKeyEvent*)e;
+            if (ke->key() == Key_Escape)
+                showWidget = false;
+            else
+                duration = 0;
+            render();
+            break;
+        }
     default:
-	break;
+        break;
     }
-    return QWidget::eventFilter( o, e );
+    return QWidget::eventFilter(o, e);
 }
 
 /*
   \reimp
 */
-void QAlphaWidget::closeEvent( QCloseEvent *e )
+void QAlphaWidget::closeEvent(QCloseEvent *e)
 {
     e->accept();
-    if ( !q_blend )
-	return;
+    if (!q_blend)
+        return;
 
-    showWidget = FALSE;
+    showWidget = false;
     render();
 
-    QWidget::closeEvent( e );
+    QWidget::closeEvent(e);
 }
 
 /*
@@ -209,37 +209,37 @@ void QAlphaWidget::closeEvent( QCloseEvent *e )
 void QAlphaWidget::render()
 {
     int tempel = checkTime.elapsed();
-    if ( elapsed >= tempel )
+    if (elapsed >= tempel)
         elapsed++;
     else
         elapsed = tempel;
 
-    if ( duration != 0 )
-	alpha = tempel / double(duration);
+    if (duration != 0)
+        alpha = tempel / double(duration);
     else
-	alpha = 1;
-    if ( alpha >= 1 || !showWidget) {
-	anim.stop();
-	qApp->removeEventFilter( this );
+        alpha = 1;
+    if (alpha >= 1 || !showWidget) {
+        anim.stop();
+        qApp->removeEventFilter(this);
 
-	if ( widget ) {
-	    if ( !showWidget ) {
-		widget->hide();
-	    } else if ( duration ) {
-		bool nsb = testAttribute(WA_NoSystemBackground);
-		widget->setAttribute(WA_NoSystemBackground, true);
-		widget->show();
-		widget->setAttribute(WA_NoSystemBackground, nsb);
-	    } else {
-		widget->show();
-	    }
-	}
-	q_blend = 0;
-	deleteLater();
+        if (widget) {
+            if (!showWidget) {
+                widget->hide();
+            } else if (duration) {
+                bool nsb = testAttribute(WA_NoSystemBackground);
+                widget->setAttribute(WA_NoSystemBackground, true);
+                widget->show();
+                widget->setAttribute(WA_NoSystemBackground, nsb);
+            } else {
+                widget->show();
+            }
+        }
+        q_blend = 0;
+        deleteLater();
     } else {
-	alphaBlend();
-	pm = mixed;
-	repaint();
+        alphaBlend();
+        pm = mixed;
+        repaint();
     }
 }
 
@@ -251,28 +251,28 @@ void QAlphaWidget::alphaBlend()
     const double ia = 1-alpha;
     const int sw = front.width();
     const int sh = front.height();
-    switch( front.depth() ) {
+    switch(front.depth()) {
     case 32:
-	{
-	    Q_UINT32** md = (Q_UINT32**)mixed.jumpTable();
-	    Q_UINT32** bd = (Q_UINT32**)back.jumpTable();
-	    Q_UINT32** fd = (Q_UINT32**)front.jumpTable();
+        {
+            Q_UINT32** md = (Q_UINT32**)mixed.jumpTable();
+            Q_UINT32** bd = (Q_UINT32**)back.jumpTable();
+            Q_UINT32** fd = (Q_UINT32**)front.jumpTable();
 
-	    for (int sy = 0; sy < sh; sy++ ) {
-		Q_UINT32* bl = ((Q_UINT32*)bd[sy]);
-		Q_UINT32* fl = ((Q_UINT32*)fd[sy]);
-		for (int sx = 0; sx < sw; sx++ ) {
-		    Q_UINT32 bp = bl[sx];
-		    Q_UINT32 fp = fl[sx];
+            for (int sy = 0; sy < sh; sy++) {
+                Q_UINT32* bl = ((Q_UINT32*)bd[sy]);
+                Q_UINT32* fl = ((Q_UINT32*)fd[sy]);
+                for (int sx = 0; sx < sw; sx++) {
+                    Q_UINT32 bp = bl[sx];
+                    Q_UINT32 fp = fl[sx];
 
-		    ((Q_UINT32*)(md[sy]))[sx] =  qRgb(int (qRed(bp)*ia + qRed(fp)*alpha),
-						    int (qGreen(bp)*ia + qGreen(fp)*alpha),
-						    int (qBlue(bp)*ia + qBlue(fp)*alpha) );
-		}
-	    }
-	}
+                    ((Q_UINT32*)(md[sy]))[sx] =  qRgb(int (qRed(bp)*ia + qRed(fp)*alpha),
+                                                    int (qGreen(bp)*ia + qGreen(fp)*alpha),
+                                                    int (qBlue(bp)*ia + qBlue(fp)*alpha));
+                }
+            }
+        }
     default:
-	break;
+        break;
     }
 }
 
@@ -287,14 +287,14 @@ class QRollEffect : public QWidget, private QEffects
 {
     Q_OBJECT
 public:
-    QRollEffect( QWidget* w, WFlags f, DirFlags orient );
+    QRollEffect(QWidget* w, WFlags f, DirFlags orient);
 
-    void run( int time );
+    void run(int time);
 
 protected:
-    void paintEvent( QPaintEvent* );
-    bool eventFilter( QObject*, QEvent* );
-    void closeEvent( QCloseEvent* );
+    void paintEvent(QPaintEvent*);
+    bool eventFilter(QObject*, QEvent*);
+    void closeEvent(QCloseEvent*);
 
 private slots:
     void scroll();
@@ -324,110 +324,110 @@ static QRollEffect* q_roll = 0;
 /*
   Construct a QRollEffect widget.
 */
-QRollEffect::QRollEffect( QWidget* w, WFlags f, DirFlags orient )
-    : QWidget( 0, "qt internal roll effect widget", f ), orientation(orient)
+QRollEffect::QRollEffect(QWidget* w, WFlags f, DirFlags orient)
+    : QWidget(0, "qt internal roll effect widget", f), orientation(orient)
 {
-    setEnabled( FALSE );
+    setEnabled(false);
     widget = (QAccessWidget*) w;
-    Q_ASSERT( widget );
+    Q_ASSERT(widget);
 
     setAttribute(WA_NoSystemBackground, true);
 
     if (widget->testAttribute(WA_Resized)) {
-	totalWidth = widget->width();
-	totalHeight = widget->height();
+        totalWidth = widget->width();
+        totalHeight = widget->height();
     } else {
-	totalWidth = widget->sizeHint().width();
-	totalHeight = widget->sizeHint().height();
+        totalWidth = widget->sizeHint().width();
+        totalHeight = widget->sizeHint().height();
     }
 
     currentHeight = totalHeight;
     currentWidth = totalWidth;
 
-    if ( orientation & (RightScroll|LeftScroll) )
-	currentWidth = 0;
-    if ( orientation & (DownScroll|UpScroll) )
-	currentHeight = 0;
+    if (orientation & (RightScroll|LeftScroll))
+        currentWidth = 0;
+    if (orientation & (DownScroll|UpScroll))
+        currentHeight = 0;
 
-    pm.setOptimization( QPixmap::BestOptim );
-    pm = QPixmap::grabWidget( widget );
+    pm.setOptimization(QPixmap::BestOptim);
+    pm = QPixmap::grabWidget(widget);
 }
 
 /*
   \reimp
 */
-void QRollEffect::paintEvent( QPaintEvent* )
+void QRollEffect::paintEvent(QPaintEvent*)
 {
     int x = orientation & RightScroll ? qMin(0, currentWidth - totalWidth) : 0;
     int y = orientation & DownScroll ? qMin(0, currentHeight - totalHeight) : 0;
 
-    bitBlt( this, x, y, &pm,
-		  0, 0, pm.width(), pm.height(), CopyROP, TRUE );
+    bitBlt(this, x, y, &pm,
+                  0, 0, pm.width(), pm.height(), CopyROP, true);
 }
 
 /*
   \reimp
 */
-bool QRollEffect::eventFilter( QObject* o, QEvent* e )
+bool QRollEffect::eventFilter(QObject* o, QEvent* e)
 {
-    switch ( e->type() ) {
+    switch (e->type()) {
     case QEvent::Move:
-	if ( o != widget )
-	    break;
-	move( widget->geometry().x(),widget->geometry().y() );
-	update();
-	break;
+        if (o != widget)
+            break;
+        move(widget->geometry().x(),widget->geometry().y());
+        update();
+        break;
     case QEvent::Hide:
     case QEvent::Close:
-	if ( o != widget || done )
-	    break;
-	setEnabled(TRUE);
-	showWidget = FALSE;
-	done = TRUE;
-	scroll();
-	break;
+        if (o != widget || done)
+            break;
+        setEnabled(true);
+        showWidget = false;
+        done = true;
+        scroll();
+        break;
     case QEvent::MouseButtonPress:
 #ifndef QT_NO_SCROLLVIEW
-	if ( qt_cast<QScrollView*>(o) )
-	    break;
+        if (qt_cast<QScrollView*>(o))
+            break;
 #endif
     case QEvent::MouseButtonDblClick:
-	if ( done )
-	    break;
-	setEnabled(TRUE);
-	showWidget = FALSE;
-	done = TRUE;
-	scroll();
-	break;
+        if (done)
+            break;
+        setEnabled(true);
+        showWidget = false;
+        done = true;
+        scroll();
+        break;
     case QEvent::KeyPress:
-	{
-	    QKeyEvent *ke = (QKeyEvent*)e;
-	    if ( ke->key() == Key_Escape )
-		showWidget = FALSE;
-	    done = TRUE;
-	    scroll();
-	    break;
-	}
+        {
+            QKeyEvent *ke = (QKeyEvent*)e;
+            if (ke->key() == Key_Escape)
+                showWidget = false;
+            done = true;
+            scroll();
+            break;
+        }
     default:
-	break;
+        break;
     }
-    return QWidget::eventFilter( o, e );
+    return QWidget::eventFilter(o, e);
 }
 
 /*
   \reimp
 */
-void QRollEffect::closeEvent( QCloseEvent *e )
+void QRollEffect::closeEvent(QCloseEvent *e)
 {
     e->accept();
-    if ( done )
-	return;
+    if (done)
+        return;
 
-    showWidget = FALSE;
-    done = TRUE;
+    showWidget = false;
+    done = true;
     scroll();
 
-    QWidget::closeEvent( e );
+    QWidget::closeEvent(e);
 }
 
 /*
@@ -436,35 +436,35 @@ void QRollEffect::closeEvent( QCloseEvent *e )
   The animation will take about \a time ms, or is
   calculated if \a time is negative
 */
-void QRollEffect::run( int time )
+void QRollEffect::run(int time)
 {
-    if ( !widget )
-	return;
+    if (!widget)
+        return;
 
     duration  = time;
     elapsed = 0;
 
-    if ( duration < 0 ) {
-	int dist = 0;
-	if ( orientation & (RightScroll|LeftScroll) )
-	    dist += totalWidth - currentWidth;
-	if ( orientation & (DownScroll|UpScroll) )
-	    dist += totalHeight - currentHeight;
-	duration = qMin( qMax( dist/3, 50 ), 120 );
+    if (duration < 0) {
+        int dist = 0;
+        if (orientation & (RightScroll|LeftScroll))
+            dist += totalWidth - currentWidth;
+        if (orientation & (DownScroll|UpScroll))
+            dist += totalHeight - currentHeight;
+        duration = qMin(qMax(dist/3, 50), 120);
     }
 
-    connect( &anim, SIGNAL(timeout()), this, SLOT(scroll()));
+    connect(&anim, SIGNAL(timeout()), this, SLOT(scroll()));
 
-    move( widget->geometry().x(),widget->geometry().y() );
-    resize( qMin( currentWidth, totalWidth ), qMin( currentHeight, totalHeight ) );
+    move(widget->geometry().x(),widget->geometry().y());
+    resize(qMin(currentWidth, totalWidth), qMin(currentHeight, totalHeight));
 
     show();
 
-    qApp->installEventFilter( this );
+    qApp->installEventFilter(this);
 
-    showWidget = TRUE;
-    done = FALSE;
-    anim.start( 1 );
+    showWidget = true;
+    done = false;
+    anim.start(1);
     checkTime.start();
 }
 
@@ -473,67 +473,67 @@ void QRollEffect::run( int time )
 */
 void QRollEffect::scroll()
 {
-    if ( !done && widget) {
-	int tempel = checkTime.elapsed();
-	if ( elapsed >= tempel )
-	    elapsed++;
-	else
-	    elapsed = tempel;
+    if (!done && widget) {
+        int tempel = checkTime.elapsed();
+        if (elapsed >= tempel)
+            elapsed++;
+        else
+            elapsed = tempel;
 
-	if ( currentWidth != totalWidth ) {
-	    currentWidth = totalWidth * (elapsed/duration)
-		+ ( 2 * totalWidth * (elapsed%duration) + duration )
-		/ ( 2 * duration );
-	    // equiv. to int( (totalWidth*elapsed) / duration + 0.5 )
-	    done = (currentWidth >= totalWidth);
-	}
-	if ( currentHeight != totalHeight ) {
-	    currentHeight = totalHeight * (elapsed/duration)
-		+ ( 2 * totalHeight * (elapsed%duration) + duration )
-		/ ( 2 * duration );
-	    // equiv. to int( (totalHeight*elapsed) / duration + 0.5 )
-	    done = (currentHeight >= totalHeight);
-	}
-	done = ( currentHeight >= totalHeight ) &&
-	       ( currentWidth >= totalWidth );
+        if (currentWidth != totalWidth) {
+            currentWidth = totalWidth * (elapsed/duration)
+                + (2 * totalWidth * (elapsed%duration) + duration)
+                / (2 * duration);
+            // equiv. to int((totalWidth*elapsed) / duration + 0.5)
+            done = (currentWidth >= totalWidth);
+        }
+        if (currentHeight != totalHeight) {
+            currentHeight = totalHeight * (elapsed/duration)
+                + (2 * totalHeight * (elapsed%duration) + duration)
+                / (2 * duration);
+            // equiv. to int((totalHeight*elapsed) / duration + 0.5)
+            done = (currentHeight >= totalHeight);
+        }
+        done = (currentHeight >= totalHeight) &&
+               (currentWidth >= totalWidth);
 
         int w = totalWidth;
-	int h = totalHeight;
-	int x = widget->geometry().x();
-	int y = widget->geometry().y();
+        int h = totalHeight;
+        int x = widget->geometry().x();
+        int y = widget->geometry().y();
 
-	if ( orientation & RightScroll || orientation & LeftScroll )
-	    w = qMin( currentWidth, totalWidth );
-	if ( orientation & DownScroll || orientation & UpScroll )
-	    h = qMin( currentHeight, totalHeight );
+        if (orientation & RightScroll || orientation & LeftScroll)
+            w = qMin(currentWidth, totalWidth);
+        if (orientation & DownScroll || orientation & UpScroll)
+            h = qMin(currentHeight, totalHeight);
 
-	setUpdatesEnabled( FALSE );
-	if ( orientation & UpScroll )
-	    y = widget->geometry().y() + qMax( 0, totalHeight - currentHeight );
-	if ( orientation & LeftScroll )
-	    x = widget->geometry().x() + qMax( 0, totalWidth - currentWidth );
-	if ( orientation & UpScroll || orientation & LeftScroll )
-	    move( x, y );
+        setUpdatesEnabled(false);
+        if (orientation & UpScroll)
+            y = widget->geometry().y() + qMax(0, totalHeight - currentHeight);
+        if (orientation & LeftScroll)
+            x = widget->geometry().x() + qMax(0, totalWidth - currentWidth);
+        if (orientation & UpScroll || orientation & LeftScroll)
+            move(x, y);
 
-	resize( w, h );
-        setUpdatesEnabled( TRUE );
-	repaint();
+        resize(w, h);
+        setUpdatesEnabled(true);
+        repaint();
     }
-    if ( done ) {
-	anim.stop();
-	qApp->removeEventFilter( this );
-	if ( widget ) {
-	    if ( !showWidget ) {
-		widget->hide();
-	    } else {
-		bool nsb = testAttribute(WA_NoSystemBackground);
-		widget->setAttribute(WA_NoSystemBackground, true);
-		widget->show();
-		widget->setAttribute(WA_NoSystemBackground, nsb);
-	    }
-	}
-	q_roll = 0;
-	deleteLater();
+    if (done) {
+        anim.stop();
+        qApp->removeEventFilter(this);
+        if (widget) {
+            if (!showWidget) {
+                widget->hide();
+            } else {
+                bool nsb = testAttribute(WA_NoSystemBackground);
+                widget->setAttribute(WA_NoSystemBackground, true);
+                widget->show();
+                widget->setAttribute(WA_NoSystemBackground, nsb);
+            }
+        }
+        q_roll = 0;
+        deleteLater();
     }
 }
 
@@ -547,50 +547,50 @@ void QRollEffect::scroll()
     Scroll widget \a w in \a time ms. \a orient may be 1 (vertical), 2
     (horizontal) or 3 (diagonal).
 */
-void qScrollEffect( QWidget* w, QEffects::DirFlags orient, int time )
+void qScrollEffect(QWidget* w, QEffects::DirFlags orient, int time)
 {
-    if ( q_roll ) {
-	delete q_roll;
-	q_roll = 0;
+    if (q_roll) {
+        delete q_roll;
+        q_roll = 0;
     }
 
-    qApp->sendPostedEvents( w, QEvent::Move );
-    qApp->sendPostedEvents( w, QEvent::Resize );
+    qApp->sendPostedEvents(w, QEvent::Move);
+    qApp->sendPostedEvents(w, QEvent::Resize);
 #ifdef Q_WS_X11
     Qt::WFlags flags = Qt::WStyle_Customize | Qt::WNoAutoErase | Qt::WStyle_StaysOnTop
-	| (w->isPopup() ? Qt::WFlags(Qt::WType_Popup) : (Qt::WX11BypassWM | Qt::WStyle_Tool));
+        | (w->isPopup() ? Qt::WFlags(Qt::WType_Popup) : (Qt::WX11BypassWM | Qt::WStyle_Tool));
 #else
     Qt::WFlags flags = Qt::WStyle_Customize | Qt::WType_Popup | Qt::WX11BypassWM | Qt::WNoAutoErase | Qt::WStyle_StaysOnTop;
 #endif
 
     // those can popups - they would steal the focus, but are disabled
-    q_roll = new QRollEffect( w, flags, orient );
-    q_roll->run( time );
+    q_roll = new QRollEffect(w, flags, orient);
+    q_roll->run(time);
 }
 
 /*!
     Fade in widget \a w in \a time ms.
 */
-void qFadeEffect( QWidget* w, int time )
+void qFadeEffect(QWidget* w, int time)
 {
-    if ( q_blend ) {
-	delete q_blend;
-	q_blend = 0;
+    if (q_blend) {
+        delete q_blend;
+        q_blend = 0;
     }
 
-    qApp->sendPostedEvents( w, QEvent::Move );
-    qApp->sendPostedEvents( w, QEvent::Resize );
+    qApp->sendPostedEvents(w, QEvent::Move);
+    qApp->sendPostedEvents(w, QEvent::Resize);
 
 #ifdef Q_WS_X11
     Qt::WFlags flags = Qt::WStyle_Customize | Qt::WNoAutoErase | Qt::WStyle_StaysOnTop
-	| (w->isPopup() ? QFlag(Qt::WType_Popup) : (Qt::WX11BypassWM | Qt::WStyle_Tool));
+        | (w->isPopup() ? QFlag(Qt::WType_Popup) : (Qt::WX11BypassWM | Qt::WStyle_Tool));
 #else
     Qt::WFlags flags = Qt::WStyle_Customize | Qt::WType_Popup | Qt::WX11BypassWM | Qt::WNoAutoErase | Qt::WStyle_StaysOnTop;
 #endif
 
     // those can popups - they would steal the focus, but are disabled
-    q_blend = new QAlphaWidget( w, flags );
+    q_blend = new QAlphaWidget(w, flags);
 
-    q_blend->run( time );
+    q_blend->run(time);
 }
 #endif //QT_NO_EFFECTS

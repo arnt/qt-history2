@@ -45,46 +45,46 @@
 */
 
 class QWidgetPluginPrivate : public QWidgetFactoryInterface,
-			     public QWidgetContainerInterfacePrivate,
-			     private QLibraryInterface
+                             public QWidgetContainerInterfacePrivate,
+                             private QLibraryInterface
 {
 public:
-    QWidgetPluginPrivate( QWidgetPlugin *p )
-	: plugin( p )
+    QWidgetPluginPrivate(QWidgetPlugin *p)
+        : plugin(p)
     {
     }
 
     virtual ~QWidgetPluginPrivate();
 
-    QRESULT queryInterface( const QUuid &iid, QUnknownInterface **iface );
+    QRESULT queryInterface(const QUuid &iid, QUnknownInterface **iface);
     Q_REFCOUNT;
 
     QStringList featureList() const;
-    QWidget *create( const QString &key, QWidget *parent, const char *name );
-    QString group( const QString &widget ) const;
-    QIconSet iconSet( const QString &widget ) const;
-    QString includeFile( const QString &widget ) const;
-    QString toolTip( const QString &widget ) const;
-    QString whatsThis( const QString &widget ) const;
-    bool isContainer( const QString &widget ) const;
-    QWidget* containerOfWidget( const QString &key, QWidget *widget ) const;
-    bool isPassiveInteractor( const QString &key, QWidget *widget ) const;
-    bool supportsPages( const QString &key ) const;
-    QWidget *addPage( const QString &key, QWidget *container, const QString &name, int index ) const;
-    void insertPage( const QString &key, QWidget *container,
-		     const QString &name, int index, QWidget *page ) const;
-    void Page( const QString &key, QWidget *container,
-	       const QString &name, int index, QWidget *page ) const;
-    void removePage( const QString &key, QWidget *container, int index ) const;
-    void movePage( const QString &key, QWidget *container, int fromIndex, int toIndex ) const;
-    int count( const QString &key, QWidget *container ) const;
-    int currentIndex( const QString &key, QWidget *container ) const;
-    QString pageLabel( const QString &key, QWidget *container, int index ) const;
-    QWidget *page( const QString &key, QWidget *container, int index ) const;
-    void renamePage( const QString &key, QWidget *container, int index, const QString &newName ) const;
-    QWidgetList pages( const QString &key, QWidget *container ) const;
-    QString createCode( const QString &key, const QString &container,
-			const QString &page, const QString &pageName ) const;
+    QWidget *create(const QString &key, QWidget *parent, const char *name);
+    QString group(const QString &widget) const;
+    QIconSet iconSet(const QString &widget) const;
+    QString includeFile(const QString &widget) const;
+    QString toolTip(const QString &widget) const;
+    QString whatsThis(const QString &widget) const;
+    bool isContainer(const QString &widget) const;
+    QWidget* containerOfWidget(const QString &key, QWidget *widget) const;
+    bool isPassiveInteractor(const QString &key, QWidget *widget) const;
+    bool supportsPages(const QString &key) const;
+    QWidget *addPage(const QString &key, QWidget *container, const QString &name, int index) const;
+    void insertPage(const QString &key, QWidget *container,
+                     const QString &name, int index, QWidget *page) const;
+    void Page(const QString &key, QWidget *container,
+               const QString &name, int index, QWidget *page) const;
+    void removePage(const QString &key, QWidget *container, int index) const;
+    void movePage(const QString &key, QWidget *container, int fromIndex, int toIndex) const;
+    int count(const QString &key, QWidget *container) const;
+    int currentIndex(const QString &key, QWidget *container) const;
+    QString pageLabel(const QString &key, QWidget *container, int index) const;
+    QWidget *page(const QString &key, QWidget *container, int index) const;
+    void renamePage(const QString &key, QWidget *container, int index, const QString &newName) const;
+    QWidgetList pages(const QString &key, QWidget *container) const;
+    QString createCode(const QString &key, const QString &container,
+                        const QString &page, const QString &pageName) const;
 
     bool init();
     void cleanup();
@@ -95,22 +95,22 @@ private:
     QObjectCleanupHandler widgets;
 };
 
-QRESULT QWidgetPluginPrivate::queryInterface( const QUuid &iid, QUnknownInterface **iface )
+QRESULT QWidgetPluginPrivate::queryInterface(const QUuid &iid, QUnknownInterface **iface)
 {
     *iface = 0;
 
-    if ( iid == IID_QUnknown )
-	*iface = (QWidgetFactoryInterface*)this;
-    else if ( iid == IID_QFeatureList )
-	*iface = (QFeatureListInterface*)this;
-    else if ( iid == IID_QWidgetFactory )
-	*iface = (QWidgetFactoryInterface*)this;
-    else if ( iid == IID_QLibrary )
-	*iface = (QLibraryInterface*)this;
-    else if ( iid == IID_QWidgetContainer )
-	*iface = (QWidgetContainerInterfacePrivate*)this;
+    if (iid == IID_QUnknown)
+        *iface = (QWidgetFactoryInterface*)this;
+    else if (iid == IID_QFeatureList)
+        *iface = (QFeatureListInterface*)this;
+    else if (iid == IID_QWidgetFactory)
+        *iface = (QWidgetFactoryInterface*)this;
+    else if (iid == IID_QLibrary)
+        *iface = (QLibraryInterface*)this;
+    else if (iid == IID_QWidgetContainer)
+        *iface = (QWidgetContainerInterfacePrivate*)this;
     else
-	return QE_NOINTERFACE;
+        return QE_NOINTERFACE;
 
     (*iface)->addRef();
     return QS_OK;
@@ -128,7 +128,7 @@ QRESULT QWidgetPluginPrivate::queryInterface( const QUuid &iid, QUnknownInterfac
 */
 
 /*!
-    \fn QWidget *QWidgetPlugin::create( const QString &, QWidget *, const char * )
+    \fn QWidget *QWidgetPlugin::create(const QString &, QWidget *, const char *)
 
     Creates and returns a QWidget object for the widget key \a key.
     The widget key is the class name of the required widget. The \a
@@ -148,46 +148,46 @@ QStringList QWidgetPluginPrivate::featureList() const
     return plugin->keys();
 }
 
-QWidget *QWidgetPluginPrivate::create( const QString &key, QWidget *parent, const char *name )
+QWidget *QWidgetPluginPrivate::create(const QString &key, QWidget *parent, const char *name)
 {
-    QWidget *w = plugin->create( key, parent, name );
-    widgets.add( w );
+    QWidget *w = plugin->create(key, parent, name);
+    widgets.add(w);
     return w;
 }
 
-QString QWidgetPluginPrivate::group( const QString &widget ) const
+QString QWidgetPluginPrivate::group(const QString &widget) const
 {
-    return plugin->group( widget );
+    return plugin->group(widget);
 }
 
-QIconSet QWidgetPluginPrivate::iconSet( const QString &widget ) const
+QIconSet QWidgetPluginPrivate::iconSet(const QString &widget) const
 {
-    return plugin->iconSet( widget );
+    return plugin->iconSet(widget);
 }
 
-QString QWidgetPluginPrivate::includeFile( const QString &widget ) const
+QString QWidgetPluginPrivate::includeFile(const QString &widget) const
 {
-    return plugin->includeFile( widget );
+    return plugin->includeFile(widget);
 }
 
-QString QWidgetPluginPrivate::toolTip( const QString &widget ) const
+QString QWidgetPluginPrivate::toolTip(const QString &widget) const
 {
-    return plugin->toolTip( widget );
+    return plugin->toolTip(widget);
 }
 
-QString QWidgetPluginPrivate::whatsThis( const QString &widget ) const
+QString QWidgetPluginPrivate::whatsThis(const QString &widget) const
 {
-    return plugin->whatsThis( widget );
+    return plugin->whatsThis(widget);
 }
 
-bool QWidgetPluginPrivate::isContainer( const QString &widget ) const
+bool QWidgetPluginPrivate::isContainer(const QString &widget) const
 {
-    return plugin->isContainer( widget );
+    return plugin->isContainer(widget);
 }
 
 bool QWidgetPluginPrivate::init()
 {
-    return TRUE;
+    return true;
 }
 
 void QWidgetPluginPrivate::cleanup()
@@ -200,116 +200,116 @@ bool QWidgetPluginPrivate::canUnload() const
     return widgets.isEmpty();
 }
 
-QWidget* QWidgetPluginPrivate::containerOfWidget( const QString &key, QWidget *widget ) const
+QWidget* QWidgetPluginPrivate::containerOfWidget(const QString &key, QWidget *widget) const
 {
-    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast( "QWidgetContainerPlugin" );
-    if ( p )
-	return p->containerOfWidget( key, widget );
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast("QWidgetContainerPlugin");
+    if (p)
+        return p->containerOfWidget(key, widget);
     return widget;
 }
 
-int QWidgetPluginPrivate::count( const QString &key, QWidget *container ) const
+int QWidgetPluginPrivate::count(const QString &key, QWidget *container) const
 {
-    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast( "QWidgetContainerPlugin" );
-    if ( p )
-	return p->count( key, container );
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast("QWidgetContainerPlugin");
+    if (p)
+        return p->count(key, container);
     return 0;
 }
 
-int QWidgetPluginPrivate::currentIndex( const QString &key, QWidget *container ) const
+int QWidgetPluginPrivate::currentIndex(const QString &key, QWidget *container) const
 {
-    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast( "QWidgetContainerPlugin" );
-    if ( p )
-	return p->currentIndex( key, container );
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast("QWidgetContainerPlugin");
+    if (p)
+        return p->currentIndex(key, container);
     return -1;
 }
 
-QString QWidgetPluginPrivate::pageLabel( const QString &key, QWidget *container, int index ) const
+QString QWidgetPluginPrivate::pageLabel(const QString &key, QWidget *container, int index) const
 {
-    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast( "QWidgetContainerPlugin" );
-    if ( p )
-	return p->pageLabel( key, container, index );
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast("QWidgetContainerPlugin");
+    if (p)
+        return p->pageLabel(key, container, index);
     return QString::null;
 }
 
-QWidget *QWidgetPluginPrivate::page( const QString &key, QWidget *container, int index ) const
+QWidget *QWidgetPluginPrivate::page(const QString &key, QWidget *container, int index) const
 {
-    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast( "QWidgetContainerPlugin" );
-    if ( p )
-	return p->page( key, container, index );
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast("QWidgetContainerPlugin");
+    if (p)
+        return p->page(key, container, index);
     return 0;
 }
 
-bool QWidgetPluginPrivate::isPassiveInteractor( const QString &key, QWidget *widget ) const
+bool QWidgetPluginPrivate::isPassiveInteractor(const QString &key, QWidget *widget) const
 {
-    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast( "QWidgetContainerPlugin" );
-    if ( p )
-	return p->isPassiveInteractor( key, widget );
-    return FALSE;
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast("QWidgetContainerPlugin");
+    if (p)
+        return p->isPassiveInteractor(key, widget);
+    return false;
 }
 
-bool QWidgetPluginPrivate::supportsPages( const QString &key ) const
+bool QWidgetPluginPrivate::supportsPages(const QString &key) const
 {
-    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast( "QWidgetContainerPlugin" );
-    if ( p )
-	return p->supportsPages( key );
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast("QWidgetContainerPlugin");
+    if (p)
+        return p->supportsPages(key);
     return 0;
 }
 
-QWidget *QWidgetPluginPrivate::addPage( const QString &key, QWidget *container,
-				    const QString &name, int index ) const
+QWidget *QWidgetPluginPrivate::addPage(const QString &key, QWidget *container,
+                                    const QString &name, int index) const
 {
-    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast( "QWidgetContainerPlugin" );
-    if ( p )
-	return p->addPage( key, container, name, index );
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast("QWidgetContainerPlugin");
+    if (p)
+        return p->addPage(key, container, name, index);
     return 0;
 }
 
-void QWidgetPluginPrivate::insertPage( const QString &key, QWidget *container,
-				       const QString &name, int index, QWidget *page ) const
+void QWidgetPluginPrivate::insertPage(const QString &key, QWidget *container,
+                                       const QString &name, int index, QWidget *page) const
 {
-    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast( "QWidgetContainerPlugin" );
-    if ( p )
-	p->insertPage( key, container, name, index, page );
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast("QWidgetContainerPlugin");
+    if (p)
+        p->insertPage(key, container, name, index, page);
 }
 
-void QWidgetPluginPrivate::removePage( const QString &key, QWidget *container, int index ) const
+void QWidgetPluginPrivate::removePage(const QString &key, QWidget *container, int index) const
 {
-    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast( "QWidgetContainerPlugin" );
-    if ( p )
-	p->removePage( key, container, index );
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast("QWidgetContainerPlugin");
+    if (p)
+        p->removePage(key, container, index);
 }
 
-void QWidgetPluginPrivate::movePage( const QString &key, QWidget *container,
-				     int fromIndex, int toIndex ) const
+void QWidgetPluginPrivate::movePage(const QString &key, QWidget *container,
+                                     int fromIndex, int toIndex) const
 {
-    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast( "QWidgetContainerPlugin" );
-    if ( p )
-	p->movePage( key, container, fromIndex, toIndex );
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast("QWidgetContainerPlugin");
+    if (p)
+        p->movePage(key, container, fromIndex, toIndex);
 }
 
-void QWidgetPluginPrivate::renamePage( const QString &key, QWidget *container,
-				      int index, const QString &newName ) const
+void QWidgetPluginPrivate::renamePage(const QString &key, QWidget *container,
+                                      int index, const QString &newName) const
 {
-    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast( "QWidgetContainerPlugin" );
-    if ( p )
-	p->renamePage( key, container, index, newName );
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast("QWidgetContainerPlugin");
+    if (p)
+        p->renamePage(key, container, index, newName);
 }
 
-QWidgetList QWidgetPluginPrivate::pages( const QString &key, QWidget *container ) const
+QWidgetList QWidgetPluginPrivate::pages(const QString &key, QWidget *container) const
 {
-    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast( "QWidgetContainerPlugin" );
-    if ( p )
-	return p->pages( key, container );
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast("QWidgetContainerPlugin");
+    if (p)
+        return p->pages(key, container);
     return QWidgetList();
 }
 
-QString QWidgetPluginPrivate::createCode( const QString &key, const QString &container,
-					  const QString &page, const QString &pageName ) const
+QString QWidgetPluginPrivate::createCode(const QString &key, const QString &container,
+                                          const QString &page, const QString &pageName) const
 {
-    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast( "QWidgetContainerPlugin" );
-    if ( p )
-	return p->createCode( key, container, page, pageName );
+    QWidgetContainerPlugin *p = (QWidgetContainerPlugin*)plugin->qt_metacast("QWidgetContainerPlugin");
+    if (p)
+        return p->createCode(key, container, page, pageName);
     return QString::null;
 }
 
@@ -318,7 +318,7 @@ QString QWidgetPluginPrivate::createCode( const QString &key, const QString &con
     \c Q_EXPORT_PLUGIN macro.
 */
 QWidgetPlugin::QWidgetPlugin()
-    : QGPlugin( (QWidgetFactoryInterface*)(d = new QWidgetPluginPrivate( this )) )
+    : QGPlugin((QWidgetFactoryInterface*)(d = new QWidgetPluginPrivate(this)))
 {
 }
 
@@ -339,7 +339,7 @@ QWidgetPlugin::~QWidgetPlugin()
 
     The default implementation returns QString::null.
 */
-QString QWidgetPlugin::group( const QString & ) const
+QString QWidgetPlugin::group(const QString &) const
 {
     return QString::null;
 }
@@ -350,7 +350,7 @@ QString QWidgetPlugin::group( const QString & ) const
 
     The default implementation returns an null iconset.
 */
-QIconSet QWidgetPlugin::iconSet( const QString & ) const
+QIconSet QWidgetPlugin::iconSet(const QString &) const
 {
     return QIconSet();
 }
@@ -362,7 +362,7 @@ QIconSet QWidgetPlugin::iconSet( const QString & ) const
 
     The default implementation returns QString::null.
 */
-QString QWidgetPlugin::includeFile( const QString & ) const
+QString QWidgetPlugin::includeFile(const QString &) const
 {
     return QString::null;
 }
@@ -373,7 +373,7 @@ QString QWidgetPlugin::includeFile( const QString & ) const
 
     The default implementation returns QString::null.
 */
-QString QWidgetPlugin::toolTip( const QString & ) const
+QString QWidgetPlugin::toolTip(const QString &) const
 {
     return QString::null;
 }
@@ -385,20 +385,20 @@ QString QWidgetPlugin::toolTip( const QString & ) const
 
     The default implementation returns QString::null.
 */
-QString QWidgetPlugin::whatsThis( const QString & ) const
+QString QWidgetPlugin::whatsThis(const QString &) const
 {
     return QString::null;
 }
 
 /*!
-    Returns TRUE if the custom widget of class \a key can contain
-    other widgets, e.g. like QFrame; otherwise returns FALSE.
+    Returns true if the custom widget of class \a key can contain
+    other widgets, e.g. like QFrame; otherwise returns false.
 
-    The default implementation returns FALSE.
+    The default implementation returns false.
 */
-bool QWidgetPlugin::isContainer( const QString & ) const
+bool QWidgetPlugin::isContainer(const QString &) const
 {
-    return FALSE;
+    return false;
 }
 
 /*!
@@ -465,8 +465,8 @@ QWidgetContainerPlugin::~QWidgetContainerPlugin()
     The default implementation returns \a container.
 */
 
-QWidget* QWidgetContainerPlugin::containerOfWidget( const QString &,
-						    QWidget *container ) const
+QWidget* QWidgetContainerPlugin::containerOfWidget(const QString &,
+                                                    QWidget *container) const
 {
     return container;
 }
@@ -481,7 +481,7 @@ QWidget* QWidgetContainerPlugin::containerOfWidget( const QString &,
     The default implementation returns 0.
 */
 
-int QWidgetContainerPlugin::count( const QString &, QWidget * ) const
+int QWidgetContainerPlugin::count(const QString &, QWidget *) const
 {
     return 0;
 }
@@ -496,7 +496,7 @@ int QWidgetContainerPlugin::count( const QString &, QWidget * ) const
     The default implementation returns -1.
 */
 
-int QWidgetContainerPlugin::currentIndex( const QString &, QWidget * ) const
+int QWidgetContainerPlugin::currentIndex(const QString &, QWidget *) const
 {
     return -1;
 }
@@ -511,7 +511,7 @@ int QWidgetContainerPlugin::currentIndex( const QString &, QWidget * ) const
     The default implementation returns a null string.
 */
 
-QString QWidgetContainerPlugin::pageLabel( const QString &, QWidget *, int ) const
+QString QWidgetContainerPlugin::pageLabel(const QString &, QWidget *, int) const
 {
     return QString::null;
 }
@@ -527,7 +527,7 @@ QString QWidgetContainerPlugin::pageLabel( const QString &, QWidget *, int ) con
     The default implementation returns 0.
 */
 
-QWidget *QWidgetContainerPlugin::page( const QString &, QWidget *, int ) const
+QWidget *QWidgetContainerPlugin::page(const QString &, QWidget *, int) const
 {
     return 0;
 }
@@ -535,8 +535,8 @@ QWidget *QWidgetContainerPlugin::page( const QString &, QWidget *, int ) const
 /*!
     Operates on the plugin's \a key class.
 
-    Returns TRUE if the \a container custom widget is a passive
-    interactor for class \e key; otherwise returns FALSE. The \a
+    Returns true if the \a container custom widget is a passive
+    interactor for class \e key; otherwise returns false. The \a
     container is a child widget of the actual custom widget.
 
     Usually, when a custom widget is used in \e{Qt Designer}'s design
@@ -544,35 +544,35 @@ QWidget *QWidgetContainerPlugin::page( const QString &, QWidget *, int ) const
     Designer} filters and processes them itself. If one or more
     widgets of a custom widget still need to receive such events, for
     example, because the widget needs to change pages, this function
-    must return TRUE for the widget. In such cases \e{Qt Designer}
+    must return true for the widget. In such cases \e{Qt Designer}
     will not filter out key and mouse events destined for the widget.
 
     If the custom widget is a tab widget, the tab bar is the passive
     interactor, since that's what the user will use to change pages.
 
-    The default implementation returns FALSE.
+    The default implementation returns false.
 */
 
-bool QWidgetContainerPlugin::isPassiveInteractor( const QString &,
-						 QWidget *container ) const
+bool QWidgetContainerPlugin::isPassiveInteractor(const QString &,
+                                                 QWidget *container) const
 {
-    Q_UNUSED( container )
-    return FALSE;
+    Q_UNUSED(container)
+    return false;
 }
 
 /*!
     Operates on the plugin's \a key class.
 
-    Returns TRUE if the widget supports pages; otherwise returns
-    FALSE. If the custom widget is a tab widget this function should
-    return TRUE.
+    Returns true if the widget supports pages; otherwise returns
+    false. If the custom widget is a tab widget this function should
+    return true.
 
-    The default implementation returns FALSE.
+    The default implementation returns false.
 */
 
-bool QWidgetContainerPlugin::supportsPages( const QString & ) const
+bool QWidgetContainerPlugin::supportsPages(const QString &) const
 {
-    return FALSE;
+    return false;
 }
 
 /*!
@@ -585,8 +585,8 @@ bool QWidgetContainerPlugin::supportsPages( const QString & ) const
     The default implementation does nothing.
 */
 
-QWidget* QWidgetContainerPlugin::addPage( const QString &, QWidget *,
-					  const QString &, int ) const
+QWidget* QWidgetContainerPlugin::addPage(const QString &, QWidget *,
+                                          const QString &, int) const
 {
     return 0;
 }
@@ -601,8 +601,8 @@ QWidget* QWidgetContainerPlugin::addPage( const QString &, QWidget *,
     The default implementation does nothing.
 */
 
-void QWidgetContainerPlugin::insertPage( const QString &, QWidget *,
-					 const QString &, int, QWidget * ) const
+void QWidgetContainerPlugin::insertPage(const QString &, QWidget *,
+                                         const QString &, int, QWidget *) const
 {
 }
 
@@ -615,7 +615,7 @@ void QWidgetContainerPlugin::insertPage( const QString &, QWidget *,
     The default implementation does nothing.
 */
 
-void QWidgetContainerPlugin::removePage( const QString &, QWidget *, int ) const
+void QWidgetContainerPlugin::removePage(const QString &, QWidget *, int) const
 {
 }
 
@@ -628,7 +628,7 @@ void QWidgetContainerPlugin::removePage( const QString &, QWidget *, int ) const
     The default implementation does nothing.
 */
 
-void QWidgetContainerPlugin::movePage( const QString &, QWidget *, int, int ) const
+void QWidgetContainerPlugin::movePage(const QString &, QWidget *, int, int) const
 {
 }
 
@@ -642,8 +642,8 @@ void QWidgetContainerPlugin::movePage( const QString &, QWidget *, int, int ) co
     The default implementation does nothing.
 */
 
-void QWidgetContainerPlugin::renamePage( const QString &, QWidget *,
-					 int, const QString & ) const
+void QWidgetContainerPlugin::renamePage(const QString &, QWidget *,
+                                         int, const QString &) const
 {
 }
 
@@ -654,7 +654,7 @@ void QWidgetContainerPlugin::renamePage( const QString &, QWidget *,
     widget's pages.
 */
 
-QWidgetList QWidgetContainerPlugin::pages( const QString &, QWidget * ) const
+QWidgetList QWidgetContainerPlugin::pages(const QString &, QWidget *) const
 {
     return QWidgetList();
 }
@@ -672,15 +672,15 @@ QWidgetList QWidgetContainerPlugin::pages( const QString &, QWidget * ) const
     function should return:
 
     \code
-    return widget + "->addTab( " + page + ", \"" + pageName + "\" )";
+    return widget + "->addTab(" + page + ", \"" + pageName + "\")";
     \endcode
 
     Warning: If the code returned by this function contains invalid
     C++ syntax, the generated \c uic code will not compile.
 */
 
-QString QWidgetContainerPlugin::createCode( const QString &, const QString &,
-					    const QString &, const QString & ) const
+QString QWidgetContainerPlugin::createCode(const QString &, const QString &,
+                                            const QString &, const QString &) const
 {
     return QString::null;
 }

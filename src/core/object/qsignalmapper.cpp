@@ -37,16 +37,16 @@ public:
 };
 
 static Rec *getRec(QObject *that, QHash<QObject *, Rec *> &hash,
-					 QObject *sender)
+                                         QObject *sender)
 {
     QHash<QObject *, Rec *>::Iterator it = hash.find(sender);
     if (it == hash.constEnd()) {
-	Rec *rec = new Rec;
-	rec->has_int = 0;
+        Rec *rec = new Rec;
+        rec->has_int = 0;
 
-	hash.insert(sender, rec);
-	QObject::connect(sender, SIGNAL(destroyed()), that, SLOT(removeMapping()));
-	return rec;
+        hash.insert(sender, rec);
+        QObject::connect(sender, SIGNAL(destroyed()), that, SLOT(removeMapping()));
+        return rec;
     }
     return *it;
 }
@@ -80,7 +80,7 @@ QSignalMapper::QSignalMapper(QObject* parent, const char* name) :
     QObject(*new QSignalMapperPrivate, parent)
 {
     if (name)
-	setObjectName(name);
+        setObjectName(name);
 }
 
 /*!
@@ -139,11 +139,11 @@ void QSignalMapper::map()
 {
     QHash<QObject *,Rec *>::Iterator it = d->dict.find(const_cast<QObject *>(sender()));
     if (it != d->dict.constEnd()) {
-	Rec *rec = *it;
-	if (rec->has_int)
-	    emit mapped(rec->int_id);
-	if (!rec->str_id.isEmpty())
-	    emit mapped(rec->str_id);
+        Rec *rec = *it;
+        if (rec->has_int)
+            emit mapped(rec->int_id);
+        if (!rec->str_id.isEmpty())
+            emit mapped(rec->str_id);
     }
 }
 

@@ -56,7 +56,7 @@ class QTextTablePrivate : public QObjectPrivate
     Q_DECLARE_PUBLIC(QTextTable);
 public:
     QTextTablePrivate()
-	: cell_idx(-1), eor_idx(-1),grid(0), nCols(0), nRows(0), dirty(true) {}
+        : cell_idx(-1), eor_idx(-1),grid(0), nCols(0), nRows(0), dirty(true) {}
     ~QTextTablePrivate();
 
     inline bool isEmpty() const { return rowList.isEmpty(); }
@@ -74,18 +74,18 @@ public:
     inline int cols() const { if (dirty) updateGrid(); return nCols; }
 
     inline bool operator == (const QTextTablePrivate &o) {
-	return (cell_idx == o.cell_idx);
+        return (cell_idx == o.cell_idx);
     }
     inline bool operator != (const QTextTablePrivate &o) {
-	return (cell_idx != o.cell_idx);
+        return (cell_idx != o.cell_idx);
     }
 
     void updateGrid() const;
     inline QTextBlockIterator cellAt(int r, int c) const {
-	if (dirty) updateGrid();
-	// nCols is without the 'eor column', however in the grid we store the
-	// eor cells, hence the +1
-	return QTextBlockIterator(pieceTable, grid[r*(nCols + 1) + c]);
+        if (dirty) updateGrid();
+        // nCols is without the 'eor column', however in the grid we store the
+        // eor cells, hence the +1
+        return QTextBlockIterator(pieceTable, grid[r*(nCols + 1) + c]);
     }
 
     void addCell(QTextBlockIterator);
@@ -104,7 +104,7 @@ public:
     QTextPieceTable *pieceTable;
 private:
     inline void setCell(int r, int c, const QTextBlockIterator &block) const
-	{ grid[r*nCols + c] = block.n; }
+        { grid[r*nCols + c] = block.n; }
     mutable int *grid;
     mutable int nCols;
     mutable int nRows;

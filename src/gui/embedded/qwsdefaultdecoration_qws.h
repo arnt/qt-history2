@@ -19,9 +19,9 @@
 
 #ifndef QT_NO_QWS_MANAGER
 
-#define CORNER_GRAB	16
-#define BORDER_WIDTH	4
-#define BOTTOM_BORDER_WIDTH	2*BORDER_WIDTH
+#define CORNER_GRAB        16
+#define BORDER_WIDTH        4
+#define BOTTOM_BORDER_WIDTH        2*BORDER_WIDTH
 
 
 class QWSDefaultDecoration : public QWSDecoration

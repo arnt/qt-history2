@@ -31,52 +31,52 @@ class QPopupMenu;
 class Q_GUI_EXPORT QToolButton : public QButton
 {
     Q_OBJECT
-    Q_ENUMS( TextPosition )
+    Q_ENUMS(TextPosition)
 
-    Q_PROPERTY( QIconSet iconSet READ iconSet WRITE setIconSet )
-    Q_PROPERTY( QIconSet onIconSet READ onIconSet WRITE setOnIconSet DESIGNABLE false STORED false )
-    Q_PROPERTY( QIconSet offIconSet READ offIconSet WRITE setOffIconSet DESIGNABLE false STORED false )
-    Q_PROPERTY( bool usesBigPixmap READ usesBigPixmap WRITE setUsesBigPixmap )
-    Q_PROPERTY( bool usesTextLabel READ usesTextLabel WRITE setUsesTextLabel )
-    Q_PROPERTY( QString textLabel READ textLabel WRITE setTextLabel )
-    Q_PROPERTY( int popupDelay READ popupDelay WRITE setPopupDelay )
-    Q_PROPERTY( bool autoRaise READ autoRaise WRITE setAutoRaise )
-    Q_PROPERTY( TextPosition textPosition READ textPosition WRITE setTextPosition )
+    Q_PROPERTY(QIconSet iconSet READ iconSet WRITE setIconSet)
+    Q_PROPERTY(QIconSet onIconSet READ onIconSet WRITE setOnIconSet DESIGNABLE false STORED false)
+    Q_PROPERTY(QIconSet offIconSet READ offIconSet WRITE setOffIconSet DESIGNABLE false STORED false)
+    Q_PROPERTY(bool usesBigPixmap READ usesBigPixmap WRITE setUsesBigPixmap)
+    Q_PROPERTY(bool usesTextLabel READ usesTextLabel WRITE setUsesTextLabel)
+    Q_PROPERTY(QString textLabel READ textLabel WRITE setTextLabel)
+    Q_PROPERTY(int popupDelay READ popupDelay WRITE setPopupDelay)
+    Q_PROPERTY(bool autoRaise READ autoRaise WRITE setAutoRaise)
+    Q_PROPERTY(TextPosition textPosition READ textPosition WRITE setTextPosition)
 
-    Q_OVERRIDE( bool toggleButton WRITE setToggleButton )
-    Q_OVERRIDE( bool on WRITE setOn )
-    Q_OVERRIDE( QPixmap pixmap DESIGNABLE false STORED false )
-    Q_OVERRIDE( BackgroundMode backgroundMode DESIGNABLE true)
+    Q_OVERRIDE(bool toggleButton WRITE setToggleButton)
+    Q_OVERRIDE(bool on WRITE setOn)
+    Q_OVERRIDE(QPixmap pixmap DESIGNABLE false STORED false)
+    Q_OVERRIDE(BackgroundMode backgroundMode DESIGNABLE true)
 
 public:
     enum TextPosition {
-	BesideIcon,
-	BelowIcon,
-	Right = BesideIcon, // obsolete
-	Under = BelowIcon // obsolete
+        BesideIcon,
+        BelowIcon,
+        Right = BesideIcon, // obsolete
+        Under = BelowIcon // obsolete
     };
-    QToolButton( QWidget * parent=0, const char* name=0 );
+    QToolButton(QWidget * parent=0, const char* name=0);
 #ifndef QT_NO_TOOLBAR
-    QToolButton( const QIconSet& s, const QString &textLabel,
-		 const QString& grouptext,
-		 QObject * receiver, const char* slot,
-		 QToolBar * parent=0, const char* name=0 );
+    QToolButton(const QIconSet& s, const QString &textLabel,
+                 const QString& grouptext,
+                 QObject * receiver, const char* slot,
+                 QToolBar * parent=0, const char* name=0);
 #endif
-    QToolButton( ArrowType type, QWidget *parent=0, const char* name=0 );
+    QToolButton(ArrowType type, QWidget *parent=0, const char* name=0);
     ~QToolButton();
 
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
 #ifdef QT_COMPAT
-    QT_COMPAT void setOnIconSet( const QIconSet& );
-    QT_COMPAT void setOffIconSet( const QIconSet& );
-    QT_COMPAT void setIconSet( const QIconSet &, bool on );
+    QT_COMPAT void setOnIconSet(const QIconSet&);
+    QT_COMPAT void setOffIconSet(const QIconSet&);
+    QT_COMPAT void setIconSet(const QIconSet &, bool on);
     QT_COMPAT QIconSet onIconSet() const;
-    QT_COMPAT QIconSet offIconSet( ) const;
-    QT_COMPAT QIconSet iconSet( bool on ) const;
+    QT_COMPAT QIconSet offIconSet() const;
+    QT_COMPAT QIconSet iconSet(bool on) const;
 #endif
-    virtual void setIconSet( const QIconSet & );
+    virtual void setIconSet(const QIconSet &);
     QIconSet iconSet() const;
 
     bool usesBigPixmap() const { return ubp; }
@@ -84,48 +84,48 @@ public:
     QString textLabel() const { return tl; }
 
 #ifndef QT_NO_POPUPMENU
-    void setPopup( QPopupMenu* popup );
+    void setPopup(QPopupMenu* popup);
     QPopupMenu* popup() const;
 
-    void setPopupDelay( int delay );
+    void setPopupDelay(int delay);
     int popupDelay() const;
 
     void openPopup();
 #endif
 
-    void setAutoRaise( bool enable );
+    void setAutoRaise(bool enable);
     bool autoRaise() const;
     TextPosition textPosition() const;
 
-    void setText( const QString &txt );
+    void setText(const QString &txt);
 
 public slots:
-    virtual void setUsesBigPixmap( bool enable );
-    virtual void setUsesTextLabel( bool enable );
-    virtual void setTextLabel( const QString &, bool );
+    virtual void setUsesBigPixmap(bool enable);
+    virtual void setUsesTextLabel(bool enable);
+    virtual void setTextLabel(const QString &, bool);
 
-    virtual void setToggleButton( bool enable );
+    virtual void setToggleButton(bool enable);
 
-    virtual void setOn( bool enable );
+    virtual void setOn(bool enable);
     void toggle();
-    void setTextLabel( const QString & );
-    void setTextPosition( TextPosition pos );
+    void setTextLabel(const QString &);
+    void setTextPosition(TextPosition pos);
 
 protected:
-    void mousePressEvent( QMouseEvent * );
-    void drawButton( QPainter * );
+    void mousePressEvent(QMouseEvent *);
+    void drawButton(QPainter *);
     void drawButtonLabel(QPainter *);
 
-    void enterEvent( QEvent * );
-    void leaveEvent( QEvent * );
-    void moveEvent( QMoveEvent * );
-    void changeEvent( QEvent * );
+    void enterEvent(QEvent *);
+    void leaveEvent(QEvent *);
+    void moveEvent(QMoveEvent *);
+    void changeEvent(QEvent *);
 
     // ### Make virtual in 4.0, maybe act like QPushButton with
     // regards to setFlat() instead?  Andy
     virtual bool uses3D() const;
 
-    bool eventFilter( QObject *o, QEvent *e );
+    bool eventFilter(QObject *o, QEvent *e);
 
 private slots:
     void popupTimerDone();
@@ -148,10 +148,10 @@ private:
     uint ubp : 1;
     uint hasArrow : 1;
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QToolButton( const QToolButton & );
-    QToolButton& operator=( const QToolButton & );
+    QToolButton(const QToolButton &);
+    QToolButton& operator=(const QToolButton &);
 #endif
 };
 

@@ -38,33 +38,33 @@
 #undef truncate
 #endif
 
-#if defined( Q_WS_WIN ) || defined( Q_WS_MAC )
+#if defined(Q_WS_WIN) || defined(Q_WS_MAC)
 extern const char *qAppFileName(); // Declared in qapplication_win.cpp
 #endif
 
 
 typedef void (*VFPTR)();
 typedef QList<VFPTR> QVFuncList;
-static QVFuncList *postRList = 0;		// list of post routines
+static QVFuncList *postRList = 0;                // list of post routines
 
 void qAddPostRoutine(QtCleanUpFunction p)
 {
-    if ( !postRList )
-	postRList = new QVFuncList;
-    postRList->prepend( p );
+    if (!postRList)
+        postRList = new QVFuncList;
+    postRList->prepend(p);
 }
 
 void qRemovePostRoutine(QtCleanUpFunction p)
 {
-    if ( !postRList ) return;
+    if (!postRList) return;
     QVFuncList::Iterator it = postRList->begin();
-    while ( it != postRList->end() ) {
-	if ( *it == p ) {
-	    postRList->erase( it );
-	    it = postRList->begin();
-	} else {
-	    ++it;
-	}
+    while (it != postRList->end()) {
+        if (*it == p) {
+            postRList->erase(it);
+            it = postRList->begin();
+        } else {
+            ++it;
+        }
     }
 }
 
@@ -79,23 +79,23 @@ Q_CORE_EXPORT QPostEventList *qt_postEventList(Qt::HANDLE thread)
     if (thread == 0) thread = current;
 
     if (thread == current && postEventLists.hasLocalData())
-	return postEventLists.localData();
+        return postEventLists.localData();
 
     QSpinLockLocker locker(::spinlock);
     postEventListHash.ensure_constructed();
     QPostEventList *plist = postEventListHash.value(thread);
     if (!plist) {
-	if (QCoreApplication::closingDown()) {
-	    // closing down, cannot create new post event list
-	    return 0;
-	}
+        if (QCoreApplication::closingDown()) {
+            // closing down, cannot create new post event list
+            return 0;
+        }
 
-	if (thread == current) {
-	    // creating post event list for current thread
-	    plist = new QPostEventList;
-	    postEventListHash.insert(thread, plist);
-	    postEventLists.setLocalData(plist);
-	}
+        if (thread == current) {
+            // creating post event list for current thread
+            plist = new QPostEventList;
+            postEventListHash.insert(thread, plist);
+            postEventLists.setLocalData(plist);
+        }
     }
 
     return plist;
@@ -110,58 +110,58 @@ void qt_movePostedEvents(QObject *object, Qt::HANDLE _from, Qt::HANDLE _to)
 
     QPostEventList *to = qt_postEventList(_to);
     Q_ASSERT_X(to, "QObject::setThread",
-	       "This function only works when starting threads with QThread");
+               "This function only works when starting threads with QThread");
 
     QSpinLockLocker from_locker(&from->spinlock);
     for (int i = 0; i < from->size(); ++i) {
-	const QPostEvent &pe = from->at(i);
-	if (pe.receiver != object) continue;
-	if (!pe.event) continue;
+        const QPostEvent &pe = from->at(i);
+        if (pe.receiver != object) continue;
+        if (!pe.event) continue;
 
-	from_locker.release();
+        from_locker.release();
 
-	to->spinlock.acquire();
-	to->append(pe);
-	to->spinlock.release();
+        to->spinlock.acquire();
+        to->append(pe);
+        to->spinlock.release();
 
-	from_locker.acquire();
-	const_cast<QPostEvent &>(pe).event = 0;
+        from_locker.acquire();
+        const_cast<QPostEvent &>(pe).event = 0;
     }
 }
 
 QPostEventList::~QPostEventList()
 {
     {
-	// post event list for current thread destroyed
-	QSpinLockLocker locker(::spinlock);
-	postEventListHash.remove(QThread::currentThread());
+        // post event list for current thread destroyed
+        QSpinLockLocker locker(::spinlock);
+        postEventListHash.remove(QThread::currentThread());
     }
 
     // don't leak undelivered events
     for (int i = 0; i < size(); ++i) {
-	QPostEvent &pe = operator[](i);
-	if (pe.event) {
-	    struct HACK {
-		ushort t;
-		ushort posted : 1;
-		ushort spont  : 1;
-	    };
-	    HACK *e = (HACK *) pe.event;
-	    const_cast<QPostEvent &>(pe).event = 0;
+        QPostEvent &pe = operator[](i);
+        if (pe.event) {
+            struct HACK {
+                ushort t;
+                ushort posted : 1;
+                ushort spont  : 1;
+            };
+            HACK *e = (HACK *) pe.event;
+            const_cast<QPostEvent &>(pe).event = 0;
 
-	    e->posted = false;
-	    delete e;
-	}
+            e->posted = false;
+            delete e;
+        }
     }
 }
 
 
 
 
-// app starting up if FALSE
-bool QCoreApplication::is_app_running = FALSE;
- // app closing down if TRUE
-bool QCoreApplication::is_app_closing = FALSE;
+// app starting up if false
+bool QCoreApplication::is_app_running = false;
+ // app closing down if true
+bool QCoreApplication::is_app_closing = false;
 
 
 uint qGlobalPostedEventsCount()
@@ -178,9 +178,9 @@ QCoreApplicationPrivate::QCoreApplicationPrivate(int &aargc,  char **aargv)
     : QObjectPrivate(), argc(aargc), argv(aargv)
 {
     static const char *empty = "";
-    if ( argc == 0 || argv == 0 ) {
-	argc = 0;
-	argv = (char **)&empty; // ouch! careful with QApplication::argv()!
+    if (argc == 0 || argv == 0) {
+        argc = 0;
+        argv = (char **)&empty; // ouch! careful with QApplication::argv()!
     }
     QCoreApplication::is_app_closing = false;
 }
@@ -228,7 +228,7 @@ QCoreApplication::QCoreApplication(QCoreApplicationPrivate &p, QEventLoop *e)
 void QCoreApplication::flush()
 {
     if (self)
-	self->eventLoop()->flush();
+        self->eventLoop()->flush();
 }
 
 /*!
@@ -239,7 +239,7 @@ void QCoreApplication::flush()
     The \a argc and \a argv arguments are available from argc() and
     argv().
 */
-QCoreApplication::QCoreApplication( int &argc, char **argv )
+QCoreApplication::QCoreApplication(int &argc, char **argv)
     : QObject(*new QCoreApplicationPrivate(argc, argv), 0)
 {
     init();
@@ -265,7 +265,7 @@ void QCoreApplication::init()
     QThread::initialize();
 
     if (!eventLoop())
-	(void) new QEventLoop(self);
+        (void) new QEventLoop(self);
 }
 
 /*!
@@ -273,15 +273,15 @@ void QCoreApplication::init()
 */
 QCoreApplication::~QCoreApplication()
 {
-    if ( postRList ) {
-	QVFuncList::Iterator it = postRList->begin();
-	while ( it != postRList->end() ) {	// call post routines
-	    (**it)();
-	    postRList->erase( it );
-	    it = postRList->begin();
-	}
-	delete postRList;
-	postRList = 0;
+    if (postRList) {
+        QVFuncList::Iterator it = postRList->begin();
+        while (it != postRList->end()) {        // call post routines
+            (**it)();
+            postRList->erase(it);
+            it = postRList->begin();
+        }
+        delete postRList;
+        postRList = 0;
     }
 
 #ifndef QT_NO_COMPONENT
@@ -290,7 +290,7 @@ QCoreApplication::~QCoreApplication()
 #endif
 
     self = 0;
-    is_app_running = FALSE;
+    is_app_running = false;
 
     QThread::cleanup();
 }
@@ -314,7 +314,7 @@ QEventLoop *QCoreApplication::eventLoop()
   For certain types of events (e.g. mouse and key events),
   the event will be propagated to the receiver's parent and so on up to
   the top-level object if the receiver is not interested in the event
-  (i.e., it returns FALSE).
+  (i.e., it returns false).
 
   There are five different ways that events can be processed;
   reimplementing this virtual function is just one of them. All five
@@ -344,91 +344,91 @@ QEventLoop *QCoreApplication::eventLoop()
   \sa QObject::event(), installEventFilter()
 */
 
-bool QCoreApplication::notify( QObject *receiver, QEvent *e )
+bool QCoreApplication::notify(QObject *receiver, QEvent *e)
 {
     // no events are delivered after ~QCoreApplication() has started
-    if ( is_app_closing )
-	return TRUE;
+    if (is_app_closing)
+        return true;
 
-    if ( receiver == 0 ) {			// serious error
-	qWarning( "QCoreApplication::notify: Unexpected null receiver" );
-	return TRUE;
+    if (receiver == 0) {                        // serious error
+        qWarning("QCoreApplication::notify: Unexpected null receiver");
+        return true;
     }
 
     Q_ASSERT_X(QThread::currentThread() == receiver->thread(),
-	       "QCoreApplication::sendEvent",
-	       QString("Cannot send events to objects owned by a different thread (%1).  "
-		       "Receiver '%2' (of type '%3') was created in thread %4")
-	       .arg(QString::number((ulong) QThread::currentThread(), 16))
-	       .arg(receiver->objectName())
-	       .arg(receiver->className())
-	       .arg(QString::number((ulong) receiver->thread(), 16))
-	       .latin1());
+               "QCoreApplication::sendEvent",
+               QString("Cannot send events to objects owned by a different thread (%1).  "
+                       "Receiver '%2' (of type '%3') was created in thread %4")
+               .arg(QString::number((ulong) QThread::currentThread(), 16))
+               .arg(receiver->objectName())
+               .arg(receiver->className())
+               .arg(QString::number((ulong) receiver->thread(), 16))
+               .latin1());
 
 #ifdef QT_COMPAT
     if (e->type() == QEvent::ChildRemoved && receiver->d->hasPostedChildInsertedEvents) {
-	QPostEventList *postedEvents = qt_postEventList(receiver->thread());
-	if (postedEvents) {
-	    QSpinLockLocker locker(&postedEvents->spinlock);
+        QPostEventList *postedEvents = qt_postEventList(receiver->thread());
+        if (postedEvents) {
+            QSpinLockLocker locker(&postedEvents->spinlock);
 
-	    // the QObject destructor calls QObject::removeChild, which calls
-	    // QCoreApplication::sendEvent() directly.  this can happen while the event
-	    // loop is in the middle of posting events, and when we get here, we may
-	    // not have any more posted events for this object.
-	    bool postedChildInsertEventsRemaining = false;
-	    // if this is a child remove event and the child insert
-	    // hasn't been dispatched yet, kill that insert
-	    QObject * c = ((QChildEvent*)e)->child();
-	    for (int i = 0; i < postedEvents->size(); ++i) {
-		const QPostEvent &pe = postedEvents->at(i);
-		if (pe.event && pe.receiver == receiver) {
-		    if (pe.event->type() == QEvent::ChildInserted
-			&& ((QChildEvent*)pe.event)->child() == c ) {
-			pe.event->posted = false;
-			delete pe.event;
-			const_cast<QPostEvent &>(pe).event = 0;
-			const_cast<QPostEvent &>(pe).receiver = 0;
-		    } else {
-			postedChildInsertEventsRemaining = true;
-		    }
-		}
-		receiver->d->hasPostedChildInsertedEvents = postedChildInsertEventsRemaining;
-	    }
-	}
+            // the QObject destructor calls QObject::removeChild, which calls
+            // QCoreApplication::sendEvent() directly.  this can happen while the event
+            // loop is in the middle of posting events, and when we get here, we may
+            // not have any more posted events for this object.
+            bool postedChildInsertEventsRemaining = false;
+            // if this is a child remove event and the child insert
+            // hasn't been dispatched yet, kill that insert
+            QObject * c = ((QChildEvent*)e)->child();
+            for (int i = 0; i < postedEvents->size(); ++i) {
+                const QPostEvent &pe = postedEvents->at(i);
+                if (pe.event && pe.receiver == receiver) {
+                    if (pe.event->type() == QEvent::ChildInserted
+                        && ((QChildEvent*)pe.event)->child() == c) {
+                        pe.event->posted = false;
+                        delete pe.event;
+                        const_cast<QPostEvent &>(pe).event = 0;
+                        const_cast<QPostEvent &>(pe).receiver = 0;
+                    } else {
+                        postedChildInsertEventsRemaining = true;
+                    }
+                }
+                receiver->d->hasPostedChildInsertedEvents = postedChildInsertEventsRemaining;
+            }
+        }
     }
 #endif // QT_COMPAT
 
-    return receiver->isWidgetType() ? FALSE : notify_helper( receiver, e );
+    return receiver->isWidgetType() ? false : notify_helper(receiver, e);
 }
 
 /*!\internal
 
   Helper function called by notify()
  */
-bool QCoreApplication::notify_helper( QObject *receiver, QEvent * e)
+bool QCoreApplication::notify_helper(QObject *receiver, QEvent * e)
 {
     // send to all application event filters
     for (int i = 0; i < d->eventFilters.size(); ++i) {
-	register QObject *obj = d->eventFilters.at(i);
-	if ( obj && obj->eventFilter(receiver,e) )
-	    return true;
+        register QObject *obj = d->eventFilters.at(i);
+        if (obj && obj->eventFilter(receiver,e))
+            return true;
     }
 
     // send to all receiver event filters
     if (receiver != this) {
-	for (int i = 0; i < receiver->d->eventFilters.size(); ++i) {
-	    register QObject *obj = receiver->d->eventFilters.at(i);
-	    if ( obj && obj->eventFilter(receiver,e) )
-		return true;
-	}
+        for (int i = 0; i < receiver->d->eventFilters.size(); ++i) {
+            register QObject *obj = receiver->d->eventFilters.at(i);
+            if (obj && obj->eventFilter(receiver,e))
+                return true;
+        }
     }
 
-    return receiver->event( e );
+    return receiver->event(e);
 }
 
 /*!
-  Returns TRUE if an application object has not been created yet;
-  otherwise returns FALSE.
+  Returns true if an application object has not been created yet;
+  otherwise returns false.
 
   \sa closingDown()
 */
@@ -439,8 +439,8 @@ bool QCoreApplication::startingUp()
 }
 
 /*!
-  Returns TRUE if the application objects are being destroyed;
-  otherwise returns FALSE.
+  Returns true if the application objects are being destroyed;
+  otherwise returns false.
 
   \sa startingUp()
 */
@@ -474,9 +474,9 @@ bool QCoreApplication::closingDown()
 
     \sa exec(), QTimer, QEventLoop::processEvents()
 */
-void QCoreApplication::processEvents( int maxtime )
+void QCoreApplication::processEvents(int maxtime)
 {
-    eventLoop()->processEvents( QEventLoop::AllEvents, maxtime );
+    eventLoop()->processEvents(QEventLoop::AllEvents, maxtime);
 }
 
 /*! \obsolete
@@ -493,7 +493,7 @@ void QCoreApplication::processEvents( int maxtime )
 
 void QCoreApplication::processOneEvent()
 {
-    eventLoop()->processEvents( QEventLoop::AllEvents | QEventLoop::WaitForMore );
+    eventLoop()->processEvents(QEventLoop::AllEvents | QEventLoop::WaitForMore);
 }
 
 /*****************************************************************************
@@ -542,9 +542,9 @@ int QCoreApplication::exec()
 
   \sa quit(), exec()
 */
-void QCoreApplication::exit( int retcode )
+void QCoreApplication::exit(int retcode)
 {
-    eventLoop()->exit( retcode );
+    eventLoop()->exit(retcode);
 }
 
 /*!
@@ -594,8 +594,8 @@ int QCoreApplication::loopLevel() const
     The event is \e not deleted when the event has been sent. The normal
     approach is to create the event on the stack, e.g.
     \code
-    QMouseEvent me( QEvent::MouseButtonPress, pos, 0, 0 );
-    QApplication::sendEvent( mainWindow, &me );
+    QMouseEvent me(QEvent::MouseButtonPress, pos, 0, 0);
+    QApplication::sendEvent(mainWindow, &me);
     \endcode
     If you create the event on the heap you must delete it.
 
@@ -617,34 +617,34 @@ int QCoreApplication::loopLevel() const
   \sa sendEvent(), notify()
 */
 
-void QCoreApplication::postEvent( QObject *receiver, QEvent *event )
+void QCoreApplication::postEvent(QObject *receiver, QEvent *event)
 {
-    if ( receiver == 0 ) {
-	qWarning( "QCoreApplication::postEvent: Unexpected null receiver" );
-	delete event;
-	return;
+    if (receiver == 0) {
+        qWarning("QCoreApplication::postEvent: Unexpected null receiver");
+        delete event;
+        return;
     }
 
     QPostEventList *postedEvents = qt_postEventList(receiver->thread());
     Q_ASSERT_X(postedEvents, "QCoreApplication::postEvent",
-	       "Cannot post events to threads without an event loop");
+               "Cannot post events to threads without an event loop");
 
     QSpinLockLocker locker(&postedEvents->spinlock);
 
     // if this is one of the compressible events, do compression
     if (receiver->d->hasPostedEvents
-	&& self && self->compressEvent(event, receiver, postedEvents)) {
-	delete event;
-	return;
+        && self && self->compressEvent(event, receiver, postedEvents)) {
+        delete event;
+        return;
     }
 
-    event->posted = TRUE;
+    event->posted = true;
     receiver->d->hasPostedEvents = true;
 #ifdef QT_COMPAT
     if (event->type() == QEvent::ChildInserted)
-	receiver->d->hasPostedChildInsertedEvents = true;
+        receiver->d->hasPostedChildInsertedEvents = true;
 #endif
-    postedEvents->append( QPostEvent( receiver, event ) );
+    postedEvents->append(QPostEvent(receiver, event));
 
     if (eventLoop()) eventLoop()->wakeUp();
 }
@@ -681,113 +681,113 @@ bool QCoreApplication::compressEvent(QEvent *, QObject *, QPostEventList *)
   objects. If \a event_type is 0, all the events are sent for \a receiver.
 */
 
-void QCoreApplication::sendPostedEvents( QObject *receiver, int event_type )
+void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
 {
     QPostEventList *postedEvents = qt_postEventList(receiver ? receiver->thread() : 0);
     Q_ASSERT_X(postedEvents, "QCoreApplication::sendPostedEvents",
-	       "Cannot send posted events without an event loop");
+               "Cannot send posted events without an event loop");
 
 #ifdef QT_COMPAT
     // optimize sendPostedEvents(w, QEvent::ChildInserted) calls away
     if (receiver && event_type == QEvent::ChildInserted
-	&& !receiver->d->hasPostedChildInsertedEvents)
-	return;
+        && !receiver->d->hasPostedChildInsertedEvents)
+        return;
     // Make sure the object hierarchy is stable before processing events
     // to avoid endless loops
-    if ( receiver == 0 && event_type == 0 )
-	sendPostedEvents( 0, QEvent::ChildInserted );
+    if (receiver == 0 && event_type == 0)
+        sendPostedEvents(0, QEvent::ChildInserted);
 #endif
 
     QSpinLockLocker locker(&postedEvents->spinlock);
 
     if (postedEvents->size() == 0 || (receiver && !receiver->d->hasPostedEvents))
-	return;
+        return;
 
     // okay. here is the tricky loop. be careful about optimizing
     // this, it looks the way it does for good reasons.
     int i = postedEvents->offset;
     while (i < postedEvents->size()) {
-	const QPostEvent &pe = postedEvents->at(i);
-	++i;
+        const QPostEvent &pe = postedEvents->at(i);
+        ++i;
 
-	// optimize for recursive calls. In the no-receiver
-	// no-event-type case we know that we process all events.
-	if (!receiver && !event_type)
-	    postedEvents->offset = i;
+        // optimize for recursive calls. In the no-receiver
+        // no-event-type case we know that we process all events.
+        if (!receiver && !event_type)
+            postedEvents->offset = i;
 
-	if (// event hasn't been sent
-	    pe.event
-	    // we send to all receivers
-	    && (receiver == 0
-		// we send to a specific receiver
-		|| receiver == pe.receiver)
-	    // we send all types
-	    && (event_type == 0
-		// we send a specific type
-		|| event_type == pe.event->type())) {
-	    // first, we diddle the event so that we can deliver
-	    // it, and that noone will try to touch it later.
-	    pe.event->posted = FALSE;
-	    QEvent * e = pe.event;
-	    QObject * r = pe.receiver;
+        if (// event hasn't been sent
+            pe.event
+            // we send to all receivers
+            && (receiver == 0
+                // we send to a specific receiver
+                || receiver == pe.receiver)
+            // we send all types
+            && (event_type == 0
+                // we send a specific type
+                || event_type == pe.event->type())) {
+            // first, we diddle the event so that we can deliver
+            // it, and that noone will try to touch it later.
+            pe.event->posted = false;
+            QEvent * e = pe.event;
+            QObject * r = pe.receiver;
 
-	    // next, update the data structure so that we're ready
-	    // for the next event.
-	    const_cast<QPostEvent &>(pe).event = 0;
+            // next, update the data structure so that we're ready
+            // for the next event.
+            const_cast<QPostEvent &>(pe).event = 0;
 
-	    // remember postEventCounter, so we know when events get
-	    // posted or removed.
-	    int backup = postedEvents->size();
+            // remember postEventCounter, so we know when events get
+            // posted or removed.
+            int backup = postedEvents->size();
 
-	    locker.release();
-	    // after all that work, it's time to deliver the event.
-	    if ( e->type() == QEvent::PolishRequest) {
-		r->ensurePolished();
-	    } else {
-		QCoreApplication::sendEvent( r, e );
-	    }
-	    locker.acquire();
+            locker.release();
+            // after all that work, it's time to deliver the event.
+            if (e->type() == QEvent::PolishRequest) {
+                r->ensurePolished();
+            } else {
+                QCoreApplication::sendEvent(r, e);
+            }
+            locker.acquire();
 
-	    if (backup != postedEvents->size()) // events got posted or removed ...
-		i = postedEvents->offset; // ... so start all over again.
+            if (backup != postedEvents->size()) // events got posted or removed ...
+                i = postedEvents->offset; // ... so start all over again.
 
-	    delete e;
-	    // careful when adding anything below this point - the
-	    // sendEvent() call might invalidate any invariants this
-	    // function depends on.
-	}
+            delete e;
+            // careful when adding anything below this point - the
+            // sendEvent() call might invalidate any invariants this
+            // function depends on.
+        }
     }
 
     // clear the global list, i.e. remove everything that was
     // delivered and update the hasPostedEvents cache.
     if (!event_type) {
-	if (!receiver) {
-	    for (i = 0; i < postedEvents->size(); ++i) {
-		if ((receiver = postedEvents->at(i).receiver)) {
-		    receiver->d->hasPostedEvents = false;
+        if (!receiver) {
+            for (i = 0; i < postedEvents->size(); ++i) {
+                if ((receiver = postedEvents->at(i).receiver)) {
+                    receiver->d->hasPostedEvents = false;
 #ifdef QT_COMPAT
-		    receiver->d->hasPostedChildInsertedEvents = false;
+                    receiver->d->hasPostedChildInsertedEvents = false;
 #endif
-		}
-	    }
-	    postedEvents->clear();
-	    postedEvents->offset = 0;
-	} else {
-	    receiver->d->hasPostedEvents = false;
+                }
+            }
+            postedEvents->clear();
+            postedEvents->offset = 0;
+        } else {
+            receiver->d->hasPostedEvents = false;
 #ifdef QT_COMPAT
-	    receiver->d->hasPostedChildInsertedEvents = false;
+            receiver->d->hasPostedChildInsertedEvents = false;
 #endif
-	}
+        }
     }
 #ifdef QT_COMPAT
     else if (event_type == QEvent::ChildInserted) {
-	if (!receiver) {
-	    for (i = 0; i < postedEvents->size(); ++i)
-		if ((receiver = postedEvents->at(i).receiver))
-		    receiver->d->hasPostedChildInsertedEvents = false;
-	} else {
-	    receiver->d->hasPostedChildInsertedEvents = false;
-	}
+        if (!receiver) {
+            for (i = 0; i < postedEvents->size(); ++i)
+                if ((receiver = postedEvents->at(i).receiver))
+                    receiver->d->hasPostedChildInsertedEvents = false;
+        } else {
+            receiver->d->hasPostedChildInsertedEvents = false;
+        }
     }
 #endif
 }
@@ -803,7 +803,7 @@ void QCoreApplication::sendPostedEvents( QObject *receiver, int event_type )
   \threadsafe
 */
 
-void QCoreApplication::removePostedEvents( QObject *receiver )
+void QCoreApplication::removePostedEvents(QObject *receiver)
 {
     if (!receiver) return;
     QPostEventList *postedEvents = qt_postEventList(receiver->thread());
@@ -815,22 +815,22 @@ void QCoreApplication::removePostedEvents( QObject *receiver )
     // happen while the event loop is in the middle of posting events,
     // and when we get here, we may not have any more posted events
     // for this object.
-    if ( !receiver->d->hasPostedEvents ) return;
+    if (!receiver->d->hasPostedEvents) return;
 
     // iterate over the object-specific list and delete the events.
     // leave the QPostEvent objects; they'll be deleted by
     // sendPostedEvents().
     receiver->d->hasPostedEvents = false;
     for (int i = 0; i < postedEvents->size(); ++i) {
-	const QPostEvent &pe = postedEvents->at(i);
-	if (pe.receiver != receiver) continue;
+        const QPostEvent &pe = postedEvents->at(i);
+        if (pe.receiver != receiver) continue;
 
-	if (pe.event) {
-	    pe.event->posted = false;
-	    delete pe.event;
-	    const_cast<QPostEvent &>(pe).event = 0;
-	}
-	const_cast<QPostEvent &>(pe).receiver = 0;
+        if (pe.event) {
+            pe.event->posted = false;
+            delete pe.event;
+            const_cast<QPostEvent &>(pe).event = 0;
+        }
+        const_cast<QPostEvent &>(pe).receiver = 0;
     }
 }
 
@@ -845,10 +845,10 @@ void QCoreApplication::removePostedEvents( QObject *receiver )
   \threadsafe
 */
 
-void QCoreApplication::removePostedEvent( QEvent * event )
+void QCoreApplication::removePostedEvent(QEvent * event)
 {
-    if ( !event || !event->posted )
-	return;
+    if (!event || !event->posted)
+        return;
 
     QPostEventList *postedEvents = qt_postEventList(0);
     if (!postedEvents) return;
@@ -857,32 +857,32 @@ void QCoreApplication::removePostedEvent( QEvent * event )
 
     if (postedEvents->size() == 0) {
 #if defined(QT_DEBUG)
-	qDebug( "QCoreApplication::removePostedEvent: %p %d is posted: impossible",
-		(void*)event, event->type() );
-	return;
+        qDebug("QCoreApplication::removePostedEvent: %p %d is posted: impossible",
+                (void*)event, event->type());
+        return;
 #endif
     }
 
     for (int i = 0; i < postedEvents->size(); ++i) {
-	const QPostEvent & pe = postedEvents->at(i);
-	if ( pe.event == event ) {
+        const QPostEvent & pe = postedEvents->at(i);
+        if (pe.event == event) {
 #ifndef QT_NO_DEBUG
-	    qWarning("QEvent: Warning: event of type %d deleted while posted to %s %s",
-		     event->type(),
-		     pe.receiver ? pe.receiver->className() : "null",
-		     pe.receiver ? pe.receiver->objectName() : "object" );
+            qWarning("QEvent: Warning: event of type %d deleted while posted to %s %s",
+                     event->type(),
+                     pe.receiver ? pe.receiver->className() : "null",
+                     pe.receiver ? pe.receiver->objectName() : "object");
 #endif
-	    pe.event->posted = false;
-	    delete pe.event;
-	    const_cast<QPostEvent &>(pe).event = 0;
-	    return;
-	}
+            pe.event->posted = false;
+            delete pe.event;
+            const_cast<QPostEvent &>(pe).event = 0;
+            return;
+        }
     }
 }
 
 /*!
-    This function returns TRUE if there are pending events; otherwise
-    returns FALSE. Pending events can be either from the window system
+    This function returns true if there are pending events; otherwise
+    returns false. Pending events can be either from the window system
     or posted events using QApplication::postEvent().
 */
 bool QCoreApplication::hasPendingEvents()
@@ -893,11 +893,11 @@ bool QCoreApplication::hasPendingEvents()
 /*!\reimp
 
 */
-bool QCoreApplication::event( QEvent *e )
+bool QCoreApplication::event(QEvent *e)
 {
     if (e->type() == QEvent::Quit) {
-	quit();
-	return TRUE;
+        quit();
+        return true;
     }
     return QObject::event(e);
 }
@@ -918,7 +918,7 @@ bool QCoreApplication::event( QEvent *e )
 
 /*!
   Tells the application to exit with return code 0 (success).
-  Equivalent to calling QApplication::exit( 0 ).
+  Equivalent to calling QApplication::exit(0).
 
   It's common to connect the QApplication::lastWindowClosed() signal
   to quit(), and you also often connect e.g. QButton::clicked() or
@@ -926,8 +926,8 @@ bool QCoreApplication::event( QEvent *e )
 
   Example:
   \code
-    QPushButton *quitButton = new QPushButton( "Quit" );
-    connect( quitButton, SIGNAL(clicked()), qApp, SLOT(quit()) );
+    QPushButton *quitButton = new QPushButton("Quit");
+    connect(quitButton, SIGNAL(clicked()), qApp, SLOT(quit()));
   \endcode
 
   \sa exit() aboutToQuit() QApplication::lastWindowClosed() QAction
@@ -935,7 +935,7 @@ bool QCoreApplication::event( QEvent *e )
 
 void QCoreApplication::quit()
 {
-    exit( 0 );
+    exit(0);
 }
 
 // ########### shouldn't these be inline?
@@ -985,16 +985,16 @@ bool QCoreApplication::tryLock()
   \sa removeTranslator() translate() QTranslator::load()
 */
 
-void QCoreApplication::installTranslator( QTranslator * mf )
+void QCoreApplication::installTranslator(QTranslator * mf)
 {
-    if ( !mf )
-	return;
+    if (!mf)
+        return;
 
-    d->translators.prepend( mf );
+    d->translators.prepend(mf);
 
 #ifndef QT_NO_TRANSLATION_BUILDER
-    if ( mf->isEmpty() )
-	return;
+    if (mf->isEmpty())
+        return;
 #endif
 
     QEvent ev(QEvent::LanguageChange);
@@ -1009,14 +1009,14 @@ void QCoreApplication::installTranslator( QTranslator * mf )
   \sa installTranslator() translate(), QObject::tr()
 */
 
-void QCoreApplication::removeTranslator( QTranslator * mf )
+void QCoreApplication::removeTranslator(QTranslator * mf)
 {
     if (!mf)
-	return;
+        return;
 
-    if ( d->translators.remove( mf ) && !self->closingDown() ) {
-	QEvent ev(QEvent::LanguageChange);
-	QCoreApplication::sendEvent(this, &ev);
+    if (d->translators.remove(mf) && !self->closingDown()) {
+        QEvent ev(QEvent::LanguageChange);
+        QCoreApplication::sendEvent(this, &ev);
     }
 }
 
@@ -1057,40 +1057,40 @@ void QCoreApplication::removeTranslator( QTranslator * mf )
   \sa QObject::tr() installTranslator() defaultCodec()
 */
 
-QString QCoreApplication::translate( const char * context, const char * sourceText,
-				       const char * comment, Encoding encoding ) const
+QString QCoreApplication::translate(const char * context, const char * sourceText,
+                                       const char * comment, Encoding encoding) const
 {
-    if ( !sourceText )
-	return QString();
+    if (!sourceText)
+        return QString();
 
     if (!d->translators.isEmpty()) {
-	QList<QTranslator*>::ConstIterator it;
-	QTranslator * mf;
-	QString result;
-	for ( it = d->translators.constBegin(); it != d->translators.constEnd(); ++it ) {
-	    mf = *it;
-	    result = mf->findMessage( context, sourceText, comment ).translation();
-	    if ( !result.isNull() )
-		return result;
-	}
+        QList<QTranslator*>::ConstIterator it;
+        QTranslator * mf;
+        QString result;
+        for (it = d->translators.constBegin(); it != d->translators.constEnd(); ++it) {
+            mf = *it;
+            result = mf->findMessage(context, sourceText, comment).translation();
+            if (!result.isNull())
+                return result;
+        }
     }
 #ifndef QT_NO_TEXTCODEC
-    if ( encoding == UnicodeUTF8 )
-	return QString::fromUtf8( sourceText );
-    else if ( QTextCodec::codecForTr() != 0 )
-	return QTextCodec::codecForTr()->toUnicode( sourceText );
+    if (encoding == UnicodeUTF8)
+        return QString::fromUtf8(sourceText);
+    else if (QTextCodec::codecForTr() != 0)
+        return QTextCodec::codecForTr()->toUnicode(sourceText);
     else
 #endif
-	return QString::fromLatin1( sourceText );
+        return QString::fromLatin1(sourceText);
 }
 
 #ifndef QT_NO_TEXTCODEC
 /*! \obsolete
   This is the same as QTextCodec::setCodecForTr().
 */
-void QCoreApplication::setDefaultCodec( QTextCodec* codec )
+void QCoreApplication::setDefaultCodec(QTextCodec* codec)
 {
-    QTextCodec::setCodecForTr( codec );
+    QTextCodec::setCodecForTr(codec);
 }
 
 /*! \obsolete
@@ -1106,47 +1106,47 @@ QTextCodec* QCoreApplication::defaultCodec() const
 
 #ifndef QT_NO_DIR
 #ifndef Q_WS_WIN
-static QString resolveSymlinks( const QString& path, int depth = 0 )
+static QString resolveSymlinks(const QString& path, int depth = 0)
 {
-    bool foundLink = FALSE;
+    bool foundLink = false;
     QString linkTarget;
     QString part = path;
     int slashPos = path.length();
 
     // too deep; we give up
-    if ( depth == 128 )
-	return QString::null;
+    if (depth == 128)
+        return QString::null;
 
     do {
-	part = part.left( slashPos );
-	QFileInfo fileInfo( part );
-	if ( fileInfo.isSymLink() ) {
-	    foundLink = TRUE;
-	    linkTarget = fileInfo.readLink();
-	    break;
-	}
-    } while ( (slashPos = part.lastIndexOf('/')) != -1 );
+        part = part.left(slashPos);
+        QFileInfo fileInfo(part);
+        if (fileInfo.isSymLink()) {
+            foundLink = true;
+            linkTarget = fileInfo.readLink();
+            break;
+        }
+    } while ((slashPos = part.lastIndexOf('/')) != -1);
 
-    if ( foundLink ) {
-	QString path2;
-	if ( linkTarget[0] == '/' ) {
-	    path2 = linkTarget;
-	    if ( slashPos < (int) path.length() )
-		path2 += "/" + path.right( path.length() - slashPos - 1 );
-	} else {
-	    QString relPath;
-	    relPath = part.left( part.lastIndexOf('/') + 1 ) + linkTarget;
-	    if ( slashPos < (int) path.length() ) {
-		if ( !linkTarget.endsWith( "/" ) )
-		    relPath += "/";
-		relPath += path.right( path.length() - slashPos - 1 );
-	    }
-	    path2 = QDir::current().absFilePath( relPath );
-	}
-	path2 = QDir::cleanDirPath( path2 );
-	return resolveSymlinks( path2, depth + 1 );
+    if (foundLink) {
+        QString path2;
+        if (linkTarget[0] == '/') {
+            path2 = linkTarget;
+            if (slashPos < (int) path.length())
+                path2 += "/" + path.right(path.length() - slashPos - 1);
+        } else {
+            QString relPath;
+            relPath = part.left(part.lastIndexOf('/') + 1) + linkTarget;
+            if (slashPos < (int) path.length()) {
+                if (!linkTarget.endsWith("/"))
+                    relPath += "/";
+                relPath += path.right(path.length() - slashPos - 1);
+            }
+            path2 = QDir::current().absFilePath(relPath);
+        }
+        path2 = QDir::cleanDirPath(path2);
+        return resolveSymlinks(path2, depth + 1);
     } else {
-	return path;
+        return path;
     }
 }
 #endif // Q_WS_WIN
@@ -1170,7 +1170,7 @@ static QString resolveSymlinks( const QString& path, int depth = 0 )
 */
 QString QCoreApplication::applicationDirPath()
 {
-    return QFileInfo( applicationFilePath() ).dirPath();
+    return QFileInfo(applicationFilePath()).dirPath();
 }
 
 /*!
@@ -1188,47 +1188,47 @@ QString QCoreApplication::applicationDirPath()
 */
 QString QCoreApplication::applicationFilePath()
 {
-#if defined( Q_WS_WIN ) || defined(Q_WS_MAC)
-    return QDir::cleanDirPath( QFile::decodeName( qAppFileName() ) );
+#if defined(Q_WS_WIN) || defined(Q_WS_MAC)
+    return QDir::cleanDirPath(QFile::decodeName(qAppFileName()));
 #else
-    QString argv0 = QFile::decodeName( QByteArray(argv()[0]) );
+    QString argv0 = QFile::decodeName(QByteArray(argv()[0]));
     QString absPath;
 
-    if ( argv0[0] == '/' ) {
-	/*
-	  If argv0 starts with a slash, it is already an absolute
-	  file path.
-	*/
-	absPath = argv0;
+    if (argv0[0] == '/') {
+        /*
+          If argv0 starts with a slash, it is already an absolute
+          file path.
+        */
+        absPath = argv0;
     } else if (argv0.contains('/')) {
-	/*
-	  If argv0 contains one or more slashes, it is a file path
-	  relative to the current directory.
-	*/
-	absPath = QDir::current().absFilePath( argv0 );
+        /*
+          If argv0 contains one or more slashes, it is a file path
+          relative to the current directory.
+        */
+        absPath = QDir::current().absFilePath(argv0);
     } else {
-	/*
-	  Otherwise, the file path has to be determined using the
-	  PATH environment variable.
-	*/
-	char *pEnv = getenv( "PATH" );
-	QStringList paths = QString(pEnv).split(QChar(':'));
-	for (QStringList::const_iterator p = paths.begin(); p != paths.end(); ++p) {
-	    if ((*p).isEmpty())
-		continue;
-	    QString candidate = QDir::current().absFilePath( *p + "/" + argv0 );
-	    if ( QFile::exists(candidate) ) {
-		absPath = candidate;
-		break;
-	    }
-	}
+        /*
+          Otherwise, the file path has to be determined using the
+          PATH environment variable.
+        */
+        char *pEnv = getenv("PATH");
+        QStringList paths = QString(pEnv).split(QChar(':'));
+        for (QStringList::const_iterator p = paths.begin(); p != paths.end(); ++p) {
+            if ((*p).isEmpty())
+                continue;
+            QString candidate = QDir::current().absFilePath(*p + "/" + argv0);
+            if (QFile::exists(candidate)) {
+                absPath = candidate;
+                break;
+            }
+        }
     }
 
-    absPath = QDir::cleanDirPath( absPath );
-    if ( QFile::exists(absPath) ) {
-	return resolveSymlinks( absPath );
+    absPath = QDir::cleanDirPath(absPath);
+    if (QFile::exists(absPath)) {
+        return resolveSymlinks(absPath);
     } else {
-	return QString::null;
+        return QString::null;
     }
 #endif
 }
@@ -1262,21 +1262,21 @@ int QCoreApplication::argc() const
 
     Example:
     \code
-	// showargs.cpp - displays program arguments in a list box
+        // showargs.cpp - displays program arguments in a list box
 
-	#include <qapplication.h>
-	#include <qlistbox.h>
+        #include <qapplication.h>
+        #include <qlistbox.h>
 
-	int main( int argc, char **argv )
-	{
-	    QApplication a( argc, argv );
-	    QListBox b;
-	    a.setMainWidget( &b );
-	    for ( int i = 0; i < a.argc(); i++ )  // a.argc() == argc
-		b.insertItem( a.argv()[i] );      // a.argv()[i] == argv[i]
-	    b.show();
-	    return a.exec();
-	}
+        int main(int argc, char **argv)
+        {
+            QApplication a(argc, argv);
+            QListBox b;
+            a.setMainWidget(&b);
+            for (int i = 0; i < a.argc(); i++)  // a.argc() == argc
+                b.insertItem(a.argv()[i]);      // a.argv()[i] == argv[i]
+            b.show();
+            return a.exec();
+        }
     \endcode
 
     If you run \c{showargs -display unix:0 -font 9x15bold hello world}
@@ -1311,9 +1311,9 @@ char **QCoreApplication::argv() const
     \code
     QStringList list = app.libraryPaths();
     QStringList::Iterator it = list.begin();
-    while( it != list.end() ) {
-	myProcessing( *it );
-	++it;
+    while(it != list.end()) {
+        myProcessing(*it);
+        ++it;
     }
     \endcode
 
@@ -1325,21 +1325,21 @@ char **QCoreApplication::argv() const
 QStringList QCoreApplication::libraryPaths()
 {
     if (!self)
-	return QStringList();
-    if ( !self->d->app_libpaths ) {
-	QStringList *app_libpaths = self->d->app_libpaths = new QStringList;
-	QString installPathPlugins = QString::fromLocal8Bit(qInstallPathPlugins());
-	if ( QFile::exists(installPathPlugins) ) {
+        return QStringList();
+    if (!self->d->app_libpaths) {
+        QStringList *app_libpaths = self->d->app_libpaths = new QStringList;
+        QString installPathPlugins = QString::fromLocal8Bit(qInstallPathPlugins());
+        if (QFile::exists(installPathPlugins)) {
 #ifdef Q_WS_WIN
-	    installPathPlugins.replace('\\', '/');
+            installPathPlugins.replace('\\', '/');
 #endif
-	    app_libpaths->append(installPathPlugins);
-	}
+            app_libpaths->append(installPathPlugins);
+        }
 
-	QString app_location(self->applicationFilePath());
-	app_location.truncate( app_location.lastIndexOf( '/' ) );
-	if ( app_location != qInstallPathPlugins() && QFile::exists( app_location ) )
-	    app_libpaths->append( app_location );
+        QString app_location(self->applicationFilePath());
+        app_location.truncate(app_location.lastIndexOf('/'));
+        if (app_location != qInstallPathPlugins() && QFile::exists(app_location))
+            app_libpaths->append(app_location);
     }
     return *self->d->app_libpaths;
 }
@@ -1353,10 +1353,10 @@ QStringList QCoreApplication::libraryPaths()
 
   \sa libraryPaths(), addLibraryPath(), removeLibraryPath(), QLibrary
  */
-void QCoreApplication::setLibraryPaths( const QStringList &paths )
+void QCoreApplication::setLibraryPaths(const QStringList &paths)
 {
     delete self->d->app_libpaths;
-    self->d->app_libpaths = new QStringList( paths );
+    self->d->app_libpaths = new QStringList(paths);
 }
 
 /*!
@@ -1370,16 +1370,16 @@ void QCoreApplication::setLibraryPaths( const QStringList &paths )
 
   \sa removeLibraryPath(), libraryPaths(), setLibraryPaths()
  */
-void QCoreApplication::addLibraryPath( const QString &path )
+void QCoreApplication::addLibraryPath(const QString &path)
 {
-    if ( path.isEmpty() )
-	return;
+    if (path.isEmpty())
+        return;
 
     // make sure that library paths is initialized
     libraryPaths();
 
-    if ( !self->d->app_libpaths->contains( path ) )
-	self->d->app_libpaths->prepend( path );
+    if (!self->d->app_libpaths->contains(path))
+        self->d->app_libpaths->prepend(path);
 }
 
 /*!
@@ -1388,15 +1388,15 @@ void QCoreApplication::addLibraryPath( const QString &path )
 
   \sa addLibraryPath(), libraryPaths(), setLibraryPaths()
 */
-void QCoreApplication::removeLibraryPath( const QString &path )
+void QCoreApplication::removeLibraryPath(const QString &path)
 {
-    if ( path.isEmpty() )
-	return;
+    if (path.isEmpty())
+        return;
 
     // make sure that library paths is initialized
     libraryPaths();
 
-    if ( self->d->app_libpaths->contains( path ) )
-	self->d->app_libpaths->remove( path );
+    if (self->d->app_libpaths->contains(path))
+        self->d->app_libpaths->remove(path);
 }
 #endif //QT_NO_COMPONENT

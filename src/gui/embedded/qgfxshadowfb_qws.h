@@ -41,18 +41,18 @@ public:
     QGfxShadow(unsigned char *b,int w,int h);
     virtual ~QGfxShadow();
 
-    virtual void drawPoint( int,int );
-    virtual void drawPoints( const QPointArray &,int,int );
-    virtual void drawLine( int,int,int,int );
-    virtual void fillRect( int,int,int,int );
-    virtual void drawPolyline( const QPointArray &,int,int );
-    virtual void drawPolygon( const QPointArray &,bool,int,int );
-    virtual void blt( int,int,int,int,int,int );
-    virtual void scroll( int,int,int,int,int,int );
+    virtual void drawPoint(int,int);
+    virtual void drawPoints(const QPointArray &,int,int);
+    virtual void drawLine(int,int,int,int);
+    virtual void fillRect(int,int,int,int);
+    virtual void drawPolyline(const QPointArray &,int,int);
+    virtual void drawPolygon(const QPointArray &,bool,int,int);
+    virtual void blt(int,int,int,int,int,int);
+    virtual void scroll(int,int,int,int,int,int);
 #if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
-    virtual void stretchBlt( int,int,int,int,int,int );
+    virtual void stretchBlt(int,int,int,int,int,int);
 #endif
-    virtual void tiledBlt( int,int,int,int );
+    virtual void tiledBlt(int,int,int,int);
 };
 
 #ifndef QT_NO_QWS_CURSOR
@@ -61,8 +61,8 @@ class QShadowScreenCursor : public SHADOWFB_CURSOR_PARENT
 public:
     QShadowScreenCursor();
 
-    virtual void set( const QImage &image, int hotx, int hoty );
-    virtual void move( int x, int y );
+    virtual void set(const QImage &image, int hotx, int hoty);
+    virtual void move(int x, int y);
 };
 #endif
 
@@ -90,7 +90,7 @@ public:
     QShadowFbScreen(int);
     virtual ~QShadowFbScreen();
     virtual bool initDevice();
-    virtual bool connect( const QString & );
+    virtual bool connect(const QString &);
     virtual void disconnect();
     virtual int initCursor(void*, bool);
     virtual void shutdownDevice();
@@ -98,7 +98,7 @@ public:
     virtual void save();
     virtual void restore();
     virtual void setMode(int,int,int);
-    virtual void setDirty( const QRect& );
+    virtual void setDirty(const QRect&);
     void doUpdate();
     virtual int memoryNeeded(const QString&);
     virtual int sharedRamSize(void *);

@@ -78,21 +78,21 @@
     Index:
     \code
         for (int i = 0; i < fonts.size(); ++i)
-	    cout << fonts.at(i).ascii() << endl;
+            cout << fonts.at(i).ascii() << endl;
     \endcode
 
     Java-style iterator:
     \code
-	QStringListIterator i(fonts);
+        QStringListIterator i(fonts);
         while (i.hasNext())
-	    cout << i.next().ascii() << endl;
+            cout << i.next().ascii() << endl;
     \endcode
 
     STL-style iterator:
     \code
-	QStringList::const_iterator i;
+        QStringList::const_iterator i;
         for (i = fonts.constBegin(); i != fonts.constEnd(); ++i)
-	    cout << (*i).ascii() << endl;
+            cout << (*i).ascii() << endl;
     \endcode
 
     QStringListIterator and QStringListMutableIterator are simply
@@ -104,15 +104,15 @@
 
     \code
         QString str = fonts.join(",");
-	// str == "Arial,Helvetica,Times,Courier"
+        // str == "Arial,Helvetica,Times,Courier"
     \endcode
 
     To break up a string into a string list, use QString::split():
 
     \code
-	QString str = "Arial,Helvetica,Times,Courier";
-	QStringList list = str.split(",");
-        // list: [ "Arial", "Helvetica", "Times", "Courier" ]
+        QString str = "Arial,Helvetica,Times,Courier";
+        QStringList list = str.split(",");
+        // list: ["Arial", "Helvetica", "Times", "Courier"]
     \endcode
 
     The argument to split can be a single character, a string, or a
@@ -133,12 +133,12 @@
     in a string list:
 
     \code
-	QStringList files;
+        QStringList files;
         files << "$QTDIR/src/moc/moc.y"
-	      << "$QTDIR/src/moc/moc.l"
+              << "$QTDIR/src/moc/moc.l"
               << "$QTDIR/include/qconfig.h";
 
-	files.replace("$QTDIR", "/usr/lib/qt");
+        files.replace("$QTDIR", "/usr/lib/qt");
     \endcode
 
     \sa QString, QStringListIterator, QStringListMutableIterator
@@ -157,7 +157,7 @@
     Longer lists are easily created as follows:
 
     \code
-	list = (QStringList() << str1 << str2 << str3);
+        list = (QStringList() << str1 << str2 << str3);
     \endcode
 */
 
@@ -275,7 +275,7 @@ void QStringList::sort()
     QStringList list;
     list << "Bill Gates" << "John Doe" << "Bill Clinton";
     list = list.find("Bill");
-    // list: [ "Bill Gates", "Bill Clinton" ]
+    // list: ["Bill Gates", "Bill Clinton"]
     \endcode
 
     \sa QString::contains()
@@ -285,8 +285,8 @@ QStringList QStringList::find(const QString &str, QString::CaseSensitivity cs) c
 {
     QStringList res;
     for (int i = 0; i < size(); ++i)
-	if (at(i).contains(str, cs))
-	    res << at(i);
+        if (at(i).contains(str, cs))
+            res << at(i);
     return res;
 }
 
@@ -302,8 +302,8 @@ QStringList QStringList::find(const QRegExp &rx) const
 {
     QStringList res;
     for (int i = 0; i < size(); ++i)
-	if (at(i).contains(rx))
-	    res << at(i);
+        if (at(i).contains(rx))
+            res << at(i);
     return res;
 }
 #endif
@@ -329,7 +329,7 @@ QStringList QStringList::find(const QRegExp &rx) const
 QStringList& QStringList::replace(const QString &before, const QString &after, QString::CaseSensitivity cs)
 {
     for (int i = 0; i < size(); ++i)
-	(*this)[i].replace(before, after, cs);
+        (*this)[i].replace(before, after, cs);
     return *this;
 }
 
@@ -366,7 +366,7 @@ QStringList& QStringList::replace(const QString &before, const QString &after, Q
 QStringList& QStringList::replace(const QRegExp &rx, const QString &after)
 {
     for (int i = 0; i < size(); ++i)
-	(*this)[i].replace(rx, after);
+        (*this)[i].replace(rx, after);
     return *this;
 }
 
@@ -382,9 +382,9 @@ QString QStringList::join(const QString &sep) const
 {
     QString res;
     for (int i = 0; i < size(); ++i) {
-	if (i)
-	    res += sep;
-	res += at(i);
+        if (i)
+            res += sep;
+        res += at(i);
     }
     return res;
 }

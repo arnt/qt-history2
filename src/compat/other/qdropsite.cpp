@@ -40,11 +40,11 @@
   Constructs a QDropSite to handle events for the widget \a self.
 
   Pass \c this as the \a self parameter.
-  This enables dropping by calling QWidget::setAcceptDrops(TRUE).
+  This enables dropping by calling QWidget::setAcceptDrops(true).
 */
-QDropSite::QDropSite( QWidget* self )
+QDropSite::QDropSite(QWidget* self)
 {
-    self->setAcceptDrops( TRUE );
+    self->setAcceptDrops(true);
 }
 
 /*!

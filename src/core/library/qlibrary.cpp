@@ -36,8 +36,8 @@
 #define QT_NO_LIBRARY_UNLOAD
 #endif
 
-QLibraryPrivate::QLibraryPrivate( QLibrary *lib )
-    : pHnd( 0 ), library( lib )
+QLibraryPrivate::QLibraryPrivate(QLibrary *lib)
+    : pHnd(0), library(lib)
 {
 }
 
@@ -78,10 +78,10 @@ QLibraryPrivate::QLibraryPrivate( QLibrary *lib )
     typedef void (*MyPrototype)();
     MyPrototype myFunction;
 
-    QLibrary myLib( "mylib" );
-    myFunction = (MyProtoype) myLib.resolve( "mysymbol" );
-    if ( myFunction ) {
-	myFunction();
+    QLibrary myLib("mylib");
+    myFunction = (MyProtoype) myLib.resolve("mysymbol");
+    if (myFunction) {
+        myFunction();
     }
     \endcode
 */
@@ -93,15 +93,15 @@ QLibraryPrivate::QLibraryPrivate( QLibrary *lib )
     Note that \a filename does not need to include the (platform specific)
     file extension, so calling
     \code
-    QLibrary lib( "mylib" );
+    QLibrary lib("mylib");
     \endcode
     is equivalent to calling
     \code
-    QLibrary lib( "mylib.dll" );
+    QLibrary lib("mylib.dll");
     \endcode
     on Windows, and
     \code
-    QLibrary lib( "libmylib.so" );
+    QLibrary lib("libmylib.so");
     \endcode
     on Unix. Specifying the extension is not recommended, since
     doing so introduces a platform dependency.
@@ -111,11 +111,11 @@ QLibraryPrivate::QLibraryPrivate( QLibrary *lib )
 
     \sa load() unload(), setAutoUnload()
 */
-QLibrary::QLibrary( const QString& filename )
-    : libfile( filename ), aunload( true )
+QLibrary::QLibrary(const QString& filename)
+    : libfile(filename), aunload(true)
 {
-    libfile.replace( '\\', '/' );
-    d = new QLibraryPrivate( this );
+    libfile.replace('\\', '/');
+    d = new QLibraryPrivate(this);
 }
 
 /*!
@@ -129,8 +129,8 @@ QLibrary::QLibrary( const QString& filename )
 */
 QLibrary::~QLibrary()
 {
-    if ( autoUnload() )
-	unload();
+    if (autoUnload())
+        unload();
 
     delete d;
 }
@@ -141,13 +141,13 @@ QLibrary::~QLibrary()
     not be resolved or the library could not be loaded.
 
     \code
-    typedef int (*avgProc)( int, int );
+    typedef int (*avgProc)(int, int);
 
-    avgProc avg = (avgProc) library->resolve( "avg" );
-    if ( avg )
-	return avg( 5, 8 );
+    avgProc avg = (avgProc) library->resolve("avg");
+    if (avg)
+        return avg(5, 8);
     else
-	return -1;
+        return -1;
     \endcode
 
     The symbol must be exported as a C-function from the library. This
@@ -159,7 +159,7 @@ QLibrary::~QLibrary()
     \code
     extern "C" MY_EXPORT_MACRO int avg(int a, int b)
     {
-	return (a + b) / 2;
+        return (a + b) / 2;
     }
     \endcode
 
@@ -199,14 +199,14 @@ QLibrary::~QLibrary()
     OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
     WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-void *QLibrary::resolve( const char* symb )
+void *QLibrary::resolve(const char* symb)
 {
-    if ( !d->pHnd )
-	load();
-    if ( !d->pHnd )
-	return 0;
+    if (!d->pHnd)
+        load();
+    if (!d->pHnd)
+        return 0;
 
-    void *address = d->resolveSymbol( symb );
+    void *address = d->resolveSymbol(symb);
 
     return address;
 }
@@ -229,13 +229,13 @@ void *QLibrary::resolve( const char* symb )
     typedef void (*FunctionType)();
     static FunctionType *ptrFunction = 0;
     static bool triedResolve = false;
-    if ( !ptrFunction && !triedResolve )
-	ptrFunction = QLibrary::resolve( "mylib", "mysymb" );
+    if (!ptrFunction && !triedResolve)
+        ptrFunction = QLibrary::resolve("mylib", "mysymb");
 
-    if ( ptrFunction )
-	ptrFunction();
+    if (ptrFunction)
+        ptrFunction();
     else
-	...
+        ...
     \endcode
 
     If you want to resolve multiple symbols, use a QLibrary object and
@@ -243,11 +243,11 @@ void *QLibrary::resolve( const char* symb )
 
     \sa resolve()
 */
-void *QLibrary::resolve( const QString &filename, const char *symb )
+void *QLibrary::resolve(const QString &filename, const char *symb)
 {
-    QLibrary lib( filename );
-    lib.setAutoUnload( false );
-    return lib.resolve( symb );
+    QLibrary lib(filename);
+    lib.setAutoUnload(false);
+    return lib.resolve(symb);
 }
 
 /*!
@@ -308,19 +308,19 @@ bool QLibrary::load()
 */
 bool QLibrary::unload()
 {
-    if ( !d->pHnd )
-	return true;
+    if (!d->pHnd)
+        return true;
 
 #if !defined(QT_NO_LIBRARY_UNLOAD)
-    if ( !d->freeLibrary() ) {
+    if (!d->freeLibrary()) {
 # if defined(QT_DEBUG_COMPONENT)
-	qWarning( "%s could not be unloaded", (const char*) QFile::encodeName(library()) );
+        qWarning("%s could not be unloaded", (const char*) QFile::encodeName(library()));
 # endif
-	return false;
+        return false;
     }
 
 # if defined(QT_DEBUG_COMPONENT) && QT_DEBUG_COMPONENT == 2
-    qWarning( "%s has been unloaded", (const char*) QFile::encodeName(library()) );
+    qWarning("%s has been unloaded", (const char*) QFile::encodeName(library()));
 # endif
     d->pHnd = 0;
 #endif
@@ -347,7 +347,7 @@ bool QLibrary::autoUnload() const
 
     \sa autoUnload()
 */
-void QLibrary::setAutoUnload( bool enabled )
+void QLibrary::setAutoUnload(bool enabled)
 {
     aunload = enabled;
 }
@@ -358,21 +358,21 @@ void QLibrary::setAutoUnload( bool enabled )
 
     For example:
     \code
-    QLibrary lib( "mylib" );
+    QLibrary lib("mylib");
     QString str = lib.library();
     \endcode
     will set \e str to "mylib.dll" on Windows, and "libmylib.so" on Linux.
 */
 QString QLibrary::library() const
 {
-    if ( libfile.isEmpty() )
-	return libfile;
+    if (libfile.isEmpty())
+        return libfile;
 
     QString filename = libfile;
 
 #if defined(Q_WS_WIN)
-    if ( filename.lastIndexOf( '.' ) <= filename.lastIndexOf( '/' ) )
-	filename += ".dll";
+    if (filename.lastIndexOf('.') <= filename.lastIndexOf('/'))
+        filename += ".dll";
 #else
     QStringList filters = "";
 #ifdef Q_OS_MACX
@@ -384,29 +384,29 @@ QString QLibrary::library() const
 #else
     filters << ".so";
 #endif
-    for(QStringList::Iterator it = filters.begin(); TRUE; ) {
-	QString filter = (*it);
-	++it;
+    for(QStringList::Iterator it = filters.begin(); true;) {
+        QString filter = (*it);
+        ++it;
 
-	if(QFile::exists(filename + filter)) {
-	    filename += filter;
-	    break;
-	} else if(!filter.isEmpty()) {
-	    QString tmpfilename = filename;
-	    const int x = tmpfilename.lastIndexOf( "/" );
-	    if ( x != -1 ) {
-		QString path = tmpfilename.left( x + 1 );
-		QString file = tmpfilename.right( tmpfilename.length() - x - 1 );
-		tmpfilename = QString( "%1lib%2" ).arg( path ).arg( file );
-	    } else {
-		tmpfilename = QString( "lib%1" ).arg( filename );
-	    }
-	    tmpfilename += filter;
-	    if(QFile::exists(tmpfilename) || it == filters.end()) {
-		filename = tmpfilename;
-		break;
-	    }
-	}
+        if(QFile::exists(filename + filter)) {
+            filename += filter;
+            break;
+        } else if(!filter.isEmpty()) {
+            QString tmpfilename = filename;
+            const int x = tmpfilename.lastIndexOf("/");
+            if (x != -1) {
+                QString path = tmpfilename.left(x + 1);
+                QString file = tmpfilename.right(tmpfilename.length() - x - 1);
+                tmpfilename = QString("%1lib%2").arg(path).arg(file);
+            } else {
+                tmpfilename = QString("lib%1").arg(filename);
+            }
+            tmpfilename += filter;
+            if(QFile::exists(tmpfilename) || it == filters.end()) {
+                filename = tmpfilename;
+                break;
+            }
+        }
     }
 #endif
     return filename;

@@ -24,35 +24,35 @@
 class Q_COMPAT_EXPORT QStrVec : public QPtrVector<char>
 {
 public:
-    QStrVec()  { dc = TRUE; }
-    QStrVec( uint size, bool deepc = TRUE ) : QPtrVector<char>(size) {dc=deepc;}
+    QStrVec()  { dc = true; }
+    QStrVec(uint size, bool deepc = true) : QPtrVector<char>(size) {dc=deepc;}
    ~QStrVec()  { clear(); }
 private:
-    Item	 newItem( Item d )	{ return dc ? qstrdup( (const char*)d ) : d; }
-    void deleteItem( Item d )	{ if ( dc ) delete[] (char*)d; }
-    int	 compareItems( Item s1, Item s2 )
-				{ return qstrcmp((const char*)s1,
-						(const char*)s2); }
+    Item         newItem(Item d)        { return dc ? qstrdup((const char*)d) : d; }
+    void deleteItem(Item d)        { if (dc) delete[] (char*)d; }
+    int         compareItems(Item s1, Item s2)
+                                { return qstrcmp((const char*)s1,
+                                                (const char*)s2); }
 #ifndef QT_NO_DATASTREAM
-    QDataStream &read( QDataStream &s, Item &d )
-				{ s >> (char *&)d; return s; }
-    QDataStream &write( QDataStream &s, Item d ) const
-				{ return s << (const char*)d; }
+    QDataStream &read(QDataStream &s, Item &d)
+                                { s >> (char *&)d; return s; }
+    QDataStream &write(QDataStream &s, Item d) const
+                                { return s << (const char*)d; }
 #endif
     bool dc;
 };
 
 
-class Q_COMPAT_EXPORT QStrIVec : public QStrVec	// case insensitive string vec
+class Q_COMPAT_EXPORT QStrIVec : public QStrVec        // case insensitive string vec
 {
 public:
     QStrIVec() {}
-    QStrIVec( uint size, bool dc = TRUE ) : QStrVec( size, dc ) {}
+    QStrIVec(uint size, bool dc = true) : QStrVec(size, dc) {}
    ~QStrIVec() { clear(); }
 private:
-    int	 compareItems( Item s1, Item s2 )
-				{ return qstricmp((const char*)s1,
-						 (const char*)s2); }
+    int         compareItems(Item s1, Item s2)
+                                { return qstricmp((const char*)s1,
+                                                 (const char*)s2); }
 };
 
 

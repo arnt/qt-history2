@@ -27,115 +27,115 @@ class QLabelPrivate;
 class Q_GUI_EXPORT QLabel : public QFrame
 {
     Q_OBJECT
-    Q_PROPERTY( QString text READ text WRITE setText )
-    Q_PROPERTY( TextFormat textFormat READ textFormat WRITE setTextFormat )
-    Q_PROPERTY( QPixmap pixmap READ pixmap WRITE setPixmap )
-    Q_PROPERTY( bool scaledContents READ hasScaledContents WRITE setScaledContents )
-    Q_PROPERTY( Alignment alignment READ alignment WRITE setAlignment )
-    Q_PROPERTY( int indent READ indent WRITE setIndent )
-    Q_OVERRIDE( BackgroundMode backgroundMode DESIGNABLE true)
+    Q_PROPERTY(QString text READ text WRITE setText)
+    Q_PROPERTY(TextFormat textFormat READ textFormat WRITE setTextFormat)
+    Q_PROPERTY(QPixmap pixmap READ pixmap WRITE setPixmap)
+    Q_PROPERTY(bool scaledContents READ hasScaledContents WRITE setScaledContents)
+    Q_PROPERTY(Alignment alignment READ alignment WRITE setAlignment)
+    Q_PROPERTY(int indent READ indent WRITE setIndent)
+    Q_OVERRIDE(BackgroundMode backgroundMode DESIGNABLE true)
 
 public:
-    QLabel( QWidget *parent=0, const char* name=0, WFlags f=0 );
-    QLabel( const QString &text, QWidget *parent=0, const char* name=0,
-	    WFlags f=0 );
-    QLabel( QWidget *buddy, const QString &,
-	    QWidget *parent=0, const char* name=0, WFlags f=0 );
+    QLabel(QWidget *parent=0, const char* name=0, WFlags f=0);
+    QLabel(const QString &text, QWidget *parent=0, const char* name=0,
+            WFlags f=0);
+    QLabel(QWidget *buddy, const QString &,
+            QWidget *parent=0, const char* name=0, WFlags f=0);
     ~QLabel();
 
-    QString	 text()		const	{ return ltext; }
-    QPixmap     *pixmap()	const	{ return lpixmap; }
+    QString         text()                const        { return ltext; }
+    QPixmap     *pixmap()        const        { return lpixmap; }
 #ifndef QT_NO_PICTURE
-    QPicture    *picture()	const	{ return lpicture; }
+    QPicture    *picture()        const        { return lpicture; }
 #endif
 #ifndef QT_NO_MOVIE
-    QMovie      *movie()		const;
+    QMovie      *movie()                const;
 #endif
 
     TextFormat textFormat() const;
-    void 	 setTextFormat( TextFormat );
+    void          setTextFormat(TextFormat);
 
-    int		 alignment() const	{ return align; }
-    void setAlignment( int );
-    int		 indent() const		{ return extraMargin; }
-    void 	 setIndent( int );
+    int                 alignment() const        { return align; }
+    void setAlignment(int);
+    int                 indent() const                { return extraMargin; }
+    void          setIndent(int);
 
-    bool 	 autoResize() const	{ return autoresize; }
-    void setAutoResize( bool );
+    bool          autoResize() const        { return autoresize; }
+    void setAutoResize(bool);
 #ifndef QT_NO_IMAGE_SMOOTHSCALE
-    bool 	hasScaledContents() const;
-    void 	setScaledContents( bool );
+    bool         hasScaledContents() const;
+    void         setScaledContents(bool);
 #endif
-    QSize	 sizeHint() const;
-    QSize	 minimumSizeHint() const;
+    QSize         sizeHint() const;
+    QSize         minimumSizeHint() const;
 #ifndef QT_NO_ACCEL
-    void setBuddy( QWidget * );
+    void setBuddy(QWidget *);
     QWidget     *buddy() const;
 #endif
-    int		 heightForWidth(int) const;
+    int                 heightForWidth(int) const;
 
 public slots:
-    void setText( const QString &);
-    void setPixmap( const QPixmap & );
+    void setText(const QString &);
+    void setPixmap(const QPixmap &);
 #ifndef QT_NO_PICTURE
-    void setPicture( const QPicture & );
+    void setPicture(const QPicture &);
 #endif
 #ifndef QT_NO_MOVIE
-    void setMovie( const QMovie & );
+    void setMovie(const QMovie &);
 #endif
-    void setNum( int );
-    void setNum( double );
-    void	 clear();
+    void setNum(int);
+    void setNum(double);
+    void         clear();
 
 protected:
-    void	 paintEvent( QPaintEvent * );
-    void         changeEvent( QEvent * );
+    void         paintEvent(QPaintEvent *);
+    void         changeEvent(QEvent *);
 
 private slots:
 #ifndef QT_NO_ACCEL
-    void	 acceleratorSlot();
-    void	 buddyDied();
+    void         acceleratorSlot();
+    void         buddyDied();
 #endif
 #ifndef QT_NO_MOVIE
-    void	 movieUpdated(const QRect&);
-    void	 movieResized(const QSize&);
+    void         movieUpdated(const QRect&);
+    void         movieResized(const QSize&);
 #endif
 
 private:
-    void	init();
-    void	clearContents();
-    void	updateLabel( QSize oldSizeHint );
-    QSize	sizeForWidth( int w ) const;
-    QString	ltext;
+    void        init();
+    void        clearContents();
+    void        updateLabel(QSize oldSizeHint);
+    QSize        sizeForWidth(int w) const;
+    QString        ltext;
     QPixmap    *lpixmap;
 #ifndef QT_NO_PICTURE
     QPicture   *lpicture;
 #endif
 #ifndef QT_NO_MOVIE
-    QMovie *	lmovie;
+    QMovie *        lmovie;
 #endif
 #ifndef QT_NO_ACCEL
-    QWidget *	lbuddy;
+    QWidget *        lbuddy;
 #endif
-    ushort	align;
-    short	extraMargin;
-    uint	autoresize:1;
-    uint	scaledcontents :1;
+    ushort        align;
+    short        extraMargin;
+    uint        autoresize:1;
+    uint        scaledcontents :1;
     TextFormat textformat;
 #ifndef QT_NO_RICHTEXT
     QSimpleRichText* doc;
 #endif
 #ifndef QT_NO_ACCEL
-    QAccel *	accel;
+    QAccel *        accel;
 #endif
     QLabelPrivate* d;
 
     friend class QTipLabel;
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QLabel( const QLabel & );
-    QLabel &operator=( const QLabel & );
+    QLabel(const QLabel &);
+    QLabel &operator=(const QLabel &);
 #endif
 };
 

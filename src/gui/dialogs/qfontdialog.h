@@ -41,43 +41,43 @@ class Q_GUI_EXPORT QFontDialog: public QDialog
     Q_OBJECT
 
 public:
-    static QFont getFont( bool *ok, const QFont &def,
-			  QWidget* parent=0, const char* name=0);
-    static QFont getFont( bool *ok, QWidget* parent=0, const char* name=0);
+    static QFont getFont(bool *ok, const QFont &def,
+                          QWidget* parent=0, const char* name=0);
+    static QFont getFont(bool *ok, QWidget* parent=0, const char* name=0);
 
 private:
-    static QFont getFont( bool *ok, const QFont *def,
-			  QWidget* parent=0, const char* name=0);
+    static QFont getFont(bool *ok, const QFont *def,
+                          QWidget* parent=0, const char* name=0);
 
-    QFontDialog( QWidget* parent=0, const char* name=0, bool modal=FALSE,
-		 WFlags f=0 );
+    QFontDialog(QWidget* parent=0, const char* name=0, bool modal=false,
+                 WFlags f=0);
     ~QFontDialog();
 
     QFont font() const;
-    void setFont( const QFont &font );
+    void setFont(const QFont &font);
 
-    bool eventFilter( QObject *, QEvent * );
+    bool eventFilter(QObject *, QEvent *);
 
     void updateFamilies();
     void updateStyles();
     void updateSizes();
 
 private slots:
-    void sizeChanged( const QString &);
-    void familyHighlighted( int );
-    void scriptHighlighted( int );
-    void styleHighlighted( int );
-    void sizeHighlighted( const QString & );
+    void sizeChanged(const QString &);
+    void familyHighlighted(int);
+    void scriptHighlighted(int);
+    void styleHighlighted(int);
+    void sizeHighlighted(const QString &);
     void updateSample();
 
 private:
     friend class QFontDialogPrivate;
     QFontDialogPrivate * d;
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QFontDialog( const QFontDialog & );
-    QFontDialog& operator=( const QFontDialog & );
+    QFontDialog(const QFontDialog &);
+    QFontDialog& operator=(const QFontDialog &);
 #endif
 };
 

@@ -44,7 +44,7 @@ extern void qRemoveAccessibleObject(QObject *object);
 /*!
     Creates a QAccessibleObject for \a object.
 */
-QAccessibleObject::QAccessibleObject( QObject *object )
+QAccessibleObject::QAccessibleObject(QObject *object)
 {
     d = new QAccessibleObjectPrivate;
     d->object = object;
@@ -68,15 +68,15 @@ QAccessibleObject::~QAccessibleObject()
 /*!
     \reimp
 */
-QRESULT QAccessibleObject::queryInterface( const QUuid &uuid, QUnknownInterface **iface )
+QRESULT QAccessibleObject::queryInterface(const QUuid &uuid, QUnknownInterface **iface)
 {
     *iface = 0;
-    if ( uuid == IID_QAccessible )
-	*iface = (QAccessibleInterface*)this;
-    else if ( uuid == IID_QUnknown )
-	*iface = (QUnknownInterface*)this;
+    if (uuid == IID_QAccessible)
+        *iface = (QAccessibleInterface*)this;
+    else if (uuid == IID_QUnknown)
+        *iface = (QUnknownInterface*)this;
     else
-	return QE_NOINTERFACE;
+        return QE_NOINTERFACE;
 
     (*iface)->addRef();
     return QS_OK;
@@ -88,8 +88,8 @@ QRESULT QAccessibleObject::queryInterface( const QUuid &uuid, QUnknownInterface 
 QObject *QAccessibleObject::object() const
 {
 #ifndef QT_NO_DEBUG
-    if ( !isValid() )
-	qWarning( "QAccessibleInterface is invalid. Crash pending..." );
+    if (!isValid())
+        qWarning("QAccessibleInterface is invalid. Crash pending...");
 #endif
     return d->object;
 }
@@ -103,13 +103,13 @@ bool QAccessibleObject::isValid() const
 }
 
 /*! \reimp */
-QRect QAccessibleObject::rect( int ) const
+QRect QAccessibleObject::rect(int) const
 {
     return QRect();
 }
 
 /*! \reimp */
-void QAccessibleObject::setText( Text, int, const QString & )
+void QAccessibleObject::setText(Text, int, const QString &)
 {
 }
 
@@ -133,9 +133,9 @@ static QWidgetList topLevelWidgets()
     QWidgetList list;
     const QWidgetList tlw(qApp->topLevelWidgets());
     for (int i = 0; i < tlw.count(); ++i) {
-	QWidget *w = tlw.at(i);
-	if (!w->isPopup() && !w->isDesktop())
-	    list.append(w);
+        QWidget *w = tlw.at(i);
+        if (!w->isPopup() && !w->isDesktop())
+            list.append(w);
     }
 
     return list;
@@ -151,23 +151,23 @@ int QAccessibleApplication::childCount() const
 int QAccessibleApplication::indexOfChild(const QAccessibleInterface *child) const
 {
     if (!child->object()->isWidgetType())
-	return -1;
+        return -1;
 
     const QWidgetList tlw(topLevelWidgets());
     int index = tlw.indexOf(static_cast<QWidget*>(child->object()));
     if (index != -1)
-	++index;
+        ++index;
     return index;
 }
 
 /*! \reimp */
-int QAccessibleApplication::childAt( int x, int y ) const
+int QAccessibleApplication::childAt(int x, int y) const
 {
     const QWidgetList tlw(topLevelWidgets());
     for (int i = 0; i < tlw.count(); ++i) {
-	QWidget *w = tlw.at(i);
-	if (w->frameGeometry().contains(x,y))
-	    return i+1;
+        QWidget *w = tlw.at(i);
+        if (w->frameGeometry().contains(x,y))
+            return i+1;
     }
     return -1;
 }
@@ -177,26 +177,26 @@ int QAccessibleApplication::relationTo(int child, const QAccessibleInterface *ot
 {
     QObject *o = other ? other->object() : 0;
     if (!o)
-	return Unrelated;
+        return Unrelated;
 
     if(o == object()) {
-	if (child && !otherChild)
-	    return Child;
-	if (!child && otherChild)
-	    return Ancestor;
-	if (!child && !otherChild)
-	    return Self;
+        if (child && !otherChild)
+            return Child;
+        if (!child && otherChild)
+            return Ancestor;
+        if (!child && !otherChild)
+            return Self;
     }
 
     QWidgetList tlw(topLevelWidgets());
     if (tlw.contains(qt_cast<QWidget*>(o)))
-	return Ancestor;
+        return Ancestor;
 
     for (int i = 0; i < tlw.count(); ++i) {
-	QWidget *w = tlw.at(i);
-	QObjectList cl(w->queryList());
-	if (cl.contains(o))
-	    return Ancestor;
+        QWidget *w = tlw.at(i);
+        QObjectList cl(w->queryList());
+        if (cl.contains(o))
+            return Ancestor;
     }
 
     return Unrelated;
@@ -210,50 +210,50 @@ int QAccessibleApplication::navigate(Relation relation, int entry, QAccessibleIn
 
     switch (relation) {
     case Self:
-	const_cast<QAccessibleApplication*>(this)->queryInterface(IID_QAccessible, (QUnknownInterface**)target);
-	return 0;
+        const_cast<QAccessibleApplication*>(this)->queryInterface(IID_QAccessible, (QUnknownInterface**)target);
+        return 0;
     case Child:
-	if (entry > 0 && entry <= childCount()) {
-	    const QWidgetList tlw(topLevelWidgets());
-	    if (tlw.count() >= entry)
-		targetObject = tlw.at(entry-1);
-	} else {
-	    return -1;
-	}
-	break;
+        if (entry > 0 && entry <= childCount()) {
+            const QWidgetList tlw(topLevelWidgets());
+            if (tlw.count() >= entry)
+                targetObject = tlw.at(entry-1);
+        } else {
+            return -1;
+        }
+        break;
     case FocusChild:
-	targetObject = qApp->activeWindow();
-	break;
+        targetObject = qApp->activeWindow();
+        break;
     default:
-	break;
+        break;
     }
     QAccessible::queryAccessibleInterface(targetObject, target);
     return *target ? 0 : -1;
 }
 
 /*! \reimp */
-QString QAccessibleApplication::text( Text t, int ) const
+QString QAccessibleApplication::text(Text t, int) const
 {
     switch (t) {
     case Name:
-	if (qApp->mainWidget())
-	    return qApp->mainWidget()->windowTitle();
-	break;
+        if (qApp->mainWidget())
+            return qApp->mainWidget()->windowTitle();
+        break;
     case Description:
-	return qApp->applicationFilePath();
-	break;
+        return qApp->applicationFilePath();
+        break;
     }
     return QString();
 }
 
 /*! \reimp */
-QAccessible::Role QAccessibleApplication::role( int ) const
+QAccessible::Role QAccessibleApplication::role(int) const
 {
     return Application;
 }
 
 /*! \reimp */
-int QAccessibleApplication::state( int ) const
+int QAccessibleApplication::state(int) const
 {
     return qApp->activeWindow() ? Focused : Normal;
 }
@@ -269,12 +269,12 @@ bool QAccessibleApplication::doAction(int action, int)
 {
     if (action == 0) {
         QWidget *w = qApp->mainWidget();
-	if (!w)
-	    w = topLevelWidgets().at(0);
-	if (!w)
-	    return false;
-	w->setActiveWindow();
-	return true;
+        if (!w)
+            w = topLevelWidgets().at(0);
+        if (!w)
+            return false;
+        w->setActiveWindow();
+        return true;
     }
     return false;
 }
@@ -285,11 +285,11 @@ QString QAccessibleApplication::actionText(int action, Text text, int child) con
     QString str;
     if (action == 0 && !child) switch (text) {
     case Name:
-	str = QApplication::tr("Activate");
-	break;
+        str = QApplication::tr("Activate");
+        break;
     case Description:
-	str = QApplication::tr("Activates the application main widget");
-	break;
+        str = QApplication::tr("Activates the application main widget");
+        break;
     }
     return str;
 }

@@ -35,26 +35,26 @@ class QFileInfoPrivate
 {
 public:
     QFileInfoPrivate(const QString &file)
-	: fn(file), cache(false), could_stat(false), symLink(false) {
-	ref = 0;
-	slashify(fn);
+        : fn(file), cache(false), could_stat(false), symLink(false) {
+        ref = 0;
+        slashify(fn);
     }
     QFileInfoPrivate()
-	: cache(false), could_stat(false), symLink(false) {
-	ref = 0;
+        : cache(false), could_stat(false), symLink(false) {
+        ref = 0;
     }
 
     QAtomic ref;
 
-    static bool access( const QString& fn, int t );
+    static bool access(const QString& fn, int t);
 
     void setFileName(const QString &file) { fn = file; cache = false; }
     QString fileName() const { return fn; }
 private:
-    QString	fn;
+    QString        fn;
 
 public:
-    mutable bool	cache : 1;
+    mutable bool        cache : 1;
     mutable bool        could_stat : 1;
     mutable bool        symLink : 1;
 #if defined(Q_WS_WIN)
@@ -63,13 +63,13 @@ public:
     mutable struct stat st;
 #endif
 
-    void	doStat() const;
+    void        doStat() const;
 #ifdef Q_WS_WIN
-    static void slashify( QString & );
-    static void makeAbs( QString & );
+    static void slashify(QString &);
+    static void makeAbs(QString &);
 #else
-    inline void slashify( QString & ) {}
-    inline void makeAbs( QString & ) {}
+    inline void slashify(QString &) {}
+    inline void makeAbs(QString &) {}
 #endif
 };
 

@@ -25,25 +25,25 @@ extern "C" {
 
     inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval)
     {
-	int ret;
-	asm volatile("mov ar.ccv=%2\n"
-		     ";;\n"
-		     "cmpxchg4.acq %0=%1,%3,ar.ccv\n"
-		     : "=r" (ret), "+m" (*ptr)
-		     : "r" (expected), "r" (newval)
-		     : "memory");
-	return ret == expected;
+        int ret;
+        asm volatile("mov ar.ccv=%2\n"
+                     ";;\n"
+                     "cmpxchg4.acq %0=%1,%3,ar.ccv\n"
+                     : "=r" (ret), "+m" (*ptr)
+                     : "r" (expected), "r" (newval)
+                     : "memory");
+        return ret == expected;
     }
 
     inline int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval) {
-	void *ret;
-	asm volatile("mov ar.ccv=%2\n"
-		     ";;\n"
-		     "cmpxchg8.acq %0=%1,%3,ar.ccv\n"
-		     : "=r" (ret), "+m" (*ptr)
-		     : "r" (expected), "r" (newval)
-		     : "memory");
-	return ret == expected;
+        void *ret;
+        asm volatile("mov ar.ccv=%2\n"
+                     ";;\n"
+                     "cmpxchg8.acq %0=%1,%3,ar.ccv\n"
+                     : "=r" (ret), "+m" (*ptr)
+                     : "r" (expected), "r" (newval)
+                     : "memory");
+        return ret == expected;
     }
 
 #else

@@ -47,10 +47,10 @@ class QGDItList : public QPtrList<QGDictIterator>
 {
 public:
     QGDItList() : QPtrList<QGDictIterator>() {}
-    QGDItList( const QGDItList &list ) : QPtrList<QGDictIterator>(list) {}
+    QGDItList(const QGDItList &list) : QPtrList<QGDictIterator>(list) {}
     ~QGDItList() { clear(); }
     QGDItList &operator=(const QGDItList &list)
-	{ return (QGDItList&)QPtrList<QGDictIterator>::operator=(list); }
+        { return (QGDItList&)QPtrList<QGDictIterator>::operator=(list); }
 };
 
 
@@ -62,32 +62,32 @@ public:
   Returns the hash key for \a key, when key is a string.
 */
 
-int QGDict::hashKeyString( const QString &key )
+int QGDict::hashKeyString(const QString &key)
 {
-    if ( key.isNull() )
-	qWarning( "QGDict::hashKeyString: Invalid null key" );
+    if (key.isNull())
+        qWarning("QGDict::hashKeyString: Invalid null key");
     int i;
     register uint h=0;
     uint g;
     const QChar *p = key.unicode();
-    if ( cases ) {				// case sensitive
-	for ( i=0; i<(int)key.length(); i++ ) {
-	    h = (h<<4) + p[i].cell();
-	    if ( (g = h & 0xf0000000) )
-		h ^= g >> 24;
-	    h &= ~g;
-	}
-    } else {					// case insensitive
-	for ( i=0; i<(int)key.length(); i++ ) {
-	    h = (h<<4) + p[i].toLower().cell();
-	    if ( (g = h & 0xf0000000) )
-		h ^= g >> 24;
-	    h &= ~g;
-	}
+    if (cases) {                                // case sensitive
+        for (i=0; i<(int)key.length(); i++) {
+            h = (h<<4) + p[i].cell();
+            if ((g = h & 0xf0000000))
+                h ^= g >> 24;
+            h &= ~g;
+        }
+    } else {                                        // case insensitive
+        for (i=0; i<(int)key.length(); i++) {
+            h = (h<<4) + p[i].toLower().cell();
+            if ((g = h & 0xf0000000))
+                h ^= g >> 24;
+            h &= ~g;
+        }
     }
     int index = h;
-    if ( index < 0 )				// adjust index to table size
-	index = -index;
+    if (index < 0)                                // adjust index to table size
+        index = -index;
     return index;
 }
 
@@ -95,32 +95,32 @@ int QGDict::hashKeyString( const QString &key )
   Returns the hash key for \a key, which is a C string.
 */
 
-int QGDict::hashKeyAscii( const char *key )
+int QGDict::hashKeyAscii(const char *key)
 {
-    if ( key == 0 )
-	qWarning( "QGDict::hashAsciiKey: Invalid null key" );
+    if (key == 0)
+        qWarning("QGDict::hashAsciiKey: Invalid null key");
     register const char *k = key;
     register uint h=0;
     uint g;
-    if ( cases ) {				// case sensitive
-	while ( *k ) {
-	    h = (h<<4) + *k++;
-	    if ( (g = h & 0xf0000000) )
-		h ^= g >> 24;
-	    h &= ~g;
-	}
-    } else {					// case insensitive
-	while ( *k ) {
-	    h = (h<<4) + tolower((uchar) *k);
-	    if ( (g = h & 0xf0000000) )
-		h ^= g >> 24;
-	    h &= ~g;
-	    k++;
-	}
+    if (cases) {                                // case sensitive
+        while (*k) {
+            h = (h<<4) + *k++;
+            if ((g = h & 0xf0000000))
+                h ^= g >> 24;
+            h &= ~g;
+        }
+    } else {                                        // case insensitive
+        while (*k) {
+            h = (h<<4) + tolower((uchar) *k);
+            if ((g = h & 0xf0000000))
+                h ^= g >> 24;
+            h &= ~g;
+            k++;
+        }
     }
     int index = h;
-    if ( index < 0 )				// adjust index to table size
-	index = -index;
+    if (index < 0)                                // adjust index to table size
+        index = -index;
     return index;
 }
 
@@ -136,7 +136,7 @@ int QGDict::hashKeyAscii( const char *key )
   \sa write()
 */
 
-QDataStream& QGDict::read( QDataStream &s, QPtrCollection::Item &item )
+QDataStream& QGDict::read(QDataStream &s, QPtrCollection::Item &item)
 {
     item = 0;
     return s;
@@ -150,7 +150,7 @@ QDataStream& QGDict::read( QDataStream &s, QPtrCollection::Item &item )
   \sa read()
 */
 
-QDataStream& QGDict::write( QDataStream &s, QPtrCollection::Item ) const
+QDataStream& QGDict::write(QDataStream &s, QPtrCollection::Item) const
 {
     return s;
 }
@@ -166,38 +166,38 @@ QDataStream& QGDict::write( QDataStream &s, QPtrCollection::Item ) const
   \a len is the initial size of the dictionary.
   The key type is \a kt which may be \c StringKey, \c AsciiKey,
   \c IntKey or \c PtrKey. The case-sensitivity of lookups is set with
-  \a caseSensitive. Keys are copied if \a copyKeys is TRUE.
+  \a caseSensitive. Keys are copied if \a copyKeys is true.
 */
 
-QGDict::QGDict( uint len, KeyType kt, bool caseSensitive, bool copyKeys )
+QGDict::QGDict(uint len, KeyType kt, bool caseSensitive, bool copyKeys)
 {
-    init( len, kt, caseSensitive, copyKeys );
+    init(len, kt, caseSensitive, copyKeys);
 }
 
 
-void QGDict::init( uint len, KeyType kt, bool caseSensitive, bool copyKeys )
+void QGDict::init(uint len, KeyType kt, bool caseSensitive, bool copyKeys)
 {
     vlen = len ? len : 17;
-    vec = new QBaseBucket *[ vlen ];
+    vec = new QBaseBucket *[vlen];
 
-    memset( (char*)vec, 0, vlen*sizeof(QBaseBucket*) );
+    memset((char*)vec, 0, vlen*sizeof(QBaseBucket*));
     numItems  = 0;
     iterators = 0;
     // The caseSensitive and copyKey options don't make sense for
     // all dict types.
-    switch ( (keytype = (uint)kt) ) {
-	case StringKey:
-	    cases = caseSensitive;
-	    copyk = FALSE;
-	    break;
-	case AsciiKey:
-	    cases = caseSensitive;
-	    copyk = copyKeys;
-	    break;
-	default:
-	    cases = FALSE;
-	    copyk = FALSE;
-	    break;
+    switch ((keytype = (uint)kt)) {
+        case StringKey:
+            cases = caseSensitive;
+            copyk = false;
+            break;
+        case AsciiKey:
+            cases = caseSensitive;
+            copyk = copyKeys;
+            break;
+        default:
+            cases = false;
+            copyk = false;
+            break;
     }
 }
 
@@ -206,27 +206,27 @@ void QGDict::init( uint len, KeyType kt, bool caseSensitive, bool copyKeys )
   Constructs a copy of \a dict.
 */
 
-QGDict::QGDict( const QGDict & dict )
-    : QPtrCollection( dict )
+QGDict::QGDict(const QGDict & dict)
+    : QPtrCollection(dict)
 {
-    init( dict.vlen, (KeyType)dict.keytype, dict.cases, dict.copyk );
-    QGDictIterator it( dict );
-    while ( it.get() ) {			// copy from other dict
-	switch ( keytype ) {
-	    case StringKey:
-		look_string( it.getKeyString(), it.get(), op_insert );
-		break;
-	    case AsciiKey:
-		look_ascii( it.getKeyAscii(), it.get(), op_insert );
-		break;
-	    case IntKey:
-		look_int( it.getKeyInt(), it.get(), op_insert );
-		break;
-	    case PtrKey:
-		look_ptr( it.getKeyPtr(), it.get(), op_insert );
-		break;
-	}
-	++it;
+    init(dict.vlen, (KeyType)dict.keytype, dict.cases, dict.copyk);
+    QGDictIterator it(dict);
+    while (it.get()) {                        // copy from other dict
+        switch (keytype) {
+            case StringKey:
+                look_string(it.getKeyString(), it.get(), op_insert);
+                break;
+            case AsciiKey:
+                look_ascii(it.getKeyAscii(), it.get(), op_insert);
+                break;
+            case IntKey:
+                look_int(it.getKeyInt(), it.get(), op_insert);
+                break;
+            case PtrKey:
+                look_ptr(it.getKeyPtr(), it.get(), op_insert);
+                break;
+        }
+        ++it;
     }
 }
 
@@ -237,14 +237,14 @@ QGDict::QGDict( const QGDict & dict )
 
 QGDict::~QGDict()
 {
-    clear();					// delete everything
+    clear();                                        // delete everything
     delete [] vec;
-    if ( !iterators )				// no iterators for this dict
-	return;
+    if (!iterators)                                // no iterators for this dict
+        return;
     QGDictIterator *i = iterators->first();
-    while ( i ) {				// notify all iterators that
-	i->dict = 0;				// this dict is deleted
-	i = iterators->next();
+    while (i) {                                // notify all iterators that
+        i->dict = 0;                                // this dict is deleted
+        i = iterators->next();
     }
     delete iterators;
 }
@@ -254,28 +254,28 @@ QGDict::~QGDict()
   Assigns \a dict to this dictionary.
 */
 
-QGDict &QGDict::operator=( const QGDict &dict )
+QGDict &QGDict::operator=(const QGDict &dict)
 {
-    if ( &dict == this )
-	return *this;
+    if (&dict == this)
+        return *this;
     clear();
-    QGDictIterator it( dict );
-    while ( it.get() ) {			// copy from other dict
-	switch ( keytype ) {
-	    case StringKey:
-		look_string( it.getKeyString(), it.get(), op_insert );
-		break;
-	    case AsciiKey:
-		look_ascii( it.getKeyAscii(), it.get(), op_insert );
-		break;
-	    case IntKey:
-		look_int( it.getKeyInt(), it.get(), op_insert );
-		break;
-	    case PtrKey:
-		look_ptr( it.getKeyPtr(), it.get(), op_insert );
-		break;
-	}
-	++it;
+    QGDictIterator it(dict);
+    while (it.get()) {                        // copy from other dict
+        switch (keytype) {
+            case StringKey:
+                look_string(it.getKeyString(), it.get(), op_insert);
+                break;
+            case AsciiKey:
+                look_ascii(it.getKeyAscii(), it.get(), op_insert);
+                break;
+            case IntKey:
+                look_int(it.getKeyInt(), it.get(), op_insert);
+                break;
+            case PtrKey:
+                look_ptr(it.getKeyPtr(), it.get(), op_insert);
+                break;
+        }
+        ++it;
     }
     return *this;
 }
@@ -297,121 +297,121 @@ QGDict &QGDict::operator=( const QGDict &dict )
   The key is \a key and the item is \a d.
 */
 
-QPtrCollection::Item QGDict::look_string( const QString &key, QPtrCollection::Item d,
-				       int op )
+QPtrCollection::Item QGDict::look_string(const QString &key, QPtrCollection::Item d,
+                                       int op)
 {
     QStringBucket *n = 0;
-    int	index = hashKeyString(key) % vlen;
-    if ( op == op_find ) {			// find
-	if ( cases ) {
-	    n = (QStringBucket*)vec[index];
-	    while( n != 0 ) {
-		if ( key == n->getKey() )
-		    return n->getData();	// item found
-		n = (QStringBucket*)n->getNext();
-	    }
-	} else {
-	    QString k = key.toLower();
-	    n = (QStringBucket*)vec[index];
-	    while( n != 0 ) {
-		if ( k == n->getKey().toLower() )
-		    return n->getData();	// item found
-		n = (QStringBucket*)n->getNext();
-	    }
-	}
-	return 0;				// not found
+    int        index = hashKeyString(key) % vlen;
+    if (op == op_find) {                        // find
+        if (cases) {
+            n = (QStringBucket*)vec[index];
+            while(n != 0) {
+                if (key == n->getKey())
+                    return n->getData();        // item found
+                n = (QStringBucket*)n->getNext();
+            }
+        } else {
+            QString k = key.toLower();
+            n = (QStringBucket*)vec[index];
+            while(n != 0) {
+                if (k == n->getKey().toLower())
+                    return n->getData();        // item found
+                n = (QStringBucket*)n->getNext();
+            }
+        }
+        return 0;                                // not found
     }
-    if ( op == op_replace ) {			// replace
-	if ( vec[index] != 0 )			// maybe something there
-	    remove_string( key );
+    if (op == op_replace) {                        // replace
+        if (vec[index] != 0)                        // maybe something there
+            remove_string(key);
     }
     // op_insert or op_replace
     n = new QStringBucket(key,newItem(d),vec[index]);
-    if ( n->getData() == 0 )
-	qWarning( "QDict: Cannot insert null item" );
+    if (n->getData() == 0)
+        qWarning("QDict: Cannot insert null item");
     vec[index] = n;
     numItems++;
     return n->getData();
 }
 
-QPtrCollection::Item QGDict::look_ascii( const char *key, QPtrCollection::Item d, int op )
+QPtrCollection::Item QGDict::look_ascii(const char *key, QPtrCollection::Item d, int op)
 {
     QAsciiBucket *n;
-    int	index = hashKeyAscii(key) % vlen;
-    if ( op == op_find ) {			// find
-	if ( cases ) {
-	    for ( n=(QAsciiBucket*)vec[index]; n;
-		  n=(QAsciiBucket*)n->getNext() ) {
-		if ( qstrcmp(n->getKey(),key) == 0 )
-		    return n->getData();	// item found
-	    }
-	} else {
-	    for ( n=(QAsciiBucket*)vec[index]; n;
-		  n=(QAsciiBucket*)n->getNext() ) {
-		if ( qstricmp(n->getKey(),key) == 0 )
-		    return n->getData();	// item found
-	    }
-	}
-	return 0;				// not found
+    int        index = hashKeyAscii(key) % vlen;
+    if (op == op_find) {                        // find
+        if (cases) {
+            for (n=(QAsciiBucket*)vec[index]; n;
+                  n=(QAsciiBucket*)n->getNext()) {
+                if (qstrcmp(n->getKey(),key) == 0)
+                    return n->getData();        // item found
+            }
+        } else {
+            for (n=(QAsciiBucket*)vec[index]; n;
+                  n=(QAsciiBucket*)n->getNext()) {
+                if (qstricmp(n->getKey(),key) == 0)
+                    return n->getData();        // item found
+            }
+        }
+        return 0;                                // not found
     }
-    if ( op == op_replace ) {			// replace
-	if ( vec[index] != 0 )			// maybe something there
-	    remove_ascii( key );
+    if (op == op_replace) {                        // replace
+        if (vec[index] != 0)                        // maybe something there
+            remove_ascii(key);
     }
     // op_insert or op_replace
     n = new QAsciiBucket(copyk ? qstrdup(key) : key,newItem(d),vec[index]);
-    if ( n->getData() == 0 )
-	qWarning( "QAsciiDict: Cannot insert null item" );
+    if (n->getData() == 0)
+        qWarning("QAsciiDict: Cannot insert null item");
     vec[index] = n;
     numItems++;
     return n->getData();
 }
 
-QPtrCollection::Item QGDict::look_int( long key, QPtrCollection::Item d, int op )
+QPtrCollection::Item QGDict::look_int(long key, QPtrCollection::Item d, int op)
 {
     QIntBucket *n;
-    int index = (int)((ulong)key % vlen);	// simple hash
-    if ( op == op_find ) {			// find
-	for ( n=(QIntBucket*)vec[index]; n;
-	      n=(QIntBucket*)n->getNext() ) {
-	    if ( n->getKey() == key )
-		return n->getData();		// item found
-	}
-	return 0;				// not found
+    int index = (int)((ulong)key % vlen);        // simple hash
+    if (op == op_find) {                        // find
+        for (n=(QIntBucket*)vec[index]; n;
+              n=(QIntBucket*)n->getNext()) {
+            if (n->getKey() == key)
+                return n->getData();                // item found
+        }
+        return 0;                                // not found
     }
-    if ( op == op_replace ) {			// replace
-	if ( vec[index] != 0 )			// maybe something there
-	    remove_int( key );
+    if (op == op_replace) {                        // replace
+        if (vec[index] != 0)                        // maybe something there
+            remove_int(key);
     }
     // op_insert or op_replace
     n = new QIntBucket(key,newItem(d),vec[index]);
-    if ( n->getData() == 0 )
-	qWarning( "QIntDict: Cannot insert null item" );
+    if (n->getData() == 0)
+        qWarning("QIntDict: Cannot insert null item");
     vec[index] = n;
     numItems++;
     return n->getData();
 }
 
-QPtrCollection::Item QGDict::look_ptr( void *key, QPtrCollection::Item d, int op )
+QPtrCollection::Item QGDict::look_ptr(void *key, QPtrCollection::Item d, int op)
 {
     QPtrBucket *n;
-    int index = (int)((ulong)key % vlen);	// simple hash
-    if ( op == op_find ) {			// find
-	for ( n=(QPtrBucket*)vec[index]; n;
-	      n=(QPtrBucket*)n->getNext() ) {
-	    if ( n->getKey() == key )
-		return n->getData();		// item found
-	}
-	return 0;				// not found
+    int index = (int)((ulong)key % vlen);        // simple hash
+    if (op == op_find) {                        // find
+        for (n=(QPtrBucket*)vec[index]; n;
+              n=(QPtrBucket*)n->getNext()) {
+            if (n->getKey() == key)
+                return n->getData();                // item found
+        }
+        return 0;                                // not found
     }
-    if ( op == op_replace ) {			// replace
-	if ( vec[index] != 0 )			// maybe something there
-	    remove_ptr( key );
+    if (op == op_replace) {                        // replace
+        if (vec[index] != 0)                        // maybe something there
+            remove_ptr(key);
     }
     // op_insert or op_replace
     n = new QPtrBucket(key,newItem(d),vec[index]);
-    if ( n->getData() == 0 )
-	qWarning( "QPtrDict: Cannot insert null item" );
+    if (n->getData() == 0)
+        qWarning("QPtrDict: Cannot insert null item");
     vec[index] = n;
     numItems++;
     return n->getData();
@@ -423,7 +423,7 @@ QPtrCollection::Item QGDict::look_ptr( void *key, QPtrCollection::Item d, int op
   The contents of the dictionary are preserved,
   but all iterators on the dictionary become invalid.
 */
-void QGDict::resize( uint newsize )
+void QGDict::resize(uint newsize)
 {
     // Save old information
     QBaseBucket **old_vec = vec;
@@ -431,58 +431,58 @@ void QGDict::resize( uint newsize )
     bool old_copyk = copyk;
 
     vec = new QBaseBucket *[vlen = newsize];
-    memset( (char*)vec, 0, vlen*sizeof(QBaseBucket*) );
+    memset((char*)vec, 0, vlen*sizeof(QBaseBucket*));
     numItems = 0;
-    copyk = FALSE;
+    copyk = false;
 
     // Reinsert every item from vec, deleting vec as we go
-    for ( uint index = 0; index < old_vlen; index++ ) {
-	switch ( keytype ) {
-	    case StringKey:
-		{
-		    QStringBucket *n=(QStringBucket *)old_vec[index];
-		    while ( n ) {
-			look_string( n->getKey(), n->getData(), op_insert );
-			QStringBucket *t=(QStringBucket *)n->getNext();
-			delete n;
-			n = t;
-		    }
-		}
-		break;
-	    case AsciiKey:
-		{
-		    QAsciiBucket *n=(QAsciiBucket *)old_vec[index];
-		    while ( n ) {
-			look_ascii( n->getKey(), n->getData(), op_insert );
-			QAsciiBucket *t=(QAsciiBucket *)n->getNext();
-			delete n;
-			n = t;
-		    }
-		}
-		break;
-	    case IntKey:
-		{
-		    QIntBucket *n=(QIntBucket *)old_vec[index];
-		    while ( n ) {
-			look_int( n->getKey(), n->getData(), op_insert );
-			QIntBucket *t=(QIntBucket *)n->getNext();
-			delete n;
-			n = t;
-		    }
-		}
-		break;
-	    case PtrKey:
-		{
-		    QPtrBucket *n=(QPtrBucket *)old_vec[index];
-		    while ( n ) {
-			look_ptr( n->getKey(), n->getData(), op_insert );
-			QPtrBucket *t=(QPtrBucket *)n->getNext();
-			delete n;
-			n = t;
-		    }
-		}
-		break;
-	}
+    for (uint index = 0; index < old_vlen; index++) {
+        switch (keytype) {
+            case StringKey:
+                {
+                    QStringBucket *n=(QStringBucket *)old_vec[index];
+                    while (n) {
+                        look_string(n->getKey(), n->getData(), op_insert);
+                        QStringBucket *t=(QStringBucket *)n->getNext();
+                        delete n;
+                        n = t;
+                    }
+                }
+                break;
+            case AsciiKey:
+                {
+                    QAsciiBucket *n=(QAsciiBucket *)old_vec[index];
+                    while (n) {
+                        look_ascii(n->getKey(), n->getData(), op_insert);
+                        QAsciiBucket *t=(QAsciiBucket *)n->getNext();
+                        delete n;
+                        n = t;
+                    }
+                }
+                break;
+            case IntKey:
+                {
+                    QIntBucket *n=(QIntBucket *)old_vec[index];
+                    while (n) {
+                        look_int(n->getKey(), n->getData(), op_insert);
+                        QIntBucket *t=(QIntBucket *)n->getNext();
+                        delete n;
+                        n = t;
+                    }
+                }
+                break;
+            case PtrKey:
+                {
+                    QPtrBucket *n=(QPtrBucket *)old_vec[index];
+                    while (n) {
+                        look_ptr(n->getKey(), n->getData(), op_insert);
+                        QPtrBucket *t=(QPtrBucket *)n->getNext();
+                        delete n;
+                        n = t;
+                    }
+                }
+                break;
+        }
     }
     delete [] old_vec;
 
@@ -490,12 +490,12 @@ void QGDict::resize( uint newsize )
     copyk = old_copyk;
 
     // Invalidate all iterators, since order is lost
-    if ( iterators && iterators->count() ) {
-	QGDictIterator *i = iterators->first();
-	while ( i ) {
-	    i->toFirst();
-	    i = iterators->next();
-	}
+    if (iterators && iterators->count()) {
+        QGDictIterator *i = iterators->first();
+        while (i) {
+            i->toFirst();
+            i = iterators->next();
+        }
     }
 }
 
@@ -504,116 +504,116 @@ void QGDict::resize( uint newsize )
   if it is set).
 */
 
-void QGDict::unlink_common( int index, QBaseBucket *node, QBaseBucket *prev )
+void QGDict::unlink_common(int index, QBaseBucket *node, QBaseBucket *prev)
 {
-    if ( iterators && iterators->count() ) {	// update iterators
-	QGDictIterator *i = iterators->first();
-	while ( i ) {				// invalidate all iterators
-	    if ( i->curNode == node )		// referring to pending node
-		i->operator++();
-	    i = iterators->next();
-	}
+    if (iterators && iterators->count()) {        // update iterators
+        QGDictIterator *i = iterators->first();
+        while (i) {                                // invalidate all iterators
+            if (i->curNode == node)                // referring to pending node
+                i->operator++();
+            i = iterators->next();
+        }
     }
-    if ( prev )					// unlink node
-	prev->setNext( node->getNext() );
+    if (prev)                                        // unlink node
+        prev->setNext(node->getNext());
     else
-	vec[index] = node->getNext();
+        vec[index] = node->getNext();
     numItems--;
 }
 
-QStringBucket *QGDict::unlink_string( const QString &key, QPtrCollection::Item d )
+QStringBucket *QGDict::unlink_string(const QString &key, QPtrCollection::Item d)
 {
-    if ( numItems == 0 )			// nothing in dictionary
-	return 0;
+    if (numItems == 0)                        // nothing in dictionary
+        return 0;
     QStringBucket *n;
     QStringBucket *prev = 0;
     int index = hashKeyString(key) % vlen;
-    if ( cases ) {
-	for ( n=(QStringBucket*)vec[index]; n;
-	      n=(QStringBucket*)n->getNext() ) {
-	    bool found = (key == n->getKey());
-	    if ( found && d )
-		found = (n->getData() == d);
-	    if ( found ) {
-		unlink_common(index,n,prev);
-		return n;
-	    }
-	    prev = n;
-	}
+    if (cases) {
+        for (n=(QStringBucket*)vec[index]; n;
+              n=(QStringBucket*)n->getNext()) {
+            bool found = (key == n->getKey());
+            if (found && d)
+                found = (n->getData() == d);
+            if (found) {
+                unlink_common(index,n,prev);
+                return n;
+            }
+            prev = n;
+        }
     } else {
-	QString k = key.toLower();
-	for ( n=(QStringBucket*)vec[index]; n;
-	      n=(QStringBucket*)n->getNext() ) {
-	    bool found = (k == n->getKey().toLower());
-	    if ( found && d )
-		found = (n->getData() == d);
-	    if ( found ) {
-		unlink_common(index,n,prev);
-		return n;
-	    }
-	    prev = n;
-	}
+        QString k = key.toLower();
+        for (n=(QStringBucket*)vec[index]; n;
+              n=(QStringBucket*)n->getNext()) {
+            bool found = (k == n->getKey().toLower());
+            if (found && d)
+                found = (n->getData() == d);
+            if (found) {
+                unlink_common(index,n,prev);
+                return n;
+            }
+            prev = n;
+        }
     }
     return 0;
 }
 
-QAsciiBucket *QGDict::unlink_ascii( const char *key, QPtrCollection::Item d )
+QAsciiBucket *QGDict::unlink_ascii(const char *key, QPtrCollection::Item d)
 {
-    if ( numItems == 0 )			// nothing in dictionary
-	return 0;
+    if (numItems == 0)                        // nothing in dictionary
+        return 0;
     QAsciiBucket *n;
     QAsciiBucket *prev = 0;
     int index = hashKeyAscii(key) % vlen;
-    for ( n=(QAsciiBucket *)vec[index]; n; n=(QAsciiBucket *)n->getNext() ) {
-	bool found = (cases ? qstrcmp(n->getKey(),key)
-		       : qstricmp(n->getKey(),key)) == 0;
-	if ( found && d )
-	    found = (n->getData() == d);
-	if ( found ) {
-	    unlink_common(index,n,prev);
-	    return n;
-	}
-	prev = n;
+    for (n=(QAsciiBucket *)vec[index]; n; n=(QAsciiBucket *)n->getNext()) {
+        bool found = (cases ? qstrcmp(n->getKey(),key)
+                       : qstricmp(n->getKey(),key)) == 0;
+        if (found && d)
+            found = (n->getData() == d);
+        if (found) {
+            unlink_common(index,n,prev);
+            return n;
+        }
+        prev = n;
     }
     return 0;
 }
 
-QIntBucket *QGDict::unlink_int( long key, QPtrCollection::Item d )
+QIntBucket *QGDict::unlink_int(long key, QPtrCollection::Item d)
 {
-    if ( numItems == 0 )			// nothing in dictionary
-	return 0;
+    if (numItems == 0)                        // nothing in dictionary
+        return 0;
     QIntBucket *n;
     QIntBucket *prev = 0;
     int index = (int)((ulong)key % vlen);
-    for ( n=(QIntBucket *)vec[index]; n; n=(QIntBucket *)n->getNext() ) {
-	bool found = (n->getKey() == key);
-	if ( found && d )
-	    found = (n->getData() == d);
-	if ( found ) {
-	    unlink_common(index,n,prev);
-	    return n;
-	}
-	prev = n;
+    for (n=(QIntBucket *)vec[index]; n; n=(QIntBucket *)n->getNext()) {
+        bool found = (n->getKey() == key);
+        if (found && d)
+            found = (n->getData() == d);
+        if (found) {
+            unlink_common(index,n,prev);
+            return n;
+        }
+        prev = n;
     }
     return 0;
 }
 
-QPtrBucket *QGDict::unlink_ptr( void *key, QPtrCollection::Item d )
+QPtrBucket *QGDict::unlink_ptr(void *key, QPtrCollection::Item d)
 {
-    if ( numItems == 0 )			// nothing in dictionary
-	return 0;
+    if (numItems == 0)                        // nothing in dictionary
+        return 0;
     QPtrBucket *n;
     QPtrBucket *prev = 0;
     int index = (int)((ulong)key % vlen);
-    for ( n=(QPtrBucket *)vec[index]; n; n=(QPtrBucket *)n->getNext() ) {
-	bool found = (n->getKey() == key);
-	if ( found && d )
-	    found = (n->getData() == d);
-	if ( found ) {
-	    unlink_common(index,n,prev);
-	    return n;
-	}
-	prev = n;
+    for (n=(QPtrBucket *)vec[index]; n; n=(QPtrBucket *)n->getNext()) {
+        bool found = (n->getKey() == key);
+        if (found && d)
+            found = (n->getData() == d);
+        if (found) {
+            unlink_common(index,n,prev);
+            return n;
+        }
+        prev = n;
     }
     return 0;
 }
@@ -625,100 +625,100 @@ QPtrBucket *QGDict::unlink_ptr( void *key, QPtrCollection::Item d )
   item when several items have the same key).
 */
 
-bool QGDict::remove_string( const QString &key, QPtrCollection::Item item )
+bool QGDict::remove_string(const QString &key, QPtrCollection::Item item)
 {
-    QStringBucket *n = unlink_string( key, item );
-    if ( n ) {
-	deleteItem( n->getData() );
-	delete n;
-	return TRUE;
+    QStringBucket *n = unlink_string(key, item);
+    if (n) {
+        deleteItem(n->getData());
+        delete n;
+        return true;
     } else {
-	return FALSE;
+        return false;
     }
 }
 
-bool QGDict::remove_ascii( const char *key, QPtrCollection::Item item )
+bool QGDict::remove_ascii(const char *key, QPtrCollection::Item item)
 {
-    QAsciiBucket *n = unlink_ascii( key, item );
-    if ( n ) {
-	if ( copyk )
-	    delete [] (char *)n->getKey();
-	deleteItem( n->getData() );
-	delete n;
+    QAsciiBucket *n = unlink_ascii(key, item);
+    if (n) {
+        if (copyk)
+            delete [] (char *)n->getKey();
+        deleteItem(n->getData());
+        delete n;
     }
     return n != 0;
 }
 
-bool QGDict::remove_int( long key, QPtrCollection::Item item )
+bool QGDict::remove_int(long key, QPtrCollection::Item item)
 {
-    QIntBucket *n = unlink_int( key, item );
-    if ( n ) {
-	deleteItem( n->getData() );
-	delete n;
+    QIntBucket *n = unlink_int(key, item);
+    if (n) {
+        deleteItem(n->getData());
+        delete n;
     }
     return n != 0;
 }
 
-bool QGDict::remove_ptr( void *key, QPtrCollection::Item item )
+bool QGDict::remove_ptr(void *key, QPtrCollection::Item item)
 {
-    QPtrBucket *n = unlink_ptr( key, item );
-    if ( n ) {
-	deleteItem( n->getData() );
-	delete n;
+    QPtrBucket *n = unlink_ptr(key, item);
+    if (n) {
+        deleteItem(n->getData());
+        delete n;
     }
     return n != 0;
 }
 
-QPtrCollection::Item QGDict::take_string( const QString &key )
+QPtrCollection::Item QGDict::take_string(const QString &key)
 {
-    QStringBucket *n = unlink_string( key );
+    QStringBucket *n = unlink_string(key);
     Item d;
-    if ( n ) {
-	d = n->getData();
-	delete n;
+    if (n) {
+        d = n->getData();
+        delete n;
     } else {
-	d = 0;
+        d = 0;
     }
     return d;
 }
 
-QPtrCollection::Item QGDict::take_ascii( const char *key )
+QPtrCollection::Item QGDict::take_ascii(const char *key)
 {
-    QAsciiBucket *n = unlink_ascii( key );
+    QAsciiBucket *n = unlink_ascii(key);
     Item d;
-    if ( n ) {
-	if ( copyk )
-	    delete [] (char *)n->getKey();
-	d = n->getData();
-	delete n;
+    if (n) {
+        if (copyk)
+            delete [] (char *)n->getKey();
+        d = n->getData();
+        delete n;
     } else {
-	d = 0;
+        d = 0;
     }
     return d;
 }
 
-QPtrCollection::Item QGDict::take_int( long key )
+QPtrCollection::Item QGDict::take_int(long key)
 {
-    QIntBucket *n = unlink_int( key );
+    QIntBucket *n = unlink_int(key);
     Item d;
-    if ( n ) {
-	d = n->getData();
-	delete n;
+    if (n) {
+        d = n->getData();
+        delete n;
     } else {
-	d = 0;
+        d = 0;
     }
     return d;
 }
 
-QPtrCollection::Item QGDict::take_ptr( void *key )
+QPtrCollection::Item QGDict::take_ptr(void *key)
 {
-    QPtrBucket *n = unlink_ptr( key );
+    QPtrBucket *n = unlink_ptr(key);
     Item d;
-    if ( n ) {
-	d = n->getData();
-	delete n;
+    if (n) {
+        d = n->getData();
+        delete n;
     } else {
-	d = 0;
+        d = 0;
     }
     return d;
 }
@@ -728,68 +728,68 @@ QPtrCollection::Item QGDict::take_ptr( void *key )
 */
 void QGDict::clear()
 {
-    if ( !numItems )
-	return;
-    numItems = 0;				// disable remove() function
-    for ( uint j=0; j<vlen; j++ ) {		// destroy hash table
-	if ( vec[j] ) {
-	    switch ( keytype ) {
-		case StringKey:
-		    {
-			QStringBucket *n=(QStringBucket *)vec[j];
-			while ( n ) {
-			    QStringBucket *next = (QStringBucket*)n->getNext();
-			    deleteItem( n->getData() );
-			    delete n;
-			    n = next;
-			}
-		    }
-		    break;
-		case AsciiKey:
-		    {
-			QAsciiBucket *n=(QAsciiBucket *)vec[j];
-			while ( n ) {
-			    QAsciiBucket *next = (QAsciiBucket*)n->getNext();
-			    if ( copyk )
-				delete [] (char *)n->getKey();
-			    deleteItem( n->getData() );
-			    delete n;
-			    n = next;
-			}
-		    }
-		    break;
-		case IntKey:
-		    {
-			QIntBucket *n=(QIntBucket *)vec[j];
-			while ( n ) {
-			    QIntBucket *next = (QIntBucket*)n->getNext();
-			    deleteItem( n->getData() );
-			    delete n;
-			    n = next;
-			}
-		    }
-		    break;
-		case PtrKey:
-		    {
-			QPtrBucket *n=(QPtrBucket *)vec[j];
-			while ( n ) {
-			    QPtrBucket *next = (QPtrBucket*)n->getNext();
-			    deleteItem( n->getData() );
-			    delete n;
-			    n = next;
-			}
-		    }
-		    break;
-	    }
-	    vec[j] = 0;				// detach list of buckets
-	}
+    if (!numItems)
+        return;
+    numItems = 0;                                // disable remove() function
+    for (uint j=0; j<vlen; j++) {                // destroy hash table
+        if (vec[j]) {
+            switch (keytype) {
+                case StringKey:
+                    {
+                        QStringBucket *n=(QStringBucket *)vec[j];
+                        while (n) {
+                            QStringBucket *next = (QStringBucket*)n->getNext();
+                            deleteItem(n->getData());
+                            delete n;
+                            n = next;
+                        }
+                    }
+                    break;
+                case AsciiKey:
+                    {
+                        QAsciiBucket *n=(QAsciiBucket *)vec[j];
+                        while (n) {
+                            QAsciiBucket *next = (QAsciiBucket*)n->getNext();
+                            if (copyk)
+                                delete [] (char *)n->getKey();
+                            deleteItem(n->getData());
+                            delete n;
+                            n = next;
+                        }
+                    }
+                    break;
+                case IntKey:
+                    {
+                        QIntBucket *n=(QIntBucket *)vec[j];
+                        while (n) {
+                            QIntBucket *next = (QIntBucket*)n->getNext();
+                            deleteItem(n->getData());
+                            delete n;
+                            n = next;
+                        }
+                    }
+                    break;
+                case PtrKey:
+                    {
+                        QPtrBucket *n=(QPtrBucket *)vec[j];
+                        while (n) {
+                            QPtrBucket *next = (QPtrBucket*)n->getNext();
+                            deleteItem(n->getData());
+                            delete n;
+                            n = next;
+                        }
+                    }
+                    break;
+            }
+            vec[j] = 0;                                // detach list of buckets
+        }
     }
-    if ( iterators && iterators->count() ) {	// invalidate all iterators
-	QGDictIterator *i = iterators->first();
-	while ( i ) {
-	    i->curNode = 0;
-	    i = iterators->next();
-	}
+    if (iterators && iterators->count()) {        // invalidate all iterators
+        QGDictIterator *i = iterators->first();
+        while (i) {
+            i->curNode = 0;
+            i = iterators->next();
+        }
     }
 }
 
@@ -800,42 +800,42 @@ void QGDict::statistics() const
 {
 #if defined(QT_DEBUG)
     QString line;
-    line.fill( '-', 60 );
+    line.fill('-', 60);
     double real, ideal;
-    qDebug( line.ascii() );
-    qDebug( "DICTIONARY STATISTICS:" );
-    if ( count() == 0 ) {
-	qDebug( "Empty!" );
-	qDebug( line.ascii() );
-	return;
+    qDebug(line.ascii());
+    qDebug("DICTIONARY STATISTICS:");
+    if (count() == 0) {
+        qDebug("Empty!");
+        qDebug(line.ascii());
+        return;
     }
     real = 0.0;
     ideal = (float)count()/(2.0*size())*(count()+2.0*size()-1);
     uint i = 0;
-    while ( i<size() ) {
-	QBaseBucket *n = vec[i];
-	int b = 0;
-	while ( n ) {				// count number of buckets
-	    b++;
-	    n = n->getNext();
-	}
-	real = real + (double)b * ((double)b+1.0)/2.0;
-	char buf[80], *pbuf;
-	if ( b > 78 )
-	    b = 78;
-	pbuf = buf;
-	while ( b-- )
-	    *pbuf++ = '*';
-	*pbuf = '\0';
-	qDebug( buf );
-	i++;
+    while (i<size()) {
+        QBaseBucket *n = vec[i];
+        int b = 0;
+        while (n) {                                // count number of buckets
+            b++;
+            n = n->getNext();
+        }
+        real = real + (double)b * ((double)b+1.0)/2.0;
+        char buf[80], *pbuf;
+        if (b > 78)
+            b = 78;
+        pbuf = buf;
+        while (b--)
+            *pbuf++ = '*';
+        *pbuf = '\0';
+        qDebug(buf);
+        i++;
     }
-    qDebug( "Array size = %d", size() );
-    qDebug( "# items    = %d", count() );
-    qDebug( "Real dist  = %g", real );
-    qDebug( "Rand dist  = %g", ideal );
-    qDebug( "Real/Rand  = %g", real/ideal );
-    qDebug( line.ascii() );
+    qDebug("Array size = %d", size());
+    qDebug("# items    = %d", count());
+    qDebug("Real dist  = %g", real);
+    qDebug("Rand dist  = %g", ideal);
+    qDebug("Real/Rand  = %g", real/ideal);
+    qDebug(line.ascii());
 #endif // QT_DEBUG
 }
 
@@ -844,14 +844,14 @@ void QGDict::statistics() const
   QGDict stream functions
  *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
-QDataStream &operator>>( QDataStream &s, QGDict &dict )
+QDataStream &operator>>(QDataStream &s, QGDict &dict)
 {
-    return dict.read( s );
+    return dict.read(s);
 }
 
-QDataStream &operator<<( QDataStream &s, const QGDict &dict )
+QDataStream &operator<<(QDataStream &s, const QGDict &dict)
 {
-    return dict.write( s );
+    return dict.write(s);
 }
 
 #if defined(Q_CC_DEC) && defined(__alpha) && (__DECCXX_VER-0 >= 50190001)
@@ -862,54 +862,54 @@ QDataStream &operator<<( QDataStream &s, const QGDict &dict )
   Reads a dictionary from the stream \a s.
 */
 
-QDataStream &QGDict::read( QDataStream &s )
+QDataStream &QGDict::read(QDataStream &s)
 {
     uint num;
-    s >> num;					// read number of items
-    clear();					// clear dict
-    while ( num-- ) {				// read all items
-	Item d;
-	switch ( keytype ) {
-	    case StringKey:
-		{
-		    QString k;
-		    s >> k;
-		    read( s, d );
-		    look_string( k, d, op_insert );
-		}
-		break;
-	    case AsciiKey:
-		{
-		    char *k;
-		    s >> k;
-		    read( s, d );
-		    look_ascii( k, d, op_insert );
-		    if ( copyk )
-			delete [] k;
-		}
-		break;
-	    case IntKey:
-		{
-		    Q_UINT32 k;
-		    s >> k;
-		    read( s, d );
-		    look_int( k, d, op_insert );
-		}
-		break;
-	    case PtrKey:
-		{
-		    Q_UINT32 k;
-		    s >> k;
-		    read( s, d );
-		    // ### cannot insert 0 - this renders the thing
-		    // useless since all pointers are written as 0,
-		    // but hey, serializing pointers?  can it be done
-		    // at all, ever?
-		    if ( k )
-			look_ptr( (void *)k, d, op_insert );
-		}
-		break;
-	}
+    s >> num;                                        // read number of items
+    clear();                                        // clear dict
+    while (num--) {                                // read all items
+        Item d;
+        switch (keytype) {
+            case StringKey:
+                {
+                    QString k;
+                    s >> k;
+                    read(s, d);
+                    look_string(k, d, op_insert);
+                }
+                break;
+            case AsciiKey:
+                {
+                    char *k;
+                    s >> k;
+                    read(s, d);
+                    look_ascii(k, d, op_insert);
+                    if (copyk)
+                        delete [] k;
+                }
+                break;
+            case IntKey:
+                {
+                    Q_UINT32 k;
+                    s >> k;
+                    read(s, d);
+                    look_int(k, d, op_insert);
+                }
+                break;
+            case PtrKey:
+                {
+                    Q_UINT32 k;
+                    s >> k;
+                    read(s, d);
+                    // ### cannot insert 0 - this renders the thing
+                    // useless since all pointers are written as 0,
+                    // but hey, serializing pointers?  can it be done
+                    // at all, ever?
+                    if (k)
+                        look_ptr((void *)k, d, op_insert);
+                }
+                break;
+        }
     }
     return s;
 }
@@ -918,31 +918,31 @@ QDataStream &QGDict::read( QDataStream &s )
   Writes the dictionary to the stream \a s.
 */
 
-QDataStream& QGDict::write( QDataStream &s ) const
+QDataStream& QGDict::write(QDataStream &s) const
 {
-    s << count();				// write number of items
+    s << count();                                // write number of items
     uint i = 0;
-    while ( i<size() ) {
-	QBaseBucket *n = vec[i];
-	while ( n ) {				// write all buckets
-	    switch ( keytype ) {
-		case StringKey:
-		    s << ((QStringBucket*)n)->getKey();
-		    break;
-		case AsciiKey:
-		    s << ((QAsciiBucket*)n)->getKey();
-		    break;
-		case IntKey:
-		    s << (Q_UINT32)((QIntBucket*)n)->getKey();
-		    break;
-		case PtrKey:
-		    s << (Q_UINT32)0; // ### cannot serialize a pointer
-		    break;
-	    }
-	    write( s, n->getData() );		// write data
-	    n = n->getNext();
-	}
-	i++;
+    while (i<size()) {
+        QBaseBucket *n = vec[i];
+        while (n) {                                // write all buckets
+            switch (keytype) {
+                case StringKey:
+                    s << ((QStringBucket*)n)->getKey();
+                    break;
+                case AsciiKey:
+                    s << ((QAsciiBucket*)n)->getKey();
+                    break;
+                case IntKey:
+                    s << (Q_UINT32)((QIntBucket*)n)->getKey();
+                    break;
+                case PtrKey:
+                    s << (Q_UINT32)0; // ### cannot serialize a pointer
+                    break;
+            }
+            write(s, n->getData());                // write data
+            n = n->getNext();
+        }
+        i++;
     }
     return s;
 }
@@ -968,27 +968,27 @@ QDataStream& QGDict::write( QDataStream &s ) const
   Constructs an iterator that operates on the dictionary \a d.
 */
 
-QGDictIterator::QGDictIterator( const QGDict &d )
+QGDictIterator::QGDictIterator(const QGDict &d)
 {
-    dict = (QGDict *)&d;			// get reference to dict
-    toFirst();					// set to first noe
-    if ( !dict->iterators ) {
-	dict->iterators = new QGDItList;	// create iterator list
+    dict = (QGDict *)&d;                        // get reference to dict
+    toFirst();                                        // set to first noe
+    if (!dict->iterators) {
+        dict->iterators = new QGDItList;        // create iterator list
     }
-    dict->iterators->append( this );		// attach iterator to dict
+    dict->iterators->append(this);                // attach iterator to dict
 }
 
 /*!
   Constructs a copy of the iterator \a it.
 */
 
-QGDictIterator::QGDictIterator( const QGDictIterator &it )
+QGDictIterator::QGDictIterator(const QGDictIterator &it)
 {
     dict = it.dict;
     curNode = it.curNode;
     curIndex = it.curIndex;
-    if ( dict )
-	dict->iterators->append( this );	// attach iterator to dict
+    if (dict)
+        dict->iterators->append(this);        // attach iterator to dict
 }
 
 /*!
@@ -996,15 +996,15 @@ QGDictIterator::QGDictIterator( const QGDictIterator &it )
   iterator.
 */
 
-QGDictIterator &QGDictIterator::operator=( const QGDictIterator &it )
+QGDictIterator &QGDictIterator::operator=(const QGDictIterator &it)
 {
-    if ( dict )					// detach from old dict
-	dict->iterators->removeRef( this );
+    if (dict)                                        // detach from old dict
+        dict->iterators->removeRef(this);
     dict = it.dict;
     curNode = it.curNode;
     curIndex = it.curIndex;
-    if ( dict )
-	dict->iterators->append( this );	// attach to new list
+    if (dict)
+        dict->iterators->append(this);        // attach to new list
     return *this;
 }
 
@@ -1014,8 +1014,8 @@ QGDictIterator &QGDictIterator::operator=( const QGDictIterator &it )
 
 QGDictIterator::~QGDictIterator()
 {
-    if ( dict )					// detach iterator from dict
-	dict->iterators->removeRef( this );
+    if (dict)                                        // detach iterator from dict
+        dict->iterators->removeRef(this);
 }
 
 
@@ -1025,18 +1025,18 @@ QGDictIterator::~QGDictIterator()
 
 QPtrCollection::Item QGDictIterator::toFirst()
 {
-    if ( !dict ) {
-	qWarning( "QGDictIterator::toFirst: Dictionary has been deleted" );
-	return 0;
+    if (!dict) {
+        qWarning("QGDictIterator::toFirst: Dictionary has been deleted");
+        return 0;
     }
-    if ( dict->count() == 0 ) {			// empty dictionary
-	curNode = 0;
-	return 0;
+    if (dict->count() == 0) {                        // empty dictionary
+        curNode = 0;
+        return 0;
     }
     register uint i = 0;
     register QBaseBucket **v = dict->vec;
-    while ( !(*v++) )
-	i++;
+    while (!(*v++))
+        i++;
     curNode = dict->vec[i];
     curIndex = i;
     return curNode->getData();
@@ -1049,12 +1049,12 @@ QPtrCollection::Item QGDictIterator::toFirst()
 
 QPtrCollection::Item QGDictIterator::operator()()
 {
-    if ( !dict ) {
-	qWarning( "QGDictIterator::operator(): Dictionary has been deleted" );
-	return 0;
+    if (!dict) {
+        qWarning("QGDictIterator::operator(): Dictionary has been deleted");
+        return 0;
     }
-    if ( !curNode )
-	return 0;
+    if (!curNode)
+        return 0;
     QPtrCollection::Item d = curNode->getData();
     this->operator++();
     return d;
@@ -1066,24 +1066,24 @@ QPtrCollection::Item QGDictIterator::operator()()
 
 QPtrCollection::Item QGDictIterator::operator++()
 {
-    if ( !dict ) {
-	qWarning( "QGDictIterator::operator++: Dictionary has been deleted" );
-	return 0;
+    if (!dict) {
+        qWarning("QGDictIterator::operator++: Dictionary has been deleted");
+        return 0;
     }
-    if ( !curNode )
-	return 0;
+    if (!curNode)
+        return 0;
     curNode = curNode->getNext();
-    if ( !curNode ) {				// no next bucket
-	register uint i = curIndex + 1;		// look from next vec element
-	register QBaseBucket **v = &dict->vec[i];
-	while ( i < dict->size() && !(*v++) )
-	    i++;
-	if ( i == dict->size() ) {		// nothing found
-	    curNode = 0;
-	    return 0;
-	}
-	curNode = dict->vec[i];
-	curIndex = i;
+    if (!curNode) {                                // no next bucket
+        register uint i = curIndex + 1;                // look from next vec element
+        register QBaseBucket **v = &dict->vec[i];
+        while (i < dict->size() && !(*v++))
+            i++;
+        if (i == dict->size()) {                // nothing found
+            curNode = 0;
+            return 0;
+        }
+        curNode = dict->vec[i];
+        curIndex = i;
     }
     return curNode->getData();
 }
@@ -1092,9 +1092,9 @@ QPtrCollection::Item QGDictIterator::operator++()
   Moves \a jumps positions forward.
 */
 
-QPtrCollection::Item QGDictIterator::operator+=( uint jumps )
+QPtrCollection::Item QGDictIterator::operator+=(uint jumps)
 {
-    while ( curNode && jumps-- )
-	operator++();
+    while (curNode && jumps--)
+        operator++();
     return curNode ? curNode->getData() : 0;
 }

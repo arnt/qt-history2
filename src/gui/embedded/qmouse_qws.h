@@ -24,7 +24,7 @@ class QWSPointerCalibrationData
 {
 public:
     enum Location { TopLeft = 0, BottomLeft = 1, BottomRight = 2, TopRight = 3,
-		    Center = 4, LastLocation = Center };
+                    Center = 4, LastLocation = Center };
     QPoint devPoints[5];
     QPoint screenPoints[5];
 };
@@ -32,14 +32,14 @@ public:
 class QWSMouseHandler
 {
 public:
-    QWSMouseHandler( const QString &driver = QString::null, const QString &device = QString::null );
+    QWSMouseHandler(const QString &driver = QString::null, const QString &device = QString::null);
     virtual ~QWSMouseHandler();
 
     virtual void clearCalibration() {}
-    virtual void calibrate( const QWSPointerCalibrationData * ) {}
-    virtual void getCalibration( QWSPointerCalibrationData * ) const {}
+    virtual void calibrate(const QWSPointerCalibrationData *) {}
+    virtual void getCalibration(QWSPointerCalibrationData *) const {}
 
-    void limitToScreen( QPoint &pt );
+    void limitToScreen(QPoint &pt);
     void mouseChanged(const QPoint& pos, int bstate);
     const QPoint &pos() const { return mousePos; }
 
@@ -51,19 +51,19 @@ protected:
 class QWSCalibratedMouseHandler : public QWSMouseHandler
 {
 public:
-    QWSCalibratedMouseHandler( const QString &device = QString::null, const QString &device = QString::null );
+    QWSCalibratedMouseHandler(const QString &device = QString::null, const QString &device = QString::null);
 
     virtual void clearCalibration();
-    virtual void calibrate( const QWSPointerCalibrationData * );
-    virtual void getCalibration( QWSPointerCalibrationData * ) const;
+    virtual void calibrate(const QWSPointerCalibrationData *);
+    virtual void getCalibration(QWSPointerCalibrationData *) const;
 
-    bool sendFiltered( const QPoint &, int button );
-    QPoint transform( const QPoint & );
+    bool sendFiltered(const QPoint &, int button);
+    QPoint transform(const QPoint &);
 
 protected:
     void readCalibration();
     void writeCalibration();
-    void setFilterSize( int );
+    void setFilterSize(int);
 
 private:
     int a, b, c;

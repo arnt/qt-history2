@@ -45,15 +45,15 @@ class QMainWindowPrivate
 {
 public:
     QMainWindowPrivate()
-	:  mb(0), sb(0), ttg(0), mc(0), tll(0), mwl(0), ubp( false ), utl( false ),
-	   justify( false ), movable( true ), opaque( false ), dockMenu( true )
+        :  mb(0), sb(0), ttg(0), mc(0), tll(0), mwl(0), ubp(false), utl(false),
+           justify(false), movable(true), opaque(false), dockMenu(true)
     {
-	docks.insert( Qt::DockTop, true );
-	docks.insert( Qt::DockBottom, true );
-	docks.insert( Qt::DockLeft, true );
-	docks.insert( Qt::DockRight, true );
-	docks.insert( Qt::DockMinimized, false );
-	docks.insert( Qt::DockTornOff, true );
+        docks.insert(Qt::DockTop, true);
+        docks.insert(Qt::DockBottom, true);
+        docks.insert(Qt::DockLeft, true);
+        docks.insert(Qt::DockRight, true);
+        docks.insert(Qt::DockMinimized, false);
+        docks.insert(Qt::DockTornOff, true);
     }
 
     ~QMainWindowPrivate()
@@ -103,13 +103,13 @@ class QMainWindowLayout : public QLayout
     Q_OBJECT
 
 public:
-    QMainWindowLayout( QMainWindow *mw, QLayout* parent = 0 );
+    QMainWindowLayout(QMainWindow *mw, QLayout* parent = 0);
     ~QMainWindowLayout() {}
 
-    void addItem( QLayoutItem * );
-    void setLeftDock( QDockArea *l );
-    void setRightDock( QDockArea *r );
-    void setCentralWidget( QWidget *w );
+    void addItem(QLayoutItem *);
+    void setLeftDock(QDockArea *l);
+    void setRightDock(QDockArea *r);
+    void setCentralWidget(QWidget *w);
     bool hasHeightForWidth() const { return false; }
     QSize sizeHint() const;
     QSize minimumSize() const;
@@ -117,13 +117,13 @@ public:
     QSizePolicy::ExpandData expanding() const { return QSizePolicy::BothDirections; }
 
 protected:
-    void setGeometry( const QRect &r ) {
-	QLayout::setGeometry( r );
-	layoutItems( r );
+    void setGeometry(const QRect &r) {
+        QLayout::setGeometry(r);
+        layoutItems(r);
     }
 
 private:
-    int layoutItems( const QRect&, bool testonly = false );
+    int layoutItems(const QRect&, bool testonly = false);
     int extraPixels() const;
 
     QDockArea *left, *right;
@@ -137,20 +137,20 @@ QSize QMainWindowLayout::sizeHint() const
     int w = 0;
     int h = 0;
 
-    if ( left ) {
-	w += left->sizeHint().width();
-	h = qMax( h, left->sizeHint().height() );
+    if (left) {
+        w += left->sizeHint().width();
+        h = qMax(h, left->sizeHint().height());
     }
-    if ( right ) {
-	w += right->sizeHint().width();
-	h = qMax( h, right->sizeHint().height() );
+    if (right) {
+        w += right->sizeHint().width();
+        h = qMax(h, right->sizeHint().height());
     }
-    if ( central ) {
-	w += central->sizeHint().width();
-	int diff = extraPixels();
-	h = qMax( h, central->sizeHint().height() + diff );
+    if (central) {
+        w += central->sizeHint().width();
+        int diff = extraPixels();
+        h = qMax(h, central->sizeHint().height() + diff);
     }
-    return QSize( w, h );
+    return QSize(w, h);
 }
 
 QSize QMainWindowLayout::minimumSize() const
@@ -158,90 +158,90 @@ QSize QMainWindowLayout::minimumSize() const
     int w = 0;
     int h = 0;
 
-    if ( left ) {
-	QSize ms = left->minimumSizeHint().expandedTo( left->minimumSize() );
-	w += ms.width();
-	h = qMax( h, ms.height() );
+    if (left) {
+        QSize ms = left->minimumSizeHint().expandedTo(left->minimumSize());
+        w += ms.width();
+        h = qMax(h, ms.height());
     }
-    if ( right ) {
-	QSize ms = right->minimumSizeHint().expandedTo( right->minimumSize() );
-	w += ms.width();
-	h = qMax( h, ms.height() );
+    if (right) {
+        QSize ms = right->minimumSizeHint().expandedTo(right->minimumSize());
+        w += ms.width();
+        h = qMax(h, ms.height());
     }
-    if ( central ) {
-	QSize min = central->minimumSize().isNull() ?
-		    central->minimumSizeHint() : central->minimumSize();
-	w += min.width();
-	int diff = extraPixels();
-	h = qMax( h, min.height() + diff );
+    if (central) {
+        QSize min = central->minimumSize().isNull() ?
+                    central->minimumSizeHint() : central->minimumSize();
+        w += min.width();
+        int diff = extraPixels();
+        h = qMax(h, min.height() + diff);
     }
-    return QSize( w, h );
+    return QSize(w, h);
 }
 
-QMainWindowLayout::QMainWindowLayout( QMainWindow *mw, QLayout* parent )
-    : QLayout( parent ), left( 0 ), right( 0 ), central( 0 )
+QMainWindowLayout::QMainWindowLayout(QMainWindow *mw, QLayout* parent)
+    : QLayout(parent), left(0), right(0), central(0)
 {
     mainWindow = mw;
 }
 
-void QMainWindowLayout::setLeftDock( QDockArea *l )
+void QMainWindowLayout::setLeftDock(QDockArea *l)
 {
     left = l;
 }
 
-void QMainWindowLayout::setRightDock( QDockArea *r )
+void QMainWindowLayout::setRightDock(QDockArea *r)
 {
     right = r;
 }
 
-void QMainWindowLayout::setCentralWidget( QWidget *w )
+void QMainWindowLayout::setCentralWidget(QWidget *w)
 {
     central = w;
 }
 
-int QMainWindowLayout::layoutItems( const QRect &r, bool testonly )
+int QMainWindowLayout::layoutItems(const QRect &r, bool testonly)
 {
-    if ( !left && !central && !right )
-	return 0;
+    if (!left && !central && !right)
+        return 0;
 
     int wl = 0, wr = 0;
-    if ( left )
-	wl = ( (QDockAreaLayout*)left->QWidget::layout() )->widthForHeight( r.height() );
-    if ( right )
-	wr = ( (QDockAreaLayout*)right->QWidget::layout() )->widthForHeight( r.height() );
+    if (left)
+        wl = ((QDockAreaLayout*)left->QWidget::layout())->widthForHeight(r.height());
+    if (right)
+        wr = ((QDockAreaLayout*)right->QWidget::layout())->widthForHeight(r.height());
     int w = r.width() - wr - wl;
-    if ( w < 0 )
-	w = 0;
+    if (w < 0)
+        w = 0;
 
     int diff = extraPixels();
-    if ( !testonly ) {
-	QRect g( geometry() );
-	if ( left )
-	    left->setGeometry( QRect( g.x(), g.y() + diff, wl, r.height() - diff ) );
-	if ( right )
-	    right->setGeometry( QRect( g.x() + g.width() - wr, g.y() + diff, wr, r.height() - diff ) );
-	if ( central )
-	    central->setGeometry( g.x() + wl, g.y() + diff, w, r.height() - diff );
+    if (!testonly) {
+        QRect g(geometry());
+        if (left)
+            left->setGeometry(QRect(g.x(), g.y() + diff, wl, r.height() - diff));
+        if (right)
+            right->setGeometry(QRect(g.x() + g.width() - wr, g.y() + diff, wr, r.height() - diff));
+        if (central)
+            central->setGeometry(g.x() + wl, g.y() + diff, w, r.height() - diff);
     }
 
     w = wl + wr;
-    if ( central )
-	w += central->minimumSize().width();
+    if (central)
+        w += central->minimumSize().width();
     return w;
 }
 
 int QMainWindowLayout::extraPixels() const
 {
-    if ( mainWindow->d->topDock->isEmpty() &&
-	 !(mainWindow->d->leftDock->isEmpty() &&
-	   mainWindow->d->rightDock->isEmpty()) ) {
-	return 2;
+    if (mainWindow->d->topDock->isEmpty() &&
+         !(mainWindow->d->leftDock->isEmpty() &&
+           mainWindow->d->rightDock->isEmpty())) {
+        return 2;
     } else {
-	return 0;
+        return 0;
     }
 }
 
-void QMainWindowLayout::addItem( QLayoutItem * /* item */ )
+void QMainWindowLayout::addItem(QLayoutItem * /* item */)
 {
 }
 
@@ -260,9 +260,9 @@ QLayoutIterator QMainWindowLayout::iterator()
 class QHideToolTip : public QToolTip
 {
 public:
-    QHideToolTip( QWidget *parent ) : QToolTip( parent ) {}
+    QHideToolTip(QWidget *parent) : QToolTip(parent) {}
 
-    void maybeTip( const QPoint &pos );
+    void maybeTip(const QPoint &pos);
 };
 #endif
 
@@ -272,160 +272,160 @@ class QHideDock : public QWidget
     Q_OBJECT
 
 public:
-    QHideDock( QMainWindow *parent ) : QWidget( parent, "qt_hide_dock" ) {
-	hide();
-	setFixedHeight( style().pixelMetric( QStyle::PM_DockWindowHandleExtent,
-					     this ) + 3 );
-	pressedHandle = -1;
-	pressed = false;
-	setMouseTracking( true );
-	win = parent;
+    QHideDock(QMainWindow *parent) : QWidget(parent, "qt_hide_dock") {
+        hide();
+        setFixedHeight(style().pixelMetric(QStyle::PM_DockWindowHandleExtent,
+                                             this) + 3);
+        pressedHandle = -1;
+        pressed = false;
+        setMouseTracking(true);
+        win = parent;
 #ifndef QT_NO_TOOLTIP
-	tip = new QHideToolTip( this );
+        tip = new QHideToolTip(this);
 #endif
     }
     ~QHideDock()
     {
 #ifndef QT_NO_TOOLTIP
-	delete tip;
+        delete tip;
 #endif
     }
 
 protected:
-    void paintEvent( QPaintEvent *e ) {
-	QObjectList childs = children();
-	if ( childs.isEmpty() )
-	    return;
-	QPainter p( this );
-	p.setClipRegion( e->rect() );
-	p.fillRect( e->rect(), palette().brush( QPalette::Background ) );
-	int x = 0;
-	for (int i = 0; i < childs.size(); ++i) {
-	    QObject *o = childs.at(i);
-	    QDockWindow *dw = qt_cast<QDockWindow*>(o);
-	    if ( !dw || !dw->isVisible() )
-		continue;
+    void paintEvent(QPaintEvent *e) {
+        QObjectList childs = children();
+        if (childs.isEmpty())
+            return;
+        QPainter p(this);
+        p.setClipRegion(e->rect());
+        p.fillRect(e->rect(), palette().brush(QPalette::Background));
+        int x = 0;
+        for (int i = 0; i < childs.size(); ++i) {
+            QObject *o = childs.at(i);
+            QDockWindow *dw = qt_cast<QDockWindow*>(o);
+            if (!dw || !dw->isVisible())
+                continue;
 
-	    QStyle::SFlags flags = QStyle::Style_Default;
-	    if ( i == pressedHandle )
-		flags |= QStyle::Style_On;
+            QStyle::SFlags flags = QStyle::Style_Default;
+            if (i == pressedHandle)
+                flags |= QStyle::Style_On;
 
-	    style().drawPrimitive( QStyle::PE_DockWindowHandle, &p,
-				   QRect( x, 0, 30, 10 ), palette(),
-				   flags );
-	    x += 30;
-	}
+            style().drawPrimitive(QStyle::PE_DockWindowHandle, &p,
+                                   QRect(x, 0, 30, 10), palette(),
+                                   flags);
+            x += 30;
+        }
     }
 
-    void mousePressEvent( QMouseEvent *e ) {
-	pressed = true;
-	QObjectList childs = children();
-	if ( childs.isEmpty() )
-	    return;
-	mouseMoveEvent( e );
-	pressedHandle = -1;
+    void mousePressEvent(QMouseEvent *e) {
+        pressed = true;
+        QObjectList childs = children();
+        if (childs.isEmpty())
+            return;
+        mouseMoveEvent(e);
+        pressedHandle = -1;
 
-	if ( e->button() == RightButton && win->isDockMenuEnabled() ) {
-	    // ### TODO: HideDock menu
-	} else {
-	    mouseMoveEvent( e );
-	}
+        if (e->button() == RightButton && win->isDockMenuEnabled()) {
+            // ### TODO: HideDock menu
+        } else {
+            mouseMoveEvent(e);
+        }
     }
 
-    void mouseMoveEvent( QMouseEvent *e ) {
-	QObjectList childs = children();
-	if ( childs.isEmpty() )
-	    return;
-	if ( !pressed )
-	    return;
-	int x = 0;
-	if ( e->y() >= 0 && e->y() <= height() ) {
-	    for (int i = 0; i < childs.size(); ++i) {
-		QObject *o = childs.at(i);
-		QDockWindow *dw = qt_cast<QDockWindow*>(o);
-		if ( !dw || !dw->isVisible() )
-		    continue;
-		if ( e->x() >= x && e->x() <= x + 30 ) {
-		    int old = pressedHandle;
-		    pressedHandle = i;
-		    if ( pressedHandle != old )
-			repaint();
-		    return;
-		}
-		x += 30;
-	    }
-	}
-	int old = pressedHandle;
-	pressedHandle = -1;
-	if ( old != -1 )
-	    repaint();
+    void mouseMoveEvent(QMouseEvent *e) {
+        QObjectList childs = children();
+        if (childs.isEmpty())
+            return;
+        if (!pressed)
+            return;
+        int x = 0;
+        if (e->y() >= 0 && e->y() <= height()) {
+            for (int i = 0; i < childs.size(); ++i) {
+                QObject *o = childs.at(i);
+                QDockWindow *dw = qt_cast<QDockWindow*>(o);
+                if (!dw || !dw->isVisible())
+                    continue;
+                if (e->x() >= x && e->x() <= x + 30) {
+                    int old = pressedHandle;
+                    pressedHandle = i;
+                    if (pressedHandle != old)
+                        repaint();
+                    return;
+                }
+                x += 30;
+            }
+        }
+        int old = pressedHandle;
+        pressedHandle = -1;
+        if (old != -1)
+            repaint();
     }
 
-    void mouseReleaseEvent( QMouseEvent *e ) {
-	pressed = false;
-	if ( pressedHandle == -1 )
-	    return;
-	QObjectList childs = children();
-	if ( childs.isEmpty() )
-	    return;
-	if ( e->button() == LeftButton ) {
-	    if ( e->y() >= 0 && e->y() <= height() ) {
-		QObject *o = childs.at( pressedHandle );
-		QDockWindow *dw = qt_cast<QDockWindow*>(o);
-		if ( dw ) {
-		    dw->show();
-		    dw->dock();
-		}
-	    }
-	}
-	pressedHandle = -1;
-	repaint();
+    void mouseReleaseEvent(QMouseEvent *e) {
+        pressed = false;
+        if (pressedHandle == -1)
+            return;
+        QObjectList childs = children();
+        if (childs.isEmpty())
+            return;
+        if (e->button() == LeftButton) {
+            if (e->y() >= 0 && e->y() <= height()) {
+                QObject *o = childs.at(pressedHandle);
+                QDockWindow *dw = qt_cast<QDockWindow*>(o);
+                if (dw) {
+                    dw->show();
+                    dw->dock();
+                }
+            }
+        }
+        pressedHandle = -1;
+        repaint();
     }
 
-    bool eventFilter( QObject *o, QEvent *e ) {
-	if ( o == this || !o->isWidgetType() )
-	    return QWidget::eventFilter( o, e );
-	if ( e->type() == QEvent::HideToParent ||
-	     e->type() == QEvent::ShowToParent)
-	    updateState();
-	return QWidget::eventFilter( o, e );
+    bool eventFilter(QObject *o, QEvent *e) {
+        if (o == this || !o->isWidgetType())
+            return QWidget::eventFilter(o, e);
+        if (e->type() == QEvent::HideToParent ||
+             e->type() == QEvent::ShowToParent)
+            updateState();
+        return QWidget::eventFilter(o, e);
     }
 
     void updateState() {
-	bool visible = true;
-	QObjectList childs = children();
-	if ( childs.isEmpty() )
-	    return;
-	for (int i = 0; i < childs.size(); ++i) {
-	    QObject *o = childs.at(i);
-	    QDockWindow *dw = qt_cast<QDockWindow*>(o);
-	    if ( !dw )
-		continue;
-	    if ( dw->isHidden() ) {
-		visible = false;
-		continue;
-	    }
-	    if ( !dw->isVisible() )
-		continue;
-	    visible = true;
-	    break;
-	}
+        bool visible = true;
+        QObjectList childs = children();
+        if (childs.isEmpty())
+            return;
+        for (int i = 0; i < childs.size(); ++i) {
+            QObject *o = childs.at(i);
+            QDockWindow *dw = qt_cast<QDockWindow*>(o);
+            if (!dw)
+                continue;
+            if (dw->isHidden()) {
+                visible = false;
+                continue;
+            }
+            if (!dw->isVisible())
+                continue;
+            visible = true;
+            break;
+        }
 
-	if ( visible )
-	    show();
-	else
-	    hide();
-	win->triggerLayout( false );
-	update();
+        if (visible)
+            show();
+        else
+            hide();
+        win->triggerLayout(false);
+        update();
     }
 
-    void childEvent( QChildEvent *e ) {
-	QWidget::childEvent( e );
-	if ( e->type() == QEvent::ChildInserted )
-	    e->child()->installEventFilter( this );
-	else
-	    e->child()->removeEventFilter( this );
-	updateState();
+    void childEvent(QChildEvent *e) {
+        QWidget::childEvent(e);
+        if (e->type() == QEvent::ChildInserted)
+            e->child()->installEventFilter(this);
+        else
+            e->child()->removeEventFilter(this);
+        updateState();
     }
 
 private:
@@ -439,28 +439,28 @@ private:
 };
 
 #ifndef QT_NO_TOOLTIP
-void QHideToolTip::maybeTip( const QPoint &pos )
+void QHideToolTip::maybeTip(const QPoint &pos)
 {
-    if ( !parentWidget() )
-	return;
+    if (!parentWidget())
+        return;
     QHideDock *dock = (QHideDock*)parentWidget();
 
     QObjectList dchilds = dock->children();
-    if ( dchilds.isEmpty() )
-	return;
+    if (dchilds.isEmpty())
+        return;
     int x = 0;
     for (int i = 0; i < dchilds.size(); ++i) {
-	QObject *o = dchilds.at(i);
-	QDockWindow *dw = qt_cast<QDockWindow*>(o);
-	if ( !dw || !dw->isVisible() )
-	    continue;
-	if ( pos.x() >= x && pos.x() <= x + 30 ) {
-	    QDockWindow *dw = (QDockWindow*)o;
-	    if ( !dw->windowTitle().isEmpty() )
-		tip( QRect( x, 0, 30, dock->height() ), dw->windowTitle() );
-	    return;
-	}
-	x += 30;
+        QObject *o = dchilds.at(i);
+        QDockWindow *dw = qt_cast<QDockWindow*>(o);
+        if (!dw || !dw->isVisible())
+            continue;
+        if (pos.x() >= x && pos.x() <= x + 30) {
+            QDockWindow *dw = (QDockWindow*)o;
+            if (!dw->windowTitle().isEmpty())
+                tip(QRect(x, 0, 30, dock->height()), dw->windowTitle());
+            return;
+        }
+        x += 30;
     }
 }
 #endif
@@ -488,10 +488,10 @@ void QHideToolTip::maybeTip( const QPoint &pos )
 
     \code
     QMainWindow *mw = new QMainWindow;
-    QTextEdit *edit = new QTextEdit( mw, "editor" );
+    QTextEdit *edit = new QTextEdit(mw, "editor");
     edit->setFocus();
-    mw->setWindowTitle( "Main Window" );
-    mw->setCentralWidget( edit );
+    mw->setWindowTitle("Main Window");
+    mw->setCentralWidget(edit);
     mw->show();
     \endcode
 
@@ -510,7 +510,7 @@ void QHideToolTip::maybeTip( const QPoint &pos )
     approach to using QMainWindow. (The source for the extracts in
     this description are taken from \l application/main.cpp, \l
     application/application.cpp, \l action/main.cpp, and \l
-    action/application.cpp )
+    action/application.cpp)
 
     When subclassing we add the menu items and toolbars in the
     subclass's constructor. If we've created a QMainWindow instance
@@ -690,13 +690,13 @@ void QHideToolTip::maybeTip( const QPoint &pos )
     window to only live within the \c Top or \c Bottom dock:
 
     \code
-    QToolBar *tb = new QToolBar( this );
-    addDockWindow( tb, tr( "Menubar" ), Top, false );
-    QMenuBar *mb = new QMenuBar( tb );
-    mb->setFrameStyle( QFrame::NoFrame );
-    tb->setStretchableWidget( mb );
-    setDockEnabled( tb, Left, false );
-    setDockEnabled( tb, Right, false );
+    QToolBar *tb = new QToolBar(this);
+    addDockWindow(tb, tr("Menubar"), Top, false);
+    QMenuBar *mb = new QMenuBar(tb);
+    mb->setFrameStyle(QFrame::NoFrame);
+    tb->setStretchableWidget(mb);
+    setDockEnabled(tb, Left, false);
+    setDockEnabled(tb, Right, false);
     \endcode
 
     An application with multiple dock windows can choose to save the
@@ -707,11 +707,11 @@ void QHideToolTip::maybeTip( const QPoint &pos )
     To save the layout and positions of all the dock windows do this:
 
     \code
-    QFile file( filename );
-    if ( file.open( IO_WriteOnly ) ) {
-	QTextStream stream( &file );
-	stream << *mainWindow;
-	file.close();
+    QFile file(filename);
+    if (file.open(IO_WriteOnly)) {
+        QTextStream stream(&file);
+        stream << *mainWindow;
+        file.close();
     }
     \endcode
 
@@ -719,11 +719,11 @@ void QHideToolTip::maybeTip( const QPoint &pos )
     application is next started), do following:
 
     \code
-    QFile file( filename );
-    if ( file.open( IO_ReadOnly ) ) {
-	QTextStream stream( &file );
-	stream >> *mainWindow;
-	file.close();
+    QFile file(filename);
+    if (file.open(IO_ReadOnly)) {
+        QTextStream stream(&file);
+        stream >> *mainWindow;
+        file.close();
     }
     \endcode
 
@@ -795,39 +795,39 @@ void QHideToolTip::maybeTip( const QPoint &pos )
 
 /*!
     \obsolete
-    \fn void QMainWindow::addToolBar( QDockWindow *, Dock = Top, bool newLine = false );
+    \fn void QMainWindow::addToolBar(QDockWindow *, Dock = Top, bool newLine = false);
 */
 
 /*!
     \obsolete
-    \fn void QMainWindow::addToolBar( QDockWindow *, const QString &label, Dock = Top, bool newLine = false )
+    \fn void QMainWindow::addToolBar(QDockWindow *, const QString &label, Dock = Top, bool newLine = false)
     \overload
 */
 
 /*!
     \obsolete
-    \fn void QMainWindow::moveToolBar( QDockWindow *, Dock = Top );
+    \fn void QMainWindow::moveToolBar(QDockWindow *, Dock = Top);
 */
 
 /*!
     \obsolete
-    \fn void QMainWindow::moveToolBar( QDockWindow *, Dock, bool nl, int index, int extraOffset = -1 )
+    \fn void QMainWindow::moveToolBar(QDockWindow *, Dock, bool nl, int index, int extraOffset = -1)
     \overload
 */
 
 /*!
     \obsolete
-    \fn void QMainWindow::removeToolBar( QDockWindow * );
+    \fn void QMainWindow::removeToolBar(QDockWindow *);
 */
 
 /*!
     \obsolete
-    \fn void QMainWindow::lineUpToolBars( bool keepNewLines = false );
+    \fn void QMainWindow::lineUpToolBars(bool keepNewLines = false);
 */
 
 /*!
     \obsolete
-    \fn void QMainWindow::toolBarPositionChanged( QToolBar * );
+    \fn void QMainWindow::toolBarPositionChanged(QToolBar *);
 */
 
 /*!
@@ -837,7 +837,7 @@ void QHideToolTip::maybeTip( const QPoint &pos )
 
 /*!
     \obsolete
-    \fn void QMainWindow::setToolBarsMovable( bool )
+    \fn void QMainWindow::setToolBarsMovable(bool)
 */
 
 /*!
@@ -850,8 +850,8 @@ void QHideToolTip::maybeTip( const QPoint &pos )
     f to 0.
 */
 
-QMainWindow::QMainWindow( QWidget * parent, const char * name, WFlags f )
-    : QWidget( parent, name, f )
+QMainWindow::QMainWindow(QWidget * parent, const char * name, WFlags f)
+    : QWidget(parent, name, f)
 {
     setAttribute(WA_PaintOnScreen); // disable double buffering
     d = new QMainWindowPrivate;
@@ -860,16 +860,16 @@ QMainWindow::QMainWindow( QWidget * parent, const char * name, WFlags f )
 #else
     d->opaque = false;
 #endif
-    installEventFilter( this );
-    d->topDock = new QDockArea( Horizontal, QDockArea::Normal, this, "qt_top_dock" );
-    d->topDock->installEventFilter( this );
-    d->bottomDock = new QDockArea( Horizontal, QDockArea::Reverse, this, "qt_bottom_dock" );
-    d->bottomDock->installEventFilter( this );
-    d->leftDock = new QDockArea( Vertical, QDockArea::Normal, this, "qt_left_dock" );
-    d->leftDock->installEventFilter( this );
-    d->rightDock = new QDockArea( Vertical, QDockArea::Reverse, this, "qt_right_dock" );
-    d->rightDock->installEventFilter( this );
-    d->hideDock = new QHideDock( this );
+    installEventFilter(this);
+    d->topDock = new QDockArea(Horizontal, QDockArea::Normal, this, "qt_top_dock");
+    d->topDock->installEventFilter(this);
+    d->bottomDock = new QDockArea(Horizontal, QDockArea::Reverse, this, "qt_bottom_dock");
+    d->bottomDock->installEventFilter(this);
+    d->leftDock = new QDockArea(Vertical, QDockArea::Normal, this, "qt_left_dock");
+    d->leftDock->installEventFilter(this);
+    d->rightDock = new QDockArea(Vertical, QDockArea::Reverse, this, "qt_right_dock");
+    d->rightDock->installEventFilter(this);
+    d->hideDock = new QHideDock(this);
 }
 
 
@@ -892,14 +892,14 @@ QMainWindow::~QMainWindow()
     \sa menuBar()
 */
 
-void QMainWindow::setMenuBar( QMenuBar * newMenuBar )
+void QMainWindow::setMenuBar(QMenuBar * newMenuBar)
 {
-    if ( !newMenuBar )
-	return;
-    if ( d->mb )
-	delete d->mb;
+    if (!newMenuBar)
+        return;
+    if (d->mb)
+        delete d->mb;
     d->mb = newMenuBar;
-    d->mb->installEventFilter( this );
+    d->mb->installEventFilter(this);
     triggerLayout();
 }
 
@@ -914,19 +914,19 @@ void QMainWindow::setMenuBar( QMenuBar * newMenuBar )
 
 QMenuBar * QMainWindow::menuBar() const
 {
-    if ( d->mb )
-	return d->mb;
+    if (d->mb)
+        return d->mb;
 
-    QObjectList l = queryList( "QMenuBar", 0, false, false );
+    QObjectList l = queryList("QMenuBar", 0, false, false);
     QMenuBar * b;
-    if ( l.size() ) {
-	b = static_cast<QMenuBar *>(l.at(0));
+    if (l.size()) {
+        b = static_cast<QMenuBar *>(l.at(0));
     } else {
-	b = new QMenuBar( (QMainWindow *)this, "automatic menu bar" );
-	b->show();
+        b = new QMenuBar((QMainWindow *)this, "automatic menu bar");
+        b->show();
     }
     d->mb = b;
-    d->mb->installEventFilter( this );
+    d->mb->installEventFilter(this);
     ((QMainWindow *)this)->triggerLayout();
     return b;
 }
@@ -946,21 +946,21 @@ QMenuBar * QMainWindow::menuBar() const
     \sa setMenuBar() statusBar()
 */
 
-void QMainWindow::setStatusBar( QStatusBar * newStatusBar )
+void QMainWindow::setStatusBar(QStatusBar * newStatusBar)
 {
-    if ( !newStatusBar || newStatusBar == d->sb )
-	return;
-    if ( d->sb )
-	delete d->sb;
+    if (!newStatusBar || newStatusBar == d->sb)
+        return;
+    if (d->sb)
+        delete d->sb;
     d->sb = newStatusBar;
 #ifndef QT_NO_TOOLTIP
     // ### this code can cause unnecessary creation of a tool tip group
-    connect( toolTipGroup(), SIGNAL(showTip(QString)),
-	     d->sb, SLOT(message(QString)) );
-    connect( toolTipGroup(), SIGNAL(removeTip()),
-	     d->sb, SLOT(clear()) );
+    connect(toolTipGroup(), SIGNAL(showTip(QString)),
+             d->sb, SLOT(message(QString)));
+    connect(toolTipGroup(), SIGNAL(removeTip()),
+             d->sb, SLOT(clear()));
 #endif
-    d->sb->installEventFilter( this );
+    d->sb->installEventFilter(this);
     triggerLayout();
 }
 
@@ -975,19 +975,19 @@ void QMainWindow::setStatusBar( QStatusBar * newStatusBar )
 
 QStatusBar * QMainWindow::statusBar() const
 {
-    if ( d->sb )
-	return d->sb;
+    if (d->sb)
+        return d->sb;
 
-    QObjectList l = queryList( "QStatusBar", 0, false, false );
+    QObjectList l = queryList("QStatusBar", 0, false, false);
     QStatusBar * s;
-    if ( l.size() ) {
-	s = (QStatusBar *)l.at(0);
+    if (l.size()) {
+        s = (QStatusBar *)l.at(0);
     } else {
-	s = new QStatusBar( (QMainWindow *)this, "automatic status bar" );
-	s->show();
+        s = new QStatusBar((QMainWindow *)this, "automatic status bar");
+        s->show();
     }
-    ((QMainWindow *)this)->setStatusBar( s );
-    ((QMainWindow *)this)->triggerLayout( true );
+    ((QMainWindow *)this)->setStatusBar(s);
+    ((QMainWindow *)this)->triggerLayout(true);
     return s;
 }
 
@@ -1004,18 +1004,18 @@ QStatusBar * QMainWindow::statusBar() const
     \sa menuBar() toolTipGroup()
 */
 
-void QMainWindow::setToolTipGroup( QToolTipGroup * newToolTipGroup )
+void QMainWindow::setToolTipGroup(QToolTipGroup * newToolTipGroup)
 {
-    if ( !newToolTipGroup || newToolTipGroup == d->ttg )
-	return;
-    if ( d->ttg )
-	delete d->ttg;
+    if (!newToolTipGroup || newToolTipGroup == d->ttg)
+        return;
+    if (d->ttg)
+        delete d->ttg;
     d->ttg = newToolTipGroup;
 
-    connect( toolTipGroup(), SIGNAL(showTip(QString)),
-	     statusBar(), SLOT(message(QString)) );
-    connect( toolTipGroup(), SIGNAL(removeTip()),
-	     statusBar(), SLOT(clear()) );
+    connect(toolTipGroup(), SIGNAL(showTip(QString)),
+             statusBar(), SLOT(message(QString)));
+    connect(toolTipGroup(), SIGNAL(removeTip()),
+             statusBar(), SLOT(clear()));
 }
 
 
@@ -1028,11 +1028,11 @@ void QMainWindow::setToolTipGroup( QToolTipGroup * newToolTipGroup )
 
 QToolTipGroup * QMainWindow::toolTipGroup() const
 {
-    if ( d->ttg )
-	return d->ttg;
+    if (d->ttg)
+        return d->ttg;
 
-    QToolTipGroup * t = new QToolTipGroup( (QMainWindow*)this,
-					   "automatic tool tip group" );
+    QToolTipGroup * t = new QToolTipGroup((QMainWindow*)this,
+                                           "automatic tool tip group");
     ((QMainWindowPrivate*)d)->ttg = t;
     return t;
 }
@@ -1047,9 +1047,9 @@ QToolTipGroup * QMainWindow::toolTipGroup() const
     Users can dock (drag) dock windows into any enabled dock area.
 */
 
-void QMainWindow::setDockEnabled( Dock dock, bool enable )
+void QMainWindow::setDockEnabled(Dock dock, bool enable)
 {
-    d->docks.insert( dock, enable );
+    d->docks.insert(dock, enable);
 }
 
 
@@ -1060,9 +1060,9 @@ void QMainWindow::setDockEnabled( Dock dock, bool enable )
     \sa setDockEnabled()
 */
 
-bool QMainWindow::isDockEnabled( Dock dock ) const
+bool QMainWindow::isDockEnabled(Dock dock) const
 {
-    return d->docks[ dock ];
+    return d->docks[dock];
 }
 
 /*!
@@ -1074,17 +1074,17 @@ bool QMainWindow::isDockEnabled( Dock dock ) const
     \sa setDockEnabled()
 */
 
-bool QMainWindow::isDockEnabled( QDockArea *area ) const
+bool QMainWindow::isDockEnabled(QDockArea *area) const
 {
 
-    if ( area == d->leftDock )
-	return d->docks[ DockLeft ];
-    if ( area == d->rightDock )
-	return d->docks[ DockRight ];
-    if ( area == d->topDock )
-	return d->docks[ DockTop ];
-    if ( area == d->bottomDock )
-	return d->docks[ DockBottom ];
+    if (area == d->leftDock)
+        return d->docks[DockLeft];
+    if (area == d->rightDock)
+        return d->docks[DockRight];
+    if (area == d->topDock)
+        return d->docks[DockTop];
+    if (area == d->bottomDock)
+        return d->docks[DockBottom];
     return false;
 }
 
@@ -1102,34 +1102,34 @@ bool QMainWindow::isDockEnabled( QDockArea *area ) const
 */
 
 
-void QMainWindow::setDockEnabled( QDockWindow *dw, Dock dock, bool enable )
+void QMainWindow::setDockEnabled(QDockWindow *dw, Dock dock, bool enable)
 {
-    if (d->dockWindows.contains( dw )) {
-	d->dockWindows.append( dw );
-	connect( dw, SIGNAL(placeChanged(QDockWindow::Place)),
-		 this, SLOT(slotPlaceChanged()) );
+    if (d->dockWindows.contains(dw)) {
+        d->dockWindows.append(dw);
+        connect(dw, SIGNAL(placeChanged(QDockWindow::Place)),
+                 this, SLOT(slotPlaceChanged()));
     }
     QString s;
-    s.sprintf( "%p_%d", (void*)dw, (int)dock );
-    if ( enable )
-	d->disabledDocks.remove( s );
+    s.sprintf("%p_%d", (void*)dw, (int)dock);
+    if (enable)
+        d->disabledDocks.remove(s);
     else if (!d->disabledDocks.contains(s))
-	d->disabledDocks << s;
-    switch ( dock ) {
-	case DockTop:
-	    topDock()->setAcceptDockWindow( dw, enable );
-	    break;
-	case DockLeft:
-	    leftDock()->setAcceptDockWindow( dw, enable );
-	    break;
-	case DockRight:
-	    rightDock()->setAcceptDockWindow( dw, enable );
-	    break;
-	case DockBottom:
-	    bottomDock()->setAcceptDockWindow( dw, enable );
-	    break;
-	default:
-	    break;
+        d->disabledDocks << s;
+    switch (dock) {
+        case DockTop:
+            topDock()->setAcceptDockWindow(dw, enable);
+            break;
+        case DockLeft:
+            leftDock()->setAcceptDockWindow(dw, enable);
+            break;
+        case DockRight:
+            rightDock()->setAcceptDockWindow(dw, enable);
+            break;
+        case DockBottom:
+            bottomDock()->setAcceptDockWindow(dw, enable);
+            break;
+        default:
+            break;
     }
 }
 
@@ -1142,22 +1142,22 @@ void QMainWindow::setDockEnabled( QDockWindow *dw, Dock dock, bool enable )
     \sa setDockEnabled()
 */
 
-bool QMainWindow::isDockEnabled( QDockWindow *dw, QDockArea *area ) const
+bool QMainWindow::isDockEnabled(QDockWindow *dw, QDockArea *area) const
 {
-    if ( !isDockEnabled( area ) )
-	return false;
+    if (!isDockEnabled(area))
+        return false;
     Dock dock;
-    if ( area == d->leftDock )
-	dock = DockLeft;
-    else if ( area == d->rightDock )
-	dock = DockRight;
-    else if ( area == d->topDock )
-	dock = DockTop;
-    else if ( area == d->bottomDock )
-	dock = DockBottom;
+    if (area == d->leftDock)
+        dock = DockLeft;
+    else if (area == d->rightDock)
+        dock = DockRight;
+    else if (area == d->topDock)
+        dock = DockTop;
+    else if (area == d->bottomDock)
+        dock = DockBottom;
     else
-	return false;
-    return isDockEnabled( dw, dock );
+        return false;
+    return isDockEnabled(dw, dock);
 }
 
 /*!
@@ -1169,13 +1169,13 @@ bool QMainWindow::isDockEnabled( QDockWindow *dw, QDockArea *area ) const
     \sa setDockEnabled()
 */
 
-bool QMainWindow::isDockEnabled( QDockWindow *tb, Dock dock ) const
+bool QMainWindow::isDockEnabled(QDockWindow *tb, Dock dock) const
 {
-    if ( !isDockEnabled( dock ) )
-	return false;
+    if (!isDockEnabled(dock))
+        return false;
     QString s;
-    s.sprintf( "%p_%d", (void*)tb, (int)dock );
-    return !d->disabledDocks.contains( s );
+    s.sprintf("%p_%d", (void*)tb, (int)dock);
+    return !d->disabledDocks.contains(s);
 }
 
 
@@ -1194,23 +1194,23 @@ bool QMainWindow::isDockEnabled( QDockWindow *tb, Dock dock ) const
     removed from that window.
 */
 
-void QMainWindow::addDockWindow( QDockWindow *dockWindow,
-			      Dock edge, bool newLine )
+void QMainWindow::addDockWindow(QDockWindow *dockWindow,
+                              Dock edge, bool newLine)
 {
 #ifdef Q_WS_MAC
     extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
     if(isTopLevel() && edge == DockTop)
-	ChangeWindowAttributes(qt_mac_window_for((HIViewRef)winId()), kWindowToolbarButtonAttribute, 0);
+        ChangeWindowAttributes(qt_mac_window_for((HIViewRef)winId()), kWindowToolbarButtonAttribute, 0);
 #endif
-    moveDockWindow( dockWindow, edge );
-    dockWindow->setNewLine( newLine );
-    if (!d->dockWindows.contains( dockWindow )) {
-	d->dockWindows.append( dockWindow );
-	connect( dockWindow, SIGNAL(placeChanged(QDockWindow::Place)),
-		 this, SLOT(slotPlaceChanged()) );
-	dockWindow->installEventFilter( this );
+    moveDockWindow(dockWindow, edge);
+    dockWindow->setNewLine(newLine);
+    if (!d->dockWindows.contains(dockWindow)) {
+        d->dockWindows.append(dockWindow);
+        connect(dockWindow, SIGNAL(placeChanged(QDockWindow::Place)),
+                 this, SLOT(slotPlaceChanged()));
+        dockWindow->installEventFilter(this);
     }
-    dockWindow->setOpaqueMoving( d->opaque );
+    dockWindow->setOpaqueMoving(d->opaque);
 }
 
 
@@ -1230,14 +1230,14 @@ void QMainWindow::addDockWindow( QDockWindow *dockWindow,
     removed from that window.
 */
 
-void QMainWindow::addDockWindow( QDockWindow * dockWindow, const QString &label,
-			      Dock edge, bool newLine )
+void QMainWindow::addDockWindow(QDockWindow * dockWindow, const QString &label,
+                              Dock edge, bool newLine)
 {
-    addDockWindow( dockWindow, edge, newLine );
+    addDockWindow(dockWindow, edge, newLine);
 #ifndef QT_NO_TOOLBAR
     QToolBar *tb = qt_cast<QToolBar*>(dockWindow);
-    if ( tb )
-	tb->setLabel( label );
+    if (tb)
+        tb->setLabel(label);
 #endif
 }
 
@@ -1251,46 +1251,46 @@ void QMainWindow::addDockWindow( QDockWindow * dockWindow, const QString &label,
     removed from that window.
 */
 
-void QMainWindow::moveDockWindow( QDockWindow * dockWindow, Dock edge )
+void QMainWindow::moveDockWindow(QDockWindow * dockWindow, Dock edge)
 {
     Orientation oo = dockWindow->orientation();
-    switch ( edge ) {
+    switch (edge) {
     case DockTop:
-	if ( dockWindow->area() != d->topDock )
-	    dockWindow->removeFromDock( false );
-	d->topDock->moveDockWindow( dockWindow );
-	emit dockWindowPositionChanged( dockWindow );
-	break;
+        if (dockWindow->area() != d->topDock)
+            dockWindow->removeFromDock(false);
+        d->topDock->moveDockWindow(dockWindow);
+        emit dockWindowPositionChanged(dockWindow);
+        break;
     case DockBottom:
-	if ( dockWindow->area() != d->bottomDock )
-	    dockWindow->removeFromDock( false );
-	d->bottomDock->moveDockWindow( dockWindow );
-	emit dockWindowPositionChanged( dockWindow );
-	break;
+        if (dockWindow->area() != d->bottomDock)
+            dockWindow->removeFromDock(false);
+        d->bottomDock->moveDockWindow(dockWindow);
+        emit dockWindowPositionChanged(dockWindow);
+        break;
     case DockRight:
-	if ( dockWindow->area() != d->rightDock )
-	    dockWindow->removeFromDock( false );
-	d->rightDock->moveDockWindow( dockWindow );
-	emit dockWindowPositionChanged( dockWindow );
-	break;
+        if (dockWindow->area() != d->rightDock)
+            dockWindow->removeFromDock(false);
+        d->rightDock->moveDockWindow(dockWindow);
+        emit dockWindowPositionChanged(dockWindow);
+        break;
     case DockLeft:
-	if ( dockWindow->area() != d->leftDock )
-	    dockWindow->removeFromDock( false );
-	d->leftDock->moveDockWindow( dockWindow );
-	emit dockWindowPositionChanged( dockWindow );
-	break;
+        if (dockWindow->area() != d->leftDock)
+            dockWindow->removeFromDock(false);
+        d->leftDock->moveDockWindow(dockWindow);
+        emit dockWindowPositionChanged(dockWindow);
+        break;
     case DockTornOff:
-	dockWindow->undock();
-	break;
+        dockWindow->undock();
+        break;
     case DockMinimized:
-	dockWindow->undock( d->hideDock );
-	break;
+        dockWindow->undock(d->hideDock);
+        break;
     case DockUnmanaged:
-	break;
+        break;
     }
 
-    if ( oo != dockWindow->orientation() )
-	dockWindow->setOrientation( dockWindow->orientation() );
+    if (oo != dockWindow->orientation())
+        dockWindow->setOrientation(dockWindow->orientation());
 }
 
 /*!
@@ -1317,45 +1317,45 @@ void QMainWindow::moveDockWindow( QDockWindow * dockWindow, Dock edge )
     removed from that window.
 */
 
-void QMainWindow::moveDockWindow( QDockWindow * dockWindow, Dock edge, bool nl, int index, int extraOffset )
+void QMainWindow::moveDockWindow(QDockWindow * dockWindow, Dock edge, bool nl, int index, int extraOffset)
 {
     Orientation oo = dockWindow->orientation();
 
-    dockWindow->setNewLine( nl );
-    dockWindow->setOffset( extraOffset );
-    switch ( edge ) {
+    dockWindow->setNewLine(nl);
+    dockWindow->setOffset(extraOffset);
+    switch (edge) {
     case DockTop:
-	if ( dockWindow->area() != d->topDock )
-	    dockWindow->removeFromDock( false );
-	d->topDock->moveDockWindow( dockWindow, index );
-	break;
+        if (dockWindow->area() != d->topDock)
+            dockWindow->removeFromDock(false);
+        d->topDock->moveDockWindow(dockWindow, index);
+        break;
     case DockBottom:
-	if ( dockWindow->area() != d->bottomDock )
-	    dockWindow->removeFromDock( false );
-	d->bottomDock->moveDockWindow( dockWindow, index );
-	break;
+        if (dockWindow->area() != d->bottomDock)
+            dockWindow->removeFromDock(false);
+        d->bottomDock->moveDockWindow(dockWindow, index);
+        break;
     case DockRight:
-	if ( dockWindow->area() != d->rightDock )
-	    dockWindow->removeFromDock( false );
-	d->rightDock->moveDockWindow( dockWindow, index );
-	break;
+        if (dockWindow->area() != d->rightDock)
+            dockWindow->removeFromDock(false);
+        d->rightDock->moveDockWindow(dockWindow, index);
+        break;
     case DockLeft:
-	if ( dockWindow->area() != d->leftDock )
-	    dockWindow->removeFromDock( false );
-	d->leftDock->moveDockWindow( dockWindow, index );
-	break;
+        if (dockWindow->area() != d->leftDock)
+            dockWindow->removeFromDock(false);
+        d->leftDock->moveDockWindow(dockWindow, index);
+        break;
     case DockTornOff:
-	dockWindow->undock();
-	break;
+        dockWindow->undock();
+        break;
     case DockMinimized:
-	dockWindow->undock( d->hideDock );
-	break;
+        dockWindow->undock(d->hideDock);
+        break;
     case DockUnmanaged:
-	break;
+        break;
     }
 
-    if ( oo != dockWindow->orientation() )
-	dockWindow->setOrientation( dockWindow->orientation() );
+    if (oo != dockWindow->orientation())
+        dockWindow->setOrientation(dockWindow->orientation());
 }
 
 /*!
@@ -1364,19 +1364,19 @@ void QMainWindow::moveDockWindow( QDockWindow * dockWindow, Dock edge, bool nl, 
     window.
 */
 
-void QMainWindow::removeDockWindow( QDockWindow * dockWindow )
+void QMainWindow::removeDockWindow(QDockWindow * dockWindow)
 {
 #ifdef Q_WS_MAC
     extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
-    if(isTopLevel() && dockWindow->area() == topDock() && !dockWindows( DockTop ).count())
-	ChangeWindowAttributes(qt_mac_window_for((HIViewRef)winId()), 0, kWindowToolbarButtonAttribute);
+    if(isTopLevel() && dockWindow->area() == topDock() && !dockWindows(DockTop).count())
+        ChangeWindowAttributes(qt_mac_window_for((HIViewRef)winId()), 0, kWindowToolbarButtonAttribute);
 #endif
 
     dockWindow->hide();
-    d->dockWindows.remove( dockWindow );
-    disconnect( dockWindow, SIGNAL(placeChanged(QDockWindow::Place)),
-		this, SLOT(slotPlaceChanged()) );
-    dockWindow->removeEventFilter( this );
+    d->dockWindows.remove(dockWindow);
+    disconnect(dockWindow, SIGNAL(placeChanged(QDockWindow::Place)),
+                this, SLOT(slotPlaceChanged()));
+    dockWindow->removeEventFilter(this);
 }
 
 /*!
@@ -1387,79 +1387,79 @@ void QMainWindow::removeDockWindow( QDockWindow * dockWindow )
 void QMainWindow::setUpLayout()
 {
 #ifndef QT_NO_MENUBAR
-    if ( !d->mb ) {
-	// slightly evil hack here.  reconsider this
-	QObjectList l = queryList( "QMenuBar", 0, false, false );
-	if ( l.size() )
-	    d->mb = menuBar();
+    if (!d->mb) {
+        // slightly evil hack here.  reconsider this
+        QObjectList l = queryList("QMenuBar", 0, false, false);
+        if (l.size())
+            d->mb = menuBar();
     }
 #endif
-    if ( !d->sb ) {
-	// as above.
-	QObjectList l = queryList( "QStatusBar", 0, false, false );
-	if ( l.size() )
-	    d->sb = statusBar();
+    if (!d->sb) {
+        // as above.
+        QObjectList l = queryList("QStatusBar", 0, false, false);
+        if (l.size())
+            d->sb = statusBar();
     }
 
     if (!d->tll) {
-        d->tll = new QBoxLayout( this, QBoxLayout::Down );
-        d->tll->setResizeMode( minimumSize().isNull() ? QLayout::Minimum : QLayout::FreeResize );
+        d->tll = new QBoxLayout(this, QBoxLayout::Down);
+        d->tll->setResizeMode(minimumSize().isNull() ? QLayout::Minimum : QLayout::FreeResize);
     } else {
-        d->tll->setMenuBar( 0 );
+        d->tll->setMenuBar(0);
         QLayoutIterator it = d->tll->iterator();
         QLayoutItem *item;
-        while ( (item = it.takeCurrent()) )
-	    delete item;
+        while ((item = it.takeCurrent()))
+            delete item;
     }
 
 #ifndef QT_NO_MENUBAR
-    if ( d->mb && d->mb->isVisibleTo( this ) ) {
-	d->tll->setMenuBar( d->mb );
-	if (style().styleHint(QStyle::SH_MainWindow_SpaceBelowMenuBar, this))
-	    d->tll->addSpacing( d->movable ? 1 : 2 );
+    if (d->mb && d->mb->isVisibleTo(this)) {
+        d->tll->setMenuBar(d->mb);
+        if (style().styleHint(QStyle::SH_MainWindow_SpaceBelowMenuBar, this))
+            d->tll->addSpacing(d->movable ? 1 : 2);
     }
 #endif
 
-    d->tll->addWidget( d->hideDock );
+    d->tll->addWidget(d->hideDock);
     if(d->topDock->parentWidget() == this)
-	d->tll->addWidget( d->topDock );
+        d->tll->addWidget(d->topDock);
 
-    QMainWindowLayout *mwl = new QMainWindowLayout( this, d->tll );
-    d->tll->setStretchFactor( mwl, 1 );
+    QMainWindowLayout *mwl = new QMainWindowLayout(this, d->tll);
+    d->tll->setStretchFactor(mwl, 1);
 
     if(d->leftDock->parentWidget() == this)
-	mwl->setLeftDock( d->leftDock );
-    if ( centralWidget() )
-	mwl->setCentralWidget( centralWidget() );
+        mwl->setLeftDock(d->leftDock);
+    if (centralWidget())
+        mwl->setCentralWidget(centralWidget());
     if(d->rightDock->parentWidget() == this)
-	mwl->setRightDock( d->rightDock );
+        mwl->setRightDock(d->rightDock);
     d->mwl = mwl;
 
     if(d->bottomDock->parentWidget() == this)
-	d->tll->addWidget( d->bottomDock );
+        d->tll->addWidget(d->bottomDock);
 
-    if ( d->sb && d->sb->parentWidget() == this) {
-	d->tll->addWidget( d->sb, 0 );
-	// make the sb stay on top of tool bars if there isn't enough space
-	d->sb->raise();
+    if (d->sb && d->sb->parentWidget() == this) {
+        d->tll->addWidget(d->sb, 0);
+        // make the sb stay on top of tool bars if there isn't enough space
+        d->sb->raise();
     }
 }
 
 /*!  \reimp */
 void QMainWindow::show()
 {
-    if ( !d->tll )
-	setUpLayout();
+    if (!d->tll)
+        setUpLayout();
 
     // show all floating dock windows not explicitly hidden
     if (!isVisible()) {
-	for (int i = 0; i < d->dockWindows.size(); ++i) {
-	    QDockWindow *dw = d->dockWindows.at(i);
-	    if ( dw->isTopLevel() && !dw->isVisible() && !dw->testWState(WState_ForceHide) ) {
-		reinterpret_cast<QMainWindow *>(dw)->setWState(WState_ForceHide);
-		dw->show();
-	    }
-	}
+        for (int i = 0; i < d->dockWindows.size(); ++i) {
+            QDockWindow *dw = d->dockWindows.at(i);
+            if (dw->isTopLevel() && !dw->isVisible() && !dw->testWState(WState_ForceHide)) {
+                reinterpret_cast<QMainWindow *>(dw)->setWState(WState_ForceHide);
+                dw->show();
+            }
+        }
     }
 
     // show us last so we get focus
@@ -1472,13 +1472,13 @@ void QMainWindow::show()
 void QMainWindow::hide()
 {
     if (isVisible()) {
-	for (int i = 0; i < d->dockWindows.size(); ++i) {
-	    QDockWindow *dw = d->dockWindows.at(i);
-	    if ( dw->isTopLevel() && dw->isVisible() ) {
-		dw->hide(); // implicit hide, so clear forcehide
-		reinterpret_cast<QMainWindow *>(dw)->clearWState(WState_ForceHide);
-	    }
-	}
+        for (int i = 0; i < d->dockWindows.size(); ++i) {
+            QDockWindow *dw = d->dockWindows.at(i);
+            if (dw->isTopLevel() && dw->isVisible()) {
+                dw->hide(); // implicit hide, so clear forcehide
+                reinterpret_cast<QMainWindow *>(dw)->clearWState(WState_ForceHide);
+            }
+        }
     }
 
     QWidget::hide();
@@ -1492,18 +1492,18 @@ QSize QMainWindow::sizeHint() const
     // Workaround: because d->tll get's deleted in
     // totalSizeHint->polish->sendPostedEvents->childEvent->triggerLayout
     // [eg. canvas example on Qt/Embedded]
-    QApplication::sendPostedEvents( that, QEvent::ChildInserted );
-    if ( !that->d->tll )
-	that->setUpLayout();
+    QApplication::sendPostedEvents(that, QEvent::ChildInserted);
+    if (!that->d->tll)
+        that->setUpLayout();
     return that->d->tll->totalSizeHint();
 }
 
 /*!  \reimp */
 QSize QMainWindow::minimumSizeHint() const
 {
-    if ( !d->tll ) {
-	QMainWindow* that = (QMainWindow*) this;
-	that->setUpLayout();
+    if (!d->tll) {
+        QMainWindow* that = (QMainWindow*) this;
+        that->setUpLayout();
     }
     return d->tll->totalMinimumSize();
 }
@@ -1517,13 +1517,13 @@ QSize QMainWindow::minimumSizeHint() const
     \sa centralWidget()
 */
 
-void QMainWindow::setCentralWidget( QWidget * w )
+void QMainWindow::setCentralWidget(QWidget * w)
 {
-    if ( d->mc )
-	d->mc->removeEventFilter( this );
+    if (d->mc)
+        d->mc->removeEventFilter(this);
     d->mc = w;
-    if ( d->mc )
-	d->mc->installEventFilter( this );
+    if (d->mc)
+        d->mc->installEventFilter(this);
     triggerLayout();
 }
 
@@ -1545,26 +1545,26 @@ QWidget * QMainWindow::centralWidget() const
 
 /*! \reimp */
 
-void QMainWindow::paintEvent( QPaintEvent * )
+void QMainWindow::paintEvent(QPaintEvent *)
 {
     if (d->mb &&
-	style().styleHint(QStyle::SH_MainWindow_SpaceBelowMenuBar, this)) {
-	QPainter p( this );
-	int y = d->mb->height() + 1;
-	style().drawPrimitive(QStyle::PE_Separator, &p, QRect(0, y, width(), 1),
-			      palette(), QStyle::Style_Sunken);
+        style().styleHint(QStyle::SH_MainWindow_SpaceBelowMenuBar, this)) {
+        QPainter p(this);
+        int y = d->mb->height() + 1;
+        style().drawPrimitive(QStyle::PE_Separator, &p, QRect(0, y, width(), 1),
+                              palette(), QStyle::Style_Sunken);
     }
 }
 
 
-bool QMainWindow::dockMainWindow( QObject *dock )
+bool QMainWindow::dockMainWindow(QObject *dock)
 {
-    while ( dock ) {
-	if ( dock->parent() && dock->parent() == this )
-	    return true;
-	if ( qt_cast<QMainWindow*>(dock->parent()) )
-	    return false;
-	dock = dock->parent();
+    while (dock) {
+        if (dock->parent() && dock->parent() == this)
+            return true;
+        if (qt_cast<QMainWindow*>(dock->parent()))
+            return false;
+        dock = dock->parent();
     }
     return false;
 }
@@ -1573,59 +1573,59 @@ bool QMainWindow::dockMainWindow( QObject *dock )
     \reimp
 */
 
-bool QMainWindow::eventFilter( QObject* o, QEvent *e )
+bool QMainWindow::eventFilter(QObject* o, QEvent *e)
 {
-    if ( e->type() == QEvent::Show && o == this ) {
-	if ( !d->tll )
-	    setUpLayout();
-	d->tll->activate();
-    } else if ( e->type() == QEvent::ContextMenu && d->dockMenu &&
-		( qt_cast<QDockArea*>(o) && dockMainWindow( o ) || o == d->hideDock || o == d->mb ) ) {
-	if ( showDockMenu( ( (QMouseEvent*)e )->globalPos() ) ) {
-	    ( (QContextMenuEvent*)e )->accept();
-	    return true;
-	}
+    if (e->type() == QEvent::Show && o == this) {
+        if (!d->tll)
+            setUpLayout();
+        d->tll->activate();
+    } else if (e->type() == QEvent::ContextMenu && d->dockMenu &&
+                (qt_cast<QDockArea*>(o) && dockMainWindow(o) || o == d->hideDock || o == d->mb)) {
+        if (showDockMenu(((QMouseEvent*)e)->globalPos())) {
+            ((QContextMenuEvent*)e)->accept();
+            return true;
+        }
     }
 
-    return QWidget::eventFilter( o, e );
+    return QWidget::eventFilter(o, e);
 }
 
 
 /*!
     Monitors events, received in \a e, to ensure the layout is updated.
 */
-void QMainWindow::childEvent( QChildEvent* e)
+void QMainWindow::childEvent(QChildEvent* e)
 {
-    if ( e->type() == QEvent::ChildRemoved ) {
-	if ( e->child() == 0 ||
-	     !e->child()->isWidgetType() ||
-	     ((QWidget*)e->child())->testWFlags( WType_TopLevel ) ) {
-	    // nothing
-	} else if ( e->child() == d->sb ) {
-	    d->sb = 0;
-	    triggerLayout();
-	} else if ( e->child() == d->mb ) {
-	    d->mb = 0;
-	    triggerLayout();
-	} else if ( e->child() == d->mc ) {
-	    d->mc = 0;
-	    d->mwl->setCentralWidget( 0 );
-	    triggerLayout();
-	} else if ( qt_cast<QDockWindow*>(e->child()) ) {
-	    removeDockWindow( (QDockWindow *)(e->child()) );
-	    d->appropriate.remove( (QDockWindow*)e->child() );
-	    triggerLayout();
-	}
-    } else if ( e->type() == QEvent::ChildInserted && !d->sb ) {
-	d->sb = qt_cast<QStatusBar*>(e->child());
-	if ( d->sb ) {
-	    if ( d->tll ) {
-		if ( !d->tll->findWidget( d->sb ) )
-		    d->tll->addWidget( d->sb );
-	    } else {
-		triggerLayout();
-	    }
-	}
+    if (e->type() == QEvent::ChildRemoved) {
+        if (e->child() == 0 ||
+             !e->child()->isWidgetType() ||
+             ((QWidget*)e->child())->testWFlags(WType_TopLevel)) {
+            // nothing
+        } else if (e->child() == d->sb) {
+            d->sb = 0;
+            triggerLayout();
+        } else if (e->child() == d->mb) {
+            d->mb = 0;
+            triggerLayout();
+        } else if (e->child() == d->mc) {
+            d->mc = 0;
+            d->mwl->setCentralWidget(0);
+            triggerLayout();
+        } else if (qt_cast<QDockWindow*>(e->child())) {
+            removeDockWindow((QDockWindow *)(e->child()));
+            d->appropriate.remove((QDockWindow*)e->child());
+            triggerLayout();
+        }
+    } else if (e->type() == QEvent::ChildInserted && !d->sb) {
+        d->sb = qt_cast<QStatusBar*>(e->child());
+        if (d->sb) {
+            if (d->tll) {
+                if (!d->tll->findWidget(d->sb))
+                    d->tll->addWidget(d->sb);
+            } else {
+                triggerLayout();
+            }
+        }
     }
 }
 
@@ -1633,22 +1633,22 @@ void QMainWindow::childEvent( QChildEvent* e)
     \reimp
 */
 
-bool QMainWindow::event( QEvent * e )
+bool QMainWindow::event(QEvent * e)
 {
     if (e->type() == QEvent::StatusTip) {
-	QStatusBar *sb = statusBar();
-	if (sb) {
-	    sb->message(static_cast<QStatusTipEvent*>(e)->tip());
-	    return true;
-	}
+        QStatusBar *sb = statusBar();
+        if (sb) {
+            sb->message(static_cast<QStatusTipEvent*>(e)->tip());
+            return true;
+        }
     }
-    if ( e->type() == QEvent::ChildRemoved && ( (QChildEvent*)e )->child() == d->mc ) {
-	d->mc->removeEventFilter( this );
-	d->mc = 0;
-	d->mwl->setCentralWidget( 0 );
+    if (e->type() == QEvent::ChildRemoved && ((QChildEvent*)e)->child() == d->mc) {
+        d->mc->removeEventFilter(this);
+        d->mc = 0;
+        d->mwl->setCentralWidget(0);
     }
 
-    return QWidget::event( e );
+    return QWidget::event(e);
 }
 
 
@@ -1670,17 +1670,17 @@ bool QMainWindow::usesBigPixmaps() const
     return d->ubp;
 }
 
-void QMainWindow::setUsesBigPixmaps( bool enable )
+void QMainWindow::setUsesBigPixmaps(bool enable)
 {
-    if ( enable == (bool)d->ubp )
-	return;
+    if (enable == (bool)d->ubp)
+        return;
 
     d->ubp = enable;
-    emit pixmapSizeChanged( enable );
+    emit pixmapSizeChanged(enable);
 
-    QObjectList l = queryList( "QLayout" );
+    QObjectList l = queryList("QLayout");
     for (int i = 0; i < l.size(); ++i)
-	    static_cast<QLayout *>(l.at(i))->activate();
+            static_cast<QLayout *>(l.at(i))->activate();
 }
 
 /*!
@@ -1704,22 +1704,22 @@ bool QMainWindow::usesTextLabel() const
 }
 
 
-void QMainWindow::setUsesTextLabel( bool enable )
+void QMainWindow::setUsesTextLabel(bool enable)
 {
-    if ( enable == (bool)d->utl )
-	return;
+    if (enable == (bool)d->utl)
+        return;
 
     d->utl = enable;
-    emit usesTextLabelChanged( enable );
+    emit usesTextLabelChanged(enable);
 
-    QObjectList l = queryList( "QLayout" );
+    QObjectList l = queryList("QLayout");
     for (int i = 0; i < l.size(); ++i)
-	    static_cast<QLayout *>(l.at(i))->activate();
+            static_cast<QLayout *>(l.at(i))->activate();
 }
 
 
 /*!
-    \fn void QMainWindow::pixmapSizeChanged( bool )
+    \fn void QMainWindow::pixmapSizeChanged(bool)
 
     This signal is emitted whenever the setUsesBigPixmaps() is called
     with a value different to the current setting. All widgets that
@@ -1728,7 +1728,7 @@ void QMainWindow::setUsesTextLabel( bool enable )
 */
 
 /*!
-    \fn void QMainWindow::usesTextLabelChanged( bool )
+    \fn void QMainWindow::usesTextLabelChanged(bool)
 
     This signal is emitted whenever the setUsesTextLabel() is called
     with a value different to the current setting. All widgets that
@@ -1737,7 +1737,7 @@ void QMainWindow::setUsesTextLabel( bool enable )
 */
 
 /*!
-    \fn void QMainWindow::dockWindowPositionChanged( QDockWindow *dockWindow )
+    \fn void QMainWindow::dockWindowPositionChanged(QDockWindow *dockWindow)
 
     This signal is emitted when the \a dockWindow has changed its
     position. A change in position occurs when a dock window is moved
@@ -1747,12 +1747,12 @@ void QMainWindow::setUsesTextLabel( bool enable )
     \sa getLocation()
 */
 
-void QMainWindow::setRightJustification( bool enable )
+void QMainWindow::setRightJustification(bool enable)
 {
-    if ( enable == (bool)d->justify )
-	return;
+    if (enable == (bool)d->justify)
+        return;
     d->justify = enable;
-    triggerLayout( true );
+    triggerLayout(true);
 }
 
 
@@ -1779,11 +1779,11 @@ bool QMainWindow::rightJustification() const
 /*! \internal
  */
 
-void QMainWindow::triggerLayout( bool deleteLayout )
+void QMainWindow::triggerLayout(bool deleteLayout)
 {
-    if ( deleteLayout || !d->tll )
-	setUpLayout();
-    QApplication::postEvent( this, new QEvent( QEvent::LayoutHint ) );
+    if (deleteLayout || !d->tll)
+        setUpLayout();
+    QApplication::postEvent(this, new QEvent(QEvent::LayoutHint));
 }
 
 /*!
@@ -1794,8 +1794,8 @@ void QMainWindow::triggerLayout( bool deleteLayout )
     be used for popup menus, for example:
 
     \code
-    QPopupMenu * help = new QPopupMenu( this );
-    help->insertItem( "What's &This", this , SLOT(whatsThis()), SHIFT+Key_F1);
+    QPopupMenu * help = new QPopupMenu(this);
+    help->insertItem("What's &This", this , SLOT(whatsThis()), SHIFT+Key_F1);
     \endcode
 
     \sa QWhatsThis::enterWhatsThisMode()
@@ -1826,22 +1826,22 @@ void QMainWindow::whatsThis()
     \sa operator>>() operator<<()
 */
 
-bool QMainWindow::getLocation( QDockWindow *dw, Dock &dock, int &index, bool &nl, int &extraOffset ) const
+bool QMainWindow::getLocation(QDockWindow *dw, Dock &dock, int &index, bool &nl, int &extraOffset) const
 {
     dock = DockTornOff;
-    if ( d->topDock->hasDockWindow( dw, &index ) )
-	dock = DockTop;
-    else if ( d->bottomDock->hasDockWindow( dw, &index ) )
-	dock = DockBottom;
-    else if ( d->leftDock->hasDockWindow( dw, &index ) )
-	dock = DockLeft;
-    else if ( d->rightDock->hasDockWindow( dw, &index ) )
-	dock = DockRight;
-    else if ( dw->parentWidget() == d->hideDock ) {
-	index = 0;
-	dock = DockMinimized;
+    if (d->topDock->hasDockWindow(dw, &index))
+        dock = DockTop;
+    else if (d->bottomDock->hasDockWindow(dw, &index))
+        dock = DockBottom;
+    else if (d->leftDock->hasDockWindow(dw, &index))
+        dock = DockLeft;
+    else if (d->rightDock->hasDockWindow(dw, &index))
+        dock = DockRight;
+    else if (dw->parentWidget() == d->hideDock) {
+        index = 0;
+        dock = DockMinimized;
     } else {
-	index = 0;
+        index = 0;
     }
     nl = dw->newLine();
     extraOffset = dw->offset();
@@ -1859,14 +1859,14 @@ bool QMainWindow::getLocation( QDockWindow *dw, Dock &dock, int &index, bool &nl
     \sa dockWindows()
 */
 
-QList<QToolBar *> QMainWindow::toolBars( Dock dock ) const
+QList<QToolBar *> QMainWindow::toolBars(Dock dock) const
 {
-    QList<QDockWindow *> lst = dockWindows( dock );
+    QList<QDockWindow *> lst = dockWindows(dock);
     QList<QToolBar *> tbl;
     for (int i = 0; i < lst.size(); ++i) {
-	QToolBar *tb = qt_cast<QToolBar *>(lst.at(i));
-	if ( tb )
-	    tbl.append( tb );
+        QToolBar *tb = qt_cast<QToolBar *>(lst.at(i));
+        if (tb)
+            tbl.append(tb);
     }
     return tbl;
 }
@@ -1881,37 +1881,37 @@ QList<QToolBar *> QMainWindow::toolBars( Dock dock ) const
     windows.
 */
 
-QList<QDockWindow *> QMainWindow::dockWindows( Dock dock ) const
+QList<QDockWindow *> QMainWindow::dockWindows(Dock dock) const
 {
     QList<QDockWindow *> lst;
-    switch ( dock ) {
+    switch (dock) {
     case DockTop:
-	return d->topDock->dockWindowList();
+        return d->topDock->dockWindowList();
     case DockBottom:
-	return d->bottomDock->dockWindowList();
+        return d->bottomDock->dockWindowList();
     case DockLeft:
-	return d->leftDock->dockWindowList();
+        return d->leftDock->dockWindowList();
     case DockRight:
-	return d->rightDock->dockWindowList();
+        return d->rightDock->dockWindowList();
     case DockTornOff: {
-	for (int i = 0; i < d->dockWindows.size(); ++i) {
-	    QDockWindow *w = d->dockWindows.at(i);
-	    if ( !w->area() && w->place() == QDockWindow::OutsideDock )
-		lst.append( w );
-	}
+        for (int i = 0; i < d->dockWindows.size(); ++i) {
+            QDockWindow *w = d->dockWindows.at(i);
+            if (!w->area() && w->place() == QDockWindow::OutsideDock)
+                lst.append(w);
+        }
     }
     return lst;
     case DockMinimized: {
-	QObjectList childs = d->hideDock->children();
-	for (int i = 0; i < childs.size(); ++i) {
-	    QDockWindow *dw = qt_cast<QDockWindow*>(childs.at(i));
-	    if ( dw )
-		lst.append( dw );
-	}
+        QObjectList childs = d->hideDock->children();
+        for (int i = 0; i < childs.size(); ++i) {
+            QDockWindow *dw = qt_cast<QDockWindow*>(childs.at(i));
+            if (dw)
+                lst.append(dw);
+        }
     }
     return lst;
     default:
-	break;
+        break;
     }
     return lst;
 }
@@ -1929,12 +1929,12 @@ QList<QDockWindow *> QMainWindow::dockWindows() const
     return d->dockWindows;
 }
 
-void QMainWindow::setDockWindowsMovable( bool enable )
+void QMainWindow::setDockWindowsMovable(bool enable)
 {
     d->movable = enable;
-    QObjectList l = queryList( "QDockWindow" );
+    QObjectList l = queryList("QDockWindow");
     for (int i = 0; i < l.size(); ++i)
-	static_cast<QDockWindow*>(l.at(i))->setMovingEnabled( enable );
+        static_cast<QDockWindow*>(l.at(i))->setMovingEnabled(enable);
 }
 
 /*!
@@ -1963,12 +1963,12 @@ bool QMainWindow::dockWindowsMovable() const
     return d->movable;
 }
 
-void QMainWindow::setOpaqueMoving( bool b )
+void QMainWindow::setOpaqueMoving(bool b)
 {
     d->opaque = b;
-    QObjectList l = queryList( "QDockWindow" );
+    QObjectList l = queryList("QDockWindow");
     for (int i = 0; i < l.size(); ++i)
-	static_cast<QDockWindow*>(l.at(i))->setOpaqueMoving( b );
+        static_cast<QDockWindow*>(l.at(i))->setOpaqueMoving(b);
 }
 
 /*!
@@ -2003,14 +2003,14 @@ bool QMainWindow::opaqueMoving() const
     The method only works if dockWindowsMovable() returns true.
 */
 
-void QMainWindow::lineUpDockWindows( bool keepNewLines )
+void QMainWindow::lineUpDockWindows(bool keepNewLines)
 {
-    if ( !dockWindowsMovable() )
-	return;
-    d->topDock->lineUp( keepNewLines );
-    d->leftDock->lineUp( keepNewLines );
-    d->rightDock->lineUp( keepNewLines );
-    d->bottomDock->lineUp( keepNewLines );
+    if (!dockWindowsMovable())
+        return;
+    d->topDock->lineUp(keepNewLines);
+    d->leftDock->lineUp(keepNewLines);
+    d->rightDock->lineUp(keepNewLines);
+    d->bottomDock->lineUp(keepNewLines);
 }
 
 /*!
@@ -2044,14 +2044,14 @@ bool QMainWindow::isDockMenuEnabled() const
     \sa lineUpDockWindows(), isDockMenuEnabled()
 */
 
-void QMainWindow::setDockMenuEnabled( bool b )
+void QMainWindow::setDockMenuEnabled(bool b)
 {
     d->dockMenu = b;
 }
 
 /*!
     Creates the dock window menu which contains all toolbars (if \a
-    dockWindows is \c OnlyToolBars ), all dock windows (if \a
+    dockWindows is \c OnlyToolBars), all dock windows (if \a
     dockWindows is \c NoToolBars) or all toolbars and dock windows (if
     \a dockWindows is \c AllDockWindows - the default).
 
@@ -2083,17 +2083,17 @@ void QMainWindow::setDockMenuEnabled( bool b )
     useful.
 */
 
-QPopupMenu *QMainWindow::createDockWindowMenu( DockWindows dockWindows ) const
+QPopupMenu *QMainWindow::createDockWindowMenu(DockWindows dockWindows) const
 {
-    QObjectList l = queryList( "QDockWindow" );
+    QObjectList l = queryList("QDockWindow");
 
     if (l.isEmpty())
-	return 0;
+        return 0;
 
-    QPopupMenu *menu = new QPopupMenu( (QMainWindow*)this, "qt_customize_menu" );
-    menu->setCheckable( true );
-    d->dockWindowModes.insert( menu, dockWindows );
-    connect( menu, SIGNAL(aboutToShow()), this, SLOT(menuAboutToShow()) );
+    QPopupMenu *menu = new QPopupMenu((QMainWindow*)this, "qt_customize_menu");
+    menu->setCheckable(true);
+    d->dockWindowModes.insert(menu, dockWindows);
+    connect(menu, SIGNAL(aboutToShow()), this, SLOT(menuAboutToShow()));
     return menu;
 }
 
@@ -2112,60 +2112,60 @@ QPopupMenu *QMainWindow::createDockWindowMenu( DockWindows dockWindows ) const
 void QMainWindow::menuAboutToShow()
 {
     QPopupMenu *menu = (QPopupMenu*)sender();
-    QMap<QPopupMenu*, DockWindows>::Iterator it = d->dockWindowModes.find( menu );
-    if ( it == d->dockWindowModes.end() )
-	return;
+    QMap<QPopupMenu*, DockWindows>::Iterator it = d->dockWindowModes.find(menu);
+    if (it == d->dockWindowModes.end())
+        return;
     menu->clear();
 
     DockWindows dockWindows = *it;
 
-    QObjectList l = queryList( "QDockWindow" );
+    QObjectList l = queryList("QDockWindow");
 
     bool empty = true;
     if (!l.isEmpty()) {
-	if ( dockWindows == AllDockWindows || dockWindows == NoToolBars ) {
-	    for (int i = 0; i < l.size(); ++i) {
-		QDockWindow *dw = (QDockWindow*)l.at(i);
-		if ( !appropriate( dw ) || qt_cast<QToolBar*>(dw) || !dockMainWindow( dw ) )
-		    continue;
-		QString label = dw->windowTitle();
-		if ( !label.isEmpty() ) {
-		    int id = menu->insertItem( label, dw, SLOT(toggleVisible()) );
-		    menu->setItemChecked( id, dw->isVisible() );
-		    empty = false;
-		}
-	    }
-	    if ( !empty )
-		menu->insertSeparator();
-	}
+        if (dockWindows == AllDockWindows || dockWindows == NoToolBars) {
+            for (int i = 0; i < l.size(); ++i) {
+                QDockWindow *dw = (QDockWindow*)l.at(i);
+                if (!appropriate(dw) || qt_cast<QToolBar*>(dw) || !dockMainWindow(dw))
+                    continue;
+                QString label = dw->windowTitle();
+                if (!label.isEmpty()) {
+                    int id = menu->insertItem(label, dw, SLOT(toggleVisible()));
+                    menu->setItemChecked(id, dw->isVisible());
+                    empty = false;
+                }
+            }
+            if (!empty)
+                menu->insertSeparator();
+        }
 
-	empty = true;
+        empty = true;
 
 #ifndef QT_NO_TOOLBAR
-	if ( dockWindows == AllDockWindows || dockWindows == OnlyToolBars ) {
-	    for (int i = 0; i < l.size(); ++i) {
-		QToolBar *tb = qt_cast<QToolBar*>(l.at(i));
-		if ( !tb || !appropriate(tb) || !dockMainWindow(tb) )
-		    continue;
-		QString label = tb->label();
-		if ( !label.isEmpty() ) {
-		    int id = menu->insertItem( label, tb, SLOT(toggleVisible()) );
-		    menu->setItemChecked( id, tb->isVisible() );
-		    empty = false;
-		}
-	    }
-	}
+        if (dockWindows == AllDockWindows || dockWindows == OnlyToolBars) {
+            for (int i = 0; i < l.size(); ++i) {
+                QToolBar *tb = qt_cast<QToolBar*>(l.at(i));
+                if (!tb || !appropriate(tb) || !dockMainWindow(tb))
+                    continue;
+                QString label = tb->label();
+                if (!label.isEmpty()) {
+                    int id = menu->insertItem(label, tb, SLOT(toggleVisible()));
+                    menu->setItemChecked(id, tb->isVisible());
+                    empty = false;
+                }
+            }
+        }
 #endif
 
     }
 
-    if ( !empty )
-	menu->insertSeparator();
+    if (!empty)
+        menu->insertSeparator();
 
-    if ( dockWindowsMovable() )
-	menu->insertItem( tr( "Line up" ), this, SLOT(doLineUp()) );
-    if ( isCustomizable() )
-	menu->insertItem( tr( "Customize..." ), this, SLOT(customize()) );
+    if (dockWindowsMovable())
+        menu->insertItem(tr("Line up"), this, SLOT(doLineUp()));
+    if (isCustomizable())
+        menu->insertItem(tr("Customize..."), this, SLOT(customize()));
 }
 
 /*!
@@ -2186,16 +2186,16 @@ void QMainWindow::menuAboutToShow()
 \endomit
 */
 
-bool QMainWindow::showDockMenu( const QPoint &globalPos )
+bool QMainWindow::showDockMenu(const QPoint &globalPos)
 {
-    if ( !d->dockMenu )
-	return false;
-    if ( !d->rmbMenu )
-	d->rmbMenu = createDockWindowMenu();
-    if ( !d->rmbMenu )
-	return false;
+    if (!d->dockMenu)
+        return false;
+    if (!d->rmbMenu)
+        d->rmbMenu = createDockWindowMenu();
+    if (!d->rmbMenu)
+        return false;
 
-    d->rmbMenu->exec( globalPos );
+    d->rmbMenu->exec(globalPos);
     return true;
 }
 
@@ -2203,12 +2203,12 @@ void QMainWindow::slotPlaceChanged()
 {
     QObject* obj = (QObject*)sender();
     QDockWindow *dw = qt_cast<QDockWindow*>(obj);
-    if ( dw )
-	emit dockWindowPositionChanged( dw );
+    if (dw)
+        emit dockWindowPositionChanged(dw);
 #ifndef QT_NO_TOOLBAR
     QToolBar *tb = qt_cast<QToolBar*>(obj);
-    if ( tb )
-	emit toolBarPositionChanged( tb );
+    if (tb)
+        emit toolBarPositionChanged(tb);
 #endif
 }
 
@@ -2217,18 +2217,18 @@ void QMainWindow::slotPlaceChanged()
     For internal use of QDockWindow only.
  */
 
-QDockArea *QMainWindow::dockingArea( const QPoint &p )
+QDockArea *QMainWindow::dockingArea(const QPoint &p)
 {
     int mh = d->mb ? d->mb->height() : 0;
     int sh = d->sb ? d->sb->height() : 0;
-    if ( p.x() >= -5 && p.x() <= 100 && p.y() > mh && p.y() - height() - sh )
-	return d->leftDock;
-    if ( p.x() >= width() - 100 && p.x() <= width() + 5 && p.y() > mh && p.y() - height() - sh )
-	return d->rightDock;
-    if ( p.y() >= -5 && p.y() < mh + 100 && p.x() >= 0 && p.x() <= width() )
-	return d->topDock;
-    if ( p.y() >= height() - sh - 100 && p.y() <= height() + 5 && p.x() >= 0 && p.x() <= width() )
-	return d->bottomDock;
+    if (p.x() >= -5 && p.x() <= 100 && p.y() > mh && p.y() - height() - sh)
+        return d->leftDock;
+    if (p.x() >= width() - 100 && p.x() <= width() + 5 && p.y() > mh && p.y() - height() - sh)
+        return d->rightDock;
+    if (p.y() >= -5 && p.y() < mh + 100 && p.x() >= 0 && p.x() <= width())
+        return d->topDock;
+    if (p.y() >= height() - sh - 100 && p.y() <= height() + 5 && p.x() >= 0 && p.x() <= width())
+        return d->bottomDock;
     return 0;
 }
 
@@ -2237,7 +2237,7 @@ QDockArea *QMainWindow::dockingArea( const QPoint &p )
     otherwise returns false.
 */
 
-bool QMainWindow::hasDockWindow( QDockWindow *dw )
+bool QMainWindow::hasDockWindow(QDockWindow *dw)
 {
     return d->dockWindows.contains(dw);
 }
@@ -2339,11 +2339,11 @@ bool QMainWindow::isCustomizable() const
     \sa setAppropriate()
 */
 
-bool QMainWindow::appropriate( QDockWindow *dw ) const
+bool QMainWindow::appropriate(QDockWindow *dw) const
 {
-    QMap<QDockWindow*, bool>::ConstIterator it = d->appropriate.find( dw );
-    if ( it == d->appropriate.end() )
-	return true;
+    QMap<QDockWindow*, bool>::ConstIterator it = d->appropriate.find(dw);
+    if (it == d->appropriate.end())
+        return true;
     return *it;
 }
 
@@ -2362,19 +2362,19 @@ bool QMainWindow::appropriate( QDockWindow *dw ) const
     \sa showDockMenu() isCustomizable() customize()
 */
 
-void QMainWindow::setAppropriate( QDockWindow *dw, bool a )
+void QMainWindow::setAppropriate(QDockWindow *dw, bool a)
 {
-    d->appropriate.insert( dw, a );
+    d->appropriate.insert(dw, a);
 }
 
 #ifndef QT_NO_TEXTSTREAM
-static void saveDockArea( QTextStream &ts, QDockArea *a )
+static void saveDockArea(QTextStream &ts, QDockArea *a)
 {
     QList<QDockWindow *> l = a->dockWindowList();
     for (int i = 0; i < l.size(); ++i) {
-	QDockWindow *dw = l.at(i);
-	ts << QString( dw->windowTitle() );
-	ts << ",";
+        QDockWindow *dw = l.at(i);
+        ts << QString(dw->windowTitle());
+        ts << ",";
     }
     ts << endl;
     ts << *a;
@@ -2393,105 +2393,105 @@ static void saveDockArea( QTextStream &ts, QDockArea *a )
     \sa operator>>() closeEvent()
 */
 
-QTextStream &operator<<( QTextStream &ts, const QMainWindow &mainWindow )
+QTextStream &operator<<(QTextStream &ts, const QMainWindow &mainWindow)
 {
-    QList<QDockWindow *> l = mainWindow.dockWindows( Qt::DockMinimized );
+    QList<QDockWindow *> l = mainWindow.dockWindows(Qt::DockMinimized);
     for (int i = 0; i < l.size(); ++i) {
-	QDockWindow *dw = l.at(i);
-	ts << dw->windowTitle();
-	ts << ",";
+        QDockWindow *dw = l.at(i);
+        ts << dw->windowTitle();
+        ts << ",";
     }
     ts << endl;
 
-    l = mainWindow.dockWindows( Qt::DockTornOff );
+    l = mainWindow.dockWindows(Qt::DockTornOff);
     for (int i = 0; i < l.size(); ++i) {
-	QDockWindow *dw = l.at(i);
-	ts << dw->windowTitle();
-	ts << ",";
+        QDockWindow *dw = l.at(i);
+        ts << dw->windowTitle();
+        ts << ",";
     }
     ts << endl;
     for (int i = 0; i < l.size(); ++i) {
-	QDockWindow *dw = l.at(i);
-	ts << "[" << dw->windowTitle() << ","
-	   << (int)dw->geometry().x() << ","
-	   << (int)dw->geometry().y() << ","
-	   << (int)dw->geometry().width() << ","
-	   << (int)dw->geometry().height() << ","
-	   << (int)dw->isVisible() << "]";
+        QDockWindow *dw = l.at(i);
+        ts << "[" << dw->windowTitle() << ","
+           << (int)dw->geometry().x() << ","
+           << (int)dw->geometry().y() << ","
+           << (int)dw->geometry().width() << ","
+           << (int)dw->geometry().height() << ","
+           << (int)dw->isVisible() << "]";
     }
     ts << endl;
 
-    saveDockArea( ts, mainWindow.topDock() );
-    saveDockArea( ts, mainWindow.bottomDock() );
-    saveDockArea( ts, mainWindow.rightDock() );
-    saveDockArea( ts, mainWindow.leftDock() );
+    saveDockArea(ts, mainWindow.topDock());
+    saveDockArea(ts, mainWindow.bottomDock());
+    saveDockArea(ts, mainWindow.rightDock());
+    saveDockArea(ts, mainWindow.leftDock());
     return ts;
 }
 
-static void loadDockArea( const QStringList &names, QDockArea *a, Qt::Dock d, QList<QDockWindow *> &l, QMainWindow *mw, QTextStream &ts )
+static void loadDockArea(const QStringList &names, QDockArea *a, Qt::Dock d, QList<QDockWindow *> &l, QMainWindow *mw, QTextStream &ts)
 {
-    for ( QStringList::ConstIterator it = names.begin(); it != names.end(); ++it ) {
-	for (int i = 0; i < l.size(); ++i) {
-	    QDockWindow *dw = l.at(i);
-	    if ( dw->windowTitle() == *it ) {
-		mw->addDockWindow( dw, d );
-		break;
-	    }
-	}
+    for (QStringList::ConstIterator it = names.begin(); it != names.end(); ++it) {
+        for (int i = 0; i < l.size(); ++i) {
+            QDockWindow *dw = l.at(i);
+            if (dw->windowTitle() == *it) {
+                mw->addDockWindow(dw, d);
+                break;
+            }
+        }
     }
-    if ( a ) {
-	ts >> *a;
-    } else if ( d == Qt::DockTornOff ) {
-	QString s = ts.readLine();
-	enum State { Pre, Name, X, Y, Width, Height, Visible, Post };
-	int state = Pre;
-	QString name, x, y, w, h, visible;
-	QChar c;
-	for ( int i = 0; i < (int)s.length(); ++i ) {
-	    c = s[ i ];
-	    if ( state == Pre && c == '[' ) {
-		state++;
-		continue;
-	    }
-	    if ( c == ',' &&
-		 ( state == Name || state == X || state == Y || state == Width || state == Height ) ) {
-		state++;
-		continue;
-	    }
-	    if ( state == Visible && c == ']' ) {
-		for (int i = 0; i < l.size(); ++i) {
-		    QDockWindow *dw = l.at(i);
-		    if ( QString( dw->windowTitle() ) == name ) {
-			if ( !qt_cast<QToolBar*>(dw) )
-			    dw->setGeometry( x.toInt(), y.toInt(), w.toInt(), h.toInt() );
-			else
-			    dw->setGeometry( x.toInt(), y.toInt(), dw->width(), dw->height() );
-			if ( !(bool)visible.toInt() )
-			    dw->hide();
-			else
-			    dw->show();
-			break;
-		    }
-		}
+    if (a) {
+        ts >> *a;
+    } else if (d == Qt::DockTornOff) {
+        QString s = ts.readLine();
+        enum State { Pre, Name, X, Y, Width, Height, Visible, Post };
+        int state = Pre;
+        QString name, x, y, w, h, visible;
+        QChar c;
+        for (int i = 0; i < (int)s.length(); ++i) {
+            c = s[i];
+            if (state == Pre && c == '[') {
+                state++;
+                continue;
+            }
+            if (c == ',' &&
+                 (state == Name || state == X || state == Y || state == Width || state == Height)) {
+                state++;
+                continue;
+            }
+            if (state == Visible && c == ']') {
+                for (int i = 0; i < l.size(); ++i) {
+                    QDockWindow *dw = l.at(i);
+                    if (QString(dw->windowTitle()) == name) {
+                        if (!qt_cast<QToolBar*>(dw))
+                            dw->setGeometry(x.toInt(), y.toInt(), w.toInt(), h.toInt());
+                        else
+                            dw->setGeometry(x.toInt(), y.toInt(), dw->width(), dw->height());
+                        if (!(bool)visible.toInt())
+                            dw->hide();
+                        else
+                            dw->show();
+                        break;
+                    }
+                }
 
-		name = x = y = w = h = visible = "";
+                name = x = y = w = h = visible = "";
 
-		state = Pre;
-		continue;
-	    }
-	    if ( state == Name )
-		name += c;
-	    else if ( state == X )
-		x += c;
-	    else if ( state == Y )
-		y += c;
-	    else if ( state == Width )
-		w += c;
-	    else if ( state == Height )
-		h += c;
-	    else if ( state == Visible )
-		visible += c;
-	}
+                state = Pre;
+                continue;
+            }
+            if (state == Name)
+                name += c;
+            else if (state == X)
+                x += c;
+            else if (state == Y)
+                y += c;
+            else if (state == Width)
+                w += c;
+            else if (state == Height)
+                h += c;
+            else if (state == Visible)
+                visible += c;
+        }
     }
 }
 
@@ -2511,24 +2511,24 @@ static void loadDockArea( const QStringList &names, QDockArea *a, Qt::Dock d, QL
     \sa operator<<()
 */
 
-QTextStream &operator>>( QTextStream &ts, QMainWindow &mainWindow )
+QTextStream &operator>>(QTextStream &ts, QMainWindow &mainWindow)
 {
     QList<QDockWindow *> l = mainWindow.dockWindows();
 
     QString s = ts.readLine();
     QStringList names = s.split(',');
-    loadDockArea( names, 0, Qt::DockMinimized, l, &mainWindow, ts );
+    loadDockArea(names, 0, Qt::DockMinimized, l, &mainWindow, ts);
 
     s = ts.readLine();
     names = s.split(',');
-    loadDockArea( names, 0, Qt::DockTornOff, l, &mainWindow, ts );
+    loadDockArea(names, 0, Qt::DockTornOff, l, &mainWindow, ts);
 
     int i = 0;
     QDockArea *areas[] = { mainWindow.topDock(), mainWindow.bottomDock(), mainWindow.rightDock(), mainWindow.leftDock() };
-    for ( int d = (int)Qt::DockTop; d != (int)Qt::DockMinimized; ++d, ++i ) {
-	s = ts.readLine();
-	names = s.split(',');
-	loadDockArea( names, areas[ i ], (Qt::Dock)d, l, &mainWindow, ts );
+    for (int d = (int)Qt::DockTop; d != (int)Qt::DockMinimized; ++d, ++i) {
+        s = ts.readLine();
+        names = s.split(',');
+        loadDockArea(names, areas[i], (Qt::Dock)d, l, &mainWindow, ts);
     }
     return ts;
 }

@@ -28,62 +28,62 @@ class QProgressBarPrivate;
 class Q_GUI_EXPORT QProgressBar : public QFrame
 {
     Q_OBJECT
-    Q_PROPERTY( int totalSteps READ totalSteps WRITE setTotalSteps )
-    Q_PROPERTY( int progress READ progress WRITE setProgress )
-    Q_PROPERTY( QString progressString READ progressString )
-    Q_PROPERTY( bool centerIndicator READ centerIndicator WRITE setCenterIndicator )
-    Q_PROPERTY( bool indicatorFollowsStyle READ indicatorFollowsStyle WRITE setIndicatorFollowsStyle )
-    Q_PROPERTY( bool percentageVisible READ percentageVisible WRITE setPercentageVisible )
+    Q_PROPERTY(int totalSteps READ totalSteps WRITE setTotalSteps)
+    Q_PROPERTY(int progress READ progress WRITE setProgress)
+    Q_PROPERTY(QString progressString READ progressString)
+    Q_PROPERTY(bool centerIndicator READ centerIndicator WRITE setCenterIndicator)
+    Q_PROPERTY(bool indicatorFollowsStyle READ indicatorFollowsStyle WRITE setIndicatorFollowsStyle)
+    Q_PROPERTY(bool percentageVisible READ percentageVisible WRITE setPercentageVisible)
 
 public:
-    QProgressBar( QWidget* parent=0, const char* name=0, WFlags f=0 );
-    QProgressBar( int totalSteps, QWidget* parent=0, const char* name=0, WFlags f=0 );
+    QProgressBar(QWidget* parent=0, const char* name=0, WFlags f=0);
+    QProgressBar(int totalSteps, QWidget* parent=0, const char* name=0, WFlags f=0);
 
-    int		totalSteps() const;
-    int		progress()   const;
+    int                totalSteps() const;
+    int                progress()   const;
     const QString &progressString() const;
 
-    QSize	sizeHint() const;
-    QSize	minimumSizeHint() const;
+    QSize        sizeHint() const;
+    QSize        minimumSizeHint() const;
 
-    void	setCenterIndicator( bool on );
-    bool	centerIndicator() const;
+    void        setCenterIndicator(bool on);
+    bool        centerIndicator() const;
 
-    void        setIndicatorFollowsStyle( bool );
-    bool	indicatorFollowsStyle() const;
+    void        setIndicatorFollowsStyle(bool);
+    bool        indicatorFollowsStyle() const;
 
-    bool	percentageVisible() const;
-    void	setPercentageVisible( bool );
+    bool        percentageVisible() const;
+    void        setPercentageVisible(bool);
 
-    void	show();
+    void        show();
 
 public slots:
-    void	reset();
-    virtual void setTotalSteps( int totalSteps );
-    virtual void setProgress( int progress );
-    void	setProgress( int progress, int totalSteps );
+    void        reset();
+    virtual void setTotalSteps(int totalSteps);
+    virtual void setProgress(int progress);
+    void        setProgress(int progress, int totalSteps);
 
 protected:
-    void	paintEvent( QPaintEvent * );
-    virtual bool setIndicator( QString & progress_str, int progress,
-			       int totalSteps );
-    void changeEvent( QEvent * );
+    void        paintEvent(QPaintEvent *);
+    virtual bool setIndicator(QString & progress_str, int progress,
+                               int totalSteps);
+    void changeEvent(QEvent *);
 
 private:
-    int		total_steps;
-    int		progress_val;
-    int		percentage;
-    QString	progress_str;
+    int                total_steps;
+    int                progress_val;
+    int                percentage;
+    QString        progress_str;
     bool        center_indicator    : 1;
-    bool        auto_indicator	    : 1;
-    bool	percentage_visible  : 1;
+    bool        auto_indicator            : 1;
+    bool        percentage_visible  : 1;
     QProgressBarPrivate * d;
     void         initFrame();
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QProgressBar( const QProgressBar & );
-    QProgressBar &operator=( const QProgressBar & );
+    QProgressBar(const QProgressBar &);
+    QProgressBar &operator=(const QProgressBar &);
 #endif
 };
 

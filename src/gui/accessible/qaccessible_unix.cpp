@@ -29,50 +29,50 @@ void QAccessible::initialize()
 {
     if (qstrcmp(getenv("QT_ACCESSIBILITY"), "1") != 0)
         return;
-    
+
     if (!qSetRootObject)
-	qSetRootObject = (QSetRootObject)QLibrary::resolve("qaccclient", "qSetRootObject");
+        qSetRootObject = (QSetRootObject)QLibrary::resolve("qaccclient", "qSetRootObject");
     if (!qNotifyAccessibilityUpdate)
-	qNotifyAccessibilityUpdate = (QNotifyAccessibilityUpdate)QLibrary::resolve("qaccclient", "qNotifyAccessibilityUpdate");
+        qNotifyAccessibilityUpdate = (QNotifyAccessibilityUpdate)QLibrary::resolve("qaccclient", "qNotifyAccessibilityUpdate");
 }
 
 void QAccessible::cleanup()
 {
 }
 
-void QAccessible::updateAccessibility( QObject *o, int who, Event reason )
+void QAccessible::updateAccessibility(QObject *o, int who, Event reason)
 {
     Q_ASSERT(o);
 
     if (updateHandler) {
-	updateHandler(o, who, reason);
-	return;
+        updateHandler(o, who, reason);
+        return;
     }
 
     initialize();
     if (!qNotifyAccessibilityUpdate)
-	return;
+        return;
 
     QAccessibleInterface *iface = 0;
     QAccessible::queryAccessibleInterface(o, &iface);
     if (iface)
-	qNotifyAccessibilityUpdate(reason, iface, who);
+        qNotifyAccessibilityUpdate(reason, iface, who);
 }
 
 void QAccessible::setRootObject(QObject *o)
 {
     if (rootObjectHandler) {
-	rootObjectHandler(o);
-	return;
+        rootObjectHandler(o);
+        return;
     }
 
     initialize();
     if (!qSetRootObject)
-	return;
+        return;
 
     QAccessibleInterface *iface = 0;
     if (o)
-	QAccessible::queryAccessibleInterface(o, &iface);
+        QAccessible::queryAccessibleInterface(o, &iface);
     qSetRootObject(iface);
     iface->release();
 }

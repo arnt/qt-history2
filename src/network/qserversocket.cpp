@@ -68,12 +68,12 @@ public:
     value larger than 0.
 */
 
-QServerSocket::QServerSocket( Q_UINT16 port, int backlog,
-			      QObject *parent, const char *name )
-    : QObject( parent, name )
+QServerSocket::QServerSocket(Q_UINT16 port, int backlog,
+                              QObject *parent, const char *name)
+    : QObject(parent, name)
 {
     d = new QServerSocketPrivate;
-    init( QHostAddress(), port, backlog );
+    init(QHostAddress(), port, backlog);
 }
 
 
@@ -90,13 +90,13 @@ QServerSocket::QServerSocket( Q_UINT16 port, int backlog,
     value larger than 0.
 */
 
-QServerSocket::QServerSocket( const QHostAddress & address, Q_UINT16 port,
-			      int backlog,
-			      QObject *parent, const char *name )
-    : QObject( parent, name )
+QServerSocket::QServerSocket(const QHostAddress & address, Q_UINT16 port,
+                              int backlog,
+                              QObject *parent, const char *name)
+    : QObject(parent, name)
 {
     d = new QServerSocketPrivate;
-    init( address, port, backlog );
+    init(address, port, backlog);
 }
 
 
@@ -113,15 +113,15 @@ QServerSocket::QServerSocket( const QHostAddress & address, Q_UINT16 port,
     \sa setSocket()
 */
 
-QServerSocket::QServerSocket( QObject *parent, const char *name )
-    : QObject( parent, name )
+QServerSocket::QServerSocket(QObject *parent, const char *name)
+    : QObject(parent, name)
 {
     d = new QServerSocketPrivate;
 }
 
 
 /*!
-    Returns TRUE if the construction succeeded; otherwise returns FALSE.
+    Returns true if the construction succeeded; otherwise returns false.
 */
 bool QServerSocket::ok() const
 {
@@ -131,28 +131,28 @@ bool QServerSocket::ok() const
 /*
   The common bit of the constructors.
  */
-void QServerSocket::init( const QHostAddress & address, Q_UINT16 port, int backlog )
+void QServerSocket::init(const QHostAddress & address, Q_UINT16 port, int backlog)
 {
-    d->s = new QSocketDevice( QSocketDevice::Stream, address.isIPv4Address()
-			      ? QSocketDevice::IPv4 : QSocketDevice::IPv6, 0 );
+    d->s = new QSocketDevice(QSocketDevice::Stream, address.isIPv4Address()
+                              ? QSocketDevice::IPv4 : QSocketDevice::IPv6, 0);
 #if !defined(Q_OS_WIN32)
     // Under Unix, we want to be able to use the port, even if a socket on the
     // same address-port is in TIME_WAIT. Under Windows this is possible anyway
     // -- furthermore, the meaning of reusable is different: it means that you
     // can use the same address-port for multiple listening sockets.
-    d->s->setAddressReusable( TRUE );
+    d->s->setAddressReusable(true);
 #endif
-    if ( d->s->bind( address, port )
-      && d->s->listen( backlog ) )
+    if (d->s->bind(address, port)
+      && d->s->listen(backlog))
     {
-	d->n = new QSocketNotifier( d->s->socket(), QSocketNotifier::Read,
-				    this, "accepting new connections" );
-	connect( d->n, SIGNAL(activated(int)),
-		 this, SLOT(incomingConnection(int)) );
+        d->n = new QSocketNotifier(d->s->socket(), QSocketNotifier::Read,
+                                    this, "accepting new connections");
+        connect(d->n, SIGNAL(activated(int)),
+                 this, SLOT(incomingConnection(int)));
     } else {
-	qWarning( "QServerSocket: failed to bind or listen to the socket" );
-	delete d->s;
-	d->s = 0;
+        qWarning("QServerSocket: failed to bind or listen to the socket");
+        delete d->s;
+        d->s = 0;
     }
 }
 
@@ -174,7 +174,7 @@ QServerSocket::~QServerSocket()
 
 
 /*!
-    \fn void QServerSocket::newConnection( int socket )
+    \fn void QServerSocket::newConnection(int socket)
 
     This pure virtual function is responsible for setting up a new
     incoming connection. \a socket is the fd (file descriptor) for the
@@ -182,26 +182,26 @@ QServerSocket::~QServerSocket()
 */
 
 
-void QServerSocket::incomingConnection( int )
+void QServerSocket::incomingConnection(int)
 {
     int fd = d->s->accept();
-    if ( fd >= 0 )
-	newConnection( fd );
+    if (fd >= 0)
+        newConnection(fd);
 }
 
 
 /*!
     Returns the port number on which this server socket listens. This
     is always non-zero; if you specify 0 in the constructor,
-    QServerSocket will pick a non-zero port itself. ok() must be TRUE
+    QServerSocket will pick a non-zero port itself. ok() must be true
     before calling this function.
 
     \sa address() QSocketDevice::port()
 */
 Q_UINT16 QServerSocket::port() const
 {
-    if ( !d || !d->s )
-	return 0;
+    if (!d || !d->s)
+        return 0;
     return d->s->port();
 }
 
@@ -211,23 +211,23 @@ Q_UINT16 QServerSocket::port() const
 */
 int QServerSocket::socket() const
 {
-    if ( !d || !d->s )
-	return -1;
+    if (!d || !d->s)
+        return -1;
 
     return d->s->socket();
 }
 
 /*!
     Returns the address on which this object listens, or 0.0.0.0 if
-    this object listens on more than one address. ok() must be TRUE
+    this object listens on more than one address. ok() must be true
     before calling this function.
 
     \sa port() QSocketDevice::address()
 */
 QHostAddress QServerSocket::address() const
 {
-    if ( !d || !d->s )
-	return QHostAddress();
+    if (!d || !d->s)
+        return QHostAddress();
 
     return d->s->address();
 }
@@ -243,8 +243,8 @@ QHostAddress QServerSocket::address() const
 */
 QSocketDevice *QServerSocket::socketDevice()
 {
-    if ( !d )
-	return 0;
+    if (!d)
+        return 0;
 
     return d->s;
 }
@@ -257,15 +257,15 @@ QSocketDevice *QServerSocket::socketDevice()
     This allows us to use the QServerSocket class as a wrapper for
     other socket types (e.g. Unix Domain Sockets).
 */
-void QServerSocket::setSocket( int socket )
+void QServerSocket::setSocket(int socket)
 {
     delete d;
     d = new QServerSocketPrivate;
-    d->s = new QSocketDevice( socket, QSocketDevice::Stream );
-    d->n = new QSocketNotifier( d->s->socket(), QSocketNotifier::Read,
-	       this, "accepting new connections" );
-    connect( d->n, SIGNAL(activated(int)),
-	     this, SLOT(incomingConnection(int)) );
+    d->s = new QSocketDevice(socket, QSocketDevice::Stream);
+    d->n = new QSocketNotifier(d->s->socket(), QSocketNotifier::Read,
+               this, "accepting new connections");
+    connect(d->n, SIGNAL(activated(int)),
+             this, SLOT(incomingConnection(int)));
 }
 
 #endif //QT_NO_NETWORK

@@ -58,49 +58,49 @@
     This enum type defines bitflags that can be combined to indicate
     the state of an accessible object. The values are:
 
-    \value Normal	    The normal state.
-    \value Unavailable	    The object is unavailable to the user, e.g. a disabled widget.
-    \value Selectable	    The object can be selectable.
+    \value Normal            The normal state.
+    \value Unavailable            The object is unavailable to the user, e.g. a disabled widget.
+    \value Selectable            The object can be selectable.
     \value MultiSelectable  The object can have multiple selected items.
     \value ExtSelectable    The object supports extended selection.
-    \value Selected	    The object is selected.
-    \value Focusable	    The object can receive focus. Only objects on the active
-    \value Focused	    The object has keyboard focus.
-    \value Pressed	    The object is pressed.
-    \value Checked	    The object's check box is checked.
-    \value Mixed	    The state of the object is not determined, e.g. a tri-state
-			    check box that is neither checked nor unchecked.
-    \value ReadOnly	    The object can usually be edited, but is explicitly set to
-			    read-only.
-    \value Protected	    The object is password protected, e.g. a line edit for entering
-			    a Password.
-    \value HotTracked	    The object's appearance is sensitive to the mouse cursor position.
+    \value Selected            The object is selected.
+    \value Focusable            The object can receive focus. Only objects on the active
+    \value Focused            The object has keyboard focus.
+    \value Pressed            The object is pressed.
+    \value Checked            The object's check box is checked.
+    \value Mixed            The state of the object is not determined, e.g. a tri-state
+                            check box that is neither checked nor unchecked.
+    \value ReadOnly            The object can usually be edited, but is explicitly set to
+                            read-only.
+    \value Protected            The object is password protected, e.g. a line edit for entering
+                            a Password.
+    \value HotTracked            The object's appearance is sensitive to the mouse cursor position.
     \value DefaultButton    The object represents the default button in a dialog.
-    \value Expanded	    The object is expandable, and currently the children are visible.
-    \value Collapsed	    The object is collapsed, e.g. a closed listview item, or an
-			    iconified window.
-    \value Busy		    The object cannot accept input temporarily.
+    \value Expanded            The object is expandable, and currently the children are visible.
+    \value Collapsed            The object is collapsed, e.g. a closed listview item, or an
+                            iconified window.
+    \value Busy                    The object cannot accept input temporarily.
     \omit
     \value Floating
     \endomit
-    \value Marqueed	    The object displays scrolling contents, e.g. a log view.
-    \value Animated	    The object's appearance changes frequently.
-    \value Invisible	    The object is not visible to the user.
-    \value Offscreen	    The object is clipped by the visible area. Objects that are
-			    offscreen are also invisible.
-    \value Sizeable	    The object can be resized, e.g. toplevel windows.
-    \value Moveable	    The object can be moved.
-    \value SelfVoicing	    The object describes itself through speach or sound.
-			    window can receive focus.
-    \value Linked	    The object is linked to another object, e.g. a hyperlink.
-    \value Traversed	    The object is linked and has been visited.
+    \value Marqueed            The object displays scrolling contents, e.g. a log view.
+    \value Animated            The object's appearance changes frequently.
+    \value Invisible            The object is not visible to the user.
+    \value Offscreen            The object is clipped by the visible area. Objects that are
+                            offscreen are also invisible.
+    \value Sizeable            The object can be resized, e.g. toplevel windows.
+    \value Moveable            The object can be moved.
+    \value SelfVoicing            The object describes itself through speach or sound.
+                            window can receive focus.
+    \value Linked            The object is linked to another object, e.g. a hyperlink.
+    \value Traversed            The object is linked and has been visited.
     \omit
     \value AlertLow
     \value AlertMedium
     \value AlertHigh
     \endomit
-    \value HasPopup	    The object opens a popup.
-    \value Modal	    The object blocks input from other objects.
+    \value HasPopup            The object opens a popup.
+    \value Modal            The object blocks input from other objects.
 
     Implementations of QAccessibleInterface::state() return a combination
     of those flags.
@@ -153,80 +153,80 @@
 
     This enum defines the role of an accessible object. The roles are:
 
-    \value NoRole	    The object has no role. This usually indicates an invalid object.
-    \value TitleBar	    A title bar caption of a window.
-    \value MenuBar	    A menu bar from which menus are opened by the user.
-    \value MenuItem	    An item in a menu or menu bar.
-    \value PopupMenu	    A menu which lists options that the user can select to perform an
-			    action.
-    \value ScrollBar	    A scroll bar, which allows the user to scroll the visible area.
-    \value ToolBar	    A tool bar, which groups controls that the user accesses frequently.
-    \value StatusBar	    A status bar, displaying different information.
-    \value Grip		    A grip that the user can drag to change the size of controls.
-    \value Sound	    An object representing sound.
-    \value Cursor	    The object represents the mouse cursor.
-    \value Caret	    The object represents the system caret.
-    \value AlertMessage	    The object is used to alert the user.
-    \value Window	    A top level window.
-    \value Client	    The client area in a window.
-    \value Application	    The application main window.
-    \value Document	    A document window, usually in an MDI environment.
-    \value Pane		    A generic container.
-    \value Chart	    An object displays a graphical representation of data.
-    \value Dialog	    A dialog box.
-    \value Border	    The object represents a border.
-    \value Grouping	    The object represents logical grouping of other objects.
-    \value LayeredPane	    An object that can contain layered children, e.g. in a stack.
-    \value Splitter	    A splitter distributing available space between the children.
-    \value Separator	    A separator that divides space into logical areas.
-    \value Table	    A table representing data in a grid of rows and columns.
-    \value ColumnHeader	    A header for a column of data.
-    \value RowHeader	    A header for a row of data.
-    \value Column	    A column of cells, usually within a table.
-    \value Row		    A row of cells, usually within a table.
-    \value Cell		    A cell in a table.
-    \value Link		    A link to something else.
-    \value ToolTip	    A tool tip which provides information about other objects.
-    \value HelpBalloon	    An object displaying help in a separate, short lived window.
-    \value Assistant	    An object providing help interactively.
-    \value List		    A list of items, allowing the user to select one or more items.
-    \value ListItem	    An item in a list of items.
-    \value Tree		    A list of items in a tree structure.
-    \value TreeItem	    An item in a tree structure.
-    \value PageTab	    A page tab that the user can select to switch to a different
-			    page in a dialog.
-    \value PageTabList	    A list of page tabs.
-    \value PropertyPage	    A property page where the user can change options and settings.
-    \value Indicator	    An indicator that represents a current value or item.
-    \value Graphic	    A graphic or picture, e.g. an icon.
-    \value StaticText	    Static text, such as labels for other controls.
-    \value EditableText	    Editable text
-    \value PushButton	    A push button control.
-    \value CheckBox	    The object represents an option that can be checked or
-			    unchecked. Some options provide a "mixed" state, e.g. neither
-			    checked nor unchecked.
-    \value RadioButton	    The object represents an option that is mutually exclusive
-			    with other options.
-    \value ComboBox	    A list of choices that the user can select from.
+    \value NoRole            The object has no role. This usually indicates an invalid object.
+    \value TitleBar            A title bar caption of a window.
+    \value MenuBar            A menu bar from which menus are opened by the user.
+    \value MenuItem            An item in a menu or menu bar.
+    \value PopupMenu            A menu which lists options that the user can select to perform an
+                            action.
+    \value ScrollBar            A scroll bar, which allows the user to scroll the visible area.
+    \value ToolBar            A tool bar, which groups controls that the user accesses frequently.
+    \value StatusBar            A status bar, displaying different information.
+    \value Grip                    A grip that the user can drag to change the size of controls.
+    \value Sound            An object representing sound.
+    \value Cursor            The object represents the mouse cursor.
+    \value Caret            The object represents the system caret.
+    \value AlertMessage            The object is used to alert the user.
+    \value Window            A top level window.
+    \value Client            The client area in a window.
+    \value Application            The application main window.
+    \value Document            A document window, usually in an MDI environment.
+    \value Pane                    A generic container.
+    \value Chart            An object displays a graphical representation of data.
+    \value Dialog            A dialog box.
+    \value Border            The object represents a border.
+    \value Grouping            The object represents logical grouping of other objects.
+    \value LayeredPane            An object that can contain layered children, e.g. in a stack.
+    \value Splitter            A splitter distributing available space between the children.
+    \value Separator            A separator that divides space into logical areas.
+    \value Table            A table representing data in a grid of rows and columns.
+    \value ColumnHeader            A header for a column of data.
+    \value RowHeader            A header for a row of data.
+    \value Column            A column of cells, usually within a table.
+    \value Row                    A row of cells, usually within a table.
+    \value Cell                    A cell in a table.
+    \value Link                    A link to something else.
+    \value ToolTip            A tool tip which provides information about other objects.
+    \value HelpBalloon            An object displaying help in a separate, short lived window.
+    \value Assistant            An object providing help interactively.
+    \value List                    A list of items, allowing the user to select one or more items.
+    \value ListItem            An item in a list of items.
+    \value Tree                    A list of items in a tree structure.
+    \value TreeItem            An item in a tree structure.
+    \value PageTab            A page tab that the user can select to switch to a different
+                            page in a dialog.
+    \value PageTabList            A list of page tabs.
+    \value PropertyPage            A property page where the user can change options and settings.
+    \value Indicator            An indicator that represents a current value or item.
+    \value Graphic            A graphic or picture, e.g. an icon.
+    \value StaticText            Static text, such as labels for other controls.
+    \value EditableText            Editable text
+    \value PushButton            A push button control.
+    \value CheckBox            The object represents an option that can be checked or
+                            unchecked. Some options provide a "mixed" state, e.g. neither
+                            checked nor unchecked.
+    \value RadioButton            The object represents an option that is mutually exclusive
+                            with other options.
+    \value ComboBox            A list of choices that the user can select from.
     \omit
     \value DropList
     \endomit
-    \value ProgressBar	    The object displays the progress of an operation in progress.
-    \value Dial		    The object represents a dial or knob.
-    \value HotkeyField	    A hotkey field that allows the user to enter a key sequence.
-    \value Slider	    A slider that allows the user to select a value within a
-			    given range.
-    \value SpinBox	    A spin box control that allows the user to enter a value within
-			    a given range.
-    \value Canvas	    An object displaying graphics that the user can interact with.
-    \value Animation	    An object displaying an animation.
-    \value Equation	    The object represents a mathematical equation.
+    \value ProgressBar            The object displays the progress of an operation in progress.
+    \value Dial                    The object represents a dial or knob.
+    \value HotkeyField            A hotkey field that allows the user to enter a key sequence.
+    \value Slider            A slider that allows the user to select a value within a
+                            given range.
+    \value SpinBox            A spin box control that allows the user to enter a value within
+                            a given range.
+    \value Canvas            An object displaying graphics that the user can interact with.
+    \value Animation            An object displaying an animation.
+    \value Equation            The object represents a mathematical equation.
     \value ButtonDropDown   A button that drops down a list of items.
-    \value ButtonMenu	    A button that drops down a menu.
+    \value ButtonMenu            A button that drops down a menu.
     \value ButtonDropGrid   A button that drops down a grid.
-    \value Whitespace	    Blank space between other objects.
-    \value Clock	    A clock displaying time
-    \value UserRole	    The first value to be used for user defined roles.
+    \value Whitespace            Blank space between other objects.
+    \value Clock            A clock displaying time
+    \value UserRole            The first value to be used for user defined roles.
 */
 
 /*!
@@ -235,29 +235,29 @@
     This enum type defines bitflags that can be combined to indicate
     the relationship between two accessible objects.
 
-    \value Unrelated	    The objects are unrelated
-    \value Self		    The objects are the same
-    \value Ancestor	    The first object is a parent of the second object
-    \value Child	    The first object is a direct child of the second object
-    \value Descendent	    The first object is an indirect child of the second object
-    \value Sibling	    The objects are siblings
+    \value Unrelated            The objects are unrelated
+    \value Self                    The objects are the same
+    \value Ancestor            The first object is a parent of the second object
+    \value Child            The first object is a direct child of the second object
+    \value Descendent            The first object is an indirect child of the second object
+    \value Sibling            The objects are siblings
     \value HierarchyMask    A mask for hierarchical relationships
 
-    \value Up		    The first object is above the second object
-    \value Down		    The first object is below the second object
-    \value Left		    The first object is left from the second object
-    \value Right	    The first object is right from the second object
-    \value Covers	    The first object covers the second object
-    \value Covered	    The first object is covered by the second object
-    \value GeometryMask	    A mask for geometrical relationships.
-			    Geometrical relationships are only relevant between siblings.
+    \value Up                    The first object is above the second object
+    \value Down                    The first object is below the second object
+    \value Left                    The first object is left from the second object
+    \value Right            The first object is right from the second object
+    \value Covers            The first object covers the second object
+    \value Covered            The first object is covered by the second object
+    \value GeometryMask            A mask for geometrical relationships.
+                            Geometrical relationships are only relevant between siblings.
 
-    \value FocusChild	    The first object is the second object's focus child
-    \value Label	    The first object is the label of the second object
-    \value Labelled	    The first object is labelled by the second object
-    \value Controller	    The first object controls the second object
-    \value Controlled	    The first object is controlled by the second object
-    \value LogicalMask	    A mask for logical relationships
+    \value FocusChild            The first object is the second object's focus child
+    \value Label            The first object is the label of the second object
+    \value Labelled            The first object is labelled by the second object
+    \value Controller            The first object controls the second object
+    \value Controlled            The first object is controlled by the second object
+    \value LogicalMask            A mask for logical relationships
 
     Implementations of relationTo() return a combination of those flags.
     (some values are obviously mutually exclusive).
@@ -271,12 +271,12 @@
     This enum specifies string information that an accessible object
     returns.
 
-    \value Name		    The name of the object
-    \value Description	    A short text describing the object
-    \value Value	    The value of the object
-    \value Help		    A longer text giving information about how to use the object
-    \value Accelerator	    The keyboard shortcut that executes the default action
-    \value UserText	    The first value to be used for user defined text.
+    \value Name                    The name of the object
+    \value Description            A short text describing the object
+    \value Value            The value of the object
+    \value Help                    A longer text giving information about how to use the object
+    \value Accelerator            The keyboard shortcut that executes the default action
+    \value UserText            The first value to be used for user defined text.
 */
 
 /*!
@@ -290,7 +290,7 @@
 */
 
 /*!
-    \fn static void QAccessible::updateAccessibility( QObject *object, int child, Event reason )
+    \fn static void QAccessible::updateAccessibility(QObject *object, int child, Event reason)
 
     Notifies accessibility clients about a change in \a object's
     accessibility information.
@@ -323,7 +323,7 @@ public:
 private slots:
     void objectDestroyed(QObject *object)
     {
-	QHash<QObject*, QAccessibleInterface*>::remove(object);
+        QHash<QObject*, QAccessibleInterface*>::remove(object);
     }
 
 };
@@ -331,7 +331,7 @@ private slots:
 inline void InterfaceCache::insert(QObject *object, QAccessibleInterface *iface)
 {
     if (!object || !iface)
-	return;
+        return;
     connect(object, SIGNAL(destroyed(QObject*)), this, SLOT(objectDestroyed(QObject*)));
     QHash<QObject*, QAccessibleInterface*>::insert(object, iface);
 }
@@ -339,8 +339,8 @@ inline void InterfaceCache::insert(QObject *object, QAccessibleInterface *iface)
 inline void InterfaceCache::remove(QObject *object)
 {
     if(object) {
-	object->disconnect(this);
-	QHash<QObject*, QAccessibleInterface*>::remove(object);
+        object->disconnect(this);
+        QHash<QObject*, QAccessibleInterface*>::remove(object);
     }
 }
 
@@ -348,7 +348,7 @@ inline void InterfaceCache::remove(QObject *object)
 
 static InterfaceCache *qInterfaceCache = 0;
 static QList<QAccessible::InterfaceFactory> qAccessibleFactories;
-static bool cleanupAdded = FALSE;
+static bool cleanupAdded = false;
 
 QAccessible::UpdateHandler QAccessible::updateHandler = 0;
 QAccessible::RootObjectHandler QAccessible::rootObjectHandler = 0;
@@ -356,7 +356,7 @@ QAccessible::RootObjectHandler QAccessible::rootObjectHandler = 0;
 static void qAccessibleCleanup()
 {
     if (qInterfaceCache && qInterfaceCache->count() && qAccessibleManager)
-	qAccessibleManager->setAutoUnload( FALSE );
+        qAccessibleManager->setAutoUnload(false);
 
     delete qInterfaceCache;
     qInterfaceCache = 0;
@@ -367,12 +367,12 @@ static void qAccessibleCleanup()
 
 void qInsertAccessibleObject(QObject *object, QAccessibleInterface *iface)
 {
-    if ( !qInterfaceCache ) {
-	qInterfaceCache = new InterfaceCache();
-	if (!cleanupAdded) {
-	    qAddPostRoutine(qAccessibleCleanup);
-	    cleanupAdded = TRUE;
-	}
+    if (!qInterfaceCache) {
+        qInterfaceCache = new InterfaceCache();
+        if (!cleanupAdded) {
+            qAddPostRoutine(qAccessibleCleanup);
+            cleanupAdded = true;
+        }
     }
 
     qInterfaceCache->insert(object, iface);
@@ -380,13 +380,13 @@ void qInsertAccessibleObject(QObject *object, QAccessibleInterface *iface)
 
 void qRemoveAccessibleObject(QObject *object)
 {
-    if ( qInterfaceCache ) {
-	qInterfaceCache->remove(object);
-	Q_ASSERT(!qInterfaceCache->value(object));
-	if (!qInterfaceCache->count()) {
-	    delete qInterfaceCache;
-	    qInterfaceCache = 0;
-	}
+    if (qInterfaceCache) {
+        qInterfaceCache->remove(object);
+        Q_ASSERT(!qInterfaceCache->value(object));
+        if (!qInterfaceCache->count()) {
+            delete qInterfaceCache;
+            qInterfaceCache = 0;
+        }
     }
 }
 
@@ -398,7 +398,7 @@ void qRemoveAccessibleObject(QObject *object)
 
     The function receives a QObject pointer, set the second
     parameter to the pointer of the corresponding QAccessibleInterface, and
-    return TRUE, or return FALSE if it doesn't provide a QAccessibleInterface
+    return true, or return false if it doesn't provide a QAccessibleInterface
     for the QObject.
 
     Installed factories are called by queryAccessibilityInterface() until
@@ -430,15 +430,15 @@ void qRemoveAccessibleObject(QObject *object)
 void QAccessible::installFactory(InterfaceFactory factory)
 {
     if (!factory)
-	return;
+        return;
 
     qAccessibleFactories.ensure_constructed();
     if (!cleanupAdded) {
-	qAddPostRoutine(qAccessibleCleanup);
-	cleanupAdded = TRUE;
+        qAddPostRoutine(qAccessibleCleanup);
+        cleanupAdded = true;
     }
     if (qAccessibleFactories.contains(factory))
-	return;
+        return;
     qAccessibleFactories.append(factory);
 }
 
@@ -475,8 +475,8 @@ QAccessible::RootObjectHandler QAccessible::installRootObjectHandler(RootObjectH
 
 /*!
     Sets \a iface to point to the implementation of the
-    QAccessibleInterface for \a object, and returns TRUE if
-    successful, or sets \a iface to 0 and returns FALSE if
+    QAccessibleInterface for \a object, and returns true if
+    successful, or sets \a iface to 0 and returns false if
     no accessibility implementation for \a object exists.
 
     The function calls all installed factory functions (in reverse
@@ -490,74 +490,74 @@ QAccessible::RootObjectHandler QAccessible::installRootObjectHandler(RootObjectH
 
     The caller has to call release() on the interface returned in \a iface.
 */
-bool QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInterface **iface )
+bool QAccessible::queryAccessibleInterface(QObject *object, QAccessibleInterface **iface)
 {
     *iface = 0;
-    if ( !object )
-	return FALSE;
+    if (!object)
+        return false;
 
     QEvent e(QEvent::Accessibility);
     QApplication::sendEvent(object, &e);
 
     if (qInterfaceCache) {
-	*iface = qInterfaceCache->value(object);
-	if ( *iface ) {
-	    if ((*iface)->isValid()) {
-		(*iface)->addRef();
-		return TRUE;
-	    } else {
-		(*iface)->release();
-		qRemoveAccessibleObject(object);
-	    }
-	}
+        *iface = qInterfaceCache->value(object);
+        if (*iface) {
+            if ((*iface)->isValid()) {
+                (*iface)->addRef();
+                return true;
+            } else {
+                (*iface)->release();
+                qRemoveAccessibleObject(object);
+            }
+        }
     }
 
     QInterfacePtr<QAccessibleFactoryInterface> factory = 0;
     const QMetaObject *mo = object->metaObject();
-    while ( mo ) {
-	const QString cn(mo->className());
-	for (int i = qAccessibleFactories.count(); i > 0; --i) {
-	    InterfaceFactory factory = qAccessibleFactories.at(i - 1);
-	    QAccessibleInterface *aiface = factory(cn, object);
-	    if (aiface) {
-		aiface->addRef();
-		*iface = aiface;
-		qInsertAccessibleObject(object, *iface);
-		return TRUE;
-	    }
-	}
-	if ( !qAccessibleManager ) {
-	    qAccessibleManager = new QPluginManager<QAccessibleFactoryInterface>
-		(IID_QAccessibleFactory, QApplication::libraryPaths(), "/accessible");
-	    if ( !cleanupAdded ) {
-		qAddPostRoutine( qAccessibleCleanup );
-		cleanupAdded = TRUE;
-	    }
-	}
-	qAccessibleManager->queryInterface( mo->className(), &factory );
-	if ( factory ) {
-	    factory->createAccessibleInterface( cn, object, iface );
-	    if (*iface)
-		return TRUE;
-	}
-	mo = mo->superClass();
+    while (mo) {
+        const QString cn(mo->className());
+        for (int i = qAccessibleFactories.count(); i > 0; --i) {
+            InterfaceFactory factory = qAccessibleFactories.at(i - 1);
+            QAccessibleInterface *aiface = factory(cn, object);
+            if (aiface) {
+                aiface->addRef();
+                *iface = aiface;
+                qInsertAccessibleObject(object, *iface);
+                return true;
+            }
+        }
+        if (!qAccessibleManager) {
+            qAccessibleManager = new QPluginManager<QAccessibleFactoryInterface>
+                (IID_QAccessibleFactory, QApplication::libraryPaths(), "/accessible");
+            if (!cleanupAdded) {
+                qAddPostRoutine(qAccessibleCleanup);
+                cleanupAdded = true;
+            }
+        }
+        qAccessibleManager->queryInterface(mo->className(), &factory);
+        if (factory) {
+            factory->createAccessibleInterface(cn, object, iface);
+            if (*iface)
+                return true;
+        }
+        mo = mo->superClass();
     }
 
     QWidget *widget = qt_cast<QWidget*>(object);
     if (widget)
-	*iface = new QAccessibleWidget(widget);
+        *iface = new QAccessibleWidget(widget);
     else if (object == qApp)
-	*iface = new QAccessibleApplication();
+        *iface = new QAccessibleApplication();
     else
-	return FALSE;
+        return false;
 
     (*iface)->addRef();
-    return TRUE;
+    return true;
 }
 
 /*!
-    Returns TRUE if an accessibility implementation has been requested,
-    during the runtime of the application, otherwise returns FALSE.
+    Returns true if an accessibility implementation has been requested,
+    during the runtime of the application, otherwise returns false.
 
     Use this function to prevent potentially expensive notifications via
     updateAccessibility().
@@ -689,8 +689,8 @@ bool QAccessible::isActive()
     accessible subdirectory of the plugins installation directory.
     The default installation directory for plugins is \c INSTALL/plugins,
     where \c INSTALL is the directory where Qt was installed.  Calling
-    queryAccessibleInterface( QObject *object, QAccessibleInterface
-    **iface ) will ask all plugins located in this directory for an
+    queryAccessibleInterface(QObject *object, QAccessibleInterface
+    **iface) will ask all plugins located in this directory for an
     implementation that exposes the information for objects of the
     class of \e object.
 
@@ -713,9 +713,9 @@ bool QAccessible::isActive()
 /*!
     \fn bool QAccessibleInterface::isValid() const
 
-    Returns TRUE if all the data necessary to use this interface
+    Returns true if all the data necessary to use this interface
     implementation is valid (e.g. all pointers are non-null),
-    otherwise returns FALSE.
+    otherwise returns false.
 
     \sa object()
 */
@@ -812,7 +812,7 @@ bool QAccessible::isActive()
     int targetChild = object->navigate(Child, 1, &child);
     if (child) {
         // ...
-	child->release();
+        child->release();
     }
     \endcode
 
@@ -943,7 +943,7 @@ bool QAccessible::isActive()
     \fn bool QAccessibleInterface::doAction(int action, int child)
 
     Asks the object or the object's \a child to execute \a action, and returns
-    TRUE if the action could be executed, otherwise returns FALSE.
+    true if the action could be executed, otherwise returns false.
 
     \a action can be a predefined or a custom action.
 

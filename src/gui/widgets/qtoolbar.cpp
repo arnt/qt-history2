@@ -33,9 +33,9 @@
 
 static const char * const arrow_v_xpm[] = {
     "7 9 3 1",
-    "	    c None",
-    ".	    c #000000",
-    "+	    c none",
+    "            c None",
+    ".            c #000000",
+    "+            c none",
     ".+++++.",
     "..+++..",
     "+..+..+",
@@ -48,9 +48,9 @@ static const char * const arrow_v_xpm[] = {
 
 static const char * const arrow_h_xpm[] = {
     "9 7 3 1",
-    "	    c None",
-    ".	    c #000000",
-    "+	    c none",
+    "            c None",
+    ".            c #000000",
+    "+            c none",
     "..++..+++",
     "+..++..++",
     "++..++..+",
@@ -64,7 +64,7 @@ class QToolBarExtensionWidget;
 class QToolBarPrivate
 {
 public:
-    QToolBarPrivate() : moving( FALSE ) {
+    QToolBarPrivate() : moving(false) {
     }
 
     bool moving;
@@ -77,15 +77,15 @@ class QToolBarSeparator : public QWidget
 {
     Q_OBJECT
 public:
-    QToolBarSeparator( Orientation, QToolBar *parent, const char* name=0 );
+    QToolBarSeparator(Orientation, QToolBar *parent, const char* name=0);
 
     QSize sizeHint() const;
     Orientation orientation() const { return orient; }
 public slots:
-    void setOrientation( Orientation );
+    void setOrientation(Orientation);
 protected:
-    void changeEvent( QEvent * );
-    void paintEvent( QPaintEvent * );
+    void changeEvent(QEvent *);
+    void paintEvent(QPaintEvent *);
 
 private:
     Orientation orient;
@@ -96,14 +96,14 @@ class QToolBarExtensionWidget : public QWidget
     Q_OBJECT
 
 public:
-    QToolBarExtensionWidget( QWidget *w );
-    void setOrientation( Orientation o );
+    QToolBarExtensionWidget(QWidget *w);
+    void setOrientation(Orientation o);
     QToolButton *button() const { return tb; }
 
 protected:
-    void resizeEvent( QResizeEvent *e ) {
-	QWidget::resizeEvent( e );
-	layOut();
+    void resizeEvent(QResizeEvent *e) {
+        QWidget::resizeEvent(e);
+        layOut();
     }
 
 private:
@@ -113,73 +113,73 @@ private:
 
 };
 
-QToolBarExtensionWidget::QToolBarExtensionWidget( QWidget *w )
-    : QWidget( w, "qt_dockwidget_internal" )
+QToolBarExtensionWidget::QToolBarExtensionWidget(QWidget *w)
+    : QWidget(w, "qt_dockwidget_internal")
 {
-    tb = new QToolButton( this, "qt_toolbar_ext_button" );
-    tb->setAutoRaise( TRUE );
-    setOrientation( Horizontal );
+    tb = new QToolButton(this, "qt_toolbar_ext_button");
+    tb->setAutoRaise(true);
+    setOrientation(Horizontal);
 }
 
-void QToolBarExtensionWidget::setOrientation( Orientation o )
+void QToolBarExtensionWidget::setOrientation(Orientation o)
 {
     orient = o;
-    if ( orient == Horizontal )
-	tb->setPixmap( QPixmap( (const char **)arrow_h_xpm ) );
+    if (orient == Horizontal)
+        tb->setPixmap(QPixmap((const char **)arrow_h_xpm));
     else
-	tb->setPixmap( QPixmap( (const char **)arrow_v_xpm ) );
+        tb->setPixmap(QPixmap((const char **)arrow_v_xpm));
     layOut();
 }
 
 void QToolBarExtensionWidget::layOut()
 {
-    tb->setGeometry( 2, 2, width() - 4, height() - 4 );
+    tb->setGeometry(2, 2, width() - 4, height() - 4);
 }
 
 QToolBarSeparator::QToolBarSeparator(Orientation o , QToolBar *parent,
-				     const char* name )
-    : QWidget( parent, name )
+                                     const char* name)
+    : QWidget(parent, name)
 {
-    connect( parent, SIGNAL(orientationChanged(Orientation)),
-	     this, SLOT(setOrientation(Orientation)) );
-    setOrientation( o );
-    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum ) );
+    connect(parent, SIGNAL(orientationChanged(Orientation)),
+             this, SLOT(setOrientation(Orientation)));
+    setOrientation(o);
+    setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
 }
 
 
 
-void QToolBarSeparator::setOrientation( Orientation o )
+void QToolBarSeparator::setOrientation(Orientation o)
 {
     orient = o;
 }
 
-void QToolBarSeparator::changeEvent( QEvent *ev )
+void QToolBarSeparator::changeEvent(QEvent *ev)
 {
     if(ev->type() == QEvent::StyleChange)
-	setOrientation( orient );
+        setOrientation(orient);
     QWidget::changeEvent(ev);
 }
 
 QSize QToolBarSeparator::sizeHint() const
 {
-    int extent = style().pixelMetric( QStyle::PM_DockWindowSeparatorExtent,
-				      this );
-    if ( orient == Horizontal )
-	return QSize( extent, 0 );
+    int extent = style().pixelMetric(QStyle::PM_DockWindowSeparatorExtent,
+                                      this);
+    if (orient == Horizontal)
+        return QSize(extent, 0);
     else
-	return QSize( 0, extent );
+        return QSize(0, extent);
 }
 
-void QToolBarSeparator::paintEvent( QPaintEvent * )
+void QToolBarSeparator::paintEvent(QPaintEvent *)
 {
-    QPainter p( this );
+    QPainter p(this);
     QStyle::SFlags flags = QStyle::Style_Default;
 
-    if ( orientation() == Horizontal )
-	flags |= QStyle::Style_Horizontal;
+    if (orientation() == Horizontal)
+        flags |= QStyle::Style_Horizontal;
 
-    style().drawPrimitive( QStyle::PE_DockWindowSeparator, &p, rect(),
-			   palette(), flags );
+    style().drawPrimitive(QStyle::PE_DockWindowSeparator, &p, rect(),
+                           palette(), flags);
 }
 
 #include "qtoolbar.moc"
@@ -266,9 +266,9 @@ void QToolBarSeparator::paintEvent( QPaintEvent * )
 */
 
 /*!
-    \fn QToolBar::QToolBar( const QString &label,
-	      QMainWindow *, ToolBarDock = Top,
-	      bool newLine = FALSE, const char * name = 0 );
+    \fn QToolBar::QToolBar(const QString &label,
+              QMainWindow *, ToolBarDock = Top,
+              bool newLine = false, const char * name = 0);
     \obsolete
 */
 
@@ -277,20 +277,20 @@ void QToolBarSeparator::paintEvent( QPaintEvent * )
 
     The toolbar is called \a name and is a child of \a parent and is
     managed by \a parent. It is initially located in dock area \a dock
-    and is labeled \a label. If \a newLine is TRUE the toolbar will be
+    and is labeled \a label. If \a newLine is true the toolbar will be
     placed on a new line in the dock area.
 */
 
-QToolBar::QToolBar( const QString &label,
-		    QMainWindow * parent, QMainWindow::ToolBarDock dock,
-		    bool newLine, const char * name )
-    : QDockWindow( InDock, parent, name, 0, TRUE )
+QToolBar::QToolBar(const QString &label,
+                    QMainWindow * parent, QMainWindow::ToolBarDock dock,
+                    bool newLine, const char * name)
+    : QDockWindow(InDock, parent, name, 0, true)
 {
     mw = parent;
     init();
 
-    if ( parent )
-	parent->addToolBar( this, label, dock, newLine );
+    if (parent)
+        parent->addToolBar(this, label, dock, newLine);
 }
 
 
@@ -307,19 +307,19 @@ QToolBar::QToolBar( const QString &label,
     bar\endlink.
 */
 
-QToolBar::QToolBar( const QString &label, QMainWindow * mainWindow,
-		    QWidget * parent, bool newLine, const char * name,
-		    WFlags f )
-    : QDockWindow( InDock, parent, name, f, TRUE )
+QToolBar::QToolBar(const QString &label, QMainWindow * mainWindow,
+                    QWidget * parent, bool newLine, const char * name,
+                    WFlags f)
+    : QDockWindow(InDock, parent, name, f, true)
 {
     mw = mainWindow;
     init();
 
-    clearWFlags( WType_Dialog | WStyle_Customize | WStyle_NoBorder );
+    clearWFlags(WType_Dialog | WStyle_Customize | WStyle_NoBorder);
     setParent(parent);
 
-    if ( mainWindow )
-	mainWindow->addToolBar( this, label, QMainWindow::DockUnmanaged, newLine );
+    if (mainWindow)
+        mainWindow->addToolBar(this, label, QMainWindow::DockUnmanaged, newLine);
 }
 
 
@@ -331,14 +331,14 @@ QToolBar::QToolBar( const QString &label, QMainWindow * mainWindow,
     requiring a newline.
 */
 
-QToolBar::QToolBar( QMainWindow * parent, const char * name )
-    : QDockWindow( InDock, parent, name, 0, TRUE )
+QToolBar::QToolBar(QMainWindow * parent, const char * name)
+    : QDockWindow(InDock, parent, name, 0, true)
 {
     mw = parent;
     init();
 
-    if ( parent )
-	parent->addToolBar( this, QString::null, QMainWindow::DockTop );
+    if (parent)
+        parent->addToolBar(this, QString::null, QMainWindow::DockTop);
 }
 
 /*!
@@ -354,9 +354,9 @@ void QToolBar::init()
     d->extensionPopup = 0;
     sw = 0;
 
-    setBackgroundRole( QPalette::Button);
-    setFocusPolicy( NoFocus );
-    setFrameStyle( QFrame::ToolBarPanel | QFrame::Raised);
+    setBackgroundRole(QPalette::Button);
+    setFocusPolicy(NoFocus);
+    setFrameStyle(QFrame::ToolBarPanel | QFrame::Raised);
     boxLayout()->setSpacing(style().pixelMetric(QStyle::PM_ToolBarItemSpacing));
 }
 
@@ -374,16 +374,16 @@ QToolBar::~QToolBar()
     \reimp
 */
 
-void QToolBar::setOrientation( Orientation o )
+void QToolBar::setOrientation(Orientation o)
 {
-    QDockWindow::setOrientation( o );
+    QDockWindow::setOrientation(o);
     if (d->extension)
-	d->extension->setOrientation( o );
+        d->extension->setOrientation(o);
     QObjectList childs = children();
     for (int i = 0; i < childs.size(); ++i) {
-	QToolBarSeparator* w = qt_cast<QToolBarSeparator*>(childs.at(i));
-	if (w)
-	    w->setOrientation( o );
+        QToolBarSeparator* w = qt_cast<QToolBarSeparator*>(childs.at(i));
+        if (w)
+            w->setOrientation(o);
     }
 }
 
@@ -393,14 +393,14 @@ void QToolBar::setOrientation( Orientation o )
 
 void QToolBar::addSeparator()
 {
-    (void) new QToolBarSeparator( orientation(), this, "toolbar separator" );
+    (void) new QToolBarSeparator(orientation(), this, "toolbar separator");
 }
 
 /*!
     \reimp
 */
 
-void QToolBar::styleChange( QStyle &oldStyle )
+void QToolBar::styleChange(QStyle &oldStyle)
 {
     boxLayout()->setSpacing(style().pixelMetric(QStyle::PM_ToolBarItemSpacing));
     QDockWindow::styleChange(oldStyle);
@@ -413,9 +413,9 @@ void QToolBar::styleChange( QStyle &oldStyle )
 void QToolBar::show()
 {
     QDockWindow::show();
-    if ( mw )
-	mw->triggerLayout( FALSE );
-    checkForExtension( size() );
+    if (mw)
+        mw->triggerLayout(false);
+    checkForExtension(size());
 }
 
 
@@ -426,8 +426,8 @@ void QToolBar::show()
 void QToolBar::hide()
 {
     QDockWindow::hide();
-    if ( mw )
-	mw->triggerLayout( FALSE );
+    if (mw)
+        mw->triggerLayout(false);
 }
 
 /*!
@@ -447,7 +447,7 @@ QMainWindow * QToolBar::mainWindow() const
     The request to stretch might occur because QMainWindow
     right-justifies the dock area the toolbar is in, or because this
     toolbar's isVerticalStretchable() or isHorizontalStretchable() is
-    set to TRUE.
+    set to true.
 
     If you call this function and the toolbar is not yet stretchable,
     setStretchable() is called.
@@ -456,16 +456,16 @@ QMainWindow * QToolBar::mainWindow() const
     setHorizontalStretchable()
 */
 
-void QToolBar::setStretchableWidget( QWidget * w )
+void QToolBar::setStretchableWidget(QWidget * w)
 {
     sw = w;
-    boxLayout()->setStretchFactor( w, 1 );
+    boxLayout()->setStretchFactor(w, 1);
 
-    if ( !isHorizontalStretchable() && !isVerticalStretchable() ) {
-	if ( orientation() == Horizontal )
-	    setHorizontalStretchable( TRUE );
-	else
-	    setVerticalStretchable( TRUE );
+    if (!isHorizontalStretchable() && !isVerticalStretchable()) {
+        if (orientation() == Horizontal)
+            setHorizontalStretchable(true);
+        else
+            setVerticalStretchable(true);
     }
 }
 
@@ -474,31 +474,31 @@ void QToolBar::setStretchableWidget( QWidget * w )
     \reimp
 */
 
-bool QToolBar::event( QEvent * e )
+bool QToolBar::event(QEvent * e)
 {
-    bool r =  QDockWindow::event( e );
+    bool r =  QDockWindow::event(e);
     // After the event filters have dealt with it, do our stuff.
-    if ( e->type() == QEvent::ChildInserted ) {
-	QObject * child = ((QChildEvent*)e)->child();
-	if ( child && child->isWidgetType() && !((QWidget*)child)->isTopLevel()
-	     && child->parent() == this
-	     && qstrcmp("qt_dockwidget_internal", child->objectName()) != 0 ) {
-	    boxLayout()->addWidget( (QWidget*)child );
-	    if ( isVisible() ) {
-		// toolbar compatibility: we auto show widgets that
-		// are not explicitely hidden
-		if ( ((QWidget*)child)->testWState(WState_Hidden|WState_ExplicitShowHide)
-		     == WState_Hidden)
-		    ((QWidget*)child)->show();
-		checkForExtension( size() );
-	    }
-	}
-	if ( child && child->isWidgetType() && ((QWidget*)child) == sw )
-	    boxLayout()->setStretchFactor( (QWidget*)child, 1 );
-    } else if ( e->type() == QEvent::Show ) {
-	layout()->activate();
-    } else if ( e->type() == QEvent::LayoutHint && place() == OutsideDock ) {
-	adjustSize();
+    if (e->type() == QEvent::ChildInserted) {
+        QObject * child = ((QChildEvent*)e)->child();
+        if (child && child->isWidgetType() && !((QWidget*)child)->isTopLevel()
+             && child->parent() == this
+             && qstrcmp("qt_dockwidget_internal", child->objectName()) != 0) {
+            boxLayout()->addWidget((QWidget*)child);
+            if (isVisible()) {
+                // toolbar compatibility: we auto show widgets that
+                // are not explicitely hidden
+                if (((QWidget*)child)->testWState(WState_Hidden|WState_ExplicitShowHide)
+                     == WState_Hidden)
+                    ((QWidget*)child)->show();
+                checkForExtension(size());
+            }
+        }
+        if (child && child->isWidgetType() && ((QWidget*)child) == sw)
+            boxLayout()->setStretchFactor((QWidget*)child, 1);
+    } else if (e->type() == QEvent::Show) {
+        layout()->activate();
+    } else if (e->type() == QEvent::LayoutHint && place() == OutsideDock) {
+        adjustSize();
     }
     return r;
 }
@@ -512,10 +512,10 @@ bool QToolBar::event( QEvent * e )
     caption. There is no default label text.
 */
 
-void QToolBar::setLabel( const QString & label )
+void QToolBar::setLabel(const QString & label)
 {
     l = label;
-    setWindowTitle( l );
+    setWindowTitle(l);
 }
 
 QString QToolBar::label() const
@@ -532,9 +532,9 @@ void QToolBar::clear()
 {
     QObjectList childs = children();
     for (int i = 0; i < childs.size(); ++i) {
-	QObject *obj = childs.at(i);
-	if ( obj->isWidgetType() && qstrcmp( "qt_dockwidget_internal", obj->objectName() ) != 0 )
-	    delete obj;
+        QObject *obj = childs.at(i);
+        if (obj->isWidgetType() && qstrcmp("qt_dockwidget_internal", obj->objectName()) != 0)
+            delete obj;
     }
 }
 
@@ -544,9 +544,9 @@ void QToolBar::clear()
 
 QSize QToolBar::minimumSize() const
 {
-    if ( orientation() == Horizontal )
-	return QSize( 0, QDockWindow::minimumSize().height() );
-    return QSize( QDockWindow::minimumSize().width(), 0 );
+    if (orientation() == Horizontal)
+        return QSize(0, QDockWindow::minimumSize().height());
+    return QSize(QDockWindow::minimumSize().width(), 0);
 }
 
 /*!
@@ -555,115 +555,115 @@ QSize QToolBar::minimumSize() const
 
 QSize QToolBar::minimumSizeHint() const
 {
-    if ( orientation() == Horizontal )
-	return QSize( 0, QDockWindow::minimumSizeHint().height() );
-    return QSize( QDockWindow::minimumSizeHint().width(), 0 );
+    if (orientation() == Horizontal)
+        return QSize(0, QDockWindow::minimumSizeHint().height());
+    return QSize(QDockWindow::minimumSizeHint().width(), 0);
 }
 
 void QToolBar::createPopup()
 {
     if (!d->extensionPopup) {
-	d->extensionPopup = new QPopupMenu( this, "qt_dockwidget_internal" );
-	connect( d->extensionPopup, SIGNAL(aboutToShow()), this, SLOT(createPopup()) );
+        d->extensionPopup = new QPopupMenu(this, "qt_dockwidget_internal");
+        connect(d->extensionPopup, SIGNAL(aboutToShow()), this, SLOT(createPopup()));
     }
 
     if (!d->extension) {
-	d->extension = new QToolBarExtensionWidget( this );
-	d->extension->setOrientation(orientation());
-	d->extension->button()->setPopup( d->extensionPopup );
-	d->extension->button()->setPopupDelay( -1 );
+        d->extension = new QToolBarExtensionWidget(this);
+        d->extension->setOrientation(orientation());
+        d->extension->button()->setPopup(d->extensionPopup);
+        d->extension->button()->setPopupDelay(-1);
     }
 
     d->extensionPopup->clear();
 
     // delete submenus
-    QObjectList popups = d->extensionPopup->queryList( "QPopupMenu", 0, FALSE, TRUE );
+    QObjectList popups = d->extensionPopup->queryList("QPopupMenu", 0, false, true);
     while (!popups.isEmpty())
-	delete popups.takeFirst();
+        delete popups.takeFirst();
 
-    QObjectList childlist = queryList( "QWidget", 0, FALSE, TRUE );
-    bool hide = FALSE;
-    bool doHide = FALSE;
+    QObjectList childlist = queryList("QWidget", 0, false, true);
+    bool hide = false;
+    bool doHide = false;
     int id;
     for (int i = 0; i < childlist.size(); ++i) {
-	QObject *obj = childlist.at(i);
-        if ( !obj->isWidgetType() || obj == d->extension->button() ||
-	    qstrcmp( "qt_dockwidget_internal", obj->objectName() ) == 0 ) {
-	    continue;
-	}
+        QObject *obj = childlist.at(i);
+        if (!obj->isWidgetType() || obj == d->extension->button() ||
+            qstrcmp("qt_dockwidget_internal", obj->objectName()) == 0) {
+            continue;
+        }
         int j = 2;
-	QWidget *w = (QWidget*)obj;
-	if ( qt_cast<QComboBox*>(w) )
-	    j = 1;
-	hide = FALSE;
-	QPoint p = w->parentWidget()->mapTo( this, w->geometry().bottomRight() );
-	if ( orientation() == Horizontal ) {
-	    if ( p.x() > ( doHide ? width() - d->extension->width() / j : width() ) )
-	        hide = TRUE;
-	} else {
-	    if ( p.y() > ( doHide ? height()- d->extension->height() / j : height() ) )
-	        hide = TRUE;
-	}
-	if ( hide && w->isVisible() ) {
-	    doHide = TRUE;
-	    if ( qt_cast<QToolButton*>(w) ) {
-		QToolButton *b = (QToolButton*)w;
-	        QString s = b->textLabel();
-	        if ( s.isEmpty() )
-		    s = b->text();
-	        if ( b->popup() && b->popupDelay() == 0 )
-		    id = d->extensionPopup->insertItem( b->iconSet(), s, b->popup() );
-		else
-		    id = d->extensionPopup->insertItem( b->iconSet(), s, b, SLOT(emulateClick()) ) ;
-	        if ( b->isToggleButton() )
-		    d->extensionPopup->setItemChecked( id, b->isOn() );
-		if ( !b->isEnabled() )
-		    d->extensionPopup->setItemEnabled( id, FALSE );
-	    } else if ( qt_cast<QButton*>(w) ) {
-		QButton *b = (QButton*)w;
-		QString s = b->text();
-		if ( s.isEmpty() )
-		    s = "";
-		if ( b->pixmap() )
-		    id = d->extensionPopup->insertItem( *b->pixmap(), s, b, SLOT(emulateClick()) );
-		else
-		    id = d->extensionPopup->insertItem( s, b, SLOT(emulateClick()) );
-		if ( b->isToggleButton() )
-		    d->extensionPopup->setItemChecked( id, b->isOn() );
-		if ( !b->isEnabled() )
-		    d->extensionPopup->setItemEnabled( id, FALSE );
+        QWidget *w = (QWidget*)obj;
+        if (qt_cast<QComboBox*>(w))
+            j = 1;
+        hide = false;
+        QPoint p = w->parentWidget()->mapTo(this, w->geometry().bottomRight());
+        if (orientation() == Horizontal) {
+            if (p.x() > (doHide ? width() - d->extension->width() / j : width()))
+                hide = true;
+        } else {
+            if (p.y() > (doHide ? height()- d->extension->height() / j : height()))
+                hide = true;
+        }
+        if (hide && w->isVisible()) {
+            doHide = true;
+            if (qt_cast<QToolButton*>(w)) {
+                QToolButton *b = (QToolButton*)w;
+                QString s = b->textLabel();
+                if (s.isEmpty())
+                    s = b->text();
+                if (b->popup() && b->popupDelay() == 0)
+                    id = d->extensionPopup->insertItem(b->iconSet(), s, b->popup());
+                else
+                    id = d->extensionPopup->insertItem(b->iconSet(), s, b, SLOT(emulateClick())) ;
+                if (b->isToggleButton())
+                    d->extensionPopup->setItemChecked(id, b->isOn());
+                if (!b->isEnabled())
+                    d->extensionPopup->setItemEnabled(id, false);
+            } else if (qt_cast<QButton*>(w)) {
+                QButton *b = (QButton*)w;
+                QString s = b->text();
+                if (s.isEmpty())
+                    s = "";
+                if (b->pixmap())
+                    id = d->extensionPopup->insertItem(*b->pixmap(), s, b, SLOT(emulateClick()));
+                else
+                    id = d->extensionPopup->insertItem(s, b, SLOT(emulateClick()));
+                if (b->isToggleButton())
+                    d->extensionPopup->setItemChecked(id, b->isOn());
+                if (!b->isEnabled())
+                    d->extensionPopup->setItemEnabled(id, false);
 #ifndef QT_NO_COMBOBOX
-	    } else if ( qt_cast<QComboBox*>(w) ) {
-		QComboBox *c = (QComboBox*)w;
-		if ( c->count() != 0 ) {
-		    QString s = c->windowTitle();
-		    if ( s.isEmpty() )
-		        s = c->currentText();
-		    uint maxItems = 0;
-		    QPopupMenu *cp = new QPopupMenu(d->extensionPopup);
-		    d->extensionPopup->insertItem( s, cp );
-		    connect( cp, SIGNAL(activated(int)), c, SLOT(internalActivate(int)) );
-		    for ( int i = 0; i < c->count(); ++i ) {
-		        QString tmp = c->text( i );
-			cp->insertItem( tmp, i );
-		        if ( c->currentText() == tmp )
-			    cp->setItemChecked( i, TRUE );
-			if ( !maxItems ) {
-			    if ( cp->count() == 10 ) {
-			        int h = cp->sizeHint().height();
-			        maxItems = QApplication::desktop()->height() * 10 / h;
-			    }
-			} else if ( cp->count() >= maxItems - 1 ) {
-			    QPopupMenu* sp = new QPopupMenu(d->extensionPopup);
-			    cp->insertItem( tr( "More..." ), sp );
-			    cp = sp;
-			    connect( cp, SIGNAL(activated(int)), c, SLOT(internalActivate(int)) );
-			}
-		    }
-		}
+            } else if (qt_cast<QComboBox*>(w)) {
+                QComboBox *c = (QComboBox*)w;
+                if (c->count() != 0) {
+                    QString s = c->windowTitle();
+                    if (s.isEmpty())
+                        s = c->currentText();
+                    uint maxItems = 0;
+                    QPopupMenu *cp = new QPopupMenu(d->extensionPopup);
+                    d->extensionPopup->insertItem(s, cp);
+                    connect(cp, SIGNAL(activated(int)), c, SLOT(internalActivate(int)));
+                    for (int i = 0; i < c->count(); ++i) {
+                        QString tmp = c->text(i);
+                        cp->insertItem(tmp, i);
+                        if (c->currentText() == tmp)
+                            cp->setItemChecked(i, true);
+                        if (!maxItems) {
+                            if (cp->count() == 10) {
+                                int h = cp->sizeHint().height();
+                                maxItems = QApplication::desktop()->height() * 10 / h;
+                            }
+                        } else if (cp->count() >= maxItems - 1) {
+                            QPopupMenu* sp = new QPopupMenu(d->extensionPopup);
+                            cp->insertItem(tr("More..."), sp);
+                            cp = sp;
+                            connect(cp, SIGNAL(activated(int)), c, SLOT(internalActivate(int)));
+                        }
+                    }
+                }
 #endif //QT_NO_COMBOBOX
-	    }
-	}
+            }
+        }
     }
 }
 
@@ -671,43 +671,43 @@ void QToolBar::createPopup()
     \reimp
 */
 
-void QToolBar::resizeEvent( QResizeEvent *e )
+void QToolBar::resizeEvent(QResizeEvent *e)
 {
     QDockWindow::resizeEvent(e);
-    checkForExtension( e->size() );
+    checkForExtension(e->size());
 }
 
-void QToolBar::checkForExtension( const QSize &sz )
+void QToolBar::checkForExtension(const QSize &sz)
 {
     if (!isVisible())
-	return;
+        return;
 
     bool tooSmall;
-    if ( orientation() == Horizontal )
-	tooSmall = sz.width() < sizeHint().width();
+    if (orientation() == Horizontal)
+        tooSmall = sz.width() < sizeHint().width();
     else
-	tooSmall = sz.height() < sizeHint().height();
+        tooSmall = sz.height() < sizeHint().height();
 
-    if ( tooSmall ) {
-	createPopup();
-	if ( d->extensionPopup->count() ) {
-	    if ( orientation() == Horizontal )
-	        d->extension->setGeometry( width() - 20, 1, 20, height() - 2 );
-	    else
-	        d->extension->setGeometry( 1, height() - 20, width() - 2, 20 );
-	    d->extension->show();
-	    d->extension->raise();
-	} else {
-	    delete d->extension;
-	    d->extension = 0;
-	    delete d->extensionPopup;
-	    d->extensionPopup = 0;
-	}
+    if (tooSmall) {
+        createPopup();
+        if (d->extensionPopup->count()) {
+            if (orientation() == Horizontal)
+                d->extension->setGeometry(width() - 20, 1, 20, height() - 2);
+            else
+                d->extension->setGeometry(1, height() - 20, width() - 2, 20);
+            d->extension->show();
+            d->extension->raise();
+        } else {
+            delete d->extension;
+            d->extension = 0;
+            delete d->extensionPopup;
+            d->extensionPopup = 0;
+        }
     } else {
-	delete d->extension;
-	d->extension = 0;
-	delete d->extensionPopup;
-	d->extensionPopup = 0;
+        delete d->extension;
+        d->extension = 0;
+        delete d->extensionPopup;
+        d->extensionPopup = 0;
     }
 }
 
@@ -716,7 +716,7 @@ void QToolBar::checkForExtension( const QSize &sz )
     \reimp
 */
 
-void QToolBar::setMinimumSize( int, int )
+void QToolBar::setMinimumSize(int, int)
 {
 }
 
@@ -739,7 +739,7 @@ pull-down menus, you start to lose efficiency.
 
 5.  Make sure that adjacent icons are distinctive. There are some tool bars
 where you see a group of 4-5 icons that represent related functions, but they
-are so similar that you can't differentiate among them.	 These tool bars are
+are so similar that you can't differentiate among them.         These tool bars are
 often a poor attempt at a "common visual language".
 
 6.  Use any de facto standard icons of your platform (for windows use the

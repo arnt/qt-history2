@@ -27,21 +27,21 @@
 #include <windows.h>
 #endif
 
-static const uint FIRST_DAY	= 2361222;	// Julian day for 1752-09-14
-static const int  FIRST_YEAR	= 1752;		// ### wrong for many countries
-static const uint SECS_PER_DAY	= 86400;
+static const uint FIRST_DAY        = 2361222;        // Julian day for 1752-09-14
+static const int  FIRST_YEAR        = 1752;                // ### wrong for many countries
+static const uint SECS_PER_DAY        = 86400;
 static const uint MSECS_PER_DAY = 86400000;
 static const uint SECS_PER_HOUR = 3600;
 static const uint MSECS_PER_HOUR= 3600000;
-static const uint SECS_PER_MIN	= 60;
+static const uint SECS_PER_MIN        = 60;
 static const uint MSECS_PER_MIN = 60000;
 
 static const short monthDays[] = {
     0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
 static const char * const qt_shortMonthNames[] = {
-	"Jan", "Feb", "Mar", "Apr", "May", "Jun",
-	"Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
 #ifndef QT_NO_DATESTRING
 /*****************************************************************************
@@ -49,123 +49,123 @@ static const char * const qt_shortMonthNames[] = {
  *****************************************************************************/
 
 // Replaces tokens by their value. See QDateTime::toString() for a list of valid tokens
-static QString getFmtString( const QString& f, const QTime* dt = 0, const QDate* dd = 0, bool am_pm = FALSE )
+static QString getFmtString(const QString& f, const QTime* dt = 0, const QDate* dd = 0, bool am_pm = false)
 {
-    if ( f.isEmpty() )
-	return QString::null;
+    if (f.isEmpty())
+        return QString::null;
 
     QString buf = f;
 
-    if ( dt ) {
-	if ( f == QLatin1String("h") ) {
-	    if ( ( am_pm ) && ( dt->hour() > 12 ) )
-		buf = QString::number( dt->hour() - 12 );
-	    else if ( ( am_pm ) && ( dt->hour() == 0 ) )
-		buf = QLatin1String("12");
-	    else
-		buf = QString::number( dt->hour() );
-	} else if ( f == QLatin1String("hh") ) {
-	    if ( ( am_pm ) && ( dt->hour() > 12 ) )
-		buf = QString::number( dt->hour() - 12 ).rightJustified( 2, '0', TRUE );
-	    else if ( ( am_pm ) && ( dt->hour() == 0 ) )
-		buf = QLatin1String("12");
-	    else
-		buf = QString::number( dt->hour() ).rightJustified( 2, '0', TRUE );
-	} else if ( f == QLatin1String("m") ) {
-	    buf = QString::number( dt->minute() );
-	} else if ( f == QLatin1String("mm") ) {
-	    buf = QString::number( dt->minute() ).rightJustified( 2, '0', TRUE );
-	} else if ( f == QLatin1String("s") ) {
-	    buf = QString::number( dt->second() );
-	} else if ( f == QLatin1String("ss") ) {
-	    buf = QString::number( dt->second() ).rightJustified( 2, '0', TRUE );
-	} else if ( f == QLatin1String("z") ) {
-	    buf = QString::number( dt->msec() );
-	} else if ( f == QLatin1String("zzz") ) {
-	    buf = QString::number( dt->msec() ).rightJustified( 3, '0', TRUE );
-	} else if ( f == QLatin1String("ap") ) {
-	    buf = dt->hour() < 12 ? QLatin1String("am") : QLatin1String("pm");
-	} else if ( f == QLatin1String("AP") ) {
-	    buf = dt->hour() < 12 ? QLatin1String("AM") : QLatin1String("PM");
-	}
+    if (dt) {
+        if (f == QLatin1String("h")) {
+            if ((am_pm) && (dt->hour() > 12))
+                buf = QString::number(dt->hour() - 12);
+            else if ((am_pm) && (dt->hour() == 0))
+                buf = QLatin1String("12");
+            else
+                buf = QString::number(dt->hour());
+        } else if (f == QLatin1String("hh")) {
+            if ((am_pm) && (dt->hour() > 12))
+                buf = QString::number(dt->hour() - 12).rightJustified(2, '0', true);
+            else if ((am_pm) && (dt->hour() == 0))
+                buf = QLatin1String("12");
+            else
+                buf = QString::number(dt->hour()).rightJustified(2, '0', true);
+        } else if (f == QLatin1String("m")) {
+            buf = QString::number(dt->minute());
+        } else if (f == QLatin1String("mm")) {
+            buf = QString::number(dt->minute()).rightJustified(2, '0', true);
+        } else if (f == QLatin1String("s")) {
+            buf = QString::number(dt->second());
+        } else if (f == QLatin1String("ss")) {
+            buf = QString::number(dt->second()).rightJustified(2, '0', true);
+        } else if (f == QLatin1String("z")) {
+            buf = QString::number(dt->msec());
+        } else if (f == QLatin1String("zzz")) {
+            buf = QString::number(dt->msec()).rightJustified(3, '0', true);
+        } else if (f == QLatin1String("ap")) {
+            buf = dt->hour() < 12 ? QLatin1String("am") : QLatin1String("pm");
+        } else if (f == QLatin1String("AP")) {
+            buf = dt->hour() < 12 ? QLatin1String("AM") : QLatin1String("PM");
+        }
     }
 
-    if ( dd ) {
-	if ( f == QLatin1String("d") ) {
-	    buf = QString::number( dd->day() );
-	} else if ( f == QLatin1String("dd") ) {
-	    buf = QString::number( dd->day() ).rightJustified( 2, '0', TRUE );
-	} else if ( f == QLatin1String("M") ) {
-	    buf = QString::number( dd->month() );
-	} else if ( f == QLatin1String("MM") ) {
-	    buf = QString::number( dd->month() ).rightJustified( 2, '0', TRUE );
+    if (dd) {
+        if (f == QLatin1String("d")) {
+            buf = QString::number(dd->day());
+        } else if (f == QLatin1String("dd")) {
+            buf = QString::number(dd->day()).rightJustified(2, '0', true);
+        } else if (f == QLatin1String("M")) {
+            buf = QString::number(dd->month());
+        } else if (f == QLatin1String("MM")) {
+            buf = QString::number(dd->month()).rightJustified(2, '0', true);
 #ifndef QT_NO_TEXTDATE
-	} else if ( f == QLatin1String("ddd") ) {
-	    buf = dd->shortDayName( dd->dayOfWeek() );
-	} else if ( f == QLatin1String("dddd") ) {
-	    buf = dd->longDayName( dd->dayOfWeek() );
-	} else if ( f == QLatin1String("MMM") ) {
-	    buf = dd->shortMonthName( dd->month() );
-	} else if ( f == QLatin1String("MMMM") ) {
-	    buf = dd->longMonthName( dd->month() );
+        } else if (f == QLatin1String("ddd")) {
+            buf = dd->shortDayName(dd->dayOfWeek());
+        } else if (f == QLatin1String("dddd")) {
+            buf = dd->longDayName(dd->dayOfWeek());
+        } else if (f == QLatin1String("MMM")) {
+            buf = dd->shortMonthName(dd->month());
+        } else if (f == QLatin1String("MMMM")) {
+            buf = dd->longMonthName(dd->month());
 #endif
-	} else if ( f == QLatin1String("yy") ) {
-	    buf = QString::number( dd->year() ).right( 2 );
-	} else if ( f == QLatin1String("yyyy") ) {
-	    buf = QString::number( dd->year() );
-	}
+        } else if (f == QLatin1String("yy")) {
+            buf = QString::number(dd->year()).right(2);
+        } else if (f == QLatin1String("yyyy")) {
+            buf = QString::number(dd->year());
+        }
     }
 
     return buf;
 }
 
 // Parses the format string and uses getFmtString to get the values for the tokens. Ret
-static QString fmtDateTime( const QString& f, const QTime* dt = 0, const QDate* dd = 0 )
+static QString fmtDateTime(const QString& f, const QTime* dt = 0, const QDate* dd = 0)
 {
-    if ( f.isEmpty() ) {
-	return QString::null;
+    if (f.isEmpty()) {
+        return QString::null;
     }
 
-    if ( dt && !dt->isValid() )
-	return QString::null;
-    if ( dd && !dd->isValid() )
-	return QString::null;
+    if (dt && !dt->isValid())
+        return QString::null;
+    if (dd && !dd->isValid())
+        return QString::null;
 
-    bool ap = ( f.contains( QLatin1String("AP"), QString::CaseInsensitive ) );
+    bool ap = (f.contains(QLatin1String("AP"), QString::CaseInsensitive));
 
     QString buf;
     QString frm;
     QChar status = '0';
 
-    for ( int i = 0; i < (int)f.length(); ++i ) {
+    for (int i = 0; i < (int)f.length(); ++i) {
 
-	if ( f[ i ] == status ) {
-	    if ( ( ap ) && ( ( f[ i ] == 'P' ) || ( f[ i ] == 'p' ) ) )
-		status = '0';
-	    frm += f[ i ];
-	} else {
-	    buf += getFmtString( frm, dt, dd, ap );
-	    frm = QString::null;
-	    if ( ( f[ i ] == 'h' ) || ( f[ i ] == 'm' ) || ( f[ i ] == 's' ) || ( f[ i ] == 'z' ) ) {
-		status = f[ i ];
-		frm += f[ i ];
-	    } else if ( ( f[ i ] == 'd' ) || ( f[ i ] == 'M' ) || ( f[ i ] == 'y' ) ) {
-		status = f[ i ];
-		frm += f[ i ];
-	    } else if ( ( ap ) && ( f[ i ] == 'A' ) ) {
-		status = 'P';
-		frm += f[ i ];
-	    } else  if( ( ap ) && ( f[ i ] == 'a' ) ) {
-		status = 'p';
-		frm += f[ i ];
-	    } else {
-		buf += f[ i ];
-		status = '0';
-	    }
-	}
+        if (f[i] == status) {
+            if ((ap) && ((f[i] == 'P') || (f[i] == 'p')))
+                status = '0';
+            frm += f[i];
+        } else {
+            buf += getFmtString(frm, dt, dd, ap);
+            frm = QString::null;
+            if ((f[i] == 'h') || (f[i] == 'm') || (f[i] == 's') || (f[i] == 'z')) {
+                status = f[i];
+                frm += f[i];
+            } else if ((f[i] == 'd') || (f[i] == 'M') || (f[i] == 'y')) {
+                status = f[i];
+                frm += f[i];
+            } else if ((ap) && (f[i] == 'A')) {
+                status = 'P';
+                frm += f[i];
+            } else  if((ap) && (f[i] == 'a')) {
+                status = 'p';
+                frm += f[i];
+            } else {
+                buf += f[i];
+                status = '0';
+            }
+        }
     }
 
-    buf += getFmtString( frm, dt, dd, ap );
+    buf += getFmtString(frm, dt, dd, ap);
 
     return buf;
 }
@@ -247,17 +247,17 @@ static QString fmtDateTime( const QString& f, const QTime* dt = 0, const QDate* 
     \sa isValid()
 */
 
-QDate::QDate( int y, int m, int d )
+QDate::QDate(int y, int m, int d)
 {
     jd = 0;
-    setYMD( y, m, d );
+    setYMD(y, m, d);
 }
 
 
 /*!
     \fn bool QDate::isNull() const
 
-    Returns TRUE if the date is null; otherwise returns FALSE. A null
+    Returns true if the date is null; otherwise returns false. A null
     date is invalid.
 
     \sa isValid()
@@ -265,7 +265,7 @@ QDate::QDate( int y, int m, int d )
 
 
 /*!
-    Returns TRUE if this date is valid; otherwise returns FALSE.
+    Returns true if this date is valid; otherwise returns false.
 
     \sa isNull()
 */
@@ -285,7 +285,7 @@ bool QDate::isValid() const
 int QDate::year() const
 {
     int y, m, d;
-    julianToGregorian( jd, y, m, d );
+    julianToGregorian(jd, y, m, d);
     return y;
 }
 
@@ -298,7 +298,7 @@ int QDate::year() const
 int QDate::month() const
 {
     int y, m, d;
-    julianToGregorian( jd, y, m, d );
+    julianToGregorian(jd, y, m, d);
     return m;
 }
 
@@ -311,7 +311,7 @@ int QDate::month() const
 int QDate::day() const
 {
     int y, m, d;
-    julianToGregorian( jd, y, m, d );
+    julianToGregorian(jd, y, m, d);
     return d;
 }
 
@@ -323,7 +323,7 @@ int QDate::day() const
 
 int QDate::dayOfWeek() const
 {
-    return ( jd % 7 ) + 1;
+    return (jd % 7) + 1;
 }
 
 /*!
@@ -346,11 +346,11 @@ int QDate::dayOfYear() const
 int QDate::daysInMonth() const
 {
     int y, m, d;
-    julianToGregorian( jd, y, m, d );
-    if ( m == 2 && leapYear(y) )
-	return 29;
+    julianToGregorian(jd, y, m, d);
+    if (m == 2 && leapYear(y))
+        return 29;
     else
-	return monthDays[m];
+        return monthDays[m];
 }
 
 /*!
@@ -362,8 +362,8 @@ int QDate::daysInMonth() const
 int QDate::daysInYear() const
 {
     int y, m, d;
-    julianToGregorian( jd, y, m, d );
-    return leapYear( y ) ? 366 : 365;
+    julianToGregorian(jd, y, m, d);
+    return leapYear(y) ? 366 : 365;
 }
 
 /*!
@@ -402,49 +402,49 @@ int QDate::daysInYear() const
 
 int QDate::weekNumber(int *yearNumber) const
 {
-    if ( !isValid() )
-	return 0;
+    if (!isValid())
+        return 0;
 
-    int	year = QDate::year();
-    int	yday = dayOfYear() - 1;
-    int	wday = dayOfWeek();
+    int        year = QDate::year();
+    int        yday = dayOfYear() - 1;
+    int        wday = dayOfWeek();
     if (wday == 7)
-    	wday = 0;
-    int	w;
+        wday = 0;
+    int        w;
 
     for (;;) {
-	int len;
-	int bot;
-	int top;
+        int len;
+        int bot;
+        int top;
 
-	len = leapYear(year) ? 366 : 365;
-	/*
-	** What yday (-3 ... 3) does
-	** the ISO year begin on?
-	*/
-	bot = ((yday + 11 - wday) % 7) - 3;
-	/*
-	** What yday does the NEXT
-	** ISO year begin on?
-	*/
-	top = bot - (len % 7);
-	if (top < -3)
-    	    top += 7;
-	top += len;
-	if (yday >= top) {
-	    ++year;
-    	    w = 1;
-	    break;
-	}
-	if (yday >= bot) {
-	    w = 1 + ((yday - bot) / 7);
-	    break;
-	}
-	--year;
-	yday += leapYear(year) ? 366 : 365;
+        len = leapYear(year) ? 366 : 365;
+        /*
+        ** What yday (-3 ... 3) does
+        ** the ISO year begin on?
+        */
+        bot = ((yday + 11 - wday) % 7) - 3;
+        /*
+        ** What yday does the NEXT
+        ** ISO year begin on?
+        */
+        top = bot - (len % 7);
+        if (top < -3)
+            top += 7;
+        top += len;
+        if (yday >= top) {
+            ++year;
+            w = 1;
+            break;
+        }
+        if (yday >= bot) {
+            w = 1 + ((yday - bot) / 7);
+            break;
+        }
+        --year;
+        yday += leapYear(year) ? 366 : 365;
     }
     if (yearNumber != 0)
-    	*yearNumber = year;
+        *yearNumber = year;
     return w;
 }
 
@@ -460,35 +460,35 @@ int QDate::weekNumber(int *yearNumber) const
     \sa toString(), longMonthName(), shortDayName(), longDayName()
 */
 
-QString QDate::shortMonthName( int month )
+QString QDate::shortMonthName(int month)
 {
-    if ( month < 1 || month > 12 ) {
-	qWarning( "QDate::shortMonthName: Parameter out ouf range" );
-	month = 1;
+    if (month < 1 || month > 12) {
+        qWarning("QDate::shortMonthName: Parameter out ouf range");
+        month = 1;
     }
 #ifndef Q_WS_WIN
     char buffer[255];
     tm tt;
-    memset( &tt, 0, sizeof( tm ) );
+    memset(&tt, 0, sizeof(tm));
     tt.tm_mon = month - 1;
-    if ( strftime( buffer, sizeof( buffer ), "%b", &tt ) )
-	return QString::fromLocal8Bit( buffer );
+    if (strftime(buffer, sizeof(buffer), "%b", &tt))
+        return QString::fromLocal8Bit(buffer);
 #else
     SYSTEMTIME st;
-    memset( &st, 0, sizeof(SYSTEMTIME) );
+    memset(&st, 0, sizeof(SYSTEMTIME));
     st.wYear = 2000;
     st.wMonth = month;
     st.wDay = 1;
     const wchar_t mmm_t[] = L"MMM"; // workaround for Borland
-    QT_WA( {
-	TCHAR buf[255];
-	if ( GetDateFormat( LOCALE_USER_DEFAULT, 0, &st, mmm_t, buf, 255 ) )
-	    return QString::fromUcs2( (ushort*)buf );
+    QT_WA({
+        TCHAR buf[255];
+        if (GetDateFormat(LOCALE_USER_DEFAULT, 0, &st, mmm_t, buf, 255))
+            return QString::fromUcs2((ushort*)buf);
     } , {
-	char buf[255];
-	if ( GetDateFormatA( LOCALE_USER_DEFAULT, 0, &st, "MMM", (char*)&buf, 255 ) )
-	    return QString::fromLocal8Bit( buf );
-    } );
+        char buf[255];
+        if (GetDateFormatA(LOCALE_USER_DEFAULT, 0, &st, "MMM", (char*)&buf, 255))
+            return QString::fromLocal8Bit(buf);
+    });
 #endif
     return QString::null;
 }
@@ -504,35 +504,35 @@ QString QDate::shortMonthName( int month )
     \sa toString(), shortMonthName(), shortDayName(), longDayName()
 */
 
-QString QDate::longMonthName( int month )
+QString QDate::longMonthName(int month)
 {
-    if ( month < 1 || month > 12 ) {
-	qWarning( "QDate::longMonthName: Parameter out ouf range" );
-	month = 1;
+    if (month < 1 || month > 12) {
+        qWarning("QDate::longMonthName: Parameter out ouf range");
+        month = 1;
     }
 #ifndef Q_WS_WIN
     char buffer[255];
     tm tt;
-    memset( &tt, 0, sizeof( tm ) );
+    memset(&tt, 0, sizeof(tm));
     tt.tm_mon = month - 1;
-    if ( strftime( buffer, sizeof( buffer ), "%B", &tt ) )
-	return QString::fromLocal8Bit( buffer );
+    if (strftime(buffer, sizeof(buffer), "%B", &tt))
+        return QString::fromLocal8Bit(buffer);
 #else
     SYSTEMTIME st;
-    memset( &st, 0, sizeof(SYSTEMTIME) );
+    memset(&st, 0, sizeof(SYSTEMTIME));
     st.wYear = 2000;
     st.wMonth = month;
     st.wDay = 1 ;
     const wchar_t mmmm_t[] = L"MMMM"; // workaround for Borland
-    QT_WA( {
-	TCHAR buf[255];
-	if ( GetDateFormat( LOCALE_USER_DEFAULT, 0, &st, mmmm_t, buf, 255 ) )
-	    return QString::fromUcs2( (ushort*)buf );
+    QT_WA({
+        TCHAR buf[255];
+        if (GetDateFormat(LOCALE_USER_DEFAULT, 0, &st, mmmm_t, buf, 255))
+            return QString::fromUcs2((ushort*)buf);
     } , {
-	char buf[255];
-	if ( GetDateFormatA( LOCALE_USER_DEFAULT, 0, &st, "MMMM", (char*)&buf, 255 ) )
-	    return QString::fromLocal8Bit( buf );
-    } )
+        char buf[255];
+        if (GetDateFormatA(LOCALE_USER_DEFAULT, 0, &st, "MMMM", (char*)&buf, 255))
+            return QString::fromLocal8Bit(buf);
+    })
 #endif
 
     return QString::null;
@@ -549,36 +549,36 @@ QString QDate::longMonthName( int month )
     \sa toString(), shortMonthName(), longMonthName(), longDayName()
 */
 
-QString QDate::shortDayName( int weekday )
+QString QDate::shortDayName(int weekday)
 {
-    if ( weekday < 1 || weekday > 7 ) {
-	qWarning( "QDate::shortDayName: Parameter out of range" );
-	weekday = 1;
+    if (weekday < 1 || weekday > 7) {
+        qWarning("QDate::shortDayName: Parameter out of range");
+        weekday = 1;
     }
 #ifndef Q_WS_WIN
     char buffer[255];
     tm tt;
-    memset( &tt, 0, sizeof( tm ) );
-    tt.tm_wday = ( weekday == 7 ) ? 0 : weekday;
-    if ( strftime( buffer, sizeof( buffer ), "%a", &tt ) )
-	return QString::fromLocal8Bit( buffer );
+    memset(&tt, 0, sizeof(tm));
+    tt.tm_wday = (weekday == 7) ? 0 : weekday;
+    if (strftime(buffer, sizeof(buffer), "%a", &tt))
+        return QString::fromLocal8Bit(buffer);
 #else
     SYSTEMTIME st;
-    memset( &st, 0, sizeof(SYSTEMTIME) );
+    memset(&st, 0, sizeof(SYSTEMTIME));
     st.wYear = 2001;
     st.wMonth = 10;
-    st.wDayOfWeek = ( weekday == 7 ) ? 0 : weekday;
+    st.wDayOfWeek = (weekday == 7) ? 0 : weekday;
     st.wDay = 21 + st.wDayOfWeek;
     const wchar_t ddd_t[] = L"ddd"; // workaround for Borland
-    QT_WA( {
-	TCHAR buf[255];
-	if ( GetDateFormat( LOCALE_USER_DEFAULT, 0, &st, ddd_t, buf, 255 ) )
-	    return QString::fromUcs2( (ushort*)buf );
+    QT_WA({
+        TCHAR buf[255];
+        if (GetDateFormat(LOCALE_USER_DEFAULT, 0, &st, ddd_t, buf, 255))
+            return QString::fromUcs2((ushort*)buf);
     } , {
-	char buf[255];
-	if ( GetDateFormatA( LOCALE_USER_DEFAULT, 0, &st, "ddd", (char*)&buf, 255 ) )
-	    return QString::fromLocal8Bit( buf );
-    } );
+        char buf[255];
+        if (GetDateFormatA(LOCALE_USER_DEFAULT, 0, &st, "ddd", (char*)&buf, 255))
+            return QString::fromLocal8Bit(buf);
+    });
 #endif
 
     return QString::null;
@@ -595,36 +595,36 @@ QString QDate::shortDayName( int weekday )
     \sa toString(), shortDayName(), shortMonthName(), longMonthName()
 */
 
-QString QDate::longDayName( int weekday )
+QString QDate::longDayName(int weekday)
 {
-    if ( weekday < 1 || weekday > 7 ) {
-	qWarning( "QDate::longDayName: Parameter out of range" );
-	weekday = 1;
+    if (weekday < 1 || weekday > 7) {
+        qWarning("QDate::longDayName: Parameter out of range");
+        weekday = 1;
     }
 #ifndef Q_WS_WIN
     char buffer[255];
     tm tt;
-    memset( &tt, 0, sizeof( tm ) );
-    tt.tm_wday = ( weekday == 7 ) ? 0 : weekday;
-    if ( strftime( buffer, sizeof( buffer ), "%A", &tt ) )
-	return QString::fromLocal8Bit( buffer );
+    memset(&tt, 0, sizeof(tm));
+    tt.tm_wday = (weekday == 7) ? 0 : weekday;
+    if (strftime(buffer, sizeof(buffer), "%A", &tt))
+        return QString::fromLocal8Bit(buffer);
 #else
     SYSTEMTIME st;
-    memset( &st, 0, sizeof(SYSTEMTIME) );
+    memset(&st, 0, sizeof(SYSTEMTIME));
     st.wYear = 2001;
     st.wMonth = 10;
-    st.wDayOfWeek = ( weekday == 7 ) ? 0 : weekday;
+    st.wDayOfWeek = (weekday == 7) ? 0 : weekday;
     st.wDay = 21 + st.wDayOfWeek;
     const wchar_t dddd_t[] = L"dddd"; // workaround for Borland
-    QT_WA( {
-	TCHAR buf[255];
-	if ( GetDateFormat( LOCALE_USER_DEFAULT, 0, &st, dddd_t, buf, 255 ) )
-	    return QString::fromUcs2( (ushort*)buf );
+    QT_WA({
+        TCHAR buf[255];
+        if (GetDateFormat(LOCALE_USER_DEFAULT, 0, &st, dddd_t, buf, 255))
+            return QString::fromUcs2((ushort*)buf);
     } , {
-	char buf[255];
-	if ( GetDateFormatA( LOCALE_USER_DEFAULT, 0, &st, "dddd", (char*)&buf, 255 ) )
-	    return QString::fromLocal8Bit( buf );
-    } );
+        char buf[255];
+        if (GetDateFormatA(LOCALE_USER_DEFAULT, 0, &st, "dddd", (char*)&buf, 255))
+            return QString::fromLocal8Bit(buf);
+    });
 #endif
 
     return QString::null;
@@ -658,63 +658,63 @@ QString QDate::longDayName( int weekday )
 
     \sa shortDayName(), shortMonthName()
 */
-QString QDate::toString( Qt::DateFormat f ) const
+QString QDate::toString(Qt::DateFormat f) const
 {
-    if ( !isValid() )
-	return QString::null;
+    if (!isValid())
+        return QString::null;
     int y, m, d;
-    julianToGregorian( jd, y, m, d );
-    switch ( f ) {
+    julianToGregorian(jd, y, m, d);
+    switch (f) {
     case Qt::LocalDate:
-	{
+        {
 #ifndef Q_WS_WIN
-	    tm tt;
-	    memset( &tt, 0, sizeof( tm ) );
-	    char buf[255];
-	    tt.tm_mday = day();
-	    tt.tm_mon = month() - 1;
-	    tt.tm_year = year() - 1900;
+            tm tt;
+            memset(&tt, 0, sizeof(tm));
+            char buf[255];
+            tt.tm_mday = day();
+            tt.tm_mon = month() - 1;
+            tt.tm_year = year() - 1900;
 
-	    static const char * avoidEgcsWarning = "%x";
-	    if ( strftime( buf, sizeof(buf), avoidEgcsWarning, &tt ) )
-		return QString::fromLocal8Bit( buf );
+            static const char * avoidEgcsWarning = "%x";
+            if (strftime(buf, sizeof(buf), avoidEgcsWarning, &tt))
+                return QString::fromLocal8Bit(buf);
 #else
-	    SYSTEMTIME st;
-	    memset( &st, 0, sizeof(SYSTEMTIME) );
-	    st.wYear = year();
-	    st.wMonth = month();
-	    st.wDay = day();
-	    QT_WA( {
-		TCHAR buf[255];
-		if ( GetDateFormat( LOCALE_USER_DEFAULT, 0, &st, 0, buf, 255 ) )
-		    return QString::fromUcs2( (ushort*)buf );
-	    } , {
-		char buf[255];
-		if ( GetDateFormatA( LOCALE_USER_DEFAULT, 0, &st, 0, (char*)&buf, 255 ) )
-		    return QString::fromLocal8Bit( buf );
-	    } );
+            SYSTEMTIME st;
+            memset(&st, 0, sizeof(SYSTEMTIME));
+            st.wYear = year();
+            st.wMonth = month();
+            st.wDay = day();
+            QT_WA({
+                TCHAR buf[255];
+                if (GetDateFormat(LOCALE_USER_DEFAULT, 0, &st, 0, buf, 255))
+                    return QString::fromUcs2((ushort*)buf);
+            } , {
+                char buf[255];
+                if (GetDateFormatA(LOCALE_USER_DEFAULT, 0, &st, 0, (char*)&buf, 255))
+                    return QString::fromLocal8Bit(buf);
+            });
 #endif
-	    return QString::null;
-	}
+            return QString::null;
+        }
     default:
 #ifndef QT_NO_TEXTDATE
     case Qt::TextDate:
-	{
-	    QString buf = shortDayName( dayOfWeek() );
-	    buf += ' ';
-	    buf += shortMonthName( m );
-	    QString t;
-	    t.sprintf( " %d %d", d, y );
-	    buf += t;
-	    return buf;
-	}
+        {
+            QString buf = shortDayName(dayOfWeek());
+            buf += ' ';
+            buf += shortMonthName(m);
+            QString t;
+            t.sprintf(" %d %d", d, y);
+            buf += t;
+            return buf;
+        }
 #endif
     case Qt::ISODate:
-	{
-	    QString month( QString::number( m ).rightJustified( 2, '0' ) );
-	    QString day( QString::number( d ).rightJustified( 2, '0' ) );
-	    return QString::number( y ) + QLatin1Char('-') + month + QLatin1Char('-') + day;
-	}
+        {
+            QString month(QString::number(m).rightJustified(2, '0'));
+            QString day(QString::number(d).rightJustified(2, '0'));
+            return QString::number(y) + QLatin1Char('-') + month + QLatin1Char('-') + day;
+        }
     }
 }
 #endif //QT_NO_SPRINTF
@@ -730,19 +730,19 @@ QString QDate::toString( Qt::DateFormat f ) const
     \row \i d \i the day as number without a leading zero (1-31)
     \row \i dd \i the day as number with a leading zero (01-31)
     \row \i ddd
-	 \i the abbreviated localized day name (e.g. 'Mon'..'Sun').
-	    Uses QDate::shortDayName().
+         \i the abbreviated localized day name (e.g. 'Mon'..'Sun').
+            Uses QDate::shortDayName().
     \row \i dddd
-	 \i the long localized day name (e.g. 'Monday'..'Sunday').
-	    Uses QDate::longDayName().
+         \i the long localized day name (e.g. 'Monday'..'Sunday').
+            Uses QDate::longDayName().
     \row \i M \i the month as number without a leading zero (1-12)
     \row \i MM \i the month as number with a leading zero (01-12)
     \row \i MMM
-	 \i the abbreviated localized month name (e.g. 'Jan'..'Dec').
-	    Uses QDate::shortMonthName().
+         \i the abbreviated localized month name (e.g. 'Jan'..'Dec').
+            Uses QDate::shortMonthName().
     \row \i MMMM
-	 \i the long localized month name (e.g. 'January'..'December').
-	    Uses QDate::longMonthName().
+         \i the long localized month name (e.g. 'January'..'December').
+            Uses QDate::longMonthName().
     \row \i yy \i the year as two digit number (00-99)
     \row \i yyyy \i the year as four digit number (1752-8000)
     \endtable
@@ -753,7 +753,7 @@ QString QDate::toString( Qt::DateFormat f ) const
     20<sup><small>th</small></sup> July 1969):
     \table
     \header \i Format \i Result
-    \row \i dd.MM.yyyy	  \i 20.07.1969
+    \row \i dd.MM.yyyy          \i 20.07.1969
     \row \i ddd MMMM d yy \i Sun July 20 69
     \endtable
 
@@ -762,9 +762,9 @@ QString QDate::toString( Qt::DateFormat f ) const
     \sa QDateTime::toString() QTime::toString()
 
 */
-QString QDate::toString( const QString& format ) const
+QString QDate::toString(const QString& format) const
 {
-    return fmtDateTime( format, 0, this );
+    return fmtDateTime(format, 0, this);
 }
 #endif //QT_NO_DATESTRING
 
@@ -777,19 +777,19 @@ QString QDate::toString( const QString& format ) const
     \warning If \a y is in the range 0..99, it is interpreted as
     1900..1999.
 
-    Returns TRUE if the date is valid; otherwise returns FALSE.
+    Returns true if the date is valid; otherwise returns false.
 */
 
-bool QDate::setYMD( int y, int m, int d )
+bool QDate::setYMD(int y, int m, int d)
 {
-    if ( year() == y && month() == m && day() == d )
-	return isValid();
-    if ( !isValid(y,m,d) ) {
-	 qWarning( "QDate::setYMD: Invalid date %04d-%02d-%02d", y, m, d );
-	 return FALSE;
+    if (year() == y && month() == m && day() == d)
+        return isValid();
+    if (!isValid(y,m,d)) {
+         qWarning("QDate::setYMD: Invalid date %04d-%02d-%02d", y, m, d);
+         return false;
     }
-    jd = gregorianToJulian( y, m, d );
-    return TRUE;
+    jd = gregorianToJulian(y, m, d);
+    return true;
 }
 
 /*!
@@ -799,7 +799,7 @@ bool QDate::setYMD( int y, int m, int d )
     \sa addMonths() addYears() daysTo()
 */
 
-QDate QDate::addDays( int ndays ) const
+QDate QDate::addDays(int ndays) const
 {
     QDate d;
     d.jd = jd + ndays;
@@ -813,42 +813,42 @@ QDate QDate::addDays( int ndays ) const
     \sa addDays() addYears()
 */
 
-QDate QDate::addMonths( int nmonths ) const
+QDate QDate::addMonths(int nmonths) const
 {
     int y, m, d;
-    julianToGregorian( jd, y, m, d );
+    julianToGregorian(jd, y, m, d);
 
-    while ( nmonths != 0 ) {
-	if ( nmonths < 0 && nmonths + 12 <= 0 ) {
-	    y--;
-	    nmonths+=12;
-	} else if ( nmonths < 0 ) {
-	    m+= nmonths;
-	    nmonths = 0;
-	    if ( m <= 0 ) {
-		--y;
-		m+=12;
-	    }
-	} else if ( nmonths - 12 >= 0 ) {
-	    y++;
-	    nmonths-=12;
-	} else if ( m == 12 ) {
-	    y++;
-	    m = 0;
-	} else {
-	    m+= nmonths;
-	    nmonths = 0;
-	    if ( m > 12 ) {
-		++y;
-		m -= 12;
-	    }
-	}
+    while (nmonths != 0) {
+        if (nmonths < 0 && nmonths + 12 <= 0) {
+            y--;
+            nmonths+=12;
+        } else if (nmonths < 0) {
+            m+= nmonths;
+            nmonths = 0;
+            if (m <= 0) {
+                --y;
+                m+=12;
+            }
+        } else if (nmonths - 12 >= 0) {
+            y++;
+            nmonths-=12;
+        } else if (m == 12) {
+            y++;
+            m = 0;
+        } else {
+            m+= nmonths;
+            nmonths = 0;
+            if (m > 12) {
+                ++y;
+                m -= 12;
+            }
+        }
     }
 
     QDate tmp(y,m,1);
 
-    if( d > tmp.daysInMonth() )
-	d = tmp.daysInMonth();
+    if(d > tmp.daysInMonth())
+        d = tmp.daysInMonth();
 
     QDate date(y, m, d);
     return date;
@@ -862,16 +862,16 @@ QDate QDate::addMonths( int nmonths ) const
     \sa addDays(), addMonths()
 */
 
-QDate QDate::addYears( int nyears ) const
+QDate QDate::addYears(int nyears) const
 {
     int y, m, d;
-    julianToGregorian( jd, y, m, d );
+    julianToGregorian(jd, y, m, d);
     y += nyears;
 
     QDate tmp(y,m,1);
 
-    if( d > tmp.daysInMonth() )
-	d = tmp.daysInMonth();
+    if(d > tmp.daysInMonth())
+        d = tmp.daysInMonth();
 
     QDate date(y, m, d);
     return date;
@@ -885,57 +885,57 @@ QDate QDate::addYears( int nyears ) const
 
     Example:
     \code
-	QDate d1( 1995, 5, 17 );  // May 17th 1995
-	QDate d2( 1995, 5, 20 );  // May 20th 1995
-	d1.daysTo( d2 );          // returns 3
-	d2.daysTo( d1 );          // returns -3
+        QDate d1(1995, 5, 17);  // May 17th 1995
+        QDate d2(1995, 5, 20);  // May 20th 1995
+        d1.daysTo(d2);          // returns 3
+        d2.daysTo(d1);          // returns -3
     \endcode
 
     \sa addDays()
 */
 
-int QDate::daysTo( const QDate &d ) const
+int QDate::daysTo(const QDate &d) const
 {
     return d.jd - jd;
 }
 
 
 /*!
-    \fn bool QDate::operator==( const QDate &d ) const
+    \fn bool QDate::operator==(const QDate &d) const
 
-    Returns TRUE if this date is equal to \a d; otherwise returns FALSE.
+    Returns true if this date is equal to \a d; otherwise returns false.
 */
 
 /*!
-    \fn bool QDate::operator!=( const QDate &d ) const
+    \fn bool QDate::operator!=(const QDate &d) const
 
-    Returns TRUE if this date is different from \a d; otherwise returns FALSE.
+    Returns true if this date is different from \a d; otherwise returns false.
 */
 
 /*!
-    \fn bool QDate::operator<( const QDate &d ) const
+    \fn bool QDate::operator<(const QDate &d) const
 
-    Returns TRUE if this date is earlier than \a d, otherwise returns FALSE.
+    Returns true if this date is earlier than \a d, otherwise returns false.
 */
 
 /*!
-    \fn bool QDate::operator<=( const QDate &d ) const
+    \fn bool QDate::operator<=(const QDate &d) const
 
-    Returns TRUE if this date is earlier than or equal to \a d,
-    otherwise returns FALSE.
+    Returns true if this date is earlier than or equal to \a d,
+    otherwise returns false.
 */
 
 /*!
-    \fn bool QDate::operator>( const QDate &d ) const
+    \fn bool QDate::operator>(const QDate &d) const
 
-    Returns TRUE if this date is later than \a d, otherwise returns FALSE.
+    Returns true if this date is later than \a d, otherwise returns false.
 */
 
 /*!
-    \fn bool QDate::operator>=( const QDate &d ) const
+    \fn bool QDate::operator>=(const QDate &d) const
 
-    Returns TRUE if this date is later than or equal to \a d,
-    otherwise returns FALSE.
+    Returns true if this date is later than or equal to \a d,
+    otherwise returns false.
 */
 
 /*!
@@ -947,7 +947,7 @@ int QDate::daysTo( const QDate &d ) const
 
 QDate QDate::currentDate()
 {
-    return currentDate( Qt::LocalTime );
+    return currentDate(Qt::LocalTime);
 }
 
 /*!
@@ -956,38 +956,38 @@ QDate QDate::currentDate()
 
   \sa QTime::currentTime(), QDateTime::currentDateTime(), Qt::TimeSpec
 */
-QDate QDate::currentDate( Qt::TimeSpec ts )
+QDate QDate::currentDate(Qt::TimeSpec ts)
 {
     QDate d;
 #if defined(Q_OS_WIN32)
     SYSTEMTIME t;
-    memset( &t, 0, sizeof(SYSTEMTIME) );
-    if ( ts == Qt::LocalTime )
-	GetLocalTime( &t );
+    memset(&t, 0, sizeof(SYSTEMTIME));
+    if (ts == Qt::LocalTime)
+        GetLocalTime(&t);
     else
-	GetSystemTime( &t );
-    d.jd = gregorianToJulian( t.wYear, t.wMonth, t.wDay );
+        GetSystemTime(&t);
+    d.jd = gregorianToJulian(t.wYear, t.wMonth, t.wDay);
 #else
     // posix compliant system
     time_t ltime;
-    time( &ltime );
+    time(&ltime);
     tm *t;
 
 #  if defined(_POSIX_THREAD_SAFE_FUNCTIONS)
     // use the reentrant versions of localtime() and gmtime() where available
     tm res;
-    if ( ts == Qt::LocalTime )
-	t = localtime_r( &ltime, &res );
+    if (ts == Qt::LocalTime)
+        t = localtime_r(&ltime, &res);
     else
-	t = gmtime_r( &ltime, &res );
+        t = gmtime_r(&ltime, &res);
 #  else
-    if ( ts == Qt::LocalTime )
-	t = localtime( &ltime );
+    if (ts == Qt::LocalTime)
+        t = localtime(&ltime);
     else
-	t = gmtime( &ltime );
+        t = gmtime(&ltime);
 #  endif // _POSIX_THREAD_SAFE_FUNCTIONS
 
-    d.jd = gregorianToJulian( t->tm_year + 1900, t->tm_mon + 1, t->tm_mday );
+    d.jd = gregorianToJulian(t->tm_year + 1900, t->tm_mon + 1, t->tm_mday);
 #endif
     return d;
 }
@@ -1003,67 +1003,67 @@ QDate QDate::currentDate( Qt::TimeSpec ts )
 
     \warning \c Qt::LocalDate cannot be used here.
 */
-QDate QDate::fromString( const QString& s, Qt::DateFormat f )
+QDate QDate::fromString(const QString& s, Qt::DateFormat f)
 {
-    if ( ( s.isEmpty() ) || ( f == Qt::LocalDate ) ) {
-	qWarning( "QDate::fromString: Parameter out of range" );
-	QDate d;
-	d.jd = 0;
-	return d;
+    if ((s.isEmpty()) || (f == Qt::LocalDate)) {
+        qWarning("QDate::fromString: Parameter out of range");
+        QDate d;
+        d.jd = 0;
+        return d;
     }
-    switch ( f ) {
+    switch (f) {
     case Qt::ISODate:
-	{
-	    int year( s.mid( 0, 4 ).toInt() );
-	    int month( s.mid( 5, 2 ).toInt() );
-	    int day( s.mid( 8, 2 ).toInt() );
-	    if ( year && month && day )
-		return QDate( year, month, day );
-	}
-	break;
+        {
+            int year(s.mid(0, 4).toInt());
+            int month(s.mid(5, 2).toInt());
+            int day(s.mid(8, 2).toInt());
+            if (year && month && day)
+                return QDate(year, month, day);
+        }
+        break;
     default:
 #ifndef QT_NO_TEXTDATE
     case Qt::TextDate:
-	{
-	    /*
-	      This will fail gracefully if the input string doesn't
-	      contain any space.
-	    */
-	    int monthPos = s.indexOf( ' ' ) + 1;
-	    int dayPos = s.indexOf( ' ', monthPos ) + 1;
+        {
+            /*
+              This will fail gracefully if the input string doesn't
+              contain any space.
+            */
+            int monthPos = s.indexOf(' ') + 1;
+            int dayPos = s.indexOf(' ', monthPos) + 1;
 
-	    QString monthName( s.mid(monthPos, dayPos - monthPos - 1) );
-	    int month = -1;
+            QString monthName(s.mid(monthPos, dayPos - monthPos - 1));
+            int month = -1;
 
-	    // try English names first
-	    for ( int i = 0; i < 12; i++ ) {
-		if ( monthName == QLatin1String(qt_shortMonthNames[i]) ) {
-		    month = i + 1;
-		    break;
-		}
-	    }
+            // try English names first
+            for (int i = 0; i < 12; i++) {
+                if (monthName == QLatin1String(qt_shortMonthNames[i])) {
+                    month = i + 1;
+                    break;
+                }
+            }
 
-	    // try the localized names
-	    if ( month == -1 ) {
-		for ( int i = 0; i < 12; i++ ) {
-		    if ( monthName == shortMonthName( i + 1 ) ) {
-			month = i + 1;
-			break;
-		    }
-		}
-	    }
-	    if ( month < 1 || month > 12 ) {
-		qWarning( "QDate::fromString: Parameter out of range" );
-		QDate d;
-		d.jd = 0;
-		return d;
-	    }
-	    int day = s.mid( dayPos, 2 ).trimmed().toInt();
-	    int year = s.right( 4 ).toInt();
-	    return QDate( year, month, day );
-	}
+            // try the localized names
+            if (month == -1) {
+                for (int i = 0; i < 12; i++) {
+                    if (monthName == shortMonthName(i + 1)) {
+                        month = i + 1;
+                        break;
+                    }
+                }
+            }
+            if (month < 1 || month > 12) {
+                qWarning("QDate::fromString: Parameter out of range");
+                QDate d;
+                d.jd = 0;
+                return d;
+            }
+            int day = s.mid(dayPos, 2).trimmed().toInt();
+            int year = s.right(4).toInt();
+            return QDate(year, month, day);
+        }
 #else
-	break;
+        break;
 #endif
     }
     return QDate();
@@ -1073,15 +1073,15 @@ QDate QDate::fromString( const QString& s, Qt::DateFormat f )
 /*!
     \overload
 
-    Returns TRUE if the specified date (year \a y, month \a m and day
-    \a d) is valid; otherwise returns FALSE.
+    Returns true if the specified date (year \a y, month \a m and day
+    \a d) is valid; otherwise returns false.
 
     Example:
     \code
-    QDate::isValid( 2002, 5, 17 );  // TRUE   May 17th 2002 is valid
-    QDate::isValid( 2002, 2, 30 );  // FALSE  Feb 30th does not exist
-    QDate::isValid( 2004, 2, 29 );  // TRUE   2004 is a leap year
-    QDate::isValid( 1202, 6, 6 );   // FALSE  1202 is pre-Gregorian
+    QDate::isValid(2002, 5, 17);  // true   May 17th 2002 is valid
+    QDate::isValid(2002, 2, 30);  // false  Feb 30th does not exist
+    QDate::isValid(2004, 2, 29);  // true   2004 is a leap year
+    QDate::isValid(1202, 6, 6);   // false  1202 is pre-Gregorian
     \endcode
 
     \warning A \a y value in the range 00..99 is interpreted as
@@ -1090,23 +1090,23 @@ QDate QDate::fromString( const QString& s, Qt::DateFormat f )
     \sa isNull(), setYMD()
 */
 
-bool QDate::isValid( int y, int m, int d )
+bool QDate::isValid(int y, int m, int d)
 {
-    if ( y >= 0 && y <= 99 )
-	y += 1900;
-    else if ( y < FIRST_YEAR || (y == FIRST_YEAR && (m < 9 ||
-						    (m == 9 && d < 14))) )
-	return FALSE;
+    if (y >= 0 && y <= 99)
+        y += 1900;
+    else if (y < FIRST_YEAR || (y == FIRST_YEAR && (m < 9 ||
+                                                    (m == 9 && d < 14))))
+        return false;
     return (d > 0 && m > 0 && m <= 12) &&
-	   (d <= monthDays[m] || (d == 29 && m == 2 && leapYear(y)));
+           (d <= monthDays[m] || (d == 29 && m == 2 && leapYear(y)));
 }
 
 /*!
-    Returns TRUE if the specified year \a y is a leap year; otherwise
-    returns FALSE.
+    Returns true if the specified year \a y is a leap year; otherwise
+    returns false.
 */
 
-bool QDate::leapYear( int y )
+bool QDate::leapYear(int y)
 {
     return y % 4 == 0 && y % 100 != 0 || y % 400 == 0;
 }
@@ -1118,18 +1118,18 @@ bool QDate::leapYear( int y )
   \sa julianToGregorian()
 */
 
-uint QDate::gregorianToJulian( int y, int m, int d )
+uint QDate::gregorianToJulian(int y, int m, int d)
 {
     uint c, ya;
-    if ( y <= 99 )
-	y += 1900;
-    if ( m > 2 ) {
-	m -= 3;
+    if (y <= 99)
+        y += 1900;
+    if (m > 2) {
+        m -= 3;
     } else {
-	m += 9;
-	y--;
+        m += 9;
+        y--;
     }
-    c = y;					// NOTE: Sym C++ 6.0 bug
+    c = y;                                        // NOTE: Sym C++ 6.0 bug
     c /= 100;
     ya = y - 100*c;
     return 1721119 + d + (146097*c)/4 + (1461*ya)/4 + (153*m+2)/5;
@@ -1142,7 +1142,7 @@ uint QDate::gregorianToJulian( int y, int m, int d )
   \sa gregorianToJulian()
 */
 
-void QDate::julianToGregorian( uint jd, int &y, int &m, int &d )
+void QDate::julianToGregorian(uint jd, int &y, int &m, int &d)
 {
     uint x;
     uint j = jd - 1721119;
@@ -1156,11 +1156,11 @@ void QDate::julianToGregorian( uint jd, int &y, int &m, int &d )
     m = (5*x - 3)/153;
     x = 5*x - 3 - 153*m;
     d = (x + 5)/5;
-    if ( m < 10 ) {
-	m += 3;
+    if (m < 10) {
+        m += 3;
     } else {
-	m -= 9;
-	y++;
+        m -= 9;
+        y++;
     }
 }
 
@@ -1234,23 +1234,23 @@ void QDate::julianToGregorian( uint jd, int &y, int &m, int &d )
     \sa isValid()
 */
 
-QTime::QTime( int h, int m, int s, int ms )
+QTime::QTime(int h, int m, int s, int ms)
 {
-    setHMS( h, m, s, ms );
+    setHMS(h, m, s, ms);
 }
 
 
 /*!
     \fn bool QTime::isNull() const
 
-    Returns TRUE if the time is equal to 00:00:00.000; otherwise
-    returns FALSE. A null time is valid.
+    Returns true if the time is equal to 00:00:00.000; otherwise
+    returns false. A null time is valid.
 
     \sa isValid()
 */
 
 /*!
-    Returns TRUE if the time is valid; otherwise returns FALSE. The
+    Returns true if the time is valid; otherwise returns false. The
     time 23:30:55.746 is valid, whereas 24:12:30 is invalid.
 
     \sa isNull()
@@ -1319,48 +1319,48 @@ int QTime::msec() const
     If the time is an invalid time, then QString::null will be returned.
 */
 
-QString QTime::toString( Qt::DateFormat f ) const
+QString QTime::toString(Qt::DateFormat f) const
 {
-    if ( !isValid() )
-	return QString::null;
+    if (!isValid())
+        return QString::null;
 
-    switch ( f ) {
+    switch (f) {
     case Qt::LocalDate:
-	{
+        {
 #ifndef Q_WS_WIN
-	    tm tt;
-	    memset( &tt, 0, sizeof( tm ) );
-	    char buf[255];
-	    tt.tm_sec = second();
-	    tt.tm_min = minute();
-	    tt.tm_hour = hour();
-	    if ( strftime( buf, sizeof(buf), "%X", &tt ) )
-		return QString::fromLocal8Bit( buf );
+            tm tt;
+            memset(&tt, 0, sizeof(tm));
+            char buf[255];
+            tt.tm_sec = second();
+            tt.tm_min = minute();
+            tt.tm_hour = hour();
+            if (strftime(buf, sizeof(buf), "%X", &tt))
+                return QString::fromLocal8Bit(buf);
 #else
-	    SYSTEMTIME st;
-	    memset( &st, 0, sizeof(SYSTEMTIME) );
-	    st.wHour = hour();
-	    st.wMinute = minute();
-	    st.wSecond = second();
-	    st.wMilliseconds = 0;
-	    QT_WA( {
-		TCHAR buf[255];
-		if ( GetTimeFormat( LOCALE_USER_DEFAULT, 0, &st, 0, buf, 255 ) )
-		    return QString::fromUcs2( (ushort*)buf );
-	    } , {
-		char buf[255];
-		if ( GetTimeFormatA( LOCALE_USER_DEFAULT, 0, &st, 0, (char*)&buf, 255 ) )
-		    return QString::fromLocal8Bit( buf );
-	    } );
+            SYSTEMTIME st;
+            memset(&st, 0, sizeof(SYSTEMTIME));
+            st.wHour = hour();
+            st.wMinute = minute();
+            st.wSecond = second();
+            st.wMilliseconds = 0;
+            QT_WA({
+                TCHAR buf[255];
+                if (GetTimeFormat(LOCALE_USER_DEFAULT, 0, &st, 0, buf, 255))
+                    return QString::fromUcs2((ushort*)buf);
+            } , {
+                char buf[255];
+                if (GetTimeFormatA(LOCALE_USER_DEFAULT, 0, &st, 0, (char*)&buf, 255))
+                    return QString::fromLocal8Bit(buf);
+            });
 #endif
-	    return QString::null;
-	}
+            return QString::null;
+        }
     default:
     case Qt::ISODate:
     case Qt::TextDate:
-	QString buf;
-	buf.sprintf( "%.2d:%.2d:%.2d", hour(), minute(), second() );
-	return buf;
+        QString buf;
+        buf.sprintf("%.2d:%.2d:%.2d", hour(), minute(), second());
+        return buf;
     }
 }
 #endif
@@ -1374,9 +1374,9 @@ QString QTime::toString( Qt::DateFormat f ) const
     \table
     \header \i Expression \i Output
     \row \i h
-	 \i the hour without a leading zero (0..23 or 1..12 if AM/PM display)
+         \i the hour without a leading zero (0..23 or 1..12 if AM/PM display)
     \row \i hh
-	 \i the hour with a leading zero (00..23 or 01..12 if AM/PM display)
+         \i the hour with a leading zero (00..23 or 01..12 if AM/PM display)
     \row \i m \i the minute without a leading zero (0..59)
     \row \i mm \i the minute with a leading zero (00..59)
     \row \i s \i the second whithout a leading zero (0..59)
@@ -1384,9 +1384,9 @@ QString QTime::toString( Qt::DateFormat f ) const
     \row \i z \i the milliseconds without leading zeroes (0..999)
     \row \i zzz \i the milliseconds with leading zeroes (000..999)
     \row \i AP
-	 \i use AM/PM display. \e AP will be replaced by either "AM" or "PM".
+         \i use AM/PM display. \e AP will be replaced by either "AM" or "PM".
     \row \i ap
-	 \i use am/pm display. \e ap will be replaced by either "am" or "pm".
+         \i use am/pm display. \e ap will be replaced by either "am" or "pm".
     \endtable
 
     All other input characters will be ignored.
@@ -1396,16 +1396,16 @@ QString QTime::toString( Qt::DateFormat f ) const
     \table
     \header \i Format \i Result
     \row \i hh:mm:ss.zzz    \i 14:13:09.042
-    \row \i h:m:s ap	    \i 2:13:9 pm
+    \row \i h:m:s ap            \i 2:13:9 pm
     \endtable
 
     If the time is an invalid time, then QString::null will be returned.
 
     \sa QDate::toString() QDateTime::toString()
 */
-QString QTime::toString( const QString& format ) const
+QString QTime::toString(const QString& format) const
 {
-    return fmtDateTime( format, this, 0 );
+    return fmtDateTime(format, this, 0);
 }
 #endif //QT_NO_DATESTRING
 /*!
@@ -1413,22 +1413,22 @@ QString QTime::toString( const QString& format ) const
     milliseconds \a ms.
 
     \a h must be in the range 0..23, \a m and \a s must be in the
-    range 0..59, and \a ms must be in the range 0..999. Returns TRUE
-    if the set time is valid; otherwise returns FALSE.
+    range 0..59, and \a ms must be in the range 0..999. Returns true
+    if the set time is valid; otherwise returns false.
 
     \sa isValid()
 */
 
-bool QTime::setHMS( int h, int m, int s, int ms )
+bool QTime::setHMS(int h, int m, int s, int ms)
 {
-    if ( !isValid(h,m,s,ms) ) {
-	qWarning( "QTime::setHMS Invalid time %02d:%02d:%02d.%03d", h, m, s,
-		 ms );
-	ds = MSECS_PER_DAY;		// make this invalid
-	return FALSE;
+    if (!isValid(h,m,s,ms)) {
+        qWarning("QTime::setHMS Invalid time %02d:%02d:%02d.%03d", h, m, s,
+                 ms);
+        ds = MSECS_PER_DAY;                // make this invalid
+        return false;
     }
     ds = (h*SECS_PER_HOUR + m*SECS_PER_MIN + s)*1000 + ms;
-    return TRUE;
+    return true;
 }
 
 /*!
@@ -1439,20 +1439,20 @@ bool QTime::setHMS( int h, int m, int s, int ms )
 
     Example:
     \code
-    QTime n( 14, 0, 0 );                // n == 14:00:00
+    QTime n(14, 0, 0);                // n == 14:00:00
     QTime t;
-    t = n.addSecs( 70 );                // t == 14:01:10
-    t = n.addSecs( -70 );               // t == 13:58:50
-    t = n.addSecs( 10*60*60 + 5 );      // t == 00:00:05
-    t = n.addSecs( -15*60*60 );         // t == 23:00:00
+    t = n.addSecs(70);                // t == 14:01:10
+    t = n.addSecs(-70);               // t == 13:58:50
+    t = n.addSecs(10*60*60 + 5);      // t == 00:00:05
+    t = n.addSecs(-15*60*60);         // t == 23:00:00
     \endcode
 
     \sa addMSecs(), secsTo(), QDateTime::addSecs()
 */
 
-QTime QTime::addSecs( int nsecs ) const
+QTime QTime::addSecs(int nsecs) const
 {
-    return addMSecs( nsecs * 1000 );
+    return addMSecs(nsecs * 1000);
 }
 
 /*!
@@ -1465,7 +1465,7 @@ QTime QTime::addSecs( int nsecs ) const
     \sa addSecs() QDateTime::secsTo()
 */
 
-int QTime::secsTo( const QTime &t ) const
+int QTime::secsTo(const QTime &t) const
 {
     return ((int)t.ds - (int)ds)/1000;
 }
@@ -1480,16 +1480,16 @@ int QTime::secsTo( const QTime &t ) const
     \sa addSecs(), msecsTo()
 */
 
-QTime QTime::addMSecs( int ms ) const
+QTime QTime::addMSecs(int ms) const
 {
     QTime t;
-    if ( ms < 0 ) {
-	// % not well-defined for -ve, but / is.
-	int negdays = (MSECS_PER_DAY-ms) / MSECS_PER_DAY;
-	t.ds = ((int)ds + ms + negdays*MSECS_PER_DAY)
-		% MSECS_PER_DAY;
+    if (ms < 0) {
+        // % not well-defined for -ve, but / is.
+        int negdays = (MSECS_PER_DAY-ms) / MSECS_PER_DAY;
+        t.ds = ((int)ds + ms + negdays*MSECS_PER_DAY)
+                % MSECS_PER_DAY;
     } else {
-	t.ds = ((int)ds + ms) % MSECS_PER_DAY;
+        t.ds = ((int)ds + ms) % MSECS_PER_DAY;
     }
     return t;
 }
@@ -1505,48 +1505,48 @@ QTime QTime::addMSecs( int ms ) const
     \sa secsTo()
 */
 
-int QTime::msecsTo( const QTime &t ) const
+int QTime::msecsTo(const QTime &t) const
 {
     return (int)t.ds - (int)ds;
 }
 
 
 /*!
-    \fn bool QTime::operator==( const QTime &t ) const
+    \fn bool QTime::operator==(const QTime &t) const
 
-    Returns TRUE if this time is equal to \a t; otherwise returns FALSE.
+    Returns true if this time is equal to \a t; otherwise returns false.
 */
 
 /*!
-    \fn bool QTime::operator!=( const QTime &t ) const
+    \fn bool QTime::operator!=(const QTime &t) const
 
-    Returns TRUE if this time is different from \a t; otherwise returns FALSE.
+    Returns true if this time is different from \a t; otherwise returns false.
 */
 
 /*!
-    \fn bool QTime::operator<( const QTime &t ) const
+    \fn bool QTime::operator<(const QTime &t) const
 
-    Returns TRUE if this time is earlier than \a t; otherwise returns FALSE.
+    Returns true if this time is earlier than \a t; otherwise returns false.
 */
 
 /*!
-    \fn bool QTime::operator<=( const QTime &t ) const
+    \fn bool QTime::operator<=(const QTime &t) const
 
-    Returns TRUE if this time is earlier than or equal to \a t;
-    otherwise returns FALSE.
+    Returns true if this time is earlier than or equal to \a t;
+    otherwise returns false.
 */
 
 /*!
-    \fn bool QTime::operator>( const QTime &t ) const
+    \fn bool QTime::operator>(const QTime &t) const
 
-    Returns TRUE if this time is later than \a t; otherwise returns FALSE.
+    Returns true if this time is later than \a t; otherwise returns false.
 */
 
 /*!
-    \fn bool QTime::operator>=( const QTime &t ) const
+    \fn bool QTime::operator>=(const QTime &t) const
 
-    Returns TRUE if this time is later than or equal to \a t;
-    otherwise returns FALSE.
+    Returns true if this time is later than or equal to \a t;
+    otherwise returns false.
 */
 
 
@@ -1562,7 +1562,7 @@ int QTime::msecsTo( const QTime &t ) const
 
 QTime QTime::currentTime()
 {
-    return currentTime( Qt::LocalTime );
+    return currentTime(Qt::LocalTime);
 }
 
 /*!
@@ -1574,10 +1574,10 @@ QTime QTime::currentTime()
 
   \sa Qt::TimeSpec
 */
-QTime QTime::currentTime( Qt::TimeSpec ts )
+QTime QTime::currentTime(Qt::TimeSpec ts)
 {
     QTime t;
-    currentTime( &t, ts );
+    currentTime(&t, ts);
     return t;
 }
 
@@ -1588,20 +1588,20 @@ QTime QTime::currentTime( Qt::TimeSpec ts )
 
     \warning Note that \c Qt::LocalDate cannot be used here.
 */
-QTime QTime::fromString( const QString& s, Qt::DateFormat f )
+QTime QTime::fromString(const QString& s, Qt::DateFormat f)
 {
-    if ( ( s.isEmpty() ) || ( f == Qt::LocalDate ) ) {
-	qWarning( "QTime::fromString: Parameter out of range" );
-	QTime t;
-	t.ds = MSECS_PER_DAY;
-	return t;
+    if ((s.isEmpty()) || (f == Qt::LocalDate)) {
+        qWarning("QTime::fromString: Parameter out of range");
+        QTime t;
+        t.ds = MSECS_PER_DAY;
+        return t;
     }
 
-    int hour( s.mid( 0, 2 ).toInt() );
-    int minute( s.mid( 3, 2 ).toInt() );
-    int second( s.mid( 6, 2 ).toInt() );
-    int msec( s.mid( 9, 3 ).toInt() );
-    return QTime( hour, minute, second, msec );
+    int hour(s.mid(0, 2).toInt());
+    int minute(s.mid(3, 2).toInt());
+    int second(s.mid(6, 2).toInt());
+    int msec(s.mid(9, 3).toInt());
+    return QTime(hour, minute, second, msec);
 }
 #endif
 
@@ -1609,76 +1609,76 @@ QTime QTime::fromString( const QString& s, Qt::DateFormat f )
   \internal
   \obsolete
 
-  Fetches the current time and returns TRUE if the time is within one
-  minute after midnight, otherwise FALSE. The return value is used by
+  Fetches the current time and returns true if the time is within one
+  minute after midnight, otherwise false. The return value is used by
   QDateTime::currentDateTime() to ensure that the date there is correct.
 */
 
-bool QTime::currentTime( QTime *ct )
+bool QTime::currentTime(QTime *ct)
 {
-    return currentTime( ct, Qt::LocalTime );
+    return currentTime(ct, Qt::LocalTime);
 }
 
 
 /*!
   \internal
 
-  Fetches the current time, for the TimeSpec \a ts, and returns TRUE
-  if the time is within one minute after midnight, otherwise FALSE. The
+  Fetches the current time, for the TimeSpec \a ts, and returns true
+  if the time is within one minute after midnight, otherwise false. The
   return value is used by QDateTime::currentDateTime() to ensure that
   the date there is correct. The default TimeSpec is LocalTime.
 
   \sa Qt::TimeSpec
 */
-bool QTime::currentTime( QTime *ct, Qt::TimeSpec ts )
+bool QTime::currentTime(QTime *ct, Qt::TimeSpec ts)
 {
-    if ( !ct ) {
-	qWarning( "QTime::currentTime(QTime *): Null pointer not allowed" );
-	return FALSE;
+    if (!ct) {
+        qWarning("QTime::currentTime(QTime *): Null pointer not allowed");
+        return false;
     }
 
 #if defined(Q_OS_WIN32)
     SYSTEMTIME t;
-    if ( ts == Qt::LocalTime ) {
-	GetLocalTime( &t );
+    if (ts == Qt::LocalTime) {
+        GetLocalTime(&t);
     } else {
-	GetSystemTime( &t );
+        GetSystemTime(&t);
     }
-    ct->ds = (uint)( MSECS_PER_HOUR*t.wHour + MSECS_PER_MIN*t.wMinute +
-		     1000*t.wSecond + t.wMilliseconds );
+    ct->ds = (uint)(MSECS_PER_HOUR*t.wHour + MSECS_PER_MIN*t.wMinute +
+                     1000*t.wSecond + t.wMilliseconds);
 #elif defined(Q_OS_UNIX)
     // posix compliant system
     struct timeval tv;
-    gettimeofday( &tv, 0 );
+    gettimeofday(&tv, 0);
     time_t ltime = tv.tv_sec;
     tm *t;
 
 #  if defined(_POSIX_THREAD_SAFE_FUNCTIONS)
     // use the reentrant versions of localtime() and gmtime() where available
     tm res;
-    if ( ts == Qt::LocalTime )
-	t = localtime_r( &ltime, &res );
+    if (ts == Qt::LocalTime)
+        t = localtime_r(&ltime, &res);
     else
-	t = gmtime_r( &ltime, &res );
+        t = gmtime_r(&ltime, &res);
 #  else
-    if ( ts == Qt::LocalTime )
-	t = localtime( &ltime );
+    if (ts == Qt::LocalTime)
+        t = localtime(&ltime);
     else
-	t = gmtime( &ltime );
+        t = gmtime(&ltime);
 #  endif // _POSIX_THREAD_SAFE_FUNCTIONS
 
-    ct->ds = (uint)( MSECS_PER_HOUR * t->tm_hour + MSECS_PER_MIN * t->tm_min +
-		     1000 * t->tm_sec + tv.tv_usec / 1000 );
+    ct->ds = (uint)(MSECS_PER_HOUR * t->tm_hour + MSECS_PER_MIN * t->tm_min +
+                     1000 * t->tm_sec + tv.tv_usec / 1000);
 #else
     time_t ltime; // no millisecond resolution
-    ::time( &ltime );
+    ::time(&ltime);
     tm *t;
-    if ( ts == Qt::LocalTime )
-	localtime( &ltime );
+    if (ts == Qt::LocalTime)
+        localtime(&ltime);
     else
-	gmtime( &ltime );
-    ct->ds = (uint) ( MSECS_PER_HOUR * t->tm_hour + MSECS_PER_MIN * t->tm_min +
-		      1000 * t->tm_sec );
+        gmtime(&ltime);
+    ct->ds = (uint) (MSECS_PER_HOUR * t->tm_hour + MSECS_PER_MIN * t->tm_min +
+                      1000 * t->tm_sec);
 #endif
     // 00:00.00 to 00:00.59.999 is considered as "midnight or right after"
     return ct->ds < (uint) MSECS_PER_MIN;
@@ -1687,20 +1687,20 @@ bool QTime::currentTime( QTime *ct, Qt::TimeSpec ts )
 /*!
     \overload
 
-    Returns TRUE if the specified time is valid; otherwise returns
-    FALSE.
+    Returns true if the specified time is valid; otherwise returns
+    false.
 
     The time is valid if \a h is in the range 0..23, \a m and \a s are
     in the range 0..59, and \a ms is in the range 0..999.
 
     Example:
     \code
-    QTime::isValid(21, 10, 30); // returns TRUE
-    QTime::isValid(22, 5,  62); // returns FALSE
+    QTime::isValid(21, 10, 30); // returns true
+    QTime::isValid(22, 5,  62); // returns false
     \endcode
 */
 
-bool QTime::isValid( int h, int m, int s, int ms )
+bool QTime::isValid(int h, int m, int s, int ms)
 {
     return (uint)h < 24 && (uint)m < 60 && (uint)s < 60 && (uint)ms < 1000;
 }
@@ -1713,7 +1713,7 @@ bool QTime::isValid( int h, int m, int s, int ms )
     QTime t;
     t.start();
     some_lengthy_task();
-    qDebug( "Time elapsed: %d ms", t.elapsed() );
+    qDebug("Time elapsed: %d ms", t.elapsed());
     \endcode
 
     \sa restart(), elapsed(), currentTime()
@@ -1747,9 +1747,9 @@ void QTime::start()
 int QTime::restart()
 {
     QTime t = currentTime();
-    int n = msecsTo( t );
-    if ( n < 0 )				// passed midnight
-	n += 86400*1000;
+    int n = msecsTo(t);
+    if (n < 0)                                // passed midnight
+        n += 86400*1000;
     *this = t;
     return n;
 }
@@ -1774,9 +1774,9 @@ int QTime::restart()
 
 int QTime::elapsed() const
 {
-    int n = msecsTo( currentTime() );
-    if ( n < 0 )				// passed midnight
-	n += 86400*1000;
+    int n = msecsTo(currentTime());
+    if (n < 0)                                // passed midnight
+        n += 86400*1000;
     return n;
 }
 
@@ -1845,7 +1845,7 @@ int QTime::elapsed() const
     (00:00:00.000).
 */
 
-QDateTime::QDateTime( const QDate &date )
+QDateTime::QDateTime(const QDate &date)
     : d(date)
 {
 }
@@ -1854,7 +1854,7 @@ QDateTime::QDateTime( const QDate &date )
     Constructs a datetime with date \a date and time \a time.
 */
 
-QDateTime::QDateTime( const QDate &date, const QTime &time )
+QDateTime::QDateTime(const QDate &date, const QTime &time)
     : d(date), t(time)
 {
 }
@@ -1863,8 +1863,8 @@ QDateTime::QDateTime( const QDate &date, const QTime &time )
 /*!
     \fn bool QDateTime::isNull() const
 
-    Returns TRUE if both the date and the time are null; otherwise
-    returns FALSE. A null datetime is invalid.
+    Returns true if both the date and the time are null; otherwise
+    returns false. A null datetime is invalid.
 
     \sa QDate::isNull(), QTime::isNull()
 */
@@ -1872,8 +1872,8 @@ QDateTime::QDateTime( const QDate &date, const QTime &time )
 /*!
     \fn bool QDateTime::isValid() const
 
-    Returns TRUE if both the date and the time are valid; otherwise
-    returns FALSE.
+    Returns true if both the date and the time are valid; otherwise
+    returns false.
 
     \sa QDate::isValid(), QTime::isValid()
 */
@@ -1895,7 +1895,7 @@ QDateTime::QDateTime( const QDate &date, const QTime &time )
 */
 
 /*!
-    \fn void QDateTime::setDate( const QDate &date )
+    \fn void QDateTime::setDate(const QDate &date)
 
     Sets the date part of this datetime to \a date.
 
@@ -1903,7 +1903,7 @@ QDateTime::QDateTime( const QDate &date, const QTime &time )
 */
 
 /*!
-    \fn void QDateTime::setTime( const QTime &time )
+    \fn void QDateTime::setTime(const QTime &time)
 
     Sets the time part of this datetime to \a time.
 
@@ -1931,9 +1931,9 @@ uint QDateTime::toTime_t() const
     brokenDown.tm_mon = d.month() - 1;
     brokenDown.tm_year = d.year() - 1900;
     brokenDown.tm_isdst = -1;
-    int secsSince1Jan1970UTC = (int) mktime( &brokenDown );
-    if ( secsSince1Jan1970UTC < -1 )
-	secsSince1Jan1970UTC = -1;
+    int secsSince1Jan1970UTC = (int) mktime(&brokenDown);
+    if (secsSince1Jan1970UTC < -1)
+        secsSince1Jan1970UTC = -1;
     return (uint) secsSince1Jan1970UTC;
 }
 
@@ -1944,9 +1944,9 @@ uint QDateTime::toTime_t() const
     based on the given UTC time.
 */
 
-void QDateTime::setTime_t( uint secsSince1Jan1970UTC )
+void QDateTime::setTime_t(uint secsSince1Jan1970UTC)
 {
-    setTime_t( secsSince1Jan1970UTC, Qt::LocalTime );
+    setTime_t(secsSince1Jan1970UTC, Qt::LocalTime);
 }
 
 /*!
@@ -1961,7 +1961,7 @@ void QDateTime::setTime_t( uint secsSince1Jan1970UTC )
 
     \sa toTime_t()
 */
-void QDateTime::setTime_t( uint secsSince1Jan1970UTC, Qt::TimeSpec ts )
+void QDateTime::setTime_t(uint secsSince1Jan1970UTC, Qt::TimeSpec ts)
 {
     time_t tmp = (time_t) secsSince1Jan1970UTC;
     tm *brokenDown = 0;
@@ -1970,35 +1970,35 @@ void QDateTime::setTime_t( uint secsSince1Jan1970UTC, Qt::TimeSpec ts )
     // posix compliant system
     // use the reentrant versions of localtime() and gmtime() where available
     tm res;
-    if ( ts == Qt::LocalTime )
-	brokenDown = localtime_r( &tmp, &res );
-    if ( !brokenDown ) {
-	brokenDown = gmtime_r( &tmp, &res );
-	if ( !brokenDown ) {
-	    d.jd = QDate::gregorianToJulian( 1970, 1, 1 );
-	    t.ds = 0;
-	    return;
-	}
+    if (ts == Qt::LocalTime)
+        brokenDown = localtime_r(&tmp, &res);
+    if (!brokenDown) {
+        brokenDown = gmtime_r(&tmp, &res);
+        if (!brokenDown) {
+            d.jd = QDate::gregorianToJulian(1970, 1, 1);
+            t.ds = 0;
+            return;
+        }
     }
 #else
-    if ( ts == Qt::LocalTime )
-	brokenDown = localtime( &tmp );
-    if ( !brokenDown ) {
-	brokenDown = gmtime( &tmp );
-	if ( !brokenDown ) {
-	    d.jd = QDate::gregorianToJulian( 1970, 1, 1 );
-	    t.ds = 0;
-	    return;
-	}
+    if (ts == Qt::LocalTime)
+        brokenDown = localtime(&tmp);
+    if (!brokenDown) {
+        brokenDown = gmtime(&tmp);
+        if (!brokenDown) {
+            d.jd = QDate::gregorianToJulian(1970, 1, 1);
+            t.ds = 0;
+            return;
+        }
     }
 #endif
 
-    d.jd = QDate::gregorianToJulian( brokenDown->tm_year + 1900,
-				     brokenDown->tm_mon + 1,
-				     brokenDown->tm_mday );
+    d.jd = QDate::gregorianToJulian(brokenDown->tm_year + 1900,
+                                     brokenDown->tm_mon + 1,
+                                     brokenDown->tm_mday);
     t.ds = MSECS_PER_HOUR * brokenDown->tm_hour +
-	   MSECS_PER_MIN * brokenDown->tm_min +
-	   1000 * brokenDown->tm_sec;
+           MSECS_PER_MIN * brokenDown->tm_min +
+           1000 * brokenDown->tm_sec;
 }
 #ifndef QT_NO_DATESTRING
 #ifndef QT_NO_SPRINTF
@@ -2026,52 +2026,52 @@ void QDateTime::setTime_t( uint secsSince1Jan1970UTC, Qt::TimeSpec ts )
     \sa QDate::toString() QTime::toString()
 */
 
-QString QDateTime::toString( Qt::DateFormat f ) const
+QString QDateTime::toString(Qt::DateFormat f) const
 {
-    if ( !isValid() )
-	return QString::null;
+    if (!isValid())
+        return QString::null;
 
-    if ( f == Qt::ISODate ) {
-	return d.toString( Qt::ISODate ) + QLatin1Char('T') + t.toString( Qt::ISODate );
+    if (f == Qt::ISODate) {
+        return d.toString(Qt::ISODate) + QLatin1Char('T') + t.toString(Qt::ISODate);
     }
 #ifndef QT_NO_TEXTDATE
-    else if ( f == Qt::TextDate ) {
+    else if (f == Qt::TextDate) {
 #ifndef Q_WS_WIN
-	QString buf = d.shortDayName( d.dayOfWeek() );
-	buf += ' ';
-	buf += d.shortMonthName( d.month() );
-	buf += ' ';
-	buf += QString().setNum( d.day() );
-	buf += ' ';
+        QString buf = d.shortDayName(d.dayOfWeek());
+        buf += ' ';
+        buf += d.shortMonthName(d.month());
+        buf += ' ';
+        buf += QString().setNum(d.day());
+        buf += ' ';
 #else
-	QString buf;
-	QString winstr;
-	QT_WA( {
-	    TCHAR out[255];
-	    GetLocaleInfo( LOCALE_USER_DEFAULT, LOCALE_ILDATE, out, 255 );
-	    winstr = QString::fromUcs2( (ushort*)out );
-	} , {
-	    char out[255];
-	    GetLocaleInfoA( LOCALE_USER_DEFAULT, LOCALE_ILDATE, (char*)&out, 255 );
-	    winstr = QString::fromLocal8Bit( out );
-	} );
-	switch ( winstr.toInt() ) {
-	case 1:
-	    buf = d.shortDayName( d.dayOfWeek() ) + " " + QString().setNum( d.day() ) + ". " + d.shortMonthName( d.month() ) + " ";
-	    break;
-	default:
-	    buf = d.shortDayName( d.dayOfWeek() ) + " " + d.shortMonthName( d.month() ) + " " + QString().setNum( d.day() ) + " ";
-	    break;
-	}
+        QString buf;
+        QString winstr;
+        QT_WA({
+            TCHAR out[255];
+            GetLocaleInfo(LOCALE_USER_DEFAULT, LOCALE_ILDATE, out, 255);
+            winstr = QString::fromUcs2((ushort*)out);
+        } , {
+            char out[255];
+            GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_ILDATE, (char*)&out, 255);
+            winstr = QString::fromLocal8Bit(out);
+        });
+        switch (winstr.toInt()) {
+        case 1:
+            buf = d.shortDayName(d.dayOfWeek()) + " " + QString().setNum(d.day()) + ". " + d.shortMonthName(d.month()) + " ";
+            break;
+        default:
+            buf = d.shortDayName(d.dayOfWeek()) + " " + d.shortMonthName(d.month()) + " " + QString().setNum(d.day()) + " ";
+            break;
+        }
 #endif
-	buf += t.toString();
-	buf += ' ';
-	buf += QString().setNum( d.year() );
-	return buf;
+        buf += t.toString();
+        buf += ' ';
+        buf += QString().setNum(d.year());
+        return buf;
     }
 #endif
-    else if ( f == Qt::LocalDate ) {
-	return d.toString( Qt::LocalDate ) + QLatin1Char(' ') + t.toString( Qt::LocalDate );
+    else if (f == Qt::LocalDate) {
+        return d.toString(Qt::LocalDate) + QLatin1Char(' ') + t.toString(Qt::LocalDate);
     }
     return QString::null;
 }
@@ -2088,19 +2088,19 @@ QString QDateTime::toString( Qt::DateFormat f ) const
     \row \i d \i the day as number without a leading zero (1-31)
     \row \i dd \i the day as number with a leading zero (01-31)
     \row \i ddd
-	    \i the abbreviated localized day name (e.g. 'Mon'..'Sun').
-	    Uses QDate::shortDayName().
+            \i the abbreviated localized day name (e.g. 'Mon'..'Sun').
+            Uses QDate::shortDayName().
     \row \i dddd
-	    \i the long localized day name (e.g. 'Monday'..'Sunday').
-	    Uses QDate::longDayName().
+            \i the long localized day name (e.g. 'Monday'..'Sunday').
+            Uses QDate::longDayName().
     \row \i M \i the month as number without a leading zero (1-12)
     \row \i MM \i the month as number with a leading zero (01-12)
     \row \i MMM
-	    \i the abbreviated localized month name (e.g. 'Jan'..'Dec').
-	    Uses QDate::shortMonthName().
+            \i the abbreviated localized month name (e.g. 'Jan'..'Dec').
+            Uses QDate::shortMonthName().
     \row \i MMMM
-	    \i the long localized month name (e.g. 'January'..'December').
-	    Uses QDate::longMonthName().
+            \i the long localized month name (e.g. 'January'..'December').
+            Uses QDate::longMonthName().
     \row \i yy \i the year as two digit number (00-99)
     \row \i yyyy \i the year as four digit number (1752-8000)
     \endtable
@@ -2110,9 +2110,9 @@ QString QDateTime::toString( Qt::DateFormat f ) const
     \table
     \header \i Expression \i Output
     \row \i h
-	    \i the hour without a leading zero (0..23 or 1..12 if AM/PM display)
+            \i the hour without a leading zero (0..23 or 1..12 if AM/PM display)
     \row \i hh
-	    \i the hour with a leading zero (00..23 or 01..12 if AM/PM display)
+            \i the hour with a leading zero (00..23 or 01..12 if AM/PM display)
     \row \i m \i the minute without a leading zero (0..59)
     \row \i mm \i the minute with a leading zero (00..59)
     \row \i s \i the second whithout a leading zero (0..59)
@@ -2120,9 +2120,9 @@ QString QDateTime::toString( Qt::DateFormat f ) const
     \row \i z \i the milliseconds without leading zeroes (0..999)
     \row \i zzz \i the milliseconds with leading zeroes (000..999)
     \row \i AP
-	    \i use AM/PM display. \e AP will be replaced by either "AM" or "PM".
+            \i use AM/PM display. \e AP will be replaced by either "AM" or "PM".
     \row \i ap
-	    \i use am/pm display. \e ap will be replaced by either "am" or "pm".
+            \i use am/pm display. \e ap will be replaced by either "am" or "pm".
     \endtable
 
     All other input characters will be ignored.
@@ -2132,19 +2132,19 @@ QString QDateTime::toString( Qt::DateFormat f ) const
 
     \table
     \header \i Format \i Result
-    \row \i dd.MM.yyyy	    \i 21.05.2001
+    \row \i dd.MM.yyyy            \i 21.05.2001
     \row \i ddd MMMM d yy   \i Tue May 21 01
     \row \i hh:mm:ss.zzz    \i 14:13:09.042
-    \row \i h:m:s ap	    \i 2:13:9 pm
+    \row \i h:m:s ap            \i 2:13:9 pm
     \endtable
 
     If the datetime is an invalid datetime, then QString::null will be returned.
 
     \sa QDate::toString() QTime::toString()
 */
-QString QDateTime::toString( const QString& format ) const
+QString QDateTime::toString(const QString& format) const
 {
-    return fmtDateTime( format, &t, &d );
+    return fmtDateTime(format, &t, &d);
 }
 #endif //QT_NO_DATESTRING
 
@@ -2156,9 +2156,9 @@ QString QDateTime::toString( const QString& format ) const
     \sa daysTo(), addMonths(), addYears(), addSecs()
 */
 
-QDateTime QDateTime::addDays( int ndays ) const
+QDateTime QDateTime::addDays(int ndays) const
 {
-    return QDateTime( d.addDays(ndays), t );
+    return QDateTime(d.addDays(ndays), t);
 }
 
 /*!
@@ -2169,9 +2169,9 @@ QDateTime QDateTime::addDays( int ndays ) const
     \sa daysTo(), addDays(), addYears(), addSecs()
 */
 
-QDateTime QDateTime::addMonths( int nmonths ) const
+QDateTime QDateTime::addMonths(int nmonths) const
 {
-    return QDateTime( d.addMonths(nmonths), t );
+    return QDateTime(d.addMonths(nmonths), t);
 }
 
 /*!
@@ -2182,9 +2182,9 @@ QDateTime QDateTime::addMonths( int nmonths ) const
     \sa daysTo(), addDays(), addMonths(), addSecs()
 */
 
-QDateTime QDateTime::addYears( int nyears ) const
+QDateTime QDateTime::addYears(int nyears) const
 {
-    return QDateTime( d.addYears(nyears), t );
+    return QDateTime(d.addYears(nyears), t);
 }
 
 /*!
@@ -2195,28 +2195,28 @@ QDateTime QDateTime::addYears( int nyears ) const
     \sa secsTo(), addDays(), addMonths(), addYears()
 */
 
-QDateTime QDateTime::addSecs( int nsecs ) const
+QDateTime QDateTime::addSecs(int nsecs) const
 {
     uint dd = d.jd;
     int  tt = t.ds;
     int  sign = 1;
-    if ( nsecs < 0 ) {
-	nsecs = -nsecs;
-	sign = -1;
+    if (nsecs < 0) {
+        nsecs = -nsecs;
+        sign = -1;
     }
-    if ( nsecs >= (int)SECS_PER_DAY ) {
-	dd += sign*(nsecs/SECS_PER_DAY);
-	nsecs %= SECS_PER_DAY;
+    if (nsecs >= (int)SECS_PER_DAY) {
+        dd += sign*(nsecs/SECS_PER_DAY);
+        nsecs %= SECS_PER_DAY;
     }
     tt += sign*nsecs*1000;
-    if ( tt < 0 ) {
-	tt = MSECS_PER_DAY - tt - 1;
-	dd -= tt / MSECS_PER_DAY;
-	tt = tt % MSECS_PER_DAY;
-	tt = MSECS_PER_DAY - tt - 1;
-    } else if ( tt >= (int)MSECS_PER_DAY ) {
-	dd += ( tt / MSECS_PER_DAY );
-	tt = tt % MSECS_PER_DAY;
+    if (tt < 0) {
+        tt = MSECS_PER_DAY - tt - 1;
+        dd -= tt / MSECS_PER_DAY;
+        tt = tt % MSECS_PER_DAY;
+        tt = MSECS_PER_DAY - tt - 1;
+    } else if (tt >= (int)MSECS_PER_DAY) {
+        dd += (tt / MSECS_PER_DAY);
+        tt = tt % MSECS_PER_DAY;
     }
     QDateTime ret;
     ret.t.ds = tt;
@@ -2231,9 +2231,9 @@ QDateTime QDateTime::addSecs( int nsecs ) const
     \sa addDays(), secsTo()
 */
 
-int QDateTime::daysTo( const QDateTime &dt ) const
+int QDateTime::daysTo(const QDateTime &dt) const
 {
-    return d.daysTo( dt.d );
+    return d.daysTo(dt.d);
 }
 
 /*!
@@ -2243,88 +2243,88 @@ int QDateTime::daysTo( const QDateTime &dt ) const
     Example:
     \code
     QDateTime dt = QDateTime::currentDateTime();
-    QDateTime xmas( QDate(dt.date().year(),12,24), QTime(17,00) );
-    qDebug( "There are %d seconds to Christmas", dt.secsTo(xmas) );
+    QDateTime xmas(QDate(dt.date().year(),12,24), QTime(17,00));
+    qDebug("There are %d seconds to Christmas", dt.secsTo(xmas));
     \endcode
 
     \sa addSecs(), daysTo(), QTime::secsTo()
 */
 
-int QDateTime::secsTo( const QDateTime &dt ) const
+int QDateTime::secsTo(const QDateTime &dt) const
 {
     return t.secsTo(dt.t) + d.daysTo(dt.d)*SECS_PER_DAY;
 }
 
 
 /*!
-    Returns TRUE if this datetime is equal to \a dt; otherwise returns FALSE.
+    Returns true if this datetime is equal to \a dt; otherwise returns false.
 
     \sa operator!=()
 */
 
-bool QDateTime::operator==( const QDateTime &dt ) const
+bool QDateTime::operator==(const QDateTime &dt) const
 {
     return  t == dt.t && d == dt.d;
 }
 
 /*!
-    Returns TRUE if this datetime is different from \a dt; otherwise
-    returns FALSE.
+    Returns true if this datetime is different from \a dt; otherwise
+    returns false.
 
     \sa operator==()
 */
 
-bool QDateTime::operator!=( const QDateTime &dt ) const
+bool QDateTime::operator!=(const QDateTime &dt) const
 {
     return  t != dt.t || d != dt.d;
 }
 
 /*!
-    Returns TRUE if this datetime is earlier than \a dt; otherwise
-    returns FALSE.
+    Returns true if this datetime is earlier than \a dt; otherwise
+    returns false.
 */
 
-bool QDateTime::operator<( const QDateTime &dt ) const
+bool QDateTime::operator<(const QDateTime &dt) const
 {
-    if ( d < dt.d )
-	return TRUE;
-    return d == dt.d ? t < dt.t : FALSE;
+    if (d < dt.d)
+        return true;
+    return d == dt.d ? t < dt.t : false;
 }
 
 /*!
-    Returns TRUE if this datetime is earlier than or equal to \a dt;
-    otherwise returns FALSE.
+    Returns true if this datetime is earlier than or equal to \a dt;
+    otherwise returns false.
 */
 
-bool QDateTime::operator<=( const QDateTime &dt ) const
+bool QDateTime::operator<=(const QDateTime &dt) const
 {
-    if ( d < dt.d )
-	return TRUE;
-    return d == dt.d ? t <= dt.t : FALSE;
+    if (d < dt.d)
+        return true;
+    return d == dt.d ? t <= dt.t : false;
 }
 
 /*!
-    Returns TRUE if this datetime is later than \a dt; otherwise
-    returns FALSE.
+    Returns true if this datetime is later than \a dt; otherwise
+    returns false.
 */
 
-bool QDateTime::operator>( const QDateTime &dt ) const
+bool QDateTime::operator>(const QDateTime &dt) const
 {
-    if ( d > dt.d )
-	return TRUE;
-    return d == dt.d ? t > dt.t : FALSE;
+    if (d > dt.d)
+        return true;
+    return d == dt.d ? t > dt.t : false;
 }
 
 /*!
-    Returns TRUE if this datetime is later than or equal to \a dt;
-    otherwise returns FALSE.
+    Returns true if this datetime is later than or equal to \a dt;
+    otherwise returns false.
 */
 
-bool QDateTime::operator>=( const QDateTime &dt ) const
+bool QDateTime::operator>=(const QDateTime &dt) const
 {
-    if ( d > dt.d )
-	return TRUE;
-    return d == dt.d ? t >= dt.t : FALSE;
+    if (d > dt.d)
+        return true;
+    return d == dt.d ? t >= dt.t : false;
 }
 
 /*!
@@ -2337,7 +2337,7 @@ bool QDateTime::operator>=( const QDateTime &dt ) const
 
 QDateTime QDateTime::currentDateTime()
 {
-    return currentDateTime( Qt::LocalTime );
+    return currentDateTime(Qt::LocalTime);
 }
 
 /*!
@@ -2347,14 +2347,14 @@ QDateTime QDateTime::currentDateTime()
   \sa QDate::currentDate(), QTime::currentTime(), Qt::TimeSpec
 */
 
-QDateTime QDateTime::currentDateTime( Qt::TimeSpec ts )
+QDateTime QDateTime::currentDateTime(Qt::TimeSpec ts)
 {
     QDateTime dt;
     QTime t;
-    dt.setDate( QDate::currentDate(ts) );
-    if ( QTime::currentTime(&t, ts) )         // midnight or right after?
-	dt.setDate( QDate::currentDate(ts) ); // fetch date again
-    dt.setTime( t );
+    dt.setDate(QDate::currentDate(ts));
+    if (QTime::currentTime(&t, ts))         // midnight or right after?
+        dt.setDate(QDate::currentDate(ts)); // fetch date again
+    dt.setTime(t);
     return dt;
 }
 
@@ -2369,57 +2369,57 @@ QDateTime QDateTime::currentDateTime( Qt::TimeSpec ts )
 
     \warning Note that \c Qt::LocalDate cannot be used here.
 */
-QDateTime QDateTime::fromString( const QString& s, Qt::DateFormat f )
+QDateTime QDateTime::fromString(const QString& s, Qt::DateFormat f)
 {
-    if ( ( s.isEmpty() ) || ( f == Qt::LocalDate ) ) {
-	qWarning( "QDateTime::fromString: Parameter out of range" );
-	QDateTime dt;
-	dt.d.jd = 0;
-	return dt;
+    if ((s.isEmpty()) || (f == Qt::LocalDate)) {
+        qWarning("QDateTime::fromString: Parameter out of range");
+        QDateTime dt;
+        dt.d.jd = 0;
+        return dt;
     }
-    if ( f == Qt::ISODate ) {
-	return QDateTime( QDate::fromString( s.mid(0,10), Qt::ISODate ),
-			  QTime::fromString( s.mid(11), Qt::ISODate ) );
+    if (f == Qt::ISODate) {
+        return QDateTime(QDate::fromString(s.mid(0,10), Qt::ISODate),
+                          QTime::fromString(s.mid(11), Qt::ISODate));
     }
 #if !defined(QT_NO_REGEXP) && !defined(QT_NO_TEXTDATE)
-    else if ( f == Qt::TextDate ) {
-	QString monthName( s.mid( 4, 3 ) );
-	int month = -1;
-	// Assume that English monthnames are the default
-	for ( int i = 0; i < 12; ++i ) {
-	    if ( monthName == QLatin1String(qt_shortMonthNames[i]) ) {
-		month = i + 1;
-		break;
-	    }
-	}
-	// If English names can't be found, search the localized ones
-	if ( month == -1 ) {
-	    for ( int i = 1; i <= 12; ++i ) {
-		if ( monthName == QDate::shortMonthName( i ) ) {
-		    month = i;
-		    break;
-		}
-	    }
-	}
-	if ( month < 1 || month > 12 ) {
-	    qWarning( "QDateTime::fromString: Parameter out of range" );
-	    QDateTime dt;
-	    dt.d.jd = 0;
-	    return dt;
-	}
-	int day = s.mid( 8, 2 ).simplified().toInt();
-	int year = s.right( 4 ).toInt();
-	QDate date( year, month, day );
-	QTime time;
-	int hour, minute, second;
-	int pivot = s.indexOf( QRegExp(QString::fromLatin1("[0-9][0-9]:[0-9][0-9]:[0-9][0-9]")) );
-	if ( pivot != -1 ) {
-	    hour = s.mid( pivot, 2 ).toInt();
-	    minute = s.mid( pivot+3, 2 ).toInt();
-	    second = s.mid( pivot+6, 2 ).toInt();
-	    time.setHMS( hour, minute, second );
-	}
-	return QDateTime( date, time );
+    else if (f == Qt::TextDate) {
+        QString monthName(s.mid(4, 3));
+        int month = -1;
+        // Assume that English monthnames are the default
+        for (int i = 0; i < 12; ++i) {
+            if (monthName == QLatin1String(qt_shortMonthNames[i])) {
+                month = i + 1;
+                break;
+            }
+        }
+        // If English names can't be found, search the localized ones
+        if (month == -1) {
+            for (int i = 1; i <= 12; ++i) {
+                if (monthName == QDate::shortMonthName(i)) {
+                    month = i;
+                    break;
+                }
+            }
+        }
+        if (month < 1 || month > 12) {
+            qWarning("QDateTime::fromString: Parameter out of range");
+            QDateTime dt;
+            dt.d.jd = 0;
+            return dt;
+        }
+        int day = s.mid(8, 2).simplified().toInt();
+        int year = s.right(4).toInt();
+        QDate date(year, month, day);
+        QTime time;
+        int hour, minute, second;
+        int pivot = s.indexOf(QRegExp(QString::fromLatin1("[0-9][0-9]:[0-9][0-9]:[0-9][0-9]")));
+        if (pivot != -1) {
+            hour = s.mid(pivot, 2).toInt();
+            minute = s.mid(pivot+3, 2).toInt();
+            second = s.mid(pivot+6, 2).toInt();
+            time.setHMS(hour, minute, second);
+        }
+        return QDateTime(date, time);
     }
 #endif //QT_NO_REGEXP
     return QDateTime();
@@ -2440,7 +2440,7 @@ QDateTime QDateTime::fromString( const QString& s, Qt::DateFormat f )
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
-QDataStream &operator<<( QDataStream &s, const QDate &d )
+QDataStream &operator<<(QDataStream &s, const QDate &d)
 {
     return s << (Q_UINT32)(d.jd);
 }
@@ -2453,7 +2453,7 @@ QDataStream &operator<<( QDataStream &s, const QDate &d )
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
-QDataStream &operator>>( QDataStream &s, QDate &d )
+QDataStream &operator>>(QDataStream &s, QDate &d)
 {
     Q_UINT32 jd;
     s >> jd;
@@ -2469,7 +2469,7 @@ QDataStream &operator>>( QDataStream &s, QDate &d )
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
-QDataStream &operator<<( QDataStream &s, const QTime &t )
+QDataStream &operator<<(QDataStream &s, const QTime &t)
 {
     return s << (Q_UINT32)(t.ds);
 }
@@ -2482,7 +2482,7 @@ QDataStream &operator<<( QDataStream &s, const QTime &t )
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
-QDataStream &operator>>( QDataStream &s, QTime &t )
+QDataStream &operator>>(QDataStream &s, QTime &t)
 {
     Q_UINT32 ds;
     s >> ds;
@@ -2498,7 +2498,7 @@ QDataStream &operator>>( QDataStream &s, QTime &t )
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
-QDataStream &operator<<( QDataStream &s, const QDateTime &dt )
+QDataStream &operator<<(QDataStream &s, const QDateTime &dt)
 {
     return s << dt.d << dt.t;
 }
@@ -2511,7 +2511,7 @@ QDataStream &operator<<( QDataStream &s, const QDateTime &dt )
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
-QDataStream &operator>>( QDataStream &s, QDateTime &dt )
+QDataStream &operator>>(QDataStream &s, QDateTime &dt)
 {
     s >> dt.d >> dt.t;
     return s;

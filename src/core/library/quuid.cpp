@@ -38,7 +38,7 @@
     UUIDs can be constructed from numeric values or from strings, or
     using the static createUuid() function. They can be converted to a
     string with toString(). UUIDs have a variant() and a version(),
-    and null UUIDs return TRUE from isNull().
+    and null UUIDs return true from isNull().
 */
 
 /*!
@@ -48,7 +48,7 @@
 */
 
 /*!
-    \fn QUuid::QUuid( uint l, ushort w1, ushort w2, uchar b1, uchar b2, uchar b3, uchar b4, uchar b5, uchar b6, uchar b7, uchar b8 )
+    \fn QUuid::QUuid(uint l, ushort w1, ushort w2, uchar b1, uchar b2, uchar b3, uchar b4, uchar b5, uchar b6, uchar b7, uchar b8)
 
     Creates a UUID with the value specified by the parameters, \a l,
     \a w1, \a w2, \a b1, \a b2, \a b3, \a b4, \a b5, \a b6, \a b7, \a
@@ -57,12 +57,12 @@
     Example:
     \code
     // {67C8770B-44F1-410A-AB9A-F9B5446F13EE}
-    QUuid IID_MyInterface( 0x67c8770b, 0x44f1, 0x410a, 0xab, 0x9a, 0xf9, 0xb5, 0x44, 0x6f, 0x13, 0xee )
+    QUuid IID_MyInterface(0x67c8770b, 0x44f1, 0x410a, 0xab, 0x9a, 0xf9, 0xb5, 0x44, 0x6f, 0x13, 0xee)
     \endcode
 */
 
 /*!
-    \fn QUuid::QUuid( const QUuid &orig )
+    \fn QUuid::QUuid(const QUuid &orig)
 
     Creates a copy of the QUuid \a orig.
 */
@@ -73,64 +73,64 @@
     {HHHHHHHH-HHHH-HHHH-HHHH-HHHHHHHHHHHH} (where 'H' stands for a hex
     digit). If the conversion fails a null UUID is created.
 */
-QUuid::QUuid( const QString &text )
+QUuid::QUuid(const QString &text)
 {
     bool ok;
-    if ( text.isEmpty() ) {
-	*this = QUuid();
-	return;
+    if (text.isEmpty()) {
+        *this = QUuid();
+        return;
     }
     QString temp = text.toUpper();
-    if ( temp[0] != '{' )
-	temp = "{" + text;
-    if ( text[(int)text.length()-1] != '}' )
-	temp += "}";
+    if (temp[0] != '{')
+        temp = "{" + text;
+    if (text[(int)text.length()-1] != '}')
+        temp += "}";
 
-    data1 = temp.mid( 1, 8 ).toULong( &ok, 16 );
-    if ( !ok ) {
-	*this = QUuid();
-	return;
+    data1 = temp.mid(1, 8).toULong(&ok, 16);
+    if (!ok) {
+        *this = QUuid();
+        return;
     }
 
-    data2 = temp.mid( 10, 4 ).toUInt( &ok, 16 );
-    if ( !ok ) {
-	*this = QUuid();
-	return;
+    data2 = temp.mid(10, 4).toUInt(&ok, 16);
+    if (!ok) {
+        *this = QUuid();
+        return;
     }
-    data3 = temp.mid( 15, 4 ).toUInt( &ok, 16 );
-    if ( !ok ) {
-	*this = QUuid();
-	return;
+    data3 = temp.mid(15, 4).toUInt(&ok, 16);
+    if (!ok) {
+        *this = QUuid();
+        return;
     }
-    data4[0] = temp.mid( 20, 2 ).toUInt( &ok, 16 );
-    if ( !ok ) {
-	*this = QUuid();
-	return;
+    data4[0] = temp.mid(20, 2).toUInt(&ok, 16);
+    if (!ok) {
+        *this = QUuid();
+        return;
     }
-    data4[1] = temp.mid( 22, 2 ).toUInt( &ok, 16 );
-    if ( !ok ) {
-	*this = QUuid();
-	return;
+    data4[1] = temp.mid(22, 2).toUInt(&ok, 16);
+    if (!ok) {
+        *this = QUuid();
+        return;
     }
-    for ( int i = 2; i<8; i++ ) {
-	data4[i] = temp.mid( 25 + (i-2)*2, 2 ).toUShort( &ok, 16 );
-	if ( !ok ) {
-	    *this = QUuid();
-	    return;
-	}
+    for (int i = 2; i<8; i++) {
+        data4[i] = temp.mid(25 + (i-2)*2, 2).toUShort(&ok, 16);
+        if (!ok) {
+            *this = QUuid();
+            return;
+        }
     }
 }
 
 /*!
     \internal
 */
-QUuid::QUuid( const char *text )
+QUuid::QUuid(const char *text)
 {
-    *this = QUuid( QString(text) );
+    *this = QUuid(QString(text));
 }
 #endif
 /*!
-    \fn QUuid QUuid::operator=(const QUuid &uuid )
+    \fn QUuid QUuid::operator=(const QUuid &uuid)
 
     Assigns the value of \a uuid to this QUuid object.
 */
@@ -138,15 +138,15 @@ QUuid::QUuid( const char *text )
 /*!
     \fn bool QUuid::operator==(const QUuid &other) const
 
-    Returns TRUE if this QUuid and the \a other QUuid are identical;
-    otherwise returns FALSE.
+    Returns true if this QUuid and the \a other QUuid are identical;
+    otherwise returns false.
 */
 
 /*!
     \fn bool QUuid::operator!=(const QUuid &other) const
 
-    Returns TRUE if this QUuid and the \a other QUuid are different;
-    otherwise returns FALSE.
+    Returns true if this QUuid and the \a other QUuid are different;
+    otherwise returns false.
 */
 #ifndef QT_NO_QUUID_STRING
 /*!
@@ -166,13 +166,13 @@ QString QUuid::toString() const
 {
     QString result;
 
-    result = "{" + QString::number( data1, 16 ).rightJustified( 8, '0' ) + "-";
-    result += QString::number( (int)data2, 16 ).rightJustified( 4, '0' ) + "-";
-    result += QString::number( (int)data3, 16 ).rightJustified( 4, '0' ) + "-";
-    result += QString::number( (int)data4[0], 16 ).rightJustified( 2, '0' );
-    result += QString::number( (int)data4[1], 16 ).rightJustified( 2, '0' ) + "-";
-    for ( int i = 2; i < 8; i++ )
-	result += QString::number( (int)data4[i], 16 ).rightJustified( 2, '0' );
+    result = "{" + QString::number(data1, 16).rightJustified(8, '0') + "-";
+    result += QString::number((int)data2, 16).rightJustified(4, '0') + "-";
+    result += QString::number((int)data3, 16).rightJustified(4, '0') + "-";
+    result += QString::number((int)data4[0], 16).rightJustified(2, '0');
+    result += QString::number((int)data4[1], 16).rightJustified(2, '0') + "-";
+    for (int i = 2; i < 8; i++)
+        result += QString::number((int)data4[i], 16).rightJustified(2, '0');
 
     return result + "}";
 }
@@ -183,13 +183,13 @@ QString QUuid::toString() const
     \relates QUuid
     Writes the uuid \a id to the datastream \a s.
 */
-QDataStream &operator<<( QDataStream &s, const QUuid &id )
+QDataStream &operator<<(QDataStream &s, const QUuid &id)
 {
     s << (Q_UINT32)id.data1;
     s << (Q_UINT16)id.data2;
     s << (Q_UINT16)id.data3;
-    for (int i = 0; i < 8; i++ )
-	s << (Q_UINT8)id.data4[i];
+    for (int i = 0; i < 8; i++)
+        s << (Q_UINT8)id.data4[i];
     return s;
 }
 
@@ -197,7 +197,7 @@ QDataStream &operator<<( QDataStream &s, const QUuid &id )
     \relates QUuid
     Reads uuid from from the stream \a s into \a id.
 */
-QDataStream &operator>>( QDataStream &s, QUuid &id )
+QDataStream &operator>>(QDataStream &s, QUuid &id)
 {
     Q_UINT32 u32;
     Q_UINT16 u16;
@@ -208,23 +208,23 @@ QDataStream &operator>>( QDataStream &s, QUuid &id )
     id.data2 = u16;
     s >> u16;
     id.data3 = u16;
-    for (int i = 0; i < 8; i++ ) {
-	s >> u8;
-	id.data4[i] = u8;
+    for (int i = 0; i < 8; i++) {
+        s >> u8;
+        id.data4[i] = u8;
     }
     return s;
 }
 #endif
 
 /*!
-    Returns TRUE if this is the null UUID
-    {00000000-0000-0000-0000-000000000000}; otherwise returns FALSE.
+    Returns true if this is the null UUID
+    {00000000-0000-0000-0000-000000000000}; otherwise returns false.
 */
 bool QUuid::isNull() const
 {
     return data4[0] == 0 && data4[1] == 0 && data4[2] == 0 && data4[3] == 0 &&
-	   data4[4] == 0 && data4[5] == 0 && data4[6] == 0 && data4[7] == 0 &&
-	   data1 == 0 && data2 == 0 && data3 == 0;
+           data4[4] == 0 && data4[5] == 0 && data4[6] == 0 && data4[7] == 0 &&
+           data1 == 0 && data2 == 0 && data3 == 0;
 }
 
 /*!
@@ -263,13 +263,13 @@ bool QUuid::isNull() const
 */
 QUuid::Variant QUuid::variant() const
 {
-    if ( isNull() )
-	return VarUnknown;
+    if (isNull())
+        return VarUnknown;
     // Check the 3 MSB of data4[0]
-    if ( (data4[0] & 0x80) == 0x00 ) return NCS;
-    else if ( (data4[0] & 0xC0) == 0x80 ) return DCE;
-    else if ( (data4[0] & 0xE0) == 0xC0 ) return Microsoft;
-    else if ( (data4[0] & 0xE0) == 0xE0 ) return Reserved;
+    if ((data4[0] & 0x80) == 0x00) return NCS;
+    else if ((data4[0] & 0xC0) == 0x80) return DCE;
+    else if ((data4[0] & 0xE0) == 0xC0) return Microsoft;
+    else if ((data4[0] & 0xE0) == 0xE0) return Reserved;
     return VarUnknown;
 }
 
@@ -285,60 +285,60 @@ QUuid::Version QUuid::version() const
 {
     // Check the 4 MSB of data3
     Version ver = (Version)(data3>>12);
-    if ( isNull() 
-	 || (variant() != DCE)
-	 || ver < Time 
-	 || ver > Random )
-	return VerUnknown;
+    if (isNull()
+         || (variant() != DCE)
+         || ver < Time
+         || ver > Random)
+        return VerUnknown;
     return ver;
 }
 
 /*!
     \fn bool QUuid::operator<(const QUuid &other) const
 
-    Returns TRUE if this QUuid is of the same variant,
+    Returns true if this QUuid is of the same variant,
     and lexicographically before the \a other QUuid;
-    otherwise returns FALSE.
+    otherwise returns false.
 
     \sa variant()
 */
 #define ISLESS(f1, f2) if (f1!=f2) return (f1<f2);
-bool QUuid::operator<(const QUuid &other ) const
+bool QUuid::operator<(const QUuid &other) const
 {
-    if ( variant() != other.variant() )
-	return FALSE;
+    if (variant() != other.variant())
+        return false;
 
-    ISLESS( data1, other.data1 );
-    ISLESS( data2, other.data2 );
-    ISLESS( data3, other.data3 );
-    for ( int n = 0; n < 8; n++ ) {
-	ISLESS( data4[n], other.data4[n] );
+    ISLESS(data1, other.data1);
+    ISLESS(data2, other.data2);
+    ISLESS(data3, other.data3);
+    for (int n = 0; n < 8; n++) {
+        ISLESS(data4[n], other.data4[n]);
     }
-    return FALSE;
+    return false;
 }
 
 /*!
     \fn bool QUuid::operator>(const QUuid &other) const
 
-    Returns TRUE if this QUuid is of the same variant,
+    Returns true if this QUuid is of the same variant,
     and lexicographically after the \a other QUuid;
-    otherwise returns FALSE.
+    otherwise returns false.
 
     \sa variant()
 */
 #define ISMORE(f1, f2) if (f1!=f2) return (f1>f2);
-bool QUuid::operator>(const QUuid &other ) const
+bool QUuid::operator>(const QUuid &other) const
 {
-    if ( variant() != other.variant() )
-	return FALSE;
+    if (variant() != other.variant())
+        return false;
 
-    ISMORE( data1, other.data1 );
-    ISMORE( data2, other.data2 );
-    ISMORE( data3, other.data3 );
-    for ( int n = 0; n < 8; n++ ) {
-	ISMORE( data4[n], other.data4[n] );
+    ISMORE(data1, other.data1);
+    ISMORE(data2, other.data2);
+    ISMORE(data3, other.data3);
+    for (int n = 0; n < 8; n++) {
+        ISMORE(data4[n], other.data4[n]);
     }
-    return FALSE;
+    return false;
 }
 
 /*!
@@ -360,7 +360,7 @@ bool QUuid::operator>(const QUuid &other ) const
 QUuid QUuid::createUuid()
 {
     GUID guid;
-    CoCreateGuid( &guid );
+    CoCreateGuid(&guid);
     QUuid result = guid;
     return result;
 }
@@ -371,25 +371,25 @@ QUuid QUuid::createUuid()
 {
     static const int intbits = sizeof(int)*8;
     static int randbits = 0;
-    if ( !randbits ) {
-	int max = RAND_MAX;
-	do { ++randbits; } while ( (max=max>>1) );
-	srand( (uint)QDateTime::currentDateTime().toTime_t() );
-	rand(); // Skip first
+    if (!randbits) {
+        int max = RAND_MAX;
+        do { ++randbits; } while ((max=max>>1));
+        srand((uint)QDateTime::currentDateTime().toTime_t());
+        rand(); // Skip first
     }
 
     QUuid result;
     uint *data = &(result.data1);
     int chunks = 16 / sizeof(uint);
-    while ( chunks-- ) {
-	uint randNumber = 0;
-	for ( int filled = 0; filled < intbits; filled += randbits )
-	    randNumber |= rand()<<filled;
-	 *(data+chunks) = randNumber;
+    while (chunks--) {
+        uint randNumber = 0;
+        for (int filled = 0; filled < intbits; filled += randbits)
+            randNumber |= rand()<<filled;
+         *(data+chunks) = randNumber;
     }
 
-    result.data4[0] = (result.data4[0] & 0x3F) | 0x80;	// UV_DCE
-    result.data3 = (result.data3 & 0x0FFF) | 0x4000;	// UV_Random
+    result.data4[0] = (result.data4[0] & 0x3F) | 0x80;        // UV_DCE
+    result.data3 = (result.data3 & 0x0FFF) | 0x4000;        // UV_Random
 
     return result;
 }

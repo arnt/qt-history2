@@ -35,7 +35,7 @@ QAbstractItemDelegate::QAbstractItemDelegate(QAbstractItemModel *model, QObject 
 }
 
 QAbstractItemDelegate::QAbstractItemDelegate(QAbstractItemDelegatePrivate &dd, QAbstractItemModel *model,
-					     QObject *parent)
+                                             QObject *parent)
     : QObject(dd, parent)
 {
     d->model = model;
@@ -57,7 +57,7 @@ QAbstractItemDelegate::EditType QAbstractItemDelegate::editType(const QModelInde
 }
 
 QWidget *QAbstractItemDelegate::createEditor(StartEditAction, QWidget *,
-					     const QItemOptions &, const QModelIndex &) const
+                                             const QItemOptions &, const QModelIndex &) const
 {
     return 0;
 }

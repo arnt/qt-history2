@@ -53,12 +53,12 @@
     Example:
     \code
     QPainter painter;
-    QPen     pen( red, 2 );             // red solid line, 2 pixels wide
-    painter.begin( &anyPaintDevice );   // paint something
-    painter.setPen( pen );              // set the red, wide pen
-    painter.drawRect( 40,30, 200,100 ); // draw a rectangle
-    painter.setPen( blue );             // set blue pen, 0 pixel width
-    painter.drawLine( 40,30, 240,130 ); // draw a diagonal in rectangle
+    QPen     pen(red, 2);             // red solid line, 2 pixels wide
+    painter.begin(&anyPaintDevice);   // paint something
+    painter.setPen(pen);              // set the red, wide pen
+    painter.drawRect(40,30, 200,100); // draw a rectangle
+    painter.setPen(blue);             // set blue pen, 0 pixel width
+    painter.drawLine(40,30, 240,130); // draw a diagonal in rectangle
     painter.end();                      // painting done
     \endcode
 
@@ -171,7 +171,7 @@ QPen::QPen(const QPen &p)
 QPen::~QPen()
 {
     if (!--d->ref)
-	delete d;
+        delete d;
 }
 
 /*!
@@ -194,7 +194,7 @@ void QPen::detach_helper()
     x->linest = d->linest;
     x = qAtomicSetPtr(&d, x);
     if (!--x->ref)
-	delete x;
+        delete x;
 }
 
 
@@ -208,7 +208,7 @@ QPen &QPen::operator=(const QPen &p)
     ++x->ref;
     x = qAtomicSetPtr(&d, x);
     if (!--x->ref)
-	delete x;
+        delete x;
     return *this;
 }
 
@@ -237,7 +237,7 @@ QPen &QPen::operator=(const QPen &p)
 void QPen::setStyle(PenStyle s)
 {
     if (d->style == s)
-	return;
+        return;
     detach();
     d->style = s;
     d->linest = (d->linest & ~MPenStyle) | s;
@@ -268,7 +268,7 @@ void QPen::setStyle(PenStyle s)
 void QPen::setWidth(int width)
 {
     if (d->width == width)
-	return;
+        return;
     detach();
     d->width = width;
 }
@@ -302,7 +302,7 @@ Qt::PenCapStyle QPen::capStyle() const
 void QPen::setCapStyle(PenCapStyle c)
 {
     if ((d->linest & MPenCapStyle) == c)
-	return;
+        return;
     detach();
     d->linest = (d->linest & ~MPenCapStyle) | c;
 }
@@ -335,7 +335,7 @@ Qt::PenJoinStyle QPen::joinStyle() const
 void QPen::setJoinStyle(PenJoinStyle j)
 {
     if ((d->linest & MPenJoinStyle) == j)
-	return;
+        return;
     detach();
     d->linest = (d->linest & ~MPenJoinStyle) | j;
 }
@@ -362,10 +362,10 @@ void QPen::setColor(const QColor &c)
 
 
 /*!
-    \fn bool QPen::operator!=( const QPen &p ) const
+    \fn bool QPen::operator!=(const QPen &p) const
 
-    Returns TRUE if the pen is different from \a p; otherwise returns
-    FALSE.
+    Returns true if the pen is different from \a p; otherwise returns
+    false.
 
     Two pens are different if they have different styles, widths or
     colors.
@@ -374,7 +374,7 @@ void QPen::setColor(const QColor &c)
 */
 
 /*!
-    Returns TRUE if the pen is equal to \a p; otherwise returns FALSE.
+    Returns true if the pen is equal to \a p; otherwise returns false.
 
     Two pens are equal if they have equal styles, widths and colors.
 
@@ -384,7 +384,7 @@ void QPen::setColor(const QColor &c)
 bool QPen::operator==(const QPen &p) const
 {
     return (p.d == d) || (p.d->linest == d->linest && p.d->width == d->width
-			  && p.d->color == d->color);
+                          && p.d->color == d->color);
 }
 
 
@@ -404,13 +404,13 @@ bool QPen::operator==(const QPen &p) const
 QDataStream &operator<<(QDataStream &s, const QPen &p)
 {
     if (s.version() < 3)
-	s << (Q_UINT8)p.style();
+        s << (Q_UINT8)p.style();
     else
-	s << (Q_UINT8)(p.style() | p.capStyle() | p.joinStyle());
+        s << (Q_UINT8)(p.style() | p.capStyle() | p.joinStyle());
     if (s.version() < 6)
-	s << (Q_UINT8)p.width();
+        s << (Q_UINT8)p.width();
     else
-	s << (Q_INT16)p.width();
+        s << (Q_INT16)p.width();
     return s << p.color();
 }
 
@@ -431,9 +431,9 @@ QDataStream &operator>>(QDataStream &s, QPen &p)
     QColor color;
     s >> style;
     if (s.version() < 6)
-	s >> width8;
+        s >> width8;
     else
-	s >> width;
+        s >> width;
     s >> color;
     p = QPen(color, width8 | width, (Qt::PenStyle)style);
     return s;

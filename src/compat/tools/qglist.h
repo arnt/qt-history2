@@ -25,102 +25,102 @@ friend class QGList;
 friend class QGListIterator;
 friend class QGListStdIterator;
 public:
-    QPtrCollection::Item getData()	{ return data; }
+    QPtrCollection::Item getData()        { return data; }
 private:
     QPtrCollection::Item data;
     QLNode *prev;
     QLNode *next;
-    QLNode( QPtrCollection::Item d ) { data = d; }
+    QLNode(QPtrCollection::Item d) { data = d; }
 };
 
 class QGListIteratorList; // internal helper class
 
-class Q_COMPAT_EXPORT QGList : public QPtrCollection	// doubly linked generic list
+class Q_COMPAT_EXPORT QGList : public QPtrCollection        // doubly linked generic list
 {
 friend class QGListIterator;
 friend class QGListIteratorList;
-friend class QGVector;				// needed by QGVector::toList
+friend class QGVector;                                // needed by QGVector::toList
 public:
-    uint  count() const;			// return number of nodes
+    uint  count() const;                        // return number of nodes
 
 #ifndef QT_NO_DATASTREAM
-    QDataStream &read( QDataStream & );		// read list from stream
-    QDataStream &write( QDataStream & ) const;	// write list to stream
+    QDataStream &read(QDataStream &);                // read list from stream
+    QDataStream &write(QDataStream &) const;        // write list to stream
 #endif
 protected:
-    QGList();					// create empty list
-    QGList( const QGList & );			// make copy of other list
+    QGList();                                        // create empty list
+    QGList(const QGList &);                        // make copy of other list
     virtual ~QGList();
 
-    QGList &operator=( const QGList & );	// assign from other list
-    bool operator==( const QGList& ) const;
+    QGList &operator=(const QGList &);        // assign from other list
+    bool operator==(const QGList&) const;
 
-    void inSort( QPtrCollection::Item );		// add item sorted in list
-    void append( QPtrCollection::Item );		// add item at end of list
-    bool insertAt( uint index, QPtrCollection::Item ); // add item at i'th position
-    void relinkNode( QLNode * );		// relink as first item
-    bool removeNode( QLNode * );		// remove node
-    bool remove( QPtrCollection::Item = 0 );	// remove item (0=current)
-    bool removeRef( QPtrCollection::Item = 0 );	// remove item (0=current)
-    bool removeFirst();				// remove first item
-    bool removeLast();				// remove last item
-    bool removeAt( uint );			// remove item at i'th position
-    bool replaceAt( uint, QPtrCollection::Item ); // replace item at position i with item
-    QPtrCollection::Item takeNode( QLNode * );	// take out node
-    QPtrCollection::Item take();		// take out current item
-    QPtrCollection::Item takeAt( uint index );	// take out item at i'th pos
-    QPtrCollection::Item takeFirst();		// take out first item
-    QPtrCollection::Item takeLast();		// take out last item
+    void inSort(QPtrCollection::Item);                // add item sorted in list
+    void append(QPtrCollection::Item);                // add item at end of list
+    bool insertAt(uint index, QPtrCollection::Item); // add item at i'th position
+    void relinkNode(QLNode *);                // relink as first item
+    bool removeNode(QLNode *);                // remove node
+    bool remove(QPtrCollection::Item = 0);        // remove item (0=current)
+    bool removeRef(QPtrCollection::Item = 0);        // remove item (0=current)
+    bool removeFirst();                                // remove first item
+    bool removeLast();                                // remove last item
+    bool removeAt(uint);                        // remove item at i'th position
+    bool replaceAt(uint, QPtrCollection::Item); // replace item at position i with item
+    QPtrCollection::Item takeNode(QLNode *);        // take out node
+    QPtrCollection::Item take();                // take out current item
+    QPtrCollection::Item takeAt(uint index);        // take out item at i'th pos
+    QPtrCollection::Item takeFirst();                // take out first item
+    QPtrCollection::Item takeLast();                // take out last item
 
-    void sort();                        	// sort all items;
-    void clear();				// remove all items
+    void sort();                                // sort all items;
+    void clear();                                // remove all items
 
-    int	 findRef( QPtrCollection::Item, bool = TRUE ); // find exact item in list
-    int	 find( QPtrCollection::Item, bool = TRUE ); // find equal item in list
+    int         findRef(QPtrCollection::Item, bool = true); // find exact item in list
+    int         find(QPtrCollection::Item, bool = true); // find equal item in list
 
-    uint containsRef( QPtrCollection::Item ) const;	// get number of exact matches
-    uint contains( QPtrCollection::Item ) const;	// get number of equal matches
+    uint containsRef(QPtrCollection::Item) const;        // get number of exact matches
+    uint contains(QPtrCollection::Item) const;        // get number of equal matches
 
-    QPtrCollection::Item at( uint index );	// access item at i'th pos
-    int	  at() const;				// get current index
-    QLNode *currentNode() const;		// get current node
+    QPtrCollection::Item at(uint index);        // access item at i'th pos
+    int          at() const;                                // get current index
+    QLNode *currentNode() const;                // get current node
 
-    QPtrCollection::Item get() const;		// get current item
+    QPtrCollection::Item get() const;                // get current item
 
-    QPtrCollection::Item cfirst() const;	// get ptr to first list item
-    QPtrCollection::Item clast()  const;	// get ptr to last list item
-    QPtrCollection::Item first();		// set first item in list curr
-    QPtrCollection::Item last();		// set last item in list curr
-    QPtrCollection::Item next();		// set next item in list curr
-    QPtrCollection::Item prev();		// set prev item in list curr
+    QPtrCollection::Item cfirst() const;        // get ptr to first list item
+    QPtrCollection::Item clast()  const;        // get ptr to last list item
+    QPtrCollection::Item first();                // set first item in list curr
+    QPtrCollection::Item last();                // set last item in list curr
+    QPtrCollection::Item next();                // set next item in list curr
+    QPtrCollection::Item prev();                // set prev item in list curr
 
-    void  toVector( QGVector * ) const;		// put items in vector
+    void  toVector(QGVector *) const;                // put items in vector
 
-    virtual int compareItems( QPtrCollection::Item, QPtrCollection::Item );
+    virtual int compareItems(QPtrCollection::Item, QPtrCollection::Item);
 
 #ifndef QT_NO_DATASTREAM
-    virtual QDataStream &read( QDataStream &, QPtrCollection::Item & );
-    virtual QDataStream &write( QDataStream &, QPtrCollection::Item ) const;
+    virtual QDataStream &read(QDataStream &, QPtrCollection::Item &);
+    virtual QDataStream &write(QDataStream &, QPtrCollection::Item) const;
 #endif
 
     QLNode* begin() const { return firstNode; }
     QLNode* end() const { return 0; }
-    QLNode* erase( QLNode* it );
+    QLNode* erase(QLNode* it);
 
 private:
-    void  prepend( QPtrCollection::Item );	// add item at start of list
+    void  prepend(QPtrCollection::Item);        // add item at start of list
 
-    void heapSortPushDown( QPtrCollection::Item* heap, int first, int last );
+    void heapSortPushDown(QPtrCollection::Item* heap, int first, int last);
 
-    QLNode *firstNode;				// first node
-    QLNode *lastNode;				// last node
-    QLNode *curNode;				// current node
-    int curIndex;				// current index
-    uint numNodes;				// number of nodes
-    QGListIteratorList *iterators; 		// list of iterators
+    QLNode *firstNode;                                // first node
+    QLNode *lastNode;                                // last node
+    QLNode *curNode;                                // current node
+    int curIndex;                                // current index
+    uint numNodes;                                // number of nodes
+    QGListIteratorList *iterators;                 // list of iterators
 
-    QLNode *locate( uint );			// get node at i'th pos
-    QLNode *unlink();				// unlink node
+    QLNode *locate(uint);                        // get node at i'th pos
+    QLNode *unlink();                                // unlink node
 };
 
 
@@ -146,9 +146,9 @@ inline int QGList::at() const
     return curIndex;
 }
 
-inline QPtrCollection::Item QGList::at( uint index )
+inline QPtrCollection::Item QGList::at(uint index)
 {
-    QLNode *n = locate( index );
+    QLNode *n = locate(index);
     return n ? n->data : 0;
 }
 
@@ -178,41 +178,41 @@ inline QPtrCollection::Item QGList::clast() const
  *****************************************************************************/
 
 #ifndef QT_NO_DATASTREAM
-Q_COMPAT_EXPORT QDataStream &operator>>( QDataStream &, QGList & );
-Q_COMPAT_EXPORT QDataStream &operator<<( QDataStream &, const QGList & );
+Q_COMPAT_EXPORT QDataStream &operator>>(QDataStream &, QGList &);
+Q_COMPAT_EXPORT QDataStream &operator<<(QDataStream &, const QGList &);
 #endif
 
 /*****************************************************************************
   QGListIterator class
  *****************************************************************************/
 
-class Q_COMPAT_EXPORT QGListIterator			// QGList iterator
+class Q_COMPAT_EXPORT QGListIterator                        // QGList iterator
 {
 friend class QGList;
 friend class QGListIteratorList;
 protected:
-    QGListIterator( const QGList & );
-    QGListIterator( const QGListIterator & );
-    QGListIterator &operator=( const QGListIterator & );
+    QGListIterator(const QGList &);
+    QGListIterator(const QGListIterator &);
+    QGListIterator &operator=(const QGListIterator &);
    ~QGListIterator();
 
-    bool  atFirst() const;			// test if at first item
-    bool  atLast()  const;			// test if at last item
-    QPtrCollection::Item	  toFirst();				// move to first item
-    QPtrCollection::Item	  toLast();				// move to last item
+    bool  atFirst() const;                        // test if at first item
+    bool  atLast()  const;                        // test if at last item
+    QPtrCollection::Item          toFirst();                                // move to first item
+    QPtrCollection::Item          toLast();                                // move to last item
 
-    QPtrCollection::Item	  get() const;				// get current item
-    QPtrCollection::Item	  operator()();				// get current and move to next
-    QPtrCollection::Item	  operator++();				// move to next item (prefix)
-    QPtrCollection::Item	  operator+=(uint);			// move n positions forward
-    QPtrCollection::Item	  operator--();				// move to prev item (prefix)
-    QPtrCollection::Item	  operator-=(uint);			// move n positions backward
+    QPtrCollection::Item          get() const;                                // get current item
+    QPtrCollection::Item          operator()();                                // get current and move to next
+    QPtrCollection::Item          operator++();                                // move to next item (prefix)
+    QPtrCollection::Item          operator+=(uint);                        // move n positions forward
+    QPtrCollection::Item          operator--();                                // move to prev item (prefix)
+    QPtrCollection::Item          operator-=(uint);                        // move n positions backward
 
 protected:
-    QGList *list;				// reference to list
+    QGList *list;                                // reference to list
 
 private:
-    QLNode  *curNode;				// current node in list
+    QLNode  *curNode;                                // current node in list
 };
 
 
@@ -234,7 +234,7 @@ inline QPtrCollection::Item QGListIterator::get() const
 class Q_COMPAT_EXPORT QGListStdIterator
 {
 public:
-    inline QGListStdIterator( QLNode* n ) : node( n ){}
+    inline QGListStdIterator(QLNode* n) : node(n){}
     inline operator QLNode* () { return node; }
 protected:
     inline QLNode *next() { return node->next; }
@@ -242,4 +242,4 @@ protected:
 };
 
 
-#endif	// QGLIST_H
+#endif        // QGLIST_H

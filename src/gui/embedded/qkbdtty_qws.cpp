@@ -53,25 +53,25 @@ static int  kbdFD = -1;
 static void vtSwitchHandler(int /*sig*/)
 {
     if (vtActive) {
-	qwsServer->enablePainting(false);
-	qt_screen->save();
-	if (ioctl(kbdFD, VT_RELDISP, 1) == 0) {
-	    vtActive = false;
-	    qwsServer->closeMouse();
-	}
-	else {
-	    qwsServer->enablePainting(true);
-	}
-	usleep(200000);
+        qwsServer->enablePainting(false);
+        qt_screen->save();
+        if (ioctl(kbdFD, VT_RELDISP, 1) == 0) {
+            vtActive = false;
+            qwsServer->closeMouse();
+        }
+        else {
+            qwsServer->enablePainting(true);
+        }
+        usleep(200000);
     }
     else {
-	if (ioctl(kbdFD, VT_RELDISP, VT_ACKACQ) == 0) {
-	    qwsServer->enablePainting(true);
-	    vtActive = true;
-	    qt_screen->restore();
-	    qwsServer->openMouse();
-	    qwsServer->refresh();
-	}
+        if (ioctl(kbdFD, VT_RELDISP, VT_ACKACQ) == 0) {
+            qwsServer->enablePainting(true);
+            vtActive = true;
+            qt_screen->restore();
+            qwsServer->openMouse();
+            qwsServer->refresh();
+        }
     }
     signal(VTSWITCHSIG, vtSwitchHandler);
 }
@@ -90,7 +90,7 @@ class QWSTtyKbPrivate : public QObject
 {
     Q_OBJECT
 public:
-    QWSTtyKbPrivate( QWSPC101KeyboardHandler *, const QString &device );
+    QWSTtyKbPrivate(QWSPC101KeyboardHandler *, const QString &device);
     ~QWSTtyKbPrivate();
 
 private slots:
@@ -101,10 +101,10 @@ private:
     struct termios origTermData;
 };
 
-QWSTtyKeyboardHandler::QWSTtyKeyboardHandler( const QString &device )
-    : QWSPC101KeyboardHandler( device )
+QWSTtyKeyboardHandler::QWSTtyKeyboardHandler(const QString &device)
+    : QWSPC101KeyboardHandler(device)
 {
-    d = new QWSTtyKbPrivate( this, device );
+    d = new QWSTtyKbPrivate(this, device);
 }
 
 QWSTtyKeyboardHandler::~QWSTtyKeyboardHandler()
@@ -113,7 +113,7 @@ QWSTtyKeyboardHandler::~QWSTtyKeyboardHandler()
 }
 
 void QWSTtyKeyboardHandler::processKeyEvent(int unicode, int keycode,
-		    int modifiers, bool isPress, bool autoRepeat)
+                    int modifiers, bool isPress, bool autoRepeat)
 {
 #if defined(Q_OS_LINUX)
     // Virtual console switching
@@ -121,74 +121,74 @@ void QWSTtyKeyboardHandler::processKeyEvent(int unicode, int keycode,
     bool ctrl = modifiers & Qt::ControlButton;
     bool alt = modifiers & Qt::AltButton;
     if (ctrl && alt && keycode >= Qt::Key_F1 && keycode <= Qt::Key_F10)
-	term = keycode - Qt::Key_F1 + 1;
+        term = keycode - Qt::Key_F1 + 1;
     else if (ctrl && alt && keycode == Qt::Key_Left)
-	term = qMax(vtQws - 1, 1);
+        term = qMax(vtQws - 1, 1);
     else if (ctrl && alt && keycode == Qt::Key_Right)
-	term = qMin(vtQws + 1, 10);
+        term = qMin(vtQws + 1, 10);
     if (term && !isPress) {
-	ioctl(kbdFD, VT_ACTIVATE, term);
-	return;
+        ioctl(kbdFD, VT_ACTIVATE, term);
+        return;
     }
 #endif
 
-    QWSPC101KeyboardHandler::processKeyEvent( unicode, keycode, modifiers,
-	isPress, autoRepeat );
+    QWSPC101KeyboardHandler::processKeyEvent(unicode, keycode, modifiers,
+        isPress, autoRepeat);
 }
 
 
-QWSTtyKbPrivate::QWSTtyKbPrivate( QWSPC101KeyboardHandler *h, const QString &device ) : handler(h)
+QWSTtyKbPrivate::QWSTtyKbPrivate(QWSPC101KeyboardHandler *h, const QString &device) : handler(h)
 {
     kbdFD = ::open(device.isEmpty()?"/dev/tty0":device.latin1(), O_RDWR|O_NDELAY, 0);
 
-    if ( kbdFD >= 0 ) {
-	QSocketNotifier *notifier;
-	notifier = new QSocketNotifier( kbdFD, QSocketNotifier::Read, this );
-	connect( notifier, SIGNAL(activated(int)),this,
-		 SLOT(readKeyboardData()) );
+    if (kbdFD >= 0) {
+        QSocketNotifier *notifier;
+        notifier = new QSocketNotifier(kbdFD, QSocketNotifier::Read, this);
+        connect(notifier, SIGNAL(activated(int)),this,
+                 SLOT(readKeyboardData()));
 
-	// save for restore.
-	tcgetattr( kbdFD, &origTermData );
+        // save for restore.
+        tcgetattr(kbdFD, &origTermData);
 
-	struct termios termdata;
-	tcgetattr( kbdFD, &termdata );
+        struct termios termdata;
+        tcgetattr(kbdFD, &termdata);
 
 #if defined(Q_OS_LINUX)
 # ifdef QT_QWS_USE_KEYCODES
-	ioctl(kbdFD, KDSKBMODE, K_MEDIUMRAW);
+        ioctl(kbdFD, KDSKBMODE, K_MEDIUMRAW);
 # else
-	ioctl(kbdFD, KDSKBMODE, K_RAW);
+        ioctl(kbdFD, KDSKBMODE, K_RAW);
 # endif
 #endif
 
-	termdata.c_iflag = (IGNPAR | IGNBRK) & (~PARMRK) & (~ISTRIP);
-	termdata.c_oflag = 0;
-	termdata.c_cflag = CREAD | CS8;
-	termdata.c_lflag = 0;
-	termdata.c_cc[VTIME]=0;
-	termdata.c_cc[VMIN]=1;
-	cfsetispeed(&termdata, 9600);
-	cfsetospeed(&termdata, 9600);
-	tcsetattr(kbdFD, TCSANOW, &termdata);
+        termdata.c_iflag = (IGNPAR | IGNBRK) & (~PARMRK) & (~ISTRIP);
+        termdata.c_oflag = 0;
+        termdata.c_cflag = CREAD | CS8;
+        termdata.c_lflag = 0;
+        termdata.c_cc[VTIME]=0;
+        termdata.c_cc[VMIN]=1;
+        cfsetispeed(&termdata, 9600);
+        cfsetospeed(&termdata, 9600);
+        tcsetattr(kbdFD, TCSANOW, &termdata);
 
 #if defined(Q_OS_LINUX)
-	signal(VTSWITCHSIG, vtSwitchHandler);
+        signal(VTSWITCHSIG, vtSwitchHandler);
 
-	struct vt_mode vtMode;
-	ioctl(kbdFD, VT_GETMODE, &vtMode);
+        struct vt_mode vtMode;
+        ioctl(kbdFD, VT_GETMODE, &vtMode);
 
-	// let us control VT switching
-	vtMode.mode = VT_PROCESS;
-	vtMode.relsig = VTSWITCHSIG;
-	vtMode.acqsig = VTSWITCHSIG;
-	ioctl(kbdFD, VT_SETMODE, &vtMode);
+        // let us control VT switching
+        vtMode.mode = VT_PROCESS;
+        vtMode.relsig = VTSWITCHSIG;
+        vtMode.acqsig = VTSWITCHSIG;
+        ioctl(kbdFD, VT_SETMODE, &vtMode);
 
-	struct vt_stat vtStat;
-	ioctl(kbdFD, VT_GETSTATE, &vtStat);
-	vtQws = vtStat.v_active;
+        struct vt_stat vtStat;
+        ioctl(kbdFD, VT_GETSTATE, &vtStat);
+        vtQws = vtStat.v_active;
 #endif
     } else {
-	qDebug( "Cannot open keyboard" );
+        qDebug("Cannot open keyboard");
     }
 
 }
@@ -197,20 +197,20 @@ QWSTtyKbPrivate::~QWSTtyKbPrivate()
 {
     if (kbdFD >= 0) {
 #if defined(Q_OS_LINUX)
-	ioctl(kbdFD, KDSKBMODE, K_XLATE);
+        ioctl(kbdFD, KDSKBMODE, K_XLATE);
 #endif
-	tcsetattr(kbdFD, TCSANOW, &origTermData);
-	::close(kbdFD);
-	kbdFD = -1;
+        tcsetattr(kbdFD, TCSANOW, &origTermData);
+        ::close(kbdFD);
+        kbdFD = -1;
     }
 }
 
 void QWSTtyKbPrivate::readKeyboardData()
 {
     unsigned char buf[81];
-    int n = read(kbdFD, buf, 80 );
-    for ( int loop = 0; loop < n; loop++ )
-	handler->doKey(buf[loop]);
+    int n = read(kbdFD, buf, 80);
+    for (int loop = 0; loop < n; loop++)
+        handler->doKey(buf[loop]);
 }
 
 #endif // QT_NO_QWS_KBD_TTY

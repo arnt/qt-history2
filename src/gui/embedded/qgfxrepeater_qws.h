@@ -35,7 +35,7 @@ public:
     virtual bool initDevice();
     virtual void disconnect() {}
     virtual void setMode(int,int,int) {}
-    virtual int initCursor(void *,bool=FALSE);
+    virtual int initCursor(void *,bool=false);
     virtual void setDirty(const QRect &);
     virtual int sharedRamSize(void *);
     QImage * readScreen(int,int,int,int,QRegion &);

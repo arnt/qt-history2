@@ -7,7 +7,7 @@ public:
     GfxVncDriver();
 
     QStringList keys() const;
-    QScreen *create( const QString&, int displayId );
+    QScreen *create(const QString&, int displayId);
 };
 
 GfxVncDriver::GfxVncDriver()
@@ -22,12 +22,12 @@ QStringList GfxVncDriver::keys() const
     return list;
 }
 
-QScreen* GfxVncDriver::create( const QString& driver, int displayId )
+QScreen* GfxVncDriver::create(const QString& driver, int displayId)
 {
-    if ( driver.lower() == "vnc" )
-        return new QVNCScreen( displayId );
+    if (driver.lower() == "vnc")
+        return new QVNCScreen(displayId);
 
     return 0;
 }
 
-Q_EXPORT_PLUGIN( GfxVncDriver )
+Q_EXPORT_PLUGIN(GfxVncDriver)

@@ -59,14 +59,14 @@
     \code
         int sockfd;                                 // socket identifier
         struct sockaddr_in sa;                      // should contain host address
-        sockfd = socket( AF_INET, SOCK_STREAM, 0 ); // create TCP socket
-        // make the socket non-blocking here, usually using fcntl( O_NONBLOCK )
-        ::connect( sockfd, (struct sockaddr*)&sa,   // connect to host
-                   sizeof(sa) );                    // NOT QObject::connect()!
+        sockfd = socket(AF_INET, SOCK_STREAM, 0); // create TCP socket
+        // make the socket non-blocking here, usually using fcntl(O_NONBLOCK)
+        ::connect(sockfd, (struct sockaddr*)&sa,   // connect to host
+                   sizeof(sa));                    // NOT QObject::connect()!
         QSocketNotifier *sn;
-        sn = new QSocketNotifier( sockfd, QSocketNotifier::Read, parent );
-        QObject::connect( sn, SIGNAL(activated(int)),
-                          myObject, SLOT(dataReceived()) );
+        sn = new QSocketNotifier(sockfd, QSocketNotifier::Read, parent);
+        QObject::connect(sn, SIGNAL(activated(int)),
+                          myObject, SLOT(dataReceived()));
     \endcode
 
     The optional \e parent argument can be set to make the socket
@@ -130,20 +130,20 @@
     \sa setEnabled(), isEnabled()
 */
 
-QSocketNotifier::QSocketNotifier( int socket, Type type, QObject *parent,
-				  const char *name )
-    : QObject( parent, name )
+QSocketNotifier::QSocketNotifier(int socket, Type type, QObject *parent,
+                                  const char *name)
+    : QObject(parent, name)
 {
-    if ( socket < 0 )
-	qWarning( "QSocketNotifier: Invalid socket specified" );
+    if (socket < 0)
+        qWarning("QSocketNotifier: Invalid socket specified");
 #if defined(Q_OS_UNIX)
-    if ( socket >= FD_SETSIZE )
-	qWarning( "QSocketNotifier: Socket descriptor too large for select()" );
+    if (socket >= FD_SETSIZE)
+        qWarning("QSocketNotifier: Socket descriptor too large for select()");
 #endif
     sockfd = socket;
     sntype = type;
-    snenabled = TRUE;
-    QEventLoop::instance()->registerSocketNotifier( this );
+    snenabled = true;
+    QEventLoop::instance()->registerSocketNotifier(this);
 }
 
 /*!
@@ -152,12 +152,12 @@ QSocketNotifier::QSocketNotifier( int socket, Type type, QObject *parent,
 
 QSocketNotifier::~QSocketNotifier()
 {
-    setEnabled( FALSE );
+    setEnabled(false);
 }
 
 
 /*!
-    \fn void QSocketNotifier::activated( int socket )
+    \fn void QSocketNotifier::activated(int socket)
 
     This signal is emitted under certain conditions specified by the
     notifier type():
@@ -196,14 +196,14 @@ QSocketNotifier::~QSocketNotifier()
 /*!
     \fn bool QSocketNotifier::isEnabled() const
 
-    Returns TRUE if the notifier is enabled; otherwise returns FALSE.
+    Returns true if the notifier is enabled; otherwise returns false.
 
     \sa setEnabled()
 */
 
 /*!
-    Enables the notifier if \a enable is TRUE or disables it if \a
-    enable is FALSE.
+    Enables the notifier if \a enable is true or disables it if \a
+    enable is false.
 
     The notifier is enabled by default.
 
@@ -219,35 +219,35 @@ QSocketNotifier::~QSocketNotifier()
     \sa isEnabled(), activated()
 */
 
-void QSocketNotifier::setEnabled( bool enable )
+void QSocketNotifier::setEnabled(bool enable)
 {
-    if ( sockfd < 0 )
-	return;
-    if ( snenabled == enable )			// no change
-	return;
+    if (sockfd < 0)
+        return;
+    if (snenabled == enable)                        // no change
+        return;
     snenabled = enable;
 
     QEventLoop *eventloop = QEventLoop::instance(thread());
-    if ( ! eventloop ) // perhaps application is shutting down
-	return;
+    if (! eventloop) // perhaps application is shutting down
+        return;
 
-    if ( snenabled )
-	eventloop->registerSocketNotifier( this );
+    if (snenabled)
+        eventloop->registerSocketNotifier(this);
     else
-	eventloop->unregisterSocketNotifier( this );
+        eventloop->unregisterSocketNotifier(this);
 }
 
 
 /*!\reimp
 */
-bool QSocketNotifier::event( QEvent *e )
+bool QSocketNotifier::event(QEvent *e)
 {
     // Emits the activated() signal when a \c QEvent::SockAct is
     // received.
-    QObject::event( e );			// will activate filters
-    if ( e->type() == QEvent::SockAct ) {
-	emit activated( sockfd );
-	return TRUE;
+    QObject::event(e);                        // will activate filters
+    if (e->type() == QEvent::SockAct) {
+        emit activated(sockfd);
+        return true;
     }
-    return FALSE;
+    return false;
 }

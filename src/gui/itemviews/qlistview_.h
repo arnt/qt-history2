@@ -36,13 +36,13 @@ public:
 
 private:
     struct Data {
-	Data() {}
-	Data(int r, QVariant v) {
-	    role = r;
-	    value = v;
-	}
-	int role;
-	QVariant value;
+        Data() {}
+        Data(int r, QVariant v) {
+            role = r;
+            value = v;
+        }
+        int role;
+        QVariant value;
     };
 
     QVector<Data> values;

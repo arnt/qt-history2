@@ -48,9 +48,9 @@
     QGroupBox, QLabel (with QLabel::setBuddy()), QMenuBar and QTabBar.
     Example:
     \code
-	QPushButton p("&Exit", parent); // automatic shortcut ALT+Key_E
-	Q4Menu *fileMenu = new fileMenu(parent);
-	fileMenu->addAction("Undo", parent, SLOT(undo()), CTRL+Key_Z);
+        QPushButton p("&Exit", parent); // automatic shortcut ALT+Key_E
+        Q4Menu *fileMenu = new fileMenu(parent);
+        fileMenu->addAction("Undo", parent, SLOT(undo()), CTRL+Key_Z);
     \endcode
 
     A QAccel contains a list of accelerator items that can be
@@ -80,7 +80,7 @@
     matching accelerators. Some standard controls like QPushButton and
     QCheckBox connect the activatedAmbiguously() signal to the
     harmless setFocus() slot, whereas activated() is connected to a
-    slot invoking the button's action.	Most controls, like QLabel and
+    slot invoking the button's action.        Most controls, like QLabel and
     QTabBar, treat activated() and activatedAmbiguously() as
     equivalent.
 
@@ -97,7 +97,7 @@
 
     Please note that the accelerator
     \code
-	accelerator->insertItem(QKeySequence("M"));
+        accelerator->insertItem(QKeySequence("M"));
     \endcode
     can be triggered with both the 'M' key, and with Shift+M,
     unless a second accelerator is defined for the Shift+M
@@ -106,10 +106,10 @@
 
     Example:
     \code
- QAccel *a = new QAccel(myWindow);	   // create accels for myWindow
-	a->connectItem(a->insertItem(Key_P+CTRL), // adds Ctrl+P accelerator
-			myWindow,		   // connected to myWindow's
-			SLOT(printDoc()));	   // printDoc() slot
+ QAccel *a = new QAccel(myWindow);           // create accels for myWindow
+        a->connectItem(a->insertItem(Key_P+CTRL), // adds Ctrl+P accelerator
+                        myWindow,                   // connected to myWindow's
+                        SLOT(printDoc()));           // printDoc() slot
     \endcode
 
     \sa QKeyEvent QWidget::keyPressEvent() QMenuData::setAccel()
@@ -161,8 +161,8 @@ public:
 
 private:
     QAccelManager()
-	: currentState(Qt::NoMatch), clash(-1), metaComposeUnicode(false),composedUnicode(0)
-	{ self_ptr = this; }
+        : currentState(Qt::NoMatch), clash(-1), metaComposeUnicode(false),composedUnicode(0)
+        { self_ptr = this; }
     ~QAccelManager() { self_ptr = 0; }
 
     bool correctSubWindow(QWidget *w, QAccelPrivate* priv);
@@ -192,9 +192,9 @@ bool Q_GUI_EXPORT qt_tryComposeUnicode(QWidget* w, QKeyEvent*  e){
 }
 
 #ifdef Q_WS_MAC
-static bool qt_accel_no_shortcuts = TRUE;
+static bool qt_accel_no_shortcuts = true;
 #else
-static bool qt_accel_no_shortcuts = FALSE;
+static bool qt_accel_no_shortcuts = false;
 #endif
 void Q_GUI_EXPORT qt_setAccelAutoShortcuts(bool b) { qt_accel_no_shortcuts = !b; }
 
@@ -204,29 +204,29 @@ void Q_GUI_EXPORT qt_setAccelAutoShortcuts(bool b) { qt_accel_no_shortcuts = !b;
 */
 bool QAccelManager::correctSubWindow(QWidget* w, QAccelPrivate* priv) {
     if (!priv->watch || !priv->watch->isVisible() || !priv->watch->isEnabled())
-	return false;
+        return false;
     QWidget* tlw = w->topLevelWidget();
     QWidget* wtlw = priv->watch->topLevelWidget();
 
     /* if we live in a floating dock window, keep our parent's
      * accelerators working */
     if (tlw->isDialog() && tlw->parentWidget() && ::qt_cast<QDockWindow*>(tlw))
-	return tlw->parentWidget()->topLevelWidget() == wtlw;
+        return tlw->parentWidget()->topLevelWidget() == wtlw;
 
     if (wtlw  != tlw)
-	return false;
+        return false;
 
     /* if we live in a MDI subwindow, ignore the event if we are
        not the active document window */
     QWidget* sw = priv->watch;
     while (sw && !sw->testWFlags(WSubWindow) && !sw->isTopLevel())
-	sw = sw->parentWidget();
+        sw = sw->parentWidget();
     if (sw)  { // we are in a subwindow indeed
-	QWidget* fw = w;
-	while (fw && fw != sw && !fw->isTopLevel())
-	    fw = fw->parentWidget();
-	if (fw != sw) // focus widget not in our subwindow
-	    return false;
+        QWidget* fw = w;
+        while (fw && fw != sw && !fw->isTopLevel())
+            fw = fw->parentWidget();
+        if (fw != sw) // focus widget not in our subwindow
+            return false;
     }
     return true;
 }
@@ -235,13 +235,13 @@ inline int QAccelManager::translateModifiers(ButtonState state)
 {
     int result = 0;
     if (state & ShiftButton)
-	result |= SHIFT;
+        result |= SHIFT;
     if (state & ControlButton)
-	result |= CTRL;
+        result |= CTRL;
     if (state & MetaButton)
-	result |= META;
+        result |= META;
     if (state & AltButton)
-	result |= ALT;
+        result |= ALT;
     return result;
 }
 
@@ -261,41 +261,41 @@ Qt::SequenceMatch QAccelManager::match(QKeyEvent *e, QAccelItem* item, QKeySeque
     int modifier = translateModifiers(e->state());
 
     if (e->key() && e->key() != Key_unknown) {
-	int key = e->key()  | modifier;
-	if (e->key() == Key_BackTab) {
-	    /*
-	    In QApplication, we map shift+tab to shift+backtab.
-	    This code here reverts the mapping in a way that keeps
-	    backtab and shift+tab accelerators working, in that
-	    order, meaning backtab has priority.*/
-	    key &= ~SHIFT;
+        int key = e->key()  | modifier;
+        if (e->key() == Key_BackTab) {
+            /*
+            In QApplication, we map shift+tab to shift+backtab.
+            This code here reverts the mapping in a way that keeps
+            backtab and shift+tab accelerators working, in that
+            order, meaning backtab has priority.*/
+            key &= ~SHIFT;
 
-	    temp.setKey(key, index);
-	    if (Qt::NoMatch != (result = temp.matches(item->key)))
-		return result;
-	    if (e->state() & ShiftButton)
-		key |= SHIFT;
-	    key = Key_Tab | (key & MODIFIER_MASK);
-	    temp.setKey(key, index);
-	    if (Qt::NoMatch != (result = temp.matches(item->key)))
-		return result;
-	} else {
-	    temp.setKey(key, index);
-	    if (Qt::NoMatch != (result = temp.matches(item->key)))
-		return result;
-	}
+            temp.setKey(key, index);
+            if (Qt::NoMatch != (result = temp.matches(item->key)))
+                return result;
+            if (e->state() & ShiftButton)
+                key |= SHIFT;
+            key = Key_Tab | (key & MODIFIER_MASK);
+            temp.setKey(key, index);
+            if (Qt::NoMatch != (result = temp.matches(item->key)))
+                return result;
+        } else {
+            temp.setKey(key, index);
+            if (Qt::NoMatch != (result = temp.matches(item->key)))
+                return result;
+        }
 
-	if (key == Key_BackTab) {
-	    if (e->state() & ShiftButton)
-		key |= SHIFT;
-	    temp.setKey(key, index);
-	    if (Qt::NoMatch != (result = temp.matches(item->key)))
-		return result;
-	}
+        if (key == Key_BackTab) {
+            if (e->state() & ShiftButton)
+                key |= SHIFT;
+            temp.setKey(key, index);
+            if (Qt::NoMatch != (result = temp.matches(item->key)))
+                return result;
+        }
     }
     if (!e->text().isEmpty()) {
-	temp.setKey((int)e->text().unicode()->toUpper().unicode() | modifier, index);
-	result = temp.matches(item->key);
+        temp.setKey((int)e->text().unicode()->toUpper().unicode() | modifier, index);
+        result = temp.matches(item->key);
     }
     return result;
 }
@@ -303,11 +303,11 @@ Qt::SequenceMatch QAccelManager::match(QKeyEvent *e, QAccelItem* item, QKeySeque
 bool QAccelManager::tryAccelEvent(QWidget* w, QKeyEvent* e)
 {
     if (Qt::NoMatch == currentState) {
-	e->t = QEvent::AccelOverride;
-	e->ignore();
-	QApplication::sendSpontaneousEvent(w, e);
-	if (e->isAccepted())
-	    return false;
+        e->t = QEvent::AccelOverride;
+        e->ignore();
+        QApplication::sendSpontaneousEvent(w, e);
+        if (e->isAccepted())
+            return false;
     }
     e->t = QEvent::Accel;
     e->ignore();
@@ -318,48 +318,48 @@ bool QAccelManager::tryAccelEvent(QWidget* w, QKeyEvent* e)
 bool QAccelManager::tryComposeUnicode(QWidget* w, QKeyEvent* e)
 {
     if (metaComposeUnicode) {
-	int value = e->key() - Key_0;
-	// Ignore acceloverrides so we don't trigger
-	// accels on keypad when Meta compose is on
-	if ((e->type() == QEvent::AccelOverride) &&
-	     (e->state() == Qt::Keypad + Qt::MetaButton)) {
-	    e->accept();
-	// Meta compose start/continue
-	} else if ((e->type() == QEvent::KeyPress) &&
-	     (e->state() == Qt::Keypad + Qt::MetaButton)) {
-	    if (value >= 0 && value <= 9) {
-		composedUnicode *= 10;
-		composedUnicode += value;
-		return true;
-	    } else {
-		// Composing interrupted, dispatch!
-		if (composedUnicode) {
-		    QChar ch(composedUnicode);
-		    QString s(ch);
-		    QKeyEvent kep(QEvent::KeyPress, 0, 0, s);
-		    QKeyEvent ker(QEvent::KeyRelease, 0, 0, s);
-		    QApplication::sendEvent(w, &kep);
-		    QApplication::sendEvent(w, &ker);
-		}
-		composedUnicode = 0;
-		return true;
-	    }
-	// Meta compose end, dispatch
-	} else if ((e->type() == QEvent::KeyRelease) &&
-		    (e->key() == Key_Meta) &&
-		    (composedUnicode != 0)) {
-	    if ((composedUnicode > 0) &&
-		 (composedUnicode < 0xFFFE)) {
-		QChar ch(composedUnicode);
-		QString s(ch);
-		QKeyEvent kep(QEvent::KeyPress, 0, 0, s);
-		QKeyEvent ker(QEvent::KeyRelease, 0, 0, s);
-		QApplication::sendEvent(w, &kep);
-		QApplication::sendEvent(w, &ker);
-	    }
-	    composedUnicode = 0;
-	    return true;
-	}
+        int value = e->key() - Key_0;
+        // Ignore acceloverrides so we don't trigger
+        // accels on keypad when Meta compose is on
+        if ((e->type() == QEvent::AccelOverride) &&
+             (e->state() == Qt::Keypad + Qt::MetaButton)) {
+            e->accept();
+        // Meta compose start/continue
+        } else if ((e->type() == QEvent::KeyPress) &&
+             (e->state() == Qt::Keypad + Qt::MetaButton)) {
+            if (value >= 0 && value <= 9) {
+                composedUnicode *= 10;
+                composedUnicode += value;
+                return true;
+            } else {
+                // Composing interrupted, dispatch!
+                if (composedUnicode) {
+                    QChar ch(composedUnicode);
+                    QString s(ch);
+                    QKeyEvent kep(QEvent::KeyPress, 0, 0, s);
+                    QKeyEvent ker(QEvent::KeyRelease, 0, 0, s);
+                    QApplication::sendEvent(w, &kep);
+                    QApplication::sendEvent(w, &ker);
+                }
+                composedUnicode = 0;
+                return true;
+            }
+        // Meta compose end, dispatch
+        } else if ((e->type() == QEvent::KeyRelease) &&
+                    (e->key() == Key_Meta) &&
+                    (composedUnicode != 0)) {
+            if ((composedUnicode > 0) &&
+                 (composedUnicode < 0xFFFE)) {
+                QChar ch(composedUnicode);
+                QString s(ch);
+                QKeyEvent kep(QEvent::KeyPress, 0, 0, s);
+                QKeyEvent ker(QEvent::KeyRelease, 0, 0, s);
+                QApplication::sendEvent(w, &kep);
+                QApplication::sendEvent(w, &ker);
+            }
+            composedUnicode = 0;
+            return true;
+        }
     }
     return false;
 }
@@ -379,8 +379,8 @@ bool QAccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
 
     // Modifiers can NOT be accelerators...
     if (e->key() >= Key_Shift &&
-	 e->key() <= Key_Alt)
-	 return false;
+         e->key() <= Key_Alt)
+         return false;
 
     SequenceMatch result = Qt::NoMatch;
     QKeySequence tocheck, partial;
@@ -397,119 +397,119 @@ bool QAccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
     bool identicalDisabled = false;
     bool matchFound = false;
     do {
-	matchFound = false;
-	for (int i = 0; i < accels.size(); ++i) {
-	    accel = accels.at(i);
-	    if (correctSubWindow(w, accel)) {
-		if (accel->enabled) {
-		    for (int j = accel->aitems.size(); j > 0;) {
-			--j;
-			item = accel->aitems.at(j);
-			result = match(&pe, item, tocheck);
-			if (Qt::Identical == result) {
-			    if (item->enabled) {
-				if (!firstaccel) {
-				    firstaccel = accel;
-				    firstitem = item;
-				}
-				lastaccel = accel;
-				lastitem = item;
-				n++;
-				matchFound = true;
-				if (n > qMax(clash,0))
-				    goto doclash;
-			    } else {
-				identicalDisabled = true;
-			    }
-			}
-			if (item->enabled && Qt::PartialMatch == result) {
-			    partial = tocheck;
-			    matchFound = true;
-			}
-		    }
-		} else {
-		    for (int j = accel->aitems.size(); j > 0;) {
-			--j;
-			item = accel->aitems.at(j);
-			if (Qt::Identical == match(&pe, item, tocheck))
-			    identicalDisabled = true;
-		    }
-		}
-	    }
-	}
-	pe = QKeyEvent(QEvent::Accel, pe.key(), pe.state()&~Qt::ShiftButton, pe.text());
+        matchFound = false;
+        for (int i = 0; i < accels.size(); ++i) {
+            accel = accels.at(i);
+            if (correctSubWindow(w, accel)) {
+                if (accel->enabled) {
+                    for (int j = accel->aitems.size(); j > 0;) {
+                        --j;
+                        item = accel->aitems.at(j);
+                        result = match(&pe, item, tocheck);
+                        if (Qt::Identical == result) {
+                            if (item->enabled) {
+                                if (!firstaccel) {
+                                    firstaccel = accel;
+                                    firstitem = item;
+                                }
+                                lastaccel = accel;
+                                lastitem = item;
+                                n++;
+                                matchFound = true;
+                                if (n > qMax(clash,0))
+                                    goto doclash;
+                            } else {
+                                identicalDisabled = true;
+                            }
+                        }
+                        if (item->enabled && Qt::PartialMatch == result) {
+                            partial = tocheck;
+                            matchFound = true;
+                        }
+                    }
+                } else {
+                    for (int j = accel->aitems.size(); j > 0;) {
+                        --j;
+                        item = accel->aitems.at(j);
+                        if (Qt::Identical == match(&pe, item, tocheck))
+                            identicalDisabled = true;
+                    }
+                }
+            }
+        }
+        pe = QKeyEvent(QEvent::Accel, pe.key(), pe.state()&~Qt::ShiftButton, pe.text());
     } while (hasShift-- && !matchFound && !identicalDisabled);
 
 #ifndef QT_NO_STATUSBAR
     mainStatusBar = (QStatusBar*) w->topLevelWidget()->child(0, "QStatusBar");
 #endif
     if (n < 0) { // no match found
-	currentState = partial.count() ? PartialMatch : NoMatch;
+        currentState = partial.count() ? PartialMatch : NoMatch;
 #ifndef QT_NO_STATUSBAR
-	// Only display message if we are, or were, in a partial match
-	if (mainStatusBar && (PartialMatch == currentState || intermediate.count())) {
-	    if (currentState == Qt::PartialMatch) {
-		mainStatusBar->message((QString)partial + ", ...", 0);
-	    } else if (!identicalDisabled) {
-		QString message = QAccel::tr("%1, %2 not defined").
-		    arg((QString)intermediate).
-		    arg(QKeySequence::encodeString(e->key() | translateModifiers(e->state())));
-		mainStatusBar->message(message, 2000);
-		// Since we're a NoMatch, reset the clash count
-		clash = -1;
-	    } else {
-	    	mainStatusBar->clear();
-	    }
-	}
+        // Only display message if we are, or were, in a partial match
+        if (mainStatusBar && (PartialMatch == currentState || intermediate.count())) {
+            if (currentState == Qt::PartialMatch) {
+                mainStatusBar->message((QString)partial + ", ...", 0);
+            } else if (!identicalDisabled) {
+                QString message = QAccel::tr("%1, %2 not defined").
+                    arg((QString)intermediate).
+                    arg(QKeySequence::encodeString(e->key() | translateModifiers(e->state())));
+                mainStatusBar->message(message, 2000);
+                // Since we're a NoMatch, reset the clash count
+                clash = -1;
+            } else {
+                mainStatusBar->clear();
+            }
+        }
 #endif
 
-	bool eatKey = (PartialMatch == currentState || intermediate.count());
-	intermediate = partial;
-	if (eatKey)
-	    e->accept();
-	return eatKey;
+        bool eatKey = (PartialMatch == currentState || intermediate.count());
+        intermediate = partial;
+        if (eatKey)
+            e->accept();
+        return eatKey;
     } else if (n == 0) { // found exactly one match
-	clash = -1; // reset
+        clash = -1; // reset
 #ifndef QT_NO_STATUSBAR
-	if (currentState == Qt::PartialMatch && mainStatusBar)
-		mainStatusBar->clear();
+        if (currentState == Qt::PartialMatch && mainStatusBar)
+                mainStatusBar->clear();
 #endif
-	currentState = Qt::NoMatch; // Free sequence keylock
-	intermediate = QKeySequence();
-	lastaccel->activate(lastitem);
-	e->accept();
-	return true;
+        currentState = Qt::NoMatch; // Free sequence keylock
+        intermediate = QKeySequence();
+        lastaccel->activate(lastitem);
+        e->accept();
+        return true;
     }
 
  doclash: // found more than one match
 #ifndef QT_NO_STATUSBAR
     if (!mainStatusBar) // if "goto doclash", we need to get statusbar again.
-	mainStatusBar = (QStatusBar*) w->topLevelWidget()->child(0, "QStatusBar");
+        mainStatusBar = (QStatusBar*) w->topLevelWidget()->child(0, "QStatusBar");
 #endif
 
     QString message = QAccel::tr("Ambiguous \"%1\" not handled").arg((QString)tocheck);
     if (clash >= 0 && n > clash) { // pick next  match
-	intermediate = QKeySequence();
-	currentState = Qt::NoMatch; // Free sequence keylock
-	clash++;
+        intermediate = QKeySequence();
+        currentState = Qt::NoMatch; // Free sequence keylock
+        clash++;
 #ifndef QT_NO_STATUSBAR
-	if (mainStatusBar &&
-	     !lastitem->signal &&
-	     !(lastaccel->parent->receivers(SIGNAL(activatedAmbiguously(int)))))
-	    mainStatusBar->message(message, 2000);
+        if (mainStatusBar &&
+             !lastitem->signal &&
+             !(lastaccel->parent->receivers(SIGNAL(activatedAmbiguously(int)))))
+            mainStatusBar->message(message, 2000);
 #endif
-	lastaccel->activateAmbiguously(lastitem);
+        lastaccel->activateAmbiguously(lastitem);
     } else { // start (or wrap) with the first matching
-	intermediate = QKeySequence();
-	currentState = Qt::NoMatch; // Free sequence keylock
-	clash = 0;
+        intermediate = QKeySequence();
+        currentState = Qt::NoMatch; // Free sequence keylock
+        clash = 0;
 #ifndef QT_NO_STATUSBAR
-	if (mainStatusBar &&
-	     !firstitem->signal &&
-	     !(firstaccel->parent->receivers(SIGNAL(activatedAmbiguously(int)))))
-	    mainStatusBar->message(message, 2000);
+        if (mainStatusBar &&
+             !firstitem->signal &&
+             !(firstaccel->parent->receivers(SIGNAL(activatedAmbiguously(int)))))
+            mainStatusBar->message(message, 2000);
 #endif
-	firstaccel->activateAmbiguously(firstitem);
+        firstaccel->activateAmbiguously(firstitem);
     }
     e->accept();
     return true;
@@ -525,16 +525,16 @@ QAccelPrivate::QAccelPrivate(QAccel *p)
 QAccelPrivate::~QAccelPrivate()
 {
     while (!aitems.isEmpty())
-	delete aitems.takeFirst();
+        delete aitems.takeFirst();
     QAccelManager::self()->unregisterAccel(this);
 }
 
 static QAccelItem *find_id(const QAccelList &list, int id)
 {
     for (int i = 0; i < list.size(); ++i) {
-	register QAccelItem *item = list.at(i);
-	if (item->id == id)
-	    return item;
+        register QAccelItem *item = list.at(i);
+        if (item->id == id)
+            return item;
     }
     return 0;
 }
@@ -542,9 +542,9 @@ static QAccelItem *find_id(const QAccelList &list, int id)
 static QAccelItem *find_key(const QAccelList &list, const QKeySequence &key)
 {
     for (int i = 0; i < list.size(); ++i) {
-	register QAccelItem *item = list.at(i);
-	if (item->key == key)
-	    return item;
+        register QAccelItem *item = list.at(i);
+        if (item->key == key)
+            return item;
     }
     return 0;
 }
@@ -558,11 +558,11 @@ QAccel::QAccel(QWidget *parent, const char *name)
     : QObject(*new QAccelPrivate(this), parent)
 {
     if (name)
-	setObjectName(name);
+        setObjectName(name);
     d->enabled = true;
     d->watch = parent;
     if (!d->watch)
-	qWarning("QAccel: An accelerator must have a parent or a watch widget");
+        qWarning("QAccel: An accelerator must have a parent or a watch widget");
 }
 
 /*!
@@ -575,11 +575,11 @@ QAccel::QAccel(QWidget* watch, QObject *parent, const char *name)
     : QObject(*new QAccelPrivate(this), parent)
 {
     if (name)
-	setObjectName(name);
+        setObjectName(name);
     d->enabled = true;
     d->watch = watch;
     if (!d->watch)
-	qWarning("QAccel: An accelerator must have a parent or a watch widget");
+        qWarning("QAccel: An accelerator must have a parent or a watch widget");
 }
 
 /*!
@@ -666,20 +666,20 @@ static int get_seq_id()
     negative identifier less than -1.
 
     \code
-	QAccel *a = new QAccel(myWindow);	   // create accels for myWindow
-	a->insertItem(CTRL + Key_P, 200);	   // Ctrl+P, e.g. to print document
-	a->insertItem(ALT + Key_X, 201);	   // Alt+X, e.g. to quit
-	a->insertItem('q', 202);                               // 'q', e.g. to quit
-	a->insertItem(0x3b1, 203);                               // greek letter alpha
-	a->insertItem(Key_D);			   // gets a unique negative id < -1
-	a->insertItem(CTRL + SHIFT + Key_P);	   // gets a unique negative id < -1
+        QAccel *a = new QAccel(myWindow);           // create accels for myWindow
+        a->insertItem(CTRL + Key_P, 200);           // Ctrl+P, e.g. to print document
+        a->insertItem(ALT + Key_X, 201);           // Alt+X, e.g. to quit
+        a->insertItem('q', 202);                               // 'q', e.g. to quit
+        a->insertItem(0x3b1, 203);                               // greek letter alpha
+        a->insertItem(Key_D);                           // gets a unique negative id < -1
+        a->insertItem(CTRL + SHIFT + Key_P);           // gets a unique negative id < -1
     \endcode
 */
 
 int QAccel::insertItem(const QKeySequence& key, int id)
 {
     if (id == -1)
-	id = get_seq_id();
+        id = get_seq_id();
     d->aitems.insert(0, new QAccelItem(key,id));
     return id;
 }
@@ -691,11 +691,11 @@ int QAccel::insertItem(const QKeySequence& key, int id)
 void QAccel::removeItem(int id)
 {
     for (int i = 0; i < d->aitems.size(); ++i) {
-	register QAccelItem *item = d->aitems.at(i);
-	if (item->id == id) {
-	    delete d->aitems.takeAt(i);
-	    return;
-	}
+        register QAccelItem *item = d->aitems.at(i);
+        if (item->id == id) {
+            delete d->aitems.takeAt(i);
+            return;
+        }
     }
 }
 
@@ -707,7 +707,7 @@ void QAccel::removeItem(int id)
 void QAccel::clear()
 {
     while (!d->aitems.isEmpty())
-	delete d->aitems.takeFirst();
+        delete d->aitems.takeFirst();
 }
 
 
@@ -762,7 +762,7 @@ void QAccel::setItemEnabled(int id, bool enable)
 {
     QAccelItem *item = find_id(d->aitems, id);
     if (item)
-	item->enabled = enable;
+        item->enabled = enable;
 }
 
 
@@ -771,7 +771,7 @@ void QAccel::setItemEnabled(int id, bool enable)
     receiver.
 
     \code
-	a->connectItem(201, mainView, SLOT(quit()));
+        a->connectItem(201, mainView, SLOT(quit()));
     \endcode
 
     Of course, you can also set a signal as \a member.
@@ -790,10 +790,10 @@ bool QAccel::connectItem(int id, const QObject *receiver, const char *member)
 {
     QAccelItem *item = find_id(d->aitems, id);
     if (item) {
-	if (!item->signal) {
-	    item->signal = new QSignalEmitter;
-	}
-	return item->signal->connect(receiver, member);
+        if (!item->signal) {
+            item->signal = new QSignalEmitter;
+        }
+        return item->signal->connect(receiver, member);
     }
     return false;
 }
@@ -806,11 +806,11 @@ bool QAccel::connectItem(int id, const QObject *receiver, const char *member)
 */
 
 bool QAccel::disconnectItem(int id, const QObject *receiver,
-			     const char *member)
+                             const char *member)
 {
     QAccelItem *item = find_id(d->aitems, id);
     if (item && item->signal)
-	return item->signal->disconnect(receiver, member);
+        return item->signal->disconnect(receiver, member);
     return false;
 }
 
@@ -818,22 +818,22 @@ void QAccelPrivate::activate(QAccelItem* item)
 {
 #ifndef QT_NO_WHATSTHIS
     if (QWhatsThis::inWhatsThisMode() && !ignorewhatsthis) {
-	QWhatsThis::showText(QCursor::pos(), item->whatsthis);
-	return;
+        QWhatsThis::showText(QCursor::pos(), item->whatsthis);
+        return;
     }
 #endif
     if (item->signal)
-	item->signal->activate();
+        item->signal->activate();
     else
-	emit parent->activated(item->id);
+        emit parent->activated(item->id);
 }
 
 void QAccelPrivate::activateAmbiguously(QAccelItem* item)
 {
     if (item->signal)
-	item->signal->activate();
+        item->signal->activate();
     else
-	emit parent->activatedAmbiguously(item->id);
+        emit parent->activatedAmbiguously(item->id);
 }
 
 
@@ -855,21 +855,21 @@ void QAccelPrivate::activateAmbiguously(QAccelItem* item)
 QKeySequence QAccel::shortcutKey(const QString &str)
 {
     if(qt_accel_no_shortcuts)
-	return QKeySequence();
+        return QKeySequence();
 
     int p = 0;
     while (p >= 0) {
-	p = str.indexOf('&', p) + 1;
-	if (p <= 0 || p >= (int)str.length())
-	    return 0;
-	if (str[p] != '&') {
-	    QChar c = str[p];
-	    if (c.isPrint()) {
-		c = c.toUpper();
-		return QKeySequence(c.unicode() + ALT);
-	    }
-	}
-	p++;
+        p = str.indexOf('&', p) + 1;
+        if (p <= 0 || p >= (int)str.length())
+            return 0;
+        if (str[p] != '&') {
+            QChar c = str[p];
+            if (c.isPrint()) {
+                c = c.toUpper();
+                return QKeySequence(c.unicode() + ALT);
+            }
+        }
+        p++;
     }
     return QKeySequence();
 }
@@ -892,7 +892,7 @@ void QAccel::setWhatsThis(int id, const QString& text)
 
     QAccelItem *item = find_id(d->aitems, id);
     if (item)
-	item->whatsthis = text;
+        item->whatsthis = text;
 }
 
 /*!

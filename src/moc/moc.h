@@ -46,10 +46,10 @@ struct PropertyDef
     Specification gspec;
     bool override;
     bool stdCppSet() const {
-	QByteArray s("set");
-	s += toupper(name[0]);
-	s += name.mid(1);
-	return (s == write);
+        QByteArray s("set");
+        s += toupper(name[0]);
+        s += name.mid(1);
+        return (s == write);
     }
 };
 
@@ -62,7 +62,7 @@ struct ClassInfoDef
 
 struct ClassDef {
     ClassDef():
-	hasQObject(false){}
+        hasQObject(false){}
     QByteArray classname;
     QByteArray qualified;
     QList<QByteArray> superclassList;
@@ -84,11 +84,11 @@ class Moc
 {
 public:
     Moc()
-	:index(0),
-	 noInclude(false),
-	 displayWarnings(true),
-	 generatedCode(false)
-	{}
+        :index(0),
+         noInclude(false),
+         displayWarnings(true),
+         generatedCode(false)
+        {}
 
     QByteArray filename;
     Symbols symbols;
@@ -130,7 +130,7 @@ public:
     void parseFunction(FunctionDef *def);
     bool parsePropertyCandidate(FunctionDef *def);
 
-    void parseSlots(FunctionDef::Access access,	 ClassDef *def);
+    void parseSlots(FunctionDef::Access access,         ClassDef *def);
     void parseSignals(ClassDef *def);
     void parseProperty(ClassDef *def, bool override);
     void parseEnumOrFlag(ClassDef *def, bool isFlag);
@@ -145,9 +145,9 @@ public:
 
 inline bool Moc::test(Token token)
 {
-    if (index < symbols.size() && symbols.at(index).token == token ) {
-	++index;
-	return true;
+    if (index < symbols.size() && symbols.at(index).token == token) {
+        ++index;
+        return true;
     }
     return false;
 }
@@ -161,13 +161,13 @@ inline Token Moc::lookup(int k)
 inline void Moc::next(Token token)
 {
     if (!test(token))
-	error();
+        error();
 }
 
 inline void Moc::next(Token token, const char *msg)
 {
     if (!test(token))
-	error(msg);
+        error(msg);
 }
 
 

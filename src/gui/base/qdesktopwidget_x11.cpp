@@ -24,10 +24,10 @@ extern int qt_x11_create_desktop_on_screen;
 extern bool qt_net_supports(Atom atom);
 
 // function to update the workarea of the screen
-static bool qt_desktopwidget_workarea_dirty = TRUE;
+static bool qt_desktopwidget_workarea_dirty = true;
 void qt_desktopwidget_update_workarea()
 {
-    qt_desktopwidget_workarea_dirty = TRUE;
+    qt_desktopwidget_workarea_dirty = true;
 }
 
 
@@ -39,15 +39,15 @@ public:
 };
 
 QSingleDesktopWidget::QSingleDesktopWidget()
-    : QWidget( 0, "desktop", WType_Desktop )
+    : QWidget(0, "desktop", WType_Desktop)
 {
 }
 
 QSingleDesktopWidget::~QSingleDesktopWidget()
 {
     const QObjectList &childList = children();
-    for (int i = childList.size(); i > 0 ; ) {
-	--i;
+    for (int i = childList.size(); i > 0 ;) {
+        --i;
         childList.at(i)->setParent(0);
     }
 }
@@ -71,25 +71,25 @@ public:
 };
 
 QDesktopWidgetPrivate::QDesktopWidgetPrivate()
-    : use_xinerama(FALSE), defaultScreen(0), screenCount(1),
-      screens( 0 ), rects( 0 ), workareas( 0 )
+    : use_xinerama(false), defaultScreen(0), screenCount(1),
+      screens(0), rects(0), workareas(0)
 {
 }
 
 QDesktopWidgetPrivate::~QDesktopWidgetPrivate()
 {
-    if ( screens ) {
-	for ( int i = 0; i < screenCount; ++i ) {
-	    if (i == defaultScreen) continue;
-	    delete screens[i];
-	    screens[i] = 0;
-	}
+    if (screens) {
+        for (int i = 0; i < screenCount; ++i) {
+            if (i == defaultScreen) continue;
+            delete screens[i];
+            screens[i] = 0;
+        }
 
-	delete [] screens;
+        delete [] screens;
     }
 
-    if ( rects )     delete [] rects;
-    if ( workareas ) delete [] workareas;
+    if (rects)     delete [] rects;
+    if (workareas) delete [] workareas;
 }
 
 void QDesktopWidgetPrivate::init()
@@ -99,51 +99,51 @@ void QDesktopWidgetPrivate::init()
     XineramaScreenInfo *xinerama_screeninfo = 0;
     int unused;
     use_xinerama = (XineramaQueryExtension(QX11Info::appDisplay(),
-					   &unused, &unused) &&
-		    XineramaIsActive(QX11Info::appDisplay()));
+                                           &unused, &unused) &&
+                    XineramaIsActive(QX11Info::appDisplay()));
 
     if (use_xinerama) {
-	xinerama_screeninfo =
-	    XineramaQueryScreens(QX11Info::appDisplay(), &screenCount);
-	defaultScreen = 0;
+        xinerama_screeninfo =
+            XineramaQueryScreens(QX11Info::appDisplay(), &screenCount);
+        defaultScreen = 0;
     } else
 #endif // QT_NO_XINERAMA
     {
-	defaultScreen = DefaultScreen(QX11Info::appDisplay());
-	screenCount = ScreenCount(QX11Info::appDisplay());
+        defaultScreen = DefaultScreen(QX11Info::appDisplay());
+        screenCount = ScreenCount(QX11Info::appDisplay());
     }
 
     delete [] rects;
-    rects     = new QRect[ screenCount ];
+    rects     = new QRect[screenCount];
     delete [] workareas;
-    workareas = new QRect[ screenCount ];
+    workareas = new QRect[screenCount];
 
     // get the geometry of each screen
     int i, x, y, w, h;
-    for ( i = 0; i < screenCount; i++ ) {
+    for (i = 0; i < screenCount; i++) {
 
 #ifndef QT_NO_XINERAMA
-	if (use_xinerama) {
-	    x = xinerama_screeninfo[i].x_org;
-	    y = xinerama_screeninfo[i].y_org;
-	    w = xinerama_screeninfo[i].width;
-	    h = xinerama_screeninfo[i].height;
-	} else
+        if (use_xinerama) {
+            x = xinerama_screeninfo[i].x_org;
+            y = xinerama_screeninfo[i].y_org;
+            w = xinerama_screeninfo[i].width;
+            h = xinerama_screeninfo[i].height;
+        } else
 #endif // QT_NO_XINERAMA
-	    {
-		x = 0;
-		y = 0;
-		w = WidthOfScreen(ScreenOfDisplay(QX11Info::appDisplay(), i));
-		h = HeightOfScreen(ScreenOfDisplay(QX11Info::appDisplay(), i));
-	    }
+            {
+                x = 0;
+                y = 0;
+                w = WidthOfScreen(ScreenOfDisplay(QX11Info::appDisplay(), i));
+                h = HeightOfScreen(ScreenOfDisplay(QX11Info::appDisplay(), i));
+            }
 
-	rects[i].setRect(x, y, w, h);
-	workareas[i] = QRect();
+        rects[i].setRect(x, y, w, h);
+        workareas[i] = QRect();
     }
 
 #ifndef QT_NO_XINERAMA
     if (xinerama_screeninfo)
-	XFree(xinerama_screeninfo);
+        XFree(xinerama_screeninfo);
 #endif // QT_NO_XINERAMA
 
 }
@@ -151,7 +151,7 @@ void QDesktopWidgetPrivate::init()
 // the QDesktopWidget itself will be created on the default screen
 // as qt_x11_create_desktop_on_screen defaults to -1
 QDesktopWidget::QDesktopWidget()
-    : QWidget( 0, "desktop", WType_Desktop )
+    : QWidget(0, "desktop", WType_Desktop)
 {
     d = new QDesktopWidgetPrivate();
     d->init();
@@ -177,123 +177,123 @@ int QDesktopWidget::numScreens() const
     return d->screenCount;
 }
 
-QWidget *QDesktopWidget::screen( int screen )
+QWidget *QDesktopWidget::screen(int screen)
 {
     if (d->use_xinerama)
-	return this;
+        return this;
 
-    if ( screen < 0 || screen >= d->screenCount )
-	screen = d->defaultScreen;
+    if (screen < 0 || screen >= d->screenCount)
+        screen = d->defaultScreen;
 
-    if ( ! d->screens ) {
-	d->screens = new QWidget*[ d->screenCount ];
-	memset( d->screens, 0, d->screenCount * sizeof( QWidget * ) );
-	d->screens[ d->defaultScreen ] = this;
+    if (! d->screens) {
+        d->screens = new QWidget*[d->screenCount];
+        memset(d->screens, 0, d->screenCount * sizeof(QWidget *));
+        d->screens[d->defaultScreen] = this;
     }
 
-    if ( ! d->screens[screen] ||               // not created yet
-	 ! d->screens[screen]->isDesktop() ) { // reparented away
-	qt_x11_create_desktop_on_screen = screen;
-	d->screens[screen] = new QSingleDesktopWidget;
-	qt_x11_create_desktop_on_screen = -1;
+    if (! d->screens[screen] ||               // not created yet
+         ! d->screens[screen]->isDesktop()) { // reparented away
+        qt_x11_create_desktop_on_screen = screen;
+        d->screens[screen] = new QSingleDesktopWidget;
+        qt_x11_create_desktop_on_screen = -1;
     }
 
     return d->screens[screen];
 }
 
-const QRect& QDesktopWidget::availableGeometry( int screen ) const
+const QRect& QDesktopWidget::availableGeometry(int screen) const
 {
-    if ( qt_desktopwidget_workarea_dirty ) {
-	// the workareas are dirty, invalidate them
-	for ( int i = 0; i < d->screenCount; ++i )
-	    d->workareas[i] = QRect();
-	qt_desktopwidget_workarea_dirty = FALSE;
+    if (qt_desktopwidget_workarea_dirty) {
+        // the workareas are dirty, invalidate them
+        for (int i = 0; i < d->screenCount; ++i)
+            d->workareas[i] = QRect();
+        qt_desktopwidget_workarea_dirty = false;
     }
 
-    if ( screen < 0 || screen >= d->screenCount )
-	screen = d->defaultScreen;
+    if (screen < 0 || screen >= d->screenCount)
+        screen = d->defaultScreen;
 
-    if ( d->workareas[screen].isValid() )
-	return d->workareas[screen];
+    if (d->workareas[screen].isValid())
+        return d->workareas[screen];
 
-    if ( ! isVirtualDesktop() && qt_net_supports( ATOM(_NET_WORKAREA) ) ) {
-	Atom ret;
-	int format, e;
-	unsigned char *data = 0;
-	unsigned long nitems, after;
+    if (! isVirtualDesktop() && qt_net_supports(ATOM(_NET_WORKAREA))) {
+        Atom ret;
+        int format, e;
+        unsigned char *data = 0;
+        unsigned long nitems, after;
 
-	e = XGetWindowProperty( QX11Info::appDisplay(),
-				QX11Info::appRootWindow( screen ),
-				ATOM(_NET_WORKAREA), 0, 4, False, XA_CARDINAL,
-				&ret, &format, &nitems, &after, &data );
+        e = XGetWindowProperty(QX11Info::appDisplay(),
+                                QX11Info::appRootWindow(screen),
+                                ATOM(_NET_WORKAREA), 0, 4, False, XA_CARDINAL,
+                                &ret, &format, &nitems, &after, &data);
 
-	if (e == Success && ret == XA_CARDINAL &&
-	    format == 32 && nitems == 4) {
-	    long *workarea = (long *) data;
-	    d->workareas[screen].setRect( workarea[0], workarea[1],
-					  workarea[2], workarea[3] );
-	} else {
-	    d->workareas[screen] = screenGeometry(screen);
-	}
-	if ( data )
-	    XFree( data );
+        if (e == Success && ret == XA_CARDINAL &&
+            format == 32 && nitems == 4) {
+            long *workarea = (long *) data;
+            d->workareas[screen].setRect(workarea[0], workarea[1],
+                                          workarea[2], workarea[3]);
+        } else {
+            d->workareas[screen] = screenGeometry(screen);
+        }
+        if (data)
+            XFree(data);
     } else {
-	d->workareas[screen] = screenGeometry(screen);
+        d->workareas[screen] = screenGeometry(screen);
     }
 
     return d->workareas[screen];
 }
 
-const QRect& QDesktopWidget::screenGeometry( int screen ) const
+const QRect& QDesktopWidget::screenGeometry(int screen) const
 {
-    if ( screen < 0 || screen >= d->screenCount )
-	screen = d->defaultScreen;
+    if (screen < 0 || screen >= d->screenCount)
+        screen = d->defaultScreen;
 
-    return d->rects[ screen ];
+    return d->rects[screen];
 }
 
-int QDesktopWidget::screenNumber( QWidget *widget ) const
+int QDesktopWidget::screenNumber(QWidget *widget) const
 {
-    if ( !widget )
-	return d->defaultScreen;
+    if (!widget)
+        return d->defaultScreen;
 
 #ifndef QT_NO_XINERAMA
     if (d->use_xinerama) {
-	// this is how we do it for xinerama
-	QRect frame = widget->frameGeometry();
-	if ( !widget->isTopLevel() )
-	    frame.moveTopLeft( widget->mapToGlobal( QPoint( 0, 0 ) ) );
+        // this is how we do it for xinerama
+        QRect frame = widget->frameGeometry();
+        if (!widget->isTopLevel())
+            frame.moveTopLeft(widget->mapToGlobal(QPoint(0, 0)));
 
-	int maxSize = -1;
-	int maxScreen = -1;
+        int maxSize = -1;
+        int maxScreen = -1;
 
-	for ( int i = 0; i < d->screenCount; ++i ) {
-	    QRect sect = d->rects[i].intersect( frame );
-	    int size = sect.width() * sect.height();
-	    if ( size > maxSize && sect.width() > 0 && sect.height() > 0 ) {
-		maxSize = size;
-		maxScreen = i;
-	    }
-	}
-	return maxScreen;
+        for (int i = 0; i < d->screenCount; ++i) {
+            QRect sect = d->rects[i].intersect(frame);
+            int size = sect.width() * sect.height();
+            if (size > maxSize && sect.width() > 0 && sect.height() > 0) {
+                maxSize = size;
+                maxScreen = i;
+            }
+        }
+        return maxScreen;
     }
 #endif // QT_NO_XINERAMA
 
     return x11Info()->screen();
 }
 
-int QDesktopWidget::screenNumber( const QPoint &point ) const
+int QDesktopWidget::screenNumber(const QPoint &point) const
 {
-    for ( int i = 0; i < d->screenCount; ++i ) {
-	if ( d->rects[i].contains( point ) )
-	    return i;
+    for (int i = 0; i < d->screenCount; ++i) {
+        if (d->rects[i].contains(point))
+            return i;
     }
     return -1;
 }
 
-void QDesktopWidget::resizeEvent( QResizeEvent *event )
+void QDesktopWidget::resizeEvent(QResizeEvent *event)
 {
     d->init();
-    qt_desktopwidget_workarea_dirty = TRUE;
-    QWidget::resizeEvent( event );
+    qt_desktopwidget_workarea_dirty = true;
+    QWidget::resizeEvent(event);
 }

@@ -30,63 +30,63 @@ class Q_GUI_EXPORT QTabDialog : public QDialog
 {
     Q_OBJECT
 public:
-    QTabDialog( QWidget *parent=0, const char *name=0, bool modal=FALSE,
-		WFlags f=0 );
+    QTabDialog(QWidget *parent=0, const char *name=0, bool modal=false,
+                WFlags f=0);
     ~QTabDialog();
 
     void show();
-    void setFont( const QFont &font );
+    void setFont(const QFont &font);
 
-    void addTab( QWidget *, const QString & );
-    void addTab( QWidget *child, const QIconSet &iconset, const QString &label);
-    void addTab( QWidget *, QTab * );
+    void addTab(QWidget *, const QString &);
+    void addTab(QWidget *child, const QIconSet &iconset, const QString &label);
+    void addTab(QWidget *, QTab *);
 
-    void insertTab( QWidget *, const QString &, int index = -1 );
-    void insertTab( QWidget *child, const QIconSet& iconset, const QString &label, int index = -1);
-    void insertTab( QWidget *, QTab*, int index = -1 );
+    void insertTab(QWidget *, const QString &, int index = -1);
+    void insertTab(QWidget *child, const QIconSet& iconset, const QString &label, int index = -1);
+    void insertTab(QWidget *, QTab*, int index = -1);
 
-    void changeTab( QWidget *, const QString &);
-    void changeTab( QWidget *child, const QIconSet& iconset, const QString &label);
+    void changeTab(QWidget *, const QString &);
+    void changeTab(QWidget *child, const QIconSet& iconset, const QString &label);
 
-    bool isTabEnabled(  QWidget * ) const;
-    void setTabEnabled( QWidget *, bool );
-    bool isTabEnabled( const char * ) const; // compatibility
-    void setTabEnabled( const char *, bool ); // compatibility
+    bool isTabEnabled( QWidget *) const;
+    void setTabEnabled(QWidget *, bool);
+    bool isTabEnabled(const char *) const; // compatibility
+    void setTabEnabled(const char *, bool); // compatibility
 
-    void showPage( QWidget * );
-    void removePage( QWidget * );
-    QString tabLabel( QWidget * ) const;
+    void showPage(QWidget *);
+    void removePage(QWidget *);
+    QString tabLabel(QWidget *) const;
 
     QWidget * currentPage() const;
 
-    void setDefaultButton( const QString &text );
+    void setDefaultButton(const QString &text);
     void setDefaultButton();
     bool hasDefaultButton() const;
 
-    void setHelpButton( const QString &text );
+    void setHelpButton(const QString &text);
     void setHelpButton();
     bool hasHelpButton() const;
 
-    void setCancelButton( const QString &text );
+    void setCancelButton(const QString &text);
     void setCancelButton();
     bool hasCancelButton() const;
 
-    void setApplyButton( const QString &text );
+    void setApplyButton(const QString &text);
     void setApplyButton();
     bool hasApplyButton() const;
 
 #ifndef Q_QDOC
-    void setOKButton( const QString &text = QString::null );
+    void setOKButton(const QString &text = QString::null);
 #endif
-    void setOkButton( const QString &text );
+    void setOkButton(const QString &text);
     void setOkButton();
     bool hasOkButton() const;
 
 protected:
-    void paintEvent( QPaintEvent * );
-    void resizeEvent( QResizeEvent * );
-    void changeEvent( QEvent * );
-    void setTabBar( QTabBar* );
+    void paintEvent(QPaintEvent *);
+    void resizeEvent(QResizeEvent *);
+    void changeEvent(QEvent *);
+    void setTabBar(QTabBar*);
     QTabBar* tabBar() const;
 
 signals:
@@ -97,21 +97,21 @@ signals:
     void defaultButtonPressed();
     void helpButtonPressed();
 
-    void currentChanged( QWidget * );
-    void selected( const QString& ); // obsolete
+    void currentChanged(QWidget *);
+    void selected(const QString&); // obsolete
 
 private slots:
-    void showTab( int i );
+    void showTab(int i);
 
 private:
     void setSizes();
     void setUpLayout();
 
     QTabDialogPrivate *d;
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QTabDialog( const QTabDialog & );
-    QTabDialog& operator=( const QTabDialog & );
+    QTabDialog(const QTabDialog &);
+    QTabDialog& operator=(const QTabDialog &);
 #endif
 };
 

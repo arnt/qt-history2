@@ -24,24 +24,24 @@ class Q_GUI_EXPORT QBitmap : public QPixmap
 {
 public:
     QBitmap();
-    QBitmap( int w, int h,  bool clear = FALSE,
-	     QPixmap::Optimization = QPixmap::DefaultOptim );
-    QBitmap( const QSize &, bool clear = FALSE,
-	     QPixmap::Optimization = QPixmap::DefaultOptim );
-    QBitmap( int w, int h,  const uchar *bits, bool isXbitmap=FALSE );
-    QBitmap( const QSize &, const uchar *bits, bool isXbitmap=FALSE );
-    QBitmap( const QBitmap & );
+    QBitmap(int w, int h,  bool clear = false,
+             QPixmap::Optimization = QPixmap::DefaultOptim);
+    QBitmap(const QSize &, bool clear = false,
+             QPixmap::Optimization = QPixmap::DefaultOptim);
+    QBitmap(int w, int h,  const uchar *bits, bool isXbitmap=false);
+    QBitmap(const QSize &, const uchar *bits, bool isXbitmap=false);
+    QBitmap(const QBitmap &);
     QBitmap(const QPixmap &);
     QBitmap(const QImage &);
 #ifndef QT_NO_IMAGEIO
-    QBitmap( const QString &fileName, const char *format=0 );
+    QBitmap(const QString &fileName, const char *format=0);
 #endif
-    QBitmap &operator=( const QBitmap & );
-    QBitmap &operator=( const QPixmap & );
-    QBitmap &operator=( const QImage  & );
+    QBitmap &operator=(const QBitmap &);
+    QBitmap &operator=(const QPixmap &);
+    QBitmap &operator=(const QImage  &);
 
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
-    QBitmap  xForm( const QWMatrix & ) const;
+    QBitmap  xForm(const QWMatrix &) const;
 #endif
 };
 

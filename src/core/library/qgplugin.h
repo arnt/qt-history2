@@ -49,46 +49,46 @@
 // backwards compatibility as well (no old plugins will be loaded).
 #ifndef Q_PLUGIN_VERIFICATION_DATA
 #  define Q_PLUGIN_VERIFICATION_DATA \
-	static const char *qt_ucm_verification_data =			\
-            "pattern=""QT_UCM_VERIFICATION_DATA""\n"			\
-            "version="QT_VERSION_STR"\n"				\
-            "flags="Q_PLUGIN_FLAGS_STRING"\n"				\
-	    "buildkey="QT_BUILD_KEY"\0";
+        static const char *qt_ucm_verification_data =                        \
+            "pattern=""QT_UCM_VERIFICATION_DATA""\n"                        \
+            "version="QT_VERSION_STR"\n"                                \
+            "flags="Q_PLUGIN_FLAGS_STRING"\n"                                \
+            "buildkey="QT_BUILD_KEY"\0";
 #endif // Q_PLUGIN_VERIFICATION_DATA
 
-#define Q_PLUGIN_INSTANTIATE( IMPLEMENTATION )	\
-	{ \
-	    IMPLEMENTATION *i = new IMPLEMENTATION;	\
-	    return i->iface(); \
-	}
+#define Q_PLUGIN_INSTANTIATE(IMPLEMENTATION)        \
+        { \
+            IMPLEMENTATION *i = new IMPLEMENTATION;        \
+            return i->iface(); \
+        }
 
 #    ifdef Q_WS_WIN
-#	ifdef Q_CC_BOR
-#	    define Q_EXPORT_PLUGIN(PLUGIN) \
-	        Q_PLUGIN_VERIFICATION_DATA \
-		Q_EXTERN_C __declspec(dllexport) \
+#        ifdef Q_CC_BOR
+#            define Q_EXPORT_PLUGIN(PLUGIN) \
+                Q_PLUGIN_VERIFICATION_DATA \
+                Q_EXTERN_C __declspec(dllexport) \
                 const char * __stdcall qt_ucm_query_verification_data() \
                 { return qt_ucm_verification_data; } \
-		Q_EXTERN_C __declspec(dllexport) QUnknownInterface* \
+                Q_EXTERN_C __declspec(dllexport) QUnknownInterface* \
                 __stdcall ucm_instantiate() \
-		Q_PLUGIN_INSTANTIATE( PLUGIN )
-#	else
-#	    define Q_EXPORT_PLUGIN(PLUGIN) \
-	        Q_PLUGIN_VERIFICATION_DATA \
-		Q_EXTERN_C __declspec(dllexport) \
+                Q_PLUGIN_INSTANTIATE(PLUGIN)
+#        else
+#            define Q_EXPORT_PLUGIN(PLUGIN) \
+                Q_PLUGIN_VERIFICATION_DATA \
+                Q_EXTERN_C __declspec(dllexport) \
                 const char *qt_ucm_query_verification_data() \
                 { return qt_ucm_verification_data; } \
-		Q_EXTERN_C __declspec(dllexport) QUnknownInterface* ucm_instantiate() \
-		Q_PLUGIN_INSTANTIATE( PLUGIN )
-#	endif
+                Q_EXTERN_C __declspec(dllexport) QUnknownInterface* ucm_instantiate() \
+                Q_PLUGIN_INSTANTIATE(PLUGIN)
+#        endif
 #    else
-#	define Q_EXPORT_PLUGIN(PLUGIN) \
-	    Q_PLUGIN_VERIFICATION_DATA \
-	    Q_EXTERN_C \
+#        define Q_EXPORT_PLUGIN(PLUGIN) \
+            Q_PLUGIN_VERIFICATION_DATA \
+            Q_EXTERN_C \
             const char *qt_ucm_query_verification_data() \
             { return qt_ucm_verification_data; } \
-	    Q_EXTERN_C QUnknownInterface* ucm_instantiate() \
-            Q_PLUGIN_INSTANTIATE( PLUGIN )
+            Q_EXTERN_C QUnknownInterface* ucm_instantiate() \
+            Q_PLUGIN_INSTANTIATE(PLUGIN)
 #    endif
 
 #endif
@@ -99,11 +99,11 @@ class Q_CORE_EXPORT QGPlugin : public QObject
 {
     Q_OBJECT
 public:
-    QGPlugin( QUnknownInterface *i );
+    QGPlugin(QUnknownInterface *i);
     ~QGPlugin();
 
     QUnknownInterface* iface();
-    void setIface( QUnknownInterface *iface );
+    void setIface(QUnknownInterface *iface);
 
 private:
     QGPlugin();

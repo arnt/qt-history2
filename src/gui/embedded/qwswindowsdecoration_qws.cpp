@@ -22,7 +22,7 @@
 #ifndef QT_NO_IMAGEIO_XPM
 
 // #undef BORDER_WIDTH
-// #define BORDER_WIDTH	3
+// #define BORDER_WIDTH        3
 
 /* XPM */
 static const char * const win_menu_xpm[] = {
@@ -224,35 +224,35 @@ QRegion QWSWindowsDecoration::region(const QWidget *widget, const QRect &rect, Q
     QRegion region;
 
     switch (type) {
-	case Maximize: {
-	    QRect r(rect.right() - 2*titleHeight + 1, rect.top() - titleHeight,
-			    titleHeight, titleHeight);
-	    if (r.left() > rect.left() + titleHeight)
-		    region = r;
-	    break;
-	}
-	case Minimize: {
-	    QRect r(rect.right() - 3*titleHeight + 4, rect.top() - titleHeight,
-		    	    titleHeight, titleHeight);
-	    if (r.left() > rect.left() + titleHeight)
-		    region = r;
-	    break;
-	}
-	case Menu:
-	case Close:
-	case All:
-	case Title:
-	case Top:
-	case Left:
-	case Right:
-	case Bottom:
-	case TopLeft:
-	case TopRight:
-	case BottomLeft:
-	case BottomRight:
-	default:
-	    region = QWSDefaultDecoration::region(widget, rect, type);
-	    break;
+        case Maximize: {
+            QRect r(rect.right() - 2*titleHeight + 1, rect.top() - titleHeight,
+                            titleHeight, titleHeight);
+            if (r.left() > rect.left() + titleHeight)
+                    region = r;
+            break;
+        }
+        case Minimize: {
+            QRect r(rect.right() - 3*titleHeight + 4, rect.top() - titleHeight,
+                            titleHeight, titleHeight);
+            if (r.left() > rect.left() + titleHeight)
+                    region = r;
+            break;
+        }
+        case Menu:
+        case Close:
+        case All:
+        case Title:
+        case Top:
+        case Left:
+        case Right:
+        case Bottom:
+        case TopLeft:
+        case TopRight:
+        case BottomLeft:
+        case BottomRight:
+        default:
+            region = QWSDefaultDecoration::region(widget, rect, type);
+            break;
     }
 
     return region;
@@ -266,16 +266,16 @@ void QWSWindowsDecoration::paint(QPainter *painter, const QWidget *widget)
     QRect rect(widget->rect());
 
     // Border rect
-    QRect br( rect.left() - BORDER_WIDTH,
+    QRect br(rect.left() - BORDER_WIDTH,
                 rect.top() - BORDER_WIDTH - titleHeight,
                 rect.width() + 2 * BORDER_WIDTH,
-                rect.height() + BORDER_WIDTH + BOTTOM_BORDER_WIDTH + titleHeight );
+                rect.height() + BORDER_WIDTH + BOTTOM_BORDER_WIDTH + titleHeight);
 
     // title bar rect
-    QRect tr( 0, -titleHeight,  titleWidth - 1, titleHeight - 1);
+    QRect tr(0, -titleHeight,  titleWidth - 1, titleHeight - 1);
 
     QRegion oldClip = painter->clipRegion();
-    painter->setClipRegion( oldClip - QRegion( tr ) );	// reduce flicker
+    painter->setClipRegion(oldClip - QRegion(tr));        // reduce flicker
 
 #ifndef QT_NO_PALETTE
     QPalette pal = QApplication::palette();
@@ -284,65 +284,65 @@ void QWSWindowsDecoration::paint(QPainter *painter, const QWidget *widget)
 
 #if !defined(QT_NO_DRAWUTIL)
     qDrawWinPanel(painter, br.x(), br.y(), br.width(),
-		  br.height() - 4, pal, FALSE,
-		  &pal.brush(QPalette::Background));
+                  br.height() - 4, pal, false,
+                  &pal.brush(QPalette::Background));
 #endif
 
-    painter->setClipRegion( oldClip );
+    painter->setClipRegion(oldClip);
 
     if (titleWidth > 0) {
-	QBrush titleBrush;
-	QPen   titlePen;
-	int    titleLeft = titleHeight + 4;
+        QBrush titleBrush;
+        QPen   titlePen;
+        int    titleLeft = titleHeight + 4;
 
-	if (widget == qApp->activeWindow()) {
-	    titleBrush = pal.brush(QPalette::Highlight);
-	    titlePen   = pal.color(QPalette::HighlightedText);
-	} else {
-	    titleBrush = pal.brush(QPalette::Background);
-	    titlePen   = pal.color(QPalette::Text);
-	}
+        if (widget == qApp->activeWindow()) {
+            titleBrush = pal.brush(QPalette::Highlight);
+            titlePen   = pal.color(QPalette::HighlightedText);
+        } else {
+            titleBrush = pal.brush(QPalette::Background);
+            titlePen   = pal.color(QPalette::Text);
+        }
 
-#define CLAMP(x, y)	    ( ((x) > (y)) ? (y) : (x) )
+#define CLAMP(x, y)            (((x) > (y)) ? (y) : (x))
 
-	int x = tr.x();
-	QColor c1 = titleBrush.color();
-	QColor c2 = titleBrush.color();
-	
-	if (widget == qApp->activeWindow()) {
-	    c1 = QColor( 0x10, 0x20, 0x90 ); // '98 Blue
-	    // c2 = QColor( 0x50, 0x60, 0xD0 );
-	    c2 = QColor( 0x70, 0x70, 0x70 );
-	    // c1 = QColor( 0xBA, 0xC4, 0x05 ); // Trolltech Green
-	    // c1 = QColor( 0xAA, 0xB4, 0x00 ); // Trolltech Green
-	    // c2 = QColor( 0x20, 0x20, 0x20 );
-	} else {
-	    c1 = QColor( 0x20, 0x30, 0x50 );
-	    // c2 = QColor( 0x60, 0x70, 0x90 );
-	    // c2 = QColor( 0x40, 0x40, 0x40 );
-	    c2 = QColor( 0x70, 0x70, 0x70 );
-	    titlePen = QPen( QColor( 0x90, 0x90, 0x90 ) );
-	}
-	
-	int r = c1.red();
-	int g = c1.green();
-	int b = c1.blue();
-	for (int i = 0; i < 100; i++) {
-	    int dr = r + (c2.red() * i) / 100;
-	    int dg = g + (c2.green() * i) / 100;
-	    int db = b + (c2.blue() * i) / 100;
-	    x = tr.x() + (tr.width() * i) / 100;
-	    int x2 = tr.x() + (tr.width() * (i + 1)) / 100;
-	    QBrush tbr = QBrush( QColor( CLAMP(dr,255), CLAMP(dg,255), CLAMP(db,255) ) );
-	    painter->fillRect( x, tr.y(), x2 - x, tr.height(), tbr);
-	}
-	
+        int x = tr.x();
+        QColor c1 = titleBrush.color();
+        QColor c2 = titleBrush.color();
+
+        if (widget == qApp->activeWindow()) {
+            c1 = QColor(0x10, 0x20, 0x90); // '98 Blue
+            // c2 = QColor(0x50, 0x60, 0xD0);
+            c2 = QColor(0x70, 0x70, 0x70);
+            // c1 = QColor(0xBA, 0xC4, 0x05); // Trolltech Green
+            // c1 = QColor(0xAA, 0xB4, 0x00); // Trolltech Green
+            // c2 = QColor(0x20, 0x20, 0x20);
+        } else {
+            c1 = QColor(0x20, 0x30, 0x50);
+            // c2 = QColor(0x60, 0x70, 0x90);
+            // c2 = QColor(0x40, 0x40, 0x40);
+            c2 = QColor(0x70, 0x70, 0x70);
+            titlePen = QPen(QColor(0x90, 0x90, 0x90));
+        }
+
+        int r = c1.red();
+        int g = c1.green();
+        int b = c1.blue();
+        for (int i = 0; i < 100; i++) {
+            int dr = r + (c2.red() * i) / 100;
+            int dg = g + (c2.green() * i) / 100;
+            int db = b + (c2.blue() * i) / 100;
+            x = tr.x() + (tr.width() * i) / 100;
+            int x2 = tr.x() + (tr.width() * (i + 1)) / 100;
+            QBrush tbr = QBrush(QColor(CLAMP(dr,255), CLAMP(dg,255), CLAMP(db,255)));
+            painter->fillRect(x, tr.y(), x2 - x, tr.height(), tbr);
+        }
+
 #ifndef QT_NO_WIDGET_TOPEXTRA
-	painter->setPen(titlePen);
-	painter->setFont(widget->font());
-	painter->drawText( titleLeft, -titleHeight,
-	 		rect.width() - titleHeight - 10, titleHeight-1,
-			QPainter::AlignVCenter, widget->windowTitle());
+        painter->setPen(titlePen);
+        painter->setFont(widget->font());
+        painter->drawText(titleLeft, -titleHeight,
+                        rect.width() - titleHeight - 10, titleHeight-1,
+                        QPainter::AlignVCenter, widget->windowTitle());
 #endif
     }
 
@@ -351,7 +351,7 @@ void QWSWindowsDecoration::paint(QPainter *painter, const QWidget *widget)
 }
 
 void QWSWindowsDecoration::paintButton(QPainter *painter, const QWidget *w,
-			QWSDecoration::Region type, int state)
+                        QWSDecoration::Region type, int state)
 {
 #ifndef QT_NO_PALETTE
     QPalette pal = QApplication::palette();
@@ -363,10 +363,10 @@ void QWSWindowsDecoration::paintButton(QPainter *painter, const QWidget *w,
     int yoff=2;
     const QPixmap *pm=pixmapFor(w,type,state & QWSButton::On, xoff, yoff);
     if ((state & QWSButton::MouseOver) && (state & QWSButton::Clicked))
-	xoff++, yoff++;
+        xoff++, yoff++;
     if (type != Menu)
-	painter->fillRect(brect.x()+xoff+1, brect.y()+yoff, 16, 15, 
-			  pal.brush(QPalette::Background));
+        painter->fillRect(brect.x()+xoff+1, brect.y()+yoff, 16, 15,
+                          pal.brush(QPalette::Background));
     if (pm) painter->drawPixmap(brect.x()+xoff+1, brect.y()+yoff, *pm);
 #endif
 }

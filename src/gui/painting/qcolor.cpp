@@ -145,14 +145,14 @@
   QColor member functions
  *****************************************************************************/
 
-bool QColor::color_init   = FALSE;		// color system not initialized
+bool QColor::color_init   = false;                // color system not initialized
 QColor::ColorModel QColor::colormodel = d32;
 
 /*!
     \enum QColor::Spec
 
     The type of color specified, either RGB or HSV, e.g. in the
-    \c{QColor::QColor( x, y, z, colorSpec)} constructor.
+    \c{QColor::QColor(x, y, z, colorSpec)} constructor.
 
     \value Rgb
     \value Hsv
@@ -184,51 +184,51 @@ QColor::QColor(Qt::GlobalColor color)
 
     static const QRgb global_colors[] = {
 #if defined Q_WS_X11
-	// HACK: we need a way to recognize color0 and color1 uniquely, so
-	// that we can use color0 and color1 with fixed pixel values on
-	// all screens
-	QRGBA(255, 255, 255, 1), // color0
-	QRGBA(  0,   0,   0, 1), // color1
+        // HACK: we need a way to recognize color0 and color1 uniquely, so
+        // that we can use color0 and color1 with fixed pixel values on
+        // all screens
+        QRGBA(255, 255, 255, 1), // color0
+        QRGBA( 0,   0,   0, 1), // color1
 #else
-	QRGB(255, 255, 255), // color0
-	QRGB(  0,   0,   0), // color1
+        QRGB(255, 255, 255), // color0
+        QRGB( 0,   0,   0), // color1
 #endif
-	QRGB(  0,   0,   0), // black
-	QRGB(255, 255, 255), // white
-	/*
-	 * From the "The Palette Manager: How and Why" by Ron Gery,
-	 * March 23, 1992, archived on MSDN:
-	 *
-	 *     The Windows system palette is broken up into two
-	 *     sections, one with fixed colors and one with colors
-	 *     that can be changed by applications. The system palette
-	 *     predefines 20 entries; these colors are known as the
-	 *     static or reserved colors and consist of the 16 colors
-	 *     found in the Windows version 3.0 VGA driver and 4
-	 *     additional colors chosen for their visual appeal.  The
-	 *     DEFAULT_PALETTE stock object is, as the name implies,
-	 *     the default palette selected into a device context (DC)
-	 *     and consists of these static colors. Applications can
-	 *     set the remaining 236 colors using the Palette Manager.
-	 *
-	 * The 20 reserved entries have indices in [0,9] and
-	 * [246,255]. We reuse 17 of them.
-	 */
-	QRGB(128, 128, 128), // index 248   medium gray
-	QRGB(160, 160, 164), // index 247   light gray
-	QRGB(192, 192, 192), // index 7     light gray
-	QRGB(255,   0,   0), // index 249   red
-	QRGB(  0, 255,   0), // index 250   green
-	QRGB(  0,   0, 255), // index 252   blue
-	QRGB(  0, 255, 255), // index 254   cyan
-	QRGB(255,   0, 255), // index 253   magenta
-	QRGB(255, 255,   0), // index 251   yellow
-	QRGB(128,   0,   0), // index 1     dark red
-	QRGB(  0, 128,   0), // index 2     dark green
-	QRGB(  0,   0, 128), // index 4     dark blue
-	QRGB(  0, 128, 128), // index 6     dark cyan
-	QRGB(128,   0, 128), // index 5     dark magenta
-	QRGB(128, 128,   0)  // index 3     dark yellow
+        QRGB( 0,   0,   0), // black
+        QRGB(255, 255, 255), // white
+        /*
+         * From the "The Palette Manager: How and Why" by Ron Gery,
+         * March 23, 1992, archived on MSDN:
+         *
+         *     The Windows system palette is broken up into two
+         *     sections, one with fixed colors and one with colors
+         *     that can be changed by applications. The system palette
+         *     predefines 20 entries; these colors are known as the
+         *     static or reserved colors and consist of the 16 colors
+         *     found in the Windows version 3.0 VGA driver and 4
+         *     additional colors chosen for their visual appeal.  The
+         *     DEFAULT_PALETTE stock object is, as the name implies,
+         *     the default palette selected into a device context (DC)
+         *     and consists of these static colors. Applications can
+         *     set the remaining 236 colors using the Palette Manager.
+         *
+         * The 20 reserved entries have indices in [0,9] and
+         * [246,255]. We reuse 17 of them.
+         */
+        QRGB(128, 128, 128), // index 248   medium gray
+        QRGB(160, 160, 164), // index 247   light gray
+        QRGB(192, 192, 192), // index 7     light gray
+        QRGB(255,   0,   0), // index 249   red
+        QRGB( 0, 255,   0), // index 250   green
+        QRGB( 0,   0, 255), // index 252   blue
+        QRGB( 0, 255, 255), // index 254   cyan
+        QRGB(255,   0, 255), // index 253   magenta
+        QRGB(255, 255,   0), // index 251   yellow
+        QRGB(128,   0,   0), // index 1     dark red
+        QRGB( 0, 128,   0), // index 2     dark green
+        QRGB( 0,   0, 128), // index 4     dark blue
+        QRGB( 0, 128, 128), // index 6     dark cyan
+        QRGB(128,   0, 128), // index 5     dark magenta
+        QRGB(128, 128,   0)  // index 3     dark yellow
     };
 #undef QRGB
 #undef QRGBA
@@ -236,15 +236,15 @@ QColor::QColor(Qt::GlobalColor color)
     setRgb(global_colors[color]);
 #if !defined(Q_WS_X11)
     if (color == Qt::color0)
-	setPixel(COLOR0_PIX);
+        setPixel(COLOR0_PIX);
     else if (color == Qt::color1)
-	setPixel(COLOR1_PIX);
+        setPixel(COLOR1_PIX);
 #endif
 }
 
 
 /*!
-    \fn QColor::QColor( int r, int g, int b )
+    \fn QColor::QColor(int r, int g, int b)
 
     Constructs a color with the RGB value \a r, \a g, \a b, in the
     same way as setRgb().
@@ -265,28 +265,28 @@ QColor::QColor(Qt::GlobalColor color)
     allocation procedure.
 */
 
-QColor::QColor( QRgb rgb, uint pixel )
+QColor::QColor(QRgb rgb, uint pixel)
 {
-    if ( pixel == 0xffffffff ) {
-	setRgb( rgb );
+    if (pixel == 0xffffffff) {
+        setRgb(rgb);
     } else {
-	d.argb = rgb;
-	setPixel( pixel );
+        d.argb = rgb;
+        setPixel(pixel);
     }
 }
 
-void QColor::setPixel( uint pixel )
+void QColor::setPixel(uint pixel)
 {
-    switch ( colormodel ) {
+    switch (colormodel) {
     case d8:
-	d.d8.direct = TRUE;
-	d.d8.invalid = FALSE;
-	d.d8.dirty = FALSE;
-	d.d8.pix = pixel;
-	break;
+        d.d8.direct = true;
+        d.d8.invalid = false;
+        d.d8.dirty = false;
+        d.d8.pix = pixel;
+        break;
     case d32:
-	d.d32.pix = pixel;
-	break;
+        d.d32.pix = pixel;
+        break;
     }
 }
 
@@ -306,18 +306,18 @@ void QColor::setPixel( uint pixel )
     \sa setRgb(), setHsv()
 */
 
-QColor::QColor( int x, int y, int z, Spec colorSpec )
+QColor::QColor(int x, int y, int z, Spec colorSpec)
 {
     d.d32.argb = Invalid;
     d.d32.pix = Dirt;
-    if ( colorSpec == Hsv )
-	setHsv( x, y, z );
+    if (colorSpec == Hsv)
+        setHsv(x, y, z);
     else
-	setRgb( x, y, z );
+        setRgb(x, y, z);
 }
 
 
-/*! \fn QColor::QColor( const QString& name )
+/*! \fn QColor::QColor(const QString& name)
 
     Constructs a named color in the same way as setNamedColor() using
     name \a name.
@@ -328,7 +328,7 @@ QColor::QColor( int x, int y, int z, Spec colorSpec )
 */
 
 
-/*! \fn QColor::QColor( const char *name )
+/*! \fn QColor::QColor(const char *name)
 
     Constructs a named color in the same way as setNamedColor() using
     name \a name.
@@ -342,13 +342,13 @@ QColor::QColor( int x, int y, int z, Spec colorSpec )
 
 
 /*!
-  \fn QColor::QColor( const QColor &c )
+  \fn QColor::QColor(const QColor &c)
 
     Constructs a color that is a copy of \a c.
 */
 
 
-/*! \fn QColor &QColor::operator=( const QColor &c )
+/*! \fn QColor &QColor::operator=(const QColor &c)
 
     Assigns a copy of the color \a c and returns a reference to this
     color.
@@ -370,8 +370,8 @@ QColor &QColor::operator=(Qt::GlobalColor color)
 /*!
     \fn bool QColor::isValid() const
 
-    Returns FALSE if the color is invalid, i.e. it was constructed using the
-    default constructor; otherwise returns TRUE.
+    Returns false if the color is invalid, i.e. it was constructed using the
+    default constructor; otherwise returns true.
 */
 
 /*!
@@ -379,10 +379,10 @@ QColor &QColor::operator=(Qt::GlobalColor color)
 */
 bool QColor::isDirty() const
 {
-    if ( colormodel == d8 ) {
-	return d.d8.dirty;
+    if (colormodel == d8) {
+        return d.d8.dirty;
     } else {
-	return d.d32.probablyDirty();
+        return d.d32.probablyDirty();
     }
 }
 
@@ -397,11 +397,11 @@ QString QColor::name() const
 {
 #ifndef QT_NO_SPRINTF
     QString s;
-    s.sprintf( "#%02x%02x%02x", red(), green(), blue() );
+    s.sprintf("#%02x%02x%02x", red(), green(), blue());
     return s;
 #else
     char s[20];
-    sprintf( s, "#%02x%02x%02x", red(), green(), blue() );
+    sprintf(s, "#%02x%02x%02x", red(), green(), blue());
     return QString(s);
 #endif
 }
@@ -422,25 +422,25 @@ QString QColor::name() const
     The color is invalid if \a name cannot be parsed.
 */
 
-void QColor::setNamedColor( const QString &name )
+void QColor::setNamedColor(const QString &name)
 {
-    if ( name.isEmpty() ) {
-	d.argb = 0;
-	if ( colormodel == d8 ) {
-	    d.d8.invalid = TRUE;
-	} else {
-	    d.d32.argb = Invalid;
-	}
-    } else if ( name[0] == '#' ) {
-	QRgb rgb;
-	if (!qt_get_hex_rgb(name.latin1(), &rgb)) {
-	    qWarning( "QColor::setNamedColor: could not parse color '%s'", name.latin1() );
-	    invalidate();
-	} else {
-	    setRgb( rgb );
-	}
+    if (name.isEmpty()) {
+        d.argb = 0;
+        if (colormodel == d8) {
+            d.d8.invalid = true;
+        } else {
+            d.d32.argb = Invalid;
+        }
+    } else if (name[0] == '#') {
+        QRgb rgb;
+        if (!qt_get_hex_rgb(name.latin1(), &rgb)) {
+            qWarning("QColor::setNamedColor: could not parse color '%s'", name.latin1());
+            invalidate();
+        } else {
+            setRgb(rgb);
+        }
     } else {
-	setSystemNamedColor( name );
+        setSystemNamedColor(name);
     }
 }
 
@@ -461,52 +461,52 @@ void QColor::setNamedColor( const QString &name )
 
     \sa setHsv(), rgb()
 */
-void QColor::getHsv( int *h, int *s, int *v ) const
+void QColor::getHsv(int *h, int *s, int *v) const
 {
-    if ( !h || !s || !v )
-	return;
+    if (!h || !s || !v)
+        return;
     int r = qRed(d.argb);
     int g = qGreen(d.argb);
     int b = qBlue(d.argb);
-    uint max = r;				// maximum RGB component
-    int whatmax = 0;				// r=>0, g=>1, b=>2
-    if ( (uint)g > max ) {
-	max = g;
-	whatmax = 1;
+    uint max = r;                                // maximum RGB component
+    int whatmax = 0;                                // r=>0, g=>1, b=>2
+    if ((uint)g > max) {
+        max = g;
+        whatmax = 1;
     }
-    if ( (uint)b > max ) {
-	max = b;
-	whatmax = 2;
+    if ((uint)b > max) {
+        max = b;
+        whatmax = 2;
     }
-    uint min = r;				// find minimum value
-    if ( (uint)g < min ) min = g;
-    if ( (uint)b < min ) min = b;
+    uint min = r;                                // find minimum value
+    if ((uint)g < min) min = g;
+    if ((uint)b < min) min = b;
     int delta = max-min;
-    *v = max;					// calc value
+    *v = max;                                        // calc value
     *s = max ? (510*delta+max)/(2*max) : 0;
-    if ( *s == 0 ) {
-	*h = -1;				// undefined hue
+    if (*s == 0) {
+        *h = -1;                                // undefined hue
     } else {
-	switch ( whatmax ) {
-	    case 0:				// red is max component
-		if ( g >= b )
-		    *h = (120*(g-b)+delta)/(2*delta);
-		else
-		    *h = (120*(g-b+delta)+delta)/(2*delta) + 300;
-		break;
-	    case 1:				// green is max component
-		if ( b > r )
-		    *h = 120 + (120*(b-r)+delta)/(2*delta);
-		else
-		    *h = 60 + (120*(b-r+delta)+delta)/(2*delta);
-		break;
-	    case 2:				// blue is max component
-		if ( r > g )
-		    *h = 240 + (120*(r-g)+delta)/(2*delta);
-		else
-		    *h = 180 + (120*(r-g+delta)+delta)/(2*delta);
-		break;
-	}
+        switch (whatmax) {
+            case 0:                                // red is max component
+                if (g >= b)
+                    *h = (120*(g-b)+delta)/(2*delta);
+                else
+                    *h = (120*(g-b+delta)+delta)/(2*delta) + 300;
+                break;
+            case 1:                                // green is max component
+                if (b > r)
+                    *h = 120 + (120*(b-r)+delta)/(2*delta);
+                else
+                    *h = 60 + (120*(b-r+delta)+delta)/(2*delta);
+                break;
+            case 2:                                // blue is max component
+                if (r > g)
+                    *h = 240 + (120*(r-g)+delta)/(2*delta);
+                else
+                    *h = 180 + (120*(r-g+delta)+delta)/(2*delta);
+                break;
+        }
     }
 }
 
@@ -524,40 +524,40 @@ void QColor::getHsv( int *h, int *s, int *v ) const
     \sa getHsv(), setRgb()
 */
 
-void QColor::setHsv( int h, int s, int v )
+void QColor::setHsv(int h, int s, int v)
 {
-    if ( h < -1 || (uint)s > 255 || (uint)v > 255 ) {
-	qWarning( "QColor::setHsv: HSV parameters out of range" );
-	invalidate();
-	return;
+    if (h < -1 || (uint)s > 255 || (uint)v > 255) {
+        qWarning("QColor::setHsv: HSV parameters out of range");
+        invalidate();
+        return;
     }
     int r=v, g=v, b=v;
-    if ( s == 0 || h == -1 ) {			// achromatic case
-	// Ignore
-    } else {					// chromatic case
-	if ( (uint)h >= 360 )
-	    h %= 360;
-	uint f = h%60;
-	h /= 60;
-	uint p = (uint)(2*v*(255-s)+255)/510;
-	uint q, t;
-	if ( h&1 ) {
-	    q = (uint)(2*v*(15300-s*f)+15300)/30600;
-	    switch( h ) {
-		case 1: r=(int)q; g=(int)v, b=(int)p; break;
-		case 3: r=(int)p; g=(int)q, b=(int)v; break;
-		case 5: r=(int)v; g=(int)p, b=(int)q; break;
-	    }
-	} else {
-	    t = (uint)(2*v*(15300-(s*(60-f)))+15300)/30600;
-	    switch( h ) {
-		case 0: r=(int)v; g=(int)t, b=(int)p; break;
-		case 2: r=(int)p; g=(int)v, b=(int)t; break;
-		case 4: r=(int)t; g=(int)p, b=(int)v; break;
-	    }
-	}
+    if (s == 0 || h == -1) {                        // achromatic case
+        // Ignore
+    } else {                                        // chromatic case
+        if ((uint)h >= 360)
+            h %= 360;
+        uint f = h%60;
+        h /= 60;
+        uint p = (uint)(2*v*(255-s)+255)/510;
+        uint q, t;
+        if (h&1) {
+            q = (uint)(2*v*(15300-s*f)+15300)/30600;
+            switch(h) {
+                case 1: r=(int)q; g=(int)v, b=(int)p; break;
+                case 3: r=(int)p; g=(int)q, b=(int)v; break;
+                case 5: r=(int)v; g=(int)p, b=(int)q; break;
+            }
+        } else {
+            t = (uint)(2*v*(15300-(s*(60-f)))+15300)/30600;
+            switch(h) {
+                case 0: r=(int)v; g=(int)t, b=(int)p; break;
+                case 2: r=(int)p; g=(int)v, b=(int)t; break;
+                case 4: r=(int)t; g=(int)p, b=(int)v; break;
+            }
+        }
     }
-    setRgb( r, g, b );
+    setRgb(r, g, b);
 }
 
 
@@ -574,7 +574,7 @@ void QColor::setHsv( int h, int s, int v )
     \sa setRgb(), getHsv(), qRed(), qBlue(), qGreen(), isValid()
 */
 
-/*! \fn void QColor::getRgb( int *r, int *g, int *b ) const
+/*! \fn void QColor::getRgb(int *r, int *g, int *b) const
 
     Sets the contents pointed to by \a r, \a g and \a b to the red,
     green and blue components of the RGB value respectively. The value
@@ -591,20 +591,20 @@ void QColor::setHsv( int h, int s, int v )
     \sa rgb(), setHsv()
 */
 
-void QColor::setRgb( int r, int g, int b )
+void QColor::setRgb(int r, int g, int b)
 {
-    if ( (uint)r > 255 || (uint)g > 255 || (uint)b > 255 ) {
-	qWarning( "QColor::setRgb: RGB parameter(s) out of range" );
-	invalidate();
-	return;
+    if ((uint)r > 255 || (uint)g > 255 || (uint)b > 255) {
+        qWarning("QColor::setRgb: RGB parameter(s) out of range");
+        invalidate();
+        return;
     }
-    d.argb = qRgb( r, g, b );
-    if ( colormodel == d8 ) {
-	d.d8.invalid = FALSE;
-	d.d8.direct = FALSE;
-	d.d8.dirty = TRUE;
+    d.argb = qRgb(r, g, b);
+    if (colormodel == d8) {
+        d.d8.invalid = false;
+        d.d8.direct = false;
+        d.d8.dirty = true;
     } else {
-	d.d32.pix = Dirt;
+        d.d32.pix = Dirt;
     }
 }
 
@@ -626,20 +626,20 @@ void QColor::setRgb( int r, int g, int b )
     \sa getRgba(), setRgb(), setHsv()
 */
 
-void QColor::setRgba( int r, int g, int b, int a )
+void QColor::setRgba(int r, int g, int b, int a)
 {
-    if ( (uint)r > 255 || (uint)g > 255 || (uint)b > 255 || (uint)a > 255 ) {
-	qWarning( "QColor::setRgba: RGBA parameter(s) out of range" );
-	invalidate();
-	return;
+    if ((uint)r > 255 || (uint)g > 255 || (uint)b > 255 || (uint)a > 255) {
+        qWarning("QColor::setRgba: RGBA parameter(s) out of range");
+        invalidate();
+        return;
     }
-    d.argb = qRgba( r, g, b, a );
-    if ( colormodel == d8 ) {
-	d.d8.invalid = FALSE;
-	d.d8.direct = FALSE;
-	d.d8.dirty = TRUE;
+    d.argb = qRgba(r, g, b, a);
+    if (colormodel == d8) {
+        d.d8.invalid = false;
+        d.d8.direct = false;
+        d.d8.dirty = true;
     } else {
-	d.d32.pix = Dirt;
+        d.d32.pix = Dirt;
     }
 }
 
@@ -653,15 +653,15 @@ void QColor::setRgba( int r, int g, int b, int a )
     \sa rgb(), setHsv()
 */
 
-void QColor::setRgb( QRgb rgb )
+void QColor::setRgb(QRgb rgb)
 {
     d.argb = rgb;
-    if ( colormodel == d8 ) {
-	d.d8.invalid = FALSE;
-	d.d8.direct = FALSE;
-	d.d8.dirty = TRUE;
+    if (colormodel == d8) {
+        d.d8.invalid = false;
+        d.d8.direct = false;
+        d.d8.dirty = true;
     } else {
-	d.d32.pix = Dirt;
+        d.d32.pix = Dirt;
     }
 }
 
@@ -709,24 +709,24 @@ void QColor::setRgb( QRgb rgb )
     \sa dark()
 */
 
-QColor QColor::light( int factor ) const
+QColor QColor::light(int factor) const
 {
-    if ( factor <= 0 )				// invalid lightness factor
-	return *this;
-    else if ( factor < 100 )			// makes color darker
-	return dark( 10000/factor );
+    if (factor <= 0)                                // invalid lightness factor
+        return *this;
+    else if (factor < 100)                        // makes color darker
+        return dark(10000/factor);
 
     int h, s, v;
-    getHsv( &h, &s, &v );
+    getHsv(&h, &s, &v);
     v = (factor*v)/100;
-    if ( v > 255 ) {				// overflow
-	s -= v-255;				// adjust saturation
-	if ( s < 0 )
-	    s = 0;
-	v = 255;
+    if (v > 255) {                                // overflow
+        s -= v-255;                                // adjust saturation
+        if (s < 0)
+            s = 0;
+        v = 255;
     }
     QColor c;
-    c.setHsv( h, s, v );
+    c.setHsv(h, s, v);
     return c;
 }
 
@@ -749,32 +749,32 @@ QColor QColor::light( int factor ) const
     \sa light()
 */
 
-QColor QColor::dark( int factor ) const
+QColor QColor::dark(int factor) const
 {
-    if ( factor <= 0 )				// invalid darkness factor
-	return *this;
-    else if ( factor < 100 )			// makes color lighter
-	return light( 10000/factor );
+    if (factor <= 0)                                // invalid darkness factor
+        return *this;
+    else if (factor < 100)                        // makes color lighter
+        return light(10000/factor);
     int h, s, v;
-    getHsv( &h, &s, &v );
+    getHsv(&h, &s, &v);
     v = (v*100)/factor;
     QColor c;
-    c.setHsv( h, s, v );
+    c.setHsv(h, s, v);
     return c;
 }
 
 
 /*!
-    \fn bool QColor::operator==( const QColor &c ) const
+    \fn bool QColor::operator==(const QColor &c) const
 
-    Returns TRUE if this color has the same RGB value as \a c;
-    otherwise returns FALSE.
+    Returns true if this color has the same RGB value as \a c;
+    otherwise returns false.
 */
 
 /*!
-    \fn bool QColor::operator!=( const QColor &c ) const
-    Returns TRUE if this color has a different RGB value from \a c;
-    otherwise returns FALSE.
+    \fn bool QColor::operator!=(const QColor &c) const
+    Returns true if this color has a different RGB value from \a c;
+    otherwise returns false.
 */
 
 /*!
@@ -789,18 +789,18 @@ QColor QColor::dark( int factor ) const
 */
 uint QColor::pixel() const
 {
-    if ( isDirty() )
-	return ((QColor*)this)->alloc();
-    else if ( colormodel == d8 )
+    if (isDirty())
+        return ((QColor*)this)->alloc();
+    else if (colormodel == d8)
 #ifdef Q_WS_WIN
-	// since d.d8.pix is uchar we have to use the PALETTEINDEX
-	// macro to get the respective palette entry index.
-	return (0x01000000 | (int)(short)(d.d8.pix));
+        // since d.d8.pix is uchar we have to use the PALETTEINDEX
+        // macro to get the respective palette entry index.
+        return (0x01000000 | (int)(short)(d.d8.pix));
 #else
-	return d.d8.pix;
+        return d.d8.pix;
 #endif
     else
-	return d.d32.pix;
+        return d.d32.pix;
 }
 
 /*!
@@ -832,11 +832,11 @@ QDebug operator<<(QDebug dbg, const QColor &c)
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
-QDataStream &operator<<( QDataStream &s, const QColor &c )
+QDataStream &operator<<(QDataStream &s, const QColor &c)
 {
     Q_UINT32 p = (Q_UINT32)c.rgb();
-    if ( s.version() == 1 )			// Swap red and blue
-	p = ((p << 16) & 0xff0000) | ((p >> 16) & 0xff) | (p & 0xff00ff00);
+    if (s.version() == 1)                        // Swap red and blue
+        p = ((p << 16) & 0xff0000) | ((p >> 16) & 0xff) | (p & 0xff00ff00);
     return s << p;
 }
 
@@ -847,13 +847,13 @@ QDataStream &operator<<( QDataStream &s, const QColor &c )
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
-QDataStream &operator>>( QDataStream &s, QColor &c )
+QDataStream &operator>>(QDataStream &s, QColor &c)
 {
     Q_UINT32 p;
     s >> p;
-    if ( s.version() == 1 )			// Swap red and blue
-	p = ((p << 16) & 0xff0000) | ((p >> 16) & 0xff) | (p & 0xff00ff00);
-    c.setRgb( p );
+    if (s.version() == 1)                        // Swap red and blue
+        p = ((p << 16) & 0xff0000) | ((p >> 16) & 0xff) | (p & 0xff00ff00);
+    c.setRgb(p);
     return s;
 }
 #endif
@@ -863,7 +863,7 @@ QDataStream &operator>>( QDataStream &s, QColor &c )
  *****************************************************************************/
 
 /*!
-    \fn int qRed( QRgb rgb )
+    \fn int qRed(QRgb rgb)
     \relates QColor
 
     Returns the red component of the RGB triplet \a rgb.
@@ -871,7 +871,7 @@ QDataStream &operator>>( QDataStream &s, QColor &c )
 */
 
 /*!
-    \fn int qGreen( QRgb rgb )
+    \fn int qGreen(QRgb rgb)
     \relates QColor
 
     Returns the green component of the RGB triplet \a rgb.
@@ -879,7 +879,7 @@ QDataStream &operator>>( QDataStream &s, QColor &c )
 */
 
 /*!
-    \fn int qBlue( QRgb rgb )
+    \fn int qBlue(QRgb rgb)
     \relates QColor
 
     Returns the blue component of the RGB triplet \a rgb.
@@ -887,14 +887,14 @@ QDataStream &operator>>( QDataStream &s, QColor &c )
 */
 
 /*!
-    \fn int qAlpha( QRgb rgba )
+    \fn int qAlpha(QRgb rgba)
     \relates QColor
 
     Returns the alpha component of the RGBA quadruplet \a rgba.
     */
 
 /*!
-    \fn QRgb qRgb( int r, int g, int b )
+    \fn QRgb qRgb(int r, int g, int b)
     \relates QColor
 
     Returns the RGB triplet \a (r,g,b).
@@ -905,7 +905,7 @@ QDataStream &operator>>( QDataStream &s, QColor &c )
 */
 
 /*!
-    \fn QRgb qRgba( int r, int g, int b, int a )
+    \fn QRgb qRgba(int r, int g, int b, int a)
     \relates QColor
 
     Returns the RGBA quadruplet \a (r,g,b,a).
@@ -916,7 +916,7 @@ QDataStream &operator>>( QDataStream &s, QColor &c )
 */
 
 /*!
-    \fn int qGray( int r, int g, int b )
+    \fn int qGray(int r, int g, int b)
     \relates QColor
 
     Returns a gray value 0..255 from the (\a r, \a g, \a b) triplet.
@@ -926,7 +926,7 @@ QDataStream &operator>>( QDataStream &s, QColor &c )
 */
 
 /*!
-    \fn int qGray( qRgb rgb )
+    \fn int qGray(qRgb rgb)
     \overload
     \relates QColor
 

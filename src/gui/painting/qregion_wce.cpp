@@ -34,93 +34,93 @@ struct QRegionPrivate {
     QRect extents;
 
     QRegionPrivate() { numRects = 0; }
-    QRegionPrivate( const QRect &r ) : rects(1) {
-	numRects = 1;
-	rects[0] = r;
-	extents = r;
+    QRegionPrivate(const QRect &r) : rects(1) {
+        numRects = 1;
+        rects[0] = r;
+        extents = r;
     }
 
-    QRegionPrivate( const QRegionPrivate &r ) {
-	rects = r.rects.copy();
-	numRects = r.numRects;
-	extents = r.extents;
+    QRegionPrivate(const QRegionPrivate &r) {
+        rects = r.rects.copy();
+        numRects = r.numRects;
+        extents = r.extents;
     }
 
-    QRegionPrivate &operator=( const QRegionPrivate &r ) {
-	rects = r.rects.copy();
-	numRects = r.numRects;
-	extents = r.extents;
-	return *this;
+    QRegionPrivate &operator=(const QRegionPrivate &r) {
+        rects = r.rects.copy();
+        numRects = r.numRects;
+        extents = r.extents;
+        return *this;
     }
 };
 static QRegionPrivate *PolygonRegion(QPoint *Pts, int Count, int rule);
-#define EvenOddRule	0
-#define WindingRule	1
+#define EvenOddRule        0
+#define WindingRule        1
 
 
 QRegion::QRegion()
 {
-    if ( !empty_region ) {			// avoid too many allocs
-	qAddPostRoutine( cleanup_empty_region );
-	empty_region = new QRegion( TRUE );
+    if (!empty_region) {                        // avoid too many allocs
+        qAddPostRoutine(cleanup_empty_region);
+        empty_region = new QRegion(true);
     }
     data = empty_region->data;
     data->ref();
 }
 
-QRegion::QRegion( bool is_null )
+QRegion::QRegion(bool is_null)
 {
     data = new QRegionData;
     data->rgn = 0;
     data->is_null = is_null;
 }
 
-QRegion::QRegion( const QRect &r, RegionType t )
+QRegion::QRegion(const QRect &r, RegionType t)
 {
-    if ( r.isEmpty() ) {
-	if ( !empty_region ) {			// avoid too many allocs
-	    qAddPostRoutine( cleanup_empty_region );
-	    empty_region = new QRegion( TRUE );
-	}
-	data = empty_region->data;
-	data->ref();
+    if (r.isEmpty()) {
+        if (!empty_region) {                        // avoid too many allocs
+            qAddPostRoutine(cleanup_empty_region);
+            empty_region = new QRegion(true);
+        }
+        data = empty_region->data;
+        data->ref();
     } else {
-	data = new QRegionData;
-	data->is_null = FALSE;
-	if ( t == Rectangle ) {			// rectangular region
-	    data->rgn = CreateRectRgn( r.left(),	 r.top(),
-				       r.right()+1, r.bottom()+1 );
-	} else if ( t == Ellipse ) {		// elliptic region
- 	    QPointArray a;
-	    a.makeEllipse( r.x(), r.y(), r.width(), r.height() );
-	    QRegionPrivate *rp = PolygonRegion( (QPoint*)a.data(), a.size(),
-						EvenOddRule );
-            setRects( rp->rects.data(), rp->rects.count() );
-	    delete rp;
-	}
+        data = new QRegionData;
+        data->is_null = false;
+        if (t == Rectangle) {                        // rectangular region
+            data->rgn = CreateRectRgn(r.left(),         r.top(),
+                                       r.right()+1, r.bottom()+1);
+        } else if (t == Ellipse) {                // elliptic region
+            QPointArray a;
+            a.makeEllipse(r.x(), r.y(), r.width(), r.height());
+            QRegionPrivate *rp = PolygonRegion((QPoint*)a.data(), a.size(),
+                                                EvenOddRule);
+            setRects(rp->rects.data(), rp->rects.count());
+            delete rp;
+        }
     }
 }
 
-QRegion::QRegion( const QPointArray &a, bool winding )
+QRegion::QRegion(const QPointArray &a, bool winding)
 {
     if (a.size() > 0) {
-	data = new QRegionData;
-	data->is_null = FALSE;
-	QRegionPrivate *rp = PolygonRegion( (QPoint*)a.data(), a.size(),
-					    winding ? WindingRule : EvenOddRule );
-	setRects( rp->rects.data(), rp->rects.count() );
-	delete rp;
+        data = new QRegionData;
+        data->is_null = false;
+        QRegionPrivate *rp = PolygonRegion((QPoint*)a.data(), a.size(),
+                                            winding ? WindingRule : EvenOddRule);
+        setRects(rp->rects.data(), rp->rects.count());
+        delete rp;
     } else {
-	if ( !empty_region ) {			// avoid too many allocs
-	    qAddPostRoutine( cleanup_empty_region );
-	    empty_region = new QRegion( TRUE );
-	}
-	data = empty_region->data;
-	data->ref();
+        if (!empty_region) {                        // avoid too many allocs
+            qAddPostRoutine(cleanup_empty_region);
+            empty_region = new QRegion(true);
+        }
+        data = empty_region->data;
+        data->ref();
     }
 }
 
-QRegion::QRegion( const QRegion &r )
+QRegion::QRegion(const QRegion &r)
 {
     data = r.data;
     data->ref();
@@ -133,8 +133,8 @@ HRGN qt_win_bitmapToRegion(const QBitmap& bitmap)
 
     const int maxrect=1;
     struct RData {
-	RGNDATAHEADER header;
-	RECT rect[maxrect];
+        RGNDATAHEADER header;
+        RECT rect[maxrect];
     };
     RData data;
 
@@ -142,101 +142,101 @@ HRGN qt_win_bitmapToRegion(const QBitmap& bitmap)
 // to add each span immediately.
 #define FlushSpans
 #define AddSpan \
-	{ \
-	    HRGN r = CreateRectRgn( prev1, y, x, y+1 ); \
-	    if ( region ) { \
-		CombineRgn(region, region, r, RGN_OR); \
-		DeleteObject( r ); \
-	    } else { \
-		region = r; \
-	    } \
-	}
+        { \
+            HRGN r = CreateRectRgn(prev1, y, x, y+1); \
+            if (region) { \
+                CombineRgn(region, region, r, RGN_OR); \
+                DeleteObject(r); \
+            } else { \
+                region = r; \
+            } \
+        }
 
     data.header.rcBound.top = 0;
     data.header.rcBound.left = 0;
     data.header.rcBound.right = image.width()-1;
 
     int x, y,
-	n = 0, zero = 0;
+        n = 0, zero = 0;
     for (y=0; y<image.height(); y++) {
-	uchar *line = image.scanLine(y);
-	int w = image.width();
-	uchar all=zero;
-	int prev1 = -1;
-	for (x=0; x<w; ) {
-	    uchar byte = line[x/8];
-	    if ( x>w-8 || byte!=all ) {
-		for ( int b=8; b>0 && x<w; b-- ) {
-		    if ( !(byte&0x80) == !all ) {
-			// More of the same
-		    } else {
-			// A change.
-			if ( all!=zero ) {
-			    AddSpan;
-			    all = zero;
-			} else {
-			    prev1 = x;
-			    all = ~zero;
-			}
-		    }
-		    byte <<= 1;
-		    x++;
-		}
-	    } else {
-		x+=8;
-	    }
-	}
-	if ( all != zero ) {
-	    AddSpan;
-	}
+        uchar *line = image.scanLine(y);
+        int w = image.width();
+        uchar all=zero;
+        int prev1 = -1;
+        for (x=0; x<w;) {
+            uchar byte = line[x/8];
+            if (x>w-8 || byte!=all) {
+                for (int b=8; b>0 && x<w; b--) {
+                    if (!(byte&0x80) == !all) {
+                        // More of the same
+                    } else {
+                        // A change.
+                        if (all!=zero) {
+                            AddSpan;
+                            all = zero;
+                        } else {
+                            prev1 = x;
+                            all = ~zero;
+                        }
+                    }
+                    byte <<= 1;
+                    x++;
+                }
+            } else {
+                x+=8;
+            }
+        }
+        if (all != zero) {
+            AddSpan;
+        }
     }
-    if ( n ) {
-	FlushSpans;
+    if (n) {
+        FlushSpans;
     }
 
-    if ( !region ) {
-	// Surely there is some better way.
-	region = CreateRectRgn(0,0,1,1);
-	CombineRgn(region, region, region, RGN_XOR);
+    if (!region) {
+        // Surely there is some better way.
+        region = CreateRectRgn(0,0,1,1);
+        CombineRgn(region, region, region, RGN_XOR);
     }
 
     return region;
 }
 
 
-QRegion::QRegion( const QBitmap & bm )
+QRegion::QRegion(const QBitmap & bm)
 {
-    if ( bm.isNull() ) {
-	if ( !empty_region ) {			// avoid too many allocs
-	    qAddPostRoutine( cleanup_empty_region );
-	    empty_region = new QRegion( TRUE );
-	}
-	data = empty_region->data;
-	data->ref();
+    if (bm.isNull()) {
+        if (!empty_region) {                        // avoid too many allocs
+            qAddPostRoutine(cleanup_empty_region);
+            empty_region = new QRegion(true);
+        }
+        data = empty_region->data;
+        data->ref();
     } else {
-	data = new QRegionData;
-	data->is_null = FALSE;
-	data->rgn = qt_win_bitmapToRegion(bm);
+        data = new QRegionData;
+        data->is_null = false;
+        data->rgn = qt_win_bitmapToRegion(bm);
     }
 }
 
 
 QRegion::~QRegion()
 {
-    if ( data->deref() ) {
-	if ( data->rgn )
-	    DeleteObject( data->rgn );
-	delete data;
+    if (data->deref()) {
+        if (data->rgn)
+            DeleteObject(data->rgn);
+        delete data;
     }
 }
 
-QRegion &QRegion::operator=( const QRegion &r )
+QRegion &QRegion::operator=(const QRegion &r)
 {
-    r.data->ref();				// beware of r = r
-    if ( data->deref() ) {
-	if ( data->rgn )
-	    DeleteObject( data->rgn );
-	delete data;
+    r.data->ref();                                // beware of r = r
+    if (data->deref()) {
+        if (data->rgn)
+            DeleteObject(data->rgn);
+        delete data;
     }
     data = r.data;
     return *this;
@@ -245,10 +245,10 @@ QRegion &QRegion::operator=( const QRegion &r )
 
 QRegion QRegion::copy() const
 {
-    QRegion r( data->is_null );
-    if ( data->rgn ) {
-	r.data->rgn = CreateRectRgn( 0, 0, 2, 2 );
-	CombineRgn( r.data->rgn, data->rgn, 0, RGN_COPY );
+    QRegion r(data->is_null);
+    if (data->rgn) {
+        r.data->rgn = CreateRectRgn(0, 0, 2, 2);
+        CombineRgn(r.data->rgn, data->rgn, 0, RGN_COPY);
     }
     return r;
 }
@@ -265,27 +265,27 @@ bool QRegion::isEmpty() const
 }
 
 
-bool QRegion::contains( const QPoint &p ) const
+bool QRegion::contains(const QPoint &p) const
 {
-    return data->rgn ? PtInRegion(data->rgn, p.x(), p.y()) : FALSE;
+    return data->rgn ? PtInRegion(data->rgn, p.x(), p.y()) : false;
 }
 
-bool QRegion::contains( const QRect &r ) const
+bool QRegion::contains(const QRect &r) const
 {
-    if ( !data->rgn )
-	return FALSE;
+    if (!data->rgn)
+        return false;
     RECT rect;
-    SetRect( &rect, r.left(), r.top(), r.right(), r.bottom() );
-    return RectInRegion( data->rgn, &rect );
+    SetRect(&rect, r.left(), r.top(), r.right(), r.bottom());
+    return RectInRegion(data->rgn, &rect);
 }
 
 
-void QRegion::translate( int dx, int dy )
+void QRegion::translate(int dx, int dy)
 {
-    if ( !data->rgn )
-	return;
+    if (!data->rgn)
+        return;
     detach();
-    OffsetRgn( data->rgn, dx, dy );
+    OffsetRgn(data->rgn, dx, dy);
 }
 
 
@@ -296,68 +296,68 @@ void QRegion::translate( int dx, int dy )
   Sets the resulting region handle to 0 to indicate an empty region.
 */
 
-QRegion QRegion::winCombine( const QRegion &r, int op ) const
+QRegion QRegion::winCombine(const QRegion &r, int op) const
 {
     int both=RGN_NOP, left=RGN_NOP, right=RGN_NOP;
-    switch ( op ) {
-	case QRGN_OR:
-	    both = RGN_OR;
-	    left = right = RGN_COPY;
-	    break;
-	case QRGN_AND:
-	    both = RGN_AND;
-	    break;
-	case QRGN_SUB:
-	    both = RGN_DIFF;
-	    left = RGN_COPY;
-	    break;
-	case QRGN_XOR:
-	    both = RGN_XOR;
-	    left = right = RGN_COPY;
-	    break;
-	default:
-	    qWarning( "QRegion: Internal error in winCombine" );
+    switch (op) {
+        case QRGN_OR:
+            both = RGN_OR;
+            left = right = RGN_COPY;
+            break;
+        case QRGN_AND:
+            both = RGN_AND;
+            break;
+        case QRGN_SUB:
+            both = RGN_DIFF;
+            left = RGN_COPY;
+            break;
+        case QRGN_XOR:
+            both = RGN_XOR;
+            left = right = RGN_COPY;
+            break;
+        default:
+            qWarning("QRegion: Internal error in winCombine");
     }
 
-    QRegion result( FALSE );
+    QRegion result(false);
     int allCombineRgnResults = NULLREGION;
-    result.data->rgn = CreateRectRgn( 0, 0, 0, 0 );
-    if ( data->rgn && r.data->rgn )
-	allCombineRgnResults = CombineRgn( result.data->rgn, data->rgn, r.data->rgn, both );
-    else if ( data->rgn && left != RGN_NOP )
-	allCombineRgnResults = CombineRgn( result.data->rgn, data->rgn, data->rgn, left ); // 3rd param not used, but must be non-0
-    else if ( r.data->rgn && right != RGN_NOP )
-	allCombineRgnResults = CombineRgn( result.data->rgn, r.data->rgn, r.data->rgn, right ); // 3rd param not used, but must be non-0
-    if ( allCombineRgnResults == NULLREGION || allCombineRgnResults == ERROR )
-	result.data->is_null = TRUE;
+    result.data->rgn = CreateRectRgn(0, 0, 0, 0);
+    if (data->rgn && r.data->rgn)
+        allCombineRgnResults = CombineRgn(result.data->rgn, data->rgn, r.data->rgn, both);
+    else if (data->rgn && left != RGN_NOP)
+        allCombineRgnResults = CombineRgn(result.data->rgn, data->rgn, data->rgn, left); // 3rd param not used, but must be non-0
+    else if (r.data->rgn && right != RGN_NOP)
+        allCombineRgnResults = CombineRgn(result.data->rgn, r.data->rgn, r.data->rgn, right); // 3rd param not used, but must be non-0
+    if (allCombineRgnResults == NULLREGION || allCombineRgnResults == ERROR)
+        result.data->is_null = true;
 
     //##### do not delete this. A null pointer is different from an empty region in SelectClipRgn in qpainter_win! (M)
-//     if ( allCombineRgnResults == NULLREGION ) {
-// 	if ( result.data->rgn )
-// 	    DeleteObject( result.data->rgn );
-// 	result.data->rgn = 0;			// empty region
+//     if (allCombineRgnResults == NULLREGION) {
+//         if (result.data->rgn)
+//             DeleteObject(result.data->rgn);
+//         result.data->rgn = 0;                        // empty region
 //     }
     return result;
 }
 
-QRegion QRegion::unite( const QRegion &r ) const
+QRegion QRegion::unite(const QRegion &r) const
 {
-    return winCombine( r, QRGN_OR );
+    return winCombine(r, QRGN_OR);
 }
 
-QRegion QRegion::intersect( const QRegion &r ) const
+QRegion QRegion::intersect(const QRegion &r) const
 {
-     return winCombine( r, QRGN_AND );
+     return winCombine(r, QRGN_AND);
 }
 
-QRegion QRegion::subtract( const QRegion &r ) const
+QRegion QRegion::subtract(const QRegion &r) const
 {
-    return winCombine( r, QRGN_SUB );
+    return winCombine(r, QRGN_SUB);
 }
 
-QRegion QRegion::eor( const QRegion &r ) const
+QRegion QRegion::eor(const QRegion &r) const
 {
-    return winCombine( r, QRGN_XOR );
+    return winCombine(r, QRGN_XOR);
 }
 
 
@@ -365,38 +365,38 @@ QRect QRegion::boundingRect() const
 {
     RECT r;
     int result = data->rgn ? GetRgnBox(data->rgn, &r) : 0;
-    if ( result == 0 || result == NULLREGION )
-	return QRect(0,0,0,0);
+    if (result == 0 || result == NULLREGION)
+        return QRect(0,0,0,0);
     else
-	return QRect(r.left, r.top, r.right-r.left, r.bottom-r.top);
+        return QRect(r.left, r.top, r.right-r.left, r.bottom-r.top);
 }
 
 
 QVector<QRect> QRegion::rects() const
 {
     QVector<QRect> a;
-    if ( data->rgn == 0 )
-	return a;
+    if (data->rgn == 0)
+        return a;
 
-    int numBytes = data->rgn ? GetRegionData( data->rgn, 0, 0 ) : 0;
-    if ( numBytes == 0 )
-	return a;
+    int numBytes = data->rgn ? GetRegionData(data->rgn, 0, 0) : 0;
+    if (numBytes == 0)
+        return a;
 
     char *buf = new char[numBytes];
-    if ( buf == 0 )
-	return a;
+    if (buf == 0)
+        return a;
 
     RGNDATA *rd = (RGNDATA*)buf;
-    if ( GetRegionData(data->rgn, numBytes, rd) == 0 ) {
-	delete [] buf;
-	return a;
+    if (GetRegionData(data->rgn, numBytes, rd) == 0) {
+        delete [] buf;
+        return a;
     }
 
-    a = QVector<QRect>( rd->rdh.nCount );
+    a = QVector<QRect>(rd->rdh.nCount);
     RECT *r = (RECT*)rd->Buffer;
-    for ( int i=0; i<(int)a.size(); i++ ) {
-	a[i].setCoords( r->left, r->top, r->right-1, r->bottom-1);
-	r++;
+    for (int i=0; i<(int)a.size(); i++) {
+        a[i].setCoords(r->left, r->top, r->right-1, r->bottom-1);
+        r++;
     }
 
     delete [] buf;
@@ -404,24 +404,24 @@ QVector<QRect> QRegion::rects() const
     return a;
 }
 
-void QRegion::setRects( const QRect *rects, int num )
+void QRegion::setRects(const QRect *rects, int num)
 {
     // Could be optimized
     *this = QRegion();
     for (int i=0; i<num; i++)
-	*this |= rects[i];
+        *this |= rects[i];
 }
 
 
-bool QRegion::operator==( const QRegion &r ) const
+bool QRegion::operator==(const QRegion &r) const
 {
-    if ( data == r.data )			// share the same data
-	return TRUE;
-    if ( (data->rgn == 0) ^ (r.data->rgn == 0)) // one is empty, not both
-	return FALSE;
+    if (data == r.data)                        // share the same data
+        return true;
+    if ((data->rgn == 0) ^ (r.data->rgn == 0)) // one is empty, not both
+        return false;
     return data->rgn == 0 ?
-	TRUE :					// both empty
-	EqualRgn( data->rgn, r.data->rgn );	// both non-empty
+        true :                                        // both empty
+        EqualRgn(data->rgn, r.data->rgn);        // both non-empty
 }
 
 
@@ -431,7 +431,7 @@ bool QRegion::operator==( const QRegion &r ) const
 
 
 // inline QRect::setCoords
-inline void qt_setCoords( QRect *r, int xp1, int yp1, int xp2, int yp2 )
+inline void qt_setCoords(QRect *r, int xp1, int yp1, int xp2, int yp2)
 {
     r->x1 = (QCOORD)xp1;
     r->y1 = (QCOORD)yp1;
@@ -440,9 +440,9 @@ inline void qt_setCoords( QRect *r, int xp1, int yp1, int xp2, int yp2 )
 }
 
 
-#define RectangleOut	0
-#define RectangleIn	1
-#define RectanglePart	2
+#define RectangleOut        0
+#define RectangleIn        1
+#define RectanglePart        2
 
 /*
  * number of points to buffer before sending them off
@@ -602,15 +602,15 @@ SOFTWARE.
  *     register declarations.
  */
 typedef struct {
-    int minor_axis;	/* minor axis        */
-    int d;		/* decision variable */
-    int m, m1;		/* slope and slope+1 */
-    int incr1, incr2;	/* error increments */
+    int minor_axis;        /* minor axis        */
+    int d;                /* decision variable */
+    int m, m1;                /* slope and slope+1 */
+    int incr1, incr2;        /* error increments */
 } BRESINFO;
 
 
 #define BRESINITPGONSTRUCT(dmaj, min1, min2, bres) \
-	BRESINITPGON(dmaj, min1, min2, bres.minor_axis, bres.d, \
+        BRESINITPGON(dmaj, min1, min2, bres.minor_axis, bres.d, \
                      bres.m, bres.m1, bres.incr1, bres.incr2)
 
 #define BRESINCRPGONSTRUCT(bres) \
@@ -828,7 +828,7 @@ SOFTWARE.
 
 static void
 InsertEdgeInET(EdgeTable *ET, EdgeTableEntry *ETE, int scanline,
-		ScanLineListBlock **SLLBlock, int *iSLLBlock)
+                ScanLineListBlock **SLLBlock, int *iSLLBlock)
 {
     register EdgeTableEntry *start, *prev;
     register ScanLineList *pSLL, *pPrevSLL;
@@ -853,7 +853,7 @@ InsertEdgeInET(EdgeTable *ET, EdgeTableEntry *ETE, int scanline,
         if (*iSLLBlock > SLLSPERBLOCK-1)
         {
             tmpSLLBlock =
-		  (ScanLineListBlock *)malloc(sizeof(ScanLineListBlock));
+                  (ScanLineListBlock *)malloc(sizeof(ScanLineListBlock));
             (*SLLBlock)->next = tmpSLLBlock;
             tmpSLLBlock->next = (ScanLineListBlock *)NULL;
             *SLLBlock = tmpSLLBlock;
@@ -913,8 +913,8 @@ InsertEdgeInET(EdgeTable *ET, EdgeTableEntry *ETE, int scanline,
 
 static void
 CreateETandAET(register int count, register QPoint *pts,
-	EdgeTable *ET, EdgeTableEntry *AET, register EdgeTableEntry *pETEs,
-	ScanLineListBlock   *pSLLBlock)
+        EdgeTable *ET, EdgeTableEntry *AET, register EdgeTableEntry *pETEs,
+        ScanLineListBlock   *pSLLBlock)
 {
     register QPoint *top, *bottom;
     register QPoint *PrevPt, *CurrPt;
@@ -953,7 +953,7 @@ CreateETandAET(register int count, register QPoint *pts,
         /*
          *  find out which point is above and which is below.
          */
-        if (PrevPt->y() > CurrPt->y() )
+        if (PrevPt->y() > CurrPt->y())
         {
             bottom = PrevPt, top = CurrPt;
             pETEs->ClockWise = 0;
@@ -967,7 +967,7 @@ CreateETandAET(register int count, register QPoint *pts,
         /*
          * don't add horizontal edges to the Edge table.
          */
-        if ( bottom->y() != top->y() )
+        if (bottom->y() != top->y())
         {
             pETEs->ymax = bottom->y()-1;  /* -1 so we don't get last scanline */
 
@@ -979,10 +979,10 @@ CreateETandAET(register int count, register QPoint *pts,
 
             InsertEdgeInET(ET, pETEs, top->y(), &pSLLBlock, &iSLLBlock);
 
-	    if (PrevPt->y() > ET->ymax)
-		ET->ymax = PrevPt->y();
-	    if (PrevPt->y() < ET->ymin)
-		ET->ymin = PrevPt->y();
+            if (PrevPt->y() > ET->ymax)
+                ET->ymax = PrevPt->y();
+            if (PrevPt->y() < ET->ymin)
+                ET->ymin = PrevPt->y();
             pETEs++;
         }
 
@@ -1067,7 +1067,7 @@ computeWAET(register EdgeTableEntry *AET)
             isInside--;
 
         if ((!inside && !isInside) ||
-            ( inside &&  isInside))
+            (inside &&  isInside))
         {
             pWETE->nextWETE = AET;
             pWETE = AET;
@@ -1149,8 +1149,8 @@ FreeStorage(register ScanLineListBlock   *pSLLBlock)
  *
  */
 
-static int PtsToRegion( register int numFullPtBlocks, register int iCurPtBlock,
-			POINTBLOCK *FirstPtBlock, QRegionPrivate *reg)
+static int PtsToRegion(register int numFullPtBlocks, register int iCurPtBlock,
+                        POINTBLOCK *FirstPtBlock, QRegionPrivate *reg)
 {
     register QRect  *rects;
     register QPoint *pts;
@@ -1168,44 +1168,44 @@ static int PtsToRegion( register int numFullPtBlocks, register int iCurPtBlock,
     CurPtBlock = FirstPtBlock;
     rects = reg->rects.data() - 1;
     numRects = 0;
-    extents->setLeft( INT_MAX );
-    extents->setRight( INT_MIN );
+    extents->setLeft(INT_MAX);
+    extents->setRight(INT_MIN);
 
-    for ( ; numFullPtBlocks >= 0; numFullPtBlocks--) {
-	/* the loop uses 2 points per iteration */
-	i = NUMPTSTOBUFFER >> 1;
-	if (!numFullPtBlocks)
-	    i = iCurPtBlock >> 1;
-	for (pts = CurPtBlock->pts; i--; pts += 2) {
-	    if ( pts->x() > pts[1].x() )
-		continue;
-	    if (numRects && pts->x() == rects->left() && pts->y() == rects->bottom() &&
-		pts[1].x() == rects->right() &&
-		(numRects == 1 || rects[-1].top() != rects->top()) &&
-		(i && pts[2].y() > pts[1].y() )) {
-		rects->setBottom( pts[1].y() );
-		continue;
-	    }
-	    numRects++;
-	    rects++;
-	    qt_setCoords( rects, pts->x(), pts->y(), pts[1].x(), pts[1].y() );
-	    if (rects->left() < extents->left())
-		extents->setLeft( rects->left() );
-	    if (rects->right() > extents->right())
-		extents->setRight( rects->right() );
+    for (; numFullPtBlocks >= 0; numFullPtBlocks--) {
+        /* the loop uses 2 points per iteration */
+        i = NUMPTSTOBUFFER >> 1;
+        if (!numFullPtBlocks)
+            i = iCurPtBlock >> 1;
+        for (pts = CurPtBlock->pts; i--; pts += 2) {
+            if (pts->x() > pts[1].x())
+                continue;
+            if (numRects && pts->x() == rects->left() && pts->y() == rects->bottom() &&
+                pts[1].x() == rects->right() &&
+                (numRects == 1 || rects[-1].top() != rects->top()) &&
+                (i && pts[2].y() > pts[1].y())) {
+                rects->setBottom(pts[1].y());
+                continue;
+            }
+            numRects++;
+            rects++;
+            qt_setCoords(rects, pts->x(), pts->y(), pts[1].x(), pts[1].y());
+            if (rects->left() < extents->left())
+                extents->setLeft(rects->left());
+            if (rects->right() > extents->right())
+                extents->setRight(rects->right());
         }
-	CurPtBlock = CurPtBlock->next;
+        CurPtBlock = CurPtBlock->next;
     }
 
     if (numRects) {
-	extents->setTop( reg->rects[0].top() );
-	extents->setBottom( rects->bottom() );
+        extents->setTop(reg->rects[0].top());
+        extents->setBottom(rects->bottom());
     } else {
-	qt_setCoords(extents, 0, 0, 0, 0);
+        qt_setCoords(extents, 0, 0, 0, 0);
     }
     reg->numRects = numRects;
 
-    return(TRUE);
+    return(true);
 }
 
 
@@ -1218,9 +1218,9 @@ static int PtsToRegion( register int numFullPtBlocks, register int iCurPtBlock,
  */
 
 static QRegionPrivate *PolygonRegion(QPoint *Pts, int Count, int rule)
-				    //Point *Pts;   - the pts
-				    //int    Count; - number of pts
-				    //int    rule;  - winding rule
+                                    //Point *Pts;   - the pts
+                                    //int    Count; - number of pts
+                                    //int    rule;  - winding rule
 {
     QRegionPrivate *region;
     register EdgeTableEntry *pAET;   /* Active Edge Table       */
@@ -1228,48 +1228,48 @@ static QRegionPrivate *PolygonRegion(QPoint *Pts, int Count, int rule)
     register int iPts = 0;           /* number of pts in buffer */
     register EdgeTableEntry *pWETE;  /* Winding Edge Table Entry*/
     register ScanLineList *pSLL;     /* current scanLineList    */
-    register QPoint *pts;	     /* output buffer           */
+    register QPoint *pts;             /* output buffer           */
     EdgeTableEntry *pPrevAET;        /* ptr to previous AET     */
     EdgeTable ET;                    /* header node for ET      */
     EdgeTableEntry AET;              /* header node for AET     */
     EdgeTableEntry *pETEs;           /* EdgeTableEntries pool   */
     ScanLineListBlock SLLBlock;      /* header for scanlinelist */
-    int fixWAET = FALSE;
+    int fixWAET = false;
     POINTBLOCK FirstPtBlock, *curPtBlock; /* PtBlock buffers    */
     POINTBLOCK *tmpPtBlock;
     int numFullPtBlocks = 0;
 
-    if ( !(region = new QRegionPrivate) )
-	return 0;
+    if (!(region = new QRegionPrivate))
+        return 0;
 
     /* special case a rectangle */
     pts = Pts;
     if (((Count == 4) ||
-	 ((Count == 5) && (pts[4].x() == pts[0].x() ) && (pts[4].y() == pts[0].y() ))) &&
-	(((pts[0].y() == pts[1].y()) &&
-	  (pts[1].x() == pts[2].x()) &&
-	  (pts[2].y() == pts[3].y()) &&
-	  (pts[3].x() == pts[0].x())) ||
-	 ((pts[0].x() == pts[1].x()) &&
-	  (pts[1].y() == pts[2].y()) &&
-	  (pts[2].x() == pts[3].x()) &&
-	  (pts[3].y() == pts[0].y())))) {
-	region->extents.setLeft( qMin(pts[0].x(), pts[2].x()) );
-	region->extents.setTop( qMin(pts[0].y(), pts[2].y()) );
-	region->extents.setRight( qMax(pts[0].x(), pts[2].x()) );
-	region->extents.setBottom( qMax(pts[0].y(), pts[2].y()) );
-	if ((region->extents.left() <= region->extents.right()) &&
-	    (region->extents.top() <= region->extents.bottom())) {
-	    region->numRects = 1;
-	    region->rects.resize(1);
-	    region->rects[0] = region->extents;
-	}
-	return region;
+         ((Count == 5) && (pts[4].x() == pts[0].x()) && (pts[4].y() == pts[0].y()))) &&
+        (((pts[0].y() == pts[1].y()) &&
+          (pts[1].x() == pts[2].x()) &&
+          (pts[2].y() == pts[3].y()) &&
+          (pts[3].x() == pts[0].x())) ||
+         ((pts[0].x() == pts[1].x()) &&
+          (pts[1].y() == pts[2].y()) &&
+          (pts[2].x() == pts[3].x()) &&
+          (pts[3].y() == pts[0].y())))) {
+        region->extents.setLeft(qMin(pts[0].x(), pts[2].x()));
+        region->extents.setTop(qMin(pts[0].y(), pts[2].y()));
+        region->extents.setRight(qMax(pts[0].x(), pts[2].x()));
+        region->extents.setBottom(qMax(pts[0].y(), pts[2].y()));
+        if ((region->extents.left() <= region->extents.right()) &&
+            (region->extents.top() <= region->extents.bottom())) {
+            region->numRects = 1;
+            region->rects.resize(1);
+            region->rects[0] = region->extents;
+        }
+        return region;
     }
 
     if (! (pETEs = (EdgeTableEntry *)
-	   malloc((unsigned) (sizeof(EdgeTableEntry) * Count))))
-	return 0;
+           malloc((unsigned) (sizeof(EdgeTableEntry) * Count))))
+        return 0;
 
     pts = FirstPtBlock.pts;
     CreateETandAET(Count, Pts, &ET, &AET, pETEs, &SLLBlock);
@@ -1296,7 +1296,7 @@ static QRegionPrivate *PolygonRegion(QPoint *Pts, int Count, int rule)
              *  for each active edge
              */
             while (pAET) {
-                pts->setX( pAET->bres.minor_axis ),  pts->setY( y );
+                pts->setX(pAET->bres.minor_axis),  pts->setY(y);
                 pts++, iPts++;
 
                 /*
@@ -1342,7 +1342,7 @@ static QRegionPrivate *PolygonRegion(QPoint *Pts, int Count, int rule)
                  *  are in the Winding active edge table.
                  */
                 if (pWETE == pAET) {
-                    pts->setX( pAET->bres.minor_axis),  pts->setY( y );
+                    pts->setX(pAET->bres.minor_axis),  pts->setY(y);
                     pts++, iPts++;
 
                     /*
@@ -1366,16 +1366,16 @@ static QRegionPrivate *PolygonRegion(QPoint *Pts, int Count, int rule)
              */
             if (InsertionSort(&AET) || fixWAET) {
                 computeWAET(&AET);
-                fixWAET = FALSE;
+                fixWAET = false;
             }
         }
     }
     FreeStorage(SLLBlock.next);
     (void) PtsToRegion(numFullPtBlocks, iPts, &FirstPtBlock, region);
     for (curPtBlock = FirstPtBlock.next; --numFullPtBlocks >= 0;) {
-	tmpPtBlock = curPtBlock->next;
-	free((char *)curPtBlock);
-	curPtBlock = tmpPtBlock;
+        tmpPtBlock = curPtBlock->next;
+        free((char *)curPtBlock);
+        curPtBlock = tmpPtBlock;
     }
     free((char *)pETEs);
     return region;

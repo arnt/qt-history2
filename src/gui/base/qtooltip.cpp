@@ -22,7 +22,7 @@
 #include <private/qeffects_p.h>
 #include "qdebug.h"
 
-static bool globally_enabled = TRUE;
+static bool globally_enabled = true;
 
 // Magic value meaning an entire widget - if someone tries to insert a
 // tool tip on this part of a widget it will be interpreted as the
@@ -30,8 +30,8 @@ static bool globally_enabled = TRUE;
 
 static inline QRect entireWidget()
 {
-    return QRect( -QWIDGETSIZE_MAX, -QWIDGETSIZE_MAX,
-		  2*QWIDGETSIZE_MAX, 2*QWIDGETSIZE_MAX );
+    return QRect(-QWIDGETSIZE_MAX, -QWIDGETSIZE_MAX,
+                  2*QWIDGETSIZE_MAX, 2*QWIDGETSIZE_MAX);
 }
 
 // Internal class - don't touch
@@ -40,20 +40,20 @@ class QTipLabel : public QLabel
 {
     Q_OBJECT
 public:
-    QTipLabel( QWidget* parent, const QString& text) : QLabel( parent, "toolTipTip",
-	     WStyle_StaysOnTop | WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WX11BypassWM )
+    QTipLabel(QWidget* parent, const QString& text) : QLabel(parent, "toolTipTip",
+             WStyle_StaysOnTop | WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WX11BypassWM)
     {
-	setMargin(1);
-	setAutoMask( FALSE );
-	setFrameStyle( QFrame::Plain | QFrame::Box );
-	setLineWidth( 1 );
-	setAlignment( AlignAuto | AlignTop );
-	setIndent(0);
-	ensurePolished();
-	setText(text);
-	adjustSize();
+        setMargin(1);
+        setAutoMask(false);
+        setFrameStyle(QFrame::Plain | QFrame::Box);
+        setLineWidth(1);
+        setAlignment(AlignAuto | AlignTop);
+        setIndent(0);
+        ensurePolished();
+        setText(text);
+        adjustSize();
     }
-    void setWidth( int w ) { resize( sizeForWidth( w ) ); }
+    void setWidth(int w) { resize(sizeForWidth(w)); }
 };
 
 // Internal class - don't touch
@@ -67,29 +67,29 @@ public:
 
     struct Tip
     {
-	QRect		rect;
-	QString		text;
-	QString	        groupText;
-	QToolTipGroup  *group;
-	QToolTip       *tip;
-	bool	        autoDelete;
-	QRect 		geometry;
-	Tip	       *next;
+        QRect                rect;
+        QString                text;
+        QString                groupText;
+        QToolTipGroup  *group;
+        QToolTip       *tip;
+        bool                autoDelete;
+        QRect                 geometry;
+        Tip               *next;
     };
 
-    bool    eventFilter( QObject * o, QEvent * e );
-    void    add( const QRect &gm, QWidget *, const QRect &, const QString& ,
-		 QToolTipGroup *, const QString& , QToolTip *, bool );
-    void    add( QWidget *, const QRect &, const QString& ,
-		 QToolTipGroup *, const QString& , QToolTip *, bool );
-    void    remove( QWidget *, const QRect &, bool delayhide = FALSE );
-    void    remove( QWidget * );
+    bool    eventFilter(QObject * o, QEvent * e);
+    void    add(const QRect &gm, QWidget *, const QRect &, const QString& ,
+                 QToolTipGroup *, const QString& , QToolTip *, bool);
+    void    add(QWidget *, const QRect &, const QString& ,
+                 QToolTipGroup *, const QString& , QToolTip *, bool);
+    void    remove(QWidget *, const QRect &, bool delayhide = false);
+    void    remove(QWidget *);
 
-    void    removeFromGroup( QToolTipGroup * );
+    void    removeFromGroup(QToolTipGroup *);
 
     void    hideTipAndSleep();
 
-    QString find( QWidget *, const QPoint& );
+    QString find(QWidget *, const QPoint&);
     void setWakeUpDelay(int);
 
 public slots:
@@ -120,48 +120,48 @@ private:
 
 // We have a global, internal QTipManager object
 
-static QTipManager *tipManager	  = 0;
+static QTipManager *tipManager          = 0;
 
 static void initTipManager()
 {
-    if ( !tipManager ) {
-	tipManager = new QTipManager;
+    if (!tipManager) {
+        tipManager = new QTipManager;
     }
 }
 
 
 QTipManager::QTipManager()
-    : QObject( qApp, "toolTipManager" )
+    : QObject(qApp, "toolTipManager")
 {
     wakeUpDelay = 700;
     tips = new QHash<QWidget *, Tip *>;
     currentTip = 0;
     previousTip = 0;
     label = 0;
-    preventAnimation = FALSE;
-    isApplicationFilter = FALSE;
-    connect( &wakeUp, SIGNAL(timeout()), SLOT(showTip()) );
-    connect( &fallAsleep, SIGNAL(timeout()), SLOT(hideTip()) );
-    removeTimer = new QTimer( this );
+    preventAnimation = false;
+    isApplicationFilter = false;
+    connect(&wakeUp, SIGNAL(timeout()), SLOT(showTip()));
+    connect(&fallAsleep, SIGNAL(timeout()), SLOT(hideTip()));
+    removeTimer = new QTimer(this);
 }
 
 
 QTipManager::~QTipManager()
 {
-    if ( isApplicationFilter && !qApp->closingDown() )
-	qApp->removeEventFilter( tipManager );
+    if (isApplicationFilter && !qApp->closingDown())
+        qApp->removeEventFilter(tipManager);
 
-    if ( tips ) {
-	for(QHash<QWidget *, Tip *>::Iterator it = tips->begin(); it != tips->end(); ) {
-	    Tip *t = it.value();
-	    it = tips->erase( it );
-	    while ( t ) {
-		Tip *n = t->next;
-		delete t;
-		t = n;
-	    }
-	}
-	delete tips;
+    if (tips) {
+        for(QHash<QWidget *, Tip *>::Iterator it = tips->begin(); it != tips->end();) {
+            Tip *t = it.value();
+            it = tips->erase(it);
+            while (t) {
+                Tip *n = t->next;
+                delete t;
+                t = n;
+            }
+        }
+        delete tips;
     }
 
     delete label;
@@ -169,13 +169,13 @@ QTipManager::~QTipManager()
     tipManager = 0;
 }
 
-void QTipManager::add( const QRect &gm, QWidget *w,
-		       const QRect &r, const QString &s,
-		       QToolTipGroup *g, const QString& gs,
-		       QToolTip *tt, bool a )
+void QTipManager::add(const QRect &gm, QWidget *w,
+                       const QRect &r, const QString &s,
+                       QToolTipGroup *g, const QString& gs,
+                       QToolTip *tt, bool a)
 {
-    remove( w, r, TRUE );
-    QTipManager::Tip *h = (*tips)[ w ];
+    remove(w, r, true);
+    QTipManager::Tip *h = (*tips)[w];
     QTipManager::Tip *t = new QTipManager::Tip;
     t->next = h;
     t->tip = tt;
@@ -186,80 +186,80 @@ void QTipManager::add( const QRect &gm, QWidget *w,
     t->group = g;
     t->geometry = gm;
 
-    if ( h ) {
-	tips->remove( w );
-	if ( h != currentTip && h->autoDelete ) {
-	    t->next = h->next;
-	    delete h;
-	}
+    if (h) {
+        tips->remove(w);
+        if (h != currentTip && h->autoDelete) {
+            t->next = h->next;
+            delete h;
+        }
     } else
-	connect( w, SIGNAL(destroyed()), this, SLOT(clientWidgetDestroyed()) );
+        connect(w, SIGNAL(destroyed()), this, SLOT(clientWidgetDestroyed()));
 
-    tips->insert( w, t );
+    tips->insert(w, t);
 
-    if ( a && t->rect.contains( pos ) && (!g || g->enabled()) ) {
-	removeTimer->stop();
-	showTip();
+    if (a && t->rect.contains(pos) && (!g || g->enabled())) {
+        removeTimer->stop();
+        showTip();
     }
 
-    if ( !isApplicationFilter && qApp ) {
-	isApplicationFilter = TRUE;
-//	qApp->installEventFilter( tipManager );
+    if (!isApplicationFilter && qApp) {
+        isApplicationFilter = true;
+//        qApp->installEventFilter(tipManager);
     }
 
-    if ( t->group ) {
-	disconnect( removeTimer, SIGNAL(timeout()),
-		 t->group, SIGNAL(removeTip()) );
-	connect( removeTimer, SIGNAL(timeout()),
-		 t->group, SIGNAL(removeTip()) );
+    if (t->group) {
+        disconnect(removeTimer, SIGNAL(timeout()),
+                 t->group, SIGNAL(removeTip()));
+        connect(removeTimer, SIGNAL(timeout()),
+                 t->group, SIGNAL(removeTip()));
     }
 }
 
-void QTipManager::add( QWidget *w, const QRect &r, const QString &s,
-		       QToolTipGroup *g, const QString& gs,
-		       QToolTip *tt, bool a )
+void QTipManager::add(QWidget *w, const QRect &r, const QString &s,
+                       QToolTipGroup *g, const QString& gs,
+                       QToolTip *tt, bool a)
 {
-    add( QRect( -1, -1, -1, -1 ), w, r, s, g, gs, tt, a );
+    add(QRect(-1, -1, -1, -1), w, r, s, g, gs, tt, a);
 }
 
 
-void QTipManager::remove( QWidget *w, const QRect & r, bool delayhide )
+void QTipManager::remove(QWidget *w, const QRect & r, bool delayhide)
 {
-    QTipManager::Tip *t = (*tips)[ w ];
-    if ( t == 0 )
-	return;
+    QTipManager::Tip *t = (*tips)[w];
+    if (t == 0)
+        return;
 
-    if ( t == currentTip )
-	if (!delayhide)
-	    hideTip();
-	else
-	    currentTip->autoDelete = true;
+    if (t == currentTip)
+        if (!delayhide)
+            hideTip();
+        else
+            currentTip->autoDelete = true;
 
-    if ( t == previousTip )
-	previousTip = 0;
+    if (t == previousTip)
+        previousTip = 0;
 
-    if ( ( currentTip != t || !delayhide ) && t->rect == r ) {
-	tips->remove( w );
-	if ( t->next )
-	    tips->insert( w, t->next );
-	delete t;
+    if ((currentTip != t || !delayhide) && t->rect == r) {
+        tips->remove(w);
+        if (t->next)
+            tips->insert(w, t->next);
+        delete t;
     } else {
-	while(  t->next && t->next->rect != r && ( currentTip != t->next || !delayhide ))
-	    t = t->next;
-	if ( t->next ) {
-	    QTipManager::Tip *d = t->next;
-	    t->next = t->next->next;
-	    delete d;
-	}
+        while( t->next && t->next->rect != r && (currentTip != t->next || !delayhide))
+            t = t->next;
+        if (t->next) {
+            QTipManager::Tip *d = t->next;
+            t->next = t->next->next;
+            delete d;
+        }
     }
 
-    if ( (*tips)[ w ] == 0 )
-	disconnect( w, SIGNAL(destroyed()), this, SLOT(clientWidgetDestroyed()) );
+    if ((*tips)[w] == 0)
+        disconnect(w, SIGNAL(destroyed()), this, SLOT(clientWidgetDestroyed()));
 #if 0 // not needed, leads sometimes to crashes
-    if ( tips->isEmpty() ) {
-	// the manager will be recreated if needed
-	delete tipManager;
-	tipManager = 0;
+    if (tips->isEmpty()) {
+        // the manager will be recreated if needed
+        delete tipManager;
+        tipManager = 0;
     }
 #endif
 }
@@ -282,273 +282,273 @@ void QTipManager::labelDestroyed()
 void QTipManager::clientWidgetDestroyed()
 {
     const QObject *s = sender();
-    if ( s )
-	remove( (QWidget*) s );
+    if (s)
+        remove((QWidget*) s);
 }
 
 
-void QTipManager::remove( QWidget *w )
+void QTipManager::remove(QWidget *w)
 {
-    QTipManager::Tip *t = (*tips)[ w ];
-    if ( t == 0 )
-	return;
+    QTipManager::Tip *t = (*tips)[w];
+    if (t == 0)
+        return;
 
-    tips->remove( w );
+    tips->remove(w);
     QTipManager::Tip * d;
-    while ( t ) {
-	if ( t == currentTip )
-	    hideTip();
-	d = t->next;
-	delete t;
-	t = d;
+    while (t) {
+        if (t == currentTip)
+            hideTip();
+        d = t->next;
+        delete t;
+        t = d;
     }
 
-    disconnect( w, SIGNAL(destroyed()), this, SLOT(clientWidgetDestroyed()) );
+    disconnect(w, SIGNAL(destroyed()), this, SLOT(clientWidgetDestroyed()));
 #if 0
-    if ( tips->isEmpty() ) {
-	delete tipManager;
-	tipManager = 0;
+    if (tips->isEmpty()) {
+        delete tipManager;
+        tipManager = 0;
     }
 #endif
 }
 
 
-void QTipManager::removeFromGroup( QToolTipGroup *g )
+void QTipManager::removeFromGroup(QToolTipGroup *g)
 {
-    for(QHash<QWidget*,QTipManager::Tip*>::Iterator it = tips->begin(); it != tips->end(); ) {
-	QTipManager::Tip *t = it.value();
-	++it;
-	while ( t ) {
-	    if ( t->group == g ) {
-		if ( t->group )
-		    disconnect( removeTimer, SIGNAL(timeout()),
-				t->group, SIGNAL(removeTip()) );
-		t->group = 0;
-	    }
-	    t = t->next;
-	}
+    for(QHash<QWidget*,QTipManager::Tip*>::Iterator it = tips->begin(); it != tips->end();) {
+        QTipManager::Tip *t = it.value();
+        ++it;
+        while (t) {
+            if (t->group == g) {
+                if (t->group)
+                    disconnect(removeTimer, SIGNAL(timeout()),
+                                t->group, SIGNAL(removeTip()));
+                t->group = 0;
+            }
+            t = t->next;
+        }
     }
 }
 
 
 
-bool QTipManager::eventFilter( QObject *obj, QEvent *e )
+bool QTipManager::eventFilter(QObject *obj, QEvent *e)
 {
     // avoid dumping core in case of application madness, and return
     // quickly for some common but irrelevant events
-    if ( e->type() == QEvent::WindowDeactivate &&
-	qApp && !qApp->activeWindow() &&
-	label && label->isVisible() )
-	hideTipAndSleep();
+    if (e->type() == QEvent::WindowDeactivate &&
+        qApp && !qApp->activeWindow() &&
+        label && label->isVisible())
+        hideTipAndSleep();
 
-    if ( !qApp
-	 || !obj || !obj->isWidgetType() // isWidgetType() catches most stuff
-	 || e->type() == QEvent::Paint
-	 || e->type() == QEvent::Timer
-	 || e->type() == QEvent::SockAct
-	 || !tips )
-	return FALSE;
+    if (!qApp
+         || !obj || !obj->isWidgetType() // isWidgetType() catches most stuff
+         || e->type() == QEvent::Paint
+         || e->type() == QEvent::Timer
+         || e->type() == QEvent::SockAct
+         || !tips)
+        return false;
     QWidget *w = (QWidget *)obj;
 
-    if ( e->type() == QEvent::FocusOut || e->type() == QEvent::FocusIn ) {
-	// user moved focus somewhere - hide the tip and sleep
-	if ( ((QFocusEvent*)e)->reason() != QFocusEvent::Popup )
-	    hideTipAndSleep();
-	return FALSE;
+    if (e->type() == QEvent::FocusOut || e->type() == QEvent::FocusIn) {
+        // user moved focus somewhere - hide the tip and sleep
+        if (((QFocusEvent*)e)->reason() != QFocusEvent::Popup)
+            hideTipAndSleep();
+        return false;
     }
 
     QTipManager::Tip *t = 0;
-    while( w && !t ) {
-	t = (*tips)[ w ];
-	if ( !t )
-	    w = w->isTopLevel() ? 0 : w->parentWidget();
+    while(w && !t) {
+        t = (*tips)[w];
+        if (!t)
+            w = w->isTopLevel() ? 0 : w->parentWidget();
     }
-    if ( !w )
-	return FALSE;
+    if (!w)
+        return false;
 
-    if ( !t && e->type() != QEvent::MouseMove) {
-	if ( ( e->type() >= QEvent::MouseButtonPress &&
-	       e->type() <= QEvent::FocusOut) || e->type() == QEvent::Leave )
-	    hideTip();
-	return FALSE;
+    if (!t && e->type() != QEvent::MouseMove) {
+        if ((e->type() >= QEvent::MouseButtonPress &&
+               e->type() <= QEvent::FocusOut) || e->type() == QEvent::Leave)
+            hideTip();
+        return false;
     }
 
     // with that out of the way, let's get down to action
 
-    switch( e->type() ) {
+    switch(e->type()) {
     case QEvent::MouseButtonPress:
     case QEvent::MouseButtonRelease:
     case QEvent::MouseButtonDblClick:
     case QEvent::KeyPress:
     case QEvent::KeyRelease:
-	// input - turn off tool tip mode
-	hideTipAndSleep();
-	break;
+        // input - turn off tool tip mode
+        hideTipAndSleep();
+        break;
     case QEvent::MouseMove:
-	{
-	    QMouseEvent * m = (QMouseEvent *)e;
-	    QPoint mousePos = w->mapFromGlobal( m->globalPos() );
+        {
+            QMouseEvent * m = (QMouseEvent *)e;
+            QPoint mousePos = w->mapFromGlobal(m->globalPos());
 
-	    if ( currentTip && !currentTip->rect.contains( mousePos ) ) {
-		hideTip();
-		if ( m->state() == 0 )
-		    return FALSE;
-	    }
+            if (currentTip && !currentTip->rect.contains(mousePos)) {
+                hideTip();
+                if (m->state() == 0)
+                    return false;
+            }
 
-	    wakeUp.stop();
-	    if ( m->state() == 0 &&
-		    mousePos.x() >= 0 && mousePos.x() < w->width() &&
-		    mousePos.y() >= 0 && mousePos.y() < w->height() ) {
-		if ( label && label->isVisible() ) {
-		    return FALSE;
-		} else {
-		    if ( fallAsleep.isActive() ) {
-			wakeUp.start( 1, TRUE );
-		    } else {
-			previousTip = 0;
-			wakeUp.start( wakeUpDelay, TRUE );
-		    }
-		    if ( t->group && t->group->ena &&
-			 !t->group->del && !t->groupText.isEmpty() ) {
-			removeTimer->stop();
-			emit t->group->showTip( t->groupText );
-			currentTip = t;
-		    }
-		}
-		widget = w;
-		pos = mousePos;
-		return FALSE;
-	    } else {
-		hideTip();
-	    }
-	}
-	break;
+            wakeUp.stop();
+            if (m->state() == 0 &&
+                    mousePos.x() >= 0 && mousePos.x() < w->width() &&
+                    mousePos.y() >= 0 && mousePos.y() < w->height()) {
+                if (label && label->isVisible()) {
+                    return false;
+                } else {
+                    if (fallAsleep.isActive()) {
+                        wakeUp.start(1, true);
+                    } else {
+                        previousTip = 0;
+                        wakeUp.start(wakeUpDelay, true);
+                    }
+                    if (t->group && t->group->ena &&
+                         !t->group->del && !t->groupText.isEmpty()) {
+                        removeTimer->stop();
+                        emit t->group->showTip(t->groupText);
+                        currentTip = t;
+                    }
+                }
+                widget = w;
+                pos = mousePos;
+                return false;
+            } else {
+                hideTip();
+            }
+        }
+        break;
     case QEvent::Leave:
     case QEvent::Hide:
     case QEvent::Destroy:
-	if ( w == widget )
-	    hideTip();
-	break;
+        if (w == widget)
+            hideTip();
+        break;
     default:
-	break;
+        break;
     }
-    return FALSE;
+    return false;
 }
 
 
 
 void QTipManager::showTip()
 {
-    if ( !widget || !globally_enabled
+    if (!widget || !globally_enabled
 #ifndef Q_WS_X11
-	 || !widget->isActiveWindow()
+         || !widget->isActiveWindow()
 #endif
-	)
-	return;
+       )
+        return;
 
-    QTipManager::Tip *t = (*tips)[ widget ];
-    while ( t && !t->rect.contains( pos ) )
-	t = t->next;
-    if ( t == 0 )
-	return;
+    QTipManager::Tip *t = (*tips)[widget];
+    while (t && !t->rect.contains(pos))
+        t = t->next;
+    if (t == 0)
+        return;
 
-    if ( t == currentTip && label && label->isVisible() )
-	return; // nothing to do
+    if (t == currentTip && label && label->isVisible())
+        return; // nothing to do
 
-    if ( t->tip ) {
-	t->tip->maybeTip( pos );
-	return;
+    if (t->tip) {
+        t->tip->maybeTip(pos);
+        return;
     }
 
-    if ( t->group && !t->group->ena )
-	return;
+    if (t->group && !t->group->ena)
+        return;
 
     int scr;
-    if ( QApplication::desktop()->isVirtualDesktop() )
-	scr = QApplication::desktop()->screenNumber( widget->mapToGlobal( pos ) );
+    if (QApplication::desktop()->isVirtualDesktop())
+        scr = QApplication::desktop()->screenNumber(widget->mapToGlobal(pos));
     else
-	scr = QApplication::desktop()->screenNumber( widget );
+        scr = QApplication::desktop()->screenNumber(widget);
 
-    if ( label
+    if (label
 #if defined(Q_WS_X11)
-	 && label->x11Screen() == widget->x11Screen()
+         && label->x11Screen() == widget->x11Screen()
 #endif
-	 ) {
-	// the next two lines are a workaround for QLabel being too intelligent.
-	// QLabel turns on the wordbreak flag once it gets a richtext. The two lines below
-	// ensure we get correct textflags when switching back and forth between a richtext and
-	// non richtext tooltip
-	label->setText( "" );
-	label->setAlignment( AlignAuto | AlignTop );
-	label->setText( t->text );
-	label->adjustSize();
-	if ( t->geometry != QRect( -1, -1, -1, -1 ) )
-	    label->resize( t->geometry.size() );
+        ) {
+        // the next two lines are a workaround for QLabel being too intelligent.
+        // QLabel turns on the wordbreak flag once it gets a richtext. The two lines below
+        // ensure we get correct textflags when switching back and forth between a richtext and
+        // non richtext tooltip
+        label->setText("");
+        label->setAlignment(AlignAuto | AlignTop);
+        label->setText(t->text);
+        label->adjustSize();
+        if (t->geometry != QRect(-1, -1, -1, -1))
+            label->resize(t->geometry.size());
     } else {
-	delete label;
-	label = new QTipLabel( QApplication::desktop()->screen( scr ), t->text);
-	if ( t->geometry != QRect( -1, -1, -1, -1 ) )
-	    label->resize( t->geometry.size() );
-	connect( label, SIGNAL(destroyed()), SLOT(labelDestroyed()) );
+        delete label;
+        label = new QTipLabel(QApplication::desktop()->screen(scr), t->text);
+        if (t->geometry != QRect(-1, -1, -1, -1))
+            label->resize(t->geometry.size());
+        connect(label, SIGNAL(destroyed()), SLOT(labelDestroyed()));
     }
     // the above deletion and creation of a QTipLabel causes events to be sent. We had reports that the widget
     // pointer was 0 after this. This is in principle possible if the wrong kind of events get sent through our event
     // filter in this time. So better be safe and check widget once again here.
     if (!widget)
-	return;
+        return;
 
 #ifdef Q_WS_MAC
-    QRect screen = QApplication::desktop()->availableGeometry( scr );
+    QRect screen = QApplication::desktop()->availableGeometry(scr);
 #else
-    QRect screen = QApplication::desktop()->screenGeometry( scr );
+    QRect screen = QApplication::desktop()->screenGeometry(scr);
 #endif
     QPoint p;
-    if ( t->geometry == QRect( -1, -1, -1, -1 ) ) {
-	p = widget->mapToGlobal( pos ) +
+    if (t->geometry == QRect(-1, -1, -1, -1)) {
+        p = widget->mapToGlobal(pos) +
 #ifdef Q_WS_WIN
-	    QPoint( 2, 24 );
+            QPoint(2, 24);
 #else
-	    QPoint( 2, 16 );
+            QPoint(2, 16);
 #endif
-	if ( p.x() + label->width() > screen.x() + screen.width() )
-	    p.rx() -= 4 + label->width();
-	if ( p.y() + label->height() > screen.y() + screen.height() )
-	    p.ry() -= 24 + label->height();
+        if (p.x() + label->width() > screen.x() + screen.width())
+            p.rx() -= 4 + label->width();
+        if (p.y() + label->height() > screen.y() + screen.height())
+            p.ry() -= 24 + label->height();
     } else {
-	p = widget->mapToGlobal( t->geometry.topLeft() );
-	label->setAlignment( WordBreak | AlignCenter );
-	label->setWidth( t->geometry.width() - 4 );
+        p = widget->mapToGlobal(t->geometry.topLeft());
+        label->setAlignment(WordBreak | AlignCenter);
+        label->setWidth(t->geometry.width() - 4);
     }
-    if ( p.y() < screen.y() )
-	p.setY( screen.y() );
-    if ( p.x() + label->width() > screen.x() + screen.width() )
-	p.setX( screen.x() + screen.width() - label->width() );
-    if ( p.x() < screen.x() )
-	p.setX( screen.x() );
-    if ( p.y() + label->height() > screen.y() + screen.height() )
-	p.setY( screen.y() + screen.height() - label->height() );
-    if ( label->text().length() ) {
-	label->move( p );
+    if (p.y() < screen.y())
+        p.setY(screen.y());
+    if (p.x() + label->width() > screen.x() + screen.width())
+        p.setX(screen.x() + screen.width() - label->width());
+    if (p.x() < screen.x())
+        p.setX(screen.x());
+    if (p.y() + label->height() > screen.y() + screen.height())
+        p.setY(screen.y() + screen.height() - label->height());
+    if (label->text().length()) {
+        label->move(p);
 
 #ifndef QT_NO_EFFECTS
-	if ( QApplication::isEffectEnabled( UI_AnimateTooltip ) == FALSE ||
-	     previousTip || preventAnimation )
-	    label->show();
-	else if ( QApplication::isEffectEnabled( UI_FadeTooltip ) )
-	    qFadeEffect( label );
-	else
-	    qScrollEffect( label );
+        if (QApplication::isEffectEnabled(UI_AnimateTooltip) == false ||
+             previousTip || preventAnimation)
+            label->show();
+        else if (QApplication::isEffectEnabled(UI_FadeTooltip))
+            qFadeEffect(label);
+        else
+            qScrollEffect(label);
 #else
-	label->show();
+        label->show();
 #endif
 
-	label->raise();
-	fallAsleep.start( 10000, TRUE );
+        label->raise();
+        fallAsleep.start(10000, true);
     }
 
-    if ( t->group && t->group->del && !t->groupText.isEmpty() ) {
-	removeTimer->stop();
-	emit t->group->showTip( t->groupText );
+    if (t->group && t->group->del && !t->groupText.isEmpty()) {
+        removeTimer->stop();
+        emit t->group->showTip(t->groupText);
     }
 
     currentTip = t;
@@ -558,28 +558,28 @@ void QTipManager::showTip()
 
 void QTipManager::hideTip()
 {
-    QTimer::singleShot( 250, this, SLOT(allowAnimation()) );
-    preventAnimation = TRUE;
+    QTimer::singleShot(250, this, SLOT(allowAnimation()));
+    preventAnimation = true;
 
-    if ( label && label->isVisible() ) {
-	label->hide();
-	fallAsleep.start( 2000, TRUE );
-	wakeUp.stop();
-	if ( currentTip && currentTip->group )
-	    removeTimer->start( 100, TRUE );
-    } else if ( wakeUp.isActive() ) {
-	wakeUp.stop();
-	if ( currentTip && currentTip->group &&
-	     !currentTip->group->del && !currentTip->groupText.isEmpty() )
-	    removeTimer->start( 100, TRUE );
-    } else if ( currentTip && currentTip->group ) {
-	removeTimer->start( 100, TRUE );
+    if (label && label->isVisible()) {
+        label->hide();
+        fallAsleep.start(2000, true);
+        wakeUp.stop();
+        if (currentTip && currentTip->group)
+            removeTimer->start(100, true);
+    } else if (wakeUp.isActive()) {
+        wakeUp.stop();
+        if (currentTip && currentTip->group &&
+             !currentTip->group->del && !currentTip->groupText.isEmpty())
+            removeTimer->start(100, true);
+    } else if (currentTip && currentTip->group) {
+        removeTimer->start(100, true);
     }
 
     previousTip = currentTip;
     currentTip = 0;
-    if ( previousTip && previousTip->autoDelete )
-	remove( widget, previousTip->rect );
+    if (previousTip && previousTip->autoDelete)
+        remove(widget, previousTip->rect);
     widget = 0;
 }
 
@@ -592,19 +592,19 @@ void  QTipManager::hideTipAndSleep()
 
 void QTipManager::allowAnimation()
 {
-    preventAnimation = FALSE;
+    preventAnimation = false;
 }
 
-QString QTipManager::find( QWidget *w, const QPoint& pos )
+QString QTipManager::find(QWidget *w, const QPoint& pos)
 {
-    Tip *t = (*tips)[ w ];
-    while ( t && !t->rect.contains( pos ) )
-	t = t->next;
+    Tip *t = (*tips)[w];
+    while (t && !t->rect.contains(pos))
+        t = t->next;
 
     return t ? t->text : QString();
 }
 
-void QTipManager::setWakeUpDelay ( int i )
+void QTipManager::setWakeUpDelay (int i)
 {
     wakeUpDelay = i;
 }
@@ -647,7 +647,7 @@ void QTipManager::setWakeUpDelay ( int i )
     QToolTip::add() with the widget and tip as arguments:
 
     \code
-	QToolTip::add( quitButton, "Leave the application" );
+        QToolTip::add(quitButton, "Leave the application");
     \endcode
 
     This is the simplest and most common use of QToolTip. The tip
@@ -655,7 +655,7 @@ void QTipManager::setWakeUpDelay ( int i )
     you can remove it yourself, too:
 
     \code
-	QToolTip::remove( quitButton );
+        QToolTip::remove(quitButton);
     \endcode
 
     You can also display another text (typically in a \link QStatusBar
@@ -664,10 +664,10 @@ void QTipManager::setWakeUpDelay ( int i )
     connected to the appropriate status bar:
 
     \code
-	QToolTip::add( quitButton, "Leave the application", grp,
-		       "Leave the application, prompting to save if necessary" );
-	QToolTip::add( closeButton, "Close this window", grp,
-		       "Close this window, prompting to save if necessary" );
+        QToolTip::add(quitButton, "Leave the application", grp,
+                       "Leave the application, prompting to save if necessary");
+        QToolTip::add(closeButton, "Close this window", grp,
+                       "Close this window, prompting to save if necessary");
     \endcode
 
     To add a tip to a fixed rectangle within a widget, call the static
@@ -710,7 +710,7 @@ void QTipManager::setWakeUpDelay ( int i )
 QFont QToolTip::font()
 {
     QTipLabel l(0,"");
-    return QApplication::font( &l );
+    return QApplication::font(&l);
 }
 
 
@@ -720,9 +720,9 @@ QFont QToolTip::font()
     \sa font()
 */
 
-void QToolTip::setFont( const QFont &font )
+void QToolTip::setFont(const QFont &font)
 {
-    QApplication::setFont( font, "QTipLabel" );
+    QApplication::setFont(font, "QTipLabel");
 }
 
 
@@ -735,7 +735,7 @@ void QToolTip::setFont( const QFont &font )
 QPalette QToolTip::palette()
 {
     QTipLabel l(0,"");
-    return QApplication::palette( &l );
+    return QApplication::palette(&l);
 }
 
 
@@ -745,9 +745,9 @@ QPalette QToolTip::palette()
     \sa palette()
 */
 
-void QToolTip::setPalette( const QPalette &palette )
+void QToolTip::setPalette(const QPalette &palette)
 {
-    QApplication::setPalette( palette, "QTipLabel" );
+    QApplication::setPalette(palette, "QTipLabel");
 }
 
 /*!
@@ -766,22 +766,22 @@ void QToolTip::setPalette( const QPalette &palette )
     \a widget in your reimplemented QToolTip destructor.
 
     \code
-	MyToolTip::~MyToolTip()
-	{
-	    remove( widget );
-	}
+        MyToolTip::~MyToolTip()
+        {
+            remove(widget);
+        }
     \endcode
 
     \sa maybeTip().
 */
 
-QToolTip::QToolTip( QWidget * widget, QToolTipGroup * group )
+QToolTip::QToolTip(QWidget * widget, QToolTipGroup * group)
 {
     p = widget;
     g = group;
     initTipManager();
-    tipManager->add( p, entireWidget(),
-		     QString::null, g, QString::null, this, FALSE );
+    tipManager->add(p, entireWidget(),
+                     QString::null, g, QString::null, this, false);
 }
 
 
@@ -794,11 +794,11 @@ QToolTip::QToolTip( QWidget * widget, QToolTipGroup * group )
     and so on.
 */
 
-void QToolTip::add( QWidget *widget, const QString &text )
+void QToolTip::add(QWidget *widget, const QString &text)
 {
     initTipManager();
-    tipManager->add( widget, entireWidget(),
-		     text, 0, QString::null, 0, FALSE );
+    tipManager->add(widget, entireWidget(),
+                     text, 0, QString::null, 0, false);
 }
 
 
@@ -814,11 +814,11 @@ void QToolTip::add( QWidget *widget, const QString &text )
     bar\endlink or similar.
 */
 
-void QToolTip::add( QWidget *widget, const QString &text,
-		    QToolTipGroup *group, const QString& longText )
+void QToolTip::add(QWidget *widget, const QString &text,
+                    QToolTipGroup *group, const QString& longText)
 {
     initTipManager();
-    tipManager->add( widget, entireWidget(), text, group, longText, 0, FALSE );
+    tipManager->add(widget, entireWidget(), text, group, longText, 0, false);
 }
 
 
@@ -829,10 +829,10 @@ void QToolTip::add( QWidget *widget, const QString &text,
     covering the entire widget is removed.
 */
 
-void QToolTip::remove( QWidget * widget )
+void QToolTip::remove(QWidget * widget)
 {
-    if ( tipManager )
-	tipManager->remove( widget, entireWidget() );
+    if (tipManager)
+        tipManager->remove(widget, entireWidget());
 }
 
 /*!
@@ -842,10 +842,10 @@ void QToolTip::remove( QWidget * widget )
     \a text is the text shown in the tool tip.
 */
 
-void QToolTip::add( QWidget * widget, const QRect & rect, const QString &text )
+void QToolTip::add(QWidget * widget, const QRect & rect, const QString &text)
 {
     initTipManager();
-    tipManager->add( widget, rect, text, 0, QString::null, 0, FALSE );
+    tipManager->add(widget, rect, text, 0, QString::null, 0, false);
 }
 
 
@@ -863,12 +863,12 @@ void QToolTip::add( QWidget * widget, const QRect & rect, const QString &text )
     bar\endlink or similar.
 */
 
-void QToolTip::add( QWidget *widget, const QRect &rect,
-		    const QString& text,
-		    QToolTipGroup *group, const QString& groupText )
+void QToolTip::add(QWidget *widget, const QRect &rect,
+                    const QString& text,
+                    QToolTipGroup *group, const QString& groupText)
 {
     initTipManager();
-    tipManager->add( widget, rect, text, group, groupText, 0, FALSE );
+    tipManager->add(widget, rect, text, group, groupText, 0, false);
 }
 
 
@@ -881,10 +881,10 @@ void QToolTip::add( QWidget *widget, const QRect &rect,
     covering rectangle \a rect is removed.
 */
 
-void QToolTip::remove( QWidget * widget, const QRect & rect )
+void QToolTip::remove(QWidget * widget, const QRect & rect)
 {
-    if ( tipManager )
-	tipManager->remove( widget, rect );
+    if (tipManager)
+        tipManager->remove(widget, rect);
 }
 
 /*!
@@ -893,10 +893,10 @@ void QToolTip::remove( QWidget * widget, const QRect & rect )
     position.
 */
 
-QString QToolTip::textFor( QWidget *widget, const QPoint& pos )
+QString QToolTip::textFor(QWidget *widget, const QPoint& pos)
 {
-    if ( tipManager )
-	return tipManager->find( widget, pos );
+    if (tipManager)
+        return tipManager->find(widget, pos);
     return QString::null;
 }
 
@@ -909,12 +909,12 @@ QString QToolTip::textFor( QWidget *widget, const QPoint& pos )
 
 void QToolTip::hide()
 {
-    if ( tipManager )
-	tipManager->hideTipAndSleep();
+    if (tipManager)
+        tipManager->hideTipAndSleep();
 }
 
 /*!
-    \fn virtual void QToolTip::maybeTip( const QPoint & p);
+    \fn virtual void QToolTip::maybeTip(const QPoint & p);
 
     This pure virtual function is half of the most versatile interface
     QToolTip offers.
@@ -930,9 +930,9 @@ void QToolTip::hide()
     implementations will be of the form:
 
     \code
-	if ( <something> ) {
-	    tip( <something>, <something> );
-	}
+        if (<something>) {
+            tip(<something>, <something>);
+        }
     \endcode
 
     The first argument to tip() (a rectangle) must encompass \a p,
@@ -956,10 +956,10 @@ void QToolTip::hide()
     maybeTip() must reinstate it each time.
 */
 
-void QToolTip::tip( const QRect & rect, const QString &text )
+void QToolTip::tip(const QRect & rect, const QString &text)
 {
     initTipManager();
-    tipManager->add( parentWidget(), rect, text, 0, QString::null, 0, TRUE );
+    tipManager->add(parentWidget(), rect, text, 0, QString::null, 0, true);
 }
 
 /*!
@@ -974,11 +974,11 @@ void QToolTip::tip( const QRect & rect, const QString &text )
     maybeTip() must reinstate it each time.
 */
 
-void QToolTip::tip( const QRect & rect, const QString &text,
-		    const QString& groupText )
+void QToolTip::tip(const QRect & rect, const QString &text,
+                    const QString& groupText)
 {
     initTipManager();
-    tipManager->add( parentWidget(), rect, text, group(), groupText, 0, TRUE );
+    tipManager->add(parentWidget(), rect, text, group(), groupText, 0, true);
 }
 
 /*!
@@ -995,10 +995,10 @@ void QToolTip::tip( const QRect & rect, const QString &text,
     If the tip does not fit inside \a geometry, the tip expands.
 */
 
-void QToolTip::tip( const QRect &rect, const QString &text, const QRect &geometry )
+void QToolTip::tip(const QRect &rect, const QString &text, const QRect &geometry)
 {
     initTipManager();
-    tipManager->add( geometry, parentWidget(), rect, text, 0, QString::null, 0, TRUE );
+    tipManager->add(geometry, parentWidget(), rect, text, 0, QString::null, 0, true);
 }
 
 /*!
@@ -1016,10 +1016,10 @@ void QToolTip::tip( const QRect &rect, const QString &text, const QRect &geometr
     If the tip does not fit inside \a geometry, the tip expands.
 */
 
-void QToolTip::tip( const QRect &rect, const QString &text, const QString& groupText, const QRect &geometry )
+void QToolTip::tip(const QRect &rect, const QString &text, const QString& groupText, const QRect &geometry)
 {
     initTipManager();
-    tipManager->add( geometry, parentWidget(), rect, text, group(), groupText, 0, TRUE );
+    tipManager->add(geometry, parentWidget(), rect, text, group(), groupText, 0, true);
 }
 
 
@@ -1031,8 +1031,8 @@ void QToolTip::tip( const QRect &rect, const QString &text, const QString& group
 
 void QToolTip::clear()
 {
-    if ( tipManager )
-	tipManager->remove( parentWidget() );
+    if (tipManager)
+        tipManager->remove(parentWidget());
 }
 
 
@@ -1077,15 +1077,15 @@ void QToolTip::clear()
     argument to QToolTip's member functions, for example like this:
 
     \code
-	QToolTipGroup * grp = new QToolTipGroup( this, "tool tip relay" );
-	connect( grp, SIGNAL(showTip(QString)),
-		 myLabel, SLOT(setText(QString)) );
-	connect( grp, SIGNAL(removeTip()),
-		 myLabel, SLOT(clear()) );
-	QToolTip::add( giraffeButton, "feed giraffe",
-		       grp, "Give the giraffe a meal" );
-	QToolTip::add( gorillaButton, "feed gorilla",
-		       grp, "Give the gorilla a meal" );
+        QToolTipGroup * grp = new QToolTipGroup(this, "tool tip relay");
+        connect(grp, SIGNAL(showTip(QString)),
+                 myLabel, SLOT(setText(QString)));
+        connect(grp, SIGNAL(removeTip()),
+                 myLabel, SLOT(clear()));
+        QToolTip::add(giraffeButton, "feed giraffe",
+                       grp, "Give the giraffe a meal");
+        QToolTip::add(gorillaButton, "feed gorilla",
+                       grp, "Give the gorilla a meal");
     \endcode
 
     This example makes the object myLabel (which you must supply)
@@ -1120,11 +1120,11 @@ void QToolTip::clear()
     Constructs a tool tip group called \a name, with parent \a parent.
 */
 
-QToolTipGroup::QToolTipGroup( QObject *parent, const char *name )
-    : QObject( parent, name )
+QToolTipGroup::QToolTipGroup(QObject *parent, const char *name)
+    : QObject(parent, name)
 {
-    del = TRUE;
-    ena = TRUE;
+    del = true;
+    ena = true;
 }
 
 
@@ -1134,8 +1134,8 @@ QToolTipGroup::QToolTipGroup( QObject *parent, const char *name )
 
 QToolTipGroup::~QToolTipGroup()
 {
-    if ( tipManager )
-	tipManager->removeFromGroup( this );
+    if (tipManager)
+        tipManager->removeFromGroup(this);
 }
 
 
@@ -1143,7 +1143,7 @@ QToolTipGroup::~QToolTipGroup()
     \property QToolTipGroup::delay
     \brief whether the display of the group text is delayed.
 
-    If set to TRUE (the default), the group text is displayed at the
+    If set to true (the default), the group text is displayed at the
     same time as the tool tip. Otherwise, the group text is displayed
     immediately when the cursor enters the widget.
 */
@@ -1153,11 +1153,11 @@ bool QToolTipGroup::delay() const
     return del;
 }
 
-void QToolTipGroup::setDelay( bool enable )
+void QToolTipGroup::setDelay(bool enable)
 {
 #if 0
-    if ( enable && !del ) {
-	// maybe we should show the text at once?
+    if (enable && !del) {
+        // maybe we should show the text at once?
     }
 #endif
     del = enable;
@@ -1167,10 +1167,10 @@ void QToolTipGroup::setDelay( bool enable )
     \property QToolTipGroup::enabled
     \brief whether tool tips in the group are enabled.
 
-    This property's default is TRUE.
+    This property's default is true.
 */
 
-void QToolTipGroup::setEnabled( bool enable )
+void QToolTipGroup::setEnabled(bool enable)
 {
     ena = enable;
 }
@@ -1181,8 +1181,8 @@ bool QToolTipGroup::enabled() const
 }
 
 /*!
-    If \a enable is TRUE sets all tool tips to be enabled (shown when
-    needed); if \a enable is FALSE sets all tool tips to be disabled
+    If \a enable is true sets all tool tips to be enabled (shown when
+    needed); if \a enable is false sets all tool tips to be disabled
     (never shown).
 
     By default, tool tips are enabled. Note that this function affects
@@ -1191,7 +1191,7 @@ bool QToolTipGroup::enabled() const
     \sa QToolTipGroup::setEnabled()
 */
 
-void QToolTip::setGloballyEnabled( bool enable )
+void QToolTip::setGloballyEnabled(bool enable)
 {
     globally_enabled = enable;
 }
@@ -1209,14 +1209,14 @@ bool QToolTip::isGloballyEnabled()
 /*!
   Sets the wakeup delay for all tooltips to \a i.
 */
-void QToolTip::setWakeUpDelay( int i )
+void QToolTip::setWakeUpDelay(int i)
 {
     initTipManager();
     tipManager->setWakeUpDelay(i);
 }
 
 // Dummy implementations to compile on Windows
-void Q4ToolTip::showText( const QPoint &, const QString &, QWidget *)
+void Q4ToolTip::showText(const QPoint &, const QString &, QWidget *)
 {
 //    qDebug() << "Q4ToolTip::showText" << s << "for" << w;
 }

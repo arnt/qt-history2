@@ -29,8 +29,8 @@ class Q_GUI_EXPORT QCursor : public Qt
 {
 public:
     static QPoint pos();
-    static void	  setPos( int x, int y );
-    static void	  setPos( const QPoint & );
+    static void          setPos(int x, int y);
+    static void          setPos(const QPoint &);
 private:
     QCursor();
 };
@@ -72,10 +72,10 @@ public:
     HANDLE handle() const;
 #endif
     static QPoint pos();
-    static void	setPos(int x, int y);
+    static void        setPos(int x, int y);
     inline static void setPos(const QPoint &p) { setPos(p.x(), p.y()); }
-    static void	initialize();
-    static void	cleanup();
+    static void        initialize();
+    static void        cleanup();
 private:
     void setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, int hotY);
     void update() const;

@@ -1,7 +1,7 @@
 #include "qisciicodec_p.h"
 #ifndef QT_NO_CODECS
 
-#define	QValidChar(u)	   ((u) ? QChar((ushort)(u)) : QChar(QChar::replacement))
+#define        QValidChar(u)           ((u) ? QChar((ushort)(u)) : QChar(QChar::replacement))
 
 /*!
     \class QIsciiCodec
@@ -55,9 +55,9 @@ int QIsciiCodec::heuristicNameMatch(const char* hint) const
         p = hint;
 
     if (QString::fromLatin1(p).toLower() == QString::fromLatin1(codecs[idx].name).toLower())
-	return 4;
+        return 4;
     else
-	return QTextCodec::heuristicNameMatch(hint);
+        return QTextCodec::heuristicNameMatch(hint);
 }
 
 int QIsciiCodec::heuristicContentMatch(const char*, int) const
@@ -159,7 +159,7 @@ QByteArray QIsciiCodec::fromUnicode(const QString& uc, int& len_in_out) const
 {
     int l = uc.length();
     if (len_in_out > 0)
-	l = qMin(l, len_in_out);
+        l = qMin(l, len_in_out);
     QByteArray result;
     result.reserve(2*l); //worst case
 
@@ -170,39 +170,39 @@ QByteArray QIsciiCodec::fromUnicode(const QString& uc, int& len_in_out) const
 
     bool halant = false;
     for (int i =0; i < l; ++i) {
-	int pos = data[i].unicode() - base;
-	if (pos > 0 && pos < 0x80) {
-	    uchar iscii = uni_to_iscii_table[pos];
-	    if (iscii > 0x80) {
-		*ch++ = iscii;
-	    } else if (iscii) {
-		const uchar *pair = uni_to_iscii_pairs + 2*iscii;
-		*ch++ = *pair++;
-		*ch++ = *pair++;
-	    } else {
-		*ch++ = '?';
-	    }
-	} else {
-	    if (data[i].unicode() == 0x200c) { // ZWNJ
-		if (halant)
-		    // Consonant Halant ZWNJ -> Consonant Halant Halant
-		    *ch++ = 0xe8;
-	    } else if (data[i].unicode() == 0x200d) { // ZWJ
-		if (halant)
-		    // Consonant Halant ZWJ -> Consonant Halant Nukta
-		    *ch++ = 0xe9;
-	    } else {
-		*ch++ = '?';
-	    }
-	}
-	halant = (pos == 0x4d);
+        int pos = data[i].unicode() - base;
+        if (pos > 0 && pos < 0x80) {
+            uchar iscii = uni_to_iscii_table[pos];
+            if (iscii > 0x80) {
+                *ch++ = iscii;
+            } else if (iscii) {
+                const uchar *pair = uni_to_iscii_pairs + 2*iscii;
+                *ch++ = *pair++;
+                *ch++ = *pair++;
+            } else {
+                *ch++ = '?';
+            }
+        } else {
+            if (data[i].unicode() == 0x200c) { // ZWNJ
+                if (halant)
+                    // Consonant Halant ZWNJ -> Consonant Halant Halant
+                    *ch++ = 0xe8;
+            } else if (data[i].unicode() == 0x200d) { // ZWJ
+                if (halant)
+                    // Consonant Halant ZWJ -> Consonant Halant Nukta
+                    *ch++ = 0xe9;
+            } else {
+                *ch++ = '?';
+            }
+        }
+        halant = (pos == 0x4d);
     }
     len_in_out = ch - (uchar *)result.data();
     result.truncate(len_in_out);
     return result;
 }
 
-QString QIsciiCodec::toUnicode( const char* chars, int len_in ) const
+QString QIsciiCodec::toUnicode(const char* chars, int len_in) const
 {
     QString result;
     result.resize(len_in);
@@ -213,23 +213,23 @@ QString QIsciiCodec::toUnicode( const char* chars, int len_in ) const
 
     bool halant = false;
     for (int i = 0; i < len_in; ++i) {
-	ushort ch = (uchar) chars[i];
-	if (ch < 0xa0)
-	    *uc++ = QValidChar(ch);
-	else {
-	    ushort c = iscii_to_uni_table[ch - 0xa0];
-	    if (halant && (c == INV || c == 0xe9)) {
-		// Consonant Halant INV -> Consonant Halant ZWJ
-		// Consonant Halant Nukta -> Consonant Halant ZWJ
-		*uc++ = QChar(0x200d);
-	    } else if (halant && c == 0xe8) {
-		// Consonant Halant Halant -> Consonant Halant ZWNJ
-		*uc++ = QChar(0x200c);
-	    } else {
-		*uc++ = QChar(c+base);
-	    }
-	}
-	halant = ((uchar)chars[i] == 0xe8);
+        ushort ch = (uchar) chars[i];
+        if (ch < 0xa0)
+            *uc++ = QValidChar(ch);
+        else {
+            ushort c = iscii_to_uni_table[ch - 0xa0];
+            if (halant && (c == INV || c == 0xe9)) {
+                // Consonant Halant INV -> Consonant Halant ZWJ
+                // Consonant Halant Nukta -> Consonant Halant ZWJ
+                *uc++ = QChar(0x200d);
+            } else if (halant && c == 0xe8) {
+                // Consonant Halant Halant -> Consonant Halant ZWNJ
+                *uc++ = QChar(0x200c);
+            } else {
+                *uc++ = QChar(c+base);
+            }
+        }
+        halant = ((uchar)chars[i] == 0xe8);
     }
     return result;
 }

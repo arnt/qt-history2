@@ -25,7 +25,7 @@ public:
     QPicturePaintEngine();
     ~QPicturePaintEngine();
 
-    bool begin(QPaintDevice *pdev, QPainterState *state, bool unclipped = FALSE);
+    bool begin(QPaintDevice *pdev, QPainterState *state, bool unclipped = false);
     bool end();
 
     void updatePen(QPainterState *ps);

@@ -31,15 +31,15 @@ public:
     virtual int supportedOperations() const;
 
 protected:
-    virtual void operationListChildren( QNetworkOperation *op );
-    virtual void operationMkDir( QNetworkOperation *op );
-    virtual void operationRemove( QNetworkOperation *op );
-    virtual void operationRename( QNetworkOperation *op );
-    virtual void operationGet( QNetworkOperation *op );
-    virtual void operationPut( QNetworkOperation *op );
+    virtual void operationListChildren(QNetworkOperation *op);
+    virtual void operationMkDir(QNetworkOperation *op);
+    virtual void operationRemove(QNetworkOperation *op);
+    virtual void operationRename(QNetworkOperation *op);
+    virtual void operationGet(QNetworkOperation *op);
+    virtual void operationPut(QNetworkOperation *op);
 
 private:
-    int calcBlockSize( int totalSize ) const;
+    int calcBlockSize(int totalSize) const;
     QDir dir;
 
 };

@@ -24,29 +24,29 @@
 
 #if defined(Q_WS_X11)
 #include <private/qt_x11_p.h>
-#elif defined (Q_WS_WIN )
+#elif defined (Q_WS_WIN)
 #include "qt_windows.h"
 #elif defined(Q_WS_MAC)
 #include <private/qwidget_p.h>
 #endif
 
 
-static QWidget *qt_sizegrip_topLevelWidget( QWidget* w)
+static QWidget *qt_sizegrip_topLevelWidget(QWidget* w)
 {
     QWidget *p = w->parentWidget();
-    while ( !w->isTopLevel() && p && !p->inherits("QWorkspace") ) {
-	w = p;
-	p = p->parentWidget();
+    while (!w->isTopLevel() && p && !p->inherits("QWorkspace")) {
+        w = p;
+        p = p->parentWidget();
     }
     return w;
 }
 
-static QWidget* qt_sizegrip_workspace( QWidget* w )
+static QWidget* qt_sizegrip_workspace(QWidget* w)
 {
-    while ( w && !w->inherits("QWorkspace" ) ) {
-	if ( w->isTopLevel() )
-	    return 0;
-	w = w->parentWidget();
+    while (w && !w->inherits("QWorkspace")) {
+        if (w->isTopLevel())
+            return 0;
+        w = w->parentWidget();
     }
     return w;
 }
@@ -82,30 +82,30 @@ static QWidget* qt_sizegrip_workspace( QWidget* w )
     Constructs a resize corner called \a name, as a child widget of \a
     parent.
 */
-QSizeGrip::QSizeGrip( QWidget * parent, const char* name )
-    : QWidget( parent, name )
+QSizeGrip::QSizeGrip(QWidget * parent, const char* name)
+    : QWidget(parent, name)
 {
 #ifndef QT_NO_CURSOR
 #ifndef Q_WS_MAC
-    if ( QApplication::reverseLayout() )
-	setCursor( SizeBDiagCursor );
+    if (QApplication::reverseLayout())
+        setCursor(SizeBDiagCursor);
     else
-	setCursor( SizeFDiagCursor );
+        setCursor(SizeFDiagCursor);
 #endif
 #endif
-    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
+    setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed));
 #if defined(Q_WS_X11)
-    if ( !qt_sizegrip_workspace( this ) ) {
-	WId id = winId();
-	XChangeProperty(qt_xdisplay(), topLevelWidget()->winId(),
-			ATOM(_QT_SIZEGRIP), XA_WINDOW, 32, PropModeReplace,
-			(unsigned char *)&id, 1);
+    if (!qt_sizegrip_workspace(this)) {
+        WId id = winId();
+        XChangeProperty(qt_xdisplay(), topLevelWidget()->winId(),
+                        ATOM(_QT_SIZEGRIP), XA_WINDOW, 32, PropModeReplace,
+                        (unsigned char *)&id, 1);
     }
 #endif
-    tlw = qt_sizegrip_topLevelWidget( this );
-    if ( tlw )
-	tlw->installEventFilter( this );
-    installEventFilter( this ); //for binary compatibility fix in 4.0 with an event() ###
+    tlw = qt_sizegrip_topLevelWidget(this);
+    if (tlw)
+        tlw->installEventFilter(this);
+    installEventFilter(this); //for binary compatibility fix in 4.0 with an event() ###
 }
 
 
@@ -115,11 +115,11 @@ QSizeGrip::QSizeGrip( QWidget * parent, const char* name )
 QSizeGrip::~QSizeGrip()
 {
 #if defined(Q_WS_X11)
-    if ( !QApplication::closingDown() && parentWidget() ) {
-	WId id = XNone;
- 	XChangeProperty(qt_xdisplay(), topLevelWidget()->winId(),
- 			ATOM(_QT_SIZEGRIP), XA_WINDOW, 32, PropModeReplace,
- 			(unsigned char *)&id, 1);
+    if (!QApplication::closingDown() && parentWidget()) {
+        WId id = XNone;
+        XChangeProperty(qt_xdisplay(), topLevelWidget()->winId(),
+                        ATOM(_QT_SIZEGRIP), XA_WINDOW, 32, PropModeReplace,
+                        (unsigned char *)&id, 1);
     }
 #endif
 }
@@ -130,7 +130,7 @@ QSizeGrip::~QSizeGrip()
 QSize QSizeGrip::sizeHint() const
 {
     return (style().sizeFromContents(QStyle::CT_SizeGrip, this, QSize(13, 13)).
-	    expandedTo(QApplication::globalStrut()));
+            expandedTo(QApplication::globalStrut()));
 }
 
 /*!
@@ -138,9 +138,9 @@ QSize QSizeGrip::sizeHint() const
     diagonal textured lines in the lower-right corner. The event is in
     \a e.
 */
-void QSizeGrip::paintEvent( QPaintEvent *e )
+void QSizeGrip::paintEvent(QPaintEvent *e)
 {
-    QPainter painter( this );
+    QPainter painter(this);
     painter.setClipRegion(e->region());
     style().drawPrimitive(QStyle::PE_SizeGrip, &painter, rect(), palette());
 }
@@ -148,7 +148,7 @@ void QSizeGrip::paintEvent( QPaintEvent *e )
 /*!
     Primes the resize operation. The event is in \a e.
 */
-void QSizeGrip::mousePressEvent( QMouseEvent * e )
+void QSizeGrip::mousePressEvent(QMouseEvent * e)
 {
     p = e->globalPos();
     s = qt_sizegrip_topLevelWidget(this)->size();
@@ -159,123 +159,123 @@ void QSizeGrip::mousePressEvent( QMouseEvent * e )
     Resizes the top-level widget containing this widget. The event is
     in \a e.
 */
-void QSizeGrip::mouseMoveEvent( QMouseEvent * e )
+void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
 {
-    if ( e->state() != LeftButton )
-	return;
+    if (e->state() != LeftButton)
+        return;
 
     QWidget* tlw = qt_sizegrip_topLevelWidget(this);
-    if ( tlw->testWState(WState_ConfigPending) )
-	return;
+    if (tlw->testWState(WState_ConfigPending))
+        return;
 
-    QPoint np( e->globalPos() );
+    QPoint np(e->globalPos());
 
-    QWidget* ws = qt_sizegrip_workspace( this );
-    if ( ws ) {
-	QPoint tmp( ws->mapFromGlobal( np ) );
-	if ( tmp.x() > ws->width() )
-	    tmp.setX( ws->width() );
-	if ( tmp.y() > ws->height() )
-	    tmp.setY( ws->height() );
-	np = ws->mapToGlobal( tmp );
+    QWidget* ws = qt_sizegrip_workspace(this);
+    if (ws) {
+        QPoint tmp(ws->mapFromGlobal(np));
+        if (tmp.x() > ws->width())
+            tmp.setX(ws->width());
+        if (tmp.y() > ws->height())
+            tmp.setY(ws->height());
+        np = ws->mapToGlobal(tmp);
     }
 
     int w;
     int h = np.y() - p.y() + s.height();
 
-    if ( QApplication::reverseLayout() )
-	w = s.width() - ( np.x() - p.x() );
+    if (QApplication::reverseLayout())
+        w = s.width() - (np.x() - p.x());
     else
-	w = np.x() - p.x() + s.width();
+        w = np.x() - p.x() + s.width();
 
-    if ( w < 1 )
-	w = 1;
-    if ( h < 1 )
-	h = 1;
-    QSize ms( tlw->minimumSizeHint() );
-    ms = ms.expandedTo( minimumSize() );
-    if ( w < ms.width() )
-	w = ms.width();
-    if ( h < ms.height() )
-	h = ms.height();
+    if (w < 1)
+        w = 1;
+    if (h < 1)
+        h = 1;
+    QSize ms(tlw->minimumSizeHint());
+    ms = ms.expandedTo(minimumSize());
+    if (w < ms.width())
+        w = ms.width();
+    if (h < ms.height())
+        h = ms.height();
 
     if (QApplication::reverseLayout()) {
-	if (tlw->isTopLevel()) {
-	    int x = tlw->geometry().x() + ( np.x()-p.x() );
-	    int y = tlw->geometry().y();
-	    tlw->setGeometry(x,y,w,h);
-	} else {
-	    tlw->resize( w, h );
-	    if (tlw->size() == QSize(w,h))
-		tlw->move( tlw->x() + ( np.x()-p.x() ), tlw->y() );
-	}
+        if (tlw->isTopLevel()) {
+            int x = tlw->geometry().x() + (np.x()-p.x());
+            int y = tlw->geometry().y();
+            tlw->setGeometry(x,y,w,h);
+        } else {
+            tlw->resize(w, h);
+            if (tlw->size() == QSize(w,h))
+                tlw->move(tlw->x() + (np.x()-p.x()), tlw->y());
+        }
     } else {
-	tlw->resize( w, h );
+        tlw->resize(w, h);
     }
 #ifdef Q_WS_WIN
     MSG msg;
-    while( PeekMessage( &msg, winId(), WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE ) )
+    while(PeekMessage(&msg, winId(), WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE))
       ;
 #endif
     QApplication::syncX();
 
-    if ( QApplication::reverseLayout() && tlw->size() == QSize(w,h) ) {
-	s.rwidth() = tlw->size().width();
-	p.rx() = np.x();
+    if (QApplication::reverseLayout() && tlw->size() == QSize(w,h)) {
+        s.rwidth() = tlw->size().width();
+        p.rx() = np.x();
     }
 }
 
 /*! \reimp */
-bool QSizeGrip::eventFilter( QObject *o, QEvent *e )
+bool QSizeGrip::eventFilter(QObject *o, QEvent *e)
 {
-    if ( o == tlw ) {
-	switch ( e->type() ) {
+    if (o == tlw) {
+        switch (e->type()) {
 #ifndef Q_WS_MAC
-	/* The size grip goes no where on Mac OS X when you maximize!  --Sam */
-	case QEvent::ShowMaximized:
+        /* The size grip goes no where on Mac OS X when you maximize!  --Sam */
+        case QEvent::ShowMaximized:
 #endif
-	case QEvent::ShowFullScreen:
-	    hide();
-	    break;
-	case QEvent::ShowNormal:
-	    show();
-	    break;
-	default:
-	    break;
-	}
+        case QEvent::ShowFullScreen:
+            hide();
+            break;
+        case QEvent::ShowNormal:
+            show();
+            break;
+        default:
+            break;
+        }
     } else if(o == this) {
-	switch(e->type()) {
+        switch(e->type()) {
 #if defined(Q_WS_MAC)
-	case QEvent::Hide:
-	case QEvent::Show:
-	    if(!QApplication::closingDown() && parentWidget() && !qt_sizegrip_workspace(this)) {
-		if(QWidget *w = qt_sizegrip_topLevelWidget(this)) {
-		    if(w->isTopLevel())
+        case QEvent::Hide:
+        case QEvent::Show:
+            if(!QApplication::closingDown() && parentWidget() && !qt_sizegrip_workspace(this)) {
+                if(QWidget *w = qt_sizegrip_topLevelWidget(this)) {
+                    if(w->isTopLevel())
                         QWidgetPrivate::qt_mac_update_sizer(w, e->type() == QEvent::Hide ? -1 : 1);
-		}
-	    }
-	    break;
+                }
+            }
+            break;
 #endif
-	case QEvent::Resize: {
-	    QPointArray pa(3);
-	    if (!QApplication::reverseLayout()) {
-		pa.setPoint(0, width() + 1, 0);
-		pa.setPoint(1, width() + 1, height() + 1);
-		pa.setPoint(2, 0, height());
-	    } else {
-		pa.setPoint(0, 0, 0);
-		pa.setPoint(1, width() + 1, height() + 1);
-		pa.setPoint(2, 0, height() + 1);
-	    }
-	    clearMask();
-	    setMask(QRegion(pa));
-	    break;
-	}
-	default:
-	    break;
-	}
+        case QEvent::Resize: {
+            QPointArray pa(3);
+            if (!QApplication::reverseLayout()) {
+                pa.setPoint(0, width() + 1, 0);
+                pa.setPoint(1, width() + 1, height() + 1);
+                pa.setPoint(2, 0, height());
+            } else {
+                pa.setPoint(0, 0, 0);
+                pa.setPoint(1, width() + 1, height() + 1);
+                pa.setPoint(2, 0, height() + 1);
+            }
+            clearMask();
+            setMask(QRegion(pa));
+            break;
+        }
+        default:
+            break;
+        }
     }
-    return FALSE;
+    return false;
 }
 
 #endif //QT_NO_SIZEGRIP

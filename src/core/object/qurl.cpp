@@ -20,7 +20,7 @@
 
 #include <stdlib.h>
 
-Q_CORE_EXPORT bool qt_resolve_symlinks = TRUE;
+Q_CORE_EXPORT bool qt_resolve_symlinks = true;
 
 class QUrlPrivate
 {
@@ -39,25 +39,25 @@ public:
 
 /*!
     Replaces backslashes with slashes and removes multiple occurrences
-    of slashes or backslashes if \c allowMultiple is FALSE.
+    of slashes or backslashes if \c allowMultiple is false.
 */
 
-static void slashify( QString& s, bool allowMultiple = TRUE )
+static void slashify(QString& s, bool allowMultiple = true)
 {
-    bool justHadSlash = FALSE;
-    for ( int i = 0; i < (int)s.length(); i++ ) {
-	if ( !allowMultiple && justHadSlash &&
-	     ( s[ i ] == '/' || s[ i ] == '\\' ) ) {
-	    s.remove( i, 1 );
-	    --i;
-	    continue;
-	}
-	if ( s[ i ] == '\\' )
-	    s[ i ] = '/';
-	if ( s[ i ] == '/' )
-	    justHadSlash = TRUE;
-	else
-	    justHadSlash = FALSE;
+    bool justHadSlash = false;
+    for (int i = 0; i < (int)s.length(); i++) {
+        if (!allowMultiple && justHadSlash &&
+             (s[i] == '/' || s[i] == '\\')) {
+            s.remove(i, 1);
+            --i;
+            continue;
+        }
+        if (s[i] == '\\')
+            s[i] = '/';
+        if (s[i] == '/')
+            justHadSlash = true;
+        else
+            justHadSlash = false;
     }
 }
 
@@ -87,13 +87,13 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
     <tt>http://www.trolltech.com:80/cgi-bin/test%20me.pl?cmd=Hello%20you</tt>
 
     \table
-    \header \i Function	    \i Returns
+    \header \i Function            \i Returns
     \row \i \l protocol()   \i "http"
-    \row \i \l host()	    \i "www.trolltech.com"
-    \row \i \l port()	    \i 80
-    \row \i \l path()	    \i "/cgi-bin/test&nbsp;me.pl"
+    \row \i \l host()            \i "www.trolltech.com"
+    \row \i \l port()            \i 80
+    \row \i \l path()            \i "/cgi-bin/test&nbsp;me.pl"
     \row \i \l fileName()   \i "test&nbsp;me.pl"
-    \row \i \l query()	    \i "cmd=Hello%20you"
+    \row \i \l query()            \i "cmd=Hello%20you"
     \endtable
 
     Example:
@@ -101,11 +101,11 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
     <tt>http://doc.trolltech.com/qdockarea.html#lines</tt>
 
     \table
-    \header \i Function	    \i Returns
+    \header \i Function            \i Returns
     \row \i \l protocol()   \i "http"
-    \row \i \l host()	    \i "doc.trolltech.com"
+    \row \i \l host()            \i "doc.trolltech.com"
     \row \i \l fileName()   \i "qdockarea.html"
-    \row \i \l ref()	    \i "lines"
+    \row \i \l ref()            \i "lines"
     \endtable
 
     The individual parts of a URL can be set with setProtocol(),
@@ -121,9 +121,9 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
     QUrl is normally used like this:
 
     \code
-    QUrl url( "http://www.trolltech.com" );
+    QUrl url("http://www.trolltech.com");
     // or
-    QUrl url( "file:/home/myself/Mail", "Inbox" );
+    QUrl url("file:/home/myself/Mail", "Inbox");
     \endcode
 
     You can then access and manipulate the various parts of the URL.
@@ -133,16 +133,16 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
     following:
 
     \code
-    QUrl url( "http://www.trolltech.com" );
+    QUrl url("http://www.trolltech.com");
     QString s = url;
     // or
-    QString s( "http://www.trolltech.com" );
-    QUrl url( s );
+    QString s("http://www.trolltech.com");
+    QUrl url(s);
     \endcode
 
     Use the static functions, encode() and decode() to encode or
     decode a URL in a string. (They operate on the string in-place.)
-    The isRelativeUrl() static function returns TRUE if the given
+    The isRelativeUrl() static function returns true if the given
     string is a relative URL.
 
     If you want to use a URL to work on a hierarchical structure (e.g.
@@ -160,9 +160,9 @@ static void slashify( QString& s, bool allowMultiple = TRUE )
 QUrl::QUrl()
 {
     d = new QUrlPrivate;
-    d->isValid = FALSE;
+    d->isValid = false;
     d->port = -1;
-    d->cleanPathDirty = TRUE;
+    d->cleanPathDirty = true;
 }
 
 /*!
@@ -172,34 +172,34 @@ QUrl::QUrl()
     assumed.
 */
 
-QUrl::QUrl( const QString& url )
+QUrl::QUrl(const QString& url)
 {
     d = new QUrlPrivate;
     d->protocol = "file";
     d->port = -1;
-    parse( url );
+    parse(url);
 }
 
 /*!
     Copy constructor. Copies the data of \a url.
 */
 
-QUrl::QUrl( const QUrl& url )
+QUrl::QUrl(const QUrl& url)
 {
     d = new QUrlPrivate;
     *d = *url.d;
 }
 
 /*!
-    Returns TRUE if \a url is relative; otherwise returns FALSE.
+    Returns true if \a url is relative; otherwise returns false.
 */
 
-bool QUrl::isRelativeUrl( const QString &url )
+bool QUrl::isRelativeUrl(const QString &url)
 {
     int colon = url.indexOf(':');
     int slash = url.indexOf('/');
 
-    return ( slash != 0 && ( colon == -1 || ( slash != -1 && colon > slash ) ) );
+    return (slash != 0 && (colon == -1 || (slash != -1 && colon > slash)));
 }
 
 /*!
@@ -209,20 +209,20 @@ bool QUrl::isRelativeUrl( const QString &url )
 
     For example, the path of
     \code
-    QUrl url( "ftp://ftp.trolltech.com/qt/source", "qt-2.1.0.tar.gz" );
+    QUrl url("ftp://ftp.trolltech.com/qt/source", "qt-2.1.0.tar.gz");
     \endcode
     will be "/qt/srource/qt-2.1.0.tar.gz".
 
     On the other hand,
     \code
-    QUrl url( "ftp://ftp.trolltech.com/qt/source", "/usr/local" );
+    QUrl url("ftp://ftp.trolltech.com/qt/source", "/usr/local");
     \endcode
     will result in a new URL, "ftp://ftp.trolltech.com/usr/local",
     because "/usr/local" isn't relative.
 
     Similarly,
     \code
-    QUrl url( "ftp://ftp.trolltech.com/qt/source", "file:/usr/local" );
+    QUrl url("ftp://ftp.trolltech.com/qt/source", "file:/usr/local");
     \endcode
     will result in a new URL, with "/usr/local" as the path
     and "file" as the protocol.
@@ -232,59 +232,59 @@ bool QUrl::isRelativeUrl( const QString &url )
     want the constructor to handle the last part of the path as a file
     name if there is no slash at the end, and to let it be replaced by
     the file name of \a relUrl (if it contains one), set \a checkSlash
-    to TRUE.
+    to true.
 */
 
-QUrl::QUrl( const QUrl& url, const QString& relUrl, bool checkSlash )
+QUrl::QUrl(const QUrl& url, const QString& relUrl, bool checkSlash)
 {
     d = new QUrlPrivate;
     QString rel = relUrl;
-    slashify( rel );
+    slashify(rel);
 
-    QUrl urlTmp( url );
-    if ( !urlTmp.isValid() ) {
-	urlTmp.reset();
+    QUrl urlTmp(url);
+    if (!urlTmp.isValid()) {
+        urlTmp.reset();
     }
-    if ( isRelativeUrl( rel ) ) {
-	if ( rel[ 0 ] == '#' ) {
-	    *this = urlTmp;
-	    rel.remove( (uint)0, 1 );
-	    decode( rel );
-	    setRef( rel );
-	} else if ( rel[ 0 ] == '?' ) {
-	    *this = urlTmp;
-	    rel.remove( (uint)0, 1 );
-	    setQuery( rel );
-	} else {
-	    decode( rel );
-	    *this = urlTmp;
-	    setRef( QString::null );
-	    if ( checkSlash && path().length() != 0 && d->cleanPath[path().length()-1] != '/' ) {
-		if ( isRelativeUrl( path() ) )
-		    setEncodedPathAndQuery( rel );
-		else
-		    setFileName( rel );
-	    } else {
-		QString p = urlTmp.path();
-		if ( p.isEmpty() ) {
-		    // allow URLs like "file:foo"
-		    if ( !d->host.isEmpty() && !d->user.isEmpty() && !d->pass.isEmpty() )
-			p = "/";
-		}
-		if ( !p.isEmpty() && p.right(1)!="/" )
-		    p += "/";
-		p += rel;
-		d->path = p;
-		d->cleanPathDirty = TRUE;
-	    }
-	}
+    if (isRelativeUrl(rel)) {
+        if (rel[0] == '#') {
+            *this = urlTmp;
+            rel.remove((uint)0, 1);
+            decode(rel);
+            setRef(rel);
+        } else if (rel[0] == '?') {
+            *this = urlTmp;
+            rel.remove((uint)0, 1);
+            setQuery(rel);
+        } else {
+            decode(rel);
+            *this = urlTmp;
+            setRef(QString::null);
+            if (checkSlash && path().length() != 0 && d->cleanPath[path().length()-1] != '/') {
+                if (isRelativeUrl(path()))
+                    setEncodedPathAndQuery(rel);
+                else
+                    setFileName(rel);
+            } else {
+                QString p = urlTmp.path();
+                if (p.isEmpty()) {
+                    // allow URLs like "file:foo"
+                    if (!d->host.isEmpty() && !d->user.isEmpty() && !d->pass.isEmpty())
+                        p = "/";
+                }
+                if (!p.isEmpty() && p.right(1)!="/")
+                    p += "/";
+                p += rel;
+                d->path = p;
+                d->cleanPathDirty = true;
+            }
+        }
     } else {
-	if ( rel[ 0 ] == QChar( '/' ) ) {
-	    *this = urlTmp;
-	    setEncodedPathAndQuery( rel );
-	} else {
-	    *this = rel;
-	}
+        if (rel[0] == QChar('/')) {
+            *this = urlTmp;
+            setEncodedPathAndQuery(rel);
+        } else {
+            *this = rel;
+        }
     }
 }
 
@@ -317,11 +317,11 @@ QString QUrl::protocol() const
     \sa protocol()
 */
 
-void QUrl::setProtocol( const QString& protocol )
+void QUrl::setProtocol(const QString& protocol)
 {
     d->protocol = protocol;
-    if ( hasHost() )
-	d->isValid = TRUE;
+    if (hasHost())
+        d->isValid = true;
 }
 
 /*!
@@ -341,14 +341,14 @@ QString QUrl::user() const
     \sa user() setPassword()
 */
 
-void QUrl::setUser( const QString& user )
+void QUrl::setUser(const QString& user)
 {
     d->user = user;
 }
 
 /*!
-    Returns TRUE if the URL contains a username; otherwise returns
-    FALSE.
+    Returns true if the URL contains a username; otherwise returns
+    false.
 
     \sa setUser() setPassword()
 */
@@ -381,14 +381,14 @@ QString QUrl::password() const
     \sa password() setUser()
 */
 
-void QUrl::setPassword( const QString& pass )
+void QUrl::setPassword(const QString& pass)
 {
     d->pass = pass;
 }
 
 /*!
-    Returns TRUE if the URL contains a password; otherwise returns
-    FALSE.
+    Returns true if the URL contains a password; otherwise returns
+    false.
 
     \warning Passwords passed in URLs are normally \e insecure; this
     is due to the mechanism, not because of Qt.
@@ -418,16 +418,16 @@ QString QUrl::host() const
     \sa host() hasHost()
 */
 
-void QUrl::setHost( const QString& host )
+void QUrl::setHost(const QString& host)
 {
     d->host = host;
-    if ( !d->protocol.isNull() && d->protocol != "file" )
-	d->isValid = TRUE;
+    if (!d->protocol.isNull() && d->protocol != "file")
+        d->isValid = true;
 }
 
 /*!
-    Returns TRUE if the URL contains a hostname; otherwise returns
-    FALSE.
+    Returns true if the URL contains a hostname; otherwise returns
+    false.
 
     \sa setHost()
 */
@@ -454,13 +454,13 @@ int QUrl::port() const
     \sa port()
 */
 
-void QUrl::setPort( int port )
+void QUrl::setPort(int port)
 {
     d->port = port;
 }
 
 /*!
-    Returns TRUE if the URL contains a port; otherwise returns FALSE.
+    Returns true if the URL contains a port; otherwise returns false.
 
     \sa setPort()
 */
@@ -476,16 +476,16 @@ bool QUrl::hasPort() const
     \sa path() hasPath()
 */
 
-void QUrl::setPath( const QString& path )
+void QUrl::setPath(const QString& path)
 {
     d->path = path;
-    slashify( d->path );
-    d->cleanPathDirty = TRUE;
-    d->isValid = TRUE;
+    slashify(d->path);
+    d->cleanPathDirty = true;
+    d->isValid = true;
 }
 
 /*!
-    Returns TRUE if the URL contains a path; otherwise returns FALSE.
+    Returns true if the URL contains a path; otherwise returns false.
 
     \sa path() setPath()
 */
@@ -501,7 +501,7 @@ bool QUrl::hasPath() const
     \sa query() encode()
 */
 
-void QUrl::setQuery( const QString& txt )
+void QUrl::setQuery(const QString& txt)
 {
     d->queryEncoded = txt;
 }
@@ -534,13 +534,13 @@ QString QUrl::ref() const
     \sa ref() hasRef() encode()
 */
 
-void QUrl::setRef( const QString& txt )
+void QUrl::setRef(const QString& txt)
 {
     d->refEncoded = txt;
 }
 
 /*!
-    Returns TRUE if the URL has a reference; otherwise returns FALSE.
+    Returns true if the URL has a reference; otherwise returns false.
 
     \sa setRef()
 */
@@ -551,7 +551,7 @@ bool QUrl::hasRef() const
 }
 
 /*!
-    Returns TRUE if the URL is valid; otherwise returns FALSE. A URL
+    Returns true if the URL is valid; otherwise returns false. A URL
     is invalid if it cannot be parsed, for example.
 */
 
@@ -574,265 +574,265 @@ void QUrl::reset()
     d->path = "";
     d->queryEncoded = "";
     d->refEncoded = "";
-    d->isValid = TRUE;
+    d->isValid = true;
     d->port = -1;
-    d->cleanPathDirty = TRUE;
+    d->cleanPathDirty = true;
 }
 
 /*!
     Parses the \a url.
 */
 
-bool QUrl::parse( const QString& url )
+bool QUrl::parse(const QString& url)
 {
-    QString url_( url );
-    slashify( url_ );
+    QString url_(url);
+    slashify(url_);
 
-    if ( url_.isEmpty() ) {
-	d->isValid = FALSE;
-	return FALSE;
+    if (url_.isEmpty()) {
+        d->isValid = false;
+        return false;
     }
 
-    d->cleanPathDirty = TRUE;
-    d->isValid = TRUE;
+    d->cleanPathDirty = true;
+    d->isValid = true;
     QString oldProtocol = d->protocol;
     d->protocol = QString::null;
 
-    const int Init	= 0;
-    const int Protocol	= 1;
+    const int Init        = 0;
+    const int Protocol        = 1;
     const int Separator1= 2; // :
     const int Separator2= 3; // :/
     const int Separator3= 4; // :// or more slashes
-    const int User	= 5;
-    const int Pass	= 6;
-    const int Host	= 7;
-    const int Path	= 8;
-    const int Ref	= 9;
-    const int Query	= 10;
-    const int Port	= 11;
-    const int Done	= 12;
+    const int User        = 5;
+    const int Pass        = 6;
+    const int Host        = 7;
+    const int Path        = 8;
+    const int Ref        = 9;
+    const int Query        = 10;
+    const int Port        = 11;
+    const int Done        = 12;
 
     const int InputAlpha= 1;
     const int InputDigit= 2;
     const int InputSlash= 3;
     const int InputColon= 4;
-    const int InputAt	= 5;
+    const int InputAt        = 5;
     const int InputHash = 6;
     const int InputQuery= 7;
 
-    static uchar table[ 12 ][ 8 ] = {
+    static uchar table[12][8] = {
      /* None       InputAlpha  InputDigit  InputSlash  InputColon  InputAt     InputHash   InputQuery */
-	{ 0,       Protocol,   0,          Path,       0,          0,          0,          0,         }, // Init
-	{ 0,       Protocol,   Protocol,   0,          Separator1, 0,          0,          0,         }, // Protocol
-	{ 0,       Path,       Path,       Separator2, 0,          0,          0,          0,         }, // Separator1
-	{ 0,       Path,       Path,       Separator3, 0,          0,          0,          0,         }, // Separator2
-	{ 0,       User,       User,       Separator3, Pass,       Host,       0,          0,         }, // Separator3
-	{ 0,       User,       User,       User,       Pass,       Host,       User,       User,      }, // User
-	{ 0,       Pass,       Pass,       Pass,       Pass,       Host,       Pass,       Pass,      }, // Pass
-	{ 0,       Host,       Host,       Path,       Port,       Host,       Ref,        Query,     }, // Host
-	{ 0,       Path,       Path,       Path,       Path,       Path,       Ref,        Query,     }, // Path
-	{ 0,       Ref,        Ref,        Ref,        Ref,        Ref,        Ref,        Query,     }, // Ref
-	{ 0,       Query,      Query,      Query,      Query,      Query,      Query,      Query,     }, // Query
-	{ 0,       0,          Port,       Path,       0,          0,          0,          0,         }  // Port
+        { 0,       Protocol,   0,          Path,       0,          0,          0,          0,         }, // Init
+        { 0,       Protocol,   Protocol,   0,          Separator1, 0,          0,          0,         }, // Protocol
+        { 0,       Path,       Path,       Separator2, 0,          0,          0,          0,         }, // Separator1
+        { 0,       Path,       Path,       Separator3, 0,          0,          0,          0,         }, // Separator2
+        { 0,       User,       User,       Separator3, Pass,       Host,       0,          0,         }, // Separator3
+        { 0,       User,       User,       User,       Pass,       Host,       User,       User,      }, // User
+        { 0,       Pass,       Pass,       Pass,       Pass,       Host,       Pass,       Pass,      }, // Pass
+        { 0,       Host,       Host,       Path,       Port,       Host,       Ref,        Query,     }, // Host
+        { 0,       Path,       Path,       Path,       Path,       Path,       Ref,        Query,     }, // Path
+        { 0,       Ref,        Ref,        Ref,        Ref,        Ref,        Ref,        Query,     }, // Ref
+        { 0,       Query,      Query,      Query,      Query,      Query,      Query,      Query,     }, // Query
+        { 0,       0,          Port,       Path,       0,          0,          0,          0,         }  // Port
     };
 
-    bool relPath = FALSE;
+    bool relPath = false;
 
-    relPath = FALSE;
-    bool forceRel = FALSE;
+    relPath = false;
+    bool forceRel = false;
 
     // If ':' is at pos 1, we have only one letter
     // before that separator => that's a drive letter!
-    if ( url_.length() >= 2 && url_[1] == ':' )
-	relPath = forceRel = TRUE;
+    if (url_.length() >= 2 && url_[1] == ':')
+        relPath = forceRel = true;
 
     int hasNoHost = -1;
-    int cs = url_.indexOf( ":/" );
-    if ( cs != -1 ) // if a protocol is there, find out if there is a host or directly the path after it
-	hasNoHost = url_.indexOf( "///", cs );
-    table[ 4 ][ 1 ] = User;
-    table[ 4 ][ 2 ] = User;
-    if ( cs == -1 || forceRel ) { // we have a relative file
-	if ( url.indexOf( ':' ) == -1 || forceRel ) {
-	    table[ 0 ][ 1 ] = Path;
-	    // Filenames may also begin with a digit
-	    table[ 0 ][ 2 ] = Path;
-	} else {
-	    table[ 0 ][ 1 ] = Protocol;
-	}
-	relPath = TRUE;
+    int cs = url_.indexOf(":/");
+    if (cs != -1) // if a protocol is there, find out if there is a host or directly the path after it
+        hasNoHost = url_.indexOf("///", cs);
+    table[4][1] = User;
+    table[4][2] = User;
+    if (cs == -1 || forceRel) { // we have a relative file
+        if (url.indexOf(':') == -1 || forceRel) {
+            table[0][1] = Path;
+            // Filenames may also begin with a digit
+            table[0][2] = Path;
+        } else {
+            table[0][1] = Protocol;
+        }
+        relPath = true;
     } else { // some checking
-	table[ 0 ][ 1 ] = Protocol;
+        table[0][1] = Protocol;
 
-	// find the part between the protocol and the path as the meaning
-	// of that part is dependent on some chars
-	++cs;
-	while ( url_[ cs ] == '/' )
-	    ++cs;
-	int slash = url_.indexOf( "/", cs );
-	if ( slash == -1 )
-	    slash = url_.length() - 1;
-	QString tmp = url_.mid( cs, slash - cs + 1 );
+        // find the part between the protocol and the path as the meaning
+        // of that part is dependent on some chars
+        ++cs;
+        while (url_[cs] == '/')
+            ++cs;
+        int slash = url_.indexOf("/", cs);
+        if (slash == -1)
+            slash = url_.length() - 1;
+        QString tmp = url_.mid(cs, slash - cs + 1);
 
-	if ( !tmp.isEmpty() ) { // if this part exists
+        if (!tmp.isEmpty()) { // if this part exists
 
-	    // look for the @ in this part
-	    int at = tmp.indexOf( "@" );
-	    if ( at != -1 )
-		at += cs;
-	    // we have no @, which means host[:port], so directly
-	    // after the protocol the host starts, or if the protocol
-	    // is file or there were more than 2 slashes, it´s the
-	    // path
-	    if ( at == -1 ) {
-		if ( url_.left( 4 ) == "file" || hasNoHost != -1 )
-		    table[ 4 ][ 1 ] = Path;
-		else
-		    table[ 4 ][ 1 ] = Host;
-		table[ 4 ][ 2 ] = table[ 4 ][ 1 ];
-	    }
-	}
+            // look for the @ in this part
+            int at = tmp.indexOf("@");
+            if (at != -1)
+                at += cs;
+            // we have no @, which means host[:port], so directly
+            // after the protocol the host starts, or if the protocol
+            // is file or there were more than 2 slashes, it´s the
+            // path
+            if (at == -1) {
+                if (url_.left(4) == "file" || hasNoHost != -1)
+                    table[4][1] = Path;
+                else
+                    table[4][1] = Host;
+                table[4][2] = table[4][1];
+            }
+        }
     }
 
     int state = Init; // parse state
     int input; // input token
 
-    QChar c = url_[ 0 ];
+    QChar c = url_[0];
     int i = 0;
     QString port;
 
-    for ( ;; ) {
-	switch ( c.latin1() ) {
-	case '?':
-	    input = InputQuery;
-	    break;
-	case '#':
-	    input = InputHash;
-	    break;
-	case '@':
-	    input = InputAt;
-	    break;
-	case ':':
-	    input = InputColon;
-	    break;
-	case '/':
-	    input = InputSlash;
-	    break;
-	case '1': case '2': case '3': case '4': case '5':
-	case '6': case '7': case '8': case '9': case '0':
-	    input = InputDigit;
-	    break;
-	default:
-	    input = InputAlpha;
-	}
+    for (;;) {
+        switch (c.latin1()) {
+        case '?':
+            input = InputQuery;
+            break;
+        case '#':
+            input = InputHash;
+            break;
+        case '@':
+            input = InputAt;
+            break;
+        case ':':
+            input = InputColon;
+            break;
+        case '/':
+            input = InputSlash;
+            break;
+        case '1': case '2': case '3': case '4': case '5':
+        case '6': case '7': case '8': case '9': case '0':
+            input = InputDigit;
+            break;
+        default:
+            input = InputAlpha;
+        }
 
-	state = table[ state ][ input ];
+        state = table[state][input];
 
-	switch ( state ) {
-	case Protocol:
-	    d->protocol += c;
-	    break;
-	case User:
-	    d->user += c;
-	    break;
-	case Pass:
-	    d->pass += c;
-	    break;
-	case Host:
-	    d->host += c;
-	    break;
-	case Path:
-	    d->path += c;
-	    break;
-	case Ref:
-	    d->refEncoded += c;
-	    break;
-	case Query:
-	    d->queryEncoded += c;
-	    break;
-	case Port:
-	    port += c;
-	    break;
-	default:
-	    break;
-	}
+        switch (state) {
+        case Protocol:
+            d->protocol += c;
+            break;
+        case User:
+            d->user += c;
+            break;
+        case Pass:
+            d->pass += c;
+            break;
+        case Host:
+            d->host += c;
+            break;
+        case Path:
+            d->path += c;
+            break;
+        case Ref:
+            d->refEncoded += c;
+            break;
+        case Query:
+            d->queryEncoded += c;
+            break;
+        case Port:
+            port += c;
+            break;
+        default:
+            break;
+        }
 
-	++i;
-	if ( i > (int)url_.length() - 1 || state == Done || state == 0 )
-	    break;
-	c = url_[ i ];
+        ++i;
+        if (i > (int)url_.length() - 1 || state == Done || state == 0)
+            break;
+        c = url_[i];
 
     }
 
-    if ( !port.isEmpty() ) {
-	port.remove( (uint)0, 1 );
-	d->port = atoi( port.latin1() );
+    if (!port.isEmpty()) {
+        port.remove((uint)0, 1);
+        d->port = atoi(port.latin1());
     }
 
     // error
-    if ( i < (int)url_.length() - 1 ) {
-	d->isValid = FALSE;
-	return FALSE;
+    if (i < (int)url_.length() - 1) {
+        d->isValid = false;
+        return false;
     }
 
 
-    if ( d->protocol.isEmpty() )
-	d->protocol = oldProtocol;
+    if (d->protocol.isEmpty())
+        d->protocol = oldProtocol;
 
-    if ( d->path.isEmpty() )
-	d->path = "/";
+    if (d->path.isEmpty())
+        d->path = "/";
 
     // hack for windows
-    if ( d->path.length() == 2 && d->path[ 1 ] == ':' )
-	d->path += "/";
+    if (d->path.length() == 2 && d->path[1] == ':')
+        d->path += "/";
 
     // #### do some corrections, should be done nicer too
-    if ( !d->pass.isEmpty() ) {
-	if ( d->pass[ 0 ] == ':' )
-	    d->pass.remove( (uint)0, 1 );
-	decode( d->pass );
+    if (!d->pass.isEmpty()) {
+        if (d->pass[0] == ':')
+            d->pass.remove((uint)0, 1);
+        decode(d->pass);
     }
-    if ( !d->user.isEmpty() ) {
-	decode( d->user );
+    if (!d->user.isEmpty()) {
+        decode(d->user);
     }
-    if ( !d->path.isEmpty() ) {
-	if ( d->path[ 0 ] == '@' || d->path[ 0 ] == ':' )
-	    d->path.remove( (uint)0, 1 );
-	if ( d->path[ 0 ] != '/' && !relPath && d->path[ 1 ] != ':' )
-	    d->path.prepend( "/" );
+    if (!d->path.isEmpty()) {
+        if (d->path[0] == '@' || d->path[0] == ':')
+            d->path.remove((uint)0, 1);
+        if (d->path[0] != '/' && !relPath && d->path[1] != ':')
+            d->path.prepend("/");
     }
-    if ( !d->refEncoded.isEmpty() && d->refEncoded[ 0 ] == '#' )
-	d->refEncoded.remove( (uint)0, 1 );
-    if ( !d->queryEncoded.isEmpty() && d->queryEncoded[ 0 ] == '?' )
-	d->queryEncoded.remove( (uint)0, 1 );
-    if ( !d->host.isEmpty() && d->host[ 0 ] == '@' )
-	d->host.remove( (uint)0, 1 );
+    if (!d->refEncoded.isEmpty() && d->refEncoded[0] == '#')
+        d->refEncoded.remove((uint)0, 1);
+    if (!d->queryEncoded.isEmpty() && d->queryEncoded[0] == '?')
+        d->queryEncoded.remove((uint)0, 1);
+    if (!d->host.isEmpty() && d->host[0] == '@')
+        d->host.remove((uint)0, 1);
 
 #if defined(Q_OS_WIN32)
     // hack for windows file://machine/path syntax
-    if ( d->protocol == "file" ) {
-	if ( url.left( 7 ) == "file://" &&
-	     d->path.length() > 1 && d->path[ 1 ] != ':' )
-		 d->path.prepend( "/" );
+    if (d->protocol == "file") {
+        if (url.left(7) == "file://" &&
+             d->path.length() > 1 && d->path[1] != ':')
+                 d->path.prepend("/");
     }
 #endif
 
-    decode( d->path );
-    d->cleanPathDirty = TRUE;
+    decode(d->path);
+    d->cleanPathDirty = true;
 
 #if 0
-    qDebug( "URL: %s", url.latin1() );
-    qDebug( "protocol: %s", d->protocol.latin1() );
-    qDebug( "user: %s", d->user.latin1() );
-    qDebug( "pass: %s", d->pass.latin1() );
-    qDebug( "host: %s", d->host.latin1() );
-    qDebug( "path: %s", path().latin1() );
-    qDebug( "ref: %s", d->refEncoded.latin1() );
-    qDebug( "query: %s", d->queryEncoded.latin1() );
-    qDebug( "port: %d\n\n----------------------------\n\n", d->port );
+    qDebug("URL: %s", url.latin1());
+    qDebug("protocol: %s", d->protocol.latin1());
+    qDebug("user: %s", d->user.latin1());
+    qDebug("pass: %s", d->pass.latin1());
+    qDebug("host: %s", d->host.latin1());
+    qDebug("path: %s", path().latin1());
+    qDebug("ref: %s", d->refEncoded.latin1());
+    qDebug("query: %s", d->queryEncoded.latin1());
+    qDebug("port: %d\n\n----------------------------\n\n", d->port);
 #endif
 
-    return TRUE;
+    return true;
 }
 
 /*!
@@ -844,10 +844,10 @@ bool QUrl::parse( const QString& url )
     assumed.
 */
 
-QUrl& QUrl::operator=( const QString& url )
+QUrl& QUrl::operator=(const QString& url)
 {
     reset();
-    parse( url );
+    parse(url);
 
     return *this;
 }
@@ -856,7 +856,7 @@ QUrl& QUrl::operator=( const QString& url )
     Assigns the data of \a url to this class.
 */
 
-QUrl& QUrl::operator=( const QUrl& url )
+QUrl& QUrl::operator=(const QUrl& url)
 {
     *d = *url.d;
     return *this;
@@ -879,40 +879,40 @@ QUrl& QUrl::operator=( const QUrl& url )
 */
 
 /*!
-    Compares this URL with \a url and returns TRUE if they are equal;
-    otherwise returns FALSE.
+    Compares this URL with \a url and returns true if they are equal;
+    otherwise returns false.
 */
 
-bool QUrl::operator==( const QUrl& url ) const
+bool QUrl::operator==(const QUrl& url) const
 {
-    if ( !isValid() || !url.isValid() )
-	return FALSE;
+    if (!isValid() || !url.isValid())
+        return false;
 
-    if ( d->protocol == url.d->protocol &&
-	 d->user == url.d->user &&
-	 d->pass == url.d->pass &&
-	 d->host == url.d->host &&
-	 d->path == url.d->path &&
-	 d->queryEncoded == url.d->queryEncoded &&
-	 d->refEncoded == url.d->refEncoded &&
-	 d->isValid == url.d->isValid &&
-	 d->port == url.d->port )
-	return TRUE;
+    if (d->protocol == url.d->protocol &&
+         d->user == url.d->user &&
+         d->pass == url.d->pass &&
+         d->host == url.d->host &&
+         d->path == url.d->path &&
+         d->queryEncoded == url.d->queryEncoded &&
+         d->refEncoded == url.d->refEncoded &&
+         d->isValid == url.d->isValid &&
+         d->port == url.d->port)
+        return true;
 
-    return FALSE;
+    return false;
 }
 
 /*!
     \overload
 
     Compares this URL with \a url. \a url is parsed first. Returns
-    TRUE if \a url is equal to this url; otherwise returns FALSE.
+    true if \a url is equal to this url; otherwise returns false.
 */
 
-bool QUrl::operator==( const QString& url ) const
+bool QUrl::operator==(const QString& url) const
 {
-    QUrl u( url );
-    return ( *this == u );
+    QUrl u(url);
+    return (*this == u);
 }
 
 /*!
@@ -926,31 +926,31 @@ bool QUrl::operator==( const QString& url ) const
     \sa fileName()
 */
 
-void QUrl::setFileName( const QString& name )
+void QUrl::setFileName(const QString& name)
 {
-    QString fn( name );
-    slashify( fn );
+    QString fn(name);
+    slashify(fn);
 
-    while ( fn[ 0 ] == '/' )
-	fn.remove( (uint)0, 1 );
+    while (fn[0] == '/')
+        fn.remove((uint)0, 1);
 
     QString p;
-    if ( path().isEmpty() ) {
-	p = "/";
+    if (path().isEmpty()) {
+        p = "/";
     } else {
-	p = path();
-	int slash = p.lastIndexOf( QChar( '/' ) );
-	if ( slash == -1 ) {
-	    p = "/";
-	} else if ( p[ (int)p.length() - 1 ] != '/' ) {
-	    p.truncate( slash + 1 );
-	}
+        p = path();
+        int slash = p.lastIndexOf(QChar('/'));
+        if (slash == -1) {
+            p = "/";
+        } else if (p[(int)p.length() - 1] != '/') {
+            p.truncate(slash + 1);
+        }
     }
 
     p += fn;
-    if ( !d->queryEncoded.isEmpty() )
-	p += "?" + d->queryEncoded;
-    setEncodedPathAndQuery( p );
+    if (!d->queryEncoded.isEmpty())
+        p += "?" + d->queryEncoded;
+    setEncodedPathAndQuery(p);
 }
 
 /*!
@@ -962,14 +962,14 @@ void QUrl::setFileName( const QString& name )
 QString QUrl::encodedPathAndQuery()
 {
     QString p = path();
-    if ( p.isEmpty() )
-	p = "/";
+    if (p.isEmpty())
+        p = "/";
 
-    encode( p );
+    encode(p);
 
-    if ( !d->queryEncoded.isEmpty() ) {
-	p += "?";
-	p += d->queryEncoded;
+    if (!d->queryEncoded.isEmpty()) {
+        p += "?";
+        p += d->queryEncoded;
     }
 
     return p;
@@ -982,94 +982,94 @@ QString QUrl::encodedPathAndQuery()
     \sa encode()
 */
 
-void QUrl::setEncodedPathAndQuery( const QString& pathAndQuery )
+void QUrl::setEncodedPathAndQuery(const QString& pathAndQuery)
 {
-    d->cleanPathDirty = TRUE;
-    int pos = pathAndQuery.indexOf( '?' );
-    if ( pos == -1 ) {
-	d->path = pathAndQuery;
-	d->queryEncoded = "";
+    d->cleanPathDirty = true;
+    int pos = pathAndQuery.indexOf('?');
+    if (pos == -1) {
+        d->path = pathAndQuery;
+        d->queryEncoded = "";
     } else {
-	d->path = pathAndQuery.left( pos );
-	d->queryEncoded = pathAndQuery.mid( pos + 1 );
+        d->path = pathAndQuery.left(pos);
+        d->queryEncoded = pathAndQuery.mid(pos + 1);
     }
 
-    decode( d->path );
-    d->cleanPathDirty = TRUE;
+    decode(d->path);
+    d->cleanPathDirty = true;
 }
 
 extern bool qt_resolve_symlinks; // defined in qapplication.cpp
 
 /*!
-    Returns the path of the URL. If \a correct is TRUE, the path is
+    Returns the path of the URL. If \a correct is true, the path is
     cleaned (deals with too many or too few slashes, cleans things
     like "/../..", etc). Otherwise path() returns exactly the path
     that was parsed or set.
 
     \sa setPath() hasPath()
 */
-QString QUrl::path( bool correct ) const
+QString QUrl::path(bool correct) const
 {
-    if ( !correct )
-	return d->path;
+    if (!correct)
+        return d->path;
 
-    if ( d->cleanPathDirty ) {
-	bool check = TRUE;
-	if ( QDir::isRelativePath( d->path ) ) {
-	    d->cleanPath = d->path;
-	} else if ( isLocalFile() ) {
+    if (d->cleanPathDirty) {
+        bool check = true;
+        if (QDir::isRelativePath(d->path)) {
+            d->cleanPath = d->path;
+        } else if (isLocalFile()) {
 #if defined(Q_OS_WIN32)
-	    // hack for stuff like \\machine\path and //machine/path on windows
-	    if ( ( d->path.left( 1 ) == "/" || d->path.left( 1 ) == "\\" ) &&
-		 d->path.length() > 1 ) {
-		d->cleanPath = d->path;
-		bool share = d->cleanPath[ 1 ] == '\\' || d->cleanPath[ 1 ] == '/';
-		slashify( d->cleanPath, FALSE );
-		d->cleanPath = QDir::cleanDirPath( d->cleanPath );
-		if ( share ) {
-		    check = FALSE;
-		    d->cleanPath.prepend( "//" );
-		}
-	    }
+            // hack for stuff like \\machine\path and //machine/path on windows
+            if ((d->path.left(1) == "/" || d->path.left(1) == "\\") &&
+                 d->path.length() > 1) {
+                d->cleanPath = d->path;
+                bool share = d->cleanPath[1] == '\\' || d->cleanPath[1] == '/';
+                slashify(d->cleanPath, false);
+                d->cleanPath = QDir::cleanDirPath(d->cleanPath);
+                if (share) {
+                    check = false;
+                    d->cleanPath.prepend("//");
+                }
+            }
 #endif
-	    if ( check ) {
-		QFileInfo fi( d->path );
-		if ( !fi.exists() )
-		    d->cleanPath = d->path;
-		else if ( fi.isDir() ) {
-		    QString dir =
-			QDir::cleanDirPath( (qt_resolve_symlinks ?
-					    QDir( d->path ).canonicalPath() :
-					    QDir( d->path ).absPath()) ) + "/";
-		    if ( dir == "//" )
-			d->cleanPath = "/";
-		    else
-			d->cleanPath = dir;
-		} else {
-		    QString p =
-			QDir::cleanDirPath( (qt_resolve_symlinks ?
-					    fi.dir().canonicalPath() :
-					    fi.dir().absPath()) );
-		    d->cleanPath = p + "/" + fi.fileName();
-		}
-	    }
-	} else {
-	    if ( d->path != "/" && d->path[ (int)d->path.length() - 1 ] == '/' )
-		d->cleanPath = QDir::cleanDirPath( d->path ) + "/";
-	    else
-		d->cleanPath = QDir::cleanDirPath( d->path );
-	}
+            if (check) {
+                QFileInfo fi(d->path);
+                if (!fi.exists())
+                    d->cleanPath = d->path;
+                else if (fi.isDir()) {
+                    QString dir =
+                        QDir::cleanDirPath((qt_resolve_symlinks ?
+                                            QDir(d->path).canonicalPath() :
+                                            QDir(d->path).absPath())) + "/";
+                    if (dir == "//")
+                        d->cleanPath = "/";
+                    else
+                        d->cleanPath = dir;
+                } else {
+                    QString p =
+                        QDir::cleanDirPath((qt_resolve_symlinks ?
+                                            fi.dir().canonicalPath() :
+                                            fi.dir().absPath()));
+                    d->cleanPath = p + "/" + fi.fileName();
+                }
+            }
+        } else {
+            if (d->path != "/" && d->path[(int)d->path.length() - 1] == '/')
+                d->cleanPath = QDir::cleanDirPath(d->path) + "/";
+            else
+                d->cleanPath = QDir::cleanDirPath(d->path);
+        }
 
-	if ( check )
-	    slashify( d->cleanPath, FALSE );
-	d->cleanPathDirty = FALSE;
+        if (check)
+            slashify(d->cleanPath, false);
+        d->cleanPathDirty = false;
     }
 
     return d->cleanPath;
 }
 
 /*!
-    Returns TRUE if the URL is a local file; otherwise returns FALSE.
+    Returns true if the URL is a local file; otherwise returns false.
 */
 
 bool QUrl::isLocalFile() const
@@ -1088,14 +1088,14 @@ bool QUrl::isLocalFile() const
 
 QString QUrl::fileName() const
 {
-    if ( d->path.isEmpty() || d->path.endsWith( "/" )
+    if (d->path.isEmpty() || d->path.endsWith("/")
 #ifdef Q_WS_WIN
-	|| d->path.endsWith( "\\" )
+        || d->path.endsWith("\\")
 #endif
-	)
-	return QString::null;
+       )
+        return QString::null;
 
-    return QFileInfo( d->path ).fileName();
+    return QFileInfo(d->path).fileName();
 }
 
 /*!
@@ -1104,26 +1104,26 @@ QString QUrl::fileName() const
     \sa setPath() hasPath()
 */
 
-void QUrl::addPath( const QString& pa )
+void QUrl::addPath(const QString& pa)
 {
-    if ( pa.isEmpty() )
-	return;
+    if (pa.isEmpty())
+        return;
 
-    QString p( pa );
-    slashify( p );
+    QString p(pa);
+    slashify(p);
 
-    if ( path().isEmpty() ) {
-	if ( p[ 0 ] != QChar( '/' ) )
-	    d->path = "/" + p;
-	else
-	    d->path = p;
+    if (path().isEmpty()) {
+        if (p[0] != QChar('/'))
+            d->path = "/" + p;
+        else
+            d->path = p;
     } else {
-	if ( p[ 0 ] != QChar( '/' ) && d->path[ (int)d->path.length() - 1 ] != '/' )
-	    d->path += "/" + p;
-	else
-	    d->path += p;
+        if (p[0] != QChar('/') && d->path[(int)d->path.length() - 1] != '/')
+            d->path += "/" + p;
+        else
+            d->path += p;
     }
-    d->cleanPathDirty = TRUE;
+    d->cleanPathDirty = true;
 }
 
 /*!
@@ -1137,17 +1137,17 @@ void QUrl::addPath( const QString& pa )
 
 QString QUrl::dirPath() const
 {
-    if ( path().isEmpty() )
-	return QString::null;
+    if (path().isEmpty())
+        return QString::null;
 
     QString s = path();
-    int pos = s.lastIndexOf( '/' );
-    if ( pos == -1 ) {
-	return QString::fromLatin1(".");
+    int pos = s.lastIndexOf('/');
+    if (pos == -1) {
+        return QString::fromLatin1(".");
     } else {
-	if ( pos == 0 )
-	    return QString::fromLatin1( "/" );
-	return s.left( pos );
+        if (pos == 0)
+            return QString::fromLatin1("/");
+        return s.left(pos);
     }
 }
 
@@ -1155,55 +1155,55 @@ QString QUrl::dirPath() const
     Encodes the \a url in-place into UTF-8.  For example
 
     \code
-	QString url = http://www.trolltech.com
-	QUrl::encode( url );
-	// url is now "http%3A//www%20trolltech%20com"
+        QString url = http://www.trolltech.com
+        QUrl::encode(url);
+        // url is now "http%3A//www%20trolltech%20com"
     \endcode
 
   \sa decode()
 */
 
-void QUrl::encode( QString& url )
+void QUrl::encode(QString& url)
 {
-    if ( url.isEmpty() )
-	return;
+    if (url.isEmpty())
+        return;
 
     QByteArray curl = url.toUtf8();
     int oldlen = curl.length();
 
-    const QByteArray special( "<>#@\"&%$:,;?={}|^~[]\'`\\ \n\t\r" );
+    const QByteArray special("<>#@\"&%$:,;?={}|^~[]\'`\\ \n\t\r");
     QString newUrl;
     int newlen = 0;
 
-    for ( int i = 0; i < oldlen ;++i ) {
-	uchar inCh = (uchar)curl[ i ];
+    for (int i = 0; i < oldlen ;++i) {
+        uchar inCh = (uchar)curl[i];
 
-	if ( inCh >= 128 || special.contains(inCh) ) {
-	    newUrl[ newlen++ ] = QChar( '%' );
+        if (inCh >= 128 || special.contains(inCh)) {
+            newUrl[newlen++] = QChar('%');
 
-	    ushort c = inCh / 16;
-	    c += c > 9 ? 'A' - 10 : '0';
-	    newUrl[ newlen++ ] = c;
+            ushort c = inCh / 16;
+            c += c > 9 ? 'A' - 10 : '0';
+            newUrl[newlen++] = c;
 
-	    c = inCh % 16;
-	    c += c > 9 ? 'A' - 10 : '0';
-	    newUrl[ newlen++ ] = c;
-	} else {
-	    newUrl[ newlen++ ] = inCh;
-	}
+            c = inCh % 16;
+            c += c > 9 ? 'A' - 10 : '0';
+            newUrl[newlen++] = c;
+        } else {
+            newUrl[newlen++] = inCh;
+        }
     }
 
     url = newUrl;
 }
 
-static uchar hex_to_int( uchar c )
+static uchar hex_to_int(uchar c)
 {
-    if ( c >= 'A' && c <= 'F' )
-	return c - 'A' + 10;
-    if ( c >= 'a' && c <= 'f')
-	return c - 'a' + 10;
-    if ( c >= '0' && c <= '9')
-	return c - '0';
+    if (c >= 'A' && c <= 'F')
+        return c - 'A' + 10;
+    if (c >= 'a' && c <= 'f')
+        return c - 'a' + 10;
+    if (c >= '0' && c <= '9')
+        return c - '0';
     return 0;
 }
 
@@ -1211,18 +1211,18 @@ static uchar hex_to_int( uchar c )
     Decodes the \a url in-place into UTF-8.  For example
 
     \code
-	QString url = "http%3A//www%20trolltech%20com"
-	QUrl::decode( url );
-	// url is now "http://www.trolltech.com"
+        QString url = "http%3A//www%20trolltech%20com"
+        QUrl::decode(url);
+        // url is now "http://www.trolltech.com"
     \endcode
 
     \sa encode()
 */
 
-void QUrl::decode( QString& url )
+void QUrl::decode(QString& url)
 {
-    if ( url.isEmpty() )
-	return;
+    if (url.isEmpty())
+        return;
 
     int newlen = 0;
     QByteArray curl = url.toUtf8();
@@ -1232,15 +1232,15 @@ void QUrl::decode( QString& url )
     newUrl.resize(oldlen);
 
     int i = 0;
-    while ( i < oldlen ) {
-	uchar c = (uchar)curl[ i++ ];
-	if ( c == '%' && i <= oldlen - 2 ) {
-	    c = hex_to_int( (uchar)curl[ i ] ) * 16 + hex_to_int( (uchar)curl[ i + 1 ] );
-	    i += 2;
-	}
-	newUrl [ newlen++ ] = c;
+    while (i < oldlen) {
+        uchar c = (uchar)curl[i++];
+        if (c == '%' && i <= oldlen - 2) {
+            c = hex_to_int((uchar)curl[i]) * 16 + hex_to_int((uchar)curl[i + 1]);
+            i += 2;
+        }
+        newUrl [newlen++] = c;
     }
-    newUrl.resize( newlen );
+    newUrl.resize(newlen);
 
     url = QString::fromUtf8(newUrl);
 }
@@ -1248,56 +1248,56 @@ void QUrl::decode( QString& url )
 
 /*!
     Composes a string version of the URL and returns it. If \a
-    encodedPath is TRUE the path in the returned string is encoded. If
-    \a forcePrependProtocol is TRUE and \a encodedPath looks like a
+    encodedPath is true the path in the returned string is encoded. If
+    \a forcePrependProtocol is true and \a encodedPath looks like a
     local filename, the "file:/" protocol is also prepended.
 
     \sa encode() decode()
 */
 
-QString QUrl::toString( bool encodedPath, bool forcePrependProtocol ) const
+QString QUrl::toString(bool encodedPath, bool forcePrependProtocol) const
 {
     QString res, p = path();
-    if ( encodedPath )
-	encode( p );
+    if (encodedPath)
+        encode(p);
 
-    if ( isLocalFile() ) {
-	if ( forcePrependProtocol )
-	    res = d->protocol + ":" + p;
-	else
-	    res = p;
-    } else if ( d->protocol == "mailto" ) {
-	res = d->protocol + ":" + p;
+    if (isLocalFile()) {
+        if (forcePrependProtocol)
+            res = d->protocol + ":" + p;
+        else
+            res = p;
+    } else if (d->protocol == "mailto") {
+        res = d->protocol + ":" + p;
     } else {
-	res = d->protocol + "://";
-	if ( !d->user.isEmpty() || !d->pass.isEmpty() ) {
-	    QString tmp;
-	    if ( !d->user.isEmpty() ) {
-		tmp = d->user;
-		encode( tmp );
-		res += tmp;
-	    }
-	    if ( !d->pass.isEmpty() ) {
-		tmp = d->pass;
-		encode( tmp );
-		res += ":" + tmp;
-	    }
-	    res += "@";
-	}
-	res += d->host;
-	if ( d->port != -1 )
-	    res += ":" + QString( "%1" ).arg( d->port );
-	if ( !p.isEmpty() ) {
-	    if ( !d->host.isEmpty() && p[0]!='/' )
-		res += "/";
-	    res += p;
-	}
+        res = d->protocol + "://";
+        if (!d->user.isEmpty() || !d->pass.isEmpty()) {
+            QString tmp;
+            if (!d->user.isEmpty()) {
+                tmp = d->user;
+                encode(tmp);
+                res += tmp;
+            }
+            if (!d->pass.isEmpty()) {
+                tmp = d->pass;
+                encode(tmp);
+                res += ":" + tmp;
+            }
+            res += "@";
+        }
+        res += d->host;
+        if (d->port != -1)
+            res += ":" + QString("%1").arg(d->port);
+        if (!p.isEmpty()) {
+            if (!d->host.isEmpty() && p[0]!='/')
+                res += "/";
+            res += p;
+        }
     }
 
-    if ( !d->refEncoded.isEmpty() )
-	res += "#" + d->refEncoded;
-    if ( !d->queryEncoded.isEmpty() )
-	res += "?" + d->queryEncoded;
+    if (!d->refEncoded.isEmpty())
+        res += "#" + d->refEncoded;
+    if (!d->queryEncoded.isEmpty())
+        res += "?" + d->queryEncoded;
 
     return res;
 }
@@ -1322,8 +1322,8 @@ QUrl::operator QString() const
 bool QUrl::cdUp()
 {
     d->path += "/..";
-    d->cleanPathDirty = TRUE;
-    return TRUE;
+    d->cleanPathDirty = true;
+    return true;
 }
 
 #endif // QT_NO_URL

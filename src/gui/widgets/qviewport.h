@@ -25,9 +25,9 @@ class QViewportPrivate;
 class Q_GUI_EXPORT QViewport : public QFrame
 {
     Q_OBJECT
-    Q_PROPERTY( ScrollBarPolicy ScrollBarPolicy READ verticalScrollBarPolicy WRITE setVerticalScrollBarPolicy )
-    Q_PROPERTY( ScrollBarPolicy horizontalScrollBarPolicy READ horizontalScrollBarPolicy WRITE setHorizontalScrollBarPolicy )
-    Q_OVERRIDE( bool acceptDrops READ acceptDrops WRITE setAcceptDrops )
+    Q_PROPERTY(ScrollBarPolicy ScrollBarPolicy READ verticalScrollBarPolicy WRITE setVerticalScrollBarPolicy)
+    Q_PROPERTY(ScrollBarPolicy horizontalScrollBarPolicy READ horizontalScrollBarPolicy WRITE setHorizontalScrollBarPolicy)
+    Q_OVERRIDE(bool acceptDrops READ acceptDrops WRITE setAcceptDrops)
 
 public:
     QViewport(QWidget* parent=0);
@@ -70,12 +70,12 @@ protected:
     void dropEvent(QDropEvent *);
 #endif
 
-    void keyPressEvent( QKeyEvent * );
+    void keyPressEvent(QKeyEvent *);
 
     virtual void scrollContentsBy(int dx, int dy);
 
 private:
-    Q_DECLARE_PRIVATE( QViewport );
+    Q_DECLARE_PRIVATE(QViewport);
     Q_PRIVATE_SLOT(void hslide(int))
     Q_PRIVATE_SLOT(void vslide(int))
     Q_PRIVATE_SLOT(void showOrHideScrollBars())

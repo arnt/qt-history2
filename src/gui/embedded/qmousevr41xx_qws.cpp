@@ -37,7 +37,7 @@ class QWSVr41xxMouseHandlerPrivate : public QObject
 {
     Q_OBJECT
 public:
-    QWSVr41xxMouseHandlerPrivate( QWSVr41xxMouseHandler *, const QString &, const QString & );
+    QWSVr41xxMouseHandlerPrivate(QWSVr41xxMouseHandler *, const QString &, const QString &);
     ~QWSVr41xxMouseHandlerPrivate();
 
 private slots:
@@ -54,10 +54,10 @@ private:
     QWSVr41xxMouseHandler *handler;
 };
 
-QWSVr41xxMouseHandler::QWSVr41xxMouseHandler( const QString &drv, const QString &dev )
+QWSVr41xxMouseHandler::QWSVr41xxMouseHandler(const QString &drv, const QString &dev)
 {
-    d = new QWSVr41xxMouseHandlerPrivate( this, drv, dev );
-    setFilterSize( 3 );
+    d = new QWSVr41xxMouseHandlerPrivate(this, drv, dev);
+    setFilterSize(3);
 }
 
 QWSVr41xxMouseHandler::~QWSVr41xxMouseHandler()
@@ -65,33 +65,33 @@ QWSVr41xxMouseHandler::~QWSVr41xxMouseHandler()
     delete d;
 }
 
-QWSVr41xxMouseHandlerPrivate::QWSVr41xxMouseHandlerPrivate( QWSVr41xxMouseHandler *h, const QString &, const QString &device )
-    : handler( h )
+QWSVr41xxMouseHandlerPrivate::QWSVr41xxMouseHandlerPrivate(QWSVr41xxMouseHandler *h, const QString &, const QString &device)
+    : handler(h)
 {
     QString dev = device;
-    if ( dev.isEmpty() )
-	dev = "/dev/tpanel";
+    if (dev.isEmpty())
+        dev = "/dev/tpanel";
 
-    if ((mouseFD = open( dev, O_RDONLY)) < 0) {
-	qFatal( "Cannot open %s (%s)", dev.latin1(), strerror(errno));
+    if ((mouseFD = open(dev, O_RDONLY)) < 0) {
+        qFatal("Cannot open %s (%s)", dev.latin1(), strerror(errno));
     } else {
-	sleep(1);
+        sleep(1);
     }
 
     struct scanparam s;
     s.interval = 20000;
     s.settletime = 480;
-    if ( ioctl(mouseFD, TPSETSCANPARM, &s) < 0
-      || fcntl(mouseFD, F_SETFL, O_NONBLOCK) < 0 )
-	qWarning("Error initializing touch panel.");
+    if (ioctl(mouseFD, TPSETSCANPARM, &s) < 0
+      || fcntl(mouseFD, F_SETFL, O_NONBLOCK) < 0)
+        qWarning("Error initializing touch panel.");
 
     QSocketNotifier *mouseNotifier;
-    mouseNotifier = new QSocketNotifier( mouseFD, QSocketNotifier::Read,
-					 this );
+    mouseNotifier = new QSocketNotifier(mouseFD, QSocketNotifier::Read,
+                                         this);
     connect(mouseNotifier, SIGNAL(activated(int)),this, SLOT(readMouseData()));
 
-    rtimer = new QTimer( this );
-    connect( rtimer, SIGNAL(timeout()), this, SLOT(sendRelease()));
+    rtimer = new QTimer(this);
+    connect(rtimer, SIGNAL(timeout()), this, SLOT(sendRelease()));
     mouseIdx = 0;
 
     printf("\033[?25l"); fflush(stdout); // VT100 cursor off
@@ -100,49 +100,49 @@ QWSVr41xxMouseHandlerPrivate::QWSVr41xxMouseHandlerPrivate( QWSVr41xxMouseHandle
 QWSVr41xxMouseHandlerPrivate::~QWSVr41xxMouseHandlerPrivate()
 {
     if (mouseFD >= 0)
-	close(mouseFD);
+        close(mouseFD);
 }
 
 void QWSVr41xxMouseHandlerPrivate::sendRelease()
 {
-    handler->mouseChanged( handler->pos(), 0 );
+    handler->mouseChanged(handler->pos(), 0);
 }
 
 void QWSVr41xxMouseHandlerPrivate::readMouseData()
 {
     if(!qt_screen)
-	return;
-    static bool pressed = FALSE;
+        return;
+    static bool pressed = false;
 
     int n;
     do {
-	n = read(mouseFD, mouseBuf+mouseIdx, mouseBufSize-mouseIdx );
-	if ( n > 0 )
-	    mouseIdx += n;
-    } while ( n > 0 && mouseIdx < mouseBufSize );
+        n = read(mouseFD, mouseBuf+mouseIdx, mouseBufSize-mouseIdx);
+        if (n > 0)
+            mouseIdx += n;
+    } while (n > 0 && mouseIdx < mouseBufSize);
 
     int idx = 0;
-    while ( mouseIdx-idx >= (int)sizeof( short ) * 6 ) {
-	uchar *mb = mouseBuf+idx;
-	ushort *data = (ushort *) mb;
-	if ( data[0] & 0x8000 ) {
-	    if ( data[5] > 750 ) {
-		QPoint t(data[3]-data[4],data[2]-data[1]);
-		if ( handler->sendFiltered( t, Qt::LeftButton ) )
-		    pressed = TRUE;
-		if ( pressed )
-		    rtimer->start( 200, TRUE ); // release unreliable
-	    }
-	} else if ( pressed ) {
-	    rtimer->start( 50, TRUE );
-	    pressed = FALSE;
-	}
-	idx += sizeof( ushort ) * 6;
+    while (mouseIdx-idx >= (int)sizeof(short) * 6) {
+        uchar *mb = mouseBuf+idx;
+        ushort *data = (ushort *) mb;
+        if (data[0] & 0x8000) {
+            if (data[5] > 750) {
+                QPoint t(data[3]-data[4],data[2]-data[1]);
+                if (handler->sendFiltered(t, Qt::LeftButton))
+                    pressed = true;
+                if (pressed)
+                    rtimer->start(200, true); // release unreliable
+            }
+        } else if (pressed) {
+            rtimer->start(50, true);
+            pressed = false;
+        }
+        idx += sizeof(ushort) * 6;
     }
 
     int surplus = mouseIdx - idx;
-    for ( int i = 0; i < surplus; i++ )
-	mouseBuf[i] = mouseBuf[idx+i];
+    for (int i = 0; i < surplus; i++)
+        mouseBuf[i] = mouseBuf[idx+i];
     mouseIdx = surplus;
 }
 

@@ -44,14 +44,14 @@ public:
     ~QWidgetPlugin();
 
     virtual QStringList keys() const = 0;
-    virtual QWidget *create( const QString &key, QWidget *parent = 0, const char *name = 0 ) = 0;
+    virtual QWidget *create(const QString &key, QWidget *parent = 0, const char *name = 0) = 0;
 
-    virtual QString group( const QString &key ) const;
-    virtual QIconSet iconSet( const QString &key ) const;
-    virtual QString includeFile( const QString &key ) const;
-    virtual QString toolTip( const QString &key ) const;
-    virtual QString whatsThis( const QString &key ) const;
-    virtual bool isContainer( const QString &key ) const;
+    virtual QString group(const QString &key) const;
+    virtual QIconSet iconSet(const QString &key) const;
+    virtual QString includeFile(const QString &key) const;
+    virtual QString toolTip(const QString &key) const;
+    virtual QString whatsThis(const QString &key) const;
+    virtual bool isContainer(const QString &key) const;
 
 private:
     QWidgetPluginPrivate *d;
@@ -66,26 +66,26 @@ public:
     QWidgetContainerPlugin();
     ~QWidgetContainerPlugin();
 
-    virtual QWidget* containerOfWidget( const QString &key, QWidget *container ) const;
-    virtual bool isPassiveInteractor( const QString &key, QWidget *container ) const;
+    virtual QWidget* containerOfWidget(const QString &key, QWidget *container) const;
+    virtual bool isPassiveInteractor(const QString &key, QWidget *container) const;
 
-    virtual bool supportsPages( const QString &key ) const;
+    virtual bool supportsPages(const QString &key) const;
 
-    virtual QWidget *addPage( const QString &key, QWidget *container,
-			      const QString &name, int index ) const;
-    virtual void insertPage( const QString &key, QWidget *container,
-			     const QString &name, int index, QWidget *page ) const;
-    virtual void removePage( const QString &key, QWidget *container, int index ) const;
-    virtual void movePage( const QString &key, QWidget *container, int fromIndex, int toIndex ) const;
-    virtual int count( const QString &key, QWidget *container ) const;
-    virtual int currentIndex( const QString &key, QWidget *container ) const;
-    virtual QString pageLabel( const QString &key, QWidget *container, int index ) const;
-    virtual QWidget *page( const QString &key, QWidget *container, int index ) const;
-    virtual void renamePage( const QString &key, QWidget *container,
-			     int index, const QString &newName ) const;
-    virtual QWidgetList pages( const QString &key, QWidget *container ) const;
-    virtual QString createCode( const QString &key, const QString &container,
-				const QString &page, const QString &pageName ) const;
+    virtual QWidget *addPage(const QString &key, QWidget *container,
+                              const QString &name, int index) const;
+    virtual void insertPage(const QString &key, QWidget *container,
+                             const QString &name, int index, QWidget *page) const;
+    virtual void removePage(const QString &key, QWidget *container, int index) const;
+    virtual void movePage(const QString &key, QWidget *container, int fromIndex, int toIndex) const;
+    virtual int count(const QString &key, QWidget *container) const;
+    virtual int currentIndex(const QString &key, QWidget *container) const;
+    virtual QString pageLabel(const QString &key, QWidget *container, int index) const;
+    virtual QWidget *page(const QString &key, QWidget *container, int index) const;
+    virtual void renamePage(const QString &key, QWidget *container,
+                             int index, const QString &newName) const;
+    virtual QWidgetList pages(const QString &key, QWidget *container) const;
+    virtual QString createCode(const QString &key, const QString &container,
+                                const QString &page, const QString &pageName) const;
 };
 
 #endif // QT_NO_WIDGETPLUGIN

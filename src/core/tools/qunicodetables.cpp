@@ -28,10 +28,10 @@
 sub numberize
 {
     my(%r, $n, $id);
-    for $id ( @_ ) {
+    for $id (@_) {
       $i = $id;
-	$i="" if $i eq "EMPTY";
-	$r{$i}=$n++;
+        $i="" if $i eq "EMPTY";
+        $r{$i}=$n++;
     }
     return %r;
 }
@@ -40,29 +40,29 @@ sub numberize
 sub readUnicodeDataLine {
     $code = shift @_;
     for $n (qw{
-	    name category combining_class bidi_category
-	    character_decomposition decimal_digit_value digit_value
-	    numeric_value mirrored oldname comment
-	    uppercase lowercase titlecase})
+            name category combining_class bidi_category
+            character_decomposition decimal_digit_value digit_value
+            numeric_value mirrored oldname comment
+            uppercase lowercase titlecase})
     {
-	$id = shift @_;
-	$codes = "${n}_code";
-	if ( defined %$codes && defined $$codes{$id} ) {
-	    $id = $$codes{$id};
-	}
-	${$n}{$code}=$id;
+        $id = shift @_;
+        $codes = "${n}_code";
+        if (defined %$codes && defined $$codes{$id}) {
+            $id = $$codes{$id};
+        }
+        ${$n}{$code}=$id;
     }
     $decomp = $character_decomposition{$code};
-    if ( length $decomp == 0 ) {
-	$decomp = "<single>";
+    if (length $decomp == 0) {
+        $decomp = "<single>";
     }
     if (substr($decomp, 0, 1) ne '<') {
-	$decomp = "<canonical> " . $decomp;
+        $decomp = "<canonical> " . $decomp;
     }
     @_ = split(" ", $decomp);
     $tag = shift @_;
     $tag = $character_decomposition_tag{$tag};
-    $decomp = join( ", 0x", @_ );
+    $decomp = join(", 0x", @_);
     $decomp = "0x".$decomp;
     $decomposition{$code} = $decomp;
     $decomposition_tag{$code} = $tag;
@@ -74,13 +74,13 @@ sub readUnicodeDataLine {
 #   we exlude Arabic ligatures from the table
     if($len > 1 and $tag == 1) {
 #      ligature to add...
-	$start = shift @_;
-	$ligature{$start} = $ligature{$start}." ".$code;
+        $start = shift @_;
+        $ligature{$start} = $ligature{$start}." ".$code;
     }
 
 #   adjust position
     if($len != 0) {
-	$position += $len + 3;
+        $position += $len + 3;
     }
 }
 
@@ -111,11 +111,11 @@ sub readUnicodeDataLine {
 
 # we map AI and XX to AL for now, as we can't handle them any better
 %line_break_code = numberize(qw{OP CL QU GL NS EX SY
-				IS PR PO NU AL ID IN HY
-				BA BB B2
-				ZW CM
-				SA
-				BK CR LF SG CB SP
+                                IS PR PO NU AL ID IN HY
+                                BA BB B2
+                                ZW CM
+                                SA
+                                BK CR LF SG CB SP
 });
 
 # Read data into hashes...
@@ -124,17 +124,17 @@ open IN, "UnicodeData.txt";
 $position = 1;
 while (<IN>) {
     @fields = split /;/;
-    if ( length($fields[0]) < 5 ) {
-      if ( $fields[1] =~ /, First>/ ) {
-	$codeRangeBegin = $fields[0];
-      } elsif ( $fields[1] =~ /, Last>/ ) {
-	for ( $i=hex($codeRangeBegin); $i<=hex($fields[0]); $i+=1 ) {
-	  @fields2 = @fields;
-	  $fields2[0] = sprintf "%lX", $i;
-	  readUnicodeDataLine @fields2;
-	}
+    if (length($fields[0]) < 5) {
+      if ($fields[1] =~ /, First>/) {
+        $codeRangeBegin = $fields[0];
+      } elsif ($fields[1] =~ /, Last>/) {
+        for ($i=hex($codeRangeBegin); $i<=hex($fields[0]); $i+=1) {
+          @fields2 = @fields;
+          $fields2[0] = sprintf "%lX", $i;
+          readUnicodeDataLine @fields2;
+        }
       } else {
-	readUnicodeDataLine @fields;
+        readUnicodeDataLine @fields;
       }
     }
 }
@@ -163,19 +163,19 @@ while (<IN3>) {
 
       $from = $code;
       $to = $code;
-      if ( length($code) > 5 ) {
-	$from =~ s,\.\..*,,;
-	$to =~ s/......//;
+      if (length($code) > 5) {
+        $from =~ s,\.\..*,,;
+        $to =~ s/......//;
 #      print "$from..$to = $break\n";
       }
       if($break eq "AI") {
-	$break = "AL";
+        $break = "AL";
       }
       if($break eq "XX") {
-	$break = "AL";
+        $break = "AL";
       }
-      for ( $i=hex($from); $i<=hex($to); $i+=1 ) {
-	$breaks{sprintf("%04X",$i)}=$line_break_code{$break};
+      for ($i=hex($from); $i<=hex($to); $i+=1) {
+        $breaks{sprintf("%04X",$i)}=$line_break_code{$break};
       }
     }
 }
@@ -185,23 +185,23 @@ while (<IN3>) {
 $rowtable_txt = "";
 $row_txt = "";
 $pos = 1;
-for $row ( 0..255 ) {
+for $row (0..255) {
     $nonzero=0;
     $txt = "";
-    for $cell ( 0..255 ) {
-	$code = sprintf("%02X%02X",$row,$cell);
-	$info = $category{$code};
-	$info = 0 if !defined $info;
-	$txt .= "\n    " if $cell%8 == 0;
-	$txt .= "$info, ";
+    for $cell (0..255) {
+        $code = sprintf("%02X%02X",$row,$cell);
+        $info = $category{$code};
+        $info = 0 if !defined $info;
+        $txt .= "\n    " if $cell%8 == 0;
+        $txt .= "$info, ";
     }
     $therow = $row{$txt};
-    if ( !defined $therow ) {
-	$therow = sprintf("%d",$pos);
-	$row_txt = $row_txt."$txt\n";
-	$row{$txt}=$therow;
-	$pos += 1;
-	$size += 256;
+    if (!defined $therow) {
+        $therow = sprintf("%d",$pos);
+        $row_txt = $row_txt."$txt\n";
+        $row{$txt}=$therow;
+        $pos += 1;
+        $size += 256;
     }
     $rowtable_txt .= "\n    " if $row%8 == 0;
     $rowtable_txt .= "$therow, ";
@@ -228,29 +228,29 @@ $row_txt = "";
 $table_txt =
     "const Q_UINT16 QUnicodeTables::decomposition_map[] = {\n    0,\n";
 $pos = 1;
-for $row ( 0..255 ) {
+for $row (0..255) {
     $nonzero=0;
     $txt = "";
-    for $cell ( 0..255 ) {
-	$code = sprintf("%02X%02X",$row,$cell);
-	$txt .= "\n   " if $cell%8 == 0;
-	if( $decomposition_tag{$code} != 0 ) {
-	    $txt .= " $decomposition_pos{$code},";
-	    $table_txt .= "    $decomposition_tag{$code},";
-	    $table_txt .= " 0x$code,";
-	    $table_txt .= " $decomposition{$code}, 0,\n";
-	    $size += 2 * $decomposition_len{$code} + 6;
-	} else {
-	    $txt .= " 0,";
-	}
+    for $cell (0..255) {
+        $code = sprintf("%02X%02X",$row,$cell);
+        $txt .= "\n   " if $cell%8 == 0;
+        if($decomposition_tag{$code} != 0) {
+            $txt .= " $decomposition_pos{$code},";
+            $table_txt .= "    $decomposition_tag{$code},";
+            $table_txt .= " 0x$code,";
+            $table_txt .= " $decomposition{$code}, 0,\n";
+            $size += 2 * $decomposition_len{$code} + 6;
+        } else {
+            $txt .= " 0,";
+        }
     }
     $therow = $row{$txt};
-    if ( !defined $therow ) {
-	$therow = sprintf("%d",$pos);
-	$row_txt = $row_txt."$txt\n";
-	$row{$txt}=$therow;
-	$pos += 1;
-	$size += 512;
+    if (!defined $therow) {
+        $therow = sprintf("%d",$pos);
+        $row_txt = $row_txt."$txt\n";
+        $row{$txt}=$therow;
+        $pos += 1;
+        $size += 512;
     }
     $rowtable_txt .= "\n    " if $row%8 == 0;
     $rowtable_txt .= "$therow, ";
@@ -277,45 +277,45 @@ $rowtable_txt = "";
 $row_txt = "";
 $table_txt =
     "const Q_UINT16 QUnicodeTables::ligature_map[] = {\n    0,\n";
-for $lig_row ( 0..255 ) {
+for $lig_row (0..255) {
     $nonzero=0;
     $txt = "";
-    for $cell ( 0..255 ) {
-	$code = sprintf("%02X%02X",$lig_row,$cell);
-	$txt .= "\n   " if $cell%8 == 0;
-	if( defined $ligature{$code} ) {
-	    $txt .= " $position,";
-	    @ligature = split(" ", $ligature{$code});
+    for $cell (0..255) {
+        $code = sprintf("%02X%02X",$lig_row,$cell);
+        $txt .= "\n   " if $cell%8 == 0;
+        if(defined $ligature{$code}) {
+            $txt .= " $position,";
+            @ligature = split(" ", $ligature{$code});
 #           we need to sort ligatures according to their length.
 #           long ones have to come first!
-	    @ligature_sort = sort { $decomposition_len{$b} <=>  $decomposition_len{$a} } @ligature;
+            @ligature_sort = sort { $decomposition_len{$b} <=>  $decomposition_len{$a} } @ligature;
 #           now replace each code by its position in
 #           the decomposition map.
-	    undef(@lig_pos);
-	    for $n (@ligature_sort) {
-		push(@lig_pos, $decomposition_pos{$n});
-	    }
+            undef(@lig_pos);
+            for $n (@ligature_sort) {
+                push(@lig_pos, $decomposition_pos{$n});
+            }
 #           debug info
-	    if( 0 ) {
-		print "ligatures: $ligature{$code}\n";
-		$sort = join(" ", @ligature_sort);
-		print "sorted   : $sort\n";
-	    }
-	    $lig = join(", ", @lig_pos);
-	    $table_txt .= "    $lig, 0,\n";
-	    $size += 2 * scalar(@ligature) + 2;
-	    $position += scalar(@ligature) + 1;
-	} else {
-	    $txt .= " 0,";
-	}
+            if(0) {
+                print "ligatures: $ligature{$code}\n";
+                $sort = join(" ", @ligature_sort);
+                print "sorted   : $sort\n";
+            }
+            $lig = join(", ", @lig_pos);
+            $table_txt .= "    $lig, 0,\n";
+            $size += 2 * scalar(@ligature) + 2;
+            $position += scalar(@ligature) + 1;
+        } else {
+            $txt .= " 0,";
+        }
     }
     $therow = $lig_row{$txt};
-    if ( !defined $therow ) {
-	$therow = sprintf("%d",$pos);
-	$row_txt = $row_txt."$txt\n";
-	$lig_row{$txt}=$therow;
-	$pos += 1;
-	$size += 512;
+    if (!defined $therow) {
+        $therow = sprintf("%d",$pos);
+        $row_txt = $row_txt."$txt\n";
+        $lig_row{$txt}=$therow;
+        $pos += 1;
+        $size += 512;
     }
     $rowtable_txt .= "\n    " if $lig_row%8 == 0;
     $rowtable_txt .= "$therow, ";
@@ -338,27 +338,27 @@ print "// $size bytes\n\n";
 $rowtable_txt = "";
 $row_txt = "";
 $pos = 1;
-for $dir_row ( 0..255 ) {
+for $dir_row (0..255) {
     $txt = "";
-    for $cell ( 0..255 ) {
-	$code = sprintf("%02X%02X",$dir_row,$cell);
-	$dir = $bidi_category{$code};
-	$dir = 0 if !defined $dir;
-	$join = $joining{$code};
-	$join = 0 if !defined $join;
-	$mirr = $mirrored{$code};
-	$mirr = 0 if !defined $mirr;
-	$info = $dir + 32*$join + 128*$mirr;
-	$txt .= "\n    " if $cell%8 == 0;
-	$txt .= "$info, ";
+    for $cell (0..255) {
+        $code = sprintf("%02X%02X",$dir_row,$cell);
+        $dir = $bidi_category{$code};
+        $dir = 0 if !defined $dir;
+        $join = $joining{$code};
+        $join = 0 if !defined $join;
+        $mirr = $mirrored{$code};
+        $mirr = 0 if !defined $mirr;
+        $info = $dir + 32*$join + 128*$mirr;
+        $txt .= "\n    " if $cell%8 == 0;
+        $txt .= "$info, ";
     }
     $therow = $dir_row{$txt};
-    if ( !defined $therow ) {
-	$therow = sprintf("%d",$pos);
-	$row_txt = $row_txt."$txt\n";
-	$dir_row{$txt}=$therow;
-	$pos += 1;
-	$size+=256;
+    if (!defined $therow) {
+        $therow = sprintf("%d",$pos);
+        $row_txt = $row_txt."$txt\n";
+        $dir_row{$txt}=$therow;
+        $pos += 1;
+        $size+=256;
     }
     $rowtable_txt .= "\n    " if $dir_row%8 == 0;
     $rowtable_txt .= "$therow, ";
@@ -378,22 +378,22 @@ print "// $size bytes\n\n";
 $rowtable_txt = "";
 $row_txt = "";
 $pos = 1;
-for $combining_row ( 0..255 ) {
+for $combining_row (0..255) {
     $txt = "";
-    for $cell ( 0..255 ) {
-	$code = sprintf("%02X%02X",$combining_row,$cell);
-	$info = $combining_class{$code};
-	$info = 0 if !defined $info;
-	$txt .= "\n    " if $cell%8 == 0;
-	$txt .= "$info, ";
+    for $cell (0..255) {
+        $code = sprintf("%02X%02X",$combining_row,$cell);
+        $info = $combining_class{$code};
+        $info = 0 if !defined $info;
+        $txt .= "\n    " if $cell%8 == 0;
+        $txt .= "$info, ";
     }
     $therow = $combining_row{$txt};
-    if ( !defined $therow ) {
-	$therow = sprintf("%d",$pos);
-	$row_txt = $row_txt."$txt\n";
-	$combining_row{$txt}=$therow;
-	$pos += 1;
-	$size += 256;
+    if (!defined $therow) {
+        $therow = sprintf("%d",$pos);
+        $row_txt = $row_txt."$txt\n";
+        $combining_row{$txt}=$therow;
+        $pos += 1;
+        $size += 256;
     }
     $rowtable_txt .= "\n    " if $combining_row%8 == 0;
     $rowtable_txt .= "$therow, ";
@@ -413,37 +413,37 @@ print "// $size bytes\n\n";
 $rowtable_txt = "";
 $row_txt = "";
 $pos = 1;
-for $row ( 0..255 ) {
+for $row (0..255) {
     $nonzero=0;
     $txt = "";
-    for $cell ( 0..255 ) {
-	$code = sprintf("%02X%02X",$row,$cell);
-	$info = $uppercase{$code};
-	if ( length( $info ) eq 0 ) {
-	  $info = $lowercase{$code};
-	}
-	$info =~ s/^0+//;
-	if ( length( $info ) eq 0 ) {
-	  $info = "0";
-	} else {
-	  $info = "0x".lc($info);
-	}
-	if ( length( $info ) ne 1 ) {
-	  $nonzero = 1;
-	}
-	$txt .= "\n    " if $cell%8 == 0;
-	$txt .= "$info, ";
+    for $cell (0..255) {
+        $code = sprintf("%02X%02X",$row,$cell);
+        $info = $uppercase{$code};
+        if (length($info) eq 0) {
+          $info = $lowercase{$code};
+        }
+        $info =~ s/^0+//;
+        if (length($info) eq 0) {
+          $info = "0";
+        } else {
+          $info = "0x".lc($info);
+        }
+        if (length($info) ne 1) {
+          $nonzero = 1;
+        }
+        $txt .= "\n    " if $cell%8 == 0;
+        $txt .= "$info, ";
     }
     $therow = $case_row{$txt};
-    if ( !defined $therow && $nonzero ne 0 ) {
-	$therow = sprintf("%d",$pos);
-	$row_txt = $row_txt."$txt\n";
-	$case_row{$txt}=$therow;
-	$pos += 1;
-	$size += 512;
+    if (!defined $therow && $nonzero ne 0) {
+        $therow = sprintf("%d",$pos);
+        $row_txt = $row_txt."$txt\n";
+        $case_row{$txt}=$therow;
+        $pos += 1;
+        $size += 512;
     }
     $rowtable_txt .= "\n    " if $row%8 == 0;
-    if ( $nonzero ne 0 ) {
+    if ($nonzero ne 0) {
       $rowtable_txt .= "$therow, ";
     } else {
       $rowtable_txt .= "0, ";
@@ -464,30 +464,30 @@ print "// $size bytes\n\n";
 $rowtable_txt = "";
 $row_txt = "";
 $pos = 1;
-for $row ( 0..255 ) {
+for $row (0..255) {
     $nonzero=0;
     $txt = "";
-    for $cell ( 0..255 ) {
-	$code = sprintf("%02X%02X",$row,$cell);
-	$info = $digit_value{$code};
-	if ( length( $info ) eq 0 ) {
-	  $info = -1;
-	} else {
-	  $nonzero = 1;
-	}
-	$txt .= "\n    " if $cell%8 == 0;
-	$txt .= "$info, ";
+    for $cell (0..255) {
+        $code = sprintf("%02X%02X",$row,$cell);
+        $info = $digit_value{$code};
+        if (length($info) eq 0) {
+          $info = -1;
+        } else {
+          $nonzero = 1;
+        }
+        $txt .= "\n    " if $cell%8 == 0;
+        $txt .= "$info, ";
     }
     $therow = $decimal_row{$txt};
-    if ( !defined $therow && $nonzero ne 0 ) {
-	$therow = sprintf("%d",$pos);
-	$row_txt = $row_txt."$txt\n";
-	$decimal_row{$txt}=$therow;
-	$pos += 1;
-	$size += 256;
+    if (!defined $therow && $nonzero ne 0) {
+        $therow = sprintf("%d",$pos);
+        $row_txt = $row_txt."$txt\n";
+        $decimal_row{$txt}=$therow;
+        $pos += 1;
+        $size += 256;
     }
     $rowtable_txt .= "\n    " if $row%8 == 0;
-    if ( $nonzero ne 0 ) {
+    if ($nonzero ne 0) {
       $rowtable_txt .= "$therow, ";
     } else {
       $rowtable_txt .= "0, ";
@@ -509,24 +509,24 @@ print "// $size bytes\n\n";
 $rowtable_txt = "";
 $row_txt = "";
 $pos = 1;
-for $row ( 0..255 ) {
+for $row (0..255) {
     $txt = "";
-    for $cell ( 0..255 ) {
-	$code = sprintf("%02X%02X",$row,$cell);
-	$info = $breaks{$code};
-	if ( length( $info ) eq 0 ) {
-	  $info = $line_break_code{"AL"};
-	}
-	$txt .= "\n    " if $cell%8 == 0;
-	$txt .= "$info, ";
+    for $cell (0..255) {
+        $code = sprintf("%02X%02X",$row,$cell);
+        $info = $breaks{$code};
+        if (length($info) eq 0) {
+          $info = $line_break_code{"AL"};
+        }
+        $txt .= "\n    " if $cell%8 == 0;
+        $txt .= "$info, ";
     }
     $therow = $lb_row{$txt};
-    if ( !defined $therow ) {
-	$therow = sprintf("%d",$pos);
-	$row_txt = $row_txt."$txt\n";
-	$lb_row{$txt}=$therow;
-	$pos += 1;
-	$size += 256;
+    if (!defined $therow) {
+        $therow = sprintf("%d",$pos);
+        $row_txt = $row_txt."$txt\n";
+        $lb_row{$txt}=$therow;
+        $pos += 1;
+        $size += 256;
     }
     $rowtable_txt .= "\n    " if $row%8 == 0;
     $rowtable_txt .= "$therow, ";
@@ -13075,7 +13075,7 @@ enum Script {
     Buhid,
     Tagbanwa,
 
-    KatakanaHalfWidth,		// from JIS X 0201
+    KatakanaHalfWidth,                // from JIS X 0201
 
     // from Unicode 4.0
     Limbu,
@@ -13090,52 +13090,52 @@ enum Script {
 // changing the script enum in qfont.h aswell.
 const unsigned char QUnicodeTables::otherScripts [128] = {
 #define SCRIPTS_02 0
-    0xaf, Latin, 0xff, SpacingModifiers, 			// row 0x02, index 0
+    0xaf, Latin, 0xff, SpacingModifiers,                         // row 0x02, index 0
 #define SCRIPTS_03 4
-    0x6f, CombiningMarks, 0xff, Greek, 			// row 0x03, index 4
+    0x6f, CombiningMarks, 0xff, Greek,                         // row 0x03, index 4
 #define SCRIPTS_05 8
-    0x2f, Cyrillic, 0x8f, Armenian, 0xff, Hebrew,	// row 0x05, index 8
+    0x2f, Cyrillic, 0x8f, Armenian, 0xff, Hebrew,        // row 0x05, index 8
 #define SCRIPTS_07 14
     0x4f, Syriac, 0x7f, Unicode, 0xbf, Thaana,
-    0xff, Unicode, 						// row 0x07, index 14
+    0xff, Unicode,                                                 // row 0x07, index 14
 #define SCRIPTS_10 22
-    0x9f, Myanmar, 0xff, Georgian,			// row 0x10, index 20
+    0x9f, Myanmar, 0xff, Georgian,                        // row 0x10, index 20
 #define SCRIPTS_13 26
-    0x7f, Ethiopic, 0x9f, Unicode, 0xff, Cherokee,	// row 0x13, index 24
+    0x7f, Ethiopic, 0x9f, Unicode, 0xff, Cherokee,        // row 0x13, index 24
 #define SCRIPTS_16 32
     0x7f, CanadianAboriginal, 0x9f, Ogham,
-    0xff, Runic, 						// row 0x16 index 30
+    0xff, Runic,                                                 // row 0x16 index 30
 #define SCRIPTS_17 38
     0x1f, Tagalog, 0x3f, Hanunoo, 0x5f, Buhid,
-    0x7f, Tagbanwa, 0xff, Khmer,				// row 0x17, index 36
+    0x7f, Tagbanwa, 0xff, Khmer,                                // row 0x17, index 36
 #define SCRIPTS_18 48
-    0xaf, Mongolian, 0xff, Unicode,		       	// row 0x18, index 46
+    0xaf, Mongolian, 0xff, Unicode,                        // row 0x18, index 46
 #define SCRIPTS_19 52
     0x4f, Limbu, 0x7f, TaiLe, 0xdf, Unicode, 0xff, Khmer,
 #define SCRIPTS_20 60
     0x0b, Unicode, 0x0d, UnknownScript, 0x6f, Unicode, 0x9f, NumberForms,
     0xab, CurrencySymbols, 0xac, Latin,
-    0xcf, CurrencySymbols, 0xff, CombiningMarks,		// row 0x20, index 50
+    0xcf, CurrencySymbols, 0xff, CombiningMarks,                // row 0x20, index 50
 #define SCRIPTS_21 76
     0x4f, LetterlikeSymbols, 0x8f, NumberForms,
-    0xff, MathematicalOperators,					// row 0x21, index 62
+    0xff, MathematicalOperators,                                        // row 0x21, index 62
 #define SCRIPTS_24 82
-    0x5f, TechnicalSymbols, 0xff, EnclosedAndSquare,	// row 0x24, index 68
+    0x5f, TechnicalSymbols, 0xff, EnclosedAndSquare,        // row 0x24, index 68
 #define SCRIPTS_2e 86
-    0x7f, Unicode, 0xff, Han,				// row 0x2e, index 72
+    0x7f, Unicode, 0xff, Han,                                // row 0x2e, index 72
 #define SCRIPTS_30 90
-    0x3f, Han, 0x9f, Hiragana, 0xff, Katakana,	// row 0x30, index 76
+    0x3f, Han, 0x9f, Hiragana, 0xff, Katakana,        // row 0x30, index 76
 #define SCRIPTS_31 96
     0x2f, Bopomofo, 0x8f, Hangul, 0x9f, Han,
-    0xff, Unicode,						// row 0x31, index 82
+    0xff, Unicode,                                                // row 0x31, index 82
 #define SCRIPTS_fb 104
     0x06, Latin, 0x1c, Unicode, 0x4f, Hebrew,
-    0xff, Arabic,						// row 0xfb, index 90
+    0xff, Arabic,                                                // row 0xfb, index 90
 #define SCRIPTS_fe 112
     0x1f, Unicode, 0x2f, CombiningMarks, 0x6f, Unicode,
-    0xff, Arabic,						// row 0xfe, index 98
+    0xff, Arabic,                                                // row 0xfe, index 98
 #define SCRIPTS_ff 120
-    0x5e, Katakana, 0x60, Unicode,        		// row 0xff, index 106
+    0x5e, Katakana, 0x60, Unicode,                        // row 0xff, index 106
     0x9f, KatakanaHalfWidth, 0xff, Unicode
 };
 

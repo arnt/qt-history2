@@ -14,9 +14,9 @@
     and sends the translated events to QObjects.
 
     In general, events come from the underlying window system
-    (spontaneous() returns TRUE) but it is also possible to manually
+    (spontaneous() returns true) but it is also possible to manually
     send events using QApplication::sendEvent() and
-    QApplication::postEvent() (spontaneous() returns FALSE).
+    QApplication::postEvent() (spontaneous() returns false).
 
     QObjects receive events by having their QObject::event() function
     called. The function can be reimplemented in subclasses to
@@ -169,7 +169,7 @@
     User events should have values between User and MaxUser inclusive.
 */
 /*!
-    \fn QEvent::QEvent( Type type )
+    \fn QEvent::QEvent(Type type)
 
     Contructs an event object of type \a type.
 */
@@ -182,8 +182,8 @@
 
 QEvent::~QEvent()
 {
-    if ( posted && QCoreApplication::self )
-	QCoreApplication::removePostedEvent( this );
+    if (posted && QCoreApplication::self)
+        QCoreApplication::removePostedEvent(this);
 }
 
 /*!
@@ -195,8 +195,8 @@ QEvent::~QEvent()
 /*!
     \fn bool QEvent::spontaneous() const
 
-    Returns TRUE if the event originated outside the application, i.e.
-    it is a system event; otherwise returns FALSE.
+    Returns true if the event originated outside the application, i.e.
+    it is a system event; otherwise returns false.
 */
 
 
@@ -221,7 +221,7 @@ QEvent::~QEvent()
 */
 
 /*!
-    \fn QTimerEvent::QTimerEvent( int timerId )
+    \fn QTimerEvent::QTimerEvent(int timerId)
 
     Constructs a timer event object with the timer identifier set to
     \a timerId.
@@ -247,13 +247,13 @@ QEvent::~QEvent()
     In both cases you can only rely on the child being a QObject, or
     if isWidgetType() returns true, a QWidget (Reason: in the \c
     ChildAdded case the child is not yet fully constructed, in the \c
-    ChildRemoved case it might have been destructed already ).
+    ChildRemoved case it might have been destructed already).
 
     The handler for these events is QObject::childEvent().
 */
 
 /*!
-    \fn QChildEvent::QChildEvent( Type type, QObject *child )
+    \fn QChildEvent::QChildEvent(Type type, QObject *child)
 
     Constructs a child event object for child \a child with type \a type.
 */
@@ -274,7 +274,7 @@ QEvent::~QEvent()
 /*!
     \fn bool QChildEvent::removed() const
 
-    Returns TRUE if the object lost a child; otherwise returns FALSE.
+    Returns true if the object lost a child; otherwise returns false.
 */
 
 /*!
@@ -316,26 +316,26 @@ QEvent::~QEvent()
     class ColorChangeEvent : public QCustomEvent
     {
     public:
-	ColorChangeEvent( QColor color )
-	    : QCustomEvent( 65432 ), c( color ) {}
-	QColor color() const { return c; }
+        ColorChangeEvent(QColor color)
+            : QCustomEvent(65432), c(color) {}
+        QColor color() const { return c; }
     private:
-	QColor c;
+        QColor c;
     };
 
     // To send an event of this custom event type:
 
-    ColorChangeEvent* ce = new ColorChangeEvent( blue );
-    QApplication::postEvent( receiver, ce );  // Qt will delete it when done
+    ColorChangeEvent* ce = new ColorChangeEvent(blue);
+    QApplication::postEvent(receiver, ce);  // Qt will delete it when done
 
     // To receive an event of this custom event type:
 
-    void MyWidget::customEvent( QCustomEvent * e )
+    void MyWidget::customEvent(QCustomEvent * e)
     {
-	if ( e->type() == 65432 ) {  // It must be a ColorChangeEvent
-	    ColorChangeEvent* ce = (ColorChangeEvent*)e;
-	    newColor = ce->color();
-	}
+        if (e->type() == 65432) {  // It must be a ColorChangeEvent
+            ColorChangeEvent* ce = (ColorChangeEvent*)e;
+            newColor = ce->color();
+        }
     }
     \endcode
 
@@ -349,14 +349,14 @@ QEvent::~QEvent()
     data pointer is set to 0.
 */
 
-QCustomEvent::QCustomEvent( int type )
-    : QEvent( (QEvent::Type)type ), d( 0 )
+QCustomEvent::QCustomEvent(int type)
+    : QEvent((QEvent::Type)type), d(0)
 {
 }
 
 
 /*!
-    \fn QCustomEvent::QCustomEvent( Type type, void *data )
+    \fn QCustomEvent::QCustomEvent(Type type, void *data)
 
     Constructs a custom event object with the event type \a type and a
     pointer to \a data. (Note that any int value may safely be cast to
@@ -365,7 +365,7 @@ QCustomEvent::QCustomEvent( int type )
 
 
 /*!
-    \fn void QCustomEvent::setData( void* data )
+    \fn void QCustomEvent::setData(void* data)
 
     Sets the generic data pointer to \a data.
 

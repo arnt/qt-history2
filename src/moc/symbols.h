@@ -9,9 +9,9 @@ struct Symbol
 {
     Symbol():lineNum(-1),token(NOTOKEN), from(0),len(-1){}
     Symbol(int lineNum, Token token, const QByteArray &lexem, int from = 0, int len=-1):
-	lineNum(lineNum), token(token),lexem_data(lexem),from(from), len(len){}
+        lineNum(lineNum), token(token),lexem_data(lexem),from(from), len(len){}
     Symbol(int lineNum, PP_Token token, const QByteArray &lexem, int from = 0, int len=-1):
-	lineNum(lineNum), pp_token(token),lexem_data(lexem),from(from), len(len){}
+        lineNum(lineNum), pp_token(token),lexem_data(lexem),from(from), len(len){}
     int lineNum;
     union {Token token; PP_Token pp_token;};
     inline QByteArray lexem() const { return lexem_data.mid(from, len); }

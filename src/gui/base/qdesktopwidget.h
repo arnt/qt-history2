@@ -34,36 +34,36 @@ public:
     int numScreens() const;
     int primaryScreen() const;
 
-    int screenNumber( QWidget *widget = 0 ) const; // ### 4.0: const QWidget*
-    int screenNumber( const QPoint & ) const;
+    int screenNumber(QWidget *widget = 0) const; // ### 4.0: const QWidget*
+    int screenNumber(const QPoint &) const;
 
-    QWidget *screen( int screen = -1 );
+    QWidget *screen(int screen = -1);
 
-    const QRect& screenGeometry( int screen = -1 ) const;
-    const QRect& screenGeometry( QWidget *widget ) const
-    { return screenGeometry( screenNumber( widget ) ); }
-    const QRect& screenGeometry( const QPoint &point ) const
-    { return screenGeometry( screenNumber( point ) ); }
+    const QRect& screenGeometry(int screen = -1) const;
+    const QRect& screenGeometry(QWidget *widget) const
+    { return screenGeometry(screenNumber(widget)); }
+    const QRect& screenGeometry(const QPoint &point) const
+    { return screenGeometry(screenNumber(point)); }
 
-    const QRect& availableGeometry( int screen = -1 ) const;
-    const QRect& availableGeometry( QWidget *widget ) const
-    { return availableGeometry( screenNumber( widget ) ); }
-    const QRect& availableGeometry( const QPoint &point ) const
-    { return availableGeometry( screenNumber( point ) ); }
+    const QRect& availableGeometry(int screen = -1) const;
+    const QRect& availableGeometry(QWidget *widget) const
+    { return availableGeometry(screenNumber(widget)); }
+    const QRect& availableGeometry(const QPoint &point) const
+    { return availableGeometry(screenNumber(point)); }
 
 signals:
-    void resized( int );
-    void workAreaResized( int );
+    void resized(int);
+    void workAreaResized(int);
 
 protected:
-    void resizeEvent( QResizeEvent *e );
+    void resizeEvent(QResizeEvent *e);
 
 private:
     QDesktopWidgetPrivate *d;
 
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QDesktopWidget( const QDesktopWidget & );
-    QDesktopWidget &operator=( const QDesktopWidget & );
+    QDesktopWidget(const QDesktopWidget &);
+    QDesktopWidget &operator=(const QDesktopWidget &);
 #endif
 
     friend class QApplication;

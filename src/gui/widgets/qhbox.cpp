@@ -46,15 +46,15 @@
     The parent, name and widget flags, \a f, are passed to the QFrame
     constructor.
 */
-QHBox::QHBox( QWidget *parent, const char *name, WFlags f )
-    :QFrame( parent, name, f )
+QHBox::QHBox(QWidget *parent, const char *name, WFlags f)
+    :QFrame(parent, name, f)
 {
-    lay = new QHBoxLayout( this, frameWidth(), frameWidth(), name );
+    lay = new QHBoxLayout(this, frameWidth(), frameWidth(), name);
 }
 
 
 /*!
-    Constructs a horizontal hbox if \a horizontal is TRUE, otherwise
+    Constructs a horizontal hbox if \a horizontal is true, otherwise
     constructs a vertical hbox (also known as a vbox).
 
     This constructor is provided for the QVBox class. You should never
@@ -64,12 +64,12 @@ QHBox::QHBox( QWidget *parent, const char *name, WFlags f )
     QFrame constructor.
 */
 
-QHBox::QHBox( bool horizontal, QWidget *parent , const char *name, WFlags f )
-    :QFrame( parent, name, f )
+QHBox::QHBox(bool horizontal, QWidget *parent , const char *name, WFlags f)
+    :QFrame(parent, name, f)
 {
-    lay = new QBoxLayout( this,
-		       horizontal ? QBoxLayout::LeftToRight : QBoxLayout::Down,
-			  frameWidth(), frameWidth(), name );
+    lay = new QBoxLayout(this,
+                       horizontal ? QBoxLayout::LeftToRight : QBoxLayout::Down,
+                          frameWidth(), frameWidth(), name);
 }
 
 /*! \reimp
@@ -78,15 +78,15 @@ void QHBox::childEvent(QChildEvent *e)
 {
     QWidget *child = qt_cast<QWidget*>(e->child());
     if (!child || child->isTopLevel())
-	return;
+        return;
     if (e->added()) {
-	lay->addWidget(child);
+        lay->addWidget(child);
     } else if (e->polished()) {
-	QMenuBar *mb;
-	if ((mb=qt_cast<QMenuBar*>(child))) {
-	    lay->removeWidget(mb);
-	    lay->setMenuBar(mb);
-	}
+        QMenuBar *mb;
+        if ((mb=qt_cast<QMenuBar*>(child))) {
+            lay->removeWidget(mb);
+            lay->setMenuBar(mb);
+        }
     }
 }
 
@@ -95,10 +95,10 @@ void QHBox::childEvent(QChildEvent *e)
     Sets the spacing between the child widgets to \a space.
 */
 
-void QHBox::setSpacing( int space )
+void QHBox::setSpacing(int space)
 {
-    if ( layout() ) // ### why not use this->lay?
-	layout()->setSpacing( space );
+    if (layout()) // ### why not use this->lay?
+        layout()->setSpacing(space);
 }
 
 
@@ -109,20 +109,20 @@ void QHBox::setSpacing( int space )
 QSize QHBox::sizeHint() const
 {
     QWidget *mThis = (QWidget*)this;
-    QApplication::sendPostedEvents( mThis, QEvent::ChildInserted );
+    QApplication::sendPostedEvents(mThis, QEvent::ChildInserted);
     return QFrame::sizeHint();
 }
 
 /*!
-    Sets the stretch factor of widget \a w to \a stretch. Returns TRUE if
-    \a w is found. Otherwise returns FALSE.
+    Sets the stretch factor of widget \a w to \a stretch. Returns true if
+    \a w is found. Otherwise returns false.
 
     \sa QBoxLayout::setStretchFactor() \link layout.html Layouts\endlink
 */
-bool QHBox::setStretchFactor( QWidget* w, int stretch )
+bool QHBox::setStretchFactor(QWidget* w, int stretch)
 {
     QWidget *mThis = (QWidget*)this;
-    QApplication::sendPostedEvents( mThis, QEvent::ChildInserted );
-    return lay->setStretchFactor( w, stretch );
+    QApplication::sendPostedEvents(mThis, QEvent::ChildInserted);
+    return lay->setStretchFactor(w, stretch);
 }
 #endif

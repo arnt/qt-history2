@@ -110,32 +110,32 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
     default for the entire application:
     \code
     QGLFormat f;
-    f.setAlpha( TRUE );
-    f.setStereo( TRUE );
-    QGLFormat::setDefaultFormat( f );
+    f.setAlpha(true);
+    f.setStereo(true);
+    QGLFormat::setDefaultFormat(f);
     \endcode
 
     Or you can specify the desired format when creating an object of
     your QGLWidget subclass:
     \code
     QGLFormat f;
-    f.setDoubleBuffer( FALSE );                 // single buffer
-    f.setDirectRendering( FALSE );              // software rendering
-    MyGLWidget* myWidget = new MyGLWidget( f, ... );
+    f.setDoubleBuffer(false);                 // single buffer
+    f.setDirectRendering(false);              // software rendering
+    MyGLWidget* myWidget = new MyGLWidget(f, ...);
     \endcode
 
     After the widget has been created, you can find out which of the
     requested features the system was able to provide:
     \code
     QGLFormat f;
-    f.setOverlay( TRUE );
-    f.setStereo( TRUE );
-    MyGLWidget* myWidget = new MyGLWidget( f, ... );
-    if ( !w->format().stereo() ) {
-	// ok, goggles off
-	if ( !w->format().hasOverlay() ) {
-	    qFatal( "Cool hardware required" );
-	}
+    f.setOverlay(true);
+    f.setStereo(true);
+    MyGLWidget* myWidget = new MyGLWidget(f, ...);
+    if (!w->format().stereo()) {
+        // ok, goggles off
+        if (!w->format().hasOverlay()) {
+            qFatal("Cool hardware required");
+        }
     }
     \endcode
 
@@ -182,14 +182,14 @@ QGLFormat::QGLFormat()
     \code
     // The rendering in MyGLWidget depends on using
     // stencil buffer and alpha channel
-    MyGLWidget::MyGLWidget( QWidget* parent, const char* name )
-	: QGLWidget( QGLFormat( StencilBuffer | AlphaChannel ), parent, name )
+    MyGLWidget::MyGLWidget(QWidget* parent, const char* name)
+        : QGLWidget(QGLFormat(StencilBuffer | AlphaChannel), parent, name)
     {
-	if ( !format().stencil() )
-	    qWarning( "Could not get stencil buffer; results will be suboptimal" );
-	if ( !format().alphaChannel() )
-	    qWarning( "Could not get alpha channel; results will be suboptimal" );
-	...
+        if (!format().stencil())
+            qWarning("Could not get stencil buffer; results will be suboptimal");
+        if (!format().alphaChannel())
+            qWarning("Could not get alpha channel; results will be suboptimal");
+        ...
     }
     \endcode
 
@@ -204,12 +204,12 @@ QGLFormat::QGLFormat()
     \sa defaultFormat(), setOption()
 */
 
-QGLFormat::QGLFormat( int options, int plane )
+QGLFormat::QGLFormat(int options, int plane)
 {
     uint newOpts = options;
     opts = defaultFormat().opts;
-    opts |= ( newOpts & 0xffff );
-    opts &= ~( newOpts >> 16 );
+    opts |= (newOpts & 0xffff);
+    opts &= ~(newOpts >> 16);
     pln = plane;
 }
 
@@ -217,14 +217,14 @@ QGLFormat::QGLFormat( int options, int plane )
 /*!
     \fn bool QGLFormat::doubleBuffer() const
 
-    Returns TRUE if double buffering is enabled; otherwise returns
-    FALSE. Double buffering is enabled by default.
+    Returns true if double buffering is enabled; otherwise returns
+    false. Double buffering is enabled by default.
 
     \sa setDoubleBuffer()
 */
 
 /*!
-    If \a enable is TRUE sets double buffering; otherwise sets single
+    If \a enable is true sets double buffering; otherwise sets single
     buffering.
 
     Double buffering is enabled by default.
@@ -239,23 +239,23 @@ QGLFormat::QGLFormat( int options, int plane )
     QGLWidget::swapBuffers()
 */
 
-void QGLFormat::setDoubleBuffer( bool enable )
+void QGLFormat::setDoubleBuffer(bool enable)
 {
-    setOption( enable ? DoubleBuffer : SingleBuffer );
+    setOption(enable ? DoubleBuffer : SingleBuffer);
 }
 
 
 /*!
     \fn bool QGLFormat::depth() const
 
-    Returns TRUE if the depth buffer is enabled; otherwise returns
-    FALSE. The depth buffer is enabled by default.
+    Returns true if the depth buffer is enabled; otherwise returns
+    false. The depth buffer is enabled by default.
 
     \sa setDepth()
 */
 
 /*!
-    If \a enable is TRUE enables the depth buffer; otherwise disables
+    If \a enable is true enables the depth buffer; otherwise disables
     the depth buffer.
 
     The depth buffer is enabled by default.
@@ -269,23 +269,23 @@ void QGLFormat::setDoubleBuffer( bool enable )
     \sa depth()
 */
 
-void QGLFormat::setDepth( bool enable )
+void QGLFormat::setDepth(bool enable)
 {
-    setOption( enable ? DepthBuffer : NoDepthBuffer );
+    setOption(enable ? DepthBuffer : NoDepthBuffer);
 }
 
 
 /*!
     \fn bool QGLFormat::rgba() const
 
-    Returns TRUE if RGBA color mode is set. Returns FALSE if color
+    Returns true if RGBA color mode is set. Returns false if color
     index mode is set. The default color mode is RGBA.
 
     \sa setRgba()
 */
 
 /*!
-    If \a enable is TRUE sets RGBA mode. If \a enable is FALSE sets
+    If \a enable is true sets RGBA mode. If \a enable is false sets
     color index mode.
 
     The default color mode is RGBA.
@@ -300,23 +300,23 @@ void QGLFormat::setDepth( bool enable )
     \sa rgba()
 */
 
-void QGLFormat::setRgba( bool enable )
+void QGLFormat::setRgba(bool enable)
 {
-    setOption( enable ? Rgba : ColorIndex );
+    setOption(enable ? Rgba : ColorIndex);
 }
 
 
 /*!
     \fn bool QGLFormat::alpha() const
 
-    Returns TRUE if the alpha channel of the framebuffer is enabled;
-    otherwise returns FALSE. The alpha channel is disabled by default.
+    Returns true if the alpha channel of the framebuffer is enabled;
+    otherwise returns false. The alpha channel is disabled by default.
 
     \sa setAlpha()
 */
 
 /*!
-    If \a enable is TRUE enables the alpha channel; otherwise disables
+    If \a enable is true enables the alpha channel; otherwise disables
     the alpha channel.
 
     The alpha buffer is disabled by default.
@@ -328,23 +328,23 @@ void QGLFormat::setRgba( bool enable )
     \sa alpha()
 */
 
-void QGLFormat::setAlpha( bool enable )
+void QGLFormat::setAlpha(bool enable)
 {
-    setOption( enable ? AlphaChannel : NoAlphaChannel );
+    setOption(enable ? AlphaChannel : NoAlphaChannel);
 }
 
 
 /*!
     \fn bool QGLFormat::accum() const
 
-    Returns TRUE if the accumulation buffer is enabled; otherwise
-    returns FALSE. The accumulation buffer is disabled by default.
+    Returns true if the accumulation buffer is enabled; otherwise
+    returns false. The accumulation buffer is disabled by default.
 
     \sa setAccum()
 */
 
 /*!
-    If \a enable is TRUE enables the accumulation buffer; otherwise
+    If \a enable is true enables the accumulation buffer; otherwise
     disables the accumulation buffer.
 
     The accumulation buffer is disabled by default.
@@ -355,23 +355,23 @@ void QGLFormat::setAlpha( bool enable )
     \sa accum()
 */
 
-void QGLFormat::setAccum( bool enable )
+void QGLFormat::setAccum(bool enable)
 {
-    setOption( enable ? AccumBuffer : NoAccumBuffer );
+    setOption(enable ? AccumBuffer : NoAccumBuffer);
 }
 
 
 /*!
     \fn bool QGLFormat::stencil() const
 
-    Returns TRUE if the stencil buffer is enabled; otherwise returns
-    FALSE. The stencil buffer is disabled by default.
+    Returns true if the stencil buffer is enabled; otherwise returns
+    false. The stencil buffer is disabled by default.
 
     \sa setStencil()
 */
 
 /*!
-    If \a enable is TRUE enables the stencil buffer; otherwise
+    If \a enable is true enables the stencil buffer; otherwise
     disables the stencil buffer.
 
     The stencil buffer is disabled by default.
@@ -382,23 +382,23 @@ void QGLFormat::setAccum( bool enable )
     \sa stencil()
 */
 
-void QGLFormat::setStencil( bool enable )
+void QGLFormat::setStencil(bool enable)
 {
-    setOption( enable ? StencilBuffer: NoStencilBuffer );
+    setOption(enable ? StencilBuffer: NoStencilBuffer);
 }
 
 
 /*!
     \fn bool QGLFormat::stereo() const
 
-    Returns TRUE if stereo buffering is enabled; otherwise returns
-    FALSE. Stereo buffering is disabled by default.
+    Returns true if stereo buffering is enabled; otherwise returns
+    false. Stereo buffering is disabled by default.
 
     \sa setStereo()
 */
 
 /*!
-    If \a enable is TRUE enables stereo buffering; otherwise disables
+    If \a enable is true enables stereo buffering; otherwise disables
     stereo buffering.
 
     Stereo buffering is disabled by default.
@@ -409,17 +409,17 @@ void QGLFormat::setStencil( bool enable )
     \sa stereo()
 */
 
-void QGLFormat::setStereo( bool enable )
+void QGLFormat::setStereo(bool enable)
 {
-    setOption( enable ? StereoBuffers : NoStereoBuffers );
+    setOption(enable ? StereoBuffers : NoStereoBuffers);
 }
 
 
 /*!
     \fn bool QGLFormat::directRendering() const
 
-    Returns TRUE if direct rendering is enabled; otherwise returns
-    FALSE.
+    Returns true if direct rendering is enabled; otherwise returns
+    false.
 
     Direct rendering is enabled by default.
 
@@ -427,7 +427,7 @@ void QGLFormat::setStereo( bool enable )
 */
 
 /*!
-    If \a enable is TRUE enables direct rendering; otherwise disables
+    If \a enable is true enables direct rendering; otherwise disables
     direct rendering.
 
     Direct rendering is enabled by default.
@@ -439,16 +439,16 @@ void QGLFormat::setStereo( bool enable )
     \sa directRendering()
 */
 
-void QGLFormat::setDirectRendering( bool enable )
+void QGLFormat::setDirectRendering(bool enable)
 {
-    setOption( enable ? DirectRendering : IndirectRendering );
+    setOption(enable ? DirectRendering : IndirectRendering);
 }
 
 
 /*!
     \fn bool QGLFormat::hasOverlay() const
 
-    Returns TRUE if overlay plane is enabled; otherwise returns FALSE.
+    Returns true if overlay plane is enabled; otherwise returns false.
 
     Overlay is disabled by default.
 
@@ -456,7 +456,7 @@ void QGLFormat::setDirectRendering( bool enable )
 */
 
 /*!
-    If \a enable is TRUE enables an overlay plane; otherwise disables
+    If \a enable is true enables an overlay plane; otherwise disables
     the overlay plane.
 
     Enabling the overlay plane will cause QGLWidget to create an
@@ -466,9 +466,9 @@ void QGLFormat::setDirectRendering( bool enable )
     \sa hasOverlay()
 */
 
-void QGLFormat::setOverlay( bool enable )
+void QGLFormat::setOverlay(bool enable)
 {
-    setOption( enable ? HasOverlay : NoOverlay );
+    setOption(enable ? HasOverlay : NoOverlay);
 }
 
 /*!
@@ -496,7 +496,7 @@ int QGLFormat::plane() const
 
     \sa plane()
 */
-void QGLFormat::setPlane( int plane )
+void QGLFormat::setPlane(int plane)
 {
     pln = plane;
 }
@@ -507,28 +507,28 @@ void QGLFormat::setPlane( int plane )
     \sa testOption()
 */
 
-void QGLFormat::setOption( FormatOption opt )
+void QGLFormat::setOption(FormatOption opt)
 {
-    if ( opt & 0xffff )
-	opts |= opt;
+    if (opt & 0xffff)
+        opts |= opt;
     else
-       opts &= ~( opt >> 16 );
+       opts &= ~(opt >> 16);
 }
 
 
 
 /*!
-    Returns TRUE if format option \a opt is set; otherwise returns FALSE.
+    Returns true if format option \a opt is set; otherwise returns false.
 
     \sa setOption()
 */
 
-bool QGLFormat::testOption( FormatOption opt ) const
+bool QGLFormat::testOption(FormatOption opt) const
 {
-    if ( opt & 0xffff )
-       return ( opts & opt ) != 0;
+    if (opt & 0xffff)
+       return (opts & opt) != 0;
     else
-       return ( opts & ( opt >> 16 ) ) == 0;
+       return (opts & (opt >> 16)) == 0;
 }
 
 
@@ -536,8 +536,8 @@ bool QGLFormat::testOption( FormatOption opt ) const
 /*!
     \fn bool QGLFormat::hasOpenGL()
 
-    Returns TRUE if the window system has any OpenGL support;
-    otherwise returns FALSE.
+    Returns true if the window system has any OpenGL support;
+    otherwise returns false.
 
     \warning This function must not be called until the QApplication
     object has been created.
@@ -548,8 +548,8 @@ bool QGLFormat::testOption( FormatOption opt ) const
 /*!
     \fn bool QGLFormat::hasOpenGLOverlays()
 
-    Returns TRUE if the window system supports OpenGL overlays;
-    otherwise returns FALSE.
+    Returns true if the window system supports OpenGL overlays;
+    otherwise returns false.
 
     \warning This function must not be called until the QApplication
     object has been created.
@@ -569,9 +569,9 @@ bool QGLFormat::testOption( FormatOption opt ) const
 
 QGLFormat QGLFormat::defaultFormat()
 {
-    if ( !qgl_default_format ) {
-	qgl_default_format = new QGLFormat;
-	qgl_cleanup_format.add( &qgl_default_format );
+    if (!qgl_default_format) {
+        qgl_default_format = new QGLFormat;
+        qgl_cleanup_format.add(&qgl_default_format);
     }
     return *qgl_default_format;
 }
@@ -583,18 +583,18 @@ QGLFormat QGLFormat::defaultFormat()
     \code
     QApplication a(argc, argv);
     QGLFormat f;
-    f.setDoubleBuffer( FALSE );
-    QGLFormat::setDefaultFormat( f );
+    f.setDoubleBuffer(false);
+    QGLFormat::setDefaultFormat(f);
     \endcode
 
     \sa defaultFormat()
 */
 
-void QGLFormat::setDefaultFormat( const QGLFormat &f )
+void QGLFormat::setDefaultFormat(const QGLFormat &f)
 {
-    if ( !qgl_default_format ) {
-	qgl_default_format = new QGLFormat;
-	qgl_cleanup_format.add( &qgl_default_format );
+    if (!qgl_default_format) {
+        qgl_default_format = new QGLFormat;
+        qgl_cleanup_format.add(&qgl_default_format);
     }
     *qgl_default_format = f;
 }
@@ -622,11 +622,11 @@ void QGLFormat::setDefaultFormat( const QGLFormat &f )
 
 QGLFormat QGLFormat::defaultOverlayFormat()
 {
-    if ( !qgl_default_overlay_format ) {
-	qgl_default_overlay_format = new QGLFormat;
-	qgl_default_overlay_format->opts = DirectRendering;
-	qgl_default_overlay_format->pln = 1;
-	qgl_cleanup_format.add( &qgl_default_overlay_format );
+    if (!qgl_default_overlay_format) {
+        qgl_default_overlay_format = new QGLFormat;
+        qgl_default_overlay_format->opts = DirectRendering;
+        qgl_default_overlay_format->pln = 1;
+        qgl_cleanup_format.add(&qgl_default_overlay_format);
     }
     return *qgl_default_overlay_format;
 }
@@ -641,8 +641,8 @@ QGLFormat QGLFormat::defaultOverlayFormat()
 
     \code
     QGLFormat f = QGLFormat::defaultOverlayFormat();
-    f.setDoubleBuffer( TRUE );
-    QGLFormat::setDefaultOverlayFormat( f );
+    f.setDoubleBuffer(true);
+    QGLFormat::setDefaultOverlayFormat(f);
     \endcode
 
     As usual, you can find out after widget creation whether the
@@ -651,53 +651,53 @@ QGLFormat QGLFormat::defaultOverlayFormat()
 
     \code
     // ...continued from above
-    MyGLWidget* myWidget = new MyGLWidget( QGLFormat( QGL::HasOverlay ), ... );
-    if ( myWidget->format().hasOverlay() ) {
-	// Yes, we got an overlay, let's check _its_ format:
-	QGLContext* olContext = myWidget->overlayContext();
-	if ( olContext->format().doubleBuffer() )
-	    ; // yes, we got a double buffered overlay
-	else
-	    ; // no, only single buffered overlays are available
+    MyGLWidget* myWidget = new MyGLWidget(QGLFormat(QGL::HasOverlay), ...);
+    if (myWidget->format().hasOverlay()) {
+        // Yes, we got an overlay, let's check _its_ format:
+        QGLContext* olContext = myWidget->overlayContext();
+        if (olContext->format().doubleBuffer())
+            ; // yes, we got a double buffered overlay
+        else
+            ; // no, only single buffered overlays are available
     }
     \endcode
 
     \sa defaultOverlayFormat()
 */
 
-void QGLFormat::setDefaultOverlayFormat( const QGLFormat &f )
+void QGLFormat::setDefaultOverlayFormat(const QGLFormat &f)
 {
-    if ( !qgl_default_overlay_format ) {
-	qgl_default_overlay_format = new QGLFormat;
-	qgl_cleanup_format.add( &qgl_default_overlay_format );
+    if (!qgl_default_overlay_format) {
+        qgl_default_overlay_format = new QGLFormat;
+        qgl_cleanup_format.add(&qgl_default_overlay_format);
     }
     *qgl_default_overlay_format = f;
     // Make sure the user doesn't request that the overlays themselves
     // have overlays, since it is unlikely that the system supports
     // infinitely many planes...
-    qgl_default_overlay_format->setOverlay( FALSE );
+    qgl_default_overlay_format->setOverlay(false);
 }
 
 
 /*!
-    Returns TRUE if all the options of the two QGLFormats are equal;
-    otherwise returns FALSE.
+    Returns true if all the options of the two QGLFormats are equal;
+    otherwise returns false.
 */
 
-bool operator==( const QGLFormat& a, const QGLFormat& b )
+bool operator==(const QGLFormat& a, const QGLFormat& b)
 {
     return (a.opts == b.opts) && (a.pln == b.pln);
 }
 
 
 /*!
-    Returns FALSE if all the options of the two QGLFormats are equal;
-    otherwise returns TRUE.
+    Returns false if all the options of the two QGLFormats are equal;
+    otherwise returns true.
 */
 
-bool operator!=( const QGLFormat& a, const QGLFormat& b )
+bool operator!=(const QGLFormat& a, const QGLFormat& b)
 {
-    return !( a == b );
+    return !(a == b);
 }
 
 
@@ -767,18 +767,18 @@ QGLContext* QGLContext::currentCtx = 0;
     \sa format(), isValid()
 */
 
-QGLContext::QGLContext( const QGLFormat &format, QPaintDevice *device )
+QGLContext::QGLContext(const QGLFormat &format, QPaintDevice *device)
     : glFormat(format), reqFormat(format)
 {
-    init( device );
+    init(device);
 }
 
 /*!
     \overload
     \internal
 */
-QGLContext::QGLContext( const QGLFormat &format )
-    : glFormat( format ), reqFormat(format)
+QGLContext::QGLContext(const QGLFormat &format)
+    : glFormat(format), reqFormat(format)
 {
     init();
 }
@@ -790,8 +790,8 @@ QGLContext::QGLContext( const QGLFormat &format )
 QGLContext::~QGLContext()
 {
     reset();
-    if ( d )
-	delete d;
+    if (d)
+        delete d;
 }
 
 
@@ -824,18 +824,18 @@ QGLContext::~QGLContext()
     QGLContext *cx;
     //  ...
     QGLFormat f;
-    f.setStereo( TRUE );
-    cx->setFormat( f );
-    if ( !cx->create() )
-	exit(); // no OpenGL support, or cannot render on the specified paintdevice
-    if ( !cx->format().stereo() )
-	exit(); // could not create stereo context
+    f.setStereo(true);
+    cx->setFormat(f);
+    if (!cx->create())
+        exit(); // no OpenGL support, or cannot render on the specified paintdevice
+    if (!cx->format().stereo())
+        exit(); // could not create stereo context
     \endcode
 
     \sa format(), reset(), create()
 */
 
-void QGLContext::setFormat( const QGLFormat &format )
+void QGLContext::setFormat(const QGLFormat &format)
 {
     reset();
     glFormat = reqFormat = format;
@@ -844,22 +844,22 @@ void QGLContext::setFormat( const QGLFormat &format )
 /*!
     \internal
 */
-void QGLContext::setDevice( QPaintDevice *pDev )
+void QGLContext::setDevice(QPaintDevice *pDev)
 {
-    if ( isValid() )
-	reset();
+    if (isValid())
+        reset();
     d->paintDevice = pDev;
-    if ( d->paintDevice && (d->paintDevice->devType() != QInternal::Widget
-			&& d->paintDevice->devType() != QInternal::Pixmap) ) {
-	qWarning( "QGLContext: Unsupported paint device type" );
+    if (d->paintDevice && (d->paintDevice->devType() != QInternal::Widget
+                        && d->paintDevice->devType() != QInternal::Pixmap)) {
+        qWarning("QGLContext: Unsupported paint device type");
     }
 }
 
-void QGLContext::init( QPaintDevice *dev )
+void QGLContext::init(QPaintDevice *dev)
 {
     d = new Private;
-    d->valid = FALSE;
-    setDevice( dev );
+    d->valid = false;
+    setDevice(dev);
 #if defined(Q_WS_X11)
     gpm = 0;
 #endif
@@ -872,20 +872,20 @@ void QGLContext::init( QPaintDevice *dev )
 #ifdef Q_WS_MAC
     d->oldR = QRect(1, 1, 1, 1);
 #endif
-    d->crWin = FALSE;
-    d->initDone = FALSE;
-    d->sharing = FALSE;
+    d->crWin = false;
+    d->initDone = false;
+    d->sharing = false;
 }
 
 /*!
     \fn bool QGLContext::isValid() const
 
-    Returns TRUE if a GL rendering context has been successfully
-    created; otherwise returns FALSE.
+    Returns true if a GL rendering context has been successfully
+    created; otherwise returns false.
 */
 
 /*!
-    \fn void QGLContext::setValid( bool valid )
+    \fn void QGLContext::setValid(bool valid)
     \internal
 
     Forces the GL rendering context to be valid.
@@ -894,9 +894,9 @@ void QGLContext::init( QPaintDevice *dev )
 /*!
     \fn bool QGLContext::isSharing() const
 
-    Returns TRUE if display list sharing with another context was
+    Returns true if display list sharing with another context was
     requested in the create() call and the GL system was able to
-    fulfill this request; otherwise returns FALSE. Note that display
+    fulfill this request; otherwise returns false. Note that display
     list sharing might not be supported between contexts with
     different formats.
 */
@@ -904,30 +904,30 @@ void QGLContext::init( QPaintDevice *dev )
 /*!
     \fn bool QGLContext::deviceIsPixmap() const
 
-    Returns TRUE if the paint device of this context is a pixmap;
-    otherwise returns FALSE.
+    Returns true if the paint device of this context is a pixmap;
+    otherwise returns false.
 */
 
 /*!
     \fn bool QGLContext::windowCreated() const
 
-    Returns TRUE if a window has been created for this context;
-    otherwise returns FALSE.
+    Returns true if a window has been created for this context;
+    otherwise returns false.
 
     \sa setWindowCreated()
 */
 
 /*!
-    \fn void QGLContext::setWindowCreated( bool on )
+    \fn void QGLContext::setWindowCreated(bool on)
 
-    If \a on is TRUE the context has had a window created for it. If
-    \a on is FALSE no window has been created for the context.
+    If \a on is true the context has had a window created for it. If
+    \a on is false no window has been created for the context.
 
     \sa windowCreated()
 */
 
 /*!
-    \fn uint QGLContext::colorIndex( const QColor& c ) const
+    \fn uint QGLContext::colorIndex(const QColor& c) const
 
     \internal
 
@@ -939,19 +939,19 @@ void QGLContext::init( QPaintDevice *dev )
 /*!
     \fn bool QGLContext::initialized() const
 
-    Returns TRUE if this context has been initialized, i.e. if
+    Returns true if this context has been initialized, i.e. if
     QGLWidget::initializeGL() has been performed on it; otherwise
-    returns FALSE.
+    returns false.
 
     \sa setInitialized()
 */
 
 /*!
-    \fn void QGLContext::setInitialized( bool on )
+    \fn void QGLContext::setInitialized(bool on)
 
-    If \a on is TRUE the context has been initialized, i.e.
+    If \a on is true the context has been initialized, i.e.
     QGLContext::setInitialized() has been called on it. If \a on is
-    FALSE the context has not been initialized.
+    false the context has not been initialized.
 
     \sa initialized()
 */
@@ -986,9 +986,9 @@ void QGLContext::init( QPaintDevice *dev )
 
 
 /*!
-    Creates the GL context. Returns TRUE if it was successful in
+    Creates the GL context. Returns true if it was successful in
     creating a valid GL rendering context on the paint device
-    specified in the constructor; otherwise returns FALSE (i.e. the
+    specified in the constructor; otherwise returns false (i.e. the
     context is invalid).
 
     After successful creation, format() returns the set of features of
@@ -1013,17 +1013,17 @@ void QGLContext::init( QPaintDevice *dev )
     \sa chooseContext(), format(), isValid()
 */
 
-bool QGLContext::create( const QGLContext* shareContext )
+bool QGLContext::create(const QGLContext* shareContext)
 {
     reset();
-    d->valid = chooseContext( shareContext );
+    d->valid = chooseContext(shareContext);
     return d->valid;
 }
 
 
 
 /*!
-    \fn bool QGLContext::chooseContext( const QGLContext* shareContext = 0 )
+    \fn bool QGLContext::chooseContext(const QGLContext* shareContext = 0)
 
     This semi-internal function is called by create(). It creates a
     system-dependent OpenGL handle that matches the format() of \a
@@ -1084,7 +1084,7 @@ bool QGLContext::create( const QGLContext* shareContext )
 */
 
 /*!
-    \fn void QGLContext::generateFontDisplayLists( const QFont& font, int listBase )
+    \fn void QGLContext::generateFontDisplayLists(const QFont& font, int listBase)
 
     Generates a set of 256 display lists for the 256 first characters
     in the font \a font. The first list will start at index \a listBase.
@@ -1137,45 +1137,45 @@ bool QGLContext::create( const QGLContext* shareContext )
     \code
     class MyGLDrawer : public QGLWidget
     {
-	Q_OBJECT	// must include this if you use Qt signals/slots
+        Q_OBJECT        // must include this if you use Qt signals/slots
 
     public:
-	MyGLDrawer( QWidget *parent, const char *name )
-	    : QGLWidget(parent, name) {}
+        MyGLDrawer(QWidget *parent, const char *name)
+            : QGLWidget(parent, name) {}
 
     protected:
 
-	void initializeGL()
-	{
-	    // Set up the rendering context, define display lists etc.:
-	    ...
-	    glClearColor( 0.0, 0.0, 0.0, 0.0 );
-	    glEnable(GL_DEPTH_TEST);
-	    ...
-	}
+        void initializeGL()
+        {
+            // Set up the rendering context, define display lists etc.:
+            ...
+            glClearColor(0.0, 0.0, 0.0, 0.0);
+            glEnable(GL_DEPTH_TEST);
+            ...
+        }
 
-	void resizeGL( int w, int h )
-	{
-	    // setup viewport, projection etc.:
-	    glViewport( 0, 0, (GLint)w, (GLint)h );
-	    ...
-	    glFrustum( ... );
-	    ...
-	}
+        void resizeGL(int w, int h)
+        {
+            // setup viewport, projection etc.:
+            glViewport(0, 0, (GLint)w, (GLint)h);
+            ...
+            glFrustum(...);
+            ...
+        }
 
-	void paintGL()
-	{
-	    // draw the scene:
-	    ...
-	    glRotatef( ... );
-	    glMaterialfv( ... );
-	    glBegin( GL_QUADS );
-	    glVertex3f( ... );
-	    glVertex3f( ... );
-	    ...
-	    glEnd();
-	    ...
-	}
+        void paintGL()
+        {
+            // draw the scene:
+            ...
+            glRotatef(...);
+            glMaterialfv(...);
+            glBegin(GL_QUADS);
+            glVertex3f(...);
+            glVertex3f(...);
+            ...
+            glEnd();
+            ...
+        }
 
     };
     \endcode
@@ -1254,15 +1254,15 @@ bool QGLContext::create( const QGLContext* shareContext )
 #define d d_func()
 #define q q_func()
 
-QGLWidget::QGLWidget( QWidget *parent, const char *name,
-		      const QGLWidget* shareWidget, WFlags f )
+QGLWidget::QGLWidget(QWidget *parent, const char *name,
+                      const QGLWidget* shareWidget, WFlags f)
     : QWidget(*(new QGLWidgetPrivate), parent, f | Qt::WWinOwnDC | Qt::WNoAutoErase)
 {
     if (name)
-	setObjectName(name);
+        setObjectName(name);
     setAttribute(WA_PaintOnScreen);
     setAttribute(WA_NoBackground);
-    init( new QGLContext(QGLFormat::defaultFormat(), this), shareWidget );
+    init(new QGLContext(QGLFormat::defaultFormat(), this), shareWidget);
 }
 
 
@@ -1294,14 +1294,14 @@ QGLWidget::QGLWidget( QWidget *parent, const char *name,
     \sa QGLFormat::defaultFormat(), isValid()
 */
 
-QGLWidget::QGLWidget( const QGLFormat &format, QWidget *parent,
-		      const char *name, const QGLWidget* shareWidget,
-		      WFlags f )
-    : QWidget( *(new QGLWidgetPrivate), parent, f | Qt::WWinOwnDC | Qt::WNoAutoErase )
+QGLWidget::QGLWidget(const QGLFormat &format, QWidget *parent,
+                      const char *name, const QGLWidget* shareWidget,
+                      WFlags f)
+    : QWidget(*(new QGLWidgetPrivate), parent, f | Qt::WWinOwnDC | Qt::WNoAutoErase)
 {
     if (name)
-	setObjectName(name);
-    init( new QGLContext(format, this), shareWidget );
+        setObjectName(name);
+    init(new QGLContext(format, this), shareWidget);
 }
 
 /*!
@@ -1329,13 +1329,13 @@ QGLWidget::QGLWidget( const QGLFormat &format, QWidget *parent,
 
     \sa QGLFormat::defaultFormat(), isValid()
 */
-QGLWidget::QGLWidget( QGLContext *context, QWidget *parent,
-		      const char *name, const QGLWidget *shareWidget, WFlags f )
-    : QWidget( *(new QGLWidgetPrivate), parent, f | Qt::WWinOwnDC | Qt::WNoAutoErase )
+QGLWidget::QGLWidget(QGLContext *context, QWidget *parent,
+                      const char *name, const QGLWidget *shareWidget, WFlags f)
+    : QWidget(*(new QGLWidgetPrivate), parent, f | Qt::WWinOwnDC | Qt::WNoAutoErase)
 {
     if (name)
-	setObjectName(name);
-    init( context, shareWidget );
+        setObjectName(name);
+    init(context, shareWidget);
 }
 
 /*!
@@ -1345,15 +1345,15 @@ QGLWidget::QGLWidget( QGLContext *context, QWidget *parent,
 QGLWidget::~QGLWidget()
 {
 #if defined(GLX_MESA_release_buffers) && defined(QGL_USE_MESA_EXT)
-    bool doRelease = ( glcx && glcx->windowCreated() );
+    bool doRelease = (glcx && glcx->windowCreated());
 #endif
     delete d->glcx;
 #if defined(Q_WGL)
     delete d->olcx;
 #endif
 #if defined(GLX_MESA_release_buffers) && defined(QGL_USE_MESA_EXT)
-    if ( doRelease )
-	glXReleaseBuffersMESA( x11Display(), winId() );
+    if (doRelease)
+        glXReleaseBuffersMESA(x11Display(), winId());
 #endif
     cleanupColormaps();
 }
@@ -1371,19 +1371,19 @@ QGLWidget::~QGLWidget()
 /*!
     \fn bool QGLWidget::doubleBuffer() const
 
-    Returns TRUE if the contained GL rendering context has double
-    buffering; otherwise returns FALSE.
+    Returns true if the contained GL rendering context has double
+    buffering; otherwise returns false.
 
     \sa QGLFormat::doubleBuffer()
 */
 
 /*!
-    \fn void QGLWidget::setAutoBufferSwap( bool on )
+    \fn void QGLWidget::setAutoBufferSwap(bool on)
 
-    If \a on is TRUE automatic GL buffer swapping is switched on;
+    If \a on is true automatic GL buffer swapping is switched on;
     otherwise it is switched off.
 
-    If \a on is TRUE and the widget is using a double-buffered format,
+    If \a on is true and the widget is using a double-buffered format,
     the background and foreground GL buffers will automatically be
     swapped after each paintGL() call.
 
@@ -1395,8 +1395,8 @@ QGLWidget::~QGLWidget()
 /*!
     \fn bool QGLWidget::autoBufferSwap() const
 
-    Returns TRUE if the widget is doing automatic GL buffer swapping;
-    otherwise returns FALSE.
+    Returns true if the widget is doing automatic GL buffer swapping;
+    otherwise returns false.
 
     \sa setAutoBufferSwap()
 */
@@ -1404,8 +1404,8 @@ QGLWidget::~QGLWidget()
 /*!
     \fn bool QGLWidget::isValid() const
 
-    Returns TRUE if the widget has a valid GL rendering context;
-    otherwise returns FALSE. A widget will be invalid if the system
+    Returns true if the widget has a valid GL rendering context;
+    otherwise returns false. A widget will be invalid if the system
     has no \link QGLFormat::hasOpenGL() OpenGL support\endlink.
 */
 
@@ -1417,9 +1417,9 @@ bool QGLWidget::isValid() const
 /*!
     \fn bool QGLWidget::isSharing() const
 
-    Returns TRUE if display list sharing with another QGLWidget was
+    Returns true if display list sharing with another QGLWidget was
     requested in the constructor, and the GL system was able to
-    provide it; otherwise returns FALSE. The GL system may fail to
+    provide it; otherwise returns false. The GL system may fail to
     provide display list sharing if the two QGLWidgets use different
     formats.
 
@@ -1520,9 +1520,9 @@ void QGLWidget::swapBuffers()
   \sa format(), isSharing(), isValid()
 */
 
-void QGLWidget::setFormat( const QGLFormat &format )
+void QGLWidget::setFormat(const QGLFormat &format)
 {
-    setContext( new QGLContext(format,this) );
+    setContext(new QGLContext(format,this));
 }
 
 
@@ -1541,9 +1541,9 @@ void QGLWidget::setFormat( const QGLFormat &format )
 /*
   \obsolete
 
-  \fn void QGLWidget::setContext( QGLContext *context,
-				  const QGLContext* shareContext,
-				  bool deleteOldContext )
+  \fn void QGLWidget::setContext(QGLContext *context,
+                                  const QGLContext* shareContext,
+                                  bool deleteOldContext)
 
   Sets a new context for this widget. The QGLContext \a context must
   be created using \e new. QGLWidget will delete \a context when
@@ -1559,8 +1559,8 @@ void QGLWidget::setFormat( const QGLFormat &format )
   list sharing with that context, but it may fail. Use isSharing() to
   test.
 
-  If \a deleteOldContext is TRUE (the default), the existing context
-  will be deleted. You may use FALSE here if you have kept a pointer
+  If \a deleteOldContext is true (the default), the existing context
+  will be deleted. You may use false here if you have kept a pointer
   to the old context (as returned by context()), and want to restore
   that context later.
 
@@ -1623,7 +1623,7 @@ void QGLWidget::paintGL()
 
 
 /*!
-    \fn void QGLWidget::resizeGL( int width , int height )
+    \fn void QGLWidget::resizeGL(int width , int height)
 
     This virtual function is called whenever the widget has been
     resized. The new size is passed in \a width and \a height.
@@ -1633,7 +1633,7 @@ void QGLWidget::paintGL()
     been done when this function is called.
 */
 
-void QGLWidget::resizeGL( int, int )
+void QGLWidget::resizeGL(int, int)
 {
 }
 
@@ -1675,7 +1675,7 @@ void QGLWidget::paintOverlayGL()
 
 
 /*!
-    \fn void QGLWidget::resizeOverlayGL( int width , int height )
+    \fn void QGLWidget::resizeOverlayGL(int width , int height)
 
     This virtual function is used in the same manner as paintGL()
     except that it operates on the widget's overlay context instead of
@@ -1687,7 +1687,7 @@ void QGLWidget::paintOverlayGL()
     already been done when this function is called.
 */
 
-void QGLWidget::resizeOverlayGL( int, int )
+void QGLWidget::resizeOverlayGL(int, int)
 {
 }
 
@@ -1702,7 +1702,7 @@ void QGLWidget::resizeOverlayGL( int, int )
     initializeGL() will be called if it hasn't already been called.
 */
 
-void QGLWidget::paintEvent( QPaintEvent * )
+void QGLWidget::paintEvent(QPaintEvent *)
 {
     glDraw();
     updateOverlayGL();
@@ -1710,14 +1710,14 @@ void QGLWidget::paintEvent( QPaintEvent * )
 
 
 /*!
-    \fn void QGLWidget::resizeEvent( QResizeEvent * )
+    \fn void QGLWidget::resizeEvent(QResizeEvent *)
 
     Handles resize events. Calls the virtual function resizeGL().
 */
 
 
 /*!
-  \fn void QGLWidget::setMouseTracking( bool enable )
+  \fn void QGLWidget::setMouseTracking(bool enable)
 
   \reimp
 */
@@ -1737,9 +1737,9 @@ void QGLWidget::paintEvent( QPaintEvent * )
     high unless one of these parameters is 0 (the default), in which
     case the pixmap will have the same size as the widget.
 
-    If \a useContext is TRUE, this method will try to be more
+    If \a useContext is true, this method will try to be more
     efficient by using the existing GL context to render the pixmap.
-    The default is FALSE. Only use TRUE if you understand the risks.
+    The default is false. Only use true if you understand the risks.
 
     Overlays are not rendered onto the pixmap.
 
@@ -1752,13 +1752,13 @@ void QGLWidget::paintEvent( QPaintEvent * )
     properly, and the rendered pixmap may be incomplete/corrupted.
 */
 
-QPixmap QGLWidget::renderPixmap( int w, int h, bool useContext )
+QPixmap QGLWidget::renderPixmap(int w, int h, bool useContext)
 {
     QSize sz = size();
-    if ( (w > 0) && (h > 0) )
-	sz = QSize( w, h );
+    if ((w > 0) && (h > 0))
+        sz = QSize(w, h);
     QPixmap pm;
-    pm.resize( sz );
+    pm.resize(sz);
 
 #if defined(Q_WS_X11)
     // If we are using OpenGL widgets we HAVE to make sure that
@@ -1769,161 +1769,161 @@ QPixmap QGLWidget::renderPixmap( int w, int h, bool useContext )
     // use a visual that has depth and stencil buffers.
 
     if (!gl_pixmap_visual) {
-	int nvis;
-	Visual *vis = (Visual *) QX11Info::appVisual();
-	int screen = QX11Info::appScreen();
-	Display *appDpy = QX11Info::appDisplay();
-	XVisualInfo * vi;
-	XVisualInfo visInfo;
-	memset( &visInfo, 0, sizeof(XVisualInfo) );
-	visInfo.visualid = XVisualIDFromVisual( vis );
-	visInfo.screen = screen;
-	vi = XGetVisualInfo( appDpy, VisualIDMask | VisualScreenMask, &visInfo, &nvis );
-	if ( vi ) {
-	    int useGL;
-	    int ret = glXGetConfig( appDpy, vi, GLX_USE_GL, &useGL );
-	    if ( ret != 0 || !useGL ) {
-		// We have to find another visual that is GL capable
-		int i;
-		XVisualInfo * visuals;
-		memset( &visInfo, 0, sizeof(XVisualInfo) );
-		visInfo.screen = screen;
-		visInfo.c_class = vi->c_class;
-		visInfo.depth = vi->depth;
-		visuals = XGetVisualInfo( appDpy, VisualClassMask |
-					  VisualDepthMask |
-					  VisualScreenMask, &visInfo,
-					  &nvis );
-		if ( visuals ) {
-		    for ( i = 0; i < nvis; i++ ) {
-			int ret = glXGetConfig( appDpy, &visuals[i], GLX_USE_GL, &useGL );
-			if ( ret == 0 && useGL ) {
-			    vis = visuals[i].visual;
-			    break;
-			}
-		    }
-		    XFree( visuals );
-		}
-	    }
-	    XFree( vi );
-	}
-	gl_pixmap_visual = vis;
+        int nvis;
+        Visual *vis = (Visual *) QX11Info::appVisual();
+        int screen = QX11Info::appScreen();
+        Display *appDpy = QX11Info::appDisplay();
+        XVisualInfo * vi;
+        XVisualInfo visInfo;
+        memset(&visInfo, 0, sizeof(XVisualInfo));
+        visInfo.visualid = XVisualIDFromVisual(vis);
+        visInfo.screen = screen;
+        vi = XGetVisualInfo(appDpy, VisualIDMask | VisualScreenMask, &visInfo, &nvis);
+        if (vi) {
+            int useGL;
+            int ret = glXGetConfig(appDpy, vi, GLX_USE_GL, &useGL);
+            if (ret != 0 || !useGL) {
+                // We have to find another visual that is GL capable
+                int i;
+                XVisualInfo * visuals;
+                memset(&visInfo, 0, sizeof(XVisualInfo));
+                visInfo.screen = screen;
+                visInfo.c_class = vi->c_class;
+                visInfo.depth = vi->depth;
+                visuals = XGetVisualInfo(appDpy, VisualClassMask |
+                                          VisualDepthMask |
+                                          VisualScreenMask, &visInfo,
+                                          &nvis);
+                if (visuals) {
+                    for (i = 0; i < nvis; i++) {
+                        int ret = glXGetConfig(appDpy, &visuals[i], GLX_USE_GL, &useGL);
+                        if (ret == 0 && useGL) {
+                            vis = visuals[i].visual;
+                            break;
+                        }
+                    }
+                    XFree(visuals);
+                }
+            }
+            XFree(vi);
+        }
+        gl_pixmap_visual = vis;
     }
 
     if (gl_pixmap_visual != QX11Info::appVisual()) {
-	int nvis = 0;
-	XVisualInfo visInfo;
-	memset( &visInfo, 0, sizeof(XVisualInfo) );
-	visInfo.visualid = XVisualIDFromVisual( (Visual *) gl_pixmap_visual );
-	visInfo.screen = QX11Info::appScreen();
-	XVisualInfo *vi = XGetVisualInfo( QX11Info::appDisplay(), VisualIDMask | VisualScreenMask,
-					  &visInfo, &nvis );
-	if (vi) {
-	    QX11InfoData* xd = pm.x11Info()->getX11Data( TRUE );
-	    xd->x_depth = vi->depth;
-	    xd->x_visual = (Visual *) gl_pixmap_visual;
-	    pm.x11Info()->setX11Data( xd );
-	    XFree(vi);
-	}
+        int nvis = 0;
+        XVisualInfo visInfo;
+        memset(&visInfo, 0, sizeof(XVisualInfo));
+        visInfo.visualid = XVisualIDFromVisual((Visual *) gl_pixmap_visual);
+        visInfo.screen = QX11Info::appScreen();
+        XVisualInfo *vi = XGetVisualInfo(QX11Info::appDisplay(), VisualIDMask | VisualScreenMask,
+                                          &visInfo, &nvis);
+        if (vi) {
+            QX11InfoData* xd = pm.x11Info()->getX11Data(true);
+            xd->x_depth = vi->depth;
+            xd->x_visual = (Visual *) gl_pixmap_visual;
+            pm.x11Info()->setX11Data(xd);
+            XFree(vi);
+        }
     }
 
 #endif
 
     d->glcx->doneCurrent();
 
-    bool success = TRUE;
+    bool success = true;
 
-    if ( useContext && isValid() && renderCxPm( &pm ) )
-	return pm;
+    if (useContext && isValid() && renderCxPm(&pm))
+        return pm;
 
     QGLFormat fmt = d->glcx->requestedFormat();
-    fmt.setDirectRendering( FALSE );		// Direct is unlikely to work
-    fmt.setDoubleBuffer( FALSE );		// We don't need dbl buf
+    fmt.setDirectRendering(false);                // Direct is unlikely to work
+    fmt.setDoubleBuffer(false);                // We don't need dbl buf
 
     QGLContext* ocx = d->glcx;
-    bool wasCurrent = (QGLContext::currentContext() == ocx );
+    bool wasCurrent = (QGLContext::currentContext() == ocx);
     ocx->doneCurrent();
-    d->glcx = new QGLContext( fmt, &pm );
+    d->glcx = new QGLContext(fmt, &pm);
     d->glcx->create();
 
-    if ( d->glcx->isValid() )
-	updateGL();
+    if (d->glcx->isValid())
+        updateGL();
     else
-	success = FALSE;
+        success = false;
 
     delete d->glcx;
     d->glcx = ocx;
 
-    if ( wasCurrent )
-	ocx->makeCurrent();
+    if (wasCurrent)
+        ocx->makeCurrent();
 
-    if ( success ) {
+    if (success) {
 #if defined(Q_WS_X11)
-	if (gl_pixmap_visual != QX11Info::appVisual()) {
-	    QImage image = pm.convertToImage();
-	    QPixmap p;
-	    p = image;
-	    return p;
-	}
+        if (gl_pixmap_visual != QX11Info::appVisual()) {
+            QImage image = pm.convertToImage();
+            QPixmap p;
+            p = image;
+            return p;
+        }
 #endif
-	return pm;
+        return pm;
     } else
-	return QPixmap();
+        return QPixmap();
 }
 
 
 
 /*!
-    Returns an image of the frame buffer. If \a withAlpha is TRUE the
+    Returns an image of the frame buffer. If \a withAlpha is true the
     alpha channel is included.
 
     Depending on your hardware, you can explicitly select which color
     buffer to grab with a glReadBuffer() call before calling this
     function.
 */
-QImage QGLWidget::grabFrameBuffer( bool withAlpha )
+QImage QGLWidget::grabFrameBuffer(bool withAlpha)
 {
     makeCurrent();
     QImage res;
     int w = width();
     int h = height();
-    if ( format().rgba() ) {
-	res = QImage( w, h, 32 );
-	glReadPixels( 0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, res.bits() );
-	if ( QImage::systemByteOrder() == QImage::BigEndian ) {
-	    // OpenGL gives RGBA; Qt wants ARGB
-	    uint *p = (uint*)res.bits();
-	    uint *end = p + w*h;
-	    if ( withAlpha && format().alpha() ) {
-		while ( p < end ) {
-		    uint a = *p << 24;
-		    *p = (*p >> 8) | a;
-		    p++;
-		}
-	    }
-	    else {
-		while ( p < end )
-		    *p++ >>= 8;
-	    }
-	}
-	else {
-	    // OpenGL gives ABGR (i.e. RGBA backwards); Qt wants ARGB
-	    res = res.swapRGB();
-	}
-	res.setAlphaBuffer( withAlpha && format().alpha() );
+    if (format().rgba()) {
+        res = QImage(w, h, 32);
+        glReadPixels(0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, res.bits());
+        if (QImage::systemByteOrder() == QImage::BigEndian) {
+            // OpenGL gives RGBA; Qt wants ARGB
+            uint *p = (uint*)res.bits();
+            uint *end = p + w*h;
+            if (withAlpha && format().alpha()) {
+                while (p < end) {
+                    uint a = *p << 24;
+                    *p = (*p >> 8) | a;
+                    p++;
+                }
+            }
+            else {
+                while (p < end)
+                    *p++ >>= 8;
+            }
+        }
+        else {
+            // OpenGL gives ABGR (i.e. RGBA backwards); Qt wants ARGB
+            res = res.swapRGB();
+        }
+        res.setAlphaBuffer(withAlpha && format().alpha());
     }
     else {
 #if defined (Q_WS_WIN)
-	res = QImage( w, h, 8 );
-	glReadPixels( 0, 0, w, h, GL_COLOR_INDEX, GL_UNSIGNED_BYTE,
-		      res.bits() );
-	int palSize = 0;
-	const QRgb* pal = QColor::palette( &palSize );
-	if ( pal && palSize ) {
-	    res.setNumColors( palSize );
-	    for ( int i = 0; i < palSize; i++ )
-		res.setColor( i, pal[i] );
-	}
+        res = QImage(w, h, 8);
+        glReadPixels(0, 0, w, h, GL_COLOR_INDEX, GL_UNSIGNED_BYTE,
+                      res.bits());
+        int palSize = 0;
+        const QRgb* pal = QColor::palette(&palSize);
+        if (pal && palSize) {
+            res.setNumColors(palSize);
+            for (int i = 0; i < palSize; i++)
+                res.setColor(i, pal[i]);
+        }
 #endif
     }
 
@@ -1939,11 +1939,11 @@ QImage QGLWidget::grabFrameBuffer( bool withAlpha )
 
 void QGLWidget::glInit()
 {
-    if ( !isValid() )
-	return;
+    if (!isValid())
+        return;
     makeCurrent();
     initializeGL();
-    d->glcx->setInitialized( TRUE );
+    d->glcx->setInitialized(true);
 }
 
 
@@ -1956,22 +1956,22 @@ void QGLWidget::glInit()
 
 void QGLWidget::glDraw()
 {
-    if ( !isValid() )
-	return;
+    if (!isValid())
+        return;
     makeCurrent();
-    if ( d->glcx->deviceIsPixmap() )
-	glDrawBuffer( GL_FRONT );
-    if ( !d->glcx->initialized() ) {
-	glInit();
-	QPaintDeviceMetrics dm( d->glcx->device() );
-	resizeGL( dm.width(), dm.height() ); // New context needs this "resize"
+    if (d->glcx->deviceIsPixmap())
+        glDrawBuffer(GL_FRONT);
+    if (!d->glcx->initialized()) {
+        glInit();
+        QPaintDeviceMetrics dm(d->glcx->device());
+        resizeGL(dm.width(), dm.height()); // New context needs this "resize"
     }
     paintGL();
-    if ( doubleBuffer() ) {
-	if ( d->autoSwap )
-	    swapBuffers();
+    if (doubleBuffer()) {
+        if (d->autoSwap)
+            swapBuffers();
     } else {
-	glFlush();
+        glFlush();
     }
 }
 
@@ -1984,19 +1984,19 @@ void QGLWidget::glDraw()
     \sa qglClearColor(), QGLContext::currentContext(), QColor
 */
 
-void QGLWidget::qglColor( const QColor& c ) const
+void QGLWidget::qglColor(const QColor& c) const
 {
     const QGLContext* ctx = QGLContext::currentContext();
-    if ( ctx ) {
-	if ( ctx->format().rgba() )
-	    glColor3ub( c.red(), c.green(), c.blue() );
-	else if ( !d->cmap.isEmpty() ) { // QGLColormap in use?
-	    int i = d->cmap.find( c.rgb() );
-	    if ( i < 0 )
-		i = d->cmap.findNearest( c.rgb() );
-	    glIndexi( i );
-	} else
-	    glIndexi( ctx->colorIndex( c ) );
+    if (ctx) {
+        if (ctx->format().rgba())
+            glColor3ub(c.red(), c.green(), c.blue());
+        else if (!d->cmap.isEmpty()) { // QGLColormap in use?
+            int i = d->cmap.find(c.rgb());
+            if (i < 0)
+                i = d->cmap.findNearest(c.rgb());
+            glIndexi(i);
+        } else
+            glIndexi(ctx->colorIndex(c));
     }
 }
 
@@ -2008,20 +2008,20 @@ void QGLWidget::qglColor( const QColor& c ) const
     \sa qglColor(), QGLContext::currentContext(), QColor
 */
 
-void QGLWidget::qglClearColor( const QColor& c ) const
+void QGLWidget::qglClearColor(const QColor& c) const
 {
     const QGLContext* ctx = QGLContext::currentContext();
-    if ( ctx ) {
-	if ( ctx->format().rgba() )
-	    glClearColor( (GLfloat)c.red() / 255.0, (GLfloat)c.green() / 255.0,
-			  (GLfloat)c.blue() / 255.0, (GLfloat) 0.0 );
-	else if ( !d->cmap.isEmpty() ) { // QGLColormap in use?
-	    int i = d->cmap.find( c.rgb() );
-	    if ( i < 0 )
-		i = d->cmap.findNearest( c.rgb() );
-	    glClearIndex( i );
-	} else
-	    glClearIndex( ctx->colorIndex( c ) );
+    if (ctx) {
+        if (ctx->format().rgba())
+            glClearColor((GLfloat)c.red() / 255.0, (GLfloat)c.green() / 255.0,
+                          (GLfloat)c.blue() / 255.0, (GLfloat) 0.0);
+        else if (!d->cmap.isEmpty()) { // QGLColormap in use?
+            int i = d->cmap.find(c.rgb());
+            if (i < 0)
+                i = d->cmap.findNearest(c.rgb());
+            glClearIndex(i);
+        } else
+            glClearIndex(ctx->colorIndex(c));
     }
 }
 
@@ -2061,25 +2061,25 @@ void QGLWidget::qglClearColor( const QColor& c ) const
 */
 
 
-QImage QGLWidget::convertToGLFormat( const QImage& img )
+QImage QGLWidget::convertToGLFormat(const QImage& img)
 {
-    QImage res = img.convertDepth( 32 );
+    QImage res = img.convertDepth(32);
     res = res.mirror();
 
-    if ( QImage::systemByteOrder() == QImage::BigEndian ) {
-	// Qt has ARGB; OpenGL wants RGBA
-	for ( int i=0; i < res.height(); i++ ) {
-	    uint *p = (uint*)res.scanLine( i );
-	    uint *end = p + res.width();
-	    while ( p < end ) {
-		*p = (*p << 8) | ((*p >> 24) & 0xFF);
-		p++;
-	    }
-	}
+    if (QImage::systemByteOrder() == QImage::BigEndian) {
+        // Qt has ARGB; OpenGL wants RGBA
+        for (int i=0; i < res.height(); i++) {
+            uint *p = (uint*)res.scanLine(i);
+            uint *end = p + res.width();
+            while (p < end) {
+                *p = (*p << 8) | ((*p >> 24) & 0xFF);
+                p++;
+            }
+        }
     }
     else {
-	// Qt has ARGB; OpenGL wants ABGR (i.e. RGBA backwards)
-	res = res.swapRGB();
+        // Qt has ARGB; OpenGL wants ABGR (i.e. RGBA backwards)
+        res = res.swapRGB();
     }
     return res;
 }
@@ -2101,7 +2101,7 @@ QImage QGLWidget::convertToGLFormat( const QImage& img )
 */
 
 /*!
-    \fn void QGLWidget::setColormap( const QGLColormap & cmap )
+    \fn void QGLWidget::setColormap(const QGLColormap & cmap)
 
     Set the colormap for this widget to \a cmap. Usually it is only
     top-level widgets that can have colormaps installed.
@@ -2109,12 +2109,12 @@ QImage QGLWidget::convertToGLFormat( const QImage& img )
     \sa colormap()
 */
 
-int QGLWidget::displayListBase( const QFont & fnt, int listBase )
+int QGLWidget::displayListBase(const QFont & fnt, int listBase)
 {
     int base;
 
-    if ( !d->glcx ) { // this can't happen unless we run out of mem
-	return 0;
+    if (!d->glcx) { // this can't happen unless we run out of mem
+        return 0;
     }
 
     // always regenerate font disp. lists for pixmaps - hw accelerated
@@ -2126,28 +2126,28 @@ int QGLWidget::displayListBase( const QFont & fnt, int listBase )
     // for each font color
     QString color_key;
     if (fnt.styleStrategy() != QFont::NoAntialias) {
-	GLfloat color[4];
-	glGetFloatv(GL_CURRENT_COLOR, color);
-	color_key.sprintf("%f_%f_%f",color[0], color[1], color[2]);
+        GLfloat color[4];
+        glGetFloatv(GL_CURRENT_COLOR, color);
+        color_key.sprintf("%f_%f_%f",color[0], color[1], color[2]);
     }
     QString key = fnt.key() + color_key + QString::number((int) regenerate);
 #else
     QString key = fnt.key() + QString::number((int) regenerate);
 #endif
-    if ( !regenerate && (d->displayListCache.find( key ) != d->displayListCache.end()) ) {
-	base = d->displayListCache[ key ];
+    if (!regenerate && (d->displayListCache.find(key) != d->displayListCache.end())) {
+        base = d->displayListCache[key];
     } else {
-	int maxBase = listBase - 256;
-	QMap<QString,int>::ConstIterator it;
-	for ( it = d->displayListCache.constBegin(); it != d->displayListCache.constEnd(); ++it ) {
-	    if ( maxBase < it.value() ) {
-		maxBase = it.value();
-	    }
-	}
-	maxBase += 256;
-	d->glcx->generateFontDisplayLists( fnt, maxBase );
-	d->displayListCache[ key ] = maxBase;
-	base = maxBase;
+        int maxBase = listBase - 256;
+        QMap<QString,int>::ConstIterator it;
+        for (it = d->displayListCache.constBegin(); it != d->displayListCache.constEnd(); ++it) {
+            if (maxBase < it.value()) {
+                maxBase = it.value();
+            }
+        }
+        maxBase += 256;
+        d->glcx->generateFontDisplayLists(fnt, maxBase);
+        d->displayListCache[key] = maxBase;
+        base = maxBase;
     }
     return base;
 }
@@ -2175,29 +2175,29 @@ int QGLWidget::displayListBase( const QFont & fnt, int listBase )
    lists are deleted when the widget is destroyed.
 */
 
-void QGLWidget::renderText( int x, int y, const QString & str, const QFont & fnt, int listBase )
+void QGLWidget::renderText(int x, int y, const QString & str, const QFont & fnt, int listBase)
 {
     makeCurrent();
 
     // save GL state
-    glPushAttrib( GL_TRANSFORM_BIT | GL_VIEWPORT_BIT | GL_LIST_BIT | GL_COLOR_BUFFER_BIT );
-    glMatrixMode( GL_PROJECTION );
+    glPushAttrib(GL_TRANSFORM_BIT | GL_VIEWPORT_BIT | GL_LIST_BIT | GL_COLOR_BUFFER_BIT);
+    glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
-    glOrtho( 0, width(), height(), 0, -1, 1 );
-    glMatrixMode( GL_MODELVIEW );
+    glOrtho(0, width(), height(), 0, -1, 1);
+    glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glLoadIdentity();
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
-    glRasterPos2i( x, y );
-    glListBase( displayListBase( fnt, listBase ) );
-    glCallLists( str.length(), GL_UNSIGNED_BYTE, str.local8Bit() );
+    glRasterPos2i(x, y);
+    glListBase(displayListBase(fnt, listBase));
+    glCallLists(str.length(), GL_UNSIGNED_BYTE, str.local8Bit());
 
     // restore the matrix stacks and GL state
     glPopMatrix();
-    glMatrixMode( GL_PROJECTION );
+    glMatrixMode(GL_PROJECTION);
     glPopMatrix();
     glPopAttrib();
 }
@@ -2209,16 +2209,16 @@ void QGLWidget::renderText( int x, int y, const QString & str, const QFont & fnt
     can be useful if you want to annotate models with text labels and
     have the labels move with the model as it is rotated etc.
 */
-void QGLWidget::renderText( double x, double y, double z, const QString & str, const QFont & fnt,
-			    int listBase )
+void QGLWidget::renderText(double x, double y, double z, const QString & str, const QFont & fnt,
+                            int listBase)
 {
     makeCurrent();
-    glRasterPos3d( x, y, z );
-    glPushAttrib( GL_LIST_BIT | GL_COLOR_BUFFER_BIT );
+    glRasterPos3d(x, y, z);
+    glPushAttrib(GL_LIST_BIT | GL_COLOR_BUFFER_BIT);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
-    glListBase( displayListBase( fnt, listBase ) );
-    glCallLists( str.length(), GL_UNSIGNED_BYTE, str.local8Bit() );
+    glListBase(displayListBase(fnt, listBase));
+    glCallLists(str.length(), GL_UNSIGNED_BYTE, str.local8Bit());
     glPopAttrib();
 }
 
@@ -2237,7 +2237,7 @@ bool QGLWidget::doubleBuffer() const
     return d->glcx->format().doubleBuffer();
 }
 
-void QGLWidget::setAutoBufferSwap( bool on )
+void QGLWidget::setAutoBufferSwap(bool on)
 {
     d->autoSwap = on;
 }
@@ -2251,7 +2251,7 @@ bool QGLWidget::autoBufferSwap() const
 QPaintEngine *QGLWidget::engine() const
 {
     if (!d->paintEngine)
-	const_cast<QGLWidget *>(this)->d->paintEngine = new QOpenGLPaintEngine(this);
+        const_cast<QGLWidget *>(this)->d->paintEngine = new QOpenGLPaintEngine(this);
     return d->paintEngine;
 }
 

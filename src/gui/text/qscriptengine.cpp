@@ -35,31 +35,31 @@
 //
 // --------------------------------------------------------------------------------------------------------------------------------------------
 
-static inline void positionCluster(QShaperItem *item, int gfrom,  int glast )
+static inline void positionCluster(QShaperItem *item, int gfrom,  int glast)
 {
     int nmarks = glast - gfrom;
-    if ( nmarks <= 0 ) {
-	qWarning( "positionCluster: no marks to position!" );
-	return;
+    if (nmarks <= 0) {
+        qWarning("positionCluster: no marks to position!");
+        return;
     }
 
     QGlyphLayout *glyphs = item->glyphs;
     QFontEngine *f = item->font;
 
-    glyph_metrics_t baseInfo = f->boundingBox( glyphs[gfrom].glyph );
+    glyph_metrics_t baseInfo = f->boundingBox(glyphs[gfrom].glyph);
 
-    if ( item->script == QFont::Hebrew )
-	// we need to attach below the baseline, because of the hebrew iud.
-	baseInfo.height = qMax( baseInfo.height, -baseInfo.y );
+    if (item->script == QFont::Hebrew)
+        // we need to attach below the baseline, because of the hebrew iud.
+        baseInfo.height = qMax(baseInfo.height, -baseInfo.y);
 
-    QRect baseRect( baseInfo.x.value(), baseInfo.y.value(), baseInfo.width.value(), baseInfo.height.value() );
+    QRect baseRect(baseInfo.x.value(), baseInfo.y.value(), baseInfo.width.value(), baseInfo.height.value());
 
-//     qDebug("---> positionCluster: cluster from %d to %d", gfrom, glast );
-//     qDebug( "baseInfo: %d/%d (%d/%d) off=%d/%d", baseInfo.x, baseInfo.y, baseInfo.width, baseInfo.height, baseInfo.xoff, baseInfo.yoff );
+//     qDebug("---> positionCluster: cluster from %d to %d", gfrom, glast);
+//     qDebug("baseInfo: %d/%d (%d/%d) off=%d/%d", baseInfo.x, baseInfo.y, baseInfo.width, baseInfo.height, baseInfo.xoff, baseInfo.yoff);
 
     int size = f->ascent().value()/10;
-    int offsetBase = (size - 4) / 4 + qMin( size, 4 ) + 1;
-//     qDebug("offset = %d", offsetBase );
+    int offsetBase = (size - 4) / 4 + qMin(size, 4) + 1;
+//     qDebug("offset = %d", offsetBase);
 
     bool rightToLeft = item->flags & QTextEngine::RightToLeft;
 
@@ -67,115 +67,115 @@ static inline void positionCluster(QShaperItem *item, int gfrom,  int glast )
     unsigned char lastCmb = 0;
     QRect attachmentRect;
 
-    for( i = 1; i <= nmarks; i++ ) {
-	glyph_t mark = glyphs[gfrom+i].glyph;
-	QPoint p;
-	glyph_metrics_t markInfo = f->boundingBox( mark );
-	QRect markRect( markInfo.x.value(), markInfo.y.value(), markInfo.width.value(), markInfo.height.value() );
+    for(i = 1; i <= nmarks; i++) {
+        glyph_t mark = glyphs[gfrom+i].glyph;
+        QPoint p;
+        glyph_metrics_t markInfo = f->boundingBox(mark);
+        QRect markRect(markInfo.x.value(), markInfo.y.value(), markInfo.width.value(), markInfo.height.value());
 
-	int offset = offsetBase;
-	unsigned char cmb = glyphs[gfrom+i].attributes.combiningClass;
+        int offset = offsetBase;
+        unsigned char cmb = glyphs[gfrom+i].attributes.combiningClass;
 
-	// ### maybe the whole position determination should move down to heuristicSetGlyphAttributes. Would save some
-	// bits  in the glyphAttributes structure.
-	if ( cmb < 200 ) {
-	    // fixed position classes. We approximate by mapping to one of the others.
-	    // currently I added only the ones for arabic, hebrew, lao and thai.
+        // ### maybe the whole position determination should move down to heuristicSetGlyphAttributes. Would save some
+        // bits  in the glyphAttributes structure.
+        if (cmb < 200) {
+            // fixed position classes. We approximate by mapping to one of the others.
+            // currently I added only the ones for arabic, hebrew, lao and thai.
 
-	    // for Lao and Thai marks with class 0, see below ( heuristicSetGlyphAttributes )
+            // for Lao and Thai marks with class 0, see below (heuristicSetGlyphAttributes)
 
-	    // add a bit more offset to arabic, a bit hacky
-	    if ( cmb >= 27 && cmb <= 36 && offset < 3 )
-		offset +=1;
- 	    // below
-	    if ( (cmb >= 10 && cmb <= 18) ||
-		 cmb == 20 || cmb == 22 ||
-		 cmb == 29 || cmb == 32 )
-		cmb = QChar::Combining_Below;
-	    // above
-	    else if ( cmb == 23 || cmb == 27 || cmb == 28 ||
-		      cmb == 30 || cmb == 31 || (cmb >= 33 && cmb <= 36 ) )
-		cmb = QChar::Combining_Above;
-	    //below-right
-	    else if ( cmb == 9 || cmb == 103 || cmb == 118 )
-		cmb = QChar::Combining_BelowRight;
-	    // above-right
-	    else if ( cmb == 24 || cmb == 107 || cmb == 122 )
-		cmb = QChar::Combining_AboveRight;
-	    else if ( cmb == 25 )
-		cmb = QChar::Combining_AboveLeft;
-	    // fixed:
-	    //  19 21
+            // add a bit more offset to arabic, a bit hacky
+            if (cmb >= 27 && cmb <= 36 && offset < 3)
+                offset +=1;
+            // below
+            if ((cmb >= 10 && cmb <= 18) ||
+                 cmb == 20 || cmb == 22 ||
+                 cmb == 29 || cmb == 32)
+                cmb = QChar::Combining_Below;
+            // above
+            else if (cmb == 23 || cmb == 27 || cmb == 28 ||
+                      cmb == 30 || cmb == 31 || (cmb >= 33 && cmb <= 36))
+                cmb = QChar::Combining_Above;
+            //below-right
+            else if (cmb == 9 || cmb == 103 || cmb == 118)
+                cmb = QChar::Combining_BelowRight;
+            // above-right
+            else if (cmb == 24 || cmb == 107 || cmb == 122)
+                cmb = QChar::Combining_AboveRight;
+            else if (cmb == 25)
+                cmb = QChar::Combining_AboveLeft;
+            // fixed:
+            //  19 21
 
-	}
+        }
 
-	// combining marks of different class don't interact. Reset the rectangle.
-	if ( cmb != lastCmb ) {
-	    //qDebug( "resetting rect" );
-	    attachmentRect = baseRect;
-	}
+        // combining marks of different class don't interact. Reset the rectangle.
+        if (cmb != lastCmb) {
+            //qDebug("resetting rect");
+            attachmentRect = baseRect;
+        }
 
-	switch( cmb ) {
-	case QChar::Combining_DoubleBelow:
-		// ### wrong in rtl context!
-	case QChar::Combining_BelowLeft:
-	    p += QPoint( 0, offset );
-	case QChar::Combining_BelowLeftAttached:
-	    p += attachmentRect.bottomLeft() - markRect.topLeft();
-	    break;
-	case QChar::Combining_Below:
-	    p += QPoint( 0, offset );
-	case QChar::Combining_BelowAttached:
-	    p += attachmentRect.bottomLeft() - markRect.topLeft();
-	    p += QPoint( (attachmentRect.width() - markRect.width())/2 , 0 );
-	    break;
-	    case QChar::Combining_BelowRight:
-	    p += QPoint( 0, offset );
-	case QChar::Combining_BelowRightAttached:
-	    p += attachmentRect.bottomRight() - markRect.topRight();
-	    break;
-	    case QChar::Combining_Left:
-	    p += QPoint( -offset, 0 );
-	case QChar::Combining_LeftAttached:
-	    break;
-	    case QChar::Combining_Right:
-	    p += QPoint( offset, 0 );
-	case QChar::Combining_RightAttached:
-	    break;
-	case QChar::Combining_DoubleAbove:
-	    // ### wrong in RTL context!
-	case QChar::Combining_AboveLeft:
-	    p += QPoint( 0, -offset );
-	case QChar::Combining_AboveLeftAttached:
-	    p += attachmentRect.topLeft() - markRect.bottomLeft();
-	    break;
-	    case QChar::Combining_Above:
-	    p += QPoint( 0, -offset );
-	case QChar::Combining_AboveAttached:
-	    p += attachmentRect.topLeft() - markRect.bottomLeft();
-	    p += QPoint( (attachmentRect.width() - markRect.width())/2 , 0 );
-	    break;
-	    case QChar::Combining_AboveRight:
-	    p += QPoint( 0, -offset );
-	case QChar::Combining_AboveRightAttached:
-	    p += attachmentRect.topRight() - markRect.bottomRight();
-	    break;
+        switch(cmb) {
+        case QChar::Combining_DoubleBelow:
+                // ### wrong in rtl context!
+        case QChar::Combining_BelowLeft:
+            p += QPoint(0, offset);
+        case QChar::Combining_BelowLeftAttached:
+            p += attachmentRect.bottomLeft() - markRect.topLeft();
+            break;
+        case QChar::Combining_Below:
+            p += QPoint(0, offset);
+        case QChar::Combining_BelowAttached:
+            p += attachmentRect.bottomLeft() - markRect.topLeft();
+            p += QPoint((attachmentRect.width() - markRect.width())/2 , 0);
+            break;
+            case QChar::Combining_BelowRight:
+            p += QPoint(0, offset);
+        case QChar::Combining_BelowRightAttached:
+            p += attachmentRect.bottomRight() - markRect.topRight();
+            break;
+            case QChar::Combining_Left:
+            p += QPoint(-offset, 0);
+        case QChar::Combining_LeftAttached:
+            break;
+            case QChar::Combining_Right:
+            p += QPoint(offset, 0);
+        case QChar::Combining_RightAttached:
+            break;
+        case QChar::Combining_DoubleAbove:
+            // ### wrong in RTL context!
+        case QChar::Combining_AboveLeft:
+            p += QPoint(0, -offset);
+        case QChar::Combining_AboveLeftAttached:
+            p += attachmentRect.topLeft() - markRect.bottomLeft();
+            break;
+            case QChar::Combining_Above:
+            p += QPoint(0, -offset);
+        case QChar::Combining_AboveAttached:
+            p += attachmentRect.topLeft() - markRect.bottomLeft();
+            p += QPoint((attachmentRect.width() - markRect.width())/2 , 0);
+            break;
+            case QChar::Combining_AboveRight:
+            p += QPoint(0, -offset);
+        case QChar::Combining_AboveRightAttached:
+            p += attachmentRect.topRight() - markRect.bottomRight();
+            break;
 
-	case QChar::Combining_IotaSubscript:
-	    default:
-		break;
-	}
-// 	qDebug( "char=%x combiningClass = %d offset=%d/%d", mark, cmb, p.x(), p.y() );
-	markRect.moveBy( p.x(), p.y() );
-	attachmentRect |= markRect;
-	lastCmb = cmb;
-	if ( rightToLeft ) {
-	    glyphs[gfrom+i].offset.x = Q26Dot6(p.x(), F26Dot6);
-	    glyphs[gfrom+i].offset.y = Q26Dot6(p.y(), F26Dot6) - baseInfo.yoff;
-	} else {
-	    glyphs[gfrom+i].offset.x = Q26Dot6(p.x(), F26Dot6) - baseInfo.xoff;
-	    glyphs[gfrom+i].offset.y = Q26Dot6(p.y(), F26Dot6) - baseInfo.yoff;
-	}
+        case QChar::Combining_IotaSubscript:
+            default:
+                break;
+        }
+//         qDebug("char=%x combiningClass = %d offset=%d/%d", mark, cmb, p.x(), p.y());
+        markRect.moveBy(p.x(), p.y());
+        attachmentRect |= markRect;
+        lastCmb = cmb;
+        if (rightToLeft) {
+            glyphs[gfrom+i].offset.x = Q26Dot6(p.x(), F26Dot6);
+            glyphs[gfrom+i].offset.y = Q26Dot6(p.y(), F26Dot6) - baseInfo.yoff;
+        } else {
+            glyphs[gfrom+i].offset.x = Q26Dot6(p.x(), F26Dot6) - baseInfo.xoff;
+            glyphs[gfrom+i].offset.y = Q26Dot6(p.y(), F26Dot6) - baseInfo.yoff;
+        }
     }
 }
 
@@ -186,13 +186,13 @@ void q_heuristicPosition(QShaperItem *item)
 
     int cEnd = -1;
     int i = item->num_glyphs;
-    while ( i-- ) {
-	if ( cEnd == -1 && glyphs[i].attributes.mark ) {
-	    cEnd = i;
-	} else if ( cEnd != -1 && !glyphs[i].attributes.mark ) {
-	    positionCluster(item, i, cEnd);
-	    cEnd = -1;
-	}
+    while (i--) {
+        if (cEnd == -1 && glyphs[i].attributes.mark) {
+            cEnd = i;
+        } else if (cEnd != -1 && !glyphs[i].attributes.mark) {
+            positionCluster(item, i, cEnd);
+            cEnd = -1;
+        }
     }
 }
 
@@ -214,108 +214,108 @@ static void heuristicSetGlyphAttributes(QShaperItem *item)
     // honour the logClusters array if it exists.
     const QChar *uc = item->string->unicode() + item->from;
 
-    for ( int i = 0; i < item->num_glyphs; i++ )
-	logClusters[i] = i;
+    for (int i = 0; i < item->num_glyphs; i++)
+        logClusters[i] = i;
 
     // first char in a run is never (treated as) a mark
     int cStart = 0;
-    glyphs[0].attributes.mark = FALSE;
-    glyphs[0].attributes.clusterStart = TRUE;
+    glyphs[0].attributes.mark = false;
+    glyphs[0].attributes.clusterStart = true;
 
     int pos = 1;
     QChar::Category lastCat = ::category(uc[0]);
     while (pos < item->length) {
-	QChar::Category cat = ::category(uc[pos]);
-	if (cat != QChar::Mark_NonSpacing) {
-	    glyphs[pos].attributes.mark = FALSE;
-	    glyphs[pos].attributes.clusterStart = TRUE;
-	    glyphs[pos].attributes.combiningClass = 0;
-	    cStart = pos;
-	} else {
-	    int cmb = combiningClass( uc[pos] );
+        QChar::Category cat = ::category(uc[pos]);
+        if (cat != QChar::Mark_NonSpacing) {
+            glyphs[pos].attributes.mark = false;
+            glyphs[pos].attributes.clusterStart = true;
+            glyphs[pos].attributes.combiningClass = 0;
+            cStart = pos;
+        } else {
+            int cmb = combiningClass(uc[pos]);
 
-	    if ( cmb == 0 ) {
-		// Fix 0 combining classes
-		if ( uc[pos].row() == 0x0e ) {
-		    // thai or lao
-		    unsigned char col = uc[pos].cell();
-		    if ( col == 0x31 ||
-			 col == 0x34 ||
-			 col == 0x35 ||
-			 col == 0x36 ||
-			 col == 0x37 ||
-			 col == 0x47 ||
-			 col == 0x4c ||
-			 col == 0x4d ||
-			 col == 0x4e ) {
-			cmb = QChar::Combining_AboveRight;
-		    } else if ( col == 0xb1 ||
-				col == 0xb4 ||
-				col == 0xb5 ||
-				col == 0xb6 ||
-				col == 0xb7 ||
-				col == 0xbb ||
-				col == 0xcc ||
-				col == 0xcd ) {
-			cmb = QChar::Combining_Above;
-		    } else if ( col == 0xbc ) {
-			cmb = QChar::Combining_Below;
-		    }
-		}
-	    }
+            if (cmb == 0) {
+                // Fix 0 combining classes
+                if (uc[pos].row() == 0x0e) {
+                    // thai or lao
+                    unsigned char col = uc[pos].cell();
+                    if (col == 0x31 ||
+                         col == 0x34 ||
+                         col == 0x35 ||
+                         col == 0x36 ||
+                         col == 0x37 ||
+                         col == 0x47 ||
+                         col == 0x4c ||
+                         col == 0x4d ||
+                         col == 0x4e) {
+                        cmb = QChar::Combining_AboveRight;
+                    } else if (col == 0xb1 ||
+                                col == 0xb4 ||
+                                col == 0xb5 ||
+                                col == 0xb6 ||
+                                col == 0xb7 ||
+                                col == 0xbb ||
+                                col == 0xcc ||
+                                col == 0xcd) {
+                        cmb = QChar::Combining_Above;
+                    } else if (col == 0xbc) {
+                        cmb = QChar::Combining_Below;
+                    }
+                }
+            }
 
-	    glyphs[pos].attributes.mark = TRUE;
-	    glyphs[pos].attributes.clusterStart = FALSE;
-	    glyphs[pos].attributes.combiningClass = cmb;
-	    // 		qDebug("found a mark at position %d", pos );
-	    logClusters[pos] = cStart;
-	    glyphs[pos].advance.x = 0;
-	    glyphs[pos].advance.y = 0;
-	}
+            glyphs[pos].attributes.mark = true;
+            glyphs[pos].attributes.clusterStart = false;
+            glyphs[pos].attributes.combiningClass = cmb;
+            //                 qDebug("found a mark at position %d", pos);
+            logClusters[pos] = cStart;
+            glyphs[pos].advance.x = 0;
+            glyphs[pos].advance.y = 0;
+        }
 
-	if (lastCat == QChar::Separator_Space)
-	    glyphs[pos-1].attributes.justification = QGlyphLayout::Space;
-	else if (cat != QChar::Mark_NonSpacing)
-	    glyphs[pos-1].attributes.justification = QGlyphLayout::Character;
-	else
-	    glyphs[pos-1].attributes.justification = QGlyphLayout::NoJustification;
+        if (lastCat == QChar::Separator_Space)
+            glyphs[pos-1].attributes.justification = QGlyphLayout::Space;
+        else if (cat != QChar::Mark_NonSpacing)
+            glyphs[pos-1].attributes.justification = QGlyphLayout::Character;
+        else
+            glyphs[pos-1].attributes.justification = QGlyphLayout::NoJustification;
 
-	lastCat = cat;
-	pos++;
+        lastCat = cat;
+        pos++;
     }
     if (lastCat == QChar::Separator_Space)
-	glyphs[pos-1].attributes.justification = QGlyphLayout::Space;
+        glyphs[pos-1].attributes.justification = QGlyphLayout::Space;
     else
-	glyphs[pos-1].attributes.justification = QGlyphLayout::Character;
+        glyphs[pos-1].attributes.justification = QGlyphLayout::Character;
 }
 
 static bool basic_shape(QShaperItem *item)
 {
     if (!item->font->stringToCMap(item->string->unicode()+item->from, item->length, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
-	return false;
+        return false;
 
     heuristicSetGlyphAttributes(item);
     if (!(item->flags & QTextEngine::WidthOnly))
-	q_heuristicPosition(item);
+        q_heuristicPosition(item);
     return true;
 }
 
-static void basic_attributes( int /*script*/, const QString &text, int from, int len, QCharAttributes *attributes )
+static void basic_attributes(int /*script*/, const QString &text, int from, int len, QCharAttributes *attributes)
 {
     const QChar *uc = text.unicode() + from;
     attributes += from;
 
     QCharAttributes *a = attributes;
 
-    for ( int i = 0; i < len; i++ ) {
-	QChar::Category cat = ::category( *uc );
-	a->whiteSpace = (cat == QChar::Separator_Space) && (uc->unicode() != 0xa0);
-	a->softBreak = FALSE;
-	a->charStop = (cat != QChar::Mark_NonSpacing);
-	a->wordStop = FALSE;
-	a->invalid = FALSE;
-	++uc;
-	++a;
+    for (int i = 0; i < len; i++) {
+        QChar::Category cat = ::category(*uc);
+        a->whiteSpace = (cat == QChar::Separator_Space) && (uc->unicode() != 0xa0);
+        a->softBreak = false;
+        a->charStop = (cat != QChar::Mark_NonSpacing);
+        a->wordStop = false;
+        a->invalid = false;
+        ++uc;
+        ++a;
     }
 }
 
@@ -523,13 +523,13 @@ static const unsigned char arabic_group[0x150] = {
 static inline ArabicGroup arabicGroup(unsigned short uc)
 {
     if (uc >= 0x0600 && uc < 0x750)
-	return (ArabicGroup) arabic_group[uc-0x600];
+        return (ArabicGroup) arabic_group[uc-0x600];
     else if (uc == 0x200d)
-	return Center;
+        return Center;
     else if (::category(uc) == QChar::Separator_Space)
-	return ArabicSpace;
+        return ArabicSpace;
     else
-	return ArabicNone;
+        return ArabicNone;
 }
 
 
@@ -550,11 +550,11 @@ static inline ArabicGroup arabicGroup(unsigned short uc)
    (R3 A left joining character, that has a left join-causing char on the left will get form XLeft)
    Note: the above rule is meaningless, as there are no pure left joining characters defined in Unicode
    R4 A dual joining character, that has a left join-causing char on the left and a right join-causing char on
-	     the right will get form XMedial
+             the right will get form XMedial
    R5  A dual joining character, that has a right join causing char on the right, and no left join causing char on the left
-	 will get form XRight
+         will get form XRight
    R6 A dual joining character, that has a  left join causing char on the left, and no right join causing char on the right
-	 will get form XLeft
+         will get form XLeft
    R7 Otherwise the character will get form XIsolated
 
    Additionally we have to do the minimal ligature support for lam-alef ligatures:
@@ -640,28 +640,28 @@ opportunities and where expansion occurs. The character group names
 are those in table 6.6 of the UNICODE 2.0 book.
 
 
-PrioritY	Glyph                   Condition                                       Kashida Location
+PrioritY        Glyph                   Condition                                       Kashida Location
 
-Arabic_Kashida	User inserted Kashida   The user entered a Kashida in a position.       After the user
-		(Shift+j or Shift+Ê)    Thus, it is the highest priority to insert an   inserted kashida
-					automatic kashida.
+Arabic_Kashida        User inserted Kashida   The user entered a Kashida in a position.       After the user
+                (Shift+j or Shift+Ê)    Thus, it is the highest priority to insert an   inserted kashida
+                                        automatic kashida.
 
-Arabic_Seen	Seen, Sad               Connecting to the next character.               After the character.
-					(Initial or medial form).
+Arabic_Seen        Seen, Sad               Connecting to the next character.               After the character.
+                                        (Initial or medial form).
 
-Arabic_HaaDal	Teh Marbutah, Haa, Dal  Connecting to previous character.               Before the final form
-											of these characters.
+Arabic_HaaDal        Teh Marbutah, Haa, Dal  Connecting to previous character.               Before the final form
+                                                                                        of these characters.
 
 Arabic_Alef     Alef, Tah, Lam,         Connecting to previous character.               Before the final form
-		Kaf and Gaf                                                             of these characters.
+                Kaf and Gaf                                                             of these characters.
 
 Arabic_BaRa     Reh, Yeh                Connected to medial Beh                         Before preceding medial Baa
 
-Arabic_Waw	Waw, Ain, Qaf, Feh      Connecting to previous character.               Before the final form of
-											these characters.
+Arabic_Waw        Waw, Ain, Qaf, Feh      Connecting to previous character.               Before the final form of
+                                                                                        these characters.
 
 Arabic_Normal   Other connecting        Connecting to previous character.               Before the final form
-		characters                                                              of these characters.
+                characters                                                              of these characters.
 
 
 
@@ -688,103 +688,103 @@ static void getArabicProperties(const unsigned short *chars, int len, ArabicProp
     properties[0].justification = QGlyphLayout::NoJustification;
 
     for (int i = 1; i < len; ++i) {
-	// #### fix handling for spaces and punktuation
-	properties[i].justification = QGlyphLayout::NoJustification;
+        // #### fix handling for spaces and punktuation
+        properties[i].justification = QGlyphLayout::NoJustification;
 
-	group = arabicGroup(chars[i]);
-	j = joining_for_group[group];
+        group = arabicGroup(chars[i]);
+        j = joining_for_group[group];
 
-	if (j == JTransparent) {
-	    properties[i].shape = XIsolated;
-	    continue;
-	}
+        if (j == JTransparent) {
+            properties[i].shape = XIsolated;
+            continue;
+        }
 
-	properties[lastPos].shape = joining_table[shape][j].form1;
-	shape = joining_table[shape][j].form2;
+        properties[lastPos].shape = joining_table[shape][j].form1;
+        shape = joining_table[shape][j].form2;
 
-	switch(lastGroup) {
-	case Seen:
-	    if (properties[lastPos].shape == XInitial || properties[lastPos].shape == XMedial)
-		properties[i-1].justification = QGlyphLayout::Arabic_Seen;
-	    break;
-	case Hah:
-	    if (properties[lastPos].shape == XFinal)
-		properties[lastPos-1].justification = QGlyphLayout::Arabic_HaaDal;
-	    break;
-	case Alef:
-	    if (properties[lastPos].shape == XFinal)
-		properties[lastPos-1].justification = QGlyphLayout::Arabic_Alef;
-	    break;
-	case Ain:
-	    if (properties[lastPos].shape == XFinal)
-		properties[lastPos-1].justification = QGlyphLayout::Arabic_Waw;
-	    break;
-	case Noon:
-	    if (properties[lastPos].shape == XFinal)
-		properties[lastPos-1].justification = QGlyphLayout::Arabic_Normal;
-	    break;
-	case ArabicNone:
-	    break;
+        switch(lastGroup) {
+        case Seen:
+            if (properties[lastPos].shape == XInitial || properties[lastPos].shape == XMedial)
+                properties[i-1].justification = QGlyphLayout::Arabic_Seen;
+            break;
+        case Hah:
+            if (properties[lastPos].shape == XFinal)
+                properties[lastPos-1].justification = QGlyphLayout::Arabic_HaaDal;
+            break;
+        case Alef:
+            if (properties[lastPos].shape == XFinal)
+                properties[lastPos-1].justification = QGlyphLayout::Arabic_Alef;
+            break;
+        case Ain:
+            if (properties[lastPos].shape == XFinal)
+                properties[lastPos-1].justification = QGlyphLayout::Arabic_Waw;
+            break;
+        case Noon:
+            if (properties[lastPos].shape == XFinal)
+                properties[lastPos-1].justification = QGlyphLayout::Arabic_Normal;
+            break;
+        case ArabicNone:
+            break;
 
-	default:
-	    Q_ASSERT(false);
-	}
+        default:
+            Q_ASSERT(false);
+        }
 
-	lastGroup = ArabicNone;
+        lastGroup = ArabicNone;
 
-	switch(group) {
-	case ArabicNone:
-	case Transparent:
-	// ### Center should probably be treated as transparent when it comes to justification.
-	case Center:
-	    break;
-	case ArabicSpace:
-	    properties[i].justification = QGlyphLayout::Arabic_Space;
+        switch(group) {
+        case ArabicNone:
+        case Transparent:
+        // ### Center should probably be treated as transparent when it comes to justification.
+        case Center:
+            break;
+        case ArabicSpace:
+            properties[i].justification = QGlyphLayout::Arabic_Space;
 
-	case Kashida:
-	    properties[i].justification = QGlyphLayout::Arabic_Kashida;
-	    break;
-	case Seen:
-	    lastGroup = Seen;
-	    break;
+        case Kashida:
+            properties[i].justification = QGlyphLayout::Arabic_Kashida;
+            break;
+        case Seen:
+            lastGroup = Seen;
+            break;
 
-	case Hah:
-	case Dal:
-	    lastGroup = Hah;
-	    break;
+        case Hah:
+        case Dal:
+            lastGroup = Hah;
+            break;
 
-	case Alef:
-	case Tah:
-	    lastGroup = Alef;
-	    break;
+        case Alef:
+        case Tah:
+            lastGroup = Alef;
+            break;
 
-	case Yeh:
-	case Reh:
-	    if (properties[lastPos].shape == XMedial && arabicGroup(chars[lastPos]) == Beh)
-		properties[lastPos-1].justification = QGlyphLayout::Arabic_BaRa;
-	    break;
+        case Yeh:
+        case Reh:
+            if (properties[lastPos].shape == XMedial && arabicGroup(chars[lastPos]) == Beh)
+                properties[lastPos-1].justification = QGlyphLayout::Arabic_BaRa;
+            break;
 
-	case Ain:
-	case Waw:
-	    lastGroup = Ain;
-	    break;
+        case Ain:
+        case Waw:
+            lastGroup = Ain;
+            break;
 
-	case Noon:
-	case Beh:
-	case HamzaOnHehGoal:
-	    lastGroup = Noon;
-	    break;
-	case ArabicGroupsEnd:
-	    Q_ASSERT(false);
-	}
+        case Noon:
+        case Beh:
+        case HamzaOnHehGoal:
+            lastGroup = Noon;
+            break;
+        case ArabicGroupsEnd:
+            Q_ASSERT(false);
+        }
 
-	lastPos = i;
+        lastPos = i;
     }
     properties[lastPos].shape = joining_table[shape][JNone].form1;
 
 
 //     for (int i = 0; i < len; ++i)
-// 	qDebug("arabic properties(%d): uc=%x shape=%d, justification=%d", i, chars[i], properties[i].shape, properties[i].justification);
+//         qDebug("arabic properties(%d): uc=%x shape=%d, justification=%d", i, chars[i], properties[i].shape, properties[i].justification);
 }
 
 
@@ -796,7 +796,7 @@ static void getArabicProperties(const unsigned short *chars, int len, ArabicProp
 // does only presentation forms B at the moment, but that should be enough for
 // simple display
 static const ushort arabicUnicodeMapping[256][2] = {
-    // base of shaped forms, and number-1 of them ( 0 for non shaping,
+    // base of shaped forms, and number-1 of them (0 for non shaping,
     // 1 for right binding and 3 for dual binding
 
     // These are just the glyphs available in Unicode,
@@ -1090,12 +1090,12 @@ static const ushort arabicUnicodeLamAlefMapping[6][4] = {
     { 0xfffd, 0xfffd, 0xfefb, 0xfefc }  // 0x627        R       Alef
 };
 
-static inline int getShape( uchar cell, int shape )
+static inline int getShape(uchar cell, int shape)
 {
     // the arabicUnicodeMapping does not work for U+0649 ALEF MAKSURA, handle this here
-    uint ch = ( cell != 0x49 )
-	      ? (shape ? arabicUnicodeMapping[cell][0] + shape : 0x600+cell)
-	      : alefMaksura[shape] ;
+    uint ch = (cell != 0x49)
+              ? (shape ? arabicUnicodeMapping[cell][0] + shape : 0x600+cell)
+              : alefMaksura[shape] ;
     return ch;
 }
 
@@ -1103,45 +1103,45 @@ static inline int getShape( uchar cell, int shape )
 /*
   Two small helper functions for arabic shaping.
 */
-static inline const QChar prevChar( const QString *str, int pos )
+static inline const QChar prevChar(const QString *str, int pos)
 {
     //qDebug("leftChar: pos=%d", pos);
     pos--;
     const QChar *ch = str->unicode() + pos;
-    while( pos > -1 ) {
-	if( ::category( *ch ) != QChar::Mark_NonSpacing )
-	    return *ch;
-	pos--;
-	ch--;
+    while(pos > -1) {
+        if(::category(*ch) != QChar::Mark_NonSpacing)
+            return *ch;
+        pos--;
+        ch--;
     }
     return QChar::replacement;
 }
 
-static inline const QChar nextChar( const QString *str, int pos)
+static inline const QChar nextChar(const QString *str, int pos)
 {
     pos++;
     int len = str->length();
     const QChar *ch = str->unicode() + pos;
-    while( pos < len ) {
-	//qDebug("rightChar: %d isLetter=%d, joining=%d", pos, ch.isLetter(), ch.joining());
-	if( ::category( *ch ) != QChar::Mark_NonSpacing )
-	    return *ch;
-	// assume it's a transparent char, this might not be 100% correct
-	pos++;
-	ch++;
+    while(pos < len) {
+        //qDebug("rightChar: %d isLetter=%d, joining=%d", pos, ch.isLetter(), ch.joining());
+        if(::category(*ch) != QChar::Mark_NonSpacing)
+            return *ch;
+        // assume it's a transparent char, this might not be 100% correct
+        pos++;
+        ch++;
     }
     return QChar::replacement;
 }
 
 
 static void shapedString(const QString *uc, int from, int len, QChar *shapeBuffer, int *shapedLength,
-			 bool reverse, QGlyphLayout *glyphs, unsigned short *logClusters )
+                         bool reverse, QGlyphLayout *glyphs, unsigned short *logClusters)
 {
     Q_ASSERT(uc->length() >= from + len);
 
-    if( len == 0 ) {
-	*shapedLength = 0;
-	return;
+    if(len == 0) {
+        *shapedLength = 0;
+        return;
     }
 
     QVarLengthArray<ArabicProperties> properties(len);
@@ -1151,78 +1151,78 @@ static void shapedString(const QString *uc, int from, int len, QChar *shapeBuffe
     QChar *data = shapeBuffer;
     int clusterStart = 0;
 
-    for ( int i = 0; i < len; i++ ) {
-	uchar r = ch->row();
-	int gpos = data - shapeBuffer;
+    for (int i = 0; i < len; i++) {
+        uchar r = ch->row();
+        int gpos = data - shapeBuffer;
 
-	if ( r != 0x06 ) {
-	    if ( r == 0x20 ) {
-		uchar c = ch->cell();
-		if (c == 0x0c || c == 0x0d)
-		    // remove ZWJ and ZWNJ
-		    goto skip;
-	    }
-	    if ( reverse )
-		*data = mirroredChar( *ch );
-	    else
-		*data = *ch;
-	} else {
-	    uchar c = ch->cell();
-	    int pos = i + from;
-	    int shape = properties[i].shape;
-//  	    qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, getShape(c, shape));
-	    // take care of lam-alef ligatures (lam right of alef)
-	    ushort map;
-	    switch ( c ) {
-		case 0x44: { // lam
-		    const QChar pch = nextChar( uc, pos );
-		    if ( pch.row() == 0x06 ) {
-			switch ( pch.cell() ) {
-			    case 0x22:
-			    case 0x23:
-			    case 0x25:
-			    case 0x27:
-// 				qDebug(" lam of lam-alef ligature");
-				map = arabicUnicodeLamAlefMapping[pch.cell() - 0x22][shape];
-				goto next;
-			    default:
-				break;
-			}
-		    }
-		    break;
-		}
-		case 0x22: // alef with madda
-		case 0x23: // alef with hamza above
-		case 0x25: // alef with hamza below
-		case 0x27: // alef
-		    if ( prevChar( uc, pos ).unicode() == 0x0644 ) {
-			// have a lam alef ligature
-			//qDebug(" alef of lam-alef ligature");
-			goto skip;
-		    }
-		default:
-		    break;
-	    }
-	    map = getShape( c, shape );
-	next:
-	    *data = map;
-	}
-	// ##### Fixme
-	//glyphs[gpos].attributes.zeroWidth = zeroWidth;
-	if ( ::category( *ch ) == QChar::Mark_NonSpacing ) {
-	    glyphs[gpos].attributes.mark = TRUE;
-// 	    qDebug("glyph %d (char %d) is mark!", gpos, i );
-	} else {
-	    glyphs[gpos].attributes.mark = FALSE;
-	    clusterStart = data - shapeBuffer;
-	}
-	glyphs[gpos].attributes.clusterStart = !glyphs[gpos].attributes.mark;
-	glyphs[gpos].attributes.combiningClass = combiningClass( *ch );
-	glyphs[gpos].attributes.justification = properties[i].justification;
-	data++;
+        if (r != 0x06) {
+            if (r == 0x20) {
+                uchar c = ch->cell();
+                if (c == 0x0c || c == 0x0d)
+                    // remove ZWJ and ZWNJ
+                    goto skip;
+            }
+            if (reverse)
+                *data = mirroredChar(*ch);
+            else
+                *data = *ch;
+        } else {
+            uchar c = ch->cell();
+            int pos = i + from;
+            int shape = properties[i].shape;
+//              qDebug("mapping U+%x to shape %d glyph=0x%x", ch->unicode(), shape, getShape(c, shape));
+            // take care of lam-alef ligatures (lam right of alef)
+            ushort map;
+            switch (c) {
+                case 0x44: { // lam
+                    const QChar pch = nextChar(uc, pos);
+                    if (pch.row() == 0x06) {
+                        switch (pch.cell()) {
+                            case 0x22:
+                            case 0x23:
+                            case 0x25:
+                            case 0x27:
+//                                 qDebug(" lam of lam-alef ligature");
+                                map = arabicUnicodeLamAlefMapping[pch.cell() - 0x22][shape];
+                                goto next;
+                            default:
+                                break;
+                        }
+                    }
+                    break;
+                }
+                case 0x22: // alef with madda
+                case 0x23: // alef with hamza above
+                case 0x25: // alef with hamza below
+                case 0x27: // alef
+                    if (prevChar(uc, pos).unicode() == 0x0644) {
+                        // have a lam alef ligature
+                        //qDebug(" alef of lam-alef ligature");
+                        goto skip;
+                    }
+                default:
+                    break;
+            }
+            map = getShape(c, shape);
+        next:
+            *data = map;
+        }
+        // ##### Fixme
+        //glyphs[gpos].attributes.zeroWidth = zeroWidth;
+        if (::category(*ch) == QChar::Mark_NonSpacing) {
+            glyphs[gpos].attributes.mark = true;
+//             qDebug("glyph %d (char %d) is mark!", gpos, i);
+        } else {
+            glyphs[gpos].attributes.mark = false;
+            clusterStart = data - shapeBuffer;
+        }
+        glyphs[gpos].attributes.clusterStart = !glyphs[gpos].attributes.mark;
+        glyphs[gpos].attributes.combiningClass = combiningClass(*ch);
+        glyphs[gpos].attributes.justification = properties[i].justification;
+        data++;
     skip:
-	ch++;
-	logClusters[i] = clusterStart;
+        ch++;
+        logClusters[i] = clusterStart;
     }
     *shapedLength = data - shapeBuffer;
 }
@@ -1233,7 +1233,7 @@ static bool arabicSyriacOpenTypeShape(QOpenType *openType, QShaperItem *item)
 {
     int nglyphs = item->num_glyphs;
     if (!item->font->stringToCMap(item->string->unicode()+item->from, item->length, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
-	return false;
+        return false;
 
     heuristicSetGlyphAttributes(item);
 
@@ -1249,74 +1249,74 @@ static bool arabicSyriacOpenTypeShape(QOpenType *openType, QShaperItem *item)
 
     // Hack to remove ZWJ and ZWNJ from rendered output.
     int j = 0;
-    for ( int i = 0; i < item->num_glyphs; i++ ) {
- 	if (uc[i] == 0x200c || uc[i] == 0x200d)
- 	    continue;
- 	glyphs[j] = glyphs[i];
- 	properties[j] = properties[i];
- 	glyphs[j].attributes.justification = properties[i].justification;
- 	logClusters[i] = logClusters[j];
- 	++j;
+    for (int i = 0; i < item->num_glyphs; i++) {
+        if (uc[i] == 0x200c || uc[i] == 0x200d)
+            continue;
+        glyphs[j] = glyphs[i];
+        properties[j] = properties[i];
+        glyphs[j].attributes.justification = properties[i].justification;
+        logClusters[i] = logClusters[j];
+        ++j;
     }
     item->num_glyphs = j;
 
     openType->init(item);
 
     // call features in the order defined by http://www.microsoft.com/typography/otfntdev/arabicot/shaping.htm
-    openType->applyGSUBFeature(FT_MAKE_TAG( 'c', 'c', 'm', 'p' ));
+    openType->applyGSUBFeature(FT_MAKE_TAG('c', 'c', 'm', 'p'));
 
     if (item->script == QFont::Arabic) {
-	const struct {
-	    int tag;
-	    int shape;
-	} features[] = {
-	    { FT_MAKE_TAG( 'i', 's', 'o', 'l' ), XIsolated },
-	    { FT_MAKE_TAG( 'f', 'i', 'n', 'a' ), XFinal },
-	    { FT_MAKE_TAG( 'm', 'e', 'd', 'i' ), XMedial },
-	    { FT_MAKE_TAG( 'i', 'n', 'i', 't' ), XInitial }
-	};
-	for (int j = 0; j < 4; ++j) {
-	    for ( int i = 0; i < item->num_glyphs; i++ )
-		apply[i] = (properties[i].shape == features[j].shape);
-	    openType->applyGSUBFeature(features[j].tag, apply);
-	}
+        const struct {
+            int tag;
+            int shape;
+        } features[] = {
+            { FT_MAKE_TAG('i', 's', 'o', 'l'), XIsolated },
+            { FT_MAKE_TAG('f', 'i', 'n', 'a'), XFinal },
+            { FT_MAKE_TAG('m', 'e', 'd', 'i'), XMedial },
+            { FT_MAKE_TAG('i', 'n', 'i', 't'), XInitial }
+        };
+        for (int j = 0; j < 4; ++j) {
+            for (int i = 0; i < item->num_glyphs; i++)
+                apply[i] = (properties[i].shape == features[j].shape);
+            openType->applyGSUBFeature(features[j].tag, apply);
+        }
     } else {
-	const struct {
-	    int tag;
-	    int shape;
-	} features[] = {
-	    { FT_MAKE_TAG( 'i', 's', 'o', 'l' ), XIsolated },
-	    { FT_MAKE_TAG( 'f', 'i', 'n', 'a' ), XFinal },
-	    { FT_MAKE_TAG( 'f', 'i', 'n', '2' ), XFinal },
-	    { FT_MAKE_TAG( 'f', 'i', 'n', '3' ), XFinal },
-	    { FT_MAKE_TAG( 'm', 'e', 'd', 'i' ), XMedial },
-	    { FT_MAKE_TAG( 'm', 'e', 'd', '2' ), XMedial },
-	    { FT_MAKE_TAG( 'i', 'n', 'i', 't' ), XInitial }
-	};
-	for (int j = 0; j < 7; ++j) {
-	    for ( int i = 0; i < item->num_glyphs; i++ )
-		apply[i] = (properties[i].shape == features[j].shape);
-	    openType->applyGSUBFeature(features[j].tag, apply);
-	}
+        const struct {
+            int tag;
+            int shape;
+        } features[] = {
+            { FT_MAKE_TAG('i', 's', 'o', 'l'), XIsolated },
+            { FT_MAKE_TAG('f', 'i', 'n', 'a'), XFinal },
+            { FT_MAKE_TAG('f', 'i', 'n', '2'), XFinal },
+            { FT_MAKE_TAG('f', 'i', 'n', '3'), XFinal },
+            { FT_MAKE_TAG('m', 'e', 'd', 'i'), XMedial },
+            { FT_MAKE_TAG('m', 'e', 'd', '2'), XMedial },
+            { FT_MAKE_TAG('i', 'n', 'i', 't'), XInitial }
+        };
+        for (int j = 0; j < 7; ++j) {
+            for (int i = 0; i < item->num_glyphs; i++)
+                apply[i] = (properties[i].shape == features[j].shape);
+            openType->applyGSUBFeature(features[j].tag, apply);
+        }
     }
     const int commonFeatures[] = {
-	// these features get applied to all glyphs and both scripts
-	FT_MAKE_TAG( 'r', 'l', 'i', 'g' ),
-	FT_MAKE_TAG( 'c', 'a', 'l', 't' ),
-	FT_MAKE_TAG( 'l', 'i', 'g', 'a' ),
-	FT_MAKE_TAG( 'd', 'l', 'i', 'g' )
+        // these features get applied to all glyphs and both scripts
+        FT_MAKE_TAG('r', 'l', 'i', 'g'),
+        FT_MAKE_TAG('c', 'a', 'l', 't'),
+        FT_MAKE_TAG('l', 'i', 'g', 'a'),
+        FT_MAKE_TAG('d', 'l', 'i', 'g')
     };
     for (int j = 0; j < 4; ++j)
-	openType->applyGSUBFeature(commonFeatures[j]);
+        openType->applyGSUBFeature(commonFeatures[j]);
 
     if (item->script == QFont::Arabic) {
-	const int features[] = {
-	    FT_MAKE_TAG( 'c', 's', 'w', 'h' ),
-	    // mset is used in old Win95 fonts that don't have a 'mark' positioning table.
-	    FT_MAKE_TAG( 'm', 's', 'e', 't' )
-	};
-	for (int j = 0; j < 2; ++j)
-	    openType->applyGSUBFeature(features[j]);
+        const int features[] = {
+            FT_MAKE_TAG('c', 's', 'w', 'h'),
+            // mset is used in old Win95 fonts that don't have a 'mark' positioning table.
+            FT_MAKE_TAG('m', 's', 'e', 't')
+        };
+        for (int j = 0; j < 2; ++j)
+            openType->applyGSUBFeature(features[j]);
     }
 
     openType->applyGPOSFeatures();
@@ -1328,19 +1328,19 @@ static bool arabicSyriacOpenTypeShape(QOpenType *openType, QShaperItem *item)
 
 #endif
 
-static void arabic_attributes( int /*script*/, const QString &text, int from, int len, QCharAttributes *attributes )
+static void arabic_attributes(int /*script*/, const QString &text, int from, int len, QCharAttributes *attributes)
 {
     const QChar *uc = text.unicode() + from;
     attributes += from;
-    for ( int i = 0; i < len; i++ ) {
-	QChar::Category cat = ::category( *uc );
-	attributes->whiteSpace = (cat == QChar::Separator_Space) && (uc->unicode() != 0xa0);
-	attributes->softBreak = FALSE;
-	attributes->charStop = (cat != QChar::Mark_NonSpacing);
-	attributes->wordStop = FALSE;
-	attributes->invalid = FALSE;
-	++uc;
-	++attributes;
+    for (int i = 0; i < len; i++) {
+        QChar::Category cat = ::category(*uc);
+        attributes->whiteSpace = (cat == QChar::Separator_Space) && (uc->unicode() != 0xa0);
+        attributes->softBreak = false;
+        attributes->charStop = (cat != QChar::Mark_NonSpacing);
+        attributes->wordStop = false;
+        attributes->invalid = false;
+        ++uc;
+        ++attributes;
     }
 }
 
@@ -1353,33 +1353,33 @@ static bool arabic_shape(QShaperItem *item)
 #ifdef QT_OPENTYPE
     QOpenType *openType = item->font->openType();
 
-    if ( openType && openType->supportsScript( QFont::Arabic ) )
-	return arabicSyriacOpenTypeShape(openType, item);
+    if (openType && openType->supportsScript(QFont::Arabic))
+        return arabicSyriacOpenTypeShape(openType, item);
 #endif
 
     QVarLengthArray<ushort> shapedChars(item->length);
 
     int slen;
-    shapedString( item->string, item->from, item->length, (QChar *)(unsigned short*)shapedChars, &slen,
-		  item->flags & QTextEngine::RightToLeft,
-		  item->glyphs, item->log_clusters );
+    shapedString(item->string, item->from, item->length, (QChar *)(unsigned short*)shapedChars, &slen,
+                  item->flags & QTextEngine::RightToLeft,
+                  item->glyphs, item->log_clusters);
 
-    if (!item->font->stringToCMap( (QChar *)(unsigned short*)shapedChars, slen, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
-	return false;
+    if (!item->font->stringToCMap((QChar *)(unsigned short*)shapedChars, slen, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
+        return false;
 
     for (int i = 0; i < slen; ++i)
-	if (item->glyphs[i].attributes.mark) {
-	    item->glyphs[i].advance.x = 0;
-	    item->glyphs[i].advance.y = 0;
-	}
+        if (item->glyphs[i].attributes.mark) {
+            item->glyphs[i].advance.x = 0;
+            item->glyphs[i].advance.y = 0;
+        }
     q_heuristicPosition(item);
     return true;
 }
 
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)
 # include "qscriptengine_unix.cpp"
-#elif defined( Q_WS_WIN )
+#elif defined(Q_WS_WIN)
 # include "qscriptengine_win.cpp"
-#elif defined( Q_WS_MAC )
+#elif defined(Q_WS_MAC)
 # include "qscriptengine_mac.cpp"
 #endif

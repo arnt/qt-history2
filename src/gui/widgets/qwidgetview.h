@@ -24,7 +24,7 @@ class QWidgetViewPrivate;
 class QWidgetView : public QViewport
 {
     Q_OBJECT
-    Q_PROPERTY(bool widgetResizable READ widgetResizable WRITE setWidgetResizable )
+    Q_PROPERTY(bool widgetResizable READ widgetResizable WRITE setWidgetResizable)
 public:
     QWidgetView(QWidget* parent=0);
     ~QWidgetView();

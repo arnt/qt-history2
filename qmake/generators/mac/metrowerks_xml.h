@@ -20,7 +20,7 @@
 class MetrowerksMakefileGenerator : public MakefileGenerator
 {
     bool createFork(const QString &f);
-    bool fixifyToMacPath(QString &c, QString &v, bool exists=TRUE);
+    bool fixifyToMacPath(QString &c, QString &v, bool exists=true);
 
     bool init_flag;
 
@@ -38,7 +38,7 @@ public:
 protected:
     virtual void processPrlFiles();
     virtual void processPrlVariable(const QString &var, const QStringList &l);
-    virtual bool doDepends() const { return FALSE; } //never necesary
+    virtual bool doDepends() const { return false; } //never necesary
 };
 
 inline MetrowerksMakefileGenerator::~MetrowerksMakefileGenerator()

@@ -36,15 +36,15 @@ class QObject;
 struct QUInterfaceDescription;
 struct QUObject;
 
-#define QRESULT		unsigned long
-#define QS_OK		(QRESULT)0x00000000
-#define QS_FALSE	(QRESULT)0x00000001
+#define QRESULT                unsigned long
+#define QS_OK                (QRESULT)0x00000000
+#define QS_FALSE        (QRESULT)0x00000001
 
 #define QE_NOTIMPL      (QRESULT)0x80000001
 #define QE_OUTOFMEMORY  (QRESULT)0x80000002
-#define QE_INVALIDARG	(QRESULT)0x80000003
-#define QE_NOINTERFACE	(QRESULT)0x80000004
-#define QE_NOCOMPONENT	(QRESULT)0x80000005
+#define QE_INVALIDARG        (QRESULT)0x80000003
+#define QE_NOINTERFACE        (QRESULT)0x80000004
+#define QE_NOCOMPONENT        (QRESULT)0x80000005
 
 
 // {1D8518CD-E8F5-4366-99E8-879FD7E482DE}
@@ -54,14 +54,14 @@ struct QUObject;
 
 struct Q_CORE_EXPORT QUnknownInterface
 {
-    virtual QRESULT queryInterface( const QUuid&, QUnknownInterface** ) = 0;
+    virtual QRESULT queryInterface(const QUuid&, QUnknownInterface**) = 0;
     virtual ulong   addRef() = 0;
     virtual ulong   release() = 0;
 };
 
 // {FBAC965E-A441-413F-935E-CDF582573FAB}
 #ifndef IID_QDispatch
-#define IID_QDispatch QUuid( 0xfbac965e, 0xa441, 0x413f, 0x93, 0x5e, 0xcd, 0xf5, 0x82, 0x57, 0x3f, 0xab)
+#define IID_QDispatch QUuid(0xfbac965e, 0xa441, 0x413f, 0x93, 0x5e, 0xcd, 0xf5, 0x82, 0x57, 0x3f, 0xab)
 #endif
 
 // the dispatch interface that inherits the unknown interface.. It is
@@ -76,13 +76,13 @@ struct Q_CORE_EXPORT QDispatchInterface : public QUnknownInterface
 
     // invokes method id with parameters V*. Returns some sort of
     // exception code.
-    virtual QRESULT invoke( int id, QUObject* o ) = 0;
+    virtual QRESULT invoke(int id, QUObject* o) = 0;
 
     // installs listener as event listener
-    virtual void installListener( QDispatchInterface* listener ) = 0;
+    virtual void installListener(QDispatchInterface* listener) = 0;
 
     // remove listener as event listener
-    virtual void removeListener( QDispatchInterface* listener ) = 0;
+    virtual void removeListener(QDispatchInterface* listener) = 0;
 };
 
 template <class T>
@@ -91,44 +91,44 @@ class QInterfacePtr
 public:
     QInterfacePtr():iface(0){}
 
-    QInterfacePtr( T* i) {
-	if ( (iface = i) )
-	    iface->addRef();
+    QInterfacePtr(T* i) {
+        if ((iface = i))
+            iface->addRef();
     }
 
     QInterfacePtr(const QInterfacePtr<T> &p) {
-	if ( (iface = p.iface) )
-	    iface->addRef();
+        if ((iface = p.iface))
+            iface->addRef();
     }
 
     ~QInterfacePtr() {
-	if ( iface )
-	    iface->release();
+        if (iface)
+            iface->release();
     }
 
     QInterfacePtr<T> &operator=(const QInterfacePtr<T> &p) {
-	if ( iface != p.iface ) {
-	    if ( iface )
-		iface->release();
-	    if ( (iface = p.iface) )
-		iface->addRef();
-	}
-	return *this;
+        if (iface != p.iface) {
+            if (iface)
+                iface->release();
+            if ((iface = p.iface))
+                iface->addRef();
+        }
+        return *this;
     }
 
     QInterfacePtr<T> &operator=(T* i) {
-	if (iface != i ) {
-	    if ( iface )
-		iface->release();
-	    if ( (iface = i) )
-		iface->addRef();
-	}
-	return *this;
+        if (iface != i) {
+            if (iface)
+                iface->release();
+            if ((iface = i))
+                iface->addRef();
+        }
+        return *this;
     }
 
-    bool operator==( const QInterfacePtr<T> &p ) const { return iface == p.iface; }
+    bool operator==(const QInterfacePtr<T> &p) const { return iface == p.iface; }
 
-    bool operator!= ( const QInterfacePtr<T>& p ) const {  return !( *this == p ); }
+    bool operator!= (const QInterfacePtr<T>& p) const {  return !(*this == p); }
 
     bool isNull() const { return !iface; }
 
@@ -139,15 +139,15 @@ public:
     operator T*() const { return iface; }
 
     QUnknownInterface** operator &() const {
-	if( iface )
-	    iface->release();
-	return (QUnknownInterface**)&iface;
+        if(iface)
+            iface->release();
+        return (QUnknownInterface**)&iface;
     }
 
     T** operator &() {
-	if ( iface )
-	    iface->release();
-	return &iface;
+        if (iface)
+            iface->release();
+        return &iface;
     }
 
 private:
@@ -156,7 +156,7 @@ private:
 
 // {10A1501B-4C5F-4914-95DD-C400486CF900}
 #ifndef IID_QObject
-#define IID_QObject QUuid( 0x10a1501b, 0x4c5f, 0x4914, 0x95, 0xdd, 0xc4, 0x00, 0x48, 0x6c, 0xf9, 0x00)
+#define IID_QObject QUuid(0x10a1501b, 0x4c5f, 0x4914, 0x95, 0xdd, 0xc4, 0x00, 0x48, 0x6c, 0xf9, 0x00)
 #endif
 
 struct Q_CORE_EXPORT QObjectInterface
@@ -179,17 +179,17 @@ struct Q_CORE_EXPORT QComponentInformationInterface : public QUnknownInterface
 
 // {6CAA771B-17BB-4988-9E78-BA5CDDAAC31E}
 #ifndef IID_QComponentFactory
-#define IID_QComponentFactory QUuid( 0x6caa771b, 0x17bb, 0x4988, 0x9e, 0x78, 0xba, 0x5c, 0xdd, 0xaa, 0xc3, 0x1e)
+#define IID_QComponentFactory QUuid(0x6caa771b, 0x17bb, 0x4988, 0x9e, 0x78, 0xba, 0x5c, 0xdd, 0xaa, 0xc3, 0x1e)
 #endif
 
 struct Q_CORE_EXPORT QComponentFactoryInterface : public QUnknownInterface
 {
-    virtual QRESULT createInstance( const QUuid &cid, const QUuid &iid, QUnknownInterface** instance, QUnknownInterface *outer ) = 0;
+    virtual QRESULT createInstance(const QUuid &cid, const QUuid &iid, QUnknownInterface** instance, QUnknownInterface *outer) = 0;
 };
 
 // {D16111D4-E1E7-4C47-8599-24483DAE2E07}
 #ifndef IID_QLibrary
-#define IID_QLibrary QUuid( 0xd16111d4, 0xe1e7, 0x4c47, 0x85, 0x99, 0x24, 0x48, 0x3d, 0xae, 0x2e, 0x07)
+#define IID_QLibrary QUuid(0xd16111d4, 0xe1e7, 0x4c47, 0x85, 0x99, 0x24, 0x48, 0x3d, 0xae, 0x2e, 0x07)
 #endif
 
 struct Q_CORE_EXPORT QLibraryInterface : public QUnknownInterface
@@ -206,29 +206,29 @@ struct Q_CORE_EXPORT QLibraryInterface : public QUnknownInterface
 
 struct Q_CORE_EXPORT QFeatureListInterface : public QUnknownInterface
 {
-    virtual QStringList	featureList() const = 0;
+    virtual QStringList        featureList() const = 0;
 };
 
 // {B5FEB5DE-E0CD-4E37-B0EB-8A812499A0C1}
 #ifndef IID_QComponentRegistration
-#define IID_QComponentRegistration QUuid( 0xb5feb5de, 0xe0cd, 0x4e37, 0xb0, 0xeb, 0x8a, 0x81, 0x24, 0x99, 0xa0, 0xc1)
+#define IID_QComponentRegistration QUuid(0xb5feb5de, 0xe0cd, 0x4e37, 0xb0, 0xeb, 0x8a, 0x81, 0x24, 0x99, 0xa0, 0xc1)
 #endif
 
 struct Q_CORE_EXPORT QComponentRegistrationInterface : public QUnknownInterface
 {
-    virtual bool    registerComponents( const QString &filepath ) const = 0;
+    virtual bool    registerComponents(const QString &filepath) const = 0;
     virtual bool    unregisterComponents() const = 0;
 };
 
 // internal class that wraps an initialized ulong
 struct Q_CORE_EXPORT QtULong
 {
-    QtULong() : ref( 0 ) { }
+    QtULong() : ref(0) { }
     operator unsigned long () const { return ref; }
     unsigned long& operator++() { return ++ref; }
-    unsigned long operator++( int ) { return ref++; }
+    unsigned long operator++(int) { return ref++; }
     unsigned long& operator--() { return --ref; }
-    unsigned long operator--( int ) { return ref--; }
+    unsigned long operator--(int) { return ref--; }
 
     unsigned long ref;
 };
@@ -236,9 +236,9 @@ struct Q_CORE_EXPORT QtULong
 
 
 #define Q_REFCOUNT \
-private:	   \
+private:           \
     QtULong qtrefcount;   \
-public:		   \
+public:                   \
     ulong addRef() {return qtrefcount++;} \
     ulong release() {if(!--qtrefcount){delete this;return 0;}return qtrefcount;}
 
@@ -260,46 +260,46 @@ public:		   \
 // backwards compatibility as well (no old plugins will be loaded).
 #ifndef Q_UCM_VERIFICATION_DATA
 #  define Q_UCM_VERIFICATION_DATA \
-	static const char *qt_ucm_verification_data =			\
-            "pattern=""QT_UCM_VERIFICATION_DATA""\n"			\
-            "version="QT_VERSION_STR"\n"				\
-            "flags="Q_UCM_FLAGS_STRING"\n"				\
-	    "buildkey="QT_BUILD_KEY"\0";
+        static const char *qt_ucm_verification_data =                        \
+            "pattern=""QT_UCM_VERIFICATION_DATA""\n"                        \
+            "version="QT_VERSION_STR"\n"                                \
+            "flags="Q_UCM_FLAGS_STRING"\n"                                \
+            "buildkey="QT_BUILD_KEY"\0";
 #endif // Q_UCM_VERIFICATION_DATA
 
 // This macro expands to the default implementation of ucm_instantiate.
 #ifndef Q_CREATE_INSTANCE
-#    define Q_CREATE_INSTANCE( IMPLEMENTATION )		\
-	IMPLEMENTATION *i = new IMPLEMENTATION;		\
-	QUnknownInterface* iface = 0; 			\
-	i->queryInterface( IID_QUnknown, &iface );	\
-	return iface;
+#    define Q_CREATE_INSTANCE(IMPLEMENTATION)                \
+        IMPLEMENTATION *i = new IMPLEMENTATION;                \
+        QUnknownInterface* iface = 0;                         \
+        i->queryInterface(IID_QUnknown, &iface);        \
+        return iface;
 #endif // Q_CREATE_INSTANCE
 
 #    ifdef Q_WS_WIN
-#	ifdef Q_CC_BOR
-#	    define Q_EXPORT_COMPONENT() \
-	        Q_UCM_VERIFICATION_DATA \
-		Q_EXTERN_C __declspec(dllexport) \
+#        ifdef Q_CC_BOR
+#            define Q_EXPORT_COMPONENT() \
+                Q_UCM_VERIFICATION_DATA \
+                Q_EXTERN_C __declspec(dllexport) \
                 const char * __stdcall qt_ucm_query_verification_data() \
                 { return qt_ucm_verification_data; } \
-		Q_EXTERN_C __declspec(dllexport) QUnknownInterface* \
+                Q_EXTERN_C __declspec(dllexport) QUnknownInterface* \
                 __stdcall ucm_instantiate()
-#	else
-#	    define Q_EXPORT_COMPONENT() \
-	        Q_UCM_VERIFICATION_DATA \
-		Q_EXTERN_C __declspec(dllexport) \
+#        else
+#            define Q_EXPORT_COMPONENT() \
+                Q_UCM_VERIFICATION_DATA \
+                Q_EXTERN_C __declspec(dllexport) \
                 const char *qt_ucm_query_verification_data() \
                 { return qt_ucm_verification_data; } \
-		Q_EXTERN_C __declspec(dllexport) QUnknownInterface* ucm_instantiate()
-#	endif
+                Q_EXTERN_C __declspec(dllexport) QUnknownInterface* ucm_instantiate()
+#        endif
 #    else
-#	define Q_EXPORT_COMPONENT() \
-	    Q_UCM_VERIFICATION_DATA \
-	    Q_EXTERN_C \
+#        define Q_EXPORT_COMPONENT() \
+            Q_UCM_VERIFICATION_DATA \
+            Q_EXTERN_C \
             const char *qt_ucm_query_verification_data() \
             { return qt_ucm_verification_data; } \
-	    Q_EXTERN_C QUnknownInterface* ucm_instantiate()
+            Q_EXTERN_C QUnknownInterface* ucm_instantiate()
 #    endif
 #    define Q_EXPORT_INTERFACE() Q_EXPORT_COMPONENT()
 #endif

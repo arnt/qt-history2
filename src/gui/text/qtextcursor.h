@@ -45,30 +45,30 @@ public:
 
 
     enum MoveMode {
-	MoveAnchor,
-	KeepAnchor
+        MoveAnchor,
+        KeepAnchor
     };
 
     enum MoveOperation {
-	NoMove,
+        NoMove,
 
-	Start,
-	StartOfLine,
-	PreviousBlock,
-	PreviousCharacter,
-	PreviousWord,
-	Up,
-	Left,
-	WordLeft,
+        Start,
+        StartOfLine,
+        PreviousBlock,
+        PreviousCharacter,
+        PreviousWord,
+        Up,
+        Left,
+        WordLeft,
 
-	End,
-	EndOfLine,
-	NextBlock,
-	NextCharacter,
-	NextWord,
-	Down,
-	Right,
-	WordRight
+        End,
+        EndOfLine,
+        NextBlock,
+        NextCharacter,
+        NextWord,
+        Down,
+        Right,
+        WordRight
     };
 
     bool moveTo(MoveOperation op, MoveMode = MoveAnchor);

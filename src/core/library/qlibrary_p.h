@@ -42,7 +42,7 @@
 class QLibraryPrivate
 {
 public:
-    QLibraryPrivate( QLibrary *lib );
+    QLibraryPrivate(QLibrary *lib);
 
 #ifdef Q_WS_WIN
     HINSTANCE pHnd;
@@ -52,7 +52,7 @@ public:
 
     bool loadLibrary();
     bool freeLibrary();
-    void *resolveSymbol( const char * );
+    void *resolveSymbol(const char *);
 
 private:
     QLibrary *library;

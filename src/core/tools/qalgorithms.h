@@ -32,12 +32,12 @@ protected:
 public:
     QTextOStreamIterator(QTextOStream &s) : stream(s) {}
     QTextOStreamIterator(QTextOStream &s, const QString &sep)
-	: stream(s), separator(sep)  {}
+        : stream(s), separator(sep)  {}
     QTextOStreamIterator<T> &operator= (const T &x) {
-	stream << x;
-	if (!separator.isEmpty())
-	    stream << separator;
-	return *this;
+        stream << x;
+        if (!separator.isEmpty())
+            stream << separator;
+        return *this;
     }
     QTextOStreamIterator<T> &operator*() { return *this; }
     QTextOStreamIterator<T> &operator++() { return *this; }
@@ -47,10 +47,10 @@ public:
 
 template <class InputIterator, class OutputIterator>
 inline OutputIterator qCopy(InputIterator _begin, InputIterator _end,
-			    OutputIterator _dest)
+                            OutputIterator _dest)
 {
     while(_begin != _end)
-	*_dest++ = *_begin++;
+        *_dest++ = *_begin++;
     return _dest;
 }
 
@@ -58,7 +58,7 @@ template <class BiIterator1, class BiIterator2>
 inline BiIterator2 qCopyBackward(BiIterator1 _begin, BiIterator1 _end, BiIterator2 _dest)
 {
     while (_begin != _end)
-	*--_dest = *--_end;
+        *--_dest = *--_end;
     return _dest;
 }
 
@@ -66,8 +66,8 @@ template <class InputIterator1, class InputIterator2>
 inline bool qEqual(InputIterator1 first1, InputIterator1 last1, InputIterator2 first2)
 {
     for (; first1 != last1; ++first1, ++first2)
-	if (!(*first1 == *first2))
-	    return false;
+        if (!(*first1 == *first2))
+            return false;
     return true;
 }
 
@@ -75,7 +75,7 @@ template <class ForwardIterator, class T>
 inline void qFill(ForwardIterator first, ForwardIterator last, const T &val)
 {
     for (; first != last; ++first)
-	*first = val;
+        *first = val;
 }
 
 #if 0
@@ -83,9 +83,9 @@ template <class BiIterator, class OutputIterator>
 inline OutputIterator qReverseCopy(BiIterator _begin, BiIterator _end, OutputIterator _dest)
 {
     while (_begin != _end) {
-	--_end;
-	*_dest = *_end;
-	++_dest;
+        --_end;
+        *_dest = *_end;
+        ++_dest;
     }
     return _dest;
 }
@@ -95,7 +95,7 @@ template <class InputIterator, class T>
 inline InputIterator qFind(InputIterator first, InputIterator last, const T &val)
 {
     while (first != last && *first != val)
-	++first;
+        ++first;
     return first;
 }
 
@@ -103,8 +103,8 @@ template <class InputIterator, class T, class Size>
 inline void qCount(InputIterator first, InputIterator last, const T &value, Size &n)
 {
     for (; first != last; ++first)
-	if (*first == value)
-	    ++n;
+        if (*first == value)
+            ++n;
 }
 
 template <class T>
@@ -123,28 +123,28 @@ void qBubbleSort(BiIterator b, BiIterator e)
     --last;
     // only one element or no elements ?
     if (last == b)
-	return;
+        return;
 
     // So we have at least two elements in here
     while(b != last) {
-	bool swapped = false;
-	BiIterator swap_pos = b;
-	BiIterator x = e;
-	BiIterator y = x;
-	y--;
-	do {
-	    --x;
-	    --y;
-	    if (*x < *y) {
-		swapped = true;
-		qSwap(*x, *y);
-		swap_pos = y;
-	    }
-	} while(y != b);
-	if (!swapped)
-	    return;
-	b = swap_pos;
-	b++;
+        bool swapped = false;
+        BiIterator swap_pos = b;
+        BiIterator x = e;
+        BiIterator y = x;
+        y--;
+        do {
+            --x;
+            --y;
+            if (*x < *y) {
+                swapped = true;
+                qSwap(*x, *y);
+                swap_pos = y;
+            }
+        } while(y != b);
+        if (!swapped)
+            return;
+        b = swap_pos;
+        b++;
     }
 }
 
@@ -159,26 +159,26 @@ void qHeapSortPushDown(Value *heap, int first, int last)
 {
     int r = first;
     while (r <= last / 2) {
-	if (last == 2 * r) {
-	    // node r has only one child
-	    if (heap[2 * r] < heap[r])
-		qSwap(heap[r], heap[2 * r]);
-	    r = last;
-	} else {
-	    // node r has two children
-	    if (heap[2 * r] < heap[r] && !(heap[2 * r + 1] < heap[2 * r])) {
-		// swap with left child
-		qSwap(heap[r], heap[2 * r]);
-		r *= 2;
-	    } else if (heap[2 * r + 1] < heap[r]
-			&& heap[2 * r + 1] < heap[2 * r]) {
-		// swap with right child
-		qSwap(heap[r], heap[2 * r + 1]);
-		r = 2 * r + 1;
-	    } else {
-		r = last;
-	    }
-	}
+        if (last == 2 * r) {
+            // node r has only one child
+            if (heap[2 * r] < heap[r])
+                qSwap(heap[r], heap[2 * r]);
+            r = last;
+        } else {
+            // node r has two children
+            if (heap[2 * r] < heap[r] && !(heap[2 * r + 1] < heap[2 * r])) {
+                // swap with left child
+                qSwap(heap[r], heap[2 * r]);
+                r *= 2;
+            } else if (heap[2 * r + 1] < heap[r]
+                        && heap[2 * r + 1] < heap[2 * r]) {
+                // swap with right child
+                qSwap(heap[r], heap[2 * r + 1]);
+                r = 2 * r + 1;
+            } else {
+                r = last;
+            }
+        }
     }
 }
 
@@ -191,21 +191,21 @@ void qHeapSortHelper(BiIterator b, BiIterator e, Value, uint n)
     Value *heap = realheap - 1;
     int size = 0;
     for(; insert != e; ++insert) {
-	heap[++size] = *insert;
-	int i = size;
-	while (i > 1 && heap[i] < heap[i / 2]) {
-	    qSwap(heap[i], heap[i / 2]);
-	    i /= 2;
-	}
+        heap[++size] = *insert;
+        int i = size;
+        while (i > 1 && heap[i] < heap[i / 2]) {
+            qSwap(heap[i], heap[i / 2]);
+            i /= 2;
+        }
     }
 
     // Now do the sorting
     for (uint i = n; i > 0; i--) {
-	*b++ = heap[1];
-	if (i > 1) {
-	    heap[1] = heap[i];
-	    qHeapSortPushDown(heap, 1, (int)i - 1);
-	}
+        *b++ = heap[1];
+        if (i > 1) {
+            heap[1] = heap[i];
+            qHeapSortPushDown(heap, 1, (int)i - 1);
+        }
     }
 
     delete[] realheap;
@@ -216,14 +216,14 @@ void qHeapSort(BiIterator b, BiIterator e)
 {
     // Empty?
     if (b == e)
-	return;
+        return;
 
     // How many entries have to be sorted?
     BiIterator it = b;
     uint n = 0;
     while (it != e) {
-	++n;
-	++it;
+        ++n;
+        ++it;
     }
 
     // The second last parameter is a hack to retrieve the value type
@@ -235,7 +235,7 @@ template <class Container>
 void qHeapSort(Container &c)
 {
     if (c.begin() == c.end())
-	return;
+        return;
 
     // The second last parameter is a hack to retrieve the value type
     // Do the real sorting here
@@ -256,8 +256,8 @@ RandomAccessIterator qLowerBound(RandomAccessIterator b, RandomAccessIterator e,
             b = middle + 1;
             n -= half + 1;
         } else {
-	    n = half;
-	}
+            n = half;
+        }
     }
     return b;
 }
@@ -273,8 +273,8 @@ RandomAccessIterator qUpperBound(RandomAccessIterator b, RandomAccessIterator e,
         half = n >> 1;
         middle = b + half;
         if (value < *middle) {
-	    n = half;
-	} else {
+            n = half;
+        } else {
             b = middle + 1;
             n -= half + 1;
         }
@@ -288,26 +288,26 @@ RandomAccessIterator qBinaryFind(RandomAccessIterator b, RandomAccessIterator e,
     int l = 0;
     int r = e - b - 1;
     if (r <= 0)
-	return e;
+        return e;
     int i = (l + r + 1) / 2;
     while (r != l) {
-	if (value < b[i])
-	    r = i - 1;
-	else
-	    l = i;
-	i = (l + r + 1) / 2;
+        if (value < b[i])
+            r = i - 1;
+        else
+            l = i;
+        i = (l + r + 1) / 2;
     }
     if (b[i] < value || value < b[i])
-	return e;
+        return e;
     else
-	return b + i;
+        return b + i;
 }
 
 template <class ForwardIterator>
 void qDeleteAll(ForwardIterator b, ForwardIterator e)
 {
     while (b != e) {
-	delete *b;
+        delete *b;
         ++b;
     }
 }

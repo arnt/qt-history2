@@ -112,11 +112,11 @@ signals:
     void clicked(const QString &);
 
 protected:
-    void mousePressEvent( QMouseEvent* );
-    void mouseReleaseEvent( QMouseEvent* );
-    void mouseMoveEvent( QMouseEvent* );
-    void keyPressEvent( QKeyEvent* );
-    void paintEvent( QPaintEvent* );
+    void mousePressEvent(QMouseEvent*);
+    void mouseReleaseEvent(QMouseEvent*);
+    void mouseMoveEvent(QMouseEvent*);
+    void keyPressEvent(QKeyEvent*);
+    void paintEvent(QPaintEvent*);
 
 private:
     bool pressed;
@@ -135,173 +135,173 @@ static const int vMargin = 8;
 static const int hMargin = 12;
 
 QWhatsThat::QWhatsThat(const QString& txt, QWidget* parent)
-    : QWidget( parent, WType_Popup | WDestructiveClose), pressed(false), text( txt )
+    : QWidget(parent, WType_Popup | WDestructiveClose), pressed(false), text(txt)
 {
     delete instance;
     instance = this;
     setObjectNameConst("automatic what's this? widget");
     setAttribute(WA_NoSystemBackground, true);
-    setPalette( QToolTip::palette() );
-    setMouseTracking( TRUE );
+    setPalette(QToolTip::palette());
+    setMouseTracking(true);
     setFocusPolicy(StrongFocus);
 #ifndef QT_NO_CURSOR
-    setCursor( ArrowCursor );
+    setCursor(ArrowCursor);
 #endif
 
 
     QRect r;
 #ifndef QT_NO_RICHTEXT
     doc = 0;
-    if ( QStyleSheet::mightBeRichText( text ) ) {
-	QFont f = QApplication::font( this );
-	doc = new QSimpleRichText( text, f );
-	doc->adjustSize();
-	r.setRect( 0, 0, doc->width(), doc->height() );
+    if (QStyleSheet::mightBeRichText(text)) {
+        QFont f = QApplication::font(this);
+        doc = new QSimpleRichText(text, f);
+        doc->adjustSize();
+        r.setRect(0, 0, doc->width(), doc->height());
     }
     else
 #endif
     {
-	int sw = QApplication::desktop()->width() / 3;
-	if ( sw < 200 )
-	    sw = 200;
-	else if ( sw > 300 )
-	    sw = 300;
+        int sw = QApplication::desktop()->width() / 3;
+        if (sw < 200)
+            sw = 200;
+        else if (sw > 300)
+            sw = 300;
 
-	r = fontMetrics().boundingRect( 0, 0, sw, 1000,
-					AlignAuto + AlignTop + WordBreak + ExpandTabs,
-					text );
+        r = fontMetrics().boundingRect(0, 0, sw, 1000,
+                                        AlignAuto + AlignTop + WordBreak + ExpandTabs,
+                                        text);
     }
 #if defined(Q_WS_WIN)
-    if ( (QSysInfo::WindowsVersion&QSysInfo::WV_NT_based) > QSysInfo::WV_2000 ) {
-	BOOL shadow;
-	SystemParametersInfo( SPI_GETDROPSHADOW, 0, &shadow, 0 );
-	shadowWidth = shadow ? 0 : 6;
+    if ((QSysInfo::WindowsVersion&QSysInfo::WV_NT_based) > QSysInfo::WV_2000) {
+        BOOL shadow;
+        SystemParametersInfo(SPI_GETDROPSHADOW, 0, &shadow, 0);
+        shadowWidth = shadow ? 0 : 6;
     }
 #endif
-    resize( r.width() + 2*hMargin + shadowWidth, r.height() + 2*vMargin + shadowWidth );
+    resize(r.width() + 2*hMargin + shadowWidth, r.height() + 2*vMargin + shadowWidth);
 }
 
 QWhatsThat::~QWhatsThat()
 {
     instance = 0;
 #ifndef QT_NO_RICHTEXT
-    if ( doc )
-	delete doc;
+    if (doc)
+        delete doc;
 #endif
 }
 
-void QWhatsThat::mousePressEvent( QMouseEvent* e )
+void QWhatsThat::mousePressEvent(QMouseEvent* e)
 {
     pressed = true;
-    if ( e->button() == LeftButton && rect().contains( e->pos() ) ) {
+    if (e->button() == LeftButton && rect().contains(e->pos())) {
 #ifndef QT_NO_RICHTEXT
-	if ( doc )
-	    anchor = doc->anchorAt( e->pos() -  QPoint( hMargin, vMargin) );
+        if (doc)
+            anchor = doc->anchorAt(e->pos() -  QPoint(hMargin, vMargin));
 #endif
-	return;
+        return;
     }
     close();
 }
 
-void QWhatsThat::mouseReleaseEvent( QMouseEvent* e )
+void QWhatsThat::mouseReleaseEvent(QMouseEvent* e)
 {
     if (!pressed)
-	return;
+        return;
 #ifndef QT_NO_RICHTEXT
-    if ( e->button() == LeftButton && doc && rect().contains( e->pos() ) ) {
-	QString a = doc->anchorAt( e->pos() -  QPoint( hMargin, vMargin ) );
-	QString href;
-	if ( anchor == a )
-	    href = a;
-	anchor = QString::null;
-	if (receivers(SIGNAL(clicked(QString)))) {
-	    emit clicked(href);
-	    return;
-	}
+    if (e->button() == LeftButton && doc && rect().contains(e->pos())) {
+        QString a = doc->anchorAt(e->pos() -  QPoint(hMargin, vMargin));
+        QString href;
+        if (anchor == a)
+            href = a;
+        anchor = QString::null;
+        if (receivers(SIGNAL(clicked(QString)))) {
+            emit clicked(href);
+            return;
+        }
     }
 #endif
     close();
 }
 
-void QWhatsThat::mouseMoveEvent( QMouseEvent* e)
+void QWhatsThat::mouseMoveEvent(QMouseEvent* e)
 {
 #ifndef QT_NO_RICHTEXT
 #ifndef QT_NO_CURSOR
-    if ( !doc )
-	return;
-    QString a = doc->anchorAt( e->pos() -  QPoint( hMargin, vMargin ) );
-    if ( !a.isEmpty() )
-	setCursor( PointingHandCursor );
+    if (!doc)
+        return;
+    QString a = doc->anchorAt(e->pos() -  QPoint(hMargin, vMargin));
+    if (!a.isEmpty())
+        setCursor(PointingHandCursor);
     else
-	setCursor( ArrowCursor );
+        setCursor(ArrowCursor);
 #endif
 #endif
 }
 
 
-void QWhatsThat::keyPressEvent( QKeyEvent* )
+void QWhatsThat::keyPressEvent(QKeyEvent*)
 {
     close();
 }
 
 
 
-void QWhatsThat::paintEvent( QPaintEvent* )
+void QWhatsThat::paintEvent(QPaintEvent*)
 {
-    bool drawShadow = TRUE;
+    bool drawShadow = true;
 #if defined(Q_WS_WIN)
-    if ( (QSysInfo::WindowsVersion&QSysInfo::WV_NT_based) > QSysInfo::WV_2000 ) {
-	BOOL shadow;
-	SystemParametersInfo( SPI_GETDROPSHADOW, 0, &shadow, 0 );
-	drawShadow = !shadow;
+    if ((QSysInfo::WindowsVersion&QSysInfo::WV_NT_based) > QSysInfo::WV_2000) {
+        BOOL shadow;
+        SystemParametersInfo(SPI_GETDROPSHADOW, 0, &shadow, 0);
+        drawShadow = !shadow;
     }
 #elif defined(Q_WS_MAC)
-    drawShadow = FALSE; //never draw it on OS X we get it for free
+    drawShadow = false; //never draw it on OS X we get it for free
 #endif
 
     QRect r = rect();
-    if ( drawShadow )
-	r.addCoords( 0, 0, -shadowWidth, -shadowWidth );
-    QPainter p( this);
-    p.setPen( palette().foreground() );
-    p.drawRect( r );
-    p.setPen( palette().mid() );
-    p.setBrush( palette().brush( QPalette::Background ) );
+    if (drawShadow)
+        r.addCoords(0, 0, -shadowWidth, -shadowWidth);
+    QPainter p(this);
+    p.setPen(palette().foreground());
+    p.drawRect(r);
+    p.setPen(palette().mid());
+    p.setBrush(palette().brush(QPalette::Background));
     int w = r.width();
     int h = r.height();
-    p.drawRect( 1, 1, w-2, h-2 );
-    if ( drawShadow ) {
-	p.setPen( palette().shadow() );
-	p.drawPoint( w + 5, 6 );
-	p.drawLine( w + 3, 6, w + 5, 8 );
-	p.drawLine( w + 1, 6, w + 5, 10 );
-	int i;
-	for( i=7; i < h; i += 2 )
-	    p.drawLine( w, i, w + 5, i + 5 );
-	for( i = w - i + h; i > 6; i -= 2 )
-	    p.drawLine( i, h, i + 5, h + 5 );
-	for( ; i > 0 ; i -= 2 )
-	    p.drawLine( 6, h + 6 - i, i + 5, h + 5 );
+    p.drawRect(1, 1, w-2, h-2);
+    if (drawShadow) {
+        p.setPen(palette().shadow());
+        p.drawPoint(w + 5, 6);
+        p.drawLine(w + 3, 6, w + 5, 8);
+        p.drawLine(w + 1, 6, w + 5, 10);
+        int i;
+        for(i=7; i < h; i += 2)
+            p.drawLine(w, i, w + 5, i + 5);
+        for(i = w - i + h; i > 6; i -= 2)
+            p.drawLine(i, h, i + 5, h + 5);
+        for(; i > 0 ; i -= 2)
+            p.drawLine(6, h + 6 - i, i + 5, h + 5);
     }
-    p.setPen( palette().foreground() );
-    r.addCoords( hMargin, vMargin, -hMargin, -vMargin );
+    p.setPen(palette().foreground());
+    r.addCoords(hMargin, vMargin, -hMargin, -vMargin);
 
 #ifndef QT_NO_RICHTEXT
-    if ( doc ) {
-	doc->draw( &p, r.x(), r.y(), r, palette(), 0 );
+    if (doc) {
+        doc->draw(&p, r.x(), r.y(), r, palette(), 0);
     }
     else
 #endif
     {
-	p.drawText( r, AlignAuto + AlignTop + WordBreak + ExpandTabs, text );
+        p.drawText(r, AlignAuto + AlignTop + WordBreak + ExpandTabs, text);
     }
 }
 
 static const char * const button_image[] = {
 "16 16 3 1",
-" 	c None",
-"o	c #000000",
-"a	c #000080",
+"         c None",
+"o        c #000000",
+"a        c #000080",
 "o        aaaaa  ",
 "oo      aaa aaa ",
 "ooo    aaa   aaa",
@@ -336,19 +336,19 @@ QWhatsThisPrivate::QWhatsThisPrivate()
 {
     instance = this;
     qApp->installEventFilter(this);
-    QApplication::setOverrideCursor(whatsThisCursor, FALSE);
+    QApplication::setOverrideCursor(whatsThisCursor, false);
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessible::updateAccessibility( this, 0, QAccessible::ContextHelpStart );
+    QAccessible::updateAccessibility(this, 0, QAccessible::ContextHelpStart);
 #endif
 }
 
 QWhatsThisPrivate::~QWhatsThisPrivate()
 {
     if (button)
-	button->setOn(false);
+        button->setOn(false);
     QApplication::restoreOverrideCursor();
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessible::updateAccessibility( this, 0, QAccessible::ContextHelpEnd );
+    QAccessible::updateAccessibility(this, 0, QAccessible::ContextHelpEnd);
 #endif
     instance = 0;
 }
@@ -356,47 +356,47 @@ QWhatsThisPrivate::~QWhatsThisPrivate()
 bool QWhatsThisPrivate::eventFilter(QObject *o, QEvent *e)
 {
     if (!o->isWidgetType())
-	return false;
+        return false;
     QWidget * w = static_cast<QWidget *>(o);
     bool customWhatsThis = w->testAttribute(QWidget::WA_CustomWhatsThis);
     switch (e->type()) {
     case QEvent::MouseButtonPress:
     {
-	QMouseEvent *me = static_cast<QMouseEvent*>(e);
-	if (me->button() == RightButton || customWhatsThis)
-	    return false;
-	QHelpEvent e(QEvent::WhatsThis, me->pos(), me->globalPos());
-	if (!QApplication::sendEvent(w, &e))
-	    QWhatsThis::leaveWhatsThisMode();
+        QMouseEvent *me = static_cast<QMouseEvent*>(e);
+        if (me->button() == RightButton || customWhatsThis)
+            return false;
+        QHelpEvent e(QEvent::WhatsThis, me->pos(), me->globalPos());
+        if (!QApplication::sendEvent(w, &e))
+            QWhatsThis::leaveWhatsThisMode();
     } break;
 
     case QEvent::MouseButtonRelease:
     case QEvent::MouseMove:
     case QEvent::MouseButtonDblClick:
-	if (static_cast<QMouseEvent*>(e)->button() == RightButton || customWhatsThis)
-	    return false; // ignore RMB release
-	break;
+        if (static_cast<QMouseEvent*>(e)->button() == RightButton || customWhatsThis)
+            return false; // ignore RMB release
+        break;
     case QEvent::KeyPress:
     {
-	QKeyEvent* kev = (QKeyEvent*)e;
+        QKeyEvent* kev = (QKeyEvent*)e;
 
-	if ( kev->key() == Qt::Key_Escape ) {
-	    QWhatsThis::leaveWhatsThisMode();
-	    return TRUE;
-	} else if ( o->isWidgetType() && ((QWidget*)o)->testAttribute(QWidget::WA_CustomWhatsThis) ) {
-	    return FALSE;
-	} else if ( kev->key() == Key_Menu ||
-		    ( kev->key() == Key_F10 &&
-		      kev->state() == ShiftButton ) ) {
-	    // we don't react to these keys, they are used for context menus
-	    return FALSE;
-	} else if ( kev->state() == kev->stateAfter() &&
-		    kev->key() != Key_Meta ) {  // not a modifier key
-	    QWhatsThis::leaveWhatsThisMode();
-	}
+        if (kev->key() == Qt::Key_Escape) {
+            QWhatsThis::leaveWhatsThisMode();
+            return true;
+        } else if (o->isWidgetType() && ((QWidget*)o)->testAttribute(QWidget::WA_CustomWhatsThis)) {
+            return false;
+        } else if (kev->key() == Key_Menu ||
+                    (kev->key() == Key_F10 &&
+                      kev->state() == ShiftButton)) {
+            // we don't react to these keys, they are used for context menus
+            return false;
+        } else if (kev->state() == kev->stateAfter() &&
+                    kev->key() != Key_Meta) {  // not a modifier key
+            QWhatsThis::leaveWhatsThisMode();
+        }
     } break;
     default:
-	return false;
+        return false;
     }
     return true;
 }
@@ -406,29 +406,29 @@ class QWhatsThisButton: public QToolButton
     Q_OBJECT
 
 public:
-    QWhatsThisButton( QWidget * parent, const char * name );
+    QWhatsThisButton(QWidget * parent, const char * name);
 
 public slots:
     void buttonToggled(bool);
 };
 
-QWhatsThisButton::QWhatsThisButton( QWidget * parent, const char * name )
-    : QToolButton( parent, name )
+QWhatsThisButton::QWhatsThisButton(QWidget * parent, const char * name)
+    : QToolButton(parent, name)
 {
-    QPixmap p( (const char**)button_image );
-    setPixmap( p );
-    setToggleButton( TRUE );
-    setAutoRaise( TRUE );
-    setFocusPolicy( NoFocus );
-    setTextLabel( tr( "What's this?" ) );
-    connect( this, SIGNAL(toggled(bool)), this, SLOT(buttonToggled(bool)) );
+    QPixmap p((const char**)button_image);
+    setPixmap(p);
+    setToggleButton(true);
+    setAutoRaise(true);
+    setFocusPolicy(NoFocus);
+    setTextLabel(tr("What's this?"));
+    connect(this, SIGNAL(toggled(bool)), this, SLOT(buttonToggled(bool)));
 }
 
 void QWhatsThisButton::buttonToggled(bool on)
 {
     if (on) {
-	QWhatsThis::enterWhatsThisMode();
-	QWhatsThisPrivate::instance->button = this;
+        QWhatsThis::enterWhatsThisMode();
+        QWhatsThisPrivate::instance->button = this;
     }
 }
 
@@ -436,26 +436,26 @@ QWhatsThis::QWhatsThis()
 {}
 
 /*!\obsolete Use QWidget::setWhatsThis() instead.*/
-void QWhatsThis::add( QWidget *w, const QString &s)
+void QWhatsThis::add(QWidget *w, const QString &s)
 {
     w->setWhatsThis(s);
 }
 
 /*!\obsolete Use QWidget::setWhatsThis() instead.*/
-void QWhatsThis::remove( QWidget *w)
+void QWhatsThis::remove(QWidget *w)
 {
     w->setWhatsThis(QString::null);
 }
 
-QToolButton * QWhatsThis::whatsThisButton( QWidget * parent )
+QToolButton * QWhatsThis::whatsThisButton(QWidget * parent)
 {
-    return new QWhatsThisButton( parent, "automatic what's this? button" );
+    return new QWhatsThisButton(parent, "automatic what's this? button");
 }
 
 void QWhatsThis::enterWhatsThisMode()
 {
     if (QWhatsThisPrivate::instance)
-	return;
+        return;
     (void) new QWhatsThisPrivate;
 }
 bool QWhatsThis::inWhatsThisMode()
@@ -467,34 +467,34 @@ void QWhatsThis::leaveWhatsThisMode()
     delete QWhatsThisPrivate::instance;
 }
 
-void QWhatsThisPrivate::say( QWidget * widget, const QString &text, int x, int y)
+void QWhatsThisPrivate::say(QWidget * widget, const QString &text, int x, int y)
 {
     if (text.size() == 0)
-	return;
+        return;
     // make a fresh widget, and set it up
     QWhatsThat *whatsThat = new QWhatsThat(
-	text,
+        text,
 #if defined(Q_WS_X11)
-	QApplication::desktop()->screen( widget ?
-					 widget->x11Info()->screen() :
-					 QCursor::x11Screen() )
+        QApplication::desktop()->screen(widget ?
+                                         widget->x11Info()->screen() :
+                                         QCursor::x11Screen())
 #else
-	0
+        0
 #endif
-	);
+       );
 
 
     // okay, now to find a suitable location
 
-    int scr = ( widget ?
-		QApplication::desktop()->screenNumber( widget ) :
+    int scr = (widget ?
+                QApplication::desktop()->screenNumber(widget) :
 #if defined(Q_WS_X11)
-		QCursor::x11Screen()
+                QCursor::x11Screen()
 #else
-		QApplication::desktop()->screenNumber( QPoint(x,y) )
+                QApplication::desktop()->screenNumber(QPoint(x,y))
 #endif // Q_WS_X11
-		);
-    QRect screen = QApplication::desktop()->screenGeometry( scr );
+               );
+    QRect screen = QApplication::desktop()->screenGeometry(scr);
 
     int w = whatsThat->width();
     int h = whatsThat->height();
@@ -504,44 +504,44 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, int x, int y
     // first try locating the widget immediately above/below,
     // with nice alignment if possible.
     QPoint pos;
-    if ( widget )
-	pos = widget->mapToGlobal( QPoint( 0,0 ) );
+    if (widget)
+        pos = widget->mapToGlobal(QPoint(0,0));
 
-    if ( widget && w > widget->width() + 16 )
-	x = pos.x() + widget->width()/2 - w/2;
+    if (widget && w > widget->width() + 16)
+        x = pos.x() + widget->width()/2 - w/2;
     else
-	x = x - w/2;
+        x = x - w/2;
 
-	// squeeze it in if that would result in part of what's this
-	// being only partially visible
-    if ( x + w  + shadowWidth > sx+screen.width() )
-	x = (widget? (qMin(screen.width(),
-			   pos.x() + widget->width())
-		      ) : screen.width() )
-	    - w;
+        // squeeze it in if that would result in part of what's this
+        // being only partially visible
+    if (x + w  + shadowWidth > sx+screen.width())
+        x = (widget? (qMin(screen.width(),
+                           pos.x() + widget->width())
+                     ) : screen.width())
+            - w;
 
-    if ( x < sx )
-	x = sx;
+    if (x < sx)
+        x = sx;
 
-    if ( widget && h > widget->height() + 16 ) {
-	y = pos.y() + widget->height() + 2; // below, two pixels spacing
-	// what's this is above or below, wherever there's most space
-	if ( y + h + 10 > sy+screen.height() )
-	    y = pos.y() + 2 - shadowWidth - h; // above, overlap
+    if (widget && h > widget->height() + 16) {
+        y = pos.y() + widget->height() + 2; // below, two pixels spacing
+        // what's this is above or below, wherever there's most space
+        if (y + h + 10 > sy+screen.height())
+            y = pos.y() + 2 - shadowWidth - h; // above, overlap
     }
     y = y + 2;
 
-	// squeeze it in if that would result in part of what's this
-	// being only partially visible
-    if ( y + h + shadowWidth > sy+screen.height() )
-	y = ( widget ? (qMin(screen.height(),
-			     pos.y() + widget->height())
-			) : screen.height() )
-	    - h;
-    if ( y < sy )
-	y = sy;
+        // squeeze it in if that would result in part of what's this
+        // being only partially visible
+    if (y + h + shadowWidth > sy+screen.height())
+        y = (widget ? (qMin(screen.height(),
+                             pos.y() + widget->height())
+                       ) : screen.height())
+            - h;
+    if (y < sy)
+        y = sy;
 
-    whatsThat->move( x, y );
+    whatsThat->move(x, y);
     whatsThat->show();
     whatsThat->grabKeyboard();
 }

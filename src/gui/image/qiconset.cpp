@@ -41,33 +41,33 @@ struct QIconSetIcon
 {
     QIconSetIconOrigin origin;
     union {
-	QString *fileName;
-	QPixmap *pixmap;
+        QString *fileName;
+        QPixmap *pixmap;
     };
 
-    inline QIconSetIcon(): origin( Generated ) { pixmap = 0; }
+    inline QIconSetIcon(): origin(Generated) { pixmap = 0; }
     inline QIconSetIcon(const QIconSetIcon &other)
-	: origin( Generated )
+        : origin(Generated)
     {
-	pixmap = 0;
-	operator=( other );
+        pixmap = 0;
+        operator=(other);
     }
     ~QIconSetIcon()
     {
-	if ( origin == SuppliedFileName )
-	    delete fileName;
-	else
-	    delete pixmap;
+        if (origin == SuppliedFileName)
+            delete fileName;
+        else
+            delete pixmap;
     }
     QIconSetIcon &operator=(const QIconSetIcon &other);
 
     inline void clearCached()
     {
-	if (pixmap && (origin == CustomGenerated || origin == Generated)) {
-	    origin = Generated;
-	    delete pixmap;
-	    pixmap = 0;
-	}
+        if (pixmap && (origin == CustomGenerated || origin == Generated)) {
+            origin = Generated;
+            delete pixmap;
+            pixmap = 0;
+        }
     }
 };
 
@@ -76,18 +76,18 @@ QIconSetIcon &QIconSetIcon::operator=(const QIconSetIcon &other)
     QPixmap *oldPixmap = 0;
     QString *oldFileName = 0;
     if (origin == SuppliedFileName)
-	oldFileName = fileName;
+        oldFileName = fileName;
     else
-	oldPixmap = pixmap;
+        oldPixmap = pixmap;
 
     origin = other.origin;
     if (other.origin == SuppliedFileName) {
-	fileName = new QString(*other.fileName);
+        fileName = new QString(*other.fileName);
     } else {
-	if (other.pixmap)
-	    pixmap = new QPixmap(*other.pixmap);
-	else
-	    pixmap = 0;
+        if (other.pixmap)
+            pixmap = new QPixmap(*other.pixmap);
+        else
+            pixmap = 0;
     }
     delete oldPixmap;
     delete oldFileName;
@@ -104,59 +104,59 @@ public:
 
     inline QIconSetData() : func(0) { ref = 1; }
     inline QIconSetData(const QIconSetData& other)
-	: func(0)
+        : func(0)
     {
-	ref = 1;
-	for (int i = 0; i < NumSizes; ++i) {
-	    for (int j = 0; j < NumModes; ++j) {
-		for (int k = 0; k < NumStates; ++k)
-		    icons[i][j][k] = other.icons[i][j][k];
-	    }
-	}
-	defaultPix = other.defaultPix;
+        ref = 1;
+        for (int i = 0; i < NumSizes; ++i) {
+            for (int j = 0; j < NumModes; ++j) {
+                for (int k = 0; k < NumStates; ++k)
+                    icons[i][j][k] = other.icons[i][j][k];
+            }
+        }
+        defaultPix = other.defaultPix;
     }
     ~QIconSetData() {}
 
     QIconSetIcon *icon(const QIconSet *iconSet, QIconSet::Size size, QIconSet::Mode mode,
-		       QIconSet::State state);
+                       QIconSet::State state);
     Q_DUMMY_COMPARISON_OPERATOR(QIconSetData)
 };
 
 QIconSetIcon *QIconSetData::icon(const QIconSet *iconSet, QIconSet::Size size,
-				    QIconSet::Mode mode, QIconSet::State state)
+                                    QIconSet::Mode mode, QIconSet::State state)
 {
     QIconSetIcon *ik = &icons[(int) size - 1][(int) mode][(int) state];
 
-    if ( iconSet ) {
-	if ( ik->origin == SuppliedFileName ) {
-	    QPixmap *newPixmap = new QPixmap(*ik->fileName);
-	    delete ik->fileName;
-	    if (newPixmap->isNull()) {
-		delete newPixmap;
-		ik->origin = Generated;
-		ik->pixmap = 0;
-	    } else {
-		ik->origin = SuppliedPixmap;
-		ik->pixmap = newPixmap;
-	    }
-	}
+    if (iconSet) {
+        if (ik->origin == SuppliedFileName) {
+            QPixmap *newPixmap = new QPixmap(*ik->fileName);
+            delete ik->fileName;
+            if (newPixmap->isNull()) {
+                delete newPixmap;
+                ik->origin = Generated;
+                ik->pixmap = 0;
+            } else {
+                ik->origin = SuppliedPixmap;
+                ik->pixmap = newPixmap;
+            }
+        }
 
-	if (!ik->pixmap && ik->origin == Generated) {
-	    /*
-	       We set 'origin' to CustomGenerated half a second too
-	       early to prevent recursive calls to this function.
-	       (This can happen if the pixmap generator function calls
-	       QIconSet::pixmap(), which in turn calls this
-	       function.)
-	     */
-	    QIconSet::PixmapGeneratorFn f = func;
-	    if (!f)
-		f = QIconSet::defaultGeneratorFn;
-	    ik->origin = CustomGenerated;
-	    ik->pixmap = (*f)(*iconSet, size, mode, state);
-	    if (!ik->pixmap)
-		ik->origin = Generated;
-	}
+        if (!ik->pixmap && ik->origin == Generated) {
+            /*
+               We set 'origin' to CustomGenerated half a second too
+               early to prevent recursive calls to this function.
+               (This can happen if the pixmap generator function calls
+               QIconSet::pixmap(), which in turn calls this
+               function.)
+             */
+            QIconSet::PixmapGeneratorFn f = func;
+            if (!f)
+                f = QIconSet::defaultGeneratorFn;
+            ik->origin = CustomGenerated;
+            ik->pixmap = (*f)(*iconSet, size, mode, state);
+            if (!ik->pixmap)
+                ik->origin = Generated;
+        }
     }
     return ik;
 }
@@ -181,7 +181,7 @@ QIconSetIcon *QIconSetData::icon(const QIconSet *iconSet, QIconSet::Size size,
   sizes. For example:
 
   \code
-    QToolButton *but = new QToolButton( QIconSet( QPixmap("open.xpm") ), ... );
+    QToolButton *but = new QToolButton(QIconSet(QPixmap("open.xpm")), ...);
   \endcode
 
   Using whichever pixmaps you specify as a base, QIconSet provides a
@@ -218,7 +218,7 @@ QIconSetIcon *QIconSetData::icon(const QIconSet *iconSet, QIconSet::Size size,
   22 x 22, while the default large size is 32 x 32. These sizes only
   affect generated icons.
 
-  The isGenerated() function returns TRUE if an icon was generated by
+  The isGenerated() function returns true if an icon was generated by
   QIconSet or by a factory; clearGenerated() clears all cached
   pixmaps.
 
@@ -232,14 +232,14 @@ QIconSetIcon *QIconSetData::icon(const QIconSet *iconSet, QIconSet::Size size,
   whichever icon is appropriate for the current state of your widget.
   For example:
   \code
-    void MyWidget::drawIcon( QPainter* p, QPoint pos )
+    void MyWidget::drawIcon(QPainter* p, QPoint pos)
     {
-	p->drawPixmap( pos, icons->pixmap(
-				QIconSet::Small,
-				isEnabled() ? QIconSet::Normal :
-					      QIconSet::Disabled,
-				isEnabled() ? QIconSet::On :
-					      QIconSet::Off));
+        p->drawPixmap(pos, icons->pixmap(
+                                QIconSet::Small,
+                                isEnabled() ? QIconSet::Normal :
+                                              QIconSet::Disabled,
+                                isEnabled() ? QIconSet::On :
+                                              QIconSet::Off));
     }
   \endcode
 
@@ -269,7 +269,7 @@ QIconSetIcon *QIconSetData::icon(const QIconSet *iconSet, QIconSet::Size size,
   The currently defined sizes are:
 
     \value Automatic  The size of the pixmap is determined from its
-		      pixel size. This is a useful default.
+                      pixel size. This is a useful default.
     \value Small  The pixmap is the smaller of two.
     \value Large  The pixmap is the larger of two.
 
@@ -291,17 +291,17 @@ QIconSetIcon *QIconSetData::icon(const QIconSet *iconSet, QIconSet::Size size,
   The currently defined modes are:
 
     \value Normal
-	 Display the pixmap when the user is
-	not interacting with the icon, but the
-	functionality represented by the icon is available.
+         Display the pixmap when the user is
+        not interacting with the icon, but the
+        functionality represented by the icon is available.
     \value Disabled
-	 Display the pixmap when the
-	functionality represented by the icon is not available.
+         Display the pixmap when the
+        functionality represented by the icon is not available.
     \value Active
-	 Display the pixmap when the
-	functionality represented by the icon is available and
-	the user is interacting with the icon, for example, moving the
-	mouse over it or clicking it.
+         Display the pixmap when the
+        functionality represented by the icon is available and
+        the user is interacting with the icon, for example, moving the
+        mouse over it or clicking it.
 */
 
 /*!
@@ -359,7 +359,7 @@ QIconSet::QIconSet(const QIconSet &other)
     : d(other.d)
 {
     if (d)
-	++d->ref;
+        ++d->ref;
 }
 
 /*!
@@ -368,7 +368,7 @@ QIconSet::QIconSet(const QIconSet &other)
 QIconSet::~QIconSet()
 {
     if (d && !--d->ref)
-	delete d;
+        delete d;
 }
 
 /*!
@@ -383,7 +383,7 @@ QIconSet::~QIconSet()
 void QIconSet::reset(const QPixmap &pixmap, Size size)
 {
     if (pixmap.isNull())
-	return;
+        return;
 
     detach();
     normalize(size, pixmap.size());
@@ -411,7 +411,7 @@ void QIconSet::reset(const QPixmap &pixmap, Size size)
 void QIconSet::setPixmap(const QPixmap &pixmap, Size size, Mode mode, State state)
 {
     if (pixmap.isNull())
-	return;
+        return;
 
     normalize(size, pixmap.size());
 
@@ -420,14 +420,14 @@ void QIconSet::setPixmap(const QPixmap &pixmap, Size size, Mode mode, State stat
 
     QIconSetIcon *icon = d->icon(0, size, mode, state);
     if (icon->origin == SuppliedFileName) {
-	delete icon->fileName;
-	icon->pixmap = 0;
+        delete icon->fileName;
+        icon->pixmap = 0;
     }
     icon->origin = SuppliedPixmap;
     if (!icon->pixmap)
-	icon->pixmap = new QPixmap(pixmap);
+        icon->pixmap = new QPixmap(pixmap);
     else
-	*icon->pixmap = pixmap;
+        *icon->pixmap = pixmap;
 }
 
 /*!
@@ -438,18 +438,18 @@ void QIconSet::setPixmap(const QPixmap &pixmap, Size size, Mode mode, State stat
 void QIconSet::setPixmap(const QString &fileName, Size size, Mode mode, State state)
 {
     if (size == Automatic) {
-	setPixmap(QPixmap(fileName), size, mode, state);
+        setPixmap(QPixmap(fileName), size, mode, state);
     } else {
-	detach();
-	clearGenerated();
-	QIconSetIcon *icon = d->icon(0, size, mode, state);
-	if (icon->origin == SuppliedFileName) {
-	    *icon->fileName = fileName;
-	} else {
-	    delete icon->pixmap;
-	    icon->fileName = new QString(fileName);
-	    icon->origin = SuppliedFileName;
-	}
+        detach();
+        clearGenerated();
+        QIconSetIcon *icon = d->icon(0, size, mode, state);
+        if (icon->origin == SuppliedFileName) {
+            *icon->fileName = fileName;
+        } else {
+            delete icon->pixmap;
+            icon->fileName = new QString(fileName);
+            icon->origin = SuppliedFileName;
+        }
     }
 }
 
@@ -460,111 +460,111 @@ void QIconSet::setPixmap(const QString &fileName, Size size, Mode mode, State st
 QPixmap QIconSet::pixmap(Size size, Mode mode, State state) const
 {
     if (!d) {
-	if (defaultGeneratorFn != defaultGenerator) {
-	    QIconSet *that = const_cast<QIconSet *>(this);
-	    that->detach();
-	} else {
-	    return QPixmap();
-	}
+        if (defaultGeneratorFn != defaultGenerator) {
+            QIconSet *that = const_cast<QIconSet *>(this);
+            that->detach();
+        } else {
+            return QPixmap();
+        }
     }
 
-    if ( size == Automatic )
-	size = Small;
+    if (size == Automatic)
+        size = Small;
 
     QIconSetIcon *icon = d->icon(this, size, mode, state);
     if (icon->pixmap)
-	return *icon->pixmap;
+        return *icon->pixmap;
     if (icon->origin == CustomGenerated) {
-	/*
-	  This can only occur during the half a second's time when
-	  the icon is being manufactured. If the pixmap generator somehow
-	  tries to access the pixmap it's supposed to be creating, it
-	  will get a null pixmap.
-	*/
-	return QPixmap();
+        /*
+          This can only occur during the half a second's time when
+          the icon is being manufactured. If the pixmap generator somehow
+          tries to access the pixmap it's supposed to be creating, it
+          will get a null pixmap.
+        */
+        return QPixmap();
     }
 
     if (mode == Active)
-	return pixmap(size, Normal, state);
+        return pixmap(size, Normal, state);
 
     Size otherSize = (size == Large) ? Small : Large;
     QIconSetIcon *otherSizeIcon = d->icon(this, otherSize, mode, state);
 
     if (state == Off) {
-	if (mode == Disabled && d->icon(this, size, Normal, Off)->origin != Generated) {
-	    icon->pixmap = createDisabled(size, Off);
-	} else if (otherSizeIcon->origin != Generated) {
-	    icon->pixmap = createScaled(size, otherSizeIcon->pixmap);
-	} else if (mode == Disabled) {
-	    icon->pixmap = createDisabled(size, Off);
-	} else if (!d->defaultPix.isNull()) {
-	    icon->pixmap = new QPixmap(d->defaultPix);
-	} else {
-	    /*
-	      No icons are available for { TRUE, Normal, Off } and
-	      { FALSE, Normal, Off }. Try the other 10 combinaisons,
-	      best ones first.
-	    */
-	    const int N = 10;
-	    static const struct {
-		bool sameSize;
-		Mode mode;
-		State state;
-	    } tryList[N] = {
-		{TRUE, Active, Off},
-		{TRUE, Normal, On},
-		{TRUE, Active, On},
-		{FALSE, Active, Off},
-		{FALSE, Normal, On},
-		{FALSE, Active, On},
-		{TRUE, Disabled, Off},
-		{TRUE, Disabled, On},
-		{FALSE, Disabled, Off},
-		{FALSE, Disabled, On}
-	    };
+        if (mode == Disabled && d->icon(this, size, Normal, Off)->origin != Generated) {
+            icon->pixmap = createDisabled(size, Off);
+        } else if (otherSizeIcon->origin != Generated) {
+            icon->pixmap = createScaled(size, otherSizeIcon->pixmap);
+        } else if (mode == Disabled) {
+            icon->pixmap = createDisabled(size, Off);
+        } else if (!d->defaultPix.isNull()) {
+            icon->pixmap = new QPixmap(d->defaultPix);
+        } else {
+            /*
+              No icons are available for { true, Normal, Off } and
+              { false, Normal, Off }. Try the other 10 combinaisons,
+              best ones first.
+            */
+            const int N = 10;
+            static const struct {
+                bool sameSize;
+                Mode mode;
+                State state;
+            } tryList[N] = {
+                {true, Active, Off},
+                {true, Normal, On},
+                {true, Active, On},
+                {false, Active, Off},
+                {false, Normal, On},
+                {false, Active, On},
+                {true, Disabled, Off},
+                {true, Disabled, On},
+                {false, Disabled, Off},
+                {false, Disabled, On}
+            };
 
-	    for (int i = 0; i < N; ++i) {
-		bool sameSize = tryList[i].sameSize;
-		QIconSetIcon *tryIcon = d->icon(this, sameSize ? size : otherSize,
-						tryList[i].mode, tryList[i].state);
-		if (tryIcon->origin != Generated) {
-		    if (sameSize) {
-			if (tryIcon->pixmap)
-			    icon->pixmap = new QPixmap(*tryIcon->pixmap);
-		    } else {
-			icon->pixmap = createScaled(size, tryIcon->pixmap);
-		    }
-		    break;
-		}
-	    }
-	}
+            for (int i = 0; i < N; ++i) {
+                bool sameSize = tryList[i].sameSize;
+                QIconSetIcon *tryIcon = d->icon(this, sameSize ? size : otherSize,
+                                                tryList[i].mode, tryList[i].state);
+                if (tryIcon->origin != Generated) {
+                    if (sameSize) {
+                        if (tryIcon->pixmap)
+                            icon->pixmap = new QPixmap(*tryIcon->pixmap);
+                    } else {
+                        icon->pixmap = createScaled(size, tryIcon->pixmap);
+                    }
+                    break;
+                }
+            }
+        }
     } else {
-	if (mode == Normal) {
-	    if (otherSizeIcon->origin != Generated)
-		icon->pixmap = createScaled(size, otherSizeIcon->pixmap);
-	    else
-		icon->pixmap = new QPixmap(pixmap(size, mode, Off));
-	} else {
-	    QIconSetIcon *offIcon = d->icon(this, size, mode, Off);
-	    QIconSetIcon *otherSizeOffIcon = d->icon(this, otherSize, mode, Off);
-	    if (offIcon->origin != Generated) {
-		if (offIcon->pixmap)
-		    icon->pixmap = new QPixmap(*offIcon->pixmap);
-	    } else if (d->icon(this, size, Normal, On)->origin != Generated) {
-		icon->pixmap = createDisabled(size, On);
-	    } else if (otherSizeIcon->origin != Generated) {
-		icon->pixmap = createScaled(size, otherSizeIcon->pixmap);
-	    } else if (otherSizeOffIcon->origin != Generated) {
-		icon->pixmap = createScaled(size, otherSizeOffIcon->pixmap);
-	    } else {
-		icon->pixmap = createDisabled(size, On);
-	    }
-	}
+        if (mode == Normal) {
+            if (otherSizeIcon->origin != Generated)
+                icon->pixmap = createScaled(size, otherSizeIcon->pixmap);
+            else
+                icon->pixmap = new QPixmap(pixmap(size, mode, Off));
+        } else {
+            QIconSetIcon *offIcon = d->icon(this, size, mode, Off);
+            QIconSetIcon *otherSizeOffIcon = d->icon(this, otherSize, mode, Off);
+            if (offIcon->origin != Generated) {
+                if (offIcon->pixmap)
+                    icon->pixmap = new QPixmap(*offIcon->pixmap);
+            } else if (d->icon(this, size, Normal, On)->origin != Generated) {
+                icon->pixmap = createDisabled(size, On);
+            } else if (otherSizeIcon->origin != Generated) {
+                icon->pixmap = createScaled(size, otherSizeIcon->pixmap);
+            } else if (otherSizeOffIcon->origin != Generated) {
+                icon->pixmap = createScaled(size, otherSizeOffIcon->pixmap);
+            } else {
+                icon->pixmap = createDisabled(size, On);
+            }
+        }
     }
     if (icon->pixmap) {
-	return *icon->pixmap;
+        return *icon->pixmap;
     } else {
-	return QPixmap();
+        return QPixmap();
     }
 }
 
@@ -588,22 +588,22 @@ QPixmap QIconSet::pixmap(Size size, bool enabled, State state) const
 */
 QPixmap QIconSet::pixmap() const
 {
-    if ( !d )
-	return QPixmap();
+    if (!d)
+        return QPixmap();
     return d->defaultPix;
 }
 
 /*!
-  Returns TRUE if the pixmap with size \a size, mode \a mode and
+  Returns true if the pixmap with size \a size, mode \a mode and
   state \a state is generated from other pixmaps; otherwise returns
-  FALSE.
+  false.
 
   A pixmap obtained from a QIconFactory is considered non-generated.
 */
 bool QIconSet::isGenerated(Size size, Mode mode, State state) const
 {
     if (!d)
-	return true;
+        return true;
     return d->icon(this, size, mode, state)->origin == Generated;
 };
 
@@ -614,14 +614,14 @@ bool QIconSet::isGenerated(Size size, Mode mode, State state) const
 void QIconSet::clearGenerated()
 {
     if (!d)
-	return;
+        return;
 
     for (int i = 0; i < NumSizes; ++i) {
-	for (int j = 0; j < NumModes; ++j) {
-	    for (int k = 0; k < NumStates; ++k) {
-		d->icons[i][j][k].clearCached();
-	    }
-	}
+        for (int j = 0; j < NumModes; ++j) {
+            for (int k = 0; k < NumStates; ++k) {
+                d->icons[i][j][k].clearCached();
+            }
+        }
     }
 }
 
@@ -650,7 +650,7 @@ void QIconSet::setPixmapGeneratorFn(PixmapGeneratorFn func)
 
 /*!
     \fn bool QIconSet::isNull() const
-    Returns TRUE if the icon set is empty; otherwise returns FALSE.
+    Returns true if the icon set is empty; otherwise returns false.
 */
 
 /*!
@@ -662,14 +662,14 @@ void QIconSet::setPixmapGeneratorFn(PixmapGeneratorFn func)
 void QIconSet::detach()
 {
     if (!d) {
-	d = new QIconSetData;
-	return;
+        d = new QIconSetData;
+        return;
     }
     if (d->ref != 1) {
-	QIconSetData *x = new QIconSetData(*d);
-	x = qAtomicSetPtr(&d, x);
-	if (!--x->ref)
-	    delete x;
+        QIconSetData *x = new QIconSetData(*d);
+        x = qAtomicSetPtr(&d, x);
+        if (!--x->ref)
+            delete x;
     }
 }
 
@@ -683,10 +683,10 @@ QIconSet& QIconSet::operator=(const QIconSet &other)
 {
     QIconSetData *x = other.d;
     if (x)
-	++x->ref;
+        ++x->ref;
     x = qAtomicSetPtr(&d, x);
     if (x && !--x->ref)
-	delete x;
+        delete x;
     return *this;
 }
 
@@ -724,7 +724,7 @@ QSize QIconSet::iconSize(Size which)
 void QIconSet::normalize(Size &which, const QSize &pixSize)
 {
     if (which == Automatic)
-	which = pixSize.width() > iconSize(Small).width() ? Large : Small;
+        which = pixSize.width() > iconSize(Small).width() ? Large : Small;
 }
 
 /*!
@@ -752,22 +752,22 @@ QPixmap *QIconSet::defaultGenerator(const QIconSet &, Size, Mode, State)
 QPixmap *QIconSet::createScaled(Size size, const QPixmap *suppliedPix) const
 {
     if (!suppliedPix || suppliedPix->isNull())
-	return 0;
+        return 0;
 
     QImage img = suppliedPix->convertToImage();
-    QSize imgSize = iconSize( size );
+    QSize imgSize = iconSize(size);
     if (size == Small) {
-	imgSize = imgSize.boundedTo(img.size());
+        imgSize = imgSize.boundedTo(img.size());
     } else {
-	imgSize = imgSize.expandedTo(img.size());
+        imgSize = imgSize.expandedTo(img.size());
     }
     img = img.smoothScale(imgSize);
 
     QPixmap *pixmap = new QPixmap(img);
     if (!pixmap->mask()) {
-	QBitmap mask;
-	mask.convertFromImage(img.createHeuristicMask(), Qt::MonoOnly | Qt::ThresholdDither);
-	pixmap->setMask(mask);
+        QBitmap mask;
+        mask.convertFromImage(img.createHeuristicMask(), Qt::MonoOnly | Qt::ThresholdDither);
+        pixmap->setMask(mask);
     }
     return pixmap;
 }
@@ -780,8 +780,8 @@ QPixmap *QIconSet::createDisabled(Size size, State state) const
 {
     QPixmap normalPix = pixmap(size, Normal, state);
     if (normalPix.isNull())
-	return 0;
-    return new QPixmap(QApplication::style().stylePixmap( QStyle::PT_Disabled, normalPix, QApplication::palette() ));
+        return 0;
+    return new QPixmap(QApplication::style().stylePixmap(QStyle::PT_Disabled, normalPix, QApplication::palette()));
 }
 
 #endif // QT_NO_ICONSET

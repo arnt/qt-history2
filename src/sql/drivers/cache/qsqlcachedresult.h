@@ -63,7 +63,7 @@ public:
 
     typedef QVector<QCoreVariant> ValueCache;
 
-protected:    
+protected:
     QtSqlCachedResult(const QSqlDriver * db);
 
     void init(int colCount);

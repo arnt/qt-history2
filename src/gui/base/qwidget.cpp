@@ -56,8 +56,8 @@
 QWidgetPrivate::~QWidgetPrivate()
 {
     delete actions;
-    if ( extra )
-	deleteExtra();
+    if (extra)
+        deleteExtra();
 }
 
 /*!
@@ -105,162 +105,162 @@ QWidgetPrivate::~QWidgetPrivate()
     \header \i Context \i Functions
 
     \row \i Window functions \i
-	show(),
-	hide(),
-	raise(),
-	lower(),
-	close().
+        show(),
+        hide(),
+        raise(),
+        lower(),
+        close().
 
     \row \i Top level windows \i
         windowModified(),
-	setWindowModified(),
+        setWindowModified(),
         windowTitle(),
-	setWindowTitle(),
-	windowIcon(),
-	setWindowIcon(),
-	windowIconText(),
-	setWindowIconText(),
-	isActiveWindow(),
-	setActiveWindow(),
-	showMinimized().
-	showMaximized(),
-	showFullScreen(),
-	showNormal().
+        setWindowTitle(),
+        windowIcon(),
+        setWindowIcon(),
+        windowIconText(),
+        setWindowIconText(),
+        isActiveWindow(),
+        setActiveWindow(),
+        showMinimized().
+        showMaximized(),
+        showFullScreen(),
+        showNormal().
 
     \row \i Window contents \i
-	update(),
-	repaint(),
-	erase(),
-	scroll(),
-	updateMask().
+        update(),
+        repaint(),
+        erase(),
+        scroll(),
+        updateMask().
 
     \row \i Geometry \i
-	pos(),
-	size(),
-	rect(),
-	x(),
-	y(),
-	width(),
-	height(),
-	sizePolicy(),
-	setSizePolicy(),
-	sizeHint(),
-	updateGeometry(),
-	layout(),
-	move(),
-	resize(),
-	setGeometry(),
-	frameGeometry(),
-	geometry(),
-	childrenRect(),
-	adjustSize(),
-	mapFromGlobal(),
-	mapFromParent()
-	mapToGlobal(),
-	mapToParent(),
-	maximumSize(),
-	minimumSize(),
-	sizeIncrement(),
-	setMaximumSize(),
-	setMinimumSize(),
-	setSizeIncrement(),
-	setBaseSize(),
-	setFixedSize()
+        pos(),
+        size(),
+        rect(),
+        x(),
+        y(),
+        width(),
+        height(),
+        sizePolicy(),
+        setSizePolicy(),
+        sizeHint(),
+        updateGeometry(),
+        layout(),
+        move(),
+        resize(),
+        setGeometry(),
+        frameGeometry(),
+        geometry(),
+        childrenRect(),
+        adjustSize(),
+        mapFromGlobal(),
+        mapFromParent()
+        mapToGlobal(),
+        mapToParent(),
+        maximumSize(),
+        minimumSize(),
+        sizeIncrement(),
+        setMaximumSize(),
+        setMinimumSize(),
+        setSizeIncrement(),
+        setBaseSize(),
+        setFixedSize()
 
     \row \i Mode \i
-	isVisible(),
-	isVisibleTo(),
-	isMinimized(),
-	isDesktop(),
-	isEnabled(),
-	isEnabledTo(),
-	isModal(),
-	isPopup(),
-	isTopLevel(),
-	setEnabled(),
-	hasMouseTracking(),
-	setMouseTracking(),
-	isUpdatesEnabled(),
-	setUpdatesEnabled(),
-	clipRegion().
+        isVisible(),
+        isVisibleTo(),
+        isMinimized(),
+        isDesktop(),
+        isEnabled(),
+        isEnabledTo(),
+        isModal(),
+        isPopup(),
+        isTopLevel(),
+        setEnabled(),
+        hasMouseTracking(),
+        setMouseTracking(),
+        isUpdatesEnabled(),
+        setUpdatesEnabled(),
+        clipRegion().
 
     \row \i Look and feel \i
-	style(),
-	setStyle(),
-	cursor(),
-	setCursor()
-	font(),
-	setFont(),
-	palette(),
-	setPalette(),
-	backgroundRole(),
-	setBackgroundRole(),
-	fontMetrics(),
-	fontInfo().
+        style(),
+        setStyle(),
+        cursor(),
+        setCursor()
+        font(),
+        setFont(),
+        palette(),
+        setPalette(),
+        backgroundRole(),
+        setBackgroundRole(),
+        fontMetrics(),
+        fontInfo().
 
     \row \i Keyboard focus<br>functions \i
-	isFocusEnabled(),
-	setFocusPolicy(),
-	focusPolicy(),
-	hasFocus(),
-	setFocus(),
-	clearFocus(),
-	setTabOrder(),
-	setFocusProxy().
+        isFocusEnabled(),
+        setFocusPolicy(),
+        focusPolicy(),
+        hasFocus(),
+        setFocus(),
+        clearFocus(),
+        setTabOrder(),
+        setFocusProxy().
 
     \row \i Mouse and<br>keyboard grabbing \i
-	grabMouse(),
-	releaseMouse(),
-	grabKeyboard(),
-	releaseKeyboard(),
-	mouseGrabber(),
-	keyboardGrabber().
+        grabMouse(),
+        releaseMouse(),
+        grabKeyboard(),
+        releaseKeyboard(),
+        mouseGrabber(),
+        keyboardGrabber().
 
     \row \i Event handlers \i
-	event(),
-	mousePressEvent(),
-	mouseReleaseEvent(),
-	mouseDoubleClickEvent(),
-	mouseMoveEvent(),
-	keyPressEvent(),
-	keyReleaseEvent(),
-	focusInEvent(),
-	focusOutEvent(),
-	wheelEvent(),
-	enterEvent(),
-	leaveEvent(),
-	paintEvent(),
-	moveEvent(),
-	resizeEvent(),
-	closeEvent(),
-	dragEnterEvent(),
-	dragMoveEvent(),
-	dragLeaveEvent(),
-	dropEvent(),
-	childEvent(),
-	showEvent(),
-	hideEvent(),
-	customEvent().
-	changeEvent(),
+        event(),
+        mousePressEvent(),
+        mouseReleaseEvent(),
+        mouseDoubleClickEvent(),
+        mouseMoveEvent(),
+        keyPressEvent(),
+        keyReleaseEvent(),
+        focusInEvent(),
+        focusOutEvent(),
+        wheelEvent(),
+        enterEvent(),
+        leaveEvent(),
+        paintEvent(),
+        moveEvent(),
+        resizeEvent(),
+        closeEvent(),
+        dragEnterEvent(),
+        dragMoveEvent(),
+        dragLeaveEvent(),
+        dropEvent(),
+        childEvent(),
+        showEvent(),
+        hideEvent(),
+        customEvent().
+        changeEvent(),
 
     \row \i System functions \i
-	parentWidget(),
-	topLevelWidget(),
-	setParent(),
-	winId(),
-	find(),
-	metric().
+        parentWidget(),
+        topLevelWidget(),
+        setParent(),
+        winId(),
+        find(),
+        metric().
 
     \row \i What's this help \i
-	setWhatsThis()
+        setWhatsThis()
 
     \row \i Internal kernel<br>functions \i
-	focusNextPrevChild(),
-	wmapper(),
-	clearWFlags(),
-	getWFlags(),
-	setWFlags(),
-	testWFlags().
+        focusNextPrevChild(),
+        wmapper(),
+        clearWFlags(),
+        getWFlags(),
+        setWFlags(),
+        testWFlags().
 
     \endtable
 
@@ -362,7 +362,7 @@ QWidgetPrivate::~QWidgetPrivate()
 
     \i mouseMoveEvent() - called whenever the mouse moves while a
     button is held down. This is useful for, for example, dragging. If
-    you call setMouseTracking(TRUE), you get mouse move events even
+    you call setMouseTracking(true), you get mouse move events even
     when no buttons are held down. (See also the \link dnd.html drag
     and drop\endlink information.)
 
@@ -422,7 +422,7 @@ QWidgetPrivate::~QWidgetPrivate()
 */
 
 
-QWidgetMapper *QWidget::mapper = 0;		// app global widget mapper
+QWidgetMapper *QWidget::mapper = 0;                // app global widget mapper
 
 
 /*****************************************************************************
@@ -430,26 +430,26 @@ QWidgetMapper *QWidget::mapper = 0;		// app global widget mapper
  *****************************************************************************/
 
 
-static QFont qt_naturalWidgetFont( QWidget* w ) {
-    QFont naturalfont = QApplication::font( w );
-    if ( ! w->isTopLevel() ) {
-	if ( ! naturalfont.isCopyOf( QApplication::font() ) )
-	    naturalfont = naturalfont.resolve( w->parentWidget()->font() );
-	else
-	    naturalfont = w->parentWidget()->font();
+static QFont qt_naturalWidgetFont(QWidget* w) {
+    QFont naturalfont = QApplication::font(w);
+    if (! w->isTopLevel()) {
+        if (! naturalfont.isCopyOf(QApplication::font()))
+            naturalfont = naturalfont.resolve(w->parentWidget()->font());
+        else
+            naturalfont = w->parentWidget()->font();
     }
     naturalfont.resolve(0);
     return naturalfont;
 }
 
 #ifndef QT_NO_PALETTE
-static QPalette qt_naturalWidgetPalette( QWidget* w ) {
-    QPalette naturalpalette = QApplication::palette( w );
-    if ( ! w->isTopLevel() ) {
-	if ( ! naturalpalette.isCopyOf( QApplication::palette() ) )
-	    naturalpalette = naturalpalette.resolve( w->parentWidget()->palette() );
-	else
-	    naturalpalette = w->parentWidget()->palette();
+static QPalette qt_naturalWidgetPalette(QWidget* w) {
+    QPalette naturalpalette = QApplication::palette(w);
+    if (! w->isTopLevel()) {
+        if (! naturalpalette.isCopyOf(QApplication::palette()))
+            naturalpalette = naturalpalette.resolve(w->parentWidget()->palette());
+        else
+            naturalpalette = w->parentWidget()->palette();
     }
     naturalpalette.resolve(0);
     return naturalpalette;
@@ -713,7 +713,7 @@ QWidget::QWidget(QWidget *parent, const char *name, WFlags f)
 {
     d->init(f);
     if (name)
-	setObjectName(name);
+        setObjectName(name);
 }
 
 /*! \internal
@@ -727,13 +727,13 @@ QWidget::QWidget(QWidgetPrivate &dd, QWidget* parent, WFlags f)
 void QWidgetPrivate::init(Qt::WFlags f)
 {
     q->data = &data;
-    if ( qApp->type() == QApplication::Tty )
-	qWarning( "QWidget: Cannot create a QWidget when no GUI is being used" );
+    if (qApp->type() == QApplication::Tty)
+        qWarning("QWidget: Cannot create a QWidget when no GUI is being used");
 
 #ifdef QT_THREAD_SUPPORT
     if (!q->parent()) {
-	Q_ASSERT_X(q->thread() == qApp->thread(), "QWidget",
-		   "Widgets must be created in the GUI thread.");
+        Q_ASSERT_X(q->thread() == qApp->thread(), "QWidget",
+                   "Widgets must be created in the GUI thread.");
     }
 #endif
 
@@ -743,9 +743,9 @@ void QWidgetPrivate::init(Qt::WFlags f)
     data.widget_attributes = 0;
 #ifdef QT_COMPAT
     if (f & Qt::WNoAutoErase)
-	q->setAttribute(QWidget::WA_NoBackground);
+        q->setAttribute(QWidget::WA_NoBackground);
     if (f & Qt::WStaticContents)
-	q->setAttribute(QWidget::WA_StaticContents);
+        q->setAttribute(QWidget::WA_StaticContents);
 #endif
     data.widget_state = 0;
     data.widget_flags = f;
@@ -756,54 +756,54 @@ void QWidgetPrivate::init(Qt::WFlags f)
     data.is_closing = 0;
     data.in_show = 0;
     data.in_show_maximized = 0;
-    data.im_enabled = FALSE;
-    q->create();					// platform-dependent init
+    data.im_enabled = false;
+    q->create();                                        // platform-dependent init
     if (!q->isTopLevel()) {
-	data.pal = q->parentWidget()->data->pal;
-	data.fnt = q->parentWidget()->data->fnt;
+        data.pal = q->parentWidget()->data->pal;
+        data.fnt = q->parentWidget()->data->fnt;
     }
 #if defined(Q_WS_X11)
-    data.fnt.x11SetScreen( xinfo->screen() );
+    data.fnt.x11SetScreen(xinfo->screen());
 #endif // Q_WS_X11
 
-    if ( !q->isDesktop() )
-	updateSystemBackground();
-    if ( q->isTopLevel() ) {
-	q->setWState(Qt::WState_Hidden);
-	createTLExtra();
+    if (!q->isDesktop())
+        updateSystemBackground();
+    if (q->isTopLevel()) {
+        q->setWState(Qt::WState_Hidden);
+        createTLExtra();
     } else {
-	// propagate enabled state
-	if ( !q->parentWidget()->isEnabled() )
-	    q->setAttribute(QWidget::WA_Disabled, true);
-	// new widgets do not show up in already visible parents
-	if (q->parentWidget()->isVisible())
-	    q->setWState(Qt::WState_Hidden);
+        // propagate enabled state
+        if (!q->parentWidget()->isEnabled())
+            q->setAttribute(QWidget::WA_Disabled, true);
+        // new widgets do not show up in already visible parents
+        if (q->parentWidget()->isVisible())
+            q->setWState(Qt::WState_Hidden);
     }
 
     if (q->isTopLevel()) {
-	focus_next = q;
+        focus_next = q;
     } else {
-	// insert at the end of the focus chain
-	QWidget *focus_handler = q->topLevelWidget();
-	QWidget *w = focus_handler;
-	while (w->d->focus_next != focus_handler)
-	    w = w->d->focus_next;
-	w->d->focus_next = q;
-	focus_next = focus_handler;
+        // insert at the end of the focus chain
+        QWidget *focus_handler = q->topLevelWidget();
+        QWidget *w = focus_handler;
+        while (w->d->focus_next != focus_handler)
+            w = w->d->focus_next;
+        w->d->focus_next = q;
+        focus_next = focus_handler;
     }
 
     q->setAttribute(QWidget::WA_PendingMoveEvent);
     q->setAttribute(QWidget::WA_PendingResizeEvent);
 
     if (++QWidget::instanceCounter > QWidget::maxInstances)
-    	QWidget::maxInstances = QWidget::instanceCounter;
+        QWidget::maxInstances = QWidget::instanceCounter;
 
     // send and post remaining QObject events
     if (q->parent()) {
-	QChildEvent e(QEvent::ChildAdded, q);
-	QApplication::sendEvent(q->parent(), &e);
+        QChildEvent e(QEvent::ChildAdded, q);
+        QApplication::sendEvent(q->parent(), &e);
 #ifdef QT_COMPAT
-	QApplication::postEvent(q->parent(), new QChildEvent(QEvent::ChildInserted, q));
+        QApplication::postEvent(q->parent(), new QChildEvent(QEvent::ChildInserted, q));
 #endif
     }
     QEvent e(QEvent::Create);
@@ -822,8 +822,8 @@ void QWidgetPrivate::init(Qt::WFlags f)
 QWidget::~QWidget()
 {
 #if defined (QT_CHECK_STATE)
-    if ( paintingActive() )
-	qWarning( "%s (%s): deleted while being painted", className(), name() );
+    if (paintingActive())
+        qWarning("%s (%s): deleted while being painted", className(), name());
 #endif
 
     // delete layout while we still are a valid widget
@@ -834,28 +834,28 @@ QWidget::~QWidget()
     // ### Focus: maybe remove children aswell?
     QWidget *w = this;
     while (w->d->focus_next != this)
-	w = w->d->focus_next;
+        w = w->d->focus_next;
     w->d->focus_next = d->focus_next;
     d->focus_next = 0;
 
-    if ( QApplication::main_widget == this ) {	// reset main widget
-	QApplication::main_widget = 0;
-	if (qApp)
-	    qApp->quit();
+    if (QApplication::main_widget == this) {        // reset main widget
+        QApplication::main_widget = 0;
+        if (qApp)
+            qApp->quit();
     }
 
     clearFocus();
 
-    if ( isTopLevel() && isShown() && winId() )
-	hide();
+    if (isTopLevel() && isShown() && winId())
+        hide();
 
     // A parent widget must destroy all its children before destroying itself
-    while ( !d->children.isEmpty() )
-	delete d->children.takeFirst();
+    while (!d->children.isEmpty())
+        delete d->children.takeFirst();
 
-    QApplication::removePostedEvents( this );
+    QApplication::removePostedEvents(this);
 
-    destroy();					// platform-dependent cleanup
+    destroy();                                        // platform-dependent cleanup
 
     --instanceCounter;
 }
@@ -863,51 +863,51 @@ QWidget::~QWidget()
 int QWidget::instanceCounter = 0;  // Current number of widget instances
 int QWidget::maxInstances = 0;     // Maximum number of widget instances
 
-void QWidget::setWinId( WId id )		// set widget identifier
+void QWidget::setWinId(WId id)                // set widget identifier
 {
-    if ( !mapper )				// mapper destroyed
-	return;
-    if ( data->winid )
-	mapper->remove( data->winid );
+    if (!mapper)                                // mapper destroyed
+        return;
+    if (data->winid)
+        mapper->remove(data->winid);
 
     data->winid = id;
 #if defined(Q_WS_X11)
-    hd = id;					// X11: hd == ident
+    hd = id;                                        // X11: hd == ident
 #endif
-    if ( id )
-	mapper->insert(data->winid, this);
+    if (id)
+        mapper->insert(data->winid, this);
 }
 
 void QWidgetPrivate::createTLExtra()
 {
-    if ( !extra )
-	createExtra();
-    if ( !extra->topextra ) {
-	QTLWExtra* x = extra->topextra = new QTLWExtra;
-#if defined( Q_WS_WIN ) || defined( Q_WS_MAC )
-	x->opacity = 255;
+    if (!extra)
+        createExtra();
+    if (!extra->topextra) {
+        QTLWExtra* x = extra->topextra = new QTLWExtra;
+#if defined(Q_WS_WIN) || defined(Q_WS_MAC)
+        x->opacity = 255;
 #endif
 #ifndef QT_NO_WIDGET_TOPEXTRA
-	x->icon = 0;
+        x->icon = 0;
 #endif
-	x->fleft = x->fright = x->ftop = x->fbottom = 0;
-	x->incw = x->inch = 0;
-	x->basew = x->baseh = 0;
-	x->normalGeometry = QRect(0,0,-1,-1);
+        x->fleft = x->fright = x->ftop = x->fbottom = 0;
+        x->incw = x->inch = 0;
+        x->basew = x->baseh = 0;
+        x->normalGeometry = QRect(0,0,-1,-1);
 #if defined(Q_WS_X11)
-	x->embedded = 0;
-	x->parentWinId = 0;
-	x->spont_unmapped = 0;
-	x->dnd = 0;
-	x->uspos = 0;
-	x->ussize = 0;
+        x->embedded = 0;
+        x->parentWinId = 0;
+        x->spont_unmapped = 0;
+        x->dnd = 0;
+        x->uspos = 0;
+        x->ussize = 0;
 #endif
-	x->savedFlags = 0;
+        x->savedFlags = 0;
 #if defined(Q_WS_QWS) && !defined(QT_NO_QWS_MANAGER)
-	x->decor_allocated_region = QRegion();
-	x->qwsManager = 0;
+        x->decor_allocated_region = QRegion();
+        x->qwsManager = 0;
 #endif
-	createTLSysExtra();
+        createTLSysExtra();
     }
 }
 
@@ -918,20 +918,20 @@ void QWidgetPrivate::createTLExtra()
 
 void QWidgetPrivate::createExtra()
 {
-    if ( !extra ) {				// if not exists
-	extra = new QWExtra;
-	extra->minw = extra->minh = 0;
-	extra->maxw = extra->maxh = QWIDGETSIZE_MAX;
+    if (!extra) {                                // if not exists
+        extra = new QWExtra;
+        extra->minw = extra->minh = 0;
+        extra->maxw = extra->maxh = QWIDGETSIZE_MAX;
 #ifndef QT_NO_CURSOR
-	extra->curs = 0;
+        extra->curs = 0;
 #endif
-	extra->topextra = 0;
+        extra->topextra = 0;
 #ifndef QT_NO_STYLE
-	extra->style = 0;
+        extra->style = 0;
 #endif
-	extra->size_policy = QSizePolicy( QSizePolicy::Preferred,
-					  QSizePolicy::Preferred );
-	createSysExtra();
+        extra->size_policy = QSizePolicy(QSizePolicy::Preferred,
+                                          QSizePolicy::Preferred);
+        createSysExtra();
     }
 }
 
@@ -943,24 +943,24 @@ void QWidgetPrivate::createExtra()
 
 void QWidgetPrivate::deleteExtra()
 {
-    if ( extra ) {				// if exists
+    if (extra) {                                // if exists
 #ifndef QT_NO_CURSOR
-	delete extra->curs;
+        delete extra->curs;
 #endif
-	deleteSysExtra();
-	if ( extra->topextra ) {
-	    deleteTLSysExtra();
+        deleteSysExtra();
+        if (extra->topextra) {
+            deleteTLSysExtra();
 #ifndef QT_NO_WIDGET_TOPEXTRA
-	    delete extra->topextra->icon;
+            delete extra->topextra->icon;
 #endif
 #if defined(Q_WS_QWS) && !defined(QT_NO_QWS_MANAGER)
-	    delete extra->topextra->qwsManager;
+            delete extra->topextra->qwsManager;
 #endif
-	    delete extra->topextra;
-	}
-	delete extra;
-	// extra->xic destroyed in QWidget::destroy()
-	extra = 0;
+            delete extra->topextra;
+        }
+        delete extra;
+        // extra->xic destroyed in QWidget::destroy()
+        extra = 0;
     }
 }
 
@@ -979,10 +979,10 @@ void QWidgetPrivate::deleteExtra()
 bool QWidgetPrivate::isForegroundInherited() const
 {
     return (q->testWFlags(Qt::WType_TopLevel|Qt::WSubWindow) == 0
-	    && (q->testAttribute(QWidget::WA_ForegroundInherited)
-		|| (!q->testAttribute(QWidget::WA_SetPalette)
-		    && !q->testAttribute(QWidget::WA_SetForegroundRole)
-		    && !q->testAttribute(QWidget::WA_SetBackgroundRole))));
+            && (q->testAttribute(QWidget::WA_ForegroundInherited)
+                || (!q->testAttribute(QWidget::WA_SetPalette)
+                    && !q->testAttribute(QWidget::WA_SetForegroundRole)
+                    && !q->testAttribute(QWidget::WA_SetBackgroundRole))));
 }
 
 
@@ -1001,9 +1001,9 @@ bool QWidgetPrivate::isForegroundInherited() const
 bool QWidgetPrivate::isBackgroundInherited() const
 {
     return (q->testWFlags(Qt::WType_TopLevel|Qt::WSubWindow) == 0
-	    && (q->testAttribute(QWidget::WA_BackgroundInherited)
-		|| (!q->testAttribute(QWidget::WA_SetPalette)
-		    && !q->testAttribute(QWidget::WA_SetBackgroundRole))));
+            && (q->testAttribute(QWidget::WA_BackgroundInherited)
+                || (!q->testAttribute(QWidget::WA_SetPalette)
+                    && !q->testAttribute(QWidget::WA_SetBackgroundRole))));
 }
 
 /*
@@ -1014,9 +1014,9 @@ bool QWidgetPrivate::isTransparent() const
 {
     const QWidget *w = q;
     while (w->d->isBackgroundInherited()) {
-	w = w->parentWidget();
-	if (w->testAttribute(QWidget::WA_ContentsPropagated))
-	    return true;
+        w = w->parentWidget();
+        if (w->testAttribute(QWidget::WA_ContentsPropagated))
+            return true;
     }
     return false;
 }
@@ -1031,16 +1031,16 @@ bool QWidgetPrivate::isTransparent() const
 void QWidgetPrivate::updateInheritedBackground(bool force)
 {
     if (!q->isVisible() || !isBackgroundInherited())
-	return;
+        return;
 #ifndef QT_NO_PALETTE
     if (!force)
-	force = (q->palette().brush(q->backgroundRole()).pixmap() || isTransparent());
+        force = (q->palette().brush(q->backgroundRole()).pixmap() || isTransparent());
 #endif
     if (force) {
-	q->repaint();
-	for (int i = 0; i < children.size(); ++i)
-	    if (children.at(i)->isWidgetType())
-		static_cast<QWidget*>(children.at(i))->d->updateInheritedBackground(force);
+        q->repaint();
+        for (int i = 0; i < children.size(); ++i)
+            if (children.at(i)->isWidgetType())
+                static_cast<QWidget*>(children.at(i))->d->updateInheritedBackground(force);
     }
 }
 
@@ -1054,12 +1054,12 @@ void QWidgetPrivate::updateInheritedBackground(bool force)
 void QWidgetPrivate::updatePropagatedBackground(const QRegion *reg)
 {
     for (int i = 0; i < children.size(); ++i)
-	if (children.at(i)->isWidgetType()) {
-	    QWidget *w = static_cast<QWidget*>(children.at(i));
-	    if (reg && !reg->contains(w->geometry()))
-		continue;
-	    w->d->updateInheritedBackground(true);
-	}
+        if (children.at(i)->isWidgetType()) {
+            QWidget *w = static_cast<QWidget*>(children.at(i));
+            if (reg && !reg->contains(w->geometry()))
+                continue;
+            w->d->updateInheritedBackground(true);
+        }
 }
 
 void QWidgetPrivate::propagatePaletteChange()
@@ -1067,14 +1067,14 @@ void QWidgetPrivate::propagatePaletteChange()
     QEvent pc(QEvent::PaletteChange);
     QApplication::sendEvent(q, &pc);
     if(!children.isEmpty()) {
-	for(int i = 0; i < children.size(); ++i) {
-	    QWidget *w = static_cast<QWidget*>(children.at(i));
-	    if(!w->isWidgetType() || w->isTopLevel())
-		continue;
+        for(int i = 0; i < children.size(); ++i) {
+            QWidget *w = static_cast<QWidget*>(children.at(i));
+            if(!w->isWidgetType() || w->isTopLevel())
+                continue;
 #ifndef QT_NO_PALETTE
-	    w->d->resolvePalette();
+            w->d->resolvePalette();
 #endif
-	}
+        }
     }
 #if !defined(QT_NO_COMPAT) && !defined(QT_NO_PALETTE)
     q->paletteChange(q->palette()); // compatibility
@@ -1091,22 +1091,22 @@ QRect QWidgetPrivate::clipRect() const
     const QWidget * w = q;
     int ox = 0;
     int oy = 0;
-    while ( w
-	    && w->isVisible()
-	    && !w->isTopLevel()
-	    && w->parentWidget() ) {
-	ox -= w->x();
-	oy -= w->y();
-	w = w->parentWidget();
-	r = r.intersect( QRect( ox, oy, w->width(), w->height() ) );
+    while (w
+            && w->isVisible()
+            && !w->isTopLevel()
+            && w->parentWidget()) {
+        ox -= w->x();
+        oy -= w->y();
+        w = w->parentWidget();
+        r = r.intersect(QRect(ox, oy, w->width(), w->height()));
     }
-    if ( !w->isVisible() )
-	return QRect();
+    if (!w->isVisible())
+        return QRect();
     return r;
 }
 
 /*!
-    \fn void QPixmap::fill( const QWidget *widget, const QPoint &offset )
+    \fn void QPixmap::fill(const QWidget *widget, const QPoint &offset)
     \overload
 
     Fills the pixmap with the \a widget's background color or pixmap.
@@ -1121,20 +1121,20 @@ QRect QWidgetPrivate::clipRect() const
 
     Example:
     \code
-    void CuteWidget::paintEvent( QPaintEvent *e )
+    void CuteWidget::paintEvent(QPaintEvent *e)
     {
-	QRect ur = e->rect();            // rectangle to update
-	QPixmap pix( ur.size() );        // Pixmap for double-buffering
-	pix.fill( this, ur.topLeft() );  // fill with widget background
+        QRect ur = e->rect();            // rectangle to update
+        QPixmap pix(ur.size());        // Pixmap for double-buffering
+        pix.fill(this, ur.topLeft());  // fill with widget background
 
-	QPainter p( &pix );
-	p.translate( -ur.x(), -ur.y() ); // use widget coordinate system
-					 // when drawing on pixmap
-	//    ... draw on pixmap ...
+        QPainter p(&pix);
+        p.translate(-ur.x(), -ur.y()); // use widget coordinate system
+                                         // when drawing on pixmap
+        //    ... draw on pixmap ...
 
-	p.end();
+        p.end();
 
-	bitBlt( this, ur.topLeft(), &pix );
+        bitBlt(this, ur.topLeft(), &pix);
     }
     \endcode
 */
@@ -1145,15 +1145,15 @@ QRect QWidgetPrivate::clipRect() const
     \a xoff, \a yoff is an offset in the widget.
 */
 
-void QPixmap::fill( const QWidget *widget, int xoff, int yoff )
+void QPixmap::fill(const QWidget *widget, int xoff, int yoff)
 {
     QPoint offset(xoff, yoff);
     QStack<QWidget*> parents;
     QWidget *w = const_cast<QWidget *>(widget);
     while (w->d->isBackgroundInherited()) {
-	offset += w->pos();
-	w = w->parentWidget();
-	parents += w;
+        offset += w->pos();
+        w = w->parentWidget();
+        parents += w;
     }
 #ifndef QT_NO_PALETTE
     QBrush brush = widget->palette().brush(w->d->bg_role);
@@ -1162,30 +1162,30 @@ void QPixmap::fill( const QWidget *widget, int xoff, int yoff )
 #endif
     fill(brush.color());
     if (brush.pixmap()) {
-	QPainter p;
-	p.begin( this );
-	p.setPen( NoPen );
-	p.drawTiledPixmap(rect(), *brush.pixmap(), offset);
-	p.end();
+        QPainter p;
+        p.begin(this);
+        p.setPen(NoPen);
+        p.drawTiledPixmap(rect(), *brush.pixmap(), offset);
+        p.end();
     }
 
     if (parents.size() == 0)
-	return;
+        return;
 
     w = parents.pop();
     for (;;) {
-	if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
-	    QPainter::setRedirected(w, this, offset);
-  	    QRect rr = widget->d->clipRect();
- 	    rr.moveBy(offset);
-	    QPaintEvent e(rr);
-	    QApplication::sendEvent(w, &e);
-	    QPainter::restoreRedirected(w);
-	}
-	if (parents.size() == 0)
-	    break;
-	w = parents.pop();
-	offset -= w->pos();
+        if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
+            QPainter::setRedirected(w, this, offset);
+            QRect rr = widget->d->clipRect();
+            rr.moveBy(offset);
+            QPaintEvent e(rr);
+            QApplication::sendEvent(w, &e);
+            QPainter::restoreRedirected(w);
+        }
+        if (parents.size() == 0)
+            break;
+        w = parents.pop();
+        offset -= w->pos();
     }
 }
 
@@ -1199,16 +1199,16 @@ void QPixmap::fill( const QWidget *widget, int xoff, int yoff )
 void QWidget::deactivateWidgetCleanup()
 {
     // If this was the active application window, reset it
-    if ( this == QApplication::active_window )
-	qApp->setActiveWindow( 0 );
+    if (this == QApplication::active_window)
+        qApp->setActiveWindow(0);
     // If the is the active mouse press widget, reset it
 #ifdef Q_WS_MAC
     extern QGuardedPtr<QWidget> qt_button_down;
 #else
     extern QWidget *qt_button_down;
 #endif
-    if ( this == qt_button_down )
-	qt_button_down = 0;
+    if (this == qt_button_down)
+        qt_button_down = 0;
 }
 
 
@@ -1221,7 +1221,7 @@ void QWidget::deactivateWidgetCleanup()
     is no widget with this identifier, 0 is returned.
 */
 
-QWidget *QWidget::find( WId id )
+QWidget *QWidget::find(WId id)
 {
     return mapper ? mapper->value(id, 0) : 0;
 }
@@ -1247,7 +1247,7 @@ QWidget *QWidget::find( WId id )
 */
 
 /*!
-    \fn void QWidget::setWFlags( WFlags f )
+    \fn void QWidget::setWFlags(WFlags f)
 
     Sets the widget flags \a f.
 
@@ -1257,7 +1257,7 @@ QWidget *QWidget::find( WId id )
 */
 
 /*!
-    \fn void QWidget::clearWFlags( WFlags f )
+    \fn void QWidget::clearWFlags(WFlags f)
 
     Clears the widget flags \a f.
 
@@ -1288,8 +1288,8 @@ QWidget *QWidget::find( WId id )
 
 QStyle& QWidget::style() const
 {
-    if ( d->extra && d->extra->style )
-	return *d->extra->style;
+    if (d->extra && d->extra->style)
+        return *d->extra->style;
     QStyle &ret = qApp->style();
     return ret;
 }
@@ -1312,20 +1312,20 @@ QStyle& QWidget::style() const
     \sa style(), QStyle, QApplication::style(), QApplication::setStyle()
 */
 
-void QWidget::setStyle( QStyle *style )
+void QWidget::setStyle(QStyle *style)
 {
     QStyle& old  = QWidget::style();
     d->createExtra();
     d->extra->style = style;
-    if ( !testWFlags(WType_Desktop) // (except desktop)
-	 && d->polished) { // (and have been polished)
-	old.unPolish( this );
-	QWidget::style().polish( this );
+    if (!testWFlags(WType_Desktop) // (except desktop)
+         && d->polished) { // (and have been polished)
+        old.unPolish(this);
+        QWidget::style().polish(this);
     }
     QEvent e(QEvent::StyleChange);
     QApplication::sendEvent(this, &e);
 #ifdef QT_COMPAT
-    styleChange( old );
+    styleChange(old);
 #endif
 }
 
@@ -1334,10 +1334,10 @@ void QWidget::setStyle( QStyle *style )
 
     Sets the widget's GUI style to \a style using the QStyleFactory.
 */
-QStyle* QWidget::setStyle( const QString &style )
+QStyle* QWidget::setStyle(const QString &style)
 {
-    QStyle *s = QStyleFactory::create( style );
-    setStyle( s );
+    QStyle *s = QStyleFactory::create(style);
+    setStyle(s);
     return s;
 }
 
@@ -1445,7 +1445,7 @@ void QWidget::showMinimized()
     setWindowState((windowState() & ~WindowActive) | WindowMinimized);
     show();
     if (!isTopLevel())
-	QApplication::sendPostedEvents(this, QEvent::ShowMinimized);
+        QApplication::sendPostedEvents(this, QEvent::ShowMinimized);
 }
 
 /*!
@@ -1477,13 +1477,13 @@ uint QWidget::windowState() const
 {
     uint state = 0;
     if (testWState(WState_Minimized))
-	state |= WindowMinimized;
+        state |= WindowMinimized;
     if (testWState(WState_Maximized))
-	state |= WindowMaximized;
+        state |= WindowMaximized;
     if (testWState(WState_FullScreen))
-	state |= WindowFullScreen;
+        state |= WindowFullScreen;
     if (isActiveWindow())
-	state |= WindowActive;
+        state |= WindowActive;
     return state;
 }
 
@@ -1494,20 +1494,20 @@ uint QWidget::windowState() const
   combination of Qt::WindowState: \c WindowMinimized, \c
   WindowMaximized, \c WindowFullScreen and \c WindowActive.
 
-  If the window is not visible (i.e. isVisible() returns FALSE), the
+  If the window is not visible (i.e. isVisible() returns false), the
   window state will take effect when show() is called. For visible
   windows, the change is immediate. For example, to toggle between
   full-screen and mormal mode, use the following code:
 
   \code
-	w->setWindowState(w->windowState() ^ WindowFullScreen);
+        w->setWindowState(w->windowState() ^ WindowFullScreen);
   \endcode
 
   In order to restore and activate a minimized window (while
   preserving its maximized and/or full-screen state), use the following:
 
   \code
-	w->setWindowState(w->windowState() & ~WindowMinimized | WindowActive);
+        w->setWindowState(w->windowState() & ~WindowMinimized | WindowActive);
   \endcode
 
   Note: On some window systems \c WindowActive is not immediate, and may be
@@ -1561,7 +1561,7 @@ void QWidget::showFullScreen()
     setWindowState(windowState() | WindowFullScreen);
     show();
     if (!isTopLevel())
-	QApplication::sendPostedEvents(this, QEvent::ShowFullScreen);
+        QApplication::sendPostedEvents(this, QEvent::ShowFullScreen);
     setActiveWindow();
 }
 
@@ -1584,7 +1584,7 @@ void QWidget::showMaximized()
     setWindowState((windowState() & ~WindowMinimized) | WindowMaximized);
     show();
     if (!isTopLevel())
-	QApplication::sendPostedEvents(this, QEvent::ShowMaximized);
+        QApplication::sendPostedEvents(this, QEvent::ShowMaximized);
 }
 
 /*!
@@ -1600,12 +1600,12 @@ void QWidget::showNormal()
     setWindowState(WindowNoState);
     show();
     if (!isTopLevel())
-	QApplication::sendPostedEvents(this, QEvent::ShowNormal);
+        QApplication::sendPostedEvents(this, QEvent::ShowNormal);
 }
 
 /*!
-    Returns TRUE if this widget would become enabled if \a ancestor is
-    enabled; otherwise returns FALSE.
+    Returns true if this widget would become enabled if \a ancestor is
+    enabled; otherwise returns false.
 
     This is the case if neither the widget itself nor every parent up
     to but excluding \a ancestor has been explicitly disabled.
@@ -1615,14 +1615,14 @@ void QWidget::showNormal()
     \sa setEnabled() enabled
 */
 
-bool QWidget::isEnabledTo( QWidget* ancestor ) const
+bool QWidget::isEnabledTo(QWidget* ancestor) const
 {
     const QWidget * w = this;
-    while ( w && !w->testAttribute(WA_ForceDisabled)
-	    && !w->isTopLevel()
-	    && w->parentWidget()
-	    && w->parentWidget() != ancestor )
-	w = w->parentWidget();
+    while (w && !w->testAttribute(WA_ForceDisabled)
+            && !w->isTopLevel()
+            && w->parentWidget()
+            && w->parentWidget() != ancestor)
+        w = w->parentWidget();
     return !w->testAttribute(WA_ForceDisabled);
 }
 
@@ -1633,9 +1633,9 @@ void
 QWidget::addAction(QAction *action)
 {
     if(!d->actions)
-	d->actions = new QList<QAction*>();
+        d->actions = new QList<QAction*>();
     else if(d->actions->indexOf(action) != -1)
-	return;
+        return;
     d->actions->append(action);
     QObject::connect(action, SIGNAL(dataChanged()), this, SLOT(actionChanged()));
     QActionEvent e(QEvent::ActionAdded, action);
@@ -1651,12 +1651,12 @@ void
 QWidget::insertAction(QAction *before, QAction *action)
 {
     if(!d->actions) {
-	d->actions = new QList<QAction*>();
-	d->actions->append(action);
+        d->actions = new QList<QAction*>();
+        d->actions->append(action);
     } else {
-	int before_int = d->actions->indexOf(before);
-	d->actions->remove(action);
-	d->actions->insert(before_int, action);
+        int before_int = d->actions->indexOf(before);
+        d->actions->remove(action);
+        d->actions->insert(before_int, action);
     }
     QObject::connect(action, SIGNAL(dataChanged()), this, SLOT(actionChanged()));
     QActionEvent e(QEvent::ActionAdded, action, before);
@@ -1671,9 +1671,9 @@ void
 QWidget::removeAction(QAction *action)
 {
     if(d->actions && d->actions->remove(action)) {
-	QObject::disconnect(action, SIGNAL(dataChanged()), this, SLOT(actionChanged()));
-	QActionEvent e(QEvent::ActionRemoved, action);
-	QApplication::sendEvent(this, &e);
+        QObject::disconnect(action, SIGNAL(dataChanged()), this, SLOT(actionChanged()));
+        QActionEvent e(QEvent::ActionRemoved, action);
+        QApplication::sendEvent(this, &e);
     }
 }
 
@@ -1684,7 +1684,7 @@ QList<QAction*>
 QWidget::actions() const
 {
     if(d->actions)
-	return *d->actions;
+        return *d->actions;
     return QList<QAction*>();
 }
 
@@ -1723,7 +1723,7 @@ QWidget::actionChanged()
 
     \sa isEnabled(), isEnabledTo(), QKeyEvent, QMouseEvent, changeEvent()
 */
-void QWidget::setEnabled( bool enable )
+void QWidget::setEnabled(bool enable)
 {
     setAttribute(WA_ForceDisabled, !enable);
     setEnabled_helper(enable);
@@ -1732,30 +1732,30 @@ void QWidget::setEnabled( bool enable )
 void QWidget::setEnabled_helper(bool enable)
 {
     if (enable && !isTopLevel() && parentWidget() && !parentWidget()->isEnabled())
-	return; // nothing we can do
+        return; // nothing we can do
 
     if (enable != testAttribute(WA_Disabled))
-	return; // nothing to do
+        return; // nothing to do
 
     setAttribute(WA_Disabled, !enable);
     d->updateSystemBackground();
 
     if (!enable && topLevelWidget()->focusWidget() == this && (!parentWidget()||parentWidget()->isEnabled()))
-	if (!focusNextPrevChild(true))
-	    clearFocus();
+        if (!focusNextPrevChild(true))
+            clearFocus();
 
     WidgetAttribute attribute = enable ? WA_ForceDisabled : WA_Disabled;
     for (int i = 0; i < d->children.size(); ++i) {
-	QWidget *w = static_cast<QWidget *>(d->children.at(i));
-	if (w->isWidgetType() && !w->testAttribute(attribute))
-	    w->setEnabled_helper(enable);
+        QWidget *w = static_cast<QWidget *>(d->children.at(i));
+        if (w->isWidgetType() && !w->testAttribute(attribute))
+            w->setEnabled_helper(enable);
     }
 #if defined(Q_WS_X11)
-    if ( testAttribute( WA_SetCursor ) ) {
-	// enforce the windows behavior of clearing the cursor on
-	// disabled widgets
-	extern void qt_x11_enforce_cursor( QWidget * w ); // defined in qwidget_x11.cpp
-	qt_x11_enforce_cursor( this );
+    if (testAttribute(WA_SetCursor)) {
+        // enforce the windows behavior of clearing the cursor on
+        // disabled widgets
+        extern void qt_x11_enforce_cursor(QWidget * w); // defined in qwidget_x11.cpp
+        qt_x11_enforce_cursor(this);
     }
 #endif
 #ifdef Q_WS_WIN
@@ -1775,19 +1775,19 @@ void QWidget::setEnabled_helper(bool enable)
 */
 
 /*!
-    \fn void QWidget::paletteChange( const QPalette & )
+    \fn void QWidget::paletteChange(const QPalette &)
 
     \internal
 */
 
 /*!
-    \fn void QWidget::fontChange( const QFont & )
+    \fn void QWidget::fontChange(const QFont &)
 
     \internal
 */
 
 /*!
-    \fn void QWidget::windowActivationChange( bool )
+    \fn void QWidget::windowActivationChange(bool)
 
     \internal
 */
@@ -1799,20 +1799,20 @@ void QWidget::setEnabled_helper(bool enable)
 */
 
 /*!
-    \fn void QWidget::styleChange( QStyle& )
+    \fn void QWidget::styleChange(QStyle&)
 */
 
 /*!
-    Disables widget input events if \a disable is TRUE; otherwise
+    Disables widget input events if \a disable is true; otherwise
     enables input events.
 
     See the \l enabled documentation for more information.
 
     \sa isEnabledTo(), QKeyEvent, QMouseEvent, changeEvent()
 */
-void QWidget::setDisabled( bool disable )
+void QWidget::setDisabled(bool disable)
 {
-    setEnabled( !disable );
+    setEnabled(!disable);
 }
 
 /*!
@@ -1828,13 +1828,13 @@ void QWidget::setDisabled( bool disable )
 QRect QWidget::frameGeometry() const
 {
     if (isTopLevel() && ! isPopup()) {
-	if (data->fstrut_dirty)
-	    updateFrameStrut();
-	QTLWExtra *top = d->topData();
-	return QRect(data->crect.x() - top->fleft,
-		     data->crect.y() - top->ftop,
-		     data->crect.width() + top->fleft + top->fright,
-		     data->crect.height() + top->ftop + top->fbottom);
+        if (data->fstrut_dirty)
+            updateFrameStrut();
+        QTLWExtra *top = d->topData();
+        return QRect(data->crect.x() - top->fleft,
+                     data->crect.y() - top->ftop,
+                     data->crect.width() + top->fleft + top->fright,
+                     data->crect.height() + top->ftop + top->fbottom);
     }
     return data->crect;
 }
@@ -1851,9 +1851,9 @@ QRect QWidget::frameGeometry() const
 int QWidget::x() const
 {
     if (isTopLevel() && ! isPopup()) {
-	if (data->fstrut_dirty)
-	    updateFrameStrut();
-	return data->crect.x() - d->topData()->fleft;
+        if (data->fstrut_dirty)
+            updateFrameStrut();
+        return data->crect.x() - d->topData()->fleft;
     }
     return data->crect.x();
 }
@@ -1871,9 +1871,9 @@ int QWidget::x() const
 int QWidget::y() const
 {
     if (isTopLevel() && ! isPopup()) {
-	if (data->fstrut_dirty)
-	    updateFrameStrut();
-	return data->crect.y() - d->topData()->ftop;
+        if (data->fstrut_dirty)
+            updateFrameStrut();
+        return data->crect.y() - d->topData()->ftop;
     }
     return data->crect.y();
 }
@@ -1904,10 +1904,10 @@ int QWidget::y() const
 QPoint QWidget::pos() const
 {
     if (isTopLevel() && ! isPopup()) {
-	if (data->fstrut_dirty)
-	    updateFrameStrut();
-	QTLWExtra *top = d->topData();
-	return QPoint(data->crect.x() - top->fleft, data->crect.y() - top->ftop);
+        if (data->fstrut_dirty)
+            updateFrameStrut();
+        QTLWExtra *top = d->topData();
+        return QPoint(data->crect.x() - top->fleft, data->crect.y() - top->ftop);
     }
     return data->crect.topLeft();
 }
@@ -1932,7 +1932,7 @@ QPoint QWidget::pos() const
     for an overview of top-level widget geometry.
 
     \sa frameGeometry(), rect(), move(), resize(), moveEvent(),
-	resizeEvent(), minimumSize(), maximumSize()
+        resizeEvent(), minimumSize(), maximumSize()
 */
 
 /*!
@@ -1949,7 +1949,7 @@ QPoint QWidget::pos() const
     might be larger, depending on the window manager.
 
     If you want a top-level window to have a fixed size, call
-    setResizeMode( QLayout::FreeResize ) on its layout.
+    setResizeMode(QLayout::FreeResize) on its layout.
 
     resize() is virtual, and all other overloaded resize()
     implementations in Qt call it.
@@ -1996,7 +1996,7 @@ QPoint QWidget::pos() const
 QRect QWidget::rect() const
 {
     if (testAttribute(WA_InvalidSize))
-	const_cast<QWidget*>(this)->adjustSize();
+        const_cast<QWidget*>(this)->adjustSize();
     return QRect(0,0,data->crect.width(),data->crect.height());
 }
 
@@ -2004,28 +2004,28 @@ QRect QWidget::rect() const
 const QRect &QWidget::geometry() const
 {
     if (testAttribute(WA_InvalidSize))
-	const_cast<QWidget*>(this)->adjustSize();
+        const_cast<QWidget*>(this)->adjustSize();
     return data->crect;
 }
 
 QSize QWidget::size() const
 {
     if (testAttribute(WA_InvalidSize))
-	const_cast<QWidget*>(this)->adjustSize();
+        const_cast<QWidget*>(this)->adjustSize();
     return data->crect.size();
 }
 
 int QWidget::width() const
 {
     if (testAttribute(WA_InvalidSize))
-	const_cast<QWidget*>(this)->adjustSize();
+        const_cast<QWidget*>(this)->adjustSize();
     return data->crect.width();
 }
 
 int QWidget::height() const
 {
     if (testAttribute(WA_InvalidSize))
-	const_cast<QWidget*>(this)->adjustSize();
+        const_cast<QWidget*>(this)->adjustSize();
     return data->crect.height();
 }
 
@@ -2041,11 +2041,11 @@ int QWidget::height() const
 
 QRect QWidget::childrenRect() const
 {
-    QRect r( 0, 0, 0, 0 );
+    QRect r(0, 0, 0, 0);
     for (int i = 0; i < d->children.size(); ++i) {
-	QObject *obj = d->children.at(i);
-	if ( obj->isWidgetType() && !((QWidget*)obj)->isHidden() )
-	    r = r.unite( ((QWidget*)obj)->geometry() );
+        QObject *obj = d->children.at(i);
+        if (obj->isWidgetType() && !((QWidget*)obj)->isHidden())
+            r = r.unite(((QWidget*)obj)->geometry());
     }
     return r;
 }
@@ -2063,9 +2063,9 @@ QRegion QWidget::childrenRegion() const
 {
     QRegion r;
     for (int i = 0; i < d->children.size(); ++i) {
-	QObject *obj = d->children.at(i);
-	if ( obj->isWidgetType() && !((QWidget*)obj)->isHidden() )
-	    r = r.unite( ((QWidget*)obj)->geometry() );
+        QObject *obj = d->children.at(i);
+        if (obj->isWidgetType() && !((QWidget*)obj)->isHidden())
+            r = r.unite(((QWidget*)obj)->geometry());
     }
     return r;
 }
@@ -2084,12 +2084,12 @@ QRegion QWidget::childrenRegion() const
     layout's resize mode to QLayout::FreeResize.
 
     \sa minimumWidth, minimumHeight, maximumSize, sizeIncrement
-	QLayout::setResizeMode()
+        QLayout::setResizeMode()
 */
 
 QSize QWidget::minimumSize() const
 {
-    return d->extra ? QSize( d->extra->minw, d->extra->minh ) : QSize( 0, 0 );
+    return d->extra ? QSize(d->extra->minw, d->extra->minh) : QSize(0, 0);
 }
 
 /*!
@@ -2105,8 +2105,8 @@ QSize QWidget::minimumSize() const
 
 QSize QWidget::maximumSize() const
 {
-    return d->extra ? QSize( d->extra->maxw, d->extra->maxh )
-		 : QSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
+    return d->extra ? QSize(d->extra->maxw, d->extra->maxh)
+                 : QSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
 }
 
 
@@ -2156,8 +2156,8 @@ QSize QWidget::maximumSize() const
     basis. Preferred widget sizes are for non-negative integers \e i
     and \e j:
     \code
-	width = baseSize().width() + i * sizeIncrement().width();
-	height = baseSize().height() + j * sizeIncrement().height();
+        width = baseSize().width() + i * sizeIncrement().width();
+        height = baseSize().height() + j * sizeIncrement().height();
     \endcode
 
     Note that while you can set the size increment for all widgets, it
@@ -2170,9 +2170,9 @@ QSize QWidget::maximumSize() const
 */
 QSize QWidget::sizeIncrement() const
 {
-    return ( d->extra && d->extra->topextra )
-	? QSize( d->extra->topextra->incw, d->extra->topextra->inch )
-	: QSize( 0, 0 );
+    return (d->extra && d->extra->topextra)
+        ? QSize(d->extra->topextra->incw, d->extra->topextra->inch)
+        : QSize(0, 0);
 }
 
 /*!
@@ -2187,9 +2187,9 @@ QSize QWidget::sizeIncrement() const
 
 QSize QWidget::baseSize() const
 {
-    return ( d->extra != 0 && d->extra->topextra != 0 )
-	? QSize( d->extra->topextra->basew, d->extra->topextra->baseh )
-	: QSize( 0, 0 );
+    return (d->extra != 0 && d->extra->topextra != 0)
+        ? QSize(d->extra->topextra->basew, d->extra->topextra->baseh)
+        : QSize(0, 0);
 }
 
 /*!
@@ -2199,46 +2199,46 @@ QSize QWidget::baseSize() const
     \sa setMaximumSize() setMinimumSize()
 */
 
-void QWidget::setFixedSize( const QSize & s)
+void QWidget::setFixedSize(const QSize & s)
 {
-    setMinimumSize( s );
-    setMaximumSize( s );
-    resize( s );
+    setMinimumSize(s);
+    setMaximumSize(s);
+    resize(s);
 }
 
 
 /*!
-    \fn void QWidget::setFixedSize( int w, int h )
+    \fn void QWidget::setFixedSize(int w, int h)
     \overload
 
     Sets the width of the widget to \a w and the height to \a h.
 */
 
-void QWidget::setFixedSize( int w, int h )
+void QWidget::setFixedSize(int w, int h)
 {
-    setMinimumSize( w, h );
-    setMaximumSize( w, h );
-    resize( w, h );
+    setMinimumSize(w, h);
+    setMaximumSize(w, h);
+    resize(w, h);
 }
 
-void QWidget::setMinimumWidth( int w )
+void QWidget::setMinimumWidth(int w)
 {
-    setMinimumSize( w, minimumSize().height() );
+    setMinimumSize(w, minimumSize().height());
 }
 
-void QWidget::setMinimumHeight( int h )
+void QWidget::setMinimumHeight(int h)
 {
-    setMinimumSize( minimumSize().width(), h );
+    setMinimumSize(minimumSize().width(), h);
 }
 
-void QWidget::setMaximumWidth( int w )
+void QWidget::setMaximumWidth(int w)
 {
-    setMaximumSize( w, maximumSize().height() );
+    setMaximumSize(w, maximumSize().height());
 }
 
-void QWidget::setMaximumHeight( int h )
+void QWidget::setMaximumHeight(int h)
 {
-    setMaximumSize( maximumSize().width(), h );
+    setMaximumSize(maximumSize().width(), h);
 }
 
 /*!
@@ -2248,10 +2248,10 @@ void QWidget::setMaximumHeight( int h )
     \sa sizeHint() minimumSize() maximumSize() setFixedSize()
 */
 
-void QWidget::setFixedWidth( int w )
+void QWidget::setFixedWidth(int w)
 {
-    setMinimumSize( w, minimumSize().height() );
-    setMaximumSize( w, maximumSize().height() );
+    setMinimumSize(w, minimumSize().height());
+    setMaximumSize(w, maximumSize().height());
 }
 
 
@@ -2262,10 +2262,10 @@ void QWidget::setFixedWidth( int w )
     \sa sizeHint() minimumSize() maximumSize() setFixedSize()
 */
 
-void QWidget::setFixedHeight( int h )
+void QWidget::setFixedHeight(int h)
 {
-    setMinimumSize( minimumSize().width(), h );
-    setMaximumSize( maximumSize().width(), h );
+    setMinimumSize(minimumSize().width(), h);
+    setMaximumSize(maximumSize().width(), h);
 }
 
 
@@ -2277,15 +2277,15 @@ void QWidget::setFixedHeight( int h )
     \sa mapFrom() mapToParent() mapToGlobal() underMouse()
 */
 
-QPoint QWidget::mapTo( QWidget * parent, const QPoint & pos ) const
+QPoint QWidget::mapTo(QWidget * parent, const QPoint & pos) const
 {
     QPoint p = pos;
-    if ( parent ) {
-	const QWidget * w = this;
-	while ( w != parent ) {
-	    p = w->mapToParent( p );
-	    w = w->parentWidget();
-	}
+    if (parent) {
+        const QWidget * w = this;
+        while (w != parent) {
+            p = w->mapToParent(p);
+            w = w->parentWidget();
+        }
     }
     return p;
 }
@@ -2299,15 +2299,15 @@ QPoint QWidget::mapTo( QWidget * parent, const QPoint & pos ) const
     \sa mapTo() mapFromParent() mapFromGlobal() underMouse()
 */
 
-QPoint QWidget::mapFrom( QWidget * parent, const QPoint & pos ) const
+QPoint QWidget::mapFrom(QWidget * parent, const QPoint & pos) const
 {
-    QPoint p( pos );
-    if ( parent ) {
-	const QWidget * w = this;
-	while ( w != parent ) {
-	    p = w->mapFromParent( p );
-	    w = w->parentWidget();
-	}
+    QPoint p(pos);
+    if (parent) {
+        const QWidget * w = this;
+        while (w != parent) {
+            p = w->mapFromParent(p);
+            w = w->parentWidget();
+        }
     }
     return p;
 }
@@ -2322,7 +2322,7 @@ QPoint QWidget::mapFrom( QWidget * parent, const QPoint & pos ) const
     \sa mapFromParent() mapTo() mapToGlobal() underMouse()
 */
 
-QPoint QWidget::mapToParent( const QPoint &pos ) const
+QPoint QWidget::mapToParent(const QPoint &pos) const
 {
     return pos + data->crect.topLeft();
 }
@@ -2336,7 +2336,7 @@ QPoint QWidget::mapToParent( const QPoint &pos ) const
     \sa mapToParent() mapFrom() mapFromGlobal() underMouse()
 */
 
-QPoint QWidget::mapFromParent( const QPoint &pos ) const
+QPoint QWidget::mapFromParent(const QPoint &pos) const
 {
     return pos - data->crect.topLeft();
 }
@@ -2351,7 +2351,7 @@ QPoint QWidget::mapFromParent( const QPoint &pos ) const
     Typical usage is changing the window title:
 
     \code
-	aWidget->topLevelWidget()->setWindowTitle( "New Window Title" );
+        aWidget->topLevelWidget()->setWindowTitle("New Window Title");
     \endcode
 
     \sa isTopLevel()
@@ -2361,9 +2361,9 @@ QWidget *QWidget::topLevelWidget() const
 {
     QWidget *w = (QWidget *)this;
     QWidget *p = w->parentWidget();
-    while ( !w->testWFlags(WType_TopLevel) && p ) {
-	w = p;
-	p = p->parentWidget();
+    while (!w->testWFlags(WType_TopLevel) && p) {
+        w = p;
+        p = p->parentWidget();
     }
     return w;
 }
@@ -2376,42 +2376,42 @@ Qt::BackgroundMode QWidget::backgroundMode() const
 {
 #ifndef QT_NO_PALETTE
     if (testAttribute(WA_NoSystemBackground))
-	return NoBackground;
+        return NoBackground;
     switch(backgroundRole()) {
     case QPalette::Foreground:
-	return PaletteForeground;
+        return PaletteForeground;
     case QPalette::Button:
-	return PaletteButton;
+        return PaletteButton;
     case QPalette::Light:
-	return PaletteLight;
+        return PaletteLight;
     case QPalette::Midlight:
-	return PaletteMidlight;
+        return PaletteMidlight;
     case QPalette::Dark:
-	return PaletteDark;
+        return PaletteDark;
     case QPalette::Mid:
-	return PaletteMid;
+        return PaletteMid;
     case QPalette::Text:
-	return PaletteText;
+        return PaletteText;
     case QPalette::BrightText:
-	return PaletteBrightText;
+        return PaletteBrightText;
     case QPalette::Base:
-	return PaletteBase;
+        return PaletteBase;
     case QPalette::Background:
-	return PaletteBackground;
+        return PaletteBackground;
     case QPalette::Shadow:
-	return PaletteShadow;
+        return PaletteShadow;
     case QPalette::Highlight:
-	return PaletteHighlight;
+        return PaletteHighlight;
     case QPalette::HighlightedText:
-	return PaletteHighlightedText;
+        return PaletteHighlightedText;
     case QPalette::ButtonText:
-	return PaletteButtonText;
+        return PaletteButtonText;
     case QPalette::Link:
-	return PaletteLink;
+        return PaletteLink;
     case QPalette::LinkVisited:
-	return PaletteLinkVisited;
+        return PaletteLinkVisited;
     default:
-	break;
+        break;
     }
 #endif
     return NoBackground;
@@ -2421,12 +2421,12 @@ Qt::BackgroundMode QWidget::backgroundMode() const
     Sets the color role used for painting the widget's background to
     background mode \a m.
 */
-void QWidget::setBackgroundMode( BackgroundMode m, BackgroundMode )
+void QWidget::setBackgroundMode(BackgroundMode m, BackgroundMode)
 {
     if(m == NoBackground) {
-	setAttribute(WA_NoSystemBackground, true);
-	d->updateSystemBackground();
-	return;
+        setAttribute(WA_NoSystemBackground, true);
+        d->updateSystemBackground();
+        return;
     }
     setAttribute(WA_NoSystemBackground, false);
     setAttribute(WA_SetForegroundRole, false);
@@ -2435,61 +2435,61 @@ void QWidget::setBackgroundMode( BackgroundMode m, BackgroundMode )
     switch(m) {
     case FixedColor:
     case FixedPixmap:
-	break;
+        break;
     case PaletteForeground:
-	role = QPalette::Foreground;
-	break;
+        role = QPalette::Foreground;
+        break;
     case PaletteButton:
-	role = QPalette::Button;
-	break;
+        role = QPalette::Button;
+        break;
     case PaletteLight:
-	role = QPalette::Light;
-	break;
+        role = QPalette::Light;
+        break;
     case PaletteMidlight:
-	role = QPalette::Midlight;
-	break;
+        role = QPalette::Midlight;
+        break;
     case PaletteDark:
-	role = QPalette::Dark;
-	break;
+        role = QPalette::Dark;
+        break;
     case PaletteMid:
-	role = QPalette::Mid;
-	break;
+        role = QPalette::Mid;
+        break;
     case PaletteText:
-	role = QPalette::Text;
-	break;
+        role = QPalette::Text;
+        break;
     case PaletteBrightText:
-	role = QPalette::BrightText;
-	break;
+        role = QPalette::BrightText;
+        break;
     case PaletteBase:
-	role = QPalette::Base;
-	break;
+        role = QPalette::Base;
+        break;
     case PaletteBackground:
-	role = QPalette::Background;
-	break;
+        role = QPalette::Background;
+        break;
     case PaletteShadow:
-	role = QPalette::Shadow;
-	break;
+        role = QPalette::Shadow;
+        break;
     case PaletteHighlight:
-	role = QPalette::Highlight;
-	break;
+        role = QPalette::Highlight;
+        break;
     case PaletteHighlightedText:
-	role = QPalette::HighlightedText;
-	break;
+        role = QPalette::HighlightedText;
+        break;
     case PaletteButtonText:
-	role = QPalette::ButtonText;
-	break;
+        role = QPalette::ButtonText;
+        break;
     case PaletteLink:
-	role = QPalette::Link;
-	break;
+        role = QPalette::Link;
+        break;
     case PaletteLinkVisited:
-	role = QPalette::LinkVisited;
-	break;
+        role = QPalette::LinkVisited;
+        break;
     case X11ParentRelative:
-	d->fg_role = QPalette::Foreground;
-	d->bg_role = QPalette::Background;
-	setAttribute(WA_SetBackgroundRole, false);
+        d->fg_role = QPalette::Foreground;
+        d->bg_role = QPalette::Background;
+        setAttribute(WA_SetBackgroundRole, false);
     default:
-	break;
+        break;
     }
     setBackgroundRole(role);
 #endif // QT_NO_PALETTE
@@ -2507,7 +2507,7 @@ QPalette::ColorRole QWidget::backgroundRole() const
 {
     const QWidget *w = this;
     while (w->d->isBackgroundInherited())
-	w = w->parentWidget();
+        w = w->parentWidget();
     return w->d->bg_role;
 }
 
@@ -2522,24 +2522,24 @@ void QWidget::setBackgroundRole(QPalette::ColorRole role)
     d->bg_role = role;
     setAttribute(WA_SetBackgroundRole);
     if (!testAttribute(WA_SetForegroundRole))
-	switch (role) {
-	case QPalette::Button:
-	    d->fg_role = QPalette::ButtonText;
-	    break;
-	case QPalette::Base:
-	    d->fg_role = QPalette::Text;
-	    break;
-	case QPalette::Dark:
-	case QPalette::Shadow:
-	    d->fg_role = QPalette::Light;
-	    break;
-	case QPalette::Highlight:
-	    d->fg_role = QPalette::HighlightedText;
-	    break;
-	default:
-	    d->fg_role = QPalette::Foreground;
-	    break;
-	}
+        switch (role) {
+        case QPalette::Button:
+            d->fg_role = QPalette::ButtonText;
+            break;
+        case QPalette::Base:
+            d->fg_role = QPalette::Text;
+            break;
+        case QPalette::Dark:
+        case QPalette::Shadow:
+            d->fg_role = QPalette::Light;
+            break;
+        case QPalette::Highlight:
+            d->fg_role = QPalette::HighlightedText;
+            break;
+        default:
+            d->fg_role = QPalette::Foreground;
+            break;
+        }
     d->updateSystemBackground();
     d->propagatePaletteChange();
 }
@@ -2556,7 +2556,7 @@ QPalette::ColorRole QWidget::foregroundRole() const
 {
     const QWidget *w = this;
     while (w->d->isForegroundInherited())
-	w = w->parentWidget();
+        w = w->parentWidget();
     return w->d->fg_role;
 }
 
@@ -2587,16 +2587,16 @@ void QWidget::setForegroundRole(QPalette::ColorRole role)
 */
 const QPalette &QWidget::palette() const
 {
-    if ( !isEnabled() )
-	data->pal.setCurrentColorGroup(QPalette::Disabled);
-    else if ( !isVisible() || isActiveWindow() )
-	data->pal.setCurrentColorGroup(QPalette::Active);
+    if (!isEnabled())
+        data->pal.setCurrentColorGroup(QPalette::Disabled);
+    else if (!isVisible() || isActiveWindow())
+        data->pal.setCurrentColorGroup(QPalette::Active);
     else
-	data->pal.setCurrentColorGroup(QPalette::Inactive);
+        data->pal.setCurrentColorGroup(QPalette::Inactive);
     return data->pal;
 }
 
-void QWidget::setPalette( const QPalette &palette )
+void QWidget::setPalette(const QPalette &palette)
 {
     setAttribute(WA_SetPalette, palette.resolve() != 0);
     d->setPalette_helper(palette.resolve(qt_naturalWidgetPalette(this)));
@@ -2607,10 +2607,10 @@ void QWidgetPrivate::resolvePalette()
     setPalette_helper(data.pal.resolve(qt_naturalWidgetPalette(q)));
 }
 
-void QWidgetPrivate::setPalette_helper( const QPalette &palette )
+void QWidgetPrivate::setPalette_helper(const QPalette &palette)
 {
     if (data.pal == palette && data.pal.resolve() == palette.resolve())
-	return;
+        return;
     data.pal = palette;
     updateSystemBackground();
     propagatePaletteChange();
@@ -2632,8 +2632,8 @@ void QWidgetPrivate::setPalette_helper( const QPalette &palette )
 
     This code fragment sets a 12 point helvetica bold font:
     \code
-    QFont f( "Helvetica", 12, QFont::Bold );
-    setFont( f );
+    QFont f("Helvetica", 12, QFont::Bold);
+    setFont(f);
     \endcode
 
     In addition to setting the font, setFont() informs all children
@@ -2642,7 +2642,7 @@ void QWidgetPrivate::setPalette_helper( const QPalette &palette )
     \sa fontInfo() fontMetrics()
 */
 
-void QWidget::setFont( const QFont &font )
+void QWidget::setFont(const QFont &font)
 {
     setAttribute(WA_SetFont, font.resolve() != 0);
     d->setFont_helper(font);
@@ -2653,10 +2653,10 @@ void QWidgetPrivate::resolveFont()
     setFont_helper(data.fnt.resolve(qt_naturalWidgetFont(q)));
 }
 
-void QWidgetPrivate::setFont_helper( const QFont &font )
+void QWidgetPrivate::setFont_helper(const QFont &font)
 {
     if (data.fnt == font && data.fnt.resolve() == font.resolve())
-	return;
+        return;
 
 #ifdef QT_COMPAT
     QFont old = data.fnt;
@@ -2664,18 +2664,18 @@ void QWidgetPrivate::setFont_helper( const QFont &font )
     data.fnt = font;
 #if defined(Q_WS_X11)
     // make sure the font set on this widget is associated with the correct screen
-    data.fnt.x11SetScreen( xinfo->screen() );
+    data.fnt.x11SetScreen(xinfo->screen());
 #endif
-    if ( !d->children.isEmpty() ) {
-	for (int i = 0; i < d->children.size(); ++i) {
-	    QWidget *w = static_cast<QWidget*>(d->children.at(i));
-	    if (!w->isWidgetType() || w->isTopLevel())
-		continue;
-	    w->d->resolveFont();
-	}
+    if (!d->children.isEmpty()) {
+        for (int i = 0; i < d->children.size(); ++i) {
+            QWidget *w = static_cast<QWidget*>(d->children.at(i));
+            if (!w->isWidgetType() || w->isTopLevel())
+                continue;
+            w->d->resolveFont();
+        }
     }
-    if ( q->hasFocus() )
-	setFont_syshelper();
+    if (q->hasFocus())
+        setFont_syshelper();
     QEvent e(QEvent::FontChange);
     QApplication::sendEvent(q, &e);
 #ifdef QT_COMPAT
@@ -2712,7 +2712,7 @@ void QWidgetPrivate::setFont_helper( const QFont &font )
 
     An editor widget might use an I-beam cursor:
     \code
-	setCursor( IbeamCursor );
+        setCursor(IbeamCursor);
     \endcode
 
     If no cursor has been set, or after a call to unsetCursor(), the
@@ -2725,12 +2725,12 @@ void QWidgetPrivate::setFont_helper( const QFont &font )
 #ifndef QT_NO_CURSOR
 QCursor QWidget::cursor() const
 {
-    if ( testAttribute(WA_SetCursor) )
-	return (d->extra && d->extra->curs)
-	    ? *d->extra->curs
-	    : QCursor(ArrowCursor);
+    if (testAttribute(WA_SetCursor))
+        return (d->extra && d->extra->curs)
+            ? *d->extra->curs
+            : QCursor(ArrowCursor);
     if (isTopLevel() || !parentWidget())
-	return QCursor(ArrowCursor);
+        return QCursor(ArrowCursor);
     return parentWidget()->cursor();
 }
 #endif
@@ -2746,8 +2746,8 @@ QCursor QWidget::cursor() const
 QString QWidget::windowTitle() const
 {
     return d->extra && d->extra->topextra
-	? d->extra->topextra->caption
-	: QString();
+        ? d->extra->topextra->caption
+        : QString();
 }
 
 /*!
@@ -2763,7 +2763,7 @@ QString QWidget::windowTitle() const
 QPixmap QWidget::windowIcon() const
 {
     if (d->extra && d->extra->topextra && d->extra->topextra->icon)
-	return *d->extra->topextra->icon;
+        return *d->extra->topextra->icon;
     return QPixmap();
 }
 
@@ -2779,8 +2779,8 @@ QPixmap QWidget::windowIcon() const
 
 QString QWidget::windowIconText() const
 {
-    return ( d->extra && d->extra->topextra ) ? d->extra->topextra->iconText
-	: QString();
+    return (d->extra && d->extra->topextra) ? d->extra->topextra->iconText
+        : QString();
 }
 
 /*!
@@ -2791,7 +2791,7 @@ QString QWidget::windowIconText() const
 
 QString QWidget::windowRole() const
 {
-    return ( d->extra && d->extra->topextra ) ? d->extra->topextra->role : QString();
+    return (d->extra && d->extra->topextra) ? d->extra->topextra->role : QString();
 }
 
 /*!
@@ -2839,16 +2839,16 @@ void QWidget::setWindowRole(const QString &role)
     \sa focusProxy()
 */
 
-void QWidget::setFocusProxy( QWidget * w )
+void QWidget::setFocusProxy(QWidget * w)
 {
-    if ( !w && !d->extra )
-	return;
+    if (!w && !d->extra)
+        return;
 
-    for ( QWidget* fp  = w; fp; fp = fp->focusProxy() ) {
-	if ( fp == this ) {
-	    qWarning( "%s (%s): already in focus proxy chain", className(), objectName() );
-	    return;
-	}
+    for (QWidget* fp  = w; fp; fp = fp->focusProxy()) {
+        if (fp == this) {
+            qWarning("%s (%s): already in focus proxy chain", className(), objectName());
+            return;
+        }
     }
 
     d->createExtra();
@@ -2880,16 +2880,16 @@ QWidget * QWidget::focusProxy() const
 bool QWidget::hasFocus() const
 {
     const QWidget* w = this;
-    while ( w->d->extra && w->d->extra->focus_proxy )
-	w = w->d->extra->focus_proxy;
+    while (w->d->extra && w->d->extra->focus_proxy)
+        w = w->d->extra->focus_proxy;
     if (w->testAttribute(WA_CompositeChild)
-	&& w->parentWidget()
-	&& w->parentWidget()->testAttribute(WA_CompositeParent)) {
-	while (w->testAttribute(WA_CompositeChild)
-	       && w->parentWidget()
-	       && w->parentWidget()->testAttribute(WA_CompositeParent))
-	    w = w->parentWidget();
-	return (qApp->focus_widget == w && w->focusProxy() == this);
+        && w->parentWidget()
+        && w->parentWidget()->testAttribute(WA_CompositeParent)) {
+        while (w->testAttribute(WA_CompositeChild)
+               && w->parentWidget()
+               && w->parentWidget()->testAttribute(WA_CompositeParent))
+            w = w->parentWidget();
+        return (qApp->focus_widget == w && w->focusProxy() == this);
     }
     return (qApp->focus_widget == w);
 }
@@ -2921,78 +2921,78 @@ bool QWidget::hasFocus() const
 
 void QWidget::setFocus()
 {
-    if ( !isEnabled() )
-	return;
+    if (!isEnabled())
+        return;
 
     QWidget *f = this;
     while (f->d->extra && f->d->extra->focus_proxy)
-	f = f->d->extra->focus_proxy;
+        f = f->d->extra->focus_proxy;
 
     while (f->testAttribute(WA_CompositeChild)
-	   && f->parentWidget()
-	   && f->parentWidget()->testAttribute(WA_CompositeParent))
-	f = f->parentWidget();
+           && f->parentWidget()
+           && f->parentWidget()->testAttribute(WA_CompositeParent))
+        f = f->parentWidget();
 
     if (qApp->focus_widget == f
 #if defined(Q_WS_WIN)
-	&& GetFocus() == f->winId()
+        && GetFocus() == f->winId()
 #endif
-	)
-	return;
+       )
+        return;
 
 
     QWidget *w = f;
     if (isHidden()) {
-	while (w && w->isHidden()) {
-	    w->d->focus_child = f;
-	    w = w->isTopLevel() ? 0 : w->parentWidget();
-	}
+        while (w && w->isHidden()) {
+            w->d->focus_child = f;
+            w = w->isTopLevel() ? 0 : w->parentWidget();
+        }
     } else {
-	while (w) {
-	    w->d->focus_child = f;
-	    w = w->isTopLevel() ? 0 : w->parentWidget();
-	}
+        while (w) {
+            w->d->focus_child = f;
+            w = w->isTopLevel() ? 0 : w->parentWidget();
+        }
     }
 
-    if ( f->isActiveWindow() ) {
-	QWidget *prev = qApp->focus_widget;
-	if ( prev ) {
-	    if ( prev != f )
-		prev->resetInputContext();
-	}
+    if (f->isActiveWindow()) {
+        QWidget *prev = qApp->focus_widget;
+        if (prev) {
+            if (prev != f)
+                prev->resetInputContext();
+        }
 #if defined(Q_WS_WIN)
-	else {
-	    QInputContext::endComposition();
-	}
+        else {
+            QInputContext::endComposition();
+        }
 #endif
-	qApp->focus_widget = f;
+        qApp->focus_widget = f;
 #if defined(Q_WS_X11)
-	f->d->focusInputContext();
+        f->d->focusInputContext();
 #endif
 
 #if defined(Q_WS_WIN)
-	if ( !f->topLevelWidget()->isPopup() )
-	    SetFocus( f->winId() );
-	else {
+        if (!f->topLevelWidget()->isPopup())
+            SetFocus(f->winId());
+        else {
 #endif
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-	    QAccessible::updateAccessibility( f, 0, QAccessible::Focus );
+            QAccessible::updateAccessibility(f, 0, QAccessible::Focus);
 #endif
 #if defined(Q_WS_WIN)
-	}
+        }
 #endif
 
-	if ( prev != f ) {
-	    if ( prev ) {
-		QFocusEvent out( QEvent::FocusOut );
-		QApplication::sendEvent( prev, &out );
-	    }
+        if (prev != f) {
+            if (prev) {
+                QFocusEvent out(QEvent::FocusOut);
+                QApplication::sendEvent(prev, &out);
+            }
 
-	    if ( qApp->focus_widget == f ) {
-		QFocusEvent in( QEvent::FocusIn );
-		QApplication::sendEvent( f, &in );
-	    }
-	}
+            if (qApp->focus_widget == f) {
+                QFocusEvent in(QEvent::FocusIn);
+                QApplication::sendEvent(f, &in);
+            }
+        }
     }
 }
 
@@ -3014,25 +3014,25 @@ void QWidget::clearFocus()
 {
     QWidget *w = this;
     while (w && w->d->focus_child == this) {
-	w->d->focus_child = 0;
-	w = w->isTopLevel() ? 0 : w->parentWidget();
+        w->d->focus_child = 0;
+        w = w->isTopLevel() ? 0 : w->parentWidget();
     }
     if (hasFocus()) {
-	QWidget* w = qApp->focus_widget;
-	// clear active focus
-	qApp->focus_widget = 0;
-	QFocusEvent out( QEvent::FocusOut );
-	QApplication::sendEvent( w, &out );
+        QWidget* w = qApp->focus_widget;
+        // clear active focus
+        qApp->focus_widget = 0;
+        QFocusEvent out(QEvent::FocusOut);
+        QApplication::sendEvent(w, &out);
 #if defined(Q_WS_WIN)
-	if ( !isPopup() && GetFocus() == w->winId() )
-	    SetFocus( 0 );
-	else {
+        if (!isPopup() && GetFocus() == w->winId())
+            SetFocus(0);
+        else {
 #endif
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-	    QAccessible::updateAccessibility( w, 0, QAccessible::Focus );
+            QAccessible::updateAccessibility(w, 0, QAccessible::Focus);
 #endif
 #if defined(Q_WS_WIN)
-	}
+        }
 #endif
     }
 }
@@ -3040,11 +3040,11 @@ void QWidget::clearFocus()
 
 /*!
     Finds a new widget to give the keyboard focus to, as appropriate
-    for Tab and Shift+Tab, and returns TRUE if is can find a new
-    widget and FALSE if it can't,
+    for Tab and Shift+Tab, and returns true if is can find a new
+    widget and false if it can't,
 
-    If \a next is TRUE, this function searches "forwards", if \a next
-    is FALSE, it searches "backwards".
+    If \a next is true, this function searches "forwards", if \a next
+    is false, it searches "backwards".
 
     Sometimes, you will want to reimplement this function. For
     example, a web browser might reimplement it to move its "current
@@ -3058,38 +3058,38 @@ void QWidget::clearFocus()
     focus traversal for all child widgets.
 */
 
-bool QWidget::focusNextPrevChild( bool next )
+bool QWidget::focusNextPrevChild(bool next)
 {
     QWidget* p = parentWidget();
     if (!isTopLevel() && p)
-	return p->focusNextPrevChild(next);
+        return p->focusNextPrevChild(next);
 
     extern bool qt_tab_all_widgets;
     uint focus_flag = qt_tab_all_widgets ? TabFocus : StrongFocus;
 
     QWidget *f = focusWidget();
     if (!f)
-	f = this;
+        f = this;
 
     QWidget *w = f;
     QWidget *test = f->d->focus_next;
     while (test != f) {
-	if ((test->focusPolicy() & focus_flag) == focus_flag
-	    && !(test->d->extra && test->d->extra->focus_proxy
-		 && !(test->testAttribute(WA_CompositeParent)
-		      && test->d->extra->focus_proxy->testAttribute(WA_CompositeChild)))
-	    && !(test->testAttribute(WA_CompositeChild)
-		 && test->parentWidget()
-		 && test->parentWidget()->testAttribute(WA_CompositeParent))
-	    && test->isVisibleTo(this) && test->isEnabled()) {
-	    w = test;
-	    if (next)
-		break;
-	}
-	test = test->d->focus_next;
+        if ((test->focusPolicy() & focus_flag) == focus_flag
+            && !(test->d->extra && test->d->extra->focus_proxy
+                 && !(test->testAttribute(WA_CompositeParent)
+                      && test->d->extra->focus_proxy->testAttribute(WA_CompositeChild)))
+            && !(test->testAttribute(WA_CompositeChild)
+                 && test->parentWidget()
+                 && test->parentWidget()->testAttribute(WA_CompositeParent))
+            && test->isVisibleTo(this) && test->isEnabled()) {
+            w = test;
+            if (next)
+                break;
+        }
+        test = test->d->focus_next;
     }
     if (w == f)
-	return false;
+        return false;
     w->setFocus();
     return true;
 }
@@ -3123,14 +3123,14 @@ QWidget *QWidget::nextInFocusChain() const
     Most Widgets (as eg. buttons) that do not handle text input should have
     the input method disabled if they have focus. This is the default.
 
-    If a widget handles text input it should set this property to TRUE.
+    If a widget handles text input it should set this property to true.
 */
 
-void QWidget::setInputMethodEnabled( bool b )
+void QWidget::setInputMethodEnabled(bool b)
 {
     data->im_enabled = b;
 #ifdef Q_WS_WIN
-    QInputContext::enable( this, data->im_enabled && isEnabled() );
+    QInputContext::enable(this, data->im_enabled && isEnabled());
 #endif
 }
 
@@ -3141,7 +3141,7 @@ void QWidget::setInputMethodEnabled( bool b )
     The active window is the window (or child of the window) that has
     keyboard focus.
 
-    When popup windows are visible, this property is TRUE for both the
+    When popup windows are visible, this property is true for both the
     active window \e and for the popup.
 
     \sa setActiveWindow(), QApplication::activeWindow()
@@ -3150,42 +3150,42 @@ bool QWidget::isActiveWindow() const
 {
     QWidget *tlw = topLevelWidget();
     if(testWFlags(WSubWindow) && parentWidget())
-	tlw = parentWidget()->topLevelWidget();
-    if(tlw == qApp->activeWindow() || ( isVisible() && tlw->isPopup() ))
-	return TRUE;
+        tlw = parentWidget()->topLevelWidget();
+    if(tlw == qApp->activeWindow() || (isVisible() && tlw->isPopup()))
+        return true;
 #ifdef Q_WS_MAC
     extern bool qt_mac_is_macdrawer(QWidget *); //qwidget_mac.cpp
     if(qt_mac_is_macdrawer(tlw) &&
        tlw->parentWidget() && tlw->parentWidget()->isActiveWindow())
-	return TRUE;
+        return true;
 #endif
 #ifndef QT_NO_STYLE
-    if(style().styleHint(QStyle::SH_Widget_ShareActivation, this )) {
-	if(tlw->isDialog() && !tlw->testWFlags(WShowModal) &&
-	   tlw->parentWidget() && tlw->parentWidget()->isActiveWindow())
-	   return TRUE;
-	QWidget *w = qApp->activeWindow();
-	if( !testWFlags(WSubWindow) && w && w->testWFlags(WSubWindow) &&
-	    w->parentWidget()->topLevelWidget() == tlw)
-	    return TRUE;
-	while( w && w->isDialog() && !w->testWFlags(WShowModal) && w->parentWidget() ) {
-	    w = w->parentWidget()->topLevelWidget();
-	    if( w == tlw )
-		return TRUE;
-	}
+    if(style().styleHint(QStyle::SH_Widget_ShareActivation, this)) {
+        if(tlw->isDialog() && !tlw->testWFlags(WShowModal) &&
+           tlw->parentWidget() && tlw->parentWidget()->isActiveWindow())
+           return true;
+        QWidget *w = qApp->activeWindow();
+        if(!testWFlags(WSubWindow) && w && w->testWFlags(WSubWindow) &&
+            w->parentWidget()->topLevelWidget() == tlw)
+            return true;
+        while(w && w->isDialog() && !w->testWFlags(WShowModal) && w->parentWidget()) {
+            w = w->parentWidget()->topLevelWidget();
+            if(w == tlw)
+                return true;
+        }
     }
 #endif
 #if defined(Q_WS_WIN32)
     HWND parent = tlw->winId();
     HWND topparent = GetActiveWindow();
-    while ( parent ) {
-	parent = ::GetParent( parent );
-	if ( parent && parent == topparent )
-	    return TRUE;
+    while (parent) {
+        parent = ::GetParent(parent);
+        if (parent && parent == topparent)
+            return true;
     }
 #endif
 
-    return FALSE;
+    return false;
 }
 
 /*!
@@ -3197,17 +3197,17 @@ bool QWidget::isActiveWindow() const
     you should order a chain like this:
 
     \code
-	setTabOrder( a, b ); // a to b
-	setTabOrder( b, c ); // a to b to c
-	setTabOrder( c, d ); // a to b to c to d
+        setTabOrder(a, b); // a to b
+        setTabOrder(b, c); // a to b to c
+        setTabOrder(c, d); // a to b to c to d
     \endcode
 
     \e not like this:
 
     \code
-	setTabOrder( c, d ); // c to d   WRONG
-	setTabOrder( a, b ); // a to b AND c to d
-	setTabOrder( b, c ); // a to b to c, but not c to d
+        setTabOrder(c, d); // c to d   WRONG
+        setTabOrder(a, b); // a to b AND c to d
+        setTabOrder(b, c); // a to b to c, but not c to d
     \endcode
 
     If \a first or \a second has a focus proxy, setTabOrder()
@@ -3215,40 +3215,40 @@ bool QWidget::isActiveWindow() const
 
     \sa setFocusPolicy(), setFocusProxy()
 */
-void QWidget::setTabOrder( QWidget* first, QWidget *second )
+void QWidget::setTabOrder(QWidget* first, QWidget *second)
 {
     if (!first || !second || first->focusPolicy() == NoFocus || second->focusPolicy() == NoFocus)
-	return;
+        return;
 
     QWidget *fp = first->focusProxy();
     if (fp && !(first->testAttribute(WA_CompositeParent)
-		&& fp->testAttribute(WA_CompositeChild))) {
+                && fp->testAttribute(WA_CompositeChild))) {
 
-	// If first is redirected, set first to the last child of first
-	// that can take keyboard focus so that second is inserted after
-	// that last child, and the focus order within first is (more
-	// likely to be) preserved.
-	QObjectList l = first->queryList("QWidget");
-	for (int i = l.size()-1; i >= 0; --i) {
-	    QWidget * next = static_cast<QWidget*>(l.at(i));
-	    if (next->topLevelWidget() == fp->topLevelWidget()) {
-		fp = next;
-		if (fp->focusPolicy() != NoFocus)
-		    break;
-	    }
-	}
+        // If first is redirected, set first to the last child of first
+        // that can take keyboard focus so that second is inserted after
+        // that last child, and the focus order within first is (more
+        // likely to be) preserved.
+        QObjectList l = first->queryList("QWidget");
+        for (int i = l.size()-1; i >= 0; --i) {
+            QWidget * next = static_cast<QWidget*>(l.at(i));
+            if (next->topLevelWidget() == fp->topLevelWidget()) {
+                fp = next;
+                if (fp->focusPolicy() != NoFocus)
+                    break;
+            }
+        }
 
-	first = fp;
+        first = fp;
     }
 
     QWidget *sp = second->focusProxy();
     if (sp && !(second->testAttribute(WA_CompositeParent)
-		&& sp->testAttribute(WA_CompositeChild)))
-	second = sp;
+                && sp->testAttribute(WA_CompositeChild)))
+        second = sp;
 
     QWidget *p = second;
     while (p->d->focus_next != second)
-	p = p->d->focus_next;
+        p = p->d->focus_next;
     p->d->focus_next = second->d->focus_next;
 
     second->d->focus_next = first->d->focus_next;
@@ -3267,13 +3267,13 @@ void QWidget::setTabOrder( QWidget* first, QWidget *second )
   \sa reparent()
 */
 
-void QWidget::reparentFocusWidgets( QWidget * oldtlw )
+void QWidget::reparentFocusWidgets(QWidget * oldtlw)
 {
-    if ( oldtlw == topLevelWidget() )
-	return; // nothing to do
+    if (oldtlw == topLevelWidget())
+        return; // nothing to do
 
     if(d->focus_child)
-	d->focus_child->clearFocus();
+        d->focus_child->clearFocus();
 
     // seperate the focus chain
     QWidget *topLevel = topLevelWidget();
@@ -3283,34 +3283,34 @@ void QWidget::reparentFocusWidgets( QWidget * oldtlw )
     QWidget *o = 0;
     QWidget *n = 0;
     do {
-	if (w == this || isAncestorOf(w)) {
-	    if (!firstNew)
-		firstNew = w;
-	    if (n)
-		n->d->focus_next = w;
-	    n = w;
-	} else {
-	    if (!firstOld)
-		firstOld = w;
-	    if (o)
-		o->d->focus_next = w;
-	    o = w;
-	}
+        if (w == this || isAncestorOf(w)) {
+            if (!firstNew)
+                firstNew = w;
+            if (n)
+                n->d->focus_next = w;
+            n = w;
+        } else {
+            if (!firstOld)
+                firstOld = w;
+            if (o)
+                o->d->focus_next = w;
+            o = w;
+        }
     } while ((w = w->d->focus_next) != this);
     if(o)
-	o->d->focus_next = firstOld;
+        o->d->focus_next = firstOld;
     if(n)
-	n->d->focus_next = firstNew;
+        n->d->focus_next = firstNew;
 
     if (!isTopLevel()) {
-	//insert chain
-	w = topLevel;
-	while (w->d->focus_next != topLevel)
-	    w = w->d->focus_next;
-	w->d->focus_next = this;
-	n->d->focus_next = topLevel;
+        //insert chain
+        w = topLevel;
+        while (w->d->focus_next != topLevel)
+            w = w->d->focus_next;
+        w->d->focus_next = this;
+        n->d->focus_next = topLevel;
     } else {
-	n->d->focus_next = this;
+        n->d->focus_next = this;
     }
 }
 
@@ -3320,13 +3320,13 @@ void QWidget::reparentFocusWidgets( QWidget * oldtlw )
 */
 QSize QWidget::frameSize() const
 {
-    if ( isTopLevel() && !isPopup() ) {
-	if ( data->fstrut_dirty )
-	    updateFrameStrut();
-	QWidget *that = (QWidget *) this;
-	QTLWExtra *top = that->d->topData();
-	return QSize( data->crect.width() + top->fleft + top->fright,
-		      data->crect.height() + top->ftop + top->fbottom );
+    if (isTopLevel() && !isPopup()) {
+        if (data->fstrut_dirty)
+            updateFrameStrut();
+        QWidget *that = (QWidget *) this;
+        QTLWExtra *top = that->d->topData();
+        return QSize(data->crect.width() + top->fleft + top->fright,
+                      data->crect.height() + top->ftop + top->fbottom);
     }
     return data->crect.size();
 }
@@ -3334,53 +3334,53 @@ QSize QWidget::frameSize() const
 /*!
     \overload
 
-    This corresponds to move( QSize(\a x, \a y) ).
+    This corresponds to move(QSize(\a x, \a y)).
 */
 
-void QWidget::move( int x, int y )
+void QWidget::move(int x, int y)
 {
     QPoint oldp = pos();
-    setGeometry_helper( x + geometry().x() - QWidget::x(),
-			 y + geometry().y() - QWidget::y(),
-			 width(), height(), TRUE );
+    setGeometry_helper(x + geometry().x() - QWidget::x(),
+                         y + geometry().y() - QWidget::y(),
+                         width(), height(), true);
     setAttribute(WA_Moved);
     if (oldp != pos())
-	d->updateInheritedBackground();
+        d->updateInheritedBackground();
 }
 
 /*!
     \overload
 
-    This corresponds to resize( QSize(\a w, \a h) ).
+    This corresponds to resize(QSize(\a w, \a h)).
 */
-void QWidget::resize( int w, int h )
+void QWidget::resize(int w, int h)
 {
     setAttribute(WA_InvalidSize, false);
     QSize olds = size();
-    setGeometry_helper( geometry().x(), geometry().y(), w, h, FALSE );
+    setGeometry_helper(geometry().x(), geometry().y(), w, h, false);
     setAttribute(WA_Resized);
     if (testAttribute(WA_ContentsPropagated) &&  olds != size())
-	d->updatePropagatedBackground();
+        d->updatePropagatedBackground();
 }
 
 /*!
     \overload
 
-    This corresponds to setGeometry( QRect(\a x, \a y, \a w, \a h) ).
+    This corresponds to setGeometry(QRect(\a x, \a y, \a w, \a h)).
 */
-void QWidget::setGeometry( int x, int y, int w, int h )
+void QWidget::setGeometry(int x, int y, int w, int h)
 {
     setAttribute(WA_InvalidSize, false);
     QPoint oldp = pos();
     QSize olds = size();
-    setGeometry_helper( x, y, w, h, TRUE );
+    setGeometry_helper(x, y, w, h, true);
     setAttribute(WA_Resized);
     setAttribute(WA_Moved);
 
     if (testAttribute(WA_ContentsPropagated) && olds != size())
-	d->updatePropagatedBackground();
+        d->updatePropagatedBackground();
     else if (oldp != pos())
-	d->updateInheritedBackground();
+        d->updateInheritedBackground();
 }
 
 
@@ -3396,25 +3396,25 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 */
 void QWidget::setContentsMargins(int left, int top, int right, int bottom)
 {
-    if ( left == d->leftmargin && top == d->topmargin
-	 && right == d->rightmargin && bottom == d->bottommargin )
-	return;
+    if (left == d->leftmargin && top == d->topmargin
+         && right == d->rightmargin && bottom == d->bottommargin)
+        return;
     d->leftmargin = left;
     d->topmargin = top;
     d->rightmargin = right;
     d->bottommargin = bottom;
 
     if (QLayout *l=d->layout)
-	l->update(); //force activate; will do updateGeometry
+        l->update(); //force activate; will do updateGeometry
     else
-	updateGeometry();
+        updateGeometry();
 
-    if ( isVisible() ) {
-	update();
-	QResizeEvent e(data->crect.size(), data->crect.size());
-	QApplication::sendEvent(this, &e);
+    if (isVisible()) {
+        update();
+        QResizeEvent e(data->crect.size(), data->crect.size());
+        QApplication::sendEvent(this, &e);
     } else {
-	setAttribute(WA_PendingResizeEvent, true);
+        setAttribute(WA_PendingResizeEvent, true);
     }
 }
 
@@ -3426,7 +3426,7 @@ void QWidget::setContentsMargins(int left, int top, int right, int bottom)
 QRect QWidget::contentsRect() const
 {
     return QRect(QPoint(d->leftmargin, d->topmargin),
-		 QPoint(data->crect.width() - 1 - d->rightmargin, data->crect.height() -1 - d->bottommargin));
+                 QPoint(data->crect.width() - 1 - d->rightmargin, data->crect.height() -1 - d->bottommargin));
 
  }
 
@@ -3455,11 +3455,11 @@ QRect QWidget::contentsRect() const
     \value TabFocus  the widget accepts focus by tabbing.
     \value ClickFocus  the widget accepts focus by clicking.
     \value StrongFocus  the widget accepts focus by both tabbing
-			and clicking. On Mac OS X this will also
-			be indicate that the widget accepts tab focus
-			when in 'Text/List focus mode'.
+                        and clicking. On Mac OS X this will also
+                        be indicate that the widget accepts tab focus
+                        when in 'Text/List focus mode'.
     \value WheelFocus  like StrongFocus plus the widget accepts
-			focus by using the mouse wheel.
+                        focus by using the mouse wheel.
     \value NoFocus  the widget does not accept focus.
 
 */
@@ -3486,16 +3486,16 @@ QRect QWidget::contentsRect() const
 QWidget::FocusPolicy QWidget::focusPolicy() const
 {
     const QWidget *w = this;
-    while ( w->d->extra && w->d->extra->focus_proxy )
-	w = w->d->extra->focus_proxy;
+    while (w->d->extra && w->d->extra->focus_proxy)
+        w = w->d->extra->focus_proxy;
     return (FocusPolicy)w->data->focus_policy;
 }
 
-void QWidget::setFocusPolicy( FocusPolicy policy )
+void QWidget::setFocusPolicy(FocusPolicy policy)
 {
     QWidget *w = this;
-    while ( w->d->extra && w->d->extra->focus_proxy )
-	w = w->d->extra->focus_proxy;
+    while (w->d->extra && w->d->extra->focus_proxy)
+        w = w->d->extra->focus_proxy;
     w->data->focus_policy = (uint) policy;
 }
 
@@ -3513,20 +3513,20 @@ void QWidget::setFocusPolicy( FocusPolicy policy )
 
     Example:
     \code
-	setUpdatesEnabled( FALSE );
-	bigVisualChanges();
-	setUpdatesEnabled( TRUE );
-	repaint();
+        setUpdatesEnabled(false);
+        bigVisualChanges();
+        setUpdatesEnabled(true);
+        repaint();
     \endcode
 
     \sa update(), repaint(), paintEvent()
 */
-void QWidget::setUpdatesEnabled( bool enable )
+void QWidget::setUpdatesEnabled(bool enable)
 {
-    if ( enable )
-	clearWState( WState_BlockUpdates );
+    if (enable)
+        clearWState(WState_BlockUpdates);
     else
-	setWState( WState_BlockUpdates );
+        setWState(WState_BlockUpdates);
 }
 
 
@@ -3536,27 +3536,27 @@ QSize qt_initial_size(QWidget *w) {
 #ifndef QT_NO_LAYOUT
     QLayout *layout = w->layout();
     if (layout) {
-	if ( layout->hasHeightForWidth() )
-	    s.setHeight( layout->totalHeightForWidth( s.width() ) );
-	exp = layout->expanding();
+        if (layout->hasHeightForWidth())
+            s.setHeight(layout->totalHeightForWidth(s.width()));
+        exp = layout->expanding();
     } else
 #endif
     {
-	if ( w->sizePolicy().hasHeightForWidth() )
-	    s.setHeight( w->heightForWidth( s.width() ) );
-	exp = w->sizePolicy().expanding();
+        if (w->sizePolicy().hasHeightForWidth())
+            s.setHeight(w->heightForWidth(s.width()));
+        exp = w->sizePolicy().expanding();
     }
-    if ( exp & QSizePolicy::Horizontally )
-	s.setWidth( qMax( s.width(), 200 ) );
-    if ( exp & QSizePolicy::Vertically )
-	s.setHeight( qMax( s.height(), 150 ) );
+    if (exp & QSizePolicy::Horizontally)
+        s.setWidth(qMax(s.width(), 200));
+    if (exp & QSizePolicy::Vertically)
+        s.setHeight(qMax(s.height(), 150));
 #if defined(Q_WS_X11)
-    QRect screen = QApplication::desktop()->screenGeometry( w->x11Info()->screen() );
+    QRect screen = QApplication::desktop()->screenGeometry(w->x11Info()->screen());
 #else // all others
-    QRect screen = QApplication::desktop()->screenGeometry( w->pos() );
+    QRect screen = QApplication::desktop()->screenGeometry(w->pos());
 #endif
-    s.setWidth( qMin( s.width(), screen.width()*2/3 ) );
-    s.setHeight( qMin( s.height(), screen.height()*2/3 ) );
+    s.setWidth(qMin(s.width(), screen.width()*2/3));
+    s.setHeight(qMin(s.height(), screen.height()*2/3));
     return s;
 }
 
@@ -3578,7 +3578,7 @@ QSize qt_initial_size(QWidget *w) {
 void QWidget::show()
 {
     if (testWState(WState_ExplicitShowHide|WState_Hidden) == WState_ExplicitShowHide)
-	return;
+        return;
 
     // polish if necessary
     ensurePolished();
@@ -3591,13 +3591,13 @@ void QWidget::show()
     clearWState(WState_Hidden);
 
     if (needUpdateGeometry)
-	updateGeometry();
+        updateGeometry();
 
-    if ( isTopLevel() || parentWidget()->isVisible() )
-	show_helper();
+    if (isTopLevel() || parentWidget()->isVisible())
+        show_helper();
 
-    QEvent showToParentEvent( QEvent::ShowToParent );
-    QApplication::sendEvent( this, &showToParentEvent );
+    QEvent showToParentEvent(QEvent::ShowToParent);
+    QApplication::sendEvent(this, &showToParentEvent);
 }
 
 /*! \internal
@@ -3613,30 +3613,30 @@ void QWidget::show_helper()
     ensurePolished();
 
 #ifdef QT_COMPAT
-    QApplication::sendPostedEvents( this, QEvent::ChildInserted );
+    QApplication::sendPostedEvents(this, QEvent::ChildInserted);
 #endif
 #ifndef QT_NO_LAYOUT
     if (!isTopLevel() && parentWidget()->d->layout)
-	parentWidget()->d->layout->activate();
+        parentWidget()->d->layout->activate();
 #endif
     // adjust size if necessary
     if (testAttribute(WA_InvalidSize))
-	adjustSize();
+        adjustSize();
 #ifndef QT_NO_LAYOUT
     // activate our layout before we and our children become visible
     if (d->layout)
-	d->layout->activate();
+        d->layout->activate();
 #endif
     // make sure we receive pending move and resize events
     if (testAttribute(WA_PendingMoveEvent)) {
-	QMoveEvent e(data->crect.topLeft(), data->crect.topLeft());
-	QApplication::sendEvent(this, &e);
-	setAttribute(WA_PendingMoveEvent, false);
+        QMoveEvent e(data->crect.topLeft(), data->crect.topLeft());
+        QApplication::sendEvent(this, &e);
+        setAttribute(WA_PendingMoveEvent, false);
     }
     if (testAttribute(WA_PendingResizeEvent)) {
-	QResizeEvent e(data->crect.size(), data->crect.size());
-	QApplication::sendEvent(this, &e);
-	setAttribute(WA_PendingResizeEvent, false);
+        QResizeEvent e(data->crect.size(), data->crect.size());
+        QApplication::sendEvent(this, &e);
+        setAttribute(WA_PendingResizeEvent, false);
     }
 
     // become visible before showing all children
@@ -3646,91 +3646,91 @@ void QWidget::show_helper()
     showChildren(false);
 
 #ifdef QT_COMPAT
-    if ( parentWidget() )
-	QApplication::sendPostedEvents( parentWidget(),
-					QEvent::ChildInserted );
+    if (parentWidget())
+        QApplication::sendPostedEvents(parentWidget(),
+                                        QEvent::ChildInserted);
 #endif
 
     if (isTopLevel() && !testAttribute(WA_Resized))  {
 #ifndef Q_OS_TEMP
-	// toplevels with layout may need a initial size
-	QSize s = qt_initial_size(this);
-	if (!s.isEmpty()) {
-	    resize(s);
-	    setAttribute(WA_Resized, false);
-	}
+        // toplevels with layout may need a initial size
+        QSize s = qt_initial_size(this);
+        if (!s.isEmpty()) {
+            resize(s);
+            setAttribute(WA_Resized, false);
+        }
 #endif // Q_OS_TEMP
     }
 
     // popup handling: new popups and tools need to be raised, and
     // exisiting popups must be closed.
     if (isTopLevel()) {
-	if (testWFlags(WStyle_Tool|testWFlags(WType_Popup)))
-	    raise();
-	else
-	    while ( QApplication::activePopupWidget() ) {
-		if ( !QApplication::activePopupWidget()->close() )
-		    break;
-	    }
+        if (testWFlags(WStyle_Tool|testWFlags(WType_Popup)))
+            raise();
+        else
+            while (QApplication::activePopupWidget()) {
+                if (!QApplication::activePopupWidget()->close())
+                    break;
+            }
     }
 
     // On Windows, show the popup now so that our own focus handling
     // stores the correct old focus widget even if it's stolen in the
     // showevent
 #if defined(Q_WS_WIN)
-    if ( testWFlags(WType_Popup) )
-	qApp->openPopup( this );
+    if (testWFlags(WType_Popup))
+        qApp->openPopup(this);
 #endif
 
     // send the show event before showing the window
     QShowEvent showEvent;
-    QApplication::sendEvent( this, &showEvent );
+    QApplication::sendEvent(this, &showEvent);
 
 
 #ifndef QT_NO_WIDGET_TOPEXTRA
     // make sure toplevels have an icon
     //#### just use application icon instead
-    if ( isTopLevel() ){
-	QPixmap pm = windowIcon();
-	if ( !pm.isNull() ) {
-	    QWidget *mw = (QWidget *)parent();
-	    if (mw)
-		pm = mw->windowIcon();
-	    if ( !pm.isNull() )
-		setWindowIcon( pm );
-	    else {
-		mw = mw ? mw->topLevelWidget() : 0;
-		if (mw)
-		    pm = mw->windowIcon();
-		if ( !pm.isNull() )
-		    setWindowIcon( pm );
-		else {
-		    mw = qApp ? qApp->mainWidget() : 0;
-		    if (mw)
-			pm = mw->windowIcon();
-		    if ( !pm.isNull() )
-			setWindowIcon( pm );
-		}
-	    }
-	}
+    if (isTopLevel()){
+        QPixmap pm = windowIcon();
+        if (!pm.isNull()) {
+            QWidget *mw = (QWidget *)parent();
+            if (mw)
+                pm = mw->windowIcon();
+            if (!pm.isNull())
+                setWindowIcon(pm);
+            else {
+                mw = mw ? mw->topLevelWidget() : 0;
+                if (mw)
+                    pm = mw->windowIcon();
+                if (!pm.isNull())
+                    setWindowIcon(pm);
+                else {
+                    mw = qApp ? qApp->mainWidget() : 0;
+                    if (mw)
+                        pm = mw->windowIcon();
+                    if (!pm.isNull())
+                        setWindowIcon(pm);
+                }
+            }
+        }
     }
 #endif
 
-    if ( testWFlags(WShowModal) )
-	// qt_enter_modal *before* show, otherwise the initial
-	// stacking might be wrong
-	qt_enter_modal( this );
+    if (testWFlags(WShowModal))
+        // qt_enter_modal *before* show, otherwise the initial
+        // stacking might be wrong
+        qt_enter_modal(this);
 
     setAttribute(WA_Mapped);
     showWindow();
 
 #if !defined(Q_WS_WIN)
-    if ( testWFlags(WType_Popup) )
-	qApp->openPopup( this );
+    if (testWFlags(WType_Popup))
+        qApp->openPopup(this);
 #endif
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessible::updateAccessibility( this, 0, QAccessible::ObjectShow );
+    QAccessible::updateAccessibility(this, 0, QAccessible::ObjectShow);
 #endif
 
     data->in_show = false;  // reset qws optimization
@@ -3748,32 +3748,32 @@ void QWidget::show_helper()
 void QWidget::hide()
 {
     if (testWState(WState_ExplicitShowHide|WState_Hidden) == (WState_ExplicitShowHide|WState_Hidden))
-	return;
+        return;
     setWState(WState_Hidden);
     if (testWState(WState_ExplicitShowHide))
-	hide_helper();
+        hide_helper();
     else
-	setWState(WState_ExplicitShowHide);
-    QEvent hideToParentEvent( QEvent::HideToParent );
-    QApplication::sendEvent( this, &hideToParentEvent );
+        setWState(WState_ExplicitShowHide);
+    QEvent hideToParentEvent(QEvent::HideToParent);
+    QApplication::sendEvent(this, &hideToParentEvent);
 }
 
 /*!\internal
  */
 void QWidget::hide_helper()
 {
-    if ( testWFlags(WType_Popup) )
-	qApp->closePopup( this );
+    if (testWFlags(WType_Popup))
+        qApp->closePopup(this);
 
     // Move test modal here.  Otherwise, a modal dialog could get
     // destroyed and we lose all access to its parent because we haven't
     // left modality.  (Eg. modal Progress Dialog)
-    if ( testWFlags(WShowModal) )
-	qt_leave_modal( this );
+    if (testWFlags(WShowModal))
+        qt_leave_modal(this);
 
 #if defined(Q_WS_WIN)
-    if ( isTopLevel() && !isPopup() && parentWidget() && isActiveWindow() )
-	parentWidget()->setActiveWindow();	// Activate parent
+    if (isTopLevel() && !isPopup() && parentWidget() && isActiveWindow())
+        parentWidget()->setActiveWindow();        // Activate parent
 #endif
 
     setAttribute(WA_Mapped, false);
@@ -3782,12 +3782,12 @@ void QWidget::hide_helper()
     bool wasVisible = testWState(WState_Visible);
 
     if (wasVisible) {
-	clearWState( WState_Visible );
+        clearWState(WState_Visible);
 
-	// next bit tries to move the focus if the focus widget is now
-	// hidden.
-	if ( qApp && qApp->focusWidget() == this )
-  	    focusNextPrevChild( TRUE );
+        // next bit tries to move the focus if the focus widget is now
+        // hidden.
+        if (qApp && qApp->focusWidget() == this)
+            focusNextPrevChild(true);
     }
 
     QHideEvent hideEvent;
@@ -3796,84 +3796,84 @@ void QWidget::hide_helper()
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     if (wasVisible)
-	QAccessible::updateAccessibility( this, 0, QAccessible::ObjectHide );
+        QAccessible::updateAccessibility(this, 0, QAccessible::ObjectHide);
 #endif
 #ifndef QT_NO_LAYOUT
     // invalidate layout similar to updateGeometry()
     if (!isTopLevel() && parentWidget() && parentWidget()->d->layout) {
-	parentWidget()->d->layout->update();
-	if (wasVisible)
-	    QApplication::postEvent(parentWidget(),
-				    new QEvent( QEvent::LayoutRequest));
+        parentWidget()->d->layout->update();
+        if (wasVisible)
+            QApplication::postEvent(parentWidget(),
+                                    new QEvent(QEvent::LayoutRequest));
     }
 #endif
 }
 
-void QWidget::setShown( bool show )
+void QWidget::setShown(bool show)
 {
-    if ( show )
-	this->show();
+    if (show)
+        this->show();
     else
-	hide();
+        hide();
 }
 
-void QWidget::setHidden( bool hide )
+void QWidget::setHidden(bool hide)
 {
-    if ( hide )
-	this->hide();
+    if (hide)
+        this->hide();
     else
-	show();
+        show();
 }
 
 void QWidget::showChildren(bool spontaneous)
 {
     for (int i = 0; i < d->children.size(); ++i) {
-	register QObject *object = d->children.at(i);
-	if (!object->isWidgetType())
-	    continue;
-	QWidget *widget = static_cast<QWidget*>(object);
-	if (widget->isTopLevel() || widget->testWState(WState_Hidden))
-	    continue;
-	if (spontaneous) {
-	    widget->setAttribute(WA_Mapped);
-	    widget->showChildren(true);
-	    QShowEvent e;
-	    QApplication::sendSpontaneousEvent(widget, &e);
-	} else {
-	    if (widget->testWState(WState_ExplicitShowHide))
-		widget->show_helper();
-	    else
-		widget->show();
-	}
+        register QObject *object = d->children.at(i);
+        if (!object->isWidgetType())
+            continue;
+        QWidget *widget = static_cast<QWidget*>(object);
+        if (widget->isTopLevel() || widget->testWState(WState_Hidden))
+            continue;
+        if (spontaneous) {
+            widget->setAttribute(WA_Mapped);
+            widget->showChildren(true);
+            QShowEvent e;
+            QApplication::sendSpontaneousEvent(widget, &e);
+        } else {
+            if (widget->testWState(WState_ExplicitShowHide))
+                widget->show_helper();
+            else
+                widget->show();
+        }
     }
 }
 
 void QWidget::hideChildren(bool spontaneous)
 {
     for (int i = 0; i < d->children.size(); ++i) {
-	register QObject *object = d->children.at(i);
-	if (!object->isWidgetType())
-	    continue;
-	QWidget *widget = static_cast<QWidget*>(object);
-	if (widget->isTopLevel() || widget->testWState(WState_Hidden))
-	    continue;
-	if (spontaneous)
-	    widget->setAttribute(WA_Mapped, false);
-	else
-	    widget->clearWState(WState_Visible);
-	widget->hideChildren(spontaneous);
-	QHideEvent e;
-	if (spontaneous)
-	    QApplication::sendSpontaneousEvent(widget, &e);
-	else
-	    QApplication::sendEvent(widget, &e);
+        register QObject *object = d->children.at(i);
+        if (!object->isWidgetType())
+            continue;
+        QWidget *widget = static_cast<QWidget*>(object);
+        if (widget->isTopLevel() || widget->testWState(WState_Hidden))
+            continue;
+        if (spontaneous)
+            widget->setAttribute(WA_Mapped, false);
+        else
+            widget->clearWState(WState_Visible);
+        widget->hideChildren(spontaneous);
+        QHideEvent e;
+        if (spontaneous)
+            QApplication::sendSpontaneousEvent(widget, &e);
+        else
+            QApplication::sendEvent(widget, &e);
     }
 }
 
 bool QWidgetPrivate::compositeEvent(QEvent *e)
 {
     if (!q->testAttribute(QWidget::WA_CompositeParent))
-	return false;
+        return false;
 
     QWidget *w = 0;
     QPoint pos;
@@ -3882,149 +3882,149 @@ bool QWidgetPrivate::compositeEvent(QEvent *e)
     case QEvent::MouseButtonRelease:
     case QEvent::MouseButtonDblClick:
     case QEvent::MouseMove:
-	if ((w = compositeChildGrab))
-	    goto subwidget;
-	pos = ((QMouseEvent*)e)->pos();
-	break;
+        if ((w = compositeChildGrab))
+            goto subwidget;
+        pos = ((QMouseEvent*)e)->pos();
+        break;
 #ifndef QT_NO_WHEELEVENT
     case QEvent::Wheel:
-	pos = ((QWheelEvent*)e)->pos();
-	break;
+        pos = ((QWheelEvent*)e)->pos();
+        break;
 #endif
     case QEvent::TabletMove:
     case QEvent::TabletPress:
     case QEvent::TabletRelease:
-	pos = ((QTabletEvent*)e)->pos();
-	break;
+        pos = ((QTabletEvent*)e)->pos();
+        break;
     case QEvent::ContextMenu:
-	if (((QContextMenuEvent*)e)->reason() == QContextMenuEvent::Mouse) {
-	    pos = ((QContextMenuEvent*)e)->pos();
-	    break;
-	}
-	// fall through
+        if (((QContextMenuEvent*)e)->reason() == QContextMenuEvent::Mouse) {
+            pos = ((QContextMenuEvent*)e)->pos();
+            break;
+        }
+        // fall through
     case QEvent::KeyPress:
     case QEvent::KeyRelease:
-	if (q->testAttribute(QWidget::WA_CompositeParent) && (w = q->focusProxy())
-	    && w->testAttribute(QWidget::WA_CompositeChild)) {
-	    ((QInputEvent *)e)->accept();
-	    return QApplication::sendEvent(w, e);
-	}
-	return false;
+        if (q->testAttribute(QWidget::WA_CompositeParent) && (w = q->focusProxy())
+            && w->testAttribute(QWidget::WA_CompositeChild)) {
+            ((QInputEvent *)e)->accept();
+            return QApplication::sendEvent(w, e);
+        }
+        return false;
     default:
-	return false;
+        return false;
     }
 
     for (int i = children.size()-1; i >= 0 ; --i) {
-	w = static_cast<QWidget *>(children.at(i));
-	if (!w->isWidgetType())
-	    continue;
-	if (w->testAttribute(QWidget::WA_CompositeChild) && w->data->crect.contains(pos))
-	    goto subwidget;
+        w = static_cast<QWidget *>(children.at(i));
+        if (!w->isWidgetType())
+            continue;
+        if (w->testAttribute(QWidget::WA_CompositeChild) && w->data->crect.contains(pos))
+            goto subwidget;
     }
     return false;
  subwidget:
     switch (e->type()) {
     case QEvent::MouseButtonPress:
     case QEvent::MouseButtonRelease:
-	if ((((QMouseEvent*)e)->state() & MouseButtonMask) == 0)
-	    compositeChildGrab = w;
-	else if ((((QMouseEvent*)e)->stateAfter() & MouseButtonMask) == 0)
-	    compositeChildGrab = 0;
-	// fall through
+        if ((((QMouseEvent*)e)->state() & MouseButtonMask) == 0)
+            compositeChildGrab = w;
+        else if ((((QMouseEvent*)e)->stateAfter() & MouseButtonMask) == 0)
+            compositeChildGrab = 0;
+        // fall through
     case QEvent::MouseButtonDblClick:
     case QEvent::MouseMove:
     {
-	QMouseEvent *c = (QMouseEvent*)e;
-	QMouseEvent s(c->type(), c->pos() - w->pos(), c->globalPos(), c->button(), c->state());
-	return QApplication::sendEvent(w, &s);
+        QMouseEvent *c = (QMouseEvent*)e;
+        QMouseEvent s(c->type(), c->pos() - w->pos(), c->globalPos(), c->button(), c->state());
+        return QApplication::sendEvent(w, &s);
     }
 #ifndef QT_NO_WHEELEVENT
     case QEvent::Wheel:
     {
-	QWheelEvent *c = (QWheelEvent*)e;
-	QWheelEvent s(c->pos() - w->pos(), c->globalPos(), c->delta(), c->state(), c->orientation());
-	return QApplication::sendEvent(w, &s);
+        QWheelEvent *c = (QWheelEvent*)e;
+        QWheelEvent s(c->pos() - w->pos(), c->globalPos(), c->delta(), c->state(), c->orientation());
+        return QApplication::sendEvent(w, &s);
     }
 #endif
     case QEvent::TabletMove:
     case QEvent::TabletPress:
     case QEvent::TabletRelease:
     {
-	QTabletEvent *c = (QTabletEvent*)e;
-	QTabletEvent s(c->type(), c->pos() - w->pos(), c->globalPos(), c->device(), c->pressure(),
-		       c->xTilt(), c->yTilt(), c->uniqueId());
-	return QApplication::sendEvent(w, &s);
+        QTabletEvent *c = (QTabletEvent*)e;
+        QTabletEvent s(c->type(), c->pos() - w->pos(), c->globalPos(), c->device(), c->pressure(),
+                       c->xTilt(), c->yTilt(), c->uniqueId());
+        return QApplication::sendEvent(w, &s);
     }
     case QEvent::ContextMenu:
     {
-	QContextMenuEvent *c = (QContextMenuEvent*)e;
-	QContextMenuEvent s(c->reason(), c->pos() - w->pos(), c->globalPos(), c->state());
-	return QApplication::sendEvent(w, &s);
+        QContextMenuEvent *c = (QContextMenuEvent*)e;
+        QContextMenuEvent s(c->reason(), c->pos() - w->pos(), c->globalPos(), c->state());
+        return QApplication::sendEvent(w, &s);
     }
     default:
-	return false;
+        return false;
     }
 }
 
 bool QWidgetPrivate::close_helper(CloseMode mode)
 {
-    if ( data.is_closing )
-	return TRUE;
+    if (data.is_closing)
+        return true;
     data.is_closing = 1;
     bool isMain = qApp->mainWidget() == q;
     bool checkLastWindowClosed = q->isTopLevel() && !q->isPopup();
     bool wasDeleted = false;
 
     if (mode != CloseNoEvent) {
-	QPointer<QWidget> that = q;
-	QCloseEvent e;
-	if (mode == CloseWithSpontaneousEvent)
-	    QApplication::sendSpontaneousEvent(q, &e);
-	else
-	    QApplication::sendEvent(q, &e );
-	wasDeleted = (that == 0);
-	if (!wasDeleted && !e.isAccepted()) {
-	    data.is_closing = 0;
-	    return false;
-	}
-	if (!wasDeleted && !q->isHidden() )
-	    q->hide();
+        QPointer<QWidget> that = q;
+        QCloseEvent e;
+        if (mode == CloseWithSpontaneousEvent)
+            QApplication::sendSpontaneousEvent(q, &e);
+        else
+            QApplication::sendEvent(q, &e);
+        wasDeleted = (that == 0);
+        if (!wasDeleted && !e.isAccepted()) {
+            data.is_closing = 0;
+            return false;
+        }
+        if (!wasDeleted && !q->isHidden())
+            q->hide();
     }
 
-    if ( checkLastWindowClosed
-	 && qApp->receivers(SIGNAL(lastWindowClosed())) ) {
-	/* if there is no non-withdrawn top level window left (except
-	   the desktop, popups, or dialogs with parents), we emit the
-	   lastWindowClosed signal */
-	QWidgetList list = qApp->topLevelWidgets();
-	QWidget *widget = 0;
-	for (int i = 0; !widget && i < list.size(); ++i) {
-	    QWidget *w = list.at(i);
-	    if ( !w->isHidden()
-		 && !w->isDesktop()
-		 && !w->isPopup()
-		 && (!w->isDialog() || !w->parentWidget()))
-		widget = w;
-	}
-	if ( widget == 0 )
-	    emit qApp->lastWindowClosed();
+    if (checkLastWindowClosed
+         && qApp->receivers(SIGNAL(lastWindowClosed()))) {
+        /* if there is no non-withdrawn top level window left (except
+           the desktop, popups, or dialogs with parents), we emit the
+           lastWindowClosed signal */
+        QWidgetList list = qApp->topLevelWidgets();
+        QWidget *widget = 0;
+        for (int i = 0; !widget && i < list.size(); ++i) {
+            QWidget *w = list.at(i);
+            if (!w->isHidden()
+                 && !w->isDesktop()
+                 && !w->isPopup()
+                 && (!w->isDialog() || !w->parentWidget()))
+                widget = w;
+        }
+        if (widget == 0)
+            emit qApp->lastWindowClosed();
     }
     if (isMain)
-	qApp->quit();
+        qApp->quit();
     if (!wasDeleted) {
-	data.is_closing = 0;
-	if (q->testWFlags(WDestructiveClose)) {
-	    q->clearWFlags(WDestructiveClose);
-	    q->deleteLater();
-	}
+        data.is_closing = 0;
+        if (q->testWFlags(WDestructiveClose)) {
+            q->clearWFlags(WDestructiveClose);
+            q->deleteLater();
+        }
     }
     return true;
 }
 
 
 /*!
-    Closes this widget. Returns TRUE if the widget was closed;
-    otherwise returns FALSE.
+    Closes this widget. Returns true if the widget was closed;
+    otherwise returns false.
 
     First it sends the widget a QCloseEvent. The widget is \link
     hide() hidden\endlink if it \link QCloseEvent::accept()
@@ -4080,13 +4080,13 @@ bool QWidget::close()
 
 
 /*!
-    Returns TRUE if this widget would become visible if \a ancestor is
-    shown; otherwise returns FALSE.
+    Returns true if this widget would become visible if \a ancestor is
+    shown; otherwise returns false.
 
-    The TRUE case occurs if neither the widget itself nor any parent
+    The true case occurs if neither the widget itself nor any parent
     up to but excluding \a ancestor has been explicitly hidden.
 
-    This function will still return TRUE if the widget is obscured by
+    This function will still return true if the widget is obscured by
     other windows on the screen, but could be physically visible if it
     or they were to be moved.
 
@@ -4097,15 +4097,15 @@ bool QWidget::close()
 
 bool QWidget::isVisibleTo(QWidget* ancestor) const
 {
-    if ( !ancestor )
-	return isVisible();
+    if (!ancestor)
+        return isVisible();
     const QWidget * w = this;
-    while ( w
-	    && w->isShown()
-	    && !w->isTopLevel()
-	    && w->parentWidget()
-	    && w->parentWidget() != ancestor )
-	w = w->parentWidget();
+    while (w
+            && w->isShown()
+            && !w->isTopLevel()
+            && w->parentWidget()
+            && w->parentWidget() != ancestor)
+        w = w->parentWidget();
     return w->isShown();
 }
 
@@ -4114,7 +4114,7 @@ bool QWidget::isVisibleTo(QWidget* ancestor) const
     \property QWidget::hidden
     \brief whether the widget is explicitly hidden
 
-    If FALSE, the widget is visible or would become visible if all its
+    If false, the widget is visible or would become visible if all its
     ancestors became visible.
 
     \sa hide(), show(), isVisible(), isVisibleTo(), shown
@@ -4124,7 +4124,7 @@ bool QWidget::isVisibleTo(QWidget* ancestor) const
     \property QWidget::shown
     \brief whether the widget is shown
 
-    If TRUE, the widget is visible or would become visible if all its
+    If true, the widget is visible or would become visible if all its
     ancestors became visible.
 
     \sa hide(), show(), isVisible(), isVisibleTo(), hidden
@@ -4176,37 +4176,37 @@ void QWidget::adjustSize()
     ensurePolished();
     QSize s = sizeHint();
 
-    if ( isTopLevel() ) {
+    if (isTopLevel()) {
 
 #if defined(Q_WS_X11)
-	QRect screen = QApplication::desktop()->screenGeometry( d->xinfo->screen() );
+        QRect screen = QApplication::desktop()->screenGeometry(d->xinfo->screen());
 #else // all others
-	QRect screen = QApplication::desktop()->screenGeometry( pos() );
+        QRect screen = QApplication::desktop()->screenGeometry(pos());
 #endif
 
 #ifndef QT_NO_LAYOUT
-	if ( layout() ) {
-	    if ( layout()->hasHeightForWidth() ) {
-		s = s.boundedTo( screen.size() );
-		s.setHeight( layout()->totalHeightForWidth( s.width() ) );
-	    }
-	} else
+        if (layout()) {
+            if (layout()->hasHeightForWidth()) {
+                s = s.boundedTo(screen.size());
+                s.setHeight(layout()->totalHeightForWidth(s.width()));
+            }
+        } else
 #endif
-	{
-	    if ( sizePolicy().hasHeightForWidth() ) {
-		s = s.boundedTo( screen.size() );
-		s.setHeight( heightForWidth( s.width() ) );
-	    }
-	}
+        {
+            if (sizePolicy().hasHeightForWidth()) {
+                s = s.boundedTo(screen.size());
+                s.setHeight(heightForWidth(s.width()));
+            }
+        }
     }
-    if ( s.isValid() ) {
-	resize( s );
-	return;
+    if (s.isValid()) {
+        resize(s);
+        return;
     }
-    QRect r = childrenRect();			// get children rectangle
-    if ( r.isNull() )				// probably no widgets
-	return;
-    resize( r.width() + 2 * r.x(), r.height() + 2 * r.y() );
+    QRect r = childrenRect();                        // get children rectangle
+    if (r.isNull())                                // probably no widgets
+        return;
+    resize(r.width() + 2 * r.x(), r.height() + 2 * r.y());
 }
 
 
@@ -4228,10 +4228,10 @@ void QWidget::adjustSize()
 QSize QWidget::sizeHint() const
 {
 #ifndef QT_NO_LAYOUT
-    if ( d->layout )
-	return d->layout->totalSizeHint();
+    if (d->layout)
+        return d->layout->totalSizeHint();
 #endif
-    return QSize( -1, -1 );
+    return QSize(-1, -1);
 }
 
 /*!
@@ -4254,10 +4254,10 @@ QSize QWidget::sizeHint() const
 QSize QWidget::minimumSizeHint() const
 {
 #ifndef QT_NO_LAYOUT
-    if ( d->layout )
-	return d->layout->totalMinimumSize();
+    if (d->layout)
+        return d->layout->totalMinimumSize();
 #endif
-    return QSize( -1, -1 );
+    return QSize(-1, -1);
 }
 
 
@@ -4269,7 +4269,7 @@ QSize QWidget::minimumSizeHint() const
 */
 
 /*!
-    \fn WFlags QWidget::testWFlags( WFlags f ) const
+    \fn WFlags QWidget::testWFlags(WFlags f) const
 
     Returns the bitwise AND of the widget flags and \a f.
 
@@ -4281,9 +4281,9 @@ QSize QWidget::minimumSizeHint() const
 
     \code
     int flags = WStyle_Tool | WStyle_NoBorder;
-    if ( testWFlags(flags) )
-	... // WStyle_Tool or WStyle_NoBorder or both are set
-    if ( testWFlags(flags) == flags )
+    if (testWFlags(flags))
+        ... // WStyle_Tool or WStyle_NoBorder or both are set
+    if (testWFlags(flags) == flags)
         ... // both WStyle_Tool and WStyle_NoBorder are set
     \endcode
 
@@ -4291,7 +4291,7 @@ QSize QWidget::minimumSizeHint() const
 */
 
 /*!
-  \fn WState QWidget::testWState( WState s ) const
+  \fn WState QWidget::testWState(WState s) const
   \internal
 
   Returns the bitwise AND of the widget states and \a s.
@@ -4343,8 +4343,8 @@ QSize QWidget::minimumSizeHint() const
     (or the key press is not Tab or Shift+Tab), event() calls
     keyPressEvent().
 
-    This function returns TRUE if it is able to pass the event over to
-    someone (i.e. someone wanted the event); otherwise returns FALSE.
+    This function returns true if it is able to pass the event over to
+    someone (i.e. someone wanted the event); otherwise returns false.
 
     \sa closeEvent(), focusInEvent(), focusOutEvent(), enterEvent(),
     keyPressEvent(), keyReleaseEvent(), leaveEvent(),
@@ -4353,230 +4353,230 @@ QSize QWidget::minimumSizeHint() const
     QObject::event(), QObject::timerEvent()
 */
 
-bool QWidget::event( QEvent *e )
+bool QWidget::event(QEvent *e)
 {
-    switch ( e->type() ) {
+    switch (e->type()) {
     case QEvent::MouseMove:
-	// throw away any mouse-tracking-only mouse events
-	if (!hasMouseTracking() &&
-	    (((QMouseEvent*)e)->state()&QMouseEvent::MouseButtonMask) == 0)
-	    break;
-	mouseMoveEvent( (QMouseEvent*)e );
-	if ( ! ((QMouseEvent*)e)->isAccepted() )
-	    return d->compositeEvent(e);
-	break;
+        // throw away any mouse-tracking-only mouse events
+        if (!hasMouseTracking() &&
+            (((QMouseEvent*)e)->state()&QMouseEvent::MouseButtonMask) == 0)
+            break;
+        mouseMoveEvent((QMouseEvent*)e);
+        if (! ((QMouseEvent*)e)->isAccepted())
+            return d->compositeEvent(e);
+        break;
 
     case QEvent::MouseButtonPress:
-	resetInputContext();
-	mousePressEvent( (QMouseEvent*)e );
-	if ( ! ((QMouseEvent*)e)->isAccepted() )
-	    return d->compositeEvent(e);
-	break;
+        resetInputContext();
+        mousePressEvent((QMouseEvent*)e);
+        if (! ((QMouseEvent*)e)->isAccepted())
+            return d->compositeEvent(e);
+        break;
 
     case QEvent::MouseButtonRelease:
-	mouseReleaseEvent( (QMouseEvent*)e );
-	if ( ! ((QMouseEvent*)e)->isAccepted() )
-	    return d->compositeEvent(e);
-	break;
+        mouseReleaseEvent((QMouseEvent*)e);
+        if (! ((QMouseEvent*)e)->isAccepted())
+            return d->compositeEvent(e);
+        break;
 
     case QEvent::MouseButtonDblClick:
-	mouseDoubleClickEvent( (QMouseEvent*)e );
-	if ( ! ((QMouseEvent*)e)->isAccepted() )
-	    return d->compositeEvent(e);
-	break;
+        mouseDoubleClickEvent((QMouseEvent*)e);
+        if (! ((QMouseEvent*)e)->isAccepted())
+            return d->compositeEvent(e);
+        break;
 #ifndef QT_NO_WHEELEVENT
     case QEvent::Wheel:
-	wheelEvent( (QWheelEvent*)e );
-	if ( ! ((QWheelEvent*)e)->isAccepted() )
-	    return d->compositeEvent(e);
-	break;
+        wheelEvent((QWheelEvent*)e);
+        if (! ((QWheelEvent*)e)->isAccepted())
+            return d->compositeEvent(e);
+        break;
 #endif
     case QEvent::TabletMove:
     case QEvent::TabletPress:
     case QEvent::TabletRelease:
-	tabletEvent( (QTabletEvent*)e );
-	if ( ! ((QTabletEvent*)e)->isAccepted() )
-	    return d->compositeEvent(e);
-	break;
+        tabletEvent((QTabletEvent*)e);
+        if (! ((QTabletEvent*)e)->isAccepted())
+            return d->compositeEvent(e);
+        break;
     case QEvent::Accel:
-	((QKeyEvent*)e)->ignore();
-	return FALSE;
+        ((QKeyEvent*)e)->ignore();
+        return false;
     case QEvent::KeyPress: {
-	QKeyEvent *k = (QKeyEvent *)e;
-	bool res = FALSE;
-	if ( !(k->state() & ControlButton || k->state() & AltButton) ) {
-	    if ( k->key() == Key_Backtab ||
-		 (k->key() == Key_Tab &&
-		  (k->state() & ShiftButton)) ) {
-		QFocusEvent::setReason( QFocusEvent::Backtab );
-		res = focusNextPrevChild( FALSE );
-		QFocusEvent::resetReason();
+        QKeyEvent *k = (QKeyEvent *)e;
+        bool res = false;
+        if (!(k->state() & ControlButton || k->state() & AltButton)) {
+            if (k->key() == Key_Backtab ||
+                 (k->key() == Key_Tab &&
+                  (k->state() & ShiftButton))) {
+                QFocusEvent::setReason(QFocusEvent::Backtab);
+                res = focusNextPrevChild(false);
+                QFocusEvent::resetReason();
 
-	    } else if ( k->key() == Key_Tab ) {
-		QFocusEvent::setReason( QFocusEvent::Tab );
-		res = focusNextPrevChild( TRUE );
-		QFocusEvent::resetReason();
-	    }
-	    if ( res )
-		break;
-	}
-	keyPressEvent( k );
-	if ( !k->isAccepted() )
-	    return d->compositeEvent(e);
+            } else if (k->key() == Key_Tab) {
+                QFocusEvent::setReason(QFocusEvent::Tab);
+                res = focusNextPrevChild(true);
+                QFocusEvent::resetReason();
+            }
+            if (res)
+                break;
+        }
+        keyPressEvent(k);
+        if (!k->isAccepted())
+            return d->compositeEvent(e);
     }
-	break;
+        break;
 
     case QEvent::KeyRelease:
-	keyReleaseEvent( (QKeyEvent*)e );
-	if ( ! ((QKeyEvent*)e)->isAccepted() )
-	    return d->compositeEvent(e);
-	break;
+        keyReleaseEvent((QKeyEvent*)e);
+        if (! ((QKeyEvent*)e)->isAccepted())
+            return d->compositeEvent(e);
+        break;
 
     case QEvent::IMStart: {
-	QIMEvent *i = (QIMEvent *) e;
-	imStartEvent(i);
-	if (! i->isAccepted())
-	    return FALSE;
+        QIMEvent *i = (QIMEvent *) e;
+        imStartEvent(i);
+        if (! i->isAccepted())
+            return false;
     }
-	break;
+        break;
 
     case QEvent::IMCompose: {
-	QIMEvent *i = (QIMEvent *) e;
-	imComposeEvent(i);
-	if (! i->isAccepted())
-	    return FALSE;
+        QIMEvent *i = (QIMEvent *) e;
+        imComposeEvent(i);
+        if (! i->isAccepted())
+            return false;
     }
-	break;
+        break;
 
     case QEvent::IMEnd: {
-	QIMEvent *i = (QIMEvent *) e;
-	imEndEvent(i);
-	if (! i->isAccepted())
-	    return FALSE;
+        QIMEvent *i = (QIMEvent *) e;
+        imEndEvent(i);
+        if (! i->isAccepted())
+            return false;
     }
-	break;
+        break;
 
     case QEvent::Polish: {
-	QObject::event(e);
-	qApp->polish(this);
-	if ( !testAttribute(QWidget::WA_SetFont) && !QApplication::font(this).isCopyOf(QApplication::font()))
-	    d->resolveFont();
+        QObject::event(e);
+        qApp->polish(this);
+        if (!testAttribute(QWidget::WA_SetFont) && !QApplication::font(this).isCopyOf(QApplication::font()))
+            d->resolveFont();
 #ifndef QT_NO_PALETTE
-	if (!QApplication::palette(this).isCopyOf(QApplication::palette()))
-	    d->resolvePalette();
+        if (!QApplication::palette(this).isCopyOf(QApplication::palette()))
+            d->resolvePalette();
 #endif
 #ifdef QT_COMPAT
-	QApplication::sendPostedEvents( this, QEvent::ChildInserted );
+        QApplication::sendPostedEvents(this, QEvent::ChildInserted);
 #endif
     }
-	break;
+        break;
 
     case QEvent::FocusIn: {
-	QWidget *f;
-	if (testAttribute(WA_CompositeParent) && (f = focusProxy())
-	    && f->testAttribute(WA_CompositeChild)) {
-	    QApplication::sendEvent(focusProxy(), e);
-	}
-	focusInEvent( (QFocusEvent*)e );
-	d->setFont_syshelper();
+        QWidget *f;
+        if (testAttribute(WA_CompositeParent) && (f = focusProxy())
+            && f->testAttribute(WA_CompositeChild)) {
+            QApplication::sendEvent(focusProxy(), e);
+        }
+        focusInEvent((QFocusEvent*)e);
+        d->setFont_syshelper();
     }
-	break;
+        break;
 
     case QEvent::FocusOut: {
-	QWidget *f;
-	if (testAttribute(WA_CompositeParent) && (f = focusProxy())
-	    && f->testAttribute(WA_CompositeChild)) {
-	    QApplication::sendEvent(focusProxy(), e);
-	}
-	focusOutEvent( (QFocusEvent*)e );
+        QWidget *f;
+        if (testAttribute(WA_CompositeParent) && (f = focusProxy())
+            && f->testAttribute(WA_CompositeChild)) {
+            QApplication::sendEvent(focusProxy(), e);
+        }
+        focusOutEvent((QFocusEvent*)e);
     }
-	break;
+        break;
 
     case QEvent::Enter:
-	if (d->statusTip.size()) {
-	    QStatusTipEvent tip(d->statusTip);
-	    QApplication::sendEvent(this, &tip);
-	}
-	enterEvent( e );
-	break;
+        if (d->statusTip.size()) {
+            QStatusTipEvent tip(d->statusTip);
+            QApplication::sendEvent(this, &tip);
+        }
+        enterEvent(e);
+        break;
 
     case QEvent::Leave:
-	if (d->statusTip.size()) {
-	    QStatusTipEvent tip(QString::null);
-	    QApplication::sendEvent(this, &tip);
-	}
-	leaveEvent( e );
-	break;
+        if (d->statusTip.size()) {
+            QStatusTipEvent tip(QString::null);
+            QApplication::sendEvent(this, &tip);
+        }
+        leaveEvent(e);
+        break;
 
     case QEvent::Paint:
-	// At this point the event has to be delivered, regardless
-	// whether the widget isVisible() or not because it
-	// already went through the filters
-	paintEvent( (QPaintEvent*)e );
-	break;
+        // At this point the event has to be delivered, regardless
+        // whether the widget isVisible() or not because it
+        // already went through the filters
+        paintEvent((QPaintEvent*)e);
+        break;
 
     case QEvent::Move:
-	moveEvent( (QMoveEvent*)e );
-	break;
+        moveEvent((QMoveEvent*)e);
+        break;
 
     case QEvent::Resize:
-	resizeEvent( (QResizeEvent*)e );
-	break;
+        resizeEvent((QResizeEvent*)e);
+        break;
 
     case QEvent::Close: {
-	QCloseEvent *c = (QCloseEvent *)e;
-	closeEvent( c );
-	if ( !c->isAccepted() )
-	    return FALSE;
+        QCloseEvent *c = (QCloseEvent *)e;
+        closeEvent(c);
+        if (!c->isAccepted())
+            return false;
     }
-	break;
+        break;
 
     case QEvent::ContextMenu: {
-	QContextMenuEvent *c = (QContextMenuEvent *)e;
-	contextMenuEvent( c );
-	if ( !c->isAccepted() )
-	    return d->compositeEvent((QContextMenuEvent*)e);
-    	break; }
+        QContextMenuEvent *c = (QContextMenuEvent *)e;
+        contextMenuEvent(c);
+        if (!c->isAccepted())
+            return d->compositeEvent((QContextMenuEvent*)e);
+        break; }
 
 #ifndef QT_NO_DRAGANDDROP
     case QEvent::Drop:
-	dropEvent( (QDropEvent*) e);
-	break;
+        dropEvent((QDropEvent*) e);
+        break;
 
     case QEvent::DragEnter:
-	dragEnterEvent( (QDragEnterEvent*) e);
-	break;
+        dragEnterEvent((QDragEnterEvent*) e);
+        break;
 
     case QEvent::DragMove:
-	dragMoveEvent( (QDragMoveEvent*) e);
-	break;
+        dragMoveEvent((QDragMoveEvent*) e);
+        break;
 
     case QEvent::DragLeave:
-	dragLeaveEvent( (QDragLeaveEvent*) e);
-	break;
+        dragLeaveEvent((QDragLeaveEvent*) e);
+        break;
 #endif
 
     case QEvent::Show:
-	showEvent( (QShowEvent*) e);
-	break;
+        showEvent((QShowEvent*) e);
+        break;
 
     case QEvent::Hide:
-	hideEvent( (QHideEvent*) e);
-	break;
+        hideEvent((QHideEvent*) e);
+        break;
 
     case QEvent::ShowWindowRequest:
-	if ( isShown() )
-	    showWindow();
-	break;
+        if (isShown())
+            showWindow();
+        break;
 
     case QEvent::ApplicationFontChange:
-	d->resolveFont();
-	break;
+        d->resolveFont();
+        break;
 #ifndef QT_NO_PALETTE
     case QEvent::ApplicationPaletteChange:
-	if (!isDesktop())
-	    d->resolvePalette();
-	break;
+        if (!isDesktop())
+            d->resolvePalette();
+        break;
 #endif
     case QEvent::ActivationChange:
     case QEvent::EnabledChange:
@@ -4585,130 +4585,130 @@ bool QWidget::event( QEvent *e )
     case QEvent::PaletteChange:
     case QEvent::IconTextChange:
     case QEvent::ModifiedChange:
-	changeEvent(e);
-	break;
+        changeEvent(e);
+        break;
 
     case QEvent::WindowActivate:
     case QEvent::WindowDeactivate: {
-	{
-	    QEvent ae(QEvent::ActivationChange);
-	    QApplication::sendEvent(this, &ae);
-	}
+        {
+            QEvent ae(QEvent::ActivationChange);
+            QApplication::sendEvent(this, &ae);
+        }
 #ifdef QT_COMPAT
-	windowActivationChange( e->type() != QEvent::WindowActivate );
+        windowActivationChange(e->type() != QEvent::WindowActivate);
 #endif
 #ifndef QT_NO_PALETTE
-	if ( isVisible() ) {
-	    for(int role=0; role < (int)QPalette::NColorRoles; role++) {
-		if(data->pal.brush(QPalette::Active, (QPalette::ColorRole)role) !=
-		   data->pal.brush(QPalette::Inactive, (QPalette::ColorRole)role)) {
-		    QPalette::ColorRole bg_role = backgroundRole();
-		    if ( !testAttribute(WA_NoSystemBackground) && bg_role < QPalette::NColorRoles &&
-			 (role == bg_role || (role < bg_role && data->pal.brush(QPalette::Active, bg_role) !=
-					      data->pal.brush(QPalette::Inactive, bg_role ))))
-			d->updateSystemBackground();
-		    else if(role <= QPalette::Shadow)
-			update();
-		    break;
-		}
-	    }
-	}
+        if (isVisible()) {
+            for(int role=0; role < (int)QPalette::NColorRoles; role++) {
+                if(data->pal.brush(QPalette::Active, (QPalette::ColorRole)role) !=
+                   data->pal.brush(QPalette::Inactive, (QPalette::ColorRole)role)) {
+                    QPalette::ColorRole bg_role = backgroundRole();
+                    if (!testAttribute(WA_NoSystemBackground) && bg_role < QPalette::NColorRoles &&
+                         (role == bg_role || (role < bg_role && data->pal.brush(QPalette::Active, bg_role) !=
+                                              data->pal.brush(QPalette::Inactive, bg_role))))
+                        d->updateSystemBackground();
+                    else if(role <= QPalette::Shadow)
+                        update();
+                    break;
+                }
+            }
+        }
 #endif
-	for (int i = 0; i < d->children.size(); ++i) {
-	    QObject *o = d->children.at(i);
-	    if (o->isWidgetType()
-		&& static_cast<QWidget*>(o)->isVisible()
-		&& !static_cast<QWidget*>(o)->isTopLevel())
-		QApplication::sendEvent( o, e );
-	}
-	break; }
+        for (int i = 0; i < d->children.size(); ++i) {
+            QObject *o = d->children.at(i);
+            if (o->isWidgetType()
+                && static_cast<QWidget*>(o)->isVisible()
+                && !static_cast<QWidget*>(o)->isTopLevel())
+                QApplication::sendEvent(o, e);
+        }
+        break; }
 
     case QEvent::LanguageChange:
-	changeEvent(e);
+        changeEvent(e);
 #ifdef QT_COMPAT
-	languageChange();
+        languageChange();
 #endif
-	// fall through
+        // fall through
     case QEvent::LocaleChange:
-	for (int i = 0; i < d->children.size(); ++i) {
-	    QObject *o = d->children.at(i);
-	    QApplication::sendEvent( o, e );
-	}
-	update();
-	break;
+        for (int i = 0; i < d->children.size(); ++i) {
+            QObject *o = d->children.at(i);
+            QApplication::sendEvent(o, e);
+        }
+        update();
+        break;
 
 #ifndef QT_NO_LAYOUT
     case QEvent::LayoutDirectionChange:
-	if ( layout() ) {
-	    layout()->activate();
-	    d->layout->activate();
-	} else {
-	    QObjectList llist = queryList( "QLayout", 0, TRUE, TRUE );
-	    for (int i = 0; i < llist.size(); ++i) {
-		QLayout *lay = static_cast<QLayout *>(llist.at(i));
-		lay->activate();
-	    }
-	}
-	update();
-	break;
+        if (layout()) {
+            layout()->activate();
+            d->layout->activate();
+        } else {
+            QObjectList llist = queryList("QLayout", 0, true, true);
+            for (int i = 0; i < llist.size(); ++i) {
+                QLayout *lay = static_cast<QLayout *>(llist.at(i));
+                lay->activate();
+            }
+        }
+        update();
+        break;
 #endif
 #if defined(Q_WS_X11)
     case QEvent::UpdateRequest:
-	if (!d->invalidated_region.isEmpty()) {
-	    QRegion rgn = d->invalidated_region;
-	    d->invalidated_region = QRegion();
-	    repaint(rgn);
-	}
-	break;
+        if (!d->invalidated_region.isEmpty()) {
+            QRegion rgn = d->invalidated_region;
+            d->invalidated_region = QRegion();
+            repaint(rgn);
+        }
+        break;
 #endif
 #if defined(Q_WS_QWS)
     case QEvent::QWSUpdate:
-	repaint(static_cast<QWSUpdateEvent*>(e)->region());
-	break;
+        repaint(static_cast<QWSUpdateEvent*>(e)->region());
+        break;
 #endif
 
     case QEvent::WindowStateChange:
-	{
-	    QEvent::Type type;
-	    if (isMinimized())
-		type = QEvent::ShowMinimized;
-	    else if (isFullScreen())
-		type = QEvent::ShowFullScreen;
-	    else if (isMaximized())
-		type = QEvent::ShowMaximized;
-	    else
-		type = QEvent::ShowNormal;
-	    if (e->spontaneous()) {
-		QEvent e2(type);
-		QApplication::sendEvent(this, &e2);
-	    } else {
-		QApplication::postEvent(this, new QEvent(type));
-	    }
-	    break;
-	}
+        {
+            QEvent::Type type;
+            if (isMinimized())
+                type = QEvent::ShowMinimized;
+            else if (isFullScreen())
+                type = QEvent::ShowFullScreen;
+            else if (isMaximized())
+                type = QEvent::ShowMaximized;
+            else
+                type = QEvent::ShowNormal;
+            if (e->spontaneous()) {
+                QEvent e2(type);
+                QApplication::sendEvent(this, &e2);
+            } else {
+                QApplication::postEvent(this, new QEvent(type));
+            }
+            break;
+        }
 
     case QEvent::WindowBlocked:
     case QEvent::WindowUnblocked:
-	for (int i = 0; i < d->children.size(); ++i) {
-	    QObject *o = d->children.at(i);
-	    QApplication::sendEvent( o, e );
-	}
-	break;
+        for (int i = 0; i < d->children.size(); ++i) {
+            QObject *o = d->children.at(i);
+            QApplication::sendEvent(o, e);
+        }
+        break;
 
     case QEvent::ToolTip:
-	if (d->toolTip.size()) {
-	    Q4ToolTip::showText(static_cast<QHelpEvent*>(e)->globalPos(), d->toolTip, this);
-	} else
-	    return false;
-	break;
+        if (d->toolTip.size()) {
+            Q4ToolTip::showText(static_cast<QHelpEvent*>(e)->globalPos(), d->toolTip, this);
+        } else
+            return false;
+        break;
 
 #ifndef QT_NO_WHATSTHIS
     case QEvent::WhatsThis:
-	if (d->whatsThis.size())
+        if (d->whatsThis.size())
             QWhatsThis::showText(static_cast<QHelpEvent *>(e)->globalPos(), d->whatsThis, this);
-	else
-	    return false;
-	break;
+        else
+            return false;
+        break;
 #endif
 #ifdef QT_ACCESSIBILITY_SUPPORT
     case QEvent::AccessibleQueryHelp: {
@@ -4729,21 +4729,21 @@ bool QWidget::event( QEvent *e )
         break; }
 #endif
     case QEvent::EmbeddingControl:
-	clearWFlags(WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu);
-	d->topData()->ftop = 0;
-	d->topData()->fright = 0;
-	d->topData()->fleft = 0;
-	d->topData()->fbottom = 0;
-	break;
+        clearWFlags(WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu);
+        d->topData()->ftop = 0;
+        d->topData()->fright = 0;
+        d->topData()->fleft = 0;
+        d->topData()->fbottom = 0;
+        break;
     case QEvent::ActionAdded:
     case QEvent::ActionRemoved:
     case QEvent::ActionChanged:
-	actionEvent((QActionEvent*)e);
-	break;
+        actionEvent((QActionEvent*)e);
+        break;
     default:
-	return QObject::event( e );
+        return QObject::event(e);
     }
-    return TRUE;
+    return true;
 }
 
 /*!
@@ -4753,28 +4753,28 @@ bool QWidget::event( QEvent *e )
   e.
 
 */
-void QWidget::changeEvent( QEvent * e )
+void QWidget::changeEvent(QEvent * e)
 {
     switch(e->type()) {
     case QEvent::EnabledChange:
-	update();
+        update();
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-	QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
+        QAccessible::updateAccessibility(this, 0, QAccessible::StateChanged);
 #endif
-	break;
+        break;
 
     case QEvent::FontChange:
     case QEvent::StyleChange:
-	update();
-	updateGeometry();
-	break;
+        update();
+        updateGeometry();
+        break;
 
     case QEvent::PaletteChange:
-	update();
-	break;
+        update();
+        break;
 
     default:
-	break;
+        break;
     }
 }
 
@@ -4797,7 +4797,7 @@ void QWidget::changeEvent( QEvent * e )
     mouseDoubleClickEvent(), event(), QMouseEvent
 */
 
-void QWidget::mouseMoveEvent( QMouseEvent * e)
+void QWidget::mouseMoveEvent(QMouseEvent * e)
 {
     e->ignore();
 }
@@ -4819,20 +4819,20 @@ void QWidget::mouseMoveEvent( QMouseEvent * e)
     mouseMoveEvent(), event(), QMouseEvent
 */
 
-void QWidget::mousePressEvent( QMouseEvent *e )
+void QWidget::mousePressEvent(QMouseEvent *e)
 {
     e->ignore();
-    if ( isPopup() ) {
-	e->accept();
-	QWidget* w;
-	while ( (w = qApp->activePopupWidget() ) && w != this ){
-	    w->close();
-	    if (qApp->activePopupWidget() == w) // widget does not want to dissappear
-		w->hide(); // hide at least
-	}
-	if (!rect().contains(e->pos()) ){
-	    close();
-	}
+    if (isPopup()) {
+        e->accept();
+        QWidget* w;
+        while ((w = qApp->activePopupWidget()) && w != this){
+            w->close();
+            if (qApp->activePopupWidget() == w) // widget does not want to dissappear
+                w->hide(); // hide at least
+        }
+        if (!rect().contains(e->pos())){
+            close();
+        }
     }
 }
 
@@ -4844,7 +4844,7 @@ void QWidget::mousePressEvent( QMouseEvent *e )
     mouseMoveEvent(), event(),  QMouseEvent
 */
 
-void QWidget::mouseReleaseEvent( QMouseEvent * e )
+void QWidget::mouseReleaseEvent(QMouseEvent * e)
 {
     e->ignore();
 }
@@ -4862,9 +4862,9 @@ void QWidget::mouseReleaseEvent( QMouseEvent * e )
     event(), QMouseEvent
 */
 
-void QWidget::mouseDoubleClickEvent( QMouseEvent *e )
+void QWidget::mouseDoubleClickEvent(QMouseEvent *e)
 {
-    mousePressEvent( e );			// try mouse press event
+    mousePressEvent(e);                        // try mouse press event
 }
 
 #ifndef QT_NO_WHEELEVENT
@@ -4882,7 +4882,7 @@ void QWidget::mouseDoubleClickEvent( QMouseEvent *e )
     QWheelEvent
 */
 
-void QWidget::wheelEvent( QWheelEvent *e )
+void QWidget::wheelEvent(QWheelEvent *e)
 {
     e->ignore();
 }
@@ -4902,7 +4902,7 @@ void QWidget::wheelEvent( QWheelEvent *e )
     QTabletEvent
 */
 
-void QWidget::tabletEvent( QTabletEvent *e )
+void QWidget::tabletEvent(QTabletEvent *e)
 {
     e->ignore();
 }
@@ -4925,13 +4925,13 @@ void QWidget::tabletEvent( QTabletEvent *e )
     focusInEvent(), focusOutEvent(), event(), QKeyEvent
 */
 
-void QWidget::keyPressEvent( QKeyEvent *e )
+void QWidget::keyPressEvent(QKeyEvent *e)
 {
-    if ( isPopup() && e->key() == Key_Escape ) {
-	e->accept();
-	close();
+    if (isPopup() && e->key() == Key_Escape) {
+        e->accept();
+        close();
     } else {
-	e->ignore();
+        e->ignore();
     }
 }
 
@@ -4953,7 +4953,7 @@ void QWidget::keyPressEvent( QKeyEvent *e )
     focusInEvent(), focusOutEvent(), event(), QKeyEvent
 */
 
-void QWidget::keyReleaseEvent( QKeyEvent *e )
+void QWidget::keyReleaseEvent(QKeyEvent *e)
 {
     e->ignore();
 }
@@ -4968,7 +4968,7 @@ void QWidget::keyReleaseEvent( QKeyEvent *e )
     those that do not normally accept focus.)
 
     The default implementation updates the widget (except for toplevel
-    widgets that do not specify a focusPolicy() ). It also calls
+    widgets that do not specify a focusPolicy()). It also calls
     setMicroFocusHint(), hinting any system-specific input tools about
     the focus of the user's attention.
 
@@ -4976,13 +4976,13 @@ void QWidget::keyReleaseEvent( QKeyEvent *e )
     keyReleaseEvent(), event(), QFocusEvent
 */
 
-void QWidget::focusInEvent( QFocusEvent * )
+void QWidget::focusInEvent(QFocusEvent *)
 {
-    if ( focusPolicy() != NoFocus || !isTopLevel() ) {
-	update();
-	if ( testWState(WState_AutoMask) )
-	    updateMask();
-	setMicroFocusHint(width()/2, 0, 1, height(), FALSE);
+    if (focusPolicy() != NoFocus || !isTopLevel()) {
+        update();
+        if (testWState(WState_AutoMask))
+            updateMask();
+        setMicroFocusHint(width()/2, 0, 1, height(), false);
     }
 }
 
@@ -4996,7 +4996,7 @@ void QWidget::focusInEvent( QFocusEvent * )
     those that do not normally accept focus.)
 
     The default implementation updates the widget (except for toplevel
-    widgets that do not specify a focusPolicy() ). It also calls
+    widgets that do not specify a focusPolicy()). It also calls
     setMicroFocusHint(), hinting any system-specific input tools about
     the focus of the user's attention.
 
@@ -5004,12 +5004,12 @@ void QWidget::focusInEvent( QFocusEvent * )
     keyReleaseEvent(), event(), QFocusEvent
 */
 
-void QWidget::focusOutEvent( QFocusEvent * )
+void QWidget::focusOutEvent(QFocusEvent *)
 {
-    if ( focusPolicy() != NoFocus || !isTopLevel() ){
-	update();
-	if ( testWState(WState_AutoMask) )
-	    updateMask();
+    if (focusPolicy() != NoFocus || !isTopLevel()){
+        update();
+        if (testWState(WState_AutoMask))
+            updateMask();
     }
 }
 
@@ -5021,10 +5021,10 @@ void QWidget::focusOutEvent( QFocusEvent * )
 */
 QRect QWidget::microFocusHint() const
 {
-    if ( !d->extra || d->extra->micro_focus_hint.isEmpty() )
-	return QRect(width()/2, 0, 1, height() );
+    if (!d->extra || d->extra->micro_focus_hint.isEmpty())
+        return QRect(width()/2, 0, 1, height());
     else
-	return d->extra->micro_focus_hint;
+        return d->extra->micro_focus_hint;
 }
 
 /*!
@@ -5037,7 +5037,7 @@ QRect QWidget::microFocusHint() const
     \sa leaveEvent(), mouseMoveEvent(), event()
 */
 
-void QWidget::enterEvent( QEvent * )
+void QWidget::enterEvent(QEvent *)
 {
 }
 
@@ -5051,7 +5051,7 @@ void QWidget::enterEvent( QEvent * )
     \sa enterEvent(), mouseMoveEvent(), event()
 */
 
-void QWidget::leaveEvent( QEvent * )
+void QWidget::leaveEvent(QEvent *)
 {
 }
 
@@ -5089,7 +5089,7 @@ void QWidget::leaveEvent( QEvent * )
     \sa event(), repaint(), update(), QPainter, QPixmap, QPaintEvent
 */
 
-void QWidget::paintEvent( QPaintEvent * )
+void QWidget::paintEvent(QPaintEvent *)
 {
 }
 
@@ -5104,7 +5104,7 @@ void QWidget::paintEvent( QPaintEvent * )
     \sa resizeEvent(), event(), move(), QMoveEvent
 */
 
-void QWidget::moveEvent( QMoveEvent * )
+void QWidget::moveEvent(QMoveEvent *)
 {
 }
 
@@ -5130,16 +5130,16 @@ void QWidget::moveEvent( QMoveEvent * )
     \sa moveEvent(), event(), resize(), QResizeEvent, paintEvent()
 */
 
-void QWidget::resizeEvent( QResizeEvent * )
+void QWidget::resizeEvent(QResizeEvent *)
 {
-    if ( testWState(WState_AutoMask) )
-	updateMask();
+    if (testWState(WState_AutoMask))
+        updateMask();
 }
 
 /*!
     \internal
 */
-void QWidget::actionEvent( QActionEvent * )
+void QWidget::actionEvent(QActionEvent *)
 {
 
 }
@@ -5151,7 +5151,7 @@ void QWidget::actionEvent( QActionEvent * )
     \sa event(), hide(), close(), QCloseEvent
 */
 
-void QWidget::closeEvent( QCloseEvent *e )
+void QWidget::closeEvent(QCloseEvent *e)
 {
     Q_UNUSED(e);
 }
@@ -5168,13 +5168,13 @@ void QWidget::closeEvent( QCloseEvent *e )
     \sa event(), QContextMenuEvent
 */
 
-void QWidget::contextMenuEvent( QContextMenuEvent *e )
+void QWidget::contextMenuEvent(QContextMenuEvent *e)
 {
     if(d->actions) {
-	Q4Menu::exec(*d->actions, e->globalPos());
-	e->accept();
+        Q4Menu::exec(*d->actions, e->globalPos());
+        e->accept();
     } else {
-	e->ignore();
+        e->ignore();
     }
 }
 
@@ -5190,7 +5190,7 @@ void QWidget::contextMenuEvent( QContextMenuEvent *e )
 
     \sa event(), QIMEvent
 */
-void QWidget::imStartEvent( QIMEvent *e )
+void QWidget::imStartEvent(QIMEvent *e)
 {
     e->ignore();
 }
@@ -5206,7 +5206,7 @@ void QWidget::imStartEvent( QIMEvent *e )
 
     \sa event(), QIMEvent
 */
-void QWidget::imComposeEvent( QIMEvent *e )
+void QWidget::imComposeEvent(QIMEvent *e)
 {
     e->ignore();
 }
@@ -5224,7 +5224,7 @@ void QWidget::imComposeEvent( QIMEvent *e )
 
     \sa event(), QIMEvent
 */
-void QWidget::imEndEvent( QIMEvent *e )
+void QWidget::imEndEvent(QIMEvent *e)
 {
     e->ignore();
 }
@@ -5241,7 +5241,7 @@ void QWidget::imEndEvent( QIMEvent *e )
 
     \sa QTextDrag, QImageDrag, QDragEnterEvent
 */
-void QWidget::dragEnterEvent( QDragEnterEvent * )
+void QWidget::dragEnterEvent(QDragEnterEvent *)
 {
 }
 
@@ -5254,7 +5254,7 @@ void QWidget::dragEnterEvent( QDragEnterEvent * )
 
     \sa QTextDrag, QImageDrag, QDragMoveEvent
 */
-void QWidget::dragMoveEvent( QDragMoveEvent * )
+void QWidget::dragMoveEvent(QDragMoveEvent *)
 {
 }
 
@@ -5267,7 +5267,7 @@ void QWidget::dragMoveEvent( QDragMoveEvent * )
 
     \sa QTextDrag, QImageDrag, QDragLeaveEvent
 */
-void QWidget::dragLeaveEvent( QDragLeaveEvent * )
+void QWidget::dragLeaveEvent(QDragLeaveEvent *)
 {
 }
 
@@ -5280,7 +5280,7 @@ void QWidget::dragLeaveEvent( QDragLeaveEvent * )
 
     \sa QTextDrag, QImageDrag, QDropEvent
 */
-void QWidget::dropEvent( QDropEvent * )
+void QWidget::dropEvent(QDropEvent *)
 {
 }
 
@@ -5296,7 +5296,7 @@ void QWidget::dropEvent( QDropEvent * )
 
     \sa event(), QShowEvent
 */
-void QWidget::showEvent( QShowEvent * )
+void QWidget::showEvent(QShowEvent *)
 {
 }
 
@@ -5309,18 +5309,18 @@ void QWidget::showEvent( QShowEvent * )
 
     \sa event(), QHideEvent
 */
-void QWidget::hideEvent( QHideEvent * )
+void QWidget::hideEvent(QHideEvent *)
 {
 }
 
 /*
-    \fn QWidget::x11Event( MSG * )
+    \fn QWidget::x11Event(MSG *)
 
     This special event handler can be reimplemented in a subclass to
     receive native X11 events.
 
     In your reimplementation of this function, if you want to stop the
-    event being handled by Qt, return TRUE. If you return FALSE, this
+    event being handled by Qt, return true. If you return false, this
     native event is passed back to Qt, which translates the event into
     a Qt event and sends it to the widget.
 
@@ -5337,7 +5337,7 @@ void QWidget::hideEvent( QHideEvent * )
     receive native Macintosh events.
 
     In your reimplementation of this function, if you want to stop the
-    event being handled by Qt, return TRUE. If you return FALSE, this
+    event being handled by Qt, return true. If you return false, this
     native event is passed back to Qt, which translates the event into
     a Qt event and sends it to the widget.
 
@@ -5346,9 +5346,9 @@ void QWidget::hideEvent( QHideEvent * )
     \sa QApplication::macEventFilter()
 */
 
-bool QWidget::macEvent( EventHandlerCallRef, EventRef )
+bool QWidget::macEvent(EventHandlerCallRef, EventRef)
 {
-    return FALSE;
+    return false;
 }
 
 #endif
@@ -5359,7 +5359,7 @@ bool QWidget::macEvent( EventHandlerCallRef, EventRef )
     receive native Windows events.
 
     In your reimplementation of this function, if you want to stop the
-    event being handled by Qt, return TRUE. If you return FALSE, this
+    event being handled by Qt, return true. If you return false, this
     native event is passed back to Qt, which translates the event into
     a Qt event and sends it to the widget.
 
@@ -5367,9 +5367,9 @@ bool QWidget::macEvent( EventHandlerCallRef, EventRef )
 
     \sa QApplication::winEventFilter()
 */
-bool QWidget::winEvent( MSG * )
+bool QWidget::winEvent(MSG *)
 {
-    return FALSE;
+    return false;
 }
 
 #endif
@@ -5380,7 +5380,7 @@ bool QWidget::winEvent( MSG * )
     receive native X11 events.
 
     In your reimplementation of this function, if you want to stop the
-    event being handled by Qt, return TRUE. If you return FALSE, this
+    event being handled by Qt, return true. If you return false, this
     native event is passed back to Qt, which translates the event into
     a Qt event and sends it to the widget.
 
@@ -5388,9 +5388,9 @@ bool QWidget::winEvent( MSG * )
 
     \sa QApplication::x11EventFilter()
 */
-bool QWidget::x11Event( XEvent * )
+bool QWidget::x11Event(XEvent *)
 {
-    return FALSE;
+    return false;
 }
 
 #endif
@@ -5401,7 +5401,7 @@ bool QWidget::x11Event( XEvent * )
     receive native Qt/Embedded events.
 
     In your reimplementation of this function, if you want to stop the
-    event being handled by Qt, return TRUE. If you return FALSE, this
+    event being handled by Qt, return true. If you return false, this
     native event is passed back to Qt, which translates the event into
     a Qt event and sends it to the widget.
 
@@ -5409,9 +5409,9 @@ bool QWidget::x11Event( XEvent * )
 
     \sa QApplication::qwsEventFilter()
 */
-bool QWidget::qwsEvent( QWSEvent * )
+bool QWidget::qwsEvent(QWSEvent *)
 {
-    return FALSE;
+    return false;
 }
 
 #endif
@@ -5422,7 +5422,7 @@ bool QWidget::qwsEvent( QWSEvent * )
 
     Transparent widgets use a mask to define their visible region.
     QWidget has some built-in support to make the task of
-    recalculating the mask easier. When setting auto mask to TRUE,
+    recalculating the mask easier. When setting auto mask to true,
     updateMask() will be called whenever the widget is resized or
     changes its focus state. Note that you must reimplement
     updateMask() (which should include a call to setMask()) or nothing
@@ -5433,8 +5433,8 @@ bool QWidget::qwsEvent( QWSEvent * )
     that the auto mask calculation works, you should add:
 
     \code
-	if ( autoMask() )
-	    updateMask();
+        if (autoMask())
+            updateMask();
     \endcode
 
     at the end of your event handlers. This is true for all member
@@ -5459,17 +5459,17 @@ bool QWidget::autoMask() const
     return testWState(WState_AutoMask);
 }
 
-void QWidget::setAutoMask( bool enable )
+void QWidget::setAutoMask(bool enable)
 {
-    if ( enable == autoMask() )
-	return;
+    if (enable == autoMask())
+        return;
 
-    if ( enable ) {
-	setWState(WState_AutoMask);
-	updateMask();
+    if (enable) {
+        setWState(WState_AutoMask);
+        updateMask();
     } else {
-	clearWState(WState_AutoMask);
-	clearMask();
+        clearWState(WState_AutoMask);
+        clearMask();
     }
 }
 
@@ -5528,21 +5528,21 @@ QLayout* QWidget::layout() const
 QSizePolicy QWidget::sizePolicy() const
 {
     return d->extra ? d->extra->size_policy
-	: QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
+        : QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 }
 
-void QWidget::setSizePolicy( QSizePolicy policy )
+void QWidget::setSizePolicy(QSizePolicy policy)
 {
-    setWState( WState_OwnSizePolicy );
-    if ( policy == sizePolicy() )
-	return;
+    setWState(WState_OwnSizePolicy);
+    if (policy == sizePolicy())
+        return;
     d->createExtra();
     d->extra->size_policy = policy;
     updateGeometry();
 }
 
 /*!
-    \fn void QWidget::setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw )
+    \fn void QWidget::setSizePolicy(QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw)
     \overload
 
     Sets the size policy of the widget to \a hor, \a ver and \a hfw
@@ -5559,7 +5559,7 @@ void QWidget::setSizePolicy( QSizePolicy policy )
     \warning Does not look at the widget's layout.
 */
 
-int QWidget::heightForWidth( int w ) const
+int QWidget::heightForWidth(int w) const
 {
     (void)w;
     return 0;
@@ -5573,15 +5573,15 @@ int QWidget::heightForWidth( int w ) const
 QWidget *QWidget::childAt(int x, int y) const
 {
     if (!rect().contains(x, y))
-	return 0;
-    for (int i = d->children.size(); i > 0 ; ) {
-	--i;
-	QWidget *w = static_cast<QWidget *>(d->children.at(i));
-	if ( w->isWidgetType() && !w->isTopLevel() && !w->isHidden() && w->geometry().contains(x, y)) {
-	    if (QWidget *t = w->childAt(x - w->x(), y - w->y()))
-		return t;
-	    return w;
-	}
+        return 0;
+    for (int i = d->children.size(); i > 0 ;) {
+        --i;
+        QWidget *w = static_cast<QWidget *>(d->children.at(i));
+        if (w->isWidgetType() && !w->isTopLevel() && !w->isHidden() && w->geometry().contains(x, y)) {
+            if (QWidget *t = w->childAt(x - w->x(), y - w->y()))
+                return t;
+            return w;
+        }
     }
     return 0;
 }
@@ -5625,10 +5625,10 @@ void QWidget::updateGeometry()
 void QWidget::setParent_helper(QObject *parent)
 {
     if (parent && !parent->d->isWidget) {
-	qWarning("QWidget::setParent: Cannot reparent a widget into an object.");
-	return;
+        qWarning("QWidget::setParent: Cannot reparent a widget into an object.");
+        return;
     }
-    setParent( (QWidget*)parent, getWFlags() & ~WType_Mask);
+    setParent((QWidget*)parent, getWFlags() & ~WType_Mask);
 }
 
 
@@ -5666,10 +5666,10 @@ void QWidget::setParent_helper(QObject *parent)
 void QWidget::setParent(QWidget *parent, WFlags f)
 {
     bool resized = testAttribute(WA_Resized);
-    reparent_helper( parent, f, QPoint(0,0), false);
+    reparent_helper(parent, f, QPoint(0,0), false);
     setAttribute(WA_Resized, resized);
-    QEvent e( QEvent::Reparent );
-    QApplication::sendEvent( this, &e );
+    QEvent e(QEvent::Reparent);
+    QApplication::sendEvent(this, &e);
     d->resolveFont();
 #ifndef QT_NO_PALETTE
     d->resolvePalette();
@@ -5710,12 +5710,12 @@ void QWidget::repaint()
 */
 void QWidget::repaint(int x, int y, int w, int h)
 {
-    if ( x > data->crect.width() || y > data->crect.height() )
-	return;
-    if ( w < 0 )
-	w = data->crect.width()  - x;
-    if ( h < 0 )
-	h = data->crect.height() - y;
+    if (x > data->crect.width() || y > data->crect.height())
+        return;
+    if (w < 0)
+        w = data->crect.width()  - x;
+    if (h < 0)
+        h = data->crect.height() - y;
     repaint(d->clipRect().intersect(QRect(x, y, w, h)));
 }
 
@@ -5728,7 +5728,7 @@ void QWidget::repaint(const QRect &r)
     repaint(QRegion(d->clipRect().intersect(r)));
 }
 
-/*! \fn void QWidget::repaint( const QRegion &rgn )
+/*! \fn void QWidget::repaint(const QRegion &rgn)
     \overload
 
     This version repaints a region \a rgn inside the widget.
@@ -5781,17 +5781,17 @@ void QWidget::repaint(const QRect &r)
 
     \warning This is best done in a paintEvent().
 */
-void QWidget::erase_helper( int x, int y, int w, int h )
+void QWidget::erase_helper(int x, int y, int w, int h)
 {
     if (testAttribute(WA_NoSystemBackground) || !testWState(WState_Visible))
-	return;
-    if ( w < 0 )
-	w = data->crect.width()  - x;
-    if ( h < 0 )
-	h = data->crect.height() - y;
-    if ( w != 0 && h != 0 ) {
-	QPainter p(this);
-	p.eraseRect(QRect(x, y, w, h));
+        return;
+    if (w < 0)
+        w = data->crect.width()  - x;
+    if (h < 0)
+        h = data->crect.height() - y;
+    if (w != 0 && h != 0) {
+        QPainter p(this);
+        p.eraseRect(QRect(x, y, w, h));
     }
 }
 
@@ -5802,10 +5802,10 @@ void QWidget::erase_helper( int x, int y, int w, int h )
 
     \warning This is best done in a paintEvent().
 */
-void QWidget::erase( const QRegion& rgn )
+void QWidget::erase(const QRegion& rgn)
 {
     if (testAttribute(WA_NoSystemBackground)||!testWState(WState_Visible))
-	return;
+        return;
 
     QPainter p(this);
     p.setClipRegion(rgn);
@@ -5815,24 +5815,24 @@ void QWidget::erase( const QRegion& rgn )
 void QWidget::drawText_helper(int x, int y, const QString &str)
 {
     if(!testWState(WState_Visible))
-	return;
+        return;
     QPainter paint(this);
     paint.drawText(x, y, str);
 }
 
 
-bool QWidget::close( bool alsoDelete )
+bool QWidget::close(bool alsoDelete)
 {
     QPointer<QWidget> that = this;
     bool accepted = close();
     if (alsoDelete && accepted && that)
-	deleteLater();
+        deleteLater();
     return accepted;
 }
 
 const QPixmap *QWidget::icon() const
 {
-    return ( d->extra && d->extra->topextra ) ? d->extra->topextra->icon : 0;
+    return (d->extra && d->extra->topextra) ? d->extra->topextra->icon : 0;
 }
 
 #endif // QT_COMPAT
@@ -5999,29 +5999,29 @@ const QPixmap *QWidget::icon() const
 void QWidget::setAttribute(WidgetAttribute attribute, bool b)
 {
     if (attribute < int(8*sizeof(uint))) {
-	if (b)
-	    data->widget_attributes |= (1<<attribute);
-	else
-	    data->widget_attributes &= ~(1<<attribute);
+        if (b)
+            data->widget_attributes |= (1<<attribute);
+        else
+            data->widget_attributes &= ~(1<<attribute);
     } else {
-	int x = attribute - 8*sizeof(uint);
-	if (b)
-	    d->high_attributes[x / (8*sizeof(uint))] |= (1<<x);
-	else
-	    d->high_attributes[x / (8*sizeof(uint))] &= ~(1<<x);
+        int x = attribute - 8*sizeof(uint);
+        if (b)
+            d->high_attributes[x / (8*sizeof(uint))] |= (1<<x);
+        else
+            d->high_attributes[x / (8*sizeof(uint))] &= ~(1<<x);
     }
     switch (attribute) {
     case WA_MacMetalStyle:
 #ifdef Q_WS_MAC
-	extern void qt_mac_update_metal_style(QWidget*); //qwidget_mac.cpp
-	qt_mac_update_metal_style(this);
+        extern void qt_mac_update_metal_style(QWidget*); //qwidget_mac.cpp
+        qt_mac_update_metal_style(this);
 #endif
-	break;
+        break;
     case WA_NoSystemBackground:
-	d->updateSystemBackground();
-	break;
+        d->updateSystemBackground();
+        break;
     default:
-	break;
+        break;
     }
 }
 

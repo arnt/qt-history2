@@ -20,7 +20,7 @@ class QDB2DriverPlugin : public QSqlDriverPlugin
 public:
     QDB2DriverPlugin();
 
-    QSqlDriver* create( const QString & );
+    QSqlDriver* create(const QString &);
     QStringList keys() const;
 };
 
@@ -29,11 +29,11 @@ QDB2DriverPlugin::QDB2DriverPlugin()
 {
 }
 
-QSqlDriver* QDB2DriverPlugin::create( const QString &name )
+QSqlDriver* QDB2DriverPlugin::create(const QString &name)
 {
-    if ( name == "QDB2" ) {
-	QDB2Driver* driver = new QDB2Driver();
-	return driver;
+    if (name == "QDB2") {
+        QDB2Driver* driver = new QDB2Driver();
+        return driver;
     }
     return 0;
 }
@@ -45,4 +45,4 @@ QStringList QDB2DriverPlugin::keys() const
     return l;
 }
 
-Q_EXPORT_PLUGIN( QDB2DriverPlugin )
+Q_EXPORT_PLUGIN(QDB2DriverPlugin)

@@ -20,7 +20,7 @@
 #include "qhostaddress.h" // int->QHostAddress conversion
 #endif // QT_H
 
-#if !defined( QT_MODULE_NETWORK ) || defined( QT_LICENSE_PROFESSIONAL ) || defined( QT_INTERNAL_NETWORK )
+#if !defined(QT_MODULE_NETWORK) || defined(QT_LICENSE_PROFESSIONAL) || defined(QT_INTERNAL_NETWORK)
 #define QM_EXPORT_NETWORK
 #else
 #define QM_EXPORT_NETWORK Q_NETWORK_EXPORT
@@ -36,78 +36,78 @@ public:
     enum Type { Stream, Datagram };
     enum Protocol { IPv4, IPv6, Unknown };
 
-    QSocketDevice( Type type = Stream );
-    QSocketDevice( Type type, Protocol protocol, int dummy );
-    QSocketDevice( int socket, Type type );
+    QSocketDevice(Type type = Stream);
+    QSocketDevice(Type type, Protocol protocol, int dummy);
+    QSocketDevice(int socket, Type type);
     virtual ~QSocketDevice();
 
-    bool	 isValid() const;
-    Type	 type() const;
-    Protocol	 protocol() const;
+    bool         isValid() const;
+    Type         type() const;
+    Protocol         protocol() const;
 
-    int		 socket() const;
-    virtual void setSocket( int socket, Type type );
+    int                 socket() const;
+    virtual void setSocket(int socket, Type type);
 
-    bool	 open( int mode );
-    void	 close();
-    void	 flush();
+    bool         open(int mode);
+    void         close();
+    void         flush();
 
     // Implementation of QIODevice abstract virtual functions
-    Offset	 size() const;
-    Offset	 at() const;
-    bool	 at( Offset );
-    bool	 atEnd() const;
+    Offset         size() const;
+    Offset         at() const;
+    bool         at(Offset);
+    bool         atEnd() const;
 
-    bool	 blocking() const;
-    virtual void setBlocking( bool );
+    bool         blocking() const;
+    virtual void setBlocking(bool);
 
-    bool	 addressReusable() const;
-    virtual void setAddressReusable( bool );
+    bool         addressReusable() const;
+    virtual void setAddressReusable(bool);
 
-    int		 receiveBufferSize() const;
-    virtual void setReceiveBufferSize( uint );
-    int		 sendBufferSize() const;
-    virtual void setSendBufferSize( uint );
+    int                 receiveBufferSize() const;
+    virtual void setReceiveBufferSize(uint);
+    int                 sendBufferSize() const;
+    virtual void setSendBufferSize(uint);
 
-    virtual bool connect( const QHostAddress &, Q_UINT16 );
+    virtual bool connect(const QHostAddress &, Q_UINT16);
 
-    virtual bool bind( const QHostAddress &, Q_UINT16 );
-    virtual bool listen( int backlog );
-    virtual int	 accept();
+    virtual bool bind(const QHostAddress &, Q_UINT16);
+    virtual bool listen(int backlog);
+    virtual int         accept();
 
-    Q_LONG	 bytesAvailable() const;
-    Q_LONG	 waitForMore( int msecs, bool *timeout=0 ) const;
-    Q_LONG	 readBlock( char *data, Q_ULONG maxlen );
-    Q_LONG	 writeBlock( const char *data, Q_ULONG len );
-    virtual Q_LONG  writeBlock( const char *data, Q_ULONG len,
-			    const QHostAddress & host, Q_UINT16 port );
+    Q_LONG         bytesAvailable() const;
+    Q_LONG         waitForMore(int msecs, bool *timeout=0) const;
+    Q_LONG         readBlock(char *data, Q_ULONG maxlen);
+    Q_LONG         writeBlock(const char *data, Q_ULONG len);
+    virtual Q_LONG  writeBlock(const char *data, Q_ULONG len,
+                            const QHostAddress & host, Q_UINT16 port);
 
-    int		 getch();
-    int		 putch( int );
-    int		 ungetch(int);
+    int                 getch();
+    int                 putch(int);
+    int                 ungetch(int);
 
-    Q_UINT16	 port() const;
-    Q_UINT16	 peerPort() const;
+    Q_UINT16         port() const;
+    Q_UINT16         peerPort() const;
     QHostAddress address() const;
     QHostAddress peerAddress() const;
 
     enum Error {
-	NoError,
-	AlreadyBound,
-	Inaccessible,
-	NoResources,
-	InternalError,
-	Bug = InternalError, // ### remove in 4.0?
-	Impossible,
-	NoFiles,
-	ConnectionRefused,
-	NetworkFailure,
-	UnknownError
+        NoError,
+        AlreadyBound,
+        Inaccessible,
+        NoResources,
+        InternalError,
+        Bug = InternalError, // ### remove in 4.0?
+        Impossible,
+        NoFiles,
+        ConnectionRefused,
+        NetworkFailure,
+        UnknownError
     };
-    Error	 error() const;
+    Error         error() const;
 
 protected:
-    void setError( Error err );
+    void setError(Error err);
 
 private:
     int fd;
@@ -121,22 +121,22 @@ private:
 
     enum Option { Broadcast, ReceiveBuffer, ReuseAddress, SendBuffer };
 
-    int		 option( Option ) const;
-    virtual void setOption( Option, int );
+    int                 option(Option) const;
+    virtual void setOption(Option, int);
 
-    void	 fetchConnectionParameters();
+    void         fetchConnectionParameters();
 #if defined(Q_OS_WIN32)
-    void	 fetchPeerConnectionParameters();
+    void         fetchPeerConnectionParameters();
 #endif
 
     static void  init();
-    int		 createNewSocket();
-    Protocol	 getProtocol() const;
+    int                 createNewSocket();
+    Protocol         getProtocol() const;
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QSocketDevice( const QSocketDevice & );
-    QSocketDevice &operator=( const QSocketDevice & );
+    QSocketDevice(const QSocketDevice &);
+    QSocketDevice &operator=(const QSocketDevice &);
 #endif
 };
 

@@ -73,8 +73,8 @@ public:
 class Q_CORE_EXPORT QObject: public Qt
 {
     Q_OBJECT
-    Q_PROPERTY( QByteArray objectName READ objectName WRITE setObjectName )
-    Q_DECLARE_PRIVATE( QObject );
+    Q_PROPERTY(QByteArray objectName READ objectName WRITE setObjectName)
+    Q_DECLARE_PRIVATE(QObject);
 
 public:
     QObject(QObject *parent=0);
@@ -88,11 +88,11 @@ public:
     virtual const QMetaObject *metaObject() const;
 #endif
 #ifdef QT_NO_TRANSLATION
-    static QString tr( const char *sourceText, const char * = 0)
-	{ return QString::fromLatin1(sourceText); }
+    static QString tr(const char *sourceText, const char * = 0)
+        { return QString::fromLatin1(sourceText); }
 #ifndef QT_NO_TEXTCODEC
-    static QString trUtf8( const char *sourceText, const char * = 0)
-	{ return QString::fromUtf8(sourceText); }
+    static QString trUtf8(const char *sourceText, const char * = 0)
+        { return QString::fromUtf8(sourceText); }
 #endif
 #endif //QT_NO_TRANSLATION
 
@@ -121,11 +121,11 @@ public:
 
 #ifdef QT_COMPAT
     QObject *child(const char *objName, const char *inheritsClass = 0,
-		   bool recursiveSearch = true) const;
+                   bool recursiveSearch = true) const;
     QObjectList queryList(const char *inheritsClass = 0,
-			  const char *objName = 0,
-			  bool regexpMatch = true,
-			  bool recursiveSearch = true) const;
+                          const char *objName = 0,
+                          bool regexpMatch = true,
+                          bool recursiveSearch = true) const;
 #endif
     const QObjectList &children() const { return d_ptr->children; }
 
@@ -135,19 +135,19 @@ public:
 
 
     static bool connect(const QObject *sender, const char *signal,
-			const QObject *receiver, const char *member,
-			ConnectionType = AutoConnection);
+                        const QObject *receiver, const char *member,
+                        ConnectionType = AutoConnection);
     inline bool connect(const QObject *sender, const char *signal,
-			const char *member, ConnectionType type = AutoConnection) const
-	{ return connect(sender, signal, this, member, type); }
+                        const char *member, ConnectionType type = AutoConnection) const
+        { return connect(sender, signal, this, member, type); }
 
     static bool disconnect(const QObject *sender, const char *signal,
-			   const QObject *receiver, const char *member);
+                           const QObject *receiver, const char *member);
     inline bool disconnect(const char *signal = 0,
-			   const QObject *receiver = 0, const char *member = 0)
-	{ return disconnect(this, signal, receiver, member); }
+                           const QObject *receiver = 0, const char *member = 0)
+        { return disconnect(this, signal, receiver, member); }
     inline bool disconnect(const QObject *receiver, const char *member = 0)
-	{ return disconnect(this, 0, receiver, member); }
+        { return disconnect(this, 0, receiver, member); }
 
     void dumpObjectTree();
     void dumpObjectInfo();
@@ -174,14 +174,14 @@ public:
     inline QObject *parent() const { return d_ptr->parent; }
 
     inline bool inherits(const char *classname) const
-	{ return qt_metacast(classname) != 0; }
+        { return qt_metacast(classname) != 0; }
 
 public slots:
     void deleteLater();
 
 protected:
     const QObject *sender();
-    int receivers(const char* signal ) const;
+    int receivers(const char* signal) const;
 
     virtual bool event(QEvent *);
     virtual bool eventFilter(QObject *, QEvent *);
@@ -197,21 +197,21 @@ protected:
 #ifdef QT_COMPAT
 public:
     inline QT_COMPAT void insertChild(QObject *o)
-	{ if (o) o->setParent(this); }
+        { if (o) o->setParent(this); }
     inline QT_COMPAT void removeChild(QObject *o)
-	{ if (o) o->setParent(0); }
+        { if (o) o->setParent(0); }
     inline QT_COMPAT bool isA(const char *classname) const
-	{ return qstrcmp(classname, className() ) == 0; }
+        { return qstrcmp(classname, className()) == 0; }
     inline QT_COMPAT const char *name() const { return objectName(); }
     inline QT_COMPAT const char *name(const char *defaultName) const { return objectName(defaultName); }
     inline QT_COMPAT void setName(const char *name) { setObjectName(name); }
 protected:
     inline QT_COMPAT bool checkConnectArgs(const char *signal,
-				  const QObject *,
-				  const char *member)
-	{ return QMetaObject::checkConnectArgs(signal, member); }
+                                  const QObject *,
+                                  const char *member)
+        { return QMetaObject::checkConnectArgs(signal, member); }
     static inline QT_COMPAT QByteArray normalizeSignalSlot(const char *signalSlot)
-	{ return QMetaObject::normalizedSignature(signalSlot); }
+        { return QMetaObject::normalizedSignature(signalSlot); }
 #endif
 
 public:
@@ -246,9 +246,9 @@ private: // Disabled copy constructor and operator=
 inline bool QObject::isAncestorOf(const QObject *child) const
 {
     while (child) {
-	child = child->d_ptr->parent;
-	if (child == this)
-	    return true;
+        child = child->d_ptr->parent;
+        if (child == this)
+            return true;
     }
     return false;
 }
@@ -272,7 +272,7 @@ inline QList<T> qFindChildren(const QObject *o, const char *name = 0, T = 0)
 {
     QList<T> list;
     o->findChildren_helper(name, 0, ((T)0)->staticMetaObject,
-			reinterpret_cast<QList<void *>*>(&list));
+                        reinterpret_cast<QList<void *>*>(&list));
     return list;
 }
 
@@ -282,7 +282,7 @@ inline QList<T> qFindChildren(const QObject *o, const QRegExp &re, T = 0)
 {
     QList<T> list;
     o->findChildren_helper(0, &re, ((T)0)->staticMetaObject,
-			reinterpret_cast<QList<void*>*>(&list));
+                        reinterpret_cast<QList<void*>*>(&list));
     return list;
 }
 
@@ -310,7 +310,7 @@ inline QList<T> qFindChildren(const QObject *o, const char *name = 0)
 {
     QList<T> list;
     o->findChildren_helper(name, 0, ((T)0)->staticMetaObject,
-			reinterpret_cast<QList<void *>*>(&list));
+                        reinterpret_cast<QList<void *>*>(&list));
     return list;
 }
 
@@ -320,7 +320,7 @@ inline QList<T> qFindChildren(const QObject *o, const QRegExp &re)
 {
     QList<T> list;
     o->findChildren_helper(0, &re, ((T)0)->staticMetaObject,
-			reinterpret_cast<QList<void*>*>(&list));
+                        reinterpret_cast<QList<void*>*>(&list));
     return list;
 }
 #endif

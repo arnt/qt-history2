@@ -35,43 +35,43 @@ static pthread_mutex_t thread_storage_mutex = PTHREAD_MUTEX_INITIALIZER;
 static bool thread_storage_init = false;
 static struct {
     bool used;
-    void (*func)( void * );
+    void (*func)(void *);
 } thread_storage_usage[MAX_THREAD_STORAGE];
 
 
-QThreadStorageData::QThreadStorageData( void (*func)( void * ) )
+QThreadStorageData::QThreadStorageData(void (*func)(void *))
     : id(0), constructed(true)
 {
-    pthread_mutex_lock( &thread_storage_mutex );
+    pthread_mutex_lock(&thread_storage_mutex);
 
     // make sure things are initialized
-    if ( ! thread_storage_init )
-	memset( thread_storage_usage, 0, sizeof( thread_storage_usage ) );
+    if (! thread_storage_init)
+        memset(thread_storage_usage, 0, sizeof(thread_storage_usage));
     thread_storage_init = true;
 
-    for ( ; id < MAX_THREAD_STORAGE; ++id ) {
-	if ( !thread_storage_usage[id].used )
-	    break;
+    for (; id < MAX_THREAD_STORAGE; ++id) {
+        if (!thread_storage_usage[id].used)
+            break;
     }
 
-    Q_ASSERT( id >= 0 && id < MAX_THREAD_STORAGE );
+    Q_ASSERT(id >= 0 && id < MAX_THREAD_STORAGE);
     thread_storage_usage[id].used = true;
     thread_storage_usage[id].func = func;
 
-    DEBUG( "QThreadStorageData: allocated id %d", id );
+    DEBUG("QThreadStorageData: allocated id %d", id);
 
-    pthread_mutex_unlock( &thread_storage_mutex );
+    pthread_mutex_unlock(&thread_storage_mutex);
 }
 
 QThreadStorageData::~QThreadStorageData()
 {
-    pthread_mutex_lock( &thread_storage_mutex );
+    pthread_mutex_lock(&thread_storage_mutex);
     thread_storage_usage[id].used = false;
     thread_storage_usage[id].func = 0;
 
-    DEBUG( "QThreadStorageData: released id %d", id );
+    DEBUG("QThreadStorageData: released id %d", id);
 
-    pthread_mutex_unlock( &thread_storage_mutex );
+    pthread_mutex_unlock(&thread_storage_mutex);
 }
 
 void **QThreadStorageData::get() const
@@ -80,52 +80,52 @@ void **QThreadStorageData::get() const
     return d->thread_storage && d->thread_storage[id] ? &d->thread_storage[id] : 0;
 }
 
-void **QThreadStorageData::set( void *p )
+void **QThreadStorageData::set(void *p)
 {
     QThreadInstance *d = QThreadInstance::current();
-    if ( !d->thread_storage ) {
-	DEBUG( "QThreadStorageData: allocating storage %d for thread %lx",
-		id, (unsigned long) pthread_self() );
+    if (!d->thread_storage) {
+        DEBUG("QThreadStorageData: allocating storage %d for thread %lx",
+                id, (unsigned long) pthread_self());
 
-	d->thread_storage = new void*[MAX_THREAD_STORAGE];
-	memset( d->thread_storage, 0, sizeof( void* ) * MAX_THREAD_STORAGE );
+        d->thread_storage = new void*[MAX_THREAD_STORAGE];
+        memset(d->thread_storage, 0, sizeof(void*) * MAX_THREAD_STORAGE);
     }
 
     // delete any previous data
-    if ( d->thread_storage[id] ) {
-	DEBUG("QThreadStorageData: deleting previous storage %d for thread %lx",
-	      id, (unsigned long) pthread_self());
+    if (d->thread_storage[id]) {
+        DEBUG("QThreadStorageData: deleting previous storage %d for thread %lx",
+              id, (unsigned long) pthread_self());
 
-	void *q = d->thread_storage[id];
-	d->thread_storage[id] = 0;
-	thread_storage_usage[id].func(q);
+        void *q = d->thread_storage[id];
+        d->thread_storage[id] = 0;
+        thread_storage_usage[id].func(q);
     }
 
     // store new data
     d->thread_storage[id] = p;
     DEBUG("QThreadStorageData: set storage %d for thread %lx to %p",
-	  id, (unsigned long) pthread_self(), p);
+          id, (unsigned long) pthread_self(), p);
     return &d->thread_storage[id];
 }
 
-void QThreadStorageData::finish( void **thread_storage )
+void QThreadStorageData::finish(void **thread_storage)
 {
-    if ( ! thread_storage ) return; // nothing to do
+    if (! thread_storage) return; // nothing to do
 
-    DEBUG( "QThreadStorageData: destroying storage for thread %lx",
-	    (unsigned long) pthread_self() );
+    DEBUG("QThreadStorageData: destroying storage for thread %lx",
+            (unsigned long) pthread_self());
 
-    for ( int i = 0; i < MAX_THREAD_STORAGE; ++i ) {
-	if ( ! thread_storage[i] ) continue;
-	if ( ! thread_storage_usage[i].used ) {
-	    qWarning( "QThreadStorage: thread %lx exited after QThreadStorage destroyed",
-		      (unsigned long) pthread_self() );
-	    continue;
-	}
+    for (int i = 0; i < MAX_THREAD_STORAGE; ++i) {
+        if (! thread_storage[i]) continue;
+        if (! thread_storage_usage[i].used) {
+            qWarning("QThreadStorage: thread %lx exited after QThreadStorage destroyed",
+                      (unsigned long) pthread_self());
+            continue;
+        }
 
-	void *q = thread_storage[i];
-	thread_storage[i] = 0;
-	thread_storage_usage[i].func(q);
+        void *q = thread_storage[i];
+        thread_storage[i] = 0;
+        thread_storage_usage[i].func(q);
     }
 
     delete [] thread_storage;
@@ -195,20 +195,20 @@ bool QThreadStorageData::ensure_constructed(void (*func)(void *))
     \code
     QThreadStorage<QCache<QString, SomeClass> *> caches;
 
-    void cacheObject( const QString &key, SomeClass *object )
+    void cacheObject(const QString &key, SomeClass *object)
     {
-        if ( ! caches.hasLocalData() )
-	    caches.setLocalData( new QCache<QString, SomeClass> );
+        if (! caches.hasLocalData())
+            caches.setLocalData(new QCache<QString, SomeClass>);
 
-	caches.localData()->insert( key, object );
+        caches.localData()->insert(key, object);
     }
 
-    void removeFromCache( const QString &key )
+    void removeFromCache(const QString &key)
     {
-        if ( ! caches.hasLocalData() )
+        if (! caches.hasLocalData())
             return; // nothing to do
 
-	caches.localData()->remove( key );
+        caches.localData()->remove(key);
     }
     \endcode
 
@@ -323,7 +323,7 @@ bool QThreadStorageData::ensure_constructed(void (*func)(void *))
 */
 
 /*!
-    \fn void QThreadStorage::setLocalData( T data )
+    \fn void QThreadStorage::setLocalData(T data)
 
     Sets the local data for the calling thread to \a data. It can be
     accessed later using the localData() functions.

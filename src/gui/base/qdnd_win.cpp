@@ -33,7 +33,7 @@
 
 static HCURSOR *cursor = 0;
 static QDragObject *global_src = 0;
-static bool acceptact = FALSE;
+static bool acceptact = false;
 
 /* OleStdGetDropEffect
 ** -------------------
@@ -55,9 +55,9 @@ static bool acceptact = FALSE;
 **    performed.
 */
 #define OleStdGetDropEffect(grfKeyState)    \
-    ( (grfKeyState & MK_CONTROL) ?          \
-	( (grfKeyState & MK_SHIFT) ? DROPEFFECT_LINK : DROPEFFECT_COPY ) :  \
-	( (grfKeyState & MK_SHIFT) ? DROPEFFECT_MOVE : 0 ) )
+    ((grfKeyState & MK_CONTROL) ?          \
+        ((grfKeyState & MK_SHIFT) ? DROPEFFECT_LINK : DROPEFFECT_COPY) :  \
+        ((grfKeyState & MK_SHIFT) ? DROPEFFECT_MOVE : 0))
 
 // Returns a LPFORMATETC enumerating all CF's that ms can be produced.
 static
@@ -67,24 +67,24 @@ LPFORMATETC allFormats(int& n)
     QWindowsMime* wm;
     QList<QWindowsMime*> mimes = QWindowsMime::all();
     for (int pos=0; pos<mimes.size(); ++pos) {
-	wm = mimes[pos];
-	n += wm->countCf();
+        wm = mimes[pos];
+        n += wm->countCf();
     }
 
     LPFORMATETC fmtetc = new FORMATETC[n];
 
     int i = 0;
     for (int pos=0; pos<mimes.size(); ++pos) {
-	wm = mimes[pos];
-	int t = wm->countCf();
-	for (int j=0; j<t; j++) {
-	    fmtetc[i].cfFormat = wm->cf(j);
-	    fmtetc[i].dwAspect = DVASPECT_CONTENT;
-	    fmtetc[i].tymed = TYMED_HGLOBAL;
-	    fmtetc[i].ptd = NULL;
-	    fmtetc[i].lindex = -1;
-	    i++;
-	}
+        wm = mimes[pos];
+        int t = wm->countCf();
+        for (int j=0; j<t; j++) {
+            fmtetc[i].cfFormat = wm->cf(j);
+            fmtetc[i].dwAspect = DVASPECT_CONTENT;
+            fmtetc[i].tymed = TYMED_HGLOBAL;
+            fmtetc[i].ptd = NULL;
+            fmtetc[i].lindex = -1;
+            i++;
+        }
     }
 
     Q_ASSERT(n==i);
@@ -100,26 +100,26 @@ LPFORMATETC someFormats(const char* mime, int& n)
     QWindowsMime* wm;
     QList<QWindowsMime*> mimes = QWindowsMime::all();
     for (int pos=0; pos<mimes.size(); ++pos) {
-	wm = mimes[pos];
-	if (wm->cfFor(mime)) n += wm->countCf();
+        wm = mimes[pos];
+        if (wm->cfFor(mime)) n += wm->countCf();
     }
 
     LPFORMATETC fmtetc = new FORMATETC[n];
 
     int i = 0;
     for (int pos=0; pos<mimes.size(); ++pos) {
-	wm = mimes[pos];
-	if (wm->cfFor(mime)) {
-	    int t = wm->countCf();
-	    for (int j=0; j<t; j++) {
-		fmtetc[i].cfFormat = wm->cf(j);
-		fmtetc[i].dwAspect = DVASPECT_CONTENT;
-		fmtetc[i].tymed = TYMED_HGLOBAL;
-		fmtetc[i].ptd = NULL;
-		fmtetc[i].lindex = -1;
-		i++;
-	    }
-	}
+        wm = mimes[pos];
+        if (wm->cfFor(mime)) {
+            int t = wm->countCf();
+            for (int j=0; j<t; j++) {
+                fmtetc[i].cfFormat = wm->cf(j);
+                fmtetc[i].dwAspect = DVASPECT_CONTENT;
+                fmtetc[i].tymed = TYMED_HGLOBAL;
+                fmtetc[i].ptd = NULL;
+                fmtetc[i].lindex = -1;
+                i++;
+            }
+        }
     }
 
     Q_ASSERT(n==i);
@@ -136,26 +136,26 @@ LPFORMATETC someFormats(const QMimeSource* ms, int& n)
     QWindowsMime* wm;
     QList<QWindowsMime*> mimes = QWindowsMime::all();
     for (int pos=0; pos<mimes.size(); ++pos) {
-	wm = mimes[pos];
-	n += wm->countCf();
+        wm = mimes[pos];
+        n += wm->countCf();
     }
 
     LPFORMATETC fmtetc = new FORMATETC[n]; // Bigger than needed
 
     int i = 0;
     for (int pos=0; pos<mimes.size(); ++pos) {
-	wm = mimes[pos];
-	int t = wm->countCf();
-	for (int j=0; j<t; j++) {
-	    if ( ms->provides(wm->mimeFor(wm->cf(j))) ) {
-		fmtetc[i].cfFormat = wm->cf(j);
-		fmtetc[i].dwAspect = DVASPECT_CONTENT;
-		fmtetc[i].tymed = TYMED_HGLOBAL;
-		fmtetc[i].ptd = NULL;
-		fmtetc[i].lindex = -1;
-		i++;
-	    }
-	}
+        wm = mimes[pos];
+        int t = wm->countCf();
+        for (int j=0; j<t; j++) {
+            if (ms->provides(wm->mimeFor(wm->cf(j)))) {
+                fmtetc[i].cfFormat = wm->cf(j);
+                fmtetc[i].dwAspect = DVASPECT_CONTENT;
+                fmtetc[i].tymed = TYMED_HGLOBAL;
+                fmtetc[i].ptd = NULL;
+                fmtetc[i].lindex = -1;
+                i++;
+            }
+        }
     }
     n = i;
 
@@ -168,10 +168,10 @@ class QOleDropSource : public IDropSource
 {
     QWidget* src;
 public:
-    QOleDropSource( QWidget* w ) :
-	src(w)
+    QOleDropSource(QWidget* w) :
+        src(w)
     {
-	m_refs = 1;
+        m_refs = 1;
     }
 
     /* IUnknown methods */
@@ -191,7 +191,7 @@ private:
 class QOleDataObject : public IDataObject
 {
 public:
-    QOleDataObject( QDragObject* );
+    QOleDataObject(QDragObject*);
 
     /* IUnknown methods */
     STDMETHOD(QueryInterface)(REFIID riid, void FAR* FAR* ppvObj);
@@ -199,15 +199,15 @@ public:
     STDMETHOD_(ULONG,Release)(void);
 
     /* IDataObject methods */
-    STDMETHOD(GetData)(LPFORMATETC pformatetcIn,  LPSTGMEDIUM pmedium );
-    STDMETHOD(GetDataHere)(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium );
-    STDMETHOD(QueryGetData)(LPFORMATETC pformatetc );
+    STDMETHOD(GetData)(LPFORMATETC pformatetcIn,  LPSTGMEDIUM pmedium);
+    STDMETHOD(GetDataHere)(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium);
+    STDMETHOD(QueryGetData)(LPFORMATETC pformatetc);
     STDMETHOD(GetCanonicalFormatEtc)(LPFORMATETC pformatetc, LPFORMATETC pformatetcOut);
     STDMETHOD(SetData)(LPFORMATETC pformatetc, STGMEDIUM FAR * pmedium,
-		       BOOL fRelease);
+                       BOOL fRelease);
     STDMETHOD(EnumFormatEtc)(DWORD dwDirection, LPENUMFORMATETC FAR* ppenumFormatEtc);
     STDMETHOD(DAdvise)(FORMATETC FAR* pFormatetc, DWORD advf,
-		      LPADVISESINK pAdvSink, DWORD FAR* pdwConnection);
+                      LPADVISESINK pAdvSink, DWORD FAR* pdwConnection);
     STDMETHOD(DUnadvise)(DWORD dwConnection);
     STDMETHOD(EnumDAdvise)(LPENUMSTATDATA FAR* ppenumAdvise);
 
@@ -221,11 +221,11 @@ class QOleDropTarget : public IDropTarget
     QWidget* widget;
 
 public:
-    QOleDropTarget( QWidget* w );
+    QOleDropTarget(QWidget* w);
 
     void releaseQt()
     {
-	widget = 0;
+        widget = 0;
     }
 
     /* IUnknown methods */
@@ -254,37 +254,37 @@ private:
 static
 LPDATAOBJECT current_dropobj = 0;
 
-bool QDragManager::eventFilter( QObject *, QEvent *)
+bool QDragManager::eventFilter(QObject *, QEvent *)
 {
-    return FALSE;
+    return false;
 }
 
-void QDragManager::timerEvent( QTimerEvent* )
+void QDragManager::timerEvent(QTimerEvent*)
 {
 }
 
-void QDragManager::cancel( bool /* deleteSource */ )
+void QDragManager::cancel(bool /* deleteSource */)
 {
-    if ( object ) {
-	beingCancelled = TRUE;
-	object = 0;
+    if (object) {
+        beingCancelled = true;
+        object = 0;
     }
 
 #ifndef QT_NO_CURSOR
     // insert cancel code here
 
-    if ( restoreCursor ) {
-	QApplication::restoreOverrideCursor();
-	restoreCursor = FALSE;
+    if (restoreCursor) {
+        QApplication::restoreOverrideCursor();
+        restoreCursor = false;
     }
 #endif
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessible::updateAccessibility( this, 0, QAccessible::DragDropEnd );
+    QAccessible::updateAccessibility(this, 0, QAccessible::DragDropEnd);
 #endif
 }
 
 
-void QDragManager::move( const QPoint & )
+void QDragManager::move(const QPoint &)
 {
     // not used in windows implementation
 }
@@ -296,29 +296,29 @@ void QDragManager::drop()
 }
 
 
-bool QDropEvent::provides( const char* mimeType ) const
+bool QDropEvent::provides(const char* mimeType) const
 {
     if (!current_dropobj) // Sanity
-	return FALSE;
+        return false;
 
     int n;
     FORMATETC *fmtetc = someFormats(mimeType,n);
-    bool does = FALSE;
+    bool does = false;
     for (int i=0; i<n && !does; i++) {
-	int cf = fmtetc[i].cfFormat;
-	QWindowsMime* wm = QWindowsMime::convertor(mimeType,cf);
-	if ( wm && NOERROR == current_dropobj->QueryGetData(fmtetc+i) )
-	    does = TRUE;
+        int cf = fmtetc[i].cfFormat;
+        QWindowsMime* wm = QWindowsMime::convertor(mimeType,cf);
+        if (wm && NOERROR == current_dropobj->QueryGetData(fmtetc+i))
+            does = true;
     }
     delete [] fmtetc;
     return does;
 }
 
 static
-const char* dnd_format( int fn )
+const char* dnd_format(int fn)
 {
     if (!current_dropobj) // Sanity
-	return 0;
+        return 0;
 
     static QByteArray fmt("");
 
@@ -326,109 +326,109 @@ const char* dnd_format( int fn )
     LPFORMATETC fmtetc = allFormats(n);
     int i;
     for (i=0; i<n && fn >= 0; i++) {
-	// Does the drag source provide this format that we accept?
-	if (NOERROR == current_dropobj->QueryGetData(fmtetc+i))
-	    fn--;
+        // Does the drag source provide this format that we accept?
+        if (NOERROR == current_dropobj->QueryGetData(fmtetc+i))
+            fn--;
     }
-    if ( fn==-1 )
-	fmt = QWindowsMime::cfToMime(fmtetc[i-1].cfFormat);
+    if (fn==-1)
+        fmt = QWindowsMime::cfToMime(fmtetc[i-1].cfFormat);
     delete [] fmtetc;
 
     return fmt.isEmpty() ? 0 : (const char*)fmt;
 }
 
-const char* QDropEvent::format( int fn ) const
+const char* QDropEvent::format(int fn) const
 {
     return dnd_format(fn);
 }
 
-QByteArray qt_olednd_obtain_data( const char *format )
+QByteArray qt_olednd_obtain_data(const char *format)
 {
     QByteArray result;
 
     if (!current_dropobj) // Sanity
-	return result;
+        return result;
 
 #ifdef USE_FORMATENUM // doesn't work yet
     LPENUMFORMATETC FAR fmtenum;
     HRESULT hr=current_dropobj->EnumFormatEtc(DATADIR_GET, &fmtenum);
 
-    if ( hr == NOERROR ) {
-	FORMATETC fmtetc;
-	ULONG i=0;
-	while (NOERROR==fmtenum->Next( i, &fmtetc, &i ) && i) {
-	    int cf = fmtetc.cfFormat;
-	    QWindowsMime* wm = QWindowsMime::convertor( format, cf );
-	    STGMEDIUM medium;
-	    HGLOBAL hText;
-	    HRESULT hr;
+    if (hr == NOERROR) {
+        FORMATETC fmtetc;
+        ULONG i=0;
+        while (NOERROR==fmtenum->Next(i, &fmtetc, &i) && i) {
+            int cf = fmtetc.cfFormat;
+            QWindowsMime* wm = QWindowsMime::convertor(format, cf);
+            STGMEDIUM medium;
+            HGLOBAL hText;
+            HRESULT hr;
 
-	    fmtetc.ptd = NULL;
-	    fmtetc.dwAspect = DVASPECT_CONTENT;
-	    fmtetc.lindex = -1;
-	    fmtetc.tymed = TYMED_HGLOBAL;
+            fmtetc.ptd = NULL;
+            fmtetc.dwAspect = DVASPECT_CONTENT;
+            fmtetc.lindex = -1;
+            fmtetc.tymed = TYMED_HGLOBAL;
 
-	    hr = current_dropobj->GetData(&fmtetc, &medium);
-	    if (!FAILED(hr)) {
-		hText = medium.hGlobal;
-		char* d = (char*)GlobalLock(hText);
-		int len = GlobalSize(medium.hGlobal);
-		QByteArray r;
-		r.setRawData(d,len);
-		QByteArray tr = wm->convertToMime(r,format,cf);
-		tr.detach();
-		r.resetRawData(d,len);
-		GlobalUnlock(hText);
-		ReleaseStgMedium(&medium);
-		return tr;
-	    }
-	}
+            hr = current_dropobj->GetData(&fmtetc, &medium);
+            if (!FAILED(hr)) {
+                hText = medium.hGlobal;
+                char* d = (char*)GlobalLock(hText);
+                int len = GlobalSize(medium.hGlobal);
+                QByteArray r;
+                r.setRawData(d,len);
+                QByteArray tr = wm->convertToMime(r,format,cf);
+                tr.detach();
+                r.resetRawData(d,len);
+                GlobalUnlock(hText);
+                ReleaseStgMedium(&medium);
+                return tr;
+            }
+        }
     }
 #else
 
     int n;
     FORMATETC *fmtetc = someFormats(format,n);
     for (int i=0; i<n && result.isNull(); i++) {
-	int cf = fmtetc[i].cfFormat;
-	QWindowsMime* wm = QWindowsMime::convertor(format,cf);
-	if ( wm ) {
-	    STGMEDIUM medium;
-	    HRESULT hr = current_dropobj->GetData(fmtetc+i, &medium);
-	    if (!FAILED(hr)) {
-		HGLOBAL hText = medium.hGlobal;
-		char* d = (char*)GlobalLock(hText);
-		int len = GlobalSize(hText);
-		QConstByteArray r(d, len);
-		result = wm->convertToMime(r,format,cf);
-		GlobalUnlock(hText);
-		ReleaseStgMedium(&medium);
-	    }
-	}
+        int cf = fmtetc[i].cfFormat;
+        QWindowsMime* wm = QWindowsMime::convertor(format,cf);
+        if (wm) {
+            STGMEDIUM medium;
+            HRESULT hr = current_dropobj->GetData(fmtetc+i, &medium);
+            if (!FAILED(hr)) {
+                HGLOBAL hText = medium.hGlobal;
+                char* d = (char*)GlobalLock(hText);
+                int len = GlobalSize(hText);
+                QConstByteArray r(d, len);
+                result = wm->convertToMime(r,format,cf);
+                GlobalUnlock(hText);
+                ReleaseStgMedium(&medium);
+            }
+        }
     }
     delete [] fmtetc;
 #endif
     return result;
 }
 
-QByteArray QDropEvent::encodedData( const char* format ) const
+QByteArray QDropEvent::encodedData(const char* format) const
 {
-    return qt_olednd_obtain_data( format );
+    return qt_olednd_obtain_data(format);
 }
 
 
 static QDragObject::DragMode current_mode = QDragObject::DragDefault;
 
-bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
+bool QDragManager::drag(QDragObject * o, QDragObject::DragMode mode)
 {
-    if ( object == o ) {
-	return FALSE;
+    if (object == o) {
+        return false;
     }
 
-    if ( object ) {
-	cancel();
-	if ( dragSource )
-	    dragSource->removeEventFilter( this );
-	beingCancelled = FALSE;
+    if (object) {
+        cancel();
+        if (dragSource)
+            dragSource->removeEventFilter(this);
+        beingCancelled = false;
     }
 
     object = o;
@@ -437,12 +437,12 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
     global_src->setTarget(0);
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessible::updateAccessibility( this, 0, QAccessible::DragDropStart );
+    QAccessible::updateAccessibility(this, 0, QAccessible::DragDropStart);
 #endif
 
     const char* fmt;
     for (int i=0; (fmt=object->format(i)); i++)
-	QWindowsMime::registerMimeType(fmt);
+        QWindowsMime::registerMimeType(fmt);
 
     DWORD result_effect;
     QOleDropSource *src = new QOleDropSource(dragSource);
@@ -451,22 +451,22 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
     current_mode = mode;
     switch (mode) {
       case QDragObject::DragDefault:
-	allowed_effects = DROPEFFECT_MOVE|DROPEFFECT_COPY;
-	break;
+        allowed_effects = DROPEFFECT_MOVE|DROPEFFECT_COPY;
+        break;
       case QDragObject::DragMove:
-	allowed_effects = DROPEFFECT_MOVE;
-	break;
+        allowed_effects = DROPEFFECT_MOVE;
+        break;
       case QDragObject::DragCopy:
-	allowed_effects = DROPEFFECT_COPY;
-	break;
+        allowed_effects = DROPEFFECT_COPY;
+        break;
       case QDragObject::DragCopyOrMove:
-	allowed_effects = DROPEFFECT_MOVE|DROPEFFECT_COPY;
-	break;
+        allowed_effects = DROPEFFECT_MOVE|DROPEFFECT_COPY;
+        break;
       case QDragObject::DragLink:
-	allowed_effects = 0;
-	break;
+        allowed_effects = 0;
+        break;
     }
-    acceptact = FALSE;
+    acceptact = false;
     allowed_effects |= DROPEFFECT_LINK;
     updatePixmap();
 #ifdef Q_OS_TEMP
@@ -475,14 +475,14 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
 #else
     HRESULT r = DoDragDrop(obj, src, allowed_effects, &result_effect);
 #endif
-    if ( dragSource ) {
-	QDragResponseEvent e( r == DRAGDROP_S_DROP );
-	QApplication::sendEvent( dragSource, &e );
+    if (dragSource) {
+        QDragResponseEvent e(r == DRAGDROP_S_DROP);
+        QApplication::sendEvent(dragSource, &e);
     }
-    obj->Release();	// Will delete obj if refcount becomes 0
-    src->Release();	// Will delete src if refcount becomes 0
-    if ( !global_src->target() )
-	acceptact=FALSE;
+    obj->Release();        // Will delete obj if refcount becomes 0
+    src->Release();        // Will delete src if refcount becomes 0
+    if (!global_src->target())
+        acceptact=false;
 
     current_dropobj = 0;
     dragSource = 0;
@@ -494,26 +494,26 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
     updatePixmap();
 
     return r == DRAGDROP_S_DROP
-	&& (result_effect & DROPEFFECT_MOVE);
-	//&& !acceptact;
+        && (result_effect & DROPEFFECT_MOVE);
+        //&& !acceptact;
 }
 
-void qt_olednd_unregister( QWidget* widget, QOleDropTarget *dst )
+void qt_olednd_unregister(QWidget* widget, QOleDropTarget *dst)
 {
     dst->releaseQt();
 #ifndef Q_OS_TEMP
-    CoLockObjectExternal(dst, FALSE, TRUE);
+    CoLockObjectExternal(dst, false, true);
     RevokeDragDrop(widget->winId());
 #endif
     delete dst;
 }
 
-QOleDropTarget* qt_olednd_register( QWidget* widget )
+QOleDropTarget* qt_olednd_register(QWidget* widget)
 {
-    QOleDropTarget* dst = new QOleDropTarget( widget );
+    QOleDropTarget* dst = new QOleDropTarget(widget);
 #ifndef Q_OS_TEMP
     RegisterDragDrop(widget->winId(), dst);
-    CoLockObjectExternal(dst, TRUE, TRUE);
+    CoLockObjectExternal(dst, true, true);
 #endif
     return dst;
 }
@@ -576,35 +576,35 @@ STDMETHODIMP
 QOleDropSource::QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyState)
 {
     if (fEscapePressed) {
-	return ResultFromScode(DRAGDROP_S_CANCEL);
-    } else if ( !(grfKeyState & (MK_LBUTTON|MK_MBUTTON|MK_RBUTTON)) ) {
-	return ResultFromScode(DRAGDROP_S_DROP);
+        return ResultFromScode(DRAGDROP_S_CANCEL);
+    } else if (!(grfKeyState & (MK_LBUTTON|MK_MBUTTON|MK_RBUTTON))) {
+        return ResultFromScode(DRAGDROP_S_DROP);
     } else {
-	qApp->sendPostedEvents();
-	return NOERROR;
+        qApp->sendPostedEvents();
+        return NOERROR;
     }
 }
 
 STDMETHODIMP
 QOleDropSource::GiveFeedback(DWORD dwEffect)
 {
-    if ( cursor ) {
-	int c = -1;
-	switch ( dwEffect ) {
-	  case DROPEFFECT_MOVE:
-	    c = 0;
-	    break;
-	  case DROPEFFECT_COPY:
-	    c = 1;
-	    break;
-	  case DROPEFFECT_LINK:
-	    c = 2;
-	    break;
-	}
-	if ( c >= 0 ) {
-	    SetCursor(cursor[c]);
-	    return ResultFromScode(S_OK);
-	}
+    if (cursor) {
+        int c = -1;
+        switch (dwEffect) {
+          case DROPEFFECT_MOVE:
+            c = 0;
+            break;
+          case DROPEFFECT_COPY:
+            c = 1;
+            break;
+          case DROPEFFECT_LINK:
+            c = 2;
+            break;
+        }
+        if (c >= 0) {
+            SetCursor(cursor[c]);
+            return ResultFromScode(S_OK);
+        }
     }
     return ResultFromScode(DRAGDROP_S_USEDEFAULTCURSORS);
 }
@@ -614,7 +614,7 @@ QOleDropSource::GiveFeedback(DWORD dwEffect)
 //                    QOleDataObject Constructor
 //---------------------------------------------------------------------
 
-QOleDataObject::QOleDataObject( QDragObject* o ) :
+QOleDataObject::QOleDataObject(QDragObject* o) :
     object(o)
 {
     m_refs = 1;
@@ -687,28 +687,28 @@ QOleDataObject::GetData(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium)
 
     const char* fmt;
     for (int i=0; (fmt=object->format(i)); i++) {
-	if ((wm=QWindowsMime::convertor(fmt,pformatetc->cfFormat))
-	    && (pformatetc->dwAspect & DVASPECT_CONTENT) &&
-	       (pformatetc->tymed & TYMED_HGLOBAL) &&
-	       qt_CF_HDROP_valid(fmt, pformatetc->cfFormat, object))
-	{
-	    QByteArray data =
-		wm->convertFromMime(object->encodedData(fmt),
-			    fmt, pformatetc->cfFormat);
-	    if ( data.size() ) {
-		HGLOBAL hData = GlobalAlloc(0, data.size());
-		if (!hData) {
-		    return ResultFromScode(E_OUTOFMEMORY);
-		}
-		void* out = GlobalLock(hData);
-		memcpy(out,data.data(),data.size());
-		GlobalUnlock(hData);
-		pmedium->tymed = TYMED_HGLOBAL;
-		pmedium->hGlobal = hData;
-		return ResultFromScode(S_OK);
-	    } else {
-	    }
-	}
+        if ((wm=QWindowsMime::convertor(fmt,pformatetc->cfFormat))
+            && (pformatetc->dwAspect & DVASPECT_CONTENT) &&
+               (pformatetc->tymed & TYMED_HGLOBAL) &&
+               qt_CF_HDROP_valid(fmt, pformatetc->cfFormat, object))
+        {
+            QByteArray data =
+                wm->convertFromMime(object->encodedData(fmt),
+                            fmt, pformatetc->cfFormat);
+            if (data.size()) {
+                HGLOBAL hData = GlobalAlloc(0, data.size());
+                if (!hData) {
+                    return ResultFromScode(E_OUTOFMEMORY);
+                }
+                void* out = GlobalLock(hData);
+                memcpy(out,data.data(),data.size());
+                GlobalUnlock(hData);
+                pmedium->tymed = TYMED_HGLOBAL;
+                pmedium->hGlobal = hData;
+                return ResultFromScode(S_OK);
+            } else {
+            }
+        }
     }
     return ResultFromScode(DATA_E_FORMATETC);
 }
@@ -727,13 +727,13 @@ QOleDataObject::QueryGetData(LPFORMATETC pformatetc)
 
     const char* fmt;
     for (int i=0; (fmt=object->format(i)); i++) {
-	if (QWindowsMime::convertor(fmt,pformatetc->cfFormat) &&
-	   (pformatetc->dwAspect & DVASPECT_CONTENT) &&
-	   (pformatetc->tymed & TYMED_HGLOBAL) &&
-	   qt_CF_HDROP_valid(fmt, pformatetc->cfFormat, object))
-	{
-	    return ResultFromScode(S_OK);
-	}
+        if (QWindowsMime::convertor(fmt,pformatetc->cfFormat) &&
+           (pformatetc->dwAspect & DVASPECT_CONTENT) &&
+           (pformatetc->tymed & TYMED_HGLOBAL) &&
+           qt_CF_HDROP_valid(fmt, pformatetc->cfFormat, object))
+        {
+            return ResultFromScode(S_OK);
+        }
     }
     return ResultFromScode(S_FALSE);
 }
@@ -767,19 +767,19 @@ QOleDataObject::EnumFormatEtc(DWORD dwDirection, LPENUMFORMATETC FAR* ppenumForm
     LPFORMATETC fmtetc = someFormats(object,n);
 
     if (dwDirection == DATADIR_GET){
-	*ppenumFormatEtc = OleStdEnumFmtEtc_Create(n, fmtetc);
-	if (*ppenumFormatEtc == NULL)
-	    sc = E_OUTOFMEMORY;
+        *ppenumFormatEtc = OleStdEnumFmtEtc_Create(n, fmtetc);
+        if (*ppenumFormatEtc == NULL)
+            sc = E_OUTOFMEMORY;
 
     } else if (dwDirection == DATADIR_SET){
-	// A data transfer object that is used to transfer data
-	//    (either via the clipboard or drag/drop does NOT
-	//    accept SetData on ANY format.
-	sc = E_NOTIMPL;
-	goto error;
+        // A data transfer object that is used to transfer data
+        //    (either via the clipboard or drag/drop does NOT
+        //    accept SetData on ANY format.
+        sc = E_NOTIMPL;
+        goto error;
     } else {
-	sc = E_INVALIDARG;
-	goto error;
+        sc = E_INVALIDARG;
+        goto error;
     }
 
 error:
@@ -790,7 +790,7 @@ error:
 
 STDMETHODIMP
 QOleDataObject::DAdvise(FORMATETC FAR*, DWORD,
-		       LPADVISESINK, DWORD FAR* )
+                       LPADVISESINK, DWORD FAR*)
 {
     return ResultFromScode(OLE_E_ADVISENOTSUPPORTED);
 }
@@ -812,11 +812,11 @@ QOleDataObject::EnumDAdvise(LPENUMSTATDATA FAR*)
 
 
 
-QOleDropTarget::QOleDropTarget( QWidget* w ) :
+QOleDropTarget::QOleDropTarget(QWidget* w) :
     widget(w)
 {
    m_refs = 1;
-   acceptfmt = FALSE;
+   acceptfmt = false;
    last_pt.x = last_pt.y = -100000;
    last_effect = DROPEFFECT_NONE;
    last_keystate = (DWORD)-1;
@@ -867,33 +867,33 @@ STDMETHODIMP
 QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 {
     current_dropobj = pDataObj;
-    QDragEnterEvent de( widget->mapFromGlobal(QPoint(pt.x,pt.y)) );
+    QDragEnterEvent de(widget->mapFromGlobal(QPoint(pt.x,pt.y)));
 
-    acceptfmt = TRUE; // set this true to get the correct initial action
+    acceptfmt = true; // set this true to get the correct initial action
     QueryDrop(grfKeyState, pdwEffect);
 
-    if ( *pdwEffect & DROPEFFECT_MOVE )
-	de.setAction( QDropEvent::Move );
-    else if ( *pdwEffect & DROPEFFECT_LINK )
-	de.setAction( QDropEvent::Link );
+    if (*pdwEffect & DROPEFFECT_MOVE)
+        de.setAction(QDropEvent::Move);
+    else if (*pdwEffect & DROPEFFECT_LINK)
+        de.setAction(QDropEvent::Link);
 
-    de.acceptAction(FALSE);
-    de.accept(FALSE);
+    de.acceptAction(false);
+    de.accept(false);
 
-    QApplication::sendEvent( widget, &de );
+    QApplication::sendEvent(widget, &de);
     acceptfmt = de.isAccepted();
     acceptact = de.isActionAccepted();
 
     if (!acceptfmt)
-	*pdwEffect = DROPEFFECT_NONE;
-    else if ( de.action() == QDropEvent::Move )
-	*pdwEffect = DROPEFFECT_MOVE;
-    else if ( de.action() == QDropEvent::Copy )
-	*pdwEffect = DROPEFFECT_COPY;
-    else if ( de.action() == QDropEvent::Link )
-	*pdwEffect = DROPEFFECT_LINK;
+        *pdwEffect = DROPEFFECT_NONE;
+    else if (de.action() == QDropEvent::Move)
+        *pdwEffect = DROPEFFECT_MOVE;
+    else if (de.action() == QDropEvent::Copy)
+        *pdwEffect = DROPEFFECT_COPY;
+    else if (de.action() == QDropEvent::Link)
+        *pdwEffect = DROPEFFECT_LINK;
 
-    
+
     return NOERROR;
 }
 
@@ -901,41 +901,41 @@ STDMETHODIMP
 QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 {
     bool old_acceptfmt = acceptfmt; // set this to get the correct action.
-    acceptfmt = TRUE;
+    acceptfmt = true;
     QueryDrop(grfKeyState, pdwEffect);
     acceptfmt = old_acceptfmt;
 
-    if ( pt.x == last_pt.x && pt.y == last_pt.y &&
-	*pdwEffect == last_effect && grfKeyState == last_keystate ) {
-	if (!acceptact&&!acceptfmt)
-	    *pdwEffect = DROPEFFECT_NONE;
-	return NOERROR;
+    if (pt.x == last_pt.x && pt.y == last_pt.y &&
+        *pdwEffect == last_effect && grfKeyState == last_keystate) {
+        if (!acceptact&&!acceptfmt)
+            *pdwEffect = DROPEFFECT_NONE;
+        return NOERROR;
     }
 
     last_pt = pt;
     last_effect = *pdwEffect;
     last_keystate = grfKeyState;
 
-    QDragMoveEvent de( widget->mapFromGlobal(QPoint(pt.x,pt.y)) );
-    if ( *pdwEffect & DROPEFFECT_MOVE )
-	de.setAction( QDropEvent::Move );
-    else if ( *pdwEffect & DROPEFFECT_LINK )
-	de.setAction( QDropEvent::Link );
+    QDragMoveEvent de(widget->mapFromGlobal(QPoint(pt.x,pt.y)));
+    if (*pdwEffect & DROPEFFECT_MOVE)
+        de.setAction(QDropEvent::Move);
+    else if (*pdwEffect & DROPEFFECT_LINK)
+        de.setAction(QDropEvent::Link);
     de.acceptAction(acceptact);
     de.accept(acceptfmt);
 
-    QApplication::sendEvent( widget, &de );
+    QApplication::sendEvent(widget, &de);
     acceptfmt = de.isAccepted();
     acceptact = de.isActionAccepted();
 
     if (!acceptfmt)
-	*pdwEffect = DROPEFFECT_NONE;
-    else if ( de.action() == QDropEvent::Move )
-	*pdwEffect = DROPEFFECT_MOVE;
-    else if ( de.action() == QDropEvent::Copy )
-	*pdwEffect = DROPEFFECT_COPY;
-    else if ( de.action() == QDropEvent::Link )
-	*pdwEffect = DROPEFFECT_LINK;
+        *pdwEffect = DROPEFFECT_NONE;
+    else if (de.action() == QDropEvent::Move)
+        *pdwEffect = DROPEFFECT_MOVE;
+    else if (de.action() == QDropEvent::Copy)
+        *pdwEffect = DROPEFFECT_COPY;
+    else if (de.action() == QDropEvent::Link)
+        *pdwEffect = DROPEFFECT_LINK;
 
     return NOERROR;
 }
@@ -943,10 +943,10 @@ QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 STDMETHODIMP
 QOleDropTarget::DragLeave()
 {
-    acceptfmt = FALSE;
+    acceptfmt = false;
     current_dropobj = 0;
     QDragLeaveEvent de;
-    QApplication::sendEvent( widget, &de );
+    QApplication::sendEvent(widget, &de);
     return NOERROR;
 }
 
@@ -955,43 +955,43 @@ QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWOR
 {
     if (QueryDrop(grfKeyState, pdwEffect))
     {
-	current_dropobj = pDataObj;
-	
-	if ( global_src )
-	    global_src->setTarget(widget);
-	QDropEvent de( widget->mapFromGlobal(QPoint(pt.x,pt.y)) );
-	if ( *pdwEffect & DROPEFFECT_MOVE )
-	    de.setAction( QDropEvent::Move );
-	else if ( *pdwEffect & DROPEFFECT_LINK )
-	    de.setAction( QDropEvent::Link );
-	
-	de.acceptAction(acceptact);
-	de.accept(acceptfmt);
+        current_dropobj = pDataObj;
 
-	QApplication::sendEvent( widget, &de );
-	
-	acceptfmt = de.isAccepted();
-	acceptact = de.isActionAccepted();
-	
-	if (!acceptfmt)
-	    *pdwEffect = DROPEFFECT_NONE;
-	else if (acceptact)
-	    *pdwEffect = DROPEFFECT_NONE; /* NONE because the source should do nothing .. 
-					  the tagret is responsible to perform the correct action*/
-	else if ( de.action() == QDropEvent::Move )
-	    *pdwEffect = DROPEFFECT_MOVE;
-	else if ( de.action() == QDropEvent::Copy )
-	    *pdwEffect = DROPEFFECT_COPY;
-	else if ( de.action() == QDropEvent::Link )
-	    *pdwEffect = DROPEFFECT_LINK;
-	
-	
-	// We won't get any mouserelease-event, so manually adjust qApp state:
-	QApplication::winMouseButtonUp();
-	
-	acceptfmt = FALSE;
+        if (global_src)
+            global_src->setTarget(widget);
+        QDropEvent de(widget->mapFromGlobal(QPoint(pt.x,pt.y)));
+        if (*pdwEffect & DROPEFFECT_MOVE)
+            de.setAction(QDropEvent::Move);
+        else if (*pdwEffect & DROPEFFECT_LINK)
+            de.setAction(QDropEvent::Link);
+
+        de.acceptAction(acceptact);
+        de.accept(acceptfmt);
+
+        QApplication::sendEvent(widget, &de);
+
+        acceptfmt = de.isAccepted();
+        acceptact = de.isActionAccepted();
+
+        if (!acceptfmt)
+            *pdwEffect = DROPEFFECT_NONE;
+        else if (acceptact)
+            *pdwEffect = DROPEFFECT_NONE; /* NONE because the source should do nothing ..
+                                          the tagret is responsible to perform the correct action*/
+        else if (de.action() == QDropEvent::Move)
+            *pdwEffect = DROPEFFECT_MOVE;
+        else if (de.action() == QDropEvent::Copy)
+            *pdwEffect = DROPEFFECT_COPY;
+        else if (de.action() == QDropEvent::Link)
+            *pdwEffect = DROPEFFECT_LINK;
+
+
+        // We won't get any mouserelease-event, so manually adjust qApp state:
+        QApplication::winMouseButtonUp();
+
+        acceptfmt = false;
         current_dropobj = 0;
-	return NOERROR;
+        return NOERROR;
     }
 
     *pdwEffect = DROPEFFECT_NONE;
@@ -1008,124 +1008,124 @@ QOleDropTarget::QueryDrop(DWORD grfKeyState, LPDWORD pdwEffect)
     DWORD dwOKEffects = *pdwEffect;
 
     if (!acceptfmt)
-	goto dropeffect_none;
+        goto dropeffect_none;
 
     *pdwEffect = OleStdGetDropEffect(grfKeyState);
     if (*pdwEffect == 0) {
-	// No modifier keys used by user while dragging. Try in order: MOVE, COPY, LINK.
-	if (DROPEFFECT_MOVE & dwOKEffects) {
-	    *pdwEffect = DROPEFFECT_MOVE;
-	} else if (DROPEFFECT_COPY & dwOKEffects) {
-	    *pdwEffect = DROPEFFECT_COPY;
-	} else if (DROPEFFECT_LINK & dwOKEffects) {
-	    *pdwEffect = DROPEFFECT_LINK;
-	}
-	else goto dropeffect_none;
+        // No modifier keys used by user while dragging. Try in order: MOVE, COPY, LINK.
+        if (DROPEFFECT_MOVE & dwOKEffects) {
+            *pdwEffect = DROPEFFECT_MOVE;
+        } else if (DROPEFFECT_COPY & dwOKEffects) {
+            *pdwEffect = DROPEFFECT_COPY;
+        } else if (DROPEFFECT_LINK & dwOKEffects) {
+            *pdwEffect = DROPEFFECT_LINK;
+        }
+        else goto dropeffect_none;
     } else {
-	// Check if the drag source application allows the drop effect desired by user.
-	// The drag source specifies this in DoDragDrop
-	if (!(*pdwEffect & dwOKEffects))
-	    goto dropeffect_none;
+        // Check if the drag source application allows the drop effect desired by user.
+        // The drag source specifies this in DoDragDrop
+        if (!(*pdwEffect & dwOKEffects))
+            goto dropeffect_none;
     }
-    return TRUE;
+    return true;
 
 dropeffect_none:
     *pdwEffect = DROPEFFECT_NONE;
-    return FALSE;
+    return false;
 }
 
-extern HBITMAP qt_createIconMask( const QBitmap &bitmap );
+extern HBITMAP qt_createIconMask(const QBitmap &bitmap);
 
 void QDragManager::updatePixmap()
 {
-    if ( object ) {
-	if ( cursor ) {
+    if (object) {
+        if (cursor) {
 #ifndef Q_OS_TEMP
-	    for ( int i=0; i<n_cursor; i++ ) {
-		DestroyCursor(cursor[i]);
-	    }
+            for (int i=0; i<n_cursor; i++) {
+                DestroyCursor(cursor[i]);
+            }
 #endif
-	    delete [] cursor;
-	    cursor = 0;
-	}
+            delete [] cursor;
+            cursor = 0;
+        }
 
-	QPixmap pm = object->pixmap();
-	if ( pm.isNull() ) {
-	    // None.
-	} else {
-	    cursor = new HCURSOR[n_cursor];
-	    QPoint pm_hot = object->pixmapHotSpot();
-	    for (int cnum=0; cnum<n_cursor; cnum++) {
-		QPixmap cpm = pm_cursor[cnum];
+        QPixmap pm = object->pixmap();
+        if (pm.isNull()) {
+            // None.
+        } else {
+            cursor = new HCURSOR[n_cursor];
+            QPoint pm_hot = object->pixmapHotSpot();
+            for (int cnum=0; cnum<n_cursor; cnum++) {
+                QPixmap cpm = pm_cursor[cnum];
 
-		int x1 = qMin(-pm_hot.x(),0);
-		int x2 = qMax(pm.width()-pm_hot.x(),cpm.width());
-		int y1 = qMin(-pm_hot.y(),0);
-		int y2 = qMax(pm.height()-pm_hot.y(),cpm.height());
+                int x1 = qMin(-pm_hot.x(),0);
+                int x2 = qMax(pm.width()-pm_hot.x(),cpm.width());
+                int y1 = qMin(-pm_hot.y(),0);
+                int y2 = qMax(pm.height()-pm_hot.y(),cpm.height());
 
-		int w = x2-x1+1;
-		int h = y2-y1+1;
+                int w = x2-x1+1;
+                int h = y2-y1+1;
 
 #ifndef Q_OS_TEMP
-		if ( QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based ) {
-		    // Limited cursor size
-		    int reqw = GetSystemMetrics(SM_CXCURSOR);
-		    int reqh = GetSystemMetrics(SM_CYCURSOR);
-		    if ( reqw < w ) {
-			// Not wide enough - move objectpm right
-			pm_hot.setX(pm_hot.x()-w+reqw);
-		    }
-		    if ( reqh < h ) {
-			// Not tall enough - move objectpm down
-			pm_hot.setY(pm_hot.y()-h+reqh);
-		    }
-		    // Always use system cursor size
-		    w = reqw;
-		    h = reqh;
-		}
+                if (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) {
+                    // Limited cursor size
+                    int reqw = GetSystemMetrics(SM_CXCURSOR);
+                    int reqh = GetSystemMetrics(SM_CYCURSOR);
+                    if (reqw < w) {
+                        // Not wide enough - move objectpm right
+                        pm_hot.setX(pm_hot.x()-w+reqw);
+                    }
+                    if (reqh < h) {
+                        // Not tall enough - move objectpm down
+                        pm_hot.setY(pm_hot.y()-h+reqh);
+                    }
+                    // Always use system cursor size
+                    w = reqw;
+                    h = reqh;
+                }
 #endif
 
-		QPixmap colorbits(w,h,-1,QPixmap::NormalOptim);
-		{
-		    QPainter p(&colorbits);
-		    p.fillRect(0,0,w,h,color1);
-		    p.drawPixmap(qMax(0,-pm_hot.x()),qMax(0,-pm_hot.y()),pm);
-		    p.drawPixmap(qMax(0,pm_hot.x()),qMax(0,pm_hot.y()),cpm);
-		}
+                QPixmap colorbits(w,h,-1,QPixmap::NormalOptim);
+                {
+                    QPainter p(&colorbits);
+                    p.fillRect(0,0,w,h,color1);
+                    p.drawPixmap(qMax(0,-pm_hot.x()),qMax(0,-pm_hot.y()),pm);
+                    p.drawPixmap(qMax(0,pm_hot.x()),qMax(0,pm_hot.y()),cpm);
+                }
 
-		QBitmap maskbits(w,h,TRUE,QPixmap::NormalOptim);
-		{
-		    QPainter p(&maskbits);
-		    if ( pm.mask() ) {
-			QBitmap m(*pm.mask());
-			m.setMask(m);
-			p.drawPixmap(qMax(0,-pm_hot.x()),qMax(0,-pm_hot.y()),m);
-		    } else {
-			p.fillRect(qMax(0,-pm_hot.x()),qMax(0,-pm_hot.y()),
-			    pm.width(),pm.height(),color1);
-		    }
-		    if ( cpm.mask() ) {
-			QBitmap m(*cpm.mask());
-			m.setMask(m);
-			p.drawPixmap(qMax(0,pm_hot.x()),qMax(0,pm_hot.y()),m);
-		    } else {
-			p.fillRect(qMax(0,pm_hot.x()),qMax(0,pm_hot.y()),
-			    cpm.width(),cpm.height(),
-			    color1);
-		    }
-		}
+                QBitmap maskbits(w,h,true,QPixmap::NormalOptim);
+                {
+                    QPainter p(&maskbits);
+                    if (pm.mask()) {
+                        QBitmap m(*pm.mask());
+                        m.setMask(m);
+                        p.drawPixmap(qMax(0,-pm_hot.x()),qMax(0,-pm_hot.y()),m);
+                    } else {
+                        p.fillRect(qMax(0,-pm_hot.x()),qMax(0,-pm_hot.y()),
+                            pm.width(),pm.height(),color1);
+                    }
+                    if (cpm.mask()) {
+                        QBitmap m(*cpm.mask());
+                        m.setMask(m);
+                        p.drawPixmap(qMax(0,pm_hot.x()),qMax(0,pm_hot.y()),m);
+                    } else {
+                        p.fillRect(qMax(0,pm_hot.x()),qMax(0,pm_hot.y()),
+                            cpm.width(),cpm.height(),
+                            color1);
+                    }
+                }
 
-		HBITMAP im = qt_createIconMask(maskbits);
-		ICONINFO ii;
-		ii.fIcon     = FALSE;
-		ii.xHotspot  = qMax(0,pm_hot.x());
-		ii.yHotspot  = qMax(0,pm_hot.y());
-		ii.hbmMask   = im;
-		ii.hbmColor  = colorbits.hbm();
-		cursor[cnum] = CreateIconIndirect(&ii);
-		DeleteObject( im );
-	    }
-	}
+                HBITMAP im = qt_createIconMask(maskbits);
+                ICONINFO ii;
+                ii.fIcon     = false;
+                ii.xHotspot  = qMax(0,pm_hot.x());
+                ii.yHotspot  = qMax(0,pm_hot.y());
+                ii.hbmMask   = im;
+                ii.hbmColor  = colorbits.hbm();
+                cursor[cnum] = CreateIconIndirect(&ii);
+                DeleteObject(im);
+            }
+        }
     }
 }
 

@@ -7,7 +7,7 @@ public:
     GfxVoodooDriver();
 
     QStringList keys() const;
-    QScreen *create( const QString&, int displayId );
+    QScreen *create(const QString&, int displayId);
 };
 
 GfxVoodooDriver::GfxVoodooDriver()
@@ -22,12 +22,12 @@ QStringList GfxVoodooDriver::keys() const
     return list;
 }
 
-QScreen* GfxVoodooDriver::create( const QString& driver, int displayId )
+QScreen* GfxVoodooDriver::create(const QString& driver, int displayId)
 {
-    if ( driver.lower() == "voodoo3" )
-        return new QVoodooScreen( displayId );
+    if (driver.lower() == "voodoo3")
+        return new QVoodooScreen(displayId);
 
     return 0;
 }
 
-Q_EXPORT_PLUGIN( GfxVoodooDriver )
+Q_EXPORT_PLUGIN(GfxVoodooDriver)

@@ -72,13 +72,13 @@ enum {
     Esc = 0x1b
 };
 
-#define	IsKana(c)	(((c) >= 0xa1) && ((c) <= 0xdf))
-#define	IsSjisChar1(c)	((((c) >= 0x81) && ((c) <= 0x9f)) ||	\
-			 (((c) >= 0xe0) && ((c) <= 0xfc)))
-#define	IsSjisChar2(c)	(((c) >= 0x40) && ((c) != 0x7f) && ((c) <= 0xfc))
-#define	IsUserDefinedChar1(c)	(((c) >= 0xf0) && ((c) <= 0xfc))
+#define        IsKana(c)        (((c) >= 0xa1) && ((c) <= 0xdf))
+#define        IsSjisChar1(c)        ((((c) >= 0x81) && ((c) <= 0x9f)) ||        \
+                         (((c) >= 0xe0) && ((c) <= 0xfc)))
+#define        IsSjisChar2(c)        (((c) >= 0x40) && ((c) != 0x7f) && ((c) <= 0xfc))
+#define        IsUserDefinedChar1(c)        (((c) >= 0xf0) && ((c) <= 0xfc))
 
-#define	QValidChar(u)	((u) ? QChar((ushort)(u)) : QChar(QChar::replacement))
+#define        QValidChar(u)        ((u) ? QChar((ushort)(u)) : QChar(QChar::replacement))
 
 /*!
   Creates a Shift-JIS codec. Note that this is done automatically by
@@ -108,8 +108,8 @@ int QSjisCodec::mibEnum() const
     Name: Shift_JIS  (preferred MIME name)
     MIBenum: 17
     Source: A Microsoft code that extends csHalfWidthKatakana to include
-	    kanji by adding a second byte when the value of the first
-	    byte is in the ranges 81-9F or E0-EF.
+            kanji by adding a second byte when the value of the first
+            byte is in the ranges 81-9F or E0-EF.
     Alias: MS_Kanji
     Alias: csShiftJIS
     */
@@ -127,26 +127,26 @@ QByteArray QSjisCodec::fromUnicode(const QString& uc, int& lenInOut) const
     rstr.resize(rlen);
     uchar* cursor = (uchar*)rstr.data();
     for (int i=0; i<l; i++) {
-	QChar ch = uc[i];
-	uint j;
-	if ( ch.row() == 0x00 && ch.cell() < 0x80 ) {
-	    // ASCII
-	    *cursor++ = ch.cell();
-	} else if ((j = conv->unicodeToJisx0201(ch.row(), ch.cell())) != 0) {
-	    // JIS X 0201 Latin or JIS X 0201 Kana
-	    *cursor++ = j;
-	} else if ((j = conv->unicodeToSjis(ch.row(), ch.cell())) != 0) {
-	    // JIS X 0208
-	    *cursor++ = (j >> 8);
-	    *cursor++ = (j & 0xff);
-	} else if ((j = conv->unicodeToJisx0212(ch.row(), ch.cell())) != 0) {
-	    // JIS X 0212 (can't be encoded in ShiftJIS !)
-	    *cursor++ = 0x81;	// white square
-	    *cursor++ = 0xa0;	// white square
-	} else {
-	    // Error
-	    *cursor++ = '?';	// unknown char
-	}
+        QChar ch = uc[i];
+        uint j;
+        if (ch.row() == 0x00 && ch.cell() < 0x80) {
+            // ASCII
+            *cursor++ = ch.cell();
+        } else if ((j = conv->unicodeToJisx0201(ch.row(), ch.cell())) != 0) {
+            // JIS X 0201 Latin or JIS X 0201 Kana
+            *cursor++ = j;
+        } else if ((j = conv->unicodeToSjis(ch.row(), ch.cell())) != 0) {
+            // JIS X 0208
+            *cursor++ = (j >> 8);
+            *cursor++ = (j & 0xff);
+        } else if ((j = conv->unicodeToJisx0212(ch.row(), ch.cell())) != 0) {
+            // JIS X 0212 (can't be encoded in ShiftJIS !)
+            *cursor++ = 0x81;        // white square
+            *cursor++ = 0xa0;        // white square
+        } else {
+            // Error
+            *cursor++ = '?';        // unknown char
+        }
     }
     lenInOut = cursor - (const uchar*)rstr.constData();
     rstr.resize(lenInOut);
@@ -160,32 +160,32 @@ QString QSjisCodec::toUnicode(const char* chars, int len) const
 {
     QString result;
     for (int i=0; i<len; i++) {
-	uchar ch = chars[i];
-	if ( ch < 0x80 || IsKana(ch) ) {
-	    // JIS X 0201 Latin or JIS X 0201 Kana
-	    uint u = conv->jisx0201ToUnicode(ch);
-	    result += QValidChar(u);
-	} else if ( IsSjisChar1(ch) ) {
-	    // JIS X 0208
-	    if ( i < len-1 ) {
-		uchar c2 = chars[++i];
-		if ( IsSjisChar2(c2) ) {
-		    if ( IsUserDefinedChar1(ch) ) {
-			result += QChar::replacement;
-		    } else {
-			uint u = conv->sjisToUnicode(ch, c2);
-			result += QValidChar(u);
-		    }
-		} else {
-		    i--;
-		    result += QChar::replacement;
-		}
-	    } else {
-		result += QChar::replacement;
-	    }
-	} else {
-	    result += QChar::replacement;
-	}
+        uchar ch = chars[i];
+        if (ch < 0x80 || IsKana(ch)) {
+            // JIS X 0201 Latin or JIS X 0201 Kana
+            uint u = conv->jisx0201ToUnicode(ch);
+            result += QValidChar(u);
+        } else if (IsSjisChar1(ch)) {
+            // JIS X 0208
+            if (i < len-1) {
+                uchar c2 = chars[++i];
+                if (IsSjisChar2(c2)) {
+                    if (IsUserDefinedChar1(ch)) {
+                        result += QChar::replacement;
+                    } else {
+                        uint u = conv->sjisToUnicode(ch, c2);
+                        result += QValidChar(u);
+                    }
+                } else {
+                    i--;
+                    result += QChar::replacement;
+                }
+            } else {
+                result += QChar::replacement;
+            }
+        } else {
+            result += QChar::replacement;
+        }
     }
     return result;
 }
@@ -212,32 +212,32 @@ const char* QSjisCodec::mimeName() const
 int QSjisCodec::heuristicNameMatch(const char* hint) const
 {
     int score = 0;
-    bool ja = FALSE;
+    bool ja = false;
     if (qstrnicmp(hint, "ja_JP", 5) == 0 || qstrnicmp(hint, "japan", 5) == 0) {
-	score += 3;
-	ja = TRUE;
+        score += 3;
+        ja = true;
     } else if (qstrnicmp(hint, "ja", 2) == 0) {
-	score += 2;
-	ja = TRUE;
+        score += 2;
+        ja = true;
     }
     const char *p;
     if (ja) {
-	p = strchr(hint, '.');
-	if (p == 0) {
-	    return score - 1;
-	}
-	p++;
+        p = strchr(hint, '.');
+        if (p == 0) {
+            return score - 1;
+        }
+        p++;
     } else {
-	p = hint;
+        p = hint;
     }
     if (p) {
-	if ((qstricmp(p, "mscode") == 0) ||
-	    (qstricmp(p, "PCK") == 0) ||
-	    (qstricmp(p, "SJIS") == 0) ||
-	    (simpleHeuristicNameMatch(p, "ShiftJIS") > 0) ||
-	    (simpleHeuristicNameMatch(p, "x-sjis") > 0)) {
-	    return score + 4;
-	}
+        if ((qstricmp(p, "mscode") == 0) ||
+            (qstricmp(p, "PCK") == 0) ||
+            (qstricmp(p, "SJIS") == 0) ||
+            (simpleHeuristicNameMatch(p, "ShiftJIS") > 0) ||
+            (simpleHeuristicNameMatch(p, "x-sjis") > 0)) {
+            return score + 4;
+        }
     }
     return QTextCodec::heuristicNameMatch(hint);
 }
@@ -249,33 +249,33 @@ int QSjisCodec::heuristicContentMatch(const char* chars, int len) const
 {
     int score = 0;
     for (int i=0; i<len; i++) {
-	uchar ch = chars[i];
-	// No nulls allowed.
-	if ( !ch || ch == Esc )
-	    return -1;
-	if ( ch < 32 && ch != '\t' && ch != '\n' && ch != '\r' ) {
-	    // Suspicious
-	    if ( score )
-		score--;
-	} else if ( ch < 0x80 ) {
-	    // Inconclusive
-	    score++;
-	} else if ( IsKana(ch) ) {
-	    // JIS X 0201 Kana
-	    score++;
-	} else if ( IsSjisChar1(ch) ) {
-	    // JIS X 0208-1990
-	    if ( i < len-1 ) {
-		uchar c2 = chars[++i];
-		if ( !IsSjisChar2(c2) )
-		    return -1;
-		score++;
-	    }
-	    score++;
-	} else {
-	    // Invalid
-	    return -1;
-	}
+        uchar ch = chars[i];
+        // No nulls allowed.
+        if (!ch || ch == Esc)
+            return -1;
+        if (ch < 32 && ch != '\t' && ch != '\n' && ch != '\r') {
+            // Suspicious
+            if (score)
+                score--;
+        } else if (ch < 0x80) {
+            // Inconclusive
+            score++;
+        } else if (IsKana(ch)) {
+            // JIS X 0201 Kana
+            score++;
+        } else if (IsSjisChar1(ch)) {
+            // JIS X 0208-1990
+            if (i < len-1) {
+                uchar c2 = chars[++i];
+                if (!IsSjisChar2(c2))
+                    return -1;
+                score++;
+            }
+            score++;
+        } else {
+            // Invalid
+            return -1;
+        }
     }
     return score;
 }
@@ -291,42 +291,42 @@ public:
 
     QString toUnicode(const char* chars, int len)
     {
-	QString result;
-	for (int i=0; i<len; i++) {
-	    uchar ch = chars[i];
-	    switch (nbuf) {
-	      case 0:
-		if ( ch < 0x80 || IsKana(ch) ) {
-		    // JIS X 0201 Latin or JIS X 0201 Kana
-		    uint u = conv->jisx0201ToUnicode(ch);
-		    result += QValidChar(u);
-		} else if ( IsSjisChar1(ch) ) {
-		    // JIS X 0208
-		    buf[0] = ch;
-		    nbuf = 1;
-		} else {
-		    // Invalid
-		    result += QChar::replacement;
-		}
-		break;
-	      case 1:
-		// JIS X 0208
-		if ( IsSjisChar2(ch) ) {
-		    if ( IsUserDefinedChar1(buf[0]) ) {
-			result += QChar::replacement;
-		    } else {
-			uint u = conv->sjisToUnicode(buf[0], ch);
-			result += QValidChar(u);
-		    }
-		} else {
-		    // Invalid
-		    result += QChar::replacement;
-		}
-		nbuf = 0;
-		break;
-	    }
-	}
-	return result;
+        QString result;
+        for (int i=0; i<len; i++) {
+            uchar ch = chars[i];
+            switch (nbuf) {
+              case 0:
+                if (ch < 0x80 || IsKana(ch)) {
+                    // JIS X 0201 Latin or JIS X 0201 Kana
+                    uint u = conv->jisx0201ToUnicode(ch);
+                    result += QValidChar(u);
+                } else if (IsSjisChar1(ch)) {
+                    // JIS X 0208
+                    buf[0] = ch;
+                    nbuf = 1;
+                } else {
+                    // Invalid
+                    result += QChar::replacement;
+                }
+                break;
+              case 1:
+                // JIS X 0208
+                if (IsSjisChar2(ch)) {
+                    if (IsUserDefinedChar1(buf[0])) {
+                        result += QChar::replacement;
+                    } else {
+                        uint u = conv->sjisToUnicode(buf[0], ch);
+                        result += QValidChar(u);
+                    }
+                } else {
+                    // Invalid
+                    result += QChar::replacement;
+                }
+                nbuf = 0;
+                break;
+            }
+        }
+        return result;
     }
 };
 

@@ -31,19 +31,19 @@ class QByteArray;
 #ifndef QT_MOC_CPP
 # define slots
 # define signals protected
-# define Q_PRIVATE_SLOT( signature )
+# define Q_PRIVATE_SLOT(signature)
 #ifndef QT_NO_EMIT
 # define emit
 #endif
-#define Q_CLASSINFO( name, value )
-#define Q_INTERFACES( x )
-#define Q_PROPERTY( text )
-#define QDOC_PROPERTY( text )
-#define Q_OVERRIDE( text )
-#define Q_ENUMS( x )
-#define Q_FLAGS( x )
+#define Q_CLASSINFO(name, value)
+#define Q_INTERFACES(x)
+#define Q_PROPERTY(text)
+#define QDOC_PROPERTY(text)
+#define Q_OVERRIDE(text)
+#define Q_ENUMS(x)
+#define Q_FLAGS(x)
 #ifdef QT_COMPAT
-# define Q_SETS( x )
+# define Q_SETS(x)
 #endif
 
 #ifndef QT_NO_TRANSLATION
@@ -51,14 +51,14 @@ class QByteArray;
 // full set of tr functions
 #  define QT_TR_FUNCTIONS \
     static inline QString tr(const char *s, const char *c = 0) \
-	{ return staticMetaObject.tr(s, c); } \
+        { return staticMetaObject.tr(s, c); } \
     static inline QString trUtf8(const char *s, const char *c = 0) \
-	{ return staticMetaObject.trUtf8(s, c); }
+        { return staticMetaObject.trUtf8(s, c); }
 # else
 // no QTextCodec, no utf8
 #  define QT_TR_FUNCTIONS \
     static inline QString tr(const char *s, const char *c = 0) \
-	{ return staticMetaObject.tr(s, c); }
+        { return staticMetaObject.tr(s, c); }
 # endif
 #else
 // inherit the ones from QObject
@@ -79,14 +79,14 @@ private:
 #else
 #define slots slots
 #define signals signals
-#define Q_CLASSINFO( name, value ) Q_CLASSINFO( name, value )
-#define Q_PROPERTY( text ) Q_PROPERTY( text )
-#define QDOC_PROPERTY( text ) QDOC_PROPERTY( text )
-#define Q_OVERRIDE( text ) Q_OVERRIDE( text )
-#define Q_ENUMS( x ) Q_ENUMS( x )
-#define Q_FLAGS( x ) Q_FLAGS( x )
+#define Q_CLASSINFO(name, value) Q_CLASSINFO(name, value)
+#define Q_PROPERTY(text) Q_PROPERTY(text)
+#define QDOC_PROPERTY(text) QDOC_PROPERTY(text)
+#define Q_OVERRIDE(text) Q_OVERRIDE(text)
+#define Q_ENUMS(x) Q_ENUMS(x)
+#define Q_FLAGS(x) Q_FLAGS(x)
 #ifdef QT_COMPAT
-# define Q_SETS( x ) Q_SETS( x )
+# define Q_SETS(x) Q_SETS(x)
 #endif
  /* tmake ignore Q_OBJECT */
 #define Q_OBJECT Q_OBJECT
@@ -105,19 +105,19 @@ private:
 #undef SIGNAL
 #endif
 
-#define METHOD(a)	"0"#a
-#define SLOT(a)		"1"#a
-#define SIGNAL(a)	"2"#a
+#define METHOD(a)        "0"#a
+#define SLOT(a)                "1"#a
+#define SIGNAL(a)        "2"#a
 
 #ifdef QT_COMPAT
-#define METHOD_CODE	0			// member type codes
-#define SLOT_CODE	1
-#define SIGNAL_CODE	2
+#define METHOD_CODE        0                        // member type codes
+#define SLOT_CODE        1
+#define SIGNAL_CODE        2
 #endif
 
-#define QMETHOD_CODE	0			// member type codes
-#define QSLOT_CODE	1
-#define QSIGNAL_CODE	2
+#define QMETHOD_CODE        0                        // member type codes
+#define QSLOT_CODE        1
+#define QSIGNAL_CODE        2
 
 class QObject;
 class QMetaMember;
@@ -137,20 +137,20 @@ struct Q_CORE_EXPORT QMetaObject
     QString trUtf8(const char *s, const char *c) const;
 #endif // QT_NO_TRANSLATION
 
-    int	slotOffset() const;
-    int	signalOffset() const;
-    int	enumeratorOffset() const;
-    int	propertyOffset() const;
-    int	classInfoOffset() const;
+    int        slotOffset() const;
+    int        signalOffset() const;
+    int        enumeratorOffset() const;
+    int        propertyOffset() const;
+    int        classInfoOffset() const;
 
-    int	slotCount() const;
-    int	signalCount() const;
-    int	enumeratorCount() const;
-    int	propertyCount() const;
-    int	classInfoCount() const;
+    int        slotCount() const;
+    int        signalCount() const;
+    int        enumeratorCount() const;
+    int        propertyCount() const;
+    int        classInfoCount() const;
 
-    int	indexOfSlot(const char *slot) const;
-    int	indexOfSignal(const char *signal) const;
+    int        indexOfSlot(const char *slot) const;
+    int        indexOfSignal(const char *signal) const;
     int indexOfEnumerator(const char *name) const;
     int indexOfProperty(const char *name) const;
     int indexOfClassInfo(const char *name) const;
@@ -166,15 +166,15 @@ struct Q_CORE_EXPORT QMetaObject
 
     // internal index-based connect
     static bool connect(const QObject *sender,
-			int signal_index,
-			const QObject *receiver,
-			int membcode, int member_index,
-			int type = 0, int *types = 0);
+                        int signal_index,
+                        const QObject *receiver,
+                        int membcode, int member_index,
+                        int type = 0, int *types = 0);
     // internal index-based disconnect
     static bool disconnect(const QObject *sender,
-			   int signal_index,
-			   const QObject *receiver,
-			   int membcode, int member_index);
+                           int signal_index,
+                           const QObject *receiver,
+                           int membcode, int member_index);
     // internal slot-name based connect
     static void connectSlotsByName(const QObject *o);
 
@@ -187,15 +187,15 @@ struct Q_CORE_EXPORT QMetaObject
     static void changeGuard(QObject **ptr, QObject *o);
 
     enum Call {
-	InvokeSlot = QSLOT_CODE,
-	EmitSignal = QSIGNAL_CODE,
-	ReadProperty,
-	WriteProperty,
-	ResetProperty,
-	QueryPropertyDesignable,
-	QueryPropertyScriptable,
-	QueryPropertyStored,
-	QueryPropertyEditable
+        InvokeSlot = QSLOT_CODE,
+        EmitSignal = QSIGNAL_CODE,
+        ReadProperty,
+        WriteProperty,
+        ResetProperty,
+        QueryPropertyDesignable,
+        QueryPropertyScriptable,
+        QueryPropertyStored,
+        QueryPropertyEditable
     };
 
 #ifdef QT_COMPAT
@@ -203,9 +203,9 @@ struct Q_CORE_EXPORT QMetaObject
 #endif
 
     struct { // private data
-	const QMetaObject *superdata;
-	const char *stringdata;
-	const uint *data;
+        const QMetaObject *superdata;
+        const char *stringdata;
+        const uint *data;
     } d;
 };
 

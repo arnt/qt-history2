@@ -28,32 +28,32 @@ class Q_GUI_EXPORT QAccessibleWidget : public QAccessibleObject
 public:
     QAccessibleWidget(QWidget *o, Role r = Client, const QString& name = QString());
 
-    int		childCount() const;
-    int		indexOfChild(const QAccessibleInterface *child) const;
-    int		relationTo(int child, const QAccessibleInterface *other, int otherChild) const;
+    int                childCount() const;
+    int                indexOfChild(const QAccessibleInterface *child) const;
+    int                relationTo(int child, const QAccessibleInterface *other, int otherChild) const;
 
-    int		childAt(int x, int y) const;
-    QRect	rect(int child) const;
-    int		navigate(Relation rel, int entry, QAccessibleInterface **target) const;
+    int                childAt(int x, int y) const;
+    QRect        rect(int child) const;
+    int                navigate(Relation rel, int entry, QAccessibleInterface **target) const;
 
-    QString	text(Text t, int child) const;
-    Role	role(int child) const;
-    int		state(int child) const;
+    QString        text(Text t, int child) const;
+    Role        role(int child) const;
+    int                state(int child) const;
 
-    int		numActions(int child) const;
-    QString	actionText(int action, Text t, int child) const;
-    bool	doAction(int action, int child);
+    int                numActions(int child) const;
+    QString        actionText(int action, Text t, int child) const;
+    bool        doAction(int action, int child);
 
 protected:
     ~QAccessibleWidget();
     QWidget *widget() const;
     QObject *parentObject() const;
 
-    void	addControllingSignal(const QString &signal);
-    void	setValue(const QString &value);
-    void	setDescription(const QString &desc);
-    void	setHelp(const QString &help);
-    void	setAccelerator(const QString &accel);
+    void        addControllingSignal(const QString &signal);
+    void        setValue(const QString &value);
+    void        setDescription(const QString &desc);
+    void        setHelp(const QString &help);
+    void        setAccelerator(const QString &accel);
 
 private:
     QAccessibleWidgetPrivate *d;

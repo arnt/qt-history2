@@ -91,18 +91,18 @@ boolean qt_fill_input_buffer(j_decompress_ptr cinfo)
     QIODevice* dev = src->iio->ioDevice();
     src->next_input_byte = src->buffer;
     num_read = dev->readBlock((char*)src->buffer, max_buf);
-    if ( num_read <= 0 ) {
-	// Insert a fake EOI marker - as per jpeglib recommendation
-	src->buffer[0] = (JOCTET) 0xFF;
-	src->buffer[1] = (JOCTET) JPEG_EOI;
-	src->bytes_in_buffer = 2;
+    if (num_read <= 0) {
+        // Insert a fake EOI marker - as per jpeglib recommendation
+        src->buffer[0] = (JOCTET) 0xFF;
+        src->buffer[1] = (JOCTET) JPEG_EOI;
+        src->bytes_in_buffer = 2;
     } else {
-	src->bytes_in_buffer = num_read;
+        src->bytes_in_buffer = num_read;
     }
 #if defined(Q_OS_UNIXWARE)
     return B_TRUE;
 #else
-    return TRUE;
+    return true;
 #endif
 }
 
@@ -118,15 +118,15 @@ void qt_skip_input_data(j_decompress_ptr cinfo, long num_bytes)
      * any trouble anyway --- large skips are infrequent.
      */
     if (num_bytes > 0) {
-	while (num_bytes > (long) src->bytes_in_buffer) {
-	    num_bytes -= (long) src->bytes_in_buffer;
-	    (void) qt_fill_input_buffer(cinfo);
-	    /* note we assume that qt_fill_input_buffer will never return FALSE,
-	    * so suspension need not be handled.
-	    */
-	}
-	src->next_input_byte += (size_t) num_bytes;
-	src->bytes_in_buffer -= (size_t) num_bytes;
+        while (num_bytes > (long) src->bytes_in_buffer) {
+            num_bytes -= (long) src->bytes_in_buffer;
+            (void) qt_fill_input_buffer(cinfo);
+            /* note we assume that qt_fill_input_buffer will never return false,
+            * so suspension need not be handled.
+            */
+        }
+        src->next_input_byte += (size_t) num_bytes;
+        src->bytes_in_buffer -= (size_t) num_bytes;
     }
 }
 
@@ -154,14 +154,14 @@ inline my_jpeg_source_mgr::my_jpeg_source_mgr(QImageIO* iioptr)
 
 
 static
-void scaleSize( int &reqW, int &reqH, int imgW, int imgH, QImage::ScaleMode mode )
+void scaleSize(int &reqW, int &reqH, int imgW, int imgH, QImage::ScaleMode mode)
 {
-    if ( mode == QImage::ScaleFree )
+    if (mode == QImage::ScaleFree)
         return;
     int t1 = imgW * reqH;
     int t2 = reqW * imgH;
-    if (( mode == QImage::ScaleMin && (t1 > t2) ) || ( mode == QImage::ScaleMax && (t1 < t2) ))
-	reqH = t2 / imgW;
+    if ((mode == QImage::ScaleMin && (t1 > t2)) || (mode == QImage::ScaleMax && (t1 < t2)))
+        reqH = t2 / imgW;
     else
         reqW = t1 / imgH;
 }
@@ -186,72 +186,72 @@ void read_jpeg_image(QImageIO* iio)
 
     if (!setjmp(jerr.setjmp_buffer)) {
 #if defined(Q_OS_UNIXWARE)
-	(void) jpeg_read_header(&cinfo, B_TRUE);
+        (void) jpeg_read_header(&cinfo, B_TRUE);
 #else
-	(void) jpeg_read_header(&cinfo, TRUE);
+        (void) jpeg_read_header(&cinfo, true);
 #endif
 
-	(void) jpeg_start_decompress(&cinfo);
+        (void) jpeg_start_decompress(&cinfo);
 
-	QString params = iio->parameters();
-	params.simplified();
-	int sWidth = 0, sHeight = 0;
-	char sModeStr[1024] = "";
-	QImage::ScaleMode sMode;
+        QString params = iio->parameters();
+        params.simplified();
+        int sWidth = 0, sHeight = 0;
+        char sModeStr[1024] = "";
+        QImage::ScaleMode sMode;
 
-	if ( params.contains( "GetHeaderInformation" ) ) {
+        if (params.contains("GetHeaderInformation")) {
 
-	    // Create QImage's without allocating the data
-	    if ( cinfo.output_components == 3 || cinfo.output_components == 4) {
-		image = QImage( NULL, cinfo.output_width, cinfo.output_height, 32, NULL, 0, QImage::IgnoreEndian );
-	    } else if ( cinfo.output_components == 1 ) {
-		image = QImage( NULL, cinfo.output_width, cinfo.output_height, 8, NULL, 0, QImage::IgnoreEndian );
-	    } else {
-		// Unsupported format
-	    }
+            // Create QImage's without allocating the data
+            if (cinfo.output_components == 3 || cinfo.output_components == 4) {
+                image = QImage(NULL, cinfo.output_width, cinfo.output_height, 32, NULL, 0, QImage::IgnoreEndian);
+            } else if (cinfo.output_components == 1) {
+                image = QImage(NULL, cinfo.output_width, cinfo.output_height, 8, NULL, 0, QImage::IgnoreEndian);
+            } else {
+                // Unsupported format
+            }
 
 
-	} else if ( params.contains( "Scale" ) ) {
-	    sscanf( params.latin1(), "Scale( %i, %i, %1023s )",
-		    &sWidth, &sHeight, sModeStr );
+        } else if (params.contains("Scale")) {
+            sscanf(params.latin1(), "Scale(%i, %i, %1023s)",
+                    &sWidth, &sHeight, sModeStr);
 
-	    QString sModeQStr( sModeStr );
-	    if ( sModeQStr == "ScaleFree" ) {
-		sMode = QImage::ScaleFree;
-	    } else if ( sModeQStr == "ScaleMin" ) {
-		sMode = QImage::ScaleMin;
-	    } else if ( sModeQStr == "ScaleMax" ) {
-		sMode = QImage::ScaleMax;
-	    } else {
-		qDebug("read_jpeg_image: invalid scale mode \"%s\", see QImage::ScaleMode documentation", sModeStr);
-		sMode = QImage::ScaleFree;
-	    }
+            QString sModeQStr(sModeStr);
+            if (sModeQStr == "ScaleFree") {
+                sMode = QImage::ScaleFree;
+            } else if (sModeQStr == "ScaleMin") {
+                sMode = QImage::ScaleMin;
+            } else if (sModeQStr == "ScaleMax") {
+                sMode = QImage::ScaleMax;
+            } else {
+                qDebug("read_jpeg_image: invalid scale mode \"%s\", see QImage::ScaleMode documentation", sModeStr);
+                sMode = QImage::ScaleFree;
+            }
 
-//	    qDebug( "Parameters ask to scale the image to %i x %i ScaleMode: %s", sWidth, sHeight, sModeStr );
-	    scaleSize( sWidth, sHeight, cinfo.output_width, cinfo.output_height, sMode );
-//	    qDebug( "Scaling the jpeg to %i x %i", sWidth, sHeight, sModeStr );
+//            qDebug("Parameters ask to scale the image to %i x %i ScaleMode: %s", sWidth, sHeight, sModeStr);
+            scaleSize(sWidth, sHeight, cinfo.output_width, cinfo.output_height, sMode);
+//            qDebug("Scaling the jpeg to %i x %i", sWidth, sHeight, sModeStr);
 
-	    if ( cinfo.output_components == 3 || cinfo.output_components == 4) {
-		image.create( sWidth, sHeight, 32 );
-	    } else if ( cinfo.output_components == 1 ) {
-		image.create( sWidth, sHeight, 8, 256 );
-		for (int i=0; i<256; i++)
-		    image.setColor(i, qRgb(i,i,i));
-	    } else {
-		// Unsupported format
-	    }
+            if (cinfo.output_components == 3 || cinfo.output_components == 4) {
+                image.create(sWidth, sHeight, 32);
+            } else if (cinfo.output_components == 1) {
+                image.create(sWidth, sHeight, 8, 256);
+                for (int i=0; i<256; i++)
+                    image.setColor(i, qRgb(i,i,i));
+            } else {
+                // Unsupported format
+            }
 
-	    if (!image.isNull()) {
-		QImage tmpImage( cinfo.output_width, 1, 32 );
-		uchar** inLines = tmpImage.jumpTable();
-		uchar** outLines = image.jumpTable();
-		while (cinfo.output_scanline < cinfo.output_height) {
-		    int outputLine = sHeight * cinfo.output_scanline / cinfo.output_height;
-		    (void) jpeg_read_scanlines(&cinfo, inLines, 1);
-		    if ( cinfo.output_components == 3 ) {
-			uchar *in = inLines[0];
-			QRgb *out = (QRgb*)outLines[outputLine];
-			for (uint i=0; i<cinfo.output_width; i++ ) {
+            if (!image.isNull()) {
+                QImage tmpImage(cinfo.output_width, 1, 32);
+                uchar** inLines = tmpImage.jumpTable();
+                uchar** outLines = image.jumpTable();
+                while (cinfo.output_scanline < cinfo.output_height) {
+                    int outputLine = sHeight * cinfo.output_scanline / cinfo.output_height;
+                    (void) jpeg_read_scanlines(&cinfo, inLines, 1);
+                    if (cinfo.output_components == 3) {
+                        uchar *in = inLines[0];
+                        QRgb *out = (QRgb*)outLines[outputLine];
+                        for (uint i=0; i<cinfo.output_width; i++) {
 // ### Only scaling down an image works, I don't think scaling up will work at the moment
 // ### An idea I have to make this a smooth scale is to progressively add the pixel values up
 // When scaling down, multiple values are being over drawn in to the output buffer.
@@ -259,67 +259,67 @@ void read_jpeg_image(QImageIO* iio)
 // the weight of it when added to the output buffer. At present it is a non-smooth scale which is
 // inefficently implemented, it still uncompresses all the jpeg, an optimization for progressive
 // jpegs could be made if scaling by say 50% or some other special cases
-			    out[sWidth * i / cinfo.output_width] = qRgb( in[0], in[1], in[2] );
-			    in += 3;
-			}
-		    } else {
+                            out[sWidth * i / cinfo.output_width] = qRgb(in[0], in[1], in[2]);
+                            in += 3;
+                        }
+                    } else {
 // ### Need to test the case where the jpeg is grayscale, need some black and white jpegs to test
 // this code. (also only scales down and probably won't scale to a larger size)
-			uchar *in = inLines[0];
-			uchar *out = outLines[outputLine];
-			for (uint i=0; i<cinfo.output_width; i++ ) {
-			    out[sWidth * i / cinfo.output_width] = in[i];
-			}
-		    }
-		}
-		(void) jpeg_finish_decompress(&cinfo);
-	    }
+                        uchar *in = inLines[0];
+                        uchar *out = outLines[outputLine];
+                        for (uint i=0; i<cinfo.output_width; i++) {
+                            out[sWidth * i / cinfo.output_width] = in[i];
+                        }
+                    }
+                }
+                (void) jpeg_finish_decompress(&cinfo);
+            }
 
-	} else {
+        } else {
 
-	    if ( cinfo.output_components == 3 || cinfo.output_components == 4) {
-		image.create( cinfo.output_width, cinfo.output_height, 32 );
-	    } else if ( cinfo.output_components == 1 ) {
-		image.create( cinfo.output_width, cinfo.output_height, 8, 256 );
-		for (int i=0; i<256; i++)
-		    image.setColor(i, qRgb(i,i,i));
-	    } else {
-		// Unsupported format
-	    }
+            if (cinfo.output_components == 3 || cinfo.output_components == 4) {
+                image.create(cinfo.output_width, cinfo.output_height, 32);
+            } else if (cinfo.output_components == 1) {
+                image.create(cinfo.output_width, cinfo.output_height, 8, 256);
+                for (int i=0; i<256; i++)
+                    image.setColor(i, qRgb(i,i,i));
+            } else {
+                // Unsupported format
+            }
 
-	    if (!image.isNull()) {
-		uchar** lines = image.jumpTable();
-		while (cinfo.output_scanline < cinfo.output_height)
-		    (void) jpeg_read_scanlines(&cinfo,
-				lines + cinfo.output_scanline,
-				cinfo.output_height);
-		(void) jpeg_finish_decompress(&cinfo);
-	    }
+            if (!image.isNull()) {
+                uchar** lines = image.jumpTable();
+                while (cinfo.output_scanline < cinfo.output_height)
+                    (void) jpeg_read_scanlines(&cinfo,
+                                lines + cinfo.output_scanline,
+                                cinfo.output_height);
+                (void) jpeg_finish_decompress(&cinfo);
+            }
 
-	    if ( cinfo.output_components == 3 ) {
-		// Expand 24->32 bpp.
-		for (uint j=0; j<cinfo.output_height; j++) {
-		    uchar *in = image.scanLine(j) + cinfo.output_width * 3;
-		    QRgb *out = (QRgb*)image.scanLine(j);
+            if (cinfo.output_components == 3) {
+                // Expand 24->32 bpp.
+                for (uint j=0; j<cinfo.output_height; j++) {
+                    uchar *in = image.scanLine(j) + cinfo.output_width * 3;
+                    QRgb *out = (QRgb*)image.scanLine(j);
 
-		    for (uint i=cinfo.output_width; i--; ) {
-			in-=3;
-			out[i] = qRgb(in[0], in[1], in[2]);
-		    }
-		}
-	    }
+                    for (uint i=cinfo.output_width; i--;) {
+                        in-=3;
+                        out[i] = qRgb(in[0], in[1], in[2]);
+                    }
+                }
+            }
         }
 
-	if ( cinfo.density_unit == 1 ) {
-	    image.setDotsPerMeterX( int(100. * cinfo.X_density / 2.54) );
-	    image.setDotsPerMeterY( int(100. * cinfo.Y_density / 2.54) );
-	} else if ( cinfo.density_unit == 2 ) {
-	    image.setDotsPerMeterX( int(100. * cinfo.X_density) );
-	    image.setDotsPerMeterY( int(100. * cinfo.Y_density) );
-	}
+        if (cinfo.density_unit == 1) {
+            image.setDotsPerMeterX(int(100. * cinfo.X_density / 2.54));
+            image.setDotsPerMeterY(int(100. * cinfo.Y_density / 2.54));
+        } else if (cinfo.density_unit == 2) {
+            image.setDotsPerMeterX(int(100. * cinfo.X_density));
+            image.setDotsPerMeterY(int(100. * cinfo.Y_density));
+        }
 
-	iio->setImage(image);
-	iio->setStatus(0);
+        iio->setImage(image);
+        iio->setStatus(0);
     }
 
     jpeg_destroy_decompress(&cinfo);
@@ -350,10 +350,10 @@ static
 void qt_exit_on_error(j_compress_ptr cinfo, QIODevice* dev)
 {
     if (dev->status() == IO_Ok) {
-	return;
+        return;
     } else {
-	// cinfo->err->msg_code = JERR_FILE_WRITE;
-	(*cinfo->err->error_exit)((j_common_ptr)cinfo);
+        // cinfo->err->msg_code = JERR_FILE_WRITE;
+        (*cinfo->err->error_exit)((j_common_ptr)cinfo);
     }
 }
 
@@ -363,8 +363,8 @@ boolean qt_empty_output_buffer(j_compress_ptr cinfo)
     my_jpeg_destination_mgr* dest = (my_jpeg_destination_mgr*)cinfo->dest;
     QIODevice* dev = dest->iio->ioDevice();
 
-    if ( dev->writeBlock( (char*)dest->buffer, max_buf ) != max_buf )
-	qt_exit_on_error(cinfo, dev);
+    if (dev->writeBlock((char*)dest->buffer, max_buf) != max_buf)
+        qt_exit_on_error(cinfo, dev);
 
     dest->next_output_byte = dest->buffer;
     dest->free_in_buffer = max_buf;
@@ -372,7 +372,7 @@ boolean qt_empty_output_buffer(j_compress_ptr cinfo)
 #if defined(Q_OS_UNIXWARE)
     return B_TRUE;
 #else
-    return TRUE;
+    return true;
 #endif
 }
 
@@ -383,8 +383,8 @@ void qt_term_destination(j_compress_ptr cinfo)
     QIODevice* dev = dest->iio->ioDevice();
     Q_LONG n = max_buf - dest->free_in_buffer;
 
-    if ( dev->writeBlock( (char*)dest->buffer, n ) != n )
-	qt_exit_on_error(cinfo, dev);
+    if (dev->writeBlock((char*)dest->buffer, n) != n)
+        qt_exit_on_error(cinfo, dev);
 
     dev->flush();
 
@@ -425,115 +425,115 @@ void write_jpeg_image(QImageIO* iio)
     jerr.error_exit = my_error_exit;
 
     if (!setjmp(jerr.setjmp_buffer)) {
-	jpeg_create_compress(&cinfo);
+        jpeg_create_compress(&cinfo);
 
-	cinfo.dest = iod_dest;
+        cinfo.dest = iod_dest;
 
-	cinfo.image_width = image.width();
-	cinfo.image_height = image.height();
+        cinfo.image_width = image.width();
+        cinfo.image_height = image.height();
 
-	QRgb* cmap=0;
-	bool gray=FALSE;
-	switch ( image.depth() ) {
-	  case 1:
-	  case 8:
-	    cmap = image.colorTable();
-	    gray = TRUE;
-	    int i;
-	    for (i=image.numColors(); gray && i--; ) {
-		gray = gray & ( qRed(cmap[i]) == qGreen(cmap[i]) &&
-				qRed(cmap[i]) == qBlue(cmap[i]) );
-	    }
-	    cinfo.input_components = gray ? 1 : 3;
-	    cinfo.in_color_space = gray ? JCS_GRAYSCALE : JCS_RGB;
-	    break;
-	  case 32:
-	    cinfo.input_components = 3;
-	    cinfo.in_color_space = JCS_RGB;
-	}
+        QRgb* cmap=0;
+        bool gray=false;
+        switch (image.depth()) {
+          case 1:
+          case 8:
+            cmap = image.colorTable();
+            gray = true;
+            int i;
+            for (i=image.numColors(); gray && i--;) {
+                gray = gray & (qRed(cmap[i]) == qGreen(cmap[i]) &&
+                                qRed(cmap[i]) == qBlue(cmap[i]));
+            }
+            cinfo.input_components = gray ? 1 : 3;
+            cinfo.in_color_space = gray ? JCS_GRAYSCALE : JCS_RGB;
+            break;
+          case 32:
+            cinfo.input_components = 3;
+            cinfo.in_color_space = JCS_RGB;
+        }
 
-	jpeg_set_defaults(&cinfo);
-	int quality = iio->quality() >= 0 ? qMin(iio->quality(),100) : 75;
+        jpeg_set_defaults(&cinfo);
+        int quality = iio->quality() >= 0 ? qMin(iio->quality(),100) : 75;
 #if defined(Q_OS_UNIXWARE)
-	jpeg_set_quality(&cinfo, quality, B_TRUE /* limit to baseline-JPEG values */);
-	jpeg_start_compress(&cinfo, B_TRUE);
+        jpeg_set_quality(&cinfo, quality, B_TRUE /* limit to baseline-JPEG values */);
+        jpeg_start_compress(&cinfo, B_TRUE);
 #else
-	jpeg_set_quality(&cinfo, quality, TRUE /* limit to baseline-JPEG values */);
-	jpeg_start_compress(&cinfo, TRUE);
+        jpeg_set_quality(&cinfo, quality, true /* limit to baseline-JPEG values */);
+        jpeg_start_compress(&cinfo, true);
 #endif
 
-	row_pointer[0] = new uchar[cinfo.image_width*cinfo.input_components];
-	int w = cinfo.image_width;
-	while (cinfo.next_scanline < cinfo.image_height) {
-	    uchar *row = row_pointer[0];
-	    switch ( image.depth() ) {
-	      case 1:
-		if (gray) {
-		    uchar* data = image.scanLine(cinfo.next_scanline);
-		    if ( image.bitOrder() == QImage::LittleEndian ) {
-			for (int i=0; i<w; i++) {
-			    bool bit = !!(*(data + (i >> 3)) & (1 << (i & 7)));
-			    row[i] = qRed(cmap[bit]);
-			}
-		    } else {
-			for (int i=0; i<w; i++) {
-			    bool bit = !!(*(data + (i >> 3)) & (1 << (7 -(i & 7))));
-			    row[i] = qRed(cmap[bit]);
-			}
-		    }
-		} else {
-		    uchar* data = image.scanLine(cinfo.next_scanline);
-		    if ( image.bitOrder() == QImage::LittleEndian ) {
-			for (int i=0; i<w; i++) {
-			    bool bit = !!(*(data + (i >> 3)) & (1 << (i & 7)));
-			    *row++ = qRed(cmap[bit]);
-			    *row++ = qGreen(cmap[bit]);
-			    *row++ = qBlue(cmap[bit]);
-			}
-		    } else {
-			for (int i=0; i<w; i++) {
-			    bool bit = !!(*(data + (i >> 3)) & (1 << (7 -(i & 7))));
-			    *row++ = qRed(cmap[bit]);
-			    *row++ = qGreen(cmap[bit]);
-			    *row++ = qBlue(cmap[bit]);
-			}
-		    }
-		}
-		break;
-	      case 8:
-		if (gray) {
-		    uchar* pix = image.scanLine(cinfo.next_scanline);
-		    for (int i=0; i<w; i++) {
-			*row = qRed(cmap[*pix]);
-			++row; ++pix;
-		    }
-		} else {
-		    uchar* pix = image.scanLine(cinfo.next_scanline);
-		    for (int i=0; i<w; i++) {
-			*row++ = qRed(cmap[*pix]);
-			*row++ = qGreen(cmap[*pix]);
-			*row++ = qBlue(cmap[*pix]);
-			++pix;
-		    }
-		}
-		break;
-	      case 32: {
-		QRgb* rgb = (QRgb*)image.scanLine(cinfo.next_scanline);
-		for (int i=0; i<w; i++) {
-		    *row++ = qRed(*rgb);
-		    *row++ = qGreen(*rgb);
-		    *row++ = qBlue(*rgb);
-		    ++rgb;
-		}
-	      }
-	    }
-	    jpeg_write_scanlines(&cinfo, row_pointer, 1);
-	}
+        row_pointer[0] = new uchar[cinfo.image_width*cinfo.input_components];
+        int w = cinfo.image_width;
+        while (cinfo.next_scanline < cinfo.image_height) {
+            uchar *row = row_pointer[0];
+            switch (image.depth()) {
+              case 1:
+                if (gray) {
+                    uchar* data = image.scanLine(cinfo.next_scanline);
+                    if (image.bitOrder() == QImage::LittleEndian) {
+                        for (int i=0; i<w; i++) {
+                            bool bit = !!(*(data + (i >> 3)) & (1 << (i & 7)));
+                            row[i] = qRed(cmap[bit]);
+                        }
+                    } else {
+                        for (int i=0; i<w; i++) {
+                            bool bit = !!(*(data + (i >> 3)) & (1 << (7 -(i & 7))));
+                            row[i] = qRed(cmap[bit]);
+                        }
+                    }
+                } else {
+                    uchar* data = image.scanLine(cinfo.next_scanline);
+                    if (image.bitOrder() == QImage::LittleEndian) {
+                        for (int i=0; i<w; i++) {
+                            bool bit = !!(*(data + (i >> 3)) & (1 << (i & 7)));
+                            *row++ = qRed(cmap[bit]);
+                            *row++ = qGreen(cmap[bit]);
+                            *row++ = qBlue(cmap[bit]);
+                        }
+                    } else {
+                        for (int i=0; i<w; i++) {
+                            bool bit = !!(*(data + (i >> 3)) & (1 << (7 -(i & 7))));
+                            *row++ = qRed(cmap[bit]);
+                            *row++ = qGreen(cmap[bit]);
+                            *row++ = qBlue(cmap[bit]);
+                        }
+                    }
+                }
+                break;
+              case 8:
+                if (gray) {
+                    uchar* pix = image.scanLine(cinfo.next_scanline);
+                    for (int i=0; i<w; i++) {
+                        *row = qRed(cmap[*pix]);
+                        ++row; ++pix;
+                    }
+                } else {
+                    uchar* pix = image.scanLine(cinfo.next_scanline);
+                    for (int i=0; i<w; i++) {
+                        *row++ = qRed(cmap[*pix]);
+                        *row++ = qGreen(cmap[*pix]);
+                        *row++ = qBlue(cmap[*pix]);
+                        ++pix;
+                    }
+                }
+                break;
+              case 32: {
+                QRgb* rgb = (QRgb*)image.scanLine(cinfo.next_scanline);
+                for (int i=0; i<w; i++) {
+                    *row++ = qRed(*rgb);
+                    *row++ = qGreen(*rgb);
+                    *row++ = qBlue(*rgb);
+                    ++rgb;
+                }
+              }
+            }
+            jpeg_write_scanlines(&cinfo, row_pointer, 1);
+        }
 
-	jpeg_finish_compress(&cinfo);
-	jpeg_destroy_compress(&cinfo);
+        jpeg_finish_compress(&cinfo);
+        jpeg_destroy_compress(&cinfo);
 
-	iio->setStatus(0);
+        iio->setStatus(0);
     }
 
     delete iod_dest;

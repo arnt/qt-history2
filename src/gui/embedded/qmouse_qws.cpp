@@ -35,7 +35,7 @@
 */
 
 /*!
-    \fn virtual void QWSMouseHandler::getCalibration( QWSPointerCalibrationData * ) const
+    \fn virtual void QWSMouseHandler::getCalibration(QWSPointerCalibrationData *) const
 
     \internal
 */
@@ -56,7 +56,7 @@
     The \a driver and \a device arguments are not used by this base
     class.
 */
-QWSMouseHandler::QWSMouseHandler( const QString &, const QString & )
+QWSMouseHandler::QWSMouseHandler(const QString &, const QString &)
     : mousePos(QWSServer::mousePosition)
 {
     QWSServer::setMouseHandler(this);
@@ -74,10 +74,10 @@ QWSMouseHandler::~QWSMouseHandler()
     boundaries, changing \a pt if necessary.
 */
 
-void QWSMouseHandler::limitToScreen( QPoint &pt )
+void QWSMouseHandler::limitToScreen(QPoint &pt)
 {
-    pt.setX( qMin( qt_screen->deviceWidth()-1, qMax( 0, pt.x() )));
-    pt.setY( qMin( qt_screen->deviceHeight()-1, qMax( 0, pt.y() )));
+    pt.setX(qMin(qt_screen->deviceWidth()-1, qMax(0, pt.x())));
+    pt.setY(qMin(qt_screen->deviceHeight()-1, qMax(0, pt.y())));
 }
 
 
@@ -85,7 +85,7 @@ void QWSMouseHandler::limitToScreen( QPoint &pt )
     When a mouse event occurs this function is called with the mouse's
     position in \a pos, and the state of its buttons in \a bstate.
 */
-void QWSMouseHandler::mouseChanged( const QPoint& pos, int bstate )
+void QWSMouseHandler::mouseChanged(const QPoint& pos, int bstate)
 {
     mousePos = pos;
     QWSServer::sendMouseEvent(pos,bstate);
@@ -99,7 +99,7 @@ void QWSMouseHandler::mouseChanged( const QPoint& pos, int bstate )
 */
 
 /*!
-    \fn QWSMouseHandler::calibrate( const QWSPointerCalibrationData * )
+    \fn QWSMouseHandler::calibrate(const QWSPointerCalibrationData *)
 
     This method is reimplemented in the calibrated mouse handler to
     set calibration information (from, for instance, the Qtopia
@@ -111,24 +111,24 @@ void QWSMouseHandler::mouseChanged( const QPoint& pos, int bstate )
  *
  */
 
-QWSCalibratedMouseHandler::QWSCalibratedMouseHandler( const QString &, const QString & )
+QWSCalibratedMouseHandler::QWSCalibratedMouseHandler(const QString &, const QString &)
     : samples(5), currSample(0), numSamples(0)
 {
     clearCalibration();
     readCalibration();
 }
 
-void QWSCalibratedMouseHandler::getCalibration( QWSPointerCalibrationData *cd ) const
+void QWSCalibratedMouseHandler::getCalibration(QWSPointerCalibrationData *cd) const
 {
-    QPoint screen_tl = cd->screenPoints[ QWSPointerCalibrationData::TopLeft ];
-    QPoint screen_br = cd->screenPoints[ QWSPointerCalibrationData::BottomRight ];
+    QPoint screen_tl = cd->screenPoints[QWSPointerCalibrationData::TopLeft];
+    QPoint screen_br = cd->screenPoints[QWSPointerCalibrationData::BottomRight];
 
-    int tlx = ( s * screen_tl.x() - c ) / a;
-    int tly = ( s * screen_tl.y() - f ) / e;
-    cd->devPoints[ QWSPointerCalibrationData::TopLeft ] = QPoint(tlx,tly);
-    cd->devPoints[ QWSPointerCalibrationData::BottomRight ] =
-	QPoint( tlx - (s * (screen_tl.x() - screen_br.x() ) / a),
-		tly - (s * (screen_tl.y() - screen_br.y() ) / e) );
+    int tlx = (s * screen_tl.x() - c) / a;
+    int tly = (s * screen_tl.y() - f) / e;
+    cd->devPoints[QWSPointerCalibrationData::TopLeft] = QPoint(tlx,tly);
+    cd->devPoints[QWSPointerCalibrationData::BottomRight] =
+        QPoint(tlx - (s * (screen_tl.x() - screen_br.x()) / a),
+                tly - (s * (screen_tl.y() - screen_br.y()) / e));
 }
 
 void QWSCalibratedMouseHandler::clearCalibration()
@@ -146,15 +146,15 @@ void QWSCalibratedMouseHandler::writeCalibration()
 {
     QString calFile = "/etc/pointercal";
 #ifndef QT_NO_TEXTSTREAM
-    QFile file( calFile );
-    if ( file.open( IO_WriteOnly ) ) {
-	QTextStream t( &file );
-	t << a << " " << b << " " << c << " ";
-	t << d << " " << e << " " << f << " " << s;
+    QFile file(calFile);
+    if (file.open(IO_WriteOnly)) {
+        QTextStream t(&file);
+        t << a << " " << b << " " << c << " ";
+        t << d << " " << e << " " << f << " " << s;
     } else
 #endif
     {
-	qDebug( "Could not save calibration: %s", calFile.latin1() );
+        qDebug("Could not save calibration: %s", calFile.latin1());
     }
 }
 
@@ -162,102 +162,102 @@ void QWSCalibratedMouseHandler::readCalibration()
 {
     QString calFile = "/etc/pointercal";
 #ifndef QT_NO_TEXTSTREAM
-    QFile file( calFile );
-    if ( file.open( IO_ReadOnly ) ) {
-	QTextStream t( &file );
-	t >> a >> b >> c >> d >> e >> f >> s;
+    QFile file(calFile);
+    if (file.open(IO_ReadOnly)) {
+        QTextStream t(&file);
+        t >> a >> b >> c >> d >> e >> f >> s;
     } else
 #endif
     {
-	qDebug( "Could not read calibration: %s", calFile.latin1() );
+        qDebug("Could not read calibration: %s", calFile.latin1());
     }
 }
 
-void QWSCalibratedMouseHandler::calibrate( const QWSPointerCalibrationData *cd )
+void QWSCalibratedMouseHandler::calibrate(const QWSPointerCalibrationData *cd)
 {
-    QPoint dev_tl = cd->devPoints[ QWSPointerCalibrationData::TopLeft ];
-    QPoint dev_br = cd->devPoints[ QWSPointerCalibrationData::BottomRight ];
-    QPoint screen_tl = cd->screenPoints[ QWSPointerCalibrationData::TopLeft ];
-    QPoint screen_br = cd->screenPoints[ QWSPointerCalibrationData::BottomRight ];
+    QPoint dev_tl = cd->devPoints[QWSPointerCalibrationData::TopLeft];
+    QPoint dev_br = cd->devPoints[QWSPointerCalibrationData::BottomRight];
+    QPoint screen_tl = cd->screenPoints[QWSPointerCalibrationData::TopLeft];
+    QPoint screen_br = cd->screenPoints[QWSPointerCalibrationData::BottomRight];
 
     s = 1 << 16;
 
-    a = s * (screen_tl.x() - screen_br.x() ) / (dev_tl.x() - dev_br.x());
+    a = s * (screen_tl.x() - screen_br.x()) / (dev_tl.x() - dev_br.x());
     b = 0;
     c = s * screen_tl.x() - a * dev_tl.x();
 
     d = 0;
-    e = s * (screen_tl.y() - screen_br.y() ) / (dev_tl.y() - dev_br.y());
+    e = s * (screen_tl.y() - screen_br.y()) / (dev_tl.y() - dev_br.y());
     f = s * screen_tl.y() - e * dev_tl.y();
 
     writeCalibration();
 }
 
-QPoint QWSCalibratedMouseHandler::transform( const QPoint &p )
+QPoint QWSCalibratedMouseHandler::transform(const QPoint &p)
 {
     QPoint tp;
 
-    tp.setX( (a * p.x() + b * p.y() + c) / s );
-    tp.setY( (d * p.x() + e * p.y() + f) / s );
+    tp.setX((a * p.x() + b * p.y() + c) / s);
+    tp.setY((d * p.x() + e * p.y() + f) / s);
 
     return tp;
 }
 
-void QWSCalibratedMouseHandler::setFilterSize( int s )
+void QWSCalibratedMouseHandler::setFilterSize(int s)
 {
-    samples.resize( s );
+    samples.resize(s);
     numSamples = 0;
     currSample = 0;
 }
 
-bool QWSCalibratedMouseHandler::sendFiltered( const QPoint &p, int button )
+bool QWSCalibratedMouseHandler::sendFiltered(const QPoint &p, int button)
 {
-    if ( !button ) {
-	if ( numSamples >= samples.count() )
-	    mouseChanged( mousePos, 0 );
-	currSample = 0;
-	numSamples = 0;
-	return TRUE;
+    if (!button) {
+        if (numSamples >= samples.count())
+            mouseChanged(mousePos, 0);
+        currSample = 0;
+        numSamples = 0;
+        return true;
     }
 
-    bool sent = FALSE;
+    bool sent = false;
     samples[currSample] = p;
     numSamples++;
-    if ( numSamples >= samples.count() ) {
-	int maxd = 0;
-	int ignore = 0;
-	// throw away the "worst" sample
-	for ( int i = 0; i < samples.count(); i++ ) {
-	    int d = ( mousePos - samples[i] ).manhattanLength();
-	    if ( d > maxd ) {
-		maxd = d;
-		ignore = i;
-	    }
-	}
-	bool first = TRUE;
-	QPoint pos;
-	// average the rest
-	for ( int i = 0; i < samples.count(); i++ ) {
-	    if ( ignore != i ) {
-		if ( first ) {
-		    pos = samples[i];
-		    first = FALSE;
-		} else {
-		    pos += samples[i];
-		}
-	    }
-	}
-	pos /= (int)(samples.count() - 1);
-	pos = transform( pos );
-	if ( pos != mousePos || numSamples == samples.count() ) {
-	    mousePos = pos;
-	    mouseChanged( mousePos, button );
-	    sent = TRUE;
-	}
+    if (numSamples >= samples.count()) {
+        int maxd = 0;
+        int ignore = 0;
+        // throw away the "worst" sample
+        for (int i = 0; i < samples.count(); i++) {
+            int d = (mousePos - samples[i]).manhattanLength();
+            if (d > maxd) {
+                maxd = d;
+                ignore = i;
+            }
+        }
+        bool first = true;
+        QPoint pos;
+        // average the rest
+        for (int i = 0; i < samples.count(); i++) {
+            if (ignore != i) {
+                if (first) {
+                    pos = samples[i];
+                    first = false;
+                } else {
+                    pos += samples[i];
+                }
+            }
+        }
+        pos /= (int)(samples.count() - 1);
+        pos = transform(pos);
+        if (pos != mousePos || numSamples == samples.count()) {
+            mousePos = pos;
+            mouseChanged(mousePos, button);
+            sent = true;
+        }
     }
     currSample++;
-    if ( currSample >= samples.count() )
-	currSample = 0;
+    if (currSample >= samples.count())
+        currSample = 0;
 
     return sent;
 }

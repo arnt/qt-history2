@@ -18,7 +18,7 @@
 #include "qpaintengine.h"
 #include "private/qpicture_p.h" // for QPaintCommands
 
-#if !defined(QT_MODULE_XML) || defined( QT_LICENSE_PROFESSIONAL ) || defined( QT_INTERNAL_XML )
+#if !defined(QT_MODULE_XML) || defined(QT_LICENSE_PROFESSIONAL) || defined(QT_INTERNAL_XML)
 #define QM_EXPORT_SVG
 #else
 #define QM_EXPORT_SVG Q_XML_EXPORT
@@ -34,7 +34,7 @@ public:
     QSVGPaintEngine();
     ~QSVGPaintEngine();
 
-    bool begin(QPaintDevice *pdev, QPainterState *state, bool unclipped = FALSE);
+    bool begin(QPaintDevice *pdev, QPainterState *state, bool unclipped = false);
     bool end();
 
     void updatePen(QPainterState *ps);

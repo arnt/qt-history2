@@ -211,7 +211,7 @@ extern "C" Bool XUnregisterIMInstantiateCallback(
     XPointer
 );
 
-extern "C" char *XSetIMValues( XIM /* im */, ... );
+extern "C" char *XSetIMValues(XIM /* im */, ...);
 
 #endif
 
@@ -248,23 +248,23 @@ struct QX11Data
 #endif
     // current focus model
     enum {
-	FM_Unknown = -1,
-	FM_Other = 0,
-	FM_PointerRoot = 1
+        FM_Unknown = -1,
+        FM_Other = 0,
+        FM_PointerRoot = 1
     };
     int focus_model;
-    // TRUE if Qt is compiled w/ XRandR support and XRandR exists on the connected Display
+    // true if Qt is compiled w/ XRandR support and XRandR exists on the connected Display
     bool use_xrandr;
     int xrandr_eventbase;
-    // TRUE if Qt is compiled w/ XRender support and XRender exists on the connected Display
+    // true if Qt is compiled w/ XRender support and XRender exists on the connected Display
     bool use_xrender;
     bool has_xft;
     bool xftDone;
     QList<QWidget *> deferred_map;
     struct ScrollInProgress {
-	long id;
-	QWidget* scrolled_widget;
-	int dx, dy;
+        long id;
+        QWidget* scrolled_widget;
+        int dx, dy;
     };
     long sip_serial;
     QList<ScrollInProgress> sip_list;
@@ -279,118 +279,118 @@ struct QX11Data
 
     /* Warning: if you modify this list, modify the names of atoms in qapplication_x11.cpp as well! */
     enum X11Atom {
-	// window-manager <-> client protocols
-	WM_PROTOCOLS,
-	WM_DELETE_WINDOW,
-	WM_TAKE_FOCUS,
-	_NET_WM_PING,
-	_NET_WM_CONTEXT_HELP,
+        // window-manager <-> client protocols
+        WM_PROTOCOLS,
+        WM_DELETE_WINDOW,
+        WM_TAKE_FOCUS,
+        _NET_WM_PING,
+        _NET_WM_CONTEXT_HELP,
 
-	// ICCCM window state
-	WM_STATE,
-	WM_CHANGE_STATE,
+        // ICCCM window state
+        WM_STATE,
+        WM_CHANGE_STATE,
 
-	// Session management
-	WM_CLIENT_LEADER,
-	WM_WINDOW_ROLE,
-	SM_CLIENT_ID,
+        // Session management
+        WM_CLIENT_LEADER,
+        WM_WINDOW_ROLE,
+        SM_CLIENT_ID,
 
-	// Clipboard
-	CLIPBOARD,
-	INCR,
-	TARGETS,
-	MULTIPLE,
-	TIMESTAMP,
-	CLIP_TEMPORARY,
-	_QT_SELECTION,
-	_QT_CLIPBOARD_SENTINEL,
-	_QT_SELECTION_SENTINEL,
+        // Clipboard
+        CLIPBOARD,
+        INCR,
+        TARGETS,
+        MULTIPLE,
+        TIMESTAMP,
+        CLIP_TEMPORARY,
+        _QT_SELECTION,
+        _QT_CLIPBOARD_SENTINEL,
+        _QT_SELECTION_SENTINEL,
 
-	RESOURCE_MANAGER,
+        RESOURCE_MANAGER,
 
-	_XSETROOT_ID,
+        _XSETROOT_ID,
 
-	_QT_SCROLL_DONE,
-	_QT_INPUT_ENCODING,
-	_QT_SIZEGRIP,
+        _QT_SCROLL_DONE,
+        _QT_INPUT_ENCODING,
+        _QT_SIZEGRIP,
 
-	_MOTIF_WM_HINTS,
+        _MOTIF_WM_HINTS,
 
-	DTWM_IS_RUNNING,
-	KWIN_RUNNING,
-	KWM_RUNNING,
-	GNOME_BACKGROUND_PROPERTIES,
-	ENLIGHTENMENT_DESKTOP,
+        DTWM_IS_RUNNING,
+        KWIN_RUNNING,
+        KWM_RUNNING,
+        GNOME_BACKGROUND_PROPERTIES,
+        ENLIGHTENMENT_DESKTOP,
 
-	// EWMH (aka NETWM)
-	_NET_SUPPORTED,
-	_NET_VIRTUAL_ROOTS,
-	_NET_WORKAREA,
+        // EWMH (aka NETWM)
+        _NET_SUPPORTED,
+        _NET_VIRTUAL_ROOTS,
+        _NET_WORKAREA,
 
-	_NET_WM_NAME,
-	_NET_WM_ICON_NAME,
+        _NET_WM_NAME,
+        _NET_WM_ICON_NAME,
 
-	_NET_WM_PID,
+        _NET_WM_PID,
 
-	_NET_WM_STATE,
-	_NET_WM_STATE_ABOVE,
-	_NET_WM_STATE_FULLSCREEN,
-	_NET_WM_STATE_MAXIMIZED_HORZ,
-	_NET_WM_STATE_MAXIMIZED_VERT,
-	_NET_WM_STATE_MODAL,
-	_NET_WM_STATE_STAYS_ON_TOP,
+        _NET_WM_STATE,
+        _NET_WM_STATE_ABOVE,
+        _NET_WM_STATE_FULLSCREEN,
+        _NET_WM_STATE_MAXIMIZED_HORZ,
+        _NET_WM_STATE_MAXIMIZED_VERT,
+        _NET_WM_STATE_MODAL,
+        _NET_WM_STATE_STAYS_ON_TOP,
 
-	_NET_WM_USER_TIME,
+        _NET_WM_USER_TIME,
 
-	_NET_WM_WINDOW_TYPE,
-	_NET_WM_WINDOW_TYPE_DIALOG,
-	_NET_WM_WINDOW_TYPE_MENU,
-	_NET_WM_WINDOW_TYPE_NORMAL,
-	_KDE_NET_WM_WINDOW_TYPE_OVERRIDE,
-	_NET_WM_WINDOW_TYPE_SPLASH,
-	_NET_WM_WINDOW_TYPE_TOOLBAR,
-	_NET_WM_WINDOW_TYPE_UTILITY,
+        _NET_WM_WINDOW_TYPE,
+        _NET_WM_WINDOW_TYPE_DIALOG,
+        _NET_WM_WINDOW_TYPE_MENU,
+        _NET_WM_WINDOW_TYPE_NORMAL,
+        _KDE_NET_WM_WINDOW_TYPE_OVERRIDE,
+        _NET_WM_WINDOW_TYPE_SPLASH,
+        _NET_WM_WINDOW_TYPE_TOOLBAR,
+        _NET_WM_WINDOW_TYPE_UTILITY,
 
-	_KDE_NET_WM_FRAME_STRUT,
+        _KDE_NET_WM_FRAME_STRUT,
 
-	// Property formats
-	COMPOUND_TEXT,
-	TEXT,
-	UTF8_STRING,
+        // Property formats
+        COMPOUND_TEXT,
+        TEXT,
+        UTF8_STRING,
 
-	// Xdnd
-	XdndEnter,
-	XdndPosition,
-	XdndStatus,
-	XdndLeave,
-	XdndDrop,
-	XdndFinished,
-	XdndTypelist,
+        // Xdnd
+        XdndEnter,
+        XdndPosition,
+        XdndStatus,
+        XdndLeave,
+        XdndDrop,
+        XdndFinished,
+        XdndTypelist,
 
-	XdndSelection,
+        XdndSelection,
 
-	XdndAware,
-	XdndProxy,
+        XdndAware,
+        XdndProxy,
 
-	XdndActionCopy,
-	XdndActionLink,
-	XdndActionMove,
-	XdndActionPrivate,
+        XdndActionCopy,
+        XdndActionLink,
+        XdndActionMove,
+        XdndActionPrivate,
 
-	// Motif DND
-	_MOTIF_DRAG_AND_DROP_MESSAGE,
-	_MOTIF_DRAG_INITIATOR_INFO,
-	_MOTIF_DRAG_RECEIVER_INFO,
-	_MOTIF_DRAG_WINDOW,
-	_MOTIF_DRAG_TARGETS,
+        // Motif DND
+        _MOTIF_DRAG_AND_DROP_MESSAGE,
+        _MOTIF_DRAG_INITIATOR_INFO,
+        _MOTIF_DRAG_RECEIVER_INFO,
+        _MOTIF_DRAG_WINDOW,
+        _MOTIF_DRAG_TARGETS,
 
-	XmTRANSFER_SUCCESS,
-	XmTRANSFER_FAILURE,
+        XmTRANSFER_SUCCESS,
+        XmTRANSFER_FAILURE,
 
-	NPredefinedAtoms,
+        NPredefinedAtoms,
 
-	_QT_SETTINGS_TIMESTAMP = NPredefinedAtoms,
-	NAtoms
+        _QT_SETTINGS_TIMESTAMP = NPredefinedAtoms,
+        NAtoms
     };
     Atom atoms[NAtoms];
 };

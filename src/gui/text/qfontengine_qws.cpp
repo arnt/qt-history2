@@ -27,8 +27,8 @@ FT_Library QFontEngineFT::ft_library = 0;
 class QGlyph {
 public:
     QGlyph() :
-	advance(0),
-	data(0) {}
+        advance(0),
+        data(0) {}
     ~QGlyph() {}
 
     Q_UINT8 pitch;
@@ -51,19 +51,19 @@ static void render(FT_Face face, glyph_t index, QGlyph *result, bool smooth)
 
     err=FT_Load_Glyph(face, index, FT_LOAD_DEFAULT);
     if (err) {
-	qDebug("failed loading glyph %d from font", index);
-	Q_ASSERT(!err);
+        qDebug("failed loading glyph %d from font", index);
+        Q_ASSERT(!err);
     }
 
     if (face->glyph->format != FT_GLYPH_FORMAT_BITMAP) {
-	FT_Render_Mode render_mode = FT_RENDER_MODE_NORMAL;
-	if (!smooth)
-	    render_mode = FT_RENDER_MODE_MONO;
-	err = FT_Render_Glyph( face->glyph, render_mode);
-	if (err) {
-	    qDebug("failed rendering glyph %d from font", index);
-	    Q_ASSERT(!err);
-	}
+        FT_Render_Mode render_mode = FT_RENDER_MODE_NORMAL;
+        if (!smooth)
+            render_mode = FT_RENDER_MODE_MONO;
+        err = FT_Render_Glyph(face->glyph, render_mode);
+        if (err) {
+            qDebug("failed rendering glyph %d from font", index);
+            Q_ASSERT(!err);
+        }
     }
 
     FT_Bitmap bm = face->glyph->bitmap;
@@ -74,10 +74,10 @@ static void render(FT_Face face, glyph_t index, QGlyph *result, bool smooth)
     int size = bm.pitch*bm.rows;
     result->data = new uchar[size];
     result->mono = bm.pixel_mode == ft_pixel_mode_mono;
-    if ( size ) {
-	memcpy( result->data, bm.buffer, size );
+    if (size) {
+        memcpy(result->data, bm.buffer, size);
     } else {
-	result->data = 0;
+        result->data = 0;
     }
     result->bearingx = face->glyph->metrics.horiBearingX/64;
     result->advance = face->glyph->metrics.horiAdvance/64;
@@ -99,7 +99,7 @@ QFontEngineFT::QFontEngineFT(const QFontDef& d, const QPaintDevice *pd, FT_Face 
 
     smooth = FT_IS_SCALABLE(face);
     if (fontDef.styleStrategy & QFont::NoAntialias)
-	smooth = false;
+        smooth = false;
     rendered_glyphs = new QGlyph *[face->num_glyphs];
     memset(rendered_glyphs, 0, face->num_glyphs*sizeof(QGlyph *));
     cache_cost = face->num_glyphs*6*8; // ##########
@@ -108,7 +108,7 @@ QFontEngineFT::QFontEngineFT(const QFontDef& d, const QPaintDevice *pd, FT_Face 
 QFontEngineFT::~QFontEngineFT()
 {
     for (int i = 0; i < face->num_glyphs; ++i)
-	delete rendered_glyphs[i];
+        delete rendered_glyphs[i];
     delete [] rendered_glyphs;
     FT_Done_Face(face);
 }
@@ -121,59 +121,59 @@ QFontEngine::FECaps QFontEngineFT::capabilites() const
 
 
 /* returns 0 as glyph index for non existant glyphs */
-bool QFontEngineFT::stringToCMap( const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags ) const
+bool QFontEngineFT::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const
 {
     if(*nglyphs < len) {
-	*nglyphs = len;
-	return false;
+        *nglyphs = len;
+        return false;
     }
-    if ( flags & QTextEngine::RightToLeft ) {
-	for(int i = 0; i < len; i++ ) {
-	    unsigned short ch = ::mirroredChar(str[i]).unicode();
-	    if (ch == 0xa0) ch = 0x20;
-	    glyphs[i].glyph = FT_Get_Char_Index(face, ch);
-	}
+    if (flags & QTextEngine::RightToLeft) {
+        for(int i = 0; i < len; i++) {
+            unsigned short ch = ::mirroredChar(str[i]).unicode();
+            if (ch == 0xa0) ch = 0x20;
+            glyphs[i].glyph = FT_Get_Char_Index(face, ch);
+        }
     } else {
-	for(int i = 0; i < len; i++ ) {
-	    unsigned short ch = str[i].unicode();
-	    if (ch == 0xa0) ch = 0x20;
-	    glyphs[i].glyph = FT_Get_Char_Index(face, ch);
-	}
+        for(int i = 0; i < len; i++) {
+            unsigned short ch = str[i].unicode();
+            if (ch == 0xa0) ch = 0x20;
+            glyphs[i].glyph = FT_Get_Char_Index(face, ch);
+        }
     }
     *nglyphs = len;
     for(int i = 0; i < len; i++) {
-	int g = glyphs[i].glyph;
-	if (!rendered_glyphs[g]) {
-	    Q_ASSERT(g < face->num_glyphs);
-	    rendered_glyphs[g] = new QGlyph;
-	    render(face, g, rendered_glyphs[g], smooth);
-	    if ( ::category(str[i]) == QChar::Mark_NonSpacing )
-		rendered_glyphs[g]->advance = 0;
-	}
-	glyphs[i].advance.x = rendered_glyphs[g]->advance;
-	glyphs[i].advance.y = 0;
+        int g = glyphs[i].glyph;
+        if (!rendered_glyphs[g]) {
+            Q_ASSERT(g < face->num_glyphs);
+            rendered_glyphs[g] = new QGlyph;
+            render(face, g, rendered_glyphs[g], smooth);
+            if (::category(str[i]) == QChar::Mark_NonSpacing)
+                rendered_glyphs[g]->advance = 0;
+        }
+        glyphs[i].advance.x = rendered_glyphs[g]->advance;
+        glyphs[i].advance.y = 0;
     }
     return true;
 }
 
 
-void QFontEngineFT::draw( QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags )
+void QFontEngineFT::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags)
 {
     Q_ASSERT(p->painterState()->txop < QPainter::TxScale);
 
     if (p->painterState()->txop == QPainter::TxTranslate)
-	p->painterState()->painter->map( x, y, &x, &y );
+        p->painterState()->painter->map(x, y, &x, &y);
 
-    if ( textFlags ) {
-	int lw = lineThickness().toInt();
-	GFX(p)->setBrush( p->painterState()->pen.color() );
-	if ( textFlags & Qt::Underline )
-	    GFX(p)->fillRect( x, y+underlinePosition().toInt(), si.width, lw );
-	if ( textFlags & Qt::StrikeOut )
-	    GFX(p)->fillRect( x, y-ascent().toInt()/3, si.width, lw );
-	if ( textFlags & Qt::Overline )
-	    GFX(p)->fillRect( x, y-ascent().toInt()-1, si.width, lw );
-	GFX(p)->setBrush( p->painterState()->brush );
+    if (textFlags) {
+        int lw = lineThickness().toInt();
+        GFX(p)->setBrush(p->painterState()->pen.color());
+        if (textFlags & Qt::Underline)
+            GFX(p)->fillRect(x, y+underlinePosition().toInt(), si.width, lw);
+        if (textFlags & Qt::StrikeOut)
+            GFX(p)->fillRect(x, y-ascent().toInt()/3, si.width, lw);
+        if (textFlags & Qt::Overline)
+            GFX(p)->fillRect(x, y-ascent().toInt()-1, si.width, lw);
+        GFX(p)->setBrush(p->painterState()->brush);
     }
 
     QGlyphLayout *glyphs = si.glyphs;
@@ -194,21 +194,21 @@ void QFontEngineFT::draw( QPaintEngine *p, int x, int y, const QTextItem &si, in
     gfx->setSourcePen();
 
     if (si.right_to_left)
-	glyphs += si.num_glyphs - 1;
-    for( int i = 0; i < si.num_glyphs; i++ ) {
-	const QGlyphLayout *g = glyphs + (si.right_to_left ? -i : i);
-	const QGlyph *glyph = rendered_glyphs[g->glyph];
-	Q_ASSERT(glyph);
-	int myw = glyph->width;
-	gfx->setAlphaType(glyph->mono ? QGfx::BigEndianMask : QGfx::SeparateAlpha);
-	gfx->setAlphaSource(glyph->data, glyph->pitch);
-	int myx = x + (g->offset.x + glyph->bearingx).toInt();
-	int myy = y + (g->offset.y - glyph->bearingy).toInt();
+        glyphs += si.num_glyphs - 1;
+    for(int i = 0; i < si.num_glyphs; i++) {
+        const QGlyphLayout *g = glyphs + (si.right_to_left ? -i : i);
+        const QGlyph *glyph = rendered_glyphs[g->glyph];
+        Q_ASSERT(glyph);
+        int myw = glyph->width;
+        gfx->setAlphaType(glyph->mono ? QGfx::BigEndianMask : QGfx::SeparateAlpha);
+        gfx->setAlphaSource(glyph->data, glyph->pitch);
+        int myx = x + (g->offset.x + glyph->bearingx).toInt();
+        int myy = y + (g->offset.y - glyph->bearingy).toInt();
 
-	if( glyph->width != 0 && glyph->height != 0 && glyph->pitch != 0)
-	    gfx->blt(myx,myy,myw,glyph->height,0,0);
+        if(glyph->width != 0 && glyph->height != 0 && glyph->pitch != 0)
+            gfx->blt(myx,myy,myw,glyph->height,0,0);
 
-	x += g->advance.x.toInt();
+        x += g->advance.x.toInt();
     }
 #ifdef DEBUG_LOCKS
     qDebug("unaccelerated drawText unlock");
@@ -222,34 +222,34 @@ void QFontEngineFT::draw( QPaintEngine *p, int x, int y, const QTextItem &si, in
     gfx->setAlphaType(QGfx::IgnoreAlpha);
 }
 
-glyph_metrics_t QFontEngineFT::boundingBox( const QGlyphLayout *glyphs, int numGlyphs )
+glyph_metrics_t QFontEngineFT::boundingBox(const QGlyphLayout *glyphs, int numGlyphs)
 {
-    if ( numGlyphs == 0 )
-	return glyph_metrics_t();
+    if (numGlyphs == 0)
+        return glyph_metrics_t();
 
     Q26Dot6 w;
     const QGlyphLayout *end = glyphs + numGlyphs;
-    while( end > glyphs )
-	w += (--end)->advance.x;
+    while(end > glyphs)
+        w += (--end)->advance.x;
     w *= _scale;
-    return glyph_metrics_t(0, -ascent(), w, ascent()+descent()+1, w, 0 );
+    return glyph_metrics_t(0, -ascent(), w, ascent()+descent()+1, w, 0);
 }
 
-glyph_metrics_t QFontEngineFT::boundingBox( glyph_t glyph )
+glyph_metrics_t QFontEngineFT::boundingBox(glyph_t glyph)
 {
     const QGlyph *g = rendered_glyphs[glyph];
     Q_ASSERT(g);
-    return glyph_metrics_t( g->bearingx*_scale, g->bearingy*_scale,
-			    g->width*_scale, g->height*_scale,
-			    g->advance*_scale, 0 );
+    return glyph_metrics_t(g->bearingx*_scale, g->bearingy*_scale,
+                            g->width*_scale, g->height*_scale,
+                            g->advance*_scale, 0);
 }
 
-bool QFontEngineFT::canRender( const QChar *string,  int len )
+bool QFontEngineFT::canRender(const QChar *string,  int len)
 {
-    while ( len-- )
-	for(int i = 0; i < len; i++ )
-	    if (!FT_Get_Char_Index(face, string[i].unicode()))
-		return false;
+    while (len--)
+        for(int i = 0; i < len; i++)
+            if (!FT_Get_Char_Index(face, string[i].unicode()))
+                return false;
 
     return true;
 }
@@ -271,9 +271,9 @@ Q26Dot6 QFontEngineFT::descent() const
 Q26Dot6 QFontEngineFT::leading() const
 {
     return Q26Dot6(face->size->metrics.height
-		   - face->size->metrics.ascender /*ascent*/
-		   + face->size->metrics.descender - 64   /* descent */
-		   - 1, F26Dot6);
+                   - face->size->metrics.ascender /*ascent*/
+                   + face->size->metrics.descender - 64   /* descent */
+                   - 1, F26Dot6);
 }
 
 Q26Dot6 QFontEngineFT::maxCharWidth() const
@@ -312,27 +312,27 @@ QFontEngine::Type QFontEngineFT::type() const
 QOpenType *QFontEngineFT::openType() const
 {
 //     qDebug("openTypeIface requested!");
-    if ( _openType )
-	return _openType;
+    if (_openType)
+        return _openType;
 
-    if ( !FT_IS_SFNT( face ) )
-	return 0;
+    if (!FT_IS_SFNT(face))
+        return 0;
 
     QFontEngineFT *that = const_cast<QFontEngineFT *>(this);
-    that->_openType = new QOpenType( that->face );
+    that->_openType = new QOpenType(that->face);
     return _openType;
 }
 
 void QFontEngineFT::recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::ShaperFlags) const
 {
-    for ( int i = 0; i < len; i++ ) {
-	FT_UInt g = glyphs[i].glyph;
-	if (!rendered_glyphs[g]) {
-	    rendered_glyphs[g] = new QGlyph;
-	    render(face, g, rendered_glyphs[g], smooth);
-	}
-	glyphs[i].advance.x = (rendered_glyphs[g]->advance);//*_scale)>>8;
-	glyphs[i].advance.y = 0;
+    for (int i = 0; i < len; i++) {
+        FT_UInt g = glyphs[i].glyph;
+        if (!rendered_glyphs[g]) {
+            rendered_glyphs[g] = new QGlyph;
+            render(face, g, rendered_glyphs[g], smooth);
+        }
+        glyphs[i].advance.x = (rendered_glyphs[g]->advance);//*_scale)>>8;
+        glyphs[i].advance.y = 0;
     }
 }
 
@@ -357,17 +357,17 @@ QFontEngine::FECaps QFontEngineBox::capabilites() const
 bool QFontEngineBox::stringToCMap(const QChar *, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags) const
 {
     if(*nglyphs < len) {
-	*nglyphs = len;
-	return false;
+        *nglyphs = len;
+        return false;
     }
 
     for(int i = 0; i < len; i++)
-	glyphs[i].glyph = 0;
+        glyphs[i].glyph = 0;
     *nglyphs = len;
 
     for(int i = 0; i < len; i++) {
-	(glyphs++)->advance.x = _size;
-	(glyphs++)->advance.y = 0;
+        (glyphs++)->advance.x = _size;
+        (glyphs++)->advance.y = 0;
     }
 
     return true;
@@ -427,7 +427,7 @@ const char *QFontEngineBox::name() const
 
 bool QFontEngineBox::canRender(const QChar *, int)
 {
-    return TRUE;
+    return true;
 }
 
 QFontEngine::Type QFontEngineBox::type() const
@@ -443,15 +443,15 @@ Q26Dot6 QFontEngine::lineThickness() const
     int lw = score / 700;
 
     // looks better with thicker line for small pointsizes
-    if ( lw < 2 && score >= 1050 ) lw = 2;
-    if ( lw == 0 ) lw = 1;
+    if (lw < 2 && score >= 1050) lw = 2;
+    if (lw == 0) lw = 1;
 
     return lw;
 }
 
 Q26Dot6 QFontEngine::underlinePosition() const
 {
-    return ( ( lineThickness() * 2 ) + 3 ) / 6;
+    return ((lineThickness() * 2) + 3) / 6;
 }
 
 

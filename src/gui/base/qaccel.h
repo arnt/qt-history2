@@ -29,65 +29,65 @@ class QAccelPrivate;
 class QKeySequence;
 class QWidget;
 
-class Q_GUI_EXPORT QAccel : public QObject			// accelerator class
+class Q_GUI_EXPORT QAccel : public QObject                        // accelerator class
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QAccel);
 public:
-    QAccel( QWidget *parent, const char *name=0 );
-    QAccel( QWidget* watch, QObject *parent, const char *name=0 );
+    QAccel(QWidget *parent, const char *name=0);
+    QAccel(QWidget* watch, QObject *parent, const char *name=0);
     ~QAccel();
 
     bool isEnabled() const;
-    void setEnabled( bool );
+    void setEnabled(bool);
 
     uint count() const;
 
-    int insertItem( const QKeySequence& key, int id=-1);
-    void removeItem( int id );
+    int insertItem(const QKeySequence& key, int id=-1);
+    void removeItem(int id);
     void clear();
 
-    QKeySequence key( int id );
-    int findKey( const QKeySequence& key ) const;
+    QKeySequence key(int id);
+    int findKey(const QKeySequence& key) const;
 
-    bool isItemEnabled( int id ) const;
-    void setItemEnabled( int id, bool enable );
+    bool isItemEnabled(int id) const;
+    void setItemEnabled(int id, bool enable);
 
-    bool connectItem( int id,  const QObject *receiver, const char* member );
-    bool disconnectItem( int id,  const QObject *receiver, const char* member );
+    bool connectItem(int id,  const QObject *receiver, const char* member);
+    bool disconnectItem(int id,  const QObject *receiver, const char* member);
 
-    void setWhatsThis( int id, const QString& );
-    QString whatsThis( int id ) const;
-    void setIgnoreWhatsThis( bool );
+    void setWhatsThis(int id, const QString&);
+    QString whatsThis(int id) const;
+    void setIgnoreWhatsThis(bool);
     bool ignoreWhatsThis() const;
 
-    static QKeySequence shortcutKey( const QString & );
+    static QKeySequence shortcutKey(const QString &);
 #ifdef QT_COMPAT
-    static QT_COMPAT QString keyToString(const QKeySequence &k );
-    static QT_COMPAT QKeySequence stringToKey( const QString & );
+    static QT_COMPAT QString keyToString(const QKeySequence &k);
+    static QT_COMPAT QKeySequence stringToKey(const QString &);
 #endif
 
 signals:
-    void activated( int id );
-    void activatedAmbiguously( int id );
+    void activated(int id);
+    void activatedAmbiguously(int id);
 
 private:
 #if defined(Q_DISABLE_COPY)
-    QAccel( const QAccel & );
-    QAccel &operator=( const QAccel & );
+    QAccel(const QAccel &);
+    QAccel &operator=(const QAccel &);
 #endif
     friend class QAccelManager;
 };
 
 #ifdef QT_COMPAT
-inline QString QAccel::keyToString( const QKeySequence &k )
+inline QString QAccel::keyToString(const QKeySequence &k)
 {
     return (QString) k;
 }
 
-inline QKeySequence QAccel::stringToKey( const QString & s )
+inline QKeySequence QAccel::stringToKey(const QString & s)
 {
-    return QKeySequence( s );
+    return QKeySequence(s);
 }
 #endif
 

@@ -40,8 +40,8 @@
     The \a parent and \a name arguments are passed to the QWidget
     constructor.
 */
-QHGroupBox::QHGroupBox( QWidget *parent, const char *name )
-    : QGroupBox( 1, Vertical /* sic! */, parent, name )
+QHGroupBox::QHGroupBox(QWidget *parent, const char *name)
+    : QGroupBox(1, Vertical /* sic! */, parent, name)
 {
 }
 
@@ -52,9 +52,9 @@ QHGroupBox::QHGroupBox( QWidget *parent, const char *name )
     constructor.
 */
 
-QHGroupBox::QHGroupBox( const QString &title, QWidget *parent,
-			    const char *name )
-    : QGroupBox( 1, Vertical /* sic! */, title, parent, name )
+QHGroupBox::QHGroupBox(const QString &title, QWidget *parent,
+                            const char *name)
+    : QGroupBox(1, Vertical /* sic! */, title, parent, name)
 {
 }
 

@@ -29,11 +29,11 @@ public:
     class Invisible: public QWidget
     {
     public:
-	Invisible( QWidgetStack * parent )
-	    : QWidget( parent, "qt_invisible_widgetstack" )
-	{ setAttribute(WA_NoSystemBackground, true); }
-	const char * className() const
-	{ return "QWidgetStackPrivate::Invisible"; }
+        Invisible(QWidgetStack * parent)
+            : QWidget(parent, "qt_invisible_widgetstack")
+        { setAttribute(WA_NoSystemBackground, true); }
+        const char * className() const
+        { return "QWidgetStackPrivate::Invisible"; }
     };
     QHash<int, QWidget *> hash;
     QWidget * topWidget;
@@ -82,12 +82,12 @@ public:
   The \a parent, \a name and \a f arguments are passed to the QFrame
   constructor.
 */
-QWidgetStack::QWidgetStack( QWidget * parent, const char *name, WFlags f )
-    : QFrame( parent, name, f )
+QWidgetStack::QWidgetStack(QWidget * parent, const char *name, WFlags f)
+    : QFrame(parent, name, f)
 {
    d = new QWidgetStackPrivate;
    d->topWidget = 0;
-   d->invisible = new QWidgetStackPrivate::Invisible( this );
+   d->invisible = new QWidgetStackPrivate::Invisible(this);
    d->invisible->hide();
 }
 
@@ -118,35 +118,35 @@ QWidgetStack::~QWidgetStack()
     reparent().
 */
 
-int QWidgetStack::addWidget( QWidget * w, int id )
+int QWidgetStack::addWidget(QWidget * w, int id)
 {
     static int nseq_no = -2;
     static int pseq_no = 0;
 
-    if ( !w || w == d->invisible )
-	return -1;
+    if (!w || w == d->invisible)
+        return -1;
 
     // prevent duplicates
-    removeWidget( w );
+    removeWidget(w);
 
-    if ( id >= 0 && d->hash.contains( id ) )
-	id = -2;
-    if ( id < -1 )
-	id = nseq_no--;
-    else if ( id == -1 )
-	id = pseq_no++;
+    if (id >= 0 && d->hash.contains(id))
+        id = -2;
+    if (id < -1)
+        id = nseq_no--;
+    else if (id == -1)
+        id = pseq_no++;
     else
-	pseq_no = qMax(pseq_no, id + 1);
-	// use id >= 0 as-is
+        pseq_no = qMax(pseq_no, id + 1);
+        // use id >= 0 as-is
 
-    d->hash.insert( id, w );
+    d->hash.insert(id, w);
 
     w->hide();
-    if ( w->parent() != this ) {
-	w->setParent(this);
-	w->move(contentsRect().topLeft());
+    if (w->parent() != this) {
+        w->setParent(this);
+        w->move(contentsRect().topLeft());
     }
-    w->setGeometry( contentsRect() );
+    w->setGeometry(contentsRect());
     updateGeometry();
     return id;
 }
@@ -160,18 +160,18 @@ int QWidgetStack::addWidget( QWidget * w, int id )
     \sa visibleWidget() raiseWidget()
 */
 
-void QWidgetStack::removeWidget( QWidget * w )
+void QWidgetStack::removeWidget(QWidget * w)
 {
-    if ( !w )
-	return;
-    int i = id( w );
-    if ( i != -1 )
-	d->hash.remove( i );
+    if (!w)
+        return;
+    int i = id(w);
+    if (i != -1)
+        d->hash.remove(i);
 
-    if ( w == d->topWidget )
-	d->topWidget = 0;
-    if ( d->hash.isEmpty() )
-	d->invisible->hide(); // let background shine through again
+    if (w == d->topWidget)
+        d->topWidget = 0;
+    if (d->hash.isEmpty())
+        d->invisible->hide(); // let background shine through again
     updateGeometry();
 }
 
@@ -182,31 +182,31 @@ void QWidgetStack::removeWidget( QWidget * w )
     \sa visibleWidget()
 */
 
-void QWidgetStack::raiseWidget( int id )
+void QWidgetStack::raiseWidget(int id)
 {
-    if ( id == -1 )
-	return;
+    if (id == -1)
+        return;
     QWidget * w = d->hash.value(id, 0);
-    if ( w )
-	raiseWidget( w );
+    if (w)
+        raiseWidget(w);
 }
 
-static bool isChildOf( QWidget* child, QWidget *parent )
+static bool isChildOf(QWidget* child, QWidget *parent)
 {
-    if ( !child )
-	return FALSE;
+    if (!child)
+        return false;
     QObjectList list = parent->children();
     for (int i = 0; i < list.size(); ++i) {
-	QObject *obj = list.at(i);
-	if (!obj->isWidgetType())
-	    continue;
-	QWidget *widget = static_cast<QWidget *>(obj);
-	if (!widget->isTopLevel())
-	    continue;
-	if ( widget == child || isChildOf( child, widget ) )
-	    return TRUE;
+        QObject *obj = list.at(i);
+        if (!obj->isWidgetType())
+            continue;
+        QWidget *widget = static_cast<QWidget *>(obj);
+        if (!widget->isTopLevel())
+            continue;
+        if (widget == child || isChildOf(child, widget))
+            return true;
     }
-    return FALSE;
+    return false;
 }
 
 // ### fix include
@@ -217,74 +217,74 @@ static bool isChildOf( QWidget* child, QWidget *parent )
     Raises widget \a w to the top of the widget stack.
 */
 
-void QWidgetStack::raiseWidget( QWidget *w )
+void QWidgetStack::raiseWidget(QWidget *w)
 {
-    if ( !w || w == d->invisible || w->parent() != this || w == d->topWidget )
-	return;
+    if (!w || w == d->invisible || w->parent() != this || w == d->topWidget)
+        return;
 
-    if ( id(w) == -1 )
-	addWidget( w );
-    if ( !isVisible() ) {
-	d->topWidget = w;
-	return;
+    if (id(w) == -1)
+        addWidget(w);
+    if (!isVisible()) {
+        d->topWidget = w;
+        return;
     }
 
-    if ( d->invisible->isHidden() ) {
-	d->invisible->setGeometry( contentsRect() );
-	d->invisible->lower();
-	d->invisible->show();
-	QApplication::sendPostedEvents( d->invisible, QEvent::ShowWindowRequest );
+    if (d->invisible->isHidden()) {
+        d->invisible->setGeometry(contentsRect());
+        d->invisible->lower();
+        d->invisible->show();
+        QApplication::sendPostedEvents(d->invisible, QEvent::ShowWindowRequest);
     }
 
     // try to move focus onto the incoming widget if focus
     // was somewhere on the outgoing widget.
-    if ( d->topWidget ) {
-	QWidget * fw = topLevelWidget()->focusWidget();
-	if ( d->topWidget->isAncestorOf(fw) ) { // focus was on old page
-	    // look for the best focus widget we can find
-	    QWidget *p = w->focusWidget();
-	    if (!p) {
-		// second best == first child widget in the focus chain
-		QWidget *i = fw;
-		while ((i = i->nextInFocusChain()) != fw) {
-		    if (((i->focusPolicy() & TabFocus) == TabFocus)
-			&& !i->focusProxy() && i->isVisibleTo(w) && i->isEnabled()
-			&& w->isAncestorOf(i)) {
-			p = i;
-			break;
-		    }
-		}
-	    }
-	    if (p)
-		p->setFocus();
-	} else {
-	    // the focus wasn't on the old page, so we have to ensure focus doesn't go to
-	    // the widget in the page that last had focus when we show the page again.
-	    QWidget *oldfw = d->topWidget->focusWidget();
-	    if (oldfw)
-		oldfw->clearFocus();
-	    // rather hacky, but achieves the same without function calls.....
-// 	    static_cast<QWidgetPrivate*>(((QWidgetStack *)d->topWidget)->d_ptr)->focus_child = 0;
-	}
+    if (d->topWidget) {
+        QWidget * fw = topLevelWidget()->focusWidget();
+        if (d->topWidget->isAncestorOf(fw)) { // focus was on old page
+            // look for the best focus widget we can find
+            QWidget *p = w->focusWidget();
+            if (!p) {
+                // second best == first child widget in the focus chain
+                QWidget *i = fw;
+                while ((i = i->nextInFocusChain()) != fw) {
+                    if (((i->focusPolicy() & TabFocus) == TabFocus)
+                        && !i->focusProxy() && i->isVisibleTo(w) && i->isEnabled()
+                        && w->isAncestorOf(i)) {
+                        p = i;
+                        break;
+                    }
+                }
+            }
+            if (p)
+                p->setFocus();
+        } else {
+            // the focus wasn't on the old page, so we have to ensure focus doesn't go to
+            // the widget in the page that last had focus when we show the page again.
+            QWidget *oldfw = d->topWidget->focusWidget();
+            if (oldfw)
+                oldfw->clearFocus();
+            // rather hacky, but achieves the same without function calls.....
+//             static_cast<QWidgetPrivate*>(((QWidgetStack *)d->topWidget)->d_ptr)->focus_child = 0;
+        }
     }
 
-    if ( isVisible() ) {
-	emit aboutToShow( w );
-	int i = id( w );
-	if ( i != -1 )
-	    emit aboutToShow( i );
+    if (isVisible()) {
+        emit aboutToShow(w);
+        int i = id(w);
+        if (i != -1)
+            emit aboutToShow(i);
     }
 
     d->topWidget = w;
 
     QObjectList c = children();
     for (int i = 0; i < c.size(); ++i) {
-	QObject * o = c.at(i);
-	if ( o->isWidgetType() && o != w && o != d->invisible )
-	    static_cast<QWidget *>(o)->hide();
+        QObject * o = c.at(i);
+        if (o->isWidgetType() && o != w && o != d->invisible)
+            static_cast<QWidget *>(o)->hide();
     }
 
-    w->setGeometry( d->invisible->geometry() );
+    w->setGeometry(d->invisible->geometry());
     w->show();
 }
 
@@ -295,9 +295,9 @@ void QWidgetStack::raiseWidget( QWidget *w )
 
 void QWidgetStack::setChildGeometries()
 {
-    d->invisible->setGeometry( contentsRect() );
-    if ( d->topWidget )
-	d->topWidget->setGeometry( d->invisible->geometry() );
+    d->invisible->setGeometry(contentsRect());
+    if (d->topWidget)
+        d->topWidget->setGeometry(d->invisible->geometry());
 }
 
 
@@ -310,19 +310,19 @@ void QWidgetStack::show()
     //  appropriately and to pick the first widget as d->topWidget if no
     //  topwidget was defined
     QObjectList c = children();
-    if ( !isVisible() && !c.isEmpty() ) {
-	for (int i = 0; i < c.size(); ++i) {
-	    QObject * o = c.at(i);
-	    if ( o->isWidgetType() ) {
-		if ( !d->topWidget && o != d->invisible )
-		    d->topWidget = static_cast<QWidget*>(o);
-		if ( o == d->topWidget )
-		    static_cast<QWidget *>(o)->show();
-		else
-		    static_cast<QWidget *>(o)->hide();
-	    }
-	}
-	setChildGeometries();
+    if (!isVisible() && !c.isEmpty()) {
+        for (int i = 0; i < c.size(); ++i) {
+            QObject * o = c.at(i);
+            if (o->isWidgetType()) {
+                if (!d->topWidget && o != d->invisible)
+                    d->topWidget = static_cast<QWidget*>(o);
+                if (o == d->topWidget)
+                    static_cast<QWidget *>(o)->show();
+                else
+                    static_cast<QWidget *>(o)->hide();
+            }
+        }
+        setChildGeometries();
     }
     QFrame::show();
 }
@@ -335,7 +335,7 @@ void QWidgetStack::show()
     \sa id() addWidget()
 */
 
-QWidget * QWidgetStack::widget( int id ) const
+QWidget * QWidgetStack::widget(int id) const
 {
     return d->hash.value(id, 0);
 }
@@ -348,15 +348,15 @@ QWidget * QWidgetStack::widget( int id ) const
     \sa widget() addWidget()
 */
 
-int QWidgetStack::id( QWidget * widget ) const
+int QWidgetStack::id(QWidget * widget) const
 {
-    if ( !widget )
-	return -1;
+    if (!widget)
+        return -1;
 
     QHash<int, QWidget *>::Iterator it = d->hash.begin();
     for (; it != d->hash.end(); ++it)
-	if (*it == widget)
-	    return it.key();
+        if (*it == widget)
+            return it.key();
     return -1;
 }
 
@@ -375,7 +375,7 @@ QWidget * QWidgetStack::visibleWidget() const
 
 
 /*!
-    \fn void QWidgetStack::aboutToShow( int )
+    \fn void QWidgetStack::aboutToShow(int)
 
     This signal is emitted just before a managed widget is shown if
     that managed widget has an ID != -1. The argument is the numeric
@@ -388,7 +388,7 @@ QWidget * QWidgetStack::visibleWidget() const
 
 
 /*!
-    \fn void QWidgetStack::aboutToShow( QWidget * )
+    \fn void QWidgetStack::aboutToShow(QWidget *)
 
     \overload
 
@@ -405,7 +405,7 @@ QWidget * QWidgetStack::visibleWidget() const
     \reimp
 */
 
-void QWidgetStack::resizeEvent( QResizeEvent * e )
+void QWidgetStack::resizeEvent(QResizeEvent * e)
 {
     setChildGeometries();
 }
@@ -419,23 +419,23 @@ QSize QWidgetStack::sizeHint() const
 {
     ensurePolished();
 
-    QSize size( 0, 0 );
+    QSize size(0, 0);
 
     QHash<int, QWidget *>::Iterator it = d->hash.begin();
     for (; it != d->hash.end(); ++it) {
-	QWidget *w = *it;
-	QSize sh = w->sizeHint();
-	if ( w->sizePolicy().horData() == QSizePolicy::Ignored )
-	    sh.rwidth() = 0;
-	if ( w->sizePolicy().verData() == QSizePolicy::Ignored )
-	    sh.rheight() = 0;
+        QWidget *w = *it;
+        QSize sh = w->sizeHint();
+        if (w->sizePolicy().horData() == QSizePolicy::Ignored)
+            sh.rwidth() = 0;
+        if (w->sizePolicy().verData() == QSizePolicy::Ignored)
+            sh.rheight() = 0;
 #ifndef QT_NO_LAYOUT
-	size = size.expandedTo( sh ).expandedTo( qSmartMinSize(w) );
+        size = size.expandedTo(sh).expandedTo(qSmartMinSize(w));
 #endif
     }
-    if ( size.isNull() )
-	size = QSize( 128, 64 );
-    size += QSize( 2*frameWidth(), 2*frameWidth() );
+    if (size.isNull())
+        size = QSize(128, 64);
+    size += QSize(2*frameWidth(), 2*frameWidth());
     return size;
 }
 
@@ -447,45 +447,45 @@ QSize QWidgetStack::minimumSizeHint() const
 {
     ensurePolished();
 
-    QSize size( 0, 0 );
+    QSize size(0, 0);
 
     QHash<int, QWidget *>::Iterator it = d->hash.begin();
     for (; it != d->hash.end(); ++it) {
-	QWidget *w = *it;
-	QSize sh = w->minimumSizeHint();
-	if ( w->sizePolicy().horData() == QSizePolicy::Ignored )
-	    sh.rwidth() = 0;
-	if ( w->sizePolicy().verData() == QSizePolicy::Ignored )
-	    sh.rheight() = 0;
+        QWidget *w = *it;
+        QSize sh = w->minimumSizeHint();
+        if (w->sizePolicy().horData() == QSizePolicy::Ignored)
+            sh.rwidth() = 0;
+        if (w->sizePolicy().verData() == QSizePolicy::Ignored)
+            sh.rheight() = 0;
 #ifndef QT_NO_LAYOUT
-	size = size.expandedTo( sh ).expandedTo( w->minimumSize() );
+        size = size.expandedTo(sh).expandedTo(w->minimumSize());
 #endif
     }
-    if ( size.isNull() )
-	size = QSize( 64, 32 );
-    size += QSize( 2*frameWidth(), 2*frameWidth() );
+    if (size.isNull())
+        size = QSize(64, 32);
+    size += QSize(2*frameWidth(), 2*frameWidth());
     return size;
 }
 
 /*!
     \reimp
 */
-void QWidgetStack::childEvent( QChildEvent * e)
+void QWidgetStack::childEvent(QChildEvent * e)
 {
-    if ( e->child()->isWidgetType() && e->removed() )
-	removeWidget( (QWidget*) e->child() );
+    if (e->child()->isWidgetType() && e->removed())
+        removeWidget((QWidget*) e->child());
 }
 
 /*! \reimp
  */
-bool QWidgetStack::event( QEvent* e )
+bool QWidgetStack::event(QEvent* e)
 {
     if (e->type() == QEvent::LayoutRequest
 #ifdef QT_COMPAT
-	|| e->type() == QEvent::LayoutHint
+        || e->type() == QEvent::LayoutHint
 #endif
-	)
-	updateGeometry(); // propgate layout hints to parent
-    return QFrame::event( e );
+       )
+        updateGeometry(); // propgate layout hints to parent
+    return QFrame::event(e);
 }
 #endif

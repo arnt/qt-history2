@@ -76,36 +76,36 @@ void QtSqlCachedResultPrivate::init(int count, bool fo)
     forwardOnly = fo;
     colCount = count;
     if (fo) {
-	cache.resize(count);
-	rowCacheEnd = count;
+        cache.resize(count);
+        rowCacheEnd = count;
     } else {
-	cache.resize(initial_cache_size * count);
+        cache.resize(initial_cache_size * count);
     }
 }
 
 int QtSqlCachedResultPrivate::nextIndex()
 {
     if (forwardOnly)
-	return 0;
+        return 0;
     int newIdx = rowCacheEnd;
     if (newIdx + colCount > cache.size())
-	cache.resize(cache.size() * 2);
+        cache.resize(cache.size() * 2);
     rowCacheEnd += colCount;
-    
+
     return newIdx;
 }
 
 bool QtSqlCachedResultPrivate::canSeek(int i) const
 {
     if (forwardOnly || i < 0)
-	return false;
+        return false;
     return rowCacheEnd >= (i + 1) * colCount;
 }
 
 void QtSqlCachedResultPrivate::revertLast()
 {
     if (forwardOnly)
-	return;
+        return;
     rowCacheEnd -= colCount;
 }
 
@@ -136,32 +136,32 @@ void QtSqlCachedResult::init(int colCount)
 bool QtSqlCachedResult::fetch(int i)
 {
     if ((!isActive()) || (i < 0))
-	return false;
+        return false;
     if (at() == i)
-	return true;
+        return true;
     if (d->forwardOnly) {
-	// speed hack - do not copy values if not needed
-	if (at() > i || at() == QSql::AfterLast)
-	    return false;
-	while(at() < i - 1) {
-	    if (!gotoNext(d->cache, -1))
-		return false;
-	    setAt(at() + 1);
-	}
-	if (!gotoNext(d->cache, 0))
-	    return false;
-	setAt(at() + 1);
-	return true;
+        // speed hack - do not copy values if not needed
+        if (at() > i || at() == QSql::AfterLast)
+            return false;
+        while(at() < i - 1) {
+            if (!gotoNext(d->cache, -1))
+                return false;
+            setAt(at() + 1);
+        }
+        if (!gotoNext(d->cache, 0))
+            return false;
+        setAt(at() + 1);
+        return true;
     }
     if (d->canSeek(i)) {
-	setAt(i);
-	return true;
+        setAt(i);
+        return true;
     }
     if (d->rowCacheEnd > 0)
-	setAt(d->cacheCount());
+        setAt(d->cacheCount());
     while (at() < i) {
-	if (!cacheNext())
-	    return false;
+        if (!cacheNext())
+            return false;
     }
     return true;
 }
@@ -169,8 +169,8 @@ bool QtSqlCachedResult::fetch(int i)
 bool QtSqlCachedResult::fetchNext()
 {
     if (d->canSeek(at() + 1)) {
-	setAt(at() + 1);
-	return true;
+        setAt(at() + 1);
+        return true;
     }
     return cacheNext();
 }
@@ -183,11 +183,11 @@ bool QtSqlCachedResult::fetchPrev()
 bool QtSqlCachedResult::fetchFirst()
 {
     if (d->forwardOnly && at() != QSql::BeforeFirst) {
-	return false;
+        return false;
     }
     if (d->canSeek(0)) {
-	setAt(0);
-	return true;
+        setAt(0);
+        return true;
     }
     return cacheNext();
 }
@@ -195,20 +195,20 @@ bool QtSqlCachedResult::fetchFirst()
 bool QtSqlCachedResult::fetchLast()
 {
     if (at() == QSql::AfterLast) {
-	if (d->forwardOnly)
-	    return false;
-	else
-	    return fetch(d->cacheCount() - 1);
+        if (d->forwardOnly)
+            return false;
+        else
+            return fetch(d->cacheCount() - 1);
     }
 
     int i = at();
     while (fetchNext())
-	++i; /* brute force */
+        ++i; /* brute force */
     if (d->forwardOnly && at() == QSql::AfterLast) {
-	setAt(i);
-	return true;
+        setAt(i);
+        return true;
     } else {
-	return fetch(i);
+        return fetch(i);
     }
 }
 
@@ -216,7 +216,7 @@ QCoreVariant QtSqlCachedResult::data(int i)
 {
     int idx = d->forwardOnly ? i : at() * d->colCount + i;
     if (i > d->colCount || i < 0 || at() < 0 || idx >= d->rowCacheEnd)
-	return QCoreVariant();
+        return QCoreVariant();
 
     return d->cache.at(idx);
 }
@@ -225,7 +225,7 @@ bool QtSqlCachedResult::isNull(int i)
 {
     int idx = d->forwardOnly ? i : at() * d->colCount + i;
     if (i > d->colCount || i < 0 || at() < 0 || idx >= d->rowCacheEnd)
-	return true;
+        return true;
 
     return d->cache.at(idx).isNull();
 }
@@ -240,8 +240,8 @@ void QtSqlCachedResult::cleanup()
 bool QtSqlCachedResult::cacheNext()
 {
     if (!gotoNext(d->cache, d->nextIndex())) {
-	d->revertLast();
-	return false;
+        d->revertLast();
+        return false;
     }
     setAt(at() + 1);
     return true;

@@ -116,14 +116,14 @@
 */
 
 /*!
-    \fn QCString::QCString( const QCString &s )
+    \fn QCString::QCString(const QCString &s)
 
     Constructs a shallow copy \a s.
 
     \sa assign()
 */
 
-/*! \fn QCString::QCString( int size )
+/*! \fn QCString::QCString(int size)
     Constructs a string with room for \a size characters, including
     the '\0'-terminator. Makes a null string if \a size == 0.
 
@@ -133,7 +133,7 @@
     \sa resize(), isNull()
 */
 
-/*! \fn QCString::QCString( const char *str )
+/*! \fn QCString::QCString(const char *str)
     Constructs a string that is a deep copy of \a str.
 
     If \a str is 0 a null string is created.
@@ -142,14 +142,14 @@
 */
 
 
-/*! \fn QCString::QCString( const char *str, uint maxsize )
+/*! \fn QCString::QCString(const char *str, uint maxsize)
 
     Constructs a string that is a deep copy of \a str. The copy will
     be at most \a maxsize bytes long including the '\0'-terminator.
 
     Example:
     \code
-    QCString str( "helloworld", 6 ); // assigns "hello" to str
+    QCString str("helloworld", 6); // assigns "hello" to str
     \endcode
 
     If \a str contains a 0 byte within the first \a maxsize bytes, the
@@ -161,14 +161,14 @@
 
 
 /*!
-    \fn QCString &QCString::operator=( const QCString &s )
+    \fn QCString &QCString::operator=(const QCString &s)
 
     Assigns a shallow copy of \a s to this string and returns a
     reference to this string.
 */
 
 /*!
-    \fn QCString &QCString::operator=( const char *str )
+    \fn QCString &QCString::operator=(const char *str)
     \overload
 
     Assigns a deep copy of \a str to this string and returns a
@@ -182,17 +182,17 @@
 /*
     \fn bool QCString::isNull() const
 
-    Returns TRUE if the string is null, i.e. if data() == 0; otherwise
-    returns FALSE. A null string is also an empty string.
+    Returns true if the string is null, i.e. if data() == 0; otherwise
+    returns false. A null string is also an empty string.
 
     Example:
     \code
-    QCString a;		// a.data() == 0,  a.size() == 0, a.length() == 0
-    QCString b == "";	// b.data() == "", b.size() == 1, b.length() == 0
-    a.isNull();		// TRUE  because a.data() == 0
-    a.isEmpty();	// TRUE  because a.length() == 0
-    b.isNull();		// FALSE because b.data() == ""
-    b.isEmpty();	// TRUE  because b.length() == 0
+    QCString a;                // a.data() == 0,  a.size() == 0, a.length() == 0
+    QCString b == "";        // b.data() == "", b.size() == 1, b.length() == 0
+    a.isNull();                // true  because a.data() == 0
+    a.isEmpty();        // true  because a.length() == 0
+    b.isNull();                // false because b.data() == ""
+    b.isEmpty();        // true  because b.length() == 0
     \endcode
 
     \sa isEmpty(), length(), size()
@@ -201,8 +201,8 @@
 /*
     \fn bool QCString::isEmpty() const
 
-    Returns TRUE if the string is empty, i.e. if length() == 0;
-    otherwise returns FALSE. An empty string is not always a null
+    Returns true if the string is empty, i.e. if length() == 0;
+    otherwise returns false. An empty string is not always a null
     string.
 
     See example in isNull().
@@ -222,7 +222,7 @@
 */
 
 /*
-    \fn bool QCString::truncate( uint pos )
+    \fn bool QCString::truncate(uint pos)
 
     Truncates the string at position \a pos.
 
@@ -231,7 +231,7 @@
     Example:
     \code
     QCString s = "truncate this string";
-    s.truncate( 5 );                      // s == "trunc"
+    s.truncate(5);                      // s == "trunc"
     \endcode
 
     \sa resize()
@@ -251,10 +251,10 @@
     Example:
     \code
     QCString s;
-    s.sprintf( "%d - %s", 1, "first" );		// result < 256 chars
+    s.sprintf("%d - %s", 1, "first");                // result < 256 chars
 
-    QCString big( 25000 );			// very long string
-    big.sprintf( "%d - %s", 2, longString );	// result < 25000 chars
+    QCString big(25000);                        // very long string
+    big.sprintf("%d - %s", 2, longString);        // result < 25000 chars
     \endcode
 
     \warning All vsprintf() implementations will write past the end of
@@ -267,16 +267,16 @@
     later someone will paste a huge line into your application.
 */
 
-QCString &QCString::sprintf( const char *format, ... )
+QCString &QCString::sprintf(const char *format, ...)
 {
     detach();
     va_list ap;
-    va_start( ap, format );
-    if ( size() < 256 )
-	resize( 256 );		// make string big enough
-    vsprintf( data(), format, ap );
-    resize( qstrlen(constData()) );
-    va_end( ap );
+    va_start(ap, format);
+    if (size() < 256)
+        resize(256);                // make string big enough
+    vsprintf(data(), format, ap);
+    resize(qstrlen(constData()));
+    va_end(ap);
     return *this;
 }
 
@@ -296,9 +296,9 @@ QCString &QCString::sprintf( const char *format, ... )
     '\0') that contains this string padded with the \a fill character.
 
     If the length of the string exceeds \a width and \a truncate is
-    FALSE (the default), then the returned string is a copy of the
+    false (the default), then the returned string is a copy of the
     string. If the length of the string exceeds \a width and \a
-    truncate is TRUE, then the returned string is a left(\a width).
+    truncate is true, then the returned string is a left(\a width).
 
     Example:
     \code
@@ -309,20 +309,20 @@ QCString &QCString::sprintf( const char *format, ... )
     \sa rightJustify()
 */
 
-QCString QCString::leftJustify( uint width, char fill, bool truncate ) const
+QCString QCString::leftJustify(uint width, char fill, bool truncate) const
 {
     QCString result;
     int len = qstrlen(constData());
     int padlen = width - len;
-    if ( padlen > 0 ) {
-	result.resize( len+padlen );
-	memcpy( result.data(), constData(), len );
-	memset( result.data()+len, fill, padlen );
+    if (padlen > 0) {
+        result.resize(len+padlen);
+        memcpy(result.data(), constData(), len);
+        memset(result.data()+len, fill, padlen);
     } else {
-	if ( truncate )
-	    result = left( width );
-	else
-	    result = *this;
+        if (truncate)
+            result = left(width);
+        else
+            result = *this;
     }
     return result;
 }
@@ -333,9 +333,9 @@ QCString QCString::leftJustify( uint width, char fill, bool truncate ) const
     by this string.
 
     If the length of the string exceeds \a width and \a truncate is
-    FALSE (the default), then the returned string is a copy of the
+    false (the default), then the returned string is a copy of the
     string. If the length of the string exceeds \a width and \a
-    truncate is TRUE, then the returned string is a left(\a width).
+    truncate is true, then the returned string is a left(\a width).
 
     Example:
     \code
@@ -346,20 +346,20 @@ QCString QCString::leftJustify( uint width, char fill, bool truncate ) const
     \sa leftJustify()
 */
 
-QCString QCString::rightJustify( uint width, char fill, bool truncate ) const
+QCString QCString::rightJustify(uint width, char fill, bool truncate) const
 {
     QCString result;
     int len = qstrlen(constData());
     int padlen = width - len;
-    if ( padlen > 0 ) {
-	result.resize( len+padlen );
-	memset( result.data(), fill, padlen );
-	memcpy( result.data()+padlen, constData(), len );
+    if (padlen > 0) {
+        result.resize(len+padlen);
+        memset(result.data(), fill, padlen);
+        memcpy(result.data()+padlen, constData(), len);
     } else {
-	if ( truncate )
-	    result = left( width );
-	else
-	    result = *this;
+        if (truncate)
+            result = left(width);
+        else
+            result = *this;
     }
     return result;
 }
@@ -367,113 +367,113 @@ QCString QCString::rightJustify( uint width, char fill, bool truncate ) const
 /*!
     Returns the string converted to a \c long value.
 
-    If \a ok is not 0: \a *ok is set to FALSE if the string is not a
+    If \a ok is not 0: \a *ok is set to false if the string is not a
     number, or if it has trailing garbage; otherwise \a *ok is set to
-    TRUE.
+    true.
 */
 
-long QCString::toLong( bool *ok ) const
+long QCString::toLong(bool *ok) const
 {
     const char *p = constData();
     long val=0;
     const long max_mult = 214748364;
-    bool is_ok = FALSE;
+    bool is_ok = false;
     int neg = 0;
-    if ( !p )
-	goto bye;
-    while ( isspace((uchar) *p) )		// skip leading space
-	p++;
-    if ( *p == '-' ) {
-	p++;
-	neg = 1;
-    } else if ( *p == '+' ) {
-	p++;
+    if (!p)
+        goto bye;
+    while (isspace((uchar) *p))                // skip leading space
+        p++;
+    if (*p == '-') {
+        p++;
+        neg = 1;
+    } else if (*p == '+') {
+        p++;
     }
-    if ( !isdigit((uchar) *p) )
-	goto bye;
-    while ( isdigit((uchar) *p) ) {
-	if ( val > max_mult || (val == max_mult && (*p-'0') > 7+neg) )
-	    goto bye;
-	val = 10*val + (*p++ - '0');
+    if (!isdigit((uchar) *p))
+        goto bye;
+    while (isdigit((uchar) *p)) {
+        if (val > max_mult || (val == max_mult && (*p-'0') > 7+neg))
+            goto bye;
+        val = 10*val + (*p++ - '0');
     }
-    if ( neg )
-	val = -val;
-    while ( isspace((uchar) *p) )		// skip trailing space
-	p++;
-    if ( *p == '\0' )
-	is_ok = TRUE;
+    if (neg)
+        val = -val;
+    while (isspace((uchar) *p))                // skip trailing space
+        p++;
+    if (*p == '\0')
+        is_ok = true;
 bye:
-    if ( ok )
-	*ok = is_ok;
+    if (ok)
+        *ok = is_ok;
     return is_ok ? val : 0;
 }
 
 /*!
     Returns the string converted to an \c{unsigned long} value.
 
-    If \a ok is not 0: \a *ok is set to FALSE if the string is not a
+    If \a ok is not 0: \a *ok is set to false if the string is not a
     number, or if it has trailing garbage; otherwise \a *ok is set to
-    TRUE.
+    true.
 */
 
-ulong QCString::toULong( bool *ok ) const
+ulong QCString::toULong(bool *ok) const
 {
     const char *p = constData();
     ulong val=0;
     const ulong max_mult = 429496729;
-    bool is_ok = FALSE;
-    if ( !p )
-	goto bye;
-    while ( isspace((uchar) *p) )		// skip leading space
-	p++;
-    if ( *p == '+' )
-	p++;
-    if ( !isdigit((uchar) *p) )
-	goto bye;
-    while ( isdigit((uchar) *p) ) {
-	if ( val > max_mult || (val == max_mult && (*p-'0') > 5) )
-	    goto bye;
-	val = 10*val + (*p++ - '0');
+    bool is_ok = false;
+    if (!p)
+        goto bye;
+    while (isspace((uchar) *p))                // skip leading space
+        p++;
+    if (*p == '+')
+        p++;
+    if (!isdigit((uchar) *p))
+        goto bye;
+    while (isdigit((uchar) *p)) {
+        if (val > max_mult || (val == max_mult && (*p-'0') > 5))
+            goto bye;
+        val = 10*val + (*p++ - '0');
     }
-    while ( isspace((uchar) *p) )		// skip trailing space
-	p++;
-    if ( *p == '\0' )
-	is_ok = TRUE;
+    while (isspace((uchar) *p))                // skip trailing space
+        p++;
+    if (*p == '\0')
+        is_ok = true;
 bye:
-    if ( ok )
-	*ok = is_ok;
+    if (ok)
+        *ok = is_ok;
     return is_ok ? val : 0;
 }
 
 /*!
     Returns the string converted to a \c{short} value.
 
-    If \a ok is not 0: \a *ok is set to FALSE if the string is not a
+    If \a ok is not 0: \a *ok is set to false if the string is not a
     number, is out of range, or if it has trailing garbage; otherwise
-    \a *ok is set to TRUE.
+    \a *ok is set to true.
 */
 
-short QCString::toShort( bool *ok ) const
+short QCString::toShort(bool *ok) const
 {
-    long v = toLong( ok );
-    if ( ok && *ok && (v < -32768 || v > 32767) )
-	*ok = FALSE;
+    long v = toLong(ok);
+    if (ok && *ok && (v < -32768 || v > 32767))
+        *ok = false;
     return (short)v;
 }
 
 /*!
     Returns the string converted to an \c{unsigned short} value.
 
-    If \a ok is not 0: \a *ok is set to FALSE if the string is not a
+    If \a ok is not 0: \a *ok is set to false if the string is not a
     number, is out of range, or if it has trailing garbage; otherwise
-    \a *ok is set to TRUE.
+    \a *ok is set to true.
 */
 
-ushort QCString::toUShort( bool *ok ) const
+ushort QCString::toUShort(bool *ok) const
 {
-    ulong v = toULong( ok );
-    if ( ok && *ok && (v > 65535) )
-	*ok = FALSE;
+    ulong v = toULong(ok);
+    if (ok && *ok && (v > 65535))
+        *ok = false;
     return (ushort)v;
 }
 
@@ -481,61 +481,61 @@ ushort QCString::toUShort( bool *ok ) const
 /*!
     Returns the string converted to a \c{int} value.
 
-    If \a ok is not 0: \a *ok is set to FALSE if the string is not a
+    If \a ok is not 0: \a *ok is set to false if the string is not a
     number, or if it has trailing garbage; otherwise \a *ok is set to
-    TRUE.
+    true.
 */
 
-int QCString::toInt( bool *ok ) const
+int QCString::toInt(bool *ok) const
 {
-    return (int)toLong( ok );
+    return (int)toLong(ok);
 }
 
 /*!
     Returns the string converted to an \c{unsigned int} value.
 
-    If \a ok is not 0: \a *ok is set to FALSE if the string is not a
+    If \a ok is not 0: \a *ok is set to false if the string is not a
     number, or if it has trailing garbage; otherwise \a *ok is set to
-    TRUE.
+    true.
 */
 
-uint QCString::toUInt( bool *ok ) const
+uint QCString::toUInt(bool *ok) const
 {
-    return (uint)toULong( ok );
+    return (uint)toULong(ok);
 }
 
 /*!
     Returns the string converted to a \c{double} value.
 
-    If \a ok is not 0: \a *ok is set to FALSE if the string is not a
+    If \a ok is not 0: \a *ok is set to false if the string is not a
     number, or if it has trailing garbage; otherwise \a *ok is set to
-    TRUE.
+    true.
 */
 
-double QCString::toDouble( bool *ok ) const
+double QCString::toDouble(bool *ok) const
 {
     char *end;
-    double val = strtod( constData() ? constData() : "", &end );
-    if ( ok )
-	*ok = ( constData() && *constData() && ( end == 0 || *end == '\0' ) );
+    double val = strtod(constData() ? constData() : "", &end);
+    if (ok)
+        *ok = (constData() && *constData() && (end == 0 || *end == '\0'));
     return val;
 }
 
 /*!
     Returns the string converted to a \c{float} value.
 
-    If \a ok is not 0: \a *ok is set to FALSE if the string is not a
+    If \a ok is not 0: \a *ok is set to false if the string is not a
     number, or if it has trailing garbage; otherwise \a *ok is set to
-    TRUE.
+    true.
 */
 
-float QCString::toFloat( bool *ok ) const
+float QCString::toFloat(bool *ok) const
 {
-    return (float)toDouble( ok );
+    return (float)toDouble(ok);
 }
 
 
-/*! \fn QCString &QCString::setStr( const char *str )
+/*! \fn QCString &QCString::setStr(const char *str)
     Makes a deep copy of \a str. Returns a reference to the string.
 */
 
@@ -546,25 +546,25 @@ float QCString::toFloat( bool *ok ) const
     and returns a reference to the string.
 */
 
-QCString &QCString::setNum( long n )
+QCString &QCString::setNum(long n)
 {
     data();
     char buf[20];
     register char *p = &buf[19];
     bool neg;
-    if ( n < 0 ) {
-	neg = TRUE;
-	n = -n;
+    if (n < 0) {
+        neg = true;
+        n = -n;
     } else {
-	neg = FALSE;
+        neg = false;
     }
     *p = '\0';
     do {
-	*--p = ((int)(n%10)) + '0';
-	n /= 10;
-    } while ( n );
-    if ( neg )
-	*--p = '-';
+        *--p = ((int)(n%10)) + '0';
+        n /= 10;
+    } while (n);
+    if (neg)
+        *--p = '-';
     *this = p;
     return *this;
 }
@@ -576,22 +576,22 @@ QCString &QCString::setNum( long n )
     and returns a reference to the string.
 */
 
-QCString &QCString::setNum( ulong n )
+QCString &QCString::setNum(ulong n)
 {
     data();
     char buf[20];
     register char *p = &buf[19];
     *p = '\0';
     do {
-	*--p = ((int)(n%10)) + '0';
-	n /= 10;
-    } while ( n );
+        *--p = ((int)(n%10)) + '0';
+        n /= 10;
+    } while (n);
     *this = p;
     return *this;
 }
 
 /*!
-    \fn QCString &QCString::setNum( int n )
+    \fn QCString &QCString::setNum(int n)
     \overload
 
     Sets the string to the string representation of the number \a n
@@ -599,7 +599,7 @@ QCString &QCString::setNum( ulong n )
 */
 
 /*!
-    \fn QCString &QCString::setNum( uint n )
+    \fn QCString &QCString::setNum(uint n)
     \overload
 
     Sets the string to the string representation of the number \a n
@@ -607,7 +607,7 @@ QCString &QCString::setNum( ulong n )
 */
 
 /*!
-    \fn QCString &QCString::setNum( short n )
+    \fn QCString &QCString::setNum(short n)
     \overload
 
     Sets the string to the string representation of the number \a n
@@ -615,7 +615,7 @@ QCString &QCString::setNum( ulong n )
 */
 
 /*!
-    \fn QCString &QCString::setNum( ushort n )
+    \fn QCString &QCString::setNum(ushort n)
     \overload
 
     Sets the string to the string representation of the number \a n
@@ -635,28 +635,28 @@ QCString &QCString::setNum( ulong n )
     QString::arg().
 */
 
-QCString &QCString::setNum( double n, char f, int prec )
+QCString &QCString::setNum(double n, char f, int prec)
 {
 #ifndef QT_NO_DEBUG
-    if ( !(f=='f' || f=='F' || f=='e' || f=='E' || f=='g' || f=='G') )
-	qWarning( "QCString::setNum: Invalid format char '%c'", f );
+    if (!(f=='f' || f=='F' || f=='e' || f=='E' || f=='g' || f=='G'))
+        qWarning("QCString::setNum: Invalid format char '%c'", f);
 #endif
     char format[20];
-    register char *fs = format;			// generate format string
-    *fs++ = '%';				//   "%.<prec>l<f>"
-    if ( prec > 99 )
-	prec = 99;
+    register char *fs = format;                        // generate format string
+    *fs++ = '%';                                //   "%.<prec>l<f>"
+    if (prec > 99)
+        prec = 99;
     *fs++ = '.';
-    if ( prec >= 10 ) {
-	*fs++ = prec / 10 + '0';
-	*fs++ = prec % 10 + '0';
+    if (prec >= 10) {
+        *fs++ = prec / 10 + '0';
+        *fs++ = prec % 10 + '0';
     } else {
-	*fs++ = prec + '0';
+        *fs++ = prec + '0';
     }
     *fs++ = 'l';
     *fs++ = f;
     *fs = '\0';
-    return sprintf( format, n );
+    return sprintf(format, n);
 }
 
 /*! \fn QCString &QCString::setNum(float n, char f, int prec)
@@ -667,20 +667,20 @@ QCString &QCString::setNum( double n, char f, int prec )
     Sets the character at position \a index to \a c and expands the
     string if necessary, padding with spaces.
 
-    Returns FALSE if \a index was out of range and the string could
-    not be expanded; otherwise returns TRUE.
+    Returns false if \a index was out of range and the string could
+    not be expanded; otherwise returns true.
 */
 
-bool QCString::setExpand( uint index, char c )
+bool QCString::setExpand(uint index, char c)
 {
     uint oldlen = length();
-    if ( index >= oldlen ) {
-	resize( index+1 );
-	if ( index > oldlen )
-	    memset( data() + oldlen, ' ', index - oldlen );
+    if (index >= oldlen) {
+        resize(index+1);
+        if (index > oldlen)
+            memset(data() + oldlen, ' ', index - oldlen);
     }
     *(data() + index) = c;
-    return TRUE;
+    return true;
 }
 
 
@@ -692,7 +692,7 @@ bool QCString::setExpand( uint index, char c )
 
 
 /*!
-    \fn QCString& QCString::append( const char *str )
+    \fn QCString& QCString::append(const char *str)
 
     Appends string \a str to the string and returns a reference to the
     string. Equivalent to operator+=().
@@ -700,7 +700,7 @@ bool QCString::setExpand( uint index, char c )
 
 
 
-/*! \fn QDataStream &operator<<( QDataStream &s, const QCString &str )
+/*! \fn QDataStream &operator<<(QDataStream &s, const QCString &str)
     \relates QCString
 
     Writes string \a str to the stream \a s.
@@ -709,7 +709,7 @@ bool QCString::setExpand( uint index, char c )
 */
 
 /*!
-  \fn QDataStream &operator>>( QDataStream &s, QCString &str )
+  \fn QDataStream &operator>>(QDataStream &s, QCString &str)
     \relates QCString
 
     Reads a string into \a str from the stream \a s.
@@ -722,75 +722,75 @@ bool QCString::setExpand( uint index, char c )
  *****************************************************************************/
 
 /*!
-    \fn bool operator==( const QCString &s1, const QCString &s2 )
+    \fn bool operator==(const QCString &s1, const QCString &s2)
 
     \relates QCString
 
-    Returns TRUE if \a s1 and \a s2 are equal; otherwise returns FALSE.
+    Returns true if \a s1 and \a s2 are equal; otherwise returns false.
 
     Equivalent to qstrcmp(\a s1, \a s2) == 0.
 */
 
 /*!
-    \fn bool operator==( const QCString &s1, const char *s2 )
+    \fn bool operator==(const QCString &s1, const char *s2)
     \overload
 
     \relates QCString
 
-    Returns TRUE if \a s1 and \a s2 are equal; otherwise returns FALSE.
+    Returns true if \a s1 and \a s2 are equal; otherwise returns false.
 
     Equivalent to qstrcmp(\a s1, \a s2) == 0.
 */
 
 /*!
-    \fn bool operator==( const char *s1, const QCString &s2 )
+    \fn bool operator==(const char *s1, const QCString &s2)
     \overload
 
     \relates QCString
 
-    Returns TRUE if \a s1 and \a s2 are equal; otherwise returns FALSE.
+    Returns true if \a s1 and \a s2 are equal; otherwise returns false.
 
     Equivalent to qstrcmp(\a s1, \a s2) == 0.
 */
 
 /*!
-    \fn bool operator!=( const QCString &s1, const QCString &s2 )
+    \fn bool operator!=(const QCString &s1, const QCString &s2)
 
     \relates QCString
 
-    Returns TRUE if \a s1 and \a s2 are different; otherwise returns FALSE.
+    Returns true if \a s1 and \a s2 are different; otherwise returns false.
 
     Equivalent to qstrcmp(\a s1, \a s2) != 0.
 */
 
 /*!
-    \fn bool operator!=( const QCString &s1, const char *s2 )
+    \fn bool operator!=(const QCString &s1, const char *s2)
     \overload
 
     \relates QCString
 
-    Returns TRUE if \a s1 and \a s2 are different; otherwise returns FALSE.
+    Returns true if \a s1 and \a s2 are different; otherwise returns false.
 
     Equivalent to qstrcmp(\a s1, \a s2) != 0.
 */
 
 /*!
-    \fn bool operator!=( const char *s1, const QCString &s2 )
+    \fn bool operator!=(const char *s1, const QCString &s2)
     \overload
 
     \relates QCString
 
-    Returns TRUE if \a s1 and \a s2 are different; otherwise returns FALSE.
+    Returns true if \a s1 and \a s2 are different; otherwise returns false.
 
     Equivalent to qstrcmp(\a s1, \a s2) != 0.
 */
 
 /*!
-    \fn bool operator<( const QCString &s1, const char *s2 )
+    \fn bool operator<(const QCString &s1, const char *s2)
 
     \relates QCString
 
-    Returns TRUE if \a s1 is less than \a s2; otherwise returns FALSE.
+    Returns true if \a s1 is less than \a s2; otherwise returns false.
 
     Equivalent to qstrcmp(\a s1, \a s2) \< 0.
 
@@ -798,12 +798,12 @@ bool QCString::setExpand( uint index, char c )
 */
 
 /*!
-    \fn bool operator<( const char *s1, const QCString &s2 )
+    \fn bool operator<(const char *s1, const QCString &s2)
     \overload
 
     \relates QCString
 
-    Returns TRUE if \a s1 is less than \a s2; otherwise returns FALSE.
+    Returns true if \a s1 is less than \a s2; otherwise returns false.
 
     Equivalent to qstrcmp(\a s1, \a s2) \< 0.
 
@@ -811,12 +811,12 @@ bool QCString::setExpand( uint index, char c )
 */
 
 /*!
-    \fn bool operator<=( const QCString &s1, const char *s2 )
+    \fn bool operator<=(const QCString &s1, const char *s2)
 
     \relates QCString
 
-    Returns TRUE if \a s1 is less than or equal to \a s2; otherwise
-    returns FALSE.
+    Returns true if \a s1 is less than or equal to \a s2; otherwise
+    returns false.
 
     Equivalent to qstrcmp(\a s1, \a s2) \<= 0.
 
@@ -824,13 +824,13 @@ bool QCString::setExpand( uint index, char c )
 */
 
 /*!
-    \fn bool operator<=( const char *s1, const QCString &s2 )
+    \fn bool operator<=(const char *s1, const QCString &s2)
     \overload
 
     \relates QCString
 
-    Returns TRUE if \a s1 is less than or equal to \a s2; otherwise
-    returns FALSE.
+    Returns true if \a s1 is less than or equal to \a s2; otherwise
+    returns false.
 
     Equivalent to qstrcmp(\a s1, \a s2) \<= 0.
 
@@ -838,11 +838,11 @@ bool QCString::setExpand( uint index, char c )
 */
 
 /*!
-    \fn bool operator>( const QCString &s1, const char *s2 )
+    \fn bool operator>(const QCString &s1, const char *s2)
 
     \relates QCString
 
-    Returns TRUE if \a s1 is greater than \a s2; otherwise returns FALSE.
+    Returns true if \a s1 is greater than \a s2; otherwise returns false.
 
     Equivalent to qstrcmp(\a s1, \a s2) \> 0.
 
@@ -850,12 +850,12 @@ bool QCString::setExpand( uint index, char c )
 */
 
 /*!
-    \fn bool operator>( const char *s1, const QCString &s2 )
+    \fn bool operator>(const char *s1, const QCString &s2)
     \overload
 
     \relates QCString
 
-    Returns TRUE if \a s1 is greater than \a s2; otherwise returns FALSE.
+    Returns true if \a s1 is greater than \a s2; otherwise returns false.
 
     Equivalent to qstrcmp(\a s1, \a s2) \> 0.
 
@@ -863,12 +863,12 @@ bool QCString::setExpand( uint index, char c )
 */
 
 /*!
-    \fn bool operator>=( const QCString &s1, const char *s2 )
+    \fn bool operator>=(const QCString &s1, const char *s2)
 
     \relates QCString
 
-    Returns TRUE if \a s1 is greater than or equal to \a s2; otherwise
-    returns FALSE.
+    Returns true if \a s1 is greater than or equal to \a s2; otherwise
+    returns false.
 
     Equivalent to qstrcmp(\a s1, \a s2) \>= 0.
 
@@ -876,13 +876,13 @@ bool QCString::setExpand( uint index, char c )
 */
 
 /*!
-    \fn bool operator>=( const char *s1, const QCString &s2 )
+    \fn bool operator>=(const char *s1, const QCString &s2)
     \overload
 
     \relates QCString
 
-    Returns TRUE if \a s1 is greater than or equal to \a s2; otherwise
-    returns FALSE.
+    Returns true if \a s1 is greater than or equal to \a s2; otherwise
+    returns false.
 
     Equivalent to qstrcmp(\a s1, \a s2) \>= 0.
 
@@ -890,7 +890,7 @@ bool QCString::setExpand( uint index, char c )
 */
 
 /*!
-    \fn const QCString operator+( const QCString &s1, const QCString &s2 )
+    \fn const QCString operator+(const QCString &s1, const QCString &s2)
 
     \relates QCString
 
@@ -899,7 +899,7 @@ bool QCString::setExpand( uint index, char c )
 */
 
 /*!
-    \fn const QCString operator+( const QCString &s1, const char *s2 )
+    \fn const QCString operator+(const QCString &s1, const char *s2)
     \overload
 
     \relates QCString
@@ -908,7 +908,7 @@ bool QCString::setExpand( uint index, char c )
 */
 
 /*!
-    \fn const QCString operator+( const char *s1, const QCString &s2 )
+    \fn const QCString operator+(const char *s1, const QCString &s2)
     \overload
 
     \relates QCString
@@ -917,7 +917,7 @@ bool QCString::setExpand( uint index, char c )
 */
 
 /*!
-    \fn const QCString operator+( const QCString &s, char c )
+    \fn const QCString operator+(const QCString &s, char c)
     \overload
 
     \relates QCString
@@ -926,7 +926,7 @@ bool QCString::setExpand( uint index, char c )
 */
 
 /*!
-    \fn const QCString operator+( char c, const QCString &s )
+    \fn const QCString operator+(char c, const QCString &s)
     \overload
 
     \relates QCString

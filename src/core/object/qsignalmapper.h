@@ -29,9 +29,9 @@ public:
     QSignalMapper(QObject* parent);
     ~QSignalMapper();
 
-    virtual void setMapping( const QObject* sender, int identifier );
-    virtual void setMapping( const QObject* sender, const QString &identifier );
-    void removeMappings( const QObject* sender );
+    virtual void setMapping(const QObject* sender, int identifier);
+    virtual void setMapping(const QObject* sender, const QString &identifier);
+    void removeMappings(const QObject* sender);
 
 signals:
     void mapped(int);

@@ -33,13 +33,13 @@ extern "C" Q_UINT32 DosQueryCurrentDisk(Q_UINT32*,Q_UINT32*);
 
 #if defined(Q_FS_FAT) || defined(Q_OS_OS2EMX)
 
-void QDir::slashify( QString& n )
+void QDir::slashify(QString& n)
 {
-    if ( n.isNull() )
-	return;
-    for ( int i=0; i<(int)n.length(); i++ ) {
-	if ( n[i] ==  '\\' )
-	    n[i] = '/';
+    if (n.isNull())
+        return;
+    for (int i=0; i<(int)n.length(); i++) {
+        if (n[i] ==  '\\')
+            n[i] = '/';
     }
 }
 
@@ -47,7 +47,7 @@ extern QByteArray qt_win95Name(const QString s);
 
 #else
 
-static void QDir::slashify( QString& n)
+static void QDir::slashify(QString& n)
 {
     return;
 }
@@ -57,17 +57,17 @@ static void QDir::slashify( QString& n)
 QString QDir::homeDirPath()
 {
     QString d;
-    d = QString::fromLocal8Bit( getenv("HOME") );
-    if ( d.isEmpty() || !QFile::exists( d ) ) {
-	d = QString::fromLocal8Bit( getenv("USERPROFILE") );
-	if ( d.isEmpty() || !QFile::exists( d ) ) {
-	    d = QString::fromLocal8Bit( getenv("HOMEDRIVE") ) + QString::fromLocal8Bit( getenv("HOMEPATH") );
-	    if ( d.isEmpty() || !QFile::exists( d ) )
-		d = rootDirPath();
-	}
+    d = QString::fromLocal8Bit(getenv("HOME"));
+    if (d.isEmpty() || !QFile::exists(d)) {
+        d = QString::fromLocal8Bit(getenv("USERPROFILE"));
+        if (d.isEmpty() || !QFile::exists(d)) {
+            d = QString::fromLocal8Bit(getenv("HOMEDRIVE")) + QString::fromLocal8Bit(getenv("HOMEPATH"));
+            if (d.isEmpty() || !QFile::exists(d))
+                d = rootDirPath();
+        }
     }
 
-    slashify( d );
+    slashify(d);
     return d;
 }
 
@@ -81,87 +81,87 @@ QString QDir::homeDirPath()
     links) canonicalPath() returns QString::null.
 
     \sa path(), absPath(), exists(), cleanDirPath(), dirName(),
-	absFilePath(), QString::isNull()
+        absFilePath(), QString::isNull()
 */
 
 QString QDir::canonicalPath() const
 {
     QString r;
-    QT_WA( {
-	TCHAR cur[PATH_MAX];
-	::_wgetcwd( cur, PATH_MAX );
-	if ( ::_wchdir( (TCHAR*)dPath.ucs2() ) >= 0 ) {
-	    TCHAR tmp[PATH_MAX];
-	    if ( ::_wgetcwd( tmp, PATH_MAX ) )
-		r = QString::fromUcs2( (ushort*)tmp );
-	}
-	::_wchdir( cur );
+    QT_WA({
+        TCHAR cur[PATH_MAX];
+        ::_wgetcwd(cur, PATH_MAX);
+        if (::_wchdir((TCHAR*)dPath.ucs2()) >= 0) {
+            TCHAR tmp[PATH_MAX];
+            if (::_wgetcwd(tmp, PATH_MAX))
+                r = QString::fromUcs2((ushort*)tmp);
+        }
+        ::_wchdir(cur);
     } , {
-	char cur[PATH_MAX];
-	QT_GETCWD( cur, PATH_MAX );
-	if ( QT_CHDIR(qt_win95Name(dPath)) >= 0 ) {
-	    char tmp[PATH_MAX];
-	    if ( QT_GETCWD( tmp, PATH_MAX ) )
-		r = QString::fromLocal8Bit( tmp );
-	}
-	QT_CHDIR( cur );
-    } );
-    slashify( r );
+        char cur[PATH_MAX];
+        QT_GETCWD(cur, PATH_MAX);
+        if (QT_CHDIR(qt_win95Name(dPath)) >= 0) {
+            char tmp[PATH_MAX];
+            if (QT_GETCWD(tmp, PATH_MAX))
+                r = QString::fromLocal8Bit(tmp);
+        }
+        QT_CHDIR(cur);
+    });
+    slashify(r);
     return r;
 }
 
 /*!
     Creates a directory.
 
-    If \a acceptAbsPath is TRUE a path starting with a separator ('/')
-    will create the absolute directory; if \a acceptAbsPath is FALSE
+    If \a acceptAbsPath is true a path starting with a separator ('/')
+    will create the absolute directory; if \a acceptAbsPath is false
     any number of separators at the beginning of \a dirName will be
     removed.
 
-    Returns TRUE if successful; otherwise returns FALSE.
+    Returns true if successful; otherwise returns false.
 
     \sa rmdir()
 */
 
-bool QDir::mkdir( const QString &dirName, bool acceptAbsPath ) const
+bool QDir::mkdir(const QString &dirName, bool acceptAbsPath) const
 {
-    QT_WA( {
-	return ::_wmkdir( (TCHAR*)filePath(dirName,acceptAbsPath).ucs2() ) == 0;
+    QT_WA({
+        return ::_wmkdir((TCHAR*)filePath(dirName,acceptAbsPath).ucs2()) == 0;
     }, {
-	return _mkdir(qt_win95Name(filePath(dirName,acceptAbsPath))) == 0;
-    } );
+        return _mkdir(qt_win95Name(filePath(dirName,acceptAbsPath))) == 0;
+    });
 }
 
 /*!
     Removes a directory.
 
-    If \a acceptAbsPath is TRUE a path starting with a separator ('/')
-    will remove the absolute directory; if \a acceptAbsPath is FALSE
+    If \a acceptAbsPath is true a path starting with a separator ('/')
+    will remove the absolute directory; if \a acceptAbsPath is false
     any number of separators at the beginning of \a dirName will be
     removed.
 
     The directory must be empty for rmdir() to succeed.
 
-    Returns TRUE if successful; otherwise returns FALSE.
+    Returns true if successful; otherwise returns false.
 
     \sa mkdir()
 */
 
-bool QDir::rmdir( const QString &dirName, bool acceptAbsPath ) const
+bool QDir::rmdir(const QString &dirName, bool acceptAbsPath) const
 {
-    QT_WA( {
-	return ::_wrmdir( (TCHAR*)filePath(dirName,acceptAbsPath).ucs2() ) == 0;
+    QT_WA({
+        return ::_wrmdir((TCHAR*)filePath(dirName,acceptAbsPath).ucs2()) == 0;
     } , {
-	return _rmdir(qt_win95Name(filePath(dirName,acceptAbsPath))) == 0;
-    } );
+        return _rmdir(qt_win95Name(filePath(dirName,acceptAbsPath))) == 0;
+    });
 }
 
 
 /*!
-    Returns TRUE if the directory is readable \e and we can open files
-    by name; otherwise returns FALSE.
+    Returns true if the directory is readable \e and we can open files
+    by name; otherwise returns false.
 
-    \warning A FALSE value from this function is not a guarantee that
+    \warning A false value from this function is not a guarantee that
     files in the directory are not accessible.
 
     \sa QFileInfo::isReadable()
@@ -169,25 +169,25 @@ bool QDir::rmdir( const QString &dirName, bool acceptAbsPath ) const
 
 bool QDir::isReadable() const
 {
-    QT_WA( {
-	return ::_waccess( (TCHAR*)dPath.ucs2(), R_OK ) == 0;
+    QT_WA({
+        return ::_waccess((TCHAR*)dPath.ucs2(), R_OK) == 0;
     } , {
-	return QT_ACCESS(qt_win95Name(dPath), R_OK) == 0;
-    } );
+        return QT_ACCESS(qt_win95Name(dPath), R_OK) == 0;
+    });
 }
 
 /*!
-    Returns TRUE if the directory is the root directory; otherwise
-    returns FALSE.
+    Returns true if the directory is the root directory; otherwise
+    returns false.
 
     Note: If the directory is a symbolic link to the root directory
-    this function returns FALSE. If you want to test for this use
+    this function returns false. If you want to test for this use
     canonicalPath(), e.g.
     \code
-    QDir d( "/tmp/root_link" );
+    QDir d("/tmp/root_link");
     d = d.canonicalPath();
-    if ( d.isRoot() )
-	qWarning( "It is a root link" );
+    if (d.isRoot())
+        qWarning("It is a root link");
     \endcode
 
     \sa root(), rootDirPath()
@@ -196,18 +196,18 @@ bool QDir::isReadable() const
 bool QDir::isRoot() const
 {
     return dPath == "/" || dPath == "//" ||
-	(dPath[0].isLetter() && dPath.mid(1,dPath.length()) == ":/");
+        (dPath[0].isLetter() && dPath.mid(1,dPath.length()) == ":/");
 }
 
 /*!
     Renames a file or directory.
 
-    If \a acceptAbsPaths is TRUE a path starting with a separator
+    If \a acceptAbsPaths is true a path starting with a separator
     ('/') will rename the file with the absolute path; if \a
-    acceptAbsPaths is FALSE any number of separators at the beginning
+    acceptAbsPaths is false any number of separators at the beginning
     of the names will be removed.
 
-    Returns TRUE if successful; otherwise returns FALSE.
+    Returns true if successful; otherwise returns false.
 
     On most file systems, rename() fails only if \a oldName does not
     exist or if \a newName and \a oldName are not on the same
@@ -217,37 +217,37 @@ bool QDir::isRoot() const
     \a newName points to an open file.
 */
 
-bool QDir::rename( const QString &oldName, const QString &newName,
-		   bool acceptAbsPaths	)
+bool QDir::rename(const QString &oldName, const QString &newName,
+                   bool acceptAbsPaths       )
 {
-    if ( oldName.isEmpty() || newName.isEmpty() ) {
-	qWarning( "QDir::rename: Empty or null file name" );
-	return FALSE;
+    if (oldName.isEmpty() || newName.isEmpty()) {
+        qWarning("QDir::rename: Empty or null file name");
+        return false;
     }
-    QString fn1 = filePath( oldName, acceptAbsPaths );
-    QString fn2 = filePath( newName, acceptAbsPaths );
-    QT_WA( {
-	return ::_wrename( (TCHAR*)fn1.ucs2(), (TCHAR*)fn2.ucs2() ) == 0;
+    QString fn1 = filePath(oldName, acceptAbsPaths);
+    QString fn2 = filePath(newName, acceptAbsPaths);
+    QT_WA({
+        return ::_wrename((TCHAR*)fn1.ucs2(), (TCHAR*)fn2.ucs2()) == 0;
     } , {
-	return ::rename(qt_win95Name(fn1), qt_win95Name(fn2)) == 0;
-    } );
+        return ::rename(qt_win95Name(fn1), qt_win95Name(fn2)) == 0;
+    });
 }
 /*!
     Sets the application's current working directory to \a path.
-    Returns TRUE if the directory was successfully changed; otherwise
-    returns FALSE.
+    Returns true if the directory was successfully changed; otherwise
+    returns false.
 */
 
 
-bool QDir::setCurrent( const QString &path )
+bool QDir::setCurrent(const QString &path)
 {
     int r;
 
-    QT_WA( {
-	r = ::_wchdir( (TCHAR*)path.ucs2() );
+    QT_WA({
+        r = ::_wchdir((TCHAR*)path.ucs2());
     } , {
-	r = QT_CHDIR(qt_win95Name(path));
-    } );
+        r = QT_CHDIR(qt_win95Name(path));
+    });
 
     return r >= 0;
 }
@@ -262,18 +262,18 @@ QString QDir::currentDirPath()
 {
     QString result;
 
-    QT_WA( {
+    QT_WA({
         TCHAR currentName[PATH_MAX];
-	if ( ::_wgetcwd(currentName,PATH_MAX) != 0 ) {
-	    result = QString::fromUcs2( (ushort*)currentName );
-	}
+        if (::_wgetcwd(currentName,PATH_MAX) != 0) {
+            result = QString::fromUcs2((ushort*)currentName);
+        }
     } , {
-	char currentName[PATH_MAX];
-	if ( QT_GETCWD(currentName,PATH_MAX) != 0 ) {
-	    result = QString::fromLocal8Bit(currentName);
-	}
-    } );
-    slashify( result );
+        char currentName[PATH_MAX];
+        if (QT_GETCWD(currentName,PATH_MAX) != 0) {
+            result = QString::fromLocal8Bit(currentName);
+        }
+    });
+    slashify(result);
 
     return result;
 }
@@ -291,32 +291,32 @@ QString QDir::currentDirPath()
 QString QDir::rootDirPath()
 {
 #if defined(Q_FS_FAT)
-    QString d = QString::fromLatin1( getenv("SystemDrive") );
-    if ( d.isEmpty() )
-	d = "c:";
+    QString d = QString::fromLatin1(getenv("SystemDrive"));
+    if (d.isEmpty())
+        d = "c:";
     d = d + "/";
 #elif defined(Q_OS_OS2EMX)
     char dir[4];
-    _abspath( dir, "/", _MAX_PATH );
-    QString d( dir );
+    _abspath(dir, "/", _MAX_PATH);
+    QString d(dir);
 #endif
     return d;
 }
 
 /*!
-    Returns TRUE if \a path is relative; returns FALSE if it is
+    Returns true if \a path is relative; returns false if it is
     absolute.
 
     \sa isRelative()
 */
 
-bool QDir::isRelativePath( const QString &path )
+bool QDir::isRelativePath(const QString &path)
 {
-    if ( path.length() >= 2 )
-	return !((path[0].isLetter() && path[1] == ':') ||
-		 (path[0] == '\\' && path[1] == '\\') ||
-		 (path[0] == '/' && path[1] == '/'));		// drive, e.g. a:
-    return TRUE;
+    if (path.length() >= 2)
+        return !((path[0].isLetter() && path[1] == ':') ||
+                 (path[0] == '\\' && path[1] == '\\') ||
+                 (path[0] == '/' && path[1] == '/'));                // drive, e.g. a:
+    return true;
 }
 
 /*!
@@ -324,170 +324,170 @@ bool QDir::isRelativePath( const QString &path )
   Reads directory entries.
 */
 
-void QDir::readDirEntries( const QString &nameFilter,
-			   int filterSpec, int sortSpec ) const
+void QDir::readDirEntries(const QString &nameFilter,
+                           int filterSpec, int sortSpec) const
 {
     int i;
 
 #ifndef QT_NO_REGEXP
-    QList<QRegExp> filters = qt_makeFilterList( nameFilter );
+    QList<QRegExp> filters = qt_makeFilterList(nameFilter);
 #endif
 
-    bool doDirs	    = (filterSpec & Dirs)	!= 0;
-    bool doFiles    = (filterSpec & Files)	!= 0;
+    bool doDirs            = (filterSpec & Dirs)        != 0;
+    bool doFiles    = (filterSpec & Files)        != 0;
     bool noSymLinks = (filterSpec & NoSymLinks) != 0;
-    bool doReadable = (filterSpec & Readable)	!= 0;
-    bool doWritable = (filterSpec & Writable)	!= 0;
+    bool doReadable = (filterSpec & Readable)        != 0;
+    bool doWritable = (filterSpec & Writable)        != 0;
     bool doExecable = (filterSpec & Executable) != 0;
-    bool doHidden   = (filterSpec & Hidden)	!= 0;
+    bool doHidden   = (filterSpec & Hidden)        != 0;
 
     // show hidden files if the user asks explicitly for e.g. .*
-    if ( !doHidden && !nameFilter.isEmpty() && nameFilter[0] == '.' )
-	doHidden = TRUE;
-    bool doModified = (filterSpec & Modified)	!= 0;
-    bool doSystem   = (filterSpec & System)	!= 0;
+    if (!doHidden && !nameFilter.isEmpty() && nameFilter[0] == '.')
+        doHidden = true;
+    bool doModified = (filterSpec & Modified)        != 0;
+    bool doSystem   = (filterSpec & System)        != 0;
 
-    bool      first = TRUE;
+    bool      first = true;
     QString   p = dPath;
-    int	      plen = p.length();
+    int              plen = p.length();
     HANDLE    ff;
     WIN32_FIND_DATA finfo;
     QFileInfo fi;
 
-#undef	IS_SUBDIR
-#undef	IS_RDONLY
-#undef	IS_ARCH
-#undef	IS_HIDDEN
-#undef	IS_SYSTEM
-#undef	FF_ERROR
+#undef        IS_SUBDIR
+#undef        IS_RDONLY
+#undef        IS_ARCH
+#undef        IS_HIDDEN
+#undef        IS_SYSTEM
+#undef        FF_ERROR
 
 #define IS_SUBDIR   FILE_ATTRIBUTE_DIRECTORY
 #define IS_RDONLY   FILE_ATTRIBUTE_READONLY
-#define IS_ARCH	    FILE_ATTRIBUTE_ARCHIVE
+#define IS_ARCH            FILE_ATTRIBUTE_ARCHIVE
 #define IS_HIDDEN   FILE_ATTRIBUTE_HIDDEN
 #define IS_SYSTEM   FILE_ATTRIBUTE_SYSTEM
 #define FF_ERROR    INVALID_HANDLE_VALUE
 
-    if ( plen == 0 ) {
-	qWarning( "QDir::readDirEntries: No directory name specified" );
-	return;
+    if (plen == 0) {
+        qWarning("QDir::readDirEntries: No directory name specified");
+        return;
     }
-    if ( p.at(plen-1) != '/' && p.at(plen-1) != '\\' )
-	p += '/';
+    if (p.at(plen-1) != '/' && p.at(plen-1) != '\\')
+        p += '/';
     p += QString::fromLatin1("*.*");
 
-    QT_WA( {
-	ff = FindFirstFile( (TCHAR*)p.ucs2(), &finfo );
+    QT_WA({
+        ff = FindFirstFile((TCHAR*)p.ucs2(), &finfo);
     }, {
-	// Cast is safe, since char is at end of WIN32_FIND_DATA
-	ff = FindFirstFileA(qt_win95Name(p),(WIN32_FIND_DATAA*)&finfo);
-    } );
+        // Cast is safe, since char is at end of WIN32_FIND_DATA
+        ff = FindFirstFileA(qt_win95Name(p),(WIN32_FIND_DATAA*)&finfo);
+    });
 
     fList.clear();
 
-    if ( ff == FF_ERROR ) {
-	// if it is a floppy disk drive, it might just not have a file on it
-	if ( plen > 1 && p[1] == ':' &&
-		( p[0]=='A' || p[0]=='a' || p[0]=='B' || p[0]=='b' ) ) {
-	    fiList.clear();
-	    return;
-	}
-	qWarning( "QDir::readDirEntries: Cannot read the directory: %s (UTF-8)",
-		  dPath.utf8() );
-	return;
+    if (ff == FF_ERROR) {
+        // if it is a floppy disk drive, it might just not have a file on it
+        if (plen > 1 && p[1] == ':' &&
+                (p[0]=='A' || p[0]=='a' || p[0]=='B' || p[0]=='b')) {
+            fiList.clear();
+            return;
+        }
+        qWarning("QDir::readDirEntries: Cannot read the directory: %s (UTF-8)",
+                  dPath.utf8());
+        return;
     }
 
     fiList.clear();
 
-    for ( ;; ) {
-	if ( first )
-	    first = FALSE;
-	else {
-	    QT_WA( {
-		if ( !FindNextFile(ff,&finfo) )
-		    break;
-	    } , {
-		if ( !FindNextFileA(ff,(WIN32_FIND_DATAA*)&finfo) )
-		    break;
-	    } );
-	}
-	int  attrib = finfo.dwFileAttributes;
-	bool isDir	= (attrib & IS_SUBDIR) != 0;
-	bool isFile	= !isDir;
-	bool isSymLink	= FALSE;
-	bool isReadable = TRUE;
-	bool isWritable = (attrib & IS_RDONLY) == 0;
-	bool isExecable = FALSE;
-	bool isModified = (attrib & IS_ARCH)   != 0;
-	bool isHidden	= (attrib & IS_HIDDEN) != 0;
-	bool isSystem	= (attrib & IS_SYSTEM) != 0;
+    for (;;) {
+        if (first)
+            first = false;
+        else {
+            QT_WA({
+                if (!FindNextFile(ff,&finfo))
+                    break;
+            } , {
+                if (!FindNextFileA(ff,(WIN32_FIND_DATAA*)&finfo))
+                    break;
+            });
+        }
+        int  attrib = finfo.dwFileAttributes;
+        bool isDir        = (attrib & IS_SUBDIR) != 0;
+        bool isFile        = !isDir;
+        bool isSymLink        = false;
+        bool isReadable = true;
+        bool isWritable = (attrib & IS_RDONLY) == 0;
+        bool isExecable = false;
+        bool isModified = (attrib & IS_ARCH)   != 0;
+        bool isHidden        = (attrib & IS_HIDDEN) != 0;
+        bool isSystem        = (attrib & IS_SYSTEM) != 0;
 
-	QString fname;
-	QT_WA( {
-	    fname = QString::fromUcs2( (unsigned short *)finfo.cFileName );
-	} , {
-	    fname = QString::fromLocal8Bit( (const char*)finfo.cFileName );
-	} );
+        QString fname;
+        QT_WA({
+            fname = QString::fromUcs2((unsigned short *)finfo.cFileName);
+        } , {
+            fname = QString::fromLocal8Bit((const char*)finfo.cFileName);
+        });
 
 #ifndef QT_NO_REGEXP
-	if ( !qt_matchFilterList(filters, fname) && !(allDirs && isDir) )
-	    continue;
+        if (!qt_matchFilterList(filters, fname) && !(allDirs && isDir))
+            continue;
 #endif
-	if  ( (doDirs && isDir) || (doFiles && isFile) ) {
-	    QString name = fname;
-	    slashify(name);
-	    if ( doExecable ) {
-		QString ext = name.right(4).toLower();
-		if ( ext == ".exe" || ext == ".com" || ext == ".bat" ||
-		     ext == ".pif" || ext == ".cmd" )
-		    isExecable = TRUE;
-	    }
+        if  ((doDirs && isDir) || (doFiles && isFile)) {
+            QString name = fname;
+            slashify(name);
+            if (doExecable) {
+                QString ext = name.right(4).toLower();
+                if (ext == ".exe" || ext == ".com" || ext == ".bat" ||
+                     ext == ".pif" || ext == ".cmd")
+                    isExecable = true;
+            }
 
-	    if ( noSymLinks && isSymLink )
-		continue;
-	    if ( (filterSpec & RWEMask) != 0 )
-		if ( (doReadable && !isReadable) ||
-		     (doWritable && !isWritable) ||
-		     (doExecable && !isExecable) )
-		    continue;
-	    if ( doModified && !isModified )
-		continue;
-	    if ( !doHidden && isHidden )
-		continue;
-	    if ( !doSystem && isSystem )
-		continue;
-	    fi.setFile( *this, name );
-	    fiList.append(fi);
-	}
+            if (noSymLinks && isSymLink)
+                continue;
+            if ((filterSpec & RWEMask) != 0)
+                if ((doReadable && !isReadable) ||
+                     (doWritable && !isWritable) ||
+                     (doExecable && !isExecable))
+                    continue;
+            if (doModified && !isModified)
+                continue;
+            if (!doHidden && isHidden)
+                continue;
+            if (!doSystem && isSystem)
+                continue;
+            fi.setFile(*this, name);
+            fiList.append(fi);
+        }
     }
-    FindClose( ff );
+    FindClose(ff);
 
-#undef	IS_SUBDIR
-#undef	IS_RDONLY
-#undef	IS_ARCH
-#undef	IS_HIDDEN
-#undef	IS_SYSTEM
-#undef	FF_ERROR
+#undef        IS_SUBDIR
+#undef        IS_RDONLY
+#undef        IS_ARCH
+#undef        IS_HIDDEN
+#undef        IS_SYSTEM
+#undef        FF_ERROR
 
     // Sort...
     QDirSortItem* si= new QDirSortItem[fiList.count()];
     for (i = 0; i < fiList.size(); ++i)
-	si[i].item = fiList.at(i);
+        si[i].item = fiList.at(i);
     qt_cmp_si_sortSpec = sortSpec;
-    qsort( si, i, sizeof(si[0]), qt_cmp_si );
+    qsort(si, i, sizeof(si[0]), qt_cmp_si);
     fiList.clear();
     int j;
-    for ( j=0; j<i; j++ ) {
-	fiList.append( si[j].item );
-	fList.append( si[j].item.fileName() );
+    for (j=0; j<i; j++) {
+        fiList.append(si[j].item);
+        fList.append(si[j].item.fileName());
     }
     delete [] si;
 
-    if ( filterSpec == (FilterSpec)filtS && sortSpec == (SortSpec)sortS &&
-	 nameFilter == nameFilt )
-	dirty = FALSE;
+    if (filterSpec == (FilterSpec)filtS && sortSpec == (SortSpec)sortS &&
+         nameFilter == nameFilt)
+        dirty = false;
     else
-	dirty = TRUE;
+        dirty = true;
     return;
 }
 
@@ -510,37 +510,37 @@ QFileInfoList QDir::drives()
     bool initialized = false;
 
     if (!initialized) {
-	QMutexLocker locker( qt_global_mutexpool ?
-			     qt_global_mutexpool->get( &drives ) : 0 );
+        QMutexLocker locker(qt_global_mutexpool ?
+                             qt_global_mutexpool->get(&drives) : 0);
 
-	if ( !initialized ) {
-	    drives.ensure_constructed();
-	    initialized = true;
+        if (!initialized) {
+            drives.ensure_constructed();
+            initialized = true;
 
 #if defined(Q_OS_WIN32)
-	    Q_UINT32 driveBits = (Q_UINT32) GetLogicalDrives() & 0x3ffffff;
+            Q_UINT32 driveBits = (Q_UINT32) GetLogicalDrives() & 0x3ffffff;
 #elif defined(Q_OS_OS2EMX)
-	    Q_UINT32 driveBits, cur;
-	    if (DosQueryCurrentDisk(&cur,&driveBits) != NO_ERROR)
-		exit(1);
-	    driveBits &= 0x3ffffff;
+            Q_UINT32 driveBits, cur;
+            if (DosQueryCurrentDisk(&cur,&driveBits) != NO_ERROR)
+                exit(1);
+            driveBits &= 0x3ffffff;
 #endif
 
-	    char driveName[4];
+            char driveName[4];
 
 #ifndef Q_OS_TEMP
-	    qstrcpy( driveName, "A:/" );
+            qstrcpy(driveName, "A:/");
 #else
-	    qstrcpy( driveName, "/" );
+            qstrcpy(driveName, "/");
 #endif
 
-	    while( driveBits ) {
-		if ( driveBits & 1 )
-		    drives.append(QString::fromLatin1(driveName).toUpper());
-		driveName[0]++;
-		driveBits = driveBits >> 1;
-	    }
-	}
+            while(driveBits) {
+                if (driveBits & 1)
+                    drives.append(QString::fromLatin1(driveName).toUpper());
+                driveName[0]++;
+                driveBits = driveBits >> 1;
+            }
+        }
     }
     return drives;
 }

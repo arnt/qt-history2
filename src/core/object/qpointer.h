@@ -25,34 +25,34 @@ class QPointer
 public:
     inline QPointer() : o(0) {}
     inline QPointer(T *p) : o(p)
-	{ QMetaObject::addGuard(&o); }
+        { QMetaObject::addGuard(&o); }
     inline QPointer(const QPointer<T> &p) : o(p.o)
-	{ QMetaObject::addGuard(&o); }
+        { QMetaObject::addGuard(&o); }
     inline ~QPointer()
-	{ QMetaObject::removeGuard(&o); }
+        { QMetaObject::removeGuard(&o); }
     inline QPointer<T> &operator=(const QPointer<T> &p)
-	{ QMetaObject::changeGuard(&o, p.o); return *this; }
+        { QMetaObject::changeGuard(&o, p.o); return *this; }
     inline QPointer<T> &operator=(T* p)
-	{ QMetaObject::changeGuard(&o, p); return *this; }
+        { QMetaObject::changeGuard(&o, p); return *this; }
 
-    inline bool operator==( const QPointer<T> &p ) const
-	{ return o == p.o; }
-    inline bool operator==(const T *p ) const
-	{ return o == static_cast<const QObject*>(p); }
+    inline bool operator==(const QPointer<T> &p) const
+        { return o == p.o; }
+    inline bool operator==(const T *p) const
+        { return o == static_cast<const QObject*>(p); }
     inline bool operator!= (const QPointer<T> &p) const
-	{ return o != p.o; }
+        { return o != p.o; }
     inline bool operator!= (const T *p) const
-	{ return o != static_cast<const QObject*>(p); }
+        { return o != static_cast<const QObject*>(p); }
 
     inline bool isNull() const
-	{ return !o; }
+        { return !o; }
 
     inline T* operator->() const
-	{ return static_cast<T*>(const_cast<QObject*>(o)); }
+        { return static_cast<T*>(const_cast<QObject*>(o)); }
     inline T& operator*() const
-	{ return *static_cast<T*>(const_cast<QObject*>(o)); }
+        { return *static_cast<T*>(const_cast<QObject*>(o)); }
     inline operator T*() const
-	{ return static_cast<T*>(const_cast<QObject*>(o)); }
+        { return static_cast<T*>(const_cast<QObject*>(o)); }
 };
 
 

@@ -32,49 +32,49 @@ QPixmap qt_pixmapForBrush(int brushStyle)
     static const uchar dense6_pat[] = { 0x88, 0x00, 0x22, 0x00, 0x88, 0x00, 0x22, 0x00 };
     static const uchar dense7_pat[] = { 0x00, 0x44, 0x00, 0x00, 0x00, 0x44, 0x00, 0x00 };
     static const uchar hor_pat[] = {                      // horizontal pattern
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff,
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff,
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff,
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+        0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
     static const uchar ver_pat[] = {                      // vertical pattern
-	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
-	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
-	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
-	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
-	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
-	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20 };
+        0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
+        0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
+        0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
+        0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
+        0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
+        0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20 };
     static const uchar cross_pat[] = {                    // cross pattern
-	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0xff, 0xff, 0xff,
-	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
-	0x08, 0x82, 0x20, 0xff, 0xff, 0xff, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
-	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0xff, 0xff, 0xff,
-	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
-	0x08, 0x82, 0x20, 0xff, 0xff, 0xff, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20 };
+        0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0xff, 0xff, 0xff,
+        0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
+        0x08, 0x82, 0x20, 0xff, 0xff, 0xff, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
+        0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0xff, 0xff, 0xff,
+        0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
+        0x08, 0x82, 0x20, 0xff, 0xff, 0xff, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20 };
     static const uchar bdiag_pat[] = {                    // backward diagonal pattern
-	0x20, 0x20, 0x10, 0x10, 0x08, 0x08, 0x04, 0x04, 0x02, 0x02, 0x01, 0x01,
-	0x80, 0x80, 0x40, 0x40, 0x20, 0x20, 0x10, 0x10, 0x08, 0x08, 0x04, 0x04,
-	0x02, 0x02, 0x01, 0x01, 0x80, 0x80, 0x40, 0x40 };
+        0x20, 0x20, 0x10, 0x10, 0x08, 0x08, 0x04, 0x04, 0x02, 0x02, 0x01, 0x01,
+        0x80, 0x80, 0x40, 0x40, 0x20, 0x20, 0x10, 0x10, 0x08, 0x08, 0x04, 0x04,
+        0x02, 0x02, 0x01, 0x01, 0x80, 0x80, 0x40, 0x40 };
     static const uchar fdiag_pat[] = {                    // forward diagonal pattern
-	0x02, 0x02, 0x04, 0x04, 0x08, 0x08, 0x10, 0x10, 0x20, 0x20, 0x40, 0x40,
-	0x80, 0x80, 0x01, 0x01, 0x02, 0x02, 0x04, 0x04, 0x08, 0x08, 0x10, 0x10,
-	0x20, 0x20, 0x40, 0x40, 0x80, 0x80, 0x01, 0x01 };
+        0x02, 0x02, 0x04, 0x04, 0x08, 0x08, 0x10, 0x10, 0x20, 0x20, 0x40, 0x40,
+        0x80, 0x80, 0x01, 0x01, 0x02, 0x02, 0x04, 0x04, 0x08, 0x08, 0x10, 0x10,
+        0x20, 0x20, 0x40, 0x40, 0x80, 0x80, 0x01, 0x01 };
     static const uchar dcross_pat[] = {                   // diagonal cross pattern
-	0x22, 0x22, 0x14, 0x14, 0x08, 0x08, 0x14, 0x14, 0x22, 0x22, 0x41, 0x41,
-	0x80, 0x80, 0x41, 0x41, 0x22, 0x22, 0x14, 0x14, 0x08, 0x08, 0x14, 0x14,
-	0x22, 0x22, 0x41, 0x41, 0x80, 0x80, 0x41, 0x41 };
+        0x22, 0x22, 0x14, 0x14, 0x08, 0x08, 0x14, 0x14, 0x22, 0x22, 0x41, 0x41,
+        0x80, 0x80, 0x41, 0x41, 0x22, 0x22, 0x14, 0x14, 0x08, 0x08, 0x14, 0x14,
+        0x22, 0x22, 0x41, 0x41, 0x80, 0x80, 0x41, 0x41 };
     static const uchar * const pat_tbl[] = {
-	dense1_pat, dense2_pat, dense3_pat, dense4_pat, dense5_pat,
-	dense6_pat, dense7_pat,
-	hor_pat, ver_pat, cross_pat, bdiag_pat, fdiag_pat, dcross_pat };
-    
+        dense1_pat, dense2_pat, dense3_pat, dense4_pat, dense5_pat,
+        dense6_pat, dense7_pat,
+        hor_pat, ver_pat, cross_pat, bdiag_pat, fdiag_pat, dcross_pat };
+
     QPixmap pm;
 
-    if( brushStyle>=Qt::Dense1Pattern && brushStyle <= Qt::DiagCrossPattern ) {
-        QString key="$qt-brush$" + QString::number( brushStyle );
+    if(brushStyle>=Qt::Dense1Pattern && brushStyle <= Qt::DiagCrossPattern) {
+        QString key="$qt-brush$" + QString::number(brushStyle);
         if (!QPixmapCache::find(key, pm)) {                        // not already in pm dict
-            const uchar * pat=pat_tbl[ brushStyle-Qt::Dense1Pattern ];
+            const uchar * pat=pat_tbl[brushStyle-Qt::Dense1Pattern];
             int dd=0;
             if(brushStyle<=Qt::Dense7Pattern)
                 dd=8;
@@ -82,8 +82,8 @@ QPixmap qt_pixmapForBrush(int brushStyle)
                 dd=24;
             else
                 dd=16;
-            pm = QBitmap( dd, dd, pat, TRUE );
-            QPixmapCache::insert( key, pm );
+            pm = QBitmap(dd, dd, pat, true);
+            QPixmapCache::insert(key, pm);
         }
     }
     return pm;
@@ -116,14 +116,14 @@ QPixmap qt_pixmapForBrush(int brushStyle)
     Example:
     \code
         QPainter painter;
-        QBrush   brush( yellow );           // yellow solid pattern
-        painter.begin( &anyPaintDevice );   // paint something
-        painter.setBrush( brush );          // set the yellow brush
-        painter.setPen( NoPen );            // do not draw outline
-        painter.drawRect( 40,30, 200,100 ); // draw filled rectangle
-        painter.setBrush( NoBrush );        // do not fill
-        painter.setPen( black );            // set black pen, 0 pixel width
-        painter.drawRect( 10,10, 30,20 );   // draw rectangle outline
+        QBrush   brush(yellow);           // yellow solid pattern
+        painter.begin(&anyPaintDevice);   // paint something
+        painter.setBrush(brush);          // set the yellow brush
+        painter.setPen(NoPen);            // do not draw outline
+        painter.drawRect(40,30, 200,100); // draw filled rectangle
+        painter.setBrush(NoBrush);        // do not fill
+        painter.setPen(black);            // set black pen, 0 pixel width
+        painter.drawRect(10,10, 30,20);   // draw rectangle outline
         painter.end();                      // painting done
     \endcode
 
@@ -146,15 +146,15 @@ void QBrush::init(const QColor &color, BrushStyle style)
 {
     switch(style) {
     case CustomPattern:
-	d = new QTexturedBrushData;
-	static_cast<QTexturedBrushData *>(d)->pixmap = 0;
-	break;
+        d = new QTexturedBrushData;
+        static_cast<QTexturedBrushData *>(d)->pixmap = 0;
+        break;
     case LinearGradientPattern:
-	d = new QLinGradBrushData;
-	break;
+        d = new QLinGradBrushData;
+        break;
     default:
-	d = new QBrushData;
-	break;
+        d = new QBrushData;
+        break;
     }
     d->ref = 1;
     d->style = style;
@@ -168,13 +168,13 @@ void QBrush::init(const QColor &color, BrushStyle style)
 
 QBrush::QBrush()
 {
-    if ( !shared_default ) {
-	static QCleanupHandler<QBrushData> shared_default_cleanup;
-	shared_default = new QBrushData;
-	shared_default->ref = 1;
-	shared_default->style = (BrushStyle)0;
-	shared_default->color = black;
-	shared_default_cleanup.add(&shared_default);
+    if (!shared_default) {
+        static QCleanupHandler<QBrushData> shared_default_cleanup;
+        shared_default = new QBrushData;
+        shared_default->ref = 1;
+        shared_default->style = (BrushStyle)0;
+        shared_default->color = black;
+        shared_default_cleanup.add(&shared_default);
     }
     d = shared_default;
     ++d->ref;
@@ -264,7 +264,7 @@ QBrush::QBrush(Qt::GlobalColor color, const QPixmap &pixmap)
     copy\endlink of \a b.
 */
 
-QBrush::QBrush( const QBrush &b )
+QBrush::QBrush(const QBrush &b)
 {
     d = b.d;
     ++d->ref;
@@ -290,21 +290,21 @@ QBrush::QBrush(const QPoint &p1, const QColor &col1, const QPoint &p2, const QCo
 QBrush::~QBrush()
 {
     if (!--d->ref)
-	cleanUp(d);
+        cleanUp(d);
 }
 
 void QBrush::cleanUp(QBrushData *x)
 {
     switch (x->style) {
     case CustomPattern:
-	delete static_cast<QTexturedBrushData*>(x)->pixmap;
-	delete x;
-	break;
+        delete static_cast<QTexturedBrushData*>(x)->pixmap;
+        delete x;
+        break;
     case LinearGradientPattern:
-	delete static_cast<QLinGradBrushData*>(x);
-	break;
+        delete static_cast<QLinGradBrushData*>(x);
+        break;
     default:
-	delete x;
+        delete x;
     }
 }
 
@@ -314,23 +314,23 @@ void QBrush::detach_helper(BrushStyle newStyle)
     QBrushData *x;
     switch(newStyle) {
     case CustomPattern:
-	x = new QTexturedBrushData;
-	static_cast<QTexturedBrushData*>(x)->pixmap =
-	    d->style == CustomPattern ? static_cast<QTexturedBrushData *>(d)->pixmap : 0;
-	break;
+        x = new QTexturedBrushData;
+        static_cast<QTexturedBrushData*>(x)->pixmap =
+            d->style == CustomPattern ? static_cast<QTexturedBrushData *>(d)->pixmap : 0;
+        break;
     case LinearGradientPattern:
-	x = new QLinGradBrushData;
-	break;
+        x = new QLinGradBrushData;
+        break;
     default:
-	x = new QBrushData;
-	break;
+        x = new QBrushData;
+        break;
     }
     x->ref = 1;
     x->style = newStyle;
     x->color = d->color;
     x = qAtomicSetPtr(&d, x);
     if (!--x->ref)
-	cleanUp(x);
+        cleanUp(x);
 }
 
 
@@ -344,7 +344,7 @@ QBrush &QBrush::operator=(const QBrush &b)
     ++x->ref;
     x = qAtomicSetPtr(&d, x);
     if (!--x->ref)
-	cleanUp(x);
+        cleanUp(x);
     return *this;
 }
 
@@ -392,9 +392,9 @@ QBrush &QBrush::operator=(const QBrush &b)
 void QBrush::setStyle(BrushStyle s)
 {
     if (d->style == s)
-	return;
+        return;
     if (s == CustomPattern)
-	qWarning( "QBrush::setStyle: CustomPattern is for internal use" );
+        qWarning("QBrush::setStyle: CustomPattern is for internal use");
     detach(s);
     d->style = s;
 }
@@ -451,22 +451,22 @@ void QBrush::setColor(const QColor &c)
 void QBrush::setPixmap(const QPixmap &pixmap)
 {
     if (!pixmap.isNull()) {
-	detach(CustomPattern);
-	QPixmap *pm = new QPixmap(pixmap);
-	if (pm->optimization() == QPixmap::MemoryOptim)
-	    pm->setOptimization(QPixmap::NormalOptim);
-	static_cast<QTexturedBrushData *>(d)->pixmap = pm;
+        detach(CustomPattern);
+        QPixmap *pm = new QPixmap(pixmap);
+        if (pm->optimization() == QPixmap::MemoryOptim)
+            pm->setOptimization(QPixmap::NormalOptim);
+        static_cast<QTexturedBrushData *>(d)->pixmap = pm;
     } else {
-	detach(NoBrush);
+        detach(NoBrush);
     }
 }
 
 
 /*!
-    \fn bool QBrush::operator!=( const QBrush &b ) const
+    \fn bool QBrush::operator!=(const QBrush &b) const
 
-    Returns TRUE if the brush is different from \a b; otherwise
-    returns FALSE.
+    Returns true if the brush is different from \a b; otherwise
+    returns false.
 
     Two brushes are different if they have different styles, colors or
     pixmaps.
@@ -475,8 +475,8 @@ void QBrush::setPixmap(const QPixmap &pixmap)
 */
 
 /*!
-    Returns TRUE if the brush is equal to \a b; otherwise returns
-    FALSE.
+    Returns true if the brush is equal to \a b; otherwise returns
+    false.
 
     Two brushes are equal if they have equal styles, colors and
     pixmaps.
@@ -486,21 +486,21 @@ void QBrush::setPixmap(const QPixmap &pixmap)
 
 bool QBrush::operator==(const QBrush &b) const
 {
-    if (b.d == d || (b.d->style == d->style && b.d->color == d->color )) {
-	switch (d->style) {
-	case CustomPattern:
-	    return static_cast<QTexturedBrushData*>(d)->pixmap
-		== static_cast<QTexturedBrushData*>(b.d)->pixmap;
-	case LinearGradientPattern:
-	    return static_cast<QLinGradBrushData*>(d)->color2
-		== static_cast<QLinGradBrushData*>(b.d)->color2
-		&& static_cast<QLinGradBrushData*>(d)->p1
-		== static_cast<QLinGradBrushData*>(b.d)->p1
-		&& static_cast<QLinGradBrushData*>(d)->p2
-		== static_cast<QLinGradBrushData*>(b.d)->p2;
-	default:
-	    return true;
-	}
+    if (b.d == d || (b.d->style == d->style && b.d->color == d->color)) {
+        switch (d->style) {
+        case CustomPattern:
+            return static_cast<QTexturedBrushData*>(d)->pixmap
+                == static_cast<QTexturedBrushData*>(b.d)->pixmap;
+        case LinearGradientPattern:
+            return static_cast<QLinGradBrushData*>(d)->color2
+                == static_cast<QLinGradBrushData*>(b.d)->color2
+                && static_cast<QLinGradBrushData*>(d)->p1
+                == static_cast<QLinGradBrushData*>(b.d)->p1
+                && static_cast<QLinGradBrushData*>(d)->p2
+                == static_cast<QLinGradBrushData*>(b.d)->p2;
+        default:
+            return true;
+        }
     }
     return false;
 }
@@ -555,9 +555,9 @@ QDataStream &operator<<(QDataStream &s, const QBrush &b)
     s << (Q_UINT8)b.style() << b.color();
     if (b.style() == Qt::CustomPattern)
 #ifndef QT_NO_IMAGEIO
-	s << *b.pixmap();
+        s << *b.pixmap();
 #else
-	qWarning("No Image Brush I/O");
+        qWarning("No Image Brush I/O");
 #endif
     return s;
 }
@@ -579,14 +579,14 @@ QDataStream &operator>>(QDataStream &s, QBrush &b)
     s >> color;
     if (style == Qt::CustomPattern) {
 #ifndef QT_NO_IMAGEIO
-	QPixmap pm;
-	s >> pm;
-	b = QBrush(color, pm);
+        QPixmap pm;
+        s >> pm;
+        b = QBrush(color, pm);
 #else
-	qWarning("No Image Brush I/O");
+        qWarning("No Image Brush I/O");
 #endif
     } else
-	b = QBrush(color, (Qt::BrushStyle)style);
+        b = QBrush(color, (Qt::BrushStyle)style);
     return s;
 }
 #endif // QT_NO_DATASTREAM

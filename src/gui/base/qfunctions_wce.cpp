@@ -36,9 +36,9 @@ extern "C" {
 # define QCE_DEBUG_LEVEL 0
 
 #if (QCE_DEBUG_LEVEL > 0)
-#   define QCE_DEBUG( y, x ) if ( y <= QCE_DEBUG_LEVEL ) { x; }
+#   define QCE_DEBUG(y, x) if (y <= QCE_DEBUG_LEVEL) { x; }
 #else
-#   define QCE_DEBUG( y, x )
+#   define QCE_DEBUG(y, x)
 #endif
 
 
@@ -49,23 +49,23 @@ char *getenv(char const *) { return "\\"; }
 
 
 // Time -------------------------------------------------------------
-size_t strftime( char *strDest, size_t maxsize, const char *format, const struct tm *timeptr ) {
+size_t strftime(char *strDest, size_t maxsize, const char *format, const struct tm *timeptr) {
     return 0;
 }
 
-struct tm *gmtime( const time_t *timer ) {
+struct tm *gmtime(const time_t *timer) {
     return NULL;
 }
 
-struct tm *localtime( const time_t *timer ) {
+struct tm *localtime(const time_t *timer) {
     return NULL;
 }
 
-time_t mktime( struct tm *timeptr ) {
+time_t mktime(struct tm *timeptr) {
     return 0;
 }
 
-time_t ftToTime_t( const FILETIME ft )
+time_t ftToTime_t(const FILETIME ft)
 {
     ULARGE_INTEGER li;
     li.LowPart  = ft.dwLowDateTime;
@@ -81,125 +81,125 @@ time_t ftToTime_t( const FILETIME ft )
     // ((369y*365d) + 89d) *24h *60min *60sec
     // = 11644473600 seconds
     li.QuadPart -= 11644473600;
-    return li.LowPart; 
+    return li.LowPart;
 }
 
-FILETIME time_tToFt( time_t tt )
+FILETIME time_tToFt(time_t tt)
 {
     ULARGE_INTEGER li;
     li.QuadPart  = tt;
     li.QuadPart += 11644473600;
     li.QuadPart *= 10000000;
-    
+
     FILETIME ft;
     ft.dwLowDateTime = li.LowPart;
     ft.dwHighDateTime = li.HighPart;
-    return ft; 
+    return ft;
 }
 
 
 // File I/O ---------------------------------------------------------
 int errno = 0;
 
-DWORD GetLogicalDrives( VOID )
-{ 
-    return 1; 
+DWORD GetLogicalDrives(VOID)
+{
+    return 1;
 }
 
-int _getdrive( void ) 
-{ 
-    return 1; 
+int _getdrive(void)
+{
+    return 1;
 }
-WCHAR *_wgetcwd( WCHAR *buffer, int maxlen )
-{ 
-    return wcscpy( buffer, L"\\" );
-}
-
-WCHAR *_wgetdcwd( int drive, WCHAR *buffer, int maxlen ) 
-{ 
-    return wcscpy( buffer, L"\\" );
+WCHAR *_wgetcwd(WCHAR *buffer, int maxlen)
+{
+    return wcscpy(buffer, L"\\");
 }
 
-int _wmkdir( const WCHAR *dirname )
-{ 
-    return CreateDirectory( dirname, 0 ) ? 0 : -1;
+WCHAR *_wgetdcwd(int drive, WCHAR *buffer, int maxlen)
+{
+    return wcscpy(buffer, L"\\");
 }
 
-int _wrmdir( const WCHAR *dirname )
-{ 
-    return RemoveDirectory( dirname ) ? 0 : -1;
+int _wmkdir(const WCHAR *dirname)
+{
+    return CreateDirectory(dirname, 0) ? 0 : -1;
 }
 
-int _waccess( const WCHAR *path, int pmode )
-{ 
-    DWORD res = GetFileAttributes( path );
-    if ( 0xFFFFFFFF == res )
-	return -1;
+int _wrmdir(const WCHAR *dirname)
+{
+    return RemoveDirectory(dirname) ? 0 : -1;
+}
 
-    if ( (pmode & W_OK) && (res & FILE_ATTRIBUTE_READONLY) ) 
-	return -1;
-    
-    if ( (pmode & X_OK) && !(res & FILE_ATTRIBUTE_DIRECTORY) ) {
-	QString file = QString::fromUcs2(path);
-	if ( !(file.endsWith(".exe") || 
-	       file.endsWith(".com")) )
-	    return -1;
+int _waccess(const WCHAR *path, int pmode)
+{
+    DWORD res = GetFileAttributes(path);
+    if (0xFFFFFFFF == res)
+        return -1;
+
+    if ((pmode & W_OK) && (res & FILE_ATTRIBUTE_READONLY))
+        return -1;
+
+    if ((pmode & X_OK) && !(res & FILE_ATTRIBUTE_DIRECTORY)) {
+        QString file = QString::fromUcs2(path);
+        if (!(file.endsWith(".exe") ||
+               file.endsWith(".com")))
+            return -1;
     }
 
     return 0;
 }
 
-int _wrename( const WCHAR *oldname, const WCHAR *newname )
-{ 
-    return !MoveFile( oldname, newname );
+int _wrename(const WCHAR *oldname, const WCHAR *newname)
+{
+    return !MoveFile(oldname, newname);
 }
 
-int _wremove( const WCHAR *name )
-{ 
-    return !DeleteFile( name );
+int _wremove(const WCHAR *name)
+{
+    return !DeleteFile(name);
 }
 
-int open( const char *filename, int oflag, int pmode ) 
-{ 
-    QString fn( filename );
-    return _wopen( (WCHAR*)fn.ucs2(), oflag, pmode );
+int open(const char *filename, int oflag, int pmode)
+{
+    QString fn(filename);
+    return _wopen((WCHAR*)fn.ucs2(), oflag, pmode);
 }
 
-int _wopen( const WCHAR *filename, int oflag, int pmode ) 
+int _wopen(const WCHAR *filename, int oflag, int pmode)
 {
     WCHAR *flag;
 
-    if ( oflag & _O_APPEND ) {
-	if ( oflag & _O_WRONLY ) {
-	    flag = L"a";
-	} else if ( oflag & _O_RDWR ) {
-	    flag = L"a+";
-	}
-    } else if ( oflag & _O_WRONLY ) {
-	flag = L"w";
-    } else if ( oflag & _O_RDWR ) {
-	flag = L"w+"; // slightly different from "r+" where the file must exist
-    } else if ( oflag & _O_RDONLY ) {
-	flag = L"r";
+    if (oflag & _O_APPEND) {
+        if (oflag & _O_WRONLY) {
+            flag = L"a";
+        } else if (oflag & _O_RDWR) {
+            flag = L"a+";
+        }
+    } else if (oflag & _O_WRONLY) {
+        flag = L"w";
+    } else if (oflag & _O_RDWR) {
+        flag = L"w+"; // slightly different from "r+" where the file must exist
+    } else if (oflag & _O_RDONLY) {
+        flag = L"r";
     } else {
-	flag = L"";
+        flag = L"";
     }
 
-    int retval = (int)_wfopen( filename, flag );
+    int retval = (int)_wfopen(filename, flag);
     return (retval == NULL) ? -1 : retval;
-} 
+}
 
-int _wstat( const WCHAR *path, struct _stat *buffer ) 
+int _wstat(const WCHAR *path, struct _stat *buffer)
 {
     WIN32_FIND_DATA finfo;
-    HANDLE ff = FindFirstFile( path, &finfo );
+    HANDLE ff = FindFirstFile(path, &finfo);
 
-    if ( ff == INVALID_HANDLE_VALUE )
-	return -1;
+    if (ff == INVALID_HANDLE_VALUE)
+        return -1;
 
-    buffer->st_ctime = ftToTime_t( finfo.ftCreationTime );
-    buffer->st_atime = ftToTime_t( finfo.ftLastAccessTime );
-    buffer->st_mtime = ftToTime_t( finfo.ftLastWriteTime );
+    buffer->st_ctime = ftToTime_t(finfo.ftCreationTime);
+    buffer->st_atime = ftToTime_t(finfo.ftLastAccessTime);
+    buffer->st_mtime = ftToTime_t(finfo.ftLastWriteTime);
     buffer->st_nlink = 0;
     buffer->st_size  = finfo.nFileSizeLow; // ### missing high!
     buffer->st_mode  = (finfo.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) ? _S_IFDIR : _S_IFREG;
@@ -208,61 +208,61 @@ int _wstat( const WCHAR *path, struct _stat *buffer )
     return (FindClose(ff) == 0);
 }
 
-long _lseek( int handle, long offset, int origin )
+long _lseek(int handle, long offset, int origin)
 {
-    return fseek( (FILE*)handle, offset, origin );
+    return fseek((FILE*)handle, offset, origin);
 }
 
-int _read( int handle, void *buffer, unsigned int count ) 
-{ 
-    return fread( buffer, 1, count, (FILE*)handle );
+int _read(int handle, void *buffer, unsigned int count)
+{
+    return fread(buffer, 1, count, (FILE*)handle);
 }
 
-int _write( int handle, const void *buffer, unsigned int count )
-{ 
-    return fwrite( buffer, 1, count, (FILE*)handle );
+int _write(int handle, const void *buffer, unsigned int count)
+{
+    return fwrite(buffer, 1, count, (FILE*)handle);
 }
 
-int _close( int handle ) 
-{ 
-    if ( !handle )
-	return 0;
-    return fclose( (FILE*)handle );
+int _close(int handle)
+{
+    if (!handle)
+        return 0;
+    return fclose((FILE*)handle);
 }
 
-FILE *_fdopen(int handle, const char *mode) 
-{ 
-    return (FILE*)handle; 
-}
-
-FILE *fdopen( int handle, const char *mode ) 
-{ 
+FILE *_fdopen(int handle, const char *mode)
+{
     return (FILE*)handle;
 }
 
-void rewind( FILE *stream ) 
-{ 
-    fseek( stream, 0L, SEEK_SET ); 
+FILE *fdopen(int handle, const char *mode)
+{
+    return (FILE*)handle;
 }
 
-FILE *tmpfile( void )
-{ 
-    static long i = 0; 
-    char name[16]; 
-    sprintf( name, "tmp%i", i++ ); 
-    return fopen( name, "r+" ); 
+void rewind(FILE *stream)
+{
+    fseek(stream, 0L, SEEK_SET);
+}
+
+FILE *tmpfile(void)
+{
+    static long i = 0;
+    char name[16];
+    sprintf(name, "tmp%i", i++);
+    return fopen(name, "r+");
 }
 
 
 // Clipboard --------------------------------------------------------
-BOOL ChangeClipboardChain( HWND hWndRemove, HWND hWndNewNext ) 
-{ 
-    return FALSE; 
+BOOL ChangeClipboardChain(HWND hWndRemove, HWND hWndNewNext)
+{
+    return false;
 }
 
-HWND SetClipboardViewer( HWND hWndNewViewer )
-{ 
-    return NULL; 
+HWND SetClipboardViewer(HWND hWndNewViewer)
+{
+    return NULL;
 }
 
 
@@ -270,155 +270,155 @@ HWND SetClipboardViewer( HWND hWndNewViewer )
 
 
 // Graphics ---------------------------------------------------------
-BOOL ResizePalette( HPALETTE hpal, UINT nEntries ) {
-    return FALSE;
+BOOL ResizePalette(HPALETTE hpal, UINT nEntries) {
+    return false;
 }
 
-COLORREF PALETTEINDEX( WORD wPaletteIndex ) {
+COLORREF PALETTEINDEX(WORD wPaletteIndex) {
     return 0;
 }
 
-BOOL SetWindowOrgEx( HDC hdc, int X, int Y, LPPOINT lpPoint ) {
-    // SetViewportOrgEx( hdc, -X, -Y, lpPoint );
-    // return SetViewportOrgEx( hdc, X - 30, Y - 30, lpPoint );
+BOOL SetWindowOrgEx(HDC hdc, int X, int Y, LPPOINT lpPoint) {
+    // SetViewportOrgEx(hdc, -X, -Y, lpPoint);
+    // return SetViewportOrgEx(hdc, X - 30, Y - 30, lpPoint);
     // return ::SetWindowPos(hWnd, hWndInsertAfter, x, y, cx, cy, uFlags);
-    return TRUE;
+    return true;
 }
 
-BOOL TextOut( HDC hdc, int nXStart, int nYStart, LPCTSTR lpString, int cbString ) {
-    return ExtTextOut( hdc, nXStart, nYStart - 16, 0, NULL, lpString, cbString, NULL );
+BOOL TextOut(HDC hdc, int nXStart, int nYStart, LPCTSTR lpString, int cbString) {
+    return ExtTextOut(hdc, nXStart, nYStart - 16, 0, NULL, lpString, cbString, NULL);
 }
 
-BOOL GetViewportOrgEx( HDC hdc, LPPOINT lpPoint )
+BOOL GetViewportOrgEx(HDC hdc, LPPOINT lpPoint)
 {
     if (hdc == NULL)
-	return FALSE;
-    lpPoint->x = 0;		// origin is always (0,0)
+        return false;
+    lpPoint->x = 0;                // origin is always (0,0)
     lpPoint->y = 0;
-    return TRUE;
+    return true;
 }
 
-BOOL GetViewportExtEx( HDC hdc, LPSIZE lpSize )
+BOOL GetViewportExtEx(HDC hdc, LPSIZE lpSize)
 {
     if (hdc == NULL)
-        return FALSE;
-    lpSize->cx = 1;		// extent is always 1,1
+        return false;
+    lpSize->cx = 1;                // extent is always 1,1
     lpSize->cy = 1;
-    return TRUE;
+    return true;
 }
 
-BOOL GetWindowOrgEx( HDC hdc, LPPOINT lpPoint )
+BOOL GetWindowOrgEx(HDC hdc, LPPOINT lpPoint)
 {
     if (hdc == NULL)
-        return FALSE;
-    lpPoint->x = 0;		// origin is always (0,0)
+        return false;
+    lpPoint->x = 0;                // origin is always (0,0)
     lpPoint->y = 0;
-    return TRUE;
+    return true;
 }
 
-BOOL GetWindowExtEx( HDC hdc, LPSIZE lpSize )
+BOOL GetWindowExtEx(HDC hdc, LPSIZE lpSize)
 {
     if (hdc == NULL)
-        return FALSE;
-    lpSize->cx = 1;		// extent is always 1,1
+        return false;
+    lpSize->cx = 1;                // extent is always 1,1
     lpSize->cy = 1;
-    return TRUE;
+    return true;
 }
 
-UINT qt_GetDIBColorTable( HDC hdc, DIBSECTION *ds, UINT uStartIndex, UINT cEntries, RGBQUAD *pColors )
+UINT qt_GetDIBColorTable(HDC hdc, DIBSECTION *ds, UINT uStartIndex, UINT cEntries, RGBQUAD *pColors)
 {
-    if ( pColors == NULL ||	    // No place for palette
-	 ds->dsBmih.biBitCount > 8 ) // Not Palettized
-	return 0;
+    if (pColors == NULL ||            // No place for palette
+         ds->dsBmih.biBitCount > 8) // Not Palettized
+        return 0;
 
     LPBYTE pBits = (LPBYTE)ds->dsBm.bmBits;
     BYTE OldPalIndex = *pBits;
 
     // Create a mask for the palette index bits for 1, 2, 4, and 8 bpp
-    WORD wIndexMask = ( 0xFF << (8 - ds->dsBmih.biBitCount) ) & 0x00FF;
+    WORD wIndexMask = (0xFF << (8 - ds->dsBmih.biBitCount)) & 0x00FF;
 
-    UINT TestPixelY = 0;		   // We always use Top-down DIBs
+    UINT TestPixelY = 0;                   // We always use Top-down DIBs
     // ...and the following check fails...
-   // TestPixelY = ds->dsBmih.biHeight <= 0 ? 0 :	//  Top-down DIB
-		 //ds->dsBm.bmHeight-1;		// Bottom-up DIB
+   // TestPixelY = ds->dsBmih.biHeight <= 0 ? 0 :        //  Top-down DIB
+                 //ds->dsBm.bmHeight-1;                // Bottom-up DIB
 
     // Debug level 1 only output
-    QCE_DEBUG( 1, {
-	qDebug( "WCE - GetDIBColorTable()" );
-	qDebug( "     wIndexMask               = 0x%X", wIndexMask );
-	qDebug( "     TestPixelY               = %d", TestPixelY );
-	qDebug( "   DIBSECTION:" );
-	qDebug( "     dsBmih.biWidth       (W) = %d", ds->dsBmih.biWidth );
-	qDebug( "     dsBmih.biHeight      (H) = %d", ds->dsBmih.biHeight );
-	qDebug( "     dsBmih.biBitCount    (D) = %d", ds->dsBmih.biBitCount );
-	qDebug( "     dsBmih.biClrUsed         = %d", ds->dsBmih.biClrUsed );
-	qDebug( "     dsBmih.biClrImportant    = %d", ds->dsBmih.biClrImportant );
-	qDebug( "     dsBmih.biXPelsPerMeter   = %d", ds->dsBmih.biXPelsPerMeter );
-	qDebug( "     dsBmih.biYPelsPerMeter   = %d", ds->dsBmih.biYPelsPerMeter );
-	qDebug( "     dsBmih.biCompression     = %d", ds->dsBmih.biCompression );
-	qDebug( "     dsBmih.biPlanes          = %d", ds->dsBmih.biPlanes );
-	qDebug( "     dsBmih.biSize   (struct) = %d", ds->dsBmih.biSize );
-	qDebug( "     dsBmih.biSizeImage (img) = %d", ds->dsBmih.biSizeImage );
-	qDebug( "     dsBm.bmType              = %d", ds->dsBm.bmType );
-	qDebug( "     dsBm.bmBits       (data) = 0x%p", ds->dsBm.bmBits  );
-    } )
+    QCE_DEBUG(1, {
+        qDebug("WCE - GetDIBColorTable()");
+        qDebug("     wIndexMask               = 0x%X", wIndexMask);
+        qDebug("     TestPixelY               = %d", TestPixelY);
+        qDebug("   DIBSECTION:");
+        qDebug("     dsBmih.biWidth       (W) = %d", ds->dsBmih.biWidth);
+        qDebug("     dsBmih.biHeight      (H) = %d", ds->dsBmih.biHeight);
+        qDebug("     dsBmih.biBitCount    (D) = %d", ds->dsBmih.biBitCount);
+        qDebug("     dsBmih.biClrUsed         = %d", ds->dsBmih.biClrUsed);
+        qDebug("     dsBmih.biClrImportant    = %d", ds->dsBmih.biClrImportant);
+        qDebug("     dsBmih.biXPelsPerMeter   = %d", ds->dsBmih.biXPelsPerMeter);
+        qDebug("     dsBmih.biYPelsPerMeter   = %d", ds->dsBmih.biYPelsPerMeter);
+        qDebug("     dsBmih.biCompression     = %d", ds->dsBmih.biCompression);
+        qDebug("     dsBmih.biPlanes          = %d", ds->dsBmih.biPlanes);
+        qDebug("     dsBmih.biSize   (struct) = %d", ds->dsBmih.biSize);
+        qDebug("     dsBmih.biSizeImage (img) = %d", ds->dsBmih.biSizeImage);
+        qDebug("     dsBm.bmType              = %d", ds->dsBm.bmType);
+        qDebug("     dsBm.bmBits       (data) = 0x%p", ds->dsBm.bmBits );
+    })
 
     UINT cColors = ds->dsBmih.biClrUsed ? ds->dsBmih.biClrUsed :
-		   1 << (ds->dsBmih.biBitCount*ds->dsBmih.biPlanes);
-    cColors = qMin( cColors, cEntries );
+                   1 << (ds->dsBmih.biBitCount*ds->dsBmih.biPlanes);
+    cColors = qMin(cColors, cEntries);
 
-    QCE_DEBUG( 2, qDebug( "   ColorTable:" ) );
-    for ( UINT iColor = uStartIndex; iColor < cColors; iColor++ ) {
-	*pBits = (iColor << (8 - ds->dsBmih.biBitCount)) |
-		 (*pBits & ~wIndexMask);
+    QCE_DEBUG(2, qDebug("   ColorTable:"));
+    for (UINT iColor = uStartIndex; iColor < cColors; iColor++) {
+        *pBits = (iColor << (8 - ds->dsBmih.biBitCount)) |
+                 (*pBits & ~wIndexMask);
 
-	COLORREF rgbColor = GetPixel( hdc, 0, TestPixelY );
-	pColors[iColor - uStartIndex].rgbReserved = 0;
-	pColors[iColor - uStartIndex].rgbBlue     = GetBValue(rgbColor);
-	pColors[iColor - uStartIndex].rgbRed      = GetRValue(rgbColor);
-	pColors[iColor - uStartIndex].rgbGreen    = GetGValue(rgbColor);
+        COLORREF rgbColor = GetPixel(hdc, 0, TestPixelY);
+        pColors[iColor - uStartIndex].rgbReserved = 0;
+        pColors[iColor - uStartIndex].rgbBlue     = GetBValue(rgbColor);
+        pColors[iColor - uStartIndex].rgbRed      = GetRValue(rgbColor);
+        pColors[iColor - uStartIndex].rgbGreen    = GetGValue(rgbColor);
 
-	// Debug level 2 only output
-	QCE_DEBUG( 2, qDebug( "     %2X - ColorRef: 0x%x", *pBits, rgbColor ) )
+        // Debug level 2 only output
+        QCE_DEBUG(2, qDebug("     %2X - ColorRef: 0x%x", *pBits, rgbColor))
     }
 
     *pBits = OldPalIndex;
     return cColors;
 }
 
-		
+
 // Other stuff ------------------------------------------------------
 void abort()
 {
     exit(3);
 }
 
-void *_expand( void* pvMemBlock, size_t iSize )
+void *_expand(void* pvMemBlock, size_t iSize)
 {
-    return realloc( pvMemBlock, iSize );
+    return realloc(pvMemBlock, iSize);
 }
 
-void *calloc( size_t num, size_t size )
+void *calloc(size_t num, size_t size)
 {
-    void *ptr = malloc( num * size );
-    if( ptr )
-	memset( ptr, 0, num * size );
+    void *ptr = malloc(num * size);
+    if(ptr)
+        memset(ptr, 0, num * size);
     return ptr;
 }
 
-unsigned long _beginthreadex( void *security, 
-			      unsigned stack_size,
-			      unsigned (__stdcall *start_address)(void *),
-			      void *arglist, 
-			      unsigned initflag, 
-			      unsigned *thrdaddr) {
+unsigned long _beginthreadex(void *security,
+                              unsigned stack_size,
+                              unsigned (__stdcall *start_address)(void *),
+                              void *arglist,
+                              unsigned initflag,
+                              unsigned *thrdaddr) {
     return (unsigned long)
-	CreateThread( (LPSECURITY_ATTRIBUTES)security,
-		      (DWORD)stack_size, 
-		      (LPTHREAD_START_ROUTINE)start_address,
-		      (LPVOID)arglist, 
-		      (DWORD)initflag | CREATE_SUSPENDED, 
-		      (LPDWORD)thrdaddr);
+        CreateThread((LPSECURITY_ATTRIBUTES)security,
+                      (DWORD)stack_size,
+                      (LPTHREAD_START_ROUTINE)start_address,
+                      (LPVOID)arglist,
+                      (DWORD)initflag | CREATE_SUSPENDED,
+                      (LPDWORD)thrdaddr);
 }
 
 void _endthreadex(unsigned nExitCode) {
@@ -428,19 +428,19 @@ void _endthreadex(unsigned nExitCode) {
 #ifndef POCKET_PC
 // ### very rough approximation of these sets
 // A proper implementation uses tables for these sets, but this will do for now
-int isprint ( int c ) { return (((c >= 'a') && (c <= 'z')) || ((c >= 'A') && (c <= 'Z')) || isdigit(c) || isspace(c)) ? 1 : 0; }
-int isdigit ( int c ) { return (((c >= '1') && (c <= '9')) || (c == '0')) ? 1 : 0; }
-int isxdigit( int c ) { return (((c >= 'a') && (c <= 'f')) || ((c >= 'A') && (c <= 'F')) || isdigit(c)) ? 1 : 0; }
-int isspace ( int c ) { return ((c == ' ') || (c == '\t')) ? 1 : 0; }
+int isprint (int c) { return (((c >= 'a') && (c <= 'z')) || ((c >= 'A') && (c <= 'Z')) || isdigit(c) || isspace(c)) ? 1 : 0; }
+int isdigit (int c) { return (((c >= '1') && (c <= '9')) || (c == '0')) ? 1 : 0; }
+int isxdigit(int c) { return (((c >= 'a') && (c <= 'f')) || ((c >= 'A') && (c <= 'F')) || isdigit(c)) ? 1 : 0; }
+int isspace (int c) { return ((c == ' ') || (c == '\t')) ? 1 : 0; }
 
-const int _U = 0x01;	// Upper Case
-const int _L = 0x02;	// Lower Case
-const int _N = 0x04;	// Number
-const int _S = 0x08;	// Space character
-const int _P = 0x10;	// Punctuation
-const int _C = 0x20;	// Control character
-const int _X = 0x40;	// Hexadecimal character
-const int _B = 0x80;	// Blank space ' '
+const int _U = 0x01;        // Upper Case
+const int _L = 0x02;        // Lower Case
+const int _N = 0x04;        // Number
+const int _S = 0x08;        // Space character
+const int _P = 0x10;        // Punctuation
+const int _C = 0x20;        // Control character
+const int _X = 0x40;        // Hexadecimal character
+const int _B = 0x80;        // Blank space ' '
 
 // Table of character classes
 //
@@ -485,18 +485,18 @@ int isgraph(int c)
     return (ctype[i] & (_P|_U|_L|_N)) > 0;
 }
 
-double atof( const char *string )
+double atof(const char *string)
 {
-    QString value( string );
+    QString value(string);
     return value.toDouble();
 }
 
-char *strrchr( const char *string, int c )
+char *strrchr(const char *string, int c)
 {
-    int len = strlen( string );
-    for ( int i = len - 1; i >= 0; i-- ) {
-	if ( (int)string[i] == c )
-	    return (char *)&(string[i]);
+    int len = strlen(string);
+    for (int i = len - 1; i >= 0; i--) {
+        if ((int)string[i] == c)
+            return (char *)&(string[i]);
     }
     return NULL;
 }
@@ -588,7 +588,7 @@ char *strrchr( const char *string, int c )
  * appreciated.
  */
 
-double strtod( const char *nptr, char **endptr )
+double strtod(const char *nptr, char **endptr)
 {
    double result = 0;
    int len;
@@ -596,7 +596,7 @@ double strtod( const char *nptr, char **endptr )
 
    len = MultiByteToWideChar(CP_ACP, 0, nptr, -1, NULL, 0);
    str = (wchar_t *)malloc(len * sizeof(wchar_t));
-   if ( NULL != str )
+   if (NULL != str)
    {
       MultiByteToWideChar(CP_ACP, 0, nptr, -1, str, len);
       result = wcstod(str, &end);
@@ -607,7 +607,7 @@ double strtod( const char *nptr, char **endptr )
    return result;
 }
 
-long strtol( const char *nptr, char **endptr, int base )
+long strtol(const char *nptr, char **endptr, int base)
 {
    long result = 0;
    int len;
@@ -615,7 +615,7 @@ long strtol( const char *nptr, char **endptr, int base )
 
    len = MultiByteToWideChar(CP_ACP, 0, nptr, -1, NULL, 0);
    str = (wchar_t *)malloc(len * sizeof(wchar_t));
-   if ( NULL != str )
+   if (NULL != str)
    {
       MultiByteToWideChar(CP_ACP, 0, nptr, -1, str, len);
       result = wcstol(str, &end, base);
@@ -633,7 +633,7 @@ long strtol( const char *nptr, char **endptr, int base )
 
 /*
  * Copyright (c) 1990, 1993
- *	The Regents of the University of California.  All rights reserved.
+ *        The Regents of the University of California.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -645,8 +645,8 @@ long strtol( const char *nptr, char **endptr, int base )
  *    documentation and/or other materials provided with the distribution.
  * 3. All advertising materials mentioning features or use of this software
  *    must display the following acknowledgement:
- *	This product includes software developed by the University of
- *	California, Berkeley and its contributors.
+ *        This product includes software developed by the University of
+ *        California, Berkeley and its contributors.
  * 4. Neither the name of the University nor the names of its contributors
  *    may be used to endorse or promote products derived from this software
  *    without specific prior written permission.
@@ -680,11 +680,11 @@ long strtol( const char *nptr, char **endptr, int base )
  * have to make lim 3, then halve, obtaining 1, so that we will only
  * look at item 3.
  */
-void *bsearch( register const void *key, 
-	       const void *base0, 
-	       size_t nmemb, 
-	       register size_t size, 
-	       register int (__cdecl *compar) (const void *, const void *) )
+void *bsearch(register const void *key,
+               const void *base0,
+               size_t nmemb,
+               register size_t size,
+               register int (__cdecl *compar) (const void *, const void *))
 {
     register const char *base = (const char *)base0;
     register size_t lim;
@@ -692,14 +692,14 @@ void *bsearch( register const void *key,
     register const void *p;
 
     for (lim = nmemb; lim != 0; lim >>= 1) {
-	p = base + (lim >> 1) * size;
-	cmp = (*compar)(key, p);
-	if (cmp == 0)
-	    return ((void *)p);
-	if (cmp > 0) {	/* key > p: move right */
-	    base = (char *)p + size;
-	    lim--;
-	}		/* else move left */
+        p = base + (lim >> 1) * size;
+        cmp = (*compar)(key, p);
+        if (cmp == 0)
+            return ((void *)p);
+        if (cmp > 0) {        /* key > p: move right */
+            base = (char *)p + size;
+            lim--;
+        }                /* else move left */
     }
     return (NULL);
 }
@@ -707,7 +707,7 @@ void *bsearch( register const void *key,
 
 /*
 BOOL SystemParametersInfo(UINT uiAction, UINT uiParam, PVOID pvParam, UINT fWinIni) {
-    return FALSE;
+    return false;
 }
 
 HMENU GetMenu(HWND hWnd) {
@@ -715,7 +715,7 @@ HMENU GetMenu(HWND hWnd) {
 }
 
 BOOL SetMenu(HWND hWnd, HMENU hMenu) {
-    return FALSE;
+    return false;
 }
 
 BOOL CALLBACK FirstDlgProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM lParam) {
@@ -726,14 +726,14 @@ LRESULT CALLBACK FirstDefWindowProc(HWND hWnd, UINT nMsg, WPARAM wParam, LPARAM 
     return DefWindowProc(hWnd,nMsg,wParam,lParam);
 }
 
-BOOL PreCreateWindow( CREATESTRUCT& cs) {
-    return TRUE;
+BOOL PreCreateWindow(CREATESTRUCT& cs) {
+    return true;
 }
 
-void PostCreateWindow( CREATESTRUCT& cs, HWND hWnd, HMENU nIDorHMenu) {
+void PostCreateWindow(CREATESTRUCT& cs, HWND hWnd, HMENU nIDorHMenu) {
     // Set the menu (SetMenu just caches it away in CWnd)
     if((hWnd != NULL) && (HIWORD(nIDorHMenu) != NULL))
-	SetMenu(hWnd, nIDorHMenu);
+        SetMenu(hWnd, nIDorHMenu);
 }
 
 HRGN CreateRectRgn(int x1, int y1, int x2, int y2) {
@@ -742,14 +742,14 @@ HRGN CreateRectRgn(int x1, int y1, int x2, int y2) {
 }
 */
 
-//#define	TRACE0(x)
+//#define        TRACE0(x)
 //#ifndef _countof
 //#define _countof(array) (sizeof(array)/sizeof(array[0]))
 //#endif
 
-//HANDLE CreateSemaphore( LPSECURITY_ATTRIBUTES lpSemaphoreAttributes,
-//			LONG lInitialCount, LONG lMaximumCount, LPCTSTR lpName ) { return NULL; }
-//BOOL ReleaseSemaphore( HANDLE hSemaphore, LONG lReleaseCount, LPLONG lpPreviousCount ) { return TRUE; }
+//HANDLE CreateSemaphore(LPSECURITY_ATTRIBUTES lpSemaphoreAttributes,
+//                        LONG lInitialCount, LONG lMaximumCount, LPCTSTR lpName) { return NULL; }
+//BOOL ReleaseSemaphore(HANDLE hSemaphore, LONG lReleaseCount, LPLONG lpPreviousCount) { return true; }
 // extern "C" void  __cdecl exit(int);
 
 #ifdef __cplusplus

@@ -20,7 +20,7 @@ class QSQLiteDriverPlugin : public QSqlDriverPlugin
 public:
     QSQLiteDriverPlugin();
 
-    QSqlDriver* create( const QString & );
+    QSqlDriver* create(const QString &);
     QStringList keys() const;
 };
 
@@ -29,11 +29,11 @@ QSQLiteDriverPlugin::QSQLiteDriverPlugin()
 {
 }
 
-QSqlDriver* QSQLiteDriverPlugin::create( const QString &name )
+QSqlDriver* QSQLiteDriverPlugin::create(const QString &name)
 {
-    if ( name == "QSQLITE" ) {
-	QSQLiteDriver* driver = new QSQLiteDriver();
-	return driver;
+    if (name == "QSQLITE") {
+        QSQLiteDriver* driver = new QSQLiteDriver();
+        return driver;
     }
     return 0;
 }
@@ -45,4 +45,4 @@ QStringList QSQLiteDriverPlugin::keys() const
     return l;
 }
 
-Q_EXPORT_PLUGIN( QSQLiteDriverPlugin )
+Q_EXPORT_PLUGIN(QSQLiteDriverPlugin)

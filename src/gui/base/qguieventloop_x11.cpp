@@ -33,65 +33,65 @@
 
 #include <errno.h>
 
-bool QGuiEventLoop::processEvents( ProcessEventsFlags flags )
+bool QGuiEventLoop::processEvents(ProcessEventsFlags flags)
 {
     int nevents = 0;
 
     QApplication::sendPostedEvents();
 
     // Two loops so that posted events accumulate
-    while ( XPending( QX11Info::appDisplay() ) ) {
-	// also flushes output buffer
-	while ( XPending( QX11Info::appDisplay() ) ) {
-	    if ( d->shortcut ) {
-		return FALSE;
-	    }
+    while (XPending(QX11Info::appDisplay())) {
+        // also flushes output buffer
+        while (XPending(QX11Info::appDisplay())) {
+            if (d->shortcut) {
+                return false;
+            }
 
-	    // process events from the X server
-	    XEvent event;
-	    XNextEvent( QX11Info::appDisplay(), &event );
+            // process events from the X server
+            XEvent event;
+            XNextEvent(QX11Info::appDisplay(), &event);
 
-	    if ( flags & ExcludeUserInput ) {
-		switch ( event.type ) {
-		case ButtonPress:
-		case ButtonRelease:
-		case MotionNotify:
-		case XKeyPress:
-		case XKeyRelease:
-		case EnterNotify:
-		case LeaveNotify:
-		    continue;
+            if (flags & ExcludeUserInput) {
+                switch (event.type) {
+                case ButtonPress:
+                case ButtonRelease:
+                case MotionNotify:
+                case XKeyPress:
+                case XKeyRelease:
+                case EnterNotify:
+                case LeaveNotify:
+                    continue;
 
-		case ClientMessage:
-		{
-		    // only keep the wm_take_focus and
-		    // qt_qt_scrolldone protocols, discard all
-		    // other client messages
-		    if ( event.xclient.format != 32 )
-			continue;
+                case ClientMessage:
+                {
+                    // only keep the wm_take_focus and
+                    // qt_qt_scrolldone protocols, discard all
+                    // other client messages
+                    if (event.xclient.format != 32)
+                        continue;
 
-		    if (event.xclient.message_type == ATOM(WM_PROTOCOLS) ||
-			(Atom) event.xclient.data.l[0] == ATOM(WM_TAKE_FOCUS))
-			break;
-		    if (event.xclient.message_type == ATOM(_QT_SCROLL_DONE))
-			break;
-		}
+                    if (event.xclient.message_type == ATOM(WM_PROTOCOLS) ||
+                        (Atom) event.xclient.data.l[0] == ATOM(WM_TAKE_FOCUS))
+                        break;
+                    if (event.xclient.message_type == ATOM(_QT_SCROLL_DONE))
+                        break;
+                }
 
-		default: break;
-		}
-	    }
+                default: break;
+                }
+            }
 
-	    nevents++;
-	    if ( qApp->x11ProcessEvent( &event ) == 1 )
-		return TRUE;
-	}
+            nevents++;
+            if (qApp->x11ProcessEvent(&event) == 1)
+                return true;
+        }
     }
 
     // 0x08 == ExcludeTimers for X11 only
     const uint exclude_all = ExcludeSocketNotifiers | 0x08 | WaitForMore;
     if (nevents > 0 && (flags & exclude_all) == exclude_all) {
-	QApplication::sendPostedEvents();
-	return TRUE;
+        QApplication::sendPostedEvents();
+        return true;
     }
 
     bool retval = (nevents > 0);
@@ -107,12 +107,12 @@ bool QGuiEventLoop::processEvents( ProcessEventsFlags flags )
 bool QGuiEventLoop::hasPendingEvents() const
 {
     extern uint qGlobalPostedEventsCount(); // from qapplication.cpp
-    return ( qGlobalPostedEventsCount() || XPending( QX11Info::appDisplay() ) );
+    return (qGlobalPostedEventsCount() || XPending(QX11Info::appDisplay()));
 }
 
 void QGuiEventLoop::appStartingUp()
 {
-    d->xfd = XConnectionNumber( QX11Info::appDisplay() );
+    d->xfd = XConnectionNumber(QX11Info::appDisplay());
 }
 
 void QGuiEventLoop::appClosingDown()
@@ -132,5 +132,5 @@ void QGuiEventLoop::cleanup()
 
 void QGuiEventLoop::flush()
 {
-    XFlush( QX11Info::appDisplay() );
+    XFlush(QX11Info::appDisplay());
 }

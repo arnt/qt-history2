@@ -7,7 +7,7 @@ public:
     MotifStyle();
 
     QStringList keys() const;
-    QStyle *create( const QString& );
+    QStyle *create(const QString&);
 };
 
 MotifStyle::MotifStyle()
@@ -22,13 +22,13 @@ QStringList MotifStyle::keys() const
     return list;
 }
 
-QStyle* MotifStyle::create( const QString& s )
+QStyle* MotifStyle::create(const QString& s)
 {
-    if ( s.toLower() == "motif" )
-	return new QMotifStyle();
+    if (s.toLower() == "motif")
+        return new QMotifStyle();
 
     return 0;
 }
 
-Q_EXPORT_PLUGIN( MotifStyle )
+Q_EXPORT_PLUGIN(MotifStyle)
 

@@ -25,15 +25,15 @@ class Q_GUI_EXPORT QVButtonGroup : public QButtonGroup
 {
     Q_OBJECT
 public:
-    QVButtonGroup( QWidget* parent=0, const char* name=0 );
-    QVButtonGroup( const QString &title, QWidget* parent=0, const char* name=0 );
+    QVButtonGroup(QWidget* parent=0, const char* name=0);
+    QVButtonGroup(const QString &title, QWidget* parent=0, const char* name=0);
 
     ~QVButtonGroup();
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QVButtonGroup( const QVButtonGroup & );
-    QVButtonGroup &operator=( const QVButtonGroup & );
+    QVButtonGroup(const QVButtonGroup &);
+    QVButtonGroup &operator=(const QVButtonGroup &);
 #endif
 };
 

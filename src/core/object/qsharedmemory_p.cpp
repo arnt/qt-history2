@@ -18,7 +18,7 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 
-QSharedMemory::QSharedMemory (int size, const QString &filename, char c )
+QSharedMemory::QSharedMemory (int size, const QString &filename, char c)
 {
   shmSize = size;
   shmFile = filename;
@@ -30,14 +30,14 @@ bool QSharedMemory::create ()
 {
   shmFD = shm_open (shmFile.latin1 (), O_RDWR | O_EXCL | O_CREAT, 0666);
   if (shmFD == -1)
-    return FALSE;
+    return false;
   else if (ftruncate (shmFD, shmSize) == -1)
     {
       close (shmFD);
-      return FALSE;
+      return false;
     }
 
-  return TRUE;
+  return true;
 }
 
 void QSharedMemory::destroy ()
@@ -50,10 +50,10 @@ bool QSharedMemory::attach ()
   shmBase = mmap (0, shmSize, PROT_READ | PROT_WRITE, MAP_SHARED, shmFD, 0);
 
   if (shmBase == MAP_FAILED)
-    return FALSE;
+    return false;
 
   close (shmFD);
-  return TRUE;
+  return true;
 }
 
 void QSharedMemory::detach ()
@@ -63,7 +63,7 @@ void QSharedMemory::detach ()
 
 void QSharedMemory::setPermissions (mode_t mode)
 {
-  mprotect (shmBase, shmSize, mode);	// Provide defines to make prot work properly
+  mprotect (shmBase, shmSize, mode);        // Provide defines to make prot work properly
 }
 
 int QSharedMemory::size()
@@ -79,22 +79,22 @@ int QSharedMemory::size()
 #else // Assume SysV for backwards compat
 #include <sys/shm.h>
 
-QSharedMemory::QSharedMemory (int size, const QString &filename, char c )
+QSharedMemory::QSharedMemory (int size, const QString &filename, char c)
 {
   shmSize = size;
   shmFile = filename;
   character = c;
   key = ftok (shmFile.latin1 (), c);
-  idInitted = FALSE;
+  idInitted = false;
 }
 
 bool QSharedMemory::create ()
 {
   shmId = shmget (key, shmSize, IPC_CREAT | 0666);
   if (shmId == -1)
-    return FALSE;
+    return false;
   else
-    return TRUE;
+    return true;
 }
 
 void QSharedMemory::destroy ()
@@ -110,9 +110,9 @@ bool QSharedMemory::attach ()
 
   shmBase = shmat (shmId, 0, 0);
   if ((int) shmBase == -1 || shmBase == 0)
-    return FALSE;
+    return false;
   else
-    return TRUE;
+    return true;
 }
 
 void QSharedMemory::detach ()

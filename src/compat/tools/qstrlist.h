@@ -33,53 +33,53 @@ typedef QPtrListIterator<char> QStrListIterator;
 class Q_COMPAT_EXPORT QStrList : public QPtrList<char>
 {
 public:
-    QStrList( bool deepCopies=TRUE ) { dc = deepCopies; del_item = deepCopies; }
-    QStrList( const QStrList & );
-    ~QStrList()			{ clear(); }
-    QStrList& operator=( const QStrList & );
+    QStrList(bool deepCopies=true) { dc = deepCopies; del_item = deepCopies; }
+    QStrList(const QStrList &);
+    ~QStrList()                        { clear(); }
+    QStrList& operator=(const QStrList &);
 
     QStringList toStringList() const;
 private:
-    QPtrCollection::Item newItem( QPtrCollection::Item d ) { return dc ? qstrdup( (const char*)d ) : d; }
-    void deleteItem( QPtrCollection::Item d ) { if ( del_item ) delete[] (char*)d; }
-    int compareItems( QPtrCollection::Item s1, QPtrCollection::Item s2 ) { return qstrcmp((const char*)s1,
-							 (const char*)s2); }
+    QPtrCollection::Item newItem(QPtrCollection::Item d) { return dc ? qstrdup((const char*)d) : d; }
+    void deleteItem(QPtrCollection::Item d) { if (del_item) delete[] (char*)d; }
+    int compareItems(QPtrCollection::Item s1, QPtrCollection::Item s2) { return qstrcmp((const char*)s1,
+                                                         (const char*)s2); }
 #ifndef QT_NO_DATASTREAM
-    QDataStream &read( QDataStream &s, QPtrCollection::Item &d )
-				{ s >> (char *&)d; return s; }
-    QDataStream &write( QDataStream &s, QPtrCollection::Item d ) const
-				{ return s << (const char *)d; }
+    QDataStream &read(QDataStream &s, QPtrCollection::Item &d)
+                                { s >> (char *&)d; return s; }
+    QDataStream &write(QDataStream &s, QPtrCollection::Item d) const
+                                { return s << (const char *)d; }
 #endif
     bool  dc;
 };
 
 
-class Q_COMPAT_EXPORT QStrIList : public QStrList	// case insensitive string list
+class Q_COMPAT_EXPORT QStrIList : public QStrList        // case insensitive string list
 {
 public:
-    QStrIList( bool deepCopies=TRUE ) : QStrList( deepCopies ) {}
-    ~QStrIList()			{ clear(); }
+    QStrIList(bool deepCopies=true) : QStrList(deepCopies) {}
+    ~QStrIList()                        { clear(); }
 private:
-    int	  compareItems( QPtrCollection::Item s1, QPtrCollection::Item s2 )
-				{ return qstricmp((const char*)s1,
-						    (const char*)s2); }
+    int          compareItems(QPtrCollection::Item s1, QPtrCollection::Item s2)
+                                { return qstricmp((const char*)s1,
+                                                    (const char*)s2); }
 };
 
 
-inline QStrList & QStrList::operator=( const QStrList &strList )
+inline QStrList & QStrList::operator=(const QStrList &strList)
 {
     clear();
     dc = strList.dc;
     del_item = dc;
-    QPtrList<char>::operator=( strList );
+    QPtrList<char>::operator=(strList);
     return *this;
 }
 
-inline QStrList::QStrList( const QStrList &strList )
-    : QPtrList<char>( strList )
+inline QStrList::QStrList(const QStrList &strList)
+    : QPtrList<char>(strList)
 {
-    dc = FALSE;
-    operator=( strList );
+    dc = false;
+    operator=(strList);
 }
 
 #endif // QSTRLIST_H

@@ -53,13 +53,13 @@ Qt::HANDLE QCursor::handle() const
 void QCursor::setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, int hotY)
 {
     if (!initialized)
-	initialize();
+        initialize();
     if (bitmap.depth() != 1 || mask.depth() != 1 || bitmap.size() != mask.size()) {
-	qWarning("QCursor: Cannot create bitmap cursor; invalid bitmap(s)");
-	QCursor *c = &cursorTable[0];
-	d = c->d;
-	++d->ref;
-	return;
+        qWarning("QCursor: Cannot create bitmap cursor; invalid bitmap(s)");
+        QCursor *c = &cursorTable[0];
+        d = c->d;
+        ++d->ref;
+        return;
     }
     d = new QCursorData;
     d->bm  = new QBitmap(bitmap);
@@ -74,26 +74,26 @@ void QCursor::setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, in
 
 void QCursor::update() const
 {
-    if ( !initialized )
-	initialize();
-    if ( d->cshape == BitmapCursor ) {
-	// XXX
-	return;
+    if (!initialized)
+        initialize();
+    if (d->cshape == BitmapCursor) {
+        // XXX
+        return;
     }
-    if ( d->cshape >= SizeVerCursor && d->cshape < SizeAllCursor ||
-	 d->cshape == BlankCursor ) {
-	//	int i = (d->cshape - SizeVerCursor)*2;
-	// XXX data: cursor_bits16[i], 16,16
-	// XXX mask: cursor_bits16[i+1], 16,16
-	return;
+    if (d->cshape >= SizeVerCursor && d->cshape < SizeAllCursor ||
+         d->cshape == BlankCursor) {
+        //        int i = (d->cshape - SizeVerCursor)*2;
+        // XXX data: cursor_bits16[i], 16,16
+        // XXX mask: cursor_bits16[i+1], 16,16
+        return;
     }
-    if ( d->cshape >= SplitVCursor && d->cshape <= PointingHandCursor ) {
-	//int i = (d->cshape - SplitVCursor)*2;
-	// XXX data: cursor_bits32[i], 32, 32
-	// XXX mask: cursor_bits32[i+1], 32, 32
-	//int hs = d->cshape != PointingHandCursor? 16 : 0;
-	// XXX ...
-	return;
+    if (d->cshape >= SplitVCursor && d->cshape <= PointingHandCursor) {
+        //int i = (d->cshape - SplitVCursor)*2;
+        // XXX data: cursor_bits32[i], 32, 32
+        // XXX mask: cursor_bits32[i+1], 32, 32
+        //int hs = d->cshape != PointingHandCursor? 16 : 0;
+        // XXX ...
+        return;
     }
 
     // XXX standard shapes?
@@ -108,9 +108,9 @@ QPoint QCursor::pos()
     // This doesn't know about hotspots yet so we disable it
     //qt_accel_update_cursor();
     if (qt_last_x)
-	return QPoint(*qt_last_x, *qt_last_y);
+        return QPoint(*qt_last_x, *qt_last_y);
     else
-	return QPoint();
+        return QPoint();
 }
 
 void QCursor::setPos(int x, int y)
@@ -120,7 +120,7 @@ void QCursor::setPos(int x, int y)
     // every mouse move event.
     //
     if (pos() == QPoint(x, y))
-	return;
+        return;
 
-    // XXX XWarpPointer( qt_xdisplay(), None, qt_xrootwin(), 0, 0, 0, 0, x, y );
+    // XXX XWarpPointer(qt_xdisplay(), None, qt_xrootwin(), 0, 0, 0, 0, x, y);
 }

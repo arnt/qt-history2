@@ -41,23 +41,23 @@ class Q_GUI_EXPORT QWidgetResizeHandler : public QObject
 
 public:
     enum Action {
-	Move	= 0x01,
-	Resize	= 0x02,
-	Any	= Move|Resize
+        Move        = 0x01,
+        Resize        = 0x02,
+        Any        = Move|Resize
     };
 
-    QWidgetResizeHandler( QWidget *parent, QWidget *cw = 0, const char *name = 0 );
-    void setActive( bool b ) { setActive( Any, b ); }
-    void setActive( Action ac, bool b );
-    bool isActive() const { return isActive( Any ); }
-    bool isActive( Action ac ) const;
-    void setMovingEnabled( bool b ) { moving = b; }
+    QWidgetResizeHandler(QWidget *parent, QWidget *cw = 0, const char *name = 0);
+    void setActive(bool b) { setActive(Any, b); }
+    void setActive(Action ac, bool b);
+    bool isActive() const { return isActive(Any); }
+    bool isActive(Action ac) const;
+    void setMovingEnabled(bool b) { moving = b; }
     bool isMovingEnabled() const { return moving; }
 
     bool isButtonDown() const { return buttonDown; }
 
-    void setExtraHeight( int h ) { extrahei = h; }
-    void setSizeProtection( bool b ) { sizeprotect = b; }
+    void setExtraHeight(int h) { extrahei = h; }
+    void setSizeProtection(bool b) { sizeprotect = b; }
 
     void doResize();
     void doMove();
@@ -66,16 +66,16 @@ signals:
     void activate();
 
 protected:
-    bool eventFilter( QObject *o, QEvent *e );
-    void mouseMoveEvent( QMouseEvent *e );
-    void keyPressEvent( QKeyEvent *e );
+    bool eventFilter(QObject *o, QEvent *e);
+    void mouseMoveEvent(QMouseEvent *e);
+    void keyPressEvent(QKeyEvent *e);
 
 private:
     enum MousePosition {
-	Nowhere,
-	TopLeft, BottomRight, BottomLeft, TopRight,
-	Top, Bottom, Left, Right,
-	Center
+        Nowhere,
+        TopLeft, BottomRight, BottomLeft, TopRight,
+        Top, Bottom, Left, Right,
+        Center
     };
 
     QWidget *widget;
@@ -85,25 +85,25 @@ private:
     MousePosition mode;
     int extrahei;
     int range;
-    uint buttonDown	    :1;
-    uint moveResizeMode	    :1;
+    uint buttonDown            :1;
+    uint moveResizeMode            :1;
     uint activeForResize    :1;
-    uint sizeprotect	    :1;
-    uint moving		    :1;
-    uint activeForMove	    :1;
+    uint sizeprotect            :1;
+    uint moving                    :1;
+    uint activeForMove            :1;
 
-    void setMouseCursor( MousePosition m );
+    void setMouseCursor(MousePosition m);
     bool isMove() const {
-	return moveResizeMode && mode == Center;
+        return moveResizeMode && mode == Center;
     }
     bool isResize() const {
-	return moveResizeMode && !isMove();
+        return moveResizeMode && !isMove();
     }
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QWidgetResizeHandler( const QWidgetResizeHandler & );
-    QWidgetResizeHandler& operator=( const QWidgetResizeHandler & );
+    QWidgetResizeHandler(const QWidgetResizeHandler &);
+    QWidgetResizeHandler& operator=(const QWidgetResizeHandler &);
 #endif
 
 };

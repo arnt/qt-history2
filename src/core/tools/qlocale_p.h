@@ -49,36 +49,36 @@ public:
     bool isDigit(QChar d) const;
 
     enum DoubleForm {
-	DFExponent = 0,
-	DFDecimal,
-	DFSignificantDigits,
-	_DFMax = DFSignificantDigits
+        DFExponent = 0,
+        DFDecimal,
+        DFSignificantDigits,
+        _DFMax = DFSignificantDigits
     };
 
     enum Flags {
-	NoFlags	    	= 0,
-	Alternate           = 0x01,
-	ZeroPadded          = 0x02,
-	LeftAdjusted        = 0x04,
-	BlankBeforePositive = 0x08,
-	AlwaysShowSign      = 0x10,
-	ThousandsGroup      = 0x20,
-	CapitalEorX	    	= 0x40
+        NoFlags                = 0,
+        Alternate           = 0x01,
+        ZeroPadded          = 0x02,
+        LeftAdjusted        = 0x04,
+        BlankBeforePositive = 0x08,
+        AlwaysShowSign      = 0x10,
+        ThousandsGroup      = 0x20,
+        CapitalEorX                = 0x40
     };
 
     QString doubleToString(double d,
-			   int precision = -1,
-			   DoubleForm form = DFSignificantDigits,
-			   int width = -1,
-			   unsigned flags = NoFlags) const;
+                           int precision = -1,
+                           DoubleForm form = DFSignificantDigits,
+                           int width = -1,
+                           unsigned flags = NoFlags) const;
     QString longLongToString(Q_LLONG l, int precision = -1,
-			     int base = 10,
-			     int width = -1,
-			     unsigned flags = NoFlags) const;
+                             int base = 10,
+                             int width = -1,
+                             unsigned flags = NoFlags) const;
     QString unsLongLongToString(Q_ULLONG l, int precision = -1,
-				int base = 10,
-				int width = -1,
-				unsigned flags = NoFlags) const;
+                                int base = 10,
+                                int width = -1,
+                                unsigned flags = NoFlags) const;
     double stringToDouble(QString num, bool *ok) const;
     Q_LLONG stringToLongLong(QString num, int base, bool *ok) const;
     Q_ULLONG stringToUnsLongLong(QString num, int base, bool *ok) const;
@@ -93,7 +93,7 @@ public:
     Q_UINT32 m_language_id, m_country_id;
 
     Q_UINT16 m_decimal, m_group, m_list, m_percent,
-	m_zero, m_minus, m_exponential;
+        m_zero, m_minus, m_exponential;
 
     static const QString m_infinity;
     static const QString m_nan;

@@ -25,17 +25,17 @@ class Q_GUI_EXPORT QSizeGrip: public QWidget
 {
     Q_OBJECT
 public:
-    QSizeGrip( QWidget* parent, const char* name=0 );
+    QSizeGrip(QWidget* parent, const char* name=0);
     ~QSizeGrip();
 
     QSize sizeHint() const;
 
 protected:
-    void paintEvent( QPaintEvent * );
-    void mousePressEvent( QMouseEvent * );
-    void mouseMoveEvent( QMouseEvent * );
+    void paintEvent(QPaintEvent *);
+    void mousePressEvent(QMouseEvent *);
+    void mouseMoveEvent(QMouseEvent *);
 
-    bool eventFilter( QObject *, QEvent * );
+    bool eventFilter(QObject *, QEvent *);
 
 private:
     QPoint p;

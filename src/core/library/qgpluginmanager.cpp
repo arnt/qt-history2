@@ -58,13 +58,13 @@
 static const char indexOf[256] = {
     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
     0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-//      !   "   #   $   %   &   '   (   )   *   +   ,   -   .   /
+//      !   "   #   $   %   &   '   ( )   *   +   ,   -   .   /
     0,  2,  6,  7,  10, 12, 15, 19, 2,  6,  7,  10, 12, 15, 19, 0,
 //  0   1   2   3   4   5   6   7   8   9   :   ;   <   =   >   ?
     1,  3,  4,  5,  8,  9,  11, 13, 14, 16, 2,  6,  7,  10, 12, 15,
 //  @   A   B   C   D   E   F   G   H   I   J   K   L   M   N   O
     0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  6,  10, 11, 12, 13, 14,
-//  P   Q   R   S   T   U   V   W   X   Y   Z   [   \   ]   ^   _
+//  P   Q   R   S   T   U   V   W   X   Y   Z   [  \  ]   ^   _
     15, 12, 16, 17, 18, 19, 2,  10, 15, 7,  19, 2,  6,  7,  10, 0,
 //  `   a   b   c   d   e   f   g   h   i   j   k   l   m   n   o
     0,  1,  2,  3,  4,  5,  6,  7,  8,  9,  6,  10, 11, 12, 13, 14,
@@ -113,48 +113,48 @@ public:
       efficiency.
     */
     union {
-	Q_UINT8 b[52];
-	Q_UINT32 w[13];
+        Q_UINT8 b[52];
+        Q_UINT32 w[13];
     };
 
-    QCoMatrix() { memset( b, 0, 52 ); }
-    QCoMatrix( const char *text ) {
-	char c = '\0', d;
-	memset( b, 0, 52 );
-	while ( (d = *text) != '\0' ) {
-	    setCoocc( c, d );
-	    if ( (c = *++text) != '\0' ) {
-		setCoocc( d, c );
-		text++;
-	    }
-	}
+    QCoMatrix() { memset(b, 0, 52); }
+    QCoMatrix(const char *text) {
+        char c = '\0', d;
+        memset(b, 0, 52);
+        while ((d = *text) != '\0') {
+            setCoocc(c, d);
+            if ((c = *++text) != '\0') {
+                setCoocc(d, c);
+                text++;
+            }
+        }
     }
 
-    void setCoocc( char c, char d ) {
-	int k = indexOf[(uchar) c] + 20 * indexOf[(uchar) d];
-	b[k >> 3] |= k & 0x7;
+    void setCoocc(char c, char d) {
+        int k = indexOf[(uchar) c] + 20 * indexOf[(uchar) d];
+        b[k >> 3] |= k & 0x7;
     }
 
     int worth() const {
-	int result = 0;
-	for ( int i = 0; i < 50; i++ )
-	    result += bitCount[b[i]];
-	return result;
+        int result = 0;
+        for (int i = 0; i < 50; i++)
+            result += bitCount[b[i]];
+        return result;
     }
 
-    static QCoMatrix reunion( const QCoMatrix& m, const QCoMatrix& n )
+    static QCoMatrix reunion(const QCoMatrix& m, const QCoMatrix& n)
     {
-	QCoMatrix p;
-	for ( int i = 0; i < 13; i++ )
-	    p.w[i] = m.w[i] | n.w[i];
-	return p;
+        QCoMatrix p;
+        for (int i = 0; i < 13; i++)
+            p.w[i] = m.w[i] | n.w[i];
+        return p;
     }
-    static QCoMatrix intersection( const QCoMatrix& m, const QCoMatrix& n )
+    static QCoMatrix intersection(const QCoMatrix& m, const QCoMatrix& n)
     {
-	QCoMatrix p;
-	for ( int i = 0; i < 13; i++ )
-	    p.w[i] = m.w[i] & n.w[i];
-	return p;
+        QCoMatrix p;
+        for (int i = 0; i < 13; i++)
+            p.w[i] = m.w[i] & n.w[i];
+        return p;
     }
 };
 
@@ -166,19 +166,19 @@ public:
   versions of Qt as the algorithm evolves.
 
   \code
-    QString s( "color" );
-    a = similarity( s, "color" );  // a == 15
-    a = similarity( s, "colour" ); // a == 8
-    a = similarity( s, "flavor" ); // a == 4
-    a = similarity( s, "dahlia" ); // a == 0
+    QString s("color");
+    a = similarity(s, "color");  // a == 15
+    a = similarity(s, "colour"); // a == 8
+    a = similarity(s, "flavor"); // a == 4
+    a = similarity(s, "dahlia"); // a == 0
   \endcode
 */
-static int similarity( const QString& s1, const QString& s2 )
+static int similarity(const QString& s1, const QString& s2)
 {
-    QCoMatrix m1( s1.latin1() );
-    QCoMatrix m2( s2.latin1() );
-    return ( 15 * (QCoMatrix::intersection(m1, m2).worth() + 1) ) /
-	   ( QCoMatrix::reunion(m1, m2).worth() + 1 );
+    QCoMatrix m1(s1.latin1());
+    QCoMatrix m2(s2.latin1());
+    return (15 * (QCoMatrix::intersection(m1, m2).worth() + 1)) /
+           (QCoMatrix::reunion(m1, m2).worth() + 1);
 }
 
 /*!
@@ -196,7 +196,7 @@ static int similarity( const QString& s1, const QString& s2 )
   The QPluginManager template has to be instantiated with an interface definition and the IID for this interface.
 
   \code
-  QPluginManager<MyPluginInterface> *manager = new QPluginManager<MyPluginInterface>( IID_MyPluginInterface );
+  QPluginManager<MyPluginInterface> *manager = new QPluginManager<MyPluginInterface>(IID_MyPluginInterface);
   \endcode
 
   It searches a specified directory for all shared libraries, queries for components that implement the specific interface and
@@ -218,22 +218,22 @@ static int similarity( const QString& s1, const QString& s2 )
 
   \code
   MyPluginInterface *iface;
-  manager->queryInterface( "feature", &iface );
-  if ( iface )
-      iface->execute( "feature" );
+  manager->queryInterface("feature", &iface);
+  if (iface)
+      iface->execute("feature");
   \endcode
 
   The application can use a QPluginManager instance to create parts of the user interface based on the list of features
   found in plugins:
 
   \code
-  QPluginManager<MyPluginInterface> *manager = new QPluginManager<MyPluginInterface>( IID_ImageFilterInterface );
+  QPluginManager<MyPluginInterface> *manager = new QPluginManager<MyPluginInterface>(IID_ImageFilterInterface);
   manager->addLibraryPath(...);
 
   QStringList features = manager->featureList();
-  for ( QStringList::Iterator it = features.begin(); it != features.end(); ++it ) {
+  for (QStringList::Iterator it = features.begin(); it != features.end(); ++it) {
       MyPluginInterface *iface;
-      manager->queryInterface( *it, &iface );
+      manager->queryInterface(*it, &iface);
 
       // use QAction to provide toolbuttons and menuitems for each feature...
   }
@@ -241,13 +241,13 @@ static int similarity( const QString& s1, const QString& s2 )
 */
 
 /*!
-  \fn QPluginManager::QPluginManager( const QUuid& id, const QStringList& paths = QString::null, const QString &suffix = QString::null, bool cs = TRUE )
+  \fn QPluginManager::QPluginManager(const QUuid& id, const QStringList& paths = QString::null, const QString &suffix = QString::null, bool cs = true)
 
   Creates an QPluginManager for interfaces \a id that will load all shared library files in the \a paths + \a suffix.
-  If \a cs is FALSE the manager will handle feature strings case insensitive.
+  If \a cs is false the manager will handle feature strings case insensitive.
 
   \warning
-  Setting the cs flag to FALSE requires that components also convert to lower case when comparing with passed strings, so this has
+  Setting the cs flag to false requires that components also convert to lower case when comparing with passed strings, so this has
   to be handled with care and documented very well.
 
   \sa QApplication::libraryPaths()
@@ -264,12 +264,12 @@ static int similarity( const QString& s1, const QString& s2 )
 
 
 
-QGPluginManager::QGPluginManager( const QUuid& id, const QStringList& paths, const QString &suffix, bool cs )
-    : interfaceId( id ), casesens( cs ), autounload( TRUE )
+QGPluginManager::QGPluginManager(const QUuid& id, const QStringList& paths, const QString &suffix, bool cs)
+    : interfaceId(id), casesens(cs), autounload(true)
 {
-    for ( QStringList::ConstIterator it = paths.begin(); it != paths.end(); ++it ) {
-	QString path = *it;
-	addLibraryPath( path + suffix );
+    for (QStringList::ConstIterator it = paths.begin(); it != paths.end(); ++it) {
+        QString path = *it;
+        addLibraryPath(path + suffix);
     }
 }
 
@@ -277,17 +277,17 @@ QGPluginManager::~QGPluginManager()
 {
     QHash<QString, QLibrary *>::ConstIterator it = libDict.constBegin();
     for (; it != libDict.constEnd(); ++it) {
-	QLibrary *lib = *it;
-	if (!autounload)
-	    lib->setAutoUnload(false);
-	delete lib;
+        QLibrary *lib = *it;
+        if (!autounload)
+            lib->setAutoUnload(false);
+        delete lib;
     }
 }
 
-void QGPluginManager::addLibraryPath( const QString& path )
+void QGPluginManager::addLibraryPath(const QString& path)
 {
-    if ( !enabled() || !QDir( path ).exists( ".", TRUE ) )
-	return;
+    if (!enabled() || !QDir(path).exists(".", true))
+        return;
 
 #if defined(Q_OS_WIN32)
     QString filter = "*.dll";
@@ -299,94 +299,94 @@ void QGPluginManager::addLibraryPath( const QString& path )
     QString filter = "*.so";
 #endif
 
-    QStringList plugins = QDir(path).entryList( filter );
-    for ( QStringList::Iterator p = plugins.begin(); p != plugins.end(); ++p ) {
-	QString lib = QDir::cleanDirPath( path + "/" + *p );
-	if ( libList.contains( lib ) )
-	    continue;
-	libList.append( lib );
+    QStringList plugins = QDir(path).entryList(filter);
+    for (QStringList::Iterator p = plugins.begin(); p != plugins.end(); ++p) {
+        QString lib = QDir::cleanDirPath(path + "/" + *p);
+        if (libList.contains(lib))
+            continue;
+        libList.append(lib);
     }
 }
 
-const QLibrary* QGPluginManager::library( const QString& _feature ) const
+const QLibrary* QGPluginManager::library(const QString& _feature) const
 {
-    if ( !enabled() || _feature.isEmpty() )
-	return 0;
+    if (!enabled() || _feature.isEmpty())
+        return 0;
 
     QString feature = _feature;
     if (!casesens)
-	feature.toLower();
+        feature.toLower();
 
     // We already have a QLibrary object for this feature
     QLibrary *library = 0;
-    if ( ( library = plugDict[feature] ) )
-	return library;
+    if ((library = plugDict[feature]))
+        return library;
 
     // Find the filename that matches the feature request best
     QMap<int, QStringList> map;
     QStringList::ConstIterator it = libList.begin();
     int best = 0;
     int worst = 15;
-    while ( it != libList.end() ) {
-	if ( (*it).isEmpty() || libDict[*it] ) {
-	    ++it;
-	    continue;
-	}
-	QString basename = QFileInfo(*it).baseName();
-	int s = similarity( feature, basename );
-	if ( s < worst )
-	    worst = s;
-	if ( s > best )
-	    best = s;
-	map[s].append( basename + QChar(0xfffd) + *it );
-	++it;
+    while (it != libList.end()) {
+        if ((*it).isEmpty() || libDict[*it]) {
+            ++it;
+            continue;
+        }
+        QString basename = QFileInfo(*it).baseName();
+        int s = similarity(feature, basename);
+        if (s < worst)
+            worst = s;
+        if (s > best)
+            best = s;
+        map[s].append(basename + QChar(0xfffd) + *it);
+        ++it;
     }
 
-    if ( map.isEmpty() )
-	return 0; // no libraries to add
+    if (map.isEmpty())
+        return 0; // no libraries to add
 
     // Start with the best match to get the library object
     QGPluginManager *that = (QGPluginManager*)this;
-    for ( int s = best; s >= worst; --s ) {
-	QStringList group = map[s];
-	group.sort(); // sort according to the base name
-	QStringList::ConstIterator git = group.begin();
-	while ( git != group.end() ) {
-	    QString lib = (*git).mid( (*git).indexOf( QChar(0xfffd) ) + 1 );
-	    QString basename = (*git).left( (*git).indexOf( QChar(0xfffd) ) );
-	    ++git;
+    for (int s = best; s >= worst; --s) {
+        QStringList group = map[s];
+        group.sort(); // sort according to the base name
+        QStringList::ConstIterator git = group.begin();
+        while (git != group.end()) {
+            QString lib = (*git).mid((*git).indexOf(QChar(0xfffd)) + 1);
+            QString basename = (*git).left((*git).indexOf(QChar(0xfffd)));
+            ++git;
 
-	    QStringList sameBasename;
-	    while( git != group.end() &&
-		   basename == (*git).left( (*git).indexOf( QChar(0xfffd) ) )  ) {
-		sameBasename << (*git).mid( (*git).indexOf( QChar(0xfffd) ) + 1 );
-		++git;
-	    }
+            QStringList sameBasename;
+            while(git != group.end() &&
+                   basename == (*git).left((*git).indexOf(QChar(0xfffd))) ) {
+                sameBasename << (*git).mid((*git).indexOf(QChar(0xfffd)) + 1);
+                ++git;
+            }
 
-	    if ( sameBasename.isEmpty() ) {
-		that->addLibrary( new QComLibrary( lib ) );
-	    } else {
-		QList<QComLibrary *> same;
-		for ( QStringList::ConstIterator bit = sameBasename.begin();
-		      bit != sameBasename.end(); ++bit )
-		    same.append( new QComLibrary( *bit ) );
-		QComLibrary* bestMatch = 0;
-		for ( QList<QComLibrary *>::ConstIterator sit = same.constBegin();
-		      sit != same.constEnd(); ++sit) {
-		    QComLibrary* candidate = *sit;
-		    if ( candidate->qtVersion() && candidate->qtVersion() <= QT_VERSION
-			 && ( !bestMatch || candidate->qtVersion() > bestMatch->qtVersion() ) )
-			bestMatch = candidate;
-		}
-		if ( bestMatch )
-		    that->addLibrary( same.takeAt(same.indexOf(bestMatch)) );
-		while (!same.isEmpty())
-		    delete same.takeFirst();
-	    }
+            if (sameBasename.isEmpty()) {
+                that->addLibrary(new QComLibrary(lib));
+            } else {
+                QList<QComLibrary *> same;
+                for (QStringList::ConstIterator bit = sameBasename.begin();
+                      bit != sameBasename.end(); ++bit)
+                    same.append(new QComLibrary(*bit));
+                QComLibrary* bestMatch = 0;
+                for (QList<QComLibrary *>::ConstIterator sit = same.constBegin();
+                      sit != same.constEnd(); ++sit) {
+                    QComLibrary* candidate = *sit;
+                    if (candidate->qtVersion() && candidate->qtVersion() <= QT_VERSION
+                         && (!bestMatch || candidate->qtVersion() > bestMatch->qtVersion()))
+                        bestMatch = candidate;
+                }
+                if (bestMatch)
+                    that->addLibrary(same.takeAt(same.indexOf(bestMatch)));
+                while (!same.isEmpty())
+                    delete same.takeFirst();
+            }
 
-	    if ( ( library = that->plugDict[feature] ) )
-		return library;
-	}
+            if ((library = that->plugDict[feature]))
+                return library;
+        }
     }
     return 0;
 }
@@ -395,8 +395,8 @@ QStringList QGPluginManager::featureList() const
 {
     QStringList features;
 
-    if ( !enabled() )
-	return features;
+    if (!enabled())
+        return features;
 
     QGPluginManager *that = (QGPluginManager*)this;
     QStringList theLibs = libList;
@@ -408,124 +408,124 @@ QStringList QGPluginManager::featureList() const
       prioritze the one that fits our Qt version number and ignore the
       others  */
     QStringList::Iterator it;
-    for ( it = theLibs.begin(); it != theLibs.end(); ++it  ) {
-	if ( (*it).isEmpty() || libDict[*it] )
-	    continue;
-	QComLibrary* library = new QComLibrary( *it );
-	if ( library->qtVersion() == QT_VERSION ) {
-	    that->addLibrary( library );
-	    phase2Deny << QFileInfo( *it ).baseName();
-	} else {
-	    delete library;
-	    phase2Libs << *it;
-	}
+    for (it = theLibs.begin(); it != theLibs.end(); ++it ) {
+        if ((*it).isEmpty() || libDict[*it])
+            continue;
+        QComLibrary* library = new QComLibrary(*it);
+        if (library->qtVersion() == QT_VERSION) {
+            that->addLibrary(library);
+            phase2Deny << QFileInfo(*it).baseName();
+        } else {
+            delete library;
+            phase2Libs << *it;
+        }
     }
-    for ( it = phase2Libs.begin(); it != phase2Libs.end(); ++it  )
-	if ( !phase2Deny.contains( QFileInfo( *it ).baseName() ) )
-	    that->addLibrary( new QComLibrary( *it ) );
+    for (it = phase2Libs.begin(); it != phase2Libs.end(); ++it )
+        if (!phase2Deny.contains(QFileInfo(*it).baseName()))
+            that->addLibrary(new QComLibrary(*it));
 
     QHash<QString, QLibrary *>::ConstIterator pit = plugDict.constBegin();
     for (; pit != plugDict.constEnd(); ++pit)
-	features << pit.key();
+        features << pit.key();
 
     return features;
 }
 
-bool QGPluginManager::addLibrary( QLibrary* lib )
+bool QGPluginManager::addLibrary(QLibrary* lib)
 {
-    if ( !enabled() || !lib )
-	return FALSE;
+    if (!enabled() || !lib)
+        return false;
 
     QComLibrary* plugin = (QComLibrary*)lib;
-    bool useful = FALSE;
+    bool useful = false;
 
     QUnknownInterface* iFace = 0;
-    plugin->queryInterface( interfaceId, &iFace );
-    if ( iFace ) {
-	QFeatureListInterface *fliFace = 0;
-	QComponentInformationInterface *cpiFace = 0;
-	iFace->queryInterface( IID_QFeatureList, (QUnknownInterface**)&fliFace );
-	if ( !fliFace )
-	    plugin->queryInterface( IID_QFeatureList, (QUnknownInterface**)&fliFace );
-	if ( !fliFace ) {
-	    iFace->queryInterface( IID_QComponentInformation, (QUnknownInterface**)&cpiFace );
-	    if ( !cpiFace )
-		plugin->queryInterface( IID_QComponentInformation, (QUnknownInterface**)&cpiFace );
-	}
-	QStringList fl;
-	if ( fliFace )
-	    // Map all found features to the library
-	    fl = fliFace->featureList();
-	else if ( cpiFace )
-	    fl << cpiFace->name();
+    plugin->queryInterface(interfaceId, &iFace);
+    if (iFace) {
+        QFeatureListInterface *fliFace = 0;
+        QComponentInformationInterface *cpiFace = 0;
+        iFace->queryInterface(IID_QFeatureList, (QUnknownInterface**)&fliFace);
+        if (!fliFace)
+            plugin->queryInterface(IID_QFeatureList, (QUnknownInterface**)&fliFace);
+        if (!fliFace) {
+            iFace->queryInterface(IID_QComponentInformation, (QUnknownInterface**)&cpiFace);
+            if (!cpiFace)
+                plugin->queryInterface(IID_QComponentInformation, (QUnknownInterface**)&cpiFace);
+        }
+        QStringList fl;
+        if (fliFace)
+            // Map all found features to the library
+            fl = fliFace->featureList();
+        else if (cpiFace)
+            fl << cpiFace->name();
 
-	for ( QStringList::Iterator f = fl.begin(); f != fl.end(); ++f ) {
-	    QString feature = *f;
-	    if (!casesens)
-		feature.toLower();
-	    QLibrary *old = plugDict[feature];
-	    if ( !old ) {
-		useful = TRUE;
-		plugDict.insert( feature, plugin );
-	    } else {
-		// we have old *and* plugin, which one to pick?
-		QComLibrary* first = (QComLibrary*)old;
-		QComLibrary* second = (QComLibrary*)plugin;
-		bool takeFirst = TRUE;
-		if ( first->qtVersion() != QT_VERSION ) {
-		    if ( second->qtVersion() == QT_VERSION )
-			takeFirst = FALSE;
-		    else if ( second->qtVersion() < QT_VERSION &&
-			      first->qtVersion() > QT_VERSION )
-			takeFirst = FALSE;
-		}
-		if ( !takeFirst ) {
-		    useful = TRUE;
-		    plugDict.insert( feature, plugin );
-		    qWarning("%s: Discarding feature %s in %s!",
-			     (const char*) QFile::encodeName( plugin->library()),
-			     feature.latin1(),
-			     (const char*) QFile::encodeName( old->library() ) );
-		} else {
-		    qWarning("%s: Feature %s already defined in %s!",
-			     (const char*) QFile::encodeName( old->library() ),
-			     feature.latin1(),
-			     (const char*) QFile::encodeName( plugin->library() ) );
-		}
-	    }
-	}
-	if ( fliFace )
-	    fliFace->release();
-	if ( cpiFace )
-	    cpiFace->release();
-	iFace->release();
+        for (QStringList::Iterator f = fl.begin(); f != fl.end(); ++f) {
+            QString feature = *f;
+            if (!casesens)
+                feature.toLower();
+            QLibrary *old = plugDict[feature];
+            if (!old) {
+                useful = true;
+                plugDict.insert(feature, plugin);
+            } else {
+                // we have old *and* plugin, which one to pick?
+                QComLibrary* first = (QComLibrary*)old;
+                QComLibrary* second = (QComLibrary*)plugin;
+                bool takeFirst = true;
+                if (first->qtVersion() != QT_VERSION) {
+                    if (second->qtVersion() == QT_VERSION)
+                        takeFirst = false;
+                    else if (second->qtVersion() < QT_VERSION &&
+                              first->qtVersion() > QT_VERSION)
+                        takeFirst = false;
+                }
+                if (!takeFirst) {
+                    useful = true;
+                    plugDict.insert(feature, plugin);
+                    qWarning("%s: Discarding feature %s in %s!",
+                             (const char*) QFile::encodeName(plugin->library()),
+                             feature.latin1(),
+                             (const char*) QFile::encodeName(old->library()));
+                } else {
+                    qWarning("%s: Feature %s already defined in %s!",
+                             (const char*) QFile::encodeName(old->library()),
+                             feature.latin1(),
+                             (const char*) QFile::encodeName(plugin->library()));
+                }
+            }
+        }
+        if (fliFace)
+            fliFace->release();
+        if (cpiFace)
+            cpiFace->release();
+        iFace->release();
     }
 
-    if ( useful ) {
-	libDict.insert( plugin->library(), plugin );
-	if ( !libList.contains( plugin->library() ) )
-	    libList.append( plugin->library() );
-	return TRUE;
+    if (useful) {
+        libDict.insert(plugin->library(), plugin);
+        if (!libList.contains(plugin->library()))
+            libList.append(plugin->library());
+        return true;
     }
     delete plugin;
-    return FALSE;
+    return false;
 }
 
 
 bool QGPluginManager::enabled() const
 {
 #ifdef QT_SHARED
-    return TRUE;
+    return true;
 #else
-    return FALSE;
+    return false;
 #endif
 }
 
 QRESULT QGPluginManager::queryUnknownInterface(const QString& feature, QUnknownInterface** iface) const
 {
     QComLibrary* plugin = 0;
-    plugin = (QComLibrary*)library( feature );
-    return plugin ? plugin->queryInterface( interfaceId, (QUnknownInterface**)iface ) : QE_NOINTERFACE;
+    plugin = (QComLibrary*)library(feature);
+    return plugin ? plugin->queryInterface(interfaceId, (QUnknownInterface**)iface) : QE_NOINTERFACE;
 }
 
 #endif //QT_NO_COMPONENT

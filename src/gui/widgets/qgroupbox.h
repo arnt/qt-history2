@@ -33,49 +33,49 @@ class Q_GUI_EXPORT QGroupBox : public QWidget
     Q_OBJECT
     Q_DECLARE_PRIVATE(QGroupBox);
 
-    Q_PROPERTY( QString title READ title WRITE setTitle )
-    Q_PROPERTY( Alignment alignment READ alignment WRITE setAlignment )
-    Q_PROPERTY( Orientation orientation READ orientation WRITE setOrientation DESIGNABLE false )
-    Q_PROPERTY( int columns READ columns WRITE setColumns DESIGNABLE false )
-    Q_PROPERTY( bool flat READ isFlat WRITE setFlat )
-    Q_PROPERTY( bool checkable READ isCheckable WRITE setCheckable )
-    Q_PROPERTY( bool checked READ isChecked WRITE setChecked )
+    Q_PROPERTY(QString title READ title WRITE setTitle)
+    Q_PROPERTY(Alignment alignment READ alignment WRITE setAlignment)
+    Q_PROPERTY(Orientation orientation READ orientation WRITE setOrientation DESIGNABLE false)
+    Q_PROPERTY(int columns READ columns WRITE setColumns DESIGNABLE false)
+    Q_PROPERTY(bool flat READ isFlat WRITE setFlat)
+    Q_PROPERTY(bool checkable READ isCheckable WRITE setCheckable)
+    Q_PROPERTY(bool checked READ isChecked WRITE setChecked)
 public:
-    QGroupBox( QWidget* parent=0, const char* name=0 );
-    QGroupBox( const QString &title,
-	       QWidget* parent=0, const char* name=0 );
-    QGroupBox( int strips, Orientation o,
-	       QWidget* parent=0, const char* name=0 );
-    QGroupBox( int strips, Orientation o, const QString &title,
-	       QWidget* parent=0, const char* name=0 );
+    QGroupBox(QWidget* parent=0, const char* name=0);
+    QGroupBox(const QString &title,
+               QWidget* parent=0, const char* name=0);
+    QGroupBox(int strips, Orientation o,
+               QWidget* parent=0, const char* name=0);
+    QGroupBox(int strips, Orientation o, const QString &title,
+               QWidget* parent=0, const char* name=0);
     ~QGroupBox();
 
     virtual void setColumnLayout(int strips, Orientation o);
 
     QString title() const;
-    virtual void setTitle( const QString &);
+    virtual void setTitle(const QString &);
 
     int alignment() const;
-    virtual void setAlignment( int );
+    virtual void setAlignment(int);
 
     int columns() const;
-    void setColumns( int );
+    void setColumns(int);
 
     Orientation orientation() const;
-    void setOrientation( Orientation );
+    void setOrientation(Orientation);
 
     int insideMargin() const;
     int insideSpacing() const;
-    void setInsideMargin( int m );
-    void setInsideSpacing( int s );
+    void setInsideMargin(int m);
+    void setInsideSpacing(int s);
 
-    void addSpace( int );
+    void addSpace(int);
     QSize sizeHint() const;
 
     bool isFlat() const;
-    void setFlat( bool b );
+    void setFlat(bool b);
     bool isCheckable() const;
-    void setCheckable( bool b );
+    void setCheckable(bool b);
     bool isChecked() const;
 
 #ifdef QT_COMPAT
@@ -84,28 +84,28 @@ public:
 #endif
 
 public slots:
-    void setChecked( bool b );
+    void setChecked(bool b);
 
 signals:
-    void toggled( bool );
+    void toggled(bool);
 
 protected:
-    bool event( QEvent * );
-    void childEvent( QChildEvent * );
-    void resizeEvent( QResizeEvent * );
-    void paintEvent( QPaintEvent * );
-    void focusInEvent( QFocusEvent * );
-    void changeEvent( QEvent * );
+    bool event(QEvent *);
+    void childEvent(QChildEvent *);
+    void resizeEvent(QResizeEvent *);
+    void paintEvent(QPaintEvent *);
+    void focusInEvent(QFocusEvent *);
+    void changeEvent(QEvent *);
 
 private slots:
     void fixFocus();
-    void setChildrenEnabled( bool b );
+    void setChildrenEnabled(bool b);
 
 private:
 
 #if defined(Q_DISABLE_COPY)
-    QGroupBox( const QGroupBox & );
-    QGroupBox &operator=( const QGroupBox & );
+    QGroupBox(const QGroupBox &);
+    QGroupBox &operator=(const QGroupBox &);
 #endif
 };
 

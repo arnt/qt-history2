@@ -95,9 +95,9 @@ QRangeControl::QRangeControl()
     maxVal  = 99;
     line    = 1;
     page    = 10;
-    val	    = 0;
+    val            = 0;
     prevVal = -1;
-    d	    = 0;
+    d            = 0;
 }
 
 /*!
@@ -108,17 +108,17 @@ QRangeControl::QRangeControl()
     bound()).
 */
 
-QRangeControl::QRangeControl( int minValue, int maxValue,
-			      int lineStep, int pageStep,
-			      int value )
+QRangeControl::QRangeControl(int minValue, int maxValue,
+                              int lineStep, int pageStep,
+                              int value)
 {
     minVal  = minValue;
     maxVal  = maxValue;
-    line    = QABS( lineStep );
-    page    = QABS( pageStep );
+    line    = QABS(lineStep);
+    page    = QABS(pageStep);
     prevVal = minVal - 1;
-    val	    = bound( value );
-    d	    = 0;
+    val            = bound(value);
+    d            = 0;
 }
 
 /*!
@@ -167,11 +167,11 @@ QRangeControl::~QRangeControl()
     \sa value()
 */
 
-void QRangeControl::setValue( int value )
+void QRangeControl::setValue(int value)
 {
-    directSetValue( value );
-    if ( prevVal != val )
-	valueChange();
+    directSetValue(value);
+    if (prevVal != val)
+        valueChange();
 }
 
 /*!
@@ -192,11 +192,11 @@ void QRangeControl::setValue( int value )
 void QRangeControl::directSetValue(int value)
 {
     prevVal = val;
-    val = bound( value );
+    val = bound(value);
 }
 
 /*!
-    Equivalent to \c{setValue( value() + pageStep() )}.
+    Equivalent to \c{setValue(value() + pageStep())}.
 
     If the value is changed, then valueChange() is called.
 
@@ -205,11 +205,11 @@ void QRangeControl::directSetValue(int value)
 
 void QRangeControl::addPage()
 {
-    setValue( value() + pageStep() );
+    setValue(value() + pageStep());
 }
 
 /*!
-    Equivalent to \c{setValue( value() - pageStep() )}.
+    Equivalent to \c{setValue(value() - pageStep())}.
 
     If the value is changed, then valueChange() is called.
 
@@ -218,11 +218,11 @@ void QRangeControl::addPage()
 
 void QRangeControl::subtractPage()
 {
-    setValue( value() - pageStep() );
+    setValue(value() - pageStep());
 }
 
 /*!
-    Equivalent to \c{setValue( value() + lineStep() )}.
+    Equivalent to \c{setValue(value() + lineStep())}.
 
     If the value is changed, then valueChange() is called.
 
@@ -231,11 +231,11 @@ void QRangeControl::subtractPage()
 
 void QRangeControl::addLine()
 {
-    setValue( value() + lineStep() );
+    setValue(value() + lineStep());
 }
 
 /*!
-    Equivalent to \c{setValue( value() - lineStep() )}.
+    Equivalent to \c{setValue(value() - lineStep())}.
 
     If the value is changed, then valueChange() is called.
 
@@ -244,7 +244,7 @@ void QRangeControl::addLine()
 
 void QRangeControl::subtractLine()
 {
-    setValue( value() - lineStep() );
+    setValue(value() - lineStep());
 }
 
 
@@ -272,12 +272,12 @@ void QRangeControl::subtractLine()
 
     \sa minValue() setMaxValue()
 */
-void QRangeControl::setMinValue( int minVal )
+void QRangeControl::setMinValue(int minVal)
 {
     int maxVal = maxValue();
-    if ( maxVal < minVal )
-	maxVal = minVal;
-    setRange( minVal, maxVal );
+    if (maxVal < minVal)
+        maxVal = minVal;
+    setRange(minVal, maxVal);
 }
 
 /*!
@@ -288,12 +288,12 @@ void QRangeControl::setMinValue( int minVal )
 
     \sa maxValue() setMinValue()
 */
-void QRangeControl::setMaxValue( int maxVal )
+void QRangeControl::setMaxValue(int maxVal)
 {
     int minVal = minValue();
-    if ( minVal > maxVal )
-	minVal = maxVal;
-    setRange( minVal, maxVal );
+    if (minVal > maxVal)
+        minVal = maxVal;
+    setRange(minVal, maxVal);
 }
 
 /*!
@@ -311,23 +311,23 @@ void QRangeControl::setMaxValue( int maxVal )
     \sa minValue() maxValue()
 */
 
-void QRangeControl::setRange( int minValue, int maxValue )
+void QRangeControl::setRange(int minValue, int maxValue)
 {
-    if ( minValue > maxValue ) {
-	qWarning( "QRangeControl::setRange: minValue %d > maxValue %d",
-		  minValue, maxValue );
-	maxValue = minValue;
+    if (minValue > maxValue) {
+        qWarning("QRangeControl::setRange: minValue %d > maxValue %d",
+                  minValue, maxValue);
+        maxValue = minValue;
     }
-    if ( minValue == minVal && maxValue == maxVal )
-	return;
+    if (minValue == minVal && maxValue == maxVal)
+        return;
     minVal = minValue;
     maxVal = maxValue;
-    int tmp = bound( val );
+    int tmp = bound(val);
     rangeChange();
-    if ( tmp != val ) {
-	prevVal = val;
-	val = tmp;
-	valueChange();
+    if (tmp != val) {
+        prevVal = val;
+        val = tmp;
+        valueChange();
     }
 }
 
@@ -358,12 +358,12 @@ void QRangeControl::setRange( int minValue, int maxValue )
     \sa lineStep() pageStep() setRange()
 */
 
-void QRangeControl::setSteps( int lineStep, int pageStep )
+void QRangeControl::setSteps(int lineStep, int pageStep)
 {
-    if ( lineStep != line || pageStep != page ) {
-	line = QABS( lineStep );
-	page = QABS( pageStep );
-	stepChange();
+    if (lineStep != line || pageStep != page) {
+        line = QABS(lineStep);
+        page = QABS(pageStep);
+        stepChange();
     }
 }
 
@@ -427,12 +427,12 @@ void QRangeControl::stepChange()
     \sa setValue() value() minValue() maxValue()
 */
 
-int QRangeControl::bound( int v ) const
+int QRangeControl::bound(int v) const
 {
-    if ( v < minVal )
-	return minVal;
-    if ( v > maxVal )
-	return maxVal;
+    if (v < minVal)
+        return minVal;
+    if (v > maxVal)
+        return maxVal;
     return v;
 }
 
@@ -451,27 +451,27 @@ int QRangeControl::bound( int v ) const
     \sa valueFromPosition()
 */
 
-int QRangeControl::positionFromValue( int logical_val, int span ) const
+int QRangeControl::positionFromValue(int logical_val, int span) const
 {
-    if ( span <= 0 || logical_val < minValue() || maxValue() <= minValue() )
-	return 0;
-    if ( logical_val > maxValue() )
-	return span;
+    if (span <= 0 || logical_val < minValue() || maxValue() <= minValue())
+        return 0;
+    if (logical_val > maxValue())
+        return span;
 
     uint range = maxValue() - minValue();
     uint p = logical_val - minValue();
 
-    if ( range > (uint)INT_MAX/4096 ) {
-	const int scale = 4096*2;
-	return ( (p/scale) * span ) / (range/scale);
-	// ### the above line is probably not 100% correct
-	// ### but fixing it isn't worth the extreme pain...
-    } else if ( range > (uint)span ) {
-	return (2*p*span + range) / (2*range);
+    if (range > (uint)INT_MAX/4096) {
+        const int scale = 4096*2;
+        return ((p/scale) * span) / (range/scale);
+        // ### the above line is probably not 100% correct
+        // ### but fixing it isn't worth the extreme pain...
+    } else if (range > (uint)span) {
+        return (2*p*span + range) / (2*range);
     } else {
-	uint div = span / range;
-	uint mod = span % range;
-	return p*div + (2*p*mod + range) / (2*range);
+        uint div = span / range;
+        uint mod = span % range;
+        return p*div + (2*p*mod + range) / (2*range);
     }
     //equiv. to (p*span)/range + 0.5
     // no overflow because of this implicit assumption:
@@ -495,21 +495,21 @@ int QRangeControl::positionFromValue( int logical_val, int span ) const
     \sa positionFromValue()
 */
 
-int QRangeControl::valueFromPosition( int pos, int span ) const
+int QRangeControl::valueFromPosition(int pos, int span) const
 {
-    if ( span <= 0 || pos <= 0 )
-	return minValue();
-    if ( pos >= span )
-	return maxValue();
+    if (span <= 0 || pos <= 0)
+        return minValue();
+    if (pos >= span)
+        return maxValue();
 
     uint range = maxValue() - minValue();
 
-    if ( (uint)span > range )
-	return  minValue() + (2*pos*range + span) / (2*span);
+    if ((uint)span > range)
+        return  minValue() + (2*pos*range + span) / (2*span);
     else {
-	uint div = range / span;
-	uint mod = range % span;
-	return  minValue() + pos*div + (2*pos*mod + span) / (2*span);
+        uint div = range / span;
+        uint mod = range % span;
+        return  minValue() + pos*div + (2*pos*mod + span) / (2*span);
     }
     // equiv. to minValue() + (pos*range)/span + 0.5
     // no overflow because of this implicit assumption:

@@ -8,11 +8,11 @@ class WindowsXPStyle : public QStyleFactoryInterface, public QLibraryInterface
 public:
     WindowsXPStyle();
 
-    QRESULT queryInterface( const QUuid&, QUnknownInterface ** );
+    QRESULT queryInterface(const QUuid&, QUnknownInterface **);
     Q_REFCOUNT;
 
     QStringList featureList() const;
-    QStyle *create( const QString& );
+    QStyle *create(const QString&);
 
     bool init();
     void cleanup();
@@ -26,16 +26,16 @@ WindowsXPStyle::WindowsXPStyle()
 {
 }
 
-QRESULT WindowsXPStyle::queryInterface( const QUuid &uuid, QUnknownInterface **iface )
+QRESULT WindowsXPStyle::queryInterface(const QUuid &uuid, QUnknownInterface **iface)
 {
-    if ( uuid == IID_QUnknown )
-	*iface = (QUnknownInterface*)(QStyleFactoryInterface*)this;
-    else if ( uuid == IID_QFeatureList )
-	*iface = (QFeatureListInterface*)this;
-    else if ( uuid == IID_QStyleFactory )
-	*iface = (QStyleFactoryInterface*)this;
-    else if ( uuid == IID_QLibrary )
-	*iface = (QLibraryInterface*)this;
+    if (uuid == IID_QUnknown)
+        *iface = (QUnknownInterface*)(QStyleFactoryInterface*)this;
+    else if (uuid == IID_QFeatureList)
+        *iface = (QFeatureListInterface*)this;
+    else if (uuid == IID_QStyleFactory)
+        *iface = (QStyleFactoryInterface*)this;
+    else if (uuid == IID_QLibrary)
+        *iface = (QLibraryInterface*)this;
     else
         return QE_NOINTERFACE;
 
@@ -51,12 +51,12 @@ QStringList WindowsXPStyle::featureList() const
     return list;
 }
 
-QStyle* WindowsXPStyle::create( const QString& s )
+QStyle* WindowsXPStyle::create(const QString& s)
 {
-    if ( s.lower() == "windowsxp" ) {
-	QStyle *style = new QWindowsXPStyle();
-	styles.add( style );
-	return style;
+    if (s.lower() == "windowsxp") {
+        QStyle *style = new QWindowsXPStyle();
+        styles.add(style);
+        return style;
     }
     return 0;
 }
@@ -78,5 +78,5 @@ bool WindowsXPStyle::canUnload() const
 
 Q_EXPORT_COMPONENT()
 {
-    Q_CREATE_INSTANCE( WindowsXPStyle )
+    Q_CREATE_INSTANCE(WindowsXPStyle)
 }

@@ -50,7 +50,7 @@
 */
 
 /*!
-    \fn QStyle* QStylePlugin::create( const QString& key )
+    \fn QStyle* QStylePlugin::create(const QString& key)
 
     Creates and returns a QStyle object for the style key \a key. The
     style key is usually the class name of the required style.
@@ -61,18 +61,18 @@
 class QStylePluginPrivate : public QStyleFactoryInterface, public QLibraryInterface
 {
 public:
-    QStylePluginPrivate( QStylePlugin *p )
-	: plugin( p )
+    QStylePluginPrivate(QStylePlugin *p)
+        : plugin(p)
     {
     }
 
     virtual ~QStylePluginPrivate();
 
-    QRESULT queryInterface( const QUuid &iid, QUnknownInterface **iface );
+    QRESULT queryInterface(const QUuid &iid, QUnknownInterface **iface);
     Q_REFCOUNT;
 
     QStringList featureList() const;
-    QStyle *create( const QString &key );
+    QStyle *create(const QString &key);
 
     bool init();
     void cleanup();
@@ -83,20 +83,20 @@ private:
     QObjectCleanupHandler styles;
 };
 
-QRESULT QStylePluginPrivate::queryInterface( const QUuid &iid, QUnknownInterface **iface )
+QRESULT QStylePluginPrivate::queryInterface(const QUuid &iid, QUnknownInterface **iface)
 {
     *iface = 0;
 
-    if ( iid == IID_QUnknown )
-	*iface = (QStyleFactoryInterface*)this;
-    else if ( iid == IID_QFeatureList )
-	*iface = (QFeatureListInterface*)this;
-    else if ( iid == IID_QStyleFactory )
-	*iface = (QStyleFactoryInterface*)this;
-    else if ( iid == IID_QLibrary )
-	*iface = (QLibraryInterface*) this;
+    if (iid == IID_QUnknown)
+        *iface = (QStyleFactoryInterface*)this;
+    else if (iid == IID_QFeatureList)
+        *iface = (QFeatureListInterface*)this;
+    else if (iid == IID_QStyleFactory)
+        *iface = (QStyleFactoryInterface*)this;
+    else if (iid == IID_QLibrary)
+        *iface = (QLibraryInterface*) this;
     else
-	return QE_NOINTERFACE;
+        return QE_NOINTERFACE;
 
     (*iface)->addRef();
     return QS_OK;
@@ -112,16 +112,16 @@ QStringList QStylePluginPrivate::featureList() const
     return plugin->keys();
 }
 
-QStyle *QStylePluginPrivate::create( const QString &key )
+QStyle *QStylePluginPrivate::create(const QString &key)
 {
-    QStyle *st = plugin->create( key );
-    styles.add( st );
+    QStyle *st = plugin->create(key);
+    styles.add(st);
     return st;
 }
 
 bool QStylePluginPrivate::init()
 {
-    return TRUE;
+    return true;
 }
 
 void QStylePluginPrivate::cleanup()
@@ -140,7 +140,7 @@ bool QStylePluginPrivate::canUnload() const
     \c Q_EXPORT_PLUGIN macro.
 */
 QStylePlugin::QStylePlugin()
-    : QGPlugin( (QStyleFactoryInterface*)(d = new QStylePluginPrivate( this )) )
+    : QGPlugin((QStyleFactoryInterface*)(d = new QStylePluginPrivate(this)))
 {
 }
 

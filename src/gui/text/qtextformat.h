@@ -50,84 +50,84 @@ class Q_GUI_EXPORT QTextFormat
     friend class QTextFormatCollection;
 public:
     enum FormatType {
-	InvalidFormat = -1,
-	BlockFormat = 1,
-	CharFormat = 2,
-	ListFormat = 3,
-	TableFormat = 4,
+        InvalidFormat = -1,
+        BlockFormat = 1,
+        CharFormat = 2,
+        ListFormat = 3,
+        TableFormat = 4,
 
-	UserFormat = 100
+        UserFormat = 100
     };
 
     enum Property {
-	GroupIndex = 0x0,
+        GroupIndex = 0x0,
 
-	// paragraph
-	BlockDirection = 0x1000,
-	BlockAlignment = 0x1010,
-	BlockTopMargin = 0x1030,
-	BlockBottomMargin = 0x1031,
-	BlockLeftMargin = 0x1032,
-	BlockRightMargin = 0x1033,
-	BlockFirstLineMargin = 0x1034,
-	BlockIndent = 0x1040,
-	BlockNonBreakableLines = 0x1050,
-	BlockBackgroundColor = 0x1060,
+        // paragraph
+        BlockDirection = 0x1000,
+        BlockAlignment = 0x1010,
+        BlockTopMargin = 0x1030,
+        BlockBottomMargin = 0x1031,
+        BlockLeftMargin = 0x1032,
+        BlockRightMargin = 0x1033,
+        BlockFirstLineMargin = 0x1034,
+        BlockIndent = 0x1040,
+        BlockNonBreakableLines = 0x1050,
+        BlockBackgroundColor = 0x1060,
 
-	// character properties
-    	FontFamily = 0x2000,
-	FontPointSize = 0x2001,
-	FontSizeIncrement = 0x2002,
-	FontWeight = 0x2003,
-	FontItalic = 0x2004,
-	FontUnderline = 0x2005,
-	FontOverline = 0x2006,
-	FontStrikeOut = 0x2007,
-	FontFixedPitch = 0x2008,
+        // character properties
+        FontFamily = 0x2000,
+        FontPointSize = 0x2001,
+        FontSizeIncrement = 0x2002,
+        FontWeight = 0x2003,
+        FontItalic = 0x2004,
+        FontUnderline = 0x2005,
+        FontOverline = 0x2006,
+        FontStrikeOut = 0x2007,
+        FontFixedPitch = 0x2008,
 
-	Color = 0x2010,
+        Color = 0x2010,
 
-	IsAnchor = 0x2020,
-	AnchorHref = 0x2021,
-	AnchorName = 0x2022,
+        IsAnchor = 0x2020,
+        AnchorHref = 0x2021,
+        AnchorName = 0x2022,
 
-	NonDeletable = 0x2100,
+        NonDeletable = 0x2100,
 
-	ObjectType = 0x2f00,
+        ObjectType = 0x2f00,
 
-	// list properties
-	ListStyle = 0x3000,
-	ListIndent = 0x3001,
+        // list properties
+        ListStyle = 0x3000,
+        ListIndent = 0x3001,
 
-	// table properties
-	TableBorder = 0x4000,
+        // table properties
+        TableBorder = 0x4000,
 
-	// table cell properties
-	TableCellEndOfRow = 0x4800,
-	TableCellRowSpan = 0x4810,
-	TableCellColSpan = 0x4811,
+        // table cell properties
+        TableCellEndOfRow = 0x4800,
+        TableCellRowSpan = 0x4810,
+        TableCellColSpan = 0x4811,
 
-	// image properties
-	ImageName = 0x5000,
-	ImageWidth = 0x5010,
-	ImageHeight = 0x5011,
+        // image properties
+        ImageName = 0x5000,
+        ImageWidth = 0x5010,
+        ImageHeight = 0x5011,
 
-	// --
-	UserProperty = 0x10000
+        // --
+        UserProperty = 0x10000
     };
 
     enum PropertyType {
-	Undefined,
-	Bool,
-	Integer,
-	Float,
-	String,
-	FormatGroup
+        Undefined,
+        Bool,
+        Integer,
+        Float,
+        String,
+        FormatGroup
     };
 
     enum ObjectTypes {
-	NoObject,
-	ImageObject
+        NoObject,
+        ImageObject
     };
 
     QTextFormat();
@@ -358,14 +358,14 @@ public:
     bool isValid() const { return isListFormat(); }
 
     enum Style {
-	ListDisc = -1,
-	ListCircle = -2,
-	ListSquare = -3,
-	ListDecimal = -4,
-	ListLowerAlpha = -5,
-	ListUpperAlpha = -6
+        ListDisc = -1,
+        ListCircle = -2,
+        ListSquare = -3,
+        ListDecimal = -4,
+        ListLowerAlpha = -5,
+        ListUpperAlpha = -6
 #ifndef Q_QDOC
-	, ListStyleUndefined = 0
+        , ListStyleUndefined = 0
 #endif
     };
 

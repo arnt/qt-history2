@@ -46,8 +46,8 @@ class QSyntaxHighlighterPrivate
 {
 public:
     QSyntaxHighlighterPrivate() :
-	currentParagraph( -1 )
-	{}
+        currentParagraph(-1)
+        {}
 
     int currentParagraph;
 };
@@ -55,34 +55,34 @@ public:
 class QSyntaxHighlighterInternal : public Q3TextPreProcessor
 {
 public:
-    QSyntaxHighlighterInternal( QSyntaxHighlighter *h ) : highlighter( h ) {}
-    void process( Q3TextDocument *doc, Q3TextParagraph *p, int, bool invalidate ) {
-	if ( p->prev() && p->prev()->endState() == -1 )
-	    process( doc, p->prev(), 0, FALSE );
+    QSyntaxHighlighterInternal(QSyntaxHighlighter *h) : highlighter(h) {}
+    void process(Q3TextDocument *doc, Q3TextParagraph *p, int, bool invalidate) {
+        if (p->prev() && p->prev()->endState() == -1)
+            process(doc, p->prev(), 0, false);
 
-	highlighter->para = p;
-	QString text = p->string()->toString();
-	int endState = p->prev() ? p->prev()->endState() : -2;
-	int oldEndState = p->endState();
-	highlighter->d->currentParagraph = p->paragId();
-	p->setEndState( highlighter->highlightParagraph( text, endState ) );
-	highlighter->d->currentParagraph = -1;
-	highlighter->para = 0;
+        highlighter->para = p;
+        QString text = p->string()->toString();
+        int endState = p->prev() ? p->prev()->endState() : -2;
+        int oldEndState = p->endState();
+        highlighter->d->currentParagraph = p->paragId();
+        p->setEndState(highlighter->highlightParagraph(text, endState));
+        highlighter->d->currentParagraph = -1;
+        highlighter->para = 0;
 
-	p->setFirstPreProcess( FALSE );
-	Q3TextParagraph *op = p;
-	p = p->next();
-	if ( (!!oldEndState || !!op->endState()) && oldEndState != op->endState() &&
-	     invalidate && p && !p->firstPreProcess() && p->endState() != -1 ) {
-	    while ( p ) {
-		if ( p->endState() == -1 )
-		    return;
-		p->setEndState( -1 );
-		p = p->next();
-	    }
-	}
+        p->setFirstPreProcess(false);
+        Q3TextParagraph *op = p;
+        p = p->next();
+        if ((!!oldEndState || !!op->endState()) && oldEndState != op->endState() &&
+             invalidate && p && !p->firstPreProcess() && p->endState() != -1) {
+            while (p) {
+                if (p->endState() == -1)
+                    return;
+                p->setEndState(-1);
+                p = p->next();
+            }
+        }
     }
-    Q3TextFormat *format( int ) { return 0; }
+    Q3TextFormat *format(int) { return 0; }
 
 private:
     QSyntaxHighlighter *highlighter;

@@ -34,66 +34,66 @@ public:
     QWindowsXPStyle();
     ~QWindowsXPStyle();
 
-    void unPolish( QApplication* );
-    void polish( QApplication* );
-    void polish( QWidget* );
-    void unPolish( QWidget* );
+    void unPolish(QApplication*);
+    void polish(QApplication*);
+    void polish(QWidget*);
+    void unPolish(QWidget*);
 
-    void drawPrimitive( PrimitiveElement op,
-			QPainter *p,
-			const QRect &r,
-			const QPalette &pal,
-			SFlags flags = Style_Default,
-			const QStyleOption& = QStyleOption::Default ) const;
+    void drawPrimitive(PrimitiveElement op,
+                        QPainter *p,
+                        const QRect &r,
+                        const QPalette &pal,
+                        SFlags flags = Style_Default,
+                        const QStyleOption& = QStyleOption::Default) const;
 
-    void drawControl( ControlElement element,
-		      QPainter *p,
-		      const QWidget *widget,
-		      const QRect &r,
-		      const QPalette &pal,
-		      SFlags how = Style_Default,
-		      const QStyleOption& = QStyleOption::Default ) const;
+    void drawControl(ControlElement element,
+                      QPainter *p,
+                      const QWidget *widget,
+                      const QRect &r,
+                      const QPalette &pal,
+                      SFlags how = Style_Default,
+                      const QStyleOption& = QStyleOption::Default) const;
 
-    void drawControlMask( ControlElement element,
-			  QPainter *p,
-			  const QWidget *widget,
-			  const QRect &r,
-			  const QStyleOption& = QStyleOption::Default ) const;
+    void drawControlMask(ControlElement element,
+                          QPainter *p,
+                          const QWidget *widget,
+                          const QRect &r,
+                          const QStyleOption& = QStyleOption::Default) const;
 
-    void drawComplexControl( ComplexControl control,
-			     QPainter* p,
-			     const QWidget* w,
-			     const QRect& r,
-			     const QPalette &pal,
-			     SFlags flags = Style_Default,
-			     SCFlags sub = SC_All,
-			     SCFlags subActive = SC_None,
-			     const QStyleOption& = QStyleOption::Default ) const;
+    void drawComplexControl(ComplexControl control,
+                             QPainter* p,
+                             const QWidget* w,
+                             const QRect& r,
+                             const QPalette &pal,
+                             SFlags flags = Style_Default,
+                             SCFlags sub = SC_All,
+                             SCFlags subActive = SC_None,
+                             const QStyleOption& = QStyleOption::Default) const;
 
 
-    int pixelMetric( PixelMetric metic,
-		     const QWidget *widget = 0 ) const;
+    int pixelMetric(PixelMetric metic,
+                     const QWidget *widget = 0) const;
 
-    QRect querySubControlMetrics( ComplexControl control,
-				  const QWidget *widget,
-				  SubControl sc,
-				  const QStyleOption& = QStyleOption::Default ) const;
+    QRect querySubControlMetrics(ComplexControl control,
+                                  const QWidget *widget,
+                                  SubControl sc,
+                                  const QStyleOption& = QStyleOption::Default) const;
 
-    QSize sizeFromContents( ContentsType contents,
-				    const QWidget *widget,
-				    const QSize &contentsSize,
-				    const QStyleOption& = QStyleOption::Default ) const;
+    QSize sizeFromContents(ContentsType contents,
+                                    const QWidget *widget,
+                                    const QSize &contentsSize,
+                                    const QStyleOption& = QStyleOption::Default) const;
 
-    int styleHint( StyleHint stylehint,
-			   const QWidget *widget = 0,
-			   const QStyleOption& = QStyleOption::Default,
-			   QStyleHintReturn* returnData = 0
-			   ) const;
+    int styleHint(StyleHint stylehint,
+                           const QWidget *widget = 0,
+                           const QStyleOption& = QStyleOption::Default,
+                           QStyleHintReturn* returnData = 0
+                          ) const;
 
 protected:
-    bool eventFilter( QObject *o, QEvent *e );
+    bool eventFilter(QObject *o, QEvent *e);
 
-    void updateRegion( QWidget *widget );
+    void updateRegion(QWidget *widget);
 
 protected slots:
     void activeTabChanged();
@@ -106,8 +106,8 @@ private:
     static bool resolveSymbols();
 
 #if defined(Q_DISABLE_COPY)
-    QWindowsXPStyle( const QWindowsXPStyle & );
-    QWindowsXPStyle& operator=( const QWindowsXPStyle & );
+    QWindowsXPStyle(const QWindowsXPStyle &);
+    QWindowsXPStyle& operator=(const QWindowsXPStyle &);
 #endif
 };
 

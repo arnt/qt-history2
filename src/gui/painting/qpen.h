@@ -32,12 +32,12 @@ public:
     QPen &operator=(const QPen &pen);
 
     inline PenStyle style() const { return d->style; }
-    void setStyle( PenStyle );
+    void setStyle(PenStyle);
     inline int width() const { return d->width; }
     void setWidth(int width);
     inline QColor color() const { return d->color; }
     void setColor(const QColor &color);
-    PenCapStyle	capStyle() const;
+    PenCapStyle        capStyle() const;
     void setCapStyle(PenCapStyle pcs);
     PenJoinStyle joinStyle() const;
     void setJoinStyle(PenJoinStyle pcs);
@@ -51,11 +51,11 @@ private:
     void detach_helper();
     void init(const QColor &c, int width, uint linestyle);
     struct QPenData {
-	QAtomic ref;
-	PenStyle style;
-	int width;
-	QColor color;
-	Q_UINT16 linest;
+        QAtomic ref;
+        PenStyle style;
+        int width;
+        QColor color;
+        Q_UINT16 linest;
     };
     struct QPenData *d;
 };
@@ -65,8 +65,8 @@ private:
   QPen stream functions
  *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
-Q_GUI_EXPORT QDataStream &operator<<( QDataStream &, const QPen & );
-Q_GUI_EXPORT QDataStream &operator>>( QDataStream &, QPen & );
+Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QPen &);
+Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QPen &);
 #endif
 
 #endif // QPEN_H

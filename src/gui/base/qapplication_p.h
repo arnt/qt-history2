@@ -46,8 +46,8 @@ class QMouseEvent;
 class QWheelEvent;
 
 extern Q_GUI_EXPORT bool qt_modal_state();
-extern Q_GUI_EXPORT void qt_enter_modal( QWidget* );
-extern Q_GUI_EXPORT void qt_leave_modal( QWidget* );
+extern Q_GUI_EXPORT void qt_enter_modal(QWidget*);
+extern Q_GUI_EXPORT void qt_leave_modal(QWidget*);
 
 extern bool qt_is_gui_used;
 #ifndef QT_NO_CLIPBOARD
@@ -69,8 +69,8 @@ extern int qt_ncols_option;
 #endif
 
 
-extern void qt_dispatchEnterLeave( QWidget*, QWidget* );
-extern bool qt_tryModalHelper( QWidget *, QWidget ** = 0 );
+extern void qt_dispatchEnterLeave(QWidget*, QWidget*);
+extern bool qt_tryModalHelper(QWidget *, QWidget ** = 0);
 
 
 class QApplicationPrivate : public QCoreApplicationPrivate

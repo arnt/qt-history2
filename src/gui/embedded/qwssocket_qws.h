@@ -26,15 +26,15 @@ class QWSSocket : public QSocket
 {
     Q_OBJECT
 public:
-    QWSSocket( QObject *parent=0, const char *name=0 );
+    QWSSocket(QObject *parent=0, const char *name=0);
    ~QWSSocket();
-	        
-    virtual void connectToLocalFile( const QString &file );
+
+    virtual void connectToLocalFile(const QString &file);
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QWSSocket( const QWSSocket & );
-    QWSSocket &operator=( const QWSSocket & );
+    QWSSocket(const QWSSocket &);
+    QWSSocket &operator=(const QWSSocket &);
 #endif
 };
 
@@ -43,14 +43,14 @@ class QWSServerSocket : public QServerSocket
 {
     Q_OBJECT
 public:
-    QWSServerSocket( const QString& file, int backlog = 0,
-		     QObject *parent=0, const char *name=0 );
+    QWSServerSocket(const QString& file, int backlog = 0,
+                     QObject *parent=0, const char *name=0);
    ~QWSServerSocket();
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QWSServerSocket( const QWSServerSocket & );
-    QWSServerSocket &operator=( const QWSServerSocket & );
+    QWSServerSocket(const QWSServerSocket &);
+    QWSServerSocket &operator=(const QWSServerSocket &);
 #endif
 };
 

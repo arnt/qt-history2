@@ -46,7 +46,7 @@ public:
     void play(const QString& filename);
     void play(QSound *s);
     void stop(QSound*);
-    bool okay() { return TRUE; }
+    bool okay() { return true; }
 
 private:
     QPixmap *offscreen;
@@ -62,61 +62,61 @@ private:
     static QTCallBackUPP movieCallbackProc;
     static QList<QAuServerMacCleanupHandler*> cleanups;
     static void movieEnd(QTCallBack, long data) {
-	QAuServerMacCleanupHandler *iteration = (QAuServerMacCleanupHandler*)data;
-	if((--iteration->loops) <= 0) {
-	    delete iteration;
-	    return;
-	}
-	if(iteration->qsound)
-	    iteration->qsound_server->decLoop(iteration->qsound);
-	GoToBeginningOfMovie(iteration->movie);
-	CallMeWhen(iteration->callback, movieCallbackProc, (long)iteration, triggerAtStop, 0, 0);
-	StartMovie(iteration->movie); //play it again Sam..
+        QAuServerMacCleanupHandler *iteration = (QAuServerMacCleanupHandler*)data;
+        if((--iteration->loops) <= 0) {
+            delete iteration;
+            return;
+        }
+        if(iteration->qsound)
+            iteration->qsound_server->decLoop(iteration->qsound);
+        GoToBeginningOfMovie(iteration->movie);
+        CallMeWhen(iteration->callback, movieCallbackProc, (long)iteration, triggerAtStop, 0, 0);
+        StartMovie(iteration->movie); //play it again Sam..
     }
     void init(int l, Movie m) {
-	movie = m;
-	loops = l;
-	callback = NewCallBack(GetMovieTimeBase(movie), callBackAtExtremes|callBackAtInterrupt);
-	if(!movieCallbackProc)
-	    movieCallbackProc = NewQTCallBackUPP(movieEnd);
-	CallMeWhen(callback, movieCallbackProc, (long)this, triggerAtStop, 0, 0);
-	cleanups.append(this);
+        movie = m;
+        loops = l;
+        callback = NewCallBack(GetMovieTimeBase(movie), callBackAtExtremes|callBackAtInterrupt);
+        if(!movieCallbackProc)
+            movieCallbackProc = NewQTCallBackUPP(movieEnd);
+        CallMeWhen(callback, movieCallbackProc, (long)this, triggerAtStop, 0, 0);
+        cleanups.append(this);
     }
 
 public:
-    QAuServerMacCleanupHandler(QAuServerMac *ss, QSound *s, Movie m) : 
-	qsound_server(ss), qsound(s) { init(s->loopsRemaining(), m); }
+    QAuServerMacCleanupHandler(QAuServerMac *ss, QSound *s, Movie m) :
+        qsound_server(ss), qsound(s) { init(s->loopsRemaining(), m); }
     QAuServerMacCleanupHandler(int l, Movie m) : qsound_server(0), qsound(0) { init(l, m); }
     ~QAuServerMacCleanupHandler() {
-	cleanups.remove(this);
+        cleanups.remove(this);
 #if 0
-	if(callback) {
-	    CancelCallBack(callback);
-	    DisposeCallBack(callback);
-	}
-	if(movie) {
-	    StopMovie(movie);
-	    DisposeMovie(movie);
-	}
+        if(callback) {
+            CancelCallBack(callback);
+            DisposeCallBack(callback);
+        }
+        if(movie) {
+            StopMovie(movie);
+            DisposeMovie(movie);
+        }
 #endif
     }
     static void cleanup() {
-	while(cleanups.size()) 
-	    delete cleanups.first();
-	if(movieCallbackProc) {
-	    DisposeQTCallBackUPP(movieCallbackProc);
-	    movieCallbackProc = 0;
-	}
+        while(cleanups.size())
+            delete cleanups.first();
+        if(movieCallbackProc) {
+            DisposeQTCallBackUPP(movieCallbackProc);
+            movieCallbackProc = 0;
+        }
     }
     static void stop(QSound *s) {
-	if(!s)
-	    return;
-	for(QList<QAuServerMacCleanupHandler*>::Iterator it = cleanups.begin(); it != cleanups.end(); ++it) {
-	    if((*it)->qsound == s) {
-		delete (*it); //the destructor removes it..
-		break;
-	    }
-	}
+        if(!s)
+            return;
+        for(QList<QAuServerMacCleanupHandler*>::Iterator it = cleanups.begin(); it != cleanups.end(); ++it) {
+            if((*it)->qsound == s) {
+                delete (*it); //the destructor removes it..
+                break;
+            }
+        }
     }
 
 };
@@ -126,32 +126,32 @@ QList<QAuServerMacCleanupHandler*> QAuServerMacCleanupHandler::cleanups;
 static int servers = 0;
 QAuServerMac::QAuServerMac(QObject* parent) : QAuServer(parent,"Mac Audio Server")
 {
-    if(!servers++) 
-	EnterMovies();
+    if(!servers++)
+        EnterMovies();
     offscreen = new QPixmap(1, 1); //what should the size be? FIXME
 }
 
 QAuServerMac::~QAuServerMac()
 {
     if(!(--servers)) {
-	QAuServerMacCleanupHandler::cleanup();
-	ExitMovies();
+        QAuServerMacCleanupHandler::cleanup();
+        ExitMovies();
     }
 }
 
-static Movie get_movie(const QString &filename, QPixmap *offscreen) 
+static Movie get_movie(const QString &filename, QPixmap *offscreen)
 {
     FSSpec fileSpec;
     if(qt_mac_create_fsspec(filename, &fileSpec) != noErr) {
-	qDebug("Qt: internal: bogus %d", __LINE__);
-	return NULL;
+        qDebug("Qt: internal: bogus %d", __LINE__);
+        return NULL;
     }
     Movie aMovie = nil;
     short movieResFile;
     if(OpenMovieFile(&fileSpec, &movieResFile, fsCurPerm) != noErr)
-	return NULL;
+        return NULL;
     if(NewMovieFromFile(&aMovie, movieResFile, 0, 0, newMovieActive, 0) != noErr)
-	return NULL;
+        return NULL;
     SetMovieGWorld(aMovie, (GWorldPtr)offscreen->handle(), 0); //just a temporary offscreen
     CloseMovieFile(movieResFile);
     return aMovie;

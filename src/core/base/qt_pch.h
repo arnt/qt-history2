@@ -9,9 +9,9 @@
 #if (defined(_WIN32) || defined(__NT__))
 #  define QT_UNDEF_MACROS_IN_PCH
 #  define _WINSCARD_H_
-#  define _POSIX_ 	/* Make sure PATH_MAX et al. are defined    */
+#  define _POSIX_         /* Make sure PATH_MAX et al. are defined    */
 #  include <limits.h>
-#  undef _POSIX_  	/* Don't polute                             */
+#  undef _POSIX_          /* Don't polute                             */
 
    /* Make sure IP v6 is defined first of all, before windows.h     */
 #  ifndef QT_NO_IPV6

@@ -124,7 +124,7 @@
 /* undocumented now
   \obsolete
 
-  \fn void QTabWidget::selected( const QString &tabLabel );
+  \fn void QTabWidget::selected(const QString &tabLabel);
 
   This signal is emitted whenever a tab is selected (raised),
   including during the first show().
@@ -134,7 +134,7 @@
 
 
 /*!
-    \fn void QTabWidget::currentChanged( QWidget* );
+    \fn void QTabWidget::currentChanged(QWidget*);
 
     This signal is emitted whenever the current page changes. The
     parameter is the new current page.
@@ -145,26 +145,26 @@
 class QTabBarBase : public QWidget
 {
 public:
-    QTabBarBase( QTabWidget* parent=0, const char* name=0 )
-        : QWidget( parent, name ) {};
+    QTabBarBase(QTabWidget* parent=0, const char* name=0)
+        : QWidget(parent, name) {};
 protected:
-    void paintEvent( QPaintEvent * )
+    void paintEvent(QPaintEvent *)
     {
         QObject * obj = parent();
-        if( obj ){
+        if(obj){
             QTabWidget * t = (QTabWidget *) obj;
-            QPainter p( this );
-	    QStyle::SFlags flags = QStyle::Style_Default;
+            QPainter p(this);
+            QStyle::SFlags flags = QStyle::Style_Default;
 
-	    if ( t->tabPosition() == QTabWidget::Top )
-		flags |= QStyle::Style_Top;
-	    if ( t->tabPosition() == QTabWidget::Bottom )
-		flags |= QStyle::Style_Bottom;
-	    if(parentWidget()->isEnabled())
-		flags |= QStyle::Style_Enabled;
+            if (t->tabPosition() == QTabWidget::Top)
+                flags |= QStyle::Style_Top;
+            if (t->tabPosition() == QTabWidget::Bottom)
+                flags |= QStyle::Style_Bottom;
+            if(parentWidget()->isEnabled())
+                flags |= QStyle::Style_Enabled;
 
-	    style().drawPrimitive( QStyle::PE_TabBarBase, &p, rect(),
-				   palette(), flags );
+            style().drawPrimitive(QStyle::PE_TabBarBase, &p, rect(),
+                                   palette(), flags);
         }
     }
 };
@@ -173,9 +173,9 @@ class QTabWidgetData
 {
 public:
     QTabWidgetData()
-        : tabs(0), tabBase(0), stack(0), dirty( TRUE ),
-          pos( QTabWidget::Top ), shape( QTabWidget::Rounded ),
-	  leftCornerWidget(0), rightCornerWidget(0) {};
+        : tabs(0), tabBase(0), stack(0), dirty(true),
+          pos(QTabWidget::Top), shape(QTabWidget::Rounded),
+          leftCornerWidget(0), rightCornerWidget(0) {};
     ~QTabWidgetData(){};
     QTabBar* tabs;
     QTabBarBase* tabBase;
@@ -192,26 +192,26 @@ public:
     Constructs a tabbed widget called \a name with parent \a parent,
     and widget flags \a f.
 */
-QTabWidget::QTabWidget( QWidget *parent, const char *name, WFlags f )
-    : QWidget( parent, name, f )
+QTabWidget::QTabWidget(QWidget *parent, const char *name, WFlags f)
+    : QWidget(parent, name, f)
 {
     d = new QTabWidgetData;
-    d->stack = new QWidgetStack( this, "tab pages" );
-    d->stack->installEventFilter( this );
-    d->tabBase = new QTabBarBase( this, "tab base" );
-    d->tabBase->resize( 1, 1 );
-    setTabBar( new QTabBar( this, "tab control" ) );
+    d->stack = new QWidgetStack(this, "tab pages");
+    d->stack->installEventFilter(this);
+    d->tabBase = new QTabBarBase(this, "tab base");
+    d->tabBase->resize(1, 1);
+    setTabBar(new QTabBar(this, "tab control"));
 
-    d->stack->setFrameStyle( QFrame::TabWidgetPanel | QFrame::Raised );
+    d->stack->setFrameStyle(QFrame::TabWidgetPanel | QFrame::Raised);
 #ifdef Q_OS_TEMP
     d->pos = Bottom;
 #endif
 
-    setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding ) );
-    setFocusPolicy( TabFocus );
-    setFocusProxy( d->tabs );
+    setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
+    setFocusPolicy(TabFocus);
+    setFocusProxy(d->tabs);
 
-    installEventFilter( this );
+    installEventFilter(this);
 }
 
 /*!
@@ -242,9 +242,9 @@ QTabWidget::~QTabWidget()
 
     \sa insertTab()
 */
-void QTabWidget::addTab( QWidget *child, const QString &label)
+void QTabWidget::addTab(QWidget *child, const QString &label)
 {
-    insertTab( child, label );
+    insertTab(child, label);
 }
 
 
@@ -256,9 +256,9 @@ void QTabWidget::addTab( QWidget *child, const QString &label)
     This function is the same as addTab(), but with an additional \a
     iconset.
 */
-void QTabWidget::addTab( QWidget *child, const QIconSet& iconset, const QString &label )
+void QTabWidget::addTab(QWidget *child, const QIconSet& iconset, const QString &label)
 {
-    insertTab( child, iconset, label );
+    insertTab(child, iconset, label);
 }
 
 /*!
@@ -269,9 +269,9 @@ void QTabWidget::addTab( QWidget *child, const QIconSet& iconset, const QString 
     QTabBar::paint() function for a subclass of QTab. The \a child is
     the new page and \a tab is the tab to put the \a child on.
 */
-void QTabWidget::addTab( QWidget *child, QTab* tab )
+void QTabWidget::addTab(QWidget *child, QTab* tab)
 {
-    insertTab( child, tab );
+    insertTab(child, tab);
 }
 
 
@@ -299,11 +299,11 @@ void QTabWidget::addTab( QWidget *child, QTab* tab )
 
     \sa addTab()
 */
-void QTabWidget::insertTab( QWidget *child, const QString &label, int index)
+void QTabWidget::insertTab(QWidget *child, const QString &label, int index)
 {
     QTab * t = new QTab();
     t->label = label;
-    insertTab( child, t, index );
+    insertTab(child, t, index);
 }
 
 
@@ -315,12 +315,12 @@ void QTabWidget::insertTab( QWidget *child, const QString &label, int index)
     This function is the same as insertTab(), but with an additional
     \a iconset.
 */
-void QTabWidget::insertTab( QWidget *child, const QIconSet& iconset, const QString &label, int index )
+void QTabWidget::insertTab(QWidget *child, const QIconSet& iconset, const QString &label, int index)
 {
     QTab * t = new QTab();
     t->label = label;
-    t->iconset = new QIconSet( iconset );
-    insertTab( child, t, index );
+    t->iconset = new QIconSet(iconset);
+    insertTab(child, t, index);
 }
 
 /*!
@@ -333,13 +333,13 @@ void QTabWidget::insertTab( QWidget *child, const QIconSet& iconset, const QStri
     the new page, \a tab is the tab to put the \a child on and \a
     index is the position in the tab bar that this page should occupy.
 */
-void QTabWidget::insertTab( QWidget *child, QTab* tab, int index)
+void QTabWidget::insertTab(QWidget *child, QTab* tab, int index)
 {
-    tab->enabled = TRUE;
-    int id = d->tabs->insertTab( tab, index );
-    d->stack->addWidget( child, id );
-    if ( d->stack->frameStyle() != ( QFrame::TabWidgetPanel | QFrame::Raised ) )
-        d->stack->setFrameStyle( QFrame::TabWidgetPanel | QFrame::Raised );
+    tab->enabled = true;
+    int id = d->tabs->insertTab(tab, index);
+    d->stack->addWidget(child, id);
+    if (d->stack->frameStyle() != (QFrame::TabWidgetPanel | QFrame::Raised))
+        d->stack->setFrameStyle(QFrame::TabWidgetPanel | QFrame::Raised);
     setUpLayout();
 }
 
@@ -347,16 +347,16 @@ void QTabWidget::insertTab( QWidget *child, QTab* tab, int index)
 /*!
     Defines a new \a label for page \a{w}'s tab.
 */
-void QTabWidget::changeTab( QWidget *w, const QString &label)
+void QTabWidget::changeTab(QWidget *w, const QString &label)
 {
-    int id = d->stack->id( w );
-    if ( id < 0 )
+    int id = d->stack->id(w);
+    if (id < 0)
         return;
-    QTab* t = d->tabs->tab( id );
-    if ( !t )
+    QTab* t = d->tabs->tab(id);
+    if (!t)
         return;
     // this will update the accelerators
-    t->setText( label );
+    t->setText(label);
 
     d->tabs->layoutTabs();
     d->tabs->update();
@@ -368,21 +368,21 @@ void QTabWidget::changeTab( QWidget *w, const QString &label)
 
     Defines a new \a iconset and a new \a label for page \a{w}'s tab.
 */
-void QTabWidget::changeTab( QWidget *w, const QIconSet& iconset, const QString &label)
+void QTabWidget::changeTab(QWidget *w, const QIconSet& iconset, const QString &label)
 {
-    int id = d->stack->id( w );
-    if ( id < 0 )
+    int id = d->stack->id(w);
+    if (id < 0)
         return;
-    QTab* t = d->tabs->tab( id );
-    if ( !t )
+    QTab* t = d->tabs->tab(id);
+    if (!t)
         return;
-    if ( t->iconset ) {
+    if (t->iconset) {
         delete t->iconset;
         t->iconset = 0;
     }
     // this will update the accelerators
-    t->iconset = new QIconSet( iconset );
-    t->setText( label );
+    t->iconset = new QIconSet(iconset);
+    t->setText(label);
 
     d->tabs->layoutTabs();
     d->tabs->update();
@@ -390,22 +390,22 @@ void QTabWidget::changeTab( QWidget *w, const QIconSet& iconset, const QString &
 }
 
 /*!
-    Returns TRUE if the page \a w is enabled; otherwise returns FALSE.
+    Returns true if the page \a w is enabled; otherwise returns false.
 
     \sa setTabEnabled(), QWidget::isEnabled()
 */
 
-bool QTabWidget::isTabEnabled( QWidget* w ) const
+bool QTabWidget::isTabEnabled(QWidget* w) const
 {
-    int id = d->stack->id( w );
-    if ( id >= 0 )
+    int id = d->stack->id(w);
+    if (id >= 0)
         return w->isEnabled();
     else
-        return FALSE;
+        return false;
 }
 
 /*!
-    If \a enable is TRUE, page \a w is enabled; otherwise page \a w is
+    If \a enable is true, page \a w is enabled; otherwise page \a w is
     disabled. The page's tab is redrawn appropriately.
 
     QTabWidget uses QWidget::setEnabled() internally, rather than
@@ -418,12 +418,12 @@ bool QTabWidget::isTabEnabled( QWidget* w ) const
     \sa isTabEnabled(), QWidget::setEnabled()
 */
 
-void QTabWidget::setTabEnabled( QWidget* w, bool enable)
+void QTabWidget::setTabEnabled(QWidget* w, bool enable)
 {
-    int id = d->stack->id( w );
-    if ( id >= 0 ) {
-        w->setEnabled( enable );
-        d->tabs->setTabEnabled( id, enable );
+    int id = d->stack->id(w);
+    if (id >= 0) {
+        w->setEnabled(enable);
+        d->tabs->setTabEnabled(id, enable);
     }
 }
 
@@ -435,23 +435,23 @@ void QTabWidget::setTabEnabled( QWidget* w, bool enable)
 
   \sa cornerWidget(), setTabPosition()
 */
-void QTabWidget::setCornerWidget( QWidget * w, Qt::Corner corner )
+void QTabWidget::setCornerWidget(QWidget * w, Qt::Corner corner)
 {
-    if ( !w )
-	return;
-    if ( (uint)corner & 1 )
-	d->rightCornerWidget = w;
+    if (!w)
+        return;
+    if ((uint)corner & 1)
+        d->rightCornerWidget = w;
     else
-	d->leftCornerWidget = w;
+        d->leftCornerWidget = w;
 }
 
 /*!
     Returns the widget shown in the \a corner of the tab widget or 0.
 */
-QWidget * QTabWidget::cornerWidget( Qt::Corner corner ) const
+QWidget * QTabWidget::cornerWidget(Qt::Corner corner) const
 {
-    if ( (uint)corner & 1 )
-	return d->rightCornerWidget;
+    if ((uint)corner & 1)
+        return d->rightCornerWidget;
     return d->leftCornerWidget;
 }
 
@@ -464,15 +464,15 @@ QWidget * QTabWidget::cornerWidget( Qt::Corner corner ) const
 
     \sa QTabBar::setCurrentTab()
 */
-void QTabWidget::showPage( QWidget * w)
+void QTabWidget::showPage(QWidget * w)
 {
-    int id = d->stack->id( w );
-    if ( id >= 0 ) {
-        d->stack->raiseWidget( w );
-        d->tabs->setCurrentTab( id );
+    int id = d->stack->id(w);
+    if (id >= 0) {
+        d->stack->raiseWidget(w);
+        d->tabs->setCurrentTab(id);
         // ### why overwrite the frame style?
-        if ( d->stack->frameStyle() != ( QFrame::TabWidgetPanel |QFrame::Raised ) )
-            d->stack->setFrameStyle( QFrame::TabWidgetPanel | QFrame::Raised );
+        if (d->stack->frameStyle() != (QFrame::TabWidgetPanel |QFrame::Raised))
+            d->stack->setFrameStyle(QFrame::TabWidgetPanel | QFrame::Raised);
     }
 }
 
@@ -482,25 +482,25 @@ void QTabWidget::showPage( QWidget * w)
 
     \sa addTab(), showPage(), QWidgetStack::removeWidget()
 */
-void QTabWidget::removePage( QWidget * w )
+void QTabWidget::removePage(QWidget * w)
 {
-    int id = d->stack->id( w );
-    if ( id >= 0 ) {
-	int oldId = d->stack->id(currentPage());
-	bool fixCurrentTab = oldId == id;
-	//switches to the next enabled tab
-	d->tabs->setTabEnabled( id, FALSE );
-	//if no next enabled page we fix the current page
-	fixCurrentTab = fixCurrentTab && oldId == d->stack->id(currentPage());
+    int id = d->stack->id(w);
+    if (id >= 0) {
+        int oldId = d->stack->id(currentPage());
+        bool fixCurrentTab = oldId == id;
+        //switches to the next enabled tab
+        d->tabs->setTabEnabled(id, false);
+        //if no next enabled page we fix the current page
+        fixCurrentTab = fixCurrentTab && oldId == d->stack->id(currentPage());
 
-	d->stack->removeWidget( w );
-	d->tabs->removeTab( d->tabs->tab(id) );
-	if ( fixCurrentTab )
-	    showTab( d->tabs->currentTab() );
-	setUpLayout();
+        d->stack->removeWidget(w);
+        d->tabs->removeTab(d->tabs->tab(id));
+        if (fixCurrentTab)
+            showTab(d->tabs->currentTab());
+        setUpLayout();
 
-	if ( d->tabs->count() == 0 )
-	    d->stack->setFrameStyle( QFrame::NoFrame );
+        if (d->tabs->count() == 0)
+            d->stack->setFrameStyle(QFrame::NoFrame);
     }
 }
 
@@ -508,9 +508,9 @@ void QTabWidget::removePage( QWidget * w )
     Returns the label text for the tab on page \a w.
 */
 
-QString QTabWidget::tabLabel( QWidget * w ) const
+QString QTabWidget::tabLabel(QWidget * w) const
 {
-    QTab * t = d->tabs->tab( d->stack->id( w ) );
+    QTab * t = d->tabs->tab(d->stack->id(w));
     return t ? t->label : QString();
 }
 
@@ -518,10 +518,10 @@ QString QTabWidget::tabLabel( QWidget * w ) const
     Sets the tab label for page \a w to \a l
 */
 
-void QTabWidget::setTabLabel( QWidget * w, const QString &l )
+void QTabWidget::setTabLabel(QWidget * w, const QString &l)
 {
-    QTab * t = d->tabs->tab( d->stack->id( w ) );
-    if ( t )
+    QTab * t = d->tabs->tab(d->stack->id(w));
+    if (t)
         t->label = l;
     d->tabs->layoutTabs();
     d->tabs->update();
@@ -536,7 +536,7 @@ void QTabWidget::setTabLabel( QWidget * w, const QString &l )
 
 QWidget * QTabWidget::currentPage() const
 {
-    return page( currentPageIndex() );
+    return page(currentPageIndex());
 }
 
 /*!
@@ -555,13 +555,13 @@ QWidget * QTabWidget::currentPage() const
 
 int QTabWidget::currentPageIndex() const
 {
-    return d->tabs->indexOf( d->tabs->currentTab() );
+    return d->tabs->indexOf(d->tabs->currentTab());
 }
 
-void QTabWidget::setCurrentPage( int index )
+void QTabWidget::setCurrentPage(int index)
 {
-    d->tabs->setCurrentTab( d->tabs->tabAt( index ) );
-    showTab( d->tabs->currentTab() );
+    d->tabs->setCurrentTab(d->tabs->tabAt(index));
+    showTab(d->tabs->currentTab());
 }
 
 
@@ -569,18 +569,18 @@ void QTabWidget::setCurrentPage( int index )
     Returns the index position of page \a w, or -1 if the widget
     cannot be found.
 */
-int QTabWidget::indexOf( QWidget* w ) const
+int QTabWidget::indexOf(QWidget* w) const
 {
-    return d->tabs->indexOf( d->stack->id( w ) );
+    return d->tabs->indexOf(d->stack->id(w));
 }
 
 
 /*!
     \reimp
 */
-void QTabWidget::resizeEvent( QResizeEvent *e )
+void QTabWidget::resizeEvent(QResizeEvent *e)
 {
-    QWidget::resizeEvent( e );
+    QWidget::resizeEvent(e);
     setUpLayout();
 }
 
@@ -591,17 +591,17 @@ void QTabWidget::resizeEvent( QResizeEvent *e )
 
     \sa tabBar()
 */
-void QTabWidget::setTabBar( QTabBar* tb)
+void QTabWidget::setTabBar(QTabBar* tb)
 {
-    if ( tb->parentWidget() != this ) {
-	tb->setParent(this);
-	tb->show();
+    if (tb->parentWidget() != this) {
+        tb->setParent(this);
+        tb->show();
     }
     delete d->tabs;
     d->tabs = tb;
-    setFocusProxy( d->tabs );
-    connect( d->tabs, SIGNAL(selected(int)),
-             this,    SLOT(showTab(int)) );
+    setFocusProxy(d->tabs);
+    connect(d->tabs, SIGNAL(selected(int)),
+             this,    SLOT(showTab(int)));
     setUpLayout();
 }
 
@@ -621,108 +621,108 @@ QTabBar* QTabWidget::tabBar() const
     sized.
 */
 
-void QTabWidget::showTab( int i )
+void QTabWidget::showTab(int i)
 {
-    if ( d->stack->widget( i ) ) {
-	d->stack->raiseWidget( i );
-	emit selected( d->tabs->tab( i )->label );
-	emit currentChanged( d->stack->widget( i ) );
+    if (d->stack->widget(i)) {
+        d->stack->raiseWidget(i);
+        emit selected(d->tabs->tab(i)->label);
+        emit currentChanged(d->stack->widget(i));
     }
 }
 
 /*
     Set up the layout.
 */
-void QTabWidget::setUpLayout( bool onlyCheck )
+void QTabWidget::setUpLayout(bool onlyCheck)
 {
-    if ( onlyCheck && !d->dirty )
-	return; // nothing to do
+    if (onlyCheck && !d->dirty)
+        return; // nothing to do
 
-    if ( !isVisible() ) {
-	d->dirty = TRUE;
-	return; // we'll do it later
+    if (!isVisible()) {
+        d->dirty = true;
+        return; // we'll do it later
     }
 
-    QSize t( 0, d->stack->frameWidth() );
-    if ( d->tabs->isVisibleTo(this) )
-	t = d->tabs->sizeHint();
+    QSize t(0, d->stack->frameWidth());
+    if (d->tabs->isVisibleTo(this))
+        t = d->tabs->sizeHint();
     int lcw = 0;
-    if ( d->leftCornerWidget && d->leftCornerWidget->isVisible()  ) {
-	QSize sz = d->leftCornerWidget->sizeHint();
-	d->leftCornerWidget->resize(sz);
-	lcw = sz.width();
-	if ( t.height() > lcw )
-	    lcw = t.height();
+    if (d->leftCornerWidget && d->leftCornerWidget->isVisible() ) {
+        QSize sz = d->leftCornerWidget->sizeHint();
+        d->leftCornerWidget->resize(sz);
+        lcw = sz.width();
+        if (t.height() > lcw)
+            lcw = t.height();
      }
     int rcw = 0;
-    if ( d->rightCornerWidget && d->rightCornerWidget->isVisible() ) {
-	QSize sz = d->rightCornerWidget->sizeHint();
-	d->rightCornerWidget->resize(sz);
-	rcw = sz.width();
-	if ( t.height() > rcw )
-	    rcw = t.height();
+    if (d->rightCornerWidget && d->rightCornerWidget->isVisible()) {
+        QSize sz = d->rightCornerWidget->sizeHint();
+        d->rightCornerWidget->resize(sz);
+        rcw = sz.width();
+        if (t.height() > rcw)
+            rcw = t.height();
     }
     int tw = width() - lcw - rcw;
-    if ( t.width() > tw )
-	t.setWidth( tw );
+    if (t.width() > tw)
+        t.setWidth(tw);
     int lw = d->stack->lineWidth();
     bool reverse = QApplication::reverseLayout();
     int tabx, taby, stacky, exty, exth, overlap;
 
-    exth = style().pixelMetric( QStyle::PM_TabBarBaseHeight, this );
-    overlap = style().pixelMetric( QStyle::PM_TabBarBaseOverlap, this );
+    exth = style().pixelMetric(QStyle::PM_TabBarBaseHeight, this);
+    overlap = style().pixelMetric(QStyle::PM_TabBarBaseOverlap, this);
 
-    if ( reverse )
-	tabx = qMin( width() - t.width(), width() - t.width() - lw + 2 ) - lcw;
+    if (reverse)
+        tabx = qMin(width() - t.width(), width() - t.width() - lw + 2) - lcw;
     else
-	tabx = qMax( 0, lw - 2 ) + lcw;
-    if ( d->pos == Bottom ) {
-	taby = height() - t.height() - lw;
-	stacky = 0;
-	exty = taby - (exth - overlap);
+        tabx = qMax(0, lw - 2) + lcw;
+    if (d->pos == Bottom) {
+        taby = height() - t.height() - lw;
+        stacky = 0;
+        exty = taby - (exth - overlap);
     } else { // Top
-	taby = 0;
-	stacky = t.height()-lw + (exth - overlap);
-	exty = taby + t.height() - overlap;
+        taby = 0;
+        stacky = t.height()-lw + (exth - overlap);
+        exty = taby + t.height() - overlap;
     }
 
     // do alignment
-    int alignment = style().styleHint( QStyle::SH_TabBar_Alignment, this );
-    if ( alignment != AlignLeft && t.width() < width() ) {
-	if ( alignment == AlignHCenter )
-	    tabx += (width()-lcw-rcw)/2 - t.width()/2;
-	else if ( alignment == AlignRight )
-	    tabx += width() - t.width() - rcw;
+    int alignment = style().styleHint(QStyle::SH_TabBar_Alignment, this);
+    if (alignment != AlignLeft && t.width() < width()) {
+        if (alignment == AlignHCenter)
+            tabx += (width()-lcw-rcw)/2 - t.width()/2;
+        else if (alignment == AlignRight)
+            tabx += width() - t.width() - rcw;
     }
 
-    d->tabs->setGeometry( tabx, taby, t.width(), t.height() );
-    d->tabBase->setGeometry( 0, exty, width(), exth );
-    if ( exth == 0 )
-	d->tabBase->hide();
+    d->tabs->setGeometry(tabx, taby, t.width(), t.height());
+    d->tabBase->setGeometry(0, exty, width(), exth);
+    if (exth == 0)
+        d->tabBase->hide();
     else
-	d->tabBase->show();
+        d->tabBase->show();
 
-    d->stack->setGeometry( 0, stacky, width(), height() - (exth-overlap) -
-			   t.height()+qMax(0, lw-2));
+    d->stack->setGeometry(0, stacky, width(), height() - (exth-overlap) -
+                           t.height()+qMax(0, lw-2));
 
-    d->dirty = FALSE;
+    d->dirty = false;
 
     // move cornerwidgets
-    if ( d->leftCornerWidget ) {
-	int y = ( t.height() / 2 ) - ( d->leftCornerWidget->height() / 2 );
-	int x = ( reverse ? width() - lcw + y : y );
-	d->leftCornerWidget->move( x, y + taby );
+    if (d->leftCornerWidget) {
+        int y = (t.height() / 2) - (d->leftCornerWidget->height() / 2);
+        int x = (reverse ? width() - lcw + y : y);
+        d->leftCornerWidget->move(x, y + taby);
     }
-    if ( d->rightCornerWidget ) {
-	int y = ( t.height() / 2 ) - ( d->rightCornerWidget->height() / 2 );
+    if (d->rightCornerWidget) {
+        int y = (t.height() / 2) - (d->rightCornerWidget->height() / 2);
 
-    if ( !onlyCheck )
-	update();
+    if (!onlyCheck)
+        update();
     updateGeometry();
-    if ( autoMask() )
-	updateMask();
-	int x = ( reverse ? y : width() - rcw + y );
-	d->rightCornerWidget->move( x, y + taby );
+    if (autoMask())
+        updateMask();
+        int x = (reverse ? y : width() - rcw + y);
+        d->rightCornerWidget->move(x, y + taby);
     }
 }
 
@@ -734,20 +734,20 @@ QSize QTabWidget::sizeHint() const
     QSize lc(0, 0), rc(0, 0);
 
     if (d->leftCornerWidget)
-	lc = d->leftCornerWidget->sizeHint();
+        lc = d->leftCornerWidget->sizeHint();
     if(d->rightCornerWidget)
-	rc = d->rightCornerWidget->sizeHint();
-    if ( !d->dirty ) {
-	QTabWidget *that = (QTabWidget*)this;
-	that->setUpLayout( TRUE );
+        rc = d->rightCornerWidget->sizeHint();
+    if (!d->dirty) {
+        QTabWidget *that = (QTabWidget*)this;
+        that->setUpLayout(true);
     }
-    QSize s( d->stack->sizeHint() );
-    QSize t( d->tabs->sizeHint() );
+    QSize s(d->stack->sizeHint());
+    QSize t(d->tabs->sizeHint());
     if(!style().styleHint(QStyle::SH_TabBar_PreferNoArrows, d->tabs))
-	t = t.boundedTo( QSize(200,200) );
+        t = t.boundedTo(QSize(200,200));
 
-    QSize sz( qMax( s.width(), t.width() + rc.width() + lc.width() ),
-	      s.height() + (qMax( rc.height(), qMax(lc.height(), t.height()))) + ( d->tabBase->isVisible() ? d->tabBase->height() : 0 ) );
+    QSize sz(qMax(s.width(), t.width() + rc.width() + lc.width()),
+              s.height() + (qMax(rc.height(), qMax(lc.height(), t.height()))) + (d->tabBase->isVisible() ? d->tabBase->height() : 0));
     return style().sizeFromContents(QStyle::CT_TabWidget, this, sz).expandedTo(QApplication::globalStrut());
 }
 
@@ -762,25 +762,25 @@ QSize QTabWidget::minimumSizeHint() const
     QSize lc(0, 0), rc(0, 0);
 
     if(d->leftCornerWidget)
-	lc = d->leftCornerWidget->minimumSizeHint();
+        lc = d->leftCornerWidget->minimumSizeHint();
     if(d->rightCornerWidget)
-	rc = d->rightCornerWidget->minimumSizeHint();
-    if ( !d->dirty ) {
-	QTabWidget *that = (QTabWidget*)this;
-	that->setUpLayout( TRUE );
+        rc = d->rightCornerWidget->minimumSizeHint();
+    if (!d->dirty) {
+        QTabWidget *that = (QTabWidget*)this;
+        that->setUpLayout(true);
     }
-    QSize s( d->stack->minimumSizeHint() );
-    QSize t( d->tabs->minimumSizeHint() );
+    QSize s(d->stack->minimumSizeHint());
+    QSize t(d->tabs->minimumSizeHint());
 
-    QSize sz( qMax( s.width(), t.width() + rc.width() + lc.width() ),
-	      s.height() + (qMax( rc.height(), qMax(lc.height(), t.height()))) + ( d->tabBase->isVisible() ? d->tabBase->height() : 0 ) );
+    QSize sz(qMax(s.width(), t.width() + rc.width() + lc.width()),
+              s.height() + (qMax(rc.height(), qMax(lc.height(), t.height()))) + (d->tabBase->isVisible() ? d->tabBase->height() : 0));
     return style().sizeFromContents(QStyle::CT_TabWidget, this, sz).expandedTo(QApplication::globalStrut());
 }
 
 /*!
     \reimp
  */
-void QTabWidget::showEvent( QShowEvent * )
+void QTabWidget::showEvent(QShowEvent *)
 {
     setUpLayout();
 }
@@ -800,22 +800,22 @@ QTabWidget::TabPosition QTabWidget::tabPosition() const
     return d->pos;
 }
 
-void QTabWidget::setTabPosition( TabPosition pos)
+void QTabWidget::setTabPosition(TabPosition pos)
 {
     if (d->pos == pos)
         return;
     d->pos = pos;
-    if (d->tabs->shape() == QTabBar::TriangularAbove || d->tabs->shape() == QTabBar::TriangularBelow ) {
-        if ( pos == Bottom )
-            d->tabs->setShape( QTabBar::TriangularBelow );
+    if (d->tabs->shape() == QTabBar::TriangularAbove || d->tabs->shape() == QTabBar::TriangularBelow) {
+        if (pos == Bottom)
+            d->tabs->setShape(QTabBar::TriangularBelow);
         else
-            d->tabs->setShape( QTabBar::TriangularAbove );
+            d->tabs->setShape(QTabBar::TriangularAbove);
     }
     else {
-        if ( pos == Bottom )
-            d->tabs->setShape( QTabBar::RoundedBelow );
+        if (pos == Bottom)
+            d->tabs->setShape(QTabBar::RoundedBelow);
         else
-            d->tabs->setShape( QTabBar::RoundedAbove );
+            d->tabs->setShape(QTabBar::RoundedAbove);
     }
     d->tabs->layoutTabs();
     setUpLayout();
@@ -836,21 +836,21 @@ QTabWidget::TabShape QTabWidget::tabShape() const
     return d->shape;
 }
 
-void QTabWidget::setTabShape( TabShape s )
+void QTabWidget::setTabShape(TabShape s)
 {
-    if ( d->shape == s )
+    if (d->shape == s)
         return;
     d->shape = s;
-    if ( d->pos == Top ) {
-        if ( s == Rounded )
-            d->tabs->setShape( QTabBar::RoundedAbove );
+    if (d->pos == Top) {
+        if (s == Rounded)
+            d->tabs->setShape(QTabBar::RoundedAbove);
         else
-            d->tabs->setShape( QTabBar::TriangularAbove );
+            d->tabs->setShape(QTabBar::TriangularAbove);
     } else {
-        if ( s == Rounded )
-            d->tabs->setShape( QTabBar::RoundedBelow );
+        if (s == Rounded)
+            d->tabs->setShape(QTabBar::RoundedBelow);
         else
-            d->tabs->setShape( QTabBar::TriangularBelow );
+            d->tabs->setShape(QTabBar::TriangularBelow);
     }
     d->tabs->layoutTabs();
     setUpLayout();
@@ -869,9 +869,9 @@ int QTabWidget::margin() const
     return d->stack->margin();
 }
 
-void QTabWidget::setMargin( int w )
+void QTabWidget::setMargin(int w)
 {
-    d->stack->setMargin( w );
+    d->stack->setMargin(w);
     setUpLayout();
 }
 
@@ -879,10 +879,10 @@ void QTabWidget::setMargin( int w )
 /*!
     \reimp
  */
-void QTabWidget::changeEvent( QEvent *ev )
+void QTabWidget::changeEvent(QEvent *ev)
 {
-    if(ev->type() == QEvent::StyleChange) 
-	setUpLayout();
+    if(ev->type() == QEvent::StyleChange)
+        setUpLayout();
     QWidget::changeEvent(ev);
 }
 
@@ -892,70 +892,70 @@ void QTabWidget::changeEvent( QEvent *ev )
  */
 void QTabWidget::updateMask()
 {
-    if ( !autoMask() )
+    if (!autoMask())
         return;
 
     QRect r;
-    QRegion reg( r );
-    reg += QRegion( d->tabs->geometry() );
-    reg += QRegion( d->stack->geometry() );
-    setMask( reg );
+    QRegion reg(r);
+    reg += QRegion(d->tabs->geometry());
+    reg += QRegion(d->stack->geometry());
+    setMask(reg);
 }
 
 
 /*!
     \reimp
  */
-bool QTabWidget::eventFilter( QObject *o, QEvent * e)
+bool QTabWidget::eventFilter(QObject *o, QEvent * e)
 {
-    if ( o == this ) {
-	if ( e->type() == QEvent::LanguageChange || e->type() == QEvent::LayoutHint ) {
-	    d->dirty = TRUE;
-	    setUpLayout();
-	    updateGeometry();
-	} else if ( e->type() == QEvent::KeyPress ) {
-	    QKeyEvent *ke = (QKeyEvent*) e;
-	    if ( ( ke->key() == Qt::Key_Tab || ke->key() == Qt::Key_Backtab ) &&
-		 count() > 1 &&
-		 ke->state() & Qt::ControlButton ) {
-		int page = currentPageIndex();
-		if ( ke->key() == Qt::Key_Backtab || ke->state() & Qt::ShiftButton ) {
-		    page--;
-		    if ( page < 0 )
-			page = count() - 1;
-		} else {
-		    page++;
-		    if ( page >= count() )
-			page = 0;
-		}
-		setCurrentPage( page );
-		if ( !qApp->focusWidget() )
-		    d->tabs->setFocus();
-		return TRUE;
-	    }
-	}
+    if (o == this) {
+        if (e->type() == QEvent::LanguageChange || e->type() == QEvent::LayoutHint) {
+            d->dirty = true;
+            setUpLayout();
+            updateGeometry();
+        } else if (e->type() == QEvent::KeyPress) {
+            QKeyEvent *ke = (QKeyEvent*) e;
+            if ((ke->key() == Qt::Key_Tab || ke->key() == Qt::Key_Backtab) &&
+                 count() > 1 &&
+                 ke->state() & Qt::ControlButton) {
+                int page = currentPageIndex();
+                if (ke->key() == Qt::Key_Backtab || ke->state() & Qt::ShiftButton) {
+                    page--;
+                    if (page < 0)
+                        page = count() - 1;
+                } else {
+                    page++;
+                    if (page >= count())
+                        page = 0;
+                }
+                setCurrentPage(page);
+                if (!qApp->focusWidget())
+                    d->tabs->setFocus();
+                return true;
+            }
+        }
 
-    } else if ( o == d->stack ) {
-	if ( e->type() == QEvent::ChildRemoved
-	     && ( (QChildEvent*)e )->child()->isWidgetType() ) {
-	    removePage( (QWidget*)  ( (QChildEvent*)e )->child() );
-	    return TRUE;
-	} else if ( e->type() == QEvent::LayoutHint ) {
-	    updateGeometry();
-	}
+    } else if (o == d->stack) {
+        if (e->type() == QEvent::ChildRemoved
+             && ((QChildEvent*)e)->child()->isWidgetType()) {
+            removePage((QWidget*)  ((QChildEvent*)e)->child());
+            return true;
+        } else if (e->type() == QEvent::LayoutHint) {
+            updateGeometry();
+        }
     }
-    return FALSE;
+    return false;
 }
 
 /*!
     Returns the tab page at index position \a index or 0 if the \a
     index is out of range.
 */
-QWidget *QTabWidget::page( int index ) const
+QWidget *QTabWidget::page(int index) const
 {
     QTab *t = d->tabs->tabAt(index);
-    if ( t )
-	return d->stack->widget( t->id );
+    if (t)
+        return d->stack->widget(t->id);
     // else
     return 0;
 }
@@ -964,11 +964,11 @@ QWidget *QTabWidget::page( int index ) const
     Returns the label of the tab at index position \a index or
     QString::null if the \a index is out of range.
 */
-QString QTabWidget::label( int index ) const
+QString QTabWidget::label(int index) const
 {
-    QTab *t = d->tabs->tabAt( index );
-    if ( t )
- 	return t->label;
+    QTab *t = d->tabs->tabAt(index);
+    if (t)
+        return t->label;
     // else
     return QString::null;
 }
@@ -987,34 +987,34 @@ int QTabWidget::count() const
     null iconset\endlink if \a w is not a tab page or does not have an
     iconset.
 */
-QIconSet QTabWidget::tabIconSet( QWidget * w ) const
+QIconSet QTabWidget::tabIconSet(QWidget * w) const
 {
-    int id = d->stack->id( w );
-    if ( id < 0 )
+    int id = d->stack->id(w);
+    if (id < 0)
         return QIconSet();
-    QTab* t = d->tabs->tab( id );
-    if ( !t )
+    QTab* t = d->tabs->tab(id);
+    if (!t)
         return QIconSet();
-    if ( t->iconset )
-	return QIconSet( *t->iconset );
+    if (t->iconset)
+        return QIconSet(*t->iconset);
     else
-	return QIconSet();
+        return QIconSet();
 }
 
 /*!
     Sets the iconset for page \a w to \a iconset.
 */
-void QTabWidget::setTabIconSet( QWidget * w, const QIconSet & iconset )
+void QTabWidget::setTabIconSet(QWidget * w, const QIconSet & iconset)
 {
-    int id = d->stack->id( w );
-    if ( id < 0 )
+    int id = d->stack->id(w);
+    if (id < 0)
         return;
-    QTab* t = d->tabs->tab( id );
-    if ( !t )
+    QTab* t = d->tabs->tab(id);
+    if (!t)
         return;
-    if ( t->iconset )
+    if (t->iconset)
         delete t->iconset;
-    t->iconset = new QIconSet( iconset );
+    t->iconset = new QIconSet(iconset);
 
     d->tabs->layoutTabs();
     d->tabs->update();
@@ -1026,12 +1026,12 @@ void QTabWidget::setTabIconSet( QWidget * w, const QIconSet & iconset )
 
     \sa removeTabToolTip(), tabToolTip()
 */
-void QTabWidget::setTabToolTip( QWidget * w, const QString & tip )
+void QTabWidget::setTabToolTip(QWidget * w, const QString & tip)
 {
-    int index = d->tabs->indexOf( d->stack->id( w ) );
-    if ( index < 0 )
+    int index = d->tabs->indexOf(d->stack->id(w));
+    if (index < 0)
         return;
-    d->tabs->setToolTip( index, tip );
+    d->tabs->setToolTip(index, tip);
 }
 
 /*!
@@ -1040,12 +1040,12 @@ void QTabWidget::setTabToolTip( QWidget * w, const QString & tip )
 
     \sa setTabToolTip(), removeTabToolTip()
 */
-QString QTabWidget::tabToolTip( QWidget * w ) const
+QString QTabWidget::tabToolTip(QWidget * w) const
 {
-    int index = d->tabs->indexOf( d->stack->id( w ) );
-    if ( index < 0 )
+    int index = d->tabs->indexOf(d->stack->id(w));
+    if (index < 0)
         return QString();
-    return d->tabs->toolTip( index );
+    return d->tabs->toolTip(index);
 }
 
 /*!
@@ -1054,12 +1054,12 @@ QString QTabWidget::tabToolTip( QWidget * w ) const
 
     \sa setTabToolTip(), tabToolTip()
 */
-void QTabWidget::removeTabToolTip( QWidget * w )
+void QTabWidget::removeTabToolTip(QWidget * w)
 {
-    int index = d->tabs->indexOf( d->stack->id( w ) );
-    if ( index < 0 )
+    int index = d->tabs->indexOf(d->stack->id(w));
+    if (index < 0)
         return;
-    d->tabs->removeToolTip( index );
+    d->tabs->removeToolTip(index);
 }
 
 #endif

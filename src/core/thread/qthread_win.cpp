@@ -58,9 +58,9 @@ QThreadInstance *QThreadInstance::current()
 {
     QThreadInstance *ret = 0;
     if (qt_tls_index != TLS_OUT_OF_INDEXES)
-	ret = (QThreadInstance *)TlsGetValue(qt_tls_index);
+        ret = (QThreadInstance *)TlsGetValue(qt_tls_index);
     if (!ret)
-	return &main_instance;
+        return &main_instance;
     return ret;
 }
 
@@ -69,27 +69,27 @@ void QThreadInstance::init(unsigned int stackSize)
     stacksize = stackSize;
     args[0] = args[1] = args[2] = 0;
     thread_storage = 0;
-    finished = FALSE;
-    running = FALSE;
-    orphan = FALSE;
+    finished = false;
+    running = false;
+    orphan = false;
 
     handle = 0;
     id = 0;
     waiters = 0;
 
     // threads have not been initialized yet, do it now
-    if ( ! qt_thread_mutexpool ) QThread::initialize();
+    if (! qt_thread_mutexpool) QThread::initialize();
 }
 
 void QThreadInstance::deinit()
 {
 }
 
-unsigned int __stdcall QThreadInstance::start( void *_arg )
+unsigned int __stdcall QThreadInstance::start(void *_arg)
 {
     void **arg = (void **) _arg;
 
-    TlsSetValue( qt_tls_index, arg[1] );
+    TlsSetValue(qt_tls_index, arg[1]);
 
     QPointer<QThread> thr = reinterpret_cast<QThread *>(arg[0]);
     arg[2] = reinterpret_cast<Qt::HANDLE>(thr->thread());
@@ -97,47 +97,47 @@ unsigned int __stdcall QThreadInstance::start( void *_arg )
     emit thr->started();
     thr->run();
     if (thr) {
-	emit thr->finished();
-	QCoreApplication::sendPostedEvents();
-	thr->QObject::setThread(reinterpret_cast<Qt::HANDLE>(arg[2]));
-	arg[0] = arg[1] = arg[2] = 0;
+        emit thr->finished();
+        QCoreApplication::sendPostedEvents();
+        thr->QObject::setThread(reinterpret_cast<Qt::HANDLE>(arg[2]));
+        arg[0] = arg[1] = arg[2] = 0;
     }
 
-    finish( (QThreadInstance *) arg[1] );
+    finish((QThreadInstance *) arg[1]);
 
     return 0;
 }
 
-void QThreadInstance::finish( QThreadInstance *d )
+void QThreadInstance::finish(QThreadInstance *d)
 {
-    if ( ! d ) {
-	qWarning( "QThread: internal error: zero data for running thread." );
-	return;
+    if (! d) {
+        qWarning("QThread: internal error: zero data for running thread.");
+        return;
     }
 
-    QMutexLocker locker( d->mutex() );
-    d->running = FALSE;
-    d->finished = TRUE;
+    QMutexLocker locker(d->mutex());
+    d->running = false;
+    d->finished = true;
     d->args[0] = d->args[1] = d->args[2] = 0;
 
-    QThreadStorageData::finish( d->thread_storage );
+    QThreadStorageData::finish(d->thread_storage);
     d->thread_storage = 0;
     d->id = 0;
 
     if (!d->waiters) {
-	CloseHandle(d->handle);
-	d->handle = 0;
+        CloseHandle(d->handle);
+        d->handle = 0;
     }
 
-    if ( d->orphan ) {
+    if (d->orphan) {
         d->deinit();
-	delete d;
+        delete d;
     }
 }
 
 QMutex *QThreadInstance::mutex() const
 {
-    return qt_thread_mutexpool ? qt_thread_mutexpool->get( (void *) this ) : 0;
+    return qt_thread_mutexpool ? qt_thread_mutexpool->get((void *) this) : 0;
 }
 
 void QThreadInstance::terminate()
@@ -152,25 +152,25 @@ void QThreadInstance::terminate()
     thread_storage = 0;
 
     if (args[0] && args[1] && args[2]) {
-	QThread *thr = reinterpret_cast<QThread *>(args[0]);
-	Qt::HANDLE old = reinterpret_cast<Qt::HANDLE>(args[2]);
-	emit thr->terminated();
-	thr->QObject::setThread(old);
+        QThread *thr = reinterpret_cast<QThread *>(args[0]);
+        Qt::HANDLE old = reinterpret_cast<Qt::HANDLE>(args[2]);
+        emit thr->terminated();
+        thr->QObject::setThread(old);
     }
 
-    running = FALSE;
-    finished = TRUE;
+    running = false;
+    finished = true;
     args[0] = args[1] = args[2] = 0;
     id = 0;
 
-    if ( orphan ) {
+    if (orphan) {
         deinit();
-	delete this;
+        delete this;
     }
 
-    TerminateThread( handle, 0 );
+    TerminateThread(handle, 0);
 
-    QThreadStorageData::finish( storage );
+    QThreadStorageData::finish(storage);
 }
 
 
@@ -185,8 +185,8 @@ Qt::HANDLE QThread::currentThread()
 
 void QThread::initialize()
 {
-    if ( qt_global_mutexpool )
-	return;
+    if (qt_global_mutexpool)
+        return;
 
     static_qt_global_mutexpool = new QMutexPool(true);
     qt_thread_mutexpool = new QMutexPool(false);
@@ -201,36 +201,36 @@ void QThread::cleanup()
     static_qt_global_mutexpool = 0;
     qt_thread_mutexpool = 0;
 
-    QThreadInstance::finish( &main_instance );
+    QThreadInstance::finish(&main_instance);
 }
 
-void QThread::sleep( unsigned long secs )
+void QThread::sleep(unsigned long secs)
 {
-    ::Sleep( secs * 1000 );
+    ::Sleep(secs * 1000);
 }
 
-void QThread::msleep( unsigned long msecs )
+void QThread::msleep(unsigned long msecs)
 {
-    ::Sleep( msecs );
+    ::Sleep(msecs);
 }
 
-void QThread::usleep( unsigned long usecs )
+void QThread::usleep(unsigned long usecs)
 {
-    ::Sleep( ( usecs / 1000 ) + 1 );
+    ::Sleep((usecs / 1000) + 1);
 }
 
 
 void QThread::start(Priority priority)
 {
-    QMutexLocker locker( d->mutex() );
+    QMutexLocker locker(d->mutex());
 
-    if ( d->running && !d->finished ) {
-	qWarning( "Thread is already running" );
-	wait();
+    if (d->running && !d->finished) {
+        qWarning("Thread is already running");
+        wait();
     }
 
-    d->running = TRUE;
-    d->finished = FALSE;
+    d->running = true;
+    d->finished = false;
     d->args[0] = this;
     d->args[1] = d;
     d->args[2] = 0;
@@ -246,96 +246,96 @@ void QThread::start(Priority priority)
       its 'parent' and runs at normal priority.
     */
     d->handle = (Qt::HANDLE) _beginthreadex(NULL, d->stacksize, QThreadInstance::start,
-					    d->args, CREATE_SUSPENDED, &(d->id));
+                                            d->args, CREATE_SUSPENDED, &(d->id));
 
-    if ( !d->handle ) {
-	qSystemWarning("Failed to create thread");
+    if (!d->handle) {
+        qSystemWarning("Failed to create thread");
 
-	d->running = FALSE;
-	d->finished = TRUE;
-	d->args[0] = d->args[1] = d->args[2] = 0;
-	return;
+        d->running = false;
+        d->finished = true;
+        d->args[0] = d->args[1] = d->args[2] = 0;
+        return;
     }
 
     int prio;
     switch (priority) {
     case IdlePriority:
-	prio = THREAD_PRIORITY_IDLE;
-	break;
+        prio = THREAD_PRIORITY_IDLE;
+        break;
 
     case LowestPriority:
-	prio = THREAD_PRIORITY_LOWEST;
-	break;
+        prio = THREAD_PRIORITY_LOWEST;
+        break;
 
     case LowPriority:
-	prio = THREAD_PRIORITY_BELOW_NORMAL;
-	break;
+        prio = THREAD_PRIORITY_BELOW_NORMAL;
+        break;
 
     case NormalPriority:
-	prio = THREAD_PRIORITY_NORMAL;
-	break;
+        prio = THREAD_PRIORITY_NORMAL;
+        break;
 
     case HighPriority:
-	prio = THREAD_PRIORITY_ABOVE_NORMAL;
-	break;
+        prio = THREAD_PRIORITY_ABOVE_NORMAL;
+        break;
 
     case HighestPriority:
-	prio = THREAD_PRIORITY_HIGHEST;
-	break;
+        prio = THREAD_PRIORITY_HIGHEST;
+        break;
 
     case TimeCriticalPriority:
-	prio = THREAD_PRIORITY_TIME_CRITICAL;
-	break;
+        prio = THREAD_PRIORITY_TIME_CRITICAL;
+        break;
 
     case InheritPriority:
     default:
-	prio = GetThreadPriority(GetCurrentThread());
-	break;
+        prio = GetThreadPriority(GetCurrentThread());
+        break;
     }
 
     if (! SetThreadPriority(d->handle, prio)) {
-	qSystemWarning( "Failed to set thread priority" );
+        qSystemWarning("Failed to set thread priority");
     }
 
     if (ResumeThread(d->handle) == 0xffffffff) {
-	qSystemWarning( "Failed to resume newly created thread" );
+        qSystemWarning("Failed to resume newly created thread");
     }
 }
 
 
-bool QThread::wait( unsigned long time )
+bool QThread::wait(unsigned long time)
 {
     QMutexLocker locker(d->mutex());
 
-    if ( d->id == GetCurrentThreadId() ) {
-	qWarning( "Thread tried to wait on itself" );
-	return FALSE;
+    if (d->id == GetCurrentThreadId()) {
+        qWarning("Thread tried to wait on itself");
+        return false;
     }
-    if ( d->finished || !d->running )
-	return TRUE;
+    if (d->finished || !d->running)
+        return true;
 
     ++d->waiters;
     locker.mutex()->unlock();
 
-    bool ret = FALSE;
-    switch ( WaitForSingleObject( d->handle, time ) ) {
+    bool ret = false;
+    switch (WaitForSingleObject(d->handle, time)) {
     case WAIT_OBJECT_0:
-	ret = TRUE;
-	break;
+        ret = true;
+        break;
     case WAIT_ABANDONED:
     case WAIT_FAILED:
-	qSystemWarning( "Thread wait failure" );
+        qSystemWarning("Thread wait failure");
     case WAIT_TIMEOUT:
     default:
-	break;
+        break;
     }
 
     locker.mutex()->lock();
     --d->waiters;
 
     if (d->finished && !d->waiters) {
-	CloseHandle(d->handle);
-	d->handle = 0;
+        CloseHandle(d->handle);
+        d->handle = 0;
     }
 
     return ret;
@@ -345,10 +345,10 @@ void QThread::exit()
 {
     QThreadInstance *d = QThreadInstance::current();
 
-    if ( ! d ) {
-	qWarning( "QThread::exit() called without a QThread instance." );
-	_endthreadex(0);
-	return;
+    if (! d) {
+        qWarning("QThread::exit() called without a QThread instance.");
+        _endthreadex(0);
+        return;
     }
 
     QThreadInstance::finish(d);

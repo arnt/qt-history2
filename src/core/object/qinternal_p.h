@@ -43,15 +43,15 @@ public:
     QMembuf();
     ~QMembuf();
 
-    void append( QByteArray *ba );
+    void append(QByteArray *ba);
     void clear();
 
-    bool consumeBytes( Q_ULONG nbytes, char *sink );
+    bool consumeBytes(Q_ULONG nbytes, char *sink);
     QByteArray readAll();
-    bool scanNewline( QByteArray *store );
+    bool scanNewline(QByteArray *store);
     bool canReadLine() const;
 
-    int ungetch( int ch );
+    int ungetch(int ch);
 
     QIODevice::Offset size() const;
 
@@ -62,8 +62,8 @@ private:
     QIODevice::Offset _index;
 };
 
-inline void QMembuf::append( QByteArray *ba )
-{ buf.append( ba ); _size += ba->size(); }
+inline void QMembuf::append(QByteArray *ba)
+{ buf.append(ba); _size += ba->size(); }
 
 inline void QMembuf::clear()
 { buf.clear(); _size=0; _index=0; }
@@ -72,7 +72,7 @@ inline QByteArray QMembuf::readAll()
 { QByteArray ba; ba.resize(_size); consumeBytes(_size,ba.data()); return ba; }
 
 inline bool QMembuf::canReadLine() const
-{ return ((QMembuf*)this)->scanNewline( 0 ); }
+{ return ((QMembuf*)this)->scanNewline(0); }
 
 inline QIODevice::Offset QMembuf::size() const
 { return _size; }

@@ -44,7 +44,7 @@ class QWSYopyKbPrivate : public QObject
 {
     Q_OBJECT
 public:
-    QWSYopyKbPrivate( QWSYopyKeyboardHandler *h, const QString& );
+    QWSYopyKbPrivate(QWSYopyKeyboardHandler *h, const QString&);
     virtual ~QWSYopyKbPrivate();
 
     bool isOpen() { return buttonFD > 0; }
@@ -62,7 +62,7 @@ private:
 
 QWSYopyKeyboardHandler::QWSYopyKeyboardHandler(const QString &device)
 {
-    d = new QWSYopyKbPrivate( this, device );
+    d = new QWSYopyKbPrivate(this, device);
 }
 
 QWSYopyKeyboardHandler::~QWSYopyKeyboardHandler()
@@ -70,14 +70,14 @@ QWSYopyKeyboardHandler::~QWSYopyKeyboardHandler()
     delete d;
 }
 
-QWSYopyKbPrivate::QWSYopyKbPrivate( QWSYopyKeyboardHandler *h, const QString &device ) : handler(h)
+QWSYopyKbPrivate::QWSYopyKbPrivate(QWSYopyKeyboardHandler *h, const QString &device) : handler(h)
 {
     terminalName = device.isEmpty()?"/dev/tty1":device.latin1();
     buttonFD = -1;
     notifier = 0;
 
     if ((buttonFD = ::open(terminalName, O_RDWR | O_NDELAY, 0)) < 0) {
-	qFatal("Cannot open %s\n", terminalName.latin1());
+        qFatal("Cannot open %s\n", terminalName.latin1());
     } else {
 
        tcsetpgrp(buttonFD, getpgid(0));
@@ -104,17 +104,17 @@ QWSYopyKbPrivate::QWSYopyKbPrivate( QWSYopyKeyboardHandler *h, const QString &de
            qFatal("Linux-kbd: KDSKBMODE tcsetattr failed");
        }
 
-	notifier = new QSocketNotifier( buttonFD, QSocketNotifier::Read, this );
-	connect( notifier, SIGNAL(activated(int)),this,
-		 SLOT(readKeyboardData()) );
+        notifier = new QSocketNotifier(buttonFD, QSocketNotifier::Read, this);
+        connect(notifier, SIGNAL(activated(int)),this,
+                 SLOT(readKeyboardData()));
     }
 }
 
 QWSYopyKbPrivate::~QWSYopyKbPrivate()
 {
-    if ( buttonFD > 0 ) {
-	::close( buttonFD );
-	buttonFD = -1;
+    if (buttonFD > 0) {
+        ::close(buttonFD);
+        buttonFD = -1;
     }
 }
 
@@ -126,9 +126,9 @@ void QWSYopyKbPrivate::readKeyboardData()
 
     int n=read(buttonFD,buf,1);
     if (n<0) {
-	qDebug("Keyboard read error %s",strerror(errno));
+        qDebug("Keyboard read error %s",strerror(errno));
     } else {
-	uint code = buf[0]&YPBUTTON_CODE_MASK;
+        uint code = buf[0]&YPBUTTON_CODE_MASK;
         bool press = !(buf[0]&0x80);
         // printf("Key=%d/%d/%d\n",buf[1],code,press);
         int k=(-1);
@@ -145,18 +145,18 @@ void QWSYopyKbPrivate::readKeyboardData()
           case 1:        k=Qt::Key_Escape; break; // Escape
           case 40:       k=Qt::Key_Up;     break; // prev
           case 45:       k=Qt::Key_Down;   break; // next
-          case 35:       if( !press ) {
+          case 35:       if(!press) {
                            fd = open("/proc/sys/pm/sleep",O_RDWR,0);
-                           if( fd >= 0 ) {
+                           if(fd >= 0) {
                                write(fd,&c,sizeof(c));
                                close(fd);
                                //
                                // Updates all widgets.
                                //
                                QWidgetList  *list = QApplication::allWidgets();
-                               QWidgetListIt it( *list );          // iterate over the widgets
+                               QWidgetListIt it(*list);          // iterate over the widgets
                                QWidget * w;
-                               while ( (w=it.current()) != 0 ) {   // for each widget...
+                               while ((w=it.current()) != 0) {   // for each widget...
                                  ++it;
                                  w->update();
                                }
@@ -169,9 +169,9 @@ void QWSYopyKbPrivate::readKeyboardData()
           default: k=(-1); break;
         }
 
-	if ( k >= 0 ) {
-	    handler->processKeyEvent( 0, k, 0, press, false );
-	}
+        if (k >= 0) {
+            handler->processKeyEvent(0, k, 0, press, false);
+        }
     }
 }
 

@@ -30,19 +30,19 @@ class QMemoryManagerPixmap {
 class QMemoryManager {
 public:
     QMemoryManager(
-	void* vram, int vramsize,
-	void* fontrom
-	//, ...
-    );
+        void* vram, int vramsize,
+        void* fontrom
+        //, ...
+   );
 
     // Pixmaps
     typedef int PixmapID;
-    PixmapID newPixmap(int w, int h, int d, int optim );
+    PixmapID newPixmap(int w, int h, int d, int optim);
     void deletePixmap(PixmapID);
     bool inVRAM(PixmapID) const;
     void findPixmap(PixmapID,
-	    int width, int depth, // sames as passed when created
-	    uchar** address, int* xoffset, int* linestep);
+            int width, int depth, // sames as passed when created
+            uchar** address, int* xoffset, int* linestep);
 
 
 private:

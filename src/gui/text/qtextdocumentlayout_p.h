@@ -22,7 +22,7 @@ public:
 
 
     inline QRect pageRect(int /*page*/) const
-	{ QSize ps = pageSize(); return QRect(0, 0, ps.width(), totalHeight()); } // ####
+        { QSize ps = pageSize(); return QRect(0, 0, ps.width(), totalHeight()); } // ####
     int numPages() const { return 1; } // #####
 
     // ### remove me
@@ -35,7 +35,7 @@ private:
 
     void drawBlock(QPainter *, const PaintContext &context, const QTextBlockIterator block);
     void drawListItem(QPainter *, const PaintContext &context,
-		      const QTextBlockIterator block, const QTextLayout::Selection &selection);
+                      const QTextBlockIterator block, const QTextLayout::Selection &selection);
 
     int indent(const QTextBlockIterator block) const;
     QTextListFormat listFormat(const QTextBlockIterator block) const;

@@ -28,13 +28,13 @@
 class Q_COMPAT_EXPORT QObjectDictionary : public QAsciiDict<QMetaObject>
 {
 public:
-    QObjectDictionary(int size=17,bool cs=TRUE,bool ck=TRUE)
-	: QAsciiDict<QMetaObject>(size,cs,ck) {}
-    QObjectDictionary( const QObjectDictionary &dict )
-	: QAsciiDict<QMetaObject>(dict) {}
+    QObjectDictionary(int size=17,bool cs=true,bool ck=true)
+        : QAsciiDict<QMetaObject>(size,cs,ck) {}
+    QObjectDictionary(const QObjectDictionary &dict)
+        : QAsciiDict<QMetaObject>(dict) {}
    ~QObjectDictionary() { clear(); }
     QObjectDictionary &operator=(const QObjectDictionary &dict)
-	{ return (QObjectDictionary&)QAsciiDict<QMetaObject>::operator=(dict);}
+        { return (QObjectDictionary&)QAsciiDict<QMetaObject>::operator=(dict);}
 };
 
 #endif // QOBJECTDICT_H

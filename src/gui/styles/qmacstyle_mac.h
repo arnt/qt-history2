@@ -19,7 +19,7 @@
 #include "qwindowsstyle.h"
 #endif // QT_H
 
-#if defined( Q_WS_MAC ) && !defined( QT_NO_STYLE_MAC )
+#if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
 
 class QPalette;
 
@@ -33,82 +33,82 @@ class Q_GUI_EXPORT_STYLE_MAC QMacStyle : public QWindowsStyle
 {
     Q_OBJECT
 public:
-    QMacStyle( );
+    QMacStyle();
     virtual ~QMacStyle();
 
-    void polish( QWidget * w );
-    void unPolish( QWidget * w );
-    void polish( QApplication* );
+    void polish(QWidget * w);
+    void unPolish(QWidget * w);
+    void polish(QApplication*);
 
-    void drawPrimitive( PrimitiveElement pe,
-			QPainter *p,
-			const QRect &r,
-			const QPalette &pal,
-			SFlags flags = Style_Default,
-			const QStyleOption& = QStyleOption::Default ) const;
+    void drawPrimitive(PrimitiveElement pe,
+                        QPainter *p,
+                        const QRect &r,
+                        const QPalette &pal,
+                        SFlags flags = Style_Default,
+                        const QStyleOption& = QStyleOption::Default) const;
 
-    void drawControl( ControlElement element,
-		      QPainter *p,
-		      const QWidget *widget,
-		      const QRect &r,
-		      const QPalette &pal,
-		      SFlags how = Style_Default,
-		      const QStyleOption& = QStyleOption::Default ) const;
+    void drawControl(ControlElement element,
+                      QPainter *p,
+                      const QWidget *widget,
+                      const QRect &r,
+                      const QPalette &pal,
+                      SFlags how = Style_Default,
+                      const QStyleOption& = QStyleOption::Default) const;
 
-    void drawComplexControl( ComplexControl control,
-			     QPainter* p,
-			     const QWidget* w,
-			     const QRect& r,
-			     const QPalette& pal,
-			     SFlags flags = Style_Default,
-			     SCFlags sub = SC_None,
-			     SCFlags subActive = SC_None,
-			     const QStyleOption& = QStyleOption::Default ) const;
-
-
-    int pixelMetric( PixelMetric metric,
-		     const QWidget *widget = 0 ) const;
+    void drawComplexControl(ComplexControl control,
+                             QPainter* p,
+                             const QWidget* w,
+                             const QRect& r,
+                             const QPalette& pal,
+                             SFlags flags = Style_Default,
+                             SCFlags sub = SC_None,
+                             SCFlags subActive = SC_None,
+                             const QStyleOption& = QStyleOption::Default) const;
 
 
-    virtual QRect querySubControlMetrics( ComplexControl control,
-					  const QWidget *w,
-					  SubControl sc,
-					  const QStyleOption& = QStyleOption::Default ) const;
+    int pixelMetric(PixelMetric metric,
+                     const QWidget *widget = 0) const;
 
-    virtual QRect subRect( SubRect, const QWidget *w ) const;
 
-    SubControl querySubControl( ComplexControl control,
-				const QWidget *widget,
-				const QPoint &pos,
-				const QStyleOption& = QStyleOption::Default ) const;
+    virtual QRect querySubControlMetrics(ComplexControl control,
+                                          const QWidget *w,
+                                          SubControl sc,
+                                          const QStyleOption& = QStyleOption::Default) const;
+
+    virtual QRect subRect(SubRect, const QWidget *w) const;
+
+    SubControl querySubControl(ComplexControl control,
+                                const QWidget *widget,
+                                const QPoint &pos,
+                                const QStyleOption& = QStyleOption::Default) const;
 
     virtual int styleHint(StyleHint sh, const QWidget *, const QStyleOption &,
-			  QStyleHintReturn *) const;
+                          QStyleHintReturn *) const;
 
-    QSize sizeFromContents( ContentsType contents,
-			    const QWidget *w,
-			    const QSize &contentsSize,
-			    const QStyleOption& = QStyleOption::Default ) const;
+    QSize sizeFromContents(ContentsType contents,
+                            const QWidget *w,
+                            const QSize &contentsSize,
+                            const QStyleOption& = QStyleOption::Default) const;
 
     enum FocusRectPolicy { FocusEnabled, FocusDisabled, FocusDefault };
-    static void setFocusRectPolicy( QWidget *w, FocusRectPolicy policy);
-    static FocusRectPolicy focusRectPolicy(const QWidget *w );
+    static void setFocusRectPolicy(QWidget *w, FocusRectPolicy policy);
+    static FocusRectPolicy focusRectPolicy(const QWidget *w);
 
     enum WidgetSizePolicy { SizeSmall, SizeLarge, SizeNone, SizeDefault };
     static void setWidgetSizePolicy(const QWidget *w, WidgetSizePolicy policy);
     static WidgetSizePolicy widgetSizePolicy(const QWidget *w);
 
-    QPixmap stylePixmap( StylePixmap sp,
-			 const QWidget *widget = 0,
-			 const QStyleOption& = QStyleOption::Default ) const;
+    QPixmap stylePixmap(StylePixmap sp,
+                         const QWidget *widget = 0,
+                         const QStyleOption& = QStyleOption::Default) const;
 
-    QPixmap stylePixmap( PixmapType pixmaptype, const QPixmap &pixmap,
-			 const QPalette &pal, const QStyleOption& = QStyleOption::Default ) const;
+    QPixmap stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
+                         const QPalette &pal, const QStyleOption& = QStyleOption::Default) const;
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QMacStyle( const QMacStyle & );
-    QMacStyle& operator=( const QMacStyle & );
+    QMacStyle(const QMacStyle &);
+    QMacStyle& operator=(const QMacStyle &);
 #endif
 
 private:

@@ -16,12 +16,12 @@
 QDebug &operator<<(QDebug &debug, const QTextFormatProperty &property)
 {
     switch (property.type) {
-	case QTextFormat::Undefined: debug << "[Undefined]"; break;
-	case QTextFormat::Bool: debug << "[" << "Bool:" << property.data.boolValue << "]"; break;
-	case QTextFormat::Integer: debug << "[" << "Integer:" << property.data.intValue << "]"; break;
-	case QTextFormat::Float: debug << "[" << "Float:" << property.data.floatValue << "]"; break;
-	case QTextFormat::String: debug << "[" << "String:" << property.stringValue() << "]"; break;
-	default: Q_ASSERT(false);
+        case QTextFormat::Undefined: debug << "[Undefined]"; break;
+        case QTextFormat::Bool: debug << "[" << "Bool:" << property.data.boolValue << "]"; break;
+        case QTextFormat::Integer: debug << "[" << "Integer:" << property.data.intValue << "]"; break;
+        case QTextFormat::Float: debug << "[" << "Float:" << property.data.floatValue << "]"; break;
+        case QTextFormat::String: debug << "[" << "String:" << property.stringValue() << "]"; break;
+        default: Q_ASSERT(false);
     }
     return debug;
 }
@@ -35,17 +35,17 @@ QTextFormatProperty::QTextFormatProperty(const QString &value)
 
 QTextFormatProperty &QTextFormatProperty::operator=(const QTextFormatProperty &rhs)
 {
-    if ( this == &rhs )
-	return *this;
+    if (this == &rhs)
+        return *this;
 
     free();
 
     type = rhs.type;
 
     if (type == QTextFormat::String)
-	new (&data.ptr) QString(rhs.stringValue());
+        new (&data.ptr) QString(rhs.stringValue());
     else
-	data = rhs.data;
+        data = rhs.data;
 
     return *this;
 }
@@ -53,21 +53,21 @@ QTextFormatProperty &QTextFormatProperty::operator=(const QTextFormatProperty &r
 void QTextFormatProperty::free()
 {
     if (type == QTextFormat::String)
-	reinterpret_cast<QString *>(&data.ptr)->~QString();
+        reinterpret_cast<QString *>(&data.ptr)->~QString();
 }
 
 bool QTextFormatProperty::operator==(const QTextFormatProperty &rhs) const
 {
     if (type != rhs.type)
-	return false;
+        return false;
 
     switch (type) {
-	case QTextFormat::Undefined: return true;
-	case QTextFormat::Bool: return data.boolValue == rhs.data.boolValue;
+        case QTextFormat::Undefined: return true;
+        case QTextFormat::Bool: return data.boolValue == rhs.data.boolValue;
         case QTextFormat::FormatGroup:
         case QTextFormat::Integer: return data.intValue == rhs.data.intValue;
-	case QTextFormat::Float: return data.floatValue == rhs.data.floatValue;
-	case QTextFormat::String: return stringValue() == rhs.stringValue();
+        case QTextFormat::Float: return data.floatValue == rhs.data.floatValue;
+        case QTextFormat::String: return stringValue() == rhs.stringValue();
     }
 
     return true;
@@ -111,7 +111,7 @@ QTextFormat::QTextFormat(const QTextFormat &rhs)
     d = rhs.d;
     collection = rhs.collection;
     if (collection)
-	++collection->ref;
+        ++collection->ref;
 }
 
 QTextFormat &QTextFormat::operator=(const QTextFormat &rhs)
@@ -119,18 +119,18 @@ QTextFormat &QTextFormat::operator=(const QTextFormat &rhs)
     d = rhs.d;
     QTextFormatCollection *x = rhs.collection;
     if (x)
-	++x->ref;
+        ++x->ref;
     x = qAtomicSetPtr(&collection, x);
     if (x && !--x->ref)
-	delete x;
+        delete x;
     return *this;
 }
 
 QTextFormat::~QTextFormat()
 {
     if (collection && !--collection->ref) {
-	qDebug("deleting collection %p", collection);
-	delete collection;
+        qDebug("deleting collection %p", collection);
+        delete collection;
     }
 }
 
@@ -138,8 +138,8 @@ QTextFormat &QTextFormat::operator+=(const QTextFormat &other)
 {
     // don't use QMap's += operator, as it uses insertMulti!
     for (QTextFormatPrivate::PropertyMap::ConstIterator it = other.d->properties.begin();
-	 it != other.d->properties.end(); ++it) {
-	d->properties.insert(it.key(), it.value());
+         it != other.d->properties.end(); ++it) {
+        d->properties.insert(it.key(), it.value());
     }
 
     return *this;
@@ -189,7 +189,7 @@ bool QTextFormat::boolProperty(int propertyId, bool defaultValue) const
 {
     const QTextFormatProperty prop = d->properties.value(propertyId);
     if (prop.type != QTextFormat::Bool)
-	return defaultValue;
+        return defaultValue;
     return prop.data.boolValue;
 }
 
@@ -197,7 +197,7 @@ int QTextFormat::intProperty(int propertyId, int defaultValue) const
 {
     const QTextFormatProperty prop = d->properties.value(propertyId);
     if (prop.type != QTextFormat::Integer)
-	return defaultValue;
+        return defaultValue;
     return prop.data.intValue;
 }
 
@@ -205,7 +205,7 @@ float QTextFormat::floatProperty(int propertyId, float defaultValue) const
 {
     const QTextFormatProperty prop = d->properties.value(propertyId);
     if (prop.type != QTextFormat::Float)
-	return defaultValue;
+        return defaultValue;
     return prop.data.floatValue;
 }
 
@@ -213,7 +213,7 @@ QString QTextFormat::stringProperty(int propertyId, const QString &defaultValue)
 {
     const QTextFormatProperty prop = d->properties.value(propertyId);
     if (prop.type != QTextFormat::String)
-	return defaultValue;
+        return defaultValue;
     return prop.stringValue();
 }
 
@@ -241,15 +241,15 @@ QTextFormatGroup *QTextFormat::group() const
 {
     const QTextFormatProperty prop = d->properties.value(GroupIndex);
     if (!collection || prop.type != QTextFormat::FormatGroup)
-	return 0;
+        return 0;
     return collection->group(prop.data.intValue);
 }
 
 void QTextFormat::setGroup(QTextFormatGroup *group)
 {
     if (!group) {
-	setGroupIndex(-1);
-	return;
+        setGroupIndex(-1);
+        return;
     }
 
     QTextFormatCollection *c = group->d_func()->collection;
@@ -257,7 +257,7 @@ void QTextFormat::setGroup(QTextFormatGroup *group)
     ++c->ref;
     c = qAtomicSetPtr(&collection, c);
     if (c && !--c->ref)
-	delete c;
+        delete c;
 
     QTextFormatProperty prop;
     prop.type = FormatGroup;
@@ -269,7 +269,7 @@ int QTextFormat::groupIndex() const
 {
     const QTextFormatProperty prop = d->properties.value(GroupIndex);
     if (prop.type != QTextFormat::FormatGroup)
-	return -1;
+        return -1;
     return prop.data.intValue;
 }
 
@@ -289,7 +289,7 @@ bool QTextFormat::hasProperty(int propertyId) const
 QTextFormat::PropertyType QTextFormat::propertyType(int propertyId) const
 {
     if (!d)
-	return QTextFormat::Undefined;
+        return QTextFormat::Undefined;
 
     return d->properties.value(propertyId).type;
 }
@@ -297,7 +297,7 @@ QTextFormat::PropertyType QTextFormat::propertyType(int propertyId) const
 QList<int> QTextFormat::allPropertyIds() const
 {
     if (!d)
-	return QList<int>();
+        return QList<int>();
 
     return d->properties.keys();
 }
@@ -305,9 +305,9 @@ QList<int> QTextFormat::allPropertyIds() const
 bool QTextFormat::operator==(const QTextFormat &rhs) const
 {
     if (!d)
-	return !rhs.d;
+        return !rhs.d;
     if (!rhs.d)
-	return false;
+        return false;
 
     return *d == *rhs.d;
 }
@@ -341,28 +341,28 @@ QFont QTextCharFormat::font() const
     QFont font;
 
     if (hasProperty(FontFamily))
-	font.setFamily(fontFamily());
+        font.setFamily(fontFamily());
 
     if (hasProperty(FontPointSize))
-	font.setPointSizeFloat(fontPointSize());
+        font.setPointSizeFloat(fontPointSize());
 
     if (hasProperty(FontWeight))
-	font.setWeight(fontWeight());
+        font.setWeight(fontWeight());
 
     if (hasProperty(FontItalic))
-	font.setItalic(fontItalic());
+        font.setItalic(fontItalic());
 
     if (hasProperty(FontUnderline))
-	font.setUnderline(fontUnderline());
+        font.setUnderline(fontUnderline());
 
     if (hasProperty(FontOverline))
-	font.setOverline(fontOverline());
+        font.setOverline(fontOverline());
 
     if (hasProperty(FontStrikeOut))
-	font.setStrikeOut(fontStrikeOut());
+        font.setStrikeOut(fontStrikeOut());
 
     if (hasProperty(FontFixedPitch))
-	font.setFixedPitch(fontFixedPitch());
+        font.setFixedPitch(fontFixedPitch());
 
     return font;
 }
@@ -435,9 +435,9 @@ QTextFormatGroup *QTextFormatCollection::createGroup(int index)
 
     QTextFormatGroup *group;
     if (f.isListFormat())
-	group = new QTextList;
+        group = new QTextList;
     else
-	group = new QTextFormatGroup;
+        group = new QTextFormatGroup;
     group->d_func()->collection = this;
     group->d_func()->index = index;
 
@@ -450,20 +450,20 @@ QTextFormatCollection::QTextFormatCollection(const QTextFormatCollection &rhs)
     ref = 0;
     formats = rhs.formats;
     for (int i = 0; i < rhs.groups.size(); ++i) {
-	QTextFormatGroup *g = rhs.groups.at(i);
-	groups.append(createGroup(g->d_func()->index));
+        QTextFormatGroup *g = rhs.groups.at(i);
+        groups.append(createGroup(g->d_func()->index));
     }
 }
 QTextFormatCollection &QTextFormatCollection::operator=(const QTextFormatCollection &rhs)
 {
     for (int i = 0; i < groups.size(); ++i)
-	delete groups[i];
+        delete groups[i];
     groups.clear();
 
     formats = rhs.formats;
     for (int i = 0; i < rhs.groups.size(); ++i) {
-	QTextFormatGroup *g = rhs.groups.at(i);
-	groups.append(createGroup(g->d_func()->index));
+        QTextFormatGroup *g = rhs.groups.at(i);
+        groups.append(createGroup(g->d_func()->index));
     }
     return *this;
 }
@@ -471,7 +471,7 @@ QTextFormatCollection &QTextFormatCollection::operator=(const QTextFormatCollect
 QTextFormatCollection::~QTextFormatCollection()
 {
     for (int i = 0; i < groups.size(); ++i)
-	delete groups[i];
+        delete groups[i];
 }
 
 int QTextFormatCollection::indexForFormat(const QTextFormat &format)
@@ -479,9 +479,9 @@ int QTextFormatCollection::indexForFormat(const QTextFormat &format)
     Q_ASSERT(format.d);
     // certainly need speedup
     for (int i = 0; i < formats.size(); ++i) {
-	Q_ASSERT(formats.at(i));
-	if (formats.at(i) == format.d || (*formats.at(i)) == (*format.d))
-	    return i;
+        Q_ASSERT(formats.at(i));
+        if (formats.at(i) == format.d || (*formats.at(i)) == (*format.d))
+            return i;
     }
 
     int idx = formats.size();
@@ -492,8 +492,8 @@ int QTextFormatCollection::indexForFormat(const QTextFormat &format)
 bool QTextFormatCollection::hasFormatCached(const QTextFormat &format) const
 {
     for (int i = 0; i < formats.size(); ++i)
-	if (formats.at(i) == format.d || (*formats.at(i)) == (*format.d))
-	    return true;
+        if (formats.at(i) == format.d || (*formats.at(i)) == (*format.d))
+            return true;
     return false;
 }
 
@@ -509,7 +509,7 @@ QTextFormatGroup *QTextFormatCollection::createGroup(const QTextFormat &format)
 QTextFormatGroup *QTextFormatCollection::group(int groupIndex) const
 {
     if (groupIndex == -1)
-	return 0;
+        return 0;
     return groups.at(groupIndex);
 }
 
@@ -517,8 +517,8 @@ int QTextFormatCollection::indexForGroup(QTextFormatGroup *group)
 {
     Q_ASSERT(group->d_func()->collection == this);
     for (int i = 0; i < groups.size(); ++i)
-	if (groups.at(i) == group)
-	    return i;
+        if (groups.at(i) == group)
+            return i;
     Q_ASSERT(false);
     return -1;
 }
@@ -526,7 +526,7 @@ int QTextFormatCollection::indexForGroup(QTextFormatGroup *group)
 QTextFormat QTextFormatCollection::format(int idx) const
 {
     if (idx == -1 || idx > formats.count())
-	return QTextFormat();
+        return QTextFormat();
 
     Q_ASSERT(formats.at(idx));
     // ##### does this detach the formatprivate?

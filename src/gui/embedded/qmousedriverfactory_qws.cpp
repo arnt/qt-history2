@@ -39,9 +39,9 @@ static QMouseDriverFactoryPrivate *instance = 0;
 QPluginManager<QMouseDriverInterface> *QMouseDriverFactoryPrivate::manager = 0;
 
 QMouseDriverFactoryPrivate::QMouseDriverFactoryPrivate()
-: QObject( qApp )
+: QObject(qApp)
 {
-    manager = new QPluginManager<QMouseDriverInterface>( IID_QMouseDriver, QApplication::libraryPaths(), "/mousedrivers", FALSE );
+    manager = new QPluginManager<QMouseDriverInterface>(IID_QMouseDriver, QApplication::libraryPaths(), "/mousedrivers", false);
 }
 
 QMouseDriverFactoryPrivate::~QMouseDriverFactoryPrivate()
@@ -78,48 +78,48 @@ QMouseDriverFactoryPrivate::~QMouseDriverFactoryPrivate()
 
     \sa keys()
 */
-QWSMouseHandler *QMouseDriverFactory::create( const QString& key, const QString &device )
+QWSMouseHandler *QMouseDriverFactory::create(const QString& key, const QString &device)
 {
     QString driver = key.lower();
 #ifdef Q_OS_QNX6
-    if ( driver == "qnx" || driver.isEmpty() )
-	return new QWSQnxMouseHandler( key, device );
+    if (driver == "qnx" || driver.isEmpty())
+        return new QWSQnxMouseHandler(key, device);
 #endif
 #ifndef QT_NO_QWS_MOUSE_LINUXTP
-    if ( driver == "linuxtp" || driver.isEmpty() )
-	return new QWSLinuxTPMouseHandler( key, device );
+    if (driver == "linuxtp" || driver.isEmpty())
+        return new QWSLinuxTPMouseHandler(key, device);
 #endif
 #ifndef QT_NO_QWS_MOUSE_YOPY
-    if ( driver == "yopy" || driver.isEmpty() )
-	return new QWSYopyMouseHandler( key, device );
+    if (driver == "yopy" || driver.isEmpty())
+        return new QWSYopyMouseHandler(key, device);
 #endif
 #ifndef QT_NO_QWS_MOUSE_VR41
-    if ( driver == "vr41xx" || driver.isEmpty() )
-	return new QWSVr41xxMouseHandler( key, device );
+    if (driver == "vr41xx" || driver.isEmpty())
+        return new QWSVr41xxMouseHandler(key, device);
 #endif
 #ifndef QT_NO_QWS_MOUSE_PC
-    if ( driver == "auto" || driver == "intellimouse" ||
-	 driver == "microsoft" || driver == "mousesystems" ||
-	 driver == "mouseman" || driver.isEmpty() ) {
-	qDebug( "Creating mouse: %s", key.latin1() );
-	return new QWSPcMouseHandler( key, device );
+    if (driver == "auto" || driver == "intellimouse" ||
+         driver == "microsoft" || driver == "mousesystems" ||
+         driver == "mouseman" || driver.isEmpty()) {
+        qDebug("Creating mouse: %s", key.latin1());
+        return new QWSPcMouseHandler(key, device);
     }
 #endif
 #ifndef QT_NO_QWS_MOUSE_BUS
-    if ( driver == "bus" )
-	return new QWSBusMouseHandler( key, device );
+    if (driver == "bus")
+        return new QWSBusMouseHandler(key, device);
 #endif
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
-    if ( !instance )
-	instance = new QMouseDriverFactoryPrivate;
+    if (!instance)
+        instance = new QMouseDriverFactoryPrivate;
 
     QInterfacePtr<QMouseDriverInterface> iface;
-    QMouseDriverFactoryPrivate::manager->queryInterface( driver, &iface );
+    QMouseDriverFactoryPrivate::manager->queryInterface(driver, &iface);
 
-    if ( iface )
-	return iface->create( driver, device );
+    if (iface)
+        return iface->create(driver, device);
 #endif
 #endif
     return 0;
@@ -135,42 +135,42 @@ QStringList QMouseDriverFactory::keys()
     QStringList list;
 
 #ifdef Q_OS_QNX6
-    if ( !list.contains( "Qnx" ) )
-	list << "Qnx";
+    if (!list.contains("Qnx"))
+        list << "Qnx";
 #endif
 #ifndef QT_NO_QWS_MOUSE_LINUXTP
-    if ( !list.contains( "LinuxTP" ) )
-	list << "LinuxTP";
+    if (!list.contains("LinuxTP"))
+        list << "LinuxTP";
 #endif
 #ifndef QT_NO_QWS_MOUSE_YOPY
-    if ( !list.contains( "Yopy" ) )
-	list << "Yopy";
+    if (!list.contains("Yopy"))
+        list << "Yopy";
 #endif
 #ifndef QT_NO_QWS_MOUSE_VR41
-    if ( !list.contains( "VR41xx" ) )
-	list << "VR41xx";
+    if (!list.contains("VR41xx"))
+        list << "VR41xx";
 #endif
 #ifndef QT_NO_QWS_MOUSE_PC
-    if ( !list.contains( "Auto" ) )
-	list << "Auto";
-    if ( !list.contains( "IntelliMouse" ) )
-	list << "IntelliMouse";
-    if ( !list.contains( "Microsoft" ) )
-	list << "Microsoft";
-    if ( !list.contains( "MouseSystems" ) )
-	list << "MouseSystems";
-    if ( !list.contains( "MouseMan" ) )
-	list << "MouseMan";
+    if (!list.contains("Auto"))
+        list << "Auto";
+    if (!list.contains("IntelliMouse"))
+        list << "IntelliMouse";
+    if (!list.contains("Microsoft"))
+        list << "Microsoft";
+    if (!list.contains("MouseSystems"))
+        list << "MouseSystems";
+    if (!list.contains("MouseMan"))
+        list << "MouseMan";
 #endif
 #ifndef QT_NO_QWS_MOUSE_BUS
-    if ( !list.contains( "Bus" ) )
-	list << "Bus";
+    if (!list.contains("Bus"))
+        list << "Bus";
 #endif
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
-    if ( !instance )
-	instance = new QMouseDriverFactoryPrivate;
+    if (!instance)
+        instance = new QMouseDriverFactoryPrivate;
 
     list += QMouseDriverFactoryPrivate::manager->featureList();
 #endif //QT_NO_COMPONENT

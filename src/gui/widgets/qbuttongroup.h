@@ -27,64 +27,64 @@ class QButtonMap;
 class Q_GUI_EXPORT QButtonGroup : public QGroupBox
 {
     Q_OBJECT
-    Q_PROPERTY( bool exclusive READ isExclusive WRITE setExclusive )
-    Q_PROPERTY( bool radioButtonExclusive READ isRadioButtonExclusive WRITE setRadioButtonExclusive )
-    Q_PROPERTY( int selectedId READ selectedId WRITE setButton )
+    Q_PROPERTY(bool exclusive READ isExclusive WRITE setExclusive)
+    Q_PROPERTY(bool radioButtonExclusive READ isRadioButtonExclusive WRITE setRadioButtonExclusive)
+    Q_PROPERTY(int selectedId READ selectedId WRITE setButton)
 
 public:
-    QButtonGroup( QWidget* parent=0, const char* name=0 );
-    QButtonGroup( const QString &title,
-		  QWidget* parent=0, const char* name=0 );
-    QButtonGroup( int columns, Orientation o,
-		  QWidget* parent=0, const char* name=0 );
-    QButtonGroup( int columns, Orientation o, const QString &title,
-		  QWidget* parent=0, const char* name=0 );
+    QButtonGroup(QWidget* parent=0, const char* name=0);
+    QButtonGroup(const QString &title,
+                  QWidget* parent=0, const char* name=0);
+    QButtonGroup(int columns, Orientation o,
+                  QWidget* parent=0, const char* name=0);
+    QButtonGroup(int columns, Orientation o, const QString &title,
+                  QWidget* parent=0, const char* name=0);
     ~QButtonGroup();
 
-    bool	isExclusive() const;
-    bool	isRadioButtonExclusive() const { return radio_excl; }
-    virtual void setExclusive( bool );
-    virtual void setRadioButtonExclusive( bool );
+    bool        isExclusive() const;
+    bool        isRadioButtonExclusive() const { return radio_excl; }
+    virtual void setExclusive(bool);
+    virtual void setRadioButtonExclusive(bool);
 
 public:
-    int		insert( QButton *, int id=-1 );
-    void	remove( QButton * );
-    QButton    *find( int id ) const;
-    int		id( QButton * ) const;
-    int		count() const;
+    int                insert(QButton *, int id=-1);
+    void        remove(QButton *);
+    QButton    *find(int id) const;
+    int                id(QButton *) const;
+    int                count() const;
 
-    virtual void setButton( int id );
+    virtual void setButton(int id);
 
-    virtual void moveFocus( int );
+    virtual void moveFocus(int);
 
     QButton    *selected() const;
     int    selectedId() const;
 
 signals:
-    void	pressed( int id );
-    void	released( int id );
-    void	clicked( int id );
+    void        pressed(int id);
+    void        released(int id);
+    void        clicked(int id);
 
 protected slots:
-    void	buttonPressed();
-    void	buttonReleased();
-    void	buttonClicked();
-    void	buttonToggled( bool on );
+    void        buttonPressed();
+    void        buttonReleased();
+    void        buttonClicked();
+    void        buttonToggled(bool on);
 
 protected:
-    bool 	event( QEvent * e );
+    bool         event(QEvent * e);
 
 private:
-    void	init();
+    void        init();
 
-    bool	excl_grp;
-    bool	radio_excl;
+    bool        excl_grp;
+    bool        radio_excl;
     QButtonMap *buttons; // ### 4.0: move to d-pointer
 
 private:
 #if defined(Q_DISABLE_COPY)
-    QButtonGroup( const QButtonGroup & );
-    QButtonGroup &operator=( const QButtonGroup & );
+    QButtonGroup(const QButtonGroup &);
+    QButtonGroup &operator=(const QButtonGroup &);
 #endif
 };
 

@@ -35,68 +35,68 @@
 #include <qfontdatabase.h>
 
 
-extern HDC   shared_dc;		// common dc for all fonts
+extern HDC   shared_dc;                // common dc for all fonts
 
 
 // ### maybe move to qapplication_win
 QFont qt_LOGFONTtoQFont(LOGFONT& lf, bool /*scale*/)
 {
-    QString family = QT_WA_INLINE( QString::fromUcs2((ushort*)lf.lfFaceName),
-				   QString::fromLocal8Bit((char*)lf.lfFaceName) );
+    QString family = QT_WA_INLINE(QString::fromUcs2((ushort*)lf.lfFaceName),
+                                   QString::fromLocal8Bit((char*)lf.lfFaceName));
     QFont qf(family);
     qf.setItalic(lf.lfItalic);
     if (lf.lfWeight != FW_DONTCARE) {
-	int weight;
-	if ( lf.lfWeight < 400 )
-	    weight = QFont::Light;
-	else if ( lf.lfWeight < 600 )
-	    weight = QFont::Normal;
-	else if ( lf.lfWeight < 700 )
-	    weight = QFont::DemiBold;
-	else if ( lf.lfWeight < 800 )
-	    weight = QFont::Bold;
-	else
-	    weight = QFont::Black;
-	qf.setWeight(weight);
+        int weight;
+        if (lf.lfWeight < 400)
+            weight = QFont::Light;
+        else if (lf.lfWeight < 600)
+            weight = QFont::Normal;
+        else if (lf.lfWeight < 700)
+            weight = QFont::DemiBold;
+        else if (lf.lfWeight < 800)
+            weight = QFont::Bold;
+        else
+            weight = QFont::Black;
+        qf.setWeight(weight);
     }
-    int lfh = QABS( lf.lfHeight );
+    int lfh = QABS(lf.lfHeight);
     Q_ASSERT(shared_dc);
-    qf.setPointSizeFloat( lfh * 72.0 / GetDeviceCaps(shared_dc,LOGPIXELSY) );
-    qf.setUnderline(FALSE);
-    qf.setOverline(FALSE);
-    qf.setStrikeOut(FALSE);
+    qf.setPointSizeFloat(lfh * 72.0 / GetDeviceCaps(shared_dc,LOGPIXELSY));
+    qf.setUnderline(false);
+    qf.setOverline(false);
+    qf.setStrikeOut(false);
     return qf;
 }
 
 
-static inline float pixelSize( const QFontDef &request, QPaintDevice *paintdevice,
-			       int )
+static inline float pixelSize(const QFontDef &request, QPaintDevice *paintdevice,
+                               int)
 {
     float pSize;
-    if ( request.pointSize != -1 ) {
-	if ( paintdevice )
-	    pSize = request.pointSize *
-		    QPaintDeviceMetrics( paintdevice ).logicalDpiY() / 720.;
-	else
-	    pSize = (request.pointSize*GetDeviceCaps(shared_dc,LOGPIXELSY) + 360) / 720;
+    if (request.pointSize != -1) {
+        if (paintdevice)
+            pSize = request.pointSize *
+                    QPaintDeviceMetrics(paintdevice).logicalDpiY() / 720.;
+        else
+            pSize = (request.pointSize*GetDeviceCaps(shared_dc,LOGPIXELSY) + 360) / 720;
     } else {
-	pSize = request.pixelSize;
+        pSize = request.pixelSize;
     }
     return pSize;
 }
 
-static inline float pointSize( const QFontDef &fd, QPaintDevice *paintdevice,
-			       int )
+static inline float pointSize(const QFontDef &fd, QPaintDevice *paintdevice,
+                               int)
 {
     float pSize;
-    if ( fd.pointSize == -1 ) {
-	if ( paintdevice )
-	    pSize = fd.pixelSize * 720. /
-		    QPaintDeviceMetrics( paintdevice ).logicalDpiY();
-	else
-	    pSize = fd.pixelSize * 72.0 / GetDeviceCaps(shared_dc,LOGPIXELSY);
+    if (fd.pointSize == -1) {
+        if (paintdevice)
+            pSize = fd.pixelSize * 720. /
+                    QPaintDeviceMetrics(paintdevice).logicalDpiY();
+        else
+            pSize = fd.pixelSize * 72.0 / GetDeviceCaps(shared_dc,LOGPIXELSY);
     } else {
-	pSize = fd.pointSize;
+        pSize = fd.pointSize;
     }
     return pSize;
 }
@@ -109,11 +109,11 @@ QFont::Script QFontPrivate::defaultScript = QFont::UnknownScript;
 
 void QFont::initialize()
 {
-    if ( QFontCache::instance )
-	return;
-    shared_dc = CreateCompatibleDC( qt_display_dc() );
-    if ( !shared_dc )
-	qSystemWarning( "QFont::initialize() (qfont_win.cpp, 163): couldn't create device context" );
+    if (QFontCache::instance)
+        return;
+    shared_dc = CreateCompatibleDC(qt_display_dc());
+    if (!shared_dc)
+        qSystemWarning("QFont::initialize() (qfont_win.cpp, 163): couldn't create device context");
     new QFontCache();
 
     // #########
@@ -123,42 +123,42 @@ void QFont::initialize()
 void QFont::cleanup()
 {
     delete QFontCache::instance;
-    DeleteDC( shared_dc );
+    DeleteDC(shared_dc);
     shared_dc = 0;
 }
 
-void QFontPrivate::load( QFont::Script script )
+void QFontPrivate::load(QFont::Script script)
 {
     // NOTE: the X11 and Windows implementations of this function are
     // identical... if you change one, change both.
 
     // sanity checks
     if (!QFontCache::instance)
-	qWarning("Must construct a QApplication before a QFont");
-    Q_ASSERT( script >= 0 && script < QFont::LastPrivateScript );
+        qWarning("Must construct a QApplication before a QFont");
+    Q_ASSERT(script >= 0 && script < QFont::LastPrivateScript);
 
     QFontDef req = request;
-    int px = int( pixelSize( req, paintdevice, screen ) + .5 );
+    int px = int(pixelSize(req, paintdevice, screen) + .5);
     req.pixelSize = px;
     req.pointSize = 0;
 
-    if ( ! engineData ) {
-	QFontCache::Key key( req, QFont::NoScript, (int)paintdevice );
+    if (! engineData) {
+        QFontCache::Key key(req, QFont::NoScript, (int)paintdevice);
 
-	// look for the requested font in the engine data cache
-	engineData = QFontCache::instance->findEngineData( key );
+        // look for the requested font in the engine data cache
+        engineData = QFontCache::instance->findEngineData(key);
 
-	if ( ! engineData) {
-	    // create a new one
-	    engineData = new QFontEngineData;
-	    QFontCache::instance->insertEngineData( key, engineData );
-	} else {
-	    ++engineData->ref;
-	}
+        if (! engineData) {
+            // create a new one
+            engineData = new QFontEngineData;
+            QFontCache::instance->insertEngineData(key, engineData);
+        } else {
+            ++engineData->ref;
+        }
     }
 
     // the cached engineData could have already loaded the engine we want
-    if ( engineData->engines[script] ) return;
+    if (engineData->engines[script]) return;
 
     // load the font
     QFontEngine *engine = 0;
@@ -168,50 +168,50 @@ void QFontPrivate::load( QFont::Script script )
     QStringList family_list;
 
     if (!req.family.isEmpty()) {
-	family_list = req.family.split(',');
+        family_list = req.family.split(',');
 
-	// append the substitute list for each family in family_list
-	QStringList subs_list;
-	QStringList::ConstIterator it = family_list.begin(), end = family_list.end();
-	for ( ; it != end; ++it )
-	    subs_list += QFont::substitutes( *it );
-	family_list += subs_list;
+        // append the substitute list for each family in family_list
+        QStringList subs_list;
+        QStringList::ConstIterator it = family_list.begin(), end = family_list.end();
+        for (; it != end; ++it)
+            subs_list += QFont::substitutes(*it);
+        family_list += subs_list;
 
-	if(QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based && req.family.toLower() == "ms sans serif") {
-	    // small hack for Dos based machines to get the right font for non
-	    // latin text when using the default font.
-	    family_list << "Arial" << "Tahoma" << "Verdana";
-	}
-	// append the default fallback font for the specified script
-	// family_list << ... ; ###########
+        if(QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based && req.family.toLower() == "ms sans serif") {
+            // small hack for Dos based machines to get the right font for non
+            // latin text when using the default font.
+            family_list << "Arial" << "Tahoma" << "Verdana";
+        }
+        // append the default fallback font for the specified script
+        // family_list << ... ; ###########
 
-	// add the default family
-	QString defaultFamily = QApplication::font().family();
-	if ( ! family_list.contains( defaultFamily ) )
-	    family_list << defaultFamily;
+        // add the default family
+        QString defaultFamily = QApplication::font().family();
+        if (! family_list.contains(defaultFamily))
+            family_list << defaultFamily;
 
-	// add QFont::defaultFamily() to the list, for compatibility with
-	// previous versions
-	family_list << QApplication::font().defaultFamily();
+        // add QFont::defaultFamily() to the list, for compatibility with
+        // previous versions
+        family_list << QApplication::font().defaultFamily();
     }
 
     // null family means find the first font matching the specified script
     family_list << QString::null;
 
     QStringList::ConstIterator it = family_list.begin(), end = family_list.end();
-    for ( ; ! engine && it != end; ++it ) {
-	req.family = *it;
+    for (; ! engine && it != end; ++it) {
+        req.family = *it;
 
-	engine = QFontDatabase::findFont( script, this, req );
-	if ( engine ) {
-	    if ( engine->type() != QFontEngine::Box )
-		break;
+        engine = QFontDatabase::findFont(script, this, req);
+        if (engine) {
+            if (engine->type() != QFontEngine::Box)
+                break;
 
-	    if ( ! req.family.isEmpty() )
-		engine = 0;
+            if (! req.family.isEmpty())
+                engine = 0;
 
-	    continue;
-	}
+            continue;
+        }
     }
 
     ++engine->ref;
@@ -220,7 +220,7 @@ void QFontPrivate::load( QFont::Script script )
 
 HFONT QFont::handle() const
 {
-    QFontEngine *engine = d->engineForScript( QFont::NoScript );
+    QFontEngine *engine = d->engineForScript(QFont::NoScript);
     return engine->hfont;
 }
 
@@ -229,9 +229,9 @@ QString QFont::rawName() const
     return family();
 }
 
-void QFont::setRawName( const QString &name )
+void QFont::setRawName(const QString &name)
 {
-    setFamily( name );
+    setFamily(name);
 }
 
 
@@ -243,18 +243,18 @@ bool QFont::dirty() const
 
 QString QFont::defaultFamily() const
 {
-    switch( d->request.styleHint ) {
-	case QFont::Times:
-	    return QString::fromLatin1("Times New Roman");
-	case QFont::Courier:
-	    return QString::fromLatin1("Courier New");
-	case QFont::Decorative:
-	    return QString::fromLatin1("Bookman Old Style");
-	case QFont::Helvetica:
-	    return QString::fromLatin1("Arial");
-	case QFont::System:
-	default:
-	    return QString::fromLatin1("MS Sans Serif");
+    switch(d->request.styleHint) {
+        case QFont::Times:
+            return QString::fromLatin1("Times New Roman");
+        case QFont::Courier:
+            return QString::fromLatin1("Courier New");
+        case QFont::Decorative:
+            return QString::fromLatin1("Bookman Old Style");
+        case QFont::Helvetica:
+            return QString::fromLatin1("Arial");
+        case QFont::System:
+        default:
+            return QString::fromLatin1("MS Sans Serif");
     }
 }
 
@@ -274,7 +274,7 @@ QString QFont::lastResortFont() const
   QFontMetrics member functions
  *****************************************************************************/
 
-#define IS_TRUETYPE (QT_WA_INLINE( engine->tm.w.tmPitchAndFamily, engine->tm.a.tmPitchAndFamily ) & TMPF_TRUETYPE)
+#define IS_TRUETYPE (QT_WA_INLINE(engine->tm.w.tmPitchAndFamily, engine->tm.a.tmPitchAndFamily) & TMPF_TRUETYPE)
 #define TMX engine->tm.w
 #define TMW engine->tm.w
 #define TMA engine->tm.a
@@ -284,36 +284,36 @@ int QFontMetrics::leftBearing(QChar ch) const
 #ifdef Q_OS_TEMP
     return 0;
 #else
-    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-    Q_ASSERT( engine != 0 );
+    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
+    Q_ASSERT(engine != 0);
 
-    if ( IS_TRUETYPE ) {
-	ABC abc;
-	QT_WA( {
-	    uint ch16 = ch.unicode();
-	    GetCharABCWidths(engine->dc(),ch16,ch16,&abc);
-	} , {
-	    uint ch8;
-	    if ( ch.row() || ch.cell() > 127 ) {
-		QByteArray w = QString(ch).toLocal8Bit();
-		if ( w.length() != 1 )
-		    return 0;
-		ch8 = (uchar)w[0];
-	    } else {
-		ch8 = ch.cell();
-	    }
-	    GetCharABCWidthsA(engine->dc(),ch8,ch8,&abc);
-	} );
-	return abc.abcA;
+    if (IS_TRUETYPE) {
+        ABC abc;
+        QT_WA({
+            uint ch16 = ch.unicode();
+            GetCharABCWidths(engine->dc(),ch16,ch16,&abc);
+        } , {
+            uint ch8;
+            if (ch.row() || ch.cell() > 127) {
+                QByteArray w = QString(ch).toLocal8Bit();
+                if (w.length() != 1)
+                    return 0;
+                ch8 = (uchar)w[0];
+            } else {
+                ch8 = ch.cell();
+            }
+            GetCharABCWidthsA(engine->dc(),ch8,ch8,&abc);
+        });
+        return abc.abcA;
     } else {
-	QT_WA( {
-	    uint ch16 = ch.unicode();
-	    ABCFLOAT abc;
-	    GetCharABCWidthsFloat(engine->dc(),ch16,ch16,&abc);
-	    return int(abc.abcfA);
-	} , {
-	    return 0;
-	} );
+        QT_WA({
+            uint ch16 = ch.unicode();
+            ABCFLOAT abc;
+            GetCharABCWidthsFloat(engine->dc(),ch16,ch16,&abc);
+            return int(abc.abcfA);
+        } , {
+            return 0;
+        });
     }
     return 0;
 #endif
@@ -323,39 +323,39 @@ int QFontMetrics::leftBearing(QChar ch) const
 int QFontMetrics::rightBearing(QChar ch) const
 {
 #ifdef Q_OS_TEMP
-	return 0;
+        return 0;
 #else
-    QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-    Q_ASSERT( engine != 0 );
+    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
+    Q_ASSERT(engine != 0);
 
-    if ( IS_TRUETYPE ) {
-	ABC abc;
-	QT_WA( {
-	    uint ch16 = ch.unicode();
-	    GetCharABCWidths(engine->dc(),ch16,ch16,&abc);
-	    return abc.abcC;
-	} , {
-	    uint ch8;
-	    if ( ch.row() || ch.cell() > 127 ) {
-		QByteArray w = QString(ch).toLocal8Bit();
-		if ( w.length() != 1 )
-		    return 0;
-		ch8 = (uchar)w[0];
-	    } else {
-		ch8 = ch.cell();
-	    }
-	    GetCharABCWidthsA(engine->dc(),ch8,ch8,&abc);
-	} );
-	return abc.abcC;
+    if (IS_TRUETYPE) {
+        ABC abc;
+        QT_WA({
+            uint ch16 = ch.unicode();
+            GetCharABCWidths(engine->dc(),ch16,ch16,&abc);
+            return abc.abcC;
+        } , {
+            uint ch8;
+            if (ch.row() || ch.cell() > 127) {
+                QByteArray w = QString(ch).toLocal8Bit();
+                if (w.length() != 1)
+                    return 0;
+                ch8 = (uchar)w[0];
+            } else {
+                ch8 = ch.cell();
+            }
+            GetCharABCWidthsA(engine->dc(),ch8,ch8,&abc);
+        });
+        return abc.abcC;
     } else {
-	QT_WA( {
-	    uint ch16 = ch.unicode();
-	    ABCFLOAT abc;
-	    GetCharABCWidthsFloat(engine->dc(),ch16,ch16,&abc);
-	    return int(abc.abcfC);
-	} , {
-	    return -TMW.tmOverhang;
-	} );
+        QT_WA({
+            uint ch16 = ch.unicode();
+            ABCFLOAT abc;
+            GetCharABCWidthsFloat(engine->dc(),ch16,ch16,&abc);
+            return int(abc.abcfC);
+        } , {
+            return -TMW.tmOverhang;
+        });
     }
 
     return 0;
@@ -363,39 +363,39 @@ int QFontMetrics::rightBearing(QChar ch) const
 }
 
 
-int QFontMetrics::width( QChar ch ) const
+int QFontMetrics::width(QChar ch) const
 {
-    if ( ::category( ch ) == QChar::Mark_NonSpacing )
-	return 0;
+    if (::category(ch) == QChar::Mark_NonSpacing)
+        return 0;
 
     QFont::Script script;
-    SCRIPT_FOR_CHAR( script, ch );
+    SCRIPT_FOR_CHAR(script, ch);
 
-    QFontEngine *engine = d->engineForScript( script );
-    Q_ASSERT( engine != 0 );
+    QFontEngine *engine = d->engineForScript(script);
+    Q_ASSERT(engine != 0);
 
     QGlyphLayout glyphs[8];
 
     int nglyphs = 7;
-    engine->stringToCMap( &ch, 1, glyphs, &nglyphs, 0 );
+    engine->stringToCMap(&ch, 1, glyphs, &nglyphs, 0);
 
     return glyphs[0].advance.x.toInt();
 }
 
 
-int QFontMetrics::charWidth( const QString &str, int pos ) const
+int QFontMetrics::charWidth(const QString &str, int pos) const
 {
-    if ( pos < 0 || pos > (int)str.length() )
-	return 0;
+    if (pos < 0 || pos > (int)str.length())
+        return 0;
 
-    QTextEngine layout( str,  d );
-    layout.itemize( QTextEngine::WidthOnly );
-    int w = layout.width( pos, 1 ).toInt();
+    QTextEngine layout(str,  d);
+    layout.itemize(QTextEngine::WidthOnly);
+    int w = layout.width(pos, 1).toInt();
 
-    if ( (QSysInfo::WindowsVersion & QSysInfo::WV_NT_based) == 0 ) {
-	QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
-	Q_ASSERT( engine != 0 );
-	w -= TMX.tmOverhang;
+    if ((QSysInfo::WindowsVersion & QSysInfo::WV_NT_based) == 0) {
+        QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
+        Q_ASSERT(engine != 0);
+        w -= TMX.tmOverhang;
     }
     return w;
 }

@@ -8,8 +8,8 @@
 class QBitRef;
 class Q_CORE_EXPORT QBitArray
 {
-    friend Q_CORE_EXPORT QDataStream &operator<<( QDataStream &, const QBitArray & );
-    friend Q_CORE_EXPORT QDataStream &operator>>( QDataStream &, QBitArray & );
+    friend Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QBitArray &);
+    friend Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QBitArray &);
     QByteArray d;
 
 public:
@@ -51,7 +51,7 @@ public:
     inline bool isNull() const { return d.isNull(); }
 
     inline bool fill(bool val, int size = -1)
-	{ *this=QBitArray((size < 0 ? this->size() : size), val); return true; }
+        { *this=QBitArray((size < 0 ? this->size() : size), val); return true; }
 
     void fill(bool val, int first, int last);
 
@@ -109,8 +109,8 @@ inline QBitRef QBitArray::operator[](uint i)
 
 
 #ifndef QT_NO_DATASTREAM
-Q_CORE_EXPORT QDataStream &operator<<( QDataStream &, const QBitArray & );
-Q_CORE_EXPORT QDataStream &operator>>( QDataStream &, QBitArray & );
+Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QBitArray &);
+Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QBitArray &);
 #endif
 
 Q_DECLARE_TYPEINFO(QBitArray, Q_MOVABLE_TYPE);

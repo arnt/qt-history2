@@ -25,7 +25,7 @@
 #include "qstringlist.h"
 #endif // QT_H
 
-#if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
+#if !defined(QT_MODULE_SQL) || defined(QT_LICENSE_PROFESSIONAL)
 #define QM_EXPORT_SQL
 #else
 #define QM_EXPORT_SQL Q_SQL_EXPORT
@@ -60,33 +60,33 @@ public:
 #ifdef QT_COMPAT
     inline QT_COMPAT QSqlRecord record(const QSqlQuery& query) const
     { return query.record(); }
-    inline QT_COMPAT QSqlRecord recordInfo( const QString& tablename ) const
+    inline QT_COMPAT QSqlRecord recordInfo(const QString& tablename) const
     { return record(tablename); }
-    inline QT_COMPAT QSqlRecord recordInfo( const QSqlQuery& query ) const
+    inline QT_COMPAT QSqlRecord recordInfo(const QSqlQuery& query) const
     { return query.record(); }
 #endif
     virtual QString nullText() const;
-    virtual QString formatValue( const QSqlField* field, bool trimStrings = FALSE ) const;
+    virtual QString formatValue(const QSqlField* field, bool trimStrings = false) const;
     QSqlError lastError() const;
 
-    virtual bool hasFeature( DriverFeature f ) const = 0;
+    virtual bool hasFeature(DriverFeature f) const = 0;
     virtual void close() = 0;
     virtual QSqlQuery createQuery() const = 0;
 
-    virtual bool open( const QString& db,
+    virtual bool open(const QString& db,
                        const QString& user = QString(),
                        const QString& password = QString(),
                        const QString& host = QString(),
                        int port = -1,
-                       const QString& connOpts = QString() ) = 0;
+                       const QString& connOpts = QString()) = 0;
 protected:
-    virtual void setOpen( bool o );
-    virtual void setOpenError( bool e );
-    virtual void setLastError( const QSqlError& e );
+    virtual void setOpen(bool o);
+    virtual void setOpenError(bool e);
+    virtual void setLastError(const QSqlError& e);
 private:
 #if defined(Q_DISABLE_COPY)
-    QSqlDriver( const QSqlDriver & );
-    QSqlDriver &operator=( const QSqlDriver & );
+    QSqlDriver(const QSqlDriver &);
+    QSqlDriver &operator=(const QSqlDriver &);
 #endif
 };
 

@@ -35,7 +35,7 @@ public:
 };
 
 inline QSqlDriverPrivate::QSqlDriverPrivate()
-    : QObjectPrivate(), isOpen(FALSE), isOpenError(FALSE)
+    : QObjectPrivate(), isOpen(false), isOpenError(false)
 {
 }
 
@@ -59,7 +59,7 @@ QSqlDriverPrivate::~QSqlDriverPrivate()
 
 */
 
-QSqlDriver::QSqlDriver( QObject * parent)
+QSqlDriver::QSqlDriver(QObject * parent)
     : QObject(*new QSqlDriverPrivate, parent)
 {
 }
@@ -73,15 +73,15 @@ QSqlDriver::~QSqlDriver()
 }
 
 /*!
-    \fn bool QSqlDriver::open( const QString& db, const QString& user,
-    const QString& password, const QString& host, int port, const QString& connOpts )
+    \fn bool QSqlDriver::open(const QString& db, const QString& user,
+    const QString& password, const QString& host, int port, const QString& connOpts)
 
     Derived classes must reimplement this abstract virtual function in
     order to open a database connection on database \a db, using user
     name \a user, password \a password, host \a host, port \a port and
     connection options \a connOpts.
 
-    The function \e must return TRUE on success and FALSE on failure.
+    The function \e must return true on success and false on failure.
 
     \sa setOpen()
 
@@ -91,8 +91,8 @@ QSqlDriver::~QSqlDriver()
     \fn bool QSqlDriver::close()
 
     Derived classes must reimplement this abstract virtual function in
-    order to close the database connection. Return TRUE on success,
-    FALSE on failure.
+    order to close the database connection. Return true on success,
+    false on failure.
 
     \sa setOpen()
 
@@ -107,15 +107,15 @@ QSqlDriver::~QSqlDriver()
 
 */
 
-//void QSqlDriver::destroyResult( QSqlResult* r ) const
+//void QSqlDriver::destroyResult(QSqlResult* r) const
 //{
-//    if ( r )
-//	delete r;
+//    if (r)
+//        delete r;
 //}
 
 /*!
-    Returns TRUE if the database connection is open; otherwise returns
-    FALSE.
+    Returns true if the database connection is open; otherwise returns
+    false.
 */
 
 bool QSqlDriver::isOpen() const
@@ -124,8 +124,8 @@ bool QSqlDriver::isOpen() const
 }
 
 /*!
-    Returns TRUE if the there was an error opening the database
-    connection; otherwise returns FALSE.
+    Returns true if the there was an error opening the database
+    connection; otherwise returns false.
 */
 
 bool QSqlDriver::isOpenError() const
@@ -158,10 +158,10 @@ bool QSqlDriver::isOpenError() const
 */
 
 /*!
-    \fn bool QSqlDriver::hasFeature( DriverFeature f ) const
+    \fn bool QSqlDriver::hasFeature(DriverFeature f) const
 
-    Returns TRUE if the driver supports feature \a f; otherwise
-    returns FALSE.
+    Returns true if the driver supports feature \a f; otherwise
+    returns false.
 
     Note that some databases need to be open() before this can be
     determined.
@@ -177,7 +177,7 @@ bool QSqlDriver::isOpenError() const
     \sa open(), setOpenError()
 */
 
-void QSqlDriver::setOpen( bool o )
+void QSqlDriver::setOpen(bool o)
 {
     d->isOpen = o;
 }
@@ -185,56 +185,56 @@ void QSqlDriver::setOpen( bool o )
 /*!
     Protected function which sets the open error state of the database
     to \a e. Derived classes can use this function to report the
-    status of open(). Note that if \a e is TRUE the open state of the
-    database is set to closed (i.e. isOpen() returns FALSE).
+    status of open(). Note that if \a e is true the open state of the
+    database is set to closed (i.e. isOpen() returns false).
 
     \sa open(), setOpenError()
 */
 
-void QSqlDriver::setOpenError( bool e )
+void QSqlDriver::setOpenError(bool e)
 {
     d->isOpenError = e;
-    if ( e )
-	d->isOpen = FALSE;
+    if (e)
+        d->isOpen = false;
 }
 
 /*!
     Protected function which derived classes can reimplement to begin
-    a transaction. If successful, return TRUE, otherwise return FALSE.
-    The default implementation returns FALSE.
+    a transaction. If successful, return true, otherwise return false.
+    The default implementation returns false.
 
     \sa commitTransaction(), rollbackTransaction()
 */
 
 bool QSqlDriver::beginTransaction()
 {
-    return FALSE;
+    return false;
 }
 
 /*!
     Protected function which derived classes can reimplement to commit
-    a transaction. If successful, return TRUE, otherwise return FALSE.
-    The default implementation returns FALSE.
+    a transaction. If successful, return true, otherwise return false.
+    The default implementation returns false.
 
     \sa beginTransaction(), rollbackTransaction()
 */
 
 bool QSqlDriver::commitTransaction()
 {
-    return FALSE;
+    return false;
 }
 
 /*!
     Protected function which derived classes can reimplement to
-    rollback a transaction. If successful, return TRUE, otherwise
-    return FALSE. The default implementation returns FALSE.
+    rollback a transaction. If successful, return true, otherwise
+    return false. The default implementation returns false.
 
     \sa beginTransaction(), commitTransaction()
 */
 
 bool QSqlDriver::rollbackTransaction()
 {
-    return FALSE;
+    return false;
 }
 
 /*!
@@ -244,7 +244,7 @@ bool QSqlDriver::rollbackTransaction()
     \sa lastError()
 */
 
-void QSqlDriver::setLastError( const QSqlError& e )
+void QSqlDriver::setLastError(const QSqlError& e)
 {
     d->error = e;
 }
@@ -272,7 +272,7 @@ QSqlError QSqlDriver::lastError() const
     \sa QSql::TableType
 */
 
-QStringList QSqlDriver::tables( const QString&	) const
+QStringList QSqlDriver::tables(const QString&       ) const
 {
     return QStringList();
 }
@@ -283,7 +283,7 @@ QStringList QSqlDriver::tables( const QString&	) const
     implementation returns an empty index.
 */
 
-QSqlIndex QSqlDriver::primaryIndex( const QString& ) const
+QSqlIndex QSqlDriver::primaryIndex(const QString&) const
 {
     return QSqlIndex();
 }
@@ -295,20 +295,20 @@ QSqlIndex QSqlDriver::primaryIndex( const QString& ) const
     returned. The default implementation returns an empty record.
 */
 
-QSqlRecord QSqlDriver::record( const QString&  ) const
+QSqlRecord QSqlDriver::record(const QString& ) const
 {
     return QSqlRecord();
 }
 
-/*! \fn QSqlRecord QSqlDriver::record( const QSqlQuery& ) const
+/*! \fn QSqlRecord QSqlDriver::record(const QSqlQuery&) const
     \obsolete use QSqlResult::record() instead
 */
 
-/*!  \fn QSqlRecord QSqlDriver::recordInfo( const QString& tablename ) const
+/*!  \fn QSqlRecord QSqlDriver::recordInfo(const QString& tablename) const
     \obsolete use record() instead
 */
 
-/*! \fn QSqlRecord QSqlDriver::recordInfo( const QSqlQuery& query ) const
+/*! \fn QSqlRecord QSqlDriver::recordInfo(const QSqlQuery& query) const
     \obsolete use QSqlQuery::record instead
 */
 
@@ -340,7 +340,7 @@ QString QSqlDriver::nullText() const
     in single quotation marks, which is appropriate for many SQL
     databases. Any embedded single-quote characters are escaped
     (replaced with two single-quote characters). If \a trimStrings is
-    TRUE (the default is FALSE), all trailing whitespace is trimmed
+    true (the default is false), all trailing whitespace is trimmed
     from the field.
 
     \i If \a field is date/time data, the value is formatted in ISO
@@ -358,77 +358,77 @@ QString QSqlDriver::nullText() const
     \sa QCoreVariant::toString().
 
 */
-QString QSqlDriver::formatValue( const QSqlField* field, bool trimStrings ) const
+QString QSqlDriver::formatValue(const QSqlField* field, bool trimStrings) const
 {
     QString r;
-    if ( field->isNull() )
-	r = nullText();
+    if (field->isNull())
+        r = nullText();
     else {
-	switch ( field->type() ) {
-	case QCoreVariant::Int:
-	case QCoreVariant::UInt:
-	    if ( field->value().type() == QCoreVariant::Bool )
-		r = field->value().toBool() ? "1" : "0";
-	    else
-		r = field->value().toString();
-	    break;
-	case QCoreVariant::Date:
-	    if ( field->value().toDate().isValid() )
-		r = "'" + field->value().toDate().toString( Qt::ISODate ) + "'";
-	    else
-		r = nullText();
-	    break;
-	case QCoreVariant::Time:
-	    if ( field->value().toTime().isValid() )
-		r = "'" + field->value().toTime().toString( Qt::ISODate ) + "'";
-	    else
-		r = nullText();
-	    break;
-	case QCoreVariant::DateTime:
-	    if ( field->value().toDateTime().isValid() )
-		r = "'" +
-		    field->value().toDateTime().toString( Qt::ISODate ) + "'";
-	    else
-		r = nullText();
-	    break;
-	case QCoreVariant::String:
-	{
-	    QString result = field->value().toString();
-	    if ( trimStrings ) {
-		int end = result.length() - 1;
-		while ( end && result[end].isSpace() ) /* skip white space from end */
-		    end--;
-		result.truncate( end );
-	    }
-	    /* escape the "'" character */
-	    result.replace( QChar( '\'' ), "''" );
-	    r = "'" + result + "'";
-	    break;
-	}
-	case QCoreVariant::Bool:
-	    if ( field->value().toBool() )
-		r = "1";
-	    else
-		r = "0";
-	    break;
-	case QCoreVariant::ByteArray : {
-	    if ( hasFeature( BLOB ) ) {
-		QByteArray ba = field->value().toByteArray();
-		QString res;
-		static const char hexchars[] = "0123456789abcdef";
-		for ( int i = 0; i < ba.size(); ++i ) {
-		    uchar s = (uchar) ba[(int)i];
-		    res += hexchars[s >> 4];
-		    res += hexchars[s & 0x0f];
-		}
-		r = "'" + res + "'";
-		break;
-	    }
-	}
-	default:
-	    r = field->value().toString();
-	    break;
-	}
+        switch (field->type()) {
+        case QCoreVariant::Int:
+        case QCoreVariant::UInt:
+            if (field->value().type() == QCoreVariant::Bool)
+                r = field->value().toBool() ? "1" : "0";
+            else
+                r = field->value().toString();
+            break;
+        case QCoreVariant::Date:
+            if (field->value().toDate().isValid())
+                r = "'" + field->value().toDate().toString(Qt::ISODate) + "'";
+            else
+                r = nullText();
+            break;
+        case QCoreVariant::Time:
+            if (field->value().toTime().isValid())
+                r = "'" + field->value().toTime().toString(Qt::ISODate) + "'";
+            else
+                r = nullText();
+            break;
+        case QCoreVariant::DateTime:
+            if (field->value().toDateTime().isValid())
+                r = "'" +
+                    field->value().toDateTime().toString(Qt::ISODate) + "'";
+            else
+                r = nullText();
+            break;
+        case QCoreVariant::String:
+        {
+            QString result = field->value().toString();
+            if (trimStrings) {
+                int end = result.length() - 1;
+                while (end && result[end].isSpace()) /* skip white space from end */
+                    end--;
+                result.truncate(end);
+            }
+            /* escape the "'" character */
+            result.replace(QChar('\''), "''");
+            r = "'" + result + "'";
+            break;
+        }
+        case QCoreVariant::Bool:
+            if (field->value().toBool())
+                r = "1";
+            else
+                r = "0";
+            break;
+        case QCoreVariant::ByteArray : {
+            if (hasFeature(BLOB)) {
+                QByteArray ba = field->value().toByteArray();
+                QString res;
+                static const char hexchars[] = "0123456789abcdef";
+                for (int i = 0; i < ba.size(); ++i) {
+                    uchar s = (uchar) ba[(int)i];
+                    res += hexchars[s >> 4];
+                    res += hexchars[s & 0x0f];
+                }
+                r = "'" + res + "'";
+                break;
+            }
+        }
+        default:
+            r = field->value().toString();
+            break;
+        }
     }
     return r;
 }

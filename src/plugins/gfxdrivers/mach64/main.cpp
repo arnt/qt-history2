@@ -7,7 +7,7 @@ public:
     GfxMach64Driver();
 
     QStringList keys() const;
-    QScreen *create( const QString&, int displayId );
+    QScreen *create(const QString&, int displayId);
 };
 
 GfxMach64Driver::GfxMach64Driver()
@@ -22,12 +22,12 @@ QStringList GfxMach64Driver::keys() const
     return list;
 }
 
-QScreen* GfxMach64Driver::create( const QString& driver, int displayId )
+QScreen* GfxMach64Driver::create(const QString& driver, int displayId)
 {
-    if ( driver.lower() == "mach64" )
-        return new QMachScreen( displayId );
+    if (driver.lower() == "mach64")
+        return new QMachScreen(displayId);
 
     return 0;
 }
 
-Q_EXPORT_PLUGIN( GfxMach64Driver )
+Q_EXPORT_PLUGIN(GfxMach64Driver)

@@ -66,13 +66,13 @@
     The \a parent, \a name and widget flag, \a f, arguments are passed
     to the QScrollView constructor.
 */
-QGridView::QGridView( QWidget *parent, const char *name, WFlags f )
-    :QScrollView( parent, name, f | WStaticContents ),
-     nrows( 5 ), ncols( 5 ), cellw( 12 ), cellh( 12 )
+QGridView::QGridView(QWidget *parent, const char *name, WFlags f)
+    :QScrollView(parent, name, f | WStaticContents),
+     nrows(5), ncols(5), cellw(12), cellh(12)
 {
-    viewport()->setBackgroundRole( QPalette::Base );
-    setBackgroundRole( QPalette::Background );
-    viewport()->setFocusProxy( this );
+    viewport()->setBackgroundRole(QPalette::Base);
+    setBackgroundRole(QPalette::Background);
+    viewport()->setFocusProxy(this);
 }
 
 /*!
@@ -84,7 +84,7 @@ QGridView::~QGridView()
 
 void QGridView::updateGrid()
 {
-    resizeContents( ncols * cellw, nrows * cellh );
+    resizeContents(ncols * cellw, nrows * cellh);
 }
 
 /*!
@@ -93,11 +93,11 @@ void QGridView::updateGrid()
 
     \sa numCols
 */
-void QGridView::setNumRows( int numRows )
+void QGridView::setNumRows(int numRows)
 {
     int oldnrows = nrows;
     nrows = numRows;
-    dimensionChange( oldnrows, ncols );
+    dimensionChange(oldnrows, ncols);
     updateGrid();
 }
 
@@ -107,11 +107,11 @@ void QGridView::setNumRows( int numRows )
 
     \sa numRows
 */
-void QGridView::setNumCols( int numCols )
+void QGridView::setNumCols(int numCols)
 {
     int oldncols = ncols;
     ncols = numCols;
-    dimensionChange( nrows, oldncols );
+    dimensionChange(nrows, oldncols);
     updateGrid();
 }
 
@@ -123,7 +123,7 @@ void QGridView::setNumCols( int numCols )
 
     \sa cellHeight
 */
-void QGridView::setCellWidth( int cellWidth )
+void QGridView::setCellWidth(int cellWidth)
 {
     cellw = cellWidth;
     updateGrid();
@@ -138,7 +138,7 @@ void QGridView::setCellWidth( int cellWidth )
 
     \sa cellWidth
 */
-void QGridView::setCellHeight( int cellHeight )
+void QGridView::setCellHeight(int cellHeight)
 {
     cellh = cellHeight;
     updateGrid();
@@ -151,25 +151,25 @@ void QGridView::setCellHeight( int cellHeight )
 
     \sa cellRect()
  */
-QRect QGridView::cellGeometry( int row, int column )
+QRect QGridView::cellGeometry(int row, int column)
 {
     QRect r;
-    if ( row >= 0 && row < nrows && column >= 0 && column < ncols )
-	r.setRect( cellw * column, cellh * row, cellw, cellh );
+    if (row >= 0 && row < nrows && column >= 0 && column < ncols)
+        r.setRect(cellw * column, cellh * row, cellw, cellh);
     return r;
 }
 
 /*!
     Repaints cell (\a row, \a column).
 
-    If \a erase is TRUE, Qt erases the area of the cell before the
+    If \a erase is true, Qt erases the area of the cell before the
     paintCell() call; otherwise no erasing takes place.
 
     \sa QWidget::repaint()
 */
-void QGridView::repaintCell( int row, int column, bool )
+void QGridView::repaintCell(int row, int column, bool)
 {
-    repaintContents(cellGeometry( row, column ));
+    repaintContents(cellGeometry(row, column));
 }
 
 /*!
@@ -177,19 +177,19 @@ void QGridView::repaintCell( int row, int column, bool )
 
     \sa QWidget::update()
 */
-void QGridView::updateCell( int row, int column )
+void QGridView::updateCell(int row, int column)
 {
-    updateContents( cellGeometry( row, column ) );
+    updateContents(cellGeometry(row, column));
 }
 
 /*!
     Ensures cell (\a row, \a column) is visible, scrolling the grid
     view if necessary.
 */
-void QGridView::ensureCellVisible( int row, int column )
+void QGridView::ensureCellVisible(int row, int column)
 {
-    QRect r = cellGeometry( row, column );
-    ensureVisible( r.x(), r.y(), r.width(), r.height() );
+    QRect r = cellGeometry(row, column);
+    ensureVisible(r.x(), r.y(), r.width(), r.height());
 }
 
 /*!
@@ -201,62 +201,62 @@ void QGridView::ensureCellVisible( int row, int column )
     unused areas.
 */
 
-void QGridView::paintEmptyArea( QPainter *p, int cx ,int cy, int cw, int ch)
+void QGridView::paintEmptyArea(QPainter *p, int cx ,int cy, int cw, int ch)
 {
-    if ( gridSize().width() >= contentsWidth() && gridSize().height() >= contentsHeight() )
-	return;
+    if (gridSize().width() >= contentsWidth() && gridSize().height() >= contentsHeight())
+        return;
     // Region of the rect we should draw
-    contentsToViewport( cx, cy, cx, cy );
-    QRegion reg( QRect( cx, cy, cw, ch ) );
+    contentsToViewport(cx, cy, cx, cy);
+    QRegion reg(QRect(cx, cy, cw, ch));
     // Subtract the table from it
-    reg = reg.subtract( QRect( contentsToViewport( QPoint( 0, 0 ) ), gridSize() ) );
+    reg = reg.subtract(QRect(contentsToViewport(QPoint(0, 0)), gridSize()));
 
     // And draw the rectangles (transformed as needed)
     QVector<QRect> r = reg.rects();
     const QBrush &brush = palette().brush(backgroundRole());
-    for ( int i = 0; i < (int)r.count(); ++i)
-	p->fillRect( r[ i ], brush );
+    for (int i = 0; i < (int)r.count(); ++i)
+        p->fillRect(r[i], brush);
 }
 
 /*!\reimp
  */
-void QGridView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
+void QGridView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 {
-    int colfirst = columnAt( cx );
-    int collast = columnAt( cx + cw );
-    int rowfirst = rowAt( cy );
-    int rowlast = rowAt( cy + ch );
+    int colfirst = columnAt(cx);
+    int collast = columnAt(cx + cw);
+    int rowfirst = rowAt(cy);
+    int rowlast = rowAt(cy + ch);
 
-    if ( rowfirst == -1 || colfirst == -1 ) {
-	paintEmptyArea( p, cx, cy, cw, ch );
-	return;
+    if (rowfirst == -1 || colfirst == -1) {
+        paintEmptyArea(p, cx, cy, cw, ch);
+        return;
     }
 
-    if ( collast < 0 || collast >= ncols )
-	collast = ncols-1;
-    if ( rowlast < 0 || rowlast >= nrows )
-	rowlast = nrows-1;
+    if (collast < 0 || collast >= ncols)
+        collast = ncols-1;
+    if (rowlast < 0 || rowlast >= nrows)
+        rowlast = nrows-1;
 
     // Go through the rows
-    for ( int r = rowfirst; r <= rowlast; ++r ) {
-	// get row position and height
-	int rowp = r * cellh;
+    for (int r = rowfirst; r <= rowlast; ++r) {
+        // get row position and height
+        int rowp = r * cellh;
 
-	// Go through the columns in the row r
-	// if we know from where to where, go through [colfirst, collast],
-	// else go through all of them
-	for ( int c = colfirst; c <= collast; ++c ) {
-	    // get position and width of column c
-	    int colp = c * cellw;
-	    // Translate painter and draw the cell
-	    p->translate( colp, rowp );
-	    paintCell( p, r, c );
-	    p->translate( -colp, -rowp );
-	}
+        // Go through the columns in the row r
+        // if we know from where to where, go through [colfirst, collast],
+        // else go through all of them
+        for (int c = colfirst; c <= collast; ++c) {
+            // get position and width of column c
+            int colp = c * cellw;
+            // Translate painter and draw the cell
+            p->translate(colp, rowp);
+            paintCell(p, r, c);
+            p->translate(-colp, -rowp);
+        }
     }
 
     // Paint empty rects
-    paintEmptyArea( p, cx, cy, cw, ch );
+    paintEmptyArea(p, cx, cy, cw, ch);
 }
 
 /*!
@@ -264,24 +264,24 @@ void QGridView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 
     (Implemented to get rid of a compiler warning.)
 */
-void QGridView::drawContents( QPainter * )
+void QGridView::drawContents(QPainter *)
 {
 }
 
 /*!
-    \fn void QGridView::dimensionChange( int oldNumRows, int oldNumCols )
+    \fn void QGridView::dimensionChange(int oldNumRows, int oldNumCols)
 
     This change handler is called whenever any of the grid's
     dimensions change. \a oldNumRows and \a oldNumCols contain the
     old dimensions, numRows() and numCols() contain the new
     dimensions.
 */
-void QGridView::dimensionChange( int, int ) {}
+void QGridView::dimensionChange(int, int) {}
 
 
 
 /*!
-    \fn int QGridView::rowAt( int y ) const
+    \fn int QGridView::rowAt(int y) const
 
     Returns the number of the row at position \a y. \a y must be given
     in content coordinates.
@@ -290,7 +290,7 @@ void QGridView::dimensionChange( int, int ) {}
 */
 
 /*!
-    \fn int QGridView::columnAt( int x ) const
+    \fn int QGridView::columnAt(int x) const
 
     Returns the number of the column at position \a x. \a x must be
     given in content coordinates.
@@ -299,7 +299,7 @@ void QGridView::dimensionChange( int, int ) {}
 */
 
 /*!
-    \fn void QGridView::paintCell( QPainter *p, int row, int col )
+    \fn void QGridView::paintCell(QPainter *p, int row, int col)
 
     This pure virtual function is called to paint the single cell at
     (\a row, \a col) using painter \a p. The painter must be open when
@@ -315,9 +315,9 @@ void QGridView::dimensionChange( int, int ) {}
     efficiency. If you want clipping, use
 
     \code
-    p->setClipRect( cellRect(), QPainter::CoordPainter );
+    p->setClipRect(cellRect(), QPainter::CoordPainter);
     //... your drawing code
-    p->setClipping( FALSE );
+    p->setClipping(false);
 
     \endcode
 */
@@ -327,7 +327,7 @@ void QGridView::dimensionChange( int, int ) {}
 
     Returns the geometry of a cell in a cell's coordinate system. This
     is a convenience function useful in paintCell(). It is equivalent
-    to QRect( 0, 0, cellWidth(), cellHeight() ).
+    to QRect(0, 0, cellWidth(), cellHeight()).
 
     \sa cellGeometry()
 

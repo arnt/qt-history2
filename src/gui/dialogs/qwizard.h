@@ -28,36 +28,36 @@ class QWizardPrivate;
 class Q_GUI_EXPORT QWizard : public QDialog
 {
     Q_OBJECT
-    Q_PROPERTY( QFont titleFont READ titleFont WRITE setTitleFont )
+    Q_PROPERTY(QFont titleFont READ titleFont WRITE setTitleFont)
 
 public:
-    QWizard( QWidget* parent=0, const char* name=0, bool modal=FALSE,
-	     WFlags f=0 );
+    QWizard(QWidget* parent=0, const char* name=0, bool modal=false,
+             WFlags f=0);
     ~QWizard();
 
     void show();
 
-    void setFont( const QFont & font );
+    void setFont(const QFont & font);
 
-    virtual void addPage( QWidget *, const QString & );
-    virtual void insertPage( QWidget*, const QString&, int );
-    virtual void removePage( QWidget * );
+    virtual void addPage(QWidget *, const QString &);
+    virtual void insertPage(QWidget*, const QString&, int);
+    virtual void removePage(QWidget *);
 
-    QString title( QWidget * ) const;
-    void setTitle( QWidget *, const QString & );
+    QString title(QWidget *) const;
+    void setTitle(QWidget *, const QString &);
     QFont titleFont() const;
-    void setTitleFont( const QFont & );
+    void setTitleFont(const QFont &);
 
-    virtual void showPage( QWidget * );
+    virtual void showPage(QWidget *);
 
     QWidget * currentPage() const;
 
-    QWidget* page( int ) const;
+    QWidget* page(int) const;
     int pageCount() const;
-    int indexOf( QWidget* ) const;
+    int indexOf(QWidget*) const;
 
-    virtual bool appropriate( QWidget * ) const;
-    virtual void setAppropriate( QWidget *, bool );
+    virtual bool appropriate(QWidget *) const;
+    virtual void setAppropriate(QWidget *, bool);
 
     QPushButton * backButton() const;
     QPushButton * nextButton() const;
@@ -65,17 +65,17 @@ public:
     QPushButton * cancelButton() const;
     QPushButton * helpButton() const;
 
-    bool eventFilter( QObject *, QEvent * );
+    bool eventFilter(QObject *, QEvent *);
 
 public slots:
-    virtual void setBackEnabled( QWidget *, bool );
-    virtual void setNextEnabled( QWidget *, bool );
-    virtual void setFinishEnabled( QWidget *, bool );
+    virtual void setBackEnabled(QWidget *, bool);
+    virtual void setNextEnabled(QWidget *, bool);
+    virtual void setFinishEnabled(QWidget *, bool);
 
-    virtual void setHelpEnabled( QWidget *, bool );
+    virtual void setHelpEnabled(QWidget *, bool);
 
     // obsolete
-    virtual void setFinish(  QWidget *, bool ) {}
+    virtual void setFinish( QWidget *, bool) {}
 
 protected slots:
     virtual void back();
@@ -84,19 +84,19 @@ protected slots:
 
 signals:
     void helpClicked();
-    void selected( const QString& );
+    void selected(const QString&);
 
 protected:
-    virtual void layOutButtonRow( QHBoxLayout * );
-    virtual void layOutTitleRow( QHBoxLayout *, const QString & );
+    virtual void layOutButtonRow(QHBoxLayout *);
+    virtual void layOutTitleRow(QHBoxLayout *, const QString &);
 
 private:
-    void setBackEnabled( bool );
-    void setNextEnabled( bool );
+    void setBackEnabled(bool);
+    void setNextEnabled(bool);
 
-    void setHelpEnabled( bool );
+    void setHelpEnabled(bool);
 
-    void setNextPage( QWidget * );
+    void setNextPage(QWidget *);
 
     void updateButtons();
 
@@ -104,10 +104,10 @@ private:
 
     QWizardPrivate *d;
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QWizard( const QWizard & );
-    QWizard& operator=( const QWizard & );
+    QWizard(const QWizard &);
+    QWizard& operator=(const QWizard &);
 #endif
 };
 

@@ -32,24 +32,24 @@ static QSingleCleanupHandler< QPluginManager<QTextCodecFactoryInterface> > clean
 
 static void create_manager()
 {
-    if ( manager ) // already created
-	return;
+    if (manager) // already created
+        return;
 
     // protect manager creation
-    QMutexLocker locker( qt_global_mutexpool ?
-			 qt_global_mutexpool->get( &manager ) : 0);
+    QMutexLocker locker(qt_global_mutexpool ?
+                         qt_global_mutexpool->get(&manager) : 0);
 
     // we check the manager pointer again to make sure that another thread
     // has not created the manager before us.
 
-    if ( manager ) // already created
-	return;
+    if (manager) // already created
+        return;
 
     manager =
-	new QPluginManager<QTextCodecFactoryInterface>(IID_QTextCodecFactory,
-						       QCoreApplication::libraryPaths(), "/codecs",
-						       FALSE);
-    cleanup_manager.set( &manager );
+        new QPluginManager<QTextCodecFactoryInterface>(IID_QTextCodecFactory,
+                                                       QCoreApplication::libraryPaths(), "/codecs",
+                                                       false);
+    cleanup_manager.set(&manager);
 }
 
 #endif // QT_NO_COMPONENT
@@ -65,10 +65,10 @@ QTextCodec *QTextCodecFactory::createForName(const QString &name)
     create_manager();
 
     QInterfacePtr<QTextCodecFactoryInterface> iface;
-    manager->queryInterface(name, &iface );
+    manager->queryInterface(name, &iface);
 
     if (iface)
-	codec = iface->createForName(name);
+        codec = iface->createForName(name);
 
 #endif // QT_NO_COMPONENT
 
@@ -86,10 +86,10 @@ QTextCodec *QTextCodecFactory::createForMib(int mib)
     create_manager();
 
     QInterfacePtr<QTextCodecFactoryInterface> iface;
-    manager->queryInterface("MIB-" + QString::number(mib), &iface );
+    manager->queryInterface("MIB-" + QString::number(mib), &iface);
 
     if (iface)
-	codec = iface->createForMib(mib);
+        codec = iface->createForMib(mib);
 
 #endif // QT_NO_COMPONENT
 

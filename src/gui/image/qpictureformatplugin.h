@@ -34,9 +34,9 @@ public:
     ~QPictureFormatPlugin();
 
     virtual QStringList keys() const = 0;
-    virtual bool loadPicture( const QString &format, const QString &filename, QPicture *pic );
-    virtual bool savePicture( const QString &format, const QString &filename, const QPicture &pic );
-    virtual bool installIOHandler( const QString &format ) = 0;
+    virtual bool loadPicture(const QString &format, const QString &filename, QPicture *pic);
+    virtual bool savePicture(const QString &format, const QString &filename, const QPicture &pic);
+    virtual bool installIOHandler(const QString &format) = 0;
 
 private:
     QPictureFormatPluginPrivate *d;

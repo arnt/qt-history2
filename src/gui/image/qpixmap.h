@@ -40,122 +40,122 @@ class Q_GUI_EXPORT QPixmap : public QPaintDevice, public Qt
 public:
     enum ColorMode { Auto, Color, Mono };
     enum Optimization { DefaultOptim, NoOptim, MemoryOptim=NoOptim,
-			NormalOptim, BestOptim };
+                        NormalOptim, BestOptim };
 
     QPixmap();
-    QPixmap( const QImage& image );
-    QPixmap( int w, int h,  int depth = -1, Optimization = DefaultOptim );
-    QPixmap( const QSize &, int depth = -1, Optimization = DefaultOptim );
+    QPixmap(const QImage& image);
+    QPixmap(int w, int h,  int depth = -1, Optimization = DefaultOptim);
+    QPixmap(const QSize &, int depth = -1, Optimization = DefaultOptim);
 #ifndef QT_NO_IMAGEIO
-    QPixmap( const QString& fileName, const char *format=0,
-	     ColorMode mode=Auto );
-    QPixmap( const QString& fileName, const char *format,
-	     int conversion_flags );
-    explicit QPixmap( const char * const xpm[] );
+    QPixmap(const QString& fileName, const char *format=0,
+             ColorMode mode=Auto);
+    QPixmap(const QString& fileName, const char *format,
+             int conversion_flags);
+    explicit QPixmap(const char * const xpm[]);
 #endif
-    QPixmap( const QPixmap & );
+    QPixmap(const QPixmap &);
    ~QPixmap();
 
-    QPixmap    &operator=( const QPixmap & );
-    QPixmap    &operator=( const QImage	 & );
+    QPixmap    &operator=(const QPixmap &);
+    QPixmap    &operator=(const QImage         &);
 
     inline bool isNull() const;
 
-    int		width()		const { return data->w; }
-    int		height()	const { return data->h; }
-    QSize	size()		const { return QSize(data->w,data->h); }
-    QRect	rect()		const { return QRect(0,0,data->w,data->h); }
-    int		depth()		const { return data->d; }
-    static int	defaultDepth();
+    int                width()                const { return data->w; }
+    int                height()        const { return data->h; }
+    QSize        size()                const { return QSize(data->w,data->h); }
+    QRect        rect()                const { return QRect(0,0,data->w,data->h); }
+    int                depth()                const { return data->d; }
+    static int        defaultDepth();
 
-    void	fill( const QColor &fillColor = Qt::white );
-    void	fill( const QWidget *, int xofs, int yofs );
-    void	fill( const QWidget *, const QPoint &ofs );
-    void	resize( int width, int height );
-    void	resize( const QSize & );
+    void        fill(const QColor &fillColor = Qt::white);
+    void        fill(const QWidget *, int xofs, int yofs);
+    void        fill(const QWidget *, const QPoint &ofs);
+    void        resize(int width, int height);
+    void        resize(const QSize &);
 
     const QBitmap *mask() const;
-    void	setMask( const QBitmap & );
-    bool	selfMask() const;
-    bool	hasAlpha() const;
-    bool	hasAlphaChannel() const;
+    void        setMask(const QBitmap &);
+    bool        selfMask() const;
+    bool        hasAlpha() const;
+    bool        hasAlphaChannel() const;
 #ifndef QT_NO_IMAGE_HEURISTIC_MASK
-    QBitmap	createHeuristicMask( bool clipTight = TRUE ) const;
+    QBitmap        createHeuristicMask(bool clipTight = true) const;
 #endif
 #ifndef QT_NO_MIME
-    static QPixmap fromMimeSource( const QString& abs_name );
+    static QPixmap fromMimeSource(const QString& abs_name);
 #endif
-    static  QPixmap grabWindow( WId, int x=0, int y=0, int w=-1, int h=-1 );
-    static  QPixmap grabWidget( QWidget * widget,
-				int x=0, int y=0, int w=-1, int h=-1 );
+    static  QPixmap grabWindow(WId, int x=0, int y=0, int w=-1, int h=-1);
+    static  QPixmap grabWidget(QWidget * widget,
+                                int x=0, int y=0, int w=-1, int h=-1);
 
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
-    QPixmap	    xForm( const QWMatrix & ) const;
-    static QWMatrix trueMatrix( const QWMatrix &m, int w, int h );
+    QPixmap            xForm(const QWMatrix &) const;
+    static QWMatrix trueMatrix(const QWMatrix &m, int w, int h);
 #endif
 
-    QImage	convertToImage() const;
-    bool	convertFromImage( const QImage &, ColorMode mode=Auto );
-    bool	convertFromImage( const QImage &, int conversion_flags );
+    QImage        convertToImage() const;
+    bool        convertFromImage(const QImage &, ColorMode mode=Auto);
+    bool        convertFromImage(const QImage &, int conversion_flags);
 #ifndef QT_NO_IMAGEIO
-    static const char* imageFormat( const QString &fileName );
-    bool	load( const QString& fileName, const char *format=0,
-		      ColorMode mode=Auto );
-    bool	load( const QString& fileName, const char *format,
-		      int conversion_flags );
-    bool	loadFromData( const uchar *buf, uint len,
-			      const char* format=0,
-			      ColorMode mode=Auto );
-    bool	loadFromData( const uchar *buf, uint len,
-			      const char* format,
-			      int conversion_flags );
-    bool	loadFromData( const QByteArray &data,
-			      const char* format=0,
-			      int conversion_flags=0 );
-    bool	save( const QString& fileName, const char* format, int quality = -1 ) const;
-    bool	save( QIODevice* device, const char* format, int quality = -1 ) const;
+    static const char* imageFormat(const QString &fileName);
+    bool        load(const QString& fileName, const char *format=0,
+                      ColorMode mode=Auto);
+    bool        load(const QString& fileName, const char *format,
+                      int conversion_flags);
+    bool        loadFromData(const uchar *buf, uint len,
+                              const char* format=0,
+                              ColorMode mode=Auto);
+    bool        loadFromData(const uchar *buf, uint len,
+                              const char* format,
+                              int conversion_flags);
+    bool        loadFromData(const QByteArray &data,
+                              const char* format=0,
+                              int conversion_flags=0);
+    bool        save(const QString& fileName, const char* format, int quality = -1) const;
+    bool        save(QIODevice* device, const char* format, int quality = -1) const;
 #endif
 
 #if defined(Q_WS_WIN)
-    HBITMAP	hbm()		const;
+    HBITMAP        hbm()                const;
 #endif
 
 #if defined(Q_WS_MAC)
     virtual Qt::HANDLE      macCGHandle() const;
 #endif
 
-    int		serialNumber()	const;
+    int                serialNumber()        const;
 
-    Optimization	optimization() const;
-    void		setOptimization( Optimization );
+    Optimization        optimization() const;
+    void                setOptimization(Optimization);
     static Optimization defaultOptimization();
-    static void		setDefaultOptimization( Optimization );
+    static void                setDefaultOptimization(Optimization);
 
     virtual void detach();
 
-    bool	isQBitmap() const;
+    bool        isQBitmap() const;
 
 #if defined(Q_WS_WIN)
     // These functions are internal and used by Windows 9x only
-    bool	isMultiCellPixmap() const;
-    HDC		multiCellHandle() const;
-    HBITMAP	multiCellBitmap() const;
-    int		multiCellOffset() const;
-    int		allocCell();
-    void	freeCell( bool = FALSE );
+    bool        isMultiCellPixmap() const;
+    HDC                multiCellHandle() const;
+    HBITMAP        multiCellBitmap() const;
+    int                multiCellOffset() const;
+    int                allocCell();
+    void        freeCell(bool = false);
 #endif
 
 #if defined(Q_WS_QWS)
 #if 1//def QT_OLD_GFX
-    virtual QGfx * graphicsContext(bool clip_children=TRUE) const;
+    virtual QGfx * graphicsContext(bool clip_children=true) const;
 #endif
     virtual unsigned char * scanLine(int) const;
     virtual int bytesPerLine() const;
     QRgb * clut() const;
     int numCols() const;
 #elif defined(Q_WS_X11)
-    static int x11SetDefaultScreen( int screen );
-    void x11SetScreen( int screen );
+    static int x11SetDefaultScreen(int screen);
+    void x11SetScreen(int screen);
     QX11Info *x11Info() const;
 #endif
 
@@ -169,84 +169,84 @@ public:
 #endif
 
 protected:
-    QPixmap( int w, int h, const uchar *data, bool isXbitmap );
-    int metric( int ) const;
+    QPixmap(int w, int h, const uchar *data, bool isXbitmap);
+    int metric(int) const;
 
 #if defined(Q_WS_WIN)
-    struct QMCPI {				// mem optim for win9x
-	QMultiCellPixmap *mcp;
-	int	offset;
+    struct QMCPI {                                // mem optim for win9x
+        QMultiCellPixmap *mcp;
+        int        offset;
     };
 #endif
 
-    struct QPixmapData : public QSharedTemporary {	// internal pixmap data
-	QCOORD	w, h;
-	short	d;
-	uint	uninit	 : 1;
-	uint	bitmap	 : 1;
-	uint	selfmask : 1;
+    struct QPixmapData : public QSharedTemporary {        // internal pixmap data
+        QCOORD        w, h;
+        short        d;
+        uint        uninit         : 1;
+        uint        bitmap         : 1;
+        uint        selfmask : 1;
 #if defined(Q_WS_WIN)
-	uint	mcp	 : 1;
+        uint        mcp         : 1;
 #endif
-	int	ser_no;
-	QBitmap *mask;
+        int        ser_no;
+        QBitmap *mask;
 #if defined(Q_WS_WIN)
-	QPixmap *maskpm;
-	union {
-	    HBITMAP hbm;    // if mcp == FALSE
-	    QMCPI  *mcpi;   // if mcp == TRUE
-	} hbm_or_mcpi;
-	uchar *realAlphaBits;
+        QPixmap *maskpm;
+        union {
+            HBITMAP hbm;    // if mcp == false
+            QMCPI  *mcpi;   // if mcp == true
+        } hbm_or_mcpi;
+        uchar *realAlphaBits;
 #ifdef Q_OS_TEMP
-	uchar* ppvBits; // Pointer to DIBSection bits
+        uchar* ppvBits; // Pointer to DIBSection bits
 #endif
 #elif defined(Q_WS_X11)
-	void   *ximage;
-	void   *maskgc;
-	QPixmap *alphapm;
-	QX11Info *xinfo;
+        void   *ximage;
+        void   *maskgc;
+        QPixmap *alphapm;
+        QX11Info *xinfo;
 #elif defined(Q_WS_MAC)
-	ColorTable *clut;
-	QPixmap *alphapm;
+        ColorTable *clut;
+        QPixmap *alphapm;
 #elif defined(Q_WS_QWS)
-	int id; // ### should use QPaintDevice::hd, since it is there
-	QRgb * clut;
-	int numcols;
-	int rw;
-	int rh;
-	bool hasAlpha;
+        int id; // ### should use QPaintDevice::hd, since it is there
+        QRgb * clut;
+        int numcols;
+        int rw;
+        int rh;
+        bool hasAlpha;
 #endif
-	Optimization optim;
+        Optimization optim;
 #if defined(Q_WS_WIN)
-	HBITMAP old_hbm;
+        HBITMAP old_hbm;
 #endif
-	QPaintEngine *paintEngine;
+        QPaintEngine *paintEngine;
     } *data;
 private:
 #ifndef QT_NO_IMAGEIO
-    bool doImageIO( QImageIO* io, int quality ) const;
+    bool doImageIO(QImageIO* io, int quality) const;
 #endif
-    QPixmap( int w, int h, int depth, bool, Optimization );
-    void	init( int, int, int, bool, Optimization );
-    void	deref();
-    QPixmap	copy( bool ignoreMask = FALSE ) const;
+    QPixmap(int w, int h, int depth, bool, Optimization);
+    void        init(int, int, int, bool, Optimization);
+    void        deref();
+    QPixmap        copy(bool ignoreMask = false) const;
 #if defined(Q_WS_WIN)
-    void initAlphaPixmap( uchar *bytes, int length, struct tagBITMAPINFO *bmi );
-    void convertToAlphaPixmap( bool initAlpha=TRUE );
-    static void bitBltAlphaPixmap( QPixmap *dst, int dx, int dy,
-				   const QPixmap *src, int sx, int sy,
-				   int sw, int sh, bool useDstAlpha );
+    void initAlphaPixmap(uchar *bytes, int length, struct tagBITMAPINFO *bmi);
+    void convertToAlphaPixmap(bool initAlpha=true);
+    static void bitBltAlphaPixmap(QPixmap *dst, int dx, int dy,
+                                   const QPixmap *src, int sx, int sy,
+                                   int sw, int sh, bool useDstAlpha);
 #endif
     static Optimization defOptim;
-    friend Q_GUI_EXPORT void bitBlt( QPaintDevice *, int, int,
-				 const QPaintDevice *,
-				 int, int, int, int, RasterOp, bool );
-    friend Q_GUI_EXPORT void bitBlt( QPaintDevice *, int, int,
-				 const QImage* src,
-				 int, int, int, int, int conversion_flags );
-    friend Q_GUI_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
-				  const QPixmap *src, int sx, int sy,
-				  int sw, int sh );
+    friend Q_GUI_EXPORT void bitBlt(QPaintDevice *, int, int,
+                                 const QPaintDevice *,
+                                 int, int, int, int, RasterOp, bool);
+    friend Q_GUI_EXPORT void bitBlt(QPaintDevice *, int, int,
+                                 const QImage* src,
+                                 int, int, int, int, int conversion_flags);
+    friend Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
+                                  const QPixmap *src, int sx, int sy,
+                                  int sw, int sh);
 
     friend class QBitmap;
     friend class QPaintDevice;
@@ -270,14 +270,14 @@ inline bool QPixmap::isNull() const
     return data->w == 0;
 }
 
-inline void QPixmap::fill( const QWidget *w, const QPoint &ofs )
+inline void QPixmap::fill(const QWidget *w, const QPoint &ofs)
 {
-    fill( w, ofs.x(), ofs.y() );
+    fill(w, ofs.x(), ofs.y());
 }
 
-inline void QPixmap::resize( const QSize &s )
+inline void QPixmap::resize(const QSize &s)
 {
-    resize( s.width(), s.height() );
+    resize(s.width(), s.height());
 }
 
 inline const QBitmap *QPixmap::mask() const
@@ -324,16 +324,16 @@ inline bool QPixmap::isMultiCellPixmap() const
  *****************************************************************************/
 
 #if !defined(QT_NO_DATASTREAM) && !defined(QT_NO_IMAGEIO)
-Q_GUI_EXPORT QDataStream &operator<<( QDataStream &, const QPixmap & );
-Q_GUI_EXPORT QDataStream &operator>>( QDataStream &, QPixmap & );
+Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QPixmap &);
+Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QPixmap &);
 #endif
 
 /*****************************************************************************
   QPixmap (and QImage) helper functions
  *****************************************************************************/
 
-Q_GUI_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
-		       const QPixmap *src, int sx = 0, int sy = 0,
-		       int sw = -1, int sh = -1 );
+Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
+                       const QPixmap *src, int sx = 0, int sy = 0,
+                       int sw = -1, int sh = -1);
 
 #endif // QPIXMAP_H

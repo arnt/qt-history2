@@ -7,7 +7,7 @@ public:
     PlatinumStyle();
 
     QStringList keys() const;
-    QStyle *create( const QString& );
+    QStyle *create(const QString&);
 };
 
 PlatinumStyle::PlatinumStyle()
@@ -22,13 +22,13 @@ QStringList PlatinumStyle::keys() const
     return list;
 }
 
-QStyle* PlatinumStyle::create( const QString& s )
+QStyle* PlatinumStyle::create(const QString& s)
 {
-    if ( s.toLower() == "platinum" )
+    if (s.toLower() == "platinum")
         return new QPlatinumStyle();
 
     return 0;
 }
 
 
-Q_EXPORT_PLUGIN( PlatinumStyle )
+Q_EXPORT_PLUGIN(PlatinumStyle)

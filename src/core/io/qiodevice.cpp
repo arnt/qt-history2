@@ -109,7 +109,7 @@
 
     \i  CR/LF translation. For simplicity, applications often like to
     see just a single CR/LF style, and QIODevice subclasses can
-    provide this. isTranslated() returns TRUE if this object
+    provide this. isTranslated() returns true if this object
     translates CR/LF to just LF. (This can often be set by the
     application in the call to open().)
 
@@ -118,7 +118,7 @@
     whether it can read from and write to a given device. (This can
     often be set by the application in the call to open().)
 
-    \i  Finally, isOpen() returns TRUE if the device is open, i.e.
+    \i  Finally, isOpen() returns true if the device is open, i.e.
     after an open() call.
 
     \endlist
@@ -132,25 +132,25 @@
     class MyDevice : public QIODevice
     {
     public:
-	MyDevice();
-	~MyDevice();
+        MyDevice();
+        ~MyDevice();
 
-	bool open( int mode );
-	void close();
-	void flush();
+        bool open(int mode);
+        void close();
+        void flush();
 
-	uint size() const;
-	int  at() const;	// non-pure virtual
-	bool at( int );		// non-pure virtual
-	bool atEnd() const;	// non-pure virtual
+        uint size() const;
+        int  at() const;        // non-pure virtual
+        bool at(int);                // non-pure virtual
+        bool atEnd() const;        // non-pure virtual
 
-	int readBlock( char *data, uint maxlen );
-	int writeBlock( const char *data, uint len );
-	int readLine( char *data, uint maxlen );
+        int readBlock(char *data, uint maxlen);
+        int writeBlock(const char *data, uint len);
+        int readLine(char *data, uint maxlen);
 
-	int getch();
-	int putch( int );
-	int ungetch( int );
+        int getch();
+        int putch(int);
+        int ungetch(int);
     };
     \endcode
 
@@ -232,7 +232,7 @@
 
 QIODevice::QIODevice()
 {
-    ioMode = 0;					// initial mode
+    ioMode = 0;                                        // initial mode
     ioSt = IO_Ok;
     ioIndex = 0;
 }
@@ -281,8 +281,8 @@ QIODevice::~QIODevice()
 /*!
     \fn bool QIODevice::isDirectAccess() const
 
-    Returns TRUE if the I/O device is a direct access device;
-    otherwise returns FALSE, i.e. if the device is a sequential access
+    Returns true if the I/O device is a direct access device;
+    otherwise returns false, i.e. if the device is a sequential access
     device.
 
     \sa isSequentialAccess()
@@ -291,8 +291,8 @@ QIODevice::~QIODevice()
 /*!
     \fn bool QIODevice::isSequentialAccess() const
 
-    Returns TRUE if the device is a sequential access device;
-    otherwise returns FALSE, i.e. if the device is a direct access
+    Returns true if the device is a sequential access device;
+    otherwise returns false, i.e. if the device is a direct access
     device.
 
     Operations involving size() and at(int) are not valid on
@@ -304,8 +304,8 @@ QIODevice::~QIODevice()
 /*!
     \fn bool QIODevice::isCombinedAccess() const
 
-    Returns TRUE if the I/O device is a combined access (both direct
-    and sequential) device; otherwise returns FALSE.
+    Returns true if the I/O device is a combined access (both direct
+    and sequential) device; otherwise returns false.
 
     This access method is currently not in use.
 */
@@ -313,8 +313,8 @@ QIODevice::~QIODevice()
 /*!
     \fn bool QIODevice::isBuffered() const
 
-    Returns TRUE if the I/O device is a buffered device; otherwise
-    returns FALSE, i.e. the device is a raw device.
+    Returns true if the I/O device is a buffered device; otherwise
+    returns false, i.e. the device is a raw device.
 
     \sa isRaw()
 */
@@ -322,8 +322,8 @@ QIODevice::~QIODevice()
 /*!
     \fn bool QIODevice::isRaw() const
 
-    Returns TRUE if the device is a raw device; otherwise returns
-    FALSE, i.e. if the device is a buffered device.
+    Returns true if the device is a raw device; otherwise returns
+    false, i.e. if the device is a buffered device.
 
     \sa isBuffered()
 */
@@ -331,8 +331,8 @@ QIODevice::~QIODevice()
 /*!
     \fn bool QIODevice::isSynchronous() const
 
-    Returns TRUE if the I/O device is a synchronous device; otherwise
-    returns FALSE, i.e. the device is an asynchronous device.
+    Returns true if the I/O device is a synchronous device; otherwise
+    returns false, i.e. the device is an asynchronous device.
 
     \sa isAsynchronous()
 */
@@ -340,8 +340,8 @@ QIODevice::~QIODevice()
 /*!
     \fn bool QIODevice::isAsynchronous() const
 
-    Returns TRUE if the device is an asynchronous device; otherwise
-    returns FALSE, i.e. if the device is a synchronous device.
+    Returns true if the device is an asynchronous device; otherwise
+    returns false, i.e. if the device is a synchronous device.
 
     This mode is currently not in use.
 
@@ -351,8 +351,8 @@ QIODevice::~QIODevice()
 /*!
     \fn bool QIODevice::isTranslated() const
 
-    Returns TRUE if the I/O device translates carriage-return and
-    linefeed characters; otherwise returns FALSE.
+    Returns true if the I/O device translates carriage-return and
+    linefeed characters; otherwise returns false.
 
     A QFile is translated if it is opened with the \c IO_Translate
     mode flag.
@@ -361,8 +361,8 @@ QIODevice::~QIODevice()
 /*!
     \fn bool QIODevice::isReadable() const
 
-    Returns TRUE if the I/O device was opened using \c IO_ReadOnly or
-    \c IO_ReadWrite mode; otherwise returns FALSE.
+    Returns true if the I/O device was opened using \c IO_ReadOnly or
+    \c IO_ReadWrite mode; otherwise returns false.
 
     \sa isWritable(), isReadWrite()
 */
@@ -370,8 +370,8 @@ QIODevice::~QIODevice()
 /*!
     \fn bool QIODevice::isWritable() const
 
-    Returns TRUE if the I/O device was opened using \c IO_WriteOnly or
-    \c IO_ReadWrite mode; otherwise returns FALSE.
+    Returns true if the I/O device was opened using \c IO_WriteOnly or
+    \c IO_ReadWrite mode; otherwise returns false.
 
     \sa isReadable(), isReadWrite()
 */
@@ -379,8 +379,8 @@ QIODevice::~QIODevice()
 /*!
     \fn bool QIODevice::isReadWrite() const
 
-    Returns TRUE if the I/O device was opened using \c IO_ReadWrite
-    mode; otherwise returns FALSE.
+    Returns true if the I/O device was opened using \c IO_ReadWrite
+    mode; otherwise returns false.
 
     \sa isReadable(), isWritable()
 */
@@ -388,8 +388,8 @@ QIODevice::~QIODevice()
 /*!
     \fn bool QIODevice::isInactive() const
 
-    Returns TRUE if the I/O device state is 0, i.e. the device is not
-    open; otherwise returns FALSE.
+    Returns true if the I/O device state is 0, i.e. the device is not
+    open; otherwise returns false.
 
     \sa isOpen()
 */
@@ -397,8 +397,8 @@ QIODevice::~QIODevice()
 /*!
     \fn bool QIODevice::isOpen() const
 
-    Returns TRUE if the I/O device has been opened; otherwise returns
-    FALSE.
+    Returns true if the I/O device has been opened; otherwise returns
+    false.
 
     \sa isInactive()
 */
@@ -410,7 +410,7 @@ QIODevice::~QIODevice()
     Returns the I/O device status.
 
     The I/O device status returns an error code. If open() returns
-    FALSE or readBlock() or writeBlock() return -1, this function can
+    false or readBlock() or writeBlock() return -1, this function can
     be called to find out the reason why the operation failed.
 
     \keyword IO_Ok
@@ -450,7 +450,7 @@ QIODevice::~QIODevice()
 
 
 /*!
-  \fn void QIODevice::setFlags( int f )
+  \fn void QIODevice::setFlags(int f)
   \internal
   Used by subclasses to set the device flags.
 */
@@ -460,11 +460,11 @@ QIODevice::~QIODevice()
   Used by subclasses to set the device type.
 */
 
-void QIODevice::setType( int t )
+void QIODevice::setType(int t)
 {
-    if ( (t & IO_TypeMask) != t )
-	qWarning( "QIODevice::setType: Specified type out of range" );
-    ioMode &= ~IO_TypeMask;			// reset type bits
+    if ((t & IO_TypeMask) != t)
+        qWarning("QIODevice::setType: Specified type out of range");
+    ioMode &= ~IO_TypeMask;                        // reset type bits
     ioMode |= t;
 }
 
@@ -473,11 +473,11 @@ void QIODevice::setType( int t )
   Used by subclasses to set the device mode.
 */
 
-void QIODevice::setMode( int m )
+void QIODevice::setMode(int m)
 {
-    if ( (m & IO_ModeMask) != m )
-	qWarning( "QIODevice::setMode: Specified mode out of range" );
-    ioMode &= ~IO_ModeMask;			// reset mode bits
+    if ((m & IO_ModeMask) != m)
+        qWarning("QIODevice::setMode: Specified mode out of range");
+    ioMode &= ~IO_ModeMask;                        // reset mode bits
     ioMode |= m;
 }
 
@@ -486,11 +486,11 @@ void QIODevice::setMode( int m )
   Used by subclasses to set the device state.
 */
 
-void QIODevice::setState( int s )
+void QIODevice::setState(int s)
 {
-    if ( ((uint)s & IO_StateMask) != (uint)s )
-	qWarning( "QIODevice::setState: Specified state out of range" );
-    ioMode &= ~IO_StateMask;			// reset state bits
+    if (((uint)s & IO_StateMask) != (uint)s)
+        qWarning("QIODevice::setState: Specified state out of range");
+    ioMode &= ~IO_StateMask;                        // reset state bits
     ioMode |= (uint)s;
 }
 
@@ -499,17 +499,17 @@ void QIODevice::setState( int s )
   Used by subclasses to set the device status (not state) to \a s.
 */
 
-void QIODevice::setStatus( int s )
+void QIODevice::setStatus(int s)
 {
     ioSt = s;
 }
 
 
 /*!
-    \fn bool QIODevice::open( int mode )
+    \fn bool QIODevice::open(int mode)
 
-    Opens the I/O device using the specified \a mode. Returns TRUE if
-    the device was successfully opened; otherwise returns FALSE.
+    Opens the I/O device using the specified \a mode. Returns true if
+    the device was successfully opened; otherwise returns false.
 
     The mode parameter \a mode must be an OR'ed combination of the
     following flags.
@@ -584,37 +584,37 @@ QIODevice::Offset QIODevice::at() const
 */
 /*!
     Virtual function that sets the I/O device position to \a pos.
-    Returns TRUE if the position was successfully set, i.e. \a pos is
-    within range and the seek was successful; otherwise returns FALSE.
+    Returns true if the position was successfully set, i.e. \a pos is
+    within range and the seek was successful; otherwise returns false.
 
     \sa size()
 */
 
-bool QIODevice::at( Offset pos )
+bool QIODevice::at(Offset pos)
 {
-    if ( pos >= 0 && pos > size() ) {
-	qWarning( "QIODevice::at: Index %lld out of range", pos );
-	return FALSE;
+    if (pos >= 0 && pos > size()) {
+        qWarning("QIODevice::at: Index %lld out of range", pos);
+        return false;
     }
     ioIndex = pos;
-    return TRUE;
+    return true;
 }
 
 /*!
-    Virtual function that returns TRUE if the I/O device position is
-    at the end of the input; otherwise returns FALSE.
+    Virtual function that returns true if the I/O device position is
+    at the end of the input; otherwise returns false.
 */
 
 bool QIODevice::atEnd() const
 {
-    if ( isSequentialAccess() || isTranslated() ) {
-	QIODevice* that = const_cast<QIODevice*>(this);
-	int c = that->getch();
-	bool result = c < 0;
-	that->ungetch(c);
-	return result;
+    if (isSequentialAccess() || isTranslated()) {
+        QIODevice* that = const_cast<QIODevice*>(this);
+        int c = that->getch();
+        bool result = c < 0;
+        that->ungetch(c);
+        return result;
     } else {
-	return at() == size();
+        return at() == size();
     }
 }
 
@@ -628,7 +628,7 @@ bool QIODevice::atEnd() const
 
 
 /*!
-    \fn int QIODevice::readBlock( char *data, Q_ULONG maxlen )
+    \fn int QIODevice::readBlock(char *data, Q_ULONG maxlen)
 
     Reads at most \a maxlen bytes from the I/O device into \a data and
     returns the number of bytes actually read.
@@ -649,47 +649,47 @@ bool QIODevice::atEnd() const
 */
 QByteArray QIODevice::readAll()
 {
-    if ( isDirectAccess() ) {
-	// we know the size
-	int n = size()-at(); // ### fix for 64-bit or large files?
-	int totalRead = 0;
-	QByteArray ba;
-	ba.resize( n );
-	char* c = ba.data();
-	while ( n ) {
-	    int r = readBlock( c, n );
-	    if ( r < 0 )
-		return QByteArray();
-	    n -= r;
-	    c += r;
-	    totalRead += r;
-	    // If we have a translated file, then it is possible that
-	    // we read less bytes than size() reports
-	    if ( atEnd() ) {
-		ba.resize( totalRead );
-		break;
-	    }
-	}
-	return ba;
+    if (isDirectAccess()) {
+        // we know the size
+        int n = size()-at(); // ### fix for 64-bit or large files?
+        int totalRead = 0;
+        QByteArray ba;
+        ba.resize(n);
+        char* c = ba.data();
+        while (n) {
+            int r = readBlock(c, n);
+            if (r < 0)
+                return QByteArray();
+            n -= r;
+            c += r;
+            totalRead += r;
+            // If we have a translated file, then it is possible that
+            // we read less bytes than size() reports
+            if (atEnd()) {
+                ba.resize(totalRead);
+                break;
+            }
+        }
+        return ba;
     } else {
-	// read until we reach the end
-	const int blocksize = 512;
-	int nread = 0;
-	QByteArray ba;
-	while ( !atEnd() ) {
-	    ba.resize( nread + blocksize );
-	    int r = readBlock( ba.data()+nread, blocksize );
-	    if ( r < 0 )
-		return QByteArray();
-	    nread += r;
-	}
-	ba.resize( nread );
-	return ba;
+        // read until we reach the end
+        const int blocksize = 512;
+        int nread = 0;
+        QByteArray ba;
+        while (!atEnd()) {
+            ba.resize(nread + blocksize);
+            int r = readBlock(ba.data()+nread, blocksize);
+            if (r < 0)
+                return QByteArray();
+            nread += r;
+        }
+        ba.resize(nread);
+        return ba;
     }
 }
 
 /*!
-    \fn int QIODevice::writeBlock( const char *data, Q_ULONG len )
+    \fn int QIODevice::writeBlock(const char *data, Q_ULONG len)
 
     Writes \a len bytes from \a data to the I/O device and returns the
     number of bytes actually written.
@@ -705,11 +705,11 @@ QByteArray QIODevice::readAll()
     \overload
 
     This convenience function is the same as calling writeBlock(
-    data.data(), data.size() ).
+    data.data(), data.size()).
 */
-Q_LONG QIODevice::writeBlock( const QByteArray& data )
+Q_LONG QIODevice::writeBlock(const QByteArray& data)
 {
-    return writeBlock( data, data.size() );
+    return writeBlock(data, data.size());
 }
 
 /*!
@@ -726,14 +726,14 @@ Q_LONG QIODevice::writeBlock( const QByteArray& data )
     \sa readBlock(), QTextStream::readLine()
 */
 
-Q_LONG QIODevice::readLine( char *data, Q_ULONG maxlen )
+Q_LONG QIODevice::readLine(char *data, Q_ULONG maxlen)
 {
-    if ( maxlen == 0 )				// application bug?
-	return 0;
+    if (maxlen == 0)                                // application bug?
+        return 0;
     char *p = data;
-    while ( --maxlen && (readBlock(p,1)>0) ) {	// read one byte at a time
-	if ( *p++ == '\n' )			// end of line
-	    break;
+    while (--maxlen && (readBlock(p,1)>0)) {        // read one byte at a time
+        if (*p++ == '\n')                        // end of line
+            break;
     }
     *p++ = '\0';
     return p - data;
@@ -754,7 +754,7 @@ Q_LONG QIODevice::readLine( char *data, Q_ULONG maxlen )
 */
 
 /*!
-    \fn int QIODevice::putch( int ch )
+    \fn int QIODevice::putch(int ch)
 
     Writes the character \a ch to the I/O device.
 
@@ -766,7 +766,7 @@ Q_LONG QIODevice::readLine( char *data, Q_ULONG maxlen )
 */
 
 /*!
-    \fn int QIODevice::ungetch( int ch )
+    \fn int QIODevice::ungetch(int ch)
 
     Puts the character \a ch back into the I/O device and decrements
     the index position if it is not zero.

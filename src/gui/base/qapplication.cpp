@@ -61,7 +61,7 @@ QApplicationPrivate::QApplicationPrivate(int &argc, char **argv)
     : QCoreApplicationPrivate(argc, argv)
 {
 #ifndef QT_NO_SESSIONMANAGER
-    is_session_restored = FALSE;
+    is_session_restored = false;
 #endif
 
     QVariant::handler = &qt_gui_variant_handler;
@@ -161,111 +161,111 @@ QApplicationPrivate::QApplicationPrivate(int &argc, char **argv)
     \row
      \i System settings
      \i
-	desktopSettingsAware(),
-	setDesktopSettingsAware(),
-	cursorFlashTime(),
-	setCursorFlashTime(),
-	doubleClickInterval(),
-	setDoubleClickInterval(),
-	wheelScrollLines(),
-	setWheelScrollLines(),
-	palette(),
-	setPalette(),
-	font(),
-	setFont(),
-	fontMetrics().
+        desktopSettingsAware(),
+        setDesktopSettingsAware(),
+        cursorFlashTime(),
+        setCursorFlashTime(),
+        doubleClickInterval(),
+        setDoubleClickInterval(),
+        wheelScrollLines(),
+        setWheelScrollLines(),
+        palette(),
+        setPalette(),
+        font(),
+        setFont(),
+        fontMetrics().
 
     \row
      \i Event handling
      \i
-	exec(),
-	processEvents(),
-	enter_loop(),
-	exit_loop(),
-	exit(),
-	quit().
-	sendEvent(),
-	postEvent(),
-	sendPostedEvents(),
-	removePostedEvents(),
-	hasPendingEvents(),
-	notify(),
-	macEventFilter(),
-	qwsEventFilter(),
-	x11EventFilter(),
-	x11ProcessEvent(),
-	winEventFilter().
+        exec(),
+        processEvents(),
+        enter_loop(),
+        exit_loop(),
+        exit(),
+        quit().
+        sendEvent(),
+        postEvent(),
+        sendPostedEvents(),
+        removePostedEvents(),
+        hasPendingEvents(),
+        notify(),
+        macEventFilter(),
+        qwsEventFilter(),
+        x11EventFilter(),
+        x11ProcessEvent(),
+        winEventFilter().
 
     \row
      \i GUI Styles
      \i
-	style(),
-	setStyle(),
-	polish().
+        style(),
+        setStyle(),
+        polish().
 
     \row
      \i Color usage
      \i
-	colorSpec(),
-	setColorSpec(),
-	qwsSetCustomColors().
+        colorSpec(),
+        setColorSpec(),
+        qwsSetCustomColors().
 
     \row
      \i Text handling
      \i
-	installTranslator(),
-	removeTranslator()
-	translate().
+        installTranslator(),
+        removeTranslator()
+        translate().
 
     \row
      \i Widgets
      \i
-	mainWidget(),
-	setMainWidget(),
-	allWidgets(),
-	topLevelWidgets(),
-	desktop(),
-	activePopupWidget(),
-	activeModalWidget(),
-	clipboard(),
-	focusWidget(),
-	winFocus(),
-	activeWindow(),
-	widgetAt().
+        mainWidget(),
+        setMainWidget(),
+        allWidgets(),
+        topLevelWidgets(),
+        desktop(),
+        activePopupWidget(),
+        activeModalWidget(),
+        clipboard(),
+        focusWidget(),
+        winFocus(),
+        activeWindow(),
+        widgetAt().
 
     \row
      \i Advanced cursor handling
      \i
-	overrideCursor(),
-	setOverrideCursor(),
-	restoreOverrideCursor().
+        overrideCursor(),
+        setOverrideCursor(),
+        restoreOverrideCursor().
 
     \row
      \i X Window System synchronization
      \i
-	flushX(),
-	syncX().
+        flushX(),
+        syncX().
 
     \row
      \i Session management
      \i
-	isSessionRestored(),
-	sessionId(),
-	commitData(),
-	saveState().
+        isSessionRestored(),
+        sessionId(),
+        commitData(),
+        saveState().
 
     \row
     \i Threading
     \i
-	lock(), unlock(), locked(), tryLock(),
+        lock(), unlock(), locked(), tryLock(),
 
     \row
      \i Miscellaneous
      \i
-	closeAllWindows(),
-	startingUp(),
-	closingDown(),
-	type().
+        closeAllWindows(),
+        startingUp(),
+        closingDown(),
+        type().
   \endtable
 
   \e {Non-GUI programs:} While Qt is not optimized or
@@ -308,51 +308,51 @@ QApplicationPrivate::QApplicationPrivate(int &argc, char **argv)
   qapplication_xyz.cpp file.
 */
 
-void qt_init( QApplicationPrivate *priv, int type
+void qt_init(QApplicationPrivate *priv, int type
 #ifdef Q_WS_X11
-	      , Display *display = 0, Qt::HANDLE visual = 0, Qt::HANDLE colormap = 0
+              , Display *display = 0, Qt::HANDLE visual = 0, Qt::HANDLE colormap = 0
 #endif
-    );
+   );
 void qt_cleanup();
-bool qt_tryModalHelper( QWidget *widget, QWidget **rettop );
+bool qt_tryModalHelper(QWidget *widget, QWidget **rettop);
 
-QStyle   *QApplication::app_style      = 0;	// default application style
-bool      qt_explicit_app_style	       = FALSE; // style explicitly set by programmer
+QStyle   *QApplication::app_style      = 0;        // default application style
+bool      qt_explicit_app_style               = false; // style explicitly set by programmer
 
-int	  QApplication::app_cspec      = QApplication::NormalColor;
+int          QApplication::app_cspec      = QApplication::NormalColor;
 #ifndef QT_NO_PALETTE
-QPalette *QApplication::app_pal	       = 0;	// default application palette
+QPalette *QApplication::app_pal               = 0;        // default application palette
 #endif
-QFont	 *QApplication::app_font       = 0;	// default application font
-bool	  qt_app_has_font	       = FALSE;
-QWidget	 *QApplication::main_widget    = 0;	// main application widget
-QWidget	 *QApplication::focus_widget   = 0;	// has keyboard input focus
-QWidget	 *QApplication::active_window  = 0;	// toplevel with keyboard focus
-bool	  QApplication::obey_desktop_settings = TRUE;	// use winsys resources
-int	  QApplication::cursor_flash_time = 1000;	// text caret flash time
-int	  QApplication::mouse_double_click_time = 400;	// mouse dbl click limit
+QFont         *QApplication::app_font       = 0;        // default application font
+bool          qt_app_has_font               = false;
+QWidget         *QApplication::main_widget    = 0;        // main application widget
+QWidget         *QApplication::focus_widget   = 0;        // has keyboard input focus
+QWidget         *QApplication::active_window  = 0;        // toplevel with keyboard focus
+bool          QApplication::obey_desktop_settings = true;        // use winsys resources
+int          QApplication::cursor_flash_time = 1000;        // text caret flash time
+int          QApplication::mouse_double_click_time = 400;        // mouse dbl click limit
 #ifndef QT_NO_WHEELEVENT
-int	  QApplication::wheel_scroll_lines = 3;		// number of lines to scroll
+int          QApplication::wheel_scroll_lines = 3;                // number of lines to scroll
 #endif
-bool	  qt_is_gui_used;
-bool      Q_GUI_EXPORT qt_tab_all_widgets  = TRUE;
+bool          qt_is_gui_used;
+bool      Q_GUI_EXPORT qt_tab_all_widgets  = true;
 QRect qt_maxWindowRect;
 static int drag_time = 500;
 static int drag_distance = 4;
-static bool reverse_layout = FALSE;
-QSize     QApplication::app_strut	= QSize( 0,0 ); // no default application strut
-bool	  QApplication::animate_ui	= TRUE;
-bool	  QApplication::animate_menu	= FALSE;
-bool	  QApplication::fade_menu	= FALSE;
-bool	  QApplication::animate_combo	= FALSE;
-bool	  QApplication::animate_tooltip	= FALSE;
-bool	  QApplication::fade_tooltip	= FALSE;
-bool	  QApplication::animate_toolbox	= FALSE;
-bool	  QApplication::widgetCount	= FALSE;
+static bool reverse_layout = false;
+QSize     QApplication::app_strut        = QSize(0,0); // no default application strut
+bool          QApplication::animate_ui        = true;
+bool          QApplication::animate_menu        = false;
+bool          QApplication::fade_menu        = false;
+bool          QApplication::animate_combo        = false;
+bool          QApplication::animate_tooltip        = false;
+bool          QApplication::fade_tooltip        = false;
+bool          QApplication::animate_toolbox        = false;
+bool          QApplication::widgetCount        = false;
 QApplication::Type qt_appType=QApplication::Tty;
 
 #if defined(QT_TABLET_SUPPORT)
-bool chokeMouse = FALSE;
+bool chokeMouse = false;
 #endif
 
 int qt_double_buffer_timer = 0;
@@ -363,16 +363,16 @@ void qt_setMaxWindowRect(const QRect& r)
     // Re-resize any maximized windows
     QWidgetList l = QApplication::topLevelWidgets();
     for (int i = 0; i < l.size(); ++i) {
-	QWidget *w = l.at(i);
-	if (w->isVisible() && w->isMaximized()) {
-	    w->showMaximized();
-	    w->showNormal(); //#### flicker
-	}
+        QWidget *w = l.at(i);
+        if (w->isVisible() && w->isMaximized()) {
+            w->showMaximized();
+            w->showNormal(); //#### flicker
+        }
     }
 }
 
 /*!
-    \fn qAddPostRoutine( QtCleanUpFunction ptr )
+    \fn qAddPostRoutine(QtCleanUpFunction ptr)
 
     \relates QApplication
 
@@ -388,14 +388,14 @@ void qt_setMaxWindowRect(const QRect& r)
 
     static void cleanup_ptr()
     {
-	delete [] global_ptr;
-	global_ptr = 0;
+        delete [] global_ptr;
+        global_ptr = 0;
     }
 
     void init_ptr()
     {
-	global_ptr = new int[100];	// allocate data
-	qAddPostRoutine( cleanup_ptr );	// delete later
+        global_ptr = new int[100];        // allocate data
+        qAddPostRoutine(cleanup_ptr);        // delete later
     }
     \endcode
 
@@ -414,21 +414,21 @@ void qt_setMaxWindowRect(const QRect& r)
     \code
     class MyPrivateInitStuff: public QObject {
     private:
-	MyPrivateInitStuff(QObject *parent): QObject(parent) {
-	    // initialization goes here
-	}
-	MyPrivateInitStuff *p;
+        MyPrivateInitStuff(QObject *parent): QObject(parent) {
+            // initialization goes here
+        }
+        MyPrivateInitStuff *p;
 
     public:
-	static MyPrivateInitStuff *initStuff(QObject *parent) {
-	    if (!p)
-		p = new MyPrivateInitStuff(parent);
-	    return p;
-	}
+        static MyPrivateInitStuff *initStuff(QObject *parent) {
+            if (!p)
+                p = new MyPrivateInitStuff(parent);
+            return p;
+        }
 
-	~MyPrivateInitStuff() {
-	    // cleanup (the "post routine") goes here
-	}
+        ~MyPrivateInitStuff() {
+            // cleanup (the "post routine") goes here
+        }
     }
     \endcode
 
@@ -442,27 +442,27 @@ void qt_setMaxWindowRect(const QRect& r)
 QHash<QByteArray, QPalette> app_palettes;
 QHash<QByteArray, QFont> app_fonts;
 
-QWidgetList *QApplication::popupWidgets = 0;	// has keyboard input focus
+QWidgetList *QApplication::popupWidgets = 0;        // has keyboard input focus
 
-QDesktopWidget *qt_desktopWidget = 0;		// root window widgets
+QDesktopWidget *qt_desktopWidget = 0;                // root window widgets
 #ifndef QT_NO_CLIPBOARD
-QClipboard	      *qt_clipboard = 0;	// global clipboard object
+QClipboard              *qt_clipboard = 0;        // global clipboard object
 #endif
-QWidgetList * qt_modal_stack=0;		// stack of modal widgets
+QWidgetList * qt_modal_stack=0;                // stack of modal widgets
 
 #ifndef QT_NO_PALETTE
 QPalette *qt_std_pal = 0;
 
 void qt_create_std_palette()
 {
-    if ( qt_std_pal )
-	delete qt_std_pal;
+    if (qt_std_pal)
+        delete qt_std_pal;
 
     QColor standardLightGray(192, 192, 192);
     QColor light(standardLightGray.light());
     QColor dark(standardLightGray.dark());
     qt_std_pal =
-	new QPalette(Qt::black, standardLightGray, light, dark, Qt::gray, Qt::black, Qt::white);
+        new QPalette(Qt::black, standardLightGray, light, dark, Qt::gray, Qt::black, Qt::white);
     qt_std_pal->setBrush(QPalette::Disabled, QPalette::Foreground, Qt::darkGray);
     qt_std_pal->setBrush(QPalette::Disabled, QPalette::Text, Qt::darkGray);
     qt_std_pal->setBrush(QPalette::Disabled, QPalette::Base, qt_std_pal->background());
@@ -471,10 +471,10 @@ void qt_create_std_palette()
 static void qt_fix_tooltips()
 {
     // No resources for this yet (unlike on Windows).
-    QPalette pal( Qt::black, QColor(255,255,220),
-		  QColor(96,96,96), Qt::black, Qt::black,
-		  Qt::black, QColor(255,255,220) );
-    QApplication::setPalette( pal, "QTipLabel");
+    QPalette pal(Qt::black, QColor(255,255,220),
+                  QColor(96,96,96), Qt::black, Qt::black,
+                  Qt::black, QColor(255,255,220));
+    QApplication::setPalette(pal, "QTipLabel");
 }
 #endif
 
@@ -484,64 +484,64 @@ static void qt_fix_tooltips()
 void QApplication::process_cmdline()
 {
     // process platform-indep command line
-    if ( !qt_is_gui_used || !d->argc)
-	return;
+    if (!qt_is_gui_used || !d->argc)
+        return;
 
     int argc = d->argc;
     char **argv = d->argv;
     int i, j;
 
     j = 1;
-    for ( i=1; i<argc; i++ ) {
-	if ( argv[i] && *argv[i] != '-' ) {
-	    argv[j++] = argv[i];
-	    continue;
-	}
-	QByteArray arg = argv[i];
-	arg = arg;
-	QString s;
-	if ( arg == "-qdevel" || arg == "-qdebug") {
-	    // obsolete argument
-	} else if ( arg.indexOf( "-style=", 0 ) != -1 ) {
-	    s = arg.right( arg.length() - 7 ).toLower();
-	} else if ( arg == "-style" && i < argc-1 ) {
-	    s = argv[++i];
-	    s = s.toLower();
+    for (i=1; i<argc; i++) {
+        if (argv[i] && *argv[i] != '-') {
+            argv[j++] = argv[i];
+            continue;
+        }
+        QByteArray arg = argv[i];
+        arg = arg;
+        QString s;
+        if (arg == "-qdevel" || arg == "-qdebug") {
+            // obsolete argument
+        } else if (arg.indexOf("-style=", 0) != -1) {
+            s = arg.right(arg.length() - 7).toLower();
+        } else if (arg == "-style" && i < argc-1) {
+            s = argv[++i];
+            s = s.toLower();
 #ifndef QT_NO_SESSIONMANAGER
-	} else if ( arg == "-session" && i < argc-1 ) {
-	    ++i;
-	    if ( argv[i] && *argv[i] ) {
-		d->session_id = QString::fromLatin1( argv[i] );
-		int p = d->session_id.indexOf( '_' );
-		if ( p >= 0 ) {
-		    d->session_key = d->session_id.mid( p +1 );
-		    d->session_id = d->session_id.left( p );
-		}
-		d->is_session_restored = TRUE;
-	    }
+        } else if (arg == "-session" && i < argc-1) {
+            ++i;
+            if (argv[i] && *argv[i]) {
+                d->session_id = QString::fromLatin1(argv[i]);
+                int p = d->session_id.indexOf('_');
+                if (p >= 0) {
+                    d->session_key = d->session_id.mid(p +1);
+                    d->session_id = d->session_id.left(p);
+                }
+                d->is_session_restored = true;
+            }
 #endif
-	} else if ( qstrcmp(arg, "-reverse") == 0 ) {
-	    setReverseLayout( TRUE );
-	} else if ( qstrcmp(arg, "-widgetcount") == 0 ) {
-	    widgetCount = TRUE;
-	} else {
-	    argv[j++] = argv[i];
-	}
+        } else if (qstrcmp(arg, "-reverse") == 0) {
+            setReverseLayout(true);
+        } else if (qstrcmp(arg, "-widgetcount") == 0) {
+            widgetCount = true;
+        } else {
+            argv[j++] = argv[i];
+        }
 #ifndef QT_NO_STYLE
-	if ( !s.isEmpty() ) {
-	    setStyle( s );
-	}
+        if (!s.isEmpty()) {
+            setStyle(s);
+        }
 #endif
     }
 
     if(j < argc) {
 #ifdef Q_WS_MAC
-	static char* empty = "\0";
-	argv[j] = empty;
+        static char* empty = "\0";
+        argv[j] = empty;
 #else
-	argv[j] = 0;
+        argv[j] = 0;
 #endif
-	d->argc = j;
+        d->argc = j;
     }
 }
 
@@ -569,7 +569,7 @@ void QApplication::process_cmdline()
   \i -dograb (only under X11), running under a debugger can cause
   an implicit -nograb, use -dograb to override.
   \i -sync (only under X11), switches to synchronous mode for
-	debugging.
+        debugging.
   \endlist
 
   See \link debug.html Debugging Techniques \endlink for a more
@@ -594,11 +594,11 @@ void QApplication::process_cmdline()
   \list
   \i -display \e display, sets the X display (default is $DISPLAY).
   \i -geometry \e geometry, sets the client geometry of the
-	\link setMainWidget() main widget\endlink.
+        \link setMainWidget() main widget\endlink.
   \i -fn or \c -font \e font, defines the application font. The
   font should be specified using an X logical font description.
   \i -bg or \c -background \e color, sets the default background color
-	and an application palette (light and dark shades are calculated).
+        and an application palette (light and dark shades are calculated).
   \i -fg or \c -foreground \e color, sets the default foreground color.
   \i -btn or \c -button \e color, sets the default button color.
   \i -name \e name, sets the application name.
@@ -618,7 +618,7 @@ void QApplication::process_cmdline()
   \sa argc(), argv()
 */
 
-QApplication::QApplication( int &argc, char **argv )
+QApplication::QApplication(int &argc, char **argv)
         // ### FIXME - the order below is undefined, you might end up getting a
         // QGuiEventLoop before a QApplicationPrivate - funny things will happen
     : QCoreApplication(*new QApplicationPrivate(argc, argv), new QGuiEventLoop())
@@ -629,14 +629,14 @@ QApplication::QApplication( int &argc, char **argv )
 
 /*!
   Constructs an application object with \a argc command line arguments
-  in \a argv. If \a GUIenabled is TRUE, a GUI application is
+  in \a argv. If \a GUIenabled is true, a GUI application is
   constructed, otherwise a non-GUI (console) application is created.
 
-  Set \a GUIenabled to FALSE for programs without a graphical user
+  Set \a GUIenabled to false for programs without a graphical user
   interface that should be able to run without a window system.
 
-  On X11, the window system is initialized if \a GUIenabled is TRUE.
-  If \a GUIenabled is FALSE, the application does not connect to the
+  On X11, the window system is initialized if \a GUIenabled is true.
+  If \a GUIenabled is false, the application does not connect to the
   X-server.
   On Windows and Macintosh, currently the window system is always
   initialized, regardless of the value of GUIenabled. This may change in
@@ -645,16 +645,16 @@ QApplication::QApplication( int &argc, char **argv )
   The following example shows how to create an application that
   uses a graphical interface when available.
   \code
-  int main( int argc, char **argv )
+  int main(int argc, char **argv)
   {
 #ifdef Q_WS_X11
-    bool useGUI = getenv( "DISPLAY" ) != 0;
+    bool useGUI = getenv("DISPLAY") != 0;
 #else
-    bool useGUI = TRUE;
+    bool useGUI = true;
 #endif
     QApplication app(argc, argv, useGUI);
 
-    if ( useGUI ) {
+    if (useGUI) {
        //start GUI version
        ...
     } else {
@@ -666,9 +666,9 @@ QApplication::QApplication( int &argc, char **argv )
 \endcode
 */
 
-QApplication::QApplication( int &argc, char **argv, bool GUIenabled  )
+QApplication::QApplication(int &argc, char **argv, bool GUIenabled )
     : QCoreApplication(*new QApplicationPrivate(argc, argv),
-			 (GUIenabled ? new QGuiEventLoop() : new QEventLoop()))
+                         (GUIenabled ? new QGuiEventLoop() : new QEventLoop()))
 {
     construct(GUIenabled ? GuiClient : Tty);
 }
@@ -681,9 +681,9 @@ QApplication::QApplication( int &argc, char **argv, bool GUIenabled  )
   makes this application the server (equivalent to running with the
   -qws option).
 */
-QApplication::QApplication( int &argc, char **argv, Type type )
+QApplication::QApplication(int &argc, char **argv, Type type)
     : QCoreApplication(*new QApplicationPrivate(argc, argv),
-			 (type != Tty ? new QGuiEventLoop() : new QEventLoop()))
+                         (type != Tty ? new QGuiEventLoop() : new QEventLoop()))
 
 {
     construct(type);
@@ -699,8 +699,8 @@ void QApplication::construct(Type type)
     qt_init(d, type);   // Must be called before initialize()
     process_cmdline();
     initialize();
-    if ( qt_is_gui_used )
-	qt_maxWindowRect = desktop()->rect();
+    if (qt_is_gui_used)
+        qt_maxWindowRect = desktop()->rect();
     eventLoop()->appStartingUp();
 }
 
@@ -722,25 +722,25 @@ static char *aargv[] = { (char*)"unknown", 0 };
 
   This is available only on X11.
 */
-QApplication::QApplication( Display* dpy, HANDLE visual, HANDLE colormap )
+QApplication::QApplication(Display* dpy, HANDLE visual, HANDLE colormap)
     : QCoreApplication(*new QApplicationPrivate(aargc, aargv),
-			 new QGuiEventLoop())
+                         new QGuiEventLoop())
 
 {
     qt_appType = GuiClient;
-    qt_is_gui_used = TRUE;
+    qt_is_gui_used = true;
     qt_appType = GuiClient;
     // ... no command line.
 
-    if ( ! dpy )
-	qWarning( "QApplication: invalid Display* argument." );
+    if (! dpy)
+        qWarning("QApplication: invalid Display* argument.");
 
     qt_init(d, GuiClient, dpy, visual, colormap);
 
     initialize();
 
-    if ( qt_is_gui_used )
-	qt_maxWindowRect = desktop()->rect();
+    if (qt_is_gui_used)
+        qt_maxWindowRect = desktop()->rect();
     eventLoop()->appStartingUp();
 }
 
@@ -757,23 +757,23 @@ QApplication::QApplication( Display* dpy, HANDLE visual, HANDLE colormap )
 
 */
 QApplication::QApplication(Display *dpy, int argc, char **argv,
-			   HANDLE visual, HANDLE colormap)
+                           HANDLE visual, HANDLE colormap)
     : QCoreApplication(*new QApplicationPrivate(argc, argv),
-			 new QGuiEventLoop())
+                         new QGuiEventLoop())
 {
     qt_appType = GuiClient;
-    qt_is_gui_used = TRUE;
+    qt_is_gui_used = true;
     qt_appType = GuiClient;
 
-    if ( ! dpy )
-	qWarning( "QApplication: invalid Display* argument." );
+    if (! dpy)
+        qWarning("QApplication: invalid Display* argument.");
     qt_init(d, GuiClient, dpy, visual, colormap);
 
     process_cmdline();
     initialize();
 
-    if ( qt_is_gui_used )
-	qt_maxWindowRect = desktop()->rect();
+    if (qt_is_gui_used)
+        qt_maxWindowRect = desktop()->rect();
     eventLoop()->appStartingUp();
 }
 
@@ -791,11 +791,11 @@ void QApplication::initialize()
 #ifndef QT_NO_PALETTE
     (void) palette();  // trigger creation of application palette
 #endif
-    is_app_running = TRUE; // no longer starting up
+    is_app_running = true; // no longer starting up
 
 #ifndef QT_NO_SESSIONMANAGER
     // connect to the session manager
-    d->session_manager = new QSessionManager( this, d->session_id, d->session_key );
+    d->session_manager = new QSessionManager(this, d->session_id, d->session_key);
 #endif
 
 }
@@ -840,7 +840,7 @@ QWidget *QApplication::activePopupWidget()
 
   A modal widget is a special top level widget which is a subclass of
   QDialog that specifies the modal parameter of the constructor as
-  TRUE. A modal widget must be closed before the user can continue
+  true. A modal widget must be closed before the user can continue
   with other parts of the program.
 
   Modal widgets are organized in a stack. This function returns
@@ -863,20 +863,20 @@ QApplication::~QApplication()
 {
 #ifndef QT_NO_CLIPBOARD
     // flush clipboard contents
-    if ( qt_clipboard ) {
-	QCustomEvent event( QEvent::Clipboard );
-	QApplication::sendEvent( qt_clipboard, &event );
+    if (qt_clipboard) {
+        QCustomEvent event(QEvent::Clipboard);
+        QApplication::sendEvent(qt_clipboard, &event);
     }
 #endif
 
     eventLoop()->appClosingDown();
 
-    QObject *tipmanager = child( "toolTipManager", "QTipManager", FALSE );
+    QObject *tipmanager = child("toolTipManager", "QTipManager", false);
     delete tipmanager;
 
     delete qt_desktopWidget;
     qt_desktopWidget = 0;
-    is_app_closing = TRUE;
+    is_app_closing = true;
 
 #ifndef QT_NO_CLIPBOARD
     delete qt_clipboard;
@@ -884,14 +884,14 @@ QApplication::~QApplication()
 #endif
 
     // delete widget mapper
-    if ( !QWidget::mapper )				// already gone
-	return;
+    if (!QWidget::mapper)                                // already gone
+        return;
     QWidgetMapper * myMapper = QWidget::mapper;
     QWidget::mapper = 0;
     for (QWidgetMapper::Iterator it = myMapper->begin(); it != myMapper->end(); ++it) {
-	register QWidget *w = *it;
-	if ( !w->parent() )			// widget is a parent
-	    w->destroy( TRUE, TRUE );
+        register QWidget *w = *it;
+        if (!w->parent())                        // widget is a parent
+            w->destroy(true, true);
     }
     delete myMapper;
 
@@ -920,17 +920,17 @@ QApplication::~QApplication()
 
     qt_cleanup();
 
-    if ( widgetCount ) {
-	qDebug( "Widgets left: %i    Max widgets: %i \n", QWidget::instanceCounter, QWidget::maxInstances );
+    if (widgetCount) {
+        qDebug("Widgets left: %i    Max widgets: %i \n", QWidget::instanceCounter, QWidget::maxInstances);
     }
 #ifndef QT_NO_SESSIONMANAGER
     delete d->session_manager;
     d->session_manager = 0;
 #endif //QT_NO_SESSIONMANAGER
 
-    qt_explicit_app_style = FALSE;
-    qt_app_has_font = FALSE;
-    obey_desktop_settings = TRUE;
+    qt_explicit_app_style = false;
+    qt_app_has_font = false;
+    obey_desktop_settings = true;
     cursor_flash_time = 1000;
     mouse_double_click_time = 400;
 #ifndef QT_NO_WHEELEVENT
@@ -938,21 +938,21 @@ QApplication::~QApplication()
 #endif
     drag_time = 500;
     drag_distance = 4;
-    reverse_layout = FALSE;
-    app_strut = QSize( 0, 0 );
-    animate_ui = TRUE;
-    animate_menu = FALSE;
-    fade_menu = FALSE;
-    animate_combo = FALSE;
-    animate_tooltip = FALSE;
-    fade_tooltip = FALSE;
-    widgetCount = FALSE;
+    reverse_layout = false;
+    app_strut = QSize(0, 0);
+    animate_ui = true;
+    animate_menu = false;
+    fade_menu = false;
+    animate_combo = false;
+    animate_tooltip = false;
+    fade_tooltip = false;
+    widgetCount = false;
 }
 
 
 
 /*!
-    \fn void QApplication::setArgs( int argc, char **argv )
+    \fn void QApplication::setArgs(int argc, char **argv)
     \internal
 */
 
@@ -963,45 +963,45 @@ QApplication::~QApplication()
 */
 bool QApplication::compressEvent(QEvent *event, QObject *receiver, QPostEventList *postedEvents)
 {
-    if ( (event->type() == QEvent::UpdateRequest
+    if ((event->type() == QEvent::UpdateRequest
 #ifdef QT_COMPAT
-	  || event->type() == QEvent::LayoutHint
+          || event->type() == QEvent::LayoutHint
 #endif
-	  || event->type() == QEvent::LayoutRequest
-	  || event->type() == QEvent::Resize
-	  || event->type() == QEvent::Move
+          || event->type() == QEvent::LayoutRequest
+          || event->type() == QEvent::Resize
+          || event->type() == QEvent::Move
 #ifdef Q_WS_QWS
-	  || event->type() == QEvent::QWSUpdate
+          || event->type() == QEvent::QWSUpdate
 #endif
-	  || event->type() == QEvent::LanguageChange) ) {
-	for (int i = 0; i < postedEvents->size(); ++i) {
-	    const QPostEvent &cur = postedEvents->at(i);
-	    if (cur.receiver != receiver || cur.event == 0 || cur.event->type() != event->type() )
-		continue;
-	    if ( cur.event->type() == QEvent::LayoutRequest
+          || event->type() == QEvent::LanguageChange)) {
+        for (int i = 0; i < postedEvents->size(); ++i) {
+            const QPostEvent &cur = postedEvents->at(i);
+            if (cur.receiver != receiver || cur.event == 0 || cur.event->type() != event->type())
+                continue;
+            if (cur.event->type() == QEvent::LayoutRequest
 #ifdef QT_COMPAT
-		 || cur.event->type() == QEvent::LayoutHint
+                 || cur.event->type() == QEvent::LayoutHint
 #endif
-		 || cur.event->type() == QEvent::UpdateRequest ) {
-		;
-	    }
-	    else if ( cur.event->type() == QEvent::Resize ) {
-		((QResizeEvent *)(cur.event))->s = ((QResizeEvent *)event)->s;
-	    } else if ( cur.event->type() == QEvent::Move ) {
-		((QMoveEvent *)(cur.event))->p = ((QMoveEvent *)event)->p;
+                 || cur.event->type() == QEvent::UpdateRequest) {
+                ;
+            }
+            else if (cur.event->type() == QEvent::Resize) {
+                ((QResizeEvent *)(cur.event))->s = ((QResizeEvent *)event)->s;
+            } else if (cur.event->type() == QEvent::Move) {
+                ((QMoveEvent *)(cur.event))->p = ((QMoveEvent *)event)->p;
 #ifdef Q_WS_QWS
-	    } else if ( cur.event->type() == QEvent::QWSUpdate ) {
-		QPaintEvent * p = (QPaintEvent*)(cur.event);
-		p->reg = p->reg.unite( ((QPaintEvent *)event)->reg );
-		p->rec = p->rec.unite( ((QPaintEvent *)event)->rec );
+            } else if (cur.event->type() == QEvent::QWSUpdate) {
+                QPaintEvent * p = (QPaintEvent*)(cur.event);
+                p->reg = p->reg.unite(((QPaintEvent *)event)->reg);
+                p->rec = p->rec.unite(((QPaintEvent *)event)->rec);
 #endif
-	    } else if ( cur.event->type() == QEvent::LanguageChange ) {
-		;
-	    } else {
-		continue;
-	    }
-	    return true;
-	}
+            } else if (cur.event->type() == QEvent::LanguageChange) {
+                ;
+            } else {
+                continue;
+            }
+            return true;
+        }
     }
     return false;
 }
@@ -1018,71 +1018,71 @@ static QString *qt_style_override = 0;
 QStyle& QApplication::style()
 {
 #ifndef QT_NO_STYLE
-    if ( app_style )
-	return *app_style;
-    if ( !qt_is_gui_used ) {
-	qFatal( "No style available in non-gui applications!" );
+    if (app_style)
+        return *app_style;
+    if (!qt_is_gui_used) {
+        qFatal("No style available in non-gui applications!");
     }
 
 #if defined(Q_WS_X11)
     if(!qt_style_override)
-	x11_initialize_style(); // run-time search for default style
+        x11_initialize_style(); // run-time search for default style
 #endif
-    if ( !app_style ) {
-	// Compile-time search for default style
-	//
-	QString style;
-	if ( qt_style_override ) {
-	    style = *qt_style_override;
-	    delete qt_style_override;
-	    qt_style_override = 0;
-	} else {
+    if (!app_style) {
+        // Compile-time search for default style
+        //
+        QString style;
+        if (qt_style_override) {
+            style = *qt_style_override;
+            delete qt_style_override;
+            qt_style_override = 0;
+        } else {
 #  if defined(Q_WS_WIN) && defined(Q_OS_TEMP)
-	    style = "PocketPC";
+            style = "PocketPC";
 #elif defined(Q_WS_WIN)
-	    if ( QSysInfo::WindowsVersion == QSysInfo::WV_XP )
-		style = "WindowsXP";
-	    else
-		style = "Windows";		// default styles for Windows
+            if (QSysInfo::WindowsVersion == QSysInfo::WV_XP)
+                style = "WindowsXP";
+            else
+                style = "Windows";                // default styles for Windows
 #elif defined(Q_WS_X11) && defined(Q_OS_SOLARIS)
-	    style = "CDE";			// default style for X11 on Solaris
+            style = "CDE";                        // default style for X11 on Solaris
 #elif defined(Q_WS_X11) && defined(Q_OS_IRIX)
-	    style = "SGI";			// default style for X11 on IRIX
+            style = "SGI";                        // default style for X11 on IRIX
 #elif defined(Q_WS_X11)
-		style = "Motif";		// default style for X11
+                style = "Motif";                // default style for X11
 #elif defined(Q_WS_MAC)
-		style = "Macintosh";		// default style for all Mac's
+                style = "Macintosh";                // default style for all Mac's
 #elif defined(Q_WS_QWS)
-	    style = "Compact";		// default style for small devices
+            style = "Compact";                // default style for small devices
 #endif
-	}
-	app_style = QStyleFactory::create( style );
-	if ( !app_style &&		// platform default style not available, try alternatives
-	     !(app_style = QStyleFactory::create( "Windows" ) ) &&
-	     !(app_style = QStyleFactory::create( "Platinum" ) ) &&
-	     !(app_style = QStyleFactory::create( "MotifPlus" ) ) &&
-	     !(app_style = QStyleFactory::create( "Motif" ) ) &&
-	     !(app_style = QStyleFactory::create( "CDE" ) ) &&
-	     !(app_style = QStyleFactory::create( "Aqua" ) ) &&
-	     !(app_style = QStyleFactory::create( "SGI" ) ) &&
-	     !(app_style = QStyleFactory::create( "Compact" ) )
-	    && (QStyleFactory::keys().isEmpty() || !(app_style = QStyleFactory::create( QStyleFactory::keys()[0] )) )
-	)
-	    qFatal( "No %s style available!", style.latin1() );
+        }
+        app_style = QStyleFactory::create(style);
+        if (!app_style &&                // platform default style not available, try alternatives
+             !(app_style = QStyleFactory::create("Windows")) &&
+             !(app_style = QStyleFactory::create("Platinum")) &&
+             !(app_style = QStyleFactory::create("MotifPlus")) &&
+             !(app_style = QStyleFactory::create("Motif")) &&
+             !(app_style = QStyleFactory::create("CDE")) &&
+             !(app_style = QStyleFactory::create("Aqua")) &&
+             !(app_style = QStyleFactory::create("SGI")) &&
+             !(app_style = QStyleFactory::create("Compact"))
+            && (QStyleFactory::keys().isEmpty() || !(app_style = QStyleFactory::create(QStyleFactory::keys()[0])))
+       )
+            qFatal("No %s style available!", style.latin1());
     }
 
-    QPalette app_pal_copy ( *app_pal );
-    app_style->polish( *app_pal );
+    QPalette app_pal_copy (*app_pal);
+    app_style->polish(*app_pal);
 
-    if ( is_app_running && !is_app_closing && (*app_pal != app_pal_copy) ) {
-	QEvent e( QEvent::ApplicationPaletteChange );
-	for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
-	    register QWidget *w = *it;
-	    sendEvent( w, &e );
-	}
+    if (is_app_running && !is_app_closing && (*app_pal != app_pal_copy)) {
+        QEvent e(QEvent::ApplicationPaletteChange);
+        for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
+            register QWidget *w = *it;
+            sendEvent(w, &e);
+        }
     }
 
-    app_style->polish( qApp );
+    app_style->polish(qApp);
 #endif
     return *app_style;
 }
@@ -1094,7 +1094,7 @@ QStyle& QApplication::style()
 
   Example usage:
   \code
-    QApplication::setStyle( new QWindowStyle );
+    QApplication::setStyle(new QWindowStyle);
   \endcode
 
   When switching application styles, the color palette is set back to
@@ -1104,66 +1104,66 @@ QStyle& QApplication::style()
 
   \sa style(), QStyle, setPalette(), desktopSettingsAware()
 */
-void QApplication::setStyle( QStyle *style )
+void QApplication::setStyle(QStyle *style)
 {
-    if ( !style )
-	return;
+    if (!style)
+        return;
 
     QStyle* old = app_style;
     app_style = style;
 #ifdef Q_WS_X11
-    qt_explicit_app_style = TRUE;
+    qt_explicit_app_style = true;
 #endif // Q_WS_X11
 
-    if ( startingUp() ) {
-	delete old;
-	return;
+    if (startingUp()) {
+        delete old;
+        return;
     }
 
     // clean up the old style
     if (old) {
-	if ( is_app_running && !is_app_closing ) {
-	    for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
-		register QWidget *w = *it;
-		if ( !w->testWFlags(WType_Desktop) &&	// except desktop
-		     w->testWState(WState_Polished) ) { // has been polished
-		    old->unPolish(w);
-		}
-	    }
-	}
-	old->unPolish( qApp );
+        if (is_app_running && !is_app_closing) {
+            for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
+                register QWidget *w = *it;
+                if (!w->testWFlags(WType_Desktop) &&        // except desktop
+                     w->testWState(WState_Polished)) { // has been polished
+                    old->unPolish(w);
+                }
+            }
+        }
+        old->unPolish(qApp);
     }
 
     // take care of possible palette requirements of certain gui
     // styles. Do it before polishing the application since the style
     // might call QApplication::setStyle() itself
-    if ( !qt_std_pal )
-	qt_create_std_palette();
+    if (!qt_std_pal)
+        qt_create_std_palette();
     QPalette tmpPal = *qt_std_pal;
-    setPalette( tmpPal );
+    setPalette(tmpPal);
 
     // initialize the application with the new style
-    app_style->polish( qApp );
+    app_style->polish(qApp);
 
     // re-polish existing widgets if necessary
     if (old) {
-	if ( is_app_running && !is_app_closing ) {
-	    for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
-		register QWidget *w = *it;
-		if ( !w->testWFlags(WType_Desktop) ) {	// except desktop
-		    if ( w->testWState(WState_Polished) )
-			app_style->polish(w);		// repolish
-		    QEvent e(QEvent::StyleChange);
-		    QApplication::sendEvent(w, &e);
+        if (is_app_running && !is_app_closing) {
+            for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
+                register QWidget *w = *it;
+                if (!w->testWFlags(WType_Desktop)) {        // except desktop
+                    if (w->testWState(WState_Polished))
+                        app_style->polish(w);                // repolish
+                    QEvent e(QEvent::StyleChange);
+                    QApplication::sendEvent(w, &e);
 #ifdef QT_COMPAT
-		    w->styleChange( *old );
+                    w->styleChange(*old);
 #endif
-		    if ( w->isVisible() )
-			w->update();
-		}
-	    }
-	}
-	delete old;
+                    if (w->isVisible())
+                        w->update();
+                }
+            }
+        }
+        delete old;
     }
 }
 
@@ -1184,24 +1184,24 @@ void QApplication::setStyle( QStyle *style )
   Returns 0 if an unknown \a style is passed, otherwise the QStyle object
   returned is set as the application's GUI style.
 */
-QStyle* QApplication::setStyle( const QString& style )
+QStyle* QApplication::setStyle(const QString& style)
 {
 #ifdef Q_WS_X11
-    qt_explicit_app_style = TRUE;
+    qt_explicit_app_style = true;
 #endif // Q_WS_X11
 
-    if ( startingUp() ) {
-	if(qt_style_override)
-	    *qt_style_override = style;
-	else
-	    qt_style_override = new QString(style);
-	return 0;
+    if (startingUp()) {
+        if(qt_style_override)
+            *qt_style_override = style;
+        else
+            qt_style_override = new QString(style);
+        return 0;
     }
-    QStyle *s = QStyleFactory::create( style );
-    if ( !s )
-	return 0;
+    QStyle *s = QStyleFactory::create(style);
+    if (!s)
+        return 0;
 
-    setStyle( s );
+    setStyle(s);
     return s;
 }
 
@@ -1215,7 +1215,7 @@ QApplication::ColorMode QApplication::colorMode()
     return (QApplication::ColorMode)app_cspec;
 }
 
-void QApplication::setColorMode( QApplication::ColorMode mode )
+void QApplication::setColorMode(QApplication::ColorMode mode)
 {
     app_cspec = mode;
 }
@@ -1280,10 +1280,10 @@ int QApplication::colorSpec()
 
   Example:
   \code
-  int main( int argc, char **argv )
+  int main(int argc, char **argv)
   {
-      QApplication::setColorSpec( QApplication::ManyColor );
-      QApplication a( argc, argv );
+      QApplication::setColorSpec(QApplication::ManyColor);
+      QApplication a(argc, argv);
       ...
   }
   \endcode
@@ -1302,11 +1302,11 @@ int QApplication::colorSpec()
 
   \sa colorSpec(), QColor::numBitPlanes(), QColor::enterAllocContext() */
 
-void QApplication::setColorSpec( int spec )
+void QApplication::setColorSpec(int spec)
 {
-    if ( qApp )
-	qWarning( "QApplication::setColorSpec: This function must be "
-		 "called before the QApplication object is created" );
+    if (qApp)
+        qWarning("QApplication::setColorSpec: This function must be "
+                 "called before the QApplication object is created");
     app_cspec = spec;
 }
 
@@ -1336,14 +1336,14 @@ void QApplication::setColorSpec( int spec )
   \code
   QSize& WidgetClass::sizeHint() const
   {
-      return QSize( 80, 25 ).expandedTo( QApplication::globalStrut() );
+      return QSize(80, 25).expandedTo(QApplication::globalStrut());
   }
   \endcode
 
   \sa globalStrut()
 */
 
-void QApplication::setGlobalStrut( const QSize& strut )
+void QApplication::setGlobalStrut(const QSize& strut)
 {
     app_strut = strut;
 }
@@ -1363,24 +1363,24 @@ void QApplication::setGlobalStrut( const QSize& strut )
 #ifndef QT_NO_PALETTE
 QPalette QApplication::palette(const QWidget* w)
 {
-    if ( !qApp )
-	qWarning( "QApplication::palette: This function can only be "
-		  "called after the QApplication object has been created" );
-    if ( !app_pal ) {
-	if ( !qt_std_pal )
-	    qt_create_std_palette();
-	app_pal = new QPalette( *qt_std_pal );
-	qt_fix_tooltips();
+    if (!qApp)
+        qWarning("QApplication::palette: This function can only be "
+                  "called after the QApplication object has been created");
+    if (!app_pal) {
+        if (!qt_std_pal)
+            qt_create_std_palette();
+        app_pal = new QPalette(*qt_std_pal);
+        qt_fix_tooltips();
     }
 
     if (w && app_palettes.size()) {
-	QHash<QByteArray, QPalette>::ConstIterator it = app_palettes.find(w->className());
+        QHash<QByteArray, QPalette>::ConstIterator it = app_palettes.find(w->className());
         if (it != app_palettes.constEnd())
-	    return *it;
-	for (it = app_palettes.constBegin(); it != app_palettes.constEnd(); ++it) {
-	    if (w->inherits(it.key()))
-		return it.value();
-	}
+            return *it;
+        for (it = app_palettes.constBegin(); it != app_palettes.constEnd(); ++it) {
+            if (w->inherits(it.key()))
+                return it.value();
+        }
     }
     return *app_pal;
 }
@@ -1399,39 +1399,39 @@ QPalette QApplication::palette(const QWidget* w)
   \sa QWidget::setPalette(), palette(), QStyle::polish()
 */
 
-void QApplication::setPalette( const QPalette &palette, const char* className )
+void QApplication::setPalette(const QPalette &palette, const char* className)
 {
     QPalette pal = palette;
 
 #ifndef QT_NO_STYLE
-    if ( !startingUp() ) // on startup this has been done already
-	qApp->style().polish( pal );	// NB: non-const reference
+    if (!startingUp()) // on startup this has been done already
+        qApp->style().polish(pal);        // NB: non-const reference
 #endif
     bool all = false;
-    if ( !className ) {
-	if ( !app_pal ) {
-	    app_pal = new QPalette( pal );
-	} else {
-	    *app_pal = pal;
-	}
+    if (!className) {
+        if (!app_pal) {
+            app_pal = new QPalette(pal);
+        } else {
+            *app_pal = pal;
+        }
         if (app_palettes.size()) {
-	    all = true;
-	    app_palettes.clear();
-	}
-	qt_fix_tooltips();
+            all = true;
+            app_palettes.clear();
+        }
+        qt_fix_tooltips();
     } else {
-	app_palettes.ensure_constructed();
-	app_palettes.insert(className, pal);
+        app_palettes.ensure_constructed();
+        app_palettes.insert(className, pal);
     }
 
     if (is_app_running && !is_app_closing) {
-	QEvent e( QEvent::ApplicationPaletteChange );
-	for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin();
-	     it != QWidget::mapper->constEnd(); ++it) {
-	    register QWidget *w = *it;
-	    if ( all || (!className && w->isTopLevel() ) || w->inherits(className) ) // matching class
-		sendEvent( w, &e );
-	}
+        QEvent e(QEvent::ApplicationPaletteChange);
+        for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin();
+             it != QWidget::mapper->constEnd(); ++it) {
+            register QWidget *w = *it;
+            if (all || (!className && w->isTopLevel()) || w->inherits(className)) // matching class
+                sendEvent(w, &e);
+        }
     }
 }
 
@@ -1444,19 +1444,19 @@ void QApplication::setPalette( const QPalette &palette, const char* className )
   \sa setFont(), fontMetrics(), QWidget::font()
 */
 
-QFont QApplication::font( const QWidget *w )
+QFont QApplication::font(const QWidget *w)
 {
     if (w && app_fonts.size()) {
-	QHash<QByteArray, QFont>::ConstIterator it = app_fonts.find(w->className());
+        QHash<QByteArray, QFont>::ConstIterator it = app_fonts.find(w->className());
         if (it != app_fonts.constEnd())
-	    return it.value();
-	for (it = app_fonts.begin(); it != app_fonts.end(); ++it) {
-	    if (w->inherits(it.key()))
-		return it.value();
-	}
+            return it.value();
+        for (it = app_fonts.begin(); it != app_fonts.end(); ++it) {
+            if (w->inherits(it.key()))
+                return it.value();
+        }
     }
     if (!app_font)
-	app_font = new QFont( "Helvetica" );
+        app_font = new QFont("Helvetica");
     return *app_font;
 }
 
@@ -1473,33 +1473,33 @@ QFont QApplication::font( const QWidget *w )
   \sa font(), fontMetrics(), QWidget::setFont()
 */
 
-void QApplication::setFont( const QFont &font, const char* className )
+void QApplication::setFont(const QFont &font, const char* className)
 {
     bool all = false;
-    if ( !className ) {
-	qt_app_has_font = TRUE;
-	if ( !app_font ) {
-	    app_font = new QFont( font );
-	} else {
-	    *app_font = font;
-	}
+    if (!className) {
+        qt_app_has_font = true;
+        if (!app_font) {
+            app_font = new QFont(font);
+        } else {
+            *app_font = font;
+        }
         if (app_fonts.size()) {
-	    all = true;
-	    app_fonts.clear();
-	}
+            all = true;
+            app_fonts.clear();
+        }
         // ### qt_fix_tooltips() ?
     } else {
-	app_fonts.ensure_constructed();
-	app_fonts.insert(className, font);
+        app_fonts.ensure_constructed();
+        app_fonts.insert(className, font);
     }
     if (is_app_running && !is_app_closing) {
-	QEvent e( QEvent::ApplicationFontChange );
-	for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin();
-	     it != QWidget::mapper->constEnd(); ++it) {
-	    register QWidget *w = *it;
-	    if ( all || (!className && w->isTopLevel() ) || w->inherits(className) ) // matching class
-		sendEvent( w, &e );
-	}
+        QEvent e(QEvent::ApplicationFontChange);
+        for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin();
+             it != QWidget::mapper->constEnd(); ++it) {
+            register QWidget *w = *it;
+            if (all || (!className && w->isTopLevel()) || w->inherits(className)) // matching class
+                sendEvent(w, &e);
+        }
     }
 }
 
@@ -1518,10 +1518,10 @@ void QApplication::setFont( const QFont &font, const char* className )
   \sa QStyle::polish(), setPalette(), setFont()
 */
 
-void QApplication::polish( QWidget *w )
+void QApplication::polish(QWidget *w)
 {
 #ifndef QT_NO_STYLE
-    w->style().polish( w );
+    w->style().polish(w);
 #endif
     w->setWState(WState_Polished);
 }
@@ -1541,15 +1541,15 @@ void QApplication::polish( QWidget *w )
   Example:
   \code
     // Show all hidden top level widgets.
-    QWidgetList	 *list = QApplication::topLevelWidgets();
-    QWidgetListIt it( *list );	// iterate over the widgets
+    QWidgetList         *list = QApplication::topLevelWidgets();
+    QWidgetListIt it(*list);        // iterate over the widgets
     QWidget * w;
-    while ( (w=it.current()) != 0 ) {	// for each top level widget...
-	++it;
-	if ( !w->isVisible() )
-	    w->show();
+    while ((w=it.current()) != 0) {        // for each top level widget...
+        ++it;
+        if (!w->isVisible())
+            w->show();
     }
-    delete list;		// delete the list, not the widgets
+    delete list;                // delete the list, not the widgets
   \endcode
 
   \warning Delete the list as soon you have finished using it.
@@ -1561,13 +1561,13 @@ void QApplication::polish( QWidget *w )
 QWidgetList QApplication::topLevelWidgets()
 {
     QWidgetList list;
-    if ( QWidget::mapper ) {
-	for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin();
-	     it != QWidget::mapper->constEnd(); ++it) {
-	    QWidget *w = *it;
-	    if ( w->isTopLevel() )
-		list.append( w );
-	}
+    if (QWidget::mapper) {
+        for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin();
+             it != QWidget::mapper->constEnd(); ++it) {
+            QWidget *w = *it;
+            if (w->isTopLevel())
+                list.append(w);
+        }
     }
     return list;
 }
@@ -1583,12 +1583,12 @@ QWidgetList QApplication::topLevelWidgets()
 
   Example that updates all widgets:
   \code
-    QWidgetList	 *list = QApplication::allWidgets();
-    QWidgetListIt it( *list );         // iterate over the widgets
+    QWidgetList         *list = QApplication::allWidgets();
+    QWidgetListIt it(*list);         // iterate over the widgets
     QWidget * w;
-    while ( (w=it.current()) != 0 ) {  // for each widget...
-	++it;
-	w->update();
+    while ((w=it.current()) != 0) {  // for each widget...
+        ++it;
+        w->update();
     }
     delete list;                      // delete the list, not the widgets
   \endcode
@@ -1605,10 +1605,10 @@ QWidgetList QApplication::topLevelWidgets()
 QWidgetList QApplication::allWidgets()
 {
     QWidgetList list;
-    if ( QWidget::mapper ) {
-	for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin();
-	     it != QWidget::mapper->constEnd(); ++it)
-	    list.append( *it );
+    if (QWidget::mapper) {
+        for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin();
+             it != QWidget::mapper->constEnd(); ++it)
+            list.append(*it);
     }
     return list;
 }
@@ -1654,11 +1654,11 @@ QFontMetrics QApplication::fontMetrics()
 
   \code
     // the "Quit" menu entry should try to close all windows
-    Q4Menu* file = new Q4Menu( this );
-    file->addAction( "&Quit", qApp, SLOT(closeAllWindows()), CTRL+Key_Q );
+    Q4Menu* file = new Q4Menu(this);
+    file->addAction("&Quit", qApp, SLOT(closeAllWindows()), CTRL+Key_Q);
 
     // when the last window is closed, the application should quit
-    connect( qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()) );
+    connect(qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()));
   \endcode
 
   The windows are closed in random order, until one window does not
@@ -1670,21 +1670,21 @@ QFontMetrics QApplication::fontMetrics()
  */
 void QApplication::closeAllWindows()
 {
-    bool did_close = TRUE;
+    bool did_close = true;
     QWidget *w;
     while((w = activeModalWidget()) && did_close) {
-	if(w->isHidden())
-	    break;
-	did_close = w->close();
+        if(w->isHidden())
+            break;
+        did_close = w->close();
     }
     QWidgetList list = QApplication::topLevelWidgets();
     for (int i = 0; i < list.size(); ++i) {
-	w = list.at(i);
-	if ( !w->isHidden() ) {
-	    did_close = w->close();
-	    list = QApplication::topLevelWidgets();
-	    i = -1;
-	}
+        w = list.at(i);
+        if (!w->isHidden()) {
+            did_close = w->close();
+            list = QApplication::topLevelWidgets();
+            i = -1;
+        }
     }
 }
 
@@ -1700,7 +1700,7 @@ void QApplication::closeAllWindows()
 void QApplication::aboutQt()
 {
 #ifndef QT_NO_MESSAGEBOX
-    QMessageBox::aboutQt( mainWidget() );
+    QMessageBox::aboutQt(mainWidget());
 #endif // QT_NO_MESSAGEBOX
 }
 
@@ -1724,15 +1724,15 @@ void QApplication::aboutQt()
 #ifndef QT_NO_TRANSLATION
 static bool qt_detectRTLLanguage()
 {
-    return QApplication::tr( "QT_LAYOUT_DIRECTION",
-	    "Translate this string to the string 'LTR' in left-to-right"
-	    " languages or to 'RTL' in right-to-left languages (such as Hebrew"
-	    " and Arabic) to get proper widget layout." ) == "RTL";
+    return QApplication::tr("QT_LAYOUT_DIRECTION",
+            "Translate this string to the string 'LTR' in left-to-right"
+            " languages or to 'RTL' in right-to-left languages (such as Hebrew"
+            " and Arabic) to get proper widget layout.") == "RTL";
 }
 #endif
 
 /*
-  \fn bool QApplication::sendEvent( QObject *receiver, QEvent *event )
+  \fn bool QApplication::sendEvent(QObject *receiver, QEvent *event)
 
   Sends event \a event directly to receiver \a receiver, using the
   notify() function. Returns the value that was returned from the event
@@ -1741,8 +1741,8 @@ static bool qt_detectRTLLanguage()
     The event is \e not deleted when the event has been sent. The normal
     approach is to create the event on the stack, e.g.
     \code
-    QMouseEvent me( QEvent::MouseButtonPress, pos, 0, 0 );
-    QApplication::sendEvent( mainWindow, &me );
+    QMouseEvent me(QEvent::MouseButtonPress, pos, 0, 0);
+    QApplication::sendEvent(mainWindow, &me);
     \endcode
     If you create the event on the heap you must delete it.
 
@@ -1753,58 +1753,58 @@ static bool qt_detectRTLLanguage()
 /*!\reimp
 
 */
-bool QApplication::event( QEvent *e )
+bool QApplication::event(QEvent *e)
 {
     if(e->type() == QEvent::Close) {
-	QCloseEvent *ce = (QCloseEvent*)e;
-	ce->accept();
-	closeAllWindows();
+        QCloseEvent *ce = (QCloseEvent*)e;
+        ce->accept();
+        closeAllWindows();
 
-	QWidgetList list = topLevelWidgets();
-	for (int i = 0; i < list.size(); ++i) {
-	    QWidget *w = list.at(i);
-	    if ( !w->isHidden() && !w->isDesktop() && !w->isPopup() &&
-		 (!w->isDialog() || !w->parentWidget())) {
-		ce->ignore();
-		break;
-	    }
-	}
-	if(ce->isAccepted())
-	    return TRUE;
+        QWidgetList list = topLevelWidgets();
+        for (int i = 0; i < list.size(); ++i) {
+            QWidget *w = list.at(i);
+            if (!w->isHidden() && !w->isDesktop() && !w->isPopup() &&
+                 (!w->isDialog() || !w->parentWidget())) {
+                ce->ignore();
+                break;
+            }
+        }
+        if(ce->isAccepted())
+            return true;
     } else if(e->type() == QEvent::LanguageChange) {
 #ifndef QT_NO_TRANSLATION
-	setReverseLayout( qt_detectRTLLanguage() );
+        setReverseLayout(qt_detectRTLLanguage());
 #endif
-	QWidgetList list = topLevelWidgets();
-	for (int i = 0; i < list.size(); ++i) {
-	    QWidget *w = list.at(i);
-	    if (!w->isDesktop())
-		postEvent( w, new QEvent( QEvent::LanguageChange ) );
-	}
+        QWidgetList list = topLevelWidgets();
+        for (int i = 0; i < list.size(); ++i) {
+            QWidget *w = list.at(i);
+            if (!w->isDesktop())
+                postEvent(w, new QEvent(QEvent::LanguageChange));
+        }
     } else if (e->type() == QEvent::Timer) {
-	QTimerEvent *te = static_cast<QTimerEvent*>(e);
-	Q_ASSERT(te != 0);
-	if (te->timerId() == qt_double_buffer_timer) {
-	    if (! active_window) {
+        QTimerEvent *te = static_cast<QTimerEvent*>(e);
+        Q_ASSERT(te != 0);
+        if (te->timerId() == qt_double_buffer_timer) {
+            if (! active_window) {
 #if defined(Q_WS_X11) || defined(Q_WS_WIN)
-		extern void qt_discard_double_buffer();
-		qt_discard_double_buffer();
+                extern void qt_discard_double_buffer();
+                qt_discard_double_buffer();
 #endif
-	    }
+            }
 
-	    killTimer(qt_double_buffer_timer);
-	    qt_double_buffer_timer = 0;
-	    return TRUE;
-	} else if (te->timerId() == d->toolTipWakeUp.timerId()) {
-	    d->toolTipWakeUp.stop();
-	    d->toolTipFallAsleep.start(2000, this);
-	    if (d->toolTipWidget) {
-		QHelpEvent e(QEvent::ToolTip, d->toolTipPos, d->toolTipGlobalPos);
-		QApplication::sendEvent(d->toolTipWidget, &e);
-	    }
-	} else if (te->timerId() == d->toolTipFallAsleep.timerId()) {
-	    d->toolTipFallAsleep.stop();
-	}
+            killTimer(qt_double_buffer_timer);
+            qt_double_buffer_timer = 0;
+            return true;
+        } else if (te->timerId() == d->toolTipWakeUp.timerId()) {
+            d->toolTipWakeUp.stop();
+            d->toolTipFallAsleep.start(2000, this);
+            if (d->toolTipWidget) {
+                QHelpEvent e(QEvent::ToolTip, d->toolTipPos, d->toolTipGlobalPos);
+                QApplication::sendEvent(d->toolTipWidget, &e);
+            }
+        } else if (te->timerId() == d->toolTipFallAsleep.timerId()) {
+            d->toolTipFallAsleep.stop();
+        }
     }
     return QCoreApplication::event(e);
 }
@@ -1812,7 +1812,7 @@ bool QApplication::event( QEvent *e )
 
 // The doc and X implementation of this function is in qapplication_x11.cpp
 
-void QApplication::syncX()	{}		// do nothing
+void QApplication::syncX()        {}                // do nothing
 
 #endif
 
@@ -1850,81 +1850,81 @@ void QApplication::syncX()	{}		// do nothing
 
   \sa activeWindow()
  */
-void QApplication::setActiveWindow( QWidget* act )
+void QApplication::setActiveWindow(QWidget* act)
 {
     QWidget* window = act?act->topLevelWidget():0;
 
-    if ( active_window == window )
-	return;
+    if (active_window == window)
+        return;
 
     // first the activation/deactivation events
-    if ( active_window ) {
-	QWidgetList deacts;
+    if (active_window) {
+        QWidgetList deacts;
 #ifndef QT_NO_STYLE
-	if ( style().styleHint(QStyle::SH_Widget_ShareActivation, active_window ) ) {
-	    QWidgetList list = topLevelWidgets();
-	    for (int i = 0; i < list.size(); ++i) {
-		QWidget *w = list.at(i);
-		if ( w->isVisible() && w->isActiveWindow() )
-		    deacts.append(w);
-	    }
-	} else
+        if (style().styleHint(QStyle::SH_Widget_ShareActivation, active_window)) {
+            QWidgetList list = topLevelWidgets();
+            for (int i = 0; i < list.size(); ++i) {
+                QWidget *w = list.at(i);
+                if (w->isVisible() && w->isActiveWindow())
+                    deacts.append(w);
+            }
+        } else
 #endif
-	    deacts.append(active_window);
-	active_window = 0;
-	QEvent e( QEvent::WindowDeactivate );
-	for(int i = 0; i < deacts.size(); ++i) {
-	    QWidget *w = deacts.at(i);
-	    sendSpontaneousEvent( w, &e );
-	}
+            deacts.append(active_window);
+        active_window = 0;
+        QEvent e(QEvent::WindowDeactivate);
+        for(int i = 0; i < deacts.size(); ++i) {
+            QWidget *w = deacts.at(i);
+            sendSpontaneousEvent(w, &e);
+        }
     }
 
     active_window = window;
-    if ( active_window ) {
-	QEvent e( QEvent::WindowActivate );
-	QWidgetList acts;
+    if (active_window) {
+        QEvent e(QEvent::WindowActivate);
+        QWidgetList acts;
 #ifndef QT_NO_STYLE
-	if ( style().styleHint(QStyle::SH_Widget_ShareActivation, active_window ) ) {
-	    QWidgetList list = topLevelWidgets();
-	    for (int i = 0; i < list.size(); ++i) {
-		QWidget *w = list.at(i);
-		if ( w->isVisible() && w->isActiveWindow() )
-		    acts.append(w);
-	    }
-	} else
+        if (style().styleHint(QStyle::SH_Widget_ShareActivation, active_window)) {
+            QWidgetList list = topLevelWidgets();
+            for (int i = 0; i < list.size(); ++i) {
+                QWidget *w = list.at(i);
+                if (w->isVisible() && w->isActiveWindow())
+                    acts.append(w);
+            }
+        } else
 #endif
-	    acts.append(active_window);
-	for (int i = 0; i < acts.size(); ++i) {
-	    QWidget *w = acts.at(i);
-	    sendSpontaneousEvent( w, &e );
-	}
+            acts.append(active_window);
+        for (int i = 0; i < acts.size(); ++i) {
+            QWidget *w = acts.at(i);
+            sendSpontaneousEvent(w, &e);
+        }
     }
 
     // then focus events
-    QFocusEvent::setReason( QFocusEvent::ActiveWindow );
-    if ( !active_window && focus_widget ) {
-	QFocusEvent out( QEvent::FocusOut );
-	QWidget *tmp = focus_widget;
-	focus_widget = 0;
+    QFocusEvent::setReason(QFocusEvent::ActiveWindow);
+    if (!active_window && focus_widget) {
+        QFocusEvent out(QEvent::FocusOut);
+        QWidget *tmp = focus_widget;
+        focus_widget = 0;
 #ifdef Q_WS_WIN
-	QInputContext::accept( tmp );
+        QInputContext::accept(tmp);
 #endif
-	sendSpontaneousEvent( tmp, &out );
-    } else if ( active_window ) {
-	QWidget *w = active_window->focusWidget();
-	if ( w /*&& w->focusPolicy() != QWidget::NoFocus*/ )
-	    w->setFocus();
-	else
-	    active_window->focusNextPrevChild( TRUE );
+        sendSpontaneousEvent(tmp, &out);
+    } else if (active_window) {
+        QWidget *w = active_window->focusWidget();
+        if (w /*&& w->focusPolicy() != QWidget::NoFocus*/)
+            w->setFocus();
+        else
+            active_window->focusNextPrevChild(true);
     }
     QFocusEvent::resetReason();
 
     if (!active_window) {
-	// (re)start the timer to discard the global double buffer
-	// while the application doesn't have any active windows
-	if (qt_double_buffer_timer)
-	    killTimer(qt_double_buffer_timer);
-	qt_double_buffer_timer = startTimer(500);
+        // (re)start the timer to discard the global double buffer
+        // while the application doesn't have any active windows
+        if (qt_double_buffer_timer)
+            killTimer(qt_double_buffer_timer);
+        qt_double_buffer_timer = startTimer(500);
     }
 }
 
@@ -1934,145 +1934,145 @@ void QApplication::setActiveWindow( QWidget* act )
   Creates the proper Enter/Leave event when widget \a enter is entered
   and widget \a leave is left.
  */
-void qt_dispatchEnterLeave( QWidget* enter, QWidget* leave ) {
+void qt_dispatchEnterLeave(QWidget* enter, QWidget* leave) {
 #if 0
-    if ( leave ) {
-	QEvent e( QEvent::Leave );
-	QApplication::sendEvent( leave, & e );
+    if (leave) {
+        QEvent e(QEvent::Leave);
+        QApplication::sendEvent(leave, & e);
     }
-    if ( enter ) {
-	QEvent e( QEvent::Enter );
-	QApplication::sendEvent( enter, & e );
+    if (enter) {
+        QEvent e(QEvent::Enter);
+        QApplication::sendEvent(enter, & e);
     }
     return;
 #endif
 
     QWidget* w ;
-    if ( !enter && !leave )
-	return;
+    if (!enter && !leave)
+        return;
     QWidgetList leaveList;
     QWidgetList enterList;
 
     bool sameWindow = leave && enter && leave->topLevelWidget() == enter->topLevelWidget();
-    if ( leave && !sameWindow ) {
-	w = leave;
-	do {
-	    leaveList.append( w );
-	} while ( !w->isTopLevel() && (w = w->parentWidget() ) );
+    if (leave && !sameWindow) {
+        w = leave;
+        do {
+            leaveList.append(w);
+        } while (!w->isTopLevel() && (w = w->parentWidget()));
     }
-    if ( enter && !sameWindow ) {
-	w = enter;
-	do {
-	    enterList.prepend( w );
-	} while ( !w->isTopLevel() && (w = w->parentWidget() ) );
+    if (enter && !sameWindow) {
+        w = enter;
+        do {
+            enterList.prepend(w);
+        } while (!w->isTopLevel() && (w = w->parentWidget()));
     }
-    if ( sameWindow ) {
-	int enterDepth = 0;
-	int leaveDepth = 0;
-	w = enter;
-	while ( !w->isTopLevel() && ( w = w->parentWidget() ) )
-	    enterDepth++;
-	w = leave;
-	while ( !w->isTopLevel() && ( w = w->parentWidget() ) )
-	    leaveDepth++;
-	QWidget* wenter = enter;
-	QWidget* wleave = leave;
-	while ( enterDepth > leaveDepth ) {
-	    wenter = wenter->parentWidget();
-	    enterDepth--;
-	}
-	while ( leaveDepth > enterDepth ) {
-	    wleave = wleave->parentWidget();
-	    leaveDepth--;
-	}
-	while ( !wenter->isTopLevel() && wenter != wleave ) {
-	    wenter = wenter->parentWidget();
-	    wleave = wleave->parentWidget();
-	}
+    if (sameWindow) {
+        int enterDepth = 0;
+        int leaveDepth = 0;
+        w = enter;
+        while (!w->isTopLevel() && (w = w->parentWidget()))
+            enterDepth++;
+        w = leave;
+        while (!w->isTopLevel() && (w = w->parentWidget()))
+            leaveDepth++;
+        QWidget* wenter = enter;
+        QWidget* wleave = leave;
+        while (enterDepth > leaveDepth) {
+            wenter = wenter->parentWidget();
+            enterDepth--;
+        }
+        while (leaveDepth > enterDepth) {
+            wleave = wleave->parentWidget();
+            leaveDepth--;
+        }
+        while (!wenter->isTopLevel() && wenter != wleave) {
+            wenter = wenter->parentWidget();
+            wleave = wleave->parentWidget();
+        }
 
-	w = leave;
-	while ( w != wleave ) {
-	    leaveList.append( w );
-	    w = w->parentWidget();
-	}
-	w = enter;
-	while ( w != wenter ) {
-	    enterList.prepend( w );
-	    w = w->parentWidget();
-	}
+        w = leave;
+        while (w != wleave) {
+            leaveList.append(w);
+            w = w->parentWidget();
+        }
+        w = enter;
+        while (w != wenter) {
+            enterList.prepend(w);
+            w = w->parentWidget();
+        }
     }
 
-    QEvent leaveEvent( QEvent::Leave );
+    QEvent leaveEvent(QEvent::Leave);
     for (int i = 0; i < leaveList.size(); ++i) {
-	w = leaveList.at(i);
-	if (!qApp->activeModalWidget() || qt_tryModalHelper( w, 0 ))
-	    QApplication::sendEvent( w, &leaveEvent );
+        w = leaveList.at(i);
+        if (!qApp->activeModalWidget() || qt_tryModalHelper(w, 0))
+            QApplication::sendEvent(w, &leaveEvent);
     }
-    QEvent enterEvent( QEvent::Enter );
+    QEvent enterEvent(QEvent::Enter);
     for (int i = 0; i < enterList.size(); ++i) {
-	w = enterList.at(i);
-	if (!qApp->activeModalWidget() || qt_tryModalHelper( w, 0 ))
-	    QApplication::sendEvent( w, &enterEvent );
+        w = enterList.at(i);
+        if (!qApp->activeModalWidget() || qt_tryModalHelper(w, 0))
+            QApplication::sendEvent(w, &enterEvent);
     }
 }
 
 
 #ifdef Q_WS_MAC
-extern QWidget *qt_tryModalHelperMac( QWidget * top ); //qapplication_mac.cpp
+extern QWidget *qt_tryModalHelperMac(QWidget * top); //qapplication_mac.cpp
 #endif
 
 
 /*!\internal
 
-  Called from qapplication_<platform>.cpp, returns TRUE
+  Called from qapplication_<platform>.cpp, returns true
   if the widget should accept the event.
  */
-bool qt_tryModalHelper( QWidget *widget, QWidget **rettop ) {
+bool qt_tryModalHelper(QWidget *widget, QWidget **rettop) {
     QWidget *modal=0, *top=QApplication::activeModalWidget();
-    if ( rettop ) *rettop = top;
+    if (rettop) *rettop = top;
 
-    if ( qApp->activePopupWidget() )
-	return TRUE;
+    if (qApp->activePopupWidget())
+        return true;
 
 #ifdef Q_WS_MAC
-    top = qt_tryModalHelperMac( top );
-    if ( rettop ) *rettop = top;
+    top = qt_tryModalHelperMac(top);
+    if (rettop) *rettop = top;
 #endif
 
     QWidget* groupLeader = widget;
     widget = widget->topLevelWidget();
 
-    if ( widget->testWFlags(Qt::WShowModal) )	// widget is modal
-	modal = widget;
-    if ( !top || modal == top )			// don't block event
-	return TRUE;
+    if (widget->testWFlags(Qt::WShowModal))        // widget is modal
+        modal = widget;
+    if (!top || modal == top)                        // don't block event
+        return true;
 
     QWidget * p = widget->parentWidget(); // Check if the active modal widget is a parent of our widget
-    while ( p ) {
-	if ( p == top )
-	    return TRUE;
-	p = p->parentWidget();
+    while (p) {
+        if (p == top)
+            return true;
+        p = p->parentWidget();
     }
 
-    while ( groupLeader && !groupLeader->testWFlags( Qt::WGroupLeader ) )
-	groupLeader = groupLeader->parentWidget();
+    while (groupLeader && !groupLeader->testWFlags(Qt::WGroupLeader))
+        groupLeader = groupLeader->parentWidget();
 
-    if ( groupLeader ) {
-	// Does groupLeader have a child in qt_modal_stack?
-	bool unrelated = TRUE;
-	for (int i = 0; unrelated && i < qt_modal_stack->size(); ++i) {
-	    modal = qt_modal_stack->at(i);
-	    QWidget* p = modal->parentWidget();
-	    while ( p && p != groupLeader && !p->testWFlags( Qt::WGroupLeader) ) {
-		p = p->parentWidget();
-	    }
-	    if ( p == groupLeader ) unrelated = FALSE;
-	}
+    if (groupLeader) {
+        // Does groupLeader have a child in qt_modal_stack?
+        bool unrelated = true;
+        for (int i = 0; unrelated && i < qt_modal_stack->size(); ++i) {
+            modal = qt_modal_stack->at(i);
+            QWidget* p = modal->parentWidget();
+            while (p && p != groupLeader && !p->testWFlags(Qt::WGroupLeader)) {
+                p = p->parentWidget();
+            }
+            if (p == groupLeader) unrelated = false;
+        }
 
-	if ( unrelated )
-	    return TRUE;		// don't block event
+        if (unrelated)
+            return true;                // don't block event
     }
-    return FALSE;
+    return false;
 }
 
 
@@ -2086,16 +2086,16 @@ bool qt_tryModalHelper( QWidget *widget, QWidget **rettop ) {
 
   \code
     QDesktopWidget *d = QApplication::desktop();
-    int w = d->width();	    // returns desktop width
+    int w = d->width();            // returns desktop width
     int h = d->height();    // returns desktop height
   \endcode
 */
 
 QDesktopWidget *QApplication::desktop()
 {
-    if ( !qt_desktopWidget || // not created yet
-	 !qt_desktopWidget->isDesktop() ) { // reparented away
-	qt_desktopWidget = new QDesktopWidget();
+    if (!qt_desktopWidget || // not created yet
+         !qt_desktopWidget->isDesktop()) { // reparented away
+        qt_desktopWidget = new QDesktopWidget();
     }
     return qt_desktopWidget;
 }
@@ -2106,8 +2106,8 @@ QDesktopWidget *QApplication::desktop()
 */
 QClipboard *QApplication::clipboard()
 {
-    if ( qt_clipboard == 0 ) {
-	qt_clipboard = new QClipboard;
+    if (qt_clipboard == 0) {
+        qt_clipboard = new QClipboard;
     }
     return qt_clipboard;
 }
@@ -2117,15 +2117,15 @@ QClipboard *QApplication::clipboard()
   By default, Qt will try to use the current standard colors, fonts
   etc., from the underlying window system's desktop settings,
   and use them for all relevant widgets. This behavior can be switched off
-  by calling this function with \a on set to FALSE.
+  by calling this function with \a on set to false.
 
   This static function must be called before creating the QApplication
   object, like this:
 
   \code
-  int main( int argc, char** argv ) {
-    QApplication::setDesktopSettingsAware( FALSE ); // I know better than the user
-    QApplication myApp( argc, argv ); // Use default fonts & colors
+  int main(int argc, char** argv) {
+    QApplication::setDesktopSettingsAware(false); // I know better than the user
+    QApplication myApp(argc, argv); // Use default fonts & colors
     ...
   }
   \endcode
@@ -2133,13 +2133,13 @@ QClipboard *QApplication::clipboard()
   \sa desktopSettingsAware()
 */
 
-void QApplication::setDesktopSettingsAware( bool on )
+void QApplication::setDesktopSettingsAware(bool on)
 {
     obey_desktop_settings = on;
 }
 
 /*!
-  Returns the value set by setDesktopSettingsAware(); by default TRUE.
+  Returns the value set by setDesktopSettingsAware(); by default true.
 
   \sa setDesktopSettingsAware()
 */
@@ -2152,8 +2152,8 @@ bool QApplication::desktopSettingsAware()
 /*!
   \fn bool QApplication::isSessionRestored() const
 
-  Returns TRUE if the application has been restored from an earlier
-  \link session.html session\endlink; otherwise returns FALSE.
+  Returns true if the application has been restored from an earlier
+  \link session.html session\endlink; otherwise returns false.
 
   \sa sessionId(), commitData(), saveState()
 */
@@ -2207,7 +2207,7 @@ QString QApplication::sessionKey() const
 
 
 /*!
-  \fn void QApplication::commitData( QSessionManager& sm )
+  \fn void QApplication::commitData(QSessionManager& sm)
 
   This function deals with \link session.html session
   management\endlink. It is invoked when the QSessionManager wants the
@@ -2234,35 +2234,35 @@ QString QApplication::sessionKey() const
   \sa isSessionRestored(), sessionId(), saveState(), \link session.html the Session Management overview\endlink
 */
 #ifndef QT_NO_SESSIONMANAGER
-void QApplication::commitData( QSessionManager& sm  )
+void QApplication::commitData(QSessionManager& sm )
 {
 
-    if ( sm.allowsInteraction() ) {
-	QWidgetList done;
-	QWidgetList list = QApplication::topLevelWidgets();
-	bool cancelled = FALSE;
-	for (int i = 0; !cancelled && i < list.size(); ++i) {
-	    QWidget* w = list.at(i);
-	    if ( !w->isHidden() ) {
-		QCloseEvent e;
-		sendEvent( w, &e );
-		cancelled = !e.isAccepted();
-		if ( !cancelled )
-		    done.append( w );
-		list = QApplication::topLevelWidgets();
-		i = -1;
-	    }
-	    while ( i < list.size()-1 && done.contains( list.at(i-1) ) )
-		++i;
-	}
-	if ( cancelled )
-	    sm.cancel();
+    if (sm.allowsInteraction()) {
+        QWidgetList done;
+        QWidgetList list = QApplication::topLevelWidgets();
+        bool cancelled = false;
+        for (int i = 0; !cancelled && i < list.size(); ++i) {
+            QWidget* w = list.at(i);
+            if (!w->isHidden()) {
+                QCloseEvent e;
+                sendEvent(w, &e);
+                cancelled = !e.isAccepted();
+                if (!cancelled)
+                    done.append(w);
+                list = QApplication::topLevelWidgets();
+                i = -1;
+            }
+            while (i < list.size()-1 && done.contains(list.at(i-1)))
+                ++i;
+        }
+        if (cancelled)
+            sm.cancel();
     }
 }
 
 
 /*!
-  \fn void QApplication::saveState( QSessionManager& sm )
+  \fn void QApplication::saveState(QSessionManager& sm)
 
   This function deals with \link session.html session
   management\endlink. It is invoked when the
@@ -2288,7 +2288,7 @@ void QApplication::commitData( QSessionManager& sm  )
   \sa isSessionRestored(), sessionId(), commitData(), \link session.html the Session Management overview\endlink
 */
 
-void QApplication::saveState( QSessionManager& /* sm */ )
+void QApplication::saveState(QSessionManager& /* sm */)
 {
 }
 #endif //QT_NO_SESSIONMANAGER
@@ -2298,7 +2298,7 @@ void QApplication::saveState( QSessionManager& /* sm */ )
   \sa startDragTime()
 */
 
-void QApplication::setStartDragTime( int ms )
+void QApplication::setStartDragTime(int ms)
 {
     drag_time = ms;
 }
@@ -2327,7 +2327,7 @@ int QApplication::startDragTime()
   \sa startDragDistance()
 */
 
-void QApplication::setStartDragDistance( int l )
+void QApplication::setStartDragDistance(int l)
 {
     drag_distance = l;
 }
@@ -2343,8 +2343,8 @@ void QApplication::setStartDragDistance( int l )
   \c currPos, you can find out if a drag should be started with code
   like this:
   \code
-  if ( ( startPos - currPos ).manhattanLength() >
-       QApplication::startDragDistance() )
+  if ((startPos - currPos).manhattanLength() >
+       QApplication::startDragDistance())
     startTheDrag();
   \endcode
 
@@ -2361,9 +2361,9 @@ int QApplication::startDragDistance()
 }
 
 /*!
-  If \a b is TRUE, all dialogs and widgets will be laid out in a
+  If \a b is true, all dialogs and widgets will be laid out in a
   mirrored fashion, as required by right to left languages such as
-  Arabic and Hebrew. If \a b is FALSE, dialogs and widgets are laid
+  Arabic and Hebrew. If \a b is false, dialogs and widgets are laid
   out left to right.
 
   Changing this flag in runtime does not cause a relayout of already
@@ -2371,23 +2371,23 @@ int QApplication::startDragDistance()
 
   \sa reverseLayout()
 */
-void QApplication::setReverseLayout( bool b )
+void QApplication::setReverseLayout(bool b)
 {
-    if ( reverse_layout == b )
-	return;
+    if (reverse_layout == b)
+        return;
 
     reverse_layout = b;
 
     QWidgetList list = topLevelWidgets();
     for (int i = 0; i < list.size(); ++i) {
-	QWidget *w = list.at(i);
-	postEvent( w, new QEvent( QEvent::LayoutDirectionChange ) );
+        QWidget *w = list.at(i);
+        postEvent(w, new QEvent(QEvent::LayoutDirectionChange));
     }
 }
 
 /*!
-    Returns TRUE if all dialogs and widgets will be laid out in a
-    mirrored (right to left) fashion. Returns FALSE if dialogs and
+    Returns true if all dialogs and widgets will be laid out in a
+    mirrored (right to left) fashion. Returns false if dialogs and
     widgets will be laid out left to right.
 
   \sa setReverseLayout()
@@ -2426,63 +2426,63 @@ int QApplication::exec()
 }
 
 #ifndef QT_NO_ACCEL
-extern bool qt_dispatchAccelEvent( QWidget*, QKeyEvent* ); // def in qaccel.cpp
-extern bool qt_tryComposeUnicode( QWidget*, QKeyEvent* ); // def in qaccel.cpp
+extern bool qt_dispatchAccelEvent(QWidget*, QKeyEvent*); // def in qaccel.cpp
+extern bool qt_tryComposeUnicode(QWidget*, QKeyEvent*); // def in qaccel.cpp
 #endif
 /*! \reimp
  */
 bool QApplication::notify(QObject *receiver, QEvent *e)
 {
     // no events are delivered after ~QCoreApplication() has started
-    if ( is_app_closing )
-	return TRUE;
+    if (is_app_closing)
+        return true;
 
-    if ( receiver == 0 ) {			// serious error
-	qWarning( "QApplication::notify: Unexpected null receiver" );
-	return TRUE;
+    if (receiver == 0) {                        // serious error
+        qWarning("QApplication::notify: Unexpected null receiver");
+        return true;
     }
 
     Q_ASSERT_X(QThread::currentThread() == receiver->thread(),
-	       "QApplication::sendEvent",
-	       QString("Cannot send events to objects owned by a different thread (%1).  "
-		       "Receiver '%2' (of type '%3') was created in thread %4")
-	       .arg(QString::number((ulong) QThread::currentThread(), 16))
-	       .arg(receiver->objectName())
-	       .arg(receiver->className())
-	       .arg(QString::number((ulong) receiver->thread(), 16))
-	       .latin1());
+               "QApplication::sendEvent",
+               QString("Cannot send events to objects owned by a different thread (%1).  "
+                       "Receiver '%2' (of type '%3') was created in thread %4")
+               .arg(QString::number((ulong) QThread::currentThread(), 16))
+               .arg(receiver->objectName())
+               .arg(receiver->className())
+               .arg(QString::number((ulong) receiver->thread(), 16))
+               .latin1());
 
 #ifdef QT_COMPAT
     if (e->type() == QEvent::ChildRemoved && receiver->d->hasPostedChildInsertedEvents) {
-	extern QPostEventList *qt_postEventList(Qt::HANDLE); // from qcoreapplication.cpp
-	QPostEventList *postedEvents = qt_postEventList(receiver->thread());
-	if (postedEvents) {
-	    QSpinLockLocker locker(&postedEvents->spinlock);
+        extern QPostEventList *qt_postEventList(Qt::HANDLE); // from qcoreapplication.cpp
+        QPostEventList *postedEvents = qt_postEventList(receiver->thread());
+        if (postedEvents) {
+            QSpinLockLocker locker(&postedEvents->spinlock);
 
-	    // the QObject destructor calls QObject::removeChild, which calls
-	    // QCoreApplication::sendEvent() directly.  this can happen while the event
-	    // loop is in the middle of posting events, and when we get here, we may
-	    // not have any more posted events for this object.
-	    bool postedChildInsertEventsRemaining = false;
-	    // if this is a child remove event and the child insert
-	    // hasn't been dispatched yet, kill that insert
-	    QObject * c = ((QChildEvent*)e)->child();
-	    for (int i = 0; i < postedEvents->size(); ++i) {
-		const QPostEvent &pe = postedEvents->at(i);
-		if (pe.event && pe.receiver == receiver) {
-		    if (pe.event->type() == QEvent::ChildInserted
-			&& ((QChildEvent*)pe.event)->child() == c ) {
-			pe.event->posted = false;
-			delete pe.event;
-			const_cast<QPostEvent &>(pe).event = 0;
-			const_cast<QPostEvent &>(pe).receiver = 0;
-		    } else {
-			postedChildInsertEventsRemaining = true;
-		    }
-		}
-		receiver->d->hasPostedChildInsertedEvents = postedChildInsertEventsRemaining;
-	    }
-	}
+            // the QObject destructor calls QObject::removeChild, which calls
+            // QCoreApplication::sendEvent() directly.  this can happen while the event
+            // loop is in the middle of posting events, and when we get here, we may
+            // not have any more posted events for this object.
+            bool postedChildInsertEventsRemaining = false;
+            // if this is a child remove event and the child insert
+            // hasn't been dispatched yet, kill that insert
+            QObject * c = ((QChildEvent*)e)->child();
+            for (int i = 0; i < postedEvents->size(); ++i) {
+                const QPostEvent &pe = postedEvents->at(i);
+                if (pe.event && pe.receiver == receiver) {
+                    if (pe.event->type() == QEvent::ChildInserted
+                        && ((QChildEvent*)pe.event)->child() == c) {
+                        pe.event->posted = false;
+                        delete pe.event;
+                        const_cast<QPostEvent &>(pe).event = 0;
+                        const_cast<QPostEvent &>(pe).receiver = 0;
+                    } else {
+                        postedChildInsertEventsRemaining = true;
+                    }
+                }
+                receiver->d->hasPostedChildInsertedEvents = postedChildInsertEventsRemaining;
+            }
+        }
     }
 #endif // QT_COMPAT
 
@@ -2495,59 +2495,59 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
     case QEvent::KeyRelease:
     case QEvent::FocusOut:
     case QEvent::FocusIn:
-	d->toolTipWakeUp.stop();
-	d->toolTipFallAsleep.stop();
-	break;
+        d->toolTipWakeUp.stop();
+        d->toolTipFallAsleep.stop();
+        break;
     default:
-	break;
+        break;
     }
 
     bool res = false;
     if (!receiver->isWidgetType()) {
-	res = notify_helper( receiver, e );
-    } else switch ( e->type() ) {
+        res = notify_helper(receiver, e);
+    } else switch (e->type()) {
 #ifndef QT_NO_ACCEL
     case QEvent::Accel:
     {
-	QKeyEvent* key = (QKeyEvent*) e;
-	res = notify_helper( receiver, e );
+        QKeyEvent* key = (QKeyEvent*) e;
+        res = notify_helper(receiver, e);
 
-	if ( !res && !key->isAccepted() )
-	    res = qt_dispatchAccelEvent( (QWidget*)receiver, key );
+        if (!res && !key->isAccepted())
+            res = qt_dispatchAccelEvent((QWidget*)receiver, key);
 
-	// next lines are for compatibility with Qt <= 3.0.x: old
-	// QAccel was listening on toplevel widgets
-	if ( !res && !key->isAccepted() && !((QWidget*)receiver)->isTopLevel() )
-	    res = notify_helper( ((QWidget*)receiver)->topLevelWidget(), e );
-	break;
+        // next lines are for compatibility with Qt <= 3.0.x: old
+        // QAccel was listening on toplevel widgets
+        if (!res && !key->isAccepted() && !((QWidget*)receiver)->isTopLevel())
+            res = notify_helper(((QWidget*)receiver)->topLevelWidget(), e);
+        break;
     }
 #endif //QT_NO_ACCEL
     case QEvent::KeyPress:
     case QEvent::KeyRelease:
     case QEvent::AccelOverride:
     {
-	QWidget* w = (QWidget*)receiver;
-	QKeyEvent* key = (QKeyEvent*) e;
+        QWidget* w = (QWidget*)receiver;
+        QKeyEvent* key = (QKeyEvent*) e;
 #ifndef QT_NO_ACCEL
-	if ( qt_tryComposeUnicode( w, key ) )
-	    break;
+        if (qt_tryComposeUnicode(w, key))
+            break;
 #endif
-	bool def = key->isAccepted();
-	while ( w ) {
-	    if ( def )
-		key->accept();
-	    else
-		key->ignore();
-	    res = notify_helper( w, e );
-	    if ( res || key->isAccepted() )
-		break;
-	    if (w->isTopLevel() || !w->parentWidget()
-		|| (w->testAttribute(QWidget::WA_CompositeChild)
-		    && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent))
-		)
-		break;
-	    w = w->parentWidget();
-	}
+        bool def = key->isAccepted();
+        while (w) {
+            if (def)
+                key->accept();
+            else
+                key->ignore();
+            res = notify_helper(w, e);
+            if (res || key->isAccepted())
+                break;
+            if (w->isTopLevel() || !w->parentWidget()
+                || (w->testAttribute(QWidget::WA_CompositeChild)
+                    && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent))
+               )
+                break;
+            w = w->parentWidget();
+        }
     }
     break;
     case QEvent::MouseButtonPress:
@@ -2555,143 +2555,143 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
     case QEvent::MouseButtonDblClick:
     case QEvent::MouseMove:
     {
-	QWidget* w = (QWidget*)receiver;
-	QMouseEvent* mouse = (QMouseEvent*) e;
-	QPoint relpos = mouse->pos();
+        QWidget* w = (QWidget*)receiver;
+        QMouseEvent* mouse = (QMouseEvent*) e;
+        QPoint relpos = mouse->pos();
 
-	if (e->spontaneous()) {
-	    while (w->testAttribute(QWidget::WA_CompositeChild)
-		   && w->parentWidget()
-		   && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)) {
-		relpos += w->pos();
-		w = w->parentWidget();
-	    }
+        if (e->spontaneous()) {
+            while (w->testAttribute(QWidget::WA_CompositeChild)
+                   && w->parentWidget()
+                   && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)) {
+                relpos += w->pos();
+                w = w->parentWidget();
+            }
 
-	    if (e->type() == QEvent::MouseButtonPress) {
-		QWidget *fw = w;
-		while (fw) {
-		    if (fw->isEnabled() && (fw->focusPolicy() & QWidget::ClickFocus)) {
-			QFocusEvent::setReason( QFocusEvent::Mouse);
-			fw->setFocus();
-			QFocusEvent::resetReason();
-			break;
-		    }
-		    if (fw->isTopLevel())
-			break;
-		    fw = fw->parentWidget();
-		}
-	    }
+            if (e->type() == QEvent::MouseButtonPress) {
+                QWidget *fw = w;
+                while (fw) {
+                    if (fw->isEnabled() && (fw->focusPolicy() & QWidget::ClickFocus)) {
+                        QFocusEvent::setReason(QFocusEvent::Mouse);
+                        fw->setFocus();
+                        QFocusEvent::resetReason();
+                        break;
+                    }
+                    if (fw->isTopLevel())
+                        break;
+                    fw = fw->parentWidget();
+                }
+            }
 
-	    if (e->type() == QEvent::MouseMove) {
-		d->toolTipWidget = w;
-		d->toolTipPos = relpos;
-		d->toolTipGlobalPos = mouse->globalPos();
-		d->toolTipWakeUp.start(d->toolTipFallAsleep.isActive()?1:700, this);
-	    }
-	}
+            if (e->type() == QEvent::MouseMove) {
+                d->toolTipWidget = w;
+                d->toolTipPos = relpos;
+                d->toolTipGlobalPos = mouse->globalPos();
+                d->toolTipWakeUp.start(d->toolTipFallAsleep.isActive()?1:700, this);
+            }
+        }
 
-	while ( w ) {
-	    QMouseEvent me(mouse->type(), relpos, mouse->globalPos(), mouse->button(), mouse->state());
-	    me.spont = mouse->spontaneous();
-	    res = notify_helper( w, w == receiver ? mouse : &me );
-	    e->spont = FALSE;
-	    if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation)
-		|| (w->testAttribute(QWidget::WA_CompositeChild)
-		    && w->parentWidget()
-		    && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)))
-		break;
+        while (w) {
+            QMouseEvent me(mouse->type(), relpos, mouse->globalPos(), mouse->button(), mouse->state());
+            me.spont = mouse->spontaneous();
+            res = notify_helper(w, w == receiver ? mouse : &me);
+            e->spont = false;
+            if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation)
+                || (w->testAttribute(QWidget::WA_CompositeChild)
+                    && w->parentWidget()
+                    && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)))
+                break;
 
-	    relpos += w->pos();
-	    w = w->parentWidget();
-	}
-	if ( res )
-	    mouse->accept();
-	else
-	    mouse->ignore();
+            relpos += w->pos();
+            w = w->parentWidget();
+        }
+        if (res)
+            mouse->accept();
+        else
+            mouse->ignore();
     }
     break;
 #ifndef QT_NO_WHEELEVENT
     case QEvent::Wheel:
     {
-	QWidget* w = (QWidget*)receiver;
-	QWheelEvent* wheel = (QWheelEvent*) e;
-	QPoint relpos = wheel->pos();
+        QWidget* w = (QWidget*)receiver;
+        QWheelEvent* wheel = (QWheelEvent*) e;
+        QPoint relpos = wheel->pos();
 
-	if (e->spontaneous()) {
-	    while (w->testAttribute(QWidget::WA_CompositeChild)
-		   && w->parentWidget()
-		   && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)) {
-		relpos += w->pos();
-		w = w->parentWidget();
-	    }
+        if (e->spontaneous()) {
+            while (w->testAttribute(QWidget::WA_CompositeChild)
+                   && w->parentWidget()
+                   && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)) {
+                relpos += w->pos();
+                w = w->parentWidget();
+            }
 
-	    QWidget *fw = w;
-	    while (fw) {
-		if (fw->isEnabled() && (fw->focusPolicy() & QWidget::WheelFocus) == QWidget::WheelFocus) {
-		    QFocusEvent::setReason( QFocusEvent::Mouse);
-		    fw->setFocus();
-		    QFocusEvent::resetReason();
-		    break;
-		}
-		if (fw->isTopLevel())
-		    break;
-		fw = fw->parentWidget();
-	    }
-	}
+            QWidget *fw = w;
+            while (fw) {
+                if (fw->isEnabled() && (fw->focusPolicy() & QWidget::WheelFocus) == QWidget::WheelFocus) {
+                    QFocusEvent::setReason(QFocusEvent::Mouse);
+                    fw->setFocus();
+                    QFocusEvent::resetReason();
+                    break;
+                }
+                if (fw->isTopLevel())
+                    break;
+                fw = fw->parentWidget();
+            }
+        }
 
-	while ( w ) {
-	    QWheelEvent we(relpos, wheel->globalPos(), wheel->delta(), wheel->state(), wheel->orientation());
-	    we.spont = wheel->spontaneous();
-	    res = notify_helper( w,  w == receiver ? wheel : &we );
-	    e->spont = FALSE;
-	    if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation)
-		|| (w->testAttribute(QWidget::WA_CompositeChild)
-		    && w->parentWidget()
-		    && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)))
-		break;
+        while (w) {
+            QWheelEvent we(relpos, wheel->globalPos(), wheel->delta(), wheel->state(), wheel->orientation());
+            we.spont = wheel->spontaneous();
+            res = notify_helper(w,  w == receiver ? wheel : &we);
+            e->spont = false;
+            if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation)
+                || (w->testAttribute(QWidget::WA_CompositeChild)
+                    && w->parentWidget()
+                    && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)))
+                break;
 
-	    relpos += w->pos();
-	    w = w->parentWidget();
-	}
-	if ( res )
-	    wheel->accept();
-	else
-	    wheel->ignore();
+            relpos += w->pos();
+            w = w->parentWidget();
+        }
+        if (res)
+            wheel->accept();
+        else
+            wheel->ignore();
     }
     break;
 #endif
     case QEvent::ContextMenu:
     {
-	QWidget* w = (QWidget*)receiver;
-	QContextMenuEvent *context = (QContextMenuEvent*) e;
-	QPoint relpos = context->pos();
-	if (e->spontaneous())
-	    while (w->testAttribute(QWidget::WA_CompositeChild)
-		   && w->parentWidget()
-		   && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)) {
-		relpos += w->pos();
-		w = w->parentWidget();
-	    }
+        QWidget* w = (QWidget*)receiver;
+        QContextMenuEvent *context = (QContextMenuEvent*) e;
+        QPoint relpos = context->pos();
+        if (e->spontaneous())
+            while (w->testAttribute(QWidget::WA_CompositeChild)
+                   && w->parentWidget()
+                   && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)) {
+                relpos += w->pos();
+                w = w->parentWidget();
+            }
 
-	while ( w ) {
-	    QContextMenuEvent ce(context->reason(), relpos, context->globalPos(), context->state());
-	    ce.spont = e->spontaneous();
-	    res = notify_helper( w,  w == receiver ? context : &ce );
-	    e->spont = FALSE;
+        while (w) {
+            QContextMenuEvent ce(context->reason(), relpos, context->globalPos(), context->state());
+            ce.spont = e->spontaneous();
+            res = notify_helper(w,  w == receiver ? context : &ce);
+            e->spont = false;
 
-	    if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation)
-		|| (w->testAttribute(QWidget::WA_CompositeChild)
-		    && w->parentWidget()
-		    && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)))
-		break;
+            if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation)
+                || (w->testAttribute(QWidget::WA_CompositeChild)
+                    && w->parentWidget()
+                    && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)))
+                break;
 
-	    relpos += w->pos();
-	    w = w->parentWidget();
-	}
-	if ( res )
-	    context->accept();
-	else
-	    context->ignore();
+            relpos += w->pos();
+            w = w->parentWidget();
+        }
+        if (res)
+            context->accept();
+        else
+            context->ignore();
     }
     break;
 #if defined (QT_TABLET_SUPPORT)
@@ -2699,39 +2699,39 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
     case QEvent::TabletPress:
     case QEvent::TabletRelease:
     {
-	QWidget *w = (QWidget*)receiver;
-	QTabletEvent *tablet = (QTabletEvent*)e;
-	QPoint relpos = tablet->pos();
-	if (e->spontaneous()) {
-	    while (w->testAttribute(QWidget::WA_CompositeChild)
-		   && w->parentWidget()
-		   && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)) {
-		relpos += w->pos();
-		w = w->parentWidget();
-	    }
-	}
+        QWidget *w = (QWidget*)receiver;
+        QTabletEvent *tablet = (QTabletEvent*)e;
+        QPoint relpos = tablet->pos();
+        if (e->spontaneous()) {
+            while (w->testAttribute(QWidget::WA_CompositeChild)
+                   && w->parentWidget()
+                   && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)) {
+                relpos += w->pos();
+                w = w->parentWidget();
+            }
+        }
 
-	while ( w ) {
-	    QTabletEvent te(tablet->pos(), tablet->globalPos(), tablet->device(),
-			    tablet->pressure(), tablet->xTilt(), tablet->yTilt(),
-			    tablet->uniqueId());
-	    te.spont = e->spontaneous();
-	    res = notify_helper( w, w == receiver ? tablet : &te );
-	    e->spont = FALSE;
-	    if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation)
-		|| (w->testAttribute(QWidget::WA_CompositeChild)
-		    && w->parentWidget()
-		    && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)))
-		break;
+        while (w) {
+            QTabletEvent te(tablet->pos(), tablet->globalPos(), tablet->device(),
+                            tablet->pressure(), tablet->xTilt(), tablet->yTilt(),
+                            tablet->uniqueId());
+            te.spont = e->spontaneous();
+            res = notify_helper(w, w == receiver ? tablet : &te);
+            e->spont = false;
+            if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation)
+                || (w->testAttribute(QWidget::WA_CompositeChild)
+                    && w->parentWidget()
+                    && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)))
+                break;
 
-	    relpos += w->pos();
-	    w = w->parentWidget();
-	}
-	if ( res )
-	    tablet->accept();
-	else
-	    tablet->ignore();
-	chokeMouse = tablet->isAccepted();
+            relpos += w->pos();
+            w = w->parentWidget();
+        }
+        if (res)
+            tablet->accept();
+        else
+            tablet->ignore();
+        chokeMouse = tablet->isAccepted();
     }
     break;
 #endif
@@ -2739,137 +2739,137 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
     case QEvent::ToolTip:
     case QEvent::WhatsThis:
     {
-	QWidget* w = (QWidget*)receiver;
-	QHelpEvent *help = (QHelpEvent*) e;
-	QPoint relpos = help->pos();
-	if (e->spontaneous())
-	    while (w->testAttribute(QWidget::WA_CompositeChild)
-		   && w->parentWidget()
-		   && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)) {
-		relpos += w->pos();
-		w = w->parentWidget();
-	    }
+        QWidget* w = (QWidget*)receiver;
+        QHelpEvent *help = (QHelpEvent*) e;
+        QPoint relpos = help->pos();
+        if (e->spontaneous())
+            while (w->testAttribute(QWidget::WA_CompositeChild)
+                   && w->parentWidget()
+                   && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)) {
+                relpos += w->pos();
+                w = w->parentWidget();
+            }
 
-	while ( w ) {
-	    QHelpEvent he(help->type(), relpos, help->globalPos());
-	    he.spont = e->spontaneous();
-	    res = notify_helper( w,  w == receiver ? help : &he );
-	    e->spont = FALSE;
+        while (w) {
+            QHelpEvent he(help->type(), relpos, help->globalPos());
+            he.spont = e->spontaneous();
+            res = notify_helper(w,  w == receiver ? help : &he);
+            e->spont = false;
 
-	    if (res || w->isTopLevel()
-		|| (w->testAttribute(QWidget::WA_CompositeChild)
-		    && w->parentWidget()
-		    && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)))
-		break;
+            if (res || w->isTopLevel()
+                || (w->testAttribute(QWidget::WA_CompositeChild)
+                    && w->parentWidget()
+                    && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)))
+                break;
 
-	    relpos += w->pos();
-	    w = w->parentWidget();
-	}
+            relpos += w->pos();
+            w = w->parentWidget();
+        }
     }
     break;
 
     case QEvent::StatusTip:
     {
-	QWidget *w = (QWidget*)receiver;
-	while ( w ) {
-	    res = notify_helper(w, e);
-	    if (res || w->isTopLevel()
-		|| (w->testAttribute(QWidget::WA_CompositeChild)
-		    && w->parentWidget()
-		    && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)))
-		break;
-	    w = w->parentWidget();
-	}
+        QWidget *w = (QWidget*)receiver;
+        while (w) {
+            res = notify_helper(w, e);
+            if (res || w->isTopLevel()
+                || (w->testAttribute(QWidget::WA_CompositeChild)
+                    && w->parentWidget()
+                    && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)))
+                break;
+            w = w->parentWidget();
+        }
     }
     break;
 
     default:
-	res = notify_helper( receiver, e );
-	break;
+        res = notify_helper(receiver, e);
+        break;
     }
 
     return res;
 }
 
-bool QApplication::notify_helper( QObject *receiver, QEvent * e)
+bool QApplication::notify_helper(QObject *receiver, QEvent * e)
 {
     // send to all application event filters
     for (int i = 0; i < d->eventFilters.size(); ++i) {
-	register QObject *obj = d->eventFilters.at(i);
-	if ( obj && obj->eventFilter(receiver,e) )
-	    return true;
+        register QObject *obj = d->eventFilters.at(i);
+        if (obj && obj->eventFilter(receiver,e))
+            return true;
     }
 
     bool consumed = false;
     bool handled = false;
 
     if (receiver->isWidgetType()) {
-	QWidget *widget = (QWidget*)receiver;
+        QWidget *widget = (QWidget*)receiver;
 
-	// toggle HasMouse widget state on enter and leave
-	if ( e->type() == QEvent::Enter || e->type() == QEvent::DragEnter )
-	    widget->setAttribute(QWidget::WA_UnderMouse, true);
-	else if ( e->type() == QEvent::Leave || e->type() == QEvent::DragLeave )
-	    widget->setAttribute(QWidget::WA_UnderMouse, false);
+        // toggle HasMouse widget state on enter and leave
+        if (e->type() == QEvent::Enter || e->type() == QEvent::DragEnter)
+            widget->setAttribute(QWidget::WA_UnderMouse, true);
+        else if (e->type() == QEvent::Leave || e->type() == QEvent::DragLeave)
+            widget->setAttribute(QWidget::WA_UnderMouse, false);
 
-	if (QLayout *layout=widget->d->layout) {
-	    layout->widgetEvent(e);
-	}
+        if (QLayout *layout=widget->d->layout) {
+            layout->widgetEvent(e);
+        }
 
 
-	// throw away mouse events to disabled widgets
-	if ( !widget->isEnabled() ) {
-	    switch(e->type()) {
-	    case QEvent::MouseButtonPress:
-	    case QEvent::MouseButtonRelease:
-	    case QEvent::MouseButtonDblClick:
-	    case QEvent::MouseMove:
-		( (QMouseEvent*) e)->ignore();
-		consumed = true;
-		handled = true;
-		break;
+        // throw away mouse events to disabled widgets
+        if (!widget->isEnabled()) {
+            switch(e->type()) {
+            case QEvent::MouseButtonPress:
+            case QEvent::MouseButtonRelease:
+            case QEvent::MouseButtonDblClick:
+            case QEvent::MouseMove:
+                ((QMouseEvent*) e)->ignore();
+                consumed = true;
+                handled = true;
+                break;
 #ifndef QT_NO_DRAGANDDROP
-	    case QEvent::DragEnter:
-	    case QEvent::DragMove:
-		( (QDragMoveEvent*) e)->ignore();
-		handled = true;
-		break;
-	    case QEvent::DragLeave:
-	    case QEvent::DragResponse:
-		handled = true;
-		break;
-	    case QEvent::Drop:
-		( (QDropEvent*) e)->ignore();
-		handled = true;
-		break;
+            case QEvent::DragEnter:
+            case QEvent::DragMove:
+                ((QDragMoveEvent*) e)->ignore();
+                handled = true;
+                break;
+            case QEvent::DragLeave:
+            case QEvent::DragResponse:
+                handled = true;
+                break;
+            case QEvent::Drop:
+                ((QDropEvent*) e)->ignore();
+                handled = true;
+                break;
 #endif
 #ifndef QT_NO_WHEELEVENT
-	    case QEvent::Wheel:
-		( (QWheelEvent*) e)->ignore();
-		handled = true;
-		break;
+            case QEvent::Wheel:
+                ((QWheelEvent*) e)->ignore();
+                handled = true;
+                break;
 #endif
-	    case QEvent::ContextMenu:
-		( (QContextMenuEvent*) e)->ignore();
-		handled = true;
-		break;
-	    default:
-		break;
-	    }
-	}
+            case QEvent::ContextMenu:
+                ((QContextMenuEvent*) e)->ignore();
+                handled = true;
+                break;
+            default:
+                break;
+            }
+        }
 
     }
 
     if (!handled) {
-	// send to all receiver event filters
-	if (receiver != this) {
-	    for (int i = 0; i < receiver->d->eventFilters.size(); ++i) {
-		register QObject *obj = receiver->d->eventFilters.at(i);
-		if ( obj && obj->eventFilter(receiver,e) )
-		    return true;
-	    }
-	}
-	consumed = receiver->event(e);
+        // send to all receiver event filters
+        if (receiver != this) {
+            for (int i = 0; i < receiver->d->eventFilters.size(); ++i) {
+                register QObject *obj = receiver->d->eventFilters.at(i);
+                if (obj && obj->eventFilter(receiver,e))
+                    return true;
+            }
+        }
+        consumed = receiver->event(e);
     }
     e->spont = false;
     return consumed;
@@ -2981,8 +2981,8 @@ bool QApplication::notify_helper( QObject *receiver, QEvent * e)
   \fn bool QSessionManager::allowsInteraction()
 
   Asks the session manager for permission to interact with the
-  user. Returns TRUE if interaction is permitted; otherwise
-  returns FALSE.
+  user. Returns true if interaction is permitted; otherwise
+  returns false.
 
   The rationale behind this mechanism is to make it possible to
   synchronize user interaction during a shutdown. Advanced session
@@ -3003,29 +3003,29 @@ bool QApplication::notify_helper( QObject *receiver, QEvent * e)
   might be implemented:
 
 \code
-void MyApplication::commitData( QSessionManager& sm ) {
-    if ( sm.allowsInteraction() ) {
-	switch ( QMessageBox::warning(
-		    yourMainWindow,
-		    tr("Application Name"),
-		    tr("Save changes to document Foo?"),
-		    tr("&Yes"),
-		    tr("&No"),
-		    tr("Cancel"),
-		    0, 2) ) {
-	case 0: // yes
-	    sm.release();
-	    // save document here; if saving fails, call sm.cancel()
-	    break;
-	case 1: // continue without saving
-	    break;
-	default: // cancel
-	    sm.cancel();
-	    break;
-	}
+void MyApplication::commitData(QSessionManager& sm) {
+    if (sm.allowsInteraction()) {
+        switch (QMessageBox::warning(
+                    yourMainWindow,
+                    tr("Application Name"),
+                    tr("Save changes to document Foo?"),
+                    tr("&Yes"),
+                    tr("&No"),
+                    tr("Cancel"),
+                    0, 2)) {
+        case 0: // yes
+            sm.release();
+            // save document here; if saving fails, call sm.cancel()
+            break;
+        case 1: // continue without saving
+            break;
+        default: // cancel
+            sm.cancel();
+            break;
+        }
     } else {
-	// we did not get permission to interact, then
-	// do something reasonable instead.
+        // we did not get permission to interact, then
+        // do something reasonable instead.
     }
 }
 \endcode
@@ -3069,7 +3069,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
 */
 
 /*!
-  \fn void QSessionManager::setRestartHint( RestartHint hint )
+  \fn void QSessionManager::setRestartHint(RestartHint hint)
 
   Sets the application's restart hint to \a hint. On application
   startup the hint is set to \c RestartIfRunning.
@@ -3094,14 +3094,14 @@ void MyApplication::commitData( QSessionManager& sm ) {
 */
 
 /*!
-  \fn void QSessionManager::setRestartCommand( const QStringList& command )
+  \fn void QSessionManager::setRestartCommand(const QStringList& command)
 
   If the session manager is capable of restoring sessions it will
   execute \a command in order to restore the application. The command
   defaults to
 
   \code
-	appname -session id
+        appname -session id
   \endcode
 
   The \c -session option is mandatory; otherwise QApplication cannot
@@ -3130,9 +3130,9 @@ void MyApplication::commitData( QSessionManager& sm ) {
     \code
     QStringList list = mySession.restartCommand();
     QStringList::Iterator it = list.begin();
-    while( it != list.end() ) {
-	myProcessing( *it );
-	++it;
+    while(it != list.end()) {
+        myProcessing(*it);
+        ++it;
     }
     \endcode
 
@@ -3140,7 +3140,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
 */
 
 /*!
-  \fn void QSessionManager::setDiscardCommand( const QStringList& )
+  \fn void QSessionManager::setDiscardCommand(const QStringList&)
 
   \sa discardCommand(), setRestartCommand()
 */
@@ -3156,9 +3156,9 @@ void MyApplication::commitData( QSessionManager& sm ) {
     \code
     QStringList list = mySession.discardCommand();
     QStringList::Iterator it = list.begin();
-    while( it != list.end() ) {
-	myProcessing( *it );
-	++it;
+    while(it != list.end()) {
+        myProcessing(*it);
+        ++it;
     }
     \endcode
 
@@ -3176,8 +3176,8 @@ void MyApplication::commitData( QSessionManager& sm ) {
 */
 
 /*!
-  \fn void QSessionManager::setManagerProperty( const QString& name,
-						const QStringList& value )
+  \fn void QSessionManager::setManagerProperty(const QString& name,
+                                                const QStringList& value)
 
   Low-level write access to the application's identification and state
   record are kept in the session manager.
@@ -3188,8 +3188,8 @@ void MyApplication::commitData( QSessionManager& sm ) {
 /*!
   \fn bool QSessionManager::isPhase2() const
 
-  Returns TRUE if the session manager is currently performing a second
-  session management phase; otherwise returns FALSE.
+  Returns true if the session manager is currently performing a second
+  session management phase; otherwise returns false.
 
   \sa requestPhase2()
 */
@@ -3216,7 +3216,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
 */
 
 /*!
-  \fn Qt::Alignment QApplication::horizontalAlignment( Alignment align )
+  \fn Qt::Alignment QApplication::horizontalAlignment(Alignment align)
 
   Strips out vertical alignment flags and transforms an
   alignment \a align of AlignAuto into AlignLeft or
@@ -3228,7 +3228,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
   Stubbed session management support
  *****************************************************************************/
 #ifndef QT_NO_SESSIONMANAGER
-#if defined( QT_NO_SM_SUPPORT ) || defined( Q_WS_WIN ) || defined( Q_WS_MAC ) || defined( Q_WS_QWS )
+#if defined(QT_NO_SM_SUPPORT) || defined(Q_WS_WIN) || defined(Q_WS_MAC) || defined(Q_WS_QWS)
 
 class QSessionManagerPrivate : public QObjectPrivate
 {
@@ -3241,18 +3241,18 @@ public:
 };
 
 QSessionManager* qt_session_manager_self = 0;
-QSessionManager::QSessionManager( QApplication * app, QString &id, QString &key )
-    : QObject( *new QSessionManagerPrivate, app)
+QSessionManager::QSessionManager(QApplication * app, QString &id, QString &key)
+    : QObject(*new QSessionManagerPrivate, app)
 {
     setObjectNameConst("qt_sessionmanager");
     qt_session_manager_self = this;
 #if defined(Q_WS_WIN) && !defined(Q_OS_TEMP)
     wchar_t guidstr[40];
     GUID guid;
-    CoCreateGuid( &guid );
+    CoCreateGuid(&guid);
     StringFromGUID2(guid, guidstr, 40);
     id = QString::fromUcs2((ushort*)guidstr);
-    CoCreateGuid( &guid );
+    CoCreateGuid(&guid);
     StringFromGUID2(guid, guidstr, 40);
     key = QString::fromUcs2((ushort*)guidstr);
 #endif
@@ -3287,12 +3287,12 @@ void* QSessionManager::handle() const
 #if !defined(Q_WS_WIN)
 bool QSessionManager::allowsInteraction()
 {
-    return TRUE;
+    return true;
 }
 
 bool QSessionManager::allowsErrorInteraction()
 {
-    return TRUE;
+    return true;
 }
 void QSessionManager::release()
 {
@@ -3304,7 +3304,7 @@ void QSessionManager::cancel()
 #endif
 
 
-void QSessionManager::setRestartHint( QSessionManager::RestartHint hint)
+void QSessionManager::setRestartHint(QSessionManager::RestartHint hint)
 {
     d->restartHint = hint;
 }
@@ -3314,7 +3314,7 @@ QSessionManager::RestartHint QSessionManager::restartHint() const
     return d->restartHint;
 }
 
-void QSessionManager::setRestartCommand( const QStringList& command)
+void QSessionManager::setRestartCommand(const QStringList& command)
 {
     d->restartCommand = command;
 }
@@ -3324,7 +3324,7 @@ QStringList QSessionManager::restartCommand() const
     return d->restartCommand;
 }
 
-void QSessionManager::setDiscardCommand( const QStringList& command)
+void QSessionManager::setDiscardCommand(const QStringList& command)
 {
     d->discardCommand = command;
 }
@@ -3334,17 +3334,17 @@ QStringList QSessionManager::discardCommand() const
     return d->discardCommand;
 }
 
-void QSessionManager::setManagerProperty( const QString&, const QString&)
+void QSessionManager::setManagerProperty(const QString&, const QString&)
 {
 }
 
-void QSessionManager::setManagerProperty( const QString&, const QStringList& )
+void QSessionManager::setManagerProperty(const QString&, const QStringList&)
 {
 }
 
 bool QSessionManager::isPhase2() const
 {
-    return FALSE;
+    return false;
 }
 
 void QSessionManager::requestPhase2()

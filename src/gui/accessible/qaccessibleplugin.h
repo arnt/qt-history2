@@ -31,7 +31,7 @@ public:
     ~QAccessiblePlugin();
 
     virtual QStringList keys() const = 0;
-    virtual QAccessibleInterface *create( const QString &key, QObject *object ) = 0;
+    virtual QAccessibleInterface *create(const QString &key, QObject *object) = 0;
 
 private:
     QAccessiblePluginPrivate *d;

@@ -24,8 +24,8 @@
 class QSocketDevicePrivate
 {
 public:
-    QSocketDevicePrivate( QSocketDevice::Protocol p )
-	: protocol(p)
+    QSocketDevicePrivate(QSocketDevice::Protocol p)
+        : protocol(p)
     { }
 
     QSocketDevice::Protocol protocol;
@@ -70,9 +70,9 @@ public:
     \value IPv4 The socket is an IPv4 socket.
     \value IPv6 The socket is an IPv6 socket.
     \value Unknown The protocol family of the socket is not known. This can
-	   happen if you use QSocketDevice with an already existing socket; it
-	   tries to determine the protocol family, but this can fail if the
-	   protocol family is not known to QSocketDevice.
+           happen if you use QSocketDevice with an already existing socket; it
+           tries to determine the protocol family, but this can fail if the
+           protocol family is not known to QSocketDevice.
 
     \sa protocol() setSocket()
 */
@@ -87,7 +87,7 @@ public:
     \value AlreadyBound  The device is already bound, according to bind().
 
     \value Inaccessible  The operating system or firewall prohibited
-			the action.
+                        the action.
 
     \value NoResources  The operating system ran out of a resource.
 
@@ -96,8 +96,8 @@ public:
     \value Impossible  An attempt was made to do something which makes
     no sense. For example:
     \code
-    ::close( sd->socket() );
-    sd->writeBlock( someData, 42 );
+    ::close(sd->socket());
+    sd->writeBlock(someData, 42);
     \endcode
     The libc ::close() closes the socket, but QSocketDevice is not aware
     of this. So when you call writeBlock(), the impossible happens.
@@ -131,16 +131,16 @@ public:
     socket, or \c QSocketDevice::Datagram for an unreliable,
     connectionless UDP socket.
 */
-QSocketDevice::QSocketDevice( int socket, Type type )
-    : fd( socket ), t( type ), p( 0 ), pp( 0 ), e( NoError ),
+QSocketDevice::QSocketDevice(int socket, Type type)
+    : fd(socket), t(type), p(0), pp(0), e(NoError),
       d(new QSocketDevicePrivate(Unknown))
 {
 #if defined(QSOCKETDEVICE_DEBUG)
-    qDebug( "QSocketDevice: Created QSocketDevice %p (socket %x, type %d)",
-	   this, socket, type );
+    qDebug("QSocketDevice: Created QSocketDevice %p (socket %x, type %d)",
+           this, socket, type);
 #endif
     init();
-    setSocket( socket, type );
+    setSocket(socket, type);
 }
 
 /*!
@@ -154,16 +154,16 @@ QSocketDevice::QSocketDevice( int socket, Type type )
 
     \sa blocking() protocol()
 */
-QSocketDevice::QSocketDevice( Type type )
-    : fd( -1 ), t( type ), p( 0 ), pp( 0 ), e( NoError ),
+QSocketDevice::QSocketDevice(Type type)
+    : fd(-1), t(type), p(0), pp(0), e(NoError),
       d(new QSocketDevicePrivate(IPv4))
 {
 #if defined(QSOCKETDEVICE_DEBUG)
-    qDebug( "QSocketDevice: Created QSocketDevice object %p, type %d",
-	    this, type );
+    qDebug("QSocketDevice: Created QSocketDevice object %p, type %d",
+            this, type);
 #endif
     init();
-    setSocket( createNewSocket(), type );
+    setSocket(createNewSocket(), type);
 }
 
 /*!
@@ -183,16 +183,16 @@ QSocketDevice::QSocketDevice( Type type )
 
     \sa blocking() protocol()
 */
-QSocketDevice::QSocketDevice( Type type, Protocol protocol, int )
-    : fd( -1 ), t( type ), p( 0 ), pp( 0 ), e( NoError ),
+QSocketDevice::QSocketDevice(Type type, Protocol protocol, int)
+    : fd(-1), t(type), p(0), pp(0), e(NoError),
       d(new QSocketDevicePrivate(protocol))
 {
 #if defined(QSOCKETDEVICE_DEBUG)
-    qDebug( "QSocketDevice: Created QSocketDevice object %p, type %d",
-	    this, type );
+    qDebug("QSocketDevice: Created QSocketDevice object %p, type %d",
+            this, type);
 #endif
     init();
-    setSocket( createNewSocket(), type );
+    setSocket(createNewSocket(), type);
 }
 
 /*!
@@ -204,13 +204,13 @@ QSocketDevice::~QSocketDevice()
     delete d;
     d = 0;
 #if defined(QSOCKETDEVICE_DEBUG)
-    qDebug( "QSocketDevice: Destroyed QSocketDevice %p", this );
+    qDebug("QSocketDevice: Destroyed QSocketDevice %p", this);
 #endif
 }
 
 
 /*!
-    Returns TRUE if this is a valid socket; otherwise returns FALSE.
+    Returns true if this is a valid socket; otherwise returns false.
 
     \sa socket()
 */
@@ -247,8 +247,8 @@ QSocketDevice::Type QSocketDevice::type() const
 */
 QSocketDevice::Protocol QSocketDevice::protocol() const
 {
-    if ( d->protocol == Unknown )
-	d->protocol = getProtocol();
+    if (d->protocol == Unknown)
+        d->protocol = getProtocol();
     return d->protocol;
 }
 
@@ -276,20 +276,20 @@ int QSocketDevice::socket() const
 
     \sa isValid(), close()
 */
-void QSocketDevice::setSocket( int socket, Type type )
+void QSocketDevice::setSocket(int socket, Type type)
 {
-    if ( fd != -1 )			// close any open socket
-	close();
+    if (fd != -1)                        // close any open socket
+        close();
 #if defined(QSOCKETDEVICE_DEBUG)
-    qDebug( "QSocketDevice::setSocket: socket %x, type %d", socket, type );
+    qDebug("QSocketDevice::setSocket: socket %x, type %d", socket, type);
 #endif
     t = type;
     fd = socket;
     d->protocol = Unknown;
     e = NoError;
-    setFlags( IO_Sequential );
+    setFlags(IO_Sequential);
     resetStatus();
-    open( IO_ReadWrite );
+    open(IO_ReadWrite);
     fetchConnectionParameters();
 }
 
@@ -303,16 +303,16 @@ void QSocketDevice::setSocket( int socket, Type type )
 
     \sa close().
 */
-bool QSocketDevice::open( int mode )
+bool QSocketDevice::open(int mode)
 {
-    if ( isOpen() || !isValid() )
-	return FALSE;
+    if (isOpen() || !isValid())
+        return false;
 #if defined(QSOCKETDEVICE_DEBUG)
-    qDebug( "QSocketDevice::open: mode %x", mode );
+    qDebug("QSocketDevice::open: mode %x", mode);
 #endif
-    setMode( mode & IO_ReadWrite );
-    setState( IO_Open );
-    return TRUE;
+    setMode(mode & IO_ReadWrite);
+    setState(IO_Open);
+    return true;
 }
 
 
@@ -354,19 +354,19 @@ QIODevice::Offset QSocketDevice::at() const
     \reimp
 
     The read/write index is meaningless for a socket, therefore this
-    function does nothing and returns TRUE.
+    function does nothing and returns true.
 */
-bool QSocketDevice::at( Offset )
+bool QSocketDevice::at(Offset)
 {
-    return TRUE;
+    return true;
 }
 
 
 /*!
     \reimp
 
-    Returns TRUE if no data is currently available at the socket;
-    otherwise returns FALSE.
+    Returns true if no data is currently available at the socket;
+    otherwise returns false.
 */
 bool QSocketDevice::atEnd() const
 {
@@ -397,7 +397,7 @@ int QSocketDevice::getch()
 
     \sa getch()
 */
-int QSocketDevice::putch( int ch )
+int QSocketDevice::putch(int ch)
 {
     char buf[2];
     buf[0] = ch;
@@ -411,29 +411,29 @@ int QSocketDevice::putch( int ch )
     This implementation of ungetch returns -1 (error). A socket is a
     sequential device and does not allow any ungetch operation.
 */
-int QSocketDevice::ungetch( int )
+int QSocketDevice::ungetch(int)
 {
     return -1;
 }
 
 
 /*!
-    Returns TRUE if the address of this socket can be used by other
-    sockets at the same time, and FALSE if this socket claims
+    Returns true if the address of this socket can be used by other
+    sockets at the same time, and false if this socket claims
     exclusive ownership.
 
     \sa setAddressReusable()
 */
 bool QSocketDevice::addressReusable() const
 {
-    return option( ReuseAddress );
+    return option(ReuseAddress);
 }
 
 
 /*!
     Sets the address of this socket to be usable by other sockets too
-    if \a enable is TRUE, and to be used exclusively by this socket if
-    \a enable is FALSE.
+    if \a enable is true, and to be used exclusively by this socket if
+    \a enable is false.
 
     When a socket is reusable, other sockets can use the same port
     number (and IP address), which is generally useful. Of course
@@ -443,9 +443,9 @@ bool QSocketDevice::addressReusable() const
 
     \sa addressReusable()
 */
-void QSocketDevice::setAddressReusable( bool enable )
+void QSocketDevice::setAddressReusable(bool enable)
 {
-    setOption( ReuseAddress, enable );
+    setOption(ReuseAddress, enable);
 }
 
 
@@ -456,7 +456,7 @@ void QSocketDevice::setAddressReusable( bool enable )
 */
 int QSocketDevice::receiveBufferSize() const
 {
-    return option( ReceiveBuffer );
+    return option(ReceiveBuffer);
 }
 
 
@@ -471,9 +471,9 @@ int QSocketDevice::receiveBufferSize() const
     large amounts of data is probably best with a buffer size of
     49152.
 */
-void QSocketDevice::setReceiveBufferSize( uint size )
+void QSocketDevice::setReceiveBufferSize(uint size)
 {
-    setOption( ReceiveBuffer, size );
+    setOption(ReceiveBuffer, size);
 }
 
 
@@ -484,7 +484,7 @@ void QSocketDevice::setReceiveBufferSize( uint size )
 */
 int QSocketDevice::sendBufferSize() const
 {
-    return option( SendBuffer );
+    return option(SendBuffer);
 }
 
 
@@ -498,9 +498,9 @@ int QSocketDevice::sendBufferSize() const
     large amounts of data is probably best with a buffer size of
     49152.
 */
-void QSocketDevice::setSendBufferSize( uint size )
+void QSocketDevice::setSendBufferSize(uint size)
 {
-    setOption( SendBuffer, size );
+    setOption(SendBuffer, size);
 }
 
 
@@ -541,7 +541,7 @@ QSocketDevice::Error QSocketDevice::error() const
 /*!
     Allows subclasses to set the error state to \a err.
 */
-void QSocketDevice::setError( Error err )
+void QSocketDevice::setError(Error err)
 {
     e = err;
 }

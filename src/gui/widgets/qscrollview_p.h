@@ -21,23 +21,23 @@ public:
     void init();
     QSVChildRec* rec(QWidget* w);
     QSVChildRec* ancestorRec(QWidget* w);
-    QSVChildRec* addChildRec(QWidget* w, int x, int y );
+    QSVChildRec* addChildRec(QWidget* w, int x, int y);
     void deleteChildRec(QSVChildRec* r);
 
-    void hideOrShowAll(QScrollView* sv, bool isScroll = FALSE );
+    void hideOrShowAll(QScrollView* sv, bool isScroll = false);
     void moveAllBy(int dx, int dy);
     bool anyVisibleChildren() const;
     void autoMove(QScrollView* sv);
     void autoResize(QScrollView* sv);
     void autoResizeHint(QScrollView* sv);
-    void viewportResized( int w, int h );
+    void viewportResized(int w, int h);
 
     QScrollBar*  hbar;
     QScrollBar*  vbar;
     bool hbarPressed;
     bool vbarPressed;
-    QViewportWidget*	viewport;
-    QClipperWidget*	clipped_viewport;
+    QViewportWidget*        viewport;
+    QClipperWidget*        clipped_viewport;
     Qt::WFlags flags;
     QList<QSVChildRec *> children;
     QHash<QWidget *, QSVChildRec *> childDict;

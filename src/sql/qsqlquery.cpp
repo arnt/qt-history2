@@ -492,7 +492,7 @@ bool QSqlQuery::seek(int i, bool relative)
             }
             break;
         default:
-            if ((at() + i) < 0 ) {
+            if ((at() + i) < 0) {
                 d->sqlResult->setAt(QSql::BeforeFirst);
                 afterSeek();
                 return false;
@@ -972,7 +972,7 @@ QMap<QString,QCoreVariant> QSqlQuery::boundValues() const
 
     const QVector<QCoreVariant> values(d->sqlResult->boundValues());
     for (int i = 0; i < values.count(); ++i)
-        map[ d->sqlResult->boundValueName(i) ] = values.at(i);
+        map[d->sqlResult->boundValueName(i)] = values.at(i);
     return map;
 }
 

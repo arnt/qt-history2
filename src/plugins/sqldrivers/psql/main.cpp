@@ -20,7 +20,7 @@ class QPSQLDriverPlugin : public QSqlDriverPlugin
 public:
     QPSQLDriverPlugin();
 
-    QSqlDriver* create( const QString & );
+    QSqlDriver* create(const QString &);
     QStringList keys() const;
 };
 
@@ -29,11 +29,11 @@ QPSQLDriverPlugin::QPSQLDriverPlugin()
 {
 }
 
-QSqlDriver* QPSQLDriverPlugin::create( const QString &name )
+QSqlDriver* QPSQLDriverPlugin::create(const QString &name)
 {
-    if ( name == "QPSQL7" ) {
-	QPSQLDriver* driver = new QPSQLDriver();
-	return driver;
+    if (name == "QPSQL7") {
+        QPSQLDriver* driver = new QPSQLDriver();
+        return driver;
     }
     return 0;
 }
@@ -45,4 +45,4 @@ QStringList QPSQLDriverPlugin::keys() const
     return l;
 }
 
-Q_EXPORT_PLUGIN( QPSQLDriverPlugin )
+Q_EXPORT_PLUGIN(QPSQLDriverPlugin)

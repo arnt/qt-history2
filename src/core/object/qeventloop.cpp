@@ -74,7 +74,7 @@ extern void qt_setEventLoop(QObject *object, QEventLoop *p);
 
     \value AllEvents - All events are processed
     \value ExcludeUserInput - Do not process user input events.
-           ( ButtonPress, KeyPress, etc. )
+           (ButtonPress, KeyPress, etc.)
     \value ExcludeSocketNotifiers - Do not process socket notifier
            events.
     \value WaitForMore - Wait for events if no pending events
@@ -102,13 +102,13 @@ QEventLoop::QEventLoop(QObject *parent)
     : QObject(*new QEventLoopPrivate(), parent)
 {
     {
-	QSpinLockLocker locker(::spinlock);
-	eventloops.ensure_constructed();
-	const Qt::HANDLE thr = thread();
-	Q_ASSERT_X(!eventloops.contains(thr), "QEventLoop",
-		   "Cannot have more than one event loop per thread.");
+        QSpinLockLocker locker(::spinlock);
+        eventloops.ensure_constructed();
+        const Qt::HANDLE thr = thread();
+        Q_ASSERT_X(!eventloops.contains(thr), "QEventLoop",
+                   "Cannot have more than one event loop per thread.");
         eventloop_count++;
-	eventloops.insert(thr, this);
+        eventloops.insert(thr, this);
     }
 
     init();
@@ -121,13 +121,13 @@ QEventLoop::QEventLoop(QEventLoopPrivate &priv, QObject *parent)
     : QObject(priv, parent)
 {
     {
-	QSpinLockLocker locker(::spinlock);
-	eventloops.ensure_constructed();
-	const Qt::HANDLE thr = thread();
-	Q_ASSERT_X(!eventloops.contains(thr), "QEventLoop",
-		   "Cannot have more than one event loop per thread.");
+        QSpinLockLocker locker(::spinlock);
+        eventloops.ensure_constructed();
+        const Qt::HANDLE thr = thread();
+        Q_ASSERT_X(!eventloops.contains(thr), "QEventLoop",
+                   "Cannot have more than one event loop per thread.");
         eventloop_count++;
-	eventloops.insert(thr, this);
+        eventloops.insert(thr, this);
     }
 
     init();
@@ -142,9 +142,9 @@ QEventLoop::~QEventLoop()
     cleanup();
 
     {
-	QSpinLockLocker locker(::spinlock);
+        QSpinLockLocker locker(::spinlock);
         eventloop_count--;
-	eventloops.remove(thread());
+        eventloops.remove(thread());
     }
 }
 
@@ -161,7 +161,7 @@ QEventLoop::~QEventLoop()
  */
 QEventLoop *QEventLoop::instance(Qt::HANDLE thread)
 {
-    if (thread == 0) 
+    if (thread == 0)
         thread = QThread::currentThread();
     QSpinLockLocker locker(::spinlock);
     if(!eventloop_count)
@@ -198,15 +198,15 @@ int QEventLoop::exec()
 
     // cleanup
     d->looplevel = 0;
-    d->quitnow  = FALSE;
-    d->exitloop = FALSE;
-    d->shortcut = FALSE;
+    d->quitnow  = false;
+    d->exitloop = false;
+    d->shortcut = false;
     // don't reset quitcode!
 
     return d->quitcode;
 }
 
-/*! \fn void QEventLoop::exit( int retcode = 0 )
+/*! \fn void QEventLoop::exit(int retcode = 0)
 
     Tells the event loop to exit with a return code.
 
@@ -222,14 +222,14 @@ int QEventLoop::exec()
 
     \sa QApplication::quit(), exec()
 */
-void QEventLoop::exit( int retcode )
+void QEventLoop::exit(int retcode)
 {
-    if ( d->quitnow ) // preserve existing quitcode
-	return;
+    if (d->quitnow) // preserve existing quitcode
+        return;
     d->quitcode = retcode;
-    d->quitnow  = TRUE;
-    d->exitloop = TRUE;
-    d->shortcut = TRUE;
+    d->quitnow  = true;
+    d->exitloop = true;
+    d->shortcut = true;
 }
 
 
@@ -242,28 +242,28 @@ int QEventLoop::enterLoop()
 {
     // save the current exitloop state
     bool old_exitloop = d->exitloop;
-    d->exitloop = FALSE;
-    d->shortcut = FALSE;
+    d->exitloop = false;
+    d->shortcut = false;
 
     d->looplevel++;
-    while ( ! d->exitloop )
-	processEvents( AllEvents | WaitForMore );
+    while (! d->exitloop)
+        processEvents(AllEvents | WaitForMore);
     d->looplevel--;
 
-    // restore the exitloop state, but if quitnow is TRUE, we need to keep
+    // restore the exitloop state, but if quitnow is true, we need to keep
     // exitloop set so that all other event loops drop out.
     d->exitloop = old_exitloop || d->quitnow;
     d->shortcut = d->quitnow;
 
-    if ( d->looplevel < 1 ) {
-	d->quitnow  = FALSE;
-	d->exitloop = FALSE;
-	d->shortcut = FALSE;
-	if (this == QCoreApplication::eventLoop())
-	    emit QCoreApplication::instance()->aboutToQuit();
+    if (d->looplevel < 1) {
+        d->quitnow  = false;
+        d->exitloop = false;
+        d->shortcut = false;
+        if (this == QCoreApplication::eventLoop())
+            emit QCoreApplication::instance()->aboutToQuit();
 
-	// send deferred deletes
-	QCoreApplication::sendPostedEvents( 0, QEvent::DeferredDelete );
+        // send deferred deletes
+        QCoreApplication::sendPostedEvents(0, QEvent::DeferredDelete);
     }
 
     return d->looplevel;
@@ -276,8 +276,8 @@ int QEventLoop::enterLoop()
 */
 void QEventLoop::exitLoop()
 {
-    d->exitloop = TRUE;
-    d->shortcut = TRUE;
+    d->exitloop = true;
+    d->shortcut = true;
 }
 
 /*! \fn void QEventLoop::loopLevel() const
@@ -304,19 +304,19 @@ int QEventLoop::loopLevel() const
     NOTE: Specifying the \c WaitForMore flag makes no sense and will
     be ignored.
 */
-void QEventLoop::processEvents( ProcessEventsFlags flags, int maxTime )
+void QEventLoop::processEvents(ProcessEventsFlags flags, int maxTime)
 {
     QTime start = QTime::currentTime();
     QTime now;
-    while ( ! d->quitnow && processEvents( flags & ~WaitForMore ) ) {
-	now = QTime::currentTime();
-	if ( start.msecsTo( now ) > maxTime )
-	    break;
+    while (! d->quitnow && processEvents(flags & ~WaitForMore)) {
+        now = QTime::currentTime();
+        if (start.msecsTo(now) > maxTime)
+            break;
     }
 }
 
 /*!
-    \fn bool QEventLoop::processEvents( ProcessEventsFlags flags )
+    \fn bool QEventLoop::processEvents(ProcessEventsFlags flags)
     \overload
 
     Processes pending events that match \a flags until there are no
@@ -345,18 +345,18 @@ void QEventLoop::processEvents( ProcessEventsFlags flags, int maxTime )
     NOTE: This function will not process events continuously; it
     returns after all available events are processed.
 
-    This function returns TRUE if an event was processed; otherwise it
-    returns FALSE.
+    This function returns true if an event was processed; otherwise it
+    returns false.
 
     \sa ProcessEvents hasPendingEvents()
 */
 
 /*! \fn bool QEventLoop::hasPendingEvents() const
 
-    Returns TRUE if there is an event waiting, otherwise it returns FALSE.
+    Returns true if there is an event waiting, otherwise it returns false.
 */
 
-/*! \fn void QEventLoop::registerSocketNotifier( QSocketNotifier *notifier )
+/*! \fn void QEventLoop::registerSocketNotifier(QSocketNotifier *notifier)
 
     Registers \a notifier with the event loop.  Subclasses need to
     reimplement this method to tie a socket notifier into another
@@ -364,7 +364,7 @@ void QEventLoop::processEvents( ProcessEventsFlags flags, int maxTime )
     implementation.
 */
 
-/*! \fn void QEventLoop::unregisterSocketNotifier( QSocketNotifier *notifier )
+/*! \fn void QEventLoop::unregisterSocketNotifier(QSocketNotifier *notifier)
 
     Unregisters \a notifier from the event loop.  Subclasses need to
     reimplement this method to tie a socket notifier into another
@@ -372,7 +372,7 @@ void QEventLoop::processEvents( ProcessEventsFlags flags, int maxTime )
     implementation.
 */
 
-/*! \fn void QEventLoop::setSocketNotifierPending( QSocketNotifier *notifier )
+/*! \fn void QEventLoop::setSocketNotifierPending(QSocketNotifier *notifier)
 
     Marks \a notifier as pending.  The socket notifier will be
     activated the next time activateSocketNotifiers() is called.

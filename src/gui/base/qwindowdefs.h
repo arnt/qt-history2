@@ -120,13 +120,13 @@ typedef struct _XRegion *Region;
 typedef unsigned long  WId;
 
 Q_GUI_EXPORT Display *qt_xdisplay();
-Q_GUI_EXPORT int	 qt_xscreen();
-Q_GUI_EXPORT WId	 qt_xrootwin(); // ### REMOVE 4.0
-Q_GUI_EXPORT WId	 qt_xrootwin( int scrn ); // ### 4.0 add default arg of -1
-Q_GUI_EXPORT GC	 qt_xget_readonly_gc( int scrn, bool monochrome );
-Q_GUI_EXPORT GC	 qt_xget_temp_gc( int scrn, bool monochrome );
+Q_GUI_EXPORT int         qt_xscreen();
+Q_GUI_EXPORT WId         qt_xrootwin(); // ### REMOVE 4.0
+Q_GUI_EXPORT WId         qt_xrootwin(int scrn); // ### 4.0 add default arg of -1
+Q_GUI_EXPORT GC         qt_xget_readonly_gc(int scrn, bool monochrome);
+Q_GUI_EXPORT GC         qt_xget_temp_gc(int scrn, bool monochrome);
 
-Q_GUI_EXPORT const char *qAppClass();		// get application class
+Q_GUI_EXPORT const char *qAppClass();                // get application class
 
 #endif // Q_WS_X11
 
@@ -147,7 +147,7 @@ typedef QHash<WId, QWidget *> QWidgetMapper;
 
 // Global platform-independent types and functions
 
-typedef Q_INT32 QCOORD;				// coordinate type
+typedef Q_INT32 QCOORD;                                // coordinate type
 enum {
     QCOORD_MAX =  2147483647,
     QCOORD_MIN = -QCOORD_MAX - 1

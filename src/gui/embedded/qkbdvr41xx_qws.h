@@ -33,7 +33,7 @@ private:
     QWSVr41xxKbPrivate *d;
 };
 
-#endif // QT_NO_QWS_KBD_VR41 
+#endif // QT_NO_QWS_KBD_VR41
 
 #endif // QKBDVR41XX_QWS_H
 

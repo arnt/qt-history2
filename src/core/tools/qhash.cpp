@@ -18,10 +18,10 @@ uint qHash(const QByteArray &key)
     uint g;
 
     while (n--) {
-	h = (h << 4) + *p++;
-	if ((g = (h & 0xf0000000)) != 0)
-	    h ^= g >> 23;
-	h &= ~g;
+        h = (h << 4) + *p++;
+        if ((g = (h & 0xf0000000)) != 0)
+            h ^= g >> 23;
+        h &= ~g;
     }
     return h;
 }
@@ -34,10 +34,10 @@ uint qHash(const QString &key)
     uint g;
 
     while (n--) {
-	h = (h << 4) + (*p++).unicode();
-	if ((g = (h & 0xf0000000)) != 0)
-	    h ^= g >> 23;
-	h &= ~g;
+        h = (h << 4) + (*p++).unicode();
+        if ((g = (h & 0xf0000000)) != 0)
+            h ^= g >> 23;
+        h &= ~g;
     }
     return h;
 }
@@ -72,14 +72,14 @@ static int countBits(int hint)
     int bits = hint;
 
     while (bits > 1) {
-	bits >>= 1;
-	numBits++;
+        bits >>= 1;
+        numBits++;
     }
 
     if (numBits >= (int)sizeof(prime_deltas)) {
-	numBits = sizeof(prime_deltas) - 1;
+        numBits = sizeof(prime_deltas) - 1;
     } else if (primeForNumBits(numBits) < hint) {
-	++numBits;
+        ++numBits;
     }
     return numBits;
 }
@@ -97,8 +97,8 @@ QHashData QHashData::shared_null = {
 QHashData *QHashData::detach_helper(Node *(*node_duplicate)(Node *))
 {
     union {
-	QHashData *d;
-	Node *e;
+        QHashData *d;
+        Node *e;
     };
     d = new QHashData;
     d->fakeNext = 0;
@@ -110,20 +110,20 @@ QHashData *QHashData::detach_helper(Node *(*node_duplicate)(Node *))
     d->numBuckets = numBuckets;
 
     if (numBuckets) {
-	d->buckets = new Node *[numBuckets];
-	Node *this_e = reinterpret_cast<Node *>(this);
-	for (int i = 0; i < numBuckets; ++i) {
-	    Node **nextNode = &d->buckets[i];
-	    Node *oldNode = buckets[i];
-	    while (oldNode != this_e) {
-		Node *dup = node_duplicate(oldNode);
-		dup->h = oldNode->h;
-		*nextNode = dup;
+        d->buckets = new Node *[numBuckets];
+        Node *this_e = reinterpret_cast<Node *>(this);
+        for (int i = 0; i < numBuckets; ++i) {
+            Node **nextNode = &d->buckets[i];
+            Node *oldNode = buckets[i];
+            while (oldNode != this_e) {
+                Node *dup = node_duplicate(oldNode);
+                dup->h = oldNode->h;
+                *nextNode = dup;
                 nextNode = &dup->next;
-		oldNode = oldNode->next;
-	    }
+                oldNode = oldNode->next;
+            }
             *nextNode = e;
-	}
+        }
     }
     return d;
 }
@@ -131,21 +131,21 @@ QHashData *QHashData::detach_helper(Node *(*node_duplicate)(Node *))
 QHashData::Node *QHashData::nextNode(Node *node)
 {
     union {
-	Node *next;
-	Node *e;
-	QHashData *d;
+        Node *next;
+        Node *e;
+        QHashData *d;
     };
     next = node->next;
     if (next->next)
-	return next;
+        return next;
 
     int start = (node->h % d->numBuckets) + 1;
     Node **bucket = d->buckets + start;
     int n = d->numBuckets - start;
     while (n--) {
-	if (*bucket != e)
-	    return *bucket;
-	++bucket;
+        if (*bucket != e)
+            return *bucket;
+        ++bucket;
     }
     return e;
 }
@@ -153,32 +153,32 @@ QHashData::Node *QHashData::nextNode(Node *node)
 QHashData::Node *QHashData::prevNode(Node *node)
 {
     union {
-	Node *e;
-	QHashData *d;
+        Node *e;
+        QHashData *d;
     };
 
     e = node;
     while (e->next)
-	e = e->next;
+        e = e->next;
 
     int start;
     if (node == e)
-	start = d->numBuckets - 1;
+        start = d->numBuckets - 1;
     else
-	start = node->h % d->numBuckets;
+        start = node->h % d->numBuckets;
 
     Node *sentinel = node;
     Node **bucket = d->buckets + start;
     while (start >= 0) {
-	if (*bucket != sentinel) {
-	    Node *prev = *bucket;
+        if (*bucket != sentinel) {
+            Node *prev = *bucket;
             while (prev->next != sentinel)
-	        prev = prev->next;
-	    return prev;
-	}
+                prev = prev->next;
+            return prev;
+        }
 
         sentinel = e;
-	--bucket;
+        --bucket;
         --start;
     }
     return e;
@@ -193,40 +193,40 @@ QHashData::Node *QHashData::prevNode(Node *node)
 void QHashData::rehash(int hint)
 {
     if (hint < 0) {
-	hint = countBits(-hint);
-	if (hint < MinNumBits)
-	    hint = MinNumBits;
-	userNumBits = hint;
+        hint = countBits(-hint);
+        if (hint < MinNumBits)
+            hint = MinNumBits;
+        userNumBits = hint;
         while (primeForNumBits(hint) < (size >> 1))
-	    ++hint;
+            ++hint;
     } else if (hint < MinNumBits) {
-	hint = MinNumBits;
+        hint = MinNumBits;
     }
 
     if (numBits != hint) {
-	Node *e = reinterpret_cast<Node *>(this);
-	Node **oldBuckets = buckets;
-	int oldNumBuckets = numBuckets;
+        Node *e = reinterpret_cast<Node *>(this);
+        Node **oldBuckets = buckets;
+        int oldNumBuckets = numBuckets;
 
-	numBits = hint;
-	numBuckets = primeForNumBits(hint);
-	buckets = new Node *[numBuckets];
-	for (int i = 0; i < numBuckets; i++)
-	    buckets[i] = e;
+        numBits = hint;
+        numBuckets = primeForNumBits(hint);
+        buckets = new Node *[numBuckets];
+        for (int i = 0; i < numBuckets; i++)
+            buckets[i] = e;
 
-	for (int i = 0; i < oldNumBuckets; i++) {
-	    Node *node = oldBuckets[i];
-	    while (node != e) {
-		Node *oldNext = node->next;
-		Node **nextNode = &buckets[node->h % numBuckets];
-		while (*nextNode != e)
-		    nextNode = &(*nextNode)->next;
-		node->next = *nextNode;
-		*nextNode = node;
-		node = oldNext;
-	    }
-	}
-	delete [] oldBuckets;
+        for (int i = 0; i < oldNumBuckets; i++) {
+            Node *node = oldBuckets[i];
+            while (node != e) {
+                Node *oldNext = node->next;
+                Node **nextNode = &buckets[node->h % numBuckets];
+                while (*nextNode != e)
+                    nextNode = &(*nextNode)->next;
+                node->next = *nextNode;
+                *nextNode = node;
+                node = oldNext;
+            }
+        }
+        delete [] oldBuckets;
     }
 }
 
@@ -264,7 +264,7 @@ void QHashData::free()
 
     Here's an example QHash with QString keys and int values:
     \code
-	QHash<QString, int> hash;
+        QHash<QString, int> hash;
     \endcode
 
     To insert a (key, value) pair into the hash, you can use operator[]():
@@ -281,14 +281,14 @@ void QHashData::free()
     Another way to insert items into the hash is to use insert():
 
     \code
-	hash.insert("twelve", 12);
+        hash.insert("twelve", 12);
     \endcode
 
     To look up a value, use operator[]() or value():
 
     \code
         int num1 = hash["thirteen"];
-	int num2 = hash.value("thirteen");
+        int num2 = hash.value("thirteen");
     \endcode
 
     If there is no item with the specified key in the hash, these
@@ -298,16 +298,16 @@ void QHashData::free()
     contains():
 
     \code
-	int timeout = 30;
+        int timeout = 30;
         if (hash.contains("TIMEOUT"))
-	    timeout = hash.value("TIMEOUT");
+            timeout = hash.value("TIMEOUT");
     \endcode
 
     There is also a value() overload that uses its second argument as
     a default value if there is no item with the specified key:
 
     \code
-	int timeout = hash.value("TIMEOUT", 30);
+        int timeout = hash.value("TIMEOUT", 30);
     \endcode
 
     In general, we recommend that you use contains() and value()
@@ -318,12 +318,12 @@ void QHashData::free()
     items in memory:
 
     \code
-	// WRONG
-	QHash<int, QWidget *> hash;
-	...
-	for (int i = 0; i < 1000; ++i) {
-	    if (hash[i] == okButton)
-		cout << "Found button at index " << i << endl;
+        // WRONG
+        QHash<int, QWidget *> hash;
+        ...
+        for (int i = 0; i < 1000; ++i) {
+            if (hash[i] == okButton)
+                cout << "Found button at index " << i << endl;
         }
     \endcode
 
@@ -338,9 +338,9 @@ void QHashData::free()
     int> using a Java-style iterator:
 
     \code
-	QHashIterator<QString, int> i(hash);
+        QHashIterator<QString, int> i(hash);
         while (i.hasNext()) {
-	    i.next();
+            i.next();
             cout << i.key() << ": " << i.value() << endl;
         }
     \endcode
@@ -348,10 +348,10 @@ void QHashData::free()
     Here's the same code, but using an STL-style iterator this time:
 
     \code
-	QHash<QString, int>::const_iterator i = hash.constBegin();
+        QHash<QString, int>::const_iterator i = hash.constBegin();
         while (i != hash.constEnd()) {
-	    cout << i.key() << ": " << i.value() << endl;
-	    ++i;
+            cout << i.key() << ": " << i.value() << endl;
+            ++i;
         }
     \endcode
 
@@ -363,7 +363,7 @@ void QHashData::free()
     previous value will be erased. For example:
 
     \code
-	hash.insert("plenty", 100);
+        hash.insert("plenty", 100);
         hash.insert("plenty", 2000);
         // hash.value("plenty") == 2000
     \endcode
@@ -375,9 +375,9 @@ void QHashData::free()
     which returns a QList<T>:
 
     \code
-	QList<int> values = hash.values("plenty");
+        QList<int> values = hash.values("plenty");
         for (int i = 0; i < values.size(); ++i)
-	    cout << values.at(i) << endl;
+            cout << values.at(i) << endl;
     \endcode
 
     The items that share the same key are available from most
@@ -387,9 +387,9 @@ void QHashData::free()
     QHashMutableIterator::findNextKey():
 
     \code
-	QHashIterator<QString, int> i(hash);
+        QHashIterator<QString, int> i(hash);
         while (i.findNextKey("plenty"))
-	    cout << i.value() << endl;
+            cout << i.value() << endl;
     \endcode
 
     If you prefer the STL-style iterators, you can call find() to get
@@ -397,10 +397,10 @@ void QHashData::free()
     there:
 
     \code
-	QHash<QString, int>::iterator i = hash.find("plenty");
+        QHash<QString, int>::iterator i = hash.find("plenty");
         while (i != hash.end() && i.key() == "plenty") {
-	    cout << i.value() << endl;
-	    ++i;
+            cout << i.value() << endl;
+            ++i;
         }
     \endcode
 
@@ -408,10 +408,10 @@ void QHashData::free()
     you can also use \l{foreach}:
 
     \code
-	QHash<QString, int> hash;
+        QHash<QString, int> hash;
         ...
-	foreach (int value, hash)
-	    cout << value << endl;
+        foreach (int value, hash)
+            cout << value << endl;
     \endcode
 
     Items can be removed from the hash in several ways. One way is to
@@ -435,33 +435,33 @@ void QHashData::free()
 
     Example:
     \code
-	#ifndef EMPLOYEE_H
+        #ifndef EMPLOYEE_H
         #define EMPLOYEE_H
 
-	class Employee
+        class Employee
         {
-	public:
-	    Employee() {}
+        public:
+            Employee() {}
             Employee(const QString &name, const QDate &dateOfBirth);
-	    ...
+            ...
 
-	private:
-	    QString myName;
+        private:
+            QString myName;
             QDate myDateOfBirth;
         };
 
-	inline bool operator==(const Employee &e1, const Employee &e2)
+        inline bool operator==(const Employee &e1, const Employee &e2)
         {
-	    return e1.name() == e2.name()
-		   && e1.dateOfBirth() == e2.dateOfBirth();
+            return e1.name() == e2.name()
+                   && e1.dateOfBirth() == e2.dateOfBirth();
         }
 
-	inline uint qHash(const Employee &key)
+        inline uint qHash(const Employee &key)
         {
-	    return qHash(key.name()) ^ key.dateOfBirth().day();
+            return qHash(key.name()) ^ key.dateOfBirth().day();
         }
 
-	#endif // EMPLOYEE_H
+        #endif // EMPLOYEE_H
     \endcode
 
     The qHash() function computes a numeric value based on a key. It
@@ -581,10 +581,10 @@ void QHashData::free()
     and wants to avoid repeated reallocation. For example:
 
     \code
-	QHash<QString, int> hash;
+        QHash<QString, int> hash;
         hash.reserve(20000);
-	for (int i = 0; i < 20000; ++i)
-	    hash.insert(keys[i], values[i]);
+        for (int i = 0; i < 20000; ++i)
+            hash.insert(keys[i], values[i]);
     \endcode
 
     Ideally, \a size should be slightly more than the maximum number
@@ -837,12 +837,12 @@ void QHashData::free()
     the items with the same key:
 
     \code
-	QHash<QString, int> hash;
+        QHash<QString, int> hash;
         ...
-	QHash<QString, int>::const_iterator i = hash.find("HDR");
+        QHash<QString, int>::const_iterator i = hash.find("HDR");
         while (i != hash.end() && i.key() == "HDR") {
-	    cout << i.value() << endl;
-	    ++i;
+            cout << i.value() << endl;
+            ++i;
         }
     \endcode
 
@@ -934,7 +934,7 @@ void QHashData::free()
     value) pairs stored in a hash:
 
     \code
-	QHash<QString, int> hash;
+        QHash<QString, int> hash;
         hash.insert("January", 1);
         hash.insert("February", 2);
         ...
@@ -942,7 +942,7 @@ void QHashData::free()
 
         QHash<QString, int>::iterator i;
         for (i = hash.begin(); i != hash.end(); ++i)
-	    cout << i.key() << ": " << i.value() << endl;
+            cout << i.key() << ": " << i.value() << endl;
     \endcode
 
     Unlike QMap, which orders its items by key, QHash stores its
@@ -957,21 +957,21 @@ void QHashData::free()
     by 2:
 
     \code
-	QHash<QString, int>::iterator i;
+        QHash<QString, int>::iterator i;
         for (i = hash.begin(); i != hash.end(); ++i)
-	    i.value() += 2;
+            i.value() += 2;
     \endcode
 
     Here's an example that removes all the items whose key is a
     string that starts with an underscore character:
 
     \code
-	QHash<QString, int>::iterator i = hash.begin();
+        QHash<QString, int>::iterator i = hash.begin();
         while (i != hash.end()) {
-	    if (i.key().startsWith("_"))
-		i = hash.erase(i);
-	    else
-		++i;
+            if (i.key().startsWith("_"))
+                i = hash.erase(i);
+            else
+                ++i;
         }
     \endcode
 
@@ -980,23 +980,23 @@ void QHashData::free()
     Here's another way of removing an item while iterating:
 
     \code
-	QHash<QString, int>::iterator i = hash.begin();
+        QHash<QString, int>::iterator i = hash.begin();
         while (i != hash.end()) {
-	    QHash<QString, int>::iterator prev = i;
-	    ++i;
+            QHash<QString, int>::iterator prev = i;
+            ++i;
             if (prev.key().startsWith("_"))
-		hash.erase(prev);
+                hash.erase(prev);
         }
     \endcode
 
     It might be tempting to write code like this:
 
     \code
-	// WRONG
+        // WRONG
         while (i != hash.end()) {
-	    if (i.key().startsWith("_"))
-		hash.erase(i);
-	    ++i;
+            if (i.key().startsWith("_"))
+                hash.erase(i);
+            ++i;
         }
     \endcode
 
@@ -1079,8 +1079,8 @@ void QHashData::free()
     the left side of an assignment, for example:
 
     \code
-	if (i.key() == "Hello")
-	    i.value() = "Bonjour";
+        if (i.key() == "Hello")
+            i.value() = "Bonjour";
     \endcode
 
     \sa key(), operator*()
@@ -1212,7 +1212,7 @@ void QHashData::free()
     loop that prints all the (key, value) pairs stored in a hash:
 
     \code
-	QHash<QString, int> hash;
+        QHash<QString, int> hash;
         hash.insert("January", 1);
         hash.insert("February", 2);
         ...
@@ -1220,7 +1220,7 @@ void QHashData::free()
 
         QHash<QString, int>::const_iterator i;
         for (i = hash.constBegin(); i != hash.constEnd(); ++i)
-	    cout << i.key() << ": " << i.value() << endl;
+            cout << i.key() << ": " << i.value() << endl;
     \endcode
 
     Unlike QMap, which orders its items by key, QHash stores its
@@ -1546,16 +1546,16 @@ void QHashData::free()
 
     Example:
     \code
-	QMultiHash<QString, int> hash1, hash2, hash3;
+        QMultiHash<QString, int> hash1, hash2, hash3;
 
-	hash1.insert("plenty", 100);
+        hash1.insert("plenty", 100);
         hash1.insert("plenty", 2000);
         // hash1.size() == 2
 
-	hash2.insert("plenty", 5000);
+        hash2.insert("plenty", 5000);
         // hash2.size() == 1
 
-	hash3 = hash1 + hash2;
+        hash3 = hash1 + hash2;
         // hash3.size() == 3
     \endcode
 
@@ -1563,9 +1563,9 @@ void QHashData::free()
     use values(const Key &key), which returns a QList<T>:
 
     \code
-	QList<int> values = hash.values("plenty");
+        QList<int> values = hash.values("plenty");
         for (int i = 0; i < values.size(); ++i)
-	    cout << values.at(i) << endl;
+            cout << values.at(i) << endl;
     \endcode
 
     The items that share the same key are available from most
@@ -1575,9 +1575,9 @@ void QHashData::free()
     QHashMutableIterator::findNextKey():
 
     \code
-	QHashIterator<QString, int> i(hash);
+        QHashIterator<QString, int> i(hash);
         while (i.findNextKey("plenty"))
-	    cout << i.value() << endl;
+            cout << i.value() << endl;
     \endcode
 
     If you prefer the STL-style iterators, you can call find() to get
@@ -1585,10 +1585,10 @@ void QHashData::free()
     there:
 
     \code
-	QMultiHash<QString, int>::iterator i = hash.find("plenty");
+        QMultiHash<QString, int>::iterator i = hash.find("plenty");
         while (i != hash.end() && i.key() == "plenty") {
-	    cout << i.value() << endl;
-	    ++i;
+            cout << i.value() << endl;
+            ++i;
         }
     \endcode
 

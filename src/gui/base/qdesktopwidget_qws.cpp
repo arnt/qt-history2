@@ -31,12 +31,12 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate()
     appScreen = 0;
     screenCount = 1;
 
-    rects.resize( screenCount );
+    rects.resize(screenCount);
     //### Get the rects for the different screens and put them into rects
 }
 
 QDesktopWidget::QDesktopWidget()
-: QWidget( 0, "desktop", WType_Desktop )
+: QWidget(0, "desktop", WType_Desktop)
 {
     d = new QDesktopWidgetPrivate;
 }
@@ -48,7 +48,7 @@ QDesktopWidget::~QDesktopWidget()
 
 bool QDesktopWidget::isVirtualDesktop() const
 {
-    return TRUE;
+    return true;
 }
 
 int QDesktopWidget::primaryScreen() const
@@ -61,17 +61,17 @@ int QDesktopWidget::numScreens() const
     return d->screenCount;
 }
 
-QWidget *QDesktopWidget::screen( int )
+QWidget *QDesktopWidget::screen(int)
 {
     return this;
 }
 
-const QRect& QDesktopWidget::availableGeometry( int screen ) const
+const QRect& QDesktopWidget::availableGeometry(int screen) const
 {
     return screenGeometry(screen);
 }
 
-const QRect& QDesktopWidget::screenGeometry( int ) const
+const QRect& QDesktopWidget::screenGeometry(int) const
 {
     // use max window rect?
 #ifdef QT_QWS_DYNAMIC_TRANSFORMATION
@@ -83,17 +83,17 @@ const QRect& QDesktopWidget::screenGeometry( int ) const
     return r;
 }
 
-int QDesktopWidget::screenNumber( QWidget * ) const
+int QDesktopWidget::screenNumber(QWidget *) const
 {
     return d->appScreen;
 }
 
-int QDesktopWidget::screenNumber( const QPoint & ) const
+int QDesktopWidget::screenNumber(const QPoint &) const
 {
     return d->appScreen;
 }
 
-void QDesktopWidget::resizeEvent( QResizeEvent * )
+void QDesktopWidget::resizeEvent(QResizeEvent *)
 {
     delete d;
     d = new QDesktopWidgetPrivate;

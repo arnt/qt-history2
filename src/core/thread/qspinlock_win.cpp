@@ -5,7 +5,7 @@
 #ifndef QT_NO_THREAD
 void QSpinLockPrivate::initialize()
 {
-    event = CreateEvent(0, FALSE, FALSE, 0);
+    event = CreateEvent(0, false, false, 0);
 }
 
 void QSpinLockPrivate::cleanup()

@@ -24,10 +24,10 @@
 class QVoodooScreen : public QLinuxFbScreen
 {
 public:
-    QVoodooScreen( int display_id );
+    QVoodooScreen(int display_id);
     virtual ~QVoodooScreen();
 
-    virtual bool connect( const QString &spec );
+    virtual bool connect(const QString &spec);
     virtual bool initDevice();
     virtual void shutdownDevice();
     virtual int initCursor(void *,bool);

@@ -34,10 +34,10 @@ class QSharedMemory;
 
 class QVNCScreen : public VNCSCREEN_BASE {
 public:
-    QVNCScreen( int display_id );
+    QVNCScreen(int display_id);
     virtual ~QVNCScreen();
     virtual bool initDevice();
-    virtual bool connect( const QString &displaySpec );
+    virtual bool connect(const QString &displaySpec);
     virtual void disconnect();
     virtual int initCursor(void*, bool);
     virtual void shutdownDevice();
@@ -46,7 +46,7 @@ public:
     virtual void restore();
     virtual void setMode(int nw,int nh,int nd);
 
-    virtual void setDirty( const QRect& r );
+    virtual void setDirty(const QRect& r);
 
     bool success;
     QVNCServer *vncServer;

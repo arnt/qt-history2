@@ -30,16 +30,16 @@ class Q_COMPAT_EXPORT QDataView : public QWidget
     Q_OBJECT
 
 public:
-    QDataView( QWidget* parent=0, const char* name=0, WFlags fl = 0 );
+    QDataView(QWidget* parent=0, const char* name=0, WFlags fl = 0);
     ~QDataView();
 
-    virtual void setForm( QSqlForm* form );
+    virtual void setForm(QSqlForm* form);
     QSqlForm* form();
-    virtual void setRecord( QSqlRecord* record );
+    virtual void setRecord(QSqlRecord* record);
     QSqlRecord* record();
 
 public slots:
-    virtual void refresh( QSqlRecord* buf );
+    virtual void refresh(QSqlRecord* buf);
     virtual void readFields();
     virtual void writeFields();
     virtual void clearValues();
@@ -48,8 +48,8 @@ private:
     QDataViewPrivate* d;
 
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QDataView( const QDataView & );
-    QDataView &operator=( const QDataView & );
+    QDataView(const QDataView &);
+    QDataView &operator=(const QDataView &);
 #endif
 };
 

@@ -24,9 +24,9 @@ QVectorData* QVectorData::realloc(int size, int sizeofT)
 int QVectorData::grow(int size, int sizeofT, bool excessive)
 {
     if (excessive)
- 	return size + size/2;
+        return size + size/2;
     return qAllocMore(size * sizeofT,
-		       sizeof(QVectorData)) / sizeofT;
+                       sizeof(QVectorData)) / sizeofT;
 }
 
 /*! \class QVector
@@ -65,7 +65,7 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     that stores QString values:
 
     \code
-	QVector<int> integerVector;
+        QVector<int> integerVector;
         QVector<QString> stringVector;
     \endcode
 
@@ -74,7 +74,7 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     constructs a QVector with 200 elements:
 
     \code
-	QVector<QString> vector(200);
+        QVector<QString> vector(200);
     \endcode
 
     The elements are automatically initialized with a
@@ -83,7 +83,7 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     argument to the constructor:
 
     \code
-	QVector<QString> vector(200, "Pass");
+        QVector<QString> vector(200, "Pass");
     \endcode
 
     You can also call fill() at any time to fill the vector with a
@@ -95,16 +95,16 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     that can be used on the left side of an assignment:
 
     \code
-	if (vector[0] == "Liz")
-	    vector[0] = "Elizabeth";
+        if (vector[0] == "Liz")
+            vector[0] = "Elizabeth";
     \endcode
 
     For read-only access, an alternative syntax is to use at():
 
     \code
-	for (int i = 0; i < vector.size(); ++i) {
-	    if (vector.at(i) == "Alfonso")
-		cout << "Found Alfonso at position " << i << endl;
+        for (int i = 0; i < vector.size(); ++i) {
+            if (vector.at(i) == "Alfonso")
+                cout << "Found Alfonso at position " << i << endl;
         }
     \endcode
 
@@ -124,9 +124,9 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     one; otherwise, they return -1. For example:
 
     \code
-	int i = vector.indexOf("Harumi");
+        int i = vector.indexOf("Harumi");
         if (i != -1)
-	    cout << "First occurrence of Harumi is at position " << i << endl;
+            cout << "First occurrence of Harumi is at position " << i << endl;
     \endcode
 
     If you simply want to check whether a vector contains a
@@ -331,10 +331,10 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
 
     Example:
     \code
-	QVector<int> vector(10);
+        QVector<int> vector(10);
         int *data = vector.data();
         for (int i = 0; i < 10; ++i)
-	    data[i] = 2 * i;
+            data[i] = 2 * i;
     \endcode
 
     The pointer remains valid as long as the vector isn't
@@ -404,11 +404,11 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
 
     Example:
     \code
-	QVector<QString> vector(0);
+        QVector<QString> vector(0);
         vector.append("one");
         vector.append("two");
         vector.append("three");
-        // vector: [ "one", "two", three" ]
+        // vector: ["one", "two", three"]
     \endcode
 
     This is the same as calling resize(size() + 1) and assigning \a
@@ -427,11 +427,11 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
 
     Example:
     \code
-	QVector<QString> vector;
+        QVector<QString> vector;
         vector.prepend("one");
         vector.prepend("two");
         vector.prepend("three");
-        // vector: [ "one", "two", "three" ]
+        // vector: ["one", "two", "three"]
     \endcode
 
     This is the same as vector.insert(0, \a value).
@@ -453,10 +453,10 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
 
     Example:
     \code
-	QVector<QString> vector;
+        QVector<QString> vector;
         vector << "alpha" << "beta" << "delta";
         vector.insert(2, "gamma");
-        // vector: [ "alpha", "beta", "gamma", "delta" ]
+        // vector: ["alpha", "beta", "gamma", "delta"]
     \endcode
 
     For large vectors, this operation can be slow (\l{linear time}),
@@ -477,10 +477,10 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
 
     Example:
     \code
-	QVector<double> vector;
+        QVector<double> vector;
         vector << 2.718 << 1.442 << 0.4342;
         vector.insert(1, 3, 9.9);
-        // vector: [ 2.718, 9.9, 9.9, 9.9, 1.442, 0.4342 ]
+        // vector: [2.718, 9.9, 9.9, 9.9, 1.442, 0.4342]
     \endcode
 */
 
@@ -525,12 +525,12 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
 
     Example:
     \code
-	QVector<QString> vector(3);
+        QVector<QString> vector(3);
         vector.fill("N/A");
-        // vector: [ "N/A", "N/A", "N/A" ]
+        // vector: ["N/A", "N/A", "N/A"]
 
-	vector.fill("oh", 5);
-        // vector: [ "oh", "oh", "oh", "oh", "oh" ]
+        vector.fill("oh", 5);
+        // vector: ["oh", "oh", "oh", "oh", "oh"]
     \endcode
 
     \sa resize()
@@ -572,7 +572,7 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
         vector.lastIndexOf("B");        // returns 3
         vector.lastIndexOf("B", 3);     // returns 3
         vector.lastIndexOf("B", 2);     // returns 1
-	vector.lastIndexOf("X");        // returns -1
+        vector.lastIndexOf("X");        // returns -1
     \endcode
 
     This function requires the value type to have an implementation of
@@ -651,7 +651,7 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     \sa constBegin(), end()
 */
 
-/*! \fn QVector::iterator QVector::erase( iterator pos )
+/*! \fn QVector::iterator QVector::erase(iterator pos)
 
     Removes the item associated with the iterator \a pos from the
     vector, and returns an iterator to the next item in the vector

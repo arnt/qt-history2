@@ -26,7 +26,7 @@ QMutex::QMutex(bool recursive)
     d->owner = 0;
     d->count = 0;
     d->waiters = 0;
-    d->event = CreateEvent(0, FALSE, FALSE, 0);
+    d->event = CreateEvent(0, false, false, 0);
 }
 
 QMutex::~QMutex()
@@ -42,13 +42,13 @@ void QMutex::lock()
 
     ++d->waiters;
     while (!q_atomic_test_and_set_int(&d->owner, none, self)) {
-	if (d->recursive && d->owner == self) {
-	    break;
-	} else if (d->owner == self) {
-	    qWarning("QMutex::lock(): Deadlock detected in Thread %d", d->owner);
-	}
+        if (d->recursive && d->owner == self) {
+            break;
+        } else if (d->owner == self) {
+            qWarning("QMutex::lock(): Deadlock detected in Thread %d", d->owner);
+        }
 
-	WaitForSingleObject(d->event, INFINITE);
+        WaitForSingleObject(d->event, INFINITE);
     }
     --d->waiters;
     ++d->count;
@@ -60,8 +60,8 @@ bool QMutex::tryLock()
     const int none = 0;
 
     if (!q_atomic_test_and_set_int(&d->owner, none, self)) {
-	if (!d->recursive || d->owner != self)
-	    return false;
+        if (!d->recursive || d->owner != self)
+            return false;
     }
     ++d->count;
     return true;
@@ -74,8 +74,8 @@ void QMutex::unlock()
     Q_ASSERT(d->owner == GetCurrentThreadId());
 
     if (!--d->count) {
-	q_atomic_set_int(&d->owner, none);
-	if (d->waiters != 0)
-	    SetEvent(d->event);
+        q_atomic_set_int(&d->owner, none);
+        if (d->waiters != 0)
+            SetEvent(d->event);
     }
 }

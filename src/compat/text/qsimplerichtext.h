@@ -34,43 +34,43 @@ class QSimpleRichTextData;
 class Q_GUI_EXPORT QSimpleRichText
 {
 public:
-    QSimpleRichText( const QString& text, const QFont& fnt,
-		     const QString& context = QString::null, const QStyleSheet* sheet = 0);
-    QSimpleRichText( const QString& text, const QFont& fnt,
-		     const QString& context,  const QStyleSheet* sheet,
-		     const QMimeSourceFactory* factory, int pageBreak = -1,
-		     const QColor& linkColor = Qt::blue, bool linkUnderline = TRUE );
+    QSimpleRichText(const QString& text, const QFont& fnt,
+                     const QString& context = QString::null, const QStyleSheet* sheet = 0);
+    QSimpleRichText(const QString& text, const QFont& fnt,
+                     const QString& context,  const QStyleSheet* sheet,
+                     const QMimeSourceFactory* factory, int pageBreak = -1,
+                     const QColor& linkColor = Qt::blue, bool linkUnderline = true);
     ~QSimpleRichText();
 
-    void setWidth( int );
-    void setWidth( QPainter*, int );
-    void setDefaultFont( const QFont &f );
+    void setWidth(int);
+    void setWidth(QPainter*, int);
+    void setDefaultFont(const QFont &f);
     int width() const;
     int widthUsed() const;
     int height() const;
     void adjustSize();
 
-    void draw( QPainter* p,  int x, int y, const QRect& clipRect,
-	       const QPalette& pal, const QBrush* paper = 0) const;
+    void draw(QPainter* p,  int x, int y, const QRect& clipRect,
+               const QPalette& pal, const QBrush* paper = 0) const;
 
     // obsolete
-    void draw( QPainter* p,  int x, int y, const QRegion& clipRegion,
-	       const QPalette& pal, const QBrush* paper = 0) const {
-	draw( p, x, y, clipRegion.boundingRect(), pal, paper );
+    void draw(QPainter* p,  int x, int y, const QRegion& clipRegion,
+               const QPalette& pal, const QBrush* paper = 0) const {
+        draw(p, x, y, clipRegion.boundingRect(), pal, paper);
     }
 
     QString context() const;
-    QString anchorAt( const QPoint& pos ) const;
+    QString anchorAt(const QPoint& pos) const;
 
-    bool inText( const QPoint& pos ) const;
+    bool inText(const QPoint& pos) const;
 
 private:
     QSimpleRichTextData* d;
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QSimpleRichText( const QSimpleRichText & );
-    QSimpleRichText &operator=( const QSimpleRichText & );
+    QSimpleRichText(const QSimpleRichText &);
+    QSimpleRichText &operator=(const QSimpleRichText &);
 #endif
 };
 

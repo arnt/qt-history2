@@ -7,7 +7,7 @@ public:
     WindowsStyle();
 
     QStringList keys() const;
-    QStyle *create( const QString& );
+    QStyle *create(const QString&);
 };
 
 WindowsStyle::WindowsStyle()
@@ -22,13 +22,13 @@ QStringList WindowsStyle::keys() const
     return list;
 }
 
-QStyle* WindowsStyle::create( const QString& s )
+QStyle* WindowsStyle::create(const QString& s)
 {
-    if ( s.toLower() == "windows" )
-	return new QWindowsStyle();
+    if (s.toLower() == "windows")
+        return new QWindowsStyle();
 
     return 0;
 }
 
-Q_EXPORT_PLUGIN( WindowsStyle )
+Q_EXPORT_PLUGIN(WindowsStyle)
 

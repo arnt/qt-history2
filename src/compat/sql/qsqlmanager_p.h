@@ -49,19 +49,19 @@ public:
     QSqlCursorManager();
     virtual ~QSqlCursorManager();
 
-    virtual void setSort( const QSqlIndex& sort );
-    virtual void setSort( const QStringList& sort );
+    virtual void setSort(const QSqlIndex& sort);
+    virtual void setSort(const QStringList& sort);
     QStringList  sort() const;
-    virtual void setFilter( const QString& filter );
+    virtual void setFilter(const QString& filter);
     QString filter() const;
-    virtual void setCursor( QSqlCursor* cursor, bool autoDelete = FALSE );
+    virtual void setCursor(QSqlCursor* cursor, bool autoDelete = false);
     QSqlCursor* cursor() const;
 
-    virtual void setAutoDelete( bool enable );
+    virtual void setAutoDelete(bool enable);
     bool autoDelete() const;
 
     virtual bool refresh();
-    virtual bool findBuffer( const QSqlIndex& idx, int atHint = 0 );
+    virtual bool findBuffer(const QSqlIndex& idx, int atHint = 0);
 
 private:
     QSqlCursorManagerPrivate* d;
@@ -77,9 +77,9 @@ public:
     QSqlFormManager();
     virtual ~QSqlFormManager();
 
-    virtual void setForm( QSqlForm* form );
+    virtual void setForm(QSqlForm* form);
     QSqlForm* form();
-    virtual void setRecord( QSqlRecord* record );
+    virtual void setRecord(QSqlRecord* record);
     QSqlRecord* record();
 
     virtual void clearValues();
@@ -101,20 +101,20 @@ public:
     QDataManager();
     virtual ~QDataManager();
 
-    virtual void setMode( QSql::Op m );
+    virtual void setMode(QSql::Op m);
     QSql::Op mode() const;
-    virtual void setAutoEdit( bool autoEdit );
+    virtual void setAutoEdit(bool autoEdit);
     bool autoEdit() const;
 
-    virtual void handleError( QWidget* parent, const QSqlError& error );
-    virtual QSql::Confirm confirmEdit( QWidget* parent, QSql::Op m );
-    virtual QSql::Confirm confirmCancel( QWidget* parent, QSql::Op m );
+    virtual void handleError(QWidget* parent, const QSqlError& error);
+    virtual QSql::Confirm confirmEdit(QWidget* parent, QSql::Op m);
+    virtual QSql::Confirm confirmCancel(QWidget* parent, QSql::Op m);
 
-    virtual void setConfirmEdits( bool confirm );
-    virtual void setConfirmInsert( bool confirm );
-    virtual void setConfirmUpdate( bool confirm );
-    virtual void setConfirmDelete( bool confirm );
-    virtual void setConfirmCancels( bool confirm );
+    virtual void setConfirmEdits(bool confirm);
+    virtual void setConfirmInsert(bool confirm);
+    virtual void setConfirmUpdate(bool confirm);
+    virtual void setConfirmDelete(bool confirm);
+    virtual void setConfirmCancels(bool confirm);
 
     bool confirmEdits() const;
     bool confirmInsert() const;

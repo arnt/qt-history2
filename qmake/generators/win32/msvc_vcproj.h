@@ -41,9 +41,9 @@ public:
     ~VcprojGenerator();
 
     QString defaultMakefile() const;
-    virtual bool doDepends() const { return FALSE; } //never necesary
+    virtual bool doDepends() const { return false; } //never necesary
     QString precompH, precompHFilename,
-	    precompObj, precompPch;
+            precompObj, precompPch;
     bool usePCH;
     QString mocFile(const QString &file) { return Win32MakefileGenerator::mocFile(file); }
 
@@ -53,7 +53,7 @@ protected:
     virtual bool findLibraries();
     virtual void outputVariables();
     QString fixFilename(QString ofile) const;
-    
+
     void initOld();
     void initProject();
     void initConfiguration();
@@ -92,7 +92,7 @@ inline QString VcprojGenerator::defaultMakefile() const
 }
 
 inline bool VcprojGenerator::findLibraries()
-{ 
+{
     return Win32MakefileGenerator::findLibraries("MSVCPROJ_LIBS");
 }
 

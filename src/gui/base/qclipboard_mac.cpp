@@ -36,10 +36,10 @@ bool hasScrapChanged()
     ScrapRef nref;
     GetCurrentScrap(&nref);
     if(nref != scrap) {
-	scrap = nref;
-	return TRUE;
+        scrap = nref;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 static void cleanup()
@@ -52,7 +52,7 @@ static
 void setupOwner()
 {
     if(owner)
-	return;
+        return;
     owner = new QWidget(0, "internal clipboard owner");
     qAddPostRoutine(cleanup);
 }
@@ -74,9 +74,9 @@ public:
 
     void setSource(QMimeSource* s)
     {
-	QMimeSource *s2 = src;
-	src = s;
-	delete s2;
+        QMimeSource *s2 = src;
+        src = s;
+        delete s2;
     }
 
     QMimeSource *source() const { return src; }
@@ -114,8 +114,8 @@ static void cleanupClipboardData()
 static QClipboardData *clipboardData()
 {
     if(internalCbData == 0) {
-	internalCbData = new QClipboardData;
-	qAddPostRoutine(cleanupClipboardData);
+        internalCbData = new QClipboardData;
+        qAddPostRoutine(cleanupClipboardData);
     }
     return internalCbData;
 }
@@ -129,37 +129,37 @@ const char* QClipboardWatcher::format(int n) const
 {
     const char* mime = NULL;
     if(n >= 0) {
-	UInt32 cnt = 0;
-	if(GetScrapFlavorCount(scrap, &cnt) || !cnt)
-	    return NULL;
+        UInt32 cnt = 0;
+        if(GetScrapFlavorCount(scrap, &cnt) || !cnt)
+            return NULL;
 
-	ScrapFlavorInfo *infos = (ScrapFlavorInfo *)calloc(cnt, sizeof(ScrapFlavorInfo));
-	if(!infos || GetScrapFlavorInfoList(scrap, &cnt, infos) != noErr) {
-	    qDebug("Qt: internal: Failure to collect ScrapFlavorInfoList..");
-	} else {
-	    QMacMime::QMacMimeType qmt = QMacMime::MIME_CLIP;
-	    {
-		Size sz;
-		extern ScrapFlavorType qt_mac_mime_type; //qmime_mac.cpp
-		if(GetScrapFlavorSize(scrap, qt_mac_mime_type, &sz) == noErr)
-		    qmt = QMacMime::MIME_QT_CONVERTOR;
-	    }
-	    bool sawSBText = FALSE;
-	    for(int i = 0; i < (int)cnt; i++) {
-		if(infos[i].flavorType == kScrapFlavorTypeText) {
-		    sawSBText = TRUE;
-		} else if(const char *m = QMacMime::flavorToMime(qmt, infos[i].flavorType)) {
-		    if(!n) {
-			mime = m;
-			break;
-		    }
-		    n--;
-		}
-	    }
-	    if(!mime && sawSBText && !n)
-		mime = QMacMime::flavorToMime(qmt, kScrapFlavorTypeText);
-	    free(infos);
-	}
+        ScrapFlavorInfo *infos = (ScrapFlavorInfo *)calloc(cnt, sizeof(ScrapFlavorInfo));
+        if(!infos || GetScrapFlavorInfoList(scrap, &cnt, infos) != noErr) {
+            qDebug("Qt: internal: Failure to collect ScrapFlavorInfoList..");
+        } else {
+            QMacMime::QMacMimeType qmt = QMacMime::MIME_CLIP;
+            {
+                Size sz;
+                extern ScrapFlavorType qt_mac_mime_type; //qmime_mac.cpp
+                if(GetScrapFlavorSize(scrap, qt_mac_mime_type, &sz) == noErr)
+                    qmt = QMacMime::MIME_QT_CONVERTOR;
+            }
+            bool sawSBText = false;
+            for(int i = 0; i < (int)cnt; i++) {
+                if(infos[i].flavorType == kScrapFlavorTypeText) {
+                    sawSBText = true;
+                } else if(const char *m = QMacMime::flavorToMime(qmt, infos[i].flavorType)) {
+                    if(!n) {
+                        mime = m;
+                        break;
+                    }
+                    n--;
+                }
+            }
+            if(!mime && sawSBText && !n)
+                mime = QMacMime::flavorToMime(qmt, kScrapFlavorTypeText);
+            free(infos);
+        }
     }
     return n ? NULL : mime;
 }
@@ -170,27 +170,27 @@ QByteArray QClipboardWatcher::encodedData(const char* mime) const
     QMacMime::QMacMimeType qmt = QMacMime::MIME_CLIP;
     extern ScrapFlavorType qt_mac_mime_type; //qmime_mac.cpp
     if(GetScrapFlavorSize(scrap, qt_mac_mime_type, &flavorsize) == noErr)
-	qmt = QMacMime::MIME_QT_CONVERTOR;
+        qmt = QMacMime::MIME_QT_CONVERTOR;
     QList<QMacMime *> all = QMacMime::all(qmt);
     for(QList<QMacMime *>::Iterator it = all.begin(); it != all.end(); ++it) {
-	QMacMime *c = (*it);
-	int flav = c->flavorFor(mime);
-	if(flav) {
-	    if(GetScrapFlavorSize(scrap, flav, &flavorsize) == noErr) {
-		char *buffer = (char *)malloc(flavorsize);
-		GetScrapFlavorData(scrap, flav, &flavorsize, buffer);
-		QConstByteArray r(buffer, flavorsize);
+        QMacMime *c = (*it);
+        int flav = c->flavorFor(mime);
+        if(flav) {
+            if(GetScrapFlavorSize(scrap, flav, &flavorsize) == noErr) {
+                char *buffer = (char *)malloc(flavorsize);
+                GetScrapFlavorData(scrap, flav, &flavorsize, buffer);
+                QConstByteArray r(buffer, flavorsize);
                 QByteArray tr;
-		{
-		    QList<QByteArray> lst;
-		    lst.append(r);
-		    tr = c->convertToMime(lst, mime, flav);
-		}
-		tr.detach();
-		free(buffer);
-		return tr;
-	    }
-	}
+                {
+                    QList<QByteArray> lst;
+                    lst.append(r);
+                    tr = c->convertToMime(lst, mime, flav);
+                }
+                tr.detach();
+                free(buffer);
+                return tr;
+            }
+        }
     }
     return QByteArray();
 }
@@ -218,31 +218,31 @@ static int clipWatcherId = -1;
 void QClipboard::connectNotify(const char *signal)
 {
     if(qstrcmp(signal,SIGNAL(dataChanged())) == 0 && clipWatcherId == -1)
-	clipWatcherId = startTimer(100);
+        clipWatcherId = startTimer(100);
 }
 
 bool QClipboard::event(QEvent *e)
 {
-    bool check_clip = FALSE;
+    bool check_clip = false;
     if(e->type() == QEvent::Clipboard) {
-	check_clip = TRUE;
+        check_clip = true;
     } else if(clipWatcherId != -1  && e->type() == QEvent::Timer) {
-	QTimerEvent *te = (QTimerEvent *)e;
-	if(te->timerId() == clipWatcherId) {
-	    if(!receivers(SIGNAL(dataChanged()))) {
-		killTimer(clipWatcherId);
-		clipWatcherId = -1;
-	    } else {
-		check_clip = TRUE;
-	    }
-	}
+        QTimerEvent *te = (QTimerEvent *)e;
+        if(te->timerId() == clipWatcherId) {
+            if(!receivers(SIGNAL(dataChanged()))) {
+                killTimer(clipWatcherId);
+                clipWatcherId = -1;
+            } else {
+                check_clip = true;
+            }
+        }
     }
     if(check_clip && hasScrapChanged()) {
 #if 0
-	qDebug("%s: got a change..", QTime::currentTime().toString().latin1());
+        qDebug("%s: got a change..", QTime::currentTime().toString().latin1());
 #endif
-	clipboardData()->clear();
-	emit dataChanged();
+        clipboardData()->clear();
+        emit dataChanged();
     }
     return QObject::event(e);
 }
@@ -250,18 +250,18 @@ bool QClipboard::event(QEvent *e)
 QMimeSource* QClipboard::data(Mode mode) const
 {
     if(mode != Clipboard)
-	return 0;
+        return 0;
 
     QClipboardData *d = clipboardData();
     if(!d->source())
-	d->setSource(new QClipboardWatcher());
+        d->setSource(new QClipboardWatcher());
     return d->source();
 }
 
 void QClipboard::setData(QMimeSource *src, Mode mode)
 {
     if(mode != Clipboard)
-	return;
+        return;
 
     QClipboardData *d = clipboardData();
     d->setSource(src);
@@ -274,26 +274,26 @@ void QClipboard::setData(QMimeSource *src, Mode mode)
     QList<QMacMime*> all = QMacMime::all(QMacMime::MIME_CLIP);
     const char* mime;
     for (int i = 0; (mime = src->format(i)); i++) {
-	for(QList<QMacMime *>::Iterator it = all.begin(); it != all.end(); ++it) {
-	    QMacMime *c = (*it);
-	    if(c->flavorFor(mime)) {
-		for (int j = 0; j < c->countFlavors(); j++) {
-		    uint flav = c->flavor(j);
-		    if(c->canConvert(mime, flav)) {
+        for(QList<QMacMime *>::Iterator it = all.begin(); it != all.end(); ++it) {
+            QMacMime *c = (*it);
+            if(c->flavorFor(mime)) {
+                for (int j = 0; j < c->countFlavors(); j++) {
+                    uint flav = c->flavor(j);
+                    if(c->canConvert(mime, flav)) {
 #if 0
-			qDebug("%s: writing %s (%d)..", QTime::currentTime().toString().latin1(), mime, flav);
+                        qDebug("%s: writing %s (%d)..", QTime::currentTime().toString().latin1(), mime, flav);
 #endif
-			QList<QByteArray> md = c->convertFromMime(src->encodedData(mime), mime, flav);
-			if(md.count() > 1)
-			    qWarning("QClipBoard: cannot handle multiple byte array conversions..");
-			PutScrapFlavor(scrap, (ScrapFlavorType)flav, 0, md.first().size(), md.first().data());
+                        QList<QByteArray> md = c->convertFromMime(src->encodedData(mime), mime, flav);
+                        if(md.count() > 1)
+                            qWarning("QClipBoard: cannot handle multiple byte array conversions..");
+                        PutScrapFlavor(scrap, (ScrapFlavorType)flav, 0, md.first().size(), md.first().data());
 #if 0
-			qDebug("%s: done writing %s (%d)..", QTime::currentTime().toString().latin1(), mime, flav);
+                        qDebug("%s: done writing %s (%d)..", QTime::currentTime().toString().latin1(), mime, flav);
 #endif
-		    }
-		}
-	    }
-	}
+                    }
+                }
+            }
+        }
     }
 
     extern ScrapFlavorType qt_mac_mime_type; //qmime_mac.cpp
@@ -307,18 +307,18 @@ void QClipboard::setData(QMimeSource *src, Mode mode)
 
 bool QClipboard::supportsSelection() const
 {
-    return FALSE; //nei takk
+    return false; //nei takk
 }
 
 bool QClipboard::ownsSelection() const
 {
-    return FALSE;
+    return false;
 }
 
 bool QClipboard::ownsClipboard() const
 {
     qWarning("Qt: QClipboard::ownsClipboard: UNIMPLEMENTED!");
-    return FALSE;
+    return false;
 }
 
 void QClipboard::loadScrap(bool)

@@ -35,24 +35,24 @@ static AuServer *nas=0;
 static AuBool eventPred(AuServer *, AuEvent *e, AuPointer p)
 {
     if (e && (e->type == AuEventTypeElementNotify)) {
-	if (e->auelementnotify.flow == *((AuFlowID *)p))
-	    return TRUE;
+        if (e->auelementnotify.flow == *((AuFlowID *)p))
+            return true;
     }
-    return FALSE;
+    return false;
 }
 
 class QAuBucketNAS : public QAuBucket {
 public:
-    QAuBucketNAS(AuBucketID b, AuFlowID f = 0) : id(b), flow(f), stopped(TRUE), numplaying(0) { }
+    QAuBucketNAS(AuBucketID b, AuFlowID f = 0) : id(b), flow(f), stopped(true), numplaying(0) { }
     ~QAuBucketNAS()
     {
-	if ( nas ) {
-	    AuSync(nas, FALSE);
-	    AuDestroyBucket(nas, id, NULL);
+        if (nas) {
+            AuSync(nas, false);
+            AuDestroyBucket(nas, id, NULL);
 
-	    AuEvent ev;
-	    while (AuScanEvents(nas, AuEventsQueuedAfterFlush, TRUE, eventPred, &flow, &ev))
-		;
+            AuEvent ev;
+            while (AuScanEvents(nas, AuEventsQueuedAfterFlush, true, eventPred, &flow, &ev))
+                ;
         }
     }
 
@@ -85,7 +85,7 @@ public slots:
 private:
     QAuBucketNAS* bucket(QSound* s)
     {
-	return (QAuBucketNAS*)QAuServer::bucket(s);
+        return (QAuBucketNAS*)QAuServer::bucket(s);
     }
 };
 
@@ -94,21 +94,21 @@ QAuServerNAS::QAuServerNAS(QObject* parent) :
 {
     nas = AuOpenServer(NULL, 0, NULL, 0, NULL, NULL);
     if (nas) {
-	AuSetCloseDownMode(nas, AuCloseDownDestroy, NULL);
-	// Ask Qt for async messages...
-	sn=new QSocketNotifier(AuServerConnectionNumber(nas),
-		QSocketNotifier::Read);
-	QObject::connect(sn, SIGNAL(activated(int)),
-		this, SLOT(dataReceived()));
+        AuSetCloseDownMode(nas, AuCloseDownDestroy, NULL);
+        // Ask Qt for async messages...
+        sn=new QSocketNotifier(AuServerConnectionNumber(nas),
+                QSocketNotifier::Read);
+        QObject::connect(sn, SIGNAL(activated(int)),
+                this, SLOT(dataReceived()));
     } else {
-	sn = 0;
+        sn = 0;
     }
 }
 
 QAuServerNAS::~QAuServerNAS()
 {
-    if ( nas )
-	AuCloseServer( nas );
+    if (nas)
+        AuCloseServer(nas);
     delete sn;
     nas = 0;
 }
@@ -119,37 +119,37 @@ static AuServerHash *inprogress=0;
 void QAuServerNAS::soundDestroyed(QObject *o)
 {
     if (inprogress) {
-	QSound *so = static_cast<QSound *>(o);
-	while (inprogress->remove(so))
-	    ; // Loop while remove returns TRUE
+        QSound *so = static_cast<QSound *>(o);
+        while (inprogress->remove(so))
+            ; // Loop while remove returns true
     }
 }
 
 void QAuServerNAS::play(const QString& filename)
 {
     if (nas) {
-	int iv=100;
-	AuFixedPoint volume=AuFixedPointFromFraction(iv,100);
-	AuSoundPlayFromFile(nas, filename.local8Bit(), AuNone, volume,
-			    NULL, NULL, NULL, NULL, NULL, NULL);
-	AuFlush(nas);
-	dataReceived();
-	AuFlush(nas);
-	qApp->flushX();
+        int iv=100;
+        AuFixedPoint volume=AuFixedPointFromFraction(iv,100);
+        AuSoundPlayFromFile(nas, filename.local8Bit(), AuNone, volume,
+                            NULL, NULL, NULL, NULL, NULL, NULL);
+        AuFlush(nas);
+        dataReceived();
+        AuFlush(nas);
+        qApp->flushX();
     }
 }
 
-static void callback( AuServer*, AuEventHandlerRec*, AuEvent* e, AuPointer p)
+static void callback(AuServer*, AuEventHandlerRec*, AuEvent* e, AuPointer p)
 {
-    if ( inprogress->find(p) && e ) {
-	if (e->type==AuEventTypeElementNotify &&
-		    e->auelementnotify.kind==AuElementNotifyKindState) {
-	    if (e->auelementnotify.cur_state == AuStateStop) {
-		AuServerHash::Iterator it = inprogress->find(p);
-		if (it != inprogress->end())
-		    (*it)->setDone((QSound*)p);
-	    }
-	}
+    if (inprogress->find(p) && e) {
+        if (e->type==AuEventTypeElementNotify &&
+                    e->auelementnotify.kind==AuElementNotifyKindState) {
+            if (e->auelementnotify.cur_state == AuStateStop) {
+                AuServerHash::Iterator it = inprogress->find(p);
+                if (it != inprogress->end())
+                    (*it)->setDone((QSound*)p);
+            }
+        }
     }
 }
 
@@ -158,11 +158,11 @@ void QAuServerNAS::setDone(QSound* s)
     if (nas) {
         decLoop(s);
         if (s->loopsRemaining() && !bucket(s)->stopped) {
-	    bucket(s)->stopped = TRUE;
+            bucket(s)->stopped = true;
             play(s);
         } else {
-	    if (--(bucket(s)->numplaying) == 0)
-		bucket(s)->stopped = TRUE;
+            if (--(bucket(s)->numplaying) == 0)
+                bucket(s)->stopped = true;
             inprogress->remove(s);
         }
     }
@@ -171,49 +171,49 @@ void QAuServerNAS::setDone(QSound* s)
 void QAuServerNAS::play(QSound* s)
 {
     if (nas) {
-	++(bucket(s)->numplaying);
-	if (!bucket(s)->stopped) {
-	    stop(s);
-	}
+        ++(bucket(s)->numplaying);
+        if (!bucket(s)->stopped) {
+            stop(s);
+        }
 
-	bucket(s)->stopped = FALSE;
-	if ( !inprogress )
-	    inprogress = new AuServerHash;
-	inprogress->insert(s,this);
-	int iv=100;
-	AuFixedPoint volume=AuFixedPointFromFraction(iv,100);
+        bucket(s)->stopped = false;
+        if (!inprogress)
+            inprogress = new AuServerHash;
+        inprogress->insert(s,this);
+        int iv=100;
+        AuFixedPoint volume=AuFixedPointFromFraction(iv,100);
         QAuBucketNAS *b = bucket(s);
         AuSoundPlayFromBucket(nas, b->id, AuNone, volume,
                               callback, s, 0, &b->flow, NULL, NULL, NULL);
-	AuFlush(nas);
-	dataReceived();
-	AuFlush(nas);
-	qApp->flushX();
+        AuFlush(nas);
+        dataReceived();
+        AuFlush(nas);
+        qApp->flushX();
     }
 }
 
 void QAuServerNAS::stop(QSound* s)
 {
     if (nas && !bucket(s)->stopped) {
-	bucket(s)->stopped = TRUE;
+        bucket(s)->stopped = true;
         AuStopFlow(nas, bucket(s)->flow, NULL);
         AuFlush(nas);
-	dataReceived();
-	AuFlush(nas);
-	qApp->flushX();
+        dataReceived();
+        AuFlush(nas);
+        qApp->flushX();
     }
 }
 
 void QAuServerNAS::init(QSound* s)
 {
     connect(s, SIGNAL(destroyed(QObject*)),
-	    this, SLOT(soundDestroyed(QObject*)));
+            this, SLOT(soundDestroyed(QObject*)));
 
-    if ( nas ) {
+    if (nas) {
         AuBucketID b_id =
             AuSoundCreateBucketFromFile(nas, s->fileName().local8Bit(),
                                         0 /*AuAccessAllMasks*/, NULL, NULL);
-	setBucket(s, new QAuBucketNAS(b_id));
+        setBucket(s, new QAuBucketNAS(b_id));
     }
 }
 
@@ -239,7 +239,7 @@ public:
     void play(const QString&) { }
     void play(QSound*s) { while(decLoop(s) > 0) /* nothing */ ; }
     void stop(QSound*) { }
-    bool okay() { return FALSE; }
+    bool okay() { return false; }
 };
 
 QAuServerNull::QAuServerNull(QObject* parent) :
@@ -253,9 +253,9 @@ QAuServer* qt_new_audio_server()
 #ifdef QT_NAS_SUPPORT
     QAuServer* s=new QAuServerNAS(qApp);
     if (s->okay()) {
-	return s;
+        return s;
     } else {
-	delete s;
+        delete s;
     }
 #endif
     return new QAuServerNull(qApp);

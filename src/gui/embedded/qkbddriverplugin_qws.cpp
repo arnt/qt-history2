@@ -50,18 +50,18 @@
 class QKbdDriverPluginPrivate : public QKbdDriverInterface
 {
 public:
-    QKbdDriverPluginPrivate( QKbdDriverPlugin *p )
-	: plugin( p )
+    QKbdDriverPluginPrivate(QKbdDriverPlugin *p)
+        : plugin(p)
     {
     }
     virtual ~QKbdDriverPluginPrivate();
 
-    QRESULT queryInterface( const QUuid &iid, QUnknownInterface **iface );
+    QRESULT queryInterface(const QUuid &iid, QUnknownInterface **iface);
     Q_REFCOUNT;
 
     QStringList featureList() const;
 
-    QWSKeyboardHandler* create( const QString& driver, const QString &device );
+    QWSKeyboardHandler* create(const QString& driver, const QString &device);
 
 private:
     QKbdDriverPlugin *plugin;
@@ -72,18 +72,18 @@ QKbdDriverPluginPrivate::~QKbdDriverPluginPrivate()
     delete plugin;
 }
 
-QRESULT QKbdDriverPluginPrivate::queryInterface( const QUuid &iid, QUnknownInterface **iface )
+QRESULT QKbdDriverPluginPrivate::queryInterface(const QUuid &iid, QUnknownInterface **iface)
 {
     *iface = 0;
 
-    if ( iid == IID_QUnknown )
-	*iface = this;
-    else if ( iid == IID_QFeatureList )
-	*iface = this;
-    else if ( iid == IID_QKbdDriver )
-	*iface = this;
+    if (iid == IID_QUnknown)
+        *iface = this;
+    else if (iid == IID_QFeatureList)
+        *iface = this;
+    else if (iid == IID_QKbdDriver)
+        *iface = this;
     else
-	return QE_NOINTERFACE;
+        return QE_NOINTERFACE;
 
     (*iface)->addRef();
     return QS_OK;
@@ -94,9 +94,9 @@ QStringList QKbdDriverPluginPrivate::featureList() const
     return plugin->keys();
 }
 
-QWSKeyboardHandler* QKbdDriverPluginPrivate::create( const QString& driver, const QString &device )
+QWSKeyboardHandler* QKbdDriverPluginPrivate::create(const QString& driver, const QString &device)
 {
-    return plugin->create( driver, device );
+    return plugin->create(driver, device);
 }
 
 /*!
@@ -104,7 +104,7 @@ QWSKeyboardHandler* QKbdDriverPluginPrivate::create( const QString& driver, cons
     by the \c Q_EXPORT_PLUGIN macro.
 */
 QKbdDriverPlugin::QKbdDriverPlugin()
-    : QGPlugin( d = new QKbdDriverPluginPrivate( this ) )
+    : QGPlugin(d = new QKbdDriverPluginPrivate(this))
 {
 }
 
@@ -120,17 +120,17 @@ QKbdDriverPlugin::~QKbdDriverPlugin()
 
 
 /*!
-    \fn QScreen* QKbdDriverPlugin::create( const QString &driver, const QString &device )
+    \fn QScreen* QKbdDriverPlugin::create(const QString &driver, const QString &device)
 
     Creates a driver matching the type specified by \a driver and \a device.
 
     \sa keys()
 */
 
-QWSKeyboardHandler* QKbdDriverPlugin::create( const QString& driver, const QString &device )
+QWSKeyboardHandler* QKbdDriverPlugin::create(const QString& driver, const QString &device)
 {
-    Q_UNUSED( driver )
-    Q_UNUSED( device )
+    Q_UNUSED(driver)
+    Q_UNUSED(device)
     return 0;
 }
 

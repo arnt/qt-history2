@@ -21,7 +21,7 @@
 class QSqlSelectCursorPrivate
 {
 public:
-    QSqlSelectCursorPrivate() : populated( FALSE ) {}
+    QSqlSelectCursorPrivate() : populated(false) {}
     QString query;
     bool populated : 1;
 };
@@ -45,12 +45,12 @@ public:
     Example:
     \code
     ...
-    QSqlSelectCursor* cur = new QSqlSelectCursor( "SELECT id, firstname, lastname FROM author" );
-    QDataTable* table = new QDataTable( this );
-    table->setSqlCursor( cur, TRUE, TRUE );
+    QSqlSelectCursor* cur = new QSqlSelectCursor("SELECT id, firstname, lastname FROM author");
+    QDataTable* table = new QDataTable(this);
+    table->setSqlCursor(cur, true, true);
     table->refresh();
     ...
-    cur->exec( "SELECT * FROM books" );
+    cur->exec("SELECT * FROM books");
     table->refresh();
     ...
     \endcode
@@ -59,19 +59,19 @@ public:
 /*!
     Constructs a read only cursor on database \a db using the query \a query.
  */
-QSqlSelectCursor::QSqlSelectCursor( const QString& query, QSqlDatabase* db )
-    : QSqlCursor( QString(), FALSE, db )
+QSqlSelectCursor::QSqlSelectCursor(const QString& query, QSqlDatabase* db)
+    : QSqlCursor(QString(), false, db)
 {
     d = new QSqlSelectCursorPrivate;
     d->query = query;
-    QSqlCursor::setMode( ReadOnly );
-    if ( !query.isEmpty() )
-	exec( query );
+    QSqlCursor::setMode(ReadOnly);
+    if (!query.isEmpty())
+        exec(query);
 }
 
 /*! Constructs a copy of \a other */
-QSqlSelectCursor::QSqlSelectCursor( const QSqlSelectCursor& other )
-    : QSqlCursor( other )
+QSqlSelectCursor::QSqlSelectCursor(const QSqlSelectCursor& other)
+    : QSqlCursor(other)
 {
     d = new QSqlSelectCursorPrivate;
     d->query = other.d->query;
@@ -85,13 +85,13 @@ QSqlSelectCursor::~QSqlSelectCursor()
 }
 
 /*! \reimp */
-bool QSqlSelectCursor::exec( const QString& query )
+bool QSqlSelectCursor::exec(const QString& query)
 {
     d->query = query;
-    bool ret = QSqlCursor::exec( query );
-    if ( ret ) {
-	QSqlCursor::clear();
-	populateCursor();
+    bool ret = QSqlCursor::exec(query);
+    if (ret) {
+        QSqlCursor::clear();
+        populateCursor();
     }
     return ret;
 }
@@ -101,11 +101,11 @@ bool QSqlSelectCursor::exec( const QString& query )
 */
 
 /*! \reimp */
-bool QSqlSelectCursor::select( const QString&, const QSqlIndex& )
+bool QSqlSelectCursor::select(const QString&, const QSqlIndex&)
 {
-    bool ret = QSqlCursor::exec( d->query );
-    if ( ret && !d->populated )
-	populateCursor();
+    bool ret = QSqlCursor::exec(d->query);
+    if (ret && !d->populated)
+        populateCursor();
     return ret;
 }
 
@@ -113,40 +113,40 @@ bool QSqlSelectCursor::select( const QString&, const QSqlIndex& )
 void QSqlSelectCursor::populateCursor()
 {
     QSqlRecordInfo inf = QSqlRecordInfo(record());
-    for ( QSqlRecordInfo::const_iterator it = inf.begin(); it != inf.end(); ++it )
-	QSqlCursor::append( *it );
-    d->populated = TRUE;
+    for (QSqlRecordInfo::const_iterator it = inf.begin(); it != inf.end(); ++it)
+        QSqlCursor::append(*it);
+    d->populated = true;
 }
 
-/*! \fn QSqlIndex QSqlSelectCursor::primaryIndex( bool ) const
+/*! \fn QSqlIndex QSqlSelectCursor::primaryIndex(bool) const
     \reimp
 */
 
-/*! \fn QSqlIndex QSqlSelectCursor::index( const QStringList& ) const
+/*! \fn QSqlIndex QSqlSelectCursor::index(const QStringList&) const
     \reimp
 */
 
-/*! \fn QSqlIndex QSqlSelectCursor::index( const QString& ) const
+/*! \fn QSqlIndex QSqlSelectCursor::index(const QString&) const
     \reimp
 */
 
-/*! \fn QSqlIndex QSqlSelectCursor::index( const char* ) const
+/*! \fn QSqlIndex QSqlSelectCursor::index(const char*) const
     \reimp
 */
 
-/*! \fn void QSqlSelectCursor::setPrimaryIndex( const QSqlIndex& )
+/*! \fn void QSqlSelectCursor::setPrimaryIndex(const QSqlIndex&)
     \reimp
 */
 
-/*! \fn void QSqlSelectCursor::append( const QSqlFieldInfo& )
+/*! \fn void QSqlSelectCursor::append(const QSqlFieldInfo&)
     \reimp
 */
 
-/*! \fn void QSqlSelectCursor::insert( int, const QSqlFieldInfo& )
+/*! \fn void QSqlSelectCursor::insert(int, const QSqlFieldInfo&)
     \reimp
 */
 
-/*! \fn void QSqlSelectCursor::remove( int )
+/*! \fn void QSqlSelectCursor::remove(int)
     \reimp
 */
 
@@ -154,15 +154,15 @@ void QSqlSelectCursor::populateCursor()
     \reimp
 */
 
-/*! \fn void QSqlSelectCursor::setGenerated( const QString&, bool )
+/*! \fn void QSqlSelectCursor::setGenerated(const QString&, bool)
     \reimp
 */
 
-/*! \fn void QSqlSelectCursor::setGenerated( int, bool )
+/*! \fn void QSqlSelectCursor::setGenerated(int, bool)
     \reimp
 */
 
-/*! \fn QSqlRecord* QSqlSelectCursor::editBuffer( bool )
+/*! \fn QSqlRecord* QSqlSelectCursor::editBuffer(bool)
     \reimp
 */
 
@@ -178,23 +178,23 @@ void QSqlSelectCursor::populateCursor()
     \reimp
 */
 
-/*! \fn int QSqlSelectCursor::insert( bool )
+/*! \fn int QSqlSelectCursor::insert(bool)
     \reimp
 */
 
-/*! \fn int QSqlSelectCursor::update( bool )
+/*! \fn int QSqlSelectCursor::update(bool)
     \reimp
 */
 
-/*! \fn int QSqlSelectCursor::del( bool )
+/*! \fn int QSqlSelectCursor::del(bool)
     \reimp
 */
 
-/*! \fn void QSqlSelectCursor::setMode( int )
+/*! \fn void QSqlSelectCursor::setMode(int)
     \reimp
 */
 
-/*! \fn void QSqlSelectCursor::setSort( const QSqlIndex& )
+/*! \fn void QSqlSelectCursor::setSort(const QSqlIndex&)
     \reimp
 */
 
@@ -202,7 +202,7 @@ void QSqlSelectCursor::populateCursor()
     \reimp
 */
 
-/*! \fn void QSqlSelectCursor::setFilter( const QString& )
+/*! \fn void QSqlSelectCursor::setFilter(const QString&)
     \reimp
 */
 
@@ -210,7 +210,7 @@ void QSqlSelectCursor::populateCursor()
     \reimp
 */
 
-/*! \fn void QSqlSelectCursor::setName( const QString&, bool )
+/*! \fn void QSqlSelectCursor::setName(const QString&, bool)
     \reimp
 */
 
@@ -218,7 +218,7 @@ void QSqlSelectCursor::populateCursor()
     \reimp
 */
 
-/*! \fn QString QSqlSelectCursor::toString( const QString&, const QString& ) const
+/*! \fn QString QSqlSelectCursor::toString(const QString&, const QString&) const
     \reimp
 */
 #endif // QT_NO_SQL

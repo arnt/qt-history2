@@ -27,7 +27,7 @@ public:
     QX11PaintEngine(QPaintDevice *);
     ~QX11PaintEngine();
 
-    bool begin(QPaintDevice *pdev, QPainterState *state, bool begin = FALSE);
+    bool begin(QPaintDevice *pdev, QPainterState *state, bool begin = false);
     bool end();
 
     void updatePen(QPainterState *ps);
@@ -71,8 +71,8 @@ protected:
     QX11PaintEngine(QX11PaintEnginePrivate &dptr, QPaintDevice *);
 
     friend void qt_cleanup();
-    friend void qt_draw_transformed_rect( QPaintEngine *pp,  int x, int y, int w,  int h, bool fill );
-    friend void qt_draw_background( QPaintEngine *pp, int x, int y, int w,  int h );
+    friend void qt_draw_transformed_rect(QPaintEngine *pp,  int x, int y, int w,  int h, bool fill);
+    friend void qt_draw_background(QPaintEngine *pp, int x, int y, int w,  int h);
     friend class QPixmap;
     friend class QFontEngineBox;
     friend class QFontEngineXft;

@@ -22,7 +22,7 @@ static const double Q_PI2  = 1.57079632679489661923;   // pi/2
 #ifdef Q_WS_X11
 #if defined(Q_CC_GNU) && defined(Q_OS_AIX)
 // AIX 4.2 gcc 2.7.2.3 gets internal error.
-inline int qRoundAIX( double d )
+inline int qRoundAIX(double d)
 {
     return qRound(d);
 }
@@ -32,44 +32,44 @@ inline int qRoundAIX( double d )
 
 #if defined(Q_CC_GNU) && defined(__i386__)
 
-inline double qcos_x86( double a )
+inline double qcos_x86(double a)
 {
     double r;
     __asm__ (
         "fcos"
-        : "=t" (r) : "0" (a) );
+        : "=t" (r) : "0" (a));
     return(r);
 }
 #define qcos qcos_x86
 
-inline double qsin_x86( double a )
+inline double qsin_x86(double a)
 {
     double r;
     __asm__ (
         "fsin"
-        : "=t" (r) : "0" (a) );
+        : "=t" (r) : "0" (a));
     return(r);
 }
 #define qsin qsin_x86
 
 #else //GNU_CC && I386
 
-inline double qsincos( double a, bool calcCos=FALSE )
+inline double qsincos(double a, bool calcCos=false)
 {
-    if ( calcCos )                              // calculate cosine
+    if (calcCos)                              // calculate cosine
         a -= Q_PI2;
-    if ( a >= Q_2PI || a <= -Q_2PI ) {          // fix range: -2*pi < a < 2*pi
+    if (a >= Q_2PI || a <= -Q_2PI) {          // fix range: -2*pi < a < 2*pi
         int m = (int)(a/Q_2PI);
         a -= Q_2PI*m;
     }
-    if ( a < 0.0 )                              // 0 <= a < 2*pi
+    if (a < 0.0)                              // 0 <= a < 2*pi
         a += Q_2PI;
     int sign = a > Q_PI ? -1 : 1;
-    if ( a >= Q_PI )
+    if (a >= Q_PI)
         a = Q_2PI - a;
-    if ( a >= Q_PI2 )
+    if (a >= Q_PI2)
         a = Q_PI - a;
-    if ( calcCos )
+    if (calcCos)
         sign = -sign;
     double a2  = a*a;                           // here: 0 <= a < pi/4
     double a3  = a2*a;                          // make taylor sin sum
@@ -79,8 +79,8 @@ inline double qsincos( double a, bool calcCos=FALSE )
     double a11 = a9*a2;
     return (a-a3/6+a5/120-a7/5040+a9/362880-a11/39916800)*sign;
 }
-#define qsin(a) qsincos(a, FALSE)
-#define qcos(a) qsincos(a, TRUE)
+#define qsin(a) qsincos(a, false)
+#define qcos(a) qsincos(a, true)
 
 #endif
 #endif //WS_X11

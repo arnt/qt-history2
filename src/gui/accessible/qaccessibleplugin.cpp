@@ -20,7 +20,7 @@
 
 /*!
     \class QAccessiblePlugin qaccessibleplugin.h
-    \brief The QAccessiblePlugin class provides an abstract base for 
+    \brief The QAccessiblePlugin class provides an abstract base for
     accessibility plugins.
 
     \ingroup plugins
@@ -30,7 +30,7 @@ class QAccessiblePluginPrivate : public QAccessibleFactoryInterface
 {
 public:
     QAccessiblePluginPrivate(QAccessiblePlugin *p)
-	: plugin(p)
+        : plugin(p)
     {
     }
 
@@ -55,14 +55,14 @@ QRESULT QAccessiblePluginPrivate::queryInterface(const QUuid &iid, QUnknownInter
 {
     *iface = 0;
 
-    if ( iid == IID_QUnknown )
-	*iface = (QAccessibleFactoryInterface*)this;
-    else if ( iid == IID_QFeatureList )
-	*iface = (QFeatureListInterface*)this;
-    else if ( iid == IID_QAccessibleFactory )
-	*iface = (QAccessibleFactoryInterface*)this;
+    if (iid == IID_QUnknown)
+        *iface = (QAccessibleFactoryInterface*)this;
+    else if (iid == IID_QFeatureList)
+        *iface = (QFeatureListInterface*)this;
+    else if (iid == IID_QAccessibleFactory)
+        *iface = (QAccessibleFactoryInterface*)this;
     else
-	return QE_NOINTERFACE;
+        return QE_NOINTERFACE;
 
     (*iface)->addRef();
     return QS_OK;
@@ -74,13 +74,13 @@ QStringList QAccessiblePluginPrivate::featureList() const
     return plugin->keys();
 }
 
-QRESULT QAccessiblePluginPrivate::createAccessibleInterface(const QString &key, 
+QRESULT QAccessiblePluginPrivate::createAccessibleInterface(const QString &key,
     QObject *object, QAccessibleInterface **iface)
 {
     *iface = 0;
     QAccessibleInterface *aif = plugin->create(key, object);
     if (!aif)
-	return QE_NOINTERFACE;
+        return QE_NOINTERFACE;
 
     *iface = aif;
     aif->addRef();
@@ -112,7 +112,7 @@ QAccessiblePlugin::~QAccessiblePlugin()
 
     Returns the list of keys this plugin supports.
 
-    These keys must be the class names that this plugin provides 
+    These keys must be the class names that this plugin provides
     an accessibility implementation for.
 
     \sa create()
@@ -121,7 +121,7 @@ QAccessiblePlugin::~QAccessiblePlugin()
 /*!
     \fn QAccessibleInterface *QAccessiblePlugin::create(const QString &key, QObject *object)
 
-    Creates and returns a QAccessibleInterface implementation for the 
+    Creates and returns a QAccessibleInterface implementation for the
     class \a key and the object \a object.
 
     \sa keys()

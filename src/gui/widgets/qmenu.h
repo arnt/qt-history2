@@ -29,7 +29,7 @@ private:
     Q_OBJECT
     Q_DECLARE_PRIVATE(Q4Menu);
 
-    Q_PROPERTY( bool tearOffEnabled READ isTearOffEnabled WRITE setTearOffEnabled )
+    Q_PROPERTY(bool tearOffEnabled READ isTearOffEnabled WRITE setTearOffEnabled)
 
 public:
     Q4Menu(QWidget *parent = 0);
@@ -53,7 +53,7 @@ public:
     bool isCheckable() const;
 
     void popup(const QPoint &pos, QAction *at=0);
-    QAction *exec(const QPoint &pos, QAction *at=0); 
+    QAction *exec(const QPoint &pos, QAction *at=0);
     QSize sizeHint() const;
     static QAction *exec(QList<QAction*> actions, const QPoint &pos, QAction *at=0);
 
@@ -96,7 +96,7 @@ private:
 };
 
 class Q_GUI_EXPORT Q4MenuBar : public QWidget
-{   
+{
     Q_OBJECT
     Q_DECLARE_PRIVATE(Q4MenuBar);
 

@@ -11,8 +11,8 @@
 ****************************************************************************/
 
 #include "qtextengine_p.h"
-void QTextEngine::shapeText( int item ) const
-{    assert( item < items.size() );
+void QTextEngine::shapeText(int item) const
+{    assert(item < items.size());
     QScriptItem &si = items[item];
 
     if (si.num_glyphs)
@@ -22,7 +22,7 @@ void QTextEngine::shapeText( int item ) const
 
     QFontEngine *font = fontEngine(si);
 
-    if ( !widthOnly ) {
+    if (!widthOnly) {
         si.ascent = font->ascent();
         si.descent = font->descent();
     }
@@ -58,7 +58,7 @@ void QTextEngine::shapeText( int item ) const
 
     si.width = 0;
     QGlyphLayout *end = g + si.num_glyphs;
-    while ( g < end )
+    while (g < end)
         si.width += (g++)->advance.x;
 
     return;

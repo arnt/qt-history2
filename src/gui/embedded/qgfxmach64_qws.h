@@ -24,10 +24,10 @@
 class QMachScreen : public QLinuxFbScreen
 {
 public:
-    QMachScreen( int display_id );
+    QMachScreen(int display_id);
     virtual ~QMachScreen();
 
-    virtual bool connect( const QString &spec );
+    virtual bool connect(const QString &spec);
     virtual bool initDevice();
     virtual int initCursor(void*, bool);
     virtual void shutdownDevice();

@@ -28,12 +28,12 @@ public:
     inline ~QPointArray() {}
     inline QPointArray(int size) : QVector<QPoint>(size) {}
     inline QPointArray(const QPointArray &a) : QVector<QPoint>(a) {}
-    QPointArray(const QRect &r, bool closed=FALSE);
+    QPointArray(const QRect &r, bool closed=false);
     QPointArray(int nPoints, const QCOORD *points);
 
 #ifdef QT_COMPAT
     inline QT_COMPAT QPointArray copy() const
-	{ return *this; }
+        { return *this; }
     inline QT_COMPAT bool isNull() { return isEmpty(); }
 #endif
 

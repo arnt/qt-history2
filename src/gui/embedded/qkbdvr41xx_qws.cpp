@@ -30,7 +30,7 @@ class QWSVr41xxKbPrivate : public QObject
 {
     Q_OBJECT
 public:
-    QWSVr41xxKbPrivate( QWSVr41xxKeyboardHandler *h, const QString& );
+    QWSVr41xxKbPrivate(QWSVr41xxKeyboardHandler *h, const QString&);
     virtual ~QWSVr41xxKbPrivate();
 
     bool isOpen() { return buttonFD > 0; }
@@ -50,7 +50,7 @@ private:
 
 QWSVr41xxKeyboardHandler::QWSVr41xxKeyboardHandler(const QString &device)
 {
-    d = new QWSVr41xxKbPrivate( this, device );
+    d = new QWSVr41xxKbPrivate(this, device);
 }
 
 QWSVr41xxKeyboardHandler::~QWSVr41xxKeyboardHandler()
@@ -58,7 +58,7 @@ QWSVr41xxKeyboardHandler::~QWSVr41xxKeyboardHandler()
     delete d;
 }
 
-QWSVr41xxKbPrivate::QWSVr41xxKbPrivate( QWSVr41xxKeyboardHandler *h, const QString &device ) : handler(h)
+QWSVr41xxKbPrivate::QWSVr41xxKbPrivate(QWSVr41xxKeyboardHandler *h, const QString &device) : handler(h)
 {
     terminalName = device.isEmpty()?"/dev/buttons":device.latin1();
     buttonFD = -1;
@@ -66,13 +66,13 @@ QWSVr41xxKbPrivate::QWSVr41xxKbPrivate( QWSVr41xxKeyboardHandler *h, const QStri
 
     if ((buttonFD = open(terminalName, O_RDWR | O_NDELAY, 0)) < 0)
     {
-	qWarning("Cannot open %s\n", terminalName.latin1());
+        qWarning("Cannot open %s\n", terminalName.latin1());
     }
 
-    if ( buttonFD >= 0 ) {
-	notifier = new QSocketNotifier( buttonFD, QSocketNotifier::Read, this );
-	connect( notifier, SIGNAL(activated(int)),this,
-		SLOT(readKeyboardData()) );
+    if (buttonFD >= 0) {
+        notifier = new QSocketNotifier(buttonFD, QSocketNotifier::Read, this);
+        connect(notifier, SIGNAL(activated(int)),this,
+                SLOT(readKeyboardData()));
     }
 
     kbdBufferLen = 80;
@@ -82,9 +82,9 @@ QWSVr41xxKbPrivate::QWSVr41xxKbPrivate( QWSVr41xxKeyboardHandler *h, const QStri
 
 QWSVr41xxKbPrivate::~QWSVr41xxKbPrivate()
 {
-    if ( buttonFD > 0 ) {
-	::close( buttonFD );
-	buttonFD = -1;
+    if (buttonFD > 0) {
+        ::close(buttonFD);
+        buttonFD = -1;
     }
     delete notifier;
     notifier = 0;
@@ -95,54 +95,54 @@ void QWSVr41xxKbPrivate::readKeyboardData()
 {
     int n = 0;
     do {
-	n  = read(buttonFD, kbdBuffer+kbdIdx, kbdBufferLen - kbdIdx );
-	if ( n > 0 )
-	    kbdIdx += n;
-    } while ( n > 0 );
+        n  = read(buttonFD, kbdBuffer+kbdIdx, kbdBufferLen - kbdIdx);
+        if (n > 0)
+            kbdIdx += n;
+    } while (n > 0);
 
     int idx = 0;
-    while ( kbdIdx - idx >= 2 ) {
-	unsigned char *next = kbdBuffer + idx;
-	unsigned short *code = (unsigned short *)next;
-	int keycode = Qt::Key_unknown;
-	switch ( (*code) & 0x0fff ) {
-	    case 0x7:
-		keycode = Qt::Key_Up;
-		break;
-	    case 0x9:
-		keycode = Qt::Key_Right;
-		break;
-	    case 0x8:
-		keycode = Qt::Key_Down;
-		break;
-	    case 0xa:
-		keycode = Qt::Key_Left;
-		break;
-	    case 0x3:
-		keycode = Qt::Key_Up;
-		break;
-	    case 0x4:
-		keycode = Qt::Key_Down;
-		break;
-	    case 0x1:
-		keycode = Qt::Key_Return;
-		break;
-	    case 0x2:
-		keycode = Qt::Key_F4;
-		break;
-	    default:
-		qDebug("Unrecognised key sequence %d", (int)code );
-	}
-	if ( (*code) & 0x8000 )
-	    handler->processKeyEvent( 0, keycode, 0, FALSE, FALSE );
-	else
-	    handler->processKeyEvent( 0, keycode, 0, TRUE, FALSE );
-	idx += 2;
+    while (kbdIdx - idx >= 2) {
+        unsigned char *next = kbdBuffer + idx;
+        unsigned short *code = (unsigned short *)next;
+        int keycode = Qt::Key_unknown;
+        switch ((*code) & 0x0fff) {
+            case 0x7:
+                keycode = Qt::Key_Up;
+                break;
+            case 0x9:
+                keycode = Qt::Key_Right;
+                break;
+            case 0x8:
+                keycode = Qt::Key_Down;
+                break;
+            case 0xa:
+                keycode = Qt::Key_Left;
+                break;
+            case 0x3:
+                keycode = Qt::Key_Up;
+                break;
+            case 0x4:
+                keycode = Qt::Key_Down;
+                break;
+            case 0x1:
+                keycode = Qt::Key_Return;
+                break;
+            case 0x2:
+                keycode = Qt::Key_F4;
+                break;
+            default:
+                qDebug("Unrecognised key sequence %d", (int)code);
+        }
+        if ((*code) & 0x8000)
+            handler->processKeyEvent(0, keycode, 0, false, false);
+        else
+            handler->processKeyEvent(0, keycode, 0, true, false);
+        idx += 2;
     }
 
     int surplus = kbdIdx - idx;
-    for ( int i = 0; i < surplus; i++ )
-	kbdBuffer[i] = kbdBuffer[idx+i];
+    for (int i = 0; i < surplus; i++)
+        kbdBuffer[i] = kbdBuffer[idx+i];
     kbdIdx = surplus;
 }
 

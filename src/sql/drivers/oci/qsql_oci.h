@@ -41,21 +41,21 @@ class QOCIResult : public QtSqlCachedResult
     friend class QOCIDriver;
     friend class QOCIPrivate;
 public:
-    QOCIResult( const QOCIDriver * db, QOCIPrivate* p );
+    QOCIResult(const QOCIDriver * db, QOCIPrivate* p);
     ~QOCIResult();
     OCIStmt* statement();
-    bool prepare( const QString& query );
+    bool prepare(const QString& query);
     bool exec();
 
 protected:
     bool gotoNext(ValueCache &values, int index);
-    bool reset ( const QString& query );
+    bool reset (const QString& query);
     int size();
     int numRowsAffected();
     QSqlRecord record() const;
 
 private:
-    QOCIPrivate*	d;
+    QOCIPrivate*        d;
     QOCIResultPrivate*  cols;
 };
 
@@ -65,29 +65,29 @@ class QOCI9Result : public QSqlResult
     friend class QOCIPrivate;
     friend class QOCIDriver;
 public:
-    QOCI9Result( const QOCIDriver * db, QOCIPrivate* p );
+    QOCI9Result(const QOCIDriver * db, QOCIPrivate* p);
     ~QOCI9Result();
     OCIStmt*    statement();
-    bool 	prepare( const QString& query );
-    bool 	exec();
+    bool         prepare(const QString& query);
+    bool         exec();
 
 protected:
-    bool	fetchNext();
-    bool	fetchPrev();
-    bool	fetchFirst();
-    bool	fetchLast();
-    bool	fetch(int i);
-    bool	reset ( const QString& query );
-    QCoreVariant	data( int field );
-    bool	isNull( int field );
+    bool        fetchNext();
+    bool        fetchPrev();
+    bool        fetchFirst();
+    bool        fetchLast();
+    bool        fetch(int i);
+    bool        reset (const QString& query);
+    QCoreVariant        data(int field);
+    bool        isNull(int field);
     int         size();
     int         numRowsAffected();
     QSqlRecord record() const;
 
 private:
-    QOCIPrivate*	d;
+    QOCIPrivate*        d;
     QOCIResultPrivate*  cols;
-    bool                cacheNext( int r );
+    bool                cacheNext(int r);
 };
 #endif //QOCI_USES_VERSION_9
 
@@ -97,30 +97,30 @@ public:
     QOCIDriver(QObject* parent = 0);
     QOCIDriver(OCIEnv* env, OCIError* err, OCISvcCtx* ctx, QObject* parent = 0);
     ~QOCIDriver();
-    bool		hasFeature( DriverFeature f ) const;
-    bool                open( const QString & db,
-			      const QString & user,
-			      const QString & password,
-			      const QString & host,
-			      int port,
-			      const QString& connOpts );
-    void	        close();
-    QSqlQuery	        createQuery() const;
-    QStringList         tables( const QString& user ) const;
-    QSqlRecord          record( const QString& tablename ) const;
-    QSqlIndex           primaryIndex( const QString& tablename ) const;
-    QString             formatValue( const QSqlField* field,
-				     bool trimStrings ) const;
+    bool                hasFeature(DriverFeature f) const;
+    bool                open(const QString & db,
+                              const QString & user,
+                              const QString & password,
+                              const QString & host,
+                              int port,
+                              const QString& connOpts);
+    void                close();
+    QSqlQuery                createQuery() const;
+    QStringList         tables(const QString& user) const;
+    QSqlRecord          record(const QString& tablename) const;
+    QSqlIndex           primaryIndex(const QString& tablename) const;
+    QString             formatValue(const QSqlField* field,
+                                     bool trimStrings) const;
     OCIEnv*             environment();
     OCISvcCtx*          serviceContext();
 
 protected:
-    bool	        beginTransaction();
-    bool	        commitTransaction();
-    bool	        rollbackTransaction();
+    bool                beginTransaction();
+    bool                commitTransaction();
+    bool                rollbackTransaction();
 private:
-    void	        init();
-    void	        cleanup();
+    void                init();
+    void                cleanup();
     QOCIPrivate*        d;
 };
 

@@ -60,7 +60,7 @@
     \value None - used internally.
     \value All - the entire region used by the window decoration.
     \value Title - Displays the window title and allows the window to be
-	    moved by dragging.
+            moved by dragging.
     \value Top - allows the top of the window to be resized.
     \value Bottom - allows the bottom of the window to be resized.
     \value Left - allows the left edge of the window to be resized.
@@ -74,11 +74,11 @@
     \value Maximize - clicking in this region maximizes the window.
     \value Normalize - returns a maximized window to its previous size.
     \value Menu - clicking in this region opens the window operations
-	    (system) menu.
+            (system) menu.
 */
 
 /*!
-    \fn QRegion QWSDecoration::region( const QWidget *widget, const QRect &rect, Region type )
+    \fn QRegion QWSDecoration::region(const QWidget *widget, const QRect &rect, Region type)
 
     Returns the requested region \a type which will contain \a widget
     with geometry \a rect.
@@ -91,9 +91,9 @@
 
     The default behaviour is to close the widget.
 */
-void QWSDecoration::close( QWidget *widget )
+void QWSDecoration::close(QWidget *widget)
 {
-    widget->close(FALSE);
+    widget->close(false);
 }
 
 
@@ -106,21 +106,21 @@ void QWSDecoration::close( QWidget *widget )
 class MinimisedWindow : public QWidget
 {
 public:
-    MinimisedWindow( QWidget *restore ) :
-	QWidget( (QWidget *)restore->parent(), restore->windowCaption(), WStyle_Customize | WStyle_NoBorder ),
-	w(restore)
+    MinimisedWindow(QWidget *restore) :
+        QWidget((QWidget *)restore->parent(), restore->windowCaption(), WStyle_Customize | WStyle_NoBorder),
+        w(restore)
     {
-	w->hide();
-	QPixmap p( "../pics/tux.png" );
-	setBackgroundPixmap( p );
-	setFixedSize( p.size() );
-	setMask( p.createHeuristicMask() );
-	show();
+        w->hide();
+        QPixmap p("../pics/tux.png");
+        setBackgroundPixmap(p);
+        setFixedSize(p.size());
+        setMask(p.createHeuristicMask());
+        show();
     }
 
-    void mouseDoubleClickEvent( QMouseEvent * ) { w->show(); delete this; }
-    void mousePressEvent( QMouseEvent *e ) { clickPos = e->pos(); }
-    void mouseMoveEvent( QMouseEvent *e ) { move( e->globalPos() - clickPos ); }
+    void mouseDoubleClickEvent(QMouseEvent *) { w->show(); delete this; }
+    void mousePressEvent(QMouseEvent *e) { clickPos = e->pos(); }
+    void mouseMoveEvent(QMouseEvent *e) { move(e->globalPos() - clickPos); }
 
     QWidget *w;
     QPoint clickPos;
@@ -136,9 +136,9 @@ public:
 
     The default behaviour is to ignore this action.
 */
-void QWSDecoration::minimize( QWidget * /* widget */ )
+void QWSDecoration::minimize(QWidget * /* widget */)
 {
-//      new MinimisedWindow( w );
+//      new MinimisedWindow(w);
 
     //    qDebug("No minimize functionality provided");
 }
@@ -153,7 +153,7 @@ void QWSDecoration::minimize( QWidget * /* widget */ )
     This method can be overridden e.g. to allow room for launch
     panels.
 */
-void QWSDecoration::maximize( QWidget *widget )
+void QWSDecoration::maximize(QWidget *widget)
 {
     QRect nr;
 
@@ -164,8 +164,8 @@ void QWSDecoration::maximize( QWidget *widget )
 /*
 #ifdef QPE_WM_LOOK_AND_FEEL
     if (wmStyle == QtEmbedded_WMStyle) {
-        QRect dummy( 0, 0, desk.width(), 1 );
-	QRegion r = region(widget, dummy, Title);
+        QRect dummy(0, 0, desk.width(), 1);
+        QRegion r = region(widget, dummy, Title);
         QRect rect = r.boundingRect();
         nr = QRect(desk.x(), desk.y()-rect.y(),
             desk.width(), desk.height() - rect.height());
@@ -173,16 +173,16 @@ void QWSDecoration::maximize( QWidget *widget )
 #endif
 */
     {
-        QRect dummy( 0, 0, 1, 1);
+        QRect dummy(0, 0, 1, 1);
         QRegion r = region(widget, dummy);
-	if (r.isEmpty()) {
-	    nr = desk;
-	} else {
-	    QRect rect = r.boundingRect();
-	    nr = QRect(desk.x()-rect.x(), desk.y()-rect.y(),
-		    desk.width() - (rect.width()==1 ? 0 : rect.width()), // ==1 -> dummy
-		    desk.height() - (rect.height()==1 ? 0 : rect.height()));
-	}
+        if (r.isEmpty()) {
+            nr = desk;
+        } else {
+            QRect rect = r.boundingRect();
+            nr = QRect(desk.x()-rect.x(), desk.y()-rect.y(),
+                    desk.width() - (rect.width()==1 ? 0 : rect.width()), // ==1 -> dummy
+                    desk.height() - (rect.height()==1 ? 0 : rect.height()));
+        }
     }
     widget->setGeometry(nr);
 }
@@ -198,27 +198,27 @@ QPopupMenu *QWSDecoration::menu(const QWidget *, const QPoint &)
 {
     QPopupMenu *m = new QPopupMenu();
 
-    m->insertItem( qApp->translate("QWSDecoration", "&Restore"), (int)Normalize );
-    m->insertItem( qApp->translate("QWSDecoration", "&Move"), (int)Title );
-    m->insertItem( qApp->translate("QWSDecoration", "&Size"), (int)BottomRight );
-    m->insertItem( qApp->translate("QWSDecoration", "Mi&nimize"), (int)Minimize );
-    m->insertItem( qApp->translate("QWSDecoration", "Ma&ximize"), (int)Maximize );
+    m->insertItem(qApp->translate("QWSDecoration", "&Restore"), (int)Normalize);
+    m->insertItem(qApp->translate("QWSDecoration", "&Move"), (int)Title);
+    m->insertItem(qApp->translate("QWSDecoration", "&Size"), (int)BottomRight);
+    m->insertItem(qApp->translate("QWSDecoration", "Mi&nimize"), (int)Minimize);
+    m->insertItem(qApp->translate("QWSDecoration", "Ma&ximize"), (int)Maximize);
     m->insertSeparator();
-    m->insertItem( qApp->translate("QWSDecoration", "Close"), (int)Close );
+    m->insertItem(qApp->translate("QWSDecoration", "Close"), (int)Close);
 
     return m;
 }
 #endif
 
 /*!
-    \fn void QWSDecoration::paint( QPainter *painter, const QWidget *widget )
+    \fn void QWSDecoration::paint(QPainter *painter, const QWidget *widget)
 
     Override to paint the border and title decoration around \a widget
     using \a painter.
 */
 
 /*!
-    \fn void QWSDecoration::paintButton( QPainter *painter, const QWidget *widget, Region type, int state )
+    \fn void QWSDecoration::paintButton(QPainter *painter, const QWidget *widget, Region type, int state)
 
     Override to paint a button of type \a type using \a painter.
 

@@ -15,42 +15,42 @@ public:
 
     QStringList names() const { return QStringList() << "eucJP" << "JIS7" << "SJIS" << "jisx0208.1983-0"; }
     QList<int> mibEnums() const { return QList<int>() << 16 << 17 << 18 << 63; }
-    QTextCodec *createForMib( int );
-    QTextCodec *createForName( const QString & );
+    QTextCodec *createForMib(int);
+    QTextCodec *createForName(const QString &);
 };
 
-QTextCodec *JPTextCodecs::createForMib( int mib )
+QTextCodec *JPTextCodecs::createForMib(int mib)
 {
     switch (mib) {
     case 16:
-	return new QJisCodec;
+        return new QJisCodec;
     case 17:
-	return new QSjisCodec;
+        return new QSjisCodec;
     case 18:
-	return new QEucJpCodec;
+        return new QEucJpCodec;
     case 63:
-	return new QFontJis0208Codec;
+        return new QFontJis0208Codec;
     default:
-	;
+        ;
     }
 
     return 0;
 }
 
 
-QTextCodec *JPTextCodecs::createForName( const QString &name )
+QTextCodec *JPTextCodecs::createForName(const QString &name)
 {
     if (name == "JIS7")
-	return new QJisCodec;
+        return new QJisCodec;
     if (name == "SJIS")
-	return new QSjisCodec;
+        return new QSjisCodec;
     if (name == "eucJP")
-	return new QEucJpCodec;
+        return new QEucJpCodec;
     if (name == "jisx0208.1983-0")
-	return new QFontJis0208Codec;
+        return new QFontJis0208Codec;
 
     return 0;
 }
 
 
-Q_EXPORT_PLUGIN( JPTextCodecs );
+Q_EXPORT_PLUGIN(JPTextCodecs);

@@ -20,7 +20,7 @@ class QOCIDriverPlugin : public QSqlDriverPlugin
 public:
     QOCIDriverPlugin();
 
-    QSqlDriver* create( const QString & );
+    QSqlDriver* create(const QString &);
     QStringList keys() const;
 };
 
@@ -29,11 +29,11 @@ QOCIDriverPlugin::QOCIDriverPlugin()
 {
 }
 
-QSqlDriver* QOCIDriverPlugin::create( const QString &name )
+QSqlDriver* QOCIDriverPlugin::create(const QString &name)
 {
-    if ( name == "QOCI8" ) {
-	QOCIDriver* driver = new QOCIDriver();
-	return driver;
+    if (name == "QOCI8") {
+        QOCIDriver* driver = new QOCIDriver();
+        return driver;
     }
     return 0;
 }
@@ -45,4 +45,4 @@ QStringList QOCIDriverPlugin::keys() const
     return l;
 }
 
-Q_EXPORT_PLUGIN( QOCIDriverPlugin )
+Q_EXPORT_PLUGIN(QOCIDriverPlugin)

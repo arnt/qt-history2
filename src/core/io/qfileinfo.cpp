@@ -52,7 +52,7 @@
     even by other parts of the same program, there is a function that
     refreshes the file information: refresh(). If you want to switch
     off a QFileInfo's caching and force it to access the file system
-    every time you request information from it call setCaching(FALSE).
+    every time you request information from it call setCaching(false).
 
     The file's type is obtained with isFile(), isDir() and
     isSymLink(). The readLink() function provides the name of the file
@@ -119,7 +119,7 @@ QFileInfo::QFileInfo()
     \sa setFile(), isRelative(), QDir::setCurrent(), QDir::isRelativePath()
 */
 
-QFileInfo::QFileInfo( const QString &file )
+QFileInfo::QFileInfo(const QString &file)
 {
     d = new QFileInfoPrivate(file);
     ++d->ref;
@@ -135,7 +135,7 @@ QFileInfo::QFileInfo( const QString &file )
     \sa isRelative()
 */
 
-QFileInfo::QFileInfo( const QFile &file )
+QFileInfo::QFileInfo(const QFile &file)
 {
     d = new QFileInfoPrivate(file.name());
     ++d->ref;
@@ -151,9 +151,9 @@ QFileInfo::QFileInfo( const QFile &file )
     \sa isRelative()
 */
 #ifndef QT_NO_DIR
-QFileInfo::QFileInfo( const QDir &dir, const QString &fileName )
+QFileInfo::QFileInfo(const QDir &dir, const QString &fileName)
 {
-    d = new QFileInfoPrivate(dir.filePath( fileName ));
+    d = new QFileInfoPrivate(dir.filePath(fileName));
     ++d->ref;
 }
 #endif
@@ -161,11 +161,11 @@ QFileInfo::QFileInfo( const QDir &dir, const QString &fileName )
     Constructs a new QFileInfo that is a copy of \a fi.
 */
 
-QFileInfo::QFileInfo( const QFileInfo &fi )
+QFileInfo::QFileInfo(const QFileInfo &fi)
     : d(fi.d)
 {
     if (d)
-	++d->ref;
+        ++d->ref;
 }
 
 /*!
@@ -175,7 +175,7 @@ QFileInfo::QFileInfo( const QFileInfo &fi )
 QFileInfo::~QFileInfo()
 {
     if (d && !--d->ref)
-	delete d;
+        delete d;
 }
 
 
@@ -183,14 +183,14 @@ QFileInfo::~QFileInfo()
     Makes a copy of \a fi and assigns it to this QFileInfo.
 */
 
-QFileInfo &QFileInfo::operator=( const QFileInfo &fi )
+QFileInfo &QFileInfo::operator=(const QFileInfo &fi)
 {
     QFileInfoPrivate *x = fi.d;
     if (x)
-	++x->ref;
+        ++x->ref;
     x = qAtomicSetPtr(&d, x);
     if (x && !--x->ref)
-	delete x;
+        delete x;
 
     return *this;
 }
@@ -210,13 +210,13 @@ QFileInfo &QFileInfo::operator=( const QFileInfo &fi )
     \code
     QString absolute = "/local/bin";
     QString relative = "local/bin";
-    QFileInfo absFile( absolute );
-    QFileInfo relFile( relative );
+    QFileInfo absFile(absolute);
+    QFileInfo relFile(relative);
 
-    QDir::setCurrent( QDir::rootDirPath() );
+    QDir::setCurrent(QDir::rootDirPath());
     // absFile and relFile now point to the same file
 
-    QDir::setCurrent( "/tmp" );
+    QDir::setCurrent("/tmp");
     // absFile now points to "/local/bin",
     // while relFile points to "/tmp/local/bin"
     \endcode
@@ -224,7 +224,7 @@ QFileInfo &QFileInfo::operator=( const QFileInfo &fi )
     \sa isRelative(), QDir::setCurrent(), QDir::isRelativePath()
 */
 
-void QFileInfo::setFile( const QString &file )
+void QFileInfo::setFile(const QString &file)
 {
     detach();
     d->setFileName(file);
@@ -242,7 +242,7 @@ void QFileInfo::setFile( const QString &file )
     \sa isRelative()
 */
 
-void QFileInfo::setFile( const QFile &file )
+void QFileInfo::setFile(const QFile &file)
 {
     detach();
     d->setFileName(file.name());
@@ -260,20 +260,20 @@ void QFileInfo::setFile( const QFile &file )
     \sa isRelative()
 */
 #ifndef QT_NO_DIR
-void QFileInfo::setFile( const QDir &dir, const QString &fileName )
+void QFileInfo::setFile(const QDir &dir, const QString &fileName)
 {
     detach();
-    d->setFileName(dir.filePath( fileName ));
+    d->setFileName(dir.filePath(fileName));
 }
 #endif
 
 /*!
-    Returns TRUE if the file exists; otherwise returns FALSE.
+    Returns true if the file exists; otherwise returns false.
 */
 
 bool QFileInfo::exists() const
 {
-    return QFileInfoPrivate::access( d->fileName(), F_OK );
+    return QFileInfoPrivate::access(d->fileName(), F_OK);
 }
 
 /*!
@@ -301,84 +301,84 @@ QString QFileInfo::filePath() const
 /*!
     Returns the base name of the file.
 
-    If \a complete is FALSE (the default) the base name consists of
+    If \a complete is false (the default) the base name consists of
     all characters in the file name up to (but not including) the \e
     first '.' character.
 
-    If \a complete is TRUE the base name consists of all characters in
+    If \a complete is true the base name consists of all characters in
     the file up to (but not including) the \e last '.' character.
 
     The path is not included in either case.
 
     Example:
     \code
-	QFileInfo fi( "/tmp/archive.tar.gz" );
-	QString base = fi.baseName();  // base = "archive"
-	base = fi.baseName( TRUE );    // base = "archive.tar"
+        QFileInfo fi("/tmp/archive.tar.gz");
+        QString base = fi.baseName();  // base = "archive"
+        base = fi.baseName(true);    // base = "archive.tar"
     \endcode
 
     \sa fileName(), extension()
 */
 
-QString QFileInfo::baseName( bool complete ) const
+QString QFileInfo::baseName(bool complete) const
 {
     QString tmp = fileName();
-    int pos = complete ? tmp.lastIndexOf( '.' ) : tmp.indexOf( '.' );
-    if ( pos == -1 )
-	return tmp;
+    int pos = complete ? tmp.lastIndexOf('.') : tmp.indexOf('.');
+    if (pos == -1)
+        return tmp;
     else
-	return tmp.left( pos );
+        return tmp.left(pos);
 }
 
 /*!
     Returns the file's extension name.
 
-    If \a complete is TRUE (the default), extension() returns the
+    If \a complete is true (the default), extension() returns the
     string of all characters in the file name after (but not
     including) the first '.'  character.
 
-    If \a complete is FALSE, extension() returns the string of all
+    If \a complete is false, extension() returns the string of all
     characters in the file name after (but not including) the last '.'
     character.
 
     Example:
     \code
-	QFileInfo fi( "/tmp/archive.tar.gz" );
-	QString ext = fi.extension();  // ext = "tar.gz"
-	ext = fi.extension( FALSE );   // ext = "gz"
+        QFileInfo fi("/tmp/archive.tar.gz");
+        QString ext = fi.extension();  // ext = "tar.gz"
+        ext = fi.extension(false);   // ext = "gz"
     \endcode
 
     \sa fileName(), baseName()
 */
 
-QString QFileInfo::extension( bool complete ) const
+QString QFileInfo::extension(bool complete) const
 {
     QString s = fileName();
-    int pos = complete ? s.indexOf( '.' ) : s.lastIndexOf( '.' );
-    if ( pos < 0 )
-	return QString::fromLatin1( "" );
+    int pos = complete ? s.indexOf('.') : s.lastIndexOf('.');
+    if (pos < 0)
+        return QString::fromLatin1("");
     else
-	return s.right( s.length() - pos - 1 );
+        return s.right(s.length() - pos - 1);
 }
 
 /*!
     Returns the file's path as a QDir object.
 
-    If the QFileInfo is relative and \a absPath is FALSE, the QDir
+    If the QFileInfo is relative and \a absPath is false, the QDir
     will be relative; otherwise it will be absolute.
 
     \sa dirPath(), filePath(), fileName(), isRelative()
 */
 #ifndef QT_NO_DIR
-QDir QFileInfo::dir( bool absPath ) const
+QDir QFileInfo::dir(bool absPath) const
 {
-    return QDir( dirPath(absPath) );
+    return QDir(dirPath(absPath));
 }
 #endif
 
 
 /*!
-    Returns TRUE if the user can write to the file; otherwise returns FALSE.
+    Returns true if the user can write to the file; otherwise returns false.
 
     \sa isWritable(), isExecutable(), permission()
 */
@@ -386,14 +386,14 @@ QDir QFileInfo::dir( bool absPath ) const
 bool QFileInfo::isReadable() const
 {
 #ifdef Q_WS_WIN
-    return QFileInfoPrivate::access( d->fileName(), R_OK ) && permission( ReadUser );
+    return QFileInfoPrivate::access(d->fileName(), R_OK) && permission(ReadUser);
 #else
-    return QFileInfoPrivate::access( d->fileName(), R_OK );
+    return QFileInfoPrivate::access(d->fileName(), R_OK);
 #endif
 }
 
 /*!
-    Returns TRUE if the file is writable; otherwise returns FALSE.
+    Returns true if the file is writable; otherwise returns false.
 
     \sa isReadable(), isExecutable(), permission()
 */
@@ -401,14 +401,14 @@ bool QFileInfo::isReadable() const
 bool QFileInfo::isWritable() const
 {
 #ifdef Q_WS_WIN
-    return QFileInfoPrivate::access( d->fileName(), W_OK ) && permission( WriteUser );
+    return QFileInfoPrivate::access(d->fileName(), W_OK) && permission(WriteUser);
 #else
-    return QFileInfoPrivate::access( d->fileName(), W_OK );
+    return QFileInfoPrivate::access(d->fileName(), W_OK);
 #endif
 }
 
 /*!
-    Returns TRUE if the file is executable; otherwise returns FALSE.
+    Returns true if the file is executable; otherwise returns false.
 
     \sa isReadable(), isWritable(), permission()
 */
@@ -416,28 +416,28 @@ bool QFileInfo::isWritable() const
 bool QFileInfo::isExecutable() const
 {
 #ifdef Q_WS_WIN
-    return QFileInfoPrivate::access( d->fileName(), X_OK ) && permission( ExeUser );
+    return QFileInfoPrivate::access(d->fileName(), X_OK) && permission(ExeUser);
 #else
-    return QFileInfoPrivate::access( d->fileName(), X_OK );
+    return QFileInfoPrivate::access(d->fileName(), X_OK);
 #endif
 }
 
 #ifndef Q_WS_WIN
 bool QFileInfo::isHidden() const
 {
-    return d->fileName()[ 0 ] == QChar( '.' );
+    return d->fileName()[0] == QChar('.');
 }
 #endif
 
 #ifndef QT_NO_DIR
 /*!
-    Returns TRUE if the file path name is relative. Returns FALSE if
+    Returns true if the file path name is relative. Returns false if
     the path is absolute (e.g. under Unix a path is absolute if it
     begins with a "/").
 */
 bool QFileInfo::isRelative() const
 {
-    return QDir::isRelativePath( d->fileName() );
+    return QDir::isRelativePath(d->fileName());
 }
 
 /*!
@@ -450,8 +450,8 @@ bool QFileInfo::isRelative() const
 
 bool QFileInfo::convertToAbs()
 {
-    if ( isRelative() )
-	d->setFileName(absFilePath());
+    if (isRelative())
+        d->setFileName(absFilePath());
     return QDir::isRelativePath(d->fileName());
 }
 #endif
@@ -462,12 +462,12 @@ bool QFileInfo::convertToAbs()
 */
 QIODevice::Offset QFileInfo::size() const
 {
-    if ( !d->cache )
-	d->doStat();
-    if ( d->could_stat )
-	return (QIODevice::Offset)d->st.st_size;
+    if (!d->cache)
+        d->doStat();
+    if (d->could_stat)
+        return (QIODevice::Offset)d->st.st_size;
     else
-	return 0;
+        return 0;
 }
 
 /*!
@@ -481,14 +481,14 @@ QIODevice::Offset QFileInfo::size() const
 
 QDateTime QFileInfo::created() const
 {
-    if ( !d->cache )
-	d->doStat();
-    if ( d->could_stat && d->st.st_ctime != 0 ) {
-	QDateTime dt;
-	dt.setTime_t( d->st.st_ctime );
-	return dt;
+    if (!d->cache)
+        d->doStat();
+    if (d->could_stat && d->st.st_ctime != 0) {
+        QDateTime dt;
+        dt.setTime_t(d->st.st_ctime);
+        return dt;
     } else {
-	return lastModified();
+        return lastModified();
     }
 }
 
@@ -501,10 +501,10 @@ QDateTime QFileInfo::created() const
 QDateTime QFileInfo::lastModified() const
 {
     QDateTime dt;
-    if ( !d->cache )
-	d->doStat();
-    if ( d->could_stat )
-	dt.setTime_t( d->st.st_mtime );
+    if (!d->cache)
+        d->doStat();
+    if (d->could_stat)
+        dt.setTime_t(d->st.st_mtime);
     return dt;
 }
 
@@ -519,14 +519,14 @@ QDateTime QFileInfo::lastModified() const
 
 QDateTime QFileInfo::lastRead() const
 {
-    if ( !d->cache )
-	d->doStat();
-    if ( d->could_stat && d->st.st_atime != 0 ) {
-	QDateTime dt;
-	dt.setTime_t( d->st.st_atime );
-	return dt;
+    if (!d->cache)
+        d->doStat();
+    if (d->could_stat && d->st.st_atime != 0) {
+        QDateTime dt;
+        dt.setTime_t(d->st.st_atime);
+        return dt;
     } else {
-	return lastModified();
+        return lastModified();
     }
 }
 
@@ -542,7 +542,7 @@ QDateTime QFileInfo::lastRead() const
     drive letter, in which case the path will begin '//sharename/'.
 
     This function returns the same as filePath(), unless isRelative()
-    is TRUE.
+    is true.
 
     If the QFileInfo is empty it returns QDir::currentDirPath().
 
@@ -554,17 +554,17 @@ QDateTime QFileInfo::lastRead() const
 QString QFileInfo::absFilePath() const
 {
     QString tmp;
-    if ( QDir::isRelativePath(d->fileName())
+    if (QDir::isRelativePath(d->fileName())
 #if defined(Q_OS_WIN32)
-	 && d->fileName().at(1) != ':'
+         && d->fileName().at(1) != ':'
 #endif
-	 ) {
-	tmp = QDir::currentDirPath();
-	tmp += '/';
+        ) {
+        tmp = QDir::currentDirPath();
+        tmp += '/';
     }
     tmp += d->fileName();
-    d->makeAbs( tmp );
-    return QDir::cleanDirPath( tmp );
+    d->makeAbs(tmp);
+    return QDir::cleanDirPath(tmp);
 }
 
 /*! \internal
@@ -572,22 +572,22 @@ QString QFileInfo::absFilePath() const
 */
 void QFileInfo::detach()
 {
-    if ( d ) {
-	QFileInfoPrivate *x = new QFileInfoPrivate(d->fileName());
-	x->st = d->st;
-	x->cache = d->cache;
-	x->could_stat = d->could_stat;
+    if (d) {
+        QFileInfoPrivate *x = new QFileInfoPrivate(d->fileName());
+        x->st = d->st;
+        x->cache = d->cache;
+        x->could_stat = d->could_stat;
 #if defined(Q_OS_UNIX)
-	x->symLink = d->symLink;
+        x->symLink = d->symLink;
 #endif
 
-	++x->ref;
-	x = qAtomicSetPtr(&d, x);
-	if (!--x->ref)
-	    delete x;
+        ++x->ref;
+        x = qAtomicSetPtr(&d, x);
+        if (!--x->ref)
+            delete x;
     } else {
-	d = new QFileInfoPrivate();
-	++d->ref;
+        d = new QFileInfoPrivate();
+        ++d->ref;
     }
 }
 

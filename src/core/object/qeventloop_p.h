@@ -89,14 +89,14 @@ struct QSockNot {
     int fd;
 };
 
-struct TimerInfo {				// internal timer info
-    uint     ind;				// - Qt timer identifier - 1
-    uint     id;				// - Windows timer identifier
-    bool     zero;				// - zero timing
-    QObject *obj;				// - object to receive events
+struct TimerInfo {                                // internal timer info
+    uint     ind;                                // - Qt timer identifier - 1
+    uint     id;                                // - Windows timer identifier
+    bool     zero;                                // - zero timing
+    QObject *obj;                                // - object to receive events
 };
-typedef QList<TimerInfo*>  TimerVec;		// vector of TimerInfo structs
-typedef QHash<int,TimerInfo*> TimerDict;		// fast dict of timers
+typedef QList<TimerInfo*>  TimerVec;                // vector of TimerInfo structs
+typedef QHash<int,TimerInfo*> TimerDict;                // fast dict of timers
 
 #endif // Q_WS_WIN
 
@@ -107,11 +107,11 @@ public:
     QEventLoopPrivate();
 
     inline void reset() {
-	looplevel = 0;
-	quitcode = 0;
-	quitnow = FALSE;
-	exitloop = FALSE;
-	shortcut = FALSE;
+        looplevel = 0;
+        quitcode = 0;
+        quitnow = false;
+        exitloop = false;
+        shortcut = false;
     }
 
     int looplevel;

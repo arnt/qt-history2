@@ -83,18 +83,18 @@ typedef struct _ABC {
 } ABC;
 #endif
 
-typedef HRESULT (WINAPI *fScriptFreeCache)( SCRIPT_CACHE *);
-typedef HRESULT (WINAPI *fScriptItemize)( const WCHAR *, int, int, const SCRIPT_CONTROL *,
-					  const SCRIPT_STATE *, SCRIPT_ITEM *, int *);
-typedef HRESULT (WINAPI *fScriptShape)( HDC hdc, SCRIPT_CACHE *, const WCHAR *, int, int,
-				        QScriptAnalysis *, WORD *, WORD *, SCRIPT_VISATTR *, int *);
-typedef HRESULT (WINAPI *fScriptPlace)( HDC, SCRIPT_CACHE *, const WORD *, int, const SCRIPT_VISATTR *, QScriptAnalysis *, int *,
-					GOFFSET *, ABC * );
-typedef HRESULT (WINAPI *fScriptTextOut)( const HDC, SCRIPT_CACHE *, int, int, UINT, const RECT *, const QScriptAnalysis *,
-					 const WCHAR *, int, const WORD *, int, const int *, const int *, const GOFFSET *);
-typedef HRESULT (WINAPI *fScriptBreak)( const WCHAR *, int, const QScriptAnalysis *, QCharAttributes * );
-//typedef HRESULT (WINAPI *fScriptGetFontProperties)( HDC, SCRIPT_CACHE *, SCRIPT_FONTPROPERTIES * );
-typedef HRESULT (WINAPI *fScriptGetProperties)( const SCRIPT_PROPERTIES ***, int *);
+typedef HRESULT (WINAPI *fScriptFreeCache)(SCRIPT_CACHE *);
+typedef HRESULT (WINAPI *fScriptItemize)(const WCHAR *, int, int, const SCRIPT_CONTROL *,
+                                          const SCRIPT_STATE *, SCRIPT_ITEM *, int *);
+typedef HRESULT (WINAPI *fScriptShape)(HDC hdc, SCRIPT_CACHE *, const WCHAR *, int, int,
+                                        QScriptAnalysis *, WORD *, WORD *, SCRIPT_VISATTR *, int *);
+typedef HRESULT (WINAPI *fScriptPlace)(HDC, SCRIPT_CACHE *, const WORD *, int, const SCRIPT_VISATTR *, QScriptAnalysis *, int *,
+                                        GOFFSET *, ABC *);
+typedef HRESULT (WINAPI *fScriptTextOut)(const HDC, SCRIPT_CACHE *, int, int, UINT, const RECT *, const QScriptAnalysis *,
+                                         const WCHAR *, int, const WORD *, int, const int *, const int *, const GOFFSET *);
+typedef HRESULT (WINAPI *fScriptBreak)(const WCHAR *, int, const QScriptAnalysis *, QCharAttributes *);
+//typedef HRESULT (WINAPI *fScriptGetFontProperties)(HDC, SCRIPT_CACHE *, SCRIPT_FONTPROPERTIES *);
+typedef HRESULT (WINAPI *fScriptGetProperties)(const SCRIPT_PROPERTIES ***, int *);
 
 fScriptFreeCache ScriptFreeCache = 0;
 static fScriptItemize ScriptItemize = 0;
@@ -105,8 +105,8 @@ static fScriptBreak ScriptBreak = 0;
 //static fScriptGetFontProperties ScriptGetFontProperties = 0;
 static fScriptGetProperties ScriptGetProperties = 0;
 
-static bool resolvedUsp10 = FALSE;
-bool hasUsp10 = FALSE;
+static bool resolvedUsp10 = false;
+bool hasUsp10 = false;
 
 const SCRIPT_PROPERTIES **script_properties = 0;
 int num_scripts = 0;
@@ -152,78 +152,78 @@ static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiContr
 static void resolveUsp10()
 {
 #ifndef QT_NO_COMPONENT
-    if ( !resolvedUsp10 ) {
-	// need to resolve the security info functions
+    if (!resolvedUsp10) {
+        // need to resolve the security info functions
 
 #ifdef QT_THREAD_SUPPORT
-	// protect initialization
-	QMutexLocker locker( qt_global_mutexpool ?
-			     qt_global_mutexpool->get( (void*)&resolveUsp10 ) : 0 );
-	// check triedResolve again, since another thread may have already
-	// done the initialization
-	if ( resolvedUsp10 ) {
-	    // another thread did initialize the security function pointers,
-	    // so we shouldn't do it again.
-	    return;
-	}
+        // protect initialization
+        QMutexLocker locker(qt_global_mutexpool ?
+                             qt_global_mutexpool->get((void*)&resolveUsp10) : 0);
+        // check triedResolve again, since another thread may have already
+        // done the initialization
+        if (resolvedUsp10) {
+            // another thread did initialize the security function pointers,
+            // so we shouldn't do it again.
+            return;
+        }
 #endif
 
-	resolvedUsp10 = TRUE;
-	QLibrary lib("usp10");
-	lib.setAutoUnload( FALSE );
+        resolvedUsp10 = true;
+        QLibrary lib("usp10");
+        lib.setAutoUnload(false);
 
-	// ##########################
-	hasUsp10 = false;
-	return;
+        // ##########################
+        hasUsp10 = false;
+        return;
 
-	ScriptFreeCache = (fScriptFreeCache) lib.resolve( "ScriptFreeCache" );
-	ScriptItemize = (fScriptItemize) lib.resolve( "ScriptItemize" );
-	ScriptShape = (fScriptShape) lib.resolve( "ScriptShape" );
-	ScriptPlace = (fScriptPlace) lib.resolve( "ScriptPlace" );
-	ScriptTextOut = (fScriptTextOut) lib.resolve( "ScriptTextOut" );
-	ScriptBreak = (fScriptBreak) lib.resolve( "ScriptBreak" );
-	ScriptGetProperties = (fScriptGetProperties) lib.resolve( "ScriptGetProperties" );
+        ScriptFreeCache = (fScriptFreeCache) lib.resolve("ScriptFreeCache");
+        ScriptItemize = (fScriptItemize) lib.resolve("ScriptItemize");
+        ScriptShape = (fScriptShape) lib.resolve("ScriptShape");
+        ScriptPlace = (fScriptPlace) lib.resolve("ScriptPlace");
+        ScriptTextOut = (fScriptTextOut) lib.resolve("ScriptTextOut");
+        ScriptBreak = (fScriptBreak) lib.resolve("ScriptBreak");
+        ScriptGetProperties = (fScriptGetProperties) lib.resolve("ScriptGetProperties");
 
-	if ( !ScriptFreeCache )
-	    return;
+        if (!ScriptFreeCache)
+            return;
 
-	hasUsp10 = TRUE;
-	ScriptGetProperties( &script_properties, &num_scripts );
+        hasUsp10 = true;
+        ScriptGetProperties(&script_properties, &num_scripts);
 
-	// get the usp script for western
-	for( int i = 0; i < num_scripts; i++ ) {
-	    if (script_properties[i]->langid == LANG_ENGLISH &&
-		!script_properties[i]->fAmbiguousCharSet ) {
-		usp_latin_script = i;
-		break;
-	    }
-	}
+        // get the usp script for western
+        for(int i = 0; i < num_scripts; i++) {
+            if (script_properties[i]->langid == LANG_ENGLISH &&
+                !script_properties[i]->fAmbiguousCharSet) {
+                usp_latin_script = i;
+                break;
+            }
+        }
 
-	// initialize tryScripts according to locale
-	LANGID lid = GetUserDefaultLangID();
-	switch( lid&0xff ) {
-	case LANG_CHINESE: // Chinese (Taiwan)
-	    if ( lid == 0x0804 ) // Taiwan
-		tryScripts = traditionalChinese_tryScripts;
-	    else
-	    	tryScripts = simplifiedChinese_tryScripts;
-	    break;
-	case LANG_JAPANESE:
-	    // japanese is already the default
-	    break;
-	case LANG_KOREAN:
-		tryScripts = korean_tryScripts;
-		break;
-	default:
-	    break;
-	}
+        // initialize tryScripts according to locale
+        LANGID lid = GetUserDefaultLangID();
+        switch(lid&0xff) {
+        case LANG_CHINESE: // Chinese (Taiwan)
+            if (lid == 0x0804) // Taiwan
+                tryScripts = traditionalChinese_tryScripts;
+            else
+                tryScripts = simplifiedChinese_tryScripts;
+            break;
+        case LANG_JAPANESE:
+            // japanese is already the default
+            break;
+        case LANG_KOREAN:
+                tryScripts = korean_tryScripts;
+                break;
+        default:
+            break;
+        }
 
-	appendItems = uspAppendItems;
+        appendItems = uspAppendItems;
     }
 #endif
 }
 
-static unsigned char script_for_win_language[ 0x80 ] = {
+static unsigned char script_for_win_language[0x80] = {
     //0x00 LANG_NEUTRAL Neutral
     QFont::Latin,
     //0x01 LANG_ARABIC Arabic
@@ -438,15 +438,15 @@ static unsigned char script_for_win_language[ 0x80 ] = {
     QFont::NScripts,
 };
 
-static inline QFont::Script scriptForWinLanguage( DWORD langid )
+static inline QFont::Script scriptForWinLanguage(DWORD langid)
 {
     QFont::Script script = (QFont::Script)script_for_win_language[langid];
-    if ( script == QFont::NScripts )
-	qWarning( "Qt Uniscribe support: Encountered unhandled language id %x", (unsigned int)langid );
+    if (script == QFont::NScripts)
+        qWarning("Qt Uniscribe support: Encountered unhandled language id %x", (unsigned int)langid);
     return script;
 }
 
-static inline bool isAsian( unsigned short ch )
+static inline bool isAsian(unsigned short ch)
 {
     return (ch > 0x2dff && ch < 0xfb00) || ((ch & 0xff00) == 0x1100);
 }
@@ -461,99 +461,99 @@ static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiContr
     QScriptItemArray &items = engine->items;
     const QChar *text = engine->string.unicode();
 
-    if ( start > stop ) {
-	// #### the algorithm is currently not really safe against this. Still needs fixing.
-// 	qWarning( "Bidi: appendItems() internal error" );
-	return;
+    if (start > stop) {
+        // #### the algorithm is currently not really safe against this. Still needs fixing.
+//         qWarning("Bidi: appendItems() internal error");
+        return;
     }
 
     int level = control.level;
 
     if(dir != QChar::DirON) {
-	// add level of run (cases I1 & I2)
-	if( level % 2 ) {
-	    if(dir == QChar::DirL || dir == QChar::DirAN || dir == QChar::DirEN )
-		level++;
-	} else {
-	    if( dir == QChar::DirR )
-		level++;
-	    else if( dir == QChar::DirAN || dir == QChar::DirEN )
-		level += 2;
-	}
+        // add level of run (cases I1 & I2)
+        if(level % 2) {
+            if(dir == QChar::DirL || dir == QChar::DirAN || dir == QChar::DirEN)
+                level++;
+        } else {
+            if(dir == QChar::DirR)
+                level++;
+            else if(dir == QChar::DirAN || dir == QChar::DirEN)
+                level += 2;
+        }
     }
 
     SCRIPT_ITEM s_items[256];
     SCRIPT_ITEM *usp_items = s_items;
 
     int numItems;
-    HRESULT res = ScriptItemize( (WCHAR *)(text+start), stop-start+1, 255, 0, 0, usp_items, &numItems );
+    HRESULT res = ScriptItemize((WCHAR *)(text+start), stop-start+1, 255, 0, 0, usp_items, &numItems);
 
-    if ( res == E_OUTOFMEMORY ) {
-	int alloc = 256;
-	usp_items = 0;
-	while( res == E_OUTOFMEMORY ) {
-	    alloc *= 2;
-	    usp_items = (SCRIPT_ITEM *)realloc( usp_items, alloc * sizeof( SCRIPT_ITEM ) );
-	    res = ScriptItemize( (WCHAR *)(text+start), stop-start+1, alloc-1, 0, 0, usp_items, &numItems );
-	}
+    if (res == E_OUTOFMEMORY) {
+        int alloc = 256;
+        usp_items = 0;
+        while(res == E_OUTOFMEMORY) {
+            alloc *= 2;
+            usp_items = (SCRIPT_ITEM *)realloc(usp_items, alloc * sizeof(SCRIPT_ITEM));
+            res = ScriptItemize((WCHAR *)(text+start), stop-start+1, alloc-1, 0, 0, usp_items, &numItems);
+        }
     }
-    items.resize( items.size() + numItems );
+    items.resize(items.size() + numItems);
     int i;
-    if ( control.singleLine ) {
-	for( i = 0; i < numItems; i++ ) {
-	    QScriptItem item;
-	    item.analysis = usp_items[i].a;
-	    item.position = usp_items[i].iCharPos+start;
-	    item.analysis.bidiLevel = level;
-	    item.analysis.override = control.override;
-	    item.analysis.reserved = 0;
-	    items.append( item );
-	}
+    if (control.singleLine) {
+        for(i = 0; i < numItems; i++) {
+            QScriptItem item;
+            item.analysis = usp_items[i].a;
+            item.position = usp_items[i].iCharPos+start;
+            item.analysis.bidiLevel = level;
+            item.analysis.override = control.override;
+            item.analysis.reserved = 0;
+            items.append(item);
+        }
     } else {
-	for( i = 0; i < numItems; i++ ) {
-	    QScriptItem item;
-	    item.analysis = usp_items[i].a;
-	    item.position = usp_items[i].iCharPos+start;
-	    item.analysis.bidiLevel = level;
-	    item.analysis.override = control.override;
+        for(i = 0; i < numItems; i++) {
+            QScriptItem item;
+            item.analysis = usp_items[i].a;
+            item.position = usp_items[i].iCharPos+start;
+            item.analysis.bidiLevel = level;
+            item.analysis.override = control.override;
 
-	    int rstart = usp_items[i].iCharPos;
-	    int rstop = usp_items[i+1].iCharPos-1;
-	    bool b = TRUE;
-	    for ( int j = rstart; j <= rstop; j++ ) {
+            int rstart = usp_items[i].iCharPos;
+            int rstop = usp_items[i+1].iCharPos-1;
+            bool b = true;
+            for (int j = rstart; j <= rstop; j++) {
 
-		unsigned short uc = text[j+start].unicode();
-		QChar::Category category = ::category( uc );
-		if ( uc == 0xfffcU || uc == 0x2028U ) {
-		    item.analysis.script = usp_latin_script;
-		    item.isObject = TRUE;
-		    b = TRUE;
-		} else if ((uc >= 9 && uc <=13) ||
-			   (category >= QChar::Separator_Space && category <= QChar::Separator_Paragraph)) {
-		    item.analysis.script = usp_latin_script;
-		    item.isSpace = TRUE;
-		    item.isTab = (uc == '\t');
-		    if (item.isTab)
-			item.analysis.bidiLevel = control.baseLevel();
-		    b = TRUE;
-		} else if (b) {
-		    b = FALSE;
-		} else {
-		    continue;
-		}
+                unsigned short uc = text[j+start].unicode();
+                QChar::Category category = ::category(uc);
+                if (uc == 0xfffcU || uc == 0x2028U) {
+                    item.analysis.script = usp_latin_script;
+                    item.isObject = true;
+                    b = true;
+                } else if ((uc >= 9 && uc <=13) ||
+                           (category >= QChar::Separator_Space && category <= QChar::Separator_Paragraph)) {
+                    item.analysis.script = usp_latin_script;
+                    item.isSpace = true;
+                    item.isTab = (uc == '\t');
+                    if (item.isTab)
+                        item.analysis.bidiLevel = control.baseLevel();
+                    b = true;
+                } else if (b) {
+                    b = false;
+                } else {
+                    continue;
+                }
 
-		item.position = j+start;
-		items.append( item );
-		item.analysis = usp_items[i].a;
-		item.analysis.bidiLevel = level;
-		item.analysis.override = control.override;
-		item.isSpace = item.isTab = item.isObject = FALSE;
-	    }
-	}
+                item.position = j+start;
+                items.append(item);
+                item.analysis = usp_items[i].a;
+                item.analysis.bidiLevel = level;
+                item.analysis.override = control.override;
+                item.isSpace = item.isTab = item.isObject = false;
+            }
+        }
     }
 
-    if ( usp_items != s_items )
-	free( usp_items );
+    if (usp_items != s_items)
+        free(usp_items);
 
     ++stop;
     start = stop;
@@ -568,145 +568,145 @@ static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiContr
 // -----------------------------------------------------------------------------------------------------
 
 
-void QTextEngine::shapeText( int item ) const
+void QTextEngine::shapeText(int item) const
 {
     QScriptItem &si = items[item];
 
-    if ( si.num_glyphs )
-	return;
+    if (si.num_glyphs)
+        return;
 
     QFont::Script script = (QFont::Script)si.analysis.script;
     int from = si.position;
-    int len = length( item );
+    int len = length(item);
 
-    Q_ASSERT( len > 0 );
+    Q_ASSERT(len > 0);
 
     si.glyph_data_offset = used;
 
 #if 0
-    if ( !si.font() ) {
-	if ( hasUsp10 ) {
-	    const SCRIPT_PROPERTIES *script_prop = script_properties[si.analysis.script];
-	    script = scriptForWinLanguage( script_prop->langid );
-	    if ( script == QFont::Latin && script_prop->fAmbiguousCharSet ) {
-		// either some asian language or something Uniscribe doesn't recognise
-		// we look at the first character to find out what it is
-		script = (QFont::Script)scriptForChar( string.unicode()[si.position].unicode() );
-		if ((script >= QFont::Han && script <= QFont::Yi)
-		    || script == QFont::KatakanaHalfWidth || script == QFont::UnknownScript) {
-		    // maybe some asian language
-		    int i;
-		    for( i = 0; i < 5; i++ ) {
-			QFontEngine *fe = fnt->engineForScript( tryScripts[i] );
-			if ( fe->type() == QFontEngine::Box )
-			    continue;
+    if (!si.font()) {
+        if (hasUsp10) {
+            const SCRIPT_PROPERTIES *script_prop = script_properties[si.analysis.script];
+            script = scriptForWinLanguage(script_prop->langid);
+            if (script == QFont::Latin && script_prop->fAmbiguousCharSet) {
+                // either some asian language or something Uniscribe doesn't recognise
+                // we look at the first character to find out what it is
+                script = (QFont::Script)scriptForChar(string.unicode()[si.position].unicode());
+                if ((script >= QFont::Han && script <= QFont::Yi)
+                    || script == QFont::KatakanaHalfWidth || script == QFont::UnknownScript) {
+                    // maybe some asian language
+                    int i;
+                    for(i = 0; i < 5; i++) {
+                        QFontEngine *fe = fnt->engineForScript(tryScripts[i]);
+                        if (fe->type() == QFontEngine::Box)
+                            continue;
 
-			if ( fe->canRender( string.unicode()+from, len ) ) {
-			    script = tryScripts[i];
-    			    break;
-			}
-		    }
-		}
-	    }
-	}
-	QFontEngine *fe = fnt->engineForScript( script );
-	if ( fe->type() == QFontEngine::Box )
-	    fe = fnt->engineForScript( QFont::NoScript );
-	si.setFont(fe);
+                        if (fe->canRender(string.unicode()+from, len)) {
+                            script = tryScripts[i];
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        QFontEngine *fe = fnt->engineForScript(script);
+        if (fe->type() == QFontEngine::Box)
+            fe = fnt->engineForScript(QFont::NoScript);
+        si.setFont(fe);
     }
 #endif
 
 #if 0
-    if ( hasUsp10 && si.fontEngine->ttf ) {
-	int l = len;
-	si.analysis.logicalOrder = TRUE;
-	HRESULT res = E_OUTOFMEMORY;
-	HDC hdc = 0;
+    if (hasUsp10 && si.fontEngine->ttf) {
+        int l = len;
+        si.analysis.logicalOrder = true;
+        HRESULT res = E_OUTOFMEMORY;
+        HDC hdc = 0;
 
-	do {
-	    ensureSpace( l );
+        do {
+            ensureSpace(l);
 
-	    res = ScriptShape( hdc, &si.font()->script_cache, (WCHAR *)string.unicode() + from, len,
-			       l, &si.analysis, glyphs( &si ), logClusters( &si ), glyphAttributes( &si ),
-			       &si.num_glyphs );
-	    if ( res == E_PENDING ) {
-		hdc = si.font()->dc();
-		SelectObject( hdc, si.font()->hfont );
-	    } else if ( res == USP_E_SCRIPT_NOT_IN_FONT ) {
-		si.analysis.script = 0;
-		hdc = 0;
-	    } else if (res == E_OUTOFMEMORY) {
-		l += 32;
-	    } else if ( res != S_OK ) {
-		Q_ASSERT( FALSE );
-	    }
-	} while( res != S_OK );
+            res = ScriptShape(hdc, &si.font()->script_cache, (WCHAR *)string.unicode() + from, len,
+                               l, &si.analysis, glyphs(&si), logClusters(&si), glyphAttributes(&si),
+                               &si.num_glyphs);
+            if (res == E_PENDING) {
+                hdc = si.font()->dc();
+                SelectObject(hdc, si.font()->hfont);
+            } else if (res == USP_E_SCRIPT_NOT_IN_FONT) {
+                si.analysis.script = 0;
+                hdc = 0;
+            } else if (res == E_OUTOFMEMORY) {
+                l += 32;
+            } else if (res != S_OK) {
+                Q_ASSERT(false);
+            }
+        } while(res != S_OK);
 
 
-	ABC abc;
-	res = ScriptPlace( hdc, &si.font()->script_cache, glyphs( &si ), si.num_glyphs,
-		           glyphAttributes( &si ), &si.analysis, advances( &si ), offsets( &si ), &abc );
-	if ( res == E_PENDING ) {
-	    hdc = si.font()->dc();
-	    SelectObject( hdc, si.font()->hfont );
-	    ScriptPlace( hdc, &si.font()->script_cache, glyphs( &si ), si.num_glyphs,
-		         glyphAttributes( &si ), &si.analysis, advances( &si ), offsets( &si ), &abc );
-	}
-	si.width = abc.abcA + abc.abcB + abc.abcC;
+        ABC abc;
+        res = ScriptPlace(hdc, &si.font()->script_cache, glyphs(&si), si.num_glyphs,
+                           glyphAttributes(&si), &si.analysis, advances(&si), offsets(&si), &abc);
+        if (res == E_PENDING) {
+            hdc = si.font()->dc();
+            SelectObject(hdc, si.font()->hfont);
+            ScriptPlace(hdc, &si.font()->script_cache, glyphs(&si), si.num_glyphs,
+                         glyphAttributes(&si), &si.analysis, advances(&si), offsets(&si), &abc);
+        }
+        si.width = abc.abcA + abc.abcB + abc.abcC;
     } else
 #endif
     {
-	Q_ASSERT( script < QFont::NScripts );
+        Q_ASSERT(script < QFont::NScripts);
 
-	QFontEngine *font = fontEngine(si);
+        QFontEngine *font = fontEngine(si);
 
-	QShaperItem shaper_item;
-	shaper_item.script = si.analysis.script;
-	shaper_item.string = &string;
-	shaper_item.from = si.position;
-	shaper_item.length = length(item);
-	shaper_item.font = font;
-	shaper_item.num_glyphs = qMax(num_glyphs - used, shaper_item.length);
-	// ### DesignMetrics
-	shaper_item.flags = si.analysis.bidiLevel % 2 ? RightToLeft : 0;
+        QShaperItem shaper_item;
+        shaper_item.script = si.analysis.script;
+        shaper_item.string = &string;
+        shaper_item.from = si.position;
+        shaper_item.length = length(item);
+        shaper_item.font = font;
+        shaper_item.num_glyphs = qMax(num_glyphs - used, shaper_item.length);
+        // ### DesignMetrics
+        shaper_item.flags = si.analysis.bidiLevel % 2 ? RightToLeft : 0;
 
     //     qDebug("shaping");
-	while (1) {
-    // 	qDebug("    . num_glyphs=%d, used=%d, item.num_glyphs=%d", num_glyphs, used, shaper_item.num_glyphs);
-	    ensureSpace(shaper_item.num_glyphs);
-	    shaper_item.num_glyphs = num_glyphs - used;
-    //  	qDebug("    .. num_glyphs=%d, used=%d, item.num_glyphs=%d", num_glyphs, used, shaper_item.num_glyphs);
-	    shaper_item.glyphs = glyphs(&si);
-	    shaper_item.log_clusters = logClusters(&si);
-	    if (scriptEngines[shaper_item.script].shape(&shaper_item))
-		break;
-	}
+        while (1) {
+    //         qDebug("    . num_glyphs=%d, used=%d, item.num_glyphs=%d", num_glyphs, used, shaper_item.num_glyphs);
+            ensureSpace(shaper_item.num_glyphs);
+            shaper_item.num_glyphs = num_glyphs - used;
+    //          qDebug("    .. num_glyphs=%d, used=%d, item.num_glyphs=%d", num_glyphs, used, shaper_item.num_glyphs);
+            shaper_item.glyphs = glyphs(&si);
+            shaper_item.log_clusters = logClusters(&si);
+            if (scriptEngines[shaper_item.script].shape(&shaper_item))
+                break;
+        }
 
     //     qDebug("    -> item: script=%d num_glyphs=%d", shaper_item.script, shaper_item.num_glyphs);
-	si.num_glyphs = shaper_item.num_glyphs;
+        si.num_glyphs = shaper_item.num_glyphs;
 
-	used += si.num_glyphs;
+        used += si.num_glyphs;
 
-	QGlyphLayout *g = shaper_item.glyphs;
-	// ############ general solution needed
+        QGlyphLayout *g = shaper_item.glyphs;
+        // ############ general solution needed
 #if 0
-	if ( this->font(si).d->kerning && font->type() == QFontEngine::Xft) {
-	    FT_Face face = static_cast<QFontEngineXft *>(font)->freetypeFace();
-	    if (FT_HAS_KERNING(face)) {
-		for (int i = 0; i < si.num_glyphs-1; ++i) {
-		    FT_Vector kerning;
-		    FT_Get_Kerning(face, g[i].glyph, g[i+1].glyph, FT_KERNING_DEFAULT, &kerning);
-		    g[i].advance.x += Q26Dot6(kerning.x, F26Dot6);
-		    g[i].advance.y += Q26Dot6(kerning.y, F26Dot6);
-		}
-	    }
-	}
+        if (this->font(si).d->kerning && font->type() == QFontEngine::Xft) {
+            FT_Face face = static_cast<QFontEngineXft *>(font)->freetypeFace();
+            if (FT_HAS_KERNING(face)) {
+                for (int i = 0; i < si.num_glyphs-1; ++i) {
+                    FT_Vector kerning;
+                    FT_Get_Kerning(face, g[i].glyph, g[i+1].glyph, FT_KERNING_DEFAULT, &kerning);
+                    g[i].advance.x += Q26Dot6(kerning.x, F26Dot6);
+                    g[i].advance.y += Q26Dot6(kerning.y, F26Dot6);
+                }
+            }
+        }
 #endif
 
-	si.width = 0;
-	QGlyphLayout *end = g + si.num_glyphs;
-	while ( g < end )
-	    si.width += (g++)->advance.x;
+        si.width = 0;
+        QGlyphLayout *end = g + si.num_glyphs;
+        while (g < end)
+            si.width += (g++)->advance.x;
 
     }
     QFontEngine *f = fontEngine(si);

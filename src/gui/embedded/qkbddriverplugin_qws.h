@@ -33,7 +33,7 @@ public:
     ~QKbdDriverPlugin();
 
     virtual QStringList keys() const = 0;
-    virtual QWSKeyboardHandler* create( const QString& driver, const QString &device ) = 0;
+    virtual QWSKeyboardHandler* create(const QString& driver, const QString &device) = 0;
 
 private:
     QKbdDriverPluginPrivate *d;

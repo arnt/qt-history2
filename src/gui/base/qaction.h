@@ -59,10 +59,10 @@ public:
 #ifndef QT_NO_ACCEL
     QAction(const QString& text, QKeySequence accel, QWidget* parent=0);
     QAction(const QIconSet& icon, const QString& text, QKeySequence accel,
-	      QWidget* parent=0);
+              QWidget* parent=0);
     QAction(const QString& text, QKeySequence accel, QActionGroup* parent);
     QAction(const QIconSet& icon, const QString& text, QKeySequence accel,
-	      QActionGroup* parent);
+              QActionGroup* parent);
 #endif
     ~QAction();
 
@@ -160,10 +160,10 @@ public:
     inline QT_COMPAT void add(QAction* a) { addAction(a); }
     inline QT_COMPAT void addSeparator() { QAction *act = new QAction(this); act->setSeparator(true); addAction(act); }
     inline QT_COMPAT bool addTo(QWidget *w) {
-	QList<QAction*> acts = actionList();
-	for(int i = 0; i < acts.size(); i++)
-	    w->addAction(acts.at(i));
-	return true;
+        QList<QAction*> acts = actionList();
+        for(int i = 0; i < acts.size(); i++)
+            w->addAction(acts.at(i));
+        return true;
     }
 #endif
 

@@ -25,7 +25,7 @@ class QTDSDriverPlugin : public QSqlDriverPlugin
 public:
     QTDSDriverPlugin();
 
-    QSqlDriver* create( const QString & );
+    QSqlDriver* create(const QString &);
     QStringList keys() const;
 };
 
@@ -34,11 +34,11 @@ QTDSDriverPlugin::QTDSDriverPlugin()
 {
 }
 
-QSqlDriver* QTDSDriverPlugin::create( const QString &name )
+QSqlDriver* QTDSDriverPlugin::create(const QString &name)
 {
-    if ( name == "QTDS7" ) {
-	QTDSDriver* driver = new QTDSDriver();
-	return driver;
+    if (name == "QTDS7") {
+        QTDSDriver* driver = new QTDSDriver();
+        return driver;
     }
     return 0;
 }
@@ -50,4 +50,4 @@ QStringList QTDSDriverPlugin::keys() const
     return l;
 }
 
-Q_EXPORT_PLUGIN( QTDSDriverPlugin )
+Q_EXPORT_PLUGIN(QTDSDriverPlugin)

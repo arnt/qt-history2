@@ -28,16 +28,16 @@ class Q_COMPAT_EXPORT QSqlEditorFactory : public QEditorFactory
 public:
     QSqlEditorFactory (QObject * parent = 0);
     ~QSqlEditorFactory();
-    virtual QWidget * createEditor( QWidget * parent, const QVariant & variant );
-    virtual QWidget * createEditor( QWidget * parent, const QSqlField * field );
+    virtual QWidget * createEditor(QWidget * parent, const QVariant & variant);
+    virtual QWidget * createEditor(QWidget * parent, const QSqlField * field);
 
     static QSqlEditorFactory * defaultFactory();
-    static void installDefaultFactory( QSqlEditorFactory * factory );
+    static void installDefaultFactory(QSqlEditorFactory * factory);
 
 private:
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QSqlEditorFactory( const QSqlEditorFactory & );
-    QSqlEditorFactory &operator=( const QSqlEditorFactory & );
+    QSqlEditorFactory(const QSqlEditorFactory &);
+    QSqlEditorFactory &operator=(const QSqlEditorFactory &);
 #endif
 };
 

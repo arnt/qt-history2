@@ -147,35 +147,35 @@ void QDataSource::maybeReady()
 */
 
 /*!
-  This function should return TRUE if the data source can be rewound.
+  This function should return true if the data source can be rewound.
 
-  The default returns FALSE.
+  The default returns false.
 */
 bool QDataSource::rewindable() const
 {
-    return FALSE;
+    return false;
 }
 
 /*!
-  If this function is called with \a on set to TRUE, and rewindable()
-  is TRUE, then the data source must take measures to allow the rewind()
-  function to subsequently operate as described.  If rewindable() is FALSE,
+  If this function is called with \a on set to true, and rewindable()
+  is true, then the data source must take measures to allow the rewind()
+  function to subsequently operate as described.  If rewindable() is false,
   the function should call QDataSource::enableRewind(), which aborts with
   a qFatal() error.
 
   For example, a network connection may choose to use a disk cache
   of input only if rewinding is enabled before the first buffer-full of
-  data is discarded, returning FALSE in rewindable() if that first buffer
+  data is discarded, returning false in rewindable() if that first buffer
   is discarded.
 */
-void QDataSource::enableRewind( bool /* on */ )
+void QDataSource::enableRewind(bool /* on */)
 {
-    qFatal( "Attempted to make unrewindable QDataSource rewindable" );
+    qFatal("Attempted to make unrewindable QDataSource rewindable");
 }
 
 /*!
   This function rewinds the data source.  This may only be called if
-  enableRewind(TRUE) has been previously called.
+  enableRewind(true) has been previously called.
 */
 void QDataSource::rewind()
 {
@@ -202,7 +202,7 @@ QIODeviceSource::QIODeviceSource(QIODevice* device, int buffer_size) :
     buf_size(buffer_size),
     buffer(new uchar[buf_size]),
     iod(device),
-    rew(FALSE)
+    rew(false)
 {
 }
 
@@ -221,8 +221,8 @@ QIODeviceSource::~QIODeviceSource()
 */
 int QIODeviceSource::readyToSend()
 {
-    if ( iod->status() != IO_Ok || !(iod->state() & IO_Open) )
-	return -1;
+    if (iod->status() != IO_Ok || !(iod->state() & IO_Open))
+        return -1;
 
     int n = qMin((uint)buf_size, iod->size()-iod->at()); // ### not 64-bit safe
                                                          // ### not large file safe
@@ -243,13 +243,13 @@ void QIODeviceSource::sendTo(QDataSink* sink, int n)
 */
 bool QIODeviceSource::rewindable() const
 {
-    return TRUE;
+    return true;
 }
 
 /*!
-  If \a on is set to TRUE then rewinding is enabled.  
-  No special action is taken.  If \a on is set to 
-  FALSE then rewinding is disabled.
+  If \a on is set to true then rewinding is enabled.
+  No special action is taken.  If \a on is set to
+  false then rewinding is disabled.
 */
 void QIODeviceSource::enableRewind(bool on)
 {
@@ -262,10 +262,10 @@ void QIODeviceSource::enableRewind(bool on)
 void QIODeviceSource::rewind()
 {
     if (!rew) {
-	QDataSource::rewind();
+        QDataSource::rewind();
     } else {
-	iod->reset();
-	ready();
+        iod->reset();
+        ready();
     }
 }
 
@@ -297,14 +297,14 @@ QDataPump::QDataPump(QDataSource* data_source, QDataSink* data_sink) :
     source->connect(this, SLOT(kickStart()));
     sink->connect(this, SLOT(kickStart()));
     connect(&timer, SIGNAL(timeout()), this, SLOT(tryToPump()));
-    timer.start(0, TRUE);
+    timer.start(0, true);
 }
 
 void QDataPump::kickStart()
 {
     if (!timer.isActive()) {
-	interval = 0;
-	timer.start(0, TRUE);
+        interval = 0;
+        timer.start(0, true);
     }
 }
 
@@ -315,19 +315,19 @@ void QDataPump::tryToPump()
     supply = source->readyToSend();
     demand = sink->readyToReceive();
     if (demand <= 0) {
-	return;
+        return;
     }
     interval = 0;
     if (supply < 0) {
-	// All done (until source signals change in readiness)
-	sink->eof();
-	return;
+        // All done (until source signals change in readiness)
+        sink->eof();
+        return;
     }
     if (!supply)
-	return;
+        return;
     source->sendTo(sink, qMin(supply, demand));
 
-    timer.start(0, TRUE);
+    timer.start(0, true);
 }
 
 #endif // QT_NO_ASYNC_IO

@@ -51,25 +51,25 @@ unsigned short QFontKsc5601Codec::characterFromUnicode(const QString &str, int p
     return qt_UnicodeToKsc5601((str.unicode() + pos)->unicode());
 }
 
-QByteArray QFontKsc5601Codec::fromUnicode(const QString& uc, int& lenInOut ) const
+QByteArray QFontKsc5601Codec::fromUnicode(const QString& uc, int& lenInOut) const
 {
     QByteArray result;
     result.resize(lenInOut * 2 + 1);
     uchar *rdata = (uchar *) result.data();
     const QChar *ucp = uc.unicode();
 
-    for ( int i = 0; i < lenInOut; i++ ) {
-	QChar ch(*ucp++);
-	ch = qt_UnicodeToKsc5601(ch.unicode());
+    for (int i = 0; i < lenInOut; i++) {
+        QChar ch(*ucp++);
+        ch = qt_UnicodeToKsc5601(ch.unicode());
 
-	if ( ! ch.isNull() ) {
-	    *rdata++ = ch.row() & 0x7f ;
-	    *rdata++ = ch.cell() & 0x7f;
-	} else {
-	    //white square
-	    *rdata++ = 0x21;
-	    *rdata++ = 0x60;
-	}
+        if (! ch.isNull()) {
+            *rdata++ = ch.row() & 0x7f ;
+            *rdata++ = ch.cell() & 0x7f;
+        } else {
+            //white square
+            *rdata++ = 0x21;
+            *rdata++ = 0x60;
+        }
     }
 
     lenInOut *= 2;
@@ -80,12 +80,12 @@ QByteArray QFontKsc5601Codec::fromUnicode(const QString& uc, int& lenInOut ) con
 void QFontKsc5601Codec::fromUnicode(const QChar *in, unsigned short *out, int length) const
 {
     while (length--) {
-	*out++ = (qt_UnicodeToKsc5601(in->unicode()) & 0x7f7f);
-	++in;
+        *out++ = (qt_UnicodeToKsc5601(in->unicode()) & 0x7f7f);
+        ++in;
     }
 }
 
-bool QFontKsc5601Codec::canEncode( QChar ch ) const
+bool QFontKsc5601Codec::canEncode(QChar ch) const
 {
     return (qt_UnicodeToKsc5601(ch.unicode()) != 0);
 }

@@ -40,7 +40,7 @@ public:
     inline void setSelectable(bool selectable) { select = selectable; }
 
     inline bool operator ==(const QTreeViewItem &other) const
-	{ return par == other.par && children == other.children; }
+        { return par == other.par && children == other.children; }
     inline bool operator !=(const QTreeViewItem &other) const { return !operator==(other); }
 
     QVariant data(int column, int role) const;
@@ -53,13 +53,13 @@ private:
     QList<QTreeViewItem*> children;
 
     struct Data {
-	Data() {}
-	Data(int r, QVariant v) {
-	    role = r;
-	    value = v;
-	}
-	int role;
-	QVariant value;
+        Data() {}
+        Data(int r, QVariant v) {
+            role = r;
+            value = v;
+        }
+        int role;
+        QVariant value;
     };
 
     QVector< QVector<Data> > values;

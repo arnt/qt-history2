@@ -34,12 +34,12 @@ class QHttpRequest
 public:
     QHttpRequest()
     {
-	id = ++idCounter;
+        id = ++idCounter;
     }
     virtual ~QHttpRequest()
     { }
 
-    virtual void start( QHttp * ) = 0;
+    virtual void start(QHttp *) = 0;
     virtual bool hasRequestHeader();
     virtual QHttpRequestHeader requestHeader();
 
@@ -56,8 +56,8 @@ class QHttpPrivate
 {
 public:
     QHttpPrivate()
-	: state(QHttp::Unconnected), error(QHttp::NoError), port(0), toDevice(0), postDevice(0),
-	  bytesDone(0), chunkedSize(-1), idleTimer(0) { }
+        : state(QHttp::Unconnected), error(QHttp::NoError), port(0), toDevice(0), postDevice(0),
+          bytesDone(0), chunkedSize(-1), idleTimer(0) { }
     ~QHttpPrivate() { while (!pending.isEmpty()) delete pending.takeFirst(); }
 
     QSocket socket;
@@ -93,7 +93,7 @@ int QHttpRequest::idCounter = 0;
 
 bool QHttpRequest::hasRequestHeader()
 {
-    return FALSE;
+    return false;
 }
 
 QHttpRequestHeader QHttpRequest::requestHeader()
@@ -110,27 +110,27 @@ QHttpRequestHeader QHttpRequest::requestHeader()
 class QHttpNormalRequest : public QHttpRequest
 {
 public:
-    QHttpNormalRequest( const QHttpRequestHeader &h, QIODevice *d, QIODevice *t ) :
-	header(h), to(t)
+    QHttpNormalRequest(const QHttpRequestHeader &h, QIODevice *d, QIODevice *t) :
+        header(h), to(t)
     {
-	is_ba = FALSE;
-	data.dev = d;
+        is_ba = false;
+        data.dev = d;
     }
 
-    QHttpNormalRequest( const QHttpRequestHeader &h, QByteArray *d, QIODevice *t ) :
-	header(h), to(t)
+    QHttpNormalRequest(const QHttpRequestHeader &h, QByteArray *d, QIODevice *t) :
+        header(h), to(t)
     {
-	is_ba = TRUE;
-	data.ba = d;
+        is_ba = true;
+        data.ba = d;
     }
 
     ~QHttpNormalRequest()
     {
-	if ( is_ba )
-	    delete data.ba;
+        if (is_ba)
+            delete data.ba;
     }
 
-    void start( QHttp * );
+    void start(QHttp *);
     bool hasRequestHeader();
     QHttpRequestHeader requestHeader();
 
@@ -142,46 +142,46 @@ protected:
 
 private:
     union {
-	QByteArray *ba;
-	QIODevice *dev;
+        QByteArray *ba;
+        QIODevice *dev;
     } data;
     bool is_ba;
     QIODevice *to;
 };
 
-void QHttpNormalRequest::start( QHttp *http )
+void QHttpNormalRequest::start(QHttp *http)
 {
     http->d->header = header;
 
-    if ( is_ba ) {
-	http->d->buffer = *data.ba;
-	if ( http->d->buffer.size() > 0 )
-	    http->d->header.setContentLength( http->d->buffer.size() );
+    if (is_ba) {
+        http->d->buffer = *data.ba;
+        if (http->d->buffer.size() > 0)
+            http->d->header.setContentLength(http->d->buffer.size());
 
-	http->d->postDevice = 0;
+        http->d->postDevice = 0;
     } else {
-	http->d->buffer = QByteArray();
+        http->d->buffer = QByteArray();
 
-	if ( data.dev && ( data.dev->isOpen() || data.dev->open(IO_ReadOnly) ) ) {
-	    http->d->postDevice = data.dev;
-	    if ( http->d->postDevice->size() > 0 )
-		http->d->header.setContentLength( http->d->postDevice->size() );
-	} else {
-	    http->d->postDevice = 0;
-	}
+        if (data.dev && (data.dev->isOpen() || data.dev->open(IO_ReadOnly))) {
+            http->d->postDevice = data.dev;
+            if (http->d->postDevice->size() > 0)
+                http->d->header.setContentLength(http->d->postDevice->size());
+        } else {
+            http->d->postDevice = 0;
+        }
     }
 
-    if ( to && ( to->isOpen() || to->open(IO_WriteOnly) ) )
-	http->d->toDevice = to;
+    if (to && (to->isOpen() || to->open(IO_WriteOnly)))
+        http->d->toDevice = to;
     else
-	http->d->toDevice = 0;
+        http->d->toDevice = 0;
 
     http->sendRequest();
 }
 
 bool QHttpNormalRequest::hasRequestHeader()
 {
-    return TRUE;
+    return true;
 }
 
 QHttpRequestHeader QHttpNormalRequest::requestHeader()
@@ -191,8 +191,8 @@ QHttpRequestHeader QHttpNormalRequest::requestHeader()
 
 QIODevice* QHttpNormalRequest::sourceDevice()
 {
-    if ( is_ba )
-	return 0;
+    if (is_ba)
+        return 0;
     return data.dev;
 }
 
@@ -214,24 +214,24 @@ QIODevice* QHttpNormalRequest::destinationDevice()
 class QHttpPGHRequest : public QHttpNormalRequest
 {
 public:
-    QHttpPGHRequest( const QHttpRequestHeader &h, QIODevice *d, QIODevice *t ) :
-	QHttpNormalRequest( h, d, t )
+    QHttpPGHRequest(const QHttpRequestHeader &h, QIODevice *d, QIODevice *t) :
+        QHttpNormalRequest(h, d, t)
     { }
 
-    QHttpPGHRequest( const QHttpRequestHeader &h, QByteArray *d, QIODevice *t ) :
-	QHttpNormalRequest( h, d, t )
+    QHttpPGHRequest(const QHttpRequestHeader &h, QByteArray *d, QIODevice *t) :
+        QHttpNormalRequest(h, d, t)
     { }
 
     ~QHttpPGHRequest()
     { }
 
-    void start( QHttp * );
+    void start(QHttp *);
 };
 
-void QHttpPGHRequest::start( QHttp *http )
+void QHttpPGHRequest::start(QHttp *http)
 {
-    header.setValue( "Host", http->d->hostname );
-    QHttpNormalRequest::start( http );
+    header.setValue("Host", http->d->hostname);
+    QHttpNormalRequest::start(http);
 }
 
 /****************************************************
@@ -243,11 +243,11 @@ void QHttpPGHRequest::start( QHttp *http )
 class QHttpSetHostRequest : public QHttpRequest
 {
 public:
-    QHttpSetHostRequest( const QString &h, Q_UINT16 p ) :
-	hostname(h), port(p)
+    QHttpSetHostRequest(const QString &h, Q_UINT16 p) :
+        hostname(h), port(p)
     { }
 
-    void start( QHttp * );
+    void start(QHttp *);
 
     QIODevice* sourceDevice()
     { return 0; }
@@ -259,7 +259,7 @@ private:
     Q_UINT16 port;
 };
 
-void QHttpSetHostRequest::start( QHttp *http )
+void QHttpSetHostRequest::start(QHttp *http)
 {
     http->d->hostname = hostname;
     http->d->port = port;
@@ -277,7 +277,7 @@ class QHttpCloseRequest : public QHttpRequest
 public:
     QHttpCloseRequest()
     { }
-    void start( QHttp * );
+    void start(QHttp *);
 
     QIODevice* sourceDevice()
     { return 0; }
@@ -285,7 +285,7 @@ public:
     { return 0; }
 };
 
-void QHttpCloseRequest::start( QHttp *http )
+void QHttpCloseRequest::start(QHttp *http)
 {
     http->closeConn();
 }
@@ -322,8 +322,8 @@ void QHttpCloseRequest::start( QHttp *http )
     content is called the "value". You can get and set a header
     field's value by using its key with value() and setValue(), e.g.
     \code
-    header.setValue( "content-type", "text/html" );
-    QString contentType = header.value( "content-type" );
+    header.setValue("content-type", "text/html");
+    QString contentType = header.value("content-type");
     \endcode
 
     Some fields are so common that getters and setters are provided
@@ -351,18 +351,18 @@ void QHttpCloseRequest::start( QHttp *http )
 */
 
 /*!
-	Constructs an empty HTTP header.
+        Constructs an empty HTTP header.
 */
 QHttpHeader::QHttpHeader()
-    : valid( TRUE )
+    : valid(true)
 {
 }
 
 /*!
-	Constructs a copy of \a header.
+        Constructs a copy of \a header.
 */
-QHttpHeader::QHttpHeader( const QHttpHeader& header )
-    : valid( header.valid )
+QHttpHeader::QHttpHeader(const QHttpHeader& header)
+    : valid(header.valid)
 {
     values = header.values;
 }
@@ -375,10 +375,10 @@ QHttpHeader::QHttpHeader( const QHttpHeader& header )
     "\r\n" delimited lines; each of these lines should have the format
     key, colon, space, value.
 */
-QHttpHeader::QHttpHeader( const QString& str )
-    : valid( TRUE )
+QHttpHeader::QHttpHeader(const QString& str)
+    : valid(true)
 {
-    parse( str );
+    parse(str);
 }
 
 /*!
@@ -391,7 +391,7 @@ QHttpHeader::~QHttpHeader()
 /*!
     Assigns \a h and returns a reference to this http header.
 */
-QHttpHeader& QHttpHeader::operator=( const QHttpHeader& h )
+QHttpHeader& QHttpHeader::operator=(const QHttpHeader& h)
 {
     values = h.values;
     valid = h.valid;
@@ -399,7 +399,7 @@ QHttpHeader& QHttpHeader::operator=( const QHttpHeader& h )
 }
 
 /*!
-    Returns TRUE if the HTTP header is valid; otherwise returns FALSE.
+    Returns true if the HTTP header is valid; otherwise returns false.
 
     A QHttpHeader is invalid if it was created by parsing a malformed string.
 */
@@ -413,52 +413,52 @@ bool QHttpHeader::isValid() const
     the keys/values it finds. If the string is not parsed successfully
     the QHttpHeader becomes \link isValid() invalid\endlink.
 
-    Returns TRUE if \a str was successfully parsed; otherwise returns FALSE.
+    Returns true if \a str was successfully parsed; otherwise returns false.
 
     \sa toString()
 */
-bool QHttpHeader::parse( const QString& str )
+bool QHttpHeader::parse(const QString& str)
 {
     QStringList lst;
-    int pos = str.indexOf( '\n' );
-    if ( pos > 0 && str.at( pos - 1 ) == '\r' )
-	lst = str.trimmed().split("\r\n");
+    int pos = str.indexOf('\n');
+    if (pos > 0 && str.at(pos - 1) == '\r')
+        lst = str.trimmed().split("\r\n");
     else
-	lst = str.trimmed().split("\n");
+        lst = str.trimmed().split("\n");
     lst.remove(QString()); // No empties
 
-    if ( lst.isEmpty() )
-	return TRUE;
+    if (lst.isEmpty())
+        return true;
 
     QStringList lines;
     QStringList::Iterator it = lst.begin();
-    for( ; it != lst.end(); ++it ) {
-	if ( !(*it).isEmpty() ) {
-	    if ( (*it)[0].isSpace() ) {
-		if ( !lines.isEmpty() ) {
-		    lines.last() += " ";
-		    lines.last() += (*it).trimmed();
-		}
-	    } else {
-		lines.append( (*it) );
-	    }
-	}
+    for(; it != lst.end(); ++it) {
+        if (!(*it).isEmpty()) {
+            if ((*it)[0].isSpace()) {
+                if (!lines.isEmpty()) {
+                    lines.last() += " ";
+                    lines.last() += (*it).trimmed();
+                }
+            } else {
+                lines.append((*it));
+            }
+        }
     }
 
     int number = 0;
     it = lines.begin();
-    for( ; it != lines.end(); ++it ) {
-	if ( !parseLine( *it, number++ ) ) {
-	    valid = FALSE;
-	    return FALSE;
-	}
+    for(; it != lines.end(); ++it) {
+        if (!parseLine(*it, number++)) {
+            valid = false;
+            return false;
+        }
     }
-    return TRUE;
+    return true;
 }
 
 /*! \internal
 */
-void QHttpHeader::setValid( bool v )
+void QHttpHeader::setValid(bool v)
 {
     valid = v;
 }
@@ -469,9 +469,9 @@ void QHttpHeader::setValid( bool v )
 
     \sa setValue() removeValue() hasKey() keys()
 */
-QString QHttpHeader::value( const QString& key ) const
+QString QHttpHeader::value(const QString& key) const
 {
-    return values[ key.toLower() ];
+    return values[key.toLower()];
 }
 
 /*!
@@ -485,14 +485,14 @@ QStringList QHttpHeader::keys() const
 }
 
 /*!
-    Returns TRUE if the HTTP header has an entry with the given \a
-    key; otherwise returns FALSE.
+    Returns true if the HTTP header has an entry with the given \a
+    key; otherwise returns false.
 
     \sa value() setValue() keys()
 */
-bool QHttpHeader::hasKey( const QString& key ) const
+bool QHttpHeader::hasKey(const QString& key) const
 {
-    return values.contains( key.toLower() );
+    return values.contains(key.toLower());
 }
 
 /*!
@@ -505,9 +505,9 @@ bool QHttpHeader::hasKey( const QString& key ) const
 
     \sa value() hasKey() removeValue()
 */
-void QHttpHeader::setValue( const QString& key, const QString& value )
+void QHttpHeader::setValue(const QString& key, const QString& value)
 {
-    values[ key.toLower() ] = value;
+    values[key.toLower()] = value;
 }
 
 /*!
@@ -515,28 +515,28 @@ void QHttpHeader::setValue( const QString& key, const QString& value )
 
     \sa value() setValue()
 */
-void QHttpHeader::removeValue( const QString& key )
+void QHttpHeader::removeValue(const QString& key)
 {
-    values.remove( key.toLower() );
+    values.remove(key.toLower());
 }
 
 /*! \internal
     Parses the single HTTP header line \a line which has the format
     key, colon, space, value, and adds key/value to the headers. The
-    linenumber is \a number. Returns TRUE if the line was successfully
-    parsed and the key/value added; otherwise returns FALSE.
+    linenumber is \a number. Returns true if the line was successfully
+    parsed and the key/value added; otherwise returns false.
 
     \sa parse()
 */
-bool QHttpHeader::parseLine( const QString& line, int )
+bool QHttpHeader::parseLine(const QString& line, int)
 {
-    int i = line.indexOf( ':' );
-    if ( i == -1 )
-	return FALSE;
+    int i = line.indexOf(':');
+    if (i == -1)
+        return false;
 
-    values.insert( line.left( i ).trimmed().toLower(), line.mid( i + 1 ).trimmed() );
+    values.insert(line.left(i).trimmed().toLower(), line.mid(i + 1).trimmed());
 
-    return TRUE;
+    return true;
 }
 
 /*!
@@ -548,27 +548,27 @@ bool QHttpHeader::parseLine( const QString& line, int )
 */
 QString QHttpHeader::toString() const
 {
-    if ( !isValid() )
-	return "";
+    if (!isValid())
+        return "";
 
     QString ret = "";
 
     QMap<QString,QString>::ConstIterator it = values.begin();
-    for( ; it != values.end(); ++it )
-	ret += it.key() + ": " + (*it) + "\r\n";
+    for(; it != values.end(); ++it)
+        ret += it.key() + ": " + (*it) + "\r\n";
 
     return ret;
 }
 
 /*!
-    Returns TRUE if the header has an entry for the special HTTP
-    header field \c content-length; otherwise returns FALSE.
+    Returns true if the header has an entry for the special HTTP
+    header field \c content-length; otherwise returns false.
 
     \sa contentLength() setContentLength()
 */
 bool QHttpHeader::hasContentLength() const
 {
-    return hasKey( "content-length" );
+    return hasKey("content-length");
 }
 
 /*!
@@ -579,7 +579,7 @@ bool QHttpHeader::hasContentLength() const
 */
 uint QHttpHeader::contentLength() const
 {
-    return values[ "content-length" ].toUInt();
+    return values["content-length"].toUInt();
 }
 
 /*!
@@ -588,20 +588,20 @@ uint QHttpHeader::contentLength() const
 
     \sa contentLength() hasContentLength()
 */
-void QHttpHeader::setContentLength( int len )
+void QHttpHeader::setContentLength(int len)
 {
-    values[ "content-length" ] = QString::number( len );
+    values["content-length"] = QString::number(len);
 }
 
 /*!
-    Returns TRUE if the header has an entry for the the special HTTP
-    header field \c content-type; otherwise returns FALSE.
+    Returns true if the header has an entry for the the special HTTP
+    header field \c content-type; otherwise returns false.
 
     \sa contentType() setContentType()
 */
 bool QHttpHeader::hasContentType() const
 {
-    return hasKey( "content-type" );
+    return hasKey("content-type");
 }
 
 /*!
@@ -611,15 +611,15 @@ bool QHttpHeader::hasContentType() const
 */
 QString QHttpHeader::contentType() const
 {
-    QString type = values[ "content-type" ];
-    if ( type.isEmpty() )
-	return QString::null;
+    QString type = values["content-type"];
+    if (type.isEmpty())
+        return QString::null;
 
-    int pos = type.indexOf( ';' );
-    if ( pos == -1 )
-	return type;
+    int pos = type.indexOf(';');
+    if (pos == -1)
+        return type;
 
-    return type.left( pos ).trimmed();
+    return type.left(pos).trimmed();
 }
 
 /*!
@@ -628,9 +628,9 @@ QString QHttpHeader::contentType() const
 
     \sa contentType() hasContentType()
 */
-void QHttpHeader::setContentType( const QString& type )
+void QHttpHeader::setContentType(const QString& type)
 {
-    values[ "content-type" ] = type;
+    values["content-type"] = type;
 }
 
 /****************************************************
@@ -667,7 +667,7 @@ void QHttpHeader::setContentType( const QString& type )
 */
 QHttpResponseHeader::QHttpResponseHeader()
 {
-    setValid( FALSE );
+    setValid(false);
 }
 
 /*!
@@ -675,16 +675,16 @@ QHttpResponseHeader::QHttpResponseHeader()
     the reason phrase \a text and the protocol-version \a majorVer and
     \a minorVer.
 */
-QHttpResponseHeader::QHttpResponseHeader( int code, const QString& text, int majorVer, int minorVer )
-    : QHttpHeader(), statCode( code ), reasonPhr( text ), majVer( majorVer ), minVer( minorVer )
+QHttpResponseHeader::QHttpResponseHeader(int code, const QString& text, int majorVer, int minorVer)
+    : QHttpHeader(), statCode(code), reasonPhr(text), majVer(majorVer), minVer(minorVer)
 {
 }
 
 /*!
     Constructs a copy of \a header.
 */
-QHttpResponseHeader::QHttpResponseHeader( const QHttpResponseHeader& header )
-    : QHttpHeader( header ), statCode( header.statCode ), reasonPhr( header.reasonPhr ), majVer( header.majVer ), minVer( header.minVer )
+QHttpResponseHeader::QHttpResponseHeader(const QHttpResponseHeader& header)
+    : QHttpHeader(header), statCode(header.statCode), reasonPhr(header.reasonPhr), majVer(header.majVer), minVer(header.minVer)
 {
 }
 
@@ -696,10 +696,10 @@ QHttpResponseHeader::QHttpResponseHeader( const QHttpResponseHeader& header )
     reason-phrase); each of remaining lines should have the format key, colon,
     space, value.
 */
-QHttpResponseHeader::QHttpResponseHeader( const QString& str )
+QHttpResponseHeader::QHttpResponseHeader(const QString& str)
     : QHttpHeader()
 {
-    parse( str );
+    parse(str);
 }
 
 /*!
@@ -708,9 +708,9 @@ QHttpResponseHeader::QHttpResponseHeader( const QString& str )
 
     \sa statusCode() reasonPhrase() majorVersion() minorVersion()
 */
-void QHttpResponseHeader::setStatusLine( int code, const QString& text, int majorVer, int minorVer )
+void QHttpResponseHeader::setStatusLine(int code, const QString& text, int majorVer, int minorVer)
 {
-    setValid( TRUE );
+    setValid(true);
     statCode = code;
     reasonPhr = text;
     majVer = majorVer;
@@ -759,41 +759,41 @@ int QHttpResponseHeader::minorVersion() const
 
 /*! \reimp
 */
-bool QHttpResponseHeader::parseLine( const QString& line, int number )
+bool QHttpResponseHeader::parseLine(const QString& line, int number)
 {
-    if ( number != 0 )
-	return QHttpHeader::parseLine( line, number );
+    if (number != 0)
+        return QHttpHeader::parseLine(line, number);
 
     QString l = line.simplified();
-    if ( l.length() < 10 )
-	return FALSE;
+    if (l.length() < 10)
+        return false;
 
-    if ( l.left( 5 ) == "HTTP/" && l[5].isDigit() && l[6] == '.' &&
-	    l[7].isDigit() && l[8] == ' ' && l[9].isDigit() ) {
-	majVer = l[5].latin1() - '0';
-	minVer = l[7].latin1() - '0';
+    if (l.left(5) == "HTTP/" && l[5].isDigit() && l[6] == '.' &&
+            l[7].isDigit() && l[8] == ' ' && l[9].isDigit()) {
+        majVer = l[5].latin1() - '0';
+        minVer = l[7].latin1() - '0';
 
-	int pos = l.indexOf( ' ', 9 );
-	if ( pos != -1 ) {
-	    reasonPhr = l.mid( pos + 1 );
-	    statCode = l.mid( 9, pos - 9 ).toInt();
-	} else {
-	    statCode = l.mid( 9 ).toInt();
-	    reasonPhr = QString::null;
-	}
+        int pos = l.indexOf(' ', 9);
+        if (pos != -1) {
+            reasonPhr = l.mid(pos + 1);
+            statCode = l.mid(9, pos - 9).toInt();
+        } else {
+            statCode = l.mid(9).toInt();
+            reasonPhr = QString::null;
+        }
     } else {
-	return FALSE;
+        return false;
     }
 
-    return TRUE;
+    return true;
 }
 
 /*! \reimp
 */
 QString QHttpResponseHeader::toString() const
 {
-    QString ret( "HTTP/%1.%2 %3 %4\r\n%5\r\n" );
-    return ret.arg( majVer ).arg ( minVer ).arg( statCode ).arg( reasonPhr ).arg( QHttpHeader::toString() );
+    QString ret("HTTP/%1.%2 %3 %4\r\n%5\r\n");
+    return ret.arg(majVer).arg (minVer).arg(statCode).arg(reasonPhr).arg(QHttpHeader::toString());
 }
 
 /****************************************************
@@ -844,23 +844,23 @@ QString QHttpResponseHeader::toString() const
 QHttpRequestHeader::QHttpRequestHeader()
     : QHttpHeader()
 {
-    setValid( FALSE );
+    setValid(false);
 }
 
 /*!
     Constructs a HTTP request header for the method \a method, the
     request-URI \a path and the protocol-version \a majorVer and \a minorVer.
 */
-QHttpRequestHeader::QHttpRequestHeader( const QString& method, const QString& path, int majorVer, int minorVer )
-    : QHttpHeader(), m( method ), p( path ), majVer( majorVer ), minVer( minorVer )
+QHttpRequestHeader::QHttpRequestHeader(const QString& method, const QString& path, int majorVer, int minorVer)
+    : QHttpHeader(), m(method), p(path), majVer(majorVer), minVer(minorVer)
 {
 }
 
 /*!
     Constructs a copy of \a header.
 */
-QHttpRequestHeader::QHttpRequestHeader( const QHttpRequestHeader& header )
-    : QHttpHeader( header ), m( header.m ), p( header.p ), majVer( header.majVer ), minVer( header.minVer )
+QHttpRequestHeader::QHttpRequestHeader(const QHttpRequestHeader& header)
+    : QHttpHeader(header), m(header.m), p(header.p), majVer(header.majVer), minVer(header.minVer)
 {
 }
 
@@ -871,10 +871,10 @@ QHttpRequestHeader::QHttpRequestHeader( const QHttpRequestHeader& header )
     HTTP-version); each of the remaining lines should have the format key,
     colon, space, value.
 */
-QHttpRequestHeader::QHttpRequestHeader( const QString& str )
+QHttpRequestHeader::QHttpRequestHeader(const QString& str)
     : QHttpHeader()
 {
-    parse( str );
+    parse(str);
 }
 
 /*!
@@ -884,9 +884,9 @@ QHttpRequestHeader::QHttpRequestHeader( const QString& str )
 
     \sa method() path() majorVersion() minorVersion()
 */
-void QHttpRequestHeader::setRequest( const QString& method, const QString& path, int majorVer, int minorVer )
+void QHttpRequestHeader::setRequest(const QString& method, const QString& path, int majorVer, int minorVer)
 {
-    setValid( TRUE );
+    setValid(true);
     m = method;
     p = path;
     majVer = majorVer;
@@ -935,39 +935,39 @@ int QHttpRequestHeader::minorVersion() const
 
 /*! \reimp
 */
-bool QHttpRequestHeader::parseLine( const QString& line, int number )
+bool QHttpRequestHeader::parseLine(const QString& line, int number)
 {
-    if ( number != 0 )
-	return QHttpHeader::parseLine( line, number );
+    if (number != 0)
+        return QHttpHeader::parseLine(line, number);
 
     QStringList lst = line.simplified().split(" ");
-    if ( lst.count() > 0 ) {
-	m = lst[0];
-	if ( lst.count() > 1 ) {
-	    p = lst[1];
-	    if ( lst.count() > 2 ) {
-		QString v = lst[2];
-		if ( v.length() >= 8 && v.left( 5 ) == "HTTP/" &&
-			v[5].isDigit() && v[6] == '.' && v[7].isDigit() ) {
-		    majVer = v[5].latin1() - '0';
-		    minVer = v[7].latin1() - '0';
-		    return TRUE;
-		}
-	    }
-	}
+    if (lst.count() > 0) {
+        m = lst[0];
+        if (lst.count() > 1) {
+            p = lst[1];
+            if (lst.count() > 2) {
+                QString v = lst[2];
+                if (v.length() >= 8 && v.left(5) == "HTTP/" &&
+                        v[5].isDigit() && v[6] == '.' && v[7].isDigit()) {
+                    majVer = v[5].latin1() - '0';
+                    minVer = v[7].latin1() - '0';
+                    return true;
+                }
+            }
+        }
     }
 
-    return FALSE;
+    return false;
 }
 
 /*! \reimp
 */
 QString QHttpRequestHeader::toString() const
 {
-    QString first( "%1 %2");
-    QString last(" HTTP/%3.%4\r\n%5\r\n" );
-    return first.arg( m ).arg( p ) +
-	last.arg( majVer ).arg( minVer ).arg( QHttpHeader::toString());
+    QString first("%1 %2");
+    QString last(" HTTP/%3.%4\r\n%5\r\n");
+    return first.arg(m).arg(p) +
+        last.arg(majVer).arg(minVer).arg(QHttpHeader::toString());
 }
 
 
@@ -1000,8 +1000,8 @@ QString QHttpRequestHeader::toString() const
     example:
 
     \code
-    QUrlOperator op( "http://www.trolltech.com" );
-    op.get( "index.html" );
+    QUrlOperator op("http://www.trolltech.com");
+    op.get("index.html");
     \endcode
 
     This code will only work if the QHttp class is registered; to
@@ -1040,10 +1040,10 @@ QString QHttpRequestHeader::toString() const
     http://www.trolltech.com/index.html):
 
     \code
-    QHttpRequestHeader header( "GET", "/index.html" );
-    header.setValue( "Host", "www.trolltech.com" );
-    http->setHost( "www.trolltech.com" );
-    http->request( header );
+    QHttpRequestHeader header("GET", "/index.html");
+    header.setValue("Host", "www.trolltech.com");
+    http->setHost("www.trolltech.com");
+    http->request(header);
     \endcode
 
     For the common HTTP requests \c GET, \c POST and \c HEAD, QHttp
@@ -1053,34 +1053,34 @@ QString QHttpRequestHeader::toString() const
     can also be written as:
 
     \code
-    http->setHost( "www.trolltech.com" ); // id == 1
-    http->get( "/index.html" );           // id == 2
+    http->setHost("www.trolltech.com"); // id == 1
+    http->get("/index.html");           // id == 2
     \endcode
 
     For this example the following sequence of signals is emitted
     (with small variations, depending on network traffic, etc.):
 
     \code
-    requestStarted( 1 )
-    requestFinished( 1, FALSE )
+    requestStarted(1)
+    requestFinished(1, false)
 
-    requestStarted( 2 )
-    stateChanged( Connecting )
-    stateChanged( Sending )
-    dataSendProgress( 77, 77 )
-    stateChanged( Reading )
-    responseHeaderReceived( responseheader )
-    dataReadProgress( 5388, 0 )
-    readyRead( responseheader )
-    dataReadProgress( 18300, 0 )
-    readyRead( responseheader )
-    stateChanged( Connected )
-    requestFinished( 2, FALSE )
+    requestStarted(2)
+    stateChanged(Connecting)
+    stateChanged(Sending)
+    dataSendProgress(77, 77)
+    stateChanged(Reading)
+    responseHeaderReceived(responseheader)
+    dataReadProgress(5388, 0)
+    readyRead(responseheader)
+    dataReadProgress(18300, 0)
+    readyRead(responseheader)
+    stateChanged(Connected)
+    requestFinished(2, false)
 
-    done( FALSE )
+    done(false)
 
-    stateChanged( Closing )
-    stateChanged( Unconnected )
+    stateChanged(Closing)
+    stateChanged(Unconnected)
     \endcode
 
     The dataSendProgress() and dataReadProgress() signals in the above
@@ -1107,9 +1107,9 @@ QString QHttpRequestHeader::toString() const
     For example, if you have the following sequence of reqeusts
 
     \code
-    http->setHost( "www.foo.bar" );       // id == 1
-    http->get( "/index.html" );           // id == 2
-    http->post( "register.html", data );  // id == 3
+    http->setHost("www.foo.bar");       // id == 1
+    http->get("/index.html");           // id == 2
+    http->post("register.html", data);  // id == 3
     \endcode
 
     and the get() request fails because the host lookup fails, then
@@ -1117,16 +1117,16 @@ QString QHttpRequestHeader::toString() const
     like this:
 
     \code
-    requestStarted( 1 )
-    requestFinished( 1, FALSE )
+    requestStarted(1)
+    requestFinished(1, false)
 
-    requestStarted( 2 )
-    stateChanged( HostLookup )
-    requestFinished( 2, TRUE )
+    requestStarted(2)
+    stateChanged(HostLookup)
+    requestFinished(2, true)
 
-    done( TRUE )
+    done(true)
 
-    stateChanged( Unconnected )
+    stateChanged(Unconnected)
     \endcode
 
     You can then get details about the error with the error() and
@@ -1150,8 +1150,8 @@ QString QHttpRequestHeader::toString() const
     Constructs a QHttp object. The parameters \a parent and \a name
     are passed on to the QNetworkProtocol constructor.
 */
-QHttp::QHttp( QObject* parent, const char* name )
-: QObject( parent, name )
+QHttp::QHttp(QObject* parent, const char* name)
+: QObject(parent, name)
 {
     init();
 }
@@ -1164,8 +1164,8 @@ QHttp::QHttp( QObject* parent, const char* name )
 
     \sa setHost()
 */
-QHttp::QHttp( const QString &hostname, Q_UINT16 port, QObject* parent, const char* name )
-: QObject( parent, name )
+QHttp::QHttp(const QString &hostname, Q_UINT16 port, QObject* parent, const char* name)
+: QObject(parent, name)
 {
     init();
 
@@ -1176,22 +1176,22 @@ QHttp::QHttp( const QString &hostname, Q_UINT16 port, QObject* parent, const cha
 void QHttp::init()
 {
     d = new QHttpPrivate;
-    d->errorString = tr( "Unknown error" );
+    d->errorString = tr("Unknown error");
 
-    connect( &d->socket, SIGNAL(connected()),
-	    this, SLOT(slotConnected()) );
-    connect( &d->socket, SIGNAL(connectionClosed()),
-	    this, SLOT(slotClosed()) );
-    connect( &d->socket, SIGNAL(delayedCloseFinished()),
-	    this, SLOT(slotClosed()) );
-    connect( &d->socket, SIGNAL(readyRead()),
-	    this, SLOT(slotReadyRead()) );
-    connect( &d->socket, SIGNAL(error(int)),
-	    this, SLOT(slotError(int)) );
-    connect( &d->socket, SIGNAL(bytesWritten(int)),
-	    this, SLOT(slotBytesWritten(int)) );
+    connect(&d->socket, SIGNAL(connected()),
+            this, SLOT(slotConnected()));
+    connect(&d->socket, SIGNAL(connectionClosed()),
+            this, SLOT(slotClosed()));
+    connect(&d->socket, SIGNAL(delayedCloseFinished()),
+            this, SLOT(slotClosed()));
+    connect(&d->socket, SIGNAL(readyRead()),
+            this, SLOT(slotReadyRead()));
+    connect(&d->socket, SIGNAL(error(int)),
+            this, SLOT(slotError(int)));
+    connect(&d->socket, SIGNAL(bytesWritten(int)),
+            this, SLOT(slotBytesWritten(int)));
 
-    d->idleTimer = startTimer( 0 );
+    d->idleTimer = startTimer(0);
 }
 
 /*!
@@ -1249,7 +1249,7 @@ QHttp::~QHttp()
 */
 
 /*!
-    \fn void QHttp::stateChanged( int state )
+    \fn void QHttp::stateChanged(int state)
 
     This signal is emitted when the state of the QHttp object changes.
     The argument \a state is the new state of the connection; it is
@@ -1263,7 +1263,7 @@ QHttp::~QHttp()
 */
 
 /*!
-    \fn void QHttp::responseHeaderReceived( const QHttpResponseHeader& resp )
+    \fn void QHttp::responseHeaderReceived(const QHttpResponseHeader& resp)
 
     This signal is emitted when the HTTP header of a server response
     is available. The header is passed in \a resp.
@@ -1272,7 +1272,7 @@ QHttp::~QHttp()
 */
 
 /*!
-    \fn void QHttp::readyRead( const QHttpResponseHeader& resp )
+    \fn void QHttp::readyRead(const QHttpResponseHeader& resp)
 
     This signal is emitted when there is new response data to read.
 
@@ -1293,7 +1293,7 @@ QHttp::~QHttp()
 */
 
 /*!
-    \fn void QHttp::dataSendProgress( int done, int total )
+    \fn void QHttp::dataSendProgress(int done, int total)
 
     This signal is emitted when this object sends data to a HTTP
     server to inform it about the progress of the upload.
@@ -1312,7 +1312,7 @@ QHttp::~QHttp()
 */
 
 /*!
-    \fn void QHttp::dataReadProgress( int done, int total )
+    \fn void QHttp::dataReadProgress(int done, int total)
 
     This signal is emitted when this object reads data from a HTTP
     server to indicate the current progress of the download.
@@ -1331,7 +1331,7 @@ QHttp::~QHttp()
 */
 
 /*!
-    \fn void QHttp::requestStarted( int id )
+    \fn void QHttp::requestStarted(int id)
 
     This signal is emitted when processing the request identified by
     \a id starts.
@@ -1340,22 +1340,22 @@ QHttp::~QHttp()
 */
 
 /*!
-    \fn void QHttp::requestFinished( int id, bool error )
+    \fn void QHttp::requestFinished(int id, bool error)
 
     This signal is emitted when processing the request identified by
-    \a id has finished. \a error is TRUE if an error occurred during
-    the processing; otherwise \a error is FALSE.
+    \a id has finished. \a error is true if an error occurred during
+    the processing; otherwise \a error is false.
 
     \sa requestStarted() done() error() errorString()
 */
 
 /*!
-    \fn void QHttp::done( bool error )
+    \fn void QHttp::done(bool error)
 
     This signal is emitted when the last pending request has finished;
     (it is emitted after the last request's requestFinished() signal).
-    \a error is TRUE if an error occurred during the processing;
-    otherwise \a error is FALSE.
+    \a error is true if an error occurred during the processing;
+    otherwise \a error is false.
 
     \sa requestFinished() error() errorString()
 */
@@ -1364,21 +1364,21 @@ QHttp::~QHttp()
     Aborts the current request and deletes all scheduled requests.
 
     For the current request, the requestFinished() signal with the \c
-    error argument \c TRUE is emitted. For all other requests that are
+    error argument \c true is emitted. For all other requests that are
     affected by the abort(), no signals are emitted.
 
     Since this slot also deletes the scheduled requests, there are no
     requests left and the done() signal is emitted (with the \c error
-    argument \c TRUE).
+    argument \c true).
 
     \sa clearPendingRequests()
 */
 void QHttp::abort()
 {
     if (d->pending.isEmpty())
-	return;
+        return;
 
-    finishedWithError( tr("Request aborted"), Aborted );
+    finishedWithError(tr("Request aborted"), Aborted);
     clearPendingRequests();
     d->socket.clearPendingData();
     closeConn();
@@ -1393,7 +1393,7 @@ void QHttp::abort()
 Q_ULONG QHttp::bytesAvailable() const
 {
 #if defined(QHTTP_DEBUG)
-    qDebug( "QHttp::bytesAvailable(): %d bytes", (int)d->rba.size() );
+    qDebug("QHttp::bytesAvailable(): %d bytes", (int)d->rba.size());
 #endif
     return d->rba.size();
 }
@@ -1404,19 +1404,19 @@ Q_ULONG QHttp::bytesAvailable() const
 
     \sa get() post() request() readyRead() bytesAvailable() readAll()
 */
-Q_LONG QHttp::readBlock( char *data, Q_ULONG maxlen )
+Q_LONG QHttp::readBlock(char *data, Q_ULONG maxlen)
 {
-    if ( data == 0 && maxlen != 0 ) {
-	qWarning( "QHttp::readBlock: Null pointer error" );
-	return -1;
+    if (data == 0 && maxlen != 0) {
+        qWarning("QHttp::readBlock: Null pointer error");
+        return -1;
     }
-    if ( maxlen >= d->rba.size() )
-	maxlen = d->rba.size();
-    d->rba.consumeBytes( maxlen, data );
+    if (maxlen >= d->rba.size())
+        maxlen = d->rba.size();
+    d->rba.consumeBytes(maxlen, data);
 
     d->bytesDone += maxlen;
 #if defined(QHTTP_DEBUG)
-    qDebug( "QHttp::readBlock(): read %d bytes (%d bytes done)", (int)maxlen, d->bytesDone );
+    qDebug("QHttp::readBlock(): read %d bytes (%d bytes done)", (int)maxlen, d->bytesDone);
 #endif
     return maxlen;
 }
@@ -1430,9 +1430,9 @@ QByteArray QHttp::readAll()
 {
     Q_ULONG avail = bytesAvailable();
     QByteArray tmp;
-    tmp.resize( avail );
-    Q_LONG read = readBlock( tmp.data(), avail );
-    tmp.resize( read );
+    tmp.resize(avail);
+    Q_LONG read = readBlock(tmp.data(), avail);
+    tmp.resize(read);
     return tmp;
 }
 
@@ -1445,7 +1445,7 @@ QByteArray QHttp::readAll()
 int QHttp::currentId() const
 {
     if (d->pending.isEmpty())
-	return 0;
+        return 0;
     return d->pending.first()->id;
 }
 
@@ -1453,16 +1453,16 @@ int QHttp::currentId() const
     Returns the request header of the HTTP request being executed. If
     the request is one issued by setHost() or close(), it
     returns an invalid request header, i.e.
-    QHttpRequestHeader::isValid() returns FALSE.
+    QHttpRequestHeader::isValid() returns false.
 
     \sa currentId()
 */
 QHttpRequestHeader QHttp::currentRequest() const
 {
     if (!d->pending.isEmpty()) {
-	QHttpRequest *r = d->pending.first();
-	if ( r->hasRequestHeader() )
-	    return r->requestHeader();
+        QHttpRequest *r = d->pending.first();
+        if (r->hasRequestHeader())
+            return r->requestHeader();
     }
     return QHttpRequestHeader();
 }
@@ -1480,7 +1480,7 @@ QHttpRequestHeader QHttp::currentRequest() const
 QIODevice* QHttp::currentSourceDevice() const
 {
     if (d->pending.isEmpty())
-	return 0;
+        return 0;
     return d->pending.first()->sourceDevice();
 }
 
@@ -1497,13 +1497,13 @@ QIODevice* QHttp::currentSourceDevice() const
 QIODevice* QHttp::currentDestinationDevice() const
 {
     if (d->pending.isEmpty())
-	return 0;
+        return 0;
     return d->pending.first()->destinationDevice();
 }
 
 /*!
-    Returns TRUE if there are any requests scheduled that have not yet
-    been executed; otherwise returns FALSE.
+    Returns true if there are any requests scheduled that have not yet
+    been executed; otherwise returns false.
 
     The request that is being executed is \e not considered as a
     scheduled request.
@@ -1526,7 +1526,7 @@ void QHttp::clearPendingRequests()
 {
     // delete all entires except the first one
     while (d->pending.count() > 1)
-	delete d->pending.takeLast();
+        delete d->pending.takeLast();
 }
 
 /*!
@@ -1544,9 +1544,9 @@ void QHttp::clearPendingRequests()
 
     \sa get() post() head() request() requestStarted() requestFinished() done()
 */
-int QHttp::setHost(const QString &hostname, Q_UINT16 port )
+int QHttp::setHost(const QString &hostname, Q_UINT16 port)
 {
-    return addRequest( new QHttpSetHostRequest( hostname, port ) );
+    return addRequest(new QHttpSetHostRequest(hostname, port));
 }
 
 /*!
@@ -1575,11 +1575,11 @@ int QHttp::setHost(const QString &hostname, Q_UINT16 port )
 
     \sa setHost() post() head() request() requestStarted() requestFinished() done()
 */
-int QHttp::get( const QString& path, QIODevice* to )
+int QHttp::get(const QString& path, QIODevice* to)
 {
-    QHttpRequestHeader header( "GET", path );
-    header.setValue( "Connection", "Keep-Alive" );
-    return addRequest( new QHttpPGHRequest( header, (QIODevice*)0, to ) );
+    QHttpRequestHeader header("GET", path);
+    header.setValue("Connection", "Keep-Alive");
+    return addRequest(new QHttpPGHRequest(header, (QIODevice*)0, to));
 }
 
 /*!
@@ -1610,11 +1610,11 @@ int QHttp::get( const QString& path, QIODevice* to )
 
     \sa setHost() get() head() request() requestStarted() requestFinished() done()
 */
-int QHttp::post( const QString& path, QIODevice* data, QIODevice* to  )
+int QHttp::post(const QString& path, QIODevice* data, QIODevice* to )
 {
-    QHttpRequestHeader header( "POST", path );
-    header.setValue( "Connection", "Keep-Alive" );
-    return addRequest( new QHttpPGHRequest( header, data, to ) );
+    QHttpRequestHeader header("POST", path);
+    header.setValue("Connection", "Keep-Alive");
+    return addRequest(new QHttpPGHRequest(header, data, to));
 }
 
 /*!
@@ -1622,11 +1622,11 @@ int QHttp::post( const QString& path, QIODevice* data, QIODevice* to  )
 
     \a data is used as the content data of the HTTP request.
 */
-int QHttp::post( const QString& path, const QByteArray& data, QIODevice* to )
+int QHttp::post(const QString& path, const QByteArray& data, QIODevice* to)
 {
-    QHttpRequestHeader header( "POST", path );
-    header.setValue( "Connection", "Keep-Alive" );
-    return addRequest( new QHttpPGHRequest( header, new QByteArray(data), to ) );
+    QHttpRequestHeader header("POST", path);
+    header.setValue("Connection", "Keep-Alive");
+    return addRequest(new QHttpPGHRequest(header, new QByteArray(data), to));
 }
 
 /*!
@@ -1647,11 +1647,11 @@ int QHttp::post( const QString& path, const QByteArray& data, QIODevice* to )
 
     \sa setHost() get() post() request() requestStarted() requestFinished() done()
 */
-int QHttp::head( const QString& path )
+int QHttp::head(const QString& path)
 {
-    QHttpRequestHeader header( "HEAD", path );
-    header.setValue( "Connection", "Keep-Alive" );
-    return addRequest( new QHttpPGHRequest( header, (QIODevice*)0, 0 ) );
+    QHttpRequestHeader header("HEAD", path);
+    header.setValue("Connection", "Keep-Alive");
+    return addRequest(new QHttpPGHRequest(header, (QIODevice*)0, 0));
 }
 
 /*!
@@ -1681,9 +1681,9 @@ int QHttp::head( const QString& path )
 
     \sa setHost() get() post() head() requestStarted() requestFinished() done()
 */
-int QHttp::request( const QHttpRequestHeader &header, QIODevice *data, QIODevice *to )
+int QHttp::request(const QHttpRequestHeader &header, QIODevice *data, QIODevice *to)
 {
-    return addRequest( new QHttpNormalRequest( header, data, to ) );
+    return addRequest(new QHttpNormalRequest(header, data, to));
 }
 
 /*!
@@ -1691,9 +1691,9 @@ int QHttp::request( const QHttpRequestHeader &header, QIODevice *data, QIODevice
 
     \a data is used as the content data of the HTTP request.
 */
-int QHttp::request( const QHttpRequestHeader &header, const QByteArray &data, QIODevice *to  )
+int QHttp::request(const QHttpRequestHeader &header, const QByteArray &data, QIODevice *to )
 {
-    return addRequest( new QHttpNormalRequest( header, new QByteArray(data), to ) );
+    return addRequest(new QHttpNormalRequest(header, new QByteArray(data), to));
 }
 
 /*!
@@ -1722,7 +1722,7 @@ int QHttp::request( const QHttpRequestHeader &header, const QByteArray &data, QI
 */
 int QHttp::close()
 {
-    return addRequest( new QHttpCloseRequest() );
+    return addRequest(new QHttpCloseRequest());
 }
 
 /*!
@@ -1732,16 +1732,16 @@ int QHttp::close()
 */
 int QHttp::closeConnection()
 {
-    return addRequest( new QHttpCloseRequest() );
+    return addRequest(new QHttpCloseRequest());
 }
 
-int QHttp::addRequest( QHttpRequest *req )
+int QHttp::addRequest(QHttpRequest *req)
 {
-    d->pending.append( req );
+    d->pending.append(req);
 
-    if ( d->pending.count() == 1 ) {
-	// don't emit the requestStarted() signal before the id is returned
-	QTimer::singleShot( 0, this, SLOT(startNextRequest()) );
+    if (d->pending.count() == 1) {
+        // don't emit the requestStarted() signal before the id is returned
+        QTimer::singleShot(0, this, SLOT(startNextRequest()));
     }
     return req->id;
 }
@@ -1749,32 +1749,32 @@ int QHttp::addRequest( QHttpRequest *req )
 void QHttp::startNextRequest()
 {
     if (d->pending.isEmpty())
-	return;
+        return;
     QHttpRequest *r = d->pending.first();
 
     d->error = NoError;
-    d->errorString = tr( "Unknown error" );
+    d->errorString = tr("Unknown error");
 
-    if ( bytesAvailable() )
-	readAll(); // clear the data
-    emit requestStarted( r->id );
-    r->start( this );
+    if (bytesAvailable())
+        readAll(); // clear the data
+    emit requestStarted(r->id);
+    r->start(this);
 }
 
 void QHttp::sendRequest()
 {
-    if ( d->hostname.isNull() ) {
-	finishedWithError( tr("No server set to connect to"), UnknownError );
-	return;
+    if (d->hostname.isNull()) {
+        finishedWithError(tr("No server set to connect to"), UnknownError);
+        return;
     }
 
     killIdleTimer();
 
     // Do we need to setup a new connection or can we reuse an
     // existing one?
-    if ( d->socket.peerName() != d->hostname || d->socket.state() != QSocket::Connection ) {
-	setState( QHttp::Connecting );
-	d->socket.connectToHost( d->hostname, d->port );
+    if (d->socket.peerName() != d->hostname || d->socket.state() != QSocket::Connection) {
+        setState(QHttp::Connecting);
+        d->socket.connectToHost(d->hostname, d->port);
     } else {
         slotConnected();
     }
@@ -1784,24 +1784,24 @@ void QHttp::sendRequest()
 void QHttp::finishedWithSuccess()
 {
     if (d->pending.isEmpty())
-	return;
+        return;
     QHttpRequest *r = d->pending.first();
 
-    emit requestFinished( r->id, FALSE );
+    emit requestFinished(r->id, false);
     d->pending.removeFirst();
     delete r;
 
-    if ( d->pending.isEmpty() ) {
-	emit done( FALSE );
+    if (d->pending.isEmpty()) {
+        emit done(false);
     } else {
-	startNextRequest();
+        startNextRequest();
     }
 }
 
-void QHttp::finishedWithError( const QString& detail, int errorCode )
+void QHttp::finishedWithError(const QString& detail, int errorCode)
 {
     if (d->pending.isEmpty())
-	return;
+        return;
     QHttpRequest *r = d->pending.first();
 
     d->error = (Error)errorCode;
@@ -1809,283 +1809,283 @@ void QHttp::finishedWithError( const QString& detail, int errorCode )
     emit requestFinished(r->id, true);
 
     while (!d->pending.isEmpty())
-	delete d->pending.takeFirst();
+        delete d->pending.takeFirst();
     emit done(true);
 }
 
 void QHttp::slotClosed()
 {
-    if ( d->state == Closing )
-	return;
+    if (d->state == Closing)
+        return;
 
-    if ( d->state == Reading ) {
-	if ( d->response.hasKey( "content-length" ) ) {
-	    // We got Content-Length, so did we get all bytes?
-	    if ( d->bytesDone+bytesAvailable() != d->response.contentLength() ) {
-		finishedWithError( tr("Wrong content length"), WrongContentLength );
-	    }
-	}
-    } else if ( d->state == Connecting || d->state == Sending ) {
-	finishedWithError( tr("Server closed connection unexpectedly"), UnexpectedClose );
+    if (d->state == Reading) {
+        if (d->response.hasKey("content-length")) {
+            // We got Content-Length, so did we get all bytes?
+            if (d->bytesDone+bytesAvailable() != d->response.contentLength()) {
+                finishedWithError(tr("Wrong content length"), WrongContentLength);
+            }
+        }
+    } else if (d->state == Connecting || d->state == Sending) {
+        finishedWithError(tr("Server closed connection unexpectedly"), UnexpectedClose);
     }
 
     d->postDevice = 0;
-    setState( Closing );
-    d->idleTimer = startTimer( 0 );
+    setState(Closing);
+    d->idleTimer = startTimer(0);
 }
 
 void QHttp::slotConnected()
 {
-    if ( d->state != Sending ) {
-	d->bytesDone = 0;
-	setState( Sending );
+    if (d->state != Sending) {
+        d->bytesDone = 0;
+        setState(Sending);
     }
 
     QString str = d->header.toString();
     d->bytesTotal = str.length();
-    d->socket.writeBlock( str.latin1(), d->bytesTotal );
+    d->socket.writeBlock(str.latin1(), d->bytesTotal);
 #if defined(QHTTP_DEBUG)
-    qDebug( "QHttp: write request header:\n---{\n%s}---", str.latin1() );
+    qDebug("QHttp: write request header:\n---{\n%s}---", str.latin1());
 #endif
 
-    if ( d->postDevice ) {
-	d->bytesTotal += d->postDevice->size();
+    if (d->postDevice) {
+        d->bytesTotal += d->postDevice->size();
     } else {
-	d->bytesTotal += d->buffer.size();
-	d->socket.writeBlock( d->buffer, d->buffer.size() );
-	d->buffer = QByteArray(); // save memory
+        d->bytesTotal += d->buffer.size();
+        d->socket.writeBlock(d->buffer, d->buffer.size());
+        d->buffer = QByteArray(); // save memory
     }
 }
 
-void QHttp::slotError( int err )
+void QHttp::slotError(int err)
 {
     d->postDevice = 0;
 
-    if ( d->state == Connecting || d->state == Reading || d->state == Sending ) {
-	switch ( err ) {
-	    case QSocket::ErrConnectionRefused:
-		finishedWithError( tr("Connection refused"), ConnectionRefused );
-		break;
-	    case QSocket::ErrHostNotFound:
-		finishedWithError( tr("Host %1 not found").arg(d->socket.peerName()), HostNotFound );
-		break;
-	    default:
-		finishedWithError( tr("HTTP request failed"), UnknownError );
-		break;
-	}
+    if (d->state == Connecting || d->state == Reading || d->state == Sending) {
+        switch (err) {
+            case QSocket::ErrConnectionRefused:
+                finishedWithError(tr("Connection refused"), ConnectionRefused);
+                break;
+            case QSocket::ErrHostNotFound:
+                finishedWithError(tr("Host %1 not found").arg(d->socket.peerName()), HostNotFound);
+                break;
+            default:
+                finishedWithError(tr("HTTP request failed"), UnknownError);
+                break;
+        }
     }
 
     closeConn();
 }
 
-void QHttp::slotBytesWritten( int written )
+void QHttp::slotBytesWritten(int written)
 {
     d->bytesDone += written;
-    emit dataSendProgress( d->bytesDone, d->bytesTotal );
+    emit dataSendProgress(d->bytesDone, d->bytesTotal);
 
-    if ( !d->postDevice )
-	return;
+    if (!d->postDevice)
+        return;
 
-    if ( d->socket.bytesToWrite() == 0 ) {
-	int max = qMin( 4096, d->postDevice->size() - d->postDevice->at() );
-	QByteArray arr;
-	arr.resize( max );
+    if (d->socket.bytesToWrite() == 0) {
+        int max = qMin(4096, d->postDevice->size() - d->postDevice->at());
+        QByteArray arr;
+        arr.resize(max);
 
-	int n = d->postDevice->readBlock( arr.data(), max );
-	if ( n != max ) {
-	    qWarning("Could not read enough bytes from the device");
-	    closeConn();
-	    return;
-	}
-	if ( d->postDevice->atEnd() ) {
-	    d->postDevice = 0;
-	}
+        int n = d->postDevice->readBlock(arr.data(), max);
+        if (n != max) {
+            qWarning("Could not read enough bytes from the device");
+            closeConn();
+            return;
+        }
+        if (d->postDevice->atEnd()) {
+            d->postDevice = 0;
+        }
 
-	d->socket.writeBlock( arr, max );
+        d->socket.writeBlock(arr, max);
     }
 }
 
 void QHttp::slotReadyRead()
 {
-    if ( d->state != Reading ) {
-	setState( Reading );
-	d->buffer = QByteArray();
-	d->readHeader = TRUE;
-	d->headerStr = "";
-	d->bytesDone = 0;
-	d->chunkedSize = -1;
+    if (d->state != Reading) {
+        setState(Reading);
+        d->buffer = QByteArray();
+        d->readHeader = true;
+        d->headerStr = "";
+        d->bytesDone = 0;
+        d->chunkedSize = -1;
     }
 
-    while ( d->readHeader ) {
-	bool end = FALSE;
-	QString tmp;
-	while ( !end && d->socket.canReadLine() ) {
-	    tmp = d->socket.readLine();
-	    if ( tmp == "\r\n" || tmp == "\n" )
-		end = TRUE;
-	    else
-		d->headerStr += tmp;
-	}
+    while (d->readHeader) {
+        bool end = false;
+        QString tmp;
+        while (!end && d->socket.canReadLine()) {
+            tmp = d->socket.readLine();
+            if (tmp == "\r\n" || tmp == "\n")
+                end = true;
+            else
+                d->headerStr += tmp;
+        }
 
-	if ( !end )
-	    return;
+        if (!end)
+            return;
 
 #if defined(QHTTP_DEBUG)
-	qDebug( "QHttp: read response header:\n---{\n%s}---", d->headerStr.latin1() );
+        qDebug("QHttp: read response header:\n---{\n%s}---", d->headerStr.latin1());
 #endif
-	d->response = QHttpResponseHeader( d->headerStr );
-	d->headerStr = "";
+        d->response = QHttpResponseHeader(d->headerStr);
+        d->headerStr = "";
 #if defined(QHTTP_DEBUG)
-	qDebug( "QHttp: read response header:\n---{\n%s}---", d->response.toString().latin1() );
+        qDebug("QHttp: read response header:\n---{\n%s}---", d->response.toString().latin1());
 #endif
-	// Check header
-	if ( !d->response.isValid() ) {
-	    finishedWithError( tr("Invalid HTTP response header"), InvalidResponseHeader );
-	    closeConn();
-	    return;
-	}
+        // Check header
+        if (!d->response.isValid()) {
+            finishedWithError(tr("Invalid HTTP response header"), InvalidResponseHeader);
+            closeConn();
+            return;
+        }
 
-	// The 100-continue header is ignored, because when using the
-	// POST method, we send both the request header and data in
-	// one chunk.
-	if (d->response.statusCode() != 100) {
-	    d->readHeader = FALSE;
-	    if ( d->response.hasKey( "transfer-encoding" ) &&
-		 d->response.value( "transfer-encoding" ).toLower().contains( "chunked" ) )
-		d->chunkedSize = 0;
+        // The 100-continue header is ignored, because when using the
+        // POST method, we send both the request header and data in
+        // one chunk.
+        if (d->response.statusCode() != 100) {
+            d->readHeader = false;
+            if (d->response.hasKey("transfer-encoding") &&
+                 d->response.value("transfer-encoding").toLower().contains("chunked"))
+                d->chunkedSize = 0;
 
-	    emit responseHeaderReceived( d->response );
-	}
+            emit responseHeaderReceived(d->response);
+        }
     }
 
-    if ( !d->readHeader ) {
-	bool everythingRead = FALSE;
+    if (!d->readHeader) {
+        bool everythingRead = false;
 
-	if ( currentRequest().method() == "HEAD" ) {
-	    everythingRead = TRUE;
-	} else {
-	    Q_ULONG n = d->socket.bytesAvailable();
-	    QByteArray *arr = 0;
-	    if ( d->chunkedSize != -1 ) {
-		// transfer-encoding is chunked
-		for ( ;; ) {
-		    // get chunk size
-		    if ( d->chunkedSize == 0 ) {
-			if ( !d->socket.canReadLine() )
-			    break;
-			QString sizeString = d->socket.readLine();
-			int tPos = sizeString.indexOf( ';' );
-			if ( tPos != -1 )
-			    sizeString.truncate( tPos );
-			bool ok;
-			d->chunkedSize = sizeString.toInt( &ok, 16 );
-			if ( !ok ) {
-			    finishedWithError( tr("Invalid HTTP chunked body"), WrongContentLength );
-			    closeConn();
-			    return;
-			}
-			if ( d->chunkedSize == 0 ) // last-chunk
-			    d->chunkedSize = -2;
-		    }
+        if (currentRequest().method() == "HEAD") {
+            everythingRead = true;
+        } else {
+            Q_ULONG n = d->socket.bytesAvailable();
+            QByteArray *arr = 0;
+            if (d->chunkedSize != -1) {
+                // transfer-encoding is chunked
+                for (;;) {
+                    // get chunk size
+                    if (d->chunkedSize == 0) {
+                        if (!d->socket.canReadLine())
+                            break;
+                        QString sizeString = d->socket.readLine();
+                        int tPos = sizeString.indexOf(';');
+                        if (tPos != -1)
+                            sizeString.truncate(tPos);
+                        bool ok;
+                        d->chunkedSize = sizeString.toInt(&ok, 16);
+                        if (!ok) {
+                            finishedWithError(tr("Invalid HTTP chunked body"), WrongContentLength);
+                            closeConn();
+                            return;
+                        }
+                        if (d->chunkedSize == 0) // last-chunk
+                            d->chunkedSize = -2;
+                    }
 
-		    // read trailer
-		    while ( d->chunkedSize == -2 && d->socket.canReadLine() ) {
-			QString read = d->socket.readLine();
-			if ( read == "\r\n" || read == "\n" )
-			    d->chunkedSize = -1;
-		    }
-		    if ( d->chunkedSize == -1 ) {
-			everythingRead = TRUE;
-			break;
-		    }
+                    // read trailer
+                    while (d->chunkedSize == -2 && d->socket.canReadLine()) {
+                        QString read = d->socket.readLine();
+                        if (read == "\r\n" || read == "\n")
+                            d->chunkedSize = -1;
+                    }
+                    if (d->chunkedSize == -1) {
+                        everythingRead = true;
+                        break;
+                    }
 
-		    // make sure that you can read the terminating CRLF,
-		    // otherwise wait until next time...
-		    n = d->socket.bytesAvailable();
-		    if ( n == 0 )
-			break;
-		    if ( (Q_LONG)n == d->chunkedSize || (Q_LONG)n == d->chunkedSize+1 ) {
-			n = d->chunkedSize - 1;
-			if ( n == 0 )
-			    break;
-		    }
+                    // make sure that you can read the terminating CRLF,
+                    // otherwise wait until next time...
+                    n = d->socket.bytesAvailable();
+                    if (n == 0)
+                        break;
+                    if ((Q_LONG)n == d->chunkedSize || (Q_LONG)n == d->chunkedSize+1) {
+                        n = d->chunkedSize - 1;
+                        if (n == 0)
+                            break;
+                    }
 
-		    // read data
-		    uint toRead = qMin( (Q_LONG)n, d->chunkedSize );
-		    if ( !arr )
-			arr = new QByteArray;
-		    uint oldArrSize = arr->size();
-		    arr->resize( oldArrSize + toRead );
-		    Q_LONG read = d->socket.readBlock( arr->data()+oldArrSize, toRead );
-		    arr->resize( oldArrSize + read );
+                    // read data
+                    uint toRead = qMin((Q_LONG)n, d->chunkedSize);
+                    if (!arr)
+                        arr = new QByteArray;
+                    uint oldArrSize = arr->size();
+                    arr->resize(oldArrSize + toRead);
+                    Q_LONG read = d->socket.readBlock(arr->data()+oldArrSize, toRead);
+                    arr->resize(oldArrSize + read);
 
-		    d->chunkedSize -= read;
+                    d->chunkedSize -= read;
 
-		    if ( d->chunkedSize == 0 && n - read >= 2 ) {
-			// read terminating CRLF
-			char tmp[2];
-			d->socket.readBlock( tmp, 2 );
-			if ( tmp[0] != '\r' || tmp[1] != '\n' ) {
-			    finishedWithError( tr("Invalid HTTP chunked body"), WrongContentLength );
-			    closeConn();
-			    return;
-			}
-		    }
-		}
-	    } else if ( d->response.hasContentLength() ) {
-		n = qMin( d->response.contentLength() - d->bytesDone, n );
-		if ( n > 0 ) {
-		    arr = new QByteArray;
-		    arr->resize( n );
-		    Q_LONG read = d->socket.readBlock( arr->data(), n );
-		    arr->resize( read );
-		}
-		if ( d->bytesDone + bytesAvailable() + n == d->response.contentLength() )
-		    everythingRead = TRUE;
-	    } else if ( n > 0 ) {
-		// workaround for VC++ bug
-		QByteArray temp = d->socket.readAll();
-		arr = new QByteArray( temp );
-	    }
+                    if (d->chunkedSize == 0 && n - read >= 2) {
+                        // read terminating CRLF
+                        char tmp[2];
+                        d->socket.readBlock(tmp, 2);
+                        if (tmp[0] != '\r' || tmp[1] != '\n') {
+                            finishedWithError(tr("Invalid HTTP chunked body"), WrongContentLength);
+                            closeConn();
+                            return;
+                        }
+                    }
+                }
+            } else if (d->response.hasContentLength()) {
+                n = qMin(d->response.contentLength() - d->bytesDone, n);
+                if (n > 0) {
+                    arr = new QByteArray;
+                    arr->resize(n);
+                    Q_LONG read = d->socket.readBlock(arr->data(), n);
+                    arr->resize(read);
+                }
+                if (d->bytesDone + bytesAvailable() + n == d->response.contentLength())
+                    everythingRead = true;
+            } else if (n > 0) {
+                // workaround for VC++ bug
+                QByteArray temp = d->socket.readAll();
+                arr = new QByteArray(temp);
+            }
 
-	    if ( arr ) {
-		n = arr->size();
-		if ( d->toDevice ) {
-		    d->toDevice->writeBlock( *arr, n );
-		    delete arr;
-		    d->bytesDone += n;
+            if (arr) {
+                n = arr->size();
+                if (d->toDevice) {
+                    d->toDevice->writeBlock(*arr, n);
+                    delete arr;
+                    d->bytesDone += n;
 #if defined(QHTTP_DEBUG)
-		    qDebug( "QHttp::slotReadyRead(): read %ld bytes (%d bytes done)", n, d->bytesDone );
+                    qDebug("QHttp::slotReadyRead(): read %ld bytes (%d bytes done)", n, d->bytesDone);
 #endif
-		    if ( d->response.hasContentLength() )
-			emit dataReadProgress( d->bytesDone, d->response.contentLength() );
-		    else
-			emit dataReadProgress( d->bytesDone, 0 );
-		} else {
-		    d->rba.append( arr );
+                    if (d->response.hasContentLength())
+                        emit dataReadProgress(d->bytesDone, d->response.contentLength());
+                    else
+                        emit dataReadProgress(d->bytesDone, 0);
+                } else {
+                    d->rba.append(arr);
 #if defined(QHTTP_DEBUG)
-		    qDebug( "QHttp::slotReadyRead(): read %ld bytes (%ld bytes done)", n, d->bytesDone + bytesAvailable() );
+                    qDebug("QHttp::slotReadyRead(): read %ld bytes (%ld bytes done)", n, d->bytesDone + bytesAvailable());
 #endif
-		    if ( d->response.hasContentLength() )
-			emit dataReadProgress( d->bytesDone + bytesAvailable(), d->response.contentLength() );
-		    else
-			emit dataReadProgress( d->bytesDone + bytesAvailable(), 0 );
-		    emit readyRead( d->response );
-		}
-	    }
-	}
+                    if (d->response.hasContentLength())
+                        emit dataReadProgress(d->bytesDone + bytesAvailable(), d->response.contentLength());
+                    else
+                        emit dataReadProgress(d->bytesDone + bytesAvailable(), 0);
+                    emit readyRead(d->response);
+                }
+            }
+        }
 
-	if ( everythingRead ) {
-	    // Handle "Connection: close"
-	    if ( d->response.value("connection").toLower() == "close" ) {
-		closeConn();
-	    } else {
-		setState( Connected );
-		// Start a timer, so that we emit the keep alive signal
-		// "after" this method returned.
-		d->idleTimer = startTimer( 0 );
-	    }
-	}
+        if (everythingRead) {
+            // Handle "Connection: close"
+            if (d->response.value("connection").toLower() == "close") {
+                closeConn();
+            } else {
+                setState(Connected);
+                // Start a timer, so that we emit the keep alive signal
+                // "after" this method returned.
+                d->idleTimer = startTimer(0);
+            }
+        }
     }
 }
 
@@ -2103,7 +2103,7 @@ QHttp::State QHttp::state() const
 /*!
     Returns the last error that occurred. This is useful to find out
     what happened when receiving a requestFinished() or a done()
-    signal with the \c error argument \c TRUE.
+    signal with the \c error argument \c true.
 
     If you start a new request, the error status is reset to \c NoError.
 */
@@ -2116,7 +2116,7 @@ QHttp::Error QHttp::error() const
     Returns a human-readable description of the last error that
     occurred. This is useful to present a error message to the user
     when receiving a requestFinished() or a done() signal with the \c
-    error argument \c TRUE.
+    error argument \c true.
 */
 QString QHttp::errorString() const
 {
@@ -2125,59 +2125,59 @@ QString QHttp::errorString() const
 
 /*! \reimp
 */
-void QHttp::timerEvent( QTimerEvent *e )
+void QHttp::timerEvent(QTimerEvent *e)
 {
-    if ( e->timerId() == d->idleTimer ) {
-	killTimer( d->idleTimer );
-	d->idleTimer = 0;
+    if (e->timerId() == d->idleTimer) {
+        killTimer(d->idleTimer);
+        d->idleTimer = 0;
 
-	if ( d->state == Connected ) {
-	    finishedWithSuccess();
-	} else if ( d->state != Unconnected ) {
-	    setState( Unconnected );
-	    finishedWithSuccess();
-	}
+        if (d->state == Connected) {
+            finishedWithSuccess();
+        } else if (d->state != Unconnected) {
+            setState(Unconnected);
+            finishedWithSuccess();
+        }
     } else {
-	QObject::timerEvent( e );
+        QObject::timerEvent(e);
     }
 }
 
 void QHttp::killIdleTimer()
 {
-    killTimer( d->idleTimer );
+    killTimer(d->idleTimer);
     d->idleTimer = 0;
 }
 
-void QHttp::setState( int s )
+void QHttp::setState(int s)
 {
 #if defined(QHTTP_DEBUG)
-    qDebug( "QHttp state changed %d -> %d", d->state, s );
+    qDebug("QHttp state changed %d -> %d", d->state, s);
 #endif
     d->state = (State)s;
-    emit stateChanged( s );
+    emit stateChanged(s);
 }
 
 void QHttp::closeConn()
 {
     // If no connection is open -> ignore
-    if ( d->state == Closing || d->state == Unconnected )
-	return;
+    if (d->state == Closing || d->state == Unconnected)
+        return;
 
     d->postDevice = 0;
-    setState( Closing );
+    setState(Closing);
 
     // Already closed ?
-    if ( !d->socket.isOpen() ) {
-	d->idleTimer = startTimer( 0 );
+    if (!d->socket.isOpen()) {
+        d->idleTimer = startTimer(0);
     } else {
-	// Close now.
-	d->socket.close();
+        // Close now.
+        d->socket.close();
 
-	// Did close succeed immediately ?
-	if ( d->socket.state() == QSocket::Idle ) {
-	    // Prepare to emit the requestFinished() signal.
-	    d->idleTimer = startTimer( 0 );
-	}
+        // Did close succeed immediately ?
+        if (d->socket.state() == QSocket::Idle) {
+            // Prepare to emit the requestFinished() signal.
+            d->idleTimer = startTimer(0);
+        }
     }
 }
 

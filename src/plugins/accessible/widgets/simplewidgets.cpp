@@ -29,9 +29,9 @@ QAccessibleButton::QAccessibleButton(QWidget *w, Role role)
 {
     Q_ASSERT(button());
     if (button()->isToggleButton())
-	addControllingSignal("toggled(bool)");
+        addControllingSignal("toggled(bool)");
     else
-	addControllingSignal("clicked()");
+        addControllingSignal("clicked()");
 }
 
 /*! Returns the button. */
@@ -44,7 +44,7 @@ QButton *QAccessibleButton::button() const
 int QAccessibleButton::numActions(int child) const
 {
     if (child)
-	return 0;
+        return 0;
 
     return (widget()->focusPolicy() != QWidget::NoFocus) ? 2 : 1;
 }
@@ -53,29 +53,29 @@ int QAccessibleButton::numActions(int child) const
 QString QAccessibleButton::actionText(int action, Text text, int child) const
 {
     if (child)
-	return QString();
+        return QString();
 
     if (text == Name) switch (action) {
     case 0: // press, checking or open
-	switch (role(0)) {
-	case ButtonMenu:
-	    return QPushButton::tr("Open");
-	case CheckBox:
-	    {
-		if (state(child) & Checked)
-		    return QCheckBox::tr("Uncheck");
-		QCheckBox *cb = qt_cast<QCheckBox*>(object());
-		if (!cb || !cb->isTristate() || button()->state() == QButton::NoChange)
-		    return QCheckBox::tr("Check");
-		return QCheckBox::tr("Toggle");
-	    }
-	    break;
-	case RadioButton:
-	    return QRadioButton::tr("Check");
-	}
-	break;
+        switch (role(0)) {
+        case ButtonMenu:
+            return QPushButton::tr("Open");
+        case CheckBox:
+            {
+                if (state(child) & Checked)
+                    return QCheckBox::tr("Uncheck");
+                QCheckBox *cb = qt_cast<QCheckBox*>(object());
+                if (!cb || !cb->isTristate() || button()->state() == QButton::NoChange)
+                    return QCheckBox::tr("Check");
+                return QCheckBox::tr("Toggle");
+            }
+            break;
+        case RadioButton:
+            return QRadioButton::tr("Check");
+        }
+        break;
     case 1: // focus
-	return "Set Focus";
+        return "Set Focus";
     }
     return QString();
 }
@@ -84,23 +84,23 @@ QString QAccessibleButton::actionText(int action, Text text, int child) const
 bool QAccessibleButton::doAction(int action, int child)
 {
     if (child || !widget()->isEnabled())
-	return false;
+        return false;
 
     switch (action) {
     case 0:
-	{
-	    QPushButton *pb = qt_cast<QPushButton*>(object());
-	    if (pb && pb->popup())
-		pb->openPopup();
-	    else
-		button()->animateClick();
-	}
-	return true;
+        {
+            QPushButton *pb = qt_cast<QPushButton*>(object());
+            if (pb && pb->popup())
+                pb->openPopup();
+            else
+                button()->animateClick();
+        }
+        return true;
     case 1:
-	if (widget()->focusPolicy() != QWidget::NoFocus) {
-	    widget()->setFocus();
-	    return true;
-	}
+        if (widget()->focusPolicy() != QWidget::NoFocus) {
+            widget()->setFocus();
+            return true;
+        }
     }
     return false;
 }
@@ -112,22 +112,22 @@ QString QAccessibleButton::text(Text t, int child) const
 
     switch (t) {
     case Accelerator:
-	{
-	    QPushButton *pb = qt_cast<QPushButton*>(object());
-	    if (pb && pb->isDefault())
-		str = (QString)QKeySequence(Key_Enter);
-	    if (str.isEmpty())
-		str = qacc_hotKey(button()->text());
-	}
-	break;
+        {
+            QPushButton *pb = qt_cast<QPushButton*>(object());
+            if (pb && pb->isDefault())
+                str = (QString)QKeySequence(Key_Enter);
+            if (str.isEmpty())
+                str = qacc_hotKey(button()->text());
+        }
+        break;
     case Name:
-	str = button()->text();
-	break;
+        str = button()->text();
+        break;
     default:
-	break;
+        break;
     }
     if (str.isEmpty())
-	str = QAccessibleWidget::text(t, child);;
+        str = QAccessibleWidget::text(t, child);;
     return qacc_stripAmp(str);
 }
 
@@ -138,17 +138,17 @@ int QAccessibleButton::state(int child) const
 
     QButton *b = button();
     if (b->state() == QButton::On)
-	state |= Checked;
+        state |= Checked;
     else if (b->state() == QButton::NoChange)
-	state |= Mixed;
+        state |= Mixed;
     if (b->isDown())
-	state |= Pressed;
+        state |= Pressed;
     QPushButton *pb = qt_cast<QPushButton*>(b);
     if (pb) {
-	if (pb->isDefault())
-	    state |= DefaultButton;
-	if (pb->popup())
-	    state |= HasPopup;
+        if (pb->isDefault())
+            state |= DefaultButton;
+        if (pb->popup())
+            state |= HasPopup;
     }
 
     return state;
@@ -176,7 +176,7 @@ QToolButton *QAccessibleToolButton::toolButton() const
     return qt_cast<QToolButton*>(object());
 }
 
-/*! 
+/*!
     Returns true if this tool button is a split button.
 */
 bool QAccessibleToolButton::isSplitButton() const
@@ -189,9 +189,9 @@ QAccessible::Role QAccessibleToolButton::role(int child) const
 {
     if (isSplitButton()) switch(child) {
     case ButtonExecute:
-	return PushButton;
+        return PushButton;
     case ButtonDropMenu:
-	return ButtonMenu;
+        return ButtonMenu;
     }
     return QAccessibleButton::role(child);
 }
@@ -201,9 +201,9 @@ int QAccessibleToolButton::state(int child) const
 {
     int st = QAccessibleButton::state(child);
     if (toolButton()->autoRaise())
-	st |= HotTracked;
+        st |= HotTracked;
     if (toolButton()->popup() && child != ButtonExecute)
-	st |= HasPopup;
+        st |= HasPopup;
     return st;
 }
 
@@ -216,13 +216,13 @@ int QAccessibleToolButton::childCount() const
 QRect QAccessibleToolButton::rect(int child) const
 {
     if (!child)
-	return QAccessibleButton::rect(child);
+        return QAccessibleButton::rect(child);
 
-    QRect subrect = QStyle::visualRect( widget()->style().querySubControlMetrics(QStyle::CC_ToolButton, 
-	    toolButton(), QStyle::SC_ToolButtonMenu), toolButton() );
+    QRect subrect = QStyle::visualRect(widget()->style().querySubControlMetrics(QStyle::CC_ToolButton,
+            toolButton(), QStyle::SC_ToolButtonMenu), toolButton());
 
     if (child == ButtonExecute)
-	subrect = QRect(0, 0, subrect.x(), widget()->height());
+        subrect = QRect(0, 0, subrect.x(), widget()->height());
 
     QPoint ntl = widget()->mapToGlobal(subrect.topLeft());
     subrect.moveTopLeft(ntl);
@@ -235,15 +235,15 @@ QString QAccessibleToolButton::text(Text t, int child) const
 
     switch (t) {
     case Name:
-	str = toolButton()->text();
-	if (str.isEmpty())
-	    str = toolButton()->textLabel();
-	break;
+        str = toolButton()->text();
+        if (str.isEmpty())
+            str = toolButton()->textLabel();
+        break;
     default:
-	break;
+        break;
     }
     if (str.isEmpty())
-	str = QAccessibleButton::text(t, child);;
+        str = QAccessibleButton::text(t, child);;
     return qacc_stripAmp(str);
 }
 
@@ -251,7 +251,7 @@ int QAccessibleToolButton::numActions(int child) const
 {
     // each subelement has one action
     if (child)
-	return isSplitButton() ? 1 : 0;
+        return isSplitButton() ? 1 : 0;
     int ac = widget()->focusPolicy() != QWidget::NoFocus ? 1 : 0;
     // button itself has two actions if a menu button
     return ac + (toolButton()->popup() ? 2 : 1);
@@ -261,20 +261,20 @@ QString QAccessibleToolButton::actionText(int action, Text text, int child) cons
 {
     if (text == Name) switch(child) {
     case ButtonExecute:
-	return QToolButton::tr("Press");
+        return QToolButton::tr("Press");
     case ButtonDropMenu:
-	return QToolButton::tr("Open");
+        return QToolButton::tr("Open");
     default:
-	switch(action) {
-	case 0:
-	    return QToolButton::tr("Press");
-	case 1:
-	    if (toolButton()->popup())
-		return QToolButton::tr("Open");
-	    //fall through
-	case 2:
-	    return "Set Focus";
-	}
+        switch(action) {
+        case 0:
+            return QToolButton::tr("Press");
+        case 1:
+            if (toolButton()->popup())
+                return QToolButton::tr("Open");
+            //fall through
+        case 2:
+            return "Set Focus";
+        }
     }
     return QString();
 }
@@ -282,12 +282,12 @@ QString QAccessibleToolButton::actionText(int action, Text text, int child) cons
 bool QAccessibleToolButton::doAction(int action, int child)
 {
     if (!widget()->isEnabled())
-	return false;
+        return false;
     if (action == 1 || child == ButtonDropMenu) {
-	if(!child)
-	    toolButton()->setDown(true);
-	toolButton()->openPopup();
-	return true;
+        if(!child)
+            toolButton()->setDown(true);
+        toolButton()->openPopup();
+        return true;
     }
     return QAccessibleButton::doAction(action, 0);
 }
@@ -312,18 +312,18 @@ QAccessible::Role QAccessibleDisplay::role(int child) const
 {
     QLabel *l = qt_cast<QLabel*>(object());
     if (l) {
-	if (l->pixmap() || l->picture())
-	    return Graphic;
+        if (l->pixmap() || l->picture())
+            return Graphic;
 #ifndef QT_NO_PICTURE
-	if (l->picture())
-	    return Graphic;
+        if (l->picture())
+            return Graphic;
 #endif
 #ifndef QT_NO_MOVIE
-	if (l->movie())
-	    return Animation;
+        if (l->movie())
+            return Animation;
 #endif
     } else if (qt_cast<QProgressBar*>(object())) {
-	return ProgressBar;
+        return ProgressBar;
     }
     return QAccessibleWidget::role(child);
 }
@@ -334,27 +334,27 @@ QString QAccessibleDisplay::text(Text t, int child) const
     QString str;
     switch (t) {
     case Name:
-	if (qt_cast<QLabel*>(object())) {
-	    str = qt_cast<QLabel*>(object())->text();
-	} else if (qt_cast<QGroupBox*>(object())) {
-	    str = qt_cast<QGroupBox*>(object())->title();
-	} else if (qt_cast<QLCDNumber*>(object())) {
-	    QLCDNumber *l = qt_cast<QLCDNumber*>(object());
-	    if (l->numDigits())
-		str = QString::number(l->value());
-	    else
-		str = QString::number(l->intValue());
-	}
-	break;
+        if (qt_cast<QLabel*>(object())) {
+            str = qt_cast<QLabel*>(object())->text();
+        } else if (qt_cast<QGroupBox*>(object())) {
+            str = qt_cast<QGroupBox*>(object())->title();
+        } else if (qt_cast<QLCDNumber*>(object())) {
+            QLCDNumber *l = qt_cast<QLCDNumber*>(object());
+            if (l->numDigits())
+                str = QString::number(l->value());
+            else
+                str = QString::number(l->intValue());
+        }
+        break;
     case Value:
-	if (qt_cast<QProgressBar*>(object()))
-	    str = QString::number(qt_cast<QProgressBar*>(object())->progress());
-	break;
+        if (qt_cast<QProgressBar*>(object()))
+            str = QString::number(qt_cast<QProgressBar*>(object())->progress());
+        break;
     default:
-	break;
+        break;
     }
     if (str.isEmpty())
-	str = QAccessibleWidget::text(t, child);;
+        str = QAccessibleWidget::text(t, child);;
     return qacc_stripAmp(str);
 }
 
@@ -363,17 +363,17 @@ int QAccessibleDisplay::relationTo(int child, const QAccessibleInterface *other,
 {
     int relation = QAccessibleWidget::relationTo(child, other, otherChild);
     if (child || otherChild)
-	return relation;
+        return relation;
 
     QObject *o = other->object();
     QLabel *label = qt_cast<QLabel*>(object());
     QGroupBox *groupbox = qt_cast<QGroupBox*>(object());
     if (label) {
-	if (o == label->buddy())
-	    relation |= Label;
+        if (o == label->buddy())
+            relation |= Label;
     } else if (groupbox && !groupbox->title().isEmpty()) {
-	if (groupbox->children().contains(o))
-	    relation |= Label;
+        if (groupbox->children().contains(o))
+            relation |= Label;
     }
     return relation;
 }
@@ -383,18 +383,18 @@ int QAccessibleDisplay::navigate(Relation rel, int entry, QAccessibleInterface *
 {
     *target = 0;
     if (rel == Labelled) {
-	QObject *targetObject = 0;
+        QObject *targetObject = 0;
         QLabel *label = qt_cast<QLabel*>(object());
-	QGroupBox *groupbox = qt_cast<QGroupBox*>(object());
-	if (label) {
-	    if (entry == 1)
-		targetObject = label->buddy();
-	} else if (groupbox && !groupbox->title().isEmpty()) {
-	    rel = Child;
-	}
-	QAccessible::queryAccessibleInterface(targetObject, target);
-	if (*target)
-	    return 0;
+        QGroupBox *groupbox = qt_cast<QGroupBox*>(object());
+        if (label) {
+            if (entry == 1)
+                targetObject = label->buddy();
+        } else if (groupbox && !groupbox->title().isEmpty()) {
+            rel = Child;
+        }
+        QAccessible::queryAccessibleInterface(targetObject, target);
+        if (*target)
+            return 0;
     }
     return QAccessibleWidget::navigate(rel, entry, target);
 }
@@ -427,13 +427,13 @@ QString QAccessibleLineEdit::text(Text t, int child) const
     QString str;
     switch (t) {
     case Value:
-	str = lineEdit()->text();
-	break;
+        str = lineEdit()->text();
+        break;
     default:
-	break;
+        break;
     }
     if (str.isEmpty())
-	str = QAccessibleWidget::text(t, child);;
+        str = QAccessibleWidget::text(t, child);;
     return qacc_stripAmp(str);
 }
 
@@ -454,12 +454,12 @@ int QAccessibleLineEdit::state(int child) const
 
     QLineEdit *l = lineEdit();
     if (l->isReadOnly())
-	state |= ReadOnly;
+        state |= ReadOnly;
     if (l->echoMode() == QLineEdit::Password)
-	state |= Protected;
+        state |= Protected;
     state |= Selectable;
     if (l->hasSelectedText())
-	state |= Selected;
+        state |= Selected;
 
     return state;
 }

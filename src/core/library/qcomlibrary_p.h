@@ -37,11 +37,11 @@
 class Q_CORE_EXPORT QComLibrary : public QLibrary
 {
 public:
-    QComLibrary( const QString &filename );
+    QComLibrary(const QString &filename);
     ~QComLibrary();
 
     bool unload();
-    QRESULT queryInterface( const QUuid &iid, QUnknownInterface **iface );
+    QRESULT queryInterface(const QUuid &iid, QUnknownInterface **iface);
     uint qtVersion();
 
 private:

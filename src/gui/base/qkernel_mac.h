@@ -27,7 +27,7 @@
 #ifdef qDebug
 #    undef qDebug
 #    include <Carbon/Carbon.h>
-#    ifdef QT_NO_DEBUG 
+#    ifdef QT_NO_DEBUG
 #        define qDebug qt_noop(),1?(void)0:qDebug
 #    endif
 #else

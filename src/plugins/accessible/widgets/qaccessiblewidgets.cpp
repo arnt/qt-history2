@@ -31,7 +31,7 @@ int QAccessibleViewport::childAt(int x, int y) const
 {
     int child = QAccessibleWidget::childAt(x, y);
     if (child > 0)
-	return child;
+        return child;
 
     QPoint p = widget()->mapFromGlobal(QPoint(x,y));
     return scrollView()->itemAt(p.x(), p.y());
@@ -40,7 +40,7 @@ int QAccessibleViewport::childAt(int x, int y) const
 QRect QAccessibleViewport::rect(int child) const
 {
     if (!child)
-	return QAccessibleWidget::rect(child);
+        return QAccessibleWidget::rect(child);
     QRect rect = scrollView()->itemRect(child);
     QPoint tl = widget()->mapToGlobal(QPoint(0,0));
     return QRect(tl.x() + rect.x(), tl.y() + rect.y(), rect.width(), rect.height());
@@ -50,23 +50,23 @@ QRect QAccessibleViewport::rect(int child) const
 int QAccessibleViewport::navigate(NavDirection direction, int startControl) const
 {
     if (direction != NavFirstChild && direction != NavLastChild && direction != NavFocusChild && !startControl)
-	return QAccessibleWidget::navigate(direction, startControl);
+        return QAccessibleWidget::navigate(direction, startControl);
 
     // ### call itemUp/Down etc. here
     const int items = scrollView()->itemCount();
     switch(direction) {
     case NavFirstChild:
-	return 1;
+        return 1;
     case NavLastChild:
-	return items;
+        return items;
     case NavNext:
     case NavDown:
-	return startControl + 1 > items ? -1 : startControl + 1;
+        return startControl + 1 > items ? -1 : startControl + 1;
     case NavPrevious:
     case NavUp:
-	return startControl - 1 < 1 ? -1 : startControl - 1;
+        return startControl - 1 < 1 ? -1 : startControl - 1;
     default:
-	break;
+        break;
     }
 
     return -1;
@@ -197,11 +197,11 @@ int QAccessibleListBox::itemCount() const
 QString QAccessibleListBox::text(Text t, int child) const
 {
     if (!child || t != Name)
-	return QAccessibleScrollView::text(t, child);
+        return QAccessibleScrollView::text(t, child);
 
     QListBoxItem *item = listBox()->item(child - 1);
     if (item)
-	return item->text();
+        return item->text();
     return QString();
 }
 
@@ -209,7 +209,7 @@ QString QAccessibleListBox::text(Text t, int child) const
 QAccessible::Role QAccessibleListBox::role(int child) const
 {
     if (!child)
-	return QAccessibleScrollView::role(child);
+        return QAccessibleScrollView::role(child);
     return ListItem;
 }
 
@@ -219,25 +219,25 @@ int QAccessibleListBox::state(int child) const
     int state = QAccessibleScrollView::state(child);
     QListBoxItem *item;
     if (!child || !(item = listBox()->item(child - 1)))
-	return state;
+        return state;
 
     if (item->isSelectable()) {
-	if (listBox()->selectionMode() == QListBox::Multi)
-	    state |= MultiSelectable;
-	else if (listBox()->selectionMode() == QListBox::Extended)
-	    state |= ExtSelectable;
-	else if (listBox()->selectionMode() == QListBox::Single)
-	    state |= Selectable;
-	if (item->isSelected())
-	    state |= Selected;
+        if (listBox()->selectionMode() == QListBox::Multi)
+            state |= MultiSelectable;
+        else if (listBox()->selectionMode() == QListBox::Extended)
+            state |= ExtSelectable;
+        else if (listBox()->selectionMode() == QListBox::Single)
+            state |= Selectable;
+        if (item->isSelected())
+            state |= Selected;
     }
     if (listBox()->focusPolicy() != QWidget::NoFocus) {
-	state |= Focusable;
-	if (item->isCurrent())
-	    state |= Focused;
+        state |= Focusable;
+        if (item->isCurrent())
+            state |= Focused;
     }
     if (!listBox()->itemVisible(item))
-	state |= Invisible;
+        state |= Invisible;
 
     return state;
 }
@@ -247,38 +247,38 @@ bool QAccessibleListBox::setFocus(int child)
 {
     bool res = QAccessibleScrollView::setFocus(0);
     if (!child || !res)
-	return res;
+        return res;
 
     QListBoxItem *item = listBox()->item(child -1);
     if (!item)
-	return FALSE;
+        return false;
     listBox()->setCurrentItem(item);
-    return TRUE;
+    return true;
 }*/
 
 /*! \reimp */
 bool QAccessibleListBox::setSelected(int child, bool on, bool extend)
 {
     if (!child || (extend &&
-	listBox()->selectionMode() != QListBox::Extended &&
-	listBox()->selectionMode() != QListBox::Multi))
-	return FALSE;
+        listBox()->selectionMode() != QListBox::Extended &&
+        listBox()->selectionMode() != QListBox::Multi))
+        return false;
 
     QListBoxItem *item = listBox()->item(child -1);
     if (!item)
-	return FALSE;
+        return false;
     if (!extend) {
-	listBox()->setSelected(item, on);
+        listBox()->setSelected(item, on);
     } else {
-	int current = listBox()->currentItem();
-	bool down = child > current;
-	for (int i = current; i != child;) {
-	    down ? i++ : i--;
-	    listBox()->setSelected(i, on);
-	}
+        int current = listBox()->currentItem();
+        bool down = child > current;
+        for (int i = current; i != child;) {
+            down ? i++ : i--;
+            listBox()->setSelected(i, on);
+        }
 
     }
-    return TRUE;
+    return true;
 }
 
 /*! \reimp */
@@ -295,10 +295,10 @@ QVector<int> QAccessibleListBox::selection() const
     const uint c = listBox()->count();
     array.resize(c);
     for (uint i = 0; i < c; ++i) {
-	if (listBox()->isSelected(i)) {
-	    ++size;
-	    array[ (int)size-1 ] = i+1;
-	}
+        if (listBox()->isSelected(i)) {
+            ++size;
+            array[(int)size-1] = i+1;
+        }
     }
     array.resize(size);
     return array;

@@ -38,8 +38,8 @@ class QTextDocumentFragmentPrivate
 {
 public:
     QTextDocumentFragmentPrivate() {
-	localFormatCollection = new QTextFormatCollection;
-	++localFormatCollection->ref;
+        localFormatCollection = new QTextFormatCollection;
+        ++localFormatCollection->ref;
     }
     QTextDocumentFragmentPrivate(const QTextCursor &cursor);
     ~QTextDocumentFragmentPrivate();
@@ -64,10 +64,10 @@ public:
 
     struct Fragment
     {
-	int position;
-	int originalPosition;
-	Q_UINT32 size;
-	int format;
+        int position;
+        int originalPosition;
+        Q_UINT32 size;
+        int format;
     };
     typedef QList<Fragment> FragmentList;
 

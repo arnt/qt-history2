@@ -46,7 +46,7 @@ class QWSUsbKbPrivate : public QObject
 {
     Q_OBJECT
 public:
-    QWSUsbKbPrivate( QWSPC101KeyboardHandler *, const QString & );
+    QWSUsbKbPrivate(QWSPC101KeyboardHandler *, const QString &);
     ~QWSUsbKbPrivate();
 
 private slots:
@@ -58,9 +58,9 @@ private:
 };
 
 QWSUsbKeyboardHandler::QWSUsbKeyboardHandler(const QString &device)
-    : QWSPC101KeyboardHandler( device )
+    : QWSPC101KeyboardHandler(device)
 {
-    d = new QWSUsbKbPrivate( this, device );
+    d = new QWSUsbKbPrivate(this, device);
 }
 
 QWSUsbKeyboardHandler::~QWSUsbKeyboardHandler()
@@ -68,14 +68,14 @@ QWSUsbKeyboardHandler::~QWSUsbKeyboardHandler()
     delete d;
 }
 
-QWSUsbKbPrivate::QWSUsbKbPrivate( QWSPC101KeyboardHandler *h, const QString &device ) : handler(h)
+QWSUsbKbPrivate::QWSUsbKbPrivate(QWSPC101KeyboardHandler *h, const QString &device) : handler(h)
 {
     fd = ::open(device.isEmpty()?"/dev/input/event0":device.latin1(),O_RDONLY, 0);
-    if ( fd >= 0 ) {
-	QSocketNotifier *notifier;
-	notifier = new QSocketNotifier( fd, QSocketNotifier::Read, this );
-	connect( notifier, SIGNAL(activated(int)),this,
-		 SLOT(readKeyboardData()) );
+    if (fd >= 0) {
+        QSocketNotifier *notifier;
+        notifier = new QSocketNotifier(fd, QSocketNotifier::Read, this);
+        connect(notifier, SIGNAL(activated(int)),this,
+                 SLOT(readKeyboardData()));
     }
 }
 
@@ -97,27 +97,27 @@ struct Myinputevent {
 void QWSUsbKbPrivate::readKeyboardData()
 {
     Myinputevent event;
-    int n = read(fd, &event, sizeof(Myinputevent) );
-    if ( n != 16 )
-	return;
+    int n = read(fd, &event, sizeof(Myinputevent));
+    if (n != 16)
+        return;
     int key=event.code;
 #ifndef QT_QWS_USE_KEYCODES
     // Handle SOME keys, otherwise it's useless.
     if(key==103) {
-	handler->processKeyEvent( 0, Qt::Key_Up, 0, event.value!=0, false );
+        handler->processKeyEvent(0, Qt::Key_Up, 0, event.value!=0, false);
     } else if(key==106) {
-	handler->processKeyEvent( 0, Qt::Key_Right, 0, event.value!=0, false  );
+        handler->processKeyEvent(0, Qt::Key_Right, 0, event.value!=0, false );
     } else if(key==108) {
-	handler->processKeyEvent( 0, Qt::Key_Down, 0, event.value!=0, false );
+        handler->processKeyEvent(0, Qt::Key_Down, 0, event.value!=0, false);
     } else if(key==105) {
-	handler->processKeyEvent( 0, Qt::Key_Left, 0, event.value!=0, false );
+        handler->processKeyEvent(0, Qt::Key_Left, 0, event.value!=0, false);
     } else
 #endif
     {
-	if( event.value == 0 ) {
-	    key=key | 0x80;
-	}
-	handler->doKey(key);
+        if(event.value == 0) {
+            key=key | 0x80;
+        }
+        handler->doKey(key);
     }
 }
 

@@ -31,99 +31,99 @@ class Q_GUI_EXPORT QSplitter : public QFrame
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QSplitter);
-    Q_PROPERTY( Orientation orientation READ orientation WRITE setOrientation )
-    Q_PROPERTY( bool opaqueResize READ opaqueResize WRITE setOpaqueResize )
-    Q_PROPERTY( int handleWidth READ handleWidth WRITE setHandleWidth )
-    Q_PROPERTY( bool childrenCollapsible READ childrenCollapsible WRITE setChildrenCollapsible )
+    Q_PROPERTY(Orientation orientation READ orientation WRITE setOrientation)
+    Q_PROPERTY(bool opaqueResize READ opaqueResize WRITE setOpaqueResize)
+    Q_PROPERTY(int handleWidth READ handleWidth WRITE setHandleWidth)
+    Q_PROPERTY(bool childrenCollapsible READ childrenCollapsible WRITE setChildrenCollapsible)
 
 public:
     // ### Qt 4.0: remove Auto from public API
     enum ResizeMode { Stretch, KeepSize, FollowSizeHint, Auto };
 
-    QSplitter( QWidget* parent = 0, const char* name = 0 );
-    QSplitter( Orientation, QWidget* parent = 0, const char* name = 0 );
+    QSplitter(QWidget* parent = 0, const char* name = 0);
+    QSplitter(Orientation, QWidget* parent = 0, const char* name = 0);
     ~QSplitter();
 
-    virtual void setOrientation( Orientation );
+    virtual void setOrientation(Orientation);
     Orientation orientation() const;
 
     // ### Qt 4.0: make setChildrenCollapsible() and setCollapsible() virtual
 
-    void setChildrenCollapsible( bool );
+    void setChildrenCollapsible(bool);
     bool childrenCollapsible() const;
 
-    void setCollapsible( QWidget *w, bool );
-    virtual void setResizeMode( QWidget *w, ResizeMode );
-    virtual void setOpaqueResize( bool = TRUE );
+    void setCollapsible(QWidget *w, bool);
+    virtual void setResizeMode(QWidget *w, ResizeMode);
+    virtual void setOpaqueResize(bool = true);
     bool opaqueResize() const;
 
-    void moveToFirst( QWidget * );
-    void moveToLast( QWidget * );
+    void moveToFirst(QWidget *);
+    void moveToLast(QWidget *);
 
-    void refresh() { recalc( TRUE ); }
+    void refresh() { recalc(true); }
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
     QList<int> sizes() const;
-    void setSizes( QList<int> );
+    void setSizes(QList<int>);
 
     int handleWidth() const;
-    void setHandleWidth( int );
+    void setHandleWidth(int);
 
 protected:
-    void childEvent( QChildEvent * );
+    void childEvent(QChildEvent *);
 
-    bool event( QEvent * );
-    void resizeEvent( QResizeEvent * );
+    bool event(QEvent *);
+    void resizeEvent(QResizeEvent *);
 
-    int idAfter( QWidget* ) const;
+    int idAfter(QWidget*) const;
 
-    void moveSplitter( QCOORD pos, int id );
-    virtual void drawSplitter( QPainter*, QCOORD x, QCOORD y,
-			       QCOORD w, QCOORD h );
-    void changeEvent( QEvent * );
-    int adjustPos( int, int );
-    virtual void setRubberband( int );
-    void getRange( int id, int *, int * );
+    void moveSplitter(QCOORD pos, int id);
+    virtual void drawSplitter(QPainter*, QCOORD x, QCOORD y,
+                               QCOORD w, QCOORD h);
+    void changeEvent(QEvent *);
+    int adjustPos(int, int);
+    virtual void setRubberband(int);
+    void getRange(int id, int *, int *);
 
 private:
     enum { DefaultResizeMode = 3 };
 
     void init();
-    void recalc( bool update = FALSE );
+    void recalc(bool update = false);
     void doResize();
     void storeSizes();
-    void getRange( int id, int *, int *, int *, int * );
-    void addContribution( int, int *, int *, bool );
-    int adjustPos( int, int, int *, int *, int *, int * );
-    bool collapsible( QSplitterLayoutStruct * );
+    void getRange(int id, int *, int *, int *, int *);
+    void addContribution(int, int *, int *, bool);
+    int adjustPos(int, int, int *, int *, int *, int *);
+    bool collapsible(QSplitterLayoutStruct *);
     void processChildEvents();
-    QSplitterLayoutStruct *findWidget( QWidget * );
-    QSplitterLayoutStruct *addWidget( QWidget *, bool prepend = FALSE );
+    QSplitterLayoutStruct *findWidget(QWidget *);
+    QSplitterLayoutStruct *addWidget(QWidget *, bool prepend = false);
     void recalcId();
-    void doMove( bool backwards, int pos, int id, int delta, bool upLeft,
-		 bool mayCollapse );
-    void setGeo( QSplitterLayoutStruct *s, int pos, int size, bool splitterMoved );
-    int findWidgetJustBeforeOrJustAfter( int id, int delta, int &collapsibleSize );
+    void doMove(bool backwards, int pos, int id, int delta, bool upLeft,
+                 bool mayCollapse);
+    void setGeo(QSplitterLayoutStruct *s, int pos, int size, bool splitterMoved);
+    int findWidgetJustBeforeOrJustAfter(int id, int delta, int &collapsibleSize);
     void updateHandles();
 
     friend class QSplitterHandle;
 
 #ifndef QT_NO_TEXTSTREAM
-    friend Q_GUI_EXPORT QTextStream& operator<<( QTextStream&, const QSplitter& );
-    friend Q_GUI_EXPORT QTextStream& operator>>( QTextStream&, QSplitter& );
+    friend Q_GUI_EXPORT QTextStream& operator<<(QTextStream&, const QSplitter&);
+    friend Q_GUI_EXPORT QTextStream& operator>>(QTextStream&, QSplitter&);
 #endif
 
 private:
 #if defined(Q_DISABLE_COPY)
-    QSplitter( const QSplitter & );
-    QSplitter& operator=( const QSplitter & );
+    QSplitter(const QSplitter &);
+    QSplitter& operator=(const QSplitter &);
 #endif
 };
 
 #ifndef QT_NO_TEXTSTREAM
-Q_GUI_EXPORT QTextStream& operator<<( QTextStream&, const QSplitter& );
-Q_GUI_EXPORT QTextStream& operator>>( QTextStream&, QSplitter& );
+Q_GUI_EXPORT QTextStream& operator<<(QTextStream&, const QSplitter&);
+Q_GUI_EXPORT QTextStream& operator>>(QTextStream&, QSplitter&);
 #endif
 
 #endif // QT_NO_SPLITTER

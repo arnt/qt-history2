@@ -31,33 +31,33 @@ class Q_CORE_EXPORT QProcess : public QObject
 {
     Q_OBJECT
 public:
-    QProcess( QObject *parent=0, const char *name=0 );
-    QProcess( const QString& arg0, QObject *parent=0, const char *name=0 );
-    QProcess( const QStringList& args, QObject *parent=0, const char *name=0 );
+    QProcess(QObject *parent=0, const char *name=0);
+    QProcess(const QString& arg0, QObject *parent=0, const char *name=0);
+    QProcess(const QStringList& args, QObject *parent=0, const char *name=0);
     ~QProcess();
 
     // set and get the arguments and working directory
     QStringList arguments() const;
     void clearArguments();
-    virtual void setArguments( const QStringList& args );
-    virtual void addArgument( const QString& arg );
+    virtual void setArguments(const QStringList& args);
+    virtual void addArgument(const QString& arg);
 #ifndef QT_NO_DIR
     QDir workingDirectory() const;
-    virtual void setWorkingDirectory( const QDir& dir );
+    virtual void setWorkingDirectory(const QDir& dir);
 #endif
 
     // set and get the comms wanted
     enum Communication { Stdin=0x01, Stdout=0x02, Stderr=0x04, DupStderr=0x08 };
-    void setCommunication( int c );
+    void setCommunication(int c);
     int communication() const;
 
     // start the execution
     // #### why are those virtual?
-    virtual bool start( QStringList *env=0 );
-    virtual bool launch( const QByteArray& buf, QStringList *env=0  );
-    virtual bool launch( const QString& buf, QStringList *env=0  );
-    inline bool launch( const char * buf, QStringList *env=0  )
-	{ return launch(QByteArray(buf), env); }
+    virtual bool start(QStringList *env=0);
+    virtual bool launch(const QByteArray& buf, QStringList *env=0 );
+    virtual bool launch(const QString& buf, QStringList *env=0 );
+    inline bool launch(const char * buf, QStringList *env=0 )
+        { return launch(QByteArray(buf), env); }
 
     // inquire the status
     bool isRunning() const;
@@ -95,29 +95,29 @@ public slots:
     void kill() const;
 
     // input
-    virtual void writeToStdin( const QByteArray& buf );
-    virtual void writeToStdin( const QString& buf );
+    virtual void writeToStdin(const QByteArray& buf);
+    virtual void writeToStdin(const QString& buf);
     virtual void closeStdin();
 
 protected: // ### or private?
-    void connectNotify( const char * signal );
-    void disconnectNotify( const char * signal );
+    void connectNotify(const char * signal);
+    void disconnectNotify(const char * signal);
 private:
-    void setIoRedirection( bool value );
-    void setNotifyOnExit( bool value );
-    void setWroteStdinConnected( bool value );
+    void setIoRedirection(bool value);
+    void setNotifyOnExit(bool value);
+    void setWroteStdinConnected(bool value);
 
     void init();
     void reset();
 #if defined(Q_OS_WIN32)
-    uint readStddev( HANDLE dev, char *buf, uint bytes );
+    uint readStddev(HANDLE dev, char *buf, uint bytes);
 #endif
     QMembuf* membufStdout();
     QMembuf* membufStderr();
 
 private slots:
-    void socketRead( int fd );
-    void socketWrite( int fd );
+    void socketRead(int fd);
+    void socketWrite(int fd);
     void timeout();
     void closeStdinLaunch();
 
@@ -145,8 +145,8 @@ private:
 #endif
 
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QProcess( const QProcess & );
-    QProcess &operator=( const QProcess & );
+    QProcess(const QProcess &);
+    QProcess &operator=(const QProcess &);
 #endif
 };
 

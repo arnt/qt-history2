@@ -65,33 +65,33 @@ public:
     are passed on to the QObject constructor.
 */
 
-QCopChannel::QCopChannel( const QCString& channel, QObject* parent, const char* name ) :
-    QObject( parent, name )
+QCopChannel::QCopChannel(const QCString& channel, QObject* parent, const char* name) :
+    QObject(parent, name)
 {
     d = new QCopChannelPrivate;
     d->channel = channel;
 
-    if ( !qt_fbdpy ) {
-	qFatal( "QCopChannel: Must construct a QApplication "
-		"before QCopChannel" );
-	return;
+    if (!qt_fbdpy) {
+        qFatal("QCopChannel: Must construct a QApplication "
+                "before QCopChannel");
+        return;
     }
 
-    if ( !qcopClientMap )
-	qcopClientMap = new QCopClientMap;
+    if (!qcopClientMap)
+        qcopClientMap = new QCopClientMap;
 
     // do we need a new channel list ?
-    QCopClientMap::Iterator it = qcopClientMap->find( channel );
-    if ( it != qcopClientMap->end() ) {
-	it.data().append( this );
-	return;
+    QCopClientMap::Iterator it = qcopClientMap->find(channel);
+    if (it != qcopClientMap->end()) {
+        it.data().append(this);
+        return;
     }
 
-    it = qcopClientMap->insert( channel, QList<QCopChannel*>() );
-    it.data().append( this );
+    it = qcopClientMap->insert(channel, QList<QCopChannel*>());
+    it.data().append(this);
 
     // inform server about this channel
-    qt_fbdpy->registerChannel( channel );
+    qt_fbdpy->registerChannel(channel);
 }
 
 /*!
@@ -102,17 +102,17 @@ QCopChannel::QCopChannel( const QCString& channel, QObject* parent, const char* 
 
 QCopChannel::~QCopChannel()
 {
-    QCopClientMap::Iterator it = qcopClientMap->find( d->channel );
-    Q_ASSERT( it != qcopClientMap->end() );
-    it.data().remove( this );
+    QCopClientMap::Iterator it = qcopClientMap->find(d->channel);
+    Q_ASSERT(it != qcopClientMap->end());
+    it.data().remove(this);
     // still any clients connected locally ?
-    if ( it.data().isEmpty() ) {
-	QByteArray data;
-	QDataStream s( data, IO_WriteOnly );
-	s << d->channel;
-	if ( qt_fbdpy )
-	    send( "", "detach()", data );
-	qcopClientMap->remove( d->channel );
+    if (it.data().isEmpty()) {
+        QByteArray data;
+        QDataStream s(data, IO_WriteOnly);
+        s << d->channel;
+        if (qt_fbdpy)
+            send("", "detach()", data);
+        qcopClientMap->remove(d->channel);
     }
 
     delete d;
@@ -138,18 +138,18 @@ QCString QCopChannel::channel() const
 
     Example:
     \code
-    void MyClass::receive( const QCString &msg, const QByteArray &data )
+    void MyClass::receive(const QCString &msg, const QByteArray &data)
     {
-	QDataStream stream( data, IO_ReadOnly );
-	if ( msg == "execute(QString,QString)" ) {
-	    QString cmd, arg;
-	    stream >> cmd >> arg;
-	    ...
-	} else if ( msg == "delete(QString)" ) {
-	    QString filenname;
-	    stream >> filename;
-	    ...
-	} else ...
+        QDataStream stream(data, IO_ReadOnly);
+        if (msg == "execute(QString,QString)") {
+            QString cmd, arg;
+            stream >> cmd >> arg;
+            ...
+        } else if (msg == "delete(QString)") {
+            QString filenname;
+            stream >> filename;
+            ...
+        } else ...
     }
     \endcode
     This example assumes that the \a msg is a DCOP-style function
@@ -162,13 +162,13 @@ QCString QCopChannel::channel() const
 
     \sa send()
  */
-void QCopChannel::receive( const QCString &msg, const QByteArray &data )
+void QCopChannel::receive(const QCString &msg, const QByteArray &data)
 {
-    emit received( msg, data );
+    emit received(msg, data);
 }
 
 /*!
-    \fn void QCopChannel::received( const QCString &msg, const QByteArray &data )
+    \fn void QCopChannel::received(const QCString &msg, const QByteArray &data)
 
     This signal is emitted with the \a msg and \a data whenever the
     receive() function gets incoming data.
@@ -177,16 +177,16 @@ void QCopChannel::receive( const QCString &msg, const QByteArray &data )
 /*!
     Queries the server for the existence of \a channel.
 
-    Returns TRUE if \a channel is registered; otherwise returns FALSE.
+    Returns true if \a channel is registered; otherwise returns false.
 */
 
-bool QCopChannel::isRegistered( const QCString& channel )
+bool QCopChannel::isRegistered(const QCString& channel)
 {
     QByteArray data;
-    QDataStream s( data, IO_WriteOnly );
+    QDataStream s(data, IO_WriteOnly);
     s << channel;
-    if ( !send( "", "isRegistered()", data ) )
-	return FALSE;
+    if (!send("", "isRegistered()", data))
+        return false;
 
     QWSQCopMessageEvent *e = qt_fbdpy->waitForQCopResponse();
     bool known = e->message == "known";
@@ -202,10 +202,10 @@ bool QCopChannel::isRegistered( const QCString& channel )
     \sa receive()
 */
 
-bool QCopChannel::send(const QCString &channel, const QCString &msg )
+bool QCopChannel::send(const QCString &channel, const QCString &msg)
 {
     QByteArray data;
-    return send( channel, msg, data );
+    return send(channel, msg, data);
 }
 
 /*!
@@ -219,9 +219,9 @@ bool QCopChannel::send(const QCString &channel, const QCString &msg )
     Example:
     \code
     QByteArray ba;
-    QDataStream stream( ba, IO_WriteOnly );
+    QDataStream stream(ba, IO_WriteOnly);
     stream << QString("cat") << QString("file.txt");
-    QCopChannel::send( "System/Shell", "execute(QString,QString)", ba );
+    QCopChannel::send("System/Shell", "execute(QString,QString)", ba);
     \endcode
     Here the channel is "System/Shell". The \a msg is an arbitrary
     string, but in the example we've used the DCOP convention of
@@ -238,17 +238,17 @@ bool QCopChannel::send(const QCString &channel, const QCString &msg )
 */
 
 bool QCopChannel::send(const QCString &channel, const QCString &msg,
-		       const QByteArray &data )
+                       const QByteArray &data)
 {
-    if ( !qt_fbdpy ) {
-	qFatal( "QCopChannel::send: Must construct a QApplication "
-		"before using QCopChannel" );
-	return FALSE;
+    if (!qt_fbdpy) {
+        qFatal("QCopChannel::send: Must construct a QApplication "
+                "before using QCopChannel");
+        return false;
     }
 
-    qt_fbdpy->sendMessage( channel, msg, data );
+    qt_fbdpy->sendMessage(channel, msg, data);
 
-    return TRUE;
+    return true;
 }
 
 class QWSServerSignalBridge : public QObject {
@@ -276,16 +276,16 @@ void QWSServerSignalBridge::emitRemovedChannel(const QString& channel) {
     Server side: subscribe client \a cl on channel \a ch.
 */
 
-void QCopChannel::registerChannel( const QString &ch, QWSClient *cl )
+void QCopChannel::registerChannel(const QString &ch, QWSClient *cl)
 {
-    if ( !qcopServerMap )
-	qcopServerMap = new QCopServerMap;
+    if (!qcopServerMap)
+        qcopServerMap = new QCopServerMap;
 
     // do we need a new channel list ?
-    QCopServerMap::Iterator it = qcopServerMap->find( ch );
-    if ( it == qcopServerMap->end() )
-      it = qcopServerMap->insert( ch, QList<QWSClient*>() );
-    
+    QCopServerMap::Iterator it = qcopServerMap->find(ch);
+    if (it == qcopServerMap->end())
+      it = qcopServerMap->insert(ch, QList<QWSClient*>());
+
     // If this is the first client in the channel, announce the channel as being created.
     if (it.data().count() == 0) {
       QWSServerSignalBridge* qwsBridge = new QWSServerSignalBridge();
@@ -294,7 +294,7 @@ void QCopChannel::registerChannel( const QString &ch, QWSClient *cl )
       delete qwsBridge;
     }
 
-    it.data().append( cl );
+    it.data().append(cl);
 }
 
 /*!
@@ -302,22 +302,22 @@ void QCopChannel::registerChannel( const QString &ch, QWSClient *cl )
     Server side: unsubscribe \a cl from all channels.
 */
 
-void QCopChannel::detach( QWSClient *cl )
+void QCopChannel::detach(QWSClient *cl)
 {
-    if ( !qcopServerMap )
-	return;
+    if (!qcopServerMap)
+        return;
 
     QCopServerMap::Iterator it = qcopServerMap->begin();
-    for ( ; it != qcopServerMap->end(); it++ ) {
+    for (; it != qcopServerMap->end(); it++) {
       if (it.data().contains(cl)) {
-	it.data().remove( cl );
-	// If this was the last client in the channel, announce the channel as dead.
-	if (it.data().count() == 0) {
-	  QWSServerSignalBridge* qwsBridge = new QWSServerSignalBridge();
-	  connect(qwsBridge, SIGNAL(removedChannel(QString)), qwsServer, SIGNAL(removedChannel(QString)));
-	  qwsBridge->emitRemovedChannel(it.key());
-	  delete qwsBridge;
-	}
+        it.data().remove(cl);
+        // If this was the last client in the channel, announce the channel as dead.
+        if (it.data().count() == 0) {
+          QWSServerSignalBridge* qwsBridge = new QWSServerSignalBridge();
+          connect(qwsBridge, SIGNAL(removedChannel(QString)), qwsServer, SIGNAL(removedChannel(QString)));
+          qwsBridge->emitRemovedChannel(it.key());
+          delete qwsBridge;
+        }
       }
     }
 }
@@ -328,54 +328,54 @@ void QCopChannel::detach( QWSClient *cl )
     specified channel.
 */
 
-void QCopChannel::answer( QWSClient *cl, const QCString &ch,
-			  const QCString &msg, const QByteArray &data )
+void QCopChannel::answer(QWSClient *cl, const QCString &ch,
+                          const QCString &msg, const QByteArray &data)
 {
     // internal commands
-    if ( ch.isEmpty() ) {
-	if ( msg == "isRegistered()" ) {
-	    QCString c;
-	    QDataStream s( data, IO_ReadOnly );
-	    s >> c;
-	    bool known = qcopServerMap && qcopServerMap->contains( c )
-			&& !((*qcopServerMap)[ c ]).isEmpty();
-	    QCString ans = known ? "known" : "unkown";
-	    QWSServer::sendQCopEvent( cl, "", ans, data, TRUE );
-	    return;
-	} else if ( msg == "detach()" ) {
-	    QCString c;
-	    QDataStream s( data, IO_ReadOnly );
-	    s >> c;
-	    Q_ASSERT( qcopServerMap );
-	    QCopServerMap::Iterator it = qcopServerMap->find( c );
-	    if ( it != qcopServerMap->end() ) {
-		Q_ASSERT( it.data().contains( cl ) );
-		it.data().remove( cl );
-		if ( it.data().isEmpty() ) {
-		  // If this was the last client in the channel, announce the channel as dead
-		  QWSServerSignalBridge* qwsBridge = new QWSServerSignalBridge();
-		  connect(qwsBridge, SIGNAL(removedChannel(QString)), qwsServer, SIGNAL(removedChannel(QString)));
-		  qwsBridge->emitRemovedChannel(it.key());
-		  delete qwsBridge;
-		  qcopServerMap->remove( it );
-		}
-	    }
-	    return;
-	}
-	qWarning( "QCopChannel: unknown internal command %s", msg.data() );
-	QWSServer::sendQCopEvent( cl, "", "bad", data );
-	return;
+    if (ch.isEmpty()) {
+        if (msg == "isRegistered()") {
+            QCString c;
+            QDataStream s(data, IO_ReadOnly);
+            s >> c;
+            bool known = qcopServerMap && qcopServerMap->contains(c)
+                        && !((*qcopServerMap)[c]).isEmpty();
+            QCString ans = known ? "known" : "unkown";
+            QWSServer::sendQCopEvent(cl, "", ans, data, true);
+            return;
+        } else if (msg == "detach()") {
+            QCString c;
+            QDataStream s(data, IO_ReadOnly);
+            s >> c;
+            Q_ASSERT(qcopServerMap);
+            QCopServerMap::Iterator it = qcopServerMap->find(c);
+            if (it != qcopServerMap->end()) {
+                Q_ASSERT(it.data().contains(cl));
+                it.data().remove(cl);
+                if (it.data().isEmpty()) {
+                  // If this was the last client in the channel, announce the channel as dead
+                  QWSServerSignalBridge* qwsBridge = new QWSServerSignalBridge();
+                  connect(qwsBridge, SIGNAL(removedChannel(QString)), qwsServer, SIGNAL(removedChannel(QString)));
+                  qwsBridge->emitRemovedChannel(it.key());
+                  delete qwsBridge;
+                  qcopServerMap->remove(it);
+                }
+            }
+            return;
+        }
+        qWarning("QCopChannel: unknown internal command %s", msg.data());
+        QWSServer::sendQCopEvent(cl, "", "bad", data);
+        return;
     }
 
-    QList<QWSClient*> clist = (*qcopServerMap)[ ch ];
-    if ( clist.isEmpty() ) {
-	qWarning( "QCopChannel: no client registered for channel %s", ch.data() );
-	return;
+    QList<QWSClient*> clist = (*qcopServerMap)[ch];
+    if (clist.isEmpty()) {
+        qWarning("QCopChannel: no client registered for channel %s", ch.data());
+        return;
     }
 
-    for (int i=0; i < clist.size(); ++i ) {
+    for (int i=0; i < clist.size(); ++i) {
         QWSClient *c = clist.at(i);
-	QWSServer::sendQCopEvent( c, ch, msg, data );
+        QWSServer::sendQCopEvent(c, ch, msg, data);
     }
 }
 
@@ -384,19 +384,19 @@ void QCopChannel::answer( QWSClient *cl, const QCString &ch,
     Client side: distribute received event to the QCop instance managing the
     channel.
 */
-void QCopChannel::sendLocally( const QCString &ch, const QCString &msg,
-				const QByteArray &data )
+void QCopChannel::sendLocally(const QCString &ch, const QCString &msg,
+                                const QByteArray &data)
 {
-    Q_ASSERT( qcopClientMap );
+    Q_ASSERT(qcopClientMap);
 
     // filter out internal events
-    if ( ch.isEmpty() )
-	return;
+    if (ch.isEmpty())
+        return;
 
     // feed local clients with received data
-    QList<QCopChannel*> clients = (*qcopClientMap)[ ch ];
-    for ( int i = 0; i < clients.size(); ++i )
-	clients.at(i)->receive( msg, data );
+    QList<QCopChannel*> clients = (*qcopClientMap)[ch];
+    for (int i = 0; i < clients.size(); ++i)
+        clients.at(i)->receive(msg, data);
 }
 #include "qcopchannel_qws.moc"
 

@@ -7,7 +7,7 @@
 class QAbstractItemViewPrivate : public QViewportPrivate
 {
     Q_DECLARE_PUBLIC(QAbstractItemView);
-    
+
 public:
     QAbstractItemViewPrivate();
     virtual ~QAbstractItemViewPrivate();
@@ -15,12 +15,12 @@ public:
     void init();
 
     inline bool shouldEdit(const QModelIndex &item, QAbstractItemDelegate::StartEditAction action)
-	{ return q_func()->model()->isEditable(item) && (action & startEditActions); }
+        { return q_func()->model()->isEditable(item) && (action & startEditActions); }
 
     bool createEditor(const QModelIndex &item, QAbstractItemDelegate::StartEditAction action, QEvent *event);
 //     bool sendItemEvent(const QModelIndex &data, QEvent *event);
-//     QWidget *findPersistentEditor( const QModelIndexPtr &item ) const;
-//     void insertPersistentEditor( const QModelIndexPtr &item, QWidget *editor );
+//     QWidget *findPersistentEditor(const QModelIndexPtr &item) const;
+//     void insertPersistentEditor(const QModelIndexPtr &item, QWidget *editor);
 
     QAbstractItemModel *model;
     QPointer<QWidget> currentEditor;

@@ -28,8 +28,8 @@ class QSessionManagerPrivate;
 class Q_GUI_EXPORT  QSessionManager : public QObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE( QSessionManager );
-    QSessionManager( QApplication *app, QString &id, QString &key );
+    Q_DECLARE_PRIVATE(QSessionManager);
+    QSessionManager(QApplication *app, QString &id, QString &key);
     ~QSessionManager();
 public:
     QString sessionId() const;
@@ -45,21 +45,21 @@ public:
     void cancel();
 
     enum RestartHint {
-	RestartIfRunning,
-	RestartAnyway,
-	RestartImmediately,
-	RestartNever
+        RestartIfRunning,
+        RestartAnyway,
+        RestartImmediately,
+        RestartNever
     };
-    void setRestartHint( RestartHint );
+    void setRestartHint(RestartHint);
     RestartHint restartHint() const;
 
-    void setRestartCommand( const QStringList& );
+    void setRestartCommand(const QStringList&);
     QStringList restartCommand() const;
-    void setDiscardCommand( const QStringList& );
+    void setDiscardCommand(const QStringList&);
     QStringList discardCommand() const;
 
-    void setManagerProperty( const QString& name, const QString& value );
-    void setManagerProperty( const QString& name, const QStringList& value );
+    void setManagerProperty(const QString& name, const QString& value);
+    void setManagerProperty(const QString& name, const QStringList& value);
 
     bool isPhase2() const;
     void requestPhase2();

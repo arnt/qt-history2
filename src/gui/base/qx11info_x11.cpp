@@ -18,20 +18,20 @@ static int *dpisX = 0, *dpisY = 0;
 static void create_dpis()
 {
     if (dpisX)
-	return;
+        return;
 
     Display *dpy = QX11Info::appDisplay();
     if (!dpy)
-	return;
+        return;
 
     int i, screens =  ScreenCount(dpy);
     dpisX = new int[screens]; // ### leak
     dpisY = new int[screens];
     for (i = 0; i < screens; i++) {
-	dpisX[i] = (DisplayWidth(dpy,i) * 254 + DisplayWidthMM(dpy,i)*5)
-		   / (DisplayWidthMM(dpy,i)*10);
-	dpisY[i] = (DisplayHeight(dpy,i) * 254 + DisplayHeightMM(dpy,i)*5)
-		   / (DisplayHeightMM(dpy,i)*10);
+        dpisX[i] = (DisplayWidth(dpy,i) * 254 + DisplayWidthMM(dpy,i)*5)
+                   / (DisplayWidthMM(dpy,i)*10);
+        dpisY[i] = (DisplayHeight(dpy,i) * 254 + DisplayHeightMM(dpy,i)*5)
+                   / (DisplayHeightMM(dpy,i)*10);
     }
 }
 
@@ -43,7 +43,7 @@ QX11Info::QX11Info()
 QX11Info::~QX11Info()
 {
     if (x11data && !--x11data->ref)
-	delete x11data;
+        delete x11data;
 }
 
 /*
@@ -56,12 +56,12 @@ void QX11Info::copyX11Data(const QPaintDevice *fromDevice)
 {
     QX11InfoData *xd;
     if (fromDevice) {
-	if (fromDevice->devType() == QInternal::Widget)
-	    xd = static_cast<const QWidget *>(fromDevice)->x11Info()->x11data;
-	else if (fromDevice->devType() == QInternal::Pixmap)
-	    xd = static_cast<const QPixmap *>(fromDevice)->x11Info()->x11data;
+        if (fromDevice->devType() == QInternal::Widget)
+            xd = static_cast<const QWidget *>(fromDevice)->x11Info()->x11data;
+        else if (fromDevice->devType() == QInternal::Pixmap)
+            xd = static_cast<const QPixmap *>(fromDevice)->x11Info()->x11data;
     } else {
-	xd = 0;
+        xd = 0;
     }
     setX11Data(xd);
 }
@@ -75,17 +75,17 @@ void QX11Info::copyX11Data(const QPaintDevice *fromDevice)
 void QX11Info::cloneX11Data(const QPaintDevice *fromDevice)
 {
     if (fromDevice) {
-	QX11InfoData *xd;
-	if (fromDevice->devType() == QInternal::Widget)
-	    xd = static_cast<const QWidget *>(fromDevice)->x11Info()->x11data;
-	else if (fromDevice->devType() == QInternal::Pixmap)
-	    xd = static_cast<const QPixmap *>(fromDevice)->x11Info()->x11data;
-	QX11InfoData *d = new QX11InfoData;
-	*d = *xd;
-	d->ref = 0;
-	setX11Data(d);
+        QX11InfoData *xd;
+        if (fromDevice->devType() == QInternal::Widget)
+            xd = static_cast<const QWidget *>(fromDevice)->x11Info()->x11data;
+        else if (fromDevice->devType() == QInternal::Pixmap)
+            xd = static_cast<const QPixmap *>(fromDevice)->x11Info()->x11data;
+        QX11InfoData *d = new QX11InfoData;
+        *d = *xd;
+        d->ref = 0;
+        setX11Data(d);
     } else {
-	setX11Data(0);
+        setX11Data(0);
     }
 }
 
@@ -98,10 +98,10 @@ void QX11Info::cloneX11Data(const QPaintDevice *fromDevice)
 void QX11Info::setX11Data(const QX11InfoData* d)
 {
     if (x11data && !--x11data->ref)
-	delete x11data;
+        delete x11data;
     x11data = (QX11InfoData *)d;
     if (x11data)
-	++x11data->ref;
+        ++x11data->ref;
 }
 
 
@@ -121,18 +121,18 @@ QX11InfoData* QX11Info::getX11Data(bool def) const
 {
     QX11InfoData* res = 0;
     if (def) {
-	res = new QX11InfoData;
-	res->x_display = appDisplay();
-	res->x_screen = appScreen();
-	res->x_depth = appDepth();
-	res->x_cells = appCells();
-	res->x_colormap = colormap();
-	res->x_defcolormap = appDefaultColormap();
-	res->x_visual = appVisual();
-	res->x_defvisual = appDefaultVisual();
+        res = new QX11InfoData;
+        res->x_display = appDisplay();
+        res->x_screen = appScreen();
+        res->x_depth = appDepth();
+        res->x_cells = appCells();
+        res->x_colormap = colormap();
+        res->x_defcolormap = appDefaultColormap();
+        res->x_visual = appVisual();
+        res->x_defvisual = appDefaultVisual();
     } else if (x11data) {
-	res = new QX11InfoData;
-	*res = *x11data;
+        res = new QX11InfoData;
+        *res = *x11data;
     }
     res->ref = 0;
     return res;
@@ -142,11 +142,11 @@ int QX11Info::appDpiX(int screen)
 {
     create_dpis();
     if (!dpisX)
-	return 0;
+        return 0;
     if (screen < 0)
-	screen = QX11Info::appScreen();
+        screen = QX11Info::appScreen();
     if (screen > ScreenCount(QX11Info::appDisplay()))
-	return 0;
+        return 0;
     return dpisX[screen];
 }
 
@@ -154,11 +154,11 @@ void QX11Info::setAppDpiX(int screen, int xdpi)
 {
     create_dpis();
     if (!dpisX)
-	return;
+        return;
     if (screen < 0)
-	screen = QX11Info::appScreen();
+        screen = QX11Info::appScreen();
     if (screen > ScreenCount(QX11Info::appDisplay()))
-	return;
+        return;
     dpisX[screen] = xdpi;
 }
 
@@ -166,11 +166,11 @@ int QX11Info::appDpiY(int screen)
 {
     create_dpis();
     if (!dpisY)
-	return 0;
+        return 0;
     if (screen < 0)
-	screen = QX11Info::appScreen();
+        screen = QX11Info::appScreen();
     if (screen > ScreenCount(QX11Info::appDisplay()))
-	return 0;
+        return 0;
     return dpisY[screen];
 }
 
@@ -178,10 +178,10 @@ void QX11Info::setAppDpiY(int screen, int ydpi)
 {
     create_dpis();
     if (!dpisY)
-	return;
+        return;
     if (screen < 0)
-	screen = QX11Info::appScreen();
+        screen = QX11Info::appScreen();
     if (screen > ScreenCount(QX11Info::appDisplay()))
-	return;
+        return;
     dpisY[screen] = ydpi;
 }

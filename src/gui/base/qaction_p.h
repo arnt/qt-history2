@@ -12,16 +12,16 @@ class QActionPrivate : public QObjectPrivate
 public:
     QActionPrivate() : group(0), icons(0), accel(-1), enabled(1), visible(1), checkable(0), checked(0), separator(0) {}
     ~QActionPrivate() {
-	delete icons;
-	if(menu)
-	    delete menu;
-	if(actionAccels && accel != -1) {
-	    actionAccels->removeItem(accel);
-	    if(!actionAccels->count()) {
-		delete actionAccels;
-		actionAccels = 0;
-	    }
-	}
+        delete icons;
+        if(menu)
+            delete menu;
+        if(actionAccels && accel != -1) {
+            actionAccels->removeItem(accel);
+            if(!actionAccels->count()) {
+                delete actionAccels;
+                actionAccels = 0;
+            }
+        }
     }
 
     QPointer<QActionGroup> group;

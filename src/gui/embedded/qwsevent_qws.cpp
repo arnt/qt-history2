@@ -14,64 +14,64 @@
 
 #include "qwsevent_qws.h"
 
-QWSEvent *QWSEvent::factory( int type )
+QWSEvent *QWSEvent::factory(int type)
 {
     QWSEvent *event = 0;
-    switch ( type ) {
+    switch (type) {
     case QWSEvent::Connected:
-	event = new QWSConnectedEvent;
-	break;
+        event = new QWSConnectedEvent;
+        break;
     case QWSEvent::MaxWindowRect:
-	event = new QWSMaxWindowRectEvent;
-	break;
+        event = new QWSMaxWindowRectEvent;
+        break;
     case QWSEvent::Mouse:
-	event = new QWSMouseEvent;
-	break;
+        event = new QWSMouseEvent;
+        break;
     case QWSEvent::Focus:
-	event = new QWSFocusEvent;
-	break;
+        event = new QWSFocusEvent;
+        break;
     case QWSEvent::Key:
-	event = new QWSKeyEvent;
-	break;
+        event = new QWSKeyEvent;
+        break;
     case QWSEvent::RegionModified:
-	event = new QWSRegionModifiedEvent;
-	break;
+        event = new QWSRegionModifiedEvent;
+        break;
     case QWSEvent::Creation:
-	event = new QWSCreationEvent;
-	break;
+        event = new QWSCreationEvent;
+        break;
 #ifndef QT_NO_QWS_PROPERTIES
     case QWSEvent::PropertyNotify:
-	event = new QWSPropertyNotifyEvent;
-	break;
+        event = new QWSPropertyNotifyEvent;
+        break;
     case QWSEvent::PropertyReply:
-	event = new QWSPropertyReplyEvent;
-	break;
-#endif // QT_NO_QWS_PROPERTIES	
+        event = new QWSPropertyReplyEvent;
+        break;
+#endif // QT_NO_QWS_PROPERTIES
     case QWSEvent::SelectionClear:
-	event = new QWSSelectionClearEvent;
-	break;
+        event = new QWSSelectionClearEvent;
+        break;
     case QWSEvent::SelectionRequest:
-	event = new QWSSelectionRequestEvent;
-	break;
+        event = new QWSSelectionRequestEvent;
+        break;
     case QWSEvent::SelectionNotify:
-	event = new QWSSelectionNotifyEvent;
-	break;
+        event = new QWSSelectionNotifyEvent;
+        break;
 #ifndef QT_NO_COP
     case QWSEvent::QCopMessage:
-	event = new QWSQCopMessageEvent;
-	break;
+        event = new QWSQCopMessageEvent;
+        break;
 #endif
     case QWSEvent::WindowOperation:
-	event = new QWSWindowOperationEvent;
-	break;
+        event = new QWSWindowOperationEvent;
+        break;
 
 #ifndef QT_NO_QWS_IM
     case QWSEvent::IMEvent:
-	event = new QWSIMEvent;
-	break;
+        event = new QWSIMEvent;
+        break;
 #endif
     default:
-	qDebug( "QWSDisplayData::readMore() : Protocol error - got %08x!", type );
+        qDebug("QWSDisplayData::readMore() : Protocol error - got %08x!", type);
     }
     return event;
 }

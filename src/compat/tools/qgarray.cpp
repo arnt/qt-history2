@@ -21,7 +21,7 @@
 #   include "qt_windows.h"
 #endif
 
-#define	 QGARRAY_CPP
+#define         QGARRAY_CPP
 #include "qgarray.h"
 #include <stdlib.h>
 #include <string.h>
@@ -42,12 +42,12 @@
 #undef DELETE
 
 #if defined(USE_MALLOC)
-#define NEW(type,size)	((type*)malloc(size*sizeof(type)))
-#define DELETE(array)	(free((char*)array))
+#define NEW(type,size)        ((type*)malloc(size*sizeof(type)))
+#define DELETE(array)        (free((char*)array))
 #else
-#define NEW(type,size)	(new type[size])
-#define DELETE(array)	(delete[] array)
-#define DONT_USE_REALLOC			// comment to use realloc()
+#define NEW(type,size)        (new type[size])
+#define DELETE(array)        (delete[] array)
+#define DONT_USE_REALLOC                        // comment to use realloc()
 #endif
 
 /*!
@@ -90,7 +90,7 @@
 QGArray::QGArray()
 {
     shd = newData();
-    Q_CHECK_PTR( shd );
+    Q_CHECK_PTR(shd);
 }
 
 /*!
@@ -100,7 +100,7 @@ QGArray::QGArray()
   must do it. The intention is to make the code more efficient.
 */
 
-QGArray::QGArray( int, int )
+QGArray::QGArray(int, int)
 {
 }
 
@@ -108,30 +108,30 @@ QGArray::QGArray( int, int )
   Constructs an array with room for \a size bytes.
 */
 
-QGArray::QGArray( int size )
+QGArray::QGArray(int size)
 {
-    if ( size < 0 ) {
-	qWarning( "QGArray: Cannot allocate array with negative length" );
-	size = 0;
+    if (size < 0) {
+        qWarning("QGArray: Cannot allocate array with negative length");
+        size = 0;
     }
     shd = newData();
-    Q_CHECK_PTR( shd );
-    if ( size == 0 )				// zero length
-	return;
+    Q_CHECK_PTR(shd);
+    if (size == 0)                                // zero length
+        return;
     shd->data = NEW(char,size);
-    Q_CHECK_PTR( shd->data );
+    Q_CHECK_PTR(shd->data);
     shd->len =
 #ifdef QT_QGARRAY_SPEED_OPTIM
-	shd->maxl =
+        shd->maxl =
 #endif
-	size;
+        size;
 }
 
 /*!
   Constructs a shallow copy of \a a.
 */
 
-QGArray::QGArray( const QGArray &a )
+QGArray::QGArray(const QGArray &a)
 {
     shd = a.shd;
     shd->ref();
@@ -144,17 +144,17 @@ QGArray::QGArray( const QGArray &a )
 
 QGArray::~QGArray()
 {
-    if ( shd && shd->deref() ) {		// delete when last reference
-	if ( shd->data )			// is lost
-	    DELETE(shd->data);
-	deleteData( shd );
-	shd = 0;
+    if (shd && shd->deref()) {                // delete when last reference
+        if (shd->data)                        // is lost
+            DELETE(shd->data);
+        deleteData(shd);
+        shd = 0;
     }
 }
 
 
 /*!
-  \fn QGArray &QGArray::operator=( const QGArray &a )
+  \fn QGArray &QGArray::operator=(const QGArray &a)
 
   Assigns a shallow copy of \a a to this array and returns a reference to
   this array.  Equivalent to assign().
@@ -186,17 +186,17 @@ QGArray::~QGArray()
 
 
 /*!
-  Returns TRUE if this array is equal to \a a, otherwise FALSE.
+  Returns true if this array is equal to \a a, otherwise false.
   The comparison is bitwise, of course.
 */
 
-bool QGArray::isEqual( const QGArray &a ) const
+bool QGArray::isEqual(const QGArray &a) const
 {
-    if ( size() != a.size() )			// different size
-	return FALSE;
-    if ( data() == a.data() )			// has same data
-	return TRUE;
-    return (size() ? memcmp( data(), a.data(), size() ) : 0) == 0;
+    if (size() != a.size())                        // different size
+        return false;
+    if (data() == a.data())                        // has same data
+        return true;
+    return (size() ? memcmp(data(), a.data(), size()) : 0) == 0;
 }
 
 
@@ -204,70 +204,70 @@ bool QGArray::isEqual( const QGArray &a ) const
   Resizes the array to \a newsize bytes. \a optim is either
   MemOptim (the default) or SpeedOptim.
 */
-bool QGArray::resize( uint newsize, Optimization optim )
+bool QGArray::resize(uint newsize, Optimization optim)
 {
 #ifndef QT_QGARRAY_SPEED_OPTIM
     Q_UNUSED(optim);
 #endif
 
-    if ( newsize == shd->len
+    if (newsize == shd->len
 #ifdef QT_QGARRAY_SPEED_OPTIM
-	 && newsize == shd->maxl
+         && newsize == shd->maxl
 #endif
-	) // nothing to do
-	return TRUE;
-    if ( newsize == 0 ) {			// remove array
-	if ( shd->data )
-	    DELETE(shd->data);
-	shd->data = 0;
-	shd->len = 0;
+       ) // nothing to do
+        return true;
+    if (newsize == 0) {                        // remove array
+        if (shd->data)
+            DELETE(shd->data);
+        shd->data = 0;
+        shd->len = 0;
 #ifdef QT_QGARRAY_SPEED_OPTIM
-	shd->maxl = 0;
+        shd->maxl = 0;
 #endif
-	return TRUE;
+        return true;
     }
 
     uint newmaxl = newsize;
 #ifdef QT_QGARRAY_SPEED_OPTIM
-    if ( optim == SpeedOptim ) {
-	if ( newsize <= shd->maxl &&
-	     ( newsize * 4 > shd->maxl || shd->maxl <= 4 ) ) {
-	    shd->len = newsize;
-	    return TRUE;
-	}
-	newmaxl = 4;
-	while ( newmaxl < newsize )
-	    newmaxl *= 2;
-	// try to spare some memory
-	if ( newmaxl >= 1024 * 1024 && newsize <= newmaxl - (newmaxl >> 2) )
-	    newmaxl -= newmaxl >> 2;
+    if (optim == SpeedOptim) {
+        if (newsize <= shd->maxl &&
+             (newsize * 4 > shd->maxl || shd->maxl <= 4)) {
+            shd->len = newsize;
+            return true;
+        }
+        newmaxl = 4;
+        while (newmaxl < newsize)
+            newmaxl *= 2;
+        // try to spare some memory
+        if (newmaxl >= 1024 * 1024 && newsize <= newmaxl - (newmaxl >> 2))
+            newmaxl -= newmaxl >> 2;
     }
     shd->maxl = newmaxl;
 #endif
 
-    if ( shd->data ) {				// existing data
+    if (shd->data) {                                // existing data
 #if defined(DONT_USE_REALLOC)
-	char *newdata = NEW(char,newsize);	// manual realloc
-	memcpy( newdata, shd->data, qMin(shd->len,newmaxl) );
-	DELETE(shd->data);
-	shd->data = newdata;
+        char *newdata = NEW(char,newsize);        // manual realloc
+        memcpy(newdata, shd->data, qMin(shd->len,newmaxl));
+        DELETE(shd->data);
+        shd->data = newdata;
 #else
-	shd->data = (char *)realloc( shd->data, newmaxl );
+        shd->data = (char *)realloc(shd->data, newmaxl);
 #endif
     } else {
-	shd->data = NEW(char,newmaxl);
+        shd->data = NEW(char,newmaxl);
     }
-    if ( !shd->data )				// no memory
-	return FALSE;
+    if (!shd->data)                                // no memory
+        return false;
     shd->len = newsize;
-    return TRUE;
+    return true;
 }
 
 /*!\overload
 */
-bool QGArray::resize( uint newsize )
+bool QGArray::resize(uint newsize)
 {
-    return resize( newsize, MemOptim );
+    return resize(newsize, MemOptim);
 }
 
 
@@ -277,38 +277,38 @@ bool QGArray::resize( uint newsize )
   If \a len is specified as different from -1, then the array will be
   resized to \a len*sz before it is filled.
 
-  Returns TRUE if successful, or FALSE if the memory cannot be allocated
+  Returns true if successful, or false if the memory cannot be allocated
   (only when \a len != -1).
 
   \sa resize()
 */
 
-bool QGArray::fill( const char *d, int len, uint sz )
+bool QGArray::fill(const char *d, int len, uint sz)
 {
-    if ( len < 0 )
-	len = shd->len/sz;			// default: use array length
-    else if ( !resize( len*sz ) )
-	return FALSE;
-    if ( sz == 1 )				// 8 bit elements
-	memset( data(), *d, len );
-    else if ( sz == 4 ) {			// 32 bit elements
-	register Q_INT32 *x = (Q_INT32*)data();
-	Q_INT32 v = *((Q_INT32*)d);
-	while ( len-- )
-	    *x++ = v;
-    } else if ( sz == 2 ) {			// 16 bit elements
-	register Q_INT16 *x = (Q_INT16*)data();
-	Q_INT16 v = *((Q_INT16*)d);
-	while ( len-- )
-	    *x++ = v;
-    } else {					// any other size elements
-	register char *x = data();
-	while ( len-- ) {			// more complicated
-	    memcpy( x, d, sz );
-	    x += sz;
-	}
+    if (len < 0)
+        len = shd->len/sz;                        // default: use array length
+    else if (!resize(len*sz))
+        return false;
+    if (sz == 1)                                // 8 bit elements
+        memset(data(), *d, len);
+    else if (sz == 4) {                        // 32 bit elements
+        register Q_INT32 *x = (Q_INT32*)data();
+        Q_INT32 v = *((Q_INT32*)d);
+        while (len--)
+            *x++ = v;
+    } else if (sz == 2) {                        // 16 bit elements
+        register Q_INT16 *x = (Q_INT16*)data();
+        Q_INT16 v = *((Q_INT16*)d);
+        while (len--)
+            *x++ = v;
+    } else {                                        // any other size elements
+        register char *x = data();
+        while (len--) {                        // more complicated
+            memcpy(x, d, sz);
+            x += sz;
+        }
     }
-    return TRUE;
+    return true;
 }
 
 /*!
@@ -318,13 +318,13 @@ bool QGArray::fill( const char *d, int len, uint sz )
   \sa operator=()
 */
 
-QGArray &QGArray::assign( const QGArray &a )
+QGArray &QGArray::assign(const QGArray &a)
 {
-    a.shd->ref();				// avoid 'a = a'
-    if ( shd->deref() ) {			// delete when last reference
-	if ( shd->data )			// is lost
-	    DELETE(shd->data);
-	deleteData( shd );
+    a.shd->ref();                                // avoid 'a = a'
+    if (shd->deref()) {                        // delete when last reference
+        if (shd->data)                        // is lost
+            DELETE(shd->data);
+        deleteData(shd);
     }
     shd = a.shd;
     return *this;
@@ -338,22 +338,22 @@ QGArray &QGArray::assign( const QGArray &a )
   Do not delete \a d later, because QGArray takes care of that.
 */
 
-QGArray &QGArray::assign( const char *d, uint len )
+QGArray &QGArray::assign(const char *d, uint len)
 {
-    if ( shd->count > 1 ) {			// disconnect this
-	shd->count--;
-	shd = newData();
-	Q_CHECK_PTR( shd );
+    if (shd->count > 1) {                        // disconnect this
+        shd->count--;
+        shd = newData();
+        Q_CHECK_PTR(shd);
     } else {
-	if ( shd->data )
-	    DELETE(shd->data);
+        if (shd->data)
+            DELETE(shd->data);
     }
     shd->data = (char *)d;
     shd->len =
 #ifdef QT_QGARRAY_SPEED_OPTIM
-	shd->maxl =
+        shd->maxl =
 #endif
-	len;
+        len;
     return *this;
 }
 
@@ -363,48 +363,48 @@ QGArray &QGArray::assign( const char *d, uint len )
   \sa assign(), operator=()
 */
 
-QGArray &QGArray::duplicate( const QGArray &a )
+QGArray &QGArray::duplicate(const QGArray &a)
 {
-    if ( a.shd == shd ) {			// a.duplicate(a) !
-	if ( shd->count > 1 ) {
-	    shd->count--;
-	    register array_data *n = newData();
-	    Q_CHECK_PTR( n );
-	    if ( (n->len=shd->len) ) {
-		n->data = NEW(char,n->len);
-		Q_CHECK_PTR( n->data );
-		if ( n->data )
-		    memcpy( n->data, shd->data, n->len );
-	    } else {
-		n->data = 0;
-	    }
-	    shd = n;
-	}
-	return *this;
+    if (a.shd == shd) {                        // a.duplicate(a) !
+        if (shd->count > 1) {
+            shd->count--;
+            register array_data *n = newData();
+            Q_CHECK_PTR(n);
+            if ((n->len=shd->len)) {
+                n->data = NEW(char,n->len);
+                Q_CHECK_PTR(n->data);
+                if (n->data)
+                    memcpy(n->data, shd->data, n->len);
+            } else {
+                n->data = 0;
+            }
+            shd = n;
+        }
+        return *this;
     }
     char *oldptr = 0;
-    if ( shd->count > 1 ) {			// disconnect this
-	shd->count--;
-	shd = newData();
-	Q_CHECK_PTR( shd );
-    } else {					// delete after copy was made
-	oldptr = shd->data;
+    if (shd->count > 1) {                        // disconnect this
+        shd->count--;
+        shd = newData();
+        Q_CHECK_PTR(shd);
+    } else {                                        // delete after copy was made
+        oldptr = shd->data;
     }
-    if ( a.shd->len ) {				// duplicate data
-	shd->data = NEW(char,a.shd->len);
-	Q_CHECK_PTR( shd->data );
-	if ( shd->data )
-	    memcpy( shd->data, a.shd->data, a.shd->len );
+    if (a.shd->len) {                                // duplicate data
+        shd->data = NEW(char,a.shd->len);
+        Q_CHECK_PTR(shd->data);
+        if (shd->data)
+            memcpy(shd->data, a.shd->data, a.shd->len);
     } else {
-	shd->data = 0;
+        shd->data = 0;
     }
     shd->len =
 #ifdef QT_QGARRAY_SPEED_OPTIM
-	shd->maxl =
+        shd->maxl =
 #endif
-	a.shd->len;
-    if ( oldptr )
-	DELETE(oldptr);
+        a.shd->len;
+    if (oldptr)
+        DELETE(oldptr);
     return *this;
 }
 
@@ -416,36 +416,36 @@ QGArray &QGArray::duplicate( const QGArray &a )
   \sa assign(), operator=()
 */
 
-QGArray &QGArray::duplicate( const char *d, uint len )
+QGArray &QGArray::duplicate(const char *d, uint len)
 {
     char *data;
-    if ( d == 0 || len == 0 ) {
-	data = 0;
-	len  = 0;
+    if (d == 0 || len == 0) {
+        data = 0;
+        len  = 0;
     } else {
-	if ( shd->count == 1 && shd->len == len ) {
-	    if ( shd->data != d )		// avoid self-assignment
-		memcpy( shd->data, d, len );	// use same buffer
-	    return *this;
-	}
-	data = NEW(char,len);
-	Q_CHECK_PTR( data );
-	memcpy( data, d, len );
+        if (shd->count == 1 && shd->len == len) {
+            if (shd->data != d)                // avoid self-assignment
+                memcpy(shd->data, d, len);        // use same buffer
+            return *this;
+        }
+        data = NEW(char,len);
+        Q_CHECK_PTR(data);
+        memcpy(data, d, len);
     }
-    if ( shd->count > 1 ) {			// detach
-	shd->count--;
-	shd = newData();
-	Q_CHECK_PTR( shd );
-    } else {					// just a single reference
-	if ( shd->data )
-	    DELETE(shd->data);
+    if (shd->count > 1) {                        // detach
+        shd->count--;
+        shd = newData();
+        Q_CHECK_PTR(shd);
+    } else {                                        // just a single reference
+        if (shd->data)
+            DELETE(shd->data);
     }
     shd->data = data;
     shd->len =
 #ifdef QT_QGARRAY_SPEED_OPTIM
-	shd->maxl =
+        shd->maxl =
 #endif
-	len;
+        len;
     return *this;
 }
 
@@ -457,10 +457,10 @@ QGArray &QGArray::duplicate( const char *d, uint len )
   other QGArrays reference the same data as this, all will be updated.
 */
 
-void QGArray::store( const char *d, uint len )
-{						// store, but not deref
-    resize( len );
-    memcpy( shd->data, d, len );
+void QGArray::store(const char *d, uint len)
+{                                                // store, but not deref
+    resize(len);
+    memcpy(shd->data, d, len);
 }
 
 
@@ -477,7 +477,7 @@ void QGArray::store( const char *d, uint len )
 */
 
 /*!
-  \fn void QGArray::setSharedBlock( array_data *p )
+  \fn void QGArray::setSharedBlock(array_data *p)
 
   Sets the shared array block to \a p.
 
@@ -493,7 +493,7 @@ void QGArray::store( const char *d, uint len )
   Sets raw data and returns a reference to the array.
 
   Dereferences the current array and sets the new array data to \a d and
-  the new array size to \a len.	 Do not attempt to resize or re-assign the
+  the new array size to \a len.         Do not attempt to resize or re-assign the
   array data when raw data has been set.
   Call resetRawData(d,len) to reset the array.
 
@@ -503,22 +503,22 @@ void QGArray::store( const char *d, uint len )
   Example of intended use:
   \code
     static uchar bindata[] = { 231, 1, 44, ... };
-    QByteArray	a;
-    a.setRawData( bindata, sizeof(bindata) );	// a points to bindata
-    QDataStream s( a, IO_ReadOnly );		// open on a's data
-    s >> <something>;				// read raw bindata
+    QByteArray        a;
+    a.setRawData(bindata, sizeof(bindata));        // a points to bindata
+    QDataStream s(a, IO_ReadOnly);                // open on a's data
+    s >> <something>;                                // read raw bindata
     s.close();
-    a.resetRawData( bindata, sizeof(bindata) ); // finished
+    a.resetRawData(bindata, sizeof(bindata)); // finished
   \endcode
 
   Example of misuse (do not do this):
   \code
     static uchar bindata[] = { 231, 1, 44, ... };
-    QByteArray	a, b;
-    a.setRawData( bindata, sizeof(bindata) );	// a points to bindata
-    a.resize( 8 );				// will crash
-    b = a;					// will crash
-    a[2] = 123;					// might crash
+    QByteArray        a, b;
+    a.setRawData(bindata, sizeof(bindata));        // a points to bindata
+    a.resize(8);                                // will crash
+    b = a;                                        // will crash
+    a[2] = 123;                                        // might crash
       // forget to resetRawData - will crash
   \endcode
 
@@ -527,9 +527,9 @@ void QGArray::store( const char *d, uint len )
   Be careful.
 */
 
-QGArray &QGArray::setRawData( const char *d, uint len )
+QGArray &QGArray::setRawData(const char *d, uint len)
 {
-    duplicate( 0, 0 );				// set null data
+    duplicate(0, 0);                                // set null data
     shd->data = (char *)d;
     shd->len  = len;
     return *this;
@@ -542,11 +542,11 @@ QGArray &QGArray::setRawData( const char *d, uint len )
   passed to setRawData().  This is for consistency checking.
 */
 
-void QGArray::resetRawData( const char *d, uint len )
+void QGArray::resetRawData(const char *d, uint len)
 {
-    if ( d != shd->data || len != shd->len ) {
-	qWarning( "QGArray::resetRawData: Inconsistent arguments" );
-	return;
+    if (d != shd->data || len != shd->len) {
+        qWarning("QGArray::resetRawData: Inconsistent arguments");
+        return;
     }
     shd->data = 0;
     shd->len  = 0;
@@ -562,54 +562,54 @@ void QGArray::resetRawData( const char *d, uint len )
   This function only compares whole cells, not bytes.
 */
 
-int QGArray::find( const char *d, uint index, uint sz ) const
+int QGArray::find(const char *d, uint index, uint sz) const
 {
     index *= sz;
-    if ( index >= shd->len ) {
-	qWarning( "QGArray::find: Index %d out of range", index/sz );
-	return -1;
+    if (index >= shd->len) {
+        qWarning("QGArray::find: Index %d out of range", index/sz);
+        return -1;
     }
     register uint i;
     uint ii;
-    switch ( sz ) {
-	case 1: {				// 8 bit elements
-	    register char *x = data() + index;
-	    char v = *d;
-	    for ( i=index; i<shd->len; i++ ) {
-		if ( *x++ == v )
-		    break;
-	    }
-	    ii = i;
-	    }
-	    break;
-	case 2: {				// 16 bit elements
-	    register Q_INT16 *x = (Q_INT16*)(data() + index);
-	    Q_INT16 v = *((Q_INT16*)d);
-	    for ( i=index; i<shd->len; i+=2 ) {
-		if ( *x++ == v )
-		    break;
-	    }
-	    ii = i/2;
-	    }
-	    break;
-	case 4: {				// 32 bit elements
-	    register Q_INT32 *x = (Q_INT32*)(data() + index);
-	    Q_INT32 v = *((Q_INT32*)d);
-	    for ( i=index; i<shd->len; i+=4 ) {
-		if ( *x++ == v )
-		    break;
-	    }
-	    ii = i/4;
-	    }
-	    break;
-	default: {				// any size elements
-	    for ( i=index; i<shd->len; i+=sz ) {
-		if ( memcmp( d, &shd->data[i], sz ) == 0 )
-		    break;
-	    }
-	    ii = i/sz;
-	    }
-	    break;
+    switch (sz) {
+        case 1: {                                // 8 bit elements
+            register char *x = data() + index;
+            char v = *d;
+            for (i=index; i<shd->len; i++) {
+                if (*x++ == v)
+                    break;
+            }
+            ii = i;
+            }
+            break;
+        case 2: {                                // 16 bit elements
+            register Q_INT16 *x = (Q_INT16*)(data() + index);
+            Q_INT16 v = *((Q_INT16*)d);
+            for (i=index; i<shd->len; i+=2) {
+                if (*x++ == v)
+                    break;
+            }
+            ii = i/2;
+            }
+            break;
+        case 4: {                                // 32 bit elements
+            register Q_INT32 *x = (Q_INT32*)(data() + index);
+            Q_INT32 v = *((Q_INT32*)d);
+            for (i=index; i<shd->len; i+=4) {
+                if (*x++ == v)
+                    break;
+            }
+            ii = i/4;
+            }
+            break;
+        default: {                                // any size elements
+            for (i=index; i<shd->len; i+=sz) {
+                if (memcmp(d, &shd->data[i], sz) == 0)
+                    break;
+            }
+            ii = i/sz;
+            }
+            break;
     }
     return i<shd->len ? (int)ii : -1;
 }
@@ -621,47 +621,47 @@ int QGArray::find( const char *d, uint index, uint sz ) const
   This function only compares whole cells, not bytes.
 */
 
-int QGArray::contains( const char *d, uint sz ) const
+int QGArray::contains(const char *d, uint sz) const
 {
     register uint i = shd->len;
     int count = 0;
-    switch ( sz ) {
-	case 1: {				// 8 bit elements
-	    register char *x = data();
-	    char v = *d;
-	    while ( i-- ) {
-		if ( *x++ == v )
-		    count++;
-	    }
-	    }
-	    break;
-	case 2: {				// 16 bit elements
-	    register Q_INT16 *x = (Q_INT16*)data();
-	    Q_INT16 v = *((Q_INT16*)d);
-	    i /= 2;
-	    while ( i-- ) {
-		if ( *x++ == v )
-		    count++;
-	    }
-	    }
-	    break;
-	case 4: {				// 32 bit elements
-	    register Q_INT32 *x = (Q_INT32*)data();
-	    Q_INT32 v = *((Q_INT32*)d);
-	    i /= 4;
-	    while ( i-- ) {
-		if ( *x++ == v )
-		    count++;
-	    }
-	    }
-	    break;
-	default: {				// any size elements
-	    for ( i=0; i<shd->len; i+=sz ) {
-		if ( memcmp(d, &shd->data[i], sz) == 0 )
-		    count++;
-	    }
-	    }
-	    break;
+    switch (sz) {
+        case 1: {                                // 8 bit elements
+            register char *x = data();
+            char v = *d;
+            while (i--) {
+                if (*x++ == v)
+                    count++;
+            }
+            }
+            break;
+        case 2: {                                // 16 bit elements
+            register Q_INT16 *x = (Q_INT16*)data();
+            Q_INT16 v = *((Q_INT16*)d);
+            i /= 2;
+            while (i--) {
+                if (*x++ == v)
+                    count++;
+            }
+            }
+            break;
+        case 4: {                                // 32 bit elements
+            register Q_INT32 *x = (Q_INT32*)data();
+            Q_INT32 v = *((Q_INT32*)d);
+            i /= 4;
+            while (i--) {
+                if (*x++ == v)
+                    count++;
+            }
+            }
+            break;
+        default: {                                // any size elements
+            for (i=0; i<shd->len; i+=sz) {
+                if (memcmp(d, &shd->data[i], sz) == 0)
+                    count++;
+            }
+            }
+            break;
     }
     return count;
 }
@@ -673,13 +673,13 @@ extern "C" {
 #endif
 
 #ifdef Q_OS_TEMP
-static int __cdecl cmp_arr( const void *n1, const void *n2 )
+static int __cdecl cmp_arr(const void *n1, const void *n2)
 #else
-static int cmp_arr( const void *n1, const void *n2 )
+static int cmp_arr(const void *n1, const void *n2)
 #endif
 {
-    return ( n1 && n2 ) ? memcmp( n1, n2, cmp_item_size )
-			: ( n1 ? 1 : ( n2 ? -1 : 0 ) );
+    return (n1 && n2) ? memcmp(n1, n2, cmp_item_size)
+                        : (n1 ? 1 : (n2 ? -1 : 0));
     // ### Qt 3.0: Add a virtual compareItems() method and call that instead
 }
 
@@ -691,48 +691,48 @@ static int cmp_arr( const void *n1, const void *n2 )
   Sorts the first \a sz items of the array.
 */
 
-void QGArray::sort( uint sz )
+void QGArray::sort(uint sz)
 {
     int numItems = size() / sz;
-    if ( numItems < 2 )
-	return;
+    if (numItems < 2)
+        return;
 
 #ifdef QT_THREAD_SUPPORT
-    QMutexLocker locker( qt_global_mutexpool ?
-			 qt_global_mutexpool->get( &cmp_item_size ) : 0 );
+    QMutexLocker locker(qt_global_mutexpool ?
+                         qt_global_mutexpool->get(&cmp_item_size) : 0);
 #endif // QT_THREAD_SUPPORT
 
     cmp_item_size = sz;
-    qsort( shd->data, numItems, sz, cmp_arr );
+    qsort(shd->data, numItems, sz, cmp_arr);
 }
 
 /*!
   Binary search; assumes that \a d is a sorted array of size \a sz.
 */
 
-int QGArray::bsearch( const char *d, uint sz ) const
+int QGArray::bsearch(const char *d, uint sz) const
 {
     int numItems = size() / sz;
-    if ( !numItems )
-	return -1;
+    if (!numItems)
+        return -1;
 
 #ifdef QT_THREAD_SUPPORT
-    QMutexLocker locker( qt_global_mutexpool ?
-			 qt_global_mutexpool->get( &cmp_item_size ) : 0 );
+    QMutexLocker locker(qt_global_mutexpool ?
+                         qt_global_mutexpool->get(&cmp_item_size) : 0);
 #endif // QT_THREAD_SUPPORT
 
     cmp_item_size = sz;
-    char* r = (char*)::bsearch( d, shd->data, numItems, sz, cmp_arr );
-    if ( !r )
-	return -1;
-    while( (r >= shd->data + sz) && (cmp_arr( r - sz, d ) == 0) )
-	r -= sz;	// search to first of equal elements; bsearch is undef
-    return (int)(( r - shd->data ) / sz);
+    char* r = (char*)::bsearch(d, shd->data, numItems, sz, cmp_arr);
+    if (!r)
+        return -1;
+    while((r >= shd->data + sz) && (cmp_arr(r - sz, d) == 0))
+        r -= sz;        // search to first of equal elements; bsearch is undef
+    return (int)((r - shd->data) / sz);
 }
 
 
 /*!
-  \fn char *QGArray::at( uint index ) const
+  \fn char *QGArray::at(uint index) const
 
   Returns a pointer to the byte at offset \a index in the array.
 */
@@ -741,22 +741,22 @@ int QGArray::bsearch( const char *d, uint sz ) const
   Expand the array if necessary, and copies (the first part of) its
   contents from the \a index * \a sz bytes at \a d.
 
-  Returns TRUE if the operation succeeds, FALSE if it runs out of
+  Returns true if the operation succeeds, false if it runs out of
   memory.
 
   \warning This function disregards the reference count mechanism.  If
   other QGArrays reference the same data as this, all will be changed.
 */
 
-bool QGArray::setExpand( uint index, const char *d, uint sz )
+bool QGArray::setExpand(uint index, const char *d, uint sz)
 {
     index *= sz;
-    if ( index >= shd->len ) {
-	if ( !resize( index+sz ) )		// no memory
-	    return FALSE;
+    if (index >= shd->len) {
+        if (!resize(index+sz))                // no memory
+            return false;
     }
-    memcpy( data() + index, d, sz );
-    return TRUE;
+    memcpy(data() + index, d, sz);
+    return true;
 }
 
 
@@ -774,7 +774,7 @@ QGArray::array_data * QGArray::newData()
   Deletes the shared array block \a p.
 */
 
-void QGArray::deleteData( array_data *p )
+void QGArray::deleteData(array_data *p)
 {
     delete p;
 }

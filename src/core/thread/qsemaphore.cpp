@@ -110,11 +110,11 @@ int QSemaphore::operator++(int)
 {
     QMutexLocker locker(&d->mutex);
     while (d->value >= d->max)
-	d->cond.wait(locker.mutex());
+        d->cond.wait(locker.mutex());
 
     ++d->value;
     if (d->value > d->max)
-	d->value = d->max;
+        d->value = d->max;
 
     return d->value;
 }
@@ -132,7 +132,7 @@ int QSemaphore::operator--(int)
 
     --d->value;
     if (d->value < 0)
-	d->value = 0;
+        d->value = 0;
 
     d->cond.wakeAll();
 
@@ -149,13 +149,13 @@ int QSemaphore::operator+=(int n)
 {
     QMutexLocker locker(&d->mutex);
 
-    if ( n < 0 || n > d->max ) {
-	qWarning( "QSemaphore::operator+=: parameter %d out of range", n );
-	n = n < 0 ? 0 : d->max;
+    if (n < 0 || n > d->max) {
+        qWarning("QSemaphore::operator+=: parameter %d out of range", n);
+        n = n < 0 ? 0 : d->max;
     }
 
     while (d->value + n > d->max)
-	d->cond.wait(locker.mutex());
+        d->cond.wait(locker.mutex());
 
     d->value += n;
 
@@ -170,9 +170,9 @@ int QSemaphore::operator-=(int n)
 {
     QMutexLocker locker(&d->mutex);
 
-    if ( n < 0 || n > d->value ) {
-	qWarning( "QSemaphore::operator-=: parameter %d out of range", n );
-	n = n < 0 ? 0 : d->value;
+    if (n < 0 || n > d->value) {
+        qWarning("QSemaphore::operator-=: parameter %d out of range", n);
+        n = n < 0 ? 0 : d->value;
     }
 
     d->value -= n;
@@ -214,7 +214,7 @@ bool QSemaphore::tryAccess(int n)
     QMutexLocker locker(&d->mutex);
 
     if (d->value + n > d->max)
-	return false;
+        return false;
 
     d->value += n;
 

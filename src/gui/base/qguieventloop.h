@@ -14,7 +14,7 @@ public:
     QGuiEventLoop(QObject *parent = 0);
     ~QGuiEventLoop();
 
-    virtual bool processEvents( ProcessEventsFlags flags );
+    virtual bool processEvents(ProcessEventsFlags flags);
 
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)
     virtual bool hasPendingEvents() const;

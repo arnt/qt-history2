@@ -26,7 +26,7 @@ class QWSLinuxTPMouseHandlerPrivate;
 class QWSLinuxTPMouseHandler : public QWSCalibratedMouseHandler
 {
 public:
-    QWSLinuxTPMouseHandler( const QString & = QString::null, const QString & = QString::null );
+    QWSLinuxTPMouseHandler(const QString & = QString::null, const QString & = QString::null);
     ~QWSLinuxTPMouseHandler();
 
 protected:

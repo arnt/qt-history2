@@ -42,7 +42,7 @@
 
 
 /*!
-    \fn  bool QPictureFormatPlugin::installIOHandler( const QString &format )
+    \fn  bool QPictureFormatPlugin::installIOHandler(const QString &format)
 
     Installs a QPictureIO picture I/O handler for the picture format \a
     format.
@@ -53,21 +53,21 @@
 class QPictureFormatPluginPrivate : public QPictureFormatInterface
 {
 public:
-    QPictureFormatPluginPrivate( QPictureFormatPlugin *p )
-	: plugin( p )
+    QPictureFormatPluginPrivate(QPictureFormatPlugin *p)
+        : plugin(p)
     {
     }
     virtual ~QPictureFormatPluginPrivate();
 
-    QRESULT queryInterface( const QUuid &iid, QUnknownInterface **iface );
+    QRESULT queryInterface(const QUuid &iid, QUnknownInterface **iface);
     Q_REFCOUNT;
 
     QStringList featureList() const;
 
-    QRESULT loadPicture( const QString &format, const QString &filename, QPicture * );
-    QRESULT savePicture( const QString &format, const QString &filename, const QPicture & );
+    QRESULT loadPicture(const QString &format, const QString &filename, QPicture *);
+    QRESULT savePicture(const QString &format, const QString &filename, const QPicture &);
 
-    QRESULT installIOHandler( const QString & );
+    QRESULT installIOHandler(const QString &);
 
 private:
     QPictureFormatPlugin *plugin;
@@ -78,18 +78,18 @@ QPictureFormatPluginPrivate::~QPictureFormatPluginPrivate()
     delete plugin;
 }
 
-QRESULT QPictureFormatPluginPrivate::queryInterface( const QUuid &iid, QUnknownInterface **iface )
+QRESULT QPictureFormatPluginPrivate::queryInterface(const QUuid &iid, QUnknownInterface **iface)
 {
     *iface = 0;
 
-    if ( iid == IID_QUnknown )
-	*iface = this;
-    else if ( iid == IID_QFeatureList )
-	*iface = this;
-    else if ( iid == IID_QPictureFormat )
-	*iface = this;
+    if (iid == IID_QUnknown)
+        *iface = this;
+    else if (iid == IID_QFeatureList)
+        *iface = this;
+    else if (iid == IID_QPictureFormat)
+        *iface = this;
     else
-	return QE_NOINTERFACE;
+        return QE_NOINTERFACE;
 
     (*iface)->addRef();
     return QS_OK;
@@ -100,19 +100,19 @@ QStringList QPictureFormatPluginPrivate::featureList() const
     return plugin->keys();
 }
 
-QRESULT QPictureFormatPluginPrivate::loadPicture( const QString &format, const QString &filename, QPicture *pic )
+QRESULT QPictureFormatPluginPrivate::loadPicture(const QString &format, const QString &filename, QPicture *pic)
 {
-    return plugin->loadPicture( format, filename, pic ) ? QS_FALSE : QS_OK;
+    return plugin->loadPicture(format, filename, pic) ? QS_FALSE : QS_OK;
 }
 
-QRESULT QPictureFormatPluginPrivate::savePicture( const QString &format, const QString &filename, const QPicture &pic )
+QRESULT QPictureFormatPluginPrivate::savePicture(const QString &format, const QString &filename, const QPicture &pic)
 {
-    return plugin->savePicture( format, filename, pic ) ? QS_FALSE : QS_OK;
+    return plugin->savePicture(format, filename, pic) ? QS_FALSE : QS_OK;
 }
 
-QRESULT QPictureFormatPluginPrivate::installIOHandler( const QString &format )
+QRESULT QPictureFormatPluginPrivate::installIOHandler(const QString &format)
 {
-    return plugin->installIOHandler( format ) ? QS_FALSE : QS_OK;
+    return plugin->installIOHandler(format) ? QS_FALSE : QS_OK;
 }
 
 /*!
@@ -120,7 +120,7 @@ QRESULT QPictureFormatPluginPrivate::installIOHandler( const QString &format )
     by the Q_EXPORT_PLUGIN macro.
 */
 QPictureFormatPlugin::QPictureFormatPlugin()
-    : QGPlugin( d = new QPictureFormatPluginPrivate( this ) )
+    : QGPlugin(d = new QPictureFormatPluginPrivate(this))
 {
 }
 
@@ -137,22 +137,22 @@ QPictureFormatPlugin::~QPictureFormatPlugin()
 
 /*!\internal
  */
-bool QPictureFormatPlugin::loadPicture( const QString &format, const QString &filename, QPicture *pic )
+bool QPictureFormatPlugin::loadPicture(const QString &format, const QString &filename, QPicture *pic)
 {
-    Q_UNUSED( format )
-    Q_UNUSED( filename )
-    Q_UNUSED( pic )
-    return FALSE;
+    Q_UNUSED(format)
+    Q_UNUSED(filename)
+    Q_UNUSED(pic)
+    return false;
 }
 
 /*! \internal
  */
-bool QPictureFormatPlugin::savePicture( const QString &format, const QString &filename, const QPicture &pic )
+bool QPictureFormatPlugin::savePicture(const QString &format, const QString &filename, const QPicture &pic)
 {
-    Q_UNUSED( format )
-    Q_UNUSED( filename )
-    Q_UNUSED( pic )
-    return FALSE;
+    Q_UNUSED(format)
+    Q_UNUSED(filename)
+    Q_UNUSED(pic)
+    return false;
 }
 
 #endif // QT_NO_PICTUREFORMATPLUGIN

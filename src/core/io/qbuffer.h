@@ -25,38 +25,38 @@ class Q_CORE_EXPORT QBuffer : public QIODevice
 {
 public:
     QBuffer();
-    QBuffer( QByteArray &b );
-    QBuffer( const QByteArray &b );
+    QBuffer(QByteArray &b);
+    QBuffer(const QByteArray &b);
    ~QBuffer();
 
     QByteArray &buffer() const;
-    bool  setBuffer( QByteArray &b );
+    bool  setBuffer(QByteArray &b);
 
-    bool  open( int );
+    bool  open(int);
     void  close();
     void  flush();
 
     Offset size() const;
     Offset at() const;
-    bool  at( Offset );
+    bool  at(Offset);
 
-    Q_LONG	  readBlock( char *p, Q_ULONG );
-    Q_LONG	  writeBlock( const char *p, Q_ULONG );
-    Q_LONG	  writeBlock( const QByteArray& data )
-	      { return QIODevice::writeBlock(data); }
-    Q_LONG	  readLine( char *p, Q_ULONG );
+    Q_LONG          readBlock(char *p, Q_ULONG);
+    Q_LONG          writeBlock(const char *p, Q_ULONG);
+    Q_LONG          writeBlock(const QByteArray& data)
+              { return QIODevice::writeBlock(data); }
+    Q_LONG          readLine(char *p, Q_ULONG);
 
-    int	  getch();
-    int	  putch( int );
-    int	  ungetch( int );
+    int          getch();
+    int          putch(int);
+    int          ungetch(int);
 
 private:
     QByteArray b, *p;
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QBuffer( const QBuffer & );
-    QBuffer &operator=( const QBuffer & );
+    QBuffer(const QBuffer &);
+    QBuffer &operator=(const QBuffer &);
 #endif
 };
 

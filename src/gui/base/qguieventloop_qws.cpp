@@ -33,40 +33,40 @@
 // from qapplication_qws.cpp
 extern QWSDisplay* qt_fbdpy; // QWS `display'
 
-bool QGuiEventLoop::processEvents( ProcessEventsFlags flags )
+bool QGuiEventLoop::processEvents(ProcessEventsFlags flags)
 {
     // process events from the QWS server
-    int	   nevents = 0;
+    int           nevents = 0;
 
     // handle gui and posted events
     QApplication::sendPostedEvents();
 
-    while ( qt_fbdpy->eventPending() ) {	// also flushes output buffer
-	if ( d->shortcut ) {
-	    return FALSE;
-	}
+    while (qt_fbdpy->eventPending()) {        // also flushes output buffer
+        if (d->shortcut) {
+            return false;
+        }
 
-	QWSEvent *event = qt_fbdpy->getEvent();	// get next event
-	nevents++;
+        QWSEvent *event = qt_fbdpy->getEvent();        // get next event
+        nevents++;
 
-	bool ret = qApp->qwsProcessEvent( event ) == 1;
-	delete event;
-	if ( ret ) {
-	    return TRUE;
-	}
+        bool ret = qApp->qwsProcessEvent(event) == 1;
+        delete event;
+        if (ret) {
+            return true;
+        }
     }
 
-    if ( d->shortcut ) {
-	return FALSE;
+    if (d->shortcut) {
+        return false;
     }
 
     extern QList<QWSCommand*> *qt_get_server_queue();
-    if ( !qt_get_server_queue()->isEmpty() ) {
-	QWSServer::processEventQueue();
+    if (!qt_get_server_queue()->isEmpty()) {
+        QWSServer::processEventQueue();
     }
 
     if (QEventLoop::processEvents(flags))
-	return true;
+        return true;
     return (nevents > 0);
 }
 
@@ -89,7 +89,7 @@ void QGuiEventLoop::cleanup()
 void QGuiEventLoop::flush()
 {
     if(qApp)
-	qApp->sendPostedEvents();
+        qApp->sendPostedEvents();
     (void)qt_fbdpy->eventPending(); // flush
 }
 

@@ -106,7 +106,7 @@ public:
 };
 bool QViewportHelper::event(QEvent *e) {
     if (QViewport* viewport = qt_cast<QViewport*>(parentWidget()))
-	return ((QViewportPrivate*)((QViewportHelper*)viewport)->d_ptr)->viewportEvent(e);
+        return ((QViewportPrivate*)((QViewportHelper*)viewport)->d_ptr)->viewportEvent(e);
     return QWidget::event(e);
 }
 
@@ -140,10 +140,10 @@ void QViewportPrivate::init()
 void QViewportPrivate::layoutChildren()
 {
     bool needh = (hbarpolicy == ScrollBarAlwaysOn
-		  || (hbarpolicy == ScrollBarAsNeeded && hbar->minimum() < hbar->maximum()));
+                  || (hbarpolicy == ScrollBarAsNeeded && hbar->minimum() < hbar->maximum()));
 
     bool needv = (vbarpolicy == ScrollBarAlwaysOn
-		  || (vbarpolicy == ScrollBarAsNeeded && vbar->minimum() < vbar->maximum()));
+                  || (vbarpolicy == ScrollBarAsNeeded && vbar->minimum() < vbar->maximum()));
 
     int hsbExt = hbar->sizeHint().height();
     int vsbExt = vbar->sizeHint().width();
@@ -152,29 +152,29 @@ void QViewportPrivate::layoutChildren()
     reverse = true;
     QRect vr = q->rect();
     if (q->style().styleHint(QStyle::SH_ScrollView_FrameOnlyAroundContents)) {
-	QRect fr = vr;
-	if (needh) {
-	    fr.setBottom(fr.bottom() - hsbExt);
-	    hbar->setGeometry(QStyle::visualRect(QRect(0, fr.bottom() + 1, fr.width() - (needv?vsbExt:0), hsbExt), q));
-	}
-	if (needv) {
-	    fr.setRight(fr.right() - vsbExt);
-	    vbar->setGeometry(QStyle::visualRect(QRect(fr.right() + 1, 0, vsbExt, fr.height()), q));
-	}
-	q->setFrameRect(QStyle::visualRect(fr, q));
-	vr = q->contentsRect();
+        QRect fr = vr;
+        if (needh) {
+            fr.setBottom(fr.bottom() - hsbExt);
+            hbar->setGeometry(QStyle::visualRect(QRect(0, fr.bottom() + 1, fr.width() - (needv?vsbExt:0), hsbExt), q));
+        }
+        if (needv) {
+            fr.setRight(fr.right() - vsbExt);
+            vbar->setGeometry(QStyle::visualRect(QRect(fr.right() + 1, 0, vsbExt, fr.height()), q));
+        }
+        q->setFrameRect(QStyle::visualRect(fr, q));
+        vr = q->contentsRect();
     } else {
-	q->setFrameRect(vr);
-	vr = q->contentsRect();
-	if (needh) {
-	    vr.setBottom(vr.bottom() - hsbExt);
-	    hbar->setGeometry(QStyle::visualRect(QRect(vr.left(), vr.bottom() + 1, vr.width() - (needv?vsbExt:0), hsbExt), q));
-	}
-	if (needv) {
-	    vr.setRight(vr.right() - vsbExt);
-	    vbar->setGeometry(QStyle::visualRect(QRect(vr.right() + 1, vr.top(), vsbExt, vr.height()), q));
-	}
-	vr = QStyle::visualRect(vr, q);
+        q->setFrameRect(vr);
+        vr = q->contentsRect();
+        if (needh) {
+            vr.setBottom(vr.bottom() - hsbExt);
+            hbar->setGeometry(QStyle::visualRect(QRect(vr.left(), vr.bottom() + 1, vr.width() - (needv?vsbExt:0), hsbExt), q));
+        }
+        if (needv) {
+            vr.setRight(vr.right() - vsbExt);
+            vbar->setGeometry(QStyle::visualRect(QRect(vr.right() + 1, vr.top(), vsbExt, vr.height()), q));
+        }
+        vr = QStyle::visualRect(vr, q);
     }
     hbar->setShown(needh);
     vbar->setShown(needv);
@@ -229,9 +229,9 @@ QSize QViewport::maximumViewportSize() const
     int f = 2 * d->frameWidth;
     QSize max = size() - QSize(f,f);
     if (d->vbarpolicy == ScrollBarAlwaysOn)
-	max.rwidth() -= vsbExt;
+        max.rwidth() -= vsbExt;
     if (d->hbarpolicy == ScrollBarAlwaysOn)
-	max.rheight() -= hsbExt;
+        max.rheight() -= hsbExt;
     return max;
 }
 
@@ -254,7 +254,7 @@ void QViewport::setVerticalScrollBarPolicy(ScrollBarPolicy policy)
 {
     d->vbarpolicy = policy;
     if (isVisible())
-	d->layoutChildren();
+        d->layoutChildren();
 }
 
 
@@ -286,7 +286,7 @@ void QViewport::setHorizontalScrollBarPolicy(ScrollBarPolicy policy)
 {
     d->hbarpolicy = policy;
     if (isVisible())
-	d->layoutChildren();
+        d->layoutChildren();
 }
 
 /*!
@@ -343,8 +343,8 @@ bool QViewport::event(QEvent *e)
     case QEvent::ContextMenu:
         return false;
     case QEvent::StyleChange:
-	d->layoutChildren();
-	// fall through
+        d->layoutChildren();
+        // fall through
     default:
         return QFrame::event(e);
     }
@@ -383,10 +383,10 @@ bool QViewport::viewportEvent(QEvent *e)
         return QFrame::event(e);
     case QEvent::Wheel:
         if (!QFrame::event(e)) {
-	    if (static_cast<QWheelEvent*>(e)->orientation() == Horizontal)
-		return QApplication::sendEvent(d->hbar, e);
-	    return QApplication::sendEvent(d->vbar, e);
-	}
+            if (static_cast<QWheelEvent*>(e)->orientation() == Horizontal)
+                return QApplication::sendEvent(d->hbar, e);
+            return QApplication::sendEvent(d->vbar, e);
+        }
     default:
         return static_cast<QViewportHelper*>(d->viewport)->QWidget::event(e);
     }
@@ -486,30 +486,30 @@ void QViewport::contextMenuEvent(QContextMenuEvent *e)
     QFrame::contextMenuEvent(e);
 }
 
-void QViewport::keyPressEvent( QKeyEvent * e)
+void QViewport::keyPressEvent(QKeyEvent * e)
 {
     switch (e->key()) {
     case Key_PageUp:
-	d->vbar->triggerAction(QScrollBar::SliderPageStepSub);
-	break;
+        d->vbar->triggerAction(QScrollBar::SliderPageStepSub);
+        break;
     case Key_PageDown:
-	d->vbar->triggerAction(QScrollBar::SliderPageStepAdd);
-	break;
+        d->vbar->triggerAction(QScrollBar::SliderPageStepAdd);
+        break;
     case Key_Up:
-	d->vbar->triggerAction(QScrollBar::SliderSingleStepSub);
-	break;
+        d->vbar->triggerAction(QScrollBar::SliderSingleStepSub);
+        break;
     case Key_Down:
-	d->vbar->triggerAction(QScrollBar::SliderSingleStepAdd);
-	break;
+        d->vbar->triggerAction(QScrollBar::SliderSingleStepAdd);
+        break;
     case Key_Left:
-	d->hbar->triggerAction(QScrollBar::SliderSingleStepSub);
-	break;
+        d->hbar->triggerAction(QScrollBar::SliderSingleStepSub);
+        break;
     case Key_Right:
-	d->hbar->triggerAction(QScrollBar::SliderSingleStepAdd);
-	break;
+        d->hbar->triggerAction(QScrollBar::SliderSingleStepAdd);
+        break;
     default:
-	e->ignore();
-	return;
+        e->ignore();
+        return;
     }
     e->accept();
 }
@@ -522,7 +522,7 @@ void QViewport::keyPressEvent( QKeyEvent * e)
 
     \sa QWidget::dragEnterEvent()
 */
-void QViewport::dragEnterEvent( QDragEnterEvent * )
+void QViewport::dragEnterEvent(QDragEnterEvent *)
 {
 }
 
@@ -532,7 +532,7 @@ void QViewport::dragEnterEvent( QDragEnterEvent * )
 
     \sa QWidget::dragMoveEvent()
 */
-void QViewport::dragMoveEvent( QDragMoveEvent * )
+void QViewport::dragMoveEvent(QDragMoveEvent *)
 {
 }
 
@@ -542,7 +542,7 @@ void QViewport::dragMoveEvent( QDragMoveEvent * )
 
     \sa QWidget::dragLeaveEvent()
 */
-void QViewport::dragLeaveEvent( QDragLeaveEvent * )
+void QViewport::dragLeaveEvent(QDragLeaveEvent *)
 {
 }
 
@@ -552,7 +552,7 @@ void QViewport::dragLeaveEvent( QDragLeaveEvent * )
 
     \sa QWidget::dropEvent()
 */
-void QViewport::dropEvent( QDropEvent * )
+void QViewport::dropEvent(QDropEvent *)
 {
 }
 
@@ -586,10 +586,10 @@ void QViewportPrivate::showOrHideScrollBars()
 QSize QViewport::minimumSizeHint() const
 {
     int h = fontMetrics().height();
-    if ( h < 10 )
-	h = 10;
+    if (h < 10)
+        h = 10;
     int f = 2 * d->frameWidth;
-    return QSize( (6 * h) + f, (4 * h) + f );
+    return QSize((6 * h) + f, (4 * h) + f);
 }
 
 #include "moc_qviewport.cpp"

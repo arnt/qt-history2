@@ -21,18 +21,18 @@
 #endif // QT_H
 
 
-template<class type> 
+template<class type>
 class QSortedList : public QPtrList<type>
 {
 public:
     QSortedList() {}
-    QSortedList( const QSortedList<type> &l ) : QPtrList<type>(l) {}
+    QSortedList(const QSortedList<type> &l) : QPtrList<type>(l) {}
     ~QSortedList() { this->clear(); }
     QSortedList<type> &operator=(const QSortedList<type> &l)
       { return (QSortedList<type>&)QPtrList<type>::operator=(l); }
 
-    virtual int compareItems( QPtrCollection::Item s1, QPtrCollection::Item s2 )
-      { if ( *((type*)s1) == *((type*)s2) ) return 0; return ( *((type*)s1) < *((type*)s2) ? -1 : 1 ); }
+    virtual int compareItems(QPtrCollection::Item s1, QPtrCollection::Item s2)
+      { if (*((type*)s1) == *((type*)s2)) return 0; return (*((type*)s1) < *((type*)s2) ? -1 : 1); }
 };
 
 #endif

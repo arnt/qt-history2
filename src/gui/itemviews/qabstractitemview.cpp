@@ -57,14 +57,14 @@ bool QItemViewDragObject::decode(QMimeSource *src) const
 QAbstractItemViewPrivate::QAbstractItemViewPrivate()
     :   model(0),
         delegate(0),
-	selectionModel(0),
+        selectionModel(0),
 //        sortColumn(-1),
         layoutLock(false),
         state(QAbstractItemView::NoState),
         startEditActions(QAbstractItemDelegate::DoubleClicked|
-			 QAbstractItemDelegate::EditKeyPressed|
-			 QAbstractItemDelegate::AnyKeyPressed|
-			 QAbstractItemDelegate::CurrentChanged)
+                         QAbstractItemDelegate::EditKeyPressed|
+                         QAbstractItemDelegate::AnyKeyPressed|
+                         QAbstractItemDelegate::CurrentChanged)
 {
 }
 
@@ -99,9 +99,9 @@ void QAbstractItemViewPrivate::init()
     QObject::connect(q->horizontalScrollBar(), SIGNAL(actionTriggered(int)), q, SLOT(horizontalScrollbarAction(int)));
 
     QObject::connect(q->verticalScrollBar(), SIGNAL(valueChanged(int)), q, SLOT(updateCurrentEditor()),
-		     QueuedConnection);
+                     QueuedConnection);
     QObject::connect(q->horizontalScrollBar(), SIGNAL(valueChanged(int)),q, SLOT(updateCurrentEditor()),
-		     QueuedConnection);
+                     QueuedConnection);
     QObject::connect(q, SIGNAL(needMore()), model, SLOT(fetchMore()), QueuedConnection);
 
     QApplication::postEvent(q, new QMetaCallEvent(QEvent::InvokeSlot,
@@ -216,20 +216,20 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
     d->pressedPosition += QPoint(horizontalOffset(), verticalOffset());
 
     if (item.isValid())
-	selectionModel()->setCurrentItem(item, QItemSelectionModel::NoUpdate, selectionBehavior());
+        selectionModel()->setCurrentItem(item, QItemSelectionModel::NoUpdate, selectionBehavior());
 
     QRect rect = d->rubberBand->geometry();
     rect.moveTopLeft(d->viewport->mapFromGlobal(rect.topLeft()));
 
     if (e->state() & ShiftButton)
-	rect.setBottomRight(pos); // do not normalize
+        rect.setBottomRight(pos); // do not normalize
     else
-	rect.setCoords(pos.x(), pos.y(), pos.x(), pos.y());
+        rect.setCoords(pos.x(), pos.y(), pos.x(), pos.y());
 
     if (item.isValid())
-	setSelection(rect.normalize(), selectionUpdateMode(e->state(), item, e->type()));
+        setSelection(rect.normalize(), selectionUpdateMode(e->state(), item, e->type()));
     else
-	clearSelections();
+        clearSelections();
 
     rect.moveTopLeft(d->viewport->mapToGlobal(rect.topLeft()));
     d->rubberBand->setGeometry(rect);
@@ -238,38 +238,38 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
 void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
 {
     if (!(e->state() & LeftButton))
-	return;
+        return;
     QPoint bottomRight = e->pos();
     QPoint topLeft = d->pressedPosition;
     topLeft -= QPoint(horizontalOffset(), verticalOffset());
     QRect rect = QRect(topLeft, bottomRight).normalize();
 
     d->rubberBand->setGeometry(QRect(d->viewport->mapToGlobal(topLeft),
-				     d->viewport->mapToGlobal(bottomRight)).normalize());
+                                     d->viewport->mapToGlobal(bottomRight)).normalize());
 
 //    ensureVisible(pos.x(), pos.y());
 
     if (state() == Dragging && // the user has already started moving the mouse
-	(topLeft - bottomRight).manhattanLength() > QApplication::startDragDistance()) {
-	startDrag();
-	setState(NoState); // the startDrag will return when the dnd operation is done
-   	return;
+        (topLeft - bottomRight).manhattanLength() > QApplication::startDragDistance()) {
+        startDrag();
+        setState(NoState); // the startDrag will return when the dnd operation is done
+        return;
     }
 
     QModelIndex item = itemAt(bottomRight);
     if (currentItem() == item && state() == Selecting)
-	return; // we haven't moved over another item yet
+        return; // we haven't moved over another item yet
 
     if (item.isValid()) {
-	if (state() != Selecting) {
-	    bool dnd = model()->isDragEnabled(item) && supportsDragAndDrop();
-	    bool selected = selectionModel()->isSelected(item);
-	    if (dnd && selected) {
-		setState(Dragging);
-		return;
-	    }
-	}
-	selectionModel()->setCurrentItem(item, QItemSelectionModel::NoUpdate, selectionBehavior());
+        if (state() != Selecting) {
+            bool dnd = model()->isDragEnabled(item) && supportsDragAndDrop();
+            bool selected = selectionModel()->isSelected(item);
+            if (dnd && selected) {
+                setState(Dragging);
+                return;
+            }
+        }
+        selectionModel()->setCurrentItem(item, QItemSelectionModel::NoUpdate, selectionBehavior());
     }
     setState(Selecting);
     setSelection(rect, selectionUpdateMode(e->state(), item, e->type()));
@@ -289,20 +289,20 @@ void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *e)
 {
     QModelIndex item = itemAt(e->pos());
     if (!item.isValid())
-	return;
+        return;
     startEdit(item, QAbstractItemDelegate::DoubleClicked, e);
 }
 
 void QAbstractItemView::dragEnterEvent(QDragEnterEvent *e)
 {
     if (model()->canDecode(e))
-	e->accept();
+        e->accept();
 }
 
 void QAbstractItemView::dropEvent(QDropEvent *e)
 {
     if (model()->decode(e))
-	e->accept();
+        e->accept();
 }
 
 void QAbstractItemView::focusInEvent(QFocusEvent *e)
@@ -310,7 +310,7 @@ void QAbstractItemView::focusInEvent(QFocusEvent *e)
     QViewport::focusInEvent(e);
     QModelIndex item = currentItem();
     if (item.isValid())
-	updateItem(item);
+        updateItem(item);
 }
 
 void QAbstractItemView::focusOutEvent(QFocusEvent *e)
@@ -318,7 +318,7 @@ void QAbstractItemView::focusOutEvent(QFocusEvent *e)
     QViewport::focusOutEvent(e);
     QModelIndex item = currentItem();
     if (item.isValid())
-	updateItem(item);
+        updateItem(item);
 }
 
 void QAbstractItemView::keyPressEvent(QKeyEvent *e)
@@ -326,66 +326,66 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
     bool hadCurrent = true;
     QModelIndex current = currentItem();
     if (!current.isValid()) {
-	hadCurrent = false;
-	setCurrentItem(model()->index(0, 0, 0));
+        hadCurrent = false;
+        setCurrentItem(model()->index(0, 0, 0));
     }
     QModelIndex newCurrent = current;
     if (hadCurrent) {
-	switch (e->key()) {
-	case Key_Down:
-	    newCurrent = moveCursor(MoveDown, e->state());
-	    break;
-	case Key_Up:
-	    newCurrent = moveCursor(MoveUp, e->state());
-	    break;
-	case Key_Left:
-	    newCurrent = moveCursor(MoveLeft, e->state());
-	    break;
-	case Key_Right:
-	    newCurrent = moveCursor(MoveRight, e->state());
-	    break;
-	case Key_Home:
-	    newCurrent = moveCursor(MoveHome, e->state());
-	    break;
-	case Key_End:
-	    newCurrent = moveCursor(MoveEnd, e->state());
-	    break;
-	case Key_PageUp:
-	    newCurrent = moveCursor(MovePageUp, e->state());
-	    break;
-	case Key_PageDown:
-	    newCurrent = moveCursor(MovePageDown, e->state());
-	    break;
-	}
+        switch (e->key()) {
+        case Key_Down:
+            newCurrent = moveCursor(MoveDown, e->state());
+            break;
+        case Key_Up:
+            newCurrent = moveCursor(MoveUp, e->state());
+            break;
+        case Key_Left:
+            newCurrent = moveCursor(MoveLeft, e->state());
+            break;
+        case Key_Right:
+            newCurrent = moveCursor(MoveRight, e->state());
+            break;
+        case Key_Home:
+            newCurrent = moveCursor(MoveHome, e->state());
+            break;
+        case Key_End:
+            newCurrent = moveCursor(MoveEnd, e->state());
+            break;
+        case Key_PageUp:
+            newCurrent = moveCursor(MovePageUp, e->state());
+            break;
+        case Key_PageDown:
+            newCurrent = moveCursor(MovePageDown, e->state());
+            break;
+        }
 
-	if (newCurrent != current && newCurrent.isValid()) {
-	    QRect rect = d->rubberBand->geometry();
-	    rect.moveTopLeft(d->viewport->mapFromGlobal(rect.topLeft()));
-	    QItemSelectionModel::SelectionUpdateMode updateMode =
-		selectionUpdateMode(e->state(), newCurrent, e->type(), (Key)e->key());
-	    if (e->state() & ShiftButton) {
-		rect.setBottomRight(itemViewportRect(newCurrent).bottomRight());
-		selectionModel()->setCurrentItem(newCurrent,
-						 QItemSelectionModel::NoUpdate,
-						 selectionBehavior());
-		setSelection(rect.normalize(), updateMode);
-	    } else if (e->state() & ControlButton) {
-		rect = itemViewportRect(newCurrent);
-		selectionModel()->setCurrentItem(newCurrent,
-						 QItemSelectionModel::NoUpdate,
-						 selectionBehavior());
-	    } else {
-		rect = itemViewportRect(newCurrent);
-		selectionModel()->setCurrentItem(newCurrent, updateMode, selectionBehavior());
-	    }
-	    rect.moveTopLeft(d->viewport->mapToGlobal(rect.topLeft()));
-	    d->rubberBand->setGeometry(rect);
-	    return;
-	}
+        if (newCurrent != current && newCurrent.isValid()) {
+            QRect rect = d->rubberBand->geometry();
+            rect.moveTopLeft(d->viewport->mapFromGlobal(rect.topLeft()));
+            QItemSelectionModel::SelectionUpdateMode updateMode =
+                selectionUpdateMode(e->state(), newCurrent, e->type(), (Key)e->key());
+            if (e->state() & ShiftButton) {
+                rect.setBottomRight(itemViewportRect(newCurrent).bottomRight());
+                selectionModel()->setCurrentItem(newCurrent,
+                                                 QItemSelectionModel::NoUpdate,
+                                                 selectionBehavior());
+                setSelection(rect.normalize(), updateMode);
+            } else if (e->state() & ControlButton) {
+                rect = itemViewportRect(newCurrent);
+                selectionModel()->setCurrentItem(newCurrent,
+                                                 QItemSelectionModel::NoUpdate,
+                                                 selectionBehavior());
+            } else {
+                rect = itemViewportRect(newCurrent);
+                selectionModel()->setCurrentItem(newCurrent, updateMode, selectionBehavior());
+            }
+            rect.moveTopLeft(d->viewport->mapToGlobal(rect.topLeft()));
+            d->rubberBand->setGeometry(rect);
+            return;
+        }
     }
 
     switch (e->key()) {
-	// keys to ignore
+        // keys to ignore
     case Key_Down:
     case Key_Up:
     case Key_Left:
@@ -399,26 +399,26 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
     case Key_Return:
     case Key_Shift:
     case Key_Control:
-	break;
+        break;
     case Key_Space:
-//	if (startEdit(currentItem(), QAbstractItemDelegate::NoAction, e)) {
-// 		return;
-// 	} else {
+//        if (startEdit(currentItem(), QAbstractItemDelegate::NoAction, e)) {
+//                 return;
+//         } else {
     {
-	QItemSelectionModel::SelectionUpdateMode updateMode =
-	    selectionUpdateMode(e->state(), currentItem(), e->type(), (Key)e->key());
-	    selectionModel()->select(currentItem(), updateMode, selectionBehavior());
-	    return;
-	}
-	break;
+        QItemSelectionModel::SelectionUpdateMode updateMode =
+            selectionUpdateMode(e->state(), currentItem(), e->type(), (Key)e->key());
+            selectionModel()->select(currentItem(), updateMode, selectionBehavior());
+            return;
+        }
+        break;
     case Key_F2:
-	if (startEdit(currentItem(), QAbstractItemDelegate::EditKeyPressed, e))
-	    return;
-	break;
+        if (startEdit(currentItem(), QAbstractItemDelegate::EditKeyPressed, e))
+            return;
+        break;
     default:
-	if (startEdit(currentItem(), QAbstractItemDelegate::AnyKeyPressed, e))
-	    return;
-	break;
+        if (startEdit(currentItem(), QAbstractItemDelegate::AnyKeyPressed, e))
+            return;
+        break;
     }
 }
 
@@ -435,13 +435,13 @@ void QAbstractItemView::showEvent(QShowEvent *e)
 }
 
 bool QAbstractItemView::startEdit(const QModelIndex &item,
-				  QAbstractItemDelegate::StartEditAction action,
-				  QEvent *event)
+                                  QAbstractItemDelegate::StartEditAction action,
+                                  QEvent *event)
 {
     if (d->shouldEdit(item, action) && d->createEditor(item, action, event))
-	setState(Editing);
+        setState(Editing);
 //     if (event && delegate->editType() == QAbstractItemDelegate::NoWidget)
-// 	return d->sendItemEvent(data, event);
+//         return d->sendItemEvent(data, event);
     return state() == Editing;
 }
 
@@ -450,26 +450,26 @@ void QAbstractItemView::endEdit(const QModelIndex &item, bool accept)
     setState(NoState);
 
     if (!d->currentEditor)
-	return;
+        return;
 
     if (!item.isValid())
-	return ;
+        return ;
 
     if (!model()->isEditable(item)) {
-	delete d->currentEditor;
-	setFocus();
-	return;
+        delete d->currentEditor;
+        setFocus();
+        return;
     }
 
     QAbstractItemDelegate::EditType editType = itemDelegate()->editType(item);
     if (editType == QAbstractItemDelegate::PersistentWidget || editType == QAbstractItemDelegate::NoWidget) {
-	delete d->currentEditor;
-	setFocus();
-	return;
+        delete d->currentEditor;
+        setFocus();
+        return;
     }
 
     if (accept)
-	itemDelegate()->setContentFromEditor((QWidget*)d->currentEditor, item);
+        itemDelegate()->setContentFromEditor((QWidget*)d->currentEditor, item);
     delete d->currentEditor;
     setFocus();
 }
@@ -477,7 +477,7 @@ void QAbstractItemView::endEdit(const QModelIndex &item, bool accept)
 QWidget *QAbstractItemView::currentEditor() const
 {
     if (d->state == Editing)
-	return d->currentEditor;
+        return d->currentEditor;
     return 0;
 }
 
@@ -486,7 +486,7 @@ void QAbstractItemView::updateCurrentEditor()
     //  this presumes that only one editor is open at one time
     QModelIndex item = currentItem(); // the edited item
     if (!d->currentEditor)//|| !item->isEditable() || item->editType() != QAbstractItemDelegate::PersistentWidget)
- 	return;
+        return;
     QItemOptions options;
     getViewOptions(&options);
     options.itemRect = itemViewportRect(currentItem());
@@ -511,17 +511,17 @@ void QAbstractItemView::horizontalScrollbarAction(int)
 bool QAbstractItemView::eventFilter(QObject *object, QEvent *event)
 {
     if (object == d->currentEditor && event->type() == QEvent::KeyPress) {
-	switch (((QKeyEvent*)event)->key()) {
-	case Key_Escape:
-	    endEdit(d->editItem, false);
-	    return true;
-	case Key_Enter:
-	case Key_Return:
-	    endEdit(d->editItem, true);
-	    return true;
-	default:
-	    break;
-	}
+        switch (((QKeyEvent*)event)->key()) {
+        case Key_Escape:
+            endEdit(d->editItem, false);
+            return true;
+        case Key_Enter:
+        case Key_Return:
+            endEdit(d->editItem, true);
+            return true;
+        default:
+            break;
+        }
     }
     return false;
 }
@@ -530,11 +530,11 @@ void QAbstractItemView::contentsChanged(const QModelIndex &topLeft, const QModel
 {
     // Single item changed
     if (topLeft == bottomRight && topLeft.isValid()) {
-	if (d->currentEditor && topLeft == currentItem())
-	    itemDelegate()->updateEditorContents(d->currentEditor, topLeft);
-	else
-	    updateItem(topLeft);
-	return;
+        if (d->currentEditor && topLeft == currentItem())
+            itemDelegate()->updateEditorContents(d->currentEditor, topLeft);
+        else
+            updateItem(topLeft);
+        return;
     }
 
     update();
@@ -559,9 +559,9 @@ QAbstractItemDelegate *QAbstractItemView::itemDelegate() const
 void QAbstractItemView::setItemDelegate(QAbstractItemDelegate *delegate)
 {
 //     if (delegate->model() != model()) {
-//  	qWarning( "QAbstractItemView::setDelegate() failed: Trying to set a delegate, "
-//  		  "which works on a different model than the view." );
-//  	return;
+//          qWarning("QAbstractItemView::setDelegate() failed: Trying to set a delegate, "
+//                    "which works on a different model than the view.");
+//          return;
 //     }
     d->delegate = delegate;
 }
@@ -569,25 +569,25 @@ void QAbstractItemView::setItemDelegate(QAbstractItemDelegate *delegate)
 void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
 {
     if (selectionModel->model() != model()) {
-	qWarning( "QAbstractItemView::setSelectionModel() failed: Trying to set a selection model, "
-		  "which works on a different model than the view." );
-	return;
+        qWarning("QAbstractItemView::setSelectionModel() failed: Trying to set a selection model, "
+                  "which works on a different model than the view.");
+        return;
     }
 
     if (!!d->selectionModel) {
-	disconnect(d->selectionModel,
-		   SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-		   this, SLOT(selectionChanged(QItemSelection,QItemSelection)));
-	disconnect(d->selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-		   this, SLOT(currentChanged(QModelIndex,QModelIndex)));
+        disconnect(d->selectionModel,
+                   SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+                   this, SLOT(selectionChanged(QItemSelection,QItemSelection)));
+        disconnect(d->selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+                   this, SLOT(currentChanged(QModelIndex,QModelIndex)));
     }
 
     d->selectionModel = selectionModel;
 
     connect(d->selectionModel, SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-	    this, SLOT(selectionChanged(QItemSelection,QItemSelection)));
+            this, SLOT(selectionChanged(QItemSelection,QItemSelection)));
     connect(d->selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-	    this, SLOT(currentChanged(QModelIndex,QModelIndex)));
+            this, SLOT(currentChanged(QModelIndex,QModelIndex)));
 }
 
 QItemSelectionModel* QAbstractItemView::selectionModel() const
@@ -605,19 +605,19 @@ void QAbstractItemView::selectionChanged(const QItemSelection &deselected, const
 void QAbstractItemView::currentChanged(const QModelIndex &old, const QModelIndex &current)
 {
     if (d->currentEditor)
-	endEdit(old, true);
+        endEdit(old, true);
 
     // FIXME: calling ensureItemVisible first before redrawing oldRect
     // make the view look slow, but since repaintItem does not update the rect
     // immediately we get drawing errors because the contentview might be shifted
-    
+
     if (current.isValid())
-	ensureItemVisible(current);
+        ensureItemVisible(current);
 
     if (old.isValid())
-	updateItem(old);
+        updateItem(old);
     if (current.isValid())
-	updateItem(current);
+        updateItem(current);
 
     // FIXME: the QWidget::scroll() will sometimes blit before we get the chance to repaint the old item
     //qApp->processEvents(); // force paint events to be processed
@@ -627,10 +627,10 @@ void QAbstractItemView::currentChanged(const QModelIndex &old, const QModelIndex
 void QAbstractItemView::startItemsLayout()
 {
     if (!d->layoutLock) {
-	d->layoutLock = true;
-	while (!doItemsLayout(100))
-	    qApp->processEvents();
-	d->layoutLock = false;
+        d->layoutLock = true;
+        while (!doItemsLayout(100))
+            qApp->processEvents();
+        d->layoutLock = false;
     }
 }
 
@@ -643,17 +643,17 @@ void QAbstractItemView::fetchMore()
 {
     // FIXME
     if (!verticalScrollBar()->isSliderDown() &&
- 	verticalScrollBar()->value() == verticalScrollBar()->maximum())
- 	model()->fetchMore();
+        verticalScrollBar()->value() == verticalScrollBar()->maximum())
+        model()->fetchMore();
 }
 
 void QAbstractItemView::updateItem(const QModelIndex &item)
 {
     if (!isVisible())
- 	return;
+        return;
     QRect rect = itemViewportRect(item);
     if (rect.isValid())
-    	d->viewport->update(itemViewportRect(item));
+        d->viewport->update(itemViewportRect(item));
 }
 
 void QAbstractItemView::updateRow(const QModelIndex &item)
@@ -689,9 +689,9 @@ void QAbstractItemView::startDrag()
 {
     QDragObject *obj = dragObject();
     if (!obj)
-	return;
+        return;
 //     if (obj->drag() && obj->target() != viewport())
-// 	emit moved();
+//         emit moved();
     obj->drag();
 }
 
@@ -741,70 +741,70 @@ QItemSelectionModel::SelectionBehavior QAbstractItemView::selectionBehavior() co
 */
 
 QItemSelectionModel::SelectionUpdateMode QAbstractItemView::selectionUpdateMode(ButtonState state,
-										const QModelIndex &item,
-										QEvent::Type type,
-										Key key) const
+                                                                                const QModelIndex &item,
+                                                                                QEvent::Type type,
+                                                                                Key key) const
 {
     // ClearAndSelect always on Single selectionmode
     if (selectionMode() == QItemSelectionModel::Single)
-	return QItemSelectionModel::ClearAndSelect;
+        return QItemSelectionModel::ClearAndSelect;
 
     // Toggle on MouseMove
     if (type == QEvent::MouseMove && state & ControlButton)
-	return QItemSelectionModel::ToggleCurrent;
+        return QItemSelectionModel::ToggleCurrent;
 
     // NoUpdate when pressing without modifiers on a selected item
     if (type == QEvent::MouseButtonPress &&
-	!(d->pressedState & ShiftButton) &&
-	!(d->pressedState & ControlButton) &&
-	item.isValid() &&
-	selectionModel()->isSelected(item))
-	return QItemSelectionModel::NoUpdate;
+        !(d->pressedState & ShiftButton) &&
+        !(d->pressedState & ControlButton) &&
+        item.isValid() &&
+        selectionModel()->isSelected(item))
+        return QItemSelectionModel::NoUpdate;
 
     // ClearAndSelect on MouseButtonRelease if MouseButtonPress on selected item
     if (type == QEvent::MouseButtonRelease &&
-	item.isValid() &&
-	item == d->pressedItem &&
-	!(d->pressedState & ShiftButton) &&
-	!(d->pressedState & ControlButton) &&
-	selectionModel()->isSelected(item))
-	return QItemSelectionModel::ClearAndSelect;
+        item.isValid() &&
+        item == d->pressedItem &&
+        !(d->pressedState & ShiftButton) &&
+        !(d->pressedState & ControlButton) &&
+        selectionModel()->isSelected(item))
+        return QItemSelectionModel::ClearAndSelect;
     else if (type == QEvent::MouseButtonRelease)
-	return QItemSelectionModel::NoUpdate;
+        return QItemSelectionModel::NoUpdate;
 
     // NoUpdate on Key movement and Ctrl
     if (type == QEvent::KeyPress &&
-	state & ControlButton &&
-	(key == Key_Down ||
-	 key == Key_Up ||
-	 key == Key_Left ||
-	 key == Key_Right ||
-	 key == Key_Home ||
-	 key == Key_End ||
-	 key == Key_PageUp ||
-	 key == Key_PageDown))
-	return QItemSelectionModel::NoUpdate;
+        state & ControlButton &&
+        (key == Key_Down ||
+         key == Key_Up ||
+         key == Key_Left ||
+         key == Key_Right ||
+         key == Key_Home ||
+         key == Key_End ||
+         key == Key_PageUp ||
+         key == Key_PageDown))
+        return QItemSelectionModel::NoUpdate;
 
     // Toggle on Ctrl-Key_Space, Select on Space
     if (type == QEvent::KeyPress && key == Key_Space) {
-	if (state & ControlButton)
-	    return QItemSelectionModel::Toggle;
-	else
-	    return QItemSelectionModel::Select;
+        if (state & ControlButton)
+            return QItemSelectionModel::Toggle;
+        else
+            return QItemSelectionModel::Select;
     }
 
     if (state & ShiftButton)
-	return QItemSelectionModel::SelectCurrent;
+        return QItemSelectionModel::SelectCurrent;
     if (state & ControlButton)
-	return QItemSelectionModel::Toggle;
+        return QItemSelectionModel::Toggle;
     if (QAbstractItemView::state() == Selecting)
-	return QItemSelectionModel::SelectCurrent;
+        return QItemSelectionModel::SelectCurrent;
     return QItemSelectionModel::ClearAndSelect;
 }
 
 bool QAbstractItemViewPrivate::createEditor(const QModelIndex &item,
-					    QAbstractItemDelegate::StartEditAction action,
-					    QEvent *event)
+                                            QAbstractItemDelegate::StartEditAction action,
+                                            QEvent *event)
 {
     QAbstractItemDelegate *delegate = q->itemDelegate();
     QItemOptions options;
@@ -812,13 +812,13 @@ bool QAbstractItemViewPrivate::createEditor(const QModelIndex &item,
     options.itemRect = q->itemViewportRect(item);
     QWidget *editor = delegate->createEditor(action, q->viewport(), options, item);
     if (!editor)
-	return false;
+        return false;
     editor->show();
     editor->setFocus();
     if (event && (action == QAbstractItemDelegate::AnyKeyPressed || event->type() == QEvent::MouseButtonPress))
-	QApplication::sendEvent(editor, event);
+        QApplication::sendEvent(editor, event);
     if (delegate->editType(item) != QAbstractItemDelegate::PersistentWidget)
-	currentEditor = editor;
+        currentEditor = editor;
     currentEditor->installEventFilter(q);
     editItem = item;
     return true;
@@ -828,53 +828,53 @@ bool QAbstractItemViewPrivate::createEditor(const QModelIndex &item,
 /*
 bool QAbstractItemViewPrivate::sendItemEvent(const QModelIndex &data, QEvent *event)
 {
-    QItemOptions options( q );
-    q->getViewOptions( &options );
-    options.itemRect = q->itemViewportRect( q->itemToViewItem( data ) );
+    QItemOptions options(q);
+    q->getViewOptions(&options);
+    options.itemRect = q->itemViewportRect(q->itemToViewItem(data));
 
-    switch ( event->type() ) {
-	case QEvent::MouseButtonPress:
-	case QEvent::MouseButtonRelease:
-	case QEvent::MouseMove:
-	case QEvent::MouseButtonDblClick: {
-	    QPoint pt( options.itemRect.x(), options.itemRect.y() );
-	    QMouseEvent *me = (QMouseEvent*)event;
-	    QMouseEvent ce( me->type(), me->pos() - pt,
-			    me->globalPos(), me->button(), me->state() );
-	    //data->event( &ce, &options ); // FIXME: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	    if ( ce.isAccepted() ) {
-		me->accept();
-		return true;
-	    }
-	} break;
-	case QEvent::KeyPress:
-	case QEvent::KeyRelease:
-	    //data->event( event, &options ); // FIXME: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	    if ( ( (QKeyEvent*)event )->isAccepted() ) {
-		return true;
-	    }
-	    break;
-	default:
-	    break;
+    switch (event->type()) {
+        case QEvent::MouseButtonPress:
+        case QEvent::MouseButtonRelease:
+        case QEvent::MouseMove:
+        case QEvent::MouseButtonDblClick: {
+            QPoint pt(options.itemRect.x(), options.itemRect.y());
+            QMouseEvent *me = (QMouseEvent*)event;
+            QMouseEvent ce(me->type(), me->pos() - pt,
+                            me->globalPos(), me->button(), me->state());
+            //data->event(&ce, &options); // FIXME: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            if (ce.isAccepted()) {
+                me->accept();
+                return true;
+            }
+        } break;
+        case QEvent::KeyPress:
+        case QEvent::KeyRelease:
+            //data->event(event, &options); // FIXME: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            if (((QKeyEvent*)event)->isAccepted()) {
+                return true;
+            }
+            break;
+        default:
+            break;
     }
     return false;
 }
 
 // FIXME: these are not used - implement persistent editor infrastructiure
 
-QWidget *QAbstractItemViewPrivate::findPersistentEditor( const QModelIndex &item ) const
+QWidget *QAbstractItemViewPrivate::findPersistentEditor(const QModelIndex &item) const
 {
-    for ( QList<QPair<QModelIndex, QWidget*> >::ConstIterator it =
-	      persistentEditors.begin(); it != persistentEditors.end(); ++it ) {
-	if ( (*it).first == item )
-	    return (*it).second;
+    for (QList<QPair<QModelIndex, QWidget*> >::ConstIterator it =
+              persistentEditors.begin(); it != persistentEditors.end(); ++it) {
+        if ((*it).first == item)
+            return (*it).second;
     }
     return 0;
 }
 
-void QAbstractItemViewPrivate::insertPersistentEditor( const QModelIndex &item,
-						       QWidget *editor )
+void QAbstractItemViewPrivate::insertPersistentEditor(const QModelIndex &item,
+                                                       QWidget *editor)
 {
-    persistentEditors.append( QPair<QModelIndex, QWidget*>( item, editor ) );
+    persistentEditors.append(QPair<QModelIndex, QWidget*>(item, editor));
 }
 */

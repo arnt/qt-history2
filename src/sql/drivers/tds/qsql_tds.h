@@ -49,7 +49,7 @@ public:
 
 protected:
     void cleanup();
-    bool reset ( const QString& query );
+    bool reset (const QString& query);
     int size();
     int numRowsAffected();
     bool gotoNext(QtSqlCachedResult::ValueCache &values, int index);
@@ -66,21 +66,21 @@ public:
     QTDSDriver(QObject* parent = 0);
     QTDSDriver(LOGINREC* rec, const QString& host, const QString &db, QObject* parent = 0);
     ~QTDSDriver();
-    bool hasFeature( DriverFeature f ) const;
-    bool open( const QString & db,
-	       const QString & user,
-	       const QString & password,
-	       const QString & host,
-	       int port,
-	       const QString& connOpts);
+    bool hasFeature(DriverFeature f) const;
+    bool open(const QString & db,
+               const QString & user,
+               const QString & password,
+               const QString & host,
+               int port,
+               const QString& connOpts);
     void close();
-    QStringList tables( const QString& user ) const;
+    QStringList tables(const QString& user) const;
     QSqlQuery createQuery() const;
-    QSqlRecord record( const QString& tablename ) const;
-    QSqlIndex primaryIndex( const QString& tablename ) const;
+    QSqlRecord record(const QString& tablename) const;
+    QSqlIndex primaryIndex(const QString& tablename) const;
 
-    QString formatValue( const QSqlField* field,
-			 bool trimStrings ) const;
+    QString formatValue(const QSqlField* field,
+                         bool trimStrings) const;
     LOGINREC* loginrec() const;
 
 protected:

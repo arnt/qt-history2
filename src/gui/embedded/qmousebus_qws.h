@@ -26,7 +26,7 @@ class QWSBusMouseHandlerPrivate;
 class QWSBusMouseHandler : public QWSMouseHandler
 {
 public:
-    QWSBusMouseHandler( const QString & = QString::null, const QString & = QString::null );
+    QWSBusMouseHandler(const QString & = QString::null, const QString & = QString::null);
     ~QWSBusMouseHandler();
 
 protected:

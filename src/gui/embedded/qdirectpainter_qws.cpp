@@ -38,9 +38,9 @@ class QDirectPainter::Private {
 public:
     Private()
     {
-	paintOk = TRUE;
-	image = 0;
-	gfx = 0;
+        paintOk = true;
+        image = 0;
+        gfx = 0;
     }
 
     QDirectPainterGfx* gfx;
@@ -74,14 +74,14 @@ public:
     then, observing the clip region, perform some platform-specific
     operation. For example:
     \code
-	void MyWidget::updatePlatformGraphics()
-	{
-	    QDirectPainter dp( this );
-	    for ( int i = 0; i < dp.numRects; i++ ) {
-		const QRect& clip = dp.rect(i);
-		... // platform specific operation
-	    }
-	}
+        void MyWidget::updatePlatformGraphics()
+        {
+            QDirectPainter dp(this);
+            for (int i = 0; i < dp.numRects; i++) {
+                const QRect& clip = dp.rect(i);
+                ... // platform specific operation
+            }
+        }
     \endcode
 
     The platform-specific code has access to the display, but should
@@ -109,7 +109,7 @@ public:
     Construct a direct painter on \a w. The display is locked and the
     mouse cursor is hidden if it is above \a w.
 */
-QDirectPainter::QDirectPainter( QWidget* w ) :
+QDirectPainter::QDirectPainter(QWidget* w) :
     QPainter(w,w)
 {
     d = new Private;
@@ -187,10 +187,10 @@ const QRect& QDirectPainter::rect(int i) const { return d->gfx->rect(i); }
 */
 QRegion QDirectPainter::region() const
 {
-    if ( d->rgn.isNull() ) {
-	QRegion r;
-	r.setRects( &d->gfx->rect(0), numRects() );
-	d->rgn = r;
+    if (d->rgn.isNull()) {
+        QRegion r;
+        r.setRects(&d->gfx->rect(0), numRects());
+        d->rgn = r;
     }
     return d->rgn;
 }
@@ -240,7 +240,7 @@ QSize QDirectPainter::size() const { return QSize(d->w,d->h); }
     used by some graphics drivers, so often calling this function for
     a smaller area will make no difference to performance.
 */
-void QDirectPainter::setAreaChanged( const QRect& r )
+void QDirectPainter::setAreaChanged(const QRect& r)
 {
     d->change = r;
 }

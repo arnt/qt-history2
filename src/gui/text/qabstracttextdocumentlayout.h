@@ -23,9 +23,9 @@ class Q_GUI_EXPORT QAbstractTextDocumentLayout : public QObject
 public:
     struct PaintContext
     {
-	QTextCursor cursor;
-	QPalette palette;
-	bool showCursor;
+        QTextCursor cursor;
+        QPalette palette;
+        bool showCursor;
     };
 
     QAbstractTextDocumentLayout();
@@ -50,30 +50,30 @@ protected:
     void invalidate(const QRegion &r);
 
     class BlockIterator {
-	const QTextPieceTable *pt;
-	int block;
+        const QTextPieceTable *pt;
+        int block;
     public:
-	BlockIterator() { pt = 0; block = 0; }
-	BlockIterator(const BlockIterator &other) { pt = other.pt; block = other.block; }
-	BlockIterator(const QTextPieceTable *p, int b) { pt = p; block = b; }
+        BlockIterator() { pt = 0; block = 0; }
+        BlockIterator(const BlockIterator &other) { pt = other.pt; block = other.block; }
+        BlockIterator(const QTextPieceTable *p, int b) { pt = p; block = b; }
 
-	BlockIterator &operator=(const BlockIterator &other) { pt = other.pt; block = other.block; return *this; }
+        BlockIterator &operator=(const BlockIterator &other) { pt = other.pt; block = other.block; return *this; }
 
-	QTextLayout *layout() const;
-	QTextBlockFormat format() const;
-	int formatIndex() const;
+        QTextLayout *layout() const;
+        QTextBlockFormat format() const;
+        int formatIndex() const;
 
-	int position() const;
-	int length() const;
+        int position() const;
+        int length() const;
 
-	inline bool atEnd() const { return !block; }
+        inline bool atEnd() const { return !block; }
 
-	bool operator==(const BlockIterator& it) const { return pt == it.pt && block == it.block; }
-	bool operator!=(const BlockIterator& it) const { return pt != it.pt || block != it.block; }
-	bool operator<(const BlockIterator &it) const;
+        bool operator==(const BlockIterator& it) const { return pt == it.pt && block == it.block; }
+        bool operator!=(const BlockIterator& it) const { return pt != it.pt || block != it.block; }
+        bool operator<(const BlockIterator &it) const;
 
-	BlockIterator& operator++();
-	BlockIterator& operator--();
+        BlockIterator& operator++();
+        BlockIterator& operator--();
     };
 
     BlockIterator findBlock(int pos) const;

@@ -30,11 +30,11 @@ public:
     virtual ~QWSKeyboardHandler();
 
     virtual void processKeyEvent(int unicode, int keycode, int modifiers,
-			    bool isPress, bool autoRepeat);
+                            bool isPress, bool autoRepeat);
 
 protected:
-    int transformDirKey( int key );
-    void beginAutoRepeat( int uni, int code, int mod );
+    int transformDirKey(int key);
+    void beginAutoRepeat(int uni, int code, int mod);
     void endAutoRepeat();
 
 private:

@@ -100,11 +100,11 @@
     \skipto UicManager::UicManager()
     \printline UicManager::UicManager()
     \printline {
-    \skipto proc = new QProcess( this );
-    \printline proc = new QProcess( this );
-    \skipto proc->addArgument( "uic" );
-    \printuntil this, SLOT(readFromStdout()) );
-    \skipto if ( !proc->start() ) {
+    \skipto proc = new QProcess(this);
+    \printline proc = new QProcess(this);
+    \skipto proc->addArgument("uic");
+    \printuntil this, SLOT(readFromStdout()));
+    \skipto if (!proc->start()) {
     \printuntil // error handling
     \skipto }
     \printline }
@@ -197,11 +197,11 @@
 
     \sa setArguments() addArgument() start()
 */
-QProcess::QProcess( QObject *parent, const char *name )
-    : QObject( parent, name ), ioRedirection( FALSE ), notifyOnExit( FALSE ),
-    wroteToStdinConnected( FALSE ),
-    readStdoutCalled( FALSE ), readStderrCalled( FALSE ),
-    comms( Stdin|Stdout|Stderr )
+QProcess::QProcess(QObject *parent, const char *name)
+    : QObject(parent, name), ioRedirection(false), notifyOnExit(false),
+    wroteToStdinConnected(false),
+    readStdoutCalled(false), readStderrCalled(false),
+    comms(Stdin|Stdout|Stderr)
 {
     init();
 }
@@ -216,14 +216,14 @@ QProcess::QProcess( QObject *parent, const char *name )
 
     \sa setArguments() addArgument() start()
 */
-QProcess::QProcess( const QString& arg0, QObject *parent, const char *name )
-    : QObject( parent, name ), ioRedirection( FALSE ), notifyOnExit( FALSE ),
-    wroteToStdinConnected( FALSE ),
-    readStdoutCalled( FALSE ), readStderrCalled( FALSE ),
-    comms( Stdin|Stdout|Stderr )
+QProcess::QProcess(const QString& arg0, QObject *parent, const char *name)
+    : QObject(parent, name), ioRedirection(false), notifyOnExit(false),
+    wroteToStdinConnected(false),
+    readStdoutCalled(false), readStderrCalled(false),
+    comms(Stdin|Stdout|Stderr)
 {
     init();
-    addArgument( arg0 );
+    addArgument(arg0);
 }
 
 /*!
@@ -238,14 +238,14 @@ QProcess::QProcess( const QString& arg0, QObject *parent, const char *name )
 
     \sa setArguments() addArgument() start()
 */
-QProcess::QProcess( const QStringList& args, QObject *parent, const char *name )
-    : QObject( parent, name ), ioRedirection( FALSE ), notifyOnExit( FALSE ),
-    wroteToStdinConnected( FALSE ),
-    readStdoutCalled( FALSE ), readStderrCalled( FALSE ),
-    comms( Stdin|Stdout|Stderr )
+QProcess::QProcess(const QStringList& args, QObject *parent, const char *name)
+    : QObject(parent, name), ioRedirection(false), notifyOnExit(false),
+    wroteToStdinConnected(false),
+    readStdoutCalled(false), readStderrCalled(false),
+    comms(Stdin|Stdout|Stderr)
 {
     init();
-    setArguments( args );
+    setArguments(args);
 }
 
 
@@ -259,9 +259,9 @@ QProcess::QProcess( const QStringList& args, QObject *parent, const char *name )
     \code
     QStringList list = myProcess.arguments();
     QStringList::Iterator it = list.begin();
-    while( it != list.end() ) {
-	myProcessing( *it );
-	++it;
+    while(it != list.end()) {
+        myProcessing(*it);
+        ++it;
     }
     \endcode
 
@@ -307,7 +307,7 @@ void QProcess::clearArguments()
 
     \sa arguments() addArgument()
 */
-void QProcess::setArguments( const QStringList& args )
+void QProcess::setArguments(const QStringList& args)
 {
     _arguments = args;
 }
@@ -320,9 +320,9 @@ void QProcess::setArguments( const QStringList& args )
 
     \sa arguments() setArguments()
 */
-void QProcess::addArgument( const QString& arg )
+void QProcess::addArgument(const QString& arg)
 {
-    _arguments.append( arg );
+    _arguments.append(arg);
 }
 
 #ifndef QT_NO_DIR
@@ -348,7 +348,7 @@ QDir QProcess::workingDirectory() const
 
     \sa workingDirectory() start()
 */
-void QProcess::setWorkingDirectory( const QDir& dir )
+void QProcess::setWorkingDirectory(const QDir& dir)
 {
     workingDir = dir;
 }
@@ -375,14 +375,14 @@ int QProcess::communication() const
 
     \sa communication()
 */
-void QProcess::setCommunication( int commFlags )
+void QProcess::setCommunication(int commFlags)
 {
     comms = commFlags;
 }
 
 /*!
-    Returns TRUE if the process has exited normally; otherwise returns
-    FALSE. This implies that this function returns FALSE if the
+    Returns true if the process has exited normally; otherwise returns
+    false. This implies that this function returns false if the
     process is still running.
 
     \sa isRunning() exitStatus() processExited()
@@ -390,10 +390,10 @@ void QProcess::setCommunication( int commFlags )
 bool QProcess::normalExit() const
 {
     // isRunning() has the side effect that it determines the exit status!
-    if ( isRunning() )
-	return FALSE;
+    if (isRunning())
+        return false;
     else
-	return exitNormal;
+        return exitNormal;
 }
 
 /*!
@@ -401,7 +401,7 @@ bool QProcess::normalExit() const
     still running. This function returns immediately and does not wait
     until the process is finished.
 
-    If normalExit() is FALSE (e.g. if the program was killed or
+    If normalExit() is false (e.g. if the program was killed or
     crashed), this function returns 0, so you should check the return
     value of normalExit() before relying on this value.
 
@@ -410,10 +410,10 @@ bool QProcess::normalExit() const
 int QProcess::exitStatus() const
 {
     // isRunning() has the side effect that it determines the exit status!
-    if ( isRunning() )
-	return 0;
+    if (isRunning())
+        return 0;
     else
-	return exitStat;
+        return exitStat;
 }
 
 
@@ -429,12 +429,12 @@ int QProcess::exitStatus() const
 */
 QByteArray QProcess::readStdout()
 {
-    if ( readStdoutCalled ) {
-	return QByteArray();
+    if (readStdoutCalled) {
+        return QByteArray();
     }
-    readStdoutCalled = TRUE;
+    readStdoutCalled = true;
     QMembuf *buf = membufStdout();
-    readStdoutCalled = FALSE;
+    readStdoutCalled = false;
 
     return buf->readAll();
 }
@@ -451,12 +451,12 @@ QByteArray QProcess::readStdout()
 */
 QByteArray QProcess::readStderr()
 {
-    if ( readStderrCalled ) {
-	return QByteArray();
+    if (readStderrCalled) {
+        return QByteArray();
     }
-    readStderrCalled = TRUE;
+    readStderrCalled = true;
     QMembuf *buf = membufStderr();
-    readStderrCalled = FALSE;
+    readStderrCalled = false;
 
     return buf->readAll();
 }
@@ -464,7 +464,7 @@ QByteArray QProcess::readStderr()
 /*!
     Reads a line of text from standard output, excluding any trailing
     newline or carriage return characters, and returns it. Returns
-    QString::null if canReadLineStdout() returns FALSE.
+    QString::null if canReadLineStdout() returns false.
 
     By default, the text is interpreted to be in Latin-1 encoding. If you need
     other codecs, you can set a different codec with
@@ -475,33 +475,33 @@ QByteArray QProcess::readStderr()
 QString QProcess::readLineStdout()
 {
     QByteArray a;
-    a.resize( 256 );
+    a.resize(256);
     QMembuf *buf = membufStdout();
-    if ( !buf->scanNewline( &a ) ) {
-      if ( !canReadLineStdout() )
-	return QString::null;
+    if (!buf->scanNewline(&a)) {
+      if (!canReadLineStdout())
+        return QString::null;
 
-      if ( !buf->scanNewline( &a ) )
-	return QString( buf->readAll() );
+      if (!buf->scanNewline(&a))
+        return QString(buf->readAll());
     }
 
     uint size = a.size();
-    buf->consumeBytes( size, 0 );
+    buf->consumeBytes(size, 0);
 
     // get rid of terminating \n or \r\n
-    if ( size>0 && a.at( size - 1 ) == '\n' ) {
-      if ( size>1 && a.at( size - 2 ) == '\r' )
-	a[size - 2] = '\0';
+    if (size>0 && a.at(size - 1) == '\n') {
+      if (size>1 && a.at(size - 2) == '\r')
+        a[size - 2] = '\0';
       else
-	a[size - 1] = '\0';
+        a[size - 1] = '\0';
     }
-    return QString( a.data() );
+    return QString(a.data());
 }
 
 /*!
     Reads a line of text from standard error, excluding any trailing
     newline or carriage return characters and returns it. Returns
-    QString::null if canReadLineStderr() returns FALSE.
+    QString::null if canReadLineStderr() returns false.
 
     By default, the text is interpreted to be in Latin-1 encoding. If you need
     other codecs, you can set a different codec with
@@ -512,27 +512,27 @@ QString QProcess::readLineStdout()
 QString QProcess::readLineStderr()
 {
     QByteArray a;
-    a.resize( 256 );
+    a.resize(256);
     QMembuf *buf = membufStderr();
-    if ( !buf->scanNewline( &a ) ) {
-      if ( !canReadLineStderr() )
-	return QString::null;
+    if (!buf->scanNewline(&a)) {
+      if (!canReadLineStderr())
+        return QString::null;
 
-      if ( !buf->scanNewline( &a ) )
-	return QString( buf->readAll() );
+      if (!buf->scanNewline(&a))
+        return QString(buf->readAll());
     }
 
     uint size = a.size();
-    buf->consumeBytes( size, 0 );
+    buf->consumeBytes(size, 0);
 
     // get rid of terminating \n or \r\n
-    if ( size>0 && a.at( size - 1 ) == '\n' ) {
-      if ( size>1 && a.at( size - 2 ) == '\r' )
-	a[size - 2] = '\0';
+    if (size>0 && a.at(size - 1) == '\n') {
+      if (size>1 && a.at(size - 2) == '\r')
+        a[size - 2] = '\0';
       else
-	a[size - 1] = '\0';
+        a[size - 1] = '\0';
     }
-    return QString( a.data() );
+    return QString(a.data());
 }
 
 /*!
@@ -566,8 +566,8 @@ QString QProcess::readLineStderr()
     settings for the environment variable \c LD_LIBRARY_PATH, then
     this variable is inherited from the starting process.
 
-    Returns TRUE if the process could be started; otherwise returns
-    FALSE.
+    Returns true if the process could be started; otherwise returns
+    false.
 
     Note that you should not use the slots writeToStdin() and
     closeStdin() on processes started with launch(), since the result
@@ -592,21 +592,21 @@ QString QProcess::readLineStderr()
 
     \sa start() launchFinished();
 */
-bool QProcess::launch( const QByteArray& buf, QStringList *env )
+bool QProcess::launch(const QByteArray& buf, QStringList *env)
 {
-    if ( start( env ) ) {
-	if ( !buf.isEmpty() ) {
-	    connect( this, SIGNAL(wroteToStdin()),
-		    this, SLOT(closeStdinLaunch()) );
-	    writeToStdin( buf );
-	} else {
-	    closeStdin();
-	    emit launchFinished();
-	}
-	return TRUE;
+    if (start(env)) {
+        if (!buf.isEmpty()) {
+            connect(this, SIGNAL(wroteToStdin()),
+                    this, SLOT(closeStdinLaunch()));
+            writeToStdin(buf);
+        } else {
+            closeStdin();
+            emit launchFinished();
+        }
+        return true;
     } else {
-	emit launchFinished();
-	return FALSE;
+        emit launchFinished();
+        return false;
     }
 }
 
@@ -616,26 +616,26 @@ bool QProcess::launch( const QByteArray& buf, QStringList *env )
     The data \a buf is written to standard input with writeToStdin()
     using the QString::local8Bit() representation of the strings.
 */
-bool QProcess::launch( const QString& buf, QStringList *env )
+bool QProcess::launch(const QString& buf, QStringList *env)
 {
-    if ( start( env ) ) {
-	if ( !buf.isEmpty() ) {
-	    connect( this, SIGNAL(wroteToStdin()),
-		    this, SLOT(closeStdinLaunch()) );
-	    writeToStdin( buf );
-	} else {
-	    closeStdin();
-	    emit launchFinished();
-	}
-	return TRUE;
+    if (start(env)) {
+        if (!buf.isEmpty()) {
+            connect(this, SIGNAL(wroteToStdin()),
+                    this, SLOT(closeStdinLaunch()));
+            writeToStdin(buf);
+        } else {
+            closeStdin();
+            emit launchFinished();
+        }
+        return true;
     } else {
-	emit launchFinished();
-	return FALSE;
+        emit launchFinished();
+        return false;
     }
 }
 
 /*!
-    \fn bool QProcess::launch( const char * buf, QStringList *env=0  )
+    \fn bool QProcess::launch(const char * buf, QStringList *env=0 )
 
     \overload
 */
@@ -645,8 +645,8 @@ bool QProcess::launch( const QString& buf, QStringList *env )
 */
 void QProcess::closeStdinLaunch()
 {
-    disconnect( this, SIGNAL(wroteToStdin()),
-	    this, SLOT(closeStdinLaunch()) );
+    disconnect(this, SIGNAL(wroteToStdin()),
+            this, SLOT(closeStdinLaunch()));
     closeStdin();
     emit launchFinished();
 }
@@ -708,11 +708,11 @@ void QProcess::closeStdinLaunch()
     The string \a buf is handled as text using the
     QString::local8Bit() representation.
 */
-void QProcess::writeToStdin( const QString& buf )
+void QProcess::writeToStdin(const QString& buf)
 {
     QByteArray tmp = buf.toLocal8Bit();
-    tmp.resize( buf.length() );
-    writeToStdin( tmp );
+    tmp.resize(buf.length());
+    writeToStdin(tmp);
 }
 
 
@@ -726,61 +726,61 @@ void QProcess::writeToStdin( const QString& buf )
  */
 /*!  \reimp
 */
-void QProcess::connectNotify( const char * signal )
+void QProcess::connectNotify(const char * signal)
 {
 #if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcess::connectNotify(): signal %s has been connected", signal );
+    qDebug("QProcess::connectNotify(): signal %s has been connected", signal);
 #endif
-    if ( !ioRedirection )
-	if ( qstrcmp( signal, SIGNAL(readyReadStdout()) )==0 ||
-		qstrcmp( signal, SIGNAL(readyReadStderr()) )==0
-	   ) {
+    if (!ioRedirection)
+        if (qstrcmp(signal, SIGNAL(readyReadStdout()))==0 ||
+                qstrcmp(signal, SIGNAL(readyReadStderr()))==0
+          ) {
 #if defined(QT_QPROCESS_DEBUG)
-	    qDebug( "QProcess::connectNotify(): set ioRedirection to TRUE" );
+            qDebug("QProcess::connectNotify(): set ioRedirection to true");
 #endif
-	    setIoRedirection( TRUE );
-	    return;
-	}
-    if ( !notifyOnExit && qstrcmp( signal, SIGNAL(processExited()) )==0 ) {
+            setIoRedirection(true);
+            return;
+        }
+    if (!notifyOnExit && qstrcmp(signal, SIGNAL(processExited()))==0) {
 #if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcess::connectNotify(): set notifyOnExit to TRUE" );
+        qDebug("QProcess::connectNotify(): set notifyOnExit to true");
 #endif
-	setNotifyOnExit( TRUE );
-	return;
+        setNotifyOnExit(true);
+        return;
     }
-    if ( !wroteToStdinConnected && qstrcmp( signal, SIGNAL(wroteToStdin()) )==0 ) {
+    if (!wroteToStdinConnected && qstrcmp(signal, SIGNAL(wroteToStdin()))==0) {
 #if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcess::connectNotify(): set wroteToStdinConnected to TRUE" );
+        qDebug("QProcess::connectNotify(): set wroteToStdinConnected to true");
 #endif
-	setWroteStdinConnected( TRUE );
-	return;
+        setWroteStdinConnected(true);
+        return;
     }
 }
 
 /*!  \reimp
 */
-void QProcess::disconnectNotify( const char * )
+void QProcess::disconnectNotify(const char *)
 {
-    if ( ioRedirection &&
-	    receivers( SIGNAL(readyReadStdout()) ) ==0 &&
-	    receivers( SIGNAL(readyReadStderr()) ) ==0
-	    ) {
+    if (ioRedirection &&
+            receivers(SIGNAL(readyReadStdout())) ==0 &&
+            receivers(SIGNAL(readyReadStderr())) ==0
+           ) {
 #if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcess::disconnectNotify(): set ioRedirection to FALSE" );
+        qDebug("QProcess::disconnectNotify(): set ioRedirection to false");
 #endif
-	setIoRedirection( FALSE );
+        setIoRedirection(false);
     }
-    if ( notifyOnExit && receivers( SIGNAL(processExited()) ) == 0 ) {
+    if (notifyOnExit && receivers(SIGNAL(processExited())) == 0) {
 #if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcess::disconnectNotify(): set notifyOnExit to FALSE" );
+        qDebug("QProcess::disconnectNotify(): set notifyOnExit to false");
 #endif
-	setNotifyOnExit( FALSE );
+        setNotifyOnExit(false);
     }
-    if ( wroteToStdinConnected && receivers( SIGNAL(wroteToStdin()) ) == 0 ) {
+    if (wroteToStdinConnected && receivers(SIGNAL(wroteToStdin())) == 0) {
 #if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcess::disconnectNotify(): set wroteToStdinConnected to FALSE" );
+        qDebug("QProcess::disconnectNotify(): set wroteToStdinConnected to false");
 #endif
-	setWroteStdinConnected( FALSE );
+        setWroteStdinConnected(false);
     }
 }
 

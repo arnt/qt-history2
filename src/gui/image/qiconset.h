@@ -43,7 +43,7 @@ public:
     QIconSet(const QIconSet& other);
     ~QIconSet();
 
-    void reset( const QPixmap& pixmap, Size size );
+    void reset(const QPixmap& pixmap, Size size);
 
     void setPixmap(const QPixmap& pixmap, Size size, Mode mode = Normal, State state = Off);
     void setPixmap(const QString& fileName, Size size, Mode mode = Normal, State state = Off);

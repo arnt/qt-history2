@@ -42,13 +42,13 @@ Q_CORE_EXPORT QMutexPool *qt_global_mutexpool_func()
     \code
     class Number {
     public:
-	Number(double n) : num (n) { }
+        Number(double n) : num (n) { }
 
-	void setNumber(double n) { num = n; }
-	double number() const { return num; }
+        void setNumber(double n) { num = n; }
+        double number() const { return num; }
 
     private:
-	double num;
+        double num;
     };
     \endcode
 
@@ -63,8 +63,8 @@ Q_CORE_EXPORT QMutexPool *qt_global_mutexpool_func()
     \code
     void calcSquare(Number *num)
     {
-	QMutexLocker locker(mutexpool.get(num));
-	num.setNumber(num.number() * num.number());
+        QMutexLocker locker(mutexpool.get(num));
+        num.setNumber(num.number() * num.number());
     }
     \endcode
 
@@ -87,7 +87,7 @@ QMutexPool::QMutexPool(bool recursive, int size)
 {
     mutexes = new QMutex*[count];
     for (int index = 0; index < count; ++index) {
-	mutexes[index] = 0;
+        mutexes[index] = 0;
     }
 }
 
@@ -99,8 +99,8 @@ QMutexPool::~QMutexPool()
 {
     QMutexLocker locker(&mutex);
     for (int index = 0; index < count; ++index) {
-	delete mutexes[index];
-	mutexes[index] = 0;
+        delete mutexes[index];
+        mutexes[index] = 0;
     }
     delete [] mutexes;
     mutexes = 0;
@@ -116,13 +116,13 @@ QMutex *QMutexPool::get(const void *address)
     int index = int((ulong(address) >> (sizeof(address) >> 1)) % count);
 
     if (!mutexes[index]) {
-	// mutex not created, create one
+        // mutex not created, create one
 
-	QMutexLocker locker(&mutex);
-	// we need to check once again that the mutex hasn't been created, since
-	// 2 threads could be trying to create a mutex at the same index...
-	if (!mutexes[index])
-	    mutexes[index] = new QMutex(recurs);
+        QMutexLocker locker(&mutex);
+        // we need to check once again that the mutex hasn't been created, since
+        // 2 threads could be trying to create a mutex at the same index...
+        if (!mutexes[index])
+            mutexes[index] = new QMutex(recurs);
     }
 
     return mutexes[index];

@@ -26,43 +26,43 @@
   Safe and portable C string functions; extensions to standard string.h
  *****************************************************************************/
 
-Q_CORE_EXPORT char *qstrdup( const char * );
+Q_CORE_EXPORT char *qstrdup(const char *);
 
-inline uint qstrlen( const char *str )
+inline uint qstrlen(const char *str)
 { return str ? (uint)strlen(str) : 0; }
-inline char *qstrcpy( char *dst, const char *src )
+inline char *qstrcpy(char *dst, const char *src)
 { return src ? strcpy(dst, src) : 0; }
-Q_CORE_EXPORT char *qstrncpy( char *dst, const char *src, uint len );
+Q_CORE_EXPORT char *qstrncpy(char *dst, const char *src, uint len);
 
 inline int qstrcmp(const char *str1, const char *str2)
 {
     return (str1 && str2) ? strcmp(str1, str2)
-	: (str1 ? 1 : (str2 ? -1 : 0));
+        : (str1 ? 1 : (str2 ? -1 : 0));
 }
-inline int qstrncmp( const char *str1, const char *str2, uint len )
+inline int qstrncmp(const char *str1, const char *str2, uint len)
 {
-    return ( str1 && str2 ) ? strncmp( str1, str2, len )
-	: ( str1 ? 1 : ( str2 ? -1 : 0 ) );
+    return (str1 && str2) ? strncmp(str1, str2, len)
+        : (str1 ? 1 : (str2 ? -1 : 0));
 }
-Q_CORE_EXPORT int qstricmp( const char *, const char * );
-Q_CORE_EXPORT int qstrnicmp( const char *, const char *, uint len );
+Q_CORE_EXPORT int qstricmp(const char *, const char *);
+Q_CORE_EXPORT int qstrnicmp(const char *, const char *, uint len);
 
 #ifdef QT_COMPAT
-inline QT_COMPAT void *qmemmove( void *dst, const void *src, uint len )
+inline QT_COMPAT void *qmemmove(void *dst, const void *src, uint len)
 { return memmove(dst, src, len); }
-inline QT_COMPAT uint cstrlen( const char *str )
+inline QT_COMPAT uint cstrlen(const char *str)
 { return (uint)strlen(str); }
-inline QT_COMPAT char *cstrcpy( char *dst, const char *src )
+inline QT_COMPAT char *cstrcpy(char *dst, const char *src)
 { return strcpy(dst,src); }
-inline QT_COMPAT int cstrcmp( const char *str1, const char *str2 )
+inline QT_COMPAT int cstrcmp(const char *str1, const char *str2)
 { return strcmp(str1,str2); }
-inline QT_COMPAT int cstrncmp( const char *str1, const char *str2, uint len )
+inline QT_COMPAT int cstrncmp(const char *str1, const char *str2, uint len)
 { return strncmp(str1,str2,len); }
 #endif
 
 // qChecksum: Internet checksum
 
-Q_CORE_EXPORT Q_UINT16 qChecksum( const char *s, uint len );
+Q_CORE_EXPORT Q_UINT16 qChecksum(const char *s, uint len);
 
 class QByteRef;
 class QString;
@@ -132,7 +132,7 @@ public:
     bool endsWith(char c) const;
     bool endsWith(const char *c) const;
 
-    inline void truncate( int l ) { if (l < d->size) resize(l); }
+    inline void truncate(int l) { if (l < d->size) resize(l); }
 
     QByteArray toLower() const;
     QByteArray toUpper() const;
@@ -250,9 +250,9 @@ public:
     { *this = a; return *this; }
     QT_COMPAT QByteArray& duplicate(const char *a, uint n)
     { *this = QByteArray(a, n); return *this; }
-    QT_COMPAT QByteArray& setRawData( const char *a, uint n )
+    QT_COMPAT QByteArray& setRawData(const char *a, uint n)
     { detach(); d->data = (char *)a; d->size = n; return *this; }
-    QT_COMPAT void resetRawData( const char *, uint )
+    QT_COMPAT void resetRawData(const char *, uint)
     { detach(); d->data = d->array; d->size = 0; }
     inline QT_COMPAT QByteArray lower() const { return toLower(); }
     inline QT_COMPAT QByteArray upper() const { return toUpper(); }
@@ -275,10 +275,10 @@ public:
 private:
     operator QNoImplicitIntegralCast() const;
     struct Data {
-	QAtomic ref;
-	int alloc, size;
-	char *data;
-	char array[1];
+        QAtomic ref;
+        int alloc, size;
+        char *data;
+        char array[1];
     };
     static Data shared_null;
     static Data shared_empty;
@@ -343,17 +343,17 @@ class Q_CORE_EXPORT QByteRef {
     QByteArray &a;
     int i;
     inline QByteRef(QByteArray &array, int idx)
-	: a(array),i(idx) {}
+        : a(array),i(idx) {}
     friend class QByteArray;
 public:
     inline operator char() const
-	{ return i < a.d->size ? a.d->data[i] : 0; }
+        { return i < a.d->size ? a.d->data[i] : 0; }
     inline QByteRef &operator=(char c)
-	{ if (a.d->ref != 1 || i >= a.d->size) a.expand(i);
-	  a.d->data[i] = c;  return *this; }
+        { if (a.d->ref != 1 || i >= a.d->size) a.expand(i);
+          a.d->data[i] = c;  return *this; }
     inline QByteRef &operator=(const QByteRef &c)
-	{ if (a.d->ref != 1 || i >= a.d->size) a.expand(i);
-	  a.d->data[i] = c.a.d->data[c.i];  return *this; }
+        { if (a.d->ref != 1 || i >= a.d->size) a.expand(i);
+          a.d->data[i] = c.a.d->data[c.i];  return *this; }
     inline bool operator==(char c) const
     { return a.d->data[i] == c; }
     inline bool operator!=(char c) const
@@ -492,17 +492,17 @@ inline QByteArray &QByteArray::setNum(float n, char f, int prec)
 
 
 #ifndef QT_NO_DATASTREAM
-Q_CORE_EXPORT QDataStream &operator<<( QDataStream &, const QByteArray & );
-Q_CORE_EXPORT QDataStream &operator>>( QDataStream &, QByteArray & );
+Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QByteArray &);
+Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QByteArray &);
 #endif
 
 #ifndef QT_NO_COMPRESS
 Q_CORE_EXPORT QByteArray qCompress(const uchar* data, int nbytes, int compressionLevel = -1);
-Q_CORE_EXPORT QByteArray qUncompress( const uchar* data, int nbytes );
+Q_CORE_EXPORT QByteArray qUncompress(const uchar* data, int nbytes);
 inline QByteArray qCompress(const QByteArray& data, int compressionLevel = -1)
 { return qCompress((const uchar *)data.constData(), data.size(), compressionLevel); }
-inline QByteArray qUncompress( const QByteArray& data )
-{ return qUncompress( (const uchar*)data.constData(), data.size() ); }
+inline QByteArray qUncompress(const QByteArray& data)
+{ return qUncompress((const uchar*)data.constData(), data.size()); }
 #endif
 
 Q_DECLARE_TYPEINFO(QByteArray, Q_MOVABLE_TYPE);

@@ -29,19 +29,19 @@ struct QRegionPrivate {
     QRect extents;
 
     inline QRegionPrivate() : numRects(0) {}
-    inline QRegionPrivate( const QRect &r ) : rects(1) {
+    inline QRegionPrivate(const QRect &r) : rects(1) {
         numRects = 1;
         rects[0] = r;
         extents = r;
     }
 
-    inline QRegionPrivate( const QRegionPrivate &r ) {
+    inline QRegionPrivate(const QRegionPrivate &r) {
         rects = r.rects;
         numRects = r.numRects;
         extents = r.extents;
     }
 
-    inline QRegionPrivate &operator=( const QRegionPrivate &r ) {
+    inline QRegionPrivate &operator=(const QRegionPrivate &r) {
         rects = r.rects;
         numRects = r.numRects;
         extents = r.extents;
@@ -151,13 +151,13 @@ SOFTWARE.
  */
 #define EXTENTS(r,idRect){\
             if((r)->left() < (idRect)->extents.left())\
-              (idRect)->extents.setLeft( (r)->left() );\
+              (idRect)->extents.setLeft((r)->left());\
             if((r)->top() < (idRect)->extents.top())\
-              (idRect)->extents.setTop( (r)->top() );\
+              (idRect)->extents.setTop((r)->top());\
             if((r)->right() > (idRect)->extents.right())\
-              (idRect)->extents.setRight( (r)->right() );\
+              (idRect)->extents.setRight((r)->right());\
             if((r)->bottom() > (idRect)->extents.bottom())\
-              (idRect)->extents.setBottom( (r)->bottom() );\
+              (idRect)->extents.setBottom((r)->bottom());\
         }
 
 /*
@@ -326,9 +326,9 @@ static void miSetExtents(QRegionPrivate &dest)
     Q_ASSERT(pExtents->top() <= pExtents->bottom());
     while (pBox <= pBoxEnd) {
         if (pBox->left() < pExtents->left())
-            pExtents->setLeft( pBox->left() );
+            pExtents->setLeft(pBox->left());
         if (pBox->right() > pExtents->right())
-            pExtents->setRight( pBox->right() );
+            pExtents->setRight(pBox->right());
         ++pBox;
     }
     Q_ASSERT(pExtents->left() <= pExtents->right());
@@ -835,7 +835,7 @@ static void miUnionO(register QRegionPrivate &dest, register QRect *r1, QRect *r
         (pNextRect[-1].bottom() == y2) &&  \
         (pNextRect[-1].right() >= r->left()-1)) { \
         if (pNextRect[-1].right() < r->right()) { \
-            pNextRect[-1].setRight( r->right() );  \
+            pNextRect[-1].setRight(r->right());  \
             Q_ASSERT(pNextRect[-1].left() <= pNextRect[-1].right()); \
         }  \
     } else { \
@@ -1036,7 +1036,7 @@ static void miSubtractO(register QRegionPrivate &dest, register QRect *r1, QRect
                 ++pNextRect;
             }
             ++r1;
-            if ( r1 != r1End )
+            if (r1 != r1End)
                 x1 = r1->left();
         }
     }
@@ -1884,25 +1884,25 @@ static void PtsToRegion(register int numFullPtBlocks, register int iCurPtBlock,
         i = NUMPTSTOBUFFER >> 1;
         if (!numFullPtBlocks)
             i = iCurPtBlock >> 1;
-	if(i) {
-	    for (pts = CurPtBlock->pts; --i; pts += 2) {
-		if (pts->x() == pts[1].x())
-		    continue;
-		if (numRects && pts->x() == rects->left() && pts->y() == rects->bottom() + 1
-		    && pts[1].x() == rects->right()
-		    && (numRects == 1 || rects[-1].top() != rects->top())
-		    && (i && pts[2].y() > pts[1].y() )) {
-		    rects->setBottom(pts[1].y());
-		    continue;
-		}
-		++numRects;
-		++rects;
-		rects->setCoords(pts->x(), pts->y(), pts[1].x() - 1, pts[1].y());
-		if (rects->left() < extents->left())
-		    extents->setLeft( rects->left() );
-		if (rects->right() > extents->right())
-		    extents->setRight( rects->right() );
-	    }
+        if(i) {
+            for (pts = CurPtBlock->pts; --i; pts += 2) {
+                if (pts->x() == pts[1].x())
+                    continue;
+                if (numRects && pts->x() == rects->left() && pts->y() == rects->bottom() + 1
+                    && pts[1].x() == rects->right()
+                    && (numRects == 1 || rects[-1].top() != rects->top())
+                    && (i && pts[2].y() > pts[1].y())) {
+                    rects->setBottom(pts[1].y());
+                    continue;
+                }
+                ++numRects;
+                ++rects;
+                rects->setCoords(pts->x(), pts->y(), pts[1].x() - 1, pts[1].y());
+                if (rects->left() < extents->left())
+                    extents->setLeft(rects->left());
+                if (rects->right() > extents->right())
+                    extents->setRight(rects->right());
+            }
         }
         CurPtBlock = CurPtBlock->next;
     }
@@ -1945,20 +1945,20 @@ static QRegionPrivate *PolygonRegion(const QPoint *Pts, int Count, int rule)
     POINTBLOCK *tmpPtBlock;
     int numFullPtBlocks = 0;
 
-    if (!(region = new QRegionPrivate) )
+    if (!(region = new QRegionPrivate))
         return 0;
 
     /* special case a rectangle */
     if (((Count == 4) ||
-         ((Count == 5) && (Pts[4].x() == Pts[0].x() ) && (Pts[4].y() == Pts[0].y() )))
+         ((Count == 5) && (Pts[4].x() == Pts[0].x()) && (Pts[4].y() == Pts[0].y())))
          && (((Pts[0].y() == Pts[1].y()) && (Pts[1].x() == Pts[2].x()) && (Pts[2].y() == Pts[3].y())
                && (Pts[3].x() == Pts[0].x())) || ((Pts[0].x() == Pts[1].x())
                && (Pts[1].y() == Pts[2].y()) && (Pts[2].x() == Pts[3].x())
                && (Pts[3].y() == Pts[0].y())))) {
-        region->extents.setLeft( qMin(Pts[0].x(), Pts[2].x()) );
-        region->extents.setTop( qMin(Pts[0].y(), Pts[2].y()) );
-        region->extents.setRight( qMax(Pts[0].x(), Pts[2].x()) );
-        region->extents.setBottom( qMax(Pts[0].y(), Pts[2].y()) );
+        region->extents.setLeft(qMin(Pts[0].x(), Pts[2].x()));
+        region->extents.setTop(qMin(Pts[0].y(), Pts[2].y()));
+        region->extents.setRight(qMax(Pts[0].x(), Pts[2].x()));
+        region->extents.setBottom(qMax(Pts[0].y(), Pts[2].y()));
         if ((region->extents.left() <= region->extents.right()) &&
             (region->extents.top() <= region->extents.bottom())) {
             region->numRects = 1;
@@ -2043,7 +2043,7 @@ static QRegionPrivate *PolygonRegion(const QPoint *Pts, int Count, int rule)
                  *  are in the Winding active edge table.
                  */
                 if (pWETE == pAET) {
-                    pts->setX( pAET->bres.minor_axis);
+                    pts->setX(pAET->bres.minor_axis);
                     pts->setY(y);
                     ++pts;
                     ++iPts;
@@ -2095,8 +2095,8 @@ QRegionPrivate *qt_bitmapToRegion(const QBitmap& bitmap)
 
 #define AddSpan \
         { \
-            xr.setCoords(prev1, y, x-1, y ); \
-            UnionRectWithRegion( &xr, region, *region ); \
+            xr.setCoords(prev1, y, x-1, y); \
+            UnionRectWithRegion(&xr, region, *region); \
         }
 
     const int zero = 0;
@@ -2109,7 +2109,7 @@ QRegionPrivate *qt_bitmapToRegion(const QBitmap& bitmap)
         int w = image.width();
         uchar all=zero;
         int prev1 = -1;
-        for (x = 0; x < w; ) {
+        for (x = 0; x < w;) {
             uchar byte = line[x / 8];
             if (x > w - 8 || byte!=all) {
                 if (little) {
@@ -2130,7 +2130,7 @@ QRegionPrivate *qt_bitmapToRegion(const QBitmap& bitmap)
                         ++x;
                     }
                 } else {
-                    for (int b = 8; b > 0 && x < w; --b ) {
+                    for (int b = 8; b > 0 && x < w; --b) {
                         if (!(byte & 0x80) == !all) {
                             // More of the same
                         } else {
@@ -2194,7 +2194,7 @@ QRegion::QRegion(const QRect &r, RegionType t)
         d->rgn = 0;
         d->xrectangles = 0;
 #elif defined(Q_WS_MAC)
-	d->rgn = 0;
+        d->rgn = 0;
 #endif
         if (t == Rectangle) {
             d->qt_rgn = new QRegionPrivate(r);
@@ -2285,7 +2285,7 @@ void QRegion::cleanUp(QRegion::QRegionData *x)
         free(x->xrectangles);
 #elif defined(Q_WS_MAC)
     if (x->rgn)
-	qt_mac_dispose_rgn(x->rgn);
+        qt_mac_dispose_rgn(x->rgn);
 #endif
     delete x;
 }
@@ -2349,17 +2349,17 @@ QRegion QRegion::copy() const
 
     Example:
     \code
-        QRegion r1( 10, 10, 20, 20 );
-        QRegion r2( 40, 40, 20, 20 );
+        QRegion r1(10, 10, 20, 20);
+        QRegion r2(40, 40, 20, 20);
         QRegion r3;
         r1.isNull();             // false
         r1.isEmpty();            // false
         r3.isNull();             // true
         r3.isEmpty();            // true
-        r3 = r1.intersect( r2 ); // r3 = intersection of r1 and r2
+        r3 = r1.intersect(r2); // r3 = intersection of r1 and r2
         r3.isNull();             // false
         r3.isEmpty();            // true
-        r3 = r1.unite( r2 );     // r3 = union of r1 and r2
+        r3 = r1.unite(r2);     // r3 = union of r1 and r2
         r3.isNull();             // false
         r3.isEmpty();            // false
     \endcode
@@ -2395,7 +2395,7 @@ bool QRegion::contains(const QRect &r) const
 
 
 /*!
-    \fn void QRegion::translate( const QPoint &p ) 
+    \fn void QRegion::translate(const QPoint &p)
     \overload
 
     Translates (moves) the region by \a p.
@@ -2419,8 +2419,8 @@ void QRegion::translate(int dx, int dy)
     }
 #elif defined(Q_WS_MAC)
     if(d->rgn) {
-	qt_mac_dispose_rgn(d->rgn);
-	d->rgn = 0;
+        qt_mac_dispose_rgn(d->rgn);
+        d->rgn = 0;
     }
 #endif
 }
@@ -2464,7 +2464,7 @@ QRegion QRegion::intersect(const QRegion &r) const
     \img rsubtract.png Region Subtraction
 
     The figure shows the result when the ellipse on the right is
-    subtracted from the ellipse on the left. (\c left-right )
+    subtracted from the ellipse on the left. (\c left-right)
 */
 
 QRegion QRegion::subtract(const QRegion &r) const
@@ -2517,7 +2517,7 @@ QVector<QRect> QRegion::rects() const
     // is different from the actual size. We should use that
     // instead of storing the size separately.
     if (d->qt_rgn) {
-        d->qt_rgn->rects.resize( d->qt_rgn->numRects );
+        d->qt_rgn->rects.resize(d->qt_rgn->numRects);
         return d->qt_rgn->rects;
     } else {
         return QVector<QRect>();
@@ -2583,7 +2583,7 @@ bool QRegion::operator==(const QRegion &r) const
 }
 
 /*!
-    \fn bool QRegion::operator!=( const QRegion &r ) const
+    \fn bool QRegion::operator!=(const QRegion &r) const
 
     Returns true if the region is different from \a r; otherwise
     returns false.

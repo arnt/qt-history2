@@ -40,7 +40,7 @@ public:
 
     inline int size() const { return d->size; }
     inline void detach()
-    { if ( d->ref != 1) detach_helper(); }
+    { if (d->ref != 1) detach_helper(); }
     inline bool isDetached() const { return d->ref == 1; }
 
     inline bool isEmpty() const { return d->size == 0; }
@@ -58,25 +58,25 @@ public:
     class iterator
     {
     public:
-	typedef std::bidirectional_iterator_tag  iterator_category;
-	typedef ptrdiff_t  difference_type;
-	typedef T value_type;
-	typedef T *pointer;
-	typedef T &reference;
-	Node *i;
-	inline iterator() : i(0) {}
-	inline iterator(Node *n) : i(n) {}
-	inline iterator(const iterator &o): i(o.i){}
-	inline T &operator*() const { return i->t; }
-	inline bool operator==(const iterator &o) const { return i == o.i; }
-	inline bool operator!=(const iterator &o) const { return i != o.i; }
-	inline iterator operator++() { i = i->n; return *this; }
-	inline iterator operator++(int) { Node *n = i; i = i->n; return n; }
-	inline iterator operator--() { i = i->p; return *this; }
-	inline iterator operator--(int) { Node *n = i; i = i->p; return n; }
-	inline iterator operator+(int j) const
+        typedef std::bidirectional_iterator_tag  iterator_category;
+        typedef ptrdiff_t  difference_type;
+        typedef T value_type;
+        typedef T *pointer;
+        typedef T &reference;
+        Node *i;
+        inline iterator() : i(0) {}
+        inline iterator(Node *n) : i(n) {}
+        inline iterator(const iterator &o): i(o.i){}
+        inline T &operator*() const { return i->t; }
+        inline bool operator==(const iterator &o) const { return i == o.i; }
+        inline bool operator!=(const iterator &o) const { return i != o.i; }
+        inline iterator operator++() { i = i->n; return *this; }
+        inline iterator operator++(int) { Node *n = i; i = i->n; return n; }
+        inline iterator operator--() { i = i->p; return *this; }
+        inline iterator operator--(int) { Node *n = i; i = i->p; return n; }
+        inline iterator operator+(int j) const
         { Node *n = i; if (j > 0) while (j--) n = n->n; else while (j++) n = n->p; return n; }
-	inline iterator operator-(int j) const { return operator+(-j); }
+        inline iterator operator-(int j) const { return operator+(-j); }
         inline iterator &operator+=(int j) { return *this = *this + j; }
         inline iterator &operator-=(int j) { return *this = *this - j; }
     };
@@ -85,26 +85,26 @@ public:
     class const_iterator
     {
     public:
-	typedef std::bidirectional_iterator_tag  iterator_category;
-	typedef ptrdiff_t  difference_type;
-	typedef T value_type;
-	typedef T *pointer;
-	typedef T &reference;
-	Node *i;
-	inline const_iterator() : i(0) {}
-	inline const_iterator(Node *n) : i(n) {}
-	inline const_iterator(const const_iterator &o): i(o.i){}
-	inline const_iterator(iterator ci): i(ci.i){}
-	inline const T &operator*() const { return i->t; }
-	inline bool operator==(const const_iterator &o) const { return i == o.i; }
-	inline bool operator!=(const const_iterator &o) const { return i != o.i; }
-	inline const_iterator operator++() { i = i->n; return *this; }
-	inline const_iterator operator++(int) { Node *n = i; i = i->n; return n; }
-	inline const_iterator operator--() { i = i->p; return *this; }
-	inline const_iterator operator--(int) { Node *n = i; i = i->p; return n; }
-	inline const_iterator operator+(int j) const
+        typedef std::bidirectional_iterator_tag  iterator_category;
+        typedef ptrdiff_t  difference_type;
+        typedef T value_type;
+        typedef T *pointer;
+        typedef T &reference;
+        Node *i;
+        inline const_iterator() : i(0) {}
+        inline const_iterator(Node *n) : i(n) {}
+        inline const_iterator(const const_iterator &o): i(o.i){}
+        inline const_iterator(iterator ci): i(ci.i){}
+        inline const T &operator*() const { return i->t; }
+        inline bool operator==(const const_iterator &o) const { return i == o.i; }
+        inline bool operator!=(const const_iterator &o) const { return i != o.i; }
+        inline const_iterator operator++() { i = i->n; return *this; }
+        inline const_iterator operator++(int) { Node *n = i; i = i->n; return n; }
+        inline const_iterator operator--() { i = i->p; return *this; }
+        inline const_iterator operator--(int) { Node *n = i; i = i->p; return n; }
+        inline const_iterator operator+(int j) const
         { Node *n = i; if (j > 0) while (j--) n = n->n; else while (j++) n = n->p; return n; }
-	inline const_iterator operator-(int j) const { return operator+(-j); }
+        inline const_iterator operator-(int j) const { return operator+(-j); }
         inline const_iterator &operator+=(int j) { return *this = *this + j; }
         inline const_iterator &operator-=(int j) { return *this = *this - j; }
     };
@@ -129,8 +129,8 @@ public:
     inline const T& first() const { Q_ASSERT(!isEmpty()); return *begin(); }
     T& last() { Q_ASSERT(!isEmpty()); return *(--end()); }
     const T& last() const { Q_ASSERT(!isEmpty()); return *(--end()); }
-    inline void removeFirst() { Q_ASSERT(!isEmpty()); erase( begin() ); }
-    inline void removeLast() { Q_ASSERT(!isEmpty()); erase( --end() ); }
+    inline void removeFirst() { Q_ASSERT(!isEmpty()); erase(begin()); }
+    inline void removeLast() { Q_ASSERT(!isEmpty()); erase(--end()); }
 
     // stl compatibility
     inline void push_back(const T &t) { append(t); }
@@ -147,7 +147,7 @@ public:
 #ifdef QT_COMPAT
     // compatibility
     inline QT_COMPAT iterator remove(iterator pos) { return erase(pos); }
-    inline QT_COMPAT int findIndex( const T& t ) const
+    inline QT_COMPAT int findIndex(const T& t) const
     { int i=0; for (const_iterator it = begin(); it != end(); ++it, ++i) if(*it == t) return i; return -1;}
     inline QT_COMPAT iterator find(iterator from, const T& t)
     { while (from != end() && !(*from == t)) ++from; return from; }
@@ -177,7 +177,7 @@ template <typename T>
 inline QLinkedList<T>::~QLinkedList()
 {
     if (!--d->ref)
-	free(d);
+        free(d);
 }
 
 template <typename T>
@@ -188,16 +188,16 @@ void QLinkedList<T>::detach_helper() {
     x.d->size = d->size;
     Node *i = e->n, *j = x.e;
     while (i != e) {
-	j->n = new Node(i->t);
-	j->n->p = j;
-	i = i->n;
-	j = j->n;
+        j->n = new Node(i->t);
+        j->n->p = j;
+        i = i->n;
+        j = j->n;
     }
     j->n = x.e;
     x.e->p = j;
     x.d = qAtomicSetPtr(&d, x.d);
     if (!--x.d->ref)
- 	free(x.d);
+        free(x.d);
 }
 
 template <typename T>
@@ -205,13 +205,13 @@ void QLinkedList<T>::free(QLinkedListData *x)
 {
     Node *y = (Node*)x;
     Node *i = y->n;
-    if ( x->ref == 0 ) {
-	while(i != y) {
-	    Node *n = i;
-	    i = i->n;
-	    delete n;
-	}
-	delete x;
+    if (x->ref == 0) {
+        while(i != y) {
+            Node *n = i;
+            i = i->n;
+            delete n;
+        }
+        delete x;
     }
 }
 
@@ -224,12 +224,12 @@ void QLinkedList<T>::clear()
 template <typename T>
 QLinkedList<T> &QLinkedList<T>::operator=(const QLinkedList<T> &l)
 {
-    if ( d != l.d ) {
-	QLinkedListData *x = l.d;
-	++x->ref;
-	x = qAtomicSetPtr( &d, x );
-	if (!--x->ref)
-	    free(x);
+    if (d != l.d) {
+        QLinkedListData *x = l.d;
+        ++x->ref;
+        x = qAtomicSetPtr(&d, x);
+        if (!--x->ref)
+            free(x);
     }
     return *this;
 }
@@ -238,16 +238,16 @@ template <typename T>
 bool QLinkedList<T>::operator== (const QLinkedList<T> &l) const
 {
     if (d->size != l.d->size)
-	return false;
+        return false;
     if (e == l.e)
-	return true;
+        return true;
     Node *i = e->n;
     Node *il = l.e->n;
     while (i != e) {
-	if (! (i->t == il->t))
-	    return false;
-	i = i->n;
-	il = il->n;
+        if (! (i->t == il->t))
+            return false;
+        i = i->n;
+        il = il->n;
     }
     return true;
 }
@@ -283,16 +283,16 @@ int QLinkedList<T>::remove(const T &t)
     Node *i = e->n;
     int c = 0;
     while (i != e) {
-	if (i->t == t) {
-	    Node *n = i;
-	    i->n->p = i->p;
-	    i->p->n = i->n;
-	    i = i->n;
-	    delete n;
-	    c++;
-	} else {
-	    i = i->n;
-	}
+        if (i->t == t) {
+            Node *n = i;
+            i->n->p = i->p;
+            i->p->n = i->n;
+            i = i->n;
+            delete n;
+            c++;
+        } else {
+            i = i->n;
+        }
     }
     d->size-=c;
     return c;
@@ -319,8 +319,8 @@ bool QLinkedList<T>::contains(const T &t) const
 {
     Node *i = e;
     while ((i = i->n) != e)
-	if (i->t == t)
-	    return true;
+        if (i->t == t)
+            return true;
     return false;
 }
 
@@ -330,8 +330,8 @@ int QLinkedList<T>::count(const T &t) const
     Node *i = e;
     int c = 0;
     while ((i = i->n) != e)
-	if (i->t == t)
-	    c++;
+        if (i->t == t)
+            c++;
     return c;
 }
 
@@ -350,11 +350,11 @@ typename QLinkedList<T>::iterator QLinkedList<T>::insert(iterator before, const 
 }
 
 template <typename T>
-typename QLinkedList<T>::iterator QLinkedList<T>::erase( typename QLinkedList<T>::iterator first,
-							 typename QLinkedList<T>::iterator last )
+typename QLinkedList<T>::iterator QLinkedList<T>::erase(typename QLinkedList<T>::iterator first,
+                                                         typename QLinkedList<T>::iterator last)
 {
     while (first != last)
-	erase(first++);
+        erase(first++);
     return last;
 }
 
@@ -365,12 +365,12 @@ typename QLinkedList<T>::iterator QLinkedList<T>::erase(iterator pos)
     detach();
     Node *i = pos.i;
     if (i != e) {
-	Node *n = i;
-	i->n->p = i->p;
-	i->p->n = i->n;
-	i = i->n;
-	delete n;
-	d->size--;
+        Node *n = i;
+        i->n->p = i->p;
+        i->p->n = i->n;
+        i = i->n;
+        delete n;
+        d->size--;
     }
     return i;
 }
@@ -383,12 +383,12 @@ QLinkedList<T> &QLinkedList<T>::operator+=(const QLinkedList<T> &l)
     d->size += n;
     Node *o = l.e->n;
     while (n--) {
-	Node *i = new Node(o->t);
-	o = o->n;
-	i->n = e;
-	i->p = e->p;
-	i->p->n = i;
-	e->p = i;
+        Node *i = new Node(o->t);
+        o = o->n;
+        i->n = e;
+        i->p = e->p;
+        i->p->n = i;
+        e->p = i;
     }
     return *this;
 }

@@ -43,8 +43,8 @@ class QPixmap;
 class Q_GUI_EXPORT QTitleBar : public QWidget
 {
     Q_OBJECT
-    Q_PROPERTY( bool autoRaise READ autoRaise WRITE setAutoRaise )
-    Q_PROPERTY( bool movable READ isMovable WRITE setMovable )
+    Q_PROPERTY(bool autoRaise READ autoRaise WRITE setAutoRaise)
+    Q_PROPERTY(bool movable READ isMovable WRITE setMovable)
 
 public:
     QTitleBar (QWidget* w, QWidget* parent, const char* name=0);
@@ -65,7 +65,7 @@ public:
     QSize sizeHint() const;
 
 public slots:
-    void setActive( bool );
+    void setActive(bool);
 
 signals:
     void doActivate();
@@ -75,21 +75,21 @@ signals:
     void doMinimize();
     void doShade();
     void showOperationMenu();
-    void popupOperationMenu( const QPoint& );
+    void popupOperationMenu(const QPoint&);
     void doubleClicked();
 
 protected:
-    bool event( QEvent *);
-    void resizeEvent( QResizeEvent *);
-    void contextMenuEvent( QContextMenuEvent * );
-    void changeEvent( QEvent * );
-    void mousePressEvent( QMouseEvent * );
-    void mouseDoubleClickEvent( QMouseEvent * );
-    void mouseReleaseEvent( QMouseEvent * );
-    void mouseMoveEvent( QMouseEvent * );
-    void enterEvent( QEvent *e );
-    void leaveEvent( QEvent *e );
-    void paintEvent( QPaintEvent *p );
+    bool event(QEvent *);
+    void resizeEvent(QResizeEvent *);
+    void contextMenuEvent(QContextMenuEvent *);
+    void changeEvent(QEvent *);
+    void mousePressEvent(QMouseEvent *);
+    void mouseDoubleClickEvent(QMouseEvent *);
+    void mouseReleaseEvent(QMouseEvent *);
+    void mouseMoveEvent(QMouseEvent *);
+    void enterEvent(QEvent *e);
+    void leaveEvent(QEvent *e);
+    void paintEvent(QPaintEvent *p);
 
     virtual void cutText();
 
@@ -98,8 +98,8 @@ private:
 
     QTitleBarPrivate *d;
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QTitleBar( const QTitleBar & );
-    QTitleBar &operator=( const QTitleBar & );
+    QTitleBar(const QTitleBar &);
+    QTitleBar &operator=(const QTitleBar &);
 #endif
 };
 

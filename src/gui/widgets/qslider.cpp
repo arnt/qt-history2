@@ -67,13 +67,13 @@ int QSliderPrivate::pixelPosToRangeValue(int pos) const
     int sliderMin, sliderMax, sliderLength;
 
     if (orientation == Horizontal) {
-	sliderLength = sr.width();
-	sliderMin = gr.x();
-	sliderMax = gr.right() - sliderLength + 1;
+        sliderLength = sr.width();
+        sliderMin = gr.x();
+        sliderMax = gr.right() - sliderLength + 1;
     } else {
-	sliderLength = sr.height();
-	sliderMin = gr.y();
-	sliderMax = gr.bottom() - sliderLength + 1;
+        sliderLength = sr.height();
+        sliderMin = gr.y();
+        sliderMax = gr.bottom() - sliderLength + 1;
     }
     return QStyle::valueFromPosition(d->minimum, d->maximum, pos - sliderMin, sliderMax - sliderMin,
                                      (!d->invertedAppearance == !(d->orientation == Horizontal)));
@@ -235,17 +235,17 @@ QSlider::~QSlider()
 */
 void QSlider::paintEvent(QPaintEvent *)
 {
-    QPainter p( this );
+    QPainter p(this);
 
     QStyle::SFlags flags = QStyle::Style_Default;
     if (isEnabled())
-	flags |= QStyle::Style_Enabled;
+        flags |= QStyle::Style_Enabled;
     if (hasFocus())
-	flags |= QStyle::Style_HasFocus;
+        flags |= QStyle::Style_HasFocus;
 
     QStyle::SCFlags sub = QStyle::SC_SliderGroove | QStyle::SC_SliderHandle;
     if (d->tickSetting != NoMarks)
-	sub |= QStyle::SC_SliderTickmarks;
+        sub |= QStyle::SC_SliderTickmarks;
 
     style().drawComplexControl(QStyle::CC_Slider, &p, this, rect(), palette(),
                                flags, sub, d->pressedControl);
@@ -278,7 +278,7 @@ void QSlider::mousePressEvent(QMouseEvent *ev)
     } else if (d->pressedControl == QStyle::SC_SliderHandle) {
         QRect sr = style().querySubControlMetrics(QStyle::CC_Slider, this, QStyle::SC_SliderHandle);
         d->clickOffset = d->pick(ev->pos() - sr.topLeft());
-	d->snapBackPosition = d->position;
+        d->snapBackPosition = d->position;
         update(sr);
     }
 }
@@ -331,13 +331,13 @@ QSize QSlider::sizeHint() const
     const int SliderLength = 84, TickSpace = 5;
     int thick = style().pixelMetric(QStyle::PM_SliderThickness, this);
     if (d->tickSetting & Above)
-	thick += TickSpace;
-    if (d->tickSetting & Below )
-	thick += TickSpace;
+        thick += TickSpace;
+    if (d->tickSetting & Below)
+        thick += TickSpace;
     int w = thick, h = SliderLength;
     if (d->orientation == Horizontal) {
-	w = SliderLength;
-	h = thick;
+        w = SliderLength;
+        h = thick;
     }
     return style().sizeFromContents(QStyle::CT_Slider, this,
                                     QSize(w, h)).expandedTo(QApplication::globalStrut());
@@ -351,9 +351,9 @@ QSize QSlider::minimumSizeHint() const
     QSize s = sizeHint();
     int length = style().pixelMetric(QStyle::PM_SliderLength, this);
     if (d->orientation == Horizontal)
-	s.setWidth(length);
+        s.setWidth(length);
     else
-	s.setHeight(length);
+        s.setHeight(length);
     return s;
 }
 

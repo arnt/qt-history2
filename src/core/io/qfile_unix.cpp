@@ -37,26 +37,26 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 
 extern const char* qt_fileerr_read;
 
-bool QFileInfoPrivate::access( const QString& fn, int t )
+bool QFileInfoPrivate::access(const QString& fn, int t)
 {
-    if ( fn.isEmpty() )
-	return FALSE;
-    return ::access( QFile::encodeName(fn), t ) == 0;
+    if (fn.isEmpty())
+        return false;
+    return ::access(QFile::encodeName(fn), t) == 0;
 }
 
 /*!
     \overload
     Removes the file \a fileName.
-  Returns TRUE if successful, otherwise FALSE.
+  Returns true if successful, otherwise false.
 */
 
-bool QFile::remove( const QString &fileName )
+bool QFile::remove(const QString &fileName)
 {
-    if ( fileName.isEmpty() ) {
-	qWarning( "QFile::remove: Empty or null file name" );
-	return FALSE;
+    if (fileName.isEmpty()) {
+        qWarning("QFile::remove: Empty or null file name");
+        return false;
     }
-    return unlink( QFile::encodeName(fileName) ) == 0;
+    return unlink(QFile::encodeName(fileName)) == 0;
 }
 
 #if defined(O_NONBLOCK)
@@ -69,7 +69,7 @@ bool QFile::remove( const QString &fileName )
 
 /*!
     Opens the file specified by the file name currently set, using the
-    mode \a m. Returns TRUE if successful, otherwise FALSE.
+    mode \a m. Returns true if successful, otherwise false.
 
     \keyword IO_Raw
     \keyword IO_ReadOnly
@@ -83,30 +83,30 @@ bool QFile::remove( const QString &fileName )
     \table
     \header \i Flag \i Meaning
     \row \i IO_Raw
-	 \i Raw (non-buffered) file access.
+         \i Raw (non-buffered) file access.
     \row \i IO_ReadOnly
-	 \i Opens the file in read-only mode.
+         \i Opens the file in read-only mode.
     \row \i IO_WriteOnly
-	 \i Opens the file in write-only mode. If this flag is used
-	    with another flag, e.g. \c IO_ReadOnly or \c IO_Raw or \c
-	    IO_Append, the file is \e not truncated; but if used on
-	    its own (or with \c IO_Truncate), the file is truncated.
+         \i Opens the file in write-only mode. If this flag is used
+            with another flag, e.g. \c IO_ReadOnly or \c IO_Raw or \c
+            IO_Append, the file is \e not truncated; but if used on
+            its own (or with \c IO_Truncate), the file is truncated.
     \row \i IO_ReadWrite
-	 \i Opens the file in read/write mode, equivalent to \c
-	    (IO_ReadOnly | IO_WriteOnly).
+         \i Opens the file in read/write mode, equivalent to \c
+            (IO_ReadOnly | IO_WriteOnly).
     \row \i IO_Append
-	 \i Opens the file in append mode. (You must actually use \c
-	    (IO_WriteOnly | IO_Append) to make the file writable and
-	    to go into append mode.) This mode is very useful when you
-	    want to write something to a log file. The file index is
-	    set to the end of the file. Note that the result is
-	    undefined if you position the file index manually using
-	    at() in append mode.
+         \i Opens the file in append mode. (You must actually use \c
+            (IO_WriteOnly | IO_Append) to make the file writable and
+            to go into append mode.) This mode is very useful when you
+            want to write something to a log file. The file index is
+            set to the end of the file. Note that the result is
+            undefined if you position the file index manually using
+            at() in append mode.
     \row \i IO_Truncate
-	 \i Truncates the file.
+         \i Truncates the file.
     \row \i IO_Translate
-	 \i Enables carriage returns and linefeed translation for text
-	    files under Windows.
+         \i Enables carriage returns and linefeed translation for text
+            files under Windows.
     \endtable
 
     The raw access mode is best when I/O is block-operated using a 4KB
@@ -128,149 +128,149 @@ bool QFile::remove( const QString &fileName )
 
     Example:
     \code
-	QFile f1( "/tmp/data.bin" );
-	f1.open( IO_Raw | IO_ReadWrite );
+        QFile f1("/tmp/data.bin");
+        f1.open(IO_Raw | IO_ReadWrite);
 
-	QFile f2( "readme.txt" );
-	f2.open( IO_ReadOnly | IO_Translate );
+        QFile f2("readme.txt");
+        f2.open(IO_ReadOnly | IO_Translate);
 
-	QFile f3( "audit.log" );
-	f3.open( IO_WriteOnly | IO_Append );
+        QFile f3("audit.log");
+        f3.open(IO_WriteOnly | IO_Append);
     \endcode
 
     \sa name(), close(), isOpen(), flush()
 */
 
-bool QFile::open( int m )
+bool QFile::open(int m)
 {
-    if ( isOpen() ) {				// file already open
-	qWarning( "QFile::open: File already open" );
-	return FALSE;
+    if (isOpen()) {                                // file already open
+        qWarning("QFile::open: File already open");
+        return false;
     }
-    if ( fn.isEmpty() ) {			// no file name defined
-	qWarning( "QFile::open: No file name specified" );
-	return FALSE;
+    if (fn.isEmpty()) {                        // no file name defined
+        qWarning("QFile::open: No file name specified");
+        return false;
     }
-    init();					// reset params
-    setMode( m );
-    if ( !(isReadable() || isWritable()) ) {
-	qWarning( "QFile::open: File access not specified" );
-	return FALSE;
+    init();                                        // reset params
+    setMode(m);
+    if (!(isReadable() || isWritable())) {
+        qWarning("QFile::open: File access not specified");
+        return false;
     }
-    bool ok = TRUE;
+    bool ok = true;
     struct stat st;
-    if ( isRaw() ) {
-	int oflags = O_RDONLY;
-	if ( isReadable() && isWritable() )
-	    oflags = O_RDWR;
-	else if ( isWritable() )
-	    oflags = O_WRONLY;
-	if ( flags() & IO_Append ) {		// append to end of file?
-	    if ( flags() & IO_Truncate )
-		oflags |= (O_CREAT | O_TRUNC);
-	    else
-		oflags |= (O_APPEND | O_CREAT);
-	    setFlags( flags() | IO_WriteOnly ); // append implies write
-	} else if ( isWritable() ) {		// create/trunc if writable
-	    if ( flags() & IO_Truncate )
-		oflags |= (O_CREAT | O_TRUNC);
-	    else
-		oflags |= O_CREAT;
-	}
+    if (isRaw()) {
+        int oflags = O_RDONLY;
+        if (isReadable() && isWritable())
+            oflags = O_RDWR;
+        else if (isWritable())
+            oflags = O_WRONLY;
+        if (flags() & IO_Append) {                // append to end of file?
+            if (flags() & IO_Truncate)
+                oflags |= (O_CREAT | O_TRUNC);
+            else
+                oflags |= (O_APPEND | O_CREAT);
+            setFlags(flags() | IO_WriteOnly); // append implies write
+        } else if (isWritable()) {                // create/trunc if writable
+            if (flags() & IO_Truncate)
+                oflags |= (O_CREAT | O_TRUNC);
+            else
+                oflags |= O_CREAT;
+        }
 #if defined(HAS_TEXT_FILEMODE)
-	if ( isTranslated() )
-	    oflags |= OPEN_TEXT;
-	else
-	    oflags |= OPEN_BINARY;
+        if (isTranslated())
+            oflags |= OPEN_TEXT;
+        else
+            oflags |= OPEN_BINARY;
 #endif
 #if defined(HAS_ASYNC_FILEMODE)
-	if ( isAsynchronous() )
-	    oflags |= OPEN_ASYNC;
+        if (isAsynchronous())
+            oflags |= OPEN_ASYNC;
 #endif
-	fd = qt_open( QFile::encodeName(fn), oflags, 0666 );
+        fd = qt_open(QFile::encodeName(fn), oflags, 0666);
 
-	if ( fd != -1 ) {			// open successful
-	    ::fstat( fd, &st );			// get the stat for later usage
-	} else {
-	    ok = FALSE;
-	}
-    } else {					// buffered file I/O
-	const char *perm = 0;
-	char perm2[4];
-	bool try_create = FALSE;
-	if ( flags() & IO_Append ) {		// append to end of file?
-	    setFlags( flags() | IO_WriteOnly ); // append implies write
-	    perm = isReadable() ? "a+" : "a";
-	} else {
-	    if ( isReadWrite() ) {
-		if ( flags() & IO_Truncate ) {
-		    perm = "w+";
-		} else {
-		    perm = "r+";
-		    try_create = TRUE;		// try to create if not exists
-		}
-	    } else if ( isReadable() ) {
-		perm = "r";
-	    } else if ( isWritable() ) {
-		perm = "w";
-	    }
-	}
-	qstrcpy( perm2, perm );
+        if (fd != -1) {                        // open successful
+            ::fstat(fd, &st);                        // get the stat for later usage
+        } else {
+            ok = false;
+        }
+    } else {                                        // buffered file I/O
+        const char *perm = 0;
+        char perm2[4];
+        bool try_create = false;
+        if (flags() & IO_Append) {                // append to end of file?
+            setFlags(flags() | IO_WriteOnly); // append implies write
+            perm = isReadable() ? "a+" : "a";
+        } else {
+            if (isReadWrite()) {
+                if (flags() & IO_Truncate) {
+                    perm = "w+";
+                } else {
+                    perm = "r+";
+                    try_create = true;                // try to create if not exists
+                }
+            } else if (isReadable()) {
+                perm = "r";
+            } else if (isWritable()) {
+                perm = "w";
+            }
+        }
+        qstrcpy(perm2, perm);
 #if defined(HAS_TEXT_FILEMODE)
-	if ( isTranslated() )
-	    strcat( perm2, "t" );
-	else
-	    strcat( perm2, "b" );
+        if (isTranslated())
+            strcat(perm2, "t");
+        else
+            strcat(perm2, "b");
 #endif
-	for (;;) { // At most twice
+        for (;;) { // At most twice
 
-	    fh = fopen( QFile::encodeName(fn), perm2 );
+            fh = fopen(QFile::encodeName(fn), perm2);
 
-	    if ( !fh && try_create ) {
-		perm2[0] = 'w';			// try "w+" instead of "r+"
-		try_create = FALSE;
-	    } else {
-		break;
-	    }
-	}
-	if ( fh ) {
-	    ::fstat( fileno(fh), &st );		// get the stat for later usage
-	} else {
-	    ok = FALSE;
-	}
+            if (!fh && try_create) {
+                perm2[0] = 'w';                        // try "w+" instead of "r+"
+                try_create = false;
+            } else {
+                break;
+            }
+        }
+        if (fh) {
+            ::fstat(fileno(fh), &st);                // get the stat for later usage
+        } else {
+            ok = false;
+        }
     }
-    if ( ok ) {
-	setState( IO_Open );
-	// on successful open the file stat was got; now test what type
-	// of file we have
-	if ( (st.st_mode & S_IFMT) != S_IFREG ) {
-	    // non-seekable
-	    setType( IO_Sequential );
-	    length = LLONG_MAX;
-	    ioIndex = 0;
-	} else {
-	    length = st.st_size;
-	    ioIndex = (flags() & IO_Append) == 0 ? Offset(0) : length;
-	    if ( !(flags()&IO_Truncate) && length == 0 && isReadable() ) {
-		// try if you can read from it (if you can, it's a sequential
-		// device; e.g. a file in the /proc filesystem)
-		int c = getch();
-		if ( c != -1 ) {
-		    ungetch(c);
-		    setType( IO_Sequential );
-		    length = LLONG_MAX;
-		    ioIndex = 0;
-		}
-		resetStatus();
-	    }
-	}
+    if (ok) {
+        setState(IO_Open);
+        // on successful open the file stat was got; now test what type
+        // of file we have
+        if ((st.st_mode & S_IFMT) != S_IFREG) {
+            // non-seekable
+            setType(IO_Sequential);
+            length = LLONG_MAX;
+            ioIndex = 0;
+        } else {
+            length = st.st_size;
+            ioIndex = (flags() & IO_Append) == 0 ? Offset(0) : length;
+            if (!(flags()&IO_Truncate) && length == 0 && isReadable()) {
+                // try if you can read from it (if you can, it's a sequential
+                // device; e.g. a file in the /proc filesystem)
+                int c = getch();
+                if (c != -1) {
+                    ungetch(c);
+                    setType(IO_Sequential);
+                    length = LLONG_MAX;
+                    ioIndex = 0;
+                }
+                resetStatus();
+            }
+        }
     } else {
-	init();
-	if ( errno == EMFILE )			// no more file handles/descrs
-	    setStatus( IO_ResourceError );
-	else
-	    setStatus( IO_OpenError );
-	setErrorStringErrno( errno );
+        init();
+        if (errno == EMFILE)                        // no more file handles/descrs
+            setStatus(IO_ResourceError);
+        else
+            setStatus(IO_OpenError);
+        setErrorStringErrno(errno);
     }
     return ok;
 }
@@ -278,18 +278,18 @@ bool QFile::open( int m )
 /*!
     \overload
   Opens a file in the mode \a m using an existing file handle \a f.
-  Returns TRUE if successful, otherwise FALSE.
+  Returns true if successful, otherwise false.
 
   Example:
   \code
     #include <stdio.h>
 
-    void printError( const char* msg )
+    void printError(const char* msg)
     {
-	QFile f;
-	f.open( IO_WriteOnly, stderr );
-	f.writeBlock( msg, qstrlen(msg) );	// write to stderr
-	f.close();
+        QFile f;
+        f.open(IO_WriteOnly, stderr);
+        f.writeBlock(msg, qstrlen(msg));        // write to stderr
+        f.close();
     }
   \endcode
 
@@ -303,51 +303,51 @@ bool QFile::open( int m )
   \sa close()
 */
 
-bool QFile::open( int m, FILE *f )
+bool QFile::open(int m, FILE *f)
 {
-    if ( isOpen() ) {
-	qWarning( "QFile::open: File already open" );
-	return FALSE;
+    if (isOpen()) {
+        qWarning("QFile::open: File already open");
+        return false;
     }
     init();
-    setMode( m &~IO_Raw );
-    setState( IO_Open );
+    setMode(m &~IO_Raw);
+    setState(IO_Open);
     fh = f;
-    ext_f = TRUE;
+    ext_f = true;
     struct stat st;
-    ::fstat( fileno(fh), &st );
+    ::fstat(fileno(fh), &st);
 #if defined(QT_LARGEFILE_SUPPORT)
-    ioIndex = ftello( fh );
+    ioIndex = ftello(fh);
 #else
-    ioIndex = ftell( fh );
+    ioIndex = ftell(fh);
 #endif
-    if ( (st.st_mode & S_IFMT) != S_IFREG || f == stdin ) { //stdin is non seekable
-	// non-seekable
-	setType( IO_Sequential );
-	length = LLONG_MAX;
-	ioIndex = 0;
+    if ((st.st_mode & S_IFMT) != S_IFREG || f == stdin) { //stdin is non seekable
+        // non-seekable
+        setType(IO_Sequential);
+        length = LLONG_MAX;
+        ioIndex = 0;
     } else {
-	length = st.st_size;
-	if ( !(flags()&IO_Truncate) && length == 0 && isReadable() ) {
-	    // try if you can read from it (if you can, it's a sequential
-	    // device; e.g. a file in the /proc filesystem)
-	    int c = getch();
-	    if ( c != -1 ) {
-		ungetch(c);
-		setType( IO_Sequential );
-		length = LLONG_MAX;
-		ioIndex = 0;
-	    }
-	    resetStatus();
-	}
+        length = st.st_size;
+        if (!(flags()&IO_Truncate) && length == 0 && isReadable()) {
+            // try if you can read from it (if you can, it's a sequential
+            // device; e.g. a file in the /proc filesystem)
+            int c = getch();
+            if (c != -1) {
+                ungetch(c);
+                setType(IO_Sequential);
+                length = LLONG_MAX;
+                ioIndex = 0;
+            }
+            resetStatus();
+        }
     }
-    return TRUE;
+    return true;
 }
 
 /*!
     \overload
   Opens a file in the mode \a m using an existing file descriptor \a f.
-  Returns TRUE if successful, otherwise FALSE.
+  Returns true if successful, otherwise false.
 
   When a QFile is opened using this function, close() does not actually
   close the file.
@@ -364,41 +364,41 @@ bool QFile::open( int m, FILE *f )
 */
 
 
-bool QFile::open( int m, int f )
+bool QFile::open(int m, int f)
 {
-    if ( isOpen() ) {
-	qWarning( "QFile::open: File already open" );
-	return FALSE;
+    if (isOpen()) {
+        qWarning("QFile::open: File already open");
+        return false;
     }
     init();
-    setMode( m |IO_Raw );
-    setState( IO_Open );
+    setMode(m |IO_Raw);
+    setState(IO_Open);
     fd = f;
-    ext_f = TRUE;
+    ext_f = true;
     struct stat st;
-    ::fstat( fd, &st );
+    ::fstat(fd, &st);
     ioIndex = ::lseek(fd, 0, SEEK_CUR);
-    if ( (st.st_mode & S_IFMT) != S_IFREG || f == 0 ) { // stdin is not seekable...
-	// non-seekable
-	setType( IO_Sequential );
-	length = LLONG_MAX;
-	ioIndex = 0;
+    if ((st.st_mode & S_IFMT) != S_IFREG || f == 0) { // stdin is not seekable...
+        // non-seekable
+        setType(IO_Sequential);
+        length = LLONG_MAX;
+        ioIndex = 0;
     } else {
-	length = st.st_size;
-	if ( length == 0 && isReadable() ) {
-	    // try if you can read from it (if you can, it's a sequential
-	    // device; e.g. a file in the /proc filesystem)
-	    int c = getch();
-	    if ( c != -1 ) {
-		ungetch(c);
-		setType( IO_Sequential );
-		length = LLONG_MAX;
-		ioIndex = 0;
-	    }
-	    resetStatus();
-	}
+        length = st.st_size;
+        if (length == 0 && isReadable()) {
+            // try if you can read from it (if you can, it's a sequential
+            // device; e.g. a file in the /proc filesystem)
+            int c = getch();
+            if (c != -1) {
+                ungetch(c);
+                setType(IO_Sequential);
+                length = LLONG_MAX;
+                ioIndex = 0;
+            }
+            resetStatus();
+        }
     }
-    return TRUE;
+    return true;
 }
 
 /*!
@@ -410,13 +410,13 @@ QIODevice::Offset QFile::size() const
 {
     struct stat st;
     int ret = 0;
-    if ( isOpen() ) {
-	ret = ::fstat( fh ? fileno(fh) : fd, &st );
+    if (isOpen()) {
+        ret = ::fstat(fh ? fileno(fh) : fd, &st);
     } else {
-	ret = ::stat( QFile::encodeName(fn), &st );
+        ret = ::stat(QFile::encodeName(fn), &st);
     }
-    if ( ret == -1 )
-	return 0;
+    if (ret == -1)
+        return 0;
     return st.st_size;
 }
 
@@ -424,16 +424,16 @@ QIODevice::Offset QFile::size() const
 /*!
     \overload
 
-    Sets the file index to \a pos. Returns TRUE if successful;
-    otherwise returns FALSE.
+    Sets the file index to \a pos. Returns true if successful;
+    otherwise returns false.
 
     Example:
     \code
-    QFile f( "data.bin" );
-    f.open( IO_ReadOnly );  // index set to 0
-    f.at( 100 );	    // set index to 100
-    f.at( f.at()+50 );	    // set index to 150
-    f.at( f.size()-80 );    // set index to 80 before EOF
+    QFile f("data.bin");
+    f.open(IO_ReadOnly);  // index set to 0
+    f.at(100);            // set index to 100
+    f.at(f.at()+50);            // set index to 150
+    f.at(f.size()-80);    // set index to 80 before EOF
     f.close();
     \endcode
 
@@ -445,30 +445,30 @@ QIODevice::Offset QFile::size() const
     \sa size(), open()
 */
 
-bool QFile::at( Offset pos )
+bool QFile::at(Offset pos)
 {
-    if ( !isOpen() ) {
-	qWarning( "QFile::at: File is not open" );
-	return FALSE;
+    if (!isOpen()) {
+        qWarning("QFile::at: File is not open");
+        return false;
     }
-    if ( isSequentialAccess() )
-	return FALSE;
+    if (isSequentialAccess())
+        return false;
     bool ok;
-    if ( isRaw() ) {
-	off_t l = ::lseek( fd, pos, SEEK_SET );
-	ok = ( l != -1 );
-	pos = l;
-    } else {					// buffered file
+    if (isRaw()) {
+        off_t l = ::lseek(fd, pos, SEEK_SET);
+        ok = (l != -1);
+        pos = l;
+    } else {                                        // buffered file
 #if defined(QT_LARGEFILE_SUPPORT)
-	ok = ( ::fseeko(fh, pos, SEEK_SET) == 0 );
+        ok = (::fseeko(fh, pos, SEEK_SET) == 0);
 #else
-	ok = ( ::fseek(fh, pos, SEEK_SET) == 0 );
+        ok = (::fseek(fh, pos, SEEK_SET) == 0);
 #endif
     }
-    if ( ok )
-	ioIndex = (Offset)pos;
+    if (ok)
+        ioIndex = (Offset)pos;
     else
-	qWarning( "QFile::at: Cannot set file position %lld", pos );
+        qWarning("QFile::at: Cannot set file position %lld", pos);
     return ok;
 }
 
@@ -482,53 +482,53 @@ bool QFile::at( Offset pos )
   readBlock() solved this problem.
 */
 
-Q_LONG QFile::readBlock( char *p, Q_ULONG len )
+Q_LONG QFile::readBlock(char *p, Q_ULONG len)
 {
-    if ( !len ) // nothing to do
-	return 0;
+    if (!len) // nothing to do
+        return 0;
 
-    if ( !p )
-	qWarning( "QFile::readBlock: Null pointer error" );
-    if ( !isOpen() ) {
-	qWarning( "QFile::readBlock: File not open" );
-	return -1;
+    if (!p)
+        qWarning("QFile::readBlock: Null pointer error");
+    if (!isOpen()) {
+        qWarning("QFile::readBlock: File not open");
+        return -1;
     }
-    if ( !isReadable() ) {
-	qWarning( "QFile::readBlock: Read operation not permitted" );
-	return -1;
+    if (!isReadable()) {
+        qWarning("QFile::readBlock: Read operation not permitted");
+        return -1;
     }
-    Q_ULONG nread = 0;					// number of bytes read
-    if ( !ungetchBuffer.isEmpty() ) {
-	// need to add these to the returned string.
-	uint l = ungetchBuffer.length();
-	while( nread < l ) {
-	    *p = ungetchBuffer.at( l - nread - 1 );
-	    p++;
-	    nread++;
-	}
-	ungetchBuffer.resize( l - nread );
+    Q_ULONG nread = 0;                                        // number of bytes read
+    if (!ungetchBuffer.isEmpty()) {
+        // need to add these to the returned string.
+        uint l = ungetchBuffer.length();
+        while(nread < l) {
+            *p = ungetchBuffer.at(l - nread - 1);
+            p++;
+            nread++;
+        }
+        ungetchBuffer.resize(l - nread);
     }
 
-    if ( nread < len ) {
-	if ( isRaw() ) {				// raw file
-	    nread += ::read( fd, p, len-nread );
-	    if ( len && nread <= 0 ) {
-		nread = 0;
-		setStatus(IO_ReadError);
-		setErrorStringErrno( errno );
-	    }
-	} else {					// buffered file
-	    nread += fread( p, 1, len-nread, fh );
-	    if ( (uint)nread != len ) {
-		if ( ferror( fh ) || nread==0 ) {
-		    setStatus(IO_ReadError);
-		    setErrorString( qt_fileerr_read );
-		}
-	    }
-	}
+    if (nread < len) {
+        if (isRaw()) {                                // raw file
+            nread += ::read(fd, p, len-nread);
+            if (len && nread <= 0) {
+                nread = 0;
+                setStatus(IO_ReadError);
+                setErrorStringErrno(errno);
+            }
+        } else {                                        // buffered file
+            nread += fread(p, 1, len-nread, fh);
+            if ((uint)nread != len) {
+                if (ferror(fh) || nread==0) {
+                    setStatus(IO_ReadError);
+                    setErrorString(qt_fileerr_read);
+                }
+            }
+        }
     }
-    if ( !isSequentialAccess() )
-	ioIndex += nread;
+    if (!isSequentialAccess())
+        ioIndex += nread;
     return nread;
 }
 
@@ -547,49 +547,49 @@ Q_LONG QFile::readBlock( char *p, Q_ULONG len )
   \sa readBlock()
 */
 
-Q_LONG QFile::writeBlock( const char *p, Q_ULONG len )
+Q_LONG QFile::writeBlock(const char *p, Q_ULONG len)
 {
-    if ( !len ) // nothing to do
-	return 0;
+    if (!len) // nothing to do
+        return 0;
 
-    if ( p == 0 && len != 0 )
-	qWarning( "QFile::writeBlock: Null pointer error" );
-    if ( !isOpen() ) {				// file not open
-	qWarning( "QFile::writeBlock: File not open" );
-	return -1;
+    if (p == 0 && len != 0)
+        qWarning("QFile::writeBlock: Null pointer error");
+    if (!isOpen()) {                                // file not open
+        qWarning("QFile::writeBlock: File not open");
+        return -1;
     }
-    if ( !isWritable() ) {			// writing not permitted
-	qWarning( "QFile::writeBlock: Write operation not permitted" );
-	return -1;
+    if (!isWritable()) {                        // writing not permitted
+        qWarning("QFile::writeBlock: Write operation not permitted");
+        return -1;
     }
-    Q_ULONG nwritten;				// number of bytes written
-    if ( isRaw() )				// raw file
-	nwritten = ::write( fd, (void *)p, len );
-    else					// buffered file
-	nwritten = fwrite( p, 1, len, fh );
-    if ( nwritten != len ) {		// write error
-	if ( errno == ENOSPC )			// disk is full
-	    setStatus( IO_ResourceError );
-	else
-	    setStatus( IO_WriteError );
-	setErrorStringErrno( errno );
-	if ( !isSequentialAccess() ) {
-	    if ( isRaw() )			// recalc file position
-		ioIndex = ::lseek( fd, 0, SEEK_CUR );
-	    else {
+    Q_ULONG nwritten;                                // number of bytes written
+    if (isRaw())                                // raw file
+        nwritten = ::write(fd, (void *)p, len);
+    else                                        // buffered file
+        nwritten = fwrite(p, 1, len, fh);
+    if (nwritten != len) {                // write error
+        if (errno == ENOSPC)                        // disk is full
+            setStatus(IO_ResourceError);
+        else
+            setStatus(IO_WriteError);
+        setErrorStringErrno(errno);
+        if (!isSequentialAccess()) {
+            if (isRaw())                        // recalc file position
+                ioIndex = ::lseek(fd, 0, SEEK_CUR);
+            else {
 #if defined(QT_LARGEFILE_SUPPORT)
-		ioIndex = ::fseeko( fh, 0, SEEK_CUR );
+                ioIndex = ::fseeko(fh, 0, SEEK_CUR);
 #else
-		ioIndex = ::fseek( fh, 0, SEEK_CUR );
+                ioIndex = ::fseek(fh, 0, SEEK_CUR);
 #endif
-	    }
-	}
+            }
+        }
     } else {
-	if ( !isSequentialAccess() )
-	    ioIndex += nwritten;
+        if (!isSequentialAccess())
+            ioIndex += nwritten;
     }
-    if ( ioIndex > length )			// update file length
-	length = ioIndex;
+    if (ioIndex > length)                        // update file length
+        length = ioIndex;
     return nwritten;
 }
 
@@ -608,12 +608,12 @@ Q_LONG QFile::writeBlock( const char *p, Q_ULONG len )
 
 int QFile::handle() const
 {
-    if ( !isOpen() )
-	return -1;
-    else if ( fh )
-	return fileno( fh );
+    if (!isOpen())
+        return -1;
+    else if (fh)
+        return fileno(fh);
     else
-	return fd;
+        return fd;
 }
 
 /*!
@@ -635,23 +635,23 @@ int QFile::handle() const
 
 void QFile::close()
 {
-    bool ok = FALSE;
-    if ( isOpen() ) {				// file is not open
-	if ( fh ) {				// buffered file
-	    if ( ext_f )
-		ok = fflush( fh ) != -1;	// flush instead of closing
-	    else
-		ok = fclose( fh ) != -1;
-	} else {				// raw file
-	    if ( ext_f )
-		ok = TRUE;			// cannot close
-	    else
-		ok = ::close( fd ) != -1;
-	}
-	init();					// restore internal state
+    bool ok = false;
+    if (isOpen()) {                                // file is not open
+        if (fh) {                                // buffered file
+            if (ext_f)
+                ok = fflush(fh) != -1;        // flush instead of closing
+            else
+                ok = fclose(fh) != -1;
+        } else {                                // raw file
+            if (ext_f)
+                ok = true;                        // cannot close
+            else
+                ok = ::close(fd) != -1;
+        }
+        init();                                        // restore internal state
     }
     if (!ok) {
-	setStatus( IO_UnspecifiedError );
-	setErrorStringErrno( errno );
+        setStatus(IO_UnspecifiedError);
+        setErrorStringErrno(errno);
     }
 }

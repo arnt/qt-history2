@@ -7,7 +7,7 @@ public:
     CDEStyle();
 
     QStringList keys() const;
-    QStyle *create( const QString& );
+    QStyle *create(const QString&);
 };
 
 CDEStyle::CDEStyle()
@@ -22,12 +22,12 @@ QStringList CDEStyle::keys() const
     return list;
 }
 
-QStyle* CDEStyle::create( const QString& s )
+QStyle* CDEStyle::create(const QString& s)
 {
-    if ( s.toLower() == "cde" )
-	return new QCDEStyle();
+    if (s.toLower() == "cde")
+        return new QCDEStyle();
 
     return 0;
 }
 
-Q_EXPORT_PLUGIN( CDEStyle )
+Q_EXPORT_PLUGIN(CDEStyle)

@@ -77,15 +77,15 @@ public:
 #ifdef Q_WS_QWS
 #ifndef QT_NO_QWS_IM
 
-    static void translateIMEvent( QWSIMEvent *, QWidget * );
-    static void reset( QWidget *focusW = 0 );
+    static void translateIMEvent(QWSIMEvent *, QWidget *);
+    static void reset(QWidget *focusW = 0);
 
     static void setMicroFocusWidget(QWidget *);
     static QWidget *microFocusWidget() {return activeWidget;}
-    static void notifyWidgetDeletion( QWidget * );
-    
-private:    
-    static void retrieveMarkedText( QWidget * );
+    static void notifyWidgetDeletion(QWidget *);
+
+private:
+    static void retrieveMarkedText(QWidget *);
     static void cleanup();
     static QWidget* activeWidget;
     static QString* composition;
@@ -97,17 +97,17 @@ private:
     static void init();
     static void shutdown();
 
-    static void TranslateMessage( const MSG *msg);
-    static LRESULT DefWindowProc( HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam );
+    static void TranslateMessage(const MSG *msg);
+    static LRESULT DefWindowProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 
-    static void setFont( const QWidget *w, const QFont & );
-    static void setFocusHint( int x, int y, int w, int h, const QWidget *widget );
+    static void setFont(const QWidget *w, const QFont &);
+    static void setFocusHint(int x, int y, int w, int h, const QWidget *widget);
     static bool startComposition();
-    static bool endComposition( QWidget *fw = 0 );
-    static bool composition( LPARAM lparam );
+    static bool endComposition(QWidget *fw = 0);
+    static bool composition(LPARAM lparam);
 
-    static void accept( QWidget *fw = 0 );
-    static void enable( QWidget *w, bool b );
+    static void accept(QWidget *fw = 0);
+    static void enable(QWidget *w, bool b);
 #endif
 };
 

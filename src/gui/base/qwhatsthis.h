@@ -31,12 +31,12 @@ public:
     static bool inWhatsThisMode();
     static void leaveWhatsThisMode();
 
-    static void showText( const QPoint &pos, const QString& text, QWidget* w = 0 );
+    static void showText(const QPoint &pos, const QString& text, QWidget* w = 0);
     static void hideText();
 
-    static void add( QWidget *w, const QString &s); // obsolete
-    static void remove( QWidget * ); // obsolete
-    static QToolButton * whatsThisButton( QWidget * parent ); // obsolete, we really want to have a QWhatsThisAction.
+    static void add(QWidget *w, const QString &s); // obsolete
+    static void remove(QWidget *); // obsolete
+    static QToolButton * whatsThisButton(QWidget * parent); // obsolete, we really want to have a QWhatsThisAction.
 };
 
 #endif // QT_NO_WHATSTHIS

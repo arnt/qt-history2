@@ -16,9 +16,9 @@ public:
     JPEGFormat();
 
     QStringList keys() const;
-    bool loadImage( const QString &format, const QString &filename, QImage * );
-    bool saveImage( const QString &format, const QString &filename, const QImage & );
-    bool installIOHandler( const QString & );
+    bool loadImage(const QString &format, const QString &filename, QImage *);
+    bool saveImage(const QString &format, const QString &filename, const QImage &);
+    bool installIOHandler(const QString &);
 };
 
 JPEGFormat::JPEGFormat()
@@ -34,43 +34,43 @@ QStringList JPEGFormat::keys() const
     return list;
 }
 
-bool JPEGFormat::loadImage( const QString &format, const QString &filename, QImage *image )
+bool JPEGFormat::loadImage(const QString &format, const QString &filename, QImage *image)
 {
-    if ( format != "JPEG" )
-	return FALSE;
+    if (format != "JPEG")
+        return false;
 
     QImageIO io;
-    io.setFileName( filename );
-    io.setImage( *image );
+    io.setFileName(filename);
+    io.setImage(*image);
 
-    read_jpeg_image( &io );
+    read_jpeg_image(&io);
 
-    return TRUE;
+    return true;
 }
 
-bool JPEGFormat::saveImage( const QString &format, const QString &filename, const QImage &image )
+bool JPEGFormat::saveImage(const QString &format, const QString &filename, const QImage &image)
 {
-    if ( format != "JPEG" )
-	return FALSE;
+    if (format != "JPEG")
+        return false;
 
     QImageIO io;
-    io.setFileName( filename );
-    io.setImage( image );
+    io.setFileName(filename);
+    io.setImage(image);
 
-    write_jpeg_image( &io );
+    write_jpeg_image(&io);
 
-    return TRUE;
+    return true;
 }
 
-bool JPEGFormat::installIOHandler( const QString &name )
+bool JPEGFormat::installIOHandler(const QString &name)
 {
-    if ( name.toUpper() != "JPEG" )
-	return FALSE;
+    if (name.toUpper() != "JPEG")
+        return false;
 
     qInitJpegIO();
-    return TRUE;
+    return true;
 }
 
-Q_EXPORT_PLUGIN( JPEGFormat )
+Q_EXPORT_PLUGIN(JPEGFormat)
 
 #endif // QT_NO_IMAGEFORMATPLUGIN

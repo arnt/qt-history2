@@ -18,23 +18,23 @@ extern "C" {
 
     int q_atomic_test_and_set_int(volatile int *pointer, int expected, int newval)
     {
-	__asm {
-	    mov EBX,pointer
-		mov EAX,expected
-		mov ECX,newval
-		lock cmpxchg dword ptr[EBX],ECX
-		mov EAX,0
-		sete AL
-		mov newval,EAX
-		}
-	return newval;
+        __asm {
+            mov EBX,pointer
+                mov EAX,expected
+                mov ECX,newval
+                lock cmpxchg dword ptr[EBX],ECX
+                mov EAX,0
+                sete AL
+                mov newval,EAX
+                }
+        return newval;
     }
 
     int q_atomic_test_and_set_ptr(void * volatile *pointer, void *expected, void *newval)
     {
-	return q_atomic_test_and_set_int(reinterpret_cast<volatile int *>(pointer),
-					 reinterpret_cast<int>(expected),
-					 reinterpret_cast<int>(newval));
+        return q_atomic_test_and_set_int(reinterpret_cast<volatile int *>(pointer),
+                                         reinterpret_cast<int>(expected),
+                                         reinterpret_cast<int>(newval));
     }
 
 } // extern "C"

@@ -92,7 +92,7 @@
 class QTextBrowserData
 {
 public:
-    QTextBrowserData():textOrSourceChanged(FALSE) {}
+    QTextBrowserData():textOrSourceChanged(false) {}
 
     QStack<QString> stack;
     QStack<QString> forwardStack;
@@ -112,12 +112,12 @@ public:
     parent.
 */
 QTextBrowser::QTextBrowser(QWidget *parent, const char *name)
-    : QTextEdit( parent, name )
+    : QTextEdit(parent, name)
 {
-    setReadOnly( TRUE );
+    setReadOnly(true);
     d = new QTextBrowserData;
 
-    viewport()->setMouseTracking( TRUE );
+    viewport()->setMouseTracking(true);
 }
 
 /*!
@@ -156,10 +156,10 @@ QTextBrowser::~QTextBrowser()
 
 QString QTextBrowser::source() const
 {
-    if ( d->stack.isEmpty() )
-	return QString::null;
+    if (d->stack.isEmpty())
+        return QString::null;
     else
-	return d->stack.top();
+        return d->stack.top();
 }
 
 /*!
@@ -197,113 +197,113 @@ void QTextBrowser::reload()
 {
     QString s = d->curmain;
     d->curmain = "";
-    setSource( s );
+    setSource(s);
 }
 
 
 void QTextBrowser::setSource(const QString& name)
 {
 #ifndef QT_NO_CURSOR
-    if ( isVisible() )
-	qApp->setOverrideCursor( WaitCursor );
+    if (isVisible())
+        qApp->setOverrideCursor(WaitCursor);
 #endif
-    d->textOrSourceChanged = TRUE;
+    d->textOrSourceChanged = true;
     QString source = name;
     QString mark;
     int hash = name.indexOf('#');
-    if ( hash != -1) {
-	source = name.left( hash );
-	mark = name.mid( hash+1 );
+    if (hash != -1) {
+        source = name.left(hash);
+        mark = name.mid(hash+1);
     }
 
-    if ( source.left(5) == "file:" )
-	source = source.mid(6);
+    if (source.left(5) == "file:")
+        source = source.mid(6);
 
-    QString url = mimeSourceFactory()->makeAbsolute( source, context() );
+    QString url = mimeSourceFactory()->makeAbsolute(source, context());
     QString txt;
-    bool dosettext = FALSE;
+    bool dosettext = false;
 
-    if ( !source.isEmpty() && url != d->curmain ) {
-	const QMimeSource* m =
-		    mimeSourceFactory()->data( source, context() );
-	if ( !m ){
-	    qWarning("QTextBrowser: no mimesource for %s", source.latin1() );
-	}
-	else {
-	    if ( !QTextDrag::decode( m, txt ) ) {
-		qWarning("QTextBrowser: cannot decode %s", source.latin1() );
-	    }
-	}
-	if ( isVisible() ) {
-	    QString firstTag = txt.left( txt.indexOf( '>' ) + 1 );
-	    if ( firstTag.left( 3 ) == "<qt" && firstTag.contains( "type" ) && firstTag.contains( "detail" ) ) {
-		popupDetail( txt, QCursor::pos() );
+    if (!source.isEmpty() && url != d->curmain) {
+        const QMimeSource* m =
+                    mimeSourceFactory()->data(source, context());
+        if (!m){
+            qWarning("QTextBrowser: no mimesource for %s", source.latin1());
+        }
+        else {
+            if (!QTextDrag::decode(m, txt)) {
+                qWarning("QTextBrowser: cannot decode %s", source.latin1());
+            }
+        }
+        if (isVisible()) {
+            QString firstTag = txt.left(txt.indexOf('>') + 1);
+            if (firstTag.left(3) == "<qt" && firstTag.contains("type") && firstTag.contains("detail")) {
+                popupDetail(txt, QCursor::pos());
 #ifndef QT_NO_CURSOR
-		qApp->restoreOverrideCursor();
+                qApp->restoreOverrideCursor();
 #endif
-		return;
-	    }
-	}
+                return;
+            }
+        }
 
-	d->curmain = url;
-	dosettext = TRUE;
+        d->curmain = url;
+        dosettext = true;
     }
 
     d->curmark = mark;
 
-    if ( !mark.isEmpty() ) {
-	url += "#";
-	url += mark;
+    if (!mark.isEmpty()) {
+        url += "#";
+        url += mark;
     }
     if (d->home.count() == 0)
-	d->home = url;
+        d->home = url;
 
-    if ( d->stack.isEmpty() || d->stack.top() != url)
-	d->stack.push( url );
+    if (d->stack.isEmpty() || d->stack.top() != url)
+        d->stack.push(url);
 
     int stackCount = (int)d->stack.count();
-    if ( d->stack.top() == url )
-	stackCount--;
-    emit backwardAvailable( stackCount > 0 );
+    if (d->stack.top() == url)
+        stackCount--;
+    emit backwardAvailable(stackCount > 0);
     stackCount = (int)d->forwardStack.count();
-    if ( d->forwardStack.isEmpty() || d->forwardStack.top() == url )
-	stackCount--;
-    emit forwardAvailable( stackCount > 0 );
+    if (d->forwardStack.isEmpty() || d->forwardStack.top() == url)
+        stackCount--;
+    emit forwardAvailable(stackCount > 0);
 
-    if ( dosettext )
-	QTextEdit::setText( txt, url );
+    if (dosettext)
+        QTextEdit::setText(txt, url);
 
-    if ( !mark.isEmpty() )
-	scrollToAnchor( mark );
+    if (!mark.isEmpty())
+        scrollToAnchor(mark);
     else
-	setContentsPos( 0, 0 );
+        setContentsPos(0, 0);
 
 #ifndef QT_NO_CURSOR
-    if ( isVisible() )
-	qApp->restoreOverrideCursor();
+    if (isVisible())
+        qApp->restoreOverrideCursor();
 #endif
 
-    emit sourceChanged( url );
+    emit sourceChanged(url);
 }
 
 /*!
     \fn void QTextBrowser::backwardAvailable(bool available)
 
     This signal is emitted when the availability of backward()
-    changes. \a available is FALSE when the user is at home();
-    otherwise it is TRUE.
+    changes. \a available is false when the user is at home();
+    otherwise it is true.
 */
 
 /*!
     \fn void QTextBrowser::forwardAvailable(bool available)
 
     This signal is emitted when the availability of forward() changes.
-    \a available is TRUE after the user navigates backward() and FALSE
+    \a available is true after the user navigates backward() and false
     when the user navigates or goes forward().
 */
 
 /*!
-    \fn void QTextBrowser::sourceChanged( const QString& src)
+    \fn void QTextBrowser::sourceChanged(const QString& src)
 
     This signal is emitted when the mime source has changed, \a src
     being the new source.
@@ -321,7 +321,7 @@ void QTextBrowser::setSource(const QString& name)
 */
 
 /*!
-    \fn void QTextBrowser::linkClicked( const QString& link)
+    \fn void QTextBrowser::linkClicked(const QString& link)
 
     This signal is emitted when the user clicks a link. The \a link is
     the value of the \c href i.e. the name of the target document.
@@ -334,7 +334,7 @@ void QTextBrowser::setSource(const QString& name)
 */
 
 /*!
-    \fn void QTextBrowser::anchorClicked( const QString& name, const QString &link)
+    \fn void QTextBrowser::anchorClicked(const QString& name, const QString &link)
 
     This signal is emitted when the user clicks an anchor. The \a link is
     the value of the \c href i.e. the name of the target document.  The \a name
@@ -352,11 +352,11 @@ void QTextBrowser::setSource(const QString& name)
 */
 void QTextBrowser::backward()
 {
-    if ( d->stack.count() <= 1)
-	return;
-    d->forwardStack.push( d->stack.pop() );
-    setSource( d->stack.pop() );
-    emit forwardAvailable( TRUE );
+    if (d->stack.count() <= 1)
+        return;
+    d->forwardStack.push(d->stack.pop());
+    setSource(d->stack.pop());
+    emit forwardAvailable(true);
 }
 
 /*!
@@ -368,10 +368,10 @@ void QTextBrowser::backward()
 */
 void QTextBrowser::forward()
 {
-    if ( d->forwardStack.isEmpty() )
-	return;
-    setSource( d->forwardStack.pop() );
-    emit forwardAvailable( !d->forwardStack.isEmpty() );
+    if (d->forwardStack.isEmpty())
+        return;
+    setSource(d->forwardStack.pop());
+    emit forwardAvailable(!d->forwardStack.isEmpty());
 }
 
 /*!
@@ -380,33 +380,33 @@ void QTextBrowser::forward()
 */
 void QTextBrowser::home()
 {
-    if (!d->home.isNull() )
-	setSource( d->home );
+    if (!d->home.isNull())
+        setSource(d->home);
 }
 
 /*!
     The event \a e is used to provide the following keyboard shortcuts:
     \table
-    \header \i Keypress	    \i Action
+    \header \i Keypress            \i Action
     \row \i Alt+Left Arrow  \i \l backward()
     \row \i Alt+Right Arrow \i \l forward()
     \row \i Alt+Up Arrow    \i \l home()
     \endtable
 */
-void QTextBrowser::keyPressEvent( QKeyEvent * e )
+void QTextBrowser::keyPressEvent(QKeyEvent * e)
 {
-    if ( e->state() & AltButton ) {
-	switch (e->key()) {
-	case Key_Right:
-	    forward();
-	    return;
-	case Key_Left:
-	    backward();
-	    return;
-	case Key_Up:
-	    home();
-	    return;
-	}
+    if (e->state() & AltButton) {
+        switch (e->key()) {
+        case Key_Right:
+            forward();
+            return;
+        case Key_Left:
+            backward();
+            return;
+        case Key_Up:
+            home();
+            return;
+        }
     }
     QTextEdit::keyPressEvent(e);
 }
@@ -415,20 +415,20 @@ class QTextDetailPopup : public QWidget
 {
 public:
     QTextDetailPopup()
-	: QWidget ( 0, "automatic QText detail widget", WType_Popup | WDestructiveClose )
-	{
-	}
+        : QWidget (0, "automatic QText detail widget", WType_Popup | WDestructiveClose)
+        {
+        }
 
 protected:
 
-    void mousePressEvent( QMouseEvent*)
-	{
-	close();
-	}
+    void mousePressEvent(QMouseEvent*)
+        {
+        close();
+        }
 };
 
 
-void QTextBrowser::popupDetail( const QString& contents, const QPoint& pos )
+void QTextBrowser::popupDetail(const QString& contents, const QPoint& pos)
 {
 
     const int shadowWidth = 6;   // also used as '5' and '6' and even '8' below
@@ -438,28 +438,28 @@ void QTextBrowser::popupDetail( const QString& contents, const QPoint& pos )
     QWidget* popup = new QTextDetailPopup;
     setAttribute(WA_NoSystemBackground, true);
 
-    QSimpleRichText* doc = new QSimpleRichText( contents, popup->font() );
+    QSimpleRichText* doc = new QSimpleRichText(contents, popup->font());
     doc->adjustSize();
-    QRect r( 0, 0, doc->width(), doc->height() );
+    QRect r(0, 0, doc->width(), doc->height());
 
     int w = r.width() + 2*hMargin;
     int h = r.height() + 2*vMargin;
 
-    popup->resize( w + shadowWidth, h + shadowWidth );
+    popup->resize(w + shadowWidth, h + shadowWidth);
 
     // okay, now to find a suitable location
     //###### we need a global fancy popup positioning somewhere
     popup->move(pos - popup->rect().center());
     if (popup->geometry().right() > QApplication::desktop()->width())
-	popup->move( QApplication::desktop()->width() - popup->width(),
-		     popup->y() );
+        popup->move(QApplication::desktop()->width() - popup->width(),
+                     popup->y());
     if (popup->geometry().bottom() > QApplication::desktop()->height())
-	popup->move( popup->x(),
-		     QApplication::desktop()->height() - popup->height() );
-    if ( popup->x() < 0 )
-	popup->move( 0, popup->y() );
-    if ( popup->y() < 0 )
-	popup->move( popup->x(), 0 );
+        popup->move(popup->x(),
+                     QApplication::desktop()->height() - popup->height());
+    if (popup->x() < 0)
+        popup->move(0, popup->y());
+    if (popup->y() < 0)
+        popup->move(popup->x(), 0);
 
 
     popup->show();
@@ -467,36 +467,36 @@ void QTextBrowser::popupDetail( const QString& contents, const QPoint& pos )
     // now for super-clever shadow stuff.  super-clever mostly in
     // how many window system problems it skirts around.
 
-    QPainter p( popup );
-    p.setPen( QApplication::palette().color(QPalette::Active, QPalette::Foreground) );
-    p.drawRect( 0, 0, w, h );
-    p.setPen( QApplication::palette().color(QPalette::Active, QPalette::Mid) );
-    p.setBrush( QColor( 255, 255, 240 ) );
-    p.drawRect( 1, 1, w-2, h-2 );
-    p.setPen( black );
+    QPainter p(popup);
+    p.setPen(QApplication::palette().color(QPalette::Active, QPalette::Foreground));
+    p.drawRect(0, 0, w, h);
+    p.setPen(QApplication::palette().color(QPalette::Active, QPalette::Mid));
+    p.setBrush(QColor(255, 255, 240));
+    p.drawRect(1, 1, w-2, h-2);
+    p.setPen(black);
 
-    doc->draw( &p, hMargin, vMargin, r, popup->palette(), 0 );
+    doc->draw(&p, hMargin, vMargin, r, popup->palette(), 0);
     delete doc;
 
-    p.drawPoint( w + 5, 6 );
-    p.drawLine( w + 3, 6,
-		w + 5, 8 );
-    p.drawLine( w + 1, 6,
-		w + 5, 10 );
+    p.drawPoint(w + 5, 6);
+    p.drawLine(w + 3, 6,
+                w + 5, 8);
+    p.drawLine(w + 1, 6,
+                w + 5, 10);
     int i;
-    for( i=7; i < h; i += 2 )
-	p.drawLine( w, i,
-		    w + 5, i + 5 );
-    for( i = w - i + h; i > 6; i -= 2 )
-	p.drawLine( i, h,
-		    i + 5, h + 5 );
-    for( ; i > 0 ; i -= 2 )
-	p.drawLine( 6, h + 6 - i,
-		    i + 5, h + 5 );
+    for(i=7; i < h; i += 2)
+        p.drawLine(w, i,
+                    w + 5, i + 5);
+    for(i = w - i + h; i > 6; i -= 2)
+        p.drawLine(i, h,
+                    i + 5, h + 5);
+    for(; i > 0 ; i -= 2)
+        p.drawLine(6, h + 6 - i,
+                    i + 5, h + 5);
 }
 
 /*!
-    \fn void QTextBrowser::setText( const QString &txt )
+    \fn void QTextBrowser::setText(const QString &txt)
 
     \overload
 
@@ -507,25 +507,25 @@ void QTextBrowser::popupDetail( const QString& contents, const QPoint& pos )
     \reimp
 */
 
-void QTextBrowser::setText( const QString &txt, const QString &context )
+void QTextBrowser::setText(const QString &txt, const QString &context)
 {
-    d->textOrSourceChanged = TRUE;
+    d->textOrSourceChanged = true;
     d->curmark = "";
     d->curmain = "";
-    QTextEdit::setText( txt, context );
+    QTextEdit::setText(txt, context);
 }
 
-void QTextBrowser::emitHighlighted( const QString &s )
+void QTextBrowser::emitHighlighted(const QString &s)
 {
-    emit highlighted( s );
+    emit highlighted(s);
 }
 
-void QTextBrowser::emitLinkClicked( const QString &s )
+void QTextBrowser::emitLinkClicked(const QString &s)
 {
-    d->textOrSourceChanged = FALSE;
-    emit linkClicked( s );
-    if ( !d->textOrSourceChanged )
-	setSource( s );
+    d->textOrSourceChanged = false;
+    emit linkClicked(s);
+    if (!d->textOrSourceChanged)
+        setSource(s);
 }
 
 #endif  // QT_NO_TEXTBROWSER

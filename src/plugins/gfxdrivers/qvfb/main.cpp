@@ -7,7 +7,7 @@ public:
     GfxVfbDriver();
 
     QStringList keys() const;
-    QScreen *create( const QString&, int displayId );
+    QScreen *create(const QString&, int displayId);
 };
 
 GfxVfbDriver::GfxVfbDriver()
@@ -22,12 +22,12 @@ QStringList GfxVfbDriver::keys() const
     return list;
 }
 
-QScreen* GfxVfbDriver::create( const QString& driver, int displayId )
+QScreen* GfxVfbDriver::create(const QString& driver, int displayId)
 {
-    if ( driver.lower() == "qvfb" )
-        return new QVFbScreen( displayId );
+    if (driver.lower() == "qvfb")
+        return new QVFbScreen(displayId);
 
     return 0;
 }
 
-Q_EXPORT_PLUGIN( GfxVfbDriver )
+Q_EXPORT_PLUGIN(GfxVfbDriver)

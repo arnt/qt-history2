@@ -50,14 +50,14 @@ protected slots:
     virtual void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     virtual void contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     virtual void contentsRemoved(const QModelIndex &parent,
-				 const QModelIndex &topLeft, const QModelIndex &bottomRight);
+                                 const QModelIndex &topLeft, const QModelIndex &bottomRight);
     virtual void selectionChanged(const QItemSelection &deselected, const QItemSelection &selected);
     virtual void currentChanged(const QModelIndex &old, const QModelIndex &current);
     virtual void startItemsLayout();
     virtual bool doItemsLayout(int num);
     virtual void updateCurrentEditor();
     virtual void updateGeometries();
-    
+
     virtual void verticalScrollbarAction(int action);
     virtual void horizontalScrollbarAction(int action);
 
@@ -72,7 +72,7 @@ protected:
 
     inline QModelIndex itemAt(const QPoint &p) const { return itemAt(p.x(), p.y()); }
     virtual QModelIndex itemAt(int x, int y) const = 0;
-    
+
     virtual int horizontalOffset() const = 0;
     virtual int verticalOffset() const = 0;
 
@@ -91,8 +91,8 @@ protected:
 
     virtual QItemSelectionModel::SelectionBehavior selectionBehavior() const;
     virtual QItemSelectionModel::SelectionUpdateMode selectionUpdateMode(
-	ButtonState state, const QModelIndex &item = QModelIndex(),
-	QEvent::Type type = QEvent::None, Qt::Key key = Qt::Key_unknown) const;
+        ButtonState state, const QModelIndex &item = QModelIndex(),
+        QEvent::Type type = QEvent::None, Qt::Key key = Qt::Key_unknown) const;
 
     void clearArea(QPainter *painter, const QRect &rect) const;
 

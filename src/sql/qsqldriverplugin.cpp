@@ -51,7 +51,7 @@
 */
 
 /*!
-    \fn QSqlDriver* QSqlDriverPlugin::create( const QString& key )
+    \fn QSqlDriver* QSqlDriverPlugin::create(const QString& key)
 
     Creates and returns a QSqlDriver object for the driver key \a key.
     The driver key is usually the class name of the required driver.
@@ -62,17 +62,17 @@
 class QSqlDriverPluginPrivate : public QSqlDriverFactoryInterface
 {
 public:
-    QSqlDriverPluginPrivate( QSqlDriverPlugin *p )
-	: plugin( p )
+    QSqlDriverPluginPrivate(QSqlDriverPlugin *p)
+        : plugin(p)
     {
     }
     virtual ~QSqlDriverPluginPrivate();
 
-    QRESULT queryInterface( const QUuid &iid, QUnknownInterface **iface );
+    QRESULT queryInterface(const QUuid &iid, QUnknownInterface **iface);
     Q_REFCOUNT;
 
     QStringList featureList() const;
-    QSqlDriver *create( const QString &key );
+    QSqlDriver *create(const QString &key);
 
 private:
     QSqlDriverPlugin *plugin;
@@ -83,18 +83,18 @@ QSqlDriverPluginPrivate::~QSqlDriverPluginPrivate()
     delete plugin;
 }
 
-QRESULT QSqlDriverPluginPrivate::queryInterface( const QUuid &iid, QUnknownInterface **iface )
+QRESULT QSqlDriverPluginPrivate::queryInterface(const QUuid &iid, QUnknownInterface **iface)
 {
     *iface = 0;
 
-    if ( iid == IID_QUnknown )
-	*iface = this;
-    else if ( iid == IID_QFeatureList )
-	*iface = this;
-    else if ( iid == IID_QSqlDriverFactory )
-	*iface = this;
+    if (iid == IID_QUnknown)
+        *iface = this;
+    else if (iid == IID_QFeatureList)
+        *iface = this;
+    else if (iid == IID_QSqlDriverFactory)
+        *iface = this;
     else
-	return QE_NOINTERFACE;
+        return QE_NOINTERFACE;
 
     (*iface)->addRef();
     return QS_OK;
@@ -105,9 +105,9 @@ QStringList QSqlDriverPluginPrivate::featureList() const
     return plugin->keys();
 }
 
-QSqlDriver *QSqlDriverPluginPrivate::create( const QString &key )
+QSqlDriver *QSqlDriverPluginPrivate::create(const QString &key)
 {
-    return plugin->create( key );
+    return plugin->create(key);
 }
 
 /*!
@@ -116,7 +116,7 @@ QSqlDriver *QSqlDriverPluginPrivate::create( const QString &key )
 */
 
 QSqlDriverPlugin::QSqlDriverPlugin()
-    : QGPlugin( d = new QSqlDriverPluginPrivate( this ) )
+    : QGPlugin(d = new QSqlDriverPluginPrivate(this))
 {
 }
 

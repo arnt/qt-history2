@@ -25,11 +25,11 @@ class Q_GUI_EXPORT QGrid : public QFrame
 {
     Q_OBJECT
 public:
-    QGrid( int n, QWidget* parent=0, const char* name=0, WFlags f = 0 );
-    QGrid( int n, Orientation orient, QWidget* parent=0, const char* name=0,
-	   WFlags f = 0 );
+    QGrid(int n, QWidget* parent=0, const char* name=0, WFlags f = 0);
+    QGrid(int n, Orientation orient, QWidget* parent=0, const char* name=0,
+           WFlags f = 0);
 
-    void setSpacing( int );
+    void setSpacing(int);
 
 #ifdef QT_COMPAT
     typedef Orientation Direction;
@@ -39,10 +39,10 @@ protected:
     void childEvent(QChildEvent*);
 private:
     QGridLayout *lay;
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QGrid( const QGrid & );
-    QGrid& operator=( const QGrid & );
+    QGrid(const QGrid &);
+    QGrid& operator=(const QGrid &);
 #endif
 };
 

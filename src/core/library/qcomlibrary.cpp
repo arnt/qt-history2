@@ -33,19 +33,19 @@
 #endif
 
 
-QComLibrary::QComLibrary( const QString &filename )
-    : QLibrary( filename ), entry( 0 ), libiface( 0 ), qt_version( 0 )
+QComLibrary::QComLibrary(const QString &filename)
+    : QLibrary(filename), entry(0), libiface(0), qt_version(0)
 {
 }
 
 QComLibrary::~QComLibrary()
 {
-    if ( autoUnload() )
-	unload();
-    if ( libiface )
-	libiface->release();
-    if ( entry )
-	entry->release();
+    if (autoUnload())
+        unload();
+    if (libiface)
+        libiface->release();
+    if (entry)
+        entry->release();
 }
 
 bool QComLibrary::unload()
@@ -53,53 +53,53 @@ bool QComLibrary::unload()
     int refs = entry ? entry->release() : 0;
     entry = 0;
     if (refs || !libiface)
-	return FALSE;
+        return false;
 
     libiface->cleanup();
-    if ( !libiface->canUnload() )
-	return FALSE;
+    if (!libiface->canUnload())
+        return false;
     libiface->release();
     libiface = 0;
 
     return QLibrary::unload();
 }
 
-static bool qt_verify( const QString& library, uint version, uint flags,
-		    const QByteArray &key, bool warn )
+static bool qt_verify(const QString& library, uint version, uint flags,
+                    const QByteArray &key, bool warn)
 {
-    if ( (flags & 1) == 0 ) {
-	if ( warn )
-	    qWarning( "Conflict in %s:\n"
-		      "  Plugin cannot be queried successfully!",
-		      (const char*) QFile::encodeName(library) );
-    } else if ( ( version > QT_VERSION ) ||
-		( ( QT_VERSION & 0xff0000 ) > ( version & 0xff0000 ) ) ) {
-	if ( warn )
-	    qWarning( "Conflict in %s:\n"
-		      "  Plugin uses incompatible Qt library (%d.%d.%d)!",
-		      (const char*) QFile::encodeName(library),
-		      (version&0xff0000) >> 16, (version&0xff00) >> 8, version&0xff );
-    } else if ( key != QT_BUILD_KEY ) {
-	if ( warn )
-	    qWarning( "Conflict in %s:\n"
-		      "  Plugin uses incompatible Qt library!\n"
-		      "  expected build key \"%s\", got \"%s\".",
-		      (const char*) QFile::encodeName(library),
-		      QT_BUILD_KEY,
-		      key.isEmpty() ? "<null>" : (const char *) key );
+    if ((flags & 1) == 0) {
+        if (warn)
+            qWarning("Conflict in %s:\n"
+                      "  Plugin cannot be queried successfully!",
+                      (const char*) QFile::encodeName(library));
+    } else if ((version > QT_VERSION) ||
+                ((QT_VERSION & 0xff0000) > (version & 0xff0000))) {
+        if (warn)
+            qWarning("Conflict in %s:\n"
+                      "  Plugin uses incompatible Qt library (%d.%d.%d)!",
+                      (const char*) QFile::encodeName(library),
+                      (version&0xff0000) >> 16, (version&0xff00) >> 8, version&0xff);
+    } else if (key != QT_BUILD_KEY) {
+        if (warn)
+            qWarning("Conflict in %s:\n"
+                      "  Plugin uses incompatible Qt library!\n"
+                      "  expected build key \"%s\", got \"%s\".",
+                      (const char*) QFile::encodeName(library),
+                      QT_BUILD_KEY,
+                      key.isEmpty() ? "<null>" : (const char *) key);
     } else {
-	return TRUE;
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 struct qt_token_info
 {
-    qt_token_info( const char *f, const ulong fc )
-	: fields( f ), field_count( fc ), results( fc ), lengths( fc )
+    qt_token_info(const char *f, const ulong fc)
+        : fields(f), field_count(fc), results(fc), lengths(fc)
     {
-	results.fill( 0 );
-	lengths.fill( 0 );
+        results.fill(0);
+        lengths.fill(0);
     }
 
     const char *fields;
@@ -115,115 +115,115 @@ struct qt_token_info
        0 eos
       -1 parse error
 */
-static int qt_tokenize( const char *s, ulong s_len, ulong *advance,
-			qt_token_info &token_info )
+static int qt_tokenize(const char *s, ulong s_len, ulong *advance,
+                        qt_token_info &token_info)
 {
     ulong pos = 0, field = 0, fieldlen = 0;
     char current;
     int ret = -1;
     *advance = 0;
     for (;;) {
-	current = s[ pos ];
+        current = s[pos];
 
-	// next char
-	++pos;
-	++fieldlen;
-	++*advance;
+        // next char
+        ++pos;
+        ++fieldlen;
+        ++*advance;
 
-	if ( ! current || pos == s_len + 1 ) {
-	    // save result
-	    token_info.results[ (int)field ] = s;
-	    token_info.lengths[ (int)field ] = fieldlen - 1;
+        if (! current || pos == s_len + 1) {
+            // save result
+            token_info.results[(int)field] = s;
+            token_info.lengths[(int)field] = fieldlen - 1;
 
-	    // end of string
-	    ret = 0;
-	    break;
-	}
+            // end of string
+            ret = 0;
+            break;
+        }
 
-	if ( current == token_info.fields[ field ] ) {
-	    // save result
-	    token_info.results[ (int)field ] = s;
-	    token_info.lengths[ (int)field ] = fieldlen - 1;
+        if (current == token_info.fields[field]) {
+            // save result
+            token_info.results[(int)field] = s;
+            token_info.lengths[(int)field] = fieldlen - 1;
 
-	    // end of field
-	    fieldlen = 0;
-	    ++field;
-	    if ( field == token_info.field_count - 1 ) {
-		// parse ok
-		ret = 1;
-	    }
-	    if ( field == token_info.field_count ) {
-		// done parsing
-		break;
-	    }
+            // end of field
+            fieldlen = 0;
+            ++field;
+            if (field == token_info.field_count - 1) {
+                // parse ok
+                ret = 1;
+            }
+            if (field == token_info.field_count) {
+                // done parsing
+                break;
+            }
 
-	    // reset string and its length
-	    s = s + pos;
-	    s_len -= pos;
-	    pos = 0;
-	}
+            // reset string and its length
+            s = s + pos;
+            s_len -= pos;
+            pos = 0;
+        }
     }
 
     return ret;
 }
 
 /*
-  returns TRUE if the string s was correctly parsed, FALSE otherwise.
+  returns true if the string s was correctly parsed, false otherwise.
 */
-static bool qt_parse_pattern( const char *s, uint *version, uint *flags,
-				   QByteArray *key )
+static bool qt_parse_pattern(const char *s, uint *version, uint *flags,
+                                   QByteArray *key)
 {
-    bool ret = TRUE;
+    bool ret = true;
 
     qt_token_info pinfo("=\n", 2);
     int parse;
-    ulong at = 0, advance, parselen = qstrlen( s );
+    ulong at = 0, advance, parselen = qstrlen(s);
     do {
-	parse = qt_tokenize( s + at, parselen, &advance, pinfo );
-	if ( parse == -1 ) {
-	    ret = FALSE;
-	    break;
-	}
+        parse = qt_tokenize(s + at, parselen, &advance, pinfo);
+        if (parse == -1) {
+            ret = false;
+            break;
+        }
 
-	at += advance;
-	parselen -= advance;
+        at += advance;
+        parselen -= advance;
 
-	if ( qstrncmp( "version", pinfo.results[ 0 ], pinfo.lengths[ 0 ] ) == 0 ) {
-	    // parse version string
-	    qt_token_info pinfo2("..-", 3);
-	    if ( qt_tokenize( pinfo.results[ 1 ], pinfo.lengths[ 1 ],
-			      &advance, pinfo2 ) != -1 ) {
-		QString m = QByteArray( pinfo2.results[ 0 ], pinfo2.lengths[ 0 ] );
-		QString n = QByteArray( pinfo2.results[ 1 ], pinfo2.lengths[ 1 ] );
-		QString p = QByteArray( pinfo2.results[ 2 ], pinfo2.lengths[ 2 ] );
-		*version  = (m.toUInt() << 16) | (n.toUInt() << 8) | p.toUInt();
-	    } else {
-		ret = FALSE;
-		break;
-	    }
-	} else if ( qstrncmp( "flags", pinfo.results[ 0 ], pinfo.lengths[ 0 ] ) == 0 ) {
-	    // parse flags string
-	    char ch;
-	    *flags = 0;
-	    ulong p = 0, c = 0, bit = 0;
-	    while ( p < pinfo.lengths[ 1 ] ) {
-		ch = pinfo.results[ 1 ][ p ];
-		bit = pinfo.lengths[ 1 ] - p - 1;
-		c = 1 << bit;
-		if ( ch == '1' ) {
-		    *flags |= c;
-		} else if ( ch != '0' ) {
-		    ret = FALSE;
-		    break;
-		}
-		++p;
-	    }
-	} else if ( qstrncmp( "buildkey", pinfo.results[ 0 ],
-			      pinfo.lengths[ 0 ] ) == 0 ){
-	    // save buildkey
-	    *key = QByteArray( pinfo.results[ 1 ], pinfo.lengths[ 1 ] + 1 );
-	}
-    } while ( parse == 1 && parselen > 0 );
+        if (qstrncmp("version", pinfo.results[0], pinfo.lengths[0]) == 0) {
+            // parse version string
+            qt_token_info pinfo2("..-", 3);
+            if (qt_tokenize(pinfo.results[1], pinfo.lengths[1],
+                              &advance, pinfo2) != -1) {
+                QString m = QByteArray(pinfo2.results[0], pinfo2.lengths[0]);
+                QString n = QByteArray(pinfo2.results[1], pinfo2.lengths[1]);
+                QString p = QByteArray(pinfo2.results[2], pinfo2.lengths[2]);
+                *version  = (m.toUInt() << 16) | (n.toUInt() << 8) | p.toUInt();
+            } else {
+                ret = false;
+                break;
+            }
+        } else if (qstrncmp("flags", pinfo.results[0], pinfo.lengths[0]) == 0) {
+            // parse flags string
+            char ch;
+            *flags = 0;
+            ulong p = 0, c = 0, bit = 0;
+            while (p < pinfo.lengths[1]) {
+                ch = pinfo.results[1][p];
+                bit = pinfo.lengths[1] - p - 1;
+                c = 1 << bit;
+                if (ch == '1') {
+                    *flags |= c;
+                } else if (ch != '0') {
+                    ret = false;
+                    break;
+                }
+                ++p;
+            }
+        } else if (qstrncmp("buildkey", pinfo.results[0],
+                              pinfo.lengths[0]) == 0){
+            // save buildkey
+            *key = QByteArray(pinfo.results[1], pinfo.lengths[1] + 1);
+        }
+    } while (parse == 1 && parselen > 0);
 
     return ret;
 }
@@ -236,8 +236,8 @@ static bool qt_parse_pattern( const char *s, uint *version, uint *flags,
 #  include <sys/mman.h>
 #endif // Q_OS_FREEBSD || Q_OS_LINUX
 
-static long qt_find_pattern( const char *s, ulong s_len,
-			     const char *pattern, ulong p_len )
+static long qt_find_pattern(const char *s, ulong s_len,
+                             const char *pattern, ulong p_len)
 {
     /*
       this uses the same algorithm as QString::findRev...
@@ -253,22 +253,22 @@ static long qt_find_pattern( const char *s, ulong s_len,
       because we have to skip over all the debugging symbols first
     */
 
-    if ( ! s || ! pattern || p_len > s_len ) return -1;
+    if (! s || ! pattern || p_len > s_len) return -1;
     ulong i, hs = 0, hp = 0, delta = s_len - p_len;
 
-    for (i = 0; i < p_len; ++i ) {
-	hs += s[delta + i];
-	hp += pattern[i];
+    for (i = 0; i < p_len; ++i) {
+        hs += s[delta + i];
+        hp += pattern[i];
     }
     i = delta;
     for (;;) {
-	if ( hs == hp && qstrncmp( s + i, pattern, p_len ) == 0 )
-	    return i;
-	if ( i == 0 )
-	    break;
-	--i;
-	hs -= s[i + p_len];
-	hs += s[i];
+        if (hs == hp && qstrncmp(s + i, pattern, p_len) == 0)
+            return i;
+        if (i == 0)
+            break;
+        --i;
+        hs -= s[i + p_len];
+        hs += s[i];
     }
 
     return -1;
@@ -280,18 +280,18 @@ static long qt_find_pattern( const char *s, ulong s_len,
   we can get the verification data without have to actually load the library.
   This lets us detect mismatches more safely.
 
-  Returns FALSE if version/flags/key information is not present, or if the
+  Returns false if version/flags/key information is not present, or if the
                 information could not be read.
-  Returns  TRUE if version/flags/key information is present and successfully read.
+  Returns  true if version/flags/key information is present and successfully read.
 */
-static bool qt_unix_query( const QString &library, uint *version, uint *flags,
-			   QByteArray *key )
+static bool qt_unix_query(const QString &library, uint *version, uint *flags,
+                           QByteArray *key)
 {
-    QFile file( library );
-    if (! file.open( IO_ReadOnly ) ) {
-	qWarning( "%s: %s", (const char*) QFile::encodeName(library),
-	    strerror( errno ) );
-	return FALSE;
+    QFile file(library);
+    if (! file.open(IO_ReadOnly)) {
+        qWarning("%s: %s", (const char*) QFile::encodeName(library),
+            strerror(errno));
+        return false;
     }
 
     QByteArray data;
@@ -301,36 +301,36 @@ static bool qt_unix_query( const QString &library, uint *version, uint *flags,
 #ifdef USE_MMAP
     char *mapaddr = 0;
     size_t maplen = file.size();
-    mapaddr = (char *) mmap( mapaddr, maplen, PROT_READ, MAP_PRIVATE, file.handle(), 0 );
-    if ( mapaddr != MAP_FAILED ) {
-	// mmap succeeded
-	filedata = mapaddr;
-	fdlen = maplen;
+    mapaddr = (char *) mmap(mapaddr, maplen, PROT_READ, MAP_PRIVATE, file.handle(), 0);
+    if (mapaddr != MAP_FAILED) {
+        // mmap succeeded
+        filedata = mapaddr;
+        fdlen = maplen;
     } else {
-	// mmap failed
-	qWarning( "mmap: %s", strerror( errno ) );
+        // mmap failed
+        qWarning("mmap: %s", strerror(errno));
 #endif // USE_MMAP
-	// try reading the data into memory instead
-	data = file.readAll();
-	filedata = data.data();
-	fdlen = data.size();
+        // try reading the data into memory instead
+        data = file.readAll();
+        filedata = data.data();
+        fdlen = data.size();
 #ifdef USE_MMAP
     }
 #endif // USE_MMAP
 
     // verify that the pattern is present in the plugin
     const char *pattern = "pattern=QT_UCM_VERIFICATION_DATA";
-    const ulong plen = qstrlen( pattern );
-    long pos = qt_find_pattern( filedata, fdlen, pattern, plen );
+    const ulong plen = qstrlen(pattern);
+    long pos = qt_find_pattern(filedata, fdlen, pattern, plen);
 
-    bool ret = FALSE;
-    if ( pos >= 0 ) {
-	ret = qt_parse_pattern( filedata + pos, version, flags, key );
+    bool ret = false;
+    if (pos >= 0) {
+        ret = qt_parse_pattern(filedata + pos, version, flags, key);
     }
 
 #ifdef USE_MMAP
-    if ( mapaddr != MAP_FAILED && munmap(mapaddr, maplen) != 0 ) {
-	qWarning( "munmap: %s", strerror( errno ) );
+    if (mapaddr != MAP_FAILED && munmap(mapaddr, maplen) != 0) {
+        qWarning("munmap: %s", strerror(errno));
     }
 #endif // USE_MMAP
 
@@ -346,109 +346,109 @@ static QSingleCleanupHandler<QSettings> cleanup_cache;
 
 void QComLibrary::createInstanceInternal()
 {
-    if ( library().isEmpty() )
-	return;
+    if (library().isEmpty())
+        return;
 
-    QFileInfo fileinfo( library() );
+    QFileInfo fileinfo(library());
     QString lastModified  = fileinfo.lastModified().toString(Qt::ISODate);
     QString regkey = QString("/Qt Plugins %1.%2/%3")
-		     .arg( ( QT_VERSION & 0xff0000 ) >> 16 )
-		     .arg( ( QT_VERSION & 0xff00 ) >> 8 )
-		     .arg( library() );
+                     .arg((QT_VERSION & 0xff0000) >> 16)
+                     .arg((QT_VERSION & 0xff00) >> 8)
+                     .arg(library());
     QStringList reg;
     uint flags = 0;
     QByteArray key;
-    bool query_done = FALSE;
-    bool warn_mismatch = TRUE;
+    bool query_done = false;
+    bool warn_mismatch = true;
 
-    QMutexLocker locker( qt_global_mutexpool ?
-			 qt_global_mutexpool->get( &cache ) : 0 );
+    QMutexLocker locker(qt_global_mutexpool ?
+                         qt_global_mutexpool->get(&cache) : 0);
 
-    if ( ! cache ) {
-	cache = new QSettings;
-	cache->insertSearchPath( QSettings::Windows, "/Trolltech" );
-	cleanup_cache.set( &cache );
+    if (! cache) {
+        cache = new QSettings;
+        cache->insertSearchPath(QSettings::Windows, "/Trolltech");
+        cleanup_cache.set(&cache);
     }
 
-    reg = cache->readListEntry( regkey );
-    if ( reg.count() == 4 ) {
-	// check timestamp
-	if ( lastModified == reg[3] ) {
-	    qt_version = reg[0].toUInt(0, 16);
-	    flags = reg[1].toUInt(0, 16);
-	    key = reg[2].latin1();
+    reg = cache->readListEntry(regkey);
+    if (reg.count() == 4) {
+        // check timestamp
+        if (lastModified == reg[3]) {
+            qt_version = reg[0].toUInt(0, 16);
+            flags = reg[1].toUInt(0, 16);
+            key = reg[2].latin1();
 
-	    query_done = TRUE;
-	    warn_mismatch = FALSE;
-	}
+            query_done = true;
+            warn_mismatch = false;
+        }
     }
 
 #if defined(Q_OS_UNIX)
-    if ( ! query_done ) {
-	// get the query information directly from the plugin without loading
-	if ( qt_unix_query( library(), &qt_version, &flags, &key ) ) {
- 	    // info read successfully from library
- 	    query_done = TRUE;
-	}
+    if (! query_done) {
+        // get the query information directly from the plugin without loading
+        if (qt_unix_query(library(), &qt_version, &flags, &key)) {
+            // info read successfully from library
+            query_done = true;
+        }
     }
 #else // !Q_OS_UNIX
-    if ( ! query_done ) {
-	// get the query information by loading the plugin
-	if ( !isLoaded() ) {
-	    Q_ASSERT( entry == 0 );
-	    if ( !load() )
-		return;
-	}
+    if (! query_done) {
+        // get the query information by loading the plugin
+        if (!isLoaded()) {
+            Q_ASSERT(entry == 0);
+            if (!load())
+                return;
+        }
 
 #  ifdef Q_CC_BOR
-	typedef const char * __stdcall (*UCMQueryVerificationDataProc)();
+        typedef const char * __stdcall (*UCMQueryVerificationDataProc)();
 #  else
-	typedef const char * (*UCMQueryVerificationDataProc)();
+        typedef const char * (*UCMQueryVerificationDataProc)();
 #  endif
-	UCMQueryVerificationDataProc ucmQueryVerificationdataProc;
-	ucmQueryVerificationdataProc =
-	    (UCMQueryVerificationDataProc) resolve( "qt_ucm_query_verification_data" );
+        UCMQueryVerificationDataProc ucmQueryVerificationdataProc;
+        ucmQueryVerificationdataProc =
+            (UCMQueryVerificationDataProc) resolve("qt_ucm_query_verification_data");
 
-	if ( !ucmQueryVerificationdataProc ||
-	     !qt_parse_pattern( ucmQueryVerificationdataProc(),
-				&qt_version, &flags, &key ) ) {
-	    qt_version = flags = 0;
-	    key = "unknown";
-	} else {
-	    query_done = TRUE;
-	}
+        if (!ucmQueryVerificationdataProc ||
+             !qt_parse_pattern(ucmQueryVerificationdataProc(),
+                                &qt_version, &flags, &key)) {
+            qt_version = flags = 0;
+            key = "unknown";
+        } else {
+            query_done = true;
+        }
     }
 #endif // Q_OS_UNIX
 
     QStringList queried;
-    queried << QString::number( qt_version,16 )
-	    << QString::number( flags, 16 )
-	    <<  key
-	    << lastModified;
+    queried << QString::number(qt_version,16)
+            << QString::number(flags, 16)
+            <<  key
+            << lastModified;
 
-    if ( queried != reg ) {
-	cache->writeEntry( regkey, queried );
-	// delete the cache, which forces the settings to be written
-	delete cache;
-	cache = 0;
+    if (queried != reg) {
+        cache->writeEntry(regkey, queried);
+        // delete the cache, which forces the settings to be written
+        delete cache;
+        cache = 0;
     }
 
-    if ( ! query_done ) {
-	if ( warn_mismatch ) {
-	    qWarning( "Conflict in %s:\n Plugin cannot be queried successfully!",
-		      (const char*) QFile::encodeName( library() ) );
-	}
-	unload();
-	return;
+    if (! query_done) {
+        if (warn_mismatch) {
+            qWarning("Conflict in %s:\n Plugin cannot be queried successfully!",
+                      (const char*) QFile::encodeName(library()));
+        }
+        unload();
+        return;
     }
 
-    if ( ! qt_verify( library(), qt_version, flags, key, warn_mismatch ) ) {
-	unload();
-	return;
-    } else if ( !isLoaded() ) {
-	Q_ASSERT( entry == 0 );
-	if ( !load() )
-	    return;
+    if (! qt_verify(library(), qt_version, flags, key, warn_mismatch)) {
+        unload();
+        return;
+    } else if (!isLoaded()) {
+        Q_ASSERT(entry == 0);
+        if (!load())
+            return;
     }
 
 #ifdef Q_CC_BOR
@@ -457,41 +457,41 @@ void QComLibrary::createInstanceInternal()
     typedef QUnknownInterface* (*UCMInstanceProc)();
 #endif
     UCMInstanceProc ucmInstanceProc;
-    ucmInstanceProc = (UCMInstanceProc) resolve( "ucm_instantiate" );
+    ucmInstanceProc = (UCMInstanceProc) resolve("ucm_instantiate");
 #if defined(QT_DEBUG_COMPONENT)
-    if ( !ucmInstanceProc )
-	qWarning( "%s: Not a UCOM library.", (const char*) QFile::encodeName(library()) );
+    if (!ucmInstanceProc)
+        qWarning("%s: Not a UCOM library.", (const char*) QFile::encodeName(library()));
 #endif
     entry = ucmInstanceProc ? ucmInstanceProc() : 0;
 
-    if ( entry ) {
-	if ( entry->queryInterface( IID_QLibrary, (QUnknownInterface**)&libiface ) == QS_OK ) {
-	    if ( libiface && !libiface->init() ) {
-		libiface->release();
-		libiface = 0;
-		unload();
-		return;
-	    }
-	}
+    if (entry) {
+        if (entry->queryInterface(IID_QLibrary, (QUnknownInterface**)&libiface) == QS_OK) {
+            if (libiface && !libiface->init()) {
+                libiface->release();
+                libiface = 0;
+                unload();
+                return;
+            }
+        }
     } else {
 #if defined(QT_DEBUG_COMPONENT)
-	qWarning( "%s: No exported component provided.", (const char*) QFile::encodeName(library()) );
+        qWarning("%s: No exported component provided.", (const char*) QFile::encodeName(library()));
 #endif
-	unload();
+        unload();
     }
 }
 
-QRESULT QComLibrary::queryInterface( const QUuid& request, QUnknownInterface** iface )
+QRESULT QComLibrary::queryInterface(const QUuid& request, QUnknownInterface** iface)
 {
-    if ( !entry )
-	createInstanceInternal();
-    return entry ? entry->queryInterface( request, iface ) : QE_NOCOMPONENT;
+    if (!entry)
+        createInstanceInternal();
+    return entry ? entry->queryInterface(request, iface) : QE_NOCOMPONENT;
 }
 
 uint QComLibrary::qtVersion()
 {
-    if ( !entry )
-	createInstanceInternal();
+    if (!entry)
+        createInstanceInternal();
     return entry ? qt_version : 0;
 }
 

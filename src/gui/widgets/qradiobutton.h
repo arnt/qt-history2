@@ -24,35 +24,35 @@
 class Q_GUI_EXPORT QRadioButton : public QButton
 {
     Q_OBJECT
-    Q_PROPERTY( bool checked READ isChecked WRITE setChecked )
-    Q_OVERRIDE( bool autoMask DESIGNABLE true SCRIPTABLE true )
+    Q_PROPERTY(bool checked READ isChecked WRITE setChecked)
+    Q_OVERRIDE(bool autoMask DESIGNABLE true SCRIPTABLE true)
 
 public:
-    QRadioButton( QWidget *parent=0, const char* name=0 );
-    QRadioButton( const QString &text, QWidget *parent=0, const char* name=0 );
+    QRadioButton(QWidget *parent=0, const char* name=0);
+    QRadioButton(const QString &text, QWidget *parent=0, const char* name=0);
 
     bool    isChecked() const;
 
     QSize    sizeHint() const;
 
 public slots:
-    virtual void    setChecked( bool check );
+    virtual void    setChecked(bool check);
 
 protected:
-    bool    hitButton( const QPoint & ) const;
-    void    drawButton( QPainter * );
-    void    drawButtonLabel( QPainter * );
+    bool    hitButton(const QPoint &) const;
+    void    drawButton(QPainter *);
+    void    drawButtonLabel(QPainter *);
     void    updateMask();
 
-    void    resizeEvent( QResizeEvent* );
+    void    resizeEvent(QResizeEvent*);
 
 private:
     void    init();
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QRadioButton( const QRadioButton & );
-    QRadioButton &operator=( const QRadioButton & );
+    QRadioButton(const QRadioButton &);
+    QRadioButton &operator=(const QRadioButton &);
 #endif
 };
 

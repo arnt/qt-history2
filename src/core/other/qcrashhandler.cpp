@@ -29,13 +29,13 @@ static void print_backtrace(FILE *outb)
     char **stack_symbols = backtrace_symbols(stack, stack_size);
     fprintf(outb, "Stack [%d]:\n", stack_size);
     if(FILE *cppfilt = popen("c++filt", "rw")) {
-	dup2(fileno(outb), fileno(cppfilt));
-	for(int i = stack_size-1; i>=0; --i)
-	    fwrite(stack_symbols[i], 1, strlen(stack_symbols[i]), cppfilt);
-	pclose(cppfilt);
+        dup2(fileno(outb), fileno(cppfilt));
+        for(int i = stack_size-1; i>=0; --i)
+            fwrite(stack_symbols[i], 1, strlen(stack_symbols[i]), cppfilt);
+        pclose(cppfilt);
     } else {
-	for(int i = stack_size-1; i>=0; --i)
-	    fprintf(outb, "#%d  %p [%s]\n", i, stack[i], stack_symbols[i]);
+        for(int i = stack_size-1; i>=0; --i)
+            fprintf(outb, "#%d  %p [%s]\n", i, stack[i], stack_symbols[i]);
     }
 }
 static void init_backtrace(char **, int)
@@ -58,7 +58,7 @@ static char *globalProgName = NULL;
 static bool backtrace_command(FILE *outb, char *format, ...)
 {
 
-    bool ret = FALSE;
+    bool ret = false;
     char buffer[50];
 
     /*
@@ -78,20 +78,20 @@ static bool backtrace_command(FILE *outb, char *format, ...)
     foo = "echo hi";
 #endif
     if(FILE *inb = popen(foo, "r")) {
-	while(!feof(inb)) {
-	    int len = fread(buffer, 1, sizeof(buffer), inb);
-	    if(!len)
-		break;
-	    if(!ret) {
-		fwrite("Output from ", 1, strlen("Output from "), outb);
-		strtok(cmd, " ");
-		fwrite(cmd, 1, strlen(cmd), outb);
-		fwrite("\n", 1, 1, outb);
-		ret = TRUE;
-	    }
-	    fwrite(buffer, 1, len, outb);
-	}
-	fclose(inb);
+        while(!feof(inb)) {
+            int len = fread(buffer, 1, sizeof(buffer), inb);
+            if(!len)
+                break;
+            if(!ret) {
+                fwrite("Output from ", 1, strlen("Output from "), outb);
+                strtok(cmd, " ");
+                fwrite(cmd, 1, strlen(cmd), outb);
+                fwrite("\n", 1, 1, outb);
+                ret = true;
+            }
+            fwrite(buffer, 1, len, outb);
+        }
+        fclose(inb);
     }
     return ret;
 }
@@ -99,7 +99,7 @@ static bool backtrace_command(FILE *outb, char *format, ...)
 static void init_backtrace(char **argv, int argc)
 {
     if(argc >= 1)
-	globalProgName = argv[0];
+        globalProgName = argv[0];
 }
 
 static void print_backtrace(FILE *outb)
@@ -111,19 +111,19 @@ static void print_backtrace(FILE *outb)
      */
 #if defined(Q_OS_AIX)
     if(backtrace_command(outb, "dbx -a %d 2>/dev/null <<EOF\n"
-			 "where\n"
-			 "detach\n"
-			 "EOF\n",
-			 (int)getpid()))
-	return;
+                         "where\n"
+                         "detach\n"
+                         "EOF\n",
+                         (int)getpid()))
+        return;
     if(backtrace_command(outb, "gdb -q %s %d 2>/dev/null <<EOF\n"
-			 "set prompt\n"
-			 "where\n"
-			 "detach\n"
-			 "quit\n"
-			 "EOF\n",
-			 globalProgName, (int)getpid()))
-	return;
+                         "set prompt\n"
+                         "where\n"
+                         "detach\n"
+                         "quit\n"
+                         "EOF\n",
+                         globalProgName, (int)getpid()))
+        return;
 #elif defined(Q_OS_FREEBSD)
     /*
      * FreeBSD insists on sending a SIGSTOP to the process we
@@ -131,14 +131,14 @@ static void print_backtrace(FILE *outb)
      * process after we have detached.
      */
     if(backtrace_command(outb, "gdb -q %s %d 2>/dev/null <<EOF\n"
-			 "set prompt\n"
-			 "where\n"
-			 "detach\n"
-			 "shell kill -CONT %d\n"
-			 "quit\n"
-			 "EOF\n",
-			 globalProgName, (int)getpid(), (int)getpid()))
-	return;
+                         "set prompt\n"
+                         "where\n"
+                         "detach\n"
+                         "shell kill -CONT %d\n"
+                         "quit\n"
+                         "EOF\n",
+                         globalProgName, (int)getpid(), (int)getpid()))
+        return;
 #elif defined(Q_OS_HPUX)
     /*
      * HP decided to call their debugger xdb.
@@ -152,73 +152,73 @@ static void print_backtrace(FILE *outb)
      * The final "y" is confirmation to the quit command.
      */
     if(backtrace_command(outb, "xdb -P %d -L %s 2>&1 <<EOF\n"
-			 "T 50\n"
-			 "q\ny\n"
-			 "EOF\n",
-			 (int)getpid(), globalProgName))
-	return;
+                         "T 50\n"
+                         "q\ny\n"
+                         "EOF\n",
+                         (int)getpid(), globalProgName))
+        return;
     if(backtrace_command(outb, "gdb -q %s %d 2>/dev/null <<EOF\n"
-			 "set prompt\n"
-			 "where\n"
-			 "detach\n"
-			 "quit\n"
-			 "EOF\n",
-			 globalProgName, (int)getpid()))
-	return;
+                         "set prompt\n"
+                         "where\n"
+                         "detach\n"
+                         "quit\n"
+                         "EOF\n",
+                         globalProgName, (int)getpid()))
+        return;
 #elif defined(Q_OS_IRIX)
     /*
      * "set $page=0" drops hold mode
      * "dump ." displays the contents of the variables
      */
     if(backtrace_command(outb, "dbx -p %d 2>/dev/null <<EOF\n"
-			 "set \\$page=0\n"
-			 "where\n"
+                         "set \\$page=0\n"
+                         "where\n"
 # if !defined(__GNUC__)
-			 /* gcc does not generate this information */
-			 "dump .\n"
+                         /* gcc does not generate this information */
+                         "dump .\n"
 # endif
-			 "detach\n"
-			 "EOF\n",
-			 (int)getpid()))
-	return;
+                         "detach\n"
+                         "EOF\n",
+                         (int)getpid()))
+        return;
 
 # if defined(USE_LIBEXC)
     if(trace_back_stack_and_print())
-	return;
+        return;
 # endif
     if(backtrace_command(outb, "gdb -q %s %d 2>/dev/null <<EOF\n"
-			 "set prompt\n"
-			 "where\n"
-			 "echo ---\\n\n"
-			 "frame 5\n"      /* Skip signal handler frames */
-			 "set \\$x = 50\n"
-			 "while (\\$x)\n" /* Print local variables for each frame */
-			 "info locals\n"
-			 "up\n"
-			 "set \\$x--\n"
-			 "end\n"
-			 "echo ---\\n\n"
-			 "detach\n"
-			 "quit\n"
-			 "EOF\n",
-			 globalProgName, (int)getpid()))
-	return;
+                         "set prompt\n"
+                         "where\n"
+                         "echo ---\\n\n"
+                         "frame 5\n"      /* Skip signal handler frames */
+                         "set \\$x = 50\n"
+                         "while (\\$x)\n" /* Print local variables for each frame */
+                         "info locals\n"
+                         "up\n"
+                         "set \\$x--\n"
+                         "end\n"
+                         "echo ---\\n\n"
+                         "detach\n"
+                         "quit\n"
+                         "EOF\n",
+                         globalProgName, (int)getpid()))
+        return;
 #elif defined(Q_OS_OSF)
     if(backtrace_command(outb, "dbx -pid %d %s 2>/dev/null <<EOF\n"
-			 "where\n"
-			 "detach\n"
-			 "quit\n"
-			 "EOF\n",
-			 (int)getpid(), globalProgName))
-	return;
+                         "where\n"
+                         "detach\n"
+                         "quit\n"
+                         "EOF\n",
+                         (int)getpid(), globalProgName))
+        return;
     if(backtrace_command(outb, "gdb -q %s %d 2>/dev/null <<EOF\n"
-			 "set prompt\n"
-			 "where\n"
-			 "detach\n"
-			 "quit\n"
-			 "EOF\n",
-			 globalProgName, (int)getpid()))
-	return;
+                         "set prompt\n"
+                         "where\n"
+                         "detach\n"
+                         "quit\n"
+                         "EOF\n",
+                         globalProgName, (int)getpid()))
+        return;
 #elif defined(Q_OS_SCO)
     /*
      * SCO OpenServer dbx is like a catch-22. The 'detach' command
@@ -232,57 +232,57 @@ static void print_backtrace(FILE *outb)
      * it worked on our system.
      */
     if(backtrace_command(outb, "dbx %s %d 2>/dev/null <<EOF\n"
-			 "where\n"
-			 "quit\nEOF\n",
-			 globalProgName, (int)getpid()))
-	return;
+                         "where\n"
+                         "quit\nEOF\n",
+                         globalProgName, (int)getpid()))
+        return;
     if(backtrace_command(outb, "gdb -q %s %d 2>/dev/null <<EOF\n"
-			 "set prompt\n"
-			 "where\n"
-			 "detach\n"
-			 "quit\n"
-			 "EOF\n",
-			 globalProgName, (int)getpid()))
-	return;
+                         "set prompt\n"
+                         "where\n"
+                         "detach\n"
+                         "quit\n"
+                         "EOF\n",
+                         globalProgName, (int)getpid()))
+        return;
 #elif defined(Q_OS_SOLARIS)
     if(backtrace_command(outb, "dbx %s %d 2>/dev/null <<EOF\n"
-			 "where\n"
-			 "detach\n"
-			 "EOF\n",
-			 globalProgName, (int)getpid()))
-	return;
+                         "where\n"
+                         "detach\n"
+                         "EOF\n",
+                         globalProgName, (int)getpid()))
+        return;
     if(backtrace_command(outb, "gdb -q %s %d 2>/dev/null <<EOF\n"
-			 "set prompt\n"
-			 "where\n"
-			 "echo ---\\n\n"
-			 "frame 5\n"      /* Skip signal handler frames */
-			 "set \\$x = 50\n"
-			 "while (\\$x)\n" /* Print local variables for each frame */
-			 "info locals\n"
-			 "up\n"
-			 "set \\$x--\n"
-			 "end\n"
-			 "echo ---\\n\n"
-			 "detach\n"
-			 "quit\n"
-			 "EOF\n",
-			 globalProgName, (int)getpid()))
-	return;
+                         "set prompt\n"
+                         "where\n"
+                         "echo ---\\n\n"
+                         "frame 5\n"      /* Skip signal handler frames */
+                         "set \\$x = 50\n"
+                         "while (\\$x)\n" /* Print local variables for each frame */
+                         "info locals\n"
+                         "up\n"
+                         "set \\$x--\n"
+                         "end\n"
+                         "echo ---\\n\n"
+                         "detach\n"
+                         "quit\n"
+                         "EOF\n",
+                         globalProgName, (int)getpid()))
+        return;
     if(backtrace_command(outb, "/usr/proc/bin/pstack %d",
-			 (int)getpid()))
-	return;
+                         (int)getpid()))
+        return;
     /*
      * Other Unices (AIX, HPUX, SCO) also have adb, but
      * they seem unable to attach to a running process.)
      */
     if(backtrace_command(outb, "adb %s 2>&1 <<EOF\n"
-			 "0t%d:A\n" /* Attach to pid */
-			 "\\$c\n"   /* print stacktrace */
-			 ":R\n"     /* Detach */
-			 "\\$q\n"   /* Quit */
-			 "EOF\n",
-			 globalProgName, (int)getpid()))
-	return;
+                         "0t%d:A\n" /* Attach to pid */
+                         "\\$c\n"   /* print stacktrace */
+                         ":R\n"     /* Detach */
+                         "\\$q\n"   /* Quit */
+                         "EOF\n",
+                         globalProgName, (int)getpid()))
+        return;
 #else /* All other platforms */
     /*
      * TODO: SCO/UnixWare 7 must be something like (not tested)
@@ -290,31 +290,31 @@ static void print_backtrace(FILE *outb)
      */
 # if !defined(__GNUC__)
     if(backtrace_command(outb, "dbx %s %d 2>/dev/null <<EOF\n"
-			 "where\n"
-			 "detach\n"
-			 "EOF\n",
-			 globalProgName, (int)getpid()))
-	return;
+                         "where\n"
+                         "detach\n"
+                         "EOF\n",
+                         globalProgName, (int)getpid()))
+        return;
 # endif
     if(backtrace_command(outb, "gdb -q %s %d 2>/dev/null <<EOF\n"
-			 "set prompt\n"
-			 "where\n"
+                         "set prompt\n"
+                         "where\n"
 #if 0
-			 "echo ---\\n\n"
-			 "frame 4\n"
-			 "set \\$x = 50\n"
-			 "while (\\$x)\n"
-			 "info locals\n"
-			 "up\n"
-			 "set \\$x--\n"
-			 "end\n"
-			 "echo ---\\n\n"
+                         "echo ---\\n\n"
+                         "frame 4\n"
+                         "set \\$x = 50\n"
+                         "while (\\$x)\n"
+                         "info locals\n"
+                         "up\n"
+                         "set \\$x--\n"
+                         "end\n"
+                         "echo ---\\n\n"
 #endif
-			 "detach\n"
-			 "quit\n"
-			 "EOF\n",
-			 globalProgName, (int)getpid()))
-	return;
+                         "detach\n"
+                         "quit\n"
+                         "EOF\n",
+                         globalProgName, (int)getpid()))
+        return;
 #endif
     const char *debug_err = "No debugger found\n";
     fwrite(debug_err, strlen(debug_err), 1, outb);
@@ -327,21 +327,21 @@ void qt_signal_handler(int sig)
 {
     signal(sig, SIG_DFL);
     if(QSegfaultHandler::callback) {
-	(*QSegfaultHandler::callback)();
-	_exit(1);
+        (*QSegfaultHandler::callback)();
+        _exit(1);
     }
     FILE *outb = stderr;
     if(char *crash_loc = getenv("QT_CRASH_OUTPUT")) {
-	if(FILE *new_outb = fopen(crash_loc, "w")) {
-	    fprintf(stderr, "Crash (backtrace written to %s)!!!\n", crash_loc);
-	    outb = new_outb;
-	}
+        if(FILE *new_outb = fopen(crash_loc, "w")) {
+            fprintf(stderr, "Crash (backtrace written to %s)!!!\n", crash_loc);
+            outb = new_outb;
+        }
     } else {
-	fprintf(outb, "Crash!!!\n");
+        fprintf(outb, "Crash!!!\n");
     }
     print_backtrace(outb);
     if(outb != stderr)
-	fclose(outb);
+        fclose(outb);
     _exit(1);
 }
 

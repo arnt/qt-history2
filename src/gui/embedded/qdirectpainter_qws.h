@@ -24,7 +24,7 @@
 #ifndef QT_NO_DIRECTPAINTER
 class Q_GUI_EXPORT QDirectPainter : public QPainter {
 public:
-    QDirectPainter(QWidget* );
+    QDirectPainter(QWidget*);
     ~QDirectPainter();
 
     uchar* frameBuffer();
@@ -44,7 +44,7 @@ public:
     QPoint offset() const;
     QSize size() const;
 
-    void setAreaChanged( const QRect& );
+    void setAreaChanged(const QRect&);
 
 private:
     class Private;

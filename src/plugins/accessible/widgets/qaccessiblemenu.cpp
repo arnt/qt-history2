@@ -32,7 +32,7 @@ int QAccessiblePopup::childCount() const
 QRect QAccessiblePopup::rect(int child) const
 {
     if (!child)
-	return QAccessibleWidget::rect(child);
+        return QAccessibleWidget::rect(child);
 
     QRect r = popupMenu()->itemGeometry(child - 1);
     QPoint tlp = popupMenu()->mapToGlobal(QPoint(0,0));
@@ -44,27 +44,27 @@ int QAccessiblePopup::childAt(int x, int y) const
 {
     QPoint p = popupMenu()->mapFromGlobal(QPoint(x,y));
     MyPopupMenu *mp = (MyPopupMenu*)popupMenu();
-    return mp->itemAtPos(p, FALSE) + 1;
+    return mp->itemAtPos(p, false) + 1;
 }
 
 /*int QAccessiblePopup::navigate(NavDirection direction, int startControl) const
 {
     if (direction != NavFirstChild && direction != NavLastChild && direction != NavFocusChild && !startControl)
-	return QAccessibleWidget::navigate(direction, startControl);
+        return QAccessibleWidget::navigate(direction, startControl);
 
     switch (direction) {
     case NavFirstChild:
-	return 1;
+        return 1;
     case NavLastChild:
-	return childCount();
+        return childCount();
     case NavNext:
     case NavDown:
-	return (startControl + 1) > childCount() ? -1 : startControl + 1;
+        return (startControl + 1) > childCount() ? -1 : startControl + 1;
     case NavPrevious:
     case NavUp:
-	return (startControl - 1) < 1 ? -1 : startControl - 1;
+        return (startControl - 1) < 1 ? -1 : startControl - 1;
     default:
-	break;
+        break;
     }
     return -1;
 }*/
@@ -73,23 +73,23 @@ QString QAccessiblePopup::text(Text t, int child) const
 {
     QString tx = QAccessibleWidget::text(t, child);
     if (tx.size())
-	return tx;
+        return tx;
 
     int id;
     if (child)
-	id = popupMenu()->idAt(child - 1);
+        id = popupMenu()->idAt(child - 1);
 
     switch (t) {
     case Name:
-	if (!child)
-	    return popupMenu()->windowTitle();
-	return qacc_stripAmp(popupMenu()->text(id));
+        if (!child)
+            return popupMenu()->windowTitle();
+        return qacc_stripAmp(popupMenu()->text(id));
     case Help:
-	return popupMenu()->whatsThis(id);
+        return popupMenu()->whatsThis(id);
     case Accelerator:
-	return (QString)popupMenu()->accel(id);
+        return (QString)popupMenu()->accel(id);
     default:
-	break;
+        break;
     }
     return tx;
 }
@@ -97,11 +97,11 @@ QString QAccessiblePopup::text(Text t, int child) const
 QAccessible::Role QAccessiblePopup::role(int child) const
 {
     if (!child)
-	return PopupMenu;
+        return PopupMenu;
 
     QMenuItem *item = popupMenu()->findItem(popupMenu()->idAt(child -1));
     if (item && item->isSeparator())
-	return Separator;
+        return Separator;
     return MenuItem;
 }
 
@@ -109,21 +109,21 @@ int QAccessiblePopup::state(int child) const
 {
     int s = QAccessibleWidget::state(child);
     if (!child)
-	return s;
+        return s;
 
     int id = popupMenu()->idAt(child -1);
     QMenuItem *item = popupMenu()->findItem(id);
     if (!item)
-	return s;
+        return s;
 
     if (popupMenu()->style().styleHint(QStyle::SH_Menu_MouseTracking))
-	s |= HotTracked;
+        s |= HotTracked;
     if (item->isSeparator() || !item->isEnabled())
-	s |= Unavailable;
+        s |= Unavailable;
     if (popupMenu()->isCheckable() && item->isChecked())
-	s |= Checked;
+        s |= Checked;
     if (popupMenu()->isItemActive(id))
-	s |= Focused;
+        s |= Focused;
 
     return s;
 }
@@ -131,29 +131,29 @@ int QAccessiblePopup::state(int child) const
 bool QAccessiblePopup::doAction(int action, int child)
 {
     if (!child)
-	return FALSE;
+        return false;
 
     int id = popupMenu()->idAt(child -1);
     QMenuItem *item = popupMenu()->findItem(id);
     if (!item || !item->isEnabled())
-	return FALSE;
+        return false;
 
     popupMenu()->activateItemAt(child - 1);
-    return TRUE;
+    return true;
 }
 
 /*bool QAccessiblePopup::setFocus(int child)
 {
     if (!child)
-	return FALSE;
+        return false;
 
     int id = popupMenu()->idAt(child -1);
     QMenuItem *item = popupMenu()->findItem(id);
     if (!item || !item->isEnabled())
-	return FALSE;
+        return false;
 
     popupMenu()->setActiveItem(child - 1);
-    return TRUE;
+    return true;
 }
 */
 
@@ -181,7 +181,7 @@ int QAccessibleMenuBar::childCount() const
 QRect QAccessibleMenuBar::rect(int child) const
 {
     if (!child)
-	return QAccessibleWidget::rect(child);
+        return QAccessibleWidget::rect(child);
 
     MyMenuBar *mb = (MyMenuBar*)menuBar();
     QRect r = mb->itemRect(child - 1);
@@ -201,21 +201,21 @@ int QAccessibleMenuBar::childAt(int x, int y) const
 int QAccessibleMenuBar::navigate(NavDirection direction, int startControl) const
 {
     if (direction != NavFirstChild && direction != NavLastChild && direction != NavFocusChild && !startControl)
-	return QAccessibleWidget::navigate(direction, startControl);
+        return QAccessibleWidget::navigate(direction, startControl);
 
     switch (direction) {
     case NavFirstChild:
-	return 1;
+        return 1;
     case NavLastChild:
-	return childCount();
+        return childCount();
     case NavNext:
     case NavRight:
-	return (startControl + 1) > childCount() ? -1 : startControl + 1;
+        return (startControl + 1) > childCount() ? -1 : startControl + 1;
     case NavPrevious:
     case NavLeft:
-	return (startControl - 1) < 1 ? -1 : startControl - 1;
+        return (startControl - 1) < 1 ? -1 : startControl - 1;
     default:
-	break;
+        break;
     }
 
     return -1;
@@ -230,27 +230,27 @@ QString QAccessibleMenuBar::text(Text t, int child) const
 
     if (id != -1) switch (t) {
     case Name:
-	return qacc_stripAmp(menuBar()->text(id));
+        return qacc_stripAmp(menuBar()->text(id));
     case Accelerator:
-	str = qacc_hotKey(menuBar()->text(id));
-	break;
+        str = qacc_hotKey(menuBar()->text(id));
+        break;
     default:
-	break;
+        break;
     }
 
     if (str.isEmpty())
-	str = QAccessibleWidget::text(t, child);
+        str = QAccessibleWidget::text(t, child);
     return str;
 }
 
 QAccessible::Role QAccessibleMenuBar::role(int child) const
 {
     if (!child)
-	return MenuBar;
+        return MenuBar;
 
     QMenuItem *item = menuBar()->findItem(menuBar()->idAt(child -1));
     if (item && item->isSeparator())
-	return Separator;
+        return Separator;
     return MenuItem;
 }
 
@@ -258,19 +258,19 @@ int QAccessibleMenuBar::state(int child) const
 {
     int s = QAccessibleWidget::state(child);
     if (!child)
-	return s;
+        return s;
 
     int id = menuBar()->idAt(child -1);
     QMenuItem *item = menuBar()->findItem(id);
     if (!item)
-	return s;
+        return s;
 
     if (menuBar()->style().styleHint(QStyle::SH_Menu_MouseTracking))
-	s |= HotTracked;
+        s |= HotTracked;
     if (item->isSeparator() || !item->isEnabled())
-	s |= Unavailable;
+        s |= Unavailable;
     if (menuBar()->isItemActive(id))
-	s |= Focused;
+        s |= Focused;
 
     return s;
 }
@@ -278,28 +278,28 @@ int QAccessibleMenuBar::state(int child) const
 bool QAccessibleMenuBar::doAction(int action, int child)
 {
     if (!child)
-	return FALSE;
+        return false;
 
     int id = menuBar()->idAt(child -1);
     QMenuItem *item = menuBar()->findItem(id);
     if (!item || !item->isEnabled())
-	return FALSE;
+        return false;
 
     menuBar()->activateItemAt(child - 1);
-    return TRUE;
+    return true;
 }
 
 /*
 bool QAccessibleMenuBar::setFocus(int child)
 {
     if (!child)
-	return FALSE;
+        return false;
 
     int id = menuBar()->idAt(child -1);
     QMenuItem *item = menuBar()->findItem(id);
     if (!item || !item->isEnabled())
-	return FALSE;
+        return false;
 
-    return TRUE;
+    return true;
 }
 */

@@ -59,15 +59,15 @@ struct Option
     static char field_sep;
     //both of these must be called..
     static bool parseCommandLine(int argc, char **argv); //parse cmdline
-    static bool postProcessProject(QMakeProject *); 
+    static bool postProcessProject(QMakeProject *);
 
-    //and convenience functions    
-    static QString fixPathToLocalOS(const QString& in, bool fix_env=TRUE, bool canonical=TRUE);
-    static QString fixPathToTargetOS(const QString& in, bool fix_env=TRUE, bool canonical=TRUE);
+    //and convenience functions
+    static QString fixPathToLocalOS(const QString& in, bool fix_env=true, bool canonical=true);
+    static QString fixPathToTargetOS(const QString& in, bool fix_env=true, bool canonical=true);
 
     //global qmake mode, can only be in one mode per invocation!
-    enum QMAKE_MODE { QMAKE_GENERATE_NOTHING, QMAKE_GENERATE_PROJECT, QMAKE_GENERATE_MAKEFILE, 
-		      QMAKE_GENERATE_PRL, QMAKE_SET_PROPERTY, QMAKE_QUERY_PROPERTY };
+    enum QMAKE_MODE { QMAKE_GENERATE_NOTHING, QMAKE_GENERATE_PROJECT, QMAKE_GENERATE_MAKEFILE,
+                      QMAKE_GENERATE_PRL, QMAKE_SET_PROPERTY, QMAKE_QUERY_PROPERTY };
     static QMAKE_MODE qmake_mode;
 
     //all modes
@@ -80,31 +80,31 @@ struct Option
     static TARG_MODE target_mode;
     static QString user_template, user_template_prefix;
 
-    
+
     //QMAKE_*_PROPERTY options
     struct prop {
-	static QStringList properties;
+        static QStringList properties;
     };
 
     //QMAKE_GENERATE_PROJECT options
     struct projfile {
-	static bool do_pwd;
-	static bool do_recursive;
-	static QStringList project_dirs;
+        static bool do_pwd;
+        static bool do_recursive;
+        static QStringList project_dirs;
     };
 
     //QMAKE_GENERATE_MAKEFILE options
     struct mkfile {
-	static QString qmakespec;
-	static bool do_cache;
-	static bool do_deps;
-	static bool do_mocs;
-	static bool do_dep_heuristics;
-	static bool do_preprocess;
-	static QString cachefile;
-	static int cachefile_depth;
-	static QStringList project_files;
-	static QString qmakespec_commandline;
+        static QString qmakespec;
+        static bool do_cache;
+        static bool do_deps;
+        static bool do_mocs;
+        static bool do_dep_heuristics;
+        static bool do_preprocess;
+        static QString cachefile;
+        static int cachefile_depth;
+        static QStringList project_files;
+        static QString qmakespec_commandline;
     };
 
 private:

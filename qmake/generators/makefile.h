@@ -98,10 +98,10 @@ protected:
 
     enum FileFixifyType { FileFixifyAbsolute, FileFixifyRelative, FileFixifyDefault };
     QString fileFixify(const QString& file, const QString &out_dir=QString::null,
-		       const QString &in_dir=QString::null, FileFixifyType fix=FileFixifyDefault, bool canon=TRUE) const;
-    inline QString fileFixify(const QString& file, FileFixifyType fix, bool canon=TRUE) const { return fileFixify(file, QString::null, QString::null, fix, canon); }
+                       const QString &in_dir=QString::null, FileFixifyType fix=FileFixifyDefault, bool canon=true) const;
+    inline QString fileFixify(const QString& file, FileFixifyType fix, bool canon=true) const { return fileFixify(file, QString::null, QString::null, fix, canon); }
     QStringList fileFixify(const QStringList& files, const QString &out_dir=QString::null,
-			   const QString &in_dir=QString::null, FileFixifyType fix=FileFixifyDefault, bool canon=TRUE) const;
+                           const QString &in_dir=QString::null, FileFixifyType fix=FileFixifyDefault, bool canon=true) const;
 public:
     MakefileGenerator(QMakeProject *p);
     virtual ~MakefileGenerator();
@@ -127,7 +127,7 @@ inline QString MakefileGenerator::defaultInstall(const QString &)
 { return QString(""); }
 
 inline bool MakefileGenerator::findLibraries()
-{ return TRUE; }
+{ return true; }
 
 inline QString MakefileGenerator::findDependency(const QString &)
 { return QString(""); }

@@ -36,21 +36,21 @@ class QAquaFocusWidget : public QWidget
 {
     Q_OBJECT
 public:
-    QAquaFocusWidget(bool noerase=TRUE, QWidget *w=NULL);
+    QAquaFocusWidget(bool noerase=true, QWidget *w=NULL);
     ~QAquaFocusWidget() {}
-    void setFocusWidget( QWidget * widget );
+    void setFocusWidget(QWidget * widget);
     QWidget* widget() const { return d; }
-    QSize sizeHint() const { return QSize( 0, 0 ); }
+    QSize sizeHint() const { return QSize(0, 0); }
 
 protected:
-    bool eventFilter( QObject * o, QEvent * e );
+    bool eventFilter(QObject * o, QEvent * e);
 
-protected: 
-    virtual void paintEvent( QPaintEvent * ) = 0;
+protected:
+    virtual void paintEvent(QPaintEvent *) = 0;
     virtual int focusOutset() const { return 3; }
-    virtual QRegion focusRegion() const { return QRegion( focusOutset() + 2, focusOutset() + 2, 
-						    width() - ((focusOutset() + 2) * 2), 
-						    height() - ((focusOutset() + 2) * 2)); }
+    virtual QRegion focusRegion() const { return QRegion(focusOutset() + 2, focusOutset() + 2,
+                                                    width() - ((focusOutset() + 2) * 2),
+                                                    height() - ((focusOutset() + 2) * 2)); }
 
 private:
     QWidget *d;
@@ -101,17 +101,17 @@ private slots:
 /*
   Hackish method of finding out whether the window is active or not
  */
-static inline bool qAquaActive( const QPalette &pal )
+static inline bool qAquaActive(const QPalette &pal)
 {
     return (pal.currentColorGroup() == QPalette::Active);
 }
 
-/* 
+/*
    Detects sizes to comply with Aqua Style Guidelines
 */
 enum QAquaWidgetSize { QAquaSizeLarge, QAquaSizeSmall, QAquaSizeUnknown };
-QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg, 
-				       QStyle::ContentsType ct=QStyle::CT_CustomBase, 
-				       QSize szHint=QSize(-1, -1), QSize *insz=NULL);
+QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg,
+                                       QStyle::ContentsType ct=QStyle::CT_CustomBase,
+                                       QSize szHint=QSize(-1, -1), QSize *insz=NULL);
 
 #endif /* QAQUASTYLE_P_H */

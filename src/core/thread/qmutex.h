@@ -39,17 +39,17 @@ public:
 
     inline bool isLocked()
     {
-	if (!tryLock()) return true;
-	unlock();
-	return false;
+        if (!tryLock()) return true;
+        unlock();
+        return false;
     }
 
 private:
     QMutexPrivate * d;
 
 #if defined(Q_DISABLE_COPY)
-    QMutex( const QMutex & );
-    QMutex &operator=( const QMutex & );
+    QMutex(const QMutex &);
+    QMutex &operator=(const QMutex &);
 #endif
 };
 
@@ -57,7 +57,7 @@ class Q_CORE_EXPORT QMutexLocker
 {
 public:
     inline QMutexLocker(QMutex *m)
-	: mtx(m)
+        : mtx(m)
     { relock(); }
     inline ~QMutexLocker()
     { unlock(); }
@@ -75,8 +75,8 @@ private:
     QMutex *mtx;
 
 #if defined(Q_DISABLE_COPY)
-    QMutexLocker( const QMutexLocker & );
-    QMutexLocker &operator=( const QMutexLocker & );
+    QMutexLocker(const QMutexLocker &);
+    QMutexLocker &operator=(const QMutexLocker &);
 #endif
 };
 
@@ -97,8 +97,8 @@ public:
 
 private:
 #if defined(Q_DISABLE_COPY)
-    QMutex( const QMutex & );
-    QMutex &operator=( const QMutex & );
+    QMutex(const QMutex &);
+    QMutex &operator=(const QMutex &);
 #endif
 };
 
@@ -114,8 +114,8 @@ public:
 
 private:
 #if defined(Q_DISABLE_COPY)
-    QMutexLocker( const QMutexLocker & );
-    QMutexLocker &operator=( const QMutexLocker & );
+    QMutexLocker(const QMutexLocker &);
+    QMutexLocker &operator=(const QMutexLocker &);
 #endif
 };
 

@@ -42,13 +42,13 @@ class QQnx4MouseHandlerPrivate : public QWSMouseHandler {
         QQnx4MouseHandlerPrivate(MouseProtocol &, QString);
         ~QQnx4MouseHandlerPrivate();
 
-	void clearCalibration();
-	void calibrate();
-	void getCalibration( QWSPointerCalibrationData * ) const;
+        void clearCalibration();
+        void calibrate();
+        void getCalibration(QWSPointerCalibrationData *) const;
 
     private:
-	QSocketNotifier *mouseNotifier;
-	int mouseFD, read_in;
+        QSocketNotifier *mouseNotifier;
+        int mouseFD, read_in;
         mouse_event *mpack;
 
     private slots:

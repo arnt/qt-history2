@@ -34,15 +34,15 @@
  *****************************************************************************/
 
 static const int TextClipboard=424242;
-static bool init=FALSE;
+static bool init=false;
 
 
 static inline void qwsInitClipboard()
 {
     //### this should go into QWSServer; it only needs to happen once.
-    if ( !init ) {
-	QPaintDevice::qwsDisplay()->addProperty( 0, TextClipboard );
-	init = TRUE;
+    if (!init) {
+        QPaintDevice::qwsDisplay()->addProperty(0, TextClipboard);
+        init = true;
     }
 }
 
@@ -52,24 +52,24 @@ static QString qwsClipboardText()
     char * data;
     int len;
     qwsInitClipboard();
-    QPaintDevice::qwsDisplay()->getProperty( 0, TextClipboard, data, len );
-    //    qDebug( "Property received: %d bytes", len );
+    QPaintDevice::qwsDisplay()->getProperty(0, TextClipboard, data, len);
+    //    qDebug("Property received: %d bytes", len);
 
-    QString s( (const QChar*)data, len/2 );
-    //    qDebug( "Property received: '%s'", s.latin1());
+    QString s((const QChar*)data, len/2);
+    //    qDebug("Property received: '%s'", s.latin1());
     delete[] data;
     return s;
 }
 
 
-static void qwsSetClipboardText( const QString& s )
+static void qwsSetClipboardText(const QString& s)
 {
     qwsInitClipboard();
     QByteArray ba;
     int len =  s.length()*sizeof(QChar);
-    ba.duplicate( (const char*)s.unicode(), len );
+    ba.duplicate((const char*)s.unicode(), len);
     QPaintDevice::qwsDisplay()->
-	setProperty( 0, TextClipboard, QWSPropertyManager::PropReplace, ba );
+        setProperty(0, TextClipboard, QWSPropertyManager::PropReplace, ba);
 
 }
 #endif
@@ -86,10 +86,10 @@ static void cleanup()
 static
 void setupOwner()
 {
-    if ( owner )
-	return;
-    owner = new QWidget( 0, "internal clibpoard owner" );
-    qAddPostRoutine( cleanup );
+    if (owner)
+        return;
+    owner = new QWidget(0, "internal clibpoard owner");
+    qAddPostRoutine(cleanup);
 }
 
 
@@ -100,19 +100,19 @@ public:
    ~QClipboardData();
 
     void setSource(QMimeSource* s)
-	{ delete src; src = s; }
+        { delete src; src = s; }
     QMimeSource* source()
-	{ return src; }
+        { return src; }
     void addTransferredPixmap(QPixmap pm)
-	{ /* TODO: queue them */
-	    transferred[tindex] = pm;
-	    tindex=(tindex+1)%2;
-	}
+        { /* TODO: queue them */
+            transferred[tindex] = pm;
+            tindex=(tindex+1)%2;
+        }
     void clearTransfers()
-	{
-	    transferred[0] = QPixmap();
-	    transferred[1] = QPixmap();
-	}
+        {
+            transferred[0] = QPixmap();
+            transferred[1] = QPixmap();
+        }
 
     void clear();
 
@@ -151,9 +151,9 @@ static void cleanupClipboardData()
 
 static QClipboardData *clipboardData()
 {
-    if ( internalCbData == 0 ) {
-	internalCbData = new QClipboardData;
-	qAddPostRoutine( cleanupClipboardData );
+    if (internalCbData == 0) {
+        internalCbData = new QClipboardData;
+        qAddPostRoutine(cleanupClipboardData);
     }
     return internalCbData;
 }
@@ -170,24 +170,24 @@ QString QClipboard::text() const
     return qwsClipboardText();
 }
 
-void QClipboard::setText( const QString &text )
+void QClipboard::setText(const QString &text)
 {
-    qwsSetClipboardText( text );
+    qwsSetClipboardText(text);
 }
 
 QString QClipboard::text(QString& subtype) const
 {
     QString r;
-    if ( subtype == "plain" )
-	r = text();
+    if (subtype == "plain")
+        r = text();
     return r;
 }
 
 #endif
 
-void QClipboard::clear( Mode mode )
+void QClipboard::clear(Mode mode)
 {
-    setText( QString::null, mode );
+    setText(QString::null, mode);
 }
 
 
@@ -196,61 +196,61 @@ void QClipboard::ownerDestroyed()
 }
 
 
-void QClipboard::connectNotify( const char * )
+void QClipboard::connectNotify(const char *)
 {
 }
 
 
-bool QClipboard::event( QEvent *e )
+bool QClipboard::event(QEvent *e)
 {
-    if ( e->type() != QEvent::Clipboard )
-	return QObject::event( e );
+    if (e->type() != QEvent::Clipboard)
+        return QObject::event(e);
 
     QWSPropertyNotifyEvent *event = (QWSPropertyNotifyEvent *)(((QCustomEvent *)e)->data());
-    if ( event && event->simpleData.state == QWSPropertyNotifyEvent::PropertyNewValue ) {
-	emit dataChanged();
+    if (event && event->simpleData.state == QWSPropertyNotifyEvent::PropertyNewValue) {
+        emit dataChanged();
     }
 
-    return TRUE;
+    return true;
 }
 
 #ifndef QT_NO_MIMECLIPBOARD
-QMimeSource* QClipboard::data( Mode mode ) const
+QMimeSource* QClipboard::data(Mode mode) const
 {
-    if ( mode != Clipboard ) return 0;
+    if (mode != Clipboard) return 0;
 
     QClipboardData *d = clipboardData();
     return d->source();
 }
 
-void QClipboard::setData( QMimeSource* src, Mode mode )
+void QClipboard::setData(QMimeSource* src, Mode mode)
 {
-    if ( mode != Clipboard ) return;
+    if (mode != Clipboard) return;
 
     QClipboardData *d = clipboardData();
     setupOwner();
 
-    d->setSource( src );
+    d->setSource(src);
     emit dataChanged();
 }
 #endif
 
 bool QClipboard::supportsSelection() const
 {
-    return FALSE;
+    return false;
 }
 
 
 bool QClipboard::ownsSelection() const
 {
-    return FALSE;
+    return false;
 }
 
 
 bool QClipboard::ownsClipboard() const
 {
     qWarning("QClipboard::ownsClipboard: UNIMPLEMENTED!");
-    return FALSE;
+    return false;
 }
 
 

@@ -7,7 +7,7 @@ public:
     GfxVga16Driver();
 
     QStringList keys() const;
-    QScreen *create( const QString&, int displayId );
+    QScreen *create(const QString&, int displayId);
 };
 
 GfxVga16Driver::GfxVga16Driver()
@@ -22,12 +22,12 @@ QStringList GfxVga16Driver::keys() const
     return list;
 }
 
-QScreen* GfxVga16Driver::create( const QString& driver, int displayId )
+QScreen* GfxVga16Driver::create(const QString& driver, int displayId)
 {
-    if ( driver.lower() == "vga16" )
-        return new QVga16Screen( displayId );
+    if (driver.lower() == "vga16")
+        return new QVga16Screen(displayId);
 
     return 0;
 }
 
-Q_EXPORT_PLUGIN( GfxVga16Driver )
+Q_EXPORT_PLUGIN(GfxVga16Driver)

@@ -41,7 +41,7 @@ class QStyle;
 
 struct Q_GUI_EXPORT QStyleFactoryInterface : public QFeatureListInterface
 {
-    virtual QStyle* create( const QString& style ) = 0;
+    virtual QStyle* create(const QString& style) = 0;
 };
 
 #endif //QT_NO_COMPONENT

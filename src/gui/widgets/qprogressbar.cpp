@@ -69,17 +69,17 @@
     \sa setTotalSteps()
 */
 
-QProgressBar::QProgressBar( QWidget *parent, const char *name, WFlags f )
-    : QFrame( parent, name, f ),
-      total_steps( 100 ),
-      progress_val( -1 ),
-      percentage( -1 ),
-      center_indicator( TRUE ),
-      auto_indicator( TRUE ),
-      percentage_visible( TRUE ),
-      d( 0 )
+QProgressBar::QProgressBar(QWidget *parent, const char *name, WFlags f)
+    : QFrame(parent, name, f),
+      total_steps(100),
+      progress_val(-1),
+      percentage(-1),
+      center_indicator(true),
+      auto_indicator(true),
+      percentage_visible(true),
+      d(0)
 {
-    setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
+    setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
     initFrame();
 }
 
@@ -99,18 +99,18 @@ QProgressBar::QProgressBar( QWidget *parent, const char *name, WFlags f )
     \sa setTotalSteps(), setProgress()
 */
 
-QProgressBar::QProgressBar( int totalSteps,
-			    QWidget *parent, const char *name, WFlags f )
-    : QFrame( parent, name, f ),
-      total_steps( totalSteps ),
-      progress_val( -1 ),
-      percentage( -1 ),
-      center_indicator( TRUE ),
-      auto_indicator( TRUE ),
-      percentage_visible( TRUE ),
-      d( 0 )
+QProgressBar::QProgressBar(int totalSteps,
+                            QWidget *parent, const char *name, WFlags f)
+    : QFrame(parent, name, f),
+      total_steps(totalSteps),
+      progress_val(-1),
+      percentage(-1),
+      center_indicator(true),
+      auto_indicator(true),
+      percentage_visible(true),
+      d(0)
 {
-    setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
+    setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
     initFrame();
 }
 
@@ -139,17 +139,17 @@ void QProgressBar::reset()
     \sa totalSteps()
 */
 
-void QProgressBar::setTotalSteps( int totalSteps )
+void QProgressBar::setTotalSteps(int totalSteps)
 {
     total_steps = totalSteps;
 
     // Current progress is invalid if larger than total
-    if ( total_steps < progress_val )
-	progress_val = -1;
+    if (total_steps < progress_val)
+        progress_val = -1;
 
-    if ( isVisible() &&
-	 ( setIndicator(progress_str, progress_val, total_steps) || !total_steps ) )
-	repaint();
+    if (isVisible() &&
+         (setIndicator(progress_str, progress_val, total_steps) || !total_steps))
+        repaint();
 }
 
 
@@ -160,20 +160,20 @@ void QProgressBar::setTotalSteps( int totalSteps )
     This property is -1 if progress counting has not started.
 */
 
-void QProgressBar::setProgress( int progress )
+void QProgressBar::setProgress(int progress)
 {
-    if ( progress == progress_val ||
-	 progress < 0 || ( ( progress > total_steps ) && total_steps ) )
-	return;
+    if (progress == progress_val ||
+         progress < 0 || ((progress > total_steps) && total_steps))
+        return;
 
     progress_val = progress;
 
-    setIndicator( progress_str, progress_val, total_steps );
+    setIndicator(progress_str, progress_val, total_steps);
 
     repaint();
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
+    QAccessible::updateAccessibility(this, 0, QAccessible::ValueChanged);
 #endif
 }
 
@@ -186,11 +186,11 @@ void QProgressBar::setProgress( int progress )
     \sa setTotalSteps()
 */
 
-void QProgressBar::setProgress( int progress, int totalSteps )
+void QProgressBar::setProgress(int progress, int totalSteps)
 {
-    if ( total_steps != totalSteps )
-	setTotalSteps( totalSteps );
-    setProgress( progress );
+    if (total_steps != totalSteps)
+        setTotalSteps(totalSteps);
+    setProgress(progress);
 }
 
 /*!
@@ -210,8 +210,8 @@ QSize QProgressBar::sizeHint() const
     QFontMetrics fm = fontMetrics();
     int cw = style().pixelMetric(QStyle::PM_ProgressBarChunkWidth, this);
     return style().sizeFromContents(QStyle::CT_ProgressBar, this,
-				    QSize( cw * 7 + fm.width( '0' ) * 4,
-					   fm.height() + 8));
+                                    QSize(cw * 7 + fm.width('0') * 4,
+                                           fm.height() + 8));
 }
 
 
@@ -228,14 +228,14 @@ QSize QProgressBar::minimumSizeHint() const
     \brief whether the indicator string should be centered
 
     Changing this property sets \l QProgressBar::indicatorFollowsStyle
-    to FALSE. The default is TRUE.
+    to false. The default is true.
 */
 
-void QProgressBar::setCenterIndicator( bool on )
+void QProgressBar::setCenterIndicator(bool on)
 {
-    if ( !auto_indicator && on == center_indicator )
-	return;
-    auto_indicator = FALSE;
+    if (!auto_indicator && on == center_indicator)
+        return;
+    auto_indicator = false;
     center_indicator = on;
     repaint();
 }
@@ -244,15 +244,15 @@ void QProgressBar::setCenterIndicator( bool on )
     \property QProgressBar::indicatorFollowsStyle
     \brief whether the display of the indicator string should follow the GUI style
 
-    The default is TRUE.
+    The default is true.
 
     \sa centerIndicator
 */
 
-void QProgressBar::setIndicatorFollowsStyle( bool on )
+void QProgressBar::setIndicatorFollowsStyle(bool on)
 {
-    if ( on == auto_indicator )
-	return;
+    if (on == auto_indicator)
+        return;
     auto_indicator = on;
     repaint();
 }
@@ -261,14 +261,14 @@ void QProgressBar::setIndicatorFollowsStyle( bool on )
     \property QProgressBar::percentageVisible
     \brief whether the current progress value is displayed
 
-    The default is TRUE.
+    The default is true.
 
     \sa centerIndicator, indicatorFollowsStyle
 */
-void QProgressBar::setPercentageVisible( bool on )
+void QProgressBar::setPercentageVisible(bool on)
 {
-    if ( on == percentage_visible )
-	return;
+    if (on == percentage_visible)
+        return;
     percentage_visible = on;
     repaint();
 }
@@ -278,7 +278,7 @@ void QProgressBar::setPercentageVisible( bool on )
 */
 void QProgressBar::show()
 {
-    setIndicator( progress_str, progress_val, total_steps );
+    setIndicator(progress_str, progress_val, total_steps);
     QFrame::show();
 }
 
@@ -290,10 +290,10 @@ void QProgressBar::initFrame()
 /*!
     \reimp
 */
-void QProgressBar::changeEvent( QEvent *ev )
+void QProgressBar::changeEvent(QEvent *ev)
 {
     if(ev->type() == QEvent::StyleChange)
-	initFrame();
+        initFrame();
     QFrame::changeEvent(ev);
 }
 
@@ -311,33 +311,33 @@ void QProgressBar::changeEvent( QEvent *ev )
     text if you wish.
 
     To allow efficient repainting of the progress bar, this method
-    should return FALSE if the string is unchanged from the last call
+    should return false if the string is unchanged from the last call
     to this function.
 */
 
-bool QProgressBar::setIndicator( QString & indicator, int progress,
-				 int totalSteps )
+bool QProgressBar::setIndicator(QString & indicator, int progress,
+                                 int totalSteps)
 {
-    if ( !totalSteps )
-	return FALSE;
-    if ( progress < 0 ) {
-	indicator = QString::fromLatin1("");
-	return TRUE;
+    if (!totalSteps)
+        return false;
+    if (progress < 0) {
+        indicator = QString::fromLatin1("");
+        return true;
     } else {
-	// Get the values down to something usable.
-	if ( totalSteps > INT_MAX/1000 ) {
-	    progress /= 1000;
-	    totalSteps /= 1000;
-	}
+        // Get the values down to something usable.
+        if (totalSteps > INT_MAX/1000) {
+            progress /= 1000;
+            totalSteps /= 1000;
+        }
 
-	int np = progress * 100 / totalSteps;
-	if ( np != percentage ) {
-	    percentage = np;
-	    indicator.sprintf( "%d%%", np );
-	    return TRUE;
-	} else {
-	    return FALSE;
-	}
+        int np = progress * 100 / totalSteps;
+        if (np != percentage) {
+            percentage = np;
+            indicator.sprintf("%d%%", np);
+            return true;
+        } else {
+            return false;
+        }
     }
 }
 
@@ -345,29 +345,29 @@ bool QProgressBar::setIndicator( QString & indicator, int progress,
 /*!
     \reimp
 */
-void QProgressBar::paintEvent( QPaintEvent * )
+void QProgressBar::paintEvent(QPaintEvent *)
 {
     QPainter paint(this);
     QPainter *p = &paint;
     drawFrame(p);
     QStyle::SFlags flags = QStyle::Style_Default;
     if (isEnabled())
-	flags |= QStyle::Style_Enabled;
+        flags |= QStyle::Style_Enabled;
     if (hasFocus())
-	flags |= QStyle::Style_HasFocus;
+        flags |= QStyle::Style_HasFocus;
 
     style().drawControl(QStyle::CE_ProgressBarGroove, p, this,
-			QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarGroove, this), this ),
-			palette(), flags);
+                        QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarGroove, this), this),
+                        palette(), flags);
 
     style().drawControl(QStyle::CE_ProgressBarContents, p, this,
-			QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarContents, this), this ),
-			palette(), flags);
+                        QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarContents, this), this),
+                        palette(), flags);
 
     if (percentageVisible())
-	style().drawControl(QStyle::CE_ProgressBarLabel, p, this,
-			    QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarLabel, this), this ),
-			    palette(), flags);
+        style().drawControl(QStyle::CE_ProgressBarLabel, p, this,
+                            QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarLabel, this), this),
+                            palette(), flags);
 }
 
 #endif

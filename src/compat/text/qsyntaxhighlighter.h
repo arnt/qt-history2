@@ -31,14 +31,14 @@ class Q_GUI_EXPORT QSyntaxHighlighter : public Qt
     friend class QSyntaxHighlighterInternal;
 
 public:
-    QSyntaxHighlighter( QTextEdit *textEdit );
+    QSyntaxHighlighter(QTextEdit *textEdit);
     virtual ~QSyntaxHighlighter();
 
-    virtual int highlightParagraph( const QString &text, int endStateOfLastPara ) = 0;
+    virtual int highlightParagraph(const QString &text, int endStateOfLastPara) = 0;
 
-    void setFormat( int start, int count, const QFont &font, const QColor &color );
-    void setFormat( int start, int count, const QColor &color );
-    void setFormat( int start, int count, const QFont &font );
+    void setFormat(int start, int count, const QFont &font, const QColor &color);
+    void setFormat(int start, int count, const QColor &color);
+    void setFormat(int start, int count, const QFont &font);
     QTextEdit *textEdit() const { return edit; }
 
     void rehighlight();

@@ -36,20 +36,20 @@ int QColor::numBitPlanes()
 
 void QColor::initialize()
 {
-    if ( color_init )				// already initialized
-	return;
-    color_init = TRUE;
+    if (color_init)                                // already initialized
+        return;
+    color_init = true;
     if (QPaintDevice::qwsDisplay()->depth() <= 8)
-	colormodel = d8;
+        colormodel = d8;
     else
-	colormodel = d32;
+        colormodel = d32;
 }
 
 void QColor::cleanup()
 {
-    if ( !color_init )
-	return;
-    color_init = FALSE;
+    if (!color_init)
+        return;
+    color_init = false;
 }
 
 #if 0
@@ -88,8 +88,8 @@ inline unsigned int closestMatch(int r,int g,int b)
 {
     QRgb * clut=qt_screen->clut();
     int clutcols=qt_screen->numCols();
-    if ( r>255 || g>255 || b>255 || r<0 || g<0 || b<0 )
-	abort();
+    if (r>255 || g>255 || b>255 || r<0 || g<0 || b<0)
+        abort();
 
     QRgb tomatch=qRgb(r,g,b);
     int loopc;
@@ -97,11 +97,11 @@ inline unsigned int closestMatch(int r,int g,int b)
     unsigned int tmp;
     int pos=0;
     for(loopc=0;loopc<clutcols;loopc++) {
-	tmp=match(clut[loopc],tomatch);
-	if(tmp<hold) {
-	    hold=tmp;
-	    pos=loopc;
-	}
+        tmp=match(clut[loopc],tomatch);
+        if(tmp<hold) {
+            hold=tmp;
+            pos=loopc;
+        }
     }
     return pos;
 }
@@ -123,63 +123,63 @@ uint QColor::alloc()
 
     switch (qt_screen->depth()) {
       case 1: {
-	GET
-	return d.d8.pix = qGray(r,g,b) < 128 ? 1 : 0;
-#if !defined( QT_NO_IMAGE_16_BIT ) || !defined( QT_NO_QWS_DEPTH_16 )
+        GET
+        return d.d8.pix = qGray(r,g,b) < 128 ? 1 : 0;
+#if !defined(QT_NO_IMAGE_16_BIT) || !defined(QT_NO_QWS_DEPTH_16)
       } case 16: {
-	return d.d32.pix = qt_convRgbTo16(d.argb);
+        return d.d32.pix = qt_convRgbTo16(d.argb);
 #endif
       } case 24:
         case 32: {
-	GET
-	const int red_shift = 16;
-	const int green_shift = 8;
-	const int red_mask   = 0xff0000;
-	const int green_mask = 0x00ff00;
-	const int blue_mask  = 0x0000ff;
-	const int tg = g << green_shift;
+        GET
+        const int red_shift = 16;
+        const int green_shift = 8;
+        const int red_mask   = 0xff0000;
+        const int green_mask = 0x00ff00;
+        const int blue_mask  = 0x0000ff;
+        const int tg = g << green_shift;
 #ifndef QT_NO_QWS_DEPTH_32_BGR
-	if ( qt_screen->pixelType() == QGfx::BGRPixel ) {
-	    const int tb = b << red_shift;
-	    d.d32.pix = (r & blue_mask) | (tg & green_mask) | (tb & red_mask);
-	} else
+        if (qt_screen->pixelType() == QGfx::BGRPixel) {
+            const int tb = b << red_shift;
+            d.d32.pix = (r & blue_mask) | (tg & green_mask) | (tb & red_mask);
+        } else
 #endif
-	{
-	    const int tr = r << red_shift;
-	    d.d32.pix = (b & blue_mask) | (tg & green_mask) | (tr & red_mask);
-	}
-	return d.d32.pix |= 0xff000000;
+        {
+            const int tr = r << red_shift;
+            d.d32.pix = (b & blue_mask) | (tg & green_mask) | (tr & red_mask);
+        }
+        return d.d32.pix |= 0xff000000;
      } default: {
-	GET
-	return d.d8.pix=qt_screen->alloc(r,g,b);
+        GET
+        return d.d8.pix=qt_screen->alloc(r,g,b);
       }
     }
 }
 
-void QColor::setSystemNamedColor( const QString& name )
+void QColor::setSystemNamedColor(const QString& name)
 {
     // setSystemNamedColor should look up rgb values from the built in
     // color tables first (see qcolor_p.cpp), and failing that, use
     // the window system's interface for translating names to rgb values...
     // we do this so that things like uic can load an XPM file with named colors
     // and convert it to a png without having to use window system functions...
-    d.argb = qt_get_rgb_val( name.latin1() );
+    d.argb = qt_get_rgb_val(name.latin1());
     QRgb rgb;
-    if ( qt_get_named_rgb( name.latin1(), &rgb ) ) {
-	d.argb = rgb;
-	if ( colormodel == d8 ) {
-	    d.d8.invalid = FALSE;
-	    d.d8.dirty = TRUE;
-	    d.d8.pix = 0;
-	} else {
-	    if ( qt_screen )
-		alloc();
-	    else
-		d.d32.pix = d.argb | 0xff000000;
-	}
+    if (qt_get_named_rgb(name.latin1(), &rgb)) {
+        d.argb = rgb;
+        if (colormodel == d8) {
+            d.d8.invalid = false;
+            d.d8.dirty = true;
+            d.d8.pix = 0;
+        } else {
+            if (qt_screen)
+                alloc();
+            else
+                d.d32.pix = d.argb | 0xff000000;
+        }
     } else {
-	// set to invalid color
-	*this = QColor();
+        // set to invalid color
+        *this = QColor();
     }
 }
 
@@ -200,6 +200,6 @@ int QColor::currentAllocContext()
 }
 
 
-void QColor::destroyAllocContext( int )
+void QColor::destroyAllocContext(int)
 {
 }

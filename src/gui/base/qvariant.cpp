@@ -48,145 +48,145 @@ template<typename T> inline T *v_cast(void *&p)
 static void construct(QVariant::Private *x, const void *v)
 {
     if (v) {
-	switch( x->type ) {
-	case QVariant::Bitmap:
-	    x->value.ptr = new QBitmap(*static_cast<const QBitmap *>(v));
-	    break;
-	case QVariant::Region:
-	    x->value.ptr = new QRegion(*static_cast<const QRegion *>(v));
-	    break;
-	case QVariant::PointArray:
-	    x->value.ptr = new QPointArray(*static_cast<const QPointArray *>(v));
-	    break;
-	case QVariant::Font:
-	    x->value.ptr = new QFont(*static_cast<const QFont *>(v));
-	    break;
-	case QVariant::Pixmap:
-	    x->value.ptr = new QPixmap(*static_cast<const QPixmap *>(v));
-	    break;
-	case QVariant::Image:
-	    x->value.ptr = new QImage(*static_cast<const QImage *>(v));
-	    break;
-	case QVariant::Brush:
-	    x->value.ptr = new QBrush(*static_cast<const QBrush *>(v));
-	    break;
-	case QVariant::Point:
-	    x->value.ptr = new QPoint(*static_cast<const QPoint *>(v));
-	    break;
-	case QVariant::Rect:
-	    x->value.ptr = new QRect(*static_cast<const QRect *>(v));
-	    break;
-	case QVariant::Size:
-	    x->value.ptr = new QSize(*static_cast<const QSize *>(v));
-	    break;
-	case QVariant::Color:
-	    x->value.ptr = new QColor(*static_cast<const QColor *>(v));
-	    break;
+        switch(x->type) {
+        case QVariant::Bitmap:
+            x->value.ptr = new QBitmap(*static_cast<const QBitmap *>(v));
+            break;
+        case QVariant::Region:
+            x->value.ptr = new QRegion(*static_cast<const QRegion *>(v));
+            break;
+        case QVariant::PointArray:
+            x->value.ptr = new QPointArray(*static_cast<const QPointArray *>(v));
+            break;
+        case QVariant::Font:
+            x->value.ptr = new QFont(*static_cast<const QFont *>(v));
+            break;
+        case QVariant::Pixmap:
+            x->value.ptr = new QPixmap(*static_cast<const QPixmap *>(v));
+            break;
+        case QVariant::Image:
+            x->value.ptr = new QImage(*static_cast<const QImage *>(v));
+            break;
+        case QVariant::Brush:
+            x->value.ptr = new QBrush(*static_cast<const QBrush *>(v));
+            break;
+        case QVariant::Point:
+            x->value.ptr = new QPoint(*static_cast<const QPoint *>(v));
+            break;
+        case QVariant::Rect:
+            x->value.ptr = new QRect(*static_cast<const QRect *>(v));
+            break;
+        case QVariant::Size:
+            x->value.ptr = new QSize(*static_cast<const QSize *>(v));
+            break;
+        case QVariant::Color:
+            x->value.ptr = new QColor(*static_cast<const QColor *>(v));
+            break;
 #ifndef QT_NO_PALETTE
-	case QVariant::Palette:
-	    x->value.ptr = new QPalette(*static_cast<const QPalette *>(v));
-	    break;
+        case QVariant::Palette:
+            x->value.ptr = new QPalette(*static_cast<const QPalette *>(v));
+            break;
 #ifdef QT_COMPAT
-	case QVariant::ColorGroup:
-	    x->value.ptr = new QColorGroup(*static_cast<const QColorGroup *>(v));
-	    break;
+        case QVariant::ColorGroup:
+            x->value.ptr = new QColorGroup(*static_cast<const QColorGroup *>(v));
+            break;
 #endif
 #endif
 #ifndef QT_NO_ICONSET
-	case QVariant::IconSet:
-	    x->value.ptr = new QIconSet(*static_cast<const QIconSet *>(v));
-	    break;
+        case QVariant::IconSet:
+            x->value.ptr = new QIconSet(*static_cast<const QIconSet *>(v));
+            break;
 #endif
 #ifndef QT_NO_ACCEL
-	case QVariant::KeySequence:
-	    x->value.ptr = new QKeySequence(*static_cast<const QKeySequence *>(v));
-	    break;
+        case QVariant::KeySequence:
+            x->value.ptr = new QKeySequence(*static_cast<const QKeySequence *>(v));
+            break;
 #endif
-	case QVariant::Pen:
-	    x->value.ptr = new QPen(*static_cast<const QPen *>(v));
-	    break;
-	case QVariant::SizePolicy:
-	    x->value.ptr = new QSizePolicy(*static_cast<const QSizePolicy *>(v));
-	    break;
-	case QVariant::Cursor:
-	    x->value.ptr = new QCursor(*static_cast<const QCursor *>(v));
-	    break;
-	default:
-	    qcoreVariantHandler()->construct(x, v);
-	}
-	x->is_null = false;
+        case QVariant::Pen:
+            x->value.ptr = new QPen(*static_cast<const QPen *>(v));
+            break;
+        case QVariant::SizePolicy:
+            x->value.ptr = new QSizePolicy(*static_cast<const QSizePolicy *>(v));
+            break;
+        case QVariant::Cursor:
+            x->value.ptr = new QCursor(*static_cast<const QCursor *>(v));
+            break;
+        default:
+            qcoreVariantHandler()->construct(x, v);
+        }
+        x->is_null = false;
     } else {
-	switch (x->type) {
-	case QVariant::Bitmap:
-	    x->value.ptr = new QBitmap;
-	    break;
-	case QVariant::Region:
-	    x->value.ptr = new QRegion;
-	    break;
-	case QVariant::PointArray:
-	    x->value.ptr = new QPointArray;
-	    break;
-	case QVariant::Font:
-	    x->value.ptr = new QFont;
-	    break;
-	case QVariant::Pixmap:
-	    x->value.ptr = new QPixmap;
-	    break;
-	case QVariant::Image:
-	    // QImage is explicit shared
-	    x->value.ptr = new QImage;
-	    break;
-	case QVariant::Brush:
-	    x->value.ptr = new QBrush;
-	    // ## Force a detach
-	    // ((QBrush*)value.ptr)->setColor( ((QBrush*)value.ptr)->color() );
-	    break;
-	case QVariant::Point:
-	    x->value.ptr = new QPoint;
-	    break;
-	case QVariant::Rect:
-	    x->value.ptr = new QRect;
-	    break;
-	case QVariant::Size:
-	    x->value.ptr = new QSize;
-	    break;
-	case QVariant::Color:
-	    x->value.ptr = new QColor;
-	    break;
+        switch (x->type) {
+        case QVariant::Bitmap:
+            x->value.ptr = new QBitmap;
+            break;
+        case QVariant::Region:
+            x->value.ptr = new QRegion;
+            break;
+        case QVariant::PointArray:
+            x->value.ptr = new QPointArray;
+            break;
+        case QVariant::Font:
+            x->value.ptr = new QFont;
+            break;
+        case QVariant::Pixmap:
+            x->value.ptr = new QPixmap;
+            break;
+        case QVariant::Image:
+            // QImage is explicit shared
+            x->value.ptr = new QImage;
+            break;
+        case QVariant::Brush:
+            x->value.ptr = new QBrush;
+            // ## Force a detach
+            // ((QBrush*)value.ptr)->setColor(((QBrush*)value.ptr)->color());
+            break;
+        case QVariant::Point:
+            x->value.ptr = new QPoint;
+            break;
+        case QVariant::Rect:
+            x->value.ptr = new QRect;
+            break;
+        case QVariant::Size:
+            x->value.ptr = new QSize;
+            break;
+        case QVariant::Color:
+            x->value.ptr = new QColor;
+            break;
 #ifndef QT_NO_PALETTE
-	case QVariant::Palette:
-	    x->value.ptr = new QPalette;
-	    break;
+        case QVariant::Palette:
+            x->value.ptr = new QPalette;
+            break;
 #ifdef QT_COMPAT
-	case QVariant::ColorGroup:
-	    x->value.ptr = new QColorGroup;
-	    break;
+        case QVariant::ColorGroup:
+            x->value.ptr = new QColorGroup;
+            break;
 #endif
 #endif
 #ifndef QT_NO_ICONSET
-	case QVariant::IconSet:
-	    x->value.ptr = new QIconSet;
-	    break;
+        case QVariant::IconSet:
+            x->value.ptr = new QIconSet;
+            break;
 #endif
 #ifndef QT_NO_ACCEL
-	case QVariant::KeySequence:
-	    x->value.ptr = new QKeySequence;
-	    break;
+        case QVariant::KeySequence:
+            x->value.ptr = new QKeySequence;
+            break;
 #endif
-	case QVariant::Pen:
-	    x->value.ptr = new QPen;
-	    break;
-	case QVariant::SizePolicy:
-	    x->value.ptr = new QSizePolicy;
-	    break;
+        case QVariant::Pen:
+            x->value.ptr = new QPen;
+            break;
+        case QVariant::SizePolicy:
+            x->value.ptr = new QSizePolicy;
+            break;
 #ifndef QT_NO_CURSOR
-	case QVariant::Cursor:
-	    x->value.ptr = new QCursor;
-	    break;
+        case QVariant::Cursor:
+            x->value.ptr = new QCursor;
+            break;
 #endif
-	default:
-	    qcoreVariantHandler()->construct(x, v);
-	}
+        default:
+            qcoreVariantHandler()->construct(x, v);
+        }
 
     }
 }
@@ -197,70 +197,70 @@ static void clear(QVariant::Private *p)
 {
     switch (p->type) {
     case QVariant::Bitmap:
-	delete static_cast<QBitmap *>(p->value.ptr);
-	break;
+        delete static_cast<QBitmap *>(p->value.ptr);
+        break;
     case QVariant::Cursor:
-	delete static_cast<QCursor *>(p->value.ptr);
-	break;
+        delete static_cast<QCursor *>(p->value.ptr);
+        break;
     case QVariant::Region:
-	delete static_cast<QRegion *>(p->value.ptr);
-	break;
+        delete static_cast<QRegion *>(p->value.ptr);
+        break;
     case QVariant::PointArray:
-	delete static_cast<QPointArray *>(p->value.ptr);
-	break;
+        delete static_cast<QPointArray *>(p->value.ptr);
+        break;
     case QVariant::Font:
-	delete static_cast<QFont *>(p->value.ptr);
-	break;
+        delete static_cast<QFont *>(p->value.ptr);
+        break;
     case QVariant::Pixmap:
-	delete static_cast<QPixmap *>(p->value.ptr);
-	break;
+        delete static_cast<QPixmap *>(p->value.ptr);
+        break;
     case QVariant::Image:
-	delete static_cast<QImage *>(p->value.ptr);
-	break;
+        delete static_cast<QImage *>(p->value.ptr);
+        break;
     case QVariant::Brush:
-	delete static_cast<QBrush *>(p->value.ptr);
-	break;
+        delete static_cast<QBrush *>(p->value.ptr);
+        break;
     case QVariant::Point:
-	delete static_cast<QPoint *>(p->value.ptr);
-	break;
+        delete static_cast<QPoint *>(p->value.ptr);
+        break;
     case QVariant::Rect:
-	delete static_cast<QRect *>(p->value.ptr);
-	break;
+        delete static_cast<QRect *>(p->value.ptr);
+        break;
     case QVariant::Size:
-	delete static_cast<QSize *>(p->value.ptr);
-	break;
+        delete static_cast<QSize *>(p->value.ptr);
+        break;
     case QVariant::Color:
-	delete static_cast<QColor *>(p->value.ptr);
-	break;
+        delete static_cast<QColor *>(p->value.ptr);
+        break;
 #ifndef QT_NO_PALETTE
     case QVariant::Palette:
-	delete static_cast<QPalette *>(p->value.ptr);
-	break;
+        delete static_cast<QPalette *>(p->value.ptr);
+        break;
 #ifdef QT_COMPAT
     case QVariant::ColorGroup:
-	delete static_cast<QColorGroup *>(p->value.ptr);
-	break;
+        delete static_cast<QColorGroup *>(p->value.ptr);
+        break;
 #endif
 #endif
 #ifndef QT_NO_ICONSET
     case QVariant::IconSet:
-	delete static_cast<QIconSet *>(p->value.ptr);
-	break;
+        delete static_cast<QIconSet *>(p->value.ptr);
+        break;
 #endif
     case QVariant::SizePolicy:
-	delete static_cast<QSizePolicy *>(p->value.ptr);
-	break;
+        delete static_cast<QSizePolicy *>(p->value.ptr);
+        break;
 #ifndef QT_NO_ACCEL
     case QVariant::KeySequence:
-	delete static_cast<QKeySequence *>(p->value.ptr);
-	break;
+        delete static_cast<QKeySequence *>(p->value.ptr);
+        break;
 #endif
     case QVariant::Pen:
-	delete static_cast<QPen *>(p->value.ptr);
-	break;
+        delete static_cast<QPen *>(p->value.ptr);
+        break;
     default:
-	qcoreVariantHandler()->clear(p);
-	break;
+        qcoreVariantHandler()->clear(p);
+        break;
     }
 
     p->type = QVariant::Invalid;
@@ -274,26 +274,26 @@ static void clear(QVariant::Private *p)
 
 static bool isNull(const QVariant::Private *d)
 {
-    switch( d->type ) {
+    switch(d->type) {
     case QVariant::Bitmap:
-	return static_cast<QBitmap *>(d->value.ptr)->isNull();
+        return static_cast<QBitmap *>(d->value.ptr)->isNull();
     case QVariant::Region:
-	return static_cast<QRegion *>(d->value.ptr)->isEmpty();
+        return static_cast<QRegion *>(d->value.ptr)->isEmpty();
     case QVariant::PointArray:
-	return static_cast<QPointArray *>(d->value.ptr)->isEmpty();
+        return static_cast<QPointArray *>(d->value.ptr)->isEmpty();
     case QVariant::Pixmap:
-	return static_cast<QPixmap *>(d->value.ptr)->isNull();
+        return static_cast<QPixmap *>(d->value.ptr)->isNull();
     case QVariant::Image:
-	return static_cast<QImage *>(d->value.ptr)->isNull();
+        return static_cast<QImage *>(d->value.ptr)->isNull();
     case QVariant::Point:
-	return static_cast<QPoint *>(d->value.ptr)->isNull();
+        return static_cast<QPoint *>(d->value.ptr)->isNull();
     case QVariant::Rect:
-	return static_cast<QRect *>(d->value.ptr)->isNull();
+        return static_cast<QRect *>(d->value.ptr)->isNull();
     case QVariant::Size:
-	return static_cast<QSize *>(d->value.ptr)->isNull();
+        return static_cast<QSize *>(d->value.ptr)->isNull();
 #ifndef QT_NO_ICONSET
     case QVariant::IconSet:
-	return static_cast<QIconSet *>(d->value.ptr)->isNull();
+        return static_cast<QIconSet *>(d->value.ptr)->isNull();
 #endif
     case QVariant::Cursor:
     case QVariant::StringList:
@@ -311,9 +311,9 @@ static bool isNull(const QVariant::Private *d)
     case QVariant::KeySequence:
 #endif
     case QVariant::Pen:
-	break;
+        break;
     default:
-	return qcoreVariantHandler()->isNull(d);
+        return qcoreVariantHandler()->isNull(d);
     }
     return d->is_null;
 }
@@ -324,82 +324,82 @@ static void load(QVariant::Private *d, QDataStream &s)
     switch (d->type) {
 #ifndef QT_NO_CURSOR
     case QVariant::Cursor:
-	s >> *static_cast<QCursor *>(d->value.ptr);
-	break;
+        s >> *static_cast<QCursor *>(d->value.ptr);
+        break;
 #endif
 #ifndef QT_NO_IMAGEIO
     case QVariant::Bitmap: {
-	s >> *static_cast<QBitmap *>(d->value.ptr);
-	break;
+        s >> *static_cast<QBitmap *>(d->value.ptr);
+        break;
 #endif
     case QVariant::Region:
-	s >> *static_cast<QRegion *>(d->value.ptr);
-	break;
+        s >> *static_cast<QRegion *>(d->value.ptr);
+        break;
     case QVariant::PointArray:
-	s >> *static_cast<QPointArray *>(d->value.ptr);
-	break;
+        s >> *static_cast<QPointArray *>(d->value.ptr);
+        break;
     case QVariant::Font:
-	s >> *static_cast<QFont *>(d->value.ptr);
-	break;
+        s >> *static_cast<QFont *>(d->value.ptr);
+        break;
 #ifndef QT_NO_IMAGEIO
     case QVariant::Pixmap:
-	s >> *static_cast<QPixmap *>(d->value.ptr);
-	break;
+        s >> *static_cast<QPixmap *>(d->value.ptr);
+        break;
     case QVariant::Image:
-	s >> *static_cast<QImage *>(d->value.ptr);
-	break;
+        s >> *static_cast<QImage *>(d->value.ptr);
+        break;
 #endif
     case QVariant::Brush:
-	s >> *static_cast<QBrush *>(d->value.ptr);
-	break;
+        s >> *static_cast<QBrush *>(d->value.ptr);
+        break;
     case QVariant::Rect:
-	s >> *static_cast<QRect *>(d->value.ptr);
-	break;
+        s >> *static_cast<QRect *>(d->value.ptr);
+        break;
     case QVariant::Point:
-	s >> *static_cast<QPoint *>(d->value.ptr);
-	break;
+        s >> *static_cast<QPoint *>(d->value.ptr);
+        break;
     case QVariant::Size:
-	s >> *static_cast<QSize *>(d->value.ptr);
-	break;
+        s >> *static_cast<QSize *>(d->value.ptr);
+        break;
     case QVariant::Color:
-	s >> *static_cast<QColor *>(d->value.ptr);
-	break;
+        s >> *static_cast<QColor *>(d->value.ptr);
+        break;
 #ifndef QT_NO_PALETTE
     case QVariant::Palette:
-	s >> *static_cast<QPalette *>(d->value.ptr);
-	break;
+        s >> *static_cast<QPalette *>(d->value.ptr);
+        break;
 #ifdef QT_COMPAT
     case QVariant::ColorGroup:
-	s >> *static_cast<QColorGroup *>(d->value.ptr);
-	break;
+        s >> *static_cast<QColorGroup *>(d->value.ptr);
+        break;
 #endif
 #endif
 #ifndef QT_NO_ICONSET
     case QVariant::IconSet:
-	QPixmap x;
-	s >> x;
-	*static_cast<QIconSet *>(d->value.ptr) = QIconSet(x);
-	break;
+        QPixmap x;
+        s >> x;
+        *static_cast<QIconSet *>(d->value.ptr) = QIconSet(x);
+        break;
     }
 #endif
     case QVariant::SizePolicy:
-	int h, v;
-	Q_INT8 hfw;
-	s >> h >> v >> hfw;
-	*static_cast<QSizePolicy *>(d->value.ptr) =
-	    QSizePolicy((QSizePolicy::SizeType)h, (QSizePolicy::SizeType)v, (bool)hfw);
-	break;
+        int h, v;
+        Q_INT8 hfw;
+        s >> h >> v >> hfw;
+        *static_cast<QSizePolicy *>(d->value.ptr) =
+            QSizePolicy((QSizePolicy::SizeType)h, (QSizePolicy::SizeType)v, (bool)hfw);
+        break;
 #ifndef QT_NO_ACCEL
     case QVariant::KeySequence:
-	s >> *static_cast<QKeySequence *>(d->value.ptr);
-	break;
+        s >> *static_cast<QKeySequence *>(d->value.ptr);
+        break;
 #endif // QT_NO_ACCEL
     case QVariant::Pen:
-	s >> *static_cast<QPen *>(d->value.ptr);
-	break;
+        s >> *static_cast<QPen *>(d->value.ptr);
+        break;
     default:
-	qcoreVariantHandler()->load(d, s);
-	return;
+        qcoreVariantHandler()->load(d, s);
+        return;
     }
 }
 
@@ -408,80 +408,80 @@ static void save(const QVariant::Private *d, QDataStream &s)
 {
     switch (d->type) {
     case QVariant::Cursor:
-	s << *static_cast<QCursor *>(d->value.ptr);
-	break;
+        s << *static_cast<QCursor *>(d->value.ptr);
+        break;
     case QVariant::Bitmap:
 #ifndef QT_NO_IMAGEIO
-	s << *static_cast<QBitmap *>(d->value.ptr);
+        s << *static_cast<QBitmap *>(d->value.ptr);
 #endif
-	break;
+        break;
     case QVariant::PointArray:
-	s << *static_cast<QPointArray *>(d->value.ptr);
-	break;
+        s << *static_cast<QPointArray *>(d->value.ptr);
+        break;
     case QVariant::Region:
-	s << *static_cast<QRegion *>(d->value.ptr);
-	break;
+        s << *static_cast<QRegion *>(d->value.ptr);
+        break;
     case QVariant::Font:
-	s << *static_cast<QFont *>(d->value.ptr);
-	break;
+        s << *static_cast<QFont *>(d->value.ptr);
+        break;
     case QVariant::Pixmap:
 #ifndef QT_NO_IMAGEIO
-	s << *static_cast<QPixmap *>(d->value.ptr);
+        s << *static_cast<QPixmap *>(d->value.ptr);
 #endif
-	break;
+        break;
     case QVariant::Image:
 #ifndef QT_NO_IMAGEIO
-	s << *static_cast<QImage *>(d->value.ptr);
+        s << *static_cast<QImage *>(d->value.ptr);
 #endif
-	break;
+        break;
     case QVariant::Brush:
-	s << *static_cast<QBrush *>(d->value.ptr);
-	break;
+        s << *static_cast<QBrush *>(d->value.ptr);
+        break;
     case QVariant::Point:
-	s << *static_cast<QPoint *>(d->value.ptr);
-	break;
+        s << *static_cast<QPoint *>(d->value.ptr);
+        break;
     case QVariant::Rect:
-	s << *static_cast<QRect *>(d->value.ptr);
-	break;
+        s << *static_cast<QRect *>(d->value.ptr);
+        break;
     case QVariant::Size:
-	s << *static_cast<QSize *>(d->value.ptr);
-	break;
+        s << *static_cast<QSize *>(d->value.ptr);
+        break;
     case QVariant::Color:
-	s << *static_cast<QColor *>(d->value.ptr);
-	break;
+        s << *static_cast<QColor *>(d->value.ptr);
+        break;
 #ifndef QT_NO_PALETTE
     case QVariant::Palette:
-	s << *static_cast<QPalette *>(d->value.ptr);
-	break;
+        s << *static_cast<QPalette *>(d->value.ptr);
+        break;
 #ifdef QT_COMPAT
     case QVariant::ColorGroup:
-	s << *static_cast<QColorGroup *>(d->value.ptr);
-	break;
+        s << *static_cast<QColorGroup *>(d->value.ptr);
+        break;
 #endif
 #endif
 #ifndef QT_NO_ICONSET
     case QVariant::IconSet:
-	//### add stream operator to iconset
-	s << static_cast<QIconSet *>(d->value.ptr)->pixmap();
-	break;
+        //### add stream operator to iconset
+        s << static_cast<QIconSet *>(d->value.ptr)->pixmap();
+        break;
 #endif
     case QVariant::SizePolicy:
-	{
-	    QSizePolicy *p = static_cast<QSizePolicy *>(d->value.ptr);
-	    s << (int) p->horData() << (int) p->verData()
-	      << (Q_INT8) p->hasHeightForWidth();
-	}
-	break;
+        {
+            QSizePolicy *p = static_cast<QSizePolicy *>(d->value.ptr);
+            s << (int) p->horData() << (int) p->verData()
+              << (Q_INT8) p->hasHeightForWidth();
+        }
+        break;
 #ifndef QT_NO_ACCEL
     case QVariant::KeySequence:
-	s << *static_cast<QKeySequence *>(d->value.ptr);
-	break;
+        s << *static_cast<QKeySequence *>(d->value.ptr);
+        break;
 #endif
     case QVariant::Pen:
-	s << *static_cast<QPen *>(d->value.ptr);
-	break;
+        s << *static_cast<QPen *>(d->value.ptr);
+        break;
     default:
-	qcoreVariantHandler()->save(d, s);
+        qcoreVariantHandler()->save(d, s);
     }
 }
 #endif
@@ -493,70 +493,70 @@ static bool compare(const QVariant::Private *a, const QVariant::Private *b)
     switch(a->type) {
     case QVariant::Cursor:
 #ifndef QT_NO_CURSOR
-	return static_cast<QCursor *>(a->value.ptr)->shape()
-	    == static_cast<QCursor *>(b->value.ptr)->shape();
+        return static_cast<QCursor *>(a->value.ptr)->shape()
+            == static_cast<QCursor *>(b->value.ptr)->shape();
 #endif
     case QVariant::Bitmap:
-	return static_cast<QBitmap *>(a->value.ptr)->serialNumber()
-	    == static_cast<QBitmap *>(b->value.ptr)->serialNumber();
+        return static_cast<QBitmap *>(a->value.ptr)->serialNumber()
+            == static_cast<QBitmap *>(b->value.ptr)->serialNumber();
     case QVariant::PointArray:
-	return *static_cast<QPointArray *>(a->value.ptr)
-	    == *static_cast<QPointArray *>(b->value.ptr);
+        return *static_cast<QPointArray *>(a->value.ptr)
+            == *static_cast<QPointArray *>(b->value.ptr);
     case QVariant::Region:
-	return *static_cast<QRegion *>(a->value.ptr)
-	    == *static_cast<QRegion *>(b->value.ptr);
+        return *static_cast<QRegion *>(a->value.ptr)
+            == *static_cast<QRegion *>(b->value.ptr);
     case QVariant::Font:
-	return *static_cast<QFont *>(a->value.ptr)
-	    == *static_cast<QFont *>(b->value.ptr);
+        return *static_cast<QFont *>(a->value.ptr)
+            == *static_cast<QFont *>(b->value.ptr);
     case QVariant::Pixmap:
-	return static_cast<QPixmap *>(a->value.ptr)->serialNumber()
-	    == static_cast<QPixmap *>(b->value.ptr)->serialNumber();
+        return static_cast<QPixmap *>(a->value.ptr)->serialNumber()
+            == static_cast<QPixmap *>(b->value.ptr)->serialNumber();
     case QVariant::Image:
-	return *static_cast<QImage *>(a->value.ptr)
-	    == *static_cast<QImage *>(b->value.ptr);
+        return *static_cast<QImage *>(a->value.ptr)
+            == *static_cast<QImage *>(b->value.ptr);
     case QVariant::Brush:
-	return *static_cast<QBrush *>(a->value.ptr)
-	    == *static_cast<QBrush *>(b->value.ptr);
+        return *static_cast<QBrush *>(a->value.ptr)
+            == *static_cast<QBrush *>(b->value.ptr);
     case QVariant::Point:
-	return *static_cast<QPoint *>(a->value.ptr)
-	    == *static_cast<QPoint *>(b->value.ptr);
+        return *static_cast<QPoint *>(a->value.ptr)
+            == *static_cast<QPoint *>(b->value.ptr);
     case QVariant::Rect:
-	return *static_cast<QRect *>(a->value.ptr)
-	    == *static_cast<QRect *>(b->value.ptr);
+        return *static_cast<QRect *>(a->value.ptr)
+            == *static_cast<QRect *>(b->value.ptr);
     case QVariant::Size:
-	return *static_cast<QSize *>(a->value.ptr)
-	    == *static_cast<QSize *>(b->value.ptr);
+        return *static_cast<QSize *>(a->value.ptr)
+            == *static_cast<QSize *>(b->value.ptr);
     case QVariant::Color:
-	return *static_cast<QColor *>(a->value.ptr)
-	    == *static_cast<QColor *>(b->value.ptr);
+        return *static_cast<QColor *>(a->value.ptr)
+            == *static_cast<QColor *>(b->value.ptr);
 #ifndef QT_NO_PALETTE
     case QVariant::Palette:
-	return *static_cast<QPalette *>(a->value.ptr)
-	    == *static_cast<QPalette *>(b->value.ptr);
+        return *static_cast<QPalette *>(a->value.ptr)
+            == *static_cast<QPalette *>(b->value.ptr);
 #ifdef QT_COMPAT
     case QVariant::ColorGroup:
-	return *static_cast<QColorGroup *>(a->value.ptr)
-	    == *static_cast<QColorGroup *>(b->value.ptr);
+        return *static_cast<QColorGroup *>(a->value.ptr)
+            == *static_cast<QColorGroup *>(b->value.ptr);
 #endif
 #endif
 #ifndef QT_NO_ICONSET
     case QVariant::IconSet:
-	return static_cast<QIconSet *>(a->value.ptr)->pixmap().serialNumber()
-	    == static_cast<QIconSet *>(b->value.ptr)->pixmap().serialNumber();
+        return static_cast<QIconSet *>(a->value.ptr)->pixmap().serialNumber()
+            == static_cast<QIconSet *>(b->value.ptr)->pixmap().serialNumber();
 #endif
     case QVariant::SizePolicy:
-	return *static_cast<QSizePolicy *>(a->value.ptr)
-	    == *static_cast<QSizePolicy *>(b->value.ptr);
+        return *static_cast<QSizePolicy *>(a->value.ptr)
+            == *static_cast<QSizePolicy *>(b->value.ptr);
 #ifndef QT_NO_ACCEL
     case QVariant::KeySequence:
-	return *static_cast<QKeySequence *>(a->value.ptr)
-	    == *static_cast<QKeySequence *>(b->value.ptr);
+        return *static_cast<QKeySequence *>(a->value.ptr)
+            == *static_cast<QKeySequence *>(b->value.ptr);
 #endif
     case QVariant::Pen:
-	return *static_cast<QPen *>(a->value.ptr)
-	    == *static_cast<QPen *>(b->value.ptr);
+        return *static_cast<QPen *>(a->value.ptr)
+            == *static_cast<QPen *>(b->value.ptr);
     default:
-	break;
+        break;
     }
     return qcoreVariantHandler()->compare(a, b);
 }
@@ -568,93 +568,93 @@ static void cast(QVariant::Private *d, QVariant::Type t, void *result, bool *ok)
     bool converted = false;
     switch (t) {
     case QVariant::String: {
-	QString *str = static_cast<QString *>(result);
-	switch (d->type) {
+        QString *str = static_cast<QString *>(result);
+        switch (d->type) {
 #ifndef QT_NO_ACCEL
-	case QVariant::KeySequence:
-	    *str = QString(*static_cast<QKeySequence *>(d->value.ptr));
-	    converted = true;
-	    break;
+        case QVariant::KeySequence:
+            *str = QString(*static_cast<QKeySequence *>(d->value.ptr));
+            converted = true;
+            break;
 #endif
-	case QVariant::Font:
-	    *str = static_cast<QFont *>(d->value.ptr)->toString();
-	    converted = true;
-	    break;
-	case QVariant::Color:
-	    *str = static_cast<QColor *>(d->value.ptr)->name();
-	    converted = true;
-	    break;
-	default:
-	    break;
-	}
-	break;
+        case QVariant::Font:
+            *str = static_cast<QFont *>(d->value.ptr)->toString();
+            converted = true;
+            break;
+        case QVariant::Color:
+            *str = static_cast<QColor *>(d->value.ptr)->name();
+            converted = true;
+            break;
+        default:
+            break;
+        }
+        break;
     }
 #ifndef QT_NO_ACCEL
     case QVariant::Int:
-	if (d->type == QVariant::KeySequence) {
-	    *static_cast<int *>(result) = (int)(*(static_cast<QKeySequence*>(d->value.ptr)));
-	    converted = true;
-	}
-	break;
+        if (d->type == QVariant::KeySequence) {
+            *static_cast<int *>(result) = (int)(*(static_cast<QKeySequence*>(d->value.ptr)));
+            converted = true;
+        }
+        break;
 #endif
     case QVariant::Font:
-	if (d->type == QVariant::String) {
-	    QFont *f = static_cast<QFont *>(result);
-	    f->fromString(*v_cast<QString>(d->value.ptr));
-	    converted = true;
-	}
-	break;
+        if (d->type == QVariant::String) {
+            QFont *f = static_cast<QFont *>(result);
+            f->fromString(*v_cast<QString>(d->value.ptr));
+            converted = true;
+        }
+        break;
     case QVariant::Color:
-	if (d->type == QVariant::String) {
-	    static_cast<QColor *>(result)->setNamedColor(*v_cast<QString>(d->value.ptr));
-	    converted = true;
-	}
+        if (d->type == QVariant::String) {
+            static_cast<QColor *>(result)->setNamedColor(*v_cast<QString>(d->value.ptr));
+            converted = true;
+        }
 #ifndef QT_NO_ACCEL
     case QVariant::KeySequence: {
-	QKeySequence *seq = static_cast<QKeySequence *>(result);
-	switch (d->type) {
-	case QVariant::String:
-	    *seq = QKeySequence(*v_cast<QString>(d->value.ptr));
-	    converted = true;
-	    break;
-	case QVariant::Int:
-	    *seq = QKeySequence(d->value.i);
-	    converted = true;
-	    break;
-	default:
-	    break;
-	}
+        QKeySequence *seq = static_cast<QKeySequence *>(result);
+        switch (d->type) {
+        case QVariant::String:
+            *seq = QKeySequence(*v_cast<QString>(d->value.ptr));
+            converted = true;
+            break;
+        case QVariant::Int:
+            *seq = QKeySequence(d->value.i);
+            converted = true;
+            break;
+        default:
+            break;
+        }
     }
 #endif
     default:
-	break;
+        break;
     }
     if (!converted)
-	qcoreVariantHandler()->cast(d, t, result, ok);
+        qcoreVariantHandler()->cast(d, t, result, ok);
 }
 
 static bool canCast(QVariant::Private *d, QVariant::Type t)
 {
     if (d->type == (uint)t)
-	return true;
+        return true;
 
-    switch ( t ) {
+    switch (t) {
     case QVariant::Int:
-	if (d->type == QVariant::KeySequence)
-	    return true;
-	break;
+        if (d->type == QVariant::KeySequence)
+            return true;
+        break;
     case QVariant::String:
-	if (d->type == QVariant::KeySequence || d->type == QVariant::Font || d->type == QVariant::Color)
-	    return true;
-	break;
+        if (d->type == QVariant::KeySequence || d->type == QVariant::Font || d->type == QVariant::Color)
+            return true;
+        break;
     case QVariant::KeySequence:
-	return d->type == QVariant::String || d->type == QVariant::Int;
+        return d->type == QVariant::String || d->type == QVariant::Int;
     case QVariant::Font:
-	return d->type == QVariant::String;
+        return d->type == QVariant::String;
     case QVariant::Color:
-	return d->type == QVariant::String;
+        return d->type == QVariant::String;
     default:
-	break;
+        break;
     }
     return qcoreVariantHandler()->canCast(d, t);
 }
@@ -1079,7 +1079,7 @@ QPixmap& QVariant::asPixmap()
 QPixmap QVariant::toPixmap() const
 {
     if (d->type != Pixmap)
-	return QPixmap();
+        return QPixmap();
 
     return *static_cast<QPixmap *>(d->value.ptr);
 }
@@ -1091,63 +1091,63 @@ QDebug operator<<(QDebug dbg, const QVariant &v)
     switch(v.type()) {
     case QVariant::Cursor:
 #ifndef QT_NO_CURSOR
-	dbg.nospace() << v.toCursor();
+        dbg.nospace() << v.toCursor();
 #endif
-	break;
+        break;
     case QVariant::Bitmap:
-//	dbg.nospace() << v.toBitmap(); //FIXME
-	break;
+//        dbg.nospace() << v.toBitmap(); //FIXME
+        break;
     case QVariant::PointArray:
-	dbg.nospace() << v.toPointArray();
-	break;
+        dbg.nospace() << v.toPointArray();
+        break;
     case QVariant::Region:
-	dbg.nospace() << v.toRegion();
-	break;
+        dbg.nospace() << v.toRegion();
+        break;
     case QVariant::Font:
-	dbg.nospace() << v.toFont();
-	break;
+        dbg.nospace() << v.toFont();
+        break;
     case QVariant::Pixmap:
-//	dbg.nospace() << v.toPixmap(); //FIXME
-	break;
+//        dbg.nospace() << v.toPixmap(); //FIXME
+        break;
     case QVariant::Image:
-	dbg.nospace() << v.toImage();
-	break;
+        dbg.nospace() << v.toImage();
+        break;
     case QVariant::Brush:
-	dbg.nospace() << v.toBrush();
-	break;
+        dbg.nospace() << v.toBrush();
+        break;
     case QVariant::Point:
-	dbg.nospace() << v.toPoint();
-	break;
+        dbg.nospace() << v.toPoint();
+        break;
     case QVariant::Rect:
-	dbg.nospace() << v.toRect();
-	break;
+        dbg.nospace() << v.toRect();
+        break;
     case QVariant::Size:
-	dbg.nospace() << v.toSize();
-	break;
+        dbg.nospace() << v.toSize();
+        break;
     case QVariant::Color:
-	dbg.nospace() << v.toColor();
-	break;
+        dbg.nospace() << v.toColor();
+        break;
 #ifndef QT_NO_PALETTE
     case QVariant::Palette:
-	dbg.nospace() << v.toPalette();
-	break;
+        dbg.nospace() << v.toPalette();
+        break;
 #endif
 #ifndef QT_NO_ICONSET
     case QVariant::IconSet:
-	dbg.nospace() << v.toIconSet();
-	break;
+        dbg.nospace() << v.toIconSet();
+        break;
 #endif
     case QVariant::SizePolicy:
-	dbg.nospace() << v.toSizePolicy();
-	break;
+        dbg.nospace() << v.toSizePolicy();
+        break;
 #ifndef QT_NO_ACCEL
     case QVariant::KeySequence:
-	dbg.nospace() << v.toKeySequence();
-	break;
+        dbg.nospace() << v.toKeySequence();
+        break;
 #endif
     case QVariant::Pen:
-	dbg.nospace() << v.toPen();
-	break;
+        dbg.nospace() << v.toPen();
+        break;
     default:
         dbg.nospace() << static_cast<QCoreVariant>(v);
         break;

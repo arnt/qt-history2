@@ -48,7 +48,7 @@ public:
     void setBoundingRect(const QRect &r);
 
     QPicture& operator=(const QPicture &p);
-    inline void	detach() { if (d_ptr->ref != 1) detach_helper(); }
+    inline void        detach() { if (d_ptr->ref != 1) detach_helper(); }
     bool isDetached() const { return d_ptr->ref == 1; }
 
     friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &in, const QPicture &p);
@@ -101,7 +101,7 @@ inline const char* QPicture::data() const
 #ifndef QT_NO_PICTUREIO
 class QIODevice;
 class QPictureIO;
-typedef void (*picture_io_handler)( QPictureIO * ); // picture IO handler
+typedef void (*picture_io_handler)(QPictureIO *); // picture IO handler
 
 struct QPictureIOData;
 
@@ -109,53 +109,53 @@ class Q_GUI_EXPORT QPictureIO
 {
 public:
     QPictureIO();
-    QPictureIO( QIODevice	 *ioDevice, const char *format );
-    QPictureIO( const QString &fileName, const char* format );
+    QPictureIO(QIODevice         *ioDevice, const char *format);
+    QPictureIO(const QString &fileName, const char* format);
    ~QPictureIO();
 
-    const QPicture &picture()	const;
-    int		status()	const;
-    const char *format()	const;
-    QIODevice  *ioDevice()	const;
-    QString	fileName()	const;
-    int		quality()	const;
-    QString	description()	const;
-    const char *parameters()	const;
+    const QPicture &picture()        const;
+    int                status()        const;
+    const char *format()        const;
+    QIODevice  *ioDevice()        const;
+    QString        fileName()        const;
+    int                quality()        const;
+    QString        description()        const;
+    const char *parameters()        const;
     float gamma() const;
 
-    void	setPicture( const QPicture & );
-    void	setStatus( int );
-    void	setFormat( const char * );
-    void	setIODevice( QIODevice * );
-    void	setFileName( const QString & );
-    void	setQuality( int );
-    void	setDescription( const QString & );
-    void	setParameters( const char * );
-    void	setGamma( float );
+    void        setPicture(const QPicture &);
+    void        setStatus(int);
+    void        setFormat(const char *);
+    void        setIODevice(QIODevice *);
+    void        setFileName(const QString &);
+    void        setQuality(int);
+    void        setDescription(const QString &);
+    void        setParameters(const char *);
+    void        setGamma(float);
 
-    bool	read();
-    bool	write();
+    bool        read();
+    bool        write();
 
-    static QByteArray pictureFormat( const QString &fileName );
-    static QByteArray pictureFormat( QIODevice * );
+    static QByteArray pictureFormat(const QString &fileName);
+    static QByteArray pictureFormat(QIODevice *);
     static QList<QByteArray> inputFormats();
     static QList<QByteArray> outputFormats();
 
-    static void defineIOHandler( const char *format,
-				 const char *header,
-				 const char *flags,
-				 picture_io_handler read_picture,
-				 picture_io_handler write_picture );
+    static void defineIOHandler(const char *format,
+                                 const char *header,
+                                 const char *flags,
+                                 picture_io_handler read_picture,
+                                 picture_io_handler write_picture);
 
 private:
-    void	init();
+    void        init();
 
     QPictureIOData *d;
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QPictureIO( const QPictureIO & );
-    QPictureIO &operator=( const QPictureIO & );
+    QPictureIO(const QPictureIO &);
+    QPictureIO &operator=(const QPictureIO &);
 #endif
 };
 
@@ -166,8 +166,8 @@ private:	// Disabled copy constructor and operator=
   QPicture stream functions
  *****************************************************************************/
 
-Q_GUI_EXPORT QDataStream &operator<<( QDataStream &, const QPicture & );
-Q_GUI_EXPORT QDataStream &operator>>( QDataStream &, QPicture & );
+Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QPicture &);
+Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QPicture &);
 
 #endif // QT_NO_PICTURE
 

@@ -34,15 +34,15 @@ class Q_GUI_EXPORT QPrinter : public QPaintDevice
 public:
     enum PrinterMode { ScreenResolution, PrinterResolution, HighResolution, Compatible };
 
-    QPrinter( PrinterMode mode = ScreenResolution );
+    QPrinter(PrinterMode mode = ScreenResolution);
    ~QPrinter();
 
     enum Orientation { Portrait, Landscape };
 
     enum PageSize    { A4, B5, Letter, Legal, Executive,
-		       A0, A1, A2, A3, A5, A6, A7, A8, A9, B0, B1,
-		       B10, B2, B3, B4, B6, B7, B8, B9, C5E, Comm10E,
-		       DLE, Folio, Ledger, Tabloid, Custom, NPageSize = Custom };
+                       A0, A1, A2, A3, A5, A6, A7, A8, A9, B0, B1,
+                       B10, B2, B3, B4, B6, B7, B8, B9, C5E, Comm10E,
+                       DLE, Folio, Ledger, Tabloid, Custom, NPageSize = Custom };
 
     enum PageOrder   { FirstPageFirst, LastPageFirst };
 
@@ -53,72 +53,72 @@ public:
                        LargeFormat, LargeCapacity, Cassette, FormSource };
 
     enum PrintRange   { AllPages,
-			Selection,
-			PageRange };
+                        Selection,
+                        PageRange };
 
     enum PrinterOption { PrintToFile,
-			 PrintSelection,
-			 PrintPageRange };
+                         PrintSelection,
+                         PrintPageRange };
 
     QString printerName() const;
-    virtual void setPrinterName( const QString &);
+    virtual void setPrinterName(const QString &);
     bool outputToFile() const;
-    virtual void setOutputToFile( bool );
+    virtual void setOutputToFile(bool);
     QString outputFileName()const;
-    virtual void setOutputFileName( const QString &);
+    virtual void setOutputFileName(const QString &);
 
     QString printProgram() const;
-    virtual void setPrintProgram( const QString &);
+    virtual void setPrintProgram(const QString &);
 
     QString printerSelectionOption() const;
-    virtual void setPrinterSelectionOption( const QString & );
+    virtual void setPrinterSelectionOption(const QString &);
 
     QString docName() const;
-    virtual void setDocName( const QString &);
+    virtual void setDocName(const QString &);
     QString creator() const;
-    virtual void setCreator( const QString &);
+    virtual void setCreator(const QString &);
 
     Orientation orientation()   const;
-    virtual void setOrientation( Orientation );
+    virtual void setOrientation(Orientation);
     PageSize pageSize()      const;
-    virtual void setPageSize( PageSize );
+    virtual void setPageSize(PageSize);
 #ifdef Q_WS_WIN
-    void setWinPageSize( short winPageSize );
+    void setWinPageSize(short winPageSize);
     short winPageSize() const;
 #endif
 
-    virtual void setPageOrder( PageOrder );
+    virtual void setPageOrder(PageOrder);
     PageOrder   pageOrder() const;
 
-    void setResolution( int );
+    void setResolution(int);
     int resolution() const;
 
-    virtual void setColorMode( ColorMode );
+    virtual void setColorMode(ColorMode);
     ColorMode   colorMode() const;
 
-    virtual void        setFullPage( bool );
+    virtual void        setFullPage(bool);
     bool                fullPage() const;
     QSize       margins()       const;
-    void setMargins( uint top, uint left, uint bottom, uint right );
-    void margins( uint *top, uint *left, uint *bottom, uint *right ) const;
+    void setMargins(uint top, uint left, uint bottom, uint right);
+    void margins(uint *top, uint *left, uint *bottom, uint *right) const;
 
     int         fromPage()      const;
     int         toPage()        const;
-    virtual void setFromTo( int fromPage, int toPage );
+    virtual void setFromTo(int fromPage, int toPage);
     int         minPage()       const;
     int         maxPage()       const;
-    virtual void setMinMax( int minPage, int maxPage );
+    virtual void setMinMax(int minPage, int maxPage);
     int         numCopies()     const;
-    virtual void setNumCopies( int );
+    virtual void setNumCopies(int);
 
-    bool	collateCopiesEnabled() const;
-    void	setCollateCopiesEnabled(bool );
+    bool        collateCopiesEnabled() const;
+    void        setCollateCopiesEnabled(bool);
 
-    bool	collateCopies() const;
-    void	setCollateCopies( bool );
+    bool        collateCopies() const;
+    void        setCollateCopies(bool);
 
-    PrintRange	printRange() const;
-    void 	setPrintRange( PrintRange range );
+    PrintRange        printRange() const;
+    void         setPrintRange(PrintRange range);
 
     bool        newPage();
     bool        abort();
@@ -126,13 +126,13 @@ public:
 
     bool        setup(QWidget *parent = 0);
     bool        printSetup(QWidget *parent = 0);
-    bool	pageSetup(QWidget *parent = 0);
+    bool        pageSetup(QWidget *parent = 0);
 
     PaperSource paperSource()   const;
-    virtual void setPaperSource( PaperSource );
+    virtual void setPaperSource(PaperSource);
 
-    void setOptionEnabled( PrinterOption, bool enable );
-    bool isOptionEnabled( PrinterOption );
+    void setOptionEnabled(PrinterOption, bool enable);
+    bool isOptionEnabled(PrinterOption);
 
 #ifdef Q_WS_MAC
     virtual Qt::HANDLE      macCGHandle() const;
@@ -141,7 +141,7 @@ public:
     QPaintEngine *engine() const;
 
 protected:
-    int         metric( int ) const;
+    int         metric(int) const;
 
 #if defined(Q_WS_WIN)
     virtual void        setActive();
@@ -168,15 +168,15 @@ private:
     bool printerEnd();
 #endif
 #if defined(Q_WS_WIN)
-    void        readPdlg( void* );
-    void        readPdlgA( void* );
-    void 	readDevmode( void*, bool );
-    void 	readDevmodeA( void*, bool );
-    void 	readDevnames( void* );
-    void 	readDevnamesA( void* );
-    void	writeDevmode( Qt::HANDLE );
-    void	writeDevmodeA( Qt::HANDLE );
-    void	reinit();
+    void        readPdlg(void*);
+    void        readPdlgA(void*);
+    void         readDevmode(void*, bool);
+    void         readDevmodeA(void*, bool);
+    void         readDevnames(void*);
+    void         readDevnamesA(void*);
+    void        writeDevmode(Qt::HANDLE);
+    void        writeDevmodeA(Qt::HANDLE);
+    void        reinit();
 
     bool        viewOffsetDone;
     QPainter*   painter;
@@ -198,10 +198,10 @@ private:
     PageOrder   page_order;
     ColorMode   color_mode;
     Orientation orient;
-    uint	to_edge : 1;
-    uint	appcolcopies : 1;
-    uint	usercolcopies : 1;
-    uint	res_set : 1;
+    uint        to_edge : 1;
+    uint        appcolcopies : 1;
+    uint        usercolcopies : 1;
+    uint        res_set : 1;
     short       from_pg, to_pg;
     short       min_pg,  max_pg;
     short       ncopies;
@@ -210,8 +210,8 @@ private:
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QPrinter( const QPrinter & );
-    QPrinter &operator=( const QPrinter & );
+    QPrinter(const QPrinter &);
+    QPrinter &operator=(const QPrinter &);
 #endif
 };
 

@@ -50,36 +50,36 @@ inline QObjectData::~QObjectData() {}
 
 class Q_CORE_EXPORT QObjectPrivate : public QObjectData, public Qt
 {
-    Q_DECLARE_PUBLIC( QObject );
+    Q_DECLARE_PUBLIC(QObject);
 
 public:
 
     QObjectPrivate()
-	:
-	thread(0),
-	connections(0),
-	senders(0),
-	polished(0),
-	objectName(0),
-	ownObjectName(false)
+        :
+        thread(0),
+        connections(0),
+        senders(0),
+        polished(0),
+        objectName(0),
+        ownObjectName(false)
     {
-	// QObjectData initialization
-	q_ptr = 0;
-	parent = 0;				// no parent yet. It is set by setParent()
-	isWidget = false; 				// assume not a widget object
-	pendTimer = false;				// no timers yet
-	blockSig = false;      			// not blocking signals
-	wasDeleted = false;       			// double-delete catcher
-	hasPostedEvents = false;
+        // QObjectData initialization
+        q_ptr = 0;
+        parent = 0;                                // no parent yet. It is set by setParent()
+        isWidget = false;                                 // assume not a widget object
+        pendTimer = false;                                // no timers yet
+        blockSig = false;                              // not blocking signals
+        wasDeleted = false;                               // double-delete catcher
+        hasPostedEvents = false;
 #ifdef QT_COMPAT
-	hasPostedChildInsertedEvents = false;
+        hasPostedChildInsertedEvents = false;
 #endif
     }
     virtual ~QObjectPrivate()
     {
 #ifndef QT_NO_USERDATA
-	while (!userData.isEmpty())
-	    delete userData.takeFirst();
+        while (!userData.isEmpty())
+            delete userData.takeFirst();
 #endif
     }
 
@@ -88,18 +88,18 @@ public:
 
     // signal connections
     struct Connections {
-	QSpinLock lock;
-	int count;
-	struct Connection {
-	    int signal;
-	    union {
-		QObject *receiver;
-		QObject **guarded;
-	    };
-	    int member;
-	    int type; // 0 == auto, 1 == direct, 2 == queued
-	    int *types;
-	} connections[1];
+        QSpinLock lock;
+        int count;
+        struct Connection {
+            int signal;
+            union {
+                QObject *receiver;
+                QObject **guarded;
+            };
+            int member;
+            int type; // 0 == auto, 1 == direct, 2 == queued
+            int *types;
+        } connections[1];
     };
     Connections *connections;
     static int *queuedConnectionTypes(const char *signal);
@@ -110,16 +110,16 @@ public:
     // slot connections
     struct Senders
     {
-	QSpinLock lock;
-	int ref;
-	QObject *current;
-	int count;
-	struct Sender {
-	    int ref;
-	    QObject * sender;
-	};
-	Sender *senders;
-	Sender stack[1];
+        QSpinLock lock;
+        int ref;
+        QObject *current;
+        int count;
+        struct Sender {
+            int ref;
+            QObject * sender;
+        };
+        Sender *senders;
+        Sender stack[1];
     };
     Senders *senders;
     void refSender(QObject *sender);
@@ -144,7 +144,7 @@ class Q_CORE_EXPORT QMetaCallEvent : public QEvent
 {
 public:
     QMetaCallEvent(Type type, int id, const QObject *sender = 0, int nargs = 0,
-		   int *types = 0, void **args = 0);
+                   int *types = 0, void **args = 0);
     ~QMetaCallEvent();
 
     inline int id() const { return id_; }

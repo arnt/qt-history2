@@ -40,24 +40,24 @@ public:
     Q_EXPLICIT QExplicitlySharedDataPointer(T *data) : d(data) { if (d) ++d->ref; }
     QExplicitlySharedDataPointer(const QExplicitlySharedDataPointer &o) : d(o.d) { if (d) ++d->ref; }
     QExplicitlySharedDataPointer & operator=(const QExplicitlySharedDataPointer &o) {
-	if (o.d != d) {
-	    T *x = o.d;
-	    if (x) ++x->ref;
-	    x = qAtomicSetPtr(&d, x);
-	    if (x && !--x->ref)
-		delete x;
-	}
-	return *this;
+        if (o.d != d) {
+            T *x = o.d;
+            if (x) ++x->ref;
+            x = qAtomicSetPtr(&d, x);
+            if (x && !--x->ref)
+                delete x;
+        }
+        return *this;
     }
     QExplicitlySharedDataPointer &operator=(T *o) {
-	if (o != d) {
-	    T *x = o;
-	    if (x) ++x->ref;
-	    x = qAtomicSetPtr(&d, x);
-	    if (x && !--x->ref)
-		delete x;
-	}
-	return *this;
+        if (o != d) {
+            T *x = o;
+            if (x) ++x->ref;
+            x = qAtomicSetPtr(&d, x);
+            if (x && !--x->ref)
+                delete x;
+        }
+        return *this;
 
     }
 
@@ -81,12 +81,12 @@ public:
     QSharedDataPointer(const QSharedDataPointer<T> &o) : QExplicitlySharedDataPointer<T>(o) {}
 
     QSharedDataPointer & operator=(const QSharedDataPointer<T> &o) {
-	QExplicitlySharedDataPointer<T>::operator=(o);
-	return *this;
+        QExplicitlySharedDataPointer<T>::operator=(o);
+        return *this;
     }
     QSharedDataPointer &operator=(T *o) {
-	QExplicitlySharedDataPointer<T>::operator=(o);
-	return *this;
+        QExplicitlySharedDataPointer<T>::operator=(o);
+        return *this;
     }
 
     bool operator!() const { return !this->d; }
@@ -101,7 +101,7 @@ Q_OUTOFLINE_TEMPLATE void QSharedDataPointer<T>::detach()
     ++x->ref;
     x = qAtomicSetPtr(&this->d, x);
     if (!--x->ref)
-	delete x;
+        delete x;
 }
 
 #endif

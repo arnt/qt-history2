@@ -64,17 +64,17 @@ class UndoCommand
 {
 public:
     enum Command {
-	Inserted = 0,
-	Removed = 1,
-	CharFormatChanged = 2,
-	BlockFormatChanged = 3,
-	BlockInserted = 4,
-	BlockRemoved = 5,
-	Custom = 8
+        Inserted = 0,
+        Removed = 1,
+        CharFormatChanged = 2,
+        BlockFormatChanged = 3,
+        BlockInserted = 4,
+        BlockRemoved = 5,
+        Custom = 8
     };
     enum Operation {
-	KeepCursor = 0,
-	MoveCursor = 1
+        KeepCursor = 0,
+        MoveCursor = 1
     };
     Q_UINT16 command : 16;
     Q_UINT16 block : 1;
@@ -83,9 +83,9 @@ public:
     Q_UINT32 strPos;
     Q_UINT32 pos;
     union {
-	int blockFormat;
-	Q_UINT32 length;
-	QAbstractUndoItem *custom;
+        int blockFormat;
+        Q_UINT32 length;
+        QAbstractUndoItem *custom;
     };
 
     bool tryMerge(const UndoCommand &other);

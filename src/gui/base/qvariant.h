@@ -323,7 +323,7 @@ inline QSize &QVariant::asSize()
 inline QPoint QVariant::toPoint() const
 {
     if (d->type != Point)
-	return QPoint();
+        return QPoint();
 
     return *static_cast<QPoint *>(d->value.ptr);
 }
@@ -331,7 +331,7 @@ inline QPoint QVariant::toPoint() const
 inline QRect QVariant::toRect() const
 {
     if (d->type != Rect)
-	return QRect();
+        return QRect();
 
     return *static_cast<QRect *>(d->value.ptr);
 }
@@ -339,7 +339,7 @@ inline QRect QVariant::toRect() const
 inline QSize QVariant::toSize() const
 {
     if (d->type != Size)
-	return QSize();
+        return QSize();
 
     return *static_cast<QSize *>(d->value.ptr);
 }
@@ -348,7 +348,7 @@ inline QSize QVariant::toSize() const
 inline const QImage QVariant::toImage() const
 {
     if (d->type != Image)
-	return QImage();
+        return QImage();
 
     return *static_cast<QImage *>(d->value.ptr);
 }
@@ -356,7 +356,7 @@ inline const QImage QVariant::toImage() const
 inline QBrush QVariant::toBrush() const
 {
     if (d->type != Brush)
-	return QBrush();
+        return QBrush();
 
     return *static_cast<QBrush *>(d->value.ptr);
 }
@@ -366,7 +366,7 @@ inline QBrush QVariant::toBrush() const
 inline QPalette QVariant::toPalette() const
 {
     if (d->type != Palette)
-	return QPalette();
+        return QPalette();
 
     return *static_cast<QPalette *>(d->value.ptr);
 }
@@ -375,7 +375,7 @@ inline QPalette QVariant::toPalette() const
 inline QColorGroup QVariant::toColorGroup() const
 {
     if (d->type != ColorGroup)
-	return QColorGroup();
+        return QColorGroup();
     return *static_cast<QColorGroup *>(d->value.ptr);
 }
 #endif
@@ -384,7 +384,7 @@ inline QColorGroup QVariant::toColorGroup() const
 inline QPen QVariant::toPen() const
 {
     if (d->type != Pen)
-	return QPen();
+        return QPen();
 
     return *static_cast<QPen*>(d->value.ptr);
 }
@@ -392,7 +392,7 @@ inline QPen QVariant::toPen() const
 inline QSizePolicy QVariant::toSizePolicy() const
 {
     if (d->type == SizePolicy)
-	return *static_cast<QSizePolicy *>(d->value.ptr);
+        return *static_cast<QSizePolicy *>(d->value.ptr);
 
     return QSizePolicy();
 }
@@ -401,7 +401,7 @@ inline QSizePolicy QVariant::toSizePolicy() const
 inline QCursor QVariant::toCursor() const
 {
     if (d->type != Cursor)
-	return QCursor();
+        return QCursor();
 
     return *static_cast<QCursor *>(d->value.ptr);
 }
@@ -410,7 +410,7 @@ inline QCursor QVariant::toCursor() const
 inline QRegion QVariant::toRegion() const
 {
     if (d->type != Region)
-	return QRegion();
+        return QRegion();
 
     return *static_cast<QRegion *>(d->value.ptr);
 }
@@ -418,7 +418,7 @@ inline QRegion QVariant::toRegion() const
 inline QBitmap QVariant::toBitmap() const
 {
     if (d->type != Bitmap)
-	return QBitmap();
+        return QBitmap();
 
     return *static_cast<QBitmap *>(d->value.ptr);
 
@@ -427,7 +427,7 @@ inline QBitmap QVariant::toBitmap() const
 inline const QPointArray QVariant::toPointArray() const
 {
     if (d->type != PointArray)
-	return QPointArray();
+        return QPointArray();
 
     return *static_cast<QPointArray *>(d->value.ptr);
 }
@@ -436,7 +436,7 @@ inline const QPointArray QVariant::toPointArray() const
 inline QIconSet QVariant::toIconSet() const
 {
     if (d->type != IconSet)
-	return QIconSet();
+        return QIconSet();
 
     return *static_cast<QIconSet *>(d->value.ptr);
 }
@@ -445,7 +445,7 @@ inline QIconSet QVariant::toIconSet() const
 
 #define Q_VARIANT_TO(f) \
 inline Q##f QVariant::to##f() const { \
-    if ( d->type == f ) \
+    if (d->type == f) \
         return *static_cast<Q##f *>(d->value.ptr); \
     Q##f ret; \
     handler->cast(d, f, &ret, 0); \

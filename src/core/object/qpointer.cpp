@@ -38,9 +38,9 @@
     delete (QLabel*) label; // simulate somebody destroying the label
 
     if (label)
-	label->show();
+        label->show();
     else
-	qDebug("The label has been destroyed");
+        qDebug("The label has been destroyed");
     \endcode
 
     The program will output \c{The label has been destroyed} rather
@@ -84,7 +84,7 @@
 */
 
 /*!
-    \fn QPointer::QPointer( T* p )
+    \fn QPointer::QPointer(T* p)
 
     Constructs a guarded pointer that points to same object that \a p
     points to.
@@ -123,7 +123,7 @@
 */
 
 /*!
-    \fn bool QPointer::operator==( const QPointer<T> &p ) const
+    \fn bool QPointer::operator==(const QPointer<T> &p) const
 
     Equality operator; implements traditional pointer semantics.
     Returns true if both \a p and this guarded pointer are 0, or if
@@ -134,7 +134,7 @@
 */
 
 /*!
-    \fn bool QPointer::operator==( const T *p) const
+    \fn bool QPointer::operator==(const T *p) const
 
     \overload
 
@@ -147,7 +147,7 @@
 */
 
 /*!
-    \fn bool QPointer::operator!= ( const QPointer<T>& p ) const
+    \fn bool QPointer::operator!= (const QPointer<T>& p) const
 
     Inequality operator; implements pointer semantics, the negation of
     operator==(). Returns true if \a p and this guarded pointer are

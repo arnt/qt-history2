@@ -30,19 +30,19 @@ public:
     QSqlPropertyMap();
     virtual ~QSqlPropertyMap();
 
-    QVariant      property( QWidget * widget );
-    virtual void  setProperty( QWidget * widget, const QVariant & value );
+    QVariant      property(QWidget * widget);
+    virtual void  setProperty(QWidget * widget, const QVariant & value);
 
-    void insert( const QString & classname, const QString & property );
-    void remove( const QString & classname );
+    void insert(const QString & classname, const QString & property);
+    void remove(const QString & classname);
 
     static QSqlPropertyMap * defaultMap();
-    static void installDefaultMap( QSqlPropertyMap * map );
+    static void installDefaultMap(QSqlPropertyMap * map);
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QSqlPropertyMap( const QSqlPropertyMap & );
-    QSqlPropertyMap &operator=( const QSqlPropertyMap & );
+    QSqlPropertyMap(const QSqlPropertyMap &);
+    QSqlPropertyMap &operator=(const QSqlPropertyMap &);
 #endif
     QSqlPropertyMapPrivate* d;
 

@@ -48,8 +48,8 @@ protected:
     virtual void init();
 
     void writeMakeParts(QTextStream &);
-    void writeSubdirs(QTextStream &, bool=TRUE);
-    
+    void writeSubdirs(QTextStream &, bool=true);
+
 private:
     void init2();
 };

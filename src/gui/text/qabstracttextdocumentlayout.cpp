@@ -35,7 +35,7 @@ void QAbstractTextDocumentLayout::registerHandler(int formatType, QObject *compo
 {
     QTextObjectInterface *iface = qt_cast<QTextObjectInterface *>(component);
     if (!iface)
-	return; // ### print error message on terminal?
+        return; // ### print error message on terminal?
 
     connect(component, SIGNAL(destroyed(QObject*)), this, SLOT(handlerDestroyed(QObject*)));
 
@@ -51,18 +51,18 @@ void QAbstractTextDocumentLayout::layoutObject(QTextObject item, const QTextForm
     Q_ASSERT(f.isValid());
     QTextObjectHandler handler = d->handlers.value(f.objectType());
     if (!handler.component)
-	return;
+        return;
     handler.iface->layoutObject(item, format);
 }
 
 void QAbstractTextDocumentLayout::drawObject(QPainter *p, const QPoint &position, QTextObject item,
-					     const QTextFormat &format, QTextLayout::SelectionType selType)
+                                             const QTextFormat &format, QTextLayout::SelectionType selType)
 {
     QTextCharFormat f = format.toCharFormat();
     Q_ASSERT(f.isValid());
     QTextObjectHandler handler = d->handlers.value(f.objectType());
     if (!handler.component)
-	return;
+        return;
     handler.iface->drawObject(p, position, item, format, selType);
 }
 
@@ -70,10 +70,10 @@ void QAbstractTextDocumentLayout::handlerDestroyed(QObject *obj)
 {
     HandlerHash::Iterator it = d->handlers.begin();
     while (it != d->handlers.end())
-	if ((*it).component == obj)
-	    it = d->handlers.erase(it);
-	else
-	    ++it;
+        if ((*it).component == obj)
+            it = d->handlers.erase(it);
+        else
+            ++it;
 }
 
 
@@ -106,7 +106,7 @@ QTextBlockFormat QAbstractTextDocumentLayout::BlockIterator::format() const
 {
     int idx = formatIndex();
     if (idx == -1)
-	return QTextBlockFormat();
+        return QTextBlockFormat();
 
     return pt->formatCollection()->blockFormat(idx);
 }
@@ -114,7 +114,7 @@ QTextBlockFormat QAbstractTextDocumentLayout::BlockIterator::format() const
 int QAbstractTextDocumentLayout::BlockIterator::formatIndex() const
 {
     if (atEnd())
-	return -1;
+        return -1;
 
     QTextPieceTable::FragmentIterator it = pt->find(pt->blockMap().position(block));
     Q_ASSERT(!it.atEnd());
@@ -155,7 +155,7 @@ QAbstractTextDocumentLayout::BlockIterator QAbstractTextDocumentLayout::findBloc
 {
     QTextPieceTable *pieceTable = qt_cast<QTextPieceTable *>(parent());
     if (!pieceTable)
-	return BlockIterator();
+        return BlockIterator();
     return BlockIterator(pieceTable, pieceTable->blockMap().findNode(pos));
 }
 
@@ -163,7 +163,7 @@ QAbstractTextDocumentLayout::BlockIterator QAbstractTextDocumentLayout::begin() 
 {
     QTextPieceTable *pieceTable = qt_cast<QTextPieceTable *>(parent());
     if (!pieceTable)
-	return BlockIterator();
+        return BlockIterator();
     return BlockIterator(pieceTable, pieceTable->blockMap().begin().n);
 }
 
@@ -171,7 +171,7 @@ QAbstractTextDocumentLayout::BlockIterator QAbstractTextDocumentLayout::end() co
 {
     QTextPieceTable *pieceTable = qt_cast<QTextPieceTable *>(parent());
     if (!pieceTable)
-	return BlockIterator();
+        return BlockIterator();
     return BlockIterator(pieceTable, 0);
 }
 
@@ -179,7 +179,7 @@ int QAbstractTextDocumentLayout::formatIndex(int pos)
 {
     QTextPieceTable *pieceTable = qt_cast<QTextPieceTable *>(parent());
     if (!pieceTable)
-	return -1;
+        return -1;
     return pieceTable->find(pos).value()->format;
 }
 
@@ -187,7 +187,7 @@ QTextCharFormat QAbstractTextDocumentLayout::format(int pos)
 {
     QTextPieceTable *pieceTable = qt_cast<QTextPieceTable *>(parent());
     if (!pieceTable)
-	return QTextCharFormat();
+        return QTextCharFormat();
     int idx = pieceTable->find(pos).value()->format;
     return pieceTable->formatCollection()->charFormat(idx);
 }

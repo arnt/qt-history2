@@ -35,22 +35,22 @@ extern "C" {
 
     inline int q_atomic_increment(volatile int * const ptr)
     {
-	register int expected;
-	for (;;) {
-	    expected = *ptr;
-	    if (q_atomic_test_and_set_int(ptr, expected, expected + 1)) break;
-	}
-	return expected != -1;
+        register int expected;
+        for (;;) {
+            expected = *ptr;
+            if (q_atomic_test_and_set_int(ptr, expected, expected + 1)) break;
+        }
+        return expected != -1;
     }
 
     inline int q_atomic_decrement(volatile int * const ptr)
     {
-	register int expected;
-	for (;;) {
-	    expected = *ptr;
-	    if (q_atomic_test_and_set_int(ptr, expected, expected - 1)) break;
-	}
-	return expected != 1;
+        register int expected;
+        for (;;) {
+            expected = *ptr;
+            if (q_atomic_test_and_set_int(ptr, expected, expected - 1)) break;
+        }
+        return expected != 1;
     }
 
 } // extern "C"
@@ -63,22 +63,22 @@ extern "C" {
 
     inline int q_atomic_set_int(volatile int *ptr, int newval)
     {
-	register int expected;
-	for (;;) {
-	    expected = *ptr;
-	    if (q_atomic_test_and_set_int(ptr, expected, newval)) break;
-	}
-	return expected;
+        register int expected;
+        for (;;) {
+            expected = *ptr;
+            if (q_atomic_test_and_set_int(ptr, expected, newval)) break;
+        }
+        return expected;
     }
 
     inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
     {
-	register void *expected;
-	for (;;) {
-	    expected = *reinterpret_cast<void * volatile *>(ptr);
-	    if (q_atomic_test_and_set_ptr(ptr, expected, newval)) break;
-	}
-	return expected;
+        register void *expected;
+        for (;;) {
+            expected = *reinterpret_cast<void * volatile *>(ptr);
+            if (q_atomic_test_and_set_ptr(ptr, expected, newval)) break;
+        }
+        return expected;
     }
 
 } // extern "C"
@@ -100,14 +100,14 @@ struct QAtomic {
 
     inline bool operator==(int x) const
     {
-	const volatile int * const ptr = &atomic;
-	return *ptr == x;
+        const volatile int * const ptr = &atomic;
+        return *ptr == x;
     }
 
     inline bool operator!=(int x) const
     {
-	const volatile int * const ptr = &atomic;
-	return *ptr != x;
+        const volatile int * const ptr = &atomic;
+        return *ptr != x;
     }
 
     inline void operator=(int x)

@@ -6,21 +6,21 @@
 
 // if the flags change, you HAVE to change it in qmetaobject.h too
 enum ProperyFlags  {
-    Invalid		= 0x00000000,
-    Readable		= 0x00000001,
-    Writable		= 0x00000002,
-    Resetable		= 0x00000004,
-    EnumOrFlag		= 0x00000008,
-    StdCppSet		= 0x00000100,
-    Override		= 0x00000200,
-    Designable		= 0x00001000,
-    ResolveDesignable	= 0x00002000,
-    Scriptable		= 0x00004000,
-    ResolveScriptable	= 0x00008000,
-    Stored		= 0x00010000,
-    ResolveStored	= 0x00020000,
-    Editable		= 0x00040000,
-    ResolveEditable	= 0x00080000
+    Invalid                = 0x00000000,
+    Readable                = 0x00000001,
+    Writable                = 0x00000002,
+    Resetable                = 0x00000004,
+    EnumOrFlag                = 0x00000008,
+    StdCppSet                = 0x00000100,
+    Override                = 0x00000200,
+    Designable                = 0x00001000,
+    ResolveDesignable        = 0x00002000,
+    Scriptable                = 0x00004000,
+    ResolveScriptable        = 0x00008000,
+    Stored                = 0x00010000,
+    ResolveStored        = 0x00020000,
+    Editable                = 0x00040000,
+    ResolveEditable        = 0x00080000
 };
 
 /*
@@ -70,23 +70,23 @@ static const char* const type_map[ntypes] =
 int qvariant_nameToType(const char* name)
 {
     if (name) {
-	if ( strcmp(name, "QCString") == 0 )
-	    name = "QByteArray";
-	else if ( strcmp(name, "QCoreVariantMap") == 0 )
-	    name = "QVariantMap";
-	else if ( strcmp(name, "QCoreVariantList") == 0 )
-	    name = "QVariantList";
+        if (strcmp(name, "QCString") == 0)
+            name = "QByteArray";
+        else if (strcmp(name, "QCoreVariantMap") == 0)
+            name = "QVariantMap";
+        else if (strcmp(name, "QCoreVariantList") == 0)
+            name = "QVariantList";
 
-	for (int i = 1; i < ntypes; i++) {
-	    if (!strcmp(type_map[i], name))
-		return i;
-	}
+        for (int i = 1; i < ntypes; i++) {
+            if (!strcmp(type_map[i], name))
+                return i;
+        }
     }
     return 0;
 }
 
 /*
-  Returns TRUE if the type is a QVariant types.
+  Returns true if the type is a QVariant types.
 */
 bool isVariantType(const char* type)
 {
@@ -97,7 +97,7 @@ bool isVariantType(const char* type)
 static inline QByteArray noRef(const QByteArray &type)
 {
     if (type.endsWith('&'))
-	return type.left(type.length()-1);
+        return type.left(type.length()-1);
     return type;
 }
 
@@ -113,17 +113,17 @@ Generator::Generator(FILE *outfile, ClassDef *classDef) :out(outfile), cdef(clas
       want non-MSVC users to have a working generated files.
     */
     if (cdef->superclassList.size()) {
-	purestSuperClass = cdef->superclassList.first();
-	/*
-	  Make sure qualified template arguments (e.g., foo<bar::baz>)
-	  don't interfere.
-	*/
-	int pos = purestSuperClass.lastIndexOf("::", purestSuperClass.indexOf('<'));
-	if (pos != -1) {
-	    purestSuperClass = purestSuperClass.mid(pos + 2);
-	    if (purestSuperClass == cdef->classname)
-		purestSuperClass = cdef->superclassList.first();
-	}
+        purestSuperClass = cdef->superclassList.first();
+        /*
+          Make sure qualified template arguments (e.g., foo<bar::baz>)
+          don't interfere.
+        */
+        int pos = purestSuperClass.lastIndexOf("::", purestSuperClass.indexOf('<'));
+        if (pos != -1) {
+            purestSuperClass = purestSuperClass.mid(pos + 2);
+            if (purestSuperClass == cdef->classname)
+                purestSuperClass = cdef->superclassList.first();
+        }
     }
 }
 
@@ -131,12 +131,12 @@ int Generator::strreg(const char *s)
 {
     int idx = 0;
     if (!s)
-	s = "";
+        s = "";
     for (int i = 0; i < strings.size(); ++i) {
-	const QByteArray &str = strings.at(i);
-	if (str == s)
-	    return idx;
-	idx += str.length() + 1;
+        const QByteArray &str = strings.at(i);
+        if (str == s)
+            return idx;
+        idx += str.length() + 1;
     }
     strings.append(s);
     return idx;
@@ -153,16 +153,16 @@ void Generator::generateCode()
     int i = 0;
     // filter out undeclared enumerators and sets
     while (i < cdef->enumList.count()) {
-	if (cdef->enumDeclarations.contains(cdef->enumList.at(i).name))
-	    ++i;
-	else
-	    cdef->enumList.removeAt(i);
+        if (cdef->enumDeclarations.contains(cdef->enumList.at(i).name))
+            ++i;
+        else
+            cdef->enumList.removeAt(i);
     }
 
     QByteArray qualifiedClassNameIdentifier = cdef->qualified;
     for (i = 0; i < qualifiedClassNameIdentifier.length(); ++i)
-	if (qualifiedClassNameIdentifier[i] == ':')
-	    qualifiedClassNameIdentifier[i] = '_';
+        if (qualifiedClassNameIdentifier[i] == ':')
+            qualifiedClassNameIdentifier[i] = '_';
 
     int index = 12;
     fprintf(out, "static const uint qt_meta_data_%s[] = {\n", qualifiedClassNameIdentifier.constData());
@@ -217,13 +217,13 @@ void Generator::generateCode()
     fprintf(out, "    \"");
     int col = 0;
     for (i = 0; i < strings.size(); ++i) {
-	QByteArray s = strings.at(i);
-	if (col && col + strlen(s) >= 72) {
-	    fprintf(out, "\"\n    \"");
-	    col = 0;
-	}
-	fprintf(out, "%s\\0", s.constData());
-	col += strlen(s)+2;
+        QByteArray s = strings.at(i);
+        if (col && col + strlen(s) >= 72) {
+            fprintf(out, "\"\n    \"");
+            col = 0;
+        }
+        fprintf(out, "%s\\0", s.constData());
+        col += strlen(s)+2;
     }
     fprintf(out, "\"\n};\n\n");
 
@@ -233,30 +233,30 @@ void Generator::generateCode()
 //
 
     if (isQt)
-	fprintf(out, "const QMetaObject QObject::staticQtMetaObject = {\n");
+        fprintf(out, "const QMetaObject QObject::staticQtMetaObject = {\n");
     else
-	fprintf(out, "const QMetaObject %s::staticMetaObject = {\n", cdef->qualified.constData());
+        fprintf(out, "const QMetaObject %s::staticMetaObject = {\n", cdef->qualified.constData());
 
     if (isQObject)
-	fprintf(out, "    { &staticQtMetaObject,\n      ");
+        fprintf(out, "    { &staticQtMetaObject,\n      ");
     else if (cdef->superclassList.size())
-	fprintf(out, "    { &%s::staticMetaObject,\n      ", purestSuperClass.constData());
+        fprintf(out, "    { &%s::staticMetaObject,\n      ", purestSuperClass.constData());
     else
-	fprintf(out, "    { 0, ");
+        fprintf(out, "    { 0, ");
     fprintf(out, "qt_meta_stringdata_%s,\n      qt_meta_data_%s }\n",
-	     qualifiedClassNameIdentifier.constData(), qualifiedClassNameIdentifier.constData());
+             qualifiedClassNameIdentifier.constData(), qualifiedClassNameIdentifier.constData());
     fprintf(out, "};\n");
 
     if (isQt)
-	return;
+        return;
 
 //
 // Generate virtual metaObject()  function
 //
     fprintf(out,
-	     "\nconst QMetaObject *%s::metaObject() const\n{\n"
-	     "    return &staticMetaObject;\n"
-	     "}\n", cdef->qualified.constData());
+             "\nconst QMetaObject *%s::metaObject() const\n{\n"
+             "    return &staticMetaObject;\n"
+             "}\n", cdef->qualified.constData());
 
 //
 // Generate smart cast function
@@ -264,27 +264,27 @@ void Generator::generateCode()
     fprintf(out, "\nvoid *%s::qt_metacast(const char *_clname) const\n{\n", cdef->qualified.constData());
     fprintf(out, "    if (!_clname) return 0;\n");
     fprintf(out, "    if (!strcmp(_clname, qt_meta_stringdata_%s))\n"
-		  "\treturn static_cast<void*>(const_cast<%s*>(this));\n",
-	    qualifiedClassNameIdentifier.constData(),  qualifiedClassNameIdentifier.constData());
+                  "\treturn static_cast<void*>(const_cast<%s*>(this));\n",
+            qualifiedClassNameIdentifier.constData(),  qualifiedClassNameIdentifier.constData());
     for (i = 1; i < cdef->superclassList.size(); ++i) { // for all superclasses but the first one
-	const char *cname = cdef->superclassList.at(i);
-	fprintf(out, "    if (!strcmp(_clname, \"%s\"))\n\treturn static_cast<%s*>(const_cast<%s*>(this));\n",
-		cname, cname,   qualifiedClassNameIdentifier.constData());
+        const char *cname = cdef->superclassList.at(i);
+        fprintf(out, "    if (!strcmp(_clname, \"%s\"))\n\treturn static_cast<%s*>(const_cast<%s*>(this));\n",
+                cname, cname,   qualifiedClassNameIdentifier.constData());
     }
     for (i = 0; i < cdef->interfaceList.size(); ++i) {
-	const QList<QByteArray> &iface = cdef->interfaceList.at(i);
-	for (int j = 0; j < iface.size(); ++j) {
-	    fprintf(out, "    if (!strcmp(_clname, %s::iid()))\n\treturn ", iface.at(j).constData());
-	    for (int k = j; k >= 0; --k)
-		fprintf(out, "static_cast<%s*>(", iface.at(k).constData());
-	    fprintf(out, "const_cast<%s*>(this)%s;\n",
-		    qualifiedClassNameIdentifier.constData(), QByteArray(j+1, ')').constData());
-	}
+        const QList<QByteArray> &iface = cdef->interfaceList.at(i);
+        for (int j = 0; j < iface.size(); ++j) {
+            fprintf(out, "    if (!strcmp(_clname, %s::iid()))\n\treturn ", iface.at(j).constData());
+            for (int k = j; k >= 0; --k)
+                fprintf(out, "static_cast<%s*>(", iface.at(k).constData());
+            fprintf(out, "const_cast<%s*>(this)%s;\n",
+                    qualifiedClassNameIdentifier.constData(), QByteArray(j+1, ')').constData());
+        }
     }
     if (purestSuperClass.size() && !isQObject)
-	fprintf(out, "    return %s::qt_metacast(_clname);\n", purestSuperClass.constData());
+        fprintf(out, "    return %s::qt_metacast(_clname);\n", purestSuperClass.constData());
     else
-	fprintf(out, "    return 0;\n");
+        fprintf(out, "    return 0;\n");
     fprintf(out, "}\n");
 
 //
@@ -296,7 +296,7 @@ void Generator::generateCode()
 // Generate internal signal functions
 //
     for (int signalindex = 0; signalindex < cdef->signalList.size(); ++signalindex)
-	generateSignal(&cdef->signalList[signalindex], signalindex);
+        generateSignal(&cdef->signalList[signalindex], signalindex);
 
 }
 
@@ -304,41 +304,41 @@ void Generator::generateCode()
 void Generator::generateClassInfos()
 {
     if (cdef->classInfoList.isEmpty())
-	return;
+        return;
 
     fprintf(out, "\n // classinfo: key, value\n");
 
     for (int i = 0; i < cdef->classInfoList.size(); ++i) {
-	const ClassInfoDef &c = cdef->classInfoList.at(i);
-	fprintf(out, "    %4d, %4d,\n", strreg(c.name), strreg(c.value));
+        const ClassInfoDef &c = cdef->classInfoList.at(i);
+        fprintf(out, "    %4d, %4d,\n", strreg(c.name), strreg(c.value));
     }
 }
 
 void Generator::generateFunctions(QList<FunctionDef>& list, const char *functype)
 {
     if (list.isEmpty())
-	return;
+        return;
     fprintf(out, "\n // %ss: signature, parameters, type, tag, flags\n", functype);
 
     for (int i = 0; i < list.count(); ++i) {
-	const FunctionDef &f = list.at(i);
+        const FunctionDef &f = list.at(i);
 
-	QByteArray sig = f.name + '(';
-	QByteArray arguments;
+        QByteArray sig = f.name + '(';
+        QByteArray arguments;
 
-	for (int j = 0; j < f.arguments.count(); ++j) {
-	    const ArgumentDef &a = f.arguments.at(j);
-	    if (j) {
-		sig += ",";
-		arguments += ",";
-	    }
-	    sig += a.normalizedType;
-	    arguments += a.name;
-	}
-	sig += ')';
+        for (int j = 0; j < f.arguments.count(); ++j) {
+            const ArgumentDef &a = f.arguments.at(j);
+            if (j) {
+                sig += ",";
+                arguments += ",";
+            }
+            sig += a.normalizedType;
+            arguments += a.name;
+        }
+        sig += ')';
 
-	fprintf(out, "    %4d, %4d, %4d, %4d, 0x%.1x,\n", strreg(sig),
-		 strreg(arguments), strreg(f.normalizedType), strreg(f.tag), f.access);
+        fprintf(out, "    %4d, %4d, %4d, %4d, 0x%.1x,\n", strreg(sig),
+                 strreg(arguments), strreg(f.normalizedType), strreg(f.tag), f.access);
     }
 }
 
@@ -349,34 +349,34 @@ void Generator::generateProperties()
     // returning pointers, or const char * for QByteArray.
     //
     for (int i = 0; i < cdef->propertyList.count(); ++i) {
-	PropertyDef &p = cdef->propertyList[i];
-	if (p.read.isEmpty())
-	    continue;
-	for (int j = 0; j < cdef->candidateList.count(); ++j) {
-	    const FunctionDef &f = cdef->candidateList.at(j);
-	    if (f.name != p.read)
-		continue;
-	    if (!f.isConst) // get  functions must be const
-		continue;
-	    if (f.arguments.size()) // and must not take any arguments
-		continue;
-	    PropertyDef::Specification spec = PropertyDef::ValueSpec;
-	    QByteArray tmp = f.normalizedType;
-	    if (p.type == "QByteArray" && tmp == "const char *")
-		    tmp = "QByteArray";
-	    if (tmp.left(6) == "const ")
-		tmp = tmp.mid(6);
-	    if (tmp.endsWith('*')) {
-		tmp = tmp.left(tmp.length() - 1);
-		spec = PropertyDef::PointerSpec;
-	    } else if (f.type.endsWith('&')) { // raw type, not normalized type
-		spec = PropertyDef::ReferenceSpec;
-	    }
-	    if (p.type != tmp)
-		continue;
-	    p.gspec = spec;
-	    break;
-	}
+        PropertyDef &p = cdef->propertyList[i];
+        if (p.read.isEmpty())
+            continue;
+        for (int j = 0; j < cdef->candidateList.count(); ++j) {
+            const FunctionDef &f = cdef->candidateList.at(j);
+            if (f.name != p.read)
+                continue;
+            if (!f.isConst) // get  functions must be const
+                continue;
+            if (f.arguments.size()) // and must not take any arguments
+                continue;
+            PropertyDef::Specification spec = PropertyDef::ValueSpec;
+            QByteArray tmp = f.normalizedType;
+            if (p.type == "QByteArray" && tmp == "const char *")
+                    tmp = "QByteArray";
+            if (tmp.left(6) == "const ")
+                tmp = tmp.mid(6);
+            if (tmp.endsWith('*')) {
+                tmp = tmp.left(tmp.length() - 1);
+                spec = PropertyDef::PointerSpec;
+            } else if (f.type.endsWith('&')) { // raw type, not normalized type
+                spec = PropertyDef::ReferenceSpec;
+            }
+            if (p.type != tmp)
+                continue;
+            p.gspec = spec;
+            break;
+        }
     }
 
 
@@ -386,50 +386,50 @@ void Generator::generateProperties()
 
     fprintf(out, "\n // properties: name, type, flags\n");
     for (int i = 0; i < cdef->propertyList.count(); ++i) {
-	const PropertyDef &p = cdef->propertyList.at(i);
-	int flags = Invalid;
-	if (!isVariantType(p.type)) {
-	    flags |= EnumOrFlag;
-	} else {
-	    flags |= qvariant_nameToType(p.type) << 24;
-	}
-	if (!p.read.isEmpty())
-	    flags |= Readable;
-	if (!p.write.isEmpty()) {
-	    flags |= Writable;
-	    if (p.stdCppSet())
-		flags |= StdCppSet;
-	}
-	if (!p.reset.isEmpty())
-	    flags |= Resetable;
+        const PropertyDef &p = cdef->propertyList.at(i);
+        int flags = Invalid;
+        if (!isVariantType(p.type)) {
+            flags |= EnumOrFlag;
+        } else {
+            flags |= qvariant_nameToType(p.type) << 24;
+        }
+        if (!p.read.isEmpty())
+            flags |= Readable;
+        if (!p.write.isEmpty()) {
+            flags |= Writable;
+            if (p.stdCppSet())
+                flags |= StdCppSet;
+        }
+        if (!p.reset.isEmpty())
+            flags |= Resetable;
 
-	if (p.override)
-	    flags |= Override;
+        if (p.override)
+            flags |= Override;
 
-	if (p.designable.isEmpty())
-	    flags |= ResolveDesignable;
-	else if (p.designable != "false")
-	    flags |= Designable;
+        if (p.designable.isEmpty())
+            flags |= ResolveDesignable;
+        else if (p.designable != "false")
+            flags |= Designable;
 
-	if (p.scriptable.isEmpty())
-	    flags |= ResolveScriptable;
-	else if (p.scriptable != "false")
-	    flags |= Scriptable;
+        if (p.scriptable.isEmpty())
+            flags |= ResolveScriptable;
+        else if (p.scriptable != "false")
+            flags |= Scriptable;
 
-	if (p.stored.isEmpty())
-	    flags |= ResolveStored;
-	else if (p.stored != "false")
-	    flags |= Stored;
+        if (p.stored.isEmpty())
+            flags |= ResolveStored;
+        else if (p.stored != "false")
+            flags |= Stored;
 
-	if (p.editable.isEmpty())
-	    flags |= ResolveEditable;
-	else if (p.editable != "false")
-	    flags |= Editable;
+        if (p.editable.isEmpty())
+            flags |= ResolveEditable;
+        else if (p.editable != "false")
+            flags |= Editable;
 
-	fprintf(out, "    %4d, %4d, 0x%.8x,\n",
-		 strreg(p.name),
-		 strreg(p.type),
-		 flags);
+        fprintf(out, "    %4d, %4d, 0x%.8x,\n",
+                 strreg(p.name),
+                 strreg(p.type),
+                 flags);
     }
 
 }
@@ -437,32 +437,32 @@ void Generator::generateProperties()
 void Generator::generateEnums(int index)
 {
     if (cdef->enumDeclarations.isEmpty())
-	return;
+        return;
 
     fprintf(out, "\n // enums: name, flags, count, data\n");
     index += 4 * cdef->enumList.count();
     int i;
     for (i = 0; i < cdef->enumList.count(); ++i) {
-	const EnumDef &e = cdef->enumList.at(i);
-	fprintf(out, "    %4d, 0x%.1x, %4d, %4d,\n",
-		 strreg(e.name),
-		 cdef->enumDeclarations.value(e.name) ? 1 : 0,
-		 e.values.count(),
-		 index);
-	index += e.values.count() * 2;
+        const EnumDef &e = cdef->enumList.at(i);
+        fprintf(out, "    %4d, 0x%.1x, %4d, %4d,\n",
+                 strreg(e.name),
+                 cdef->enumDeclarations.value(e.name) ? 1 : 0,
+                 e.values.count(),
+                 index);
+        index += e.values.count() * 2;
     }
 
     fprintf(out, "\n // enum data: key, value\n");
 
     for (i = 0; i < cdef->enumList.count(); ++i) {
-	const EnumDef &e = cdef->enumList.at(i);
-	for (int j = 0; j < e.values.count(); ++j) {
-	    const QByteArray &val = e.values.at(j);
-	    fprintf(out, "    %4d, %s::%s,\n",
-		    strreg(val),
-		    cdef->qualified.constData(),
-		    val.constData());
-	}
+        const EnumDef &e = cdef->enumList.at(i);
+        for (int j = 0; j < e.values.count(); ++j) {
+            const QByteArray &val = e.values.at(j);
+            fprintf(out, "    %4d, %s::%s,\n",
+                    strreg(val),
+                    cdef->qualified.constData(),
+                    val.constData());
+        }
     }
 }
 
@@ -471,261 +471,261 @@ void Generator::generateMetacall()
     bool isQObject = (cdef->classname == "QObject");
 
     fprintf(out, "\nint %s::qt_metacall(QMetaObject::Call _c, int _id, void **_a)\n{\n",
-	     cdef->qualified.constData());
+             cdef->qualified.constData());
 
     if (purestSuperClass.size() && !isQObject)
-	fprintf(out, "    _id = %s::qt_metacall(_c, _id, _a);\n", purestSuperClass.constData());
+        fprintf(out, "    _id = %s::qt_metacall(_c, _id, _a);\n", purestSuperClass.constData());
 
     fprintf(out, "    if (_id < 0)\n        return _id;\n");
     fprintf(out, "    ");
 
     bool needElse = false;
     if(cdef->slotList.size()) {
-	needElse = true;
-	fprintf(out, "if (_c == QMetaObject::InvokeSlot) {\n");
-	fprintf(out, "        switch (_id) {\n");
-	for (int slotindex = 0; slotindex < cdef->slotList.size(); ++slotindex) {
-	    const FunctionDef &f = cdef->slotList.at(slotindex);
-	    fprintf(out, "        case %d: ", slotindex);
-	    if (f.normalizedType.size())
-		fprintf(out, "{ %s _r = ", noRef(f.normalizedType).constData());
-	    if (f.inPrivateClass)
-		fprintf(out, "d->");
-	    fprintf(out, "%s(", f.name.constData());
-	    int offset = 1;
-	    for (int j = 0; j < f.arguments.count(); ++j) {
-		const ArgumentDef &a = f.arguments.at(j);
-		if (j)
-		    fprintf(out, ",");
-		fprintf(out, "*(%s*)_a[%d]",noRef(a.normalizedType).constData(), offset++);
-	    }
-	    fprintf(out, ");");
-	    if (f.normalizedType.size())
-		fprintf(out, "\n            if (_a[0]) *(%s*)_a[0] = _r; } ",
-			noRef(f.normalizedType).constData());
-	    fprintf(out, " break;\n");
-	}
-	fprintf(out,
-		 "        }\n"
-		 "        _id -= %d;\n"
-		 "    }", cdef->slotList.count());
+        needElse = true;
+        fprintf(out, "if (_c == QMetaObject::InvokeSlot) {\n");
+        fprintf(out, "        switch (_id) {\n");
+        for (int slotindex = 0; slotindex < cdef->slotList.size(); ++slotindex) {
+            const FunctionDef &f = cdef->slotList.at(slotindex);
+            fprintf(out, "        case %d: ", slotindex);
+            if (f.normalizedType.size())
+                fprintf(out, "{ %s _r = ", noRef(f.normalizedType).constData());
+            if (f.inPrivateClass)
+                fprintf(out, "d->");
+            fprintf(out, "%s(", f.name.constData());
+            int offset = 1;
+            for (int j = 0; j < f.arguments.count(); ++j) {
+                const ArgumentDef &a = f.arguments.at(j);
+                if (j)
+                    fprintf(out, ",");
+                fprintf(out, "*(%s*)_a[%d]",noRef(a.normalizedType).constData(), offset++);
+            }
+            fprintf(out, ");");
+            if (f.normalizedType.size())
+                fprintf(out, "\n            if (_a[0]) *(%s*)_a[0] = _r; } ",
+                        noRef(f.normalizedType).constData());
+            fprintf(out, " break;\n");
+        }
+        fprintf(out,
+                 "        }\n"
+                 "        _id -= %d;\n"
+                 "    }", cdef->slotList.count());
     }
     if(cdef->signalList.size()) {
-	if (needElse)
-	    fprintf(out, " else ");
-	needElse = true;
-	fprintf(out, "if (_c == QMetaObject::EmitSignal) {\n");
-	fprintf(out, "        switch (_id) {\n");
-	for (int signalindex = 0; signalindex < cdef->signalList.size(); ++signalindex) {
-	    const FunctionDef &f = cdef->signalList.at(signalindex);
-	    fprintf(out, "        case %d: ", signalindex);
-	    if (f.normalizedType.size())
-		fprintf(out, "{ %s _r = ", noRef(f.normalizedType).constData());
-	    fprintf(out, "%s(", f.name.constData());
-	    int offset = 1;
-	    for (int j = 0; j < f.arguments.size(); ++j) {
-		const ArgumentDef &a = f.arguments.at(j);
-		if (j)
-		    fprintf(out, ",");
-		fprintf(out, "*(%s*)_a[%d]", noRef(a.normalizedType).constData(), offset++);
-	    }
-	    fprintf(out, ");");
-	    if (f.normalizedType.size())
-		fprintf(out, "\n            if (_a[0]) *(%s*)_a[0] = _r; } ",
-			noRef(f.normalizedType).constData());
-	    fprintf(out, " break;\n");
-	}
-	fprintf(out,
-		 "        }\n"
-		 "        _id -= %d;\n"
-		 "    }", cdef->signalList.count());
+        if (needElse)
+            fprintf(out, " else ");
+        needElse = true;
+        fprintf(out, "if (_c == QMetaObject::EmitSignal) {\n");
+        fprintf(out, "        switch (_id) {\n");
+        for (int signalindex = 0; signalindex < cdef->signalList.size(); ++signalindex) {
+            const FunctionDef &f = cdef->signalList.at(signalindex);
+            fprintf(out, "        case %d: ", signalindex);
+            if (f.normalizedType.size())
+                fprintf(out, "{ %s _r = ", noRef(f.normalizedType).constData());
+            fprintf(out, "%s(", f.name.constData());
+            int offset = 1;
+            for (int j = 0; j < f.arguments.size(); ++j) {
+                const ArgumentDef &a = f.arguments.at(j);
+                if (j)
+                    fprintf(out, ",");
+                fprintf(out, "*(%s*)_a[%d]", noRef(a.normalizedType).constData(), offset++);
+            }
+            fprintf(out, ");");
+            if (f.normalizedType.size())
+                fprintf(out, "\n            if (_a[0]) *(%s*)_a[0] = _r; } ",
+                        noRef(f.normalizedType).constData());
+            fprintf(out, " break;\n");
+        }
+        fprintf(out,
+                 "        }\n"
+                 "        _id -= %d;\n"
+                 "    }", cdef->signalList.count());
     }
 
     if (cdef->propertyList.size()) {
-	bool needGet = false;
-	bool needSet = false;
-	bool needReset = false;
-	bool needDesignable = false;
-	bool needScriptable = false;
-	bool needStored = false;
-	bool needEditable = false;
-	for (int i = 0; i < cdef->propertyList.size(); ++i) {
-	    const PropertyDef &p = cdef->propertyList.at(i);
-	    needGet |= !p.read.isEmpty();
-	    needSet |= !p.write.isEmpty();
-	    needReset |= !p.reset.isEmpty();
-	    needDesignable |= p.designable.endsWith(')');
-	    needScriptable |= p.scriptable.endsWith(')');
-	    needStored |= p.stored.endsWith(')');
-	    needEditable |= p.editable.endsWith(')');
-	}
-	bool needAnything = needGet
-			    | needSet
-			    | needReset
-			    | needDesignable
-			    | needScriptable
-			    | needStored
-			    | needEditable;
-	if (!needAnything)
-	    goto skip_properties;
-	fprintf(out, "\n#ifndef QT_NO_PROPERTIES\n     ");
+        bool needGet = false;
+        bool needSet = false;
+        bool needReset = false;
+        bool needDesignable = false;
+        bool needScriptable = false;
+        bool needStored = false;
+        bool needEditable = false;
+        for (int i = 0; i < cdef->propertyList.size(); ++i) {
+            const PropertyDef &p = cdef->propertyList.at(i);
+            needGet |= !p.read.isEmpty();
+            needSet |= !p.write.isEmpty();
+            needReset |= !p.reset.isEmpty();
+            needDesignable |= p.designable.endsWith(')');
+            needScriptable |= p.scriptable.endsWith(')');
+            needStored |= p.stored.endsWith(')');
+            needEditable |= p.editable.endsWith(')');
+        }
+        bool needAnything = needGet
+                            | needSet
+                            | needReset
+                            | needDesignable
+                            | needScriptable
+                            | needStored
+                            | needEditable;
+        if (!needAnything)
+            goto skip_properties;
+        fprintf(out, "\n#ifndef QT_NO_PROPERTIES\n     ");
 
-	if (needGet){
-	    if (needElse)
-		fprintf(out, " else ");
-	    needElse = true;
-	    fprintf(out, "if (_c == QMetaObject::ReadProperty) {\n");
-	    fprintf(out, "        void *_v = _a[0];\n");
-	    fprintf(out, "        switch (_id) {\n");
-	    for (int propindex = 0; propindex < cdef->propertyList.size(); ++propindex) {
-		const PropertyDef &p = cdef->propertyList.at(propindex);
-		if (p.read.isEmpty())
-		    continue;
-		if (p.gspec == PropertyDef::PointerSpec)
-		    fprintf(out, "        case %d: _a[0] = (void*)%s(); break;\n",
-			    propindex, p.read.constData());
-		else if (p.gspec == PropertyDef::ReferenceSpec)
-		    fprintf(out, "        case %d: _a[0] = (void*)&%s(); break;\n",
-			    propindex, p.read.constData());
-		else if (isVariantType(p.type))
-		    fprintf(out, "        case %d: *(%s*)_v = %s(); break;\n",
-			    propindex, p.type.constData(), p.read.constData());
-		else
-		    fprintf(out, "        case %d: *(int*)_v = QFlag(%s()); break;\n",
-			    propindex, p.read.constData());
-	    }
-	    fprintf(out,
-		    "        }\n"
-		    "        _id -= %d;\n"
-		    "    }", cdef->propertyList.count());
-	}
-	if (needSet) {
-	    if (needElse)
-		fprintf(out, " else ");
-	    needElse = true;
-	    fprintf(out, "if (_c == QMetaObject::WriteProperty) {\n");
-	    fprintf(out, "        void *_v = _a[0];\n");
-	    fprintf(out, "        switch (_id) {\n");
-	    for (int propindex = 0; propindex < cdef->propertyList.size(); ++propindex) {
-		const PropertyDef &p = cdef->propertyList.at(propindex);
-		if (p.write.isEmpty())
-		    continue;
-		if (cdef->enumDeclarations.value(p.type, false)) {
-		    fprintf(out, "        case %d: %s(QFlag(*(int*)_v)); break;\n",
-			    propindex, p.write.constData() );
-		} else {
-		    fprintf(out, "        case %d: %s(*(%s*)_v); break;\n",
-			    propindex, p.write.constData(), p.type.constData());
-		}
-	    }
-	    fprintf(out,
-		    "        }\n"
-		    "        _id -= %d;\n"
-		    "    }", cdef->propertyList.count());
-	}
+        if (needGet){
+            if (needElse)
+                fprintf(out, " else ");
+            needElse = true;
+            fprintf(out, "if (_c == QMetaObject::ReadProperty) {\n");
+            fprintf(out, "        void *_v = _a[0];\n");
+            fprintf(out, "        switch (_id) {\n");
+            for (int propindex = 0; propindex < cdef->propertyList.size(); ++propindex) {
+                const PropertyDef &p = cdef->propertyList.at(propindex);
+                if (p.read.isEmpty())
+                    continue;
+                if (p.gspec == PropertyDef::PointerSpec)
+                    fprintf(out, "        case %d: _a[0] = (void*)%s(); break;\n",
+                            propindex, p.read.constData());
+                else if (p.gspec == PropertyDef::ReferenceSpec)
+                    fprintf(out, "        case %d: _a[0] = (void*)&%s(); break;\n",
+                            propindex, p.read.constData());
+                else if (isVariantType(p.type))
+                    fprintf(out, "        case %d: *(%s*)_v = %s(); break;\n",
+                            propindex, p.type.constData(), p.read.constData());
+                else
+                    fprintf(out, "        case %d: *(int*)_v = QFlag(%s()); break;\n",
+                            propindex, p.read.constData());
+            }
+            fprintf(out,
+                    "        }\n"
+                    "        _id -= %d;\n"
+                    "    }", cdef->propertyList.count());
+        }
+        if (needSet) {
+            if (needElse)
+                fprintf(out, " else ");
+            needElse = true;
+            fprintf(out, "if (_c == QMetaObject::WriteProperty) {\n");
+            fprintf(out, "        void *_v = _a[0];\n");
+            fprintf(out, "        switch (_id) {\n");
+            for (int propindex = 0; propindex < cdef->propertyList.size(); ++propindex) {
+                const PropertyDef &p = cdef->propertyList.at(propindex);
+                if (p.write.isEmpty())
+                    continue;
+                if (cdef->enumDeclarations.value(p.type, false)) {
+                    fprintf(out, "        case %d: %s(QFlag(*(int*)_v)); break;\n",
+                            propindex, p.write.constData());
+                } else {
+                    fprintf(out, "        case %d: %s(*(%s*)_v); break;\n",
+                            propindex, p.write.constData(), p.type.constData());
+                }
+            }
+            fprintf(out,
+                    "        }\n"
+                    "        _id -= %d;\n"
+                    "    }", cdef->propertyList.count());
+        }
 
-	if (needReset) {
-	    if (needElse)
-		fprintf(out, " else ");
-	    needElse = true;
-	    fprintf(out, "if (_c == QMetaObject::ResetProperty) {\n");
-	    fprintf(out, "        switch (_id) {\n");
-	    for (int propindex = 0; propindex < cdef->propertyList.size(); ++propindex) {
-		const PropertyDef &p = cdef->propertyList.at(propindex);
-		if (!p.reset.endsWith(')'))
-		    continue;
-		fprintf(out, "        case %d: %s; break;\n",
-			propindex, p.reset.constData());
-	    }
-	    fprintf(out,
-		    "        }\n"
-		    "        _id -= %d;\n"
-		    "    }", cdef->propertyList.count());
-	}
+        if (needReset) {
+            if (needElse)
+                fprintf(out, " else ");
+            needElse = true;
+            fprintf(out, "if (_c == QMetaObject::ResetProperty) {\n");
+            fprintf(out, "        switch (_id) {\n");
+            for (int propindex = 0; propindex < cdef->propertyList.size(); ++propindex) {
+                const PropertyDef &p = cdef->propertyList.at(propindex);
+                if (!p.reset.endsWith(')'))
+                    continue;
+                fprintf(out, "        case %d: %s; break;\n",
+                        propindex, p.reset.constData());
+            }
+            fprintf(out,
+                    "        }\n"
+                    "        _id -= %d;\n"
+                    "    }", cdef->propertyList.count());
+        }
 
-	if (needDesignable) {
-	    if (needElse)
-		fprintf(out, " else ");
-	    needElse = true;
-	    fprintf(out, "if (_c == QMetaObject::QueryPropertyDesignable) {\n");
-	    fprintf(out, "        bool *_b = (bool*)_a[0];\n");
-	    fprintf(out, "        switch (_id) {\n");
-	    for (int propindex = 0; propindex < cdef->propertyList.size(); ++propindex) {
-		const PropertyDef &p = cdef->propertyList.at(propindex);
-		if (!p.designable.endsWith(')'))
-		    continue;
-		fprintf(out, "        case %d: *_b = %s; break;\n",
-			 propindex, p.designable.constData());
-	    }
-	    fprintf(out,
-		    "        }\n"
-		    "        _id -= %d;\n"
-		    "    }", cdef->propertyList.count());
-	}
-	if (needScriptable) {
-	    if (needElse)
-		fprintf(out, " else ");
-	    needElse = true;
-	    fprintf(out, "if (_c == QMetaObject::QueryPropertyScriptable) {\n");
-	    fprintf(out, "        bool *_b = (bool*)_a[0];\n");
-	    fprintf(out, "        switch (_id) {\n");
-	    for (int propindex = 0; propindex < cdef->propertyList.size(); ++propindex) {
-		const PropertyDef &p = cdef->propertyList.at(propindex);
-		if (!p.scriptable.endsWith(')'))
-		    continue;
-		fprintf(out, "        case %d: *_b = %s; break;\n",
-			 propindex, p.scriptable.constData());
-	    }
-	    fprintf(out,
-		    "        }\n"
-		    "        _id -= %d;\n"
-		    "    }", cdef->propertyList.count());
-	}
-	if (needStored) {
-	    if (needElse)
-		fprintf(out, " else ");
-	    needElse = true;
-	    fprintf(out, "if (_c == QMetaObject::QueryPropertyStored) {\n");
-	    fprintf(out, "        bool *_b = (bool*)_a[0];\n");
-	    fprintf(out, "        switch (_id) {\n");
-	    for (int propindex = 0; propindex < cdef->propertyList.size(); ++propindex) {
-		const PropertyDef &p = cdef->propertyList.at(propindex);
-		if (!p.stored.endsWith(')'))
-		    continue;
-		fprintf(out, "        case %d: *_b = %s; break;\n",
-			 propindex, p.stored.constData());
-	    }
-	    fprintf(out,
-		    "        }\n"
-		    "        _id -= %d;\n"
-		    "    }", cdef->propertyList.count());
-	}
-	if (needEditable) {
-	    if (needElse)
-		fprintf(out, " else ");
-	    needElse = true;
-	    fprintf(out, "if (_c == QMetaObject::QueryPropertyEditable) {\n");
-	    fprintf(out, "        bool *_b = (bool*)_a[0];\n");
-	    fprintf(out, "        switch (_id) {\n");
-	    for (int propindex = 0; propindex < cdef->propertyList.size(); ++propindex) {
-		const PropertyDef &p = cdef->propertyList.at(propindex);
-		if (!p.editable.endsWith(')'))
-		    continue;
-		fprintf(out, "        case %d: *_b = %s; break;\n",
-			 propindex, p.editable.constData());
-	    }
-	    fprintf(out,
-		    "        }\n"
-		    "        _id -= %d;\n"
-		    "    }", cdef->propertyList.count());
-	}
+        if (needDesignable) {
+            if (needElse)
+                fprintf(out, " else ");
+            needElse = true;
+            fprintf(out, "if (_c == QMetaObject::QueryPropertyDesignable) {\n");
+            fprintf(out, "        bool *_b = (bool*)_a[0];\n");
+            fprintf(out, "        switch (_id) {\n");
+            for (int propindex = 0; propindex < cdef->propertyList.size(); ++propindex) {
+                const PropertyDef &p = cdef->propertyList.at(propindex);
+                if (!p.designable.endsWith(')'))
+                    continue;
+                fprintf(out, "        case %d: *_b = %s; break;\n",
+                         propindex, p.designable.constData());
+            }
+            fprintf(out,
+                    "        }\n"
+                    "        _id -= %d;\n"
+                    "    }", cdef->propertyList.count());
+        }
+        if (needScriptable) {
+            if (needElse)
+                fprintf(out, " else ");
+            needElse = true;
+            fprintf(out, "if (_c == QMetaObject::QueryPropertyScriptable) {\n");
+            fprintf(out, "        bool *_b = (bool*)_a[0];\n");
+            fprintf(out, "        switch (_id) {\n");
+            for (int propindex = 0; propindex < cdef->propertyList.size(); ++propindex) {
+                const PropertyDef &p = cdef->propertyList.at(propindex);
+                if (!p.scriptable.endsWith(')'))
+                    continue;
+                fprintf(out, "        case %d: *_b = %s; break;\n",
+                         propindex, p.scriptable.constData());
+            }
+            fprintf(out,
+                    "        }\n"
+                    "        _id -= %d;\n"
+                    "    }", cdef->propertyList.count());
+        }
+        if (needStored) {
+            if (needElse)
+                fprintf(out, " else ");
+            needElse = true;
+            fprintf(out, "if (_c == QMetaObject::QueryPropertyStored) {\n");
+            fprintf(out, "        bool *_b = (bool*)_a[0];\n");
+            fprintf(out, "        switch (_id) {\n");
+            for (int propindex = 0; propindex < cdef->propertyList.size(); ++propindex) {
+                const PropertyDef &p = cdef->propertyList.at(propindex);
+                if (!p.stored.endsWith(')'))
+                    continue;
+                fprintf(out, "        case %d: *_b = %s; break;\n",
+                         propindex, p.stored.constData());
+            }
+            fprintf(out,
+                    "        }\n"
+                    "        _id -= %d;\n"
+                    "    }", cdef->propertyList.count());
+        }
+        if (needEditable) {
+            if (needElse)
+                fprintf(out, " else ");
+            needElse = true;
+            fprintf(out, "if (_c == QMetaObject::QueryPropertyEditable) {\n");
+            fprintf(out, "        bool *_b = (bool*)_a[0];\n");
+            fprintf(out, "        switch (_id) {\n");
+            for (int propindex = 0; propindex < cdef->propertyList.size(); ++propindex) {
+                const PropertyDef &p = cdef->propertyList.at(propindex);
+                if (!p.editable.endsWith(')'))
+                    continue;
+                fprintf(out, "        case %d: *_b = %s; break;\n",
+                         propindex, p.editable.constData());
+            }
+            fprintf(out,
+                    "        }\n"
+                    "        _id -= %d;\n"
+                    "    }", cdef->propertyList.count());
+        }
 
 
-	fprintf(out, "\n#endif // QT_NO_PROPERTIES");
+        fprintf(out, "\n#endif // QT_NO_PROPERTIES");
     }
  skip_properties:
     if (cdef->slotList.size() || cdef->signalList.size() || cdef->propertyList.size())
-	fprintf(out, "\n    ");
+        fprintf(out, "\n    ");
     fprintf(out,"return _id;\n};\n");
 }
 
@@ -733,42 +733,42 @@ void Generator::generateMetacall()
 void Generator::generateSignal(FunctionDef *def,int index)
 {
     if (def->wasCloned)
-	return;
+        return;
     fprintf(out, "\n// SIGNAL %d\n%s %s::%s(",
-	    index, def->type.constData(), cdef->qualified.constData(), def->name.constData());
+            index, def->type.constData(), cdef->qualified.constData(), def->name.constData());
 
 
     if (def->arguments.isEmpty() && def->normalizedType.isEmpty()) {
-	fprintf(out, ")\n{\n"
-		 "    QMetaObject::activate(this, &staticMetaObject, %d, 0);\n"
-		 "};\n", index);
-	return;
+        fprintf(out, ")\n{\n"
+                 "    QMetaObject::activate(this, &staticMetaObject, %d, 0);\n"
+                 "};\n", index);
+        return;
     }
 
     int offset = 1;
     for (int j = 0; j < def->arguments.count(); ++j) {
-	const ArgumentDef &a = def->arguments.at(j);
-	if (j)
-	    fprintf(out, ", ");
-	fprintf(out, "%s _t%d%s", a.type.constData(), offset++, a.rightType.constData());
+        const ArgumentDef &a = def->arguments.at(j);
+        if (j)
+            fprintf(out, ", ");
+        fprintf(out, "%s _t%d%s", a.type.constData(), offset++, a.rightType.constData());
     }
     fprintf(out, ")\n{\n");
     if (def->type.size() && def->normalizedType.size())
-	fprintf(out, "    %s _t0;\n", noRef(def->normalizedType).constData());
+        fprintf(out, "    %s _t0;\n", noRef(def->normalizedType).constData());
 
     fprintf(out, "    void *_a[] = { %s",
-	     def->normalizedType.isEmpty() ? "0" : "(void*)&_t0");
+             def->normalizedType.isEmpty() ? "0" : "(void*)&_t0");
     int i;
     for (i = 1; i < offset; ++i)
-	fprintf(out, ", (void*)&_t%d", i);
+        fprintf(out, ", (void*)&_t%d", i);
     fprintf(out, " };\n");
     int n = 1;
     for (i = 0; i < def->arguments.count(); ++i)
-	if (def->arguments.at(i).isDefault)
-	    ++n;
+        if (def->arguments.at(i).isDefault)
+            ++n;
     for (i = 0; i < n; ++i)
-	fprintf(out, "    QMetaObject::activate(this, &staticMetaObject, %d, _a);\n", index + i);
+        fprintf(out, "    QMetaObject::activate(this, &staticMetaObject, %d, _a);\n", index + i);
     if (def->normalizedType.size())
-	fprintf(out, "    return _t0;\n");
+        fprintf(out, "    return _t0;\n");
     fprintf(out, "}\n");
 }

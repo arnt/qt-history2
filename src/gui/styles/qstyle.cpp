@@ -124,13 +124,13 @@
 */
 
 /*!
-    \fn QStyleOption::QStyleOption( const QRect &r )
+    \fn QStyleOption::QStyleOption(const QRect &r)
 
     Pass a QRect, \a r.
 */
 
 /*!
-    \fn QStyleOption::QStyleOption( QWidget *w )
+    \fn QStyleOption::QStyleOption(QWidget *w)
 
     Pass a QWidget, \a w.
 */
@@ -138,8 +138,8 @@
 /*!
     \fn bool QStyleOption::isDefault() const
 
-    Returns TRUE if the option was constructed with the default
-    constructor; otherwise returns FALSE.
+    Returns true if the option was constructed with the default
+    constructor; otherwise returns false.
 */
 
 /*!
@@ -380,7 +380,7 @@ QStyle::~QStyle()
 
     \sa unPolish()
 */
-void QStyle::polish( QWidget*)
+void QStyle::polish(QWidget*)
 {
 }
 
@@ -394,7 +394,7 @@ void QStyle::polish( QWidget*)
 
     \sa polish()
 */
-void QStyle::unPolish( QWidget*)
+void QStyle::unPolish(QWidget*)
 {
 }
 
@@ -406,7 +406,7 @@ void QStyle::unPolish( QWidget*)
 
     \sa unPolish()
 */
-void QStyle::polish( QApplication*)
+void QStyle::polish(QApplication*)
 {
 }
 
@@ -417,7 +417,7 @@ void QStyle::polish( QApplication*)
 
     \sa polish()
 */
-void QStyle::unPolish( QApplication*)
+void QStyle::unPolish(QApplication*)
 {
 }
 
@@ -430,7 +430,7 @@ void QStyle::unPolish( QApplication*)
 
     \sa QPalette, QApplication::setPalette()
 */
-void QStyle::polish( QPalette&)
+void QStyle::polish(QPalette&)
 {
 }
 
@@ -451,25 +451,25 @@ void QStyle::polish( QPalette&)
     returned will be \e larger than \a r (the smallest rectangle large
     enough to render the \a text).
 */
-QRect QStyle::itemRect( const QFontMetrics &fm, const QRect &r,
-			int flags, bool enabled,
-			const QString& text, int len ) const
+QRect QStyle::itemRect(const QFontMetrics &fm, const QRect &r,
+                        int flags, bool enabled,
+                        const QString& text, int len) const
 {
     QRect result;
     int x = r.x();
     int y = r.y();
     int w = r.width();
     int h = r.height();
-    GUIStyle gs = (GUIStyle)styleHint( SH_GUIStyle );
+    GUIStyle gs = (GUIStyle)styleHint(SH_GUIStyle);
 
-    if ( !text.isNull() ) {
-	result = fm.boundingRect( x, y, w, h, flags, text, len );
-	if ( gs == Qt::WindowsStyle && !enabled ) {
-	    result.setWidth(result.width()+1);
-	    result.setHeight(result.height()+1);
-	}
+    if (!text.isNull()) {
+        result = fm.boundingRect(x, y, w, h, flags, text, len);
+        if (gs == Qt::WindowsStyle && !enabled) {
+            result.setWidth(result.width()+1);
+            result.setHeight(result.height()+1);
+        }
     } else {
-	result = QRect(x, y, w, h);
+        result = QRect(x, y, w, h);
     }
 
     return result;
@@ -482,24 +482,24 @@ QRect QStyle::itemRect( const QFontMetrics &fm, const QRect &r,
     which to draw the \a pixmap. The \a flags determine the \a
     pixmap's alignment.
 */
-QRect QStyle::itemRect( const QRect &r,
-			int flags, const QPixmap &pixmap ) const
+QRect QStyle::itemRect(const QRect &r,
+                        int flags, const QPixmap &pixmap) const
 {
     QRect result;
     int x = r.x();
     int y = r.y();
     int w = r.width();
     int h = r.height();
-    if ( (flags & Qt::AlignVCenter) == Qt::AlignVCenter )
-	y += h/2 - pixmap.height()/2;
-    else if ( (flags & Qt::AlignBottom) == Qt::AlignBottom)
-	y += h - pixmap.height();
-    if ( (flags & Qt::AlignRight) == Qt::AlignRight )
-	x += w - pixmap.width();
-    else if ( (flags & Qt::AlignHCenter) == Qt::AlignHCenter )
-	x += w/2 - pixmap.width()/2;
-    else if ( (flags & Qt::AlignLeft) != Qt::AlignLeft && QApplication::reverseLayout() )
-	x += w - pixmap.width();
+    if ((flags & Qt::AlignVCenter) == Qt::AlignVCenter)
+        y += h/2 - pixmap.height()/2;
+    else if ((flags & Qt::AlignBottom) == Qt::AlignBottom)
+        y += h - pixmap.height();
+    if ((flags & Qt::AlignRight) == Qt::AlignRight)
+        x += w - pixmap.width();
+    else if ((flags & Qt::AlignHCenter) == Qt::AlignHCenter)
+        x += w/2 - pixmap.width()/2;
+    else if ((flags & Qt::AlignLeft) != Qt::AlignLeft && QApplication::reverseLayout())
+        x += w - pixmap.width();
     result = QRect(x, y, pixmap.width(), pixmap.height());
     return result;
 }
@@ -507,14 +507,14 @@ QRect QStyle::itemRect( const QRect &r,
 /*!
   \obsolete
 */
-QRect QStyle::itemRect( QPainter *p, const QRect &r,
-			int flags, bool enabled,
-			const QPixmap *pixmap,
-			const QString &text, int len ) const
+QRect QStyle::itemRect(QPainter *p, const QRect &r,
+                        int flags, bool enabled,
+                        const QPixmap *pixmap,
+                        const QString &text, int len) const
 {
     return pixmap
-	? itemRect(r, flags, *pixmap)
-	: itemRect(p->fontMetrics(), r, flags, enabled, text, len);
+        ? itemRect(r, flags, *pixmap)
+        : itemRect(p->fontMetrics(), r, flags, enabled, text, len);
 }
 
 /*!
@@ -527,24 +527,24 @@ QRect QStyle::itemRect( QPainter *p, const QRect &r,
     drawn. The text is aligned and wrapped according to the alignment
     \a flags (see \l{Qt::AlignmentFlags}).
 */
-void QStyle::drawItem( QPainter *p, const QRect &r,
-		       int flags, const QPalette &pal, bool enabled,
-		       const QString& text, int len,
-		       const QColor* penColor ) const
+void QStyle::drawItem(QPainter *p, const QRect &r,
+                       int flags, const QPalette &pal, bool enabled,
+                       const QString& text, int len,
+                       const QColor* penColor) const
 {
     int x = r.x();
     int y = r.y();
     int w = r.width();
     int h = r.height();
-    GUIStyle gs = (GUIStyle)styleHint( SH_GUIStyle );
-    p->setPen( penColor?*penColor:pal.foreground().color() );
-    if ( !text.isNull() ) {
-	if ( gs == Qt::WindowsStyle && !enabled ) {
-	    p->setPen( pal.light() );
-	    p->drawText( x+1, y+1, w, h, flags, text, len );
-	    p->setPen( pal.text() );
-	}
-	p->drawText( x, y, w, h, flags, text, len );
+    GUIStyle gs = (GUIStyle)styleHint(SH_GUIStyle);
+    p->setPen(penColor?*penColor:pal.foreground().color());
+    if (!text.isNull()) {
+        if (gs == Qt::WindowsStyle && !enabled) {
+            p->setPen(pal.light());
+            p->drawText(x+1, y+1, w, h, flags, text, len);
+            p->setPen(pal.text());
+        }
+        p->drawText(x, y, w, h, flags, text, len);
     }
 }
 
@@ -554,53 +554,53 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     group \a pal.
  */
 
-void QStyle::drawItem( QPainter *p, const QRect &r,
-		       int flags, const QPalette &pal, bool enabled,
-		       const QPixmap &pixmap,
-		       const QColor* penColor ) const
+void QStyle::drawItem(QPainter *p, const QRect &r,
+                       int flags, const QPalette &pal, bool enabled,
+                       const QPixmap &pixmap,
+                       const QColor* penColor) const
 {
     int x = r.x();
     int y = r.y();
     int w = r.width();
     int h = r.height();
 
-    p->setPen( penColor?*penColor:pal.foreground().color() );
-    QPixmap pm( pixmap );
+    p->setPen(penColor?*penColor:pal.foreground().color());
+    QPixmap pm(pixmap);
     bool clip = (flags & Qt::DontClip) == 0;
-    if ( clip ) {
-	if ( pm.width() < w && pm.height() < h ) {
-	    clip = FALSE;
-	} else {
-	    p->save();
+    if (clip) {
+        if (pm.width() < w && pm.height() < h) {
+            clip = false;
+        } else {
+            p->save();
             QRegion cr = QRect(x, y, w, h);
-	    if (p->hasClipping())
-		cr &= p->clipRegion();
-	    p->setClipRegion(cr);
-	}
+            if (p->hasClipping())
+                cr &= p->clipRegion();
+            p->setClipRegion(cr);
+        }
     }
-    if ( (flags & Qt::AlignVCenter) == Qt::AlignVCenter )
-	y += h/2 - pm.height()/2;
-    else if ( (flags & Qt::AlignBottom) == Qt::AlignBottom)
-	y += h - pm.height();
-    if ( (flags & Qt::AlignRight) == Qt::AlignRight )
-	x += w - pm.width();
-    else if ( (flags & Qt::AlignHCenter) == Qt::AlignHCenter )
-	x += w/2 - pm.width()/2;
-    else if ( ((flags & Qt::AlignLeft) != Qt::AlignLeft) && QApplication::reverseLayout() ) // AlignAuto && rightToLeft
-	x += w - pm.width();
+    if ((flags & Qt::AlignVCenter) == Qt::AlignVCenter)
+        y += h/2 - pm.height()/2;
+    else if ((flags & Qt::AlignBottom) == Qt::AlignBottom)
+        y += h - pm.height();
+    if ((flags & Qt::AlignRight) == Qt::AlignRight)
+        x += w - pm.width();
+    else if ((flags & Qt::AlignHCenter) == Qt::AlignHCenter)
+        x += w/2 - pm.width()/2;
+    else if (((flags & Qt::AlignLeft) != Qt::AlignLeft) && QApplication::reverseLayout()) // AlignAuto && rightToLeft
+        x += w - pm.width();
 
-    if ( !enabled )
-	pm = stylePixmap( PT_Disabled, pm, pal );
-    p->drawPixmap( x, y, pm );
-    if ( clip )
-	p->restore();
+    if (!enabled)
+        pm = stylePixmap(PT_Disabled, pm, pal);
+    p->drawPixmap(x, y, pm);
+    if (clip)
+        p->restore();
 }
 
 /*!
     \fn void QStyle::drawItem(QPainter *p, const QRect &r, int flags,
-			      const QPalette &pal, bool enabled,
-			      const QPixmap *pixmap, const QString &text,
-			      int len, const QColor *penColor) const
+                              const QPalette &pal, bool enabled,
+                              const QPixmap *pixmap, const QString &text,
+                              int len, const QColor *penColor) const
     \overload
 
     Draws the \a pixmap in rectangle \a r using painter \a p and color
@@ -615,13 +615,13 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     indicator or pushbutton bevel.
 
     \value PE_ButtonCommand  button used to initiate an action, for
-	example, a QPushButton.
+        example, a QPushButton.
     \value PE_ButtonDefault  this button is the default button, e.g.
-	in a dialog.
+        in a dialog.
     \value PE_ButtonBevel  generic button bevel.
     \value PE_ButtonTool  tool button, for example, a QToolButton.
     \value PE_ButtonDropDown  drop down button, for example, a tool
-	button that displays a popup menu, for example, QPopupMenu.
+        button that displays a popup menu, for example, QPopupMenu.
 
 
     \value PE_FocusRect  generic focus indicator.
@@ -634,7 +634,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
 
     \value PE_SpinWidgetUp  up symbol for a spin widget, for example a
-	QSpinBox.
+        QSpinBox.
     \value PE_SpinWidgetDown down symbol for a spin widget.
     \value PE_SpinWidgetPlus  increase symbol for a spin widget.
     \value PE_SpinWidgetMinus  decrease symbol for a spin widget.
@@ -643,14 +643,14 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value PE_Indicator  on/off indicator, for example, a QCheckBox.
     \value PE_IndicatorMask  bitmap mask for an indicator.
     \value PE_ExclusiveIndicator  exclusive on/off indicator, for
-	example, a QRadioButton.
+        example, a QRadioButton.
     \value PE_ExclusiveIndicatorMask  bitmap mask for an exclusive indicator.
 
 
     \value PE_DockWindowHandle  tear off handle for dock windows and
-	toolbars, for example \l{QDockWindow}s and \l{QToolBar}s.
+        toolbars, for example \l{QDockWindow}s and \l{QToolBar}s.
     \value PE_DockWindowSeparator  item separator for dock window and
-	toolbar contents.
+        toolbar contents.
     \value PE_DockWindowResizeHandle  resize handle for dock windows.
 
     \value PE_Splitter  splitter handle; see also QSplitter.
@@ -658,7 +658,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
     \value PE_Panel  generic panel frame; see also QFrame.
     \value PE_PanelPopup  panel frame for popup windows/menus; see also
-	QPopupMenu.
+        QPopupMenu.
     \value PE_PanelMenuBar  panel frame for menu bars.
     \value PE_PanelDockWindow  panel frame for dock windows and toolbars.
     \value PE_PanelTabWidget  panel frame for tab widgets.
@@ -666,21 +666,21 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value PE_PanelGroupBox  panel frame for group boxes.
 
     \value PE_TabBarBase  area below tabs in a tab widget, for example,
-	QTab.
+        QTab.
 
     \value PE_MenuFrame frame displayed in a QMenu
     \value PE_MenuBarFrame frame displayed in a QMenuBar
 
     \value PE_HeaderSection  section of a list or table header; see also
-	QHeader.
+        QHeader.
     \value PE_HeaderArrow arrow used to indicate sorting on a list or table
-	header
+        header
     \value PE_StatusBarSection  section of a status bar; see also
-	QStatusBar.
+        QStatusBar.
 
 
     \value PE_GroupBoxFrame  frame around a group box; see also
-	QGroupBox.
+        QGroupBox.
     \value PE_WindowFrame  frame around a MDI window or a docking window
 
 
@@ -694,7 +694,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
 
     \value PE_ScrollBarAddLine  scrollbar line increase indicator
-	(i.e. scroll down); see also QScrollBar.
+        (i.e. scroll down); see also QScrollBar.
     \value PE_ScrollBarSubLine  scrollbar line decrease indicator (i.e. scroll up).
     \value PE_ScrollBarAddPage  scolllbar page increase indicator (i.e. page down).
     \value PE_ScrollBarSubPage  scrollbar page decrease indicator (i.e. page up).
@@ -704,7 +704,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
 
     \value PE_ProgressBarChunk  section of a progress bar indicator; see
-	also QProgressBar.
+        also QProgressBar.
 
     \value PE_CheckListController controller part of a listview item
     \value PE_CheckListIndicator checkbox part of a listview item
@@ -716,8 +716,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     in a tree view
 
     \value PE_CustomBase  base value for custom PrimitiveElements.
-	All values above this are reserved for custom use. Custom
-	values must be greater than this value.
+        All values above this are reserved for custom use. Custom
+        values must be greater than this value.
 
     \sa drawPrimitive()
 */
@@ -789,50 +789,50 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \table
     \header \i PrimitiveElement \i Options \i Notes
     \row \i \l PE_FocusRect
-	 \i \l QStyleOption ( const \l QColor & bg )
-	    \list
-	    \i opt.\link QStyleOption::color() color\endlink()
-	    \endlist
-	 \i \e bg is the background color on which the focus rect is being drawn.
+         \i \l QStyleOption (const \l QColor & bg)
+            \list
+            \i opt.\link QStyleOption::color() color\endlink()
+            \endlist
+         \i \e bg is the background color on which the focus rect is being drawn.
     \row \i12 \l PE_Panel
-	 \i12 \l QStyleOption ( int linewidth, int midlinewidth )
-		\list
-		\i opt.\link QStyleOption::lineWidth() lineWidth\endlink()
-		\i opt.\link QStyleOption::midLineWidth() midLineWidth\endlink()
-		\endlist
-	 \i \e linewidth is the line width for drawing the panel.
+         \i12 \l QStyleOption (int linewidth, int midlinewidth)
+                \list
+                \i opt.\link QStyleOption::lineWidth() lineWidth\endlink()
+                \i opt.\link QStyleOption::midLineWidth() midLineWidth\endlink()
+                \endlist
+         \i \e linewidth is the line width for drawing the panel.
     \row \i \e midlinewidth is the mid-line width for drawing the panel.
     \row \i12 \l PE_PanelPopup
-	 \i12 \l QStyleOption ( int linewidth, int midlinewidth )
-		\list
-		\i opt.\link QStyleOption::lineWidth() lineWidth\endlink()
-		\i opt.\link QStyleOption::midLineWidth() midLineWidth\endlink()
-		\endlist
-	 \i \e linewidth is the line width for drawing the panel.
+         \i12 \l QStyleOption (int linewidth, int midlinewidth)
+                \list
+                \i opt.\link QStyleOption::lineWidth() lineWidth\endlink()
+                \i opt.\link QStyleOption::midLineWidth() midLineWidth\endlink()
+                \endlist
+         \i \e linewidth is the line width for drawing the panel.
     \row \i \e midlinewidth is the mid-line width for drawing the panel.
     \row \i12 \l PE_PanelMenuBar
-	 \i12 \l QStyleOption ( int linewidth, int midlinewidth )
-		\list
-		\i opt.\link QStyleOption::lineWidth() lineWidth\endlink()
-		\i opt.\link QStyleOption::midLineWidth() midLineWidth\endlink()
-		\endlist
-	 \i \e linewidth is the line width for drawing the panel.
+         \i12 \l QStyleOption (int linewidth, int midlinewidth)
+                \list
+                \i opt.\link QStyleOption::lineWidth() lineWidth\endlink()
+                \i opt.\link QStyleOption::midLineWidth() midLineWidth\endlink()
+                \endlist
+         \i \e linewidth is the line width for drawing the panel.
     \row \i \e midlinewidth is the mid-line width for drawing the panel.
     \row \i12 \l PE_PanelDockWindow
-	 \i12 \l QStyleOption ( int linewidth, int midlinewidth )
-		\list
-		\i opt.\link QStyleOption::lineWidth() lineWidth\endlink()
-		\i opt.\link QStyleOption::midLineWidth() midLineWidth\endlink()
-		\endlist
-	 \i \e linewidth is the line width for drawing the panel.
+         \i12 \l QStyleOption (int linewidth, int midlinewidth)
+                \list
+                \i opt.\link QStyleOption::lineWidth() lineWidth\endlink()
+                \i opt.\link QStyleOption::midLineWidth() midLineWidth\endlink()
+                \endlist
+         \i \e linewidth is the line width for drawing the panel.
     \row \i \e midlinewidth is the mid-line width for drawing the panel.
     \row \i14 \l PE_GroupBoxFrame
-	 \i14 \l QStyleOption ( int linewidth, int midlinewidth, int shape, int shadow )
-		\list
-		\i opt.\link QStyleOption::lineWidth() lineWidth\endlink()
-		\i opt.\link QStyleOption::midLineWidth() midLineWidth\endlink()
-		\endlist
-	 \i \e linewidth is the line width for the group box.
+         \i14 \l QStyleOption (int linewidth, int midlinewidth, int shape, int shadow)
+                \list
+                \i opt.\link QStyleOption::lineWidth() lineWidth\endlink()
+                \i opt.\link QStyleOption::midLineWidth() midLineWidth\endlink()
+                \endlist
+         \i \e linewidth is the line width for the group box.
     \row \i \e midlinewidth is the mid-line width for the group box.
     \endtable
 
@@ -852,7 +852,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
     \value CE_PushButton  the bevel and default indicator of a QPushButton.
     \value CE_PushButtonLabel  the label (iconset with text or pixmap)
-	of a QPushButton.
+        of a QPushButton.
 
     \value CE_CheckBox  the indicator of a QCheckBox.
     \value CE_CheckBoxLabel  the label (text or pixmap) of a QCheckBox.
@@ -864,7 +864,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value CE_TabBarLabel  the label within a QTab.
 
     \value CE_ProgressBarGroove  the groove where the progress
-	indicator is drawn in a QProgressBar.
+        indicator is drawn in a QProgressBar.
     \value CE_ProgressBarContents  the progress indicator of a QProgressBar.
     \value CE_ProgressBarLabel  the text label of a QProgressBar.
 
@@ -875,7 +875,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
     \value CE_MenuItem  a menu item in a QMenu.
     \value CE_MenuScroller scrolling areas in a QMenu when the
-	style supports scrolling.
+        style supports scrolling.
     \value CE_MenuTearoff a menu item representing the tear off section of
         a QMenu.
     \value CE_MenuEmptyArea ###
@@ -888,8 +888,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value CE_HeaderLabel the header's label
 
     \value CE_CustomBase  base value for custom ControlElements. All values above
-	    this are reserved for custom use. Therefore, custom values must be
-	    greater than this value.
+            this are reserved for custom use. Therefore, custom values must be
+            greater than this value.
 
     \sa drawControl()
 */
@@ -917,139 +917,139 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
     \table
     \header \i ControlElement<br>\& Widget Cast
-	    \i Style Flags
-	    \i Notes
-	    \i Options
-	    \i Notes
+            \i Style Flags
+            \i Notes
+            \i Options
+            \i Notes
 
     \row \i16 \l{CE_PushButton}(const \l QPushButton *)
 
-	 and
+         and
 
-	    \l{CE_PushButtonLabel}(const \l QPushButton *)
-	 \i \l Style_Enabled \i Set if the button is enabled.
-	 \i16 Unused.
-	 \i16 &nbsp;
+            \l{CE_PushButtonLabel}(const \l QPushButton *)
+         \i \l Style_Enabled \i Set if the button is enabled.
+         \i16 Unused.
+         \i16 &nbsp;
     \row \i \l Style_HasFocus \i Set if the button has input focus.
     \row \i \l Style_Raised \i Set if the button is not down, not on and not flat.
     \row \i \l Style_On \i Set if the button is a toggle button and toggled on.
     \row \i \l Style_Down \i Set if the button is down (i.e., the mouse button or
-			    space bar is pressed on the button).
+                            space bar is pressed on the button).
     \row \i \l Style_ButtonDefault \i Set if the button is a default button.
 
     \row \i16 \l{CE_CheckBox}(const \l QCheckBox *)
 
-	 and
+         and
 
-	 \l{CE_CheckBoxLabel}(const \l QCheckBox *)
+         \l{CE_CheckBoxLabel}(const \l QCheckBox *)
 
-	 \i \l Style_Enabled \i Set if the checkbox is enabled.
-	 \i16 Unused.
-	 \i16 &nbsp;
+         \i \l Style_Enabled \i Set if the checkbox is enabled.
+         \i16 Unused.
+         \i16 &nbsp;
     \row \i \l Style_HasFocus \i Set if the checkbox has input focus.
     \row \i \l Style_On \i Set if the checkbox is checked.
     \row \i \l Style_Off \i Set if the checkbox is not checked.
     \row \i \l Style_NoChange \i Set if the checkbox is in the NoChange state.
     \row \i \l Style_Down \i Set if the checkbox is down (i.e., the mouse button or
-			    space bar is pressed on the button).
+                            space bar is pressed on the button).
 
     \row \i15 \l{CE_RadioButton}(const QRadioButton *)
 
-	and
+        and
 
-	\l{CE_RadioButtonLabel}(const QRadioButton *)
-	\i \l Style_Enabled \i Set if the radiobutton is enabled.
-	\i15 Unused.
-	\i15 &nbsp;
+        \l{CE_RadioButtonLabel}(const QRadioButton *)
+        \i \l Style_Enabled \i Set if the radiobutton is enabled.
+        \i15 Unused.
+        \i15 &nbsp;
     \row \i \l Style_HasFocus \i Set if the radiobutton has input focus.
     \row \i \l Style_On \i Set if the radiobutton is checked.
     \row \i \l Style_Off \i Set if the radiobutton is not checked.
     \row \i \l Style_Down \i Set if the radiobutton is down (i.e., the mouse
-			    button or space bar is pressed on the radiobutton).
+                            button or space bar is pressed on the radiobutton).
 
     \row \i12 \l{CE_TabBarTab}(const \l QTabBar *)
 
-	 and
+         and
 
-	 \l{CE_TabBarLabel}(const \l QTabBar *)
+         \l{CE_TabBarLabel}(const \l QTabBar *)
 
-	 \i \l Style_Enabled \i Set if the tabbar and tab is enabled.
-	 \i12 \l QStyleOption ( \l QTab *t )
-		\list
-		\i opt.\link QStyleOption::tab() tab\endlink()
-		\endlist
-	 \i12 \e t is the QTab being drawn.
+         \i \l Style_Enabled \i Set if the tabbar and tab is enabled.
+         \i12 \l QStyleOption (\l QTab *t)
+                \list
+                \i opt.\link QStyleOption::tab() tab\endlink()
+                \endlist
+         \i12 \e t is the QTab being drawn.
     \row \i \l Style_Selected \i Set if the tab is the current tab.
 
     \row \i12 \l{CE_ProgressBarGroove}(const QProgressBar *)
 
-	 and
+         and
 
-	 \l{CE_ProgressBarContents}(const QProgressBar *)
+         \l{CE_ProgressBarContents}(const QProgressBar *)
 
-	 and
+         and
 
-	 \l{CE_ProgressBarLabel}(const QProgressBar *)
+         \l{CE_ProgressBarLabel}(const QProgressBar *)
 
-	 \i \l Style_Enabled \i Set if the progressbar is enabled.
-	 \i12 Unused.
-	 \i12 &nbsp;
+         \i \l Style_Enabled \i Set if the progressbar is enabled.
+         \i12 Unused.
+         \i12 &nbsp;
     \row \i \l Style_HasFocus \i Set if the progressbar has input focus.
 
     \row \i13 \l{CE_MenuItem}(const \l QPopupMenu *)
-	 \i \l Style_Enabled \i Set if the menuitem is enabled.
-	 \i13 \l QStyleOption ( QMenuItem *mi, int tabwidth, int maxpmwidth )
-		\list
-		\i opt.\link QStyleOption::menuItem() menuItem\endlink()
-		\i opt.\link QStyleOption::tabWidth() tabWidth\endlink()
-		\i opt.\link QStyleOption::maxIconWidth() maxIconWidth\endlink()
-		\endlist
-	 \i \e mi is the menu item being drawn. QMenuItem is currently an
-	    internal class.
+         \i \l Style_Enabled \i Set if the menuitem is enabled.
+         \i13 \l QStyleOption (QMenuItem *mi, int tabwidth, int maxpmwidth)
+                \list
+                \i opt.\link QStyleOption::menuItem() menuItem\endlink()
+                \i opt.\link QStyleOption::tabWidth() tabWidth\endlink()
+                \i opt.\link QStyleOption::maxIconWidth() maxIconWidth\endlink()
+                \endlist
+         \i \e mi is the menu item being drawn. QMenuItem is currently an
+            internal class.
     \row \i \l Style_Active \i Set if the menuitem is the current item.
-	 \i \e tabwidth is the width of the tab column where key accelerators
-	    are drawn.
+         \i \e tabwidth is the width of the tab column where key accelerators
+            are drawn.
     \row \i \l Style_Down \i Set if the menuitem is down (i.e., the mouse button
-			    or space bar is pressed).
-	 \i \e maxpmwidth is the maximum width of the check column where
-	    checkmarks and iconsets are drawn.
+                            or space bar is pressed).
+         \i \e maxpmwidth is the maximum width of the check column where
+            checkmarks and iconsets are drawn.
 
     \row \i14 \l{CE_MenuBarItem}(const \l QMenuBar *)
-	 \i \l Style_Enabled \i Set if the menuitem is enabled
-	 \i14 \l QStyleOption ( QMenuItem *mi )
-		\list
-		\i opt.\link QStyleOption::menuItem() menuItem\endlink()
-		\endlist
-	 \i14 \e mi is the menu item being drawn.
+         \i \l Style_Enabled \i Set if the menuitem is enabled
+         \i14 \l QStyleOption (QMenuItem *mi)
+                \list
+                \i opt.\link QStyleOption::menuItem() menuItem\endlink()
+                \endlist
+         \i14 \e mi is the menu item being drawn.
     \row \i \l Style_Active \i Set if the menuitem is the current item.
     \row \i \l Style_Down \i Set if the menuitem is down (i.e., a mouse button or
-			    the space bar is pressed).
+                            the space bar is pressed).
     \row \i \l Style_HasFocus \i Set if the menubar has input focus.
 
     \row \i17 \l{CE_ToolButtonLabel}(const \l QToolButton *)
-	 \i \l Style_Enabled \i Set if the toolbutton is enabled.
-	 \i17 \l QStyleOption ( \l ArrowType t )
-		\list
-		\i opt.\link QStyleOption::arrowType() arrowType\endlink()
-		\endlist
-	 \i17 When the tool button only contains an arrow, \e t is the
-	    arrow's type.
+         \i \l Style_Enabled \i Set if the toolbutton is enabled.
+         \i17 \l QStyleOption (\l ArrowType t)
+                \list
+                \i opt.\link QStyleOption::arrowType() arrowType\endlink()
+                \endlist
+         \i17 When the tool button only contains an arrow, \e t is the
+            arrow's type.
     \row \i \l Style_HasFocus \i Set if the toolbutton has input focus.
     \row \i \l Style_Down \i Set if the toolbutton is down (i.e., a
-	    mouse button or the space is pressed).
+            mouse button or the space is pressed).
     \row \i \l Style_On \i Set if the toolbutton is a toggle button
-	and is toggled on.
+        and is toggled on.
     \row \i \l Style_AutoRaise \i Set if the toolbutton has auto-raise enabled.
     \row \i \l Style_MouseOver \i Set if the mouse pointer is over the toolbutton.
     \row \i \l Style_Raised \i Set if the button is not down, not on and doesn't
-	contain the mouse when auto-raise is enabled.
+        contain the mouse when auto-raise is enabled.
     \endtable
 
     \sa ControlElement, StyleFlags
 */
 
 /*!
-    \fn void QStyle::drawControlMask( ControlElement element, QPainter *p, const QWidget *widget, const QRect &r, const QStyleOption& opt = QStyleOption::Default ) const;
+    \fn void QStyle::drawControlMask(ControlElement element, QPainter *p, const QWidget *widget, const QRect &r, const QStyleOption& opt = QStyleOption::Default) const;
 
     Draw a bitmask for the ControlElement \a element using the painter
     \a p in the area \a r. See drawControl() for an explanation of the
@@ -1067,9 +1067,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     would use these areas to draw the different parts of a widget.
 
     \value SR_PushButtonContents  area containing the label (iconset
-	with text or pixmap).
+        with text or pixmap).
     \value SR_PushButtonFocusRect  area for the focus rect (usually
-	larger than the contents rect).
+        larger than the contents rect).
 
     \value SR_CheckBoxIndicator  area for the state indicator (e.g. check mark).
     \value SR_CheckBoxContents  area for the label (text or pixmap).
@@ -1110,14 +1110,14 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value SR_ToolBoxTabContents area for a toolbox tab's icon and label
 
     \value SR_CustomBase  base value for custom ControlElements. All values above
-	    this are reserved for custom use. Therefore, custom values must be
-	    greater than this value.
+            this are reserved for custom use. Therefore, custom values must be
+            greater than this value.
 
     \sa subRect()
 */
 
 /*!
-    \fn QRect QStyle::subRect( SubRect subrect, const QWidget *widget ) const;
+    \fn QRect QStyle::subRect(SubRect subrect, const QWidget *widget) const;
 
     Returns the sub-area \a subrect for the \a widget in logical
     coordinates.
@@ -1129,19 +1129,19 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
     \table
     \header \i SubRect \i Widget Cast
-    \row \i \l SR_PushButtonContents	\i (const \l QPushButton *)
-    \row \i \l SR_PushButtonFocusRect	\i (const \l QPushButton *)
-    \row \i \l SR_CheckBoxIndicator	\i (const \l QCheckBox *)
-    \row \i \l SR_CheckBoxContents	\i (const \l QCheckBox *)
-    \row \i \l SR_CheckBoxFocusRect	\i (const \l QCheckBox *)
-    \row \i \l SR_RadioButtonIndicator	\i (const \l QRadioButton *)
-    \row \i \l SR_RadioButtonContents	\i (const \l QRadioButton *)
-    \row \i \l SR_RadioButtonFocusRect	\i (const \l QRadioButton *)
-    \row \i \l SR_ComboBoxFocusRect	\i (const \l QComboBox *)
-    \row \i \l SR_DockWindowHandleRect	\i (const \l QWidget *)
-    \row \i \l SR_ProgressBarGroove	\i (const \l QProgressBar *)
-    \row \i \l SR_ProgressBarContents	\i (const \l QProgressBar *)
-    \row \i \l SR_ProgressBarLabel	\i (const \l QProgressBar *)
+    \row \i \l SR_PushButtonContents        \i (const \l QPushButton *)
+    \row \i \l SR_PushButtonFocusRect        \i (const \l QPushButton *)
+    \row \i \l SR_CheckBoxIndicator        \i (const \l QCheckBox *)
+    \row \i \l SR_CheckBoxContents        \i (const \l QCheckBox *)
+    \row \i \l SR_CheckBoxFocusRect        \i (const \l QCheckBox *)
+    \row \i \l SR_RadioButtonIndicator        \i (const \l QRadioButton *)
+    \row \i \l SR_RadioButtonContents        \i (const \l QRadioButton *)
+    \row \i \l SR_RadioButtonFocusRect        \i (const \l QRadioButton *)
+    \row \i \l SR_ComboBoxFocusRect        \i (const \l QComboBox *)
+    \row \i \l SR_DockWindowHandleRect        \i (const \l QWidget *)
+    \row \i \l SR_ProgressBarGroove        \i (const \l QProgressBar *)
+    \row \i \l SR_ProgressBarContents        \i (const \l QProgressBar *)
+    \row \i \l SR_ProgressBarLabel        \i (const \l QProgressBar *)
     \endtable
 
     The tear-off handle (SR_DockWindowHandleRect) for QDockWindow
@@ -1149,9 +1149,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     QDockWindow:
 
     \code
-	if ( !widget->parentWidget() )
-	    return;
-	const QDockWindow *dw = (const QDockWindow *) widget->parentWidget();
+        if (!widget->parentWidget())
+            return;
+        const QDockWindow *dw = (const QDockWindow *) widget->parentWidget();
     \endcode
 
     \sa SubRect
@@ -1174,8 +1174,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
 
     \value CC_CustomBase  base value for custom ControlElements. All
-	values above this are reserved for custom use. Therefore,
-	custom values must be greater than this value.
+        values above this are reserved for custom use. Therefore,
+        custom values must be greater than this value.
 
     \sa SubControl drawComplexControl()
 */
@@ -1189,15 +1189,15 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
 
     \value SC_ScrollBarAddLine  scrollbar add line (i.e. down/right
-	arrow); see also QScrollbar.
+        arrow); see also QScrollbar.
     \value SC_ScrollBarSubLine  scrollbar sub line (i.e. up/left arrow).
     \value SC_ScrollBarAddPage  scrollbar add page (i.e. page down).
     \value SC_ScrollBarSubPage  scrollbar sub page (i.e. page up).
-    \value SC_ScrollBarFirst	scrollbar first line (i.e. home).
-    \value SC_ScrollBarLast	scrollbar last line (i.e. end).
-    \value SC_ScrollBarSlider	scrollbar slider handle.
-    \value SC_ScrollBarGroove	special subcontrol which contains the
-	area in which the slider handle may move.
+    \value SC_ScrollBarFirst        scrollbar first line (i.e. home).
+    \value SC_ScrollBarLast        scrollbar last line (i.e. end).
+    \value SC_ScrollBarSlider        scrollbar slider handle.
+    \value SC_ScrollBarGroove        special subcontrol which contains the
+        area in which the slider handle may move.
 
 
     \value SC_SpinWidgetUp  spinwidget up/increase; see also QSpinBox.
@@ -1213,17 +1213,17 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value SC_ComboBoxListBoxPopup combobox list box
 
     \value SC_SliderGroove  special subcontrol which contains the area
-	in which the slider handle may move.
+        in which the slider handle may move.
     \value SC_SliderHandle  slider handle.
     \value SC_SliderTickmarks  slider tickmarks.
 
 
     \value SC_ToolButton  tool button; see also QToolbutton.
     \value SC_ToolButtonMenu subcontrol for opening a popup menu in a
-	tool button; see also QPopupMenu.
+        tool button; see also QPopupMenu.
 
 
-    \value SC_TitleBarSysMenu	system menu button (i.e. restore, close, etc.).
+    \value SC_TitleBarSysMenu        system menu button (i.e. restore, close, etc.).
     \value SC_TitleBarMinButton  minimize button.
     \value SC_TitleBarMaxButton  maximize button.
     \value SC_TitleBarCloseButton  close button.
@@ -1273,72 +1273,72 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
     \table
     \header \i ComplexControl<br>\& Widget Cast
-	    \i Style Flags
-	    \i Notes
-	    \i Options
-	    \i Notes
+            \i Style Flags
+            \i Notes
+            \i Options
+            \i Notes
 
     \row \i12 \l{CC_SpinWidget}(const QSpinWidget *)
-	 \i \l Style_Enabled \i Set if the spinwidget is enabled.
-	 \i12 Unused.
-	 \i12 &nbsp;
+         \i \l Style_Enabled \i Set if the spinwidget is enabled.
+         \i12 Unused.
+         \i12 &nbsp;
     \row \i \l Style_HasFocus \i Set if the spinwidget has input focus.
 
     \row \i12 \l{CC_ComboBox}(const \l QComboBox *)
-	 \i \l Style_Enabled \i Set if the combobox is enabled.
-	 \i12 Unused.
-	 \i12 &nbsp;
+         \i \l Style_Enabled \i Set if the combobox is enabled.
+         \i12 Unused.
+         \i12 &nbsp;
     \row \i \l Style_HasFocus \i Set if the combobox has input focus.
 
     \row \i12 \l{CC_ScrollBar}(const \l QScrollBar *)
-	 \i \l Style_Enabled \i Set if the scrollbar is enabled.
-	 \i12 Unused.
-	 \i12 &nbsp;
+         \i \l Style_Enabled \i Set if the scrollbar is enabled.
+         \i12 Unused.
+         \i12 &nbsp;
     \row \i \l Style_HasFocus \i Set if the scrollbar has input focus.
 
     \row \i12 \l{CC_Slider}(const \l QSlider *)
-	 \i \l Style_Enabled \i Set if the slider is enabled.
-	 \i12 Unused.
-	 \i12 &nbsp;
+         \i \l Style_Enabled \i Set if the slider is enabled.
+         \i12 Unused.
+         \i12 &nbsp;
 
     \row \i \l Style_HasFocus \i Set if the slider has input focus.
 
     \row \i16 \l{CC_ToolButton}(const \l QToolButton *)
-	 \i \l Style_Enabled \i Set if the toolbutton is enabled.
-	 \i16 \l QStyleOption ( \l ArrowType t )
-		\list
-		\i opt.\link QStyleOption::arrowType() arrowType\endlink()
-		\endlist
-	 \i16 When the tool button only contains an arrow, \e t is the
-		arrow's type.
+         \i \l Style_Enabled \i Set if the toolbutton is enabled.
+         \i16 \l QStyleOption (\l ArrowType t)
+                \list
+                \i opt.\link QStyleOption::arrowType() arrowType\endlink()
+                \endlist
+         \i16 When the tool button only contains an arrow, \e t is the
+                arrow's type.
     \row \i \l Style_HasFocus \i Set if the toolbutton has input focus.
     \row \i \l Style_Down \i Set if the toolbutton is down (ie. mouse
-	button or space pressed).
+        button or space pressed).
     \row \i \l Style_On \i Set if the toolbutton is a toggle button
-	and is toggled on.
+        and is toggled on.
     \row \i \l Style_AutoRaise \i Set if the toolbutton has auto-raise enabled.
     \row \i \l Style_Raised \i Set if the button is not down, not on and doesn't
-	contain the mouse when auto-raise is enabled.
+        contain the mouse when auto-raise is enabled.
 
     \row \i \l{CC_TitleBar}(const \l QWidget *)
-	 \i \l Style_Enabled \i Set if the title bar is enabled.
-	 \i Unused.
-	 \i &nbsp;
+         \i \l Style_Enabled \i Set if the title bar is enabled.
+         \i Unused.
+         \i &nbsp;
 
     \row \i \l{CC_ListView}(const \l QListView *)
-	 \i \l Style_Enabled \i Set if the title bar is enabled.
-	 \i \l QStyleOption ( \l QListViewItem *item )
-	    \list
-	    \i opt.\link QStyleOption::listViewItem() listViewItem\endlink()
-	    \endlist
-	 \i \e item is the item that needs branches drawn
+         \i \l Style_Enabled \i Set if the title bar is enabled.
+         \i \l QStyleOption (\l QListViewItem *item)
+            \list
+            \i opt.\link QStyleOption::listViewItem() listViewItem\endlink()
+            \endlist
+         \i \e item is the item that needs branches drawn
     \endtable
 
     \sa ComplexControl, SubControl
 */
 
 /*!
-    \fn void QStyle::drawComplexControlMask( ComplexControl control, QPainter *p, const QWidget *widget, const QRect &r, const QStyleOption& opt ) const
+    \fn void QStyle::drawComplexControlMask(ComplexControl control, QPainter *p, const QWidget *widget, const QRect &r, const QStyleOption& opt) const
 
     Draw a bitmask for the ComplexControl \a control using the painter
     \a p in the area \a r. See drawComplexControl() for an explanation
@@ -1353,7 +1353,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 */
 
 /*!
-    \fn QRect QStyle::querySubControlMetrics( ComplexControl control, const QWidget *widget, SubControl subcontrol, const QStyleOption& opt = QStyleOption::Default ) const;
+    \fn QRect QStyle::querySubControlMetrics(ComplexControl control, const QWidget *widget, SubControl subcontrol, const QStyleOption& opt = QStyleOption::Default) const;
 
     Returns the rect for the SubControl \a subcontrol for \a widget in
     logical coordinates.
@@ -1370,7 +1370,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 */
 
 /*!
-    \fn SubControl QStyle::querySubControl( ComplexControl control, const QWidget *widget, const QPoint &pos, const QStyleOption& opt = QStyleOption::Default ) const;
+    \fn SubControl QStyle::querySubControl(ComplexControl control, const QWidget *widget, const QPoint &pos, const QStyleOption& opt = QStyleOption::Default) const;
 
     Returns the SubControl for \a widget at the point \a pos. The \a
     widget argument is a pointer to a QWidget or one of its
@@ -1396,14 +1396,14 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     dependent size represented as a single pixel value.
 
     \value PM_ButtonMargin  amount of whitespace between pushbutton
-	labels and the frame.
+        labels and the frame.
     \value PM_ButtonDefaultIndicator  width of the default-button indicator frame.
     \value PM_MenuButtonIndicator  width of the menu button indicator
-	proportional to the widget height.
+        proportional to the widget height.
     \value PM_ButtonShiftHorizontal  horizontal contents shift of a
-	button when the button is down.
+        button when the button is down.
     \value PM_ButtonShiftVertical  vertical contents shift of a button when the
-	button is down.
+        button is down.
 
     \value PM_DefaultFrameWidth  default frame width, usually 2.
     \value PM_SpinBoxFrameWidth  frame width of a spin box.
@@ -1411,29 +1411,29 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value PM_MDIMinimizedWidth width of a minimized MSI window.
 
     \value PM_MaximumDragDistance  Some feels require the scrollbar or
-	other sliders to jump back to the original position when the
-	mouse pointer is too far away while dragging. A value of -1
-	disables this behavior.
+        other sliders to jump back to the original position when the
+        mouse pointer is too far away while dragging. A value of -1
+        disables this behavior.
 
     \value PM_ScrollBarExtent  width of a vertical scrollbar and the
-	height of a horizontal scrollbar.
+        height of a horizontal scrollbar.
     \value PM_ScrollBarSliderMin the minimum height of a vertical
-	scrollbar's slider and the minimum width of a horiztonal
-	scrollbar slider.
+        scrollbar's slider and the minimum width of a horiztonal
+        scrollbar slider.
 
     \value PM_SliderThickness  total slider thickness.
     \value PM_SliderControlThickness  thickness of the slider handle.
     \value PM_SliderLength length of the slider.
     \value PM_SliderTickmarkOffset the offset between the tickmarks
-	and the slider.
+        and the slider.
     \value PM_SliderSpaceAvailable  the available space for the slider to move.
 
     \value PM_DockWindowSeparatorExtent  width of a separator in a
-	horiztonal dock window and the height of a separator in a
-	vertical dock window.
+        horiztonal dock window and the height of a separator in a
+        vertical dock window.
     \value PM_DockWindowHandleExtent  width of the handle in a
-	horizontal dock window and the height of the handle in a
-	vertical dock window.
+        horizontal dock window and the height of the handle in a
+        vertical dock window.
     \value PM_DockWindowFrameWidth  frame width of a dock window.
 
     \value PM_MenuBarFrameWidth  frame width of a menubar.
@@ -1445,9 +1445,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value PM_TabBarTabHSpace extra space added to the tab width.
     \value PM_TabBarTabVSpace extra space added to the tab height.
     \value PM_TabBarBaseHeight height of the area between the tab bar
-	and the tab pages.
+        and the tab pages.
     \value PM_TabBarBaseOverlap number of pixels the tab bar overlaps
-	the tab bar base.
+        the tab bar base.
     \value PM_TabBarScrollButtonWidth
     \value PM_TabBarTabShiftHorizontal horizontal pixel shift when a
         tab is selected.
@@ -1474,9 +1474,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value PM_MenuDesktopFrameWidth ###
 
     \value PM_CheckListButtonSize area (width/height) of the
-	checkbox/radiobutton in a QCheckListItem
+        checkbox/radiobutton in a QCheckListItem
     \value PM_CheckListControllerSize area (width/height) of the
-	controller in a QCheckListItem
+        controller in a QCheckListItem
 
     \value PM_DialogButtonsSeparator distance between buttons in a dialog buttons widget.
     \value PM_DialogButtonsButtonWidth minimum width of a button in a dialog buttons widget.
@@ -1487,15 +1487,15 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value PM_HeaderMargin
 
     \value PM_CustomBase  base value for custom ControlElements. All
-	values above this are reserved for custom use. Therefore,
-	custom values must be greater than this value.
+        values above this are reserved for custom use. Therefore,
+        custom values must be greater than this value.
 
 
     \sa pixelMetric()
 */
 
 /*!
-    \fn int QStyle::pixelMetric( PixelMetric metric, const QWidget *widget = 0 ) const;
+    \fn int QStyle::pixelMetric(PixelMetric metric, const QWidget *widget = 0) const;
 
     Returns the pixel metric for \a metric. The \a widget argument is
     a pointer to a QWidget or one of its subclasses. The widget can be
@@ -1507,14 +1507,14 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \table
     \header \i PixelMetric \i Widget Cast
     \row \i \l PM_SliderControlThickness    \i (const \l QSlider *)
-    \row \i \l PM_SliderLength		    \i (const \l QSlider *)
-    \row \i \l PM_SliderTickmarkOffset	    \i (const \l QSlider *)
-    \row \i \l PM_SliderSpaceAvailable	    \i (const \l QSlider *)
-    \row \i \l PM_TabBarTabOverlap	    \i (const \l QTabBar *)
-    \row \i \l PM_TabBarTabHSpace	    \i (const \l QTabBar *)
-    \row \i \l PM_TabBarTabVSpace	    \i (const \l QTabBar *)
-    \row \i \l PM_TabBarBaseHeight	    \i (const \l QTabBar *)
-    \row \i \l PM_TabBarBaseOverlap	    \i (const \l QTabBar *)
+    \row \i \l PM_SliderLength                    \i (const \l QSlider *)
+    \row \i \l PM_SliderTickmarkOffset            \i (const \l QSlider *)
+    \row \i \l PM_SliderSpaceAvailable            \i (const \l QSlider *)
+    \row \i \l PM_TabBarTabOverlap            \i (const \l QTabBar *)
+    \row \i \l PM_TabBarTabHSpace            \i (const \l QTabBar *)
+    \row \i \l PM_TabBarTabVSpace            \i (const \l QTabBar *)
+    \row \i \l PM_TabBarBaseHeight            \i (const \l QTabBar *)
+    \row \i \l PM_TabBarBaseOverlap            \i (const \l QTabBar *)
     \endtable
 */
 
@@ -1547,14 +1547,14 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value CT_DialogButtons
 
     \value CT_CustomBase  base value for custom ControlElements. All
-	values above this are reserved for custom use. Custom values
-	must be greater than this value.
+        values above this are reserved for custom use. Custom values
+        must be greater than this value.
 
     \sa sizeFromContents()
 */
 
 /*!
-    \fn QSize QStyle::sizeFromContents( ContentsType contents, const QWidget *widget, const QSize &contentsSize, const QStyleOption& opt = QStyleOption::Default ) const;
+    \fn QSize QStyle::sizeFromContents(ContentsType contents, const QWidget *widget, const QSize &contentsSize, const QStyleOption& opt = QStyleOption::Default) const;
 
     Returns the size of \a widget based on the contents size \a
     contentsSize.
@@ -1578,12 +1578,12 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \row \i \l CT_DockWindow \i (const \l QDockWindow *) \i Unused. \i &nbsp;
     \row \i \l CT_ProgressBar \i (const \l QProgressBar *) \i Unused. \i &nbsp;
     \row \i \l CT_MenuItem \i (const QPopupMenu *)
-	\i \l QStyleOption ( QMenuItem *mi )
-	    \list
-	    \i opt.\link QStyleOption::menuItem() menuItem\endlink()
-	    \endlist
-	\i \e mi is the menu item to use when calculating the size.
-	    QMenuItem is currently an internal class.
+        \i \l QStyleOption (QMenuItem *mi)
+            \list
+            \i opt.\link QStyleOption::menuItem() menuItem\endlink()
+            \endlist
+        \i \e mi is the menu item to use when calculating the size.
+            QMenuItem is currently an internal class.
     \endtable
 */
 
@@ -1598,81 +1598,81 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value SH_GUIStyle the GUI style to use.
 
     \value SH_ScrollBar_BackgroundRole  the background role for a
-	QScrollBar.
+        QScrollBar.
 
     \value SH_ScrollBar_MiddleClickAbsolutePosition  a boolean value.
-	If TRUE, middle clicking on a scrollbar causes the slider to
-	jump to that position. If FALSE, the middle clicking is
-	ignored.
+        If true, middle clicking on a scrollbar causes the slider to
+        jump to that position. If false, the middle clicking is
+        ignored.
 
     \value SH_ScrollBar_LeftClickAbsolutePosition  a boolean value.
-	If TRUE, left clicking on a scrollbar causes the slider to
-	jump to that position. If FALSE, the left clicking will
-	behave as appropriate for each control.
+        If true, left clicking on a scrollbar causes the slider to
+        jump to that position. If false, the left clicking will
+        behave as appropriate for each control.
 
     \value SH_ScrollBar_ScrollWhenPointerLeavesControl  a boolean
-	value. If TRUE, when clicking a scrollbar SubControl, holding
-	the mouse button down and moving the pointer outside the
-	SubControl, the scrollbar continues to scroll. If FALSE, the
-	scollbar stops scrolling when the pointer leaves the
-	SubControl.
+        value. If true, when clicking a scrollbar SubControl, holding
+        the mouse button down and moving the pointer outside the
+        SubControl, the scrollbar continues to scroll. If false, the
+        scollbar stops scrolling when the pointer leaves the
+        SubControl.
 
     \value SH_TabBar_Alignment  the alignment for tabs in a
-	QTabWidget. Possible values are \c Qt::AlignLeft, \c
-	Qt::AlignCenter and \c Qt::AlignRight.
+        QTabWidget. Possible values are \c Qt::AlignLeft, \c
+        Qt::AlignCenter and \c Qt::AlignRight.
 
     \value SH_Header_ArrowAlignment the placement of the sorting
-	indicator may appear in list or table headers. Possible values
-	are \c Qt::Left or \c Qt::Right.
+        indicator may appear in list or table headers. Possible values
+        are \c Qt::Left or \c Qt::Right.
 
     \value SH_Slider_SnapToValue  sliders snap to values while moving,
-	like Windows
+        like Windows
 
     \value SH_Slider_SloppyKeyEvents  key presses handled in a sloppy
-	manner, i.e. left on a vertical slider subtracts a line.
+        manner, i.e. left on a vertical slider subtracts a line.
 
     \value SH_ProgressDialog_CenterCancelButton  center button on
-	progress dialogs, like Motif, otherwise right aligned.
+        progress dialogs, like Motif, otherwise right aligned.
 
     \value SH_ProgressDialog_TextLabelAlignment Qt::AlignmentFlags --
-	text label alignment in progress dialogs; Center on windows,
-	Auto|VCenter otherwise.
+        text label alignment in progress dialogs; Center on windows,
+        Auto|VCenter otherwise.
 
     \value SH_PrintDialog_RightAlignButtons  right align buttons in
-	the print dialog, like Windows.
+        the print dialog, like Windows.
 
     \value SH_MainWindow_SpaceBelowMenuBar 1 or 2 pixel space between
-	the menubar and the dockarea, like Windows.
+        the menubar and the dockarea, like Windows.
 
     \value SH_FontDialog_SelectAssociatedText select the text in the
-	line edit, or when selecting an item from the listbox, or when
-	the line edit receives focus, like Windows.
+        line edit, or when selecting an item from the listbox, or when
+        the line edit receives focus, like Windows.
 
     \value SH_Menu_AllowActiveAndDisabled  allows disabled menu
-	items to be active.
+        items to be active.
 
     \value SH_Menu_SpaceActivatesItem  pressing Space activates
-	the item, like Motif.
+        the item, like Motif.
 
     \value SH_Menu_SubMenuPopupDelay  the number of milliseconds
-	to wait before opening a submenu; 256 on windows, 96 on Motif.
+        to wait before opening a submenu; 256 on windows, 96 on Motif.
 
     \value SH_Menu_Scrollable whether popupmenu's must support
-	scrolling.
+        scrolling.
 
     \value SH_Menu_SloppySubMenus whether popupmenu's must support
-	sloppy submenu; as implemented on Mac OS.
+        sloppy submenu; as implemented on Mac OS.
 
     \value SH_ScrollView_FrameOnlyAroundContents  whether scrollviews
-	draw their frame only around contents (like Motif), or around
-	contents, scrollbars and corner widgets (like Windows).
+        draw their frame only around contents (like Motif), or around
+        contents, scrollbars and corner widgets (like Windows).
 
     \value SH_MenuBar_AltKeyNavigation  menubars items are navigable
-	by pressing Alt, followed by using the arrow keys to select
-	the desired item.
+        by pressing Alt, followed by using the arrow keys to select
+        the desired item.
 
     \value SH_ComboBox_ListMouseTracking  mouse tracking in combobox
-	dropdown lists.
+        dropdown lists.
 
     \value SH_Menu_MouseTracking  mouse tracking in popup menus.
 
@@ -1682,38 +1682,38 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     should fill the screen as they are scrolled
 
     \value SH_ItemView_ChangeHighlightOnFocus  gray out selected items
-	when losing focus.
+        when losing focus.
 
     \value SH_Widget_ShareActivation turn on sharing activation with
-	floating modeless dialogs.
+        floating modeless dialogs.
 
     \value SH_TabBar_SelectMouseType which type of mouse event should
-	cause a tab to be selected.
+        cause a tab to be selected.
 
     \value SH_ListViewExpand_SelectMouseType which type of mouse event should
-	cause a listview expansion to be selected.
+        cause a listview expansion to be selected.
 
     \value SH_TabBar_PreferNoArrows whether a tabbar should suggest a size
         to prevent scoll arrows.
 
     \value SH_ComboBox_Popup allows popups as a combobox dropdown
-	menu.
+        menu.
 
     \value SH_Workspace_FillSpaceOnMaximize the workspace should
-	maximize the client area.
+        maximize the client area.
 
     \value SH_TitleBar_NoBorder the title bar has no border
 
     \value SH_ScrollBar_StopMouseOverSlider stops autorepeat when
-	slider reaches mouse
+        slider reaches mouse
 
     \value SH_ScrollBar_BackgroundMode (deprecated)
 
     \value SH_BlinkCursorWhenTextSelected whether cursor should blink
-	when text is selected
+        when text is selected
 
     \value SH_RichText_FullWidthSelection whether richtext selections
-	should extend the full width of the document.
+        should extend the full width of the document.
 
     \value SH_GroupBox_TextLabelVerticalAlignment how to vertically align a
         groupbox's text label.
@@ -1724,8 +1724,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
         default status in a dialog's button widget.
 
     \value SH_CustomBase  base value for custom ControlElements. All
-	values above this are reserved for custom use. Therefore,
-	custom values must be greater than this value.
+        values above this are reserved for custom use. Therefore,
+        custom values must be greater than this value.
 
     \value SH_ToolButton_Uses3D indicates whether QToolButtons should
     use a 3D frame when the mouse is over them
@@ -1750,7 +1750,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 */
 
 /*!
-    \fn int QStyle::styleHint( StyleHint stylehint, const QWidget *widget = 0, const QStyleOption &opt = QStyleOption::Default, QStyleHintReturn *returnData = 0 ) const;
+    \fn int QStyle::styleHint(StyleHint stylehint, const QWidget *widget = 0, const QStyleOption &opt = QStyleOption::Default, QStyleHintReturn *returnData = 0) const;
 
     Returns the style hint \a stylehint for \a widget. Currently, \a
     widget, \a opt, and \a returnData are unused; they're included to
@@ -1767,7 +1767,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
 
     \value SP_TitleBarMinButton  minimize button on title bars. For
-	example, in a QWorkspace.
+        example, in a QWorkspace.
     \value SP_TitleBarMaxButton  maximize button on title bars.
     \value SP_TitleBarCloseButton  close button on title bars.
     \value SP_TitleBarNormalButton  normal (restore) button on title bars.
@@ -1780,12 +1780,12 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
 
     \value SP_DockWindowCloseButton  close button on dock windows;
-	see also QDockWindow.
+        see also QDockWindow.
 
 
     \value SP_CustomBase  base value for custom ControlElements. All
-	values below this are reserved for interna Qt usage. Therefore,
-	custom values must be greater than this value.
+        values below this are reserved for interna Qt usage. Therefore,
+        custom values must be greater than this value.
 
     \sa stylePixmap()
 */
@@ -1809,8 +1809,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
 /*!
     \fn QPixmap QStyle::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
-				    const QPalette &pal,
-				    const QStyleOption& opt) const
+                                    const QPalette &pal,
+                                    const QStyleOption& opt) const
 
     \overload
 
@@ -1829,8 +1829,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
 /*!
     \fn QPixmap QStyle::stylePixmap(StylePixmap stylepixmap,
-				    const QWidget *widget,
-				    const QStyleOption& opt) const
+                                    const QWidget *widget,
+                                    const QStyleOption& opt) const
 
     Returns a pixmap for \a stylepixmap.
 
@@ -1846,11 +1846,11 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
     \table
     \header \i StylePixmap \i Widget Cast
-    \row \i \l SP_TitleBarMinButton	\i (const \l QWidget *)
-    \row \i \l SP_TitleBarMaxButton	\i (const \l QWidget *)
-    \row \i \l SP_TitleBarCloseButton	\i (const \l QWidget *)
-    \row \i \l SP_TitleBarNormalButton	\i (const \l QWidget *)
-    \row \i \l SP_TitleBarShadeButton	\i (const \l QWidget *)
+    \row \i \l SP_TitleBarMinButton        \i (const \l QWidget *)
+    \row \i \l SP_TitleBarMaxButton        \i (const \l QWidget *)
+    \row \i \l SP_TitleBarCloseButton        \i (const \l QWidget *)
+    \row \i \l SP_TitleBarNormalButton        \i (const \l QWidget *)
+    \row \i \l SP_TitleBarShadeButton        \i (const \l QWidget *)
     \row \i \l SP_TitleBarUnshadeButton \i (const \l QWidget *)
     \row \i \l SP_DockWindowCloseButton \i (const \l QDockWindow *)
     \endtable
@@ -1859,7 +1859,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 */
 
 /*!
-    \fn QRect QStyle::visualRect( const QRect &logical, const QWidget *w );
+    \fn QRect QStyle::visualRect(const QRect &logical, const QWidget *w);
 
     Returns the rect \a logical in screen coordinates. The bounding
     rect for widget \a w is used to perform the translation. This
@@ -1868,19 +1868,19 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
     \sa QApplication::reverseLayout()
 */
-QRect QStyle::visualRect( const QRect &logical, const QWidget *w )
+QRect QStyle::visualRect(const QRect &logical, const QWidget *w)
 {
-    if ( !QApplication::reverseLayout() )
-	return logical;
+    if (!QApplication::reverseLayout())
+        return logical;
     QRect boundingRect = w->rect();
     QRect r = logical;
-    r.moveBy( 2*(boundingRect.right() - logical.right()) +
-	      logical.width() - boundingRect.width(), 0 );
+    r.moveBy(2*(boundingRect.right() - logical.right()) +
+              logical.width() - boundingRect.width(), 0);
     return r;
 }
 
 /*!
-    \fn QRect QStyle::visualRect( const QRect &logical, const QRect &bounding );
+    \fn QRect QStyle::visualRect(const QRect &logical, const QRect &bounding);
     \overload
 
     Returns the rect \a logical in screen coordinates. The rect \a
@@ -1890,18 +1890,18 @@ QRect QStyle::visualRect( const QRect &logical, const QWidget *w )
 
     \sa QApplication::reverseLayout()
 */
-QRect QStyle::visualRect( const QRect &logical, const QRect &boundingRect )
+QRect QStyle::visualRect(const QRect &logical, const QRect &boundingRect)
 {
-    if ( !QApplication::reverseLayout() )
-	return logical;
+    if (!QApplication::reverseLayout())
+        return logical;
     QRect r = logical;
-    r.moveBy( 2*(boundingRect.right() - logical.right()) +
-	      logical.width() - boundingRect.width(), 0 );
+    r.moveBy(2*(boundingRect.right() - logical.right()) +
+              logical.width() - boundingRect.width(), 0);
     return r;
 }
 
 /*!
-    \fn QPoint QStyle::visualPos( const QPoint &logical, const QWidget *w )
+    \fn QPoint QStyle::visualPos(const QPoint &logical, const QWidget *w)
 
     Returns the pos \a logical in screen coordinates. The bounding
     rect for widget \a w is used to perform the translation. This
@@ -1910,15 +1910,15 @@ QRect QStyle::visualRect( const QRect &logical, const QRect &boundingRect )
 
     \sa QApplication::reverseLayout()
 */
-QPoint QStyle::visualPos( const QPoint &logical, const QWidget *w )
+QPoint QStyle::visualPos(const QPoint &logical, const QWidget *w)
 {
-    if ( !QApplication::reverseLayout() )
-	return logical;
-    return QPoint( w->rect().right() - logical.x(), logical.y());
+    if (!QApplication::reverseLayout())
+        return logical;
+    return QPoint(w->rect().right() - logical.x(), logical.y());
 }
 
 /*!
-    \fn QPoint QStyle::visualPos( const QPoint &logical, const QRect &bounding )
+    \fn QPoint QStyle::visualPos(const QPoint &logical, const QRect &bounding)
     \overload
 
     Returns the pos \a logical in screen coordinates. The pos \a
@@ -1928,11 +1928,11 @@ QPoint QStyle::visualPos( const QPoint &logical, const QWidget *w )
 
     \sa QApplication::reverseLayout()
 */
-QPoint QStyle::visualPos( const QPoint &logical, const QRect &boundingRect )
+QPoint QStyle::visualPos(const QPoint &logical, const QRect &boundingRect)
 {
-    if ( !QApplication::reverseLayout() )
-	return logical;
-    return QPoint( boundingRect.right() - logical.x(), logical.y());
+    if (!QApplication::reverseLayout())
+        return logical;
+    return QPoint(boundingRect.right() - logical.x(), logical.y());
 }
 
 
@@ -1955,24 +1955,24 @@ QPoint QStyle::visualPos( const QPoint &logical, const QRect &boundingRect )
 int QStyle::positionFromValue(int min, int max, int logical_val, int span, bool upsideDown)
 {
     if (span <= 0 || logical_val < min || max <= min)
-	return 0;
-    if ( logical_val > max )
-	return upsideDown ? span : min;
+        return 0;
+    if (logical_val > max)
+        return upsideDown ? span : min;
 
     uint range = max - min;
     uint p = upsideDown ? max - logical_val : logical_val - min;
 
-    if ( range > (uint)INT_MAX/4096 ) {
-	const int scale = 4096*2;
-	return ( (p/scale) * span ) / (range/scale);
-	// ### the above line is probably not 100% correct
-	// ### but fixing it isn't worth the extreme pain...
-    } else if ( range > (uint)span ) {
-	return (2*p*span + range) / (2*range);
+    if (range > (uint)INT_MAX/4096) {
+        const int scale = 4096*2;
+        return ((p/scale) * span) / (range/scale);
+        // ### the above line is probably not 100% correct
+        // ### but fixing it isn't worth the extreme pain...
+    } else if (range > (uint)span) {
+        return (2*p*span + range) / (2*range);
     } else {
-	uint div = span / range;
-	uint mod = span % range;
-	return p*div + (2*p*mod + range) / (2*range);
+        uint div = span / range;
+        uint mod = span % range;
+        return p*div + (2*p*mod + range) / (2*range);
     }
     //equiv. to (p*span)/range + 0.5
     // no overflow because of this implicit assumption:
@@ -1997,19 +1997,19 @@ int QStyle::positionFromValue(int min, int max, int logical_val, int span, bool 
 
 int QStyle::valueFromPosition(int min, int max, int pos, int span, bool upsideDown)
 {
-    if ( span <= 0 || pos <= 0 )
-	return upsideDown ? max : min;
-    if ( pos >= span )
-	return upsideDown ? min : max;
+    if (span <= 0 || pos <= 0)
+        return upsideDown ? max : min;
+    if (pos >= span)
+        return upsideDown ? min : max;
 
     uint range = max - min;
 
-    if ( (uint)span > range ) {
+    if ((uint)span > range) {
         int tmp = (2 * pos * range + span) / (2 * span);
         return upsideDown ? max - tmp : tmp + min;
     } else {
-	uint div = range / span;
-	uint mod = range % span;
+        uint div = range / span;
+        uint mod = range % span;
         int tmp = pos * div + (2 * pos * mod + span) / (2 * span);
         return upsideDown ? max - tmp : tmp + min;
     }

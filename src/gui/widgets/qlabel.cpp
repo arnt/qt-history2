@@ -31,7 +31,7 @@ class QLabelPrivate
 {
 public:
     QLabelPrivate()
-	:img(0), pix(0), valid_hints( -1 )
+        :img(0), pix(0), valid_hints(-1)
     {}
     QImage* img; // for scaled contents
     QPixmap* pix; // for scaled contents
@@ -58,19 +58,19 @@ public:
     \table
     \header \i Content \i Setting
     \row \i Plain text
-	 \i Pass a QString to setText().
+         \i Pass a QString to setText().
     \row \i Rich text
-	 \i Pass a QString that contains rich text to setText().
+         \i Pass a QString that contains rich text to setText().
     \row \i A pixmap
-	 \i Pass a QPixmap to setPixmap().
+         \i Pass a QPixmap to setPixmap().
     \row \i A movie
-	 \i Pass a QMovie to setMovie().
+         \i Pass a QMovie to setMovie().
     \row \i A number
-	 \i Pass an \e int or a \e double to setNum(), which converts
-	    the number to plain text.
+         \i Pass an \e int or a \e double to setNum(), which converts
+            the number to plain text.
     \row \i Nothing
-	 \i The same as an empty plain text. This is the default. Set
-	    by clear().
+         \i The same as an empty plain text. This is the default. Set
+            by clear().
     \endtable
 
     When the content is changed using any of these functions, any
@@ -84,10 +84,10 @@ public:
     right corner (both lines being flush with the right side of the
     label):
     \code
-    QLabel *label = new QLabel( this );
-    label->setFrameStyle( QFrame::Panel | QFrame::Sunken );
-    label->setText( "first line\nsecond line" );
-    label->setAlignment( AlignBottom | AlignRight );
+    QLabel *label = new QLabel(this);
+    label->setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    label->setText("first line\nsecond line");
+    label->setAlignment(AlignBottom | AlignRight);
     \endcode
 
     A QLabel is often used as a label for an interactive widget. For
@@ -95,8 +95,8 @@ public:
     accelerator key (see QAccel) that will set the keyboard focus to
     the other widget (called the QLabel's "buddy"). For example:
     \code
-    QLineEdit* phoneEdit = new QLineEdit( this, "phoneEdit" );
-    QLabel* phoneLabel = new QLabel( phoneEdit, "&Phone:", this, "phoneLabel" );
+    QLineEdit* phoneEdit = new QLineEdit(this, "phoneEdit");
+    QLabel* phoneLabel = new QLabel(phoneEdit, "&Phone:", this, "phoneLabel");
     \endcode
 
     In this example, keyboard focus is transferred to the label's
@@ -126,8 +126,8 @@ public:
     \sa setAlignment(), setFrameStyle(), setIndent()
 */
 
-QLabel::QLabel( QWidget *parent, const char *name, WFlags f )
-    : QFrame( parent, name, f | WMouseNoMask  )
+QLabel::QLabel(QWidget *parent, const char *name, WFlags f)
+    : QFrame(parent, name, f | WMouseNoMask )
 {
     init();
 }
@@ -142,12 +142,12 @@ QLabel::QLabel( QWidget *parent, const char *name, WFlags f )
     \sa setText(), setAlignment(), setFrameStyle(), setIndent()
 */
 
-QLabel::QLabel( const QString &text, QWidget *parent, const char *name,
-		WFlags f )
-	: QFrame( parent, name, f | WMouseNoMask  )
+QLabel::QLabel(const QString &text, QWidget *parent, const char *name,
+                WFlags f)
+        : QFrame(parent, name, f | WMouseNoMask )
 {
     init();
-    setText( text );
+    setText(text);
 }
 
 
@@ -166,15 +166,15 @@ QLabel::QLabel( const QString &text, QWidget *parent, const char *name,
     \sa setText(), setBuddy(), setAlignment(), setFrameStyle(),
     setIndent()
 */
-QLabel::QLabel( QWidget *buddy,  const QString &text,
-		QWidget *parent, const char *name, WFlags f )
-    : QFrame( parent, name, f | WMouseNoMask )
+QLabel::QLabel(QWidget *buddy,  const QString &text,
+                QWidget *parent, const char *name, WFlags f)
+    : QFrame(parent, name, f | WMouseNoMask)
 {
     init();
 #ifndef QT_NO_ACCEL
-    setBuddy( buddy );
+    setBuddy(buddy);
 #endif
-    setText( text );
+    setText(text);
 }
 
 /*!
@@ -204,14 +204,14 @@ void QLabel::init()
 #endif
     align = AlignAuto | AlignVCenter | ExpandTabs;
     extraMargin = -1;
-    autoresize = FALSE;
-    scaledcontents = FALSE;
+    autoresize = false;
+    scaledcontents = false;
     textformat = Qt::AutoText;
 #ifndef QT_NO_RICHTEXT
     doc = 0;
 #endif
 
-    setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred ) );
+    setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
     d = new QLabelPrivate;
 }
 
@@ -243,10 +243,10 @@ void QLabel::init()
     \sa text, setTextFormat(), setBuddy(), alignment
 */
 
-void QLabel::setText( const QString &text )
+void QLabel::setText(const QString &text)
 {
-    if ( ltext == text )
-	return;
+    if (ltext == text)
+        return;
     QSize osh = sizeHint();
 #ifndef QT_NO_RICHTEXT
     bool hadRichtext = doc != 0;
@@ -255,50 +255,50 @@ void QLabel::setText( const QString &text )
     ltext = text;
 #ifndef QT_NO_RICHTEXT
     bool useRichText = (textformat == RichText ||
-      ( ( textformat == AutoText ) && QStyleSheet::mightBeRichText(ltext) ) );
+      ((textformat == AutoText) && QStyleSheet::mightBeRichText(ltext)));
 #else
-    bool useRichText = TRUE;
+    bool useRichText = true;
 #endif
 #ifndef QT_NO_ACCEL
     // ### Setting accelerators for rich text labels will not work.
     // Eg. <b>&gt;Hello</b> will return ALT+G which is clearly
     // not intended.
-    if ( !useRichText ) {
-	int p = QAccel::shortcutKey( ltext );
-	if ( p ) {
-	    if ( !accel )
-		accel = new QAccel( this, "accel label accel" );
-	    accel->connectItem( accel->insertItem( p ),
-				this, SLOT(acceleratorSlot()) );
-	}
+    if (!useRichText) {
+        int p = QAccel::shortcutKey(ltext);
+        if (p) {
+            if (!accel)
+                accel = new QAccel(this, "accel label accel");
+            accel->connectItem(accel->insertItem(p),
+                                this, SLOT(acceleratorSlot()));
+        }
     }
 #endif
 #ifndef QT_NO_RICHTEXT
-    if ( useRichText ) {
-	if ( !hadRichtext )
-	    align |= WordBreak;
-	QString t = ltext;
-	if ( align & AlignRight )
-	    t.prepend( "<div align=\"right\">");
-	else if ( align & AlignHCenter )
-	    t.prepend( "<div align=\"center\">");
-	if ( (align & WordBreak) == 0  )
-	    t.prepend( "<nobr>" );
-	doc = new QSimpleRichText( t, font() );
+    if (useRichText) {
+        if (!hadRichtext)
+            align |= WordBreak;
+        QString t = ltext;
+        if (align & AlignRight)
+            t.prepend("<div align=\"right\">");
+        else if (align & AlignHCenter)
+            t.prepend("<div align=\"center\">");
+        if ((align & WordBreak) == 0 )
+            t.prepend("<nobr>");
+        doc = new QSimpleRichText(t, font());
     }
 #endif
 
-    updateLabel( osh );
+    updateLabel(osh);
 }
 
 
 /*!
-    Clears any label contents. Equivalent to setText( "" ).
+    Clears any label contents. Equivalent to setText("").
 */
 
 void QLabel::clear()
 {
-    setText( QString::fromLatin1("") );
+    setText(QString::fromLatin1(""));
 }
 
 /*!
@@ -308,22 +308,22 @@ void QLabel::clear()
     If no pixmap has been set this will return an invalid pixmap.
 
     Setting the pixmap clears any previous content, and resizes the
-    label if \l QLabel::autoResize() is TRUE. The buddy accelerator,
+    label if \l QLabel::autoResize() is true. The buddy accelerator,
     if any, is disabled.
 */
-void QLabel::setPixmap( const QPixmap &pixmap )
+void QLabel::setPixmap(const QPixmap &pixmap)
 {
     QSize osh = sizeHint();
 
-    if ( !lpixmap || lpixmap->serialNumber() != pixmap.serialNumber() ) {
-	clearContents();
-	lpixmap = new QPixmap( pixmap );
+    if (!lpixmap || lpixmap->serialNumber() != pixmap.serialNumber()) {
+        clearContents();
+        lpixmap = new QPixmap(pixmap);
     }
 
-    if ( lpixmap->depth() == 1 && !lpixmap->mask() )
-	lpixmap->setMask( *((QBitmap *)lpixmap) );
+    if (lpixmap->depth() == 1 && !lpixmap->mask())
+        lpixmap->setMask(*((QBitmap *)lpixmap));
 
-    updateLabel( osh );
+    updateLabel(osh);
 }
 
 #ifndef QT_NO_PICTURE
@@ -336,13 +336,13 @@ void QLabel::setPixmap( const QPixmap &pixmap )
     \sa picture(), setBuddy()
 */
 
-void QLabel::setPicture( const QPicture &picture )
+void QLabel::setPicture(const QPicture &picture)
 {
     QSize osh = sizeHint();
     clearContents();
-    lpicture = new QPicture( picture );
+    lpicture = new QPicture(picture);
 
-    updateLabel( osh );
+    updateLabel(osh);
 }
 #endif // QT_NO_PICTURE
 
@@ -359,11 +359,11 @@ void QLabel::setPicture( const QPicture &picture )
     \sa setText(), QString::setNum(), setBuddy()
 */
 
-void QLabel::setNum( int num )
+void QLabel::setNum(int num)
 {
     QString str;
-    str.setNum( num );
-	setText( str );
+    str.setNum(num);
+        setText(str);
 }
 
 /*!
@@ -381,11 +381,11 @@ void QLabel::setNum( int num )
     \sa setText(), QString::setNum(), setBuddy()
 */
 
-void QLabel::setNum( double num )
+void QLabel::setNum(double num)
 {
     QString str;
-    str.setNum( num );
-	setText( str );
+    str.setNum(num);
+        setText(str);
 }
 
 /*!
@@ -400,7 +400,7 @@ void QLabel::setNum( double num )
     labels. The \c BreakAnywhere flag is not supported in QLabel.
 
     If the label has a buddy, the \c ShowPrefix flag is forced to
-    TRUE.
+    true.
 
     The default alignment is \c{AlignAuto | AlignVCenter | ExpandTabs}
     if the label doesn't have a buddy and \c{AlignAuto | AlignVCenter
@@ -410,27 +410,27 @@ void QLabel::setNum( double num )
     \sa Qt::AlignmentFlags, alignment, setBuddy(), text
 */
 
-void QLabel::setAlignment( int alignment )
+void QLabel::setAlignment(int alignment)
 {
-    if ( alignment == align )
-	return;
+    if (alignment == align)
+        return;
     QSize osh = sizeHint();
 #ifndef QT_NO_ACCEL
-    if ( lbuddy )
-	align = alignment | ShowPrefix;
+    if (lbuddy)
+        align = alignment | ShowPrefix;
     else
 #endif
-	align = alignment;
+        align = alignment;
 
 #ifndef QT_NO_RICHTEXT
     QString t = ltext;
-    if ( !t.isNull() ) {
-	ltext = QString::null;
-	setText( t );
+    if (!t.isNull()) {
+        ltext = QString::null;
+        setText(t);
     }
 #endif
 
-    updateLabel( osh );
+    updateLabel(osh);
 }
 
 
@@ -452,10 +452,10 @@ void QLabel::setAlignment( int alignment )
     \sa alignment, frameWidth(), font()
 */
 
-void QLabel::setIndent( int indent )
+void QLabel::setIndent(int indent)
 {
     extraMargin = indent;
-    updateLabel( QSize( -1, -1 ) );
+    updateLabel(QSize(-1, -1));
 }
 
 
@@ -464,7 +464,7 @@ void QLabel::setIndent( int indent )
 
   \obsolete
 
-  Returns TRUE if auto-resizing is enabled, or FALSE if auto-resizing
+  Returns true if auto-resizing is enabled, or false if auto-resizing
   is disabled.
 
   Auto-resizing is disabled by default.
@@ -473,8 +473,8 @@ void QLabel::setIndent( int indent )
 */
 
 /*! \obsolete
-  Enables auto-resizing if \a enable is TRUE, or disables it if \a
-  enable is FALSE.
+  Enables auto-resizing if \a enable is true, or disables it if \a
+  enable is false.
 
   When auto-resizing is enabled the label will resize itself to fit
   the contents whenever the contents change. The top-left corner is
@@ -486,12 +486,12 @@ void QLabel::setIndent( int indent )
   \sa autoResize(), adjustSize(), sizeHint()
 */
 
-void QLabel::setAutoResize( bool enable )
+void QLabel::setAutoResize(bool enable)
 {
-    if ( (bool)autoresize != enable ) {
-	autoresize = enable;
-	if ( autoresize )
-	    adjustSize();
+    if ((bool)autoresize != enable) {
+        autoresize = enable;
+        if (autoresize)
+            adjustSize();
     }
 }
 
@@ -502,7 +502,7 @@ void QLabel::setAutoResize( bool enable )
     w. If \a w is -1, the sizeHint() is returned.
 */
 
-QSize QLabel::sizeForWidth( int w ) const
+QSize QLabel::sizeForWidth(int w) const
 {
     QRect br;
     QPixmap *pix = pixmap();
@@ -518,61 +518,61 @@ QSize QLabel::sizeForWidth( int w ) const
 #endif
     int hextra = 2 * frameWidth();
     int vextra = hextra;
-    QFontMetrics fm( fontMetrics() );
-    int xw = fm.width( 'x' );
-    if ( !mov && !pix && !pic ) {
-	int m = indent();
-	if ( m < 0 && hextra ) // no indent, but we do have a frame
-	    m = xw / 2 - margin();
-	if ( m >= 0 ) {
-	    int horizAlign = QApplication::horizontalAlignment( QFlag(align) );
-	    if ( (horizAlign & AlignLeft) || (horizAlign & AlignRight ) )
-		hextra += m;
-	    if ( (align & AlignTop) || (align & AlignBottom ) )
-		vextra += m;
-	}
+    QFontMetrics fm(fontMetrics());
+    int xw = fm.width('x');
+    if (!mov && !pix && !pic) {
+        int m = indent();
+        if (m < 0 && hextra) // no indent, but we do have a frame
+            m = xw / 2 - margin();
+        if (m >= 0) {
+            int horizAlign = QApplication::horizontalAlignment(QFlag(align));
+            if ((horizAlign & AlignLeft) || (horizAlign & AlignRight))
+                hextra += m;
+            if ((align & AlignTop) || (align & AlignBottom))
+                vextra += m;
+        }
     }
 
-    if ( pix )
-	br = pix->rect();
+    if (pix)
+        br = pix->rect();
 #ifndef QT_NO_PICTURE
-    else if ( pic )
-	br = pic->boundingRect();
+    else if (pic)
+        br = pic->boundingRect();
 #endif
 #ifndef QT_NO_MOVIE
-    else if ( mov )
-	br = mov->framePixmap().rect();
+    else if (mov)
+        br = mov->framePixmap().rect();
 #endif
 #ifndef QT_NO_RICHTEXT
-    else if ( doc ) {
-	int oldW = doc->width();
-	if ( align & WordBreak ) {
-	    if ( w < 0 )
-		doc->adjustSize();
-	    else
-		doc->setWidth( w-hextra );
-	}
-	br = QRect( 0, 0, doc->widthUsed(), doc->height() );
-	doc->setWidth( oldW );
+    else if (doc) {
+        int oldW = doc->width();
+        if (align & WordBreak) {
+            if (w < 0)
+                doc->adjustSize();
+            else
+                doc->setWidth(w-hextra);
+        }
+        br = QRect(0, 0, doc->widthUsed(), doc->height());
+        doc->setWidth(oldW);
     }
 #endif
     else {
-	bool tryWidth = (w < 0) && (align & WordBreak);
-	if ( tryWidth )
-	    w = xw * 80;
-	else if ( w < 0 )
-	    w = 2000;
-	w -= hextra;
-	br = fm.boundingRect( 0, 0, w ,2000, alignment(), text() );
-	if ( tryWidth && br.height() < 4*fm.lineSpacing() && br.width() > w/2 )
-		br = fm.boundingRect( 0, 0, w/2, 2000, alignment(), text() );
-	if ( tryWidth && br.height() < 2*fm.lineSpacing() && br.width() > w/4 )
-	    br = fm.boundingRect( 0, 0, w/4, 2000, alignment(), text() );
+        bool tryWidth = (w < 0) && (align & WordBreak);
+        if (tryWidth)
+            w = xw * 80;
+        else if (w < 0)
+            w = 2000;
+        w -= hextra;
+        br = fm.boundingRect(0, 0, w ,2000, alignment(), text());
+        if (tryWidth && br.height() < 4*fm.lineSpacing() && br.width() > w/2)
+                br = fm.boundingRect(0, 0, w/2, 2000, alignment(), text());
+        if (tryWidth && br.height() < 2*fm.lineSpacing() && br.width() > w/4)
+            br = fm.boundingRect(0, 0, w/4, 2000, alignment(), text());
     }
     int wid = br.width() + hextra;
     int hei = br.height() + vextra;
 
-    return QSize( wid, hei );
+    return QSize(wid, hei);
 }
 
 
@@ -580,15 +580,15 @@ QSize QLabel::sizeForWidth( int w ) const
   \reimp
 */
 
-int QLabel::heightForWidth( int w ) const
+int QLabel::heightForWidth(int w) const
 {
     if (
 #ifndef QT_NO_RICHTEXT
-	doc ||
+        doc ||
 #endif
-	(align & WordBreak) )
-	return sizeForWidth( w ).height();
-    return QWidget::heightForWidth( w );
+        (align & WordBreak))
+        return sizeForWidth(w).height();
+    return QWidget::heightForWidth(w);
 }
 
 
@@ -597,8 +597,8 @@ int QLabel::heightForWidth( int w ) const
 */
 QSize QLabel::sizeHint() const
 {
-    if ( d->valid_hints != frameWidth() )
-	(void) QLabel::minimumSizeHint();
+    if (d->valid_hints != frameWidth())
+        (void) QLabel::minimumSizeHint();
     return d->sh;
 }
 
@@ -608,31 +608,31 @@ QSize QLabel::sizeHint() const
 
 QSize QLabel::minimumSizeHint() const
 {
-    if ( d->valid_hints == frameWidth() )
-	return d->msh;
+    if (d->valid_hints == frameWidth())
+        return d->msh;
 
     ensurePolished();
     d->valid_hints = frameWidth();
-    d->sh = sizeForWidth( -1 );
-    QSize sz( -1, -1 );
+    d->sh = sizeForWidth(-1);
+    QSize sz(-1, -1);
 
     if (
 #ifndef QT_NO_RICHTEXT
-	 !doc &&
+         !doc &&
 #endif
-	 (align & WordBreak) == 0 ) {
-	sz = d->sh;
+         (align & WordBreak) == 0) {
+        sz = d->sh;
     } else {
-	// think about caching these for performance
-	sz.rwidth() = sizeForWidth( 0 ).width();
-	sz.rheight() = sizeForWidth(QWIDGETSIZE_MAX).height();
-	if ( d->sh.height() < sz.height() )
-	    sz.rheight() = d->sh.height();
+        // think about caching these for performance
+        sz.rwidth() = sizeForWidth(0).width();
+        sz.rheight() = sizeForWidth(QWIDGETSIZE_MAX).height();
+        if (d->sh.height() < sz.height())
+            sz.rheight() = d->sh.height();
     }
-    if ( sizePolicy().horData() == QSizePolicy::Ignored )
-	sz.rwidth() = -1;
-    if ( sizePolicy().verData() == QSizePolicy::Ignored )
-	sz.rheight() = -1;
+    if (sizePolicy().horData() == QSizePolicy::Ignored)
+        sz.rwidth() = -1;
+    if (sizePolicy().verData() == QSizePolicy::Ignored)
+        sz.rheight() = -1;
     d->msh = sz;
     return sz;
 }
@@ -641,7 +641,7 @@ QSize QLabel::minimumSizeHint() const
 /*!\reimp
 */
 
-void QLabel::paintEvent( QPaintEvent * )
+void QLabel::paintEvent(QPaintEvent *)
 {
     QPainter paint(this);
     drawFrame(&paint);
@@ -659,105 +659,105 @@ void QLabel::paintEvent( QPaintEvent * )
     const int mov = 0;
 #endif
 
-    if ( !mov && !pix && !pic ) {
-	int m = indent();
-	if ( m < 0 && frameWidth() ) // no indent, but we do have a frame
-	    m = fontMetrics().width('x') / 2 - margin();
-	if ( m > 0 ) {
-	    int hAlign = QApplication::horizontalAlignment( QFlag(align) );
-	    if ( hAlign & AlignLeft )
-		cr.setLeft( cr.left() + m );
-	    if ( hAlign & AlignRight )
-		cr.setRight( cr.right() - m );
-	    if ( align & AlignTop )
-		cr.setTop( cr.top() + m );
-	    if ( align & AlignBottom )
-		cr.setBottom( cr.bottom() - m );
-	}
+    if (!mov && !pix && !pic) {
+        int m = indent();
+        if (m < 0 && frameWidth()) // no indent, but we do have a frame
+            m = fontMetrics().width('x') / 2 - margin();
+        if (m > 0) {
+            int hAlign = QApplication::horizontalAlignment(QFlag(align));
+            if (hAlign & AlignLeft)
+                cr.setLeft(cr.left() + m);
+            if (hAlign & AlignRight)
+                cr.setRight(cr.right() - m);
+            if (align & AlignTop)
+                cr.setTop(cr.top() + m);
+            if (align & AlignBottom)
+                cr.setBottom(cr.bottom() - m);
+        }
     }
 
 #ifndef QT_NO_MOVIE
-    if ( mov ) {
-	// ### should add movie to qDrawItem
-	QRect r = style().itemRect( &paint, cr, align, isEnabled(), &(mov->framePixmap()),
-				    QString::null );
-	// ### could resize movie frame at this point
-	paint.drawPixmap(r.x(), r.y(), mov->framePixmap() );
+    if (mov) {
+        // ### should add movie to qDrawItem
+        QRect r = style().itemRect(&paint, cr, align, isEnabled(), &(mov->framePixmap()),
+                                    QString::null);
+        // ### could resize movie frame at this point
+        paint.drawPixmap(r.x(), r.y(), mov->framePixmap());
     }
     else
 #endif
 #ifndef QT_NO_RICHTEXT
-    if ( doc ) {
-	doc->setWidth(&paint, cr.width() );
-	int rh = doc->height();
-	int yo = 0;
-	if ( align & AlignVCenter )
-	    yo = (cr.height()-rh)/2;
-	else if ( align & AlignBottom )
-	    yo = cr.height()-rh;
-	if (! isEnabled() &&
-	    style().styleHint(QStyle::SH_EtchDisabledText, this)) {
-	    QPalette pal = palette();
-	    pal.setColor( QPalette::Text, pal.light() );
-	    doc->draw(&paint, cr.x()+1, cr.y()+yo+1, cr, pal, 0);
-	}
+    if (doc) {
+        doc->setWidth(&paint, cr.width());
+        int rh = doc->height();
+        int yo = 0;
+        if (align & AlignVCenter)
+            yo = (cr.height()-rh)/2;
+        else if (align & AlignBottom)
+            yo = cr.height()-rh;
+        if (! isEnabled() &&
+            style().styleHint(QStyle::SH_EtchDisabledText, this)) {
+            QPalette pal = palette();
+            pal.setColor(QPalette::Text, pal.light());
+            doc->draw(&paint, cr.x()+1, cr.y()+yo+1, cr, pal, 0);
+        }
 
-	// QSimpleRichText always draws with QPalette::Text as with
-	// background mode PaletteBase. QLabel typically has
-	// background mode PaletteBackground, so we create a temporary
-	// color group with the text color adjusted.
-	QPalette pal = palette();
-	if ( foregroundRole() != QPalette::Text && isEnabled() )
-	    pal.setColor(QPalette::Foreground, pal.color(foregroundRole()));
-	doc->draw(&paint, cr.x(), cr.y()+yo, cr, pal, 0);
+        // QSimpleRichText always draws with QPalette::Text as with
+        // background mode PaletteBase. QLabel typically has
+        // background mode PaletteBackground, so we create a temporary
+        // color group with the text color adjusted.
+        QPalette pal = palette();
+        if (foregroundRole() != QPalette::Text && isEnabled())
+            pal.setColor(QPalette::Foreground, pal.color(foregroundRole()));
+        doc->draw(&paint, cr.x(), cr.y()+yo, cr, pal, 0);
     } else
 #endif
 #ifndef QT_NO_PICTURE
-    if ( pic ) {
-	QRect br = pic->boundingRect();
-	int rw = br.width();
-	int rh = br.height();
-	if ( scaledcontents ) {
-	    paint.save();
-	    paint.translate( cr.x(), cr.y() );
+    if (pic) {
+        QRect br = pic->boundingRect();
+        int rw = br.width();
+        int rh = br.height();
+        if (scaledcontents) {
+            paint.save();
+            paint.translate(cr.x(), cr.y());
 #ifndef QT_NO_TRANSFORMATIONS
-	    paint.scale( (double)cr.width()/rw, (double)cr.height()/rh );
+            paint.scale((double)cr.width()/rw, (double)cr.height()/rh);
 #endif
-	    paint.drawPicture( -br.x(), -br.y(), *pic );
-	    paint.restore();
-	} else {
-	    int xo = 0;
-	    int yo = 0;
-	    if ( align & AlignVCenter )
-		yo = (cr.height()-rh)/2;
-	    else if ( align & AlignBottom )
-		yo = cr.height()-rh;
-	    if ( align & AlignRight )
-		xo = cr.width()-rw;
-	    else if ( align & AlignHCenter )
-		xo = (cr.width()-rw)/2;
-	    paint.drawPicture( cr.x()+xo-br.x(), cr.y()+yo-br.y(), *pic );
-	}
+            paint.drawPicture(-br.x(), -br.y(), *pic);
+            paint.restore();
+        } else {
+            int xo = 0;
+            int yo = 0;
+            if (align & AlignVCenter)
+                yo = (cr.height()-rh)/2;
+            else if (align & AlignBottom)
+                yo = cr.height()-rh;
+            if (align & AlignRight)
+                xo = cr.width()-rw;
+            else if (align & AlignHCenter)
+                xo = (cr.width()-rw)/2;
+            paint.drawPicture(cr.x()+xo-br.x(), cr.y()+yo-br.y(), *pic);
+        }
     } else
 #endif
     {
 #ifndef QT_NO_IMAGE_SMOOTHSCALE
-	if ( scaledcontents && pix ) {
-	    if ( !d->img )
-		d->img = new QImage( lpixmap->convertToImage() );
+        if (scaledcontents && pix) {
+            if (!d->img)
+                d->img = new QImage(lpixmap->convertToImage());
 
-	    if ( !d->pix )
-		d->pix = new QPixmap;
-	    if ( d->pix->size() != cr.size() )
-		d->pix->convertFromImage( d->img->smoothScale( cr.width(), cr.height() ) );
-	    pix = d->pix;
-	}
+            if (!d->pix)
+                d->pix = new QPixmap;
+            if (d->pix->size() != cr.size())
+                d->pix->convertFromImage(d->img->smoothScale(cr.width(), cr.height()));
+            pix = d->pix;
+        }
 #endif
-	int alignment = align;
-	if (!style().styleHint(QStyle::SH_UnderlineAccelerator, this))
-	    alignment |= NoAccel;
-	// ordinary text or pixmap label
-	style().drawItem( &paint, cr, alignment, palette(), isEnabled(), pix, ltext );
+        int alignment = align;
+        if (!style().styleHint(QStyle::SH_UnderlineAccelerator, this))
+            alignment |= NoAccel;
+        // ordinary text or pixmap label
+        style().drawItem(&paint, cr, alignment, palette(), isEnabled(), pix, ltext);
     }
 }
 
@@ -766,21 +766,21 @@ void QLabel::paintEvent( QPaintEvent * )
     Updates the label, but not the frame.
 */
 
-void QLabel::updateLabel( QSize oldSizeHint )
+void QLabel::updateLabel(QSize oldSizeHint)
 {
     d->valid_hints = -1;
     QSizePolicy policy = sizePolicy();
     bool wordBreak = align & WordBreak;
-    policy.setHeightForWidth( wordBreak );
-    if ( policy != sizePolicy() )
-	setSizePolicy( policy );
-    if ( sizeHint() != oldSizeHint )
-	updateGeometry();
-    if ( autoresize ) {
-	adjustSize();
-	update( contentsRect() );
+    policy.setHeightForWidth(wordBreak);
+    if (policy != sizePolicy())
+        setSizePolicy(policy);
+    if (sizeHint() != oldSizeHint)
+        updateGeometry();
+    if (autoresize) {
+        adjustSize();
+        update(contentsRect());
     } else {
-	update( contentsRect() );
+        update(contentsRect());
     }
 }
 
@@ -793,18 +793,18 @@ void QLabel::updateLabel( QSize oldSizeHint )
 #ifndef QT_NO_ACCEL
 void QLabel::acceleratorSlot()
 {
-    if ( !lbuddy )
-	return;
+    if (!lbuddy)
+        return;
     QWidget * w = lbuddy;
-    while ( w->focusProxy() )
-	w = w->focusProxy();
-    if ( !w->hasFocus() &&
-	 w->isEnabled() &&
-	 w->isVisible() &&
-	 w->focusPolicy() != NoFocus ) {
-	QFocusEvent::setReason( QFocusEvent::Shortcut );
-	w->setFocus();
-	QFocusEvent::resetReason();
+    while (w->focusProxy())
+        w = w->focusProxy();
+    if (!w->hasFocus() &&
+         w->isEnabled() &&
+         w->isVisible() &&
+         w->focusPolicy() != NoFocus) {
+        QFocusEvent::setReason(QFocusEvent::Shortcut);
+        w->setFocus();
+        QFocusEvent::resetReason();
     }
 }
 #endif
@@ -836,13 +836,13 @@ void QLabel::buddyDied() // I can't remember if I cried.
     for each, and set up the geometry layout so each label is just to
     the left of its data entry widget (its "buddy"), for example:
     \code
-    QLineEdit *nameEd  = new QLineEdit( this );
-    QLabel    *nameLb  = new QLabel( "&Name:", this );
-    nameLb->setBuddy( nameEd );
-    QLineEdit *phoneEd = new QLineEdit( this );
-    QLabel    *phoneLb = new QLabel( "&Phone:", this );
-    phoneLb->setBuddy( phoneEd );
-    // ( layout setup not shown )
+    QLineEdit *nameEd  = new QLineEdit(this);
+    QLabel    *nameLb  = new QLabel("&Name:", this);
+    nameLb->setBuddy(nameEd);
+    QLineEdit *phoneEd = new QLineEdit(this);
+    QLabel    *phoneLb = new QLabel("&Phone:", this);
+    phoneLb->setBuddy(phoneEd);
+    // (layout setup not shown)
     \endcode
 
     With the code above, the focus jumps to the Name field when the
@@ -855,35 +855,35 @@ void QLabel::buddyDied() // I can't remember if I cried.
     \sa buddy(), setText(), QAccel, setAlignment()
 */
 
-void QLabel::setBuddy( QWidget *buddy )
+void QLabel::setBuddy(QWidget *buddy)
 {
-    if ( buddy )
-	setAlignment( alignment() | ShowPrefix );
+    if (buddy)
+        setAlignment(alignment() | ShowPrefix);
     else
-	setAlignment( alignment() & ~ShowPrefix );
+        setAlignment(alignment() & ~ShowPrefix);
 
-    if ( lbuddy )
-	disconnect( lbuddy, SIGNAL(destroyed()), this, SLOT(buddyDied()) );
+    if (lbuddy)
+        disconnect(lbuddy, SIGNAL(destroyed()), this, SLOT(buddyDied()));
 
     lbuddy = buddy;
 
-    if ( !lbuddy )
-	return;
+    if (!lbuddy)
+        return;
 #ifndef QT_NO_RICHTEXT
-    if ( !( textformat == RichText || (textformat == AutoText &&
-				       QStyleSheet::mightBeRichText(ltext) ) ) )
+    if (!(textformat == RichText || (textformat == AutoText &&
+                                       QStyleSheet::mightBeRichText(ltext))))
 #endif
     {
-	int p = QAccel::shortcutKey( ltext );
-	if ( p ) {
-	    if ( !accel )
-		accel = new QAccel( this, "accel label accel" );
-	    accel->connectItem( accel->insertItem( p ),
-				this, SLOT(acceleratorSlot()) );
-	}
+        int p = QAccel::shortcutKey(ltext);
+        if (p) {
+            if (!accel)
+                accel = new QAccel(this, "accel label accel");
+            accel->connectItem(accel->insertItem(p),
+                                this, SLOT(acceleratorSlot()));
+        }
     }
 
-    connect( lbuddy, SIGNAL(destroyed()), this, SLOT(buddyDied()) );
+    connect(lbuddy, SIGNAL(destroyed()), this, SLOT(buddyDied()));
 }
 
 
@@ -904,23 +904,23 @@ QWidget * QLabel::buddy() const
 void QLabel::movieUpdated(const QRect& rect)
 {
     QMovie *mov = movie();
-    if ( mov && !mov->isNull() ) {
-	QRect r = contentsRect();
-	r = style().itemRect( 0, r, align, isEnabled(), &(mov->framePixmap()),
-			      QString::null );
-	r.moveBy(rect.x(), rect.y());
-	r.setWidth(qMin(r.width(), rect.width()));
-	r.setHeight(qMin(r.height(), rect.height()));
-	repaint(r);
+    if (mov && !mov->isNull()) {
+        QRect r = contentsRect();
+        r = style().itemRect(0, r, align, isEnabled(), &(mov->framePixmap()),
+                              QString::null);
+        r.moveBy(rect.x(), rect.y());
+        r.setWidth(qMin(r.width(), rect.width()));
+        r.setHeight(qMin(r.height(), rect.height()));
+        repaint(r);
     }
 }
 
-void QLabel::movieResized( const QSize& size )
+void QLabel::movieResized(const QSize& size)
 {
     d->valid_hints = -1;
-    if ( autoresize )
-	adjustSize();
-    movieUpdated( QRect( QPoint(0,0), size ) );
+    if (autoresize)
+        adjustSize();
+    movieUpdated(QRect(QPoint(0,0), size));
     updateGeometry();
 }
 
@@ -935,17 +935,17 @@ void QLabel::movieResized( const QSize& size )
     \sa movie(), setBuddy()
 */
 
-void QLabel::setMovie( const QMovie& movie )
+void QLabel::setMovie(const QMovie& movie)
 {
     QSize osh = sizeHint();
     clearContents();
 
-    lmovie = new QMovie( movie );
-	lmovie->connectResize(this, SLOT(movieResized(QSize)));
-	lmovie->connectUpdate(this, SLOT(movieUpdated(QRect)));
+    lmovie = new QMovie(movie);
+        lmovie->connectResize(this, SLOT(movieResized(QSize)));
+        lmovie->connectUpdate(this, SLOT(movieUpdated(QRect)));
 
-    if ( !lmovie->running() )	// Assume that if the movie is running,
-	updateLabel( osh );	// resize/update signals will come soon enough
+    if (!lmovie->running())        // Assume that if the movie is running,
+        updateLabel(osh);        // resize/update signals will come soon enough
 }
 
 #endif // QT_NO_MOVIE
@@ -976,15 +976,15 @@ void QLabel::clearContents()
 
     ltext = QString::null;
 #ifndef QT_NO_ACCEL
-    if ( accel )
-	accel->clear();
+    if (accel)
+        accel->clear();
 #endif
 #ifndef QT_NO_MOVIE
-    if ( lmovie ) {
-	lmovie->disconnectResize(this, SLOT(movieResized(QSize)));
-	lmovie->disconnectUpdate(this, SLOT(movieUpdated(QRect)));
-	delete lmovie;
-	lmovie = 0;
+    if (lmovie) {
+        lmovie->disconnectResize(this, SLOT(movieResized(QSize)));
+        lmovie->disconnectUpdate(this, SLOT(movieUpdated(QRect)));
+        delete lmovie;
+        lmovie = 0;
     }
 #endif
 }
@@ -1030,31 +1030,31 @@ Qt::TextFormat QLabel::textFormat() const
     return textformat;
 }
 
-void QLabel::setTextFormat( Qt::TextFormat format )
+void QLabel::setTextFormat(Qt::TextFormat format)
 {
-    if ( format != textformat ) {
-	textformat = format;
-	QString t = ltext;
-	if ( !t.isNull() ) {
-	    ltext = QString::null;
-	    setText( t );
-	}
+    if (format != textformat) {
+        textformat = format;
+        QString t = ltext;
+        if (!t.isNull()) {
+            ltext = QString::null;
+            setText(t);
+        }
     }
 }
 
 /*!
   \reimp
 */
-void QLabel::changeEvent( QEvent *ev )
+void QLabel::changeEvent(QEvent *ev)
 {
     if(ev->type() == QEvent::FontChange) {
-	if ( !ltext.isEmpty() ) {
+        if (!ltext.isEmpty()) {
 #ifndef QT_NO_RICHTEXT
-	    if ( doc )
-		doc->setDefaultFont( font() );
+            if (doc)
+                doc->setDefaultFont(font());
 #endif
-	    updateLabel( QSize( -1, -1 ) );
-	}
+            updateLabel(QSize(-1, -1));
+        }
     }
     QFrame::changeEvent(ev);
 }
@@ -1068,7 +1068,7 @@ void QLabel::changeEvent( QEvent *ev )
     When enabled and the label shows a pixmap, it will scale the
     pixmap to fill the available space.
 
-    This property's default is FALSE.
+    This property's default is false.
 
     \sa setScaledContents()
 */
@@ -1077,18 +1077,18 @@ bool QLabel::hasScaledContents() const
     return scaledcontents;
 }
 
-void QLabel::setScaledContents( bool enable )
+void QLabel::setScaledContents(bool enable)
 {
-    if ( (bool)scaledcontents == enable )
-	return;
+    if ((bool)scaledcontents == enable)
+        return;
     scaledcontents = enable;
-    if ( !enable ) {
-	delete d->img;
-	d->img = 0;
-	delete d->pix;
-	d->pix = 0;
+    if (!enable) {
+        delete d->img;
+        d->img = 0;
+        delete d->pix;
+        d->pix = 0;
     }
-    update( contentsRect() );
+    update(contentsRect());
 }
 
 #endif // QT_NO_IMAGE_SMOOTHSCALE

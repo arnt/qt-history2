@@ -34,7 +34,7 @@ public:
     ~QSqlDriverPlugin();
 
     virtual QStringList keys() const = 0;
-    virtual QSqlDriver *create( const QString &key ) = 0;
+    virtual QSqlDriver *create(const QString &key) = 0;
 
 private:
     QSqlDriverPluginPrivate *d;

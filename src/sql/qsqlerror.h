@@ -19,7 +19,7 @@
 #include "qstring.h"
 #endif // QT_H
 
-#if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
+#if !defined(QT_MODULE_SQL) || defined(QT_LICENSE_PROFESSIONAL)
 #define QM_EXPORT_SQL
 #else
 #define QM_EXPORT_SQL Q_SQL_EXPORT
@@ -31,35 +31,35 @@ class QM_EXPORT_SQL QSqlError
 {
 public:
     enum Type {
-	None,
-	Connection,
-	Statement,
-	Transaction,
-	Unknown
+        None,
+        Connection,
+        Statement,
+        Transaction,
+        Unknown
     };
-    QSqlError(  const QString& driverText = QString(),
-		const QString& databaseText = QString(),
-		int type = QSqlError::None,
-		int number = -1 );
-    QSqlError( const QSqlError& other );
-    QSqlError& operator=( const QSqlError& other );
+    QSqlError( const QString& driverText = QString(),
+                const QString& databaseText = QString(),
+                int type = QSqlError::None,
+                int number = -1);
+    QSqlError(const QSqlError& other);
+    QSqlError& operator=(const QSqlError& other);
     virtual ~QSqlError();
 
-    QString	driverText() const;
-    virtual void setDriverText( const QString& driverText );
-    QString	databaseText() const;
-    virtual void setDatabaseText( const QString& databaseText );
-    int		type() const;
-    virtual void setType( int type );
-    int		number() const;
-    virtual void setNumber( int number );
-    QString 	text() const;
+    QString        driverText() const;
+    virtual void setDriverText(const QString& driverText);
+    QString        databaseText() const;
+    virtual void setDatabaseText(const QString& databaseText);
+    int                type() const;
+    virtual void setType(int type);
+    int                number() const;
+    virtual void setNumber(int number);
+    QString         text() const;
 
 private:
-    QString	driverError;
-    QString	databaseError;
-    int		errorType;
-    int	errorNumber;
+    QString        driverError;
+    QString        databaseError;
+    int                errorType;
+    int        errorNumber;
 };
 
 #ifndef QT_NO_DEBUG

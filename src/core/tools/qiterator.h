@@ -99,39 +99,39 @@ public: \
       n = c.constEnd(); return false; } \
     inline bool findNextKey(const Key &key) \
     {  \
-	if (i == c.constEnd() || key < i.key()) { \
-	    n = i = c.constEnd(); \
+        if (i == c.constEnd() || key < i.key()) { \
+            n = i = c.constEnd(); \
             return false; \
-	} else if (i.key() < key) { \
-	    i = c.find(key); \
+        } else if (i.key() < key) { \
+            i = c.find(key); \
             if ((n = i) != c.constEnd()) { \
-		++i; \
+                ++i; \
                 return true; \
             } \
             return false; \
         } else { \
-	    n = i++; \
+            n = i++; \
             return true; \
         } \
     } \
     inline bool findPrevKey(const Key &key) \
     { \
-	if (i == c.constBegin() || (--i).key() < key) { \
-	    n = c.constEnd(); \
+        if (i == c.constBegin() || (--i).key() < key) { \
+            n = c.constEnd(); \
             i = c.constBegin(); \
             return false; \
         } else if (key < i.key()) { \
-	    n = i = c.find(key); \
+            n = i = c.find(key); \
             if (i == c.constEnd()) { \
-		i = c.constBegin(); \
+                i = c.constBegin(); \
                 return false; \
             } \
             while (++i != c.constEnd() && !(key < i.key())) \
-		; \
-	    n = --i; \
+                ; \
+            n = --i; \
             return true; \
         } else { \
-	    n = i; \
+            n = i; \
             return true; \
         } \
     } \

@@ -48,7 +48,7 @@ struct QCursorData {
     QCursorData(int s = 0);
     ~QCursorData();
     QAtomic ref;
-    int	      cshape;
+    int              cshape;
     QBitmap  *bm, *bmm;
     short     hx, hy;
 #if defined (Q_WS_MAC) || defined(Q_WS_QWS)
@@ -63,24 +63,24 @@ struct QCursorData {
 #elif defined (Q_WS_MAC)
     enum { TYPE_None, TYPE_CursorImage, TYPE_CursPtr, TYPE_ThemeCursor, TYPE_FakeCursor, TYPE_BigCursor } type;
     union {
-	struct {
-	    uint my_cursor:1;
-	    CursPtr   hcurs;
-	} cp;
+        struct {
+            uint my_cursor:1;
+            CursPtr   hcurs;
+        } cp;
 #ifndef QMAC_NO_FAKECURSOR
-	struct {
-	    QMacCursorWidget *widget;
-	    CursPtr empty_curs;
-	} fc;
+        struct {
+            QMacCursorWidget *widget;
+            CursPtr empty_curs;
+        } fc;
 #endif
 #ifdef QMAC_USE_BIG_CURSOR_API
-	char *big_cursor_name;
+        char *big_cursor_name;
 #endif
-	CursorImageRec *ci;
-	struct {
-	    QMacAnimateCursor *anim;
-	    ThemeCursor curs;
-	} tc;
+        CursorImageRec *ci;
+        struct {
+            QMacAnimateCursor *anim;
+            ThemeCursor curs;
+        } tc;
     } curs;
 #endif
 };

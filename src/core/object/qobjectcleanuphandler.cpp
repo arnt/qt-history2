@@ -32,28 +32,28 @@
     class FactoryComponent : public FactoryInterface, public QLibraryInterface
     {
     public:
-	...
+        ...
 
-	QObject *createObject();
+        QObject *createObject();
 
-	bool init();
-	void cleanup();
-	bool canUnload() const;
+        bool init();
+        void cleanup();
+        bool canUnload() const;
 
     private:
-	QObjectCleanupHandler objects;
+        QObjectCleanupHandler objects;
     };
 
     // allocate a new object, and add it to the cleanup handler
     QObject *FactoryComponent::createObject()
     {
-	return objects.add( new QObject() );
+        return objects.add(new QObject());
     }
 
     // QLibraryInterface implementation
     bool FactoryComponent::init()
     {
-	return TRUE;
+        return true;
     }
 
     void FactoryComponent::cleanup()
@@ -63,7 +63,7 @@
     // it is only safe to unload the library when all QObject's have been destroyed
     bool FactoryComponent::canUnload() const
     {
-	return objects.isEmpty();
+        return objects.isEmpty();
     }
     \endcode
 */
@@ -88,13 +88,13 @@ QObjectCleanupHandler::~QObjectCleanupHandler()
     Adds \a object to this cleanup handler and returns the pointer to
     the object.
 */
-QObject *QObjectCleanupHandler::add( QObject* object )
+QObject *QObjectCleanupHandler::add(QObject* object)
 {
-    if ( !object )
-	return 0;
+    if (!object)
+        return 0;
 
     connect(object, SIGNAL(destroyed(QObject*)), this, SLOT(objectDestroyed(QObject*)));
-    cleanupObjects.insert( 0, object );
+    cleanupObjects.insert(0, object);
     return object;
 }
 
@@ -102,18 +102,18 @@ QObject *QObjectCleanupHandler::add( QObject* object )
     Removes the \a object from this cleanup handler. The object will
     not be destroyed.
 */
-void QObjectCleanupHandler::remove( QObject *object )
+void QObjectCleanupHandler::remove(QObject *object)
 {
     int index;
     if ((index = cleanupObjects.indexOf(object)) != -1) {
-	cleanupObjects.removeAt(index);
-	disconnect( object, SIGNAL(destroyed(QObject*)), this, SLOT(objectDestroyed(QObject*)) );
+        cleanupObjects.removeAt(index);
+        disconnect(object, SIGNAL(destroyed(QObject*)), this, SLOT(objectDestroyed(QObject*)));
     }
 }
 
 /*!
-    Returns TRUE if this cleanup handler is empty or if all objects in
-    this cleanup handler have been destroyed; otherwise return FALSE.
+    Returns true if this cleanup handler is empty or if all objects in
+    this cleanup handler have been destroyed; otherwise return false.
 */
 bool QObjectCleanupHandler::isEmpty() const
 {
@@ -127,7 +127,7 @@ bool QObjectCleanupHandler::isEmpty() const
 void QObjectCleanupHandler::clear()
 {
     while (!cleanupObjects.isEmpty())
-	delete cleanupObjects.takeFirst();
+        delete cleanupObjects.takeFirst();
 }
 
 void QObjectCleanupHandler::objectDestroyed(QObject *object)

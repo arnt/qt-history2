@@ -80,7 +80,7 @@ static const char *paperSourceNames[] = {
 struct PaperSourceNames
 {
     PaperSourceNames(const char *nam, QPrinter::PaperSource ps)
-	: paperSource(ps), name(nam) {}
+        : paperSource(ps), name(nam) {}
     QPrinter::PaperSource paperSource;
     const char *name;
 };
@@ -136,7 +136,7 @@ QPageSetupDialog::QPageSetupDialog(QPrinter *printer, QWidget *parent, const cha
 
     QHBoxLayout *buttonLayout = new QHBoxLayout(0, 0, 6, "layout2");
     QSpacerItem *buttonSpacer = new QSpacerItem(71, 20, QSizePolicy::Expanding,
-						QSizePolicy::Minimum);
+                                                QSizePolicy::Minimum);
     QPushButton *okButton = new QPushButton(tr("OK"), this, "okButton");
     QPushButton *cancelButton = new QPushButton(tr("Cancel"), this, "cancelButton");
 
@@ -149,12 +149,12 @@ QPageSetupDialog::QPageSetupDialog(QPrinter *printer, QWidget *parent, const cha
     clearWState(WState_Polished);
 
     for (int i=0; pageSizeNames[i]; ++i)
-	d->pageSize->insertItem(pageSizeNames[i]);
+        d->pageSize->insertItem(pageSizeNames[i]);
     d->pageSize->setCurrentItem(printer->pageSize());
 
 #ifdef PSD_ENABLE_PAPERSOURCE
     for (int i=0; paperSourceNames[i]; ++i)
- 	d->paperSource->insertItem(paperSourceNames[i]);
+        d->paperSource->insertItem(paperSourceNames[i]);
     d->paperSource->setCurrentItem(printer->paperSource());
 #endif
 

@@ -56,17 +56,17 @@ public:
    following code snippet.
 
    \code
-   int main( int argc, char **argv )
+   int main(int argc, char **argv)
    {
-       QApplication app( argc, argv );
-       QPixmap pixmap( "splash.png" );
-       QSplashScreen *splash = new QSplashScreen( pixmap );
+       QApplication app(argc, argv);
+       QPixmap pixmap("splash.png");
+       QSplashScreen *splash = new QSplashScreen(pixmap);
        splash->show();
        QMainWindow *mainWin = new QMainWindow;
        ...
-       app.setMainWidget( mainWin );
+       app.setMainWidget(mainWin);
        mainWin->show();
-       splash->finish( mainWin );
+       splash->finish(mainWin);
        delete splash;
        return app.exec();
    }
@@ -86,13 +86,13 @@ public:
    call QApplication::processEvents() to receive the mouse clicks.
 
    \code
-   QSplashScreen *splash = new QSplashScreen( "splash.png" );
+   QSplashScreen *splash = new QSplashScreen("splash.png");
    splash->show();
    ... // Loading some items
-   splash->message( "Loaded modules" );
+   splash->message("Loaded modules");
    qApp->processEvents();
    ... // Establishing connections
-   splash->message( "Established connections" );
+   splash->message("Established connections");
    qApp->processEvents();
    \endcode
 
@@ -104,12 +104,12 @@ public:
     There should be no need to set the widget flags, \a f, except
     perhaps \c WDestructiveClose.
 */
-QSplashScreen::QSplashScreen( const QPixmap &pixmap, WFlags f )
-    : QWidget( 0, 0, WStyle_Customize | WStyle_Splash | f )
+QSplashScreen::QSplashScreen(const QPixmap &pixmap, WFlags f)
+    : QWidget(0, 0, WStyle_Customize | WStyle_Splash | f)
 {
     d = new QSplashScreenPrivate();
     d->pixmap = pixmap;
-    setPixmap( d->pixmap );  // Does an implicit repaint
+    setPixmap(d->pixmap);  // Does an implicit repaint
 }
 
 /*!
@@ -123,7 +123,7 @@ QSplashScreen::~QSplashScreen()
 /*!
     \reimp
 */
-void QSplashScreen::mousePressEvent( QMouseEvent * )
+void QSplashScreen::mousePressEvent(QMouseEvent *)
 {
     hide();
 }
@@ -142,7 +142,7 @@ void QSplashScreen::repaint()
 }
 
 /*!
-    \fn QSplashScreen::messageChanged( const QString &message )
+    \fn QSplashScreen::messageChanged(const QString &message)
 
     This signal is emitted when the message on the splash screen
     changes. \a message is the new message and is a null-string
@@ -159,13 +159,13 @@ void QSplashScreen::repaint()
 
     \sa Qt::AlignmentFlags clear()
 */
-void QSplashScreen::message( const QString &message, int alignment,
-			     const QColor &color )
+void QSplashScreen::message(const QString &message, int alignment,
+                             const QColor &color)
 {
     d->currStatus = message;
     d->currAlign = alignment;
     d->currColor = color;
-    emit messageChanged( d->currStatus );
+    emit messageChanged(d->currStatus);
     repaint();
 }
 
@@ -177,7 +177,7 @@ void QSplashScreen::message( const QString &message, int alignment,
 void QSplashScreen::clear()
 {
     d->currStatus = QString::null;
-    emit messageChanged( d->currStatus );
+    emit messageChanged(d->currStatus);
     repaint();
 }
 
@@ -185,12 +185,12 @@ void QSplashScreen::clear()
     Makes the splash screen wait until the widget \a mainWin is
     displayed before calling close() on itself.
 */
-void QSplashScreen::finish( QWidget *mainWin )
+void QSplashScreen::finish(QWidget *mainWin)
 {
-    if ( mainWin ) {
+    if (mainWin) {
 #if defined(Q_WS_X11)
-	extern void qt_wait_for_window_manager( QWidget *mainWin );
-	qt_wait_for_window_manager( mainWin );
+        extern void qt_wait_for_window_manager(QWidget *mainWin);
+        qt_wait_for_window_manager(mainWin);
 #endif
     }
     close();
@@ -200,12 +200,12 @@ void QSplashScreen::finish( QWidget *mainWin )
     Sets the pixmap that will be used as the splash screen's image to
     \a pixmap.
 */
-void QSplashScreen::setPixmap( const QPixmap &pixmap )
+void QSplashScreen::setPixmap(const QPixmap &pixmap)
 {
     d->pixmap = pixmap;
     QRect r(0, 0, d->pixmap.size().width(), d->pixmap.size().height());
-    resize( d->pixmap.size() );
-    move( QApplication::desktop()->screenGeometry().center() - r.center() );
+    resize(d->pixmap.size());
+    move(QApplication::desktop()->screenGeometry().center() - r.center());
     repaint();
 }
 
@@ -215,7 +215,7 @@ void QSplashScreen::setPixmap( const QPixmap &pixmap )
 */
 QPixmap* QSplashScreen::pixmap() const
 {
-    return &( d->pixmap );
+    return &(d->pixmap);
 }
 
 /*!
@@ -224,8 +224,8 @@ QPixmap* QSplashScreen::pixmap() const
 void QSplashScreen::drawContents()
 {
     QPixmap textPix = d->pixmap;
-    QPainter painter( &textPix, this );
-    drawContents( &painter );
+    QPainter painter(&textPix, this);
+    drawContents(&painter);
     QPalette p = palette();
     p.setBrush(backgroundRole(), QBrush(textPix));
     setPalette(p);
@@ -237,12 +237,12 @@ void QSplashScreen::drawContents()
     Reimplement this function if you want to do your own drawing on
     the splash screen.
 */
-void QSplashScreen::drawContents( QPainter *painter )
+void QSplashScreen::drawContents(QPainter *painter)
 {
-    painter->setPen( d->currColor );
+    painter->setPen(d->currColor);
     QRect r = rect();
-    r.setRect( r.x() + 5, r.y() + 5, r.width() - 10, r.height() - 10 );
-    painter->drawText( r, d->currAlign, d->currStatus );
+    r.setRect(r.x() + 5, r.y() + 5, r.width() - 10, r.height() - 10);
+    painter->drawText(r, d->currAlign, d->currStatus);
 }
 
 #endif //QT_NO_SPLASHSCREEN

@@ -28,37 +28,37 @@ class Q_GUI_EXPORT QColorDialog : public QDialog
     Q_OBJECT
 
 public:
-    static QColor getColor( const QColor& init = white, QWidget* parent=0, const char* name=0 );
-    static QRgb getRgba( QRgb, bool* ok = 0,
-			 QWidget* parent=0, const char* name=0 );
+    static QColor getColor(const QColor& init = white, QWidget* parent=0, const char* name=0);
+    static QRgb getRgba(QRgb, bool* ok = 0,
+                         QWidget* parent=0, const char* name=0);
 
     static int customCount();
-    static QRgb customColor( int );
-    static void setCustomColor( int, QRgb );
-    static void setStandardColor( int, QRgb );
+    static QRgb customColor(int);
+    static void setCustomColor(int, QRgb);
+    static void setStandardColor(int, QRgb);
 
 private:
     ~QColorDialog();
-    QColorDialog( QWidget* parent=0, const char* name=0, bool modal=FALSE );
+    QColorDialog(QWidget* parent=0, const char* name=0, bool modal=false);
 
-    void setColor( const QColor& );
+    void setColor(const QColor&);
     QColor color() const;
 
-    bool selectColor( const QColor& );
+    bool selectColor(const QColor&);
 
-    void setSelectedAlpha( int );
+    void setSelectedAlpha(int);
     int selectedAlpha() const;
 
-    void showCustom( bool=TRUE );
+    void showCustom(bool=true);
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
     QColorDialogPrivate *d;
     friend class QColorDialogPrivate;
     friend class QColorShower;
 
 #if defined(Q_DISABLE_COPY)
-    QColorDialog( const QColorDialog & );
-    QColorDialog& operator=( const QColorDialog & );
+    QColorDialog(const QColorDialog &);
+    QColorDialog& operator=(const QColorDialog &);
 #endif
 };
 

@@ -30,49 +30,49 @@ class Q_GUI_EXPORT QRangeControl
 {
 public:
     QRangeControl();
-    QRangeControl( int minValue, int maxValue,
-		   int lineStep, int pageStep, int value );
+    QRangeControl(int minValue, int maxValue,
+                   int lineStep, int pageStep, int value);
     virtual ~QRangeControl();
-    int		value()		const;
-    void	setValue( int );
-    void	addPage();
-    void	subtractPage();
-    void	addLine();
-    void	subtractLine();
+    int                value()                const;
+    void        setValue(int);
+    void        addPage();
+    void        subtractPage();
+    void        addLine();
+    void        subtractLine();
 
-    int		minValue()	const;
-    int		maxValue()	const;
-    void	setRange( int minValue, int maxValue );
-    void	setMinValue( int minVal );
-    void	setMaxValue( int minVal );
+    int                minValue()        const;
+    int                maxValue()        const;
+    void        setRange(int minValue, int maxValue);
+    void        setMinValue(int minVal);
+    void        setMaxValue(int minVal);
 
-    int		lineStep()	const;
-    int		pageStep()	const;
-    void	setSteps( int line, int page );
+    int                lineStep()        const;
+    int                pageStep()        const;
+    void        setSteps(int line, int page);
 
-    int		bound( int ) const;
+    int                bound(int) const;
 
 protected:
-    int		positionFromValue( int val, int space ) const;
-    int		valueFromPosition( int pos, int space ) const;
-    void	directSetValue( int val );
-    int		prevValue()	const;
+    int                positionFromValue(int val, int space) const;
+    int                valueFromPosition(int pos, int space) const;
+    void        directSetValue(int val);
+    int                prevValue()        const;
 
     virtual void valueChange();
     virtual void rangeChange();
     virtual void stepChange();
 
 private:
-    int		minVal, maxVal;
-    int		line, page;
-    int		val, prevVal;
+    int                minVal, maxVal;
+    int                line, page;
+    int                val, prevVal;
 
     QRangeControlPrivate * d;
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QRangeControl( const QRangeControl & );
-    QRangeControl &operator=( const QRangeControl & );
+    QRangeControl(const QRangeControl &);
+    QRangeControl &operator=(const QRangeControl &);
 #endif
 };
 
@@ -105,24 +105,24 @@ class Q_GUI_EXPORT QSpinWidget : public QWidget
 {
     Q_OBJECT
 public:
-    QSpinWidget( QWidget* parent=0, const char* name=0 );
+    QSpinWidget(QWidget* parent=0, const char* name=0);
     ~QSpinWidget();
 
-    void 	setEditWidget( QWidget * widget );
-    QWidget * 	editWidget();
+    void         setEditWidget(QWidget * widget);
+    QWidget *         editWidget();
 
     QRect upRect() const;
     QRect downRect() const;
 
-    void setUpEnabled( bool on );
-    void setDownEnabled( bool on );
+    void setUpEnabled(bool on);
+    void setDownEnabled(bool on);
 
     bool isUpEnabled() const;
     bool isDownEnabled() const;
 
     enum ButtonSymbols { UpDownArrows, PlusMinus };
-    virtual void	setButtonSymbols( ButtonSymbols bs );
-    ButtonSymbols	buttonSymbols() const;
+    virtual void        setButtonSymbols(ButtonSymbols bs);
+    ButtonSymbols        buttonSymbols() const;
 
     void arrange();
 
@@ -133,17 +133,17 @@ signals:
 public slots:
     void stepUp();
     void stepDown();
-    
+
 protected:
-    void mousePressEvent( QMouseEvent *e );
-    void resizeEvent( QResizeEvent* ev );
-    void mouseReleaseEvent( QMouseEvent *e );
-    void mouseMoveEvent( QMouseEvent *e );
+    void mousePressEvent(QMouseEvent *e);
+    void resizeEvent(QResizeEvent* ev);
+    void mouseReleaseEvent(QMouseEvent *e);
+    void mouseMoveEvent(QMouseEvent *e);
 #ifndef QT_NO_WHEELEVENT
-    void wheelEvent( QWheelEvent * );
+    void wheelEvent(QWheelEvent *);
 #endif
-    void changeEvent( QEvent * );
-    void paintEvent( QPaintEvent * );
+    void changeEvent(QEvent *);
+    void paintEvent(QPaintEvent *);
 
 private slots:
     void timerDone();
@@ -154,10 +154,10 @@ private:
 
     void updateDisplay();
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QSpinWidget( const QSpinWidget& );
-    QSpinWidget& operator=( const QSpinWidget& );
+    QSpinWidget(const QSpinWidget&);
+    QSpinWidget& operator=(const QSpinWidget&);
 #endif
 };
 

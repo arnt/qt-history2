@@ -22,7 +22,7 @@
 #include <stdlib.h>
 
 #ifndef QT_NO_QWS_CURSOR
-bool qt_sw_cursor=FALSE;
+bool qt_sw_cursor=false;
 QScreenCursor * qt_screencursor=0;
 #endif
 QScreen * qt_screen=0;
@@ -31,10 +31,10 @@ extern bool qws_screen_is_interlaced; //### hack, from qapplication_qws.cpp
 
 ClearCacheFunc QScreen::clearCacheFunc = 0;
 
-QGfx *QGfx::createGfx( int depth, unsigned char *buffer, int w, int h,
-			     int offs )
+QGfx *QGfx::createGfx(int depth, unsigned char *buffer, int w, int h,
+                             int offs)
 {
-    return qt_screen->createGfx( buffer, w, h, depth, offs );
+    return qt_screen->createGfx(buffer, w, h, depth, offs);
 }
 
 void QGfx::setSource(unsigned char *,int,int,int,int,QRgb *,int)
@@ -64,34 +64,34 @@ void QGfx::setScreen(QScreen *,QScreenCursor *,bool,int *,int *)
 */
 
 /*!
-    \fn QScreen::setDirty( const QRect& )
+    \fn QScreen::setDirty(const QRect&)
 
     Indicates which section of the screen has been altered. Used by
     the VNC and VFB displays; the QScreen version does nothing.
 */
 
-void QScreen::setDirty( const QRect& )
+void QScreen::setDirty(const QRect&)
 {
 }
 
 /*!
     \fn QScreen::isTransformed() const
 
-    Returns TRUE if the screen is transformed (for instance, rotated
-    90 degrees); otherwise returns FALSE. QScreen's version always
-    returns FALSE.
+    Returns true if the screen is transformed (for instance, rotated
+    90 degrees); otherwise returns false. QScreen's version always
+    returns false.
 */
 
 bool QScreen::isTransformed() const
 {
-    return FALSE;
+    return false;
 }
 
 /*!
     \fn QScreen::isInterlaced() const
 
-    Returns TRUE if the display is interlaced (for instance a
-    television screen); otherwise returns FALSE. If TRUE, drawing is
+    Returns true if the display is interlaced (for instance a
+    television screen); otherwise returns false. If true, drawing is
     altered to look better on such displays.
 */
 
@@ -101,32 +101,32 @@ bool QScreen::isInterlaced() const
 }
 
 /*!
-    \fn QScreen::mapToDevice( const QSize &s ) const
+    \fn QScreen::mapToDevice(const QSize &s) const
 
     Map a user coordinate to the one to actually draw. Used by the
     rotated driver; the QScreen implementation simply returns \a s.
 */
 
-QSize QScreen::mapToDevice( const QSize &s ) const
+QSize QScreen::mapToDevice(const QSize &s) const
 {
     return s;
 }
 
 /*!
-    \fn QScreen::mapFromDevice( const QSize &s ) const
+    \fn QScreen::mapFromDevice(const QSize &s) const
 
     Map a framebuffer coordinate to the coordinate space used by the
     application. Used by the rotated driver; the QScreen
     implementation simply returns \a s.
 */
 
-QSize QScreen::mapFromDevice( const QSize &s ) const
+QSize QScreen::mapFromDevice(const QSize &s) const
 {
     return s;
 }
 
 /*!
-    \fn QScreen::mapToDevice( const QPoint &, const QSize & ) const
+    \fn QScreen::mapToDevice(const QPoint &, const QSize &) const
     \overload
 
     Map a user coordinate to the one to actually draw. Used by the
@@ -134,13 +134,13 @@ QSize QScreen::mapFromDevice( const QSize &s ) const
     point passed in.
 */
 
-QPoint QScreen::mapToDevice( const QPoint &p, const QSize & ) const
+QPoint QScreen::mapToDevice(const QPoint &p, const QSize &) const
 {
     return p;
 }
 
 /*!
-    \fn QScreen::mapFromDevice( const QPoint &, const QSize & ) const
+    \fn QScreen::mapFromDevice(const QPoint &, const QSize &) const
     \overload
 
     Map a framebuffer coordinate to the coordinate space used by the
@@ -148,26 +148,26 @@ QPoint QScreen::mapToDevice( const QPoint &p, const QSize & ) const
     implementation simply returns the point.
 */
 
-QPoint QScreen::mapFromDevice( const QPoint &p, const QSize & ) const
+QPoint QScreen::mapFromDevice(const QPoint &p, const QSize &) const
 {
     return p;
 }
 
 /*!
-    \fn QScreen::mapToDevice( const QRect &r, const QSize & ) const
+    \fn QScreen::mapToDevice(const QRect &r, const QSize &) const
     \overload
 
     Map a user coordinate to the one to actually draw. Used by the
     rotated driver; the QScreen implementation simply returns \a r.
 */
 
-QRect QScreen::mapToDevice( const QRect &r, const QSize & ) const
+QRect QScreen::mapToDevice(const QRect &r, const QSize &) const
 {
     return r;
 }
 
 /*!
-    \fn QScreen::mapFromDevice( const QRect &r, const QSize & ) const
+    \fn QScreen::mapFromDevice(const QRect &r, const QSize &) const
     \overload
 
     Map a framebuffer coordinate to the coordinate space used by the
@@ -175,13 +175,13 @@ QRect QScreen::mapToDevice( const QRect &r, const QSize & ) const
     implementation simply returns \a r.
 */
 
-QRect QScreen::mapFromDevice( const QRect &r, const QSize & ) const
+QRect QScreen::mapFromDevice(const QRect &r, const QSize &) const
 {
     return r;
 }
 
 /*!
-    \fn QScreen::mapToDevice( const QImage &i ) const
+    \fn QScreen::mapToDevice(const QImage &i) const
     \overload
 
     Transforms an image so that it fits the device coordinate space
@@ -189,13 +189,13 @@ QRect QScreen::mapFromDevice( const QRect &r, const QSize & ) const
     implementation simply returns \a i.
 */
 
-QImage QScreen::mapToDevice( const QImage &i ) const
+QImage QScreen::mapToDevice(const QImage &i) const
 {
     return i;
 }
 
 /*!
-    \fn QScreen::mapFromDevice( const QImage &i ) const
+    \fn QScreen::mapFromDevice(const QImage &i) const
     \overload
 
     Transforms an image so that it matches the application coordinate
@@ -203,13 +203,13 @@ QImage QScreen::mapToDevice( const QImage &i ) const
     implementation simply returns \a i.
 */
 
-QImage QScreen::mapFromDevice( const QImage &i ) const
+QImage QScreen::mapFromDevice(const QImage &i) const
 {
     return i;
 }
 
 /*!
-    \fn QScreen::mapToDevice( const QRegion &r, const QSize & ) const
+    \fn QScreen::mapToDevice(const QRegion &r, const QSize &) const
     \overload
 
     Transforms a region so that it fits the device coordinate space
@@ -217,13 +217,13 @@ QImage QScreen::mapFromDevice( const QImage &i ) const
     implementation simply returns \a r.
 */
 
-QRegion QScreen::mapToDevice( const QRegion &r, const QSize & ) const
+QRegion QScreen::mapToDevice(const QRegion &r, const QSize &) const
 {
     return r;
 }
 
 /*!
-    \fn QScreen::mapFromDevice( const QRegion &r, const QSize & ) const
+    \fn QScreen::mapFromDevice(const QRegion &r, const QSize &) const
     \overload
 
     Transforms a region so that it matches the application coordinate
@@ -231,7 +231,7 @@ QRegion QScreen::mapToDevice( const QRegion &r, const QSize & ) const
     implementation simply returns \a r.
 */
 
-QRegion QScreen::mapFromDevice( const QRegion &r, const QSize & ) const
+QRegion QScreen::mapFromDevice(const QRegion &r, const QSize &) const
 {
     return r;
 }
@@ -289,12 +289,12 @@ static QScreen * qt_dodriver(char * driver,char * a,unsigned char * b)
     void * handle;
     handle=dlopen(buf,RTLD_LAZY);
     if(handle==0) {
-	qFatal("Module load error");
+        qFatal("Module load error");
     }
     QScreen *(*qt_get_screen_func)(char *,unsigned char *);
     qt_get_screen_func=dlsym(handle,"qt_get_screen");
     if(qt_get_screen_func==0) {
-	qFatal("Couldn't get symbol");
+        qFatal("Couldn't get symbol");
     }
     QScreen * ret=qt_get_screen_func(a,b);
     return ret;
@@ -306,33 +306,33 @@ static QScreen * qt_do_entry(char * entry)
 
     FILE * f=fopen(entry,"r");
     if(!f) {
-	return 0;
+        return 0;
     }
 
     int r=fread(config,256,1,f);
     if(r<1)
-	return 0;
+        return 0;
 
     fclose(f);
 
     unsigned short vendorid=*((unsigned short int *)config);
     unsigned short deviceid=*(((unsigned short int *)config)+1);
     if(config[0xb]!=3)
-	return 0;
+        return 0;
 
     if(vendorid==0x1002) {
-	if(deviceid==0x4c4d) {
-	    qDebug("Compaq Armada/IBM Thinkpad's Mach64 card");
-	    return qt_dodriver("mach64.so",entry,config);
-	} else if(deviceid==0x4742) {
-	    qDebug("Desktop Rage Pro Mach64 card");
-	    return qt_dodriver("mach64.so",entry,config);
-	} else {
-	    qDebug("Unrecognised ATI card id %x",deviceid);
-	    return 0;
-	}
+        if(deviceid==0x4c4d) {
+            qDebug("Compaq Armada/IBM Thinkpad's Mach64 card");
+            return qt_dodriver("mach64.so",entry,config);
+        } else if(deviceid==0x4742) {
+            qDebug("Desktop Rage Pro Mach64 card");
+            return qt_dodriver("mach64.so",entry,config);
+        } else {
+            qDebug("Unrecognised ATI card id %x",deviceid);
+            return 0;
+        }
     } else {
-	qDebug("Unrecognised vendor");
+        qDebug("Unrecognised vendor");
     }
     return 0;
 }
@@ -344,40 +344,40 @@ extern bool qws_accel;
 QScreen * qt_probe_bus()
 {
     if(!qws_accel) {
-	return qt_dodriver("unaccel.so",0,0);
+        return qt_dodriver("unaccel.so",0,0);
     }
 
     DIR * dirptr=opendir("/proc/bus/pci");
     if(!dirptr)
-	return qt_dodriver("unaccel.so",0,0);
+        return qt_dodriver("unaccel.so",0,0);
     DIR * dirptr2;
     dirent * cards;
 
     dirent * busses=readdir(dirptr);
 
     while(busses) {
-	if(busses->d_name[0]!='.') {
-	    char buf[100];
-	    strcpy(buf,"/proc/bus/pci/");
-	    qstrcpy(buf+14,busses->d_name);
-	    int p=strlen(buf);
-	    dirptr2=opendir(buf);
-	    if(dirptr2) {
-		cards=readdir(dirptr2);
-		while(cards) {
-		    if(cards->d_name[0]!='.') {
-			buf[p]='/';
-			qstrcpy(buf+p+1,cards->d_name);
-			QScreen * ret=qt_do_entry(buf);
-			if(ret)
-			    return ret;
-		    }
-		    cards=readdir(dirptr2);
-		}
-		closedir(dirptr2);
-	    }
-	}
-	busses=readdir(dirptr);
+        if(busses->d_name[0]!='.') {
+            char buf[100];
+            strcpy(buf,"/proc/bus/pci/");
+            qstrcpy(buf+14,busses->d_name);
+            int p=strlen(buf);
+            dirptr2=opendir(buf);
+            if(dirptr2) {
+                cards=readdir(dirptr2);
+                while(cards) {
+                    if(cards->d_name[0]!='.') {
+                        buf[p]='/';
+                        qstrcpy(buf+p+1,cards->d_name);
+                        QScreen * ret=qt_do_entry(buf);
+                        if(ret)
+                            return ret;
+                    }
+                    cards=readdir(dirptr2);
+                }
+                closedir(dirptr2);
+            }
+        }
+        busses=readdir(dirptr);
     }
     closedir(dirptr);
 
@@ -393,23 +393,23 @@ const unsigned char* qt_probe_bus()
     const char * slot;
     slot=getenv("QWS_CARD_SLOT");
     if(!slot)
-	slot=qt_qws_hardcoded_slot;
-    if ( slot ) {
-	static unsigned char config[256];
-	FILE * f=fopen(slot,"r");
-	if(!f) {
-	    qDebug("Open failure for %s",slot);
-	    slot=0;
-	} else {
-	    int r=fread((char*)config,256,1,f);
-	    fclose(f);
-	    if(r<1) {
-		qDebug("Read failure");
-		return 0;
-	    } else {
-		return config;
-	    }
-	}
+        slot=qt_qws_hardcoded_slot;
+    if (slot) {
+        static unsigned char config[256];
+        FILE * f=fopen(slot,"r");
+        if(!f) {
+            qDebug("Open failure for %s",slot);
+            slot=0;
+        } else {
+            int r=fread((char*)config,256,1,f);
+            fclose(f);
+            if(r<1) {
+                qDebug("Read failure");
+                return 0;
+            } else {
+                return config;
+            }
+        }
     }
     return 0;
 }

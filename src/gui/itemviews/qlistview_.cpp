@@ -34,15 +34,15 @@ QListModel::QListModel(QObject *parent)
 QListView_Item QListModel::item(int row) const
 {
     if (row >= 0 && row < (int)lst.count())
-	return lst.at(row);
+        return lst.at(row);
     else
-	return QListView_Item(); // FIXME we need invalid?
+        return QListView_Item(); // FIXME we need invalid?
 }
 
 void QListModel::setItem(int row, const QListView_Item &item)
 {
     if (row >= 0 && row < (int)lst.count())
-	lst[row] = item;
+        lst[row] = item;
 }
 
 int QListModel::rowCount(const QModelIndex &) const
@@ -58,14 +58,14 @@ int QListModel::columnCount(const QModelIndex &) const
 QVariant QListModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || index.row() >= (int)lst.count())
-	return QVariant();
+        return QVariant();
     return lst.at(index.row()).data(role);
 }
 
 void QListModel::setData(const QModelIndex &index, int role, const QVariant &value)
 {
     if (!index.isValid() || index.row() >= (int)lst.count())
-	return;
+        return;
     lst[index.row()].setData(role, value);
     emit contentsChanged(index, index);
 }
@@ -75,10 +75,10 @@ QModelIndex QListModel::insertItem(const QModelIndex &index)
     QListView_Item item;
     QModelIndex insert = index;
     if (insert.isValid() && insert.row() < rowCount()) {
- 	lst.insert(insert.row(), item);
+        lst.insert(insert.row(), item);
     } else {
- 	lst.append(item);
-	insert = QModelIndex(lst.count() - 1, 0);
+        lst.append(item);
+        insert = QModelIndex(lst.count() - 1, 0);
     }
     return insert;
 }
@@ -86,14 +86,14 @@ QModelIndex QListModel::insertItem(const QModelIndex &index)
 bool QListModel::isSelectable(const QModelIndex &index) const
 {
     if (!index.isValid() || index.row() >= (int)lst.count())
-	return false;
+        return false;
     return lst.at(index.row()).isSelectable();
 }
 
 bool QListModel::isEditable(const QModelIndex &index) const
 {
     if (!index.isValid() || index.row() >= (int)lst.count())
-	return false;
+        return false;
     return lst.at(index.row()).isEditable();
 }
 
@@ -107,14 +107,14 @@ void QListModel::append(const QListView_Item &item)
 bool QListView_Item::operator ==(const QListView_Item &other) const
 {
     if (values.count() != other.values.count()
-	|| edit != other.edit
-	|| select != other.select)
-	return false;
+        || edit != other.edit
+        || select != other.select)
+        return false;
 
     for (int i=0; values.count(); ++i)
-	if (values.at(i).role != other.values.at(i).role
-	    || values.at(i).value != other.values.at(i).value)
-	    return false;
+        if (values.at(i).role != other.values.at(i).role
+            || values.at(i).value != other.values.at(i).value)
+            return false;
 
     return true;
 }
@@ -123,8 +123,8 @@ QVariant QListView_Item::data(int role) const
 {
     role = (role == QAbstractItemModel::Edit ? QAbstractItemModel::Display : role);
     for (int i = 0; i < values.count(); ++i) {
-	if (values.at(i).role == role)
-	    return values.at(i).value;
+        if (values.at(i).role == role)
+            return values.at(i).value;
     }
     return QVariant();
 }
@@ -133,10 +133,10 @@ void QListView_Item::setData(int role, const QVariant &value)
 {
     role = (role == QAbstractItemModel::Edit ? QAbstractItemModel::Display : role);
     for (int i = 0; i < values.count(); ++i) {
-	if (values.at(i).role == role) {
-	    values[i].value = value;
-	    return;
-	}
+        if (values.at(i).role == role) {
+            values[i].value = value;
+            return;
+        }
     }
     values.append(Data(role, value));
 }
@@ -176,13 +176,13 @@ void QListView_::setIconSet(int row, const QIconSet &iconSet)
 QString QListView_::text(int row) const
 {
     return model()->data(model()->index(row,0),
-			 QAbstractItemModel::Display).toString();
+                         QAbstractItemModel::Display).toString();
 }
 
 QIconSet QListView_::iconSet(int row) const
 {
     return model()->data(model()->index(row,0),
-			 QAbstractItemModel::Decoration).toIconSet();
+                         QAbstractItemModel::Decoration).toIconSet();
 }
 
 QListView_Item QListView_::item(int row) const

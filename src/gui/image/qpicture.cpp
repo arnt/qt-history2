@@ -52,19 +52,19 @@
     \code
     QPicture  pic;
     QPainter  p;
-    p.begin( &pic );               // paint in picture
-    p.drawEllipse( 10,20, 80,70 ); // draw an ellipse
+    p.begin(&pic);               // paint in picture
+    p.drawEllipse(10,20, 80,70); // draw an ellipse
     p.end();                       // painting done
-    pic.save( "drawing.pic" );     // save picture
+    pic.save("drawing.pic");     // save picture
     \endcode
 
     Example of how to replay a picture:
     \code
     QPicture  pic;
-    pic.load( "drawing.pic" );     // load picture
+    pic.load("drawing.pic");     // load picture
     QPainter  p;
-    p.begin( &myWidget );          // paint in myWidget
-    p.drawPicture( pic );          // draw the picture
+    p.begin(&myWidget);          // paint in myWidget
+    p.drawPicture(pic);          // draw the picture
     p.end();                       // painting done
     \endcode
 
@@ -103,24 +103,24 @@ const Q_UINT16 mfhdr_min = 0; // minor version #
     and needs no special coding; the format is automatically detected.
 */
 
-QPicture::QPicture( int formatVersion )
-    : QPaintDevice( QInternal::Picture | QInternal::ExternalDevice ),
+QPicture::QPicture(int formatVersion)
+    : QPaintDevice(QInternal::Picture | QInternal::ExternalDevice),
       d_ptr(new QPicturePrivate)
 {
     d_ptr->q_ptr = this;
     d->paintEngine = 0;
 
-    if ( formatVersion == 0 )
-	qWarning( "QPicture: invalid format version 0" );
+    if (formatVersion == 0)
+        qWarning("QPicture: invalid format version 0");
 
     // still accept the 0 default from before Qt 3.0.
-    if ( formatVersion > 0 && formatVersion != (int)mfhdr_maj ) {
-	d->formatMajor = formatVersion;
-	d->formatMinor = 0;
-	d->formatOk = false;
+    if (formatVersion > 0 && formatVersion != (int)mfhdr_maj) {
+        d->formatMajor = formatVersion;
+        d->formatMinor = 0;
+        d->formatOk = false;
     }
     else {
-	d->resetFormat();
+        d->resetFormat();
     }
 }
 
@@ -128,8 +128,8 @@ QPicture::QPicture( int formatVersion )
     Constructs a \link shclass.html shallow copy\endlink of \a pic.
 */
 
-QPicture::QPicture( const QPicture &pic )
-    : QPaintDevice( QInternal::Picture | QInternal::ExternalDevice ), d_ptr(pic.d_ptr)
+QPicture::QPicture(const QPicture &pic)
+    : QPaintDevice(QInternal::Picture | QInternal::ExternalDevice), d_ptr(pic.d_ptr)
 {
     ++d->ref;
 }
@@ -148,7 +148,7 @@ QPicture::QPicture(QPicturePrivate &dptr)
 QPicture::~QPicture()
 {
     if (!--d->ref)
-	delete d;
+        delete d;
 }
 
 
@@ -184,12 +184,12 @@ QPicture::~QPicture()
     \sa data(), size()
 */
 
-void QPicture::setData( const char* data, uint size )
+void QPicture::setData(const char* data, uint size)
 {
     detach();
     QByteArray a(data, size);
-    d->pictb.setBuffer( a );			// set byte array in buffer
-    d->resetFormat();				// we'll have to check
+    d->pictb.setBuffer(a);                        // set byte array in buffer
+    d->resetFormat();                                // we'll have to check
 }
 
 
@@ -210,12 +210,12 @@ void QPicture::setData( const char* data, uint size )
     \sa save()
 */
 
-bool QPicture::load( const QString &fileName, const char *format )
+bool QPicture::load(const QString &fileName, const char *format)
 {
-    QFile f( fileName );
-    if ( !f.open(IO_ReadOnly) )
-	return false;
-    return load( &f, format );
+    QFile f(fileName);
+    if (!f.open(IO_ReadOnly))
+        return false;
+    return load(&f, format);
 }
 
 /*!
@@ -224,23 +224,23 @@ bool QPicture::load( const QString &fileName, const char *format )
     \a dev is the device to use for loading.
 */
 
-bool QPicture::load( QIODevice *dev, const char *format )
+bool QPicture::load(QIODevice *dev, const char *format)
 {
     if(format) {
 #ifndef QT_NO_PICTUREIO
-	QPictureIO io( dev, format );
-	bool result = io.read();
-	if ( result ) {
-	    operator=( io.picture() );
+        QPictureIO io(dev, format);
+        bool result = io.read();
+        if (result) {
+            operator=(io.picture());
 
-	} else if ( format )
+        } else if (format)
 #else
-	    bool result = false;
+            bool result = false;
 #endif
-	{
-	    qWarning( "QPicture::load: No such picture format: %s", format );
-	}
-	return result;
+        {
+            qWarning("QPicture::load: No such picture format: %s", format);
+        }
+        return result;
     }
 
     detach();
@@ -249,16 +249,16 @@ bool QPicture::load( QIODevice *dev, const char *format )
 #if 0 // ### debug - remember to remove me!
     QByteArray ba = a;
     for (int i = 1; i <=  ba.size(); ++i) {
-	fprintf(stderr,"%02x", (uchar) ba.at(i-1));
-	if ((i % 2) == 0)
-	    fprintf(stderr," ");
-	if ((i % 20) == 0)
-	    fprintf(stderr,"\n");
+        fprintf(stderr,"%02x", (uchar) ba.at(i-1));
+        if ((i % 2) == 0)
+            fprintf(stderr," ");
+        if ((i % 20) == 0)
+            fprintf(stderr,"\n");
     }
     fprintf(stderr,"\n###\n");
 #endif
 
-    d->pictb.setBuffer( a );			// set byte array in buffer
+    d->pictb.setBuffer(a);                        // set byte array in buffer
     return d->checkFormat();
 }
 
@@ -274,35 +274,35 @@ bool QPicture::load( QIODevice *dev, const char *format )
     \sa load()
 */
 
-bool QPicture::save( const QString &fileName, const char *format )
+bool QPicture::save(const QString &fileName, const char *format)
 {
-    if ( paintingActive() ) {
-	qWarning( "QPicture::save: still being painted on. "
-		  "Call QPainter::end() first" );
-	return false;
+    if (paintingActive()) {
+        qWarning("QPicture::save: still being painted on. "
+                  "Call QPainter::end() first");
+        return false;
     }
 
 
     if(format) {
 #ifndef QT_NO_PICTUREIO
-	QPictureIO io( fileName, format );
-	bool result = io.write();
-	if ( result ) {
-	    operator=( io.picture() );
-	} else if ( format )
+        QPictureIO io(fileName, format);
+        bool result = io.write();
+        if (result) {
+            operator=(io.picture());
+        } else if (format)
 #else
-	bool result = false;
+        bool result = false;
 #endif
-	{
-	    qWarning( "QPicture::save: No such picture format: %s", format );
-	}
-	return result;
+        {
+            qWarning("QPicture::save: No such picture format: %s", format);
+        }
+        return result;
     }
 
-    QFile f( fileName );
-    if ( !f.open(IO_WriteOnly) )
-	return false;
-    return save( &f, format );
+    QFile f(fileName);
+    if (!f.open(IO_WriteOnly))
+        return false;
+    return save(&f, format);
 }
 
 /*!
@@ -311,31 +311,31 @@ bool QPicture::save( const QString &fileName, const char *format )
     \a dev is the device to use for saving.
 */
 
-bool QPicture::save( QIODevice *dev, const char *format )
+bool QPicture::save(QIODevice *dev, const char *format)
 {
-    if ( paintingActive() ) {
-	qWarning( "QPicture::save: still being painted on. "
-		  "Call QPainter::end() first" );
-	return false;
+    if (paintingActive()) {
+        qWarning("QPicture::save: still being painted on. "
+                  "Call QPainter::end() first");
+        return false;
     }
 
     if(format) {
 #ifndef QT_NO_PICTUREIO
-	QPictureIO io( dev, format );
-	bool result = io.write();
-	if ( result ) {
-	    operator=( io.picture() );
-	} else if ( format )
+        QPictureIO io(dev, format);
+        bool result = io.write();
+        if (result) {
+            operator=(io.picture());
+        } else if (format)
 #else
-	bool result = false;
+        bool result = false;
 #endif
-	{
-	    qWarning( "QPicture::save: No such picture format: %s", format );
-	}
-	return result;
+        {
+            qWarning("QPicture::save: No such picture format: %s", format);
+        }
+        return result;
     }
 
-    dev->writeBlock( d->pictb.buffer(), d->pictb.buffer().size() );
+    dev->writeBlock(d->pictb.buffer(), d->pictb.buffer().size());
     return true;
 }
 
@@ -346,7 +346,7 @@ bool QPicture::save( QIODevice *dev, const char *format )
 
 QRect QPicture::boundingRect() const
 {
-    if ( !d->formatOk )
+    if (!d->formatOk)
         d_ptr->checkFormat();
     return d->brect;
 }
@@ -356,9 +356,9 @@ QRect QPicture::boundingRect() const
     calculated value is overridden.
 */
 
-void QPicture::setBoundingRect( const QRect &r )
+void QPicture::setBoundingRect(const QRect &r)
 {
-    if ( !d->formatOk )
+    if (!d->formatOk)
         d->checkFormat();
     d->brect = r;
 }
@@ -371,37 +371,37 @@ void QPicture::setBoundingRect( const QRect &r )
     with (x, y) = (0, 0).
 */
 
-bool QPicture::play( QPainter *painter )
+bool QPicture::play(QPainter *painter)
 {
-    if ( d->pictb.size() == 0 )			// nothing recorded
-	return true;
+    if (d->pictb.size() == 0)                        // nothing recorded
+        return true;
 
-    if ( !d->formatOk && !d->checkFormat() )
-	return false;
+    if (!d->formatOk && !d->checkFormat())
+        return false;
 
-    d->pictb.open( IO_ReadOnly );		// open buffer device
+    d->pictb.open(IO_ReadOnly);                // open buffer device
     QDataStream s;
-    s.setDevice( &d->pictb );			// attach data stream to buffer
-    s.device()->at( 10 );			// go directly to the data
-    s.setVersion( d->formatMajor == 4 ? 3 : d->formatMajor );
+    s.setDevice(&d->pictb);                        // attach data stream to buffer
+    s.device()->at(10);                        // go directly to the data
+    s.setVersion(d->formatMajor == 4 ? 3 : d->formatMajor);
 
     Q_UINT8  c, clen;
     Q_UINT32 nrecords;
     s >> c >> clen;
-    Q_ASSERT( c == PdcBegin );
+    Q_ASSERT(c == PdcBegin);
     // bounding rect was introduced in ver 4. Read in checkFormat().
-    if ( d->formatMajor >= 4 ) {
-	Q_INT32 dummy;
-	s >> dummy >> dummy >> dummy >> dummy;
+    if (d->formatMajor >= 4) {
+        Q_INT32 dummy;
+        s >> dummy >> dummy >> dummy >> dummy;
     }
     s >> nrecords;
-    if ( !exec( painter, s, nrecords ) ) {
-	qWarning( "QPicture::play: Format error" );
-	d->pictb.close();
-	return false;
+    if (!exec(painter, s, nrecords)) {
+        qWarning("QPicture::play: Format error");
+        d->pictb.close();
+        return false;
     }
     d->pictb.close();
-    return true;				// no end-command
+    return true;                                // no end-command
 }
 
 
@@ -411,265 +411,265 @@ bool QPicture::play( QPainter *painter )
   \a painter.
 */
 
-bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
+bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
 {
 #if defined(QT_DEBUG)
-    int		strm_pos;
+    int                strm_pos;
 #endif
-    Q_UINT8	c;				// command id
-    Q_UINT8	tiny_len;			// 8-bit length descriptor
-    Q_INT32	len, i1_32, i2_32;		// 32-bit length descriptor
-    Q_INT16	i_16, i1_16, i2_16;		// parameters...
-    Q_INT8	i_8;
-    Q_UINT32	ul;
-    QByteArray	str1;
-    QString	str;
-    QPoint	p, p1, p2;
-    QRect	r;
+    Q_UINT8        c;                                // command id
+    Q_UINT8        tiny_len;                        // 8-bit length descriptor
+    Q_INT32        len, i1_32, i2_32;                // 32-bit length descriptor
+    Q_INT16        i_16, i1_16, i2_16;                // parameters...
+    Q_INT8        i_8;
+    Q_UINT32        ul;
+    QByteArray        str1;
+    QString        str;
+    QPoint        p, p1, p2;
+    QRect        r;
     QPointArray a;
-    QColor	color;
-    QFont	font;
-    QPen	pen;
-    QBrush	brush;
-    QRegion	rgn;
+    QColor        color;
+    QFont        font;
+    QPen        pen;
+    QBrush        brush;
+    QRegion        rgn;
 #ifndef QT_NO_TRANSFORMATIONS
-    QWMatrix	matrix;
+    QWMatrix        matrix;
 #endif
 
-    while ( nrecords-- && !s.eof() ) {
-	s >> c;					// read cmd
-	s >> tiny_len;				// read param length
-	if ( tiny_len == 255 )			// longer than 254 bytes
-	    s >> len;
-	else
-	    len = tiny_len;
+    while (nrecords-- && !s.eof()) {
+        s >> c;                                        // read cmd
+        s >> tiny_len;                                // read param length
+        if (tiny_len == 255)                        // longer than 254 bytes
+            s >> len;
+        else
+            len = tiny_len;
 #if defined(QT_DEBUG)
-	strm_pos = s.device()->at();
+        strm_pos = s.device()->at();
 #endif
-	switch ( c ) {				// exec cmd
-	    case PdcNOP:
-		break;
-	    case PdcDrawPoint:
-		s >> p;
-		painter->drawPoint( p );
-		break;
-	    case PdcDrawPoints:
-		s >> a >> i1_32 >> i2_32;
-		painter->drawPoints(a, i1_32, i2_32);
-		break;
-	    case PdcDrawLine:
-		s >> p1 >> p2;
-		painter->drawLine( p1, p2 );
-		break;
-	    case PdcDrawRect:
-		s >> r;
-		painter->drawRect( r );
-		break;
-	    case PdcDrawRoundRect:
-		s >> r >> i1_16 >> i2_16;
-		painter->drawRoundRect( r, i1_16, i2_16 );
-		break;
-	    case PdcDrawWinFocusRect:
-		s >> r >> color;
-		painter->drawWinFocusRect( r, color );
-		break;
-	    case PdcDrawEllipse:
-		s >> r;
-		painter->drawEllipse( r );
-		break;
-	    case PdcDrawArc:
-		s >> r >> i1_16 >> i2_16;
-		painter->drawArc( r, i1_16, i2_16 );
-		break;
-	    case PdcDrawPie:
-		s >> r >> i1_16 >> i2_16;
-		painter->drawPie( r, i1_16, i2_16 );
-		break;
-	    case PdcDrawChord:
-		s >> r >> i1_16 >> i2_16;
-		painter->drawChord( r, i1_16, i2_16 );
-		break;
-	    case PdcDrawLineSegments:
-		s >> a;
-		painter->drawLineSegments( a );
-		break;
-	    case PdcDrawPolyline:
-		s >> a;
-		painter->drawPolyline( a );
-		break;
-	    case PdcDrawPolygon:
-		s >> a >> i_8;
-		painter->drawPolygon( a, i_8 );
-		break;
-	    case PdcDrawCubicBezier:
-		s >> a;
+        switch (c) {                                // exec cmd
+            case PdcNOP:
+                break;
+            case PdcDrawPoint:
+                s >> p;
+                painter->drawPoint(p);
+                break;
+            case PdcDrawPoints:
+                s >> a >> i1_32 >> i2_32;
+                painter->drawPoints(a, i1_32, i2_32);
+                break;
+            case PdcDrawLine:
+                s >> p1 >> p2;
+                painter->drawLine(p1, p2);
+                break;
+            case PdcDrawRect:
+                s >> r;
+                painter->drawRect(r);
+                break;
+            case PdcDrawRoundRect:
+                s >> r >> i1_16 >> i2_16;
+                painter->drawRoundRect(r, i1_16, i2_16);
+                break;
+            case PdcDrawWinFocusRect:
+                s >> r >> color;
+                painter->drawWinFocusRect(r, color);
+                break;
+            case PdcDrawEllipse:
+                s >> r;
+                painter->drawEllipse(r);
+                break;
+            case PdcDrawArc:
+                s >> r >> i1_16 >> i2_16;
+                painter->drawArc(r, i1_16, i2_16);
+                break;
+            case PdcDrawPie:
+                s >> r >> i1_16 >> i2_16;
+                painter->drawPie(r, i1_16, i2_16);
+                break;
+            case PdcDrawChord:
+                s >> r >> i1_16 >> i2_16;
+                painter->drawChord(r, i1_16, i2_16);
+                break;
+            case PdcDrawLineSegments:
+                s >> a;
+                painter->drawLineSegments(a);
+                break;
+            case PdcDrawPolyline:
+                s >> a;
+                painter->drawPolyline(a);
+                break;
+            case PdcDrawPolygon:
+                s >> a >> i_8;
+                painter->drawPolygon(a, i_8);
+                break;
+            case PdcDrawCubicBezier:
+                s >> a;
 #ifndef QT_NO_BEZIER
-		painter->drawCubicBezier( a );
+                painter->drawCubicBezier(a);
 #endif
-		break;
-	    case PdcDrawText:
-		s >> p >> str1;
-		painter->drawText( p, str1 );
-		break;
-	    case PdcDrawTextFormatted:
-		s >> r >> i_16 >> str1;
-		painter->drawText( r, i_16, str1 );
-		break;
-	    case PdcDrawText2:
-		s >> p >> str;
-		painter->drawText( p, str );
-		break;
-	    case PdcDrawText2Formatted:
-		s >> r >> i_16 >> str;
-		painter->drawText( r, i_16, str );
-		break;
-	    case PdcDrawPixmap: {
-		QPixmap pixmap;
-		if ( d->formatMajor < 4 ) {
-		    s >> p >> pixmap;
-		    painter->drawPixmap( p, pixmap );
-		} else {
-		    s >> r >> pixmap;
-		    painter->drawPixmap( r, pixmap );
-		}
-	    }
-		break;
-	    case PdcDrawTiledPixmap: {
-		QPixmap pixmap;
-		s >> r >> pixmap >> p;
-		painter->drawTiledPixmap(r, pixmap, p);
-	    }
-	    	break;
-	    case PdcDrawImage: {
-		QImage image;
-		if ( d->formatMajor < 4 ) {
-		    s >> p >> image;
-		    painter->drawImage( p, image );
-		} else {
-		    s >> r >> image;
-		    painter->drawImage( r, image );
-		}
-	    }
-		break;
-	    case PdcBegin:
-		s >> ul;			// number of records
-		if ( !exec( painter, s, ul ) )
-		    return false;
-		break;
-	    case PdcEnd:
-		if ( nrecords == 0 )
-		    return true;
-		break;
-	    case PdcSave:
-		painter->save();
-		break;
-	    case PdcRestore:
-		painter->restore();
-		break;
-	    case PdcSetBkColor:
-		s >> color;
-		painter->setBackground( color );
-		break;
-	    case PdcSetBkMode:
-		s >> i_8;
-		painter->setBackgroundMode( (Qt::BGMode)i_8 );
-		break;
-	    case PdcSetROP:
-		s >> i_8;
-		painter->setRasterOp( (Qt::RasterOp)i_8 );
-		break;
-	    case PdcSetBrushOrigin:
-		s >> p;
-		painter->setBrushOrigin( p );
-		break;
-	    case PdcSetFont:
-		s >> font;
-		painter->setFont( font );
-		break;
-	    case PdcSetPen:
-		s >> pen;
-		painter->setPen( pen );
-		break;
-	    case PdcSetBrush:
-		s >> brush;
-		painter->setBrush( brush );
-		break;
+                break;
+            case PdcDrawText:
+                s >> p >> str1;
+                painter->drawText(p, str1);
+                break;
+            case PdcDrawTextFormatted:
+                s >> r >> i_16 >> str1;
+                painter->drawText(r, i_16, str1);
+                break;
+            case PdcDrawText2:
+                s >> p >> str;
+                painter->drawText(p, str);
+                break;
+            case PdcDrawText2Formatted:
+                s >> r >> i_16 >> str;
+                painter->drawText(r, i_16, str);
+                break;
+            case PdcDrawPixmap: {
+                QPixmap pixmap;
+                if (d->formatMajor < 4) {
+                    s >> p >> pixmap;
+                    painter->drawPixmap(p, pixmap);
+                } else {
+                    s >> r >> pixmap;
+                    painter->drawPixmap(r, pixmap);
+                }
+            }
+                break;
+            case PdcDrawTiledPixmap: {
+                QPixmap pixmap;
+                s >> r >> pixmap >> p;
+                painter->drawTiledPixmap(r, pixmap, p);
+            }
+                break;
+            case PdcDrawImage: {
+                QImage image;
+                if (d->formatMajor < 4) {
+                    s >> p >> image;
+                    painter->drawImage(p, image);
+                } else {
+                    s >> r >> image;
+                    painter->drawImage(r, image);
+                }
+            }
+                break;
+            case PdcBegin:
+                s >> ul;                        // number of records
+                if (!exec(painter, s, ul))
+                    return false;
+                break;
+            case PdcEnd:
+                if (nrecords == 0)
+                    return true;
+                break;
+            case PdcSave:
+                painter->save();
+                break;
+            case PdcRestore:
+                painter->restore();
+                break;
+            case PdcSetBkColor:
+                s >> color;
+                painter->setBackground(color);
+                break;
+            case PdcSetBkMode:
+                s >> i_8;
+                painter->setBackgroundMode((Qt::BGMode)i_8);
+                break;
+            case PdcSetROP:
+                s >> i_8;
+                painter->setRasterOp((Qt::RasterOp)i_8);
+                break;
+            case PdcSetBrushOrigin:
+                s >> p;
+                painter->setBrushOrigin(p);
+                break;
+            case PdcSetFont:
+                s >> font;
+                painter->setFont(font);
+                break;
+            case PdcSetPen:
+                s >> pen;
+                painter->setPen(pen);
+                break;
+            case PdcSetBrush:
+                s >> brush;
+                painter->setBrush(brush);
+                break;
 // #ifdef Q_Q3PAINTER
-// 	case PdcSetTabStops:
-// 		s >> i_16;
-// 		painter->setTabStops( i_16 );
-// 		break;
-// 	    case PdcSetTabArray:
-// 		s >> i_16;
-// 		if ( i_16 == 0 ) {
-// 		    painter->setTabArray( 0 );
-// 		} else {
-// 		    int *ta = new int[i_16];
-// 		    for ( int i=0; i<i_16; i++ ) {
-// 			s >> i1_16;
-// 			ta[i] = i1_16;
-// 		    }
-// 		    painter->setTabArray( ta );
-// 		    delete [] ta;
-// 		}
-// 		break;
+//         case PdcSetTabStops:
+//                 s >> i_16;
+//                 painter->setTabStops(i_16);
+//                 break;
+//             case PdcSetTabArray:
+//                 s >> i_16;
+//                 if (i_16 == 0) {
+//                     painter->setTabArray(0);
+//                 } else {
+//                     int *ta = new int[i_16];
+//                     for (int i=0; i<i_16; i++) {
+//                         s >> i1_16;
+//                         ta[i] = i1_16;
+//                     }
+//                     painter->setTabArray(ta);
+//                     delete [] ta;
+//                 }
+//                 break;
 // #endif
-	    case PdcSetVXform:
-		s >> i_8;
+            case PdcSetVXform:
+                s >> i_8;
 #ifndef QT_NO_TRANSFORMATIONS
-		painter->setViewXForm( i_8 );
+                painter->setViewXForm(i_8);
 #endif
-		break;
-	    case PdcSetWindow:
-		s >> r;
+                break;
+            case PdcSetWindow:
+                s >> r;
 #ifndef QT_NO_TRANSFORMATIONS
-		painter->setWindow( r );
+                painter->setWindow(r);
 #endif
-		break;
-	    case PdcSetViewport:
-		s >> r;
+                break;
+            case PdcSetViewport:
+                s >> r;
 #ifndef QT_NO_TRANSFORMATIONS
-		painter->setViewport( r );
+                painter->setViewport(r);
 #endif
-		break;
-	    case PdcSetWXform:
-		s >> i_8;
+                break;
+            case PdcSetWXform:
+                s >> i_8;
 #ifndef QT_NO_TRANSFORMATIONS
-		painter->setWorldXForm( i_8 );
+                painter->setWorldXForm(i_8);
 #endif
-		break;
-	    case PdcSetWMatrix:
-#ifndef QT_NO_TRANSFORMATIONS	// #### fix me!
-		s >> matrix >> i_8;
-		painter->setWorldMatrix( matrix, i_8 );
+                break;
+            case PdcSetWMatrix:
+#ifndef QT_NO_TRANSFORMATIONS        // #### fix me!
+                s >> matrix >> i_8;
+                painter->setWorldMatrix(matrix, i_8);
 #endif
-		break;
+                break;
 #ifndef QT_NO_TRANSFORMATIONS
 // #ifdef Q_Q3PAINTER
-// 	    case PdcSaveWMatrix:
-// 		painter->saveWorldMatrix();
-// 		break;
-// 	    case PdcRestoreWMatrix:
-// 		painter->restoreWorldMatrix();
-// 		break;
+//             case PdcSaveWMatrix:
+//                 painter->saveWorldMatrix();
+//                 break;
+//             case PdcRestoreWMatrix:
+//                 painter->restoreWorldMatrix();
+//                 break;
 // #endif
 #endif
-	    case PdcSetClip:
-		s >> i_8;
-		painter->setClipping( i_8 );
-		break;
-	    case PdcSetClipRegion:
-		s >> rgn >> i_8;
-		painter->setClipRegion( rgn );
-		break;
-	    default:
-		qWarning( "QPicture::play: Invalid command %d", c );
-		if ( len )			// skip unknown command
-		    s.device()->at( s.device()->at()+len );
-	}
+            case PdcSetClip:
+                s >> i_8;
+                painter->setClipping(i_8);
+                break;
+            case PdcSetClipRegion:
+                s >> rgn >> i_8;
+                painter->setClipRegion(rgn);
+                break;
+            default:
+                qWarning("QPicture::play: Invalid command %d", c);
+                if (len)                        // skip unknown command
+                    s.device()->at(s.device()->at()+len);
+        }
 #if defined(QT_DEBUG)
-	//qDebug( "device->at(): %i, strm_pos: %i len: %i", s.device()->at(), strm_pos, len );
-	Q_ASSERT( Q_INT32(s.device()->at() - strm_pos) == len );
+        //qDebug("device->at(): %i, strm_pos: %i len: %i", s.device()->at(), strm_pos, len);
+        Q_ASSERT(Q_INT32(s.device()->at() - strm_pos) == len);
 #endif
     }
     return false;
@@ -681,230 +681,230 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
   \internal
   Implementation of the function forwarded above to the internal data struct.
 */
-bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
+bool QPicture::QPicturePrivate::cmd(int c, QPainter *pt, QPDevCmdParam *p)
 {
     QDataStream s;
-    s.setDevice( &pictb );
+    s.setDevice(&pictb);
     // when moving up to 4 the QDataStream version remained at 3
-    s.setVersion( formatMajor != 4 ? formatMajor : 3 );
-    if ( c ==  PdcBegin ) {			// begin; write header
-	QByteArray empty;
-	pictb.setBuffer( empty );		// reset byte array in buffer
-	pictb.open( IO_WriteOnly );
-	s.writeRawBytes( mfhdr_tag, 4 );
-	s << (Q_UINT16)0 << (Q_UINT16)formatMajor << (Q_UINT16)formatMinor;
-	s << (Q_UINT8)c << (Q_UINT8)sizeof(Q_INT32);
-	brect = QRect();
-	if ( formatMajor >= 4 ) {
-	    s << (Q_INT32)brect.left() << (Q_INT32)brect.top()
-	      << (Q_INT32)brect.width() << (Q_INT32)brect.height();
-	}
-	trecs = 0;
-	s << (Q_UINT32)trecs;			// total number of records
-	formatOk = false;
-	return true;
-    } else if ( c == PdcEnd ) {		// end; calc checksum and close
-	trecs++;
-	s << (Q_UINT8)c << (Q_UINT8)0;
-	QByteArray buf = pictb.buffer();
-	int cs_start = sizeof(Q_UINT32);		// pos of checksum word
-	int data_start = cs_start + sizeof(Q_UINT16);
-	int brect_start = data_start + 2*sizeof(Q_INT16) + 2*sizeof(Q_UINT8);
-	int pos = pictb.at();
-	pictb.at( brect_start );
-	if ( formatMajor >= 4 ) { // bounding rectangle
-	    s << (Q_INT32)brect.left() << (Q_INT32)brect.top()
-	      << (Q_INT32)brect.width() << (Q_INT32)brect.height();
-	}
-	s << (Q_UINT32)trecs;			// write number of records
-	pictb.at( cs_start );
-	Q_UINT16 cs = (Q_UINT16)qChecksum( buf.constData()+data_start, pos-data_start );
-	s << cs;				// write checksum
-	pictb.close();
-	return true;
+    s.setVersion(formatMajor != 4 ? formatMajor : 3);
+    if (c ==  PdcBegin) {                        // begin; write header
+        QByteArray empty;
+        pictb.setBuffer(empty);                // reset byte array in buffer
+        pictb.open(IO_WriteOnly);
+        s.writeRawBytes(mfhdr_tag, 4);
+        s << (Q_UINT16)0 << (Q_UINT16)formatMajor << (Q_UINT16)formatMinor;
+        s << (Q_UINT8)c << (Q_UINT8)sizeof(Q_INT32);
+        brect = QRect();
+        if (formatMajor >= 4) {
+            s << (Q_INT32)brect.left() << (Q_INT32)brect.top()
+              << (Q_INT32)brect.width() << (Q_INT32)brect.height();
+        }
+        trecs = 0;
+        s << (Q_UINT32)trecs;                        // total number of records
+        formatOk = false;
+        return true;
+    } else if (c == PdcEnd) {                // end; calc checksum and close
+        trecs++;
+        s << (Q_UINT8)c << (Q_UINT8)0;
+        QByteArray buf = pictb.buffer();
+        int cs_start = sizeof(Q_UINT32);                // pos of checksum word
+        int data_start = cs_start + sizeof(Q_UINT16);
+        int brect_start = data_start + 2*sizeof(Q_INT16) + 2*sizeof(Q_UINT8);
+        int pos = pictb.at();
+        pictb.at(brect_start);
+        if (formatMajor >= 4) { // bounding rectangle
+            s << (Q_INT32)brect.left() << (Q_INT32)brect.top()
+              << (Q_INT32)brect.width() << (Q_INT32)brect.height();
+        }
+        s << (Q_UINT32)trecs;                        // write number of records
+        pictb.at(cs_start);
+        Q_UINT16 cs = (Q_UINT16)qChecksum(buf.constData()+data_start, pos-data_start);
+        s << cs;                                // write checksum
+        pictb.close();
+        return true;
     }
     trecs++;
-    s << (Q_UINT8)c;				// write cmd to stream
-    s << (Q_UINT8)0;				// write dummy length info
-    int pos = (int)pictb.at();			// save position
-    QRect br;					// bounding rect addition
-    bool corr = false;				// correction for pen width
+    s << (Q_UINT8)c;                                // write cmd to stream
+    s << (Q_UINT8)0;                                // write dummy length info
+    int pos = (int)pictb.at();                        // save position
+    QRect br;                                        // bounding rect addition
+    bool corr = false;                                // correction for pen width
 
-    switch ( c ) {
-	case PdcDrawPoint:
-	case PdcMoveTo:
-	case PdcLineTo:
-	case PdcSetBrushOrigin:
-	    s << *p[0].point;
-	    br = QRect( *p[0].point, QSize( 1, 1 ) );
-	    corr = true;
-	    break;
-	case PdcDrawLine:
-	    s << *p[0].point << *p[1].point;
-	    br = QRect( *p[0].point, *p[1].point ).normalize();
-	    corr = true;
-	    break;
-	case PdcDrawRect:
-	case PdcDrawEllipse:
-	    s << *p[0].rect;
-	    br = *p[0].rect;
-	    corr = true;
-	    break;
-	case PdcDrawRoundRect:
-	case PdcDrawArc:
-	case PdcDrawPie:
-	case PdcDrawChord:
-	    s << *p[0].rect << (Q_INT16)p[1].ival << (Q_INT16)p[2].ival;
-	    br = *p[0].rect;
-	    corr = true;
-	    break;
-	case PdcDrawLineSegments:
-	case PdcDrawPolyline:
-	    s << *p[0].ptarr;
-	    br = p[0].ptarr->boundingRect();
-	    corr = true;
-	    break;
+    switch (c) {
+        case PdcDrawPoint:
+        case PdcMoveTo:
+        case PdcLineTo:
+        case PdcSetBrushOrigin:
+            s << *p[0].point;
+            br = QRect(*p[0].point, QSize(1, 1));
+            corr = true;
+            break;
+        case PdcDrawLine:
+            s << *p[0].point << *p[1].point;
+            br = QRect(*p[0].point, *p[1].point).normalize();
+            corr = true;
+            break;
+        case PdcDrawRect:
+        case PdcDrawEllipse:
+            s << *p[0].rect;
+            br = *p[0].rect;
+            corr = true;
+            break;
+        case PdcDrawRoundRect:
+        case PdcDrawArc:
+        case PdcDrawPie:
+        case PdcDrawChord:
+            s << *p[0].rect << (Q_INT16)p[1].ival << (Q_INT16)p[2].ival;
+            br = *p[0].rect;
+            corr = true;
+            break;
+        case PdcDrawLineSegments:
+        case PdcDrawPolyline:
+            s << *p[0].ptarr;
+            br = p[0].ptarr->boundingRect();
+            corr = true;
+            break;
 #ifndef QT_NO_BEZIER
-	case PdcDrawCubicBezier:
-	    s << *p[0].ptarr;
-	    br = p[0].ptarr->cubicBezier().boundingRect();
-	    corr = true;
-	    break;
+        case PdcDrawCubicBezier:
+            s << *p[0].ptarr;
+            br = p[0].ptarr->cubicBezier().boundingRect();
+            corr = true;
+            break;
 #endif
-	case PdcDrawPolygon:
-	    s << *p[0].ptarr << (Q_INT8)p[1].ival;
-	    br = p[0].ptarr->boundingRect();
-	    corr = true;
-	    break;
-	case PdcDrawText2:
-	    if ( formatMajor == 1 ) {
-		pictb.at( pos - 2 );
-		s << (Q_UINT8)PdcDrawText << (Q_UINT8)0;
-		s << *p[0].point << (*p[1].str).toLatin1();
-	    }
-	    else {
-		s << *p[0].point << *p[1].str;
-	    }
-	    br = pt->fontMetrics().boundingRect( *p[1].str );
-	    br.moveBy( p[0].point->x(), p[0].point->y() );
-	    break;
-	case PdcDrawText2Formatted:
-	    if ( formatMajor == 1 ) {
-		pictb.at( pos - 2 );
-		s << (Q_UINT8)PdcDrawTextFormatted << (Q_UINT8)0;
-		s << *p[0].rect << (Q_INT16)p[1].ival << (*p[2].str).toLatin1();
-	    }
-	    else {
-		s << *p[0].rect << (Q_INT16)p[1].ival << *p[2].str;
-	    }
-	    br = *p[0].rect;
-	    break;
-	case PdcDrawPixmap:
-	    if ( formatMajor < 4 ) {
-		s << *p[0].point;
-		s << *p[1].pixmap;
-		br = QRect( *p[0].point, p[1].pixmap->size() );
-	    } else {
-		s << *p[0].rect;
-		s << *p[1].pixmap;
-		br = *p[0].rect;
-	    }
-	    break;
-	case PdcDrawImage:
-	    if ( formatMajor < 4 ) {
-		QPoint pt( p[0].point->x(), p[0].point->y() );
-		s << pt;
-		s << *p[1].image;
-		br = QRect( *p[0].point, p[1].image->size() );
-	    } else {
-		s << *p[0].rect;
-		s << *p[1].image;
-		br = *p[0].rect;
-	    }
-	    break;
-	case PdcSave:
-	case PdcRestore:
-	    break;
-	case PdcSetBkColor:
-	    s << *p[0].color;
-	    break;
-	case PdcSetBkMode:
-	case PdcSetROP:
-	    s << (Q_INT8)p[0].ival;
-	    break;
-	case PdcSetFont:
-	    s << *p[0].font;
-	    break;
-	case PdcSetPen:
-	    s << *p[0].pen;
-	    break;
-	case PdcSetBrush:
-	    s << *p[0].brush;
-	    break;
-	case PdcSetTabStops:
-	    s << (Q_INT16)p[0].ival;
-	    break;
-	case PdcSetTabArray:
-	    s << (Q_INT16)p[0].ival;
-	    if ( p[0].ival ) {
-		int *ta = p[1].ivec;
-		for ( int i=0; i<p[0].ival; i++ )
-		    s << (Q_INT16)ta[i];
-	    }
-	    break;
-	case PdcSetUnit:
-	case PdcSetVXform:
-	case PdcSetWXform:
-	case PdcSetClip:
-	    s << (Q_INT8)p[0].ival;
-	    break;
+        case PdcDrawPolygon:
+            s << *p[0].ptarr << (Q_INT8)p[1].ival;
+            br = p[0].ptarr->boundingRect();
+            corr = true;
+            break;
+        case PdcDrawText2:
+            if (formatMajor == 1) {
+                pictb.at(pos - 2);
+                s << (Q_UINT8)PdcDrawText << (Q_UINT8)0;
+                s << *p[0].point << (*p[1].str).toLatin1();
+            }
+            else {
+                s << *p[0].point << *p[1].str;
+            }
+            br = pt->fontMetrics().boundingRect(*p[1].str);
+            br.moveBy(p[0].point->x(), p[0].point->y());
+            break;
+        case PdcDrawText2Formatted:
+            if (formatMajor == 1) {
+                pictb.at(pos - 2);
+                s << (Q_UINT8)PdcDrawTextFormatted << (Q_UINT8)0;
+                s << *p[0].rect << (Q_INT16)p[1].ival << (*p[2].str).toLatin1();
+            }
+            else {
+                s << *p[0].rect << (Q_INT16)p[1].ival << *p[2].str;
+            }
+            br = *p[0].rect;
+            break;
+        case PdcDrawPixmap:
+            if (formatMajor < 4) {
+                s << *p[0].point;
+                s << *p[1].pixmap;
+                br = QRect(*p[0].point, p[1].pixmap->size());
+            } else {
+                s << *p[0].rect;
+                s << *p[1].pixmap;
+                br = *p[0].rect;
+            }
+            break;
+        case PdcDrawImage:
+            if (formatMajor < 4) {
+                QPoint pt(p[0].point->x(), p[0].point->y());
+                s << pt;
+                s << *p[1].image;
+                br = QRect(*p[0].point, p[1].image->size());
+            } else {
+                s << *p[0].rect;
+                s << *p[1].image;
+                br = *p[0].rect;
+            }
+            break;
+        case PdcSave:
+        case PdcRestore:
+            break;
+        case PdcSetBkColor:
+            s << *p[0].color;
+            break;
+        case PdcSetBkMode:
+        case PdcSetROP:
+            s << (Q_INT8)p[0].ival;
+            break;
+        case PdcSetFont:
+            s << *p[0].font;
+            break;
+        case PdcSetPen:
+            s << *p[0].pen;
+            break;
+        case PdcSetBrush:
+            s << *p[0].brush;
+            break;
+        case PdcSetTabStops:
+            s << (Q_INT16)p[0].ival;
+            break;
+        case PdcSetTabArray:
+            s << (Q_INT16)p[0].ival;
+            if (p[0].ival) {
+                int *ta = p[1].ivec;
+                for (int i=0; i<p[0].ival; i++)
+                    s << (Q_INT16)ta[i];
+            }
+            break;
+        case PdcSetUnit:
+        case PdcSetVXform:
+        case PdcSetWXform:
+        case PdcSetClip:
+            s << (Q_INT8)p[0].ival;
+            break;
 #ifndef QT_NO_TRANSFORMATIONS
-	case PdcSetWindow:
-	case PdcSetViewport:
-	    s << *p[0].rect;
-	    break;
-	case PdcSetWMatrix:
-	    s << *p[0].matrix << (Q_INT8)p[1].ival;
-	    break;
+        case PdcSetWindow:
+        case PdcSetViewport:
+            s << *p[0].rect;
+            break;
+        case PdcSetWMatrix:
+            s << *p[0].matrix << (Q_INT8)p[1].ival;
+            break;
 #endif
-	case PdcSetClipRegion:
-	    s << *p[0].rgn;
-	    s << (Q_INT8)p[1].ival;
-	    break;
-	default:
-	    qWarning( "QPicture::cmd: Command %d not recognized", c );
+        case PdcSetClipRegion:
+            s << *p[0].rgn;
+            s << (Q_INT8)p[1].ival;
+            break;
+        default:
+            qWarning("QPicture::cmd: Command %d not recognized", c);
     }
-    int newpos = (int)pictb.at();		// new position
+    int newpos = (int)pictb.at();                // new position
     int length = newpos - pos;
-    if ( length < 255 ) {			// write 8-bit length
-	pictb.at(pos - 1);			// position to right index
-	s << (Q_UINT8)length;
-    } else {					// write 32-bit length
-	s << (Q_UINT32)0;				// extend the buffer
-	pictb.at(pos - 1);			// position to right index
-	s << (Q_UINT8)255;			// indicate 32-bit length
-	char *p = pictb.buffer().data();
-	memmove( p+pos+4, p+pos, length );	// make room for 4 byte
-	s << (Q_UINT32)length;
-	newpos += 4;
+    if (length < 255) {                        // write 8-bit length
+        pictb.at(pos - 1);                        // position to right index
+        s << (Q_UINT8)length;
+    } else {                                        // write 32-bit length
+        s << (Q_UINT32)0;                                // extend the buffer
+        pictb.at(pos - 1);                        // position to right index
+        s << (Q_UINT8)255;                        // indicate 32-bit length
+        char *p = pictb.buffer().data();
+        memmove(p+pos+4, p+pos, length);        // make room for 4 byte
+        s << (Q_UINT32)length;
+        newpos += 4;
     }
-    pictb.at( newpos );				// set to new position
+    pictb.at(newpos);                                // set to new position
 
-    if ( br.isValid() ) {
-	if ( corr ) {				// widen bounding rect
-	    int w2 = pt->pen().width() / 2;
-	    br.setCoords( br.left() - w2, br.top() - w2,
-			  br.right() + w2, br.bottom() + w2 );
-	}
+    if (br.isValid()) {
+        if (corr) {                                // widen bounding rect
+            int w2 = pt->pen().width() / 2;
+            br.setCoords(br.left() - w2, br.top() - w2,
+                          br.right() + w2, br.bottom() + w2);
+        }
 #ifndef QT_NO_TRANSFORMATIONS
-	br = pt->worldMatrix().map( br );
+        br = pt->worldMatrix().map(br);
 #endif
-	if ( pt->hasClipping() ) {
-	    QRect cr = pt->clipRegion().boundingRect();
-	    br &= cr;
-	}
-	if ( br.isValid() )
-	    brect |= br;		     	// merge with existing rect
+        if (pt->hasClipping()) {
+            QRect cr = pt->clipRegion().boundingRect();
+            br &= cr;
+        }
+        if (br.isValid())
+            brect |= br;                        // merge with existing rect
     }
 
     return true;
@@ -923,40 +923,40 @@ bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
     \a m is the metric to get.
 */
 
-int QPicture::metric( int m ) const
+int QPicture::metric(int m) const
 {
     int val;
-    switch ( m ) {
-	// ### hard coded dpi and color depth values !
-	case QPaintDeviceMetrics::PdmWidth:
-	    val = d->brect.width();
-	    break;
-	case QPaintDeviceMetrics::PdmHeight:
-	    val = d->brect.height();
-	    break;
-	case QPaintDeviceMetrics::PdmWidthMM:
-	    val = int(25.4/72.0*d->brect.width());
-	    break;
-	case QPaintDeviceMetrics::PdmHeightMM:
-	    val = int(25.4/72.0*d->brect.height());
-	    break;
-	case QPaintDeviceMetrics::PdmDpiX:
-	case QPaintDeviceMetrics::PdmPhysicalDpiX:
-	    val = 72;
-	    break;
-	case QPaintDeviceMetrics::PdmDpiY:
-	case QPaintDeviceMetrics::PdmPhysicalDpiY:
-	    val = 72;
-	    break;
-	case QPaintDeviceMetrics::PdmNumColors:
-	    val = 16777216;
-	    break;
-	case QPaintDeviceMetrics::PdmDepth:
-	    val = 24;
-	    break;
-	default:
-	    val = 0;
-	    qWarning( "QPicture::metric: Invalid metric command" );
+    switch (m) {
+        // ### hard coded dpi and color depth values !
+        case QPaintDeviceMetrics::PdmWidth:
+            val = d->brect.width();
+            break;
+        case QPaintDeviceMetrics::PdmHeight:
+            val = d->brect.height();
+            break;
+        case QPaintDeviceMetrics::PdmWidthMM:
+            val = int(25.4/72.0*d->brect.width());
+            break;
+        case QPaintDeviceMetrics::PdmHeightMM:
+            val = int(25.4/72.0*d->brect.height());
+            break;
+        case QPaintDeviceMetrics::PdmDpiX:
+        case QPaintDeviceMetrics::PdmPhysicalDpiX:
+            val = 72;
+            break;
+        case QPaintDeviceMetrics::PdmDpiY:
+        case QPaintDeviceMetrics::PdmPhysicalDpiY:
+            val = 72;
+            break;
+        case QPaintDeviceMetrics::PdmNumColors:
+            val = 16777216;
+            break;
+        case QPaintDeviceMetrics::PdmDepth:
+            val = 24;
+            break;
+        default:
+            val = 0;
+            qWarning("QPicture::metric: Invalid metric command");
     }
     return val;
 }
@@ -983,8 +983,8 @@ void QPicture::detach_helper()
     memcpy(a.data(), data(), pictsize);
     x->pictb.setBuffer(a);
     if (d->pictb.isOpen()) {
-	x->pictb.open(d->pictb.mode());
-	x->pictb.at(d->pictb.at());
+        x->pictb.open(d->pictb.mode());
+        x->pictb.at(d->pictb.at());
     }
     x->trecs = d->trecs;
     x->formatOk = d->formatOk;
@@ -992,7 +992,7 @@ void QPicture::detach_helper()
     x->brect = boundingRect();
     x = qAtomicSetPtr(&d_ptr, x);
     if (!--x->ref)
-	delete x;
+        delete x;
 }
 
 /*****************************************************************************
@@ -1007,24 +1007,24 @@ void QPicture::detach_helper()
 //     called with (\a x, \a y) = (0, 0).
 // */
 
-// void QPainter::drawPicture( int x, int y, const QPicture &pic )
+// void QPainter::drawPicture(int x, int y, const QPicture &pic)
 // {
 //     save();
-//     translate( x, y );
-//     ((QPicture*)&pic)->play( (QPainter*)this );
+//     translate(x, y);
+//     ((QPicture*)&pic)->play((QPainter*)this);
 //     restore();
 // }
 
 // /*!
-//     \fn void QPainter::drawPicture( const QPoint &p, const QPicture &pic )
+//     \fn void QPainter::drawPicture(const QPoint &p, const QPicture &pic)
 //     \overload
 
 //     Draws picture \a pic at point \a p.
 // */
 
-// void QPainter::drawPicture( const QPoint &p, const QPicture &pic )
+// void QPainter::drawPicture(const QPoint &p, const QPicture &pic)
 // {
-//     drawPicture( p.x(), p.y(), pic );
+//     drawPicture(p.x(), p.y(), pic);
 // }
 
 // /*!
@@ -1034,9 +1034,9 @@ void QPicture::detach_helper()
 //   offset instead.
 // */
 
-// void QPainter::drawPicture( const QPicture &pic )
+// void QPainter::drawPicture(const QPicture &pic)
 // {
-//     drawPicture( 0, 0, pic );
+//     drawPicture(0, 0, pic);
 // }
 // #endif
 /*!
@@ -1050,7 +1050,7 @@ QPicture& QPicture::operator=(const QPicture &p)
     ++x->ref;
     x = qAtomicSetPtr(&d_ptr, x);
     if (!--x->ref)
-	delete x;
+        delete x;
     return *this;
 }
 
@@ -1080,61 +1080,61 @@ bool QPicturePrivate::checkFormat()
     resetFormat();
 
     // can't check anything in an empty buffer
-    if ( pictb.size() == 0 )
-	return false;
+    if (pictb.size() == 0)
+        return false;
 
-    pictb.open( IO_ReadOnly );			// open buffer device
+    pictb.open(IO_ReadOnly);                        // open buffer device
     QDataStream s;
-    s.setDevice( &pictb );			// attach data stream to buffer
+    s.setDevice(&pictb);                        // attach data stream to buffer
 
-    char mf_id[4];				// picture header tag
-    s.readRawBytes( mf_id, 4 );			// read actual tag
-    if ( memcmp(mf_id, mfhdr_tag, 4) != 0 ) { 	// wrong header id
-	qWarning( "QPicturePaintEngine::checkFormat: Incorrect header" );
-	pictb.close();
-	return false;
+    char mf_id[4];                                // picture header tag
+    s.readRawBytes(mf_id, 4);                        // read actual tag
+    if (memcmp(mf_id, mfhdr_tag, 4) != 0) {         // wrong header id
+        qWarning("QPicturePaintEngine::checkFormat: Incorrect header");
+        pictb.close();
+        return false;
     }
 
-    int cs_start = sizeof(Q_UINT32);		// pos of checksum word
+    int cs_start = sizeof(Q_UINT32);                // pos of checksum word
     int data_start = cs_start + sizeof(Q_UINT16);
     Q_UINT16 cs,ccs;
-    QByteArray buf = pictb.buffer();	// pointer to data
+    QByteArray buf = pictb.buffer();        // pointer to data
 
-    s >> cs;				// read checksum
-    ccs = (Q_UINT16) qChecksum( buf.constData() + data_start, buf.size() - data_start );
-    if ( ccs != cs ) {
-	qWarning( "QPicturePaintEngine::checkFormat: Invalid checksum %x, %x expected",
-		  ccs, cs );
-	pictb.close();
-	return false;
+    s >> cs;                                // read checksum
+    ccs = (Q_UINT16) qChecksum(buf.constData() + data_start, buf.size() - data_start);
+    if (ccs != cs) {
+        qWarning("QPicturePaintEngine::checkFormat: Invalid checksum %x, %x expected",
+                  ccs, cs);
+        pictb.close();
+        return false;
     }
 
     Q_UINT16 major, minor;
-    s >> major >> minor;			// read version number
-    if ( major > mfhdr_maj ) {		// new, incompatible version
-	qWarning( "QPicturePaintEngine::checkFormat: Incompatible version %d.%d",
-		  major, minor);
-	pictb.close();
-	return false;
+    s >> major >> minor;                        // read version number
+    if (major > mfhdr_maj) {                // new, incompatible version
+        qWarning("QPicturePaintEngine::checkFormat: Incompatible version %d.%d",
+                  major, minor);
+        pictb.close();
+        return false;
     }
-    s.setVersion( major != 4 ? major : 3 );
+    s.setVersion(major != 4 ? major : 3);
 
     Q_UINT8  c, clen;
     s >> c >> clen;
-    if ( c == PdcBegin ) {
-	if ( !( major >= 1 && major <= 3 )) {
-	    Q_INT32 l, t, w, h;
-	    s >> l >> t >> w >> h;
-	    brect = QRect( l, t, w, h );
-	}
+    if (c == PdcBegin) {
+        if (!(major >= 1 && major <= 3)) {
+            Q_INT32 l, t, w, h;
+            s >> l >> t >> w >> h;
+            brect = QRect(l, t, w, h);
+        }
     } else {
-	qWarning( "QPicturePaintEngine::checkFormat: Format error" );
-	pictb.close();
-	return false;
+        qWarning("QPicturePaintEngine::checkFormat: Format error");
+        pictb.close();
+        return false;
     }
     pictb.close();
 
-    formatOk = true;			// picture seems to be ok
+    formatOk = true;                        // picture seems to be ok
     formatMajor = major;
     formatMinor = minor;
     return true;
@@ -1144,7 +1144,7 @@ bool QPicturePrivate::checkFormat()
 QPaintEngine *QPicture::engine() const
 {
     if (!d->paintEngine)
-	const_cast<QPicture*>(this)->d->paintEngine = new QPicturePaintEngine;
+        const_cast<QPicture*>(this)->d->paintEngine = new QPicturePaintEngine;
     return d->paintEngine;
 }
 
@@ -1159,15 +1159,15 @@ QPaintEngine *QPicture::engine() const
     the stream.
 */
 
-QDataStream &operator<<( QDataStream &s, const QPicture &r )
+QDataStream &operator<<(QDataStream &s, const QPicture &r)
 {
     Q_UINT32 size = r.d->pictb.buffer().size();
     s << size;
     // null picture ?
-    if ( size == 0 )
-	return s;
+    if (size == 0)
+        return s;
     // just write the whole buffer to the stream
-    return s.writeRawBytes ( r.d->pictb.buffer(), r.d->pictb.buffer().size() );
+    return s.writeRawBytes (r.d->pictb.buffer(), r.d->pictb.buffer().size());
 }
 
 /*!
@@ -1177,22 +1177,22 @@ QDataStream &operator<<( QDataStream &s, const QPicture &r )
     a reference to the stream.
 */
 
-QDataStream &operator>>( QDataStream &s, QPicture &r )
+QDataStream &operator>>(QDataStream &s, QPicture &r)
 {
     QDataStream sr;
 
     // "init"; this code is similar to the beginning of QPicture::cmd()
-    sr.setDevice( &r.d->pictb );
-    sr.setVersion( r.d->formatMajor );
+    sr.setDevice(&r.d->pictb);
+    sr.setVersion(r.d->formatMajor);
     Q_UINT32 len;
     s >> len;
     QByteArray data;
-    if ( len > 0 ) {
-	data.resize(len);
-	s.readRawBytes( data.data(), len );
+    if (len > 0) {
+        data.resize(len);
+        s.readRawBytes(data.data(), len);
     }
 
-    r.d->pictb.setBuffer( data );
+    r.d->pictb.setBuffer(data);
     r.d->resetFormat();
     return s;
 }
@@ -1219,9 +1219,9 @@ QDataStream &operator>>( QDataStream &s, QPicture &r )
     \sa load() save()
 */
 
-const char* QPicture::pictureFormat( const QString &fileName )
+const char* QPicture::pictureFormat(const QString &fileName)
 {
-    return QPictureIO::pictureFormat( fileName );
+    return QPictureIO::pictureFormat(fileName);
 }
 
 /*!
@@ -1239,7 +1239,7 @@ static QStringList qToStringList(const QList<QByteArray> arr)
 {
     QStringList list;
     for (int i = 0; i < arr.count(); ++i)
-	list.append(QString(arr.at(i)));
+        list.append(QString(arr.at(i)));
     return list;
 }
 
@@ -1252,9 +1252,9 @@ static QStringList qToStringList(const QList<QByteArray> arr)
     \code
     QStringList list = myPicture.inputFormatList();
     QStringList::Iterator it = list.begin();
-    while( it != list.end() ) {
-	myProcessing( *it );
-	++it;
+    while(it != list.end()) {
+        myProcessing(*it);
+        ++it;
     }
     \endcode
 
@@ -1275,9 +1275,9 @@ QStringList QPicture::inputFormatList()
     \code
     QStringList list = myPicture.outputFormatList();
     QStringList::Iterator it = list.begin();
-    while( it != list.end() ) {
-	myProcessing( *it );
-	++it;
+    while(it != list.end()) {
+        myProcessing(*it);
+        ++it;
     }
     \endcode
 
@@ -1328,12 +1328,12 @@ QList<QByteArray> QPicture::outputFormats()
 
 struct QPictureIOData
 {
-    QPicture	pi;				// picture
-    int		iostat;				// IO status
-    QByteArray	frmt;				// picture format
-    QIODevice  *iodev;				// IO device
-    QString	fname;				// file name
-    QString     descr;				// picture description
+    QPicture        pi;                                // picture
+    int                iostat;                                // IO status
+    QByteArray        frmt;                                // picture format
+    QIODevice  *iodev;                                // IO device
+    QString        fname;                                // file name
+    QString     descr;                                // picture description
     const char *parameters;
     int quality;
     float gamma;
@@ -1353,7 +1353,7 @@ QPictureIO::QPictureIO()
     \a format tag.
 */
 
-QPictureIO::QPictureIO( QIODevice *ioDevice, const char *format )
+QPictureIO::QPictureIO(QIODevice *ioDevice, const char *format)
 {
     init();
     d->iodev = ioDevice;
@@ -1365,7 +1365,7 @@ QPictureIO::QPictureIO( QIODevice *ioDevice, const char *format )
     \a format tag.
 */
 
-QPictureIO::QPictureIO( const QString &fileName, const char* format )
+QPictureIO::QPictureIO(const QString &fileName, const char* format)
 {
     init();
     d->frmt = format;
@@ -1392,8 +1392,8 @@ void QPictureIO::init()
 
 QPictureIO::~QPictureIO()
 {
-    if ( d->parameters )
-	delete [] (char*)d->parameters;
+    if (d->parameters)
+        delete [] (char*)d->parameters;
     delete d;
 }
 
@@ -1405,25 +1405,25 @@ QPictureIO::~QPictureIO()
 class QPictureHandler
 {
 public:
-    QPictureHandler( const char *f, const char *h, const QByteArray& fl,
-		     picture_io_handler r, picture_io_handler w );
-    QByteArray	      format;			// picture format
-    QRegExp	      header;			// picture header pattern
+    QPictureHandler(const char *f, const char *h, const QByteArray& fl,
+                     picture_io_handler r, picture_io_handler w);
+    QByteArray              format;                        // picture format
+    QRegExp              header;                        // picture header pattern
     enum TMode { Untranslated=0, TranslateIn, TranslateInOut } text_mode;
-    picture_io_handler  read_picture;		// picture read function
-    picture_io_handler  write_picture;		// picture write function
-    bool	      obsolete;			// support not "published"
+    picture_io_handler  read_picture;                // picture read function
+    picture_io_handler  write_picture;                // picture write function
+    bool              obsolete;                        // support not "published"
 };
 
-QPictureHandler::QPictureHandler( const char *f, const char *h, const QByteArray& fl,
-			      picture_io_handler r, picture_io_handler w )
+QPictureHandler::QPictureHandler(const char *f, const char *h, const QByteArray& fl,
+                              picture_io_handler r, picture_io_handler w)
     : format(f), header(QString::fromLatin1(h))
 {
     text_mode = Untranslated;
-    if ( fl.contains('t') )
-	text_mode = TranslateIn;
-    else if ( fl.contains('T') )
-	text_mode = TranslateInOut;
+    if (fl.contains('t'))
+        text_mode = TranslateIn;
+    else if (fl.contains('T'))
+        text_mode = TranslateInOut;
     obsolete = fl.contains('O');
     read_picture  = r;
     write_picture = w;
@@ -1440,20 +1440,20 @@ static void *plugin_manager = 0;
 void qt_init_picture_plugins()
 {
 #ifndef QT_NO_COMPONENT
-    if ( plugin_manager )
-	return;
+    if (plugin_manager)
+        return;
 
-    plugin_manager = new QPluginManager<QPictureFormatInterface>( IID_QPictureFormat, QApplication::libraryPaths(), "/pictureformats" );
+    plugin_manager = new QPluginManager<QPictureFormatInterface>(IID_QPictureFormat, QApplication::libraryPaths(), "/pictureformats");
 
     QStringList features = plugin_manager->featureList();
     QStringList::Iterator it = features.begin();
-    while ( it != features.end() ) {
-	QString str = *it;
-	++it;
-	QInterfacePtr<QPictureFormatInterface> iface;
-	plugin_manager->queryInterface( str, &iface );
-	if ( iface )
-	    iface->installIOHandler( str );
+    while (it != features.end()) {
+        QString str = *it;
+        ++it;
+        QInterfacePtr<QPictureFormatInterface> iface;
+        plugin_manager->queryInterface(str, &iface);
+        if (iface)
+            iface->installIOHandler(str);
     }
 #endif
 }
@@ -1462,31 +1462,31 @@ static void cleanup()
 {
     // make sure that picture handlers are delete before plugin manager
     while (!pictureHandlers.isEmpty())
-	delete pictureHandlers.takeFirst();
+        delete pictureHandlers.takeFirst();
 #ifndef QT_NO_COMPONENT
     delete plugin_manager;
     plugin_manager = 0;
 #endif
 }
 
-void qt_init_picture_handlers()		// initialize picture handlers
+void qt_init_picture_handlers()                // initialize picture handlers
 {
     static bool done = false;
     if (done) return;
     done = true;
 
-    qAddPostRoutine( cleanup );
+    qAddPostRoutine(cleanup);
 }
 
-static QPictureHandler *get_picture_handler( const char *format )
-{						// get pointer to handler
+static QPictureHandler *get_picture_handler(const char *format)
+{                                                // get pointer to handler
     qt_init_picture_handlers();
     qt_init_picture_plugins();
     for(QPHList::Iterator it = pictureHandlers.begin(); it != pictureHandlers.end(); ++it) {
-	if ( (*it)->format == format )
-	    return (*it);
+        if ((*it)->format == format)
+            return (*it);
     }
-    return 0;					// no such handler
+    return 0;                                        // no such handler
 }
 
 
@@ -1513,21 +1513,21 @@ static QPictureHandler *get_picture_handler( const char *format )
 
     Example:
     \code
-	void readSVG( QPictureIO *picture )
-	{
-	// read the picture using the picture->ioDevice()
-	}
+        void readSVG(QPictureIO *picture)
+        {
+        // read the picture using the picture->ioDevice()
+        }
 
-	void writeSVG( QPictureIO *picture )
-	{
-	// write the picture using the picture->ioDevice()
-	}
+        void writeSVG(QPictureIO *picture)
+        {
+        // write the picture using the picture->ioDevice()
+        }
 
-	// add the SVG picture handler
+        // add the SVG picture handler
 
-	QPictureIO::defineIOHandler( "SVG",
-				   0, 0,
-				   readSVG, writeSVG );
+        QPictureIO::defineIOHandler("SVG",
+                                   0, 0,
+                                   readSVG, writeSVG);
     \endcode
 
     Before the regex test, all the 0 bytes in the file header are
@@ -1541,17 +1541,17 @@ static QPictureHandler *get_picture_handler( const char *format )
     handlers support the same operation, Qt chooses one arbitrarily.)
 */
 
-void QPictureIO::defineIOHandler( const char *format,
-				const char *header,
-				const char *flags,
-				picture_io_handler readPicture,
-				picture_io_handler writePicture )
+void QPictureIO::defineIOHandler(const char *format,
+                                const char *header,
+                                const char *flags,
+                                picture_io_handler readPicture,
+                                picture_io_handler writePicture)
 {
     qt_init_picture_handlers();
     QPictureHandler *p;
-    p = new QPictureHandler( format, header, QByteArray(flags),
-			     readPicture, writePicture );
-    pictureHandlers.insert( 0, p );
+    p = new QPictureHandler(format, header, QByteArray(flags),
+                             readPicture, writePicture);
+    pictureHandlers.insert(0, p);
 }
 
 
@@ -1607,7 +1607,7 @@ QString QPictureIO::description() const { return d->descr; }
 
     \sa picture()
 */
-void QPictureIO::setPicture( const QPicture &picture )
+void QPictureIO::setPicture(const QPicture &picture)
 {
     d->pi = picture;
 }
@@ -1618,7 +1618,7 @@ void QPictureIO::setPicture( const QPicture &picture )
 
     \sa status()
 */
-void QPictureIO::setStatus( int status )
+void QPictureIO::setStatus(int status)
 {
     d->iostat = status;
 }
@@ -1636,7 +1636,7 @@ void QPictureIO::setStatus( int status )
 
     \sa read() write() format()
 */
-void QPictureIO::setFormat( const char *format )
+void QPictureIO::setFormat(const char *format)
 {
     d->frmt = format;
 }
@@ -1652,7 +1652,7 @@ void QPictureIO::setFormat( const char *format )
 
     \sa setFileName()
 */
-void QPictureIO::setIODevice( QIODevice *ioDevice )
+void QPictureIO::setIODevice(QIODevice *ioDevice)
 {
     d->iodev = ioDevice;
 }
@@ -1663,7 +1663,7 @@ void QPictureIO::setIODevice( QIODevice *ioDevice )
 
     \sa setIODevice()
 */
-void QPictureIO::setFileName( const QString &fileName )
+void QPictureIO::setFileName(const QString &fileName)
 {
     d->fname = fileName;
 }
@@ -1690,7 +1690,7 @@ int QPictureIO::quality() const
     \sa quality() QPicture::save()
 */
 
-void QPictureIO::setQuality( int q )
+void QPictureIO::setQuality(int q)
 {
     d->quality = q;
 }
@@ -1717,11 +1717,11 @@ const char *QPictureIO::parameters() const
     \sa parameters()
 */
 
-void QPictureIO::setParameters( const char *parameters )
+void QPictureIO::setParameters(const char *parameters)
 {
-    if ( d && d->parameters )
-	delete [] (char*)d->parameters;
-    d->parameters = qstrdup( parameters );
+    if (d && d->parameters)
+        delete [] (char*)d->parameters;
+    d->parameters = qstrdup(parameters);
 }
 
 /*!
@@ -1735,7 +1735,7 @@ void QPictureIO::setParameters( const char *parameters )
 
     \sa gamma()
 */
-void QPictureIO::setGamma( float gamma )
+void QPictureIO::setGamma(float gamma)
 {
     d->gamma=gamma;
 }
@@ -1758,7 +1758,7 @@ float QPictureIO::gamma() const
     string.
 */
 
-void QPictureIO::setDescription( const QString &description )
+void QPictureIO::setDescription(const QString &description)
 {
     d->descr = description;
 }
@@ -1770,13 +1770,13 @@ void QPictureIO::setDescription( const QString &description )
     not recognized.
 */
 
-QByteArray QPictureIO::pictureFormat( const QString &fileName )
+QByteArray QPictureIO::pictureFormat(const QString &fileName)
 {
-    QFile file( fileName );
+    QFile file(fileName);
     QByteArray format;
-    if ( !file.open(IO_ReadOnly) )
-	return format;
-    format = pictureFormat( &file );
+    if (!file.open(IO_ReadOnly))
+        return format;
+    format = pictureFormat(&file);
     file.close();
     return format;
 }
@@ -1794,7 +1794,7 @@ QByteArray QPictureIO::pictureFormat( const QString &fileName )
     \sa QIODevice::at()
 */
 
-QByteArray QPictureIO::pictureFormat( QIODevice *d )
+QByteArray QPictureIO::pictureFormat(QIODevice *d)
 {
     // if you change this change the documentation for defineIOHandler()
     const int buflen = 14;
@@ -1803,29 +1803,29 @@ QByteArray QPictureIO::pictureFormat( QIODevice *d )
     char buf2[buflen];
     qt_init_picture_handlers();
     qt_init_picture_plugins();
-    int pos = d->at();			// save position
-    int rdlen = d->readBlock( buf, buflen );	// read a few bytes
+    int pos = d->at();                        // save position
+    int rdlen = d->readBlock(buf, buflen);        // read a few bytes
 
     QByteArray format;
-    if ( rdlen != buflen )
-	return format;
+    if (rdlen != buflen)
+        return format;
 
-    strncpy( buf2, buf, buflen );
+    strncpy(buf2, buf, buflen);
 
-    for ( int n = 0; n < rdlen; n++ )
-	if ( buf[n] == '\0' )
-	    buf[n] = '\001';
-    if ( d->status() == IO_Ok && rdlen > 0 ) {
-	buf[rdlen - 1] = '\0';
-	QString bufStr = QString::fromLatin1(buf);
-	for(QPHList::Iterator it = pictureHandlers.begin(); it != pictureHandlers.end(); ++it) {
-	    if ( (*it)->header.search(bufStr) != -1 ) { // try match with headers
-		format = (*it)->format;
-		break;
-	    }
-	}
+    for (int n = 0; n < rdlen; n++)
+        if (buf[n] == '\0')
+            buf[n] = '\001';
+    if (d->status() == IO_Ok && rdlen > 0) {
+        buf[rdlen - 1] = '\0';
+        QString bufStr = QString::fromLatin1(buf);
+        for(QPHList::Iterator it = pictureHandlers.begin(); it != pictureHandlers.end(); ++it) {
+            if ((*it)->header.search(bufStr) != -1) { // try match with headers
+                format = (*it)->format;
+                break;
+            }
+        }
     }
-    d->at( pos );				// restore position
+    d->at(pos);                                // restore position
     return format;
 }
 
@@ -1841,8 +1841,8 @@ QList<QByteArray> QPictureIO::inputFormats()
     qt_init_picture_plugins();
 
     for(QPHList::Iterator it = pictureHandlers.begin(); it != pictureHandlers.end(); ++it) {
-	if ( (*it)->read_picture && !(*it)->obsolete  && !result.contains((*it)->format) )
-	    result.append((*it)->format);
+        if ((*it)->read_picture && !(*it)->obsolete  && !result.contains((*it)->format))
+            result.append((*it)->format);
     }
     qHeapSort(result);
 
@@ -1860,8 +1860,8 @@ QList<QByteArray> QPictureIO::outputFormats()
 
     QList<QByteArray> result;
     for(QPHList::Iterator it = pictureHandlers.begin(); it != pictureHandlers.end(); ++it) {
-	if ( (*it)->write_picture && !(*it)->obsolete && !result.contains((*it)->format) )
-	    result.append((*it)->format);
+        if ((*it)->write_picture && !(*it)->obsolete && !result.contains((*it)->format))
+            result.append((*it)->format);
     }
     return result;
 }
@@ -1885,66 +1885,66 @@ QList<QByteArray> QPictureIO::outputFormats()
     Example:
 
     \code
-	QPictureIO iio;
-	QPixmap  pixmap;
-	iio.setFileName( "vegeburger.bmp" );
-	if ( picture.read() )        // ok
-	    pixmap = iio.picture();  // convert to pixmap
+        QPictureIO iio;
+        QPixmap  pixmap;
+        iio.setFileName("vegeburger.bmp");
+        if (picture.read())        // ok
+            pixmap = iio.picture();  // convert to pixmap
     \endcode
 
     \sa setIODevice() setFileName() setFormat() write() QPixmap::load()
 */
 bool QPictureIO::read()
 {
-    QFile	   file;
-    const char	  *picture_format;
+    QFile           file;
+    const char          *picture_format;
     QPictureHandler *h;
 
-    if ( d->iodev ) {				// read from io device
-	// ok, already open
-    } else if ( !d->fname.isEmpty() ) {		// read from file
-	file.setName( d->fname );
-	if ( !file.open(IO_ReadOnly) )
-	    return false;			// cannot open file
-	d->iodev = &file;
-    } else {					// no file name or io device
-	return false;
+    if (d->iodev) {                                // read from io device
+        // ok, already open
+    } else if (!d->fname.isEmpty()) {                // read from file
+        file.setName(d->fname);
+        if (!file.open(IO_ReadOnly))
+            return false;                        // cannot open file
+        d->iodev = &file;
+    } else {                                        // no file name or io device
+        return false;
     }
     if (d->frmt.isEmpty()) {
-	// Try to guess format
-	picture_format = pictureFormat( d->iodev );	// get picture format
-	if ( !picture_format ) {
-	    if ( file.isOpen() ) {			// unknown format
-		file.close();
-		d->iodev = 0;
-	    }
-	    return false;
-	}
+        // Try to guess format
+        picture_format = pictureFormat(d->iodev);        // get picture format
+        if (!picture_format) {
+            if (file.isOpen()) {                        // unknown format
+                file.close();
+                d->iodev = 0;
+            }
+            return false;
+        }
     } else {
-	picture_format = d->frmt;
+        picture_format = d->frmt;
     }
 
-    h = get_picture_handler( picture_format );
-    if ( file.isOpen() ) {
+    h = get_picture_handler(picture_format);
+    if (file.isOpen()) {
 #if !defined(Q_OS_UNIX)
-	if ( h && h->text_mode ) {		// reopen in translated mode
-	    file.close();
-	    file.open( IO_ReadOnly | IO_Translate );
-	}
-	else
+        if (h && h->text_mode) {                // reopen in translated mode
+            file.close();
+            file.open(IO_ReadOnly | IO_Translate);
+        }
+        else
 #endif
-	    file.at( 0 );			// position to start
+            file.at(0);                        // position to start
     }
-    d->iostat = 1;					// assume error
+    d->iostat = 1;                                        // assume error
 
-    if ( h && h->read_picture )
-	(*h->read_picture)( this );
+    if (h && h->read_picture)
+        (*h->read_picture)(this);
 
-    if ( file.isOpen() ) {			// picture was read using file
-	file.close();
-	d->iodev = 0;
+    if (file.isOpen()) {                        // picture was read using file
+        file.close();
+        d->iodev = 0;
     }
-    return d->iostat == 0;				// picture successfully read?
+    return d->iostat == 0;                                // picture successfully read?
 }
 
 
@@ -1960,48 +1960,48 @@ bool QPictureIO::read()
 
     Example:
     \code
-	QPictureIO iio;
-	QPicture   im;
-	im = pixmap; // convert to picture
-	iio.setPicture( im );
-	iio.setFileName( "vegeburger.bmp" );
-	iio.setFormat( "BMP" );
-	if ( iio.write() )
-	    // returned true if written successfully
+        QPictureIO iio;
+        QPicture   im;
+        im = pixmap; // convert to picture
+        iio.setPicture(im);
+        iio.setFileName("vegeburger.bmp");
+        iio.setFormat("BMP");
+        if (iio.write())
+            // returned true if written successfully
     \endcode
 
     \sa setIODevice() setFileName() setFormat() read() QPixmap::save()
 */
 bool QPictureIO::write()
 {
-    if ( d->frmt.isEmpty() )
-	return false;
-    QPictureHandler *h = get_picture_handler( d->frmt );
-    if ( !h && !plugin_manager) {
-	qt_init_picture_plugins();
-	h = get_picture_handler( d->frmt );
+    if (d->frmt.isEmpty())
+        return false;
+    QPictureHandler *h = get_picture_handler(d->frmt);
+    if (!h && !plugin_manager) {
+        qt_init_picture_plugins();
+        h = get_picture_handler(d->frmt);
     }
-    if ( !h || !h->write_picture ) {
-	qWarning( "QPictureIO::write: No such picture format handler: %s",
-		 format() );
-	return false;
+    if (!h || !h->write_picture) {
+        qWarning("QPictureIO::write: No such picture format handler: %s",
+                 format());
+        return false;
     }
     QFile file;
-    if ( !d->iodev && !d->fname.isEmpty() ) {
-	file.setName( d->fname );
-	bool translate = h->text_mode==QPictureHandler::TranslateInOut;
-	int fmode = translate ? IO_WriteOnly|IO_Translate : IO_WriteOnly;
-	if ( !file.open(fmode) )		// couldn't create file
-	    return false;
-	d->iodev = &file;
+    if (!d->iodev && !d->fname.isEmpty()) {
+        file.setName(d->fname);
+        bool translate = h->text_mode==QPictureHandler::TranslateInOut;
+        int fmode = translate ? IO_WriteOnly|IO_Translate : IO_WriteOnly;
+        if (!file.open(fmode))                // couldn't create file
+            return false;
+        d->iodev = &file;
     }
     d->iostat = 1;
-    (*h->write_picture)( this );
-    if ( file.isOpen() ) {			// picture was written using file
-	file.close();
-	d->iodev = 0;
+    (*h->write_picture)(this);
+    if (file.isOpen()) {                        // picture was written using file
+        file.close();
+        d->iodev = 0;
     }
-    return d->iostat == 0;				// picture successfully written?
+    return d->iostat == 0;                                // picture successfully written?
 }
 #endif //QT_NO_PICTUREIO
 

@@ -22,41 +22,41 @@ class QSqlFieldPrivate
 {
 public:
     QSqlFieldPrivate(const QString &name,
-	      QCoreVariant::Type type,
-	      int required, int length, int prec,
-	      const QCoreVariant& defValue,
-	      int sqlType, int autogen) :
-	nm(name), ro(false), type(type), req(required),
-	len(length), pr(prec), def(defValue), tp(sqlType), gen(autogen)
+              QCoreVariant::Type type,
+              int required, int length, int prec,
+              const QCoreVariant& defValue,
+              int sqlType, int autogen) :
+        nm(name), ro(false), type(type), req(required),
+        len(length), pr(prec), def(defValue), tp(sqlType), gen(autogen)
     {
-	ref = 1;
+        ref = 1;
     }
 
     QSqlFieldPrivate& operator=(const QSqlFieldPrivate& other)
     {
-	nm = other.nm;
-	ro = other.ro;
-	type = other.type;
-	req = other.req;
-	len = other.len;
-	pr = other.pr;
-	def = other.def;
-	tp = other.tp;
-	gen = other.gen;
-	return *this;
+        nm = other.nm;
+        ro = other.ro;
+        type = other.type;
+        req = other.req;
+        len = other.len;
+        pr = other.pr;
+        def = other.def;
+        tp = other.tp;
+        gen = other.gen;
+        return *this;
     }
 
     bool operator==(const QSqlFieldPrivate& other) const
     {
-	return (nm == other.nm
-		&& ro == other.ro
-		&& type == other.type
-		&& req == other.req
-		&& len == other.len
-		&& pr == other.pr
-		&& def == other.def
-		&& tp == other.tp
-		&& gen == other.gen );
+        return (nm == other.nm
+                && ro == other.ro
+                && type == other.type
+                && req == other.req
+                && len == other.len
+                && pr == other.pr
+                && def == other.def
+                && tp == other.tp
+                && gen == other.gen);
     }
 
     QAtomic ref;
@@ -89,16 +89,16 @@ public:
     type is not permitted. For example:
 
     \code
-    QSqlField f( "myfield", QCoreVariant::Int );
-    f.setValue( QPixmap() );  // will not work
+    QSqlField f("myfield", QCoreVariant::Int);
+    f.setValue(QPixmap());  // will not work
     \endcode
 
     However, the field will attempt to cast certain data types to the
     field data type where possible:
 
     \code
-    QSqlField f( "myfield", QCoreVariant::Int );
-    f.setValue( QString("123") ); // casts QString to int
+    QSqlField f("myfield", QCoreVariant::Int);
+    f.setValue(QString("123")); // casts QString to int
     \endcode
 
     QSqlField objects are rarely created explicitly in application
@@ -107,9 +107,9 @@ public:
     example:
 
     \code
-    QSqlCursor cur( "Employee" );        // create cursor using the 'Employee' table
-    QSqlField* f = cur.field( "name" );  // use the 'name' field
-    f->setValue( "Dave" );               // set field value
+    QSqlCursor cur("Employee");        // create cursor using the 'Employee' table
+    QSqlField* f = cur.field("name");  // use the 'name' field
+    f->setValue("Dave");               // set field value
     ...
     \endcode
 
@@ -117,8 +117,8 @@ public:
     The previous example would normally be written:
 
     \code
-    QSqlCursor cur( "Employee" );
-    cur.setValue( "name", "Dave" );
+    QSqlCursor cur("Employee");
+    cur.setValue("name", "Dave");
     ...
     \endcode
 */
@@ -127,16 +127,16 @@ public:
     Constructs an empty field called \a fieldName of type \a type.
 */
 QSqlField::QSqlField(const QString& fieldName,
-	      QCoreVariant::Type type,
-	      int required,
-	      int fieldLength,
-	      int prec,
-	      const QCoreVariant& defValue,
-	      int sqlType,
-	      int autogen)
+              QCoreVariant::Type type,
+              int required,
+              int fieldLength,
+              int prec,
+              const QCoreVariant& defValue,
+              int sqlType,
+              int autogen)
 {
     d = new QSqlFieldPrivate(fieldName, type, required,
-			     fieldLength, prec, defValue, sqlType, autogen);
+                             fieldLength, prec, defValue, sqlType, autogen);
     val.cast(type);
 }
 
@@ -144,7 +144,7 @@ QSqlField::QSqlField(const QString& fieldName,
     Constructs a copy of \a other.
 */
 
-QSqlField::QSqlField( const QSqlField& other )
+QSqlField::QSqlField(const QSqlField& other)
 {
     d = other.d;
     ++d->ref;
@@ -155,25 +155,25 @@ QSqlField::QSqlField( const QSqlField& other )
     Sets the field equal to \a other.
 */
 
-QSqlField& QSqlField::operator=( const QSqlField& other )
+QSqlField& QSqlField::operator=(const QSqlField& other)
 {
     QSqlFieldPrivate *x = other.d;
     ++x->ref;
     x = qAtomicSetPtr(&d, x);
     if (!--x->ref)
-	delete x;
+        delete x;
     val = other.val;
     return *this;
 }
 
 /*!
-    Returns TRUE if the field is equal to \a other; otherwise returns
-    FALSE.
+    Returns true if the field is equal to \a other; otherwise returns
+    false.
 */
 bool QSqlField::operator==(const QSqlField& other) const
 {
     return ((d == other.d || *d == *other.d)
-	    && val == other.val);
+            && val == other.val);
 }
 
 /*!
@@ -183,35 +183,35 @@ bool QSqlField::operator==(const QSqlField& other) const
 QSqlField::~QSqlField()
 {
     if (!--d->ref)
-	delete d;
+        delete d;
 }
 
 /*!
     Sets the value of the field to \a value. If the field is read-only
-    (isReadOnly() returns TRUE), nothing happens. If the data type of
+    (isReadOnly() returns true), nothing happens. If the data type of
     \a value differs from the field's current data type, an attempt is
     made to cast it to the proper type. This preserves the data type
     of the field in the case of assignment, e.g. a QString to an
     integer data type. For example:
 
     \code
-    QSqlCursor cur( "Employee" );                 // 'Employee' table
-    QSqlField* f = cur.field( "student_count" );  // an integer field
+    QSqlCursor cur("Employee");                 // 'Employee' table
+    QSqlField* f = cur.field("student_count");  // an integer field
     ...
-    f->setValue( myLineEdit->text() );		  // cast the line edit text to an integer
+    f->setValue(myLineEdit->text());                  // cast the line edit text to an integer
     \endcode
 
     \sa isReadOnly()
 */
 
-void QSqlField::setValue( const QCoreVariant& value )
+void QSqlField::setValue(const QCoreVariant& value)
 {
-    if ( isReadOnly() )
-	return;
-    if ( value.type() != d->type ) {
-	if ( !val.canCast( d->type ) )
-	     qWarning("QSqlField::setValue: %s cannot cast from %s to %s",
-		      d->nm.local8Bit(), value.typeName(), QCoreVariant::typeToName( d->type ) );
+    if (isReadOnly())
+        return;
+    if (value.type() != d->type) {
+        if (!val.canCast(d->type))
+             qWarning("QSqlField::setValue: %s cannot cast from %s to %s",
+                      d->nm.local8Bit(), value.typeName(), QCoreVariant::typeToName(d->type));
     }
     detach();
     val = value;
@@ -224,19 +224,19 @@ void QSqlField::setValue( const QCoreVariant& value )
 
 void QSqlField::clear()
 {
-    if ( isReadOnly() )
-	return;
+    if (isReadOnly())
+        return;
     detach();
     val = QCoreVariant(type());
 }
 
 /*!
-    \fn void QSqlField::setName( const QString& name )
+    \fn void QSqlField::setName(const QString& name)
 
     Sets the name of the field to \a name.
 */
 
-void QSqlField::setName( const QString& name )
+void QSqlField::setName(const QString& name)
 {
     detach();
     d->nm = name;
@@ -252,13 +252,13 @@ void QSqlField::setName( const QString& name )
 */
 
 /*!
-    \fn void QSqlField::setReadOnly( bool readOnly )
+    \fn void QSqlField::setReadOnly(bool readOnly)
 
     Sets the read only flag of the field's value to \a readOnly.
 
     \sa setValue()
 */
-void QSqlField::setReadOnly( bool readOnly )
+void QSqlField::setReadOnly(bool readOnly)
 {
     detach();
     d->ro = readOnly;
@@ -292,15 +292,15 @@ void QSqlField::setType(QCoreVariant::Type type)
 
 
 /*!
-    Returns TRUE if the field's value is read only; otherwise returns
-    FALSE.
+    Returns true if the field's value is read only; otherwise returns
+    false.
 */
 bool QSqlField::isReadOnly() const
 { return d->ro; }
 
 /*!
-    Returns TRUE if the field is currently NULL; otherwise returns
-    FALSE.
+    Returns true if the field is currently NULL; otherwise returns
+    false.
 */
 bool QSqlField::isNull() const
 { return val.isNull(); }
@@ -310,12 +310,12 @@ bool QSqlField::isNull() const
 void QSqlField::detach()
 {
     if (d->ref == 1)
-	return;
+        return;
 
     QSqlFieldPrivate *x = new QSqlFieldPrivate(*d);
     x = qAtomicSetPtr(&d, x);
     if (!--x->ref)
-	delete x;
+        delete x;
 }
 
 int QSqlField::isRequired() const
@@ -354,17 +354,17 @@ QDebug operator<<(QDebug dbg, const QSqlField &f)
 {
     dbg.nospace() << "QSqlField(\"" << f.name() << "\", " << QCoreVariant::typeToName(f.type());
     if (f.length() >= 0)
-	dbg.nospace() << ", length: " << f.length();
+        dbg.nospace() << ", length: " << f.length();
     if (f.precision() >= 0)
-	dbg.nospace() << ", precision: " << f.precision();
+        dbg.nospace() << ", precision: " << f.precision();
     if (f.isRequired() >= 0)
-	dbg.nospace() << ", required: " << f.isRequired();
+        dbg.nospace() << ", required: " << f.isRequired();
     if (f.isAutoGenerated() >= 0)
-	dbg.nospace() << ", auto-generated: " << f.isAutoGenerated();
+        dbg.nospace() << ", auto-generated: " << f.isAutoGenerated();
     if (f.typeID() >= 0)
-	dbg.nospace() << ", typeID: " << f.typeID();
+        dbg.nospace() << ", typeID: " << f.typeID();
     if (!f.defaultValue().isNull())
-	dbg.nospace() << ", auto-value: \"" << f.defaultValue() << "\"";
+        dbg.nospace() << ", auto-value: \"" << f.defaultValue() << "\"";
     dbg.nospace() << ")";
     return dbg.space();
 }

@@ -42,7 +42,7 @@ class QIBaseDriverPlugin : public QSqlDriverPlugin
 public:
     QIBaseDriverPlugin();
 
-    QSqlDriver* create( const QString & );
+    QSqlDriver* create(const QString &);
     QStringList keys() const;
 };
 
@@ -51,11 +51,11 @@ QIBaseDriverPlugin::QIBaseDriverPlugin()
 {
 }
 
-QSqlDriver* QIBaseDriverPlugin::create( const QString &name )
+QSqlDriver* QIBaseDriverPlugin::create(const QString &name)
 {
-    if ( name == "QIBASE" ) {
-	QIBaseDriver* driver = new QIBaseDriver();
-	return driver;
+    if (name == "QIBASE") {
+        QIBaseDriver* driver = new QIBaseDriver();
+        return driver;
     }
     return 0;
 }
@@ -67,4 +67,4 @@ QStringList QIBaseDriverPlugin::keys() const
     return l;
 }
 
-Q_EXPORT_PLUGIN( QIBaseDriverPlugin )
+Q_EXPORT_PLUGIN(QIBaseDriverPlugin)

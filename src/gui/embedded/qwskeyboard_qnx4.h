@@ -20,15 +20,15 @@
 #include "qwsutils_qws.h"
 #include "qgfx_qws.h"
 #endif // QT_H
- 
+
 #include <qapplication.h>
 #include <qsocketnotifier.h>
 #include <qnamespace.h>
 #include <qtimer.h>
- 
+
 #include <stdlib.h>
 #include <stdio.h>
- 
+
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
@@ -36,7 +36,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <signal.h>
- 
+
 #if defined(Q_OS_QNX4)
 #ifndef QWSQNX4KB_H
 #define QWSQNX4KB_H
@@ -58,7 +58,7 @@ public:
 
 private:
     enum GuidantState {
-	GuidantNone, GuidantPressed, GuidantReleased, GuidantDropped
+        GuidantNone, GuidantPressed, GuidantReleased, GuidantDropped
     } gState;
     int shift;
     int alt;

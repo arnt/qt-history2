@@ -209,7 +209,7 @@ typedef struct {
 
 
 #define BRESINITPGONSTRUCT(dmaj, min1, min2, bres) \
-	BRESINITPGON(dmaj, min1, min2, bres.minor, bres.d, \
+        BRESINITPGON(dmaj, min1, min2, bres.minor, bres.d, \
                      bres.m, bres.m1, bres.incr1, bres.incr2)
 
 #define BRESINCRPGONSTRUCT(bres) \
@@ -379,7 +379,7 @@ SOFTWARE.
  */
 bool
 miInsertEdgeInET(EdgeTable *ET, EdgeTableEntry *ETE,
-	int scanline, ScanLineListBlock **SLLBlock, int *iSLLBlock)
+        int scanline, ScanLineListBlock **SLLBlock, int *iSLLBlock)
 {
     register EdgeTableEntry *start, *prev;
     register ScanLineList *pSLL, *pPrevSLL;
@@ -404,9 +404,9 @@ miInsertEdgeInET(EdgeTable *ET, EdgeTableEntry *ETE,
         if (*iSLLBlock > SLLSPERBLOCK-1)
         {
             tmpSLLBlock =
-		  (ScanLineListBlock *)malloc(sizeof(ScanLineListBlock));
-	    if (!tmpSLLBlock)
-		return FALSE;
+                  (ScanLineListBlock *)malloc(sizeof(ScanLineListBlock));
+            if (!tmpSLLBlock)
+                return false;
             (*SLLBlock)->next = tmpSLLBlock;
             tmpSLLBlock->next = 0;
             *SLLBlock = tmpSLLBlock;
@@ -436,7 +436,7 @@ miInsertEdgeInET(EdgeTable *ET, EdgeTableEntry *ETE,
         prev->next = ETE;
     else
         pSLL->edgelist = ETE;
-    return TRUE;
+    return true;
 }
 
 /*
@@ -491,7 +491,7 @@ miFreeStorage(ScanLineListBlock   *pSLLBlock)
 
 bool
 miCreateETandAET(int count, DDXPointPtr pts, EdgeTable *ET,
-	EdgeTableEntry *AET, EdgeTableEntry *pETEs, ScanLineListBlock *pSLLBlock)
+        EdgeTableEntry *AET, EdgeTableEntry *pETEs, ScanLineListBlock *pSLLBlock)
 {
     register DDXPointPtr top, bottom;
     register DDXPointPtr PrevPt, CurrPt;
@@ -499,7 +499,7 @@ miCreateETandAET(int count, DDXPointPtr pts, EdgeTable *ET,
 
     int dy;
 
-    if (count < 2)  return TRUE;
+    if (count < 2)  return true;
 
     /*
      *  initialize the Active Edge Table
@@ -556,10 +556,10 @@ miCreateETandAET(int count, DDXPointPtr pts, EdgeTable *ET,
             BRESINITPGONSTRUCT(dy, top->x, bottom->x, pETEs->bres)
 
             if (!miInsertEdgeInET(ET, pETEs, top->y, &pSLLBlock, &iSLLBlock))
-	    {
-		miFreeStorage(pSLLBlock->next);
-		return FALSE;
-	    }
+            {
+                miFreeStorage(pSLLBlock->next);
+                return false;
+            }
 
             ET->ymax = qMax(ET->ymax, PrevPt->y);
             ET->ymin = qMin(ET->ymin, PrevPt->y);
@@ -568,7 +568,7 @@ miCreateETandAET(int count, DDXPointPtr pts, EdgeTable *ET,
 
         PrevPt = CurrPt;
     }
-    return TRUE;
+    return true;
 }
 
 /*
@@ -645,7 +645,7 @@ micomputeWAET(EdgeTableEntry *AET)
             isInside--;
 
         if ((!inside && !isInside) ||
-            ( inside &&  isInside))
+            (inside &&  isInside))
         {
             pWETE->nextWETE = AET;
             pWETE = AET;
@@ -703,26 +703,26 @@ miInsertionSort(EdgeTableEntry *AET)
 */
 void QPolygonScanner::scan(const QPointArray& pa, bool winding, int index, int npoints)
 {
-    scan( pa, winding, index, npoints, TRUE );
+    scan(pa, winding, index, npoints, true);
 }
 
 /*!
     \overload
 
-    If \a stitchable is FALSE, the right and bottom edges of the
+    If \a stitchable is false, the right and bottom edges of the
     polygon are included. This causes adjacent polygons to overlap.
 */
 void QPolygonScanner::scan(const QPointArray& pa, bool winding, int index, int npoints, bool stitchable)
 {
-    scan( pa, winding, index, npoints,
-	stitchable ? Edge(Left+Top) : Edge(Left+Right+Top+Bottom) );
+    scan(pa, winding, index, npoints,
+        stitchable ? Edge(Left+Top) : Edge(Left+Right+Top+Bottom));
 }
 
 /*!
     Calls processSpans() for all scanlines of the polygon defined by
     \a npoints starting at \a index in \a pa.
 
-    If \a winding is TRUE, the Winding algorithm rather than the
+    If \a winding is true, the Winding algorithm rather than the
     Odd-Even rule is used.
 
     The \a edges is any bitwise combination of:
@@ -737,7 +737,7 @@ void QPolygonScanner::scan(const QPointArray& pa, bool winding, int index, int n
     \warning The edges feature does not work properly.
 
 */
-void QPolygonScanner::scan( const QPointArray& pa, bool winding, int index, int npoints, Edge edges )
+void QPolygonScanner::scan(const QPointArray& pa, bool winding, int index, int npoints, Edge edges)
 {
 
 
@@ -764,20 +764,20 @@ void QPolygonScanner::scan( const QPointArray& pa, bool winding, int index, int 
     int edge_b = (edges & Bottom) ? 1 : 0;
 
     if (npoints == -1)
-	npoints = pa.size();
+        npoints = pa.size();
 
     if (npoints < 3)
-	return;
+        return;
 
     if(!(pETEs = (EdgeTableEntry *)
         malloc(sizeof(EdgeTableEntry) * npoints)))
-	return;
+        return;
     ptsOut = FirstPoint;
     width = FirstWidth;
     if (!miCreateETandAET(npoints, ptsIn, &ET, &AET, pETEs, &SLLBlock))
     {
-	free(pETEs);
-	return;
+        free(pETEs);
+        return;
     }
     pSLL = ET.scanlines.next;
 
@@ -806,17 +806,17 @@ void QPolygonScanner::scan( const QPointArray& pa, bool winding, int index, int 
             while (pAET)
             {
                 ptsOut->x = pAET->bres.minor + 1 - edge_l;
-		ptsOut++->y = y;
+                ptsOut++->y = y;
                 *width++ = pAET->next->bres.minor - pAET->bres.minor
-		    - 1 + edge_l + edge_r;
+                    - 1 + edge_l + edge_r;
                 nPts++;
 
                 /*
                  *  send out the buffer when its full
                  */
                 if (nPts == NUMPTSTOBUFFER)
-		{
-		    processSpans( nPts, (QPoint*)FirstPoint, FirstWidth );
+                {
+                    processSpans(nPts, (QPoint*)FirstPoint, FirstWidth);
                     ptsOut = FirstPoint;
                     width = FirstWidth;
                     nPts = 0;
@@ -861,7 +861,7 @@ void QPolygonScanner::scan( const QPointArray& pa, bool winding, int index, int 
                 if (pWETE == pAET)
                 {
                     ptsOut->x = pAET->bres.minor + 1 - edge_l;
-		    ptsOut++->y = y;
+                    ptsOut++->y = y;
                     *width++ = pAET->nextWETE->bres.minor - pAET->bres.minor - 1 + edge_l + edge_r;
                     nPts++;
 
@@ -870,7 +870,7 @@ void QPolygonScanner::scan( const QPointArray& pa, bool winding, int index, int 
                      */
                     if (nPts == NUMPTSTOBUFFER)
                     {
-			processSpans( nPts, (QPoint*)FirstPoint, FirstWidth );
+                        processSpans(nPts, (QPoint*)FirstPoint, FirstWidth);
                         ptsOut = FirstPoint;
                         width  = FirstWidth;
                         nPts = 0;
@@ -879,7 +879,7 @@ void QPolygonScanner::scan( const QPointArray& pa, bool winding, int index, int 
                     pWETE = pWETE->nextWETE;
                     while (pWETE != pAET) {
                         EVALUATEEDGEWINDING(pAET, pPrevAET, y, fixWAET)
-		    }
+                    }
                     pWETE = pWETE->nextWETE;
                 }
                 EVALUATEEDGEWINDING(pAET, pPrevAET, y, fixWAET)
@@ -902,7 +902,7 @@ void QPolygonScanner::scan( const QPointArray& pa, bool winding, int index, int 
      */
 
 
-    processSpans( nPts, (QPoint*)FirstPoint, FirstWidth );
+    processSpans(nPts, (QPoint*)FirstPoint, FirstWidth);
     free(pETEs);
     miFreeStorage(SLLBlock.next);
 }

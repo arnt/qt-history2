@@ -79,7 +79,7 @@ public:
     const char *currentTail;
     sqlite_vm *currentMachine;
 
-    uint skippedStatus: 1; // the status of the fetchNext() that's skipped    
+    uint skippedStatus: 1; // the status of the fetchNext() that's skipped
     uint skipRow: 1; // skip the next fetchNext()?
     uint utf8: 1;
     QSqlRecord rInf;
@@ -88,7 +88,7 @@ public:
 static const uint initial_cache_size = 128;
 
 QSQLiteResultPrivate::QSQLiteResultPrivate(QSQLiteResult* res) : q(res), access(0), currentTail(0),
-    currentMachine(0), skippedStatus(FALSE), skipRow(false), utf8(FALSE)
+    currentMachine(0), skippedStatus(false), skipRow(false), utf8(false)
 {
 }
 
@@ -98,10 +98,10 @@ void QSQLiteResultPrivate::cleanup()
     rInf.clear();
     currentTail = 0;
     currentMachine = 0;
-    skippedStatus = FALSE;
+    skippedStatus = false;
     skipRow = false;
     q->setAt(QSql::BeforeFirst);
-    q->setActive(FALSE);
+    q->setActive(false);
     q->cleanup();
 }
 
@@ -147,54 +147,54 @@ bool QSQLiteResultPrivate::fetchNext(QtSqlCachedResult::ValueCache &values, int 
     int i;
 
     if (skipRow) {
-	// already fetched
-	Q_ASSERT(!initialFetch);
-	skipRow = false;
-	return skippedStatus;
+        // already fetched
+        Q_ASSERT(!initialFetch);
+        skipRow = false;
+        return skippedStatus;
     }
     skipRow = initialFetch;
 
     if (!currentMachine)
-	return FALSE;
+        return false;
 
     // keep trying while busy, wish I could implement this better.
     while ((res = sqlite_step(currentMachine, &colNum, &fvals, &cnames)) == SQLITE_BUSY) {
-	// sleep instead requesting result again immidiately.
+        // sleep instead requesting result again immidiately.
 #if defined Q_WS_WIN32
-	Sleep(1000);
+        Sleep(1000);
 #else
-	sleep(1);
+        sleep(1);
 #endif
     }
 
     switch(res) {
     case SQLITE_ROW:
-	// check to see if should fill out columns
-	if (rInf.isEmpty())
-	    // must be first call.
-	    init(cnames, colNum);
-	if (!fvals)
-	    return FALSE;
-	if (idx < 0 && !initialFetch)
-	    return TRUE;
-	for (i = 0; i < colNum; ++i)
-	    values[i + idx] = utf8 ? QString::fromUtf8(fvals[i]) : QString(fvals[i]);
-	return TRUE;
+        // check to see if should fill out columns
+        if (rInf.isEmpty())
+            // must be first call.
+            init(cnames, colNum);
+        if (!fvals)
+            return false;
+        if (idx < 0 && !initialFetch)
+            return true;
+        for (i = 0; i < colNum; ++i)
+            values[i + idx] = utf8 ? QString::fromUtf8(fvals[i]) : QString(fvals[i]);
+        return true;
     case SQLITE_DONE:
-	if (rInf.isEmpty())
-	    // must be first call.
-	    init(cnames, colNum);
-	q->setAt(QSql::AfterLast);
-	return FALSE;
+        if (rInf.isEmpty())
+            // must be first call.
+            init(cnames, colNum);
+        q->setAt(QSql::AfterLast);
+        return false;
     case SQLITE_ERROR:
     case SQLITE_MISUSE:
     default:
-	// something wrong, don't get col info, but still return false
-	finalize(); // finalize to get the error message.
-	q->setAt(QSql::AfterLast);
-	return FALSE;
+        // something wrong, don't get col info, but still return false
+        finalize(); // finalize to get the error message.
+        q->setAt(QSql::AfterLast);
+        return false;
     }
-    return FALSE;
+    return false;
 }
 
 QSQLiteResult::QSQLiteResult(const QSQLiteDriver* db)
@@ -218,14 +218,14 @@ bool QSQLiteResult::reset (const QString& query)
 {
     // this is where we build a query.
     if (!driver())
-        return FALSE;
+        return false;
     if (!driver()-> isOpen() || driver()->isOpenError())
-        return FALSE;
+        return false;
 
     d->cleanup();
 
     // Um, ok.  callback based so.... pass private static function for this.
-    setSelect(FALSE);
+    setSelect(false);
     char *err = 0;
     int res = sqlite_compile(d->access,
                                 d->utf8 ? query.utf8() : query.local8Bit(),
@@ -238,15 +238,15 @@ bool QSQLiteResult::reset (const QString& query)
     }
     //if (*d->currentTail != '\000' then there is more sql to eval
     if (!d->currentMachine) {
-	setActive(FALSE);
-	return FALSE;
+        setActive(false);
+        return false;
     }
     // we have to fetch one row to find out about
     // the structure of the result set
     d->skippedStatus = d->fetchNext(cache(), 0, true);
     setSelect(!d->rInf.isEmpty());
-    setActive(TRUE);
-    return TRUE;
+    setActive(true);
+    return true;
 }
 
 bool QSQLiteResult::gotoNext(QtSqlCachedResult::ValueCache& row, int idx)
@@ -267,7 +267,7 @@ int QSQLiteResult::numRowsAffected()
 QSqlRecord QSQLiteResult::record() const
 {
     if (!isActive() || !isSelect())
-	return QSqlRecord();
+        return QSqlRecord();
     return d->rInf;
 }
 
@@ -284,8 +284,8 @@ QSQLiteDriver::QSQLiteDriver(sqlite *connection, QObject *parent)
 {
     d = new QSQLiteDriverPrivate();
     d->access = connection;
-    setOpen(TRUE);
-    setOpenError(FALSE);
+    setOpen(true);
+    setOpenError(false);
 }
 
 
@@ -298,14 +298,14 @@ bool QSQLiteDriver::hasFeature(DriverFeature f) const
 {
     switch (f) {
     case Transactions:
-        return TRUE;
+        return true;
 #if (QT_VERSION-0 >= 0x030000)
     case Unicode:
         return d->utf8;
 #endif
 //   case BLOB:
     default:
-        return FALSE;
+        return false;
     }
 }
 
@@ -319,7 +319,7 @@ bool QSQLiteDriver::open(const QString & db, const QString &, const QString &, c
         close();
 
     if (db.isEmpty())
-	return FALSE;
+        return false;
 
     char* err = 0;
     d->access = sqlite_open(QFile::encodeName(db), 0, &err);
@@ -330,12 +330,12 @@ bool QSQLiteDriver::open(const QString & db, const QString &, const QString &, c
     }
 
     if (d->access) {
-        setOpen(TRUE);
-	setOpenError(FALSE);
-        return TRUE;
+        setOpen(true);
+        setOpenError(false);
+        return true;
     }
-    setOpenError(TRUE);
-    return FALSE;
+    setOpenError(true);
+    return false;
 }
 
 void QSQLiteDriver::close()
@@ -343,8 +343,8 @@ void QSQLiteDriver::close()
     if (isOpen()) {
         sqlite_close(d->access);
         d->access = 0;
-        setOpen(FALSE);
-        setOpenError(FALSE);
+        setOpen(false);
+        setOpenError(false);
     }
 }
 
@@ -356,49 +356,49 @@ QSqlQuery QSQLiteDriver::createQuery() const
 bool QSQLiteDriver::beginTransaction()
 {
     if (!isOpen() || isOpenError())
-        return FALSE;
+        return false;
 
     char* err;
     int res = sqlite_exec(d->access, "BEGIN", 0, this, &err);
 
     if (res == SQLITE_OK)
-        return TRUE;
+        return true;
 
     setLastError(QSqlError("Unable to begin transaction", err, QSqlError::Transaction, res));
     sqlite_freemem(err);
-    return FALSE;
+    return false;
 }
 
 bool QSQLiteDriver::commitTransaction()
 {
     if (!isOpen() || isOpenError())
-        return FALSE;
+        return false;
 
     char* err;
     int res = sqlite_exec(d->access, "COMMIT", 0, this, &err);
 
     if (res == SQLITE_OK)
-        return TRUE;
+        return true;
 
     setLastError(QSqlError("Unable to commit transaction", err, QSqlError::Transaction, res));
     sqlite_freemem(err);
-    return FALSE;
+    return false;
 }
 
 bool QSQLiteDriver::rollbackTransaction()
 {
     if (!isOpen() || isOpenError())
-        return FALSE;
+        return false;
 
     char* err;
     int res = sqlite_exec(d->access, "ROLLBACK", 0, this, &err);
 
     if (res == SQLITE_OK)
-        return TRUE;
+        return true;
 
     setLastError(QSqlError("Unable to rollback Transaction", err, QSqlError::Transaction, res));
     sqlite_freemem(err);
-    return FALSE;
+    return false;
 }
 
 QStringList QSQLiteDriver::tables(const QString &typeName) const
@@ -409,7 +409,7 @@ QStringList QSQLiteDriver::tables(const QString &typeName) const
     int type = typeName.toInt();
 
     QSqlQuery q = createQuery();
-    q.setForwardOnly(TRUE);
+    q.setForwardOnly(true);
 #if (QT_VERSION-0 >= 0x030000)
     if ((type & (int)QSql::Tables) && (type & (int)QSql::Views))
         q.exec("SELECT name FROM sqlite_master WHERE type='table' OR type='view'");
@@ -445,28 +445,28 @@ QSqlIndex QSQLiteDriver::primaryIndex(const QString &tblname) const
         return QSqlIndex();
 
     QSqlQuery q = createQuery();
-    q.setForwardOnly(TRUE);
+    q.setForwardOnly(true);
     // finrst find a UNIQUE INDEX
     q.exec("PRAGMA index_list('" + tblname + "');");
     QString indexname;
     while(q.next()) {
-	if (q.value(2).toInt()==1) {
-	    indexname = q.value(1).toString();
-	    break;
-	}
+        if (q.value(2).toInt()==1) {
+            indexname = q.value(1).toString();
+            break;
+        }
     }
     if (indexname.isEmpty())
-	return QSqlIndex();
+        return QSqlIndex();
 
     q.exec("PRAGMA index_info('" + indexname + "');");
 
     QSqlIndex index(indexname);
     while(q.next()) {
-	QString name = q.value(2).toString();
-	QSqlVariant::Type type = QSqlVariant::Invalid;
-	if (rec.contains(name))
-	    type = rec.field(name)->type();
-	index.append(QSqlField(name, type));
+        QString name = q.value(2).toString();
+        QSqlVariant::Type type = QSqlVariant::Invalid;
+        if (rec.contains(name))
+            type = rec.field(name)->type();
+        index.append(QSqlField(name, type));
     }
     return index;
 }
@@ -477,7 +477,7 @@ QSqlRecord QSQLiteDriver::record(const QString &tbl) const
         return QSqlRecord();
 
     QSqlQuery q = createQuery();
-    q.setForwardOnly(TRUE);
+    q.setForwardOnly(true);
     q.exec("SELECT * FROM " + tbl + " LIMIT 1");
     return q.record();
 }

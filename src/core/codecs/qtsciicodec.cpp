@@ -49,10 +49,10 @@
   are met:
   \list 1
   \i Redistributions of source code must retain the above copyright
-	notice, this list of conditions and the following disclaimer.
+        notice, this list of conditions and the following disclaimer.
   \i Redistributions in binary form must reproduce the above copyright
-	notice, this list of conditions and the following disclaimer in the
-	documentation and/or other materials provided with the distribution.
+        notice, this list of conditions and the following disclaimer in the
+        documentation and/or other materials provided with the distribution.
   \endlist
 
   THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
@@ -75,7 +75,7 @@
 static unsigned char qt_UnicodeToTSCII(ushort u1, ushort u2, ushort u3);
 static unsigned int qt_TSCIIToUnicode(unsigned int code, uint *s);
 
-#define IsTSCIIChar(c)	(((c) >= 0x80) && ((c) <= 0xfd))
+#define IsTSCIIChar(c)        (((c) >= 0x80) && ((c) <= 0xfd))
 
 /*! \reimp */
 int QTsciiCodec::mibEnum() const
@@ -93,25 +93,25 @@ QByteArray QTsciiCodec::fromUnicode(const QString& uc, int& lenInOut) const
     rstr.resize(rlen);
     uchar* cursor = (uchar*)rstr.data();
     for (int i = 0; i < l; i++) {
-	QChar ch = uc[i];
-	uchar j;
-	if ( ch.row() == 0x00 && ch.cell() < 0x80 ) {
-	    // ASCII
-	    j = ch.cell();
-	} else if ((j = qt_UnicodeToTSCII(uc[i].unicode(),
-					  uc[i + 1].unicode(),
-					  uc[i + 2].unicode()))) {
-	    // We have to check the combined chars first!
-	    i += 2;
-	} else if ((j = qt_UnicodeToTSCII(uc[i].unicode(),
-					  uc[i + 1].unicode(), 0))) {
-	    i++;
-	} else if ((j = qt_UnicodeToTSCII(uc[i].unicode(), 0, 0))) {
-	} else {
-	    // Error
-	    j = '?';	// unknown char
-	}
-	*cursor++ = j;
+        QChar ch = uc[i];
+        uchar j;
+        if (ch.row() == 0x00 && ch.cell() < 0x80) {
+            // ASCII
+            j = ch.cell();
+        } else if ((j = qt_UnicodeToTSCII(uc[i].unicode(),
+                                          uc[i + 1].unicode(),
+                                          uc[i + 2].unicode()))) {
+            // We have to check the combined chars first!
+            i += 2;
+        } else if ((j = qt_UnicodeToTSCII(uc[i].unicode(),
+                                          uc[i + 1].unicode(), 0))) {
+            i++;
+        } else if ((j = qt_UnicodeToTSCII(uc[i].unicode(), 0, 0))) {
+        } else {
+            // Error
+            j = '?';        // unknown char
+        }
+        *cursor++ = j;
     }
     lenInOut = cursor - (const uchar*)rstr.constData();
     *cursor = 0;
@@ -123,23 +123,23 @@ QString QTsciiCodec::toUnicode(const char* chars, int len) const
 {
     QString result;
     for (int i = 0; i < len; i++) {
-	uchar ch = chars[i];
-	if ( ch < 0x80 ) {
-	    // ASCII
-	    result += QChar(ch);
-	} else if ( IsTSCIIChar(ch) ) {
-	    // TSCII
-	    uint s[3];
-	    uint u = qt_TSCIIToUnicode(ch, s);
-	    uint *p = s;
-	    while ( u-- ) {
-		uint c = *p++;
-		result += c ? QChar(c) : QChar(QChar::replacement);
-	    }
-	} else {
-	    // Invalid
-	    result += QChar(QChar::replacement);
-	}
+        uchar ch = chars[i];
+        if (ch < 0x80) {
+            // ASCII
+            result += QChar(ch);
+        } else if (IsTSCIIChar(ch)) {
+            // TSCII
+            uint s[3];
+            uint u = qt_TSCIIToUnicode(ch, s);
+            uint *p = s;
+            while (u--) {
+                uint c = *p++;
+                result += c ? QChar(c) : QChar(QChar::replacement);
+            }
+        } else {
+            // Invalid
+            result += QChar(QChar::replacement);
+        }
     }
 
     return result;
@@ -160,7 +160,7 @@ int QTsciiCodec::heuristicNameMatch(const char* hint) const
     else
         p = hint;
     if (qstricmp(p, "TSCII") == 0)
-      	return 4;
+        return 4;
     return QTextCodec::heuristicNameMatch(hint);
 }
 
@@ -169,22 +169,22 @@ int QTsciiCodec::heuristicContentMatch(const char* chars, int len) const
 {
     int score = 0;
     for (int i=0; i<len; i++) {
-	uchar ch = chars[i];
-	// No nulls allowed.
-	if ( !ch )
-	    return -1;
-	if ( ch < 32 && ch != '\t' && ch != '\n' && ch != '\r' ) {
-	    // Suspicious
-	    if ( score )
-		score--;
-	} else if ( ch < 0x80 ) {
-	    // Inconclusive
-	} else if ( IsTSCIIChar(ch) ) {
-	    score++;
-	} else {
-	    // Invalid
-	    return -1;
-	}
+        uchar ch = chars[i];
+        // No nulls allowed.
+        if (!ch)
+            return -1;
+        if (ch < 32 && ch != '\t' && ch != '\n' && ch != '\r') {
+            // Suspicious
+            if (score)
+                score--;
+        } else if (ch < 0x80) {
+            // Inconclusive
+        } else if (IsTSCIIChar(ch)) {
+            score++;
+        } else {
+            // Invalid
+            return -1;
+        }
     }
     return score;
 }
@@ -455,7 +455,7 @@ static int cmp(const ushort *s1, const ushort *s2, size_t len)
     int diff = 0;
 
     while (len-- && (diff = *s1++ - *s2++) == 0)
-	;
+        ;
 
     return diff;
 }
@@ -472,17 +472,17 @@ static unsigned char qt_UnicodeToTSCII(ushort u1, ushort u2, ushort u3)
 
     // do a binary search for the composed unicode in the list
     while (a <= b) {
-	int w = (a + b) / 2;
-	int j = cmp(UnToTs[w], s, 3);
+        int w = (a + b) / 2;
+        int j = cmp(UnToTs[w], s, 3);
 
-	if (j == 0)
-	    // found it
-	    return UnToTs[w][3];
+        if (j == 0)
+            // found it
+            return UnToTs[w][3];
 
-	if (j < 0)
-	    a = w + 1;
-	else
-	    b = w - 1;
+        if (j < 0)
+            a = w + 1;
+        else
+            b = w - 1;
     }
 
     return 0;
@@ -492,9 +492,9 @@ static unsigned int qt_TSCIIToUnicode(uint code, uint *s)
 {
     int len = 0;
     for (int i = 0; i < 3; i++) {
-	uint u = TsToUn[code & 0x7f][i];
-	s[i] = u;
-	if (s[i]) len = i + 1;
+        uint u = TsToUn[code & 0x7f][i];
+        s[i] = u;
+        if (s[i]) len = i + 1;
     }
 
     return len;

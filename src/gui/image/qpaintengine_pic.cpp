@@ -69,10 +69,10 @@ bool QPicturePaintEngine::begin(QPaintDevice *pd, QPainterState *state, bool unc
     d->s << (Q_UINT16) 0 << (Q_UINT16) pic_d->formatMajor << (Q_UINT16) pic_d->formatMinor;
     d->s << (Q_UINT8) PdcBegin << (Q_UINT8) sizeof(Q_INT32);
     pic_d->brect = QRect();
-    if ( pic_d->formatMajor >= 4 ) {
-	QRect r = pic_d->brect;
-	d->s << (Q_INT32) r.left() << (Q_INT32) r.top() << (Q_INT32) r.width()
-	     << (Q_INT32) r.height();
+    if (pic_d->formatMajor >= 4) {
+        QRect r = pic_d->brect;
+        d->s << (Q_INT32) r.left() << (Q_INT32) r.top() << (Q_INT32) r.width()
+             << (Q_INT32) r.height();
     }
     pic_d->trecs = 0;
     d->s << (Q_UINT32)pic_d->trecs; // total number of records
@@ -85,21 +85,21 @@ bool QPicturePaintEngine::end()
 {
     pic_d->trecs++;
     d->s << (Q_UINT8) PdcEnd << (Q_UINT8) 0;
-    int cs_start = sizeof(Q_UINT32);		// pos of checksum word
+    int cs_start = sizeof(Q_UINT32);                // pos of checksum word
     int data_start = cs_start + sizeof(Q_UINT16);
     int brect_start = data_start + 2*sizeof(Q_INT16) + 2*sizeof(Q_UINT8);
     int pos = pic_d->pictb.at();
     pic_d->pictb.at(brect_start);
     if (pic_d->formatMajor >= 4) { // bounding rectangle
-	QRect r = pic_d->brect;
-	d->s << (Q_INT32) r.left() << (Q_INT32) r.top() << (Q_INT32) r.width()
-	     << (Q_INT32) r.height();
+        QRect r = pic_d->brect;
+        d->s << (Q_INT32) r.left() << (Q_INT32) r.top() << (Q_INT32) r.width()
+             << (Q_INT32) r.height();
     }
-    d->s << (Q_UINT32) pic_d->trecs;			// write number of records
+    d->s << (Q_UINT32) pic_d->trecs;                        // write number of records
     pic_d->pictb.at(cs_start);
     QByteArray buf = pic_d->pictb.buffer();
     Q_UINT16 cs = (Q_UINT16) qChecksum(buf.constData() + data_start, pos - data_start);
-    d->s << cs;				// write checksum
+    d->s << cs;                                // write checksum
     pic_d->pictb.close();
     setActive(false);
     return true;
@@ -187,39 +187,39 @@ void QPicturePaintEngine::updateClipRegion(QPainterState *ps)
 
 void QPicturePaintEngine::writeCmdLength(int pos, const QRect &r, bool corr)
 {
-    int newpos = pic_d->pictb.at();		// new position
+    int newpos = pic_d->pictb.at();                // new position
     int length = newpos - pos;
     QRect br(r);
 
-    if ( length < 255 ) {			// write 8-bit length
-	pic_d->pictb.at(pos - 1);			// position to right index
-	d->s << (Q_UINT8)length;
-    } else {					// write 32-bit length
-	d->s << (Q_UINT32)0;				// extend the buffer
-	pic_d->pictb.at(pos - 1);			// position to right index
-	d->s << (Q_UINT8)255;			// indicate 32-bit length
-	char *p = pic_d->pictb.buffer().data();
-	memmove( p+pos+4, p+pos, length );	// make room for 4 byte
-	d->s << (Q_UINT32)length;
-	newpos += 4;
+    if (length < 255) {                        // write 8-bit length
+        pic_d->pictb.at(pos - 1);                        // position to right index
+        d->s << (Q_UINT8)length;
+    } else {                                        // write 32-bit length
+        d->s << (Q_UINT32)0;                                // extend the buffer
+        pic_d->pictb.at(pos - 1);                        // position to right index
+        d->s << (Q_UINT8)255;                        // indicate 32-bit length
+        char *p = pic_d->pictb.buffer().data();
+        memmove(p+pos+4, p+pos, length);        // make room for 4 byte
+        d->s << (Q_UINT32)length;
+        newpos += 4;
     }
-    pic_d->pictb.at( newpos );				// set to new position
+    pic_d->pictb.at(newpos);                                // set to new position
 
-    if ( br.isValid() ) {
-	if ( corr ) {				// widen bounding rect
-	    int w2 = d->pt->pen().width() / 2;
-	    br.setCoords( br.left() - w2, br.top() - w2,
-			  br.right() + w2, br.bottom() + w2 );
-	}
+    if (br.isValid()) {
+        if (corr) {                                // widen bounding rect
+            int w2 = d->pt->pen().width() / 2;
+            br.setCoords(br.left() - w2, br.top() - w2,
+                          br.right() + w2, br.bottom() + w2);
+        }
 #ifndef QT_NO_TRANSFORMATIONS
-	br = d->pt->worldMatrix().map( br );
+        br = d->pt->worldMatrix().map(br);
 #endif
-	if ( d->pt->hasClipping() ) {
-	    QRect cr = d->pt->clipRegion().boundingRect();
-	    br &= cr;
-	}
-	if ( br.isValid() )
-	    pic_d->brect |= br;		     	// merge with existing rect
+        if (d->pt->hasClipping()) {
+            QRect cr = d->pt->clipRegion().boundingRect();
+            br &= cr;
+        }
+        if (br.isValid())
+            pic_d->brect |= br;                        // merge with existing rect
     }
 }
 

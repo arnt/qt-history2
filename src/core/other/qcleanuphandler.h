@@ -49,33 +49,33 @@ public:
     { p.d = 0; }
     ~QCleanupHandler()
     {
-	if (p.d) {
-	    for (int i = 0; i < p.size(); ++i) {
-		T** t = (T**) *p.at(i);
-		delete *t;
-	        *t = 0;
-	    }
-	    qFree(p.d);
-	    p.d = 0;
-	}
+        if (p.d) {
+            for (int i = 0; i < p.size(); ++i) {
+                T** t = (T**) *p.at(i);
+                delete *t;
+                *t = 0;
+            }
+            qFree(p.d);
+            p.d = 0;
+        }
     }
 
     T* add(T **object)
     {
-	if (!p.d) {
-	    p.d = &QListData::shared_null;
-	    ++p.d->ref;
-	    p.detach();
-	}
-	*p.prepend() =  object;
-	return *object;
+        if (!p.d) {
+            p.d = &QListData::shared_null;
+            ++p.d->ref;
+            p.detach();
+        }
+        *p.prepend() =  object;
+        return *object;
     }
     void remove(T **object)
     {
-	if (p.d)
-	    for (int i = 0; i < p.size(); ++i)
-		if (*p.at(i) == object)
-		    p.remove(i--);
+        if (p.d)
+            for (int i = 0; i < p.size(); ++i)
+                if (*p.at(i) == object)
+                    p.remove(i--);
     }
 };
 
@@ -103,10 +103,10 @@ public:
     inline QSharedCleanupHandler() : object(0) {}
     inline ~QSharedCleanupHandler()
     {
-	if (object) {
-	    if ((*object)->deref()) delete *object;
-	    *object = 0;
-	}
+        if (object) {
+            if ((*object)->deref()) delete *object;
+            *object = 0;
+        }
     }
     inline T* set(T **o) { object = o; return *object; }
     inline void reset() { object = 0; }

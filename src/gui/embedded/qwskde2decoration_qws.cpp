@@ -43,35 +43,35 @@ QRegion QWSKDE2Decoration::region(const QWidget *widget, const QRect &rect, QWSD
     QRegion region;
 
     switch (type) {
-	case Maximize: {
-	    QRect r(rect.right() - 2*titleHeight, rect.top() - titleHeight,
-			    titleHeight, titleHeight);
-	    if (r.left() > rect.left() + titleHeight)
-		    region = r;
-	    break;
-	}
-	case Minimize: {
-	    QRect r(rect.right() - 3*titleHeight, rect.top() - titleHeight,
-		    	    titleHeight, titleHeight);
-	    if (r.left() > rect.left() + titleHeight)
-		    region = r;
-	    break;
-	}
-	case Menu:
-	case Close:
-	case All:
-	case Title:
-	case Top:
-	case Left:
-	case Right:
-	case Bottom:
-	case TopLeft:
-	case TopRight:
-	case BottomLeft:
-	case BottomRight:
-	default:
-	    region = QWSDefaultDecoration::region(widget, rect, type);
-	    break;
+        case Maximize: {
+            QRect r(rect.right() - 2*titleHeight, rect.top() - titleHeight,
+                            titleHeight, titleHeight);
+            if (r.left() > rect.left() + titleHeight)
+                    region = r;
+            break;
+        }
+        case Minimize: {
+            QRect r(rect.right() - 3*titleHeight, rect.top() - titleHeight,
+                            titleHeight, titleHeight);
+            if (r.left() > rect.left() + titleHeight)
+                    region = r;
+            break;
+        }
+        case Menu:
+        case Close:
+        case All:
+        case Title:
+        case Top:
+        case Left:
+        case Right:
+        case Bottom:
+        case TopLeft:
+        case TopRight:
+        case BottomLeft:
+        case BottomRight:
+        default:
+            region = QWSDefaultDecoration::region(widget, rect, type);
+            break;
     }
 
     return region;
@@ -89,17 +89,17 @@ void QWSKDE2Decoration::paint(QPainter *painter, const QWidget *widget)
     QRect rect(widget->rect());
 
     // Border rect
-    QRect br( rect.left() - BORDER_WIDTH,
+    QRect br(rect.left() - BORDER_WIDTH,
                 rect.top() - BORDER_WIDTH - titleHeight,
                 rect.width() + 2 * BORDER_WIDTH,
-                rect.height() + BORDER_WIDTH + BOTTOM_BORDER_WIDTH + titleHeight );
+                rect.height() + BORDER_WIDTH + BOTTOM_BORDER_WIDTH + titleHeight);
 
     // title bar rect
     QRect tr;
-    tr = QRect( titleHeight, -titleHeight,  titleWidth, titleHeight - 1);
+    tr = QRect(titleHeight, -titleHeight,  titleWidth, titleHeight - 1);
 
     QRegion oldClip = painter->clipRegion();
-    painter->setClipRegion( oldClip - QRegion( tr ) );	// reduce flicker
+    painter->setClipRegion(oldClip - QRegion(tr));        // reduce flicker
 
 #ifndef QT_NO_PALETTE
     //QPalette pal = QApplication::palette();
@@ -108,57 +108,57 @@ void QWSKDE2Decoration::paint(QPainter *painter, const QWidget *widget)
 
 #if !defined(QT_NO_STYLE)
     style.drawPanel(painter, br.x(), br.y(), br.width(),
-		    br.height() - 4, pal, FALSE, 2,
-		    &pal.brush(QPalette::Background));
+                    br.height() - 4, pal, false, 2,
+                    &pal.brush(QPalette::Background));
 #elif !defined(QT_NO_DRAWUTIL)
     qDrawWinPanel(painter, br.x(), br.y(), br.width(),
-		  br.height() - 4, pal, FALSE,
-		  &pal.brush(QPalette::Background));
+                  br.height() - 4, pal, false,
+                  &pal.brush(QPalette::Background));
 #endif
 
-    painter->setClipRegion( oldClip );
+    painter->setClipRegion(oldClip);
 
     if (titleWidth > 0) {
-	QBrush titleBrush;
-	QPen   titlePen;
-	int    titleLeft = titleHeight + 4;
+        QBrush titleBrush;
+        QPen   titlePen;
+        int    titleLeft = titleHeight + 4;
 
-	if (widget == qApp->activeWindow()) {
-	    titleBrush = pal.brush(QPalette::Highlight);
-	    titlePen   = pal.color(QPalette::HighlightedText);
-	} else {
-	    titleBrush = pal.brush(QPalette::Background);
-	    titlePen   = pal.color(QPalette::Text);
-	}
+        if (widget == qApp->activeWindow()) {
+            titleBrush = pal.brush(QPalette::Highlight);
+            titlePen   = pal.color(QPalette::HighlightedText);
+        } else {
+            titleBrush = pal.brush(QPalette::Background);
+            titlePen   = pal.color(QPalette::Text);
+        }
 
-#define CLAMP(x, y)	    ( ((x) > (y)) ? (y) : (x) )
+#define CLAMP(x, y)            (((x) > (y)) ? (y) : (x))
 
-	{
+        {
 
 #if !defined(QT_NO_STYLE)
-	    style.drawPanel(painter, tr.x(), tr.y(), tr.width(), tr.height(),
-			    pal, TRUE, 1, &titleBrush);
+            style.drawPanel(painter, tr.x(), tr.y(), tr.width(), tr.height(),
+                            pal, true, 1, &titleBrush);
 #elif !defined(QT_NO_DRAWUTIL)
-	    qDrawWinPanel(painter, tr.x(), tr.y(), tr.width(), tr.height(),
-			    pal, TRUE, &titleBrush);
+            qDrawWinPanel(painter, tr.x(), tr.y(), tr.width(), tr.height(),
+                            pal, true, &titleBrush);
 #endif
 
 #ifndef QT_NO_WIDGET_TOPEXTRA
-	    painter->setPen(titlePen);
-	    painter->setFont(widget->font());
-	    painter->drawText( titleLeft, -titleHeight,
-			    titleWidth-5, titleHeight - 1,
-			    QPainter::AlignVCenter, widget->windowTitle());
+            painter->setPen(titlePen);
+            painter->setFont(widget->font());
+            painter->drawText(titleLeft, -titleHeight,
+                            titleWidth-5, titleHeight - 1,
+                            QPainter::AlignVCenter, widget->windowTitle());
 #endif
-	    return;
-	}
+            return;
+        }
 
 #ifndef QT_NO_WIDGET_TOPEXTRA
-	painter->setPen(titlePen);
-	painter->setFont(widget->font());
-	painter->drawText( titleLeft, -titleHeight,
-	 		rect.width() - titleHeight - 10, titleHeight-1,
-			QPainter::AlignVCenter, widget->windowTitle());
+        painter->setPen(titlePen);
+        painter->setFont(widget->font());
+        painter->drawText(titleLeft, -titleHeight,
+                        rect.width() - titleHeight - 10, titleHeight-1,
+                        QPainter::AlignVCenter, widget->windowTitle());
 #endif
     }
 
@@ -167,7 +167,7 @@ void QWSKDE2Decoration::paint(QPainter *painter, const QWidget *widget)
 }
 
 void QWSKDE2Decoration::paintButton(QPainter *painter, const QWidget *w,
-			QWSDecoration::Region type, int state)
+                        QWSDecoration::Region type, int state)
 {
 #ifndef QT_NO_PALETTE
 #ifndef QT_NO_STYLE
@@ -185,22 +185,22 @@ void QWSKDE2Decoration::paintButton(QPainter *painter, const QWidget *w,
 
     {
 
-	if ((state & QWSButton::MouseOver) && (state & QWSButton::Clicked)) {
+        if ((state & QWSButton::MouseOver) && (state & QWSButton::Clicked)) {
 #if !defined(QT_NO_STYLE)
-	    style.drawToolButton(painter, brect.x(), brect.y(), brect.width()-1,
-		        brect.height()-1, pal, TRUE,
-			&pal.brush(QPalette::Background));
+            style.drawToolButton(painter, brect.x(), brect.y(), brect.width()-1,
+                        brect.height()-1, pal, true,
+                        &pal.brush(QPalette::Background));
 #elif !defined(QT_NO_DRAWUTIL)
-	    qDrawWinPanel(painter, brect.x(), brect.y(), brect.width()-1,
-			brect.height()-1, pal, TRUE,
-			&pal.brush(QPalette::Background));
+            qDrawWinPanel(painter, brect.x(), brect.y(), brect.width()-1,
+                        brect.height()-1, pal, true,
+                        &pal.brush(QPalette::Background));
 #endif
-	    if (pm) painter->drawPixmap(brect.x()+xoff+1, brect.y()+yoff+1, *pm);
-	} else {
-	    painter->fillRect(brect.x(), brect.y(), brect.width()-1,
-			brect.height()-1, pal.brush(QPalette::Background));
-	    if (pm) painter->drawPixmap(brect.x()+xoff, brect.y()+yoff, *pm);
-	}
+            if (pm) painter->drawPixmap(brect.x()+xoff+1, brect.y()+yoff+1, *pm);
+        } else {
+            painter->fillRect(brect.x(), brect.y(), brect.width()-1,
+                        brect.height()-1, pal.brush(QPalette::Background));
+            if (pm) painter->drawPixmap(brect.x()+xoff, brect.y()+yoff, *pm);
+        }
     }
 
 #endif

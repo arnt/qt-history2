@@ -28,8 +28,8 @@
     aspect ratio of a paint device:
 
     \code
-	QPaintDeviceMetrics pdm( myWidget );
-	double aspect = (double)pdm.widthMM() / (double)pdm.heightMM();
+        QPaintDeviceMetrics pdm(myWidget);
+        double aspect = (double)pdm.widthMM() / (double)pdm.heightMM();
     \endcode
 
     QPaintDeviceMetrics contains methods to provide the width and
@@ -49,7 +49,7 @@
 /*!
     Constructs a metric for the paint device \a pd.
 */
-QPaintDeviceMetrics::QPaintDeviceMetrics( const QPaintDevice *pd )
+QPaintDeviceMetrics::QPaintDeviceMetrics(const QPaintDevice *pd)
 {
     pdev = (QPaintDevice *)pd;
 }

@@ -35,7 +35,7 @@ int QAccessibleWidgetStack::indexOfChild(const QAccessibleInterface *child) cons
 {
     QObject *childObject = child ? child->object() : 0;
     if (childObject != widgetStack()->visibleWidget())
-	return -1;
+        return -1;
     return 1;
 }
 
@@ -44,7 +44,7 @@ int QAccessibleWidgetStack::childAt(int, int) const
 {
     QWidget *curPage = widgetStack()->visibleWidget();
     if (!curPage)
-	return 0;
+        return 0;
     return 1;
 }
 
@@ -56,15 +56,15 @@ int QAccessibleWidgetStack::navigate(Relation rel, int entry, QAccessibleInterfa
     switch (rel) {
     // Hierarchical
     case Self:
-	const_cast<QAccessibleWidgetStack*>(this)->queryInterface(IID_QAccessible, (QUnknownInterface**)target);
-	return 0;
+        const_cast<QAccessibleWidgetStack*>(this)->queryInterface(IID_QAccessible, (QUnknownInterface**)target);
+        return 0;
     case Child:
-	if (entry != 1)
-	    return -1;
-	targetObject = widgetStack()->visibleWidget();
-	break;
+        if (entry != 1)
+            return -1;
+        targetObject = widgetStack()->visibleWidget();
+        break;
     default:
-	return QAccessibleWidget::navigate(rel, entry, target);
+        return QAccessibleWidget::navigate(rel, entry, target);
     }
     QAccessible::queryAccessibleInterface(targetObject, target);
     return *target ? 0 : -1;

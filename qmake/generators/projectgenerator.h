@@ -20,8 +20,8 @@ class ProjectGenerator : public MakefileGenerator
 {
     bool init_flag;
     bool addFile(QString);
-    bool addConfig(const QString &, bool add=TRUE);
-    QString getWritableVar(const QString &, bool fixPath=TRUE);
+    bool addConfig(const QString &, bool add=true);
+    QString getWritableVar(const QString &, bool fixPath=true);
 protected:
     virtual void init();
     virtual bool writeMakefile(QTextStream &);

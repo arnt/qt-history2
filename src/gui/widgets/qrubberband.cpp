@@ -64,9 +64,9 @@ public:
     change this and call QWidget::setWindowOpacity() to make the
     window only partially opaque.
 */
-QRubberBand::QRubberBand(QRubberBand::Shape s, QWidget *p) : 
-    QWidget(*new QRubberBandPrivate, p, 
-	    WType_TopLevel | WStyle_StaysOnTop | WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WX11BypassWM)
+QRubberBand::QRubberBand(QRubberBand::Shape s, QWidget *p) :
+    QWidget(*new QRubberBandPrivate, p,
+            WType_TopLevel | WStyle_StaysOnTop | WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WX11BypassWM)
 {
     d->shape = s;
     setAutoMask(true);
@@ -98,7 +98,7 @@ QRubberBand::drawRubberBandMask(QPainter *p)
 {
     QStyle::SFlags flags = QStyle::Style_Default;
     if(d->shape == Rectangle)
-	flags |= QStyle::Style_Rectangle;
+        flags |= QStyle::Style_Rectangle;
     style().drawPrimitive(QStyle::PE_RubberBandMask, p, d->rect, palette(), flags);
 }
 
@@ -114,7 +114,7 @@ QRubberBand::drawRubberBand(QPainter *p)
 {
     QStyle::SFlags flags = QStyle::Style_Default;
     if(d->shape == Rectangle)
-	flags |= QStyle::Style_Rectangle;
+        flags |= QStyle::Style_Rectangle;
     style().drawPrimitive(QStyle::PE_RubberBand, p, d->rect, palette(), flags);
 }
 
@@ -122,16 +122,16 @@ QRubberBand::drawRubberBand(QPainter *p)
   Returns the shape of this rubber band. The shape can only be set
   upon construction.
 */
-QRubberBand::Shape 
-QRubberBand::shape() const 
-{ 
-    return d->shape; 
+QRubberBand::Shape
+QRubberBand::shape() const
+{
+    return d->shape;
 }
 
 /*!
     \reimp
 */
-void 
+void
 QRubberBand::updateMask()
 {
     QBitmap bm(width(), height(), true);
@@ -154,11 +154,11 @@ QRubberBand::paintEvent(QPaintEvent *)
 /*!
     \reimp
 */
-void 
+void
 QRubberBand::changeEvent(QEvent *ev)
 {
-    if(ev->type() == QEvent::StyleChange && autoMask()) 
-	updateMask();
+    if(ev->type() == QEvent::StyleChange && autoMask())
+        updateMask();
 }
 
 /*!
@@ -209,38 +209,38 @@ void QRubberBand::setGeometry(int x, int y, int w, int h)
     QRect mygeom(x, y, w, h);
     d->rect = QRect(0, 0, w, h);
     if(QWidget *p = parentWidget()) {
-	const QRect prect(p->mapToGlobal(QPoint(0, 0)), p->size());
-	if(!prect.contains(mygeom)) {
-	    if(mygeom.left() < prect.left()) {
-		const int diff = prect.left()-mygeom.left();
-		d->rect.moveLeft(-diff);
-		mygeom.moveLeft(prect.left());
-		mygeom.setWidth(mygeom.width()-diff);
-	    }
-	    if(mygeom.top() < prect.top()) {
-		const int diff = prect.top()-mygeom.top();
-		d->rect.moveTop(-diff);
-		mygeom.moveTop(prect.top());
-		mygeom.setHeight(mygeom.height()-diff);
-	    }
-	    if(mygeom.left() > prect.right()) 
-		mygeom.moveLeft(prect.right());
-	    if(mygeom.top() > prect.bottom()) 
-		mygeom.moveTop(prect.bottom());
-	    if(mygeom.bottom() > prect.bottom()) {
-		const int diff = mygeom.bottom()-prect.bottom();
-		mygeom.setHeight(mygeom.height()-diff);
-	    }
-	    if(mygeom.right() > prect.right()) {
-		const int diff = mygeom.right()-prect.right();
-		mygeom.setWidth(mygeom.width()-diff);
-	    }
-	}
+        const QRect prect(p->mapToGlobal(QPoint(0, 0)), p->size());
+        if(!prect.contains(mygeom)) {
+            if(mygeom.left() < prect.left()) {
+                const int diff = prect.left()-mygeom.left();
+                d->rect.moveLeft(-diff);
+                mygeom.moveLeft(prect.left());
+                mygeom.setWidth(mygeom.width()-diff);
+            }
+            if(mygeom.top() < prect.top()) {
+                const int diff = prect.top()-mygeom.top();
+                d->rect.moveTop(-diff);
+                mygeom.moveTop(prect.top());
+                mygeom.setHeight(mygeom.height()-diff);
+            }
+            if(mygeom.left() > prect.right())
+                mygeom.moveLeft(prect.right());
+            if(mygeom.top() > prect.bottom())
+                mygeom.moveTop(prect.bottom());
+            if(mygeom.bottom() > prect.bottom()) {
+                const int diff = mygeom.bottom()-prect.bottom();
+                mygeom.setHeight(mygeom.height()-diff);
+            }
+            if(mygeom.right() > prect.right()) {
+                const int diff = mygeom.right()-prect.right();
+                mygeom.setWidth(mygeom.width()-diff);
+            }
+        }
     }
     if(mygeom != geometry()) {
-	QWidget::setGeometry(mygeom);
+        QWidget::setGeometry(mygeom);
     } else {
-	updateMask();
+        updateMask();
     }
     update();
 #else

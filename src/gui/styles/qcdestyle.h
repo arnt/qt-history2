@@ -33,25 +33,25 @@ class Q_GUI_EXPORT_STYLE_CDE QCDEStyle : public QMotifStyle
     Q_OBJECT
 public:
 
-    QCDEStyle( bool useHighlightCols = FALSE );
+    QCDEStyle(bool useHighlightCols = false);
     virtual ~QCDEStyle();
 
-    int pixelMetric( PixelMetric metric, const QWidget *widget = 0 ) const;
+    int pixelMetric(PixelMetric metric, const QWidget *widget = 0) const;
 
-    void drawControl( ControlElement element,
-		      QPainter *p,
-		      const QWidget *widget,
-		      const QRect &r,
-		      const QPalette &pal,
-		      SFlags how = Style_Default,
-		      const QStyleOption& = QStyleOption::Default ) const;
+    void drawControl(ControlElement element,
+                      QPainter *p,
+                      const QWidget *widget,
+                      const QRect &r,
+                      const QPalette &pal,
+                      SFlags how = Style_Default,
+                      const QStyleOption& = QStyleOption::Default) const;
 
-    void drawPrimitive( PrimitiveElement pe,
-			QPainter *p,
-			const QRect &r,
-			const QPalette &pal,
-			SFlags flags = Style_Default,
-			const QStyleOption& = QStyleOption::Default ) const;
+    void drawPrimitive(PrimitiveElement pe,
+                        QPainter *p,
+                        const QRect &r,
+                        const QPalette &pal,
+                        SFlags flags = Style_Default,
+                        const QStyleOption& = QStyleOption::Default) const;
 
 };
 

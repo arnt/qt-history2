@@ -29,8 +29,8 @@ public:
     const QMetaObject *metaObject() const { return &staticMetaObject; }
     void *qt_metacast(const char *) const;
     void activate(void * = 0);
-    bool connect( const QObject *receiver, const char *member, ConnectionType = AutoConnection );
-    bool disconnect( const QObject *receiver, const char *member=0 );
+    bool connect(const QObject *receiver, const char *member, ConnectionType = AutoConnection);
+    bool disconnect(const QObject *receiver, const char *member=0);
 private:
     QMetaObject staticMetaObject;
     QByteArray stringdata;
@@ -45,17 +45,17 @@ public:
     inline QSignal():d(0){}
     inline ~QSignal(){ delete d; }
     inline void activate(const T& t) { if(d)d->activate((void*)&t); }
-    bool connect( const QObject *receiver, const char *member,
-		  Qt::ConnectionType type = Qt::AutoConnection ) {
-	if (!d) d = new QSignalEmitter(QTypeInfo<T>::name());
-	return d->connect(receiver, member, type);
+    bool connect(const QObject *receiver, const char *member,
+                  Qt::ConnectionType type = Qt::AutoConnection) {
+        if (!d) d = new QSignalEmitter(QTypeInfo<T>::name());
+        return d->connect(receiver, member, type);
     }
-    inline bool disconnect( const QObject *receiver, const char *member=0 )
-	{ return d ? d->disconnect(receiver, member) : false; }
-private:	// Disabled copy constructor and operator=
+    inline bool disconnect(const QObject *receiver, const char *member=0)
+        { return d ? d->disconnect(receiver, member) : false; }
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QSignal( const QSignal & );
-    QSignal &operator=( const QSignal & );
+    QSignal(const QSignal &);
+    QSignal &operator=(const QSignal &);
 #endif
 };
 
@@ -67,17 +67,17 @@ public:
     inline QSignal():d(0){}
     inline ~QSignal(){ delete d; }
     inline void activate() { if(d)d->activate(); }
-    bool connect( const QObject *receiver, const char *member,
-		  Qt::ConnectionType type = Qt::AutoConnection ) {
-	if (!d) d = new QSignalEmitter;
-	return d->connect(receiver, member, type);
+    bool connect(const QObject *receiver, const char *member,
+                  Qt::ConnectionType type = Qt::AutoConnection) {
+        if (!d) d = new QSignalEmitter;
+        return d->connect(receiver, member, type);
     }
-    inline bool disconnect( const QObject *receiver, const char *member=0 )
-	{ return d ? d->disconnect(receiver, member) : false; }
-private:	// Disabled copy constructor and operator=
+    inline bool disconnect(const QObject *receiver, const char *member=0)
+        { return d ? d->disconnect(receiver, member) : false; }
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QSignal( const QSignal & );
-    QSignal &operator=( const QSignal & );
+    QSignal(const QSignal &);
+    QSignal &operator=(const QSignal &);
 #endif
 };
 

@@ -33,11 +33,11 @@ class QStyleSheetItemData;
 class Q_GUI_EXPORT QStyleSheetItem : public Qt
 {
 public:
-    QStyleSheetItem( QStyleSheet* parent, const QString& name );
-    QStyleSheetItem( const QStyleSheetItem & );
+    QStyleSheetItem(QStyleSheet* parent, const QString& name);
+    QStyleSheetItem(const QStyleSheetItem &);
     ~QStyleSheetItem();
 
-    QStyleSheetItem& operator=( const QStyleSheetItem& other );
+    QStyleSheetItem& operator=(const QStyleSheetItem& other);
 
     QString name() const;
 
@@ -47,12 +47,12 @@ public:
     enum AdditionalStyleValues { Undefined  = - 1};
 
     enum DisplayMode {
-	DisplayBlock,
-	DisplayInline,
-	DisplayListItem,
-	DisplayNone
+        DisplayBlock,
+        DisplayInline,
+        DisplayListItem,
+        DisplayNone
 #ifndef Q_QDOC
-	, DisplayModeUndefined = -1
+        , DisplayModeUndefined = -1
 #endif
     };
 
@@ -60,16 +60,16 @@ public:
     void setDisplayMode(DisplayMode m);
 
     int alignment() const;
-    void setAlignment( int f);
+    void setAlignment(int f);
 
     enum VerticalAlignment {
-	VAlignBaseline,
-	VAlignSub,
-	VAlignSuper
+        VAlignBaseline,
+        VAlignSub,
+        VAlignSuper
     };
 
     VerticalAlignment verticalAlignment() const;
-    void setVerticalAlignment( VerticalAlignment valign );
+    void setVerticalAlignment(VerticalAlignment valign);
 
     int fontWeight() const;
     void setFontWeight(int w);
@@ -78,86 +78,86 @@ public:
     void setLogicalFontSize(int s);
 
     int logicalFontSizeStep() const;
-    void setLogicalFontSizeStep( int s );
+    void setLogicalFontSizeStep(int s);
 
     int fontSize() const;
     void setFontSize(int s);
 
     QString fontFamily() const;
-    void setFontFamily( const QString& );
+    void setFontFamily(const QString&);
 
     int numberOfColumns() const;
     void setNumberOfColumns(int ncols);
 
     QColor color() const;
-    void setColor( const QColor &);
+    void setColor(const QColor &);
 
     bool fontItalic() const;
-    void setFontItalic( bool );
+    void setFontItalic(bool);
     bool definesFontItalic() const;
 
     bool fontUnderline() const;
-    void setFontUnderline( bool );
+    void setFontUnderline(bool);
     bool definesFontUnderline() const;
 
     bool fontStrikeOut() const;
-    void setFontStrikeOut( bool );
+    void setFontStrikeOut(bool);
     bool definesFontStrikeOut() const;
 
     bool isAnchor() const;
     void setAnchor(bool anc);
 
     enum WhiteSpaceMode {
-	WhiteSpaceNormal,
-	WhiteSpacePre,
-	WhiteSpaceNoWrap
+        WhiteSpaceNormal,
+        WhiteSpacePre,
+        WhiteSpaceNoWrap
 #ifndef Q_QDOC
-	, WhiteSpaceModeUndefined = -1
+        , WhiteSpaceModeUndefined = -1
 #endif
     };
     WhiteSpaceMode whiteSpaceMode() const;
     void setWhiteSpaceMode(WhiteSpaceMode m);
 
     enum Margin {
-	MarginLeft,
-	MarginRight,
-	MarginTop,
-	MarginBottom,
-	MarginFirstLine,
-	MarginAll,
-	MarginVertical,
-	MarginHorizontal
+        MarginLeft,
+        MarginRight,
+        MarginTop,
+        MarginBottom,
+        MarginFirstLine,
+        MarginAll,
+        MarginVertical,
+        MarginHorizontal
 #ifndef Q_QDOC
-	, MarginUndefined = -1
+        , MarginUndefined = -1
 #endif
     };
 
-    int margin( Margin m) const;
-    void setMargin( Margin, int);
+    int margin(Margin m) const;
+    void setMargin(Margin, int);
 
     enum ListStyle {
-	ListDisc,
-	ListCircle,
-	ListSquare,
-	ListDecimal,
-	ListLowerAlpha,
-	ListUpperAlpha
+        ListDisc,
+        ListCircle,
+        ListSquare,
+        ListDecimal,
+        ListLowerAlpha,
+        ListUpperAlpha
 #ifndef Q_QDOC
-	, ListStyleUndefined = -1
+        , ListStyleUndefined = -1
 #endif
     };
 
     ListStyle listStyle() const;
-    void setListStyle( ListStyle );
+    void setListStyle(ListStyle);
 
     QString contexts() const;
-    void setContexts( const QString& );
-    bool allowedInContext( const QStyleSheetItem* ) const;
+    void setContexts(const QString&);
+    bool allowedInContext(const QStyleSheetItem*) const;
 
     bool selfNesting() const;
-    void setSelfNesting( bool );
+    void setSelfNesting(bool);
 
-    void setLineSpacing( int ls );
+    void setLineSpacing(int ls);
     int lineSpacing() const;
 
 private:
@@ -173,42 +173,42 @@ class Q_GUI_EXPORT QStyleSheet : public QObject
 {
     Q_OBJECT
 public:
-    QStyleSheet( QObject *parent=0, const char *name=0 );
+    QStyleSheet(QObject *parent=0, const char *name=0);
     virtual ~QStyleSheet();
 
     static QStyleSheet* defaultSheet();
-    static void setDefaultSheet( QStyleSheet* );
+    static void setDefaultSheet(QStyleSheet*);
 
 
-    QStyleSheetItem* item( const QString& name);
-    const QStyleSheetItem* item( const QString& name) const;
+    QStyleSheetItem* item(const QString& name);
+    const QStyleSheetItem* item(const QString& name) const;
 
-    void insert( QStyleSheetItem* item);
+    void insert(QStyleSheetItem* item);
 
 #ifndef QT_NO_TEXTCUSTOMITEM
-    virtual Q3TextCustomItem* tag( const QString& name,
-				  const QMap<QString, QString> &attr,
-				  const QString& context,
-				  const QMimeSourceFactory& factory,
-				  bool emptyTag, Q3TextDocument *doc ) const;
+    virtual Q3TextCustomItem* tag(const QString& name,
+                                  const QMap<QString, QString> &attr,
+                                  const QString& context,
+                                  const QMimeSourceFactory& factory,
+                                  bool emptyTag, Q3TextDocument *doc) const;
 #endif
-    static QString escape( const QString& );
-    static QString convertFromPlainText( const QString&,
-					 QStyleSheetItem::WhiteSpaceMode mode = QStyleSheetItem::WhiteSpacePre );
-    static bool mightBeRichText( const QString& );
+    static QString escape(const QString&);
+    static QString convertFromPlainText(const QString&,
+                                         QStyleSheetItem::WhiteSpaceMode mode = QStyleSheetItem::WhiteSpacePre);
+    static bool mightBeRichText(const QString&);
 
-    virtual void scaleFont( QFont& font, int logicalSize ) const;
+    virtual void scaleFont(QFont& font, int logicalSize) const;
 
-    virtual void error( const QString& ) const;
+    virtual void error(const QString&) const;
 
 private:
     void init();
     QHash<QString, QStyleSheetItem *> styles;
     QStyleSheetItem* nullstyle;
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QStyleSheet( const QStyleSheet & );
-    QStyleSheet &operator=( const QStyleSheet & );
+    QStyleSheet(const QStyleSheet &);
+    QStyleSheet &operator=(const QStyleSheet &);
 #endif
 };
 

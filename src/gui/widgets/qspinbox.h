@@ -29,95 +29,95 @@ class QSpinBoxPrivate;
 class Q_GUI_EXPORT QSpinBox: public QWidget, public QRangeControl
 {
     Q_OBJECT
-    Q_ENUMS( ButtonSymbols )
-    Q_PROPERTY( QString text READ text )
-    Q_PROPERTY( QString prefix READ prefix WRITE setPrefix )
-    Q_PROPERTY( QString suffix READ suffix WRITE setSuffix )
-    Q_PROPERTY( QString cleanText READ cleanText )
-    Q_PROPERTY( QString specialValueText READ specialValueText WRITE setSpecialValueText )
-    Q_PROPERTY( bool wrapping READ wrapping WRITE setWrapping )
-    Q_PROPERTY( ButtonSymbols buttonSymbols READ buttonSymbols WRITE setButtonSymbols )
-    Q_PROPERTY( int maxValue READ maxValue WRITE setMaxValue )
-    Q_PROPERTY( int minValue READ minValue WRITE setMinValue )
-    Q_PROPERTY( int lineStep READ lineStep WRITE setLineStep )
-    Q_PROPERTY( int value READ value WRITE setValue )
+    Q_ENUMS(ButtonSymbols)
+    Q_PROPERTY(QString text READ text)
+    Q_PROPERTY(QString prefix READ prefix WRITE setPrefix)
+    Q_PROPERTY(QString suffix READ suffix WRITE setSuffix)
+    Q_PROPERTY(QString cleanText READ cleanText)
+    Q_PROPERTY(QString specialValueText READ specialValueText WRITE setSpecialValueText)
+    Q_PROPERTY(bool wrapping READ wrapping WRITE setWrapping)
+    Q_PROPERTY(ButtonSymbols buttonSymbols READ buttonSymbols WRITE setButtonSymbols)
+    Q_PROPERTY(int maxValue READ maxValue WRITE setMaxValue)
+    Q_PROPERTY(int minValue READ minValue WRITE setMinValue)
+    Q_PROPERTY(int lineStep READ lineStep WRITE setLineStep)
+    Q_PROPERTY(int value READ value WRITE setValue)
 
 public:
-    QSpinBox( QWidget* parent=0, const char* name=0 );
-    QSpinBox( int minValue, int maxValue, int step = 1,
-	      QWidget* parent=0, const char* name=0 );
+    QSpinBox(QWidget* parent=0, const char* name=0);
+    QSpinBox(int minValue, int maxValue, int step = 1,
+              QWidget* parent=0, const char* name=0);
     ~QSpinBox();
 
-    QString		text() const;
+    QString                text() const;
 
-    virtual QString	prefix() const;
-    virtual QString	suffix() const;
-    virtual QString	cleanText() const;
+    virtual QString        prefix() const;
+    virtual QString        suffix() const;
+    virtual QString        cleanText() const;
 
-    virtual void	setSpecialValueText( const QString &text );
-    QString		specialValueText() const;
+    virtual void        setSpecialValueText(const QString &text);
+    QString                specialValueText() const;
 
-    virtual void	setWrapping( bool on );
-    bool		wrapping() const;
+    virtual void        setWrapping(bool on);
+    bool                wrapping() const;
 
     enum ButtonSymbols { UpDownArrows, PlusMinus };
-    virtual void	setButtonSymbols( ButtonSymbols );
-    ButtonSymbols	buttonSymbols() const;
+    virtual void        setButtonSymbols(ButtonSymbols);
+    ButtonSymbols        buttonSymbols() const;
 
-    virtual void	setValidator( const QValidator* v );
+    virtual void        setValidator(const QValidator* v);
     const QValidator * validator() const;
 
-    QSize		sizeHint() const;
-    QSize		minimumSizeHint() const;
+    QSize                sizeHint() const;
+    QSize                minimumSizeHint() const;
 
-    int	 minValue() const;
-    int	 maxValue() const;
-    void setMinValue( int );
-    void setMaxValue( int );
-    int	 lineStep() const;
-    void setLineStep( int );
+    int         minValue() const;
+    int         maxValue() const;
+    void setMinValue(int);
+    void setMaxValue(int);
+    int         lineStep() const;
+    void setLineStep(int);
     int  value() const;
 
-    QRect		upRect() const;
-    QRect		downRect() const;
+    QRect                upRect() const;
+    QRect                downRect() const;
 
 public slots:
-    virtual void	setValue( int value );
-    virtual void	setPrefix( const QString &text );
-    virtual void	setSuffix( const QString &text );
-    virtual void	stepUp();
-    virtual void	stepDown();
-    virtual void 	setEnabled( bool enabled );
-    virtual void 	selectAll();
+    virtual void        setValue(int value);
+    virtual void        setPrefix(const QString &text);
+    virtual void        setSuffix(const QString &text);
+    virtual void        stepUp();
+    virtual void        stepDown();
+    virtual void         setEnabled(bool enabled);
+    virtual void         selectAll();
 
 signals:
-    void		valueChanged( int value );
-    void		valueChanged( const QString &valueText );
+    void                valueChanged(int value);
+    void                valueChanged(const QString &valueText);
 
 protected:
-    virtual QString	mapValueToText( int value );
-    virtual int		mapTextToValue( bool* ok );
-    QString		currentValueText();
+    virtual QString        mapValueToText(int value);
+    virtual int                mapTextToValue(bool* ok);
+    QString                currentValueText();
 
-    virtual void	updateDisplay();
-    virtual void	interpretText();
+    virtual void        updateDisplay();
+    virtual void        interpretText();
 
-    QLineEdit*		editor() const;
+    QLineEdit*                editor() const;
 
-    virtual void	valueChange();
-    virtual void	rangeChange();
+    virtual void        valueChange();
+    virtual void        rangeChange();
 
     void keyPressEvent(QKeyEvent *);
     void focusOutEvent(QFocusEvent *);
-    void		resizeEvent( QResizeEvent* ev );
+    void                resizeEvent(QResizeEvent* ev);
 #ifndef QT_NO_WHEELEVENT
-    void		wheelEvent( QWheelEvent * );
+    void                wheelEvent(QWheelEvent *);
 #endif
 
-    void                changeEvent( QEvent * );
+    void                changeEvent(QEvent *);
 
 protected slots:
-    void		textChanged();
+    void                textChanged();
 
 private:
     void initSpinBox();
@@ -128,15 +128,15 @@ private:
     QString sfix;
     QString specText;
 
-    uint wrap		: 1;
-    uint edited		: 1;
+    uint wrap                : 1;
+    uint edited                : 1;
 
     void arrangeWidgets();
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QSpinBox( const QSpinBox& );
-    QSpinBox& operator=( const QSpinBox& );
+    QSpinBox(const QSpinBox&);
+    QSpinBox& operator=(const QSpinBox&);
 #endif
 
 };

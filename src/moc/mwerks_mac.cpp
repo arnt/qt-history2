@@ -34,50 +34,50 @@ QCString pstring2qstring(const unsigned char *c);
 
 CWPLUGIN_ENTRY(CWPlugin_GetDropInFlags)(const DropInFlags** flags, long* flagsSize)
 {
-	static const DropInFlags sFlags = {
-		kCurrentDropInFlagsVersion,
-		CWDROPINCOMPILERTYPE,
-		DROPINCOMPILERLINKERAPIVERSION_7,
-		kCompAlwaysReload|kCompRequiresProjectBuildStartedMsg,
-		Lang_C_CPP,
-		DROPINCOMPILERLINKERAPIVERSION
-	};
-	*flags = &sFlags;
-	*flagsSize = sizeof(sFlags);
-	return cwNoErr;
+        static const DropInFlags sFlags = {
+                kCurrentDropInFlagsVersion,
+                CWDROPINCOMPILERTYPE,
+                DROPINCOMPILERLINKERAPIVERSION_7,
+                kCompAlwaysReload|kCompRequiresProjectBuildStartedMsg,
+                Lang_C_CPP,
+                DROPINCOMPILERLINKERAPIVERSION
+        };
+        *flags = &sFlags;
+        *flagsSize = sizeof(sFlags);
+        return cwNoErr;
 }
 
 
 
 CWPLUGIN_ENTRY(CWPlugin_GetDropInName)(const char** dropinName)
 {
-	static const char* sDropInName = "McMoc";
-	*dropinName = sDropInName;
-	return cwNoErr;
+        static const char* sDropInName = "McMoc";
+        *dropinName = sDropInName;
+        return cwNoErr;
 }
 
 CWPLUGIN_ENTRY(CWPlugin_GetDisplayName)(const char** displayName)
 {
-	static const char* sDisplayName = "McMoc";
-	*displayName = sDisplayName;
-	return cwNoErr;
+        static const char* sDisplayName = "McMoc";
+        *displayName = sDisplayName;
+        return cwNoErr;
 }
 
 CWPLUGIN_ENTRY(CWPlugin_GetTargetList)(const CWTargetList** targetList)
 {
-	static CWDataType sCPU = targetCPUAny;
-	static CWDataType sOS = targetOSMacintosh;
-	static CWTargetList sTargetList = {kCurrentCWTargetListVersion, 1, &sCPU, 1, &sOS};
-	*targetList = &sTargetList;
-	return cwNoErr;
+        static CWDataType sCPU = targetCPUAny;
+        static CWDataType sOS = targetOSMacintosh;
+        static CWTargetList sTargetList = {kCurrentCWTargetListVersion, 1, &sCPU, 1, &sOS};
+        *targetList = &sTargetList;
+        return cwNoErr;
 }
 
 CWPLUGIN_ENTRY(CWPlugin_GetDefaultMappingList)(const CWExtMapList** defaultMappingList)
 {
-	static CWExtensionMapping sExtension[] = { {'TEXT', ".mocs", kPrecompile } };
-	static CWExtMapList sExtensionMapList = {kCurrentCWExtMapListVersion, 3, sExtension};
-	*defaultMappingList = &sExtensionMapList;
-	return cwNoErr;
+        static CWExtensionMapping sExtension[] = { {'TEXT', ".mocs", kPrecompile } };
+        static CWExtMapList sExtensionMapList = {kCurrentCWExtMapListVersion, 3, sExtension};
+        *defaultMappingList = &sExtensionMapList;
+        return cwNoErr;
 }
 
 #if CW_USE_PRAGMA_EXPORT
@@ -88,34 +88,34 @@ typedef short CWFileRef;
 static int line_count = 0;
 moc_status do_moc(CWPluginContext, const QCString &, const QCString &, CWFileSpec *, bool);
 
-static CWResult	mocify(CWPluginContext context, const QCString &source)
+static CWResult        mocify(CWPluginContext context, const QCString &source)
 {
     CWDisplayLines(context, line_count++);
 
     source.stripWhiteSpace();
 
     CWResult err;
-	bool            dotmoc=FALSE;
-	QCString stem = source, ext;
-	int dotpos = stem.findRev('.');
+        bool            dotmoc=false;
+        QCString stem = source, ext;
+        int dotpos = stem.findRev('.');
     if(dotpos != -1) {
         ext = stem.right(stem.length() - (dotpos+1));
         stem = stem.left(dotpos);
-        if(ext == "cpp") 
-            dotmoc = TRUE;
+        if(ext == "cpp")
+            dotmoc = true;
     } else {
         //whoa!
-    } 
+    }
     QCString dest;
-    if(dotmoc) 
+    if(dotmoc)
         dest = stem + ".moc";
     else
         dest = "moc_" + stem + ".cpp";
-        
+
     //moc it
     CWFileSpec destSpec;
- 	moc_status mocd = do_moc(context, source, dest, &destSpec, dotmoc);
-   
+        moc_status mocd = do_moc(context, source, dest, &destSpec, dotmoc);
+
 #if 0
     QCString derr = "Weird";
     switch(mocd) {
@@ -126,82 +126,82 @@ static CWResult	mocify(CWPluginContext context, const QCString &source)
     case moc_no_source: derr = "No Source"; break;
     case moc_general_error: derr = "General Error"; break;
     }
-   	char	dmsg[200];
-	sprintf(dmsg, "\"%s\" %s", source.data(), derr.data());
-	CWReportMessage(context, NULL, dmsg, NULL, messagetypeError, 0);
+        char        dmsg[200];
+        sprintf(dmsg, "\"%s\" %s", source.data(), derr.data());
+        CWReportMessage(context, NULL, dmsg, NULL, messagetypeError, 0);
 #endif
-		
+
     //handle project
     if(mocd == moc_no_qobject) {
-    	char	msg[400];
-		sprintf(msg, "\"%s\" No relevant classes found. No output generated.", source.data());
-		CWReportMessage(context, NULL, msg, NULL, messagetypeWarning, 0);
-	} else if ( (mocd == moc_success || mocd == moc_not_time) && !dotmoc)
-	{
-	       	long			whichFile;
-	        CWNewProjectEntryInfo ei;
-	        memset(&ei, '\0', sizeof(ei));
-	        ei.groupPath = "QtGenerated";
-		    err = CWAddProjectEntry(context, &destSpec, true, &ei, &whichFile);
-		    if (!CWSUCCESS(err))
-		    {
-			    char	msg[200];
-			    sprintf(msg, "\"%s\" not added", dest.data());
-			    CWReportMessage(context, NULL, msg, NULL, messagetypeWarning, 0);
-		    }
-		    if(mocd == moc_success)
-		        CWSetModDate(context, &destSpec, NULL, true);
-	}
-	return (cwNoErr);
+        char        msg[400];
+                sprintf(msg, "\"%s\" No relevant classes found. No output generated.", source.data());
+                CWReportMessage(context, NULL, msg, NULL, messagetypeWarning, 0);
+        } else if ((mocd == moc_success || mocd == moc_not_time) && !dotmoc)
+        {
+                long                        whichFile;
+                CWNewProjectEntryInfo ei;
+                memset(&ei, '\0', sizeof(ei));
+                ei.groupPath = "QtGenerated";
+                    err = CWAddProjectEntry(context, &destSpec, true, &ei, &whichFile);
+                    if (!CWSUCCESS(err))
+                    {
+                            char        msg[200];
+                            sprintf(msg, "\"%s\" not added", dest.data());
+                            CWReportMessage(context, NULL, msg, NULL, messagetypeWarning, 0);
+                    }
+                    if(mocd == moc_success)
+                        CWSetModDate(context, &destSpec, NULL, true);
+        }
+        return (cwNoErr);
 }
 
 pascal short main(CWPluginContext context)
 {
-	short		result;
-	long		request;
+        short                result;
+        long                request;
 
-	if (CWGetPluginRequest(context, &request) != cwNoErr)
-		return cwErrRequestFailed;
-	result = cwErrInvalidParameter;
-		
-	/* dispatch on compiler request */
-	switch (request)
-	{
-	case reqInitCompiler:
-	case reqTermCompiler:
-	    result = cwNoErr;
-    	break;
-		
-	case reqCompile:
-	{
-	    line_count = 0;
-	    const char *files = NULL;
-	    long filelen;
-	    CWGetMainFileText(context, &files, &filelen);
-	    const char *beg = files;
-	    for(int x = 0; x < filelen; x++) {
-	        if(*(files++) == '\r') {
-	            char file[1024];
-	            memcpy(file, beg, files - beg);
-	            file[(files-beg)-1] = '\0';
-	            mocify(context, file);
+        if (CWGetPluginRequest(context, &request) != cwNoErr)
+                return cwErrRequestFailed;
+        result = cwErrInvalidParameter;
+
+        /* dispatch on compiler request */
+        switch (request)
+        {
+        case reqInitCompiler:
+        case reqTermCompiler:
+            result = cwNoErr;
+        break;
+
+        case reqCompile:
+        {
+            line_count = 0;
+            const char *files = NULL;
+            long filelen;
+            CWGetMainFileText(context, &files, &filelen);
+            const char *beg = files;
+            for(int x = 0; x < filelen; x++) {
+                if(*(files++) == '\r') {
+                    char file[1024];
+                    memcpy(file, beg, files - beg);
+                    file[(files-beg)-1] = '\0';
+                    mocify(context, file);
                 beg = files;
             }
         }
         if(beg != files) {
-	        char file[1024];
-	        memcpy(file, beg, files - beg);
-	        file[(files-beg)] = '\0';
-	        mocify(context, file);
-        }        
-            
+                char file[1024];
+                memcpy(file, beg, files - beg);
+                file[(files-beg)] = '\0';
+                mocify(context, file);
+        }
+
         result = cwNoErr;
-		break;
-	}
-	}
-	
-	/* return result code */
-	return (result);
+                break;
+        }
+        }
+
+        /* return result code */
+        return (result);
 }
 
 #endif

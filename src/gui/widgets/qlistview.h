@@ -46,69 +46,69 @@ class Q_GUI_EXPORT QListViewItem : public Qt
 #endif
 
 public:
-    QListViewItem( QListView * parent );
-    QListViewItem( QListViewItem * parent );
-    QListViewItem( QListView * parent, QListViewItem * after );
-    QListViewItem( QListViewItem * parent, QListViewItem * after );
+    QListViewItem(QListView * parent);
+    QListViewItem(QListViewItem * parent);
+    QListViewItem(QListView * parent, QListViewItem * after);
+    QListViewItem(QListViewItem * parent, QListViewItem * after);
 
-    QListViewItem( QListView * parent,
-		   const QString&,                 const QString& = QString::null,
-		   const QString& = QString::null, const QString& = QString::null,
-		   const QString& = QString::null, const QString& = QString::null,
-		   const QString& = QString::null, const QString& = QString::null );
-    QListViewItem( QListViewItem * parent,
-		   const QString&,                 const QString& = QString::null,
-		   const QString& = QString::null, const QString& = QString::null,
-		   const QString& = QString::null, const QString& = QString::null,
-		   const QString& = QString::null, const QString& = QString::null );
+    QListViewItem(QListView * parent,
+                   const QString&,                 const QString& = QString::null,
+                   const QString& = QString::null, const QString& = QString::null,
+                   const QString& = QString::null, const QString& = QString::null,
+                   const QString& = QString::null, const QString& = QString::null);
+    QListViewItem(QListViewItem * parent,
+                   const QString&,                 const QString& = QString::null,
+                   const QString& = QString::null, const QString& = QString::null,
+                   const QString& = QString::null, const QString& = QString::null,
+                   const QString& = QString::null, const QString& = QString::null);
 
-    QListViewItem( QListView * parent, QListViewItem * after,
-		   const QString&,                 const QString& = QString::null,
-		   const QString& = QString::null, const QString& = QString::null,
-		   const QString& = QString::null, const QString& = QString::null,
-		   const QString& = QString::null, const QString& = QString::null );
-    QListViewItem( QListViewItem * parent, QListViewItem * after,
-		   const QString&,                 const QString& = QString::null,
-		   const QString& = QString::null, const QString& = QString::null,
-		   const QString& = QString::null, const QString& = QString::null,
-		   const QString& = QString::null, const QString& = QString::null );
+    QListViewItem(QListView * parent, QListViewItem * after,
+                   const QString&,                 const QString& = QString::null,
+                   const QString& = QString::null, const QString& = QString::null,
+                   const QString& = QString::null, const QString& = QString::null,
+                   const QString& = QString::null, const QString& = QString::null);
+    QListViewItem(QListViewItem * parent, QListViewItem * after,
+                   const QString&,                 const QString& = QString::null,
+                   const QString& = QString::null, const QString& = QString::null,
+                   const QString& = QString::null, const QString& = QString::null,
+                   const QString& = QString::null, const QString& = QString::null);
     virtual ~QListViewItem();
 
-    virtual void insertItem( QListViewItem * );
-    virtual void takeItem( QListViewItem * );
-    virtual void removeItem( QListViewItem *item ) { takeItem( item ); } //obsolete, use takeItem instead
+    virtual void insertItem(QListViewItem *);
+    virtual void takeItem(QListViewItem *);
+    virtual void removeItem(QListViewItem *item) { takeItem(item); } //obsolete, use takeItem instead
 
     int height() const;
     virtual void invalidateHeight();
     int totalHeight() const;
-    virtual int width( const QFontMetrics&,
-		       const QListView*, int column) const;
+    virtual int width(const QFontMetrics&,
+                       const QListView*, int column) const;
     void widthChanged(int column=-1) const;
     int depth() const;
 
-    virtual void setText( int, const QString &);
-    virtual QString text( int ) const;
+    virtual void setText(int, const QString &);
+    virtual QString text(int) const;
 
-    virtual void setPixmap( int, const QPixmap & );
-    virtual const QPixmap * pixmap( int ) const;
+    virtual void setPixmap(int, const QPixmap &);
+    virtual const QPixmap * pixmap(int) const;
 
-    virtual QString key( int, bool ) const;
-    virtual int compare( QListViewItem *i, int col, bool ) const;
-    virtual void sortChildItems( int, bool );
+    virtual QString key(int, bool) const;
+    virtual int compare(QListViewItem *i, int col, bool) const;
+    virtual void sortChildItems(int, bool);
 
     int childCount() const { return nChildren; }
 
     bool isOpen() const { return open; }
-    virtual void setOpen( bool );
+    virtual void setOpen(bool);
     virtual void setup();
 
-    virtual void setSelected( bool );
+    virtual void setSelected(bool);
     bool isSelected() const { return selected; }
 
-    virtual void paintCell( QPainter *, const QPalette & pal,
-			    int column, int width, int alignment );
-    virtual void paintBranches( QPainter * p, const QPalette & pal, int w, int y, int h );
-    virtual void paintFocus( QPainter *, const QPalette & pal, const QRect & r );
+    virtual void paintCell(QPainter *, const QPalette & pal,
+                            int column, int width, int alignment);
+    virtual void paintBranches(QPainter * p, const QPalette & pal, int w, int y, int h);
+    virtual void paintFocus(QPainter *, const QPalette & pal, const QRect & r);
 
     QListViewItem * firstChild() const;
     QListViewItem * nextSibling() const { return siblingItem; }
@@ -121,58 +121,58 @@ public:
 
     QListView *listView() const;
 
-    virtual void setSelectable( bool enable );
+    virtual void setSelectable(bool enable);
     bool isSelectable() const { return selectable && enabled; }
 
-    virtual void setExpandable( bool );
+    virtual void setExpandable(bool);
     bool isExpandable() const { return expandable; }
 
     void repaint() const;
 
     virtual void sort();
-    void moveItem( QListViewItem *after );
+    void moveItem(QListViewItem *after);
 
-    virtual void setDragEnabled( bool allow );
-    virtual void setDropEnabled( bool allow );
+    virtual void setDragEnabled(bool allow);
+    virtual void setDropEnabled(bool allow);
     bool dragEnabled() const;
     bool dropEnabled() const;
-    virtual bool acceptDrop( const QMimeSource *mime ) const;
+    virtual bool acceptDrop(const QMimeSource *mime) const;
 
-    void setVisible( bool b );
+    void setVisible(bool b);
     bool isVisible() const;
 
-    virtual void setRenameEnabled( int col, bool b );
-    bool renameEnabled( int col ) const;
-    virtual void startRename( int col );
+    virtual void setRenameEnabled(int col, bool b);
+    bool renameEnabled(int col) const;
+    virtual void startRename(int col);
 
-    virtual void setEnabled( bool b );
+    virtual void setEnabled(bool b);
     bool isEnabled() const;
 
     virtual int rtti() const;
     enum { RTTI = 0 };
 
-    virtual void setMultiLinesEnabled( bool b );
+    virtual void setMultiLinesEnabled(bool b);
     bool multiLinesEnabled() const;
 
 protected:
     virtual void enforceSortOrder() const;
-    virtual void setHeight( int );
+    virtual void setHeight(int);
     virtual void activate();
 
-    bool activatedPos( QPoint & );
+    bool activatedPos(QPoint &);
 #ifndef QT_NO_DRAGANDDROP
-    virtual void dropped( QDropEvent *e );
+    virtual void dropped(QDropEvent *e);
 #endif
     virtual void dragEntered();
     virtual void dragLeft();
-    virtual void okRename( int col );
-    virtual void cancelRename( int col );
+    virtual void okRename(int col);
+    virtual void cancelRename(int col);
 
     void ignoreDoubleClick();
 
 private:
     void init();
-    void moveToJustAfter( QListViewItem * );
+    void moveToJustAfter(QListViewItem *);
     void enforceSortOrderBackToRoot();
     void removeRenameBox();
 
@@ -215,75 +215,75 @@ class Q_GUI_EXPORT QListView: public QScrollView
     friend class QListViewToolTip;
 
     Q_OBJECT
-    Q_ENUMS( SelectionMode ResizeMode RenameAction )
-    Q_PROPERTY( int columns READ columns )
-    Q_PROPERTY( bool multiSelection READ isMultiSelection WRITE setMultiSelection DESIGNABLE false )
-    Q_PROPERTY( SelectionMode selectionMode READ selectionMode WRITE setSelectionMode )
-    Q_PROPERTY( int childCount READ childCount )
-    Q_PROPERTY( bool allColumnsShowFocus READ allColumnsShowFocus WRITE setAllColumnsShowFocus )
-    Q_PROPERTY( bool showSortIndicator READ showSortIndicator WRITE setShowSortIndicator )
-    Q_PROPERTY( int itemMargin READ itemMargin WRITE setItemMargin )
-    Q_PROPERTY( bool rootIsDecorated READ rootIsDecorated WRITE setRootIsDecorated )
-    Q_PROPERTY( bool showToolTips READ showToolTips WRITE setShowToolTips )
-    Q_PROPERTY( ResizeMode resizeMode READ resizeMode WRITE setResizeMode )
-    Q_PROPERTY( int treeStepSize READ treeStepSize WRITE setTreeStepSize )
-    Q_PROPERTY( RenameAction defaultRenameAction READ defaultRenameAction WRITE setDefaultRenameAction )
+    Q_ENUMS(SelectionMode ResizeMode RenameAction)
+    Q_PROPERTY(int columns READ columns)
+    Q_PROPERTY(bool multiSelection READ isMultiSelection WRITE setMultiSelection DESIGNABLE false)
+    Q_PROPERTY(SelectionMode selectionMode READ selectionMode WRITE setSelectionMode)
+    Q_PROPERTY(int childCount READ childCount)
+    Q_PROPERTY(bool allColumnsShowFocus READ allColumnsShowFocus WRITE setAllColumnsShowFocus)
+    Q_PROPERTY(bool showSortIndicator READ showSortIndicator WRITE setShowSortIndicator)
+    Q_PROPERTY(int itemMargin READ itemMargin WRITE setItemMargin)
+    Q_PROPERTY(bool rootIsDecorated READ rootIsDecorated WRITE setRootIsDecorated)
+    Q_PROPERTY(bool showToolTips READ showToolTips WRITE setShowToolTips)
+    Q_PROPERTY(ResizeMode resizeMode READ resizeMode WRITE setResizeMode)
+    Q_PROPERTY(int treeStepSize READ treeStepSize WRITE setTreeStepSize)
+    Q_PROPERTY(RenameAction defaultRenameAction READ defaultRenameAction WRITE setDefaultRenameAction)
 
 public:
-    QListView( QWidget* parent=0, const char* name=0, WFlags f = 0 );
+    QListView(QWidget* parent=0, const char* name=0, WFlags f = 0);
     ~QListView();
 
     int treeStepSize() const;
-    virtual void setTreeStepSize( int );
+    virtual void setTreeStepSize(int);
 
-    virtual void insertItem( QListViewItem * );
-    virtual void takeItem( QListViewItem * );
-    virtual void removeItem( QListViewItem *item ) { takeItem( item ); } // obsolete, use takeItem instead
+    virtual void insertItem(QListViewItem *);
+    virtual void takeItem(QListViewItem *);
+    virtual void removeItem(QListViewItem *item) { takeItem(item); } // obsolete, use takeItem instead
 
     QHeader * header() const;
 
-    virtual int addColumn( const QString &label, int size = -1);
-    virtual int addColumn( const QIconSet& iconset, const QString &label, int size = -1);
-    virtual void removeColumn( int index );
-    virtual void setColumnText( int column, const QString &label );
-    virtual void setColumnText( int column, const QIconSet& iconset, const QString &label );
-    QString columnText( int column ) const;
-    virtual void setColumnWidth( int column, int width );
-    int columnWidth( int column ) const;
+    virtual int addColumn(const QString &label, int size = -1);
+    virtual int addColumn(const QIconSet& iconset, const QString &label, int size = -1);
+    virtual void removeColumn(int index);
+    virtual void setColumnText(int column, const QString &label);
+    virtual void setColumnText(int column, const QIconSet& iconset, const QString &label);
+    QString columnText(int column) const;
+    virtual void setColumnWidth(int column, int width);
+    int columnWidth(int column) const;
     enum WidthMode { Manual, Maximum };
-    virtual void setColumnWidthMode( int column, WidthMode );
-    WidthMode columnWidthMode( int column ) const;
+    virtual void setColumnWidthMode(int column, WidthMode);
+    WidthMode columnWidthMode(int column) const;
     int columns() const;
 
-    virtual void setColumnAlignment( int, int );
-    int columnAlignment( int ) const;
+    virtual void setColumnAlignment(int, int);
+    int columnAlignment(int) const;
 
     void show();
 
-    QListViewItem * itemAt( const QPoint & screenPos ) const;
-    QRect itemRect( const QListViewItem * ) const;
-    int itemPos( const QListViewItem * );
+    QListViewItem * itemAt(const QPoint & screenPos) const;
+    QRect itemRect(const QListViewItem *) const;
+    int itemPos(const QListViewItem *);
 
-    void ensureItemVisible( const QListViewItem * );
+    void ensureItemVisible(const QListViewItem *);
 
-    void repaintItem( const QListViewItem * ) const;
+    void repaintItem(const QListViewItem *) const;
 
-    virtual void setMultiSelection( bool enable );
+    virtual void setMultiSelection(bool enable);
     bool isMultiSelection() const;
 
     enum SelectionMode { Single, Multi, Extended, NoSelection  };
-    void setSelectionMode( SelectionMode mode );
+    void setSelectionMode(SelectionMode mode);
     SelectionMode selectionMode() const;
 
     virtual void clearSelection();
-    virtual void setSelected( QListViewItem *, bool );
-    void setSelectionAnchor( QListViewItem * );
-    bool isSelected( const QListViewItem * ) const;
+    virtual void setSelected(QListViewItem *, bool);
+    void setSelectionAnchor(QListViewItem *);
+    bool isSelected(const QListViewItem *) const;
     QListViewItem * selectedItem() const;
-    virtual void setOpen( QListViewItem *, bool );
-    bool isOpen( const QListViewItem * ) const;
+    virtual void setOpen(QListViewItem *, bool);
+    bool isOpen(const QListViewItem *) const;
 
-    virtual void setCurrentItem( QListViewItem * );
+    virtual void setCurrentItem(QListViewItem *);
     QListViewItem * currentItem() const;
 
     QListViewItem * firstChild() const;
@@ -291,152 +291,152 @@ public:
 
     int childCount() const;
 
-    virtual void setAllColumnsShowFocus( bool );
+    virtual void setAllColumnsShowFocus(bool);
     bool allColumnsShowFocus() const;
 
-    virtual void setItemMargin( int );
+    virtual void setItemMargin(int);
     int itemMargin() const;
 
-    virtual void setRootIsDecorated( bool );
+    virtual void setRootIsDecorated(bool);
     bool rootIsDecorated() const;
 
-    virtual void setSorting( int column, bool ascending = TRUE );
+    virtual void setSorting(int column, bool ascending = true);
     int sortColumn() const;
-    void setSortColumn( int column );
+    void setSortColumn(int column);
     SortOrder sortOrder() const;
-    void setSortOrder( SortOrder order );
+    void setSortOrder(SortOrder order);
     virtual void sort();
 
-    virtual void setFont( const QFont & );
-    virtual void setPalette( const QPalette & );
+    virtual void setFont(const QFont &);
+    virtual void setPalette(const QPalette &);
 
-    bool eventFilter( QObject * o, QEvent * );
+    bool eventFilter(QObject * o, QEvent *);
 
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
-    virtual void setShowSortIndicator( bool show );
+    virtual void setShowSortIndicator(bool show);
     bool showSortIndicator() const;
-    virtual void setShowToolTips( bool b );
+    virtual void setShowToolTips(bool b);
     bool showToolTips() const;
 
     enum ResizeMode { NoColumn, AllColumns, LastColumn };
-    virtual void setResizeMode( ResizeMode m );
+    virtual void setResizeMode(ResizeMode m);
     ResizeMode resizeMode() const;
 
-    QListViewItem * findItem( const QString& text, int column,
-			      StringComparison = ExactMatch | CaseSensitive ) const;
+    QListViewItem * findItem(const QString& text, int column,
+                              StringComparison = ExactMatch | CaseSensitive) const;
 
     enum RenameAction { Accept, Reject };
-    virtual void setDefaultRenameAction( RenameAction a );
+    virtual void setDefaultRenameAction(RenameAction a);
     RenameAction defaultRenameAction() const;
     bool isRenaming() const;
 
-    void hideColumn( int column );
+    void hideColumn(int column);
 
 public slots:
     virtual void clear();
     virtual void invertSelection();
-    virtual void selectAll( bool select );
+    virtual void selectAll(bool select);
     void triggerUpdate();
-    void setContentsPos( int x, int y );
-    void adjustColumn( int col );
+    void setContentsPos(int x, int y);
+    void adjustColumn(int col);
 
 signals:
     void selectionChanged();
-    void selectionChanged( QListViewItem * );
-    void currentChanged( QListViewItem * );
-    void clicked( QListViewItem * );
-    void clicked( QListViewItem *, const QPoint &, int );
-    void pressed( QListViewItem * );
-    void pressed( QListViewItem *, const QPoint &, int );
+    void selectionChanged(QListViewItem *);
+    void currentChanged(QListViewItem *);
+    void clicked(QListViewItem *);
+    void clicked(QListViewItem *, const QPoint &, int);
+    void pressed(QListViewItem *);
+    void pressed(QListViewItem *, const QPoint &, int);
 
-    void doubleClicked( QListViewItem * );
-    void doubleClicked( QListViewItem *, const QPoint&, int );
-    void returnPressed( QListViewItem * );
-    void spacePressed( QListViewItem * );
-    void rightButtonClicked( QListViewItem *, const QPoint&, int );
-    void rightButtonPressed( QListViewItem *, const QPoint&, int );
-    void mouseButtonPressed( int, QListViewItem *, const QPoint& , int );
-    void mouseButtonClicked( int, QListViewItem *,  const QPoint&, int );
+    void doubleClicked(QListViewItem *);
+    void doubleClicked(QListViewItem *, const QPoint&, int);
+    void returnPressed(QListViewItem *);
+    void spacePressed(QListViewItem *);
+    void rightButtonClicked(QListViewItem *, const QPoint&, int);
+    void rightButtonPressed(QListViewItem *, const QPoint&, int);
+    void mouseButtonPressed(int, QListViewItem *, const QPoint& , int);
+    void mouseButtonClicked(int, QListViewItem *,  const QPoint&, int);
 
-    void contextMenuRequested( QListViewItem *, const QPoint &, int );
+    void contextMenuRequested(QListViewItem *, const QPoint &, int);
 
-    void onItem( QListViewItem *item );
+    void onItem(QListViewItem *item);
     void onViewport();
 
-    void expanded( QListViewItem *item );
-    void collapsed( QListViewItem *item );
+    void expanded(QListViewItem *item);
+    void collapsed(QListViewItem *item);
 #ifndef QT_NO_DRAGANDDROP
-    void dropped( QDropEvent *e );
+    void dropped(QDropEvent *e);
 #endif
-    void itemRenamed( QListViewItem *item, int col, const QString & );
-    void itemRenamed( QListViewItem *item, int col  );
+    void itemRenamed(QListViewItem *item, int col, const QString &);
+    void itemRenamed(QListViewItem *item, int col );
 
 protected:
-    void contentsMousePressEvent( QMouseEvent * e );
-    void contentsMouseReleaseEvent( QMouseEvent * e );
-    void contentsMouseMoveEvent( QMouseEvent * e );
-    void contentsMouseDoubleClickEvent( QMouseEvent * e );
-    void contentsContextMenuEvent( QContextMenuEvent * e );
+    void contentsMousePressEvent(QMouseEvent * e);
+    void contentsMouseReleaseEvent(QMouseEvent * e);
+    void contentsMouseMoveEvent(QMouseEvent * e);
+    void contentsMouseDoubleClickEvent(QMouseEvent * e);
+    void contentsContextMenuEvent(QContextMenuEvent * e);
 #ifndef QT_NO_DRAGANDDROP
-    void contentsDragEnterEvent( QDragEnterEvent *e );
-    void contentsDragMoveEvent( QDragMoveEvent *e );
-    void contentsDragLeaveEvent( QDragLeaveEvent *e );
-    void contentsDropEvent( QDropEvent *e );
+    void contentsDragEnterEvent(QDragEnterEvent *e);
+    void contentsDragMoveEvent(QDragMoveEvent *e);
+    void contentsDragLeaveEvent(QDragLeaveEvent *e);
+    void contentsDropEvent(QDropEvent *e);
     virtual QDragObject *dragObject();
     virtual void startDrag();
 #endif
 
-    void focusInEvent( QFocusEvent * e );
-    void focusOutEvent( QFocusEvent * e );
+    void focusInEvent(QFocusEvent * e);
+    void focusOutEvent(QFocusEvent * e);
 
-    void keyPressEvent( QKeyEvent *e );
+    void keyPressEvent(QKeyEvent *e);
 
-    void resizeEvent( QResizeEvent *e );
-    void viewportResizeEvent( QResizeEvent *e );
+    void resizeEvent(QResizeEvent *e);
+    void viewportResizeEvent(QResizeEvent *e);
 
-    void showEvent( QShowEvent * );
+    void showEvent(QShowEvent *);
 
-    void drawContentsOffset( QPainter *, int ox, int oy,
-			     int cx, int cy, int cw, int ch );
+    void drawContentsOffset(QPainter *, int ox, int oy,
+                             int cx, int cy, int cw, int ch);
 
-    virtual void paintEmptyArea( QPainter *, const QRect & );
-    void changeEvent( QEvent * );
+    virtual void paintEmptyArea(QPainter *, const QRect &);
+    void changeEvent(QEvent *);
 
 protected slots:
     void updateContents();
     void doAutoScroll();
 
 private slots:
-    void changeSortColumn( int );
+    void changeSortColumn(int);
     void handleIndexChange();
     void updateDirtyItems();
     void makeVisible();
-    void handleSizeChange( int, int, int );
+    void handleSizeChange(int, int, int);
     void startRename();
     void openFocusItem();
 
 private:
-    void contentsMousePressEventEx( QMouseEvent * e );
-    void contentsMouseReleaseEventEx( QMouseEvent * e );
+    void contentsMousePressEventEx(QMouseEvent * e);
+    void contentsMouseReleaseEventEx(QMouseEvent * e);
     void init();
     void updateGeometries();
     void buildDrawableList() const;
     void reconfigureItems();
     void widthChanged(const QListViewItem*, int c);
-    void handleItemChange( QListViewItem *old, bool shift, bool control );
-    void selectRange( QListViewItem *from, QListViewItem *to, bool invert, bool includeFirst, bool clearSel = FALSE );
-    bool selectRange( QListViewItem *newItem, QListViewItem *oldItem, QListViewItem *anchorItem );
-    bool clearRange( QListViewItem *from, QListViewItem *to, bool includeFirst = TRUE );
-    void doAutoScroll( const QPoint &cursorPos );
+    void handleItemChange(QListViewItem *old, bool shift, bool control);
+    void selectRange(QListViewItem *from, QListViewItem *to, bool invert, bool includeFirst, bool clearSel = false);
+    bool selectRange(QListViewItem *newItem, QListViewItem *oldItem, QListViewItem *anchorItem);
+    bool clearRange(QListViewItem *from, QListViewItem *to, bool includeFirst = true);
+    void doAutoScroll(const QPoint &cursorPos);
 
     QListViewPrivate * d;
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QListView( const QListView & );
-    QListView &operator=( const QListView & );
+    QListView(const QListView &);
+    QListView &operator=(const QListView &);
 #endif
 };
 
@@ -445,48 +445,48 @@ class Q_GUI_EXPORT QCheckListItem : public QListViewItem
 {
 public:
     enum Type { RadioButton,
-		CheckBox,
-		Controller,
-		RadioButtonController=Controller,
-		CheckBoxController };
+                CheckBox,
+                Controller,
+                RadioButtonController=Controller,
+                CheckBoxController };
     // ### should be integrated with qbutton in ver4 perhaps
     enum ToggleState { Off, NoChange, On };
 
-    QCheckListItem( QCheckListItem *parent, const QString &text,
-		    Type = RadioButtonController );
-    QCheckListItem( QCheckListItem *parent, QListViewItem *after,
- 		    const QString &text, Type = RadioButtonController );
-    QCheckListItem( QListViewItem *parent, const QString &text,
-		    Type = RadioButtonController );
-    QCheckListItem( QListViewItem *parent, QListViewItem *after,
- 		    const QString &text, Type = RadioButtonController );
-    QCheckListItem( QListView *parent, const QString &text,
-		    Type = RadioButtonController );
-    QCheckListItem( QListView *parent, QListViewItem *after,
- 		    const QString &text, Type = RadioButtonController );
-    QCheckListItem( QListViewItem *parent, const QString &text,
-		    const QPixmap & );
-    QCheckListItem( QListView *parent, const QString &text,
-		    const QPixmap & );
+    QCheckListItem(QCheckListItem *parent, const QString &text,
+                    Type = RadioButtonController);
+    QCheckListItem(QCheckListItem *parent, QListViewItem *after,
+                    const QString &text, Type = RadioButtonController);
+    QCheckListItem(QListViewItem *parent, const QString &text,
+                    Type = RadioButtonController);
+    QCheckListItem(QListViewItem *parent, QListViewItem *after,
+                    const QString &text, Type = RadioButtonController);
+    QCheckListItem(QListView *parent, const QString &text,
+                    Type = RadioButtonController);
+    QCheckListItem(QListView *parent, QListViewItem *after,
+                    const QString &text, Type = RadioButtonController);
+    QCheckListItem(QListViewItem *parent, const QString &text,
+                    const QPixmap &);
+    QCheckListItem(QListView *parent, const QString &text,
+                    const QPixmap &);
     ~QCheckListItem();
 
-    void paintCell( QPainter *,  const QPalette & pal,
-		    int column, int width, int alignment );
-    virtual void paintFocus( QPainter *, const QPalette &pal,
-			     const QRect & r );
-    int width( const QFontMetrics&, const QListView*, int column) const;
+    void paintCell(QPainter *,  const QPalette & pal,
+                    int column, int width, int alignment);
+    virtual void paintFocus(QPainter *, const QPalette &pal,
+                             const QRect & r);
+    int width(const QFontMetrics&, const QListView*, int column) const;
     void setup();
 
-    virtual void setOn( bool ); // ### should be replaced by setChecked in ver4
+    virtual void setOn(bool); // ### should be replaced by setChecked in ver4
     bool isOn() const { return on; }
     Type type() const { return myType; }
-    QString text() const { return QListViewItem::text( 0 ); }
-    QString text( int n ) const { return QListViewItem::text( n ); }
+    QString text() const { return QListViewItem::text(0); }
+    QString text(int n) const { return QListViewItem::text(n); }
 
-    void setTristate( bool );
+    void setTristate(bool);
     bool isTristate() const;
     ToggleState state() const;
-    void setState( ToggleState s);
+    void setState(ToggleState s);
 
     int rtti() const;
     enum { RTTI = 1 };
@@ -494,19 +494,19 @@ public:
 protected:
     void activate();
     void turnOffChild();
-    virtual void stateChange( bool );
+    virtual void stateChange(bool);
 
 private:
     void init();
     ToggleState internalState() const;
-    void setStoredState( ToggleState newState, QCheckListItem *key );
-    ToggleState storedState( QCheckListItem *key ) const;
-    void stateChange( ToggleState s );
-    void restoreState( QCheckListItem *key, int depth = 0 );
-    void updateController( bool update = TRUE , bool store = FALSE );
-    void updateStoredState( QCheckListItem *key );
-    void setState( ToggleState s, bool update, bool store );
-    void setCurrentState( ToggleState s );
+    void setStoredState(ToggleState newState, QCheckListItem *key);
+    ToggleState storedState(QCheckListItem *key) const;
+    void stateChange(ToggleState s);
+    void restoreState(QCheckListItem *key, int depth = 0);
+    void updateController(bool update = true , bool store = false);
+    void updateStoredState(QCheckListItem *key);
+    void setState(ToggleState s, bool update, bool store);
+    void setCurrentState(ToggleState s);
 
     Type myType;
     bool on; // ### remove in ver4
@@ -521,41 +521,41 @@ class Q_GUI_EXPORT QListViewItemIterator
 
 public:
     enum IteratorFlag {
-	Visible = 		0x00000001,
-	Invisible = 		0x00000002,
-	Selected =		0x00000004,
-	Unselected = 		0x00000008,
-	Selectable =		0x00000010,
-	NotSelectable =		0x00000020,
-	DragEnabled =		0x00000040,
-	DragDisabled =		0x00000080,
-	DropEnabled =		0x00000100,
-	DropDisabled =		0x00000200,
-	Expandable =		0x00000400,
-	NotExpandable =		0x00000800,
-	Checked =		0x00001000,
-	NotChecked =		0x00002000
+        Visible =                 0x00000001,
+        Invisible =                 0x00000002,
+        Selected =                0x00000004,
+        Unselected =                 0x00000008,
+        Selectable =                0x00000010,
+        NotSelectable =                0x00000020,
+        DragEnabled =                0x00000040,
+        DragDisabled =                0x00000080,
+        DropEnabled =                0x00000100,
+        DropDisabled =                0x00000200,
+        Expandable =                0x00000400,
+        NotExpandable =                0x00000800,
+        Checked =                0x00001000,
+        NotChecked =                0x00002000
     };
 
     QListViewItemIterator();
-    QListViewItemIterator( QListViewItem *item );
-    QListViewItemIterator( QListViewItem *item, int iteratorFlags );
+    QListViewItemIterator(QListViewItem *item);
+    QListViewItemIterator(QListViewItem *item, int iteratorFlags);
 
-    QListViewItemIterator( const QListViewItemIterator &it );
-    QListViewItemIterator( QListView *lv );
-    QListViewItemIterator( QListView *lv, int iteratorFlags );
+    QListViewItemIterator(const QListViewItemIterator &it);
+    QListViewItemIterator(QListView *lv);
+    QListViewItemIterator(QListView *lv, int iteratorFlags);
 
-    QListViewItemIterator &operator=( const QListViewItemIterator &it );
+    QListViewItemIterator &operator=(const QListViewItemIterator &it);
 
     ~QListViewItemIterator();
 
     QListViewItemIterator &operator++();
-    const QListViewItemIterator operator++( int );
-    QListViewItemIterator &operator+=( int j );
+    const QListViewItemIterator operator++(int);
+    QListViewItemIterator &operator+=(int j);
 
     QListViewItemIterator &operator--();
-    const QListViewItemIterator operator--( int );
-    QListViewItemIterator &operator-=( int j );
+    const QListViewItemIterator operator--(int);
+    QListViewItemIterator &operator-=(int j);
 
     QListViewItem* operator*();
     QListViewItem *current() const;
@@ -566,9 +566,9 @@ private:
     int flags;
 
     void currentRemoved();
-    bool matchesFlags( const QListViewItem* ) const;
-    bool testPair( QListViewItemIterator::IteratorFlag, QListViewItemIterator::IteratorFlag, bool ) const;
-    bool isChecked( const QListViewItem* ) const;
+    bool matchesFlags(const QListViewItem*) const;
+    bool testPair(QListViewItemIterator::IteratorFlag, QListViewItemIterator::IteratorFlag, bool) const;
+    bool isChecked(const QListViewItem*) const;
 };
 
 #endif // QT_NO_LISTVIEW

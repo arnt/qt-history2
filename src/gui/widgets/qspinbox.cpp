@@ -34,22 +34,22 @@ class QSpinBoxPrivate
 public:
     QSpinBoxPrivate() {}
     QSpinWidget* controls;
-    uint selreq	: 1;
+    uint selreq        : 1;
 };
 
 class QSpinBoxValidator : public QIntValidator
 {
 public:
-    QSpinBoxValidator( QSpinBox *sb, const char *name )
-	: QIntValidator( sb, name ), spinBox( sb ) { }
+    QSpinBoxValidator(QSpinBox *sb, const char *name)
+        : QIntValidator(sb, name), spinBox(sb) { }
 
-    virtual State validate( QString& str, int& pos ) const;
+    virtual State validate(QString& str, int& pos) const;
 
 private:
     QSpinBox *spinBox;
 };
 
-QValidator::State QSpinBoxValidator::validate( QString& str, int& pos ) const
+QValidator::State QSpinBoxValidator::validate(QString& str, int& pos) const
 {
     QString pref = spinBox->prefix();
     QString suff = spinBox->suffix();
@@ -57,38 +57,38 @@ QValidator::State QSpinBoxValidator::validate( QString& str, int& pos ) const
     int overhead = pref.length() + suff.length();
     State state = Invalid;
 
-    ((QIntValidator *) this)->setRange( spinBox->minValue(),
-					spinBox->maxValue() );
-    if ( overhead == 0 ) {
-	state = QIntValidator::validate( str, pos );
+    ((QIntValidator *) this)->setRange(spinBox->minValue(),
+                                        spinBox->maxValue());
+    if (overhead == 0) {
+        state = QIntValidator::validate(str, pos);
     } else {
-	bool stripedVersion = FALSE;
-	if ( str.length() >= overhead && str.startsWith(pref)
-	     && (str.endsWith(suff)
-		 || (stripedVersion = str.endsWith(suffStriped))) ) {
-	    if ( stripedVersion )
-		overhead = pref.length() + suffStriped.length();
-	    QString core = str.mid( pref.length(), str.length() - overhead );
-	    int corePos = pos - pref.length();
-	    state = QIntValidator::validate( core, corePos );
-	    pos = corePos + pref.length();
-	    str.replace( pref.length(), str.length() - overhead, core );
-	} else {
-	    state = QIntValidator::validate( str, pos );
-	    if ( state == Invalid ) {
-		// stripWhiteSpace(), cf. QSpinBox::interpretText()
-		QString special = spinBox->specialValueText().trimmed();
-		QString candidate = str.trimmed();
+        bool stripedVersion = false;
+        if (str.length() >= overhead && str.startsWith(pref)
+             && (str.endsWith(suff)
+                 || (stripedVersion = str.endsWith(suffStriped)))) {
+            if (stripedVersion)
+                overhead = pref.length() + suffStriped.length();
+            QString core = str.mid(pref.length(), str.length() - overhead);
+            int corePos = pos - pref.length();
+            state = QIntValidator::validate(core, corePos);
+            pos = corePos + pref.length();
+            str.replace(pref.length(), str.length() - overhead, core);
+        } else {
+            state = QIntValidator::validate(str, pos);
+            if (state == Invalid) {
+                // stripWhiteSpace(), cf. QSpinBox::interpretText()
+                QString special = spinBox->specialValueText().trimmed();
+                QString candidate = str.trimmed();
 
-		if ( special.startsWith(candidate) ) {
-		    if ( candidate.length() == special.length() ) {
-			state = Acceptable;
-		    } else {
-			state = Intermediate;
-		    }
-		}
-	    }
-	}
+                if (special.startsWith(candidate)) {
+                    if (candidate.length() == special.length()) {
+                        state = Acceptable;
+                    } else {
+                        state = Intermediate;
+                    }
+                }
+            }
+        }
     }
     return state;
 }
@@ -157,29 +157,29 @@ QValidator::State QSpinBoxValidator::validate( QString& str, int& pos ) const
     the range of integers used inside the program would be -1 to 100:
 
     \code
-	class MySpinBox : public QSpinBox
-	{
-	    Q_OBJECT
-	public:
-	    ...
+        class MySpinBox : public QSpinBox
+        {
+            Q_OBJECT
+        public:
+            ...
 
-	    QString mapValueToText( int value )
-	    {
-		if ( value == -1 ) // special case
-		    return QString( "Auto" );
+            QString mapValueToText(int value)
+            {
+                if (value == -1) // special case
+                    return QString("Auto");
 
-		return QString( "%1.%2" ) // 0.0 to 10.0
-		    .arg( value / 10 ).arg( value % 10 );
-	    }
+                return QString("%1.%2") // 0.0 to 10.0
+                    .arg(value / 10).arg(value % 10);
+            }
 
-	    int mapTextToValue( bool *ok )
-	    {
-		if ( text() == "Auto" ) // special case
-		    return -1;
+            int mapTextToValue(bool *ok)
+            {
+                if (text() == "Auto") // special case
+                    return -1;
 
-		return (int) ( 10 * text().toFloat() ); // 0 to 100
-	    }
-	};
+                return (int) (10 * text().toFloat()); // 0 to 100
+            }
+        };
     \endcode
 
     <img src=qspinbox-m.png> <img src=qspinbox-w.png>
@@ -196,8 +196,8 @@ QValidator::State QSpinBoxValidator::validate( QString& str, int& pos ) const
     \sa minValue(), maxValue(), setRange(), lineStep(), setSteps()
 */
 
-QSpinBox::QSpinBox( QWidget * parent , const char *name )
-    : QWidget( parent, name ),
+QSpinBox::QSpinBox(QWidget * parent , const char *name)
+    : QWidget(parent, name),
       QRangeControl()
 {
     initSpinBox();
@@ -214,10 +214,10 @@ QSpinBox::QSpinBox( QWidget * parent , const char *name )
     \sa minValue(), maxValue(), setRange(), lineStep(), setSteps()
 */
 
-QSpinBox::QSpinBox( int minValue, int maxValue, int step, QWidget* parent,
-		    const char* name )
-    : QWidget( parent, name ),
-      QRangeControl( minValue, maxValue, step, step, minValue )
+QSpinBox::QSpinBox(int minValue, int maxValue, int step, QWidget* parent,
+                    const char* name)
+    : QWidget(parent, name),
+      QRangeControl(minValue, maxValue, step, step, minValue)
 {
     initSpinBox();
 }
@@ -230,29 +230,29 @@ void QSpinBox::initSpinBox()
 {
     d = new QSpinBoxPrivate;
 
-    d->controls = new QSpinWidget( this, "controls" );
-    connect( d->controls, SIGNAL(stepUpPressed()), SLOT(stepUp()) );
-    connect( d->controls, SIGNAL(stepDownPressed()), SLOT(stepDown()) );
+    d->controls = new QSpinWidget(this, "controls");
+    connect(d->controls, SIGNAL(stepUpPressed()), SLOT(stepUp()));
+    connect(d->controls, SIGNAL(stepDownPressed()), SLOT(stepDown()));
 
-    wrap = FALSE;
-    edited = FALSE;
-    d->selreq = FALSE;
+    wrap = false;
+    edited = false;
+    d->selreq = false;
 
-    validate = new QSpinBoxValidator( this, "validator" );
-    vi = new QLineEdit( this, "qt_spinbox_edit" );
+    validate = new QSpinBoxValidator(this, "validator");
+    vi = new QLineEdit(this, "qt_spinbox_edit");
     vi->setAttribute(WA_CompositeChild);
     setAttribute(WA_CompositeParent);
-    d->controls->setEditWidget( vi );
+    d->controls->setEditWidget(vi);
     d->controls->setAttribute(WA_CompositeParent);
     d->controls->setAttribute(WA_CompositeChild);
-    vi->setValidator( validate );
-    vi->setFrame( FALSE );
-    setFocusProxy( vi );
+    vi->setValidator(validate);
+    vi->setFrame(false);
+    setFocusProxy(vi);
 
-    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
+    setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed));
     updateDisplay();
 
-    connect( vi, SIGNAL(textChanged(QString)), SLOT(textChanged()) );
+    connect(vi, SIGNAL(textChanged(QString)), SLOT(textChanged()));
 }
 
 /*!
@@ -292,17 +292,17 @@ QString QSpinBox::text() const
 QString QSpinBox::cleanText() const
 {
     QString s = QString(text()).trimmed();
-    if ( !prefix().isEmpty() ) {
-	QString px = QString(prefix()).trimmed();
-	int len = px.length();
-	if ( len && s.left(len) == px )  // Remove _only_ if it is the prefix
-	    s.remove( (uint)0, len );
+    if (!prefix().isEmpty()) {
+        QString px = QString(prefix()).trimmed();
+        int len = px.length();
+        if (len && s.left(len) == px)  // Remove _only_ if it is the prefix
+            s.remove((uint)0, len);
     }
-    if ( !suffix().isEmpty() ) {
-	QString sx = QString(suffix()).trimmed();
-	int len = sx.length();
-	if ( len && s.right(len) == sx )  // Remove _only_ if it is the suffix
-	    s.truncate( s.length() - len );
+    if (!suffix().isEmpty()) {
+        QString sx = QString(suffix()).trimmed();
+        int len = sx.length();
+        if (len && s.right(len) == sx)  // Remove _only_ if it is the suffix
+            s.truncate(s.length() - len);
     }
     return s.trimmed();
 }
@@ -321,9 +321,9 @@ QString QSpinBox::cleanText() const
     automatically choose a good margin width, you can set up the spin
     box like this:
     \code
-	QSpinBox marginBox( -1, 20, 1, parent, "marginBox" );
-	marginBox->setSuffix( " mm" );
-	marginBox->setSpecialValueText( "Auto" );
+        QSpinBox marginBox(-1, 20, 1, parent, "marginBox");
+        marginBox->setSuffix(" mm");
+        marginBox->setSpecialValueText("Auto");
     \endcode
     The user will then be able to choose a margin width from 0-20
     millimeters or select "Auto" to leave it to the application to
@@ -342,7 +342,7 @@ QString QSpinBox::cleanText() const
     QString::null.
 */
 
-void QSpinBox::setSpecialValueText( const QString &text )
+void QSpinBox::setSpecialValueText(const QString &text)
 {
     specText = text;
     updateDisplay();
@@ -351,10 +351,10 @@ void QSpinBox::setSpecialValueText( const QString &text )
 
 QString QSpinBox::specialValueText() const
 {
-    if ( specText.isEmpty() )
-	return QString::null;
+    if (specText.isEmpty())
+        return QString::null;
     else
-	return specText;
+        return specText;
 }
 
 
@@ -367,7 +367,7 @@ QString QSpinBox::specialValueText() const
     symbol. For example:
 
     \code
-	sb->setPrefix( "$" );
+        sb->setPrefix("$");
     \endcode
 
     To turn off the prefix display, set this property to an empty
@@ -379,7 +379,7 @@ QString QSpinBox::specialValueText() const
     \sa suffix()
 */
 
-void QSpinBox::setPrefix( const QString &text )
+void QSpinBox::setPrefix(const QString &text)
 {
     pfix = text;
     updateDisplay();
@@ -388,10 +388,10 @@ void QSpinBox::setPrefix( const QString &text )
 
 QString QSpinBox::prefix() const
 {
-    if ( pfix.isEmpty() )
-	return QString::null;
+    if (pfix.isEmpty())
+        return QString::null;
     else
-	return pfix;
+        return pfix;
 }
 
 
@@ -404,7 +404,7 @@ QString QSpinBox::prefix() const
     example:
 
     \code
-	sb->setSuffix( " km" );
+        sb->setSuffix(" km");
     \endcode
 
     To turn off the suffix display, set this property to an empty
@@ -416,7 +416,7 @@ QString QSpinBox::prefix() const
     \sa prefix()
 */
 
-void QSpinBox::setSuffix( const QString &text )
+void QSpinBox::setSuffix(const QString &text)
 {
     sfix = text;
     updateDisplay();
@@ -424,10 +424,10 @@ void QSpinBox::setSuffix( const QString &text )
 
 QString QSpinBox::suffix() const
 {
-    if ( sfix.isEmpty() )
-	return QString::null;
+    if (sfix.isEmpty())
+        return QString::null;
     else
-	return sfix;
+        return sfix;
 }
 
 
@@ -447,7 +447,7 @@ QString QSpinBox::suffix() const
     \sa minValue, maxValue, setRange()
 */
 
-void QSpinBox::setWrapping( bool on )
+void QSpinBox::setWrapping(bool on)
 {
     wrap = on;
     updateDisplay();
@@ -466,22 +466,22 @@ QSize QSpinBox::sizeHint() const
     ensurePolished();
     QSize sz = vi->sizeHint();
     int h = sz.height();
-    QFontMetrics fm( font() );
+    QFontMetrics fm(font());
     int w = 35;
-    int wx = fm.width( ' ' )*2;
+    int wx = fm.width(' ')*2;
     QString s;
-    s = prefix() + ( (QSpinBox*)this )->mapValueToText( minValue() ) + suffix();
-    w = qMax( w, fm.width( s ) + wx);
-    s = prefix() + ( (QSpinBox*)this )->mapValueToText( maxValue() ) + suffix();
-    w = qMax(w, fm.width( s ) + wx );
-    if ( !specialValueText().isEmpty() ) {
-	s = specialValueText();
-	w = qMax( w, fm.width( s ) + wx );
+    s = prefix() + ((QSpinBox*)this)->mapValueToText(minValue()) + suffix();
+    w = qMax(w, fm.width(s) + wx);
+    s = prefix() + ((QSpinBox*)this)->mapValueToText(maxValue()) + suffix();
+    w = qMax(w, fm.width(s) + wx);
+    if (!specialValueText().isEmpty()) {
+        s = specialValueText();
+        w = qMax(w, fm.width(s) + wx);
     }
     return style().sizeFromContents(QStyle::CT_SpinBox, this,
-				    QSize( w + d->controls->downRect().width(),
-					   h + style().pixelMetric( QStyle::PM_DefaultFrameWidth ) * 2).
-				    expandedTo( QApplication::globalStrut() ));
+                                    QSize(w + d->controls->downRect().width(),
+                                           h + style().pixelMetric(QStyle::PM_DefaultFrameWidth) * 2).
+                                    expandedTo(QApplication::globalStrut()));
 }
 
 
@@ -491,8 +491,8 @@ QSize QSpinBox::sizeHint() const
 QSize QSpinBox::minimumSizeHint() const
 {
     int w = vi->minimumSizeHint().width() + d->controls->downRect().width();
-    int h = qMax( vi->minimumSizeHint().height(), d->controls->minimumSizeHint().height() );
-    return QSize( w, h );
+    int h = qMax(vi->minimumSizeHint().height(), d->controls->minimumSizeHint().height());
+    return QSize(w, h);
 }
 
 // Does the layout of the lineedit and the buttons
@@ -509,19 +509,19 @@ void QSpinBox::arrangeWidgets()
     \sa QRangeControl::setValue()
 */
 
-void QSpinBox::setValue( int value )
+void QSpinBox::setValue(int value)
 {
-    edited = FALSE; // we ignore anything entered and not yet interpreted
-    QRangeControl::setValue( value );
+    edited = false; // we ignore anything entered and not yet interpreted
+    QRangeControl::setValue(value);
     updateDisplay();
 }
 
 int QSpinBox::value() const
 {
     QSpinBox * that = (QSpinBox *) this;
-    if ( edited ) {
-	that->edited = FALSE;  // avoid recursion
-	that->interpretText();
+    if (edited) {
+        that->edited = false;  // avoid recursion
+        that->interpretText();
     }
     return QRangeControl::value();
 }
@@ -529,7 +529,7 @@ int QSpinBox::value() const
 
 /*!
     Increases the spin box's value by one lineStep(), wrapping as
-    necessary if wrapping() is TRUE. This is the same as clicking on
+    necessary if wrapping() is true. This is the same as clicking on
     the pointing-up button and can be used for keyboard accelerators,
     for example.
 
@@ -538,18 +538,18 @@ int QSpinBox::value() const
 
 void QSpinBox::stepUp()
 {
-    if ( edited )
-	interpretText();
-    if ( wrapping() && ( value()+lineStep() > maxValue() ) )
-	setValue( minValue() );
+    if (edited)
+        interpretText();
+    if (wrapping() && (value()+lineStep() > maxValue()))
+        setValue(minValue());
     else
-	addLine();
+        addLine();
 }
 
 
 /*!
     Decreases the spin box's value one lineStep(), wrapping as
-    necessary if wrapping() is TRUE. This is the same as clicking on
+    necessary if wrapping() is true. This is the same as clicking on
     the pointing-down button and can be used for keyboard
     accelerators, for example.
 
@@ -558,17 +558,17 @@ void QSpinBox::stepUp()
 
 void QSpinBox::stepDown()
 {
-    if ( edited )
-	interpretText();
-    if ( wrapping() && ( value()-lineStep() < minValue() ) )
-	setValue( maxValue() );
+    if (edited)
+        interpretText();
+    if (wrapping() && (value()-lineStep() < minValue()))
+        setValue(maxValue());
     else
-	subtractLine();
+        subtractLine();
 }
 
 
 /*!
-    \fn void QSpinBox::valueChanged( int value )
+    \fn void QSpinBox::valueChanged(int value)
 
     This signal is emitted every time the value of the spin box
     changes; the new value is passed in \a value. This signal will be
@@ -585,11 +585,11 @@ void QSpinBox::stepDown()
 
 
 /*!
-    \fn void QSpinBox::valueChanged( const QString& valueText )
+    \fn void QSpinBox::valueChanged(const QString& valueText)
 
     \overload
 
-    This signal is emitted whenever the valueChanged( int ) signal is
+    This signal is emitted whenever the valueChanged(int) signal is
     emitted, i.e. every time the value of the spin box changes
     (whatever the cause, e.g. by setValue(), by a keyboard
     accelerator, by mouse clicks, etc.).
@@ -609,41 +609,41 @@ void QSpinBox::stepDown()
     as \a o and the event is passed as \a ev.
 */
 
-bool QSpinBox::eventFilter( QObject* o, QEvent* ev )
+bool QSpinBox::eventFilter(QObject* o, QEvent* ev)
 {
     if (o != vi)
-	return QWidget::eventFilter(o,ev);
+        return QWidget::eventFilter(o,ev);
 
-    if ( ev->type() == QEvent::KeyPress ) {
-	QKeyEvent* k = (QKeyEvent*)ev;
+    if (ev->type() == QEvent::KeyPress) {
+        QKeyEvent* k = (QKeyEvent*)ev;
 
-	bool retval = FALSE; // workaround for MSVC++ optimization bug
-	if( (k->key() == Key_Tab) || (k->key() == Key_BackTab) ){
-	    if ( k->state() & Qt::ControlButton )
-		return FALSE;
-	    if ( edited )
-		interpretText();
-	    qApp->sendEvent( this, ev );
-	    retval = TRUE;
-	} if ( k->key() == Key_Up ) {
-	    stepUp();
-	    retval = TRUE;
-	} else if ( k->key() == Key_Down ) {
-	    stepDown();
-	    retval = TRUE;
-	} else if ( k->key() == Key_Enter || k->key() == Key_Return ) {
-	    interpretText();
-	    return FALSE;
-	}
-	if ( retval )
-	    return retval;
-    } else if ( ev->type() == QEvent::FocusOut || ev->type() == QEvent::Hide ) {
-	if ( edited ) {
-	    interpretText();
-	}
-	return FALSE;
+        bool retval = false; // workaround for MSVC++ optimization bug
+        if((k->key() == Key_Tab) || (k->key() == Key_BackTab)){
+            if (k->state() & Qt::ControlButton)
+                return false;
+            if (edited)
+                interpretText();
+            qApp->sendEvent(this, ev);
+            retval = true;
+        } if (k->key() == Key_Up) {
+            stepUp();
+            retval = true;
+        } else if (k->key() == Key_Down) {
+            stepDown();
+            retval = true;
+        } else if (k->key() == Key_Enter || k->key() == Key_Return) {
+            interpretText();
+            return false;
+        }
+        if (retval)
+            return retval;
+    } else if (ev->type() == QEvent::FocusOut || ev->type() == QEvent::Hide) {
+        if (edited) {
+            interpretText();
+        }
+        return false;
     }
-    return FALSE;
+    return false;
 }
 #endif
 
@@ -654,13 +654,13 @@ bool QSpinBox::eventFilter( QObject* o, QEvent* ev )
 void QSpinBox::keyPressEvent(QKeyEvent *e)
 {
     if (e->key() == Key_Up) {
-	stepUp();
+        stepUp();
     } else if (e->key() == Key_Down) {
-	stepDown();
+        stepDown();
     } else if (e->key() == Key_Enter || e->key() == Key_Return) {
-	interpretText();
+        interpretText();
     } else {
-	e->ignore();
+        e->ignore();
     }
 }
 
@@ -670,46 +670,46 @@ void QSpinBox::keyPressEvent(QKeyEvent *e)
 void QSpinBox::focusOutEvent(QFocusEvent *)
 {
     if (edited)
-	interpretText();
+        interpretText();
 }
 
 /*!
     \reimp
  */
-void QSpinBox::setEnabled( bool enabled )
+void QSpinBox::setEnabled(bool enabled)
 {
-    QWidget::setEnabled( enabled );
+    QWidget::setEnabled(enabled);
     updateDisplay();
 }
 
 /*!
     \reimp
 */
-void QSpinBox::resizeEvent( QResizeEvent* )
+void QSpinBox::resizeEvent(QResizeEvent*)
 {
-    d->controls->resize( width(), height() );
+    d->controls->resize(width(), height());
 }
 
 /*!
     \reimp
 */
 #ifndef QT_NO_WHEELEVENT
-void QSpinBox::wheelEvent( QWheelEvent * e )
+void QSpinBox::wheelEvent(QWheelEvent * e)
 {
     e->accept();
     static float offset = 0;
     static QSpinBox* offset_owner = 0;
     if (offset_owner != this) {
-	offset_owner = this;
-	offset = 0;
+        offset_owner = this;
+        offset = 0;
     }
     offset += -e->delta()/120;
     if (QABS(offset) < 1)
-	return;
+        return;
     int ioff = int(offset);
     int i;
     for (i=0; i<QABS(ioff); i++)
-	offset > 0 ? stepDown() : stepUp();
+        offset > 0 ? stepDown() : stepUp();
     offset -= ioff;
 }
 #endif
@@ -726,11 +726,11 @@ void QSpinBox::valueChange()
 {
     d->selreq = hasFocus();
     updateDisplay();
-    d->selreq = FALSE;
-    emit valueChanged( value() );
-    emit valueChanged( currentValueText() );
+    d->selreq = false;
+    emit valueChanged(value());
+    emit valueChanged(currentValueText());
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
+    QAccessible::updateAccessibility(this, 0, QAccessible::ValueChanged);
 #endif
 }
 
@@ -757,10 +757,10 @@ void QSpinBox::rangeChange()
     will still be kept within the spin box's range).
 */
 
-void QSpinBox::setValidator( const QValidator* v )
+void QSpinBox::setValidator(const QValidator* v)
 {
-    if ( vi )
-	vi->setValidator( v );
+    if (vi)
+        vi->setValidator(v);
 }
 
 
@@ -785,24 +785,24 @@ const QValidator * QSpinBox::validator() const
 */
 void QSpinBox::updateDisplay()
 {
-    vi->setUpdatesEnabled( FALSE );
-    vi->setText( currentValueText() );
-    if ( d->selreq && isVisible() && ( hasFocus() || vi->hasFocus() ) ) {
-	selectAll();
+    vi->setUpdatesEnabled(false);
+    vi->setText(currentValueText());
+    if (d->selreq && isVisible() && (hasFocus() || vi->hasFocus())) {
+        selectAll();
     } else {
-	if ( !suffix().isEmpty() && vi->text().endsWith(suffix()) )
-	     vi->setCursorPosition( vi->text().length() - suffix().length() );
+        if (!suffix().isEmpty() && vi->text().endsWith(suffix()))
+             vi->setCursorPosition(vi->text().length() - suffix().length());
     }
-    vi->setUpdatesEnabled( TRUE );
+    vi->setUpdatesEnabled(true);
     vi->repaint(); // immediate repaint needed for some reason
-    edited = FALSE;
+    edited = false;
 
-    bool upEnabled = isEnabled() && ( wrapping() || value() < maxValue() );
-    bool downEnabled = isEnabled() && ( wrapping() || value() > minValue() );
+    bool upEnabled = isEnabled() && (wrapping() || value() < maxValue());
+    bool downEnabled = isEnabled() && (wrapping() || value() > minValue());
 
-    d->controls->setUpEnabled( upEnabled );
-    d->controls->setDownEnabled( downEnabled );
-    vi->setEnabled( isEnabled() );
+    d->controls->setUpEnabled(upEnabled);
+    d->controls->setDownEnabled(downEnabled);
+    vi->setEnabled(isEnabled());
     repaint();
 }
 
@@ -821,21 +821,21 @@ void QSpinBox::updateDisplay()
 
 void QSpinBox::interpretText()
 {
-    bool ok = TRUE;
-    bool done = FALSE;
+    bool ok = true;
+    bool done = false;
     int newVal = 0;
-    if ( !specialValueText().isEmpty() ) {
-	QString s = text().trimmed();
-	QString t = specialValueText().trimmed();
-	if ( s == t ) {
-	    newVal = minValue();
-	    done = TRUE;
-	}
+    if (!specialValueText().isEmpty()) {
+        QString s = text().trimmed();
+        QString t = specialValueText().trimmed();
+        if (s == t) {
+            newVal = minValue();
+            done = true;
+        }
     }
-    if ( !done )
-	newVal = mapTextToValue( &ok );
-    if ( ok )
-	setValue( newVal );
+    if (!done)
+        newVal = mapTextToValue(&ok);
+    if (ok)
+        setValue(newVal);
     updateDisplay(); // sometimes redundant
 }
 
@@ -876,7 +876,7 @@ QLineEdit* QSpinBox::editor() const
 
 void QSpinBox::textChanged()
 {
-    edited = TRUE; // this flag is cleared in updateDisplay()
+    edited = true; // this flag is cleared in updateDisplay()
 }
 
 
@@ -896,10 +896,10 @@ void QSpinBox::textChanged()
     \sa updateDisplay(), mapTextToValue()
 */
 
-QString QSpinBox::mapValueToText( int v )
+QString QSpinBox::mapValueToText(int v)
 {
     QString s;
-    s.setNum( v );
+    s.setNum(v);
     return s;
 }
 
@@ -909,8 +909,8 @@ QString QSpinBox::mapValueToText( int v )
     interpret text entered by the user as a value. The text is
     available as text() and as cleanText(), and this function must
     parse it if possible. If \a ok is not 0: if it parses the text
-    successfully, \a *ok is set to TRUE; otherwise \a *ok is set to
-    FALSE.
+    successfully, \a *ok is set to true; otherwise \a *ok is set to
+    false.
 
     Subclasses that need to display spin box values in a non-numeric
     way need to reimplement this function.
@@ -924,13 +924,13 @@ QString QSpinBox::mapValueToText( int v )
     \sa interpretText(), mapValueToText()
 */
 
-int QSpinBox::mapTextToValue( bool* ok )
+int QSpinBox::mapTextToValue(bool* ok)
 {
     QString s = text();
-    int newVal = s.toInt( ok );
-    if ( !(*ok) && ( prefix().size() || suffix().size() ) ) {// Try removing any pre/suffix
-	s = cleanText();
-	newVal = s.toInt( ok );
+    int newVal = s.toInt(ok);
+    if (!(*ok) && (prefix().size() || suffix().size())) {// Try removing any pre/suffix
+        s = cleanText();
+        newVal = s.toInt(ok);
     }
     return newVal;
 }
@@ -945,12 +945,12 @@ int QSpinBox::mapTextToValue( bool* ok )
 QString QSpinBox::currentValueText()
 {
     QString s;
-    if ( (value() == minValue()) && !specialValueText().isEmpty() ) {
-	s = specialValueText();
+    if ((value() == minValue()) && !specialValueText().isEmpty()) {
+        s = specialValueText();
     } else {
-	s = prefix();
-	s.append( mapValueToText( value() ) );
-	s.append( suffix() );
+        s = prefix();
+        s.append(mapValueToText(value()));
+        s.append(suffix());
     }
     return s;
 }
@@ -958,10 +958,10 @@ QString QSpinBox::currentValueText()
 /*!
     \reimp
 */
-void QSpinBox::changeEvent( QEvent *ev )
+void QSpinBox::changeEvent(QEvent *ev)
 {
     if(ev->type() == QEvent::StyleChange)
-	arrangeWidgets();
+        arrangeWidgets();
     QWidget::changeEvent(ev);
 }
 
@@ -990,29 +990,29 @@ void QSpinBox::changeEvent( QEvent *ev )
     \sa ButtonSymbols
 */
 
-void QSpinBox::setButtonSymbols( ButtonSymbols newSymbols )
+void QSpinBox::setButtonSymbols(ButtonSymbols newSymbols)
 {
-    if ( buttonSymbols() == newSymbols )
-	return;
+    if (buttonSymbols() == newSymbols)
+        return;
 
-    switch ( newSymbols ) {
+    switch (newSymbols) {
     case UpDownArrows:
-	d->controls->setButtonSymbols( QSpinWidget::UpDownArrows );
-	break;
+        d->controls->setButtonSymbols(QSpinWidget::UpDownArrows);
+        break;
     case PlusMinus:
-	d->controls->setButtonSymbols( QSpinWidget::PlusMinus );
-	break;
+        d->controls->setButtonSymbols(QSpinWidget::PlusMinus);
+        break;
     }
     //    repaint();
 }
 
 QSpinBox::ButtonSymbols QSpinBox::buttonSymbols() const
 {
-    switch( d->controls->buttonSymbols() ) {
+    switch(d->controls->buttonSymbols()) {
     case QSpinWidget::UpDownArrows:
-	return UpDownArrows;
+        return UpDownArrows;
     case QSpinWidget::PlusMinus:
-	return PlusMinus;
+        return PlusMinus;
     }
     return UpDownArrows;
 }
@@ -1033,9 +1033,9 @@ int QSpinBox::minValue() const
     return QRangeControl::minValue();
 }
 
-void QSpinBox::setMinValue( int minVal )
+void QSpinBox::setMinValue(int minVal)
 {
-    QRangeControl::setMinValue( minVal );
+    QRangeControl::setMinValue(minVal);
 }
 
 /*!
@@ -1053,9 +1053,9 @@ int QSpinBox::maxValue() const
     return QRangeControl::maxValue();
 }
 
-void QSpinBox::setMaxValue( int maxVal )
+void QSpinBox::setMaxValue(int maxVal)
 {
-    QRangeControl::setMaxValue( maxVal );
+    QRangeControl::setMaxValue(maxVal);
 }
 
 /*!
@@ -1077,9 +1077,9 @@ int QSpinBox::lineStep() const
     return QRangeControl::lineStep();
 }
 
-void QSpinBox::setLineStep( int i )
+void QSpinBox::setLineStep(int i)
 {
-    setSteps( i, pageStep() );
+    setSteps(i, pageStep());
 }
 
 /*!
@@ -1089,10 +1089,10 @@ void QSpinBox::setLineStep( int i )
 void QSpinBox::selectAll()
 {
     int overhead = prefix().length() + suffix().length();
-    if ( !overhead || currentValueText() == specialValueText() ) {
-	vi->selectAll();
+    if (!overhead || currentValueText() == specialValueText()) {
+        vi->selectAll();
     } else {
-	vi->setSelection( prefix().length(), vi->text().length() - overhead );
+        vi->setSelection(prefix().length(), vi->text().length() - overhead);
     }
 }
 

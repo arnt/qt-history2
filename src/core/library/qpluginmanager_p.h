@@ -37,11 +37,11 @@ template<class Type>
 class QPluginManager : public QGPluginManager
 {
 public:
-    QPluginManager( const QUuid& id, const QStringList& paths = QString(), const QString &suffix = QString(), bool cs = TRUE )
-	: QGPluginManager( id, paths, suffix, cs ) {}
+    QPluginManager(const QUuid& id, const QStringList& paths = QString(), const QString &suffix = QString(), bool cs = true)
+        : QGPluginManager(id, paths, suffix, cs) {}
     QRESULT queryInterface(const QString& feature, Type** iface) const
     {
-	return queryUnknownInterface( feature, (QUnknownInterface**)iface );
+        return queryUnknownInterface(feature, (QUnknownInterface**)iface);
     }
 };
 

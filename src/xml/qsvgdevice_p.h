@@ -33,7 +33,7 @@
 #include "qdom.h"
 #endif // QT_H
 
-#if !defined(QT_MODULE_XML) || defined( QT_LICENSE_PROFESSIONAL ) || defined( QT_INTERNAL_XML )
+#if !defined(QT_MODULE_XML) || defined(QT_LICENSE_PROFESSIONAL) || defined(QT_INTERNAL_XML)
 #define QM_EXPORT_SVG
 #else
 #define QM_EXPORT_SVG Q_XML_EXPORT
@@ -54,51 +54,51 @@ public:
     QSvgDevice();
     ~QSvgDevice();
 
-    bool play( QPainter *p );
+    bool play(QPainter *p);
 
     QString toString() const;
 
-    bool load( QIODevice *dev );
-    bool save( QIODevice *dev );
-    bool save( const QString &fileName );
+    bool load(QIODevice *dev);
+    bool save(QIODevice *dev);
+    bool save(const QString &fileName);
 
     QRect boundingRect() const;
-    void setBoundingRect( const QRect &r );
+    void setBoundingRect(const QRect &r);
 
     QPaintEngine *engine() const;
 
 protected:
-    virtual int	 metric( int ) const;
+    virtual int         metric(int) const;
 
 private:
     // reading
-    bool play( const QDomNode &node );
+    bool play(const QDomNode &node);
     void saveAttributes();
     void restoreAttributes();
-    QColor parseColor( const QString &col );
-    double parseLen( const QString &str, bool *ok=0, bool horiz=TRUE ) const;
-    int lenToInt( const QDomNamedNodeMap &map, const QString &attr,
-		  int def=0 ) const;
-    double lenToDouble( const QDomNamedNodeMap &map, const QString &attr,
-		  int def=0 ) const;
-    void setStyleProperty( const QString &prop, const QString &val,
-			   QPen *pen, QFont *font, int *talign );
-    void setStyle( const QString &s );
-    void setTransform( const QString &tr );
-    void drawPath( const QString &data );
+    QColor parseColor(const QString &col);
+    double parseLen(const QString &str, bool *ok=0, bool horiz=true) const;
+    int lenToInt(const QDomNamedNodeMap &map, const QString &attr,
+                  int def=0) const;
+    double lenToDouble(const QDomNamedNodeMap &map, const QString &attr,
+                  int def=0) const;
+    void setStyleProperty(const QString &prop, const QString &val,
+                           QPen *pen, QFont *font, int *talign);
+    void setStyle(const QString &s);
+    void setTransform(const QString &tr);
+    void drawPath(const QString &data);
 
     // writing
-    void appendChild( QDomElement &e, int c );
-    void applyStyle( QDomElement *e, int c ) const;
-    void applyTransform( QDomElement *e ) const;
+    void appendChild(QDomElement &e, int c);
+    void applyStyle(QDomElement *e, int c) const;
+    void applyTransform(QDomElement *e) const;
 
     // reading
-    QRect brect;			// bounding rectangle
-    QDomDocument doc;			// document tree
+    QRect brect;                        // bounding rectangle
+    QDomDocument doc;                        // document tree
     QDomNode current;
     QPoint curPt;
     QSvgDeviceState *curr;
-    QPainter *pt;			// used by play() et al
+    QPainter *pt;                        // used by play() et al
 
     // writing
     bool dirtyTransform, dirtyStyle;

@@ -39,8 +39,8 @@
     The \a parent and \a name arguments are passed on to the QWidget
     constructor.
 */
-QVButtonGroup::QVButtonGroup( QWidget *parent, const char *name )
-    : QButtonGroup( 1, Horizontal /* sic! */, parent, name )
+QVButtonGroup::QVButtonGroup(QWidget *parent, const char *name)
+    : QButtonGroup(1, Horizontal /* sic! */, parent, name)
 {
 }
 
@@ -51,9 +51,9 @@ QVButtonGroup::QVButtonGroup( QWidget *parent, const char *name )
     constructor.
 */
 
-QVButtonGroup::QVButtonGroup( const QString &title, QWidget *parent,
-			    const char *name )
-    : QButtonGroup( 1, Horizontal /* sic! */, title, parent, name )
+QVButtonGroup::QVButtonGroup(const QString &title, QWidget *parent,
+                            const char *name)
+    : QButtonGroup(1, Horizontal /* sic! */, title, parent, name)
 {
 }
 

@@ -32,158 +32,158 @@
 #include <limits.h>
 
 
-void QFileInfo::slashify( QString &s )
+void QFileInfo::slashify(QString &s)
 {
     for (int i=0; i<(int)s.length(); i++) {
-	if ( s[i] == '\\' )
-	    s[i] = '/';
+        if (s[i] == '\\')
+            s[i] = '/';
     }
-    if ( s[ (int)s.length() - 1 ] == '/' && s.length() > 3 )
-	s.remove( (int)s.length() - 1, 1 );
+    if (s[(int)s.length() - 1] == '/' && s.length() > 3)
+        s.remove((int)s.length() - 1, 1);
 }
 
 
-void QFileInfo::makeAbs( QString &s )
+void QFileInfo::makeAbs(QString &s)
 {
-    if ( s[0] != '/' ) {
-	QString d = QDir::currentDirPath();
-	slashify( d );
-	s.prepend( d + "/" );
+    if (s[0] != '/') {
+        QString d = QDir::currentDirPath();
+        slashify(d);
+        s.prepend(d + "/");
     }
 }
 
 
 bool QFileInfo::isHidden() const
 {
-    return GetFileAttributes( (TCHAR*)fn.ucs2() ) & FILE_ATTRIBUTE_HIDDEN;
+    return GetFileAttributes((TCHAR*)fn.ucs2()) & FILE_ATTRIBUTE_HIDDEN;
 }
 
 
 bool QFileInfo::isFile() const
 {
-    if ( !fic || !cache )
-	doStat();
-    return fic ? (fic->st.st_mode & QT_STAT_MASK) == QT_STAT_REG : FALSE;
+    if (!fic || !cache)
+        doStat();
+    return fic ? (fic->st.st_mode & QT_STAT_MASK) == QT_STAT_REG : false;
 }
 
 
 bool QFileInfo::isDir() const
 {
-    if ( !fic || !cache )
-	doStat();
-    return fic ? (fic->st.st_mode & QT_STAT_MASK) == QT_STAT_DIR : FALSE;
+    if (!fic || !cache)
+        doStat();
+    return fic ? (fic->st.st_mode & QT_STAT_MASK) == QT_STAT_DIR : false;
 }
 
 
 bool QFileInfo::isSymLink() const
 {
-    return (fn.right( 4 ) == ".lnk");
+    return (fn.right(4) == ".lnk");
 }
 
 
-bool QFileInfo::permission( int p ) const
+bool QFileInfo::permission(int p) const
 {
     // just check if it's ReadOnly
-    if ( p & ( WriteOwner | WriteUser | WriteGroup | WriteOther ) ) {
-	DWORD attr = GetFileAttributes( (TCHAR*)fn.ucs2() );
-	if ( attr & FILE_ATTRIBUTE_READONLY )
-	    return FALSE;
+    if (p & (WriteOwner | WriteUser | WriteGroup | WriteOther)) {
+        DWORD attr = GetFileAttributes((TCHAR*)fn.ucs2());
+        if (attr & FILE_ATTRIBUTE_READONLY)
+            return false;
     }
-    return TRUE;
+    return true;
 }
 
 
 void QFileInfo::doStat() const
 {
-    if ( fn.isEmpty() )
-	return;
+    if (fn.isEmpty())
+        return;
 
-    QFileInfo *that = ((QFileInfo*)this);	// mutable function
-    if ( !that->fic )
-	that->fic = new QFileInfoCache;
+    QFileInfo *that = ((QFileInfo*)this);        // mutable function
+    if (!that->fic)
+        that->fic = new QFileInfoCache;
     QT_STATBUF *b = &that->fic->st;
 
     int r = QT_TSTAT((TCHAR*)fn.ucs2(), (QT_STATBUF4TSTAT*)b);
-    if ( r!=0 ) {
-	bool is_dir=FALSE;
-	if ( fn[0] == '/' && fn[1] == '/'
-	  || fn[0] == '\\' && fn[1] == '\\' )
-	{
-	    // UNC - stat doesn't work for all cases (Windows bug)
-	    int s = fn.find(fn[0],2);
-	    if ( s > 0 ) {
-		// "\\server\..."
-		s = fn.find(fn[0],s+1);
-		if ( s > 0 ) {
-		    // "\\server\share\..."
-		    if ( fn[s+1] ) {
-			// "\\server\share\notfound"
-		    } else {
-			// "\\server\share\"
-			is_dir=TRUE;
-		    }
-		} else {
-		    // "\\server\share"
-		    is_dir=TRUE;
-		}
-	    } else {
-		// "\\server"
-		is_dir=TRUE;
-	    }
-	}
-	if ( is_dir ) {
-	    // looks like a UNC dir, is a dir.
-	    memset(b,0,sizeof(*b));
-	    b->st_mode = QT_STAT_DIR;
-	    b->st_nlink = 1;
-	    r = 0;
-	}
+    if (r!=0) {
+        bool is_dir=false;
+        if (fn[0] == '/' && fn[1] == '/'
+          || fn[0] == '\\' && fn[1] == '\\')
+        {
+            // UNC - stat doesn't work for all cases (Windows bug)
+            int s = fn.find(fn[0],2);
+            if (s > 0) {
+                // "\\server\..."
+                s = fn.find(fn[0],s+1);
+                if (s > 0) {
+                    // "\\server\share\..."
+                    if (fn[s+1]) {
+                        // "\\server\share\notfound"
+                    } else {
+                        // "\\server\share\"
+                        is_dir=true;
+                    }
+                } else {
+                    // "\\server\share"
+                    is_dir=true;
+                }
+            } else {
+                // "\\server"
+                is_dir=true;
+            }
+        }
+        if (is_dir) {
+            // looks like a UNC dir, is a dir.
+            memset(b,0,sizeof(*b));
+            b->st_mode = QT_STAT_DIR;
+            b->st_nlink = 1;
+            r = 0;
+        }
     }
 
-    if ( r != 0 ) {
-	delete that->fic;
-	that->fic = 0;
+    if (r != 0) {
+        delete that->fic;
+        that->fic = 0;
     }
 }
 
 
-QString QFileInfo::dirPath( bool absPath ) const
+QString QFileInfo::dirPath(bool absPath) const
 {
     QString s;
-    if ( absPath )
-	s = absFilePath();
+    if (absPath)
+        s = absFilePath();
     else
-	s = fn;
-    int pos = s.findRev( '/' );
-    if ( pos == -1 ) {
-	if ( s[ 2 ] == '/' )
-	    return s.left( 3 );
-	if ( s[ 1 ] == ':' ) {
-	    if ( absPath )
-		return s.left( 2 ) + "/";
-	    return s.left( 2 );
-	}
-	return QString::fromLatin1(".");
+        s = fn;
+    int pos = s.findRev('/');
+    if (pos == -1) {
+        if (s[2] == '/')
+            return s.left(3);
+        if (s[1] == ':') {
+            if (absPath)
+                return s.left(2) + "/";
+            return s.left(2);
+        }
+        return QString::fromLatin1(".");
     } else {
-	if ( pos == 0 )
-	    return QString::fromLatin1( "/" );
-	if ( pos == 2 && s[ 1 ] == ':'  && s[ 2 ] == '/')
-	    pos++;
-	return s.left( pos );
+        if (pos == 0)
+            return QString::fromLatin1("/");
+        if (pos == 2 && s[1] == ':'  && s[2] == '/')
+            pos++;
+        return s.left(pos);
     }
 }
 
 
 QString QFileInfo::fileName() const
 {
-    int p = fn.findRev( '/' );
-    if ( p == -1 ) {
-	int p = fn.findRev( ':' );
-	if ( p != -1 )
-	    return fn.mid( p + 1 );
-	return fn;
+    int p = fn.findRev('/');
+    if (p == -1) {
+        int p = fn.findRev(':');
+        if (p != -1)
+            return fn.mid(p + 1);
+        return fn;
     } else {
-	return fn.mid( p + 1 );
+        return fn.mid(p + 1);
     }
 }
 

@@ -112,8 +112,8 @@
 
 enum {
     Esc = 0x1b,
-    So = 0x0e, 	// Shift Out
-    Si = 0x0f, 	// Shift In
+    So = 0x0e,         // Shift Out
+    Si = 0x0f,         // Shift In
 
     ReverseSolidus = 0x5c,
     YenSign = 0x5c,
@@ -121,31 +121,31 @@ enum {
     Overline = 0x7e
 };
 
-#define	IsKana(c)	(((c) >= 0xa1) && ((c) <= 0xdf))
-#define	IsJisChar(c)	(((c) >= 0x21) && ((c) <= 0x7e))
+#define        IsKana(c)        (((c) >= 0xa1) && ((c) <= 0xdf))
+#define        IsJisChar(c)        (((c) >= 0x21) && ((c) <= 0x7e))
 
-#define	QValidChar(u)	((u) ? QChar((ushort)(u)) : QChar(QChar::replacement))
+#define        QValidChar(u)        ((u) ? QChar((ushort)(u)) : QChar(QChar::replacement))
 
 enum Iso2022State{ Ascii, MinState = Ascii,
-		   JISX0201_Latin, JISX0201_Kana,
-		   JISX0208_1978, JISX0208_1983,
-		   JISX0212, MaxState = JISX0212,
-		   UnknownState };
+                   JISX0201_Latin, JISX0201_Kana,
+                   JISX0208_1978, JISX0208_1983,
+                   JISX0212, MaxState = JISX0212,
+                   UnknownState };
 
 static const char Esc_CHARS[] = "()*+-./";
 
-static const char Esc_Ascii[] 		= {Esc, '(', 'B', 0 };
-static const char Esc_JISX0201_Latin[]	= {Esc, '(', 'J', 0 };
-static const char Esc_JISX0201_Kana[]	= {Esc, '(', 'I', 0 };
-static const char Esc_JISX0208_1978[]	= {Esc, '$', '@', 0 };
-static const char Esc_JISX0208_1983[]	= {Esc, '$', 'B', 0 };
-static const char Esc_JISX0212[]	= {Esc, '$', '(', 'D', 0 };
+static const char Esc_Ascii[]                 = {Esc, '(', 'B', 0 };
+static const char Esc_JISX0201_Latin[]        = {Esc, '(', 'J', 0 };
+static const char Esc_JISX0201_Kana[]        = {Esc, '(', 'I', 0 };
+static const char Esc_JISX0208_1978[]        = {Esc, '$', '@', 0 };
+static const char Esc_JISX0208_1983[]        = {Esc, '$', 'B', 0 };
+static const char Esc_JISX0212[]        = {Esc, '$', '(', 'D', 0 };
 static const char * const Esc_SEQ[] = { Esc_Ascii,
-					Esc_JISX0201_Latin,
-					Esc_JISX0201_Kana,
-					Esc_JISX0208_1978,
-					Esc_JISX0208_1983,
-					Esc_JISX0212 };
+                                        Esc_JISX0201_Latin,
+                                        Esc_JISX0201_Kana,
+                                        Esc_JISX0208_1978,
+                                        Esc_JISX0208_1983,
+                                        Esc_JISX0212 };
 
 /*! \internal */
 QJisCodec::QJisCodec() : conv(QJpUnicodeConv::newConverter(QJpUnicodeConv::Default))
@@ -168,7 +168,7 @@ int QJisCodec::mibEnum() const
     Name: JIS_Encoding
     MIBenum: 16
     Source: JIS X 0202-1991.  Uses ISO 2022 escape sequences to
-	    shift code sets as documented in JIS X 0202-1991.
+            shift code sets as documented in JIS X 0202-1991.
     Alias: csJISEncoding
     */
     return 16;
@@ -182,55 +182,55 @@ QByteArray QJisCodec::fromUnicode(const QString& uc, int& lenInOut) const
     Iso2022State state = Ascii;
     Iso2022State prev = Ascii;
     for (int i=0; i<l; i++) {
-	QChar ch = uc[i];
-	uint j;
-	if ( ch.row() == 0x00 && ch.cell() < 0x80 ) {
-	    // Ascii
-	    if (state != JISX0201_Latin ||
-		ch.cell() == ReverseSolidus || ch.cell() == Tilde) {
-		state = Ascii;
-	    }
-	    j = ch.cell();
-	} else if ((j = conv->unicodeToJisx0201(ch.row(), ch.cell())) != 0) {
-	    if (j < 0x80) {
-		// JIS X 0201 Latin
-		if (state != Ascii ||
-		    ch.cell() == YenSign || ch.cell() == Overline) {
-		    state = JISX0201_Latin;
-		}
-	    } else {
-		// JIS X 0201 Kana
-		state = JISX0201_Kana;
-		j &= 0x7f;
-	    }
-	} else if ((j = conv->unicodeToJisx0208(ch.row(), ch.cell())) != 0) {
-	    // JIS X 0208
-	    state = JISX0208_1983;
-	} else if ((j = conv->unicodeToJisx0212(ch.row(), ch.cell())) != 0) {
-	    // JIS X 0212
-	    state = JISX0212;
-	} else {
-	    // Invalid
-	    state = UnknownState;
-	    j = '?';
-	}
-	if (state != prev) {
-	    if (state == UnknownState) {
-		result += Esc_Ascii;
-	    } else {
-		result += Esc_SEQ[state - MinState];
-	    }
-	    prev = state;
-	}
-	if (j < 0x0100) {
-	    result += j & 0xff;
-	} else {
-	    result += (j >> 8) & 0xff;
-	    result += j & 0xff;
-	}
+        QChar ch = uc[i];
+        uint j;
+        if (ch.row() == 0x00 && ch.cell() < 0x80) {
+            // Ascii
+            if (state != JISX0201_Latin ||
+                ch.cell() == ReverseSolidus || ch.cell() == Tilde) {
+                state = Ascii;
+            }
+            j = ch.cell();
+        } else if ((j = conv->unicodeToJisx0201(ch.row(), ch.cell())) != 0) {
+            if (j < 0x80) {
+                // JIS X 0201 Latin
+                if (state != Ascii ||
+                    ch.cell() == YenSign || ch.cell() == Overline) {
+                    state = JISX0201_Latin;
+                }
+            } else {
+                // JIS X 0201 Kana
+                state = JISX0201_Kana;
+                j &= 0x7f;
+            }
+        } else if ((j = conv->unicodeToJisx0208(ch.row(), ch.cell())) != 0) {
+            // JIS X 0208
+            state = JISX0208_1983;
+        } else if ((j = conv->unicodeToJisx0212(ch.row(), ch.cell())) != 0) {
+            // JIS X 0212
+            state = JISX0212;
+        } else {
+            // Invalid
+            state = UnknownState;
+            j = '?';
+        }
+        if (state != prev) {
+            if (state == UnknownState) {
+                result += Esc_Ascii;
+            } else {
+                result += Esc_SEQ[state - MinState];
+            }
+            prev = state;
+        }
+        if (j < 0x0100) {
+            result += j & 0xff;
+        } else {
+            result += (j >> 8) & 0xff;
+            result += j & 0xff;
+        }
     }
     if (prev != Ascii) {
-	result += Esc_Ascii;
+        result += Esc_Ascii;
     }
     lenInOut = result.size();
     return result;
@@ -242,106 +242,106 @@ QString QJisCodec::toUnicode(const char* chars, int len) const
     QString result;
     Iso2022State state = Ascii, prev = Ascii;
     for (int i=0; i<len; i++) {
-	uchar ch = chars[i];
-	if ( ch == Esc ) {
-	    // Escape sequence
-	    state = UnknownState;
-	    if ( i < len-1 ) {
-		uchar c2 = chars[++i];
-		if (c2 == '$') {
-		    if ( i < len-1 ) {
-			uchar c3 = chars[++i];
-			if (strchr(Esc_CHARS, c3)) {
-			    if ( i < len-1 ) {
-				uchar c4 = chars[++i];
-				if (c4 == '(') {
-				    switch (c4) {
-				      case 'D':
-					state = JISX0212;	// Esc $ ( D
-					break;
-				    }
-				}
-			    }
-			} else {
-			    switch (c3) {
-			      case '@':
-				state = JISX0208_1978;	// Esc $ @
-				break;
-			      case 'B':
-				state = JISX0208_1983;	// Esc $ B
-				break;
-			    }
-			}
-		    }
-		} else {
-		    if (strchr(Esc_CHARS, c2)) {
-			if ( i < len-1 ) {
-			    uchar c3 = chars[++i];
-			    if (c2 == '(') {
-				switch (c3) {
-				  case 'B':
-				    state = Ascii;	// Esc ( B
-				    break;
-				  case 'I':
-				    state = JISX0201_Kana;	// Esc ( I
-				    break;
-				  case 'J':
-				    state = JISX0201_Latin;	// Esc ( J
-				    break;
-				}
-			    }
-			}
-		    }
-		}
-	    }
-	} else if (ch == So) {
-	    // Shift out
-	    prev = state;
-	    state = JISX0201_Kana;
-	} else if (ch == Si) {
-	    // Shift in
-	    if (prev == Ascii || prev == JISX0201_Latin) {
-		state = prev;
-	    } else {
-		state = Ascii;
-	    }
-	} else {
-	    uint u;
-	    switch (state) {
-	      case Ascii:
-		if (ch < 0x80) {
-		    result += QChar(ch);
-		    break;
-		}
-		/* fall through */
-	      case JISX0201_Latin:
-		u = conv->jisx0201ToUnicode(ch);
-		result += QValidChar(u);
-		break;
-	      case JISX0201_Kana:
-		u = conv->jisx0201ToUnicode(ch | 0x80);
-		result += QValidChar(u);
-		break;
-	      case JISX0208_1978:
-	      case JISX0208_1983:
-		if ( i < len-1 ) {
-		    uchar c2 = chars[++i];
-		    u = conv->jisx0208ToUnicode(ch & 0x7f, c2 & 0x7f);
-		    result += QValidChar(u);
-		}
-		break;
-	      case JISX0212:
-		if ( i < len-1 ) {
-		    uchar c2 = chars[++i];
-		    u = conv->jisx0212ToUnicode(ch & 0x7f, c2 & 0x7f);
-		    result += QValidChar(u);
-		}
-		break;
-	      default:
-		result += QChar::replacement;
-		break;
-	    }
-	}
+        uchar ch = chars[i];
+        if (ch == Esc) {
+            // Escape sequence
+            state = UnknownState;
+            if (i < len-1) {
+                uchar c2 = chars[++i];
+                if (c2 == '$') {
+                    if (i < len-1) {
+                        uchar c3 = chars[++i];
+                        if (strchr(Esc_CHARS, c3)) {
+                            if (i < len-1) {
+                                uchar c4 = chars[++i];
+                                if (c4 == '(') {
+                                    switch (c4) {
+                                      case 'D':
+                                        state = JISX0212;        // Esc $ (D
+                                        break;
+                                    }
+                                }
+                            }
+                        } else {
+                            switch (c3) {
+                              case '@':
+                                state = JISX0208_1978;        // Esc $ @
+                                break;
+                              case 'B':
+                                state = JISX0208_1983;        // Esc $ B
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    if (strchr(Esc_CHARS, c2)) {
+                        if (i < len-1) {
+                            uchar c3 = chars[++i];
+                            if (c2 == '(') {
+                                switch (c3) {
+                                  case 'B':
+                                    state = Ascii;        // Esc (B
+                                    break;
+                                  case 'I':
+                                    state = JISX0201_Kana;        // Esc (I
+                                    break;
+                                  case 'J':
+                                    state = JISX0201_Latin;        // Esc (J
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } else if (ch == So) {
+            // Shift out
+            prev = state;
+            state = JISX0201_Kana;
+        } else if (ch == Si) {
+            // Shift in
+            if (prev == Ascii || prev == JISX0201_Latin) {
+                state = prev;
+            } else {
+                state = Ascii;
+            }
+        } else {
+            uint u;
+            switch (state) {
+              case Ascii:
+                if (ch < 0x80) {
+                    result += QChar(ch);
+                    break;
+                }
+                /* fall through */
+              case JISX0201_Latin:
+                u = conv->jisx0201ToUnicode(ch);
+                result += QValidChar(u);
+                break;
+              case JISX0201_Kana:
+                u = conv->jisx0201ToUnicode(ch | 0x80);
+                result += QValidChar(u);
+                break;
+              case JISX0208_1978:
+              case JISX0208_1983:
+                if (i < len-1) {
+                    uchar c2 = chars[++i];
+                    u = conv->jisx0208ToUnicode(ch & 0x7f, c2 & 0x7f);
+                    result += QValidChar(u);
+                }
+                break;
+              case JISX0212:
+                if (i < len-1) {
+                    uchar c2 = chars[++i];
+                    u = conv->jisx0212ToUnicode(ch & 0x7f, c2 & 0x7f);
+                    result += QValidChar(u);
+                }
+                break;
+              default:
+                result += QChar::replacement;
+                break;
+            }
+        }
     }
     return result;
 }
@@ -363,36 +363,36 @@ const char* QJisCodec::mimeName() const
 /*! \internal */
 int QJisCodec::heuristicNameMatch(const char* hint) const
 {
-    if ( qstrnicmp( hint, "ISO-2022-JP", 11 ) == 0 )
-	return 10000;
-    if ( simpleHeuristicNameMatch( "ISO-2022-JP-2", hint ) > 0 )
-	return 10;
+    if (qstrnicmp(hint, "ISO-2022-JP", 11) == 0)
+        return 10000;
+    if (simpleHeuristicNameMatch("ISO-2022-JP-2", hint) > 0)
+        return 10;
 
     int score = 0;
-    bool ja = FALSE;
+    bool ja = false;
     if (qstrnicmp(hint, "ja_JP", 5) == 0 || qstrnicmp(hint, "japan", 5) == 0) {
-	score += 3;
-	ja = TRUE;
+        score += 3;
+        ja = true;
     } else if (qstrnicmp(hint, "ja", 2) == 0) {
-	score += 2;
-	ja = TRUE;
+        score += 2;
+        ja = true;
     }
     const char *p;
     if (ja) {
-	p = strchr(hint, '.');
-	if (p == 0) {
-	    return score - 2;
-	}
-	p++;
+        p = strchr(hint, '.');
+        if (p == 0) {
+            return score - 2;
+        }
+        p++;
     } else {
-	p = hint;
+        p = hint;
     }
     if (p) {
-	if ((qstricmp(p, "JIS") == 0) ||
-	    (qstricmp(p, "JIS7") == 0) ||
-	    (simpleHeuristicNameMatch("ISO-2022-JP", p) > 0)) {
-	    return score + 4;
-	}
+        if ((qstricmp(p, "JIS") == 0) ||
+            (qstricmp(p, "JIS7") == 0) ||
+            (simpleHeuristicNameMatch("ISO-2022-JP", p) > 0)) {
+            return score + 4;
+        }
     }
     return QTextCodec::heuristicNameMatch(hint);
 }
@@ -403,126 +403,126 @@ int QJisCodec::heuristicContentMatch(const char* chars, int len) const
     int score = 0;
     Iso2022State state = Ascii, prev = Ascii;
     for (int i=0; i<len; i++) {
-	uchar ch = chars[i];
-	// No nulls allowed.
-	if ( !ch )
-	    return -1;
-	if ( ch == Esc ) {
-	    // Escape sequence
-	    state = UnknownState;
-	    if ( i < len-1 ) {
-		uchar c2 = chars[++i];
-		if (c2 == '$') {
-		    if ( i < len-1 ) {
-			uchar c3 = chars[++i];
-			if (strchr(Esc_CHARS, c3)) {
-			    if ( i < len-1 ) {
-				uchar c4 = chars[++i];
-				if (c4 == '(') {
-				    switch (c4) {
-				      case 'D':
-					state = JISX0212;	// Esc $ ( D
-					score++;
-					break;
-				    }
-				}
-			    }
-			    score++;
-			} else {
-			    switch (c3) {
-			      case '@':
-				state = JISX0208_1978;	// Esc $ @
-				score++;
-				break;
-			      case 'B':
-				state = JISX0208_1983;	// Esc $ B
-				score++;
-				break;
-			    }
-			}
-		    }
-		    score++;
-		} else {
-		    if (strchr(Esc_CHARS, c2)) {
-			if ( i < len-1 ) {
-			    uchar c3 = chars[++i];
-			    if (c2 == '(') {
-				switch (c3) {
-				  case 'B':
-				    state = Ascii;	// Esc ( B
-				    score++;
-				    break;
-				  case 'I':
-				    state = JISX0201_Kana;	// Esc ( I
-				    score++;
-				    break;
-				  case 'J':
-				    state = JISX0201_Latin;	// Esc ( J
-				    score++;
-				    break;
-				}
-			    }
-			}
-			score++;
-		    }
-		}
-	    }
-	    if ( state == UnknownState ) {
-		return -1;
-	    }
-	    score++;
-	} else if (ch == So) {
-	    // Shift out
-	    prev = state;
-	    state = JISX0201_Kana;
-	    score++;
-	} else if (ch == Si) {
-	    // Shift in
-	    if (prev == Ascii || prev == JISX0201_Latin) {
-		state = prev;
-	    } else {
-		state = Ascii;
-	    }
-	    score++;
-	} else {
-	    switch (state) {
-	      case Ascii:
-	      case JISX0201_Latin:
-		if ( ch < 32 && ch != '\t' && ch != '\n' && ch != '\r' ) {
-		    // Suspicious
-		    if ( score )
-		      score--;
-		} else {
-		    // Inconclusive
-		}
-		break;
-	      case JISX0201_Kana:
-		if ( !IsKana(ch | 0x80) ) {
-		    return -1;
-		}
-		score++;
-		break;
-	      case JISX0208_1978:
-	      case JISX0208_1983:
-	      case JISX0212:
-		if ( !IsJisChar(ch) ) {
-		    // Invalid
-		    return -1;
-		}
-		if ( i < len-1 ) {
-		    uchar c2 = chars[++i];
-		    if ( !IsJisChar(c2) ) {
-			// Invalid
-			return -1;
-		    }
-		    score++;
-		}
-		score++;
-		break;
-	      default:
-		return -1;
-	    }
-	}
+        uchar ch = chars[i];
+        // No nulls allowed.
+        if (!ch)
+            return -1;
+        if (ch == Esc) {
+            // Escape sequence
+            state = UnknownState;
+            if (i < len-1) {
+                uchar c2 = chars[++i];
+                if (c2 == '$') {
+                    if (i < len-1) {
+                        uchar c3 = chars[++i];
+                        if (strchr(Esc_CHARS, c3)) {
+                            if (i < len-1) {
+                                uchar c4 = chars[++i];
+                                if (c4 == '(') {
+                                    switch (c4) {
+                                      case 'D':
+                                        state = JISX0212;        // Esc $ (D
+                                        score++;
+                                        break;
+                                    }
+                                }
+                            }
+                            score++;
+                        } else {
+                            switch (c3) {
+                              case '@':
+                                state = JISX0208_1978;        // Esc $ @
+                                score++;
+                                break;
+                              case 'B':
+                                state = JISX0208_1983;        // Esc $ B
+                                score++;
+                                break;
+                            }
+                        }
+                    }
+                    score++;
+                } else {
+                    if (strchr(Esc_CHARS, c2)) {
+                        if (i < len-1) {
+                            uchar c3 = chars[++i];
+                            if (c2 == '(') {
+                                switch (c3) {
+                                  case 'B':
+                                    state = Ascii;        // Esc (B
+                                    score++;
+                                    break;
+                                  case 'I':
+                                    state = JISX0201_Kana;        // Esc (I
+                                    score++;
+                                    break;
+                                  case 'J':
+                                    state = JISX0201_Latin;        // Esc (J
+                                    score++;
+                                    break;
+                                }
+                            }
+                        }
+                        score++;
+                    }
+                }
+            }
+            if (state == UnknownState) {
+                return -1;
+            }
+            score++;
+        } else if (ch == So) {
+            // Shift out
+            prev = state;
+            state = JISX0201_Kana;
+            score++;
+        } else if (ch == Si) {
+            // Shift in
+            if (prev == Ascii || prev == JISX0201_Latin) {
+                state = prev;
+            } else {
+                state = Ascii;
+            }
+            score++;
+        } else {
+            switch (state) {
+              case Ascii:
+              case JISX0201_Latin:
+                if (ch < 32 && ch != '\t' && ch != '\n' && ch != '\r') {
+                    // Suspicious
+                    if (score)
+                      score--;
+                } else {
+                    // Inconclusive
+                }
+                break;
+              case JISX0201_Kana:
+                if (!IsKana(ch | 0x80)) {
+                    return -1;
+                }
+                score++;
+                break;
+              case JISX0208_1978:
+              case JISX0208_1983:
+              case JISX0212:
+                if (!IsJisChar(ch)) {
+                    // Invalid
+                    return -1;
+                }
+                if (i < len-1) {
+                    uchar c2 = chars[++i];
+                    if (!IsJisChar(c2)) {
+                        // Invalid
+                        return -1;
+                    }
+                    score++;
+                }
+                score++;
+                break;
+              default:
+                return -1;
+            }
+        }
     }
     return score;
 }
@@ -534,142 +534,142 @@ class QJisDecoder : public QTextDecoder {
     bool esc;
     const QJpUnicodeConv * const conv;
 public:
-    QJisDecoder(const QJpUnicodeConv *c) : nbuf(0), state(Ascii), prev(Ascii), esc(FALSE), conv(c)
+    QJisDecoder(const QJpUnicodeConv *c) : nbuf(0), state(Ascii), prev(Ascii), esc(false), conv(c)
     {
     }
 
     QString toUnicode(const char* chars, int len)
     {
-	QString result;
-	for (int i=0; i<len; i++) {
-	    uchar ch = chars[i];
-	    if (esc) {
-		// Escape sequence
-		state = UnknownState;
-		switch (nbuf) {
-		  case 0:
-		    if (ch == '$' || strchr(Esc_CHARS, ch)) {
-			buf[nbuf++] = ch;
-		    } else {
-			nbuf = 0;
-			esc = FALSE;
-		    }
-		    break;
-		  case 1:
-		    if (buf[0] == '$') {
-			if (strchr(Esc_CHARS, ch)) {
-			    buf[nbuf++] = ch;
-			} else {
-			    switch (ch) {
-			      case '@':
-				state = JISX0208_1978;	// Esc $ @
-				break;
-			      case 'B':
-				state = JISX0208_1983;	// Esc $ B
-				break;
-			    }
-			    nbuf = 0;
-			    esc = FALSE;
-			}
-		    } else {
-			if (buf[0] == '(') {
-			    switch (ch) {
-			      case 'B':
-				state = Ascii;	// Esc ( B
-				break;
-			      case 'I':
-				state = JISX0201_Kana;	// Esc ( I
-				break;
-			      case 'J':
-				state = JISX0201_Latin;	// Esc ( J
-				break;
-			    }
-			}
-			nbuf = 0;
-			esc = FALSE;
-		    }
-		    break;
-		  case 2:
-		    if (buf[1] == '(') {
-			switch (ch) {
-			  case 'D':
-			    state = JISX0212;	// Esc $ ( D
-			    break;
-			}
-		    }
-		    nbuf = 0;
-		    esc = FALSE;
-		    break;
-		}
-	    } else {
-		if (ch == Esc) {
-		    // Escape sequence
-		    nbuf = 0;
-		    esc = TRUE;
-		} else if (ch == So) {
-		    // Shift out
-		    prev = state;
-		    state = JISX0201_Kana;
-		    nbuf = 0;
-		} else if (ch == Si) {
-		    // Shift in
-		    if (prev == Ascii || prev == JISX0201_Latin) {
-			state = prev;
-		    } else {
-			state = Ascii;
-		    }
-		    nbuf = 0;
-		} else {
-		    uint u;
-		    switch (nbuf) {
-		      case 0:
-			switch (state) {
-			  case Ascii:
-			    if (ch < 0x80) {
-				result += QChar(ch);
-				break;
-			    }
-			    /* fall through */
-			  case JISX0201_Latin:
-			    u = conv->jisx0201ToUnicode(ch);
-			    result += QValidChar(u);
-			    break;
-			  case JISX0201_Kana:
-			    u = conv->jisx0201ToUnicode(ch | 0x80);
-			    result += QValidChar(u);
-			    break;
-			  case JISX0208_1978:
-			  case JISX0208_1983:
-			  case JISX0212:
-			    buf[nbuf++] = ch;
-			    break;
-			  default:
-			    result += QChar::replacement;
-			    break;
-			}
-			break;
-		      case 1:
-			switch (state) {
-			  case JISX0208_1978:
-			  case JISX0208_1983:
-			    u = conv->jisx0208ToUnicode(buf[0] & 0x7f, ch & 0x7f);
-			    result += QValidChar(u);
-			    break;
-			  case JISX0212:
-			    u = conv->jisx0212ToUnicode(buf[0] & 0x7f, ch & 0x7f);
-			    result += QValidChar(u);
-			    break;
-			  default:
-			    result += QChar::replacement;
-			    break;
-			}
-			nbuf = 0;
-			break;
-		    }
-		}
-	    }
-	}
-	return result;
+        QString result;
+        for (int i=0; i<len; i++) {
+            uchar ch = chars[i];
+            if (esc) {
+                // Escape sequence
+                state = UnknownState;
+                switch (nbuf) {
+                  case 0:
+                    if (ch == '$' || strchr(Esc_CHARS, ch)) {
+                        buf[nbuf++] = ch;
+                    } else {
+                        nbuf = 0;
+                        esc = false;
+                    }
+                    break;
+                  case 1:
+                    if (buf[0] == '$') {
+                        if (strchr(Esc_CHARS, ch)) {
+                            buf[nbuf++] = ch;
+                        } else {
+                            switch (ch) {
+                              case '@':
+                                state = JISX0208_1978;        // Esc $ @
+                                break;
+                              case 'B':
+                                state = JISX0208_1983;        // Esc $ B
+                                break;
+                            }
+                            nbuf = 0;
+                            esc = false;
+                        }
+                    } else {
+                        if (buf[0] == '(') {
+                            switch (ch) {
+                              case 'B':
+                                state = Ascii;        // Esc (B
+                                break;
+                              case 'I':
+                                state = JISX0201_Kana;        // Esc (I
+                                break;
+                              case 'J':
+                                state = JISX0201_Latin;        // Esc (J
+                                break;
+                            }
+                        }
+                        nbuf = 0;
+                        esc = false;
+                    }
+                    break;
+                  case 2:
+                    if (buf[1] == '(') {
+                        switch (ch) {
+                          case 'D':
+                            state = JISX0212;        // Esc $ (D
+                            break;
+                        }
+                    }
+                    nbuf = 0;
+                    esc = false;
+                    break;
+                }
+            } else {
+                if (ch == Esc) {
+                    // Escape sequence
+                    nbuf = 0;
+                    esc = true;
+                } else if (ch == So) {
+                    // Shift out
+                    prev = state;
+                    state = JISX0201_Kana;
+                    nbuf = 0;
+                } else if (ch == Si) {
+                    // Shift in
+                    if (prev == Ascii || prev == JISX0201_Latin) {
+                        state = prev;
+                    } else {
+                        state = Ascii;
+                    }
+                    nbuf = 0;
+                } else {
+                    uint u;
+                    switch (nbuf) {
+                      case 0:
+                        switch (state) {
+                          case Ascii:
+                            if (ch < 0x80) {
+                                result += QChar(ch);
+                                break;
+                            }
+                            /* fall through */
+                          case JISX0201_Latin:
+                            u = conv->jisx0201ToUnicode(ch);
+                            result += QValidChar(u);
+                            break;
+                          case JISX0201_Kana:
+                            u = conv->jisx0201ToUnicode(ch | 0x80);
+                            result += QValidChar(u);
+                            break;
+                          case JISX0208_1978:
+                          case JISX0208_1983:
+                          case JISX0212:
+                            buf[nbuf++] = ch;
+                            break;
+                          default:
+                            result += QChar::replacement;
+                            break;
+                        }
+                        break;
+                      case 1:
+                        switch (state) {
+                          case JISX0208_1978:
+                          case JISX0208_1983:
+                            u = conv->jisx0208ToUnicode(buf[0] & 0x7f, ch & 0x7f);
+                            result += QValidChar(u);
+                            break;
+                          case JISX0212:
+                            u = conv->jisx0212ToUnicode(buf[0] & 0x7f, ch & 0x7f);
+                            result += QValidChar(u);
+                            break;
+                          default:
+                            result += QChar::replacement;
+                            break;
+                        }
+                        nbuf = 0;
+                        break;
+                    }
+                }
+            }
+        }
+        return result;
     }
 };
 

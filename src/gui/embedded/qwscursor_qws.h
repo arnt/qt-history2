@@ -25,10 +25,10 @@ public:
     QWSCursor() {}
     QWSCursor(const uchar *data, const uchar *mask,
                 int width, int height, int hotX, int hotY)
-	{ set(data, mask, width, height, hotX, hotY); }
+        { set(data, mask, width, height, hotX, hotY); }
 
     void set(const uchar *data, const uchar *mask,
-		int width, int height, int hotX, int hotY);
+                int width, int height, int hotX, int hotY);
 
     QPoint hotSpot() const { return hot; }
     QImage &image() { return cursor; }
@@ -37,7 +37,7 @@ public:
     static QWSCursor *systemCursor(int id);
 
 private:
-    static void createSystemCursor( int id );	
+    static void createSystemCursor(int id);
     void createDropShadow(int dropx, int dropy);
 
 private:

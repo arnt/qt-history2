@@ -73,9 +73,9 @@ public:
 
     virtual void drawLine(int,int,int,int);
     virtual void fillRect(int,int,int,int);
-    virtual void blt( int,int,int,int,int,int );
+    virtual void blt(int,int,int,int,int,int);
 #if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
-    virtual void stretchBlt( int,int,int,int,int,int );
+    virtual void stretchBlt(int,int,int,int,int,int);
 #endif
     virtual void tiledBlt(int,int,int,int);
 
@@ -111,7 +111,7 @@ private:
 // Read a 32-bit graphics card register from 2d engine register block
 template<const int depth,const int type>
 inline unsigned int QGfxMach64<depth,type>::regr(volatile unsigned int
-						 regindex)
+                                                 regindex)
 {
     unsigned long int val;
     val=*((volatile unsigned long *)(regbase+regindex));
@@ -121,7 +121,7 @@ inline unsigned int QGfxMach64<depth,type>::regr(volatile unsigned int
 // Write a 32-bit graphics card register to 2d engine register block
 template<const int depth,const int type>
 inline void QGfxMach64<depth,type>::regw(volatile unsigned int regindex,
-					 unsigned long val)
+                                         unsigned long val)
 {
     *((volatile unsigned long int *)(regbase+regindex))=val;
 }
@@ -135,7 +135,7 @@ inline unsigned int regr(volatile unsigned int regindex)
 }
 
 inline void regw(volatile unsigned int regindex,
-					 unsigned long val)
+                                         unsigned long val)
 {
     *((volatile unsigned long int *)(regbase+regindex))=val;
 }
@@ -143,20 +143,20 @@ inline void regw(volatile unsigned int regindex,
 // Write a 32-bit graphics card register to 3d engine register block
 template<const int depth,const int type>
 inline void QGfxMach64<depth,type>::regw2(volatile unsigned int regindex,
-					  unsigned long val)
+                                          unsigned long val)
 {
     if(no3d)
-	abort();
+        abort();
     *((volatile unsigned long int *)(regbase2+regindex))=val;
 }
 
 // Write a 32-bit floating point value to 3d engine register block
 template<const int depth,const int type>
 inline void QGfxMach64<depth,type>::regwf2(volatile unsigned int regindex,
-					   float val)
+                                           float val)
 {
     if(no3d)
-	abort();
+        abort();
     unsigned int writeval;
     *((float *)&writeval)=val;
     *((volatile unsigned long int *)(regbase2+regindex))=writeval;
@@ -165,10 +165,10 @@ inline void QGfxMach64<depth,type>::regwf2(volatile unsigned int regindex,
 // Read a 32-bit value from 3d engine register block
 template<const int depth,const int type>
 inline unsigned int QGfxMach64<depth,type>::regr2(volatile unsigned int
-						  regindex)
+                                                  regindex)
 {
     if(no3d)
-	abort();
+        abort();
     unsigned long int val;
     val=*((volatile unsigned long *)(regbase2+regindex));
     return val;
@@ -186,43 +186,43 @@ inline void QGfxMach64<depth,type>::wait_for_fifo(short entries)
     QLinuxFb_Shared * tmp=(QLinuxFb_Shared *)shared_data;
     tmp->fifocount+=entries;
     if(tmp->fifocount<tmp->fifomax)
-	return;
+        return;
 
     int trycount=0;
 
     while(trycount++) {
-	int fifoval=regr(FIFO_STAT);
-	if(fifoval & 0x80000000) {
-	    qDebug("Resetting engine");
+        int fifoval=regr(FIFO_STAT);
+        if(fifoval & 0x80000000) {
+            qDebug("Resetting engine");
             wait_for_fifo(1);
             regw(GEN_TEST_CNTL,(regr(GEN_TEST_CNTL) & 0xfffffeff));
-	    wait_for_fifo(1);
-	    regw(GEN_TEST_CNTL,(regr(GEN_TEST_CNTL) | 0x00000100));
-	    wait_for_fifo(1);
-	    regw(BUS_CNTL,regr(BUS_CNTL) | 0x08a00000);
-	    return;
-	}
-	fifoval=fifoval & 0xffff;
-	int loopc;
-	int count=0;
-	for(loopc=0;loopc<16;loopc++) {
-	    if(!(fifoval & 0x1))
-		count++;
-	    fifoval=fifoval >> 1;
-	}
-	if(count>=tmp->fifomax) {
-	    tmp->fifocount=0;
-	    return;
-	}
-	if(trycount>10) {
-	    qDebug("Resetting engine");
+            wait_for_fifo(1);
+            regw(GEN_TEST_CNTL,(regr(GEN_TEST_CNTL) | 0x00000100));
+            wait_for_fifo(1);
+            regw(BUS_CNTL,regr(BUS_CNTL) | 0x08a00000);
+            return;
+        }
+        fifoval=fifoval & 0xffff;
+        int loopc;
+        int count=0;
+        for(loopc=0;loopc<16;loopc++) {
+            if(!(fifoval & 0x1))
+                count++;
+            fifoval=fifoval >> 1;
+        }
+        if(count>=tmp->fifomax) {
+            tmp->fifocount=0;
+            return;
+        }
+        if(trycount>10) {
+            qDebug("Resetting engine");
             wait_for_fifo(1);
             regw(GEN_TEST_CNTL,(regr(GEN_TEST_CNTL) & 0xfffffeff));
-	    wait_for_fifo(1);
-	    regw(GEN_TEST_CNTL,(regr(GEN_TEST_CNTL) | 0x00000100));
-	    wait_for_fifo(1);
-	    regw(BUS_CNTL,regr(BUS_CNTL) | 0x08a00000);
-	}
+            wait_for_fifo(1);
+            regw(GEN_TEST_CNTL,(regr(GEN_TEST_CNTL) | 0x00000100));
+            wait_for_fifo(1);
+            regw(BUS_CNTL,regr(BUS_CNTL) | 0x08a00000);
+        }
     }
 }
 
@@ -248,8 +248,8 @@ inline void QGfxMach64<depth,type>::wait_for_idle()
     int loopc;
 
     for(loopc=0;loopc<1000000;loopc++) {
-	if(((regr(GUI_STAT) & 0x1)==0) && loopc>100)
-	    return;
+        if(((regr(GUI_STAT) & 0x1)==0) && loopc>100)
+            return;
     }
 
     qDebug("Wait for idle timeout!");
@@ -309,34 +309,34 @@ inline void QGfxMach64<depth,type>::setPixWidth(int d,int s,int sc,bool b)
     if(b) {
         wmask=BYTE_ORDER_LSB_TO_MSB;
     } else {
-	wmask=BYTE_ORDER_MSB_TO_LSB;
+        wmask=BYTE_ORDER_MSB_TO_LSB;
     }
     if(d==16) {
-	wmask|=DST_16BPP;
+        wmask|=DST_16BPP;
     } else if(d==8) {
-	wmask|=DST_8BPP;
+        wmask|=DST_8BPP;
     } else {
-	// 32
-	wmask|=DST_32BPP;
+        // 32
+        wmask|=DST_32BPP;
     }
     if(s==16) {
-	wmask|=SRC_16BPP | HOST_16BPP;
+        wmask|=SRC_16BPP | HOST_16BPP;
     } else if(s==8) {
-	wmask|=SRC_8BPP | HOST_8BPP;
+        wmask|=SRC_8BPP | HOST_8BPP;
     } else if(s==1) {
-	wmask|=SRC_1BPP | HOST_1BPP;
+        wmask|=SRC_1BPP | HOST_1BPP;
     } else {
-	// 32
-	wmask|=SRC_32BPP | HOST_32BPP;
+        // 32
+        wmask|=SRC_32BPP | HOST_32BPP;
     }
     if(sc==16) {
-	wmask|=SCALE_16BPP;
+        wmask|=SCALE_16BPP;
     } else if(sc==8) {
-	wmask|=SCALE_8BPP;
+        wmask|=SCALE_8BPP;
     } else if(sc==1) {
-	wmask|=SCALE_1BPP;
+        wmask|=SCALE_1BPP;
     } else {
-	wmask|=SCALE_32BPP;
+        wmask|=SCALE_32BPP;
     }
     wait_for_fifo(1);
     regw(DP_PIX_WIDTH,wmask);
@@ -358,23 +358,23 @@ inline bool QGfxMach64<depth,type>::checkSourceDest()
     int sourcepixelpitch;
     ulong src_buffer_offset;
     if (srctype == SourcePen) {
-	src_buffer_offset = -1;
-	return FALSE;
+        src_buffer_offset = -1;
+        return false;
     } else {
-	if (!gfx_screen->onCard(srcbits,src_buffer_offset)) {
-	    return FALSE;
-	}
-	if(src_buffer_offset & 0x7) {
-	    qDebug("Unaligned offset %lx",src_buffer_offset);
-	    return FALSE;
-	}
-	sourcepixelpitch=(srclinestep*8)/srcdepth;
-	wait_for_fifo(1);
-	regw(SRC_OFF_PITCH,( (sourcepixelpitch / 8 ) << 22) |
-	     (src_buffer_offset / 8) );
+        if (!gfx_screen->onCard(srcbits,src_buffer_offset)) {
+            return false;
+        }
+        if(src_buffer_offset & 0x7) {
+            qDebug("Unaligned offset %lx",src_buffer_offset);
+            return false;
+        }
+        sourcepixelpitch=(srclinestep*8)/srcdepth;
+        wait_for_fifo(1);
+        regw(SRC_OFF_PITCH,((sourcepixelpitch / 8) << 22) |
+             (src_buffer_offset / 8));
     }
 
-    return TRUE;
+    return true;
 }
 
 // Set up DST_OFF_PITCH, return false if it's not on the card
@@ -398,7 +398,7 @@ inline void QGfxMach64<depth,type>::setDest()
     int pixelstep=(linestep()*8)/depth;
     setPixWidth(depth,depth);
     wait_for_fifo(1);
-    regw(DST_OFF_PITCH,(( pixelstep / 8 ) << 22) | (buffer_offset / 8));
+    regw(DST_OFF_PITCH,((pixelstep / 8) << 22) | (buffer_offset / 8));
 }
 
 template<const int depth,const int type>
@@ -409,9 +409,9 @@ void QGfxMach64<depth,type>::drawLine(int x1,int y1,int x2,int y2)
         return;
 
     // Only handle 'normal' lines
-    if ( cpen.style() != SolidLine || myrop!=CopyROP ) {
-	QGfxRaster<depth,type>::drawLine(x1,y1,x2,y2);
-	return;
+    if (cpen.style() != SolidLine || myrop!=CopyROP) {
+        QGfxRaster<depth,type>::drawLine(x1,y1,x2,y2);
+        return;
     }
 
     // Stop anyone else trying to access optype/lastop/the graphics engine
@@ -425,18 +425,18 @@ void QGfxMach64<depth,type>::drawLine(int x1,int y1,int x2,int y2)
     GFX_START(QRect(x1, y1 < y2 ? y1 : y2, dx+1, QABS(dy)+1))
 
     if((*gfx_optype)!=1 || (*gfx_lastop)!=LASTOP_LINE) {
-	setDest();
-	// The scaler engine operates independently of the 2d engine
-	// so we need to wait for it to finish if it's doing something
-	if((*gfx_optype)>1)
-	    wait_for_idle();
+        setDest();
+        // The scaler engine operates independently of the 2d engine
+        // so we need to wait for it to finish if it's doing something
+        if((*gfx_optype)>1)
+            wait_for_idle();
 
-	// This is avoided if the last operation was a line
-	wait_for_fifo(2);
-	regw(DP_SRC,0x00000100);
-	regw(DP_MIX,(MIX_SRC << 16) | MIX_DST);
+        // This is avoided if the last operation was a line
+        wait_for_fifo(2);
+        regw(DP_SRC,0x00000100);
+        regw(DP_MIX,(MIX_SRC << 16) | MIX_DST);
 
-	(*gfx_lastop)=LASTOP_LINE;
+        (*gfx_lastop)=LASTOP_LINE;
     }
 
     // Note that the last operation used the 2d engine
@@ -485,38 +485,38 @@ void QGfxMach64<depth,type>::drawLine(int x1,int y1,int x2,int y2)
     // would be to clip to the rectangle in software
 
     for(loopc=0;loopc<ncliprect;loopc++) {
-	// Code taken from Mach64 Programmer's Manual
+        // Code taken from Mach64 Programmer's Manual
         // Sets up Bresenham parameters
-	int mindelta,maxdelta;
-	int xdir,ydir,ymajor;
+        int mindelta,maxdelta;
+        int xdir,ydir,ymajor;
 
-	mindelta=dx>dy ? dy : dx;      // min
-	maxdelta=dx>dy ? dx : dy;	   // max
-	if(x1<x2)
-	    xdir=1;
-	else
-	    xdir=0;
-	if(y1<y2)
-	    ydir=0x0802;
-	else
-	    ydir=0;
-	if(dx<dy)
-	    ymajor=4;
-	else
-	    ymajor=0;
+        mindelta=dx>dy ? dy : dx;      // min
+        maxdelta=dx>dy ? dx : dy;           // max
+        if(x1<x2)
+            xdir=1;
+        else
+            xdir=0;
+        if(y1<y2)
+            ydir=0x0802;
+        else
+            ydir=0;
+        if(dx<dy)
+            ymajor=4;
+        else
+            ymajor=0;
 
-	unsigned int rval=0x00000003;
-	rval=(rval & ~0x7) | (unsigned long)(ymajor | ydir | xdir);
+        unsigned int rval=0x00000003;
+        rval=(rval & ~0x7) | (unsigned long)(ymajor | ydir | xdir);
 
-	do_scissors(cliprect[loopc]);
+        do_scissors(cliprect[loopc]);
 
-	wait_for_fifo(6);
-	regw(DST_CNTL,rval);
-	regw(DST_Y_X,((unsigned long)x1 << 16) | y1);
-	regw(DST_BRES_ERR,(2*mindelta)-maxdelta);
-	regw(DST_BRES_INC,2*mindelta);
-	regw(DST_BRES_DEC,2*(mindelta-maxdelta));
-	regw(DST_BRES_LNTH,maxdelta+1);
+        wait_for_fifo(6);
+        regw(DST_CNTL,rval);
+        regw(DST_Y_X,((unsigned long)x1 << 16) | y1);
+        regw(DST_BRES_ERR,(2*mindelta)-maxdelta);
+        regw(DST_BRES_INC,2*mindelta);
+        regw(DST_BRES_DEC,2*(mindelta-maxdelta));
+        regw(DST_BRES_LNTH,maxdelta+1);
     }
 
     // Software mouse cursor stuff
@@ -534,17 +534,17 @@ template<const int depth,const int type>
 void QGfxMach64<depth,type>::fillRect(int rx,int ry,int w,int h)
 {
     if(ncliprect<1) {
-	return;
+        return;
     }
 
-    if( (cbrush.style()!=NoBrush) && (cbrush.style()!=SolidPattern) ) {
-	QGfxRaster<depth,type>::fillRect(rx,ry,w,h);
-	return;
+    if((cbrush.style()!=NoBrush) && (cbrush.style()!=SolidPattern)) {
+        QGfxRaster<depth,type>::fillRect(rx,ry,w,h);
+        return;
     }
 
     if(myrop!=CopyROP) {
-	QGfxRaster<depth,type>::fillRect(rx,ry,w,h);
-	return;
+        QGfxRaster<depth,type>::fillRect(rx,ry,w,h);
+        return;
     }
 
     GFX_START(QRect(rx+xoffs, ry+yoffs, w+1, h+1))
@@ -552,9 +552,9 @@ void QGfxMach64<depth,type>::fillRect(int rx,int ry,int w,int h)
 
     if((*gfx_optype)!=1 || (*gfx_lastop)!=LASTOP_RECT) {
 
-	// probably not needed
-	// we reset the clip rectangle because we do our own software
-	// clipping (rectangle<->rectangle intersections are fast)
+        // probably not needed
+        // we reset the clip rectangle because we do our own software
+        // clipping (rectangle<->rectangle intersections are fast)
 
         QRect tmprect(0,0,width,height);
         do_scissors(tmprect);
@@ -564,11 +564,11 @@ void QGfxMach64<depth,type>::fillRect(int rx,int ry,int w,int h)
         regw(DP_MIX,(MIX_SRC << 16) | MIX_DST);
         regw(DST_CNTL,0x00000003);
 
-	(*gfx_lastop)=LASTOP_RECT;
+        (*gfx_lastop)=LASTOP_RECT;
     }
 
     if((*gfx_optype)>1)
-	sync();
+        sync();
     (*gfx_optype)=1;
 
     int loopc;
@@ -596,41 +596,41 @@ void QGfxMach64<depth,type>::fillRect(int rx,int ry,int w,int h)
 #endif
 
     if(cbrush.style()!=NoBrush) {
-	int p=ncliprect;
-	if(p<8) {
-	    // We can wait for all our fifos at once
-	    // (slight performance optimisation)
-	    wait_for_fifo(p*2);
-	    for(loopc=0;loopc<p;loopc++) {
-		QRect r=cliprect[loopc];
-		// Clip rectangle to current clip rectangle
-		if(xp<=r.right() && yp<=r.bottom() &&
-		   x2>=r.left() && y2>=r.top()) {
-		    x3=r.left() > xp ? r.left() : xp;
-		    y3=r.top() > yp ? r.top() : yp;
-		    x4=r.right() > x2 ? x2 : r.right();
-		    y4=r.bottom() > y2 ? y2 : r.bottom();
-		    regw(DST_Y_X,(x3 << 16) | y3);
-		    regw(DST_HEIGHT_WIDTH,( ( (x4-x3) +1) << 16) |
-			 ( (y4-y3) +1));
-		}
-	    }
-	} else {
-	    for(loopc=0;loopc<p;loopc++) {
-		QRect r=cliprect[loopc];
-		if(xp<=r.right() && yp<=r.bottom() &&
-		   x2>=r.left() && y2>=r.top()) {
-		    x3=r.left() > xp ? r.left() : xp;
-		    y3=r.top() > yp ? r.top() : yp;
-		    x4=r.right() > x2 ? x2 : r.right();
-		    y4=r.bottom() > y2 ? y2 : r.bottom();
-		    wait_for_fifo(2);
-		    regw(DST_Y_X,(x3 << 16) | y3);
-		    regw(DST_HEIGHT_WIDTH,( ( (x4-x3) +1) << 16) |
-			 ( (y4-y3) +1));
-		}
-	    }
-	}
+        int p=ncliprect;
+        if(p<8) {
+            // We can wait for all our fifos at once
+            // (slight performance optimisation)
+            wait_for_fifo(p*2);
+            for(loopc=0;loopc<p;loopc++) {
+                QRect r=cliprect[loopc];
+                // Clip rectangle to current clip rectangle
+                if(xp<=r.right() && yp<=r.bottom() &&
+                   x2>=r.left() && y2>=r.top()) {
+                    x3=r.left() > xp ? r.left() : xp;
+                    y3=r.top() > yp ? r.top() : yp;
+                    x4=r.right() > x2 ? x2 : r.right();
+                    y4=r.bottom() > y2 ? y2 : r.bottom();
+                    regw(DST_Y_X,(x3 << 16) | y3);
+                    regw(DST_HEIGHT_WIDTH,(((x4-x3) +1) << 16) |
+                         ((y4-y3) +1));
+                }
+            }
+        } else {
+            for(loopc=0;loopc<p;loopc++) {
+                QRect r=cliprect[loopc];
+                if(xp<=r.right() && yp<=r.bottom() &&
+                   x2>=r.left() && y2>=r.top()) {
+                    x3=r.left() > xp ? r.left() : xp;
+                    y3=r.top() > yp ? r.top() : yp;
+                    x4=r.right() > x2 ? x2 : r.right();
+                    y4=r.bottom() > y2 ? y2 : r.bottom();
+                    wait_for_fifo(2);
+                    regw(DST_Y_X,(x3 << 16) | y3);
+                    regw(DST_HEIGHT_WIDTH,(((x4-x3) +1) << 16) |
+                         ((y4-y3) +1));
+                }
+            }
+        }
     }
 
     GFX_END
@@ -642,13 +642,13 @@ template<const int depth,const int type>
 inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h,int sx, int sy)
 {
     if(ncliprect<1)
-	return;
+        return;
 
     // We have no provision for cacheing these things in graphics card
     // memory at the moment
     if(alphatype==BigEndianMask || alphatype==LittleEndianMask ||
-       alphatype==SeparateAlpha || srctype==SourcePen || (myrop!=CopyROP) ) {
-	QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
+       alphatype==SeparateAlpha || srctype==SourcePen || (myrop!=CopyROP)) {
+        QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
     }
 
     bool canaccel=false;
@@ -658,167 +658,167 @@ inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h,int sx, int sy
     // pixmap has to be the right size in order for this to be accelerated.
     // Also, only 32 bit source textures are alpha-blended in hardware
     if(srcdepth==32) {
-	if(alphatype==IgnoreAlpha || alphatype==SolidAlpha ||
-	   alphatype==InlineAlpha) {
-	    canaccel=true;
-	}
+        if(alphatype==IgnoreAlpha || alphatype==SolidAlpha ||
+           alphatype==InlineAlpha) {
+            canaccel=true;
+        }
 
-	if(alphatype!=IgnoreAlpha) {
-	    // Mach64 requires textures to be these sizes
-	    int p=srclinestep/4;
-	    if(p!=1024 && p!=512 && p!=256 && p!=128 && p!=64 && p!=32 &&
-	       p!=16 && p!=8) {
-		canaccel=false;
-	    }
-	}
+        if(alphatype!=IgnoreAlpha) {
+            // Mach64 requires textures to be these sizes
+            int p=srclinestep/4;
+            if(p!=1024 && p!=512 && p!=256 && p!=128 && p!=64 && p!=32 &&
+               p!=16 && p!=8) {
+                canaccel=false;
+            }
+        }
     } else if(srcdepth==16 || srcdepth==8) {
-	if(alphatype==IgnoreAlpha) {
-	    canaccel=true;
-	}
+        if(alphatype==IgnoreAlpha) {
+            canaccel=true;
+        }
     }
 
     if(srctype==SourceImage && canaccel==false) {
-	QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
-	return;
+        QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
+        return;
     }
 
     // We can't handle 'real' alpha blending with a solid pen source
     // (this would be a separate alpha channel, as in anti-aliased text,
     // or possibly a solid alpha value)
     if(srctype==SourcePen && !(alphatype==BigEndianMask ||
-			       alphatype==LittleEndianMask) ) {
-	QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
-	return;
+                               alphatype==LittleEndianMask)) {
+        QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
+        return;
     }
 
-    if( (srcdepth!=32) && (srcdepth!=16) && (srcdepth!=8) ) {
-	QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
-	return;
+    if((srcdepth!=32) && (srcdepth!=16) && (srcdepth!=8)) {
+        QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
+        return;
     }
 
     QRect cursRect(rx, ry, w+1, h+1);
     GFX_START(cursRect);
     bool check_result=checkSourceDest();
 
-    if( (alphatype==InlineAlpha || alphatype==SolidAlpha)
-	&& check_result ) {
-	int x2=(rx+w)-1;
-	int y2=(ry+h)-1;
+    if((alphatype==InlineAlpha || alphatype==SolidAlpha)
+        && check_result) {
+        int x2=(rx+w)-1;
+        int y2=(ry+h)-1;
 
-	// This is special handling for using the 3d engine for
-	// hardware accelerated alpha blending
-	drawAlpha(rx,ry,x2,ry,rx,y2,x2,y2);
-	return;
+        // This is special handling for using the 3d engine for
+        // hardware accelerated alpha blending
+        drawAlpha(rx,ry,x2,ry,rx,y2,x2,y2);
+        return;
     }
 
     if(check_result) {
 
         // This is now a normal 2d engine blt
 
-	int xp=xoffs+rx;
-	int yp=yoffs+ry;
-	int xp2=srcwidgetoffs.x() + sx;
-	int yp2=srcwidgetoffs.y() + sy;
+        int xp=xoffs+rx;
+        int yp=yoffs+ry;
+        int xp2=srcwidgetoffs.x() + sx;
+        int yp2=srcwidgetoffs.y() + sy;
 
-	if(srctype==SourceImage) {
+        if(srctype==SourceImage) {
 
-	    if((*gfx_optype)!=1 || (*gfx_lastop)!=LASTOP_BLT) {
-		(*gfx_lastop)=LASTOP_BLT;
-		wait_for_fifo(8);
-		// Write to all bits of the pixel
-		regw(DP_WRITE_MASK,0xffffffff);
-		// CopyROP
-		regw(DP_MIX,0x00070003);
-		regw(DP_SRC,0x00000300);
-		regw(CLR_CMP_CNTL,0x00000000);
-		regw(DP_FRGD_CLR,0xffffffff);
-	    }
+            if((*gfx_optype)!=1 || (*gfx_lastop)!=LASTOP_BLT) {
+                (*gfx_lastop)=LASTOP_BLT;
+                wait_for_fifo(8);
+                // Write to all bits of the pixel
+                regw(DP_WRITE_MASK,0xffffffff);
+                // CopyROP
+                regw(DP_MIX,0x00070003);
+                regw(DP_SRC,0x00000300);
+                regw(CLR_CMP_CNTL,0x00000000);
+                regw(DP_FRGD_CLR,0xffffffff);
+            }
 
-	    // Set up graphics engine's idea of source and destination
-	    // pixel sizes
-	    setPixWidth(depth,srcdepth);
-	    // Tell the engine whether to copy bits from left to right,
-	    // top to bottom, right to left, bottom to top - this is
-	    // important for getting the right results with an overlapping
-	    // blt
-	    if(yp>yp2) {
-		// Down, reverse
-		if(xp>xp2) {
-		    // Right, reverse
-		    xp+=(w-1);
-		    xp2+=(w-1);
-		    yp+=(h-1);
-		    yp2+=(h-1);
-		    regw(DST_CNTL,0x00000000);
-		} else {
-		    // Left, normal
-		    yp+=(h-1);
-		    yp2+=(h-1);
-		    regw(DST_CNTL,0x00000001);
-		}
-	    } else {
-		// Up, normal
-		// Down, reverse
-		if(xp>xp2) {
-		    // Right, reverse
-		    xp+=(w-1);
-		    xp2+=(w-1);
-		    regw(DST_CNTL,0x00000002);
-		} else {
-		    // Left, normal
-		    regw(DST_CNTL,0x00000003);
-		}
-	    }
-	    regw(SRC_CNTL,0x00000000);
-	    regw(SRC_Y_X,(xp2 << 16) | yp2);
-	} else {
-	    // This is used for drawing a solid colour with a mask -
-	    // used for brushes
-	    if((*gfx_optype)!=1 || (*gfx_lastop)!=LASTOP_BLTPEN) {
-		setPixWidth(depth,srcdepth,16,alphatype==LittleEndianMask);
-		QColor tmp=cpen.color();
-		wait_for_fifo(8);
-		regw(DP_WRITE_MASK,0xffffffff);
+            // Set up graphics engine's idea of source and destination
+            // pixel sizes
+            setPixWidth(depth,srcdepth);
+            // Tell the engine whether to copy bits from left to right,
+            // top to bottom, right to left, bottom to top - this is
+            // important for getting the right results with an overlapping
+            // blt
+            if(yp>yp2) {
+                // Down, reverse
+                if(xp>xp2) {
+                    // Right, reverse
+                    xp+=(w-1);
+                    xp2+=(w-1);
+                    yp+=(h-1);
+                    yp2+=(h-1);
+                    regw(DST_CNTL,0x00000000);
+                } else {
+                    // Left, normal
+                    yp+=(h-1);
+                    yp2+=(h-1);
+                    regw(DST_CNTL,0x00000001);
+                }
+            } else {
+                // Up, normal
+                // Down, reverse
+                if(xp>xp2) {
+                    // Right, reverse
+                    xp+=(w-1);
+                    xp2+=(w-1);
+                    regw(DST_CNTL,0x00000002);
+                } else {
+                    // Left, normal
+                    regw(DST_CNTL,0x00000003);
+                }
+            }
+            regw(SRC_CNTL,0x00000000);
+            regw(SRC_Y_X,(xp2 << 16) | yp2);
+        } else {
+            // This is used for drawing a solid colour with a mask -
+            // used for brushes
+            if((*gfx_optype)!=1 || (*gfx_lastop)!=LASTOP_BLTPEN) {
+                setPixWidth(depth,srcdepth,16,alphatype==LittleEndianMask);
+                QColor tmp=cpen.color();
+                wait_for_fifo(8);
+                regw(DP_WRITE_MASK,0xffffffff);
 #ifndef QT_NO_QWS_REPEATER
-		QScreen * tmp2=qt_screen;
-		qt_screen=gfx_screen;
+                QScreen * tmp2=qt_screen;
+                qt_screen=gfx_screen;
 #endif
-		regw(DP_FRGD_CLR,tmp.alloc());
+                regw(DP_FRGD_CLR,tmp.alloc());
 #ifndef QT_NO_QWS_REPEATER
-		qt_screen=tmp2;
+                qt_screen=tmp2;
 #endif
-		regw(DP_MIX,0x00070003);
-		regw(DP_SRC,0x00030100);
-		regw(CLR_CMP_CNTL,0x00000000);
-		regw(SRC_CNTL,0x00000004);
-		regw(DST_CNTL,0x00000003);
-		regw(SRC_Y_X,0);
-		(*gfx_lastop)=LASTOP_BLTPEN;
-	    }
-	}
+                regw(DP_MIX,0x00070003);
+                regw(DP_SRC,0x00030100);
+                regw(CLR_CMP_CNTL,0x00000000);
+                regw(SRC_CNTL,0x00000004);
+                regw(DST_CNTL,0x00000003);
+                regw(SRC_Y_X,0);
+                (*gfx_lastop)=LASTOP_BLTPEN;
+            }
+        }
 
-	(*gfx_optype)=1;
+        (*gfx_optype)=1;
 
-	int loopc;
-	for(loopc=0;loopc<ncliprect;loopc++) {
+        int loopc;
+        for(loopc=0;loopc<ncliprect;loopc++) {
 
-  	    // Now it's all set up, repeatedly set the scissors
-	    // and perform the blt
-	    do_scissors(cliprect[loopc]);
+            // Now it's all set up, repeatedly set the scissors
+            // and perform the blt
+            do_scissors(cliprect[loopc]);
 
-	    wait_for_fifo(3);
-	    regw(SRC_WIDTH1,w);
-	    regw(DST_Y_X,(xp << 16) | yp);
-	    regw(DST_HEIGHT_WIDTH,(w << 16) | h);
-	}
+            wait_for_fifo(3);
+            regw(SRC_WIDTH1,w);
+            regw(DST_Y_X,(xp << 16) | yp);
+            regw(DST_HEIGHT_WIDTH,(w << 16) | h);
+        }
 
-	GFX_END
+        GFX_END
 
-	return;
+        return;
     } else {
-	GFX_END
-	// software fallback
-	QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
+        GFX_END
+        // software fallback
+        QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
     }
 }
 
@@ -829,30 +829,30 @@ inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h,int sx, int sy
 #if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
 template<const int depth,const int type>
 void QGfxMach64<depth,type>::stretchBlt(int rx,int ry,int w,int h,
-					int sw,int sh)
+                                        int sw,int sh)
 {
     // This doesn't use the 2d engine, it uses the 3d/scaler pipeline
     if(ncliprect<1)
-	return;
+        return;
 
     if(srctype!=SourceImage) {
-	QGfxRaster<depth,type>::stretchBlt(rx,ry,w,h,sw,sh);
-	return;	
+        QGfxRaster<depth,type>::stretchBlt(rx,ry,w,h,sw,sh);
+        return;
     }
 
     QRect cursRect(rx, ry, w+1, h+1);
     GFX_START(cursRect);
 
-    if ( srctype!=SourceImage || !checkSourceDest() ) {
-	GFX_END
-	QGfxRaster<depth,type>::stretchBlt(rx,ry,w,h,sw,sh);
-	return;
+    if (srctype!=SourceImage || !checkSourceDest()) {
+        GFX_END
+        QGfxRaster<depth,type>::stretchBlt(rx,ry,w,h,sw,sh);
+        return;
     }
 
     (*gfx_lastop)=LASTOP_STRETCHBLT;
 
     if((*gfx_optype)!=2)
-	wait_for_idle();
+        wait_for_idle();
     (*gfx_optype)=2;
 
     int xp=xoffs+rx;
@@ -861,101 +861,101 @@ void QGfxMach64<depth,type>::stretchBlt(int rx,int ry,int w,int h,
     int loopc;
     for(loopc=0;loopc<ncliprect;loopc++) {
 
-	wait_for_fifo(3);
-	regw(SCALE_3D_CNTL,0x00000040);
-	regw(ALPHA_TEST_CNTL,0);
-	regw(TEX_CNTL,0);
-	if(srclinestep<1)
-	    abort();
+        wait_for_fifo(3);
+        regw(SCALE_3D_CNTL,0x00000040);
+        regw(ALPHA_TEST_CNTL,0);
+        regw(TEX_CNTL,0);
+        if(srclinestep<1)
+            abort();
 
-	// We need the offset from the start of video memory for a
-	// different register than SRC_BUFFER_OFFSET
-	unsigned long my_src_buffer_offset;
-	if (!gfx_screen->onCard(srcbits,my_src_buffer_offset))
-	    qFatal("checkSourceDest() lied!");
+        // We need the offset from the start of video memory for a
+        // different register than SRC_BUFFER_OFFSET
+        unsigned long my_src_buffer_offset;
+        if (!gfx_screen->onCard(srcbits,my_src_buffer_offset))
+            qFatal("checkSourceDest() lied!");
 
-	int srcpixelpitch=srclinestep;
-	srcpixelpitch=(srcpixelpitch*8)/srcdepth;
-	srcpixelpitch=srcpixelpitch >> 3;
-	srcpixelpitch=srcpixelpitch << 3;
+        int srcpixelpitch=srclinestep;
+        srcpixelpitch=(srcpixelpitch*8)/srcdepth;
+        srcpixelpitch=srcpixelpitch >> 3;
+        srcpixelpitch=srcpixelpitch << 3;
 
-	// Need to convert source width/width to
-	// fixed-point 8.12 floating point format
-	double tmp1=w;
-	double tmp2=sw;
-	double tmp3=h;
-	double tmp4=sh;
-	double screentosource=tmp4/tmp3;
-	tmp1=tmp2/tmp1;
-	tmp3=tmp4/tmp3;
+        // Need to convert source width/width to
+        // fixed-point 8.12 floating point format
+        double tmp1=w;
+        double tmp2=sw;
+        double tmp3=h;
+        double tmp4=sh;
+        double screentosource=tmp4/tmp3;
+        tmp1=tmp2/tmp1;
+        tmp3=tmp4/tmp3;
 
 
-	int mul=4096;
-	tmp1*=mul;
-	tmp3*=mul;
-	unsigned long int h1=(unsigned long int)tmp1;
-	unsigned long int h2=(unsigned long int)tmp3;
+        int mul=4096;
+        tmp1*=mul;
+        tmp3*=mul;
+        unsigned long int h1=(unsigned long int)tmp1;
+        unsigned long int h2=(unsigned long int)tmp3;
 
-	// This is a workaround for a bug with hardware clipping -
-	// if the stretchblt starts above the hardware clip
-	// rectangle /none/ of it is drawn
-	// therefore we twiddle the y starting position of the buffer
-	// to put it inside the clip rectangle
+        // This is a workaround for a bug with hardware clipping -
+        // if the stretchblt starts above the hardware clip
+        // rectangle /none/ of it is drawn
+        // therefore we twiddle the y starting position of the buffer
+        // to put it inside the clip rectangle
 
-	int sy1=cliprect[loopc].top();
+        int sy1=cliprect[loopc].top();
 
-	double mytmp=sy1-yp;
-	mytmp*=screentosource;
+        double mytmp=sy1-yp;
+        mytmp*=screentosource;
 
-	int add=(int)mytmp;
-	add=add*srclinestep;
+        int add=(int)mytmp;
+        add=add*srclinestep;
 
-	my_src_buffer_offset+=add;
+        my_src_buffer_offset+=add;
 
-	if(my_src_buffer_offset & 0x7)
-	    abort();
+        if(my_src_buffer_offset & 0x7)
+            abort();
 
-	wait_for_fifo(10);
+        wait_for_fifo(10);
 
-	regw(SCALE_OFF,my_src_buffer_offset);  // Scaler source
-	regw(SECONDARY_SCALE_OFF_ACC,srcpixelpitch);
-	regw(SCALE_PITCH,srcpixelpitch);
-	regw(SECONDARY_SCALE_PITCH,srcpixelpitch);
+        regw(SCALE_OFF,my_src_buffer_offset);  // Scaler source
+        regw(SECONDARY_SCALE_OFF_ACC,srcpixelpitch);
+        regw(SCALE_PITCH,srcpixelpitch);
+        regw(SECONDARY_SCALE_PITCH,srcpixelpitch);
 
-	regw(SCALE_WIDTH,sw);
-	regw(SCALE_HEIGHT,sh);
-	regw(SCALE_HACC,0x00000000);
-	regw(SCALE_VACC,0x00000000);
-	regw(SECONDARY_SCALE_HACC,0x00000000);
-	regw(SECONDARY_SCALE_VACC,0x00000000);
+        regw(SCALE_WIDTH,sw);
+        regw(SCALE_HEIGHT,sh);
+        regw(SCALE_HACC,0x00000000);
+        regw(SCALE_VACC,0x00000000);
+        regw(SECONDARY_SCALE_HACC,0x00000000);
+        regw(SECONDARY_SCALE_VACC,0x00000000);
 
-	setPixWidth(depth,srcdepth);
+        setPixWidth(depth,srcdepth);
 
-	wait_for_fifo(9);
-	regw(SCALE_X_INC,h1 << 4);
-	regw(SECONDARY_SCALE_X_INC,h1 << 4);
-	regw(SCALE_Y_INC,h2 << 4);
-	regw(SECONDARY_SCALE_Y_INC,h2 << 4);
+        wait_for_fifo(9);
+        regw(SCALE_X_INC,h1 << 4);
+        regw(SECONDARY_SCALE_X_INC,h1 << 4);
+        regw(SCALE_Y_INC,h2 << 4);
+        regw(SECONDARY_SCALE_Y_INC,h2 << 4);
 
-	regw(DP_SRC,0x00000505);
-	regw(DP_WRITE_MASK,0xffffffff);
-	regw(DP_MIX,0x00070003);
-	regw(GUI_TRAJ_CNTL,0x00800003);
+        regw(DP_SRC,0x00000505);
+        regw(DP_WRITE_MASK,0xffffffff);
+        regw(DP_MIX,0x00070003);
+        regw(GUI_TRAJ_CNTL,0x00800003);
 
-	wait_for_fifo(6);
-	regw(CLR_CMP_CNTL,0x02000000);
-	regw(DST_CNTL,0x00000003);
+        wait_for_fifo(6);
+        regw(CLR_CMP_CNTL,0x02000000);
+        regw(DST_CNTL,0x00000003);
 
-	do_scissors(cliprect[loopc]);
+        do_scissors(cliprect[loopc]);
 
-	regw(DST_X,xp);
-	regw(DST_Y,sy1);
-	regw(DST_HEIGHT,h);
-	regw(DST_WIDTH,w);
+        regw(DST_X,xp);
+        regw(DST_Y,sy1);
+        regw(DST_HEIGHT,h);
+        regw(DST_WIDTH,w);
 
-	wait_for_idle();
-	usleep(1);
-	reset_engine();
+        wait_for_idle();
+        usleep(1);
+        reset_engine();
     }
     GFX_END
 }
@@ -983,32 +983,32 @@ template<const int depth,const int type>
 void QGfxMach64<depth,type>::tiledBlt(int rx,int ry,int w,int h)
 {
     if(ncliprect<1) {
-	return;
+        return;
     }
 
-    if(srctype==SourceImage && (alphatype!=IgnoreAlpha) ) {
-	QGfxRaster<depth,type>::tiledBlt(rx,ry,w,h);
-	return;
+    if(srctype==SourceImage && (alphatype!=IgnoreAlpha)) {
+        QGfxRaster<depth,type>::tiledBlt(rx,ry,w,h);
+        return;
     }
 
-    if( (srcdepth!=16 && srcdepth!=32 && srcdepth!=8)
-	  && srctype==SourceImage ) {
-	QGfxRaster<depth,type>::tiledBlt(rx,ry,w,h);
-	return;
+    if((srcdepth!=16 && srcdepth!=32 && srcdepth!=8)
+          && srctype==SourceImage) {
+        QGfxRaster<depth,type>::tiledBlt(rx,ry,w,h);
+        return;
     }
 
-    if ( srctype==SourcePen ) {
-	QGfxRaster<depth,type>::tiledBlt(rx,ry,w,h);
-	return;
+    if (srctype==SourcePen) {
+        QGfxRaster<depth,type>::tiledBlt(rx,ry,w,h);
+        return;
     }
 
     QRect cursRect(rx, ry, w+1, h+1);
     GFX_START(cursRect);
 
-    if ( srctype==SourceImage && !checkSourceDest() ) {
-	GFX_END
-	QGfxRaster<depth,type>::tiledBlt(rx,ry,w,h);
-	return;
+    if (srctype==SourceImage && !checkSourceDest()) {
+        GFX_END
+        QGfxRaster<depth,type>::tiledBlt(rx,ry,w,h);
+        return;
     }
 
 
@@ -1016,49 +1016,49 @@ void QGfxMach64<depth,type>::tiledBlt(int rx,int ry,int w,int h)
     int yp=yoffs+ry;
 
     if(srctype==SourceImage) {
-	if((*gfx_optype)!=1 || (*gfx_lastop)!=LASTOP_TILEDBLT) {
-	    wait_for_fifo(4);
-	    regw(SRC_CNTL,0x00000003);
-	    regw(DP_WRITE_MASK,0xffffffff);
-	    regw(CLR_CMP_CNTL,0x00000000);
-	    regw(DST_CNTL,0x00000003);
-	    if(srcdepth==16 || srcdepth==32 || srcdepth==8) {
-		setPixWidth(depth,srcdepth);
-		wait_for_fifo(3);
-		regw(DP_MIX,0x00070003);
-		regw(DP_SRC,0x00000300);
-		regw(DP_FRGD_CLR,0xffffffff);
-	    } else {
-		setPixWidth(depth,1,1,!src_little_endian);
-		wait_for_fifo(4);
-		regw(DP_MIX,0x00070007);
-		regw(DP_SRC,0x00030100);
-		regw(DP_FRGD_CLR,srcclut[0]);
-		regw(DP_BKGD_CLR,srcclut[1]);
-	    }
-	    (*gfx_lastop)=LASTOP_TILEDBLT;
-	}
+        if((*gfx_optype)!=1 || (*gfx_lastop)!=LASTOP_TILEDBLT) {
+            wait_for_fifo(4);
+            regw(SRC_CNTL,0x00000003);
+            regw(DP_WRITE_MASK,0xffffffff);
+            regw(CLR_CMP_CNTL,0x00000000);
+            regw(DST_CNTL,0x00000003);
+            if(srcdepth==16 || srcdepth==32 || srcdepth==8) {
+                setPixWidth(depth,srcdepth);
+                wait_for_fifo(3);
+                regw(DP_MIX,0x00070003);
+                regw(DP_SRC,0x00000300);
+                regw(DP_FRGD_CLR,0xffffffff);
+            } else {
+                setPixWidth(depth,1,1,!src_little_endian);
+                wait_for_fifo(4);
+                regw(DP_MIX,0x00070007);
+                regw(DP_SRC,0x00030100);
+                regw(DP_FRGD_CLR,srcclut[0]);
+                regw(DP_BKGD_CLR,srcclut[1]);
+            }
+            (*gfx_lastop)=LASTOP_TILEDBLT;
+        }
     } else {
-	if((*gfx_optype)!=1 || (*gfx_lastop)!=LASTOP_TILEDBLTPEN) {
-	    setPixWidth(depth,1,1,alphatype==LittleEndianMask);
-	    wait_for_fifo(7);
-	    regw(SRC_CNTL,0x00000001);
-	    regw(DP_WRITE_MASK,0xffffffff);
-	    QColor tmp=cpen.color();
+        if((*gfx_optype)!=1 || (*gfx_lastop)!=LASTOP_TILEDBLTPEN) {
+            setPixWidth(depth,1,1,alphatype==LittleEndianMask);
+            wait_for_fifo(7);
+            regw(SRC_CNTL,0x00000001);
+            regw(DP_WRITE_MASK,0xffffffff);
+            QColor tmp=cpen.color();
 #ifndef QT_NO_QWS_REPEATER
-	    QScreen * tmp2=qt_screen;
-	    qt_screen=gfx_screen;
+            QScreen * tmp2=qt_screen;
+            qt_screen=gfx_screen;
 #endif
-	    regw(DP_FRGD_CLR,tmp.alloc());
+            regw(DP_FRGD_CLR,tmp.alloc());
 #ifndef QT_NO_QWS_REPEATER
-	    qt_screen=tmp2;
+            qt_screen=tmp2;
 #endif
-	    regw(DP_MIX,0x00070003);
-	    regw(DP_SRC,0x00030100);
-	    regw(CLR_CMP_CNTL,0x00000000);
-	    regw(DST_CNTL,0x00000003);
-	    (*gfx_lastop)=LASTOP_TILEDBLTPEN;
-	}
+            regw(DP_MIX,0x00070003);
+            regw(DP_SRC,0x00030100);
+            regw(CLR_CMP_CNTL,0x00000000);
+            regw(DST_CNTL,0x00000003);
+            (*gfx_lastop)=LASTOP_TILEDBLTPEN;
+        }
     }
 
     (*gfx_optype)=1;
@@ -1073,46 +1073,46 @@ void QGfxMach64<depth,type>::tiledBlt(int rx,int ry,int w,int h)
 
     int loopc;
     for(loopc=0;loopc<ncliprect;loopc++) {
-	xp2=srcwidgetoffs.x() + brushoffs.x();
-	yp2=srcwidgetoffs.y() + brushoffs.y();
+        xp2=srcwidgetoffs.x() + brushoffs.x();
+        yp2=srcwidgetoffs.y() + brushoffs.y();
 
-	QRect r=cliprect[loopc];
-	int myxp=xp > r.left() ? xp : r.left();
-	int myyp=yp > r.top() ? yp : r.top();
-	int myxp2=xp3 > r.right() ? r.right() : xp3;
-	int myyp2=yp3 > r.bottom() ? r.bottom() : yp3;
+        QRect r=cliprect[loopc];
+        int myxp=xp > r.left() ? xp : r.left();
+        int myyp=yp > r.top() ? yp : r.top();
+        int myxp2=xp3 > r.right() ? r.right() : xp3;
+        int myyp2=yp3 > r.bottom() ? r.bottom() : yp3;
 
-	int ww2=(myxp2-myxp)+1;
-	int hh2=(myyp2-myyp)+1;
+        int ww2=(myxp2-myxp)+1;
+        int hh2=(myyp2-myyp)+1;
 
-	int xo=(myxp-xp);
-	int yo=(myyp-yp);
+        int xo=(myxp-xp);
+        int yo=(myyp-yp);
 
-	xp2+=xo;
-	yp2+=yo;
+        xp2+=xo;
+        yp2+=yo;
 
-	while(xp2<0) {
-	    xp2+=srcwidth;
-	}
-	while(yp2<0) {
-	    yp2+=srcheight;
-	}
+        while(xp2<0) {
+            xp2+=srcwidth;
+        }
+        while(yp2<0) {
+            yp2+=srcheight;
+        }
 
-	while(xp2>srcwidth)
-	    xp2-=srcwidth;
+        while(xp2>srcwidth)
+            xp2-=srcwidth;
 
-	while(yp2>srcheight)
-	    yp2-=srcheight;
+        while(yp2>srcheight)
+            yp2-=srcheight;
 
-	if(ww2>0 && hh2>0) {
-	    wait_for_fifo(6);
-	    regw(SRC_Y_X_START,0);
-	    regw(SRC_HEIGHT2_WIDTH2,(srcwidth << 16) | srcheight);
-	    regw(SRC_HEIGHT1_WIDTH1,( (srcwidth-xp2) << 16 ) | srcheight-yp2);
-	    regw(SRC_Y_X,(xp2 << 16) | yp2);
-	    regw(DST_Y_X,(myxp << 16) | myyp);
-	    regw(DST_HEIGHT_WIDTH,(ww2 << 16) | hh2);
-	}
+        if(ww2>0 && hh2>0) {
+            wait_for_fifo(6);
+            regw(SRC_Y_X_START,0);
+            regw(SRC_HEIGHT2_WIDTH2,(srcwidth << 16) | srcheight);
+            regw(SRC_HEIGHT1_WIDTH1,((srcwidth-xp2) << 16) | srcheight-yp2);
+            regw(SRC_Y_X,(xp2 << 16) | yp2);
+            regw(DST_Y_X,(myxp << 16) | myyp);
+            regw(DST_HEIGHT_WIDTH,(ww2 << 16) | hh2);
+        }
     }
 
     GFX_END
@@ -1130,10 +1130,10 @@ void QGfxMach64<depth,type>::hsync(int i)
     int loopc;
     int tmp;
     for(loopc=0;loopc<100000;loopc++) {
-	tmp=regr(CRTC_VLINE_CRNT_VLINE);
-	tmp=(tmp & 0x07ff0000) >> 16;
-	if(tmp>i)
-	    return;
+        tmp=regr(CRTC_VLINE_CRNT_VLINE);
+        tmp=(tmp & 0x07ff0000) >> 16;
+        if(tmp>i)
+            return;
     }
 }
 
@@ -1146,21 +1146,21 @@ void QGfxMach64<depth,type>::hsync(int i)
 
 template<const int depth,const int type>
 void QGfxMach64<depth,type>::drawAlpha(int x1,int y1,int x2,int y2,
-				       int x3,int y3,int x4,int y4)
+                                       int x3,int y3,int x4,int y4)
 {
     if(ncliprect<1) {
-	return;
+        return;
     }
 
     if(no3d)
-	return;
+        return;
 
     QRect cursRect(x1+xoffs, y1+yoffs, abs(x2-x1)+1, abs(y2-y1)+1);
     GFX_START(cursRect);
 
     if(!checkSourceDest()) {
-	GFX_END
-	return;
+        GFX_END
+        return;
     }
 
     // Used the 3d/scaler pipeline, like stretchBlt
@@ -1183,20 +1183,20 @@ void QGfxMach64<depth,type>::drawAlpha(int x1,int y1,int x2,int y2,
 
     int loopc;
     for(loopc=0;loopc<4;loopc++) {
-	if(xx[loopc]<0) {
-	    float s1=x2-x1;
-	    float p1=-(xx[loopc]);
-	    xs=p1/s1;
-	    xx[loopc]=0;
-	}
-	if(yy[loopc]<0) {
-	    float s2=y3-y1;
-	    float p2=-(yy[loopc]);
-	    ys=p2/s2;
-	    yy[loopc]=0;
-	}
-	xx[loopc]*=4;
-	yy[loopc]*=4;
+        if(xx[loopc]<0) {
+            float s1=x2-x1;
+            float p1=-(xx[loopc]);
+            xs=p1/s1;
+            xx[loopc]=0;
+        }
+        if(yy[loopc]<0) {
+            float s2=y3-y1;
+            float p2=-(yy[loopc]);
+            ys=p2/s2;
+            yy[loopc]=0;
+        }
+        xx[loopc]*=4;
+        yy[loopc]*=4;
     }
 
     (*gfx_optype)=2;
@@ -1204,188 +1204,188 @@ void QGfxMach64<depth,type>::drawAlpha(int x1,int y1,int x2,int y2,
 
     for(loopc=0;loopc<ncliprect;loopc++) {
 
-	do_scissors(cliprect[loopc]);
+        do_scissors(cliprect[loopc]);
 
-	// Used for one-over-area - magic needed by the triangle
-	// setup engine
- 	float ooa,ooa2;
+        // Used for one-over-area - magic needed by the triangle
+        // setup engine
+        float ooa,ooa2;
 
-	ooa = 0.25 * 0.25 * ( ( xx[1] - xx[0] ) * ( yy[0] - yy[2] ) +
-			      ( yy[1] - yy[0] ) * ( xx[2] - xx[0] ) );
+        ooa = 0.25 * 0.25 * ((xx[1] - xx[0]) * (yy[0] - yy[2]) +
+                              (yy[1] - yy[0]) * (xx[2] - xx[0]));
 
-	ooa = -1.0 / ooa;
+        ooa = -1.0 / ooa;
 
-	ooa2 = 0.25 * 0.25 * ( ( xx[1] - xx[3] ) * ( yy[3] - yy[2] ) +
-			       ( yy[1] - yy[3] ) * ( xx[2] - xx[3] ) );
+        ooa2 = 0.25 * 0.25 * ((xx[1] - xx[3]) * (yy[3] - yy[2]) +
+                               (yy[1] - yy[3]) * (xx[2] - xx[3]));
 
-	ooa2 = -1.0 / ooa2;
+        ooa2 = -1.0 / ooa2;
 
-	int s3df=2;
-	int afn=1;
-	int asat=0;
-	// These source and destination alpha values are guesswork but seem
-	// to give the right effect
-	// source blend factor is AsAsAs, destination blend factor is
-	// 1-As,1-As,1-As. I wish I knew more maths...
-	int asrc=4;     // 1
-	int adst=5;
-	int tlf=0;
-	int tfilt=0;
-	int tblend=0;
-	int texalpha=0;
-	if(srcdepth==32 && alphatype==InlineAlpha)
-	    texalpha=1;
-	int split=0;
+        int s3df=2;
+        int afn=1;
+        int asat=0;
+        // These source and destination alpha values are guesswork but seem
+        // to give the right effect
+        // source blend factor is AsAsAs, destination blend factor is
+        // 1-As,1-As,1-As. I wish I knew more maths...
+        int asrc=4;     // 1
+        int adst=5;
+        int tlf=0;
+        int tfilt=0;
+        int tblend=0;
+        int texalpha=0;
+        if(srcdepth==32 && alphatype==InlineAlpha)
+            texalpha=1;
+        int split=0;
 
-	// We only use inline alpha; Mach64 doesn't seem to easily support
-	// separate alpha channel
+        // We only use inline alpha; Mach64 doesn't seem to easily support
+        // separate alpha channel
 
-	unsigned int scale3d=
-	    ( 1 << 0 )              // 0 = zero extend, 1 = dynamic range
-	                        // extend pixels to 32 bit
-	    | ( 0 << 1 )            // 1 = 2D dither, 0 = error diffusion dither
-	    | ( 0 << 2 )            // 1 = enable dither
-	    | ( 0 << 3 )            // 1 = reset error diffusion each line
-	    | ( 1 << 4 )            // 1 = round instead of dither
-	    | ( 0 << 5 )            // 1 = disable texture cache
-	    | ( s3df << 6 )         // 3=shading, 2=texture mapping, 1=scaling
-	    | ( 0 << 8 )            // 1 = edge anti-alias
-	    | ( split << 9 )        // 1 = split texture cache
-	    | ( 0 << 10 )           // 1 = apple YUV mode
-	    | ( afn << 11 )         // alpha / fog control
-	    | ( asat << 13 )        // alpha saturate blending
-	    | ( 0 << 14 )           // 1 = limit red dither range (what for?)
-	    | ( 0 << 15 )           // 1 = signed dst blend clamp for mpeg
-	    | ( asrc << 16 )        // blend src
-	    | ( adst << 19 )        // blend dst
-	    | ( tlf << 22 )         // texture environment
-	    | ( 1 << 24 )           // 1 = disable mip-mapping (its broke on
-	                        // all ragepros!)
-	    | ( tfilt << 25 )       // 1 = bilinear filter texture on mag
-	    | ( tblend << 26 )      // minification filtering
-	    | ( 0 << 28 )           // 1 = LSB of alpha for texture masking
-	    | ( 0 << 29 )           // alpha masking mode
-	    | ( texalpha << 30 )    // 1 = texture has alpha
-	    | ( 0 << 31 )           // 1 = source pixel from host register
-	    ;
+        unsigned int scale3d=
+            (1 << 0)              // 0 = zero extend, 1 = dynamic range
+                                // extend pixels to 32 bit
+            | (0 << 1)            // 1 = 2D dither, 0 = error diffusion dither
+            | (0 << 2)            // 1 = enable dither
+            | (0 << 3)            // 1 = reset error diffusion each line
+            | (1 << 4)            // 1 = round instead of dither
+            | (0 << 5)            // 1 = disable texture cache
+            | (s3df << 6)         // 3=shading, 2=texture mapping, 1=scaling
+            | (0 << 8)            // 1 = edge anti-alias
+            | (split << 9)        // 1 = split texture cache
+            | (0 << 10)           // 1 = apple YUV mode
+            | (afn << 11)         // alpha / fog control
+            | (asat << 13)        // alpha saturate blending
+            | (0 << 14)           // 1 = limit red dither range (what for?)
+            | (0 << 15)           // 1 = signed dst blend clamp for mpeg
+            | (asrc << 16)        // blend src
+            | (adst << 19)        // blend dst
+            | (tlf << 22)         // texture environment
+            | (1 << 24)           // 1 = disable mip-mapping (its broke on
+                                // all ragepros!)
+            | (tfilt << 25)       // 1 = bilinear filter texture on mag
+            | (tblend << 26)      // minification filtering
+            | (0 << 28)           // 1 = LSB of alpha for texture masking
+            | (0 << 29)           // alpha masking mode
+            | (texalpha << 30)    // 1 = texture has alpha
+            | (0 << 31)           // 1 = source pixel from host register
+            ;
 
-	setPixWidth(depth,srcdepth,srcdepth);
+        setPixWidth(depth,srcdepth,srcdepth);
 
-	wait_for_fifo(5);
-	regw(DP_FRGD_CLR,0xffffffff);
-	regw(DP_WRITE_MASK,0xffffffff);
-	regw(DP_MIX,0x00070003);
-	regw(CLR_CMP_CNTL,0);
-	regw(GUI_TRAJ_CNTL,3);
+        wait_for_fifo(5);
+        regw(DP_FRGD_CLR,0xffffffff);
+        regw(DP_WRITE_MASK,0xffffffff);
+        regw(DP_MIX,0x00070003);
+        regw(CLR_CMP_CNTL,0);
+        regw(GUI_TRAJ_CNTL,3);
 
-	int p=srclinestep/4;
+        int p=srclinestep/4;
 
-	// Pitch must be a power of 2 (in pixels)
-	int logpitch;
-	if(p==1024) {
-	    logpitch=0xa;
-	} else if(p==512) {
-	    logpitch=0x9;
-	} else if(p==256) {
-	    logpitch=0x8;
-	} else if(p==128) {
-	    logpitch=0x7;
-	} else if(p==64) {
-	    logpitch=0x6;
-	} else if(p==32) {
-	    logpitch=0x5;
-	} else if(p==16) {
-	    logpitch=0x4;
-	} else if(p==8) {
-	    logpitch=0x3;
-	} else {
-	    logpitch=0x2;
-	}
+        // Pitch must be a power of 2 (in pixels)
+        int logpitch;
+        if(p==1024) {
+            logpitch=0xa;
+        } else if(p==512) {
+            logpitch=0x9;
+        } else if(p==256) {
+            logpitch=0x8;
+        } else if(p==128) {
+            logpitch=0x7;
+        } else if(p==64) {
+            logpitch=0x6;
+        } else if(p==32) {
+            logpitch=0x5;
+        } else if(p==16) {
+            logpitch=0x4;
+        } else if(p==8) {
+            logpitch=0x3;
+        } else {
+            logpitch=0x2;
+        }
 
-	double wfx=srcwidth;
-	//double wf2=p;  //### not used
-	wfx=wfx/p;
-	double wfy=srcheight;
-	wfy=wfy/p;
+        double wfx=srcwidth;
+        //double wf2=p;  //### not used
+        wfx=wfx/p;
+        double wfy=srcheight;
+        wfy=wfy/p;
 
-	wait_for_fifo(6);
-	regw(TEX_SIZE_PITCH,logpitch | (logpitch << 4) | (logpitch << 8)
-	     | (logpitch << 12) | (logpitch << 16) | (logpitch << 20) |
-	     (logpitch << 24));
+        wait_for_fifo(6);
+        regw(TEX_SIZE_PITCH,logpitch | (logpitch << 4) | (logpitch << 8)
+             | (logpitch << 12) | (logpitch << 16) | (logpitch << 20) |
+             (logpitch << 24));
 
-	unsigned long foffset;
-	if (!gfx_screen->onCard(srcbits,foffset))
-	    qFatal("checkSourceDest() lied!");
+        unsigned long foffset;
+        if (!gfx_screen->onCard(srcbits,foffset))
+            qFatal("checkSourceDest() lied!");
 
-	// These registers are used for mip-mapping on Mach64. We don't need
-	// that so we just set them all to the same texture
-	regw(TEX_0_OFFSET,foffset);
-	regw(TEX_1_OFFSET,foffset);
-	regw(TEX_2_OFFSET,foffset);
-	regw(TEX_3_OFFSET,foffset);
-	regw(TEX_4_OFFSET,foffset);
-	wait_for_fifo(7);
-	regw(TEX_5_OFFSET,foffset);
-	regw(TEX_6_OFFSET,foffset);
-	regw(TEX_7_OFFSET,foffset);
-	regw(TEX_8_OFFSET,foffset);
-	regw(TEX_9_OFFSET,foffset);
-	regw(TEX_10_OFFSET,foffset);
+        // These registers are used for mip-mapping on Mach64. We don't need
+        // that so we just set them all to the same texture
+        regw(TEX_0_OFFSET,foffset);
+        regw(TEX_1_OFFSET,foffset);
+        regw(TEX_2_OFFSET,foffset);
+        regw(TEX_3_OFFSET,foffset);
+        regw(TEX_4_OFFSET,foffset);
+        wait_for_fifo(7);
+        regw(TEX_5_OFFSET,foffset);
+        regw(TEX_6_OFFSET,foffset);
+        regw(TEX_7_OFFSET,foffset);
+        regw(TEX_8_OFFSET,foffset);
+        regw(TEX_9_OFFSET,foffset);
+        regw(TEX_10_OFFSET,foffset);
 
-	unsigned int talpha=1;
-	unsigned int ccf=1;
-	unsigned int cblend=1;
-	unsigned int cfilt=1;
+        unsigned int talpha=1;
+        unsigned int ccf=1;
+        unsigned int cblend=1;
+        unsigned int cfilt=1;
 
-	unsigned int tex;
-	tex=(1 << 23) | (1 << 19) | (ccf << 9) | (cblend << 11) | (cfilt << 12)
-	    | (talpha << 13);
+        unsigned int tex;
+        tex=(1 << 23) | (1 << 19) | (ccf << 9) | (cblend << 11) | (cfilt << 12)
+            | (talpha << 13);
 
-	regw(TEX_CNTL,tex);
+        regw(TEX_CNTL,tex);
 
-	// Fraction of pixmap to draw. Can go over 1.0 for tiling
-	//float inv=1.0; //###not used
-	//double wf=1.0;
+        // Fraction of pixmap to draw. Can go over 1.0 for tiling
+        //float inv=1.0; //###not used
+        //double wf=1.0;
 
-	wait_for_fifo(5);
-	regw(SCALE_3D_CNTL,scale3d);
-	regw2(SETUP_CNTL,0x00000000);
-	regw(Z_CNTL,0);
-	regw(ALPHA_TEST_CNTL,0);
-	regw(DP_SRC,DP_BKGD_SRC_3D | DP_FRGD_SRC_3D | DP_MONO_SRC_1);
+        wait_for_fifo(5);
+        regw(SCALE_3D_CNTL,scale3d);
+        regw2(SETUP_CNTL,0x00000000);
+        regw(Z_CNTL,0);
+        regw(ALPHA_TEST_CNTL,0);
+        regw(DP_SRC,DP_BKGD_SRC_3D | DP_FRGD_SRC_3D | DP_MONO_SRC_1);
 
-	wait_for_fifo(5);
-	regw2(VERTEX_1_ARGB,0x000000ff | calpha << 24);
-	regw2(VERTEX_1_X_Y,xx[0] << 16 | yy[0]);
-	regwf2(VERTEX_1_S,xs);
-	regwf2(VERTEX_1_T,ys);
-	regwf2(VERTEX_1_W,1.0);
+        wait_for_fifo(5);
+        regw2(VERTEX_1_ARGB,0x000000ff | calpha << 24);
+        regw2(VERTEX_1_X_Y,xx[0] << 16 | yy[0]);
+        regwf2(VERTEX_1_S,xs);
+        regwf2(VERTEX_1_T,ys);
+        regwf2(VERTEX_1_W,1.0);
 
-	wait_for_fifo(5);
-	regw2(VERTEX_2_ARGB,0x0000ff00 | calpha2 << 24);
-	regw2(VERTEX_2_X_Y,xx[1] << 16 | yy[1]);
-	regwf2(VERTEX_2_S,wfx);
-	regwf2(VERTEX_2_T,ys);
-	regwf2(VERTEX_2_W,1.0);
+        wait_for_fifo(5);
+        regw2(VERTEX_2_ARGB,0x0000ff00 | calpha2 << 24);
+        regw2(VERTEX_2_X_Y,xx[1] << 16 | yy[1]);
+        regwf2(VERTEX_2_S,wfx);
+        regwf2(VERTEX_2_T,ys);
+        regwf2(VERTEX_2_W,1.0);
 
-	wait_for_fifo(5);
-	regw2(VERTEX_3_ARGB,0x00ff0000 | calpha4 << 24);
-	regw2(VERTEX_3_X_Y,xx[2] << 16 | yy[2]);
-	regwf2(VERTEX_3_S,xs);
-	regwf2(VERTEX_3_T,wfy);
-	regwf2(VERTEX_3_W,1.0);
+        wait_for_fifo(5);
+        regw2(VERTEX_3_ARGB,0x00ff0000 | calpha4 << 24);
+        regw2(VERTEX_3_X_Y,xx[2] << 16 | yy[2]);
+        regwf2(VERTEX_3_S,xs);
+        regwf2(VERTEX_3_T,wfy);
+        regwf2(VERTEX_3_W,1.0);
 
-	regwf2(ONE_OVER_AREA_UC,ooa);
+        regwf2(ONE_OVER_AREA_UC,ooa);
 
-	wait_for_fifo(6);
+        wait_for_fifo(6);
 
-	regw2(VERTEX_1_ARGB,0x000000ff | calpha3 << 24);
-	regw2(VERTEX_1_X_Y,xx[3] << 16 | yy[3]);
-	regwf2(VERTEX_1_S,wfx);
-	regwf2(VERTEX_1_T,wfy);
-	regwf2(VERTEX_1_W,1.0);
+        regw2(VERTEX_1_ARGB,0x000000ff | calpha3 << 24);
+        regw2(VERTEX_1_X_Y,xx[3] << 16 | yy[3]);
+        regwf2(VERTEX_1_S,wfx);
+        regwf2(VERTEX_1_T,wfy);
+        regwf2(VERTEX_1_W,1.0);
 
-	regwf2(ONE_OVER_AREA_UC,ooa2);
+        regwf2(ONE_OVER_AREA_UC,ooa2);
 
     }
 
@@ -1411,15 +1411,15 @@ public:
     QMachCursor();
     ~QMachCursor();
 
-    virtual void init(SWCursorData *,bool=FALSE);
+    virtual void init(SWCursorData *,bool=false);
 
-    virtual void set( const QImage &image, int hotx, int hoty );
-    virtual void move( int x, int y );
+    virtual void set(const QImage &image, int hotx, int hoty);
+    virtual void move(int x, int y);
     virtual void show();
     virtual void hide();
 
-    virtual bool restoreUnder( const QRect &, QGfxRasterBase * = 0 )
-                { return FALSE; }
+    virtual bool restoreUnder(const QRect &, QGfxRasterBase * = 0)
+                { return false; }
     virtual void saveUnder() {}
     virtual void drawCursor() {}
     virtual void draw() {}
@@ -1442,7 +1442,7 @@ private:
 
 // Read a 32-bit graphics card register from 2d engine register block
 inline unsigned int QMachCursor::regr(volatile unsigned int
-						 regindex)
+                                                 regindex)
 {
     unsigned long int val;
     val=*((volatile unsigned long *)(regbase+regindex));
@@ -1451,22 +1451,22 @@ inline unsigned int QMachCursor::regr(volatile unsigned int
 
 // Write a 32-bit graphics card register to 2d engine register block
 inline void QMachCursor::regw(volatile unsigned int regindex,
-					 unsigned long val)
+                                         unsigned long val)
 {
     *((volatile unsigned long int *)(regbase+regindex))=val;
 }
 
 #endif // QT_NO_QWS_CURSOR
 
-QMachScreen::QMachScreen( int display_id )
-    : QLinuxFbScreen( display_id )
+QMachScreen::QMachScreen(int display_id)
+    : QLinuxFbScreen(display_id)
 {
 }
 
-bool QMachScreen::connect( const QString &displaySpec )
+bool QMachScreen::connect(const QString &displaySpec)
 {
-    if ( !QLinuxFbScreen::connect( displaySpec ) )
-	return FALSE;
+    if (!QLinuxFbScreen::connect(displaySpec))
+        return false;
 
     canaccel=false;
 
@@ -1480,25 +1480,25 @@ bool QMachScreen::connect( const QString &displaySpec )
     const unsigned char* config = qt_probe_bus();
 
     if(!config)
-	return false;
+        return false;
 
     unsigned short int * manufacturer=(unsigned short int *)config;
     unsigned short int * device=(unsigned short int *)(config+2);
 
     if(*manufacturer!=0x1002) {
-	qDebug("This does not appear to be an ATI card");
-	qDebug("Are you sure QWS_CARD_SLOT is pointing to the right entry in "
-	       "/proc/bus/pci?");
-	return FALSE;
+        qDebug("This does not appear to be an ATI card");
+        qDebug("Are you sure QWS_CARD_SLOT is pointing to the right entry in "
+               "/proc/bus/pci?");
+        return false;
     }
 
     if(*device==0x5654) {
-	qDebug("Mach64 VT mapsize %x",mapsize);
-	regbase2=(unsigned char *)0xdeadbeef;
-	no3d=true;
+        qDebug("Mach64 VT mapsize %x",mapsize);
+        regbase2=(unsigned char *)0xdeadbeef;
+        no3d=true;
     } else {
-	qDebug("Device %d",*device);
-	no3d=false;
+        qDebug("Device %d",*device);
+        no3d=false;
     }
 
     // We expect the address pointer for the registers in config space
@@ -1508,60 +1508,60 @@ bool QMachScreen::connect( const QString &displaySpec )
     const unsigned long int * addr=(const unsigned long int *)bar;
     unsigned long int s;
     if(no3d) {
-	s=*(addr);
+        s=*(addr);
     } else {
-	s=*(addr+2);
+        s=*(addr+2);
     }
     unsigned long int olds=s;
     if(s & 0x1) {
 #ifdef DEBUG_INIT
-	printf("IO space - not right\n");
+        printf("IO space - not right\n");
 #endif
-	return FALSE;
+        return false;
     } else {
 #ifdef DEBUG_INIT
-	qDebug("First address looks right");
+        qDebug("First address looks right");
 #endif
-	s=s >> 1;
-	s=s >> 2;
-	s=olds;
-	unsigned char * membase;
-	int aperturefd;
-	// We map in the registers from /dev/mem, which is memory
-	// as seen from a physical-address point of view (rather than
-	// the application's virtual address space) but including PCI-mapped
-	// memory
-	aperturefd=open("/dev/mem",O_RDWR);
-	if(aperturefd==-1) {
+        s=s >> 1;
+        s=s >> 2;
+        s=olds;
+        unsigned char * membase;
+        int aperturefd;
+        // We map in the registers from /dev/mem, which is memory
+        // as seen from a physical-address point of view (rather than
+        // the application's virtual address space) but including PCI-mapped
+        // memory
+        aperturefd=open("/dev/mem",O_RDWR);
+        if(aperturefd==-1) {
 #ifdef DEBUG_INIT
-	    qDebug("Can't open /dev/mem");
+            qDebug("Can't open /dev/mem");
 #endif
-	    return FALSE;
-	}
-	s=(s >> 4) << 4;
-	if(no3d) {
-	    s+=(1024*1024*8)-4096;
-	}
-	// The registers block is 4k
-	membase=(unsigned char *)mmap(0,no3d ? 1024 : 4096,PROT_READ |
-				      PROT_WRITE,MAP_SHARED,
-				      aperturefd,s);
-	if(membase==0 || membase==(unsigned char *)-1) {
+            return false;
+        }
+        s=(s >> 4) << 4;
+        if(no3d) {
+            s+=(1024*1024*8)-4096;
+        }
+        // The registers block is 4k
+        membase=(unsigned char *)mmap(0,no3d ? 1024 : 4096,PROT_READ |
+                                      PROT_WRITE,MAP_SHARED,
+                                      aperturefd,s);
+        if(membase==0 || membase==(unsigned char *)-1) {
 #ifdef DEBUG_INIT
-	    qDebug("Failure to mmap /dev/mem, offset %lu %lx, %s",s,s,
-		   strerror(errno));
+            qDebug("Failure to mmap /dev/mem, offset %lu %lx, %s",s,s,
+                   strerror(errno));
 #endif
-	    close(aperturefd);
-	    return FALSE;
-	}
-	if(no3d) {
-	    regbase=membase+(1024*3);
-	} else {
-	    // 2d engine block is the second 1k block
-	    regbase=membase+1024;
-	    // 3d engine block is the first 1k block
-	    regbase2=membase;
-	}
+            close(aperturefd);
+            return false;
+        }
+        if(no3d) {
+            regbase=membase+(1024*3);
+        } else {
+            // 2d engine block is the second 1k block
+            regbase=membase+1024;
+            // 3d engine block is the first 1k block
+            regbase2=membase;
+        }
     }
 
     qDebug("Detected Mach64");
@@ -1570,7 +1570,7 @@ bool QMachScreen::connect( const QString &displaySpec )
     // gfxen
     canaccel=true;
 
-    return TRUE;
+    return true;
 }
 
 QMachScreen::~QMachScreen()
@@ -1593,11 +1593,11 @@ bool QMachScreen::initDevice()
     // Also enable register block 1 for the 3d engine
 
     if(!no3d) {
-	qDebug("Buscntl %x",regr(BUS_CNTL));
-	regw(BUS_CNTL,regr(BUS_CNTL) | 0x08000001);
+        qDebug("Buscntl %x",regr(BUS_CNTL));
+        regw(BUS_CNTL,regr(BUS_CNTL) | 0x08000001);
     } else {
-	qDebug("No3d buscntl %x",regr(BUS_CNTL));
-	regw(BUS_CNTL,regr(BUS_CNTL) & ~0x08000001);
+        qDebug("No3d buscntl %x",regr(BUS_CNTL));
+        regw(BUS_CNTL,regr(BUS_CNTL) & ~0x08000001);
     }
 
     // However, that doesn't always work, so make sure it isn't mapped
@@ -1627,7 +1627,7 @@ bool QMachScreen::initDevice()
     regw(DST_BRES_ERR,0);
     regw(DST_BRES_INC,0);
     regw(DST_BRES_DEC,0);
-    regw(SRC_OFF_PITCH, (w / 8 ) << 22);
+    regw(SRC_OFF_PITCH, (w / 8) << 22);
     regw(SRC_Y_X,0);
     regw(SRC_HEIGHT1_WIDTH1,1);
     regw(SRC_Y_X_START,0);
@@ -1691,7 +1691,7 @@ int QMachScreen::initCursor(void* e, bool init)
     extern bool qws_sw_cursor;
 
     if(qws_sw_cursor==true) {
-	return QLinuxFbScreen::initCursor(e,init);
+        return QLinuxFbScreen::initCursor(e,init);
     }
     qt_screencursor=new QMachCursor();
     qt_screencursor->init(0,false);
@@ -1726,19 +1726,19 @@ int mach64_ngval(QRgb r)
 QGfx * QMachScreen::createGfx(unsigned char * b,int w,int h,int d,int linestep)
 {
     QGfx * ret=0;
-    if( onCard(b) ) {
-	if( d==16 ) {
-	    ret = new QGfxMach64<16,0>(b,w,h);
-	} else if ( d==32 ) {
-	    ret = new QGfxMach64<32,0>(b,w,h);
-	} else if ( d==8 ) {
-	    ret = new QGfxMach64<8,0>(b,w,h);
-	}
-	if(ret) {
-	    ret->setShared(shared);
-	    ret->setLineStep(linestep);
-	    return ret;
-	}
+    if(onCard(b)) {
+        if(d==16) {
+            ret = new QGfxMach64<16,0>(b,w,h);
+        } else if (d==32) {
+            ret = new QGfxMach64<32,0>(b,w,h);
+        } else if (d==8) {
+            ret = new QGfxMach64<8,0>(b,w,h);
+        }
+        if(ret) {
+            ret->setShared(shared);
+            ret->setLineStep(linestep);
+            return ret;
+        }
     }
     return QLinuxFbScreen::createGfx(b,w,h,d,linestep);
 }
@@ -1772,13 +1772,13 @@ void QMachCursor::set(const QImage& image,int hx,int hy)
     hoty=hy;
 
     if(cursor->isNull()) {
-	static QImage *img = 0;
-	if ( !img ) {
-	    img = new QImage(8,8,8,3);
-	    img->setColor(2, 0x00000000);
-	    img->fill(2);
-	}
-	cursor = img;
+        static QImage *img = 0;
+        if (!img) {
+            img = new QImage(8,8,8,3);
+            img->setColor(2, 0x00000000);
+            img->fill(2);
+        }
+        cursor = img;
     }
 
     unsigned int offset=myoffset;

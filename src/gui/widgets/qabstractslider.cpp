@@ -66,19 +66,19 @@
     \table
     \header \i Signal \i Emitted when
     \row \i \l valueChanged()
-	 \i the value has changed. The \l tracking
-	    determines whether this signal is emitted during user
-	    interaction.
+         \i the value has changed. The \l tracking
+            determines whether this signal is emitted during user
+            interaction.
     \row \i \l sliderPressed()
-	 \i the user starts to drag the slider.
+         \i the user starts to drag the slider.
     \row \i \l sliderMoved()
-	 \i the user drags the slider.
+         \i the user drags the slider.
     \row \i \l sliderReleased()
-	 \i the user releases the slider.
+         \i the user releases the slider.
     \row \i \l actionTriggered()
-	 \i a slider action was triggerd.
+         \i a slider action was triggerd.
     \row \i \l rangeChanged()
-	 \i a the range has changed.
+         \i a the range has changed.
     \endtable
 
     QAbstractSlider provides a virtual sliderChange() function that is
@@ -91,7 +91,7 @@
 */
 
 /*!
-    \fn void QAbstractSlider::valueChanged( int value )
+    \fn void QAbstractSlider::valueChanged(int value)
 
     This signal is emitted when the slider value has changed, with the
     new slider \a value as argument.
@@ -105,7 +105,7 @@
 */
 
 /*!
-    \fn void QAbstractSlider::sliderMoved( int value )
+    \fn void QAbstractSlider::sliderMoved(int value)
 
     This signal is emitted when the slider is dragged by the user, with
     the new slider \a value as an argument.
@@ -228,11 +228,11 @@ QAbstractSlider::~QAbstractSlider()
 void QAbstractSlider::setOrientation(Orientation orientation)
 {
     d->orientation = orientation;
-    if ( !testWState( WState_OwnSizePolicy ) ) {
-	QSizePolicy sp = sizePolicy();
-	sp.transpose();
-	setSizePolicy( sp );
-	clearWState( WState_OwnSizePolicy );
+    if (!testWState(WState_OwnSizePolicy)) {
+        QSizePolicy sp = sizePolicy();
+        sp.transpose();
+        setSizePolicy(sp);
+        clearWState(WState_OwnSizePolicy);
     }
     update();
     updateGeometry();
@@ -367,7 +367,7 @@ void QAbstractSlider::setSliderDown(bool down)
 {
     d->pressed = down;
     if (!down && d->position != d->value)
-	triggerAction(SliderMove);
+        triggerAction(SliderMove);
 }
 
 bool QAbstractSlider::isSliderDown() const
@@ -387,13 +387,13 @@ void QAbstractSlider::setSliderPosition(int position)
 {
     position = d->bound(position);
     if (position == d->position)
-	return;
+        return;
     d->position = position;
     if (!d->blocktracking)
-	update();
+        update();
     emit sliderMoved(position);
     if (d->tracking && !d->blocktracking)
-	triggerAction(SliderMove);
+        triggerAction(SliderMove);
 }
 
 int QAbstractSlider::sliderPosition() const
@@ -422,12 +422,12 @@ void QAbstractSlider::setValue(int value)
 {
     value = d->bound(value);
     if (d->value == value)
-	return;
+        return;
     d->value = value;
     if (d->position != value)
-	emit sliderMoved((d->position = value));
+        emit sliderMoved((d->position = value));
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessible::updateAccessibility( this, 0, QAccessible::ValueChanged );
+    QAccessible::updateAccessibility(this, 0, QAccessible::ValueChanged);
 #endif
     sliderChange(SliderValueChange);
     emit valueChanged(value);
@@ -485,26 +485,26 @@ void QAbstractSlider::triggerAction(SliderAction action)
     d->blocktracking = true;
     switch (action) {
     case SliderSingleStepAdd:
-	setSliderPosition(d->value + d->singleStep);
-	break;
+        setSliderPosition(d->value + d->singleStep);
+        break;
     case SliderSingleStepSub:
-	setSliderPosition(d->value - d->singleStep);
-	break;
+        setSliderPosition(d->value - d->singleStep);
+        break;
     case SliderPageStepAdd:
-	setSliderPosition(d->value + d->pageStep);
-	break;
+        setSliderPosition(d->value + d->pageStep);
+        break;
     case SliderPageStepSub:
-	setSliderPosition(d->value - d->pageStep);
-	break;
+        setSliderPosition(d->value - d->pageStep);
+        break;
     case SliderToMinimum:
-	setSliderPosition(d->minimum);
-	break;
+        setSliderPosition(d->minimum);
+        break;
     case SliderToMaximum:
-	setSliderPosition(d->maximum);
-	break;
+        setSliderPosition(d->maximum);
+        break;
     case SliderMove:
     case SliderNoAction:
-	break;
+        break;
     };
     emit actionTriggered(action);
     d->blocktracking = false;
@@ -519,10 +519,10 @@ of \a repeatTime, after an initial delay of \a thresholdTime.
 void QAbstractSlider::setRepeatAction(SliderAction action, int thresholdTime, int repeatTime)
 {
     if ((d->repeatAction = action) == SliderNoAction) {
-	d->repeatActionTimer.stop();
+        d->repeatActionTimer.stop();
     } else {
-	d->repeatActionTime = repeatTime;
-	d->repeatActionTimer.start(thresholdTime, this);
+        d->repeatActionTime = repeatTime;
+        d->repeatActionTimer.start(thresholdTime, this);
     }
 }
 
@@ -540,11 +540,11 @@ QAbstractSlider::SliderAction QAbstractSlider::repeatAction() const
 void QAbstractSlider::timerEvent(QTimerEvent *e)
 {
     if (e->timerId() == d->repeatActionTimer.timerId()) {
-	if (d->repeatActionTime) { // was threshold time, use repeat time next time
-	    d->repeatActionTimer.start(d->repeatActionTime, this);
-	    d->repeatActionTime = 0;
-	}
-	triggerAction(d->repeatAction);
+        if (d->repeatActionTime) { // was threshold time, use repeat time next time
+            d->repeatActionTimer.start(d->repeatActionTime, this);
+            d->repeatActionTime = 0;
+        }
+        triggerAction(d->repeatAction);
     }
 }
 
@@ -562,26 +562,26 @@ void QAbstractSlider::sliderChange(SliderChange)
 /*!
     \reimp
 */
-void QAbstractSlider::wheelEvent( QWheelEvent * e )
+void QAbstractSlider::wheelEvent(QWheelEvent * e)
 {
-    if ( e->orientation() != d->orientation && !rect().contains(e->pos()) )
-	return;
+    if (e->orientation() != d->orientation && !rect().contains(e->pos()))
+        return;
 
     static float offset = 0;
     static QAbstractSlider *offset_owner = 0;
     if (offset_owner != this){
-	offset_owner = this;
-	offset = 0;
+        offset_owner = this;
+        offset = 0;
     }
 
     int step = qMin(QApplication::wheelScrollLines() * d->singleStep, d->pageStep);
     if ((e->state() & ControlButton) || (e->state() & ShiftButton))
-	step = d->pageStep;
+        step = d->pageStep;
     offset += e->delta() * step / 120;
     if (d->invertedControls)
         offset = -offset;
     if (QABS(offset) < 1)
-	return;
+        return;
     setValue(d->value + int(offset));
     offset -= int(offset);
     e->accept();
@@ -627,5 +627,5 @@ void QAbstractSlider::keyPressEvent(QKeyEvent *ev)
             break;
     }
     if (action)
-	triggerAction(action);
+        triggerAction(action);
 }

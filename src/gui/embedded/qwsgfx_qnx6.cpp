@@ -59,7 +59,7 @@ static void catchSignal(int s) { QApplication::exit(); };
 // QnxFb Gfx class
 template<const int depth, const int type>
 QQnxFbGfx<depth,type>::QQnxFbGfx ()
-: QGfxRaster<depth, type> ( screen->vidptr, screen->width, screen->height ) {
+: QGfxRaster<depth, type> (screen->vidptr, screen->width, screen->height) {
     ctx.adapter = &adapter;
     ctx.dsurf = screen;
     ctx.gd_ctx = adapter.gd_ctx;
@@ -87,15 +87,15 @@ void QQnxFbGfx<depth,type>::sync() {
 /*
 template<const int depth, const int type>
 void QQnxFbGfx<depth,type>::blt (int rx, int ry, int w, int h,
-	int sx, int sy ) {
-    if ( ncliprect < 1 || w < 1 || h < 1 )
-	return;
+        int sx, int sy) {
+    if (ncliprect < 1 || w < 1 || h < 1)
+        return;
 
-    if( srctype != SourceImage
-	    || alphatype != IgnoreAlpha
-	    || !isScreenGfx()
-	    || myrop!=CopyROP 
-	    || buffer != srcbits ) {
+    if(srctype != SourceImage
+            || alphatype != IgnoreAlpha
+            || !isScreenGfx()
+            || myrop!=CopyROP
+            || buffer != srcbits) {
 QString reasons;
 if (srctype != SourceImage)
 reasons+="srctype ";
@@ -108,26 +108,26 @@ if (myrop!=CopyROP)
 if (buffer!=srcbits)
     reasons+="buff ";
 qDebug("copout because of %s",reasons.latin1());
-	QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
-	return;
+        QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
+        return;
     }
 
     // Driver ROP
     if (myrop==CopyROP) {
-	if (ctx.rop3 != 204) {
-	    ctx.rop3 = 204;
-	    ctxFuncList.update_rop3 (&ctx);
-	}
+        if (ctx.rop3 != 204) {
+            ctx.rop3 = 204;
+            ctxFuncList.update_rop3 (&ctx);
+        }
     } else if (myrop==XorROP) {
-	if (ctx.rop3 != 60) {
-	    ctx.rop3 = 60;
-	    ctxFuncList.update_rop3 (&ctx);
-	}
+        if (ctx.rop3 != 60) {
+            ctx.rop3 = 60;
+            ctxFuncList.update_rop3 (&ctx);
+        }
     } else if (myrop==NotROP) {
-	if (ctx.rop3 != 51) {
-	    ctx.rop3 = 51;
-	    ctxFuncList.update_rop3 (&ctx);
-	}
+        if (ctx.rop3 != 51) {
+            ctx.rop3 = 51;
+            ctxFuncList.update_rop3 (&ctx);
+        }
     }
 
     // Apply offsets
@@ -137,70 +137,70 @@ qDebug("copout because of %s",reasons.latin1());
     int offsetSY = srcwidgetoffs.y() + sy;
 
 qDebug("first rx %d, ry %d, w %d, h %d, sx %d, sy %d",
-	offsetRX,offsetRY,w,h,offsetSX,offsetSY);
+        offsetRX,offsetRY,w,h,offsetSX,offsetSY);
     // Source and lock regions
     QRect lockRect(offsetRX, offsetRY, w + 1, h + 1); //?
 //    QRect lockRect(rx, ry, w + 1, h + 1); //?
-    QWSDisplay::grab( TRUE );
+    QWSDisplay::grab(true);
 
     // Basic clip
-    if ( !clipbounds.intersects(lockRect) ) {
-	QWSDisplay::ungrab();
-	return;
+    if (!clipbounds.intersects(lockRect)) {
+        QWSDisplay::ungrab();
+        return;
     }
     */
 /*
     // Clip to edges of screen - is there any point doing this????
     int mx = clipbounds.x() - offsetRX;
-    if ( mx > 0 ) {
-	offsetRX += mx;
-	offsetSX += mx;
-	w -= mx;
+    if (mx > 0) {
+        offsetRX += mx;
+        offsetSX += mx;
+        w -= mx;
     }
     mx = clipbounds.y() - ry;
-    if ( mx > 0 ) {
-	offsetRY += mx;
-	offsetSY += mx;
-	h -= mx;
+    if (mx > 0) {
+        offsetRY += mx;
+        offsetSY += mx;
+        h -= mx;
     }
     mx = rx + w - 1 - clipbounds.right();
-    if ( mx > 0 )
-	w -= mx;
+    if (mx > 0)
+        w -= mx;
     mx = ry + h - 1 - clipbounds.bottom();
-    if ( mx > 0 )
-	h -= mx;
-	*/
+    if (mx > 0)
+        h -= mx;
+        */
 
 /*
 qDebug("second rx %d, ry %d, w %d, h %d, sx %d, sy %d",
-	offsetRX,offsetRY,w,h,offsetSX,offsetSY);
+        offsetRX,offsetRY,w,h,offsetSX,offsetSY);
     GFX_START(lockRect)
     QRect destRect(offsetRX, offsetRY, w, h);
     // Copy each clipped rect within the area
-    for ( int currentClipRect = 0; currentClipRect < ncliprect; currentClipRect++ ) {
-	QRect clipRect(cliprect[currentClipRect]);
+    for (int currentClipRect = 0; currentClipRect < ncliprect; currentClipRect++) {
+        QRect clipRect(cliprect[currentClipRect]);
 
-	// Find intersection
-	QRect intersectRect(destRect.intersect(clipRect));
-	int intersectX = intersectRect.left();
-	int intersectY = intersectRect.top();
+        // Find intersection
+        QRect intersectRect(destRect.intersect(clipRect));
+        int intersectX = intersectRect.left();
+        int intersectY = intersectRect.top();
 
-	// Calculate clip offset into destination 
-	int clipOffsetX = intersectX - offsetRX;
-	int clipOffsetY = intersectY - offsetRY;
+        // Calculate clip offset into destination
+        int clipOffsetX = intersectX - offsetRX;
+        int clipOffsetY = intersectY - offsetRY;
 
-	// Apply clip offset to source
-	offsetSX = offsetSX + clipOffsetX;
-	offsetSY = offsetSY + clipOffsetY;
+        // Apply clip offset to source
+        offsetSX = offsetSX + clipOffsetX;
+        offsetSY = offsetSY + clipOffsetY;
 
-	// Do the blt
+        // Do the blt
 qDebug("ix %d, iy %d, iw %d, ih %d, sx %d, sy %d",
-	intersectX,intersectY,
-	intersectRect.width(),intersectRect.height(),
-	offsetSX,offsetSY);
-	coreFuncList.blit1(&ctx, offsetSX, offsetSY,
-		intersectX, intersectY, 
-		intersectRect.width(), intersectRect.height());
+        intersectX,intersectY,
+        intersectRect.width(),intersectRect.height(),
+        offsetSX,offsetSY);
+        coreFuncList.blit1(&ctx, offsetSX, offsetSY,
+                intersectX, intersectY,
+                intersectRect.width(), intersectRect.height());
     }
 
     GFX_END
@@ -209,19 +209,19 @@ qDebug("ix %d, iy %d, iw %d, ih %d, sx %d, sy %d",
 
 template<const int depth, const int type>
 void QQnxFbGfx<depth,type>::fillRect(int rx, int ry, int w, int h) {
-    if ( ncliprect < 1 || w < 1 || h < 1 || cbrush.style() == NoBrush ) {
-	return;
+    if (ncliprect < 1 || w < 1 || h < 1 || cbrush.style() == NoBrush) {
+        return;
     }
 
     // Cop-outs
-    if( cbrush.style()!=SolidPattern
+    if(cbrush.style()!=SolidPattern
         || alphatype!=IgnoreAlpha || srctype!=SourcePen
-	|| myrop!=CopyROP ) {
-	QGfxRaster<depth,type>::fillRect(rx,ry,w,h);
-	return;
+        || myrop!=CopyROP) {
+        QGfxRaster<depth,type>::fillRect(rx,ry,w,h);
+        return;
     }
 
-    QWSDisplay::grab(TRUE);
+    QWSDisplay::grab(true);
     int fillLeft = rx + xoffs;
     int fillRight = fillLeft + w - 1;
     int fillTop = ry + yoffs;
@@ -229,24 +229,24 @@ void QQnxFbGfx<depth,type>::fillRect(int rx, int ry, int w, int h) {
     QRect lock(fillLeft, fillTop, w + 1, h + 1);
 
     GFX_START(lock)
-    
+
     useBrush();
-    for (int currentClipRect = 0; currentClipRect < ncliprect; currentClipRect++ ) {
-	QRect clipRect = cliprect[currentClipRect];
-	if ( fillLeft <= clipRect.right()
-	       && fillTop <= clipRect.bottom()
-	       && fillRight >= clipRect.left()
-	       && fillBottom >= clipRect.top()) {
-	    int clippedFillLeft = qMax(clipRect.left(), fillLeft);
-	    int clippedFillTop = qMax(clipRect.top(), fillTop);
-	    int clippedFillRight = qMin(clipRect.right(), fillRight);
-	    int clippedFillBottom = qMin(clipRect.bottom(), fillBottom);
+    for (int currentClipRect = 0; currentClipRect < ncliprect; currentClipRect++) {
+        QRect clipRect = cliprect[currentClipRect];
+        if (fillLeft <= clipRect.right()
+               && fillTop <= clipRect.bottom()
+               && fillRight >= clipRect.left()
+               && fillBottom >= clipRect.top()) {
+            int clippedFillLeft = qMax(clipRect.left(), fillLeft);
+            int clippedFillTop = qMax(clipRect.top(), fillTop);
+            int clippedFillRight = qMin(clipRect.right(), fillRight);
+            int clippedFillBottom = qMin(clipRect.bottom(), fillBottom);
 qDebug("left %d top %d right %d bottom %d",clippedFillLeft,clippedFillTop,
-	clippedFillRight,clippedFillBottom);
-	    coreFuncList.draw_solid_rect(&ctx, pixel,
-			clippedFillLeft, clippedFillTop,
-			clippedFillRight, clippedFillBottom);
-	}
+        clippedFillRight,clippedFillBottom);
+            coreFuncList.draw_solid_rect(&ctx, pixel,
+                        clippedFillLeft, clippedFillTop,
+                        clippedFillRight, clippedFillBottom);
+        }
     }
 
     GFX_END
@@ -257,13 +257,13 @@ template<const int depth, const int type>
 void QQnxFbGfx<depth,type>::hlineUnclipped (int x, int x1, int y) {
     // Not many being accelerated due to checking both pen and brush
     if (myrop!=CopyROP
-	    || alphatype!=IgnoreAlpha
-	    || srctype!=SourcePen
-	    || cpen.style()!=SolidLine
-	    || cbrush.style()!=SolidPattern) { 
-	unsigned char *l = scanLine(y);
-	QGfxRaster<depth,type>::hlineUnclipped(x,x1,l);
-	return;
+            || alphatype!=IgnoreAlpha
+            || srctype!=SourcePen
+            || cpen.style()!=SolidLine
+            || cbrush.style()!=SolidPattern) {
+        unsigned char *l = scanLine(y);
+        QGfxRaster<depth,type>::hlineUnclipped(x,x1,l);
+        return;
     }
     coreFuncList.draw_span(&ctx, pixel, x, x1, y);
 }
@@ -279,7 +279,7 @@ bool QQnxScreen::connect(const QString & spec) {
     QString device = getenv("QWS_DEVICEID");
     QString index = getenv("QWS_INDEX");
     if (!vendor || !device || !index) {
-	qFatal("Could not get PCI settings from environment variables\n");
+        qFatal("Could not get PCI settings from environment variables\n");
     }
     adapter.bus.pci.pci_vendor_id = vendor.toShort(NULL, 16);
     adapter.bus.pci.pci_device_id = device.toShort(NULL, 16);
@@ -303,7 +303,7 @@ bool QQnxScreen::connect(const QString & spec) {
     // Open the dll
     dllHandle = dlopen(name.latin1(), 0);
     if (!dllHandle)
-	qFatal("Could not open dll %s\n", name.latin1());
+        qFatal("Could not open dll %s\n", name.latin1());
 
     // Get the functions from the dll(QNX ver >= 6.00)
     int (*modeFuncListFill) (disp_adapter_t *, disp_modefuncs_t *, int) = (int (*) (disp_adapter_t *, disp_modefuncs_t *, int)) dlsym(dllHandle, "devg_get_modefuncs");
@@ -314,7 +314,7 @@ bool QQnxScreen::connect(const QString & spec) {
 
     // Fill adapter function lists
     if (modeFuncListFill(&adapter, &modeFuncList, sizeof(modeFuncList)) == -1) {
-	qFatal("Could not get entry points in dll %s\n", name.latin1());
+        qFatal("Could not get entry points in dll %s\n", name.latin1());
     };
     memFuncListFill(&adapter, &memFuncList, sizeof(memFuncList));
     miscFuncListFill(&adapter, &miscFuncList, sizeof(miscFuncList));
@@ -323,7 +323,7 @@ bool QQnxScreen::connect(const QString & spec) {
     screen_lastop = screen_optype = &QNXDummy;
     lastop = optype = &QNXDummy;
 
-    return TRUE;
+    return true;
 }
 
 void QQnxScreen::disconnect() {
@@ -332,72 +332,72 @@ void QQnxScreen::disconnect() {
 
 bool QQnxScreen::initDevice() {
     if ((modeFuncList.init(&adapter, NULL)) == -1) {
-	qFatal("Could not initialise graphics adapter\n");
+        qFatal("Could not initialise graphics adapter\n");
     };
 
     // Extract screen settings from environment
     int bits = 0;
     QString tmpsize = getenv("QWS_SIZE");
     sscanf(tmpsize, "%dx%dx%d@%d", &(settings.xres), &(settings.yres),
-	    &(bits), &(settings.refresh));
-    if ( !settings.xres || !settings.yres || !settings.refresh || !bits)
-	qFatal("Please check QWS_SIZE environment var and try again");
+            &(bits), &(settings.refresh));
+    if (!settings.xres || !settings.yres || !settings.refresh || !bits)
+        qFatal("Please check QWS_SIZE environment var and try again");
 
     // setMode will initialise screen
     QQnxScreen::setMode(settings.xres, settings.yres, bits);
 
     // Create the screen surface
     screen = memFuncList.alloc_surface(&adapter, settings.xres, settings.yres, pixel_format,
-	    DISP_SURFACE_DISPLAYABLE |
-	    DISP_SURFACE_CPU_LINEAR_READABLE |
-	    DISP_SURFACE_CPU_LINEAR_WRITEABLE |
-	    DISP_SURFACE_2D_TARGETABLE |
-	    DISP_SURFACE_2D_READABLE |
-	    DISP_SURFACE_PAGE_ALIGNED, 0);
+            DISP_SURFACE_DISPLAYABLE |
+            DISP_SURFACE_CPU_LINEAR_READABLE |
+            DISP_SURFACE_CPU_LINEAR_WRITEABLE |
+            DISP_SURFACE_2D_TARGETABLE |
+            DISP_SURFACE_2D_READABLE |
+            DISP_SURFACE_PAGE_ALIGNED, 0);
 
     if (screen == NULL) {
-	shutdownDevice();
-	qFatal("Could not allocate screen surface\n");
+        shutdownDevice();
+        qFatal("Could not allocate screen surface\n");
     }
 
     if (screen->pixel_format == DISP_SURFACE_FORMAT_PAL8) {
-	screen->palette = (disp_color_t *)malloc(256*4);
-	if (screen->palette == NULL) 
-	    qFatal("Can not allocate 8-bit palette\n");
+        screen->palette = (disp_color_t *)malloc(256*4);
+        if (screen->palette == NULL)
+            qFatal("Can not allocate 8-bit palette\n");
 
-	// 6*6*6 colour cube
-	int idx = 0;
-	for( int ir = 0x0; ir <= 0xff; ir+=0x33 ) {
-	    for( int ig = 0x0; ig <= 0xff; ig+=0x33 ) {
-		for( int ib = 0x0; ib <= 0xff; ib+=0x33 ) {
-		    screen->palette[idx]=qRgb( ir, ig, ib );
-		    idx++;
-		}
-	    }
-	}
+        // 6*6*6 colour cube
+        int idx = 0;
+        for(int ir = 0x0; ir <= 0xff; ir+=0x33) {
+            for(int ig = 0x0; ig <= 0xff; ig+=0x33) {
+                for(int ib = 0x0; ib <= 0xff; ib+=0x33) {
+                    screen->palette[idx]=qRgb(ir, ig, ib);
+                    idx++;
+                }
+            }
+        }
 
-	// Fill in rest with 0
-	for (;idx < 256;) {
-	    screen->palette[idx]=0;
-	    idx++;
-	}
+        // Fill in rest with 0
+        for (;idx < 256;) {
+            screen->palette[idx]=0;
+            idx++;
+        }
 
-	if (modeFuncList.set_palette == NULL) {
-	    if (miscFuncList.set_palette != NULL)
-		miscFuncList.set_palette(&adapter, 0, 256, screen->palette);
-	} else
-	    modeFuncList.set_palette(&adapter, 0, 0, 256, screen->palette);
+        if (modeFuncList.set_palette == NULL) {
+            if (miscFuncList.set_palette != NULL)
+                miscFuncList.set_palette(&adapter, 0, 256, screen->palette);
+        } else
+            modeFuncList.set_palette(&adapter, 0, 0, 256, screen->palette);
 
-	for (int i = 0; i < 256; i++)
-	    screenclut[i] = screen->palette[i];
+        for (int i = 0; i < 256; i++)
+            screenclut[i] = screen->palette[i];
 
-	screencols = 256;
+        screencols = 256;
     } else
-	screencols = 0;
+        screencols = 0;
 
     // Set the framebuffer base
     if (modeFuncList.set_display_offset)
-	modeFuncList.set_display_offset (&adapter, displayId, screen->offset, 0);
+        modeFuncList.set_display_offset (&adapter, displayId, screen->offset, 0);
 
     // Set inherited data
     int dataoffset = screen->offset;
@@ -407,18 +407,18 @@ bool QQnxScreen::initDevice() {
     d = bits;
     lstep = screen->stride;
     size = lstep * h;
-    mapsize = lstep * h * DISP_BYTES_PER_PIXEL ( screen->pixel_format ) ;
+    mapsize = lstep * h * DISP_BYTES_PER_PIXEL (screen->pixel_format) ;
 
     screen_lastop = screen_optype = &QNXDummy;
-    
+
     // Install the signal handler
     signal(SIGHUP, catchSignal);
     signal(SIGQUIT, catchSignal);
     signal(SIGABRT, catchSignal);
     signal(SIGSEGV, catchSignal);
     signal(SIGINT, catchSignal);
-    
-    return TRUE;
+
+    return true;
 }
 
 void QQnxScreen::shutdownDevice() {
@@ -430,8 +430,8 @@ void QQnxScreen::shutdownDevice() {
 
 void QQnxScreen::setMode(int xres, int yres, int bits) {
     if (initted) {
-	miscFuncList.fini(&adapter);
-	memFuncList.fini(&adapter);
+        miscFuncList.fini(&adapter);
+        memFuncList.fini(&adapter);
     }
 
     // Local variables
@@ -442,25 +442,25 @@ void QQnxScreen::setMode(int xres, int yres, int bits) {
     // Find the mode matching the requested settings
     int i = 0;
     for (; modeList[i] != DISP_MODE_LISTEND; i++) {
-	modeFuncList.get_modeinfo(&adapter, displayId, modeList[i], &mi);
-	if ((DISP_BITS_PER_PIXEL(mi.pixel_format) == bits) && (mi.pixel_format != DISP_SURFACE_FORMAT_ARGB1555 ) &&
-		((mi.flags & DISP_MODE_GENERIC) || (mi.xres == xres && mi.yres == yres)))
-	    break;
+        modeFuncList.get_modeinfo(&adapter, displayId, modeList[i], &mi);
+        if ((DISP_BITS_PER_PIXEL(mi.pixel_format) == bits) && (mi.pixel_format != DISP_SURFACE_FORMAT_ARGB1555) &&
+                ((mi.flags & DISP_MODE_GENERIC) || (mi.xres == xres && mi.yres == yres)))
+            break;
     }
     if (modeList[i] == DISP_MODE_LISTEND) {
-	modeFuncList.fini(&adapter);
-	qFatal("Requested mode not found\n");
+        modeFuncList.fini(&adapter);
+        qFatal("Requested mode not found\n");
     }
 
     if (!(mi.flags & DISP_MODE_GENERIC)) {
-	for (i = 0; i < DISP_MODE_NUM_REFRESH; i++)
-	    if (mi.u.fixed.refresh[i] == settings.refresh)
-		break;
+        for (i = 0; i < DISP_MODE_NUM_REFRESH; i++)
+            if (mi.u.fixed.refresh[i] == settings.refresh)
+                break;
 
-	if (i == DISP_MODE_NUM_REFRESH && settings.refresh != 0) {
-	    modeFuncList.fini(&adapter);
-	    qFatal("Refresh rate not supported in this mode\n");
-	}
+        if (i == DISP_MODE_NUM_REFRESH && settings.refresh != 0) {
+            modeFuncList.fini(&adapter);
+            qFatal("Refresh rate not supported in this mode\n");
+        }
     }
 
     // Retrieve core drawing functions for the selected pixel depth
@@ -474,10 +474,10 @@ void QQnxScreen::setMode(int xres, int yres, int bits) {
 
     // Calculate CRT settings(should check them as well)
     if (mi.flags & DISP_MODE_GENERIC) {
-	settings.h_granularity = mi.u.generic.h_granularity;
-	settings.v_granularity = mi.u.generic.v_granularity;
-	settings.sync_polarity = mi.u.generic.sync_polarity;
-	disp_crtc_calc(&settings);
+        settings.h_granularity = mi.u.generic.h_granularity;
+        settings.v_granularity = mi.u.generic.v_granularity;
+        settings.sync_polarity = mi.u.generic.sync_polarity;
+        disp_crtc_calc(&settings);
     }
 
     disp_surface_t surf;
@@ -485,14 +485,14 @@ void QQnxScreen::setMode(int xres, int yres, int bits) {
     surf.width = xres;
     surf.height = yres;
     if (modeFuncList.set_mode(&adapter, displayId, modeList[i], &settings, &surf, 0) == -1) {
-	qFatal("Could not set mode\n");
+        qFatal("Could not set mode\n");
     };
 
     // Initialise with the new settings
     memFuncList.init(&adapter, NULL);
     miscFuncList.init(&adapter, NULL);
 
-    initted = TRUE;
+    initted = true;
     pixel_format = mi.pixel_format;
 }
 
@@ -502,45 +502,45 @@ QRgb *clut() {
 
 QGfx *QQnxScreen::createGfx(unsigned char *bytes, int w, int h, int d, int linestep) {
     if (bytes == screen->vidptr) {
-	QGfx* ret;
-	if ( FALSE ) {
-	    //Just to simplify the ifdeffery
+        QGfx* ret;
+        if (false) {
+            //Just to simplify the ifdeffery
 #ifndef QT_NO_QWS_DEPTH_1
-	} else if(d==1) {
-	    ret = new QQnxFbGfx<1,0>();
+        } else if(d==1) {
+            ret = new QQnxFbGfx<1,0>();
 #endif
 #ifndef QT_NO_QWS_DEPTH_4
-	} else if(d==4) {
-	    ret = new QQnxFbGfx<4,0>();
+        } else if(d==4) {
+            ret = new QQnxFbGfx<4,0>();
 #endif
 #ifndef QT_NO_QWS_DEPTH_16
-	} else if(d==16) {
-	    ret = new QQnxFbGfx<16,0>();
+        } else if(d==16) {
+            ret = new QQnxFbGfx<16,0>();
 #endif
 #ifndef QT_NO_QWS_DEPTH_8
-	} else if(d==8) {
-	    ret = new QQnxFbGfx<8,0>();
+        } else if(d==8) {
+            ret = new QQnxFbGfx<8,0>();
 #endif
 #ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
-	} else if(d==8) {
-	    ret = new QQnxFbGfx<8,0>();
+        } else if(d==8) {
+            ret = new QQnxFbGfx<8,0>();
 #endif
 #ifndef QT_NO_QWS_DEPTH_24
-	} else if(d==24) {
-	    ret = new QQnxFbGfx<24,0>();
+        } else if(d==24) {
+            ret = new QQnxFbGfx<24,0>();
 #endif
 #ifndef QT_NO_QWS_DEPTH_32
-	} else if(d==32) {
-	    ret = new QQnxFbGfx<32,0>();
+        } else if(d==32) {
+            ret = new QQnxFbGfx<32,0>();
 #endif
-	} else {
-	    qFatal("Can't drive depth %d",d);
-	    ret = 0; // silence gcc
-	}
-	ret->setLineStep(linestep);
-	return ret;
+        } else {
+            qFatal("Can't drive depth %d",d);
+            ret = 0; // silence gcc
+        }
+        ret->setLineStep(linestep);
+        return ret;
     } else {
-	return (QScreen::createGfx(bytes, w, h, d, linestep));
+        return (QScreen::createGfx(bytes, w, h, d, linestep));
     }
 }
 
@@ -551,11 +551,11 @@ extern "C" QScreen * qt_get_screen_qnxfb(int display_id) {
 int QQnxScreen::initCursor(void *e, bool init) {
 #ifndef QT_NO_QWS_CURSOR
     extern bool qws_sw_cursor;
-    qws_sw_cursor = FALSE; //?
+    qws_sw_cursor = false; //?
 
-    if(qws_sw_cursor==TRUE) {
-	miscFuncList.disable_hw_cursor(&adapter);
-	return QScreen::initCursor(e,init);
+    if(qws_sw_cursor==true) {
+        miscFuncList.disable_hw_cursor(&adapter);
+        return QScreen::initCursor(e,init);
     }
 
     qt_screencursor=new QQnxCursor();
@@ -566,7 +566,7 @@ int QQnxScreen::initCursor(void *e, bool init) {
 #ifndef QT_NO_QWS_CURSOR
 void QQnxCursor::init(SWCursorData *sw,bool b) { }
 
-void QQnxCursor::set ( const QImage &image, int hotx, int hoty ) {
+void QQnxCursor::set (const QImage &image, int hotx, int hoty) {
     colour0.setRgb(255,255,255);
     colour1.setRgb(0,0,0);
 
@@ -579,29 +579,29 @@ void QQnxCursor::set ( const QImage &image, int hotx, int hoty ) {
 
     QRgb colour;
     for (uint x=0;x<image.width();x++) {
-	for (uint y=0;y<image.height();y++) {
-	    // Swap bit-endianness
-	    int x1 = x&~7 | ~x&7;
-	    colour = image.pixel(x1,y);
-	    if (qRed(colour)) {
-		cursor.setBit(y*image.width()+x);
-		mask.clearBit(y*image.width()+x);
-	    } else {
-		if (qAlpha(colour)) {
-		    cursor.setBit(y*image.width()+x);
-		    mask.setBit(y*image.width()+x);
-		} else {
-		    cursor.clearBit(y*image.width()+x);
-		    mask.clearBit(y*image.width()+x);
-		}
-	    }
-	}
+        for (uint y=0;y<image.height();y++) {
+            // Swap bit-endianness
+            int x1 = x&~7 | ~x&7;
+            colour = image.pixel(x1,y);
+            if (qRed(colour)) {
+                cursor.setBit(y*image.width()+x);
+                mask.clearBit(y*image.width()+x);
+            } else {
+                if (qAlpha(colour)) {
+                    cursor.setBit(y*image.width()+x);
+                    mask.setBit(y*image.width()+x);
+                } else {
+                    cursor.clearBit(y*image.width()+x);
+                    mask.clearBit(y*image.width()+x);
+                }
+            }
+        }
     }
     miscFuncList.set_hw_cursor (&adapter,
-	    (uint8_t *)(cursor.data()), ((uint8_t *)mask.data()),
-	    colour0.rgb(), colour1.rgb(),
-	    hotx, hoty, image.width(), image.height(),
-	    image.width()/8);
+            (uint8_t *)(cursor.data()), ((uint8_t *)mask.data()),
+            colour0.rgb(), colour1.rgb(),
+            hotx, hoty, image.width(), image.height(),
+            image.width()/8);
 }
 
 void QQnxCursor::hide () {

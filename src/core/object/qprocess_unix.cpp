@@ -67,7 +67,7 @@ public:
     ~QProcessPrivate();
 
     void closeOpenSocketsForChild();
-    void newProc( pid_t pid, QProcess *process );
+    void newProc(pid_t pid, QProcess *process);
 
     QMembuf bufStdout;
     QMembuf bufStderr;
@@ -104,35 +104,35 @@ public:
 class QProc
 {
 public:
-    QProc( pid_t p, QProcess *proc=0 ) : pid(p), process(proc)
+    QProc(pid_t p, QProcess *proc=0) : pid(p), process(proc)
     {
 #if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProc: Constructor for pid %d and QProcess %p", pid, process );
+        qDebug("QProc: Constructor for pid %d and QProcess %p", pid, process);
 #endif
-	socketStdin = 0;
-	socketStdout = 0;
-	socketStderr = 0;
+        socketStdin = 0;
+        socketStdout = 0;
+        socketStderr = 0;
     }
     ~QProc()
     {
 #if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProc: Destructor for pid %d and QProcess %p", pid, process );
+        qDebug("QProc: Destructor for pid %d and QProcess %p", pid, process);
 #endif
-	if ( process ) {
-	    if ( process->d->notifierStdin )
-		process->d->notifierStdin->setEnabled( FALSE );
-	    if ( process->d->notifierStdout )
-		process->d->notifierStdout->setEnabled( FALSE );
-	    if ( process->d->notifierStderr )
-		process->d->notifierStderr->setEnabled( FALSE );
-	    process->d->proc = 0;
-	}
-	if( socketStdin )
-	    ::close( socketStdin );
-	if( socketStdout )
-	    ::close( socketStdout );
-	if( socketStderr )
-	    ::close( socketStderr );
+        if (process) {
+            if (process->d->notifierStdin)
+                process->d->notifierStdin->setEnabled(false);
+            if (process->d->notifierStdout)
+                process->d->notifierStdout->setEnabled(false);
+            if (process->d->notifierStderr)
+                process->d->notifierStderr->setEnabled(false);
+            process->d->proc = 0;
+        }
+        if(socketStdin)
+            ::close(socketStdin);
+        if(socketStdout)
+            ::close(socketStdout);
+        if(socketStderr)
+            ::close(socketStderr);
     }
 
     pid_t pid;
@@ -159,7 +159,7 @@ public:
 
 public slots:
     void removeMe();
-    void sigchldHnd( int );
+    void sigchldHnd(int);
 
 public:
     struct sigaction oldactChld;
@@ -183,7 +183,7 @@ int qnx6SocketPairReplacement (int socketFD[2]) {
     int tmpSocket;
     tmpSocket = socket (AF_INET, SOCK_STREAM, 0);
     if (tmpSocket == -1)
-	return -1;
+        return -1;
     socketFD[1] = socket(AF_INET, SOCK_STREAM, 0);
     if (socketFD[1] == -1) { BAILOUT };
 
@@ -195,11 +195,11 @@ int qnx6SocketPairReplacement (int socketFD[2]) {
     int socketOptions = 1;
     setsockopt(tmpSocket, SOL_SOCKET, SO_REUSEADDR, &socketOptions, sizeof(int));
 
-    bool found = FALSE;
+    bool found = false;
     for (int socketIP = 2000; (socketIP < 2500) && !(found); socketIP++) {
-	ipAddr.sin_port = htons(socketIP);
-	if (bind(tmpSocket, (struct sockaddr *)&ipAddr, sizeof(ipAddr)))
-	    found = TRUE;
+        ipAddr.sin_port = htons(socketIP);
+        if (bind(tmpSocket, (struct sockaddr *)&ipAddr, sizeof(ipAddr)))
+            found = true;
     }
 
     if (listen(tmpSocket, 5)) { BAILOUT };
@@ -210,7 +210,7 @@ int qnx6SocketPairReplacement (int socketFD[2]) {
 
     // Request connection
     if (connect(socketFD[1], (struct sockaddr*)&ipAddr, sizeof(ipAddr)))
-	if (errno != EINPROGRESS) { BAILOUT };
+        if (errno != EINPROGRESS) { BAILOUT };
 
     // Accept connection
     socketFD[0] = accept(tmpSocket, (struct sockaddr *)NULL, (size_t *)NULL);
@@ -232,189 +232,189 @@ QProcessManager::QProcessManager() : sn(0)
     // something happened. This is done to get the processing in sync with the
     // event reporting.
 #ifndef Q_OS_QNX6
-    if ( ::socketpair( AF_UNIX, SOCK_STREAM, 0, sigchldFd ) ) {
+    if (::socketpair(AF_UNIX, SOCK_STREAM, 0, sigchldFd)) {
 #else
-    if ( qnx6SocketPairReplacement (sigchldFd) ) {
+    if (qnx6SocketPairReplacement (sigchldFd)) {
 #endif
-	sigchldFd[0] = 0;
-	sigchldFd[1] = 0;
+        sigchldFd[0] = 0;
+        sigchldFd[1] = 0;
     } else {
 #if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcessManager: install socket notifier (%d)", sigchldFd[1] );
+        qDebug("QProcessManager: install socket notifier (%d)", sigchldFd[1]);
 #endif
-	sn = new QSocketNotifier( sigchldFd[1],
-		QSocketNotifier::Read, this );
-	connect( sn, SIGNAL(activated(int)),
-		this, SLOT(sigchldHnd(int)) );
-	sn->setEnabled( TRUE );
+        sn = new QSocketNotifier(sigchldFd[1],
+                QSocketNotifier::Read, this);
+        connect(sn, SIGNAL(activated(int)),
+                this, SLOT(sigchldHnd(int)));
+        sn->setEnabled(true);
     }
 
     // install a SIGCHLD handler and ignore SIGPIPE
     struct sigaction act;
 
 #if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcessManager: install a SIGCHLD handler" );
+    qDebug("QProcessManager: install a SIGCHLD handler");
 #endif
     act.sa_handler = qt_C_sigchldHnd;
-    sigemptyset( &(act.sa_mask) );
-    sigaddset( &(act.sa_mask), SIGCHLD );
+    sigemptyset(&(act.sa_mask));
+    sigaddset(&(act.sa_mask), SIGCHLD);
     act.sa_flags = SA_NOCLDSTOP;
 #if defined(SA_RESTART)
     act.sa_flags |= SA_RESTART;
 #endif
-    if ( sigaction( SIGCHLD, &act, &oldactChld ) != 0 )
-	qWarning( "Error installing SIGCHLD handler" );
+    if (sigaction(SIGCHLD, &act, &oldactChld) != 0)
+        qWarning("Error installing SIGCHLD handler");
 
 #if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcessManager: install a SIGPIPE handler (SIG_IGN)" );
+    qDebug("QProcessManager: install a SIGPIPE handler (SIG_IGN)");
 #endif
     act.sa_handler = QT_SIGNAL_IGNORE;
-    sigemptyset( &(act.sa_mask) );
-    sigaddset( &(act.sa_mask), SIGPIPE );
+    sigemptyset(&(act.sa_mask));
+    sigaddset(&(act.sa_mask), SIGPIPE);
     act.sa_flags = 0;
-    if ( sigaction( SIGPIPE, &act, &oldactPipe ) != 0 )
-	qWarning( "Error installing SIGPIPE handler" );
+    if (sigaction(SIGPIPE, &act, &oldactPipe) != 0)
+        qWarning("Error installing SIGPIPE handler");
 }
 
 QProcessManager::~QProcessManager()
 {
-    if ( sigchldFd[0] != 0 )
-	::close( sigchldFd[0] );
-    if ( sigchldFd[1] != 0 )
-	::close( sigchldFd[1] );
+    if (sigchldFd[0] != 0)
+        ::close(sigchldFd[0]);
+    if (sigchldFd[1] != 0)
+        ::close(sigchldFd[1]);
 
     // restore SIGCHLD handler
 #if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcessManager: restore old sigchild handler" );
+    qDebug("QProcessManager: restore old sigchild handler");
 #endif
-    if ( sigaction( SIGCHLD, &oldactChld, 0 ) != 0 )
-	qWarning( "Error restoring SIGCHLD handler" );
+    if (sigaction(SIGCHLD, &oldactChld, 0) != 0)
+        qWarning("Error restoring SIGCHLD handler");
 
 #if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcessManager: restore old sigpipe handler" );
+    qDebug("QProcessManager: restore old sigpipe handler");
 #endif
-    if ( sigaction( SIGPIPE, &oldactPipe, 0 ) != 0 )
-	qWarning( "Error restoring SIGPIPE handler" );
+    if (sigaction(SIGPIPE, &oldactPipe, 0) != 0)
+        qWarning("Error restoring SIGPIPE handler");
 
     while (!procList.isEmpty())
-	delete procList.takeFirst();
+        delete procList.takeFirst();
 }
 
 void QProcessManager::cleanup()
 {
-    if ( procList.isEmpty() )
-	QTimer::singleShot( 0, this, SLOT(removeMe()) );
+    if (procList.isEmpty())
+        QTimer::singleShot(0, this, SLOT(removeMe()));
 }
 
 void QProcessManager::removeMe()
 {
-    if ( procList.isEmpty() ) {
-	qRemovePostRoutine(qprocess_cleanup);
-	QProcessPrivate::procManager = 0;
-	delete this;
+    if (procList.isEmpty()) {
+        qRemovePostRoutine(qprocess_cleanup);
+        QProcessPrivate::procManager = 0;
+        delete this;
     }
 }
 
-void QProcessManager::sigchldHnd( int fd )
+void QProcessManager::sigchldHnd(int fd)
 {
     // Disable the socket notifier to make sure that this function is not
     // called recursively -- this can happen, if you enter the event loop in
     // the slot connected to the processExited() signal (e.g. by showing a
     // modal dialog) and there are more than one process which exited in the
     // meantime.
-    if ( sn ) {
-	if ( !sn->isEnabled() )
-	    return;
-	sn->setEnabled( FALSE );
+    if (sn) {
+        if (!sn->isEnabled())
+            return;
+        sn->setEnabled(false);
     }
 
     char tmp;
-    ::read( fd, &tmp, sizeof(tmp) );
+    ::read(fd, &tmp, sizeof(tmp));
 #if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcessManager::sigchldHnd()" );
+    qDebug("QProcessManager::sigchldHnd()");
 #endif
     QProcess *process;
     bool removeProc;
     int i = 0;
     while (i < procList.count()) {
-	QProc *proc = procList.at(i);
-	removeProc = FALSE;
-	process = proc->process;
-	if ( process != 0 ) {
-	    if ( !process->isRunning() ) {
+        QProc *proc = procList.at(i);
+        removeProc = false;
+        process = proc->process;
+        if (process != 0) {
+            if (!process->isRunning()) {
 #if defined(QT_QPROCESS_DEBUG)
-		qDebug( "QProcessManager::sigchldHnd() (PID: %d): process exited (QProcess available)", proc->pid );
+                qDebug("QProcessManager::sigchldHnd() (PID: %d): process exited (QProcess available)", proc->pid);
 #endif
-		/*
-		  Apparently, there is not consistency among different
-		  operating systems on how to use FIONREAD.
+                /*
+                  Apparently, there is not consistency among different
+                  operating systems on how to use FIONREAD.
 
-		  FreeBSD, Linux and Solaris all expect the 3rd
-		  argument to ioctl() to be an int, which is normally
-		  32-bit even on 64-bit machines.
+                  FreeBSD, Linux and Solaris all expect the 3rd
+                  argument to ioctl() to be an int, which is normally
+                  32-bit even on 64-bit machines.
 
-		  IRIX, on the other hand, expects a size_t, which is
-		  64-bit on 64-bit machines.
+                  IRIX, on the other hand, expects a size_t, which is
+                  64-bit on 64-bit machines.
 
-		  So, the solution is to use size_t initialized to
-		  zero to make sure all bits are set to zero,
-		  preventing underflow with the FreeBSD/Linux/Solaris
-		  ioctls.
-		*/
-		size_t nbytes = 0;
-		// read pending data
-		if ( proc->socketStdout && ::ioctl(proc->socketStdout, FIONREAD, (char*)&nbytes)==0 && nbytes>0 ) {
+                  So, the solution is to use size_t initialized to
+                  zero to make sure all bits are set to zero,
+                  preventing underflow with the FreeBSD/Linux/Solaris
+                  ioctls.
+                */
+                size_t nbytes = 0;
+                // read pending data
+                if (proc->socketStdout && ::ioctl(proc->socketStdout, FIONREAD, (char*)&nbytes)==0 && nbytes>0) {
 #if defined(QT_QPROCESS_DEBUG)
-		    qDebug( "QProcessManager::sigchldHnd() (PID: %d): reading %d bytes of pending data on stdout", proc->pid, nbytes );
+                    qDebug("QProcessManager::sigchldHnd() (PID: %d): reading %d bytes of pending data on stdout", proc->pid, nbytes);
 #endif
-		    process->socketRead( proc->socketStdout );
-		}
-		nbytes = 0;
-		if ( proc->socketStderr && ::ioctl(proc->socketStderr, FIONREAD, (char*)&nbytes)==0 && nbytes>0 ) {
+                    process->socketRead(proc->socketStdout);
+                }
+                nbytes = 0;
+                if (proc->socketStderr && ::ioctl(proc->socketStderr, FIONREAD, (char*)&nbytes)==0 && nbytes>0) {
 #if defined(QT_QPROCESS_DEBUG)
-		    qDebug( "QProcessManager::sigchldHnd() (PID: %d): reading %d bytes of pending data on stderr", proc->pid, nbytes );
+                    qDebug("QProcessManager::sigchldHnd() (PID: %d): reading %d bytes of pending data on stderr", proc->pid, nbytes);
 #endif
-		    process->socketRead( proc->socketStderr );
-		}
-		// close filedescriptors if open, and disable the
-		// socket notifiers
-		if ( proc->socketStdout ) {
-		    ::close( proc->socketStdout );
-		    proc->socketStdout = 0;
-		    if (process->d->notifierStdout)
-			process->d->notifierStdout->setEnabled(FALSE);
-		}
-		if ( proc->socketStderr ) {
-		    ::close( proc->socketStderr );
-		    proc->socketStderr = 0;
-		    if (process->d->notifierStderr)
-			process->d->notifierStderr->setEnabled(FALSE);
-		}
+                    process->socketRead(proc->socketStderr);
+                }
+                // close filedescriptors if open, and disable the
+                // socket notifiers
+                if (proc->socketStdout) {
+                    ::close(proc->socketStdout);
+                    proc->socketStdout = 0;
+                    if (process->d->notifierStdout)
+                        process->d->notifierStdout->setEnabled(false);
+                }
+                if (proc->socketStderr) {
+                    ::close(proc->socketStderr);
+                    proc->socketStderr = 0;
+                    if (process->d->notifierStderr)
+                        process->d->notifierStderr->setEnabled(false);
+                }
 
-		if ( process->notifyOnExit )
-		    emit process->processExited();
+                if (process->notifyOnExit)
+                    emit process->processExited();
 
-		removeProc = TRUE;
-	    }
-	} else {
-	    int status;
-	    if ( ::waitpid( proc->pid, &status, WNOHANG ) == proc->pid ) {
+                removeProc = true;
+            }
+        } else {
+            int status;
+            if (::waitpid(proc->pid, &status, WNOHANG) == proc->pid) {
 #if defined(QT_QPROCESS_DEBUG)
-		qDebug( "QProcessManager::sigchldHnd() (PID: %d): process exited (QProcess not available)", proc->pid );
+                qDebug("QProcessManager::sigchldHnd() (PID: %d): process exited (QProcess not available)", proc->pid);
 #endif
-		removeProc = TRUE;
-	    }
-	}
-	if ( removeProc ) {
-	    procList.removeAt(i);
+                removeProc = true;
+            }
+        }
+        if (removeProc) {
+            procList.removeAt(i);
             delete proc;
-	} else {
-	    i++;
-	}
+        } else {
+            i++;
+        }
     }
     cleanup();
-    if ( sn )
-	sn->setEnabled( TRUE );
+    if (sn)
+        sn->setEnabled(true);
 }
 
 
@@ -431,7 +431,7 @@ QProcessManager *QProcessPrivate::procManager = 0;
 QProcessPrivate::QProcessPrivate()
 {
 #if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcessPrivate: Constructor" );
+    qDebug("QProcessPrivate: Constructor");
 #endif
     stdinBufRead = 0;
 
@@ -439,8 +439,8 @@ QProcessPrivate::QProcessPrivate()
     notifierStdout = 0;
     notifierStderr = 0;
 
-    exitValuesCalculated = FALSE;
-    socketReadCalled = FALSE;
+    exitValuesCalculated = false;
+    socketReadCalled = false;
 
     proc = 0;
 }
@@ -448,22 +448,22 @@ QProcessPrivate::QProcessPrivate()
 QProcessPrivate::~QProcessPrivate()
 {
 #if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcessPrivate: Destructor" );
+    qDebug("QProcessPrivate: Destructor");
 #endif
 
-    if ( proc != 0 ) {
-	if ( proc->socketStdin != 0 ) {
-	    ::close( proc->socketStdin );
-	    proc->socketStdin = 0;
-	}
-	proc->process = 0;
+    if (proc != 0) {
+        if (proc->socketStdin != 0) {
+            ::close(proc->socketStdin);
+            proc->socketStdin = 0;
+        }
+        proc->process = 0;
     }
 
     delete notifierStdin;
     delete notifierStdout;
     delete notifierStderr;
     while (!stdinBuf.isEmpty())
-	delete stdinBuf.takeFirst();
+        delete stdinBuf.takeFirst();
 }
 
 /*
@@ -473,29 +473,29 @@ QProcessPrivate::~QProcessPrivate()
 */
 void QProcessPrivate::closeOpenSocketsForChild()
 {
-    if ( procManager != 0 ) {
-	if ( procManager->sigchldFd[0] != 0 )
-	    ::close( procManager->sigchldFd[0] );
-	if ( procManager->sigchldFd[1] != 0 )
-	    ::close( procManager->sigchldFd[1] );
+    if (procManager != 0) {
+        if (procManager->sigchldFd[0] != 0)
+            ::close(procManager->sigchldFd[0]);
+        if (procManager->sigchldFd[1] != 0)
+            ::close(procManager->sigchldFd[1]);
 
-	// close also the sockets from other QProcess instances
+        // close also the sockets from other QProcess instances
         for (int i = 0; i < procManager->procList.count(); ++i) {
             QProc *p = procManager->procList.at(i);
 
-	    ::close( p->socketStdin );
-	    ::close( p->socketStdout );
-	    ::close( p->socketStderr );
-	}
+            ::close(p->socketStdin);
+            ::close(p->socketStdout);
+            ::close(p->socketStderr);
+        }
     }
 }
 
-void QProcessPrivate::newProc( pid_t pid, QProcess *process )
+void QProcessPrivate::newProc(pid_t pid, QProcess *process)
 {
-    proc = new QProc( pid, process );
-    if ( procManager == 0 ) {
-	procManager = new QProcessManager;
-	qAddPostRoutine(qprocess_cleanup);
+    proc = new QProc(pid, process);
+    if (procManager == 0) {
+        procManager = new QProcessManager;
+        qAddPostRoutine(qprocess_cleanup);
     }
     // the QProcessManager takes care of deleting the QProc instances
     procManager->procList.append(proc);
@@ -508,13 +508,13 @@ void QProcessPrivate::newProc( pid_t pid, QProcess *process )
  **********************************************************************/
 QT_SIGNAL_RETTYPE qt_C_sigchldHnd(QT_SIGNAL_ARGS)
 {
-    if ( QProcessPrivate::procManager == 0 )
-	return;
-    if ( QProcessPrivate::procManager->sigchldFd[0] == 0 )
-	return;
+    if (QProcessPrivate::procManager == 0)
+        return;
+    if (QProcessPrivate::procManager->sigchldFd[0] == 0)
+        return;
 
     char a = 1;
-    ::write( QProcessPrivate::procManager->sigchldFd[0], &a, sizeof(a) );
+    ::write(QProcessPrivate::procManager->sigchldFd[0], &a, sizeof(a));
 }
 
 
@@ -530,7 +530,7 @@ void QProcess::init()
 {
     d = new QProcessPrivate();
     exitStat = 0;
-    exitNormal = FALSE;
+    exitNormal = false;
 }
 
 /*
@@ -542,57 +542,57 @@ void QProcess::reset()
     delete d;
     d = new QProcessPrivate();
     exitStat = 0;
-    exitNormal = FALSE;
+    exitNormal = false;
     d->bufStdout.clear();
     d->bufStderr.clear();
 }
 
 QMembuf* QProcess::membufStdout()
 {
-    if ( d->proc && d->proc->socketStdout ) {
-	/*
-	  Apparently, there is not consistency among different
-	  operating systems on how to use FIONREAD.
+    if (d->proc && d->proc->socketStdout) {
+        /*
+          Apparently, there is not consistency among different
+          operating systems on how to use FIONREAD.
 
-	  FreeBSD, Linux and Solaris all expect the 3rd argument to
-	  ioctl() to be an int, which is normally 32-bit even on
-	  64-bit machines.
+          FreeBSD, Linux and Solaris all expect the 3rd argument to
+          ioctl() to be an int, which is normally 32-bit even on
+          64-bit machines.
 
-	  IRIX, on the other hand, expects a size_t, which is 64-bit
-	  on 64-bit machines.
+          IRIX, on the other hand, expects a size_t, which is 64-bit
+          on 64-bit machines.
 
-	  So, the solution is to use size_t initialized to zero to
-	  make sure all bits are set to zero, preventing underflow
-	  with the FreeBSD/Linux/Solaris ioctls.
-	*/
-	size_t nbytes = 0;
-	if ( ::ioctl(d->proc->socketStdout, FIONREAD, (char*)&nbytes)==0 && nbytes>0 )
-	    socketRead( d->proc->socketStdout );
+          So, the solution is to use size_t initialized to zero to
+          make sure all bits are set to zero, preventing underflow
+          with the FreeBSD/Linux/Solaris ioctls.
+        */
+        size_t nbytes = 0;
+        if (::ioctl(d->proc->socketStdout, FIONREAD, (char*)&nbytes)==0 && nbytes>0)
+            socketRead(d->proc->socketStdout);
     }
     return &d->bufStdout;
 }
 
 QMembuf* QProcess::membufStderr()
 {
-    if ( d->proc && d->proc->socketStderr ) {
-	/*
-	  Apparently, there is not consistency among different
-	  operating systems on how to use FIONREAD.
+    if (d->proc && d->proc->socketStderr) {
+        /*
+          Apparently, there is not consistency among different
+          operating systems on how to use FIONREAD.
 
-	  FreeBSD, Linux and Solaris all expect the 3rd argument to
-	  ioctl() to be an int, which is normally 32-bit even on
-	  64-bit machines.
+          FreeBSD, Linux and Solaris all expect the 3rd argument to
+          ioctl() to be an int, which is normally 32-bit even on
+          64-bit machines.
 
-	  IRIX, on the other hand, expects a size_t, which is 64-bit
-	  on 64-bit machines.
+          IRIX, on the other hand, expects a size_t, which is 64-bit
+          on 64-bit machines.
 
-	  So, the solution is to use size_t initialized to zero to
-	  make sure all bits are set to zero, preventing underflow
-	  with the FreeBSD/Linux/Solaris ioctls.
-	*/
-	size_t nbytes = 0;
-	if ( ::ioctl(d->proc->socketStderr, FIONREAD, (char*)&nbytes)==0 && nbytes>0 )
-	    socketRead( d->proc->socketStderr );
+          So, the solution is to use size_t initialized to zero to
+          make sure all bits are set to zero, preventing underflow
+          with the FreeBSD/Linux/Solaris ioctls.
+        */
+        size_t nbytes = 0;
+        if (::ioctl(d->proc->socketStderr, FIONREAD, (char*)&nbytes)==0 && nbytes>0)
+            socketRead(d->proc->socketStderr);
     }
     return &d->bufStderr;
 }
@@ -632,8 +632,8 @@ QProcess::~QProcess()
     this variable is inherited from the starting process; under
     Windows the same applies for the environment variable \c PATH.
 
-    Returns TRUE if the process could be started; otherwise returns
-    FALSE.
+    Returns true if the process could be started; otherwise returns
+    false.
 
     You can write data to the process's standard input with
     writeToStdin(). You can close standard input with closeStdin() and
@@ -649,10 +649,10 @@ QProcess::~QProcess()
 
     \sa launch() closeStdin()
 */
-bool QProcess::start( QStringList *env )
+bool QProcess::start(QStringList *env)
 {
 #if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcess::start()" );
+    qDebug("QProcess::start()");
 #endif
     reset();
 
@@ -662,313 +662,313 @@ bool QProcess::start( QStringList *env )
 
     // open sockets for piping
 #ifndef Q_OS_QNX6
-    if ( (comms & Stdin) && ::socketpair( AF_UNIX, SOCK_STREAM, 0, sStdin ) == -1 ) {
+    if ((comms & Stdin) && ::socketpair(AF_UNIX, SOCK_STREAM, 0, sStdin) == -1) {
 #else
-    if ( (comms & Stdin) && qnx6SocketPairReplacement(sStdin) == -1 ) {
+    if ((comms & Stdin) && qnx6SocketPairReplacement(sStdin) == -1) {
 #endif
-	return FALSE;
+        return false;
     }
 #ifndef Q_OS_QNX6
-    if ( (comms & Stderr) && ::socketpair( AF_UNIX, SOCK_STREAM, 0, sStderr ) == -1 ) {
+    if ((comms & Stderr) && ::socketpair(AF_UNIX, SOCK_STREAM, 0, sStderr) == -1) {
 #else
-    if ( (comms & Stderr) && qnx6SocketPairReplacement(sStderr) == -1 ) {
+    if ((comms & Stderr) && qnx6SocketPairReplacement(sStderr) == -1) {
 #endif
-	if ( comms & Stdin ) {
-	    ::close( sStdin[0] );
-	    ::close( sStdin[1] );
-	}
-	return FALSE;
+        if (comms & Stdin) {
+            ::close(sStdin[0]);
+            ::close(sStdin[1]);
+        }
+        return false;
     }
 #ifndef Q_OS_QNX6
-    if ( (comms & Stdout) && ::socketpair( AF_UNIX, SOCK_STREAM, 0, sStdout ) == -1 ) {
+    if ((comms & Stdout) && ::socketpair(AF_UNIX, SOCK_STREAM, 0, sStdout) == -1) {
 #else
-    if ( (comms & Stdout) && qnx6SocketPairReplacement(sStdout) == -1 ) {
+    if ((comms & Stdout) && qnx6SocketPairReplacement(sStdout) == -1) {
 #endif
-	if ( comms & Stdin ) {
-	    ::close( sStdin[0] );
-	    ::close( sStdin[1] );
-	}
-	if ( comms & Stderr ) {
-	    ::close( sStderr[0] );
-	    ::close( sStderr[1] );
-	}
-	return FALSE;
+        if (comms & Stdin) {
+            ::close(sStdin[0]);
+            ::close(sStdin[1]);
+        }
+        if (comms & Stderr) {
+            ::close(sStderr[0]);
+            ::close(sStderr[1]);
+        }
+        return false;
     }
 
     // the following pipe is only used to determine if the process could be
     // started
     int fd[2];
-    if ( pipe( fd ) < 0 ) {
-	// non critical error, go on
-	fd[0] = 0;
-	fd[1] = 0;
+    if (pipe(fd) < 0) {
+        // non critical error, go on
+        fd[0] = 0;
+        fd[1] = 0;
     }
 
     // construct the arguments for exec
-    QByteArray *arglistQ = new QByteArray[ _arguments.count() + 1 ];
-    const char** arglist = new const char*[ _arguments.count() + 1 ];
+    QByteArray *arglistQ = new QByteArray[_arguments.count() + 1];
+    const char** arglist = new const char*[_arguments.count() + 1];
     int i = 0;
-    for ( QStringList::Iterator it = _arguments.begin(); it != _arguments.end(); ++it ) {
-	arglistQ[i] = (*it).local8Bit();
-	arglist[i] = arglistQ[i];
+    for (QStringList::Iterator it = _arguments.begin(); it != _arguments.end(); ++it) {
+        arglistQ[i] = (*it).local8Bit();
+        arglist[i] = arglistQ[i];
 #if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcess::start(): arg %d = %s", i, arglist[i] );
+        qDebug("QProcess::start(): arg %d = %s", i, arglist[i]);
 #endif
-	i++;
+        i++;
     }
 #ifdef Q_OS_MACX
     if(i) {
-	QCString arg_bundle = arglistQ[0];
-	QFileInfo fi(arg_bundle);
-	if(fi.exists() && fi.isDir() && arg_bundle.right(4) == ".app") {
-	    QCString exe = arg_bundle;
-	    int lslash = exe.lastIndexOf('/');
-	    if(lslash != -1)
-		exe = exe.mid(lslash+1);
-	    exe = QCString(arg_bundle + "/Contents/MacOS/" + exe);
-	    exe = exe.left(exe.length() - 4); //chop off the .app
-	    if(QFile::exists(exe)) {
-		arglistQ[0] = exe;
-		arglist[0] = arglistQ[0];
-	    }
-	}
+        QCString arg_bundle = arglistQ[0];
+        QFileInfo fi(arg_bundle);
+        if(fi.exists() && fi.isDir() && arg_bundle.right(4) == ".app") {
+            QCString exe = arg_bundle;
+            int lslash = exe.lastIndexOf('/');
+            if(lslash != -1)
+                exe = exe.mid(lslash+1);
+            exe = QCString(arg_bundle + "/Contents/MacOS/" + exe);
+            exe = exe.left(exe.length() - 4); //chop off the .app
+            if(QFile::exists(exe)) {
+                arglistQ[0] = exe;
+                arglist[0] = arglistQ[0];
+            }
+        }
     }
 #endif
     arglist[i] = 0;
 
     // Must make sure signal handlers are installed before exec'ing
     // in case the process exits quickly.
-    if ( d->procManager == 0 ) {
-	d->procManager = new QProcessManager;
-	qAddPostRoutine(qprocess_cleanup);
+    if (d->procManager == 0) {
+        d->procManager = new QProcessManager;
+        qAddPostRoutine(qprocess_cleanup);
     }
 
     // fork and exec
     QCoreApplication::flush();
     pid_t pid = fork();
-    if ( pid == 0 ) {
-	// child
-	d->closeOpenSocketsForChild();
-	if ( comms & Stdin ) {
-	    ::close( sStdin[1] );
-	    ::dup2( sStdin[0], STDIN_FILENO );
-	}
-	if ( comms & Stdout ) {
-	    ::close( sStdout[0] );
-	    ::dup2( sStdout[1], STDOUT_FILENO );
-	}
-	if ( comms & Stderr ) {
-	    ::close( sStderr[0] );
-	    ::dup2( sStderr[1], STDERR_FILENO );
-	}
-	if ( comms & DupStderr ) {
-	    ::dup2( STDOUT_FILENO, STDERR_FILENO );
-	}
+    if (pid == 0) {
+        // child
+        d->closeOpenSocketsForChild();
+        if (comms & Stdin) {
+            ::close(sStdin[1]);
+            ::dup2(sStdin[0], STDIN_FILENO);
+        }
+        if (comms & Stdout) {
+            ::close(sStdout[0]);
+            ::dup2(sStdout[1], STDOUT_FILENO);
+        }
+        if (comms & Stderr) {
+            ::close(sStderr[0]);
+            ::dup2(sStderr[1], STDERR_FILENO);
+        }
+        if (comms & DupStderr) {
+            ::dup2(STDOUT_FILENO, STDERR_FILENO);
+        }
 #ifndef QT_NO_DIR
-	::chdir( workingDir.absPath().latin1() );
+        ::chdir(workingDir.absPath().latin1());
 #endif
-	if ( fd[0] )
-	    ::close( fd[0] );
-	if ( fd[1] )
-	    ::fcntl( fd[1], F_SETFD, FD_CLOEXEC ); // close on exec shows success
+        if (fd[0])
+            ::close(fd[0]);
+        if (fd[1])
+            ::fcntl(fd[1], F_SETFD, FD_CLOEXEC); // close on exec shows success
 
-	if ( env == 0 ) { // inherit environment and start process
-	    QString command = _arguments[0];
+        if (env == 0) { // inherit environment and start process
+            QString command = _arguments[0];
 #if defined(Q_OS_DARWIN) //look in a bundle
-	    const QString mac_bundle_suffix = ".app/Contents/MacOS/";
-	    if(!QFile::exists(command) && QFile::exists(command + mac_bundle_suffix)) {
-		QString exec = command;
-		int lslash = command.lastIndexOf('/');
-		if(lslash != -1)
-		    exec = command.mid(lslash+1);
-		QFileInfo fileInfo( command + mac_bundle_suffix + exec );
-		if ( fileInfo.isExecutable() )
-		    command = fileInfo.absFilePath().local8Bit();
-	    }
+            const QString mac_bundle_suffix = ".app/Contents/MacOS/";
+            if(!QFile::exists(command) && QFile::exists(command + mac_bundle_suffix)) {
+                QString exec = command;
+                int lslash = command.lastIndexOf('/');
+                if(lslash != -1)
+                    exec = command.mid(lslash+1);
+                QFileInfo fileInfo(command + mac_bundle_suffix + exec);
+                if (fileInfo.isExecutable())
+                    command = fileInfo.absFilePath().local8Bit();
+            }
 #endif
 #ifndef Q_OS_QNX4
-	    ::execvp( command.toLocal8Bit(), (char*const*)arglist ); // ### cast not nice
+            ::execvp(command.toLocal8Bit(), (char*const*)arglist); // ### cast not nice
 #else
-	    ::execvp( command.toLocal8Bit(), (char const*const*)arglist ); // ### cast not nice
+            ::execvp(command.toLocal8Bit(), (char const*const*)arglist); // ### cast not nice
 #endif
-	} else { // start process with environment settins as specified in env
-	    // construct the environment for exec
-	    int numEntries = env->count();
+        } else { // start process with environment settins as specified in env
+            // construct the environment for exec
+            int numEntries = env->count();
 #if defined(Q_OS_DARWIN)
-	    QString ld_library_path("DYLD_LIBRARY_PATH");
+            QString ld_library_path("DYLD_LIBRARY_PATH");
 #else
-	    QString ld_library_path("LD_LIBRARY_PATH");
+            QString ld_library_path("LD_LIBRARY_PATH");
 #endif
-	    bool setLibraryPath = env->find( QRegExp( "^" + ld_library_path + "=" ) ).empty() && getenv( ld_library_path.local8Bit() ) != 0;
-	    if ( setLibraryPath )
-		numEntries++;
-	    QByteArray *envlistQ = new QByteArray[ numEntries + 1 ];
-	    const char** envlist = new const char*[ numEntries + 1 ];
-	    int i = 0;
-	    if ( setLibraryPath ) {
-		envlistQ[i] = QString( ld_library_path + QLatin1String("=%1") ).arg( getenv( ld_library_path.local8Bit() ) ).toLocal8Bit();
-		envlist[i] = envlistQ[i];
-		i++;
-	    }
-	    for ( QStringList::Iterator it = env->begin(); it != env->end(); ++it ) {
-		envlistQ[i] = (*it).local8Bit();
-		envlist[i] = envlistQ[i];
-		i++;
-	    }
-	    envlist[i] = 0;
+            bool setLibraryPath = env->find(QRegExp("^" + ld_library_path + "=")).empty() && getenv(ld_library_path.local8Bit()) != 0;
+            if (setLibraryPath)
+                numEntries++;
+            QByteArray *envlistQ = new QByteArray[numEntries + 1];
+            const char** envlist = new const char*[numEntries + 1];
+            int i = 0;
+            if (setLibraryPath) {
+                envlistQ[i] = QString(ld_library_path + QLatin1String("=%1")).arg(getenv(ld_library_path.local8Bit())).toLocal8Bit();
+                envlist[i] = envlistQ[i];
+                i++;
+            }
+            for (QStringList::Iterator it = env->begin(); it != env->end(); ++it) {
+                envlistQ[i] = (*it).local8Bit();
+                envlist[i] = envlistQ[i];
+                i++;
+            }
+            envlist[i] = 0;
 
-	    // look for the executable in the search path
-	    if ( _arguments.count()>0 && getenv("PATH")!=0 ) {
-		QString command = _arguments[0];
-		if ( !command.contains( '/' ) ) {
-		    QStringList pathList = QString(getenv( "PATH" )).split( ':' );
-		    for (QStringList::Iterator it = pathList.begin(); it != pathList.end(); ++it ) {
-			QString dir = *it;
+            // look for the executable in the search path
+            if (_arguments.count()>0 && getenv("PATH")!=0) {
+                QString command = _arguments[0];
+                if (!command.contains('/')) {
+                    QStringList pathList = QString(getenv("PATH")).split(':');
+                    for (QStringList::Iterator it = pathList.begin(); it != pathList.end(); ++it) {
+                        QString dir = *it;
 #if defined(Q_OS_DARWIN) //look in a bundle
-			if(!QFile::exists(dir + "/" + command) && QFile::exists(dir + "/" + command + ".app"))
-			    dir += "/" + command + ".app/Contents/MacOS";
+                        if(!QFile::exists(dir + "/" + command) && QFile::exists(dir + "/" + command + ".app"))
+                            dir += "/" + command + ".app/Contents/MacOS";
 #endif
 #ifndef QT_NO_DIR
-			QFileInfo fileInfo( dir, command );
+                        QFileInfo fileInfo(dir, command);
 #else
-			QFileInfo fileInfo( dir + "/" + command );
+                        QFileInfo fileInfo(dir + "/" + command);
 #endif
-			if ( fileInfo.isExecutable() ) {
+                        if (fileInfo.isExecutable()) {
 #if defined(Q_OS_DARWIN)
-			    arglistQ[0] = fileInfo.absFilePath().local8Bit();
+                            arglistQ[0] = fileInfo.absFilePath().local8Bit();
 #else
-			    arglistQ[0] = fileInfo.filePath().local8Bit();
+                            arglistQ[0] = fileInfo.filePath().local8Bit();
 #endif
-			    arglist[0] = arglistQ[0];
-			    break;
-			}
-		    }
-		}
-	    }
+                            arglist[0] = arglistQ[0];
+                            break;
+                        }
+                    }
+                }
+            }
 #if defined(Q_OS_DARWIN)
-	    if(!QFile::exists(arglist[0])) {
-		QString command = arglist[0];
-		const QString mac_bundle_suffix = ".app/Contents/MacOS/";
-		if(QFile::exists(command + mac_bundle_suffix)) {
-		    QString exec = command;
-		    int lslash = command.lastIndexOf('/');
-		    if(lslash != -1)
-			exec = command.mid(lslash+1);
-		    QFileInfo fileInfo( command + mac_bundle_suffix + exec );
-		    if ( fileInfo.isExecutable() ) {
-			arglistQ[0] = fileInfo.absFilePath().local8Bit();
-			arglist[0] = arglistQ[0];
-		    }
-		}
-	    }
+            if(!QFile::exists(arglist[0])) {
+                QString command = arglist[0];
+                const QString mac_bundle_suffix = ".app/Contents/MacOS/";
+                if(QFile::exists(command + mac_bundle_suffix)) {
+                    QString exec = command;
+                    int lslash = command.lastIndexOf('/');
+                    if(lslash != -1)
+                        exec = command.mid(lslash+1);
+                    QFileInfo fileInfo(command + mac_bundle_suffix + exec);
+                    if (fileInfo.isExecutable()) {
+                        arglistQ[0] = fileInfo.absFilePath().local8Bit();
+                        arglist[0] = arglistQ[0];
+                    }
+                }
+            }
 #endif
 #ifndef Q_OS_QNX4
-	    ::execve( arglist[0], (char*const*)arglist, (char*const*)envlist ); // ### casts not nice
+            ::execve(arglist[0], (char*const*)arglist, (char*const*)envlist); // ### casts not nice
 #else
-	    ::execve( arglist[0], (char const*const*)arglist,(char const*const*)envlist ); // ### casts not nice
+            ::execve(arglist[0], (char const*const*)arglist,(char const*const*)envlist); // ### casts not nice
 #endif
-	}
-	if ( fd[1] ) {
-	    char buf = 0;
-	    ::write( fd[1], &buf, 1 );
-	    ::close( fd[1] );
-	}
-	::_exit( -1 );
-    } else if ( pid == -1 ) {
-	// error forking
-	goto error;
+        }
+        if (fd[1]) {
+            char buf = 0;
+            ::write(fd[1], &buf, 1);
+            ::close(fd[1]);
+        }
+        ::_exit(-1);
+    } else if (pid == -1) {
+        // error forking
+        goto error;
     }
 
     // test if exec was successful
-    if ( fd[1] )
-	::close( fd[1] );
-    if ( fd[0] ) {
-	char buf;
-	for ( ;; ) {
-	    int n = ::read( fd[0], &buf, 1 );
-	    if ( n==1 ) {
-		// socket was not closed => error
-		if ( ::waitpid( pid, 0, WNOHANG ) != pid ) {
-		    // The wait did not succeed yet, so try again when we get
-		    // the sigchild (to avoid zombies).
-		    d->newProc( pid, 0 );
-		}
-		d->proc = 0;
-		goto error;
-	    } else if ( n==-1 ) {
-		if ( errno==EAGAIN || errno==EINTR )
-		    // try it again
-		    continue;
-	    }
-	    break;
-	}
-	::close( fd[0] );
+    if (fd[1])
+        ::close(fd[1]);
+    if (fd[0]) {
+        char buf;
+        for (;;) {
+            int n = ::read(fd[0], &buf, 1);
+            if (n==1) {
+                // socket was not closed => error
+                if (::waitpid(pid, 0, WNOHANG) != pid) {
+                    // The wait did not succeed yet, so try again when we get
+                    // the sigchild (to avoid zombies).
+                    d->newProc(pid, 0);
+                }
+                d->proc = 0;
+                goto error;
+            } else if (n==-1) {
+                if (errno==EAGAIN || errno==EINTR)
+                    // try it again
+                    continue;
+            }
+            break;
+        }
+        ::close(fd[0]);
     }
 
-    d->newProc( pid, this );
+    d->newProc(pid, this);
 
-    if ( comms & Stdin ) {
-	::close( sStdin[0] );
-	d->proc->socketStdin = sStdin[1];
+    if (comms & Stdin) {
+        ::close(sStdin[0]);
+        d->proc->socketStdin = sStdin[1];
 
-	// Select non-blocking mode
-	int originalFlags = fcntl(d->proc->socketStdin, F_GETFL, 0);
-	fcntl(d->proc->socketStdin, F_SETFL, originalFlags | O_NONBLOCK);
+        // Select non-blocking mode
+        int originalFlags = fcntl(d->proc->socketStdin, F_GETFL, 0);
+        fcntl(d->proc->socketStdin, F_SETFL, originalFlags | O_NONBLOCK);
 
-	d->notifierStdin = new QSocketNotifier( sStdin[1], QSocketNotifier::Write );
-	connect( d->notifierStdin, SIGNAL(activated(int)),
-		this, SLOT(socketWrite(int)) );
-	// setup notifiers for the sockets
-	if ( !d->stdinBuf.isEmpty() )
-	    d->notifierStdin->setEnabled( TRUE );
+        d->notifierStdin = new QSocketNotifier(sStdin[1], QSocketNotifier::Write);
+        connect(d->notifierStdin, SIGNAL(activated(int)),
+                this, SLOT(socketWrite(int)));
+        // setup notifiers for the sockets
+        if (!d->stdinBuf.isEmpty())
+            d->notifierStdin->setEnabled(true);
     }
-    if ( comms & Stdout ) {
-	::close( sStdout[1] );
-	d->proc->socketStdout = sStdout[0];
-	d->notifierStdout = new QSocketNotifier( sStdout[0], QSocketNotifier::Read );
-	connect( d->notifierStdout, SIGNAL(activated(int)),
-		this, SLOT(socketRead(int)) );
-	if ( ioRedirection )
-	    d->notifierStdout->setEnabled( TRUE );
+    if (comms & Stdout) {
+        ::close(sStdout[1]);
+        d->proc->socketStdout = sStdout[0];
+        d->notifierStdout = new QSocketNotifier(sStdout[0], QSocketNotifier::Read);
+        connect(d->notifierStdout, SIGNAL(activated(int)),
+                this, SLOT(socketRead(int)));
+        if (ioRedirection)
+            d->notifierStdout->setEnabled(true);
     }
-    if ( comms & Stderr ) {
-	::close( sStderr[1] );
-	d->proc->socketStderr = sStderr[0];
-	d->notifierStderr = new QSocketNotifier( sStderr[0], QSocketNotifier::Read );
-	connect( d->notifierStderr, SIGNAL(activated(int)),
-		this, SLOT(socketRead(int)) );
-	if ( ioRedirection )
-	    d->notifierStderr->setEnabled( TRUE );
+    if (comms & Stderr) {
+        ::close(sStderr[1]);
+        d->proc->socketStderr = sStderr[0];
+        d->notifierStderr = new QSocketNotifier(sStderr[0], QSocketNotifier::Read);
+        connect(d->notifierStderr, SIGNAL(activated(int)),
+                this, SLOT(socketRead(int)));
+        if (ioRedirection)
+            d->notifierStderr->setEnabled(true);
     }
 
     // cleanup and return
     delete[] arglistQ;
     delete[] arglist;
-    return TRUE;
+    return true;
 
 error:
 #if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcess::start(): error starting process" );
+    qDebug("QProcess::start(): error starting process");
 #endif
-    if ( d->procManager )
-	d->procManager->cleanup();
-    if ( comms & Stdin ) {
-	::close( sStdin[1] );
-	::close( sStdin[0] );
+    if (d->procManager)
+        d->procManager->cleanup();
+    if (comms & Stdin) {
+        ::close(sStdin[1]);
+        ::close(sStdin[0]);
     }
-    if ( comms & Stdout ) {
-	::close( sStdout[0] );
-	::close( sStdout[1] );
+    if (comms & Stdout) {
+        ::close(sStdout[0]);
+        ::close(sStdout[1]);
     }
-    if ( comms & Stderr ) {
-	::close( sStderr[0] );
-	::close( sStderr[1] );
+    if (comms & Stderr) {
+        ::close(sStderr[0]);
+        ::close(sStderr[1]);
     }
-    ::close( fd[0] );
-    ::close( fd[1] );
+    ::close(fd[0]);
+    ::close(fd[1]);
     delete[] arglistQ;
     delete[] arglist;
-    return FALSE;
+    return false;
 }
 
 
@@ -985,8 +985,8 @@ error:
 */
 void QProcess::tryTerminate() const
 {
-    if ( d->proc != 0 )
-	::kill( d->proc->pid, SIGTERM );
+    if (d->proc != 0)
+        ::kill(d->proc->pid, SIGTERM);
 }
 
 /*!
@@ -998,8 +998,8 @@ void QProcess::tryTerminate() const
     The nice way to end a process and to be sure that it is finished,
     is to do something like this:
     \code
-	process->tryTerminate();
-	QTimer::singleShot( 5000, process, SLOT(kill()) );
+        process->tryTerminate();
+        QTimer::singleShot(5000, process, SLOT(kill()));
     \endcode
 
     This tries to terminate the process the nice way. If the process
@@ -1016,87 +1016,87 @@ void QProcess::tryTerminate() const
 */
 void QProcess::kill() const
 {
-    if ( d->proc != 0 )
-	::kill( d->proc->pid, SIGKILL );
+    if (d->proc != 0)
+        ::kill(d->proc->pid, SIGKILL);
 }
 
 /*!
-    Returns TRUE if the process is running; otherwise returns FALSE.
+    Returns true if the process is running; otherwise returns false.
 
     \sa normalExit() exitStatus() processExited()
 */
 bool QProcess::isRunning() const
 {
-    if ( d->exitValuesCalculated ) {
+    if (d->exitValuesCalculated) {
 #if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcess::isRunning(): FALSE (already computed)" );
+        qDebug("QProcess::isRunning(): false (already computed)");
 #endif
-	return FALSE;
+        return false;
     }
-    if ( d->proc == 0 )
-	return FALSE;
+    if (d->proc == 0)
+        return false;
     int status;
-    if ( ::waitpid( d->proc->pid, &status, WNOHANG ) == d->proc->pid ) {
-	// compute the exit values
-	QProcess *that = (QProcess*)this; // mutable
-	that->exitNormal = WIFEXITED( status ) != 0;
-	if ( exitNormal ) {
-	    that->exitStat = (char)WEXITSTATUS( status );
-	}
-	d->exitValuesCalculated = TRUE;
+    if (::waitpid(d->proc->pid, &status, WNOHANG) == d->proc->pid) {
+        // compute the exit values
+        QProcess *that = (QProcess*)this; // mutable
+        that->exitNormal = WIFEXITED(status) != 0;
+        if (exitNormal) {
+            that->exitStat = (char)WEXITSTATUS(status);
+        }
+        d->exitValuesCalculated = true;
 
-	// On heavy processing, the socket notifier for the sigchild might not
-	// have found time to fire yet.
-	if ( d->procManager && d->procManager->sigchldFd[1] < FD_SETSIZE ) {
-	    fd_set fds;
-	    struct timeval tv;
-	    FD_ZERO( &fds );
-	    FD_SET( d->procManager->sigchldFd[1], &fds );
-	    tv.tv_sec = 0;
-	    tv.tv_usec = 0;
-	    if ( ::select( d->procManager->sigchldFd[1]+1, &fds, 0, 0, &tv ) > 0 )
-		d->procManager->sigchldHnd( d->procManager->sigchldFd[1] );
-	}
+        // On heavy processing, the socket notifier for the sigchild might not
+        // have found time to fire yet.
+        if (d->procManager && d->procManager->sigchldFd[1] < FD_SETSIZE) {
+            fd_set fds;
+            struct timeval tv;
+            FD_ZERO(&fds);
+            FD_SET(d->procManager->sigchldFd[1], &fds);
+            tv.tv_sec = 0;
+            tv.tv_usec = 0;
+            if (::select(d->procManager->sigchldFd[1]+1, &fds, 0, 0, &tv) > 0)
+                d->procManager->sigchldHnd(d->procManager->sigchldFd[1]);
+        }
 
 #if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcess::isRunning() (PID: %d): FALSE", d->proc->pid );
+        qDebug("QProcess::isRunning() (PID: %d): false", d->proc->pid);
 #endif
-	return FALSE;
+        return false;
     }
 #if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcess::isRunning() (PID: %d): TRUE", d->proc->pid );
+    qDebug("QProcess::isRunning() (PID: %d): true", d->proc->pid);
 #endif
-    return TRUE;
+    return true;
 }
 
 /*!
-    Returns TRUE if it's possible to read an entire line of text from
-    standard output at this time; otherwise returns FALSE.
+    Returns true if it's possible to read an entire line of text from
+    standard output at this time; otherwise returns false.
 
     \sa readLineStdout() canReadLineStderr()
 */
 bool QProcess::canReadLineStdout() const
 {
-    if ( !d->proc || !d->proc->socketStdout )
-	return d->bufStdout.size() != 0;
+    if (!d->proc || !d->proc->socketStdout)
+        return d->bufStdout.size() != 0;
 
     QProcess *that = (QProcess*)this;
-    return that->membufStdout()->scanNewline( 0 );
+    return that->membufStdout()->scanNewline(0);
 }
 
 /*!
-    Returns TRUE if it's possible to read an entire line of text from
-    standard error at this time; otherwise returns FALSE.
+    Returns true if it's possible to read an entire line of text from
+    standard error at this time; otherwise returns false.
 
     \sa readLineStderr() canReadLineStdout()
 */
 bool QProcess::canReadLineStderr() const
 {
-    if ( !d->proc || !d->proc->socketStderr )
-	return d->bufStderr.size() != 0;
+    if (!d->proc || !d->proc->socketStderr)
+        return d->bufStderr.size() != 0;
 
     QProcess *that = (QProcess*)this;
-    return that->membufStderr()->scanNewline( 0 );
+    return that->membufStderr()->scanNewline(0);
 }
 
 /*!
@@ -1112,14 +1112,14 @@ bool QProcess::canReadLineStderr() const
 
     \sa wroteToStdin() closeStdin() readStdout() readStderr()
 */
-void QProcess::writeToStdin( const QByteArray& buf )
+void QProcess::writeToStdin(const QByteArray& buf)
 {
 #if defined(QT_QPROCESS_DEBUG)
-//    qDebug( "QProcess::writeToStdin(): write to stdin (%d)", d->socketStdin );
+//    qDebug("QProcess::writeToStdin(): write to stdin (%d)", d->socketStdin);
 #endif
-    d->stdinBuf.append( new QByteArray(buf) );
-    if ( d->notifierStdin != 0 )
-	d->notifierStdin->setEnabled( TRUE );
+    d->stdinBuf.append(new QByteArray(buf));
+    if (d->notifierStdin != 0)
+        d->notifierStdin->setEnabled(true);
 }
 
 
@@ -1133,20 +1133,20 @@ void QProcess::writeToStdin( const QByteArray& buf )
 */
 void QProcess::closeStdin()
 {
-    if ( d->proc == 0 )
-	return;
-    if ( d->proc->socketStdin !=0 ) {
-	while (!d->stdinBuf.isEmpty())
-	    delete d->stdinBuf.takeFirst();
-	delete d->notifierStdin;
-	d->notifierStdin = 0;
-	if ( ::close( d->proc->socketStdin ) != 0 ) {
-	    qWarning( "Could not close stdin of child process" );
-	}
+    if (d->proc == 0)
+        return;
+    if (d->proc->socketStdin !=0) {
+        while (!d->stdinBuf.isEmpty())
+            delete d->stdinBuf.takeFirst();
+        delete d->notifierStdin;
+        d->notifierStdin = 0;
+        if (::close(d->proc->socketStdin) != 0) {
+            qWarning("Could not close stdin of child process");
+        }
 #if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcess::closeStdin(): stdin (%d) closed", d->proc->socketStdin );
+        qDebug("QProcess::closeStdin(): stdin (%d) closed", d->proc->socketStdin);
 #endif
-	d->proc->socketStdin = 0;
+        d->proc->socketStdin = 0;
     }
 }
 
@@ -1155,31 +1155,31 @@ void QProcess::closeStdin()
   This private slot is called when the process has outputted data to either
   standard output or standard error.
 */
-void QProcess::socketRead( int fd )
+void QProcess::socketRead(int fd)
 {
-    if ( d->socketReadCalled ) {
-	// the slots that are connected to the readyRead...() signals might
-	// trigger a recursive call of socketRead(). Avoid this since you get a
-	// blocking read otherwise.
-	return;
+    if (d->socketReadCalled) {
+        // the slots that are connected to the readyRead...() signals might
+        // trigger a recursive call of socketRead(). Avoid this since you get a
+        // blocking read otherwise.
+        return;
     }
 
 #if defined(QT_QPROCESS_DEBUG)
-    qDebug( "QProcess::socketRead(): %d", fd );
+    qDebug("QProcess::socketRead(): %d", fd);
 #endif
-    if ( fd == 0 )
-	return;
-    if ( !d->proc )
-	return;
+    if (fd == 0)
+        return;
+    if (!d->proc)
+        return;
     QMembuf *buffer = 0;
     int n;
-    if ( fd == d->proc->socketStdout ) {
-	buffer = &d->bufStdout;
-    } else if ( fd == d->proc->socketStderr ) {
-	buffer = &d->bufStderr;
+    if (fd == d->proc->socketStdout) {
+        buffer = &d->bufStdout;
+    } else if (fd == d->proc->socketStderr) {
+        buffer = &d->bufStderr;
     } else {
-	// this case should never happen, but just to be safe
-	return;
+        // this case should never happen, but just to be safe
+        return;
     }
 #if defined(QT_QPROCESS_DEBUG)
     uint oldSize = buffer->size();
@@ -1188,83 +1188,83 @@ void QProcess::socketRead( int fd )
     // try to read data first (if it fails, the filedescriptor was closed)
     const int basize = 4096;
     QByteArray *ba = new QByteArray;
-    ba->resize( basize );
-    n = ::read( fd, ba->data(), basize );
-    if ( n > 0 ) {
-	ba->resize( n );
-	buffer->append( ba );
-	ba = 0;
+    ba->resize(basize);
+    n = ::read(fd, ba->data(), basize);
+    if (n > 0) {
+        ba->resize(n);
+        buffer->append(ba);
+        ba = 0;
     } else {
-	delete ba;
-	ba = 0;
+        delete ba;
+        ba = 0;
     }
     // eof or error?
-    if ( n == 0 || n == -1 ) {
-	if ( fd == d->proc->socketStdout ) {
+    if (n == 0 || n == -1) {
+        if (fd == d->proc->socketStdout) {
 #if defined(QT_QPROCESS_DEBUG)
-	    qDebug( "QProcess::socketRead(): stdout (%d) closed", fd );
+            qDebug("QProcess::socketRead(): stdout (%d) closed", fd);
 #endif
-	    d->notifierStdout->setEnabled( FALSE );
-	    delete d->notifierStdout;
-	    d->notifierStdout = 0;
-	    ::close( d->proc->socketStdout );
-	    d->proc->socketStdout = 0;
-	    return;
-	} else if ( fd == d->proc->socketStderr ) {
+            d->notifierStdout->setEnabled(false);
+            delete d->notifierStdout;
+            d->notifierStdout = 0;
+            ::close(d->proc->socketStdout);
+            d->proc->socketStdout = 0;
+            return;
+        } else if (fd == d->proc->socketStderr) {
 #if defined(QT_QPROCESS_DEBUG)
-	    qDebug( "QProcess::socketRead(): stderr (%d) closed", fd );
+            qDebug("QProcess::socketRead(): stderr (%d) closed", fd);
 #endif
-	    d->notifierStderr->setEnabled( FALSE );
-	    delete d->notifierStderr;
-	    d->notifierStderr = 0;
-	    ::close( d->proc->socketStderr );
-	    d->proc->socketStderr = 0;
-	    return;
-	}
+            d->notifierStderr->setEnabled(false);
+            delete d->notifierStderr;
+            d->notifierStderr = 0;
+            ::close(d->proc->socketStderr);
+            d->proc->socketStderr = 0;
+            return;
+        }
     }
 
-    if ( fd < FD_SETSIZE ) {
-	fd_set fds;
-	struct timeval tv;
-	FD_ZERO( &fds );
-	FD_SET( fd, &fds );
-	tv.tv_sec = 0;
-	tv.tv_usec = 0;
-	while ( ::select( fd+1, &fds, 0, 0, &tv ) > 0 ) {
-	    // prepare for the next round
-	    FD_ZERO( &fds );
-	    FD_SET( fd, &fds );
-	    // read data
-	    ba = new QByteArray;
-	    ba->resize( basize );
-	    n = ::read( fd, ba->data(), basize );
-	    if ( n > 0 ) {
-		ba->resize( n );
-		buffer->append( ba );
-		ba = 0;
-	    } else {
-		delete ba;
-		ba = 0;
-		break;
-	    }
-	}
+    if (fd < FD_SETSIZE) {
+        fd_set fds;
+        struct timeval tv;
+        FD_ZERO(&fds);
+        FD_SET(fd, &fds);
+        tv.tv_sec = 0;
+        tv.tv_usec = 0;
+        while (::select(fd+1, &fds, 0, 0, &tv) > 0) {
+            // prepare for the next round
+            FD_ZERO(&fds);
+            FD_SET(fd, &fds);
+            // read data
+            ba = new QByteArray;
+            ba->resize(basize);
+            n = ::read(fd, ba->data(), basize);
+            if (n > 0) {
+                ba->resize(n);
+                buffer->append(ba);
+                ba = 0;
+            } else {
+                delete ba;
+                ba = 0;
+                break;
+            }
+        }
     }
 
-    d->socketReadCalled = TRUE;
-    if ( fd == d->proc->socketStdout ) {
+    d->socketReadCalled = true;
+    if (fd == d->proc->socketStdout) {
 #if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcess::socketRead(): %d bytes read from stdout (%d)",
-		buffer->size()-oldSize, fd );
+        qDebug("QProcess::socketRead(): %d bytes read from stdout (%d)",
+                buffer->size()-oldSize, fd);
 #endif
-	emit readyReadStdout();
-    } else if ( fd == d->proc->socketStderr ) {
+        emit readyReadStdout();
+    } else if (fd == d->proc->socketStderr) {
 #if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcess::socketRead(): %d bytes read from stderr (%d)",
-		buffer->size()-oldSize, fd );
+        qDebug("QProcess::socketRead(): %d bytes read from stderr (%d)",
+                buffer->size()-oldSize, fd);
 #endif
-	emit readyReadStderr();
+        emit readyReadStderr();
     }
-    d->socketReadCalled = FALSE;
+    d->socketReadCalled = false;
 }
 
 
@@ -1272,29 +1272,29 @@ void QProcess::socketRead( int fd )
   This private slot is called when the process tries to read data from standard
   input.
 */
-void QProcess::socketWrite( int fd )
+void QProcess::socketWrite(int fd)
 {
-    while ( fd == d->proc->socketStdin && d->proc->socketStdin != 0 ) {
-	if ( d->stdinBuf.isEmpty() ) {
-	    d->notifierStdin->setEnabled( FALSE );
-	    return;
-	}
-	ssize_t ret = ::write( fd,
-		d->stdinBuf.first()->data() + d->stdinBufRead,
-		d->stdinBuf.first()->size() - d->stdinBufRead );
+    while (fd == d->proc->socketStdin && d->proc->socketStdin != 0) {
+        if (d->stdinBuf.isEmpty()) {
+            d->notifierStdin->setEnabled(false);
+            return;
+        }
+        ssize_t ret = ::write(fd,
+                d->stdinBuf.first()->data() + d->stdinBufRead,
+                d->stdinBuf.first()->size() - d->stdinBufRead);
 #if defined(QT_QPROCESS_DEBUG)
-	qDebug( "QProcess::socketWrite(): wrote %d bytes to stdin (%d)", ret, fd );
+        qDebug("QProcess::socketWrite(): wrote %d bytes to stdin (%d)", ret, fd);
 #endif
-	if ( ret == -1 )
-	    return;
-	d->stdinBufRead += ret;
-	if ( d->stdinBufRead == (ssize_t)d->stdinBuf.first()->size() ) {
-	    d->stdinBufRead = 0;
+        if (ret == -1)
+            return;
+        d->stdinBufRead += ret;
+        if (d->stdinBufRead == (ssize_t)d->stdinBuf.first()->size()) {
+            d->stdinBufRead = 0;
             delete d->stdinBuf.first();
-	    d->stdinBuf.removeFirst();
-	    if ( wroteToStdinConnected && d->stdinBuf.isEmpty() )
-		emit wroteToStdin();
-	}
+            d->stdinBuf.removeFirst();
+            if (wroteToStdinConnected && d->stdinBuf.isEmpty())
+                emit wroteToStdin();
+        }
     }
 }
 
@@ -1307,7 +1307,7 @@ void QProcess::socketWrite( int fd )
 */
 void QProcess::flushStdin()
 {
-    socketWrite( d->proc->socketStdin );
+    socketWrite(d->proc->socketStdin);
 }
 
 /*
@@ -1323,19 +1323,19 @@ void QProcess::timeout()
   This private function is used by connectNotify() and disconnectNotify() to
   change the value of ioRedirection (and related behaviour)
 */
-void QProcess::setIoRedirection( bool value )
+void QProcess::setIoRedirection(bool value)
 {
     ioRedirection = value;
-    if ( ioRedirection ) {
-	if ( d->notifierStdout )
-	    d->notifierStdout->setEnabled( TRUE );
-	if ( d->notifierStderr )
-	    d->notifierStderr->setEnabled( TRUE );
+    if (ioRedirection) {
+        if (d->notifierStdout)
+            d->notifierStdout->setEnabled(true);
+        if (d->notifierStderr)
+            d->notifierStderr->setEnabled(true);
     } else {
-	if ( d->notifierStdout )
-	    d->notifierStdout->setEnabled( FALSE );
-	if ( d->notifierStderr )
-	    d->notifierStderr->setEnabled( FALSE );
+        if (d->notifierStdout)
+            d->notifierStdout->setEnabled(false);
+        if (d->notifierStderr)
+            d->notifierStderr->setEnabled(false);
     }
 }
 
@@ -1344,7 +1344,7 @@ void QProcess::setIoRedirection( bool value )
   disconnectNotify() to change the value of notifyOnExit (and related
   behaviour)
 */
-void QProcess::setNotifyOnExit( bool value )
+void QProcess::setNotifyOnExit(bool value)
 {
     notifyOnExit = value;
 }
@@ -1353,7 +1353,7 @@ void QProcess::setNotifyOnExit( bool value )
   This private function is used by connectNotify() and disconnectNotify() to
   change the value of wroteToStdinConnected (and related behaviour)
 */
-void QProcess::setWroteStdinConnected( bool value )
+void QProcess::setWroteStdinConnected(bool value)
 {
     wroteToStdinConnected = value;
 }
@@ -1375,8 +1375,8 @@ void QProcess::setWroteStdinConnected( bool value )
 */
 QProcess::PID QProcess::processIdentifier()
 {
-    if ( d->proc == 0 )
-	return -1;
+    if (d->proc == 0)
+        return -1;
     return d->proc->pid;
 }
 

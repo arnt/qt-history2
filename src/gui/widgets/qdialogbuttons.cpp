@@ -40,18 +40,18 @@ struct QDialogButtonsPrivate
 
 #ifndef QT_NO_DIALOG
 QDialogButtons::QDialogButtons(QDialog *parent, bool autoConnect, Q_UINT32 buttons,
-			       Orientation orient, const char *name ) : QWidget(parent, name)
+                               Orientation orient, const char *name) : QWidget(parent, name)
 {
     init(buttons, orient);
     if(parent && autoConnect) {
-	QObject::connect(this, SIGNAL(acceptClicked()), parent, SLOT(accept()));
-	QObject::connect(this, SIGNAL(rejectClicked()), parent, SLOT(reject()));
+        QObject::connect(this, SIGNAL(acceptClicked()), parent, SLOT(accept()));
+        QObject::connect(this, SIGNAL(rejectClicked()), parent, SLOT(reject()));
     }
 }
 #endif // QT_NO_DIALOG
 
 QDialogButtons::QDialogButtons(QWidget *parent, Q_UINT32 buttons,
-			       Orientation orient, const char *name ) : QWidget(parent, name)
+                               Orientation orient, const char *name) : QWidget(parent, name)
 {
     init(buttons, orient);
 }
@@ -60,11 +60,11 @@ void
 QDialogButtons::init(Q_UINT32 buttons, Orientation orient)
 {
     if(buttons == All) {
-	qWarning("QDialogButtons: cannot specify All by itself!");
-	buttons = None;
+        qWarning("QDialogButtons: cannot specify All by itself!");
+        buttons = None;
     }
     d = new QDialogButtonsPrivate;
-    d->questionMode = FALSE;
+    d->questionMode = false;
     d->orient = orient;
     d->def = (Button)style().styleHint(QStyle::SH_DialogButtons_DefaultButton, this);
     d->enabled = d->visible = buttons;
@@ -92,11 +92,11 @@ void
 QDialogButtons::setButtonEnabled(Button button, bool enabled)
 {
     if(enabled)
-	d->enabled |= button;
+        d->enabled |= button;
     else
-	d->enabled ^= button;
+        d->enabled ^= button;
     if(d->buttons.contains(button))
-	d->buttons[button]->setEnabled(enabled);
+        d->buttons[button]->setEnabled(enabled);
 }
 
 bool
@@ -109,13 +109,13 @@ void
 QDialogButtons::setButtonVisible(Button button, bool visible)
 {
     if(visible) {
-	if(d->buttons.contains(button))
-	    d->buttons[button]->show();
-	d->visible |= button;
+        if(d->buttons.contains(button))
+            d->buttons[button]->show();
+        d->visible |= button;
     } else {
-	if(d->buttons.contains(button))
-	    d->buttons[button]->hide();
-	d->visible ^= button;
+        if(d->buttons.contains(button))
+            d->buttons[button]->hide();
+        d->visible ^= button;
     }
     layoutButtons();
 }
@@ -131,19 +131,19 @@ QDialogButtons::addWidget(QWidget *w)
 {
     QBoxLayout *lay = NULL;
     if(!d->custom) {
-	d->custom = new QWidget(this, "dialog_custom_area");
-	if(orientation() == Horizontal)
-	    lay = new QHBoxLayout(d->custom);
-	else
-	    lay = new QVBoxLayout(d->custom);
-	layoutButtons();
+        d->custom = new QWidget(this, "dialog_custom_area");
+        if(orientation() == Horizontal)
+            lay = new QHBoxLayout(d->custom);
+        else
+            lay = new QVBoxLayout(d->custom);
+        layoutButtons();
     } else {
-	lay = (QBoxLayout*)d->custom->layout();
+        lay = (QBoxLayout*)d->custom->layout();
     }
     if(w->parent() != d->custom) {
-	w->setParent(d->custom, 0);
-	w->move(QPoint(0, 0));
-	w->show();
+        w->setParent(d->custom, 0);
+        w->move(QPoint(0, 0));
+        w->show();
     }
     lay->addWidget(w);
 }
@@ -152,18 +152,18 @@ void
 QDialogButtons::setDefaultButton(Button button)
 {
     if(!((int)(d->visible & button) == button)) {
-	qWarning("QDialogButtons: Button '%d' is not visible (so cannot be default)", button);
-	return;
+        qWarning("QDialogButtons: Button '%d' is not visible (so cannot be default)", button);
+        return;
     }
     if(d->def != button) {
 #ifndef QT_NO_PROPERTIES
-	if(d->buttons.contains(d->def))
-	    d->buttons[d->def]->setProperty("default", QVariant(FALSE));
+        if(d->buttons.contains(d->def))
+            d->buttons[d->def]->setProperty("default", QVariant(false));
 #endif
-	d->def = button;
+        d->def = button;
 #ifndef QT_NO_PROPERTIES
-	if(d->buttons.contains(d->def))
-	    d->buttons[d->def]->setProperty("default", QVariant(FALSE));
+        if(d->buttons.contains(d->def))
+            d->buttons[d->def]->setProperty("default", QVariant(false));
 #endif
     }
 }
@@ -180,7 +180,7 @@ QDialogButtons::setButtonText(Button button, const QString &str)
     d->text[button] = str;
 #ifndef QT_NO_PROPERTIES
     if(d->buttons.contains(button))
-	d->buttons[button]->setProperty("text", QVariant(str));
+        d->buttons[button]->setProperty("text", QVariant(str));
 #endif
     layoutButtons();
 }
@@ -189,7 +189,7 @@ QString
 QDialogButtons::buttonText(Button b) const
 {
     if(d->text.contains(b))
-	return d->text[b];
+        return d->text[b];
     return QString(); //null if it is default..
 }
 
@@ -197,11 +197,11 @@ void
 QDialogButtons::setOrientation(Orientation orient)
 {
     if(d->orient != orient) {
-	d->orient = orient;
-	if(d->custom && d->custom->layout())
-	    ((QBoxLayout*)d->custom->layout())->setDirection(orient == Horizontal ? QBoxLayout::LeftToRight :
-							     QBoxLayout::TopToBottom);
-	layoutButtons();
+        d->orient = orient;
+        if(d->custom && d->custom->layout())
+            ((QBoxLayout*)d->custom->layout())->setDirection(orient == Horizontal ? QBoxLayout::LeftToRight :
+                                                             QBoxLayout::TopToBottom);
+        layoutButtons();
     }
 }
 
@@ -217,58 +217,58 @@ QDialogButtons::createButton(Button b)
     QPushButton *ret = new QPushButton(this, "qdialog_button");
     QObject::connect(ret, SIGNAL(clicked()), this, SLOT(handleClicked()));
     if(d->text.contains(b)) {
-	ret->setText(d->text[b]);
+        ret->setText(d->text[b]);
     } else {
-	switch(b) {
-	case All: {
-	    QString txt = buttonText(defaultButton());
-	    if(txt.isNull()) {
-		if(defaultButton() == Accept) {
-		    if(questionMode())
-			txt = tr("Yes to All");
-		    else
-		        txt = tr("OK to All");
-		} else {
-		    if(questionMode())
-		        txt = tr("No to All");
-		    else
-			txt = tr("Cancel All");
-		}
-	    } else {
-		txt += tr(" to All"); //ick, I can't really do this!!
-	    }
-	    ret->setText(txt);
-	    break; }
-	case Accept:
-	    if(questionMode())
-		ret->setText(tr("Yes"));
-	    else
-		ret->setText(tr("OK"));
-	    break;
-	case Reject:
-	    if(questionMode())
-		ret->setText(tr("No"));
-	    else
-		ret->setText(tr("Cancel"));
-	    break;
-	case Apply:
-	    ret->setText(tr("Apply"));
-	    break;
-	case Ignore:
-	    ret->setText(tr("Ignore"));
-	    break;
-	case Retry:
-	    ret->setText(tr("Retry"));
-	    break;
-	case Abort:
-	    ret->setText(tr("Abort"));
-	    break;
-	case Help:
-	    ret->setText(tr("Help"));
-	    break;
-	default:
-	    break;
-	}
+        switch(b) {
+        case All: {
+            QString txt = buttonText(defaultButton());
+            if(txt.isNull()) {
+                if(defaultButton() == Accept) {
+                    if(questionMode())
+                        txt = tr("Yes to All");
+                    else
+                        txt = tr("OK to All");
+                } else {
+                    if(questionMode())
+                        txt = tr("No to All");
+                    else
+                        txt = tr("Cancel All");
+                }
+            } else {
+                txt += tr(" to All"); //ick, I can't really do this!!
+            }
+            ret->setText(txt);
+            break; }
+        case Accept:
+            if(questionMode())
+                ret->setText(tr("Yes"));
+            else
+                ret->setText(tr("OK"));
+            break;
+        case Reject:
+            if(questionMode())
+                ret->setText(tr("No"));
+            else
+                ret->setText(tr("Cancel"));
+            break;
+        case Apply:
+            ret->setText(tr("Apply"));
+            break;
+        case Ignore:
+            ret->setText(tr("Ignore"));
+            break;
+        case Retry:
+            ret->setText(tr("Retry"));
+            break;
+        case Abort:
+            ret->setText(tr("Abort"));
+            break;
+        case Help:
+            ret->setText(tr("Help"));
+            break;
+        default:
+            break;
+        }
     }
     return ret;
 }
@@ -278,41 +278,41 @@ QDialogButtons::handleClicked()
 {
     const QObject *s = sender();
     if(!s)
-	return;
+        return;
 
     for(QMap<QDialogButtons::Button, QWidget *>::Iterator it = d->buttons.begin(); it != d->buttons.end(); ++it) {
-	if(it.value() == s) {
-	    emit clicked((QDialogButtons::Button)it.key());
-	    switch(it.key()) {
-	    case Retry:
-		emit retryClicked();
-		break;
-	    case Ignore:
-		emit ignoreClicked();
-		break;
-	    case Abort:
-		emit abortClicked();
-		break;
-	    case All:
-		emit allClicked();
-		break;
-	    case Accept:
-		emit acceptClicked();
-		break;
-	    case Reject:
-		emit rejectClicked();
-		break;
-	    case Apply:
-		emit applyClicked();
-		break;
-	    case Help:
-		emit helpClicked();
-		break;
-	    default:
-		break;
-	    }
-	    return;
-	}
+        if(it.value() == s) {
+            emit clicked((QDialogButtons::Button)it.key());
+            switch(it.key()) {
+            case Retry:
+                emit retryClicked();
+                break;
+            case Ignore:
+                emit ignoreClicked();
+                break;
+            case Abort:
+                emit abortClicked();
+                break;
+            case All:
+                emit allClicked();
+                break;
+            case Accept:
+                emit acceptClicked();
+                break;
+            case Reject:
+                emit rejectClicked();
+                break;
+            case Apply:
+                emit applyClicked();
+                break;
+            case Help:
+                emit helpClicked();
+                break;
+            default:
+                break;
+            }
+            return;
+        }
     }
 }
 
@@ -329,10 +329,10 @@ QDialogButtons::showEvent(QShowEvent *)
 }
 
 void
-QDialogButtons::changeEvent( QEvent *ev )
+QDialogButtons::changeEvent(QEvent *ev)
 {
     if(ev->type() == QEvent::StyleChange)
-	layoutButtons();
+        layoutButtons();
     QWidget::changeEvent(ev);
 }
 
@@ -340,64 +340,64 @@ void
 QDialogButtons::layoutButtons()
 {
     if(!isVisible()) //nah..
-	return;
+        return;
 
     QStyle::SubRect rects[] = {
-    	QStyle::SR_DialogButtonAccept, QStyle::SR_DialogButtonReject,
-	QStyle::SR_DialogButtonApply,  QStyle::SR_DialogButtonHelp,
-	QStyle::SR_DialogButtonCustom, QStyle::SR_DialogButtonAll,
+        QStyle::SR_DialogButtonAccept, QStyle::SR_DialogButtonReject,
+        QStyle::SR_DialogButtonApply,  QStyle::SR_DialogButtonHelp,
+        QStyle::SR_DialogButtonCustom, QStyle::SR_DialogButtonAll,
         QStyle::SR_DialogButtonRetry,  QStyle::SR_DialogButtonIgnore,
         QStyle::SR_DialogButtonAbort };
     for(unsigned int i = 0; i < (sizeof(rects) / sizeof(rects[0])); i++) {
-	QWidget *w = NULL;
-	if(rects[i] == QStyle::SR_DialogButtonCustom) {
-	    w = d->custom;
-	} else {
-	    Button b = None;
-	    if(rects[i] == QStyle::SR_DialogButtonApply)
-		b = Apply;
-	    else if(rects[i] == QStyle::SR_DialogButtonAll)
-		b = All;
-	    else if(rects[i] == QStyle::SR_DialogButtonAccept)
-		b = Accept;
-	    else if(rects[i] == QStyle::SR_DialogButtonReject)
-		b = Reject;
-	    else if(rects[i] == QStyle::SR_DialogButtonHelp)
-		b = Help;
-	    else if(rects[i] == QStyle::SR_DialogButtonRetry)
-		b = Retry;
-	    else if(rects[i] == QStyle::SR_DialogButtonAbort)
-		b = Abort;
-	    else if(rects[i] == QStyle::SR_DialogButtonIgnore)
-		b = Ignore;
-	    if(b != None) {
-		if(d->buttons.contains(b)) {
-		    w = d->buttons[b];
-		    if(!(d->visible & b)) {
-			w->hide();
-			continue;
-		    }
-		} else if(d->visible & b) {
-		    w = createButton(b);
-		    d->buttons.insert(b, w);
-		} else {
-		    continue;
-		}
-		if(w) {
-		    if(b == d->def) {
-			w->setFocus();
+        QWidget *w = NULL;
+        if(rects[i] == QStyle::SR_DialogButtonCustom) {
+            w = d->custom;
+        } else {
+            Button b = None;
+            if(rects[i] == QStyle::SR_DialogButtonApply)
+                b = Apply;
+            else if(rects[i] == QStyle::SR_DialogButtonAll)
+                b = All;
+            else if(rects[i] == QStyle::SR_DialogButtonAccept)
+                b = Accept;
+            else if(rects[i] == QStyle::SR_DialogButtonReject)
+                b = Reject;
+            else if(rects[i] == QStyle::SR_DialogButtonHelp)
+                b = Help;
+            else if(rects[i] == QStyle::SR_DialogButtonRetry)
+                b = Retry;
+            else if(rects[i] == QStyle::SR_DialogButtonAbort)
+                b = Abort;
+            else if(rects[i] == QStyle::SR_DialogButtonIgnore)
+                b = Ignore;
+            if(b != None) {
+                if(d->buttons.contains(b)) {
+                    w = d->buttons[b];
+                    if(!(d->visible & b)) {
+                        w->hide();
+                        continue;
+                    }
+                } else if(d->visible & b) {
+                    w = createButton(b);
+                    d->buttons.insert(b, w);
+                } else {
+                    continue;
+                }
+                if(w) {
+                    if(b == d->def) {
+                        w->setFocus();
 #ifndef QT_NO_PROPERTIES
-			w->setProperty("default", QVariant(TRUE));
+                        w->setProperty("default", QVariant(true));
 #endif
-		    }
-		    w->setEnabled(d->enabled & b);
-		}
-	    }
-	}
-	if(w) {
-	    w->show();
-	    w->setGeometry(style().subRect(rects[i], this));
-	}
+                    }
+                    w->setEnabled(d->enabled & b);
+                }
+            }
+        }
+        if(w) {
+            w->show();
+            w->setGeometry(style().subRect(rects[i], this));
+        }
     }
 }
 
@@ -407,9 +407,9 @@ QDialogButtons::sizeHint() const
     ensurePolished();
     QSize s;
     if(d->custom)
-	s = d->custom->sizeHint();
+        s = d->custom->sizeHint();
     return (style().sizeFromContents(QStyle::CT_DialogButtons, this, s.
-				     expandedTo(QApplication::globalStrut())));
+                                     expandedTo(QApplication::globalStrut())));
 }
 
 QSize
@@ -417,13 +417,13 @@ QDialogButtons::sizeHint(QDialogButtons::Button button) const
 {
     QWidget *w = NULL;
     if(d->visible & button) {
-	if(!d->buttons.contains(button)) {
-	    QDialogButtons *that = (QDialogButtons*)this; //ick, constness..
-	    w = that->createButton(button);
-	    that->d->buttons.insert(button, w);
-	} else {
-	    w = d->buttons[button];
-	}
+        if(!d->buttons.contains(button)) {
+            QDialogButtons *that = (QDialogButtons*)this; //ick, constness..
+            w = that->createButton(button);
+            that->d->buttons.insert(button, w);
+        } else {
+            w = d->buttons[button];
+        }
     }
     return w->sizeHint();
 }

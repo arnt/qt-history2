@@ -21,7 +21,7 @@
   by calling data() with a QModelIndex object.  Functions rowCunt() and columnCount() returns
   the size of the data source which is provided by the model on each leve in the heierarchy.
 
-  fetchMore() can be reimplemented by models where it is hard  to determine the final size of the data (e.g. data streams ).
+  fetchMore() can be reimplemented by models where it is hard  to determine the final size of the data (e.g. data streams).
   The model is also responsible for sorting its data through the virtual functions
   sort() and isSortable().
 
@@ -47,7 +47,7 @@ QModelIndex QAbstractItemModel::index(int row, int column, const QModelIndex &pa
                                      QModelIndex::Type type) const
 {
     if (row >= 0 && row < rowCount(parent) && column >= 0 && column < columnCount(parent))
-	return QModelIndex(row, column, 0, type);
+        return QModelIndex(row, column, 0, type);
     return QModelIndex();
 }
 
@@ -69,23 +69,23 @@ void QAbstractItemModel::fetchMore()
 const char *QAbstractItemModel::format(int i) const
 {
     if (i == 0)
-	return "application/x-qgenericmodeldatalist";
+        return "application/x-qgenericmodeldatalist";
     return 0;
 }
 
 QByteArray QAbstractItemModel::encodedData(const char *mime, const QModelIndexList &indices) const
 {
     if (indices.count() <= 0 || QString(mime) != format(0))
-	return QByteArray();
+        return QByteArray();
 
     QByteArray encoded;
     QDataStream stream(encoded, IO_WriteOnly);
     QModelIndexList::ConstIterator it = indices.begin();
     for (; it != indices.end(); ++it) {
-	QMap<int, QVariant> roles = itemData((*it));
-	for (QMap<int, QVariant>::ConstIterator r = roles.begin(); r != roles.end(); ++r)
-	    stream << r.key() << r.value();
-	stream << -1;
+        QMap<int, QVariant> roles = itemData((*it));
+        for (QMap<int, QVariant>::ConstIterator r = roles.begin(); r != roles.end(); ++r)
+            stream << r.key() << r.value();
+        stream << -1;
     }
     return encoded;
 }
@@ -98,7 +98,7 @@ bool QAbstractItemModel::canDecode(QMimeSource *src) const
 bool QAbstractItemModel::decode(QMimeSource *src)
 {
     if (!canDecode(src))
-	return false;
+        return false;
 
     QByteArray encoded = src->encodedData(format(0));
     QDataStream stream(encoded, IO_ReadOnly);
@@ -107,17 +107,17 @@ bool QAbstractItemModel::decode(QMimeSource *src)
     QVariant variantData;
     QModelIndex insertedItem;
     while (!stream.atEnd()) {
-	stream >> role;
-	if (role > -1) {
-	    if (newItem) {
-		insertedItem = insertItem();
-		newItem = false;
-	    }
-	    stream >> variantData;
-	    setData(insertedItem, role, variantData);
-	} else {
-	    newItem = true;
-	}
+        stream >> role;
+        if (role > -1) {
+            if (newItem) {
+                insertedItem = insertItem();
+                newItem = false;
+            }
+            stream >> variantData;
+            setData(insertedItem, role, variantData);
+        } else {
+            newItem = true;
+        }
     }
     return true;
 }
@@ -133,9 +133,9 @@ QMap<int, QVariant> QAbstractItemModel::itemData(const QModelIndex &index) const
 {
     QMap<int, QVariant> roles;
     for (int i=0; i<User; ++i) {
-	QVariant variantData = data(index, i);
-	if (variantData != QVariant::Invalid)
-	    roles.insert(i, variantData);
+        QVariant variantData = data(index, i);
+        if (variantData != QVariant::Invalid)
+            roles.insert(i, variantData);
     }
     return roles;
 }
@@ -148,7 +148,7 @@ void QAbstractItemModel::setData(const QModelIndex &, int, const QVariant &)
 void QAbstractItemModel::setItemData(const QModelIndex &index, const QMap<int, QVariant> &roles)
 {
     for (QMap<int, QVariant>::ConstIterator it = roles.begin(); it != roles.end(); ++it)
-	setData(index, it.key(), it.value());
+        setData(index, it.key(), it.value());
 }
 
 /*!
@@ -201,7 +201,7 @@ bool QAbstractItemModel::equal(const QModelIndex &left, const QModelIndex &right
 bool QAbstractItemModel::greater(const QModelIndex &left, const QModelIndex &right) const
 {
     if (left.row() == right.row())
-	return left.column() > right.column();
+        return left.column() > right.column();
     return left.row() > right.row();
 }
 

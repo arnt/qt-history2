@@ -18,26 +18,26 @@
 #define PMDEBUG qDebug
 void QFragmentMap::inorder(uint x, int level) {
     if (X.left)
-	inorder(X.left, level + 1);
+        inorder(X.left, level + 1);
     for (int i = 0; i < level; ++i)
-	std::cout << "    ";
+        std::cout << "    ";
     std::cout << "this=" << x << " Key=" << key(x) << " size_left=" << X.size_left
-	      << " size=" << X.size
-	      << " textPos=" << X.position << (X.color == Red ? " Red" : " Black")
-	      << std::endl;
+              << " size=" << X.size
+              << " textPos=" << X.position << (X.color == Red ? " Red" : " Black")
+              << std::endl;
     if (X.right)
-	inorder(X.right, level + 1);
+        inorder(X.right, level + 1);
 }
 void QFragmentMap::check()
 {
     Q_ASSERT((head->node_count == 0 && head->root == 0)
-	     || (head->node_count != 0 && head->root != 0 && F(head->root).parent == 0));
+             || (head->node_count != 0 && head->root != 0 && F(head->root).parent == 0));
 
     ConstIterator it = begin();
     int key = 0;
     for (; it != end(); ++it) {
-	Q_ASSERT( key == it.key());
-	key += (*it)->size;
+        Q_ASSERT(key == it.key());
+        key += (*it)->size;
     }
 }
 #else
@@ -62,7 +62,7 @@ QFragmentMapData::QFragmentMapData(uint fs)
     F(head->freelist).right = 0;
 #ifndef NDEBUG
     for (uint i = 1; i < head->allocated; ++i)
-	F(i).parent = 0xdeadbeef;
+        F(i).parent = 0xdeadbeef;
 #endif
 }
 
@@ -77,23 +77,23 @@ uint QFragmentMapData::createFragment()
 
     uint freePos = head->freelist;
     if (freePos == head->allocated) {
-	// need to create some free space
-	uint needed = qAllocMore((freePos+1)*fragmentSize, 0);
-	Q_ASSERT(needed/fragmentSize > head->allocated);
-	fragments = (char *)realloc(fragments, needed);
-	head->allocated = needed/fragmentSize;
-	F(freePos).right = 0;
+        // need to create some free space
+        uint needed = qAllocMore((freePos+1)*fragmentSize, 0);
+        Q_ASSERT(needed/fragmentSize > head->allocated);
+        fragments = (char *)realloc(fragments, needed);
+        head->allocated = needed/fragmentSize;
+        F(freePos).right = 0;
 #ifndef NDEBUG
-	for (uint i = freePos; i < head->allocated; ++i)
-	    F(i).parent = 0xdeadbeef;
+        for (uint i = freePos; i < head->allocated; ++i)
+            F(i).parent = 0xdeadbeef;
 #endif
     }
 
     uint nextPos = F(freePos).right;
     if (!nextPos) {
-	nextPos = freePos+1;
-	if (nextPos < head->allocated)
-	    F(nextPos).right = 0;
+        nextPos = freePos+1;
+        if (nextPos < head->allocated)
+            F(nextPos).right = 0;
     }
 
     head->freelist = nextPos;
@@ -102,7 +102,7 @@ uint QFragmentMapData::createFragment()
     Q_ASSERT(F(freePos).parent == 0xdeadbeef);
     F(freePos).parent = 0;
     if (nextPos < head->allocated)
-	Q_ASSERT(F(nextPos).parent == 0xdeadbeef);
+        Q_ASSERT(F(nextPos).parent == 0xdeadbeef);
 #endif
 
     ++head->node_count;
@@ -117,7 +117,7 @@ void QFragmentMapData::freeFragment(uint i)
 #ifndef NDEBUG
     Q_ASSERT(F(i).parent != 0xdeadbeef);
     if (head->freelist < head->allocated)
-	Q_ASSERT(F(head->freelist).parent == 0xdeadbeef);
+        Q_ASSERT(F(head->freelist).parent == 0xdeadbeef);
     F(i).parent = 0xdeadbeef;
 #endif
     F(i).right = head->freelist;
@@ -130,35 +130,35 @@ void QFragmentMapData::freeFragment(uint i)
 uint QFragmentMapData::next(uint n) const {
     Q_ASSERT(n);
     if (N.right) {
-	n = N.right;
-	while (N.left)
-	    n = N.left;
+        n = N.right;
+        while (N.left)
+            n = N.left;
     } else {
-	uint y = N.parent;
-	while (N.parent && n == Y.right) {
-	    n = y;
-	    y = Y.parent;
-	}
-	n = y;
+        uint y = N.parent;
+        while (N.parent && n == Y.right) {
+            n = y;
+            y = Y.parent;
+        }
+        n = y;
     }
     return n;
 }
 
 uint QFragmentMapData::prev(uint n) const {
     if (!n)
-	return maximum(root());
+        return maximum(root());
 
     if (N.left) {
-	n = N.left;
-	while (N.right)
-	    n = N.right;
+        n = N.left;
+        while (N.right)
+            n = N.right;
     } else {
-	uint y = N.parent;
-	while (N.parent && n == Y.left) {
-	    n = y;
-	    y = Y.parent;
-	}
-	n = y;
+        uint y = N.parent;
+        while (N.parent && n == Y.left) {
+            n = y;
+            y = Y.parent;
+        }
+        n = y;
     }
     return n;
 }
@@ -179,22 +179,22 @@ void QFragmentMapData::rotateLeft(uint x)
 
 
     if (y) {
-	X.right = Y.left;
-	if (Y.left)
-	    F(Y.left).parent = x;
-	Y.left = x;
-	Y.parent = p;
+        X.right = Y.left;
+        if (Y.left)
+            F(Y.left).parent = x;
+        Y.left = x;
+        Y.parent = p;
     } else {
-	X.right = 0;
+        X.right = 0;
     }
     if (!p) {
-	Q_ASSERT(head->root == x);
-	head->root = y;
+        Q_ASSERT(head->root == x);
+        head->root = y;
     }
     else if (x == P.left)
-	P.left = y;
+        P.left = y;
     else
-	P.right = y;
+        P.right = y;
     X.parent = y;
     Y.size_left += X.size_left + X.size;
 
@@ -217,22 +217,22 @@ void QFragmentMapData::rotateRight(uint x)
     PMDEBUG("    rotateRight on x=%d (y=%d, p=%d)", x, y, p);
 
     if (y) {
-	X.left = Y.right;
-	if (Y.right)
-	    F(Y.right).parent = x;
-	Y.right = x;
-	Y.parent = p;
+        X.left = Y.right;
+        if (Y.right)
+            F(Y.right).parent = x;
+        Y.right = x;
+        Y.parent = p;
     } else {
-	X.left = 0;
+        X.left = 0;
     }
     if (!p) {
-	Q_ASSERT(head->root == x);
-	head->root = y;
+        Q_ASSERT(head->root == x);
+        head->root = y;
     }
     else if (x == P.right)
-	P.right = y;
+        P.right = y;
     else
-	P.left = y;
+        P.left = y;
     X.parent = y;
     X.size_left -= Y.size_left + Y.size;
 
@@ -248,51 +248,51 @@ void QFragmentMapData::rebalance(uint x)
     PMDEBUG("  -> rebalance x=%d", x);
     inorder();
 
-    while ( X.parent && F(X.parent).color == Red ) {
-	uint p = X.parent;
-	uint pp = P.parent;
-	Q_ASSERT(pp);
-	if ( p == PP.left ) {
-	    uint y = PP.right;
-	    if (y && Y.color == Red) {
-		P.color = Black;
-		Y.color = Black;
-		PP.color = Red;
-		x = pp;
-	    } else {
-		if (x == P.right) {
-		    x = p;
-		    rotateLeft(x);
-		    p = X.parent;
-		    pp = P.parent;
-		}
-		P.color = Black;
-		if (pp) {
-		    PP.color = Red;
-		    rotateRight(pp);
-		}
-	    }
-	} else {
-	    uint y = PP.left;
-	    if ( y && Y.color == Red ) {
-		P.color = Black;
-		Y.color = Black;
-		PP.color = Red;
-		x = pp;
-	    } else {
-		if (x == P.left) {
-		    x = p;
-		    rotateRight(x);
-		    p = X.parent;
-		    pp = P.parent;
-		}
-		P.color = Black;
-		if (pp) {
-		    PP.color = Red;
-		    rotateLeft(pp);
-		}
-	    }
-	}
+    while (X.parent && F(X.parent).color == Red) {
+        uint p = X.parent;
+        uint pp = P.parent;
+        Q_ASSERT(pp);
+        if (p == PP.left) {
+            uint y = PP.right;
+            if (y && Y.color == Red) {
+                P.color = Black;
+                Y.color = Black;
+                PP.color = Red;
+                x = pp;
+            } else {
+                if (x == P.right) {
+                    x = p;
+                    rotateLeft(x);
+                    p = X.parent;
+                    pp = P.parent;
+                }
+                P.color = Black;
+                if (pp) {
+                    PP.color = Red;
+                    rotateRight(pp);
+                }
+            }
+        } else {
+            uint y = PP.left;
+            if (y && Y.color == Red) {
+                P.color = Black;
+                Y.color = Black;
+                PP.color = Red;
+                x = pp;
+            } else {
+                if (x == P.left) {
+                    x = p;
+                    rotateRight(x);
+                    p = X.parent;
+                    pp = P.parent;
+                }
+                P.color = Black;
+                if (pp) {
+                    PP.color = Red;
+                    rotateLeft(pp);
+                }
+            }
+        }
     }
     F(root()).color = Black;
     check();
@@ -307,101 +307,101 @@ uint QFragmentMapData::erase_single(uint z)
     uint p;
 
     if (!Y.left) {
-	x = Y.right;
+        x = Y.right;
     } else if (!Y.right) {
-	x = Y.left;
+        x = Y.left;
     } else {
-	y = Y.right;
-	while (Y.left)
-	    y = Y.left;
-	x = Y.right;
+        y = Y.right;
+        while (Y.left)
+            y = Y.left;
+        x = Y.right;
     }
 
     PMDEBUG("removeAndRebalance on %d (x=%d, y=%d)", z, x, y);
     inorder();
 
     if (y != z) {
-	F(Z.left).parent = y;
-	Y.left = Z.left;
-	Y.size_left = Z.size_left;
-	if (y != Z.right) {
-	    /*
-	             z                y
-		    / \              / \
-		   a   b            a   b
-		      /                /
-		    ...     -->      ...
-		    /                /
-		   y                x
-		  / \
-		 0   x
-	     */
-	    p = Y.parent;
-	    if (x)
-		X.parent = p;
-	    P.left = x;
-	    Y.right = Z.right;
-	    F(Z.right).parent = y;
-	    uint n = p;
-	    while (n != y) {
-		N.size_left -= Y.size;
-		n = N.parent;
-	    }
-	} else {
-	    /*
-	             z                y
-		    / \              / \
-		   a   y     -->    a   x
-		      / \
-		     0   x
-	     */
-	    p = y;
-	}
-	uint zp = Z.parent;
-	if (!zp) {
-	    Q_ASSERT(head->root == z);
-	    head->root = y;
-	} else if (F(zp).left == z) {
-	    F(zp).left = y;
-	    F(zp).size_left -= Z.size;
-	} else {
-	    F(zp).right = y;
-	}
-	Y.parent = zp;
-	// Swap the colors
-	uint c = Y.color;
-	Y.color = Z.color;
-	Z.color = c;
-	y = z;
+        F(Z.left).parent = y;
+        Y.left = Z.left;
+        Y.size_left = Z.size_left;
+        if (y != Z.right) {
+            /*
+                     z                y
+                    / \              / \
+                   a   b            a   b
+                      /                /
+                    ...     -->      ...
+                    /                /
+                   y                x
+                  / \
+                 0   x
+             */
+            p = Y.parent;
+            if (x)
+                X.parent = p;
+            P.left = x;
+            Y.right = Z.right;
+            F(Z.right).parent = y;
+            uint n = p;
+            while (n != y) {
+                N.size_left -= Y.size;
+                n = N.parent;
+            }
+        } else {
+            /*
+                     z                y
+                    / \              / \
+                   a   y     -->    a   x
+                      / \
+                     0   x
+             */
+            p = y;
+        }
+        uint zp = Z.parent;
+        if (!zp) {
+            Q_ASSERT(head->root == z);
+            head->root = y;
+        } else if (F(zp).left == z) {
+            F(zp).left = y;
+            F(zp).size_left -= Z.size;
+        } else {
+            F(zp).right = y;
+        }
+        Y.parent = zp;
+        // Swap the colors
+        uint c = Y.color;
+        Y.color = Z.color;
+        Z.color = c;
+        y = z;
     } else {
-	/*
-	        p          p            p          p
-	       /          /              \          \
-	      z    -->   x                z  -->     x
-	      |                           |
-	      x                           x
-	 */
-	p = Z.parent;
-	if (x)
-	    X.parent = p;
-	if (!p) {
-	    Q_ASSERT(head->root == z);
-	    head->root = x;
-	} else if (P.left == z) {
-	    P.left = x;
-	    P.size_left -= Z.size;
-	} else {
-	    P.right = x;
-	}
+        /*
+                p          p            p          p
+               /          /              \          \
+              z    -->   x                z  -->     x
+              |                           |
+              x                           x
+         */
+        p = Z.parent;
+        if (x)
+            X.parent = p;
+        if (!p) {
+            Q_ASSERT(head->root == z);
+            head->root = x;
+        } else if (P.left == z) {
+            P.left = x;
+            P.size_left -= Z.size;
+        } else {
+            P.right = x;
+        }
     }
     uint n = z;
     while (N.parent) {
-	uint p = N.parent;
-	if (P.left == n) {
- 	    PMDEBUG("reducing size_left of %d by %d", N.parent, Z.size);
-	    P.size_left -= Z.size;
-	}
-	n = p;
+        uint p = N.parent;
+        if (P.left == n) {
+            PMDEBUG("reducing size_left of %d by %d", N.parent, Z.size);
+            P.size_left -= Z.size;
+        }
+        n = p;
     }
 
     freeFragment(z);
@@ -411,67 +411,67 @@ uint QFragmentMapData::erase_single(uint z)
 
 
     if (Y.color != Red) {
-	while (X.parent && (x == 0 || X.color == Black)) {
-	    if (x == P.left) {
-		uint w = P.right;
-		if (W.color == Red) {
-		    W.color = Black;
-		    P.color = Red;
-		    rotateLeft(p);
-		    w = P.right;
-		}
-		if ((W.left == 0 || F(W.left).color == Black) &&
-		    (W.right == 0 || F(W.right).color == Black)) {
-		    W.color = Red;
-		    x = p;
-		    p = X.parent;
-		} else {
-		    if (W.right == 0 || F(W.right).color == Black) {
-			if (W.left)
-			    F(W.left).color = Black;
-			W.color = Red;
-			rotateRight(P.right);
-			w = P.right;
-		    }
-		    W.color = P.color;
-		    P.color = Black;
-		    if (W.right)
-			F(W.right).color = Black;
-		    rotateLeft(p);
-		    break;
-		}
-	    } else {
-		uint w = P.left;
-		if (W.color == Red) {
-		    W.color = Black;
-		    P.color = Red;
-		    rotateRight(p);
-		    w = P.left;
-		}
-		if ((W.right == 0 || F(W.right).color == Black) &&
-		    (W.left == 0 || F(W.left).color == Black)) {
-		    W.color = Red;
-		    x = p;
-		    p = X.parent;
-		} else {
-		    if (W.left == 0 || F(W.left).color == Black) {
-			if (W.right)
-			    F(W.right).color = Black;
-			W.color = Red;
-			rotateLeft(P.left);
-			w = P.left;
-		    }
-		    W.color = P.color;
-		    P.color = Black;
-		    if (W.left)
-			F(W.left).color = Black;
-		    rotateRight(p);
-		    break;
-		}
-	    }
-	}
-	if (x)
-	    X.color = Black;
+        while (X.parent && (x == 0 || X.color == Black)) {
+            if (x == P.left) {
+                uint w = P.right;
+                if (W.color == Red) {
+                    W.color = Black;
+                    P.color = Red;
+                    rotateLeft(p);
+                    w = P.right;
+                }
+                if ((W.left == 0 || F(W.left).color == Black) &&
+                    (W.right == 0 || F(W.right).color == Black)) {
+                    W.color = Red;
+                    x = p;
+                    p = X.parent;
+                } else {
+                    if (W.right == 0 || F(W.right).color == Black) {
+                        if (W.left)
+                            F(W.left).color = Black;
+                        W.color = Red;
+                        rotateRight(P.right);
+                        w = P.right;
+                    }
+                    W.color = P.color;
+                    P.color = Black;
+                    if (W.right)
+                        F(W.right).color = Black;
+                    rotateLeft(p);
+                    break;
+                }
+            } else {
+                uint w = P.left;
+                if (W.color == Red) {
+                    W.color = Black;
+                    P.color = Red;
+                    rotateRight(p);
+                    w = P.left;
+                }
+                if ((W.right == 0 || F(W.right).color == Black) &&
+                    (W.left == 0 || F(W.left).color == Black)) {
+                    W.color = Red;
+                    x = p;
+                    p = X.parent;
+                } else {
+                    if (W.left == 0 || F(W.left).color == Black) {
+                        if (W.right)
+                            F(W.right).color = Black;
+                        W.color = Red;
+                        rotateLeft(P.left);
+                        w = P.left;
+                    }
+                    W.color = P.color;
+                    P.color = Black;
+                    if (W.left)
+                        F(W.left).color = Black;
+                    rotateRight(p);
+                    break;
+                }
+            }
+        }
+        if (x)
+            X.color = Black;
     }
 
     PMDEBUG("after rebalance");
@@ -487,14 +487,14 @@ uint QFragmentMapData::findNode(int k) const
 
     uint s = k;
     while (x) {
-	if (sizeLeft(x) <= s) {
-	    if (s < sizeLeft(x) + size(x))
-		return x;
-	    s -= sizeLeft(x) + size(x);
-	    x = X.right;
-	} else {
-	    x = X.left;
-	}
+        if (sizeLeft(x) <= s) {
+            if (s < sizeLeft(x) + size(x))
+                return x;
+            s -= sizeLeft(x) + size(x);
+            x = X.right;
+        } else {
+            x = X.left;
+        }
     }
     return 0;
 }
@@ -520,36 +520,36 @@ uint QFragmentMapData::insert_single(int key, uint length)
 //     inorder();
     bool right = false;
     while (x) {
-	y = x;
-//  	PMDEBUG("x=%p: x->size_left=%d, key=%d, s=%d", x, x->size_left, x->key(), s);
-	if (s <= X.size_left) {
-	    x = X.left;
-	    right = false;
-	} else {
-	    s -= X.size_left + X.size;
-	    x = X.right;
-	    right = true;
-	}
+        y = x;
+//          PMDEBUG("x=%p: x->size_left=%d, key=%d, s=%d", x, x->size_left, x->key(), s);
+        if (s <= X.size_left) {
+            x = X.left;
+            right = false;
+        } else {
+            s -= X.size_left + X.size;
+            x = X.right;
+            right = true;
+        }
     }
 //     if (y)
-// 	PMDEBUG("  y=%p: y->size_left=%d, y->key=%d s=%d", y, y->size_left, y ? y->key() : -1, s);
+//         PMDEBUG("  y=%p: y->size_left=%d, y->key=%d s=%d", y, y->size_left, y ? y->key() : -1, s);
 
     Z.parent = y;
     if (!y) {
-	head->root = z;
+        head->root = z;
     } else if (!right) {
-//  	PMDEBUG("inserting left");
-	Y.left = z;
-	Y.size_left = Z.size;
+//          PMDEBUG("inserting left");
+        Y.left = z;
+        Y.size_left = Z.size;
     } else {
-//  	PMDEBUG("inserting right");
-	Y.right = z;
+//          PMDEBUG("inserting right");
+        Y.right = z;
     }
     while (y && Y.parent) {
-	uint p = Y.parent;
-	if (P.left == y)
-	    P.size_left += Z.size;
-	y = p;
+        uint p = Y.parent;
+        if (P.left == y)
+            P.size_left += Z.size;
+        y = p;
     }
 //     PMDEBUG("before rebalance");
 //     inorder();

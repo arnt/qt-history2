@@ -16,9 +16,9 @@ public:
 
     enum ResizeMode
     {
-	Interactive, // don't change the size (let the user decide)
-	Stretch, // fill available visible space
-	Content // set size to fit the content
+        Interactive, // don't change the size (let the user decide)
+        Stretch, // fill available visible space
+        Content // set size to fit the content
     };
 
     QGenericHeader(QAbstractItemModel *model, Orientation orientation, QWidget *parent = 0);
@@ -87,7 +87,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent *e);
 
     virtual void paintSection(QPainter *painter, QAbstractItemDelegate *delegate, QItemOptions *options,
-			      const QModelIndex &item);
+                              const QModelIndex &item);
 
     int indexAt(int position) const;
 

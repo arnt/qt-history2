@@ -50,18 +50,18 @@
 class QMouseDriverPluginPrivate : public QMouseDriverInterface
 {
 public:
-    QMouseDriverPluginPrivate( QMouseDriverPlugin *p )
-	: plugin( p )
+    QMouseDriverPluginPrivate(QMouseDriverPlugin *p)
+        : plugin(p)
     {
     }
     virtual ~QMouseDriverPluginPrivate();
 
-    QRESULT queryInterface( const QUuid &iid, QUnknownInterface **iface );
+    QRESULT queryInterface(const QUuid &iid, QUnknownInterface **iface);
     Q_REFCOUNT;
 
     QStringList featureList() const;
 
-    QWSMouseHandler* create( const QString& driver, const QString &device );
+    QWSMouseHandler* create(const QString& driver, const QString &device);
 
 private:
     QMouseDriverPlugin *plugin;
@@ -72,18 +72,18 @@ QMouseDriverPluginPrivate::~QMouseDriverPluginPrivate()
     delete plugin;
 }
 
-QRESULT QMouseDriverPluginPrivate::queryInterface( const QUuid &iid, QUnknownInterface **iface )
+QRESULT QMouseDriverPluginPrivate::queryInterface(const QUuid &iid, QUnknownInterface **iface)
 {
     *iface = 0;
 
-    if ( iid == IID_QUnknown )
-	*iface = this;
-    else if ( iid == IID_QFeatureList )
-	*iface = this;
-    else if ( iid == IID_QMouseDriver )
-	*iface = this;
+    if (iid == IID_QUnknown)
+        *iface = this;
+    else if (iid == IID_QFeatureList)
+        *iface = this;
+    else if (iid == IID_QMouseDriver)
+        *iface = this;
     else
-	return QE_NOINTERFACE;
+        return QE_NOINTERFACE;
 
     (*iface)->addRef();
     return QS_OK;
@@ -94,10 +94,10 @@ QStringList QMouseDriverPluginPrivate::featureList() const
     return plugin->keys();
 }
 
-QWSMouseHandler* QMouseDriverPluginPrivate::create( const QString& driver, const QString &device )
+QWSMouseHandler* QMouseDriverPluginPrivate::create(const QString& driver, const QString &device)
 {
-    qDebug( "Loading plugin: %s", driver.latin1() );
-    return plugin->create( driver, device );
+    qDebug("Loading plugin: %s", driver.latin1());
+    return plugin->create(driver, device);
 }
 
 /*!
@@ -105,7 +105,7 @@ QWSMouseHandler* QMouseDriverPluginPrivate::create( const QString& driver, const
     the \c Q_EXPORT_PLUGIN macro.
 */
 QMouseDriverPlugin::QMouseDriverPlugin()
-    : QGPlugin( d = new QMouseDriverPluginPrivate( this ) )
+    : QGPlugin(d = new QMouseDriverPluginPrivate(this))
 {
 }
 
@@ -121,7 +121,7 @@ QMouseDriverPlugin::~QMouseDriverPlugin()
 
 
 /*!
-    \fn QScreen* QMouseDriverPlugin::create( const QString &driver, const QString& device )
+    \fn QScreen* QMouseDriverPlugin::create(const QString &driver, const QString& device)
 
     Creates a driver matching the type specified by \a driver and
     which uses device \a device.
@@ -129,10 +129,10 @@ QMouseDriverPlugin::~QMouseDriverPlugin()
     \sa keys()
 */
 
-QWSMouseHandler* QMouseDriverPlugin::create( const QString& driver, const QString &device )
+QWSMouseHandler* QMouseDriverPlugin::create(const QString& driver, const QString &device)
 {
-    Q_UNUSED( driver )
-    Q_UNUSED( device )
+    Q_UNUSED(driver)
+    Q_UNUSED(device)
     return 0;
 }
 

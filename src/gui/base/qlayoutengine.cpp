@@ -41,8 +41,8 @@ static inline int fRound(Fixed i) {
   count is the count of items in the chain; pos and space give the
   interval (relative to parentWidget topLeft).
 */
-void qGeomCalc( QVector<QLayoutStruct> &chain, int start, int count,
-			 int pos, int space, int spacer )
+void qGeomCalc(QVector<QLayoutStruct> &chain, int start, int count,
+                         int pos, int space, int spacer)
 {
     int cHint = 0;
     int cMin = 0;
@@ -50,157 +50,157 @@ void qGeomCalc( QVector<QLayoutStruct> &chain, int start, int count,
     int sumStretch = 0;
     int spacerCount = 0;
 
-    bool wannaGrow = FALSE; // anyone who really wants to grow?
-    //    bool canShrink = FALSE; // anyone who could be persuaded to shrink?
+    bool wannaGrow = false; // anyone who really wants to grow?
+    //    bool canShrink = false; // anyone who could be persuaded to shrink?
 
     int i;
-    for ( i = start; i < start + count; i++ ) {
-	chain[i].done = FALSE;
-	cHint += chain[i].smartSizeHint();
-	cMin += chain[i].minimumSize;
-	cMax += chain[i].maximumSize;
-	sumStretch += chain[i].stretch;
-	if ( !chain[i].empty )
-	    spacerCount++;
-	wannaGrow = wannaGrow || chain[i].expansive || chain[i].stretch > 0;
+    for (i = start; i < start + count; i++) {
+        chain[i].done = false;
+        cHint += chain[i].smartSizeHint();
+        cMin += chain[i].minimumSize;
+        cMax += chain[i].maximumSize;
+        sumStretch += chain[i].stretch;
+        if (!chain[i].empty)
+            spacerCount++;
+        wannaGrow = wannaGrow || chain[i].expansive || chain[i].stretch > 0;
     }
 
     int extraspace = 0;
-    if ( spacerCount )
-	spacerCount--; // only spacers between things
-    if ( space < cMin + spacerCount * spacer ) {
-	for ( i = start; i < start+count; i++ ) {
-	    chain[i].size = chain[i].minimumSize;
-	    chain[i].done = TRUE;
-	}
-    } else if ( space < cHint + spacerCount*spacer ) {
-	/*
-	  Less space than smartSizeHint(), but more than minimumSize.
-	  Currently take space equally from each, as in Qt 2.x.
-	  Commented-out lines will give more space to stretchier
-	  items.
-	*/
-	int n = count;
-	int space_left = space - spacerCount*spacer;
-	int overdraft = cHint - space_left;
+    if (spacerCount)
+        spacerCount--; // only spacers between things
+    if (space < cMin + spacerCount * spacer) {
+        for (i = start; i < start+count; i++) {
+            chain[i].size = chain[i].minimumSize;
+            chain[i].done = true;
+        }
+    } else if (space < cHint + spacerCount*spacer) {
+        /*
+          Less space than smartSizeHint(), but more than minimumSize.
+          Currently take space equally from each, as in Qt 2.x.
+          Commented-out lines will give more space to stretchier
+          items.
+        */
+        int n = count;
+        int space_left = space - spacerCount*spacer;
+        int overdraft = cHint - space_left;
 
-	// first give to the fixed ones:
-	for ( i = start; i < start + count; i++ ) {
-	    if ( !chain[i].done
-		 && chain[i].minimumSize >= chain[i].smartSizeHint() ) {
-		chain[i].size = chain[i].smartSizeHint();
-		chain[i].done = TRUE;
-		space_left -= chain[i].smartSizeHint();
-		// sumStretch -= chain[i].stretch;
-		n--;
-	    }
-	}
-	bool finished = n == 0;
-	while ( !finished ) {
-	    finished = TRUE;
-	    Fixed fp_over = toFixed( overdraft );
-	    Fixed fp_w = 0;
+        // first give to the fixed ones:
+        for (i = start; i < start + count; i++) {
+            if (!chain[i].done
+                 && chain[i].minimumSize >= chain[i].smartSizeHint()) {
+                chain[i].size = chain[i].smartSizeHint();
+                chain[i].done = true;
+                space_left -= chain[i].smartSizeHint();
+                // sumStretch -= chain[i].stretch;
+                n--;
+            }
+        }
+        bool finished = n == 0;
+        while (!finished) {
+            finished = true;
+            Fixed fp_over = toFixed(overdraft);
+            Fixed fp_w = 0;
 
-	    for ( i = start; i < start+count; i++ ) {
-		if ( chain[i].done )
-		    continue;
-		// if ( sumStretch <= 0 )
-		fp_w += fp_over / n;
-		// else
-		//    fp_w += (fp_over * chain[i].stretch) / sumStretch;
-		int w = fRound( fp_w );
-		chain[i].size = chain[i].smartSizeHint() - w;
-		fp_w -= toFixed( w ); // give the difference to the next
-		if ( chain[i].size < chain[i].minimumSize ) {
-		    chain[i].done = TRUE;
-		    chain[i].size = chain[i].minimumSize;
-		    finished = FALSE;
-		    overdraft -= ( chain[i].smartSizeHint()
-				   - chain[i].minimumSize );
-		    // sumStretch -= chain[i].stretch;
-		    n--;
-		    break;
-		}
-	    }
-	}
+            for (i = start; i < start+count; i++) {
+                if (chain[i].done)
+                    continue;
+                // if (sumStretch <= 0)
+                fp_w += fp_over / n;
+                // else
+                //    fp_w += (fp_over * chain[i].stretch) / sumStretch;
+                int w = fRound(fp_w);
+                chain[i].size = chain[i].smartSizeHint() - w;
+                fp_w -= toFixed(w); // give the difference to the next
+                if (chain[i].size < chain[i].minimumSize) {
+                    chain[i].done = true;
+                    chain[i].size = chain[i].minimumSize;
+                    finished = false;
+                    overdraft -= (chain[i].smartSizeHint()
+                                   - chain[i].minimumSize);
+                    // sumStretch -= chain[i].stretch;
+                    n--;
+                    break;
+                }
+            }
+        }
     } else { // extra space
-	int n = count;
-	int space_left = space - spacerCount*spacer;
-	// first give to the fixed ones, and handle non-expansiveness
-	for ( i = start; i < start + count; i++ ) {
-	    if ( !chain[i].done
-		 && (chain[i].maximumSize <= chain[i].smartSizeHint()
-		     || (wannaGrow && !chain[i].expansive && chain[i].stretch == 0)) ) {
-		chain[i].size = chain[i].smartSizeHint();
-		chain[i].done = TRUE;
-		space_left -= chain[i].smartSizeHint();
-		sumStretch -= chain[i].stretch;
-		n--;
-	    }
-	}
-	extraspace = space_left;
+        int n = count;
+        int space_left = space - spacerCount*spacer;
+        // first give to the fixed ones, and handle non-expansiveness
+        for (i = start; i < start + count; i++) {
+            if (!chain[i].done
+                 && (chain[i].maximumSize <= chain[i].smartSizeHint()
+                     || (wannaGrow && !chain[i].expansive && chain[i].stretch == 0))) {
+                chain[i].size = chain[i].smartSizeHint();
+                chain[i].done = true;
+                space_left -= chain[i].smartSizeHint();
+                sumStretch -= chain[i].stretch;
+                n--;
+            }
+        }
+        extraspace = space_left;
 
-	/*
-	  Do a trial distribution and calculate how much it is off.
-	  If there are more deficit pixels than surplus pixels, give
-	  the minimum size items what they need, and repeat.
-	  Otherwise give to the maximum size items, and repeat.
+        /*
+          Do a trial distribution and calculate how much it is off.
+          If there are more deficit pixels than surplus pixels, give
+          the minimum size items what they need, and repeat.
+          Otherwise give to the maximum size items, and repeat.
 
-	  Paul Olav Tvete has a wonderful mathematical proof of the
-	  correctness of this principle, but unfortunately this
-	  comment is too small to contain it.
-	*/
-	int surplus, deficit;
-	do {
-	    surplus = deficit = 0;
-	    Fixed fp_space = toFixed( space_left );
-	    Fixed fp_w = 0;
-	    for ( i = start; i < start+count; i++ ) {
-		if ( chain[i].done )
-		    continue;
-		extraspace = 0;
-		if ( sumStretch <= 0 )
-		    fp_w += fp_space / n;
-		else
-		    fp_w += (fp_space * chain[i].stretch) / sumStretch;
-		int w = fRound( fp_w );
-		chain[i].size = w;
-		fp_w -= toFixed( w ); // give the difference to the next
-		if ( w < chain[i].smartSizeHint() ) {
-		    deficit +=  chain[i].smartSizeHint() - w;
-		} else if ( w > chain[i].maximumSize ) {
-		    surplus += w - chain[i].maximumSize;
-		}
-	    }
-	    if ( deficit > 0 && surplus <= deficit ) {
-		// give to the ones that have too little
-		for ( i = start; i < start+count; i++ ) {
-		    if ( !chain[i].done &&
-			 chain[i].size < chain[i].smartSizeHint() ) {
-			chain[i].size = chain[i].smartSizeHint();
-			chain[i].done = TRUE;
-			space_left -= chain[i].smartSizeHint();
-			sumStretch -= chain[i].stretch;
-			n--;
-		    }
-		}
-	    }
-	    if ( surplus > 0 && surplus >= deficit ) {
-		// take from the ones that have too much
-		for ( i = start; i < start+count; i++ ) {
-		    if ( !chain[i].done &&
-			 chain[i].size > chain[i].maximumSize ) {
-			chain[i].size = chain[i].maximumSize;
-			chain[i].done = TRUE;
-			space_left -= chain[i].maximumSize;
-			sumStretch -= chain[i].stretch;
-			n--;
-		    }
-		}
-	    }
-	} while ( n > 0 && surplus != deficit );
-	if ( n == 0 )
-	    extraspace = space_left;
+          Paul Olav Tvete has a wonderful mathematical proof of the
+          correctness of this principle, but unfortunately this
+          comment is too small to contain it.
+        */
+        int surplus, deficit;
+        do {
+            surplus = deficit = 0;
+            Fixed fp_space = toFixed(space_left);
+            Fixed fp_w = 0;
+            for (i = start; i < start+count; i++) {
+                if (chain[i].done)
+                    continue;
+                extraspace = 0;
+                if (sumStretch <= 0)
+                    fp_w += fp_space / n;
+                else
+                    fp_w += (fp_space * chain[i].stretch) / sumStretch;
+                int w = fRound(fp_w);
+                chain[i].size = w;
+                fp_w -= toFixed(w); // give the difference to the next
+                if (w < chain[i].smartSizeHint()) {
+                    deficit +=  chain[i].smartSizeHint() - w;
+                } else if (w > chain[i].maximumSize) {
+                    surplus += w - chain[i].maximumSize;
+                }
+            }
+            if (deficit > 0 && surplus <= deficit) {
+                // give to the ones that have too little
+                for (i = start; i < start+count; i++) {
+                    if (!chain[i].done &&
+                         chain[i].size < chain[i].smartSizeHint()) {
+                        chain[i].size = chain[i].smartSizeHint();
+                        chain[i].done = true;
+                        space_left -= chain[i].smartSizeHint();
+                        sumStretch -= chain[i].stretch;
+                        n--;
+                    }
+                }
+            }
+            if (surplus > 0 && surplus >= deficit) {
+                // take from the ones that have too much
+                for (i = start; i < start+count; i++) {
+                    if (!chain[i].done &&
+                         chain[i].size > chain[i].maximumSize) {
+                        chain[i].size = chain[i].maximumSize;
+                        chain[i].done = true;
+                        space_left -= chain[i].maximumSize;
+                        sumStretch -= chain[i].stretch;
+                        n--;
+                    }
+                }
+            }
+        } while (n > 0 && surplus != deficit);
+        if (n == 0)
+            extraspace = space_left;
     }
 
     /*
@@ -209,91 +209,91 @@ void qGeomCalc( QVector<QLayoutStruct> &chain, int start, int count,
       could, but don't, attempt a sub-pixel allocation of the extra
       space.
     */
-    int extra = extraspace / ( spacerCount + 2 );
+    int extra = extraspace / (spacerCount + 2);
     int p = pos + extra;
-    for ( i = start; i < start+count; i++ ) {
-	chain[i].pos = p;
-	p = p + chain[i].size;
-	if ( !chain[i].empty )
-	    p += spacer+extra;
+    for (i = start; i < start+count; i++) {
+        chain[i].pos = p;
+        p = p + chain[i].size;
+        if (!chain[i].empty)
+            p += spacer+extra;
     }
 }
 
-QSize qSmartMinSize( const QWidgetItem *i )
+QSize qSmartMinSize(const QWidgetItem *i)
 {
     QWidget *w = ((QWidgetItem *)i)->widget();
 
-    QSize s( 0, 0 );
-    if ( w->layout() ) {
-	s = w->layout()->totalMinimumSize();
+    QSize s(0, 0);
+    if (w->layout()) {
+        s = w->layout()->totalMinimumSize();
     } else {
-	QSize sh;
+        QSize sh;
 
-	if ( w->sizePolicy().horData() != QSizePolicy::Ignored ) {
-	    if ( w->sizePolicy().mayShrinkHorizontally() ) {
-		s.setWidth( w->minimumSizeHint().width() );
-	    } else {
-		sh = w->sizeHint();
-		s.setWidth( sh.width() );
-	    }
-	}
+        if (w->sizePolicy().horData() != QSizePolicy::Ignored) {
+            if (w->sizePolicy().mayShrinkHorizontally()) {
+                s.setWidth(w->minimumSizeHint().width());
+            } else {
+                sh = w->sizeHint();
+                s.setWidth(sh.width());
+            }
+        }
 
-	if ( w->sizePolicy().verData() != QSizePolicy::Ignored ) {
-	    if ( w->sizePolicy().mayShrinkVertically() ) {
-		s.setHeight( w->minimumSizeHint().height() );
-	    } else {
-		s.setHeight( sh.isValid() ? sh.height()
-			     : w->sizeHint().height() );
-	    }
-	}
+        if (w->sizePolicy().verData() != QSizePolicy::Ignored) {
+            if (w->sizePolicy().mayShrinkVertically()) {
+                s.setHeight(w->minimumSizeHint().height());
+            } else {
+                s.setHeight(sh.isValid() ? sh.height()
+                             : w->sizeHint().height());
+            }
+        }
     }
-    s = s.boundedTo( w->maximumSize() );
+    s = s.boundedTo(w->maximumSize());
     QSize min = w->minimumSize();
-    if ( min.width() > 0 )
-	s.setWidth( min.width() );
-    if ( min.height() > 0 )
-	s.setHeight( min.height() );
+    if (min.width() > 0)
+        s.setWidth(min.width());
+    if (min.height() > 0)
+        s.setHeight(min.height());
 
-    if ( i->hasHeightForWidth() && min.height() == 0 && min.width() > 0 )
-	s.setHeight( i->heightForWidth(s.width()) );
+    if (i->hasHeightForWidth() && min.height() == 0 && min.width() > 0)
+        s.setHeight(i->heightForWidth(s.width()));
 
-    s = s.expandedTo( QSize(1, 1) );
+    s = s.expandedTo(QSize(1, 1));
     return s;
 }
 
-QSize qSmartMinSize( QWidget *w )
+QSize qSmartMinSize(QWidget *w)
 {
-    QWidgetItem item( w );
-    return qSmartMinSize( &item );
+    QWidgetItem item(w);
+    return qSmartMinSize(&item);
 }
 
-QSize qSmartMaxSize( const QWidgetItem *i, Qt::Alignment align )
+QSize qSmartMaxSize(const QWidgetItem *i, Qt::Alignment align)
 {
-    QWidget *w = ( (QWidgetItem*)i )->widget();
-    if ( align & Qt::AlignHorizontal_Mask && align & Qt::AlignVertical_Mask )
-	return QSize( QLAYOUTSIZE_MAX, QLAYOUTSIZE_MAX );
+    QWidget *w = ((QWidgetItem*)i)->widget();
+    if (align & Qt::AlignHorizontal_Mask && align & Qt::AlignVertical_Mask)
+        return QSize(QLAYOUTSIZE_MAX, QLAYOUTSIZE_MAX);
     QSize s = w->maximumSize();
-    if ( s.width() == QWIDGETSIZE_MAX && !(align & Qt::AlignHorizontal_Mask) )
-	if ( !w->sizePolicy().mayGrowHorizontally() )
-	    s.setWidth( w->sizeHint().width() );
+    if (s.width() == QWIDGETSIZE_MAX && !(align & Qt::AlignHorizontal_Mask))
+        if (!w->sizePolicy().mayGrowHorizontally())
+            s.setWidth(w->sizeHint().width());
 
-    if ( s.height() == QWIDGETSIZE_MAX && !(align & Qt::AlignVertical_Mask) )
-	if ( !w->sizePolicy().mayGrowVertically() )
-	    s.setHeight( w->sizeHint().height() );
+    if (s.height() == QWIDGETSIZE_MAX && !(align & Qt::AlignVertical_Mask))
+        if (!w->sizePolicy().mayGrowVertically())
+            s.setHeight(w->sizeHint().height());
 
-    s = s.expandedTo( w->minimumSize() );
+    s = s.expandedTo(w->minimumSize());
 
-    if ( align & Qt::AlignHorizontal_Mask )
-	s.setWidth( QLAYOUTSIZE_MAX );
-    if ( align & Qt::AlignVertical_Mask )
-	s.setHeight( QLAYOUTSIZE_MAX );
+    if (align & Qt::AlignHorizontal_Mask)
+        s.setWidth(QLAYOUTSIZE_MAX);
+    if (align & Qt::AlignVertical_Mask)
+        s.setHeight(QLAYOUTSIZE_MAX);
     return s;
 }
 
-QSize qSmartMaxSize( QWidget *w, Qt::Alignment align )
+QSize qSmartMaxSize(QWidget *w, Qt::Alignment align)
 {
-    QWidgetItem item( w );
-    return qSmartMaxSize( &item, align );
+    QWidgetItem item(w);
+    return qSmartMaxSize(&item, align);
 }
 
 #endif // QT_NO_LAYOUT

@@ -25,23 +25,23 @@
  *
  ********************************************************************/
 #ifndef QT_NO_QWS_MULTIPROCESS
-inline int qws_read_uint( QWSSocket *socket )
+inline int qws_read_uint(QWSSocket *socket)
 {
-    if ( !socket || socket->size() < sizeof( int ) )
-	return -1;
+    if (!socket || socket->size() < sizeof(int))
+        return -1;
 
     int i;
-    socket->readBlock( (char*)&i, sizeof( i ) );
+    socket->readBlock((char*)&i, sizeof(i));
 
     return i;
 }
 
-inline void qws_write_uint( QWSSocket *socket, int i )
+inline void qws_write_uint(QWSSocket *socket, int i)
 {
-    if ( !socket )
-	return;
+    if (!socket)
+        return;
 
-    socket->writeBlock( (char*)&i, sizeof( i ) );
+    socket->writeBlock((char*)&i, sizeof(i));
 }
 
 #endif // QT_NO_QWS_MULTIPROCESS

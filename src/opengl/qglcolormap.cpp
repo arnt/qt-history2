@@ -52,19 +52,19 @@
 
     int main()
     {
-	QApplication a( argc, argv );
+        QApplication a(argc, argv);
 
-	MySuperGLWidget widget( 0 ); // A QGLWidget in color-index mode
-	QGLColormap colormap;
+        MySuperGLWidget widget(0); // A QGLWidget in color-index mode
+        QGLColormap colormap;
 
-	// This will fill the colormap with colors ranging from
-	// black to white.
-	for ( int i = 0; i < colormap.size(); i++ )
-	    colormap.setEntry( i, qRgb( i, i, i ) );
+        // This will fill the colormap with colors ranging from
+        // black to white.
+        for (int i = 0; i < colormap.size(); i++)
+            colormap.setEntry(i, qRgb(i, i, i));
 
-	widget.setColormap( colormap );
-	widget.show();
-	return a.exec();
+        widget.setColormap(colormap);
+        widget.show();
+        return a.exec();
     }
     \endcode
 
@@ -117,7 +117,7 @@ QGLColormap::QGLColormap(const QGLColormap &map)
 QGLColormap::~QGLColormap()
 {
     if (!--d->ref)
-	cleanup(d);
+        cleanup(d);
 }
 
 void QGLColormap::cleanup(QGLColormap::QGLColormapData *x)
@@ -136,7 +136,7 @@ QGLColormap & QGLColormap::operator=(const QGLColormap &map)
     ++x->ref;
     x = qAtomicSetPtr(&d, x);
     if (!--x->ref)
-	cleanup(x);
+        cleanup(x);
     return *this;
 }
 
@@ -152,8 +152,8 @@ void QGLColormap::detach_helper()
     x->cmapHandle = 0;
     x->cells = 0;
     if (d->cells) {
-	x->cells = new QVector<QRgb>(256);
-	*x->cells = *d->cells;
+        x->cells = new QVector<QRgb>(256);
+        *x->cells = *d->cells;
     }
 }
 
@@ -164,7 +164,7 @@ void QGLColormap::setEntry(int idx, QRgb color)
 {
     detach();
     if (!d->cells)
-	d->cells = new QVector<QRgb>(256);
+        d->cells = new QVector<QRgb>(256);
     d->cells->insert(idx, color);
 }
 
@@ -177,23 +177,23 @@ void QGLColormap::setEntries(int count, const QRgb *colors, int base)
 {
     detach();
     if (!d->cells)
-	d->cells = new QVector<QRgb>(256);
+        d->cells = new QVector<QRgb>(256);
 
     Q_ASSERT_X(!colors || base >= 0 || base + count < d->cells->size(), "QGLColormap::setEntries",
-	       "preconditions not met");
+               "preconditions not met");
     for (int i = base; i < base + count; ++i)
-	setEntry( i, colors[i] );
+        setEntry(i, colors[i]);
 }
 
 /*!
     Returns the QRgb value in the colorcell with index \a idx.
 */
-QRgb QGLColormap::entryRgb( int idx ) const
+QRgb QGLColormap::entryRgb(int idx) const
 {
     if (d == &shared_null || !d->cells)
-	return 0;
+        return 0;
     else
-	return d->cells->at(idx);
+        return d->cells->at(idx);
 }
 
 /*!
@@ -212,13 +212,13 @@ void QGLColormap::setEntry(int idx, const QColor &color)
 QColor QGLColormap::entryColor(int idx) const
 {
     if (d == &shared_null || !d->cells)
-	return QColor();
+        return QColor();
     else
-	return QColor(d->cells->at(idx));
+        return QColor(d->cells->at(idx));
 }
 
 /*!
-    Returns TRUE if the colormap is empty; otherwise returns FALSE. A
+    Returns true if the colormap is empty; otherwise returns false. A
     colormap with no color values set is considered to be empty.
 */
 bool QGLColormap::isEmpty() const
@@ -242,7 +242,7 @@ int QGLColormap::size() const
 int QGLColormap::find(QRgb color) const
 {
     if (d->cells)
-	return d->cells->indexOf(color);
+        return d->cells->indexOf(color);
     return -1;
 }
 
@@ -254,7 +254,7 @@ int QGLColormap::findNearest(QRgb color) const
 {
     int idx = find(color);
     if (idx >= 0)
-	return idx;
+        return idx;
     int mapSize = size();
     int mindist = 200000;
     int r = qRed(color);
@@ -262,15 +262,15 @@ int QGLColormap::findNearest(QRgb color) const
     int b = qBlue(color);
     int rx, gx, bx, dist;
     for (int i = 0; i < mapSize; ++i) {
-	QRgb ci = d->cells->at(i);
-	rx = r - qRed(ci);
-	gx = g - qGreen(ci);
-	bx = b - qBlue(ci);
-	dist = rx * rx + gx * gx + bx * bx;	// calculate distance
-	if (dist < mindist) {		// minimal?
-	    mindist = dist;
-	    idx = i;
-	}
+        QRgb ci = d->cells->at(i);
+        rx = r - qRed(ci);
+        gx = g - qGreen(ci);
+        bx = b - qBlue(ci);
+        dist = rx * rx + gx * gx + bx * bx;        // calculate distance
+        if (dist < mindist) {                // minimal?
+            mindist = dist;
+            idx = i;
+        }
     }
     return idx;
 }

@@ -80,15 +80,15 @@ public:
 
     inline void acquire()
     {
-	q_atomic_increment(&waiters);
-	while (!q_atomic_test_and_set_int(&lock, 0, ~0))
-	    d.wait();
-	q_atomic_decrement(&waiters);
+        q_atomic_increment(&waiters);
+        while (!q_atomic_test_and_set_int(&lock, 0, ~0))
+            d.wait();
+        q_atomic_decrement(&waiters);
     }
     inline void release()
     {
-	(void) q_atomic_set_int(&lock, 0);
-	if (waiters != 0) d.wake();
+        (void) q_atomic_set_int(&lock, 0);
+        if (waiters != 0) d.wake();
     }
 
 private:
@@ -106,16 +106,16 @@ class Q_CORE_EXPORT QSpinLockLocker
 public:
     inline QSpinLockLocker(QStaticSpinLock &s)
     {
-	if (!s) { // spinlock not yet initialized... do it now
-	    QSpinLock *x = new QSpinLock;
-	    if (!q_atomic_test_and_set_ptr(&s, 0, x))
-		delete x; // someone beat us to it
-	}
-	sx = reinterpret_cast<QSpinLock *>(s);
-	acquire();
+        if (!s) { // spinlock not yet initialized... do it now
+            QSpinLock *x = new QSpinLock;
+            if (!q_atomic_test_and_set_ptr(&s, 0, x))
+                delete x; // someone beat us to it
+        }
+        sx = reinterpret_cast<QSpinLock *>(s);
+        acquire();
     }
     inline QSpinLockLocker(QSpinLock *s)
-	: sx(s)
+        : sx(s)
     { acquire(); }
     inline ~QSpinLockLocker()
     { release(); }

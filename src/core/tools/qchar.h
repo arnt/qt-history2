@@ -35,11 +35,11 @@ public:
     QChar(int rc);
     QChar(const QLatin1Char &ch);
     enum SpecialChars {
-	null = 0x0000,
-	replacement = 0xfffd,
-	byteOrderMark = 0xfeff,
-	byteOrderSwapped = 0xfffe,
-	nbsp = 0x00a0
+        null = 0x0000,
+        replacement = 0xfffd,
+        byteOrderMark = 0xfeff,
+        byteOrderSwapped = 0xfffe,
+        nbsp = 0x00a0
     };
     QChar(SpecialChars sc);
 
@@ -175,7 +175,7 @@ public:
     inline QT_COMPAT QChar lower() const { return toLower(); }
     inline QT_COMPAT QChar upper() const { return toUpper(); }
     static inline QT_COMPAT bool networkOrdered() {
-	return QSysInfo::ByteOrder == QSysInfo::BigEndian;
+        return QSysInfo::ByteOrder == QSysInfo::BigEndian;
     }
 #endif
 

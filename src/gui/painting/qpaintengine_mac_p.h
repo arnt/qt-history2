@@ -20,7 +20,7 @@
 /*****************************************************************************
   QuickDraw Private data
  *****************************************************************************/
-static int ropCodes[] = {			// ROP translation table
+static int ropCodes[] = {                        // ROP translation table
     patCopy, subPin, patXor, patBic, notPatCopy,
     notPatOr, notPatXor, notPatBic,
     666, 666, 666, 666, 666, 666, 666, 666, 666
@@ -32,27 +32,27 @@ class QQuickDrawPaintEnginePrivate : public QPaintEnginePrivate
     Q_DECLARE_PUBLIC(QQuickDrawPaintEngine);
 public:
     QQuickDrawPaintEnginePrivate()
-	: QPaintEnginePrivate()
+        : QPaintEnginePrivate()
     {
-	saved = 0;
-	paintevent = 0;
-	clip.serial = 0;
-	clip.dirty = locked = unclipped = false;
-	clip.pdev = clip.paintable = QRegion();
-	brush_style_pix = 0;
-	offx = offy = 0;
+        saved = 0;
+        paintevent = 0;
+        clip.serial = 0;
+        clip.dirty = locked = unclipped = false;
+        clip.pdev = clip.paintable = QRegion();
+        brush_style_pix = 0;
+        offx = offy = 0;
     }
 
     struct {
-	QPen pen;
-	QBrush brush;
-	Qt::RasterOp rop;
-	QRegion clip;
-	struct {
-	    QPoint origin;
-	    Qt::BGMode mode;
-	    QBrush brush;
-	} bg;
+        QPen pen;
+        QBrush brush;
+        Qt::RasterOp rop;
+        QRegion clip;
+        struct {
+            QPoint origin;
+            Qt::BGMode mode;
+            QBrush brush;
+        } bg;
     } current;
 
     int offx, offy;
@@ -62,8 +62,8 @@ public:
     paintevent_item *paintevent;
 
     struct {
-	QRegion pdev, paintable;
-	uint dirty : 1, serial : 15;
+        QRegion pdev, paintable;
+        uint dirty : 1, serial : 15;
     } clip;
 
 };
@@ -77,20 +77,20 @@ class QCoreGraphicsPaintEnginePrivate : public QQuickDrawPaintEnginePrivate
 public:
     QCoreGraphicsPaintEnginePrivate()
     {
-	hd = 0;
+        hd = 0;
         shading = 0;
         antiAliasingEnabled = 1;
     }
 
     //state info
     struct {
-	QPen pen;
-	QBrush brush;
-	struct {
-	    QPoint origin;
-	    Qt::BGMode mode;
-	    QBrush brush;
-	} bg;
+        QPen pen;
+        QBrush brush;
+        struct {
+            QPoint origin;
+            Qt::BGMode mode;
+            QBrush brush;
+        } bg;
     } current;
 
     //cg strucutres
@@ -109,10 +109,10 @@ public:
             CGContextDrawShading(hd, shading);
             CGContextRestoreGState(hd);
             ops &= ~CGFill;
-        } 
-        if((ops & CGFill) && current.brush.style() == Qt::NoBrush) 
+        }
+        if((ops & CGFill) && current.brush.style() == Qt::NoBrush)
             ops &= ~CGFill;
-        if((ops & CGStroke) && current.pen.style() == Qt::NoPen) 
+        if((ops & CGStroke) && current.pen.style() == Qt::NoPen)
             ops &= ~CGStroke;
 
         CGPathDrawingMode mode;

@@ -42,8 +42,8 @@ public:
 
     virtual bool openOutput(QFile &) const;
 protected:
-    bool doPrecompiledHeaders() const { return FALSE; }
-    virtual bool doDepends() const { return FALSE; } //never necesary
+    bool doPrecompiledHeaders() const { return false; }
+    virtual bool doDepends() const { return false; } //never necesary
 };
 
 inline ProjectBuilderMakefileGenerator::~ProjectBuilderMakefileGenerator()

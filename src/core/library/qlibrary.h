@@ -26,18 +26,18 @@ class QLibraryPrivate;
 class Q_CORE_EXPORT QLibrary
 {
 public:
-    QLibrary( const QString& filename );
+    QLibrary(const QString& filename);
     virtual ~QLibrary();
 
-    void *resolve( const char* );
-    static void *resolve( const QString &filename, const char * );
+    void *resolve(const char*);
+    static void *resolve(const QString &filename, const char *);
 
     bool load();
     virtual bool unload();
     bool isLoaded() const;
 
     bool autoUnload() const;
-    void setAutoUnload( bool enable );
+    void setAutoUnload(bool enable);
 
     QString library() const;
 
@@ -47,10 +47,10 @@ private:
     QString libfile;
     uint aunload : 1;
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QLibrary( const QLibrary & );
-    QLibrary &operator=( const QLibrary & );
+    QLibrary(const QLibrary &);
+    QLibrary &operator=(const QLibrary &);
 #endif
 };
 

@@ -27,36 +27,36 @@ static int parentPID = -1;
 static int chldPID = -1;
 
 extern "C" void sigHandler(int sig) {
-	if (parentPID == getpid())  {
-		kill(chldPID, SIGKILL);
-	} else {
-		kill(parentPID, SIGKILL);
-	}
-	_exit(0);
+        if (parentPID == getpid())  {
+                kill(chldPID, SIGKILL);
+        } else {
+                kill(parentPID, SIGKILL);
+        }
+        _exit(0);
 }
 
-QQnx4MouseHandlerPrivate::QQnx4MouseHandlerPrivate(MouseProtocol &protocol,QString dev) : 
+QQnx4MouseHandlerPrivate::QQnx4MouseHandlerPrivate(MouseProtocol &protocol,QString dev) :
        QWSMouseHandler(), read_in(0), mpack(NULL) {
      int mouse_fds[2];
      pipe(mouse_fds);
-	parentPID = getpid();
-	signal(SIGTERM,sigHandler);
+        parentPID = getpid();
+        signal(SIGTERM,sigHandler);
      if(!(chldPID=fork())) {
        close(mouse_fds[0]);
        struct _mouse_ctrl *mc = mouse_open((nid_t)0, dev.latin1(), 0);
        if(!mc)
          qFatal("mouse_open failed (%s)!", dev.latin1());
-       mouse_flush( mc );
+       mouse_flush(mc);
        const int buff_size = 10;
        mouse_event mbuff[buff_size];
        pid_t mprox = qnx_proxy_attach(0, 0, 0, -1);
        mouse_read(mc, mbuff, 0, mprox, NULL);
        while(1) {
-	 int msg = Receive( 0, mbuff, buff_size);
-	 if(msg == mprox) {
-	    int armed = 0;
+         int msg = Receive(0, mbuff, buff_size);
+         if(msg == mprox) {
+            int armed = 0;
             while(!armed) {
-   	      int n = mouse_read(mc, mbuff, buff_size, mprox, &armed);
+              int n = mouse_read(mc, mbuff, buff_size, mprox, &armed);
               write(mouse_fds[1], mbuff, sizeof(mbuff[0]) * n);
             }
          }
@@ -65,13 +65,13 @@ QQnx4MouseHandlerPrivate::QQnx4MouseHandlerPrivate(MouseProtocol &protocol,QStri
        _exit(666);
     }
     if (chldPID == -1)
-	qFatal("Failed to fork");
+        qFatal("Failed to fork");
     close(mouse_fds[1]);
     mouseFD = mouse_fds[0];
     mouseNotifier = new QSocketNotifier(mouseFD,
-				    QSocketNotifier::Read, this );
+                                    QSocketNotifier::Read, this);
     connect(mouseNotifier, SIGNAL(activated(int)),
-	  this, SLOT(readMouseData(int)));
+          this, SLOT(readMouseData(int)));
 }
 
 QQnx4MouseHandlerPrivate::~QQnx4MouseHandlerPrivate()
@@ -79,10 +79,10 @@ QQnx4MouseHandlerPrivate::~QQnx4MouseHandlerPrivate()
   delete mouseNotifier;
   close(mouseFD);
   if(mpack)
-	free(mpack); 
+        free(mpack);
   if (chldPID > 0) {
-	kill(chldPID, SIGKILL);
-	waitpid(chldPID,0,0);
+        kill(chldPID, SIGKILL);
+        waitpid(chldPID,0,0);
   }
 }
 
@@ -112,9 +112,9 @@ void QQnx4MouseHandlerPrivate::readMouseData(int fd) {
       limitToScreen(mt);
       int button = NoButton;
       if(mpack->buttons & _MOUSE_LEFT)
-	button |= LeftButton;
+        button |= LeftButton;
       else if(mpack->buttons & _MOUSE_RIGHT)
-	button |= RightButton;
+        button |= RightButton;
       mouseChanged(mt, button);
     }
   }

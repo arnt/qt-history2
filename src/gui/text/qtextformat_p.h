@@ -34,10 +34,10 @@ public:
 
     QTextFormat::PropertyType type;
     union {
-	bool boolValue;
-	int intValue;
-	float floatValue;
-	mutable void *ptr;
+        bool boolValue;
+        int intValue;
+        float floatValue;
+        mutable void *ptr;
     } data;
 
     inline QString stringValue() const
@@ -57,10 +57,10 @@ public:
     int type;
 
     inline bool operator==(const QTextFormatPrivate &rhs) const {
-	if (type != rhs.type)
-	    return false;
+        if (type != rhs.type)
+            return false;
 
-	return properties == rhs.properties;
+        return properties == rhs.properties;
     }
 };
 

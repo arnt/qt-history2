@@ -29,11 +29,11 @@ QDialogButtons : public QWidget
 public:
     enum Button { None=0, Accept=0x01, Reject=0x02, Help=0x04, Apply=0x08, All=0x10, Abort=0x20, Retry=0x40, Ignore=0x80 };
 #ifndef QT_NO_DIALOG
-    QDialogButtons(QDialog *parent, bool autoConnect = TRUE, Q_UINT32 buttons = Accept | Reject,
-		   Orientation orient = Horizontal, const char *name = NULL);
+    QDialogButtons(QDialog *parent, bool autoConnect = true, Q_UINT32 buttons = Accept | Reject,
+                   Orientation orient = Horizontal, const char *name = NULL);
 #endif // QT_NO_DIALOG
-    QDialogButtons(QWidget *parent, Q_UINT32 buttons = Accept | Reject, 
-		   Orientation orient = Horizontal, const char *name = NULL);
+    QDialogButtons(QWidget *parent, Q_UINT32 buttons = Accept | Reject,
+                   Orientation orient = Horizontal, const char *name = NULL);
     ~QDialogButtons();
 
     void setQuestionMode(bool);
@@ -42,8 +42,8 @@ public:
     void setButtonEnabled(Button button, bool enabled);
     bool isButtonEnabled(Button) const;
 
-    inline void showButton(Button b) { setButtonVisible(b, TRUE) ; }
-    inline void hideButton(Button b) { setButtonVisible(b, FALSE); }
+    inline void showButton(Button b) { setButtonVisible(b, true) ; }
+    inline void hideButton(Button b) { setButtonVisible(b, false); }
     virtual void setButtonVisible(Button, bool visible);
     bool isButtonVisible(Button) const;
 
@@ -68,7 +68,7 @@ protected:
 
     void showEvent(QShowEvent *);
     void resizeEvent(QResizeEvent *);
-    void changeEvent( QEvent * );
+    void changeEvent(QEvent *);
 
 private slots:
     void handleClicked();

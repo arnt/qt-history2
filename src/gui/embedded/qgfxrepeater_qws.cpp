@@ -132,7 +132,7 @@ QRepeaterGfx::~QRepeaterGfx()
 {
     QGfxRec * walker;
     for(walker=gfxen.first();walker;walker=gfxen.next()) {
-	delete walker->gfx;
+        delete walker->gfx;
     }
 }
 
@@ -141,16 +141,16 @@ QString dumpRegion(QRegion r)
     QVector<QRect> myrects=r.rects();
     QString ret="(";
     for(unsigned int loopc=0;loopc<myrects.size();loopc++) {
-	QRect rect=myrects[loopc];
-	ret+="[";
-	ret+=QString::number(rect.left());
-	ret+=".";
-	ret+=QString::number(rect.top());
-	ret+=".";
-	ret+=QString::number(rect.width());
-	ret+=".";
-	ret+=QString::number(rect.height());
-	ret+="]";
+        QRect rect=myrects[loopc];
+        ret+="[";
+        ret+=QString::number(rect.left());
+        ret+=".";
+        ret+=QString::number(rect.top());
+        ret+=".";
+        ret+=QString::number(rect.width());
+        ret+=".";
+        ret+=QString::number(rect.height());
+        ret+="]";
     }
     ret+=")";
     return ret;
@@ -176,96 +176,96 @@ void QRepeaterGfx::addScreen(QScreen * s,QScreenCursor *c,int x,int y,bool b)
 void QRepeaterGfx::setPen(const QPen & p)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->setPen(p);
+        walker->gfx->setPen(p);
     }
 }
 
 void QRepeaterGfx::setFont(const QFont & f)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->setFont(f);
+        walker->gfx->setFont(f);
     }
 }
 
 void QRepeaterGfx::setBrush(const QBrush & b)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->setBrush(b);
+        walker->gfx->setBrush(b);
     }
 }
 
 void QRepeaterGfx::setBrushPixmap(const QPixmap * p)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->setBrushPixmap(p);
+        walker->gfx->setBrushPixmap(p);
     }
 }
 
 void QRepeaterGfx::setBrushOffset (int x, int y)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->setBrushOffset(x,y);
+        walker->gfx->setBrushOffset(x,y);
     }
 }
 
 void QRepeaterGfx::setClipRect (int x, int y, int w, int h)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	QRect r2(walker->xoffs,walker->yoffs,walker->w,walker->h);
-	QRect r1(x,y,w,h);
-	r1.moveBy(xoffs,yoffs);
-	r1=r1.intersect(r2);
-	r1.moveBy(-xoffs,-yoffs);
-	walker->gfx->setClipRect(r1.left(),r1.top(),r1.width(),r1.height());
+        QRect r2(walker->xoffs,walker->yoffs,walker->w,walker->h);
+        QRect r1(x,y,w,h);
+        r1.moveBy(xoffs,yoffs);
+        r1=r1.intersect(r2);
+        r1.moveBy(-xoffs,-yoffs);
+        walker->gfx->setClipRect(r1.left(),r1.top(),r1.width(),r1.height());
     }
 }
 
 void QRepeaterGfx::setClipDeviceRegion (const QRegion & r)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	QRegion r1(QRect(walker->xoffs,walker->yoffs,walker->w,walker->h));
-	QRegion r2=r;
-	r2.translate(xoffs,yoffs);
-	r2=r1.intersect(r2);
-	r2.translate(-xoffs,-yoffs);
-	walker->gfx->setClipDeviceRegion(r2);
+        QRegion r1(QRect(walker->xoffs,walker->yoffs,walker->w,walker->h));
+        QRegion r2=r;
+        r2.translate(xoffs,yoffs);
+        r2=r1.intersect(r2);
+        r2.translate(-xoffs,-yoffs);
+        walker->gfx->setClipDeviceRegion(r2);
     }
 }
 
 void QRepeaterGfx::setWidgetDeviceRegion (const QRegion & r)
 {
    for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	QRegion r1=r;
-	r1.translate(-(walker->xoffs),-(walker->yoffs));
-	QRegion r2(0,0,walker->w,walker->h);
-	r1=r1.intersect(r2);
-	walker->gfx->setWidgetDeviceRegion(r1);
+        QRegion r1=r;
+        r1.translate(-(walker->xoffs),-(walker->yoffs));
+        QRegion r2(0,0,walker->w,walker->h);
+        r1=r1.intersect(r2);
+        walker->gfx->setWidgetDeviceRegion(r1);
     }
 }
 
 void QRepeaterGfx::setClipRegion (const QRegion & r)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	QRegion r1(QRect(walker->xoffs,walker->yoffs,walker->w,walker->h));
-	QRegion r2=r;
-	r2.translate(xoffs,yoffs);
-	r2=r1.intersect(r2);
-	r2.translate(-xoffs,-yoffs);
-	walker->gfx->setClipRegion(r2);
+        QRegion r1(QRect(walker->xoffs,walker->yoffs,walker->w,walker->h));
+        QRegion r2=r;
+        r2.translate(xoffs,yoffs);
+        r2=r1.intersect(r2);
+        r2.translate(-xoffs,-yoffs);
+        walker->gfx->setClipRegion(r2);
     }
 }
 
 void QRepeaterGfx::setClipping (bool b)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->setClipping(b);
+        walker->gfx->setClipping(b);
     }
 }
 
 void QRepeaterGfx::setOffset (int x, int y)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->setOffset(x-walker->xoffs,y-walker->yoffs);
+        walker->gfx->setOffset(x-walker->xoffs,y-walker->yoffs);
     }
     xoffs=x;
     yoffs=y;
@@ -274,11 +274,11 @@ void QRepeaterGfx::setOffset (int x, int y)
 void QRepeaterGfx::setWidgetRect (int x, int y, int w, int h)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	QRect r(x-walker->xoffs,y-walker->yoffs,w,h);
-	QRect r2(0,0,walker->w,walker->h);
-	QRect r3=r2.intersect(r);
-	walker->gfx->setWidgetRect(r3.left(),r3.top(),
-				   r3.width(),r3.height());
+        QRect r(x-walker->xoffs,y-walker->yoffs,w,h);
+        QRect r2(0,0,walker->w,walker->h);
+        QRect r3=r2.intersect(r);
+        walker->gfx->setWidgetRect(r3.left(),r3.top(),
+                                   r3.width(),r3.height());
     }
     widgetclip=QRect(x,y,w,h);
 }
@@ -286,11 +286,11 @@ void QRepeaterGfx::setWidgetRect (int x, int y, int w, int h)
 void QRepeaterGfx::setWidgetRegion (const QRegion & r)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	QRegion r1=r;
-	r1.translate(-(walker->xoffs),-(walker->yoffs));
-	QRegion r2(0,0,walker->w,walker->h);
-	r1=r1.intersect(r2);
-	walker->gfx->setWidgetRegion(r1);
+        QRegion r1=r;
+        r1.translate(-(walker->xoffs),-(walker->yoffs));
+        QRegion r2(0,0,walker->w,walker->h);
+        r1=r1.intersect(r2);
+        walker->gfx->setWidgetRegion(r1);
     }
     widgetclip=r;
 }
@@ -298,88 +298,88 @@ void QRepeaterGfx::setWidgetRegion (const QRegion & r)
 void QRepeaterGfx::setSourceWidgetOffset (int x, int y)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->setSourceWidgetOffset(x-walker->xoffs,y-walker->yoffs);
+        walker->gfx->setSourceWidgetOffset(x-walker->xoffs,y-walker->yoffs);
     }
 }
 
 void QRepeaterGfx::setGlobalRegionIndex (int i)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->setGlobalRegionIndex(i);
+        walker->gfx->setGlobalRegionIndex(i);
     }
 }
 
 void QRepeaterGfx::setDashedLines (bool b)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->setDashedLines(b);
+        walker->gfx->setDashedLines(b);
     }
 }
 
 void QRepeaterGfx::setDashes (char * c, int i)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->setDashes(c,i);
+        walker->gfx->setDashes(c,i);
     }
 }
 
 void QRepeaterGfx::setOpaqueBackground (bool b)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->setOpaqueBackground(b);
+        walker->gfx->setOpaqueBackground(b);
     }
 }
 
 void QRepeaterGfx::setBackgroundColor (QColor c)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->setBackgroundColor(c);
+        walker->gfx->setBackgroundColor(c);
     }
 }
 
 void QRepeaterGfx::drawPoint (int x, int y)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->drawPoint(x,y);
+        walker->gfx->drawPoint(x,y);
     }
 }
 
 void QRepeaterGfx::drawPoints (const QPointArray & a, int b, int c)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	QPointArray d=a;
-	//d.translate(-(walker->xoffs),-(walker->yoffs));
-	walker->gfx->drawPoints(d,b,c);
+        QPointArray d=a;
+        //d.translate(-(walker->xoffs),-(walker->yoffs));
+        walker->gfx->drawPoints(d,b,c);
     }
 }
 
 void QRepeaterGfx::moveTo (int x, int y)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->moveTo(x,y);
+        walker->gfx->moveTo(x,y);
     }
 }
 
 void QRepeaterGfx::lineTo (int x, int y)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->lineTo(x,y);
+        walker->gfx->lineTo(x,y);
     }
 }
 
 void QRepeaterGfx::drawLine (int x1, int y1, int x2, int y2)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->drawLine(x1,y1,x2,y2);
+        walker->gfx->drawLine(x1,y1,x2,y2);
     }
 }
 
 void QRepeaterGfx::drawPolyline (const QPointArray & a, int b, int c)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	QPointArray d=a;
-	//d.translate(-(walker->xoffs),-(walker->yoffs));
-	walker->gfx->drawPolyline(d,b,c);
+        QPointArray d=a;
+        //d.translate(-(walker->xoffs),-(walker->yoffs));
+        walker->gfx->drawPolyline(d,b,c);
     }
 }
 
@@ -391,57 +391,57 @@ QPoint QRepeaterGfx::pos () const
 void QRepeaterGfx::fillRect (int x, int y, int w, int h)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->fillRect(x,y,w,h);
+        walker->gfx->fillRect(x,y,w,h);
     }
 }
 
 void QRepeaterGfx::drawPolygon (const QPointArray & a, bool b, int c, int d)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	QPointArray e=a;
-	//e.translate(-(walker->xoffs),-(walker->yoffs));
-	walker->gfx->drawPolygon(e,b,c,d);
+        QPointArray e=a;
+        //e.translate(-(walker->xoffs),-(walker->yoffs));
+        walker->gfx->drawPolygon(e,b,c,d);
     }
 }
 
 void QRepeaterGfx::setLineStep (int l)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->setLineStep(l);
+        walker->gfx->setLineStep(l);
     }
 }
 
 void QRepeaterGfx::blt (int x, int y, int w, int h, int sx, int sy)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->blt(x,y,w,h,sx,sy);
+        walker->gfx->blt(x,y,w,h,sx,sy);
     }
 }
 
 void QRepeaterGfx::stretchBlt (int x, int y, int w, int h, int sw, int sh)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->stretchBlt(x,y,w,h,
-				sw,sh);
+        walker->gfx->stretchBlt(x,y,w,h,
+                                sw,sh);
     }
 }
 
 void QRepeaterGfx::tiledBlt (int x, int y, int w, int h)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->tiledBlt(x,y,w,h);
+        walker->gfx->tiledBlt(x,y,w,h);
     }
 }
 
 void QRepeaterGfx::setSource (const QPaintDevice * p)
 {
     if(p->scanLine(0)==(uchar *)0xdeadbeef) {
-	desktopsource=true;
+        desktopsource=true;
     } else {
-	desktopsource=false;
+        desktopsource=false;
     }
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->setSource(p);
+        walker->gfx->setSource(p);
     }
 }
 
@@ -449,16 +449,16 @@ void QRepeaterGfx::setSource (const QImage * i)
 {
     desktopsource=false;
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->setSource(i);
+        walker->gfx->setSource(i);
     }
 }
 
 void QRepeaterGfx::setSource (unsigned char * c,int w,int h,int l,
-			      int d,QRgb * r,int n)
+                              int d,QRgb * r,int n)
 {
     desktopsource=false;
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->setSource(c,w,h,l,d,r,n);
+        walker->gfx->setSource(c,w,h,l,d,r,n);
     }
 }
 
@@ -466,63 +466,63 @@ void QRepeaterGfx::setSourcePen ()
 {
     desktopsource=false;
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->setSourcePen();
+        walker->gfx->setSourcePen();
     }
 }
 
 void QRepeaterGfx::setAlphaType (QGfx::AlphaType a)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->setAlphaType(a);
+        walker->gfx->setAlphaType(a);
     }
 }
 
 void QRepeaterGfx::setAlphaSource (unsigned char * c, int i)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->setAlphaSource(c,i);
+        walker->gfx->setAlphaSource(c,i);
     }
 }
 
 void QRepeaterGfx::setAlphaSource (int a, int b = -1, int c= -1, int d = -1)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->setAlphaSource(a,b,c,d);
+        walker->gfx->setAlphaSource(a,b,c,d);
     }
 }
 
 void QRepeaterGfx::drawText (int x, int y, const QString & s)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->drawText(x,y,s);
+        walker->gfx->drawText(x,y,s);
     }
 }
 
 void QRepeaterGfx::setClut (QRgb * r, int i)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->setClut(r,i);
+        walker->gfx->setClut(r,i);
     }
 }
 
 void QRepeaterGfx::save ()
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->save();
+        walker->gfx->save();
     }
 }
 
 void QRepeaterGfx::restore ()
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->restore();
+        walker->gfx->restore();
     }
 }
 
 void QRepeaterGfx::setRop (Qt::RasterOp r)
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	walker->gfx->setRop(r);
+        walker->gfx->setRop(r);
     }
 }
 
@@ -541,7 +541,7 @@ public:
     virtual void show();
     virtual void hide();
 
-    virtual bool restoreUnder( const QRect &, QGfxRasterBase * = 0 )
+    virtual bool restoreUnder(const QRect &, QGfxRasterBase * = 0)
         { return false; }
     virtual void saveUnder() {}
     virtual void drawCursor() {}
@@ -585,8 +585,8 @@ int QRepeaterScreen::sharedRamSize(void * end)
     QScreenRec * it;
     for(it=screens.first();it;it=screens.next()) {
         int ret=it->screen->sharedRamSize(tmp);
-	((char *)tmp)-=ret;
-	count+=ret;
+        ((char *)tmp)-=ret;
+        count+=ret;
     }
     return count;
 }
@@ -594,15 +594,15 @@ int QRepeaterScreen::sharedRamSize(void * end)
 void QRepeaterScreen::setDirty(const QRect & r)
 {
      for(QScreenRec * walker=screens.first();walker;walker=screens.next()) {
-	 QRect r2=r;
-	 r2.moveBy(-(walker->xoffs),-(walker->yoffs));
-	 QRect screenrect(walker->xoffs,walker->yoffs,
-			  walker->screen->width(),
-			  walker->screen->height());
-	 if(r2.intersects(screenrect)) {
-	     r2=r2.intersect(screenrect);
-	     walker->screen->setDirty(r2);
-	 }
+         QRect r2=r;
+         r2.moveBy(-(walker->xoffs),-(walker->yoffs));
+         QRect screenrect(walker->xoffs,walker->yoffs,
+                          walker->screen->width(),
+                          walker->screen->height());
+         if(r2.intersects(screenrect)) {
+             r2=r2.intersect(screenrect);
+             walker->screen->setDirty(r2);
+         }
      }
 }
 
@@ -622,29 +622,29 @@ QImage * QRepeaterScreen::readScreen(int x,int y,int w,int h,QRegion & r)
     QRepeaterCursor * qrc=(QRepeaterCursor *)qt_screencursor;
     if((qrc->visible) && sw_cursor_exists && QRect(x,y,w,h).intersects
        (QRect(qrc->xpos,qrc->ypos,32,32))) {
-	qt_screencursor->hide();
-	did_hide=true;
+        qt_screencursor->hide();
+        did_hide=true;
     }
 
     for(walker=screens.first();walker;walker=screens.next()) {
-	QRect r2(walker->xoffs,walker->yoffs,walker->screen->width(),
-		 walker->screen->height());
-	if(r1.intersects(r2)) {
-	    QScreen * s=walker->screen;
-	    gfx->setSource(s->base(),s->width(),s->height(),s->linestep(),
-			   s->depth(),s->clut(),s->numCols());
-	    r2=r1.intersect(r2);
-	    r-=QRegion(r2);
-	    QRect r3=r2;
-	    r3.moveBy(-(walker->xoffs),-(walker->yoffs));
-	    gfx->blt(r2.left()-x,r2.top()-y,r3.width(),r3.height(),
-		     r3.left(),r3.top());
-	}
+        QRect r2(walker->xoffs,walker->yoffs,walker->screen->width(),
+                 walker->screen->height());
+        if(r1.intersects(r2)) {
+            QScreen * s=walker->screen;
+            gfx->setSource(s->base(),s->width(),s->height(),s->linestep(),
+                           s->depth(),s->clut(),s->numCols());
+            r2=r1.intersect(r2);
+            r-=QRegion(r2);
+            QRect r3=r2;
+            r3.moveBy(-(walker->xoffs),-(walker->yoffs));
+            gfx->blt(r2.left()-x,r2.top()-y,r3.width(),r3.height(),
+                     r3.left(),r3.top());
+        }
     }
     delete gfx;
 
     if(did_hide) {
-	qt_screencursor->show();
+        qt_screencursor->show();
     }
 
     return ret;
@@ -652,16 +652,16 @@ QImage * QRepeaterScreen::readScreen(int x,int y,int w,int h,QRegion & r)
 
 extern char * qt_qws_hardcoded_slot;
 
-static QScreen *qt_lookup_screen( int display_id, QString driver )
+static QScreen *qt_lookup_screen(int display_id, QString driver)
 {
     QStringList driverList = QGfxDriverFactory::keys();
     QStringList::Iterator it;
-    for ( it = driverList.begin(); it != driverList.end(); ++it ) {
-	if ( driver.isEmpty() || QString( *it ) == driver ) {
-	    QScreen *ret = QGfxDriverFactory::create( *it, display_id );
-	    if ( ret )
-		return ret;
-	}
+    for (it = driverList.begin(); it != driverList.end(); ++it) {
+        if (driver.isEmpty() || QString(*it) == driver) {
+            QScreen *ret = QGfxDriverFactory::create(*it, display_id);
+            if (ret)
+                return ret;
+        }
     }
     return 0;
 }
@@ -676,10 +676,10 @@ QRepeaterScreen::QRepeaterScreen(int)
     QString fn = qws_topdir() + "/lib/fonts/screens";
     FILE * screendef=fopen(fn.local8Bit(),"r");
     if(!screendef) {
-	sw_cursor_exists=false;
+        sw_cursor_exists=false;
         screens.append(new QScreenRec(new QLinuxFbScreen(0),
-				      "/proc/bus/pci/01/00.0",":0",true));
-	return;
+                                      "/proc/bus/pci/01/00.0",":0",true));
+        return;
     }
 
     char buf[200]="";
@@ -689,27 +689,27 @@ QRepeaterScreen::QRepeaterScreen(int)
 
     fgets(buf,200,screendef);
     while(!feof(screendef)) {
-	if(buf[0]!='#') {
-	    int num;
-	    int swcursor;
-	    int x;
-	    int y;
-	    sscanf(buf,"%s %d %s %d %s %d %d",name,&num,spec,&swcursor,
-		   pci,&x,&y);
-	    QScreen * tmp=qt_lookup_screen(num,name);
-	    if(!tmp) {
-		qDebug("Failure to find repeater screen %s",buf);
-	    } else {
-		QScreenRec * tmp2=new QScreenRec(tmp,pci,spec,swcursor==0);
-		tmp2->xoffs=x;
-		tmp2->yoffs=y;
-		screens.append(tmp2);
-		if(swcursor!=0) {
-		    sw_cursor_exists=true;
-		}
-	    }
-	}
-	fgets(buf,200,screendef);
+        if(buf[0]!='#') {
+            int num;
+            int swcursor;
+            int x;
+            int y;
+            sscanf(buf,"%s %d %s %d %s %d %d",name,&num,spec,&swcursor,
+                   pci,&x,&y);
+            QScreen * tmp=qt_lookup_screen(num,name);
+            if(!tmp) {
+                qDebug("Failure to find repeater screen %s",buf);
+            } else {
+                QScreenRec * tmp2=new QScreenRec(tmp,pci,spec,swcursor==0);
+                tmp2->xoffs=x;
+                tmp2->yoffs=y;
+                screens.append(tmp2);
+                if(swcursor!=0) {
+                    sw_cursor_exists=true;
+                }
+            }
+        }
+        fgets(buf,200,screendef);
     }
     fclose(screendef);
     qt_screen=this;
@@ -723,12 +723,12 @@ int QRepeaterScreen::initCursor(void * v,bool b)
     int count=0;
     QScreen * tmp=qt_screen;
     for(walker=screens.first();walker;walker=screens.next()) {
-	qt_screen=walker->screen;
-	int am=walker->screen->initCursor((void *)c,b);
-	walker->cursor=qt_screencursor;
-	c-=am;
-	count+=am;
-	qrc->addScreen(walker->screen,walker->xoffs,walker->yoffs);
+        qt_screen=walker->screen;
+        int am=walker->screen->initCursor((void *)c,b);
+        walker->cursor=qt_screencursor;
+        c-=am;
+        count+=am;
+        qrc->addScreen(walker->screen,walker->xoffs,walker->yoffs);
     }
     qt_screencursor=qrc;
     qt_screen=tmp;
@@ -739,7 +739,7 @@ QRepeaterScreen::~QRepeaterScreen()
 {
     QScreenRec * walker;
     for(walker=screens.first();walker;walker=screens.next()) {
-	delete walker->screen;
+        delete walker->screen;
     }
 }
 
@@ -747,7 +747,7 @@ bool QRepeaterScreen::initDevice()
 {
     QScreenRec * walker;
     for(walker=screens.first();walker;walker=screens.next()) {
-	walker->screen->initDevice();
+        walker->screen->initDevice();
     }
     return true;
 }
@@ -762,25 +762,25 @@ bool QRepeaterScreen::connect(const QString &)
     int wcount=0;
 
     for(walker=screens.first();walker;walker=screens.next()) {
-	qt_qws_hardcoded_slot=walker->slot;
-	walker->screen->connect(walker->fb);
-	if(walker->xoffs==-1) {
-	    walker->xoffs=wcount;
-	    walker->yoffs=0;
-	    wcount+=walker->screen->width();
-	}
-	if((walker->xoffs+walker->screen->width()) > w) {
-	    w=walker->xoffs+walker->screen->width();
-	}
-      	if((walker->yoffs+walker->screen->height()) > h) {
-	    h=walker->yoffs+walker->screen->height();
-	}
-	if(walker->screen->depth() > d)
-	    d=walker->screen->depth();
+        qt_qws_hardcoded_slot=walker->slot;
+        walker->screen->connect(walker->fb);
+        if(walker->xoffs==-1) {
+            walker->xoffs=wcount;
+            walker->yoffs=0;
+            wcount+=walker->screen->width();
+        }
+        if((walker->xoffs+walker->screen->width()) > w) {
+            w=walker->xoffs+walker->screen->width();
+        }
+        if((walker->yoffs+walker->screen->height()) > h) {
+            h=walker->yoffs+walker->screen->height();
+        }
+        if(walker->screen->depth() > d)
+            d=walker->screen->depth();
     }
 
     if(d==0)
-	d=32;
+        d=32;
 
     lstep=0xdeadbeef;
     pixeltype=0;
@@ -796,20 +796,20 @@ bool QRepeaterScreen::connect(const QString &)
 }
 
 QGfx * QRepeaterScreen::createGfx(uchar * buffer,int w,int h,int d,
-				  int linestep)
+                                  int linestep)
 {
     if(buffer==(uchar *)0xdeadbeef) {
-	// screen
-	QRepeaterGfx * qrg=new QRepeaterGfx();
+        // screen
+        QRepeaterGfx * qrg=new QRepeaterGfx();
         QScreenRec * walker;
-	for(walker=screens.first();walker;walker=screens.next()) {
-	    qrg->addScreen(walker->screen,walker->cursor,walker->xoffs,
-			   walker->yoffs,walker->swcursor);
-	}
-	qrg->setWidgetRect(0,0,w,h);
-	return qrg;
+        for(walker=screens.first();walker;walker=screens.next()) {
+            qrg->addScreen(walker->screen,walker->cursor,walker->xoffs,
+                           walker->yoffs,walker->swcursor);
+        }
+        qrg->setWidgetRect(0,0,w,h);
+        return qrg;
     } else {
-	return QScreen::createGfx(buffer,w,h,d,linestep);
+        return QScreen::createGfx(buffer,w,h,d,linestep);
     }
 }
 
@@ -822,7 +822,7 @@ QRepeaterCursor::~QRepeaterCursor()
 {
     QCursorRec * walker;
     for(walker=cursors.first();walker;walker=cursors.next()) {
-	delete walker->cursor;
+        delete walker->cursor;
     }
 }
 
@@ -847,7 +847,7 @@ void QRepeaterCursor::set(const QImage &image,int hotx,int hoty)
 {
     QCursorRec * walker;
     for(walker=cursors.first();walker;walker=cursors.next()) {
-	walker->cursor->set(image,hotx,hoty);
+        walker->cursor->set(image,hotx,hoty);
     }
 }
 
@@ -855,18 +855,18 @@ void QRepeaterCursor::move(int x,int y)
 {
     QCursorRec * walker;
     for(walker=cursors.first();walker;walker=cursors.next()) {
-	int xx=x-(walker->xoffs);
-	int yy=y-(walker->yoffs);
-	if(xx<0 || yy<0 || xx>walker->w || yy>walker->h) {
-	    walker->cursor->hide();
-	    walker->cursor->move(walker->w,walker->h);
-	    walker->visible=false;
-	} else {
-	    walker->visible=true;
-	    if(visible)
-		walker->cursor->show();
-	    walker->cursor->move(xx,yy);
-	}
+        int xx=x-(walker->xoffs);
+        int yy=y-(walker->yoffs);
+        if(xx<0 || yy<0 || xx>walker->w || yy>walker->h) {
+            walker->cursor->hide();
+            walker->cursor->move(walker->w,walker->h);
+            walker->visible=false;
+        } else {
+            walker->visible=true;
+            if(visible)
+                walker->cursor->show();
+            walker->cursor->move(xx,yy);
+        }
     }
     xpos=x;
     ypos=y;
@@ -876,8 +876,8 @@ void QRepeaterCursor::show()
 {
     QCursorRec * walker;
     for(walker=cursors.first();walker;walker=cursors.next()) {
-	if(walker->visible)
-	    walker->cursor->show();
+        if(walker->visible)
+            walker->cursor->show();
    }
     visible=true;
 }
@@ -886,8 +886,8 @@ void QRepeaterCursor::hide()
 {
     QCursorRec * walker;
     for(walker=cursors.first();walker;walker=cursors.next()) {
-	if(walker->visible)
-	    walker->cursor->hide();
+        if(walker->visible)
+            walker->cursor->hide();
     }
     visible=false;
 }
@@ -903,32 +903,32 @@ void QRepeaterGfx::scroll (int x, int y, int w, int h, int sx, int sy)
     QRegion toupdate;
 
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-	QScreen * tmp=qt_screen;
-	qt_screen=walker->screen;
-	walker->gfx->setOffset(xoffs-walker->xoffs,
-			       yoffs-walker->yoffs);
-	walker->gfx->setClipping(false);
-	walker->gfx->scroll(x,y,w,h,sx,sy);
-	walker->gfx->setClipping(true);
-	qt_screen=tmp;
-	QRegion screen(QRect(walker->xoffs,walker->yoffs,
-			     walker->w,walker->h));
-	QRegion tmp1=destregion;
-	QRegion tmp2=srcregion;
-	QRegion tmp3=destregion.unite(srcregion);
-	tmp3=tmp3.intersect(screen);
+        QScreen * tmp=qt_screen;
+        qt_screen=walker->screen;
+        walker->gfx->setOffset(xoffs-walker->xoffs,
+                               yoffs-walker->yoffs);
+        walker->gfx->setClipping(false);
+        walker->gfx->scroll(x,y,w,h,sx,sy);
+        walker->gfx->setClipping(true);
+        qt_screen=tmp;
+        QRegion screen(QRect(walker->xoffs,walker->yoffs,
+                             walker->w,walker->h));
+        QRegion tmp1=destregion;
+        QRegion tmp2=srcregion;
+        QRegion tmp3=destregion.unite(srcregion);
+        tmp3=tmp3.intersect(screen);
 
-	QRegion tmp4=srcregion.intersect(screen);
-	tmp4.translate(x-sx,y-sy);
-	tmp4=srcregion.intersect(tmp4);
+        QRegion tmp4=srcregion.intersect(screen);
+        tmp4.translate(x-sx,y-sy);
+        tmp4=srcregion.intersect(tmp4);
 
-	tmp3=tmp3.subtract(tmp4);
+        tmp3=tmp3.subtract(tmp4);
 
-	toupdate=toupdate.unite(tmp3);
+        toupdate=toupdate.unite(tmp3);
     }
 
     if(!toupdate.isEmpty()) {
-	qt_fbdpy->repaintRegion(toupdate);
+        qt_fbdpy->repaintRegion(toupdate);
     }
 }
 
@@ -937,7 +937,7 @@ void QRepeaterCursor::draw()
 {
     QCursorRec * walker;
     for(walker=cursors.first();walker;walker=cursors.next()) {
-	walker->cursor->draw();
+        walker->cursor->draw();
     }
 }
 */

@@ -66,9 +66,9 @@ public:
     inline QMacSavedPortInfo(QWidget *w, bool set_clip = false)
         { init(); setPaintDevice(w, set_clip); }
     inline QMacSavedPortInfo(QPaintDevice *pd, const QRect &r)
-	{ init(); setPaintDevice(pd); setClipRegion(r); }
+        { init(); setPaintDevice(pd); setClipRegion(r); }
     inline QMacSavedPortInfo(QPaintDevice *pd, const QRegion &r)
-	{ init(); setPaintDevice(pd); setClipRegion(r); }
+        { init(); setPaintDevice(pd); setClipRegion(r); }
     ~QMacSavedPortInfo();
     static bool setClipRegion(const QRect &r);
     static bool setClipRegion(const QRegion &r);
@@ -85,11 +85,11 @@ inline bool
 QMacSavedPortInfo::flush(QPaintDevice *pdev)
 {
     if(pdev->devType() == QInternal::Widget) {
-	QWidget *w = (QWidget *)pdev;
-	if(!w->isHidden() && QDIsPortBuffered(GetWindowPort(qt_mac_window_for((HIViewRef)w->winId())))) {
-	    QDFlushPortBuffer(GetWindowPort(qt_mac_window_for((HIViewRef)w->winId())), NULL);
-	    return true;
-	}
+        QWidget *w = (QWidget *)pdev;
+        if(!w->isHidden() && QDIsPortBuffered(GetWindowPort(qt_mac_window_for((HIViewRef)w->winId())))) {
+            QDFlushPortBuffer(GetWindowPort(qt_mac_window_for((HIViewRef)w->winId())), NULL);
+            return true;
+        }
     }
     return false;
 }
@@ -98,12 +98,12 @@ inline bool
 QMacSavedPortInfo::flush(QPaintDevice *pdev, QRegion r, bool force)
 {
     if(pdev->devType() == QInternal::Widget) {
-	QWidget *w = (QWidget *)pdev;
-	r.translate(w->topLevelWidget()->geometry().x(), w->topLevelWidget()->geometry().y());
-	if(!w->isHidden() || QDIsPortBuffered(GetWindowPort(qt_mac_window_for((HIViewRef)w->winId())))) {
-	    QDFlushPortBuffer(GetWindowPort(qt_mac_window_for((HIViewRef)w->winId())), r.handle(force));
-	    return true;
-	}
+        QWidget *w = (QWidget *)pdev;
+        r.translate(w->topLevelWidget()->geometry().x(), w->topLevelWidget()->geometry().y());
+        if(!w->isHidden() || QDIsPortBuffered(GetWindowPort(qt_mac_window_for((HIViewRef)w->winId())))) {
+            QDFlushPortBuffer(GetWindowPort(qt_mac_window_for((HIViewRef)w->winId())), r.handle(force));
+            return true;
+        }
     }
     return false;
 }
@@ -119,7 +119,7 @@ inline void
 QMacSavedPortInfo::setWindowAlpha(QWidget *w, float l)
 {
     CGSSetWindowAlpha(_CGSDefaultConnection(),
-		      GetNativeWindowFromWindowRef(qt_mac_window_for((HIViewRef)w->winId())), l);
+                      GetNativeWindowFromWindowRef(qt_mac_window_for((HIViewRef)w->winId())), l);
 }
 
 inline bool
@@ -129,12 +129,12 @@ QMacSavedPortInfo::setClipRegion(const QRect &rect)
     SetRect(&r, rect.x(), rect.y(), rect.right()+1, rect.bottom()+1);
 #if defined(QT_THREAD_SUPPORT)
     if(qt_mac_port_mutex)
-	qt_mac_port_mutex->lock();
+        qt_mac_port_mutex->lock();
 #endif
     ClipRect(&r);
 #if defined(QT_THREAD_SUPPORT)
     if(qt_mac_port_mutex)
-	qt_mac_port_mutex->unlock();
+        qt_mac_port_mutex->unlock();
 #endif
     return true;
 }
@@ -143,17 +143,17 @@ inline bool
 QMacSavedPortInfo::setClipRegion(const QRegion &r)
 {
     if(r.isEmpty())
-	return setClipRegion(QRect());
+        return setClipRegion(QRect());
     else if(!r.handle())
-	return setClipRegion(r.boundingRect());
+        return setClipRegion(r.boundingRect());
 #if defined(QT_THREAD_SUPPORT)
     if(qt_mac_port_mutex)
-	qt_mac_port_mutex->lock();
+        qt_mac_port_mutex->lock();
 #endif
     SetClip(r.handle());
 #if defined(QT_THREAD_SUPPORT)
     if(qt_mac_port_mutex)
-	qt_mac_port_mutex->unlock();
+        qt_mac_port_mutex->unlock();
 #endif
     return true;
 }
@@ -164,9 +164,9 @@ QMacSavedPortInfo::setPaintDevice(QWidget *w, bool set_clip, bool with_child)
     if (!w)
         return false;
     if(!setPaintDevice((QPaintDevice *)w))
-	return false;
+        return false;
     if(set_clip)
-	return setClipRegion(w->d_func()->clippedRegion(with_child));
+        return setClipRegion(w->d_func()->clippedRegion(with_child));
     return true;
 }
 
@@ -174,21 +174,21 @@ inline bool
 QMacSavedPortInfo::setPaintDevice(QPaintDevice *pd)
 {
     if(!pd)
-	return false;
+        return false;
     bool ret = true;
 #if defined(QT_THREAD_SUPPORT)
     if(qt_mac_port_mutex)
-	qt_mac_port_mutex->lock();
+        qt_mac_port_mutex->lock();
 #endif
     if(pd->devType() == QInternal::Widget)
-	SetPortWindowPort(qt_mac_window_for((HIViewRef)(static_cast<QWidget*>(pd)->winId())));
+        SetPortWindowPort(qt_mac_window_for((HIViewRef)(static_cast<QWidget*>(pd)->winId())));
     else if(pd->devType() == QInternal::Pixmap || pd->devType() == QInternal::Printer)
-	SetGWorld((GrafPtr)pd->handle(), 0); //set the gworld
+        SetGWorld((GrafPtr)pd->handle(), 0); //set the gworld
     else
-	ret = false;
+        ret = false;
 #if defined(QT_THREAD_SUPPORT)
     if(qt_mac_port_mutex)
-	qt_mac_port_mutex->unlock();
+        qt_mac_port_mutex->unlock();
 #endif
     return ret;
 }
@@ -199,17 +199,17 @@ QMacSavedPortInfo::init()
 {
 #if defined(QT_THREAD_SUPPORT)
     if(qt_mac_port_mutex)
-	qt_mac_port_mutex->lock();
+        qt_mac_port_mutex->lock();
 #endif
     extern int mac_window_count; //qwidget_mac.cpp
     if(mac_window_count) {
-   	GetBackColor(&back);
-	GetForeColor(&fore);
-	GetGWorld(&world, &handle);
-	valid_gworld = true;
-	clip = NewRgn();
-	GetClip(clip);
-	GetPenState(&pen);
+        GetBackColor(&back);
+        GetForeColor(&fore);
+        GetGWorld(&world, &handle);
+        valid_gworld = true;
+        clip = NewRgn();
+        GetClip(clip);
+        GetPenState(&pen);
     }
 }
 
@@ -217,19 +217,19 @@ inline QMacSavedPortInfo::~QMacSavedPortInfo()
 {
     extern int mac_window_count; //qwidget_mac.cpp
     if(mac_window_count) {
-	if(valid_gworld)
-	    SetGWorld(world,handle); //always do this one first
-	else
-	    setPaintDevice(qt_mac_safe_pdev);
-	SetClip(clip);
-	DisposeRgn(clip);
-	SetPenState(&pen);
-	RGBForeColor(&fore);
-	RGBBackColor(&back);
+        if(valid_gworld)
+            SetGWorld(world,handle); //always do this one first
+        else
+            setPaintDevice(qt_mac_safe_pdev);
+        SetClip(clip);
+        DisposeRgn(clip);
+        SetPenState(&pen);
+        RGBForeColor(&fore);
+        RGBBackColor(&back);
     }
 #if defined(QT_THREAD_SUPPORT)
     if(qt_mac_port_mutex)
-	qt_mac_port_mutex->unlock();
+        qt_mac_port_mutex->unlock();
 #endif
 }
 

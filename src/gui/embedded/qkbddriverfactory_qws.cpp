@@ -39,9 +39,9 @@ static QKbdDriverFactoryPrivate *instance = 0;
 QPluginManager<QKbdDriverInterface> *QKbdDriverFactoryPrivate::manager = 0;
 
 QKbdDriverFactoryPrivate::QKbdDriverFactoryPrivate()
-: QObject( qApp )
+: QObject(qApp)
 {
-    manager = new QPluginManager<QKbdDriverInterface>( IID_QKbdDriver, QApplication::libraryPaths(), "/kbddrivers", FALSE );
+    manager = new QPluginManager<QKbdDriverInterface>(IID_QKbdDriver, QApplication::libraryPaths(), "/kbddrivers", false);
 }
 
 QKbdDriverFactoryPrivate::~QKbdDriverFactoryPrivate()
@@ -78,46 +78,46 @@ QKbdDriverFactoryPrivate::~QKbdDriverFactoryPrivate()
 
     \sa keys()
 */
-QWSKeyboardHandler *QKbdDriverFactory::create( const QString& key, const QString& device )
+QWSKeyboardHandler *QKbdDriverFactory::create(const QString& key, const QString& device)
 {
     QString driver = key.lower();
 #ifdef Q_OS_QNX6
-    if ( driver == "qnx" || driver.isEmpty() )
-	return new QWSQnxKeyboardHandler( device );
+    if (driver == "qnx" || driver.isEmpty())
+        return new QWSQnxKeyboardHandler(device);
 #endif
 #ifndef QT_NO_QWS_KBD_SL5000
-    if ( driver == "sl5000" || driver.isEmpty() )
-	return new QWSSL5000KeyboardHandler( device );
+    if (driver == "sl5000" || driver.isEmpty())
+        return new QWSSL5000KeyboardHandler(device);
 #endif
 #ifndef QT_NO_QWS_KBD_YOPY
-    if ( driver == "yopy" || driver.isEmpty() )
-	return new QWSYopyKeyboardHandler( device );
+    if (driver == "yopy" || driver.isEmpty())
+        return new QWSYopyKeyboardHandler(device);
 #endif
 #ifndef QT_NO_QWS_KBD_VR41
-    if ( driver == "vr41xx" || driver.isEmpty() )
-	return new QWSVr41xxKeyboardHandler( device );
+    if (driver == "vr41xx" || driver.isEmpty())
+        return new QWSVr41xxKeyboardHandler(device);
 #endif
 #ifndef QT_NO_QWS_KEYBOARD
 # ifndef QT_NO_QWS_KBD_TTY
-    if ( driver =="tty" || driver.isEmpty() )
-	return new QWSTtyKeyboardHandler( device );
+    if (driver =="tty" || driver.isEmpty())
+        return new QWSTtyKeyboardHandler(device);
 # endif
 # ifndef QT_NO_QWS_KBD_USB
-    if ( driver == "usb" )
-	return new QWSUsbKeyboardHandler( device );
+    if (driver == "usb")
+        return new QWSUsbKeyboardHandler(device);
 # endif
 #endif
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
-    if ( !instance )
-	instance = new QKbdDriverFactoryPrivate;
+    if (!instance)
+        instance = new QKbdDriverFactoryPrivate;
 
     QInterfacePtr<QKbdDriverInterface> iface;
-    QKbdDriverFactoryPrivate::manager->queryInterface( driver, &iface );
+    QKbdDriverFactoryPrivate::manager->queryInterface(driver, &iface);
 
-    if ( iface )
-	return iface->create( driver, driver );
+    if (iface)
+        return iface->create(driver, driver);
 #endif
 #endif
     return 0;
@@ -133,34 +133,34 @@ QStringList QKbdDriverFactory::keys()
     QStringList list;
 
 #ifdef Q_OS_QNX6
-    if ( !list.contains( "Qnx" ) )
-	list << "Qnx";
+    if (!list.contains("Qnx"))
+        list << "Qnx";
 #endif
 #ifndef QT_NO_QWS_KBD_SL5000
-    if ( !list.contains( "SL5000" ) )
-	list << "SL5000";
+    if (!list.contains("SL5000"))
+        list << "SL5000";
 #endif
 #ifndef QT_NO_QWS_KBD_YOPY
-    if ( !list.contains( "YOPY" ) )
-	list << "YOPY";
+    if (!list.contains("YOPY"))
+        list << "YOPY";
 #endif
 #ifndef QT_NO_QWS_KBD_VR41
-    if ( !list.contains( "VR41xx" ) )
-	list << "VR41xx";
+    if (!list.contains("VR41xx"))
+        list << "VR41xx";
 #endif
 #ifndef QT_NO_QWS_KBD_TTY
-    if ( !list.contains( "TTY" ) )
-	list << "TTY";
+    if (!list.contains("TTY"))
+        list << "TTY";
 #endif
 #ifndef QT_NO_QWS_KBD_USB
-    if ( !list.contains( "USB" ) )
-	list << "USB";
+    if (!list.contains("USB"))
+        list << "USB";
 #endif
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
-    if ( !instance )
-	instance = new QKbdDriverFactoryPrivate;
+    if (!instance)
+        instance = new QKbdDriverFactoryPrivate;
 
     list += QKbdDriverFactoryPrivate::manager->featureList();
 #endif //QT_NO_COMPONENT

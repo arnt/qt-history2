@@ -10,24 +10,24 @@ class QVarLengthArray
 {
 public:
     inline QVarLengthArray(int size = 0)
-	: a(Prealloc), s(size) {
-	ptr = reinterpret_cast<T *>(array);
-	if (s > Prealloc)
-	    ptr = reinterpret_cast<T *>(qMalloc(s * sizeof(T)));
-	if (QTypeInfo<T>::isComplex) {
-	    T* i = ptr + s;
-	    while (i != ptr)
-		new (--i) T;
-	}
+        : a(Prealloc), s(size) {
+        ptr = reinterpret_cast<T *>(array);
+        if (s > Prealloc)
+            ptr = reinterpret_cast<T *>(qMalloc(s * sizeof(T)));
+        if (QTypeInfo<T>::isComplex) {
+            T* i = ptr + s;
+            while (i != ptr)
+                new (--i) T;
+        }
     }
     inline ~QVarLengthArray() {
-	if (QTypeInfo<T>::isComplex) {
-	    T *i = ptr + s;
-	    while (i-- != ptr)
-		i->~T();
-	}
-	if (ptr != reinterpret_cast<T *>(array))
-	    qFree(ptr);
+        if (QTypeInfo<T>::isComplex) {
+            T *i = ptr + s;
+            while (i-- != ptr)
+                i->~T();
+        }
+        if (ptr != reinterpret_cast<T *>(array))
+            qFree(ptr);
     }
 
     inline int size() const { return s; }
@@ -40,12 +40,12 @@ public:
     inline void squeeze() { realloc(s, s); }
 
     inline T &operator[](int idx) {
-	Q_ASSERT(idx >= 0 && idx < s);
-	return ptr[idx];
+        Q_ASSERT(idx >= 0 && idx < s);
+        return ptr[idx];
     }
     inline const T &operator[](int idx) const {
-	Q_ASSERT(idx >= 0 && idx < s);
-	return ptr[idx];
+        Q_ASSERT(idx >= 0 && idx < s);
+        return ptr[idx];
     }
 
     inline operator T *() { return ptr; }
@@ -74,41 +74,41 @@ Q_OUTOFLINE_TEMPLATE void QVarLengthArray<T, Prealloc>::realloc(int size, int al
 {
     T *oldPtr = ptr;
     if (alloc != a) {
-	ptr = (T *)qMalloc(alloc * sizeof(T));
-	a = alloc;
+        ptr = (T *)qMalloc(alloc * sizeof(T));
+        a = alloc;
     }
 
     int osize = s;
     s = size;
     if (ptr != oldPtr) {
-	if (QTypeInfo<T>::isStatic) {
-	    T *i = ptr + osize;
-	    T *j = oldPtr + osize;
-	    while (i != ptr) {
-		new (--i) T(*--j);
-		j->~T();
-	    }
-	} else {
-	    qMemCopy(ptr, oldPtr, osize*sizeof(T));
-	}
+        if (QTypeInfo<T>::isStatic) {
+            T *i = ptr + osize;
+            T *j = oldPtr + osize;
+            while (i != ptr) {
+                new (--i) T(*--j);
+                j->~T();
+            }
+        } else {
+            qMemCopy(ptr, oldPtr, osize*sizeof(T));
+        }
     }
 
     if (QTypeInfo<T>::isComplex) {
-	if (size < osize) {
-	    T *i = oldPtr + osize;
-	    T *j = oldPtr + size;
-	    while (i-- != j)
-		i->~T();
-	} else {
-	    T *i = ptr + size;
-	    T *j = ptr + osize;
-	    while (i != j)
-		new (--i) T;
-	}
+        if (size < osize) {
+            T *i = oldPtr + osize;
+            T *j = oldPtr + size;
+            while (i-- != j)
+                i->~T();
+        } else {
+            T *i = ptr + size;
+            T *j = ptr + osize;
+            while (i != j)
+                new (--i) T;
+        }
     }
 
     if (oldPtr != (T*)array && oldPtr != ptr)
-	qFree(oldPtr);
+        qFree(oldPtr);
 }
 
 #endif

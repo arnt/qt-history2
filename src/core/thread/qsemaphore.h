@@ -24,7 +24,7 @@ class QSemaphorePrivate;
 class Q_CORE_EXPORT QSemaphore
 {
 public:
-    QSemaphore( int );
+    QSemaphore(int);
     virtual ~QSemaphore();
 
     int available() const;

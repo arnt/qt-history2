@@ -194,9 +194,9 @@ bool QAccessibleListView::setFocus(int child)
 
     QListViewItem *item = findLVItem(listView(), child);
     if (!item)
-        return FALSE;
+        return false;
     listView()->setCurrentItem(item);
-    return TRUE;
+    return true;
 }*/
 
 /*! \reimp */
@@ -205,17 +205,17 @@ bool QAccessibleListView::setSelected(int child, bool on, bool extend)
     if (!child || (extend &&
         listView()->selectionMode() != QListView::Extended &&
         listView()->selectionMode() != QListView::Multi))
-        return FALSE;
+        return false;
 
     QListViewItem *item = findLVItem(listView(), child);
     if (!item)
-        return FALSE;
+        return false;
     if (!extend) {
         listView()->setSelected(item, on);
     } else {
         QListViewItem *current = listView()->currentItem();
         if (!current)
-            return FALSE;
+            return false;
         bool down = item->itemPos() > current->itemPos();
         QListViewItemIterator it(current);
         while (it.current()) {
@@ -228,7 +228,7 @@ bool QAccessibleListView::setSelected(int child, bool on, bool extend)
                 --it;
         }
     }
-    return TRUE;
+    return true;
 }
 
 /*! \reimp */
@@ -249,7 +249,7 @@ QVector<int> QAccessibleListView::selection() const
         if (it.current()->isSelected()) {
             ++size;
             array.resize(size);
-            array[ (int)size-1 ] = id;
+            array[(int)size-1] = id;
         }
         ++it;
         ++id;
@@ -382,52 +382,52 @@ bool QAccessibleIconView::setFocus(int child)
 
     QIconViewItem *item = findIVItem(iconView(), child);
     if (!item)
-        return FALSE;
+        return false;
     iconView()->setCurrentItem(item);
-    return TRUE;
+    return true;
 }*/
 
 /*! \reimp */
-bool QAccessibleIconView::setSelected(int child, bool on, bool extend )
+bool QAccessibleIconView::setSelected(int child, bool on, bool extend)
 {
     if (!child || (extend &&
         iconView()->selectionMode() != QIconView::Extended &&
         iconView()->selectionMode() != QIconView::Multi))
-        return FALSE;
+        return false;
 
     QIconViewItem *item = findIVItem(iconView(), child);
     if (!item)
-        return FALSE;
+        return false;
     if (!extend) {
-        iconView()->setSelected(item, on, TRUE);
+        iconView()->setSelected(item, on, true);
     } else {
         QIconViewItem *current = iconView()->currentItem();
         if (!current)
-            return FALSE;
-        bool down = FALSE;
+            return false;
+        bool down = false;
         QIconViewItem *temp = current;
         while ((temp = temp->nextItem())) {
             if (temp == item) {
-                down = TRUE;
+                down = true;
                 break;
             }
         }
         temp = current;
         if (down) {
             while ((temp = temp->nextItem())) {
-                iconView()->setSelected(temp, on, TRUE);
+                iconView()->setSelected(temp, on, true);
                 if (temp == item)
                     break;
             }
         } else {
             while ((temp = temp->prevItem())) {
-                iconView()->setSelected(temp, on, TRUE);
+                iconView()->setSelected(temp, on, true);
                 if (temp == item)
                     break;
             }
         }
     }
-    return TRUE;
+    return true;
 }
 
 /*! \reimp */
@@ -447,7 +447,7 @@ QVector<int> QAccessibleIconView::selection() const
     while (item) {
         if (item->isSelected()) {
             ++size;
-            array[ (int)size-1 ] = id;
+            array[(int)size-1] = id;
         }
         item = item->nextItem();
         ++id;

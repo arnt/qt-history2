@@ -23,9 +23,9 @@ static QList<QAuServer*> *servers=0;
 QAuServer::QAuServer(QObject* parent, const char* name) :
     QObject(parent,name)
 {
-    if ( !servers ) {
-	servers = new QList<QAuServer*>;
-	// ### add cleanup
+    if (!servers) {
+        servers = new QList<QAuServer*>;
+        // ### add cleanup
     }
     servers->prepend(this);
 }
@@ -33,9 +33,9 @@ QAuServer::QAuServer(QObject* parent, const char* name) :
 QAuServer::~QAuServer()
 {
     servers->remove(this);
-    if ( servers->count() == 0 ) {
-	delete servers;
-	servers = 0;
+    if (servers->count() == 0) {
+        delete servers;
+        servers = 0;
     }
 }
 
@@ -56,13 +56,13 @@ static QAuServer& server()
 class QSoundData {
 public:
     QSoundData(const QString& fname) :
-	filename(fname), bucket(0), looprem(0), looptotal(1)
+        filename(fname), bucket(0), looprem(0), looptotal(1)
     {
     }
 
     ~QSoundData()
     {
-	delete bucket;
+        delete bucket;
     }
 
     QString filename;
@@ -82,15 +82,15 @@ public:
     applications: asynchronously playing a sound file. This is most
     easily accomplished with a single call:
     \code
-	QSound::play("mysounds/bells.wav");
+        QSound::play("mysounds/bells.wav");
     \endcode
 
     A second API is provided in which a QSound object is created from
     a sound file and is played later:
     \code
-	QSound bells("mysounds/bells.wav");
+        QSound bells("mysounds/bells.wav");
 
-	bells.play();
+        bells.play();
     \endcode
 
     Sounds played using the second model may use more memory but play
@@ -144,13 +144,13 @@ QSound::QSound(const QString& filename, QObject* parent, const char* name) :
 */
 QSound::~QSound()
 {
-    if ( !isFinished() )
-	stop();
+    if (!isFinished())
+        stop();
     delete d;
 }
 
 /*!
-    Returns TRUE if the sound has finished playing; otherwise returns FALSE.
+    Returns true if the sound has finished playing; otherwise returns false.
 */
 bool QSound::isFinished() const
 {
@@ -224,8 +224,8 @@ void QSound::stop()
 
 
 /*!
-    Returns TRUE if sound facilities exist on the platform; otherwise
-    returns FALSE. An application may choose either to notify the user
+    Returns true if sound facilities exist on the platform; otherwise
+    returns false. An application may choose either to notify the user
     if sound is crucial to the application or to operate silently
     without bothering the user.
 
@@ -261,8 +261,8 @@ QAuBucket* QAuServer::bucket(QSound* s)
 */
 int QAuServer::decLoop(QSound* s)
 {
-    if ( s->d->looprem > 0 )
-	--s->d->looprem;
+    if (s->d->looprem > 0)
+        --s->d->looprem;
     return s->d->looprem;
 }
 

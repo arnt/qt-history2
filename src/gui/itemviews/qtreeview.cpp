@@ -52,23 +52,23 @@ QTreeModel::QTreeModel(int columns, QObject *parent)
 QTreeModel::~QTreeModel()
 {
     for (int i = 0; i < tree.count(); ++i)
-	delete tree.at(i);
+        delete tree.at(i);
 }
 
 void QTreeModel::setColumnCount(int columns)
 {
     if (c == columns)
-	return;
+        return;
     int _c = c;
     c = columns;
     topHeader.setColumnCount(c);
     for (int i = _c; i < c; ++i)
-	topHeader.setText(i, QString::number(i));
+        topHeader.setText(i, QString::number(i));
     int r = rowCount(0);
     if (c > _c)
-	emit contentsInserted(index(0, _c - 1, 0), index(r - 1, c - 1, 0));
+        emit contentsInserted(index(0, _c - 1, 0), index(r - 1, c - 1, 0));
     else
-	emit contentsRemoved(0, index(0, c - 1, 0), index(r - 1, _c - 1, 0));
+        emit contentsRemoved(0, index(0, c - 1, 0), index(r - 1, _c - 1, 0));
 }
 
 int QTreeModel::columnCount() const
@@ -103,16 +103,16 @@ QIconSet QTreeModel::columnIconSet(int column) const
 QTreeViewItem *QTreeModel::item(const QModelIndex &index) const
 {
     if (!index.isValid())
-	return 0;
+        return 0;
     if (index.type() != QModelIndex::View)
-	return &topHeader;
+        return &topHeader;
     return (QTreeViewItem *)index.data();
 }
 
 QModelIndex QTreeModel::index(QTreeViewItem *item) const
 {
     if (!item)
-	return QModelIndex();
+        return QModelIndex();
     const QTreeViewItem *par = item->parent();
     int row = par ? par->children.indexOf(item) : tree.indexOf(item);
     return QModelIndex(row, 0, item);
@@ -123,15 +123,15 @@ QModelIndex QTreeModel::index(int row, int column, const QModelIndex &parent,
 {
     int r = tree.count();
     if (row < 0 || row >= r || column < 0 || column >= c)
-	return QModelIndex();
+        return QModelIndex();
     if (!parent.isValid() && row < r) {// toplevel
-	QTreeViewItem *itm = ((QTreeModel*)this)->tree[row]; // FIXME
-	return QModelIndex(row, column, itm, type);
+        QTreeViewItem *itm = ((QTreeModel*)this)->tree[row]; // FIXME
+        return QModelIndex(row, column, itm, type);
     }
     QTreeViewItem *parentItem = item(parent);
     if (parentItem && row < parentItem->childCount()) {
-	QTreeViewItem *itm = (QTreeViewItem*)parentItem->child(row); // FIXME
-	return QModelIndex(row, column, itm, type);
+        QTreeViewItem *itm = (QTreeViewItem*)parentItem->child(row); // FIXME
+        return QModelIndex(row, column, itm, type);
     }
     return QModelIndex();
 }
@@ -139,10 +139,10 @@ QModelIndex QTreeModel::index(int row, int column, const QModelIndex &parent,
 QModelIndex QTreeModel::parent(const QModelIndex &child) const
 {
     if (!child.isValid())
-	return QModelIndex();
+        return QModelIndex();
     const QTreeViewItem *itm = (const QTreeViewItem*)child.data();
     if (!itm)
-	return QModelIndex();
+        return QModelIndex();
     QTreeViewItem *parent = (QTreeViewItem*)itm->parent(); // FIXME
     return index(parent);
 }
@@ -150,9 +150,9 @@ QModelIndex QTreeModel::parent(const QModelIndex &child) const
 int QTreeModel::rowCount(const QModelIndex &parent) const
 {
     if (parent.isValid()) {
-	QTreeViewItem *parentItem = item(parent);
-	if (parentItem)
-	    return parentItem->childCount();
+        QTreeViewItem *parentItem = item(parent);
+        if (parentItem)
+            return parentItem->childCount();
     }
     return tree.count();
 }
@@ -165,20 +165,20 @@ int QTreeModel::columnCount(const QModelIndex &) const
 QVariant QTreeModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
-	return QVariant();
+        return QVariant();
     QTreeViewItem *itm = item(index);
     if (itm)
-	return itm->data(index.column(), role);
+        return itm->data(index.column(), role);
     return QVariant();
 }
 
 void QTreeModel::setData(const QModelIndex &index, int role, const QVariant &value)
 {
     if (!index.isValid())
-	return;
+        return;
     QTreeViewItem *itm = item(index);
     if (itm)
-	itm->setData(index.column(), role, value);
+        itm->setData(index.column(), role, value);
     emit contentsChanged(index, index);
 }
 
@@ -226,14 +226,14 @@ QTreeViewItem::QTreeViewItem(QTreeView *v)
     : par(0), view(v), c(0), edit(true), select(true)
 {
     if (view)
-	view->append(this);
+        view->append(this);
 }
 
 QTreeViewItem::QTreeViewItem(QTreeViewItem *parent)
     : par(parent), view(parent->view), c(0), edit(true), select(true)
 {
     if (parent)
-	parent->children.push_back(this);
+        parent->children.push_back(this);
     QTreeModel *model = ::qt_cast<QTreeModel*>(view->model());
     model->emitContentsInserted(this);
 }
@@ -241,7 +241,7 @@ QTreeViewItem::QTreeViewItem(QTreeViewItem *parent)
 QTreeViewItem::~QTreeViewItem()
 {
     for (int i = 0; i < children.count(); ++i)
-	delete children.at(i);
+        delete children.at(i);
 }
 
 void QTreeViewItem::setColumnCount(int columns)
@@ -253,12 +253,12 @@ void QTreeViewItem::setColumnCount(int columns)
 QVariant QTreeViewItem::data(int column, int role) const
 {
     if (column < 0 || column >= c)
-	return QVariant();
+        return QVariant();
     const QVector<Data> column_values = values.at(column);
     role = (role == QAbstractItemModel::Edit ? QAbstractItemModel::Display : role);
     for (int i = 0; i < column_values.count(); ++i) {
-	if (column_values.at(i).role == role)
-	    return column_values.at(i).value;
+        if (column_values.at(i).role == role)
+            return column_values.at(i).value;
     }
     return QVariant();
 }
@@ -266,14 +266,14 @@ QVariant QTreeViewItem::data(int column, int role) const
 void QTreeViewItem::setData(int column, int role, const QVariant &value)
 {
     if (column >= c)
-	setColumnCount(column + 1);
+        setColumnCount(column + 1);
     QVector<Data> column_values = values.at(column);
     role = (role == QAbstractItemModel::Edit ? QAbstractItemModel::Display : role);
     for (int i = 0; i < column_values.count(); ++i) {
-	if (column_values.at(i).role == role) {
-	    values[column][i].value = value;
-	    return;
-	}
+        if (column_values.at(i).role == role) {
+            values[column][i].value = value;
+            return;
+        }
     }
     values[column].append(Data(role, value));
 }

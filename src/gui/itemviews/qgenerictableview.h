@@ -32,7 +32,7 @@ public:
     bool isColumnHidden(int column) const;
     void setShowGrid(bool show);
     bool showGrid() const;
-    
+
 public slots:
     void selectRow(int row, ButtonState state = Qt::NoButton);
     void selectColumn(int column, ButtonState state = Qt::NoButton);
@@ -52,11 +52,11 @@ protected slots:
 protected:
     QGenericTableView(QGenericTableViewPrivate &, QAbstractItemModel *model, QWidget *parent = 0);
     void scrollContentsBy(int dx, int dy);
-    
+
     virtual void drawGrid(QPainter *p, int x, int y, int w, int h) const;
     void paintEvent(QPaintEvent *e);
     bool event(QEvent *e);
-    
+
     QModelIndex itemAt(int x, int y) const;
     int horizontalOffset() const;
     int verticalOffset() const;

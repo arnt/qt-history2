@@ -70,9 +70,9 @@ static QCleanupHandler< QEditorFactory > q_cleanup_editor_factory;
 
 QEditorFactory * QEditorFactory::defaultFactory()
 {
-    if( defaultfactory == 0 ){
-	defaultfactory = new QEditorFactory();
-	q_cleanup_editor_factory.add( &defaultfactory );
+    if(defaultfactory == 0){
+        defaultfactory = new QEditorFactory();
+        q_cleanup_editor_factory.add(&defaultfactory);
     }
 
     return defaultfactory;
@@ -84,16 +84,16 @@ QEditorFactory * QEditorFactory::defaultFactory()
     when it is no longer needed.}
 */
 
-void QEditorFactory::installDefaultFactory( QEditorFactory * factory )
+void QEditorFactory::installDefaultFactory(QEditorFactory * factory)
 {
-    if( factory == 0 || factory == defaultfactory ) return;
+    if(factory == 0 || factory == defaultfactory) return;
 
-    if( defaultfactory != 0 ){
-	q_cleanup_editor_factory.remove( &defaultfactory );
-	delete defaultfactory;
+    if(defaultfactory != 0){
+        q_cleanup_editor_factory.remove(&defaultfactory);
+        delete defaultfactory;
     }
     defaultfactory = factory;
-    q_cleanup_editor_factory.add( &defaultfactory );
+    q_cleanup_editor_factory.add(&defaultfactory);
 }
 
 /*!
@@ -102,62 +102,62 @@ void QEditorFactory::installDefaultFactory( QEditorFactory * factory )
     to the appropriate editor's constructor.
 */
 
-QWidget * QEditorFactory::createEditor( QWidget * parent, const QVariant & v )
+QWidget * QEditorFactory::createEditor(QWidget * parent, const QVariant & v)
 {
     QWidget * w = 0;
-    switch( v.type() ){
-	case QVariant::Invalid:
-	    w = 0;
-	    break;
-	case QVariant::Bool:
-	    w = new QComboBox( parent, "qt_editor_bool" );
-	    ((QComboBox *) w)->insertItem( "False" );
-	    ((QComboBox *) w)->insertItem( "True" );
-	    break;
-	case QVariant::UInt:
-	    w = new QSpinBox( 0, 999999, 1, parent, "qt_editor_spinbox" );
-	    break;
-	case QVariant::Int:
-	    w = new QSpinBox( -999999, 999999, 1, parent, "qt_editor_int" );
-	    break;
-	case QVariant::String:
-	case QVariant::Double:
-	    w = new QLineEdit( parent, "qt_editor_double" );
-	    ((QLineEdit*)w)->setFrame( FALSE );
-	    break;
-	case QVariant::Date:
-	    w = new QDateEdit( parent, "qt_editor_date" );
-	    break;
-	case QVariant::Time:
-	    w = new QTimeEdit( parent, "qt_editor_time" );
-	    break;
-	case QVariant::DateTime:
-	    w = new QDateTimeEdit( parent, "qt_editor_datetime" );
-	    break;
+    switch(v.type()){
+        case QVariant::Invalid:
+            w = 0;
+            break;
+        case QVariant::Bool:
+            w = new QComboBox(parent, "qt_editor_bool");
+            ((QComboBox *) w)->insertItem("False");
+            ((QComboBox *) w)->insertItem("True");
+            break;
+        case QVariant::UInt:
+            w = new QSpinBox(0, 999999, 1, parent, "qt_editor_spinbox");
+            break;
+        case QVariant::Int:
+            w = new QSpinBox(-999999, 999999, 1, parent, "qt_editor_int");
+            break;
+        case QVariant::String:
+        case QVariant::Double:
+            w = new QLineEdit(parent, "qt_editor_double");
+            ((QLineEdit*)w)->setFrame(false);
+            break;
+        case QVariant::Date:
+            w = new QDateEdit(parent, "qt_editor_date");
+            break;
+        case QVariant::Time:
+            w = new QTimeEdit(parent, "qt_editor_time");
+            break;
+        case QVariant::DateTime:
+            w = new QDateTimeEdit(parent, "qt_editor_datetime");
+            break;
 #ifndef QT_NO_LABEL
-	case QVariant::Pixmap:
-	    w = new QLabel( parent, "qt_editor_pixmap" );
-	    break;
+        case QVariant::Pixmap:
+            w = new QLabel(parent, "qt_editor_pixmap");
+            break;
 #endif
-	case QVariant::Palette:
-	case QVariant::Color:
-	case QVariant::Font:
-	case QVariant::Brush:
-	case QVariant::Bitmap:
-	case QVariant::Cursor:
-	case QVariant::Map:
-	case QVariant::StringList:
-	case QVariant::Rect:
-	case QVariant::Size:
-	case QVariant::IconSet:
-	case QVariant::Point:
-	case QVariant::PointArray:
-	case QVariant::Region:
-	case QVariant::SizePolicy:
-	case QVariant::ByteArray:
-	default:
-	    w = new QWidget( parent, "qt_editor_default" );
-	    break;
+        case QVariant::Palette:
+        case QVariant::Color:
+        case QVariant::Font:
+        case QVariant::Brush:
+        case QVariant::Bitmap:
+        case QVariant::Cursor:
+        case QVariant::Map:
+        case QVariant::StringList:
+        case QVariant::Rect:
+        case QVariant::Size:
+        case QVariant::IconSet:
+        case QVariant::Point:
+        case QVariant::PointArray:
+        case QVariant::Region:
+        case QVariant::SizePolicy:
+        case QVariant::ByteArray:
+        default:
+            w = new QWidget(parent, "qt_editor_default");
+            break;
     }
     return w;
 }

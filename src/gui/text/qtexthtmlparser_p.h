@@ -17,32 +17,32 @@
 class QTextHtmlParser;
 struct QTextHtmlParserAttribute {
     enum {
-	Add,
-	Attributes,
-	And,
-	Styles,
-	Here,
-	That,
-	The,
-	Parser,
-	Does,
-	Not,
-	Resolve,
-	Eg,
-	Tables
+        Add,
+        Attributes,
+        And,
+        Styles,
+        Here,
+        That,
+        The,
+        Parser,
+        Does,
+        Not,
+        Resolve,
+        Eg,
+        Tables
     } id;
     QString value;
 };
 Q_DECLARE_TYPEINFO(QTextHtmlParserAttribute, Q_MOVABLE_TYPE);
 
 struct QTextHtmlParserNode {
-    inline QTextHtmlParserNode():parent(0), isBlock(0), isListItem(0), isListStart(false), isTableCell(false), isAnchor(false), 
-			  isImage(false), fontItalic(0), fontUnderline(0), fontOverline(0),
-			  fontStrikeOut(0), fontFixedPitch(0), fontPointSize(12), fontWeight(QFont::Normal),
-			  alignment(Qt::AlignAuto),listStyle(QTextListFormat::ListStyleUndefined),
-			  imageWidth(-1), imageHeight(-1),
-			  formatIndex(0), formatReference(0), propertyId(0),
-			  wsm(QStyleSheetItem::WhiteSpaceModeUndefined), style(0)
+    inline QTextHtmlParserNode():parent(0), isBlock(0), isListItem(0), isListStart(false), isTableCell(false), isAnchor(false),
+                          isImage(false), fontItalic(0), fontUnderline(0), fontOverline(0),
+                          fontStrikeOut(0), fontFixedPitch(0), fontPointSize(12), fontWeight(QFont::Normal),
+                          alignment(Qt::AlignAuto),listStyle(QTextListFormat::ListStyleUndefined),
+                          imageWidth(-1), imageHeight(-1),
+                          formatIndex(0), formatReference(0), propertyId(0),
+                          wsm(QStyleSheetItem::WhiteSpaceModeUndefined), style(0)
     { margin[0] = margin[1] = margin[2] = margin[3] = margin[4] = 0; }
     QString tag;
     QString text;
@@ -126,7 +126,7 @@ protected:
     void parseAttributes();
     void eatSpace();
     inline bool hasPrefix(QChar c, int lookahead = 0)
-	{return pos + lookahead < len && txt.at(pos) == c; }
+        {return pos + lookahead < len && txt.at(pos) == c; }
     int margin(int i, int mar) const;
 };
 

@@ -3,5 +3,5 @@
 class MyPushButton : public QPushButton
 {
 public:
-    MyPushButton( const QString& );
+    MyPushButton(const QString&);
 };

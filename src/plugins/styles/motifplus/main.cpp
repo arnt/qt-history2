@@ -7,7 +7,7 @@ public:
     MotifPlusStyle();
 
     QStringList keys() const;
-    QStyle *create( const QString& );
+    QStyle *create(const QString&);
 
 };
 
@@ -23,13 +23,13 @@ QStringList MotifPlusStyle::keys() const
     return list;
 }
 
-QStyle* MotifPlusStyle::create( const QString& s )
+QStyle* MotifPlusStyle::create(const QString& s)
 {
-    if ( s.toLower() == "motifplus" )
-	return new QMotifPlusStyle();
+    if (s.toLower() == "motifplus")
+        return new QMotifPlusStyle();
 
     return 0;
 }
 
-Q_EXPORT_PLUGIN( MotifPlusStyle )
+Q_EXPORT_PLUGIN(MotifPlusStyle)
 

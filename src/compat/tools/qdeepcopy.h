@@ -28,24 +28,24 @@ public:
     {
     }
 
-    inline QDeepCopy( const T &t )
-	: deepcopy( t )
+    inline QDeepCopy(const T &t)
+        : deepcopy(t)
     {
-	deepcopy.detach();
+        deepcopy.detach();
     }
 
-    inline QDeepCopy<T> &operator=( const T &t )
+    inline QDeepCopy<T> &operator=(const T &t)
     {
-	deepcopy = t;
-	deepcopy.detach();
-	return *this;
+        deepcopy = t;
+        deepcopy.detach();
+        return *this;
     }
 
     inline operator T ()
     {
-	T tmp = deepcopy;
-	tmp.detach();
-	return tmp;
+        T tmp = deepcopy;
+        tmp.detach();
+        return tmp;
     }
 
 private:

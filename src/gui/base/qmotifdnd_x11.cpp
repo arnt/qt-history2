@@ -53,7 +53,7 @@ in doc/dnd.doc, where the documentation system can see it. */
 
 #include <stdlib.h>
 
-static bool in_drop_site = FALSE;
+static bool in_drop_site = false;
 static Window cur_window = 0;
 static QWidget *drop_widget = 0L;
 
@@ -67,15 +67,15 @@ extern bool qt_motifdnd_active;
 
 // this stuff is copied from qclipboard_x11.cpp
 
-extern bool qt_xclb_wait_for_event( Display *dpy, Window win, int type,
-				    XEvent *event, int timeout );
-extern bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
-				   bool deleteProperty,
-				   QByteArray *buffer, int *size, Atom *type,
-				   int *format, bool nullterm );
+extern bool qt_xclb_wait_for_event(Display *dpy, Window win, int type,
+                                    XEvent *event, int timeout);
+extern bool qt_xclb_read_property(Display *dpy, Window win, Atom property,
+                                   bool deleteProperty,
+                                   QByteArray *buffer, int *size, Atom *type,
+                                   int *format, bool nullterm);
 
-extern Atom qt_xdnd_str_to_atom( const char *mimeType );
-extern const char* qt_xdnd_atom_to_str( Atom );
+extern Atom qt_xdnd_str_to_atom(const char *mimeType);
+extern const char* qt_xdnd_atom_to_str(Atom);
 
 
 // Motif definitions
@@ -100,15 +100,15 @@ extern const char* qt_xdnd_atom_to_str( Atom );
 #define DND_OPERATION_CHANGED 8
 
 /* operation(s) */
-#define DND_NOOP	0L
-#define DND_MOVE 	(1L << 0)
-#define DND_COPY	(1L << 1)
-#define DND_LINK	(1L << 2)
+#define DND_NOOP        0L
+#define DND_MOVE         (1L << 0)
+#define DND_COPY        (1L << 1)
+#define DND_LINK        (1L << 2)
 
 /* status */
 #define DND_NO_DROP_SITE        1
 #define DND_INVALID_DROP_SITE   2
-#define DND_VALID_DROP_SITE	3
+#define DND_VALID_DROP_SITE        3
 
 /* completion */
 #define DND_DROP        0
@@ -156,33 +156,33 @@ typedef struct _DndReceiverProp {
 /* need to use some union hack since window and property are in
    different order depending on the message ... */
 typedef struct _DndTop {
-    CARD32		src_window;
-    CARD32		property;
+    CARD32                src_window;
+    CARD32                property;
 } DndTop ;
 
 typedef struct _DndPot {
-    INT16		x;
-    INT16		y;
-    CARD32		property;
-    CARD32		src_window;
+    INT16                x;
+    INT16                y;
+    CARD32                property;
+    CARD32                src_window;
 } DndPot ;
 
 typedef struct _DndMessage {
-    BYTE		reason;
-    BYTE		byte_order;
-    CARD16		flags;
-    CARD32		time;
+    BYTE                reason;
+    BYTE                byte_order;
+    CARD16                flags;
+    CARD32                time;
     union {
-	DndTop top ;
-	DndPot pot ;
+        DndTop top ;
+        DndPot pot ;
     } data ;
 } DndMessage ;
 
 typedef struct {
-    BYTE	byte_order;
-    BYTE	protocol_version;
-    CARD16	num_target_lists;
-    CARD32	data_size;
+    BYTE        byte_order;
+    BYTE        protocol_version;
+    CARD16        num_target_lists;
+    CARD32        data_size;
     /* then come series of CARD16,CARD32,CARD32,CARD32... */
 } DndTargets;
 
@@ -249,7 +249,7 @@ typedef struct {
 
 #define SWAP4BYTES(l) {\
 struct { unsigned t :32;} bit32;\
-char n,	*tp = (char *) &bit32;\
+char n,        *tp = (char *) &bit32;\
 bit32.t = l;\
 n = tp[0]; tp[0] = tp[3]; tp[3] = n;\
 n = tp[1]; tp[1] = tp[2]; tp[2] = n;\
@@ -273,21 +273,21 @@ static unsigned char DndByteOrder ();
 /***** Targets/Index stuff */
 
 typedef struct {
-    int	    num_targets;
+    int            num_targets;
     Atom    *targets;
 } DndTargetsTableEntryRec, * DndTargetsTableEntry;
 
 typedef struct {
-    int	num_entries;
+    int        num_entries;
     DndTargetsTableEntry entries;
 } DndTargetsTableRec, * DndTargetsTable;
 
 
 static int _DndIndexToTargets(Display * display,
-			      int index,
-			      Atom ** targets);
+                              int index,
+                              Atom ** targets);
 
-extern void qt_x11_intern_atom( const char *, Atom * );
+extern void qt_x11_intern_atom(const char *, Atom *);
 
 /////////////////////////////////////////////////////////////////
 
@@ -296,8 +296,8 @@ static unsigned char DndByteOrder ()
     static unsigned char byte_order = 0;
 
     if (!byte_order) {
-	unsigned int endian = 1;
-	byte_order = (*((char *)&endian))?'l':'B';
+        unsigned int endian = 1;
+        byte_order = (*((char *)&endian))?'l':'B';
     }
     return byte_order ;
 }
@@ -305,8 +305,8 @@ static unsigned char DndByteOrder ()
 
 
 static void DndReadSourceProperty(Display * dpy,
-				  Window window, Atom dnd_selection,
-				  Atom ** targets, unsigned short * num_targets)
+                                  Window window, Atom dnd_selection,
+                                  Atom ** targets, unsigned short * num_targets)
 {
     DndSrcProp * src_prop = 0;
     Atom type ;
@@ -314,17 +314,17 @@ static void DndReadSourceProperty(Display * dpy,
     unsigned long bytesafter, lengthRtn;
 
     if ((XGetWindowProperty (dpy, window, dnd_selection, 0L, 100000L,
-			     False, ATOM(_MOTIF_DRAG_INITIATOR_INFO), &type,
-			     &format, &lengthRtn, &bytesafter,
-			     (unsigned char **) &src_prop) != Success)
-	|| (type == XNone)) {
-	*num_targets = 0;
-	return ;
+                             False, ATOM(_MOTIF_DRAG_INITIATOR_INFO), &type,
+                             &format, &lengthRtn, &bytesafter,
+                             (unsigned char **) &src_prop) != Success)
+        || (type == XNone)) {
+        *num_targets = 0;
+        return ;
     }
 
     if (src_prop->byte_order != DndByteOrder()) {
-	SWAP2BYTES(src_prop->target_index);
-	SWAP4BYTES(src_prop->selection);
+        SWAP2BYTES(src_prop->target_index);
+        SWAP4BYTES(src_prop->selection);
     }
 
     *num_targets = _DndIndexToTargets(dpy, src_prop->target_index, targets);
@@ -337,7 +337,7 @@ static void DndReadSourceProperty(Display * dpy,
    Called by the receiver of the drop to indicate the
    supported protocol style : dynamic, drop_only or none */
 static void DndWriteReceiverProperty(Display * dpy, Window window,
-				     unsigned char protocol_style)
+                                     unsigned char protocol_style)
 {
     DndReceiverProp receiver_prop ;
 
@@ -350,9 +350,9 @@ static void DndWriteReceiverProperty(Display * dpy, Window window,
 
     /* write the buffer to the property */
     XChangeProperty (dpy, window, ATOM(_MOTIF_DRAG_RECEIVER_INFO), ATOM(_MOTIF_DRAG_RECEIVER_INFO),
-		     8, PropModeReplace,
-		     (unsigned char *)&receiver_prop,
-		     sizeof(DndReceiverProp));
+                     8, PropModeReplace,
+                     (unsigned char *)&receiver_prop,
+                     sizeof(DndReceiverProp));
 }
 
 
@@ -364,9 +364,9 @@ static void DndWriteReceiverProperty(Display * dpy, Window window,
 
 /* Produce a client message to be sent by the caller */
 static void DndFillClientMessage(Display * dpy, Window window,
-				 XClientMessageEvent *cm,
-				 DndData * dnd_data,
-				 char receiver)
+                                 XClientMessageEvent *cm,
+                                 DndData * dnd_data,
+                                 char receiver)
 {
     DndMessage * dnd_message = (DndMessage*)&cm->data.b[0] ;
 
@@ -396,45 +396,45 @@ static void DndFillClientMessage(Display * dpy, Window window,
     case DND_DROP_SITE_LEAVE: break ;
     case DND_TOP_LEVEL_ENTER:
     case DND_TOP_LEVEL_LEAVE:
-	dnd_message->data.top.src_window = dnd_data->src_window ;
-	dnd_message->data.top.property = dnd_data->property ;
-	break ; /* cannot fall thru since the byte layout is different in
-		   both set of messages, see top and pot union stuff */
+        dnd_message->data.top.src_window = dnd_data->src_window ;
+        dnd_message->data.top.property = dnd_data->property ;
+        break ; /* cannot fall thru since the byte layout is different in
+                   both set of messages, see top and pot union stuff */
 
     case DND_DRAG_MOTION:
     case DND_OPERATION_CHANGED:
     case DND_DROP_SITE_ENTER:
     case DND_DROP_START:
-	dnd_message->data.pot.x = dnd_data->x ; /* mouse position */
-	dnd_message->data.pot.y = dnd_data->y ;
-	dnd_message->data.pot.src_window = dnd_data->src_window ;
-	dnd_message->data.pot.property = dnd_data->property ;
-	break ;
+        dnd_message->data.pot.x = dnd_data->x ; /* mouse position */
+        dnd_message->data.pot.y = dnd_data->y ;
+        dnd_message->data.pot.src_window = dnd_data->src_window ;
+        dnd_message->data.pot.property = dnd_data->property ;
+        break ;
     default:
-	break ;
+        break ;
     }
 
 }
 
 static Bool DndParseClientMessage(XClientMessageEvent *cm, DndData * dnd_data,
-				  char * receiver)
+                                  char * receiver)
 {
     DndMessage * dnd_message = (DndMessage*)&cm->data.b[0] ;
 
     if (cm->message_type != ATOM(_MOTIF_DRAG_AND_DROP_MESSAGE)) {
-	return False ;
+        return False ;
     }
 
     if (dnd_message->byte_order != DndByteOrder()) {
-	SWAP2BYTES(dnd_message->flags);
-	SWAP4BYTES(dnd_message->time);
+        SWAP2BYTES(dnd_message->flags);
+        SWAP4BYTES(dnd_message->time);
     } /* do the rest in the switch */
 
     dnd_data->reason = dnd_message->reason  ;
     if (DND_GET_EVENT_TYPE(dnd_data->reason))
-	*receiver = 1 ;
+        *receiver = 1 ;
     else
-	*receiver = 0 ;
+        *receiver = 0 ;
     dnd_data->reason &= DND_CLEAR_EVENT_TYPE ;
 
     dnd_data->time = dnd_message->time ;
@@ -448,79 +448,79 @@ static Bool DndParseClientMessage(XClientMessageEvent *cm, DndData * dnd_data,
     switch(dnd_data->reason) {
     case DND_TOP_LEVEL_ENTER:
     case DND_TOP_LEVEL_LEAVE:
-	if (dnd_message->byte_order != DndByteOrder()) {
-	    SWAP4BYTES(dnd_message->data.top.src_window);
-	    SWAP4BYTES(dnd_message->data.top.property);
-	}
-	dnd_data->src_window = dnd_message->data.top.src_window ;
-	dnd_data->property = dnd_message->data.top.property ;
-	break ; /* cannot fall thru, see above comment in write msg */
+        if (dnd_message->byte_order != DndByteOrder()) {
+            SWAP4BYTES(dnd_message->data.top.src_window);
+            SWAP4BYTES(dnd_message->data.top.property);
+        }
+        dnd_data->src_window = dnd_message->data.top.src_window ;
+        dnd_data->property = dnd_message->data.top.property ;
+        break ; /* cannot fall thru, see above comment in write msg */
 
     case DND_DRAG_MOTION:
     case DND_OPERATION_CHANGED:
     case DND_DROP_SITE_ENTER:
     case DND_DROP_START:
-	if (dnd_message->byte_order != DndByteOrder()) {
-	    SWAP2BYTES(dnd_message->data.pot.x);
-	    SWAP2BYTES(dnd_message->data.pot.y);
-	    SWAP4BYTES(dnd_message->data.pot.property);
-	    SWAP4BYTES(dnd_message->data.pot.src_window);
-	}
-	dnd_data->x = dnd_message->data.pot.x ;
-	dnd_data->y = dnd_message->data.pot.y ;
-	dnd_data->property = dnd_message->data.pot.property ;
-	dnd_data->src_window = dnd_message->data.pot.src_window ;
-	break ;
+        if (dnd_message->byte_order != DndByteOrder()) {
+            SWAP2BYTES(dnd_message->data.pot.x);
+            SWAP2BYTES(dnd_message->data.pot.y);
+            SWAP4BYTES(dnd_message->data.pot.property);
+            SWAP4BYTES(dnd_message->data.pot.src_window);
+        }
+        dnd_data->x = dnd_message->data.pot.x ;
+        dnd_data->y = dnd_message->data.pot.y ;
+        dnd_data->property = dnd_message->data.pot.property ;
+        dnd_data->src_window = dnd_message->data.pot.src_window ;
+        break ;
 
     case DND_DROP_SITE_LEAVE:
-	break;
+        break;
     default:
-	break ;
+        break ;
     }
 
     return True ;
 }
 
 
-static Window MotifWindow(Display *display )
+static Window MotifWindow(Display *display)
 {
     Atom            type;
     int             format;
     unsigned long   size;
     unsigned long   bytes_after;
     Window         *property = 0;
-    Window	    motif_window ;
+    Window            motif_window ;
 
     /* this version does no caching, so it's slow: round trip each time */
 
     if ((XGetWindowProperty (display, DefaultRootWindow(display),
-			     ATOM(_MOTIF_DRAG_WINDOW),
-			     0L, 100000L, False, AnyPropertyType,
-			     &type, &format, &size, &bytes_after,
-			     (unsigned char **) &property) == Success) &&
-	(type != XNone)) {
-	motif_window = *property;
+                             ATOM(_MOTIF_DRAG_WINDOW),
+                             0L, 100000L, False, AnyPropertyType,
+                             &type, &format, &size, &bytes_after,
+                             (unsigned char **) &property) == Success) &&
+        (type != XNone)) {
+        motif_window = *property;
     } else {
-	XSetWindowAttributes sAttributes;
+        XSetWindowAttributes sAttributes;
 
-	/* really, this should be done on a separate connection,
-	   with XSetCloseDownMode (RetainPermanent), so that
-	   others don't have to recreate it; hopefully, some real
-	   Motif application will be around to do it */
+        /* really, this should be done on a separate connection,
+           with XSetCloseDownMode (RetainPermanent), so that
+           others don't have to recreate it; hopefully, some real
+           Motif application will be around to do it */
 
-	sAttributes.override_redirect = True;
-	sAttributes.event_mask = PropertyChangeMask;
-	motif_window = XCreateWindow (display,
-				      DefaultRootWindow (display),
-				      -170, -560, 1, 1, 0, 0,
-				      InputOnly, CopyFromParent,
-				      (CWOverrideRedirect |CWEventMask),
-				      &sAttributes);
-	XMapWindow (display, motif_window);
+        sAttributes.override_redirect = True;
+        sAttributes.event_mask = PropertyChangeMask;
+        motif_window = XCreateWindow (display,
+                                      DefaultRootWindow (display),
+                                      -170, -560, 1, 1, 0, 0,
+                                      InputOnly, CopyFromParent,
+                                      (CWOverrideRedirect |CWEventMask),
+                                      &sAttributes);
+        XMapWindow (display, motif_window);
     }
 
     if (property) {
-	XFree ((char *)property);
+        XFree ((char *)property);
     }
 
     return (motif_window);
@@ -544,23 +544,23 @@ static DndTargetsTable TargetsTable(Display *display)
        atom and update when necessary only */
 
     if ((XGetWindowProperty (display, motif_window,
-			     ATOM(_MOTIF_DRAG_TARGETS), 0L, 100000L,
-			     False, ATOM(_MOTIF_DRAG_TARGETS),
-			     &type, &format,	&size, &bytes_after,
-			     (unsigned char **) &target_prop) != Success) ||
-	type == XNone) {
-	qWarning("QMotifDND: cannot get property on motif window");
-	return 0;
+                             ATOM(_MOTIF_DRAG_TARGETS), 0L, 100000L,
+                             False, ATOM(_MOTIF_DRAG_TARGETS),
+                             &type, &format,        &size, &bytes_after,
+                             (unsigned char **) &target_prop) != Success) ||
+        type == XNone) {
+        qWarning("QMotifDND: cannot get property on motif window");
+        return 0;
     }
 
     if (target_prop->protocol_version != DND_PROTOCOL_VERSION) {
-	qWarning("QMotifDND: protocol mismatch");
+        qWarning("QMotifDND: protocol mismatch");
     }
 
     if (target_prop->byte_order != DndByteOrder()) {
-	/* need to swap num_target_lists and size */
-	SWAP2BYTES(target_prop->num_target_lists);
-	SWAP4BYTES(target_prop->data_size);
+        /* need to swap num_target_lists and size */
+        SWAP2BYTES(target_prop->num_target_lists);
+        SWAP4BYTES(target_prop->data_size);
     }
 
     /* now parse DndTarget prop data in a TargetsTable */
@@ -568,40 +568,40 @@ static DndTargetsTable TargetsTable(Display *display)
     targets_table = (DndTargetsTable)malloc(sizeof(DndTargetsTableRec));
     targets_table->num_entries = target_prop->num_target_lists ;
     targets_table->entries = (DndTargetsTableEntry)
-			     malloc(sizeof(DndTargetsTableEntryRec) * target_prop->num_target_lists);
+                             malloc(sizeof(DndTargetsTableEntryRec) * target_prop->num_target_lists);
 
     target_data = (char*)target_prop + sizeof(*target_prop) ;
 
     for (i = 0 ; i < targets_table->num_entries; i++) {
-	CARD16 num_targets ;
-	CARD32 atom ;
+        CARD16 num_targets ;
+        CARD32 atom ;
 
-	memcpy(&num_targets, target_data, 2);
-	target_data += 2;
+        memcpy(&num_targets, target_data, 2);
+        target_data += 2;
 
-	/* potential swap needed here */
-	if (target_prop->byte_order != DndByteOrder())
-	    SWAP2BYTES(num_targets);
+        /* potential swap needed here */
+        if (target_prop->byte_order != DndByteOrder())
+            SWAP2BYTES(num_targets);
 
-	targets_table->entries[i].num_targets = num_targets ;
-	targets_table->entries[i].targets = (Atom *)
-					    malloc(sizeof(Atom) * targets_table->entries[i].num_targets);
+        targets_table->entries[i].num_targets = num_targets ;
+        targets_table->entries[i].targets = (Atom *)
+                                            malloc(sizeof(Atom) * targets_table->entries[i].num_targets);
 
 
-	for (j = 0; j < num_targets; j++) {
-	    memcpy(&atom, target_data, 4 );
-	    target_data += 4;
+        for (j = 0; j < num_targets; j++) {
+            memcpy(&atom, target_data, 4);
+            target_data += 4;
 
-	    /* another potential swap needed here */
-	    if (target_prop->byte_order != DndByteOrder())
-		SWAP4BYTES(atom);
+            /* another potential swap needed here */
+            if (target_prop->byte_order != DndByteOrder())
+                SWAP4BYTES(atom);
 
-	    targets_table->entries[i].targets[j] = (Atom) atom ;
-	}
+            targets_table->entries[i].targets[j] = (Atom) atom ;
+        }
     }
 
     if (target_prop) {
-	XFree((char *)target_prop);
+        XFree((char *)target_prop);
     }
 
     return targets_table ;
@@ -609,29 +609,29 @@ static DndTargetsTable TargetsTable(Display *display)
 
 
 static int _DndIndexToTargets(Display * display,
-			      int index,
-			      Atom ** targets)
+                              int index,
+                              Atom ** targets)
 {
-    DndTargetsTable	targets_table;
+    DndTargetsTable        targets_table;
     int i ;
 
     /* again, slow: no caching here, alloc/free each time */
 
     if (!(targets_table = TargetsTable (display)) ||
-	(index >= targets_table->num_entries)) {
-	return -1;
+        (index >= targets_table->num_entries)) {
+        return -1;
     }
 
     /* transfer the correct target list index */
     *targets = (Atom*)malloc(sizeof(Atom)*targets_table->
-			     entries[index].num_targets);
+                             entries[index].num_targets);
     memcpy((char*)*targets,
-	   (char*)targets_table->entries[index].targets,
-	   sizeof(Atom)*targets_table->entries[index].num_targets);
+           (char*)targets_table->entries[index].targets,
+           sizeof(Atom)*targets_table->entries[index].num_targets);
 
     /* free the target table and its guts */
     for (i=0 ; i < targets_table->num_entries; i++)
-	XFree((char*)targets_table->entries[i].targets);
+        XFree((char*)targets_table->entries[i].targets);
 
     int tmp = targets_table->entries[index].num_targets;
     XFree((char*)targets_table);
@@ -640,19 +640,19 @@ static int _DndIndexToTargets(Display * display,
 }
 
 
-const char *qt_motifdnd_format( int n )
+const char *qt_motifdnd_format(int n)
 {
-    if ( ! qt_motifdnd_active )
-	return 0; // should not happen
+    if (! qt_motifdnd_active)
+        return 0; // should not happen
 
-    if ( n == 0 )
-	return "text/plain";
-    if ( n == 1 )
-	return "text/uri-list";
+    if (n == 0)
+        return "text/plain";
+    if (n == 1)
+        return "text/uri-list";
     n -= 2;
 
-    if ( n >= num_src_targets )
-	return 0;
+    if (n >= num_src_targets)
+        return 0;
 
     Atom target = src_targets[n];
 
@@ -660,104 +660,104 @@ const char *qt_motifdnd_format( int n )
     Atom xa_text = ATOM(TEXT);
     Atom xa_compound_text = ATOM(COMPOUND_TEXT);
 
-    if ( target == XA_STRING )
-	return "text/plain;charset=ISO-8859-1";
-    if ( target == xa_utf8_string )
-	return "text/plain;charset=UTF-8";
-    if ( target == xa_text ||
-	 target == xa_compound_text )
-	return "text/plain";
+    if (target == XA_STRING)
+        return "text/plain;charset=ISO-8859-1";
+    if (target == xa_utf8_string)
+        return "text/plain;charset=UTF-8";
+    if (target == xa_text ||
+         target == xa_compound_text)
+        return "text/plain";
 
-    return qt_xdnd_atom_to_str( target );
+    return qt_xdnd_atom_to_str(target);
 }
 
 
-QByteArray qt_motifdnd_obtain_data( const char *mimeType )
+QByteArray qt_motifdnd_obtain_data(const char *mimeType)
 {
     QByteArray result;
 
     Q_ASSERT(Dnd_selection != 0);
 
     // try to convert the selection to the requested property
-    // qDebug( "trying to convert to '%s'", mimeType );
+    // qDebug("trying to convert to '%s'", mimeType);
 
     int n=0;
     const char* f;
     do {
-	f = qt_motifdnd_format( n );
-	if ( !f )
-	    return result;
-	n++;
-    } while( qstricmp( mimeType, f ) );
+        f = qt_motifdnd_format(n);
+        if (!f)
+            return result;
+        n++;
+    } while(qstricmp(mimeType, f));
 
     // found one
     Atom conversion_type;
 
-    if ( qstrnicmp( f, "text/", 5 ) == 0 ) {
-	// always convert text to XA_STRING for compatibility with
-	// prior Qt versions
-	conversion_type = XA_STRING;
+    if (qstrnicmp(f, "text/", 5) == 0) {
+        // always convert text to XA_STRING for compatibility with
+        // prior Qt versions
+        conversion_type = XA_STRING;
     } else {
-	conversion_type = qt_xdnd_str_to_atom( f );
-	// qDebug( "found format '%s' 0x%lx '%s'", f, conversion_type,
-	// qt_xdnd_atom_to_str( conversion_type ) );
+        conversion_type = qt_xdnd_str_to_atom(f);
+        // qDebug("found format '%s' 0x%lx '%s'", f, conversion_type,
+        // qt_xdnd_atom_to_str(conversion_type));
     }
 
-    if ( XGetSelectionOwner( qt_xdisplay(),
-			     Dnd_selection ) == XNone ) {
-	return result; // should never happen?
+    if (XGetSelectionOwner(qt_xdisplay(),
+                             Dnd_selection) == XNone) {
+        return result; // should never happen?
     }
 
     QWidget* tw = drop_widget;
-    if ( drop_widget->isDesktop() ) {
-	tw = new QWidget;
+    if (drop_widget->isDesktop()) {
+        tw = new QWidget;
     }
 
     // convert selection to the appropriate type
     XConvertSelection (qt_xdisplay(), Dnd_selection, conversion_type,
-		       Dnd_selection, tw->winId(), Dnd_selection_time);
+                       Dnd_selection, tw->winId(), Dnd_selection_time);
 
-    XFlush( qt_xdisplay() );
+    XFlush(qt_xdisplay());
 
     XEvent xevent;
-    bool got=qt_xclb_wait_for_event( qt_xdisplay(),
-				     tw->winId(),
-				     SelectionNotify, &xevent, 5000);
-    if ( got ) {
-	Atom type;
+    bool got=qt_xclb_wait_for_event(qt_xdisplay(),
+                                     tw->winId(),
+                                     SelectionNotify, &xevent, 5000);
+    if (got) {
+        Atom type;
 
-	if ( qt_xclb_read_property( qt_xdisplay(),
-				    tw->winId(),
-				    Dnd_selection, TRUE,
-				    &result, 0, &type, 0, TRUE ) ) {
-	}
+        if (qt_xclb_read_property(qt_xdisplay(),
+                                    tw->winId(),
+                                    Dnd_selection, true,
+                                    &result, 0, &type, 0, true)) {
+        }
     }
 
     //   we have to convert selection in order to indicate success to the initiator
     XConvertSelection (qt_xdisplay(), Dnd_selection, ATOM(XmTRANSFER_SUCCESS),
-		       Dnd_selection, tw->winId(), Dnd_selection_time);
+                       Dnd_selection, tw->winId(), Dnd_selection_time);
 
     // wait again for SelectionNotify event
-    qt_xclb_wait_for_event( qt_xdisplay(),
-			    tw->winId(),
-			    SelectionNotify, &xevent, 5000);
+    qt_xclb_wait_for_event(qt_xdisplay(),
+                            tw->winId(),
+                            SelectionNotify, &xevent, 5000);
 
-    if ( drop_widget->isDesktop() ) {
-	delete tw;
+    if (drop_widget->isDesktop()) {
+        delete tw;
     }
 
     return result;
 }
 
 
-void qt_motifdnd_enable( QWidget *widget, bool )
+void qt_motifdnd_enable(QWidget *widget, bool)
 {
-    DndWriteReceiverProperty( widget->x11Info()->display(), widget->winId(),
-			      DND_DRAG_DYNAMIC);
+    DndWriteReceiverProperty(widget->x11Info()->display(), widget->winId(),
+                              DND_DRAG_DYNAMIC);
 }
 
 
-void qt_motifdnd_handle_msg( QWidget * /* w */ , const XEvent * xe, bool /* passive */ )
+void qt_motifdnd_handle_msg(QWidget * /* w */ , const XEvent * xe, bool /* passive */)
 {
 
     XEvent event = *xe;
@@ -766,170 +766,170 @@ void qt_motifdnd_handle_msg( QWidget * /* w */ , const XEvent * xe, bool /* pass
     char receiver ;
 
     if (!(DndParseClientMessage ((XClientMessageEvent*)&event,
-				 &dnd_data, &receiver))) {
-	return;
+                                 &dnd_data, &receiver))) {
+        return;
     }
 
-    switch ( dnd_data.reason ) {
+    switch (dnd_data.reason) {
 
     case DND_DRAG_MOTION:
 
-	{
-	    /* check if in drop site, and depending on the state,
-	       send a drop site enter or drop site leave or echo */
+        {
+            /* check if in drop site, and depending on the state,
+               send a drop site enter or drop site leave or echo */
 
-	    QPoint p( dnd_data.x, dnd_data.y );
-	    QWidget *c = QApplication::widgetAt( p );
-	    if (c)
-		p = c->mapFromGlobal(p);
+            QPoint p(dnd_data.x, dnd_data.y);
+            QWidget *c = QApplication::widgetAt(p);
+            if (c)
+                p = c->mapFromGlobal(p);
 
-	    while ( c && !c->acceptDrops() && !c->isTopLevel() ) {
-		p = c->mapToParent( p );
-		c = c->parentWidget();
-	    }
+            while (c && !c->acceptDrops() && !c->isTopLevel()) {
+                p = c->mapToParent(p);
+                c = c->parentWidget();
+            }
 
-	    QDragMoveEvent me( p );
-	    QDropEvent::Action accepted_action = QDropEvent::Copy;
-	    me.setAction(accepted_action);
+            QDragMoveEvent me(p);
+            QDropEvent::Action accepted_action = QDropEvent::Copy;
+            me.setAction(accepted_action);
 
-	    if ( c != 0L && c->acceptDrops() ) {
+            if (c != 0L && c->acceptDrops()) {
 
-		if ( drop_widget != 0L && drop_widget->acceptDrops() &&
-		     drop_widget != c ) {
-		    QDragLeaveEvent e;
-		    QApplication::sendEvent( drop_widget, &e );
-		    QDragEnterEvent de( p );
-		    QApplication::sendEvent( c, &de );
-		}
+                if (drop_widget != 0L && drop_widget->acceptDrops() &&
+                     drop_widget != c) {
+                    QDragLeaveEvent e;
+                    QApplication::sendEvent(drop_widget, &e);
+                    QDragEnterEvent de(p);
+                    QApplication::sendEvent(c, &de);
+                }
 
-		drop_widget = c;
+                drop_widget = c;
 
-		if (!in_drop_site) {
-		    in_drop_site = True ;
+                if (!in_drop_site) {
+                    in_drop_site = True ;
 
-		    dnd_data.reason = DND_DROP_SITE_ENTER ;
-		    dnd_data.time = CurrentTime ;
-		    dnd_data.operation = DND_MOVE|DND_COPY;
-		    dnd_data.operations = DND_MOVE|DND_COPY;
+                    dnd_data.reason = DND_DROP_SITE_ENTER ;
+                    dnd_data.time = CurrentTime ;
+                    dnd_data.operation = DND_MOVE|DND_COPY;
+                    dnd_data.operations = DND_MOVE|DND_COPY;
 
-		    DndFillClientMessage (event.xclient.display,
-					  cur_window,
-					  &cm, &dnd_data, 0);
+                    DndFillClientMessage (event.xclient.display,
+                                          cur_window,
+                                          &cm, &dnd_data, 0);
 
-		    XSendEvent(event.xbutton.display,
-			       cur_window, False, 0,
-			       (XEvent *)&cm) ;
+                    XSendEvent(event.xbutton.display,
+                               cur_window, False, 0,
+                               (XEvent *)&cm) ;
 
-		    QDragEnterEvent de( p );
-		    QApplication::sendEvent( drop_widget, &de );
-		    if ( de.isAccepted() ) {
-			me.accept( de.answerRect() );
-		    } else {
-			me.ignore( de.answerRect() );
-		    }
+                    QDragEnterEvent de(p);
+                    QApplication::sendEvent(drop_widget, &de);
+                    if (de.isAccepted()) {
+                        me.accept(de.answerRect());
+                    } else {
+                        me.ignore(de.answerRect());
+                    }
 
-		} else {
-		    dnd_data.reason = DND_DRAG_MOTION ;
-		    dnd_data.time = CurrentTime ;
-		    dnd_data.operation = DND_MOVE|DND_COPY;
-		    dnd_data.operations = DND_MOVE|DND_COPY;
+                } else {
+                    dnd_data.reason = DND_DRAG_MOTION ;
+                    dnd_data.time = CurrentTime ;
+                    dnd_data.operation = DND_MOVE|DND_COPY;
+                    dnd_data.operations = DND_MOVE|DND_COPY;
 
-		    DndFillClientMessage (event.xclient.display,
-					  cur_window,
-					  &cm, &dnd_data, 0);
+                    DndFillClientMessage (event.xclient.display,
+                                          cur_window,
+                                          &cm, &dnd_data, 0);
 
-		    XSendEvent(event.xbutton.display,
-			       cur_window, False, 0,
-			       (XEvent *)&cm) ;
+                    XSendEvent(event.xbutton.display,
+                               cur_window, False, 0,
+                               (XEvent *)&cm) ;
 
-		    QApplication::sendEvent( drop_widget, &me );
-		}
-	    } else {
-		if (in_drop_site) {
-		    in_drop_site = False ;
+                    QApplication::sendEvent(drop_widget, &me);
+                }
+            } else {
+                if (in_drop_site) {
+                    in_drop_site = False ;
 
-		    dnd_data.reason = DND_DROP_SITE_LEAVE ;
-		    dnd_data.time = CurrentTime ;
+                    dnd_data.reason = DND_DROP_SITE_LEAVE ;
+                    dnd_data.time = CurrentTime ;
 
-		    DndFillClientMessage (event.xclient.display,
-					  cur_window,
-					  &cm, &dnd_data, 0);
+                    DndFillClientMessage (event.xclient.display,
+                                          cur_window,
+                                          &cm, &dnd_data, 0);
 
-		    XSendEvent(event.xbutton.display,
-			       cur_window, False, 0,
-			       (XEvent *)&cm) ;
+                    XSendEvent(event.xbutton.display,
+                               cur_window, False, 0,
+                               (XEvent *)&cm) ;
 
-		    QDragLeaveEvent e;
-		    QApplication::sendEvent( drop_widget, &e );
-		}
-	    }
-	}
-	break;
+                    QDragLeaveEvent e;
+                    QApplication::sendEvent(drop_widget, &e);
+                }
+            }
+        }
+        break;
 
     case DND_TOP_LEVEL_ENTER:
 
-	/* get the size of our drop site for later use */
+        /* get the size of our drop site for later use */
 
-	cur_window = dnd_data.src_window ;
-	qt_motifdnd_active = TRUE;
+        cur_window = dnd_data.src_window ;
+        qt_motifdnd_active = true;
 
-	/* no answer needed, just read source property */
-	DndReadSourceProperty (event.xclient.display,
-			       cur_window,
-			       dnd_data.property,
-			       &src_targets, &num_src_targets);
-	break;
+        /* no answer needed, just read source property */
+        DndReadSourceProperty (event.xclient.display,
+                               cur_window,
+                               dnd_data.property,
+                               &src_targets, &num_src_targets);
+        break;
 
     case DND_TOP_LEVEL_LEAVE:
-	/* no need to do anything */
-	break;
+        /* no need to do anything */
+        break;
 
     case DND_OPERATION_CHANGED:
-	/* need to echo */
-	break;
+        /* need to echo */
+        break;
 
     case DND_DROP_START:
-	if (!in_drop_site) {
-	    // we have to convert selection in order to indicate failure to the initiator
-	    XConvertSelection (qt_xdisplay(), dnd_data.property, ATOM(XmTRANSFER_FAILURE),
-			       dnd_data.property, cur_window, dnd_data.time);
+        if (!in_drop_site) {
+            // we have to convert selection in order to indicate failure to the initiator
+            XConvertSelection (qt_xdisplay(), dnd_data.property, ATOM(XmTRANSFER_FAILURE),
+                               dnd_data.property, cur_window, dnd_data.time);
 
-	    if (drop_widget) {
-		QDragLeaveEvent e;
-		QApplication::sendEvent( drop_widget, &e );
-		drop_widget = 0;
-	    }
+            if (drop_widget) {
+                QDragLeaveEvent e;
+                QApplication::sendEvent(drop_widget, &e);
+                drop_widget = 0;
+            }
 
-	    return;
-	}
+            return;
+        }
 
-	/* need to echo and then request a convert */
-	dnd_data.reason = DND_DROP_START ;
+        /* need to echo and then request a convert */
+        dnd_data.reason = DND_DROP_START ;
 
-	DndFillClientMessage (event.xclient.display,
-			      drop_widget->winId(),
-			      &cm, &dnd_data, 0);
+        DndFillClientMessage (event.xclient.display,
+                              drop_widget->winId(),
+                              &cm, &dnd_data, 0);
 
-	XSendEvent(event.xbutton.display,
-		   cur_window, False, 0,
-		   (XEvent *)&cm) ;
+        XSendEvent(event.xbutton.display,
+                   cur_window, False, 0,
+                   (XEvent *)&cm) ;
 
-	// store selection and its time
-	Dnd_selection = dnd_data.property;
-	Dnd_selection_time = dnd_data.time;
+        // store selection and its time
+        Dnd_selection = dnd_data.property;
+        Dnd_selection_time = dnd_data.time;
 
-	QPoint p( dnd_data.x, dnd_data.y );
-	QDropEvent de( drop_widget->mapFromGlobal(p) );
-	de.setAction( QDropEvent::Copy );
-	QApplication::sendEvent( drop_widget, &de );
+        QPoint p(dnd_data.x, dnd_data.y);
+        QDropEvent de(drop_widget->mapFromGlobal(p));
+        de.setAction(QDropEvent::Copy);
+        QApplication::sendEvent(drop_widget, &de);
 
-	if (in_drop_site)
-	    in_drop_site = False ;
+        if (in_drop_site)
+            in_drop_site = False ;
 
-	drop_widget = 0;
-	cur_window = 0;
-	break;
-    }   //  end of switch ( dnd_data.reason )
+        drop_widget = 0;
+        cur_window = 0;
+        break;
+    }   //  end of switch (dnd_data.reason)
 }
 
 #endif // QT_NO_DRAGANDDROP

@@ -32,24 +32,24 @@
 // Utility macros and functions
 
 #if !defined(QT_NO_QWS_CURSOR) && !defined(QT_QWS_ACCEL_CURSOR)
-# define GFX_START(r) bool swc_do_save=FALSE; \
-		    if(is_screen_gfx && gfx_swcursor) { \
-			if((*gfx_optype)) sync(); \
-			swc_do_save = gfx_screencursor->restoreUnder(r,this); \
-			beginDraw(); \
-		    }
+# define GFX_START(r) bool swc_do_save=false; \
+                    if(is_screen_gfx && gfx_swcursor) { \
+                        if((*gfx_optype)) sync(); \
+                        swc_do_save = gfx_screencursor->restoreUnder(r,this); \
+                        beginDraw(); \
+                    }
 # define GFX_END if(is_screen_gfx && gfx_swcursor) { \
-		    if((*gfx_optype)) sync(); \
-		    endDraw(); \
-		    if(swc_do_save) \
-			gfx_screencursor->saveUnder(); \
-		 }
+                    if((*gfx_optype)) sync(); \
+                    endDraw(); \
+                    if(swc_do_save) \
+                        gfx_screencursor->saveUnder(); \
+                 }
 #else //QT_NO_QWS_CURSOR
 
 # define GFX_START(r) if(is_screen_gfx) \
-			beginDraw();
+                        beginDraw();
 # define GFX_END if(is_screen_gfx) \
-		    endDraw();
+                    endDraw();
 #endif //QT_NO_QWS_CURSOR
 
 
@@ -68,26 +68,26 @@ typedef unsigned int PackType;
 
 
 #define GET_MASKED(rev, advance) \
-		    if( amonolittletest ) { \
-			if(amonobitval & 0x1) { \
-			    masked=FALSE; \
-			} \
-			amonobitval=amonobitval >> 1; \
-		    } else { \
-			if(amonobitval & 0x80) { \
-			    masked=FALSE; \
-			} \
-			amonobitval=amonobitval << 1; \
-			amonobitval=amonobitval & 0xff; \
-		    } \
-		    if(amonobitcount<7) { \
-			amonobitcount++; \
-		    } else if (advance) { \
-			amonobitcount=0; \
-			if (rev) maskp--; \
-			else maskp++; \
-			amonobitval=*maskp; \
-		    } \
+                    if(amonolittletest) { \
+                        if(amonobitval & 0x1) { \
+                            masked=false; \
+                        } \
+                        amonobitval=amonobitval >> 1; \
+                    } else { \
+                        if(amonobitval & 0x80) { \
+                            masked=false; \
+                        } \
+                        amonobitval=amonobitval << 1; \
+                        amonobitval=amonobitval & 0xff; \
+                    } \
+                    if(amonobitcount<7) { \
+                        amonobitcount++; \
+                    } else if (advance) { \
+                        amonobitcount=0; \
+                        if (rev) maskp--; \
+                        else maskp++; \
+                        amonobitval=*maskp; \
+                    } \
 
 
 /*
@@ -104,20 +104,20 @@ typedef unsigned int PackType;
   Little/BigEndianMask alpha types.
 */
 inline  unsigned char * find_pointer(unsigned char * base,int x,int y,
-					       int w, int linestep, int &astat,
-					       unsigned char &ahold,
-					       bool is_bigendian, bool rev)
+                                               int w, int linestep, int &astat,
+                                               unsigned char &ahold,
+                                               bool is_bigendian, bool rev)
 {
     int nbits;
     int nbytes;
 
-    if ( rev ) {
-	is_bigendian = !is_bigendian;
-	nbits = 7 - (x+w) % 8;
-       	nbytes = (x+w) / 8;
+    if (rev) {
+        is_bigendian = !is_bigendian;
+        nbits = 7 - (x+w) % 8;
+        nbytes = (x+w) / 8;
     } else {
-	nbits = x % 8;
-       	nbytes = x / 8;
+        nbits = x % 8;
+        nbytes = x / 8;
     }
 
     astat=nbits;
@@ -126,9 +126,9 @@ inline  unsigned char * find_pointer(unsigned char * base,int x,int y,
 
     ahold=*ret;
     if(is_bigendian) {
-	ahold=ahold << nbits;
+        ahold=ahold << nbits;
     } else {
-	ahold=ahold >> nbits;
+        ahold=ahold >> nbits;
     }
 
     return ret;
@@ -143,29 +143,29 @@ public:
     QGfxRasterBase(unsigned char *,int w,int h);
     ~QGfxRasterBase();
 
-    virtual void setPen( const QPen & );
-    virtual void setBrushPixmap( const QPixmap * p ) { cbrushpixmap=p; }
-    virtual void setBrushOffset( int x, int y );
-    virtual void setBrush( const QBrush & );
+    virtual void setPen(const QPen &);
+    virtual void setBrushPixmap(const QPixmap * p) { cbrushpixmap=p; }
+    virtual void setBrushOffset(int x, int y);
+    virtual void setBrush(const QBrush &);
 
-    virtual void setClipRect( int,int,int,int );
-    virtual void setClipRegion( const QRegion & );
-    virtual void setClipDeviceRegion( const QRegion & );
+    virtual void setClipRect(int,int,int,int);
+    virtual void setClipRegion(const QRegion &);
+    virtual void setClipDeviceRegion(const QRegion &);
     virtual void setClipping(bool);
 
     // These will be called from qwidget_qws or qwidget_mac
     // to update the drawing area when a widget is moved
-    virtual void setOffset( int,int );
-    virtual void setWidgetRect( int,int,int,int );
-    virtual void setWidgetRegion( const QRegion & );
-    virtual void setWidgetDeviceRegion( const QRegion & );
-    virtual void setGlobalRegionIndex( int idx );
+    virtual void setOffset(int,int);
+    virtual void setWidgetRect(int,int,int,int);
+    virtual void setWidgetRegion(const QRegion &);
+    virtual void setWidgetDeviceRegion(const QRegion &);
+    virtual void setGlobalRegionIndex(int idx);
 
     virtual void setDashedLines(bool d);
     virtual void setDashes(char *, int);
 
-    virtual void moveTo( int,int );
-    virtual void lineTo( int,int );
+    virtual void moveTo(int,int);
+    virtual void lineTo(int,int);
 
     virtual QPoint pos() const;
 
@@ -186,15 +186,15 @@ public:
     virtual int bitDepth() = 0;
 
     virtual void setScreen(QScreen * t,QScreenCursor * c,bool swc,int * ot,
-			   int * lo) {
-	gfx_screen=t;
+                           int * lo) {
+        gfx_screen=t;
 #ifndef QT_NO_QWS_CURSOR
-	gfx_screencursor=c;
-	gfx_swcursor=swc;
+        gfx_screencursor=c;
+        gfx_swcursor=swc;
 #endif
-	gfx_lastop=lo;
-	gfx_optype=ot;
-	setClut(gfx_screen->clut(),gfx_screen->numCols());
+        gfx_lastop=lo;
+        gfx_optype=ot;
+        setClut(gfx_screen->clut(),gfx_screen->numCols());
     }
 
     void save();
@@ -209,18 +209,18 @@ protected:
 #ifdef DEBUG_POINTERS
     void checkSource(unsigned char * c,int i) {
       if(i<0) {
-	qFatal("Negative source coordinate");
+        qFatal("Negative source coordinate");
       }
       if(i>=srcheight) {
-	qFatal("Source pointer height overrun");
+        qFatal("Source pointer height overrun");
       }
       unsigned char * tmp1=srcbits+(i*srclinestep);
       unsigned char * tmp2=tmp1+srclinestep;
       if(c<tmp1) {
-	qFatal("Source pointer underrun");
+        qFatal("Source pointer underrun");
       }
       if(c>=tmp2) {
-	qFatal("Source pointer overrun");
+        qFatal("Source pointer overrun");
       }
     }
 
@@ -228,64 +228,64 @@ protected:
       unsigned char * tmp1=alphabits+(i*alphalinestep);
       unsigned char * tmp2=tmp1+alphalinestep;
       if(i<0) {
-	qFatal("Negative mask coordinate");
+        qFatal("Negative mask coordinate");
       }
       if(i>=srcheight) {
-	qFatal("Mask height overrun");
+        qFatal("Mask height overrun");
       }
       if(c<tmp1) {
-	qFatal("Alpha pointer underrun");
+        qFatal("Alpha pointer underrun");
       }
       if(c>=tmp2) {
-	qFatal("Alpha pointer overrun");
+        qFatal("Alpha pointer overrun");
       }
     }
 
     void checkDest(unsigned char * c,int i) {
       if(i<0) {
-	qFatal("Negative dest coordinate");
+        qFatal("Negative dest coordinate");
       }
       if(i>=height) {
-	qFatal("Destination height overrun");
+        qFatal("Destination height overrun");
       }
       unsigned char * tmp1=buffer+(i*lstep);
       unsigned char * tmp2=tmp1+lstep;
       if(c<tmp1) {
-	qFatal("Destination pointer underrun");
+        qFatal("Destination pointer underrun");
       }
       if(c>=tmp2) {
-	qFatal("Destination pointer overrun");
+        qFatal("Destination pointer overrun");
       }
     }
 
 #endif
 
 
-    void* beginTransaction( const QRect& );
+    void* beginTransaction(const QRect&);
     void endTransaction(void*);
 
     inline void beginDraw()
     {
 #if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-	QWSDisplay::grab();
+        QWSDisplay::grab();
 #endif
-	if ( globalRegionRevision &&
-		*globalRegionRevision != currentRegionRevision ) {
-	    fixClip();
-	}
+        if (globalRegionRevision &&
+                *globalRegionRevision != currentRegionRevision) {
+            fixClip();
+        }
     }
     inline void endDraw()
     {
 #if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-	QWSDisplay::ungrab();
+        QWSDisplay::ungrab();
 #endif
     }
     void fixClip();
     void update_clip();
 
-    bool inClip(int x, int y, QRect* cr=0, bool know_to_be_outside=FALSE);
+    bool inClip(int x, int y, QRect* cr=0, bool know_to_be_outside=false);
 
-    virtual void setSourceWidgetOffset( int x, int y );
+    virtual void setSourceWidgetOffset(int x, int y);
 
     virtual void setSourcePen();
     unsigned char *scanLine(int i) { return buffer+(i*lstep); }
@@ -293,19 +293,19 @@ protected:
 
     // Convert to/from different bit depths
     unsigned int get_value_32(int sdepth,unsigned char **srcdata,
-			   bool reverse=FALSE);
+                           bool reverse=false);
     unsigned int get_value_24(int sdepth,unsigned char **srcdata,
-			   bool reverse=FALSE);
+                           bool reverse=false);
     unsigned int get_value_16(int sdepth,unsigned char **srcdata,
-			   bool reverse=FALSE);
+                           bool reverse=false);
     unsigned int get_value_15(int sdepth,unsigned char **srcdata,
-			   bool reverse=FALSE);
+                           bool reverse=false);
     unsigned int get_value_8(int sdepth,unsigned char **srcdata,
-			   bool reverse=FALSE);
+                           bool reverse=false);
     unsigned int get_value_4(int sdepth,unsigned char **srcdata,
-			   bool reverse=FALSE);
+                           bool reverse=false);
     unsigned int get_value_1(int sdepth,unsigned char **srcdata,
-			   bool reverse=FALSE);
+                           bool reverse=false);
 
 protected:
     QScreen * gfx_screen;
@@ -357,15 +357,15 @@ protected:
     int srcdepth;
     int srclinestep;
     int srccol;
-    QPoint srcwidgetoffs;	    // Needed when source is widget
+    QPoint srcwidgetoffs;            // Needed when source is widget
     bool src_little_endian;
     bool src_normal_palette;
-    unsigned int srcclut[256];	    // Source color table - r,g,b values
+    unsigned int srcclut[256];            // Source color table - r,g,b values
     unsigned int transclut[256];    // Source clut transformed to destination
                                     // values - speed optimisation
 
-    QRgb * clut;      		    // Destination color table - r,g,b values
-    int clutcols;		    // Colours in clut
+    QRgb * clut;                          // Destination color table - r,g,b values
+    int clutcols;                    // Colours in clut
 
     int monobitcount;
     unsigned char monobitval;
@@ -378,7 +378,7 @@ protected:
     int amonobitcount;
     unsigned char amonobitval;
     bool amonolittletest;
-    int calpha;       		 // Constant alpha value
+    int calpha;                        // Constant alpha value
     int calpha2,calpha3,calpha4; // Used for groovy accelerated effect
     unsigned char * maskp;
 
@@ -411,18 +411,18 @@ public:
     void useBrush();
     void usePen();
 
-    virtual void drawPoint( int,int );
-    virtual void drawPoints( const QPointArray &,int,int );
-    virtual void drawLine( int,int,int,int );
-    virtual void fillRect( int,int,int,int );
-    virtual void drawPolyline( const QPointArray &,int,int );
-    virtual void drawPolygon( const QPointArray &,bool,int,int );
-    virtual void blt( int,int,int,int,int,int );
-    virtual void scroll( int,int,int,int,int,int );
+    virtual void drawPoint(int,int);
+    virtual void drawPoints(const QPointArray &,int,int);
+    virtual void drawLine(int,int,int,int);
+    virtual void fillRect(int,int,int,int);
+    virtual void drawPolyline(const QPointArray &,int,int);
+    virtual void drawPolygon(const QPointArray &,bool,int,int);
+    virtual void blt(int,int,int,int,int,int);
+    virtual void scroll(int,int,int,int,int,int);
 #if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS) || !defined(QT_NO_PIXMAP_TRANSFORMATION)
-    virtual void stretchBlt( int,int,int,int,int,int );
+    virtual void stretchBlt(int,int,int,int,int,int);
 #endif
-    virtual void tiledBlt( int,int,int,int );
+    virtual void tiledBlt(int,int,int,int);
 
     virtual int bitDepth() { return depth; }
 
@@ -432,25 +432,25 @@ public:
 
 protected:
 
-    virtual void drawThickLine( int,int,int,int );
-    virtual void drawThickPolyline( const QPointArray &,int,int );
+    virtual void drawThickLine(int,int,int,int);
+    virtual void drawThickPolyline(const QPointArray &,int,int);
 
     void buildSourceClut(QRgb *,int);
-    void processSpans( int n, QPoint* point, int* width );
+    void processSpans(int n, QPoint* point, int* width);
 
     // Optimised vertical line drawing
-    void vline(int,int,int );
+    void vline(int,int,int);
 
     // Optimised horizontal line drawing
-    void hline(int,int,int );
-    void hlineUnclipped(int,int,unsigned char* );
+    void hline(int,int,int);
+    void hlineUnclipped(int,int,unsigned char*);
 #if defined(Q_OS_QNX6) // need a different signature for QNX acceleration, override to accel
     virtual void hlineUnclipped(int x,int x1,int y){unsigned char *l=scanLine(y);hlineUnclipped(x,x1,l);};
 #endif
     void hImageLineUnclipped(int,int,unsigned char *,unsigned char *,bool);
     void hAlphaLineUnclipped(int,int,unsigned char *,unsigned char *,
-			     unsigned char *);
-    void drawPointUnclipped( int, unsigned char* );
+                             unsigned char *);
+    void drawPointUnclipped(int, unsigned char*);
 
     void calcPacking(void *,int,int,int&,int&,int&);
 };

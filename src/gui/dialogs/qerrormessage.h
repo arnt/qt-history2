@@ -30,16 +30,16 @@ class QStringList;
 class Q_GUI_EXPORT QErrorMessage: public QDialog {
     Q_OBJECT
 public:
-    QErrorMessage( QWidget* parent=0, const char* name=0 );
+    QErrorMessage(QWidget* parent=0, const char* name=0);
     ~QErrorMessage();
 
     static QErrorMessage * qtHandler();
 
 public slots:
-    void message( const QString & );
+    void message(const QString &);
 
 protected:
-    void done( int );
+    void done(int);
 
 private:
     QPushButton * ok;
@@ -52,8 +52,8 @@ private:
     bool nextPending();
 
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QErrorMessage( const QErrorMessage & );
-    QErrorMessage &operator=( const QErrorMessage & );
+    QErrorMessage(const QErrorMessage &);
+    QErrorMessage &operator=(const QErrorMessage &);
 #endif
 };
 

@@ -20,7 +20,7 @@
 #include "qstring.h"
 #endif // QT_H
 
-#if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
+#if !defined(QT_MODULE_SQL) || defined(QT_LICENSE_PROFESSIONAL)
 #define QM_EXPORT_SQL
 #else
 #define QM_EXPORT_SQL Q_SQL_EXPORT

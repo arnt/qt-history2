@@ -32,8 +32,8 @@
 
 #include <qglobal.h>
 
-uint qt_get_rgb_val( const char *name );
-bool qt_get_named_rgb( const char *, QRgb* );
+uint qt_get_rgb_val(const char *name);
+bool qt_get_named_rgb(const char *, QRgb*);
 bool qt_get_hex_rgb(const char *, QRgb *);
 QStringList qt_get_colornames();
 void qt_reset_color_avail();

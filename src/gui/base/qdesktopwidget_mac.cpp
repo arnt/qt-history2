@@ -41,16 +41,16 @@ public:
 QDesktopWidgetPrivate::QDesktopWidgetPrivate()
 {
     appScreen = screenCount = 0;
-    for(GDHandle g = GetMainDevice(); g; g = GetNextDevice(g)) 
-	screenCount++;
+    for(GDHandle g = GetMainDevice(); g; g = GetNextDevice(g))
+        screenCount++;
     devs.resize(screenCount);
     rects.resize(screenCount);
     avail_rects.resize(screenCount);
     int i = 0;
     for(GDHandle g = GetMainDevice(); i < screenCount && g; g = GetNextDevice(g), i++) {
-	devs[i] = g;
-	Rect r = (*g)->gdRect;
-	rects[i] = QRect(r.left, r.top, r.right - r.left, r.bottom - r.top);
+        devs[i] = g;
+        Rect r = (*g)->gdRect;
+        rects[i] = QRect(r.left, r.top, r.right - r.left, r.bottom - r.top);
     }
 }
 
@@ -68,7 +68,7 @@ QDesktopWidget::~QDesktopWidget()
 
 bool QDesktopWidget::isVirtualDesktop() const
 {
-    return TRUE;
+    return true;
 }
 
 int QDesktopWidget::primaryScreen() const
@@ -89,13 +89,13 @@ QWidget *QDesktopWidget::screen(int)
 const QRect& QDesktopWidget::availableGeometry(int screen) const
 {
     if(screen < 0 || screen >= d->screenCount)
-	screen = d->appScreen;
+        screen = d->appScreen;
     Rect r;
     RgnHandle rgn = qt_mac_get_rgn();
-    if(GetAvailableWindowPositioningRegion(d->devs[screen], rgn) == noErr) 
-	GetRegionBounds(rgn, &r);
+    if(GetAvailableWindowPositioningRegion(d->devs[screen], rgn) == noErr)
+        GetRegionBounds(rgn, &r);
     else
-	GetAvailableWindowPositioningBounds(d->devs[screen], &r);
+        GetAvailableWindowPositioningBounds(d->devs[screen], &r);
     qt_mac_dispose_rgn(rgn);
     //we use avail_rects to avoid returning a reference to a temporary. This API is just WRONG!!! We
     //it should not assume the platform returns a const reference.
@@ -105,25 +105,25 @@ const QRect& QDesktopWidget::availableGeometry(int screen) const
 const QRect& QDesktopWidget::screenGeometry(int screen) const
 {
     if(screen < 0 || screen >= d->screenCount)
-	screen = d->appScreen;
+        screen = d->appScreen;
     return d->rects[screen];
 }
 
 int QDesktopWidget::screenNumber(QWidget *widget) const
 {
     if(!widget)
-	return d->appScreen;
+        return d->appScreen;
     QRect frame = widget->frameGeometry();
     if(!widget->isTopLevel())
-	frame.moveTopLeft(widget->mapToGlobal(QPoint(0,0)));
+        frame.moveTopLeft(widget->mapToGlobal(QPoint(0,0)));
     int maxSize = -1, maxScreen = -1;
     for(int i = 0; i < d->screenCount; ++i) {
-	QRect sect = d->rects[i].intersect(frame);
-	int size = sect.width() * sect.height();
-	if(size > maxSize && sect.width() > 0 && sect.height() > 0) {
-	    maxSize = size;
-	    maxScreen = i;
-	}
+        QRect sect = d->rects[i].intersect(frame);
+        int size = sect.width() * sect.height();
+        if(size > maxSize && sect.width() > 0 && sect.height() > 0) {
+            maxSize = size;
+            maxScreen = i;
+        }
     }
     return maxScreen;
 }
@@ -131,8 +131,8 @@ int QDesktopWidget::screenNumber(QWidget *widget) const
 int QDesktopWidget::screenNumber(const QPoint &point) const
 {
     for(int i = 0; i < d->screenCount; ++i) {
-	if(d->rects[i].contains(point))
-	    return i;
+        if(d->rects[i].contains(point))
+            return i;
     }
     return -1;
 }
@@ -142,8 +142,8 @@ void QDesktopWidget::resizeEvent(QResizeEvent *)
     QDesktopWidgetPrivate *old_d = d;
     d = new QDesktopWidgetPrivate;
     for(int i = 0; i < d->screenCount; i++) {
-	if(i > old_d->screenCount || d->rects[i] != old_d->rects[i]) 
-	    emit resized(i);
+        if(i > old_d->screenCount || d->rects[i] != old_d->rects[i])
+            emit resized(i);
     }
     delete old_d;
 }

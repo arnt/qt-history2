@@ -10,38 +10,38 @@ class TWTextCodecs : public QTextCodecPlugin
 {
 public:
     TWTextCodecs() {}
-    
+
     QStringList names() const { return QStringList() << "Big5" << "big5*-0"; }
     QList<int> mibEnums() const { return QList<int>() << 2026 << -2026; }
-    QTextCodec *createForMib( int );
-    QTextCodec *createForName( const QString & );
+    QTextCodec *createForMib(int);
+    QTextCodec *createForName(const QString &);
 };
 
-QTextCodec *TWTextCodecs::createForMib( int mib )
+QTextCodec *TWTextCodecs::createForMib(int mib)
 {
     switch (mib) {
     case -2026:
-	return new QFontBig5Codec;
+        return new QFontBig5Codec;
     case 2026:
-	return new QBig5Codec;
+        return new QBig5Codec;
     default:
-	;
+        ;
     }
 
     return 0;
 }
 
 
-QTextCodec *TWTextCodecs::createForName( const QString &name )
+QTextCodec *TWTextCodecs::createForName(const QString &name)
 {
     if (name == "Big5")
-	return new QBig5Codec;
+        return new QBig5Codec;
     if (name == "big5*-0")
-	return new QFontBig5Codec;
+        return new QFontBig5Codec;
 
     return 0;
 }
 
 
-Q_EXPORT_PLUGIN( TWTextCodecs );
+Q_EXPORT_PLUGIN(TWTextCodecs);
 

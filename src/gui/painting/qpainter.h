@@ -45,7 +45,7 @@ class Q_GUI_EXPORT QPainter : public Qt
 public:
     enum TextDirection { Auto, RTL, LTR };
     enum RenderHint {
-	LineAntialiasing = 1
+        LineAntialiasing = 1
     };
 
     Q_DECLARE_FLAGS(RenderHints, RenderHint);
@@ -154,25 +154,25 @@ public:
     void drawCubicBezier(const QPointArray &pa, int index = 0);
 #endif
 
-    void drawTiledPixmap( int x, int y, int w, int h, const QPixmap &, int sx=0, int sy=0 );
-    void drawTiledPixmap( const QRect &, const QPixmap &, const QPoint & );
-    void drawTiledPixmap( const QRect &, const QPixmap & );
+    void drawTiledPixmap(int x, int y, int w, int h, const QPixmap &, int sx=0, int sy=0);
+    void drawTiledPixmap(const QRect &, const QPixmap &, const QPoint &);
+    void drawTiledPixmap(const QRect &, const QPixmap &);
 #ifndef QT_NO_PICTURE
-    void drawPicture( int x, int y, const QPicture & );
-    void drawPicture( const QPoint &, const QPicture & );
+    void drawPicture(int x, int y, const QPicture &);
+    void drawPicture(const QPoint &, const QPicture &);
 #endif
 
     void drawPixmap(const QRect &targetRect, const QPixmap &pixmap,
-		    const QRect &sourceRect = QRect(), bool imask=false);
+                    const QRect &sourceRect = QRect(), bool imask=false);
     void drawPixmap(int x, int y, int w, int h, const QPixmap &,
-		    int sx=0, int sy=0, int sw=-1, int sh=-1, bool imask=false);
+                    int sx=0, int sy=0, int sw=-1, int sh=-1, bool imask=false);
     void drawPixmap(int x, int y, const QPixmap &pm, int sx=0, int sy=0, int sw=-1, int sh=-1, bool imask=false);
     void drawPixmap(const QPoint &, const QPixmap &, const QRect &sr, bool imask=false);
     void drawPixmap(const QPoint &p, const QPixmap &pm, bool imask=false);
 
     void drawImage(int x, int y, const QImage &,
-		   int sx = 0, int sy = 0, int sw = -1, int sh = -1,
-		   int conversionFlags = 0);
+                   int sx = 0, int sy = 0, int sw = -1, int sh = -1,
+                   int conversionFlags = 0);
     void drawImage(const QPoint &, const QImage &, const QRect &sr, int c2onversionFlags = 0);
     void drawImage(const QPoint &, const QImage &, int conversion_flags = 0);
     void drawImage(const QRect &, const QImage &);
@@ -185,26 +185,26 @@ public:
     QT_COMPAT void setBackgroundColor(const QColor &color) { setBackground(color); }
     QT_COMPAT const QColor &backgroundColor() const { return background().color(); }
     QT_COMPAT void drawText(int x, int y, const QString &s, int pos, int len, TextDirection dir = Auto)
-	{ drawText(x, y, s.mid(pos, len), dir); }
+        { drawText(x, y, s.mid(pos, len), dir); }
     QT_COMPAT void drawText(const QPoint &p, const QString &s, int pos, int len, TextDirection dir = Auto)
-	{ drawText(p, s.mid(pos, len), dir); }
+        { drawText(p, s.mid(pos, len), dir); }
     QT_COMPAT void drawText(int x, int y, const QString &s, int len, TextDirection dir = Auto)
-	{ drawText(x, y, s.left(len), dir); }
+        { drawText(x, y, s.left(len), dir); }
     QT_COMPAT void drawText(const QPoint &p, const QString &s, int len, TextDirection dir = Auto)
-	{ drawText(p, s.left(len), dir); }
+        { drawText(p, s.left(len), dir); }
 #endif
 
     void drawText(int x, int y, int w, int h, int flags, const QString&, int len = -1,
-		  QRect *br=0);
+                  QRect *br=0);
     void drawText(const QRect &, int flags, const QString&, int len = -1, QRect *br=0);
 
     void drawTextItem(int x, int y, const QTextItem &ti, int textflags = 0);
     void drawTextItem(const QPoint& p, const QTextItem &ti, int textflags = 0);
 
     QRect boundingRect(int x, int y, int w, int h, int flags,
-		       const QString&, int len = -1);
+                       const QString&, int len = -1);
     QRect boundingRect(const QRect &, int flags,
-		       const QString&, int len = -1);
+                       const QString&, int len = -1);
 
     void fillRect(int x, int y, int w, int h, const QBrush &);
     void fillRect(const QRect &, const QBrush &);
@@ -212,12 +212,12 @@ public:
     void eraseRect(const QRect &);
 
     void map(int x, int y, int *rx, int *ry) const;
-    QPoint 	xForm(const QPoint &) const;	// map virtual -> deviceb
-    QRect 	xForm(const QRect &)	const;
+    QPoint         xForm(const QPoint &) const;        // map virtual -> deviceb
+    QRect         xForm(const QRect &)        const;
     QPointArray xForm(const QPointArray &) const;
     QPointArray xForm(const QPointArray &, int index, int npoints) const;
-    QPoint 	xFormDev(const QPoint &) const; // map device -> virtual
-    QRect 	xFormDev(const QRect &)  const;
+    QPoint         xFormDev(const QPoint &) const; // map device -> virtual
+    QRect         xFormDev(const QRect &)  const;
     QPointArray xFormDev(const QPointArray &) const;
     QPointArray xFormDev(const QPointArray &, int index, int npoints) const;
 
@@ -232,29 +232,29 @@ public:
 #endif
 
     static void setRedirected(const QPaintDevice *device, QPaintDevice *replacement,
-			      const QPoint& offset = QPoint());
+                              const QPoint& offset = QPoint());
     static QPaintDevice *redirected(const QPaintDevice *device, QPoint *offset = 0);
     static void restoreRedirected(const QPaintDevice *device);
 
 #ifdef QT_COMPAT
     static inline QT_COMPAT void redirect(QPaintDevice *pdev, QPaintDevice *replacement)
-	{ setRedirected(pdev, replacement); }
-    static inline QT_COMPAT QPaintDevice *redirect( QPaintDevice *pdev )
-	{ return const_cast<QPaintDevice*>(redirected(pdev)); }
+        { setRedirected(pdev, replacement); }
+    static inline QT_COMPAT QPaintDevice *redirect(QPaintDevice *pdev)
+        { return const_cast<QPaintDevice*>(redirected(pdev)); }
 #endif
 
 private:
     friend class QFontEngine;
-    friend void qt_format_text( const QFont& font, const QRect &_r,
-				int tf, const QString& str, int len, QRect *brect,
-				int tabstops, int* tabarray, int tabarraylen,
-				QPainter* painter );
+    friend void qt_format_text(const QFont& font, const QRect &_r,
+                                int tf, const QString& str, int len, QRect *brect,
+                                int tabstops, int* tabarray, int tabarraylen,
+                                QPainter* painter);
 
     enum TransformationCodes {
-	TxNone      = 0,
-	TxTranslate = 1,
-	TxScale     = 2,
-	TxRotShear  = 3
+        TxNone      = 0,
+        TxTranslate = 1,
+        TxScale     = 2,
+        TxRotShear  = 3
     };
 
     void updateXForm();
@@ -275,18 +275,18 @@ private:
     double idy() const;
 
     QPainterPrivate *d;
-#if defined( Q_WS_X11 )
+#if defined(Q_WS_X11)
     friend class QFontEngineBox;
     friend class QFontEngineXLFD;
     friend class QFontEngineXft;
-#elif defined( Q_WS_WIN )
+#elif defined(Q_WS_WIN)
     friend class QFontEngineWin;
     friend class QWin32PaintEngine;
-#elif defined( Q_WS_QWS )
+#elif defined(Q_WS_QWS)
     friend class QWSManager;
     friend class QFontEngineBox;
     friend class QFontEngineFT;
-#elif defined( Q_WS_MAC )
+#elif defined(Q_WS_MAC)
     friend class QFontEngineMac;
     friend class QMacStyleQDPainter;
 #endif
@@ -362,7 +362,7 @@ inline void QPainter::setViewport(const QRect &r)
 }
 
 inline void QPainter::drawPixmap(int x, int y, int w, int h, const QPixmap &pm,
-				 int sx, int sy, int sw, int sh, bool imask)
+                                 int sx, int sy, int sw, int sh, bool imask)
 {
     drawPixmap(QRect(x, y, w, h), pm, QRect(sx, sy, sw, sh), imask);
 }
@@ -380,8 +380,8 @@ inline void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, const QRect
 inline void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, bool imask)
 {
     drawPixmap(QRect(p.x(), p.y(), -1, -1),
-	       pm,
-	       QRect(0, 0, pm.width(), pm.height())), imask;
+               pm,
+               QRect(0, 0, pm.width(), pm.height())), imask;
 }
 
 inline void QPainter::eraseRect(const QRect &r)
@@ -409,13 +409,13 @@ inline void QPainter::drawTiledPixmap(const QRect &r, const QPixmap &pm)
     drawTiledPixmap(r.x(), r.y(), r.width(), r.height(), pm, 0, 0);
 }
 
-inline void QPainter::drawPicture( const QPoint &p, const QPicture &pic )
+inline void QPainter::drawPicture(const QPoint &p, const QPicture &pic)
 {
     drawPicture(p.x(), p.y(), pic);
 }
 
 inline QRect QPainter::boundingRect(const QRect &r, int flags,
-				     const QString&s, int len)
+                                     const QString&s, int len)
 {
     return boundingRect(r.x(), r.y(), r.width(), r.height(), flags, s, len);
 }
@@ -426,13 +426,13 @@ inline void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int textfl
 }
 
 inline void QPainter::drawText(int x, int y, int w, int h, int flags, const QString &str,
-				int len, QRect *br)
+                                int len, QRect *br)
 {
     drawText(QRect(x, y, w, h), flags, str, len, br);
 }
 
 inline void QPainter::drawImage(const QPoint &p, const QImage &i, const QRect &sr,
-				 int conversionFlags)
+                                 int conversionFlags)
 {
     drawImage(p.x(), p.y(), i, sr.x(), sr.y(), sr.width(), sr.height(), conversionFlags);
 }

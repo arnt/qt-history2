@@ -43,32 +43,32 @@ class QQnxMouseHandlerPrivate : public QWSMouseHandler {
     Q_OBJECT
 
     public:
-	QQnxMouseHandlerPrivate(MouseProtocol &, QString);
-	~QQnxMouseHandlerPrivate();
+        QQnxMouseHandlerPrivate(MouseProtocol &, QString);
+        ~QQnxMouseHandlerPrivate();
 
-	void clearCalibration();
-	void calibrate();
-	void getCalibration( QWSPointerCalibrationData * ) const;
+        void clearCalibration();
+        void calibrate();
+        void getCalibration(QWSPointerCalibrationData *) const;
 
     private:
-	int mouseFD;
-	int index;
-	QSocketNotifier *mouseNotifier;
-	void *buffer;
-	void getData();
+        int mouseFD;
+        int index;
+        QSocketNotifier *mouseNotifier;
+        void *buffer;
+        void getData();
 
-	private slots:
-	    void readMouseData(int);
+        private slots:
+            void readMouseData(int);
 };
 
 QQnxMouseHandlerPrivate::QQnxMouseHandlerPrivate(MouseProtocol &protocol,QString dev) : QWSMouseHandler() {
     mouseFD = open(dev.latin1(), O_RDONLY|O_NONBLOCK);
 
     if (mouseFD == -1) {
-	qFatal("Qnx :: Cannot access pointer device\n");
+        qFatal("Qnx :: Cannot access pointer device\n");
     }
 
-    mouseNotifier = new QSocketNotifier(mouseFD, QSocketNotifier::Read, this );
+    mouseNotifier = new QSocketNotifier(mouseFD, QSocketNotifier::Read, this);
     connect(mouseNotifier, SIGNAL(activated(int)),this, SLOT(readMouseData(int)));
 }
 
@@ -90,45 +90,45 @@ void QQnxMouseHandlerPrivate::getCalibration(QWSPointerCalibrationData *) const
 
 void QQnxMouseHandlerPrivate::getData() {
     int number_read = read(mouseFD, ((_mouse_packet *)buffer) + index,
-	    sizeof(_mouse_packet));
-    if ( number_read > 0 && index < 10 ) {
-	index++;
-	getData();
+            sizeof(_mouse_packet));
+    if (number_read > 0 && index < 10) {
+        index++;
+        getData();
     }
 }
 
 void QQnxMouseHandlerPrivate::readMouseData(int fd) {
     buffer = malloc(sizeof(_mouse_packet) * 11);
-    QPoint t ( mousePos.x(), mousePos.y() );
+    QPoint t (mousePos.x(), mousePos.y());
     index = 0;
-    bool queuedEvents = FALSE;
+    bool queuedEvents = false;
 
     getData();
 
-    for ( int i = 0 ; i < index ; i++ ) {
-	//qDebug("%d mouse events read",i);
-	_mouse_packet *packet = ((_mouse_packet *)buffer) + i;
+    for (int i = 0 ; i < index ; i++) {
+        //qDebug("%d mouse events read",i);
+        _mouse_packet *packet = ((_mouse_packet *)buffer) + i;
 
-	t.setX(t.x() + packet->dx);
-	t.setY(t.y() - packet->dy);
+        t.setX(t.x() + packet->dx);
+        t.setY(t.y() - packet->dy);
 
-	limitToScreen( t );
+        limitToScreen(t);
 
-	if (packet->hdr.buttons & _POINTER_BUTTON_LEFT) {
-	    queuedEvents = FALSE;
-	    mouseChanged(t, LeftButton);
-	} else if (packet->hdr.buttons & _POINTER_BUTTON_RIGHT) {
-	    queuedEvents = FALSE;
-	    mouseChanged(t, RightButton);
-	} else if (packet->hdr.buttons & _POINTER_BUTTON_MIDDLE) {
-	    queuedEvents = FALSE;
-	    mouseChanged(t, MidButton);
-	} else
-	    queuedEvents = TRUE;
+        if (packet->hdr.buttons & _POINTER_BUTTON_LEFT) {
+            queuedEvents = false;
+            mouseChanged(t, LeftButton);
+        } else if (packet->hdr.buttons & _POINTER_BUTTON_RIGHT) {
+            queuedEvents = false;
+            mouseChanged(t, RightButton);
+        } else if (packet->hdr.buttons & _POINTER_BUTTON_MIDDLE) {
+            queuedEvents = false;
+            mouseChanged(t, MidButton);
+        } else
+            queuedEvents = true;
     }
 
     if (queuedEvents)
-	mouseChanged(t, NoButton);
+        mouseChanged(t, NoButton);
 
     free(buffer);
 }

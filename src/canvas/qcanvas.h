@@ -50,11 +50,11 @@ public:
     virtual ~QCanvasItem();
 
     double x() const
-	{ return myx; }
+        { return myx; }
     double y() const
-	{ return myy; }
+        { return myy; }
     double z() const
-	{ return myz; } // (depth)
+        { return myz; } // (depth)
 
     virtual void moveBy(double dx, double dy);
     void move(double x, double y);
@@ -64,16 +64,16 @@ public:
 
     bool animated() const;
     virtual void setAnimated(bool y);
-    virtual void setVelocity( double vx, double vy);
-    void setXVelocity( double vx ) { setVelocity(vx,yVelocity()); }
-    void setYVelocity( double vy ) { setVelocity(xVelocity(),vy); }
+    virtual void setVelocity(double vx, double vy);
+    void setXVelocity(double vx) { setVelocity(vx,yVelocity()); }
+    void setYVelocity(double vy) { setVelocity(xVelocity(),vy); }
     double xVelocity() const;
     double yVelocity() const;
     virtual void advance(int stage);
 
-    virtual bool collidesWith( const QCanvasItem* ) const=0;
+    virtual bool collidesWith(const QCanvasItem*) const=0;
 
-    QCanvasItemList collisions(bool exact /* NO DEFAULT */ ) const;
+    QCanvasItemList collisions(bool exact /* NO DEFAULT */) const;
 
     virtual void setCanvas(QCanvas*);
 
@@ -84,37 +84,37 @@ public:
 
     virtual void setVisible(bool yes);
     bool isVisible() const
-	{ return (bool)vis; }
+        { return (bool)vis; }
     virtual void setSelected(bool yes);
     bool isSelected() const
-	{ return (bool)sel; }
+        { return (bool)sel; }
     virtual void setEnabled(bool yes);
     bool isEnabled() const
-	{ return (bool)ena; }
+        { return (bool)ena; }
     virtual void setActive(bool yes);
     bool isActive() const
-	{ return (bool)act; }
+        { return (bool)act; }
 #ifdef QT_COMPAT
     QT_COMPAT bool visible() const
-	{ return (bool)vis; }
+        { return (bool)vis; }
     QT_COMPAT bool selected() const
-	{ return (bool)sel; }
+        { return (bool)sel; }
     QT_COMPAT bool enabled() const
-	{ return (bool)ena; }
+        { return (bool)ena; }
     QT_COMPAT bool active() const
-	{ return (bool)act; }
+        { return (bool)act; }
 #endif
 
     enum RttiValues {
-	Rtti_Item = 0,
-	Rtti_Sprite = 1,
-	Rtti_PolygonalItem = 2,
-	Rtti_Text = 3,
-	Rtti_Polygon = 4,
-	Rtti_Rectangle = 5,
-	Rtti_Ellipse = 6,
-	Rtti_Line = 7,
-	Rtti_Spline = 8
+        Rtti_Item = 0,
+        Rtti_Sprite = 1,
+        Rtti_PolygonalItem = 2,
+        Rtti_Text = 3,
+        Rtti_Polygon = 4,
+        Rtti_Rectangle = 5,
+        Rtti_Ellipse = 6,
+        Rtti_Line = 7,
+        Rtti_Spline = 8
     };
 
     virtual int rtti() const;
@@ -124,7 +124,7 @@ public:
     virtual QRect boundingRectAdvanced() const;
 
     QCanvas* canvas() const
-	{ return cnv; }
+        { return cnv; }
 
 protected:
     void update() { changeChunks(); }
@@ -144,11 +144,11 @@ private:
     virtual void addToChunks();
     virtual void removeFromChunks();
     virtual void changeChunks();
-    virtual bool collidesWith( const QCanvasSprite*,
-			       const QCanvasPolygonalItem*,
-			       const QCanvasRectangle*,
-			       const QCanvasEllipse*,
-			       const QCanvasText* ) const = 0;
+    virtual bool collidesWith(const QCanvasSprite*,
+                               const QCanvasPolygonalItem*,
+                               const QCanvasRectangle*,
+                               const QCanvasEllipse*,
+                               const QCanvasText*) const = 0;
     // End of friend stuff
 
     QCanvas* cnv;
@@ -171,58 +171,58 @@ class Q_CANVAS_EXPORT QCanvas : public QObject
 {
     Q_OBJECT
 public:
-    QCanvas( QObject* parent = 0, const char* name = 0 );
+    QCanvas(QObject* parent = 0, const char* name = 0);
     QCanvas(int w, int h);
-    QCanvas( QPixmap p, int h, int v, int tilewidth, int tileheight );
+    QCanvas(QPixmap p, int h, int v, int tilewidth, int tileheight);
 
     virtual ~QCanvas();
 
-    virtual void setTiles( QPixmap tiles, int h, int v,
-			   int tilewidth, int tileheight );
-    virtual void setBackgroundPixmap( const QPixmap& p );
+    virtual void setTiles(QPixmap tiles, int h, int v,
+                           int tilewidth, int tileheight);
+    virtual void setBackgroundPixmap(const QPixmap& p);
     QPixmap backgroundPixmap() const;
 
-    virtual void setBackgroundColor( const QColor& c );
+    virtual void setBackgroundColor(const QColor& c);
     QColor backgroundColor() const;
 
-    virtual void setTile( int x, int y, int tilenum );
-    int tile( int x, int y ) const
-	{ return grid[x+y*htiles]; }
+    virtual void setTile(int x, int y, int tilenum);
+    int tile(int x, int y) const
+        { return grid[x+y*htiles]; }
 
     int tilesHorizontally() const
-	{ return htiles; }
+        { return htiles; }
     int tilesVertically() const
-	{ return vtiles; }
+        { return vtiles; }
 
     int tileWidth() const
-	{ return tilew; }
+        { return tilew; }
     int tileHeight() const
-	{ return tileh; }
+        { return tileh; }
 
     virtual void resize(int width, int height);
     int width() const
-	{ return awidth; }
+        { return awidth; }
     int height() const
-	{ return aheight; }
+        { return aheight; }
     QSize size() const
-	{ return QSize(awidth,aheight); }
+        { return QSize(awidth,aheight); }
     QRect rect() const
-	{ return QRect( 0, 0, awidth, aheight ); }
-    bool onCanvas( int x, int y ) const
-	{ return x>=0 && y>=0 && x<awidth && y<aheight; }
-    bool onCanvas( const QPoint& p ) const
-	{ return onCanvas(p.x(),p.y()); }
-    bool validChunk( int x, int y ) const
-	{ return x>=0 && y>=0 && x<chwidth && y<chheight; }
-    bool validChunk( const QPoint& p ) const
-	{ return validChunk(p.x(),p.y()); }
+        { return QRect(0, 0, awidth, aheight); }
+    bool onCanvas(int x, int y) const
+        { return x>=0 && y>=0 && x<awidth && y<aheight; }
+    bool onCanvas(const QPoint& p) const
+        { return onCanvas(p.x(),p.y()); }
+    bool validChunk(int x, int y) const
+        { return x>=0 && y>=0 && x<chwidth && y<chheight; }
+    bool validChunk(const QPoint& p) const
+        { return validChunk(p.x(),p.y()); }
 
     int chunkSize() const
-	{ return chunksize; }
+        { return chunksize; }
     virtual void retune(int chunksize, int maxclusters=100);
 
     bool sameChunk(int x1, int y1, int x2, int y2) const
-	{ return x1/chunksize==x2/chunksize && y1/chunksize==y2/chunksize; }
+        { return x1/chunksize==x2/chunksize && y1/chunksize==y2/chunksize; }
     virtual void setChangedChunk(int i, int j);
     virtual void setChangedChunkContaining(int x, int y);
     virtual void setAllChanged();
@@ -236,18 +236,18 @@ public:
     void removeItemFromChunkContaining(QCanvasItem*, int x, int y);
 
     QCanvasItemList allItems();
-    QCanvasItemList collisions( const QPoint&) const;
-    QCanvasItemList collisions( const QRect&) const;
-    QCanvasItemList collisions( const QPointArray& pa, const QCanvasItem* item,
-				bool exact) const;
+    QCanvasItemList collisions(const QPoint&) const;
+    QCanvasItemList collisions(const QRect&) const;
+    QCanvasItemList collisions(const QPointArray& pa, const QCanvasItem* item,
+                                bool exact) const;
 
-    void drawArea(const QRect&, QPainter* p, bool double_buffer=FALSE);
+    void drawArea(const QRect&, QPainter* p, bool double_buffer=false);
 
     // These are for QCanvasView to call
     virtual void addView(QCanvasView*);
     virtual void removeView(QCanvasView*);
-    void drawCanvasArea(const QRect&, QPainter* p=0, bool double_buffer=TRUE);
-    void drawViewArea( QCanvasView* view, QPainter* p, const QRect& r, bool dbuf );
+    void drawCanvasArea(const QRect&, QPainter* p=0, bool double_buffer=true);
+    void drawViewArea(QCanvasView* view, QPainter* p, const QRect& r, bool dbuf);
 
     // These are for QCanvasItem to call
     virtual void addItem(QCanvasItem*);
@@ -280,7 +280,7 @@ private:
     QRect changeBounds(const QRect& inarea);
     void drawChanges(const QRect& inarea);
 
-    void ensureOffScrSize( int osw, int osh );
+    void ensureOffScrSize(int osw, int osh);
     QPixmap offscr;
     int awidth,aheight;
     int chunksize;
@@ -306,8 +306,8 @@ private:
     friend void qt_unview(QCanvas* c);
 
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QCanvas( const QCanvas & );
-    QCanvas &operator=( const QCanvas & );
+    QCanvas(const QCanvas &);
+    QCanvas &operator=(const QCanvas &);
 #endif
 };
 
@@ -323,19 +323,19 @@ public:
     ~QCanvasView();
 
     QCanvas* canvas() const
-	{ return viewing; }
+        { return viewing; }
     void setCanvas(QCanvas* v);
 
     const QWMatrix &worldMatrix() const;
     const QWMatrix &inverseWorldMatrix() const;
-    bool setWorldMatrix( const QWMatrix & );
+    bool setWorldMatrix(const QWMatrix &);
 
 protected:
-    void drawContents( QPainter*, int cx, int cy, int cw, int ch );
+    void drawContents(QPainter*, int cx, int cy, int cw, int ch);
     QSize sizeHint() const;
 
 private:
-    void drawContents( QPainter* );
+    void drawContents(QPainter*);
     QCanvas* viewing;
     QCanvasViewData* d;
     friend void qt_unview(QCanvas* c);
@@ -346,8 +346,8 @@ private slots:
 
 private:
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QCanvasView( const QCanvasView & );
-    QCanvasView &operator=( const QCanvasView & );
+    QCanvasView(const QCanvasView &);
+    QCanvasView &operator=(const QCanvasView &);
 #endif
 };
 
@@ -363,15 +363,15 @@ public:
     ~QCanvasPixmap();
 
     int offsetX() const
-	{ return hotx; }
+        { return hotx; }
     int offsetY() const
-	{ return hoty; }
+        { return hoty; }
     void setOffset(int x, int y) { hotx = x; hoty = y; }
 
 private:
 #if defined(Q_DISABLE_COPY)
-    QCanvasPixmap( const QCanvasPixmap & );
-    QCanvasPixmap &operator=( const QCanvasPixmap & );
+    QCanvasPixmap(const QCanvasPixmap &);
+    QCanvasPixmap &operator=(const QCanvasPixmap &);
 #endif
     void init(const QImage&);
     void init(const QPixmap& pixmap, int hx, int hy);
@@ -394,7 +394,7 @@ public:
     QCanvasPixmapArray(const QString& datafilenamepattern, int framecount=0);
 #endif
 
-    QCanvasPixmapArray(QList<QPixmap>, QPointArray hotspots = QPointArray() );
+    QCanvasPixmapArray(QList<QPixmap>, QPointArray hotspots = QPointArray());
     ~QCanvasPixmapArray();
 
 #ifndef QT_NO_IMAGEIO
@@ -407,15 +407,15 @@ public:
     bool isValid() const;
 
     QCanvasPixmap* image(int i) const
-	{ return img ? img[i] : 0; }
+        { return img ? img[i] : 0; }
     void setImage(int i, QCanvasPixmap* p);
     uint count() const
-	{ return (uint)framecount; }
+        { return (uint)framecount; }
 
 private:
 #if defined(Q_DISABLE_COPY)
-    QCanvasPixmapArray( const QCanvasPixmapArray & );
-    QCanvasPixmapArray &operator=( const QCanvasPixmapArray & );
+    QCanvasPixmapArray(const QCanvasPixmapArray &);
+    QCanvasPixmapArray &operator=(const QCanvasPixmapArray &);
 #endif
 #ifndef QT_NO_IMAGEIO
     bool readPixmaps(const QString& datafilenamepattern, int framecount, bool maskonly);
@@ -442,14 +442,14 @@ public:
     enum FrameAnimationType { Cycle, Oscillate };
     virtual void setFrameAnimation(FrameAnimationType=Cycle, int step=1, int state=0);
     int frame() const
-	{ return frm; }
+        { return frm; }
     int frameCount() const
-	{ return images->count(); }
+        { return images->count(); }
 
     int rtti() const;
     enum { RTTI = Rtti_Sprite };
 
-    bool collidesWith( const QCanvasItem* ) const;
+    bool collidesWith(const QCanvasItem*) const;
 
     QRect boundingRect() const;
 
@@ -469,10 +469,10 @@ public:
     int rightEdge(int nx) const;
     int bottomEdge(int ny) const;
     QCanvasPixmap* image() const
-	{ return images->image(frm); }
+        { return images->image(frm); }
     virtual QCanvasPixmap* imageAdvanced() const;
     QCanvasPixmap* image(int f) const
-	{ return images->image(f); }
+        { return images->image(f); }
     virtual void advance(int stage);
 
 public:
@@ -480,8 +480,8 @@ public:
 
 private:
 #if defined(Q_DISABLE_COPY)
-    QCanvasSprite( const QCanvasSprite & );
-    QCanvasSprite &operator=( const QCanvasSprite & );
+    QCanvasSprite(const QCanvasSprite &);
+    QCanvasSprite &operator=(const QCanvasSprite &);
 #endif
     void addToChunks();
     void removeFromChunks();
@@ -491,14 +491,14 @@ private:
     ushort anim_val;
     uint anim_state:2;
     uint anim_type:14;
-    bool collidesWith( const QCanvasSprite*,
-		       const QCanvasPolygonalItem*,
-		       const QCanvasRectangle*,
-		       const QCanvasEllipse*,
-		       const QCanvasText* ) const;
+    bool collidesWith(const QCanvasSprite*,
+                       const QCanvasPolygonalItem*,
+                       const QCanvasRectangle*,
+                       const QCanvasEllipse*,
+                       const QCanvasText*) const;
 
-    friend bool qt_testCollision( const QCanvasSprite* s1,
-				  const QCanvasSprite* s2 );
+    friend bool qt_testCollision(const QCanvasSprite* s1,
+                                  const QCanvasSprite* s2);
 
     QCanvasPixmapArray* images;
 };
@@ -511,15 +511,15 @@ public:
     QCanvasPolygonalItem(QCanvas* canvas);
     virtual ~QCanvasPolygonalItem();
 
-    bool collidesWith( const QCanvasItem* ) const;
+    bool collidesWith(const QCanvasItem*) const;
 
     virtual void setPen(QPen p);
     virtual void setBrush(QBrush b);
 
     QPen pen() const
-	{ return pn; }
+        { return pn; }
     QBrush brush() const
-	{ return br; }
+        { return br; }
 
     virtual QPointArray areaPoints() const=0;
     virtual QPointArray areaPointsAdvanced() const;
@@ -537,18 +537,18 @@ protected:
 
     void invalidate();
     bool isValid() const
-	{ return (bool)val; }
+        { return (bool)val; }
 
 private:
-    void scanPolygon( const QPointArray& pa, int winding,
-		      QPolygonalProcessor& process ) const;
+    void scanPolygon(const QPointArray& pa, int winding,
+                      QPolygonalProcessor& process) const;
     QPointArray chunks() const;
 
-    bool collidesWith( const QCanvasSprite*,
-		       const QCanvasPolygonalItem*,
-		       const QCanvasRectangle*,
-		       const QCanvasEllipse*,
-		       const QCanvasText* ) const;
+    bool collidesWith(const QCanvasSprite*,
+                       const QCanvasPolygonalItem*,
+                       const QCanvasRectangle*,
+                       const QCanvasEllipse*,
+                       const QCanvasText*) const;
 
     QBrush br;
     QPen pn;
@@ -569,12 +569,12 @@ public:
     int height() const;
     void setSize(int w, int h);
     QSize size() const
-	{ return QSize(w,h); }
+        { return QSize(w,h); }
     QPointArray areaPoints() const;
     QRect rect() const
-	{ return QRect(int(x()),int(y()),w,h); }
+        { return QRect(int(x()),int(y()),w,h); }
 
-    bool collidesWith( const QCanvasItem* ) const;
+    bool collidesWith(const QCanvasItem*) const;
 
     int rtti() const;
     enum { RTTI = Rtti_Rectangle };
@@ -584,11 +584,11 @@ protected:
     QPointArray chunks() const;
 
 private:
-    bool collidesWith(   const QCanvasSprite*,
-			 const QCanvasPolygonalItem*,
-			 const QCanvasRectangle*,
-			 const QCanvasEllipse*,
-			 const QCanvasText* ) const;
+    bool collidesWith(  const QCanvasSprite*,
+                         const QCanvasPolygonalItem*,
+                         const QCanvasRectangle*,
+                         const QCanvasEllipse*,
+                         const QCanvasText*) const;
 
     int w, h;
 };
@@ -620,7 +620,7 @@ public:
     QCanvasSpline(QCanvas* canvas);
     ~QCanvasSpline();
 
-    void setControlPoints(QPointArray, bool closed=TRUE);
+    void setControlPoints(QPointArray, bool closed=true);
     QPointArray controlPoints() const;
     bool closed() const;
 
@@ -642,9 +642,9 @@ public:
     void setPoints(int x1, int y1, int x2, int y2);
 
     QPoint startPoint() const
-	{ return QPoint(x1,y1); }
+        { return QPoint(x1,y1); }
     QPoint endPoint() const
-	{ return QPoint(x2,y2); }
+        { return QPoint(x2,y2); }
 
     int rtti() const;
     enum { RTTI = Rtti_Line };
@@ -665,10 +665,10 @@ class Q_CANVAS_EXPORT QCanvasEllipse : public QCanvasPolygonalItem
 {
 
 public:
-    QCanvasEllipse( QCanvas* canvas );
-    QCanvasEllipse( int width, int height, QCanvas* canvas );
-    QCanvasEllipse( int width, int height, int startangle, int angle,
-		    QCanvas* canvas );
+    QCanvasEllipse(QCanvas* canvas);
+    QCanvasEllipse(int width, int height, QCanvas* canvas);
+    QCanvasEllipse(int width, int height, int startangle, int angle,
+                    QCanvas* canvas);
 
     ~QCanvasEllipse();
 
@@ -677,12 +677,12 @@ public:
     void setSize(int w, int h);
     void setAngles(int start, int length);
     int angleStart() const
-	{ return a1; }
+        { return a1; }
     int angleLength() const
-	{ return a2; }
+        { return a2; }
     QPointArray areaPoints() const;
 
-    bool collidesWith( const QCanvasItem* ) const;
+    bool collidesWith(const QCanvasItem*) const;
 
     int rtti() const;
     enum { RTTI = Rtti_Ellipse };
@@ -691,11 +691,11 @@ protected:
     void drawShape(QPainter &);
 
 private:
-    bool collidesWith( const QCanvasSprite*,
-		       const QCanvasPolygonalItem*,
-		       const QCanvasRectangle*,
-		       const QCanvasEllipse*,
-		       const QCanvasText* ) const;
+    bool collidesWith(const QCanvasSprite*,
+                       const QCanvasPolygonalItem*,
+                       const QCanvasRectangle*,
+                       const QCanvasEllipse*,
+                       const QCanvasText*) const;
     int w, h;
     int a1, a2;
 };
@@ -712,9 +712,9 @@ public:
 
     virtual ~QCanvasText();
 
-    void setText( const QString& );
-    void setFont( const QFont& );
-    void setColor( const QColor& );
+    void setText(const QString&);
+    void setFont(const QFont&);
+    void setColor(const QColor&);
     QString text() const;
     QFont font() const;
     QColor color() const;
@@ -722,12 +722,12 @@ public:
     void moveBy(double dx, double dy);
 
     int textFlags() const
-	{ return flags; }
+        { return flags; }
     void setTextFlags(int);
 
     QRect boundingRect() const;
 
-    bool collidesWith( const QCanvasItem* ) const;
+    bool collidesWith(const QCanvasItem*) const;
 
     int rtti() const;
     enum { RTTI = Rtti_Text };
@@ -737,8 +737,8 @@ protected:
 
 private:
 #if defined(Q_DISABLE_COPY)
-    QCanvasText( const QCanvasText & );
-    QCanvasText &operator=( const QCanvasText & );
+    QCanvasText(const QCanvasText &);
+    QCanvasText &operator=(const QCanvasText &);
 #endif
     void addToChunks();
     void removeFromChunks();
@@ -752,11 +752,11 @@ private:
     QColor col;
     QCanvasTextExtra* extra;
 
-    bool collidesWith(   const QCanvasSprite*,
-			 const QCanvasPolygonalItem*,
-			 const QCanvasRectangle*,
-			 const QCanvasEllipse*,
-			 const QCanvasText* ) const;
+    bool collidesWith(  const QCanvasSprite*,
+                         const QCanvasPolygonalItem*,
+                         const QCanvasRectangle*,
+                         const QCanvasEllipse*,
+                         const QCanvasText*) const;
 };
 
 
@@ -766,7 +766,7 @@ private:
 class Q_CANVAS_EXPORT QCanvasItemList : public QList<QCanvasItem*> {
 public:
     void sort();
-    void drawUnique( QPainter& painter );
+    void drawUnique(QPainter& painter);
     QCanvasItemList operator+(const QCanvasItemList& l) const;
 };
 #endif // QT_NO_CANVAS

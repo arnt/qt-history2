@@ -15,15 +15,15 @@
 #include "qwindowsystem_qws.h"
 #include "qwsutils_qws.h"
 #include "qgfx_qws.h"
- 
+
 #include <qapplication.h>
 #include <qsocketnotifier.h>
 #include <qnamespace.h>
 #include <qtimer.h>
- 
+
 #include <stdlib.h>
 #include <stdio.h>
- 
+
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
@@ -31,10 +31,10 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <signal.h>
- 
+
 #if defined(Q_OS_QNX6)
 
-#include <sys/dcmd_input.h> 
+#include <sys/dcmd_input.h>
 #include <qkeyboard_qws.h>
 
 class QWSQnxKeyboardHandler : public QWSKeyboardHandler
@@ -74,12 +74,12 @@ QWSQnxKeyboardHandler::QWSQnxKeyboardHandler() {
     kbdFD = open("/dev/devi/keyboard0", O_RDONLY);
 
     if (kbdFD == -1) {
-	qFatal("Cannot access keyboard device\n");
+        qFatal("Cannot access keyboard device\n");
     }
 
-    QSocketNotifier *kbdNotifier = new QSocketNotifier(kbdFD, QSocketNotifier::Read, this );
+    QSocketNotifier *kbdNotifier = new QSocketNotifier(kbdFD, QSocketNotifier::Read, this);
     connect(kbdNotifier, SIGNAL(activated(int)),this, SLOT(readKbdData(int)));
-    notifiers.append( kbdNotifier ); 
+    notifiers.append(kbdNotifier);
 }
 
 void QWSQnxKeyboardHandler::readKbdData(int fd) {

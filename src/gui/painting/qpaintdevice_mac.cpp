@@ -37,10 +37,10 @@ extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
  *****************************************************************************/
 QPaintDevice::QPaintDevice(uint devflags)
 {
-    if(!qApp) {				// global constructor
-	qFatal("QPaintDevice: Must construct a QApplication before a "
-		"QPaintDevice");
-	return;
+    if(!qApp) {                                // global constructor
+        qFatal("QPaintDevice: Must construct a QApplication before a "
+                "QPaintDevice");
+        return;
     }
     devFlags = devflags;
     painters = 0;
@@ -51,8 +51,8 @@ QPaintDevice::QPaintDevice(uint devflags)
 QPaintDevice::~QPaintDevice()
 {
     if(paintingActive())
-	qWarning("Qt: QPaintDevice: Cannot destroy paint device that is being "
-		 "painted.  Be sure to QPainter::end() painters!");
+        qWarning("Qt: QPaintDevice: Cannot destroy paint device that is being "
+                 "painted.  Be sure to QPainter::end() painters!");
 }
 
 int QPaintDevice::metric(int) const
@@ -71,23 +71,23 @@ int QPaintDevice::fontInf(QFont *, int) const
 }
 
 void bitBlt(QPaintDevice *dst, int dx, int dy,
-	    const QPaintDevice *src, int sx, int sy, int sw, int sh,
-	    Qt::RasterOp rop, bool imask)
+            const QPaintDevice *src, int sx, int sy, int sw, int sh,
+            Qt::RasterOp rop, bool imask)
 {
     if(dst->devType() == QInternal::Pixmap && src->devType() == QInternal::Widget) {
-	*((QPixmap*)dst) = QPixmap::grabWidget((QWidget*)src, sx, sy, sw, sh);
-    } else if(src->devType() == QInternal::Widget && 
-	      (dst->devType() == QInternal::Widget || dst->devType() == QInternal::Printer)) {
-	QPixmap pm = QPixmap::grabWidget((QWidget*)src, sx, sy, sw, sh);
-	QPainter p(dst);
-	p.setRasterOp(rop);
-	p.drawPixmap(dx, dy, sw, sh, pm);
+        *((QPixmap*)dst) = QPixmap::grabWidget((QWidget*)src, sx, sy, sw, sh);
+    } else if(src->devType() == QInternal::Widget &&
+              (dst->devType() == QInternal::Widget || dst->devType() == QInternal::Printer)) {
+        QPixmap pm = QPixmap::grabWidget((QWidget*)src, sx, sy, sw, sh);
+        QPainter p(dst);
+        p.setRasterOp(rop);
+        p.drawPixmap(dx, dy, sw, sh, pm);
     } else if(src->devType() == QInternal::Pixmap) {
-	QPainter p(dst);
-	p.setRasterOp(rop);
-	p.drawPixmap(QRect(dx, dy, sw, sh), *((QPixmap*)src), QRect(sx, sy, sw, sh), imask);
+        QPainter p(dst);
+        p.setRasterOp(rop);
+        p.drawPixmap(QRect(dx, dy, sw, sh), *((QPixmap*)src), QRect(sx, sy, sw, sh), imask);
     } else {
-	qWarning("bitBlt: Cannot bitBlt from/to device!");
+        qWarning("bitBlt: Cannot bitBlt from/to device!");
     }
 }
 
@@ -102,19 +102,19 @@ void qt_mac_clip_cg(CGContextRef hd, const QRegion &rgn, const QPoint *pt)
 {
     CGContextBeginPath(hd);
     if(rgn.isEmpty()) {
-	CGContextAddRect(hd, CGRectMake(0, 0, 0, 0));
+        CGContextAddRect(hd, CGRectMake(0, 0, 0, 0));
     } else {
-	QVector<QRect> rects = rgn.rects();
-	const int count = rects.size();
-	for(int i = 0; i < count; i++) {
-	    const QRect &r = rects[i];
-	    CGRect mac_r = CGRectMake(r.x(), r.y(), r.width(), r.height());
-	    if(pt) {
-		mac_r.origin.x -= pt->x();
-		mac_r.origin.y -= pt->y();
-	    }
-	    CGContextAddRect(hd, mac_r);
-	}
+        QVector<QRect> rects = rgn.rects();
+        const int count = rects.size();
+        for(int i = 0; i < count; i++) {
+            const QRect &r = rects[i];
+            CGRect mac_r = CGRectMake(r.x(), r.y(), r.width(), r.height());
+            if(pt) {
+                mac_r.origin.x -= pt->x();
+                mac_r.origin.y -= pt->y();
+            }
+            CGContextAddRect(hd, mac_r);
+        }
     }
     CGContextClip(hd);
 }

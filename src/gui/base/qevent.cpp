@@ -109,7 +109,7 @@
 */
 
 /*!
-    \fn QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
+    \fn QMouseEvent::QMouseEvent(Type type, const QPoint &pos, int button, int state)
 
     Constructs a mouse event object.
 
@@ -129,14 +129,14 @@
     position explicitly.
 */
 
-QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
+QMouseEvent::QMouseEvent(Type type, const QPoint &pos, int button, int state)
     : QInputEvent(type), p(pos), b(button),s((ushort)state) {
-	g = QCursor::pos();
+        g = QCursor::pos();
 }
 
 
 /*!
-    \fn QMouseEvent::QMouseEvent( Type type, const QPoint &pos, const QPoint &globalPos,  int button, int state )
+    \fn QMouseEvent::QMouseEvent(Type type, const QPoint &pos, const QPoint &globalPos,  int button, int state)
 
     Constructs a mouse event object.
 
@@ -174,7 +174,7 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
     like X11. Whenever you move your widgets around in response to
     mouse events, globalPos() may differ a lot from the current
     pointer position QCursor::pos(), and from QWidget::mapToGlobal(
-    pos() ).
+    pos()).
 
     \sa globalX(), globalY()
 */
@@ -297,7 +297,7 @@ Qt::ButtonState QMouseEvent::stateAfter() const
 */
 
 /*!
-    \fn QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation orient = Vertical );
+    \fn QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Orientation orient = Vertical);
 
     Constructs a wheel event object.
 
@@ -311,14 +311,14 @@ Qt::ButtonState QMouseEvent::stateAfter() const
     \sa pos(), delta(), state()
 */
 #ifndef QT_NO_WHEELEVENT
-QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation orient )
+QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Orientation orient)
     : QInputEvent(Wheel), p(pos), d(delta), s((ushort)state), o(orient)
 {
     g = QCursor::pos();
 }
 #endif
 /*!
-    \fn QWheelEvent::QWheelEvent( const QPoint &pos, const QPoint& globalPos, int delta, int state, Orientation orient = Vertical  )
+    \fn QWheelEvent::QWheelEvent(const QPoint &pos, const QPoint& globalPos, int delta, int state, Orientation orient = Vertical )
 
     Constructs a wheel event object. The position when the event
     occurred is given in \a pos and \a globalPos. \a delta contains
@@ -468,7 +468,7 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation o
     known key (e.g. it may be the result of a compose sequence or
     keyboard macro). \a state holds the keyboard modifiers. \a
     text is the Unicode text that the key generated. If \a autorep is
-    TRUE, isAutoRepeat() will be TRUE. \a count is the number of
+    true, isAutoRepeat() will be true. \a count is the number of
     single keys.
 */
 
@@ -491,7 +491,7 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation o
     \fn QString QKeyEvent::text() const
 
     Returns the Unicode text that this key generated. The text returned
-    migth be text().isNull == TRUE, which is the case when pressing or
+    migth be text().isNull == true, which is the case when pressing or
     releasing modifying keys as Shift, Control, Alt and Meta. In these
     cases key() will contain a valid value.
 
@@ -523,26 +523,26 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation o
 //###### We must check with XGetModifierMapping
 Qt::ButtonState QKeyEvent::stateAfter() const
 {
-    if ( key() == Key_Shift )
-	return Qt::ButtonState(state()^ShiftButton);
-    if ( key() == Key_Control )
-	return Qt::ButtonState(state()^ControlButton);
-    if ( key() == Key_Alt )
-	return Qt::ButtonState(state()^AltButton);
-    if ( key() == Key_Meta )
-	return Qt::ButtonState(state()^MetaButton);
+    if (key() == Key_Shift)
+        return Qt::ButtonState(state()^ShiftButton);
+    if (key() == Key_Control)
+        return Qt::ButtonState(state()^ControlButton);
+    if (key() == Key_Alt)
+        return Qt::ButtonState(state()^AltButton);
+    if (key() == Key_Meta)
+        return Qt::ButtonState(state()^MetaButton);
     return state();
 }
 
 /*!
     \fn bool QKeyEvent::isAutoRepeat() const
 
-    Returns TRUE if this event comes from an auto-repeating key and
-    FALSE if it comes from an initial key press.
+    Returns true if this event comes from an auto-repeating key and
+    false if it comes from an initial key press.
 
     Note that if the event is a multiple-key compressed event that is
-    partly due to auto-repeat, this function could return either TRUE
-    or FALSE indeterminately.
+    partly due to auto-repeat, this function could return either true
+    or false indeterminately.
 */
 
 /*!
@@ -848,7 +848,7 @@ Qt::ButtonState QKeyEvent::stateAfter() const
 */
 
 /*!
-    \fn QFocusEvent::QFocusEvent( Type type )
+    \fn QFocusEvent::QFocusEvent(Type type)
 
     Constructs a focus event object.
 
@@ -870,7 +870,7 @@ QFocusEvent::Reason QFocusEvent::prev_reason = QFocusEvent::Other;
     \value Mouse  because of a mouse action.
     \value Tab  because of a Tab press.
     \value Backtab  because of a Backtab press
-	    (possibly including Shift/Control, e.g. Shift+Tab).
+            (possibly including Shift/Control, e.g. Shift+Tab).
     \value ActiveWindow  because the window system made this window (in)active.
     \value Popup  because the application opened/closed a popup that grabbed/released focus.
     \value Shortcut  because of a keyboard shortcut.
@@ -895,7 +895,7 @@ QFocusEvent::Reason QFocusEvent::reason()
 
     \sa reason(), resetReason()
  */
-void QFocusEvent::setReason( Reason reason )
+void QFocusEvent::setReason(Reason reason)
 {
     prev_reason = m_reason;
     m_reason = reason;
@@ -915,15 +915,15 @@ void QFocusEvent::resetReason()
 /*!
     \fn bool QFocusEvent::gotFocus() const
 
-    Returns TRUE if the widget received the text input focus;
-    otherwise returns FALSE.
+    Returns true if the widget received the text input focus;
+    otherwise returns false.
 */
 
 /*!
     \fn bool QFocusEvent::lostFocus() const
 
-    Returns TRUE if the widget lost the text input focus; otherwise
-    returns FALSE.
+    Returns true if the widget lost the text input focus; otherwise
+    returns false.
 */
 
 
@@ -948,22 +948,22 @@ void QFocusEvent::resetReason()
 */
 
 /*!
-    \fn QPaintEvent::QPaintEvent( const QRegion &paintRegion )
+    \fn QPaintEvent::QPaintEvent(const QRegion &paintRegion)
 
     Constructs a paint event object with the region that should be
     updated. The region is given by \a paintRegion.
 */
 
 /*!
-    \fn QPaintEvent::QPaintEvent( const QRect &paintRect )
+    \fn QPaintEvent::QPaintEvent(const QRect &paintRect)
 
     Constructs a paint event object with the rectangle that should be
     updated. The region is given by \a paintRect.
 */
 
 /*!
-    \fn QPaintEvent::QPaintEvent( const QRegion &paintRegion,
-				  const QRect &paintRect)
+    \fn QPaintEvent::QPaintEvent(const QRegion &paintRegion,
+                                  const QRect &paintRect)
 
     Constructs a paint event object with the rectangle \a paintRect,
     and with the region that should be updated given by \a paintRegion.
@@ -1000,7 +1000,7 @@ void QFocusEvent::resetReason()
 */
 
 /*!
-    \fn QMoveEvent::QMoveEvent( const QPoint &pos, const QPoint &oldPos )
+    \fn QMoveEvent::QMoveEvent(const QPoint &pos, const QPoint &oldPos)
 
     Constructs a move event with the new and old widget positions, \a
     pos and \a oldPos respectively.
@@ -1034,7 +1034,7 @@ void QFocusEvent::resetReason()
 */
 
 /*!
-    \fn QResizeEvent::QResizeEvent( const QSize &size, const QSize &oldSize )
+    \fn QResizeEvent::QResizeEvent(const QSize &size, const QSize &oldSize)
 
     Constructs a resize event with the new and old widget sizes, \a
     size and \a oldSize respectively.
@@ -1099,7 +1099,7 @@ void QFocusEvent::resetReason()
     If the last top-level window is closed, the
     QApplication::lastWindowClosed() signal is emitted.
 
-    The isAccepted() function returns TRUE if the event's receiver has
+    The isAccepted() function returns true if the event's receiver has
     agreed to close the widget; call accept() to agree to close the
     widget and call ignore() if the receiver of this event does not
     want the widget to be closed.
@@ -1133,7 +1133,7 @@ void QFocusEvent::resetReason()
     \fn QIconDragEvent::QIconDragEvent()
 
     Constructs an icon drag event object with the accept parameter
-    flag set to FALSE.
+    flag set to false.
 
     \sa accept()
 */
@@ -1141,8 +1141,8 @@ void QFocusEvent::resetReason()
 /*!
     \fn bool QIconDragEvent::isAccepted() const
 
-    Returns TRUE if the receiver of the event has started a drag and
-    drop operation; otherwise returns FALSE.
+    Returns true if the receiver of the event has started a drag and
+    drop operation; otherwise returns false.
 
     \sa accept(), ignore()
 */
@@ -1194,10 +1194,10 @@ void QFocusEvent::resetReason()
 */
 
 /*!
-    \fn QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, const QPoint &globalPos, int state )
+    \fn QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, const QPoint &globalPos, int state)
 
     Constructs a context menu event object with the accept parameter
-    flag set to FALSE.
+    flag set to false.
 
     The \a reason parameter must be \c QContextMenuEvent::Mouse or \c
     QContextMenuEvent::Keyboard.
@@ -1209,10 +1209,10 @@ void QFocusEvent::resetReason()
 
 
 /*!
-    \fn QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int state )
+    \fn QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int state)
 
     Constructs a context menu event object with the accept parameter
-    flag set to FALSE.
+    flag set to false.
 
     The \a reason parameter must be \c QContextMenuEvent::Mouse or \c
     QContextMenuEvent::Keyboard.
@@ -1226,8 +1226,8 @@ void QFocusEvent::resetReason()
     position explicitly.
 */
 
-QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int state )
-    : QInputEvent( ContextMenu ), p( pos ), reas( reason ), s((ushort)state)
+QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int state)
+    : QInputEvent(ContextMenu), p(pos), reas(reason), s((ushort)state)
 {
     gp = QCursor::pos();
 }
@@ -1394,10 +1394,10 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 */
 
 /*!
-    \fn QIMEvent::QIMEvent( Type type, const QString &text, int
-			    cursorPosition, int selLength )
+    \fn QIMEvent::QIMEvent(Type type, const QString &text, int
+                            cursorPosition, int selLength)
 
-    Constructs a new QIMEvent with the accept flag set to FALSE. \a
+    Constructs a new QIMEvent with the accept flag set to false. \a
     type can be one of QEvent::IMStartEvent, QEvent::IMComposeEvent
     or QEvent::IMEndEvent. \a text contains the current compostion
     string and \a cursorPosition the current position of the cursor
@@ -1424,7 +1424,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
     \fn int QIMEvent::selectionLength() const
 
     Returns the number of characters in the composition string (
-    starting at cursorPos() ) that should be marked as selected by the
+    starting at cursorPos()) that should be marked as selected by the
     input widget receiving the event.
     Will return 0 for IMStartEvent and IMEndEvent.
 */
@@ -1478,10 +1478,10 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 */
 
 /*!
-  \fn QTabletEvent::QTabletEvent( Type t, const QPoint &pos,
+  \fn QTabletEvent::QTabletEvent(Type t, const QPoint &pos,
                                   const QPoint &globalPos, int device,
                                   int pressure, int xTilt, int yTilt,
-				  const QPair<int,int> &uId )
+                                  const QPair<int,int> &uId)
 
   Construct a tablet event of \c Type \a t.  The position where the
   event occurred is given in \a pos and in \a globalPos. \a device
@@ -1497,24 +1497,24 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
   \sa pos(), globalPos(), device(), pressure(), xTilt(), yTilt()
 */
 
-QTabletEvent::QTabletEvent( Type t, const QPoint &pos, const QPoint &globalPos, int device,
-			    int pressure, int xTilt, int yTilt,
-			    const QPair<int, int> &uId )
-    : QInputEvent( t ),
-      mPos( pos ),
-      mGPos( globalPos ),
-      mDev( device ),
-      mPress( pressure ),
-      mXT( xTilt ),
-      mYT( yTilt ),
-      mType( uId.first ),
-      mPhy( uId.second ),
-      mbAcc(TRUE)
+QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, int device,
+                            int pressure, int xTilt, int yTilt,
+                            const QPair<int, int> &uId)
+    : QInputEvent(t),
+      mPos(pos),
+      mGPos(globalPos),
+      mDev(device),
+      mPress(pressure),
+      mXT(xTilt),
+      mYT(yTilt),
+      mType(uId.first),
+      mPhy(uId.second),
+      mbAcc(true)
 {}
 
 /*!
   \obsolete
-  \fn QTabletEvent::QTabletEvent( const QPoint &pos, const QPoint &globalPos, int device, int pressure, int xTilt, int yTilt, const QPair<int,int> &uId )
+  \fn QTabletEvent::QTabletEvent(const QPoint &pos, const QPoint &globalPos, int device, int pressure, int xTilt, int yTilt, const QPair<int,int> &uId)
 
     Constructs a tablet event object. The position when the event
     occurred is is given in \a pos and \a globalPos. \a device
@@ -1661,7 +1661,7 @@ QTabletEvent::QTabletEvent( Type t, const QPoint &pos, const QPoint &globalPos, 
 
 
 /*!
-    \fn QDragMoveEvent::QDragMoveEvent( const QPoint& pos, Type type )
+    \fn QDragMoveEvent::QDragMoveEvent(const QPoint& pos, Type type)
 
     Creates a QDragMoveEvent for which the mouse is at point \a pos,
     and the event is of type \a type.
@@ -1671,7 +1671,7 @@ QTabletEvent::QTabletEvent( Type t, const QPoint &pos, const QPoint &globalPos, 
 */
 
 /*!
-    \fn void QDragMoveEvent::accept( const QRect & r )
+    \fn void QDragMoveEvent::accept(const QRect & r)
 
     The same as accept(), but also notifies that future moves will
     also be acceptable if they remain within the rectangle \a r on the
@@ -1684,7 +1684,7 @@ QTabletEvent::QTabletEvent( Type t, const QPoint &pos, const QPoint &globalPos, 
 */
 
 /*!
-    \fn void QDragMoveEvent::ignore( const QRect & r)
+    \fn void QDragMoveEvent::ignore(const QRect & r)
 
     The opposite of accept(const QRect&), i.e. says that moves within
     rectangle \a r are not acceptable (will be ignored).
@@ -1708,16 +1708,16 @@ QTabletEvent::QTabletEvent( Type t, const QPoint &pos, const QPoint &globalPos, 
 /*!
     \fn bool QDropEvent::isAccepted () const
 
-    Returns TRUE if the drop target accepts the event; otherwise
-    returns FALSE.
+    Returns true if the drop target accepts the event; otherwise
+    returns false.
 */
 
 /*!
-    \fn void QDropEvent::accept(bool y=TRUE)
+    \fn void QDropEvent::accept(bool y=true)
 
     Call this function to indicate whether the event provided data
-    which your widget processed. Set \a y to TRUE (the default) if
-    your widget could process the data, otherwise set \a y to FALSE.
+    which your widget processed. Set \a y to true (the default) if
+    your widget could process the data, otherwise set \a y to false.
     To get the data, use encodedData(), or preferably, the decode()
     methods of existing QDragObject subclasses, such as
     QTextDrag::decode(), or your own subclasses.
@@ -1726,16 +1726,16 @@ QTabletEvent::QTabletEvent( Type t, const QPoint &pos, const QPoint &globalPos, 
 */
 
 /*!
-    \fn void QDropEvent::acceptAction(bool y=TRUE)
+    \fn void QDropEvent::acceptAction(bool y=true)
 
     Call this to indicate that the action described by action() is
-    accepted (i.e. if \a y is TRUE, which is the default), not merely
-    the default copy action. If you call acceptAction(TRUE), there is
-    no need to also call accept(TRUE).
+    accepted (i.e. if \a y is true, which is the default), not merely
+    the default copy action. If you call acceptAction(true), there is
+    no need to also call accept(true).
 */
 
 /*!
-  \fn void QDragMoveEvent::accept( bool y )
+  \fn void QDragMoveEvent::accept(bool y)
   \reimp
   \internal
   Remove in 3.0
@@ -1756,24 +1756,24 @@ QTabletEvent::QTabletEvent( Type t, const QPoint &pos, const QPoint &globalPos, 
     target perform with dropped data.
 
     \value Copy The default action. The source simply uses the data
-		provided in the operation.
+                provided in the operation.
     \value Link The source should somehow create a link to the
-		location specified by the data.
+                location specified by the data.
     \value Move The source should somehow move the object from the
-		location specified by the data to a new location.
+                location specified by the data to a new location.
     \value Private  The target has special knowledge of the MIME type,
-		which the source should respond to in a similar way to
-		a Copy.
+                which the source should respond to in a similar way to
+                a Copy.
     \value UserAction  The source and target can co-operate using
-		special actions. This feature is not currently
-		supported.
+                special actions. This feature is not currently
+                supported.
 
     The Link and Move actions only makes sense if the data is a
     reference, for example, text/uri-list file lists (see QUriDrag).
 */
 
 /*!
-    \fn void QDropEvent::setAction( Action a )
+    \fn void QDropEvent::setAction(Action a)
 
     Sets the action to \a a. This is used internally, you should not
     need to call this in your code: the \e source decides the action,
@@ -1799,8 +1799,8 @@ QTabletEvent::QTabletEvent( Type t, const QPoint &pos, const QPoint &globalPos, 
 /*!
     \fn bool QDropEvent::isActionAccepted () const
 
-    Returns TRUE if the drop action was accepted by the drop site;
-    otherwise returns FALSE.
+    Returns true if the drop action was accepted by the drop site;
+    otherwise returns false.
 */
 
 
@@ -1869,12 +1869,12 @@ QTabletEvent::QTabletEvent( Type t, const QPoint &pos, const QPoint &globalPos, 
     This event is sent just before QWidget::hide() returns, and also
     when a top-level window has been hidden (iconified) by the user.
 
-    If spontaneous() is TRUE the event originated outside the
+    If spontaneous() is true the event originated outside the
     application, i.e. the user hid the window using the window manager
     controls, either by iconifying the window or by switching to
     another virtual desktop where the window isn't visible. The window
     will become hidden but not withdrawn. If the window was iconified,
-    QWidget::isMinimized() returns TRUE.
+    QWidget::isMinimized() returns true.
 
     \sa QShowEvent
 */
@@ -1953,74 +1953,74 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
     // More useful event output could be added here
 
     if (!e)
-	return dbg << "QEvent(this = 0x0)";
+        return dbg << "QEvent(this = 0x0)";
     const char *n;
-    switch ( e->type() ) {
+    switch (e->type()) {
     case QEvent::Timer:
-	n = "Timer";
-	break;
+        n = "Timer";
+        break;
     case QEvent::MouseButtonPress:
-	n = "MouseButtonPress";
-	break;
+        n = "MouseButtonPress";
+        break;
     case QEvent::MouseButtonRelease:
-	n = "MouseButtonRelease";
-	break;
+        n = "MouseButtonRelease";
+        break;
     case QEvent::MouseButtonDblClick:
-	n = "MouseButtonDblClick";
-	break;
+        n = "MouseButtonDblClick";
+        break;
     case QEvent::MouseMove:
-	n = "MouseMove";
-	break;
+        n = "MouseMove";
+        break;
 #ifndef QT_NO_WHEELEVENT
     case QEvent::Wheel:
-	n = "Wheel";
-	break;
+        n = "Wheel";
+        break;
 #endif
     case QEvent::KeyPress:
-	n = "KeyPress";
-	break;
+        n = "KeyPress";
+        break;
     case QEvent::KeyRelease:
-	n = "KeyRelease";
-	break;
+        n = "KeyRelease";
+        break;
     case QEvent::FocusIn:
-	n = "FocusIn";
-	break;
+        n = "FocusIn";
+        break;
     case QEvent::FocusOut:
-	n = "FocusOut";
-	break;
+        n = "FocusOut";
+        break;
     case QEvent::Enter:
-	n = "Enter";
-	break;
+        n = "Enter";
+        break;
     case QEvent::Leave:
-	n = "Leave";
-	break;
+        n = "Leave";
+        break;
     case QEvent::Paint:
-	n = "Paint";
-	break;
+        n = "Paint";
+        break;
     case QEvent::Move:
-	n = "Move";
-	break;
+        n = "Move";
+        break;
     case QEvent::Resize:
-	n = "Resize";
-	break;
+        n = "Resize";
+        break;
     case QEvent::Create:
-	n = "Create";
-	break;
+        n = "Create";
+        break;
     case QEvent::Destroy:
-	n = "Destroy";
-	break;
+        n = "Destroy";
+        break;
     case QEvent::Close:
-	n = "Close";
-	break;
+        n = "Close";
+        break;
     case QEvent::Quit:
-	n = "Quit";
-	break;
+        n = "Quit";
+        break;
     case QEvent::FileOpen:
-	n = "FileOpen";
-	break;
+        n = "FileOpen";
+        break;
     default:
-	dbg.nospace() << "QEvent(" << (const void *)e << ", type = " << e->type() << ')';
-	return dbg.space();
+        dbg.nospace() << "QEvent(" << (const void *)e << ", type = " << e->type() << ')';
+        return dbg.space();
     }
 
     dbg.nospace() << 'Q' << n << "Event(" << (const void *)e << ')';

@@ -24,7 +24,7 @@
 
 #include "qx11info_x11.h"
 
-bool qt_compose_emptied = FALSE;
+bool qt_compose_emptied = false;
 
 #if !defined(QT_NO_XIM)
 
@@ -53,31 +53,31 @@ static const char * const fontsetnames[] = {
     "-*-fixed-bold-i-*-*-24-*,-*-*-bold-i-*-*-24-*"
 };
 
-static XFontSet getFontSet( const QFont &f )
+static XFontSet getFontSet(const QFont &f)
 {
     int i = 0;
     if (f.italic())
-	i |= 1;
+        i |= 1;
     if (f.bold())
-	i |= 2;
+        i |= 2;
 
-    if ( f.pointSize() > 20 )
-	i += 4;
+    if (f.pointSize() > 20)
+        i += 4;
 
-    if ( !fontsetCache[i] ) {
-	Display* dpy = QX11Info::appDisplay();
-	int missCount;
-	char** missList;
-	fontsetCache[i] = XCreateFontSet(dpy, fontsetnames[i], &missList, &missCount, 0);
-	if(missCount > 0)
-	    XFreeStringList(missList);
-	if ( !fontsetCache[i] ) {
-	    fontsetCache[i] = XCreateFontSet(dpy,  "-*-fixed-*-*-*-*-16-*", &missList, &missCount, 0);
-	    if(missCount > 0)
-		XFreeStringList(missList);
-	    if ( !fontsetCache[i] )
-		fontsetCache[i] = (XFontSet)-1;
-	}
+    if (!fontsetCache[i]) {
+        Display* dpy = QX11Info::appDisplay();
+        int missCount;
+        char** missList;
+        fontsetCache[i] = XCreateFontSet(dpy, fontsetnames[i], &missList, &missCount, 0);
+        if(missCount > 0)
+            XFreeStringList(missList);
+        if (!fontsetCache[i]) {
+            fontsetCache[i] = XCreateFontSet(dpy,  "-*-fixed-*-*-*-*-16-*", &missList, &missCount, 0);
+            if(missCount > 0)
+                XFreeStringList(missList);
+            if (!fontsetCache[i])
+                fontsetCache[i] = (XFontSet)-1;
+        }
     }
     return (fontsetCache[i] == (XFontSet)-1) ? 0 : fontsetCache[i];
 }
@@ -88,197 +88,197 @@ extern "C" {
 #endif // Q_C_CALLBACKS
 
     static int xic_start_callback(XIC, XPointer client_data, XPointer) {
-	QInputContext *qic = (QInputContext *) client_data;
-	if (! qic) {
+        QInputContext *qic = (QInputContext *) client_data;
+        if (! qic) {
 #ifdef QT_XIM_DEBUG
-	    qDebug("compose start: no qic");
+            qDebug("compose start: no qic");
 #endif // QT_XIM_DEBUG
 
-	    return 0;
-	}
+            return 0;
+        }
 
-	qic->composing = TRUE;
-	qic->text = QString::null;
-	qic->focusWidget = 0;
+        qic->composing = true;
+        qic->text = QString::null;
+        qic->focusWidget = 0;
 
-	if ( qic->selectedChars.size() < 128 )
-	    qic->selectedChars.resize( 128 );
-	qic->selectedChars.fill( 0 );
+        if (qic->selectedChars.size() < 128)
+            qic->selectedChars.resize(128);
+        qic->selectedChars.fill(0);
 
 #ifdef QT_XIM_DEBUG
-	qDebug("compose start");
+        qDebug("compose start");
 #endif // QT_XIM_DEBUG
 
-	return 0;
+        return 0;
     }
 
     static int xic_draw_callback(XIC, XPointer client_data, XPointer call_data) {
-	QInputContext *qic = (QInputContext *) client_data;
-	if (! qic) {
+        QInputContext *qic = (QInputContext *) client_data;
+        if (! qic) {
 #ifdef QT_XIM_DEBUG
-	    qDebug("compose event: invalid compose event %p", qic);
+            qDebug("compose event: invalid compose event %p", qic);
 #endif // QT_XIM_DEBUG
 
-	    return 0;
-	}
+            return 0;
+        }
 
-	bool send_imstart = FALSE;
-	if (qApp->focusWidget() != qic->focusWidget && qic->text.isEmpty()) {
-	    if (qic->focusWidget) {
+        bool send_imstart = false;
+        if (qApp->focusWidget() != qic->focusWidget && qic->text.isEmpty()) {
+            if (qic->focusWidget) {
 #ifdef QT_XIM_DEBUG
-		qDebug( "sending IMEnd (empty) to %p", qic->focusWidget );
+                qDebug("sending IMEnd (empty) to %p", qic->focusWidget);
 #endif // QT_XIM_DEBUG
 
-		QIMEvent endevent(QEvent::IMEnd, QString::null, -1);
-		QApplication::sendEvent(qic->focusWidget, &endevent);
-	    }
+                QIMEvent endevent(QEvent::IMEnd, QString::null, -1);
+                QApplication::sendEvent(qic->focusWidget, &endevent);
+            }
 
-	    qic->text = QString::null;
-	    qic->focusWidget = qApp->focusWidget();
-	    qic->composing = FALSE;
+            qic->text = QString::null;
+            qic->focusWidget = qApp->focusWidget();
+            qic->composing = false;
 
-	    if ( qic->selectedChars.size() < 128 )
-		qic->selectedChars.resize( 128 );
-	    qic->selectedChars.fill( 0 );
+            if (qic->selectedChars.size() < 128)
+                qic->selectedChars.resize(128);
+            qic->selectedChars.fill(0);
 
-	    if (qic->focusWidget) {
-		qic->composing = TRUE;
-		send_imstart = TRUE;
-	    }
-	}
+            if (qic->focusWidget) {
+                qic->composing = true;
+                send_imstart = true;
+            }
+        }
 
-	if (! qic->composing || ! qic->focusWidget) {
+        if (! qic->composing || ! qic->focusWidget) {
 #ifdef QT_XIM_DEBUG
-	    qDebug("compose event: invalid compose event %d %p",
-		   qic->composing, qic->focusWidget);
+            qDebug("compose event: invalid compose event %d %p",
+                   qic->composing, qic->focusWidget);
 #endif // QT_XIM_DEBUG
 
-	    return 0;
-	}
+            return 0;
+        }
 
-	XIMPreeditDrawCallbackStruct *drawstruct =
-	    (XIMPreeditDrawCallbackStruct *) call_data;
-	XIMText *text = (XIMText *) drawstruct->text;
-	int cursor = drawstruct->caret, sellen = 0;
+        XIMPreeditDrawCallbackStruct *drawstruct =
+            (XIMPreeditDrawCallbackStruct *) call_data;
+        XIMText *text = (XIMText *) drawstruct->text;
+        int cursor = drawstruct->caret, sellen = 0;
 
-	if ( ! drawstruct->caret && ! drawstruct->chg_first &&
-	     ! drawstruct->chg_length && ! text ) {
-	    // nothing to do
-	    return 0;
-	}
+        if (! drawstruct->caret && ! drawstruct->chg_first &&
+             ! drawstruct->chg_length && ! text) {
+            // nothing to do
+            return 0;
+        }
 
-	if (text) {
-	    char *str = 0;
-	    if (text->encoding_is_wchar) {
-		int l = wcstombs(NULL, text->string.wide_char, text->length);
-		if (l != -1) {
-		    str = new char[l + 1];
-		    wcstombs(str, text->string.wide_char, l);
-		    str[l] = 0;
-		}
-	    } else
-		str = text->string.multi_byte;
+        if (text) {
+            char *str = 0;
+            if (text->encoding_is_wchar) {
+                int l = wcstombs(NULL, text->string.wide_char, text->length);
+                if (l != -1) {
+                    str = new char[l + 1];
+                    wcstombs(str, text->string.wide_char, l);
+                    str[l] = 0;
+                }
+            } else
+                str = text->string.multi_byte;
 
-	    if (! str)
-		return 0;
+            if (! str)
+                return 0;
 
-	    QString s = QString::fromLocal8Bit(str);
+            QString s = QString::fromLocal8Bit(str);
 
-	    if (text->encoding_is_wchar)
-		delete [] str;
+            if (text->encoding_is_wchar)
+                delete [] str;
 
-	    if (drawstruct->chg_length < 0)
-		qic->text.replace(drawstruct->chg_first, UINT_MAX, s);
-	    else
-		qic->text.replace(drawstruct->chg_first, drawstruct->chg_length, s);
+            if (drawstruct->chg_length < 0)
+                qic->text.replace(drawstruct->chg_first, UINT_MAX, s);
+            else
+                qic->text.replace(drawstruct->chg_first, drawstruct->chg_length, s);
 
-	    if ( qic->selectedChars.size() < qic->text.length() ) {
-		// expand the selectedChars array if the compose string is longer
-		int from = qic->selectedChars.size();
-		qic->selectedChars.resize( qic->text.length() );
-		for ( int x = from; from < qic->selectedChars.size(); ++x )
-		    qic->selectedChars.clearBit(x);
-	    }
+            if (qic->selectedChars.size() < qic->text.length()) {
+                // expand the selectedChars array if the compose string is longer
+                int from = qic->selectedChars.size();
+                qic->selectedChars.resize(qic->text.length());
+                for (int x = from; from < qic->selectedChars.size(); ++x)
+                    qic->selectedChars.clearBit(x);
+            }
 
-	    // determine if the changed chars are selected based on text->feedback
-	    for ( int x = 0; x < s.length(); ++x )
-		qic->selectedChars.setBit(x, (text->feedback ?
-					      (text->feedback[x] & XIMReverse ) : 0));
+            // determine if the changed chars are selected based on text->feedback
+            for (int x = 0; x < s.length(); ++x)
+                qic->selectedChars.setBit(x, (text->feedback ?
+                                              (text->feedback[x] & XIMReverse) : 0));
 
-	    // figure out where the selection starts, and how long it is
-	    bool started = FALSE;
-	    for ( int x = 0; x < qic->selectedChars.size(); ++x ) {
-		if ( started ) {
-		    if (qic->selectedChars.testBit(x)) ++sellen;
-		    else break;
-		} else {
-		    if (qic->selectedChars.testBit(x)) {
-			cursor = x;
-			started = TRUE;
-			sellen = 1;
-		    }
-		}
-	    }
-	} else {
-	    if (drawstruct->chg_length == 0)
-		drawstruct->chg_length = -1;
+            // figure out where the selection starts, and how long it is
+            bool started = false;
+            for (int x = 0; x < qic->selectedChars.size(); ++x) {
+                if (started) {
+                    if (qic->selectedChars.testBit(x)) ++sellen;
+                    else break;
+                } else {
+                    if (qic->selectedChars.testBit(x)) {
+                        cursor = x;
+                        started = true;
+                        sellen = 1;
+                    }
+                }
+            }
+        } else {
+            if (drawstruct->chg_length == 0)
+                drawstruct->chg_length = -1;
 
-	    qic->text.remove(drawstruct->chg_first, drawstruct->chg_length);
-	    qt_compose_emptied = qic->text.isEmpty();
-	    if ( qt_compose_emptied ) {
+            qic->text.remove(drawstruct->chg_first, drawstruct->chg_length);
+            qt_compose_emptied = qic->text.isEmpty();
+            if (qt_compose_emptied) {
 #ifdef QT_XIM_DEBUG
-		qDebug( "compose emptied" );
+                qDebug("compose emptied");
 #endif // QT_XIM_DEBUG
 
-		// don't send an empty compose, since we will send an IMEnd with
-		// either the correct compose text (or null text if the user has
-		// cancelled the compose or deleted all chars).
-		return 0;
-	    }
-	}
+                // don't send an empty compose, since we will send an IMEnd with
+                // either the correct compose text (or null text if the user has
+                // cancelled the compose or deleted all chars).
+                return 0;
+            }
+        }
 
-	if ( send_imstart ) {
+        if (send_imstart) {
 #ifdef QT_XIM_DEBUG
-            qDebug( "sending IMStart to %p", qic->focusWidget );
+            qDebug("sending IMStart to %p", qic->focusWidget);
 #endif // QT_XIM_DEBUG
 
-	    qt_compose_emptied = FALSE;
-	    QIMEvent startevent(QEvent::IMStart, QString::null, -1);
-	    QApplication::sendEvent(qic->focusWidget, &startevent);
-	}
+            qt_compose_emptied = false;
+            QIMEvent startevent(QEvent::IMStart, QString::null, -1);
+            QApplication::sendEvent(qic->focusWidget, &startevent);
+        }
 
 #ifdef QT_XIM_DEBUG
-	qDebug( "sending IMCompose to %p with %d chars",
-                qic->focusWidget, qic->text.length() );
+        qDebug("sending IMCompose to %p with %d chars",
+                qic->focusWidget, qic->text.length());
 #endif // QT_XIM_DEBUG
 
-	QIMEvent event( QEvent::IMCompose, qic->text, cursor, sellen );
-	QApplication::sendEvent(qic->focusWidget, &event);
-	return 0;
+        QIMEvent event(QEvent::IMCompose, qic->text, cursor, sellen);
+        QApplication::sendEvent(qic->focusWidget, &event);
+        return 0;
     }
 
     static int xic_done_callback(XIC, XPointer client_data, XPointer) {
-	QInputContext *qic = (QInputContext *) client_data;
-	if (! qic)
-	    return 0;
+        QInputContext *qic = (QInputContext *) client_data;
+        if (! qic)
+            return 0;
 
-	if (qic->composing && qic->focusWidget) {
+        if (qic->composing && qic->focusWidget) {
 #ifdef QT_XIM_DEBUG
-	    qDebug( "sending IMEnd (empty) to %p", qic->focusWidget );
+            qDebug("sending IMEnd (empty) to %p", qic->focusWidget);
 #endif // QT_XIM_DEBUG
 
-       	    QIMEvent event(QEvent::IMEnd, QString::null, -1);
-	    QApplication::sendEvent(qic->focusWidget, &event);
-	}
+            QIMEvent event(QEvent::IMEnd, QString::null, -1);
+            QApplication::sendEvent(qic->focusWidget, &event);
+        }
 
-	qic->composing = FALSE;
-	qic->focusWidget = 0;
+        qic->composing = false;
+        qic->focusWidget = 0;
 
-	if ( qic->selectedChars.size() < 128 )
-	    qic->selectedChars.resize( 128 );
-	qic->selectedChars.fill( 0 );
+        if (qic->selectedChars.size() < 128)
+            qic->selectedChars.resize(128);
+        qic->selectedChars.fill(0);
 
-	return 0;
+        return 0;
     }
 
 #ifdef Q_C_CALLBACKS
@@ -290,18 +290,18 @@ extern "C" {
 
 
 QInputContext::QInputContext(QWidget *widget)
-    : ic(0), focusWidget(0), composing(FALSE), fontset(0)
+    : ic(0), focusWidget(0), composing(false), fontset(0)
 {
 #if !defined(QT_NO_XIM)
     fontsetRefCount++;
     if (! X11->xim) {
-	qWarning("QInputContext: no input method context available");
-	return;
+        qWarning("QInputContext: no input method context available");
+        return;
     }
 
     if (! widget->isTopLevel()) {
-	qWarning("QInputContext: cannot create input context for non-toplevel widgets");
-	return;
+        qWarning("QInputContext: cannot create input context for non-toplevel widgets");
+        return;
     }
 
     XPoint spot;
@@ -310,56 +310,56 @@ QInputContext::QInputContext(QWidget *widget)
     XIMCallback startcallback, drawcallback, donecallback;
 
     font = widget->font();
-    fontset = getFontSet( font );
+    fontset = getFontSet(font);
 
     if (X11->xim_style & XIMPreeditArea) {
-	rect.x = 0;
-	rect.y = 0;
-	rect.width = widget->width();
-	rect.height = widget->height();
+        rect.x = 0;
+        rect.y = 0;
+        rect.width = widget->width();
+        rect.height = widget->height();
 
-	preedit_attr = XVaCreateNestedList(0,
-					   XNArea, &rect,
-					   XNFontSet, fontset,
-					   (char *) 0);
+        preedit_attr = XVaCreateNestedList(0,
+                                           XNArea, &rect,
+                                           XNFontSet, fontset,
+                                           (char *) 0);
     } else if (X11->xim_style & XIMPreeditPosition) {
-	spot.x = 1;
-	spot.y = 1;
+        spot.x = 1;
+        spot.y = 1;
 
-	preedit_attr = XVaCreateNestedList(0,
-					   XNSpotLocation, &spot,
-					   XNFontSet, fontset,
-					   (char *) 0);
+        preedit_attr = XVaCreateNestedList(0,
+                                           XNSpotLocation, &spot,
+                                           XNFontSet, fontset,
+                                           (char *) 0);
     } else if (X11->xim_style & XIMPreeditCallbacks) {
-	startcallback.client_data = (XPointer) this;
-	startcallback.callback = (XIMProc) xic_start_callback;
-	drawcallback.client_data = (XPointer) this;
-	drawcallback.callback = (XIMProc)xic_draw_callback;
-	donecallback.client_data = (XPointer) this;
-	donecallback.callback = (XIMProc) xic_done_callback;
+        startcallback.client_data = (XPointer) this;
+        startcallback.callback = (XIMProc) xic_start_callback;
+        drawcallback.client_data = (XPointer) this;
+        drawcallback.callback = (XIMProc)xic_draw_callback;
+        donecallback.client_data = (XPointer) this;
+        donecallback.callback = (XIMProc) xic_done_callback;
 
-	preedit_attr = XVaCreateNestedList(0,
-					   XNPreeditStartCallback, &startcallback,
-					   XNPreeditDrawCallback, &drawcallback,
-					   XNPreeditDoneCallback, &donecallback,
-					   (char *) 0);
+        preedit_attr = XVaCreateNestedList(0,
+                                           XNPreeditStartCallback, &startcallback,
+                                           XNPreeditDrawCallback, &drawcallback,
+                                           XNPreeditDoneCallback, &donecallback,
+                                           (char *) 0);
     }
 
     if (preedit_attr) {
-	ic = XCreateIC(X11->xim,
-		       XNInputStyle, X11->xim_style,
-		       XNClientWindow, widget->winId(),
-		       XNPreeditAttributes, preedit_attr,
-		       (char *) 0);
-	XFree(preedit_attr);
+        ic = XCreateIC(X11->xim,
+                       XNInputStyle, X11->xim_style,
+                       XNClientWindow, widget->winId(),
+                       XNPreeditAttributes, preedit_attr,
+                       (char *) 0);
+        XFree(preedit_attr);
     } else
-	ic = XCreateIC(X11->xim,
-		       XNInputStyle, X11->xim_style,
-		       XNClientWindow, widget->winId(),
-		       (char *) 0);
+        ic = XCreateIC(X11->xim,
+                       XNInputStyle, X11->xim_style,
+                       XNClientWindow, widget->winId(),
+                       (char *) 0);
 
     if (! ic)
-	qFatal("Failed to create XIM input context!");
+        qFatal("Failed to create XIM input context!");
 
     // when resetting the input context, preserve the input state
     (void) XSetICValues((XIC) ic, XNResetState, XIMPreserveState, (char *) 0);
@@ -372,23 +372,23 @@ QInputContext::~QInputContext()
 
 #if !defined(QT_NO_XIM)
     if (ic)
-	XDestroyIC((XIC) ic);
+        XDestroyIC((XIC) ic);
 
-    if ( --fontsetRefCount == 0 ) {
-	Display *dpy = QX11Info::appDisplay();
-	for ( int i = 0; i < 8; i++ ) {
-	    if ( fontsetCache[i] && fontsetCache[i] != (XFontSet)-1 ) {
-		XFreeFontSet(dpy, fontsetCache[i]);
-		fontsetCache[i] = 0;
-	    }
-	}
+    if (--fontsetRefCount == 0) {
+        Display *dpy = QX11Info::appDisplay();
+        for (int i = 0; i < 8; i++) {
+            if (fontsetCache[i] && fontsetCache[i] != (XFontSet)-1) {
+                XFreeFontSet(dpy, fontsetCache[i]);
+                fontsetCache[i] = 0;
+            }
+        }
     }
 
 #endif // !QT_NO_XIM
 
     ic = 0;
     focusWidget = 0;
-    composing = FALSE;
+    composing = false;
 }
 
 
@@ -397,21 +397,21 @@ void QInputContext::reset()
 #if !defined(QT_NO_XIM)
     if (focusWidget && composing && ! text.isNull()) {
 #ifdef QT_XIM_DEBUG
-	qDebug("QInputContext::reset: composing - sending IMEnd (empty) to %p",
-	       focusWidget);
+        qDebug("QInputContext::reset: composing - sending IMEnd (empty) to %p",
+               focusWidget);
 #endif // QT_XIM_DEBUG
 
-	QIMEvent endevent(QEvent::IMEnd, QString::null, -1);
-	QApplication::sendEvent(focusWidget, &endevent);
-	focusWidget = 0;
-	text = QString::null;
-	if ( selectedChars.size() < 128 )
-	    selectedChars.resize( 128 );
-	selectedChars.fill( 0 );
+        QIMEvent endevent(QEvent::IMEnd, QString::null, -1);
+        QApplication::sendEvent(focusWidget, &endevent);
+        focusWidget = 0;
+        text = QString::null;
+        if (selectedChars.size() < 128)
+            selectedChars.resize(128);
+        selectedChars.fill(0);
 
-	char *mb = XmbResetIC((XIC) ic);
-	if (mb)
-	    XFree(mb);
+        char *mb = XmbResetIC((XIC) ic);
+        if (mb)
+            XFree(mb);
     }
 #endif // !QT_NO_XIM
 }
@@ -421,17 +421,17 @@ void QInputContext::setComposePosition(int x, int y)
 {
 #if !defined(QT_NO_XIM)
     if (X11->xim && ic) {
-	XPoint point;
-	point.x = x;
-	point.y = y;
+        XPoint point;
+        point.x = x;
+        point.y = y;
 
-	XVaNestedList preedit_attr =
-	    XVaCreateNestedList(0,
-				XNSpotLocation, &point,
+        XVaNestedList preedit_attr =
+            XVaCreateNestedList(0,
+                                XNSpotLocation, &point,
 
-				(char *) 0);
-	XSetICValues((XIC) ic, XNPreeditAttributes, preedit_attr, (char *) 0);
-	XFree(preedit_attr);
+                                (char *) 0);
+        XSetICValues((XIC) ic, XNPreeditAttributes, preedit_attr, (char *) 0);
+        XFree(preedit_attr);
     }
 #endif // !QT_NO_XIM
 }
@@ -441,38 +441,38 @@ void QInputContext::setComposeArea(int x, int y, int w, int h)
 {
 #if !defined(QT_NO_XIM)
     if (X11->xim && ic) {
-	XRectangle rect;
-	rect.x = x;
-	rect.y = y;
-	rect.width = w;
-	rect.height = h;
+        XRectangle rect;
+        rect.x = x;
+        rect.y = y;
+        rect.width = w;
+        rect.height = h;
 
-	XVaNestedList preedit_attr = XVaCreateNestedList(0,
-							 XNArea, &rect,
+        XVaNestedList preedit_attr = XVaCreateNestedList(0,
+                                                         XNArea, &rect,
 
-							 (char *) 0);
-	XSetICValues((XIC) ic, XNPreeditAttributes, preedit_attr, (char *) 0);
-	XFree(preedit_attr);
+                                                         (char *) 0);
+        XSetICValues((XIC) ic, XNPreeditAttributes, preedit_attr, (char *) 0);
+        XFree(preedit_attr);
     }
 #endif
 }
 
 
 int QInputContext::lookupString(XKeyEvent *event, QByteArray &chars,
-				KeySym *key, Status *status) const
+                                KeySym *key, Status *status) const
 {
     int count = 0;
 
 #if !defined(QT_NO_XIM)
     if (X11->xim && ic) {
-	count = XmbLookupString((XIC) ic, event, chars.data(),
-				chars.size(), key, status);
+        count = XmbLookupString((XIC) ic, event, chars.data(),
+                                chars.size(), key, status);
 
-	if ((*status) == XBufferOverflow ) {
-	    chars.resize(count + 1);
-	    count = XmbLookupString((XIC) ic, event, chars.data(),
-				    chars.size(), key, status);
-	}
+        if ((*status) == XBufferOverflow) {
+            chars.resize(count + 1);
+            count = XmbLookupString((XIC) ic, event, chars.data(),
+                                    chars.size(), key, status);
+        }
     }
 
 #endif // QT_NO_XIM
@@ -484,7 +484,7 @@ void QInputContext::setFocus()
 {
 #if !defined(QT_NO_XIM)
     if (X11->xim && ic)
-	XSetICFocus((XIC) ic);
+        XSetICFocus((XIC) ic);
 #endif // !QT_NO_XIM
 }
 
@@ -502,6 +502,6 @@ void QInputContext::setXFontSet(const QFont &f)
     XSetICValues((XIC) ic, XNPreeditAttributes, preedit_attr, (char *) 0);
     XFree(preedit_attr);
 #else
-    Q_UNUSED( f );
+    Q_UNUSED(f);
 #endif
 }

@@ -26,7 +26,7 @@ class QWSPcMouseHandlerPrivate;
 class QWSPcMouseHandler : public QWSMouseHandler
 {
 public:
-    QWSPcMouseHandler( const QString & = QString::null, const QString & = QString::null );
+    QWSPcMouseHandler(const QString & = QString::null, const QString & = QString::null);
     ~QWSPcMouseHandler();
 
 protected:

@@ -49,7 +49,7 @@ extern bool qws_sw_cursor;
 //#define QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
 
 // Pull this private function in from qglobal.cpp
-extern unsigned int qt_int_sqrt( unsigned int n );
+extern unsigned int qt_int_sqrt(unsigned int n);
 
 // VGA16 code does not compile on sparc
 #if defined(__sparc__) && !defined(QT_NO_QWS_VGA_16)
@@ -70,31 +70,31 @@ extern unsigned int qt_int_sqrt( unsigned int n );
 #define QGfxRaster_Generic 0
 #define QGfxRaster_VGA16   1
 
-#define GFX_8BPP_PIXEL(r,g,b)		gfx_screen->alloc(r,g,b)
-#define GFX_8BPP_PIXEL_CURSOR(r,g,b)	qt_screen->alloc(r,g,b)
+#define GFX_8BPP_PIXEL(r,g,b)                gfx_screen->alloc(r,g,b)
+#define GFX_8BPP_PIXEL_CURSOR(r,g,b)        qt_screen->alloc(r,g,b)
 
 #define MASK4BPP(x) (0xf0 >> (x))
 
-inline void gfxSetRgb24( unsigned char *d, unsigned int p )
+inline void gfxSetRgb24(unsigned char *d, unsigned int p)
 {
     *d = p & 0x0000ff;
-    *(d+1) = (p & 0x00ff00 ) >> 8;
-    *(d+2) = (p & 0xff0000 ) >> 16;
+    *(d+1) = (p & 0x00ff00) >> 8;
+    *(d+2) = (p & 0xff0000) >> 16;
 }
 
-inline void gfxSetRgb24( unsigned char *d, int r, int g, int b )
+inline void gfxSetRgb24(unsigned char *d, int r, int g, int b)
 {
     *d = b;
     *(d+1) = g;
     *(d+2) = r;
 }
 
-inline unsigned int gfxGetRgb24( unsigned char *d )
+inline unsigned int gfxGetRgb24(unsigned char *d)
 {
     return *d | (*(d+1)<<8) | (*(d+2)<<16);
 }
 
-static bool simple_8bpp_alloc=FALSE;
+static bool simple_8bpp_alloc=false;
 
 // Used for synchronisation with accelerated drivers
 static int dummy_optype = 0;
@@ -148,10 +148,10 @@ void QScreenCursor::init(SWCursorData *da, bool init)
 {
     // initialise our gfx
     gfx = (QGfxRasterBase*)qt_screen->screenGfx();
-    gfx->setClipRect( 0, 0, qt_screen->width(), qt_screen->height() );
+    gfx->setClipRect(0, 0, qt_screen->width(), qt_screen->height());
 
     data = da;
-    save_under = FALSE;
+    save_under = false;
     fb_start = qt_screen->base();
     fb_end = fb_start + gfx->pixelHeight() * gfx->linestep();
 
@@ -160,25 +160,25 @@ void QScreenCursor::init(SWCursorData *da, bool init)
         data->y = gfx->pixelHeight()/2;
         data->width = 0;
         data->height = 0;
-	data->enable = TRUE;
-	data->bound = QRect( data->x - data->hotx, data->y - data->hoty,
-		       data->width+1, data->height+1 );
+        data->enable = true;
+        data->bound = QRect(data->x - data->hotx, data->y - data->hoty,
+                       data->width+1, data->height+1);
     }
     clipWidth = qt_screen->deviceWidth();
     clipHeight = qt_screen->deviceHeight();
 
     int d = gfx->bitDepth();
     int cols = gfx->bitDepth() == 1 ? 0 : 256;
-    if ( d == 4 ) {
-	d = 8;
-	cols = 16;
+    if (d == 4) {
+        d = 8;
+        cols = 16;
     }
 
-    imgunder = new QImage( data->under, 64, 64, d, 0,
-		cols, QImage::LittleEndian );
-    if ( d <= 8 ) {
-	for ( int i = 0; i < cols; i++ )
-	    imgunder->setColor( i, qt_screen->clut()[i] );
+    imgunder = new QImage(data->under, 64, 64, d, 0,
+                cols, QImage::LittleEndian);
+    if (d <= 8) {
+        for (int i = 0; i < cols; i++)
+            imgunder->setColor(i, qt_screen->clut()[i]);
     }
     gfxunder = (QGfxRasterBase*)imgunder->graphicsContext();
 }
@@ -212,7 +212,7 @@ bool QScreenCursor::supportsAlphaCursor()
 #ifndef QT_NO_QWS_ALPHA_CURSOR
     return gfx->bitDepth() >= 8;
 #else
-    return FALSE;
+    return false;
 #endif
 }
 
@@ -224,11 +224,11 @@ bool QScreenCursor::supportsAlphaCursor()
 
 void QScreenCursor::hide()
 {
-    if ( data->enable ) {
-	restoreUnder(data->bound);
-	delete gfx;
-	gfx = 0;
-	data->enable = FALSE;
+    if (data->enable) {
+        restoreUnder(data->bound);
+        delete gfx;
+        gfx = 0;
+        data->enable = false;
     }
 }
 
@@ -242,15 +242,15 @@ void QScreenCursor::hide()
 
 void QScreenCursor::show()
 {
-    if ( !data->enable ) {
-	data->enable = TRUE;
-	gfx = (QGfxRasterBase*)qt_screen->screenGfx();
-	gfx->setClipRect( 0, 0, qt_screen->width(), qt_screen->height() );
-	fb_start = qt_screen->base();
-	fb_end = fb_start + qt_screen->deviceHeight() * gfx->linestep();
-	clipWidth = qt_screen->deviceWidth();
-	clipHeight = qt_screen->deviceHeight();
-	saveUnder();
+    if (!data->enable) {
+        data->enable = true;
+        gfx = (QGfxRasterBase*)qt_screen->screenGfx();
+        gfx->setClipRect(0, 0, qt_screen->width(), qt_screen->height());
+        fb_start = qt_screen->base();
+        fb_end = fb_start + qt_screen->deviceHeight() * gfx->linestep();
+        clipWidth = qt_screen->deviceWidth();
+        clipHeight = qt_screen->deviceHeight();
+        saveUnder();
     }
 }
 
@@ -267,30 +267,30 @@ void QScreenCursor::show()
 void QScreenCursor::set(const QImage &image, int hotx, int hoty)
 {
 #if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-    QWSDisplay::grab( TRUE );
+    QWSDisplay::grab(true);
 #endif
     bool save = restoreUnder(data->bound);
     data->hotx = hotx;
     data->hoty = hoty;
     data->width = image.width();
     data->height = image.height();
-    for ( int r = 0; r < image.height(); r++ )
-	memcpy(data->cursor+data->width*r, image.scanLine(r), data->width);
+    for (int r = 0; r < image.height(); r++)
+        memcpy(data->cursor+data->width*r, image.scanLine(r), data->width);
     data->colors = image.numColors();
     int depth = qt_screen->depth();
-    if ( depth <= 8 ) {
-	for (int i = 0; i < image.numColors(); i++) {
-	    int r = qRed( image.colorTable()[i] );
-	    int g = qGreen( image.colorTable()[i] );
-	    int b = qBlue( image.colorTable()[i] );
-	    data->translut[i] = QColor(r, g, b).pixel();
-	}
+    if (depth <= 8) {
+        for (int i = 0; i < image.numColors(); i++) {
+            int r = qRed(image.colorTable()[i]);
+            int g = qGreen(image.colorTable()[i]);
+            int b = qBlue(image.colorTable()[i]);
+            data->translut[i] = QColor(r, g, b).pixel();
+        }
     }
     for (int i = 0; i < image.numColors(); i++) {
-	data->clut[i] = image.colorTable()[i];
+        data->clut[i] = image.colorTable()[i];
     }
-    data->bound = QRect( data->x - data->hotx, data->y - data->hoty,
-		   data->width+1, data->height+1 );
+    data->bound = QRect(data->x - data->hotx, data->y - data->hoty,
+                   data->width+1, data->height+1);
     if (save) saveUnder();
 #if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
     QWSDisplay::ungrab();
@@ -306,24 +306,24 @@ void QScreenCursor::set(const QImage &image, int hotx, int hoty)
   be at x-5,y-5
 */
 
-void QScreenCursor::move( int x, int y )
+void QScreenCursor::move(int x, int y)
 {
-    bool save = FALSE;
-    if ( qws_sw_cursor ) {
+    bool save = false;
+    if (qws_sw_cursor) {
 #if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-	QWSDisplay::grab( TRUE );
+        QWSDisplay::grab(true);
 #endif
-	save = restoreUnder(data->bound);
+        save = restoreUnder(data->bound);
     }
     data->x = x;
     data->y = y;
-    data->bound = QRect( data->x - data->hotx, data->y - data->hoty,
-			data->width+1, data->height+1 );
-    if ( qws_sw_cursor ) {
-	if ( save )
-	    saveUnder();
+    data->bound = QRect(data->x - data->hotx, data->y - data->hoty,
+                        data->width+1, data->height+1);
+    if (qws_sw_cursor) {
+        if (save)
+            saveUnder();
 #if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-	QWSDisplay::ungrab();
+        QWSDisplay::ungrab();
 #endif
     }
 }
@@ -338,78 +338,78 @@ void QScreenCursor::move( int x, int y )
   used to redraw that rectangle.
 */
 
-bool QScreenCursor::restoreUnder( const QRect &r, QGfxRasterBase *g )
+bool QScreenCursor::restoreUnder(const QRect &r, QGfxRasterBase *g)
 {
-    if ( !qws_sw_cursor )
-	return FALSE;
+    if (!qws_sw_cursor)
+        return false;
 
     int depth = qt_screen->depth();
 
     if (!data || !data->enable) {
-	return FALSE;
+        return false;
     }
 
     if (!r.intersects(data->bound)) {
-	return FALSE;
+        return false;
     }
 
-    if ( g && !g->is_screen_gfx ) {
-	return FALSE;
+    if (g && !g->is_screen_gfx) {
+        return false;
     }
 
     if (!save_under) {
 #if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-	QWSDisplay::grab( TRUE );
+        QWSDisplay::grab(true);
 #endif
 
-	int x = data->x - data->hotx;
-	int y = data->y - data->hoty;
+        int x = data->x - data->hotx;
+        int y = data->y - data->hoty;
 
-	if ( depth < 8 ) {
-	    if ( data->width && data->height ) {
-		gfx->gfx_swcursor = FALSE;   // prevent recursive call from blt
-		QSize s( qt_screen->deviceWidth(), qt_screen->deviceHeight() );
-		QRect r( x,y,data->width,data->height );
-		r = qt_screen->mapFromDevice( r, s );
-		gfx->setSource( imgunder );
-		gfx->setAlphaType(QGfx::IgnoreAlpha);
-		gfx->blt(r.x(), r.y(), r.width(), r.height(),0,0);
-		gfx->gfx_swcursor = TRUE;
-	    }
-	} else {
-	    // This is faster than the above - at least until blt is
-	    // better optimized.
-	    int linestep = gfx->linestep();
-	    int startCol = x < 0 ? QABS(x) : 0;
-	    int startRow = y < 0 ? QABS(y) : 0;
-	    int endRow = y + data->height > clipHeight ? clipHeight - y : data->height;
-	    int endCol = x + data->width > clipWidth ? clipWidth - x : data->width;
+        if (depth < 8) {
+            if (data->width && data->height) {
+                gfx->gfx_swcursor = false;   // prevent recursive call from blt
+                QSize s(qt_screen->deviceWidth(), qt_screen->deviceHeight());
+                QRect r(x,y,data->width,data->height);
+                r = qt_screen->mapFromDevice(r, s);
+                gfx->setSource(imgunder);
+                gfx->setAlphaType(QGfx::IgnoreAlpha);
+                gfx->blt(r.x(), r.y(), r.width(), r.height(),0,0);
+                gfx->gfx_swcursor = true;
+            }
+        } else {
+            // This is faster than the above - at least until blt is
+            // better optimized.
+            int linestep = gfx->linestep();
+            int startCol = x < 0 ? QABS(x) : 0;
+            int startRow = y < 0 ? QABS(y) : 0;
+            int endRow = y + data->height > clipHeight ? clipHeight - y : data->height;
+            int endCol = x + data->width > clipWidth ? clipWidth - x : data->width;
 
-	    int srcLineStep = data->width * depth/8;
-	    unsigned char *dest = fb_start + (y + startRow) * linestep
-				    + (x + startCol) * depth/8;
-	    unsigned char *src = data->under;
+            int srcLineStep = data->width * depth/8;
+            unsigned char *dest = fb_start + (y + startRow) * linestep
+                                    + (x + startCol) * depth/8;
+            unsigned char *src = data->under;
 
-	    if ( endCol > startCol ) {
-		int bytes;
-		if ( depth < 8 )
-		    bytes = (x + endCol - 1)*depth/8 - (x + startCol)*depth/8 + 1;
-		else
-		    bytes = (endCol - startCol) * depth / 8;
-		if ( depth == 1 ) bytes++;
-		for (int row = startRow; row < endRow; row++)
-		{
-		    memcpy(dest, src, bytes);
-		    src += srcLineStep;
-		    dest += linestep;
-		}
-	    }
-	}
-	save_under = TRUE;
-	return TRUE;
+            if (endCol > startCol) {
+                int bytes;
+                if (depth < 8)
+                    bytes = (x + endCol - 1)*depth/8 - (x + startCol)*depth/8 + 1;
+                else
+                    bytes = (endCol - startCol) * depth / 8;
+                if (depth == 1) bytes++;
+                for (int row = startRow; row < endRow; row++)
+                {
+                    memcpy(dest, src, bytes);
+                    src += srcLineStep;
+                    dest += linestep;
+                }
+            }
+        }
+        save_under = true;
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 /*!
@@ -421,63 +421,63 @@ bool QScreenCursor::restoreUnder( const QRect &r, QGfxRasterBase *g )
 
 void QScreenCursor::saveUnder()
 {
-    if ( !qws_sw_cursor )
-	return;
+    if (!qws_sw_cursor)
+        return;
 
     int depth = qt_screen->depth();
     int x = data->x - data->hotx;
     int y = data->y - data->hoty;
 
-    if ( depth < 8 ) {
-        gfxunder->gfx_swcursor = FALSE;   // prevent recursive call from blt
-	gfxunder->setAlphaType(QGfx::IgnoreAlpha);
-	gfxunder->srclinestep = gfx->linestep();
-	gfxunder->srcdepth = gfx->bitDepth();
-	gfxunder->srcbits = gfx->buffer;
-	gfxunder->srctype = QGfx::SourceImage;
-	gfxunder->srcpixeltype = QGfx::NormalPixel;
-	gfxunder->srcwidth = qt_screen->width();
-	gfxunder->srcheight = qt_screen->height();
-	gfxunder->setSourceWidgetOffset( 0, 0 );
-	gfxunder->src_normal_palette = TRUE;
-	QSize s( qt_screen->deviceWidth(), qt_screen->deviceHeight() );
-	QRect r( x, y, data->width, data->height );
-	r = qt_screen->mapFromDevice( r, s );
-	gfxunder->blt(0,0,data->width,data->height,r.x(), r.y());
-	gfxunder->gfx_swcursor = TRUE;
+    if (depth < 8) {
+        gfxunder->gfx_swcursor = false;   // prevent recursive call from blt
+        gfxunder->setAlphaType(QGfx::IgnoreAlpha);
+        gfxunder->srclinestep = gfx->linestep();
+        gfxunder->srcdepth = gfx->bitDepth();
+        gfxunder->srcbits = gfx->buffer;
+        gfxunder->srctype = QGfx::SourceImage;
+        gfxunder->srcpixeltype = QGfx::NormalPixel;
+        gfxunder->srcwidth = qt_screen->width();
+        gfxunder->srcheight = qt_screen->height();
+        gfxunder->setSourceWidgetOffset(0, 0);
+        gfxunder->src_normal_palette = true;
+        QSize s(qt_screen->deviceWidth(), qt_screen->deviceHeight());
+        QRect r(x, y, data->width, data->height);
+        r = qt_screen->mapFromDevice(r, s);
+        gfxunder->blt(0,0,data->width,data->height,r.x(), r.y());
+        gfxunder->gfx_swcursor = true;
     } else {
-	// This is faster than the above - at least until blt is
-	// better optimized.
-	int linestep = gfx->linestep();
-	int startRow = y < 0 ? QABS(y) : 0;
-	int startCol = x < 0 ? QABS(x) : 0;
-	int endRow = y + data->height > clipHeight ? clipHeight - y : data->height;
-	int endCol = x + data->width > clipWidth ? clipWidth - x : data->width;
+        // This is faster than the above - at least until blt is
+        // better optimized.
+        int linestep = gfx->linestep();
+        int startRow = y < 0 ? QABS(y) : 0;
+        int startCol = x < 0 ? QABS(x) : 0;
+        int endRow = y + data->height > clipHeight ? clipHeight - y : data->height;
+        int endCol = x + data->width > clipWidth ? clipWidth - x : data->width;
 
-	int destLineStep = data->width * depth / 8;
+        int destLineStep = data->width * depth / 8;
 
-	unsigned char *src = fb_start + (y + startRow) * linestep
-				+ (x + startCol) * depth/8;
-	unsigned char *dest = data->under;
+        unsigned char *src = fb_start + (y + startRow) * linestep
+                                + (x + startCol) * depth/8;
+        unsigned char *dest = data->under;
 
-	if ( endCol > startCol ) {
-	    int bytes;
-	    if ( depth < 8 )
-		bytes = (x + endCol - 1)*depth/8 - (x + startCol)*depth/8 + 1;
-	    else
-		bytes = (endCol - startCol) * depth / 8;
-	    for (int row = startRow; row < endRow; row++)
-	    {
-		memcpy(dest, src, bytes);
-		src += linestep;
-		dest += destLineStep;
-	    }
-	}
+        if (endCol > startCol) {
+            int bytes;
+            if (depth < 8)
+                bytes = (x + endCol - 1)*depth/8 - (x + startCol)*depth/8 + 1;
+            else
+                bytes = (endCol - startCol) * depth / 8;
+            for (int row = startRow; row < endRow; row++)
+            {
+                memcpy(dest, src, bytes);
+                src += linestep;
+                dest += destLineStep;
+            }
+        }
     }
 
     drawCursor();
 
-    save_under = FALSE;
+    save_under = false;
 
 #if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
     QWSDisplay::ungrab();
@@ -503,17 +503,17 @@ void QScreenCursor::drawCursor()
     int y = data->y - data->hoty;
 
     /* ### experimental
-    if ( data->width != cursor->width() || data->height != cursor->height() ) {
-	delete cursor;
-	cursor = new QImage( data->cursor, data->width, data->height, 8,
-			 data->clut, data->colors, QImage::IgnoreEndian );
+    if (data->width != cursor->width() || data->height != cursor->height()) {
+        delete cursor;
+        cursor = new QImage(data->cursor, data->width, data->height, 8,
+                         data->clut, data->colors, QImage::IgnoreEndian);
     }
-    if ( data->width && data->height ) {
-	qt_sw_cursor = FALSE;   // prevent recursive call from blt
-	gfx->setSource( cursor );
-	gfx->setAlphaType(QGfx::InlineAlpha);
-	gfx->blt(x,y,data->width,data->height,0,0);
-	qt_sw_cursor = TRUE;
+    if (data->width && data->height) {
+        qt_sw_cursor = false;   // prevent recursive call from blt
+        gfx->setSource(cursor);
+        gfx->setAlphaType(QGfx::InlineAlpha);
+        gfx->blt(x,y,data->width,data->height,0,0);
+        qt_sw_cursor = true;
     }
 
     return;
@@ -529,7 +529,7 @@ void QScreenCursor::drawCursor()
     int endCol = x + data->width > clipWidth ? clipWidth - x : data->width;
 
     unsigned char *dest = fb_start + (y + startRow) * linestep
-			    + x * depth/8;
+                            + x * depth/8;
     unsigned char *srcptr = data->cursor + startRow * data->width;
 
     QRgb *clut = data->clut;
@@ -537,232 +537,232 @@ void QScreenCursor::drawCursor()
 #ifndef QT_NO_QWS_DEPTH_32
     if (depth == 32)
     {
-	unsigned int *dptr = (unsigned int *)dest;
-	unsigned int srcval;
-	int av,r,g,b;
-	for (int row = startRow; row < endRow; row++)
-	{
-	    for (int col = startCol; col < endCol; col++)
-	    {
-		srcval = clut[*(srcptr+col)];
-		av = srcval >> 24;
-		if (av == 0xff) {
-		    *(dptr+col) = srcval;
-		}
+        unsigned int *dptr = (unsigned int *)dest;
+        unsigned int srcval;
+        int av,r,g,b;
+        for (int row = startRow; row < endRow; row++)
+        {
+            for (int col = startCol; col < endCol; col++)
+            {
+                srcval = clut[*(srcptr+col)];
+                av = srcval >> 24;
+                if (av == 0xff) {
+                    *(dptr+col) = srcval;
+                }
 # ifndef QT_NO_QWS_ALPHA_CURSOR
-		else if (av != 0) {
-		    r = (srcval & 0xff0000) >> 16;
-		    g = (srcval & 0xff00) >> 8;
-		    b = srcval & 0xff;
-		    unsigned int hold = *(dptr+col);
-		    int sr=(hold & 0xff0000) >> 16;
-		    int sg=(hold & 0xff00) >> 8;
-		    int sb=(hold & 0xff);
+                else if (av != 0) {
+                    r = (srcval & 0xff0000) >> 16;
+                    g = (srcval & 0xff00) >> 8;
+                    b = srcval & 0xff;
+                    unsigned int hold = *(dptr+col);
+                    int sr=(hold & 0xff0000) >> 16;
+                    int sg=(hold & 0xff00) >> 8;
+                    int sb=(hold & 0xff);
 
-		    r = ((r-sr) * av) / 256 + sr;
-		    g = ((g-sg) * av) / 256 + sg;
-		    b = ((b-sb) * av) / 256 + sb;
+                    r = ((r-sr) * av) / 256 + sr;
+                    g = ((g-sg) * av) / 256 + sg;
+                    b = ((b-sb) * av) / 256 + sb;
 
-		    *(dptr+col) = (r << 16) | (g << 8) | b;
-		}
+                    *(dptr+col) = (r << 16) | (g << 8) | b;
+                }
 # endif
-	    }
-	    srcptr += data->width;
-	    dptr += linestep/4;
-	}
-	return;
+            }
+            srcptr += data->width;
+            dptr += linestep/4;
+        }
+        return;
     }
 #endif
 #ifndef QT_NO_QWS_DEPTH_24
     if (depth == 24)
     {
-	unsigned int srcval;
-	int av,r,g,b;
-	for (int row = startRow; row < endRow; row++)
-	{
-	    unsigned char *dptr = dest + (row-startRow) * linestep + startCol * 3;
-	    for (int col = startCol; col < endCol; col++, dptr += 3)
-	    {
-		srcval = clut[*(srcptr+col)];
-		av = srcval >> 24;
-		if (av == 0xff) {
-		    gfxSetRgb24( dptr, srcval );
-		}
+        unsigned int srcval;
+        int av,r,g,b;
+        for (int row = startRow; row < endRow; row++)
+        {
+            unsigned char *dptr = dest + (row-startRow) * linestep + startCol * 3;
+            for (int col = startCol; col < endCol; col++, dptr += 3)
+            {
+                srcval = clut[*(srcptr+col)];
+                av = srcval >> 24;
+                if (av == 0xff) {
+                    gfxSetRgb24(dptr, srcval);
+                }
 # ifndef QT_NO_QWS_ALPHA_CURSOR
-		else if (av != 0) {
-		    r = (srcval & 0xff0000) >> 16;
-		    g = (srcval & 0xff00) >> 8;
-		    b = srcval & 0xff;
-		    unsigned int hold = gfxGetRgb24( dptr );
-		    int sr=(hold & 0xff0000) >> 16;
-		    int sg=(hold & 0xff00) >> 8;
-		    int sb=(hold & 0xff);
+                else if (av != 0) {
+                    r = (srcval & 0xff0000) >> 16;
+                    g = (srcval & 0xff00) >> 8;
+                    b = srcval & 0xff;
+                    unsigned int hold = gfxGetRgb24(dptr);
+                    int sr=(hold & 0xff0000) >> 16;
+                    int sg=(hold & 0xff00) >> 8;
+                    int sb=(hold & 0xff);
 
-		    r = ((r-sr) * av) / 256 + sr;
-		    g = ((g-sg) * av) / 256 + sg;
-		    b = ((b-sb) * av) / 256 + sb;
+                    r = ((r-sr) * av) / 256 + sr;
+                    g = ((g-sg) * av) / 256 + sg;
+                    b = ((b-sb) * av) / 256 + sb;
 
-		    gfxSetRgb24( dptr, r, g, b );
-		}
+                    gfxSetRgb24(dptr, r, g, b);
+                }
 # endif
-	    }
-	    srcptr += data->width;
-	}
-	return;
+            }
+            srcptr += data->width;
+        }
+        return;
     }
 #endif
 #ifndef QT_NO_QWS_DEPTH_16
     if (depth == 16)
     {
-	unsigned short *dptr = (unsigned short *)dest;
-	unsigned int srcval;
-	int av,r,g,b;
-	for (int row = startRow; row < endRow; row++)
-	{
-	    for (int col = startCol; col < endCol; col++)
-	    {
-		srcval = clut[*(srcptr+col)];
-		av = srcval >> 24;
-		if (av == 0xff) {
-		    *(dptr+col) = qt_convRgbTo16(srcval);
-		}
+        unsigned short *dptr = (unsigned short *)dest;
+        unsigned int srcval;
+        int av,r,g,b;
+        for (int row = startRow; row < endRow; row++)
+        {
+            for (int col = startCol; col < endCol; col++)
+            {
+                srcval = clut[*(srcptr+col)];
+                av = srcval >> 24;
+                if (av == 0xff) {
+                    *(dptr+col) = qt_convRgbTo16(srcval);
+                }
 # ifndef QT_NO_QWS_ALPHA_CURSOR
-		else if (av != 0) {
-		    // This is absolutely silly - but we can so we do.
-		    r = (srcval & 0xff0000) >> 16;
-		    g = (srcval & 0xff00) >> 8;
-		    b = srcval & 0xff;
+                else if (av != 0) {
+                    // This is absolutely silly - but we can so we do.
+                    r = (srcval & 0xff0000) >> 16;
+                    g = (srcval & 0xff00) >> 8;
+                    b = srcval & 0xff;
 
-		    int sr;
-		    int sg;
-		    int sb;
-		    qt_conv16ToRgb(*(dptr+col),sr,sg,sb);
+                    int sr;
+                    int sg;
+                    int sb;
+                    qt_conv16ToRgb(*(dptr+col),sr,sg,sb);
 
-		    r = ((r-sr) * av) / 256 + sr;
-		    g = ((g-sg) * av) / 256 + sg;
-		    b = ((b-sb) * av) / 256 + sb;
+                    r = ((r-sr) * av) / 256 + sr;
+                    g = ((g-sg) * av) / 256 + sg;
+                    b = ((b-sb) * av) / 256 + sb;
 
-		    *(dptr+col) = qt_convRgbTo16(r,g,b);
-		}
+                    *(dptr+col) = qt_convRgbTo16(r,g,b);
+                }
 # endif
-	    }
-	    srcptr += data->width;
-	    dptr += linestep/2;
-	}
-	return;
+            }
+            srcptr += data->width;
+            dptr += linestep/2;
+        }
+        return;
     }
 #endif
 #if !defined(QT_NO_QWS_DEPTH_8)
     if (depth == 8) {
-	unsigned char *dptr = (unsigned char *)dest;
+        unsigned char *dptr = (unsigned char *)dest;
         unsigned int srcval;
-	int av,r,g,b;
-	QRgb * screenclut=qt_screen->clut();
-	simple_8bpp_alloc=TRUE;
-	for (int row = startRow; row < endRow; row++)
-	{
-	    for (int col = startCol; col < endCol; col++)
-	    {
-		srcval = clut[*(srcptr+col)];
-		av = srcval >> 24;
-		if (av == 0xff) {
-		    *(dptr+col) = data->translut[*(srcptr+col)];
-		}
+        int av,r,g,b;
+        QRgb * screenclut=qt_screen->clut();
+        simple_8bpp_alloc=true;
+        for (int row = startRow; row < endRow; row++)
+        {
+            for (int col = startCol; col < endCol; col++)
+            {
+                srcval = clut[*(srcptr+col)];
+                av = srcval >> 24;
+                if (av == 0xff) {
+                    *(dptr+col) = data->translut[*(srcptr+col)];
+                }
 # ifndef QT_NO_QWS_ALPHA_CURSOR
-		else if (av != 0) {
-		    // This is absolutely silly - but we can so we do.
-		    r = (srcval & 0xff0000) >> 16;
-		    g = (srcval & 0xff00) >> 8;
-		    b = srcval & 0xff;
+                else if (av != 0) {
+                    // This is absolutely silly - but we can so we do.
+                    r = (srcval & 0xff0000) >> 16;
+                    g = (srcval & 0xff00) >> 8;
+                    b = srcval & 0xff;
 
-		    unsigned char hold = *(dptr+col);
-		    int sr,sg,sb;
-		    sr=qRed(screenclut[hold]);
-		    sg=qGreen(screenclut[hold]);
-		    sb=qBlue(screenclut[hold]);
+                    unsigned char hold = *(dptr+col);
+                    int sr,sg,sb;
+                    sr=qRed(screenclut[hold]);
+                    sg=qGreen(screenclut[hold]);
+                    sb=qBlue(screenclut[hold]);
 
-		    r = ((r-sr) * av) / 256 + sr;
-		    g = ((g-sg) * av) / 256 + sg;
-		    b = ((b-sb) * av) / 256 + sb;
+                    r = ((r-sr) * av) / 256 + sr;
+                    g = ((g-sg) * av) / 256 + sg;
+                    b = ((b-sb) * av) / 256 + sb;
 
-		    *(dptr+col) = GFX_8BPP_PIXEL_CURSOR(r,g,b);
-		}
+                    *(dptr+col) = GFX_8BPP_PIXEL_CURSOR(r,g,b);
+                }
 # endif
-	    }
-	    srcptr += data->width;
-	    dptr += linestep;
-	}
-	simple_8bpp_alloc=FALSE;
+            }
+            srcptr += data->width;
+            dptr += linestep;
+        }
+        simple_8bpp_alloc=false;
     }
 #endif
 #ifndef QT_NO_QWS_DEPTH_4
-    if ( depth == 4 ) {
+    if (depth == 4) {
         unsigned int srcval;
-	int av;
-	for (int row = startRow; row < endRow; row++)
-	{
-	    unsigned char *dp = fb_start + (y + row) * linestep;
-	    for (int col = startCol; col < endCol; col++)
-	    {
-		srcval = clut[*(srcptr+col)];
-		av = srcval >> 24;
-		if (av == 0xff) {
-		    int tx = x + col;
-		    unsigned char *dptr = dp + (tx>>1);
-		    int val = data->translut[*(srcptr+col)];
+        int av;
+        for (int row = startRow; row < endRow; row++)
+        {
+            unsigned char *dp = fb_start + (y + row) * linestep;
+            for (int col = startCol; col < endCol; col++)
+            {
+                srcval = clut[*(srcptr+col)];
+                av = srcval >> 24;
+                if (av == 0xff) {
+                    int tx = x + col;
+                    unsigned char *dptr = dp + (tx>>1);
+                    int val = data->translut[*(srcptr+col)];
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-		    int s = (~tx & 1) << 2;
+                    int s = (~tx & 1) << 2;
 #else
-		    int s = (tx & 1) << 2;
+                    int s = (tx & 1) << 2;
 #endif
-		    *dptr = ( *dptr & MASK4BPP(s) ) | (val << s);
-		}
-	    }
-	    srcptr += data->width;
-	}
+                    *dptr = (*dptr & MASK4BPP(s)) | (val << s);
+                }
+            }
+            srcptr += data->width;
+        }
     }
 #endif
 #ifndef QT_NO_QWS_DEPTH_1
-    if ( depth == 1 ) {
+    if (depth == 1) {
         unsigned int srcval;
-	int av;
-	for (int row = startRow; row < endRow; row++)
-	{
-	    unsigned char *dp = fb_start + (y + row) * linestep;
-	    int x1 = x+startCol;
-	    int x2 = x+endCol-1;
-	    dp += x1/8;
-	    int skipbits = x1%8;
-	    int col = startCol;
-	    for ( int b = x1/8; b <= x2/8; b++ ) {
-		unsigned char m = *dp;
-		for (int i = 0; i < 8 && col < endCol; i++) {
-		    if (skipbits)
-			skipbits--;
-		    else {
-			srcval = clut[*(srcptr+col)];
-			av = srcval >> 24;
-			if (av == 0xff) {
-			    unsigned char val = data->translut[*(srcptr+col)];
+        int av;
+        for (int row = startRow; row < endRow; row++)
+        {
+            unsigned char *dp = fb_start + (y + row) * linestep;
+            int x1 = x+startCol;
+            int x2 = x+endCol-1;
+            dp += x1/8;
+            int skipbits = x1%8;
+            int col = startCol;
+            for (int b = x1/8; b <= x2/8; b++) {
+                unsigned char m = *dp;
+                for (int i = 0; i < 8 && col < endCol; i++) {
+                    if (skipbits)
+                        skipbits--;
+                    else {
+                        srcval = clut[*(srcptr+col)];
+                        av = srcval >> 24;
+                        if (av == 0xff) {
+                            unsigned char val = data->translut[*(srcptr+col)];
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-			    if (val)
-				m |= 0x80 >> i;
-			    else
-				m &= ~( 0x80 >> i );
+                            if (val)
+                                m |= 0x80 >> i;
+                            else
+                                m &= ~(0x80 >> i);
 #else
-			    if (val)
-				m |= 1 << i;
-			    else
-				m &= ~( 1 << i );
+                            if (val)
+                                m |= 1 << i;
+                            else
+                                m &= ~(1 << i);
 #endif
-			}
-			col++;
-		    }
-		}
-		*(dp++) = m;
-	    }
-	    srcptr += data->width;
-	}
+                        }
+                        col++;
+                    }
+                }
+                *(dp++) = m;
+            }
+            srcptr += data->width;
+        }
     }
 #endif
 }
@@ -776,15 +776,15 @@ void QScreenCursor::drawCursor()
 #ifdef GFX_CORRECT_POLYLINE_JOIN
 static QPoint *gfx_storedLineRd = 0;
 static QPoint *gfx_storedLineWr = 0;
-static bool gfx_storeLine = FALSE;
+static bool gfx_storeLine = false;
 static int gfx_storedLineRead = 0;
 static int gfx_storedLineWrite = 0;
 static int gfx_storedLineDir = 1;
-static bool gfx_noLineOverwrite = FALSE;
+static bool gfx_noLineOverwrite = false;
 static int gfx_storedLineBufferSize = 0;
-static bool gfx_doDraw = TRUE;
+static bool gfx_doDraw = true;
 #else
-static const bool gfx_storeLine = FALSE;
+static const bool gfx_storeLine = false;
 #endif
 
 /*!
@@ -819,7 +819,7 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
 {
     // Buffers should always be aligned
     if(((unsigned long)b) & 0x3) {
-	qDebug("QGfx buffer unaligned: %lx",(unsigned long)b);
+        qDebug("QGfx buffer unaligned: %lx",(unsigned long)b);
     }
 
 #ifdef QT_PAINTER_LOCKING
@@ -839,47 +839,47 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
     yoffs=0;
 
     srctype=SourcePen;
-    dashedLines = FALSE;
+    dashedLines = false;
     dashes = 0;
     numDashes = 0;
 
-    patternedbrush=FALSE;
+    patternedbrush=false;
     srccol=cbrush.color().pixel();
     cbrushpixmap=0;
 
-    regionClip=FALSE;
+    regionClip=false;
     QRect wr(0,0,w,h);
-    wr = qt_screen->mapToDevice( wr, QSize( w, h) );
+    wr = qt_screen->mapToDevice(wr, QSize(w, h));
     widgetrgn = wr;
     cliprect = new QRect[1];
     cliprect[0] = wr;
     ncliprect = 1;
     clipbounds = wr;
     clipcursor = 0;
-    clipDirty = FALSE;
+    clipDirty = false;
 
     penx=0;
     peny=0;
     alphatype=IgnoreAlpha;
     alphabuf = 0;
-    ismasking=FALSE;
+    ismasking=false;
     srclinestep=0;
     srcbits=0;
     lstep=0;
     calpha=255;
-    opaque=FALSE;
+    opaque=false;
     globalRegionRevision = 0;
-    src_normal_palette=FALSE;
+    src_normal_palette=false;
     clutcols = 0;
     gfx_lastop=lastop;
     gfx_optype=optype;
     myrop=CopyROP;
     stitchedges=QPolygonScanner::Edge(QPolygonScanner::Left+QPolygonScanner::Top);
 
-    src_little_endian=TRUE;
+    src_little_endian=true;
 #if !defined(QT_NO_QWS_DEPTH_8)
     // default color map
-    setClut( gfx_screen->clut(), gfx_screen->numCols() );
+    setClut(gfx_screen->clut(), gfx_screen->numCols());
 #endif
 }
 
@@ -936,7 +936,7 @@ void QGfxRasterBase::sync()
   what line color and style to use, i.e. to use pen \a p.
 */
 
-void QGfxRasterBase::setPen( const QPen & p )
+void QGfxRasterBase::setPen(const QPen & p)
 {
     static char dash_line[]         = { 7, 3 };
     static char dot_line[]          = { 1, 3 };
@@ -946,23 +946,23 @@ void QGfxRasterBase::setPen( const QPen & p )
     cpen=p;
     switch (cpen.style()) {
         case DashLine:
-            setDashes( dash_line, sizeof(dash_line) );
-	    setDashedLines(TRUE);
+            setDashes(dash_line, sizeof(dash_line));
+            setDashedLines(true);
             break;
         case DotLine:
-            setDashes( dot_line, sizeof(dot_line) );
-	    setDashedLines(TRUE);
+            setDashes(dot_line, sizeof(dot_line));
+            setDashedLines(true);
             break;
         case DashDotLine:
-            setDashes( dash_dot_line, sizeof(dash_dot_line) );
-	    setDashedLines(TRUE);
+            setDashes(dash_dot_line, sizeof(dash_dot_line));
+            setDashedLines(true);
             break;
         case DashDotDotLine:
-            setDashes( dash_dot_dot_line, sizeof(dash_dot_dot_line) );
-	    setDashedLines(TRUE);
+            setDashes(dash_dot_dot_line, sizeof(dash_dot_dot_line));
+            setDashedLines(true);
             break;
         default:
-	    setDashedLines(FALSE);
+            setDashedLines(false);
             break;
     }
 }
@@ -975,7 +975,7 @@ void QGfxRasterBase::setPen( const QPen & p )
   \a h.
 */
 
-void QGfxRasterBase::setClipRect( int x,int y,int w,int h )
+void QGfxRasterBase::setClipRect(int x,int y,int w,int h)
 {
     setClipRegion(QRegion(x,y,w,h));
 }
@@ -995,29 +995,29 @@ void QGfxRasterBase::setClipRect( int x,int y,int w,int h )
   widget clip region to provide the actual clipping region.
 */
 
-void QGfxRasterBase::setClipRegion( const QRegion & r )
+void QGfxRasterBase::setClipRegion(const QRegion & r)
 {
-    regionClip=TRUE;
+    regionClip=true;
     cliprgn=r;
     cliprgn.translate(xoffs,yoffs);
-    cliprgn = qt_screen->mapToDevice( cliprgn, QSize( width, height ) );
+    cliprgn = qt_screen->mapToDevice(cliprgn, QSize(width, height));
     update_clip();
 
 #ifdef QWS_EXTRA_DEBUG
-    qDebug( "QGfxRasterBase::setClipRegion" );
+    qDebug("QGfxRasterBase::setClipRegion");
     for (int i=0; i< ncliprect; i++) {
-	QRect r = cliprect[i];
-	qDebug( "   cliprect[%d] %d,%d %dx%d", i, r.x(), r.y(),
-		r.width(), r.height() );
+        QRect r = cliprect[i];
+        qDebug("   cliprect[%d] %d,%d %dx%d", i, r.x(), r.y(),
+                r.width(), r.height());
     }
 #endif
 
 
 }
 
-void QGfxRasterBase::setClipDeviceRegion( const QRegion & r )
+void QGfxRasterBase::setClipDeviceRegion(const QRegion & r)
 {
-    regionClip=TRUE;
+    regionClip=true;
     cliprgn=r;
     update_clip();
 }
@@ -1025,7 +1025,7 @@ void QGfxRasterBase::setClipDeviceRegion( const QRegion & r )
 /*!
   \internal
 
-  If \a b is TRUE then clipping is switched enabled; otherwise clipping
+  If \a b is true then clipping is switched enabled; otherwise clipping
   is disabled.
 
   If clipping is not enabled then drawing will access the whole buffer.
@@ -1037,10 +1037,10 @@ void QGfxRasterBase::setClipDeviceRegion( const QRegion & r )
 void QGfxRasterBase::setClipping(bool b)
 {
     if(regionClip!=b) {
-	regionClip=b;
-	update_clip();
-    } else if ( clipDirty ) {
-	update_clip();
+        regionClip=b;
+        update_clip();
+    } else if (clipDirty) {
+        update_clip();
     }
 }
 
@@ -1054,7 +1054,7 @@ void QGfxRasterBase::setClipping(bool b)
   within the buffer.
 */
 
-void QGfxRasterBase::setOffset( int x, int y )
+void QGfxRasterBase::setOffset(int x, int y)
 {
     xoffs=x;
     yoffs=y;
@@ -1068,7 +1068,7 @@ void QGfxRasterBase::setOffset( int x, int y )
   defined by position \a(x, y), width \a w and height \a h.
 */
 
-void QGfxRasterBase::setWidgetRect( int x,int y, int w, int h )
+void QGfxRasterBase::setWidgetRect(int x,int y, int w, int h)
 {
     setWidgetRegion(QRegion(x,y,w,h));
 }
@@ -1082,31 +1082,31 @@ void QGfxRasterBase::setWidgetRect( int x,int y, int w, int h )
   and the area not obscured by windows on top of it.
 */
 
-void QGfxRasterBase::setWidgetRegion( const QRegion & r )
+void QGfxRasterBase::setWidgetRegion(const QRegion & r)
 {
-    widgetrgn = qt_screen->mapToDevice( r, QSize( width, height ) );
-    clipDirty = TRUE;
+    widgetrgn = qt_screen->mapToDevice(r, QSize(width, height));
+    clipDirty = true;
     hsync(r.boundingRect().bottom());
 }
 
-void QGfxRasterBase::setWidgetDeviceRegion( const QRegion & r )
+void QGfxRasterBase::setWidgetDeviceRegion(const QRegion & r)
 {
     widgetrgn = r;
-    clipDirty = TRUE;
+    clipDirty = true;
     hsync(r.boundingRect().bottom());
 }
 
-void QGfxRasterBase::setGlobalRegionIndex( int idx )
+void QGfxRasterBase::setGlobalRegionIndex(int idx)
 {
     globalRegionIndex = idx;
-    globalRegionRevision = qt_fbdpy->regionManager()->revision( idx );
+    globalRegionRevision = qt_fbdpy->regionManager()->revision(idx);
     currentRegionRevision = *globalRegionRevision;
 }
 
 /*!
   \internal
 
-  If \a d is TRUE then the gfx should draw dashed lines; otherwise it
+  If \a d is true then the gfx should draw dashed lines; otherwise it
   should draw solid lines. It's called by setPen so there is no need
   to call it directly.
 */
@@ -1137,7 +1137,7 @@ void QGfxRasterBase::setDashes(char *dashList, int n)
 void QGfxRasterBase::fixClip()
 {
     currentRegionRevision = *globalRegionRevision;
-    QRegion rgn = qt_fbdpy->regionManager()->region( globalRegionIndex );
+    QRegion rgn = qt_fbdpy->regionManager()->region(globalRegionIndex);
     widgetrgn &= rgn;
     update_clip();
 }
@@ -1162,63 +1162,63 @@ void QGfxRasterBase::update_clip()
     _XRegion* wr = (_XRegion*) widgetrgn.handle();
     _XRegion* cr = (_XRegion*) cliprgn.handle();
 
-    if ( wr->numRects==0) {
-	// Widget not visible
-	ncliprect = 0;
-	delete [] cliprect;
-	cliprect = 0;
-	clipbounds = QRect();
-    } else if ( wr->numRects==1 && (!regionClip || cr->numRects==1) ) {
-	// fastpath: just simple rectangles (90% of cases)
-	QRect setrgn;
+    if (wr->numRects==0) {
+        // Widget not visible
+        ncliprect = 0;
+        delete [] cliprect;
+        cliprect = 0;
+        clipbounds = QRect();
+    } else if (wr->numRects==1 && (!regionClip || cr->numRects==1)) {
+        // fastpath: just simple rectangles (90% of cases)
+        QRect setrgn;
 
-	if(regionClip) {
-	    setrgn=wr->rects[0].intersect(cr->rects[0]);
-	} else {
-	    setrgn=wr->rects[0];
-	}
+        if(regionClip) {
+            setrgn=wr->rects[0].intersect(cr->rects[0]);
+        } else {
+            setrgn=wr->rects[0];
+        }
 
-	if ( setrgn.isEmpty() ) {
-	    ncliprect = 0;
-	    clipbounds = QRect();
-	} else {
-	    // cache bounding rect
-	    QRect sr( QPoint(0,0), qt_screen->mapToDevice( QSize(width, height) ) );
-	    clipbounds = sr.intersect(setrgn);
+        if (setrgn.isEmpty()) {
+            ncliprect = 0;
+            clipbounds = QRect();
+        } else {
+            // cache bounding rect
+            QRect sr(QPoint(0,0), qt_screen->mapToDevice(QSize(width, height)));
+            clipbounds = sr.intersect(setrgn);
 
-	    // Convert to simple array for speed
-	    if ( ncliprect < 1 ) {
-		delete [] cliprect;
-		cliprect = new QRect[1];
-	    }
-	    cliprect[0] = setrgn;
-	    ncliprect = 1;
-	}
+            // Convert to simple array for speed
+            if (ncliprect < 1) {
+                delete [] cliprect;
+                cliprect = new QRect[1];
+            }
+            cliprect[0] = setrgn;
+            ncliprect = 1;
+        }
     } else {
 #ifdef QWS_EXTRA_DEBUG
-	qDebug( "QGfxRasterBase::update_clip" );
+        qDebug("QGfxRasterBase::update_clip");
 #endif
-	QRegion setrgn;
-	if(regionClip) {
-	    setrgn=widgetrgn.intersect(cliprgn);
-	} else {
-	    setrgn=widgetrgn;
-	}
+        QRegion setrgn;
+        if(regionClip) {
+            setrgn=widgetrgn.intersect(cliprgn);
+        } else {
+            setrgn=widgetrgn;
+        }
 
-	// cache bounding rect
-	QRect sr( QPoint(0,0), gfx_screen->mapToDevice( QSize(width, height) ) );
-	clipbounds = sr.intersect(setrgn.boundingRect());
+        // cache bounding rect
+        QRect sr(QPoint(0,0), gfx_screen->mapToDevice(QSize(width, height)));
+        clipbounds = sr.intersect(setrgn.boundingRect());
 
-	// Convert to simple array for speed
-	_XRegion* cr = (_XRegion*) setrgn.handle();
-	const QVector<QRect> &a = cr->rects;
-	delete [] cliprect;
-	cliprect = new QRect[cr->numRects];
-	memcpy( cliprect, a.data(), cr->numRects*sizeof(QRect) );
-	ncliprect = cr->numRects;
+        // Convert to simple array for speed
+        _XRegion* cr = (_XRegion*) setrgn.handle();
+        const QVector<QRect> &a = cr->rects;
+        delete [] cliprect;
+        cliprect = new QRect[cr->numRects];
+        memcpy(cliprect, a.data(), cr->numRects*sizeof(QRect));
+        ncliprect = cr->numRects;
     }
     clipcursor = 0;
-    clipDirty = FALSE;
+    clipDirty = false;
 }
 
 /*!
@@ -1228,7 +1228,7 @@ void QGfxRasterBase::update_clip()
   \a x and \a y values passed to it until a lineTo.
 */
 
-void QGfxRasterBase::moveTo( int x,int y )
+void QGfxRasterBase::moveTo(int x,int y)
 {
     penx=x;
     peny=y;
@@ -1242,7 +1242,7 @@ void QGfxRasterBase::moveTo( int x,int y )
   an accelerated driver.
 */
 
-void QGfxRasterBase::lineTo( int x,int y )
+void QGfxRasterBase::lineTo(int x,int y)
 {
     drawLine(penx,peny,x,y);
     penx=x;
@@ -1292,9 +1292,9 @@ void QGfxRasterBase::setAlphaType(AlphaType a)
 {
     alphatype=a;
     if(a==LittleEndianMask || a==BigEndianMask) {
-	ismasking=TRUE;
+        ismasking=true;
     } else {
-	ismasking=FALSE;
+        ismasking=false;
     }
 }
 
@@ -1332,11 +1332,11 @@ void QGfxRasterBase::setAlphaSource(int i,int i2,int i3,int i4)
 {
     calpha=i;
     if(i2==-1)
-	i2=i;
+        i2=i;
     if(i3==-1)
-	i3=i;
+        i3=i;
     if(i4==-1)
-	i4=i;
+        i4=i;
     calpha2=i2;
     calpha3=i3;
     calpha4=i4;
@@ -1377,11 +1377,11 @@ void QGfxRasterBase::restore()
 
   If \a cr is not null, \c *\cr is set to a rectangle containing
   the point, and within all of which the result does not change.
-  If the result is TRUE, \a cr is the widest rectangle for which
-  the result remains TRUE (so any point immediately to the left or
+  If the result is true, \a cr is the widest rectangle for which
+  the result remains true (so any point immediately to the left or
   right of \a cr will not be part of the clip region).
 
-  Passing TRUE for the \a known_to_be_outside allows optimizations,
+  Passing true for the \a known_to_be_outside allows optimizations,
   but the results are not defined it (\a x, \a y) is in the clip region.
 
   Using this, you can efficiently iterator over the clip region
@@ -1390,99 +1390,99 @@ void QGfxRasterBase::restore()
   \code
     bool inside = inClip(x,y,&cr);
     while (change y, preferably by +1) {
-	while (change x by +1 or -1) {
-	    if ( !cr.contains(x,y) )
-		inside = inClip(x,y,&cr,inside);
-	    if ( inside ) {
-		draw stuff
-	    }
-	}
+        while (change x by +1 or -1) {
+            if (!cr.contains(x,y))
+                inside = inClip(x,y,&cr,inside);
+            if (inside) {
+                draw stuff
+            }
+        }
     }
   \endcode
 */
 bool QGfxRasterBase::inClip(int x, int y, QRect* cr, bool known_to_be_outside)
 {
-    if ( !ncliprect ) {
-	// No rectangles.
-	if ( cr )
-	    *cr = QRect(x-4000,y-4000,8000,8000);
-	return FALSE;
+    if (!ncliprect) {
+        // No rectangles.
+        if (cr)
+            *cr = QRect(x-4000,y-4000,8000,8000);
+        return false;
     }
 
 //qDebug("Find %d,%d...%s",x,y,known_to_be_outside?" (outside)":"");
-    bool search=FALSE;
+    bool search=false;
     const QRect *cursorRect = &cliprect[clipcursor];
 
-//search=TRUE;
-    if ( !known_to_be_outside ) {
-	if ( cursorRect->contains(x,y) ) {
-	    if ( cr )
-		*cr = *cursorRect;
+//search=true;
+    if (!known_to_be_outside) {
+        if (cursorRect->contains(x,y)) {
+            if (cr)
+                *cr = *cursorRect;
 
 //  qDebug("found %d,%d at +0 in %d[%d..%d,%d..%d]",x,y,clipcursor,cliprect[clipcursor].left(),cliprect[clipcursor].right(),cliprect[clipcursor].top(),cliprect[clipcursor].bottom());
-	    return TRUE;
-	}
-	if ( clipcursor > 0 ) {
-	    if ( (cursorRect-1)->contains(x,y) ) {
-		if ( cr )
-		    *cr = cliprect[--clipcursor];
+            return true;
+        }
+        if (clipcursor > 0) {
+            if ((cursorRect-1)->contains(x,y)) {
+                if (cr)
+                    *cr = cliprect[--clipcursor];
 
 // qDebug("found %d,%d at -1 in %d[%d..%d,%d..%d]",x,y,clipcursor,cliprect[clipcursor].left(),cliprect[clipcursor].right(),cliprect[clipcursor].top(),cliprect[clipcursor].bottom());
-		return TRUE;
-	    }
-	} else if ( clipcursor < (int)ncliprect-1 ) {
-	    if ( (cursorRect+1)->contains(x,y) ) {
-		if ( cr )
-		    *cr = cliprect[++clipcursor];
+                return true;
+            }
+        } else if (clipcursor < (int)ncliprect-1) {
+            if ((cursorRect+1)->contains(x,y)) {
+                if (cr)
+                    *cr = cliprect[++clipcursor];
 
 // qDebug("found %d,%d at +1 in %d[%d..%d,%d..%d]",x,y,clipcursor,cliprect[clipcursor].left(),cliprect[clipcursor].right(),cliprect[clipcursor].top(),cliprect[clipcursor].bottom());
-		return TRUE;
-	    }
-	}
-	search=TRUE;
+                return true;
+            }
+        }
+        search=true;
     }
 
     // Optimize case where (x,y) is in the same band as the clipcursor,
     // and to its right.  eg. left-to-right, same-scanline cases.
     //
-    if ( cursorRect->right() < x
-	&& cursorRect->top() <= y
-	&& cursorRect->bottom() >= y )
+    if (cursorRect->right() < x
+        && cursorRect->top() <= y
+        && cursorRect->bottom() >= y)
     {
-	// Move clipcursor right until it is after (x,y)
-	for (;;) {
-	    if ( clipcursor+1 < ncliprect &&
-		 (cursorRect+1)->top()==cursorRect->top() ) {
-		// next clip rect is in this band too - move ahead
-		clipcursor++;
-		cursorRect++;
-		if ( cursorRect->left() > x ) {
-		    // (x,y) is between clipcursor-1 and clipcursor
-		    if ( cr )
-			cr->setCoords((cursorRect-1)->right()+1,
-				cursorRect->top(),
-				cursorRect->left()-1,
-				cursorRect->bottom());
-		    return FALSE;
-		} else if ( cursorRect->right() >= x ) {
-		    // (x,y) is in clipcursor
-		    if ( cr )
-			*cr = *cursorRect;
+        // Move clipcursor right until it is after (x,y)
+        for (;;) {
+            if (clipcursor+1 < ncliprect &&
+                 (cursorRect+1)->top()==cursorRect->top()) {
+                // next clip rect is in this band too - move ahead
+                clipcursor++;
+                cursorRect++;
+                if (cursorRect->left() > x) {
+                    // (x,y) is between clipcursor-1 and clipcursor
+                    if (cr)
+                        cr->setCoords((cursorRect-1)->right()+1,
+                                cursorRect->top(),
+                                cursorRect->left()-1,
+                                cursorRect->bottom());
+                    return false;
+                } else if (cursorRect->right() >= x) {
+                    // (x,y) is in clipcursor
+                    if (cr)
+                        *cr = *cursorRect;
 
 // qDebug("found %d,%d in %d[%d..%d,%d..%d]",x,y,clipcursor,cliprect[clipcursor].left(),cliprect[clipcursor].right(),cliprect[clipcursor].top(),cliprect[clipcursor].bottom());
-		    return TRUE;
-		}
-	    } else {
-		// (x,y) is after last rectangle on band
-		if ( cr )
-		    cr->setCoords(cursorRect->right()+1,
-			    cursorRect->top(),y+4000,
-			    cursorRect->bottom());
-		return FALSE;
-	    }
-	}
+                    return true;
+                }
+            } else {
+                // (x,y) is after last rectangle on band
+                if (cr)
+                    cr->setCoords(cursorRect->right()+1,
+                            cursorRect->top(),y+4000,
+                            cursorRect->bottom());
+                return false;
+            }
+        }
     } else {
-	search=TRUE;
+        search=true;
     }
 
     // The "4000" below are infinitely large rectangles, made small enough
@@ -1491,18 +1491,18 @@ bool QGfxRasterBase::inClip(int x, int y, QRect* cr, bool known_to_be_outside)
     // will make no measurable difference in performance.
 
     /*
-	(x,y) will be in one of these characteristic places:
+        (x,y) will be in one of these characteristic places:
 
-	0. In a rectangle of the region
-	1. Before the region
-	2. To the left of the first rectangle in the first band
-	3. To the left of the first rectangle in a non-first band
-	4. Between two retcangles in a band
-	5. To the right of the last rectangle in a non-last band
-	6. Between the last two rectangles
-	7. To the right of the last rectangle in the last band
-	8. After the region
-	9. Between the first two rectangles
+        0. In a rectangle of the region
+        1. Before the region
+        2. To the left of the first rectangle in the first band
+        3. To the left of the first rectangle in a non-first band
+        4. Between two retcangles in a band
+        5. To the right of the last rectangle in a non-last band
+        6. Between the last two rectangles
+        7. To the right of the last rectangle in the last band
+        8. After the region
+        9. Between the first two rectangles
 
                             1
                      2   BBBBBBB
@@ -1512,89 +1512,89 @@ bool QGfxRasterBase::inClip(int x, int y, QRect* cr, bool known_to_be_outside)
     */
 
 
-    if ( search ) {
+    if (search) {
 //qDebug("Search for %d,%d",x,y);
-	// binary search for rectangle which is before (x,y)
-	int a=0;
-	int l=ncliprect-1;
-	int h;
-	int m=-1;
-	while ( l>0 ) {
-	    h = l/2;
-	    m = a + h;
-//	    qDebug("l = %d, m = %d", l, m);
-	    const QRect& r = cliprect[m];
-	    if ( r.bottom() < y || r.top() <= y && r.right() < x ) {
-		// m is before (x,y)
-		a = m + 1;
-		l = l - h - 1;
-	    } else
-		l = h;
-	}
-	// Rectangle "a" is the rectangle containing (x,y), or the
-	// closest rectangle to the right of (x,y).
-	clipcursor = a;
-	cursorRect = &cliprect[clipcursor];
-	if ( cursorRect->contains(x,y) ) {
-	    // PLACE 0
+        // binary search for rectangle which is before (x,y)
+        int a=0;
+        int l=ncliprect-1;
+        int h;
+        int m=-1;
+        while (l>0) {
+            h = l/2;
+            m = a + h;
+//            qDebug("l = %d, m = %d", l, m);
+            const QRect& r = cliprect[m];
+            if (r.bottom() < y || r.top() <= y && r.right() < x) {
+                // m is before (x,y)
+                a = m + 1;
+                l = l - h - 1;
+            } else
+                l = h;
+        }
+        // Rectangle "a" is the rectangle containing (x,y), or the
+        // closest rectangle to the right of (x,y).
+        clipcursor = a;
+        cursorRect = &cliprect[clipcursor];
+        if (cursorRect->contains(x,y)) {
+            // PLACE 0
 //qDebug("found %d,%d in %d[%d..%d,%d..%d]",x,y,clipcursor,cliprect[clipcursor].left(),cliprect[clipcursor].right(),cliprect[clipcursor].top(),cliprect[clipcursor].bottom());
-	    if ( cr )
-		*cr = *cursorRect;
+            if (cr)
+                *cr = *cursorRect;
 // qDebug("Found %d,%d in %d[%d..%d,%d..%d]",x,y,clipcursor,cliprect[clipcursor].left(),cliprect[clipcursor].right(),cliprect[clipcursor].top(),cliprect[clipcursor].bottom());
-	    return TRUE;
-	}
+            return true;
+        }
 //qDebug("!found %d,%d in %d[%d..%d,%d..%d]",x,y,clipcursor,cliprect[clipcursor].left(),cliprect[clipcursor].right(),cliprect[clipcursor].top(),cliprect[clipcursor].bottom());
     }
 
     // At this point, (x,y) is outside the clip region and clipcursor is
     // the rectangle to the right/below of (x,y), or the last rectangle.
 
-    if ( cr ) {
-	const QRect &tcr = *cursorRect;
-	if ( y < tcr.top() && clipcursor == 0) {
-	    // PLACE 1
+    if (cr) {
+        const QRect &tcr = *cursorRect;
+        if (y < tcr.top() && clipcursor == 0) {
+            // PLACE 1
 //qDebug("PLACE 1");
-	    cr->setCoords( x-4000,y-4000,x+4000,tcr.top()-1 );
-	} else if ( clipcursor == (int)ncliprect-1 && y>tcr.bottom() ) {
-	    // PLACE 7
+            cr->setCoords(x-4000,y-4000,x+4000,tcr.top()-1);
+        } else if (clipcursor == (int)ncliprect-1 && y>tcr.bottom()) {
+            // PLACE 7
 //qDebug("PLACE 7");
-	    cr->setCoords( x-4000,tcr.bottom()+1,x+4000,y+4000 );
-	} else if ( clipcursor == (int)ncliprect-1 && x > tcr.right() ) {
-	    // PLACE 6
+            cr->setCoords(x-4000,tcr.bottom()+1,x+4000,y+4000);
+        } else if (clipcursor == (int)ncliprect-1 && x > tcr.right()) {
+            // PLACE 6
 //qDebug("PLACE 6");
-	    cr->setCoords( tcr.right()+1,tcr.top(),x+4000,y+4000 );
-	} else if ( clipcursor == 0 ) {
-	    // PLACE 2
+            cr->setCoords(tcr.right()+1,tcr.top(),x+4000,y+4000);
+        } else if (clipcursor == 0) {
+            // PLACE 2
 //qDebug("PLACE 2");
-	    cr->setCoords( x-4000,y-4000,tcr.left()-1,tcr.bottom() );
-	} else {
-	    const QRect &prev_tcr = *(cursorRect-1);
-	    if ( prev_tcr.bottom() < y && tcr.top() > y) {
-		// found a new place
+            cr->setCoords(x-4000,y-4000,tcr.left()-1,tcr.bottom());
+        } else {
+            const QRect &prev_tcr = *(cursorRect-1);
+            if (prev_tcr.bottom() < y && tcr.top() > y) {
+                // found a new place
 //qDebug("PLACE new");
-		cr->setCoords( x-4000,prev_tcr.bottom()+1, x+4000,tcr.top()-1 );
-	    } else if ( prev_tcr.bottom() < y && tcr.left() > x) {
-		// PLACE 3
+                cr->setCoords(x-4000,prev_tcr.bottom()+1, x+4000,tcr.top()-1);
+            } else if (prev_tcr.bottom() < y && tcr.left() > x) {
+                // PLACE 3
 //qDebug("PLACE 3");
-		cr->setCoords( x-4000,tcr.top(), tcr.left()-1,tcr.bottom() );
-	    } else {
-		if ( prev_tcr.y() == tcr.y() ) {
-		    // PLACE 4
+                cr->setCoords(x-4000,tcr.top(), tcr.left()-1,tcr.bottom());
+            } else {
+                if (prev_tcr.y() == tcr.y()) {
+                    // PLACE 4
 //qDebug("PLACE 4");
-		    cr->setCoords( prev_tcr.right()+1, tcr.y(),
-				       tcr.left()-1, tcr.bottom() );
-		} else {
-		    // PLACE 5
+                    cr->setCoords(prev_tcr.right()+1, tcr.y(),
+                                       tcr.left()-1, tcr.bottom());
+                } else {
+                    // PLACE 5
 //qDebug("PLACE 5");
-		    cr->setCoords( prev_tcr.right()+1, prev_tcr.y(),
-				       prev_tcr.right()+4000, prev_tcr.bottom() );
-		}
-	    }
-	}
+                    cr->setCoords(prev_tcr.right()+1, prev_tcr.y(),
+                                       prev_tcr.right()+4000, prev_tcr.bottom());
+                }
+            }
+        }
     }
 
 //qDebug("!found %d,%d in %d[%d..%d,%d..%d] nor [%d..%d,%d..%d]",x,y, clipcursor, cliprect[clipcursor].left(),cliprect[clipcursor].right(),cliprect[clipcursor].top(),cliprect[clipcursor].bottom(), cr->left(),cr->right(),cr->top(),cr->bottom());
-    return FALSE;
+    return false;
 }
 
 /*!
@@ -1604,24 +1604,24 @@ bool QGfxRasterBase::inClip(int x, int y, QRect* cr, bool known_to_be_outside)
   \a b.
 */
 
-void QGfxRasterBase::setBrush( const QBrush & b )
+void QGfxRasterBase::setBrush(const QBrush & b)
 {
     cbrush=b;
     if((cbrush.style()!=NoBrush) && (cbrush.style()!=SolidPattern)) {
-	patternedbrush=TRUE;
+        patternedbrush=true;
     } else {
-	patternedbrush=FALSE;
+        patternedbrush=false;
     }
 #ifndef QT_NO_QWS_REPEATER
-    if ( is_screen_gfx && qt_screen != gfx_screen ) {
-	QScreen * tmp=qt_screen;
-	qt_screen=gfx_screen;
-	QColor tmpcol=b.color();
-	srccol=tmpcol.alloc();
-	qt_screen=tmp;
+    if (is_screen_gfx && qt_screen != gfx_screen) {
+        QScreen * tmp=qt_screen;
+        qt_screen=gfx_screen;
+        QColor tmpcol=b.color();
+        srccol=tmpcol.alloc();
+        qt_screen=tmp;
     } else
 #endif
-	srccol=b.color().pixel();
+        srccol=b.color().pixel();
 
 
 }
@@ -1635,9 +1635,9 @@ void QGfxRasterBase::setBrush( const QBrush & b )
   requested by QPainter, for example.
 */
 
-void QGfxRasterBase::setBrushOffset( int x, int y )
+void QGfxRasterBase::setBrushOffset(int x, int y)
 {
-    brushoffs = QPoint( x, y );
+    brushoffs = QPoint(x, y);
 }
 
 /*!
@@ -1655,24 +1655,24 @@ void QGfxRasterBase::setBrushOffset( int x, int y )
 void QGfxRasterBase::setSourcePen()
 {
 #ifndef QT_NO_QWS_REPEATER
-    if ( is_screen_gfx && qt_screen != gfx_screen ) {
-	QScreen * tmp=qt_screen;
-	qt_screen=gfx_screen;
-	QColor tmpcol=cpen.color();
-	srccol = tmpcol.alloc();
-	qt_screen=tmp;
+    if (is_screen_gfx && qt_screen != gfx_screen) {
+        QScreen * tmp=qt_screen;
+        qt_screen=gfx_screen;
+        QColor tmpcol=cpen.color();
+        srccol = tmpcol.alloc();
+        qt_screen=tmp;
     } else
 #endif
-	srccol = cpen.color().pixel();
+        srccol = cpen.color().pixel();
 
-    src_normal_palette=TRUE;
+    src_normal_palette=true;
     srctype=SourcePen;
-    setSourceWidgetOffset( 0, 0 );
+    setSourceWidgetOffset(0, 0);
 }
 
 /*!
-  \fn QGfxRasterBase::get_value_32( int sdepth, unsigned char **srcdata,
-				    bool reverse )
+  \fn QGfxRasterBase::get_value_32(int sdepth, unsigned char **srcdata,
+                                    bool reverse)
 
   \internal
 
@@ -1690,70 +1690,70 @@ void QGfxRasterBase::setSourcePen()
 */
 
 GFX_INLINE unsigned int QGfxRasterBase::get_value_32(
-		       int sdepth, unsigned char **srcdata, bool reverse)
+                       int sdepth, unsigned char **srcdata, bool reverse)
 {
 // Convert between pixel values for different depths
 // reverse can only be true if sdepth == depth
     unsigned int ret;
     if(sdepth==32) {
-	ret = *((unsigned int *)(*srcdata));
-	if(reverse) {
-	    (*srcdata)-=4;
-	} else {
-	    (*srcdata)+=4;
-	}
-#if !defined( QT_NO_QWS_DEPTH_24 )
+        ret = *((unsigned int *)(*srcdata));
+        if(reverse) {
+            (*srcdata)-=4;
+        } else {
+            (*srcdata)+=4;
+        }
+#if !defined(QT_NO_QWS_DEPTH_24)
     } else if(sdepth==24) {
-	ret = gfxGetRgb24( *srcdata );
-	(*srcdata) += 3;
+        ret = gfxGetRgb24(*srcdata);
+        (*srcdata) += 3;
 #endif
-#if !defined( QT_NO_IMAGE_16_BIT ) || !defined( QT_NO_QWS_DEPTH_16 )
+#if !defined(QT_NO_IMAGE_16_BIT) || !defined(QT_NO_QWS_DEPTH_16)
     } else if(sdepth==16) {
-	unsigned short int hold=*((unsigned short int *)(*srcdata));
-	ret = qt_conv16ToRgb(hold);
-	(*srcdata)+=2;
+        unsigned short int hold=*((unsigned short int *)(*srcdata));
+        ret = qt_conv16ToRgb(hold);
+        (*srcdata)+=2;
 #endif
     } else if(sdepth==8) {
-	unsigned char val=*((*srcdata));
-	if(src_normal_palette) {
-	    ret=((val >> 5) << 16)  | ((val >> 6) << 8) | (val >> 5);
-	} else {
-	    ret = srcclut[val];
-	}
-	(*srcdata)++;
+        unsigned char val=*((*srcdata));
+        if(src_normal_palette) {
+            ret=((val >> 5) << 16)  | ((val >> 6) << 8) | (val >> 5);
+        } else {
+            ret = srcclut[val];
+        }
+        (*srcdata)++;
     } else if(sdepth==1) {
-	if(monobitcount<8) {
-	    monobitcount++;
-	} else {
-	    monobitcount=1;	// yes, 1 is correct
-	    (*srcdata)++;
-	    monobitval=*((*srcdata));
-	}
-	if(src_little_endian) {
-	    ret=monobitval & 0x1;
-	    monobitval=monobitval >> 1;
-	} else {
-	    ret=(monobitval & 0x80) >> 7;
-	    monobitval=monobitval << 1;
-	    monobitval=monobitval & 0xff;
-	}
-	ret=srcclut[ret];
+        if(monobitcount<8) {
+            monobitcount++;
+        } else {
+            monobitcount=1;        // yes, 1 is correct
+            (*srcdata)++;
+            monobitval=*((*srcdata));
+        }
+        if(src_little_endian) {
+            ret=monobitval & 0x1;
+            monobitval=monobitval >> 1;
+        } else {
+            ret=(monobitval & 0x80) >> 7;
+            monobitval=monobitval << 1;
+            monobitval=monobitval & 0xff;
+        }
+        ret=srcclut[ret];
     } else {
-	qDebug("Odd source depth %d!",sdepth);
-	ret=0;
+        qDebug("Odd source depth %d!",sdepth);
+        ret=0;
     }
 #ifndef QT_NO_QWS_DEPTH_32_BGR
-	if ( pixeltype != srcpixeltype ) {
-	    ret = (ret&0x0000ff)<<16 | (ret&0xff00ff00) | (ret&0xff0000)>>16;
-	}
+        if (pixeltype != srcpixeltype) {
+            ret = (ret&0x0000ff)<<16 | (ret&0xff00ff00) | (ret&0xff0000)>>16;
+        }
 #endif
 
     return ret;
 }
 
 /*!
-  \fn QGfxRasterBase::get_value_24( int sdepth, unsigned char **srcdata,
-				    bool reverse )
+  \fn QGfxRasterBase::get_value_24(int sdepth, unsigned char **srcdata,
+                                    bool reverse)
 
   \internal
 
@@ -1773,17 +1773,17 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_32(
 */
 
 GFX_INLINE unsigned int QGfxRasterBase::get_value_24(
-		       int sdepth, unsigned char **srcdata, bool reverse)
+                       int sdepth, unsigned char **srcdata, bool reverse)
 {
     unsigned int ret;
-    if ( sdepth == 24 ) {
-	ret = gfxGetRgb24( *srcdata );
-	if ( reverse )
-	    (*srcdata)-=3;
-	else
-	    (*srcdata)+=3;
+    if (sdepth == 24) {
+        ret = gfxGetRgb24(*srcdata);
+        if (reverse)
+            (*srcdata)-=3;
+        else
+            (*srcdata)+=3;
     } else {
-	ret = get_value_32( sdepth, srcdata, reverse );
+        ret = get_value_32(sdepth, srcdata, reverse);
     }
 
     return ret;
@@ -1811,53 +1811,53 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_24(
 
 // reverse can only be true if sdepth == depth
 GFX_INLINE unsigned int QGfxRasterBase::get_value_16(
-		       int sdepth, unsigned char **srcdata, bool reverse)
+                       int sdepth, unsigned char **srcdata, bool reverse)
 {
-#if !defined( QT_NO_IMAGE_16_BIT ) || !defined( QT_NO_QWS_DEPTH_16 )
+#if !defined(QT_NO_IMAGE_16_BIT) || !defined(QT_NO_QWS_DEPTH_16)
     unsigned int ret = 0;
-    if ( sdepth == 16 ) {
-	unsigned short int hold = *((unsigned short int *)(*srcdata));
-	if(reverse) {
-	    (*srcdata)-=2;
-	} else {
-	    (*srcdata)+=2;
-	}
-	ret=hold;
+    if (sdepth == 16) {
+        unsigned short int hold = *((unsigned short int *)(*srcdata));
+        if(reverse) {
+            (*srcdata)-=2;
+        } else {
+            (*srcdata)+=2;
+        }
+        ret=hold;
     } else if(sdepth==8) {
-	unsigned char val=*((*srcdata));
-	QRgb hold;
-	if(src_normal_palette) {
-	    hold = val*0x010101;
-	} else {
-	    hold=srcclut[val];
-	}
-	ret=qt_convRgbTo16(hold);
-	(*srcdata)++;
+        unsigned char val=*((*srcdata));
+        QRgb hold;
+        if(src_normal_palette) {
+            hold = val*0x010101;
+        } else {
+            hold=srcclut[val];
+        }
+        ret=qt_convRgbTo16(hold);
+        (*srcdata)++;
     } else if(sdepth==1) {
-	if(monobitcount<8) {
-	    monobitcount++;
-	} else {
-	    monobitcount=1;
-	    (*srcdata)++;
-	    monobitval=*((*srcdata));
-	}
-	if(src_little_endian) {
-	    ret=monobitval & 0x1;
-	    monobitval=monobitval >> 1;
-	} else {
-	    ret=(monobitval & 0x80) >> 7;
-	    monobitval=monobitval << 1;
-	    monobitval=monobitval & 0xff;
-	}
-	ret=srcclut[ret];
-    } else if ( sdepth == 32 ) {
-	unsigned int hold = *((unsigned int *)(*srcdata));
-	ret=qt_convRgbTo16(hold);
-	(*srcdata)+=4;
+        if(monobitcount<8) {
+            monobitcount++;
+        } else {
+            monobitcount=1;
+            (*srcdata)++;
+            monobitval=*((*srcdata));
+        }
+        if(src_little_endian) {
+            ret=monobitval & 0x1;
+            monobitval=monobitval >> 1;
+        } else {
+            ret=(monobitval & 0x80) >> 7;
+            monobitval=monobitval << 1;
+            monobitval=monobitval & 0xff;
+        }
+        ret=srcclut[ret];
+    } else if (sdepth == 32) {
+        unsigned int hold = *((unsigned int *)(*srcdata));
+        ret=qt_convRgbTo16(hold);
+        (*srcdata)+=4;
     } else {
-	qDebug("Odd source depth %d!",sdepth);
-	abort();
-	ret=0;
+        qDebug("Odd source depth %d!",sdepth);
+        abort();
+        ret=0;
     }
 
     return ret;
@@ -1887,77 +1887,77 @@ table are performed.
 
 // reverse can only be true if sdepth == depth
 GFX_INLINE unsigned int QGfxRasterBase::get_value_8(
-		       int sdepth, unsigned char **srcdata, bool reverse)
+                       int sdepth, unsigned char **srcdata, bool reverse)
 {
     unsigned int ret;
 
     if(sdepth==8) {
-	unsigned char val=*((unsigned char *)(*srcdata));
-	// If source!=QImage, then the palettes will be the same
-	if(src_normal_palette) {
-	    ret=val;
-	} else {
-	    ret=transclut[val];
-	}
-	if(reverse) {
-	    (*srcdata)--;
-	} else {
-	    (*srcdata)++;
-	}
+        unsigned char val=*((unsigned char *)(*srcdata));
+        // If source!=QImage, then the palettes will be the same
+        if(src_normal_palette) {
+            ret=val;
+        } else {
+            ret=transclut[val];
+        }
+        if(reverse) {
+            (*srcdata)--;
+        } else {
+            (*srcdata)++;
+        }
     } else if(sdepth==1) {
-	if(monobitcount<8) {
-	    monobitcount++;
-	} else {
-	    monobitcount=1;
-	    (*srcdata)++;
-	    monobitval=*((*srcdata));
-	}
-	if(src_little_endian) {
-	    ret=monobitval & 0x1;
-	    monobitval=monobitval >> 1;
-	} else {
-	    ret=(monobitval & 0x80) >> 7;
-	    monobitval=monobitval << 1;
-	    monobitval=monobitval & 0xff;
-	}
-	ret = transclut[ret];
+        if(monobitcount<8) {
+            monobitcount++;
+        } else {
+            monobitcount=1;
+            (*srcdata)++;
+            monobitval=*((*srcdata));
+        }
+        if(src_little_endian) {
+            ret=monobitval & 0x1;
+            monobitval=monobitval >> 1;
+        } else {
+            ret=(monobitval & 0x80) >> 7;
+            monobitval=monobitval << 1;
+            monobitval=monobitval & 0xff;
+        }
+        ret = transclut[ret];
     } else if(sdepth==32) {
-	unsigned int r,g,b;
-	unsigned int hold=*((unsigned int *)(*srcdata));
-	r=(hold & 0xff0000) >> 16;
-	g=(hold & 0x00ff00) >> 8;
-	b=(hold & 0x0000ff);
-	simple_8bpp_alloc=TRUE;
-	ret = GFX_8BPP_PIXEL(r,g,b);
-	simple_8bpp_alloc=FALSE;
-	(*srcdata)+=4;
+        unsigned int r,g,b;
+        unsigned int hold=*((unsigned int *)(*srcdata));
+        r=(hold & 0xff0000) >> 16;
+        g=(hold & 0x00ff00) >> 8;
+        b=(hold & 0x0000ff);
+        simple_8bpp_alloc=true;
+        ret = GFX_8BPP_PIXEL(r,g,b);
+        simple_8bpp_alloc=false;
+        (*srcdata)+=4;
     } else if(sdepth==16) {
-	unsigned int r,g,b;
-	unsigned short int hold=*((unsigned short int *)(*srcdata));
-	r=((hold & (0x1f << 11)) >> 11) << 3;
-	g=((hold & (0x3f << 5)) >> 5) << 2;
-	b=(hold & 0x1f) << 3;
-	simple_8bpp_alloc=TRUE;
-	ret = GFX_8BPP_PIXEL(r,g,b);
-	simple_8bpp_alloc=FALSE;
-	(*srcdata)+=2;
-    } else if ( sdepth == 4 ) {
-	ret = monobitval & 0x0f;
-	if ( !monobitcount ) {
-	    monobitcount = 1;
-	    monobitval >>= 4;
-	} else {
-	    monobitcount = 0;
-	    (*srcdata)++;
-	    monobitval = *(*srcdata);
+        unsigned int r,g,b;
+        unsigned short int hold=*((unsigned short int *)(*srcdata));
+        r=((hold & (0x1f << 11)) >> 11) << 3;
+        g=((hold & (0x3f << 5)) >> 5) << 2;
+        b=(hold & 0x1f) << 3;
+        simple_8bpp_alloc=true;
+        ret = GFX_8BPP_PIXEL(r,g,b);
+        simple_8bpp_alloc=false;
+        (*srcdata)+=2;
+    } else if (sdepth == 4) {
+        ret = monobitval & 0x0f;
+        if (!monobitcount) {
+            monobitcount = 1;
+            monobitval >>= 4;
+        } else {
+            monobitcount = 0;
+            (*srcdata)++;
+            monobitval = *(*srcdata);
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-	    if ( !src_little_endian )
-		monobitval = (monobitval & 0x0f) << 4 |  (monobitval & 0xf0) >> 4;
+            if (!src_little_endian)
+                monobitval = (monobitval & 0x0f) << 4 |  (monobitval & 0xf0) >> 4;
 #endif
-	}
+        }
     } else {
-	qDebug("Cannot do %d->8!",sdepth);
-	ret=0;
+        qDebug("Cannot do %d->8!",sdepth);
+        ret=0;
     }
 
     return ret;
@@ -1984,75 +1984,75 @@ table are performed.
 
 // reverse can only be true if sdepth == depth
 GFX_INLINE unsigned int QGfxRasterBase::get_value_4(
-		       int sdepth, unsigned char **srcdata, bool reverse)
+                       int sdepth, unsigned char **srcdata, bool reverse)
 {
     unsigned int ret;
 
-    if ( sdepth == 4 ) {
-	if ( reverse ) {
-	    ret = (monobitval & 0xf0) >> 4;
-	    if ( !monobitcount ) {
-		monobitcount = 1;
-		monobitval <<= 4;
-	    } else {
-		monobitcount = 0;
-		(*srcdata)--;
-		monobitval = *(*srcdata);
+    if (sdepth == 4) {
+        if (reverse) {
+            ret = (monobitval & 0xf0) >> 4;
+            if (!monobitcount) {
+                monobitcount = 1;
+                monobitval <<= 4;
+            } else {
+                monobitcount = 0;
+                (*srcdata)--;
+                monobitval = *(*srcdata);
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-		if ( !src_little_endian )
-		    monobitval = (monobitval & 0x0f) << 4 |  (monobitval & 0xf0) >> 4;
+                if (!src_little_endian)
+                    monobitval = (monobitval & 0x0f) << 4 |  (monobitval & 0xf0) >> 4;
 #endif
-	    }
-	} else {
-	    ret = monobitval & 0x0f;
-	    if ( !monobitcount ) {
-		monobitcount = 1;
-		monobitval >>= 4;
-	    } else {
-		monobitcount = 0;
-		(*srcdata)++;
-		monobitval = *(*srcdata);
+            }
+        } else {
+            ret = monobitval & 0x0f;
+            if (!monobitcount) {
+                monobitcount = 1;
+                monobitval >>= 4;
+            } else {
+                monobitcount = 0;
+                (*srcdata)++;
+                monobitval = *(*srcdata);
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-		if ( !src_little_endian )
-		    monobitval = (monobitval & 0x0f) << 4 |  (monobitval & 0xf0) >> 4;
+                if (!src_little_endian)
+                    monobitval = (monobitval & 0x0f) << 4 |  (monobitval & 0xf0) >> 4;
 #endif
-	    }
-	}
-    } else if ( sdepth == 1 ) {
-	if(monobitcount<8) {
-	    monobitcount++;
-	} else {
-	    monobitcount=1;
-	    (*srcdata)++;
-	    monobitval=*((*srcdata));
-	}
-	if(src_little_endian) {
-	    ret=monobitval & 0x1;
-	    monobitval=monobitval >> 1;
-	} else {
-	    ret=(monobitval & 0x80) >> 7;
-	    monobitval=monobitval << 1;
-	    monobitval=monobitval & 0xff;
-	}
-	ret = transclut[ret];
-    } else if ( sdepth == 8 ) {
-	unsigned char val=*((unsigned char *)(*srcdata));
-	ret = transclut[val];
-	if(reverse)
-	    (*srcdata)--;
-	else
-	    (*srcdata)++;
+            }
+        }
+    } else if (sdepth == 1) {
+        if(monobitcount<8) {
+            monobitcount++;
+        } else {
+            monobitcount=1;
+            (*srcdata)++;
+            monobitval=*((*srcdata));
+        }
+        if(src_little_endian) {
+            ret=monobitval & 0x1;
+            monobitval=monobitval >> 1;
+        } else {
+            ret=(monobitval & 0x80) >> 7;
+            monobitval=monobitval << 1;
+            monobitval=monobitval & 0xff;
+        }
+        ret = transclut[ret];
+    } else if (sdepth == 8) {
+        unsigned char val=*((unsigned char *)(*srcdata));
+        ret = transclut[val];
+        if(reverse)
+            (*srcdata)--;
+        else
+            (*srcdata)++;
     } else if(sdepth==32) {
-	unsigned int r,g,b;
-	unsigned int hold=*((unsigned int *)(*srcdata));
-	r=(hold & 0xff0000) >> 16;
-	g=(hold & 0x00ff00) >> 8;
-	b=(hold & 0x0000ff);
-	ret = qGray( r, g, b ) >> 4;
-	(*srcdata)+=4;
+        unsigned int r,g,b;
+        unsigned int hold=*((unsigned int *)(*srcdata));
+        r=(hold & 0xff0000) >> 16;
+        g=(hold & 0x00ff00) >> 8;
+        b=(hold & 0x0000ff);
+        ret = qGray(r, g, b) >> 4;
+        (*srcdata)+=4;
     } else {
-	qDebug("Cannot do %d->4!",sdepth);
-	ret=0;
+        qDebug("Cannot do %d->4!",sdepth);
+        ret=0;
     }
 
     return ret;
@@ -2081,57 +2081,57 @@ table are performed.
 
 // reverse can only be true if sdepth == depth
 GFX_INLINE unsigned int QGfxRasterBase::get_value_1(
-		       int sdepth, unsigned char **srcdata, bool reverse)
+                       int sdepth, unsigned char **srcdata, bool reverse)
 {
     unsigned int ret;
 
     if(sdepth==1) {
-	if ( reverse ) {
-	    if(monobitcount<8) {
-		monobitcount++;
-	    } else {
-		monobitcount=1;
-		(*srcdata)--;
-		monobitval=**srcdata;
-	    }
-	    if(src_little_endian) {
-		ret = ( monobitval & 0x80 ) >> 7;
-		monobitval=monobitval << 1;
-		monobitval=monobitval & 0xff;
-	    } else {
-		ret=monobitval & 0x1;
-		monobitval=monobitval >> 1;
-	    }
-	} else {
-	    if(monobitcount<8) {
-		monobitcount++;
-	    } else {
-		monobitcount=1;
-		(*srcdata)++;
-		monobitval=**srcdata;
-	    }
-	    if(src_little_endian) {
-		ret=monobitval & 0x1;
-		monobitval=monobitval >> 1;
-	    } else {
-		ret = ( monobitval & 0x80 ) >> 7;
-		monobitval=monobitval << 1;
-		monobitval=monobitval & 0xff;
-	    }
-	}
+        if (reverse) {
+            if(monobitcount<8) {
+                monobitcount++;
+            } else {
+                monobitcount=1;
+                (*srcdata)--;
+                monobitval=**srcdata;
+            }
+            if(src_little_endian) {
+                ret = (monobitval & 0x80) >> 7;
+                monobitval=monobitval << 1;
+                monobitval=monobitval & 0xff;
+            } else {
+                ret=monobitval & 0x1;
+                monobitval=monobitval >> 1;
+            }
+        } else {
+            if(monobitcount<8) {
+                monobitcount++;
+            } else {
+                monobitcount=1;
+                (*srcdata)++;
+                monobitval=**srcdata;
+            }
+            if(src_little_endian) {
+                ret=monobitval & 0x1;
+                monobitval=monobitval >> 1;
+            } else {
+                ret = (monobitval & 0x80) >> 7;
+                monobitval=monobitval << 1;
+                monobitval=monobitval & 0xff;
+            }
+        }
     } else if(sdepth==32) {
-	unsigned int hold=*((unsigned int *)(*srcdata));
-	unsigned int r,g,b;
-	r=(hold & 0xff0000) >> 16;
-	g=(hold & 0x00ff00) >> 8;
-	b=(hold & 0x0000ff);
-	(*srcdata)+=4;
-	simple_8bpp_alloc=TRUE;
-	ret = GFX_8BPP_PIXEL(r,g,b);
-	simple_8bpp_alloc=FALSE;
+        unsigned int hold=*((unsigned int *)(*srcdata));
+        unsigned int r,g,b;
+        r=(hold & 0xff0000) >> 16;
+        g=(hold & 0x00ff00) >> 8;
+        b=(hold & 0x0000ff);
+        (*srcdata)+=4;
+        simple_8bpp_alloc=true;
+        ret = GFX_8BPP_PIXEL(r,g,b);
+        simple_8bpp_alloc=false;
     } else {
-	qDebug("get_value_1(): Unsupported source depth %d!",sdepth);
-	ret=0;
+        qDebug("get_value_1(): Unsupported source depth %d!",sdepth);
+        ret=0;
     }
 
     return ret;
@@ -2179,8 +2179,8 @@ QGfxRaster<depth,type>::QGfxRaster(unsigned char * b,int w,int h)
 {
     setLineStep((depth*width+7)/8);
     if (depth == 1) {
-	setPen(QColor(color1));
-	setBrush(QColor(color0));
+        setPen(QColor(color1));
+        setBrush(QColor(color0));
     }
 }
 
@@ -2199,8 +2199,8 @@ QGfxRaster<depth,type>::~QGfxRaster()
 
 /*!
   \fn void QGfxRaster<depth,type>::calcPacking(
-			  void * m,int x1,int x2,
-			  int & frontadd,int & backadd,int & count)
+                          void * m,int x1,int x2,
+                          int & frontadd,int & backadd,int & count)
 
   \internal
 
@@ -2226,46 +2226,46 @@ QGfxRaster<depth,type>::~QGfxRaster()
 
 template<const int depth,const int type>
 GFX_INLINE void QGfxRaster<depth,type>::calcPacking(
-			  void * m,int x1,int x2,
-			  int & frontadd,int & backadd,int & count)
+                          void * m,int x1,int x2,
+                          int & frontadd,int & backadd,int & count)
 {
     int w = x2-x1+1;
 
 #ifndef QWS_NO_WRITE_PACKING
-    if ( depth == 16 ) {
-	if ( w < 2 )
-	    goto unpacked;
+    if (depth == 16) {
+        if (w < 2)
+            goto unpacked;
 
-	unsigned short int * myptr=(unsigned short int *)m;
-	frontadd=(((unsigned long)myptr)+(x1*2)) & 0x3;
-	backadd=(((unsigned long)myptr)+((x2+1)*2)) & 0x3;
-	if ( frontadd )
-	    frontadd = 4 - frontadd;
-	frontadd >>= 1;
-	backadd >>= 1;
-	count=( w-(frontadd+backadd) );
-	count >>= 1;
-    } else if ( depth == 8 ) {
-	if ( w < 4 )
-	    goto unpacked;
+        unsigned short int * myptr=(unsigned short int *)m;
+        frontadd=(((unsigned long)myptr)+(x1*2)) & 0x3;
+        backadd=(((unsigned long)myptr)+((x2+1)*2)) & 0x3;
+        if (frontadd)
+            frontadd = 4 - frontadd;
+        frontadd >>= 1;
+        backadd >>= 1;
+        count=(w-(frontadd+backadd));
+        count >>= 1;
+    } else if (depth == 8) {
+        if (w < 4)
+            goto unpacked;
 
-	unsigned char * myptr=(unsigned char *)m;
-	frontadd=(((unsigned long)myptr)+x1) & 0x3;
-	backadd=(((unsigned long)myptr)+x2+1) & 0x3;
-	if ( frontadd )
-	    frontadd = 4 - frontadd;
-	count = w-(frontadd+backadd);
-	count >>= 2;
+        unsigned char * myptr=(unsigned char *)m;
+        frontadd=(((unsigned long)myptr)+x1) & 0x3;
+        backadd=(((unsigned long)myptr)+x2+1) & 0x3;
+        if (frontadd)
+            frontadd = 4 - frontadd;
+        count = w-(frontadd+backadd);
+        count >>= 2;
     } else {
-	goto unpacked;
+        goto unpacked;
     }
 
     if(count<0)
-	count=0;
+        count=0;
     if(frontadd<0)
-	frontadd=0;
+        frontadd=0;
     if(backadd<0)
-	backadd=0;
+        backadd=0;
     return;
 #endif
 
@@ -2274,7 +2274,7 @@ unpacked:
     backadd = 0;
     count = 0;
     if(frontadd<0)
-	frontadd=0;
+        frontadd=0;
 }
 
 /*!
@@ -2295,42 +2295,42 @@ void QGfxRaster<depth,type>::setSource(const QPaintDevice * p)
     srclinestep=((QPaintDevice *)p)->bytesPerLine();
     srcdepth=qpdm.depth();
     if(srcdepth==0)
-	abort();
+        abort();
     srcbits=((QPaintDevice *)p)->scanLine(0);
     srctype=SourceImage;
     srcpixeltype=NormalPixel;
     setAlphaType(IgnoreAlpha);
-    if ( p->devType() == QInternal::Widget ) {
-	QWidget * w=(QWidget *)p;
-	srcwidth=w->width();
-	srcheight=w->height();
-	QPoint hold;
-	hold=w->mapToGlobal(hold);
-	setSourceWidgetOffset( hold.x(), hold.y() );
-	if ( srcdepth == 1 ) {
-	    buildSourceClut(0, 0);
-	} else if(srcdepth <= 8) {
-	    src_normal_palette=TRUE;
-	}
-    } else if ( p->devType() == QInternal::Pixmap ) {
-	//still a bit ugly
-	QPixmap *pix = (QPixmap*)p;
-	srcwidth=pix->width();
-	srcheight=pix->height();
-	setSourceWidgetOffset( 0, 0 );
-	if ( srcdepth == 1 ) {
-	    buildSourceClut(0, 0);
-	} else if(srcdepth <= 8) {
-	    src_normal_palette=TRUE;
-	}
+    if (p->devType() == QInternal::Widget) {
+        QWidget * w=(QWidget *)p;
+        srcwidth=w->width();
+        srcheight=w->height();
+        QPoint hold;
+        hold=w->mapToGlobal(hold);
+        setSourceWidgetOffset(hold.x(), hold.y());
+        if (srcdepth == 1) {
+            buildSourceClut(0, 0);
+        } else if(srcdepth <= 8) {
+            src_normal_palette=true;
+        }
+    } else if (p->devType() == QInternal::Pixmap) {
+        //still a bit ugly
+        QPixmap *pix = (QPixmap*)p;
+        srcwidth=pix->width();
+        srcheight=pix->height();
+        setSourceWidgetOffset(0, 0);
+        if (srcdepth == 1) {
+            buildSourceClut(0, 0);
+        } else if(srcdepth <= 8) {
+            src_normal_palette=true;
+        }
     } else {
-	// This is a bit ugly #### I'll say!
-	//### We will have to find another way to do this
-	setSourceWidgetOffset( 0, 0 );
-	buildSourceClut(0,0);
+        // This is a bit ugly #### I'll say!
+        //### We will have to find another way to do this
+        setSourceWidgetOffset(0, 0);
+        buildSourceClut(0,0);
     }
 
-    src_little_endian=TRUE;
+    src_little_endian=true;
 }
 
 /*!
@@ -2350,38 +2350,38 @@ void QGfxRaster<depth,type>::setSource(const QImage * i)
     srclinestep=i->bytesPerLine();
     srcdepth=i->depth();
     if(srcdepth==0)
-	abort();
+        abort();
     srcbits=i->scanLine(0);
     src_little_endian=(i->bitOrder()==QImage::LittleEndian);
-    QSize s = gfx_screen->mapToDevice( QSize(i->width(), i->height()) );
+    QSize s = gfx_screen->mapToDevice(QSize(i->width(), i->height()));
     srcwidth=s.width();
     srcheight=s.height();
-    setSourceWidgetOffset( 0, 0 );
-    src_normal_palette=FALSE;
-    if ( srcdepth == 1 )
-	buildSourceClut( 0, 0 );
+    setSourceWidgetOffset(0, 0);
+    src_normal_palette=false;
+    if (srcdepth == 1)
+        buildSourceClut(0, 0);
     else  if(srcdepth<=8)
-	buildSourceClut(i->colorTable(),i->numColors());
+        buildSourceClut(i->colorTable(),i->numColors());
 }
 
 template <const int depth, const int type>
 void QGfxRaster<depth,type>::setSource(unsigned char * c,int w,int h,int l,
-				       int d,QRgb * clut,int numcols)
+                                       int d,QRgb * clut,int numcols)
 {
     srctype=SourceImage;
     srcpixeltype=NormalPixel;
     srclinestep=l;
     srcdepth=d;
     srcbits=c;
-    src_little_endian=TRUE;
+    src_little_endian=true;
     setSourceWidgetOffset(0,0);
     srcwidth=w;
     srcheight=h;
-    src_normal_palette=FALSE;
-    if ( srcdepth == 1 )
-	buildSourceClut( 0, 0 );
+    src_normal_palette=false;
+    if (srcdepth == 1)
+        buildSourceClut(0, 0);
     else  if(srcdepth<=8)
-	buildSourceClut(clut,numcols);
+        buildSourceClut(clut,numcols);
 }
 
 /*!
@@ -2402,50 +2402,50 @@ template <const int depth, const int type>
 void QGfxRaster<depth,type>::buildSourceClut(QRgb * cols,int numcols)
 {
     if (!cols) {
-	useBrush();
-#if !defined( QT_NO_IMAGE_16_BIT ) || !defined( QT_NO_QWS_DEPTH_16 )
-	if ( qt_screen->depth() == 16 && depth==32 ) {
-	    srcclut[0]=qt_conv16ToRgb(pixel);
-	    transclut[0]=qt_conv16ToRgb(pixel);
-	} else
+        useBrush();
+#if !defined(QT_NO_IMAGE_16_BIT) || !defined(QT_NO_QWS_DEPTH_16)
+        if (qt_screen->depth() == 16 && depth==32) {
+            srcclut[0]=qt_conv16ToRgb(pixel);
+            transclut[0]=qt_conv16ToRgb(pixel);
+        } else
 #endif
-	{
-	    srcclut[0]=pixel;
-	    transclut[0]=pixel;
-	}
-	usePen();
-#if !defined( QT_NO_IMAGE_16_BIT ) || !defined( QT_NO_QWS_DEPTH_16 )
-	if ( qt_screen->depth() == 16 && depth==32 ) {
-	    srcclut[1]=qt_conv16ToRgb(pixel);
-	    transclut[1]=qt_conv16ToRgb(pixel);
-	} else
+        {
+            srcclut[0]=pixel;
+            transclut[0]=pixel;
+        }
+        usePen();
+#if !defined(QT_NO_IMAGE_16_BIT) || !defined(QT_NO_QWS_DEPTH_16)
+        if (qt_screen->depth() == 16 && depth==32) {
+            srcclut[1]=qt_conv16ToRgb(pixel);
+            transclut[1]=qt_conv16ToRgb(pixel);
+        } else
 #endif
-	{
-	    srcclut[1]=pixel;
-	    transclut[1]=pixel;
-	}
-	return;
+        {
+            srcclut[1]=pixel;
+            transclut[1]=pixel;
+        }
+        return;
     }
 
     int loopc;
 
     // Copy clut
     for(loopc=0;loopc<numcols;loopc++)
-	srcclut[loopc] = cols[loopc];
+        srcclut[loopc] = cols[loopc];
 
     if(depth<=8) {
-	// Now look for matches
-	for(loopc=0;loopc<numcols;loopc++) {
-	    int r = qRed(srcclut[loopc]);
-	    int g = qGreen(srcclut[loopc]);
-	    int b = qBlue(srcclut[loopc]);
-	    transclut[loopc] = gfx_screen->alloc(r,g,b);
-	}
+        // Now look for matches
+        for(loopc=0;loopc<numcols;loopc++) {
+            int r = qRed(srcclut[loopc]);
+            int g = qGreen(srcclut[loopc]);
+            int b = qBlue(srcclut[loopc]);
+            transclut[loopc] = gfx_screen->alloc(r,g,b);
+        }
     }
 }
 
 /*!
-  \fn void QGfxRaster<depth,type>::drawPointUnclipped( int x, unsigned char* l)
+  \fn void QGfxRaster<depth,type>::drawPointUnclipped(int x, unsigned char* l)
 
 \internal
 
@@ -2456,113 +2456,113 @@ by drawPoint()
 
 //screen coordinates
 template <const int depth, const int type>
-GFX_INLINE void QGfxRaster<depth,type>::drawPointUnclipped( int x, unsigned char* l)
+GFX_INLINE void QGfxRaster<depth,type>::drawPointUnclipped(int x, unsigned char* l)
 {
-    if( (myrop!=XorROP) && (myrop!=NotROP) ) {
-	if ( depth == 32 )
-	    ((QRgb*)l)[x] = pixel;
-	else if ( depth == 24 )
-	    gfxSetRgb24( l + x*3, pixel );
-	else if ( depth == 16 )
-	    ((ushort*)l)[x] = (pixel & 0xffff);
-	else if ( depth == 8 )
-	    l[x] = (pixel & 0xff);
-	else if ( depth == 4 ) {
-	    uchar *d = l + (x>>1);
-	    int s = (x & 1) << 2;
+    if((myrop!=XorROP) && (myrop!=NotROP)) {
+        if (depth == 32)
+            ((QRgb*)l)[x] = pixel;
+        else if (depth == 24)
+            gfxSetRgb24(l + x*3, pixel);
+        else if (depth == 16)
+            ((ushort*)l)[x] = (pixel & 0xffff);
+        else if (depth == 8)
+            l[x] = (pixel & 0xff);
+        else if (depth == 4) {
+            uchar *d = l + (x>>1);
+            int s = (x & 1) << 2;
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-	    if ( is_screen_gfx )
-	        s = (~x & 1) << 2;
+            if (is_screen_gfx)
+                s = (~x & 1) << 2;
 #endif
-	    *d = ( *d & MASK4BPP(s) ) | (pixel << s);
-	} else if ( depth == 1 )
+            *d = (*d & MASK4BPP(s)) | (pixel << s);
+        } else if (depth == 1)
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-	    if ( is_screen_gfx ) {
-	    if ( pixel )
-		l[x/8] |= 0x80 >> (x%8);
-	    else
-		l[x/8] &= ~(0x80 >> (x%8));
-	    } else
+            if (is_screen_gfx) {
+            if (pixel)
+                l[x/8] |= 0x80 >> (x%8);
+            else
+                l[x/8] &= ~(0x80 >> (x%8));
+            } else
 #endif
-	    if ( pixel )
-		l[x/8] |= 1 << (x%8);
-	    else
-		l[x/8] &= ~(1 << (x%8));
+            if (pixel)
+                l[x/8] |= 1 << (x%8);
+            else
+                l[x/8] &= ~(1 << (x%8));
     } else if(myrop==XorROP) {
-	if ( depth == 32 )
-	    ((QRgb*)l)[x] = ((QRgb*)l)[x] ^ pixel;
-	else if ( depth == 24 ) {
-	    unsigned char *ptr = l + x*3;
-	    unsigned int s = gfxGetRgb24( ptr );
-	    gfxSetRgb24( ptr, s ^ pixel );
-	} else if ( depth == 16 )
-	    ((ushort*)l)[x] = ((ushort*)l)[x] ^ pixel;
-	else if ( depth == 8 )
-	    l[x] = l[x] ^ pixel;
-	else if ( depth == 4 ) {
-	    uchar *d = l + (x>>1);
-	    int s = (x & 1) << 2;
+        if (depth == 32)
+            ((QRgb*)l)[x] = ((QRgb*)l)[x] ^ pixel;
+        else if (depth == 24) {
+            unsigned char *ptr = l + x*3;
+            unsigned int s = gfxGetRgb24(ptr);
+            gfxSetRgb24(ptr, s ^ pixel);
+        } else if (depth == 16)
+            ((ushort*)l)[x] = ((ushort*)l)[x] ^ pixel;
+        else if (depth == 8)
+            l[x] = l[x] ^ pixel;
+        else if (depth == 4) {
+            uchar *d = l + (x>>1);
+            int s = (x & 1) << 2;
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-	    if ( is_screen_gfx )
-	        s = (~x & 1) << 2;
+            if (is_screen_gfx)
+                s = (~x & 1) << 2;
 #endif
-	    unsigned char p = *d;
-	    unsigned char e = ( p & MASK4BPP(s) ) |
-			      ( (p ^ (pixel << s)) & MASK4BPP(4-s) );
-	    *d = e;
-	} else if ( depth == 1 )
+            unsigned char p = *d;
+            unsigned char e = (p & MASK4BPP(s)) |
+                              ((p ^ (pixel << s)) & MASK4BPP(4-s));
+            *d = e;
+        } else if (depth == 1)
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-	    if ( is_screen_gfx ) {
-	    if ( pixel )
-		l[x/8] |= 0x80 >> (x%8);
-	    else
-		l[x/8] &= ~(0x80 >> (x%8));
-	    } else
+            if (is_screen_gfx) {
+            if (pixel)
+                l[x/8] |= 0x80 >> (x%8);
+            else
+                l[x/8] &= ~(0x80 >> (x%8));
+            } else
 #endif
-	    if ( pixel )
-		l[x/8] |= 1 << (x%8);
-	    else
-		l[x/8] &= ~(1 << (x%8));
+            if (pixel)
+                l[x/8] |= 1 << (x%8);
+            else
+                l[x/8] &= ~(1 << (x%8));
     } else if(myrop==NotROP) {
-	if ( depth == 32 )
-	    ((QRgb*)l)[x] = ~(((QRgb*)l)[x]);
-	else if ( depth == 24 ) {
-	    unsigned char *ptr = l + x*3;
-	    unsigned int s = gfxGetRgb24( ptr );
-	    gfxSetRgb24( ptr, ~s );
-	} else if ( depth == 16 )
-	    ((ushort*)l)[x] = ~(((ushort*)l)[x]);
-	else if ( depth == 8 )
-	    l[x] = ~(l[x]);
-	else if ( depth == 4 ) {
-	    uchar *d = l + (x>>1);
-	    int s = (x & 1) << 2;
+        if (depth == 32)
+            ((QRgb*)l)[x] = ~(((QRgb*)l)[x]);
+        else if (depth == 24) {
+            unsigned char *ptr = l + x*3;
+            unsigned int s = gfxGetRgb24(ptr);
+            gfxSetRgb24(ptr, ~s);
+        } else if (depth == 16)
+            ((ushort*)l)[x] = ~(((ushort*)l)[x]);
+        else if (depth == 8)
+            l[x] = ~(l[x]);
+        else if (depth == 4) {
+            uchar *d = l + (x>>1);
+            int s = (x & 1) << 2;
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-	    if ( is_screen_gfx )
-	        s = (~x & 1) << 2;
+            if (is_screen_gfx)
+                s = (~x & 1) << 2;
 #endif
-	    unsigned char p = *d;
-	    *d = (p & MASK4BPP(s)) | ((~p) & MASK4BPP(4-s));
-	} else if ( depth == 1 )
+            unsigned char p = *d;
+            *d = (p & MASK4BPP(s)) | ((~p) & MASK4BPP(4-s));
+        } else if (depth == 1)
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-	    if ( is_screen_gfx ) {
-	    if ( pixel )
-		l[x/8] |= 0x80 >> (x%8);
-	    else
-		l[x/8] &= ~(0x80 >> (x%8));
-	    } else
+            if (is_screen_gfx) {
+            if (pixel)
+                l[x/8] |= 0x80 >> (x%8);
+            else
+                l[x/8] &= ~(0x80 >> (x%8));
+            } else
 #endif
-	    if ( pixel )
-		l[x/8] |= 1 << (x%8);
-	    else
-		l[x/8] &= ~(1 << (x%8));
+            if (pixel)
+                l[x/8] |= 1 << (x%8);
+            else
+                l[x/8] &= ~(1 << (x%8));
     } else {
-	// ...
+        // ...
     }
 }
 
 /*!
-\fn void QGfxRaster<depth,type>::drawPoint( int x, int y )
+\fn void QGfxRaster<depth,type>::drawPoint(int x, int y)
 
 \internal
 
@@ -2572,28 +2572,28 @@ offset, stored in the variables xoffs and yoffs.
 */
 
 template <const int depth, const int type>
-void QGfxRaster<depth,type>::drawPoint( int x, int y )
+void QGfxRaster<depth,type>::drawPoint(int x, int y)
 {
     if (!ncliprect)
-	return;
+        return;
     if(cpen.style()==NoPen)
-	return;
+        return;
     x += xoffs;
     y += yoffs;
 
     GFX_START(QRect(x,y,2,2))
     if((*gfx_optype))
-	sync();
+        sync();
     (*gfx_optype)=0;
         usePen();
     if (inClip(x,y)) {
-	drawPointUnclipped( x, scanLine(y) );
+        drawPointUnclipped(x, scanLine(y));
     }
     GFX_END
 }
 
 /*!
-  \fn void QGfxRaster<depth,type>::drawPoints( const QPointArray & pa, int index, int npoints )
+  \fn void QGfxRaster<depth,type>::drawPoints(const QPointArray & pa, int index, int npoints)
 
   \internal
 
@@ -2601,39 +2601,39 @@ void QGfxRaster<depth,type>::drawPoint( int x, int y )
 */
 
 template <const int depth, const int type>
-void QGfxRaster<depth,type>::drawPoints( const QPointArray & pa, int index, int npoints )
+void QGfxRaster<depth,type>::drawPoints(const QPointArray & pa, int index, int npoints)
 {
     if (!ncliprect)
-	return;
+        return;
     if(cpen.style()==NoPen)
-	return;
+        return;
     usePen();
     QRect cr;
-    bool in = FALSE;
-    bool foundone=( ((*gfx_optype)==0) ? TRUE : FALSE );
+    bool in = false;
+    bool foundone=(((*gfx_optype)==0) ? true : false);
 
     GFX_START(clipbounds);
     while (npoints--) {
-	int x = pa[index].x() + xoffs;
-	int y = pa[index].y() + yoffs;
-	if ( !cr.contains(x,y) ) {
-	    in = inClip(x,y,&cr);
-	}
-	if ( in ) {
-	    if(foundone==FALSE) {
-		sync();
-		(*gfx_optype)=0;
-		foundone=TRUE;
-	    }
-	    drawPointUnclipped( x, scanLine(y) );
-	}
-	++index;
+        int x = pa[index].x() + xoffs;
+        int y = pa[index].y() + yoffs;
+        if (!cr.contains(x,y)) {
+            in = inClip(x,y,&cr);
+        }
+        if (in) {
+            if(foundone==false) {
+                sync();
+                (*gfx_optype)=0;
+                foundone=true;
+            }
+            drawPointUnclipped(x, scanLine(y));
+        }
+        ++index;
     }
     GFX_END
 }
 
 /*!
-\fn void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
+\fn void QGfxRaster<depth,type>::drawLine(int x1, int y1, int x2, int y2)
 
 \internal
 
@@ -2641,16 +2641,16 @@ Draw a line in the current pen style from \a x1 \a y1 to \a x2 \a y2
 */
 
 template <const int depth, const int type>
-void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
+void QGfxRaster<depth,type>::drawLine(int x1, int y1, int x2, int y2)
 {
     if (!ncliprect)
-	return;
+        return;
     if (cpen.style()==NoPen)
-	return;
+        return;
 
     if (cpen.width() > 1) {
-	drawThickLine( x1, y1, x2, y2 );
-	return;
+        drawThickLine(x1, y1, x2, y2);
+        return;
     }
 
     usePen();
@@ -2660,22 +2660,22 @@ void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
     y2+=yoffs;
 
     if(x1>x2) {
-	int x3;
-	int y3;
-	x3=x2;
-	y3=y2;
-	x2=x1;
-	y2=y1;
-	x1=x3;
-	y1=y3;
+        int x3;
+        int y3;
+        x3=x2;
+        y3=y2;
+        x2=x1;
+        y2=y1;
+        x1=x3;
+        y1=y3;
 #ifdef GFX_CORRECT_POLYLINE_JOIN
-	if ( gfx_noLineOverwrite ) {
-	    if ( x2-x1 > QABS(y2-y1) )
-		gfx_storedLineRead -= x2-x1;
-	    else
-		gfx_storedLineRead -= QABS(y2-y1);
-	    gfx_storedLineDir = -gfx_storedLineDir;
-	}
+        if (gfx_noLineOverwrite) {
+            if (x2-x1 > QABS(y2-y1))
+                gfx_storedLineRead -= x2-x1;
+            else
+                gfx_storedLineRead -= QABS(y2-y1);
+            gfx_storedLineDir = -gfx_storedLineDir;
+        }
 #endif
     }
 
@@ -2690,30 +2690,30 @@ void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
 
 #ifdef QWS_EXPERIMENTAL_FASTPATH
     // Fast path
-    if ( !dashedLines && !gfx_storeLine ) {
-	if ( y1 == y2 ) {
-	    if ( ncliprect == 1) {
-		if ( x1 > cliprect[0].right() || x2 < cliprect[0].left()
-			|| y1 < cliprect[0].top() || y1 > cliprect[0].bottom() ) {
-		    GFX_END
-		    return;
-		}
-		x1 = x1 > cliprect[0].left() ? x1 : cliprect[0].left();
-		x2 = x2 > cliprect[0].right() ? cliprect[0].right() : x2;
-		unsigned char *l = scanLine(y1);
-		hlineUnclipped(x1,x2,l);
-	    } else {
-		hline( x1, x2, y1 );
-	    }
-	    GFX_END
-	    return;
-	}
+    if (!dashedLines && !gfx_storeLine) {
+        if (y1 == y2) {
+            if (ncliprect == 1) {
+                if (x1 > cliprect[0].right() || x2 < cliprect[0].left()
+                        || y1 < cliprect[0].top() || y1 > cliprect[0].bottom()) {
+                    GFX_END
+                    return;
+                }
+                x1 = x1 > cliprect[0].left() ? x1 : cliprect[0].left();
+                x2 = x2 > cliprect[0].right() ? cliprect[0].right() : x2;
+                unsigned char *l = scanLine(y1);
+                hlineUnclipped(x1,x2,l);
+            } else {
+                hline(x1, x2, y1);
+            }
+            GFX_END
+            return;
+        }
 # if !defined(_OS_QNX6_)
-	else if ( x1 == x2 ) {
-	    vline( x1, y1, y2 );
-	    GFX_END
-	    return;
-	}
+        else if (x1 == x2) {
+            vline(x1, y1, y2);
+            GFX_END
+            return;
+        }
 # endif
     }
 #endif
@@ -2726,133 +2726,133 @@ void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
     int y=y1;
 
     int d;
-    bool doDraw = TRUE;
+    bool doDraw = true;
 
     QRect cr;
     bool inside = inClip(x,y,&cr);
-    if(ax>ay && !dashedLines && !gfx_storeLine ) {
-	unsigned char* l = scanLine(y);
-	d=ay-(ax >> 1);
-	int px=x;
-	#define FLUSH(nx) \
-		if ( inside ) \
-		    hlineUnclipped(px,nx,l); \
-		px = nx+1;
-	for(;;) {
-	    if(x==x2) {
-		FLUSH(x);
-		GFX_END
-		return;
-	    }
-	    if(d>=0) {
-		FLUSH(x);
-		y+=sy;
-		d-=ax;
-		l = scanLine(y);
-		if ( !cr.contains(x+1,y) )
-		    inside = inClip(x+1,y, &cr);
-	    } else if ( !cr.contains(x+1,y) ) {
-		FLUSH(x);
-		inside = inClip(x+1,y, &cr);
-	    }
-	    x++;
-	    d+=ay;
-	}
+    if(ax>ay && !dashedLines && !gfx_storeLine) {
+        unsigned char* l = scanLine(y);
+        d=ay-(ax >> 1);
+        int px=x;
+        #define FLUSH(nx) \
+                if (inside) \
+                    hlineUnclipped(px,nx,l); \
+                px = nx+1;
+        for(;;) {
+            if(x==x2) {
+                FLUSH(x);
+                GFX_END
+                return;
+            }
+            if(d>=0) {
+                FLUSH(x);
+                y+=sy;
+                d-=ax;
+                l = scanLine(y);
+                if (!cr.contains(x+1,y))
+                    inside = inClip(x+1,y, &cr);
+            } else if (!cr.contains(x+1,y)) {
+                FLUSH(x);
+                inside = inClip(x+1,y, &cr);
+            }
+            x++;
+            d+=ay;
+        }
     } else if (ax > ay) {
-	// cannot use hline for dashed lines
-	int di = 0;
-	int dc = dashedLines ? dashes[0] : 0;
-	d=ay-(ax >> 1);
-	for(;;) {
-	    if ( !cr.contains(x,y))
-		inside = inClip(x,y, &cr);
+        // cannot use hline for dashed lines
+        int di = 0;
+        int dc = dashedLines ? dashes[0] : 0;
+        d=ay-(ax >> 1);
+        for(;;) {
+            if (!cr.contains(x,y))
+                inside = inClip(x,y, &cr);
 #ifdef GFX_CORRECT_POLYLINE_JOIN
-	    if ( gfx_storeLine ) {
-		doDraw = gfx_doDraw;
-		QPoint pt( x, y );
-		if ( gfx_noLineOverwrite ) {
-		    if ( gfx_storedLineRead >= 0 && pt == gfx_storedLineRd[gfx_storedLineRead] ) {
-			// we drew this point last time.
-			doDraw = FALSE;
-		    }
-		    gfx_storedLineRead += gfx_storedLineDir;
-		    if ( gfx_storedLineRead >= gfx_storedLineBufferSize )
-			gfx_noLineOverwrite = FALSE;
-		}
-		gfx_storedLineWr[gfx_storedLineWrite++] = pt;
-		if ( gfx_storedLineWrite >= gfx_storedLineBufferSize )
-		    gfx_storeLine = FALSE;
-	    }
+            if (gfx_storeLine) {
+                doDraw = gfx_doDraw;
+                QPoint pt(x, y);
+                if (gfx_noLineOverwrite) {
+                    if (gfx_storedLineRead >= 0 && pt == gfx_storedLineRd[gfx_storedLineRead]) {
+                        // we drew this point last time.
+                        doDraw = false;
+                    }
+                    gfx_storedLineRead += gfx_storedLineDir;
+                    if (gfx_storedLineRead >= gfx_storedLineBufferSize)
+                        gfx_noLineOverwrite = false;
+                }
+                gfx_storedLineWr[gfx_storedLineWrite++] = pt;
+                if (gfx_storedLineWrite >= gfx_storedLineBufferSize)
+                    gfx_storeLine = false;
+            }
 #endif
-	    if ( doDraw && inside && (di&0x01) == 0) {
-		drawPointUnclipped( x, scanLine(y) );
-	    }
-	    if(x==x2) {
-		GFX_END
-		return;
-	    }
-	    if (dashedLines && --dc <= 0) {
-		if (++di >= numDashes)
-		    di = 0;
-		dc = dashes[di];
-	    }
-	    if(d>=0) {
-		y+=sy;
-		d-=ax;
-	    }
-	    x++;
-	    d+=ay;
-	}
+            if (doDraw && inside && (di&0x01) == 0) {
+                drawPointUnclipped(x, scanLine(y));
+            }
+            if(x==x2) {
+                GFX_END
+                return;
+            }
+            if (dashedLines && --dc <= 0) {
+                if (++di >= numDashes)
+                    di = 0;
+                dc = dashes[di];
+            }
+            if(d>=0) {
+                y+=sy;
+                d-=ax;
+            }
+            x++;
+            d+=ay;
+        }
     } else {
-	int di = 0;
-	int dc = dashedLines ? dashes[0] : 0;
-	d=ax-(ay >> 1);
-	for(;;) {
-	    // y is dominant so we can't optimise with hline
-	    if ( !cr.contains(x,y))
-		inside = inClip(x,y, &cr);
+        int di = 0;
+        int dc = dashedLines ? dashes[0] : 0;
+        d=ax-(ay >> 1);
+        for(;;) {
+            // y is dominant so we can't optimise with hline
+            if (!cr.contains(x,y))
+                inside = inClip(x,y, &cr);
 #ifdef GFX_CORRECT_POLYLINE_JOIN
-	    if ( gfx_storeLine ) {
-		doDraw = gfx_doDraw;
-		QPoint pt( x, y );
-		if ( gfx_noLineOverwrite ) {
-		    if ( gfx_storedLineRead >= 0 && pt == gfx_storedLineRd[gfx_storedLineRead] ) {
-			// we drew this point last time.
-			doDraw = FALSE;
-		    }
-		    gfx_storedLineRead += gfx_storedLineDir;
-		    if ( gfx_storedLineRead >= gfx_storedLineBufferSize )
-			gfx_noLineOverwrite = FALSE;
-		}
-		gfx_storedLineWr[gfx_storedLineWrite++] = pt;
-		if ( gfx_storedLineWrite >= gfx_storedLineBufferSize )
-		    gfx_storeLine = FALSE;
-	    }
+            if (gfx_storeLine) {
+                doDraw = gfx_doDraw;
+                QPoint pt(x, y);
+                if (gfx_noLineOverwrite) {
+                    if (gfx_storedLineRead >= 0 && pt == gfx_storedLineRd[gfx_storedLineRead]) {
+                        // we drew this point last time.
+                        doDraw = false;
+                    }
+                    gfx_storedLineRead += gfx_storedLineDir;
+                    if (gfx_storedLineRead >= gfx_storedLineBufferSize)
+                        gfx_noLineOverwrite = false;
+                }
+                gfx_storedLineWr[gfx_storedLineWrite++] = pt;
+                if (gfx_storedLineWrite >= gfx_storedLineBufferSize)
+                    gfx_storeLine = false;
+            }
 #endif
-	    if ( doDraw && inside && (di&0x01) == 0)
-		drawPointUnclipped( x, scanLine(y) );
-	    if(y==y2) {
-		GFX_END
-		return;
-	    }
-	    if (dashedLines && --dc <= 0) {
-		if (++di >= numDashes)
-		    di = 0;
-		dc = dashes[di];
-	    }
-	    if(d>=0) {
-		x++;
-		d-=ay;
-	    }
-	    y+=sy;
-	    d+=ax;
-	}
+            if (doDraw && inside && (di&0x01) == 0)
+                drawPointUnclipped(x, scanLine(y));
+            if(y==y2) {
+                GFX_END
+                return;
+            }
+            if (dashedLines && --dc <= 0) {
+                if (++di >= numDashes)
+                    di = 0;
+                dc = dashes[di];
+            }
+            if(d>=0) {
+                x++;
+                d-=ay;
+            }
+            y+=sy;
+            d+=ax;
+        }
     }
     GFX_END
 }
 
 /*!
-    \fn void QGfxRaster<depth,type>::vline( int x,int y1,int y2 )
+    \fn void QGfxRaster<depth,type>::vline(int x,int y1,int y2)
 
     Draw a line at coordinate \a x from \a y1 to \a y2.
 
@@ -2861,63 +2861,63 @@ void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
 
 //screen coordinates, clipped
 template <const int depth, const int type>
-void QGfxRaster<depth,type>::vline( int x,int y1,int y2 )
+void QGfxRaster<depth,type>::vline(int x,int y1,int y2)
 {
-    if ( y1 > y2 ) {
-	int ty = y2;
-	y2 = y1;
-	y1 = ty;
+    if (y1 > y2) {
+        int ty = y2;
+        y2 = y1;
+        y1 = ty;
     }
 
     // gross clip.
-    if ( y1 > clipbounds.bottom() || y2 < clipbounds.top() )
-	return;
-    if ( y1 < clipbounds.top() )
-	y1 = clipbounds.top();
-    if ( y2 > clipbounds.bottom() )
-	y2 = clipbounds.bottom();
+    if (y1 > clipbounds.bottom() || y2 < clipbounds.top())
+        return;
+    if (y1 < clipbounds.top())
+        y1 = clipbounds.top();
+    if (y2 > clipbounds.bottom())
+        y2 = clipbounds.bottom();
     /*
-    qDebug( "x %d, y1 %d, y2 %d, cliprects %d", x, y1, y2, ncliprect );
-    for ( int i = 0; i < ncliprect; i++ ) {
-	QRect r = cliprect[i];
-	qDebug( "clip: %d, %d, %d, %d", r.left(), r.top(), r.right(), r.bottom() );
+    qDebug("x %d, y1 %d, y2 %d, cliprects %d", x, y1, y2, ncliprect);
+    for (int i = 0; i < ncliprect; i++) {
+        QRect r = cliprect[i];
+        qDebug("clip: %d, %d, %d, %d", r.left(), r.top(), r.right(), r.bottom());
     }
     */
     QRect cr;
     bool plot=inClip(x,y1,&cr);
     int y=y1;
     for (;;) {
-	int yb = cr.bottom();
-	if ( yb >= y2 ) {
-	    if (plot) {
-		unsigned char *sl = scanLine(y);
-		for ( int r = y; r <= y2; r++ ) {
-		    drawPointUnclipped( x, sl );
-		    sl += lstep;
-		}
-	    }
-	    break;
-	} else {
-//	    qDebug( "Y = %d, cl %d, cr %d, ct %d, cb %d, clipcursor %d", y, cr.left(), cr.right(), cr.top(), cr.bottom(), clipcursor );
-	    if (plot) {
-		unsigned char *sl = scanLine(y);
-		for ( int r = y; r <= yb; r++ ) {
-		    drawPointUnclipped( x, sl );
-		    sl += lstep;
-		}
-	    }
-	    y=yb+1;
-	    plot=inClip(x,y,&cr,plot);
-	}
+        int yb = cr.bottom();
+        if (yb >= y2) {
+            if (plot) {
+                unsigned char *sl = scanLine(y);
+                for (int r = y; r <= y2; r++) {
+                    drawPointUnclipped(x, sl);
+                    sl += lstep;
+                }
+            }
+            break;
+        } else {
+//            qDebug("Y = %d, cl %d, cr %d, ct %d, cb %d, clipcursor %d", y, cr.left(), cr.right(), cr.top(), cr.bottom(), clipcursor);
+            if (plot) {
+                unsigned char *sl = scanLine(y);
+                for (int r = y; r <= yb; r++) {
+                    drawPointUnclipped(x, sl);
+                    sl += lstep;
+                }
+            }
+            y=yb+1;
+            plot=inClip(x,y,&cr,plot);
+        }
     }
-//    qDebug( "Done" );
+//    qDebug("Done");
 }
 
 
 /*
   Based on lines_intersect from Graphics Gems II, author: Mukesh Prasad
 */
-static QPoint intersection( const QPointArray& pa, const QPoint& p0, int p, int q )
+static QPoint intersection(const QPointArray& pa, const QPoint& p0, int p, int q)
 {
     int x1 = p0.x();
     int x2 = pa[p+1].x();
@@ -2937,15 +2937,15 @@ static QPoint intersection( const QPointArray& pa, const QPoint& p0, int p, int 
     int c2 = x4 * y3 - x3 * y4;
 
     int denom = a1 * b2 - a2 * b1;
-    if ( denom == 0 )
-	return (p0+pa[q])/2;
+    if (denom == 0)
+        return (p0+pa[q])/2;
 
     int offset = denom < 0 ? - denom / 2 : denom / 2;
     int num = b1 * c2 - b2 * c1;
-    int x = ( num < 0 ? num - offset : num + offset ) / denom;
+    int x = (num < 0 ? num - offset : num + offset) / denom;
 
     num = a2 * c1 - a1 * c2;
-    int y = ( num < 0 ? num - offset : num + offset ) / denom;
+    int y = (num < 0 ? num - offset : num + offset) / denom;
 
     return QPoint(x,y);
 }
@@ -2956,11 +2956,11 @@ static void fix_mitre(QPointArray& pa, QPoint& pp, int i1, int i2, int i3, int p
     pp = pa[i3];
     QPoint d2 = inter-pa[i2];
     int l2 = d2.x()*d2.x()+d2.y()*d2.y();
-    if ( l2 > penwidth*penwidth*8 ) {
-	// Too sharp, leave it square
+    if (l2 > penwidth*penwidth*8) {
+        // Too sharp, leave it square
     } else {
-	pa[i2] = inter;
-	pa[i3] = inter;
+        pa[i2] = inter;
+        pa[i3] = inter;
     }
 }
 
@@ -2968,7 +2968,7 @@ static void fix_mitre(QPointArray& pa, QPoint& pp, int i1, int i2, int i3, int p
   Converts a thick polyline into a polygon which can be painted with
   the winding rule.
 */
-static QPointArray convertThickPolylineToPolygon( const QPointArray &points,int index, int npoints, int penwidth, Qt::PenJoinStyle join, bool close )
+static QPointArray convertThickPolylineToPolygon(const QPointArray &points,int index, int npoints, int penwidth, Qt::PenJoinStyle join, bool close)
 {
     QPointArray pa(npoints*4+(close?2:-4));
 
@@ -2976,76 +2976,76 @@ static QPointArray convertThickPolylineToPolygon( const QPointArray &points,int 
     int acw=pa.count()-1; // counterclockwise cursor in pa
 
     for (int i=0; i<npoints-(close?0:1); i++) {
-	int x1 = points[index + i].x();
-	int y1 = points[index + i].y();
-	int x2 = points[index + (i==npoints-1 ? 0 : i+1)].x();
-	int y2 = points[index + (i==npoints-1 ? 0 : i+1)].y();
+        int x1 = points[index + i].x();
+        int y1 = points[index + i].y();
+        int x2 = points[index + (i==npoints-1 ? 0 : i+1)].x();
+        int y2 = points[index + (i==npoints-1 ? 0 : i+1)].y();
 
-	int dx = x2 - x1;
-	int dy = y2 - y1;
-	int w = qt_int_sqrt(dx*dx+dy*dy);
-	int iy = w ? (penwidth * dy)/ w : dy ? 0 : penwidth;
-	int ix = w ? (penwidth * dx)/ w : dx ? 0 : penwidth;
+        int dx = x2 - x1;
+        int dy = y2 - y1;
+        int w = qt_int_sqrt(dx*dx+dy*dy);
+        int iy = w ? (penwidth * dy)/ w : dy ? 0 : penwidth;
+        int ix = w ? (penwidth * dx)/ w : dx ? 0 : penwidth;
 
-	// rounding dependent on sign
-	int nix, niy;
-	if ( ix < 0 ) {
-	    nix = ix/2;
-	    ix = (ix-1)/2;
-	} else {
-	    nix = (ix+1)/2;
-	    ix = ix/2;
-	}
-	if ( iy < 0 ) {
-	    niy = iy/2;
-	    iy = (iy-1)/2;
-	} else {
-	    niy = (iy+1)/2;
-	    iy = iy/2;
-	}
+        // rounding dependent on sign
+        int nix, niy;
+        if (ix < 0) {
+            nix = ix/2;
+            ix = (ix-1)/2;
+        } else {
+            nix = (ix+1)/2;
+            ix = ix/2;
+        }
+        if (iy < 0) {
+            niy = iy/2;
+            iy = (iy-1)/2;
+        } else {
+            niy = (iy+1)/2;
+            iy = iy/2;
+        }
 
-	pa.setPoint( cw, x1+iy, y1-nix );
-	pa.setPoint( acw, x1-niy, y1+ix );
-	cw++; acw--;
-	pa.setPoint( cw, x2+iy, y2-nix );
-	pa.setPoint( acw, x2-niy, y2+ix );
-	cw++; acw--;
+        pa.setPoint(cw, x1+iy, y1-nix);
+        pa.setPoint(acw, x1-niy, y1+ix);
+        cw++; acw--;
+        pa.setPoint(cw, x2+iy, y2-nix);
+        pa.setPoint(acw, x2-niy, y2+ix);
+        cw++; acw--;
     }
-    if ( close ) {
-	pa[cw] = pa[0];
-	pa[acw] = pa[pa.count()-1];
+    if (close) {
+        pa[cw] = pa[0];
+        pa[acw] = pa[pa.count()-1];
     }
-    if ( npoints > 2 && join == Qt::MiterJoin ) {
-	if ( close ) {
-	    QPoint pp=pa[0];
-	    QPoint p1=pa[pa.count()-2];
-	    int i;
-	    for (i=0; i<cw-2; i+=2)
-		fix_mitre(pa, pp, i, i+1, i+2, penwidth);
-	    fix_mitre(pa, pp, i, i+1, 0, penwidth);
-	    pp=p1;
-	    fix_mitre(pa, pp, pa.count()-2, acw, acw+1, penwidth);
-	    for (i=acw+1; i<(int)pa.count()-3; i+=2)
-		fix_mitre(pa, pp, i, i+1, i+2, penwidth);
+    if (npoints > 2 && join == Qt::MiterJoin) {
+        if (close) {
+            QPoint pp=pa[0];
+            QPoint p1=pa[pa.count()-2];
+            int i;
+            for (i=0; i<cw-2; i+=2)
+                fix_mitre(pa, pp, i, i+1, i+2, penwidth);
+            fix_mitre(pa, pp, i, i+1, 0, penwidth);
+            pp=p1;
+            fix_mitre(pa, pp, pa.count()-2, acw, acw+1, penwidth);
+            for (i=acw+1; i<(int)pa.count()-3; i+=2)
+                fix_mitre(pa, pp, i, i+1, i+2, penwidth);
 
-	    pa[0] = pa[cw];
-	    pa[pa.count()-1] = pa[acw];
-	} else {
-	    int i;
-	    QPoint pp=pa[0];
-	    for (i=0; i<cw-2; i+=2)
-		fix_mitre(pa, pp, i, i+1, i+2, penwidth);
-	    pp=pa[acw+1];
-	    for (i=acw+1; i<(int)pa.count()-2; i+=2)
-		fix_mitre(pa, pp, i, i+1, i+2, penwidth);
-	}
+            pa[0] = pa[cw];
+            pa[pa.count()-1] = pa[acw];
+        } else {
+            int i;
+            QPoint pp=pa[0];
+            for (i=0; i<cw-2; i+=2)
+                fix_mitre(pa, pp, i, i+1, i+2, penwidth);
+            pp=pa[acw+1];
+            for (i=acw+1; i<(int)pa.count()-2; i+=2)
+                fix_mitre(pa, pp, i, i+1, i+2, penwidth);
+        }
     }
 
     return pa;
 }
 
 /*!
-\fn void QGfxRaster<depth, type>::drawThickLine( int x1, int y1, int x2, int y2 )
+\fn void QGfxRaster<depth, type>::drawThickLine(int x1, int y1, int x2, int y2)
 
 \internal
 
@@ -3054,7 +3054,7 @@ to \a x2, \a y2. Called from drawLine when necessary.
 */
 
 template <const int depth, const int type>
-void QGfxRaster<depth, type>::drawThickLine( int x1, int y1, int x2, int y2 )
+void QGfxRaster<depth, type>::drawThickLine(int x1, int y1, int x2, int y2)
 {
     QPointArray pa(2);
     pa.setPoint(0,x1,y1);
@@ -3064,7 +3064,7 @@ void QGfxRaster<depth, type>::drawThickLine( int x1, int y1, int x2, int y2 )
 
 
 /*!
-\fn void QGfxRaster<depth,type>::drawThickPolyline( const QPointArray &points,int index, int npoints )
+\fn void QGfxRaster<depth,type>::drawThickPolyline(const QPointArray &points,int index, int npoints)
 
 \internal
 
@@ -3075,27 +3075,27 @@ is the number of points to use.
 */
 
 template <const int depth, const int type>
-void QGfxRaster<depth,type>::drawThickPolyline( const QPointArray &points,int index, int npoints )
+void QGfxRaster<depth,type>::drawThickPolyline(const QPointArray &points,int index, int npoints)
 {
-    if ( npoints < 2 )
-	return;
+    if (npoints < 2)
+        return;
     bool close = points[index] == points[index+npoints-1];
-    QPointArray pa = convertThickPolylineToPolygon( points, index,
-	close ? npoints-1 : npoints,
-	cpen.width(), cpen.joinStyle(), close );
+    QPointArray pa = convertThickPolylineToPolygon(points, index,
+        close ? npoints-1 : npoints,
+        cpen.width(), cpen.joinStyle(), close);
 
     usePen();
     GFX_START(clipbounds)
     if((*gfx_optype)!=0) {
-	sync();
+        sync();
     }
     (*gfx_optype)=0;
-    scan(pa, TRUE, 0, pa.count(), FALSE);
+    scan(pa, true, 0, pa.count(), false);
     GFX_END
 }
 
 /*!
-\fn void QGfxRaster<depth,type>::hline( int x1,int x2,int y)
+\fn void QGfxRaster<depth,type>::hline(int x1,int x2,int y)
 
 \internal
 
@@ -3105,49 +3105,49 @@ drawing code. Performs clipping.
 
 //screen coordinates, clipped, x1<=x2
 template <const int depth, const int type>
-void QGfxRaster<depth,type>::hline( int x1,int x2,int y)
+void QGfxRaster<depth,type>::hline(int x1,int x2,int y)
 {
     // gross clip.
-    if ( x1 > clipbounds.right() || x2 < clipbounds.left() )
-	return;
-    if ( x1 < clipbounds.left() )
-	x1 = clipbounds.left();
-    if ( x2 > clipbounds.right() )
-	x2 = clipbounds.right();
+    if (x1 > clipbounds.right() || x2 < clipbounds.left())
+        return;
+    if (x1 < clipbounds.left())
+        x1 = clipbounds.left();
+    if (x2 > clipbounds.right())
+        x2 = clipbounds.right();
 
     QRect cr;
     unsigned char *l=scanLine(y);
     bool plot=inClip(x1,y,&cr);
     int x=x1;
     for (;;) {
-	int xr = cr.right();
-	if ( xr >= x2 ) {
-	    if (plot) {
+        int xr = cr.right();
+        if (xr >= x2) {
+            if (plot) {
 #if defined(_OS_QNX6_) // Qnx-style hline takes x,y not pointer
-		if (isScreenGfx())
-		    hlineUnclipped(x,x2,y);
-		else
+                if (isScreenGfx())
+                    hlineUnclipped(x,x2,y);
+                else
 #endif
-		    hlineUnclipped(x,x2,l); // only call made for non-QNX
-	    }
-	    break;
-	} else {
-	    if (plot) {
+                    hlineUnclipped(x,x2,l); // only call made for non-QNX
+            }
+            break;
+        } else {
+            if (plot) {
 #if defined(_OS_QNX6_)
-		if (isScreenGfx())
-		    hlineUnclipped(x,xr,y);
-		else
+                if (isScreenGfx())
+                    hlineUnclipped(x,xr,y);
+                else
 #endif
-		    hlineUnclipped(x,xr,l); // only call made for non-QNX
-	    }
-	    x=xr+1;
-	    plot=inClip(x,y,&cr,plot);
-	}
+                    hlineUnclipped(x,xr,l); // only call made for non-QNX
+            }
+            x=xr+1;
+            plot=inClip(x,y,&cr,plot);
+        }
     }
 }
 
 /*!
-\fn void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned char* l)
+\fn void QGfxRaster<depth,type>::hlineUnclipped(int x1,int x2,unsigned char* l)
 
 \internal
 
@@ -3158,219 +3158,219 @@ fillRect, and drawPolygon.
 
 //screen coordinates, unclipped, x1<=x2, x1>=0
 template <const int depth, const int type>
-GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned char* l)
+GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped(int x1,int x2,unsigned char* l)
 {
     int w = x2-x1+1;
-    if( (myrop!=XorROP) && (myrop!=NotROP) ) {
-	if ( depth == 32 ) {
-	    unsigned int *myptr=(unsigned int *)l + x1;
-	    while ( w-- )
-		*(myptr++) = pixel;
-	} else if ( depth == 24 ) {
-	    unsigned char *myptr = l + x1*3;
-	    while ( w-- ) {
-		gfxSetRgb24( myptr, pixel );
-		myptr += 3;
-	    }
-	} else if ( depth == 16 ) {
-	    unsigned short int *myptr=(unsigned short int *)l;
+    if((myrop!=XorROP) && (myrop!=NotROP)) {
+        if (depth == 32) {
+            unsigned int *myptr=(unsigned int *)l + x1;
+            while (w--)
+                *(myptr++) = pixel;
+        } else if (depth == 24) {
+            unsigned char *myptr = l + x1*3;
+            while (w--) {
+                gfxSetRgb24(myptr, pixel);
+                myptr += 3;
+            }
+        } else if (depth == 16) {
+            unsigned short int *myptr=(unsigned short int *)l;
 #ifdef QWS_NO_WRITE_PACKING
-	    myptr+=x1;
-	    while ( w-- )
-		*(myptr++) = pixel;
+            myptr+=x1;
+            while (w--)
+                *(myptr++) = pixel;
 #else
-	    int frontadd;
-	    int backadd;
-	    int count;
-	    calcPacking(myptr,x1,x2,frontadd,backadd,count);
+            int frontadd;
+            int backadd;
+            int count;
+            calcPacking(myptr,x1,x2,frontadd,backadd,count);
 
-	    myptr+=x1;
+            myptr+=x1;
 
-	    PackType put = pixel | ( pixel << 16 );
+            PackType put = pixel | (pixel << 16);
 
-	    while ( frontadd-- )
-		*(myptr++)=pixel;
-	    // Duffs device.
-	    PackType *myptr2 = (PackType*)myptr;
-	    myptr += count * 2;
-	    PackType *end2 = (PackType*)myptr;
-	    switch(count%8){
-		case 0:
-		    while ( myptr2 != end2 ) {
-			*myptr2++ = put;
-		case 7: *myptr2++ = put;
-		case 6: *myptr2++ = put;
-		case 5: *myptr2++ = put;
-		case 4: *myptr2++ = put;
-		case 3: *myptr2++ = put;
-		case 2: *myptr2++ = put;
-		case 1: *myptr2++ = put;
-		    }
-	    }
-	    while ( backadd-- )
-		*(myptr++)=pixel;
+            while (frontadd--)
+                *(myptr++)=pixel;
+            // Duffs device.
+            PackType *myptr2 = (PackType*)myptr;
+            myptr += count * 2;
+            PackType *end2 = (PackType*)myptr;
+            switch(count%8){
+                case 0:
+                    while (myptr2 != end2) {
+                        *myptr2++ = put;
+                case 7: *myptr2++ = put;
+                case 6: *myptr2++ = put;
+                case 5: *myptr2++ = put;
+                case 4: *myptr2++ = put;
+                case 3: *myptr2++ = put;
+                case 2: *myptr2++ = put;
+                case 1: *myptr2++ = put;
+                    }
+            }
+            while (backadd--)
+                *(myptr++)=pixel;
 #endif
-	} else if ( depth == 8 ) {
-	    unsigned char *myptr=l;
+        } else if (depth == 8) {
+            unsigned char *myptr=l;
 #ifdef QWS_NO_WRITE_PACKING
-	    myptr+=x1;
-	    while ( w-- )
-		*(myptr++) = pixel;
+            myptr+=x1;
+            while (w--)
+                *(myptr++) = pixel;
 #else
-	    int frontadd,backadd,count;
-	    calcPacking(myptr,x1,x2,frontadd,backadd,count);
+            int frontadd,backadd,count;
+            calcPacking(myptr,x1,x2,frontadd,backadd,count);
 
-	    myptr+=x1;
+            myptr+=x1;
 
-	    PackType put = pixel | ( pixel << 8 )
-		| ( pixel << 16 ) | (pixel << 24 );
+            PackType put = pixel | (pixel << 8)
+                | (pixel << 16) | (pixel << 24);
 
-	    while ( frontadd-- )
-		*(myptr++)=pixel;
-	    // Duffs device.
-	    PackType *myptr2 = (PackType*)myptr;
-	    myptr += count * 4;
-	    PackType *end2 = (PackType*)myptr;
-	    switch(count%8){
-		case 0:
-		    while ( myptr2 != end2 ) {
-			*myptr2++ = put;
-			case 7: *myptr2++ = put;
-			case 6: *myptr2++ = put;
-			case 5: *myptr2++ = put;
-			case 4: *myptr2++ = put;
-			case 3: *myptr2++ = put;
-			case 2: *myptr2++ = put;
-			case 1: *myptr2++ = put;
-		    }
-	    }
-	    while ( backadd-- )
-		*(myptr++)=pixel;
+            while (frontadd--)
+                *(myptr++)=pixel;
+            // Duffs device.
+            PackType *myptr2 = (PackType*)myptr;
+            myptr += count * 4;
+            PackType *end2 = (PackType*)myptr;
+            switch(count%8){
+                case 0:
+                    while (myptr2 != end2) {
+                        *myptr2++ = put;
+                        case 7: *myptr2++ = put;
+                        case 6: *myptr2++ = put;
+                        case 5: *myptr2++ = put;
+                        case 4: *myptr2++ = put;
+                        case 3: *myptr2++ = put;
+                        case 2: *myptr2++ = put;
+                        case 1: *myptr2++ = put;
+                    }
+            }
+            while (backadd--)
+                *(myptr++)=pixel;
 #endif
-	} else if ( depth == 4 ) {
-	    unsigned char *myptr=l;
-	    unsigned char *dptr = myptr + x1/2;
-	    if ( x1&1 ) {
-		drawPointUnclipped( x1, myptr);
-		w--;
-		dptr++;
-	    }
+        } else if (depth == 4) {
+            unsigned char *myptr=l;
+            unsigned char *dptr = myptr + x1/2;
+            if (x1&1) {
+                drawPointUnclipped(x1, myptr);
+                w--;
+                dptr++;
+            }
 
-	    unsigned char val = pixel | (pixel << 4);
-	    while ( w > 1 ) {
-		*dptr++ = val;
-		w -= 2;
-	    }
+            unsigned char val = pixel | (pixel << 4);
+            while (w > 1) {
+                *dptr++ = val;
+                w -= 2;
+            }
 
-	    if ( !(x2&1))
-		drawPointUnclipped( x2, myptr);
-	} else if ( depth == 1 ) {
-	    //#### we need to use semaphore
-	    l += x1/8;
-	    if ( x1/8 == x2/8 ) {
-		// Same byte
+            if (!(x2&1))
+                drawPointUnclipped(x2, myptr);
+        } else if (depth == 1) {
+            //#### we need to use semaphore
+            l += x1/8;
+            if (x1/8 == x2/8) {
+                // Same byte
 
-		uchar mask = (0xff << (x1 % 8)) & (0xff >> (7 - x2 % 8));
+                uchar mask = (0xff << (x1 % 8)) & (0xff >> (7 - x2 % 8));
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-		if ( is_screen_gfx )
-		mask = (0xff >> (x1 % 8)) & (0xff << (7 - x2 % 8));
+                if (is_screen_gfx)
+                mask = (0xff >> (x1 % 8)) & (0xff << (7 - x2 % 8));
 #endif
-		if ( pixel )
-		    *l |= mask;
-		else
-		    *l &= ~mask;
-	    } else {
-		volatile unsigned char *last = l + (x2/8-x1/8);
-		uchar mask = 0xff << (x1 % 8);
+                if (pixel)
+                    *l |= mask;
+                else
+                    *l &= ~mask;
+            } else {
+                volatile unsigned char *last = l + (x2/8-x1/8);
+                uchar mask = 0xff << (x1 % 8);
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-		if ( is_screen_gfx )
-		    mask = 0xff >> (x1 % 8);
+                if (is_screen_gfx)
+                    mask = 0xff >> (x1 % 8);
 #endif
-		if ( pixel )
-		    *l++ |= mask;
-		else
-		    *l++ &= ~mask;
-		unsigned char byte = pixel ? 0xff : 0x00;
-		while (l < last)
-		    *l++ = byte;
+                if (pixel)
+                    *l++ |= mask;
+                else
+                    *l++ &= ~mask;
+                unsigned char byte = pixel ? 0xff : 0x00;
+                while (l < last)
+                    *l++ = byte;
 
-		mask = 0xff >> (7 - x2 % 8);
+                mask = 0xff >> (7 - x2 % 8);
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-		if ( is_screen_gfx )
-		    mask = 0xff << (7 - x2 % 8);
+                if (is_screen_gfx)
+                    mask = 0xff << (7 - x2 % 8);
 #endif
-		if ( pixel )
-		    *l |= mask;
-		else
-		    *l &= ~mask;
-	    }
-	}
+                if (pixel)
+                    *l |= mask;
+                else
+                    *l &= ~mask;
+            }
+        }
     } else if(myrop==XorROP) {
-	if ( depth == 32 ) {
-	    unsigned int *myptr=(unsigned int *)l + x1;
-	    while ( w-- ) {
-		(*myptr) = (*myptr) ^ pixel;
-		myptr++;
-	    }
-	} else if ( depth == 16 ) {
-	    unsigned short int *myptr=(unsigned short int *)l;
-	    myptr+=x1;
-	    while ( w-- ) {
-		(*myptr) = (*myptr) ^ pixel;
-		myptr++;
-	    }
-	} else if ( depth == 8 ) {
-	    unsigned char *myptr=l;
-	    myptr+=x1;
-	    while ( w-- ) {
-		(*myptr) = (*myptr) ^ pixel;
-		myptr++;
-	    }
-	} else if ( depth == 4 || depth == 24 ) {
-	    unsigned char *myptr=l;
-	    while ( w-- )
-		drawPointUnclipped( x1++, myptr);
-	} else if ( depth == 1 ) {
-	    // ...
-	}
+        if (depth == 32) {
+            unsigned int *myptr=(unsigned int *)l + x1;
+            while (w--) {
+                (*myptr) = (*myptr) ^ pixel;
+                myptr++;
+            }
+        } else if (depth == 16) {
+            unsigned short int *myptr=(unsigned short int *)l;
+            myptr+=x1;
+            while (w--) {
+                (*myptr) = (*myptr) ^ pixel;
+                myptr++;
+            }
+        } else if (depth == 8) {
+            unsigned char *myptr=l;
+            myptr+=x1;
+            while (w--) {
+                (*myptr) = (*myptr) ^ pixel;
+                myptr++;
+            }
+        } else if (depth == 4 || depth == 24) {
+            unsigned char *myptr=l;
+            while (w--)
+                drawPointUnclipped(x1++, myptr);
+        } else if (depth == 1) {
+            // ...
+        }
     } else if(myrop==NotROP) {
-	if ( depth == 32 ) {
-	    unsigned int *myptr=(unsigned int *)l + x1;
-	    while ( w-- ) {
-		(*myptr) = ~(*myptr);
-		myptr++;
-	    }
-	} else if ( depth == 16 ) {
-	    unsigned short int *myptr=(unsigned short int *)l;
-	    myptr+=x1;
-	    while ( w-- ) {
-		(*myptr) = ~(*myptr);
-		myptr++;
-	    }
-	} else if ( depth == 8 ) {
-	    unsigned char *myptr=l;
-	    myptr+=x1;
-	    while ( w-- ) {
-		(*myptr) = ~(*myptr);
-		myptr++;
-	    }
-	} else if ( depth == 4 || depth == 24 ) {
-	    unsigned char *myptr=l;
-	    while ( w-- )
-		drawPointUnclipped( x1++, myptr);
-	} else if ( depth == 1 ) {
-	    // ...
-	}
+        if (depth == 32) {
+            unsigned int *myptr=(unsigned int *)l + x1;
+            while (w--) {
+                (*myptr) = ~(*myptr);
+                myptr++;
+            }
+        } else if (depth == 16) {
+            unsigned short int *myptr=(unsigned short int *)l;
+            myptr+=x1;
+            while (w--) {
+                (*myptr) = ~(*myptr);
+                myptr++;
+            }
+        } else if (depth == 8) {
+            unsigned char *myptr=l;
+            myptr+=x1;
+            while (w--) {
+                (*myptr) = ~(*myptr);
+                myptr++;
+            }
+        } else if (depth == 4 || depth == 24) {
+            unsigned char *myptr=l;
+            while (w--)
+                drawPointUnclipped(x1++, myptr);
+        } else if (depth == 1) {
+            // ...
+        }
     } else {
-	// ... - will probably go in above clause
+        // ... - will probably go in above clause
     }
 }
 
 /*!
-\fn void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
-						    unsigned char *l,
-						    unsigned char *srcdata,
-						    bool reverse)
+\fn void QGfxRaster<depth,type>::hImageLineUnclipped(int x1,int x2,
+                                                    unsigned char *l,
+                                                    unsigned char *srcdata,
+                                                    bool reverse)
 
 \internal
 
@@ -3389,452 +3389,452 @@ GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned c
 */
 
 template <const int depth, const int type>
-GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
-						    unsigned char *l,
-						    unsigned char *srcdata,
-						    bool reverse)
+GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped(int x1,int x2,
+                                                    unsigned char *l,
+                                                    unsigned char *srcdata,
+                                                    bool reverse)
 {
     int w = x2-x1+1;
-    if ( depth == 32 ) {
-	unsigned int *myptr=(unsigned int *)l;
-	int inc = 1;
-	if(!reverse) {
-	    myptr+=x1;
-	} else {
-	    myptr+=x2;
-	    inc = -1;
-	}
-	if ( !ismasking ) {
-	    uint gv = srccol;
-	    while ( w-- ) {
-		if (srctype==SourceImage)
-		    gv = get_value_32(srcdepth,&srcdata);
-		if(myrop==XorROP) {
-		  *(myptr)^=gv;
-		  myptr++;
-		} else if(myrop==NotROP) {
-		  *(myptr)=~(*myptr);
-		  myptr++;
-		} else {
-		  *(myptr++) = gv;
-		}
-	    }
-	} else {
-	    //masked 32bpp blt...
-	    unsigned int gv = srccol;
-	    while ( w-- ) {
-		if ( srctype == SourceImage )
-		    gv = get_value_32( srcdepth, &srcdata, reverse );
-		bool masked = TRUE;
-		GET_MASKED(reverse, w);
-		if ( !masked ) {
-		  if(myrop==XorROP) {
-		    *(myptr)^=gv;
-		  } else if(myrop==NotROP) {
-		    *(myptr)=~(*myptr);
-		  } else {
-		    *(myptr) = gv;
-		  }
-		}
-		myptr += inc;
-	    }
-	}
-    } else if ( depth == 24 ) {
-	unsigned char *myptr = l;
-	int inc = 3;
-	if(!reverse) {
-	    myptr += x1*3;
-	} else {
-	    myptr += x2*3;
-	    inc = -3;
-	}
-	if ( !ismasking ) {
-	    uint gv = srccol;
-	    while ( w-- ) {
-		if (srctype==SourceImage)
-		    gv = get_value_24(srcdepth,&srcdata);
-		gfxSetRgb24( myptr, gv );
-		myptr += 3;
-	    }
-	} else {
-	    //masked 32bpp blt...
-	    unsigned int gv = srccol;
-	    while ( w-- ) {
-		if ( srctype == SourceImage )
-		    gv = get_value_24( srcdepth, &srcdata, reverse );
-		bool masked = TRUE;
-		GET_MASKED(reverse, w);
-		if ( !masked )
-		    gfxSetRgb24( myptr, gv );
-		myptr += inc;
-	    }
-	}
-    } else if ( depth == 16 ) {
-	unsigned short int *myptr=(unsigned short int *)l;
-	int inc = 1;
-	if(!reverse) {
-	    myptr+=x1;
-	} else {
-	    myptr+=x2;
-	    inc = -1;
-	}
-	if(!ismasking) {
+    if (depth == 32) {
+        unsigned int *myptr=(unsigned int *)l;
+        int inc = 1;
+        if(!reverse) {
+            myptr+=x1;
+        } else {
+            myptr+=x2;
+            inc = -1;
+        }
+        if (!ismasking) {
+            uint gv = srccol;
+            while (w--) {
+                if (srctype==SourceImage)
+                    gv = get_value_32(srcdepth,&srcdata);
+                if(myrop==XorROP) {
+                  *(myptr)^=gv;
+                  myptr++;
+                } else if(myrop==NotROP) {
+                  *(myptr)=~(*myptr);
+                  myptr++;
+                } else {
+                  *(myptr++) = gv;
+                }
+            }
+        } else {
+            //masked 32bpp blt...
+            unsigned int gv = srccol;
+            while (w--) {
+                if (srctype == SourceImage)
+                    gv = get_value_32(srcdepth, &srcdata, reverse);
+                bool masked = true;
+                GET_MASKED(reverse, w);
+                if (!masked) {
+                  if(myrop==XorROP) {
+                    *(myptr)^=gv;
+                  } else if(myrop==NotROP) {
+                    *(myptr)=~(*myptr);
+                  } else {
+                    *(myptr) = gv;
+                  }
+                }
+                myptr += inc;
+            }
+        }
+    } else if (depth == 24) {
+        unsigned char *myptr = l;
+        int inc = 3;
+        if(!reverse) {
+            myptr += x1*3;
+        } else {
+            myptr += x2*3;
+            inc = -3;
+        }
+        if (!ismasking) {
+            uint gv = srccol;
+            while (w--) {
+                if (srctype==SourceImage)
+                    gv = get_value_24(srcdepth,&srcdata);
+                gfxSetRgb24(myptr, gv);
+                myptr += 3;
+            }
+        } else {
+            //masked 32bpp blt...
+            unsigned int gv = srccol;
+            while (w--) {
+                if (srctype == SourceImage)
+                    gv = get_value_24(srcdepth, &srcdata, reverse);
+                bool masked = true;
+                GET_MASKED(reverse, w);
+                if (!masked)
+                    gfxSetRgb24(myptr, gv);
+                myptr += inc;
+            }
+        }
+    } else if (depth == 16) {
+        unsigned short int *myptr=(unsigned short int *)l;
+        int inc = 1;
+        if(!reverse) {
+            myptr+=x1;
+        } else {
+            myptr+=x2;
+            inc = -1;
+        }
+        if(!ismasking) {
 #ifdef QWS_NO_WRITE_PACKING
-	    while ( w-- ) {
-		if(myrop==XorROP) {
-		    *(myptr)^=get_value_16(srcdepth,&srcdata);
-		    myptr++;
-		} else if(myrop==NotROP) {
-		    *(myptr)=~(*myptr);
-		    myptr++;
-		} else {
-		    *(myptr++)=get_value_16(srcdepth,&srcdata);
-		}
-	    }
+            while (w--) {
+                if(myrop==XorROP) {
+                    *(myptr)^=get_value_16(srcdepth,&srcdata);
+                    myptr++;
+                } else if(myrop==NotROP) {
+                    *(myptr)=~(*myptr);
+                    myptr++;
+                } else {
+                    *(myptr++)=get_value_16(srcdepth,&srcdata);
+                }
+            }
 #else
-	    // 32-bit writes
-	    int frontadd;
-	    int backadd;
-	    int count;
+            // 32-bit writes
+            int frontadd;
+            int backadd;
+            int count;
 
-	    calcPacking(myptr-x1,x1,x2,frontadd,backadd,count);
+            calcPacking(myptr-x1,x1,x2,frontadd,backadd,count);
 
-	    PackType dput;
-	    if(myrop==XorROP) {
-		while ( frontadd-- )
-		    *(myptr++)^=get_value_16(srcdepth,&srcdata);
-		PackType *myptr2 = (PackType*)myptr;
-		myptr += count * 2;
-		while ( count-- ) {
+            PackType dput;
+            if(myrop==XorROP) {
+                while (frontadd--)
+                    *(myptr++)^=get_value_16(srcdepth,&srcdata);
+                PackType *myptr2 = (PackType*)myptr;
+                myptr += count * 2;
+                while (count--) {
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-			dput = (get_value_16(srcdepth,&srcdata) << 16);
-			dput |= get_value_16(srcdepth,&srcdata);
+                        dput = (get_value_16(srcdepth,&srcdata) << 16);
+                        dput |= get_value_16(srcdepth,&srcdata);
 #else
-			dput = get_value_16(srcdepth,&srcdata);
-			dput |= (get_value_16(srcdepth,&srcdata) << 16);
+                        dput = get_value_16(srcdepth,&srcdata);
+                        dput |= (get_value_16(srcdepth,&srcdata) << 16);
 #endif
-		    *myptr2++ ^= dput;
-		}
-		while ( backadd-- )
-		    *(myptr++)^=get_value_16(srcdepth,&srcdata);
-	    } else if(myrop==NotROP) {
-		while ( frontadd-- ) {
-		    *(myptr)=~(*myptr);
-		    myptr++;
-		}
-		PackType *myptr2 = (PackType*)myptr;
-		myptr += count * 2;
-		while ( count-- ) {
-		    *myptr2 = ~*myptr2;
-		    myptr2++;
-		}
-		while ( backadd-- ) {
-		    *(myptr)=~(*myptr);
-		    myptr++;
-		}
-	    } else {
-		while ( frontadd-- )
-		    *(myptr++)=get_value_16(srcdepth,&srcdata);
-		PackType *myptr2 = (PackType*)myptr;
-		myptr += count * 2;
-		while ( count-- ) {
+                    *myptr2++ ^= dput;
+                }
+                while (backadd--)
+                    *(myptr++)^=get_value_16(srcdepth,&srcdata);
+            } else if(myrop==NotROP) {
+                while (frontadd--) {
+                    *(myptr)=~(*myptr);
+                    myptr++;
+                }
+                PackType *myptr2 = (PackType*)myptr;
+                myptr += count * 2;
+                while (count--) {
+                    *myptr2 = ~*myptr2;
+                    myptr2++;
+                }
+                while (backadd--) {
+                    *(myptr)=~(*myptr);
+                    myptr++;
+                }
+            } else {
+                while (frontadd--)
+                    *(myptr++)=get_value_16(srcdepth,&srcdata);
+                PackType *myptr2 = (PackType*)myptr;
+                myptr += count * 2;
+                while (count--) {
 # ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		    dput = (get_value_16(srcdepth,&srcdata) << 16);
-		    dput |= get_value_16(srcdepth,&srcdata);
+                    dput = (get_value_16(srcdepth,&srcdata) << 16);
+                    dput |= get_value_16(srcdepth,&srcdata);
 # else
-		    dput = get_value_16(srcdepth,&srcdata);
-		    dput |= (get_value_16(srcdepth,&srcdata) << 16);
+                    dput = get_value_16(srcdepth,&srcdata);
+                    dput |= (get_value_16(srcdepth,&srcdata) << 16);
 # endif
-		    *myptr2++ = dput;
-		}
-		while ( backadd-- )
-		    *(myptr++)=get_value_16(srcdepth,&srcdata);
-	    }
+                    *myptr2++ = dput;
+                }
+                while (backadd--)
+                    *(myptr++)=get_value_16(srcdepth,&srcdata);
+            }
 #endif
-	} else {
-	    // Probably not worth trying to pack writes if there's a mask
-	    unsigned short int gv = srccol;
-	    if (myrop == XorROP || myrop == NotROP) {
-		while ( w-- ) {
-		    if ( srctype==SourceImage )
-			gv = get_value_16( srcdepth, &srcdata, reverse );
-		    bool masked = TRUE;
-		    GET_MASKED(reverse, w);
-		    if ( !masked ) {
-			if (myrop == XorROP)
-			    *(myptr) ^= gv;
-			else
-			    *(myptr) = ~(*myptr);
-		    }
-		    myptr += inc;
-		}
-	    } else {
-		while ( w-- ) {
-		    if ( srctype==SourceImage )
-			gv = get_value_16( srcdepth, &srcdata, reverse );
-		    bool masked = TRUE;
-		    GET_MASKED(reverse, w);
-		    if ( !masked )
-			*(myptr) = gv;
-		    myptr += inc;
-		}
-	    }
-	}
-    } else if ( depth == 8 ) {
+        } else {
+            // Probably not worth trying to pack writes if there's a mask
+            unsigned short int gv = srccol;
+            if (myrop == XorROP || myrop == NotROP) {
+                while (w--) {
+                    if (srctype==SourceImage)
+                        gv = get_value_16(srcdepth, &srcdata, reverse);
+                    bool masked = true;
+                    GET_MASKED(reverse, w);
+                    if (!masked) {
+                        if (myrop == XorROP)
+                            *(myptr) ^= gv;
+                        else
+                            *(myptr) = ~(*myptr);
+                    }
+                    myptr += inc;
+                }
+            } else {
+                while (w--) {
+                    if (srctype==SourceImage)
+                        gv = get_value_16(srcdepth, &srcdata, reverse);
+                    bool masked = true;
+                    GET_MASKED(reverse, w);
+                    if (!masked)
+                        *(myptr) = gv;
+                    myptr += inc;
+                }
+            }
+        }
+    } else if (depth == 8) {
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-	// cursor code uses 8bpp backing store
-	if (srcdepth == 4 && srcbits==qt_screen->base())
-	    src_little_endian = !src_little_endian;
+        // cursor code uses 8bpp backing store
+        if (srcdepth == 4 && srcbits==qt_screen->base())
+            src_little_endian = !src_little_endian;
 #endif
-	unsigned char *myptr=(unsigned char *)l;
-	int inc = 1;
-	if(!reverse) {
-	    myptr+=x1;
-	} else {
-	    myptr+=x2;
-	    inc = -1;
-	}
-	if(!ismasking) {
+        unsigned char *myptr=(unsigned char *)l;
+        int inc = 1;
+        if(!reverse) {
+            myptr+=x1;
+        } else {
+            myptr+=x2;
+            inc = -1;
+        }
+        if(!ismasking) {
 #ifdef QWS_NO_WRITE_PACKING
-	  while ( w-- ) {
-	    if(myrop==XorROP) {
-	      *(myptr)^=get_value_8(srcdepth,&srcdata);
-	      myptr++;
-	    } else if(myrop==NotROP) {
-	      *(myptr)=~(*myptr);
-	      myptr++;
-	    } else {
-	      *(myptr++)=get_value_8(srcdepth,&srcdata);
-	    }
-	  }
+          while (w--) {
+            if(myrop==XorROP) {
+              *(myptr)^=get_value_8(srcdepth,&srcdata);
+              myptr++;
+            } else if(myrop==NotROP) {
+              *(myptr)=~(*myptr);
+              myptr++;
+            } else {
+              *(myptr++)=get_value_8(srcdepth,&srcdata);
+            }
+          }
 #else
-	    // 32-bit writes
-	    int frontadd;
-	    int backadd;
-	    int count;
+            // 32-bit writes
+            int frontadd;
+            int backadd;
+            int count;
 
-	    calcPacking(myptr-x1,x1,x2,frontadd,backadd,count);
+            calcPacking(myptr-x1,x1,x2,frontadd,backadd,count);
 
-	    PackType dput;
-	    while ( frontadd-- ) {
-	      if(myrop==XorROP) {
-		*(myptr)^=get_value_8(srcdepth,&srcdata);
-		myptr++;
-	      } else if(myrop==NotROP) {
-		*(myptr)=~(*myptr);
-		myptr++;
-	      } else {
-		*(myptr++)=get_value_8(srcdepth,&srcdata);
-	      }
-	    }
-	    while ( count-- ) {
+            PackType dput;
+            while (frontadd--) {
+              if(myrop==XorROP) {
+                *(myptr)^=get_value_8(srcdepth,&srcdata);
+                myptr++;
+              } else if(myrop==NotROP) {
+                *(myptr)=~(*myptr);
+                myptr++;
+              } else {
+                *(myptr++)=get_value_8(srcdepth,&srcdata);
+              }
+            }
+            while (count--) {
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		dput = (get_value_8(srcdepth,&srcdata) << 24);
-		dput |= (get_value_8(srcdepth,&srcdata) << 16);
-		dput |= (get_value_8(srcdepth,&srcdata) << 8);
-		dput |= get_value_8(srcdepth,&srcdata);
+                dput = (get_value_8(srcdepth,&srcdata) << 24);
+                dput |= (get_value_8(srcdepth,&srcdata) << 16);
+                dput |= (get_value_8(srcdepth,&srcdata) << 8);
+                dput |= get_value_8(srcdepth,&srcdata);
 #else
-		dput = get_value_8(srcdepth,&srcdata);
-		dput |= (get_value_8(srcdepth,&srcdata) << 8);
-		dput |= (get_value_8(srcdepth,&srcdata) << 16);
-		dput |= (get_value_8(srcdepth,&srcdata) << 24);
+                dput = get_value_8(srcdepth,&srcdata);
+                dput |= (get_value_8(srcdepth,&srcdata) << 8);
+                dput |= (get_value_8(srcdepth,&srcdata) << 16);
+                dput |= (get_value_8(srcdepth,&srcdata) << 24);
 #endif
-		if(myrop==XorROP) {
-		  *((PackType*)myptr) ^= dput;
-		} else if(myrop==NotROP) {
+                if(myrop==XorROP) {
+                  *((PackType*)myptr) ^= dput;
+                } else if(myrop==NotROP) {
                   *((PackType*)myptr) = ~*((PackType*)myptr);
-		} else {
-		  *((PackType*)myptr) = dput;
-		}
-		myptr += 4;
-	    }
-	    while ( backadd-- ) {
-	      if(myrop==XorROP) {
-		*(myptr)^=get_value_8(srcdepth,&srcdata);
-		myptr++;
-	      } else if(myrop==NotROP) {
-		*(myptr)=~(*myptr);
-		myptr++;
-	      } else {
-		*(myptr++)=get_value_8(srcdepth,&srcdata);
-	      }
-	    }
+                } else {
+                  *((PackType*)myptr) = dput;
+                }
+                myptr += 4;
+            }
+            while (backadd--) {
+              if(myrop==XorROP) {
+                *(myptr)^=get_value_8(srcdepth,&srcdata);
+                myptr++;
+              } else if(myrop==NotROP) {
+                *(myptr)=~(*myptr);
+                myptr++;
+              } else {
+                *(myptr++)=get_value_8(srcdepth,&srcdata);
+              }
+            }
 #endif
-	} else {
-	    // Probably not worth trying to pack writes if there's a mask
-	    unsigned char gv = srccol;
-	    while ( w-- ) {
-		if ( srctype==SourceImage )
-		    gv = get_value_8( srcdepth, &srcdata, reverse);
-		bool masked = TRUE;
-		GET_MASKED(reverse, w);
-		if ( !masked ) {
-		  if(myrop==XorROP) {
-		    *(myptr) ^= gv;
-		  } else if(myrop==NotROP) {
-		    *(myptr) = ~(*myptr);
-		  } else {
-		    *(myptr) = gv;
-		  }
-		}
-		myptr += inc;
-	    }
-	}
+        } else {
+            // Probably not worth trying to pack writes if there's a mask
+            unsigned char gv = srccol;
+            while (w--) {
+                if (srctype==SourceImage)
+                    gv = get_value_8(srcdepth, &srcdata, reverse);
+                bool masked = true;
+                GET_MASKED(reverse, w);
+                if (!masked) {
+                  if(myrop==XorROP) {
+                    *(myptr) ^= gv;
+                  } else if(myrop==NotROP) {
+                    *(myptr) = ~(*myptr);
+                  } else {
+                    *(myptr) = gv;
+                  }
+                }
+                myptr += inc;
+            }
+        }
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-	//restore
-	if (srcdepth == 4 && srcbits==qt_screen->base())
-	    src_little_endian = !src_little_endian;
+        //restore
+        if (srcdepth == 4 && srcbits==qt_screen->base())
+            src_little_endian = !src_little_endian;
 #endif
-    } else if ( depth == 4 ) {
-	unsigned char *dp = l;
-	unsigned int gv = srccol;
+    } else if (depth == 4) {
+        unsigned char *dp = l;
+        unsigned int gv = srccol;
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-	//really ugly hack: screen is opposite endianness to everything else
-	if (srcbits==qt_screen->base())
-	    src_little_endian = !src_little_endian;
+        //really ugly hack: screen is opposite endianness to everything else
+        if (srcbits==qt_screen->base())
+            src_little_endian = !src_little_endian;
 #endif
-	if ( reverse ) {
-	    dp += (x2/2);
-	    int x = x2;
-	    while ( w-- ) {
-		if ( srctype==SourceImage )
-		    gv = get_value_4( srcdepth, &srcdata, reverse);
-		bool masked = TRUE;
-		if ( ismasking ) {
-		    GET_MASKED(reverse, w);
-		}
-		if ( !masked || !ismasking ) {
-		    int s = (x&1) << 2;
+        if (reverse) {
+            dp += (x2/2);
+            int x = x2;
+            while (w--) {
+                if (srctype==SourceImage)
+                    gv = get_value_4(srcdepth, &srcdata, reverse);
+                bool masked = true;
+                if (ismasking) {
+                    GET_MASKED(reverse, w);
+                }
+                if (!masked || !ismasking) {
+                    int s = (x&1) << 2;
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-		    if ( is_screen_gfx )
-		        s = (~x&1) << 2;
+                    if (is_screen_gfx)
+                        s = (~x&1) << 2;
 #endif
-		    *dp = ( *dp & MASK4BPP(s) ) | (gv << s);
-		}
-		if ( !(x&1) )
-		    dp--;
-		x--;
-	    }
-	} else {
-	    dp += (x1/2);
-	    int x = x1;
-	    while ( w-- ) {
-		if ( srctype==SourceImage )
-		    gv = get_value_4( srcdepth, &srcdata, reverse);
-		bool masked = TRUE;
-		if ( ismasking ) {
-		    GET_MASKED(reverse, w);
-		}
-		if ( !masked || !ismasking ) {
-		    int s = (x&1) << 2;
+                    *dp = (*dp & MASK4BPP(s)) | (gv << s);
+                }
+                if (!(x&1))
+                    dp--;
+                x--;
+            }
+        } else {
+            dp += (x1/2);
+            int x = x1;
+            while (w--) {
+                if (srctype==SourceImage)
+                    gv = get_value_4(srcdepth, &srcdata, reverse);
+                bool masked = true;
+                if (ismasking) {
+                    GET_MASKED(reverse, w);
+                }
+                if (!masked || !ismasking) {
+                    int s = (x&1) << 2;
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-		    if ( is_screen_gfx )
-		        s = (~x&1) << 2;
+                    if (is_screen_gfx)
+                        s = (~x&1) << 2;
 #endif
-		    *dp = ( *dp & MASK4BPP(s) ) | (gv << s);
-		}
-		if ( x&1 )
-		    dp++;
-		x++;
-	    }
-	}
+                    *dp = (*dp & MASK4BPP(s)) | (gv << s);
+                }
+                if (x&1)
+                    dp++;
+                x++;
+            }
+        }
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-	//end of really ugly hack; undo the damage
-	if (srcbits==qt_screen->base())
-	    src_little_endian = !src_little_endian;
+        //end of really ugly hack; undo the damage
+        if (srcbits==qt_screen->base())
+            src_little_endian = !src_little_endian;
 #endif
-    } else if ( depth == 1 ) {
-	// General case only implemented.
-	// Lots of optimisation can be performed for special cases.
-	unsigned char * dp=l;
-	unsigned int gv = srccol;
+    } else if (depth == 1) {
+        // General case only implemented.
+        // Lots of optimisation can be performed for special cases.
+        unsigned char * dp=l;
+        unsigned int gv = srccol;
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-	//really ugly hack: screen is opposite endianness to everything else
-	if (srcbits==qt_screen->base())
-	    src_little_endian = !src_little_endian;
+        //really ugly hack: screen is opposite endianness to everything else
+        if (srcbits==qt_screen->base())
+            src_little_endian = !src_little_endian;
 #endif
-	if ( reverse ) {
-	    dp+=(x2/8);
-	    int skipbits = 7 - (x2%8);
-	    for ( int b = x1/8; b <= x2/8; b++ ) {
-		unsigned char m = *dp;
-		for (int i = 0; i < 8 && w; i++) {
-		    if (skipbits)
-			skipbits--;
-		    else {
-			w--;
-			if ( srctype == SourceImage )
-			    gv = get_value_1( srcdepth, &srcdata, TRUE);
-			bool masked = TRUE;
-			if ( ismasking ) {
-			    GET_MASKED(TRUE, w);
-			}
-			if ( !masked || !ismasking ) {
+        if (reverse) {
+            dp+=(x2/8);
+            int skipbits = 7 - (x2%8);
+            for (int b = x1/8; b <= x2/8; b++) {
+                unsigned char m = *dp;
+                for (int i = 0; i < 8 && w; i++) {
+                    if (skipbits)
+                        skipbits--;
+                    else {
+                        w--;
+                        if (srctype == SourceImage)
+                            gv = get_value_1(srcdepth, &srcdata, true);
+                        bool masked = true;
+                        if (ismasking) {
+                            GET_MASKED(true, w);
+                        }
+                        if (!masked || !ismasking) {
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-			    if ( is_screen_gfx ) {
-				if (gv)
-				    m |= 0x01 << i;
-				else
-				    m &= ~( 0x01 << i );
-			    } else
+                            if (is_screen_gfx) {
+                                if (gv)
+                                    m |= 0x01 << i;
+                                else
+                                    m &= ~(0x01 << i);
+                            } else
 #endif
-				if (gv)
-				    m |= 0x80 >> i;
-				else
-				    m &= ~( 0x80 >> i );
-			}
-		    }
-		}
-		*(dp--) = m;
-	    }
-	} else {
-	    dp+=(x1/8);
-	    int skipbits = x1%8;
-	    for ( int b = x1/8; b <= x2/8; b++ ) {
-		unsigned char m = *dp;
-		for (int i = 0; i < 8 && w; i++) {
-		    if (skipbits)
-			skipbits--;
-		    else {
-			w--;
-			if ( srctype == SourceImage )
-			    gv = get_value_1( srcdepth, &srcdata, FALSE);
-			bool masked = TRUE;
-			if ( ismasking ) {
-			    GET_MASKED(FALSE, w);
-			}
-			if ( !masked || !ismasking ) {
+                                if (gv)
+                                    m |= 0x80 >> i;
+                                else
+                                    m &= ~(0x80 >> i);
+                        }
+                    }
+                }
+                *(dp--) = m;
+            }
+        } else {
+            dp+=(x1/8);
+            int skipbits = x1%8;
+            for (int b = x1/8; b <= x2/8; b++) {
+                unsigned char m = *dp;
+                for (int i = 0; i < 8 && w; i++) {
+                    if (skipbits)
+                        skipbits--;
+                    else {
+                        w--;
+                        if (srctype == SourceImage)
+                            gv = get_value_1(srcdepth, &srcdata, false);
+                        bool masked = true;
+                        if (ismasking) {
+                            GET_MASKED(false, w);
+                        }
+                        if (!masked || !ismasking) {
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-			    if ( is_screen_gfx ) {
-				if (gv)
-				    m |= 0x80 >> i;
-				else
-				    m &= ~( 0x80 >> i );
-			    } else
+                            if (is_screen_gfx) {
+                                if (gv)
+                                    m |= 0x80 >> i;
+                                else
+                                    m &= ~(0x80 >> i);
+                            } else
 #endif
-				if (gv)
-				    m |= 1 << i;
-				else
-				    m &= ~( 1 << i );
-			}
-		    }
-		}
-		*(dp++) = m;
-	    }
-	}
+                                if (gv)
+                                    m |= 1 << i;
+                                else
+                                    m &= ~(1 << i);
+                        }
+                    }
+                }
+                *(dp++) = m;
+            }
+        }
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-	//end of really ugly hack; undo the damage
-	if (srcbits==qt_screen->base())
-	    src_little_endian = !src_little_endian;
+        //end of really ugly hack; undo the damage
+        if (srcbits==qt_screen->base())
+            src_little_endian = !src_little_endian;
 #endif
     }
 }
 
 /*!
-\fn void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
-						    unsigned char* l,
-						    unsigned char * srcdata,
-						    unsigned char * alphas)
+\fn void QGfxRaster<depth,type>::hAlphaLineUnclipped(int x1,int x2,
+                                                    unsigned char* l,
+                                                    unsigned char * srcdata,
+                                                    unsigned char * alphas)
 
 \internal
 
@@ -3854,544 +3854,544 @@ pixel data and \a alphas is the alpha channel for the SeparateAlpha mode.
 */
 
 template <const int depth, const int type>
-GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
-						    unsigned char* l,
-						    unsigned char * srcdata,
-						    unsigned char * alphas)
+GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped(int x1,int x2,
+                                                    unsigned char* l,
+                                                    unsigned char * srcdata,
+                                                    unsigned char * alphas)
 {
     int w=x2-x1+1;
-    if ( depth == 32 ) {
-	// First read in the destination line
-	unsigned int *myptr = (unsigned int *)l;
-	unsigned int *alphaptr = (unsigned int *)alphabuf;
-	unsigned char * avp=alphas;
-	int loopc;
-
-	unsigned int *temppos = myptr+x1;
-	for ( int i = 0; i < w; i++ )
-	    *(alphaptr++) = *(temppos++);
-
-	// Now blend with source data
-	unsigned char * srcptr=srcdata;
-	unsigned int srcval;
-
-	if(srctype==SourceImage) {
-	    srcptr=srcdata;
-	    srcval=0; // Shut up compiler
-	} else {
-	    // SourcePen
-	    srcval=srccol;
-	}
-
-	alphaptr = (unsigned int *)alphabuf;
-	for(loopc=0;loopc<w;loopc++) {
-	    int r,g,b;
-	    if(srctype==SourceImage)
-		srcval=get_value_32(srcdepth,&srcptr);
-
-	    int av;
-	    if(alphatype==InlineAlpha) {
-		av = srcval >> 24;
-	    } else if(alphatype==SolidAlpha) {
-		av=calpha;
-	    } else {
-		av=*(avp++);
-	    }
-
-	    r = (srcval & 0xff0000) >> 16;
-	    g = (srcval & 0xff00) >> 8;
-	    b = srcval & 0xff;
-
-	    unsigned int hold = alphabuf[loopc];
-	    if(av==255) {
-	        // Do nothing - we already have source values in r,g,b
-	    } else if(av==0) {
-		r = (hold >> 16) & 0xff;
-		g = (hold >> 8) & 0xff;
-		b = hold & 0xff;
-	    } else {
-		int tmp = (hold >> 16) & 0xff;
-		r = ((r-tmp) * av) / 256 + tmp;
-		tmp = (hold >> 8) & 0xff;
-		g = ((g-tmp) * av) / 256 + tmp;
-		tmp = hold & 0xff;
-		b = ((b-tmp) * av) / 256 + tmp;
-	    }
-	    *(alphaptr++) = (r << 16) | (g << 8) | b;
-	}
-
-	// Now write it all out
-	alphaptr = (unsigned int *)alphabuf;
-
-	myptr += x1;
-	while ( w-- ) {
-	    // NotROP really doesn't make sense for an alpha blt
-	  if(myrop==XorROP) {
-	    *(myptr++)^=(*(alphaptr++));
-	  } else {
-	    *(myptr++)=*(alphaptr++);
-	  }
-	}
-    } else if ( depth == 24 ) {
-	// First read in the destination line
-	unsigned char *myptr = l;
-	unsigned char *alphaptr = (unsigned char *)alphabuf;
-	unsigned char *avp = alphas;
-	int loopc;
-
-	memcpy( alphabuf, myptr+x1*3, w*3 );
-
-	// Now blend with source data
-	unsigned char * srcptr=srcdata;
-	unsigned int srcval;
-
-	if(srctype==SourceImage) {
-	    srcptr=srcdata;
-	    srcval=0; // Shut up compiler
-	} else {
-	    // SourcePen
-	    srcval=srccol;
-	}
-
-	alphaptr = (unsigned char *)alphabuf;
-	for(loopc=0;loopc<w;loopc++) {
-	    int r,g,b;
-	    if(srctype==SourceImage)
-		srcval=get_value_32(srcdepth,&srcptr);
-
-	    int av;
-	    if(alphatype==InlineAlpha) {
-		av = srcval >> 24;
-	    } else if(alphatype==SolidAlpha) {
-		av=calpha;
-	    } else {
-		av=*(avp++);
-	    }
-
-	    r = (srcval & 0xff0000) >> 16;
-	    g = (srcval & 0xff00) >> 8;
-	    b = srcval & 0xff;
-
-	    unsigned char *tmp = alphaptr;
-	    if ( av == 255 ) {
-	        // Do nothing - we already have source values in r,g,b
-	    } else if ( av == 0 ) {
-	        r = *(tmp+2);
-	        g = *(tmp+1);
-	        b = *(tmp+0);
-	    } else {
-		r = ((r-*(tmp+2)) * av) / 256 + *(tmp+2);
-		g = ((g-*(tmp+1)) * av) / 256 + *(tmp+1);
-		b = ((b-*(tmp+0)) * av) / 256 + *(tmp+0);
-	    }
-	    gfxSetRgb24( alphaptr, r, g, b );
-	    alphaptr += 3;
-	}
-
-	// Now write it all out
-	memcpy( myptr+x1*3, alphabuf, w*3 );
-#if !defined( QT_NO_IMAGE_16_BIT ) || !defined( QT_NO_QWS_DEPTH_16 )
-    } else if ( depth == 16 ) {
+    if (depth == 32) {
         // First read in the destination line
-	unsigned short int *myptr = (unsigned short int *)l;
-	unsigned int *alphaptr = (unsigned int *)alphabuf;
-	int loopc;
+        unsigned int *myptr = (unsigned int *)l;
+        unsigned int *alphaptr = (unsigned int *)alphabuf;
+        unsigned char * avp=alphas;
+        int loopc;
+
+        unsigned int *temppos = myptr+x1;
+        for (int i = 0; i < w; i++)
+            *(alphaptr++) = *(temppos++);
+
+        // Now blend with source data
+        unsigned char * srcptr=srcdata;
+        unsigned int srcval;
+
+        if(srctype==SourceImage) {
+            srcptr=srcdata;
+            srcval=0; // Shut up compiler
+        } else {
+            // SourcePen
+            srcval=srccol;
+        }
+
+        alphaptr = (unsigned int *)alphabuf;
+        for(loopc=0;loopc<w;loopc++) {
+            int r,g,b;
+            if(srctype==SourceImage)
+                srcval=get_value_32(srcdepth,&srcptr);
+
+            int av;
+            if(alphatype==InlineAlpha) {
+                av = srcval >> 24;
+            } else if(alphatype==SolidAlpha) {
+                av=calpha;
+            } else {
+                av=*(avp++);
+            }
+
+            r = (srcval & 0xff0000) >> 16;
+            g = (srcval & 0xff00) >> 8;
+            b = srcval & 0xff;
+
+            unsigned int hold = alphabuf[loopc];
+            if(av==255) {
+                // Do nothing - we already have source values in r,g,b
+            } else if(av==0) {
+                r = (hold >> 16) & 0xff;
+                g = (hold >> 8) & 0xff;
+                b = hold & 0xff;
+            } else {
+                int tmp = (hold >> 16) & 0xff;
+                r = ((r-tmp) * av) / 256 + tmp;
+                tmp = (hold >> 8) & 0xff;
+                g = ((g-tmp) * av) / 256 + tmp;
+                tmp = hold & 0xff;
+                b = ((b-tmp) * av) / 256 + tmp;
+            }
+            *(alphaptr++) = (r << 16) | (g << 8) | b;
+        }
+
+        // Now write it all out
+        alphaptr = (unsigned int *)alphabuf;
+
+        myptr += x1;
+        while (w--) {
+            // NotROP really doesn't make sense for an alpha blt
+          if(myrop==XorROP) {
+            *(myptr++)^=(*(alphaptr++));
+          } else {
+            *(myptr++)=*(alphaptr++);
+          }
+        }
+    } else if (depth == 24) {
+        // First read in the destination line
+        unsigned char *myptr = l;
+        unsigned char *alphaptr = (unsigned char *)alphabuf;
+        unsigned char *avp = alphas;
+        int loopc;
+
+        memcpy(alphabuf, myptr+x1*3, w*3);
+
+        // Now blend with source data
+        unsigned char * srcptr=srcdata;
+        unsigned int srcval;
+
+        if(srctype==SourceImage) {
+            srcptr=srcdata;
+            srcval=0; // Shut up compiler
+        } else {
+            // SourcePen
+            srcval=srccol;
+        }
+
+        alphaptr = (unsigned char *)alphabuf;
+        for(loopc=0;loopc<w;loopc++) {
+            int r,g,b;
+            if(srctype==SourceImage)
+                srcval=get_value_32(srcdepth,&srcptr);
+
+            int av;
+            if(alphatype==InlineAlpha) {
+                av = srcval >> 24;
+            } else if(alphatype==SolidAlpha) {
+                av=calpha;
+            } else {
+                av=*(avp++);
+            }
+
+            r = (srcval & 0xff0000) >> 16;
+            g = (srcval & 0xff00) >> 8;
+            b = srcval & 0xff;
+
+            unsigned char *tmp = alphaptr;
+            if (av == 255) {
+                // Do nothing - we already have source values in r,g,b
+            } else if (av == 0) {
+                r = *(tmp+2);
+                g = *(tmp+1);
+                b = *(tmp+0);
+            } else {
+                r = ((r-*(tmp+2)) * av) / 256 + *(tmp+2);
+                g = ((g-*(tmp+1)) * av) / 256 + *(tmp+1);
+                b = ((b-*(tmp+0)) * av) / 256 + *(tmp+0);
+            }
+            gfxSetRgb24(alphaptr, r, g, b);
+            alphaptr += 3;
+        }
+
+        // Now write it all out
+        memcpy(myptr+x1*3, alphabuf, w*3);
+#if !defined(QT_NO_IMAGE_16_BIT) || !defined(QT_NO_QWS_DEPTH_16)
+    } else if (depth == 16) {
+        // First read in the destination line
+        unsigned short int *myptr = (unsigned short int *)l;
+        unsigned int *alphaptr = (unsigned int *)alphabuf;
+        int loopc;
 
 #ifdef QWS_NO_WRITE_PACKING
-	unsigned short int *temppos = myptr + x1;
-	for ( int i = 0; i < w; i++ )
-	    *(alphaptr++) = get_value_32(16,(unsigned char **)&temppos);
+        unsigned short int *temppos = myptr + x1;
+        for (int i = 0; i < w; i++)
+            *(alphaptr++) = get_value_32(16,(unsigned char **)&temppos);
 #else
-	int frontadd, backadd, count;
-	calcPacking(myptr,x1,x2,frontadd,backadd,count);
-	myptr+=x1;
+        int frontadd, backadd, count;
+        calcPacking(myptr,x1,x2,frontadd,backadd,count);
+        myptr+=x1;
 
-	unsigned short int *temppos = myptr;
+        unsigned short int *temppos = myptr;
 
-	int loopc2;
-	for( loopc2=0;loopc2<frontadd;loopc2++ )
-	    *(alphaptr++)=get_value_32(16,(unsigned char **)&temppos);
+        int loopc2;
+        for(loopc2=0;loopc2<frontadd;loopc2++)
+            *(alphaptr++)=get_value_32(16,(unsigned char **)&temppos);
 
-	PackType temp2;
-	unsigned char * cp;
-	for( loopc2=0;loopc2<count;loopc2++ ) {
-	    temp2=*((PackType *)temppos);
-	    cp=(unsigned char *)&temp2;
-	    *(alphaptr++)=get_value_32(16,&cp);
-	    *(alphaptr++)=get_value_32(16,&cp);
-	    temppos += 2;
-	}
+        PackType temp2;
+        unsigned char * cp;
+        for(loopc2=0;loopc2<count;loopc2++) {
+            temp2=*((PackType *)temppos);
+            cp=(unsigned char *)&temp2;
+            *(alphaptr++)=get_value_32(16,&cp);
+            *(alphaptr++)=get_value_32(16,&cp);
+            temppos += 2;
+        }
 
-	for( loopc2=0;loopc2<backadd;loopc2++ )
-	    *(alphaptr++)=get_value_32(16,(unsigned char **)&temppos);
+        for(loopc2=0;loopc2<backadd;loopc2++)
+            *(alphaptr++)=get_value_32(16,(unsigned char **)&temppos);
 #endif
 
-	// Now blend with source data
-	unsigned char *srcptr=srcdata;
-	unsigned int srcval;
+        // Now blend with source data
+        unsigned char *srcptr=srcdata;
+        unsigned int srcval;
 
-	if(srctype==SourceImage) {
-	    srcptr=srcdata;
-	    srcval=0; // Shut up compiler
-	} else {
-	    // SourcePen
-	    srcval=qt_conv16ToRgb(srccol);
-	}
+        if(srctype==SourceImage) {
+            srcptr=srcdata;
+            srcval=0; // Shut up compiler
+        } else {
+            // SourcePen
+            srcval=qt_conv16ToRgb(srccol);
+        }
 
-	int astype = 3;
-	if ( srctype==SourceImage && alphatype==InlineAlpha )
-	    astype = 0;
-	else if ( srctype==SourceImage && alphatype != SolidAlpha )
-	    astype = 1;
-	else if ( alphatype != SolidAlpha )
-	    astype = 2;
+        int astype = 3;
+        if (srctype==SourceImage && alphatype==InlineAlpha)
+            astype = 0;
+        else if (srctype==SourceImage && alphatype != SolidAlpha)
+            astype = 1;
+        else if (alphatype != SolidAlpha)
+            astype = 2;
 
-	int av = calpha;
-	alphaptr = (unsigned int *)alphabuf;
-	unsigned char *avp = alphas;
-	for (loopc=0;loopc<w;loopc++) {
-	    switch ( astype ) {
-		case 0:
-		    srcval=get_value_32(srcdepth,&srcptr);
-		    av = srcval >> 24;
-		    break;
-		case 1:
-		    srcval=get_value_32(srcdepth,&srcptr);
-		    // FALLTHROUGH
-		case 2:
-		    av=*(avp++);
-		    break;
-	    }
+        int av = calpha;
+        alphaptr = (unsigned int *)alphabuf;
+        unsigned char *avp = alphas;
+        for (loopc=0;loopc<w;loopc++) {
+            switch (astype) {
+                case 0:
+                    srcval=get_value_32(srcdepth,&srcptr);
+                    av = srcval >> 24;
+                    break;
+                case 1:
+                    srcval=get_value_32(srcdepth,&srcptr);
+                    // FALLTHROUGH
+                case 2:
+                    av=*(avp++);
+                    break;
+            }
 
-	    int r,g,b;
-	    if (av == 255) {
-		unsigned char *stmp = (unsigned char *)&srcval;
+            int r,g,b;
+            if (av == 255) {
+                unsigned char *stmp = (unsigned char *)&srcval;
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		stmp++;
-		r = *stmp++;
-		g = *stmp++;
-		b = *stmp;
+                stmp++;
+                r = *stmp++;
+                g = *stmp++;
+                b = *stmp;
 #else
-		b = *stmp++;
-		g = *stmp++;
-		r = *stmp;
+                b = *stmp++;
+                g = *stmp++;
+                r = *stmp;
 #endif
-	    } else {
-		unsigned char *tmp=(unsigned char *)alphaptr;
+            } else {
+                unsigned char *tmp=(unsigned char *)alphaptr;
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		tmp++;
-		r = *tmp++;
-		g = *tmp++;
-		b = *tmp;
+                tmp++;
+                r = *tmp++;
+                g = *tmp++;
+                b = *tmp;
 #else
-		b = *tmp++;
-		g = *tmp++;
-		r = *tmp;
+                b = *tmp++;
+                g = *tmp++;
+                r = *tmp;
 #endif
-		if (av) {
-		    unsigned char *stmp = (unsigned char *)&srcval;
+                if (av) {
+                    unsigned char *stmp = (unsigned char *)&srcval;
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		    stmp++;
-		    r += ((*stmp++-r) * av) >> 8;
-		    g += (((*stmp++)-g) * av) >> 8;
-		    b += (((*stmp)-b) * av) >> 8;
+                    stmp++;
+                    r += ((*stmp++-r) * av) >> 8;
+                    g += (((*stmp++)-g) * av) >> 8;
+                    b += (((*stmp)-b) * av) >> 8;
 #else
-		    b += (((*stmp++)-b) * av) >> 8;
-		    g += (((*stmp++)-g) * av) >> 8;
-		    r += ((*stmp-r) * av) >> 8;
+                    b += (((*stmp++)-b) * av) >> 8;
+                    g += (((*stmp++)-g) * av) >> 8;
+                    r += ((*stmp-r) * av) >> 8;
 #endif
-		}
-	    }
-	    *(alphaptr++) = qt_convRgbTo16(r,g,b);
-	}
+                }
+            }
+            *(alphaptr++) = qt_convRgbTo16(r,g,b);
+        }
 
-	// Now write it all out
-	alphaptr = (unsigned int *)alphabuf;
+        // Now write it all out
+        alphaptr = (unsigned int *)alphabuf;
 
 #ifdef QWS_NO_WRITE_PACKING
-	myptr += x1;
-	while ( w-- ) {
-	  if(myrop==XorROP) {
-	    *(myptr++)^=(*(alphaptr++));
-	  } else {
-	    *(myptr++)=*(alphaptr++);
-	  }
-	}
+        myptr += x1;
+        while (w--) {
+          if(myrop==XorROP) {
+            *(myptr++)^=(*(alphaptr++));
+          } else {
+            *(myptr++)=*(alphaptr++);
+          }
+        }
 #else
-	myptr=(unsigned short int *)l;
-	calcPacking(myptr,x1,x2,frontadd,backadd,count);
-	myptr+=x1;
+        myptr=(unsigned short int *)l;
+        calcPacking(myptr,x1,x2,frontadd,backadd,count);
+        myptr+=x1;
 
-	for ( loopc2=0;loopc2<frontadd;loopc2++ ) {
-	    if (myrop==XorROP)
-		*(myptr++)^=(*(alphaptr++));
-	    else
-		*(myptr++)=*(alphaptr++);
-	}
+        for (loopc2=0;loopc2<frontadd;loopc2++) {
+            if (myrop==XorROP)
+                *(myptr++)^=(*(alphaptr++));
+            else
+                *(myptr++)=*(alphaptr++);
+        }
 
-	PackType put;
-	if ( myrop==XorROP ) {
-	    PackType *myptr2 = (PackType*)myptr;
-	    myptr += count * 2;
-	    for ( loopc2=0;loopc2<count;loopc2++ ) {
-		put = *(alphaptr++);
-		put |= (*(alphaptr++) << 16);
-		*myptr2++ ^= put;
-	    }
-	} else {
-	    // Duffs device.
+        PackType put;
+        if (myrop==XorROP) {
+            PackType *myptr2 = (PackType*)myptr;
+            myptr += count * 2;
+            for (loopc2=0;loopc2<count;loopc2++) {
+                put = *(alphaptr++);
+                put |= (*(alphaptr++) << 16);
+                *myptr2++ ^= put;
+            }
+        } else {
+            // Duffs device.
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-	    #define DUFF_WRITE_WORD put=(*(alphaptr++) << 16); put|=(*alphaptr++); \
-				*myptr2++ = put;
+            #define DUFF_WRITE_WORD put=(*(alphaptr++) << 16); put|=(*alphaptr++); \
+                                *myptr2++ = put;
 #else
-	    #define DUFF_WRITE_WORD put=*(alphaptr++); put|=(*(alphaptr++) << 16); \
-	                       *myptr2++ = put;
+            #define DUFF_WRITE_WORD put=*(alphaptr++); put|=(*(alphaptr++) << 16); \
+                               *myptr2++ = put;
 #endif
-	    PackType *myptr2 = (PackType*)myptr;
-	    myptr += count * 2;
-	    PackType *end2 = (PackType*)myptr;
-	    switch(count%8){
-		case 0:
-		    while ( myptr2 != end2 ) {
-			DUFF_WRITE_WORD
-		case 7: DUFF_WRITE_WORD
-		case 6: DUFF_WRITE_WORD
-		case 5: DUFF_WRITE_WORD
-		case 4: DUFF_WRITE_WORD
-		case 3: DUFF_WRITE_WORD
-		case 2: DUFF_WRITE_WORD
-		case 1: DUFF_WRITE_WORD
-		    }
-	    }
-	    #undef DUFF_WRITE_WORD
-	}
+            PackType *myptr2 = (PackType*)myptr;
+            myptr += count * 2;
+            PackType *end2 = (PackType*)myptr;
+            switch(count%8){
+                case 0:
+                    while (myptr2 != end2) {
+                        DUFF_WRITE_WORD
+                case 7: DUFF_WRITE_WORD
+                case 6: DUFF_WRITE_WORD
+                case 5: DUFF_WRITE_WORD
+                case 4: DUFF_WRITE_WORD
+                case 3: DUFF_WRITE_WORD
+                case 2: DUFF_WRITE_WORD
+                case 1: DUFF_WRITE_WORD
+                    }
+            }
+            #undef DUFF_WRITE_WORD
+        }
 
-	for ( loopc2=0;loopc2<backadd;loopc2++ ) {
-	    if (myrop==XorROP)
-		*(myptr++)^=(*(alphaptr++));
-	    else
-		*(myptr++)=*(alphaptr++);
-	}
+        for (loopc2=0;loopc2<backadd;loopc2++) {
+            if (myrop==XorROP)
+                *(myptr++)^=(*(alphaptr++));
+            else
+                *(myptr++)=*(alphaptr++);
+        }
 #endif
 #endif
-    } else if ( depth == 8 ) {
+    } else if (depth == 8) {
         // First read in the destination line
-	unsigned char * myptr;
-	myptr=l;
-	myptr+=x1;
-	int loopc;
+        unsigned char * myptr;
+        myptr=l;
+        myptr+=x1;
+        int loopc;
 
-	unsigned char * avp=alphas;
+        unsigned char * avp=alphas;
 
-	unsigned char * tempptr=myptr;
+        unsigned char * tempptr=myptr;
 
         for(loopc=0;loopc<w;loopc++) {
-	    int val = *tempptr++;
-	    alphabuf[loopc] = clut[val];
-	}
+            int val = *tempptr++;
+            alphabuf[loopc] = clut[val];
+        }
 
-	// Now blend with source data
+        // Now blend with source data
 
-	unsigned char * srcptr;
-	unsigned int srcval = 0;
-	if(srctype==SourceImage) {
-	    srcptr=srcdata;
-	} else {
-	    // SourcePen
-	    QRgb mytmp=clut[srccol];
-	    srcval=qRed(mytmp) << 16 | qGreen(mytmp) << 8 | qBlue(mytmp);
-	}
-	simple_8bpp_alloc=TRUE;
-	for(loopc=0;loopc<w;loopc++) {
-	    int r,g,b;
-	    if(srctype==SourceImage)
-		srcval=get_value_32(srcdepth,&srcptr);
+        unsigned char * srcptr;
+        unsigned int srcval = 0;
+        if(srctype==SourceImage) {
+            srcptr=srcdata;
+        } else {
+            // SourcePen
+            QRgb mytmp=clut[srccol];
+            srcval=qRed(mytmp) << 16 | qGreen(mytmp) << 8 | qBlue(mytmp);
+        }
+        simple_8bpp_alloc=true;
+        for(loopc=0;loopc<w;loopc++) {
+            int r,g,b;
+            if(srctype==SourceImage)
+                srcval=get_value_32(srcdepth,&srcptr);
 
-	    int av;
-	    if(alphatype==InlineAlpha) {
-		av=srcval >> 24;
-	    } else if(alphatype==SolidAlpha) {
-		av=calpha;
-	    } else {
-		av=*(avp++);
-	    }
+            int av;
+            if(alphatype==InlineAlpha) {
+                av=srcval >> 24;
+            } else if(alphatype==SolidAlpha) {
+                av=calpha;
+            } else {
+                av=*(avp++);
+            }
 
-	    r = (srcval & 0xff0000) >> 16;
-	    g = (srcval & 0xff00) >> 8;
-	    b = srcval & 0xff;
+            r = (srcval & 0xff0000) >> 16;
+            g = (srcval & 0xff00) >> 8;
+            b = srcval & 0xff;
 
-	    unsigned char * tmp=(unsigned char *)&alphabuf[loopc];
+            unsigned char * tmp=(unsigned char *)&alphabuf[loopc];
 
-	    if(myrop==XorROP) {
-	      if(av==255) {
-		*myptr ^= GFX_8BPP_PIXEL(r,g,b);
-	      } else if ( av > 0 ) {
-		r = ((r-*(tmp+2)) * av) / 256 + *(tmp+2);
-		g = ((g-*(tmp+1)) * av) / 256 + *(tmp+1);
-		b = ((b-*(tmp+0)) * av) / 256 + *(tmp+0);
-		*myptr ^= GFX_8BPP_PIXEL(r,g,b);
-	      }
-	    } else {
-	      if(av==255) {
-		*myptr = GFX_8BPP_PIXEL(r,g,b);
-	      } else if ( av > 0 ) {
-		r = ((r-*(tmp+2)) * av) / 256 + *(tmp+2);
-		g = ((g-*(tmp+1)) * av) / 256 + *(tmp+1);
-		b = ((b-*(tmp+0)) * av) / 256 + *(tmp+0);
-		*myptr = GFX_8BPP_PIXEL(r,g,b);
-	      }
-	    }
-	    myptr++;
-	}
-	simple_8bpp_alloc=FALSE;
-    } else if ( depth == 4 ) {
+            if(myrop==XorROP) {
+              if(av==255) {
+                *myptr ^= GFX_8BPP_PIXEL(r,g,b);
+              } else if (av > 0) {
+                r = ((r-*(tmp+2)) * av) / 256 + *(tmp+2);
+                g = ((g-*(tmp+1)) * av) / 256 + *(tmp+1);
+                b = ((b-*(tmp+0)) * av) / 256 + *(tmp+0);
+                *myptr ^= GFX_8BPP_PIXEL(r,g,b);
+              }
+            } else {
+              if(av==255) {
+                *myptr = GFX_8BPP_PIXEL(r,g,b);
+              } else if (av > 0) {
+                r = ((r-*(tmp+2)) * av) / 256 + *(tmp+2);
+                g = ((g-*(tmp+1)) * av) / 256 + *(tmp+1);
+                b = ((b-*(tmp+0)) * av) / 256 + *(tmp+0);
+                *myptr = GFX_8BPP_PIXEL(r,g,b);
+              }
+            }
+            myptr++;
+        }
+        simple_8bpp_alloc=false;
+    } else if (depth == 4) {
         // First read in the destination line
-	unsigned char *myptr = l;
-	myptr+=x1/2;
+        unsigned char *myptr = l;
+        myptr+=x1/2;
 
-	unsigned char *avp=alphas;
-	unsigned char *tempptr=myptr;
+        unsigned char *avp=alphas;
+        unsigned char *tempptr=myptr;
 
-	int loopc = 0;
-	if ( x1&1 ) {
-	    int val = *tempptr++;
+        int loopc = 0;
+        if (x1&1) {
+            int val = *tempptr++;
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-	    if ( is_screen_gfx )
-		alphabuf[loopc++] = clut[(val & 0x0f)];
-	    else
+            if (is_screen_gfx)
+                alphabuf[loopc++] = clut[(val & 0x0f)];
+            else
 #endif
-	    alphabuf[loopc++] = clut[(val & 0xf0) >> 4];
-	}
+            alphabuf[loopc++] = clut[(val & 0xf0) >> 4];
+        }
 
-        for ( ;loopc < w-1; loopc += 2 ) {
-	    int val = *tempptr++;
+        for (;loopc < w-1; loopc += 2) {
+            int val = *tempptr++;
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-	    if ( is_screen_gfx ) {
-		alphabuf[loopc] = clut[val >> 4];
-		alphabuf[loopc+1] = clut[val & 0x0f];
-	    } else
+            if (is_screen_gfx) {
+                alphabuf[loopc] = clut[val >> 4];
+                alphabuf[loopc+1] = clut[val & 0x0f];
+            } else
 #endif
-	    {
-	    alphabuf[loopc] = clut[val & 0x0f];
-	    alphabuf[loopc+1] = clut[val >> 4];
-	    }
-	}
+            {
+            alphabuf[loopc] = clut[val & 0x0f];
+            alphabuf[loopc+1] = clut[val >> 4];
+            }
+        }
 
-	if ( !(x2&1) ) {
-	    int val = *tempptr;
+        if (!(x2&1)) {
+            int val = *tempptr;
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-	    if ( is_screen_gfx )
-		alphabuf[w-1] = clut[(val & 0xf0) >> 4];
-	    else
+            if (is_screen_gfx)
+                alphabuf[w-1] = clut[(val & 0xf0) >> 4];
+            else
 #endif
-	    alphabuf[w-1] = clut[val & 0x0f];
-	}
+            alphabuf[w-1] = clut[val & 0x0f];
+        }
 
-	// Now blend with source data
+        // Now blend with source data
 
-	unsigned char * srcptr;
-	unsigned int srcval = 0;
-	if(srctype==SourceImage) {
-	    srcptr=srcdata;
-	} else {
-	    // SourcePen
-	    QRgb mytmp=clut[srccol];
-	    srcval=qRed(mytmp) << 16 | qGreen(mytmp) << 8 | qBlue(mytmp);
-	}
-	for(loopc=0;loopc<w;loopc++) {
-	    int r,g,b;
-	    if(srctype==SourceImage)
-		srcval=get_value_32(srcdepth,&srcptr);
+        unsigned char * srcptr;
+        unsigned int srcval = 0;
+        if(srctype==SourceImage) {
+            srcptr=srcdata;
+        } else {
+            // SourcePen
+            QRgb mytmp=clut[srccol];
+            srcval=qRed(mytmp) << 16 | qGreen(mytmp) << 8 | qBlue(mytmp);
+        }
+        for(loopc=0;loopc<w;loopc++) {
+            int r,g,b;
+            if(srctype==SourceImage)
+                srcval=get_value_32(srcdepth,&srcptr);
 
-	    int av;
-	    if(alphatype==InlineAlpha) {
-		av=srcval >> 24;
-	    } else if(alphatype==SolidAlpha) {
-		av=calpha;
-	    } else {
-		av=*(avp++);
-	    }
+            int av;
+            if(alphatype==InlineAlpha) {
+                av=srcval >> 24;
+            } else if(alphatype==SolidAlpha) {
+                av=calpha;
+            } else {
+                av=*(avp++);
+            }
 
-	    r = (srcval & 0xff0000) >> 16;
-	    g = (srcval & 0xff00) >> 8;
-	    b = srcval & 0xff;
+            r = (srcval & 0xff0000) >> 16;
+            g = (srcval & 0xff00) >> 8;
+            b = srcval & 0xff;
 
-	    unsigned char *tmp = (unsigned char *)&alphabuf[loopc];
+            unsigned char *tmp = (unsigned char *)&alphabuf[loopc];
 
-	    if(av==255) {
-		alphabuf[loopc] = qRgb(r,g,b);
-	    } else {
-		r = ((r-*(tmp+2)) * av) / 256 + *(tmp+2);
-		g = ((g-*(tmp+1)) * av) / 256 + *(tmp+1);
-		b = ((b-*(tmp+0)) * av) / 256 + *(tmp+0);
-		alphabuf[loopc] = qRgb(r,g,b);
-	    }
-	}
+            if(av==255) {
+                alphabuf[loopc] = qRgb(r,g,b);
+            } else {
+                r = ((r-*(tmp+2)) * av) / 256 + *(tmp+2);
+                g = ((g-*(tmp+1)) * av) / 256 + *(tmp+1);
+                b = ((b-*(tmp+0)) * av) / 256 + *(tmp+0);
+                alphabuf[loopc] = qRgb(r,g,b);
+            }
+        }
 
-	loopc = 0;
-	if ( x1&1 ) {
-	    QRgb rgb = alphabuf[loopc++];
+        loopc = 0;
+        if (x1&1) {
+            QRgb rgb = alphabuf[loopc++];
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-	    if ( is_screen_gfx )
-		*myptr++ = (*myptr & 0xf0) |
-		(gfx_screen->alloc( qRed(rgb), qGreen(rgb), qBlue(rgb) ) & 0x0f);
-	    else
+            if (is_screen_gfx)
+                *myptr++ = (*myptr & 0xf0) |
+                (gfx_screen->alloc(qRed(rgb), qGreen(rgb), qBlue(rgb)) & 0x0f);
+            else
 #endif
-	    *myptr++ = (*myptr & 0x0f) |
-		(gfx_screen->alloc( qRed(rgb), qGreen(rgb), qBlue(rgb) ) << 4);
-	}
+            *myptr++ = (*myptr & 0x0f) |
+                (gfx_screen->alloc(qRed(rgb), qGreen(rgb), qBlue(rgb)) << 4);
+        }
 
-        for ( ;loopc < w-1; loopc += 2 ) {
-	    QRgb rgb1 = alphabuf[loopc];
-	    QRgb rgb2 = alphabuf[loopc+1];
+        for (;loopc < w-1; loopc += 2) {
+            QRgb rgb1 = alphabuf[loopc];
+            QRgb rgb2 = alphabuf[loopc+1];
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-	    if ( is_screen_gfx ) {
-		rgb2 = alphabuf[loopc];
-		rgb1 = alphabuf[loopc+1];
-	    }
+            if (is_screen_gfx) {
+                rgb2 = alphabuf[loopc];
+                rgb1 = alphabuf[loopc+1];
+            }
 #endif
-	    *myptr++ = gfx_screen->alloc( qRed(rgb1), qGreen(rgb1), qBlue(rgb1) ) |
-		(gfx_screen->alloc( qRed(rgb2), qGreen(rgb2), qBlue(rgb2) ) << 4);
-	}
+            *myptr++ = gfx_screen->alloc(qRed(rgb1), qGreen(rgb1), qBlue(rgb1)) |
+                (gfx_screen->alloc(qRed(rgb2), qGreen(rgb2), qBlue(rgb2)) << 4);
+        }
 
-	if ( !(x2&1) ) {
-	    QRgb rgb = alphabuf[w-1];
+        if (!(x2&1)) {
+            QRgb rgb = alphabuf[w-1];
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-	    if ( is_screen_gfx )
-		*myptr++ = (*myptr & 0x0f) |
-		     (gfx_screen->alloc( qRed(rgb), qGreen(rgb), qBlue(rgb) ) << 4);
-	    else
+            if (is_screen_gfx)
+                *myptr++ = (*myptr & 0x0f) |
+                     (gfx_screen->alloc(qRed(rgb), qGreen(rgb), qBlue(rgb)) << 4);
+            else
 #endif
-	    *myptr = (*myptr & 0xf0) |
-		gfx_screen->alloc( qRed(rgb), qGreen(rgb), qBlue(rgb) );
-	}
+            *myptr = (*myptr & 0xf0) |
+                gfx_screen->alloc(qRed(rgb), qGreen(rgb), qBlue(rgb));
+        }
 
-    } else if ( depth == 1 ) {
-	if (srctype==SourceImage) {
-	    static int warn;
-	    if ( warn++ < 5 )
-		qDebug( "bitmap alpha-image not implemented" );
-	    hImageLineUnclipped( x1, x2, l, srcdata, FALSE );
-	} else {
-	    bool black = qGray(clut[srccol]) < 128;
-	    for (int x=x1; x<=x2; x++) {
-		if ( *alphas++ >= 64 ) { // ### could be configurable (monoContrast)
-		    uchar* lx = l+(x>>3);
-		    uchar b = 1<<(x&0x7);
+    } else if (depth == 1) {
+        if (srctype==SourceImage) {
+            static int warn;
+            if (warn++ < 5)
+                qDebug("bitmap alpha-image not implemented");
+            hImageLineUnclipped(x1, x2, l, srcdata, false);
+        } else {
+            bool black = qGray(clut[srccol]) < 128;
+            for (int x=x1; x<=x2; x++) {
+                if (*alphas++ >= 64) { // ### could be configurable (monoContrast)
+                    uchar* lx = l+(x>>3);
+                    uchar b = 1<<(x&0x7);
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-		    if ( is_screen_gfx )
-			b = 0x80>>(x&0x7);
+                    if (is_screen_gfx)
+                        b = 0x80>>(x&0x7);
 #endif
-		    if ( !(*lx&b) != black )
-			*lx ^= b;
-		}
-	    }
-	}
+                    if (!(*lx&b) != black)
+                        *lx ^= b;
+                }
+            }
+        }
     }
 }
 
 /*!
-\fn void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
+\fn void QGfxRaster<depth,type>::fillRect(int rx,int ry,int w,int h)
 
 \internal
 
@@ -4401,19 +4401,19 @@ Draw a filled rectangle in the current brush color from \a rx,\a ry to \a w,
 
 //widget coordinates
 template <const int depth, const int type>
-void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
+void QGfxRaster<depth,type>::fillRect(int rx,int ry,int w,int h)
 {
     if (!ncliprect)
-	return;
+        return;
     GFX_START(QRect(rx+xoffs, ry+yoffs, w+1, h+1))
 
     if((*gfx_optype))
-	sync();
+        sync();
     (*gfx_optype)=0;
     setAlphaType(IgnoreAlpha);
-    if ( w <= 0 || h <= 0 ) {
-	GFX_END
-	return;
+    if (w <= 0 || h <= 0) {
+        GFX_END
+        return;
     }
 
 #ifdef QWS_EXPERIMENTAL_FASTPATH
@@ -4421,409 +4421,409 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
     // This seems to be reliable now, at least for 16bpp
 
     if (ncliprect == 1 && cbrush.style()==SolidPattern) {
-	// Fast path
-	if(depth==16) {
-	    useBrush();
-	    int x1,y1,x2,y2;
-	    rx+=xoffs;
-	    ry+=yoffs;
-	    x2=rx+w-1;
-	    y2=ry+h-1;
-	    if(rx>cliprect[0].right() || ry>cliprect[0].bottom() ||
-	       x2<cliprect[0].left() || y2<cliprect[0].top()) {
-		GFX_END
-	        return;
-	    }
-	    x1=cliprect[0].left() > rx ? cliprect[0].left() : rx;
-	    y1=cliprect[0].top() > ry ? cliprect[0].top() : ry;
-	    x2=cliprect[0].right() > x2 ? x2 : cliprect[0].right();
-	    y2=cliprect[0].bottom() > y2 ? y2 : cliprect[0].bottom();
-	    w=(x2-x1)+1;
-	    h=(y2-y1)+1;
+        // Fast path
+        if(depth==16) {
+            useBrush();
+            int x1,y1,x2,y2;
+            rx+=xoffs;
+            ry+=yoffs;
+            x2=rx+w-1;
+            y2=ry+h-1;
+            if(rx>cliprect[0].right() || ry>cliprect[0].bottom() ||
+               x2<cliprect[0].left() || y2<cliprect[0].top()) {
+                GFX_END
+                return;
+            }
+            x1=cliprect[0].left() > rx ? cliprect[0].left() : rx;
+            y1=cliprect[0].top() > ry ? cliprect[0].top() : ry;
+            x2=cliprect[0].right() > x2 ? x2 : cliprect[0].right();
+            y2=cliprect[0].bottom() > y2 ? y2 : cliprect[0].bottom();
+            w=(x2-x1)+1;
+            h=(y2-y1)+1;
 
-	    if(w<1 || h<1) {
-		GFX_END
-		return;
-	    }
+            if(w<1 || h<1) {
+                GFX_END
+                return;
+            }
 
-	    unsigned short int * myptr=(unsigned short int *)scanLine(y1);
+            unsigned short int * myptr=(unsigned short int *)scanLine(y1);
 
-	// 64-bit writes make a /big/ difference from 32-bit ones,
-	// at least on my (fast AGP) hardware - 856 rects/second as opposed
-	// to 550, although MTRR makes this difference much less
-	    int frontadd;
-	    int backadd;
-	    int count;
-	    calcPacking(myptr,x1,x2,frontadd,backadd,count);
+        // 64-bit writes make a /big/ difference from 32-bit ones,
+        // at least on my (fast AGP) hardware - 856 rects/second as opposed
+        // to 550, although MTRR makes this difference much less
+            int frontadd;
+            int backadd;
+            int count;
+            calcPacking(myptr,x1,x2,frontadd,backadd,count);
 
-	    int loopc,loopc2;
+            int loopc,loopc2;
 
-	    PackType put;
-	    put = pixel | (pixel << 16);
-	    int add=linestep()/2;
-	    add-=(frontadd+(count * 2)+backadd);
+            PackType put;
+            put = pixel | (pixel << 16);
+            int add=linestep()/2;
+            add-=(frontadd+(count * 2)+backadd);
 
-	    myptr=((unsigned short int *)scanLine(y1))+x1;
+            myptr=((unsigned short int *)scanLine(y1))+x1;
 
-	    if(myrop==XorROP) {
-	      for(loopc=0;loopc<h;loopc++) {
-		for(loopc2=0;loopc2<frontadd;loopc2++) {
-		  *(myptr)^=pixel;
-		  myptr++;
-		}
-		for(loopc2=0;loopc2<count;loopc2++) {
-		  *((PackType *)myptr)^=put;
-		  myptr+=2;
-		}
-		for(loopc2=0;loopc2<backadd;loopc2++) {
-		  *(myptr)^=pixel;
-		  myptr++;
-		}
-		myptr+=add;
-	      }
-	    } else if(myrop==NotROP) {
-	      for(loopc=0;loopc<h;loopc++) {
-		for(loopc2=0;loopc2<frontadd;loopc2++) {
-		  *(myptr)=~(*myptr);
-		  myptr++;
-		}
-		for(loopc2=0;loopc2<count;loopc2++) {
-		  *((PackType *)myptr)=~*((PackType *)myptr);
-		  myptr+=2;
-		}
-		for(loopc2=0;loopc2<backadd;loopc2++) {
-		  *(myptr)=~(*myptr);
-		  myptr++;
-		}
-		myptr+=add;
-	      }
-	    } else {
-	      for(loopc=0;loopc<h;loopc++) {
-		for(loopc2=0;loopc2<frontadd;loopc2++)
-		  *(myptr++)=pixel;
-		// Duffs device.
-		PackType *myptr2 = (PackType*)myptr;
-		myptr += count * 2;
-		PackType *end2 = (PackType*)myptr;
-		switch(count%8){
-		    case 0:
-			while ( myptr2 != end2 ) {
-			    *myptr2++ = put;
-		    case 7: *myptr2++ = put;
-		    case 6: *myptr2++ = put;
-		    case 5: *myptr2++ = put;
-		    case 4: *myptr2++ = put;
-		    case 3: *myptr2++ = put;
-		    case 2: *myptr2++ = put;
-		    case 1: *myptr2++ = put;
-			}
-		}
-		for(loopc2=0;loopc2<backadd;loopc2++)
-		  *(myptr++)=pixel;
-		myptr+=add;
-	      }
-	    }
-	    GFX_END
-	    return;
-	} else if(depth==32) {
-	    useBrush();
-	    int x1,y1,x2,y2;
-	    rx+=xoffs;
-	    ry+=yoffs;
-	    x2=rx+w-1;
-	    y2=ry+h-1;
-	    if(rx>cliprect[0].right() || ry>cliprect[0].bottom() ||
-	       x2<cliprect[0].left() || y2<cliprect[0].top()) {
-		GFX_END
-		return;
-	    }
-	    x1=cliprect[0].left() > rx ? cliprect[0].left() : rx;
-	    y1=cliprect[0].top() > ry ? cliprect[0].top() : ry;
-	    x2=cliprect[0].right() > x2 ? x2 : cliprect[0].right();
-	    y2=cliprect[0].bottom() > y2 ? y2 : cliprect[0].bottom();
-	    w=(x2-x1)+1;
-	    h=(y2-y1)+1;
+            if(myrop==XorROP) {
+              for(loopc=0;loopc<h;loopc++) {
+                for(loopc2=0;loopc2<frontadd;loopc2++) {
+                  *(myptr)^=pixel;
+                  myptr++;
+                }
+                for(loopc2=0;loopc2<count;loopc2++) {
+                  *((PackType *)myptr)^=put;
+                  myptr+=2;
+                }
+                for(loopc2=0;loopc2<backadd;loopc2++) {
+                  *(myptr)^=pixel;
+                  myptr++;
+                }
+                myptr+=add;
+              }
+            } else if(myrop==NotROP) {
+              for(loopc=0;loopc<h;loopc++) {
+                for(loopc2=0;loopc2<frontadd;loopc2++) {
+                  *(myptr)=~(*myptr);
+                  myptr++;
+                }
+                for(loopc2=0;loopc2<count;loopc2++) {
+                  *((PackType *)myptr)=~*((PackType *)myptr);
+                  myptr+=2;
+                }
+                for(loopc2=0;loopc2<backadd;loopc2++) {
+                  *(myptr)=~(*myptr);
+                  myptr++;
+                }
+                myptr+=add;
+              }
+            } else {
+              for(loopc=0;loopc<h;loopc++) {
+                for(loopc2=0;loopc2<frontadd;loopc2++)
+                  *(myptr++)=pixel;
+                // Duffs device.
+                PackType *myptr2 = (PackType*)myptr;
+                myptr += count * 2;
+                PackType *end2 = (PackType*)myptr;
+                switch(count%8){
+                    case 0:
+                        while (myptr2 != end2) {
+                            *myptr2++ = put;
+                    case 7: *myptr2++ = put;
+                    case 6: *myptr2++ = put;
+                    case 5: *myptr2++ = put;
+                    case 4: *myptr2++ = put;
+                    case 3: *myptr2++ = put;
+                    case 2: *myptr2++ = put;
+                    case 1: *myptr2++ = put;
+                        }
+                }
+                for(loopc2=0;loopc2<backadd;loopc2++)
+                  *(myptr++)=pixel;
+                myptr+=add;
+              }
+            }
+            GFX_END
+            return;
+        } else if(depth==32) {
+            useBrush();
+            int x1,y1,x2,y2;
+            rx+=xoffs;
+            ry+=yoffs;
+            x2=rx+w-1;
+            y2=ry+h-1;
+            if(rx>cliprect[0].right() || ry>cliprect[0].bottom() ||
+               x2<cliprect[0].left() || y2<cliprect[0].top()) {
+                GFX_END
+                return;
+            }
+            x1=cliprect[0].left() > rx ? cliprect[0].left() : rx;
+            y1=cliprect[0].top() > ry ? cliprect[0].top() : ry;
+            x2=cliprect[0].right() > x2 ? x2 : cliprect[0].right();
+            y2=cliprect[0].bottom() > y2 ? y2 : cliprect[0].bottom();
+            w=(x2-x1)+1;
+            h=(y2-y1)+1;
 
-	    if(w<1 || h<1) {
-		GFX_END
-		return;
-	    }
+            if(w<1 || h<1) {
+                GFX_END
+                return;
+            }
 
-	    unsigned int * myptr=(unsigned int *)scanLine(y1);
+            unsigned int * myptr=(unsigned int *)scanLine(y1);
 
-	    int frontadd;
-	    int backadd;
-	    int count;
-	    calcPacking(myptr,x1,x2,frontadd,backadd,count);
+            int frontadd;
+            int backadd;
+            int count;
+            calcPacking(myptr,x1,x2,frontadd,backadd,count);
 
-	    int loopc,loopc2;
-	    PackType put;
-	    unsigned int * sp=(unsigned int *)&put;
-	    *sp=pixel;
-	    int add=linestep()/4;
-	    add-=(frontadd+(count * 2)+backadd);
+            int loopc,loopc2;
+            PackType put;
+            unsigned int * sp=(unsigned int *)&put;
+            *sp=pixel;
+            int add=linestep()/4;
+            add-=(frontadd+(count * 2)+backadd);
 
-	    myptr=((unsigned int *)scanLine(y1))+x1;
+            myptr=((unsigned int *)scanLine(y1))+x1;
 
-	    if(myrop==XorROP) {
-	      for(loopc=0;loopc<h;loopc++) {
-		for(loopc2=0;loopc2<frontadd;loopc2++)
-		  *(myptr++)^=pixel;
-		for(loopc2=0;loopc2<count;loopc2++) {
-		  *((PackType *)myptr)^=put;
-		  myptr+=2;
-		}
-		for(loopc2=0;loopc2<backadd;loopc2++)
-		  *(myptr++)^=pixel;
-		myptr+=add;
-	      }
-	    } else if(myrop==NotROP) {
-	      for(loopc=0;loopc<h;loopc++) {
-		for(loopc2=0;loopc2<frontadd;loopc2++) {
-		  *(myptr)=~(*myptr);
-		}
-		  myptr++;
-		for(loopc2=0;loopc2<count;loopc2++) {
-		  *((PackType *)myptr)=~( *((PackType *)myptr));
-		  myptr+=2;
-		}
-		for(loopc2=0;loopc2<backadd;loopc2++) {
-		  *(myptr)=~(*myptr);
-		}
-		myptr+=add;
-	      }
-	    } else {
-	      for(loopc=0;loopc<h;loopc++) {
-		for(loopc2=0;loopc2<frontadd;loopc2++)
-		  *(myptr++)=pixel;
-		for(loopc2=0;loopc2<count;loopc2++) {
-		  *((PackType *)myptr)=put;
-		  myptr+=2;
-		}
-		for(loopc2=0;loopc2<backadd;loopc2++)
-		  *(myptr++)=pixel;
-		myptr+=add;
-	      }
-	    }
-	    GFX_END
-	    return;
-	} else if(depth==8) {
-	    useBrush();
-	    int x1,y1,x2,y2;
-	    rx+=xoffs;
-	    ry+=yoffs;
-	    x2=rx+w-1;
-	    y2=ry+h-1;
-	    if(rx>cliprect[0].right() || ry>cliprect[0].bottom() ||
-	       x2<cliprect[0].left() || y2<cliprect[0].top()) {
-		GFX_END
-	        return;
-	    }
-	    x1=cliprect[0].left() > rx ? cliprect[0].left() : rx;
-	    y1=cliprect[0].top() > ry ? cliprect[0].top() : ry;
-	    x2=cliprect[0].right() > x2 ? x2 : cliprect[0].right();
-	    y2=cliprect[0].bottom() > y2 ? y2 : cliprect[0].bottom();
-	    w=(x2-x1)+1;
-	    h=(y2-y1)+1;
+            if(myrop==XorROP) {
+              for(loopc=0;loopc<h;loopc++) {
+                for(loopc2=0;loopc2<frontadd;loopc2++)
+                  *(myptr++)^=pixel;
+                for(loopc2=0;loopc2<count;loopc2++) {
+                  *((PackType *)myptr)^=put;
+                  myptr+=2;
+                }
+                for(loopc2=0;loopc2<backadd;loopc2++)
+                  *(myptr++)^=pixel;
+                myptr+=add;
+              }
+            } else if(myrop==NotROP) {
+              for(loopc=0;loopc<h;loopc++) {
+                for(loopc2=0;loopc2<frontadd;loopc2++) {
+                  *(myptr)=~(*myptr);
+                }
+                  myptr++;
+                for(loopc2=0;loopc2<count;loopc2++) {
+                  *((PackType *)myptr)=~(*((PackType *)myptr));
+                  myptr+=2;
+                }
+                for(loopc2=0;loopc2<backadd;loopc2++) {
+                  *(myptr)=~(*myptr);
+                }
+                myptr+=add;
+              }
+            } else {
+              for(loopc=0;loopc<h;loopc++) {
+                for(loopc2=0;loopc2<frontadd;loopc2++)
+                  *(myptr++)=pixel;
+                for(loopc2=0;loopc2<count;loopc2++) {
+                  *((PackType *)myptr)=put;
+                  myptr+=2;
+                }
+                for(loopc2=0;loopc2<backadd;loopc2++)
+                  *(myptr++)=pixel;
+                myptr+=add;
+              }
+            }
+            GFX_END
+            return;
+        } else if(depth==8) {
+            useBrush();
+            int x1,y1,x2,y2;
+            rx+=xoffs;
+            ry+=yoffs;
+            x2=rx+w-1;
+            y2=ry+h-1;
+            if(rx>cliprect[0].right() || ry>cliprect[0].bottom() ||
+               x2<cliprect[0].left() || y2<cliprect[0].top()) {
+                GFX_END
+                return;
+            }
+            x1=cliprect[0].left() > rx ? cliprect[0].left() : rx;
+            y1=cliprect[0].top() > ry ? cliprect[0].top() : ry;
+            x2=cliprect[0].right() > x2 ? x2 : cliprect[0].right();
+            y2=cliprect[0].bottom() > y2 ? y2 : cliprect[0].bottom();
+            w=(x2-x1)+1;
+            h=(y2-y1)+1;
 
-	    if(w<1 || h<1) {
-		GFX_END
-		return;
-	    }
+            if(w<1 || h<1) {
+                GFX_END
+                return;
+            }
 
-	    unsigned char * myptr=(unsigned char *)scanLine(y1);
+            unsigned char * myptr=(unsigned char *)scanLine(y1);
 
-	    int frontadd;
-	    int backadd;
-	    int count;
-	    calcPacking(myptr,x1,x2,frontadd,backadd,count);
+            int frontadd;
+            int backadd;
+            int count;
+            calcPacking(myptr,x1,x2,frontadd,backadd,count);
 
-	    int loopc,loopc2;
-	    PackType put;
-	    if ( count )
-		put = pixel | (pixel<<8) | (pixel<<16) | (pixel<<24);
+            int loopc,loopc2;
+            PackType put;
+            if (count)
+                put = pixel | (pixel<<8) | (pixel<<16) | (pixel<<24);
 
-	    int add=linestep();
-	    add-=(frontadd+(count * 4)+backadd);
+            int add=linestep();
+            add-=(frontadd+(count * 4)+backadd);
 
-	    myptr=((unsigned char *)scanLine(y1))+x1;
+            myptr=((unsigned char *)scanLine(y1))+x1;
 
 
-	    if(myrop==XorROP) {
-	      for(loopc=0;loopc<h;loopc++) {
-		for(loopc2=0;loopc2<frontadd;loopc2++)
-		  *(myptr++)^=pixel;
-		for(loopc2=0;loopc2<count;loopc2++) {
-		  *((PackType *)myptr)^=put;
-		    myptr+=4;
-		}
-		for(loopc2=0;loopc2<backadd;loopc2++)
-		  *(myptr++)^=pixel;
-		myptr+=add;
-	      }
-	    } else if(myrop==NotROP) {
-	      for(loopc=0;loopc<h;loopc++) {
-		for(loopc2=0;loopc2<frontadd;loopc2++) {
-		  *(myptr)=~(*myptr);
-		}
-		  myptr++;
-		for(loopc2=0;loopc2<count;loopc2++) {
-		  *((PackType *)myptr)=~( *((PackType *)myptr));
-		    myptr+=4;
-		}
-		for(loopc2=0;loopc2<backadd;loopc2++) {
-		  *(myptr)=~(*myptr);
-		}
-		myptr+=add;
-	      }
-	    } else {
-	      for(loopc=0;loopc<h;loopc++) {
-		for(loopc2=0;loopc2<frontadd;loopc2++)
-		  *(myptr++)=pixel;
-		for(loopc2=0;loopc2<count;loopc2++) {
-		  *((PackType *)myptr)=put;
-		    myptr+=4;
-		}
-		for(loopc2=0;loopc2<backadd;loopc2++)
-		  *(myptr++)=pixel;
-		myptr+=add;
-	      }
-	    }
-	    GFX_END
-	    return;
-	} else {
+            if(myrop==XorROP) {
+              for(loopc=0;loopc<h;loopc++) {
+                for(loopc2=0;loopc2<frontadd;loopc2++)
+                  *(myptr++)^=pixel;
+                for(loopc2=0;loopc2<count;loopc2++) {
+                  *((PackType *)myptr)^=put;
+                    myptr+=4;
+                }
+                for(loopc2=0;loopc2<backadd;loopc2++)
+                  *(myptr++)^=pixel;
+                myptr+=add;
+              }
+            } else if(myrop==NotROP) {
+              for(loopc=0;loopc<h;loopc++) {
+                for(loopc2=0;loopc2<frontadd;loopc2++) {
+                  *(myptr)=~(*myptr);
+                }
+                  myptr++;
+                for(loopc2=0;loopc2<count;loopc2++) {
+                  *((PackType *)myptr)=~(*((PackType *)myptr));
+                    myptr+=4;
+                }
+                for(loopc2=0;loopc2<backadd;loopc2++) {
+                  *(myptr)=~(*myptr);
+                }
+                myptr+=add;
+              }
+            } else {
+              for(loopc=0;loopc<h;loopc++) {
+                for(loopc2=0;loopc2<frontadd;loopc2++)
+                  *(myptr++)=pixel;
+                for(loopc2=0;loopc2<count;loopc2++) {
+                  *((PackType *)myptr)=put;
+                    myptr+=4;
+                }
+                for(loopc2=0;loopc2<backadd;loopc2++)
+                  *(myptr++)=pixel;
+                myptr+=add;
+              }
+            }
+            GFX_END
+            return;
+        } else {
 
-	}
+        }
     }
 #endif // QWS_EXPERIMENTAL_FASTPATH
-    if( (cbrush.style()!=NoBrush) &&
-	(cbrush.style()!=SolidPattern) ) {
-	srcwidth=cbrushpixmap->width();
-	srcheight=cbrushpixmap->height();
-	if(cbrushpixmap->depth()==1) {
-	    if(opaque) {
-		setSource(cbrushpixmap);
-		setAlphaType(IgnoreAlpha);
-		useBrush();
-		srcclut[1]=pixel;
-		transclut[1]=pixel;
-		QBrush tmp=cbrush;
-		cbrush=QBrush(backcolor);
-		useBrush();
-		srcclut[0]=pixel;
-		transclut[0]=pixel;
-		cbrush=tmp;
-	    } else {
-		useBrush();
-		srccol=pixel;
-		srctype=SourcePen;
-		setAlphaType(LittleEndianMask);
-		setAlphaSource(cbrushpixmap->scanLine(0),
-			       cbrushpixmap->bytesPerLine());
-	    }
-	} else {
-	    setSource(cbrushpixmap);
-	    setAlphaType(IgnoreAlpha);
-	}
-	tiledBlt(rx,ry,w,h);
+    if((cbrush.style()!=NoBrush) &&
+        (cbrush.style()!=SolidPattern)) {
+        srcwidth=cbrushpixmap->width();
+        srcheight=cbrushpixmap->height();
+        if(cbrushpixmap->depth()==1) {
+            if(opaque) {
+                setSource(cbrushpixmap);
+                setAlphaType(IgnoreAlpha);
+                useBrush();
+                srcclut[1]=pixel;
+                transclut[1]=pixel;
+                QBrush tmp=cbrush;
+                cbrush=QBrush(backcolor);
+                useBrush();
+                srcclut[0]=pixel;
+                transclut[0]=pixel;
+                cbrush=tmp;
+            } else {
+                useBrush();
+                srccol=pixel;
+                srctype=SourcePen;
+                setAlphaType(LittleEndianMask);
+                setAlphaSource(cbrushpixmap->scanLine(0),
+                               cbrushpixmap->bytesPerLine());
+            }
+        } else {
+            setSource(cbrushpixmap);
+            setAlphaType(IgnoreAlpha);
+        }
+        tiledBlt(rx,ry,w,h);
     } else if(cbrush.style()!=NoBrush) {
-	useBrush();
-	rx += xoffs;
-	ry += yoffs;
-	// Gross clip
-	if ( rx < clipbounds.left() ) {
-	    w -= clipbounds.left()-rx;
-	    rx = clipbounds.left();
-	}
-	if ( ry < clipbounds.top() ) {
-	    h -= clipbounds.top()-ry;
-	    ry = clipbounds.top();
-	}
-	if ( rx+w-1 > clipbounds.right() )
-	    w = clipbounds.right()-rx+1;
-	if ( ry+h-1 > clipbounds.bottom() )
-	    h = clipbounds.bottom()-ry+1;
-	if ( w > 0 && h > 0 )
-	    for (int j=0; j<h; j++,ry++) {
-		hline(rx,rx+w-1,ry); }
+        useBrush();
+        rx += xoffs;
+        ry += yoffs;
+        // Gross clip
+        if (rx < clipbounds.left()) {
+            w -= clipbounds.left()-rx;
+            rx = clipbounds.left();
+        }
+        if (ry < clipbounds.top()) {
+            h -= clipbounds.top()-ry;
+            ry = clipbounds.top();
+        }
+        if (rx+w-1 > clipbounds.right())
+            w = clipbounds.right()-rx+1;
+        if (ry+h-1 > clipbounds.bottom())
+            h = clipbounds.bottom()-ry+1;
+        if (w > 0 && h > 0)
+            for (int j=0; j<h; j++,ry++) {
+                hline(rx,rx+w-1,ry); }
     }
     GFX_END
 }
 
 #ifdef GFX_CORRECT_POLYLINE_JOIN
 
-static inline bool qt_inside_edge( const QPoint &p, const QRect &r, int edge )
+static inline bool qt_inside_edge(const QPoint &p, const QRect &r, int edge)
 {
-    switch ( edge ) {
-	case 0:
-	    return p.x() > r.left();
-	case 1:
-	    return p.y() > r.top();
-	case 2:
-	    return p.x() < r.right();
-	case 3:
-	    return p.y() < r.bottom();
+    switch (edge) {
+        case 0:
+            return p.x() > r.left();
+        case 1:
+            return p.y() > r.top();
+        case 2:
+            return p.x() < r.right();
+        case 3:
+            return p.y() < r.bottom();
     }
 
-    return FALSE;
+    return false;
 }
 
-static inline QPoint qt_intersect_edge( const QPoint &p1, const QPoint &p2, const QRect &r, int edge )
+static inline QPoint qt_intersect_edge(const QPoint &p1, const QPoint &p2, const QRect &r, int edge)
 {
     int x=0, y=0;
     int dy = p2.y() - p1.y();
     int dx = p2.x() - p1.x();
 
-    switch ( edge ) {
-	case 0:
-	    x = r.left();
-	    y = p1.y() + dy * QABS(p1.x() - x) / QABS(dx);
-	    break;
-	case 1:
-	    y = r.top();
-	    x = p1.x() + dx * QABS(p1.y() - y) / QABS(dy);
-	    break;
-	case 2:
-	    x = r.right();
-	    y = p1.y() + dy * QABS(p1.x() - x) / QABS(dx);
-	    break;
-	case 3:
-	    y = r.bottom();
-	    x = p1.x() + dx * QABS(p1.y() - y) / QABS(dy);
-	    break;
+    switch (edge) {
+        case 0:
+            x = r.left();
+            y = p1.y() + dy * QABS(p1.x() - x) / QABS(dx);
+            break;
+        case 1:
+            y = r.top();
+            x = p1.x() + dx * QABS(p1.y() - y) / QABS(dy);
+            break;
+        case 2:
+            x = r.right();
+            y = p1.y() + dy * QABS(p1.x() - x) / QABS(dx);
+            break;
+        case 3:
+            y = r.bottom();
+            x = p1.x() + dx * QABS(p1.y() - y) / QABS(dy);
+            break;
     }
 
     return QPoint(x,y);
 }
 
-static bool qt_clipLine( int &x1, int &y1, int &x2, int &y2, const QRect &clip )
+static bool qt_clipLine(int &x1, int &y1, int &x2, int &y2, const QRect &clip)
 {
-    if ( clip.contains(x1, y1) && clip.contains(x2, y2) )
-	return TRUE;
+    if (clip.contains(x1, y1) && clip.contains(x2, y2))
+        return true;
 
-    for ( int e = 0; e < 4; e++ ) {
-	if ( !qt_inside_edge( QPoint(x1, y1), clip, e ) &&
-		qt_inside_edge( QPoint(x2, y2), clip, e ) ) {
-	    QPoint i = qt_intersect_edge( QPoint(x1, y1), QPoint(x2, y2), clip, e );
-	    x1 = i.x();
-	    y1 = i.y();
-	} else if ( !qt_inside_edge( QPoint(x2, y2), clip, e ) &&
-		qt_inside_edge( QPoint(x1, y1), clip, e ) ) {
-	    QPoint i = qt_intersect_edge( QPoint(x1, y1), QPoint(x2, y2), clip, e );
-	    x2 = i.x();
-	    y2 = i.y();
-	} else {
-	    return FALSE;
-	}
+    for (int e = 0; e < 4; e++) {
+        if (!qt_inside_edge(QPoint(x1, y1), clip, e) &&
+                qt_inside_edge(QPoint(x2, y2), clip, e)) {
+            QPoint i = qt_intersect_edge(QPoint(x1, y1), QPoint(x2, y2), clip, e);
+            x1 = i.x();
+            y1 = i.y();
+        } else if (!qt_inside_edge(QPoint(x2, y2), clip, e) &&
+                qt_inside_edge(QPoint(x1, y1), clip, e)) {
+            QPoint i = qt_intersect_edge(QPoint(x1, y1), QPoint(x2, y2), clip, e);
+            x2 = i.x();
+            y2 = i.y();
+        } else {
+            return false;
+        }
     }
 
-    return TRUE;
+    return true;
 }
 
 #endif // GFX_CORRECT_POLYLINE_JOIN
 
 /*!
-\fn void QGfxRaster<depth,type>::drawPolyline( const QPointArray &a,int index, int npoints )
+\fn void QGfxRaster<depth,type>::drawPolyline(const QPointArray &a,int index, int npoints)
 
 \internal
 
@@ -4832,15 +4832,15 @@ starting from \a index in the array.
 */
 
 template <const int depth, const int type>
-void QGfxRaster<depth,type>::drawPolyline( const QPointArray &a,int index, int npoints )
+void QGfxRaster<depth,type>::drawPolyline(const QPointArray &a,int index, int npoints)
 {
     if (!ncliprect)
-	return;
+        return;
     if(cpen.style()==NoPen)
-	return;
+        return;
     if (cpen.width() > 1) {
-	drawThickPolyline( a, index, npoints );
-	return;
+        drawThickPolyline(a, index, npoints);
+        return;
     }
 
 #ifndef QT_NO_QWS_CURSOR
@@ -4850,82 +4850,82 @@ void QGfxRaster<depth,type>::drawPolyline( const QPointArray &a,int index, int n
 #endif
 
     if((*gfx_optype))
-	sync();
+        sync();
     (*gfx_optype)=0;
-    //int m=qMin( index+npoints-1, int(a.size())-1 );
+    //int m=qMin(index+npoints-1, int(a.size())-1);
 
     int loopc;
     int end;
     end=(index+npoints) > (int)a.size() ? a.size() : index+npoints;
 #ifdef GFX_CORRECT_POLYLINE_JOIN
-    if ( myrop != CopyROP && npoints > 1 ) {
-	gfx_storedLineBufferSize = qMax(clipbounds.height(),clipbounds.width());
-	gfx_storedLineBufferSize = qMax(gfx_storedLineBufferSize,10);
-	gfx_storedLineRd = new QPoint [gfx_storedLineBufferSize];
-	gfx_storedLineWr = new QPoint [gfx_storedLineBufferSize];
-	gfx_storeLine = TRUE;
-	gfx_storedLineWrite = 0;
-	gfx_storedLineRead = 0;
-	gfx_noLineOverwrite = FALSE;
-	if ( a[index] == a[end-1] ) {
-	    // initialize rd buffer
-	    gfx_doDraw = FALSE;
-	    int x1 = a[end-2].x();
-	    int y1 = a[end-2].y();
-	    int x2 = a[end-1].x();
-	    int y2 = a[end-1].y();
-	    QRect cr = clipbounds;
-	    cr.moveBy( -xoffs, -yoffs );
-	    qt_clipLine( x1, y1, x2, y2, cr );
-	    drawLine(x1, y1, x2, y2);
-	    gfx_storedLineDir = x1 > x2 ? 1 : -1;
-	    gfx_storedLineRead = gfx_storedLineDir > 0 ? 0 : gfx_storedLineWrite - 1;
-	    gfx_noLineOverwrite = TRUE;
-	    QPoint *tmp = gfx_storedLineWr;
-	    gfx_storedLineWr = gfx_storedLineRd;
-	    gfx_storedLineRd = tmp;
-	    gfx_doDraw = TRUE;
-	}
+    if (myrop != CopyROP && npoints > 1) {
+        gfx_storedLineBufferSize = qMax(clipbounds.height(),clipbounds.width());
+        gfx_storedLineBufferSize = qMax(gfx_storedLineBufferSize,10);
+        gfx_storedLineRd = new QPoint [gfx_storedLineBufferSize];
+        gfx_storedLineWr = new QPoint [gfx_storedLineBufferSize];
+        gfx_storeLine = true;
+        gfx_storedLineWrite = 0;
+        gfx_storedLineRead = 0;
+        gfx_noLineOverwrite = false;
+        if (a[index] == a[end-1]) {
+            // initialize rd buffer
+            gfx_doDraw = false;
+            int x1 = a[end-2].x();
+            int y1 = a[end-2].y();
+            int x2 = a[end-1].x();
+            int y2 = a[end-1].y();
+            QRect cr = clipbounds;
+            cr.moveBy(-xoffs, -yoffs);
+            qt_clipLine(x1, y1, x2, y2, cr);
+            drawLine(x1, y1, x2, y2);
+            gfx_storedLineDir = x1 > x2 ? 1 : -1;
+            gfx_storedLineRead = gfx_storedLineDir > 0 ? 0 : gfx_storedLineWrite - 1;
+            gfx_noLineOverwrite = true;
+            QPoint *tmp = gfx_storedLineWr;
+            gfx_storedLineWr = gfx_storedLineRd;
+            gfx_storedLineRd = tmp;
+            gfx_doDraw = true;
+        }
     }
     for(loopc=index+1;loopc<end;loopc++) {
-	int x1 = a[loopc-1].x();
-	int y1 = a[loopc-1].y();
-	int x2 = a[loopc].x();
-	int y2 = a[loopc].y();
-	if ( gfx_storeLine ) {
-	    QRect cr = clipbounds;
-	    cr.moveBy( -xoffs, -yoffs );
-	    qt_clipLine( x1, y1, x2, y2, cr );
-	    gfx_storedLineWrite = 0;
-	}
-	drawLine(x1, y1, x2, y2);
-	if ( gfx_storeLine ) {
-	    gfx_storedLineDir = x1 > x2 ? 1 : -1;
-	    gfx_storedLineRead = gfx_storedLineDir > 0 ? 0 : gfx_storedLineWrite - 1;
-	    gfx_noLineOverwrite = TRUE;
-	    QPoint *tmp = gfx_storedLineWr;
-	    gfx_storedLineWr = gfx_storedLineRd;
-	    gfx_storedLineRd = tmp;
-	}
+        int x1 = a[loopc-1].x();
+        int y1 = a[loopc-1].y();
+        int x2 = a[loopc].x();
+        int y2 = a[loopc].y();
+        if (gfx_storeLine) {
+            QRect cr = clipbounds;
+            cr.moveBy(-xoffs, -yoffs);
+            qt_clipLine(x1, y1, x2, y2, cr);
+            gfx_storedLineWrite = 0;
+        }
+        drawLine(x1, y1, x2, y2);
+        if (gfx_storeLine) {
+            gfx_storedLineDir = x1 > x2 ? 1 : -1;
+            gfx_storedLineRead = gfx_storedLineDir > 0 ? 0 : gfx_storedLineWrite - 1;
+            gfx_noLineOverwrite = true;
+            QPoint *tmp = gfx_storedLineWr;
+            gfx_storedLineWr = gfx_storedLineRd;
+            gfx_storedLineRd = tmp;
+        }
     }
-    if ( gfx_storedLineRd )
-	delete [] gfx_storedLineRd;
-    if ( gfx_storedLineWr )
-	delete [] gfx_storedLineWr;
+    if (gfx_storedLineRd)
+        delete [] gfx_storedLineRd;
+    if (gfx_storedLineWr)
+        delete [] gfx_storedLineWr;
     gfx_storedLineRd = 0;
     gfx_storedLineWr = 0;
-    gfx_storeLine = FALSE;
+    gfx_storeLine = false;
 #else
     for(loopc=index+1;loopc<end;loopc++) {
-	drawLine(a[loopc-1].x(),a[loopc-1].y(),
-		 a[loopc].x(),a[loopc].y());
+        drawLine(a[loopc-1].x(),a[loopc-1].y(),
+                 a[loopc].x(),a[loopc].y());
     }
 #endif
     GFX_END
 }
 
 /*!
-\fn void QGfxRaster<depth,type>::drawPolygon( const QPointArray &pa, bool winding, int index, int npoints )
+\fn void QGfxRaster<depth,type>::drawPolygon(const QPointArray &pa, bool winding, int index, int npoints)
 
 \internal
 
@@ -4936,58 +4936,58 @@ or the even-odd (alternative) fill algorithm.
 */
 
 template <const int depth, const int type>
-void QGfxRaster<depth,type>::drawPolygon( const QPointArray &pa, bool winding, int index, int npoints )
+void QGfxRaster<depth,type>::drawPolygon(const QPointArray &pa, bool winding, int index, int npoints)
 {
     if (!ncliprect)
-	return;
+        return;
     useBrush();
     GFX_START(clipbounds)
     if((*gfx_optype)!=0) {
-	sync();
+        sync();
     }
     (*gfx_optype)=0;
-    if ( cbrush.style()!=NoBrush ) {
-	if ( cbrush.style()!=SolidPattern ) {
-	    srcwidth=cbrushpixmap->width();
-	    srcheight=cbrushpixmap->height();
-	    if(cbrushpixmap->depth()==1) {
-		if(opaque) {
-		    setSource(cbrushpixmap);
-		    setAlphaType(IgnoreAlpha);
-		    useBrush();
-		    srcclut[1]=pixel;
-		    transclut[1]=pixel;
-		    QBrush tmp=cbrush;
-		    cbrush=QBrush(backcolor);
-		    useBrush();
-		    srcclut[0]=pixel;
-		    transclut[0]=pixel;
-		    cbrush=tmp;
-		} else {
-		    useBrush();
-		    srccol=pixel;
-		    srctype=SourcePen;
-		    setAlphaType(LittleEndianMask);
-		    setAlphaSource(cbrushpixmap->scanLine(0),
-				   cbrushpixmap->bytesPerLine());
-		}
-	    } else {
-		setSource(cbrushpixmap);
-		setAlphaType(IgnoreAlpha);
-	    }
-	}
-	scan(pa,winding,index,npoints,stitchedges);
+    if (cbrush.style()!=NoBrush) {
+        if (cbrush.style()!=SolidPattern) {
+            srcwidth=cbrushpixmap->width();
+            srcheight=cbrushpixmap->height();
+            if(cbrushpixmap->depth()==1) {
+                if(opaque) {
+                    setSource(cbrushpixmap);
+                    setAlphaType(IgnoreAlpha);
+                    useBrush();
+                    srcclut[1]=pixel;
+                    transclut[1]=pixel;
+                    QBrush tmp=cbrush;
+                    cbrush=QBrush(backcolor);
+                    useBrush();
+                    srcclut[0]=pixel;
+                    transclut[0]=pixel;
+                    cbrush=tmp;
+                } else {
+                    useBrush();
+                    srccol=pixel;
+                    srctype=SourcePen;
+                    setAlphaType(LittleEndianMask);
+                    setAlphaSource(cbrushpixmap->scanLine(0),
+                                   cbrushpixmap->bytesPerLine());
+                }
+            } else {
+                setSource(cbrushpixmap);
+                setAlphaType(IgnoreAlpha);
+            }
+        }
+        scan(pa,winding,index,npoints,stitchedges);
     }
     drawPolyline(pa, index, npoints);
     if (pa[index] != pa[index+npoints-1]) {
-	drawLine(pa[index].x(), pa[index].y(),
-		pa[index+npoints-1].x(),pa[index+npoints-1].y());
+        drawLine(pa[index].x(), pa[index].y(),
+                pa[index+npoints-1].x(),pa[index+npoints-1].y());
     }
     GFX_END
 }
 
 /*!
-\fn void QGfxRaster<depth,type>::processSpans( int n, QPoint* point, int* width )
+\fn void QGfxRaster<depth,type>::processSpans(int n, QPoint* point, int* width)
 
 \internal
 
@@ -4999,85 +4999,85 @@ describing the horizontal lines in this scanline of the polygon,
 
 // widget coords
 template <const int depth, const int type>
-void QGfxRaster<depth,type>::processSpans( int n, QPoint* point, int* width )
+void QGfxRaster<depth,type>::processSpans(int n, QPoint* point, int* width)
 {
     while (n--) {
-	if ( *width > 0 ) {
-	    if ( patternedbrush && srcwidth != 0 && srcheight != 0 ) {
-		unsigned char * savealphabits=alphabits;
-		int offx = srcwidgetoffs.x() + brushoffs.x() + point->x();
-		int offy = srcwidgetoffs.y() + brushoffs.y() + point->y();
+        if (*width > 0) {
+            if (patternedbrush && srcwidth != 0 && srcheight != 0) {
+                unsigned char * savealphabits=alphabits;
+                int offx = srcwidgetoffs.x() + brushoffs.x() + point->x();
+                int offy = srcwidgetoffs.y() + brushoffs.y() + point->y();
 
-		// from qpainter_qws.cpp
-		if ( offx < 0 )
-		    offx = srcwidth - -offx % srcwidth;
-		else
-		    offx = offx % srcwidth;
-		if ( offy < 0 )
-		    offy = srcheight - -offy % srcheight;
-		else
-		    offy = offy % srcheight;
+                // from qpainter_qws.cpp
+                if (offx < 0)
+                    offx = srcwidth - -offx % srcwidth;
+                else
+                    offx = offx % srcwidth;
+                if (offy < 0)
+                    offy = srcheight - -offy % srcheight;
+                else
+                    offy = offy % srcheight;
 
-		int rx = point->x();
-		int w = *width;
-		int xPos = rx;
-		while ( xPos < rx + w - 1 ) {
-		    int drawW = srcwidth - offx; // Cropping first column
-		    if ( xPos + drawW > rx + w )    // Cropping last column
-			drawW = rx + w - xPos;
-		    blt( xPos, point->y(), drawW, 1, offx, offy );
-		    alphabits=savealphabits;
-		    xPos += drawW;
-		    offx = 0;
-		}
-	    } else {
-		int x=point->x()+xoffs;
-		hline(x,x+*width-1,point->y()+yoffs);
-	    }
-	}
-	point++;
-	width++;
+                int rx = point->x();
+                int w = *width;
+                int xPos = rx;
+                while (xPos < rx + w - 1) {
+                    int drawW = srcwidth - offx; // Cropping first column
+                    if (xPos + drawW > rx + w)    // Cropping last column
+                        drawW = rx + w - xPos;
+                    blt(xPos, point->y(), drawW, 1, offx, offy);
+                    alphabits=savealphabits;
+                    xPos += drawW;
+                    offx = 0;
+                }
+            } else {
+                int x=point->x()+xoffs;
+                hline(x,x+*width-1,point->y()+yoffs);
+            }
+        }
+        point++;
+        width++;
     }
 }
 
 
-static GFX_INLINE unsigned char *find_pointer_4( unsigned char * base,int x,int y,
-						int w, int linestep, int &astat,
-						unsigned char &ahold, bool rev
+static GFX_INLINE unsigned char *find_pointer_4(unsigned char * base,int x,int y,
+                                                int w, int linestep, int &astat,
+                                                unsigned char &ahold, bool rev
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-						 , bool reverse_endian
+                                                 , bool reverse_endian
 #endif
-    )
+   )
 {
     int nbits;
     int nbytes;
 
-    if ( rev ) {
-	nbits = 1 - (x+w) % 2;
-	nbytes = (x+w) / 2;
+    if (rev) {
+        nbits = 1 - (x+w) % 2;
+        nbytes = (x+w) / 2;
     } else {
-	nbits = x % 2;
-	nbytes = x / 2;
+        nbits = x % 2;
+        nbytes = x / 2;
     }
 
     unsigned char *ret = base + (y*linestep) + nbytes;
     astat = nbits;
     ahold = *ret;
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-    if ( reverse_endian )
-	ahold = (ahold & 0x0f) << 4 |  (ahold & 0xf0) >> 4;
+    if (reverse_endian)
+        ahold = (ahold & 0x0f) << 4 |  (ahold & 0xf0) >> 4;
 #endif
 
-    if ( rev )
-	ahold = ahold << (nbits*4);
+    if (rev)
+        ahold = ahold << (nbits*4);
     else
-	ahold = ahold >> (nbits*4);
+        ahold = ahold >> (nbits*4);
 
     return ret;
 }
 
 /*!
-\fn void QGfxRaster<depth,type>::scroll( int rx,int ry,int w,int h,int sx, int sy )
+\fn void QGfxRaster<depth,type>::scroll(int rx,int ry,int w,int h,int sx, int sy)
 
 \internal
 
@@ -5089,16 +5089,16 @@ are its source coordinates and \a w and \a h are its width and height.
 */
 
 template <const int depth, const int type>
-void QGfxRaster<depth,type>::scroll( int rx,int ry,int w,int h,int sx, int sy )
+void QGfxRaster<depth,type>::scroll(int rx,int ry,int w,int h,int sx, int sy)
 {
     if (!w || !h || !ncliprect)
-	return;
+        return;
 
     int dy = sy - ry;
     int dx = sx - rx;
 
     if (dx == 0 && dy == 0)
-	return;
+        return;
 
     GFX_START(QRect(qMin(rx+xoffs,sx+xoffs), qMin(ry+yoffs,sy+yoffs), w+QABS(dx)+1, h+QABS(dy)+1))
 
@@ -5108,18 +5108,18 @@ void QGfxRaster<depth,type>::scroll( int rx,int ry,int w,int h,int sx, int sy )
     srcwidth=w;
     srcheight=h;
     if(srcdepth==0)
-	abort();
+        abort();
     srctype=SourceImage;
     setAlphaType(IgnoreAlpha);
-    setSourceWidgetOffset( xoffs, yoffs );
-    src_normal_palette = TRUE;
+    setSourceWidgetOffset(xoffs, yoffs);
+    src_normal_palette = true;
     blt(rx,ry,w,h,sx,sy);
 
     GFX_END
 }
 
 /*!
-\fn void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
+\fn void QGfxRaster<depth,type>::blt(int rx,int ry,int w,int h, int sx, int sy)
 
 \internal
 
@@ -5133,14 +5133,14 @@ can overlap and can be of arbitrary (different) depths.
 */
 
 template <const int depth, const int type>
-void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
+void QGfxRaster<depth,type>::blt(int rx,int ry,int w,int h, int sx, int sy)
 {
-    if ( !w || !h ) return;
+    if (!w || !h) return;
     int osrcdepth=srcdepth;
     if(srctype==SourcePen) {
-	srclinestep=0;//w;
-	srcdepth=0;
-	usePen();
+        srclinestep=0;//w;
+        srcdepth=0;
+        usePen();
     }
 
     rx += xoffs;
@@ -5150,39 +5150,39 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
     GFX_START(cursRect&clipbounds);
 
     // Very gross clip
-    if ( !clipbounds.intersects(QRect(rx,ry,w,h)) ) {
-	GFX_END
-	return;
+    if (!clipbounds.intersects(QRect(rx,ry,w,h))) {
+        GFX_END
+        return;
     }
 
     //slightly tighter clip
     int leftd = clipbounds.x() - rx;
-    if ( leftd > 0 ) {
-	rx += leftd;
-	sx += leftd;
-	w -= leftd;
+    if (leftd > 0) {
+        rx += leftd;
+        sx += leftd;
+        w -= leftd;
     }
     int topd =  clipbounds.y() - ry;
-    if ( topd > 0 ) {
-	ry += topd;
-	sy += topd;
-	h -= topd;
+    if (topd > 0) {
+        ry += topd;
+        sy += topd;
+        h -= topd;
     }
     int rightd = rx + w - 1 - clipbounds.right();
-    if ( rightd > 0 )
-	w -= rightd;
+    if (rightd > 0)
+        w -= rightd;
     int botd = ry + h - 1 - clipbounds.bottom();
-    if ( botd > 0 )
-	h -= botd;
+    if (botd > 0)
+        h -= botd;
 
     // have we already clipped away everything necessary
     bool mustclip = ncliprect != 1;
 
     if((*gfx_optype)!=0)
-	sync();
+        sync();
     (*gfx_optype)=0;
 
-    QPoint srcoffs = srcwidgetoffs + QPoint( sx, sy );
+    QPoint srcoffs = srcwidgetoffs + QPoint(sx, sy);
 
     int dl = linestep();
     int sl = srclinestep;
@@ -5190,178 +5190,178 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
     int dry = 1;
     int tj;
     int j;
-    if ( srcbits == buffer && srcoffs.y() < ry ) {
-	// Back-to-front
-	dj = -dj;
-	dl = -dl;
-	sl = -sl;
-	dry = -dry;
-	j = h-1;
-	ry=(ry+h)-1;
-	tj = -1;
+    if (srcbits == buffer && srcoffs.y() < ry) {
+        // Back-to-front
+        dj = -dj;
+        dl = -dl;
+        sl = -sl;
+        dry = -dry;
+        j = h-1;
+        ry=(ry+h)-1;
+        tj = -1;
     } else {
-	j = 0;
-	tj = h;
+        j = 0;
+        tj = h;
     }
 
     bool xrev = (srcbits == buffer && srcoffs.x() < rx);
 
-    QRect cr( rx, ry, w, h );
+    QRect cr(rx, ry, w, h);
 
     unsigned char *l = scanLine(ry);
     unsigned char *srcline = srcScanLine(j+srcoffs.y());
     int right = rx+w-1;
 
     // Fast path for 8/16/32 bit same-depth opaque blit. (ie. the common case)
-    if ( srcdepth == depth && alphatype == IgnoreAlpha &&
-	 pixeltype == srcpixeltype &&
-	 (depth > 8 || (depth == 8 && src_normal_palette)) &&
-         myrop == CopyROP ) {
-	int bytesPerPixel = depth/8;
-	if ( mustclip ) {
-	    if ( xrev ) {
-		for (; j!=tj; j+=dj,ry+=dry,l+=dl,srcline+=sl) {
-		    bool plot = inClip(right,ry,&cr);
-		    int x2=right;
-		    for (;;) {
-			int x = cr.left();
-			if ( x < rx ) {
-			    x = rx;
-			    if ( x2 < x ) break;
-			}
-			if (plot) {
-			    unsigned char *srcptr=srcline+(x-rx+srcoffs.x())*bytesPerPixel;
-			    unsigned char *destptr = l + x*bytesPerPixel;
-			    memmove(destptr, srcptr, (x2-x+1) * bytesPerPixel );
-			}
-			if ( x <= rx )
-			    break;
-			x2=x-1;
-			plot=inClip(x2,ry,&cr,plot);
-		    }
-		}
-	    } else {
-		for (; j!=tj; j+=dj,ry+=dry,l+=dl,srcline+=sl) {
-		    bool plot = inClip(rx,ry,&cr);
-		    int x=rx;
-		    for (;;) {
-			int x2 = cr.right();
-			if ( x2 > right ) {
-			    x2 = right;
-			    if ( x2 < x ) break;
-			}
-			if (plot) {
-			    unsigned char *srcptr=srcline+(x-rx+srcoffs.x())*bytesPerPixel;
-			    unsigned char *destptr = l + x*bytesPerPixel;
-			    memmove(destptr, srcptr, (x2-x+1) * bytesPerPixel );
-			}
-			x=x2+1;
-			if ( x > right )
-			    break;
-			plot=inClip(x,ry,&cr,plot);
-		    }
-		}
-	    }
-	} else {
-	    unsigned char *srcptr = srcline + srcoffs.x()*bytesPerPixel;
-	    unsigned char *destptr = l + rx*bytesPerPixel;
-	    int bytes = w * bytesPerPixel;
-	    for (; j!=tj; j+=dj,destptr+=dl,srcptr+=sl) {
-		memmove( destptr, srcptr, bytes );
-	    }
-	}
+    if (srcdepth == depth && alphatype == IgnoreAlpha &&
+         pixeltype == srcpixeltype &&
+         (depth > 8 || (depth == 8 && src_normal_palette)) &&
+         myrop == CopyROP) {
+        int bytesPerPixel = depth/8;
+        if (mustclip) {
+            if (xrev) {
+                for (; j!=tj; j+=dj,ry+=dry,l+=dl,srcline+=sl) {
+                    bool plot = inClip(right,ry,&cr);
+                    int x2=right;
+                    for (;;) {
+                        int x = cr.left();
+                        if (x < rx) {
+                            x = rx;
+                            if (x2 < x) break;
+                        }
+                        if (plot) {
+                            unsigned char *srcptr=srcline+(x-rx+srcoffs.x())*bytesPerPixel;
+                            unsigned char *destptr = l + x*bytesPerPixel;
+                            memmove(destptr, srcptr, (x2-x+1) * bytesPerPixel);
+                        }
+                        if (x <= rx)
+                            break;
+                        x2=x-1;
+                        plot=inClip(x2,ry,&cr,plot);
+                    }
+                }
+            } else {
+                for (; j!=tj; j+=dj,ry+=dry,l+=dl,srcline+=sl) {
+                    bool plot = inClip(rx,ry,&cr);
+                    int x=rx;
+                    for (;;) {
+                        int x2 = cr.right();
+                        if (x2 > right) {
+                            x2 = right;
+                            if (x2 < x) break;
+                        }
+                        if (plot) {
+                            unsigned char *srcptr=srcline+(x-rx+srcoffs.x())*bytesPerPixel;
+                            unsigned char *destptr = l + x*bytesPerPixel;
+                            memmove(destptr, srcptr, (x2-x+1) * bytesPerPixel);
+                        }
+                        x=x2+1;
+                        if (x > right)
+                            break;
+                        plot=inClip(x,ry,&cr,plot);
+                    }
+                }
+            }
+        } else {
+            unsigned char *srcptr = srcline + srcoffs.x()*bytesPerPixel;
+            unsigned char *destptr = l + rx*bytesPerPixel;
+            int bytes = w * bytesPerPixel;
+            for (; j!=tj; j+=dj,destptr+=dl,srcptr+=sl) {
+                memmove(destptr, srcptr, bytes);
+            }
+        }
     } else {
-	if ( alphatype == InlineAlpha || alphatype == SolidAlpha ||
-	     alphatype == SeparateAlpha ) {
-	    alphabuf = new unsigned int[w];
-	}
+        if (alphatype == InlineAlpha || alphatype == SolidAlpha ||
+             alphatype == SeparateAlpha) {
+            alphabuf = new unsigned int[w];
+        }
 
-	// reverse will only ever be true if the source and destination
-	// are the same buffer.
-	bool reverse = srcoffs.y()==ry && rx>srcoffs.x() &&
-			srctype==SourceImage && srcbits == buffer;
+        // reverse will only ever be true if the source and destination
+        // are the same buffer.
+        bool reverse = srcoffs.y()==ry && rx>srcoffs.x() &&
+                        srctype==SourceImage && srcbits == buffer;
 
-	if ( alphatype == LittleEndianMask || alphatype == BigEndianMask ) {
-	    // allows us to optimise GET_MASK a little
-	    amonolittletest = FALSE;
-	    if( (alphatype==LittleEndianMask && !reverse) ||
-		(alphatype==BigEndianMask && reverse) ) {
-		amonolittletest = TRUE;
-	    }
-	}
+        if (alphatype == LittleEndianMask || alphatype == BigEndianMask) {
+            // allows us to optimise GET_MASK a little
+            amonolittletest = false;
+            if((alphatype==LittleEndianMask && !reverse) ||
+                (alphatype==BigEndianMask && reverse)) {
+                amonolittletest = true;
+            }
+        }
 
-	unsigned char *srcptr = 0;
-	for (; j!=tj; j+=dj,ry+=dry,l+=dl,srcline+=sl) {
-	    bool plot = mustclip ? inClip(rx,ry,&cr) : TRUE;
-	    int x=rx;
-	    for (;;) {
-		int x2 = cr.right();
-		if ( x2 > right ) {
-		    x2 = right;
-		    if ( x2 < x ) break;
-		}
-		if (plot) {
-		    if ( srctype == SourceImage ) {
-			if ( srcdepth == 1) {
+        unsigned char *srcptr = 0;
+        for (; j!=tj; j+=dj,ry+=dry,l+=dl,srcline+=sl) {
+            bool plot = mustclip ? inClip(rx,ry,&cr) : true;
+            int x=rx;
+            for (;;) {
+                int x2 = cr.right();
+                if (x2 > right) {
+                    x2 = right;
+                    if (x2 < x) break;
+                }
+                if (plot) {
+                    if (srctype == SourceImage) {
+                        if (srcdepth == 1) {
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-			if  ( srcbits == qt_screen->base() )
-				 src_little_endian =  !src_little_endian;
+                        if  (srcbits == qt_screen->base())
+                                 src_little_endian =  !src_little_endian;
 #endif
-			    srcptr=find_pointer(srcbits,(x-rx)+srcoffs.x(),
-					 j+srcoffs.y(), x2-x, srclinestep,
-					 monobitcount, monobitval,
-					 !src_little_endian, reverse);
+                            srcptr=find_pointer(srcbits,(x-rx)+srcoffs.x(),
+                                         j+srcoffs.y(), x2-x, srclinestep,
+                                         monobitcount, monobitval,
+                                         !src_little_endian, reverse);
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-			if  ( srcbits == qt_screen->base() )
-				 src_little_endian =  !src_little_endian;
+                        if  (srcbits == qt_screen->base())
+                                 src_little_endian =  !src_little_endian;
 #endif
-			} else if ( srcdepth == 4) {
-			    srcptr = find_pointer_4(srcbits,(x-rx)+srcoffs.x(),
-					 j+srcoffs.y(), x2-x, srclinestep,
-					 monobitcount, monobitval, reverse
+                        } else if (srcdepth == 4) {
+                            srcptr = find_pointer_4(srcbits,(x-rx)+srcoffs.x(),
+                                         j+srcoffs.y(), x2-x, srclinestep,
+                                         monobitcount, monobitval, reverse
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-						    , srcbits == qt_screen->base()
+                                                    , srcbits == qt_screen->base()
 #endif
-				);
-			} else if ( reverse )
-			    srcptr = srcline + (x2-rx+srcoffs.x())*srcdepth/8;
-			else
-			    srcptr = srcline + (x-rx+srcoffs.x())*srcdepth/8;
-		    }
-		    switch ( alphatype ) {
-		      case LittleEndianMask:
-		      case BigEndianMask:
-			maskp=find_pointer(alphabits,(x-rx)+srcoffs.x(),
-					   j+srcoffs.y(), x2-x, alphalinestep,
-					   amonobitcount,amonobitval,
-					   alphatype==BigEndianMask, reverse);
-			// Fall through
-		      case IgnoreAlpha:
-			hImageLineUnclipped(x,x2,l,srcptr,reverse);
-			break;
-		      case InlineAlpha:
-		      case SolidAlpha:
-			hAlphaLineUnclipped(x,x2,l,srcptr,0);
-			break;
-		      case SeparateAlpha:
-			// Separate alpha table
-			unsigned char * alphap=alphabits
-						+((j+srcoffs.y())*alphalinestep)
-						+(x-rx)+srcoffs.x();
-			hAlphaLineUnclipped(x,x2,l,srcptr,alphap);
-		    }
-		}
-		x=x2+1;
-		if ( x > right )
-		    break;
-		if ( mustclip )
-		    plot=inClip(x,ry,&cr,plot);
-	    }
-	}
-	if ( alphabuf ) {
-	    delete [] alphabuf;
-	    alphabuf = 0;
-	}
+                               );
+                        } else if (reverse)
+                            srcptr = srcline + (x2-rx+srcoffs.x())*srcdepth/8;
+                        else
+                            srcptr = srcline + (x-rx+srcoffs.x())*srcdepth/8;
+                    }
+                    switch (alphatype) {
+                      case LittleEndianMask:
+                      case BigEndianMask:
+                        maskp=find_pointer(alphabits,(x-rx)+srcoffs.x(),
+                                           j+srcoffs.y(), x2-x, alphalinestep,
+                                           amonobitcount,amonobitval,
+                                           alphatype==BigEndianMask, reverse);
+                        // Fall through
+                      case IgnoreAlpha:
+                        hImageLineUnclipped(x,x2,l,srcptr,reverse);
+                        break;
+                      case InlineAlpha:
+                      case SolidAlpha:
+                        hAlphaLineUnclipped(x,x2,l,srcptr,0);
+                        break;
+                      case SeparateAlpha:
+                        // Separate alpha table
+                        unsigned char * alphap=alphabits
+                                                +((j+srcoffs.y())*alphalinestep)
+                                                +(x-rx)+srcoffs.x();
+                        hAlphaLineUnclipped(x,x2,l,srcptr,alphap);
+                    }
+                }
+                x=x2+1;
+                if (x > right)
+                    break;
+                if (mustclip)
+                    plot=inClip(x,ry,&cr,plot);
+            }
+        }
+        if (alphabuf) {
+            delete [] alphabuf;
+            alphabuf = 0;
+        }
     }
 
     srcdepth=osrcdepth;
@@ -5369,8 +5369,8 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
 }
 
 /*!
-\fn void QGfxRaster<depth,type>::stretchBlt( int rx,int ry,int w,int h,
-					 int sw,int sh )
+\fn void QGfxRaster<depth,type>::stretchBlt(int rx,int ry,int w,int h,
+                                         int sw,int sh)
 
 \internal
 
@@ -5386,8 +5386,8 @@ of the source; its x and y position are assumed to be 0.
 
 #if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS) || !defined(QT_NO_PIXMAP_TRANSFORMATION)
 template <const int depth, const int type>
-void QGfxRaster<depth,type>::stretchBlt( int rx,int ry,int w,int h,
-					 int sw,int sh )
+void QGfxRaster<depth,type>::stretchBlt(int rx,int ry,int w,int h,
+                                         int sw,int sh)
 {
     QRect cr;
     unsigned char * srcptr;
@@ -5408,95 +5408,95 @@ void QGfxRaster<depth,type>::stretchBlt( int rx,int ry,int w,int h,
 
     int mulfac;
     if(srcdepth==32) {
-	mulfac=4;
+        mulfac=4;
     } else if(srcdepth==24) {
-	mulfac=3;
+        mulfac=3;
     } else if(srcdepth==16) {
-	mulfac=2;
+        mulfac=2;
     } else if(srcdepth==8) {
-	mulfac=1;
+        mulfac=1;
     } else {
-	mulfac=0;
-	qDebug("Can't cope with stretchblt source depth %d",mulfac);
-	return;
+        mulfac=0;
+        qDebug("Can't cope with stretchblt source depth %d",mulfac);
+        return;
     }
 
-    QPoint srcoffs = srcwidgetoffs; // + QPoint( sx, sy );
+    QPoint srcoffs = srcwidgetoffs; // + QPoint(sx, sy);
 
     QRect cursRect(rx, ry, w+1, h+1);
     /* ???
     if (buffer_offset >= 0 && src_buffer_offset >= 0) {
-	cursRect = QRect( qMin(rx,srcoffs.x()), qMin(ry,srcoffs.y()),
-			qMax(w, sw)+QABS(rx - srcoffs.x())+1,
-			qMax(h, sh)+QABS(ry - srcoffs.y())+1 );
+        cursRect = QRect(qMin(rx,srcoffs.x()), qMin(ry,srcoffs.y()),
+                        qMax(w, sw)+QABS(rx - srcoffs.x())+1,
+                        qMax(h, sh)+QABS(ry - srcoffs.y())+1);
     } else if (src_buffer_offset >= 0) {
-	cursRect = QRect(srcoffs.x(), srcoffs.y(), sw+1, sh+1);
+        cursRect = QRect(srcoffs.x(), srcoffs.y(), sw+1, sh+1);
     }
     */
 
     GFX_START(cursRect);
     if((*gfx_optype))
-	sync();
+        sync();
     (*gfx_optype)=0;
     int osrcdepth=srcdepth;
     int pyp=-1;
 
     for(int j=0;j<h;j++,ry++,l+=linestep()) {
-	bool plot=inClip(rx,ry,&cr);
-	int x=rx;
+        bool plot=inClip(rx,ry,&cr);
+        int x=rx;
 
-	int yp=(int) ( ( (double) j )*yfac );
+        int yp=(int) (((double) j)*yfac);
 
-	if(yp!=pyp) {
-	    for(loopc=0;loopc<w;loopc++) {
-		int sp=(int) ( ( (double) loopc )*xfac );
-		unsigned char * p=srcScanLine(yp)+(sp*mulfac);
-		if(depth==32) {
-		    unsigned int val=get_value_32(srcdepth,&p);
-		    unsigned int * dp=(unsigned int *)data;
-		    *(dp+loopc)=val;
-		} else if(depth==24) {
-		    unsigned int val=get_value_32(srcdepth,&p);
-		    unsigned char* dp=(unsigned char *)data;
-		    gfxSetRgb24( dp+loopc*3, val);
-		} else if(depth==16) {
-		    unsigned int val=get_value_16(srcdepth,&p);
-		    unsigned short int * dp=(unsigned short int *)data;
-		    *(dp+loopc)=val;
-		} else if(depth==8) {
-		    unsigned int val=get_value_8(srcdepth,&p);
-		    *(data+loopc)=val;
-		} else {
-		    qDebug("Can't cope with stretchblt depth %d",depth);
-		    GFX_END
-		    delete [] data;
-		    return;
-		}
-	    }
-	    pyp=yp;
-	}
+        if(yp!=pyp) {
+            for(loopc=0;loopc<w;loopc++) {
+                int sp=(int) (((double) loopc)*xfac);
+                unsigned char * p=srcScanLine(yp)+(sp*mulfac);
+                if(depth==32) {
+                    unsigned int val=get_value_32(srcdepth,&p);
+                    unsigned int * dp=(unsigned int *)data;
+                    *(dp+loopc)=val;
+                } else if(depth==24) {
+                    unsigned int val=get_value_32(srcdepth,&p);
+                    unsigned char* dp=(unsigned char *)data;
+                    gfxSetRgb24(dp+loopc*3, val);
+                } else if(depth==16) {
+                    unsigned int val=get_value_16(srcdepth,&p);
+                    unsigned short int * dp=(unsigned short int *)data;
+                    *(dp+loopc)=val;
+                } else if(depth==8) {
+                    unsigned int val=get_value_8(srcdepth,&p);
+                    *(data+loopc)=val;
+                } else {
+                    qDebug("Can't cope with stretchblt depth %d",depth);
+                    GFX_END
+                    delete [] data;
+                    return;
+                }
+            }
+            pyp=yp;
+        }
 
-	srcdepth=depth;
-	for (;;) {
-	    int x2 = cr.right();
-	    if ( x2 >= rx+w-1 ) {
-		srcptr=sl;
-		srcptr+=(((x-rx)+srcoffs.x())*mulfac);
-		if (plot) {
-		    hImageLineUnclipped(x,rx+w-1,l,srcptr,FALSE);
-		}
-		break;
-	    } else {
-		srcptr=sl;
-		srcptr+=(((x-rx)+(srcoffs.x()))*mulfac);
-		if (plot) {
-			hImageLineUnclipped(x,x2,l,srcptr,FALSE);
-		}
-		x=x2+1;
-		plot=inClip(x,ry,&cr,plot);
-	    }
-	}
-	srcdepth=osrcdepth;
+        srcdepth=depth;
+        for (;;) {
+            int x2 = cr.right();
+            if (x2 >= rx+w-1) {
+                srcptr=sl;
+                srcptr+=(((x-rx)+srcoffs.x())*mulfac);
+                if (plot) {
+                    hImageLineUnclipped(x,rx+w-1,l,srcptr,false);
+                }
+                break;
+            } else {
+                srcptr=sl;
+                srcptr+=(((x-rx)+(srcoffs.x()))*mulfac);
+                if (plot) {
+                        hImageLineUnclipped(x,x2,l,srcptr,false);
+                }
+                x=x2+1;
+                plot=inClip(x,ry,&cr,plot);
+            }
+        }
+        srcdepth=osrcdepth;
     }
     delete [] data;
     GFX_END
@@ -5504,7 +5504,7 @@ void QGfxRaster<depth,type>::stretchBlt( int rx,int ry,int w,int h,
 #endif
 
 /*!
-\fn void QGfxRaster<depth,type>::tiledBlt( int rx,int ry,int w,int h )
+\fn void QGfxRaster<depth,type>::tiledBlt(int rx,int ry,int w,int h)
 
 \internal
 
@@ -5516,10 +5516,10 @@ its size.
 */
 
 template <const int depth, const int type>
-void QGfxRaster<depth,type>::tiledBlt( int rx,int ry,int w,int h )
+void QGfxRaster<depth,type>::tiledBlt(int rx,int ry,int w,int h)
 {
-    if ( srcwidth == 0 || srcheight == 0 )
-	return;
+    if (srcwidth == 0 || srcheight == 0)
+        return;
     GFX_START(QRect(rx+xoffs, ry+yoffs, w+1, h+1))
 
     useBrush();
@@ -5529,11 +5529,11 @@ void QGfxRaster<depth,type>::tiledBlt( int rx,int ry,int w,int h )
     int offy = srcwidgetoffs.y() + brushoffs.y();
 
     // from qpainter_qws.cpp
-    if ( offx < 0 )
+    if (offx < 0)
         offx = srcwidth - -offx % srcwidth;
     else
         offx = offx % srcwidth;
-    if ( offy < 0 )
+    if (offy < 0)
         offy = srcheight - -offy % srcheight;
     else
         offy = offy % srcheight;
@@ -5541,18 +5541,18 @@ void QGfxRaster<depth,type>::tiledBlt( int rx,int ry,int w,int h )
     int yPos, xPos, drawH, drawW, yOff, xOff;
     yPos = ry;
     yOff = offy;
-    while( yPos < ry + h ) {
+    while(yPos < ry + h) {
         drawH = srcheight - yOff;    // Cropping first row
-        if ( yPos + drawH > ry + h )        // Cropping last row
+        if (yPos + drawH > ry + h)        // Cropping last row
             drawH = ry + h - yPos;
         xPos = rx;
         xOff = offx;
-        while( xPos < rx + w ) {
+        while(xPos < rx + w) {
             drawW = srcwidth - xOff; // Cropping first column
-            if ( xPos + drawW > rx + w )    // Cropping last column
+            if (xPos + drawW > rx + w)    // Cropping last column
                 drawW = rx + w - xPos;
-	    blt(xPos, yPos, drawW, drawH,xOff,yOff);
-	    alphabits=savealphabits;
+            blt(xPos, yPos, drawW, drawH,xOff,yOff);
+            alphabits=savealphabits;
             xPos += drawW;
             xOff = 0;
         }
@@ -5572,24 +5572,24 @@ GFX_INLINE void QGfxRaster<depth,type>::useBrush()
 {
 #ifndef QT_NO_QWS_REPEATER
     if (isScreenGfx) {
-	if(depth==32||depth==24) {
-	    pixel=(cbrush.color().red() << 16) | (cbrush.color().green() << 8)
-		  | (cbrush.color().blue());
-	} else if(depth==16) {
-	    pixel=((cbrush.color().red() >> 3) << 11) |
-		  ((cbrush.color().green() >> 2) << 5) |
-		  (cbrush.color().blue() >> 3);
-	} else if(depth==1) {
-	    pixel=qGray(cbrush.color().red(),cbrush.color().green(),
-			cbrush.color().blue()) < 128 ? 1 : 0;
-	} else {
-	    pixel=gfx_screen->alloc(cbrush.color().red(),
-				    cbrush.color().green(),
-				    cbrush.color().blue());
-	}
+        if(depth==32||depth==24) {
+            pixel=(cbrush.color().red() << 16) | (cbrush.color().green() << 8)
+                  | (cbrush.color().blue());
+        } else if(depth==16) {
+            pixel=((cbrush.color().red() >> 3) << 11) |
+                  ((cbrush.color().green() >> 2) << 5) |
+                  (cbrush.color().blue() >> 3);
+        } else if(depth==1) {
+            pixel=qGray(cbrush.color().red(),cbrush.color().green(),
+                        cbrush.color().blue()) < 128 ? 1 : 0;
+        } else {
+            pixel=gfx_screen->alloc(cbrush.color().red(),
+                                    cbrush.color().green(),
+                                    cbrush.color().blue());
+        }
     } else
 #endif
-	pixel = cbrush.color().pixel();
+        pixel = cbrush.color().pixel();
 }
 
 /*
@@ -5602,24 +5602,24 @@ GFX_INLINE void QGfxRaster<depth,type>::usePen()
 {
 #ifndef QT_NO_QWS_REPEATER
     if (isScreenGfx) {
-	if(depth==32||depth==24) {
-	    pixel=(cpen.color().red() << 16) | (cpen.color().green() << 8)
-		  | (cpen.color().blue());
-	} else if(depth==16) {
-	    pixel=((cpen.color().red() >> 3) << 11) |
-		  ((cpen.color().green() >> 2) << 5) |
-		  (cpen.color().blue() >> 3);
-	} else if(depth==1) {
-	    pixel=qGray(cpen.color().red(),cpen.color().green(),
-			cpen.color().blue()) < 128 ? 1 : 0;
-	} else {
-	    pixel=gfx_screen->alloc(cpen.color().red(),
-				    cpen.color().green(),
-				    cpen.color().blue());
-	}
+        if(depth==32||depth==24) {
+            pixel=(cpen.color().red() << 16) | (cpen.color().green() << 8)
+                  | (cpen.color().blue());
+        } else if(depth==16) {
+            pixel=((cpen.color().red() >> 3) << 11) |
+                  ((cpen.color().green() >> 2) << 5) |
+                  (cpen.color().blue() >> 3);
+        } else if(depth==1) {
+            pixel=qGray(cpen.color().red(),cpen.color().green(),
+                        cpen.color().blue()) < 128 ? 1 : 0;
+        } else {
+            pixel=gfx_screen->alloc(cpen.color().red(),
+                                    cpen.color().green(),
+                                    cpen.color().blue());
+        }
     } else
 #endif
-	pixel = cpen.color().pixel();
+        pixel = cpen.color().pixel();
 }
 
 /*!
@@ -5640,7 +5640,7 @@ the framebuffer. Accelerated drivers use it to set up the graphics card.
 */
 
 /*!
-\fn QScreen::connect( const QString &displaySpec )
+\fn QScreen::connect(const QString &displaySpec)
 This function is called by every Qt/Embedded application on startup.
 It maps in the framebuffer and in the accelerated drivers the graphics
 card control registers. \a displaySpec has the following syntax:
@@ -5765,7 +5765,7 @@ screen. Offscreen memory is only used by the accelerated drivers.
 // drivers
 
 /*!
-  \fn QScreen::QScreen( int display_id )
+  \fn QScreen::QScreen(int display_id)
   Create a screen; the \a display_id is the number of the Qt/Embedded server
   to connect to.
 */
@@ -5781,15 +5781,15 @@ screen. Offscreen memory is only used by the accelerated drivers.
   Returns the number of entries in the color table returned by clut().
 */
 
-QScreen::QScreen( int display_id )
+QScreen::QScreen(int display_id)
 {
     pixeltype=QGfx::NormalPixel;
     data = 0;
     displayId = display_id;
-    initted=FALSE;
+    initted=false;
     entryp=0;
     clearCacheFunc = 0;
-    grayscale = FALSE;
+    grayscale = false;
 }
 
 /*!
@@ -5824,7 +5824,7 @@ QGfx * QScreen::screenGfx()
 {
     QGfx * ret=createGfx(data,w,h,d,lstep);
     if(d<=8) {
-	ret->setClut(clut(),numCols());
+        ret->setClut(clut(),numCols());
     }
     return ret;
 }
@@ -5843,40 +5843,40 @@ QGfx * QScreen::screenGfx()
 int QScreen::alloc(unsigned int r,unsigned int g,unsigned int b)
 {
     int ret = 0;
-    if ( d == 8 ) {
-	if ( grayscale )
-	    return qGray( r, g, b );
-	// First we look to see if we match a default color
-	QRgb myrgb=qRgb(r,g,b);
-	int pos= (r + 25) / 51 * 36 + (g + 25) / 51 * 6 + (b + 25) / 51;
-	if ( simple_8bpp_alloc || screenclut[pos] == myrgb || !initted ) {
-	    return pos;
-	}
+    if (d == 8) {
+        if (grayscale)
+            return qGray(r, g, b);
+        // First we look to see if we match a default color
+        QRgb myrgb=qRgb(r,g,b);
+        int pos= (r + 25) / 51 * 36 + (g + 25) / 51 * 6 + (b + 25) / 51;
+        if (simple_8bpp_alloc || screenclut[pos] == myrgb || !initted) {
+            return pos;
+        }
 
-	// search for nearest color
-	unsigned int mindiff = 0xffffffff;
-	unsigned int diff;
-	int dr,dg,db;
+        // search for nearest color
+        unsigned int mindiff = 0xffffffff;
+        unsigned int diff;
+        int dr,dg,db;
 
-	for ( int loopc = 0; loopc < 256; loopc++ ) {
-	    dr = qRed(screenclut[loopc]) - r;
-	    dg = qGreen(screenclut[loopc]) - g;
-	    db = qBlue(screenclut[loopc]) - b;
-	    diff = dr*dr + dg*dg + db*db;
+        for (int loopc = 0; loopc < 256; loopc++) {
+            dr = qRed(screenclut[loopc]) - r;
+            dg = qGreen(screenclut[loopc]) - g;
+            db = qBlue(screenclut[loopc]) - b;
+            diff = dr*dr + dg*dg + db*db;
 
-	    if ( diff < mindiff ) {
-		ret = loopc;
-		if ( !diff )
-		    break;
-		mindiff = diff;
-	    }
-	}
-    } else if ( d == 4 ) {
-	ret = qGray( r, g, b ) >> 4;
-    } else if ( d == 1 && simple_8bpp_alloc ) {
-	ret = qGray( r, g, b ) > 128;
+            if (diff < mindiff) {
+                ret = loopc;
+                if (!diff)
+                    break;
+                mindiff = diff;
+            }
+        }
+    } else if (d == 4) {
+        ret = qGray(r, g, b) >> 4;
+    } else if (d == 1 && simple_8bpp_alloc) {
+        ret = qGray(r, g, b) > 128;
     } else {
-	qFatal( "cannot alloc %dbpp color", d );
+        qFatal("cannot alloc %dbpp color", d);
     }
 
     return ret;
@@ -5896,12 +5896,12 @@ int QScreen::initCursor(void* end_of_location, bool init)
       after the cursor data.
     */
 #ifndef QT_NO_QWS_CURSOR
-    qt_sw_cursor=TRUE;
+    qt_sw_cursor=true;
     // ### until QLumpManager works Ok with multiple connected clients,
     // we steal a chunk of shared memory
     SWCursorData *data = (SWCursorData *)end_of_location - 1;
     qt_screencursor=new QScreenCursor();
-    qt_screencursor->init( data, init );
+    qt_screencursor->init(data, init);
     return sizeof(SWCursorData);
 #else
     return 0;
@@ -5948,34 +5948,34 @@ Possible values are 1,4,8,16 and 32.
 
 bool QScreen::supportsDepth(int d) const
 {
-    if ( FALSE ) {
-	//Just to simplify the ifdeffery
+    if (false) {
+        //Just to simplify the ifdeffery
 #ifndef QT_NO_QWS_DEPTH_1
     } else if(d==1) {
-	return TRUE;
+        return true;
 #endif
 #ifndef QT_NO_QWS_DEPTH_4
     } else if(d==4) {
-	return TRUE;
+        return true;
 #endif
 #ifndef QT_NO_QWS_DEPTH_8
     } else if(d==8) {
-	return TRUE;
+        return true;
 #endif
 #ifndef QT_NO_QWS_DEPTH_16
     } else if(d==16) {
-	return TRUE;
+        return true;
 #endif
 #ifndef QT_NO_QWS_DEPTH_24
     } else if(d==24) {
-	return TRUE;
+        return true;
 #endif
 #ifndef QT_NO_QWS_DEPTH_32
     } else if(d==32) {
-	return TRUE;
+        return true;
 #endif
     }
-    return FALSE;
+    return false;
 }
 
 // explicit template instaniation
@@ -6009,35 +6009,35 @@ graphics memory and create an accelerated Gfx.
 QGfx * QScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linestep)
 {
     QGfx* ret;
-    if ( FALSE ) {
-	//Just to simplify the ifdeffery
+    if (false) {
+        //Just to simplify the ifdeffery
 #ifndef QT_NO_QWS_DEPTH_1
     } else if(d==1) {
-	ret = new QGfxRaster<1,0>(bytes,w,h);
+        ret = new QGfxRaster<1,0>(bytes,w,h);
 #endif
 #ifndef QT_NO_QWS_DEPTH_4
     } else if(d==4) {
-	ret = new QGfxRaster<4,0>(bytes,w,h);
+        ret = new QGfxRaster<4,0>(bytes,w,h);
 #endif
 #ifndef QT_NO_QWS_DEPTH_8
     } else if(d==8) {
-	ret = new QGfxRaster<8,0>(bytes,w,h);
+        ret = new QGfxRaster<8,0>(bytes,w,h);
 #endif
 #ifndef QT_NO_QWS_DEPTH_16
     } else if(d==16) {
-	ret = new QGfxRaster<16,0>(bytes,w,h);
+        ret = new QGfxRaster<16,0>(bytes,w,h);
 #endif
 #ifndef QT_NO_QWS_DEPTH_24
     } else if(d==24) {
-	ret = new QGfxRaster<24,0>(bytes,w,h);
+        ret = new QGfxRaster<24,0>(bytes,w,h);
 #endif
 #ifndef QT_NO_QWS_DEPTH_32
     } else if(d==32) {
-	ret = new QGfxRaster<32,0>(bytes,w,h);
+        ret = new QGfxRaster<32,0>(bytes,w,h);
 #endif
     } else {
-	qFatal("Can't drive depth %d",d);
-	ret = 0; // silence gcc
+        qFatal("Can't drive depth %d",d);
+        ret = 0; // silence gcc
     }
     ret->setLineStep(linestep);
     return ret;
@@ -6053,11 +6053,11 @@ bool QScreen::onCard(unsigned char * p) const
 {
     long t=(unsigned long)p;
     long bmin=(unsigned long)data;
-    if ( t < bmin )
-	return FALSE;
-    if( t >= bmin+mapsize )
-	return FALSE;
-    return TRUE;
+    if (t < bmin)
+        return false;
+    if(t >= bmin+mapsize)
+        return false;
+    return true;
 }
 
 /*!
@@ -6072,13 +6072,13 @@ bool QScreen::onCard(unsigned char * p, ulong& offset) const
 {
     long t=(unsigned long)p;
     long bmin=(unsigned long)data;
-    if ( t < bmin )
-	return FALSE;
+    if (t < bmin)
+        return false;
     long o = t - bmin;
-    if ( o >= mapsize )
-	return FALSE;
+    if (o >= mapsize)
+        return false;
     offset = o;
-    return TRUE;
+    return true;
 }
 
 /*
@@ -6101,41 +6101,41 @@ QScreen-descendant into QGfxDriverFactory or use the QGfxDriverPlugin
 to make a dynamically loadable driver.
 */
 
-QScreen *qt_get_screen( int display_id, const char *spec )
+QScreen *qt_get_screen(int display_id, const char *spec)
 {
-    QString displaySpec( spec );
+    QString displaySpec(spec);
     QString driver = displaySpec;
-    int colon = displaySpec.find( ':' );
-    if ( colon >= 0 )
-	driver.truncate( colon );
+    int colon = displaySpec.find(':');
+    if (colon >= 0)
+        driver.truncate(colon);
 
-    bool foundDriver = FALSE;
+    bool foundDriver = false;
     QString driverName = driver;
 
     QStringList driverList = QGfxDriverFactory::keys();
     QStringList::Iterator it;
-    for ( it = driverList.begin(); it != driverList.end(); ++it ) {
-	if ( driver.isEmpty() || QString( *it ) == driver ) {
-	    driverName = *it;
-	    qt_screen = QGfxDriverFactory::create( driverName, display_id );
-	    if ( qt_screen ) {
-		foundDriver = TRUE;
-		if ( qt_screen->connect( spec ) ) {
-		    return qt_screen;
-		} else {
-		    delete qt_screen;
-		    qt_screen = 0;
-		}
-	    }
-	}
+    for (it = driverList.begin(); it != driverList.end(); ++it) {
+        if (driver.isEmpty() || QString(*it) == driver) {
+            driverName = *it;
+            qt_screen = QGfxDriverFactory::create(driverName, display_id);
+            if (qt_screen) {
+                foundDriver = true;
+                if (qt_screen->connect(spec)) {
+                    return qt_screen;
+                } else {
+                    delete qt_screen;
+                    qt_screen = 0;
+                }
+            }
+        }
     }
 
-    if ( driver.isNull() )
-	qFatal( "No suitable driver found" );
-    else if ( foundDriver )
-	qFatal( "%s: driver cannot connect", driver.latin1() );
+    if (driver.isNull())
+        qFatal("No suitable driver found");
+    else if (foundDriver)
+        qFatal("%s: driver cannot connect", driver.latin1());
     else
-	qFatal( "%s: driver not found", driver.latin1() );
+        qFatal("%s: driver not found", driver.latin1());
 
     return 0;
 }

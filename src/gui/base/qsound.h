@@ -32,12 +32,12 @@ public:
     ~QSound();
 
     /* Coming soon...
-	?
+        ?
     QSound(int hertz, Type type=Mono);
     int play(const ushort* data, int samples);
     bool full();
     signal void notFull();
-	?
+        ?
     */
 
 #ifdef QT_COMPAT

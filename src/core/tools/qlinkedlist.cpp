@@ -37,7 +37,7 @@ QLinkedListData QLinkedListData::shared_null = {
     QLinkedList that stores QTime values:
 
     \code
-	QLinkedList<int> integerList;
+        QLinkedList<int> integerList;
         QLinkedList<QTime> timeList;
     \endcode
 
@@ -46,9 +46,9 @@ QLinkedListData QLinkedListData::shared_null = {
     operator<<():
 
     \code
-	QLinkedList<QString> list;
+        QLinkedList<QString> list;
         list << "one" << "two" << "three";
-        // list: [ "one", "two", "three" ]
+        // list: ["one", "two", "three"]
     \endcode
 
     If you want to get the first or last item in a linked list, use
@@ -62,10 +62,10 @@ QLinkedListData QLinkedListData::shared_null = {
     takeFirst() and takeLast(). Here's a loop that removes the items
     from a list one at a time and calls \c delete on them:
     \code
-	QLinkedList<QWidget *> list;
+        QLinkedList<QWidget *> list;
         ...
         while (!list.isEmpty())
-	    delete list.takeFirst();
+            delete list.takeFirst();
     \endcode
 
     QLinkedList's value type must be an \l{assignable data type}.
@@ -181,11 +181,11 @@ QLinkedListData QLinkedListData::shared_null = {
 
     Example:
     \code
-	QLinkedList<QString> list;
+        QLinkedList<QString> list;
         list.append("one");
         list.append("two");
         list.append("three");
-        // list: [ "one", "two", "three" ]
+        // list: ["one", "two", "three"]
     \endcode
 
     This is the same as list.insert(end(), \a value).
@@ -199,11 +199,11 @@ QLinkedListData QLinkedListData::shared_null = {
 
     Example:
     \code
-	QLinkedList<QString> list;
+        QLinkedList<QString> list;
         list.prepend("one");
         list.prepend("two");
         list.prepend("three");
-        // list: [ "three", "two", "one" ]
+        // list: ["three", "two", "one"]
     \endcode
 
     This is the same as list.insert(begin(), \a value).
@@ -217,10 +217,10 @@ QLinkedListData QLinkedListData::shared_null = {
 
     Example:
     \code
-	QList<QString> list;
+        QList<QString> list;
         list << "sun" << "cloud" << "sun" << "rain";
         list.remove("sun");
-        // list: [ "cloud", "rain" ]
+        // list: ["cloud", "rain"]
     \endcode
 
     This function requires the value type to have an implementation of
@@ -512,7 +512,7 @@ QLinkedListData QLinkedListData::shared_null = {
     typical loop that prints all the items stored in a list:
 
     \code
-	QLinkedList<QString> list;
+        QLinkedList<QString> list;
         list.append("January");
         list.append("February");
         ...
@@ -520,7 +520,7 @@ QLinkedListData QLinkedListData::shared_null = {
 
         QLinkedList<QString, int>::iterator i;
         for (i = list.begin(); i != list.end(); ++i)
-	    cout << *i << endl;
+            cout << *i << endl;
     \endcode
 
     STL-style iterators can be used as arguments to \l{generic
@@ -528,12 +528,12 @@ QLinkedListData QLinkedListData::shared_null = {
     using the qFind() algorithm:
 
     \code
-	QLinkedList<QString> list;
+        QLinkedList<QString> list;
         ...
-	QLinkedList<QString>::iterator it = qFind(list.begin(),
-						  list.end(), "Joel");
-	if (it != list.end())
-	    cout << "Found Joel" << endl;
+        QLinkedList<QString>::iterator it = qFind(list.begin(),
+                                                  list.end(), "Joel");
+        if (it != list.end())
+            cout << "Found Joel" << endl;
     \endcode
 
     Let's see a few examples of things we can do with a
@@ -542,23 +542,23 @@ QLinkedListData QLinkedListData::shared_null = {
     QLinkedList\<int\> by 2:
 
     \code
-	QLinkedList<int>::iterator i;
+        QLinkedList<int>::iterator i;
         for (i = list.begin(); i != list.end(); ++i)
-	    *i += 2;
+            *i += 2;
     \endcode
 
     Here's an example that removes all the items that start with an
     underscore character in a QLinkedList\<QString\>:
 
     \code
-	QLinkedList<QString> list;
-	...
-	QLinkedList<QString>::iterator i = list.begin();
+        QLinkedList<QString> list;
+        ...
+        QLinkedList<QString>::iterator i = list.begin();
         while (i != list.end()) {
-	    if ((*i).startsWith("_"))
-		i = list.erase(i);
-	    else
-		++i;
+            if ((*i).startsWith("_"))
+                i = list.erase(i);
+            else
+                ++i;
         }
     \endcode
 
@@ -567,23 +567,23 @@ QLinkedListData QLinkedListData::shared_null = {
     item. Here's another way of removing an item while iterating:
 
     \code
-	QLinkedList<QString>::iterator i = list.begin();
+        QLinkedList<QString>::iterator i = list.begin();
         while (i != list.end()) {
-	    QLinkedList<QString>::iterator prev = i;
-	    ++i;
+            QLinkedList<QString>::iterator prev = i;
+            ++i;
             if ((*prev).startsWith("_"))
-		list.erase(prev);
+                list.erase(prev);
         }
     \endcode
 
     It might be tempting to write code like this:
 
     \code
-	// WRONG
+        // WRONG
         while (i != list.end()) {
-	    if ((*i).startsWith("_"))
-		list.erase(i);
-	    ++i;
+            if ((*i).startsWith("_"))
+                list.erase(i);
+            ++i;
         }
     \endcode
 
@@ -650,8 +650,8 @@ QLinkedListData QLinkedListData::shared_null = {
     left side of an assignment, for example:
 
     \code
-	if (*it == "Hello")
-	    *it = "Bonjour";
+        if (*it == "Hello")
+            *it = "Bonjour";
     \endcode
 */
 
@@ -772,7 +772,7 @@ QLinkedListData QLinkedListData::shared_null = {
     typical loop that prints all the items stored in a list:
 
     \code
-	QLinkedList<QString> list;
+        QLinkedList<QString> list;
         list.append("January");
         list.append("February");
         ...
@@ -780,7 +780,7 @@ QLinkedListData QLinkedListData::shared_null = {
 
         QLinkedList<QString, int>::const_iterator i;
         for (i = list.constBegin(); i != list.constEnd(); ++i)
-	    cout << *i << endl;
+            cout << *i << endl;
     \endcode
 
     STL-style iterators can be used as arguments to \l{generic
@@ -788,12 +788,12 @@ QLinkedListData QLinkedListData::shared_null = {
     using the qFind() algorithm:
 
     \code
-	QLinkedList<QString> list;
+        QLinkedList<QString> list;
         ...
-	QLinkedList<QString>::iterator it = qFind(list.constBegin(),
-						  list.constEnd(), "Joel");
-	if (it != list.constEnd())
-	    cout << "Found Joel" << endl;
+        QLinkedList<QString>::iterator it = qFind(list.constBegin(),
+                                                  list.constEnd(), "Joel");
+        if (it != list.constEnd())
+            cout << "Found Joel" << endl;
     \endcode
 
     Multiple iterators can be used on the same list. If you add items

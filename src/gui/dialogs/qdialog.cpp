@@ -29,7 +29,7 @@
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
-#if defined( Q_OS_TEMP )
+#if defined(Q_OS_TEMP)
 #include "qt_windows.h"
 #endif
 
@@ -73,12 +73,12 @@
     and return the appropriate value. Alternatively you can connect to
     the done() slot, passing it \c Accepted or \c Rejected.
 
-    An alternative is to call setModal(TRUE), then show(). Unlike
+    An alternative is to call setModal(true), then show(). Unlike
     exec(), show() returns control to the caller immediately. Calling
-    setModal(TRUE) is especially useful for progress dialogs, where
+    setModal(true) is especially useful for progress dialogs, where
     the user must have the ability to interact with the dialog, e.g.
     to cancel a long running operation. If you use show() and
-    setModal(TRUE) together you must call
+    setModal(true) together you must call
     QApplication::processEvents() periodically during processing to
     enable the user to interact with the dialog. (See \l
     QProgressDialog.)
@@ -185,15 +185,15 @@
 
 class QDialogPrivate : public QWidgetPrivate
 {
-    Q_DECLARE_PUBLIC( QWidget );
+    Q_DECLARE_PUBLIC(QWidget);
 public:
 
     QDialogPrivate()
-	: mainDef(0), orientation(Horizontal),extension(0), doShowExtension(FALSE)
+        : mainDef(0), orientation(Horizontal),extension(0), doShowExtension(false)
 #ifndef QT_NO_SIZEGRIP
-	,resizer(0)
+        ,resizer(0)
 #endif
-	{
+        {
     }
 
     QPushButton* mainDef;
@@ -227,8 +227,8 @@ public:
   \sa QWidget::setWFlags() Qt::WindowFlags
 */
 
-QDialog::QDialog( QWidget *parent, WFlags f )
-    : QWidget( *new QDialogPrivate, parent, f | WType_Dialog ),
+QDialog::QDialog(QWidget *parent, WFlags f)
+    : QWidget(*new QDialogPrivate, parent, f | WType_Dialog),
       rescode(0), in_loop(0)
 {
 }
@@ -237,13 +237,13 @@ QDialog::QDialog( QWidget *parent, WFlags f )
     \overload
     \obsolete
 */
-QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
-    : QWidget( *new QDialogPrivate, parent,
-	       (modal ? (f|WShowModal) : f) | WType_Dialog ),
+QDialog::QDialog(QWidget *parent, const char *name, bool modal, WFlags f)
+    : QWidget(*new QDialogPrivate, parent,
+               (modal ? (f|WShowModal) : f) | WType_Dialog),
       rescode(0), in_loop(0)
 {
     if (name)
-	setObjectName(name);
+        setObjectName(name);
 }
 
 /*!
@@ -265,24 +265,24 @@ QDialog::~QDialog()
   push button calls when it loses focus.
 */
 
-void QDialog::setDefault( QPushButton *pushButton )
+void QDialog::setDefault(QPushButton *pushButton)
 {
 #ifndef QT_NO_PUSHBUTTON
-    QObjectList list = queryList( "QPushButton" );
-    bool hasMain = FALSE;
+    QObjectList list = queryList("QPushButton");
+    bool hasMain = false;
     for (int i = 0; i < list.size(); ++i) {
-	QPushButton *pb = static_cast<QPushButton *>(list.at(i));
-	if ( pb->topLevelWidget() != this )
-	    continue;
-	if ( pb == d->mainDef )
-	    hasMain = TRUE;
-	if ( pb != pushButton )
-	    pb->setDefault( FALSE );
+        QPushButton *pb = static_cast<QPushButton *>(list.at(i));
+        if (pb->topLevelWidget() != this)
+            continue;
+        if (pb == d->mainDef)
+            hasMain = true;
+        if (pb != pushButton)
+            pb->setDefault(false);
     }
     if (!pushButton && hasMain)
-	d->mainDef->setDefault( TRUE );
+        d->mainDef->setDefault(true);
     if (!hasMain)
-	d->mainDef = pushButton;
+        d->mainDef = pushButton;
 #endif
 }
 
@@ -291,7 +291,7 @@ void QDialog::setDefault( QPushButton *pushButton )
   This function sets the default default pushbutton to \a pushButton.
   This function is called by QPushButton::setDefault().
 */
-void QDialog::setMainDefault( QPushButton *pushButton )
+void QDialog::setMainDefault(QPushButton *pushButton)
 {
 #ifndef QT_NO_PUSHBUTTON
     d->mainDef = 0;
@@ -307,10 +307,10 @@ void QDialog::setMainDefault( QPushButton *pushButton )
 void QDialog::hideDefault()
 {
 #ifndef QT_NO_PUSHBUTTON
-    QObjectList list = queryList( "QPushButton" );
+    QObjectList list = queryList("QPushButton");
     for (int i = 0; i < list.size(); ++i) {
-	QPushButton *pb = static_cast<QPushButton *>(list.at(i));
-	pb->setDefault( FALSE );
+        QPushButton *pb = static_cast<QPushButton *>(list.at(i));
+        pb->setDefault(false);
     }
 #endif
 }
@@ -328,39 +328,39 @@ void QDialog::hideSpecial()
     // "OK"     buttons are hidden, and (Ok) shown on title bar
     // "Cancel" buttons are hidden, and (X)  shown on title bar
     // "Help"   buttons are hidden, and (?)  shown on title bar
-    bool showOK = FALSE,
-	 showX  = FALSE,
-	 showQ  = FALSE;
-    QObjectList *list = queryList( "QPushButton" );
-    QObjectListIt it( *list );
+    bool showOK = false,
+         showX  = false,
+         showQ  = false;
+    QObjectList *list = queryList("QPushButton");
+    QObjectListIt it(*list);
     QPushButton *pb;
-    while ( (pb = (QPushButton*)it.current()) ) {
-	if ( !showOK &&
-	     pb->text() == qApp->translate( "QMessageBox", mb_texts[QMessageBox::Ok] ) ) {
-	    pb->hide();
-	    showOK = TRUE;
-	} else if ( !showX &&
-		    pb->text() == qApp->translate( "QMessageBox", mb_texts[QMessageBox::Cancel] ) ) {
-	    pb->hide();
-	    showX = TRUE;
-	} else if ( !showQ &&
-		    pb->text() == qApp->tr("Help") ) {
-	    pb->hide();
-	    showQ = TRUE;
-	}
+    while ((pb = (QPushButton*)it.current())) {
+        if (!showOK &&
+             pb->text() == qApp->translate("QMessageBox", mb_texts[QMessageBox::Ok])) {
+            pb->hide();
+            showOK = true;
+        } else if (!showX &&
+                    pb->text() == qApp->translate("QMessageBox", mb_texts[QMessageBox::Cancel])) {
+            pb->hide();
+            showX = true;
+        } else if (!showQ &&
+                    pb->text() == qApp->tr("Help")) {
+            pb->hide();
+            showQ = true;
+        }
         ++it;
     }
     delete list;
-    if ( showOK || showQ ) {
-	DWORD ext = GetWindowLong( winId(), GWL_EXSTYLE );
-	ext |= showOK ? WS_EX_CAPTIONOKBTN : 0;
-	ext |= showQ  ? WS_EX_CONTEXTHELP: 0;
-	SetWindowLong( winId(), GWL_EXSTYLE, ext );
+    if (showOK || showQ) {
+        DWORD ext = GetWindowLong(winId(), GWL_EXSTYLE);
+        ext |= showOK ? WS_EX_CAPTIONOKBTN : 0;
+        ext |= showQ  ? WS_EX_CONTEXTHELP: 0;
+        SetWindowLong(winId(), GWL_EXSTYLE, ext);
     }
-    if ( !showX ) {
-	DWORD ext = GetWindowLong( winId(), GWL_STYLE );
-	ext &= ~WS_SYSMENU;
-	SetWindowLong( winId(), GWL_STYLE, ext );
+    if (!showX) {
+        DWORD ext = GetWindowLong(winId(), GWL_STYLE);
+        ext &= ~WS_SYSMENU;
+        SetWindowLong(winId(), GWL_STYLE, ext);
     }
 }
 #endif
@@ -375,7 +375,7 @@ void QDialog::hideSpecial()
 */
 
 /*!
-  \fn void QDialog::setResult( int i )
+  \fn void QDialog::setResult(int i)
 
   Sets the modal dialog's result code to \a i.
 */
@@ -394,30 +394,30 @@ void QDialog::hideSpecial()
 
 int QDialog::exec()
 {
-    if ( in_loop ) {
-	qWarning( "QDialog::exec: Recursive call detected" );
-	return -1;
+    if (in_loop) {
+        qWarning("QDialog::exec: Recursive call detected");
+        return -1;
     }
 
-    bool destructiveClose = testWFlags( WDestructiveClose );
-    clearWFlags( WDestructiveClose );
+    bool destructiveClose = testWFlags(WDestructiveClose);
+    clearWFlags(WDestructiveClose);
 
-    bool wasShowModal = testWFlags( WShowModal );
-    setWFlags( WShowModal );
-    setResult( 0 );
+    bool wasShowModal = testWFlags(WShowModal);
+    setWFlags(WShowModal);
+    setResult(0);
 
     show();
 
-    in_loop = TRUE;
+    in_loop = true;
     qApp->enter_loop();
 
-    if ( !wasShowModal )
-	clearWFlags( WShowModal );
+    if (!wasShowModal)
+        clearWFlags(WShowModal);
 
     int res = result();
 
-    if ( destructiveClose )
-	delete this;
+    if (destructiveClose)
+        delete this;
 
     return res;
 }
@@ -436,10 +436,10 @@ int QDialog::exec()
   \sa accept(), reject(), QApplication::mainWidget(), QApplication::quit()
 */
 
-void QDialog::done( int r )
+void QDialog::done(int r)
 {
     hide();
-    setResult( r );
+    setResult(r);
     d->close_helper(QWidgetPrivate::CloseNoEvent);
 }
 
@@ -451,7 +451,7 @@ void QDialog::done( int r )
 
 void QDialog::accept()
 {
-    done( Accepted );
+    done(Accepted);
 }
 
 /*!
@@ -462,13 +462,13 @@ void QDialog::accept()
 
 void QDialog::reject()
 {
-    done( Rejected );
+    done(Rejected);
 }
 
 /*! \reimp */
-bool QDialog::eventFilter( QObject *o, QEvent *e )
+bool QDialog::eventFilter(QObject *o, QEvent *e)
 {
-    return QWidget::eventFilter( o, e );
+    return QWidget::eventFilter(o, e);
 }
 
 /*****************************************************************************
@@ -476,139 +476,139 @@ bool QDialog::eventFilter( QObject *o, QEvent *e )
  *****************************************************************************/
 
 /*! \reimp */
-void QDialog::contextMenuEvent( QContextMenuEvent *e )
+void QDialog::contextMenuEvent(QContextMenuEvent *e)
 {
 #if !defined(QT_NO_WHATSTHIS) && !defined(QT_NO_POPUPMENU)
     QWidget *w = childAt(e->pos());
     if (!w) {
-	w = rect().contains(e->pos()) ? this : 0;
-	if (!w)
-	    return;
+        w = rect().contains(e->pos()) ? this : 0;
+        if (!w)
+            return;
     }
     while (w && w->whatsThis().size() == 0 && !w->testAttribute(WA_CustomWhatsThis))
-	w = w->isTopLevel() ? 0 : w->parentWidget();
+        w = w->isTopLevel() ? 0 : w->parentWidget();
     if (w) {
-	QPopupMenu p(0,"qt_whats_this_menu");
-	p.insertItem( tr("What's This?"), 42 );
-	if ( p.exec( e->globalPos() ) >= 42 ) {
-	    QHelpEvent e(QEvent::WhatsThis, w->rect().center(),
-			 w->mapToGlobal(w->rect().center()) );
-	    QApplication::sendEvent(w, &e);
-	}
+        QPopupMenu p(0,"qt_whats_this_menu");
+        p.insertItem(tr("What's This?"), 42);
+        if (p.exec(e->globalPos()) >= 42) {
+            QHelpEvent e(QEvent::WhatsThis, w->rect().center(),
+                         w->mapToGlobal(w->rect().center()));
+            QApplication::sendEvent(w, &e);
+        }
     }
 #endif
 }
 
 /*! \reimp */
-void QDialog::keyPressEvent( QKeyEvent *e )
+void QDialog::keyPressEvent(QKeyEvent *e)
 {
     //   Calls reject() if Escape is pressed. Simulates a button
     //   click for the default button if Enter is pressed. Move focus
     //   for the arrow keys. Ignore the rest.
 #ifdef Q_OS_MAC
     if(e->state() == ControlButton && e->key() == Key_Period) {
-	reject();
+        reject();
     } else
 #endif
-    if ( e->state() == 0 || ( e->state() & Keypad && e->key() == Key_Enter ) ) {
-	switch ( e->key() ) {
-	case Key_Enter:
-	case Key_Return: {
+    if (e->state() == 0 || (e->state() & Keypad && e->key() == Key_Enter)) {
+        switch (e->key()) {
+        case Key_Enter:
+        case Key_Return: {
 #ifndef QT_NO_PUSHBUTTON
-	    QObjectList list = queryList( "QPushButton" );
-	    for (int i = 0; i < list.size(); ++i) {
-		QPushButton *pb = static_cast<QPushButton *>(list.at(i));
-		if ( pb->isDefault() && pb->isVisible() ) {
-		    if ( pb->isEnabled() )
-			emit pb->clicked();
-		    return;
-		}
-	    }
+            QObjectList list = queryList("QPushButton");
+            for (int i = 0; i < list.size(); ++i) {
+                QPushButton *pb = static_cast<QPushButton *>(list.at(i));
+                if (pb->isDefault() && pb->isVisible()) {
+                    if (pb->isEnabled())
+                        emit pb->clicked();
+                    return;
+                }
+            }
 #endif
-	}
-	break;
-	case Key_Escape:
-	    reject();
-	    break;
-	case Key_Up:
-	case Key_Left:
-	    if ( focusWidget() &&
-		 ( focusWidget()->focusPolicy() == QWidget::StrongFocus ||
-		   focusWidget()->focusPolicy() == QWidget::WheelFocus ) ) {
-		e->ignore();
-		break;
-	    }
-	    // call ours, since c++ blocks us from calling the one
-	    // belonging to focusWidget().
-	    QFocusEvent::setReason(QFocusEvent::Backtab);
-	    focusNextPrevChild( FALSE );
-	    QFocusEvent::resetReason();
-	    break;
-	case Key_Down:
-	case Key_Right:
-	    if ( focusWidget() &&
-		 ( focusWidget()->focusPolicy() == QWidget::StrongFocus ||
-		   focusWidget()->focusPolicy() == QWidget::WheelFocus ) ) {
-		e->ignore();
-		break;
-	    }
-	    QFocusEvent::setReason(QFocusEvent::Tab);
-	    focusNextPrevChild( TRUE );
-	    QFocusEvent::resetReason();
-	    break;
-	default:
-	    e->ignore();
-	    return;
-	}
+        }
+        break;
+        case Key_Escape:
+            reject();
+            break;
+        case Key_Up:
+        case Key_Left:
+            if (focusWidget() &&
+                 (focusWidget()->focusPolicy() == QWidget::StrongFocus ||
+                   focusWidget()->focusPolicy() == QWidget::WheelFocus)) {
+                e->ignore();
+                break;
+            }
+            // call ours, since c++ blocks us from calling the one
+            // belonging to focusWidget().
+            QFocusEvent::setReason(QFocusEvent::Backtab);
+            focusNextPrevChild(false);
+            QFocusEvent::resetReason();
+            break;
+        case Key_Down:
+        case Key_Right:
+            if (focusWidget() &&
+                 (focusWidget()->focusPolicy() == QWidget::StrongFocus ||
+                   focusWidget()->focusPolicy() == QWidget::WheelFocus)) {
+                e->ignore();
+                break;
+            }
+            QFocusEvent::setReason(QFocusEvent::Tab);
+            focusNextPrevChild(true);
+            QFocusEvent::resetReason();
+            break;
+        default:
+            e->ignore();
+            return;
+        }
     } else {
-	e->ignore();
+        e->ignore();
     }
 }
 
 /*! \reimp */
-void QDialog::closeEvent( QCloseEvent *e )
+void QDialog::closeEvent(QCloseEvent *e)
 {
 #ifndef QT_NO_WHATSTHIS
-    if ( isModal() && QWhatsThis::inWhatsThisMode() )
-	QWhatsThis::leaveWhatsThisMode();
+    if (isModal() && QWhatsThis::inWhatsThisMode())
+        QWhatsThis::leaveWhatsThisMode();
 #endif
-    if ( isShown() )
-	reject();
-    if ( isHidden() )
-	e->accept();
+    if (isShown())
+        reject();
+    if (isHidden())
+        e->accept();
 }
 
 #ifdef Q_OS_TEMP
 /*! \internal
     \reimp
 */
-bool QDialog::event( QEvent *e )
+bool QDialog::event(QEvent *e)
 {
-    switch ( e->type() ) {
+    switch (e->type()) {
     case QEvent::OkRequest:
     case QEvent::HelpRequest:
-	{
-	    QString bName =
-		(e->type() == QEvent::OkRequest)
-		? qApp->translate( "QMessageBox", mb_texts[QMessageBox::Ok] )
-		: qApp->tr( "Help" );
+        {
+            QString bName =
+                (e->type() == QEvent::OkRequest)
+                ? qApp->translate("QMessageBox", mb_texts[QMessageBox::Ok])
+                : qApp->tr("Help");
 
-	    QObjectList *list = queryList( "QPushButton" );
-	    QObjectListIt it( *list );
-	    QPushButton *pb;
-	    while ( (pb = (QPushButton*)it.current()) ) {
-		if ( pb->text() == bName ) {
-		    delete list;
-		    if ( pb->isEnabled() )
-			emit pb->clicked();
-		    return pb->isEnabled();
-		}
-		++it;
-	    }
-	    delete list;
-	}
+            QObjectList *list = queryList("QPushButton");
+            QObjectListIt it(*list);
+            QPushButton *pb;
+            while ((pb = (QPushButton*)it.current())) {
+                if (pb->text() == bName) {
+                    delete list;
+                    if (pb->isEnabled())
+                        emit pb->clicked();
+                    return pb->isEnabled();
+                }
+                ++it;
+            }
+            delete list;
+        }
     }
-    return QWidget::event( e );
+    return QWidget::event(e);
 }
 #endif
 
@@ -618,7 +618,7 @@ bool QDialog::event( QEvent *e )
  *****************************************************************************/
 
 #if defined(Q_WS_X11)
-extern "C" { int XSetTransientForHint( Display *, unsigned long, unsigned long ); }
+extern "C" { int XSetTransientForHint(Display *, unsigned long, unsigned long); }
 #endif // Q_WS_X11
 
 /*!
@@ -633,15 +633,15 @@ extern "C" { int XSetTransientForHint( Display *, unsigned long, unsigned long )
 
 void QDialog::show()
 {
-    if ( testWState(WState_Visible) )
-	return;
+    if (testWState(WState_Visible))
+        return;
 
 #if defined(Q_WS_X11)
     if (!parentWidget() && testWFlags(WShowModal)
-	&& qApp->mainWidget() && qApp->mainWidget()->isVisible()
-	&& !qApp->mainWidget()->isMinimized()) {
-	// make sure the transient for hint is set properly for modal dialogs
-        XSetTransientForHint( x11Display(), winId(), qApp->mainWidget()->winId() );
+        && qApp->mainWidget() && qApp->mainWidget()->isVisible()
+        && !qApp->mainWidget()->isMinimized()) {
+        // make sure the transient for hint is set properly for modal dialogs
+        XSetTransientForHint(x11Display(), winId(), qApp->mainWidget()->winId());
     }
 #endif // Q_WS_X11
 
@@ -650,11 +650,11 @@ void QDialog::show()
 #endif
 
     QWidget::show();
-    showExtension( d->doShowExtension );
+    showExtension(d->doShowExtension);
 #ifndef QT_NO_PUSHBUTTON
     QWidget *fw = topLevelWidget()->focusWidget();
     if (!fw)
-	fw = this;
+        fw = this;
 
     /*
       The following block is to handle a special case, and does not
@@ -667,32 +667,32 @@ void QDialog::show()
       have to use [widget*]->setFocus() themselves...
     */
     if (d->mainDef && fw->focusPolicy() == NoFocus) {
-	QWidget *first = fw;
-	while ((first = first->nextInFocusChain()) != fw && first->focusPolicy() == NoFocus)
-	    ;
-	if (first != d->mainDef && qt_cast<QPushButton*>(first) )
-	    d->mainDef->setFocus();
+        QWidget *first = fw;
+        while ((first = first->nextInFocusChain()) != fw && first->focusPolicy() == NoFocus)
+            ;
+        if (first != d->mainDef && qt_cast<QPushButton*>(first))
+            d->mainDef->setFocus();
     }
-    if ( !d->mainDef && isTopLevel() ) {
-	QWidget *w = fw;
-	while ((w = w->nextInFocusChain()) != fw) {
-	    QPushButton *pb = qt_cast<QPushButton *>(w);
-	    if (pb && pb->autoDefault() && pb->focusPolicy() != NoFocus) {
-		pb->setDefault(true);
-		break;
-	    }
-	}
+    if (!d->mainDef && isTopLevel()) {
+        QWidget *w = fw;
+        while ((w = w->nextInFocusChain()) != fw) {
+            QPushButton *pb = qt_cast<QPushButton *>(w);
+            if (pb && pb->autoDefault() && pb->focusPolicy() != NoFocus) {
+                pb->setDefault(true);
+                break;
+            }
+        }
     }
-    if ( fw ) {
-	QFocusEvent e( QEvent::FocusIn );
-	QFocusEvent::setReason( QFocusEvent::Tab );
-	QApplication::sendEvent( fw, &e );
-	QFocusEvent::resetReason();
+    if (fw) {
+        QFocusEvent e(QEvent::FocusIn);
+        QFocusEvent::setReason(QFocusEvent::Tab);
+        QApplication::sendEvent(fw, &e);
+        QFocusEvent::resetReason();
     }
 #endif
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessible::updateAccessibility( this, 0, QAccessible::DialogStart );
+    QAccessible::updateAccessibility(this, 0, QAccessible::DialogStart);
 #endif
 }
 
@@ -700,97 +700,97 @@ void QDialog::show()
 void QDialog::showEvent(QShowEvent *)
 {
     if (!testAttribute(WA_Moved)) {
-	adjustPosition(parentWidget());
-	setAttribute(WA_Moved, false); // not really an explicit position
+        adjustPosition(parentWidget());
+        setAttribute(WA_Moved, false); // not really an explicit position
     }
 }
 
 /*! \internal */
-void QDialog::adjustPosition( QWidget* w)
+void QDialog::adjustPosition(QWidget* w)
 {
-    QPoint p( 0, 0 );
+    QPoint p(0, 0);
     int extraw = 0, extrah = 0, scrn = 0;
-    if ( w )
-	w = w->topLevelWidget();
+    if (w)
+        w = w->topLevelWidget();
     QRect desk;
-    if ( w ) {
-	scrn = QApplication::desktop()->screenNumber( w );
-    } else if ( QApplication::desktop()->isVirtualDesktop() ) {
-	scrn = QApplication::desktop()->screenNumber( QCursor::pos() );
+    if (w) {
+        scrn = QApplication::desktop()->screenNumber(w);
+    } else if (QApplication::desktop()->isVirtualDesktop()) {
+        scrn = QApplication::desktop()->screenNumber(QCursor::pos());
     } else {
-	scrn = QApplication::desktop()->screenNumber( this );
+        scrn = QApplication::desktop()->screenNumber(this);
     }
-    desk = QApplication::desktop()->availableGeometry( scrn );
+    desk = QApplication::desktop()->availableGeometry(scrn);
 
     QWidgetList list = QApplication::topLevelWidgets();
     for (int i = 0; (extraw == 0 || extrah == 0) && i < list.size(); ++i) {
-	QWidget * current = list.at(i);
-	if ( current->isVisible() ) {
-	    int framew = current->geometry().x() - current->x();
-	    int frameh = current->geometry().y() - current->y();
+        QWidget * current = list.at(i);
+        if (current->isVisible()) {
+            int framew = current->geometry().x() - current->x();
+            int frameh = current->geometry().y() - current->y();
 
-	    extraw = qMax( extraw, framew );
-	    extrah = qMax( extrah, frameh );
-	}
+            extraw = qMax(extraw, framew);
+            extrah = qMax(extrah, frameh);
+        }
     }
 
     // sanity check for decoration frames. With embedding, we
     // might get extraordinary values
-    if ( extraw == 0 || extrah == 0 || extraw >= 10 || extrah >= 40 ) {
-	extrah = 40;
-	extraw = 10;
+    if (extraw == 0 || extrah == 0 || extraw >= 10 || extrah >= 40) {
+        extrah = 40;
+        extraw = 10;
     }
 
 #ifndef Q_OS_TEMP
-    if ( w ) {
-	// Use mapToGlobal rather than geometry() in case w might
-	// be embedded in another application
-	QPoint pp = w->mapToGlobal( QPoint(0,0) );
-	p = QPoint( pp.x() + w->width()/2,
-		    pp.y() + w->height()/ 2 );
+    if (w) {
+        // Use mapToGlobal rather than geometry() in case w might
+        // be embedded in another application
+        QPoint pp = w->mapToGlobal(QPoint(0,0));
+        p = QPoint(pp.x() + w->width()/2,
+                    pp.y() + w->height()/ 2);
     } else {
-	// p = middle of the desktop
-	p = QPoint( desk.x() + desk.width()/2, desk.y() + desk.height()/2 );
+        // p = middle of the desktop
+        p = QPoint(desk.x() + desk.width()/2, desk.y() + desk.height()/2);
     }
 #else
-    p = QPoint( desk.x() + desk.width()/2, desk.y() + desk.height()/2 );
+    p = QPoint(desk.x() + desk.width()/2, desk.y() + desk.height()/2);
 #endif
 
     // p = origin of this
-    p = QPoint( p.x()-width()/2 - extraw,
-		p.y()-height()/2 - extrah );
+    p = QPoint(p.x()-width()/2 - extraw,
+                p.y()-height()/2 - extrah);
 
 
-    if ( p.x() + extraw + width() > desk.x() + desk.width() )
-	p.setX( desk.x() + desk.width() - width() - extraw );
-    if ( p.x() < desk.x() )
-	p.setX( desk.x() );
+    if (p.x() + extraw + width() > desk.x() + desk.width())
+        p.setX(desk.x() + desk.width() - width() - extraw);
+    if (p.x() < desk.x())
+        p.setX(desk.x());
 
-    if ( p.y() + extrah + height() > desk.y() + desk.height() )
-	p.setY( desk.y() + desk.height() - height() - extrah );
-    if ( p.y() < desk.y() )
-	p.setY( desk.y() );
+    if (p.y() + extrah + height() > desk.y() + desk.height())
+        p.setY(desk.y() + desk.height() - height() - extrah);
+    if (p.y() < desk.y())
+        p.setY(desk.y());
 
-    move( p );
+    move(p);
 }
 
 
 /*! \reimp */
 void QDialog::hide()
 {
-    if ( isHidden() )
-	return;
+    if (isHidden())
+        return;
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    if ( isVisible() )
-	QAccessible::updateAccessibility( this, 0, QAccessible::DialogEnd );
+    if (isVisible())
+        QAccessible::updateAccessibility(this, 0, QAccessible::DialogEnd);
 #endif
 
     // Reimplemented to exit a modal when the dialog is hidden.
     QWidget::hide();
-    if ( in_loop ) {
-	in_loop = FALSE;
-	qApp->exit_loop();
+    if (in_loop) {
+        in_loop = false;
+        qApp->exit_loop();
     }
 }
 
@@ -803,7 +803,7 @@ void QDialog::hide()
 
   \sa orientation(), setExtension()
 */
-void QDialog::setOrientation( Orientation orientation )
+void QDialog::setOrientation(Orientation orientation)
 {
     d->orientation = orientation;
 }
@@ -828,16 +828,16 @@ Qt::Orientation QDialog::orientation() const
 
   \sa showExtension(), setOrientation(), extension()
  */
-void QDialog::setExtension( QWidget* extension )
+void QDialog::setExtension(QWidget* extension)
 {
     delete d->extension;
     d->extension = extension;
 
-    if ( !extension )
-	return;
+    if (!extension)
+        return;
 
-    if ( extension->parentWidget() != this )
-	extension->setParent(this);
+    if (extension->parentWidget() != this)
+        extension->setParent(this);
     extension->hide();
 }
 
@@ -854,7 +854,7 @@ QWidget* QDialog::extension() const
 
 
 /*!
-  If \a showIt is TRUE, the dialog's extension is shown; otherwise the
+  If \a showIt is true, the dialog's extension is shown; otherwise the
   extension is hidden.
 
   This slot is usually connected to the \l QButton::toggled() signal
@@ -864,46 +864,46 @@ QWidget* QDialog::extension() const
 
   \sa show(), setExtension(), setOrientation()
  */
-void QDialog::showExtension( bool showIt )
+void QDialog::showExtension(bool showIt)
 {
     d->doShowExtension = showIt;
-    if ( !d->extension )
-	return;
-    if ( !testWState(WState_Visible) )
-	return;
-    if ( d->extension->isVisible() == showIt )
-	return;
+    if (!d->extension)
+        return;
+    if (!testWState(WState_Visible))
+        return;
+    if (d->extension->isVisible() == showIt)
+        return;
 
-    if ( showIt ) {
-	d->size = size();
-	d->min = minimumSize();
-	d->max = maximumSize();
+    if (showIt) {
+        d->size = size();
+        d->min = minimumSize();
+        d->max = maximumSize();
 #ifndef QT_NO_LAYOUT
-	if ( layout() )
-	    layout()->setEnabled( FALSE );
+        if (layout())
+            layout()->setEnabled(false);
 #endif
-	QSize s( d->extension->sizeHint()
-		 .expandedTo( d->extension->minimumSize() )
-		 .boundedTo( d->extension->maximumSize() ) );
-	if ( d->orientation == Horizontal ) {
-	    int h = qMax( height(), s.height() );
-	    d->extension->setGeometry( width(), 0, s.width(), h );
-	    setFixedSize( width() + s.width(), h );
-	} else {
-	    int w = qMax( width(), s.width() );
-	    d->extension->setGeometry( 0, height(), w, s.height() );
-	    setFixedSize( w, height() + s.height() );
-	}
-	d->extension->show();
+        QSize s(d->extension->sizeHint()
+                 .expandedTo(d->extension->minimumSize())
+                 .boundedTo(d->extension->maximumSize()));
+        if (d->orientation == Horizontal) {
+            int h = qMax(height(), s.height());
+            d->extension->setGeometry(width(), 0, s.width(), h);
+            setFixedSize(width() + s.width(), h);
+        } else {
+            int w = qMax(width(), s.width());
+            d->extension->setGeometry(0, height(), w, s.height());
+            setFixedSize(w, height() + s.height());
+        }
+        d->extension->show();
     } else {
-	d->extension->hide();
-	// workaround for CDE window manager that won't shrink with (-1,-1)
-	setMinimumSize( d->min.expandedTo( QSize( 1, 1 ) ) );
-	setMaximumSize( d->max );
-	resize( d->size );
+        d->extension->hide();
+        // workaround for CDE window manager that won't shrink with (-1,-1)
+        setMinimumSize(d->min.expandedTo(QSize(1, 1)));
+        setMaximumSize(d->max);
+        resize(d->size);
 #ifndef QT_NO_LAYOUT
-	if ( layout() )
-	    layout()->setEnabled( TRUE );
+        if (layout())
+            layout()->setEnabled(true);
 #endif
     }
 }
@@ -912,13 +912,13 @@ void QDialog::showExtension( bool showIt )
 /*! \reimp */
 QSize QDialog::sizeHint() const
 {
-    if ( d->extension )
-	if ( d->orientation == Horizontal )
-	    return QSize( QWidget::sizeHint().width(),
-			qMax( QWidget::sizeHint().height(),d->extension->sizeHint().height() ) );
-	else
-	    return QSize( qMax( QWidget::sizeHint().width(), d->extension->sizeHint().width() ),
-			QWidget::sizeHint().height() );
+    if (d->extension)
+        if (d->orientation == Horizontal)
+            return QSize(QWidget::sizeHint().width(),
+                        qMax(QWidget::sizeHint().height(),d->extension->sizeHint().height()));
+        else
+            return QSize(qMax(QWidget::sizeHint().width(), d->extension->sizeHint().width()),
+                        QWidget::sizeHint().height());
 
     return QWidget::sizeHint();
 }
@@ -927,13 +927,13 @@ QSize QDialog::sizeHint() const
 /*! \reimp */
 QSize QDialog::minimumSizeHint() const
 {
-    if ( d->extension )
-	if (d->orientation == Horizontal )
-	    return QSize( QWidget::minimumSizeHint().width(),
-			qMax( QWidget::minimumSizeHint().height(), d->extension->minimumSizeHint().height() ) );
-	else
-	    return QSize( qMax( QWidget::minimumSizeHint().width(), d->extension->minimumSizeHint().width() ),
-			QWidget::minimumSizeHint().height() );
+    if (d->extension)
+        if (d->orientation == Horizontal)
+            return QSize(QWidget::minimumSizeHint().width(),
+                        qMax(QWidget::minimumSizeHint().height(), d->extension->minimumSizeHint().height()));
+        else
+            return QSize(qMax(QWidget::minimumSizeHint().width(), d->extension->minimumSizeHint().width()),
+                        QWidget::minimumSizeHint().height());
 
     return QWidget::minimumSizeHint();
 }
@@ -950,17 +950,17 @@ QSize QDialog::minimumSizeHint() const
     \sa show(), exec()
 */
 
-void QDialog::setModal( bool modal )
+void QDialog::setModal(bool modal)
 {
-    if ( modal )
-	setWFlags( WShowModal );
+    if (modal)
+        setWFlags(WShowModal);
     else
-	clearWFlags( WShowModal );
+        clearWFlags(WShowModal);
 }
 
 bool QDialog::isModal() const
 {
-    return testWFlags( WShowModal ) != 0;
+    return testWFlags(WShowModal) != 0;
 }
 
 bool QDialog::isSizeGripEnabled() const
@@ -968,7 +968,7 @@ bool QDialog::isSizeGripEnabled() const
 #ifndef QT_NO_SIZEGRIP
     return !!d->resizer;
 #else
-    return FALSE;
+    return false;
 #endif
 }
 
@@ -976,21 +976,21 @@ bool QDialog::isSizeGripEnabled() const
 void QDialog::setSizeGripEnabled(bool enabled)
 {
 #ifndef QT_NO_SIZEGRIP
-    if ( !enabled != !d->resizer ) {
-	if ( enabled ) {
-	    d->resizer = new QSizeGrip( this, "QDialog::resizer" );
-	    // adjustSize() processes all events, which is suboptimal
-	    d->resizer->resize( d->resizer->sizeHint() );
-	    if ( QApplication::reverseLayout() )
-		d->resizer->move( rect().bottomLeft() -d->resizer->rect().bottomLeft() );
-	    else
-		d->resizer->move( rect().bottomRight() -d->resizer->rect().bottomRight() );
-	    d->resizer->raise();
-	    d->resizer->show();
-	} else {
-	    delete d->resizer;
-	    d->resizer = 0;
-	}
+    if (!enabled != !d->resizer) {
+        if (enabled) {
+            d->resizer = new QSizeGrip(this, "QDialog::resizer");
+            // adjustSize() processes all events, which is suboptimal
+            d->resizer->resize(d->resizer->sizeHint());
+            if (QApplication::reverseLayout())
+                d->resizer->move(rect().bottomLeft() -d->resizer->rect().bottomLeft());
+            else
+                d->resizer->move(rect().bottomRight() -d->resizer->rect().bottomRight());
+            d->resizer->raise();
+            d->resizer->show();
+        } else {
+            delete d->resizer;
+            d->resizer = 0;
+        }
     }
 #endif //QT_NO_SIZEGRIP
 }
@@ -998,15 +998,15 @@ void QDialog::setSizeGripEnabled(bool enabled)
 
 
 /*! \reimp */
-void QDialog::resizeEvent( QResizeEvent * )
+void QDialog::resizeEvent(QResizeEvent *)
 {
 #ifndef QT_NO_SIZEGRIP
-    if ( d->resizer ) {
-	if ( QApplication::reverseLayout() )
-	    d->resizer->move( rect().bottomLeft() -d->resizer->rect().bottomLeft() );
-	else
-	    d->resizer->move( rect().bottomRight() -d->resizer->rect().bottomRight() );
-	d->resizer->raise();
+    if (d->resizer) {
+        if (QApplication::reverseLayout())
+            d->resizer->move(rect().bottomLeft() -d->resizer->rect().bottomLeft());
+        else
+            d->resizer->move(rect().bottomRight() -d->resizer->rect().bottomRight());
+        d->resizer->raise();
     }
 #endif
 }

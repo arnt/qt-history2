@@ -57,8 +57,8 @@ public:
     pthread_cond_t thread_done;
     pthread_t thread_id;
 
-    static void *start( void * );
-    static void finish( void * );
+    static void *start(void *);
+    static void finish(void *);
 #endif // Q_OS_UNIX
 
 #ifdef Q_OS_WIN32
@@ -66,8 +66,8 @@ public:
     unsigned int id;
     int waiters;
 
-    static unsigned int __stdcall start( void * );
-    static void finish( QThreadInstance * );
+    static unsigned int __stdcall start(void *);
+    static void finish(QThreadInstance *);
 #endif // Q_OS_WIN32
 };
 

@@ -18,7 +18,7 @@
 //  -------------
 //
 // This file is not part of the Qt API.  It exists for the convenience
-// of qapplication_qws.cpp and qgfxvnc_qws.cpp.  This header file may 
+// of qapplication_qws.cpp and qgfxvnc_qws.cpp.  This header file may
 // change from version to version without notice, or even be removed.
 //
 // We mean it.
@@ -36,31 +36,31 @@
 
 class QSharedMemory {
 public:
-	QSharedMemory(){};
-	QSharedMemory(int, const QString &, char c = 'Q');
-	~QSharedMemory(){};
+        QSharedMemory(){};
+        QSharedMemory(int, const QString &, char c = 'Q');
+        ~QSharedMemory(){};
 
-	bool create();
-	void destroy();
+        bool create();
+        void destroy();
 
-	bool attach();
-	void detach();
+        bool attach();
+        void detach();
 
-	void setPermissions(mode_t mode);
-	int size();
-	void * base() { return shmBase; };
+        void setPermissions(mode_t mode);
+        int size();
+        void * base() { return shmBase; };
 
 private:
-	void *shmBase;
-	int shmSize;
-	QString shmFile;
-	char character;
+        void *shmBase;
+        int shmSize;
+        QString shmFile;
+        char character;
 #if defined(QT_POSIX_QSHM)
-	int shmFD;
+        int shmFD;
 #else
-	int shmId;
-	key_t key;
-	int idInitted;
+        int shmId;
+        key_t key;
+        int idInitted;
 #endif
 };
 

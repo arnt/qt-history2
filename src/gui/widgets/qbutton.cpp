@@ -39,10 +39,10 @@ class QButtonData
 public:
     QButtonData() {
 #ifndef QT_NO_BUTTONGROUP
-	group = 0;
+        group = 0;
 #endif
 #ifndef QT_NO_ACCEL
-	a = 0;
+        a = 0;
 #endif
     }
 #ifndef QT_NO_BUTTONGROUP
@@ -57,9 +57,9 @@ public:
 
 void QButton::ensureData()
 {
-    if ( !d ) {
-	d = new QButtonData;
-	connect(&d->timer, SIGNAL(timeout()), this, SLOT(autoRepeatTimeout()));
+    if (!d) {
+        d = new QButtonData;
+        connect(&d->timer, SIGNAL(timeout()), this, SLOT(autoRepeatTimeout()));
     }
 }
 
@@ -83,7 +83,7 @@ QButtonGroup *QButton::group() const
 }
 
 
-void QButton::setGroup( QButtonGroup* g )
+void QButton::setGroup(QButtonGroup* g)
 {
 #ifndef QT_NO_BUTTONGROUP
     ensureData();
@@ -139,7 +139,7 @@ QTimer *QButton::timer()
     \e pressed and then released into the \e on state. When the user
     clicks it again (to toggle it off), the button moves first to the
     \e pressed state, then to the \e off state (isOn() and isDown()
-    are both FALSE).
+    are both false).
 
     Default buttons (as used in many dialogs) are provided by
     QPushButton::setDefault() and QPushButton::setAutoDefault().
@@ -163,7 +163,7 @@ QTimer *QButton::timer()
     underlined). The button gets an automatic accelerator key, Alt+C:
 
     \code
-	QPushButton *p = new QPushButton( "Ro&ck && Roll", this );
+        QPushButton *p = new QPushButton("Ro&ck && Roll", this);
     \endcode
 
     In this example, when the user presses Alt+C the button will call
@@ -174,8 +174,8 @@ QTimer *QButton::timer()
     have no automatic accelerator.
 
     \code
-	p->setPixmap( QPixmap("print.png") );
-	p->setAccel( ALT+Key_F7 );
+        p->setPixmap(QPixmap("print.png"));
+        p->setAccel(ALT+Key_F7);
     \endcode
 
     All of the buttons provided by Qt (\l QPushButton, \l QToolButton,
@@ -252,18 +252,18 @@ QTimer *QButton::timer()
     \property QButton::down
     \brief whether the button is pressed
 
-    If this property is TRUE, the button is pressed down. The signals
+    If this property is true, the button is pressed down. The signals
     pressed() and clicked() are not emitted if you set this property
-    to TRUE. The default is FALSE.
+    to true. The default is false.
 */
 
 /*!
     \property QButton::exclusiveToggle
     \brief whether the button is an exclusive toggle
 
-    If this property is TRUE and the button is in a QButtonGroup, the
+    If this property is true and the button is in a QButtonGroup, the
     button can only be toggled off by another one being toggled on.
-    The default is FALSE.
+    The default is false.
 */
 
 /*!
@@ -274,9 +274,9 @@ QTimer *QButton::timer()
 */
 
 /*!
-    \fn void QButton::setOn( bool on )
+    \fn void QButton::setOn(bool on)
 
-    Sets the state of this button to On if \a on is TRUE; otherwise to
+    Sets the state of this button to On if \a on is true; otherwise to
     Off.
 
     \sa toggleState
@@ -311,14 +311,14 @@ QTimer *QButton::timer()
     \property QButton::toggleButton
     \brief whether the button is a toggle button
 
-    The default value is FALSE.
+    The default value is false.
 */
 
 /*!
-    \fn QButton::setToggleButton( bool b )
+    \fn QButton::setToggleButton(bool b)
 
-    If \a b is TRUE, this button becomes a toggle button; if \a b is
-    FALSE, this button becomes a command button.
+    If \a b is true, this button becomes a toggle button; if \a b is
+    false, this button becomes a command button.
 
     \sa toggleButton
 */
@@ -348,25 +348,25 @@ QTimer *QButton::timer()
     QButtonGroup::insert().
 */
 
-QButton::QButton( QWidget *parent, const char *name, WFlags f )
-    : QWidget( parent, name, f )
+QButton::QButton(QWidget *parent, const char *name, WFlags f)
+    : QWidget(parent, name, f)
 {
     bpixmap    = 0;
-    toggleTyp  = SingleShot;			// button is simple
-    buttonDown = FALSE;				// button is up
-    stat       = Off;				// button is off
-    mlbDown    = FALSE;				// mouse left button up
-    autoresize = FALSE;				// not auto resizing
-    animation  = FALSE;				// no pending animateClick
-    repeat     = FALSE;				// not in autorepeat mode
-    d	       = 0;
+    toggleTyp  = SingleShot;                        // button is simple
+    buttonDown = false;                                // button is up
+    stat       = Off;                                // button is off
+    mlbDown    = false;                                // mouse left button up
+    autoresize = false;                                // not auto resizing
+    animation  = false;                                // no pending animateClick
+    repeat     = false;                                // not in autorepeat mode
+    d               = 0;
 #ifndef QT_NO_BUTTONGROUP
-    if ( qt_cast<QButtonGroup*>(parent) ) {
-	setGroup((QButtonGroup*)parent);
-	group()->insert( this );		// insert into button group
+    if (qt_cast<QButtonGroup*>(parent)) {
+        setGroup((QButtonGroup*)parent);
+        group()->insert(this);                // insert into button group
     }
 #endif
-    setFocusPolicy( StrongFocus );
+    setFocusPolicy(StrongFocus);
 }
 
 /*!
@@ -375,8 +375,8 @@ QButton::QButton( QWidget *parent, const char *name, WFlags f )
 QButton::~QButton()
 {
 #ifndef QT_NO_BUTTONGROUP
-    if ( group() )
-	group()->remove( this );
+    if (group())
+        group()->remove(this);
 #endif
     delete bpixmap;
     delete d;
@@ -417,10 +417,10 @@ QButton::~QButton()
 */
 
 /*!
-    \fn void QButton::toggled( bool on )
+    \fn void QButton::toggled(bool on)
 
     This signal is emitted whenever a toggle button changes status. \a
-    on is TRUE if the button is on, or FALSE if the button is off.
+    on is true if the button is on, or false if the button is off.
 
     This may be the result of a user action, toggle() slot activation,
     or because setOn() was called.
@@ -429,7 +429,7 @@ QButton::~QButton()
 */
 
 /*!
-    \fn void QButton::stateChanged( int state )
+    \fn void QButton::stateChanged(int state)
 
     This signal is emitted whenever a toggle button changes state. \a
     state is \c On if the button is on, \c NoChange if it is in the
@@ -442,105 +442,105 @@ QButton::~QButton()
     \sa clicked() QButton::ToggleState
 */
 
-void QButton::setText( const QString &text )
+void QButton::setText(const QString &text)
 {
-    if ( btext == text )
-	return;
+    if (btext == text)
+        return;
     btext = text;
 #ifndef QT_NO_ACCEL
-    setAccel( QAccel::shortcutKey( text ) );
+    setAccel(QAccel::shortcutKey(text));
 #endif
 
-    if ( bpixmap ) {
-	delete bpixmap;
-	bpixmap = 0;
+    if (bpixmap) {
+        delete bpixmap;
+        bpixmap = 0;
     }
 
-    if ( autoresize )
-	adjustSize();
+    if (autoresize)
+        adjustSize();
 
     update();
     updateGeometry();
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessible::updateAccessibility( this, 0, QAccessible::NameChanged );
+    QAccessible::updateAccessibility(this, 0, QAccessible::NameChanged);
 #endif
 }
 
-void QButton::setPixmap( const QPixmap &pixmap )
+void QButton::setPixmap(const QPixmap &pixmap)
 {
-    if ( bpixmap && bpixmap->serialNumber() == pixmap.serialNumber() )
-	return;
+    if (bpixmap && bpixmap->serialNumber() == pixmap.serialNumber())
+        return;
 
     bool newSize;
-    if ( bpixmap ) {
-	newSize = pixmap.width() != bpixmap->width() ||
-		  pixmap.height() != bpixmap->height();
-	*bpixmap = pixmap;
+    if (bpixmap) {
+        newSize = pixmap.width() != bpixmap->width() ||
+                  pixmap.height() != bpixmap->height();
+        *bpixmap = pixmap;
     } else {
-	newSize = TRUE;
-	bpixmap = new QPixmap( pixmap );
+        newSize = true;
+        bpixmap = new QPixmap(pixmap);
     }
-    if ( bpixmap->depth() == 1 && !bpixmap->mask() )
-	bpixmap->setMask( *((QBitmap *)bpixmap) );
-    if ( !btext.isNull() ) {
-	btext = QString::null;
+    if (bpixmap->depth() == 1 && !bpixmap->mask())
+        bpixmap->setMask(*((QBitmap *)bpixmap));
+    if (!btext.isNull()) {
+        btext = QString::null;
 #ifndef QT_NO_ACCEL
-	setAccel( QKeySequence() );
+        setAccel(QKeySequence());
 #endif
     }
-    if ( autoresize && newSize )
-	adjustSize();
-    if ( autoMask() )
-	updateMask();
+    if (autoresize && newSize)
+        adjustSize();
+    if (autoMask())
+        updateMask();
     update();
-    if ( newSize )
-	updateGeometry();
+    if (newSize)
+        updateGeometry();
 }
 
 
 #ifndef QT_NO_ACCEL
 QKeySequence QButton::accel() const
 {
-    if ( d && d->a )
-	return d->a->key( 0 );
+    if (d && d->a)
+        return d->a->key(0);
     return QKeySequence();
 }
 
-void QButton::setAccel( const QKeySequence& key )
+void QButton::setAccel(const QKeySequence& key)
 {
-    if ( d && d->a )
-	d->a->clear();
-    if ( key.isEmpty() )
-	return;
+    if (d && d->a)
+        d->a->clear();
+    if (key.isEmpty())
+        return;
     ensureData();
-    if ( !d->a ) {
-	d->a = new QAccel( this, "buttonAccel" );
-	connect( d->a, SIGNAL(activated(int)), this, SLOT(animateClick()) );
-	connect( d->a, SIGNAL(activatedAmbiguously(int)), this, SLOT(setFocus()) );
+    if (!d->a) {
+        d->a = new QAccel(this, "buttonAccel");
+        connect(d->a, SIGNAL(activated(int)), this, SLOT(animateClick()));
+        connect(d->a, SIGNAL(activatedAmbiguously(int)), this, SLOT(setFocus()));
     }
-    d->a->insertItem( key, 0 );
+    d->a->insertItem(key, 0);
 }
 #endif
 
 #ifdef QT_COMPAT
 
-void QButton::setAutoResize( bool enable )
+void QButton::setAutoResize(bool enable)
 {
-    if ( (bool)autoresize != enable ) {
-	autoresize = enable;
-	if ( autoresize )
-	    adjustSize();			// calls resize which repaints
+    if ((bool)autoresize != enable) {
+        autoresize = enable;
+        if (autoresize)
+            adjustSize();                        // calls resize which repaints
     }
 }
 
 #endif
 
-void QButton::setAutoRepeat( bool enable )
+void QButton::setAutoRepeat(bool enable)
 {
     repeat = (uint)enable;
-    if ( repeat && mlbDown )
-	timer()->start( AUTO_REPEAT_DELAY, TRUE );
+    if (repeat && mlbDown)
+        timer()->start(AUTO_REPEAT_DELAY, true);
 }
 
 /*!
@@ -558,35 +558,35 @@ void QButton::setAutoRepeat( bool enable )
 
 void QButton::animateClick()
 {
-    if ( !isEnabled() || animation )
-	return;
-    animation = TRUE;
-    buttonDown = TRUE;
+    if (!isEnabled() || animation)
+        return;
+    animation = true;
+    buttonDown = true;
     repaint();
     emit pressed();
-    QTimer::singleShot( 100, this, SLOT(animateTimeout()) );
+    QTimer::singleShot(100, this, SLOT(animateTimeout()));
 }
 
 void QButton::emulateClick()
 {
-    if ( !isEnabled() || animation )
-	return;
-    animation = TRUE;
-    buttonDown = TRUE;
+    if (!isEnabled() || animation)
+        return;
+    animation = true;
+    buttonDown = true;
     emit pressed();
     animateTimeout();
 }
 
-void QButton::setDown( bool enable )
+void QButton::setDown(bool enable)
 {
-    if ( d )
-	timer()->stop();
-    mlbDown = FALSE;				// the safe setting
-    if ( (bool)buttonDown != enable ) {
-	buttonDown = enable;
-	repaint();
+    if (d)
+        timer()->stop();
+    mlbDown = false;                                // the safe setting
+    if ((bool)buttonDown != enable) {
+        buttonDown = enable;
+        repaint();
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-	QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
+        QAccessible::updateAccessibility(this, 0, QAccessible::StateChanged);
 #endif
     }
 }
@@ -596,44 +596,44 @@ void QButton::setDown( bool enable )
   NoChange or \c On.
 */
 
-void QButton::setState( ToggleState s )
+void QButton::setState(ToggleState s)
 {
-    if ( !toggleTyp ) {
-	qWarning( "QButton::setState() / setOn: (%s) Only toggle buttons "
-		 "may be switched", objectName( "unnamed" ) );
-	return;
+    if (!toggleTyp) {
+        qWarning("QButton::setState() / setOn: (%s) Only toggle buttons "
+                 "may be switched", objectName("unnamed"));
+        return;
     }
 
-    if ( (ToggleState)stat != s ) {		// changed state
-	bool was = stat != Off;
-	stat = s;
-	if ( autoMask() )
-	    updateMask();
-	repaint();
+    if ((ToggleState)stat != s) {                // changed state
+        bool was = stat != Off;
+        stat = s;
+        if (autoMask())
+            updateMask();
+        repaint();
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-	QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
+        QAccessible::updateAccessibility(this, 0, QAccessible::StateChanged);
 #endif
-	// ### toggled for tristate makes no sense. Don't emit the signal in 4.0
-	if ( was != (stat != Off) )
-	    emit toggled( stat != Off );
-	emit stateChanged( s );
+        // ### toggled for tristate makes no sense. Don't emit the signal in 4.0
+        if (was != (stat != Off))
+            emit toggled(stat != Off);
+        emit stateChanged(s);
     }
 }
 
 
 /*!
-    Returns TRUE if \a pos is inside the clickable button rectangle;
-    otherwise returns FALSE.
+    Returns true if \a pos is inside the clickable button rectangle;
+    otherwise returns false.
 
     By default, the clickable area is the entire widget. Subclasses
     may reimplement it, though.
 */
-bool QButton::hitButton( const QPoint &pos ) const
+bool QButton::hitButton(const QPoint &pos) const
 {
-    return rect().contains( pos );
+    return rect().contains(pos);
 }
 
-/*! \fn void QButton::drawButton( QPainter * )
+/*! \fn void QButton::drawButton(QPainter *)
 
     Draws the button. The default implementation does nothing.
 
@@ -644,7 +644,7 @@ bool QButton::hitButton( const QPoint &pos ) const
     \sa drawButtonLabel(), paintEvent()
 */
 
-/*! \fn void QButton::drawButtonLabel( QPainter * )
+/*! \fn void QButton::drawButtonLabel(QPainter *)
 
     Draws the button text or pixmap.
 
@@ -655,181 +655,181 @@ bool QButton::hitButton( const QPoint &pos ) const
 */
 
 /*! \reimp */
-void QButton::keyPressEvent( QKeyEvent *e )
+void QButton::keyPressEvent(QKeyEvent *e)
 {
-    switch ( e->key() ) {
+    switch (e->key()) {
     case Key_Enter:
     case Key_Return:
-	{
+        {
 #ifndef QT_NO_PUSHBUTTON
-	    QPushButton *pb = qt_cast<QPushButton*>(this);
-	    if ( pb && ( pb->autoDefault() || pb->isDefault() ) )
-		emit clicked();
-	    else
+            QPushButton *pb = qt_cast<QPushButton*>(this);
+            if (pb && (pb->autoDefault() || pb->isDefault()))
+                emit clicked();
+            else
 #endif
-		e->ignore();
-	}
-	break;
+                e->ignore();
+        }
+        break;
     case Key_Space:
-	if ( !e->isAutoRepeat() ) {
-	    setDown( TRUE );
+        if (!e->isAutoRepeat()) {
+            setDown(true);
 #ifndef QT_NO_PUSHBUTTON
-	    if ( qt_cast<QPushButton*>(this) )
-		emit pressed();
-	    else
+            if (qt_cast<QPushButton*>(this))
+                emit pressed();
+            else
 #endif
-		e->ignore();
-	}
-	break;
+                e->ignore();
+        }
+        break;
     case Key_Up:
     case Key_Left:
 #ifndef QT_NO_BUTTONGROUP
-	if ( group() ) {
-	    group()->moveFocus( e->key() );
-	    if (hasFocus()) // nothing happend, propagate
-		e->ignore();
-	} else
+        if (group()) {
+            group()->moveFocus(e->key());
+            if (hasFocus()) // nothing happend, propagate
+                e->ignore();
+        } else
 #endif
-	{
-	    QFocusEvent::setReason(QFocusEvent::Backtab);
-	    focusNextPrevChild( FALSE );
-	    QFocusEvent::resetReason();
-	}
-	break;
+        {
+            QFocusEvent::setReason(QFocusEvent::Backtab);
+            focusNextPrevChild(false);
+            QFocusEvent::resetReason();
+        }
+        break;
     case Key_Right:
     case Key_Down:
 #ifndef QT_NO_BUTTONGROUP
-	if ( group() ) {
-	    group()->moveFocus( e->key() );
-	    if (hasFocus()) // nothing happend, propagate
-		e->ignore();
-	} else
+        if (group()) {
+            group()->moveFocus(e->key());
+            if (hasFocus()) // nothing happend, propagate
+                e->ignore();
+        } else
 #endif
-	{
-	    QFocusEvent::setReason(QFocusEvent::Tab);
-	    focusNextPrevChild( TRUE );
-	    QFocusEvent::resetReason();
-	}
-	break;
+        {
+            QFocusEvent::setReason(QFocusEvent::Tab);
+            focusNextPrevChild(true);
+            QFocusEvent::resetReason();
+        }
+        break;
     case Key_Escape:
-	if ( buttonDown ) {
-	    buttonDown = FALSE;
-	    update();
-	    break;
-	}
-	// fall through
+        if (buttonDown) {
+            buttonDown = false;
+            update();
+            break;
+        }
+        // fall through
     default:
-	e->ignore();
+        e->ignore();
     }
 }
 
 /*! \reimp */
-void QButton::keyReleaseEvent( QKeyEvent * e)
+void QButton::keyReleaseEvent(QKeyEvent * e)
 {
-    switch ( e->key() ) {
+    switch (e->key()) {
     case Key_Space:
-	if ( buttonDown && !e->isAutoRepeat() ) {
-	    buttonDown = FALSE;
-	    nextState();
-	    emit released();
-	    emit clicked();
-	}
-	break;
+        if (buttonDown && !e->isAutoRepeat()) {
+            buttonDown = false;
+            nextState();
+            emit released();
+            emit clicked();
+        }
+        break;
     default:
-	e->ignore();
+        e->ignore();
     }
 }
 
 /*! \reimp */
-void QButton::mousePressEvent( QMouseEvent *e )
+void QButton::mousePressEvent(QMouseEvent *e)
 {
-    if ( e->button() != LeftButton ) {
-	e->ignore();
-	return;
+    if (e->button() != LeftButton) {
+        e->ignore();
+        return;
     }
-    bool hit = hitButton( e->pos() );
-    if ( hit ) {				// mouse press on button
-	mlbDown = TRUE;				// left mouse button down
-	buttonDown = TRUE;
-	if ( autoMask() )
-	    updateMask();
+    bool hit = hitButton(e->pos());
+    if (hit) {                                // mouse press on button
+        mlbDown = true;                                // left mouse button down
+        buttonDown = true;
+        if (autoMask())
+            updateMask();
 
-	repaint();
+        repaint();
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-	QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
+        QAccessible::updateAccessibility(this, 0, QAccessible::StateChanged);
 #endif
-	QGuardedPtr<QTimer> t = timer();
-	emit pressed();
-	if ( t && repeat )
-	    t->start( AUTO_REPEAT_DELAY, TRUE );
+        QGuardedPtr<QTimer> t = timer();
+        emit pressed();
+        if (t && repeat)
+            t->start(AUTO_REPEAT_DELAY, true);
     }
 }
 
 /*! \reimp */
-void QButton::mouseReleaseEvent( QMouseEvent *e)
+void QButton::mouseReleaseEvent(QMouseEvent *e)
 {
-    if ( e->button() != LeftButton ) {
+    if (e->button() != LeftButton) {
 
-	// clean up apperance if left button has been pressed
-	if (mlbDown || buttonDown) {
-	    mlbDown = FALSE;
-	    buttonDown = FALSE;
+        // clean up apperance if left button has been pressed
+        if (mlbDown || buttonDown) {
+            mlbDown = false;
+            buttonDown = false;
 
-	    if ( autoMask() )
-		updateMask();
-	    repaint();
-	}
+            if (autoMask())
+                updateMask();
+            repaint();
+        }
 
-	e->ignore();
-	return;
+        e->ignore();
+        return;
     }
-    if ( !mlbDown )
-	return;
-    if ( d )
-	timer()->stop();
-    mlbDown = FALSE;				// left mouse button up
-    buttonDown = FALSE;
-    if ( hitButton( e->pos() ) ) {		// mouse release on button
-	nextState();
+    if (!mlbDown)
+        return;
+    if (d)
+        timer()->stop();
+    mlbDown = false;                                // left mouse button up
+    buttonDown = false;
+    if (hitButton(e->pos())) {                // mouse release on button
+        nextState();
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-	QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
+        QAccessible::updateAccessibility(this, 0, QAccessible::StateChanged);
 #endif
-	emit released();
-	emit clicked();
+        emit released();
+        emit clicked();
     } else {
-	repaint();
+        repaint();
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-	QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
+        QAccessible::updateAccessibility(this, 0, QAccessible::StateChanged);
 #endif
-	emit released();
+        emit released();
     }
 }
 
 /*! \reimp */
-void QButton::mouseMoveEvent( QMouseEvent *e )
+void QButton::mouseMoveEvent(QMouseEvent *e)
 {
-    if ( !((e->state() & LeftButton) && mlbDown) ) {
-	e->ignore();
-	return;					// left mouse button is up
+    if (!((e->state() & LeftButton) && mlbDown)) {
+        e->ignore();
+        return;                                        // left mouse button is up
     }
-    if ( hitButton(e->pos()) ) {		// mouse move in button
-	if ( !buttonDown ) {
-	    buttonDown = TRUE;
-	    repaint();
+    if (hitButton(e->pos())) {                // mouse move in button
+        if (!buttonDown) {
+            buttonDown = true;
+            repaint();
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-	    QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
+            QAccessible::updateAccessibility(this, 0, QAccessible::StateChanged);
 #endif
-	    emit pressed();
-	}
-    } else {					// mouse move outside button
-	if ( buttonDown ) {
-	    buttonDown = FALSE;
-	    repaint();
+            emit pressed();
+        }
+    } else {                                        // mouse move outside button
+        if (buttonDown) {
+            buttonDown = false;
+            repaint();
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-	    QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
+            QAccessible::updateAccessibility(this, 0, QAccessible::StateChanged);
 #endif
-	    emit released();
-	}
+            emit released();
+        }
     }
 }
 
@@ -842,23 +842,23 @@ void QButton::mouseMoveEvent( QMouseEvent *e )
 
     \sa drawButton(), drawButtonLabel()
 */
-void QButton::paintEvent( QPaintEvent *)
+void QButton::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     drawButton(&p);
 }
 
 /*! \reimp */
-void QButton::focusInEvent( QFocusEvent * e)
+void QButton::focusInEvent(QFocusEvent * e)
 {
-    QWidget::focusInEvent( e );
+    QWidget::focusInEvent(e);
 }
 
 /*! \reimp */
-void QButton::focusOutEvent( QFocusEvent * e )
+void QButton::focusOutEvent(QFocusEvent * e)
 {
-    buttonDown = FALSE;
-    QWidget::focusOutEvent( e );
+    buttonDown = false;
+    QWidget::focusOutEvent(e);
 }
 
 /*!
@@ -866,15 +866,15 @@ void QButton::focusOutEvent( QFocusEvent * e )
 */
 void QButton::autoRepeatTimeout()
 {
-    if ( mlbDown && isEnabled() && autoRepeat() ) {
-	QGuardedPtr<QTimer> t = timer();
-	if ( buttonDown ) {
-	    emit released();
-	    emit clicked();
-	    emit pressed();
-	}
-	if ( t )
-	    t->start( AUTO_REPEAT_PERIOD, TRUE );
+    if (mlbDown && isEnabled() && autoRepeat()) {
+        QGuardedPtr<QTimer> t = timer();
+        if (buttonDown) {
+            emit released();
+            emit clicked();
+            emit pressed();
+        }
+        if (t)
+            t->start(AUTO_REPEAT_PERIOD, true);
     }
 }
 
@@ -883,10 +883,10 @@ void QButton::autoRepeatTimeout()
 */
 void QButton::animateTimeout()
 {
-    if ( !animation )
-	return;
-    animation  = FALSE;
-    buttonDown = FALSE;
+    if (!animation)
+        return;
+    animation  = false;
+    buttonDown = false;
     nextState();
     emit released();
     emit clicked();
@@ -895,33 +895,33 @@ void QButton::animateTimeout()
 
 void QButton::nextState()
 {
-    bool t = isToggleButton() && !( isOn() && isExclusiveToggle() );
+    bool t = isToggleButton() && !(isOn() && isExclusiveToggle());
     bool was = stat != Off;
-    if ( t ) {
-	if ( toggleTyp == Tristate )
-	    stat = ( stat + 1 ) % 3;
-	else
-	    stat = stat ? Off : On;
+    if (t) {
+        if (toggleTyp == Tristate)
+            stat = (stat + 1) % 3;
+        else
+            stat = stat ? Off : On;
     }
-    if ( autoMask() )
+    if (autoMask())
         updateMask();
     repaint();
-    if ( t ) {
+    if (t) {
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-	QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
+        QAccessible::updateAccessibility(this, 0, QAccessible::StateChanged);
 #endif
-	if ( was != (stat != Off) )
-	    emit toggled( stat != Off );
-	emit stateChanged( stat );
+        if (was != (stat != Off))
+            emit toggled(stat != Off);
+        emit stateChanged(stat);
     }
 }
 
 /*! \reimp */
-void QButton::changeEvent( QEvent *ev )
+void QButton::changeEvent(QEvent *ev)
 {
     if(ev->type() == QEvent::EnabledChange) {
-	if ( !isEnabled() )
-	    setDown( FALSE );
+        if (!isEnabled())
+            setDown(false);
     }
     QWidget::changeEvent(ev);
 }
@@ -934,8 +934,8 @@ void QButton::changeEvent( QEvent *ev )
 */
 void QButton::toggle()
 {
-    if ( isToggleButton() )
-	 setOn( !isOn() );
+    if (isToggleButton())
+         setOn(!isOn());
 }
 
 /*!
@@ -943,25 +943,25 @@ void QButton::toggle()
 
     \a type can be set to \c SingleShot, \c Toggle and \c Tristate.
 */
-void QButton::setToggleType( ToggleType type )
+void QButton::setToggleType(ToggleType type)
 {
     toggleTyp = type;
-    if ( type != Tristate && stat == NoChange )
-	setState( On );
+    if (type != Tristate && stat == NoChange)
+        setState(On);
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     else
-	QAccessible::updateAccessibility( this, 0, QAccessible::StateChanged );
+        QAccessible::updateAccessibility(this, 0, QAccessible::StateChanged);
 #endif
 }
 
 bool QButton::isExclusiveToggle() const
 {
 #ifndef QT_NO_BUTTONGROUP
-    return group() && ( group()->isExclusive() ||
-			group()->isRadioButtonExclusive() &&
-			qt_cast<QRadioButton*>(this) );
+    return group() && (group()->isExclusive() ||
+                        group()->isRadioButtonExclusive() &&
+                        qt_cast<QRadioButton*>(this));
 #else
-    return FALSE;
+    return false;
 #endif
 }
 

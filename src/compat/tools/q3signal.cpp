@@ -43,42 +43,42 @@
 
     Example:
     \code
-	#include <qsignal.h>
+        #include <qsignal.h>
 
-	class MyClass
-	{
-	public:
-	    MyClass();
-	    ~MyClass();
+        class MyClass
+        {
+        public:
+            MyClass();
+            ~MyClass();
 
-	    void doSomething();
+            void doSomething();
 
-	    void connect( QObject *receiver, const char *member );
+            void connect(QObject *receiver, const char *member);
 
-	private:
-	    Q3Signal *sig;
-	};
+        private:
+            Q3Signal *sig;
+        };
 
-	MyClass::MyClass()
-	{
-	    sig = new Q3Signal;
-	}
+        MyClass::MyClass()
+        {
+            sig = new Q3Signal;
+        }
 
-	MyClass::~MyClass()
-	{
-	    delete sig;
-	}
+        MyClass::~MyClass()
+        {
+            delete sig;
+        }
 
-	void MyClass::doSomething()
-	{
-	    // ... does something
-	    sig->activate(); // emits the signal
-	}
+        void MyClass::doSomething()
+        {
+            // ... does something
+            sig->activate(); // emits the signal
+        }
 
-	void MyClass::connect( QObject *receiver, const char *member )
-	{
-	    sig->connect( receiver, member );
-	}
+        void MyClass::connect(QObject *receiver, const char *member)
+        {
+            sig->connect(receiver, member);
+        }
     \endcode
 */
 
@@ -87,8 +87,8 @@
     \a parent. These arguments are passed directly to QObject.
 */
 
-Q3Signal::Q3Signal( QObject *parent, const char *name )
-    : QObject( parent, name )
+Q3Signal::Q3Signal(QObject *parent, const char *name)
+    : QObject(parent, name)
 {
 #ifndef QT_NO_VARIANT
     val = 0;
@@ -103,12 +103,12 @@ Q3Signal::~Q3Signal()
 {
 }
 #ifndef QT_NO_VARIANT
-// Returns TRUE if it matches ".+(.*int.*"
-static inline bool intSignature( const char *member )
+// Returns true if it matches ".+(.*int.*"
+static inline bool intSignature(const char *member)
 {
-    QByteArray s( member );
-    int p = s.indexOf( '(' );
-    return p > 0 && p < s.lastIndexOf( "int" );
+    QByteArray s(member);
+    int p = s.indexOf('(');
+    return p > 0 && p < s.lastIndexOf("int");
 }
 #endif
 /*!
@@ -117,15 +117,15 @@ static inline bool intSignature( const char *member )
     \sa disconnect(), QObject::connect()
 */
 
-bool Q3Signal::connect( const QObject *receiver, const char *member )
+bool Q3Signal::connect(const QObject *receiver, const char *member)
 {
 #ifndef QT_NO_VARIANT
-    if ( intSignature( member ) )
+    if (intSignature(member))
 #endif
-	return QObject::connect( (QObject *)this, SIGNAL(intSignal(int)), receiver, member );
+        return QObject::connect((QObject *)this, SIGNAL(intSignal(int)), receiver, member);
 #ifndef QT_NO_VARIANT
-    return QObject::connect( (QObject *)this, SIGNAL(signal(QCoreVariant)),
-			     receiver, member );
+    return QObject::connect((QObject *)this, SIGNAL(signal(QCoreVariant)),
+                             receiver, member);
 #endif
 }
 
@@ -135,17 +135,17 @@ bool Q3Signal::connect( const QObject *receiver, const char *member )
     \sa connect(), QObject::disconnect()
 */
 
-bool Q3Signal::disconnect( const QObject *receiver, const char *member )
+bool Q3Signal::disconnect(const QObject *receiver, const char *member)
 {
     if (!member)
-	return QObject::disconnect( (QObject *)this, 0, receiver, member);
+        return QObject::disconnect((QObject *)this, 0, receiver, member);
 #ifndef QT_NO_VARIANT
-    if ( intSignature( member ) )
+    if (intSignature(member))
 #endif
-	return QObject::disconnect( (QObject *)this, SIGNAL(intSignal(int)), receiver, member );
+        return QObject::disconnect((QObject *)this, SIGNAL(intSignal(int)), receiver, member);
 #ifndef QT_NO_VARIANT
-    return QObject::disconnect( (QObject *)this, SIGNAL(signal(QCoreVariant)),
-				receiver, member );
+    return QObject::disconnect((QObject *)this, SIGNAL(signal(QCoreVariant)),
+                                receiver, member);
 #endif
 }
 
@@ -153,7 +153,7 @@ bool Q3Signal::disconnect( const QObject *receiver, const char *member )
 /*!
   \fn bool Q3Signal::isBlocked() const
   \obsolete
-  Returns TRUE if the signal is blocked, or FALSE if it is not blocked.
+  Returns true if the signal is blocked, or false if it is not blocked.
 
   The signal is not blocked by default.
 
@@ -161,9 +161,9 @@ bool Q3Signal::disconnect( const QObject *receiver, const char *member )
 */
 
 /*!
-  \fn void Q3Signal::block( bool b )
+  \fn void Q3Signal::block(bool b)
   \obsolete
-  Blocks the signal if \a b is TRUE, or unblocks the signal if \a b is FALSE.
+  Blocks the signal if \a b is true, or unblocks the signal if \a b is false.
 
   An activated signal disappears into hyperspace if it is blocked.
 
@@ -181,8 +181,8 @@ bool Q3Signal::disconnect( const QObject *receiver, const char *member )
 void  Q3Signal::activate()
 {
 #ifndef QT_NO_VARIANT
-    emit intSignal( val.toInt() );
-    emit signal( val );
+    emit intSignal(val.toInt());
+    emit signal(val);
 #else
     emit intSignal(0);
 #endif
@@ -192,7 +192,7 @@ void  Q3Signal::activate()
 /*!
     Sets the signal's parameter to \a value
 */
-void Q3Signal::setValue( const QCoreVariant &value )
+void Q3Signal::setValue(const QCoreVariant &value)
 {
     val = value;
 }
@@ -204,16 +204,16 @@ QCoreVariant Q3Signal::value() const
 {
     return val;
 }
-/*! \fn void Q3Signal::signal( const QCoreVariant & )
+/*! \fn void Q3Signal::signal(const QCoreVariant &)
     \internal
 */
-/*! \fn void Q3Signal::intSignal( int )
+/*! \fn void Q3Signal::intSignal(int)
     \internal
 */
 
 #ifdef QT_COMPAT
 /*! \obsolete */
-void Q3Signal::setParameter( int value )
+void Q3Signal::setParameter(int value)
 {
     val = value;
 }

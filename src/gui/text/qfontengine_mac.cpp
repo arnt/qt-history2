@@ -78,19 +78,19 @@ bool QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
                                   QTextEngine::ShaperFlags /*flags*/) const
 {
     if(*nglyphs < len) {
-	*nglyphs = len;
-	return false;
+        *nglyphs = len;
+        return false;
     }
     *nglyphs = len;
     for(int i = 0; i < len; i++) {
-	glyphs[i].glyph = str[i].unicode();
-	if(str[i].unicode() < widthCacheSize && widthCache[str[i].unicode()]) {
-	    glyphs[i].advance.x = widthCache[str[i].unicode()];
-	    glyphs[i].advance.y = 0;
-	} else {
-	    glyphs[i].advance.x = doTextTask(str+i, 0, 1, 1, WIDTH);
-	    glyphs[i].advance.y = 0;
-	}
+        glyphs[i].glyph = str[i].unicode();
+        if(str[i].unicode() < widthCacheSize && widthCache[str[i].unicode()]) {
+            glyphs[i].advance.x = widthCache[str[i].unicode()];
+            glyphs[i].advance.y = 0;
+        } else {
+            glyphs[i].advance.x = doTextTask(str+i, 0, 1, 1, WIDTH);
+            glyphs[i].advance.y = 0;
+        }
     }
     return true;
 }
@@ -103,46 +103,46 @@ QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int tex
     QWMatrix xmat = pState->matrix;
 
     if(!p->hasCapability(QPaintEngine::CoordTransform)) {
-	if(txop >= QPainter::TxScale) {
-	    int aw = si.width, ah = si.ascent + si.descent + 1;
-	    if(aw == 0 || ah == 0)
-		return;
-	    QBitmap bm(aw, ah, TRUE);	// create bitmap
-	    {
-		QPainter paint(&bm);  // draw text in bitmap
-		paint.setPen(Qt::color1);
-		draw(paint.d->engine, 0, si.ascent, si, textFlags);
-		paint.end();
-	    }
+        if(txop >= QPainter::TxScale) {
+            int aw = si.width, ah = si.ascent + si.descent + 1;
+            if(aw == 0 || ah == 0)
+                return;
+            QBitmap bm(aw, ah, true);        // create bitmap
+            {
+                QPainter paint(&bm);  // draw text in bitmap
+                paint.setPen(Qt::color1);
+                draw(paint.d->engine, 0, si.ascent, si, textFlags);
+                paint.end();
+            }
 
-	    QPixmap pm(bm.width(), bm.height());
-	    if(pState->painter->backgroundMode() == QPainter::OpaqueMode) {
-		pm = bm;
-		bm.fill(Qt::color1);
-		pm.setMask(bm);
-	    } else { 
-		QPainter paint(&pm);
-		paint.fillRect(0, 0, pm.width(), pm.height(), pState->painter->pen().color());
-		paint.end();
-		pm.setMask(bm);
-	    }
-	    p->drawPixmap(QRect(x, y, -1, -1), pm, QRect(0, 0, -1, -1), false);
-	    return;
-	} else if(txop == QPainter::TxTranslate) {
-	    pState->painter->map(x, y, &x, &y);
-	}
+            QPixmap pm(bm.width(), bm.height());
+            if(pState->painter->backgroundMode() == QPainter::OpaqueMode) {
+                pm = bm;
+                bm.fill(Qt::color1);
+                pm.setMask(bm);
+            } else {
+                QPainter paint(&pm);
+                paint.fillRect(0, 0, pm.width(), pm.height(), pState->painter->pen().color());
+                paint.end();
+                pm.setMask(bm);
+            }
+            p->drawPixmap(QRect(x, y, -1, -1), pm, QRect(0, 0, -1, -1), false);
+            return;
+        } else if(txop == QPainter::TxTranslate) {
+            pState->painter->map(x, y, &x, &y);
+        }
     }
     if(p->type() == QPaintEngine::QuickDraw) {
-	QQuickDrawPaintEngine *mgc = static_cast<QQuickDrawPaintEngine *>(p);
-	mgc->updateState(mgc->state);
-	mgc->setupQDPort(false, 0, 0);
-	mgc->setupQDFont();
+        QQuickDrawPaintEngine *mgc = static_cast<QQuickDrawPaintEngine *>(p);
+        mgc->updateState(mgc->state);
+        mgc->setupQDPort(false, 0, 0);
+        mgc->setupQDFont();
     }
 
     QGlyphLayout *glyphs = si.glyphs;
     if(pState->painter->backgroundMode() == Qt::OpaqueMode) {
-	glyph_metrics_t br = boundingBox(glyphs, si.num_glyphs);
-	pState->painter->fillRect(x+br.x.toInt(), y+br.y.toInt(), br.width.toInt(), br.height.toInt(),
+        glyph_metrics_t br = boundingBox(glyphs, si.num_glyphs);
+        pState->painter->fillRect(x+br.x.toInt(), y+br.y.toInt(), br.width.toInt(), br.height.toInt(),
                                   pState->painter->background().color());
     }
 
@@ -150,28 +150,28 @@ QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int tex
     int w = 0;
     uchar task = DRAW;
     if(textFlags != 0)
-	task |= WIDTH; //I need the width for these..
+        task |= WIDTH; //I need the width for these..
     if(si.right_to_left) {
-	glyphs += si.num_glyphs;
-	for(int i = 0; i < si.num_glyphs; i++) {
-	    glyphs--;
-	    w += doTextTask((QChar*)&glyphs->glyph, 0, 1, 1, task, x, y, p);
-	    x += glyphs->advance.x.toInt();
-	}
+        glyphs += si.num_glyphs;
+        for(int i = 0; i < si.num_glyphs; i++) {
+            glyphs--;
+            w += doTextTask((QChar*)&glyphs->glyph, 0, 1, 1, task, x, y, p);
+            x += glyphs->advance.x.toInt();
+        }
     } else {
-	QVarLengthArray<ushort> g(si.num_glyphs);
-	for(int i = 0; i < si.num_glyphs; ++i)
-	    g[i] = glyphs[i].glyph;
-	w = doTextTask((QChar*)g.data(), 0, si.num_glyphs, si.num_glyphs, task, x, y, p);
+        QVarLengthArray<ushort> g(si.num_glyphs);
+        for(int i = 0; i < si.num_glyphs; ++i)
+            g[i] = glyphs[i].glyph;
+        w = doTextTask((QChar*)g.data(), 0, si.num_glyphs, si.num_glyphs, task, x, y, p);
     }
     if(w && textFlags != 0) {
-	int lw = lineThickness().toInt();
-	if(textFlags & Qt::Underline)
-	    p->drawRect(QRect(x, y+underlinePosition().toInt(), si.right_to_left ? -w : w, lw));
-	if(textFlags & Qt::Overline)
-	    p->drawRect(QRect(x, y + (ascent().toInt() + 1), si.right_to_left ? -w : w, lw));
-	if(textFlags & Qt::StrikeOut)
-	    p->drawRect(QRect(x, y + (ascent().toInt() / 3), si.right_to_left ? -w : w, lw));
+        int lw = lineThickness().toInt();
+        if(textFlags & Qt::Underline)
+            p->drawRect(QRect(x, y+underlinePosition().toInt(), si.right_to_left ? -w : w, lw));
+        if(textFlags & Qt::Overline)
+            p->drawRect(QRect(x, y + (ascent().toInt() + 1), si.right_to_left ? -w : w, lw));
+        if(textFlags & Qt::StrikeOut)
+            p->drawRect(QRect(x, y + (ascent().toInt() / 3), si.right_to_left ? -w : w, lw));
     }
 }
 
@@ -181,7 +181,7 @@ QFontEngineMac::boundingBox(const QGlyphLayout *glyphs, int numGlyphs)
     Q26Dot6 w;
     const QGlyphLayout *end = glyphs + numGlyphs;
     while(end > glyphs)
-	w += (--end)->advance.x;
+        w += (--end)->advance.x;
     return glyph_metrics_t(0, -(ascent()), w, ascent()+descent()+1, w, 0);
 }
 
@@ -210,7 +210,7 @@ QFontEngineMac::calculateCost()
 QATSUStyle *QFontEngineMac::getFontStyle() const
 {
     if(internal_fi)
-	return internal_fi;
+        return internal_fi;
 
     const int arr_guess = 7;
     int arr = 0;
@@ -238,31 +238,31 @@ QATSUStyle *QFontEngineMac::getFontStyle() const
     values[arr] = &boldBool;
     arr++;
     if(arr > arr_guess) //this won't really happen, just so I will not miss the case
-	qWarning("Qt: internal: %d, WH0A %d: arr_guess overflow", __LINE__, arr);
+        qWarning("Qt: internal: %d, WH0A %d: arr_guess overflow", __LINE__, arr);
 
     //create style
     QATSUStyle *ret = new QATSUStyle;
     ret->ascent = ret->descent = ret->leading = ret->maxWidth = -1;
     ATSUCreateStyle(&ret->style);
     if(OSStatus e = ATSUSetAttributes(ret->style, arr, tags, valueSizes, values)) {
-	qWarning("Qt: internal: %ld: unexpected condition reached %s:%d", e, __FILE__, __LINE__);
-	delete ret;
-	ret = NULL;
+        qWarning("Qt: internal: %ld: unexpected condition reached %s:%d", e, __FILE__, __LINE__);
+        delete ret;
+        ret = NULL;
     } else {
-	const int feat_guess=5;
-	int feats=0;
-	ATSUFontFeatureType feat_types[feat_guess];
-	ATSUFontFeatureSelector feat_values[feat_guess];
-	feat_types[feats] = kLigaturesType;
-	feat_values[feats] = kRareLigaturesOffSelector;
-	feats++;
-	feat_types[feats] = kLigaturesType;
-	feat_values[feats] = kCommonLigaturesOffSelector;
-	feats++;
-	if(feats > feat_guess) //this won't really happen, just so I will not miss the case
-	    qWarning("Qt: internal: %d: WH0A feat_guess underflow %d", __LINE__, feats);
-	if(OSStatus e = ATSUSetFontFeatures(ret->style, feats, feat_types, feat_values))
-	    qWarning("Qt: internal: %ld: unexpected condition reached %s:%d", e, __FILE__, __LINE__);
+        const int feat_guess=5;
+        int feats=0;
+        ATSUFontFeatureType feat_types[feat_guess];
+        ATSUFontFeatureSelector feat_values[feat_guess];
+        feat_types[feats] = kLigaturesType;
+        feat_values[feats] = kRareLigaturesOffSelector;
+        feats++;
+        feat_types[feats] = kLigaturesType;
+        feat_values[feats] = kCommonLigaturesOffSelector;
+        feats++;
+        if(feats > feat_guess) //this won't really happen, just so I will not miss the case
+            qWarning("Qt: internal: %d: WH0A feat_guess underflow %d", __LINE__, feats);
+        if(OSStatus e = ATSUSetFontFeatures(ret->style, feats, feat_types, feat_values))
+            qWarning("Qt: internal: %ld: unexpected condition reached %s:%d", e, __FILE__, __LINE__);
     }
     internal_fi = ret; //cache it
     const_cast<QFontEngineMac*>(this)->calculateCost(); //do this absolutely last!!
@@ -274,7 +274,7 @@ static inline int qt_mac_get_measurement(ATSUStyle style, ATSUAttributeTag tag, 
     ATSUTextMeasurement ret=0;
     OSStatus result = ATSUGetAttribute(style, tag, sizeof(ret), &ret, 0);
     if(result != noErr && result != kATSUNotSetErr)
-	qWarning("%s:%d -- This can't really happen!! %ld", __FILE__, __LINE__, result);
+        qWarning("%s:%d -- This can't really happen!! %ld", __FILE__, __LINE__, result);
     return FixRound(ret);
 }
 
@@ -282,14 +282,14 @@ Q26Dot6 QFontEngineMac::ascent() const
 {
     QATSUStyle *st = getFontStyle();
     if(st->ascent != -1)
-	return st->ascent;
+        return st->ascent;
     return st->ascent = qt_mac_get_measurement(st->style, kATSUAscentTag, this);
 }
 Q26Dot6 QFontEngineMac::descent() const
 {
     QATSUStyle *st = getFontStyle();
     if(st->descent != -1)
-	return st->descent;
+        return st->descent;
     return st->descent = qt_mac_get_measurement(st->style, kATSUDescentTag, this);
 }
 
@@ -297,7 +297,7 @@ Q26Dot6 QFontEngineMac::leading() const
 {
     QATSUStyle *st = getFontStyle();
     if(st->leading != -1)
-	return st->leading;
+        return st->leading;
     return st->leading = qt_mac_get_measurement(st->style, kATSULeadingTag, this);
 }
 
@@ -305,11 +305,11 @@ Q26Dot6 QFontEngineMac::maxCharWidth() const
 {
     QATSUStyle *st = getFontStyle();
     if(st->maxWidth != -1)
-	return st->maxWidth;
+        return st->maxWidth;
     {   // I hate doing this, but I don't see a better way just yet -
         // so I'll just take the width of the captial m 'M'
-	QChar ch = 'M';
-	st->maxWidth = doTextTask(&ch, 0, 1, 1, WIDTH);
+        QChar ch = 'M';
+        st->maxWidth = doTextTask(&ch, 0, 1, 1, WIDTH);
     }
     return st->maxWidth;
 }
@@ -329,78 +329,78 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
     }
 
     if(!st) //can't really happen, but just to be sure..
-	return 0;
+        return 0;
 
     int ret = 0;
     if(task & DRAW) {
         Q_ASSERT(p); //really need a painter and engine to do any drawing!!!
-	QColor rgb = pState->painter->pen().color();
-	if(rgb != st->rgb) {
-	    st->rgb = rgb;
-	    const ATSUAttributeTag tag = kATSUColorTag;
-	    ::RGBColor fcolor;
-	    fcolor.red = rgb.red()*256;
-	    fcolor.green = rgb.green()*256;
-	    fcolor.blue = rgb.blue()*256;
-	    ByteCount size = sizeof(fcolor);
-	    ATSUAttributeValuePtr value = &fcolor;
-	    if(OSStatus e = ATSUSetAttributes(st->style, 1, &tag, &size, &value)) {
-		qWarning("Qt: internal: %ld: This shouldn't happen %s:%d", e, __FILE__, __LINE__);
-		return 0;
-	    }
-	}
+        QColor rgb = pState->painter->pen().color();
+        if(rgb != st->rgb) {
+            st->rgb = rgb;
+            const ATSUAttributeTag tag = kATSUColorTag;
+            ::RGBColor fcolor;
+            fcolor.red = rgb.red()*256;
+            fcolor.green = rgb.green()*256;
+            fcolor.blue = rgb.blue()*256;
+            ByteCount size = sizeof(fcolor);
+            ATSUAttributeValuePtr value = &fcolor;
+            if(OSStatus e = ATSUSetAttributes(st->style, 1, &tag, &size, &value)) {
+                qWarning("Qt: internal: %ld: This shouldn't happen %s:%d", e, __FILE__, __LINE__);
+                return 0;
+            }
+        }
     }
 
     { //transformations
-	CGAffineTransform tf = CGAffineTransformIdentity;
-	if((task & DRAW) && p && p->type() == QPaintEngine::CoreGraphics) { //flip text
-	    int height = 0;
+        CGAffineTransform tf = CGAffineTransformIdentity;
+        if((task & DRAW) && p && p->type() == QPaintEngine::CoreGraphics) { //flip text
+            int height = 0;
             if(widget)
-		height = widget->topLevelWidget()->height();
-	    else
-		height = device->metric(QPaintDeviceMetrics::PdmHeight);
-	    tf = CGAffineTransformTranslate(tf, 0, height);
-	    tf = CGAffineTransformScale(tf, 1, -1);
-	}
-	if(fontDef.stretch != 100)
-	    tf = CGAffineTransformScale(tf, fontDef.stretch/100, 1);
+                height = widget->topLevelWidget()->height();
+            else
+                height = device->metric(QPaintDeviceMetrics::PdmHeight);
+            tf = CGAffineTransformTranslate(tf, 0, height);
+            tf = CGAffineTransformScale(tf, 1, -1);
+        }
+        if(fontDef.stretch != 100)
+            tf = CGAffineTransformScale(tf, fontDef.stretch/100, 1);
 #if 0 //grr this just doesn't work, how frustrating..
-	if(pState) {
-	    CGAffineTransform xf = CGAffineTransformMake(pState->matrix.m11(), pState->matrix.m12(),
-							 pState->matrix.m21(), pState->matrix.m22(),
-							 pState->matrix.dx(),  pState->matrix.dy());
-	    tf = CGAffineTransformConcat(xf, tf);
-	}
+        if(pState) {
+            CGAffineTransform xf = CGAffineTransformMake(pState->matrix.m11(), pState->matrix.m12(),
+                                                         pState->matrix.m21(), pState->matrix.m22(),
+                                                         pState->matrix.dx(),  pState->matrix.dy());
+            tf = CGAffineTransformConcat(xf, tf);
+        }
 #endif
 
 
-	const ATSUAttributeTag tag = kATSUFontMatrixTag;
-	ByteCount size = sizeof(tf);
-	ATSUAttributeValuePtr value = &tf;
-	if(OSStatus e = ATSUSetAttributes(st->style, 1, &tag, &size, &value)) {
-	    qWarning("Qt: internal: %ld: This shouldn't happen %s:%d", e, __FILE__, __LINE__);
-	    return 0;
-	}
+        const ATSUAttributeTag tag = kATSUFontMatrixTag;
+        ByteCount size = sizeof(tf);
+        ATSUAttributeValuePtr value = &tf;
+        if(OSStatus e = ATSUSetAttributes(st->style, 1, &tag, &size, &value)) {
+            qWarning("Qt: internal: %ld: This shouldn't happen %s:%d", e, __FILE__, __LINE__);
+            return 0;
+        }
     }
 
     if((task & WIDTH)) {
-	bool use_cached_width = TRUE;
-	for(int i = 0; i < use_len; i++) {
-	    int c;
-	    if(s[i].unicode() >= widthCacheSize || !(c = widthCache[s[i].unicode()])) {
-		use_cached_width = FALSE;
-		break;
-	    }
-	    if(c == -666) //special marker meaning 0
-		c = 0;
-	    ret += c;
-	}
-	if(use_cached_width) {
-	    if(task == WIDTH)
-		return ret;
-	} else {
-	    ret = 0; //reset
-	}
+        bool use_cached_width = true;
+        for(int i = 0; i < use_len; i++) {
+            int c;
+            if(s[i].unicode() >= widthCacheSize || !(c = widthCache[s[i].unicode()])) {
+                use_cached_width = false;
+                break;
+            }
+            if(c == -666) //special marker meaning 0
+                c = 0;
+            ret += c;
+        }
+        if(use_cached_width) {
+            if(task == WIDTH)
+                return ret;
+        } else {
+            ret = 0; //reset
+        }
     }
 
     Q_UNUSED(len);
@@ -433,9 +433,9 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
     tags[arr] = kATSULineLayoutOptionsTag;
     ATSLineLayoutOptions layopts = kATSLineHasNoOpticalAlignment | kATSLineIgnoreFontLeading
                                    | kATSLineFractDisable | kATSLineDisableAutoAdjustDisplayPos |
-				   kATSLineDisableAllLayoutOperations | kATSLineUseDeviceMetrics;
+                                   kATSLineDisableAllLayoutOperations | kATSLineUseDeviceMetrics;
     if(fontDef.styleStrategy & QFont::NoAntialias)
-	layopts |= kATSLineNoAntiAliasing;
+        layopts |= kATSLineNoAntiAliasing;
     valueSizes[arr] = sizeof(layopts);
     values[arr] = &layopts;
     arr++;
@@ -474,7 +474,7 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
             qWarning("Qt: internal: WH0A, QDBeginCGContext(%ld) failed. %s:%d", err, __FILE__, __LINE__);
             return 0;
         }
-        if(task & DRAW) { 
+        if(task & DRAW) {
             Rect clipr;
             GetPortBounds(ctx_port, &clipr);
             ClipCGContextToRegion(ctx, &clipr, rgn.handle(true));
@@ -485,43 +485,43 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
     arr++;
 
     if(arr > arr_guess) //this won't really happen, just so I will not miss the case
-	qWarning("Qt: internal: %d: WH0A, arr_guess underflow %d", __LINE__, arr);
+        qWarning("Qt: internal: %d: WH0A, arr_guess underflow %d", __LINE__, arr);
     if(OSStatus e = ATSUSetLayoutControls(mTextLayout, arr, tags, valueSizes, values)) {
-	qWarning("Qt: internal: %ld: Unexpected condition reached %s:%d", e, __FILE__, __LINE__);
+        qWarning("Qt: internal: %ld: Unexpected condition reached %s:%d", e, __FILE__, __LINE__);
         if(ctx_port)
             QDEndCGContext(ctx_port, &ctx);
-	return 0;
+        return 0;
     }
     ATSUSetTransientFontMatching(mTextLayout, true);
     //do required task now
     if(task & EXISTS) {
-	if(task != EXISTS)
-	    qWarning("Qt: EXISTS must appear by itself!");
-	ATSUFontID fid;
-	UniCharArrayOffset off;
-	UniCharCount off_len;
-	if (ATSUMatchFontsToText(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd, &fid, &off,
-				 &off_len) != kATSUFontsNotMatched)
-	    ret = 1;
+        if(task != EXISTS)
+            qWarning("Qt: EXISTS must appear by itself!");
+        ATSUFontID fid;
+        UniCharArrayOffset off;
+        UniCharCount off_len;
+        if (ATSUMatchFontsToText(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd, &fid, &off,
+                                 &off_len) != kATSUFontsNotMatched)
+            ret = 1;
     } else if((task & WIDTH) && !ret) {
-	ATSUTextMeasurement left=0, right=0, bottom=0, top=0;
-	ATSUGetUnjustifiedBounds(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd, &left, &right, &bottom, &top);
-	ret = FixRound(right-left);
-	if(use_len == 1 && s->unicode() < widthCacheSize && ret < 0x100)
-	    widthCache[s->unicode()] = ret ? ret : -666; //mark so that 0 is cached..
+        ATSUTextMeasurement left=0, right=0, bottom=0, top=0;
+        ATSUGetUnjustifiedBounds(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd, &left, &right, &bottom, &top);
+        ret = FixRound(right-left);
+        if(use_len == 1 && s->unicode() < widthCacheSize && ret < 0x100)
+            widthCache[s->unicode()] = ret ? ret : -666; //mark so that 0 is cached..
     }
     if(task & DRAW) {
-	int drawy = y;
-	if(ctx_port) {
-	    int height = 0;
-	    if(widget)
-		height = widget->topLevelWidget()->height();
-	    else
-		height = device->metric(QPaintDeviceMetrics::PdmHeight);
-	    drawy = height-drawy;
-	}
-	ATSUDrawText(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd, FixRatio(x, 1),
-		      FixRatio(drawy, 1));
+        int drawy = y;
+        if(ctx_port) {
+            int height = 0;
+            if(widget)
+                height = widget->topLevelWidget()->height();
+            else
+                height = device->metric(QPaintDeviceMetrics::PdmHeight);
+            drawy = height-drawy;
+        }
+        ATSUDrawText(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd, FixRatio(x, 1),
+                      FixRatio(drawy, 1));
     }
     if(ctx_port)
         QDEndCGContext(ctx_port, &ctx);
@@ -547,17 +547,17 @@ bool QFontEngineBox::stringToCMap(const QChar *,  int len, QGlyphLayout *glyphs,
                                                 int *nglyphs, QTextEngine::ShaperFlags) const
 {
     if(*nglyphs < len) {
-	*nglyphs = len;
-	return false;
+        *nglyphs = len;
+        return false;
     }
 
     for(int i = 0; i < len; i++)
-	glyphs[i].glyph = 0;
+        glyphs[i].glyph = 0;
     *nglyphs = len;
 
     for(int i = 0; i < len; i++) {
-	(glyphs++)->advance.x = _size;
-	(glyphs++)->advance.y = 0;
+        (glyphs++)->advance.x = _size;
+        (glyphs++)->advance.y = 0;
     }
 
     return true;
@@ -617,7 +617,7 @@ const char *QFontEngineBox::name() const
 
 bool QFontEngineBox::canRender(const QChar *, int)
 {
-    return TRUE;
+    return true;
 }
 
 QFontEngine::Type QFontEngineBox::type() const

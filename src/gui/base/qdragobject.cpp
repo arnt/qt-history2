@@ -66,13 +66,13 @@ void QDragObject::setTarget(QWidget* t)
 
 static const char * const move_xpm[] = {
 "11 20 3 1",
-".	c None",
+".        c None",
 #if defined(Q_WS_WIN)
-"a	c #000000",
-"X	c #FFFFFF", // Windows cursor is traditionally white
+"a        c #000000",
+"X        c #FFFFFF", // Windows cursor is traditionally white
 #else
-"a	c #FFFFFF",
-"X	c #000000", // X11 cursor is traditionally black
+"a        c #FFFFFF",
+"X        c #000000", // X11 cursor is traditionally black
 #endif
 "aa.........",
 "aXa........",
@@ -98,9 +98,9 @@ static const char * const move_xpm[] = {
 /* XPM */
 static const char * const copy_xpm[] = {
 "24 30 3 1",
-".	c None",
-"a	c #000000",
-"X	c #FFFFFF",
+".        c None",
+"a        c #000000",
+"X        c #FFFFFF",
 #if defined(Q_WS_WIN) // Windows cursor is traditionally white
 "aa......................",
 "aXa.....................",
@@ -158,9 +158,9 @@ static const char * const copy_xpm[] = {
 /* XPM */
 static const char * const link_xpm[] = {
 "24 30 3 1",
-".	c None",
-"a	c #000000",
-"X	c #FFFFFF",
+".        c None",
+"a        c #000000",
+"X        c #FFFFFF",
 #if defined(Q_WS_WIN) // Windows cursor is traditionally white
 "aa......................",
 "aXa.....................",
@@ -222,7 +222,7 @@ QDragManager * qt_dnd_manager = 0;
 
 
 QDragManager::QDragManager()
-    : QObject( qApp, "global drag manager" )
+    : QObject(qApp, "global drag manager")
 {
     n_cursor = 3;
     pm_cursor = new QPixmap[n_cursor];
@@ -232,19 +232,19 @@ QDragManager::QDragManager()
     object = 0;
     dragSource = 0;
     dropWidget = 0;
-    if ( !qt_dnd_manager )
-	qt_dnd_manager = this;
-    beingCancelled = FALSE;
-    restoreCursor = FALSE;
-    willDrop = FALSE;
+    if (!qt_dnd_manager)
+        qt_dnd_manager = this;
+    beingCancelled = false;
+    restoreCursor = false;
+    willDrop = false;
 }
 
 
 QDragManager::~QDragManager()
 {
 #ifndef QT_NO_CURSOR
-    if ( restoreCursor )
-	QApplication::restoreOverrideCursor();
+    if (restoreCursor)
+        QApplication::restoreOverrideCursor();
 #endif
     qt_dnd_manager = 0;
     delete [] pm_cursor;
@@ -261,14 +261,14 @@ QDragManager::~QDragManager()
     deleted.
 */
 
-QDragObject::QDragObject( QWidget * dragSource, const char * name )
+QDragObject::QDragObject(QWidget * dragSource, const char * name)
     : QObject(*(new QDragObjectPrivate), dragSource)
 {
     setObjectNameConst(name);
     d->pm_cursor = 0;
 #ifndef QT_NO_DRAGANDDROP
-    if ( !qt_dnd_manager && qApp )
-	(void)new QDragManager();
+    if (!qt_dnd_manager && qApp)
+        (void)new QDragManager();
 #endif
 }
 
@@ -279,8 +279,8 @@ QDragObject::QDragObject(QDragObjectPrivate &dd, QWidget *dragSource)
 {
     d->pm_cursor = 0;
 #ifndef QT_NO_DRAGANDDROP
-    if ( !qt_dnd_manager && qApp )
-	(void)new QDragManager();
+    if (!qt_dnd_manager && qApp)
+        (void)new QDragManager();
 #endif
 }
 
@@ -292,12 +292,12 @@ QDragObject::QDragObject(QDragObjectPrivate &dd, QWidget *dragSource)
 QDragObject::~QDragObject()
 {
 #ifndef QT_NO_DRAGANDDROP
-    if ( qt_dnd_manager && qt_dnd_manager->object == this )
-	qt_dnd_manager->cancel( FALSE );
-     if ( d->pm_cursor ) {
- 	for ( int i = 0; i < qt_dnd_manager->n_cursor; i++ )
- 	    qt_dnd_manager->pm_cursor[i] = d->pm_cursor[i];
- 	delete [] d->pm_cursor;
+    if (qt_dnd_manager && qt_dnd_manager->object == this)
+        qt_dnd_manager->cancel(false);
+     if (d->pm_cursor) {
+        for (int i = 0; i < qt_dnd_manager->n_cursor; i++)
+            qt_dnd_manager->pm_cursor[i] = d->pm_cursor[i];
+        delete [] d->pm_cursor;
      }
 #endif
 }
@@ -323,8 +323,8 @@ void QDragObject::setPixmap(QPixmap pm, const QPoint& hotspot)
 {
     d->pixmap = pm;
     d->hot = hotspot;
-    if ( qt_dnd_manager && qt_dnd_manager->object == this )
-	qt_dnd_manager->updatePixmap();
+    if (qt_dnd_manager && qt_dnd_manager->object == this)
+        qt_dnd_manager->updatePixmap();
 }
 
 /*!
@@ -362,53 +362,53 @@ QPoint QDragObject::pixmapHotSpot() const
     Set the \a cursor used when dragging in mode \a m.
     Note: X11 only allow bitmaps for cursors.
 */
-void QDragObject::setCursor( DragMode m, const QPixmap &cursor )
+void QDragObject::setCursor(DragMode m, const QPixmap &cursor)
 {
-    if ( d->pm_cursor == 0 ) {
-	// safe default cursors
-	d->pm_cursor = new QPixmap[qt_dnd_manager->n_cursor];
-	for ( int i = 0; i < qt_dnd_manager->n_cursor; i++ )
-	    d->pm_cursor[i] = qt_dnd_manager->pm_cursor[i];
+    if (d->pm_cursor == 0) {
+        // safe default cursors
+        d->pm_cursor = new QPixmap[qt_dnd_manager->n_cursor];
+        for (int i = 0; i < qt_dnd_manager->n_cursor; i++)
+            d->pm_cursor[i] = qt_dnd_manager->pm_cursor[i];
     }
 
     int index;
-    switch ( m ) {
+    switch (m) {
     case DragCopy:
-	index = 1;
-	break;
+        index = 1;
+        break;
     case DragLink:
-	index = 2;
-	break;
+        index = 2;
+        break;
     default:
-	index = 0;
-	break;
+        index = 0;
+        break;
     }
 
     // override default cursor
-    for ( index = 0; index < qt_dnd_manager->n_cursor; index++ )
-	qt_dnd_manager->pm_cursor[index] = cursor;
+    for (index = 0; index < qt_dnd_manager->n_cursor; index++)
+        qt_dnd_manager->pm_cursor[index] = cursor;
 }
 
 /*!
     Returns the cursor used when dragging in mode \a m, or null if no cursor
     has been set for that mode.
 */
-QPixmap *QDragObject::cursor( DragMode m ) const
+QPixmap *QDragObject::cursor(DragMode m) const
 {
-    if ( !d->pm_cursor )
-	return 0;
+    if (!d->pm_cursor)
+        return 0;
 
     int index;
-    switch ( m ) {
+    switch (m) {
     case DragCopy:
-	index = 1;
-	break;
+        index = 1;
+        break;
     case DragLink:
-	index = 2;
-	break;
+        index = 2;
+        break;
     default:
-	index = 0;
-	break;
+        index = 0;
+        break;
     }
 
     return qt_dnd_manager->pm_cursor+index;
@@ -420,9 +420,9 @@ QPixmap *QDragObject::cursor( DragMode m ) const
     Starts a drag operation using the contents of this object, using
     DragDefault mode.
 
-    The function returns TRUE if the caller should delete the original
+    The function returns true if the caller should delete the original
     copy of the dragged data (but see target()); otherwise returns
-    FALSE.
+    false.
 
     If the drag contains \e references to information (e.g. file names
     in a QUriDrag are references) then the return value should always
@@ -437,7 +437,7 @@ QPixmap *QDragObject::cursor( DragMode m ) const
 */
 bool QDragObject::drag()
 {
-    return drag( DragDefault );
+    return drag(DragDefault);
 }
 
 
@@ -450,7 +450,7 @@ bool QDragObject::drag()
 */
 bool QDragObject::dragMove()
 {
-    return drag( DragMove );
+    return drag(DragMove);
 }
 
 
@@ -463,7 +463,7 @@ bool QDragObject::dragMove()
 */
 void QDragObject::dragCopy()
 {
-    (void)drag( DragCopy );
+    (void)drag(DragCopy);
 }
 
 /*!
@@ -475,7 +475,7 @@ void QDragObject::dragCopy()
 */
 void QDragObject::dragLink()
 {
-    (void)drag( DragLink );
+    (void)drag(DragLink);
 }
 
 
@@ -489,7 +489,7 @@ void QDragObject::dragLink()
     \value DragMove  The data is moved, if dragged at all.
     \value DragLink  The data is linked, if dragged at all.
     \value DragCopyOrMove  The user chooses the mode by using a
-			   control key to switch from the default.
+                           control key to switch from the default.
 */
 
 
@@ -503,21 +503,21 @@ void QDragObject::dragLink()
     will be done during future event processing - after that time the
     drag object will be deleted.
 
-    Returns TRUE if the dragged data was dragged as a \e move,
+    Returns true if the dragged data was dragged as a \e move,
     indicating that the caller should remove the original source of
     the data (the drag object must continue to have a copy); otherwise
-    returns FALSE.
+    returns false.
 
     The \a mode specifies the drag mode (see
     \l{QDragObject::DragMode}.) Normally one of the simpler drag(),
     dragMove(), or dragCopy() functions would be used instead.
 */
-bool QDragObject::drag( DragMode mode )
+bool QDragObject::drag(DragMode mode)
 {
-    if ( qt_dnd_manager )
-	return qt_dnd_manager->drag( this, mode );
+    if (qt_dnd_manager)
+        return qt_dnd_manager->drag(this, mode);
     else
-	return FALSE;
+        return false;
 }
 
 #endif
@@ -529,10 +529,10 @@ bool QDragObject::drag( DragMode mode )
 
 QWidget * QDragObject::source()
 {
-    if ( parent() && parent()->isWidgetType() )
-	return (QWidget *)parent();
+    if (parent() && parent()->isWidgetType())
+        return (QWidget *)parent();
     else
-	return 0;
+        return 0;
 }
 
 
@@ -568,7 +568,7 @@ void stripws(QByteArray& s)
 {
     int f;
     while ((f = s.indexOf(' ')) >= 0)
-	s.remove(f,1);
+        s.remove(f,1);
 }
 
 static
@@ -576,25 +576,25 @@ const char * staticCharset(int i)
 {
     static QByteArray localcharset;
 
-    switch ( i ) {
+    switch (i) {
       case 0:
-	return "UTF-8";
+        return "UTF-8";
       case 1:
-	return "ISO-10646-UCS-2";
+        return "ISO-10646-UCS-2";
       case 2:
-	return ""; // in the 3rd place - some Xdnd targets might only look at 3
+        return ""; // in the 3rd place - some Xdnd targets might only look at 3
       case 3:
-	if ( localcharset.isNull() ) {
-	    QTextCodec *localCodec = QTextCodec::codecForLocale();
-	    if ( localCodec ) {
-		localcharset = localCodec->name();
-		localcharset = localcharset.toLower();
-		stripws(localcharset);
-	    } else {
-		localcharset = "";
-	    }
-	}
-	return localcharset;
+        if (localcharset.isNull()) {
+            QTextCodec *localCodec = QTextCodec::codecForLocale();
+            if (localCodec) {
+                localcharset = localCodec->name();
+                localcharset = localcharset.toLower();
+                stripws(localcharset);
+            } else {
+                localcharset = "";
+            }
+        }
+        return localcharset;
     }
     return 0;
 }
@@ -602,14 +602,14 @@ const char * staticCharset(int i)
 void QTextDragPrivate::setSubType(const QString & st)
 {
     subtype = st.toLower();
-    for ( int i=0; i<nfmt; i++ ) {
-	fmt[i] = "text/";
-	fmt[i].append(subtype.latin1());
-	QByteArray cs(staticCharset(i));
-	if ( !cs.isEmpty() ) {
-	    fmt[i].append(";charset=");
-	    fmt[i].append(cs);
-	}
+    for (int i=0; i<nfmt; i++) {
+        fmt[i] = "text/";
+        fmt[i].append(subtype.latin1());
+        QByteArray cs(staticCharset(i));
+        if (!cs.isEmpty()) {
+            fmt[i].append(";charset=");
+            fmt[i].append(cs);
+        }
     }
 }
 
@@ -619,7 +619,7 @@ void QTextDragPrivate::setSubType(const QString & st)
     is "text/plain". You might use this to declare that the text is
     "text/html" by calling setSubtype("html").
 */
-void QTextDrag::setSubtype( const QString & st)
+void QTextDrag::setSubtype(const QString & st)
 {
     d->setSubType(st);
 }
@@ -649,8 +649,8 @@ void QTextDrag::setSubtype( const QString & st)
     dragSource must be the drag source; \a name is the object name.
 */
 
-QTextDrag::QTextDrag( const QString &text,
-		      QWidget * dragSource, const char * name )
+QTextDrag::QTextDrag(const QString &text,
+                      QWidget * dragSource, const char * name)
     : QDragObject(*new QTextDragPrivate, dragSource)
 {
     setObjectNameConst(name);
@@ -663,7 +663,7 @@ QTextDrag::QTextDrag( const QString &text,
     drag source; \a name is the object name.
 */
 
-QTextDrag::QTextDrag( QWidget * dragSource, const char * name )
+QTextDrag::QTextDrag(QWidget * dragSource, const char * name)
     : QDragObject(*(new QTextDragPrivate), dragSource)
 {
     setObjectNameConst(name);
@@ -674,7 +674,7 @@ QTextDrag::QTextDrag( QWidget * dragSource, const char * name )
 QTextDrag::QTextDrag(QTextDragPrivate &dd, QWidget *dragSource)
     : QDragObject(dd, dragSource)
 {
-    
+
 }
 
 /*!
@@ -691,7 +691,7 @@ QTextDrag::~QTextDrag()
     Sets the text to be dragged to \a text. You will need to call this
     if you did not pass the text during construction.
 */
-void QTextDrag::setText( const QString &text )
+void QTextDrag::setText(const QString &text)
 {
     d->txt = text;
 }
@@ -702,26 +702,26 @@ void QTextDrag::setText( const QString &text )
 */
 const char * QTextDrag::format(int i) const
 {
-    if ( i >= d->nfmt )
-	return 0;
+    if (i >= d->nfmt)
+        return 0;
     return d->fmt[i];
 }
 
 QTextCodec* qt_findcharset(const QByteArray& mimetype)
 {
     int i=mimetype.indexOf("charset=");
-    if ( i >= 0 ) {
-	QByteArray cs = mimetype.mid(i+8);
-	stripws(cs);
-	i = cs.indexOf(';');
-	if ( i >= 0 )
-	    cs = cs.left(i);
-	// win98 often has charset=utf16, and we need to get the correct codec for
-	// it to be able to get Unicode text drops.
-	if ( cs == "utf16" )
-	    cs = "ISO-10646-UCS-2";
-	// May return 0 if unknown charset
-	return QTextCodec::codecForName(cs);
+    if (i >= 0) {
+        QByteArray cs = mimetype.mid(i+8);
+        stripws(cs);
+        i = cs.indexOf(';');
+        if (i >= 0)
+            cs = cs.left(i);
+        // win98 often has charset=utf16, and we need to get the correct codec for
+        // it to be able to get Unicode text drops.
+        if (cs == "utf16")
+            cs = "ISO-10646-UCS-2";
+        // May return 0 if unknown charset
+        return QTextCodec::codecForName(cs);
     }
     // no charset=, use locale
     return QTextCodec::codecForLocale();
@@ -735,35 +735,35 @@ static QTextCodec *codecForHTML(const QByteArray &ba)
     QTextCodec *c = 0;
 
     if (ba.size() > 1 && (((uchar)ba[0] == 0xfe && (uchar)ba[1] == 0xff)
-			  || ((uchar)ba[0] == 0xff && (uchar)ba[1] == 0xfe))) {
-	mib = 1000; // utf16
+                          || ((uchar)ba[0] == 0xff && (uchar)ba[1] == 0xfe))) {
+        mib = 1000; // utf16
     } else if (ba.size() > 2
-	       && (uchar)ba[0] == 0xef
-	       && (uchar)ba[1] == 0xbb
-	       && (uchar)ba[2] == 0xbf) {
-	mib = 106; // utf-8
+               && (uchar)ba[0] == 0xef
+               && (uchar)ba[1] == 0xbb
+               && (uchar)ba[2] == 0xbf) {
+        mib = 106; // utf-8
     } else {
-	pos = 0;
-	while ((pos = ba.indexOf('<', pos)) != -1) {
-	    int end = ba.indexOf('>', pos+1);
-	    if (end == -1)
-		break;
-	    QString str = ba.mid(pos, end-pos);
-	    if (str.contains("meta http-equiv=", QString::CaseInsensitive)) {
-		pos = str.indexOf("charset=", 0, QString::CaseInsensitive) + strlen("charset=");
-		if (pos != -1) {
-		    int pos2 = ba.indexOf('\"', pos+1);
-		    QByteArray cs = ba.mid(pos, pos2-pos);
-		    c = QTextCodec::codecForName(cs);
-		    if (c)
-			return c;
-		}
-	    }
-	    pos = end;
-	}
+        pos = 0;
+        while ((pos = ba.indexOf('<', pos)) != -1) {
+            int end = ba.indexOf('>', pos+1);
+            if (end == -1)
+                break;
+            QString str = ba.mid(pos, end-pos);
+            if (str.contains("meta http-equiv=", QString::CaseInsensitive)) {
+                pos = str.indexOf("charset=", 0, QString::CaseInsensitive) + strlen("charset=");
+                if (pos != -1) {
+                    int pos2 = ba.indexOf('\"', pos+1);
+                    QByteArray cs = ba.mid(pos, pos2-pos);
+                    c = QTextCodec::codecForName(cs);
+                    if (c)
+                        return c;
+                }
+            }
+            pos = end;
+        }
     }
     if (mib)
-	c = QTextCodec::codecForMib(mib);
+        c = QTextCodec::codecForMib(mib);
 
     return c;
 }
@@ -774,14 +774,14 @@ QTextCodec* findcodec(const QMimeSource* e)
     QTextCodec* r = 0;
     const char* f;
     int i;
-    for ( i=0; (f=e->format(i)); i++ ) {
-	bool html = !qstrnicmp(f, "text/html", 9);
-	if (html)
-	    r = codecForHTML(e->encodedData(f));
-	if (!r)
-	    r = qt_findcharset(QByteArray(f).toLower());
-	if (r)
-	    return r;
+    for (i=0; (f=e->format(i)); i++) {
+        bool html = !qstrnicmp(f, "text/html", 9);
+        if (html)
+            r = codecForHTML(e->encodedData(f));
+        if (!r)
+            r = qt_findcharset(QByteArray(f).toLower());
+        if (r)
+            return r;
     }
     return 0;
 }
@@ -794,48 +794,48 @@ QTextCodec* findcodec(const QMimeSource* e)
 QByteArray QTextDrag::encodedData(const char* mime) const
 {
     QByteArray r;
-    if ( 0==qstrnicmp(mime,"text/",5) ) {
-	QByteArray m(mime);
-	m = m.toLower();
-	QTextCodec *codec = qt_findcharset(m);
-	if ( !codec )
-	    return r;
-	QString text( d->txt );
+    if (0==qstrnicmp(mime,"text/",5)) {
+        QByteArray m(mime);
+        m = m.toLower();
+        QTextCodec *codec = qt_findcharset(m);
+        if (!codec)
+            return r;
+        QString text(d->txt);
 #if defined(Q_WS_WIN)
-	int index = text.indexOf( QString::fromLatin1("\r\n"), 0 );
-	while ( index != -1 ) {
-	    text.replace( index, 2, QChar('\n') );
-	    index = text.indexOf( "\r\n", index );
-	}
+        int index = text.indexOf(QString::fromLatin1("\r\n"), 0);
+        while (index != -1) {
+            text.replace(index, 2, QChar('\n'));
+            index = text.indexOf("\r\n", index);
+        }
 #endif
-	r = codec->fromUnicode(text);
-	if (!codec || codec->mibEnum() != 1000) {
-	    // Don't include NUL in size (QByteArray::resize() adds NUL)
+        r = codec->fromUnicode(text);
+        if (!codec || codec->mibEnum() != 1000) {
+            // Don't include NUL in size (QByteArray::resize() adds NUL)
 #if defined(Q_WS_WIN)
-	    // This is needed to ensure the \0 isn't lost on Windows 95
-	    if ( QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based )
-		((QByteArray&)r).resize(r.length()+1);
-	    else
+            // This is needed to ensure the \0 isn't lost on Windows 95
+            if (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)
+                ((QByteArray&)r).resize(r.length()+1);
+            else
 #endif
-		((QByteArray&)r).resize(r.length());
-	}
+                ((QByteArray&)r).resize(r.length());
+        }
     }
     return r;
 }
 
 /*!
-    Returns TRUE if the information in \a e can be decoded into a
-    QString; otherwise returns FALSE.
+    Returns true if the information in \a e can be decoded into a
+    QString; otherwise returns false.
 
     \sa decode()
 */
-bool QTextDrag::canDecode( const QMimeSource* e )
+bool QTextDrag::canDecode(const QMimeSource* e)
 {
     const char* f;
     for (int i=0; (f=e->format(i)); i++) {
-	if ( 0==qstrnicmp(f,"text/",5) ) {
-	    return findcodec(e) != 0;
-	}
+        if (0==qstrnicmp(f,"text/",5)) {
+            return findcodec(e) != 0;
+        }
     }
     return 0;
 }
@@ -844,82 +844,82 @@ bool QTextDrag::canDecode( const QMimeSource* e )
     \overload
 
     Attempts to decode the dropped information in \a e into \a str.
-    Returns TRUE if successful; otherwise returns FALSE. If \a subtype
+    Returns true if successful; otherwise returns false. If \a subtype
     is null, any text subtype is accepted; otherwise only the
     specified \a subtype is accepted.
 
     \sa canDecode()
 */
-bool QTextDrag::decode( const QMimeSource* e, QString& str, QString& subtype )
+bool QTextDrag::decode(const QMimeSource* e, QString& str, QString& subtype)
 {
     if(!e)
-	return FALSE;
+        return false;
 
-    if ( e->cacheType == QMimeSource::Text ) {
-	str = *e->cache.txt.str;
-	subtype = *e->cache.txt.subtype;
-	return TRUE;
+    if (e->cacheType == QMimeSource::Text) {
+        str = *e->cache.txt.str;
+        subtype = *e->cache.txt.subtype;
+        return true;
     }
 
     const char* mime;
     for (int i=0; (mime = e->format(i)); i++) {
-	if ( 0==qstrnicmp(mime,"text/",5) ) {
-	    QByteArray m(mime);
-	    m = m.toLower();
-	    int semi = m.indexOf(';');
-	    if ( semi < 0 )
-		semi = m.length();
-	    QString foundst = m.mid(5,semi-5);
-	    if ( subtype.isNull() || foundst == subtype ) {
-		bool html = !qstrnicmp(mime, "text/html", 9);
-		QTextCodec* codec = 0;
-		if (html)
-		    // search for the charset tag in the HTML
-		    codec = codecForHTML(e->encodedData(mime));
-		if (!codec)
-		    codec = qt_findcharset(m);
-		if ( codec ) {
-		    QByteArray payload;
+        if (0==qstrnicmp(mime,"text/",5)) {
+            QByteArray m(mime);
+            m = m.toLower();
+            int semi = m.indexOf(';');
+            if (semi < 0)
+                semi = m.length();
+            QString foundst = m.mid(5,semi-5);
+            if (subtype.isNull() || foundst == subtype) {
+                bool html = !qstrnicmp(mime, "text/html", 9);
+                QTextCodec* codec = 0;
+                if (html)
+                    // search for the charset tag in the HTML
+                    codec = codecForHTML(e->encodedData(mime));
+                if (!codec)
+                    codec = qt_findcharset(m);
+                if (codec) {
+                    QByteArray payload;
 
-		    payload = e->encodedData(mime);
-		    if ( payload.size() ) {
-			int l;
-			if ( codec->mibEnum() != 1000) {
-			    // length is at NUL or payload.size()
-			    l = 0;
-			    while ( l < (int)payload.size() && payload[l] )
-				l++;
-			} else {
-			    l = payload.size();
-			}
+                    payload = e->encodedData(mime);
+                    if (payload.size()) {
+                        int l;
+                        if (codec->mibEnum() != 1000) {
+                            // length is at NUL or payload.size()
+                            l = 0;
+                            while (l < (int)payload.size() && payload[l])
+                                l++;
+                        } else {
+                            l = payload.size();
+                        }
 
-			str = codec->toUnicode(payload,l);
+                        str = codec->toUnicode(payload,l);
 
-			if ( subtype.isNull() )
-			    subtype = foundst;
+                        if (subtype.isNull())
+                            subtype = foundst;
 
-			QMimeSource *m = (QMimeSource*)e;
-			m->clearCache();
-			m->cacheType = QMimeSource::Text;
-			m->cache.txt.str = new QString( str );
-			m->cache.txt.subtype = new QString( subtype );
+                        QMimeSource *m = (QMimeSource*)e;
+                        m->clearCache();
+                        m->cacheType = QMimeSource::Text;
+                        m->cache.txt.str = new QString(str);
+                        m->cache.txt.subtype = new QString(subtype);
 
-			return TRUE;
-		    }
-		}
-	    }
-	}
+                        return true;
+                    }
+                }
+            }
+        }
     }
-    return FALSE;
+    return false;
 }
 
 /*!
     Attempts to decode the dropped information in \a e into \a str.
-    Returns TRUE if successful; otherwise returns FALSE.
+    Returns true if successful; otherwise returns false.
 
     \sa canDecode()
 */
-bool QTextDrag::decode( const QMimeSource* e, QString& str )
+bool QTextDrag::decode(const QMimeSource* e, QString& str)
 {
     QString st;
     return decode(e, str, st);
@@ -953,12 +953,12 @@ bool QTextDrag::decode( const QMimeSource* e, QString& str )
     dragSource must be the drag source; \a name is the object name.
 */
 
-QImageDrag::QImageDrag( QImage image,
-			QWidget * dragSource, const char * name )
+QImageDrag::QImageDrag(QImage image,
+                        QWidget * dragSource, const char * name)
     : QDragObject(*(new QImageDragPrivate), dragSource)
 {
     setObjectNameConst(name);
-    setImage( image );
+    setImage(image);
 }
 
 /*!
@@ -966,7 +966,7 @@ QImageDrag::QImageDrag( QImage image,
     drag source; \a name is the object name.
 */
 
-QImageDrag::QImageDrag( QWidget * dragSource, const char * name )
+QImageDrag::QImageDrag(QWidget * dragSource, const char * name)
     : QDragObject(*(new QImageDragPrivate), dragSource)
 {
     setObjectNameConst(name);
@@ -993,24 +993,24 @@ QImageDrag::~QImageDrag()
     Sets the image to be dragged to \a image. You will need to call
     this if you did not pass the image during construction.
 */
-void QImageDrag::setImage( QImage image )
+void QImageDrag::setImage(QImage image)
 {
     d->img = image; // ### detach?
     d->ofmts = QImage::outputFormats();
     d->ofmts.remove("PBM"); // remove non-raw PPM
-    if ( image.depth()!=32 ) {
-	// BMP better than PPM for paletted images
-	if ( d->ofmts.remove("BMP") ) // move to front
-	    d->ofmts.insert(0,"BMP");
+    if (image.depth()!=32) {
+        // BMP better than PPM for paletted images
+        if (d->ofmts.remove("BMP")) // move to front
+            d->ofmts.insert(0,"BMP");
     }
     // PNG is best of all
-    if ( d->ofmts.remove("PNG") ) // move to front
-	d->ofmts.insert(0,"PNG");
+    if (d->ofmts.remove("PNG")) // move to front
+        d->ofmts.insert(0,"PNG");
 
     if(cacheType == QMimeSource::NoCache) { //cache it
-	cacheType = QMimeSource::Graphics;
-	cache.gfx.img = new QImage(d->img );
-	cache.gfx.pix = 0;
+        cacheType = QMimeSource::Graphics;
+        cache.gfx.img = new QImage(d->img);
+        cache.gfx.pix = 0;
     }
 }
 
@@ -1019,16 +1019,16 @@ void QImageDrag::setImage( QImage image )
 */
 const char * QImageDrag::format(int i) const
 {
-    if ( i < d->ofmts.count() ) {
-	static const QByteArray img("image/");
-	QByteArray str(img);
-	str += d->ofmts.at(i);
-	str = str.toLower();
-	if ( str == "image/pbmraw" )
-	    str = "image/ppm";
-	return str;
+    if (i < d->ofmts.count()) {
+        static const QByteArray img("image/");
+        QByteArray str(img);
+        str += d->ofmts.at(i);
+        str = str.toLower();
+        if (str == "image/pbmraw")
+            str = "image/ppm";
+        return str;
     } else {
-	return 0;
+        return 0;
     }
 }
 
@@ -1037,118 +1037,118 @@ const char * QImageDrag::format(int i) const
 */
 QByteArray QImageDrag::encodedData(const char* fmt) const
 {
-    if ( qstrnicmp( fmt, "image/", 6 )==0 ) {
-	QByteArray f(fmt+6);
-	QByteArray dat;
-	QBuffer w( dat );
-	w.open( IO_WriteOnly );
-	QImageIO io( &w, f.toUpper() );
-	io.setImage(d->img);
-	if  ( !io.write() )
-	    return QByteArray();
-	w.close();
-	return dat;
+    if (qstrnicmp(fmt, "image/", 6)==0) {
+        QByteArray f(fmt+6);
+        QByteArray dat;
+        QBuffer w(dat);
+        w.open(IO_WriteOnly);
+        QImageIO io(&w, f.toUpper());
+        io.setImage(d->img);
+        if  (!io.write())
+            return QByteArray();
+        w.close();
+        return dat;
     } else {
-	return QByteArray();
+        return QByteArray();
     }
 }
 
 /*!
-    Returns TRUE if the information in mime source \a e can be decoded
-    into an image; otherwise returns FALSE.
+    Returns true if the information in mime source \a e can be decoded
+    into an image; otherwise returns false.
 
     \sa decode()
 */
-bool QImageDrag::canDecode( const QMimeSource* e )
+bool QImageDrag::canDecode(const QMimeSource* e)
 {
     const QList<QByteArray> fileFormats = QImageIO::inputFormats();
 
     static const QByteArray img("image/");
     for (int i = 0; i < fileFormats.count(); ++i) {
-	if ( e->provides(img + fileFormats.at(i).toLower()))
-	    return TRUE;
+        if (e->provides(img + fileFormats.at(i).toLower()))
+            return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 /*!
     Attempts to decode the dropped information in mime source \a e
-    into \a img. Returns TRUE if successful; otherwise returns FALSE.
+    into \a img. Returns true if successful; otherwise returns false.
 
     \sa canDecode()
 */
-bool QImageDrag::decode( const QMimeSource* e, QImage& img )
+bool QImageDrag::decode(const QMimeSource* e, QImage& img)
 {
-    if ( !e )
-	return FALSE;
-    if ( e->cacheType == QMimeSource::Graphics ) {
-	img = *e->cache.gfx.img;
-	return TRUE;
+    if (!e)
+        return false;
+    if (e->cacheType == QMimeSource::Graphics) {
+        img = *e->cache.gfx.img;
+        return true;
     }
 
     QByteArray payload;
     QList<QByteArray> fileFormats = QImageIO::inputFormats();
     // PNG is best of all
-    if ( fileFormats.remove("PNG") ) // move to front
-	fileFormats.prepend("PNG");
+    if (fileFormats.remove("PNG")) // move to front
+        fileFormats.prepend("PNG");
     for (int i = 0; i < fileFormats.count(); ++i) {
-       	QByteArray type = "image/" + fileFormats.at(i).toLower();
-	if ( ! e->provides( type ) )
-	    continue;
-	payload = e->encodedData( type );
-	if ( !payload.isEmpty() )
-	    break;
+        QByteArray type = "image/" + fileFormats.at(i).toLower();
+        if (! e->provides(type))
+            continue;
+        payload = e->encodedData(type);
+        if (!payload.isEmpty())
+            break;
     }
 
-    if ( payload.isEmpty() )
-	return FALSE;
+    if (payload.isEmpty())
+        return false;
 
     img.loadFromData(payload);
-    if ( img.isNull() )
-	return FALSE;
+    if (img.isNull())
+        return false;
     QMimeSource *m = (QMimeSource*)e;
     m->clearCache();
     m->cacheType = QMimeSource::Graphics;
-    m->cache.gfx.img = new QImage( img );
+    m->cache.gfx.img = new QImage(img);
     m->cache.gfx.pix = 0;
-    return TRUE;
+    return true;
 }
 
 /*!
     \overload
 
     Attempts to decode the dropped information in mime source \a e
-    into pixmap \a pm. Returns TRUE if successful; otherwise returns
-    FALSE.
+    into pixmap \a pm. Returns true if successful; otherwise returns
+    false.
 
     This is a convenience function that converts to a QPixmap via a
     QImage.
 
     \sa canDecode()
 */
-bool QImageDrag::decode( const QMimeSource* e, QPixmap& pm )
+bool QImageDrag::decode(const QMimeSource* e, QPixmap& pm)
 {
-    if ( !e )
-	return FALSE;
+    if (!e)
+        return false;
 
-    if ( e->cacheType == QMimeSource::Graphics && e->cache.gfx.pix) {
-	pm = *e->cache.gfx.pix;
-	return TRUE;
+    if (e->cacheType == QMimeSource::Graphics && e->cache.gfx.pix) {
+        pm = *e->cache.gfx.pix;
+        return true;
     }
 
     QImage img;
     // We avoid dither, since the image probably came from this display
-    if ( decode( e, img ) ) {
-	if ( !pm.convertFromImage( img, AvoidDither ) )
-	    return FALSE;
-	// decode initialized the cache for us
+    if (decode(e, img)) {
+        if (!pm.convertFromImage(img, AvoidDither))
+            return false;
+        // decode initialized the cache for us
 
-	QMimeSource *m = (QMimeSource*)e;
-	m->cache.gfx.pix = new QPixmap( pm );
-	return TRUE;
+        QMimeSource *m = (QMimeSource*)e;
+        m->cache.gfx.pix = new QPixmap(pm);
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
 
@@ -1174,7 +1174,7 @@ bool QImageDrag::decode( const QMimeSource* e, QPixmap& pm )
 
     The data will be unset. Use setEncodedData() to set it.
 */
-QStoredDrag::QStoredDrag( const char* mimeType, QWidget * dragSource, const char * name ) :
+QStoredDrag::QStoredDrag(const char* mimeType, QWidget * dragSource, const char * name) :
     QDragObject(*new QStoredDragPrivate, dragSource)
 {
     setObjectNameConst(name);
@@ -1201,10 +1201,10 @@ QStoredDrag::~QStoredDrag()
 */
 const char * QStoredDrag::format(int i) const
 {
-    if ( i==0 )
-	return d->fmt;
+    if (i==0)
+        return d->fmt;
     else
-	return 0;
+        return 0;
 }
 
 
@@ -1217,7 +1217,7 @@ const char * QStoredDrag::format(int i) const
     has been called.
 */
 
-void QStoredDrag::setEncodedData( const QByteArray & encodedData )
+void QStoredDrag::setEncodedData(const QByteArray & encodedData)
 {
     d->enc = encodedData;
 }
@@ -1229,10 +1229,10 @@ void QStoredDrag::setEncodedData( const QByteArray & encodedData )
 */
 QByteArray QStoredDrag::encodedData(const char* m) const
 {
-    if ( !qstricmp(m, d->fmt) )
-	return d->enc;
+    if (!qstricmp(m, d->fmt))
+        return d->enc;
     else
-	return QByteArray();
+        return QByteArray();
 }
 
 
@@ -1268,9 +1268,9 @@ QByteArray QStoredDrag::encodedData(const char* m) const
 
     Note that URIs are always in escaped UTF8 encoding.
 */
-QUriDrag::QUriDrag( const QList<QByteArray> &uris,
-	    QWidget * dragSource, const char * name ) :
-    QStoredDrag( "text/uri-list", dragSource, name )
+QUriDrag::QUriDrag(const QList<QByteArray> &uris,
+            QWidget * dragSource, const char * name) :
+    QStoredDrag("text/uri-list", dragSource, name)
 {
     setUris(uris);
 }
@@ -1280,8 +1280,8 @@ QUriDrag::QUriDrag( const QList<QByteArray> &uris,
     start the drag(). Passes \a dragSource and \a name to the
     QStoredDrag constructor.
 */
-QUriDrag::QUriDrag( QWidget * dragSource, const char * name ) :
-    QStoredDrag( "text/uri-list", dragSource, name )
+QUriDrag::QUriDrag(QWidget * dragSource, const char * name) :
+    QStoredDrag("text/uri-list", dragSource, name)
 {
 }
 
@@ -1297,18 +1297,18 @@ QUriDrag::~QUriDrag()
 
     Note that URIs are always in escaped UTF8 encoding.
 */
-void QUriDrag::setUris( const QList<QByteArray> &uris )
+void QUriDrag::setUris(const QList<QByteArray> &uris)
 {
     QByteArray a;
     int c = 0;
     int i;
     int count = uris.count();
     for (i = 0; i < count; ++i)
-	c += uris.at(i).size() + 2; //length + \r\n
+        c += uris.at(i).size() + 2; //length + \r\n
     a.reserve(c+1);
     for (i = 0; i < count; ++i) {
-	a.append(uris.at(i));
-	a.append("\r\n");
+        a.append(uris.at(i));
+        a.append("\r\n");
     }
     a[c] = 0;
     setEncodedData(a);
@@ -1316,59 +1316,59 @@ void QUriDrag::setUris( const QList<QByteArray> &uris )
 
 
 /*!
-    Returns TRUE if decode() would be able to decode \a e; otherwise
-    returns FALSE.
+    Returns true if decode() would be able to decode \a e; otherwise
+    returns false.
 */
-bool QUriDrag::canDecode( const QMimeSource* e )
+bool QUriDrag::canDecode(const QMimeSource* e)
 {
-    return e->provides( "text/uri-list" );
+    return e->provides("text/uri-list");
 }
 
 /*!
     Decodes URIs from \a e, placing the result in \a l (which is first
     cleared).
 
-    Returns TRUE if \a e contained a valid list of URIs; otherwise
-    returns FALSE.
+    Returns true if \a e contained a valid list of URIs; otherwise
+    returns false.
 */
-bool QUriDrag::decode( const QMimeSource* e, QList<QByteArray>& l )
+bool QUriDrag::decode(const QMimeSource* e, QList<QByteArray>& l)
 {
-    QByteArray payload = e->encodedData( "text/uri-list" );
-    if ( payload.size() ) {
-	l.clear();
-	int c=0;
-	const char* data = payload;
-	while (c < payload.size() && data[c]) {
-	    uint f = c;
-	    // Find line end
-	    while (c < payload.size() && data[c] && data[c]!='\r'
-		    && data[c] != '\n')
-		c++;
-     
+    QByteArray payload = e->encodedData("text/uri-list");
+    if (payload.size()) {
+        l.clear();
+        int c=0;
+        const char* data = payload;
+        while (c < payload.size() && data[c]) {
+            uint f = c;
+            // Find line end
+            while (c < payload.size() && data[c] && data[c]!='\r'
+                    && data[c] != '\n')
+                c++;
+
             if (c - f > 0 && data[f] != '#') {
-	        QByteArray s(data+f, c-f);
-		l.append(s);
+                QByteArray s(data+f, c-f);
+                l.append(s);
             }
-            
-	    // Skip junk
-	    while (c < payload.size() && data[c] &&
-		    (data[c]=='\n' || data[c]=='\r'))
-		c++;
-	}
-	return TRUE;
+
+            // Skip junk
+            while (c < payload.size() && data[c] &&
+                    (data[c]=='\n' || data[c]=='\r'))
+                c++;
+        }
+        return true;
     }
-    return FALSE;
+    return false;
 }
 
-static uint htod( int h )
+static uint htod(int h)
 {
-    if ( isdigit(h) )
-	return h - '0';
-    return tolower( h ) - 'a' + 10;
+    if (isdigit(h))
+        return h - '0';
+    return tolower(h) - 'a' + 10;
 }
 
 /*!
-  \fn QUriDrag::setFilenames( const QStringList & )
+  \fn QUriDrag::setFilenames(const QStringList &)
   \obsolete
 
   Use setFileNames() instead (notice the N).
@@ -1379,17 +1379,17 @@ static uint htod( int h )
 
     \sa localFileToUri(), setUris()
 */
-void QUriDrag::setFileNames( const QStringList & fnames )
+void QUriDrag::setFileNames(const QStringList & fnames)
 {
     QList<QByteArray> uris;
-    for ( QStringList::ConstIterator i = fnames.begin();
-    i != fnames.end(); ++i ) {
-	QByteArray fileUri = localFileToUri(*i);
-	if (!fileUri.isEmpty())
-	    uris.append(fileUri);
+    for (QStringList::ConstIterator i = fnames.begin();
+    i != fnames.end(); ++i) {
+        QByteArray fileUri = localFileToUri(*i);
+        if (!fileUri.isEmpty())
+            uris.append(fileUri);
     }
 
-    setUris( uris );
+    setUris(uris);
 }
 
 /*!
@@ -1398,12 +1398,12 @@ void QUriDrag::setFileNames( const QStringList & fnames )
 
     \sa localFileToUri(), setUris()
 */
-void QUriDrag::setUnicodeUris( const QStringList & uuris )
+void QUriDrag::setUnicodeUris(const QStringList & uuris)
 {
     QList<QByteArray> uris;
-    for ( int i = 0; i < uuris.count(); ++i)
-	uris.append( unicodeUriToUri(uuris.at(i)) );
-    setUris( uris );
+    for (int i = 0; i < uuris.count(); ++i)
+        uris.append(unicodeUriToUri(uuris.at(i)));
+    setUris(uris);
 }
 
 /*!
@@ -1418,33 +1418,33 @@ QByteArray QUriDrag::unicodeUriToUri(const QString& uuri)
     QByteArray escutf8;
     int n = utf8.length();
     for (int i=0; i<n; i++) {
-	if ( utf8[i] >= 'a' && utf8[i] <= 'z'
-	  || utf8[i] == '/'
-	  || utf8[i] >= '0' && utf8[i] <= '9'
-	  || utf8[i] >= 'A' && utf8[i] <= 'Z'
+        if (utf8[i] >= 'a' && utf8[i] <= 'z'
+          || utf8[i] == '/'
+          || utf8[i] >= '0' && utf8[i] <= '9'
+          || utf8[i] >= 'A' && utf8[i] <= 'Z'
 
-	  || utf8[i] == '-' || utf8[i] == '_'
-	  || utf8[i] == '.' || utf8[i] == '!'
-	  || utf8[i] == '~' || utf8[i] == '*'
-	  || utf8[i] == '(' || utf8[i] == ')'
-	  || utf8[i] == '\''
+          || utf8[i] == '-' || utf8[i] == '_'
+          || utf8[i] == '.' || utf8[i] == '!'
+          || utf8[i] == '~' || utf8[i] == '*'
+          || utf8[i] == '(' || utf8[i] == ')'
+          || utf8[i] == '\''
 
-	  // Allow this through, so that all URI-references work.
-	  || utf8[i] == '#'
+          // Allow this through, so that all URI-references work.
+          || utf8[i] == '#'
 
-	  || utf8[i] == ';'
-	  || utf8[i] == '?' || utf8[i] == ':'
-	  || utf8[i] == '@' || utf8[i] == '&'
-	  || utf8[i] == '=' || utf8[i] == '+'
-	  || utf8[i] == '$' || utf8[i] == ',' )
-	{
-	    escutf8 += utf8[i];
-	} else {
-	    // Everything else is escaped as %HH
-	    QString s;
-	    s.sprintf("%%%02x",(uchar)utf8[i]);
-	    escutf8 += s.latin1();
-	}
+          || utf8[i] == ';'
+          || utf8[i] == '?' || utf8[i] == ':'
+          || utf8[i] == '@' || utf8[i] == '&'
+          || utf8[i] == '=' || utf8[i] == '+'
+          || utf8[i] == '$' || utf8[i] == ',')
+        {
+            escutf8 += utf8[i];
+        } else {
+            // Everything else is escaped as %HH
+            QString s;
+            s.sprintf("%%%02x",(uchar)utf8[i]);
+            escutf8 += s.latin1();
+        }
     }
     return escutf8;
 }
@@ -1460,36 +1460,36 @@ QByteArray QUriDrag::localFileToUri(const QString& filename)
 
     //check that it is an absolute file
     if (QDir::isRelativePath(r))
-	return QByteArray();
+        return QByteArray();
 #ifdef Q_WS_WIN
 
 
     bool hasHost = false;
     // convert form network path
     if (r.left(2) == "\\\\" || r.left(2) == "//") {
-	r.remove(0, 2);
-	hasHost = true;
+        r.remove(0, 2);
+        hasHost = true;
     }
 
     // Slosh -> Slash
     int slosh;
-    while ( (slosh=r.indexOf('\\')) >= 0 ) {
-	r[slosh] = '/';
+    while ((slosh=r.indexOf('\\')) >= 0) {
+        r[slosh] = '/';
     }
 
     // Drive
-    if ( r[0] != '/' && !hasHost)
-	r.insert(0,'/');
+    if (r[0] != '/' && !hasHost)
+        r.insert(0,'/');
 
 #endif
-#if defined ( Q_WS_X11 ) && 0
+#if defined (Q_WS_X11) && 0
     // URL without the hostname is considered to be errorneous by XDnD.
     // See: http://www.newplanetsoftware.com/xdnd/dragging_files.html
     // This feature is not active because this would break dnd between old and new qt apps.
     char hostname[257];
-    if ( gethostname( hostname, 255 ) == 0 ) {
-	hostname[256] = '\0';
-	r.prepend( QString::fromLatin1( hostname ) );
+    if (gethostname(hostname, 255) == 0) {
+        hostname[256] = '\0';
+        r.prepend(QString::fromLatin1(hostname));
     }
 #endif
     return unicodeUriToUri(QString("file://" + r));
@@ -1508,20 +1508,20 @@ QString QUriDrag::uriToUnicodeUri(const char* uri)
     QByteArray utf8;
 
     while (*uri) {
-	switch (*uri) {
-	  case '%': {
-		uint ch = (uchar) uri[1];
-		if ( ch && uri[2] ) {
-		    ch = htod( ch ) * 16 + htod( (uchar) uri[2] );
-		    utf8 += (char) ch;
-		    uri += 2;
-		}
-	    }
-	    break;
-	  default:
-	    utf8 += *uri;
-	}
-	++uri;
+        switch (*uri) {
+          case '%': {
+                uint ch = (uchar) uri[1];
+                if (ch && uri[2]) {
+                    ch = htod(ch) * 16 + htod((uchar) uri[2]);
+                    utf8 += (char) ch;
+                    uri += 2;
+                }
+            }
+            break;
+          default:
+            utf8 += *uri;
+        }
+        ++uri;
     }
 
     return QString::fromUtf8(utf8);
@@ -1540,52 +1540,52 @@ QString QUriDrag::uriToLocalFile(const char* uri)
     QString file;
 
     if (!uri)
-	return file;
+        return file;
     if (0==qstrnicmp(uri,"file:/",6)) // It is a local file uri
-	uri += 6;
+        uri += 6;
     else if (QString(uri).indexOf(":/") != -1) // It is a different scheme uri
-	return file;
+        return file;
 
-    bool local = uri[0] != '/' || ( uri[0] != '\0' && uri[1] == '/' );
+    bool local = uri[0] != '/' || (uri[0] != '\0' && uri[1] == '/');
 #ifdef Q_WS_X11
     // do we have a hostname?
-    if ( !local && uri[0] == '/' && uri[2] != '/' ) {
-	// then move the pointer to after the 'hostname/' part of the uri
-	const char* hostname_end = strchr( uri+1, '/' );
-	if ( hostname_end != NULL ) {
-	    char hostname[ 257 ];
-	    if ( gethostname( hostname, 255 ) == 0 ) {
-		hostname[ 256 ] = '\0';
-		if ( qstrncmp( uri+1, hostname, hostname_end - ( uri+1 )) == 0 ) {
-		    uri = hostname_end + 1; // point after the slash
-		    local = TRUE;
-		}
-	    }
-	}
+    if (!local && uri[0] == '/' && uri[2] != '/') {
+        // then move the pointer to after the 'hostname/' part of the uri
+        const char* hostname_end = strchr(uri+1, '/');
+        if (hostname_end != NULL) {
+            char hostname[257];
+            if (gethostname(hostname, 255) == 0) {
+                hostname[256] = '\0';
+                if (qstrncmp(uri+1, hostname, hostname_end - (uri+1)) == 0) {
+                    uri = hostname_end + 1; // point after the slash
+                    local = true;
+                }
+            }
+        }
     }
 #endif
-    if ( local ) {
-	file = uriToUnicodeUri(uri);
-	if ( uri[1] == '/' ) {
-	    file.remove((uint)0,1);
-	} else {
-		file.insert(0,'/');
-	}
+    if (local) {
+        file = uriToUnicodeUri(uri);
+        if (uri[1] == '/') {
+            file.remove((uint)0,1);
+        } else {
+                file.insert(0,'/');
+        }
 #ifdef Q_WS_WIN
-	if ( file.length() > 2 && file[0] == '/' && file[2] == '|' ) {
-	    file[2] = ':';
-	    file.remove(0,1);
-	} else if (file.length() > 2 && file[0] == '/' && file[1].isLetter() && file[2] == ':') {
-	    file.remove(0, 1);
-	}
-	// Leave slash as slashes.
+        if (file.length() > 2 && file[0] == '/' && file[2] == '|') {
+            file[2] = ':';
+            file.remove(0,1);
+        } else if (file.length() > 2 && file[0] == '/' && file[1].isLetter() && file[2] == ':') {
+            file.remove(0, 1);
+        }
+        // Leave slash as slashes.
 #endif
     }
 #ifdef Q_WS_WIN
     else {
-	file = uriToUnicodeUri(uri);
-	// convert to network path
-	file.insert(1, '/'); // leave as forward slashes
+        file = uriToUnicodeUri(uri);
+        // convert to network path
+        file.insert(1, '/'); // leave as forward slashes
     }
 #endif
 
@@ -1597,22 +1597,22 @@ QString QUriDrag::uriToLocalFile(const char* uri)
     local files if they refer to local files, and places them in \a l
     (which is first cleared).
 
-    Returns TRUE if \e contained a valid list of URIs; otherwise
-    returns FALSE. The list will be empty if no URIs were local files.
+    Returns true if \e contained a valid list of URIs; otherwise
+    returns false. The list will be empty if no URIs were local files.
 */
-bool QUriDrag::decodeLocalFiles( const QMimeSource* e, QStringList& l )
+bool QUriDrag::decodeLocalFiles(const QMimeSource* e, QStringList& l)
 {
     QList<QByteArray> u;
-    if ( !decode( e, u ) )
-	return FALSE;
+    if (!decode(e, u))
+        return false;
 
     l.clear();
     for (int i = 0; i < u.count(); ++i) {
-	QString lf = uriToLocalFile(u.at(i));
-	if ( !lf.isEmpty() )
-	    l.append( lf );
+        QString lf = uriToLocalFile(u.at(i));
+        if (!lf.isEmpty())
+            l.append(lf);
     }
-    return TRUE;
+    return true;
 }
 
 /*!
@@ -1620,20 +1620,20 @@ bool QUriDrag::decodeLocalFiles( const QMimeSource* e, QStringList& l )
     Unicode URIs (only useful for displaying to humans), placing them
     in \a l (which is first cleared).
 
-    Returns TRUE if \e contained a valid list of URIs; otherwise
-    returns FALSE.
+    Returns true if \e contained a valid list of URIs; otherwise
+    returns false.
 */
-bool QUriDrag::decodeToUnicodeUris( const QMimeSource* e, QStringList& l )
+bool QUriDrag::decodeToUnicodeUris(const QMimeSource* e, QStringList& l)
 {
     QList<QByteArray> u;
-    if ( !decode( e, u ) )
-	return FALSE;
+    if (!decode(e, u))
+        return false;
 
     l.clear();
     for (int i = 0; i < u.count(); ++i)
-	l.append( uriToUnicodeUri(u.at(i)) );
+        l.append(uriToUnicodeUri(u.at(i)));
 
-    return TRUE;
+    return true;
 }
 
 
@@ -1679,10 +1679,10 @@ QWidget* QDropEvent::source() const
     dragsource and \a name to the QStoredDrag constructor.
 */
 
-QColorDrag::QColorDrag( const QColor &col, QWidget *dragsource, const char *name )
-    : QStoredDrag( "application/x-color", dragsource, name )
+QColorDrag::QColorDrag(const QColor &col, QWidget *dragsource, const char *name)
+    : QStoredDrag("application/x-color", dragsource, name)
 {
-    setColor( col );
+    setColor(col);
 }
 
 /*!
@@ -1690,17 +1690,17 @@ QColorDrag::QColorDrag( const QColor &col, QWidget *dragsource, const char *name
     dragsource and \a name to the QStoredDrag constructor.
 */
 
-QColorDrag::QColorDrag( QWidget *dragsource, const char *name )
-    : QStoredDrag( "application/x-color", dragsource, name )
+QColorDrag::QColorDrag(QWidget *dragsource, const char *name)
+    : QStoredDrag("application/x-color", dragsource, name)
 {
-    setColor( Qt::white );
+    setColor(Qt::white);
 }
 
 /*!
     Sets the color of the color drag to \a col.
 */
 
-void QColorDrag::setColor( const QColor &col )
+void QColorDrag::setColor(const QColor &col)
 {
     short r = (col.red()   << 8) | col.red();
     short g = (col.green() << 8) | col.green();
@@ -1712,8 +1712,8 @@ void QColorDrag::setColor( const QColor &col )
     b = htons(b);
 
     ushort rgba[4] = {
-	r, g, b,
-	0xffff // Alpha not supported yet.
+        r, g, b,
+        0xffff // Alpha not supported yet.
     };
     QByteArray data;
     data.resize(sizeof(rgba));
@@ -1722,13 +1722,13 @@ void QColorDrag::setColor( const QColor &col )
 }
 
 /*!
-    Returns TRUE if the color drag object can decode the mime source
-    \a e; otherwise returns FALSE.
+    Returns true if the color drag object can decode the mime source
+    \a e; otherwise returns false.
 */
 
-bool QColorDrag::canDecode( QMimeSource *e )
+bool QColorDrag::canDecode(QMimeSource *e)
 {
-    return e->provides( "application/x-color" );
+    return e->provides("application/x-color");
 }
 
 /*!
@@ -1736,12 +1736,12 @@ bool QColorDrag::canDecode( QMimeSource *e )
     col.
 */
 
-bool QColorDrag::decode( QMimeSource *e, QColor &col )
+bool QColorDrag::decode(QMimeSource *e, QColor &col)
 {
     QByteArray data = e->encodedData("application/x-color");
     ushort rgba[4];
     if (data.size() != sizeof(rgba))
-	return FALSE;
+        return false;
 
     memcpy(rgba, data.constData(), sizeof(rgba));
 
@@ -1759,7 +1759,7 @@ bool QColorDrag::decode( QMimeSource *e, QColor &col )
     b = (b >> 8) & 0xff;
 
     col.setRgb(r, g, b);
-    return TRUE;
+    return true;
 }
 
 #endif // QT_NO_MIME

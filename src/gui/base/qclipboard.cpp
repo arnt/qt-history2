@@ -45,12 +45,12 @@
 
     // Copy text from the clipboard (paste)
     QString text = cb->text(QClipboard::Clipboard);
-    if ( !text.isNull() )
-	qDebug( "The clipboard contains: " + text );
+    if (!text.isNull())
+        qDebug("The clipboard contains: " + text);
 
     // Copy text into the clipboard
-    cb->setText( "This text can be pasted by other programs",
-		 QClipboard::Clipboard );
+    cb->setText("This text can be pasted by other programs",
+                 QClipboard::Clipboard);
     \endcode
 
     QClipboard features some convenience functions to access common data
@@ -125,8 +125,8 @@
     more than one object to represent it is almost certainly an error.
 */
 
-QClipboard::QClipboard( QObject *parent, const char *name )
-    : QObject( parent, name )
+QClipboard::QClipboard(QObject *parent, const char *name)
+    : QObject(parent, name)
 {
     // nothing
 }
@@ -203,10 +203,10 @@ QClipboard::~QClipboard()
 
     \sa setText(), data()
 */
-QString QClipboard::text( QString &subtype, Mode mode ) const
+QString QClipboard::text(QString &subtype, Mode mode) const
 {
     QString r;
-    QTextDrag::decode( data( mode ), r, subtype );
+    QTextDrag::decode(data(mode), r, subtype);
     return r;
 }
 
@@ -222,10 +222,10 @@ QString QClipboard::text( QString &subtype, Mode mode ) const
 
     \sa setText(), data()
 */
-QString QClipboard::text( Mode mode ) const
+QString QClipboard::text(Mode mode) const
 {
     QString subtype("plain");
-    return text( subtype, mode );
+    return text(subtype, mode);
 }
 
 /*!
@@ -239,9 +239,9 @@ QString QClipboard::text( Mode mode ) const
 
     \sa text(), setData()
 */
-void QClipboard::setText( const QString &text, Mode mode )
+void QClipboard::setText(const QString &text, Mode mode)
 {
-    setData( new QTextDrag(text), mode );
+    setData(new QTextDrag(text), mode);
 }
 
 /*!
@@ -257,10 +257,10 @@ void QClipboard::setText( const QString &text, Mode mode )
 
     \sa setImage() pixmap() data(), QImage::isNull()
 */
-QImage QClipboard::image( Mode mode ) const
+QImage QClipboard::image(Mode mode) const
 {
     QImage r;
-    QImageDrag::decode( data( mode ), r );
+    QImageDrag::decode(data(mode), r);
     return r;
 }
 
@@ -275,14 +275,14 @@ QImage QClipboard::image( Mode mode ) const
 
     This is shorthand for:
     \code
-        setData( new QImageDrag(image), mode )
+        setData(new QImageDrag(image), mode)
     \endcode
 
     \sa image(), setPixmap() setData()
 */
-void QClipboard::setImage( const QImage &image, Mode mode )
+void QClipboard::setImage(const QImage &image, Mode mode)
 {
-    setData( new QImageDrag( image ), mode );
+    setData(new QImageDrag(image), mode);
 }
 
 /*!
@@ -300,10 +300,10 @@ void QClipboard::setImage( const QImage &image, Mode mode )
 
     \sa setPixmap() image() data() QPixmap::convertFromImage().
 */
-QPixmap QClipboard::pixmap( Mode mode ) const
+QPixmap QClipboard::pixmap(Mode mode) const
 {
     QPixmap r;
-    QImageDrag::decode( data( mode ), r );
+    QImageDrag::decode(data(mode), r);
     return r;
 }
 
@@ -320,14 +320,14 @@ QPixmap QClipboard::pixmap( Mode mode ) const
 
     \sa pixmap() setImage() setData()
 */
-void QClipboard::setPixmap( const QPixmap &pixmap, Mode mode )
+void QClipboard::setPixmap(const QPixmap &pixmap, Mode mode)
 {
     // *could* just use the handle, but that is X hackery, MIME is better.
-    setData( new QImageDrag( pixmap.convertToImage() ), mode );
+    setData(new QImageDrag(pixmap.convertToImage()), mode);
 }
 
 
-/*! \fn QMimeSource *QClipboard::data( Mode mode ) const
+/*! \fn QMimeSource *QClipboard::data(Mode mode) const
     Returns a reference to a QMimeSource representation of the current
     clipboard data.
 
@@ -340,7 +340,7 @@ void QClipboard::setPixmap( const QPixmap &pixmap, Mode mode )
     \sa setData()
 */
 
-/*! \fn void QClipboard::setData( QMimeSource *src, Mode mode )
+/*! \fn void QClipboard::setData(QMimeSource *src, Mode mode)
     Sets the clipboard data to \a src. Ownership of the data is
     transferred to the clipboard. If you want to remove the data
     either call clear() or call setData() again with new data.
@@ -364,7 +364,7 @@ void QClipboard::setPixmap( const QPixmap &pixmap, Mode mode )
     \sa data()
 */
 
-/*! \fn void QClipboard::clear( Mode mode )
+/*! \fn void QClipboard::clear(Mode mode)
     Clear the clipboard contents.
 
     The \a mode argument is used to control which part of the system

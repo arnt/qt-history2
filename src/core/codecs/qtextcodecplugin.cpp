@@ -46,7 +46,7 @@
 */
 
 /*!
-    \fn QTextCodec *QTextCodecPlugin::createForName( const QString &name );
+    \fn QTextCodec *QTextCodecPlugin::createForName(const QString &name);
 
     Creates a QTextCodec object for the codec called \a name.
 
@@ -63,7 +63,7 @@
 */
 
 /*!
-    \fn QTextCodec *QTextCodecPlugin::createForMib( int mib );
+    \fn QTextCodec *QTextCodecPlugin::createForMib(int mib);
 
     Creates a QTextCodec object for the mib enum \a mib.
 
@@ -79,18 +79,18 @@
 class QTextCodecPluginPrivate : public QTextCodecFactoryInterface
 {
 public:
-    QTextCodecPluginPrivate( QTextCodecPlugin *p )
-	: plugin( p )
+    QTextCodecPluginPrivate(QTextCodecPlugin *p)
+        : plugin(p)
     {
     }
     virtual ~QTextCodecPluginPrivate();
 
-    QRESULT queryInterface( const QUuid &iid, QUnknownInterface **iface );
+    QRESULT queryInterface(const QUuid &iid, QUnknownInterface **iface);
     Q_REFCOUNT;
 
     QStringList featureList() const;
-    QTextCodec *createForMib( int mib );
-    QTextCodec *createForName( const QString &name );
+    QTextCodec *createForMib(int mib);
+    QTextCodec *createForName(const QString &name);
 
 private:
     QTextCodecPlugin *plugin;
@@ -101,18 +101,18 @@ QTextCodecPluginPrivate::~QTextCodecPluginPrivate()
     delete plugin;
 }
 
-QRESULT QTextCodecPluginPrivate::queryInterface( const QUuid &iid, QUnknownInterface **iface )
+QRESULT QTextCodecPluginPrivate::queryInterface(const QUuid &iid, QUnknownInterface **iface)
 {
     *iface = 0;
 
-    if ( iid == IID_QUnknown )
-	*iface = this;
-    else if ( iid == IID_QFeatureList )
-	*iface = this;
-    else if ( iid == IID_QTextCodecFactory )
-	*iface = this;
+    if (iid == IID_QUnknown)
+        *iface = this;
+    else if (iid == IID_QFeatureList)
+        *iface = this;
+    else if (iid == IID_QTextCodecFactory)
+        *iface = this;
     else
-	return QE_NOINTERFACE;
+        return QE_NOINTERFACE;
 
     (*iface)->addRef();
     return QS_OK;
@@ -122,19 +122,19 @@ QStringList QTextCodecPluginPrivate::featureList() const
 {
     QStringList keys = plugin->names();
     QList<int> mibs = plugin->mibEnums();
-    for ( QList<int>::Iterator it = mibs.begin(); it != mibs.end(); ++it )
-	keys += QString("MIB-%1").arg( *it );
+    for (QList<int>::Iterator it = mibs.begin(); it != mibs.end(); ++it)
+        keys += QString("MIB-%1").arg(*it);
     return keys;
 }
 
-QTextCodec *QTextCodecPluginPrivate::createForMib( int mib )
+QTextCodec *QTextCodecPluginPrivate::createForMib(int mib)
 {
-    return plugin->createForMib( mib );
+    return plugin->createForMib(mib);
 }
 
-QTextCodec *QTextCodecPluginPrivate::createForName( const QString &name )
+QTextCodec *QTextCodecPluginPrivate::createForName(const QString &name)
 {
-    return plugin->createForName( name );
+    return plugin->createForName(name);
 }
 
 
@@ -143,7 +143,7 @@ QTextCodec *QTextCodecPluginPrivate::createForName( const QString &name )
     the \c Q_EXPORT_PLUGIN macro.
 */
 QTextCodecPlugin::QTextCodecPlugin()
-    : QGPlugin( d = new QTextCodecPluginPrivate( this ) )
+    : QGPlugin(d = new QTextCodecPluginPrivate(this))
 {
 }
 

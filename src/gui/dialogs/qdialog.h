@@ -29,77 +29,77 @@ class QDialogPrivate;
 class Q_GUI_EXPORT QDialog : public QWidget
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE( QDialog );
+    Q_DECLARE_PRIVATE(QDialog);
     friend class QPushButton;
 
-    Q_PROPERTY( bool sizeGripEnabled READ isSizeGripEnabled WRITE setSizeGripEnabled )
-    Q_PROPERTY( bool modal READ isModal WRITE setModal )
+    Q_PROPERTY(bool sizeGripEnabled READ isSizeGripEnabled WRITE setSizeGripEnabled)
+    Q_PROPERTY(bool modal READ isModal WRITE setModal)
 
 public:
     QDialog(QWidget *parent, WFlags f = 0);
-    QDialog( QWidget *parent, const char *name, bool modal=false, WFlags f=0 ); // deprecated
+    QDialog(QWidget *parent, const char *name, bool modal=false, WFlags f=0); // deprecated
     ~QDialog();
 
     enum DialogCode { Rejected, Accepted };
 
-    int		result() const { return rescode; }
+    int                result() const { return rescode; }
 
-    void	show();
-    void	hide();
+    void        show();
+    void        hide();
 
-    void	setOrientation( Orientation orientation );
-    Orientation	orientation() const;
+    void        setOrientation(Orientation orientation);
+    Orientation        orientation() const;
 
-    void	setExtension( QWidget* extension );
-    QWidget*	extension() const;
+    void        setExtension(QWidget* extension);
+    QWidget*        extension() const;
 
-    QSize	sizeHint() const;
-    QSize	minimumSizeHint() const;
+    QSize        sizeHint() const;
+    QSize        minimumSizeHint() const;
 
-    void setSizeGripEnabled( bool );
+    void setSizeGripEnabled(bool);
     bool isSizeGripEnabled() const;
 
-    void setModal( bool modal );
+    void setModal(bool modal);
     bool isModal() const;
 #ifdef Q_OS_TEMP
-    bool	event( QEvent * );
+    bool        event(QEvent *);
 #endif
 
 public slots:
     int exec();
 
 protected slots:
-    virtual void done( int );
+    virtual void done(int);
     virtual void accept();
     virtual void reject();
 
-    void	showExtension( bool );
+    void        showExtension(bool);
 
 protected:
-    void	setResult( int r )	{ rescode = r; }
-    void	keyPressEvent( QKeyEvent * );
-    void	closeEvent( QCloseEvent * );
-    void	showEvent(QShowEvent *);
-    void	resizeEvent( QResizeEvent * );
-    void	contextMenuEvent( QContextMenuEvent * );
-    bool	eventFilter( QObject *, QEvent * );
-    void	adjustPosition( QWidget*);
+    void        setResult(int r)        { rescode = r; }
+    void        keyPressEvent(QKeyEvent *);
+    void        closeEvent(QCloseEvent *);
+    void        showEvent(QShowEvent *);
+    void        resizeEvent(QResizeEvent *);
+    void        contextMenuEvent(QContextMenuEvent *);
+    bool        eventFilter(QObject *, QEvent *);
+    void        adjustPosition(QWidget*);
 
 private:
-    void	setDefault( QPushButton * );
-    void	setMainDefault( QPushButton * );
-    void	hideDefault();
+    void        setDefault(QPushButton *);
+    void        setMainDefault(QPushButton *);
+    void        hideDefault();
 #ifdef Q_OS_TEMP
-    void	hideSpecial();
+    void        hideSpecial();
 #endif
 
-    int		rescode;
-    uint	in_loop: 1;
+    int                rescode;
+    uint        in_loop: 1;
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QDialog( const QDialog & );
-    QDialog &operator=( const QDialog & );
+    QDialog(const QDialog &);
+    QDialog &operator=(const QDialog &);
 #endif
 };
 

@@ -250,18 +250,18 @@ void QFrame::setFrameShadow(QFrame::Shadow s)
 void QFrame::setFrameStyle(int style)
 {
     if (!testWState(WState_OwnSizePolicy)) {
-	switch (style & MShape) {
-	case HLine:
-	    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
-	    break;
-	case VLine:
-	    setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
-	    break;
-	default:
-	    if ((d->frameStyle & MShape) == HLine || (d->frameStyle & MShape) == VLine)
-		setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-	}
-	clearWState(WState_OwnSizePolicy);
+        switch (style & MShape) {
+        case HLine:
+            setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
+            break;
+        case VLine:
+            setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
+            break;
+        default:
+            if ((d->frameStyle & MShape) == HLine || (d->frameStyle & MShape) == VLine)
+                setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+        }
+        clearWState(WState_OwnSizePolicy);
     }
     d->frameStyle = (short)style;
     d->updateFrameWidth();
@@ -355,56 +355,56 @@ void QFramePrivate::updateFrameWidth()
     switch (frameShape) {
 
     case QFrame::NoFrame:
-	frameWidth = 0;
-	break;
+        frameWidth = 0;
+        break;
 
     case QFrame::Box:
     case QFrame::HLine:
     case QFrame::VLine:
     case QFrame::GroupBoxPanel:
-	switch (frameShadow) {
-	case QFrame::Plain:
-	    frameWidth = lineWidth;
-	    break;
-	case QFrame::Raised:
-	case QFrame::Sunken:
-	    frameWidth = (short)(lineWidth*2 + midLineWidth);
-	    break;
-	}
-	break;
+        switch (frameShadow) {
+        case QFrame::Plain:
+            frameWidth = lineWidth;
+            break;
+        case QFrame::Raised:
+        case QFrame::Sunken:
+            frameWidth = (short)(lineWidth*2 + midLineWidth);
+            break;
+        }
+        break;
 
     case QFrame::LineEditPanel:
     case QFrame::TabWidgetPanel:
     case QFrame::PopupPanel:
     case QFrame::StyledPanel:
-	frameWidth = q->style().pixelMetric(QStyle::PM_DefaultFrameWidth, q);
-	break;
+        frameWidth = q->style().pixelMetric(QStyle::PM_DefaultFrameWidth, q);
+        break;
 
     case QFrame::MenuBarPanel:
-	frameWidth = q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q);
-	break;
+        frameWidth = q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q);
+        break;
     case QFrame::ToolBarPanel:
-	frameWidth = q->style().pixelMetric(QStyle::PM_DockWindowFrameWidth, q);
-	break;
+        frameWidth = q->style().pixelMetric(QStyle::PM_DockWindowFrameWidth, q);
+        break;
 
     case QFrame::WinPanel:
-	frameWidth = 2;
-	break;
+        frameWidth = 2;
+        break;
 
 
     case QFrame::Panel:
-	switch (frameShadow) {
-	case QFrame::Plain:
-	case QFrame::Raised:
-	case QFrame::Sunken:
-	    frameWidth = lineWidth;
-	    break;
-	}
-	break;
+        switch (frameShadow) {
+        case QFrame::Plain:
+        case QFrame::Raised:
+        case QFrame::Sunken:
+            frameWidth = lineWidth;
+            break;
+        }
+        break;
     }
 
-    if (frameWidth == -1)				// invalid style
-	frameWidth = 0;
+    if (frameWidth == -1)                                // invalid style
+        frameWidth = 0;
 
     frameWidth += margin;
 
@@ -509,28 +509,28 @@ void QFrame::drawFrame(QPainter *p)
     case QFrame::HLine:
     case QFrame::VLine:
     case QFrame::GroupBoxPanel:
-	lw = d->lineWidth;
-	mlw = d->midLineWidth;
-	break;
+        lw = d->lineWidth;
+        mlw = d->midLineWidth;
+        break;
     default:
-	// most frame styles do not handle customized line and midline widths
-	// (see updateFrameWidth()).
-	lw = d->frameWidth - d->margin;
-	break;
+        // most frame styles do not handle customized line and midline widths
+        // (see updateFrameWidth()).
+        lw = d->frameWidth - d->margin;
+        break;
     }
 
     QStyleOption opt(lw, mlw);
     QStyle::SFlags flags = QStyle::Style_Default;
     if (isEnabled())
-	flags |= QStyle::Style_Enabled;
+        flags |= QStyle::Style_Enabled;
     if (frameShadow == Sunken)
-	flags |= QStyle::Style_Sunken;
+        flags |= QStyle::Style_Sunken;
     else if (frameShadow == Raised)
-	flags |= QStyle::Style_Raised;
+        flags |= QStyle::Style_Raised;
     if (hasFocus())
-	flags |= QStyle::Style_HasFocus;
+        flags |= QStyle::Style_HasFocus;
     if (testAttribute(WA_UnderMouse))
-	flags |= QStyle::Style_MouseOver;
+        flags |= QStyle::Style_MouseOver;
 
     switch (frameShape) {
 
@@ -542,60 +542,60 @@ void QFrame::drawFrame(QPainter *p)
         break;
 
     case LineEditPanel:
-	style().drawPrimitive(QStyle::PE_PanelLineEdit, p, r, pal, flags, opt);
-	break;
+        style().drawPrimitive(QStyle::PE_PanelLineEdit, p, r, pal, flags, opt);
+        break;
 
     case GroupBoxPanel:
-	style().drawPrimitive(QStyle::PE_PanelGroupBox, p, r, pal, flags, opt);
-	break;
+        style().drawPrimitive(QStyle::PE_PanelGroupBox, p, r, pal, flags, opt);
+        break;
 
     case TabWidgetPanel:
-	style().drawPrimitive(QStyle::PE_PanelTabWidget, p, r, pal, flags, opt);
-	break;
+        style().drawPrimitive(QStyle::PE_PanelTabWidget, p, r, pal, flags, opt);
+        break;
 
     case MenuBarPanel:
-	style().drawPrimitive(QStyle::PE_PanelMenuBar, p, r, pal, flags, opt);
-	break;
+        style().drawPrimitive(QStyle::PE_PanelMenuBar, p, r, pal, flags, opt);
+        break;
     case ToolBarPanel:
-	style().drawPrimitive(QStyle::PE_PanelDockWindow, p, rect(), pal, flags, opt);
+        style().drawPrimitive(QStyle::PE_PanelDockWindow, p, rect(), pal, flags, opt);
         break;
 
     case StyledPanel:
         if (frameShadow == Plain)
             qDrawPlainRect(p, r, pal.foreground(), lw);
         else
-	    style().drawPrimitive(QStyle::PE_Panel, p, r, pal, flags, opt);
+            style().drawPrimitive(QStyle::PE_Panel, p, r, pal, flags, opt);
         break;
 
     case PopupPanel:
     {
-	int vextra = style().pixelMetric(QStyle::PM_MenuFrameVerticalExtra, this),
-	    hextra = style().pixelMetric(QStyle::PM_MenuFrameHorizontalExtra, this);
-	if(vextra > 0 || hextra > 0) {
-	    QRect fr = frameRect();
-	    int   fw = d->frameWidth;
-	    if(vextra > 0) {
-		style().drawControl(QStyle::CE_MenuVerticalExtra, p, this,
-				    QRect(fr.x() + fw, fr.y() + fw, fr.width() - (fw*2), vextra),
-				    pal, flags, opt);
-		style().drawControl(QStyle::CE_MenuVerticalExtra, p, this,
-				    QRect(fr.x() + fw, fr.bottom() - fw - vextra, fr.width() - (fw*2), vextra),
-				    pal, flags, opt);
-	    }
-	    if(hextra > 0) {
-		style().drawControl(QStyle::CE_MenuHorizontalExtra, p, this,
-				    QRect(fr.x() + fw, fr.y() + fw + vextra, hextra, fr.height() - (fw*2) - vextra),
-				    pal, flags, opt);
-		style().drawControl(QStyle::CE_MenuHorizontalExtra, p, this,
-				    QRect(fr.right() - fw - hextra, fr.y() + fw + vextra, hextra, fr.height() - (fw*2) - vextra),
-				    pal, flags, opt);
-	    }
-	}
+        int vextra = style().pixelMetric(QStyle::PM_MenuFrameVerticalExtra, this),
+            hextra = style().pixelMetric(QStyle::PM_MenuFrameHorizontalExtra, this);
+        if(vextra > 0 || hextra > 0) {
+            QRect fr = frameRect();
+            int   fw = d->frameWidth;
+            if(vextra > 0) {
+                style().drawControl(QStyle::CE_MenuVerticalExtra, p, this,
+                                    QRect(fr.x() + fw, fr.y() + fw, fr.width() - (fw*2), vextra),
+                                    pal, flags, opt);
+                style().drawControl(QStyle::CE_MenuVerticalExtra, p, this,
+                                    QRect(fr.x() + fw, fr.bottom() - fw - vextra, fr.width() - (fw*2), vextra),
+                                    pal, flags, opt);
+            }
+            if(hextra > 0) {
+                style().drawControl(QStyle::CE_MenuHorizontalExtra, p, this,
+                                    QRect(fr.x() + fw, fr.y() + fw + vextra, hextra, fr.height() - (fw*2) - vextra),
+                                    pal, flags, opt);
+                style().drawControl(QStyle::CE_MenuHorizontalExtra, p, this,
+                                    QRect(fr.right() - fw - hextra, fr.y() + fw + vextra, hextra, fr.height() - (fw*2) - vextra),
+                                    pal, flags, opt);
+            }
+        }
 
         if (frameShadow == Plain)
             qDrawPlainRect(p, r, pal.foreground(), lw);
         else
-	    style().drawPrimitive(QStyle::PE_PanelPopup, p, r, pal, flags, opt);
+            style().drawPrimitive(QStyle::PE_PanelPopup, p, r, pal, flags, opt);
         break;
     }
 
@@ -641,7 +641,7 @@ void QFrame::drawFrame(QPainter *p)
 void QFrame::changeEvent(QEvent *ev)
 {
     if(ev->type() == QEvent::StyleChange)
-	d->updateFrameWidth();
+        d->updateFrameWidth();
     QWidget::changeEvent(ev);
 }
 
@@ -653,7 +653,7 @@ Q3Frame::Q3Frame(QWidget* parent, const char* name, WFlags f)
     :QFrame(parent, f)
 {
     if (name)
-	setObjectName(name);
+        setObjectName(name);
     setAttribute(WA_LayoutOnEntireRect);
 }
 
@@ -663,11 +663,11 @@ Q3Frame::~Q3Frame()
 
 void Q3Frame::paintEvent(QPaintEvent * event)
 {
-    QPainter paint( this );
-    if ( !contentsRect().contains( event->rect() ) ) {
+    QPainter paint(this);
+    if (!contentsRect().contains(event->rect())) {
         paint.save();
-        paint.setClipRegion( event->region().intersect(frameRect()) );
-        drawFrame( &paint );
+        paint.setClipRegion(event->region().intersect(frameRect()));
+        drawFrame(&paint);
         paint.restore();
     }
     if (event->rect().intersects(contentsRect())) {
@@ -709,7 +709,7 @@ void Q3Frame::drawContents(QPainter *)
     \sa frameRect(), contentsRect(), drawContents(), frameStyle(), setPalette()
 */
 
-void Q3Frame::drawFrame( QPainter *p )
+void Q3Frame::drawFrame(QPainter *p)
 {
     QFrame::drawFrame(p);
 }

@@ -32,7 +32,7 @@ private:
     void writeBuildRulesPart(QTextStream &t, const QString &extraCompilerDeps);
     void writeRcFilePart(QTextStream &t);
     void init();
-    
+
     virtual bool findLibraries();
     void processLibsVar();
     void fixTargetExt();

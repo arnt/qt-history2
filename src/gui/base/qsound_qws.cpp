@@ -26,18 +26,18 @@ public:
 
     void play(const QString& filename)
     {
-	QPaintDevice::qwsDisplay()->playSoundFile(filename);
+        QPaintDevice::qwsDisplay()->playSoundFile(filename);
     }
     void play(QSound* s)
     {
-	QPaintDevice::qwsDisplay()->playSoundFile(s->fileName());
+        QPaintDevice::qwsDisplay()->playSoundFile(s->fileName());
     }
     void stop(QSound*)
     {
-	// ####
+        // ####
     }
 
-    bool okay() { return TRUE; }
+    bool okay() { return true; }
 };
 
 QAuServerQWS::QAuServerQWS(QObject* parent) :

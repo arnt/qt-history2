@@ -47,9 +47,9 @@ static QGfxDriverFactoryPrivate *instance = 0;
 QPluginManager<QGfxDriverInterface> *QGfxDriverFactoryPrivate::manager = 0;
 
 QGfxDriverFactoryPrivate::QGfxDriverFactoryPrivate()
-: QObject( qApp )
+: QObject(qApp)
 {
-    manager = new QPluginManager<QGfxDriverInterface>( IID_QGfxDriver, QApplication::libraryPaths(), "/gfxdrivers", FALSE );
+    manager = new QPluginManager<QGfxDriverInterface>(IID_QGfxDriver, QApplication::libraryPaths(), "/gfxdrivers", false);
 }
 
 QGfxDriverFactoryPrivate::~QGfxDriverFactoryPrivate()
@@ -86,64 +86,64 @@ QGfxDriverFactoryPrivate::~QGfxDriverFactoryPrivate()
 
     \sa keys()
 */
-QScreen *QGfxDriverFactory::create( const QString& key, int displayId )
+QScreen *QGfxDriverFactory::create(const QString& key, int displayId)
 {
     QString driver = key.lower();
 #ifdef Q_OS_QNX6
-    if ( driver == "qnxfb" || driver.isEmpty() )
-	return new QQnxScreen( displayId );
+    if (driver == "qnxfb" || driver.isEmpty())
+        return new QQnxScreen(displayId);
 #endif
 #ifndef QT_NO_QWS_VFB
-    if ( driver == "qvfb" || driver.isEmpty() )
-	return new QVFbScreen( displayId );
+    if (driver == "qvfb" || driver.isEmpty())
+        return new QVFbScreen(displayId);
 #endif
 #ifndef QT_NO_QWS_LINUXFB
-    if ( driver == "linuxfb" || driver.isEmpty() )
-        return new QLinuxFbScreen( displayId );
+    if (driver == "linuxfb" || driver.isEmpty())
+        return new QLinuxFbScreen(displayId);
 #endif
 #ifndef QT_NO_QWS_VGA16
-    if ( driver == "vga16" || driver.isEmpty() )
-	return new QVga16Screen( displayId );
+    if (driver == "vga16" || driver.isEmpty())
+        return new QVga16Screen(displayId);
 #endif
 #ifndef QT_NO_QWS_TRANSFORMED
-    if ( driver == "transformed" )
-        return new QTransformedScreen( displayId );
+    if (driver == "transformed")
+        return new QTransformedScreen(displayId);
 #endif
 #ifndef QT_NO_QWS_MACH64
-    if ( driver == "mach64" )
-        return new QMachScreen( displayId );
+    if (driver == "mach64")
+        return new QMachScreen(displayId);
 #endif
 #ifndef QT_NO_QWS_VOODOO3
-    if ( driver == "voodoo3" )
-        return new QVoodooScreen( displayId );
+    if (driver == "voodoo3")
+        return new QVoodooScreen(displayId);
 #endif
 #ifndef QT_NO_QWS_MATROX
-    if ( driver == "matrox" )
-        return new QMatroxScreen( displayId );
+    if (driver == "matrox")
+        return new QMatroxScreen(displayId);
 #endif
 #ifndef QT_NO_QWS_VNC
-    if ( driver == "vnc" )
-	return new QVNCScreen( displayId );
+    if (driver == "vnc")
+        return new QVNCScreen(displayId);
 #endif
 #ifndef QT_NO_QWS_SHADOWFB
-    if ( driver == "shadowfb" )
-	return new QShadowFbScreen( displayId );
+    if (driver == "shadowfb")
+        return new QShadowFbScreen(displayId);
 #endif
 #ifndef QT_NO_QWS_REPEATER
-    if ( driver == "repeater" )
-	return new QRepeaterScreen( displayId );
+    if (driver == "repeater")
+        return new QRepeaterScreen(displayId);
 #endif
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
-    if ( !instance )
-	instance = new QGfxDriverFactoryPrivate;
+    if (!instance)
+        instance = new QGfxDriverFactoryPrivate;
 
     QInterfacePtr<QGfxDriverInterface> iface;
-    QGfxDriverFactoryPrivate::manager->queryInterface( driver, &iface );
+    QGfxDriverFactoryPrivate::manager->queryInterface(driver, &iface);
 
-    if ( iface )
-	return iface->create( driver, displayId );
+    if (iface)
+        return iface->create(driver, displayId);
 #endif
 #endif
     return 0;
@@ -159,54 +159,54 @@ QStringList QGfxDriverFactory::keys()
     QStringList list;
 
 #ifdef Q_OS_QNX6
-    if ( !list.contains( "QnxFb" ) )
-	list << "QnxFb";
+    if (!list.contains("QnxFb"))
+        list << "QnxFb";
 #endif
 #ifndef QT_NO_QWS_VFB
-    if ( !list.contains( "QVFb" ) )
-	list << "QVFb";
+    if (!list.contains("QVFb"))
+        list << "QVFb";
 #endif
 #ifndef QT_NO_QWS_LINUXFB
-    if ( !list.contains( "LinuxFb" ) )
-	list << "LinuxFb";
+    if (!list.contains("LinuxFb"))
+        list << "LinuxFb";
 #endif
 #ifndef QT_NO_QWS_VGA16
-    if ( !list.contains( "VGA16" ) )
-	list << "VGA16";
+    if (!list.contains("VGA16"))
+        list << "VGA16";
 #endif
 #ifndef QT_NO_QWS_TRANSFORMED
-    if ( !list.contains( "Transformed" ) )
-	list << "Transformed";
+    if (!list.contains("Transformed"))
+        list << "Transformed";
 #endif
 #ifndef QT_NO_QWS_MACH64
-    if ( !list.contains( "Mach64" ) )
-	list << "Mach64";
+    if (!list.contains("Mach64"))
+        list << "Mach64";
 #endif
 #ifndef QT_NO_QWS_VOODOO3
-    if ( !list.contains( "Voodoo3" ) )
-	list << "Voodoo3";
+    if (!list.contains("Voodoo3"))
+        list << "Voodoo3";
 #endif
 #ifndef QT_NO_QWS_MATROX
-    if ( !list.contains( "Matrox" ) )
-	list << "Matrox";
+    if (!list.contains("Matrox"))
+        list << "Matrox";
 #endif
 #ifndef QT_NO_QWS_VNC
-    if ( !list.contains( "VNC" ) )
-	list << "VNC";
+    if (!list.contains("VNC"))
+        list << "VNC";
 #endif
 #ifndef QT_NO_QWS_SHADOWFB
-    if ( !list.contains( "ShadowFb" ) )
-	list << "ShadowFb";
+    if (!list.contains("ShadowFb"))
+        list << "ShadowFb";
 #endif
 #ifndef QT_NO_QWS_REPEATER
-     if ( !list.contains( "Repeater" ) )
-	list << "Repeater";
+     if (!list.contains("Repeater"))
+        list << "Repeater";
 #endif
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
-    if ( !instance )
-	instance = new QGfxDriverFactoryPrivate;
+    if (!instance)
+        instance = new QGfxDriverFactoryPrivate;
 
     list += QGfxDriverFactoryPrivate::manager->featureList();
 #endif //QT_NO_COMPONENT

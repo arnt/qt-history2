@@ -50,12 +50,12 @@
     textEdit
 */
 
-QSyntaxHighlighter::QSyntaxHighlighter( QTextEdit *textEdit )
-    : para( 0 ), edit( textEdit ), d( new QSyntaxHighlighterPrivate )
+QSyntaxHighlighter::QSyntaxHighlighter(QTextEdit *textEdit)
+    : para(0), edit(textEdit), d(new QSyntaxHighlighterPrivate)
 {
-    textEdit->document()->setPreProcessor( new QSyntaxHighlighterInternal( this ) );
+    textEdit->document()->setPreProcessor(new QSyntaxHighlighterInternal(this));
     textEdit->document()->invalidate();
-    QTimer::singleShot( 0, textEdit->viewport(), SLOT(update()) );
+    QTimer::singleShot(0, textEdit->viewport(), SLOT(update()));
 }
 
 /*!
@@ -65,11 +65,11 @@ QSyntaxHighlighter::QSyntaxHighlighter( QTextEdit *textEdit )
 QSyntaxHighlighter::~QSyntaxHighlighter()
 {
     delete d;
-    textEdit()->document()->setPreProcessor( 0 );
+    textEdit()->document()->setPreProcessor(0);
 }
 
 /*!
-    \fn int QSyntaxHighlighter::highlightParagraph( const QString &text, int endStateOfLastPara )
+    \fn int QSyntaxHighlighter::highlightParagraph(const QString &text, int endStateOfLastPara)
 
     This function is called when necessary by the rich text engine,
     i.e. on paragraphs which have changed.
@@ -121,39 +121,39 @@ QSyntaxHighlighter::~QSyntaxHighlighter()
     nothing is done.)
 */
 
-void QSyntaxHighlighter::setFormat( int start, int count, const QFont &font, const QColor &color )
+void QSyntaxHighlighter::setFormat(int start, int count, const QFont &font, const QColor &color)
 {
-    if ( !para || count <= 0 )
-	return;
+    if (!para || count <= 0)
+        return;
     Q3TextFormat *f = 0;
-    f = para->document()->formatCollection()->format( font, color );
-    para->setFormat( start, count, f );
+    f = para->document()->formatCollection()->format(font, color);
+    para->setFormat(start, count, f);
     f->removeRef();
 }
 
 /*! \overload */
 
-void QSyntaxHighlighter::setFormat( int start, int count, const QColor &color )
+void QSyntaxHighlighter::setFormat(int start, int count, const QColor &color)
 {
-    if ( !para || count <= 0 )
-	return;
+    if (!para || count <= 0)
+        return;
     Q3TextFormat *f = 0;
     QFont fnt = textEdit()->QWidget::font();
-    f = para->document()->formatCollection()->format( fnt, color );
-    para->setFormat( start, count, f );
+    f = para->document()->formatCollection()->format(fnt, color);
+    para->setFormat(start, count, f);
     f->removeRef();
 }
 
 /*! \overload */
 
-void QSyntaxHighlighter::setFormat( int start, int count, const QFont &font )
+void QSyntaxHighlighter::setFormat(int start, int count, const QFont &font)
 {
-    if ( !para || count <= 0 )
-	return;
+    if (!para || count <= 0)
+        return;
     Q3TextFormat *f = 0;
     QColor c = textEdit()->viewport()->palette().color(textEdit()->viewport()->foregroundRole());
-    f = para->document()->formatCollection()->format( font, c );
-    para->setFormat( start, count, f );
+    f = para->document()->formatCollection()->format(font, c);
+    para->setFormat(start, count, f);
     f->removeRef();
 }
 
@@ -170,11 +170,11 @@ void QSyntaxHighlighter::setFormat( int start, int count, const QFont &font )
 void QSyntaxHighlighter::rehighlight()
 {
     Q3TextParagraph *s = edit->document()->firstParagraph();
-    while ( s ) {
-	s->invalidate( 0 );
-	s->state = -1;
-	s->needPreProcess = TRUE;
-	s = s->next();
+    while (s) {
+        s->invalidate(0);
+        s->state = -1;
+        s->needPreProcess = true;
+        s = s->next();
     }
     edit->repaintContents();
 }

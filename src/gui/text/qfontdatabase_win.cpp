@@ -18,7 +18,7 @@
 #include "qfontengine_p.h"
 #include "qpaintdevice.h"
 
-extern HDC   shared_dc;		// common dc for all fonts
+extern HDC   shared_dc;                // common dc for all fonts
 static HFONT stock_sysfont  = 0;
 
 // see the Unicode subset bitfields in the MSDN docs
@@ -151,179 +151,179 @@ static int requiredUnicodeBits[QFont::NScripts][2] = {
 static
 int CALLBACK
 #ifndef Q_OS_TEMP
-storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRICEX *textmetric, int type, LPARAM /*p*/ )
+storeFont(ENUMLOGFONTEX* f, NEWTEXTMETRICEX *textmetric, int type, LPARAM /*p*/)
 #else
-storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/ )
+storeFont(ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/)
 #endif
 {
     const int script = QFont::Unicode;
     const QString foundryName;
-    const bool smoothScalable = TRUE;
-    const bool oblique = FALSE;
-    Q_UNUSED( script );
-    Q_UNUSED( smoothScalable );
+    const bool smoothScalable = true;
+    const bool oblique = false;
+    Q_UNUSED(script);
+    Q_UNUSED(smoothScalable);
 
-    bool italic = FALSE;
+    bool italic = false;
     QString familyName;
     int weight;
     bool fixed;
 
     // ### make non scalable fonts work
 
-    QT_WA( {
-	familyName = QString::fromUcs2( (ushort*)f->elfLogFont.lfFaceName );
-	italic = f->elfLogFont.lfItalic;
-	weight = f->elfLogFont.lfWeight;
-	TEXTMETRIC *tm = (TEXTMETRIC *)textmetric;
-	fixed = !(tm->tmPitchAndFamily & TMPF_FIXED_PITCH);
+    QT_WA({
+        familyName = QString::fromUcs2((ushort*)f->elfLogFont.lfFaceName);
+        italic = f->elfLogFont.lfItalic;
+        weight = f->elfLogFont.lfWeight;
+        TEXTMETRIC *tm = (TEXTMETRIC *)textmetric;
+        fixed = !(tm->tmPitchAndFamily & TMPF_FIXED_PITCH);
     } , {
-	ENUMLOGFONTEXA* fa = (ENUMLOGFONTEXA *)f;
-	familyName = QString::fromLocal8Bit( fa->elfLogFont.lfFaceName );
-	italic = fa->elfLogFont.lfItalic;
-	weight = fa->elfLogFont.lfWeight;
-	TEXTMETRICA *tm = (TEXTMETRICA *)textmetric;
-	fixed = !(tm->tmPitchAndFamily & TMPF_FIXED_PITCH);
-    } );
+        ENUMLOGFONTEXA* fa = (ENUMLOGFONTEXA *)f;
+        familyName = QString::fromLocal8Bit(fa->elfLogFont.lfFaceName);
+        italic = fa->elfLogFont.lfItalic;
+        weight = fa->elfLogFont.lfWeight;
+        TEXTMETRICA *tm = (TEXTMETRICA *)textmetric;
+        fixed = !(tm->tmPitchAndFamily & TMPF_FIXED_PITCH);
+    });
     // the "@family" fonts are just the same as "family". Ignore them.
-    if ( familyName[0] != '@' ) {
-	QtFontStyle::Key styleKey;
-	styleKey.italic = italic;
-	styleKey.oblique = oblique;
-	if ( weight < 400 )
-	    styleKey.weight = QFont::Light;
-	else if ( weight < 600 )
-	    styleKey.weight = QFont::Normal;
-	else if ( weight < 700 )
-	    styleKey.weight = QFont::DemiBold;
-	else if ( weight < 800 )
-	    styleKey.weight = QFont::Bold;
-	else
-	    styleKey.weight = QFont::Black;
+    if (familyName[0] != '@') {
+        QtFontStyle::Key styleKey;
+        styleKey.italic = italic;
+        styleKey.oblique = oblique;
+        if (weight < 400)
+            styleKey.weight = QFont::Light;
+        else if (weight < 600)
+            styleKey.weight = QFont::Normal;
+        else if (weight < 700)
+            styleKey.weight = QFont::DemiBold;
+        else if (weight < 800)
+            styleKey.weight = QFont::Bold;
+        else
+            styleKey.weight = QFont::Black;
 
-	QString rawName = familyName;
-	familyName.replace('-', ' ');
-	QtFontFamily *family = db->family( familyName, TRUE );
-	family->rawName = rawName;
+        QString rawName = familyName;
+        familyName.replace('-', ' ');
+        QtFontFamily *family = db->family(familyName, true);
+        family->rawName = rawName;
 
-	QtFontFoundry *foundry = family->foundry( foundryName,  TRUE );
-	QtFontStyle *style = foundry->style( styleKey,  TRUE );
-	style->smoothScalable = TRUE;
-	style->pixelSize( SMOOTH_SCALABLE, TRUE );
+        QtFontFoundry *foundry = family->foundry(foundryName,  true);
+        QtFontStyle *style = foundry->style(styleKey,  true);
+        style->smoothScalable = true;
+        style->pixelSize(SMOOTH_SCALABLE, true);
 
-	// add fonts windows can generate for us:
-	if ( styleKey.weight <= QFont::DemiBold ) {
-	    QtFontStyle::Key key( styleKey );
-	    key.weight = QFont::Bold;
-	    QtFontStyle *style = foundry->style( key,  TRUE );
-	    style->smoothScalable = TRUE;
-	    style->pixelSize( SMOOTH_SCALABLE, TRUE );
-	}
-	if ( !styleKey.italic ) {
-	    QtFontStyle::Key key( styleKey );
-	    key.italic = TRUE;
-	    QtFontStyle *style = foundry->style( key,  TRUE );
-	    style->smoothScalable = TRUE;
-	    style->pixelSize( SMOOTH_SCALABLE, TRUE );
-	}
-	if ( styleKey.weight <= QFont::DemiBold && !styleKey.italic ) {
-	    QtFontStyle::Key key( styleKey );
-	    key.weight = QFont::Bold;
-	    key.italic = TRUE;
-	    QtFontStyle *style = foundry->style( key,  TRUE );
-	    style->smoothScalable = TRUE;
-	    style->pixelSize( SMOOTH_SCALABLE, TRUE );
-	}
+        // add fonts windows can generate for us:
+        if (styleKey.weight <= QFont::DemiBold) {
+            QtFontStyle::Key key(styleKey);
+            key.weight = QFont::Bold;
+            QtFontStyle *style = foundry->style(key,  true);
+            style->smoothScalable = true;
+            style->pixelSize(SMOOTH_SCALABLE, true);
+        }
+        if (!styleKey.italic) {
+            QtFontStyle::Key key(styleKey);
+            key.italic = true;
+            QtFontStyle *style = foundry->style(key,  true);
+            style->smoothScalable = true;
+            style->pixelSize(SMOOTH_SCALABLE, true);
+        }
+        if (styleKey.weight <= QFont::DemiBold && !styleKey.italic) {
+            QtFontStyle::Key key(styleKey);
+            key.weight = QFont::Bold;
+            key.italic = true;
+            QtFontStyle *style = foundry->style(key,  true);
+            style->smoothScalable = true;
+            style->pixelSize(SMOOTH_SCALABLE, true);
+        }
 
-	family->fixedPitch = fixed;
+        family->fixedPitch = fixed;
 
-	if ( !family->scriptCheck && type & TRUETYPE_FONTTYPE ) {
-	    bool hasScript = false;
-	    FONTSIGNATURE signature;
+        if (!family->scriptCheck && type & TRUETYPE_FONTTYPE) {
+            bool hasScript = false;
+            FONTSIGNATURE signature;
 #ifndef Q_OS_TEMP
-	    QT_WA( {
-		signature = textmetric->ntmFontSig;
-	    }, {
-		// the textmetric structure we get from EnumFontFamiliesEx on Win9x has
-		// a FONTSIGNATURE, but that one is uninitialized and doesn't work. Have to go
-		// the hard way and load the font to find out.
-		HDC hdc = GetDC( 0 );
-		LOGFONTA lf;
-		memset( &lf, 0, sizeof( LOGFONTA ) );
-		QByteArray lfam = familyName.toLocal8Bit();
-		memcpy( lf.lfFaceName, lfam.data(), qMin( LF_FACESIZE, lfam.length() ) );
-		HFONT hfont = CreateFontIndirectA( &lf );
-		HGDIOBJ oldobj = SelectObject( hdc, hfont );
-		GetTextCharsetInfo( hdc, &signature, 0 );
-		SelectObject( hdc, oldobj );
-		DeleteObject( hfont );
-		ReleaseDC( 0, hdc );
-	    } );
+            QT_WA({
+                signature = textmetric->ntmFontSig;
+            }, {
+                // the textmetric structure we get from EnumFontFamiliesEx on Win9x has
+                // a FONTSIGNATURE, but that one is uninitialized and doesn't work. Have to go
+                // the hard way and load the font to find out.
+                HDC hdc = GetDC(0);
+                LOGFONTA lf;
+                memset(&lf, 0, sizeof(LOGFONTA));
+                QByteArray lfam = familyName.toLocal8Bit();
+                memcpy(lf.lfFaceName, lfam.data(), qMin(LF_FACESIZE, lfam.length()));
+                HFONT hfont = CreateFontIndirectA(&lf);
+                HGDIOBJ oldobj = SelectObject(hdc, hfont);
+                GetTextCharsetInfo(hdc, &signature, 0);
+                SelectObject(hdc, oldobj);
+                DeleteObject(hfont);
+                ReleaseDC(0, hdc);
+            });
 #else
-	    CHARSETINFO csi;
-	    DWORD charset = textmetric->tmCharSet;
-	    TranslateCharsetInfo( &charset, &csi, TCI_SRCCHARSET);
-	    signature = csi.fs;
+            CHARSETINFO csi;
+            DWORD charset = textmetric->tmCharSet;
+            TranslateCharsetInfo(&charset, &csi, TCI_SRCCHARSET);
+            signature = csi.fs;
 #endif
 
-	    int i;
-	    for( i = 0; i < QFont::Unicode; i++ ) {
-		int bit = requiredUnicodeBits[i][0];
-		int index = bit/32;
-		int flag =  1 << (bit&31);
-		if ( bit != 126 && signature.fsUsb[index] & flag ) {
-		    bit = requiredUnicodeBits[i][1];
-		    index = bit/32;
+            int i;
+            for(i = 0; i < QFont::Unicode; i++) {
+                int bit = requiredUnicodeBits[i][0];
+                int index = bit/32;
+                int flag =  1 << (bit&31);
+                if (bit != 126 && signature.fsUsb[index] & flag) {
+                    bit = requiredUnicodeBits[i][1];
+                    index = bit/32;
 
-		    flag =  1 << (bit&31);
-		    if ( bit == 127 || signature.fsUsb[index] & flag ) {
-			family->scripts[i] = TRUE;
-			hasScript = TRUE;
-			// qDebug( "font %s: index=%d, flag=%8x supports script %d", familyName.latin1(), index, flag, i );
-		    }
-		}
-	    }
-	    // ### until we do language detection, it's going to be
-	    // ### hard to figure out which Han_* variant to
-	    // ### use... simply mark all Han_* variants as supporting
-	    // ### Han (like X11)
-	    if( signature.fsCsb[0] & (1 << SimplifiedChineseCsbBit) ) {
-		family->scripts[QFont::Han_SimplifiedChinese] = TRUE;
-		family->scripts[QFont::Han] = TRUE;
-		hasScript = TRUE;
-		//qDebug("font %s supports Simplified Chinese", familyName.latin1() );
-	    }
-	    if( signature.fsCsb[0] & (1 << TraditionalChineseCsbBit) ) {
-		family->scripts[QFont::Han_TraditionalChinese] = TRUE;
-		family->scripts[QFont::Han] = TRUE;
-		hasScript = TRUE;
-		//qDebug("font %s supports Traditional Chinese", familyName.latin1() );
-	    }
-	    if( signature.fsCsb[0] & (1 << JapaneseCsbBit) ) {
-		family->scripts[QFont::Han_Japanese] = TRUE;
-		family->scripts[QFont::Hiragana] = TRUE;
-		family->scripts[QFont::Katakana] = TRUE;
-		family->scripts[QFont::Han] = TRUE;
-		hasScript = TRUE;
-		//qDebug("font %s supports Japanese", familyName.latin1() );
-	    }
-	    if( signature.fsCsb[0] & (1 << KoreanCsbBit) ) {
-		family->scripts[QFont::Han_Korean] = TRUE;
-		family->scripts[QFont::Hangul] = TRUE;
-		family->scripts[QFont::Han] = TRUE;
-		hasScript = TRUE;
-		//qDebug("font %s supports Korean", familyName.latin1() );
-	    }
+                    flag =  1 << (bit&31);
+                    if (bit == 127 || signature.fsUsb[index] & flag) {
+                        family->scripts[i] = true;
+                        hasScript = true;
+                        // qDebug("font %s: index=%d, flag=%8x supports script %d", familyName.latin1(), index, flag, i);
+                    }
+                }
+            }
+            // ### until we do language detection, it's going to be
+            // ### hard to figure out which Han_* variant to
+            // ### use... simply mark all Han_* variants as supporting
+            // ### Han (like X11)
+            if(signature.fsCsb[0] & (1 << SimplifiedChineseCsbBit)) {
+                family->scripts[QFont::Han_SimplifiedChinese] = true;
+                family->scripts[QFont::Han] = true;
+                hasScript = true;
+                //qDebug("font %s supports Simplified Chinese", familyName.latin1());
+            }
+            if(signature.fsCsb[0] & (1 << TraditionalChineseCsbBit)) {
+                family->scripts[QFont::Han_TraditionalChinese] = true;
+                family->scripts[QFont::Han] = true;
+                hasScript = true;
+                //qDebug("font %s supports Traditional Chinese", familyName.latin1());
+            }
+            if(signature.fsCsb[0] & (1 << JapaneseCsbBit)) {
+                family->scripts[QFont::Han_Japanese] = true;
+                family->scripts[QFont::Hiragana] = true;
+                family->scripts[QFont::Katakana] = true;
+                family->scripts[QFont::Han] = true;
+                hasScript = true;
+                //qDebug("font %s supports Japanese", familyName.latin1());
+            }
+            if(signature.fsCsb[0] & (1 << KoreanCsbBit)) {
+                family->scripts[QFont::Han_Korean] = true;
+                family->scripts[QFont::Hangul] = true;
+                family->scripts[QFont::Han] = true;
+                hasScript = true;
+                //qDebug("font %s supports Korean", familyName.latin1());
+            }
 
 #ifdef Q_OS_TEMP
-	    // ##### FIXME
-	    family->scripts[QFont::Latin] = TRUE;
+            // ##### FIXME
+            family->scripts[QFont::Latin] = true;
 #endif
-	    family->scripts[QFont::Unicode] = !hasScript;
-	    family->scriptCheck = true;
-	    // qDebug( "usb=%08x %08x csb=%08x for %s", signature.fsUsb[0], signature.fsUsb[1], signature.fsCsb[0], familyName.latin1() );
-	} else if (!family->scriptCheck) {
-	    family->scripts[QFont::Unicode] = TRUE;
-	}
+            family->scripts[QFont::Unicode] = !hasScript;
+            family->scriptCheck = true;
+            // qDebug("usb=%08x %08x csb=%08x for %s", signature.fsUsb[0], signature.fsUsb[1], signature.fsCsb[0], familyName.latin1());
+        } else if (!family->scriptCheck) {
+            family->scripts[QFont::Unicode] = true;
+        }
     }
 
     // keep on enumerating
@@ -336,22 +336,22 @@ void populate_database(const QString& fam)
     HDC dummy = GetDC(0);
 
 #ifndef Q_OS_TEMP
-    QT_WA( {
+    QT_WA({
         LOGFONT lf;
         lf.lfCharSet = DEFAULT_CHARSET;
-        if ( fam.isNull() ) {
+        if (fam.isNull()) {
             lf.lfFaceName[0] = 0;
         } else {
-            memcpy( lf.lfFaceName, fam.ucs2(), sizeof(TCHAR)*qMin(fam.length()+1,32));  // 32 = Windows hard-coded
+            memcpy(lf.lfFaceName, fam.ucs2(), sizeof(TCHAR)*qMin(fam.length()+1,32));  // 32 = Windows hard-coded
         }
         lf.lfPitchAndFamily = 0;
 
-        EnumFontFamiliesEx( dummy, &lf,
-            (FONTENUMPROC)storeFont, (LPARAM)db, 0 );
+        EnumFontFamiliesEx(dummy, &lf,
+            (FONTENUMPROC)storeFont, (LPARAM)db, 0);
     } , {
         LOGFONTA lf;
         lf.lfCharSet = DEFAULT_CHARSET;
-        if ( fam.isNull() ) {
+        if (fam.isNull()) {
             lf.lfFaceName[0] = 0;
         } else {
             QByteArray lname = fam.toLocal8Bit();
@@ -360,21 +360,21 @@ void populate_database(const QString& fam)
         }
         lf.lfPitchAndFamily = 0;
 
-	EnumFontFamiliesExA( dummy, &lf,
-            (FONTENUMPROCA)storeFont, (LPARAM)db, 0 );
-    } );
+        EnumFontFamiliesExA(dummy, &lf,
+            (FONTENUMPROCA)storeFont, (LPARAM)db, 0);
+    });
 #else
         LOGFONT lf;
         lf.lfCharSet = DEFAULT_CHARSET;
-        if ( fam.isNull() ) {
+        if (fam.isNull()) {
             lf.lfFaceName[0] = 0;
         } else {
-            memcpy( lf.lfFaceName, fam.ucs2(), sizeof(TCHAR)*qMin(fam.length()+1,32));  // 32 = Windows hard-coded
+            memcpy(lf.lfFaceName, fam.ucs2(), sizeof(TCHAR)*qMin(fam.length()+1,32));  // 32 = Windows hard-coded
         }
         lf.lfPitchAndFamily = 0;
 
-        EnumFontFamilies( dummy, lf.lfFaceName,
-            (FONTENUMPROC)storeFont, (LPARAM)db );
+        EnumFontFamilies(dummy, lf.lfFaceName,
+            (FONTENUMPROC)storeFont, (LPARAM)db);
 #endif
 
 
@@ -383,41 +383,41 @@ void populate_database(const QString& fam)
 
 static void initializeDb()
 {
-    if ( db ) return;
+    if (db) return;
 
     db = new QFontDatabasePrivate;
     qfontdatabase_cleanup.set(&db);
 
-    populate_database( QString::null );
+    populate_database(QString::null);
 
 #ifdef QFONTDATABASE_DEBUG
     // print the database
-    for ( int f = 0; f < db->count; f++ ) {
-	QtFontFamily *family = db->families[f];
-	qDebug("    %s: %p", family->name.latin1(), family );
-	populate_database( family->name );
+    for (int f = 0; f < db->count; f++) {
+        QtFontFamily *family = db->families[f];
+        qDebug("    %s: %p", family->name.latin1(), family);
+        populate_database(family->name);
 
-	qDebug("        scripts supported:");
-        for ( int i = 0; i < QFont::NScripts; i++ )
-	    if(family->scripts[i] & QtFontFamily::Supported)
-		qDebug("            %d", i );
-	for ( int fd = 0; fd < family->count; fd++ ) {
-	    QtFontFoundry *foundry = family->foundries[fd];
-	    qDebug("        %s", foundry->name.latin1() );
-	    for ( int s = 0; s < foundry->count; s++ ) {
-		QtFontStyle *style = foundry->styles[s];
-		qDebug("            style: italic=%d oblique=%d weight=%d",  style->key.italic,
-		       style->key.oblique, style->key.weight );
-	    }
-	}
+        qDebug("        scripts supported:");
+        for (int i = 0; i < QFont::NScripts; i++)
+            if(family->scripts[i] & QtFontFamily::Supported)
+                qDebug("            %d", i);
+        for (int fd = 0; fd < family->count; fd++) {
+            QtFontFoundry *foundry = family->foundries[fd];
+            qDebug("        %s", foundry->name.latin1());
+            for (int s = 0; s < foundry->count; s++) {
+                QtFontStyle *style = foundry->styles[s];
+                qDebug("            style: italic=%d oblique=%d weight=%d",  style->key.italic,
+                       style->key.oblique, style->key.weight);
+            }
+        }
     }
 #endif // QFONTDATABASE_DEBUG
 
 }
 
-static inline void load(const QString &family = QString::null,  int = -1 )
+static inline void load(const QString &family = QString::null,  int = -1)
 {
-    populate_database( family );
+    populate_database(family);
 }
 
 
@@ -434,36 +434,36 @@ static inline void load(const QString &family = QString::null,  int = -1 )
 void QFontPrivate::initFontInfo()
 {
     lineWidth = 1;
-    actual = request;				// most settings are equal
-    QT_WA( {
-	TCHAR n[64];
-	GetTextFaceW( fin->dc(), 64, n );
-	actual.family = QString::fromUcs2((ushort*)n);
-	actual.fixedPitch = !(fin->tm.w.tmPitchAndFamily & TMPF_FIXED_PITCH);
+    actual = request;                                // most settings are equal
+    QT_WA({
+        TCHAR n[64];
+        GetTextFaceW(fin->dc(), 64, n);
+        actual.family = QString::fromUcs2((ushort*)n);
+        actual.fixedPitch = !(fin->tm.w.tmPitchAndFamily & TMPF_FIXED_PITCH);
     } , {
-	char an[64];
-	GetTextFaceA( fin->dc(), 64, an );
-	actual.family = QString::fromLocal8Bit(an);
-	actual.fixedPitch = !(fin->tm.a.tmPitchAndFamily & TMPF_FIXED_PITCH);
-    } );
-    if ( actual.pointSize == -1 ) {
-	if ( paintdevice )
-	    actual.pointSize = actual.pixelSize * 720 / QPaintDeviceMetrics( paintdevice ).logicalDpiY();
-	else {
-	    actual.pointSize = actual.pixelSize * 720 / GetDeviceCaps( fin->dc(), LOGPIXELSY );
-	}
-    } else if ( actual.pixelSize == -1 ) {
-	if ( paintdevice )
-	    actual.pixelSize = actual.pointSize * QPaintDeviceMetrics( paintdevice ).logicalDpiY() / 720;
-	else
-	    actual.pixelSize = actual.pointSize * GetDeviceCaps( fin->dc(), LOGPIXELSY ) / 720;
+        char an[64];
+        GetTextFaceA(fin->dc(), 64, an);
+        actual.family = QString::fromLocal8Bit(an);
+        actual.fixedPitch = !(fin->tm.a.tmPitchAndFamily & TMPF_FIXED_PITCH);
+    });
+    if (actual.pointSize == -1) {
+        if (paintdevice)
+            actual.pointSize = actual.pixelSize * 720 / QPaintDeviceMetrics(paintdevice).logicalDpiY();
+        else {
+            actual.pointSize = actual.pixelSize * 720 / GetDeviceCaps(fin->dc(), LOGPIXELSY);
+        }
+    } else if (actual.pixelSize == -1) {
+        if (paintdevice)
+            actual.pixelSize = actual.pointSize * QPaintDeviceMetrics(paintdevice).logicalDpiY() / 720;
+        else
+            actual.pixelSize = actual.pointSize * GetDeviceCaps(fin->dc(), LOGPIXELSY) / 720;
     }
 
-    actual.dirty = FALSE;
-    exactMatch = ( actual.family == request.family &&
-		   ( request.pointSize == -1 || ( actual.pointSize == request.pointSize ) ) &&
-		   ( request.pixelSize == -1 || ( actual.pixelSize == request.pixelSize ) ) &&
-		   actual.fixedPitch == request.fixedPitch );
+    actual.dirty = false;
+    exactMatch = (actual.family == request.family &&
+                   (request.pointSize == -1 || (actual.pointSize == request.pointSize)) &&
+                   (request.pixelSize == -1 || (actual.pixelSize == request.pixelSize)) &&
+                   actual.fixedPitch == request.fixedPitch);
 }
 
 #endif
@@ -471,8 +471,8 @@ void QFontPrivate::initFontInfo()
 
 static inline HFONT systemFont()
 {
-    if ( stock_sysfont == 0 )
-	stock_sysfont = (HFONT)GetStockObject(SYSTEM_FONT);
+    if (stock_sysfont == 0)
+        stock_sysfont = (HFONT)GetStockObject(SYSTEM_FONT);
     return stock_sysfont;
 }
 
@@ -482,214 +482,214 @@ static inline HFONT systemFont()
 
 
 static
-QFontEngine *loadEngine( QFont::Script script, const QFontPrivate *fp,
-			 const QFontDef &request,
-			 QtFontFamily *family, QtFontFoundry *foundry,
-			 QtFontStyle *style )
+QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
+                         const QFontDef &request,
+                         QtFontFamily *family, QtFontFoundry *foundry,
+                         QtFontStyle *style)
 {
-    Q_UNUSED( script );
-    Q_UNUSED( foundry );
-    Q_UNUSED( style );
+    Q_UNUSED(script);
+    Q_UNUSED(foundry);
+    Q_UNUSED(style);
 
     LOGFONT lf;
-    memset( &lf, 0, sizeof(LOGFONT) );
+    memset(&lf, 0, sizeof(LOGFONT));
 
     QPaintDevice *paintdevice = fp->paintdevice;
 
     HDC hdc;
-    if ( paintdevice ) {
-	hdc = paintdevice->handle();
-    } else if ( QSysInfo::WindowsVersion & QSysInfo::WV_NT_based ) {
-	hdc = GetDC( 0 );
+    if (paintdevice) {
+        hdc = paintdevice->handle();
+    } else if (QSysInfo::WindowsVersion & QSysInfo::WV_NT_based) {
+        hdc = GetDC(0);
     } else {
-	hdc = shared_dc;
+        hdc = shared_dc;
     }
 
-    bool stockFont = FALSE;
+    bool stockFont = false;
 
     HFONT hfont = 0;
 
-    if ( fp->rawMode ) {			// will choose a stock font
-	int f, deffnt;
-	// ### why different?
-	if ( (QSysInfo::WindowsVersion & QSysInfo::WV_NT_based) || QSysInfo::WindowsVersion == QSysInfo::WV_32s )
-	    deffnt = SYSTEM_FONT;
-	else
-	    deffnt = DEFAULT_GUI_FONT;
-	QString fam = family->rawName.toLower();
-	if ( fam == "default" )
-	    f = deffnt;
-	else if ( fam == "system" )
-	    f = SYSTEM_FONT;
+    if (fp->rawMode) {                        // will choose a stock font
+        int f, deffnt;
+        // ### why different?
+        if ((QSysInfo::WindowsVersion & QSysInfo::WV_NT_based) || QSysInfo::WindowsVersion == QSysInfo::WV_32s)
+            deffnt = SYSTEM_FONT;
+        else
+            deffnt = DEFAULT_GUI_FONT;
+        QString fam = family->rawName.toLower();
+        if (fam == "default")
+            f = deffnt;
+        else if (fam == "system")
+            f = SYSTEM_FONT;
 #ifndef Q_OS_TEMP
-	else if ( fam == "system_fixed" )
-	    f = SYSTEM_FIXED_FONT;
-	else if ( fam == "ansi_fixed" )
-	    f = ANSI_FIXED_FONT;
-	else if ( fam == "ansi_var" )
-	    f = ANSI_VAR_FONT;
-	else if ( fam == "device_default" )
-	    f = DEVICE_DEFAULT_FONT;
-	else if ( fam == "oem_fixed" )
-	    f = OEM_FIXED_FONT;
+        else if (fam == "system_fixed")
+            f = SYSTEM_FIXED_FONT;
+        else if (fam == "ansi_fixed")
+            f = ANSI_FIXED_FONT;
+        else if (fam == "ansi_var")
+            f = ANSI_VAR_FONT;
+        else if (fam == "device_default")
+            f = DEVICE_DEFAULT_FONT;
+        else if (fam == "oem_fixed")
+            f = OEM_FIXED_FONT;
 #endif
-	else if ( fam[0] == '#' )
-	    f = fam.right(fam.length()-1).toInt();
-	else
-	    f = deffnt;
-	hfont = (HFONT)GetStockObject( f );
-	if ( !hfont ) {
+        else if (fam[0] == '#')
+            f = fam.right(fam.length()-1).toInt();
+        else
+            f = deffnt;
+        hfont = (HFONT)GetStockObject(f);
+        if (!hfont) {
 #ifndef QT_NO_DEBUG
-	    qSystemWarning( "GetStockObject failed" );
+            qSystemWarning("GetStockObject failed");
 #endif
-	    hfont = systemFont();
-	}
-	stockFont = TRUE;
+            hfont = systemFont();
+        }
+        stockFont = true;
     } else {
 
-	int hint = FF_DONTCARE;
-	switch ( request.styleHint ) {
-	    case QFont::Helvetica:
-		hint = FF_SWISS;
-		break;
-	    case QFont::Times:
-		hint = FF_ROMAN;
-		break;
-	    case QFont::Courier:
-		hint = FF_MODERN;
-		break;
-	    case QFont::OldEnglish:
-		hint = FF_DECORATIVE;
-		break;
-	    case QFont::System:
-		hint = FF_MODERN;
-		break;
-	    default:
-		break;
-	}
+        int hint = FF_DONTCARE;
+        switch (request.styleHint) {
+            case QFont::Helvetica:
+                hint = FF_SWISS;
+                break;
+            case QFont::Times:
+                hint = FF_ROMAN;
+                break;
+            case QFont::Courier:
+                hint = FF_MODERN;
+                break;
+            case QFont::OldEnglish:
+                hint = FF_DECORATIVE;
+                break;
+            case QFont::System:
+                hint = FF_MODERN;
+                break;
+            default:
+                break;
+        }
 
-	lf.lfHeight = -request.pixelSize;
+        lf.lfHeight = -request.pixelSize;
 #ifdef Q_OS_TEMP
-	lf.lfHeight		+= 3;
+        lf.lfHeight                += 3;
 #endif
-	lf.lfWidth		= 0;
-	lf.lfEscapement	= 0;
-	lf.lfOrientation	= 0;
-	if ( style->key.weight == 50 )
-	    lf.lfWeight = FW_DONTCARE;
-	else
-	    lf.lfWeight = (style->key.weight*900)/99;
-	lf.lfItalic		= (style->key.italic || style->key.oblique);
-	lf.lfCharSet	= DEFAULT_CHARSET;
+        lf.lfWidth                = 0;
+        lf.lfEscapement        = 0;
+        lf.lfOrientation        = 0;
+        if (style->key.weight == 50)
+            lf.lfWeight = FW_DONTCARE;
+        else
+            lf.lfWeight = (style->key.weight*900)/99;
+        lf.lfItalic                = (style->key.italic || style->key.oblique);
+        lf.lfCharSet        = DEFAULT_CHARSET;
 
-	int strat = OUT_DEFAULT_PRECIS;
-	if (  request.styleStrategy & QFont::PreferBitmap ) {
-	    strat = OUT_RASTER_PRECIS;
+        int strat = OUT_DEFAULT_PRECIS;
+        if ( request.styleStrategy & QFont::PreferBitmap) {
+            strat = OUT_RASTER_PRECIS;
 #ifndef Q_OS_TEMP
-	} else if ( request.styleStrategy & QFont::PreferDevice ) {
-	    strat = OUT_DEVICE_PRECIS;
-	} else if ( request.styleStrategy & QFont::PreferOutline ) {
-	    QT_WA( {
-		strat = OUT_OUTLINE_PRECIS;
-	    } , {
-		strat = OUT_TT_PRECIS;
-	    } );
-	} else if ( request.styleStrategy & QFont::ForceOutline ) {
-	    strat = OUT_TT_ONLY_PRECIS;
+        } else if (request.styleStrategy & QFont::PreferDevice) {
+            strat = OUT_DEVICE_PRECIS;
+        } else if (request.styleStrategy & QFont::PreferOutline) {
+            QT_WA({
+                strat = OUT_OUTLINE_PRECIS;
+            } , {
+                strat = OUT_TT_PRECIS;
+            });
+        } else if (request.styleStrategy & QFont::ForceOutline) {
+            strat = OUT_TT_ONLY_PRECIS;
 #endif
-	}
+        }
 
-	lf.lfOutPrecision   = strat;
+        lf.lfOutPrecision   = strat;
 
-	int qual = DEFAULT_QUALITY;
+        int qual = DEFAULT_QUALITY;
 
-	if ( request.styleStrategy & QFont::PreferMatch )
-	    qual = DRAFT_QUALITY;
+        if (request.styleStrategy & QFont::PreferMatch)
+            qual = DRAFT_QUALITY;
 #ifndef Q_OS_TEMP
-	else if ( request.styleStrategy & QFont::PreferQuality )
-	    qual = PROOF_QUALITY;
+        else if (request.styleStrategy & QFont::PreferQuality)
+            qual = PROOF_QUALITY;
 #endif
 
-	if ( request.styleStrategy & QFont::PreferAntialias ) {
-	    if ( QSysInfo::WindowsVersion >= QSysInfo::WV_XP )
-		qual = 5; // == CLEARTYPE_QUALITY;
-	    else
-		qual = ANTIALIASED_QUALITY;
-	} else if ( request.styleStrategy & QFont::NoAntialias ) {
-	    qual = NONANTIALIASED_QUALITY;
-	}
+        if (request.styleStrategy & QFont::PreferAntialias) {
+            if (QSysInfo::WindowsVersion >= QSysInfo::WV_XP)
+                qual = 5; // == CLEARTYPE_QUALITY;
+            else
+                qual = ANTIALIASED_QUALITY;
+        } else if (request.styleStrategy & QFont::NoAntialias) {
+            qual = NONANTIALIASED_QUALITY;
+        }
 
-	lf.lfQuality	= qual;
+        lf.lfQuality        = qual;
 
-	lf.lfClipPrecision  = CLIP_DEFAULT_PRECIS;
-	lf.lfPitchAndFamily = DEFAULT_PITCH | hint;
+        lf.lfClipPrecision  = CLIP_DEFAULT_PRECIS;
+        lf.lfPitchAndFamily = DEFAULT_PITCH | hint;
 
-	QString fam = family->rawName;
-	if ( (fam == "MS Sans Serif") && (request.italic || (-lf.lfHeight > 18 && -lf.lfHeight != 24)) )
-	    fam = "Arial"; // MS Sans Serif has bearing problems in italic, and does not scale
+        QString fam = family->rawName;
+        if ((fam == "MS Sans Serif") && (request.italic || (-lf.lfHeight > 18 && -lf.lfHeight != 24)))
+            fam = "Arial"; // MS Sans Serif has bearing problems in italic, and does not scale
 
-	QT_WA( {
-	    memcpy(lf.lfFaceName, fam.ucs2(), sizeof(TCHAR)*qMin(fam.length()+1,32));  // 32 = Windows hard-coded
-	    hfont = CreateFontIndirect( &lf );
-	} , {
-	    // LOGFONTA and LOGFONTW are binary compatible
-	    QByteArray lname = fam.toLocal8Bit();
-	    memcpy(lf.lfFaceName,lname.data(),
-		qMin(lname.length()+1,32));  // 32 = Windows hard-coded
-	    hfont = CreateFontIndirectA( (LOGFONTA*)&lf );
-	} );
+        QT_WA({
+            memcpy(lf.lfFaceName, fam.ucs2(), sizeof(TCHAR)*qMin(fam.length()+1,32));  // 32 = Windows hard-coded
+            hfont = CreateFontIndirect(&lf);
+        } , {
+            // LOGFONTA and LOGFONTW are binary compatible
+            QByteArray lname = fam.toLocal8Bit();
+            memcpy(lf.lfFaceName,lname.data(),
+                qMin(lname.length()+1,32));  // 32 = Windows hard-coded
+            hfont = CreateFontIndirectA((LOGFONTA*)&lf);
+        });
 #ifndef QT_NO_DEBUG
-	if ( !hfont )
-	    qSystemWarning( "CreateFontIndirect failed" );
+        if (!hfont)
+            qSystemWarning("CreateFontIndirect failed");
 #endif
 
-	stockFont = (hfont == 0);
+        stockFont = (hfont == 0);
 
-	if ( hfont && request.stretch != 100 ) {
-	    HGDIOBJ oldObj = SelectObject( hdc, hfont );
-	    BOOL res;
-	    int avWidth = 0;
-	    QT_WA( {
-		TEXTMETRICW tm;
-		res = GetTextMetricsW( hdc, &tm );
-		avWidth = tm.tmAveCharWidth;
-	    } , {
-		TEXTMETRICA tm;
-		res = GetTextMetricsA( hdc, &tm);
-		avWidth = tm.tmAveCharWidth;
-	    } );
+        if (hfont && request.stretch != 100) {
+            HGDIOBJ oldObj = SelectObject(hdc, hfont);
+            BOOL res;
+            int avWidth = 0;
+            QT_WA({
+                TEXTMETRICW tm;
+                res = GetTextMetricsW(hdc, &tm);
+                avWidth = tm.tmAveCharWidth;
+            } , {
+                TEXTMETRICA tm;
+                res = GetTextMetricsA(hdc, &tm);
+                avWidth = tm.tmAveCharWidth;
+            });
 #ifndef QT_NO_DEBUG
-	    if ( !res )
-		qSystemWarning( "QFontPrivate: GetTextMetrics failed" );
+            if (!res)
+                qSystemWarning("QFontPrivate: GetTextMetrics failed");
 #endif
 
-	    SelectObject( hdc, oldObj );
-	    DeleteObject( hfont );
+            SelectObject(hdc, oldObj);
+            DeleteObject(hfont);
 
-	    lf.lfWidth = avWidth * request.stretch/100;
-	    QT_WA( {
-		hfont = CreateFontIndirect( &lf );
-	    } , {
-		hfont = CreateFontIndirectA( (LOGFONTA*)&lf );
-	    } );
+            lf.lfWidth = avWidth * request.stretch/100;
+            QT_WA({
+                hfont = CreateFontIndirect(&lf);
+            } , {
+                hfont = CreateFontIndirectA((LOGFONTA*)&lf);
+            });
 #ifndef QT_NO_DEBUG
-	    if ( !hfont )
-		qSystemWarning( "CreateFontIndirect with stretch failed" );
+            if (!hfont)
+                qSystemWarning("CreateFontIndirect with stretch failed");
 #endif
-	}
+        }
 
 #ifndef Q_OS_TEMP
-	if ( hfont == 0 ) {
-	    hfont = (HFONT)GetStockObject( ANSI_VAR_FONT );
-	    stockFont = TRUE;
-	}
+        if (hfont == 0) {
+            hfont = (HFONT)GetStockObject(ANSI_VAR_FONT);
+            stockFont = true;
+        }
 #endif
 
     }
-    if( !paintdevice && (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) )
-	hdc = 0;
-    QFontEngine *fe = new QFontEngineWin( family->name, hdc, hfont, stockFont, lf );
-    if ( paintdevice )
-	fe->paintDevice = TRUE;
+    if(!paintdevice && (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based))
+        hdc = 0;
+    QFontEngine *fe = new QFontEngineWin(family->name, hdc, hfont, stockFont, lf);
+    if (paintdevice)
+        fe->paintDevice = true;
     return fe;
 }

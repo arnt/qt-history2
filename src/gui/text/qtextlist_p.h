@@ -24,29 +24,29 @@ class QTextFormatGroupChangeCommand : public QAbstractUndoItem
 {
 public:
     QTextFormatGroupChangeCommand(Manager *_manager, QTextFormatGroup *g, const QTextFormat &newFormat)
-	: manager(_manager), group(g), format(newFormat)
+        : manager(_manager), group(g), format(newFormat)
     {}
 
     virtual void undo()
     {
-	if (!manager)
-	    return;
+        if (!manager)
+            return;
 
-	QTextPieceTable *pt = manager->pieceTable();
+        QTextPieceTable *pt = manager->pieceTable();
 
-	QTextFormat oldFormat = group->commonFormat();
-	group->setCommonFormat(format);
-	format = oldFormat;
+        QTextFormat oldFormat = group->commonFormat();
+        group->setCommonFormat(format);
+        format = oldFormat;
 
-	QAbstractTextDocumentLayout *layout = pt->layout();
+        QAbstractTextDocumentLayout *layout = pt->layout();
 
-	QVector<QTextBlockIterator> affectedBlocks = manager->blocksForObject(group);
-	for (int i = 0; i < affectedBlocks.size(); ++i) {
-	    const QTextBlockIterator &block = affectedBlocks.at(i);
-	    int start = block.position();
-	    int len = block.length() - 1;
-	    layout->documentChange(start, len, len);
-	}
+        QVector<QTextBlockIterator> affectedBlocks = manager->blocksForObject(group);
+        for (int i = 0; i < affectedBlocks.size(); ++i) {
+            const QTextBlockIterator &block = affectedBlocks.at(i);
+            int start = block.position();
+            int len = block.length() - 1;
+            layout->documentChange(start, len, len);
+        }
     }
 
     virtual void redo()

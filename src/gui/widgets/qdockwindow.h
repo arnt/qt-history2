@@ -39,17 +39,17 @@ class QWindowsXPStyle;
 class Q_GUI_EXPORT QDockWindow : public Q3Frame
 {
     Q_OBJECT
-    Q_ENUMS( CloseMode Place )
-    Q_PROPERTY( int closeMode READ closeMode  WRITE setCloseMode ) //### this shouldn't be of type int?!
-    Q_PROPERTY( bool resizeEnabled READ isResizeEnabled  WRITE setResizeEnabled )
-    Q_PROPERTY( bool movingEnabled READ isMovingEnabled  WRITE setMovingEnabled )
-    Q_PROPERTY( bool horizontallyStretchable READ isHorizontallyStretchable  WRITE setHorizontallyStretchable )
-    Q_PROPERTY( bool verticallyStretchable READ isVerticallyStretchable  WRITE setVerticallyStretchable )
-    Q_PROPERTY( bool stretchable READ isStretchable )
-    Q_PROPERTY( bool newLine READ newLine  WRITE setNewLine )
-    Q_PROPERTY( bool opaqueMoving READ opaqueMoving  WRITE setOpaqueMoving )
-    Q_PROPERTY( int offset READ offset  WRITE setOffset )
-    Q_PROPERTY( Place place READ place )
+    Q_ENUMS(CloseMode Place)
+    Q_PROPERTY(int closeMode READ closeMode  WRITE setCloseMode) //### this shouldn't be of type int?!
+    Q_PROPERTY(bool resizeEnabled READ isResizeEnabled  WRITE setResizeEnabled)
+    Q_PROPERTY(bool movingEnabled READ isMovingEnabled  WRITE setMovingEnabled)
+    Q_PROPERTY(bool horizontallyStretchable READ isHorizontallyStretchable  WRITE setHorizontallyStretchable)
+    Q_PROPERTY(bool verticallyStretchable READ isVerticallyStretchable  WRITE setVerticallyStretchable)
+    Q_PROPERTY(bool stretchable READ isStretchable)
+    Q_PROPERTY(bool newLine READ newLine  WRITE setNewLine)
+    Q_PROPERTY(bool opaqueMoving READ opaqueMoving  WRITE setOpaqueMoving)
+    Q_PROPERTY(int offset READ offset  WRITE setOffset)
+    Q_PROPERTY(Place place READ place)
 
     friend class QDockWindowHandle;
     friend class QDockWindowTitleBar;
@@ -64,44 +64,44 @@ public:
     enum Place { InDock, OutsideDock };
     enum CloseMode { Never = 0, Docked = 1, Undocked = 2, Always = Docked | Undocked };
 
-    QDockWindow( Place p = InDock, QWidget* parent=0, const char* name=0, WFlags f = 0 );
-    QDockWindow( QWidget* parent, const char* name=0, WFlags f = 0 );
+    QDockWindow(Place p = InDock, QWidget* parent=0, const char* name=0, WFlags f = 0);
+    QDockWindow(QWidget* parent, const char* name=0, WFlags f = 0);
     ~QDockWindow();
 
-    virtual void setWidget( QWidget *w );
+    virtual void setWidget(QWidget *w);
     QWidget *widget() const;
 
     Place place() const { return curPlace; }
 
     QDockArea *area() const;
 
-    virtual void setCloseMode( int m );
+    virtual void setCloseMode(int m);
     bool isCloseEnabled() const;
     int closeMode() const;
 
-    virtual void setResizeEnabled( bool b );
-    virtual void setMovingEnabled( bool b );
+    virtual void setResizeEnabled(bool b);
+    virtual void setMovingEnabled(bool b);
     bool isResizeEnabled() const;
     bool isMovingEnabled() const;
 
-    virtual void setHorizontallyStretchable( bool b );
-    virtual void setVerticallyStretchable( bool b );
+    virtual void setHorizontallyStretchable(bool b);
+    virtual void setVerticallyStretchable(bool b);
     bool isHorizontallyStretchable() const;
     bool isVerticallyStretchable() const;
-    void setHorizontalStretchable( bool b ) { setHorizontallyStretchable( b ); }
-    void setVerticalStretchable( bool b ) { setVerticallyStretchable( b ); }
+    void setHorizontalStretchable(bool b) { setHorizontallyStretchable(b); }
+    void setVerticalStretchable(bool b) { setVerticallyStretchable(b); }
     bool isHorizontalStretchable() const { return isHorizontallyStretchable(); }
     bool isVerticalStretchable() const { return isVerticallyStretchable(); }
     bool isStretchable() const;
 
-    virtual void setOffset( int o );
+    virtual void setOffset(int o);
     int offset() const;
 
-    virtual void setFixedExtentWidth( int w );
-    virtual void setFixedExtentHeight( int h );
+    virtual void setFixedExtentWidth(int w);
+    virtual void setFixedExtentHeight(int h);
     QSize fixedExtent() const;
 
-    virtual void setNewLine( bool b );
+    virtual void setNewLine(bool b);
     bool newLine() const;
 
     Qt::Orientation orientation() const;
@@ -112,51 +112,51 @@ public:
 
     QBoxLayout *boxLayout();
 
-    virtual void setOpaqueMoving( bool b );
+    virtual void setOpaqueMoving(bool b);
     bool opaqueMoving() const;
 
-    bool eventFilter( QObject *o, QEvent *e );
+    bool eventFilter(QObject *o, QEvent *e);
 
     QString windowTitle() const;
 
 signals:
-    void orientationChanged( Orientation o );
-    void placeChanged( QDockWindow::Place p );
-    void visibilityChanged( bool );
+    void orientationChanged(Orientation o);
+    void placeChanged(QDockWindow::Place p);
+    void visibilityChanged(bool);
 
 public slots:
-    virtual void undock( QWidget *w );
-    virtual void undock() { undock( 0 ); }
+    virtual void undock(QWidget *w);
+    virtual void undock() { undock(0); }
     virtual void dock();
-    virtual void setOrientation( Orientation o );
+    virtual void setOrientation(Orientation o);
 
 protected:
-    void resizeEvent( QResizeEvent *e );
-    void showEvent( QShowEvent *e );
-    void hideEvent( QHideEvent *e );
-    void contextMenuEvent( QContextMenuEvent *e );
+    void resizeEvent(QResizeEvent *e);
+    void showEvent(QShowEvent *e);
+    void hideEvent(QHideEvent *e);
+    void contextMenuEvent(QContextMenuEvent *e);
 
-    void drawFrame( QPainter * );
-    void drawContents( QPainter * );
+    void drawFrame(QPainter *);
+    void drawContents(QPainter *);
 
-    bool event( QEvent *e );
+    bool event(QEvent *e);
 
 private slots:
-    void toggleVisible() { if ( !isVisible() ) show(); else hide(); }
+    void toggleVisible() { if (!isVisible()) show(); else hide(); }
 
 private:
-    QDockWindow( Place p, QWidget* parent, const char* name, WFlags f, bool toolbar );
+    QDockWindow(Place p, QWidget* parent, const char* name, WFlags f, bool toolbar);
 
-    void handleMove( const QPoint &pos, const QPoint &gp, bool drawRect );
+    void handleMove(const QPoint &pos, const QPoint &gp, bool drawRect);
     void updateGui();
-    void updateSplitterVisibility( bool visible );
+    void updateSplitterVisibility(bool visible);
 
-    void startRectDraw( const QPoint &so, bool drawRect );
-    void endRectDraw( bool drawRect );
-    void updatePosition( const QPoint &globalPos  );
-    QWidget *areaAt( const QPoint &gp );
-    void removeFromDock( bool fixNewLines = TRUE );
-    void swapRect( QRect &r, Qt::Orientation o, const QPoint &offset, QDockArea *area );
+    void startRectDraw(const QPoint &so, bool drawRect);
+    void endRectDraw(bool drawRect);
+    void updatePosition(const QPoint &globalPos );
+    QWidget *areaAt(const QPoint &gp);
+    void removeFromDock(bool fixNewLines = true);
+    void swapRect(QRect &r, Qt::Orientation o, const QPoint &offset, QDockArea *area);
     void init();
 
 private:
@@ -173,7 +173,7 @@ private:
     bool nl : 1;
     bool opaque : 1;
     bool isToolbar : 1;
-    bool stretchable[ 3 ];
+    bool stretchable[3];
     Orientation startOrientation;
     int cMode;
     QPoint startOffset;
@@ -189,10 +189,10 @@ private:
     QWidgetResizeHandler *widgetResizeHandler;
     QDockWindowPrivate *d;
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QDockWindow( const QDockWindow & );
-    QDockWindow& operator=( const QDockWindow & );
+    QDockWindow(const QDockWindow &);
+    QDockWindow& operator=(const QDockWindow &);
 #endif
 };
 

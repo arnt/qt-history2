@@ -37,13 +37,13 @@
 
     \list
     \i \e Temporary - briefly occupies most of the status bar. Used
-	to explain tool tip texts or menu entries, for example.
+        to explain tool tip texts or menu entries, for example.
     \i \e Normal - occupies part of the status bar and may be hidden
-	by temporary messages. Used to display the page and line
-	number in a word processor, for example.
+        by temporary messages. Used to display the page and line
+        number in a word processor, for example.
     \i \e Permanent - is never hidden. Used for important mode
-	indications, for example, some applications put a Caps Lock
-	indicator in the status bar.
+        indications, for example, some applications put a Caps Lock
+        indicator in the status bar.
     \endlist
 
     QStatusBar lets you display all three types of indicators.
@@ -55,12 +55,12 @@
     one that has a time limit:
 
     \code
-	connect( loader, SIGNAL(progressMessage(QString)),
-		 statusBar(), SLOT(message(QString)) );
+        connect(loader, SIGNAL(progressMessage(QString)),
+                 statusBar(), SLOT(message(QString)));
 
-	statusBar()->message("Loading...");  // Initial message
-	loader.loadStuff();                  // Emits progress messages
-	statusBar()->message("Done.", 2000); // Final message for 2 seconds
+        statusBar()->message("Loading...");  // Initial message
+        loader.loadStuff();                  // Emits progress messages
+        statusBar()->message("Done.", 2000); // Final message for 2 seconds
     \endcode
 
     \e Normal and \e Permanent messages are displayed by creating a
@@ -70,11 +70,11 @@
     remove widgets.
 
     \code
-	statusBar()->addWidget(new MyReadWriteIndication(statusBar()));
+        statusBar()->addWidget(new MyReadWriteIndication(statusBar()));
     \endcode
 
     By default QStatusBar provides a QSizeGrip in the lower-right
-    corner. You can disable it with setSizeGripEnabled(FALSE);
+    corner. You can disable it with setSizeGripEnabled(false);
 
     <img src=qstatusbar-m.png> <img src=qstatusbar-w.png>
 
@@ -89,11 +89,11 @@ public:
     QStatusBarPrivate() {}
 
     struct SBItem {
-	SBItem( QWidget* widget, int stretch, bool permanent )
-	    : s( stretch ), w( widget ), p( permanent ) {}
-	int s;
-	QWidget * w;
-	bool p;
+        SBItem(QWidget* widget, int stretch, bool permanent)
+            : s(stretch), w(widget), p(permanent) {}
+        int s;
+        QWidget * w;
+        bool p;
     };
 
     QList<SBItem *> items;
@@ -116,8 +116,8 @@ public:
 
     \sa setSizeGripEnabled()
 */
-QStatusBar::QStatusBar( QWidget * parent, const char *name )
-    : QWidget( parent, name )
+QStatusBar::QStatusBar(QWidget * parent, const char *name)
+    : QWidget(parent, name)
 {
     d = new QStatusBarPrivate;
     d->box = 0;
@@ -125,7 +125,7 @@ QStatusBar::QStatusBar( QWidget * parent, const char *name )
 
 #ifndef QT_NO_SIZEGRIP
     d->resizer = 0;
-    setSizeGripEnabled(TRUE); // causes reformat()
+    setSizeGripEnabled(true); // causes reformat()
 #else
     reformat();
 #endif
@@ -139,7 +139,7 @@ QStatusBar::QStatusBar( QWidget * parent, const char *name )
 QStatusBar::~QStatusBar()
 {
     while (!d->items.isEmpty())
-	delete d->items.takeFirst();
+        delete d->items.takeFirst();
     delete d;
 }
 
@@ -148,12 +148,12 @@ QStatusBar::~QStatusBar()
     Adds \a widget to this status bar. \a widget is reparented if it
     isn't already a child of the QStatusBar.
 
-    \a widget is permanently visible if \a permanent is TRUE and may
-    be obscured by temporary messages if \a permanent is FALSE. The
-    default is FALSE.
+    \a widget is permanently visible if \a permanent is true and may
+    be obscured by temporary messages if \a permanent is false. The
+    default is false.
 
-    If \a permanent is TRUE, \a widget is located at the far right of
-    the status bar. If \a permanent is FALSE (the default), \a widget
+    If \a permanent is true, \a widget is located at the far right of
+    the status bar. If \a permanent is false (the default), \a widget
     is located just to the left of the first permanent widget.
 
     \a stretch is used to compute a suitable size for \a widget as the
@@ -165,30 +165,30 @@ QStatusBar::~QStatusBar()
     \sa removeWidget()
 */
 
-void QStatusBar::addWidget( QWidget * widget, int stretch, bool permanent )
+void QStatusBar::addWidget(QWidget * widget, int stretch, bool permanent)
 {
-    if ( !widget ) {
-	qWarning( "QStatusBar::addWidget(): Cannot add null widget" );
-	return;
+    if (!widget) {
+        qWarning("QStatusBar::addWidget(): Cannot add null widget");
+        return;
     }
 
-    if ( widget->parentWidget() != this ) {
-	widget->setParent(this);
-	widget->show();
+    if (widget->parentWidget() != this) {
+        widget->setParent(this);
+        widget->show();
     }
 
     QStatusBarPrivate::SBItem* item
-	= new QStatusBarPrivate::SBItem( widget, stretch, permanent );
+        = new QStatusBarPrivate::SBItem(widget, stretch, permanent);
 
     int i = d->items.size() - 1;
-    if ( !permanent )
-	for (; i>=0; --i)
-	    if (!(d->items.at(i) && d->items.at(i)->p))
-		break;
-    d->items.insert( i >= 0 ? i + 1 : 0, item);
+    if (!permanent)
+        for (; i>=0; --i)
+            if (!(d->items.at(i) && d->items.at(i)->p))
+                break;
+    d->items.insert(i >= 0 ? i + 1 : 0, item);
 
-    if ( !d->tempItem.isEmpty() && !permanent )
-	widget->hide();
+    if (!d->tempItem.isEmpty() && !permanent)
+        widget->hide();
 
     reformat();
 }
@@ -204,29 +204,29 @@ void QStatusBar::addWidget( QWidget * widget, int stretch, bool permanent )
     \sa addWidget()
 */
 
-void QStatusBar::removeWidget( QWidget* widget )
+void QStatusBar::removeWidget(QWidget* widget)
 {
-    if ( !widget )
-	return;
-    bool found = FALSE;
+    if (!widget)
+        return;
+    bool found = false;
     QStatusBarPrivate::SBItem* item;
     for (int i=0; i<d->items.size(); ++i) {
-	item = d->items.at(i);
-	if (!item)
-	    break;
-	if ( item->w == widget ) {
-	    d->items.removeAt(i);
+        item = d->items.at(i);
+        if (!item)
+            break;
+        if (item->w == widget) {
+            d->items.removeAt(i);
             delete item;
-	    found = true;
-	    break;
-	}
+            found = true;
+            break;
+        }
     }
 
-    if ( found )
-	reformat();
+    if (found)
+        reformat();
 #if defined(QT_DEBUG)
     else
-	qDebug( "QStatusBar::removeWidget(): Widget not found." );
+        qDebug("QStatusBar::removeWidget(): Widget not found.");
 #endif
 }
 
@@ -241,7 +241,7 @@ void QStatusBar::removeWidget( QWidget* widget )
 bool QStatusBar::isSizeGripEnabled() const
 {
 #ifdef QT_NO_SIZEGRIP
-    return FALSE;
+    return false;
 #else
     return !!d->resizer;
 #endif
@@ -250,16 +250,16 @@ bool QStatusBar::isSizeGripEnabled() const
 void QStatusBar::setSizeGripEnabled(bool enabled)
 {
 #ifndef QT_NO_SIZEGRIP
-    if ( !enabled != !d->resizer ) {
-	if ( enabled ) {
-	    d->resizer = new QSizeGrip( this, "QStatusBar::resizer" );
-	} else {
-	    delete d->resizer;
-	    d->resizer = 0;
-	}
-	reformat();
-	if ( d->resizer && isVisible() )
-	    d->resizer->show();
+    if (!enabled != !d->resizer) {
+        if (enabled) {
+            d->resizer = new QSizeGrip(this, "QStatusBar::resizer");
+        } else {
+            delete d->resizer;
+            d->resizer = 0;
+        }
+        reformat();
+        if (d->resizer && isVisible())
+            d->resizer->show();
     }
 #endif
 }
@@ -272,57 +272,57 @@ void QStatusBar::setSizeGripEnabled(bool enabled)
 */
 void QStatusBar::reformat()
 {
-    if ( d->box )
-	delete d->box;
+    if (d->box)
+        delete d->box;
 
     QBoxLayout *vbox;
-    if ( isSizeGripEnabled() ) {
-	d->box = new QHBoxLayout( this );
-	vbox = new QVBoxLayout( d->box );
+    if (isSizeGripEnabled()) {
+        d->box = new QHBoxLayout(this);
+        vbox = new QVBoxLayout(d->box);
     } else {
-	vbox = d->box = new QVBoxLayout( this );
+        vbox = d->box = new QVBoxLayout(this);
     }
-    vbox->addSpacing( 3 );
-    QBoxLayout* l = new QHBoxLayout( vbox );
-    l->addSpacing( 3 );
-    l->setSpacing( 4 );
+    vbox->addSpacing(3);
+    QBoxLayout* l = new QHBoxLayout(vbox);
+    l->addSpacing(3);
+    l->setSpacing(4);
 
     int maxH = fontMetrics().height();
 
     int i;
     QStatusBarPrivate::SBItem* item;
     for (i=0,item=0; i<d->items.size(); ++i) {
-	item = d->items.at(i);
-	if (!item || item->p)
-	    break;
-	l->addWidget( item->w, item->s );
-	int itemH = qMin(item->w->sizeHint().height(),
-			 item->w->maximumHeight());
-	maxH = qMax( maxH, itemH );
+        item = d->items.at(i);
+        if (!item || item->p)
+            break;
+        l->addWidget(item->w, item->s);
+        int itemH = qMin(item->w->sizeHint().height(),
+                         item->w->maximumHeight());
+        maxH = qMax(maxH, itemH);
     }
 
-    l->addStretch( 0 );
+    l->addStretch(0);
 
     for (item=0; i<d->items.size(); ++i) {
-	item = d->items.at(i);
-	if (!item)
-	    break;
-	l->addWidget( item->w, item->s );
-	int itemH = qMin(item->w->sizeHint().height(),
-			 item->w->maximumHeight());
-	maxH = qMax( maxH, itemH );
+        item = d->items.at(i);
+        if (!item)
+            break;
+        l->addWidget(item->w, item->s);
+        int itemH = qMin(item->w->sizeHint().height(),
+                         item->w->maximumHeight());
+        maxH = qMax(maxH, itemH);
     }
-    l->addSpacing( 4 );
+    l->addSpacing(4);
 #ifndef QT_NO_SIZEGRIP
-    if ( d->resizer ) {
-	maxH = qMax( maxH, d->resizer->sizeHint().height() );
-	d->box->addSpacing( 1 );
-	d->box->addWidget( d->resizer, 0, AlignBottom );
+    if (d->resizer) {
+        maxH = qMax(maxH, d->resizer->sizeHint().height());
+        d->box->addSpacing(1);
+        d->box->addWidget(d->resizer, 0, AlignBottom);
     }
 #endif
-    l->addStrut( maxH );
+    l->addStrut(maxH);
     d->savedStrut = maxH;
-    vbox->addSpacing( 2 );
+    vbox->addSpacing(2);
     d->box->activate();
     repaint();
 }
@@ -336,14 +336,14 @@ void QStatusBar::reformat()
 
     \sa clear()
 */
-void QStatusBar::message( const QString &message )
+void QStatusBar::message(const QString &message)
 {
-    if ( d->tempItem == message )
-	return;
+    if (d->tempItem == message)
+        return;
     d->tempItem = message;
-    if ( d->timer ) {
-	delete d->timer;
-	d->timer = 0;
+    if (d->timer) {
+        delete d->timer;
+        d->timer = 0;
     }
     hideOrShow();
 }
@@ -356,19 +356,19 @@ void QStatusBar::message( const QString &message )
     ms milli-seconds or until clear() or another message() is called,
     whichever occurs first.
 */
-void QStatusBar::message( const QString &message, int ms )
+void QStatusBar::message(const QString &message, int ms)
 {
     d->tempItem = message;
 
-    if ( !d->timer ) {
-	d->timer = new QTimer( this );
-	connect( d->timer, SIGNAL(timeout()), this, SLOT(clear()) );
+    if (!d->timer) {
+        d->timer = new QTimer(this);
+        connect(d->timer, SIGNAL(timeout()), this, SLOT(clear()));
     }
-    if ( ms > 0 ) {
-	d->timer->start( ms );
-    } else if ( d->timer ) {
-	delete d->timer;
-	d->timer = 0;
+    if (ms > 0) {
+        d->timer->start(ms);
+    } else if (d->timer) {
+        delete d->timer;
+        d->timer = 0;
     }
 
     hideOrShow();
@@ -383,18 +383,18 @@ void QStatusBar::message( const QString &message, int ms )
 
 void QStatusBar::clear()
 {
-    if ( d->tempItem.isEmpty() )
-	return;
-    if ( d->timer ) {
-	delete d->timer;
-	d->timer = 0;
+    if (d->tempItem.isEmpty())
+        return;
+    if (d->timer) {
+        delete d->timer;
+        d->timer = 0;
     }
     d->tempItem = QString::null;
     hideOrShow();
 }
 
 /*!
-    \fn QStatusBar::messageChanged( const QString &message )
+    \fn QStatusBar::messageChanged(const QString &message)
 
     This signal is emitted when the temporary status messages
     changes. \a message is the new temporary message, and is a
@@ -413,16 +413,16 @@ void QStatusBar::hideOrShow()
 
     QStatusBarPrivate::SBItem* item = 0;
     for (int i=0; i<d->items.size(); ++i) {
-	item = d->items.at(i);
-	if (!item || item->p)
-	    break;
-	if ( haveMessage )
-	    item->w->hide();
-	else
-	    item->w->show();
+        item = d->items.at(i);
+        if (!item || item->p)
+            break;
+        if (haveMessage)
+            item->w->hide();
+        else
+            item->w->show();
     }
 
-    emit messageChanged( d->tempItem );
+    emit messageChanged(d->tempItem);
     repaint();
 }
 
@@ -430,91 +430,91 @@ void QStatusBar::hideOrShow()
 /*!
     Shows the temporary message, if appropriate.
 */
-void QStatusBar::paintEvent( QPaintEvent * )
+void QStatusBar::paintEvent(QPaintEvent *)
 {
     bool haveMessage = !d->tempItem.isEmpty();
 
-    QPainter p( this );
+    QPainter p(this);
     QStatusBarPrivate::SBItem* item = 0;
 
 #ifndef QT_NO_SIZEGRIP
-    int psx = ( d->resizer && d->resizer->isVisible() ) ? d->resizer->x() : width()-12;
+    int psx = (d->resizer && d->resizer->isVisible()) ? d->resizer->x() : width()-12;
 #else
     int psx = width() - 12;
 #endif
 
     for (int i=0; i<d->items.size(); ++i) {
-	item = d->items.at(i);
-	if (!item)
-	    break;
-	if ( !haveMessage || item->p )
-	    if ( item->w->isVisible() ) {
-		if ( item->p && item->w->x()-1 < psx )
-		    psx = item->w->x()-1;
-		style().drawPrimitive( QStyle::PE_StatusBarSection, &p,
-				       QRect(item->w->x() - 1, item->w->y() - 1,
-					     item->w->width()+2, item->w->height()+2),
-				       palette(), QStyle::Style_Default,
-				       QStyleOption(item->w) );
-	    }
+        item = d->items.at(i);
+        if (!item)
+            break;
+        if (!haveMessage || item->p)
+            if (item->w->isVisible()) {
+                if (item->p && item->w->x()-1 < psx)
+                    psx = item->w->x()-1;
+                style().drawPrimitive(QStyle::PE_StatusBarSection, &p,
+                                       QRect(item->w->x() - 1, item->w->y() - 1,
+                                             item->w->width()+2, item->w->height()+2),
+                                       palette(), QStyle::Style_Default,
+                                       QStyleOption(item->w));
+            }
     }
-    if ( haveMessage ) {
-	p.setPen( palette().foreground() );
-	p.drawText( 6, 0, psx, height(), AlignVCenter | SingleLine, d->tempItem );
+    if (haveMessage) {
+        p.setPen(palette().foreground());
+        p.drawText(6, 0, psx, height(), AlignVCenter | SingleLine, d->tempItem);
     }
 }
 
 /*!
     \reimp
 */
-void QStatusBar::resizeEvent( QResizeEvent * e )
+void QStatusBar::resizeEvent(QResizeEvent * e)
 {
-    QWidget::resizeEvent( e );
+    QWidget::resizeEvent(e);
 }
 
 /*!
     \reimp
 */
 
-bool QStatusBar::event( QEvent *e )
+bool QStatusBar::event(QEvent *e)
 {
-    if ( e->type() == QEvent::LayoutHint ) {
-	// Calculate new strut height and call reformat() if it has changed
-	int maxH = fontMetrics().height();
+    if (e->type() == QEvent::LayoutHint) {
+        // Calculate new strut height and call reformat() if it has changed
+        int maxH = fontMetrics().height();
 
-	QStatusBarPrivate::SBItem* item = 0;
-	for (int i=0; i<d->items.size(); ++i) {
-	    item = d->items.at(i);
-	    if (!item)
-		break;
-	    int itemH = qMin(item->w->sizeHint().height(),
-			    item->w->maximumHeight());
-	    maxH = qMax( maxH, itemH );
-	}
+        QStatusBarPrivate::SBItem* item = 0;
+        for (int i=0; i<d->items.size(); ++i) {
+            item = d->items.at(i);
+            if (!item)
+                break;
+            int itemH = qMin(item->w->sizeHint().height(),
+                            item->w->maximumHeight());
+            maxH = qMax(maxH, itemH);
+        }
 
 #ifndef QT_NO_SIZEGRIP
-	if ( d->resizer )
-	    maxH = qMax( maxH, d->resizer->sizeHint().height() );
+        if (d->resizer)
+            maxH = qMax(maxH, d->resizer->sizeHint().height());
 #endif
 
-	if ( maxH != d->savedStrut )
-	    reformat();
-	else
-	    update();
+        if (maxH != d->savedStrut)
+            reformat();
+        else
+            update();
     }
-    if ( e->type() == QEvent::ChildRemoved ) {
-	QStatusBarPrivate::SBItem* item = 0;
-	for (int i=0; i<d->items.size(); ++i) {
-	    item = d->items.at(i);
-	    if (!item)
-		break;
-	    if (item->w == ((QChildEvent*)e)->child()) {
-		d->items.removeAt(i);
+    if (e->type() == QEvent::ChildRemoved) {
+        QStatusBarPrivate::SBItem* item = 0;
+        for (int i=0; i<d->items.size(); ++i) {
+            item = d->items.at(i);
+            if (!item)
+                break;
+            if (item->w == ((QChildEvent*)e)->child()) {
+                d->items.removeAt(i);
                 delete item;
-	    }
-	}
+            }
+        }
     }
-    return QWidget::event( e );
+    return QWidget::event(e);
 }
 
 #endif

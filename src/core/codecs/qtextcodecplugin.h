@@ -33,10 +33,10 @@ public:
     ~QTextCodecPlugin();
 
     virtual QStringList names() const = 0;
-    virtual QTextCodec *createForName( const QString &name ) = 0;
+    virtual QTextCodec *createForName(const QString &name) = 0;
 
     virtual QList<int> mibEnums() const = 0;
-    virtual QTextCodec *createForMib( int mib ) = 0;
+    virtual QTextCodec *createForMib(int mib) = 0;
 
 private:
     QTextCodecPluginPrivate *d;

@@ -31,7 +31,7 @@ class Q_CORE_EXPORT QThread : public QObject
 
 public:
 #ifdef QT_COMPAT
-    static QT_COMPAT void postEvent( QObject *,QEvent * );
+    static QT_COMPAT void postEvent(QObject *,QEvent *);
 #endif
 
     static Qt::HANDLE currentThread();
@@ -41,33 +41,33 @@ public:
 
     static void exit();
 
-    QThread( unsigned int stackSize = 0 );
+    QThread(unsigned int stackSize = 0);
     virtual ~QThread();
 
     enum Priority {
-	IdlePriority,
+        IdlePriority,
 
-	LowestPriority,
-	LowPriority,
-	NormalPriority,
-	HighPriority,
-	HighestPriority,
+        LowestPriority,
+        LowPriority,
+        NormalPriority,
+        HighPriority,
+        HighestPriority,
 
-	TimeCriticalPriority,
+        TimeCriticalPriority,
 
-	InheritPriority
+        InheritPriority
     };
 
     bool isFinished() const;
     bool isRunning() const;
 
 public slots:
-    void start( Priority = InheritPriority );
+    void start(Priority = InheritPriority);
     void terminate();
 
 public:
     // default argument causes thread to block indefinately
-    bool wait( unsigned long time = ULONG_MAX );
+    bool wait(unsigned long time = ULONG_MAX);
 
 signals:
     void started();
@@ -77,17 +77,17 @@ signals:
 protected:
     virtual void run() = 0;
 
-    static void sleep( unsigned long );
-    static void msleep( unsigned long );
-    static void usleep( unsigned long );
+    static void sleep(unsigned long);
+    static void msleep(unsigned long);
+    static void usleep(unsigned long);
 
 private:
     QThreadInstance * d;
     friend struct QThreadInstance;
 
 #if defined(Q_DISABLE_COPY)
-    QThread( const QThread & );
-    QThread &operator=( const QThread & );
+    QThread(const QThread &);
+    QThread &operator=(const QThread &);
 #endif // Q_DISABLE_COPY
 };
 

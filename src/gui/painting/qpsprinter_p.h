@@ -43,10 +43,10 @@ class Q_GUI_EXPORT QPSPrinter : public QPaintEngine
 {
 private:
     // QPrinter uses these
-    QPSPrinter( QPrinter *, int );
+    QPSPrinter(QPrinter *, int);
    ~QPSPrinter();
 
-    virtual bool begin(QPaintDevice *pdev, QPainterState *state, bool unclipped = FALSE);
+    virtual bool begin(QPaintDevice *pdev, QPainterState *state, bool unclipped = false);
     virtual bool end();
 
     virtual void updatePen(QPainterState *ps);
@@ -94,8 +94,8 @@ private:
     QPSPrinterPrivate *d;
 
     // Disabled copy constructor and operator=
-    QPSPrinter( const QPSPrinter & );
-    QPSPrinter &operator=( const QPSPrinter & );
+    QPSPrinter(const QPSPrinter &);
+    QPSPrinter &operator=(const QPSPrinter &);
 };
 
 #endif // QT_NO_PRINTER

@@ -38,7 +38,7 @@ public:
     void open(const QModelIndex &item);
     void close(const QModelIndex &item);
     bool isOpen(const QModelIndex &item) const;
-    
+
 public slots:
     void hideColumn(int column);
 
@@ -54,7 +54,7 @@ protected:
     void contentsRemoved(const QModelIndex &parent, const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void startItemsLayout();
     bool doItemsLayout(int num);
-    
+
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state);
     QModelIndex itemAt(int x, int y) const;
     int horizontalOffset() const;
@@ -72,7 +72,7 @@ protected:
     virtual void drawBranches(QPainter *painter, const QRect &rect, const QModelIndex &index) const;
 
     void mousePressEvent(QMouseEvent *e);
-    
+
     void updateGeometries();
     void verticalScrollbarAction(int action);
     void horizontalScrollbarAction(int action);

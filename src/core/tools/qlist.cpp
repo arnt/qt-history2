@@ -22,41 +22,41 @@ int QListData::grow(int size)
 
 QListData::Data *QListData::detach()
 {
-    Q_ASSERT( d->ref != 1 );
+    Q_ASSERT(d->ref != 1);
     Data *x = static_cast<Data*>(qMalloc(sizeof(DataHeader)+d->alloc*sizeof(void*)));
     ::memcpy(x, d, sizeof(DataHeader) + d->alloc*sizeof(void*));
     x->alloc = d->alloc;
     x->ref = 1;
     if (!x->alloc)
-	x->begin = x->end = 0;
+        x->begin = x->end = 0;
 
     x = qAtomicSetPtr(&d, x);
     if (!--x->ref)
-	return x;
+        return x;
     return 0;
 }
 
 void QListData::realloc(int alloc)
 {
-    Q_ASSERT( d->ref == 1 );
+    Q_ASSERT(d->ref == 1);
     d = static_cast<Data*>(qRealloc(d, sizeof(DataHeader)+alloc*sizeof(void*)));
     d->alloc = alloc;
     if (!alloc)
-	d->begin = d->end = 0;
+        d->begin = d->end = 0;
 }
 
 
 void **QListData::append()
 {
-    Q_ASSERT( d->ref == 1 );
+    Q_ASSERT(d->ref == 1);
     if (d->end == d->alloc) {
-	int n = d->end - d->begin;
-	if (d->begin > 2 * d->alloc / 3) {
-	    ::memcpy(d->array + n, d->array + d->begin, n * sizeof(void *));
+        int n = d->end - d->begin;
+        if (d->begin > 2 * d->alloc / 3) {
+            ::memcpy(d->array + n, d->array + d->begin, n * sizeof(void *));
             d->begin = n;
             d->end = n * 2;
         } else {
-	    realloc(grow(d->alloc + 1));
+            realloc(grow(d->alloc + 1));
         }
     }
     return d->array + d->end++;
@@ -64,31 +64,31 @@ void **QListData::append()
 
 void **QListData::append(const QListData& l)
 {
-    Q_ASSERT( d->ref == 1 );
+    Q_ASSERT(d->ref == 1);
     int e = d->end;
     int n = l.d->end - l.d->begin;
     if (n) {
-	if (e + n > d->alloc)
-	    realloc(grow(e + l.d->end - l.d->begin));
-	::memcpy(d->array + d->end, l.d->array + l.d->begin, n * sizeof(void*));
-	d->end += n;
+        if (e + n > d->alloc)
+            realloc(grow(e + l.d->end - l.d->begin));
+        ::memcpy(d->array + d->end, l.d->array + l.d->begin, n * sizeof(void*));
+        d->end += n;
     }
     return d->array + e;
 }
 
 void **QListData::prepend()
 {
-    Q_ASSERT( d->ref == 1 );
+    Q_ASSERT(d->ref == 1);
     if (d->begin == 0) {
-	if (d->end >= d->alloc / 3)
-	    realloc(grow(d->alloc + 1));
+        if (d->end >= d->alloc / 3)
+            realloc(grow(d->alloc + 1));
 
-	if (d->end < d->alloc / 3)
-	    d->begin = d->alloc - 2 * d->end;
+        if (d->end < d->alloc / 3)
+            d->begin = d->alloc - 2 * d->end;
         else
-	    d->begin = d->alloc - d->end;
+            d->begin = d->alloc - d->end;
 
-	::memmove(d->array + d->begin, d->array, d->end * sizeof(void *));
+        ::memmove(d->array + d->begin, d->array, d->end * sizeof(void *));
         d->end += d->begin;
     }
     return d->array + --d->begin;
@@ -96,16 +96,16 @@ void **QListData::prepend()
 
 void **QListData::insert(int i)
 {
-    Q_ASSERT( d->ref == 1 );
+    Q_ASSERT(d->ref == 1);
     if (i <= 0)
-	return prepend();
+        return prepend();
     if (i >= d->end - d->begin)
-	return append();
+        return append();
     if (d->end + 1 > d->alloc)
-	realloc(grow(d->alloc + 1));
+        realloc(grow(d->alloc + 1));
     i += d->begin;
     ::memmove(d->array + i + 1, d->array + i,
-	       (d->end-i) * sizeof(void*));
+               (d->end-i) * sizeof(void*));
     d->end++;
     return d->array + i;
 }
@@ -113,79 +113,79 @@ void **QListData::insert(int i)
 
 void QListData::remove(int i)
 {
-    Q_ASSERT( d->ref == 1 );
+    Q_ASSERT(d->ref == 1);
     i += d->begin;
     if (i - d->begin < d->end - i) {
-	if (int offset = i - d->begin)
-	    ::memmove(d->array + d->begin + 1,  d->array + d->begin, offset * sizeof(void *));
-	d->begin++;
+        if (int offset = i - d->begin)
+            ::memmove(d->array + d->begin + 1,  d->array + d->begin, offset * sizeof(void *));
+        d->begin++;
     } else {
-	if (int offset = d->end - i - 1)
-	    ::memmove(d->array + i,  d->array + i + 1, offset * sizeof(void *));
-	d->end--;
+        if (int offset = d->end - i - 1)
+            ::memmove(d->array + i,  d->array + i + 1, offset * sizeof(void *));
+        d->end--;
     }
 }
 
 
 void QListData::remove(int i, int n)
 {
-    Q_ASSERT( d->ref == 1 );
+    Q_ASSERT(d->ref == 1);
     i += d->begin;
     int middle = i + n/2;
     if (middle - d->begin < d->end - middle) {
-	::memmove(d->array + d->begin + n,  d->array + d->begin,
-		   (i - d->begin) * sizeof(void*));
-	d->begin += n;
+        ::memmove(d->array + d->begin + n,  d->array + d->begin,
+                   (i - d->begin) * sizeof(void*));
+        d->begin += n;
     } else {
-	::memmove(d->array + i,  d->array + i + n,
-		   (d->end - i - n) * sizeof(void*));
-	d->end -= n;
+        ::memmove(d->array + i,  d->array + i + n,
+                   (d->end - i - n) * sizeof(void*));
+        d->end -= n;
     }
 }
 
 void QListData::move(int from, int to)
 {
-    Q_ASSERT( d->ref == 1 );
+    Q_ASSERT(d->ref == 1);
     if (from == to)
-	return;
+        return;
 
     from += d->begin;
     to += d->begin;
     void *t = d->array[from];
 
     if (from < to) {
-	if (d->end == d->alloc || 3 * (to - from) < 2 * (d->end - d->begin)) {
-	    ::memmove(d->array + from, d->array + from + 1, (to - from) * sizeof(void *));
+        if (d->end == d->alloc || 3 * (to - from) < 2 * (d->end - d->begin)) {
+            ::memmove(d->array + from, d->array + from + 1, (to - from) * sizeof(void *));
         } else {
-	    // optimization
-	    if (int offset = from - d->begin)
-	        ::memmove(d->array + d->begin + 1, d->array + d->begin, offset * sizeof(void *));
-	    if (int offset = d->end - (to + 1))
-		::memmove(d->array + to + 2, d->array + to + 1, offset * sizeof(void *));
-	    ++d->begin;
+            // optimization
+            if (int offset = from - d->begin)
+                ::memmove(d->array + d->begin + 1, d->array + d->begin, offset * sizeof(void *));
+            if (int offset = d->end - (to + 1))
+                ::memmove(d->array + to + 2, d->array + to + 1, offset * sizeof(void *));
+            ++d->begin;
             ++d->end;
             ++to;
-	}
+        }
     } else {
-	if (d->begin == 0 || 3 * (from - to) < 2 * (d->end - d->begin)) {
-	    ::memmove(d->array + to + 1, d->array + to, (from - to) * sizeof(void *));
-	} else {
-	    // optimization
-	    if (int offset = to - d->begin)
-		::memmove(d->array + d->begin - 1, d->array + d->begin, offset * sizeof(void *));
-	    if (int offset = d->end - (from + 1))
-		::memmove(d->array + from, d->array + from + 1, offset * sizeof(void *));
-	    --d->begin;
+        if (d->begin == 0 || 3 * (from - to) < 2 * (d->end - d->begin)) {
+            ::memmove(d->array + to + 1, d->array + to, (from - to) * sizeof(void *));
+        } else {
+            // optimization
+            if (int offset = to - d->begin)
+                ::memmove(d->array + d->begin - 1, d->array + d->begin, offset * sizeof(void *));
+            if (int offset = d->end - (from + 1))
+                ::memmove(d->array + from, d->array + from + 1, offset * sizeof(void *));
+            --d->begin;
             --d->end;
             --to;
-	}
+        }
     }
     d->array[to] = t;
 }
 
 void **QListData::erase(void **xi)
 {
-    Q_ASSERT( d->ref == 1 );
+    Q_ASSERT(d->ref == 1);
     int i = xi - (d->array + d->begin);
     remove(i);
     return d->array + d->begin + i;
@@ -224,7 +224,7 @@ void **QListData::erase(void **xi)
     a QList that stores QDate values:
 
     \code
-	QList<int> integerList;
+        QList<int> integerList;
         QList<QDate> dateList;
     \endcode
 
@@ -238,9 +238,9 @@ void **QListData::erase(void **xi)
     operator<<():
 
     \code
-	QList<QString> list;
+        QList<QString> list;
         list << "one" << "two" << "three";
-        // list: [ "one", "two", "three" ]
+        // list: ["one", "two", "three"]
     \endcode
 
     QList provides these basic functions to add, move, and remove
@@ -254,16 +254,16 @@ void **QListData::erase(void **xi)
     can be used on the left side of an assignment:
 
     \code
-	if (list[0] == "Bob")
-	    list[0] = "Robert";
+        if (list[0] == "Bob")
+            list[0] = "Robert";
     \endcode
 
     For read-only access, an alternative syntax is to use at():
 
     \code
-	for (int i = 0; i < list.size(); ++i) {
-	    if (list.at(i) == "Jane")
-		cout << "Found Jane at position " << i << endl;
+        for (int i = 0; i < list.size(); ++i) {
+            if (list.at(i) == "Jane")
+                cout << "Found Jane at position " << i << endl;
         }
     \endcode
 
@@ -274,10 +274,10 @@ void **QListData::erase(void **xi)
     takeFirst(), and takeLast(). Here's a loop that removes the items
     from a list one at a time and calls \c delete on them:
     \code
-	QList<QWidget *> list;
+        QList<QWidget *> list;
         ...
         while (!list.isEmpty())
-	    delete list.takeFirst();
+            delete list.takeFirst();
     \endcode
 
     Inserting and removing items at either ends of the list is very
@@ -292,9 +292,9 @@ void **QListData::erase(void **xi)
     it; otherwise, they return -1. For example:
 
     \code
-	int i = list.indexOf("Jane");
+        int i = list.indexOf("Jane");
         if (i != -1)
-	    cout << "First occurrence of Jane is at position " << i << endl;
+            cout << "First occurrence of Jane is at position " << i << endl;
     \endcode
 
     If you simply want to check whether a list contains a particular
@@ -449,11 +449,11 @@ void **QListData::erase(void **xi)
 
     Example:
     \code
-	QList<QString> list;
+        QList<QString> list;
         list.append("one");
         list.append("two");
         list.append("three");
-        // list: [ "one", "two", "three" ]
+        // list: ["one", "two", "three"]
     \endcode
 
     This is the same as list.insert(size(), \a value).
@@ -472,11 +472,11 @@ void **QListData::erase(void **xi)
 
     Example:
     \code
-	QList<QString> list;
+        QList<QString> list;
         list.prepend("one");
         list.prepend("two");
         list.prepend("three");
-        // list: [ "three", "two", "one" ]
+        // list: ["three", "two", "one"]
     \endcode
 
     This is the same as list.insert(0, \a value).
@@ -496,10 +496,10 @@ void **QListData::erase(void **xi)
 
     Example:
     \code
-	QList<QString> list;
+        QList<QString> list;
         list << "alpha" << "beta" << "delta";
         list.insert(2, "gamma");
-        // list: [ "alpha", "beta", "gamma", "delta" ]
+        // list: ["alpha", "beta", "gamma", "delta"]
     \endcode
 
     \sa append(), prepend(), replace(), removeAt()
@@ -529,10 +529,10 @@ void **QListData::erase(void **xi)
 
     Example:
     \code
-	QList<QString> list;
+        QList<QString> list;
         list << "sun" << "cloud" << "sun" << "rain";
         list.remove("sun");
-        // list: [ "cloud", "rain" ]
+        // list: ["cloud", "rain"]
     \endcode
 
     This function requires the value type to have an implementation of
@@ -593,10 +593,10 @@ void **QListData::erase(void **xi)
 
     Example:
     \code
-	QList<QString> list;
+        QList<QString> list;
         list << "A" << "B" << "C" << "D" << "E" << "F";
         list.move(1, 4);
-        // list: [ "A", "C", "D", "E", "B", "F" ]
+        // list: ["A", "C", "D", "E", "B", "F"]
     \endcode
 
     This is the same as insert(\a{to}, takeAt(\a{from})).
@@ -611,10 +611,10 @@ void **QListData::erase(void **xi)
 
     Example:
     \code
-	QList<QString> list;
+        QList<QString> list;
         list << "A" << "B" << "C" << "D" << "E" << "F";
         list.swap(1, 4);
-        // list: [ "A", "E", "C", "D", "B", "F" ]
+        // list: ["A", "E", "C", "D", "B", "F"]
     \endcode
 
     \sa move()
@@ -628,7 +628,7 @@ void **QListData::erase(void **xi)
 
     Example:
     \code
-	QList<QString> list;
+        QList<QString> list;
         list << "A" << "B" << "C" << "B" << "A";
         list.indexOf("B");          // returns 1
         list.indexOf("B", 1);       // returns 1
@@ -651,12 +651,12 @@ void **QListData::erase(void **xi)
 
     Example:
     \code
-	QList<QString> list;
+        QList<QString> list;
         list << "A" << "B" << "C" << "B" << "A";
         list.lastIndexOf("B");      // returns 3
         list.lastIndexOf("B", 3);   // returns 3
         list.lastIndexOf("B", 2);   // returns 1
-	list.lastIndexOf("X");      // returns -1
+        list.lastIndexOf("X");      // returns -1
     \endcode
 
     This function requires the value type to have an implementation of
@@ -944,7 +944,7 @@ void **QListData::erase(void **xi)
     stored in a list:
 
     \code
-	QList<QString> list;
+        QList<QString> list;
         list.append("January");
         list.append("February");
         ...
@@ -952,7 +952,7 @@ void **QListData::erase(void **xi)
 
         QList<QString, int>::iterator i;
         for (i = list.begin(); i != list.end(); ++i)
-	    cout << *i << endl;
+            cout << *i << endl;
     \endcode
 
     Let's see a few examples of things we can do with a
@@ -961,9 +961,9 @@ void **QListData::erase(void **xi)
     QList\<int\> by 2:
 
     \code
-	QList<int>::iterator i;
+        QList<int>::iterator i;
         for (i = list.begin(); i != list.end(); ++i)
-	    *i += 2;
+            *i += 2;
     \endcode
 
     Most QList functions accept an integer index rather than an
@@ -975,9 +975,9 @@ void **QListData::erase(void **xi)
     QList\<QWidget *\>:
 
     \code
-	QList<QWidget *> list;
+        QList<QWidget *> list;
         ...
-	qDeleteAll(list.begin(), list.end());
+        qDeleteAll(list.begin(), list.end());
     \endcode
 
     Multiple iterators can be used on the same list. However, be
@@ -1041,8 +1041,8 @@ void **QListData::erase(void **xi)
     left side of an assignment, for example:
 
     \code
-	if (*it == "Hello")
-	    *it = "Bonjour";
+        if (*it == "Hello")
+            *it = "Bonjour";
     \endcode
 */
 
@@ -1173,7 +1173,7 @@ void **QListData::erase(void **xi)
     loop that prints all the items stored in a list:
 
     \code
-	QList<QString> list;
+        QList<QString> list;
         list.append("January");
         list.append("February");
         ...
@@ -1181,7 +1181,7 @@ void **QListData::erase(void **xi)
 
         QList<QString, int>::const_iterator i;
         for (i = list.constBegin(); i != list.constEnd(); ++i)
-	    cout << *i << endl;
+            cout << *i << endl;
     \endcode
 
     Most QList functions accept an integer index rather than an
@@ -1193,9 +1193,9 @@ void **QListData::erase(void **xi)
     QList\<QWidget *\>:
 
     \code
-	QList<QWidget *> list;
+        QList<QWidget *> list;
         ...
-	qDeleteAll(list.constBegin(), list.constEnd());
+        qDeleteAll(list.constBegin(), list.constEnd());
     \endcode
 
     Multiple iterators can be used on the same list. However, be

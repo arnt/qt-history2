@@ -37,78 +37,78 @@ class Q_CORE_EXPORT QCoreVariant
 {
  public:
     enum Type {
-	Invalid = 0,
-	Map = 1,
-	List = 2,
-	String = 3,
-	StringList =4,
-	Font = 5,
-	Pixmap = 6,
-	Brush = 7,
-	Rect = 8,
-	Size = 9,
-	Color = 10,
-	Palette = 11,
+        Invalid = 0,
+        Map = 1,
+        List = 2,
+        String = 3,
+        StringList =4,
+        Font = 5,
+        Pixmap = 6,
+        Brush = 7,
+        Rect = 8,
+        Size = 9,
+        Color = 10,
+        Palette = 11,
 #ifdef QT_COMPAT
-	ColorGroup = 12,
+        ColorGroup = 12,
 #endif
-	IconSet = 13,
-	Point = 14,
-	Image = 15,
-	Int = 16,
-	UInt = 17,
-	Bool = 18,
-	Double = 19,
-	PointArray = 21,
-	Region = 22,
-	Bitmap = 23,
-	Cursor = 24,
-	SizePolicy = 25,
-	Date = 26,
-	Time = 27,
-	DateTime = 28,
-	ByteArray = 29,
+        IconSet = 13,
+        Point = 14,
+        Image = 15,
+        Int = 16,
+        UInt = 17,
+        Bool = 18,
+        Double = 19,
+        PointArray = 21,
+        Region = 22,
+        Bitmap = 23,
+        Cursor = 24,
+        SizePolicy = 25,
+        Date = 26,
+        Time = 27,
+        DateTime = 28,
+        ByteArray = 29,
 #ifndef Q_QDOC
-	CString = ByteArray,
+        CString = ByteArray,
 #endif
-	BitArray = 30,
-	KeySequence = 31,
-	Pen = 32,
-	LongLong = 33,
-	ULongLong = 34,
-	UserType = 35
+        BitArray = 30,
+        KeySequence = 31,
+        Pen = 32,
+        LongLong = 33,
+        ULongLong = 34,
+        UserType = 35
     };
 
     class UserData {
     public:
-	inline UserData(void *data, const QByteArray &description)
-	    : ptr(data), desc(description)
-	{
-	}
+        inline UserData(void *data, const QByteArray &description)
+            : ptr(data), desc(description)
+        {
+        }
 
-	inline UserData(const UserData &other)
-	    : ptr(other.ptr), desc(other.desc)
-	{
-	}
+        inline UserData(const UserData &other)
+            : ptr(other.ptr), desc(other.desc)
+        {
+        }
 
-	inline UserData &operator=(const UserData &other)
-	{
-	    ptr = other.ptr;
-	    desc = other.desc;
-	    return *this;
-	}
+        inline UserData &operator=(const UserData &other)
+        {
+            ptr = other.ptr;
+            desc = other.desc;
+            return *this;
+        }
 
-	inline bool operator==(const UserData &other) const
-	{ return ptr == other.ptr && desc == other.desc; }
-	inline bool operator!=(const UserData &other) const
-	{ return ptr != other.ptr || desc != other.desc; }
+        inline bool operator==(const UserData &other) const
+        { return ptr == other.ptr && desc == other.desc; }
+        inline bool operator!=(const UserData &other) const
+        { return ptr != other.ptr || desc != other.desc; }
 
-	inline void *data() const { return ptr; }
-	inline QByteArray description() const { return desc; }
+        inline void *data() const { return ptr; }
+        inline QByteArray description() const { return desc; }
 
     private:
-	void *ptr;
-	QByteArray desc;
+        void *ptr;
+        QByteArray desc;
     };
 
     inline QCoreVariant();
@@ -215,7 +215,7 @@ class Q_CORE_EXPORT QCoreVariant
     inline QT_COMPAT QByteArray &asCString() { return *static_cast<QByteArray *>(castOrDetach(ByteArray)); }
 #endif
 
-    void *rawAccess(void *ptr = 0, Type typ = Invalid, bool deepCopy = FALSE);
+    void *rawAccess(void *ptr = 0, Type typ = Invalid, bool deepCopy = false);
     void *data();
     const void *constData() const;
     inline const void *data() const { return constData(); }
@@ -225,20 +225,20 @@ class Q_CORE_EXPORT QCoreVariant
  public:
     struct Private
     {
-	QAtomic ref;
-	uint type : 31;
-	uint is_null : 1;
-	union
-	{
-	    uint u;
-	    int i;
-	    Q_LLONG ll;
-	    Q_ULLONG ull;
-	    bool b;
-	    double d;
-	    void *ptr;
-	} value;
-	mutable void *str_cache;
+        QAtomic ref;
+        uint type : 31;
+        uint is_null : 1;
+        union
+        {
+            uint u;
+            int i;
+            Q_LLONG ll;
+            Q_ULLONG ull;
+            bool b;
+            double d;
+            void *ptr;
+        } value;
+        mutable void *str_cache;
     };
  public:
     typedef void (*f_construct)(Private *, const void *);
@@ -252,16 +252,16 @@ class Q_CORE_EXPORT QCoreVariant
     typedef void (*f_cast)(QCoreVariant::Private *d, Type t, void *, bool *);
     typedef bool (*f_canCast)(QCoreVariant::Private *d, Type t);
     struct Handler {
-	f_construct construct;
-	f_clear clear;
-	f_null isNull;
+        f_construct construct;
+        f_clear clear;
+        f_null isNull;
 #ifndef QT_NO_DATASTREAM
-	f_load load;
-	f_save save;
+        f_load load;
+        f_save save;
 #endif
-	f_compare compare;
-	f_cast cast;
-	f_canCast canCast;
+        f_compare compare;
+        f_cast cast;
+        f_canCast canCast;
     };
 
 protected:
@@ -368,10 +368,10 @@ inline QMap<QString, QCoreVariant>& QCoreVariant::asMap()
 #endif //QT_COMPAT
 
 #ifndef QT_NO_DATASTREAM
-Q_CORE_EXPORT QDataStream& operator>> ( QDataStream& s, QCoreVariant& p );
-Q_CORE_EXPORT QDataStream& operator<< ( QDataStream& s, const QCoreVariant& p );
-Q_CORE_EXPORT QDataStream& operator>> ( QDataStream& s, QCoreVariant::Type& p );
-Q_CORE_EXPORT QDataStream& operator<< ( QDataStream& s, const QCoreVariant::Type p );
+Q_CORE_EXPORT QDataStream& operator>> (QDataStream& s, QCoreVariant& p);
+Q_CORE_EXPORT QDataStream& operator<< (QDataStream& s, const QCoreVariant& p);
+Q_CORE_EXPORT QDataStream& operator>> (QDataStream& s, QCoreVariant::Type& p);
+Q_CORE_EXPORT QDataStream& operator<< (QDataStream& s, const QCoreVariant::Type p);
 #endif
 
 inline bool QCoreVariant::isDetached() const

@@ -20,7 +20,7 @@ class QODBCDriverPlugin : public QSqlDriverPlugin
 public:
     QODBCDriverPlugin();
 
-    QSqlDriver* create( const QString & );
+    QSqlDriver* create(const QString &);
     QStringList keys() const;
 };
 
@@ -29,11 +29,11 @@ QODBCDriverPlugin::QODBCDriverPlugin()
 {
 }
 
-QSqlDriver* QODBCDriverPlugin::create( const QString &name )
+QSqlDriver* QODBCDriverPlugin::create(const QString &name)
 {
-    if ( name == "QODBC3" ) {
-	QODBCDriver* driver = new QODBCDriver();
-	return driver;
+    if (name == "QODBC3") {
+        QODBCDriver* driver = new QODBCDriver();
+        return driver;
     }
     return 0;
 }
@@ -45,4 +45,4 @@ QStringList QODBCDriverPlugin::keys() const
     return l;
 }
 
-Q_EXPORT_PLUGIN( QODBCDriverPlugin )
+Q_EXPORT_PLUGIN(QODBCDriverPlugin)

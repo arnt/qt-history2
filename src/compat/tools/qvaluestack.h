@@ -26,13 +26,13 @@ class QValueStack : public QValueList<T>
 public:
     QValueStack() {}
    ~QValueStack() {}
-    void  push( const T& val ) { this->append(val); }
+    void  push(const T& val) { this->append(val); }
     T pop()
     {
-	T elem( this->last() );
-	if ( !this->isEmpty() )
-	    this->remove( this->fromLast() );
-	return elem;
+        T elem(this->last());
+        if (!this->isEmpty())
+            this->remove(this->fromLast());
+        return elem;
     }
     T& top() { return this->last(); }
     const T& top() const { return this->last(); }

@@ -37,8 +37,8 @@ class Q_GUI_EXPORT QInputDialog : public QDialog
 private:
     enum Type { LineEdit, SpinBox, ComboBox, EditableComboBox };
 
-    QInputDialog( const QString &label, QWidget* parent=0, const char* name=0,
-		 bool modal = TRUE, Type type = LineEdit, WFlags f = 0 );
+    QInputDialog(const QString &label, QWidget* parent=0, const char* name=0,
+                 bool modal = true, Type type = LineEdit, WFlags f = 0);
     ~QInputDialog();
 
     QLineEdit *lineEdit() const;
@@ -46,34 +46,34 @@ private:
     QComboBox *comboBox() const;
     QComboBox *editableComboBox() const;
 
-    void setType( Type t );
+    void setType(Type t);
     Type type() const;
 
 public:
-    static QString getText( const QString &caption, const QString &label, QLineEdit::EchoMode echo = QLineEdit::Normal,
-			    const QString &text = QString::null, bool *ok = 0, QWidget *parent = 0, const char *name = 0, WFlags f = 0 );
-    static int getInteger( const QString &caption, const QString &label, int value = 0, int minValue = -2147483647,
-			   int maxValue = 2147483647,
-			   int step = 1, bool *ok = 0, QWidget *parent = 0, const char *name = 0, WFlags f = 0 );
-    static double getDouble( const QString &caption, const QString &label, double value = 0,
-			     double minValue = -2147483647, double maxValue = 2147483647,
-			     int decimals = 1, bool *ok = 0, QWidget *parent = 0, const char *name = 0, WFlags f = 0 );
-    static QString getItem( const QString &caption, const QString &label, const QStringList &list,
-			    int current = 0, bool editable = TRUE,
-			    bool *ok = 0, QWidget *parent = 0, const char *name = 0, WFlags f = 0 );
+    static QString getText(const QString &caption, const QString &label, QLineEdit::EchoMode echo = QLineEdit::Normal,
+                            const QString &text = QString::null, bool *ok = 0, QWidget *parent = 0, const char *name = 0, WFlags f = 0);
+    static int getInteger(const QString &caption, const QString &label, int value = 0, int minValue = -2147483647,
+                           int maxValue = 2147483647,
+                           int step = 1, bool *ok = 0, QWidget *parent = 0, const char *name = 0, WFlags f = 0);
+    static double getDouble(const QString &caption, const QString &label, double value = 0,
+                             double minValue = -2147483647, double maxValue = 2147483647,
+                             int decimals = 1, bool *ok = 0, QWidget *parent = 0, const char *name = 0, WFlags f = 0);
+    static QString getItem(const QString &caption, const QString &label, const QStringList &list,
+                            int current = 0, bool editable = true,
+                            bool *ok = 0, QWidget *parent = 0, const char *name = 0, WFlags f = 0);
 
 private slots:
-    void textChanged( const QString &s );
+    void textChanged(const QString &s);
     void tryAccept();
 
 private:
     QInputDialogPrivate *d;
     friend class QInputDialogPrivate; /* to avoid 'has no friends' warnings... */
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QInputDialog( const QInputDialog & );
-    QInputDialog &operator=( const QInputDialog & );
+    QInputDialog(const QInputDialog &);
+    QInputDialog &operator=(const QInputDialog &);
 #endif
 };
 

@@ -26,34 +26,34 @@ class Q_CORE_EXPORT QTimer : public QObject
     Q_OBJECT
 
 public:
-    QTimer( QObject *parent=0, const char *name=0 );
+    QTimer(QObject *parent=0, const char *name=0);
     ~QTimer();
 
-    static void singleShot( int msec, QObject *receiver, const char *member );
+    static void singleShot(int msec, QObject *receiver, const char *member);
 
-    bool	isActive() const;
-    int		timerId() const	{ return id; }
+    bool        isActive() const;
+    int                timerId() const        { return id; }
 
 public slots:
-    int		start( int msec, bool sshot = FALSE );
-    void	changeInterval( int msec );
-    void	stop();
+    int                start(int msec, bool sshot = false);
+    void        changeInterval(int msec);
+    void        stop();
 
 signals:
-    void	timeout();
+    void        timeout();
 
 protected:
-    bool	event( QEvent * );
+    bool        event(QEvent *);
 
 private:
     int id;
     uint single : 1;
     uint nulltimer : 1;
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QTimer( const QTimer & );
-    QTimer &operator=( const QTimer & );
+    QTimer(const QTimer &);
+    QTimer &operator=(const QTimer &);
 #endif
 };
 

@@ -25,15 +25,15 @@ class Q_GUI_EXPORT QVGroupBox : public QGroupBox
 {
     Q_OBJECT
 public:
-    QVGroupBox( QWidget* parent=0, const char* name=0 );
-    QVGroupBox( const QString &title, QWidget* parent=0, const char* name=0 );
+    QVGroupBox(QWidget* parent=0, const char* name=0);
+    QVGroupBox(const QString &title, QWidget* parent=0, const char* name=0);
 
     ~QVGroupBox();
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QVGroupBox( const QVGroupBox & );
-    QVGroupBox &operator=( const QVGroupBox & );
+    QVGroupBox(const QVGroupBox &);
+    QVGroupBox &operator=(const QVGroupBox &);
 #endif
 };
 

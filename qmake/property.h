@@ -19,18 +19,18 @@
 
 class QSettings;
 
-class QMakeProperty 
+class QMakeProperty
 {
     QSettings *sett;
-    QString keyBase(bool =TRUE) const;
+    QString keyBase(bool =true) const;
     bool initSettings();
-    QString value(QString, bool just_check); 
+    QString value(QString, bool just_check);
 public:
     QMakeProperty();
     ~QMakeProperty();
 
     bool hasValue(QString);
-    QString value(QString v) { return value(v, FALSE); }
+    QString value(QString v) { return value(v, false); }
     void setValue(QString, const QString &);
 
     bool exec();

@@ -17,11 +17,11 @@
 #include "qwidget.h"
 #include "qevent.h"
 
-Q3WhatsThis::Q3WhatsThis( QWidget *w)
+Q3WhatsThis::Q3WhatsThis(QWidget *w)
     : QObject(w)
 {
     if (w)
-	w->installEventFilter(this);
+        w->installEventFilter(this);
 }
 
 Q3WhatsThis::~Q3WhatsThis()
@@ -31,27 +31,27 @@ Q3WhatsThis::~Q3WhatsThis()
 bool Q3WhatsThis::eventFilter(QObject *o, QEvent *e)
 {
     if (e->type() == QEvent::WhatsThis && o->isWidgetType()) {
-	QString s = text(static_cast<QHelpEvent*>(e)->pos());
-	if (s.size()) {
-	    QWhatsThis::showText(static_cast<QHelpEvent*>(e)->globalPos(), s, static_cast<QWidget*>(o));
-	    connect(QApplication::activePopupWidget(), SIGNAL(clicked(QString)),
-		    this, SLOT(hyperLinkClicked(QString)));
-	}
+        QString s = text(static_cast<QHelpEvent*>(e)->pos());
+        if (s.size()) {
+            QWhatsThis::showText(static_cast<QHelpEvent*>(e)->globalPos(), s, static_cast<QWidget*>(o));
+            connect(QApplication::activePopupWidget(), SIGNAL(clicked(QString)),
+                    this, SLOT(hyperLinkClicked(QString)));
+        }
 
-	return true;
+        return true;
     }
     return false;
 }
 void Q3WhatsThis::hyperLinkClicked(const QString &href)
 {
     if (clicked(href))
-	QWhatsThis::hideText();
+        QWhatsThis::hideText();
 }
 
-QString Q3WhatsThis::text( const QPoint & )
+QString Q3WhatsThis::text(const QPoint &)
 { return QString(); }
 
-bool Q3WhatsThis::clicked( const QString &)
+bool Q3WhatsThis::clicked(const QString &)
 { return true;}
 
 

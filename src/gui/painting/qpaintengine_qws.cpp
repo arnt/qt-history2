@@ -34,21 +34,21 @@ static QRegion* paintEventClipRegion = 0;
 //static QRegion* paintEventSaveRegion = 0;
 static QPaintDevice* paintEventDevice = 0;
 
-void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region)
+void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region)
 {
-    if ( !paintEventClipRegion )
-	paintEventClipRegion = new QRegion( region );
+    if (!paintEventClipRegion)
+        paintEventClipRegion = new QRegion(region);
     else
-	*paintEventClipRegion = region;
+        *paintEventClipRegion = region;
     paintEventDevice = dev;
 
 #ifdef QWS_EXTRA_DEBUG
-    qDebug( "qt_set_paintevent_clipping" );
+    qDebug("qt_set_paintevent_clipping");
     QMemArray<QRect> ar = region.rects();
-    for ( int i=0; i<int(ar.size()); i++ ) {
-	QRect r = ar[i];
-        qDebug( "   r[%d]:  %d,%d %dx%d", i,
-		r.x(), r.y(), r.width(), r.height() );
+    for (int i=0; i<int(ar.size()); i++) {
+        QRect r = ar[i];
+        qDebug("   r[%d]:  %d,%d %dx%d", i,
+                r.x(), r.y(), r.width(), r.height());
     }
 #endif
 }
@@ -67,26 +67,26 @@ static QList<QPainter*> *widgetPainterList = 0;
 void qwsUpdateActivePainters()
 {
     /* ##############
-    if ( widgetPainterList ) {
-	for (int i = 0; i < widgetPainterList->size(); ++i) {
-	    QPainter *ptr = widgetPainterList->at(i);
-	    ptr->save();
-	    delete ptr->gfx;
-	    ptr->gfx = ptr->device()->graphicsContext();
-	    ptr->setf( QPainter::VolatileDC );
-	    ptr->restore();
-	}
+    if (widgetPainterList) {
+        for (int i = 0; i < widgetPainterList->size(); ++i) {
+            QPainter *ptr = widgetPainterList->at(i);
+            ptr->save();
+            delete ptr->gfx;
+            ptr->gfx = ptr->device()->graphicsContext();
+            ptr->setf(QPainter::VolatileDC);
+            ptr->restore();
+        }
     }
     */
 }
 
 
-void qt_draw_background( QPaintEngine *pe, int/* x*/, int /*y*/, int /*w*/,  int /*h*/ )
+void qt_draw_background(QPaintEngine *pe, int/* x*/, int /*y*/, int /*w*/,  int /*h*/)
 {
     QWSPaintEngine *p = static_cast<QWSPaintEngine *>(pe);
-// // //     XSetForeground( p->d->dpy, p->d->gc, p->d->bg_brush.color().pixel(p->d->scrn) );
-// // //     qt_draw_transformed_rect( pp, x, y, w, h, TRUE);
-// // //     XSetForeground( p->d->dpy, p->d->gc, p->d->cpen.color().pixel(p->d->scrn) );
+// // //     XSetForeground(p->d->dpy, p->d->gc, p->d->bg_brush.color().pixel(p->d->scrn));
+// // //     qt_draw_transformed_rect(pp, x, y, w, h, true);
+// // //     XSetForeground(p->d->dpy, p->d->gc, p->d->cpen.color().pixel(p->d->scrn));
 }
 // ########
 
@@ -106,19 +106,19 @@ QWSPaintEngine::QWSPaintEngine(QPaintEnginePrivate &dptr, QPaintDevice *pdev)
     : QPaintEngine(dptr, UsesFontEngine)
 {
     d->pdev = pdev;
-//	qDebug("QWSPaintEngine::QWSPaintEngine");
+//        qDebug("QWSPaintEngine::QWSPaintEngine");
 }
 
 QWSPaintEngine::QWSPaintEngine(QPaintDevice *pdev)
     : QPaintEngine(*(new QWSPaintEnginePrivate), UsesFontEngine)
 {
     d->pdev = pdev;
-//	qDebug("QWSPaintEngine::QWSPaintEngine");
+//        qDebug("QWSPaintEngine::QWSPaintEngine");
 }
 
 QWSPaintEngine::~QWSPaintEngine()
 {
-//	qDebug("QWSPaintEngine::~QWSPaintEngine");
+//        qDebug("QWSPaintEngine::~QWSPaintEngine");
 }
 
 QGfx *QWSPaintEngine::gfx()
@@ -129,10 +129,10 @@ QGfx *QWSPaintEngine::gfx()
 
 bool QWSPaintEngine::begin(QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 {
-    if ( isActive() ) {                         // already active painting
-	qWarning( "QWSC::begin: Painter is already active."
-		  "\n\tYou must end() the painter before a second begin()" );
-	return true;
+    if (isActive()) {                         // already active painting
+        qWarning("QWSC::begin: Painter is already active."
+                  "\n\tYou must end() the painter before a second begin()");
+        return true;
     }
 
     Q_ASSERT(d->gfx == 0);
@@ -150,25 +150,25 @@ bool QWSPaintEngine::begin(QPaintDevice *pdev, QPainterState *ps, bool unclipped
 
         QPoint offset=w->mapToGlobal(QPoint(0,0));
         QRegion r; // empty if not visible
-        if ( w->isVisible() && w->topLevelWidget()->isVisible() ) {
+        if (w->isVisible() && w->topLevelWidget()->isVisible()) {
             int rgnIdx = w->topLevelWidget()->data->alloc_region_index;
-            if ( rgnIdx >= 0 ) {
+            if (rgnIdx >= 0) {
                 r = (unclipped || w->testWFlags(WPaintUnclipped)) ? w->allocatedRegion() : w->paintableRegion();
                 QRegion req;
-                bool changed = FALSE;
+                bool changed = false;
                 QWSDisplay::grab();
-                const int *rgnRev = QPaintDevice::qwsDisplay()->regionManager()->revision( rgnIdx );
-                if ( w->topLevelWidget()->data->alloc_region_revision != *rgnRev ) {
+                const int *rgnRev = QPaintDevice::qwsDisplay()->regionManager()->revision(rgnIdx);
+                if (w->topLevelWidget()->data->alloc_region_revision != *rgnRev) {
                     // The TL region has changed, so we better make sure we're
                     // not writing to any regions we don't own anymore.
                     // We'll get a RegionModified event soon that will get our
                     // regions back in sync again.
-                    req = QPaintDevice::qwsDisplay()->regionManager()->region( rgnIdx );
-                    changed = TRUE;
+                    req = QPaintDevice::qwsDisplay()->regionManager()->region(rgnIdx);
+                    changed = true;
                 }
-                d->gfx->setGlobalRegionIndex( rgnIdx );
+                d->gfx->setGlobalRegionIndex(rgnIdx);
                 QWSDisplay::ungrab();
-                if ( changed ) {
+                if (changed) {
                     r &= req;
                 }
             }
@@ -177,12 +177,12 @@ bool QWSPaintEngine::begin(QPaintDevice *pdev, QPainterState *ps, bool unclipped
         d->gfx->setOffset(offset.x(),offset.y());
         // Clip the window decoration for TL windows.
         // It is possible for these windows to draw on the wm decoration if
- 	// they change the clip region.  Bug or feature?
+        // they change the clip region.  Bug or feature?
 #ifndef QT_NO_QWS_MANAGER
-         if ( w->d->extra && w->d->extra->topextra && w->d->extra->topextra->qwsManager )
+         if (w->d->extra && w->d->extra->topextra && w->d->extra->topextra->qwsManager)
             d->gfx->setClipRegion(w->rect());
 #endif
-    } else if ( d->pdev->devType() == QInternal::Pixmap ) {     
+    } else if (d->pdev->devType() == QInternal::Pixmap) {
         QPixmap *p = static_cast<QPixmap*>(d->pdev);
         if(p->isNull()) {
             qDebug("Can't make QGfx for null pixmap\n");
@@ -195,7 +195,7 @@ bool QWSPaintEngine::begin(QPaintDevice *pdev, QPainterState *ps, bool unclipped
 
             memorymanager->findPixmap(data->id,data->rw,p->depth(),&mydata,&xoffset,&linestep);
 
-            d->gfx = QGfx::createGfx( p->depth(), mydata, data->w,data->h, linestep );
+            d->gfx = QGfx::createGfx(p->depth(), mydata, data->w,data->h, linestep);
             if(depth <= 8) {
                 if(depth==1 && !(data->clut)) {
                     data->clut=new QRgb[2];
@@ -203,7 +203,7 @@ bool QWSPaintEngine::begin(QPaintDevice *pdev, QPainterState *ps, bool unclipped
                     data->clut[1]=qRgb(0,0,0);
                     data->numcols = 2;
                 }
-                if ( data->numcols )
+                if (data->numcols)
                     d->gfx->setClut(data->clut,data->numcols);
             }
         }
@@ -244,14 +244,14 @@ QPixmap qt_pixmapForBrush(int brushStyle); //in qbrush.cpp
 
 void QWSPaintEngine::updateBrush(QPainterState *ps)
 {
-    if ( !d->gfx )
-	return;
+    if (!d->gfx)
+        return;
     int bs=ps->brush.style();
     if (bs >= Dense1Pattern && bs <= DiagCrossPattern) {
             QPixmap *pm = new QPixmap(qt_pixmapForBrush(bs));
             d->gfx->setBrushPixmap(pm);
     } else {
-	d->gfx->setBrushPixmap(ps->brush.pixmap());
+        d->gfx->setBrushPixmap(ps->brush.pixmap());
     }
     d->gfx->setBrush(ps->brush);
 }
@@ -283,69 +283,69 @@ void QWSPaintEngine::updateClipRegion(QPainterState *ps)
     bool eventClip = paintEventDevice == d->pdev && paintEventClipRegion;
 /*
   if (enable == testf(ClipOn)
-  && ( paintEventDevice != device() || !enable
-  || !paintEventSaveRegion || paintEventSaveRegion->isNull() ) )
+  && (paintEventDevice != device() || !enable
+  || !paintEventSaveRegion || paintEventSaveRegion->isNull()))
   return;
 */
 
     if (painterClip || eventClip) {
-	QRegion crgn;
-	if (painterClip) {
-	    crgn = ps->clipRegion;
-	    if (eventClip)
-		crgn = crgn.intersect(*paintEventClipRegion);
-	} else {
-	    crgn = *paintEventClipRegion;
-	}
-	//note that gfx is already translated by redirection_offset
-	d->gfx->setClipRegion( crgn );
+        QRegion crgn;
+        if (painterClip) {
+            crgn = ps->clipRegion;
+            if (eventClip)
+                crgn = crgn.intersect(*paintEventClipRegion);
+        } else {
+            crgn = *paintEventClipRegion;
+        }
+        //note that gfx is already translated by redirection_offset
+        d->gfx->setClipRegion(crgn);
     } else {
-	d->gfx->setClipping( FALSE );
+        d->gfx->setClipping(false);
     }
     if (painterClip)
-	setf(ClipOn);
+        setf(ClipOn);
     else
-	clearf(ClipOn);
+        clearf(ClipOn);
 }
 
 void QWSPaintEngine::setRasterOp(RasterOp r)
 {
-    d->gfx->setRop( r );
+    d->gfx->setRop(r);
 //    qDebug("QWSPaintEngine::setRasterOp");
 }
 
 void QWSPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
 {
-    if ( state->pen.style() != NoPen )
-	d->gfx->drawLine( p1.x(), p1.y(), p2.x(), p2.y() );
+    if (state->pen.style() != NoPen)
+        d->gfx->drawLine(p1.x(), p1.y(), p2.x(), p2.y());
 }
 void QWSPaintEngine::drawRect(const QRect &r)
 {
-    //############ gfx->setBrushOffset( x-bro.x(), y-bro.y() );
+    //############ gfx->setBrushOffset(x-bro.x(), y-bro.y());
 
     int x1, y1, w, h;
     r.rect(&x1, &y1, &w, &h);
 
     if (state->pen.style() != NoPen) {
-	if ( state->pen.width() > 1 ) {
-	    QPointArray a(r, TRUE);
-	    drawPolyInternal( a );
-	    return;
-	} else	{
-	    int x2 = x1 + (w-1);
-	    int y2 = y1 + (h-1);
-	    d->gfx->drawLine(x1, y1, x2, y1);
-	    d->gfx->drawLine(x2, y1, x2, y2);
-	    d->gfx->drawLine(x1, y2, x2, y2);
-	    d->gfx->drawLine(x1, y1, x1, y2);
-	    x1 += 1;
-	    y1 += 1;
-	    w -= 2;
-	    h -= 2;
-	}
+        if (state->pen.width() > 1) {
+            QPointArray a(r, true);
+            drawPolyInternal(a);
+            return;
+        } else        {
+            int x2 = x1 + (w-1);
+            int y2 = y1 + (h-1);
+            d->gfx->drawLine(x1, y1, x2, y1);
+            d->gfx->drawLine(x2, y1, x2, y2);
+            d->gfx->drawLine(x1, y2, x2, y2);
+            d->gfx->drawLine(x1, y1, x1, y2);
+            x1 += 1;
+            y1 += 1;
+            w -= 2;
+            h -= 2;
+        }
     }
 
-    d->gfx->fillRect( x1, y1, w, h );
+    d->gfx->fillRect(x1, y1, w, h);
 }
 void QWSPaintEngine::drawPoint(const QPoint &p)
 {
@@ -354,10 +354,10 @@ void QWSPaintEngine::drawPoint(const QPoint &p)
 
 void QWSPaintEngine::drawPoints(const QPointArray &pa, int index, int npoints)
 {
-    if ( state->pen.style() == NoPen )
-	return;
+    if (state->pen.style() == NoPen)
+        return;
 
-    d->gfx->drawPoints( pa, index, npoints );
+    d->gfx->drawPoints(pa, index, npoints);
 }
 
 void QWSPaintEngine::drawWinFocusRect(const QRect &r, bool /*xorPaint*/, const QColor &/*bgColor*/)
@@ -366,17 +366,17 @@ void QWSPaintEngine::drawWinFocusRect(const QRect &r, bool /*xorPaint*/, const Q
 
 //    d->gfx->setBrush(QBrush());
 /*#########
-    if ( xorPaint ) {
-        if ( QColor::numBitPlanes() <= 8 )
-	    d->gfx->setPen(QPen(color1));
-	else
-	    d->gfx->setPen(QPen(white));
-	d->gfx->setRop(XorROP);
+    if (xorPaint) {
+        if (QColor::numBitPlanes() <= 8)
+            d->gfx->setPen(QPen(color1));
+        else
+            d->gfx->setPen(QPen(white));
+        d->gfx->setRop(XorROP);
     } else {
-	if ( qGray( bgColor.rgb() ) < 128 )
-	    setPen(QPen(white));
-	else
-	    setPen(QPen(black));
+        if (qGray(bgColor.rgb()) < 128)
+            setPen(QPen(white));
+        else
+            setPen(QPen(black));
     }
 */
 
@@ -384,24 +384,24 @@ void QWSPaintEngine::drawWinFocusRect(const QRect &r, bool /*xorPaint*/, const Q
     r.rect(&x, &y, &w, &h);
 
     d->gfx->setDashes(winfocus_line, 2);
-    d->gfx->setDashedLines(TRUE);
-    if ( state->pen.style() != NoPen ) {
-	d->gfx->drawLine(x,y,x+(w-1),y);
-	d->gfx->drawLine(x+(w-1),y,x+(w-1),y+(h-1));
-	d->gfx->drawLine(x,y+(h-1),x+(w-1),y+(h-1));
-	d->gfx->drawLine(x,y,x,y+(h-1));
-	x++;
-	y++;
-	w -= 2;
-	h -= 2;
+    d->gfx->setDashedLines(true);
+    if (state->pen.style() != NoPen) {
+        d->gfx->drawLine(x,y,x+(w-1),y);
+        d->gfx->drawLine(x+(w-1),y,x+(w-1),y+(h-1));
+        d->gfx->drawLine(x,y+(h-1),x+(w-1),y+(h-1));
+        d->gfx->drawLine(x,y,x,y+(h-1));
+        x++;
+        y++;
+        w -= 2;
+        h -= 2;
     }
 //###?????    gfx->fillRect(x,y,w,h);
 
-    d->gfx->setDashedLines(FALSE);
+    d->gfx->setDashedLines(false);
 
-//     setRasterOp( old_rop );
-//     setPen( old_pen );
-//     setBrush( old_brush );
+//     setRasterOp(old_rop);
+//     setPen(old_pen);
+//     setBrush(old_brush);
 }
 void QWSPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 {
@@ -420,55 +420,55 @@ void QWSPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 
     // ###### WWA: this should use the new makeArc (with xmat)
 
-    a.makeEllipse( x, y, rxx2, ryy2 );
+    a.makeEllipse(x, y, rxx2, ryy2);
     int s = a.size()/4;
     int i = 0;
-    while ( i < s ) {
-	a.point( i, &xx, &yy );
-	xx += w - rxx2;
-	a.setPoint( i++, xx, yy );
+    while (i < s) {
+        a.point(i, &xx, &yy);
+        xx += w - rxx2;
+        a.setPoint(i++, xx, yy);
     }
     i = 2*s;
-    while ( i < 3*s ) {
-	a.point( i, &xx, &yy );
-	yy += h - ryy2;
-	a.setPoint( i++, xx, yy );
+    while (i < 3*s) {
+        a.point(i, &xx, &yy);
+        yy += h - ryy2;
+        a.setPoint(i++, xx, yy);
     }
-    while ( i < 4*s ) {
-	a.point( i, &xx, &yy );
-	xx += w - rxx2;
-	yy += h - ryy2;
-	a.setPoint( i++, xx, yy );
+    while (i < 4*s) {
+        a.point(i, &xx, &yy);
+        xx += w - rxx2;
+        yy += h - ryy2;
+        a.setPoint(i++, xx, yy);
     }
     //  a = xForm(a);
     //a.translate(-redirection_offset);
-    drawPolyInternal( a );
+    drawPolyInternal(a);
 //    qDebug("QWSPaintEngine::drawRoundRect");
 }
 
 
-void QWSPaintEngine::drawPolyInternal( const QPointArray &a, bool close )
+void QWSPaintEngine::drawPolyInternal(const QPointArray &a, bool close)
 {
-    if ( a.size() < 2 || !d->gfx )
-	return;
+    if (a.size() < 2 || !d->gfx)
+        return;
 
-    int x1, y1, x2, y2;				// connect last to first point
-    a.point( a.size()-1, &x1, &y1 );
-    a.point( 0, &x2, &y2 );
+    int x1, y1, x2, y2;                                // connect last to first point
+    a.point(a.size()-1, &x1, &y1);
+    a.point(0, &x2, &y2);
     bool do_close = close && !(x1 == x2 && y1 == y2);
 
-    if ( close && state->brush.style() != NoBrush ) {	// draw filled polygon
-	d->gfx->drawPolygon(a,FALSE,0,a.size());
-	if ( state->pen.style() == NoPen ) {		// draw fake outline
-	    d->gfx->drawPolyline(a,0,a.size());
-	    if ( do_close )
-		d->gfx->drawLine(x1,y1,x2,y2);
-	}
+    if (close && state->brush.style() != NoBrush) {        // draw filled polygon
+        d->gfx->drawPolygon(a,false,0,a.size());
+        if (state->pen.style() == NoPen) {                // draw fake outline
+            d->gfx->drawPolyline(a,0,a.size());
+            if (do_close)
+                d->gfx->drawLine(x1,y1,x2,y2);
+        }
     }
-    if ( state->pen.style() != NoPen ) {		// draw outline
-	d->gfx->drawPolyline(a,0,a.size());
-	if ( do_close )
-	    d->gfx->drawLine(x1,y1,x2,y2);
+    if (state->pen.style() != NoPen) {                // draw outline
+        d->gfx->drawPolyline(a,0,a.size());
+        if (do_close)
+            d->gfx->drawLine(x1,y1,x2,y2);
     }
 }
 
@@ -482,10 +482,10 @@ void QWSPaintEngine::drawEllipse(const QRect &r)
 
     QPointArray a;
 // #ifndef QT_NO_TRANSFORMATIONS
-//     a.makeArc( x, y, w, h, 0, 360*16, xmat );
+//     a.makeArc(x, y, w, h, 0, 360*16, xmat);
 //     a.translate(-redirection_offset);
 // #else
-//     map( x, y, &x, &y );
+//     map(x, y, &x, &y);
     a.makeEllipse(x, y, w, h);
 //#endif
 /*###########
@@ -494,7 +494,7 @@ void QWSPaintEngine::drawEllipse(const QRect &r)
     tmppen.setJoinStyle(BevelJoin);
     setPen(tmppen);
 */
-    drawPolyInternal( a );
+    drawPolyInternal(a);
 }
 
 void QWSPaintEngine::drawArc(const QRect &r, int a, int alen)
@@ -503,8 +503,8 @@ void QWSPaintEngine::drawArc(const QRect &r, int a, int alen)
     r.rect(&x, &y, &w, &h);
 
     QPointArray pa;
-    pa.makeArc( x, y, w, h, a, alen );
-    drawPolyInternal( pa, FALSE );
+    pa.makeArc(x, y, w, h, a, alen);
+    drawPolyInternal(pa, false);
 }
 
 void QWSPaintEngine::drawPie(const QRect &r, int a, int alen)
@@ -514,10 +514,10 @@ void QWSPaintEngine::drawPie(const QRect &r, int a, int alen)
 
     QPointArray pa;
 // #ifndef QT_NO_TRANSFORMATIONS
-//     pa.makeArc( x, y, w, h, a, alen, xmat );	// arc polyline
+//     pa.makeArc(x, y, w, h, a, alen, xmat);        // arc polyline
 // #else
-//     map( x, y, &x, &y );
-    pa.makeArc( x, y, w, h, a, alen );		// arc polyline
+//     map(x, y, &x, &y);
+    pa.makeArc(x, y, w, h, a, alen);                // arc polyline
 //#endif
     int n = pa.size();
     int cx, cy;
@@ -527,10 +527,10 @@ void QWSPaintEngine::drawPie(const QRect &r, int a, int alen)
     cx = x+w/2;
     cy = y+h/2;
 //#endif
-    pa.resize( n+2 );
-    pa.setPoint( n, cx, cy );			// add legs
-    pa.setPoint( n+1, pa.at(0) );
-    drawPolyInternal( pa );
+    pa.resize(n+2);
+    pa.setPoint(n, cx, cy);                        // add legs
+    pa.setPoint(n+1, pa.at(0));
+    drawPolyInternal(pa);
 
 }
 
@@ -540,49 +540,49 @@ void QWSPaintEngine::drawChord(const QRect &r, int a, int alen)
     r.rect(&x, &y, &w, &h);
 
     QPointArray pa;
-    pa.makeArc( x, y, w-1, h-1, a, alen );	// arc polygon
+    pa.makeArc(x, y, w-1, h-1, a, alen);        // arc polygon
     int n = pa.size();
-    pa.resize( n+1 );
-    pa.setPoint( n, pa.at(0) );			// connect endpoints
-    drawPolyInternal( pa );
+    pa.resize(n+1);
+    pa.setPoint(n, pa.at(0));                        // connect endpoints
+    drawPolyInternal(pa);
 }
 
 void QWSPaintEngine::drawLineSegments(const QPointArray &a, int index, int nlines)
 {
-    for ( int i=0; i<nlines; i++ ) {
-	int x1,y1,x2,y2;
-	a.point( index++, &x1, &y1 );
-	a.point( index++, &x2, &y2 );
-	if ( state->pen.style() != NoPen )
-	    d->gfx->drawLine( x1, y1, x2, y2 );
+    for (int i=0; i<nlines; i++) {
+        int x1,y1,x2,y2;
+        a.point(index++, &x1, &y1);
+        a.point(index++, &x2, &y2);
+        if (state->pen.style() != NoPen)
+            d->gfx->drawLine(x1, y1, x2, y2);
     }
 }
 
 void QWSPaintEngine::drawPolyline(const QPointArray &pa, int index, int npoints)
 {
-    if ( state->pen.style() != NoPen )
-	d->gfx->drawPolyline( pa, index, npoints );
+    if (state->pen.style() != NoPen)
+        d->gfx->drawPolyline(pa, index, npoints);
 }
 
 void QWSPaintEngine::drawPolygon(const QPointArray &pa, bool winding, int index, int npoints)
 {
 #if 0
 #ifndef QT_NO_TRANSFORMATIONS
-	bool tx = (txop != TxNone);
+        bool tx = (txop != TxNone);
 #else
-	bool tx = xlatex || xlatey;
+        bool tx = xlatex || xlatey;
 #endif
-	if ( tx ) {
-	    pa = xForm( a, index, npoints );
-	    if ( pa.size() != a.size() ) {
-		index   = 0;
-		npoints = pa.size();
-	    }
-	    pa.translate(-redirection_offset);
-	}
+        if (tx) {
+            pa = xForm(a, index, npoints);
+            if (pa.size() != a.size()) {
+                index   = 0;
+                npoints = pa.size();
+            }
+            pa.translate(-redirection_offset);
+        }
 
 #endif
-    d->gfx->drawPolygon( pa, winding, index, npoints );
+    d->gfx->drawPolygon(pa, winding, index, npoints);
 
 }
 
@@ -606,24 +606,24 @@ void QWSPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRe
     sr.rect(&sx, &sy, &sw, &sh);
 
     if ((w != sw || h != sh) && (sx != 0) && (sy != 0))
-	qDebug( "QWSPaintEngine::drawPixmap offset stretch notimplemented" );
+        qDebug("QWSPaintEngine::drawPixmap offset stretch notimplemented");
 
     d->gfx->setSource(&pixmap);
     if(!imask && pixmap.mask()) {
-	QBitmap * mymask=( (QBitmap *)pixmap.mask() );
-	unsigned char * thebits=mymask->scanLine(0);
-	int ls=mymask->bytesPerLine();
-	d->gfx->setAlphaType(QGfx::LittleEndianMask);
-	d->gfx->setAlphaSource(thebits,ls);
-    } else if ( pixmap.data->hasAlpha ){
-	d->gfx->setAlphaType(QGfx::InlineAlpha);
+        QBitmap * mymask=((QBitmap *)pixmap.mask());
+        unsigned char * thebits=mymask->scanLine(0);
+        int ls=mymask->bytesPerLine();
+        d->gfx->setAlphaType(QGfx::LittleEndianMask);
+        d->gfx->setAlphaSource(thebits,ls);
+    } else if (pixmap.data->hasAlpha){
+        d->gfx->setAlphaType(QGfx::InlineAlpha);
     } else {
-	d->gfx->setAlphaType(QGfx::IgnoreAlpha);
+        d->gfx->setAlphaType(QGfx::IgnoreAlpha);
     }
     if (sw == w && sh == h)
-	d->gfx->blt(x,y,sw,sh,sx,sy);
+        d->gfx->blt(x,y,sw,sh,sx,sy);
     else
-	d->gfx->stretchBlt(x,y,w,h,sw,sh);
+        d->gfx->stretchBlt(x,y,w,h,sw,sh);
 }
 
 void QWSPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim)
@@ -642,10 +642,10 @@ Qt::HANDLE QWSPaintEngine::handle() const{
 
 
 void QWSPaintEngine::initialize(){
-	qDebug("QWSPaintEngine::initialize");
+        qDebug("QWSPaintEngine::initialize");
 }
 void QWSPaintEngine::cleanup(){
-	qDebug("QWSPaintEngine::cleanup");
+        qDebug("QWSPaintEngine::cleanup");
 }
 
 

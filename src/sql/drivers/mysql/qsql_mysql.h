@@ -39,19 +39,19 @@ class QMYSQLResult : public QSqlResult
 {
     friend class QMYSQLDriver;
 public:
-    QMYSQLResult( const QMYSQLDriver* db );
+    QMYSQLResult(const QMYSQLDriver* db);
     ~QMYSQLResult();
 
     MYSQL_RES* result();
 protected:
     void cleanup();
-    bool fetch( int i );
+    bool fetch(int i);
     bool fetchNext();
     bool fetchLast();
     bool fetchFirst();
-    QCoreVariant data( int field );
-    bool isNull( int field );
-    bool reset ( const QString& query );
+    QCoreVariant data(int field);
+    bool isNull(int field);
+    bool reset (const QString& query);
     int size();
     int numRowsAffected();
     QSqlRecord record() const;
@@ -67,22 +67,22 @@ public:
     QMYSQLDriver(QObject *parent=0);
     QMYSQLDriver(MYSQL *con, QObject * parent=0);
     ~QMYSQLDriver();
-    bool hasFeature( DriverFeature f ) const;
-    bool open( const QString & db,
-	       const QString & user,
-	       const QString & password,
-	       const QString & host,
-	       int port,
-	       const QString& connOpts );
+    bool hasFeature(DriverFeature f) const;
+    bool open(const QString & db,
+               const QString & user,
+               const QString & password,
+               const QString & host,
+               int port,
+               const QString& connOpts);
     void close();
     QSqlQuery createQuery() const;
-    QStringList tables( const QString& user ) const;
-    QSqlIndex primaryIndex( const QString& tablename ) const;
-    QSqlRecord record( const QString& tablename ) const;
-    QString formatValue( const QSqlField* field,
-				     bool trimStrings ) const;
+    QStringList tables(const QString& user) const;
+    QSqlIndex primaryIndex(const QString& tablename) const;
+    QSqlRecord record(const QString& tablename) const;
+    QString formatValue(const QSqlField* field,
+                                     bool trimStrings) const;
     MYSQL *mysql();
-    
+
 protected:
     bool beginTransaction();
     bool commitTransaction();

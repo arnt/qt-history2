@@ -32,58 +32,58 @@ class QRect;
 class Q_GUI_EXPORT QFontMetrics
 {
 public:
-    QFontMetrics( const QFont & );
-    QFontMetrics( const QFont &, QFont::Script );
-    QFontMetrics( const QFontMetrics & );
+    QFontMetrics(const QFont &);
+    QFontMetrics(const QFont &, QFont::Script);
+    QFontMetrics(const QFontMetrics &);
     ~QFontMetrics();
 
-    QFontMetrics &operator=( const QFontMetrics & );
+    QFontMetrics &operator=(const QFontMetrics &);
 
-    int		ascent()	const;
-    int		descent()	const;
-    int		height()	const;
-    int		leading()	const;
-    int		lineSpacing()	const;
-    int		minLeftBearing() const;
-    int		minRightBearing() const;
-    int		maxWidth()	const;
+    int                ascent()        const;
+    int                descent()        const;
+    int                height()        const;
+    int                leading()        const;
+    int                lineSpacing()        const;
+    int                minLeftBearing() const;
+    int                minRightBearing() const;
+    int                maxWidth()        const;
 
-    bool	inFont(QChar)	const;
+    bool        inFont(QChar)        const;
 
-    int		leftBearing(QChar) const;
-    int		rightBearing(QChar) const;
-    int		width( const QString &, int len = -1 ) const;
+    int                leftBearing(QChar) const;
+    int                rightBearing(QChar) const;
+    int                width(const QString &, int len = -1) const;
 
-    int		width( QChar ) const;
+    int                width(QChar) const;
 
-    int 		charWidth( const QString &str, int pos ) const;
-    QRect	boundingRect( const QString &, int len = -1 ) const;
-    QRect	boundingRect( QChar ) const;
-    QRect	boundingRect( int x, int y, int w, int h, int flags,
-			      const QString& str, int len=-1, int tabstops=0,
-			      int *tabarray=0 ) const;
-    QSize	size( int flags,
-		      const QString& str, int len=-1, int tabstops=0,
-		      int *tabarray=0 ) const;
+    int                 charWidth(const QString &str, int pos) const;
+    QRect        boundingRect(const QString &, int len = -1) const;
+    QRect        boundingRect(QChar) const;
+    QRect        boundingRect(int x, int y, int w, int h, int flags,
+                              const QString& str, int len=-1, int tabstops=0,
+                              int *tabarray=0) const;
+    QSize        size(int flags,
+                      const QString& str, int len=-1, int tabstops=0,
+                      int *tabarray=0) const;
 
-    int		underlinePos()	const;
+    int                underlinePos()        const;
     int         overlinePos()   const;
-    int		strikeOutPos()	const;
-    int		lineWidth()	const;
+    int                strikeOutPos()        const;
+    int                lineWidth()        const;
 
 private:
-    QFontMetrics( const QPainter * );
+    QFontMetrics(const QPainter *);
 
     friend class QWidget;
     friend class QPainter;
     friend class Q3TextFormat;
-#if defined( Q_WS_MAC )
+#if defined(Q_WS_MAC)
     friend class QFontPrivate;
 #endif
 
     QFontPrivate  *d;
     QPainter      *painter;
-    int		   fscript;
+    int                   fscript;
 };
 
 

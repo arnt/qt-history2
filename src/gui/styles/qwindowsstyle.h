@@ -41,50 +41,50 @@ public:
     void polish(QWidget*);
     void unPolish(QWidget*);
 
-    void polish( QPalette & );
+    void polish(QPalette &);
 
     // new stuff
-    void drawPrimitive( PrimitiveElement pe,
-			QPainter *p,
-			const QRect &r,
-			const QPalette &pal,
-			SFlags flags = Style_Default,
-			const QStyleOption& = QStyleOption::Default ) const;
+    void drawPrimitive(PrimitiveElement pe,
+                        QPainter *p,
+                        const QRect &r,
+                        const QPalette &pal,
+                        SFlags flags = Style_Default,
+                        const QStyleOption& = QStyleOption::Default) const;
 
-    void drawControl( ControlElement element,
-		      QPainter *p,
-		      const QWidget *widget,
-		      const QRect &r,
-		      const QPalette &pal,
-		      SFlags flags = Style_Default,
-		      const QStyleOption& = QStyleOption::Default ) const;
+    void drawControl(ControlElement element,
+                      QPainter *p,
+                      const QWidget *widget,
+                      const QRect &r,
+                      const QPalette &pal,
+                      SFlags flags = Style_Default,
+                      const QStyleOption& = QStyleOption::Default) const;
 
-    void drawComplexControl( ComplexControl control,
-			     QPainter* p,
-			     const QWidget* widget,
-			     const QRect& r,
-			     const QPalette &pal,
-			     SFlags flags = Style_Default,
-			     SCFlags sub = SC_All,
-			     SCFlags subActive = SC_None,
-			     const QStyleOption& = QStyleOption::Default ) const;
+    void drawComplexControl(ComplexControl control,
+                             QPainter* p,
+                             const QWidget* widget,
+                             const QRect& r,
+                             const QPalette &pal,
+                             SFlags flags = Style_Default,
+                             SCFlags sub = SC_All,
+                             SCFlags subActive = SC_None,
+                             const QStyleOption& = QStyleOption::Default) const;
 
-    int pixelMetric( PixelMetric metric,
-		     const QWidget *widget = 0 ) const;
+    int pixelMetric(PixelMetric metric,
+                     const QWidget *widget = 0) const;
 
-    QSize sizeFromContents( ContentsType contents,
-			    const QWidget *widget,
-			    const QSize &contentsSize,
-			    const QStyleOption& = QStyleOption::Default ) const;
+    QSize sizeFromContents(ContentsType contents,
+                            const QWidget *widget,
+                            const QSize &contentsSize,
+                            const QStyleOption& = QStyleOption::Default) const;
 
     int styleHint(StyleHint sh, const QWidget *, const QStyleOption & = QStyleOption::Default,
-		  QStyleHintReturn* = 0) const;
+                  QStyleHintReturn* = 0) const;
 
-    QPixmap stylePixmap( StylePixmap stylepixmap,
-			 const QWidget *widget = 0,
-			 const QStyleOption& = QStyleOption::Default ) const;
+    QPixmap stylePixmap(StylePixmap stylepixmap,
+                         const QWidget *widget = 0,
+                         const QStyleOption& = QStyleOption::Default) const;
 
-    QRect subRect( SubRect r, const QWidget *widget ) const;
+    QRect subRect(SubRect r, const QWidget *widget) const;
 
 
 private:
@@ -93,8 +93,8 @@ private:
 
     // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QWindowsStyle( const QWindowsStyle & );
-    QWindowsStyle& operator=( const QWindowsStyle & );
+    QWindowsStyle(const QWindowsStyle &);
+    QWindowsStyle& operator=(const QWindowsStyle &);
 #endif
 };
 

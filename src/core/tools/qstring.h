@@ -22,11 +22,11 @@
 #endif // QT_H
 
 #ifndef QT_NO_STL
-#if defined ( Q_CC_MSVC_NET ) && _MSV_VER < 1310 // Avoids nasty warning for xlocale, line 450
-#  pragma warning ( push )
-#  pragma warning ( disable : 4189 )
+#if defined (Q_CC_MSVC_NET) && _MSV_VER < 1310 // Avoids nasty warning for xlocale, line 450
+#  pragma warning (push)
+#  pragma warning (disable : 4189)
 #  include <string>
-#  pragma warning ( pop )
+#  pragma warning (pop)
 #else
 #  include <string>
 #endif // avoid warning in xlocale on Windows .NET 1310
@@ -84,8 +84,8 @@ public:
     const QChar operator[](uint i) const;
     QCharRef operator[](uint i);
 
-    QString arg( Q_LLONG a, int fieldwidth=0, int base=10 ) const;
-    QString arg( Q_ULLONG a, int fieldwidth=0, int base=10 ) const;
+    QString arg(Q_LLONG a, int fieldwidth=0, int base=10) const;
+    QString arg(Q_ULLONG a, int fieldwidth=0, int base=10) const;
     QString arg(long a, int fieldWidth = 0, int base = 10) const;
     QString arg(ulong a, int fieldWidth = 0, int base = 10) const;
     QString arg(int a, int fieldWidth = 0, int base = 10) const;
@@ -128,11 +128,11 @@ public:
 #endif
 
     enum SectionFlags {
-	SectionDefault             = 0x00,
-	SectionSkipEmpty           = 0x01,
-	SectionIncludeLeadingSep   = 0x02,
-	SectionIncludeTrailingSep  = 0x04,
-	SectionCaseInsensitiveSeps = 0x08
+        SectionDefault             = 0x00,
+        SectionSkipEmpty           = 0x01,
+        SectionIncludeLeadingSep   = 0x02,
+        SectionIncludeTrailingSep  = 0x04,
+        SectionCaseInsensitiveSeps = 0x08
     };
     QString section(QChar sep, int start, int end = 0xffffffff, int flags = SectionDefault) const;
     QString section(const QString &in_sep, int start, int end = 0xffffffff, int flags = SectionDefault) const;
@@ -167,7 +167,7 @@ public:
     inline QString &prepend(const QString &s) { return insert(0, s); }
     inline QString &prepend(const QLatin1String &s) { return insert(0, s); }
     inline QString &operator+=(QChar c) { return append(c); }
-    inline QString &operator+=(QChar::SpecialChars c ) { return append(QChar(c)); }
+    inline QString &operator+=(QChar::SpecialChars c) { return append(QChar(c)); }
     inline QString &operator+=(const QString &s) { return append(s); }
     inline QString &operator+=(const QLatin1String &s) { return append(s); }
 
@@ -177,11 +177,11 @@ public:
     QString &replace(int i, int len, QChar after);
     QString &replace(int i, int len, const QChar *s, int slen);
     inline QString &replace(int i, int len, const QString &after)
-	{ return replace(i, len, after.constData(), after.length()); }
+        { return replace(i, len, after.constData(), after.length()); }
     QString &replace(QChar before, QChar after, CaseSensitivity cs = CaseSensitive);
     QString &replace(QChar c, const QString &after, CaseSensitivity cs = CaseSensitive);
     QString &replace(const QString &before, const QString &after,
-		     CaseSensitivity cs = CaseSensitive);
+                     CaseSensitivity cs = CaseSensitive);
 #ifndef QT_NO_REGEXP_CAPTURE
     QString &replace(const QRegExp &rx, const QString &after);
     inline QString &remove(const QRegExp &rx)
@@ -206,7 +206,7 @@ public:
     static QString fromLatin1(const char*, int size=-1);
     static QString fromUtf8(const char*, int size=-1);
     static QString fromLocal8Bit(const char*, int size=-1);
-    static QString fromUcs2( const unsigned short *ucs2 );
+    static QString fromUcs2(const unsigned short *ucs2);
 
     QString &setUnicode(const QChar *unicode, int size);
     QString &setUnicodeCodes(const ushort *unicode_as_ushorts, int size);
@@ -214,9 +214,9 @@ public:
     int compare(const QString &s) const;
     static inline int compare(const QString &s1, const QString &s2)
     { return s1.compare(s2); }
-    int localeAwareCompare( const QString& s ) const;
-    static int localeAwareCompare( const QString& s1, const QString& s2 )
-    { return s1.localeAwareCompare( s2 ); }
+    int localeAwareCompare(const QString& s) const;
+    static int localeAwareCompare(const QString& s1, const QString& s2)
+    { return s1.localeAwareCompare(s2); }
 
     short  toShort(bool *ok=0, int base=10) const;
     ushort toUShort(bool *ok=0, int base=10) const;
@@ -390,9 +390,9 @@ public:
     { return startsWith(s, cs?CaseSensitive:CaseInsensitive); }
     inline QT_COMPAT bool endsWith(const QString &s, bool cs) const
     { return endsWith(s, cs?CaseSensitive:CaseInsensitive); }
-    inline QT_COMPAT QString &setAscii( const char *str, int len=-1 )
+    inline QT_COMPAT QString &setAscii(const char *str, int len=-1)
     { *this = fromAscii(str, len); return *this; }
-    inline QT_COMPAT QString &setLatin1( const char *str, int len=-1 )
+    inline QT_COMPAT QString &setLatin1(const char *str, int len=-1)
     { *this = fromLatin1(str, len); return *this; }
     inline QT_COMPAT QChar constref(uint i) const
     { return at(i); }
@@ -423,18 +423,18 @@ private:
     QString &operator=(const QByteArray &a);
 #endif
     struct Data {
-	QAtomic ref;
-	int alloc, size;
-	void *c;
-	ushort *data;
-	ushort clean : 1;
- 	ushort encoding : 2;
-	ushort cache : 1;
- 	ushort simpletext : 1;
- 	ushort righttoleft : 1;
-	ushort reserved : 10;
-	ushort array[1];
-	enum { Latin1, Ascii, Local8Bit, Utf8 };
+        QAtomic ref;
+        int alloc, size;
+        void *c;
+        ushort *data;
+        ushort clean : 1;
+        ushort encoding : 2;
+        ushort cache : 1;
+        ushort simpletext : 1;
+        ushort righttoleft : 1;
+        ushort reserved : 10;
+        ushort array[1];
+        enum { Latin1, Ascii, Local8Bit, Utf8 };
     };
     explicit QString(Data *dd) : d(dd) {}
     static Data shared_null;
@@ -450,7 +450,7 @@ private:
     void expand(int i);
     void updateProperties() const;
     QString multiArg(int numArgs, const QString &a1, const QString &a2,
-		      const QString &a3 = QString(), const QString &a4 = QString()) const;
+                      const QString &a3 = QString(), const QString &a4 = QString()) const;
     friend class QCharRef;
     friend class QConstString;
     friend class QTextCodec;
@@ -513,7 +513,7 @@ inline bool QString::isDetached() const
 inline QString &QString::operator=(const QString & a)
 {
     Data *x = a.d; ++x->ref;
-    x = qAtomicSetPtr( &d, x );
+    x = qAtomicSetPtr(&d, x);
     if (!--x->ref) free(x);
     return *this;
 }
@@ -568,7 +568,7 @@ class Q_CORE_EXPORT QCharRef {
     QString &s;
     int i;
     inline QCharRef(QString &str, int idx)
-	: s(str),i(idx) {}
+        : s(str),i(idx) {}
     friend class QString;
 public:
 
@@ -577,10 +577,10 @@ public:
     // all this is not documented: We just say "like QChar" and let it be.
 #ifndef Q_QDOC
     inline operator QChar() const
-	{ return i < s.d->size ? s.d->data[i] : 0; }
+        { return i < s.d->size ? s.d->data[i] : 0; }
     inline QCharRef &operator=(const QChar &c)
-	{ if (s.d->ref != 1 || i >= s.d->size || s.d->c) s.expand(i);
-	  s.d->data[i] = c.unicode();  return *this; }
+        { if (s.d->ref != 1 || i >= s.d->size || s.d->c) s.expand(i);
+          s.d->data[i] = c.unicode();  return *this; }
 
     // An operator= for each QChar cast constructors
 #ifndef QT_NO_CAST_FROM_ASCII
@@ -663,7 +663,7 @@ inline bool operator!=(const QString &s, QString::Null) { return !s.isNull(); }
 #ifndef QT_NO_CAST_FROM_ASCII
 inline bool QString::operator==(const char *s) const {
 #  ifndef QT_NO_TEXTCODEC
-    if ( codecForCStrings ) return (*this == QString::fromAscii(s));
+    if (codecForCStrings) return (*this == QString::fromAscii(s));
 #  endif
     return (*this == QLatin1String(s));
 }
@@ -750,8 +750,8 @@ inline QChar &QString::ref(uint i)
 #endif
 
 #ifndef QT_NO_DATASTREAM
-Q_CORE_EXPORT QDataStream &operator<<( QDataStream &, const QString & );
-Q_CORE_EXPORT QDataStream &operator>>( QDataStream &, QString & );
+Q_CORE_EXPORT QDataStream &operator<<(QDataStream &, const QString &);
+Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QString &);
 #endif
 
 class Q_CORE_EXPORT QConstString : public QString
@@ -765,8 +765,8 @@ Q_DECLARE_TYPEINFO(QString, Q_MOVABLE_TYPE);
 Q_DECLARE_SHARED(QString);
 
 #if defined(Q_OS_WIN32)
-extern Q_CORE_EXPORT QByteArray qt_winQString2MB( const QString& s, int len=-1 );
-extern Q_CORE_EXPORT QString qt_winMB2QString( const char* mb, int len=-1 );
+extern Q_CORE_EXPORT QByteArray qt_winQString2MB(const QString& s, int len=-1);
+extern Q_CORE_EXPORT QString qt_winMB2QString(const char* mb, int len=-1);
 #endif
 
 #endif

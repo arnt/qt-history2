@@ -33,9 +33,9 @@ class Q_GUI_EXPORT QMimeSource
 public:
     QMimeSource();
     virtual ~QMimeSource();
-    virtual const char* format( int n = 0 ) const = 0;
-    virtual bool provides( const char* ) const;
-    virtual QByteArray encodedData( const char* ) const = 0;
+    virtual const char* format(int n = 0) const = 0;
+    virtual bool provides(const char*) const;
+    virtual QByteArray encodedData(const char*) const = 0;
     int serialNumber() const;
 
 private:
@@ -43,16 +43,16 @@ private:
     enum { NoCache, Text, Graphics } cacheType;
     union
     {
-	struct
-	{
-	    QString *str;
-	    QString *subtype;
-	} txt;
-	struct
-	{
-	    QImage *img;
-	    QPixmap *pix;
-	} gfx;
+        struct
+        {
+            QString *str;
+            QString *subtype;
+        } txt;
+        struct
+        {
+            QImage *img;
+            QPixmap *pix;
+        } gfx;
     } cache;
     void clearCache();
 
@@ -74,26 +74,26 @@ public:
     virtual ~QMimeSourceFactory();
 
     static QMimeSourceFactory* defaultFactory();
-    static void setDefaultFactory( QMimeSourceFactory* );
+    static void setDefaultFactory(QMimeSourceFactory*);
     static QMimeSourceFactory* takeDefaultFactory();
-    static void addFactory( QMimeSourceFactory *f );
-    static void removeFactory( QMimeSourceFactory *f );
+    static void addFactory(QMimeSourceFactory *f);
+    static void removeFactory(QMimeSourceFactory *f);
 
     virtual const QMimeSource* data(const QString& abs_name) const;
     virtual QString makeAbsolute(const QString& abs_or_rel_name, const QString& context) const;
     const QMimeSource* data(const QString& abs_or_rel_name, const QString& context) const;
 
-    virtual void setText( const QString& abs_name, const QString& text );
-    virtual void setImage( const QString& abs_name, const QImage& im );
-    virtual void setPixmap( const QString& abs_name, const QPixmap& pm );
-    virtual void setData( const QString& abs_name, QMimeSource* data );
-    virtual void setFilePath( const QStringList& );
+    virtual void setText(const QString& abs_name, const QString& text);
+    virtual void setImage(const QString& abs_name, const QImage& im);
+    virtual void setPixmap(const QString& abs_name, const QPixmap& pm);
+    virtual void setData(const QString& abs_name, QMimeSource* data);
+    virtual void setFilePath(const QStringList&);
     virtual QStringList filePath() const;
-    void addFilePath( const QString& );
-    virtual void setExtensionType( const QString& ext, const char* mimetype );
+    void addFilePath(const QString&);
+    virtual void setExtensionType(const QString& ext, const char* mimetype);
 
 private:
-    QMimeSource *dataInternal(const QString& abs_name, const QMap<QString, QString> &extensions ) const;
+    QMimeSource *dataInternal(const QString& abs_name, const QMap<QString, QString> &extensions) const;
     QMimeSourceFactoryData* d;
 };
 
@@ -113,7 +113,7 @@ public:
     static void initialize();
 
     static QList<QWindowsMime*> all();
-    static QWindowsMime* convertor( const char* mime, int cf );
+    static QWindowsMime* convertor(const char* mime, int cf);
     static const char* cfToMime(int cf);
 
     static int registerMimeType(const char *mime);
@@ -121,11 +121,11 @@ public:
     virtual const char* convertorName()=0;
     virtual int countCf()=0;
     virtual int cf(int index)=0;
-    virtual bool canConvert( const char* mime, int cf )=0;
+    virtual bool canConvert(const char* mime, int cf)=0;
     virtual const char* mimeFor(int cf)=0;
-    virtual int cfFor(const char* )=0;
-    virtual QByteArray convertToMime( QByteArray data, const char* mime, int cf )=0;
-    virtual QByteArray convertFromMime( QByteArray data, const char* mime, int cf )=0;
+    virtual int cfFor(const char*)=0;
+    virtual QByteArray convertToMime(QByteArray data, const char* mime, int cf)=0;
+    virtual QByteArray convertFromMime(QByteArray data, const char* mime, int cf)=0;
 };
 
 #endif

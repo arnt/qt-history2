@@ -31,7 +31,7 @@ class QWSSoundServer : public QObject {
 public:
     QWSSoundServer(QObject* parent=0);
     ~QWSSoundServer();
-    void playFile( const QString& filename );
+    void playFile(const QString& filename);
 
 private:
     QWSSoundServerPrivate* d;
@@ -41,8 +41,8 @@ private:
 class QWSSoundClient : public QSocket {
     Q_OBJECT
 public:
-    QWSSoundClient( QObject* parent=0 );
-    void play( const QString& filename );
+    QWSSoundClient(QObject* parent=0);
+    void play(const QString& filename);
 };
 
 class QWSSoundServerClient : public QSocket {

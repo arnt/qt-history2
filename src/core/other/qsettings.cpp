@@ -15,8 +15,8 @@
 #include "qplatformdefs.h"
 
 // POSIX Large File Support redefines open -> open64
-static inline int qt_open( const char *pathname, int flags, mode_t mode )
-{ return ::open( pathname, flags, mode ); }
+static inline int qt_open(const char *pathname, int flags, mode_t mode)
+{ return ::open(pathname, flags, mode); }
 #if defined(open)
 # undef open
 #endif
@@ -84,10 +84,10 @@ static inline int qt_open( const char *pathname, int flags, mode_t mode )
     startup:
     \code
     QSettings settings;
-    settings.setPath( "MyCompany.com", "MyApplication" );
+    settings.setPath("MyCompany.com", "MyApplication");
 
-    QString bgColor = settings.readEntry( "/colors/background", "white" );
-    int width = settings.readNumEntry( "/geometry/width", 640 );
+    QString bgColor = settings.readEntry("/colors/background", "white");
+    int width = settings.readNumEntry("/geometry/width", 640);
     // ...
     \endcode
 
@@ -95,10 +95,10 @@ static inline int qt_open( const char *pathname, int flags, mode_t mode )
     'save preferences':
     \code
     QSettings settings;
-    settings.setPath( "MyCompany.com", "MyApplication" );
+    settings.setPath("MyCompany.com", "MyApplication");
 
-    settings.writeEntry( "/colors/background", bgColor );
-    settings.writeEntry( "/geometry/width", width );
+    settings.writeEntry("/colors/background", bgColor);
+    settings.writeEntry("/geometry/width", width);
     // ...
     \endcode
 
@@ -108,14 +108,14 @@ static inline int qt_open( const char *pathname, int flags, mode_t mode )
     \code
     QSettings settings;
 
-    settings.beginGroup( "/MainWindow" );
-	settings.beginGroup( "/Geometry" );
-	    int x = settings.readEntry( "/x" );
-	    // ...
-	settings.endGroup();
-	settings.beginGroup( "/Toolbars" );
-	    // ...
-	settings.endGroup();
+    settings.beginGroup("/MainWindow");
+        settings.beginGroup("/Geometry");
+            int x = settings.readEntry("/x");
+            // ...
+        settings.endGroup();
+        settings.beginGroup("/Toolbars");
+            // ...
+        settings.endGroup();
     settings.endGroup();
     \endcode
 
@@ -123,16 +123,16 @@ static inline int qt_open( const char *pathname, int flags, mode_t mode )
     a list of key-holding keys using subkeyList().
 
     \code
-    QStringList keys = entryList( "/MyApplication" );
+    QStringList keys = entryList("/MyApplication");
     // keys contains 'background color' and 'foreground color'.
 
-    QStringList keys = entryList( "/MyApplication/recent files" );
+    QStringList keys = entryList("/MyApplication/recent files");
     // keys contains '1', '2' and '3'.
 
-    QStringList subkeys = subkeyList( "/MyApplication" );
+    QStringList subkeys = subkeyList("/MyApplication");
     // subkeys contains 'geometry' and 'recent files'
 
-    QStringList subkeys = subkeyList( "/MyApplication/recent files" );
+    QStringList subkeys = subkeyList("/MyApplication/recent files");
     // subkeys is empty.
     \endcode
 
@@ -183,18 +183,18 @@ static inline int qt_open( const char *pathname, int flags, mode_t mode )
     settings QSettings works in the order shown above, writing
     to the first settings file for which the user has write permission.
     (\c INSTALL is the directory where Qt was installed.  This can be
-    modified by using the configure script's -prefix argument )
+    modified by using the configure script's -prefix argument)
 
     If you want to put the settings in a particular place in the
     filesystem you could do this:
     \code
-    settings.insertSearchPath( QSettings::Unix, "/opt/MyCompany/share" );
+    settings.insertSearchPath(QSettings::Unix, "/opt/MyCompany/share");
     \endcode
 
     But in practice you may prefer not to use a search path for Unix.
     For example the following code:
     \code
-    settings.writeEntry( "/MyApplication/geometry/width", width );
+    settings.writeEntry("/MyApplication/geometry/width", width);
     \endcode
     will end up writing the "geometry/width" setting to the file
     \c{$HOME/.qt/myapplicationrc} (assuming that the application is
@@ -241,19 +241,19 @@ typedef int HANDLE;
   A file descriptor for the lock file is returned, and should be
   closed with closelock() when the lock is no longer needed.
  */
-static HANDLE openlock( const QString &name, int type )
+static HANDLE openlock(const QString &name, int type)
 {
-    QFileInfo info( name );
+    QFileInfo info(name);
     // lockfile should be hidden, and never removed
     QString lockfile = info.dirPath() + "/." + info.fileName() + ".lock";
 
     // open the lockfile
-    HANDLE fd = qt_open( QFile::encodeName( lockfile ),
-			 O_RDWR | O_CREAT, S_IRUSR | S_IWUSR );
+    HANDLE fd = qt_open(QFile::encodeName(lockfile),
+                         O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 
-    if ( fd < 0 ) {
- 	// failed to open the lock file, most likely because of permissions
-	return fd;
+    if (fd < 0) {
+        // failed to open the lock file, most likely because of permissions
+        return fd;
     }
 
     struct flock fl;
@@ -261,12 +261,12 @@ static HANDLE openlock( const QString &name, int type )
     fl.l_whence = SEEK_SET;
     fl.l_start = 0;
     fl.l_len = 0;
-    if ( fcntl( fd, F_SETLKW, &fl ) == -1 ) {
-	// the lock failed, so we should fail silently, so that people
-	// using filesystems that do not support locking don't see
-	// numerous warnings about a failed lock
-	close( fd );
-	fd = -1;
+    if (fcntl(fd, F_SETLKW, &fl) == -1) {
+        // the lock failed, so we should fail silently, so that people
+        // using filesystems that do not support locking don't see
+        // numerous warnings about a failed lock
+        close(fd);
+        fd = -1;
     }
 
     return fd;
@@ -276,11 +276,11 @@ static HANDLE openlock( const QString &name, int type )
   Closes the lock file specified by fd.  fd is the file descriptor
   returned by the openlock() function.
 */
-static void closelock( HANDLE fd )
+static void closelock(HANDLE fd)
 {
-    if ( fd < 0 ) {
-	// the lock file is not open
-	return;
+    if (fd < 0) {
+        // the lock file is not open
+        return;
     }
 
     struct flock fl;
@@ -289,41 +289,41 @@ static void closelock( HANDLE fd )
     fl.l_start = 0;
     fl.l_len = 0;
     // ignore the return value, so that the unlock fails silently
-    (void) fcntl( fd, F_SETLKW, &fl );
+    (void) fcntl(fd, F_SETLKW, &fl);
 
-    close( fd );
+    close(fd);
 }
 #elif defined(Q_WS_WIN)
 #define Q_LOCKREAD 1
 #define Q_LOCKWRITE 2
 
-static HANDLE openlock( const QString &name, int type )
+static HANDLE openlock(const QString &name, int type)
 {
     return 0; // ###
-    if ( !QFile::exists( name ) )
-	return 0;
+    if (!QFile::exists(name))
+        return 0;
 
     HANDLE fd = 0;
     DWORD shareFlag = (type & Q_LOCKREAD) ? 0 : FILE_SHARE_READ;
     shareFlag |= (type & Q_LOCKWRITE) ? 0 : FILE_SHARE_WRITE;
 
-    QT_WA( {
-	fd = CreateFileW( (TCHAR*)name.ucs2(), GENERIC_READ, shareFlag, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
+    QT_WA({
+        fd = CreateFileW((TCHAR*)name.ucs2(), GENERIC_READ, shareFlag, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     } , {
-	fd = CreateFileA( name.local8Bit(), GENERIC_READ, shareFlag, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL );
-    } );
+        fd = CreateFileA(name.local8Bit(), GENERIC_READ, shareFlag, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    });
 
-    if ( !fd )
-	qWarning( "QSettings: openlock failed!" );
+    if (!fd)
+        qWarning("QSettings: openlock failed!");
     return fd;
 }
 
-static void closelock( HANDLE fd )
+static void closelock(HANDLE fd)
 {
-    if ( !fd )
-	return;
+    if (!fd)
+        return;
 
-    CloseHandle( fd );
+    CloseHandle(fd);
 }
 #endif
 
@@ -339,14 +339,14 @@ QSettingsGroup::QSettingsGroup()
 void QSettingsHeading::read(const QString &filename)
 {
     if (! QFileInfo(filename).exists())
-	return;
+        return;
 
-    HANDLE lockfd = openlock( filename, Q_LOCKREAD );
+    HANDLE lockfd = openlock(filename, Q_LOCKREAD);
 
     QFile file(filename);
     if (! file.open(IO_ReadOnly)) {
-	qWarning("QSettings: failed to open file '%s'", filename.latin1());
-	return;
+        qWarning("QSettings: failed to open file '%s'", filename.latin1());
+        return;
     }
 
     git = end();
@@ -354,13 +354,13 @@ void QSettingsHeading::read(const QString &filename)
     QTextStream stream(&file);
     stream.setEncoding(QTextStream::UnicodeUTF8);
     while (! stream.atEnd())
-	parseLine(stream);
+        parseLine(stream);
 
     git = end();
 
     file.close();
 
-    closelock( lockfd );
+    closelock(lockfd);
 }
 
 
@@ -368,71 +368,71 @@ void QSettingsHeading::parseLine(QTextStream &stream)
 {
     QString line = stream.readLine();
     if (line.isEmpty())
-	// empty line... we'll allow it
-	return;
+        // empty line... we'll allow it
+        return;
 
     if (line[0] == QChar('#'))
-	// commented line
-	return;
+        // commented line
+        return;
 
     if (line[0] == QChar('[')) {
-	QString gname = line;
+        QString gname = line;
 
-	gname = gname.remove((uint)0, 1);
-	if (gname[(int)gname.length() - 1] == QChar(']'))
-	    gname = gname.remove(gname.length() - 1, 1);
+        gname = gname.remove((uint)0, 1);
+        if (gname[(int)gname.length() - 1] == QChar(']'))
+            gname = gname.remove(gname.length() - 1, 1);
 
-	git = find(gname);
-	if (git == end())
-	    git = insert(gname, QSettingsGroup());
+        git = find(gname);
+        if (git == end())
+            git = insert(gname, QSettingsGroup());
     } else {
-	if (git == end()) {
-	    qWarning("QSettings: line '%s' out of group", line.latin1());
-	    return;
-	}
+        if (git == end()) {
+            qWarning("QSettings: line '%s' out of group", line.latin1());
+            return;
+        }
 
-	int i = line.indexOf('=');
-       	if (i == -1) {
-	    qWarning("QSettings: malformed line '%s' in group '%s'",
-		     line.latin1(), git.key().latin1());
-	    return;
-	} else {
-	    QString key, value;
-	    key = line.left(i);
-	    value = "";
-	    bool esc=true;
-	    i++;
-	    while (esc) {
-		esc = false;
-		for ( ; i < (int)line.length(); i++ ) {
-		    if ( esc ) {
-			if ( line[i] == 'n' )
-			    value.append('\n'); // escaped newline
-			else if ( line[i] == '0' )
-			    value = QString::null; // escaped empty string
-			else
-			    value.append(line[i]);
-			esc = false;
-		    } else if ( line[i] == '\\' )
-			esc = true;
-		    else
-			value.append(line[i]);
-		}
-		if ( esc ) {
-		    // Backwards-compatibility...
-		    // still escaped at EOL - manually escaped "newline"
-		    if (stream.atEnd()) {
-			qWarning("QSettings: reached end of file, expected continued line");
-			break;
-		    }
-		    value.append('\n');
-		    line = stream.readLine();
-		    i = 0;
-		}
-	    }
+        int i = line.indexOf('=');
+        if (i == -1) {
+            qWarning("QSettings: malformed line '%s' in group '%s'",
+                     line.latin1(), git.key().latin1());
+            return;
+        } else {
+            QString key, value;
+            key = line.left(i);
+            value = "";
+            bool esc=true;
+            i++;
+            while (esc) {
+                esc = false;
+                for (; i < (int)line.length(); i++) {
+                    if (esc) {
+                        if (line[i] == 'n')
+                            value.append('\n'); // escaped newline
+                        else if (line[i] == '0')
+                            value = QString::null; // escaped empty string
+                        else
+                            value.append(line[i]);
+                        esc = false;
+                    } else if (line[i] == '\\')
+                        esc = true;
+                    else
+                        value.append(line[i]);
+                }
+                if (esc) {
+                    // Backwards-compatibility...
+                    // still escaped at EOL - manually escaped "newline"
+                    if (stream.atEnd()) {
+                        qWarning("QSettings: reached end of file, expected continued line");
+                        break;
+                    }
+                    value.append('\n');
+                    line = stream.readLine();
+                    i = 0;
+                }
+            }
 
-	    (*git).insert(key, value);
-	}
+            (*git).insert(key, value);
+        }
     }
 }
 
@@ -449,61 +449,61 @@ void QSettingsHeading::parseLine(QTextStream &stream)
 
 #endif
 
-QSettingsPrivate::QSettingsPrivate( QSettings::Format format )
-    : groupDirty( true ), modified(false), globalScope(true)
+QSettingsPrivate::QSettingsPrivate(QSettings::Format format)
+    : groupDirty(true), modified(false), globalScope(true)
 {
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
-    if ( format != QSettings::Ini )
-	return;
+    if (format != QSettings::Ini)
+        return;
 #else
-    Q_UNUSED( format );
+    Q_UNUSED(format);
 #endif
 
     QString appSettings(QDir::homeDirPath() + "/.qt/");
     QString defPath;
 #ifdef Q_WS_WIN
 #ifdef Q_OS_TEMP
-	TCHAR path[MAX_PATH];
-	SHGetSpecialFolderPath( 0, path, CSIDL_APPDATA, false );
-	appSettings  = QString::fromUcs2( path );
-	SHGetSpecialFolderPath( 0, path, CSIDL_COMMON_APPDATA, false );
-	defPath = QString::fromUcs2( path );
+        TCHAR path[MAX_PATH];
+        SHGetSpecialFolderPath(0, path, CSIDL_APPDATA, false);
+        appSettings  = QString::fromUcs2(path);
+        SHGetSpecialFolderPath(0, path, CSIDL_COMMON_APPDATA, false);
+        defPath = QString::fromUcs2(path);
 #else
-    QLibrary library( "shell32" );
-    library.setAutoUnload( false );
-    QT_WA( {
-	typedef BOOL (WINAPI*GetSpecialFolderPath)(HWND, LPTSTR, int, BOOL);
-	GetSpecialFolderPath SHGetSpecialFolderPath = (GetSpecialFolderPath)library.resolve( "SHGetSpecialFolderPathW" );
-	if ( SHGetSpecialFolderPath ) {
-	    TCHAR path[MAX_PATH];
-	    SHGetSpecialFolderPath( 0, path, CSIDL_APPDATA, false );
-	    appSettings  = QString::fromUcs2( (ushort*)path );
-	    SHGetSpecialFolderPath( 0, path, CSIDL_COMMON_APPDATA, false );
-	    defPath = QString::fromUcs2( (ushort*)path );
-	}
+    QLibrary library("shell32");
+    library.setAutoUnload(false);
+    QT_WA({
+        typedef BOOL (WINAPI*GetSpecialFolderPath)(HWND, LPTSTR, int, BOOL);
+        GetSpecialFolderPath SHGetSpecialFolderPath = (GetSpecialFolderPath)library.resolve("SHGetSpecialFolderPathW");
+        if (SHGetSpecialFolderPath) {
+            TCHAR path[MAX_PATH];
+            SHGetSpecialFolderPath(0, path, CSIDL_APPDATA, false);
+            appSettings  = QString::fromUcs2((ushort*)path);
+            SHGetSpecialFolderPath(0, path, CSIDL_COMMON_APPDATA, false);
+            defPath = QString::fromUcs2((ushort*)path);
+        }
     } , {
-	typedef BOOL (WINAPI*GetSpecialFolderPath)(HWND, char*, int, BOOL);
-	GetSpecialFolderPath SHGetSpecialFolderPath = (GetSpecialFolderPath)library.resolve( "SHGetSpecialFolderPathA" );
-	if ( SHGetSpecialFolderPath ) {
-	    char path[MAX_PATH];
-	    SHGetSpecialFolderPath( 0, path, CSIDL_APPDATA, false );
-	    appSettings = QString::fromLocal8Bit( path );
-	    SHGetSpecialFolderPath( 0, path, CSIDL_COMMON_APPDATA, false );
-	    defPath = QString::fromLocal8Bit( path );
-	}
-    } );
+        typedef BOOL (WINAPI*GetSpecialFolderPath)(HWND, char*, int, BOOL);
+        GetSpecialFolderPath SHGetSpecialFolderPath = (GetSpecialFolderPath)library.resolve("SHGetSpecialFolderPathA");
+        if (SHGetSpecialFolderPath) {
+            char path[MAX_PATH];
+            SHGetSpecialFolderPath(0, path, CSIDL_APPDATA, false);
+            appSettings = QString::fromLocal8Bit(path);
+            SHGetSpecialFolderPath(0, path, CSIDL_COMMON_APPDATA, false);
+            defPath = QString::fromLocal8Bit(path);
+        }
+    });
 #endif // Q_OS_TEMP
 #else
     defPath = qInstallPathSysconf();
 #endif
     QDir dir(appSettings);
     if (! dir.exists()) {
-	if (! dir.mkdir(dir.path()))
-	    qWarning("QSettings: error creating %s", dir.path().latin1());
+        if (! dir.mkdir(dir.path()))
+            qWarning("QSettings: error creating %s", dir.path().latin1());
     }
 
-    if ( defPath.size() )
-	searchPaths.append(defPath);
+    if (defPath.size())
+        searchPaths.append(defPath);
     searchPaths.append(dir.path());
 }
 
@@ -518,29 +518,29 @@ QSettingsGroup QSettingsPrivate::readGroup()
 
     QMap<QString,QSettingsHeading>::Iterator headingsit = headings.find(heading);
     if (headingsit != headings.end())
-	hd = *headingsit;
+        hd = *headingsit;
 
     QSettingsHeading::Iterator grpit = hd.find(group);
     if (grpit == hd.end()) {
-	QStringList::Iterator it = searchPaths.begin();
-	if ( !globalScope )
-	    ++it;
-	while (it != searchPaths.end()) {
-	    QString filebase = heading.toLower().replace(QRegExp("\\s+"), "_");
-	    QString fn((*it++) + "/" + filebase + "rc");
-	    if (! hd.contains(fn + "cached")) {
-		hd.read(fn);
-		hd.insert(fn + "cached", QSettingsGroup());
-	    }
-	}
+        QStringList::Iterator it = searchPaths.begin();
+        if (!globalScope)
+            ++it;
+        while (it != searchPaths.end()) {
+            QString filebase = heading.toLower().replace(QRegExp("\\s+"), "_");
+            QString fn((*it++) + "/" + filebase + "rc");
+            if (! hd.contains(fn + "cached")) {
+                hd.read(fn);
+                hd.insert(fn + "cached", QSettingsGroup());
+            }
+        }
 
-	headings.insert(heading, hd);
+        headings.insert(heading, hd);
 
-	grpit = hd.find(group);
-	if (grpit != hd.end())
-	    grp = *grpit;
+        grpit = hd.find(group);
+        if (grpit != hd.end())
+            grp = *grpit;
     } else if (hd.count() != 0)
-	grp = *grpit;
+        grp = *grpit;
 
     return grp;
 }
@@ -554,48 +554,48 @@ void QSettingsPrivate::removeGroup(const QString &key)
 
     QMap<QString,QSettingsHeading>::Iterator headingsit = headings.find(heading);
     if (headingsit != headings.end())
-	hd = *headingsit;
+        hd = *headingsit;
 
     QSettingsHeading::Iterator grpit = hd.find(group);
     if (grpit == hd.end()) {
-	QStringList::Iterator it = searchPaths.begin();
-	if ( !globalScope )
-	    ++it;
-	while (it != searchPaths.end()) {
-	    QString filebase = heading.toLower().replace(QRegExp("\\s+"), "_");
-	    QString fn((*it++) + "/" + filebase + "rc");
-	    if (! hd.contains(fn + "cached")) {
-		hd.read(fn);
-		hd.insert(fn + "cached", QSettingsGroup());
-	    }
-	}
+        QStringList::Iterator it = searchPaths.begin();
+        if (!globalScope)
+            ++it;
+        while (it != searchPaths.end()) {
+            QString filebase = heading.toLower().replace(QRegExp("\\s+"), "_");
+            QString fn((*it++) + "/" + filebase + "rc");
+            if (! hd.contains(fn + "cached")) {
+                hd.read(fn);
+                hd.insert(fn + "cached", QSettingsGroup());
+            }
+        }
 
-	headings.insert(heading, hd);
+        headings.insert(heading, hd);
 
-	grpit = hd.find(group);
-	if (grpit != hd.end()) {
-	    found = true;
-	    grp = *grpit;
-	}
+        grpit = hd.find(group);
+        if (grpit != hd.end()) {
+            found = true;
+            grp = *grpit;
+        }
     } else if (hd.count() != 0) {
-	found = true;
-	grp = *grpit;
+        found = true;
+        grp = *grpit;
     }
 
     if (found) {
-	grp.remove(key);
+        grp.remove(key);
 
-	if (grp.count() > 0)
-	    hd.insert(group, grp);
-	else
-	    hd.remove(group);
+        if (grp.count() > 0)
+            hd.insert(group, grp);
+        else
+            hd.remove(group);
 
-	if (hd.count() > 0)
-	    headings.insert(heading, hd);
-	else
-	    headings.remove(heading);
+        if (hd.count() > 0)
+            headings.insert(heading, hd);
+        else
+            headings.remove(heading);
 
-	modified = true;
+        modified = true;
     }
 }
 
@@ -607,29 +607,29 @@ void QSettingsPrivate::writeGroup(const QString &key, const QString &value)
 
     QMap<QString,QSettingsHeading>::Iterator headingsit = headings.find(heading);
     if (headingsit != headings.end())
-	hd = *headingsit;
+        hd = *headingsit;
 
     QSettingsHeading::Iterator grpit = hd.find(group);
     if (grpit == hd.end()) {
-	QStringList::Iterator it = searchPaths.begin();
-	if ( !globalScope )
-	    ++it;
-	while (it != searchPaths.end()) {
-	    QString filebase = heading.toLower().replace(QRegExp("\\s+"), "_");
-	    QString fn((*it++) + "/" + filebase + "rc");
-	    if (! hd.contains(fn + "cached")) {
-		hd.read(fn);
-		hd.insert(fn + "cached", QSettingsGroup());
-	    }
-	}
+        QStringList::Iterator it = searchPaths.begin();
+        if (!globalScope)
+            ++it;
+        while (it != searchPaths.end()) {
+            QString filebase = heading.toLower().replace(QRegExp("\\s+"), "_");
+            QString fn((*it++) + "/" + filebase + "rc");
+            if (! hd.contains(fn + "cached")) {
+                hd.read(fn);
+                hd.insert(fn + "cached", QSettingsGroup());
+            }
+        }
 
-	headings.insert(heading, hd);
+        headings.insert(heading, hd);
 
-	grpit = hd.find(group);
-	if (grpit != hd.end())
-	    grp = *grpit;
+        grpit = hd.find(group);
+        if (grpit != hd.end())
+            grp = *grpit;
     } else if (hd.count() != 0)
-	grp = *grpit;
+        grp = *grpit;
 
     grp.modified = true;
     grp.insert(key, value);
@@ -648,37 +648,37 @@ QDateTime QSettingsPrivate::modificationTime()
     QDateTime datetime;
 
     QStringList::Iterator it = searchPaths.begin();
-    if ( !globalScope )
-	++it;
+    if (!globalScope)
+        ++it;
     while (it != searchPaths.end()) {
-	QFileInfo fi((*it++) + "/" + heading + "rc");
-	if (fi.exists() && fi.lastModified() > datetime)
-	    datetime = fi.lastModified();
+        QFileInfo fi((*it++) + "/" + heading + "rc");
+        if (fi.exists() && fi.lastModified() > datetime)
+            datetime = fi.lastModified();
     }
 
     return datetime;
 }
 
-bool qt_verify_key( const QString &key )
+bool qt_verify_key(const QString &key)
 {
-    if ( key.isEmpty() || key[0] != '/' || (bool)key.contains( QRegExp("[=\\r\\n]" ) ) )
-	return false;
+    if (key.isEmpty() || key[0] != '/' || (bool)key.contains(QRegExp("[=\\r\\n]")))
+        return false;
     return true;
 }
 
-static QString groupKey( const QString &group, const QString &key )
+static QString groupKey(const QString &group, const QString &key)
 {
     QString grp_key;
-    if ( group.isEmpty() || ( group.length() == 1 && group[0] == '/' ) ) {
-	// group is empty, or it contains a single '/', so we just return the key
-	if ( key.startsWith( "/" ) )
-	    grp_key = key;
-	else
-	    grp_key = "/" + key;
-    } else if ( group.endsWith( "/" ) || key.startsWith( "/" ) ) {
-	grp_key = group + key;
+    if (group.isEmpty() || (group.length() == 1 && group[0] == '/')) {
+        // group is empty, or it contains a single '/', so we just return the key
+        if (key.startsWith("/"))
+            grp_key = key;
+        else
+            grp_key = "/" + key;
+    } else if (group.endsWith("/") || key.startsWith("/")) {
+        grp_key = group + key;
     } else {
-	grp_key = group + "/" + key;
+        grp_key = group + "/" + key;
     }
     return grp_key;
 }
@@ -709,8 +709,8 @@ static QString groupKey( const QString &group, const QString &key )
 
   \code
   QSettings settings;
-  settings.insertSearchPath( QSettings::Windows, "/MyCompany" );
-  settings.writeEntry( "/MyApplication/Tip of the day", true );
+  settings.insertSearchPath(QSettings::Windows, "/MyCompany");
+  settings.writeEntry("/MyApplication/Tip of the day", true);
   \endcode
   The code above will write the subkey "Tip of the day" into the \e
   first of the registry folders listed below that is found and for
@@ -740,8 +740,8 @@ static QString groupKey( const QString &group, const QString &key )
   For example:
   \code
   QSettings settings;
-  settings.insertSearchPath( QSettings::Unix, "/opt/MyCompany/share/etc" );
-  settings.insertSearchPath( QSettings::Unix, "/opt/MyCompany/share/MyApplication/etc" );
+  settings.insertSearchPath(QSettings::Unix, "/opt/MyCompany/share/etc");
+  settings.insertSearchPath(QSettings::Unix, "/opt/MyCompany/share/MyApplication/etc");
   // ...
   \endcode
   Will result in a search path of:
@@ -771,38 +771,38 @@ static QString groupKey( const QString &group, const QString &key )
   \sa removeSearchPath()
 
 */
-void QSettings::insertSearchPath( System s, const QString &path)
+void QSettings::insertSearchPath(System s, const QString &path)
 {
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
-    if ( d->sysd ) {
-	d->sysInsertSearchPath( s, path );
-	return;
+    if (d->sysd) {
+        d->sysInsertSearchPath(s, path);
+        return;
     }
 #endif
 
 #if !defined(Q_WS_WIN)
-    if ( s == Windows )
-	return;
+    if (s == Windows)
+        return;
 #endif
 #if !defined(Q_WS_WIN)
-    if ( s == Mac )
-	return;
+    if (s == Mac)
+        return;
 #endif
 
-    if ( !qt_verify_key( path ) ) {
-	qWarning( "QSettings::insertSearchPath: Invalid key: '%s'", path.isNull() ? "(null)" : path.latin1() );
-	return;
+    if (!qt_verify_key(path)) {
+        qWarning("QSettings::insertSearchPath: Invalid key: '%s'", path.isNull() ? "(null)" : path.latin1());
+        return;
     }
 
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
-    if ( d->sysd && s != Unix ) {
+    if (d->sysd && s != Unix) {
 #else
-    if ( s != Unix ) {
+    if (s != Unix) {
 #endif
 #if !defined(QWS) && defined(Q_OS_MAC)
-	if(s != Mac) //mac is respected on the mac as well
+        if(s != Mac) //mac is respected on the mac as well
 #endif
-	    return;
+            return;
     }
 
     QString realPath = path;
@@ -813,7 +813,7 @@ void QSettings::insertSearchPath( System s, const QString &path)
 
     int idx = d->searchPaths.indexOf(d->searchPaths.last());
     if (idx != -1) {
-	d->searchPaths.insert(idx, realPath);
+        d->searchPaths.insert(idx, realPath);
     }
 }
 
@@ -825,32 +825,32 @@ void QSettings::insertSearchPath( System s, const QString &path)
 
   \sa insertSearchPath()
 */
-void QSettings::removeSearchPath( System s, const QString &path)
+void QSettings::removeSearchPath(System s, const QString &path)
 {
-    if ( !qt_verify_key( path ) ) {
-	qWarning( "QSettings::insertSearchPath: Invalid key: '%s'", path.isNull() ? "(null)" : path.latin1() );
-	return;
+    if (!qt_verify_key(path)) {
+        qWarning("QSettings::insertSearchPath: Invalid key: '%s'", path.isNull() ? "(null)" : path.latin1());
+        return;
     }
 
 #ifdef Q_WS_WIN
-    if ( d->sysd ) {
-	d->sysRemoveSearchPath( s, path );
-	return;
+    if (d->sysd) {
+        d->sysRemoveSearchPath(s, path);
+        return;
     }
 #endif
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
-    if ( d->sysd && s != Unix ) {
+    if (d->sysd && s != Unix) {
 #else
-    if ( s != Unix ) {
+    if (s != Unix) {
 #endif
 #if !defined(QWS) && defined(Q_OS_MAC)
-	if(s != Mac) //mac is respected on the mac as well
+        if(s != Mac) //mac is respected on the mac as well
 #endif
-	    return;
+            return;
     }
 
     if (path == d->searchPaths.first() || path == d->searchPaths.last())
-	return;
+        return;
 
     d->searchPaths.remove(path);
 }
@@ -861,7 +861,7 @@ void QSettings::removeSearchPath( System s, const QString &path)
 */
 QSettings::QSettings()
 {
-    d = new QSettingsPrivate( Native );
+    d = new QSettingsPrivate(Native);
 
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
     d->sysd = 0;
@@ -875,14 +875,14 @@ QSettings::QSettings()
   is 'Native', the settings will be stored in a platform specific way
   (ie. the Windows registry).
 */
-QSettings::QSettings( Format format )
+QSettings::QSettings(Format format)
 {
-    d = new QSettingsPrivate( format );
+    d = new QSettingsPrivate(format);
 
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
     d->sysd = 0;
-    if ( format == Native )
-	d->sysInit();
+    if (format == Native)
+        d->sysInit();
 #else
     Q_UNUSED(format);
 #endif
@@ -898,8 +898,8 @@ QSettings::~QSettings()
     sync();
 
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
-    if ( d->sysd )
-	d->sysClear();
+    if (d->sysd)
+        d->sysClear();
 #endif
 
     delete d;
@@ -913,117 +913,117 @@ QSettings::~QSettings()
 bool QSettings::sync()
 {
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
-    if ( d->sysd )
-	return d->sysSync();
+    if (d->sysd)
+        return d->sysSync();
 #endif
     if (! d->modified)
-	// fake success
-	return true;
+        // fake success
+        return true;
 
     bool success = true;
     QMap<QString,QSettingsHeading>::Iterator it = d->headings.begin();
 
     while (it != d->headings.end()) {
-	// determine filename
-	QSettingsHeading hd(*it);
-	QSettingsHeading::Iterator hdit = hd.begin();
-	QString filename;
+        // determine filename
+        QSettingsHeading hd(*it);
+        QSettingsHeading::Iterator hdit = hd.begin();
+        QString filename;
 
-	QStringList::Iterator pit = d->searchPaths.begin();
-	if ( !d->globalScope )
-	    ++pit;
-	while (pit != d->searchPaths.end()) {
-	    QString filebase = it.key().toLower().replace(QRegExp("\\s+"), "_");
-	    QFileInfo di(*pit);
-	    if ( !di.exists() ) {
-		QDir dir;
-		dir.mkdir( *pit );
-	    }
+        QStringList::Iterator pit = d->searchPaths.begin();
+        if (!d->globalScope)
+            ++pit;
+        while (pit != d->searchPaths.end()) {
+            QString filebase = it.key().toLower().replace(QRegExp("\\s+"), "_");
+            QFileInfo di(*pit);
+            if (!di.exists()) {
+                QDir dir;
+                dir.mkdir(*pit);
+            }
 
-	    QFileInfo fi((*pit++) + "/" + filebase + "rc");
+            QFileInfo fi((*pit++) + "/" + filebase + "rc");
 
-	    if ((fi.exists() && fi.isFile() && fi.isWritable()) ||
-		(! fi.exists() && di.isDir()
+            if ((fi.exists() && fi.isFile() && fi.isWritable()) ||
+                (! fi.exists() && di.isDir()
 #ifndef Q_WS_WIN
-		&& di.isWritable()
+                && di.isWritable()
 #else
-		&& ((QSysInfo::WindowsVersion&QSysInfo::WV_NT_based) > QSysInfo::WV_2000 || di.isWritable())
+                && ((QSysInfo::WindowsVersion&QSysInfo::WV_NT_based) > QSysInfo::WV_2000 || di.isWritable())
 #endif
-		)) {
-		filename = fi.filePath();
-		break;
-	    }
-	}
+               )) {
+                filename = fi.filePath();
+                break;
+            }
+        }
 
-	++it;
+        ++it;
 
-	if ( filename.isEmpty() ) {
-	    qWarning("QSettings::sync: filename is null/empty");
-	    success = false;
-	    continue;
-	}
+        if (filename.isEmpty()) {
+            qWarning("QSettings::sync: filename is null/empty");
+            success = false;
+            continue;
+        }
 
-	HANDLE lockfd = openlock( filename, Q_LOCKWRITE );
+        HANDLE lockfd = openlock(filename, Q_LOCKWRITE);
 
-	QFile file( filename + ".tmp" );
-	if (! file.open(IO_WriteOnly)) {
-	    qWarning("QSettings::sync: failed to open '%s' for writing",
-		     file.name().latin1());
-	    success = false;
-	    continue;
-	}
+        QFile file(filename + ".tmp");
+        if (! file.open(IO_WriteOnly)) {
+            qWarning("QSettings::sync: failed to open '%s' for writing",
+                     file.name().latin1());
+            success = false;
+            continue;
+        }
 
-	// spew to file
-	QTextStream stream(&file);
-	stream.setEncoding(QTextStream::UnicodeUTF8);
+        // spew to file
+        QTextStream stream(&file);
+        stream.setEncoding(QTextStream::UnicodeUTF8);
 
-	while (hdit != hd.end()) {
-	    if ((*hdit).count() > 0) {
-		stream << "[" << hdit.key() << "]" << endl;
+        while (hdit != hd.end()) {
+            if ((*hdit).count() > 0) {
+                stream << "[" << hdit.key() << "]" << endl;
 
-		QSettingsGroup grp(*hdit);
-		QSettingsGroup::Iterator grpit = grp.begin();
+                QSettingsGroup grp(*hdit);
+                QSettingsGroup::Iterator grpit = grp.begin();
 
-		while (grpit != grp.end()) {
-		    QString v = grpit.value();
-		    if ( v.isNull() ) {
-			v = "\\0"; // escape null string
-		    } else {
-			v.replace("\\", "\\\\"); // escape backslash
-			v.replace("\n", "\\n"); // escape newlines
-		    }
+                while (grpit != grp.end()) {
+                    QString v = grpit.value();
+                    if (v.isNull()) {
+                        v = "\\0"; // escape null string
+                    } else {
+                        v.replace("\\", "\\\\"); // escape backslash
+                        v.replace("\n", "\\n"); // escape newlines
+                    }
 
-		    stream << grpit.key() << "=" << v << endl;
-		    ++grpit;
-		}
+                    stream << grpit.key() << "=" << v << endl;
+                    ++grpit;
+                }
 
-		stream << endl;
-	    }
+                stream << endl;
+            }
 
-	    ++hdit;
-	}
+            ++hdit;
+        }
 
-	if (file.status() != IO_Ok) {
-	    qWarning("QSettings::sync: error at end of write");
-	    success = false;
-	}
+        if (file.status() != IO_Ok) {
+            qWarning("QSettings::sync: error at end of write");
+            success = false;
+        }
 
-	file.close();
+        file.close();
 
-	if ( success ) {
-	    QDir dir( QFileInfo( file ).dir( true ) );
-	    if ( dir.exists( filename ) && !dir.remove( filename ) ||
-		 !dir.rename( file.name(), filename, true ) ) {
-		qWarning( "QSettings::sync: error writing file '%s'",
-			  QFile::encodeName( filename ).constData() );
-		success = false;
-	    }
-	}
+        if (success) {
+            QDir dir(QFileInfo(file).dir(true));
+            if (dir.exists(filename) && !dir.remove(filename) ||
+                 !dir.rename(file.name(), filename, true)) {
+                qWarning("QSettings::sync: error writing file '%s'",
+                          QFile::encodeName(filename).constData());
+                success = false;
+            }
+        }
 
-	// remove temporary file
-	file.remove();
+        // remove temporary file
+        file.remove();
 
-	closelock( lockfd );
+        closelock(lockfd);
     }
 
     d->modified = false;
@@ -1033,7 +1033,7 @@ bool QSettings::sync()
 
 
 /*!
-  \fn bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok ) const
+  \fn bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok) const
 
   Reads the entry specified by \a key, and returns a bool, or the
   default value, \a def, if the entry couldn't be read.
@@ -1046,44 +1046,44 @@ bool QSettings::sync()
 /*!
     \internal
 */
-bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok )
+bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok)
 {
-    QString grp_key( groupKey( group(), key ) );
-    if ( !qt_verify_key( grp_key ) ) {
-	qWarning( "QSettings::readBoolEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1() );
-    	if ( ok )
-	    *ok = false;
+    QString grp_key(groupKey(group(), key));
+    if (!qt_verify_key(grp_key)) {
+        qWarning("QSettings::readBoolEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1());
+        if (ok)
+            *ok = false;
 
-	return def;
+        return def;
     }
 
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
-    if ( d->sysd )
-	return d->sysReadBoolEntry( grp_key, def, ok );
+    if (d->sysd)
+        return d->sysReadBoolEntry(grp_key, def, ok);
 #endif
 
-    QString value = readEntry( key, ( def ? "true" : "false" ), ok );
+    QString value = readEntry(key, (def ? "true" : "false"), ok);
 
     if (value.toLower() == "true")
-	return true;
+        return true;
     else if (value.toLower() == "false")
-	return false;
+        return false;
     else if (value == "1")
-	return true;
+        return true;
     else if (value == "0")
-	return false;
+        return false;
 
     if (! value.isEmpty())
-	qWarning("QSettings::readBoolEntry: '%s' is not 'true' or 'false'",
-		 value.latin1());
-    if ( ok )
-	*ok = false;
+        qWarning("QSettings::readBoolEntry: '%s' is not 'true' or 'false'",
+                 value.latin1());
+    if (ok)
+        *ok = false;
     return def;
 }
 
 
 /*!
-    \fn double QSettings::readDoubleEntry(const QString &key, double def, bool *ok ) const
+    \fn double QSettings::readDoubleEntry(const QString &key, double def, bool *ok) const
 
   Reads the entry specified by \a key, and returns a double, or the
   default value, \a def, if the entry couldn't be read.
@@ -1096,38 +1096,38 @@ bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok )
 /*!
     \internal
 */
-double QSettings::readDoubleEntry(const QString &key, double def, bool *ok )
+double QSettings::readDoubleEntry(const QString &key, double def, bool *ok)
 {
-    QString grp_key( groupKey( group(), key ) );
-    if ( !qt_verify_key( grp_key ) ) {
-	qWarning( "QSettings::readDoubleEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1() );
-    	if ( ok )
-	    *ok = false;
+    QString grp_key(groupKey(group(), key));
+    if (!qt_verify_key(grp_key)) {
+        qWarning("QSettings::readDoubleEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1());
+        if (ok)
+            *ok = false;
 
-	return def;
+        return def;
     }
 
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
-    if ( d->sysd )
-	return d->sysReadDoubleEntry( grp_key, def, ok );
+    if (d->sysd)
+        return d->sysReadDoubleEntry(grp_key, def, ok);
 #endif
 
-    QString value = readEntry( key, QString::number(def), ok );
+    QString value = readEntry(key, QString::number(def), ok);
     bool conv_ok;
-    double retval = value.toDouble( &conv_ok );
-    if ( conv_ok )
-	return retval;
-    if ( ! value.isEmpty() )
-	qWarning( "QSettings::readDoubleEntry: '%s' is not a number",
-		  value.latin1() );
-    if ( ok )
-	*ok = false;
+    double retval = value.toDouble(&conv_ok);
+    if (conv_ok)
+        return retval;
+    if (! value.isEmpty())
+        qWarning("QSettings::readDoubleEntry: '%s' is not a number",
+                  value.latin1());
+    if (ok)
+        *ok = false;
     return def;
 }
 
 
 /*!
-    \fn int QSettings::readNumEntry(const QString &key, int def, bool *ok ) const
+    \fn int QSettings::readNumEntry(const QString &key, int def, bool *ok) const
 
   Reads the entry specified by \a key, and returns an integer, or the
   default value, \a def, if the entry couldn't be read.
@@ -1140,37 +1140,37 @@ double QSettings::readDoubleEntry(const QString &key, double def, bool *ok )
 /*!
     \internal
 */
-int QSettings::readNumEntry(const QString &key, int def, bool *ok )
+int QSettings::readNumEntry(const QString &key, int def, bool *ok)
 {
-    QString grp_key( groupKey( group(), key ) );
-    if ( !qt_verify_key( grp_key ) ) {
-	qWarning( "QSettings::readNumEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1() );
-	if ( ok )
-	    *ok = false;
-	return def;
+    QString grp_key(groupKey(group(), key));
+    if (!qt_verify_key(grp_key)) {
+        qWarning("QSettings::readNumEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1());
+        if (ok)
+            *ok = false;
+        return def;
     }
 
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
-    if ( d->sysd )
-	return d->sysReadNumEntry( grp_key, def, ok );
+    if (d->sysd)
+        return d->sysReadNumEntry(grp_key, def, ok);
 #endif
 
-    QString value = readEntry( key, QString::number( def ), ok );
+    QString value = readEntry(key, QString::number(def), ok);
     bool conv_ok;
-    int retval = value.toInt( &conv_ok );
-    if ( conv_ok )
-	return retval;
-    if ( ! value.isEmpty() )
-	qWarning( "QSettings::readNumEntry: '%s' is not a number",
-		  value.latin1() );
-    if ( ok )
-	*ok = false;
+    int retval = value.toInt(&conv_ok);
+    if (conv_ok)
+        return retval;
+    if (! value.isEmpty())
+        qWarning("QSettings::readNumEntry: '%s' is not a number",
+                  value.latin1());
+    if (ok)
+        *ok = false;
     return def;
 }
 
 
 /*!
-    \fn QString QSettings::readEntry(const QString &key, const QString &def, bool *ok ) const
+    \fn QString QSettings::readEntry(const QString &key, const QString &def, bool *ok) const
 
   Reads the entry specified by \a key, and returns a QString, or the
   default value, \a def, if the entry couldn't be read.
@@ -1183,65 +1183,65 @@ int QSettings::readNumEntry(const QString &key, int def, bool *ok )
 /*!
     \internal
 */
-QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
+QString QSettings::readEntry(const QString &key, const QString &def, bool *ok)
 {
-    QString grp_key( groupKey( group(), key ) );
-    if ( !qt_verify_key( grp_key ) ) {
-	qWarning( "QSettings::readEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1() );
-	if ( ok )
-	    *ok = false;
+    QString grp_key(groupKey(group(), key));
+    if (!qt_verify_key(grp_key)) {
+        qWarning("QSettings::readEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1());
+        if (ok)
+            *ok = false;
 
-	return def;
+        return def;
     }
 
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
-    if ( d->sysd )
-	return d->sysReadEntry( grp_key, def, ok );
+    if (d->sysd)
+        return d->sysReadEntry(grp_key, def, ok);
 #endif
 
-    if ( ok ) // no, everything is not ok
-	*ok = false;
+    if (ok) // no, everything is not ok
+        *ok = false;
 
     QString realkey;
 
     if (grp_key[0] == '/') {
-	// parse our key
-	QStringList list(grp_key.split('/'));
+        // parse our key
+        QStringList list(grp_key.split('/'));
         list.remove(QString());
 
-	if (list.count() < 2) {
-	    qWarning("QSettings::readEntry: invalid key '%s'", grp_key.latin1());
-	    if ( ok )
-		*ok = false;
-	    return def;
-	}
+        if (list.count() < 2) {
+            qWarning("QSettings::readEntry: invalid key '%s'", grp_key.latin1());
+            if (ok)
+                *ok = false;
+            return def;
+        }
 
-	if (list.count() == 2) {
-	    d->heading = list[0];
-	    d->group = "General";
-	    realkey = list[1];
-	} else {
-	    d->heading = list[0];
-	    d->group = list[1];
+        if (list.count() == 2) {
+            d->heading = list[0];
+            d->group = "General";
+            realkey = list[1];
+        } else {
+            d->heading = list[0];
+            d->group = list[1];
 
-	    // remove the group from the list
-	    list.remove(list.at(1));
-	    // remove the heading from the list
-	    list.remove(list.at(0));
+            // remove the group from the list
+            list.remove(list.at(1));
+            // remove the heading from the list
+            list.remove(list.at(0));
 
-	    realkey = list.join("/");
-	}
+            realkey = list.join("/");
+        }
     } else {
-    	realkey = grp_key;
+        realkey = grp_key;
     }
 
     QSettingsGroup grp = d->readGroup();
-    QSettingsGroup::const_iterator it = grp.find( realkey ), end = grp.end();
+    QSettingsGroup::const_iterator it = grp.find(realkey), end = grp.end();
     QString retval = def;
-    if ( it != end ) {
-	// found the value we needed
-	retval = *it;
-	if ( ok ) *ok = true;
+    if (it != end) {
+        // found the value we needed
+        retval = *it;
+        if (ok) *ok = true;
     }
     return retval;
 }
@@ -1260,15 +1260,15 @@ QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
 */
 bool QSettings::writeEntry(const QString &key, bool value)
 {
-    QString grp_key( groupKey( group(), key ) );
-    if ( !qt_verify_key( grp_key ) ) {
-	qWarning( "QSettings::writeEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1() );
-	return false;
+    QString grp_key(groupKey(group(), key));
+    if (!qt_verify_key(grp_key)) {
+        qWarning("QSettings::writeEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1());
+        return false;
     }
 
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
-    if ( d->sysd )
-	return d->sysWriteEntry( grp_key, value );
+    if (d->sysd)
+        return d->sysWriteEntry(grp_key, value);
 #endif
     QString s(value ? "true" : "false");
     return writeEntry(key, s);
@@ -1289,15 +1289,15 @@ bool QSettings::writeEntry(const QString &key, bool value)
 */
 bool QSettings::writeEntry(const QString &key, double value)
 {
-    QString grp_key( groupKey( group(), key ) );
-    if ( !qt_verify_key( grp_key ) ) {
-	qWarning( "QSettings::writeEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1() );
-	return false;
+    QString grp_key(groupKey(group(), key));
+    if (!qt_verify_key(grp_key)) {
+        qWarning("QSettings::writeEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1());
+        return false;
     }
 
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
-    if ( d->sysd )
-	return d->sysWriteEntry( grp_key, value );
+    if (d->sysd)
+        return d->sysWriteEntry(grp_key, value);
 #endif
     QString s(QString::number(value));
     return writeEntry(key, s);
@@ -1317,15 +1317,15 @@ bool QSettings::writeEntry(const QString &key, double value)
 */
 bool QSettings::writeEntry(const QString &key, int value)
 {
-    QString grp_key( groupKey( group(), key ) );
-    if ( !qt_verify_key( grp_key ) ) {
-	qWarning( "QSettings::writeEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1() );
-	return false;
+    QString grp_key(groupKey(group(), key));
+    if (!qt_verify_key(grp_key)) {
+        qWarning("QSettings::writeEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1());
+        return false;
     }
 
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
-    if ( d->sysd )
-	return d->sysWriteEntry( grp_key, value );
+    if (d->sysd)
+        return d->sysWriteEntry(grp_key, value);
 #endif
     QString s(QString::number(value));
     return writeEntry(key, s);
@@ -1368,48 +1368,48 @@ bool QSettings::writeEntry(const QString &key, const char *value)
 */
 bool QSettings::writeEntry(const QString &key, const QString &value)
 {
-    QString grp_key( groupKey( group(), key ) );
-    if ( !qt_verify_key( grp_key ) ) {
-	qWarning( "QSettings::writeEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1() );
-	return false;
+    QString grp_key(groupKey(group(), key));
+    if (!qt_verify_key(grp_key)) {
+        qWarning("QSettings::writeEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1());
+        return false;
     }
 
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
-    if ( d->sysd )
-	return d->sysWriteEntry( grp_key, value );
+    if (d->sysd)
+        return d->sysWriteEntry(grp_key, value);
 #endif
     // NOTE: we *do* allow value to be a null/empty string
 
     QString realkey;
 
     if (grp_key[0] == '/') {
-	// parse our key
-	QStringList list(grp_key.split('/'));
+        // parse our key
+        QStringList list(grp_key.split('/'));
         list.remove(QString());
 
-	if (list.count() < 2) {
-	    qWarning("QSettings::writeEntry: invalid key '%s'", grp_key.latin1());
+        if (list.count() < 2) {
+            qWarning("QSettings::writeEntry: invalid key '%s'", grp_key.latin1());
 
-	    return false;
-	}
+            return false;
+        }
 
-	if (list.count() == 2) {
-	    d->heading = list[0];
-	    d->group = "General";
-	    realkey = list[1];
-	} else {
-	    d->heading = list[0];
-	    d->group = list[1];
+        if (list.count() == 2) {
+            d->heading = list[0];
+            d->group = "General";
+            realkey = list[1];
+        } else {
+            d->heading = list[0];
+            d->group = list[1];
 
-	    // remove the group from the list
-	    list.remove(list.at(1));
-	    // remove the heading from the list
-	    list.remove(list.at(0));
+            // remove the group from the list
+            list.remove(list.at(1));
+            // remove the heading from the list
+            list.remove(list.at(0));
 
-	    realkey = list.join("/");
-	}
+            realkey = list.join("/");
+        }
     } else {
-	realkey = grp_key;
+        realkey = grp_key;
     }
 
     d->writeGroup(realkey, value);
@@ -1426,46 +1426,46 @@ bool QSettings::writeEntry(const QString &key, const QString &value)
 */
 bool QSettings::removeEntry(const QString &key)
 {
-    QString grp_key( groupKey( group(), key ) );
-    if ( !qt_verify_key( grp_key ) ) {
-	qWarning( "QSettings::removeEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1() );
-	return false;
+    QString grp_key(groupKey(group(), key));
+    if (!qt_verify_key(grp_key)) {
+        qWarning("QSettings::removeEntry: Invalid key: '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1());
+        return false;
     }
 
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
-    if ( d->sysd )
-	return d->sysRemoveEntry( grp_key );
+    if (d->sysd)
+        return d->sysRemoveEntry(grp_key);
 #endif
 
     QString realkey;
     if (grp_key[0] == '/') {
-	// parse our key
-	QStringList list(grp_key.split('/'));
+        // parse our key
+        QStringList list(grp_key.split('/'));
         list.remove(QString());
 
-	if (list.count() < 2) {
-	    qWarning("QSettings::removeEntry: invalid key '%s'", grp_key.latin1());
+        if (list.count() < 2) {
+            qWarning("QSettings::removeEntry: invalid key '%s'", grp_key.latin1());
 
-	    return false;
-	}
+            return false;
+        }
 
-	if (list.count() == 2) {
-	    d->heading = list[0];
-	    d->group = "General";
-	    realkey = list[1];
-	} else {
-	    d->heading = list[0];
-	    d->group = list[1];
+        if (list.count() == 2) {
+            d->heading = list[0];
+            d->group = "General";
+            realkey = list[1];
+        } else {
+            d->heading = list[0];
+            d->group = list[1];
 
-	    // remove the group from the list
-	    list.remove(list.at(1));
-	    // remove the heading from the list
-	    list.remove(list.at(0));
+            // remove the group from the list
+            list.remove(list.at(1));
+            // remove the heading from the list
+            list.remove(list.at(0));
 
-	    realkey = list.join("/");
-	}
+            realkey = list.join("/");
+        }
     } else {
-	realkey = grp_key;
+        realkey = grp_key;
     }
 
     d->removeGroup(realkey);
@@ -1487,7 +1487,7 @@ bool QSettings::removeEntry(const QString &key)
     /MyCompany/MyApplication/geometry/height
     \endcode
     \code
-    QStringList keys = entryList( "/MyCompany/MyApplication" );
+    QStringList keys = entryList("/MyCompany/MyApplication");
     \endcode
     \c keys contains 'background color' and 'foreground color'. It does
     not contain 'geometry' because this key contains keys not entries.
@@ -1501,65 +1501,65 @@ bool QSettings::removeEntry(const QString &key)
 */
 QStringList QSettings::entryList(const QString &key) const
 {
-    QString grp_key( groupKey( group(), key ) );
-    if ( !qt_verify_key( grp_key ) ) {
-	qWarning( "QSettings::entryList: Invalid key: %s", grp_key.isNull() ? "(null)" : grp_key.latin1() );
-	return QStringList();
+    QString grp_key(groupKey(group(), key));
+    if (!qt_verify_key(grp_key)) {
+        qWarning("QSettings::entryList: Invalid key: %s", grp_key.isNull() ? "(null)" : grp_key.latin1());
+        return QStringList();
     }
 
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
-    if ( d->sysd )
-	return d->sysEntryList( grp_key );
+    if (d->sysd)
+        return d->sysEntryList(grp_key);
 #endif
 
     QString realkey;
     if (grp_key[0] == '/') {
-	// parse our key
-	QStringList list(grp_key.split('/'));
+        // parse our key
+        QStringList list(grp_key.split('/'));
         list.remove(QString());
 
-	if (list.count() < 1) {
-	    qWarning("QSettings::listEntries: invalid key '%s'", grp_key.latin1());
+        if (list.count() < 1) {
+            qWarning("QSettings::listEntries: invalid key '%s'", grp_key.latin1());
 
-	    return QStringList();
-	}
+            return QStringList();
+        }
 
-	if (list.count() == 1) {
-	    d->heading = list[0];
-	    d->group = "General";
-	} else {
-	    d->heading = list[0];
-	    d->group = list[1];
+        if (list.count() == 1) {
+            d->heading = list[0];
+            d->group = "General";
+        } else {
+            d->heading = list[0];
+            d->group = list[1];
 
-	    // remove the group from the list
-	    list.remove(list.at(1));
-	    // remove the heading from the list
-	    list.remove(list.at(0));
+            // remove the group from the list
+            list.remove(list.at(1));
+            // remove the heading from the list
+            list.remove(list.at(0));
 
-	    realkey = list.join("/");
-	}
+            realkey = list.join("/");
+        }
     } else
-	realkey = grp_key;
+        realkey = grp_key;
 
     QSettingsGroup grp = d->readGroup();
     QSettingsGroup::Iterator it = grp.begin();
     QStringList ret;
     QString itkey;
     while (it != grp.end()) {
-	itkey = it.key();
-	++it;
+        itkey = it.key();
+        ++it;
 
-	if ( realkey.length() > 0 ) {
-	    if ( itkey.left( realkey.length() ) != realkey )
-		continue;
-	    else
-		itkey.remove( 0, realkey.length() + 1 );
-	}
+        if (realkey.length() > 0) {
+            if (itkey.left(realkey.length()) != realkey)
+                continue;
+            else
+                itkey.remove(0, realkey.length() + 1);
+        }
 
-	if ( itkey.indexOf( '/' ) != -1 )
-	    continue;
+        if (itkey.indexOf('/') != -1)
+            continue;
 
-	ret << itkey;
+        ret << itkey;
     }
 
     return ret;
@@ -1583,7 +1583,7 @@ QStringList QSettings::entryList(const QString &key) const
     /MyCompany/MyApplication/recent files/3
     \endcode
     \code
-    QStringList keys = subkeyList( "/MyCompany/MyApplication" );
+    QStringList keys = subkeyList("/MyCompany/MyApplication");
     \endcode
     \c keys contains 'geometry' and 'recent files'. It does not contain
     'background color' or 'foreground color' because they are keys which
@@ -1594,82 +1594,82 @@ QStringList QSettings::entryList(const QString &key) const
 */
 QStringList QSettings::subkeyList(const QString &key) const
 {
-    QString grp_key( groupKey( group(), key ) );
-    if ( !qt_verify_key( grp_key ) ) {
-	qWarning( "QSettings::subkeyList: Invalid key: %s", grp_key.isNull() ? "(null)" : grp_key.latin1() );
-	return QStringList();
+    QString grp_key(groupKey(group(), key));
+    if (!qt_verify_key(grp_key)) {
+        qWarning("QSettings::subkeyList: Invalid key: %s", grp_key.isNull() ? "(null)" : grp_key.latin1());
+        return QStringList();
     }
 
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
-    if ( d->sysd )
-	return d->sysSubkeyList( grp_key );
+    if (d->sysd)
+        return d->sysSubkeyList(grp_key);
 #endif
 
     QString realkey;
     int subkeycount = 2;
     if (grp_key[0] == '/') {
-	// parse our key
-	QStringList list(grp_key.split('/'));
+        // parse our key
+        QStringList list(grp_key.split('/'));
         list.remove(QString());
 
-	if (list.count() < 1) {
-	    qWarning("QSettings::subkeyList: invalid key '%s'", grp_key.latin1());
-	    return QStringList();
-	}
+        if (list.count() < 1) {
+            qWarning("QSettings::subkeyList: invalid key '%s'", grp_key.latin1());
+            return QStringList();
+        }
 
-	subkeycount = list.count();
+        subkeycount = list.count();
 
-	if (list.count() == 1) {
-	    d->heading = list[0];
-	    d->group = "General";
-	} else {
-	    d->heading = list[0];
-	    d->group = list[1];
+        if (list.count() == 1) {
+            d->heading = list[0];
+            d->group = "General";
+        } else {
+            d->heading = list[0];
+            d->group = list[1];
 
-	    // remove the group from the list
-	    list.remove(list.at(1));
-	    // remove the heading from the list
-	    list.remove(list.at(0));
+            // remove the group from the list
+            list.remove(list.at(1));
+            // remove the heading from the list
+            list.remove(list.at(0));
 
-	    realkey = list.join("/");
-	}
+            realkey = list.join("/");
+        }
 
     } else
-	realkey = grp_key;
+        realkey = grp_key;
 
     QStringList ret;
-    if ( subkeycount == 1 ) {
-	QMap<QString,QSettingsHeading>::Iterator it = d->headings.begin();
-	while ( it != d->headings.end() ) {
-	    if ( it.key() != "General" && ! ret.contains( it.key() ) )
-		ret << it.key();
-	    ++it;
-	}
+    if (subkeycount == 1) {
+        QMap<QString,QSettingsHeading>::Iterator it = d->headings.begin();
+        while (it != d->headings.end()) {
+            if (it.key() != "General" && ! ret.contains(it.key()))
+                ret << it.key();
+            ++it;
+        }
 
-	return ret;
+        return ret;
     }
 
     QSettingsGroup grp = d->readGroup();
     QSettingsGroup::Iterator it = grp.begin();
     QString itkey;
     while (it != grp.end()) {
-	itkey = it.key();
-	++it;
+        itkey = it.key();
+        ++it;
 
-	if ( realkey.length() > 0 ) {
-	    if ( itkey.left( realkey.length() ) != realkey )
-		continue;
-	    else
-		itkey.remove( 0, realkey.length() + 1 );
-	}
+        if (realkey.length() > 0) {
+            if (itkey.left(realkey.length()) != realkey)
+                continue;
+            else
+                itkey.remove(0, realkey.length() + 1);
+        }
 
-	int slash = itkey.indexOf( '/' );
-	if ( slash == -1 )
-	    continue;
-	itkey.truncate( slash );
+        int slash = itkey.indexOf('/');
+        if (slash == -1)
+            continue;
+        itkey.truncate(slash);
 
-	if ( ! ret.contains( itkey ) )
-	    ret << itkey;
+        if (! ret.contains(itkey))
+            ret << itkey;
     }
 
     return ret;
@@ -1681,37 +1681,37 @@ QStringList QSettings::subkeyList(const QString &key) const
 
   This function returns the time of last modification for \a key.
 */
-QDateTime QSettings::lastModificationTime( const QString &key )
+QDateTime QSettings::lastModificationTime(const QString &key)
 {
-    QString grp_key( groupKey( group(), key ) );
-    if ( !qt_verify_key( grp_key ) ) {
-	qWarning( "QSettings::lastModificationTime: Invalid key '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1() );
-	return QDateTime();
+    QString grp_key(groupKey(group(), key));
+    if (!qt_verify_key(grp_key)) {
+        qWarning("QSettings::lastModificationTime: Invalid key '%s'", grp_key.isNull() ? "(null)" : grp_key.latin1());
+        return QDateTime();
     }
 
 #if !defined(QWS) && (defined(Q_WS_WIN) || defined(Q_OS_MAC))
-    if ( d->sysd )
-	return QDateTime();
+    if (d->sysd)
+        return QDateTime();
 #endif
 
     if (grp_key[0] == '/') {
-	// parse our key
-	QStringList list(grp_key.split('/'));
+        // parse our key
+        QStringList list(grp_key.split('/'));
         list.remove(QString());
 
-	if (list.count() < 2) {
-	    qWarning("QSettings::lastModificationTime: Invalid key '%s'", grp_key.latin1());
+        if (list.count() < 2) {
+            qWarning("QSettings::lastModificationTime: Invalid key '%s'", grp_key.latin1());
 
-	    return QDateTime();
-	}
+            return QDateTime();
+        }
 
-	if (list.count() == 2) {
-	    d->heading = list[0];
-	    d->group = "General";
-	} else {
-	    d->heading = list[0];
-	    d->group = list[1];
-	}
+        if (list.count() == 2) {
+            d->heading = list[0];
+            d->group = "General";
+        } else {
+            d->heading = list[0];
+            d->group = list[1];
+        }
     }
 
     return d->modificationTime();
@@ -1740,7 +1740,7 @@ QDateTime QSettings::lastModificationTime( const QString &key )
     \sa readListEntry(), readNumEntry(), readDoubleEntry(), readBoolEntry(), removeEntry()
 */
 bool QSettings::writeEntry(const QString &key, const QStringList &value,
-			   const QChar &separator)
+                           const QChar &separator)
 {
     QString s(value.join(QString(separator)));
     return writeEntry(key, s);
@@ -1762,21 +1762,21 @@ bool QSettings::writeEntry(const QString &key, const QStringList &value)
 {
     QString s;
     for (QStringList::ConstIterator it=value.begin(); it!=value.end(); ++it) {
-	QString el = *it;
-	if ( el.isNull() ) {
-	    el = "^0";
-	} else {
-	    el.replace("^", "^^");
-	}
-	s+=el;
-	s+="^e"; // end of element
+        QString el = *it;
+        if (el.isNull()) {
+            el = "^0";
+        } else {
+            el.replace("^", "^^");
+        }
+        s+=el;
+        s+="^e"; // end of element
     }
     return writeEntry(key, s);
 }
 
 
 /*!
-    \fn QStringList QSettings::readListEntry(const QString &key, const QChar &separator, bool *ok ) const
+    \fn QStringList QSettings::readListEntry(const QString &key, const QChar &separator, bool *ok) const
     \overload
 
     Reads the entry specified by \a key as a string. The \a separator
@@ -1794,11 +1794,11 @@ bool QSettings::writeEntry(const QString &key, const QStringList &value)
     Note that if you want to iterate over the list, you should iterate
     over a copy, e.g.
     \code
-    QStringList list = mySettings.readListEntry( "size", " " );
+    QStringList list = mySettings.readListEntry("size", " ");
     QStringList::Iterator it = list.begin();
-    while( it != list.end() ) {
-	myProcessing( *it );
-	++it;
+    while(it != list.end()) {
+        myProcessing(*it);
+        ++it;
     }
     \endcode
 
@@ -1808,17 +1808,17 @@ bool QSettings::writeEntry(const QString &key, const QStringList &value)
 /*!
     \internal
 */
-QStringList QSettings::readListEntry(const QString &key, const QChar &separator, bool *ok )
+QStringList QSettings::readListEntry(const QString &key, const QChar &separator, bool *ok)
 {
-    QString value = readEntry( key, QString::null, ok );
-    if ( (ok && !*ok) || value.isEmpty() )
-	return QStringList();
+    QString value = readEntry(key, QString::null, ok);
+    if ((ok && !*ok) || value.isEmpty())
+        return QStringList();
 
     return value.split(separator);
 }
 
 /*!
-    \fn QStringList QSettings::readListEntry(const QString &key, bool *ok ) const
+    \fn QStringList QSettings::readListEntry(const QString &key, bool *ok) const
     Reads the entry specified by \a key as a string. If \a ok is not
     0, \a *ok is set to true if the key was read, otherwise \a *ok is
     set to false.
@@ -1826,11 +1826,11 @@ QStringList QSettings::readListEntry(const QString &key, const QChar &separator,
     Note that if you want to iterate over the list, you should iterate
     over a copy, e.g.
     \code
-    QStringList list = mySettings.readListEntry( "recentfiles" );
+    QStringList list = mySettings.readListEntry("recentfiles");
     QStringList::Iterator it = list.begin();
-    while( it != list.end() ) {
-	myProcessing( *it );
-	++it;
+    while(it != list.end()) {
+        myProcessing(*it);
+        ++it;
     }
     \endcode
 
@@ -1840,32 +1840,32 @@ QStringList QSettings::readListEntry(const QString &key, const QChar &separator,
 /*!
     \internal
 */
-QStringList QSettings::readListEntry(const QString &key, bool *ok )
+QStringList QSettings::readListEntry(const QString &key, bool *ok)
 {
-    QString value = readEntry( key, QString::null, ok );
-    if ( ok && !*ok )
-	return QStringList();
+    QString value = readEntry(key, QString::null, ok);
+    if (ok && !*ok)
+        return QStringList();
     QStringList l;
     QString s;
     bool esc=false;
     for (int i=0; i<(int)value.length(); i++) {
-	if ( esc ) {
-	    if ( value[i] == 'e' ) { // end-of-string
-		l.append(s);
-		s="";
-	    } else if ( value[i] == '0' ) { // null string
-		s=QString::null;
-	    } else {
-		s.append(value[i]);
-	    }
-	    esc=false;
-	} else if ( value[i] == '^' ) {
-	    esc = true;
-	} else {
-	    s.append(value[i]);
-	    if ( i == (int)value.length()-1 )
-		l.append(s);
-	}
+        if (esc) {
+            if (value[i] == 'e') { // end-of-string
+                l.append(s);
+                s="";
+            } else if (value[i] == '0') { // null string
+                s=QString::null;
+            } else {
+                s.append(value[i]);
+            }
+            esc=false;
+        } else if (value[i] == '^') {
+            esc = true;
+        } else {
+            s.append(value[i]);
+            if (i == (int)value.length()-1)
+                l.append(s);
+        }
     }
     return l;
 }
@@ -1891,7 +1891,7 @@ void qt_setSettingsBasePath(const QString &); //qsettings_mac.cpp
     Not all information is relevant on all systems.
 */
 
-void QSettings::setPath( const QString &domain, const QString &product, Scope scope )
+void QSettings::setPath(const QString &domain, const QString &product, Scope scope)
 {
 //    On Windows, any trailing ".com(\..*)" is stripped from the domain. The
 //    Global scope corresponds to HKEY_LOCAL_MACHINE, and User corresponds to
@@ -1912,26 +1912,26 @@ void QSettings::setPath( const QString &domain, const QString &product, Scope sc
     d->globalScope = scope == Global;
 
     QString actualSearchPath;
-    int lastDot = domain.lastIndexOf( '.' );
+    int lastDot = domain.lastIndexOf('.');
 
 #if defined(Q_WS_WIN)
-    actualSearchPath = "/" + domain.mid( 0, lastDot ) + "/" + product;
-    insertSearchPath( Windows, actualSearchPath );
+    actualSearchPath = "/" + domain.mid(0, lastDot) + "/" + product;
+    insertSearchPath(Windows, actualSearchPath);
 #elif !defined(QWS) && defined(Q_OS_MAC)
     if(lastDot != -1) {
-	QString topLevelDomain = domain.right( domain.length() - lastDot - 1 ) + ".";
-	if ( !topLevelDomain.isEmpty() )
-	    qt_setSettingsBasePath( topLevelDomain );
+        QString topLevelDomain = domain.right(domain.length() - lastDot - 1) + ".";
+        if (!topLevelDomain.isEmpty())
+            qt_setSettingsBasePath(topLevelDomain);
     }
-    actualSearchPath = "/" + domain.left( lastDot ) + "." + product;
-    insertSearchPath( Mac, actualSearchPath );
+    actualSearchPath = "/" + domain.left(lastDot) + "." + product;
+    insertSearchPath(Mac, actualSearchPath);
 #else
     if (scope == User)
-	actualSearchPath = QDir::homeDirPath() + "/.";
+        actualSearchPath = QDir::homeDirPath() + "/.";
     else
-	actualSearchPath = QString(qInstallPathSysconf()) + "/";
-    actualSearchPath += domain.mid( 0, lastDot ) + "/" + product;
-    insertSearchPath( Unix, actualSearchPath );
+        actualSearchPath = QString(qInstallPathSysconf()) + "/";
+    actualSearchPath += domain.mid(0, lastDot) + "/" + product;
+    insertSearchPath(Unix, actualSearchPath);
 #endif
 }
 
@@ -1940,14 +1940,14 @@ void QSettings::setPath( const QString &domain, const QString &product, Scope sc
 
     \code
     QSettings settings;
-    settings.beginGroup( "/MainWindow" );
+    settings.beginGroup("/MainWindow");
     // read values
     settings.endGroup();
     \endcode
 */
-void QSettings::beginGroup( const QString &group )
+void QSettings::beginGroup(const QString &group)
 {
-    d->groupStack.push( group );
+    d->groupStack.push(group);
     d->groupDirty = true;
 }
 
@@ -1957,7 +1957,7 @@ void QSettings::beginGroup( const QString &group )
 
     \code
     QSettings settings;
-    settings.beginGroup( "/MainWindow/Geometry" );
+    settings.beginGroup("/MainWindow/Geometry");
     // read values
     settings.endGroup();
     \endcode
@@ -1988,18 +1988,18 @@ void QSettings::resetGroup()
 */
 QString QSettings::group() const
 {
-    if ( d->groupDirty ) {
-	d->groupDirty = false;
-	d->groupPrefix = QString::null;
+    if (d->groupDirty) {
+        d->groupDirty = false;
+        d->groupPrefix = QString::null;
 
-	QStack<QString>::Iterator it = d->groupStack.begin();
-	while ( it != d->groupStack.end() ) {
-	    QString group = *it;
-	    ++it;
-	    if ( group[0] != '/' )
-		group.prepend( "/" );
-	    d->groupPrefix += group;
-	}
+        QStack<QString>::Iterator it = d->groupStack.begin();
+        while (it != d->groupStack.end()) {
+            QString group = *it;
+            ++it;
+            if (group[0] != '/')
+                group.prepend("/");
+            d->groupPrefix += group;
+        }
     }
     return d->groupPrefix;
 }

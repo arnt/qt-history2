@@ -44,7 +44,7 @@ public:
     QBrush &operator=(const QBrush &brush);
 
     inline BrushStyle style() const;
-    void setStyle( BrushStyle );
+    void setStyle(BrushStyle);
 
     inline const QColor &color() const;
     void setColor(const QColor &color);
@@ -86,8 +86,8 @@ private:
  *****************************************************************************/
 
 #ifndef QT_NO_DATASTREAM
-Q_GUI_EXPORT QDataStream &operator<<( QDataStream &, const QBrush & );
-Q_GUI_EXPORT QDataStream &operator>>( QDataStream &, QBrush & );
+Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QBrush &);
+Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QBrush &);
 #endif
 
 #ifndef QT_NO_DEBUG
@@ -108,7 +108,7 @@ struct QTexturedBrushData : public QBrushData
 
 struct QLinGradBrushData : public QBrushData
 {
-    QColor 	color2;
+    QColor         color2;
     QPoint      p1;
     QPoint      p2;
 };
@@ -124,28 +124,28 @@ inline void QBrush::detach(BrushStyle newStyle) { if (newStyle != d->style || d-
 inline QPixmap *QBrush::pixmap() const
 {
     return d->style == CustomPattern
-		     ? static_cast<const QTexturedBrushData*>(d)->pixmap : 0;
+                     ? static_cast<const QTexturedBrushData*>(d)->pixmap : 0;
 }
 
 inline QPoint QBrush::gradientStart() const
 {
     return d->style == LinearGradientPattern
-		     ? static_cast<const QLinGradBrushData*>(d)->p1
-		     : QPoint();
+                     ? static_cast<const QLinGradBrushData*>(d)->p1
+                     : QPoint();
 }
 
 inline QPoint QBrush::gradientStop() const
 {
     return d->style == LinearGradientPattern
-		     ? static_cast<const QLinGradBrushData*>(d)->p2
-		     : QPoint();
+                     ? static_cast<const QLinGradBrushData*>(d)->p2
+                     : QPoint();
 }
 
 inline QColor QBrush::gradientColor() const
 {
     return d->style == LinearGradientPattern
-		     ? static_cast<const QLinGradBrushData*>(d)->color2
-		     : QColor();
+                     ? static_cast<const QLinGradBrushData*>(d)->color2
+                     : QColor();
 }
 
 #endif // QBRUSH_H

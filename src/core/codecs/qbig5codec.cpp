@@ -80,13 +80,13 @@ static int qt_Big5hkscsToUnicode(const uchar *s, uint *pwc);
 int qt_UnicodeToBig5hkscs(uint wc, uchar *r);
 
 #define InRange(c, lower, upper)  (((c) >= (lower)) && ((c) <= (upper)))
-#define IsLatin(c)	((c) < 0x80)
-#define IsFirstByte(c)	(InRange((c), 0x81, 0xFE))
-#define IsSecondByteRange1(c)	(InRange((c), 0x40, 0x7E))
-#define IsSecondByteRange2(c)	(InRange((c), 0xA1, 0xFE))
-#define IsSecondByte(c)	(IsSecondByteRange1(c) || IsSecondByteRange2(c))
+#define IsLatin(c)        ((c) < 0x80)
+#define IsFirstByte(c)        (InRange((c), 0x81, 0xFE))
+#define IsSecondByteRange1(c)        (InRange((c), 0x40, 0x7E))
+#define IsSecondByteRange2(c)        (InRange((c), 0xA1, 0xFE))
+#define IsSecondByte(c)        (IsSecondByteRange1(c) || IsSecondByteRange2(c))
 
-#define	QValidChar(u)	((u) ? QChar((ushort)(u)) : QChar(QChar::replacement))
+#define        QValidChar(u)        ((u) ? QChar((ushort)(u)) : QChar(QChar::replacement))
 
 
 /*! \reimp */
@@ -116,44 +116,44 @@ public:
 
     QString toUnicode(const char* chars, int len)
     {
-	//qDebug("QBig5Decoder::toUnicode(const char* chars = \"%s\", int len = %d)", chars, len);
-	QString result;
-	for (int i=0; i<len; i++) {
-	    uchar ch = chars[i];
-	    switch (nbuf) {
-	    case 0:
-		if ( IsLatin(ch) ) {
-		    // ASCII
-		    result += QChar(ch);
-		} else if ( IsFirstByte(ch) ) {
-		    // Big5-ETen
-		    buf[0] = ch;
-		    nbuf = 1;
-		} else {
-		    // Invalid
-		    result += QChar::replacement;
-		}
-		break;
-	    case 1:
-		if ( IsSecondByte(ch) ) {
-		    // Big5-ETen
-		    uint u;
-		    buf[1] = ch;
-		    if ( qt_Big5hkscsToUnicode( buf, &u ) == 2 )
-			result += QValidChar(u);
-		    else {
-			// Error
-			result += QChar::replacement;
-		    }
-		} else {
-		    // Error
-		    result += QChar::replacement;
-		}
-		nbuf = 0;
-		break;
-	    }
-	}
-	return result;
+        //qDebug("QBig5Decoder::toUnicode(const char* chars = \"%s\", int len = %d)", chars, len);
+        QString result;
+        for (int i=0; i<len; i++) {
+            uchar ch = chars[i];
+            switch (nbuf) {
+            case 0:
+                if (IsLatin(ch)) {
+                    // ASCII
+                    result += QChar(ch);
+                } else if (IsFirstByte(ch)) {
+                    // Big5-ETen
+                    buf[0] = ch;
+                    nbuf = 1;
+                } else {
+                    // Invalid
+                    result += QChar::replacement;
+                }
+                break;
+            case 1:
+                if (IsSecondByte(ch)) {
+                    // Big5-ETen
+                    uint u;
+                    buf[1] = ch;
+                    if (qt_Big5hkscsToUnicode(buf, &u) == 2)
+                        result += QValidChar(u);
+                    else {
+                        // Error
+                        result += QChar::replacement;
+                    }
+                } else {
+                    // Error
+                    result += QChar::replacement;
+                }
+                nbuf = 0;
+                break;
+            }
+        }
+        return result;
     }
 };
 
@@ -176,22 +176,22 @@ QByteArray QBig5Codec::fromUnicode(const QString& uc, int& lenInOut) const
     rstr.resize(rlen);
     uchar* cursor = (uchar*)rstr.data();
     for (int i=0; i<l; i++) {
-	QChar ch = uc[i];
-	uchar c[2];
-	if ( ch.row() == 0x00 && ch.cell() < 0x80 ) {
-	    // ASCII
-	    *cursor++ = ch.cell();
-	} else if ( qt_UnicodeToBig5hkscs( ch.unicode(), c ) == 2
-		    && c[0] >= 0xa1 && c[0] <= 0xf9 ) {
-	    // Note to self: This needs better fine-tuning so it is
-	    // identical to the orthodox Big5-ETen.  (Anthony)
-	    // Big5-ETen
-	    *cursor++ = c[0];
-	    *cursor++ = c[1];
-	} else {
-	    // Error
-	    *cursor++ = '?';  // unknown char
-	}
+        QChar ch = uc[i];
+        uchar c[2];
+        if (ch.row() == 0x00 && ch.cell() < 0x80) {
+            // ASCII
+            *cursor++ = ch.cell();
+        } else if (qt_UnicodeToBig5hkscs(ch.unicode(), c) == 2
+                    && c[0] >= 0xa1 && c[0] <= 0xf9) {
+            // Note to self: This needs better fine-tuning so it is
+            // identical to the orthodox Big5-ETen.  (Anthony)
+            // Big5-ETen
+            *cursor++ = c[0];
+            *cursor++ = c[1];
+        } else {
+            // Error
+            *cursor++ = '?';  // unknown char
+        }
     }
     lenInOut = cursor - (uchar*)rstr.constData();
     rstr.resize(lenInOut);
@@ -205,33 +205,33 @@ QString QBig5Codec::toUnicode(const char* chars, int len) const
     //qDebug("QBig5Codec::toUnicode(const char* chars \"%s\", int len = %d)", chars, len);
     QString result;
     for (int i=0; i<len; i++) {
-	uchar ch = chars[i];
-	if ( IsLatin(ch) ) {
-	    // ASCII
-	    result += QChar(ch);
-	} else if ( IsFirstByte(ch) ) {
-	    // Big5-ETen
-	    if ( i < len-1 ) {
-		uchar c2 = chars[++i];
-		if ( IsSecondByte(c2) ) {
-		    uint u;
-		    if ( qt_Big5hkscsToUnicode( (const uchar*)(chars + i - 1), &u ) == 2 )
-			result += QValidChar(u);
-		    else {
-			result += QChar::replacement;
-		    }
-		} else {
-		    i--;
-		    result += QChar::replacement;
-		}
-	    } else {
-		// Bad String
-		result += QChar::replacement;
-	    }
-	} else {
-	    // Invalid
-	    result += QChar::replacement;
-	}
+        uchar ch = chars[i];
+        if (IsLatin(ch)) {
+            // ASCII
+            result += QChar(ch);
+        } else if (IsFirstByte(ch)) {
+            // Big5-ETen
+            if (i < len-1) {
+                uchar c2 = chars[++i];
+                if (IsSecondByte(c2)) {
+                    uint u;
+                    if (qt_Big5hkscsToUnicode((const uchar*)(chars + i - 1), &u) == 2)
+                        result += QValidChar(u);
+                    else {
+                        result += QChar::replacement;
+                    }
+                } else {
+                    i--;
+                    result += QChar::replacement;
+                }
+            } else {
+                // Bad String
+                result += QChar::replacement;
+            }
+        } else {
+            // Invalid
+            result += QChar::replacement;
+        }
     }
     return result;
 }
@@ -243,30 +243,30 @@ int QBig5Codec::heuristicContentMatch(const char* chars, int len) const
     //qDebug("QBig5Codec::heuristicContentMatch(const char* chars, int len = %d)", len);
     int score = 0;
     for (int i=0; i<len; i++) {
-	uchar ch = chars[i];
-	// No nulls allowed.
-	if ( !ch )
-	    return -1;
-	if ( ch < 32 && ch != '\t' && ch != '\n' && ch != '\r' ) {
-	    // Suspicious
-	    if ( score )
-		score--;
-	} else if ( ch < 0x80 ) {
-	    // Inconclusive
-	    score++;
-	} else if ( IsFirstByte(ch) ) {
-	    // Big5-HKSCS
-	    if ( i < len-1 ) {
-		uchar c2 = chars[++i];
-		if ( !IsSecondByte(c2) )
-		    return -1;
-		score += 2;
-	    }
-	    score++;
-	} else {
-	    // Invalid
-	    return -1;
-	}
+        uchar ch = chars[i];
+        // No nulls allowed.
+        if (!ch)
+            return -1;
+        if (ch < 32 && ch != '\t' && ch != '\n' && ch != '\r') {
+            // Suspicious
+            if (score)
+                score--;
+        } else if (ch < 0x80) {
+            // Inconclusive
+            score++;
+        } else if (IsFirstByte(ch)) {
+            // Big5-HKSCS
+            if (i < len-1) {
+                uchar c2 = chars[++i];
+                if (!IsSecondByte(c2))
+                    return -1;
+                score += 2;
+            }
+            score++;
+        } else {
+            // Invalid
+            return -1;
+        }
     }
     //qDebug("QBig5Codec::heuristicContentMatch() score = %d", score);
     return score;
@@ -278,32 +278,32 @@ int QBig5Codec::heuristicNameMatch(const char* hint) const
 {
     //qDebug("QBig5hkscsCodec::heuristicNameMatch(const char* hint = \"%s\")", hint);
     int score = 0;
-    bool zh = FALSE;
+    bool zh = false;
     if (qstrnicmp(hint, "zh_TW", 5) == 0) {
-	score += 16;
-	zh = TRUE;
+        score += 16;
+        zh = true;
     }
-    else if ( qstrnicmp(hint, "zh", 2) == 0     ||
-	      qstrnicmp(hint, "chinese", 7) == 0) {
-	score += 2;
-	zh = TRUE;
+    else if (qstrnicmp(hint, "zh", 2) == 0     ||
+              qstrnicmp(hint, "chinese", 7) == 0) {
+        score += 2;
+        zh = true;
     }
     const char *p;
     if (zh) {
-	p = strchr(hint, '.');
+        p = strchr(hint, '.');
         if (p == 0)
-	    return score;
+            return score;
         p++;
     } else {
-	p = hint;
+        p = hint;
     }
     if (p) {
-	if ( qstricmp(p, "Big5") == 0    ||
-	     qstricmp(p, "TW-Big5") == 0 ) {
-	    return score + 10;
+        if (qstricmp(p, "Big5") == 0    ||
+             qstricmp(p, "TW-Big5") == 0) {
+            return score + 10;
         }
-	else if ( qstrnicmp(p, "Big5", 4) == 0 )
-	    return score + 2;
+        else if (qstrnicmp(p, "Big5", 4) == 0)
+            return score + 2;
     }
     return QTextCodec::heuristicNameMatch(hint);
 }
@@ -403,44 +403,44 @@ public:
 
     QString toUnicode(const char* chars, int len)
     {
-	//qDebug("QBig5hkscsDecoder::toUnicode(const char* chars = \"%s\", int len = %d)", chars, len);
-	QString result;
-	for (int i=0; i<len; i++) {
-	    uchar ch = chars[i];
-	    switch (nbuf) {
-	    case 0:
-		if ( IsLatin(ch) ) {
-		    // ASCII
-		    result += QChar(ch);
-		} else if ( IsFirstByte(ch) ) {
-		    // Big5-HKSCS
-		    buf[0] = ch;
-		    nbuf = 1;
-		} else {
-		    // Invalid
-		    result += QChar::replacement;
-		}
-		break;
-	    case 1:
-		if ( IsSecondByte(ch) ) {
-		    // Big5-HKSCS
-		    uint u;
-		    buf[1] = ch;
-		    if ( qt_Big5hkscsToUnicode( buf, &u ) == 2 )
-			result += QValidChar(u);
-		    else {
-			// Error
-			result += QChar::replacement;
-		    }
-		} else {
-		    // Error
-		    result += QChar::replacement;
-		}
-		nbuf = 0;
-		break;
-	    }
-	}
-	return result;
+        //qDebug("QBig5hkscsDecoder::toUnicode(const char* chars = \"%s\", int len = %d)", chars, len);
+        QString result;
+        for (int i=0; i<len; i++) {
+            uchar ch = chars[i];
+            switch (nbuf) {
+            case 0:
+                if (IsLatin(ch)) {
+                    // ASCII
+                    result += QChar(ch);
+                } else if (IsFirstByte(ch)) {
+                    // Big5-HKSCS
+                    buf[0] = ch;
+                    nbuf = 1;
+                } else {
+                    // Invalid
+                    result += QChar::replacement;
+                }
+                break;
+            case 1:
+                if (IsSecondByte(ch)) {
+                    // Big5-HKSCS
+                    uint u;
+                    buf[1] = ch;
+                    if (qt_Big5hkscsToUnicode(buf, &u) == 2)
+                        result += QValidChar(u);
+                    else {
+                        // Error
+                        result += QChar::replacement;
+                    }
+                } else {
+                    // Error
+                    result += QChar::replacement;
+                }
+                nbuf = 0;
+                break;
+            }
+        }
+        return result;
     }
 };
 
@@ -463,19 +463,19 @@ QByteArray QBig5hkscsCodec::fromUnicode(const QString& uc, int& lenInOut) const
     rstr.resize(rlen);
     uchar* cursor = (uchar*)rstr.data();
     for (int i=0; i<l; i++) {
-	QChar ch = uc[i];
-	uchar c[2];
-	if ( ch.row() == 0x00 && ch.cell() < 0x80 ) {
-	    // ASCII
-	    *cursor++ = ch.cell();
-	} else if ( qt_UnicodeToBig5hkscs( ch.unicode(), c ) == 2 ) {
-	    // Big5-HKSCS
-	    *cursor++ = c[0];
-	    *cursor++ = c[1];
-	} else {
-	    // Error
-	    *cursor++ = '?';  // unknown char
-	}
+        QChar ch = uc[i];
+        uchar c[2];
+        if (ch.row() == 0x00 && ch.cell() < 0x80) {
+            // ASCII
+            *cursor++ = ch.cell();
+        } else if (qt_UnicodeToBig5hkscs(ch.unicode(), c) == 2) {
+            // Big5-HKSCS
+            *cursor++ = c[0];
+            *cursor++ = c[1];
+        } else {
+            // Error
+            *cursor++ = '?';  // unknown char
+        }
     }
     lenInOut = cursor - (uchar*)rstr.constData();
     rstr.resize(lenInOut);
@@ -489,33 +489,33 @@ QString QBig5hkscsCodec::toUnicode(const char* chars, int len) const
     //qDebug("QBig5hkscsCodec::toUnicode(const char* chars = \"%s\", int len = %d)", chars, len);
     QString result;
     for (int i=0; i<len; i++) {
-	uchar ch = chars[i];
-	if ( IsLatin(ch) ) {
-	    // ASCII
-	    result += QChar(ch);
-	} else if ( IsFirstByte(ch) ) {
-	    // Big5-HKSCS
-	    if ( i < len-1 ) {
-		uchar c2 = chars[++i];
-		if ( IsSecondByte(c2) ) {
-		    uint u;
-		    if ( qt_Big5hkscsToUnicode( (const uchar*)(chars + i - 1), &u ) == 2 )
-			result += QValidChar(u);
-		    else {
-			result += QChar::replacement;
-		    }
-		} else {
-		    i--;
-		    result += QChar::replacement;
-		}
-	    } else {
-		// Bad String
-		result += QChar::replacement;
-	    }
-	} else {
-	    // Invalid
-	    result += QChar::replacement;
-	}
+        uchar ch = chars[i];
+        if (IsLatin(ch)) {
+            // ASCII
+            result += QChar(ch);
+        } else if (IsFirstByte(ch)) {
+            // Big5-HKSCS
+            if (i < len-1) {
+                uchar c2 = chars[++i];
+                if (IsSecondByte(c2)) {
+                    uint u;
+                    if (qt_Big5hkscsToUnicode((const uchar*)(chars + i - 1), &u) == 2)
+                        result += QValidChar(u);
+                    else {
+                        result += QChar::replacement;
+                    }
+                } else {
+                    i--;
+                    result += QChar::replacement;
+                }
+            } else {
+                // Bad String
+                result += QChar::replacement;
+            }
+        } else {
+            // Invalid
+            result += QChar::replacement;
+        }
     }
     return result;
 }
@@ -526,34 +526,34 @@ int QBig5hkscsCodec::heuristicNameMatch(const char* hint) const
 {
     //qDebug("QBig5hkscsCodec::heuristicNameMatch(const char* hint = \"%s\")", hint);
     int score = 0;
-    bool zh = FALSE;
+    bool zh = false;
     if (qstrnicmp(hint, "zh_HK", 5) == 0) {
-	score += 16;
-	zh = TRUE;
+        score += 16;
+        zh = true;
     }
-    else if ( qstrnicmp(hint, "zh", 2) == 0     ||
-	      qstrnicmp(hint, "chinese", 7) == 0) {
-	score += 2;
-	zh = TRUE;
+    else if (qstrnicmp(hint, "zh", 2) == 0     ||
+              qstrnicmp(hint, "chinese", 7) == 0) {
+        score += 2;
+        zh = true;
     }
     const char *p;
     if (zh) {
-	p = strchr(hint, '.');
+        p = strchr(hint, '.');
         if (p == 0)
-	    return score;
+            return score;
         p++;
     } else {
-	p = hint;
+        p = hint;
     }
     if (p) {
-	if ( qstricmp(p, "Big5-HKSCS") == 0 ||
-	     qstricmp(p, "HKSCS-Big5") == 0 ||
-	     qstricmp(p, "Big5HKSCS")  == 0 ||
-	     qstricmp(p, "hkbig5")     == 0 ) {
-	    return score + 10;
+        if (qstricmp(p, "Big5-HKSCS") == 0 ||
+             qstricmp(p, "HKSCS-Big5") == 0 ||
+             qstricmp(p, "Big5HKSCS")  == 0 ||
+             qstricmp(p, "hkbig5")     == 0) {
+            return score + 10;
         }
-	else if (qstrnicmp(p, "Big5", 4) == 0) {
-	    return score + 2;
+        else if (qstrnicmp(p, "Big5", 4) == 0) {
+            return score + 2;
         }
     }
     return QTextCodec::heuristicNameMatch(hint);
@@ -566,30 +566,30 @@ int QBig5hkscsCodec::heuristicContentMatch(const char* chars, int len) const
     //qDebug("QBig5hkscsCodec::heuristicContentMatch(const char* chars, int len = %d)", len);
     int score = 0;
     for (int i=0; i<len; i++) {
-	uchar ch = chars[i];
-	// No nulls allowed.
-	if ( !ch )
-	    return -1;
-	if ( ch < 32 && ch != '\t' && ch != '\n' && ch != '\r' ) {
-	    // Suspicious
-	    if ( score )
-		score--;
-	} else if ( ch < 0x80 ) {
-	    // Inconclusive
-	    score++;
-	} else if ( IsFirstByte(ch) ) {
-	    // Big5-HKSCS
-	    if ( i < len-1 ) {
-		uchar c2 = chars[++i];
-		if ( !IsSecondByte(c2) )
-		    return -1;
-		score += 2;
-	    }
-	    score++;
-	} else {
-	    // Invalid
-	    return -1;
-	}
+        uchar ch = chars[i];
+        // No nulls allowed.
+        if (!ch)
+            return -1;
+        if (ch < 32 && ch != '\t' && ch != '\n' && ch != '\r') {
+            // Suspicious
+            if (score)
+                score--;
+        } else if (ch < 0x80) {
+            // Inconclusive
+            score++;
+        } else if (IsFirstByte(ch)) {
+            // Big5-HKSCS
+            if (i < len-1) {
+                uchar c2 = chars[++i];
+                if (!IsSecondByte(c2))
+                    return -1;
+                score += 2;
+            }
+            score++;
+        } else {
+            // Invalid
+            return -1;
+        }
     }
     //qDebug("QBig5hkscsCodec::heuristicContentMatch() score = %d", score);
     return score;
@@ -3383,21 +3383,21 @@ static int qt_Big5hkscsToUnicode(const uchar *s, uint *pwc)
 {
     uchar c1 = s[0];
     if ((c1 >= 0x81 && c1 <= 0xfe)) {
-	uchar c2 = s[1];
-	if ((c2 >= 0x40 && c2 < 0x7f) || (c2 >= 0xa1 && c2 < 0xff)) {
-	    uint i = 157 * (c1 - 0x81) + (c2 - (c2 >= 0xa1 ? 0x62 : 0x40));
-	    ushort wc = 0xfffd;
-	    if (i < 19782)
-		wc = big5hkscs_to_ucs[i];
-	    if (wc != 0xfffd) {
-		*pwc = (uint) wc;
-		return 2;
-	    }
-	}
-	return 0;
+        uchar c2 = s[1];
+        if ((c2 >= 0x40 && c2 < 0x7f) || (c2 >= 0xa1 && c2 < 0xff)) {
+            uint i = 157 * (c1 - 0x81) + (c2 - (c2 >= 0xa1 ? 0x62 : 0x40));
+            ushort wc = 0xfffd;
+            if (i < 19782)
+                wc = big5hkscs_to_ucs[i];
+            if (wc != 0xfffd) {
+                *pwc = (uint) wc;
+                return 2;
+            }
+        }
+        return 0;
     } else if (c1 < 0x80) {
-	*pwc = (uint) c1;
-	return 1;
+        *pwc = (uint) c1;
+        return 1;
     }
     return 0;
 }
@@ -11275,51 +11275,51 @@ int qt_UnicodeToBig5hkscs (uint wc, uchar *r)
 {
     const Summary16 *summary = NULL;
     if (wc < 0x80) {
-	r[0] = (uchar) wc;
-	return 1;
+        r[0] = (uchar) wc;
+        return 1;
     }
     if (wc < 0x0460)
-	summary = &big5hkscs_uni2index_page00[(wc>>4)];
+        summary = &big5hkscs_uni2index_page00[(wc>>4)];
     else if (wc >= 0x1e00 && wc < 0x1ed0)
-	summary = &big5hkscs_uni2index_page1e[(wc>>4)-0x1e0];
+        summary = &big5hkscs_uni2index_page1e[(wc>>4)-0x1e0];
     else if (wc >= 0x2000 && wc < 0x2740)
-	summary = &big5hkscs_uni2index_page20[(wc>>4)-0x200];
+        summary = &big5hkscs_uni2index_page20[(wc>>4)-0x200];
     else if (wc >= 0x2e00 && wc < 0x9fb0)
-	summary = &big5hkscs_uni2index_page2e[(wc>>4)-0x2e0];
+        summary = &big5hkscs_uni2index_page2e[(wc>>4)-0x2e0];
     else if (wc >= 0xe000 && wc < 0xfa30)
-	summary = &big5hkscs_uni2index_pagee0[(wc>>4)-0xe00];
+        summary = &big5hkscs_uni2index_pagee0[(wc>>4)-0xe00];
     else if (wc >= 0xfe00 && wc < 0xfff0)
-	summary = &big5hkscs_uni2index_pagefe[(wc>>4)-0xfe0];
+        summary = &big5hkscs_uni2index_pagefe[(wc>>4)-0xfe0];
     else if (wc >= 0x20000 && wc < 0x291f0)
-	summary = &big5hkscs_uni2index_page200[(wc>>4)-0x2000];
+        summary = &big5hkscs_uni2index_page200[(wc>>4)-0x2000];
     else if (wc >= 0x29400 && wc < 0x29600)
-	summary = &big5hkscs_uni2index_page294[(wc>>4)-0x2940];
+        summary = &big5hkscs_uni2index_page294[(wc>>4)-0x2940];
     else if (wc >= 0x29700 && wc < 0x2a6b0)
-	summary = &big5hkscs_uni2index_page297[(wc>>4)-0x2970];
+        summary = &big5hkscs_uni2index_page297[(wc>>4)-0x2970];
     else if (wc >= 0x2f800 && wc < 0x2f9e0)
-	summary = &big5hkscs_uni2index_page2f8[(wc>>4)-0x2f80];
+        summary = &big5hkscs_uni2index_page2f8[(wc>>4)-0x2f80];
     if (summary) {
-	ushort used = summary->used;
-	uint i = wc & 0x0f;
-	if (used & ((ushort) 1 << i)) {
-	    const uchar *c;
-	    /* Keep in `used' only the bits 0..i-1. */
-	    used &= ((ushort) 1 << i) - 1;
-	    /* Add `summary->index' and the number of bits set in `used'. */
-	    used = (used & 0x5555) + ((used & 0xaaaa) >> 1);
-	    used = (used & 0x3333) + ((used & 0xcccc) >> 2);
-	    used = (used & 0x0f0f) + ((used & 0xf0f0) >> 4);
-	    used = (used & 0x00ff) + (used >> 8);
-	    c = big5hkscs_to_charset[summary->index + used];
-	    if (c [1] != 0) {
-		r[0] = c[0];
-		r[1] = c[1];
-		return 2;
-	    } else {  // (c [1] == 0)
-		r[0] = c[0];
-		return 1;
-	    }
-	}
+        ushort used = summary->used;
+        uint i = wc & 0x0f;
+        if (used & ((ushort) 1 << i)) {
+            const uchar *c;
+            /* Keep in `used' only the bits 0..i-1. */
+            used &= ((ushort) 1 << i) - 1;
+            /* Add `summary->index' and the number of bits set in `used'. */
+            used = (used & 0x5555) + ((used & 0xaaaa) >> 1);
+            used = (used & 0x3333) + ((used & 0xcccc) >> 2);
+            used = (used & 0x0f0f) + ((used & 0xf0f0) >> 4);
+            used = (used & 0x00ff) + (used >> 8);
+            c = big5hkscs_to_charset[summary->index + used];
+            if (c [1] != 0) {
+                r[0] = c[0];
+                r[1] = c[1];
+                return 2;
+            } else {  // (c [1] == 0)
+                r[0] = c[0];
+                return 1;
+            }
+        }
     }
     return 0;
 }

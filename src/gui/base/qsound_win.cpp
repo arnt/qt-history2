@@ -31,9 +31,9 @@ public:
     ~QAuServerWindows();
 
     void playHelper(const QString &filename, int loop, QSound *snd);
-    void play(const QString& filename, int loop );
+    void play(const QString& filename, int loop);
     void play(QSound*);
-    
+
     void stop(QSound*);
     bool okay();
 
@@ -48,7 +48,7 @@ QAuServerWindows::QAuServerWindows(QObject* parent) :
     QAuServer(parent,"Windows Audio Server"), current(0)
 {
     mutex = CreateMutexA(0, 0, 0);
-    event = CreateEventA(0, FALSE, FALSE, 0);
+    event = CreateEventA(0, false, false, 0);
 }
 
 QAuServerWindows::~QAuServerWindows()
@@ -58,14 +58,14 @@ QAuServerWindows::~QAuServerWindows()
     mutex = 0;
 
     ReleaseMutex(mtx);
-    CloseHandle(mtx); 
+    CloseHandle(mtx);
     CloseHandle(event);
 }
 
 struct SoundInfo
 {
     SoundInfo(const QString &fn, int lp, QSound *snd, QAuServerWindows *srv)
-	: sound(snd), server(srv), filename(fn), loops(lp)
+        : sound(snd), server(srv), filename(fn), loops(lp)
     {
     }
 
@@ -78,7 +78,7 @@ struct SoundInfo
 DWORD WINAPI SoundPlayProc(LPVOID param)
 {
     SoundInfo *info = (SoundInfo*)param;
-    
+
     // copy data before waking up GUI thread
     QAuServerWindows *server = info->server;
     QGuardedPtr<QSound> sound = info->sound;
@@ -87,51 +87,51 @@ DWORD WINAPI SoundPlayProc(LPVOID param)
     HANDLE mutex = server->mutex;
     HANDLE event = server->event;
     info = 0;
-    
+
     // server must not be destroyed until thread finishes
     // and all other sounds have to wait
     WaitForSingleObject(mutex, INFINITE);
-    
+
     if (loops <= 1) {
-	server->current = 0;
-	int flags = SND_FILENAME|SND_ASYNC;
-	if (loops == -1)
-	    flags |= SND_LOOP;
-	
-	QT_WA( {
-	    PlaySoundW( (TCHAR*)filename.ucs2(), 0, flags);
-	} , {
-	    PlaySoundA( QFile::encodeName(filename).data(), 0, flags );
-	} );
+        server->current = 0;
+        int flags = SND_FILENAME|SND_ASYNC;
+        if (loops == -1)
+            flags |= SND_LOOP;
+
+        QT_WA({
+            PlaySoundW((TCHAR*)filename.ucs2(), 0, flags);
+        } , {
+            PlaySoundA(QFile::encodeName(filename).data(), 0, flags);
+        });
     }
-    
+
     // signal GUI thread to continue - sound might be reset!
     SetEvent(event);
-    
+
     if (loops > 1) {
-	for (int l = 0; l < loops && server->current; ++l) {
-	    QT_WA( {
-		PlaySoundW( (TCHAR*)filename.ucs2(), 0, SND_FILENAME|SND_SYNC );
-	    } , {
-		PlaySoundA( QFile::encodeName(filename).data(), 0,
-		    SND_FILENAME|SND_SYNC );
-	    } );
-	    
-	    if (sound)
-		server->decLoop(sound);
-	}
-	server->current = 0;
+        for (int l = 0; l < loops && server->current; ++l) {
+            QT_WA({
+                PlaySoundW((TCHAR*)filename.ucs2(), 0, SND_FILENAME|SND_SYNC);
+            } , {
+                PlaySoundA(QFile::encodeName(filename).data(), 0,
+                    SND_FILENAME|SND_SYNC);
+            });
+
+            if (sound)
+                server->decLoop(sound);
+        }
+        server->current = 0;
     }
     ReleaseMutex(mutex);
-    
+
     return 0;
 }
 
-void QAuServerWindows::playHelper( const QString &filename, int loop, QSound *snd )
+void QAuServerWindows::playHelper(const QString &filename, int loop, QSound *snd)
 {
     // busy?
     if (WaitForSingleObject(mutex, 0) == WAIT_TIMEOUT)
-	return;
+        return;
     ReleaseMutex(mutex);
 
     DWORD threadid = 0;
@@ -142,7 +142,7 @@ void QAuServerWindows::playHelper( const QString &filename, int loop, QSound *sn
     WaitForSingleObject(event, INFINITE);
 }
 
-void QAuServerWindows::play( const QString& filename, int loop )
+void QAuServerWindows::play(const QString& filename, int loop)
 {
     playHelper(filename, loop, 0);
 }
@@ -152,11 +152,11 @@ void QAuServerWindows::play(QSound* s)
     playHelper(s->fileName(), s->loops(), s);
 }
 
-void QAuServerWindows::stop( QSound* )
+void QAuServerWindows::stop(QSound*)
 {
     // stop unlooped sound
     if (!current)
-	PlaySound(0, 0, 0);
+        PlaySound(0, 0, 0);
     // stop after loop is done
     current = 0;
 }
@@ -166,7 +166,7 @@ bool QAuServerWindows::okay()
     // ### this should work, but returns 0
     // return auxGetNumDevs() != 0;
 
-    return TRUE;
+    return true;
 }
 
 QAuServer* qt_new_audio_server()

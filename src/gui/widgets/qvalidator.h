@@ -28,18 +28,18 @@ class Q_GUI_EXPORT QValidator : public QObject
 {
     Q_OBJECT
 public:
-    QValidator( QObject * parent, const char *name = 0 );
+    QValidator(QObject * parent, const char *name = 0);
     ~QValidator();
 
     enum State { Invalid, Intermediate, Valid=Intermediate, Acceptable };
 
-    virtual State validate( QString &, int & ) const = 0;
-    virtual void fixup( QString & ) const;
+    virtual State validate(QString &, int &) const = 0;
+    virtual void fixup(QString &) const;
 
 private:
 #if defined(Q_DISABLE_COPY)
-    QValidator( const QValidator & );
-    QValidator& operator=( const QValidator & );
+    QValidator(const QValidator &);
+    QValidator& operator=(const QValidator &);
 #endif
 };
 
@@ -47,28 +47,28 @@ private:
 class Q_GUI_EXPORT QIntValidator : public QValidator
 {
     Q_OBJECT
-    Q_PROPERTY( int bottom READ bottom WRITE setBottom )
-    Q_PROPERTY( int top READ top WRITE setTop )
+    Q_PROPERTY(int bottom READ bottom WRITE setBottom)
+    Q_PROPERTY(int top READ top WRITE setTop)
 
 public:
-    QIntValidator( QObject * parent, const char *name = 0 );
-    QIntValidator( int bottom, int top,
-		   QObject * parent, const char *name = 0 );
+    QIntValidator(QObject * parent, const char *name = 0);
+    QIntValidator(int bottom, int top,
+                   QObject * parent, const char *name = 0);
     ~QIntValidator();
 
-    QValidator::State validate( QString &, int & ) const;
+    QValidator::State validate(QString &, int &) const;
 
-    void setBottom( int );
-    void setTop( int );
-    virtual void setRange( int bottom, int top );
+    void setBottom(int);
+    void setTop(int);
+    virtual void setRange(int bottom, int top);
 
     int bottom() const { return b; }
     int top() const { return t; }
 
 private:
 #if defined(Q_DISABLE_COPY)
-    QIntValidator( const QIntValidator & );
-    QIntValidator& operator=( const QIntValidator & );
+    QIntValidator(const QIntValidator &);
+    QIntValidator& operator=(const QIntValidator &);
 #endif
 
     int b, t;
@@ -79,22 +79,22 @@ private:
 class Q_GUI_EXPORT QDoubleValidator : public QValidator
 {
     Q_OBJECT
-    Q_PROPERTY( double bottom READ bottom WRITE setBottom )
-    Q_PROPERTY( double top READ top WRITE setTop )
-    Q_PROPERTY( int decimals READ decimals WRITE setDecimals )
+    Q_PROPERTY(double bottom READ bottom WRITE setBottom)
+    Q_PROPERTY(double top READ top WRITE setTop)
+    Q_PROPERTY(int decimals READ decimals WRITE setDecimals)
 
 public:
-    QDoubleValidator( QObject * parent, const char *name = 0 );
-    QDoubleValidator( double bottom, double top, int decimals,
-		      QObject * parent, const char *name = 0 );
+    QDoubleValidator(QObject * parent, const char *name = 0);
+    QDoubleValidator(double bottom, double top, int decimals,
+                      QObject * parent, const char *name = 0);
     ~QDoubleValidator();
 
-    QValidator::State validate( QString &, int & ) const;
+    QValidator::State validate(QString &, int &) const;
 
-    virtual void setRange( double bottom, double top, int decimals = 0 );
-    void setBottom( double );
-    void setTop( double );
-    void setDecimals( int );
+    virtual void setRange(double bottom, double top, int decimals = 0);
+    void setBottom(double);
+    void setTop(double);
+    void setDecimals(int);
 
     double bottom() const { return b; }
     double top() const { return t; }
@@ -102,8 +102,8 @@ public:
 
 private:
 #if defined(Q_DISABLE_COPY)
-    QDoubleValidator( const QDoubleValidator & );
-    QDoubleValidator& operator=( const QDoubleValidator & );
+    QDoubleValidator(const QDoubleValidator &);
+    QDoubleValidator& operator=(const QDoubleValidator &);
 #endif
 
     double b, t;
@@ -114,23 +114,23 @@ private:
 class Q_GUI_EXPORT QRegExpValidator : public QValidator
 {
     Q_OBJECT
-    // Q_PROPERTY( QRegExp regExp READ regExp WRITE setRegExp )
+    // Q_PROPERTY(QRegExp regExp READ regExp WRITE setRegExp)
 
 public:
-    QRegExpValidator( QObject *parent, const char *name = 0 );
-    QRegExpValidator( const QRegExp& rx, QObject *parent,
-		      const char *name = 0 );
+    QRegExpValidator(QObject *parent, const char *name = 0);
+    QRegExpValidator(const QRegExp& rx, QObject *parent,
+                      const char *name = 0);
     ~QRegExpValidator();
 
-    virtual QValidator::State validate( QString& input, int& pos ) const;
+    virtual QValidator::State validate(QString& input, int& pos) const;
 
-    void setRegExp( const QRegExp& rx );
+    void setRegExp(const QRegExp& rx);
     const QRegExp& regExp() const { return r; }
 
 private:
 #if defined(Q_DISABLE_COPY)
-    QRegExpValidator( const QRegExpValidator& );
-    QRegExpValidator& operator=( const QRegExpValidator& );
+    QRegExpValidator(const QRegExpValidator&);
+    QRegExpValidator& operator=(const QRegExpValidator&);
 #endif
 
     QRegExp r;

@@ -63,7 +63,7 @@ const double Q_PI = 3.14159265358979323846;
 */
 
 /*!
-    \fn QPointArray::QPointArray( int size )
+    \fn QPointArray::QPointArray(int size)
 
     Constructs a point array with room for \a size points. Makes a
     null array if \a size == 0.
@@ -72,7 +72,7 @@ const double Q_PI = 3.14159265358979323846;
 */
 
 /*!
-    \fn QPointArray::QPointArray( const QPointArray &a )
+    \fn QPointArray::QPointArray(const QPointArray &a)
 
     Constructs a copy of the point array \a a.
 */
@@ -90,10 +90,10 @@ const double Q_PI = 3.14159265358979323846;
 QPointArray::QPointArray(const QRect &r, bool closed)
 {
     setPoints(4, r.left(),  r.top(), r.right(), r.top(), r.right(), r.bottom(),
-	      r.left(),  r.bottom());
+              r.left(),  r.bottom());
     if (closed) {
-	resize(5);
-	setPoint(4, r.left(), r.top());
+        resize(5);
+        setPoint(4, r.left(), r.top());
     }
 }
 
@@ -128,8 +128,8 @@ void QPointArray::translate(int dx, int dy)
     register int i = size();
     QPoint pt(dx, dy);
     while (i--) {
-	*p += pt;
-	++p;
+        *p += pt;
+        ++p;
     }
 }
 
@@ -149,9 +149,9 @@ void QPointArray::point(int index, int *x, int *y) const
 {
     QPoint p = at(index);
     if (x)
-	*x = (int)p.x();
+        *x = (int)p.x();
     if (y)
-	*y = (int)p.y();
+        *y = (int)p.y();
 }
 
 /*!
@@ -163,7 +163,7 @@ void QPointArray::point(int index, int *x, int *y) const
 */
 
 /*!
-    \fn void QPointArray::setPoint( int i, const QPoint &p )
+    \fn void QPointArray::setPoint(int i, const QPoint &p)
 
     \overload
 
@@ -184,7 +184,7 @@ void QPointArray::point(int index, int *x, int *y) const
   \code
     static QCOORD points[] = { 1,2, 3,4 };
     QPointArray a;
-    a.setPoints( 2, points );
+    a.setPoints(2, points);
   \endcode
 
   \sa resize(), putPoints()
@@ -195,8 +195,8 @@ void QPointArray::setPoints(int nPoints, const QCOORD *points)
     resize(nPoints);
     int i = 0;
     while (nPoints--) {
-	setPoint(i++, *points, *(points+1));
-	points += 2;
+        setPoint(i++, *points, *(points+1));
+        points += 2;
     }
 }
 
@@ -209,8 +209,8 @@ void QPointArray::setPoints(int nPoints, const QCOORD *points)
     The example code creates an array with two points (1,2) and (3,4):
 
     \code
-	QPointArray a;
-	a.setPoints( 2, 1,2, 3,4 );
+        QPointArray a;
+        a.setPoints(2, 1,2, 3,4);
     \endcode
 
     The points are given as a sequence of integers, starting with \a
@@ -227,9 +227,9 @@ void QPointArray::setPoints(int nPoints, int firstx, int firsty, ...)
     int i = 0, x, y;
     va_start(ap, firsty);
     while (--nPoints) {
-	x = va_arg(ap, int);
-	y = va_arg(ap, int);
-	setPoint(++i, x, y);
+        x = va_arg(ap, int);
+        y = va_arg(ap, int);
+        setPoint(++i, x, y);
     }
     va_end(ap);
 }
@@ -245,11 +245,11 @@ void QPointArray::setPoints(int nPoints, int firstx, int firsty, ...)
 void QPointArray::putPoints(int index, int nPoints, const QCOORD *points)
 {
     if (index + nPoints > size())
-	resize(index + nPoints);
+        resize(index + nPoints);
     int i = index;
     while (nPoints--) {
-	setPoint(i++, *points, *(points+1));
-	points += 2;
+        setPoint(i++, *points, *(points+1));
+        points += 2;
     }
 }
 
@@ -262,17 +262,17 @@ void QPointArray::putPoints(int index, int nPoints, const QCOORD *points)
     and (8,9), by expanding the array from 1 to 3 points:
 
     \code
-	QPointArray a( 1 );
-	a[0] = QPoint( 4, 5 );
-	a.putPoints( 1, 2, 6,7, 8,9 ); // index == 1, points == 2
+        QPointArray a(1);
+        a[0] = QPoint(4, 5);
+        a.putPoints(1, 2, 6,7, 8,9); // index == 1, points == 2
     \endcode
 
     This has the same result, but here putPoints overwrites rather
     than extends:
     \code
-	QPointArray a( 3 );
-	a.putPoints( 0, 3, 4,5, 0,0, 8,9 );
-	a.putPoints( 1, 1, 6,7 );
+        QPointArray a(3);
+        a.putPoints(0, 3, 4,5, 0,0, 8,9);
+        a.putPoints(1, 1, 6,7);
     \endcode
 
     The points are given as a sequence of integers, starting with \a
@@ -283,16 +283,16 @@ void QPointArray::putPoints(int index, int nPoints, int firstx, int firsty, ...)
 {
     va_list ap;
     if (index + nPoints > size())
-	resize(index + nPoints);
+        resize(index + nPoints);
     if (nPoints <= 0)
-	return;
+        return;
     setPoint(index, firstx, firsty);
     int i = index, x, y;
-    va_start( ap, firsty );
+    va_start(ap, firsty);
     while (--nPoints) {
-	x = va_arg(ap, int);
-	y = va_arg(ap, int);
-	setPoint(++i, x, y);
+        x = va_arg(ap, int);
+        y = va_arg(ap, int);
+        setPoint(++i, x, y);
     }
     va_end(ap);
 }
@@ -306,27 +306,27 @@ void QPointArray::putPoints(int index, int nPoints, int firstx, int firsty, ...)
     \a from. \a fromIndex is 0 by default.
 
     \code
-	QPointArray a;
-	a.putPoints( 0, 3, 1,2, 0,0, 5,6 );
-	// a is now the three-point array ( 1,2, 0,0, 5,6 );
-	QPointArray b;
-	b.putPoints( 0, 3, 4,4, 5,5, 6,6 );
-	// b is now ( 4,4, 5,5, 6,6 );
-	a.putPoints( 2, 3, b );
-	// a is now ( 1,2, 0,0, 4,4, 5,5, 6,6 );
+        QPointArray a;
+        a.putPoints(0, 3, 1,2, 0,0, 5,6);
+        // a is now the three-point array (1,2, 0,0, 5,6);
+        QPointArray b;
+        b.putPoints(0, 3, 4,4, 5,5, 6,6);
+        // b is now (4,4, 5,5, 6,6);
+        a.putPoints(2, 3, b);
+        // a is now (1,2, 0,0, 4,4, 5,5, 6,6);
     \endcode
 */
 
 void QPointArray::putPoints(int index, int nPoints, const QPointArray & from, int fromIndex)
 {
     if (index + nPoints > size())
-	resize(index + nPoints);
+        resize(index + nPoints);
     if (nPoints <= 0)
-	return;
+        return;
     int n = 0;
     while(n < nPoints) {
-	setPoint(index + n, from[fromIndex+n]);
-	++n;
+        setPoint(index + n, from[fromIndex+n]);
+        ++n;
     }
 }
 
@@ -339,22 +339,22 @@ void QPointArray::putPoints(int index, int nPoints, const QPointArray & from, in
 QRect QPointArray::boundingRect() const
 {
     if (isEmpty())
-	return QRect(0, 0, 0, 0);
+        return QRect(0, 0, 0, 0);
     register const QPoint *pd = constData();
     int minx, maxx, miny, maxy;
     minx = maxx = pd->x();
     miny = maxy = pd->y();
     ++pd;
     for (int i = 1; i < size(); ++i) {
-	if (pd->x() < minx)
-	    minx = pd->x();
-	else if (pd->x() > maxx)
-	    maxx = pd->x();
-	if (pd->y() < miny)
-	    miny = pd->y();
-	else if (pd->y() > maxy)
-	    maxy = pd->y();
-	++pd;
+        if (pd->x() < minx)
+            minx = pd->x();
+        else if (pd->x() > maxx)
+            maxx = pd->x();
+        if (pd->y() < miny)
+            miny = pd->y();
+        else if (pd->y() > maxy)
+            maxy = pd->y();
+        ++pd;
     }
     return QRect(QPoint(minx,miny), QPoint(maxx,maxy));
 }
@@ -363,9 +363,9 @@ QRect QPointArray::boundingRect() const
 static inline int fix_angle(int a)
 {
     if (a > 16 * 360)
-	a %= 16 * 360;
+        a %= 16 * 360;
     else if (a < -16 * 360)
-	a = -((-a) % (16 * 360));
+        a = -((-a) % (16 * 360));
     return a;
 }
 
@@ -398,7 +398,7 @@ void QPointArray::makeArc(int x, int y, int w, int h, int a1, int a2)
 //   VanAken / Simar, "A Parametric Elliptical Arc Algorithm"
 //
 static void qtr_elips(QPointArray& a, int off, double dxP, double dyP, double dxQ, double dyQ,
-		      double dxK, double dyK, int m)
+                      double dxK, double dyK, int m)
 {
 #define PIV2  102944     // fixed point PI / 2
 #define TWOPI 411775     // fixed point 2 * PI
@@ -435,10 +435,10 @@ static void qtr_elips(QPointArray& a, int off, double dxP, double dyP, double dx
     const int qn = a.size() / 4;
     for (i = 0; i < qn; ++i) {
         a[off+i] = QPoint((xJ + vx) >> 16, (yJ + vy) >> 16);
-	ux -= vx >> m;
-	vx += ux >> m;
-	uy -= vy >> m;
-	vy += uy >> m;
+        ux -= vx >> m;
+        vx += ux >> m;
+        uy -= vy >> m;
+        vy += uy >> m;
     }
 
 #undef PIV2
@@ -467,18 +467,18 @@ void QPointArray::makeArc(int x, int y, int w, int h, int a1, int a2, const QWMa
 {
 #define PIV2  102944     // fixed point PI / 2
     if (--w < 0 || --h < 0 || !a2) {
-	resize(0);
-	return;
+        resize(0);
+        return;
     }
 
     bool rev = a2 < 0;
     if (rev) {
-	a1 += a2;
-	a2 = -a2;
+        a1 += a2;
+        a2 = -a2;
     }
     a1 = fix_angle(a1);
     if (a1 < 0)
-	a1 += 16 * 360;
+        a1 += 16 * 360;
     a2 = fix_angle(a2);
 
     bool arc = a1 != 0 || a2 != 360 * 16 || rev;
@@ -491,10 +491,10 @@ void QPointArray::makeArc(int x, int y, int w, int h, int a1, int a2, const QWMa
     int max;
     int q = int(qMax(QABS(xP - xQ), QABS(yP - yQ)));
     if (arc)
-	q *= 2;
+        q *= 2;
     do {
-	m++;
-	max = 4* (1 + (PIV2 >> (16 - m)));
+        m++;
+        max = 4* (1 + (PIV2 >> (16 - m)));
     } while (max < q && m < 16); // 16 limits memory usage on HUGE arcs
 
     double inc = 1.0 / (1<<m);
@@ -522,24 +522,24 @@ void QPointArray::makeArc(int x, int y, int w, int h, int a1, int a2, const QWMa
     int n = size();
 
     if (arc) {
-	double da1 = double(a1) * Q_PI / (360 * 8);
-	double da3 = double(a2 + a1) * Q_PI / (360 * 8);
-	int i = int(da1 / inc + 0.5);
-	int l = int(da3 / inc + 0.5);
-	int k = (l - i) + 1;
-	QPointArray r(k);
-	int j = 0;
+        double da1 = double(a1) * Q_PI / (360 * 8);
+        double da3 = double(a2 + a1) * Q_PI / (360 * 8);
+        int i = int(da1 / inc + 0.5);
+        int l = int(da3 / inc + 0.5);
+        int k = (l - i) + 1;
+        QPointArray r(k);
+        int j = 0;
 
-	if (rev) {
-	    while (k--)
-		r[j++] = at((i + k) % n);
-	} else {
-	    while (j < k) {
-		r[j] = at((i + j) % n);
-		j++;
-	    }
-	}
-	*this = r;
+        if (rev) {
+            while (k--)
+                r[j++] = at((i + k) % n);
+        } else {
+            while (j < k) {
+                r[j] = at((i + j) % n);
+                j++;
+            }
+        }
+        *this = r;
     }
 #undef PIV2
 }
@@ -553,33 +553,33 @@ void QPointArray::makeArc(int x, int y, int w, int h, int a1, int a2, const QWMa
     The returned array has sufficient resolution for use as pixels.
 */
 void QPointArray::makeEllipse(int x, int y, int w, int h)
-{						// midpoint, 1/4 ellipse
+{                                                // midpoint, 1/4 ellipse
 #if !defined(QT_OLD_MAKEELLIPSE) && !defined(QT_NO_TRANSFORMATIONS)
     QWMatrix unit;
     makeArc(x, y, w, h, 0, 360 * 16, unit);
     return;
 #else
     if (w <= 0 || h <= 0) {
-	if (w == 0 || h == 0) {
-	    resize(0);
-	    return;
-	}
-	if (w < 0) {
-	    w = -w;
-	    x -= w;
-	}
-	if (h < 0) {
-	    h = -h;
-	    y -= h;
-	}
+        if (w == 0 || h == 0) {
+            resize(0);
+            return;
+        }
+        if (w < 0) {
+            w = -w;
+            x -= w;
+        }
+        if (h < 0) {
+            h = -h;
+            y -= h;
+        }
     }
-    int s = (w + h + 2) / 2;	// max size of xx,yy array
-    int *px = new int[s];	// 1/4th of ellipse
+    int s = (w + h + 2) / 2;        // max size of xx,yy array
+    int *px = new int[s];        // 1/4th of ellipse
     int *py = new int[s];
     int xx, yy, i = 0;
     double d1, d2;
     double a2 = (w / 2) * (w / 2),
-	   b2 = (h / 2) * (h / 2);
+           b2 = (h / 2) * (h / 2);
     xx = 0;
     yy = h / 2;
     d1 = b2 - a2 * (h / 2) + 0.25 * a2;
@@ -587,43 +587,43 @@ void QPointArray::makeEllipse(int x, int y, int w, int h)
     py[i] = yy;
     ++i;
     while (a2 * (yy - 0.5) > b2 * (xx + 0.5)) {
-	if (d1 < 0) {
-	    d1 = d1 + b2 * (3.0 + 2 *xx);
-	    ++xx;
-	} else {
-	    d1 = d1 + b2 * (3.0 + 2 * xx) + 2.0 * a2 * (1 - yy);
-	    ++xx;
-	    --yy;
-	}
-	px[i] = xx;
-	py[i] = yy;
-	++i;
+        if (d1 < 0) {
+            d1 = d1 + b2 * (3.0 + 2 *xx);
+            ++xx;
+        } else {
+            d1 = d1 + b2 * (3.0 + 2 * xx) + 2.0 * a2 * (1 - yy);
+            ++xx;
+            --yy;
+        }
+        px[i] = xx;
+        py[i] = yy;
+        ++i;
     }
     d2 = b2 * (xx + 0.5) * (xx + 0.5) + a2 * (yy - 1) * (yy - 1) - a2 * b2;
     while (yy > 0) {
-	if (d2 < 0) {
-	    d2 = d2 + 2.0 * b2 * (xx + 1) + a2 * (3 - 2 * yy);
-	    ++xx;
-	    --yy;
-	} else {
-	    d2 = d2 + a2 * (3 - 2 * yy);
-	    --yy;
-	}
-	px[i] = xx;
-	py[i] = yy;
-	++i;
+        if (d2 < 0) {
+            d2 = d2 + 2.0 * b2 * (xx + 1) + a2 * (3 - 2 * yy);
+            ++xx;
+            --yy;
+        } else {
+            d2 = d2 + a2 * (3 - 2 * yy);
+            --yy;
+        }
+        px[i] = xx;
+        py[i] = yy;
+        ++i;
     }
     s = i;
     resize(4 * s);
     x += w / 2;
     y += h / 2;
     for (i = 0; i < s; ++i) {
-	xx = px[i];
-	yy = py[i];
-	setPoint(s - i - 1, x + xx, y - yy);
-	setPoint(s + i, x - xx, y - yy);
-	setPoint(3 * s - i - 1, x - xx, y + yy);
-	setPoint(3 * s + i, x + xx, y + yy);
+        xx = px[i];
+        yy = py[i];
+        setPoint(s - i - 1, x + xx, y - yy);
+        setPoint(s + i, x - xx, y - yy);
+        setPoint(3 * s - i - 1, x - xx, y + yy);
+        setPoint(3 * s + i, x + xx, y + yy);
     }
     delete[] px;
     delete[] py;
@@ -701,33 +701,33 @@ static int pnt_on_line(const int *p, const int *q, const int *t)
 
     // if all points are coincident, return condition 2 (on line)
     if(q[0] == p[0] && q[1] == p[1] && q[0] == t[0] && q[1] == t[1])
-	return 2;
+        return 2;
     if (QABS((q[1] - p[1]) * (t[0] - p[0]) - (t[1] - p[1]) * (q[0] - p[0])) >=
-	qMax(QABS(q[0] - p[0]), QABS(q[1] - p[1])))
-	return 0;
+        qMax(QABS(q[0] - p[0]), QABS(q[1] - p[1])))
+        return 0;
     if (((q[0] < p[0]) && (p[0] < t[0])) || ((q[1] < p[1]) && (p[1] < t[1])))
-	return 1;
+        return 1;
     if (((t[0] < p[0]) && (p[0] < q[0])) || ((t[1] < p[1]) && (p[1] < q[1])))
-	return 1;
+        return 1;
     if (((p[0] < q[0]) && (q[0] < t[0])) || ((p[1] < q[1]) && (q[1] < t[1])))
-	return 3;
+        return 3;
     if (((t[0] < q[0]) && (q[0] < p[0])) || ((t[1] < q[1]) && (q[1] < p[1])))
-	return 3;
+        return 3;
     return 2;
 }
 
 static void polygonizeQBezier(double* acc, int& accsize, const double ctrl[], int maxsize)
 {
     if (accsize > maxsize / 2) {
-	// This never happens in practice.
-	if ( accsize >= maxsize-4 )
-	    return;
-	// Running out of space - approximate by a line.
-	acc[accsize++] = ctrl[0];
-	acc[accsize++] = ctrl[1];
-	acc[accsize++] = ctrl[6];
-	acc[accsize++] = ctrl[7];
-	return;
+        // This never happens in practice.
+        if (accsize >= maxsize-4)
+            return;
+        // Running out of space - approximate by a line.
+        acc[accsize++] = ctrl[0];
+        acc[accsize++] = ctrl[1];
+        acc[accsize++] = ctrl[6];
+        acc[accsize++] = ctrl[7];
+        return;
     }
 
     //intersects:
@@ -750,14 +750,14 @@ static void polygonizeQBezier(double* acc, int& accsize, const double ctrl[], in
     c3[1] = int(ctrl[7]);
 
     if ((pnt_on_line(c0, c3, c1) == 2 && pnt_on_line(c0, c3, c2) == 2)
-	|| (QABS(c1[0]-c0[0]) <= 1 && QABS(c1[1]-c0[1]) <= 1
-	&& QABS(c2[0]-c0[0]) <= 1 && QABS(c2[1]-c0[1]) <= 1
-	&& QABS(c3[0]-c1[0]) <= 1 && QABS(c3[1]-c0[1]) <= 1)) {
-	// Approximate by one line.
-	// Don't need to write last pt as it is the same as first pt on the next segment.
-	acc[accsize++] = l[0];
-	acc[accsize++] = l[1];
-	return;
+        || (QABS(c1[0]-c0[0]) <= 1 && QABS(c1[1]-c0[1]) <= 1
+        && QABS(c2[0]-c0[0]) <= 1 && QABS(c2[1]-c0[1]) <= 1
+        && QABS(c3[0]-c1[0]) <= 1 && QABS(c3[1]-c0[1]) <= 1)) {
+        // Approximate by one line.
+        // Don't need to write last pt as it is the same as first pt on the next segment.
+        acc[accsize++] = l[0];
+        acc[accsize++] = l[1];
+        return;
     }
 
     // Too big and too curved - recusively subdivide.
@@ -774,31 +774,31 @@ QPointArray QPointArray::cubicBezier() const
 {
 #ifdef USE_SIMPLE_QBEZIER_CODE
     if (size() != 4) {
-	qWarning("QPointArray::bezier: The array must have 4 control points");
-	QPointArray p;
-	return p;
+        qWarning("QPointArray::bezier: The array must have 4 control points");
+        QPointArray p;
+        return p;
     }
 
     int v;
     float xvec[4];
     float yvec[4];
     for (v = 0; v < 4; ++v) {
-	int x, y;
-	point(v, &x, &y);
-	xvec[v] = (float)x;
-	yvec[v] = (float)y;
+        int x, y;
+        point(v, &x, &y);
+        xvec[v] = (float)x;
+        yvec[v] = (float)y;
     }
 
     QRect r = boundingRect();
     int m = qMax(r.width(), r.height()) / 2;
-    m = qMin(m, 30);				// m = number of result points
+    m = qMin(m, 30);                                // m = number of result points
     if (m < 2)
-	m = 2;
-    QPointArray p(m);				// p = Bezier point array
+        m = 2;
+    QPointArray p(m);                                // p = Bezier point array
     register QPointData *pd = p.data();
 
     float x0 = xvec[0],
-	  y0 = yvec[0];
+          y0 = yvec[0];
     float dt = 1.0F / m;
     float cx = 3.0F * (xvec[1] - x0);
     float bx = 3.0F * (xvec[2] - xvec[1]) - cx;
@@ -813,11 +813,11 @@ QPointArray QPointArray::cubicBezier() const
     ++pd;
     m -= 2;
 
-    while ( m-- ) {
-	pd->rx() = (QCOORD)qRound( ((ax * t + bx) * t + cx) * t + x0 );
-	pd->ry() = (QCOORD)qRound( ((ay * t + by) * t + cy) * t + y0 );
-	++pd;
-	t += dt;
+    while (m--) {
+        pd->rx() = (QCOORD)qRound(((ax * t + bx) * t + cx) * t + x0);
+        pd->ry() = (QCOORD)qRound(((ay * t + by) * t + cy) * t + y0);
+        ++pd;
+        t += dt;
     }
 
     pd->rx() = (QCOORD)xvec[3];
@@ -827,33 +827,33 @@ QPointArray QPointArray::cubicBezier() const
 #else
 
     if (size() != 4) {
-	qWarning( "QPointArray::bezier: The array must have 4 control points" );
-	QPointArray pa;
-	return pa;
+        qWarning("QPointArray::bezier: The array must have 4 control points");
+        QPointArray pa;
+        return pa;
     } else {
-	QRect r = boundingRect();
-	int m = 4 + 2 * qMax(r.width(), r.height());
-	double *p = new double[m];
-	double ctrl[8];
-	int i;
-	for (i = 0; i < 4; ++i) {
-	    ctrl[i * 2] = at(i).x();
-	    ctrl[i * 2 + 1] = at(i).y();
-	}
-	int len = 0;
-	polygonizeQBezier(p, len, ctrl, m);
-	QPointArray pa((len / 2) + 1); // one extra point for last point on line
-	int j = 0;
-	for (i = 0; j < len; ++i) {
-	    int x = qRound(p[j++]);
-	    int y = qRound(p[j++]);
-	    pa[i] = QPoint(x,y);
-	}
-	// add last pt on the line, which will be at the last control pt
-	pa[pa.size() - 1] = at(3);
-	delete[] p;
+        QRect r = boundingRect();
+        int m = 4 + 2 * qMax(r.width(), r.height());
+        double *p = new double[m];
+        double ctrl[8];
+        int i;
+        for (i = 0; i < 4; ++i) {
+            ctrl[i * 2] = at(i).x();
+            ctrl[i * 2 + 1] = at(i).y();
+        }
+        int len = 0;
+        polygonizeQBezier(p, len, ctrl, m);
+        QPointArray pa((len / 2) + 1); // one extra point for last point on line
+        int j = 0;
+        for (i = 0; j < len; ++i) {
+            int x = qRound(p[j++]);
+            int y = qRound(p[j++]);
+            pa[i] = QPoint(x,y);
+        }
+        // add last pt on the line, which will be at the last control pt
+        pa[pa.size() - 1] = at(3);
+        delete[] p;
 
-	return pa;
+        return pa;
     }
 
 #endif
@@ -879,8 +879,8 @@ QDataStream &operator<<(QDataStream &s, const QPointArray &a)
     uint i;
 
     s << len;
-    for (i = 0; i < len; ++i )
-	s << a.point(i);
+    for (i = 0; i < len; ++i)
+        s << a.point(i);
     return s;
 }
 
@@ -902,20 +902,20 @@ QDataStream &operator>>(QDataStream &s, QPointArray &a)
     a.resize((int)len);
     QPoint p;
     for (i = 0; i < len; ++i) {
-	s >> p;
-	a.setPoint(i, p);
+        s >> p;
+        a.setPoint(i, p);
     }
     return s;
 }
 #endif //QT_NO_DATASTREAM
 
 
-struct QShortPoint {			// Binary compatible with XPoint
+struct QShortPoint {                        // Binary compatible with XPoint
     short x, y;
 };
 
 static int splen = 0;
-static void *sp = 0;			// Really a QShortPoint *
+static void *sp = 0;                        // Really a QShortPoint *
 
 /*!
   \internal
@@ -931,22 +931,22 @@ void* QPointArray::shortPoints(int index, int nPoints) const
 {
 
     if (isEmpty() || !nPoints)
-	return 0;
+        return 0;
     const QPoint* p = constData();
     p += index;
     int i = nPoints < 0 ? size() : nPoints;
     if (splen < i) {
-	if (sp)
-	    delete[] ((QShortPoint*)sp);
-	sp = new QShortPoint[i];
-	splen = i;
+        if (sp)
+            delete[] ((QShortPoint*)sp);
+        sp = new QShortPoint[i];
+        splen = i;
     }
     QShortPoint* ps = (QShortPoint*)sp;
-    while ( i-- ) {
-	ps->x = (short)p->x();
-	ps->y = (short)p->y();
-	++p;
-	++ps;
+    while (i--) {
+        ps->x = (short)p->x();
+        ps->y = (short)p->y();
+        ++p;
+        ++ps;
     }
     return sp;
 }
@@ -962,7 +962,7 @@ void* QPointArray::shortPoints(int index, int nPoints) const
 void QPointArray::cleanBuffers()
 {
     if (sp)
-	delete[] ((QShortPoint*)sp);
+        delete[] ((QShortPoint*)sp);
     sp = 0;
     splen = 0;
 }
@@ -973,7 +973,7 @@ QDebug operator<<(QDebug dbg, const QPointArray &a)
 {
     dbg.nospace() << "QPointArray(";
     for (int i = 0; i < a.count(); ++i)
-	dbg.nospace() << a.at(i);
+        dbg.nospace() << a.at(i);
     dbg.nospace() << ')';
     return dbg.space();
 }

@@ -7,7 +7,7 @@ public:
     GfxTransformedDriver();
 
     QStringList keys() const;
-    QScreen *create( const QString&, int displayId );
+    QScreen *create(const QString&, int displayId);
 };
 
 GfxTransformedDriver::GfxTransformedDriver()
@@ -22,12 +22,12 @@ QStringList GfxTransformedDriver::keys() const
     return list;
 }
 
-QScreen* GfxTransformedDriver::create( const QString& driver, int displayId )
+QScreen* GfxTransformedDriver::create(const QString& driver, int displayId)
 {
-    if ( driver.lower() == "transformed" )
-        return new QTransformedScreen( displayId );
+    if (driver.lower() == "transformed")
+        return new QTransformedScreen(displayId);
 
     return 0;
 }
 
-Q_EXPORT_PLUGIN( GfxTransformedDriver )
+Q_EXPORT_PLUGIN(GfxTransformedDriver)

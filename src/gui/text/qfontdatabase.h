@@ -43,22 +43,22 @@ public:
     QFontDatabase();
 
     QStringList families() const;
-    QStringList families( QFont::Script ) const;
-    QStringList styles( const QString & ) const;
-    QList<int> pointSizes( const QString &, const QString & = QString::null);
-    QList<int> smoothSizes( const QString &, const QString &);
-    QString styleString( const QFont &);
+    QStringList families(QFont::Script) const;
+    QStringList styles(const QString &) const;
+    QList<int> pointSizes(const QString &, const QString & = QString::null);
+    QList<int> smoothSizes(const QString &, const QString &);
+    QString styleString(const QFont &);
 
-    QFont font( const QString &, const QString &, int);
+    QFont font(const QString &, const QString &, int);
 
-    bool isBitmapScalable( const QString &, const QString & = QString::null) const;
-    bool isSmoothlyScalable( const QString &, const QString & = QString::null) const;
-    bool isScalable( const QString &, const QString & = QString::null) const;
-    bool isFixedPitch( const QString &, const QString & = QString::null) const;
+    bool isBitmapScalable(const QString &, const QString & = QString::null) const;
+    bool isSmoothlyScalable(const QString &, const QString & = QString::null) const;
+    bool isScalable(const QString &, const QString & = QString::null) const;
+    bool isFixedPitch(const QString &, const QString & = QString::null) const;
 
-    bool italic( const QString &, const QString &) const;
-    bool bold( const QString &, const QString &) const;
-    int weight( const QString &, const QString &) const;
+    bool italic(const QString &, const QString &) const;
+    bool bold(const QString &, const QString &) const;
+    int weight(const QString &, const QString &) const;
 
     static QString scriptName(QFont::Script);
     static QString scriptSample(QFont::Script);
@@ -66,25 +66,25 @@ public:
     // For source compatibility with < 3.0
 #ifdef QT_COMPAT
     QT_COMPAT QStringList families(bool) const;
-    QT_COMPAT QStringList styles( const QString &, const QString & ) const;
-    QT_COMPAT QList<int> pointSizes( const QString &, const QString &, const QString & );
-    QT_COMPAT QList<int> smoothSizes( const QString &, const QString &, const QString & );
+    QT_COMPAT QStringList styles(const QString &, const QString &) const;
+    QT_COMPAT QList<int> pointSizes(const QString &, const QString &, const QString &);
+    QT_COMPAT QList<int> smoothSizes(const QString &, const QString &, const QString &);
 
-    QT_COMPAT QFont font( const QString &, const QString &, int, const QString &);
+    QT_COMPAT QFont font(const QString &, const QString &, int, const QString &);
 
-    QT_COMPAT bool isBitmapScalable( const QString &, const QString &, const QString & ) const;
-    QT_COMPAT bool isSmoothlyScalable( const QString &, const QString &, const QString & ) const;
-    QT_COMPAT bool isScalable( const QString &, const QString &, const QString & ) const;
-    QT_COMPAT bool isFixedPitch( const QString &, const QString &, const QString & ) const;
+    QT_COMPAT bool isBitmapScalable(const QString &, const QString &, const QString &) const;
+    QT_COMPAT bool isSmoothlyScalable(const QString &, const QString &, const QString &) const;
+    QT_COMPAT bool isScalable(const QString &, const QString &, const QString &) const;
+    QT_COMPAT bool isFixedPitch(const QString &, const QString &, const QString &) const;
 
-    QT_COMPAT bool italic( const QString &, const QString &, const QString & ) const;
-    QT_COMPAT bool bold( const QString &, const QString &, const QString & ) const;
-    QT_COMPAT int weight( const QString &, const QString &, const QString & ) const;
+    QT_COMPAT bool italic(const QString &, const QString &, const QString &) const;
+    QT_COMPAT bool bold(const QString &, const QString &, const QString &) const;
+    QT_COMPAT int weight(const QString &, const QString &, const QString &) const;
 #endif // QT_COMPAT
 
 private:
-    static QFontEngine *findFont( QFont::Script script, const QFontPrivate *fp,
-				  const QFontDef &request, int force_encoding_id = -1 );
+    static QFontEngine *findFont(QFont::Script script, const QFontPrivate *fp,
+                                  const QFontDef &request, int force_encoding_id = -1);
 
     static void createDatabase();
 
@@ -100,84 +100,84 @@ private:
 
 
 #ifdef QT_COMPAT
-inline QStringList QFontDatabase::families( bool ) const
+inline QStringList QFontDatabase::families(bool) const
 {
     return families();
 }
 
-inline QStringList QFontDatabase::styles( const QString &family,
-					  const QString & ) const
+inline QStringList QFontDatabase::styles(const QString &family,
+                                          const QString &) const
 {
     return styles(family);
 }
 
-inline QList<int> QFontDatabase::pointSizes( const QString &family,
-						  const QString &style ,
-						  const QString & )
+inline QList<int> QFontDatabase::pointSizes(const QString &family,
+                                                  const QString &style ,
+                                                  const QString &)
 {
     return pointSizes(family, style);
 }
 
-inline QList<int> QFontDatabase::smoothSizes( const QString &family,
-						   const QString &style,
-						   const QString & )
+inline QList<int> QFontDatabase::smoothSizes(const QString &family,
+                                                   const QString &style,
+                                                   const QString &)
 {
     return smoothSizes(family, style);
 }
 
-inline QFont QFontDatabase::font( const QString &familyName,
-				  const QString &style,
-				  int pointSize,
-				  const QString &)
+inline QFont QFontDatabase::font(const QString &familyName,
+                                  const QString &style,
+                                  int pointSize,
+                                  const QString &)
 {
     return font(familyName, style, pointSize);
 }
 
-inline bool QFontDatabase::isBitmapScalable( const QString &family,
-					     const QString &style,
-					     const QString & ) const
+inline bool QFontDatabase::isBitmapScalable(const QString &family,
+                                             const QString &style,
+                                             const QString &) const
 {
     return isBitmapScalable(family, style);
 }
 
-inline bool QFontDatabase::isSmoothlyScalable( const QString &family,
-					       const QString &style,
-					       const QString & ) const
+inline bool QFontDatabase::isSmoothlyScalable(const QString &family,
+                                               const QString &style,
+                                               const QString &) const
 {
     return isSmoothlyScalable(family, style);
 }
 
-inline bool QFontDatabase::isScalable( const QString &family,
-				       const QString &style,
-				       const QString & ) const
+inline bool QFontDatabase::isScalable(const QString &family,
+                                       const QString &style,
+                                       const QString &) const
 {
     return isScalable(family, style);
 }
 
-inline bool QFontDatabase::isFixedPitch( const QString &family,
-					 const QString &style,
-					 const QString & ) const
+inline bool QFontDatabase::isFixedPitch(const QString &family,
+                                         const QString &style,
+                                         const QString &) const
 {
     return isFixedPitch(family, style);
 }
 
-inline bool QFontDatabase::italic( const QString &family,
-				   const QString &style,
-				   const QString & ) const
+inline bool QFontDatabase::italic(const QString &family,
+                                   const QString &style,
+                                   const QString &) const
 {
     return italic(family, style);
 }
 
-inline bool QFontDatabase::bold( const QString &family,
-				 const QString &style,
-				 const QString & ) const
+inline bool QFontDatabase::bold(const QString &family,
+                                 const QString &style,
+                                 const QString &) const
 {
     return bold(family, style);
 }
 
-inline int QFontDatabase::weight( const QString &family,
-				  const QString &style,
-				  const QString & ) const
+inline int QFontDatabase::weight(const QString &family,
+                                  const QString &style,
+                                  const QString &) const
 {
     return weight(family, style);
 }

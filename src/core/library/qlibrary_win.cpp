@@ -43,94 +43,94 @@ static QMap<QString, LibInstance*> *map = 0;
 
 bool QLibraryPrivate::loadLibrary()
 {
-    if ( pHnd )
-	return true;
+    if (pHnd)
+        return true;
 
     // protect map creation/access
-    QMutexLocker locker( qt_global_mutexpool ?
-			 qt_global_mutexpool->get( &map ) : 0 );
+    QMutexLocker locker(qt_global_mutexpool ?
+                         qt_global_mutexpool->get(&map) : 0);
 
-    if ( !map )
-	map = new QMap<QString, LibInstance*>;
+    if (!map)
+        map = new QMap<QString, LibInstance*>;
 
     QString filename = library->library();
-    if ( map->find(filename) != map->end() ) {
-	LibInstance *lib = (*map)[filename];
-	lib->refCount++;
-	pHnd = lib->instance;
+    if (map->find(filename) != map->end()) {
+        LibInstance *lib = (*map)[filename];
+        lib->refCount++;
+        pHnd = lib->instance;
     }
     else {
-	QT_WA( {
-	    pHnd = LoadLibraryW( (TCHAR*)filename.ucs2() );
-	} , {
-	    pHnd = LoadLibraryA(QFile::encodeName( filename ).data());
-	} );
+        QT_WA({
+            pHnd = LoadLibraryW((TCHAR*)filename.ucs2());
+        } , {
+            pHnd = LoadLibraryA(QFile::encodeName(filename).data());
+        });
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
-	if ( !pHnd )
-	    qSystemWarning("Failed to load library %s", QFile::encodeName(filename).data());
+        if (!pHnd)
+            qSystemWarning("Failed to load library %s", QFile::encodeName(filename).data());
 #endif
-	if ( pHnd ) {
-	    LibInstance *lib = new LibInstance;
-	    lib->instance = pHnd;
-	    lib->refCount++;
-	    map->insert( filename, lib );
-	}
+        if (pHnd) {
+            LibInstance *lib = new LibInstance;
+            lib->instance = pHnd;
+            lib->refCount++;
+            map->insert(filename, lib);
+        }
     }
     return pHnd != 0;
 }
 
 bool QLibraryPrivate::freeLibrary()
 {
-    if ( !pHnd )
-	return true;
+    if (!pHnd)
+        return true;
 
     // protect map access
-    QMutexLocker locker( qt_global_mutexpool ?
-			 qt_global_mutexpool->get( &map ) : 0 );
+    QMutexLocker locker(qt_global_mutexpool ?
+                         qt_global_mutexpool->get(&map) : 0);
 
     bool ok = false;
     QMap<QString, LibInstance*>::iterator it;
-    for ( it = map->begin(); it != map->end(); ++it ) {
-	LibInstance *lib = *it;
-	if ( lib->instance == pHnd ) {
-	    lib->refCount--;
-	    if ( lib->refCount == 0 ) {
-		ok = FreeLibrary( pHnd );
-		if ( ok ) {
-		    map->erase( it );
-		    if ( map->count() == 0 ) {
-			delete map;
-			map = 0;
-		    }
-		}
-		delete lib;
-	    } else
-		ok = true;
-	    break;
-	}
+    for (it = map->begin(); it != map->end(); ++it) {
+        LibInstance *lib = *it;
+        if (lib->instance == pHnd) {
+            lib->refCount--;
+            if (lib->refCount == 0) {
+                ok = FreeLibrary(pHnd);
+                if (ok) {
+                    map->erase(it);
+                    if (map->count() == 0) {
+                        delete map;
+                        map = 0;
+                    }
+                }
+                delete lib;
+            } else
+                ok = true;
+            break;
+        }
     }
-    if ( ok )
-	pHnd = 0;
+    if (ok)
+        pHnd = 0;
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     else
-	qSystemWarning( "Failed to unload library" );
+        qSystemWarning("Failed to unload library");
 #endif
     return ok;
 }
 
-void* QLibraryPrivate::resolveSymbol( const char* f )
+void* QLibraryPrivate::resolveSymbol(const char* f)
 {
-    if ( !pHnd )
-	return 0;
+    if (!pHnd)
+        return 0;
 
 #ifdef Q_OS_TEMP
-    void* address = (void*)GetProcAddress( pHnd, (const wchar_t*)QString(f).ucs2() );
+    void* address = (void*)GetProcAddress(pHnd, (const wchar_t*)QString(f).ucs2());
 #else
-    void* address = (void*)GetProcAddress( pHnd, f );
+    void* address = (void*)GetProcAddress(pHnd, f);
 #endif
 #if defined(QT_DEBUG_COMPONENT)
-    if ( !address )
-	qSystemWarning("Couldn't resolve symbol \"%s\"", f);
+    if (!address)
+        qSystemWarning("Couldn't resolve symbol \"%s\"", f);
 #endif
 
     return address;

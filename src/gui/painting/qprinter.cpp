@@ -45,8 +45,8 @@
     printer to provide (in dots per inch -- dpi).
     \i setFullPage() tells QPrinter whether you want to deal with the
     full page or just with the part the printer can draw on. The
-    default is FALSE, so that by default you should be able to paint
-    on (0,0). If TRUE the origin of the coordinate system will be in
+    default is false, so that by default you should be able to paint
+    on (0,0). If true the origin of the coordinate system will be in
     the top left corner of the paper and most probably the printer
     will not be able to paint something there due to it's physical
     margins.
@@ -189,7 +189,7 @@
     QPrinter::setFullPage(), to determine the printable area (see
     QPaintDeviceMetrics).
 
-    The defined sizes (with setFullPage(TRUE)) are:
+    The defined sizes (with setFullPage(true)) are:
 
     \value A0 841 x 1189 mm
     \value A1 594 x 841 mm
@@ -224,7 +224,7 @@
     \value Custom
     \value NPageSize (internal)
 
-    With setFullPage(FALSE) (the default), the metrics will be a bit
+    With setFullPage(false) (the default), the metrics will be a bit
     smaller; how much depends on the printer in use.
 */
 
@@ -303,7 +303,7 @@
     \value PrintToFile Describes if print to file should be enabled.
     \value PrintSelection Describes if printing selections should be enabled.
     \value PrintPageRange Describes if printing page ranges (from, to) should
-	    be enabled
+            be enabled
 
     \sa setOptionEnabled(), isOptionEnabled()
 */
@@ -321,9 +321,9 @@
 /*!
     \fn bool QPrinter::outputToFile() const
 
-    Returns TRUE if the output should be written to a file, or FALSE
+    Returns true if the output should be written to a file, or false
     if the output should be sent directly to the printer. The default
-    setting is FALSE.
+    setting is false.
 
     \warning This function is currently only supported under X11.
 
@@ -334,18 +334,18 @@
     Specifies whether the output should be written to a file or sent
     directly to the printer.
 
-    Will output to a file if \a enable is TRUE, or will output
-    directly to the printer if \a enable is FALSE.
+    Will output to a file if \a enable is true, or will output
+    directly to the printer if \a enable is false.
 
     \warning This function is currently only supported under X11.
 
     \sa outputToFile(), setOutputFileName()
 */
 
-void QPrinter::setOutputToFile( bool enable )
+void QPrinter::setOutputToFile(bool enable)
 {
-    if ( state != 0 ) {
-        qWarning( "QPrinter::setOutputToFile: Cannot do this during printing" );
+    if (state != 0) {
+        qWarning("QPrinter::setOutputToFile: Cannot do this during printing");
         return;
     }
     output_file = enable;
@@ -365,17 +365,17 @@ void QPrinter::setOutputToFile( bool enable )
     Sets the name of the output file to \a fileName.
 
     Setting a null or empty name (0 or "") disables output to a file,
-    i.e. calls setOutputToFile(FALSE). Setting a non-empty name
-    enables output to a file, i.e. calls setOutputToFile(TRUE).
+    i.e. calls setOutputToFile(false). Setting a non-empty name
+    enables output to a file, i.e. calls setOutputToFile(true).
 
     \warning This function is currently only supported under X11.
 
     \sa outputFileName(), setOutputToFile()
 */
 
-void QPrinter::setOutputFileName( const QString &fileName )
+void QPrinter::setOutputFileName(const QString &fileName)
 {
-    if ( state != 0 ) {
+    if (state != 0) {
         qWarning("QPrinter::setOutputFileName: Cannot do this during printing");
         return;
     }
@@ -409,7 +409,7 @@ void QPrinter::setOutputFileName( const QString &fileName )
     \sa printProgram()
 */
 
-void QPrinter::setPrintProgram( const QString &printProg )
+void QPrinter::setPrintProgram(const QString &printProg)
 {
     print_prog = printProg;
 }
@@ -427,10 +427,10 @@ void QPrinter::setPrintProgram( const QString &printProg )
     Sets the document name to \a name.
 */
 
-void QPrinter::setDocName( const QString &name )
+void QPrinter::setDocName(const QString &name)
 {
-    if ( state != 0 ) {
-        qWarning( "QPrinter::setDocName: Cannot do this during printing" );
+    if (state != 0) {
+        qWarning("QPrinter::setDocName: Cannot do this during printing");
         return;
     }
     doc_name = name;
@@ -456,7 +456,7 @@ void QPrinter::setDocName( const QString &name )
     \sa creator()
 */
 
-void QPrinter::setCreator( const QString &creator )
+void QPrinter::setCreator(const QString &creator)
 {
     creator_name = creator;
 }
@@ -487,7 +487,7 @@ void QPrinter::setCreator( const QString &creator )
     \sa orientation()
 */
 
-void QPrinter::setOrientation( Orientation orientation )
+void QPrinter::setOrientation(Orientation orientation)
 {
     orient = orientation;
 #if defined(Q_WS_WIN)
@@ -518,10 +518,10 @@ void QPrinter::setOrientation( Orientation orientation )
     \sa pageSize() PageSize setFullPage() setResolution()
 */
 
-void QPrinter::setPageSize( PageSize newPageSize )
+void QPrinter::setPageSize(PageSize newPageSize)
 {
-    if ( newPageSize > NPageSize ) {
-        qWarning("QPrinter::SetPageSize: illegal page size %d", newPageSize );
+    if (newPageSize > NPageSize) {
+        qWarning("QPrinter::SetPageSize: illegal page size %d", newPageSize);
         return;
     }
     page_size = newPageSize;
@@ -541,7 +541,7 @@ void QPrinter::setPageSize( PageSize newPageSize )
     the user can override in the print dialog when you call setup().
 */
 
-void QPrinter::setPageOrder( PageOrder newPageOrder )
+void QPrinter::setPageOrder(PageOrder newPageOrder)
 {
     page_order = newPageOrder;
 #if defined(Q_WS_WIN)
@@ -569,7 +569,7 @@ QPrinter::PageOrder QPrinter::pageOrder() const
     \sa colorMode()
 */
 
-void QPrinter::setColorMode( ColorMode newColorMode )
+void QPrinter::setColorMode(ColorMode newColorMode)
 {
     color_mode = newColorMode;
 #if defined(Q_WS_WIN)
@@ -634,10 +634,10 @@ QPrinter::ColorMode QPrinter::colorMode() const
     \sa fromPage(), toPage(), setMinMax()
 */
 
-void QPrinter::setFromTo( int fromPage, int toPage )
+void QPrinter::setFromTo(int fromPage, int toPage)
 {
-    if ( state != 0 ) {
-        qWarning( "QPrinter::setFromTo: Cannot do this during printing" );
+    if (state != 0) {
+        qWarning("QPrinter::setFromTo: Cannot do this during printing");
         return;
     }
     from_pg = fromPage;
@@ -678,14 +678,14 @@ void QPrinter::setFromTo( int fromPage, int toPage )
     \sa minPage(), maxPage(), setFromTo()
 */
 
-void QPrinter::setMinMax( int minPage, int maxPage )
+void QPrinter::setMinMax(int minPage, int maxPage)
 {
     min_pg = minPage;
     max_pg = maxPage;
-    if ( from_pg == 0 || from_pg < minPage )
-	from_pg = minPage;
-    if ( to_pg == 0 || to_pg > maxPage )
-	to_pg = maxPage;
+    if (from_pg == 0 || from_pg < minPage)
+        from_pg = minPage;
+    if (to_pg == 0 || to_pg > maxPage)
+        to_pg = maxPage;
 }
 
 
@@ -709,8 +709,8 @@ void QPrinter::setMinMax( int minPage, int maxPage )
 
   \internal
 
-  Returns TRUE if the application should provide the user with the
-  option of choosing a collated printout; otherwise returns FALSE.
+  Returns true if the application should provide the user with the
+  option of choosing a collated printout; otherwise returns false.
 
   Collation means that each page is printed in order, i.e. print the
   first page, then the second page, then the third page and so on, and
@@ -727,9 +727,9 @@ void QPrinter::setMinMax( int minPage, int maxPage )
 
   \internal
 
-    If \a enable is TRUE (the default) the user is given the choice of
+    If \a enable is true (the default) the user is given the choice of
     whether to print out multiple copies collated in the print dialog.
-    If \a enable is FALSE, then collateCopies() will be ignored.
+    If \a enable is false, then collateCopies() will be ignored.
 
   Collation means that each page is printed in order, i.e. print the
   first page, then the second page, then the third page and so on, and
@@ -746,8 +746,8 @@ void QPrinter::setMinMax( int minPage, int maxPage )
 
   \internal
 
-  Returns TRUE if collation is turned on when multiple copies is selected.
-  Returns FALSE if it is turned off when multiple copies is selected.
+  Returns true if collation is turned on when multiple copies is selected.
+  Returns false if it is turned off when multiple copies is selected.
 
   \sa collateCopiesEnabled() setCollateCopiesEnabled() setCollateCopies()
 */
@@ -756,8 +756,8 @@ void QPrinter::setMinMax( int minPage, int maxPage )
   \internal
 
   Sets the default value for collation checkbox when the print dialog appears.
-  If \a on is TRUE, it will enable setCollateCopiesEnabled().
-  The default value is FALSE. This value will be changed by what the
+  If \a on is true, it will enable setCollateCopiesEnabled().
+  The default value is false. This value will be changed by what the
   user presses in the print dialog.
 
   \sa collateCopiesEnabled() setCollateCopiesEnabled() collateCopies()
@@ -766,7 +766,7 @@ void QPrinter::setMinMax( int minPage, int maxPage )
 void QPrinter::setCollateCopies(bool on)
 {
     if (!collateCopiesEnabled() && on)
-	setCollateCopiesEnabled(on);
+        setCollateCopiesEnabled(on);
     usercolcopies = on;
 }
 
@@ -779,7 +779,7 @@ void QPrinter::setCollateCopies(bool on)
     \sa numCopies()
 */
 
-void QPrinter::setNumCopies( int numCopies )
+void QPrinter::setNumCopies(int numCopies)
 {
     ncopies = numCopies;
 #if defined(Q_WS_WIN)
@@ -818,7 +818,7 @@ QString QPrinter::printerSelectionOption() const
     \sa printerSelectionOption()
 */
 
-void QPrinter::setPrinterSelectionOption( const QString & option )
+void QPrinter::setPrinterSelectionOption(const QString & option)
 {
     option_string = option;
 }
@@ -826,16 +826,16 @@ void QPrinter::setPrinterSelectionOption( const QString & option )
 
 /*!
     Sets QPrinter to have the origin of the coordinate system at the
-    top-left corner of the paper if \a fp is TRUE, or where it thinks
-    the top-left corner of the printable area is if \a fp is FALSE.
+    top-left corner of the paper if \a fp is true, or where it thinks
+    the top-left corner of the printable area is if \a fp is false.
 
-    The default is FALSE. You can (probably) print on (0,0), and
+    The default is false. You can (probably) print on (0,0), and
     QPaintDeviceMetrics will report something smaller than the size
     indicated by PageSize. (Note that QPrinter may be wrong on Unix
     systems: it does not have perfect knowledge of the physical
     printer.)
 
-    If \a fp is TRUE, QPaintDeviceMetrics will report the exact same
+    If \a fp is true, QPaintDeviceMetrics will report the exact same
     size as indicated by \c PageSize. It probably isn't possible to
     print on the entire page because of the printer's physical
     margins, so the application must account for the margins itself.
@@ -843,15 +843,15 @@ void QPrinter::setPrinterSelectionOption( const QString & option )
     \sa PageSize setPageSize() QPaintDeviceMetrics fullPage()
 */
 
-void QPrinter::setFullPage( bool fp )
+void QPrinter::setFullPage(bool fp)
 {
     to_edge = fp;
 }
 
 
 /*!
-    Returns TRUE if the origin of the printer's coordinate system is
-    at the corner of the page and FALSE if it is at the edge of the
+    Returns true if the origin of the printer's coordinate system is
+    at the corner of the page and false if it is at the edge of the
     printable area.
 
     See setFullPage() for details and caveats.
@@ -881,10 +881,10 @@ bool QPrinter::fullPage() const
     \sa resolution() setPageSize()
 */
 
-void QPrinter::setResolution( int dpi )
+void QPrinter::setResolution(int dpi)
 {
     res = dpi;
-    res_set = TRUE;
+    res_set = true;
 }
 
 
@@ -909,7 +909,7 @@ int QPrinter::resolution() const
     \sa paperSource()
 */
 
-void QPrinter::setPaperSource( PaperSource source )
+void QPrinter::setPaperSource(PaperSource source)
 {
     paper_source = source;
 #if defined(Q_WS_WIN)
@@ -935,15 +935,15 @@ QPrinter::PaperSource QPrinter::paperSource() const
 
     \sa printRange()
 */
-void QPrinter::setPrintRange( PrintRange range )
+void QPrinter::setPrintRange(PrintRange range)
 {
-    if( range != AllPages )
-	if( range == Selection
-	    && !isOptionEnabled( PrintSelection ) )
-	    setOptionEnabled( PrintSelection, TRUE );
-	else if( range == PageRange
-		 && !isOptionEnabled( PrintPageRange ) )
-	    setOptionEnabled( PrintPageRange, TRUE );
+    if(range != AllPages)
+        if(range == Selection
+            && !isOptionEnabled(PrintSelection))
+            setOptionEnabled(PrintSelection, true);
+        else if(range == PageRange
+                 && !isOptionEnabled(PrintPageRange))
+            setOptionEnabled(PrintPageRange, true);
     d->printRange = range;
 }
 
@@ -961,30 +961,30 @@ QPrinter::PrintRange QPrinter::printRange() const
 
 /*!
     Enables the printer option with the identifier \a option if \a
-    enable is TRUE, and disables option \a option if \a enable is FALSE.
+    enable is true, and disables option \a option if \a enable is false.
 
     \sa isOptionEnabled()
 */
-void QPrinter::setOptionEnabled( PrinterOption option, bool enable )
+void QPrinter::setOptionEnabled(PrinterOption option, bool enable)
 {
-    if( enable ) {
-	d->printerOptions |= ( 1 << option );
-	if( ( option == PrintPageRange ) && min_pg==0 && max_pg==0 )
-	    max_pg = 9999;
+    if(enable) {
+        d->printerOptions |= (1 << option);
+        if((option == PrintPageRange) && min_pg==0 && max_pg==0)
+            max_pg = 9999;
     } else {
-	d->printerOptions &= ( ~( 1 << option ) );
+        d->printerOptions &= (~(1 << option));
     }
 }
 
 /*!
-    Returns TRUE if the printer option with identifier \a option is
-    enabled; otherwise returns FALSE.
+    Returns true if the printer option with identifier \a option is
+    enabled; otherwise returns false.
 
     \sa setOptionEnabled()
 */
-bool QPrinter::isOptionEnabled( PrinterOption option )
+bool QPrinter::isOptionEnabled(PrinterOption option)
 {
-    return d->printerOptions & ( 1 << option );
+    return d->printerOptions & (1 << option);
 }
 
 #ifndef Q_WS_MAC

@@ -18,37 +18,37 @@ static inline const Symbol &next(const Symbols &symbols, int &i)
 static void skipUntilEndif(const Symbols &symbols, int &i)
 {
     while(i < symbols.size() - 1 && symbols.at(i).pp_token != PP_ENDIF){
-	switch (symbols.at(i).pp_token) {
-	case PP_IF:
-	case PP_IFDEF:
-	case PP_IFNDEF:
-	    ++i;
-	    skipUntilEndif(symbols, i);
-	    break;
-	default:
-	    ;
-	}
-	++i;
+        switch (symbols.at(i).pp_token) {
+        case PP_IF:
+        case PP_IFDEF:
+        case PP_IFNDEF:
+            ++i;
+            skipUntilEndif(symbols, i);
+            break;
+        default:
+            ;
+        }
+        ++i;
     }
 }
 static bool skipBranch(const Symbols &symbols, int &i)
 {
     while(i < symbols.size() - 1
-          && ( symbols.at(i).pp_token != PP_ENDIF
+          && (symbols.at(i).pp_token != PP_ENDIF
                && symbols.at(i).pp_token != PP_ELIF
                && symbols.at(i).pp_token != PP_ELSE)
-        ){
-	switch (symbols.at(i).pp_token) {
-	case PP_IF:
-	case PP_IFDEF:
-	case PP_IFNDEF:
-	    ++i;
-	    skipUntilEndif(symbols, i);
-	    break;
-	default:
-	    ;
-	}
-	++i;
+       ){
+        switch (symbols.at(i).pp_token) {
+        case PP_IF:
+        case PP_IFDEF:
+        case PP_IFNDEF:
+            ++i;
+            skipUntilEndif(symbols, i);
+            break;
+        default:
+            ;
+        }
+        ++i;
     }
     return (i < symbols.size() - 1);
 }
@@ -184,7 +184,7 @@ static Symbols tokenize(const QByteArray &input, int lineNum = 1, TokenizeMode m
             continue;
         case PP_QUOTE:
             while (*data && (*data != '\"'
-                             || ( *(data-1)=='\\'
+                             || (*(data-1)=='\\'
                                   && *(data-2)!='\\')))
                 ++data;
             if (*data)
@@ -193,7 +193,7 @@ static Symbols tokenize(const QByteArray &input, int lineNum = 1, TokenizeMode m
             break;
         case PP_SINGLEQUOTE:
             while (*data && (*data != '\''
-                             || ( *(data-1)=='\\'
+                             || (*(data-1)=='\\'
                                   && *(data-2)!='\\')))
                 ++data;
             if (*data)
@@ -205,9 +205,9 @@ static Symbols tokenize(const QByteArray &input, int lineNum = 1, TokenizeMode m
                 ++data;
             if (!*data || *data != '.') {
                 token = PP_INTEGER_LITERAL;
-                if ( data - lexem == 1 &&
-                     (*data == 'x' || *data == 'X' )
-                     && *lexem == '0' ) {
+                if (data - lexem == 1 &&
+                     (*data == 'x' || *data == 'X')
+                     && *lexem == '0') {
                     ++data;
                     while (is_hex_char(*data))
                         ++data;
@@ -237,7 +237,7 @@ static Symbols tokenize(const QByteArray &input, int lineNum = 1, TokenizeMode m
             token = PP_IDENTIFIER;
             break;
         case PP_C_COMMENT:
-            while (*data && (*(data-1) != '/' || *(data-2) != '*' )) {
+            while (*data && (*(data-1) != '/' || *(data-2) != '*')) {
                 if (*data == '\n')
                     ++lineNum;
                 ++data;
@@ -280,7 +280,7 @@ static Symbols substitute(const Macros &macros, const Symbols& symbols, int &i,
     QByteArray macro = macros.value(lexem);
 
                        // ### cannot do parameters yet, TODO
-    if ( macro.size() && macro.at(0) == '(')
+    if (macro.size() && macro.at(0) == '(')
         return Symbols(1, symbols.at(i-1));
 
     safeset += lexem;
@@ -338,7 +338,7 @@ struct PP_Expression
 
 inline bool PP_Expression::test(PP_Token token)
 {
-    if (i < symbols.size() && symbols.at(i).pp_token == token ) {
+    if (i < symbols.size() && symbols.at(i).pp_token == token) {
         ++i;
         return true;
     }
@@ -540,7 +540,7 @@ bool PP_Expression::primary_expression_lookup()
     return (t == PP_IDENTIFIER
             || t == PP_INTEGER_LITERAL
             || t == PP_FLOATING_LITERAL
-            || t == PP_LPAREN );
+            || t == PP_LPAREN);
 }
 
 static int evaluateCondition(const Macros &macros, const Symbol &symbol)
@@ -572,7 +572,7 @@ static Symbols preprocess(const QByteArray &filename, const Symbols &symbols, Ma
     int i = 0;
     while (hasNext(symbols,i)) {
         Symbol sym = next(symbols, i);
-        switch ( sym.pp_token) {
+        switch (sym.pp_token) {
         case PP_INCLUDE:
         {
             QByteArray include = sym.lexem();
@@ -703,7 +703,7 @@ QByteArray Preprocessor::preprocessed(const QByteArray &filename, FILE *file)
     int i = 0;
     while (hasNext(symbols, i)) {
         Symbol sym = next(symbols, i);
-        switch ( sym.pp_token) {
+        switch (sym.pp_token) {
         case PP_NEWLINE:
         case PP_WHITESPACE:
             if (last != PP_WHITESPACE) {
@@ -713,9 +713,9 @@ QByteArray Preprocessor::preprocessed(const QByteArray &filename, FILE *file)
             }
             continue;
         case PP_STRING_LITERAL:
-            if ( last == PP_STRING_LITERAL )
+            if (last == PP_STRING_LITERAL)
                 output.truncate(output.length()-1);
-            else if ( secondlast == PP_STRING_LITERAL && last == PP_WHITESPACE)
+            else if (secondlast == PP_STRING_LITERAL && last == PP_WHITESPACE)
                 output.truncate(output.length()-2);
             else
                 break;

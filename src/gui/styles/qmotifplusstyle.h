@@ -33,7 +33,7 @@ class Q_GUI_EXPORT_STYLE_MOTIFPLUS QMotifPlusStyle : public QMotifStyle
     Q_OBJECT
 
 public:
-    QMotifPlusStyle(bool hoveringHighlight = TRUE);
+    QMotifPlusStyle(bool hoveringHighlight = true);
     virtual ~QMotifPlusStyle();
 
     void polish(QPalette &pal);
@@ -43,42 +43,42 @@ public:
     void polish(QApplication *app);
     void unPolish(QApplication *app);
 
-    void drawPrimitive( PrimitiveElement pe,
-			QPainter *p,
-			const QRect &r,
-			const QPalette &pal,
-			SFlags flags = Style_Default,
-			const QStyleOption& = QStyleOption::Default ) const;
+    void drawPrimitive(PrimitiveElement pe,
+                        QPainter *p,
+                        const QRect &r,
+                        const QPalette &pal,
+                        SFlags flags = Style_Default,
+                        const QStyleOption& = QStyleOption::Default) const;
 
-    void drawControl( ControlElement element,
-		      QPainter *p,
-		      const QWidget *widget,
-		      const QRect &r,
-		      const QPalette &pal,
-		      SFlags how = Style_Default,
-		      const QStyleOption& = QStyleOption::Default ) const;
+    void drawControl(ControlElement element,
+                      QPainter *p,
+                      const QWidget *widget,
+                      const QRect &r,
+                      const QPalette &pal,
+                      SFlags how = Style_Default,
+                      const QStyleOption& = QStyleOption::Default) const;
 
     QRect subRect(SubRect r, const QWidget *widget) const;
 
     void drawComplexControl(ComplexControl control,
-			    QPainter *p,
-			    const QWidget *widget,
-			    const QRect &r,
-			    const QPalette &pal,
-			    SFlags how = Style_Default,
-			    SCFlags controls = SC_All,
-			    SCFlags active = SC_None,
-			    const QStyleOption& = QStyleOption::Default ) const;
+                            QPainter *p,
+                            const QWidget *widget,
+                            const QRect &r,
+                            const QPalette &pal,
+                            SFlags how = Style_Default,
+                            SCFlags controls = SC_All,
+                            SCFlags active = SC_None,
+                            const QStyleOption& = QStyleOption::Default) const;
 
     QRect querySubControlMetrics(ComplexControl control,
-				 const QWidget *widget,
-				 SubControl subcontrol,
-				 const QStyleOption& = QStyleOption::Default) const;
+                                 const QWidget *widget,
+                                 SubControl subcontrol,
+                                 const QStyleOption& = QStyleOption::Default) const;
 
     int pixelMetric(PixelMetric metric, const QWidget *widget = 0) const;
 
     int styleHint(StyleHint sh, const QWidget *, const QStyleOption & = QStyleOption::Default,
-		  QStyleHintReturn* = 0) const;
+                  QStyleHintReturn* = 0) const;
 
 protected:
     bool eventFilter(QObject *, QEvent *);

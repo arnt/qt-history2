@@ -34,14 +34,14 @@ template<class T> class QList;
 class Q_GUI_EXPORT QMainWindow: public QWidget
 {
     Q_OBJECT
-    Q_PROPERTY( bool rightJustification READ rightJustification WRITE setRightJustification DESIGNABLE false )
-    Q_PROPERTY( bool usesBigPixmaps READ usesBigPixmaps WRITE setUsesBigPixmaps )
-    Q_PROPERTY( bool usesTextLabel READ usesTextLabel WRITE setUsesTextLabel )
-    Q_PROPERTY( bool dockWindowsMovable READ dockWindowsMovable WRITE setDockWindowsMovable )
-    Q_PROPERTY( bool opaqueMoving READ opaqueMoving WRITE setOpaqueMoving )
+    Q_PROPERTY(bool rightJustification READ rightJustification WRITE setRightJustification DESIGNABLE false)
+    Q_PROPERTY(bool usesBigPixmaps READ usesBigPixmaps WRITE setUsesBigPixmaps)
+    Q_PROPERTY(bool usesTextLabel READ usesTextLabel WRITE setUsesTextLabel)
+    Q_PROPERTY(bool dockWindowsMovable READ dockWindowsMovable WRITE setDockWindowsMovable)
+    Q_PROPERTY(bool opaqueMoving READ opaqueMoving WRITE setOpaqueMoving)
 
 public:
-    QMainWindow( QWidget* parent=0, const char* name=0, WFlags f = WType_TopLevel );
+    QMainWindow(QWidget* parent=0, const char* name=0, WFlags f = WType_TopLevel);
     ~QMainWindow();
 
 #ifndef QT_NO_MENUBAR
@@ -52,22 +52,22 @@ public:
     QToolTipGroup * toolTipGroup() const;
 #endif
 
-    virtual void setCentralWidget( QWidget * );
+    virtual void setCentralWidget(QWidget *);
     QWidget * centralWidget() const;
 
-    virtual void setDockEnabled( Dock dock, bool enable );
-    bool isDockEnabled( Dock dock ) const;
-    bool isDockEnabled( QDockArea *area ) const;
-    virtual void setDockEnabled( QDockWindow *tb, Dock dock, bool enable );
-    bool isDockEnabled( QDockWindow *tb, Dock dock ) const;
-    bool isDockEnabled( QDockWindow *tb, QDockArea *area ) const;
+    virtual void setDockEnabled(Dock dock, bool enable);
+    bool isDockEnabled(Dock dock) const;
+    bool isDockEnabled(QDockArea *area) const;
+    virtual void setDockEnabled(QDockWindow *tb, Dock dock, bool enable);
+    bool isDockEnabled(QDockWindow *tb, Dock dock) const;
+    bool isDockEnabled(QDockWindow *tb, QDockArea *area) const;
 
-    virtual void addDockWindow( QDockWindow *, Dock = DockTop, bool newLine = FALSE );
-    virtual void addDockWindow( QDockWindow *, const QString &label,
-				Dock = DockTop, bool newLine = FALSE );
-    virtual void moveDockWindow( QDockWindow *, Dock = DockTop );
-    virtual void moveDockWindow( QDockWindow *, Dock, bool nl, int index, int extraOffset = -1 );
-    virtual void removeDockWindow( QDockWindow * );
+    virtual void addDockWindow(QDockWindow *, Dock = DockTop, bool newLine = false);
+    virtual void addDockWindow(QDockWindow *, const QString &label,
+                                Dock = DockTop, bool newLine = false);
+    virtual void moveDockWindow(QDockWindow *, Dock = DockTop);
+    virtual void moveDockWindow(QDockWindow *, Dock, bool nl, int index, int extraOffset = -1);
+    virtual void removeDockWindow(QDockWindow *);
 
     void show();
     void hide();
@@ -80,32 +80,32 @@ public:
     bool dockWindowsMovable() const;
     bool opaqueMoving() const;
 
-    bool eventFilter( QObject*, QEvent* );
+    bool eventFilter(QObject*, QEvent*);
 
-    bool getLocation( QDockWindow *tb, Dock &dock, int &index, bool &nl, int &extraOffset ) const;
+    bool getLocation(QDockWindow *tb, Dock &dock, int &index, bool &nl, int &extraOffset) const;
 
-    QList<QDockWindow *> dockWindows( Dock dock ) const;
+    QList<QDockWindow *> dockWindows(Dock dock) const;
     QList<QDockWindow *> dockWindows() const;
-    void lineUpDockWindows( bool keepNewLines = FALSE );
+    void lineUpDockWindows(bool keepNewLines = false);
 
     bool isDockMenuEnabled() const;
 
     // compatibility stuff
-    bool hasDockWindow( QDockWindow *dw );
+    bool hasDockWindow(QDockWindow *dw);
 #ifndef QT_NO_TOOLBAR
-    void addToolBar( QDockWindow *, Dock = DockTop, bool newLine = FALSE );
-    void addToolBar( QDockWindow *, const QString &label,
-		     Dock = DockTop, bool newLine = FALSE );
-    void moveToolBar( QDockWindow *, Dock = DockTop );
-    void moveToolBar( QDockWindow *, Dock, bool nl, int index, int extraOffset = -1 );
-    void removeToolBar( QDockWindow * );
+    void addToolBar(QDockWindow *, Dock = DockTop, bool newLine = false);
+    void addToolBar(QDockWindow *, const QString &label,
+                     Dock = DockTop, bool newLine = false);
+    void moveToolBar(QDockWindow *, Dock = DockTop);
+    void moveToolBar(QDockWindow *, Dock, bool nl, int index, int extraOffset = -1);
+    void removeToolBar(QDockWindow *);
 
     bool toolBarsMovable() const;
-    QList<QToolBar *> toolBars( Dock dock ) const;
-    void lineUpToolBars( bool keepNewLines = FALSE );
+    QList<QToolBar *> toolBars(Dock dock) const;
+    void lineUpToolBars(bool keepNewLines = false);
 #endif
 
-    virtual QDockArea *dockingArea( const QPoint &p );
+    virtual QDockArea *dockingArea(const QPoint &p);
     QDockArea *leftDock() const;
     QDockArea *rightDock() const;
     QDockArea *topDock() const;
@@ -113,60 +113,60 @@ public:
 
     virtual bool isCustomizable() const;
 
-    bool appropriate( QDockWindow *dw ) const;
+    bool appropriate(QDockWindow *dw) const;
 
     enum DockWindows { OnlyToolBars, NoToolBars, AllDockWindows };
-    QPopupMenu *createDockWindowMenu( DockWindows dockWindows = AllDockWindows ) const;
+    QPopupMenu *createDockWindowMenu(DockWindows dockWindows = AllDockWindows) const;
 
 public slots:
-    virtual void setRightJustification( bool );
-    virtual void setUsesBigPixmaps( bool );
-    virtual void setUsesTextLabel( bool );
-    virtual void setDockWindowsMovable( bool );
-    virtual void setOpaqueMoving( bool );
-    virtual void setDockMenuEnabled( bool );
+    virtual void setRightJustification(bool);
+    virtual void setUsesBigPixmaps(bool);
+    virtual void setUsesTextLabel(bool);
+    virtual void setDockWindowsMovable(bool);
+    virtual void setOpaqueMoving(bool);
+    virtual void setDockMenuEnabled(bool);
     virtual void whatsThis();
-    virtual void setAppropriate( QDockWindow *dw, bool a );
+    virtual void setAppropriate(QDockWindow *dw, bool a);
     virtual void customize();
 
     // compatibility stuff
-    void setToolBarsMovable( bool );
+    void setToolBarsMovable(bool);
 
 signals:
-    void pixmapSizeChanged( bool );
-    void usesTextLabelChanged( bool );
-    void dockWindowPositionChanged( QDockWindow * );
+    void pixmapSizeChanged(bool);
+    void usesTextLabelChanged(bool);
+    void dockWindowPositionChanged(QDockWindow *);
 
 #ifndef QT_NO_TOOLBAR
     // compatibility stuff
-    void toolBarPositionChanged( QToolBar * );
+    void toolBarPositionChanged(QToolBar *);
 #endif
 
 protected slots:
     virtual void setUpLayout();
-    virtual bool showDockMenu( const QPoint &globalPos );
+    virtual bool showDockMenu(const QPoint &globalPos);
     void menuAboutToShow();
 
 protected:
-    void paintEvent( QPaintEvent * );
-    void childEvent( QChildEvent * );
-    bool event( QEvent * );
+    void paintEvent(QPaintEvent *);
+    void childEvent(QChildEvent *);
+    bool event(QEvent *);
 
 private slots:
     void slotPlaceChanged();
-    void doLineUp() { lineUpDockWindows( TRUE ); }
+    void doLineUp() { lineUpDockWindows(true); }
 
 private:
     QMainWindowPrivate * d;
-    void triggerLayout( bool deleteLayout = TRUE);
-    bool dockMainWindow( QObject *dock );
+    void triggerLayout(bool deleteLayout = true);
+    bool dockMainWindow(QObject *dock);
 
 #ifndef QT_NO_MENUBAR
-    virtual void setMenuBar( QMenuBar * );
+    virtual void setMenuBar(QMenuBar *);
 #endif
-    virtual void setStatusBar( QStatusBar * );
+    virtual void setStatusBar(QStatusBar *);
 #ifndef QT_NO_TOOLTIP
-    virtual void setToolTipGroup( QToolTipGroup * );
+    virtual void setToolTipGroup(QToolTipGroup *);
 #endif
 
     friend class QDockWindow;
@@ -174,38 +174,38 @@ private:
     friend class QHideDock;
     friend class QToolBar;
     friend class QMainWindowLayout;
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QMainWindow( const QMainWindow & );
-    QMainWindow& operator=( const QMainWindow & );
+    QMainWindow(const QMainWindow &);
+    QMainWindow& operator=(const QMainWindow &);
 #endif
 };
 
 #ifndef QT_NO_TOOLBAR
-inline void QMainWindow::addToolBar( QDockWindow *w, ToolBarDock dock, bool newLine )
+inline void QMainWindow::addToolBar(QDockWindow *w, ToolBarDock dock, bool newLine)
 {
-    addDockWindow( w, dock, newLine );
+    addDockWindow(w, dock, newLine);
 }
 
-inline void QMainWindow::addToolBar( QDockWindow *w, const QString &label,
-			      ToolBarDock dock, bool newLine )
+inline void QMainWindow::addToolBar(QDockWindow *w, const QString &label,
+                              ToolBarDock dock, bool newLine)
 {
-    addDockWindow( w, label, dock, newLine );
+    addDockWindow(w, label, dock, newLine);
 }
 
-inline void QMainWindow::moveToolBar( QDockWindow *w, ToolBarDock dock )
+inline void QMainWindow::moveToolBar(QDockWindow *w, ToolBarDock dock)
 {
-    moveDockWindow( w, dock );
+    moveDockWindow(w, dock);
 }
 
-inline void QMainWindow::moveToolBar( QDockWindow *w, ToolBarDock dock, bool nl, int index, int extraOffset )
+inline void QMainWindow::moveToolBar(QDockWindow *w, ToolBarDock dock, bool nl, int index, int extraOffset)
 {
-    moveDockWindow( w, dock, nl, index, extraOffset );
+    moveDockWindow(w, dock, nl, index, extraOffset);
 }
 
-inline void QMainWindow::removeToolBar( QDockWindow *w )
+inline void QMainWindow::removeToolBar(QDockWindow *w)
 {
-    removeDockWindow( w );
+    removeDockWindow(w);
 }
 
 inline bool QMainWindow::toolBarsMovable() const
@@ -213,20 +213,20 @@ inline bool QMainWindow::toolBarsMovable() const
     return dockWindowsMovable();
 }
 
-inline void QMainWindow::lineUpToolBars( bool keepNewLines )
+inline void QMainWindow::lineUpToolBars(bool keepNewLines)
 {
-    lineUpDockWindows( keepNewLines );
+    lineUpDockWindows(keepNewLines);
 }
 
-inline void QMainWindow::setToolBarsMovable( bool b )
+inline void QMainWindow::setToolBarsMovable(bool b)
 {
-    setDockWindowsMovable( b );
+    setDockWindowsMovable(b);
 }
 #endif
 
 #ifndef QT_NO_TEXTSTREAM
-Q_GUI_EXPORT QTextStream &operator<<( QTextStream &, const QMainWindow & );
-Q_GUI_EXPORT QTextStream &operator>>( QTextStream &, QMainWindow & );
+Q_GUI_EXPORT QTextStream &operator<<(QTextStream &, const QMainWindow &);
+Q_GUI_EXPORT QTextStream &operator>>(QTextStream &, QMainWindow &);
 #endif
 
 #endif // QT_NO_MAINWINDOW

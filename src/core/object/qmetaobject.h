@@ -111,9 +111,9 @@ private:
 class Q_CORE_EXPORT QMetaType {
 public:
     enum {
-	Void, VoidStar, Long, Int, Short,
-	Char, ULong, UInt, UShort, UChar, Bool,
-	Float, Double, QChar, QByteArray, QString
+        Void, VoidStar, Long, Int, Short,
+        Char, ULong, UInt, UShort, UChar, Bool,
+        Float, Double, QChar, QByteArray, QString
     };
     static int type(const char *typeName);
     static void *copy(int type, void *data);

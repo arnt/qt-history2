@@ -59,20 +59,20 @@ public:
 
     \code
     QSqlPropertyMap *myMap  = new QSqlPropertyMap();
-    QSqlForm        *myForm = new QSqlForm( this );
-    MyEditor myEditor( this );
+    QSqlForm        *myForm = new QSqlForm(this);
+    MyEditor myEditor(this);
 
     // Set the QSqlForm's record buffer to the update buffer of
     // a pre-existing QSqlCursor called 'cur'.
-    myForm->setRecord( cur->primeUpdate() );
+    myForm->setRecord(cur->primeUpdate());
 
     // Install the customized map
-    myMap->insert( "MyEditor", "content" );
-    myForm->installPropertyMap( myMap ); // myForm now owns myMap
+    myMap->insert("MyEditor", "content");
+    myForm->installPropertyMap(myMap); // myForm now owns myMap
     ...
     // Insert a field into the form that uses a myEditor to edit the
     // field 'somefield'
-    myForm->insert( &myEditor, "somefield" );
+    myForm->insert(&myEditor, "somefield");
 
     // Update myEditor with the value from the mapped database field
     myForm->readFields();
@@ -91,8 +91,8 @@ public:
     \code
     QSqlPropertyMap *myMap = new QSqlPropertyMap;
 
-    myMap->insert( "MyEditor", "content" );
-    QSqlPropertyMap::installDefaultMap( myMap );
+    myMap->insert("MyEditor", "content");
+    QSqlPropertyMap::installDefaultMap(myMap);
     ...
     \endcode
 
@@ -107,10 +107,10 @@ The default property mappings used by Qt widgets are:
 \table
 \header \i Widgets \i Property
 \row \i \l QCheckBox,
-	\l QRadioButton
+        \l QRadioButton
      \i checked
 \row \i \l QComboBox,
-	\l QListBox
+        \l QListBox
      \i currentItem
 \row \i \l QDateEdit
      \i date
@@ -119,19 +119,19 @@ The default property mappings used by Qt widgets are:
 \row \i \l QTextBrowser
      \i source
 \row \i \l QButton,
-	\l QDial,
-	\l QLabel,
-	\l QLineEdit,
-	\l QMultiLineEdit,
-	\l QPushButton,
-	\l QTextEdit,
+        \l QDial,
+        \l QLabel,
+        \l QLineEdit,
+        \l QMultiLineEdit,
+        \l QPushButton,
+        \l QTextEdit,
      \i text
 \row \i \l QTimeEdit
      \i time
 \row \i \l QLCDNumber,
-	\l QScrollBar
-	\l QSlider,
-	\l QSpinBox
+        \l QScrollBar
+        \l QSlider,
+        \l QSpinBox
      \i value
 \endtable
 */
@@ -140,36 +140,36 @@ QSqlPropertyMap::QSqlPropertyMap()
 {
     d = new QSqlPropertyMapPrivate();
     const struct MapData {
-	const char *classname;
-	const char *property;
+        const char *classname;
+        const char *property;
     } mapData[] = {
-	{ "QButton", 		"text" },
-	{ "QCheckBox", 		"checked" },
-	{ "QRadioButton",	"checked" },
-	{ "QComboBox", 		"currentItem" },
-	{ "QDateEdit", 		"date" },
-	{ "QDateTimeEdit",	"dateTime" },
-	{ "QDial", 		"value" },
-	{ "QLabel", 		"text" },
-	{ "QLCDNumber",		"value" },
-	{ "QLineEdit",		"text" },
-	{ "QListBox",		"currentItem" },
-	{ "QMultiLineEdit",	"text" },
-	{ "QPushButton",	"text" },
-	{ "QScrollBar",		"value" },
-	{ "QSlider",		"value" },
-	{ "QSpinBox",		"value" },
-	{ "QTabBar",		"currentTab" },
-	{ "QTabWidget",		"currentPage" },
-	{ "QTextBrowser",	"source" },
-	{ "QTextEdit",		"text" },
-	{ "QTextView",		"text" },
-	{ "QTimeEdit",		"time" }
+        { "QButton",                 "text" },
+        { "QCheckBox",                 "checked" },
+        { "QRadioButton",        "checked" },
+        { "QComboBox",                 "currentItem" },
+        { "QDateEdit",                 "date" },
+        { "QDateTimeEdit",        "dateTime" },
+        { "QDial",                 "value" },
+        { "QLabel",                 "text" },
+        { "QLCDNumber",                "value" },
+        { "QLineEdit",                "text" },
+        { "QListBox",                "currentItem" },
+        { "QMultiLineEdit",        "text" },
+        { "QPushButton",        "text" },
+        { "QScrollBar",                "value" },
+        { "QSlider",                "value" },
+        { "QSpinBox",                "value" },
+        { "QTabBar",                "currentTab" },
+        { "QTabWidget",                "currentPage" },
+        { "QTextBrowser",        "source" },
+        { "QTextEdit",                "text" },
+        { "QTextView",                "text" },
+        { "QTimeEdit",                "time" }
     };
 
     const MapData *m = mapData;
-    for ( uint i = 0; i < sizeof(mapData)/sizeof(MapData); i++, m++ )
-	d->propertyMap.insert( m->classname, m->property );
+    for (uint i = 0; i < sizeof(mapData)/sizeof(MapData); i++, m++)
+        d->propertyMap.insert(m->classname, m->property);
 }
 
 /*!
@@ -188,36 +188,36 @@ QSqlPropertyMap::~QSqlPropertyMap()
 /*!
     Returns the mapped property of \a widget as a QVariant.
 */
-QVariant QSqlPropertyMap::property( QWidget * widget )
+QVariant QSqlPropertyMap::property(QWidget * widget)
 {
-    if( !widget ) return QVariant();
+    if(!widget) return QVariant();
     const QMetaObject* mo = widget->metaObject();
-    while ( mo && !d->propertyMap.contains(mo->className()) )
-	mo = mo->superClass();
+    while (mo && !d->propertyMap.contains(mo->className()))
+        mo = mo->superClass();
 
-    if ( !mo ) {
-	qWarning("QSqlPropertyMap::property: %s does not exist", widget->metaObject()->className() );
-	return QVariant();
+    if (!mo) {
+        qWarning("QSqlPropertyMap::property: %s does not exist", widget->metaObject()->className());
+        return QVariant();
     }
-    return widget->property( d->propertyMap[ mo->className() ] );
+    return widget->property(d->propertyMap[mo->className()]);
 }
 
 /*!
     Sets the property of \a widget to \a value.
 */
-void QSqlPropertyMap::setProperty( QWidget * widget, const QVariant & value )
+void QSqlPropertyMap::setProperty(QWidget * widget, const QVariant & value)
 {
-    if( !widget ) return;
+    if(!widget) return;
 
     const QMetaObject* mo = widget->metaObject();
-    while ( mo && !d->propertyMap.contains(mo->className() ) )
-	mo = mo->superClass();
-    if ( !mo ) {
-	qWarning("QSqlPropertyMap::setProperty: %s not handled by QSqlPropertyMap", widget->metaObject()->className() );
-	return;
+    while (mo && !d->propertyMap.contains(mo->className()))
+        mo = mo->superClass();
+    if (!mo) {
+        qWarning("QSqlPropertyMap::setProperty: %s not handled by QSqlPropertyMap", widget->metaObject()->className());
+        return;
     }
 
-    widget->setProperty( d->propertyMap[ mo->className() ], value );
+    widget->setProperty(d->propertyMap[mo->className()], value);
 }
 
 /*!
@@ -225,18 +225,18 @@ void QSqlPropertyMap::setProperty( QWidget * widget, const QVariant & value )
   field editors. There \e must be a \c Q_PROPERTY clause in the \a
   classname class declaration for the \a property.
 */
-void QSqlPropertyMap::insert( const QString & classname,
-			      const QString & property )
+void QSqlPropertyMap::insert(const QString & classname,
+                              const QString & property)
 {
-    d->propertyMap[ classname.latin1() ] = property.latin1();
+    d->propertyMap[classname.latin1()] = property.latin1();
 }
 
 /*!
     Removes \a classname from the map.
 */
-void QSqlPropertyMap::remove( const QString & classname )
+void QSqlPropertyMap::remove(const QString & classname)
 {
-    d->propertyMap.remove( classname.latin1() );
+    d->propertyMap.remove(classname.latin1());
 }
 
 static QSqlPropertyMap * defaultmap = 0;
@@ -247,9 +247,9 @@ static QCleanupHandler< QSqlPropertyMap > qsql_cleanup_property_map;
 */
 QSqlPropertyMap * QSqlPropertyMap::defaultMap()
 {
-    if( defaultmap == 0 ){
-	defaultmap = new QSqlPropertyMap();
-	qsql_cleanup_property_map.add( &defaultmap );
+    if(defaultmap == 0){
+        defaultmap = new QSqlPropertyMap();
+        qsql_cleanup_property_map.add(&defaultmap);
     }
     return defaultmap;
 }
@@ -261,16 +261,16 @@ QSqlPropertyMap * QSqlPropertyMap::defaultMap()
     \e{QSqlPropertyMap takes ownership of \a map, and destroys it
     when it is no longer needed.}
 */
-void QSqlPropertyMap::installDefaultMap( QSqlPropertyMap * map )
+void QSqlPropertyMap::installDefaultMap(QSqlPropertyMap * map)
 {
-    if( map == 0 ) return;
+    if(map == 0) return;
 
-    if( defaultmap != 0 ){
-	qsql_cleanup_property_map.remove( &defaultmap );
-	delete defaultmap;
+    if(defaultmap != 0){
+        qsql_cleanup_property_map.remove(&defaultmap);
+        delete defaultmap;
     }
     defaultmap = map;
-    qsql_cleanup_property_map.add( &defaultmap );
+    qsql_cleanup_property_map.add(&defaultmap);
 }
 
 #endif // QT_NO_SQL_FORM

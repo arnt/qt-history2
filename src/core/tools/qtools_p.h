@@ -6,13 +6,13 @@ inline int qAllocMore(int alloc, int extra)
     int nalloc;
     alloc += extra;
     if (alloc < 1<<6) {
-	nalloc = (1<<3) + ((alloc >>3) << 3);
+        nalloc = (1<<3) + ((alloc >>3) << 3);
     } else if (alloc < page) {
-	nalloc = 1<<3;
-	while (nalloc < alloc)
-	    nalloc *= 2;
+        nalloc = 1<<3;
+        while (nalloc < alloc)
+            nalloc *= 2;
     } else {
-	nalloc = ((alloc + page) / page) * page;
+        nalloc = ((alloc + page) / page) * page;
     }
     return nalloc - extra;
 }

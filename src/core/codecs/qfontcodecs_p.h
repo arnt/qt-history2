@@ -50,8 +50,8 @@ public:
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::fromUnicode;
 #endif
-    QByteArray fromUnicode(const QString& uc, int& lenInOut ) const;
-    void fromUnicode( const QChar *in, unsigned short *out, int length ) const;
+    QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
+    void fromUnicode(const QChar *in, unsigned short *out, int length) const;
 
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 
@@ -61,7 +61,7 @@ public:
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::canEncode;
 #endif
-    bool canEncode( QChar ) const;
+    bool canEncode(QChar) const;
 };
 
 
@@ -87,8 +87,8 @@ public:
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::fromUnicode;
 #endif
-    QByteArray fromUnicode(const QString& uc, int& lenInOut ) const;
-    void fromUnicode( const QChar *in, unsigned short *out, int length ) const;
+    QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
+    void fromUnicode(const QChar *in, unsigned short *out, int length) const;
 
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 
@@ -98,7 +98,7 @@ public:
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::canEncode;
 #endif
-    bool canEncode( QChar ) const;
+    bool canEncode(QChar) const;
 
 private:
     QJpUnicodeConv *convJP;
@@ -128,8 +128,8 @@ public:
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::fromUnicode;
 #endif
-    QByteArray fromUnicode(const QString& uc, int& lenInOut ) const;
-    void fromUnicode( const QChar *in, unsigned short *out, int length ) const;
+    QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
+    void fromUnicode(const QChar *in, unsigned short *out, int length) const;
 
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 
@@ -137,7 +137,7 @@ public:
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::canEncode;
 #endif
-    bool canEncode( QChar ) const;
+    bool canEncode(QChar) const;
 };
 
 
@@ -164,8 +164,8 @@ public:
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::fromUnicode;
 #endif
-    QByteArray fromUnicode(const QString& uc, int& lenInOut ) const;
-    void fromUnicode( const QChar *in, unsigned short *out, int length ) const;
+    QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
+    void fromUnicode(const QChar *in, unsigned short *out, int length) const;
 
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 
@@ -174,7 +174,7 @@ public:
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::canEncode;
 #endif
-    bool canEncode( QChar ) const;
+    bool canEncode(QChar) const;
 };
 
 
@@ -201,8 +201,8 @@ public:
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::fromUnicode;
 #endif
-    QByteArray fromUnicode(const QString& uc, int& lenInOut ) const;
-    void fromUnicode( const QChar *in, unsigned short *out, int length ) const;
+    QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
+    void fromUnicode(const QChar *in, unsigned short *out, int length) const;
 
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 
@@ -212,7 +212,7 @@ public:
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::canEncode;
 #endif
-    bool canEncode( QChar ) const;
+    bool canEncode(QChar) const;
 };
 
 
@@ -239,8 +239,8 @@ public:
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::fromUnicode;
 #endif
-    QByteArray fromUnicode(const QString& uc, int& lenInOut ) const;
-    void fromUnicode( const QChar *in, unsigned short *out, int length ) const;
+    QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
+    void fromUnicode(const QChar *in, unsigned short *out, int length) const;
 
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 
@@ -248,7 +248,7 @@ public:
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::canEncode;
 #endif
-    bool canEncode( QChar ) const;
+    bool canEncode(QChar) const;
 };
 
 
@@ -275,8 +275,8 @@ public:
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::fromUnicode;
 #endif
-    QByteArray fromUnicode(const QString& uc, int& lenInOut ) const;
-    void fromUnicode( const QChar *in, unsigned short *out, int length ) const;
+    QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
+    void fromUnicode(const QChar *in, unsigned short *out, int length) const;
 
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 
@@ -285,7 +285,7 @@ public:
     using QTextCodec::canEncode;
 #endif
     int heuristicNameMatch(const char* hint) const;
-    bool canEncode( QChar ) const;
+    bool canEncode(QChar) const;
 };
 
 
@@ -311,8 +311,8 @@ public:
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::fromUnicode;
 #endif
-    QByteArray fromUnicode(const QString& uc, int& lenInOut ) const;
-    void fromUnicode( const QChar *in, unsigned short *out, int length ) const;
+    QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
+    void fromUnicode(const QChar *in, unsigned short *out, int length) const;
 
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 
@@ -321,7 +321,7 @@ public:
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::canEncode;
 #endif
-    bool canEncode( QChar ) const;
+    bool canEncode(QChar) const;
 };
 
 
@@ -337,8 +337,8 @@ public:
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::fromUnicode;
 #endif
-    QByteArray fromUnicode(const QString& uc, int& lenInOut ) const;
-    void fromUnicode( const QChar *in, unsigned short *out, int length ) const;
+    QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
+    void fromUnicode(const QChar *in, unsigned short *out, int length) const;
 
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 
@@ -347,7 +347,7 @@ public:
 #if !defined(Q_NO_USING_KEYWORD)
     using QTextCodec::canEncode;
 #endif
-    bool canEncode( QChar ) const;
+    bool canEncode(QChar) const;
 };
 
 #endif // QT_NO_BIG_CODECS

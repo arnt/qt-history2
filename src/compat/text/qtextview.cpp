@@ -22,25 +22,25 @@
   \obsolete
 
   This class wraps a read-only \l QTextEdit.
-  Use a \l QTextEdit instead, and call setReadOnly(TRUE)
+  Use a \l QTextEdit instead, and call setReadOnly(true)
   to disable editing.
 */
 
 /*! \reimp */
 
-QTextView::QTextView( const QString& text, const QString& context,
-		      QWidget *parent, const char *name )
-    : QTextEdit( text, context, parent, name )
+QTextView::QTextView(const QString& text, const QString& context,
+                      QWidget *parent, const char *name)
+    : QTextEdit(text, context, parent, name)
 {
-    setReadOnly( TRUE );
+    setReadOnly(true);
 }
 
 /*! \reimp */
 
-QTextView::QTextView( QWidget *parent, const char *name )
-    : QTextEdit( parent, name )
+QTextView::QTextView(QWidget *parent, const char *name)
+    : QTextEdit(parent, name)
 {
-    setReadOnly( TRUE );
+    setReadOnly(true);
 }
 
 /*! \reimp */

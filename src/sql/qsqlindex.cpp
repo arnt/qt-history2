@@ -39,7 +39,7 @@
     index name \a name.
 */
 
-QSqlIndex::QSqlIndex( const QString& cursorname, const QString& name )
+QSqlIndex::QSqlIndex(const QString& cursorname, const QString& name)
     : QSqlRecord(), cursor(cursorname), nm(name)
 {
 
@@ -49,7 +49,7 @@ QSqlIndex::QSqlIndex( const QString& cursorname, const QString& name )
     Constructs a copy of \a other.
 */
 
-QSqlIndex::QSqlIndex( const QSqlIndex& other )
+QSqlIndex::QSqlIndex(const QSqlIndex& other)
     : QSqlRecord(other), cursor(other.cursor), nm(other.nm), sorts(other.sorts)
 {
 }
@@ -58,12 +58,12 @@ QSqlIndex::QSqlIndex( const QSqlIndex& other )
     Sets the index equal to \a other.
 */
 
-QSqlIndex& QSqlIndex::operator=( const QSqlIndex& other )
+QSqlIndex& QSqlIndex::operator=(const QSqlIndex& other)
 {
     cursor = other.cursor;
     nm = other.nm;
     sorts = other.sorts;
-    QSqlRecord::operator=( other );
+    QSqlRecord::operator=(other);
     return *this;
 }
 
@@ -80,7 +80,7 @@ QSqlIndex::~QSqlIndex()
     Sets the name of the index to \a name.
 */
 
-void QSqlIndex::setName( const QString& name )
+void QSqlIndex::setName(const QString& name)
 {
     nm = name;
 }
@@ -96,9 +96,9 @@ void QSqlIndex::setName( const QString& name )
     field is appended with an ascending sort order.
 */
 
-void QSqlIndex::append( const QSqlField& field )
+void QSqlIndex::append(const QSqlField& field)
 {
-    append( field, FALSE );
+    append(field, false);
 }
 
 /*!
@@ -106,38 +106,38 @@ void QSqlIndex::append( const QSqlField& field )
 
     Appends the field \a field to the list of indexed fields. The
     field is appended with an ascending sort order, unless \a desc is
-    TRUE.
+    true.
 */
 
-void QSqlIndex::append( const QSqlField& field, bool desc )
+void QSqlIndex::append(const QSqlField& field, bool desc)
 {
-    sorts.append( desc );
-    QSqlRecord::append( field );
+    sorts.append(desc);
+    QSqlRecord::append(field);
 }
 
 
 /*!
-    Returns TRUE if field \a i in the index is sorted in descending
-    order; otherwise returns FALSE.
+    Returns true if field \a i in the index is sorted in descending
+    order; otherwise returns false.
 */
 
-bool QSqlIndex::isDescending( int i ) const
+bool QSqlIndex::isDescending(int i) const
 {
-    if ( i >= 0 && i < sorts.size() )
-	return sorts[i];
-    return FALSE;
+    if (i >= 0 && i < sorts.size())
+        return sorts[i];
+    return false;
 }
 
 /*!
-    If \a desc is TRUE, field \a i is sorted in descending order.
+    If \a desc is true, field \a i is sorted in descending order.
     Otherwise, field \a i is sorted in ascending order (the default).
     If the field does not exist, nothing happens.
 */
 
-void QSqlIndex::setDescending( int i, bool desc )
+void QSqlIndex::setDescending(int i, bool desc)
 {
-    if ( i >= 0 && i < sorts.size() )
-	sorts[i] = desc;
+    if (i >= 0 && i < sorts.size())
+        sorts[i] = desc;
 }
 
 /*!
@@ -152,19 +152,19 @@ void QSqlIndex::setDescending( int i, bool desc )
     "\a{prefix}.<fieldname>"
 
     If \a sep is specified, each field is separated by \a sep. If \a
-    verbose is TRUE (the default), each field contains a suffix
+    verbose is true (the default), each field contains a suffix
     indicating an ASCending or DESCending sort order.
 */
 
-QString QSqlIndex::toString( const QString& prefix, const QString& sep, bool verbose ) const
+QString QSqlIndex::toString(const QString& prefix, const QString& sep, bool verbose) const
 {
     QString s;
-    bool comma = FALSE;
-    for ( int i = 0; i < count(); ++i ) {
-	if( comma )
-	    s += sep + " ";
-	s += createField( i, prefix, verbose );
-	comma = TRUE;
+    bool comma = false;
+    for (int i = 0; i < count(); ++i) {
+        if(comma)
+            s += sep + " ";
+        s += createField(i, prefix, verbose);
+        comma = true;
     }
     return s;
 }
@@ -179,7 +179,7 @@ QString QSqlIndex::toString( const QString& prefix, const QString& sep, bool ver
 
     "\a{prefix}.<fieldname>"
 
-    If \a verbose is TRUE (the default), each field contains a suffix
+    If \a verbose is true (the default), each field contains a suffix
     indicating an ASCending or DESCending sort order.
 
     Note that if you want to iterate over the list, you should iterate
@@ -187,36 +187,36 @@ QString QSqlIndex::toString( const QString& prefix, const QString& sep, bool ver
     \code
     QStringList list = myIndex.toStringList();
     QStringList::Iterator it = list.begin();
-    while( it != list.end() ) {
-	myProcessing( *it );
-	++it;
+    while(it != list.end()) {
+        myProcessing(*it);
+        ++it;
     }
     \endcode
 
 */
-QStringList QSqlIndex::toStringList( const QString& prefix, bool verbose ) const
+QStringList QSqlIndex::toStringList(const QString& prefix, bool verbose) const
 {
     QStringList s;
-    for ( int i = 0; i < count(); ++i )
-	s += createField( i, prefix, verbose );
+    for (int i = 0; i < count(); ++i)
+        s += createField(i, prefix, verbose);
     return s;
 }
 
 /*! \internal
 
   Creates a string representing the field number \a i using prefix \a
-  prefix. If \a verbose is TRUE, ASC or DESC is included in the field
+  prefix. If \a verbose is true, ASC or DESC is included in the field
   description if the field is sorted in ASCending or DESCending order.
 */
 
-QString QSqlIndex::createField( int i, const QString& prefix, bool verbose ) const
+QString QSqlIndex::createField(int i, const QString& prefix, bool verbose) const
 {
     QString f;
-    if ( !prefix.isEmpty() )
-	f += prefix + ".";
-    f += field( i )->name();
-    if ( verbose )
-	f += " " + QString( ( isDescending( i ) ? "DESC" : "ASC" ) );
+    if (!prefix.isEmpty())
+        f += prefix + ".";
+    f += field(i)->name();
+    if (verbose)
+        f += " " + QString((isDescending(i) ? "DESC" : "ASC"));
     return f;
 }
 
@@ -231,7 +231,7 @@ QString QSqlIndex::createField( int i, const QString& prefix, bool verbose ) con
     Sets the name of the cursor that the index is associated with to
     \a cursorName.
 */
-void QSqlIndex::setCursorName( const QString& cursorName )
+void QSqlIndex::setCursorName(const QString& cursorName)
 {
     cursor = cursorName;
 }

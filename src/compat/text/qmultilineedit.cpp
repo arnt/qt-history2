@@ -67,7 +67,7 @@
 */
 
 /*!
-    \fn virtual void QMultiLineEdit::setAutoUpdate( bool )
+    \fn virtual void QMultiLineEdit::setAutoUpdate(bool)
     \obsolete
 */
 
@@ -87,7 +87,7 @@
 */
 
 /*!
-    \fn void QMultiLineEdit::setMaxLines( int )
+    \fn void QMultiLineEdit::setMaxLines(int)
     \obsolete
 */
 
@@ -107,11 +107,11 @@ class QMultiLineEditData
   \a name.
 */
 
-QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
-    : QTextEdit( parent, name )
+QMultiLineEdit::QMultiLineEdit(QWidget *parent , const char *name)
+    : QTextEdit(parent, name)
 {
     d = new QMultiLineEditData;
-    setTextFormat( Qt::PlainText );
+    setTextFormat(Qt::PlainText);
 }
 
 /*! \property QMultiLineEdit::numLines
@@ -153,11 +153,11 @@ bool QMultiLineEdit::atBeginning() const
   \a row is out of range, -1 is returned.
 */
 
-int QMultiLineEdit::lineLength( int row ) const
+int QMultiLineEdit::lineLength(int row) const
 {
-    if ( row < 0 || row > numLines() )
-	return -1;
-    return document()->paragAt( row )->length() - 1;
+    if (row < 0 || row > numLines())
+        return -1;
+    return document()->paragAt(row)->length() - 1;
 }
 
 
@@ -170,30 +170,30 @@ QMultiLineEdit::~QMultiLineEdit()
 
 /*!
   If there is selected text, sets \a line1, \a col1, \a line2 and \a col2
-  to the start and end of the selected region and returns TRUE. Returns
-  FALSE if there is no selected text.
+  to the start and end of the selected region and returns true. Returns
+  false if there is no selected text.
  */
-bool QMultiLineEdit::getMarkedRegion( int *line1, int *col1,
-				      int *line2, int *col2 ) const
+bool QMultiLineEdit::getMarkedRegion(int *line1, int *col1,
+                                      int *line2, int *col2) const
 {
     int p1,c1, p2, c2;
-    getSelection( &p1, &c1, &p2, &c2 );
-    if ( p1 == -1 && c1 == -1 && p2 == -1 && c2 == -1 )
-	return FALSE;
-    if ( line1 )
-	*line1 = p1;
-    if ( col1 )
-	*col1 = c1;
-    if ( line2 )
-	*line2 = p2;
-    if ( col2 )
-	*col2 = c2;
-    return TRUE;
+    getSelection(&p1, &c1, &p2, &c2);
+    if (p1 == -1 && c1 == -1 && p2 == -1 && c2 == -1)
+        return false;
+    if (line1)
+        *line1 = p1;
+    if (col1)
+        *col1 = c1;
+    if (line2)
+        *line2 = p2;
+    if (col2)
+        *col2 = c2;
+    return true;
 }
 
 
 /*!
-  Returns TRUE if there is selected text.
+  Returns true if there is selected text.
 */
 
 bool QMultiLineEdit::hasMarkedText() const
@@ -212,24 +212,24 @@ QString QMultiLineEdit::markedText() const
 }
 
 /*!
-  Moves the cursor one page down.  If \a mark is TRUE, the text
+  Moves the cursor one page down.  If \a mark is true, the text
   is selected.
 */
 
-void QMultiLineEdit::pageDown( bool mark )
+void QMultiLineEdit::pageDown(bool mark)
 {
-    moveCursor( MoveDown, mark );
+    moveCursor(MoveDown, mark);
 }
 
 
 /*!
-  Moves the cursor one page up.  If \a mark is TRUE, the text
+  Moves the cursor one page up.  If \a mark is true, the text
   is selected.
 */
 
-void QMultiLineEdit::pageUp( bool mark )
+void QMultiLineEdit::pageUp(bool mark)
 {
-    moveCursor( MovePgUp, mark );
+    moveCursor(MovePgUp, mark);
 }
 
 
@@ -241,9 +241,9 @@ void QMultiLineEdit::pageUp( bool mark )
   The cursor position is not changed.
 */
 
-void QMultiLineEdit::insertLine( const QString &txt, int line )
+void QMultiLineEdit::insertLine(const QString &txt, int line)
 {
-    insertParagraph( txt, line );
+    insertParagraph(txt, line);
 }
 
 /*!  Deletes the paragraph at paragraph number \a paragraph. If \a
@@ -251,20 +251,20 @@ void QMultiLineEdit::insertLine( const QString &txt, int line )
   nothing is deleted.
 */
 
-void QMultiLineEdit::removeLine( int paragraph )
+void QMultiLineEdit::removeLine(int paragraph)
 {
-    removeParagraph( paragraph );
+    removeParagraph(paragraph);
 }
 
 /*!  Inserts \a str at the current cursor position and selects the
-  text if \a mark is TRUE.
+  text if \a mark is true.
 */
 
-void QMultiLineEdit::insertAndMark( const QString& str, bool mark )
+void QMultiLineEdit::insertAndMark(const QString& str, bool mark)
 {
-    insert( str );
-    if ( mark )
-	document()->setSelectionEnd( Q3TextDocument::Standard, *textCursor() );
+    insert(str);
+    if (mark)
+        document()->setSelectionEnd(Q3TextDocument::Standard, *textCursor());
 }
 
 /*!  Splits the paragraph at the current cursor position.
@@ -272,7 +272,7 @@ void QMultiLineEdit::insertAndMark( const QString& str, bool mark )
 
 void QMultiLineEdit::newLine()
 {
-    insert( "\n" );
+    insert("\n");
 }
 
 
@@ -285,46 +285,46 @@ void QMultiLineEdit::newLine()
 
 void QMultiLineEdit::backspace()
 {
-    if ( document()->hasSelection( Q3TextDocument::Standard ) ) {
-	removeSelectedText();
-	return;
+    if (document()->hasSelection(Q3TextDocument::Standard)) {
+        removeSelectedText();
+        return;
     }
 
-    if ( !textCursor()->paragraph()->prev() &&
-	 textCursor()->atParagStart() )
-	return;
+    if (!textCursor()->paragraph()->prev() &&
+         textCursor()->atParagStart())
+        return;
 
-    doKeyboardAction( ActionBackspace );
+    doKeyboardAction(ActionBackspace);
 }
 
 
 /*!  Moves the text cursor to the left end of the line. If \a mark is
-  TRUE, text is selected toward the first position. If it is FALSE and the
+  true, text is selected toward the first position. If it is false and the
   cursor is moved, all selected text is unselected.
 
   \sa end()
 */
 
-void QMultiLineEdit::home( bool mark )
+void QMultiLineEdit::home(bool mark)
 {
-    moveCursor( MoveLineStart, mark );
+    moveCursor(MoveLineStart, mark);
 }
 
 /*!  Moves the text cursor to the right end of the line. If \a mark is
-  TRUE, text is selected toward the last position.  If it is FALSE and the
+  true, text is selected toward the last position.  If it is false and the
   cursor is moved, all selected text is unselected.
 
   \sa home()
 */
 
-void QMultiLineEdit::end( bool mark )
+void QMultiLineEdit::end(bool mark)
 {
-    moveCursor( MoveLineEnd, mark );
+    moveCursor(MoveLineEnd, mark);
 }
 
 
 /*!
-  \fn void QMultiLineEdit::setCursorPosition( int line, int col )
+  \fn void QMultiLineEdit::setCursorPosition(int line, int col)
   \reimp
 */
 
@@ -332,17 +332,17 @@ void QMultiLineEdit::end( bool mark )
   number \a line.  The parameters are adjusted to lie within the legal
   range.
 
-  If \a mark is FALSE, the selection is cleared. otherwise it is extended.
+  If \a mark is false, the selection is cleared. otherwise it is extended.
 
 */
 
-void QMultiLineEdit::setCursorPosition( int line, int col, bool mark )
+void QMultiLineEdit::setCursorPosition(int line, int col, bool mark)
 {
-    if ( !mark )
-	selectAll( FALSE );
-    QTextEdit::setCursorPosition( line, col );
-    if ( mark )
-	document()->setSelectionEnd( Q3TextDocument::Standard, *textCursor() );
+    if (!mark)
+        selectAll(false);
+    QTextEdit::setCursorPosition(line, col);
+    if (mark)
+        document()->setSelectionEnd(Q3TextDocument::Standard, *textCursor());
 }
 
 /*!  Returns the top center point where the cursor is drawn.
@@ -350,7 +350,7 @@ void QMultiLineEdit::setCursorPosition( int line, int col, bool mark )
 
 QPoint QMultiLineEdit::cursorPoint() const
 {
-    return QPoint( textCursor()->x(), textCursor()->y() + textCursor()->paragraph()->rect().y() );
+    return QPoint(textCursor()->x(), textCursor()->y() + textCursor()->paragraph()->rect().y());
 }
 
 /*!  \property QMultiLineEdit::alignment
@@ -363,16 +363,16 @@ QPoint QMultiLineEdit::cursorPoint() const
 
   \sa Qt::AlignmentFlags
 */
-void QMultiLineEdit::setAlignment( Alignment flag )
+void QMultiLineEdit::setAlignment(Alignment flag)
 {
-    if ( flag == AlignCenter )
-	flag = AlignHCenter;
-    if ( flag != AlignLeft && flag != AlignRight && flag != AlignHCenter )
-	return;
+    if (flag == AlignCenter)
+        flag = AlignHCenter;
+    if (flag != AlignLeft && flag != AlignRight && flag != AlignHCenter)
+        return;
     Q3TextParagraph *p = document()->firstParagraph();
-    while ( p ) {
-	p->setAlignment( flag );
-	p = p->next();
+    while (p) {
+        p->setAlignment(flag);
+        p = p->next();
     }
 }
 
@@ -382,9 +382,9 @@ Qt::Alignment QMultiLineEdit::alignment() const
 }
 
 
-void QMultiLineEdit::setEdited( bool e )
+void QMultiLineEdit::setEdited(bool e)
 {
-    setModified( e );
+    setModified(e);
 }
 
 /*!  \property QMultiLineEdit::edited
@@ -397,44 +397,44 @@ bool QMultiLineEdit::edited() const
     return isModified();
 }
 
-/*!  Moves the cursor one word to the right.  If \a mark is TRUE, the text
+/*!  Moves the cursor one word to the right.  If \a mark is true, the text
   is selected.
 
   \sa cursorWordBackward()
 */
-void QMultiLineEdit::cursorWordForward( bool mark )
+void QMultiLineEdit::cursorWordForward(bool mark)
 {
-    moveCursor( MoveWordForward, mark );
+    moveCursor(MoveWordForward, mark);
 }
 
-/*!  Moves the cursor one word to the left.  If \a mark is TRUE, the
+/*!  Moves the cursor one word to the left.  If \a mark is true, the
   text is selected.
 
   \sa cursorWordForward()
 */
-void QMultiLineEdit::cursorWordBackward( bool mark )
+void QMultiLineEdit::cursorWordBackward(bool mark)
 {
-    moveCursor( MoveWordBackward, mark );
+    moveCursor(MoveWordBackward, mark);
 }
 
 /*!
-  \fn QMultiLineEdit::insertAt( const QString &s, int line, int col )
+  \fn QMultiLineEdit::insertAt(const QString &s, int line, int col)
   \reimp
 */
 
 /*!  Inserts string \a s at paragraph number \a line, after character
   number \a col in the paragraph.  If \a s contains newline
   characters, new lines are inserted.
-  If \a mark is TRUE the inserted string will be selected.
+  If \a mark is true the inserted string will be selected.
 
   The cursor position is adjusted.
  */
 
-void QMultiLineEdit::insertAt( const QString &s, int line, int col, bool mark )
+void QMultiLineEdit::insertAt(const QString &s, int line, int col, bool mark)
 {
-    QTextEdit::insertAt( s, line, col );
-    if ( mark )
-	setSelection( line, col, line, col + s.length() );
+    QTextEdit::insertAt(s, line, col);
+    if (mark)
+        setSelection(line, col, line, col + s.length());
 }
 
 // ### reggie - is this documentation correct?
@@ -445,53 +445,53 @@ void QMultiLineEdit::insertAt( const QString &s, int line, int col, bool mark )
 
 void QMultiLineEdit::killLine()
 {
-    doKeyboardAction( ActionKill );
+    doKeyboardAction(ActionKill);
 }
 
-/*!  Moves the cursor one character to the left. If \a mark is TRUE,
+/*!  Moves the cursor one character to the left. If \a mark is true,
   the text is selected.
   The \a wrap parameter is currently ignored.
 
   \sa cursorRight() cursorUp() cursorDown()
 */
 
-void QMultiLineEdit::cursorLeft( bool mark, bool )
+void QMultiLineEdit::cursorLeft(bool mark, bool)
 {
-    moveCursor( MoveBackward, mark );
+    moveCursor(MoveBackward, mark);
 }
 
-/*!  Moves the cursor one character to the right.  If \a mark is TRUE,
+/*!  Moves the cursor one character to the right.  If \a mark is true,
   the text is selected.
   The \a wrap parameter is currently ignored.
 
   \sa cursorLeft() cursorUp() cursorDown()
 */
 
-void QMultiLineEdit::cursorRight( bool mark, bool )
+void QMultiLineEdit::cursorRight(bool mark, bool)
 {
-    moveCursor( MoveForward, mark );
+    moveCursor(MoveForward, mark);
 }
 
-/*!  Moves the cursor up one line.  If \a mark is TRUE, the text is
+/*!  Moves the cursor up one line.  If \a mark is true, the text is
   selected.
 
   \sa cursorDown() cursorLeft() cursorRight()
 */
 
-void QMultiLineEdit::cursorUp( bool mark )
+void QMultiLineEdit::cursorUp(bool mark)
 {
-    moveCursor( MoveUp, mark );
+    moveCursor(MoveUp, mark);
 }
 
 /*!
-  Moves the cursor one line down.  If \a mark is TRUE, the text
+  Moves the cursor one line down.  If \a mark is true, the text
   is selected.
   \sa cursorUp() cursorLeft() cursorRight()
 */
 
-void QMultiLineEdit::cursorDown( bool mark )
+void QMultiLineEdit::cursorDown(bool mark)
 {
-    moveCursor( MoveDown, mark );
+    moveCursor(MoveDown, mark);
 }
 
 
@@ -499,12 +499,12 @@ void QMultiLineEdit::cursorDown( bool mark )
   string), or a null if \a line is invalid.
 */
 
-QString QMultiLineEdit::textLine( int line ) const
+QString QMultiLineEdit::textLine(int line) const
 {
-    if ( line < 0 || line >= numLines() )
-	return QString::null;
-    QString str = document()->paragAt( line )->string()->toString();
-    str.truncate( str.length() - 1 );
+    if (line < 0 || line >= numLines())
+        return QString::null;
+    QString str = document()->paragAt(line)->string()->toString();
+    str.truncate(str.length() - 1);
     return str;
 }
 

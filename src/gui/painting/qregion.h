@@ -79,7 +79,7 @@ public:
 #elif defined(Q_WS_X11)
     inline Region handle() const { if(!d->rgn) updateX11Region(); return d->rgn; }
 #elif defined(Q_WS_MAC)
-    inline RgnHandle handle() const { return handle(FALSE); }
+    inline RgnHandle handle() const { return handle(false); }
     RgnHandle handle(bool require_rgn) const;
 #elif defined(Q_WS_QWS)
     // QGfx_QWS needs this for region drawing
@@ -87,8 +87,8 @@ public:
 #endif
 
 #ifndef QT_NO_DATASTREAM
-    friend Q_GUI_EXPORT QDataStream &operator<<( QDataStream &, const QRegion & );
-    friend Q_GUI_EXPORT QDataStream &operator>>( QDataStream &, QRegion & );
+    friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QRegion &);
+    friend Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QRegion &);
 #endif
 private:
     QRegion copy() const;   // helper of detach.
@@ -104,17 +104,17 @@ private:
 #endif
     void exec(const QByteArray &ba, int ver = 0);
     struct QRegionData {
-	QAtomic ref;
+        QAtomic ref;
 #if defined(Q_WS_WIN)
-	HRGN   rgn;
+        HRGN   rgn;
 #elif defined(Q_WS_X11)
-	Region rgn;
-	void *xrectangles;
+        Region rgn;
+        void *xrectangles;
 #elif defined(Q_WS_MAC)
-	mutable RgnHandle rgn;
+        mutable RgnHandle rgn;
 #endif
 #if defined(Q_WS_QWS) || defined(Q_WS_X11) || defined(Q_WS_MAC)
-	QRegionPrivate *qt_rgn;
+        QRegionPrivate *qt_rgn;
 #endif
     };
 #if defined(Q_WS_WIN)
@@ -126,24 +126,24 @@ private:
 };
 
 
-#define QRGN_SETRECT		1		// region stream commands
-#define QRGN_SETELLIPSE		2		//  (these are internal)
-#define QRGN_SETPTARRAY_ALT	3
-#define QRGN_SETPTARRAY_WIND	4
-#define QRGN_TRANSLATE		5
-#define QRGN_OR			6
-#define QRGN_AND		7
-#define QRGN_SUB		8
-#define QRGN_XOR		9
-#define QRGN_RECTS	       10
+#define QRGN_SETRECT                1                // region stream commands
+#define QRGN_SETELLIPSE                2                //  (these are internal)
+#define QRGN_SETPTARRAY_ALT        3
+#define QRGN_SETPTARRAY_WIND        4
+#define QRGN_TRANSLATE                5
+#define QRGN_OR                        6
+#define QRGN_AND                7
+#define QRGN_SUB                8
+#define QRGN_XOR                9
+#define QRGN_RECTS               10
 
 /*****************************************************************************
   QRegion stream functions
  *****************************************************************************/
 
 #ifndef QT_NO_DATASTREAM
-Q_GUI_EXPORT QDataStream &operator<<( QDataStream &, const QRegion & );
-Q_GUI_EXPORT QDataStream &operator>>( QDataStream &, QRegion & );
+Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QRegion &);
+Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QRegion &);
 #endif
 
 #endif // QREGION_H

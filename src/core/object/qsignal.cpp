@@ -34,33 +34,33 @@
 
     Example:
     \code
-	#include <qsignal.h>
+        #include <qsignal.h>
 
-	class MyClass
-	{
-	public:
-	    MyClass();
-	    ~MyClass();
+        class MyClass
+        {
+        public:
+            MyClass();
+            ~MyClass();
 
-	    void doSomething();
+            void doSomething();
 
-	    void connect( QObject *receiver, const char *member );
+            void connect(QObject *receiver, const char *member);
 
-	private:
-	    QSignal<void> sig;
-	};
+        private:
+            QSignal<void> sig;
+        };
 
-	void MyClass::doSomething()
-	{
-	    // ... does something
+        void MyClass::doSomething()
+        {
+            // ... does something
 
-	    sig->activate(); // emits the signal
-	}
+            sig->activate(); // emits the signal
+        }
 
-	void MyClass::connect( QObject *receiver, const char *member )
-	{
-	    sig->connect( receiver, member );
-	}
+        void MyClass::connect(QObject *receiver, const char *member)
+        {
+            sig->connect(receiver, member);
+        }
     \endcode
 */
 
@@ -78,7 +78,7 @@
 */
 
 /*!
-  \fn bool QSignal::connect( const QObject *receiver, const char *member, Qt::ConnectionType type)
+  \fn bool QSignal::connect(const QObject *receiver, const char *member, Qt::ConnectionType type)
 
   Connects the signal to \a member in object \a receiver using the
   given connection \a type.
@@ -87,7 +87,7 @@
 */
 
 /*!
-  \fn bool QSignal::disconnect( const QObject *receiver, const char *member )
+  \fn bool QSignal::disconnect(const QObject *receiver, const char *member)
 
   Disconnects the signal from \a member in object \a receiver.
 
@@ -133,7 +133,7 @@ QSignalEmitter::QSignalEmitter(const char *type)
     stringdata[signalDataLen] = '\0';
 
     if (type)
-	stringdata += type;
+        stringdata += type;
     stringdata += ')';
     staticMetaObject.d.superdata = &QObject::staticMetaObject;
     staticMetaObject.d.data = qt_meta_data_QSignalEmitter;
@@ -148,7 +148,7 @@ void *QSignalEmitter::qt_metacast(const char *clname) const
 {
     if (!clname) return 0;
     if (!strcmp(clname, staticMetaObject.className()))
-	return (void*)this;
+        return (void*)this;
     return 0;
 }
 

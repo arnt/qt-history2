@@ -41,16 +41,16 @@ template <typename T> class QVector;
 
 struct QLayoutStruct
 {
-    inline void init( int stretchFactor = 0, int spacing = 0 ) {
-	stretch = stretchFactor;
-	minimumSize = sizeHint = spacing;
-	maximumSize = QLAYOUTSIZE_MAX;
-	expansive = FALSE;
-	empty = TRUE;
+    inline void init(int stretchFactor = 0, int spacing = 0) {
+        stretch = stretchFactor;
+        minimumSize = sizeHint = spacing;
+        maximumSize = QLAYOUTSIZE_MAX;
+        expansive = false;
+        empty = true;
     }
 
     QCOORD smartSizeHint() {
-	return ( stretch > 0 ) ? minimumSize : sizeHint;
+        return (stretch > 0) ? minimumSize : sizeHint;
     }
 
     // parameters
@@ -70,12 +70,12 @@ struct QLayoutStruct
 };
 
 
-Q_GUI_EXPORT void qGeomCalc( QVector<QLayoutStruct> &chain, int start, int count,
-			 int pos, int space, int spacer );
-QSize qSmartMinSize( const QWidgetItem *i );
-QSize qSmartMinSize( QWidget *w );
-QSize qSmartMaxSize( const QWidgetItem *i, Qt::Alignment align = 0 );
-QSize qSmartMaxSize( QWidget *w, Qt::Alignment align = 0 );
+Q_GUI_EXPORT void qGeomCalc(QVector<QLayoutStruct> &chain, int start, int count,
+                         int pos, int space, int spacer);
+QSize qSmartMinSize(const QWidgetItem *i);
+QSize qSmartMinSize(QWidget *w);
+QSize qSmartMaxSize(const QWidgetItem *i, Qt::Alignment align = 0);
+QSize qSmartMaxSize(QWidget *w, Qt::Alignment align = 0);
 
 
 /*
@@ -84,17 +84,17 @@ QSize qSmartMaxSize( QWidget *w, Qt::Alignment align = 0 );
 
   Expansive boxes win over non-expansive boxes.
 */
-static inline void qMaxExpCalc( QCOORD & max, bool &exp,
-				QCOORD boxmax, bool boxexp )
+static inline void qMaxExpCalc(QCOORD & max, bool &exp,
+                                QCOORD boxmax, bool boxexp)
 {
-    if ( exp ) {
-	if ( boxexp )
-	    max = qMax( max, boxmax );
+    if (exp) {
+        if (boxexp)
+            max = qMax(max, boxmax);
     } else {
-	if ( boxexp )
-	    max = boxmax;
-	else
-	    max = qMin( max, boxmax );
+        if (boxexp)
+            max = boxmax;
+        else
+            max = qMin(max, boxmax);
     }
     exp = exp || boxexp;
 }

@@ -29,15 +29,15 @@ class QToolBarPrivate;
 class Q_GUI_EXPORT QToolBar: public QDockWindow
 {
     Q_OBJECT
-    Q_PROPERTY( QString label READ label WRITE setLabel )
+    Q_PROPERTY(QString label READ label WRITE setLabel)
 
 public:
-    QToolBar( const QString &label,
-	      QMainWindow *, ToolBarDock = DockTop,
-	      bool newLine = FALSE, const char* name=0 );
-    QToolBar( const QString &label, QMainWindow *, QWidget *,
-	      bool newLine = FALSE, const char* name=0, WFlags f = 0 );
-    QToolBar( QMainWindow* parent=0, const char* name=0 );
+    QToolBar(const QString &label,
+              QMainWindow *, ToolBarDock = DockTop,
+              bool newLine = false, const char* name=0);
+    QToolBar(const QString &label, QMainWindow *, QWidget *,
+              bool newLine = false, const char* name=0, WFlags f = 0);
+    QToolBar(QMainWindow* parent=0, const char* name=0);
     ~QToolBar();
 
     void addSeparator();
@@ -47,11 +47,11 @@ public:
 
     QMainWindow * mainWindow() const;
 
-    virtual void setStretchableWidget( QWidget * );
+    virtual void setStretchableWidget(QWidget *);
 
-    bool event( QEvent * e );
+    bool event(QEvent * e);
 
-    virtual void setLabel( const QString & );
+    virtual void setLabel(const QString &);
     QString label() const;
 
     virtual void clear();
@@ -59,11 +59,11 @@ public:
     QSize minimumSize() const;
     QSize minimumSizeHint() const;
 
-    void setOrientation( Orientation o );
-    void setMinimumSize( int minw, int minh );
+    void setOrientation(Orientation o);
+    void setMinimumSize(int minw, int minh);
 
 protected:
-    void resizeEvent( QResizeEvent *e );
+    void resizeEvent(QResizeEvent *e);
     void styleChange(QStyle &);
 
 private slots:
@@ -71,7 +71,7 @@ private slots:
 
 private:
     void init();
-    void checkForExtension( const QSize &sz );
+    void checkForExtension(const QSize &sz);
     QToolBarPrivate * d;
     QMainWindow * mw;
     QWidget * sw;
@@ -79,10 +79,10 @@ private:
 
     friend class QMainWindow;
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QToolBar( const QToolBar & );
-    QToolBar& operator=( const QToolBar & );
+    QToolBar(const QToolBar &);
+    QToolBar& operator=(const QToolBar &);
 #endif
 };
 

@@ -32,23 +32,23 @@ class QSqlRecord;
 class QDB2Result : public QSqlResult
 {
 public:
-    QDB2Result( const QDB2Driver* dr, const QDB2DriverPrivate* dp );
+    QDB2Result(const QDB2Driver* dr, const QDB2DriverPrivate* dp);
     ~QDB2Result();
-    bool prepare( const QString& query );
+    bool prepare(const QString& query);
     bool exec();
 
 protected:
-    QCoreVariant data( int field );
-    bool reset ( const QString& query );
-    bool fetch( int i );
+    QCoreVariant data(int field);
+    bool reset (const QString& query);
+    bool fetch(int i);
     bool fetchNext();
     bool fetchFirst();
     bool fetchLast();
-    bool isNull( int i );
+    bool isNull(int i);
     int size();
     int numRowsAffected();
-    QSqlRecord record() const;    
-    
+    QSqlRecord record() const;
+
 private:
     QDB2ResultPrivate* d;
 };
@@ -59,26 +59,26 @@ public:
     QDB2Driver(QObject* parent = 0);
     QDB2Driver(HANDLE env, HANDLE con, QObject* parent = 0);
     ~QDB2Driver();
-    bool hasFeature( DriverFeature ) const;
+    bool hasFeature(DriverFeature) const;
     void close();
-    QSqlRecord record( const QString& tableName ) const;
-    QStringList tables( const QString& /* user */ ) const;
+    QSqlRecord record(const QString& tableName) const;
+    QStringList tables(const QString& /* user */) const;
     QSqlQuery createQuery() const;
-    QSqlIndex primaryIndex( const QString& tablename ) const;
+    QSqlIndex primaryIndex(const QString& tablename) const;
     bool beginTransaction();
     bool commitTransaction();
     bool rollbackTransaction();
-    QString formatValue( const QSqlField* field, bool trimStrings ) const;
+    QString formatValue(const QSqlField* field, bool trimStrings) const;
     Qt::HANDLE environment();
     Qt::HANDLE connection();
-    bool open( const QString& db,
-	       const QString& user,
-	       const QString& password,
-	       const QString& host,
-	       int port,
-	       const QString& connOpts );
+    bool open(const QString& db,
+               const QString& user,
+               const QString& password,
+               const QString& host,
+               int port,
+               const QString& connOpts);
 private:
-    bool setAutoCommit( bool autoCommit );
+    bool setAutoCommit(bool autoCommit);
     QDB2DriverPrivate* d;
 };
 

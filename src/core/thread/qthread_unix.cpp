@@ -103,10 +103,10 @@ void *QThreadInstance::start(void *_arg)
     emit thr->started();
     thr->run();
     if (thr) {
-	emit thr->finished();
-	QCoreApplication::sendPostedEvents();
-	thr->QObject::setThread(reinterpret_cast<Qt::HANDLE>(arg[2]));
-	arg[0] = arg[1] = arg[2] = 0;
+        emit thr->finished();
+        QCoreApplication::sendPostedEvents();
+        thr->QObject::setThread(reinterpret_cast<Qt::HANDLE>(arg[2]));
+        arg[0] = arg[1] = arg[2] = 0;
     }
 
     pthread_cleanup_pop(true);
@@ -118,18 +118,18 @@ void QThreadInstance::finish(void *)
     QThreadInstance *d = current();
 
     if (! d) {
-	qWarning("QThread: internal error: zero data for running thread.");
-	return;
+        qWarning("QThread: internal error: zero data for running thread.");
+        return;
     }
 
     QMutexLocker locker(d->mutex());
 
     if (d->args[0] && d->args[1] && d->args[2]) {
-	// terminated!
-	QThread *thr = reinterpret_cast<QThread *>(d->args[0]);
-	Qt::HANDLE old = reinterpret_cast<Qt::HANDLE>(d->args[2]);
-	emit thr->terminated();
-	thr->QObject::setThread(old);
+        // terminated!
+        QThread *thr = reinterpret_cast<QThread *>(d->args[0]);
+        Qt::HANDLE old = reinterpret_cast<Qt::HANDLE>(d->args[2]);
+        emit thr->terminated();
+        thr->QObject::setThread(old);
     }
 
     d->running = false;
@@ -144,7 +144,7 @@ void QThreadInstance::finish(void *)
 
     if (d->orphan) {
         d->deinit();
-	delete d;
+        delete d;
     }
 }
 
@@ -184,7 +184,7 @@ void QThread::initialize()
 {
     extern QMutexPool *static_qt_global_mutexpool;
     if (static_qt_global_mutexpool)
-	return;
+        return;
 
     static_qt_global_mutexpool = new QMutexPool(true);
     qt_thread_mutexpool = new QMutexPool(false);
@@ -308,22 +308,22 @@ void QThread::start(Priority priority)
 #if defined(_POSIX_THREAD_PRIORITY_SCHEDULING) && (_POSIX_THREAD_PRIORITY_SCHEDULING-0 >= 0)
     switch (priority) {
     case InheritPriority:
-	{
-	    pthread_attr_setinheritsched(&attr, PTHREAD_INHERIT_SCHED);
-	    break;
-	}
+        {
+            pthread_attr_setinheritsched(&attr, PTHREAD_INHERIT_SCHED);
+            break;
+        }
 
     default:
-	{
-	    int sched_policy;
-	    if (pthread_attr_getschedpolicy(&attr, &sched_policy) != 0) {
-		qWarning("QThread: could not determine the default schedule policy");
-		sched_policy = SCHED_RR;
-		pthread_attr_setschedpolicy(&attr, SCHED_RR);
-	    }
+        {
+            int sched_policy;
+            if (pthread_attr_getschedpolicy(&attr, &sched_policy) != 0) {
+                qWarning("QThread: could not determine the default schedule policy");
+                sched_policy = SCHED_RR;
+                pthread_attr_setschedpolicy(&attr, SCHED_RR);
+            }
 
-	    int prio_min = sched_get_priority_min(sched_policy);
-	    int prio_max = sched_get_priority_max(sched_policy);
+            int prio_min = sched_get_priority_min(sched_policy);
+            int prio_max = sched_get_priority_max(sched_policy);
             if (prio_min == -1 || prio_max == -1) {
                 // failed to get the scheduling parameters, don't
                 // bother setting the priority
@@ -331,50 +331,50 @@ void QThread::start(Priority priority)
                 break;
             }
 
-	    int prio;
-	    switch (priority) {
-	    case IdlePriority:
-		prio = prio_min;
-		break;
+            int prio;
+            switch (priority) {
+            case IdlePriority:
+                prio = prio_min;
+                break;
 
-	    case HighestPriority:
-		prio = prio_max;
-		break;
+            case HighestPriority:
+                prio = prio_max;
+                break;
 
-	    default:
-		// crudely scale our priority enum values to the prio_min/prio_max
-		prio = (((prio_max - prio_min) / TimeCriticalPriority) *
-			priority) + prio_min;
-		prio = qMax(prio_min, qMin(prio_max, prio));
-		break;
-	    }
+            default:
+                // crudely scale our priority enum values to the prio_min/prio_max
+                prio = (((prio_max - prio_min) / TimeCriticalPriority) *
+                        priority) + prio_min;
+                prio = qMax(prio_min, qMin(prio_max, prio));
+                break;
+            }
 
-	    sched_param sp;
-	    sp.sched_priority = prio;
+            sched_param sp;
+            sp.sched_priority = prio;
 
-	    pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
-	    pthread_attr_setschedparam(&attr, &sp);
-	    break;
-	}
+            pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED);
+            pthread_attr_setschedparam(&attr, &sp);
+            break;
+        }
     }
 #endif // _POSIX_THREAD_PRIORITY_SCHEDULING
 
     if (d->stacksize > 0) {
 #if defined(_POSIX_THREAD_ATTR_STACKSIZE) && (_POSIX_THREAD_ATTR_STACKSIZE-0 > 0)
-	ret = pthread_attr_setstacksize(&attr, d->stacksize);
+        ret = pthread_attr_setstacksize(&attr, d->stacksize);
 #else
-	ret = ENOSYS; // stack size not supported, automatically fail
+        ret = ENOSYS; // stack size not supported, automatically fail
 #endif // _POSIX_THREAD_ATTR_STACKSIZE
 
-	if (ret) {
-	    qWarning("QThread::start: thread stack size error: %s", strerror(ret)) ;
+        if (ret) {
+            qWarning("QThread::start: thread stack size error: %s", strerror(ret)) ;
 
-	    // we failed to set the stacksize, and as the documentation states,
-	    // the thread will fail to run...
-	    d->running = false;
-	    d->finished = false;
-	    return;
-	}
+            // we failed to set the stacksize, and as the documentation states,
+            // the thread will fail to run...
+            d->running = false;
+            d->finished = false;
+            return;
+        }
     }
 
     d->args[0] = this;
@@ -384,11 +384,11 @@ void QThread::start(Priority priority)
     pthread_attr_destroy(&attr);
 
     if (ret) {
-	qWarning("QThread::start: thread creation error: %s", strerror(ret));
+        qWarning("QThread::start: thread creation error: %s", strerror(ret));
 
-	d->running = false;
-	d->finished = false;
-	d->args[0] = d->args[1] = d->args[2] = 0;
+        d->running = false;
+        d->finished = false;
+        d->args[0] = d->args[1] = d->args[2] = 0;
     }
 }
 
@@ -402,9 +402,9 @@ void QThread::start(Priority priority)
        will return true if the thread has finished. It also returns
        true if the thread has not been started yet.
     \i \a time milliseconds has elapsed. If \a time is ULONG_MAX (the
-    	default), then the wait will never timeout (the thread must
-	return from \l{run()}). This function will return false if the
-	wait timed out.
+        default), then the wait will never timeout (the thread must
+        return from \l{run()}). This function will return false if the
+        wait timed out.
     \endlist
 
     This provides similar functionality to the POSIX \c pthread_join() function.
@@ -414,30 +414,30 @@ bool QThread::wait(unsigned long time)
     QMutexLocker locker(d->mutex());
 
     if (d->thread_id == pthread_self()) {
-	qWarning("QThread::wait: thread tried to wait on itself");
-	return false;
+        qWarning("QThread::wait: thread tried to wait on itself");
+        return false;
     }
 
     if (d->finished || ! d->running)
-	return true;
+        return true;
 
     int ret;
     if (time != ULONG_MAX) {
-	struct timeval tv;
-	gettimeofday(&tv, 0);
+        struct timeval tv;
+        gettimeofday(&tv, 0);
 
-	timespec ti;
-	ti.tv_nsec = ( tv.tv_usec + ( time % 1000 ) * 1000 ) * 1000;
-	ti.tv_sec = tv.tv_sec + (time / 1000) + ( ti.tv_nsec / 1000000000 );
+        timespec ti;
+        ti.tv_nsec = (tv.tv_usec + (time % 1000) * 1000) * 1000;
+        ti.tv_sec = tv.tv_sec + (time / 1000) + (ti.tv_nsec / 1000000000);
         ti.tv_nsec %= 1000000000;
 
-	ret = pthread_cond_timedwait(&d->thread_done, &locker.mutex()->d->mutex, &ti);
+        ret = pthread_cond_timedwait(&d->thread_done, &locker.mutex()->d->mutex, &ti);
     } else {
-	ret = pthread_cond_wait(&d->thread_done, &locker.mutex()->d->mutex);
+        ret = pthread_cond_wait(&d->thread_done, &locker.mutex()->d->mutex);
     }
 
     if (ret != 0 && ret != ETIMEDOUT)
-	qWarning("QWaitCondition::wait() failure: %s",strerror(ret));
+        qWarning("QWaitCondition::wait() failure: %s",strerror(ret));
 
     return (ret == 0);
 }

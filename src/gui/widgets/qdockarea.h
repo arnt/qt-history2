@@ -39,14 +39,14 @@ class Q_GUI_EXPORT QDockAreaLayout : public QLayout
     friend class QDockArea;
 
 public:
-    QDockAreaLayout( QWidget* parent, Qt::Orientation o, QList<QDockWindow *> *wl, int space = -1, int margin = -1, const char *name = 0 )
-	: QLayout( parent, space, margin, name ), orient( o ), dockWindows( wl ), parentWidget( parent ) { init(); }
+    QDockAreaLayout(QWidget* parent, Qt::Orientation o, QList<QDockWindow *> *wl, int space = -1, int margin = -1, const char *name = 0)
+        : QLayout(parent, space, margin, name), orient(o), dockWindows(wl), parentWidget(parent) { init(); }
     ~QDockAreaLayout() {}
 
-    void addItem( QLayoutItem * ) {}
+    void addItem(QLayoutItem *) {}
     bool hasHeightForWidth() const;
-    int heightForWidth( int ) const;
-    int widthForHeight( int ) const;
+    int heightForWidth(int) const;
+    int widthForHeight(int) const;
     QSize sizeHint() const;
     QSize minimumSize() const;
     QLayoutIterator iterator();
@@ -57,11 +57,11 @@ public:
     QList<QDockWindow *> lineStarts() const { return ls; }
 
 protected:
-    void setGeometry( const QRect& );
+    void setGeometry(const QRect&);
 
 private:
     void init();
-    int layoutItems( const QRect&, bool testonly = FALSE );
+    int layoutItems(const QRect&, bool testonly = false);
     Qt::Orientation orient;
     bool dirty;
     int cached_width, cached_height;
@@ -71,19 +71,19 @@ private:
     QList<QRect> lines;
     QList<QDockWindow *> ls;
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QDockAreaLayout( const QDockAreaLayout & );
-    QDockAreaLayout &operator=( const QDockAreaLayout & );
+    QDockAreaLayout(const QDockAreaLayout &);
+    QDockAreaLayout &operator=(const QDockAreaLayout &);
 #endif
 };
 
 class Q_GUI_EXPORT QDockArea : public QWidget
 {
     Q_OBJECT
-    Q_ENUMS( HandlePosition )
-    Q_PROPERTY( Orientation orientation READ orientation )
-    Q_PROPERTY( int count READ count )
-    Q_PROPERTY( bool empty READ isEmpty )
-    Q_PROPERTY( HandlePosition handlePosition READ handlePosition )
+    Q_ENUMS(HandlePosition)
+    Q_PROPERTY(Orientation orientation READ orientation)
+    Q_PROPERTY(int count READ count)
+    Q_PROPERTY(bool empty READ isEmpty)
+    Q_PROPERTY(HandlePosition handlePosition READ handlePosition)
 
     friend class QDockWindow;
     friend class QDockWindowResizeHandle;
@@ -92,49 +92,49 @@ class Q_GUI_EXPORT QDockArea : public QWidget
 public:
     enum HandlePosition { Normal, Reverse };
 
-    QDockArea( Orientation o, HandlePosition h = Normal, QWidget* parent=0, const char* name=0 );
+    QDockArea(Orientation o, HandlePosition h = Normal, QWidget* parent=0, const char* name=0);
     ~QDockArea();
 
-    void moveDockWindow( QDockWindow *w, const QPoint &globalPos, const QRect &rect, bool swap );
-    void removeDockWindow( QDockWindow *w, bool makeFloating, bool swap, bool fixNewLines = TRUE );
-    void moveDockWindow( QDockWindow *w, int index = -1 );
-    bool hasDockWindow( QDockWindow *w, int *index = 0 );
+    void moveDockWindow(QDockWindow *w, const QPoint &globalPos, const QRect &rect, bool swap);
+    void removeDockWindow(QDockWindow *w, bool makeFloating, bool swap, bool fixNewLines = true);
+    void moveDockWindow(QDockWindow *w, int index = -1);
+    bool hasDockWindow(QDockWindow *w, int *index = 0);
 
-    void invalidNextOffset( QDockWindow *dw );
+    void invalidNextOffset(QDockWindow *dw);
 
     Orientation orientation() const { return orient; }
     HandlePosition handlePosition() const { return hPos; }
 
-    bool eventFilter( QObject *, QEvent * );
+    bool eventFilter(QObject *, QEvent *);
     bool isEmpty() const;
     int count() const;
     QList<QDockWindow *> dockWindowList() const;
 
-    bool isDockWindowAccepted( QDockWindow *dw );
-    void setAcceptDockWindow( QDockWindow *dw, bool accept );
+    bool isDockWindowAccepted(QDockWindow *dw);
+    void setAcceptDockWindow(QDockWindow *dw, bool accept);
 
 public slots:
-    void lineUp( bool keepNewLines );
+    void lineUp(bool keepNewLines);
 
 private:
     struct DockWindowData
     {
-	int index;
-	int offset;
-	int line;
-	QSize fixedExtent;
-	QPointer<QDockArea> area;
+        int index;
+        int offset;
+        int line;
+        QSize fixedExtent;
+        QPointer<QDockArea> area;
     };
 
-    int findDockWindow( QDockWindow *w );
-    int lineOf( int index );
-    DockWindowData *dockWindowData( QDockWindow *w );
-    void dockWindow( QDockWindow *dockWindow, DockWindowData *data );
+    int findDockWindow(QDockWindow *w);
+    int lineOf(int index);
+    DockWindowData *dockWindowData(QDockWindow *w);
+    void dockWindow(QDockWindow *dockWindow, DockWindowData *data);
     void updateLayout();
     void invalidateFixedSizes();
-    int maxSpace( int hint, QDockWindow *dw );
-    void setFixedExtent( int d, QDockWindow *dw );
-    bool isLastDockWindow( QDockWindow *dw );
+    int maxSpace(int hint, QDockWindow *dw);
+    void setFixedExtent(int d, QDockWindow *dw);
+    bool isLastDockWindow(QDockWindow *dw);
 
 private:
     Orientation orient;
@@ -144,17 +144,17 @@ private:
     QList<QDockWindow *> forbiddenWidgets;
     QDockAreaPrivate *d;
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QDockArea( const QDockArea & );
-    QDockArea& operator=( const QDockArea & );
+    QDockArea(const QDockArea &);
+    QDockArea& operator=(const QDockArea &);
 #endif
 
 };
 
 #ifndef QT_NO_TEXTSTREAM
-Q_GUI_EXPORT QTextStream &operator<<( QTextStream &, const QDockArea & );
-Q_GUI_EXPORT QTextStream &operator>>( QTextStream &, QDockArea & );
+Q_GUI_EXPORT QTextStream &operator<<(QTextStream &, const QDockArea &);
+Q_GUI_EXPORT QTextStream &operator>>(QTextStream &, QDockArea &);
 #endif
 
 #endif

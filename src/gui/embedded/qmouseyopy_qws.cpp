@@ -34,7 +34,7 @@ class QWSYopyMouseHandlerPrivate : public QObject
 {
     Q_OBJECT
 public:
-    QWSYopyMouseHandlerPrivate( QWSYopyMouseHandler *h );
+    QWSYopyMouseHandlerPrivate(QWSYopyMouseHandler *h);
     ~QWSYopyMouseHandlerPrivate();
 
 private slots:
@@ -46,9 +46,9 @@ private:
     QWSYopyMouseHandler *handler;
 };
 
-QWSYopyMouseHandler::QWSYopyMouseHandler( const QString &, const QString & )
+QWSYopyMouseHandler::QWSYopyMouseHandler(const QString &, const QString &)
 {
-    d = new QWSYopyMouseHandlerPrivate( this );
+    d = new QWSYopyMouseHandlerPrivate(this);
 }
 
 QWSYopyMouseHandler::~QWSYopyMouseHandler()
@@ -56,32 +56,32 @@ QWSYopyMouseHandler::~QWSYopyMouseHandler()
     delete d;
 }
 
-QWSYopyMouseHandlerPrivate::QWSYopyMouseHandlerPrivate( QWSYopyMouseHandler *h )
-    : handler( h )
+QWSYopyMouseHandlerPrivate::QWSYopyMouseHandlerPrivate(QWSYopyMouseHandler *h)
+    : handler(h)
 {
-    if ((mouseFD = open( "/dev/ts", O_RDONLY)) < 0) {
-        qWarning( "Cannot open /dev/ts (%s)", strerror(errno));
-	return;
+    if ((mouseFD = open("/dev/ts", O_RDONLY)) < 0) {
+        qWarning("Cannot open /dev/ts (%s)", strerror(errno));
+        return;
     } else {
         sleep(1);
     }
     prevstate=0;
     QSocketNotifier *mouseNotifier;
-    mouseNotifier = new QSocketNotifier( mouseFD, QSocketNotifier::Read,
-					 this );
+    mouseNotifier = new QSocketNotifier(mouseFD, QSocketNotifier::Read,
+                                         this);
     connect(mouseNotifier, SIGNAL(activated(int)),this, SLOT(readMouseData()));
 }
 
 QWSYopyMouseHandlerPrivate::~QWSYopyMouseHandlerPrivate()
 {
     if (mouseFD >= 0)
-	close(mouseFD);
+        close(mouseFD);
 }
 
 #define YOPY_XPOS(d) (d[1]&0x3FF)
 #define YOPY_YPOS(d) (d[2]&0x3FF)
 #define YOPY_PRES(d) (d[0]&0xFF)
-#define YOPY_STAT(d) (d[3]&0x01 )
+#define YOPY_STAT(d) (d[3]&0x01)
 
 struct YopyTPdata {
 
@@ -94,7 +94,7 @@ struct YopyTPdata {
 void QWSYopyMouseHandlerPrivate::readMouseData()
 {
     if(!qt_screen)
-	return;
+        return;
     YopyTPdata data;
 
     unsigned int yopDat[4];
@@ -104,21 +104,21 @@ void QWSYopyMouseHandlerPrivate::readMouseData()
     ret=read(mouseFD,&yopDat,sizeof(yopDat));
 
     if(ret) {
-        data.status= ( YOPY_PRES(yopDat) ) ? 1 : 0;
-	data.xpos=YOPY_XPOS(yopDat);
-	data.ypos=YOPY_YPOS(yopDat);
-	QPoint q;
-	q.setX(data.xpos);
-	q.setY(data.ypos);
-	if (data.status && !prevstate) {
+        data.status= (YOPY_PRES(yopDat)) ? 1 : 0;
+        data.xpos=YOPY_XPOS(yopDat);
+        data.ypos=YOPY_YPOS(yopDat);
+        QPoint q;
+        q.setX(data.xpos);
+        q.setY(data.ypos);
+        if (data.status && !prevstate) {
           handler->mouseChanged(q,Qt::LeftButton);
-        } else if( !data.status && prevstate ) {
-	  handler->mouseChanged(q,0);
+        } else if(!data.status && prevstate) {
+          handler->mouseChanged(q,0);
         }
         prevstate = data.status;
     }
     if(ret<0) {
-	qDebug("Error %s",strerror(errno));
+        qDebug("Error %s",strerror(errno));
     }
 }
 

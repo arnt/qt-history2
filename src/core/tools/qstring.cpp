@@ -51,34 +51,34 @@ static int ucstrcmp(const QString &as, const QString &bs)
     const QChar *a = as.unicode();
     const QChar *b = bs.unicode();
     if (a == b)
-	return 0;
+        return 0;
     if (a == 0)
-	return 1;
+        return 1;
     if (b == 0)
-	return -1;
+        return -1;
     int l=qMin(as.length(),bs.length());
     while (l-- && *a == *b)
-	a++,b++;
+        a++,b++;
     if (l==-1)
-	return (as.length()-bs.length());
+        return (as.length()-bs.length());
     return a->unicode() - b->unicode();
 }
 
 static int ucstrncmp(const QChar *a, const QChar *b, int l)
 {
     while (l-- && *a == *b)
-	a++,b++;
+        a++,b++;
     if (l==-1)
-	return 0;
+        return 0;
     return a->unicode() - b->unicode();
 }
 
 static int ucstrnicmp(const QChar *a, const QChar *b, int l)
 {
     while (l-- && ::lower(*a) == ::lower(*b))
-	a++,b++;
+        a++,b++;
     if (l==-1)
-	return 0;
+        return 0;
     return ::lower(*a).unicode() - ::lower(*b).unicode();
 }
 
@@ -96,9 +96,9 @@ inline bool qIsDigit(char c)
 inline char qToLower(char c)
 {
     if (c >= 'A' && c <= 'Z')
-    	return c - 'A' + 'a';
+        return c - 'A' + 'a';
     else
-    	return c;
+        return c;
 }
 
 
@@ -165,12 +165,12 @@ const QString::Null QString::null=QString::Null();
     \code
     QString boolToString(bool b)
     {
-	QString result;
-	if (b)
-	    result = "True";
-	else
-	    result = "False";
-	return result;
+        QString result;
+        if (b)
+            result = "True";
+        else
+            result = "False";
+        return result;
     }
     \endcode
 
@@ -185,9 +185,9 @@ const QString::Null QString::null=QString::Null();
     \code
     QString func(const QString& input)
     {
-	QString output = input;
-	// process output
-	return output;
+        QString output = input;
+        // process output
+        return output;
     }
     \endcode
 
@@ -246,20 +246,20 @@ Constructs an implicitly shared copy of \a s. This is very fast
 QString::QString(const QChar *unicode, int size)
 {
    if (!unicode) {
-	d = &shared_null;
-	++d->ref;
+        d = &shared_null;
+        ++d->ref;
     } else if (size <= 0) {
-	d = &shared_empty;
-	++d->ref;
+        d = &shared_empty;
+        ++d->ref;
     } else {
-	d = (Data*) qMalloc(sizeof(Data)+size*sizeof(QChar));
-	d->ref = 1;
-	d->alloc = d->size = size;
-	d->c = 0;
-	d->clean = d->encoding = d->cache = d->simpletext = d->righttoleft = 0;
-	d->data = d->array;
-	memcpy(d->array, unicode, size*sizeof(QChar));
-	d->array[size] = '\0';
+        d = (Data*) qMalloc(sizeof(Data)+size*sizeof(QChar));
+        d->ref = 1;
+        d->alloc = d->size = size;
+        d->c = 0;
+        d->clean = d->encoding = d->cache = d->simpletext = d->righttoleft = 0;
+        d->data = d->array;
+        memcpy(d->array, unicode, size*sizeof(QChar));
+        d->array[size] = '\0';
     }
 }
 
@@ -270,20 +270,20 @@ QString::QString(const QChar *unicode, int size)
 QString::QString(int size, QChar c)
 {
    if (size <= 0) {
-	d = &shared_empty;
-	++d->ref;
+        d = &shared_empty;
+        ++d->ref;
     } else {
-	d = (Data*) qMalloc(sizeof(Data)+size*sizeof(QChar));
-	d->ref = 1;
-	d->alloc = d->size = size;
-	d->c = 0;
-	d->clean = d->encoding = d->cache = d->simpletext = d->righttoleft = 0;
-	d->data = d->array;
-	d->array[size] = '\0';
-	QChar *i = (QChar*)d->array + size;
-	QChar *b = (QChar*)d->array;
-	while (i != b)
-	   * --i = c;
+        d = (Data*) qMalloc(sizeof(Data)+size*sizeof(QChar));
+        d->ref = 1;
+        d->alloc = d->size = size;
+        d->c = 0;
+        d->clean = d->encoding = d->cache = d->simpletext = d->righttoleft = 0;
+        d->data = d->array;
+        d->array[size] = '\0';
+        QChar *i = (QChar*)d->array + size;
+        QChar *b = (QChar*)d->array;
+        while (i != b)
+           * --i = c;
     }
 }
 
@@ -310,7 +310,7 @@ QString::QString(QChar c)
 void QString::free(Data *d)
 {
     if (d->c)
-	((QByteArray*)&d->c)->~QByteArray();
+        ((QByteArray*)&d->c)->~QByteArray();
     qFree(d);
 }
 
@@ -326,16 +326,16 @@ void QString::resize(int size)
 {
     d->cache = 0;
     if (size <= 0) {
-	Data *x = &shared_empty;
-	++x->ref;
-	x = qAtomicSetPtr( &d, x );
-	if (!--x->ref)
-	    free(x);
+        Data *x = &shared_empty;
+        ++x->ref;
+        x = qAtomicSetPtr(&d, x);
+        if (!--x->ref)
+            free(x);
     } else {
-	if (d->ref != 1 || size > d->alloc || (size < d->size && size < d->alloc >> 1))
-	    realloc(grow(size));
-	d->array[size] = '\0';
-	d->size = size;
+        if (d->ref != 1 || size > d->alloc || (size < d->size && size < d->alloc >> 1))
+            realloc(grow(size));
+        d->array[size] = '\0';
+        d->size = size;
     }
 }
 
@@ -370,13 +370,13 @@ void QString::resize(int size)
     we're fairly sure that size is big enough:
 
     \code
-	QString result;
-	int len = 0;
-	result.reserve(maxSize);
-	while (...) {
-	    result[len++] = ...         // fill part of the space
-	}
-	result.squeeze();
+        QString result;
+        int len = 0;
+        result.reserve(maxSize);
+        while (...) {
+            result[len++] = ...         // fill part of the space
+        }
+        result.squeeze();
     \endcode
 
     \sa squeeze(), capacity()
@@ -385,7 +385,7 @@ void QString::resize(int size)
 void QString::reserve(int size)
 {
     if (d->ref != 1 || size > d->alloc)
-	realloc(size);
+        realloc(size);
 }
 
 /*!
@@ -393,7 +393,7 @@ void QString::reserve(int size)
 
     The sole purpose of this function is to provide a means of fine
     tuning QString's memory usage. In general, you will rarely ever
-    need to call this function. 
+    need to call this function.
 
     \sa reserve(), capacity()
 */
@@ -405,22 +405,22 @@ void QString::squeeze()
 
 void QString::realloc(int alloc)
 {
-    if (d->ref == 1 ) {
-	d = (Data*) qRealloc(d, sizeof(Data)+alloc*sizeof(QChar));
-	d->alloc = alloc;
-	d->data = d->array;
+    if (d->ref == 1) {
+        d = (Data*) qRealloc(d, sizeof(Data)+alloc*sizeof(QChar));
+        d->alloc = alloc;
+        d->data = d->array;
     } else {
-	Data *x = (Data*) qMalloc(sizeof(Data)+alloc*sizeof(QChar));
-	*x = *d;
-	x->data = x->array;
-	::memcpy(x->data, d->data, qMin(alloc, d->alloc)*sizeof(QChar));
-	x->c = 0;
-	x->cache = 0;
-	x->ref = 1;
-	x->alloc = alloc;
-	x = qAtomicSetPtr( &d, x );
-	if (!--x->ref)
-	    free(x);
+        Data *x = (Data*) qMalloc(sizeof(Data)+alloc*sizeof(QChar));
+        *x = *d;
+        x->data = x->array;
+        ::memcpy(x->data, d->data, qMin(alloc, d->alloc)*sizeof(QChar));
+        x->c = 0;
+        x->cache = 0;
+        x->ref = 1;
+        x->alloc = alloc;
+        x = qAtomicSetPtr(&d, x);
+        if (!--x->ref)
+            free(x);
     }
 }
 
@@ -434,10 +434,10 @@ void QString::expand(int i)
     int sz = d->size;
     resize(qMax(i + 1, sz));
     if (d->size - 1 > sz) {
-	ushort *n = d->data + d->size - 1;
-	ushort *e = d->data + sz;
-	while (n != e)
-	   * --n = ' ';
+        ushort *n = d->data + d->size - 1;
+        ushort *e = d->data + sz;
+        while (n != e)
+           * --n = ' ';
     }
 }
 
@@ -487,9 +487,9 @@ QString &QString::operator=(QChar c)
 QString& QString::insert(int i, QChar c)
 {
     if (i < 0)
-	i += d->size;
+        i += d->size;
     if (i < 0)
-	return *this;
+        return *this;
     expand(qMax(i, d->size));
     ::memmove(d->data + i + 1, d->data + i, (d->size - i) * sizeof(QChar));
     d->data[i] = c.unicode();
@@ -508,9 +508,9 @@ QString& QString::insert(int i, QChar c)
     appended.
 
     \code
-	QString s("I like fish");
-	s.insert(2, "don't ");
-	// s == "I don't like fish"
+        QString s("I like fish");
+        s.insert(2, "don't ");
+        // s == "I don't like fish"
     \endcode
 
 */
@@ -518,17 +518,17 @@ QString& QString::insert(int i, QChar c)
 QString& QString::insert(int i, const QChar *str, int len)
 {
     if (i < 0 || len <= 0)
-	return *this;
+        return *this;
     d->cache = 0;
 
     unsigned short *s = (unsigned short *)str;
-    if ( s >= d->data && s < d->data + d->alloc ) {
-	// Part of me - take a copy.
-	unsigned short *tmp = (unsigned short *)malloc(len * sizeof(QChar));
-	memcpy(tmp, s, len * sizeof(QChar));
-	insert(i, (const QChar *)tmp, len);
-	::free(tmp);
-	return *this;
+    if (s >= d->data && s < d->data + d->alloc) {
+        // Part of me - take a copy.
+        unsigned short *tmp = (unsigned short *)malloc(len * sizeof(QChar));
+        memcpy(tmp, s, len * sizeof(QChar));
+        insert(i, (const QChar *)tmp, len);
+        ::free(tmp);
+        return *this;
     }
 
     expand(qMax(d->size, i) + len - 1);
@@ -542,7 +542,7 @@ QString& QString::insert(int i, const QLatin1String &str)
 {
     unsigned char *s = (unsigned char *)str.latin1();
     if (i < 0 || !s || !(*s))
-	return *this;
+        return *this;
     d->cache = 0;
 
     int len = strlen(str.latin1());
@@ -550,7 +550,7 @@ QString& QString::insert(int i, const QLatin1String &str)
 
     ::memmove(d->data + i + len, d->data + i, (d->size - i - len) * sizeof(QChar));
     for (int j = i; j < i+len; ++j)
-	d->data[j] = s[j];
+        d->data[j] = s[j];
     return *this;
 }
 
@@ -562,7 +562,7 @@ QString& QString::append(QChar c)
 {
     d->cache = 0;
     if (d->ref != 1 || d->size + 1 > d->alloc)
-	realloc(grow(d->size + 1));
+        realloc(grow(d->size + 1));
     d->data[d->size++] = c.unicode();
     d->data[d->size] = '\0';
     return *this;
@@ -576,17 +576,17 @@ QString& QString::append(const QLatin1String &str)
     const char * s = str.latin1();
     if (s) {
 #ifndef QT_NO_TEXTCODEC
-	if (codecForCStrings)
-	    return append(QString::fromAscii(s));
+        if (codecForCStrings)
+            return append(QString::fromAscii(s));
 #endif
-	d->cache = 0;
-	int len = strlen(s);
-	if (d->ref != 1 || d->size + len > d->alloc)
-	    realloc(grow(d->size + len));
-	ushort *i = d->data + d->size;
-	while ((*i++ = (uchar)*s++))
-	    ;
-	d->size += len;
+        d->cache = 0;
+        int len = strlen(s);
+        if (d->ref != 1 || d->size + len > d->alloc)
+            realloc(grow(d->size + len));
+        ushort *i = d->data + d->size;
+        while ((*i++ = (uchar)*s++))
+            ;
+        d->size += len;
     }
     return *this;
 }
@@ -597,11 +597,11 @@ QString& QString::append(const QLatin1String &str)
 QString& QString::append(const QString& s)
 {
     if (s.d != &shared_null) {
-	d->cache = 0;
-	if (d->ref != 1 || d->size + s.d->size > d->alloc)
-	    realloc(grow(d->size + s.d->size));
-	memcpy(d->data + d->size, s.d->data, (s.d->size+1)*sizeof(QChar)); // include null terminator
-	d->size += s.d->size;
+        d->cache = 0;
+        if (d->ref != 1 || d->size + s.d->size > d->alloc)
+            realloc(grow(d->size + s.d->size));
+        memcpy(d->data + d->size, s.d->data, (s.d->size+1)*sizeof(QChar)); // include null terminator
+        d->size += s.d->size;
     }
     return *this;
 }
@@ -628,8 +628,8 @@ QString& QString::append(const QString& s)
     the string, the string is truncated at position \a i.
 
     \code
-	QString string("Montreal");
-	string.remove(1, 4);      // string == "Meal"
+        QString string("Montreal");
+        string.remove(1, 4);      // string == "Meal"
     \endcode
 
     \sa insert(), replace()
@@ -639,15 +639,15 @@ QString &QString::remove(int i, int len)
 {
     d->cache = 0;
     if (i < 0)
-	i += d->size;
+        i += d->size;
     if (i < 0 || i >= d->size) {
-	// range problems
+        // range problems
     } else if (i + len >= d->size) {  // index ok
-	resize(i);
+        resize(i);
     } else if (len != 0) {
-	detach();
-	memmove(d->data+i, d->data+i+len, (d->size-i-len)*sizeof(unsigned short));  // include null terminator
-	d->size -= len;
+        detach();
+        memmove(d->data+i, d->data+i+len, (d->size-i-len)*sizeof(unsigned short));  // include null terminator
+        d->size -= len;
     }
     return *this;
 }
@@ -667,18 +667,18 @@ QString &QString::remove(QChar c, QString::CaseSensitivity cs)
     d->cache = 0;
     int i = 0;
     if (cs == CaseSensitive) {
-	while (i < d->size)
-	    if (*((const QChar*)d->data + i) == c)
-		remove(i, 1);
-	    else
-		i++;
+        while (i < d->size)
+            if (*((const QChar*)d->data + i) == c)
+                remove(i, 1);
+            else
+                i++;
     } else {
-	c = ::lower(c);
-	while (i < d->size)
-	    if (::lower(*((const QChar*)d->data + i)) == c)
-		remove(i, 1);
-	    else
-		i++;
+        c = ::lower(c);
+        while (i < d->size)
+            if (::lower(*((const QChar*)d->data + i)) == c)
+                remove(i, 1);
+            else
+                i++;
     }
     return *this;
 }
@@ -697,9 +697,9 @@ QString& QString::remove(const QString & s, QString::CaseSensitivity cs)
 {
     d->cache = 0;
     if (s.d->size) {
-	int i = 0;
-	while ((i = indexOf(s, i, cs)) != -1)
-	    remove(i, s.d->size);
+        int i = 0;
+        while ((i = indexOf(s, i, cs)) != -1)
+            remove(i, s.d->size);
     }
     return *this;
 }
@@ -723,9 +723,9 @@ QString& QString::replace(int i, int len, QChar after)
     the string, the string is expanded accordingly.
 
     \code
-	QString string("Say yes!");
-	string = string.replace(4, 3, "NO");
-	// string == "Say NO!"
+        QString string("Say yes!");
+        string = string.replace(4, 3, "NO");
+        // string == "Say NO!"
     \endcode
 
     \sa insert(), remove()
@@ -761,18 +761,18 @@ QString& QString::replace(QChar before, QChar after, QString::CaseSensitivity cs
 {
     d->cache = 0;
     if (d->size) {
-	QChar *i = data();
-	QChar *e = i + d->size;
-	if (cs == CaseSensitive) {
-	    for (; i != e; ++i)
-		if (*i == before)
-		   * i = after;
-	} else {
-	    before = ::lower(before);
-	    for (; i != e; ++i)
-		if (::lower(*i) == before)
-		   * i = after;
-	}
+        QChar *i = data();
+        QChar *e = i + d->size;
+        if (cs == CaseSensitive) {
+            for (; i != e; ++i)
+                if (*i == before)
+                   * i = after;
+        } else {
+            before = ::lower(before);
+            for (; i != e; ++i)
+                if (::lower(*i) == before)
+                   * i = after;
+        }
     }
     return *this;
 }
@@ -780,7 +780,7 @@ QString& QString::replace(QChar before, QChar after, QString::CaseSensitivity cs
 bool QString::operator==(const QString &s) const
 {
     return (size() == s.size()) &&
-	(memcmp((char*)unicode(),(char*)s.unicode(), size()*sizeof(QChar))==0);
+        (memcmp((char*)unicode(),(char*)s.unicode(), size()*sizeof(QChar))==0);
 }
 
 bool QString::operator<(const QString &s) const
@@ -796,10 +796,10 @@ bool QString::operator==(const QLatin1String &s) const
     const unsigned char *c = (unsigned char *) s.latin1();
 
     while (*uc == *c) {
-	if (!*uc)
-	    return true;
-	++uc;
-	++c;
+        if (!*uc)
+            return true;
+        ++uc;
+        ++c;
     }
     return false;
 }
@@ -810,10 +810,10 @@ bool QString::operator<(const QLatin1String &s) const
     const unsigned char *c = (unsigned char *) s.latin1();
 
     while (*uc == *c) {
-	if (!*uc)
-	    return false;
-	++uc;
-	++c;
+        if (!*uc)
+            return false;
+        ++uc;
+        ++c;
     }
     return *uc < *c;
 
@@ -825,10 +825,10 @@ bool QString::operator>(const QLatin1String &s) const
     const unsigned char *c = (unsigned char *) s.latin1();
 
     while (*uc == *c) {
-	if (!*uc)
-	    return false;
-	++uc;
-	++c;
+        if (!*uc)
+            return false;
+        ++uc;
+        ++c;
     }
     return *uc > *c;
 
@@ -849,20 +849,20 @@ bool QString::operator>(const QLatin1String &s) const
 int QString::indexOf(QChar c, int from, QString::CaseSensitivity cs) const
 {
     if (from < 0)
-	from = qMax(from + d->size, 0);
+        from = qMax(from + d->size, 0);
     if (from  < d->size) {
-	const QChar *n = (const QChar*)d->data + from - 1;
-	const QChar *e = (const QChar*)d->data + d->size;
-	if (cs == CaseSensitive) {
-	    while (++n != e)
-		if (*n == c)
-		    return  n - (const QChar*)d->data;
-	} else {
-	    c = ::lower(c);
-	    while (++n != e)
-		if (::lower(*n) == c)
-		    return  n - (const QChar*)d->data;
-	}
+        const QChar *n = (const QChar*)d->data + from - 1;
+        const QChar *e = (const QChar*)d->data + d->size;
+        if (cs == CaseSensitive) {
+            while (++n != e)
+                if (*n == c)
+                    return  n - (const QChar*)d->data;
+        } else {
+            c = ::lower(c);
+            while (++n != e)
+                if (::lower(*n) == c)
+                    return  n - (const QChar*)d->data;
+        }
     }
     return -1;
 }
@@ -880,29 +880,29 @@ int QString::indexOf(QChar c, int from, QString::CaseSensitivity cs) const
     sensitive; otherwise the search is case insensitive.
 
     \code
-	QString string("bananas");
-	int i = string.findRev('a');      // i == 5
+        QString string("bananas");
+        int i = string.findRev('a');      // i == 5
     \endcode
 */
 int QString::lastIndexOf(QChar c, int from, QString::CaseSensitivity cs) const
 {
     if (from < 0)
-	from += d->size;
+        from += d->size;
     else if (from > d->size)
-	from = d->size-1;
+        from = d->size-1;
     if (from >= 0) {
-	const QChar *n =  (const QChar*)d->data + from;
-	const QChar *b = (const QChar*)d->data;
-	if (cs == CaseSensitive) {
-	    for (; n >= b; --n)
-		if (*n == c)
-		    return  n - b;
-	} else {
-	    c = ::lower(c);
-	    for (; n >= b; --n)
-		if (::lower(*n) == c)
-		    return  n - b;
-	}
+        const QChar *n =  (const QChar*)d->data + from;
+        const QChar *b = (const QChar*)d->data;
+        if (cs == CaseSensitive) {
+            for (; n >= b; --n)
+                if (*n == c)
+                    return  n - b;
+        } else {
+            c = ::lower(c);
+            for (; n >= b; --n)
+                if (::lower(*n) == c)
+                    return  n - b;
+        }
     }
     return -1;
 }
@@ -917,79 +917,79 @@ static void bm_init_skiptable(const QChar *uc, int l, uint *skiptable, QString::
     int i = 0;
     register uint *st = skiptable;
     while (i++ < 0x100/8) {
-	*(st++) = l;
-	*(st++) = l;
-	*(st++) = l;
-	*(st++) = l;
-	*(st++) = l;
-	*(st++) = l;
-	*(st++) = l;
-	*(st++) = l;
+        *(st++) = l;
+        *(st++) = l;
+        *(st++) = l;
+        *(st++) = l;
+        *(st++) = l;
+        *(st++) = l;
+        *(st++) = l;
+        *(st++) = l;
     }
     if (cs == QString::CaseSensitive) {
-	while (l--) {
-	    skiptable[uc->cell()] = l;
-	    uc++;
-	}
+        while (l--) {
+            skiptable[uc->cell()] = l;
+            uc++;
+        }
     } else {
-	while (l--) {
-	    skiptable[::lower(*uc).cell()] = l;
-	    uc++;
-	}
+        while (l--) {
+            skiptable[::lower(*uc).cell()] = l;
+            uc++;
+        }
     }
 }
 
 static int bm_find(const QChar *uc, uint l, int index, const QChar *puc, uint pl, uint *skiptable, QString::CaseSensitivity cs)
 {
     if (pl == 0)
-	return index > (int)l ? -1 : index;
+        return index > (int)l ? -1 : index;
     const uint pl_minus_one = pl - 1;
 
     register const QChar *current = uc + index + pl_minus_one;
     const QChar *end = uc + l;
     if (cs == QString::CaseSensitive) {
-	while (current < end) {
-	    uint skip = skiptable[current->cell()];
-	    if (!skip) {
-		// possible match
-		while (skip < pl) {
-		    if (*(current - skip) != puc[pl_minus_one-skip])
-			break;
-		    skip++;
-		}
-		if (skip > pl_minus_one) { // we have a match
-		    return (current - uc) - skip + 1;
-		}
-		// in case we don't have a match we are a bit inefficient as we only skip by one
-		// when we have the non matching char in the string.
-		if (skiptable[(current-skip)->cell()] == pl)
-		    skip = pl - skip;
-		else
-		    skip = 1;
-	    }
-	    current += skip;
-	}
+        while (current < end) {
+            uint skip = skiptable[current->cell()];
+            if (!skip) {
+                // possible match
+                while (skip < pl) {
+                    if (*(current - skip) != puc[pl_minus_one-skip])
+                        break;
+                    skip++;
+                }
+                if (skip > pl_minus_one) { // we have a match
+                    return (current - uc) - skip + 1;
+                }
+                // in case we don't have a match we are a bit inefficient as we only skip by one
+                // when we have the non matching char in the string.
+                if (skiptable[(current-skip)->cell()] == pl)
+                    skip = pl - skip;
+                else
+                    skip = 1;
+            }
+            current += skip;
+        }
     } else {
-	while (current < end) {
-	    uint skip = skiptable[::lower(*current).cell()];
-	    if (!skip) {
-		// possible match
-		while (skip < pl) {
-		    if (::lower(*(current - skip)) != ::lower(puc[pl_minus_one-skip]))
-			break;
-		    skip++;
-		}
-		if (skip > pl_minus_one) // we have a match
-		    return (current - uc) - skip + 1;
-		// in case we don't have a match we are a bit inefficient as we only skip by one
-		// when we have the non matching char in the string.
-		if (skiptable[::lower(*(current - skip)).cell()] == pl)
-		    skip = pl - skip;
-		else
-		    skip = 1;
-	    }
-	    current += skip;
-	}
+        while (current < end) {
+            uint skip = skiptable[::lower(*current).cell()];
+            if (!skip) {
+                // possible match
+                while (skip < pl) {
+                    if (::lower(*(current - skip)) != ::lower(puc[pl_minus_one-skip]))
+                        break;
+                    skip++;
+                }
+                if (skip > pl_minus_one) // we have a match
+                    return (current - uc) - skip + 1;
+                // in case we don't have a match we are a bit inefficient as we only skip by one
+                // when we have the non matching char in the string.
+                if (skiptable[::lower(*(current - skip)).cell()] == pl)
+                    skip = pl - skip;
+                else
+                    skip = 1;
+            }
+            current += skip;
+        }
     }
     // not found
     return -1;
@@ -998,7 +998,7 @@ static int bm_find(const QChar *uc, uint l, int index, const QChar *puc, uint pl
 
 #define REHASH(a) \
     if (sl_minus_1 < sizeof(uint) * CHAR_BIT) \
-	hashHaystack -= (a) << sl_minus_1; \
+        hashHaystack -= (a) << sl_minus_1; \
     hashHaystack <<= 1
 
 /*!
@@ -1020,24 +1020,24 @@ int QString::indexOf(const QString& s, int from, QString::CaseSensitivity cs) co
     const uint l = d->size;
     const uint sl = s.d->size;
     if (from < 0)
-	from += l;
+        from += l;
     if (sl + from > l)
-	return -1;
+        return -1;
     if (!sl)
-	return from;
+        return from;
     if (!l)
-	return -1;
+        return -1;
 
     if (sl == 1)
-	return indexOf(*(const QChar*) s.d->data, from, cs);
+        return indexOf(*(const QChar*) s.d->data, from, cs);
 
     // we use the Boyer-Moore algorithm in cases where the overhead
     // for the hash table should pay off, otherwise we use a simple
     // hash function
     if (l > 500 && sl > 5) {
-	uint skiptable[0x100];
-	bm_init_skiptable((const QChar*)s.d->data , sl, skiptable, cs);
-	return bm_find((const QChar*) d->data, l, from, (const QChar*)s.d->data , sl ,skiptable, cs);
+        uint skiptable[0x100];
+        bm_init_skiptable((const QChar*)s.d->data , sl, skiptable, cs);
+        return bm_find((const QChar*) d->data, l, from, (const QChar*)s.d->data , sl ,skiptable, cs);
     }
 
     /*
@@ -1053,39 +1053,39 @@ int QString::indexOf(const QString& s, int from, QString::CaseSensitivity cs) co
     uint hashNeedle = 0, hashHaystack = 0, idx;
 
     if (cs == CaseSensitive) {
-	for (idx = 0; idx < sl; ++idx) {
-	    hashNeedle = ((hashNeedle<<1) + needle[idx].unicode());
-	    hashHaystack = ((hashHaystack<<1) + haystack[idx].unicode());
-	}
-	hashHaystack -= (haystack+sl_minus_1)->unicode();
+        for (idx = 0; idx < sl; ++idx) {
+            hashNeedle = ((hashNeedle<<1) + needle[idx].unicode());
+            hashHaystack = ((hashHaystack<<1) + haystack[idx].unicode());
+        }
+        hashHaystack -= (haystack+sl_minus_1)->unicode();
 
-	while (haystack <= end) {
-	    hashHaystack += (haystack+sl_minus_1)->unicode();
- 	    if (hashHaystack == hashNeedle
-		 && ucstrncmp(needle, haystack, sl) == 0)
-		return haystack-unicode();
+        while (haystack <= end) {
+            hashHaystack += (haystack+sl_minus_1)->unicode();
+            if (hashHaystack == hashNeedle
+                 && ucstrncmp(needle, haystack, sl) == 0)
+                return haystack-unicode();
 
-	    REHASH(haystack->unicode());
-	    ++haystack;
-	}
+            REHASH(haystack->unicode());
+            ++haystack;
+        }
     } else {
-	for (idx = 0; idx < sl; ++idx) {
-	    hashNeedle = ((hashNeedle<<1) +
-			  ::lower(needle[idx].unicode()).unicode());
-	    hashHaystack = ((hashHaystack<<1) +
-			    ::lower(haystack[idx].unicode()).unicode());
-	}
+        for (idx = 0; idx < sl; ++idx) {
+            hashNeedle = ((hashNeedle<<1) +
+                          ::lower(needle[idx].unicode()).unicode());
+            hashHaystack = ((hashHaystack<<1) +
+                            ::lower(haystack[idx].unicode()).unicode());
+        }
 
-	hashHaystack -= ::lower(*(haystack+sl_minus_1)).unicode();
-	while (haystack <= end) {
-	    hashHaystack += ::lower(*(haystack+sl_minus_1)).unicode();
-	    if (hashHaystack == hashNeedle
-		 && ucstrnicmp(needle, haystack, sl) == 0)
-		return haystack-unicode();
+        hashHaystack -= ::lower(*(haystack+sl_minus_1)).unicode();
+        while (haystack <= end) {
+            hashHaystack += ::lower(*(haystack+sl_minus_1)).unicode();
+            if (hashHaystack == hashNeedle
+                 && ucstrnicmp(needle, haystack, sl) == 0)
+                return haystack-unicode();
 
-	    REHASH(::lower(*haystack).unicode());
-	    ++haystack;
-	}
+            REHASH(::lower(*haystack).unicode());
+            ++haystack;
+        }
     }
     return -1;
 }
@@ -1115,16 +1115,16 @@ int QString::lastIndexOf(const QString& s, int from, QString::CaseSensitivity cs
    */
     const uint l = d->size;
     if (from < 0)
-	from += l;
+        from += l;
     const uint sl = s.d->size;
     int delta = l-sl;
     if (from < 0 || from > (int)l || delta < 0)
-	return -1;
+        return -1;
     if (from > delta)
-	from = delta;
+        from = delta;
 
     if (sl == 1)
-	return lastIndexOf(*(const QChar*) s.d->data, from, cs);
+        return lastIndexOf(*(const QChar*) s.d->data, from, cs);
 
     const QChar *needle = (const QChar*) s.d->data;
     const QChar *haystack = (const QChar*) d->data + from;
@@ -1135,37 +1135,37 @@ int QString::lastIndexOf(const QString& s, int from, QString::CaseSensitivity cs
     uint hashNeedle = 0, hashHaystack = 0, idx;
 
     if (cs == CaseSensitive) {
-	for (idx = 0; idx < sl; ++idx) {
-	    hashNeedle = ((hashNeedle<<1) + (n-idx)->unicode());
-	    hashHaystack = ((hashHaystack<<1) + (h-idx)->unicode());
-	}
-	hashHaystack -= haystack->unicode();
+        for (idx = 0; idx < sl; ++idx) {
+            hashNeedle = ((hashNeedle<<1) + (n-idx)->unicode());
+            hashHaystack = ((hashHaystack<<1) + (h-idx)->unicode());
+        }
+        hashHaystack -= haystack->unicode();
 
-	while (haystack >= end) {
-	    hashHaystack += haystack->unicode();
- 	    if (hashHaystack == hashNeedle
-		 && ucstrncmp(needle, haystack, sl) == 0)
-		return haystack-unicode();
-	    --haystack;
-	    REHASH((haystack+sl)->unicode());
-	}
+        while (haystack >= end) {
+            hashHaystack += haystack->unicode();
+            if (hashHaystack == hashNeedle
+                 && ucstrncmp(needle, haystack, sl) == 0)
+                return haystack-unicode();
+            --haystack;
+            REHASH((haystack+sl)->unicode());
+        }
     } else {
-	for (idx = 0; idx < sl; ++idx) {
-	    hashNeedle = ((hashNeedle<<1)
-			  + ::lower((n-idx)->unicode()).unicode());
-	    hashHaystack = ((hashHaystack<<1)
-			    + ::lower((h-idx)->unicode()).unicode());
-	}
-	hashHaystack -= ::lower(*haystack).unicode();
+        for (idx = 0; idx < sl; ++idx) {
+            hashNeedle = ((hashNeedle<<1)
+                          + ::lower((n-idx)->unicode()).unicode());
+            hashHaystack = ((hashHaystack<<1)
+                            + ::lower((h-idx)->unicode()).unicode());
+        }
+        hashHaystack -= ::lower(*haystack).unicode();
 
-	while (haystack >= end) {
-	    hashHaystack += ::lower(*haystack).unicode();
-	    if (hashHaystack == hashNeedle
-		 && ucstrnicmp(needle, haystack, sl) == 0)
-		return haystack-unicode();
-	    --haystack;
-	    REHASH(::lower(*(haystack+sl)).unicode());
-	}
+        while (haystack >= end) {
+            hashHaystack += ::lower(*haystack).unicode();
+            if (hashHaystack == hashNeedle
+                 && ucstrnicmp(needle, haystack, sl) == 0)
+                return haystack-unicode();
+            --haystack;
+            REHASH(::lower(*(haystack+sl)).unicode());
+        }
     }
     return -1;
 }
@@ -1188,15 +1188,15 @@ int QString::lastIndexOf(const QString& s, int from, QString::CaseSensitivity cs
 QString& QString::replace(const QString & before, const QString & after, QString::CaseSensitivity cs)
 {
     if (d->size == 0) {
-	if (before.d->size)
-	    return *this;
+        if (before.d->size)
+            return *this;
     } else {
-	if (cs == CaseSensitive && before == after)
-	    return *this;
+        if (cs == CaseSensitive && before == after)
+            return *this;
     }
     d->cache = 0;
     if (d->ref != 1)
-	realloc(d->size);
+        realloc(d->size);
 
     int index = 0;
     uint skiptable[256];
@@ -1205,81 +1205,81 @@ QString& QString::replace(const QString & before, const QString & after, QString
     bm_init_skiptable((const QChar*)before.d->data, bl, skiptable, cs);
 
     if (bl == al) {
-	if (bl) {
-	    const QChar *auc = (const QChar*) after.d->data;
-	    while ((index = bm_find((const QChar*)d->data, d->size, index, (const QChar*)before.d->data, bl, skiptable, cs)) != -1) {
-		memcpy(d->data + index, auc, al * sizeof(QChar));
-		index += bl;
-	    }
-	}
+        if (bl) {
+            const QChar *auc = (const QChar*) after.d->data;
+            while ((index = bm_find((const QChar*)d->data, d->size, index, (const QChar*)before.d->data, bl, skiptable, cs)) != -1) {
+                memcpy(d->data + index, auc, al * sizeof(QChar));
+                index += bl;
+            }
+        }
     } else if (al < bl) {
-	const QChar *auc = after.unicode();
-	uint to = 0;
-	uint movestart = 0;
-	uint num = 0;
-	while ((index = bm_find((const QChar*)d->data, d->size, index, (const QChar*)before.d->data, bl, skiptable, cs)) != -1) {
-	    if (num) {
-		int msize = index - movestart;
-		if (msize > 0) {
-		    memmove(d->data + to, d->data + movestart, msize*sizeof(QChar));
-		    to += msize;
-		}
-	    } else {
-		to = index;
-	    }
-	    if (al) {
-		memcpy(d->data+to, auc, al*sizeof(QChar));
-		to += al;
-	    }
-	    index += bl;
-	    movestart = index;
-	    num++;
-	}
-	if (num) {
-	    int msize = d->size - movestart;
-	    if (msize > 0)
-		memmove(d->data + to, d->data + movestart, msize*sizeof(QChar));
-	    resize(d->size - num*(bl-al));
-	}
+        const QChar *auc = after.unicode();
+        uint to = 0;
+        uint movestart = 0;
+        uint num = 0;
+        while ((index = bm_find((const QChar*)d->data, d->size, index, (const QChar*)before.d->data, bl, skiptable, cs)) != -1) {
+            if (num) {
+                int msize = index - movestart;
+                if (msize > 0) {
+                    memmove(d->data + to, d->data + movestart, msize*sizeof(QChar));
+                    to += msize;
+                }
+            } else {
+                to = index;
+            }
+            if (al) {
+                memcpy(d->data+to, auc, al*sizeof(QChar));
+                to += al;
+            }
+            index += bl;
+            movestart = index;
+            num++;
+        }
+        if (num) {
+            int msize = d->size - movestart;
+            if (msize > 0)
+                memmove(d->data + to, d->data + movestart, msize*sizeof(QChar));
+            resize(d->size - num*(bl-al));
+        }
     } else {
-	// the most complex case. We don't want to loose performance by doing repeated
-	// copies and reallocs of the string.
-	while (index != -1) {
-	    uint indices[4096];
-	    uint pos = 0;
-	    while (pos < 4095) {
-		index = bm_find((const QChar*) d->data, d->size, index, (const QChar*)before.d->data, bl, skiptable, cs);
-		if (index == -1)
-		    break;
-		indices[pos++] = index;
-		index += bl;
-		// avoid infinite loop
-		if (!bl)
-		    index++;
-	    }
-	    if (!pos)
-		break;
+        // the most complex case. We don't want to loose performance by doing repeated
+        // copies and reallocs of the string.
+        while (index != -1) {
+            uint indices[4096];
+            uint pos = 0;
+            while (pos < 4095) {
+                index = bm_find((const QChar*) d->data, d->size, index, (const QChar*)before.d->data, bl, skiptable, cs);
+                if (index == -1)
+                    break;
+                indices[pos++] = index;
+                index += bl;
+                // avoid infinite loop
+                if (!bl)
+                    index++;
+            }
+            if (!pos)
+                break;
 
-	    // we have a table of replacement positions, use them for fast replacing
-	    int adjust = pos*(al-bl);
-	    // index has to be adjusted in case we get back into the loop above.
-	    if (index != -1)
-		index += adjust;
-	    int newLen = d->size + adjust;
-	    int moveend = d->size;
-	    if (newLen > d->size)
-		resize(newLen);
+            // we have a table of replacement positions, use them for fast replacing
+            int adjust = pos*(al-bl);
+            // index has to be adjusted in case we get back into the loop above.
+            if (index != -1)
+                index += adjust;
+            int newLen = d->size + adjust;
+            int moveend = d->size;
+            if (newLen > d->size)
+                resize(newLen);
 
-	    while (pos) {
-		pos--;
-		int movestart = indices[pos] + bl;
-		int insertstart = indices[pos] + pos*(al-bl);
-		int moveto = insertstart + al;
-		memmove(d->data + moveto, d->data + movestart, (moveend - movestart)*sizeof(QChar));
-		memcpy(d->data + insertstart, after.unicode(), al*sizeof(QChar));
-		moveend = movestart-bl;
-	    }
-	}
+            while (pos) {
+                pos--;
+                int movestart = indices[pos] + bl;
+                int insertstart = indices[pos] + pos*(al-bl);
+                int moveto = insertstart + al;
+                memmove(d->data + moveto, d->data + movestart, (moveend - movestart)*sizeof(QChar));
+                memcpy(d->data + insertstart, after.unicode(), al*sizeof(QChar));
+                moveend = movestart-bl;
+            }
+        }
     }
     return *this;
 }
@@ -1313,7 +1313,7 @@ QString& QString::replace(const QRegExp& rx, const QString& after)
     QRegExp rx2 = rx;
 
     if (isEmpty() && rx2.search(*this) == -1)
-	return *this;
+        return *this;
 
     d->cache = 0;
     realloc();
@@ -1324,63 +1324,63 @@ QString& QString::replace(const QRegExp& rx, const QString& after)
     QRegExp::CaretMode caretMode = QRegExp::CaretAtZero;
 
     if (numCaptures > 0) {
-	if (numCaptures > 9)
-	    numCaptures = 9;
+        if (numCaptures > 9)
+            numCaptures = 9;
 
-	const QChar *uc = after.unicode();
-	int numBackRefs = 0;
+        const QChar *uc = after.unicode();
+        int numBackRefs = 0;
 
-	for (int i = 0; i < al - 1; i++) {
-	    if (uc[i] == '\\') {
-		int no = uc[i + 1].digitValue();
-		if (no > 0 && no <= numCaptures)
-		    numBackRefs++;
-	    }
-	}
+        for (int i = 0; i < al - 1; i++) {
+            if (uc[i] == '\\') {
+                int no = uc[i + 1].digitValue();
+                if (no > 0 && no <= numCaptures)
+                    numBackRefs++;
+            }
+        }
 
-	/*
-	  This is the harder case where we have back-references.
-	  We don't try to optimize it.
-	*/
-	if (numBackRefs > 0) {
-	    int *capturePositions = new int[numBackRefs];
-	    int *captureNumbers = new int[numBackRefs];
-	    int j = 0;
+        /*
+          This is the harder case where we have back-references.
+          We don't try to optimize it.
+        */
+        if (numBackRefs > 0) {
+            int *capturePositions = new int[numBackRefs];
+            int *captureNumbers = new int[numBackRefs];
+            int j = 0;
 
-	    for (int i = 0; i < al - 1; i++) {
-		if (uc[i] == '\\') {
-		    int no = uc[i + 1].digitValue();
-		    if (no > 0 && no <= numCaptures) {
-			capturePositions[j] = i;
-			captureNumbers[j] = no;
-			j++;
-		    }
-		}
-	    }
+            for (int i = 0; i < al - 1; i++) {
+                if (uc[i] == '\\') {
+                    int no = uc[i + 1].digitValue();
+                    if (no > 0 && no <= numCaptures) {
+                        capturePositions[j] = i;
+                        captureNumbers[j] = no;
+                        j++;
+                    }
+                }
+            }
 
-	    while (index <= length()) {
-		index = rx2.search(*this, index, caretMode);
-		if (index == -1)
-		    break;
+            while (index <= length()) {
+                index = rx2.search(*this, index, caretMode);
+                if (index == -1)
+                    break;
 
-		QString after2 = after;
-		for (j = numBackRefs - 1; j >= 0; j--)
-		    after2.replace(capturePositions[j], 2,
-				    rx2.cap(captureNumbers[j]));
+                QString after2 = after;
+                for (j = numBackRefs - 1; j >= 0; j--)
+                    after2.replace(capturePositions[j], 2,
+                                    rx2.cap(captureNumbers[j]));
 
-		replace(index, rx2.matchedLength(), after2);
-		index += after2.length();
+                replace(index, rx2.matchedLength(), after2);
+                index += after2.length();
 
-		if (rx2.matchedLength() == 0) {
-		    // avoid infinite loop on 0-length matches (e.g., [a-z]*)
-		    index++;
-		}
-		caretMode = QRegExp::CaretWontMatch;
-	    }
-	    delete[] capturePositions;
-	    delete[] captureNumbers;
-	    return *this;
-	}
+                if (rx2.matchedLength() == 0) {
+                    // avoid infinite loop on 0-length matches (e.g., [a-z]*)
+                    index++;
+                }
+                caretMode = QRegExp::CaretWontMatch;
+            }
+            delete[] capturePositions;
+            delete[] captureNumbers;
+            return *this;
+        }
     }
 
     /*
@@ -1388,55 +1388,55 @@ QString& QString::replace(const QRegExp& rx, const QString& after)
       back-references.
    */
     while (index != -1) {
-	struct {
-	    int pos;
-	    int length;
-	} replacements[2048];
+        struct {
+            int pos;
+            int length;
+        } replacements[2048];
 
-	uint pos = 0;
-	int adjust = 0;
-	while (pos < 2047) {
-	    index = rx2.search(*this, index, caretMode);
-	    if (index == -1)
-		break;
-	    int ml = rx2.matchedLength();
-	    replacements[pos].pos = index;
-	    replacements[pos++].length = ml;
-	    index += ml;
-	    adjust += al - ml;
-	    // avoid infinite loop
-	    if (!ml)
-		index++;
-	}
-	if (!pos)
-	    break;
-	replacements[pos].pos = d->size;
-	uint newlen = d->size + adjust;
+        uint pos = 0;
+        int adjust = 0;
+        while (pos < 2047) {
+            index = rx2.search(*this, index, caretMode);
+            if (index == -1)
+                break;
+            int ml = rx2.matchedLength();
+            replacements[pos].pos = index;
+            replacements[pos++].length = ml;
+            index += ml;
+            adjust += al - ml;
+            // avoid infinite loop
+            if (!ml)
+                index++;
+        }
+        if (!pos)
+            break;
+        replacements[pos].pos = d->size;
+        uint newlen = d->size + adjust;
 
-	// to continue searching at the right position after we did
-	// the first round of replacements
-	if (index != -1)
-	    index += adjust;
-	QString newstring;
-	newstring.reserve(newlen + 1);
-	QChar *newuc = newstring.data();
-	QChar *uc = newuc;
-	int copystart = 0;
-	uint i = 0;
-	while (i < pos) {
-	    int copyend = replacements[i].pos;
-	    int size = copyend - copystart;
-	    memcpy(uc, d->data + copystart, size * sizeof(QChar));
-	    uc += size;
-	    memcpy(uc, after.d->data, al * sizeof(QChar));
-	    uc += al;
-	    copystart = copyend + replacements[i].length;
-	    i++;
-	}
-	memcpy(uc, d->data + copystart, (d->size - copystart) * sizeof(QChar));
-	newstring.resize(newlen);
-	*this = newstring;
-	caretMode = QRegExp::CaretWontMatch;
+        // to continue searching at the right position after we did
+        // the first round of replacements
+        if (index != -1)
+            index += adjust;
+        QString newstring;
+        newstring.reserve(newlen + 1);
+        QChar *newuc = newstring.data();
+        QChar *uc = newuc;
+        int copystart = 0;
+        uint i = 0;
+        while (i < pos) {
+            int copyend = replacements[i].pos;
+            int size = copyend - copystart;
+            memcpy(uc, d->data + copystart, size * sizeof(QChar));
+            uc += size;
+            memcpy(uc, after.d->data, al * sizeof(QChar));
+            uc += al;
+            copystart = copyend + replacements[i].length;
+            i++;
+        }
+        memcpy(uc, d->data + copystart, (d->size - copystart) * sizeof(QChar));
+        newstring.resize(newlen);
+        *this = newstring;
+        caretMode = QRegExp::CaretWontMatch;
     }
     return *this;
 }
@@ -1464,14 +1464,14 @@ int QString::count(QChar c, QString::CaseSensitivity cs) const
     const QChar *i = (const QChar*) d->data + d->size;
     const QChar *b = (const QChar*) d->data;
     if (cs == CaseSensitive) {
-	while (i != b)
-	    if (*--i == c)
-		++num;
+        while (i != b)
+            if (*--i == c)
+                ++num;
     } else {
-	c = ::lower(c);
-	while (i != b)
-	    if (::lower(*--i) == c)
-		++num;
+        c = ::lower(c);
+        while (i != b)
+            if (::lower(*--i) == c)
+                ++num;
     }
     return num;
 }
@@ -1492,7 +1492,7 @@ int QString::count(const QString& s, QString::CaseSensitivity cs) const
     int num = 0;
     int i = -1;
     while ((i = indexOf(s, i+1, cs)) != -1)
-	++num;
+        ++num;
     return num;
 }
 
@@ -1535,8 +1535,8 @@ int QString::count(const QString& s, QString::CaseSensitivity cs) const
     was found.
 
     \code
-	QString string("bananas");
-	int i = string.find(QRegExp("an"), 0);    // i == 1
+        QString string("bananas");
+        int i = string.find(QRegExp("an"), 0);    // i == 1
     \endcode
 
     \sa findRev() replace() contains()
@@ -1552,8 +1552,8 @@ int QString::indexOf(const QRegExp& rx, int from) const { return rx.search(*this
     Returns the position of the match or -1 if no match was found.
 
     \code
-	QString string("bananas");
-	int i = string.findRev(QRegExp("an"));      // i == 3
+        QString string("bananas");
+        int i = string.findRev(QRegExp("an"));      // i == 3
     \endcode
 
     \sa find()
@@ -1569,9 +1569,9 @@ int QString::lastIndexOf(const QRegExp& rx, int from) const { return rx.searchRe
     there are four instances of "ana" or "ama".
 
     \code
-	QString str = "banana and panama";
-	QRegExp rxp = QRegExp("a[nm]a", true, false);
-	int i = str.contains(rxp);    // i == 4
+        QString str = "banana and panama";
+        QRegExp rxp = QRegExp("a[nm]a", true, false);
+        int i = str.contains(rxp);    // i == 4
     \endcode
 
     \sa contains(), find() findRev()
@@ -1583,10 +1583,10 @@ int QString::count(const QRegExp& rx) const
     int index = -1;
     int len = length();
     while (index < len - 1) {                 // count overlapping matches
-	index = rx.search(*this, index + 1);
-	if (index == -1)
-	    break;
-	count++;
+        index = rx.search(*this, index + 1);
+        if (index == -1)
+            break;
+        count++;
     }
     return count;
 }
@@ -1620,7 +1620,7 @@ int QString::count(const QRegExp& rx) const
 */
 
 /*!
-    \fn QString QString::section( QChar sep, int start, int end = 0xffffffff, int flags = SectionDefault ) const
+    \fn QString QString::section(QChar sep, int start, int end = 0xffffffff, int flags = SectionDefault) const
 
     This function returns a section of the string.
 
@@ -1637,12 +1637,12 @@ int QString::count(const QRegExp& rx) const
     separators; see \l{SectionFlags}.
 
     \code
-    QString csv( "forename,middlename,surname,phone" );
-    QString s = csv.section( ',', 2, 2 );   // s == "surname"
+    QString csv("forename,middlename,surname,phone");
+    QString s = csv.section(',', 2, 2);   // s == "surname"
 
-    QString path( "/usr/local/bin/myapp" ); // First field is empty
-    QString s = path.section( '/', 3, 4 );  // s == "bin/myapp"
-    QString s = path.section( '/', 3, 3, SectionSkipEmpty ); // s == "myapp"
+    QString path("/usr/local/bin/myapp"); // First field is empty
+    QString s = path.section('/', 3, 4);  // s == "bin/myapp"
+    QString s = path.section('/', 3, 3, SectionSkipEmpty); // s == "myapp"
     \endcode
 
     If \a start or \a end is negative, we count fields from the right
@@ -1650,11 +1650,11 @@ int QString::count(const QRegExp& rx) const
     right-most field being -2, and so on.
 
     \code
-    QString csv( "forename,middlename,surname,phone" );
-    QString s = csv.section( ',', -3, -2 );  // s == "middlename,surname"
+    QString csv("forename,middlename,surname,phone");
+    QString s = csv.section(',', -3, -2);  // s == "middlename,surname"
 
-    QString path( "/usr/local/bin/myapp" ); // First field is empty
-    QString s = path.section( '/', -1 ); // s == "myapp"
+    QString path("/usr/local/bin/myapp"); // First field is empty
+    QString s = path.section('/', -1); // s == "myapp"
     \endcode
 
     \sa split()
@@ -1678,8 +1678,8 @@ int QString::count(const QRegExp& rx) const
     separators; see \l{SectionFlags}.
 
     \code
-    QString data( "forename**middlename**surname**phone" );
-    QString s = data.section( "**", 2, 2 ); // s == "surname"
+    QString data("forename**middlename**surname**phone");
+    QString s = data.section("**", 2, 2); // s == "surname"
     \endcode
 
     If \a start or \a end is negative, we count fields from the right
@@ -1687,60 +1687,60 @@ int QString::count(const QRegExp& rx) const
     right-most field being -2, and so on.
 
     \code
-    QString data( "forename**middlename**surname**phone" );
-    QString s = data.section( "**", -3, -2 ); // s == "middlename**surname"
+    QString data("forename**middlename**surname**phone");
+    QString s = data.section("**", -3, -2); // s == "middlename**surname"
     \endcode
 
     \sa split()
 */
 
-QString QString::section( const QString &sep, int start, int end, int flags ) const
+QString QString::section(const QString &sep, int start, int end, int flags) const
 {
     QStringList sections = split(sep);
     if(sections.isEmpty())
-	return QString();
+        return QString();
     if(!(flags & SectionSkipEmpty)) {
-	if(start < 0)
-	    start += sections.count();
-	if(end < 0)
-	    end += sections.count();
+        if(start < 0)
+            start += sections.count();
+        if(end < 0)
+            end += sections.count();
     } else {
-	int skip = 0;
-	for(QStringList::Iterator it = sections.begin(); it != sections.end(); ++it) {
-	    if((*it).isEmpty())
-		skip++;
-	}
-	if(start < 0)
-	    start += sections.count() - skip;
-	if(end < 0)
-	    end += sections.count() - skip;
+        int skip = 0;
+        for(QStringList::Iterator it = sections.begin(); it != sections.end(); ++it) {
+            if((*it).isEmpty())
+                skip++;
+        }
+        if(start < 0)
+            start += sections.count() - skip;
+        if(end < 0)
+            end += sections.count() - skip;
     }
     int x = 0, run = 0;
     QString ret;
     for(QStringList::Iterator it = sections.begin(); x <= end && it != sections.end(); ++it) {
-	if(x >= start) {
-	    if((*it).isEmpty()) {
-		run++;
-	    } else {
-		if(!ret.isEmpty() || !(flags & SectionSkipEmpty)) {
-		    int i_end = run;
-		    if(!ret.isEmpty() && !(flags & SectionIncludeTrailingSep))
-			i_end++;
-		    if((flags & SectionIncludeLeadingSep) && it != sections.begin() && x == start)
-			i_end++;
-		    for(int i = 0; i < i_end; i++)
-			ret += sep;
-		} else if((flags & SectionIncludeLeadingSep) && it != sections.begin()) {
-		    ret += sep;
-		}
-		run = 0;
-		ret += (*it);
-		if((flags & SectionIncludeTrailingSep) && it != sections.end())
-		    ret += sep;
-	    }
-	}
-	if(!(*it).isEmpty() || !(flags & SectionSkipEmpty))
-	    x++;
+        if(x >= start) {
+            if((*it).isEmpty()) {
+                run++;
+            } else {
+                if(!ret.isEmpty() || !(flags & SectionSkipEmpty)) {
+                    int i_end = run;
+                    if(!ret.isEmpty() && !(flags & SectionIncludeTrailingSep))
+                        i_end++;
+                    if((flags & SectionIncludeLeadingSep) && it != sections.begin() && x == start)
+                        i_end++;
+                    for(int i = 0; i < i_end; i++)
+                        ret += sep;
+                } else if((flags & SectionIncludeLeadingSep) && it != sections.begin()) {
+                    ret += sep;
+                }
+                run = 0;
+                ret += (*it);
+                if((flags & SectionIncludeTrailingSep) && it != sections.end())
+                    ret += sep;
+            }
+        }
+        if(!(*it).isEmpty() || !(flags & SectionSkipEmpty))
+            x++;
     }
     return ret;
 }
@@ -1771,9 +1771,9 @@ public:
     separators; see \l{SectionFlags}.
 
     \code
-    QString line( "forename\tmiddlename  surname \t \t phone" );
-    QRegExp sep( "\s+" );
-    QString s = line.section( sep, 2, 2 ); // s == "surname"
+    QString line("forename\tmiddlename  surname \t \t phone");
+    QRegExp sep("\s+");
+    QString s = line.section(sep, 2, 2); // s == "surname"
     \endcode
 
     If \a start or \a end is negative, we count fields from the right
@@ -1781,9 +1781,9 @@ public:
     right-most field being -2, and so on.
 
     \code
-    QString line( "forename\tmiddlename  surname \t \t phone" );
-    QRegExp sep( "\\s+" );
-    QString s = line.section( sep, -3, -2 ); // s == "middlename  surname"
+    QString line("forename\tmiddlename  surname \t \t phone");
+    QRegExp sep("\\s+");
+    QString s = line.section(sep, -3, -2); // s == "middlename  surname"
     \endcode
 
     \warning Using this QRegExp version is much more expensive than
@@ -1791,11 +1791,11 @@ public:
 
     \sa split() simplified()
 */
-QString QString::section( const QRegExp &reg, int start, int end, int flags ) const
+QString QString::section(const QRegExp &reg, int start, int end, int flags) const
 {
     const QChar *uc = unicode();
     if(!uc)
-	return QString();
+        return QString();
 
     QRegExp sep(reg);
     sep.setCaseSensitive(!(flags & SectionCaseInsensitiveSeps));
@@ -1803,57 +1803,57 @@ QString QString::section( const QRegExp &reg, int start, int end, int flags ) co
     QList<section_chunk> l;
     int n = length(), m = 0, last_m = 0, last = 0, last_len = 0;
 
-    while ( ( m = sep.search( *this, m ) ) != -1 ) {
-	l.append(section_chunk(last_len, QString(uc + last_m, m - last_m)));
-	last_m = m;
-	last_len = sep.matchedLength();
-	if((m += sep.matchedLength()) >= n) {
-	    last = 1;
-	    break;
-	}
+    while ((m = sep.search(*this, m)) != -1) {
+        l.append(section_chunk(last_len, QString(uc + last_m, m - last_m)));
+        last_m = m;
+        last_len = sep.matchedLength();
+        if((m += sep.matchedLength()) >= n) {
+            last = 1;
+            break;
+        }
     }
     if(!last)
-	l.append(section_chunk(last_len, QString(uc + last_m, n - last_m)));
+        l.append(section_chunk(last_len, QString(uc + last_m, n - last_m)));
 
     if(start < 0)
-	start = l.count() + start;
+        start = l.count() + start;
     if(end == -1)
-	end = l.count();
+        end = l.count();
     else if(end < 0)
-	end = l.count() + end;
+        end = l.count() + end;
 
     int i = 0;
     QString ret;
     for (int idx = 0; idx < l.size(); ++idx) {
-	const section_chunk &chk = l.at(idx);
-	if((flags & SectionSkipEmpty) && chk.length == (int)chk.string.length()) {
-	    if(i <= start)
-		start++;
-	    end++;
-	}
-	if(i == start) {
-	    ret = (flags & SectionIncludeLeadingSep) ? chk.string : chk.string.mid(chk.length);
-	} else if(i > start) {
-	    ret += chk.string;
-	}
-	if(i == end) {
-	    if(idx < l.size()-1 && flags & SectionIncludeTrailingSep)
-		ret += chk.string.left(chk.length);
-	    break;
-	}
+        const section_chunk &chk = l.at(idx);
+        if((flags & SectionSkipEmpty) && chk.length == (int)chk.string.length()) {
+            if(i <= start)
+                start++;
+            end++;
+        }
+        if(i == start) {
+            ret = (flags & SectionIncludeLeadingSep) ? chk.string : chk.string.mid(chk.length);
+        } else if(i > start) {
+            ret += chk.string;
+        }
+        if(i == end) {
+            if(idx < l.size()-1 && flags & SectionIncludeTrailingSep)
+                ret += chk.string.left(chk.length);
+            break;
+        }
     }
     return ret;
 }
 #endif
 
 /*!
-    \fn QString QString::section( char sep, int start, int end = 0xffffffff, int flags = SectionDefault ) const
+    \fn QString QString::section(char sep, int start, int end = 0xffffffff, int flags = SectionDefault) const
 
     \overload
 */
 
 /*!
-    \fn QString QString::section( const char *sep, int start, int end = 0xffffffff, int flags = SectionDefault ) const
+    \fn QString QString::section(const char *sep, int start, int end = 0xffffffff, int flags = SectionDefault) const
 
     \overload
 */
@@ -1867,8 +1867,8 @@ QString QString::section( const QRegExp &reg, int start, int end, int flags ) co
     string.
 
     \code
-	QString s = "Pineapple";
-	QString t = s.left(4);    // t == "Pine"
+        QString s = "Pineapple";
+        QString t = s.left(4);    // t == "Pine"
     \endcode
 
     \sa right(), mid(), isEmpty()
@@ -1876,11 +1876,11 @@ QString QString::section( const QRegExp &reg, int start, int end, int flags ) co
 QString QString::left(int len)  const
 {
     if (d == &shared_null)
-	return QString();
+        return QString();
     if (len > d->size)
-	return *this;
+        return *this;
     if (len < 0)
-	len = 0;
+        len = 0;
     return QString((const QChar*) d->data, len);
 }
 
@@ -1892,8 +1892,8 @@ QString QString::left(int len)  const
     string is returned.
 
     \code
-	QString string("Pineapple");
-	QString t = string.right(5);   // t == "apple"
+        QString string("Pineapple");
+        QString t = string.right(5);   // t == "apple"
     \endcode
 
     \sa left(), mid(), isEmpty()
@@ -1902,11 +1902,11 @@ QString QString::left(int len)  const
 QString QString::right(int len) const
 {
     if (d == &shared_null)
-	return QString();
+        return QString();
     if (len > d->size)
-	return *this;
+        return *this;
     if (len < 0)
-	len = 0;
+        len = 0;
     return QString((const QChar*) d->data + d->size - len, len);
 }
 
@@ -1920,8 +1920,8 @@ QString QString::right(int len) const
     function returns all characters that are available.
 
     \code
-	QString s("Five pineapples");
-	QString t = s.mid(5, 4);                  // t == "pine"
+        QString s("Five pineapples");
+        QString t = s.mid(5, 4);                  // t == "pine"
     \endcode
 
     \sa left(), right()
@@ -1930,17 +1930,17 @@ QString QString::right(int len) const
 QString QString::mid(int i, int len) const
 {
     if (d == &shared_null || i >= d->size)
-	return QString();
+        return QString();
     if (len < 0)
-	len = d->size - i;
+        len = d->size - i;
     if (i < 0) {
-	len += i;
-	i = 0;
+        len += i;
+        i = 0;
     }
     if (len + i > d->size)
-	len = d->size - i;
+        len = d->size - i;
     if (i == 0 && len == d->size)
-	return *this;
+        return *this;
     return QString((const QChar*) d->data + i, len);
 }
 
@@ -1952,9 +1952,9 @@ QString QString::mid(int i, int len) const
     sensitive; otherwise the search is case insensitive.
 
     \code
-	QString str("Bananas");
-	str.startsWith("Ban");     // returns true
-	str.startsWith("Car");     // returns false
+        QString str("Bananas");
+        str.startsWith("Ban");     // returns true
+        str.startsWith("Car");     // returns false
     \endcode
 
     \sa endsWith()
@@ -1962,19 +1962,19 @@ QString QString::mid(int i, int len) const
 bool QString::startsWith(const QString& s, QString::CaseSensitivity cs) const
 {
     if (d == &shared_null)
-	return (s.d == &shared_null);
+        return (s.d == &shared_null);
     if (d->size == 0)
-	return s.d->size == 0;
+        return s.d->size == 0;
     if (s.d->size > d->size)
-	return false;
+        return false;
     if (cs == CaseSensitive) {
-	for (int i = 0; i < s.d->size; ++i)
-	    if (d->data[i] != s.d->data[i])
-		return false;
+        for (int i = 0; i < s.d->size; ++i)
+            if (d->data[i] != s.d->data[i])
+                return false;
     } else {
-	for (int i = 0; i < s.d->size; ++i)
-	    if (::lower(d->data[i]) != ::lower(s.d->data[i]))
-		return false;
+        for (int i = 0; i < s.d->size; ++i)
+            if (::lower(d->data[i]) != ::lower(s.d->data[i]))
+                return false;
     }
     return true;
 }
@@ -1987,9 +1987,9 @@ bool QString::startsWith(const QString& s, QString::CaseSensitivity cs) const
     sensitive; otherwise the search is case insensitive.
 
     \code
-	QString str("Bananas");
-	str.endsWith("anas");         // returns true
-	str.endsWith("pple");         // returns false
+        QString str("Bananas");
+        str.endsWith("anas");         // returns true
+        str.endsWith("pple");         // returns false
     \endcode
 
     \sa startsWith()
@@ -1997,20 +1997,20 @@ bool QString::startsWith(const QString& s, QString::CaseSensitivity cs) const
 bool QString::endsWith(const QString& s, QString::CaseSensitivity cs) const
 {
     if (d == &shared_null)
-	return (s.d == &shared_null);
+        return (s.d == &shared_null);
     if (d->size == 0)
-	return s.d->size == 0;
+        return s.d->size == 0;
     int pos = d->size - s.d->size;
     if (pos < 0)
-	return false;
+        return false;
     if (cs == CaseSensitive) {
-	for (int i = 0; i < s.d->size; i++)
-	    if (d->data[pos+i] != s.d->data[i])
-		return false;
+        for (int i = 0; i < s.d->size; i++)
+            if (d->data[pos+i] != s.d->data[i])
+                return false;
     } else {
-	for (int i = 0; i < (int) s.length(); i++)
-	    if (::lower(d->data[pos+i]) != ::lower(s.d->data[i]))
-		return false;
+        for (int i = 0; i < (int) s.length(); i++)
+            if (::lower(d->data[pos+i]) != ::lower(s.d->data[i]))
+                return false;
     }
     return true;
 }
@@ -2052,22 +2052,22 @@ QByteArray QString::toLatin1() const
 {
     QByteArray *ba = (QByteArray*) &d->c;
     if (!d->cache || d->encoding != Data::Latin1) {
-	if (!d->c)
-	    new (&d->c) QByteArray;
-	else
-	    ba->clear();
-	d->cache = true;
-	d->encoding = Data::Latin1;
-	if (d->size) {
-	    ba->resize(d->size);
-	    const ushort *i = d->data;
-	    const ushort *e = d->data + d->size;
-	    uchar *s = (uchar*) ba->data();
-	    while (i != e) {
-		*s++ = (*i>0xff) ? '?' : (uchar) *i;
-		++i;
-	    }
-	}
+        if (!d->c)
+            new (&d->c) QByteArray;
+        else
+            ba->clear();
+        d->cache = true;
+        d->encoding = Data::Latin1;
+        if (d->size) {
+            ba->resize(d->size);
+            const ushort *i = d->data;
+            const ushort *e = d->data + d->size;
+            uchar *s = (uchar*) ba->data();
+            while (i != e) {
+                *s++ = (*i>0xff) ? '?' : (uchar) *i;
+                ++i;
+            }
+        }
     }
     return *ba;
 }
@@ -2083,19 +2083,19 @@ QByteArray QString::toLatin1() const
 QByteArray QString::toAscii() const
 {
 #ifndef QT_NO_TEXTCODEC
-    if ( codecForCStrings ) {
-	QByteArray *ba = (QByteArray*) &d->c;
-	if (!d->cache || d->encoding != Data::Latin1) {
-	    if (!d->c)
-		new (&d->c) QByteArray;
-	    d->cache = true;
-	    d->encoding = Data::Ascii;
-	    if (d == &shared_null)
-		ba->clear();
-	    else
-		*ba = codecForCStrings->fromUnicode( *this );
-	}
-	return *ba;
+    if (codecForCStrings) {
+        QByteArray *ba = (QByteArray*) &d->c;
+        if (!d->cache || d->encoding != Data::Latin1) {
+            if (!d->c)
+                new (&d->c) QByteArray;
+            d->cache = true;
+            d->encoding = Data::Ascii;
+            if (d == &shared_null)
+                ba->clear();
+            else
+                *ba = codecForCStrings->fromUnicode(*this);
+        }
+        return *ba;
     }
 #endif // QT_NO_TEXTCODEC
     return toLatin1();
@@ -2119,19 +2119,19 @@ QByteArray QString::toAscii() const
 QByteArray QString::toLocal8Bit() const
 {
 #ifndef QT_NO_TEXTCODEC
-    if ( QTextCodec::codecForLocale() ) {
-	QByteArray *ba = (QByteArray*) &d->c;
-	if (!d->cache || d->encoding != Data::Local8Bit) {
-	    if (!d->c)
-		new (&d->c) QByteArray;
-	    d->cache = true;
-	    d->encoding = Data::Local8Bit;
-	    if (d == &shared_null)
-		ba->clear();
-	    else
-		*ba = QTextCodec::codecForLocale()->fromUnicode( *this );
-	}
-	return *ba;
+    if (QTextCodec::codecForLocale()) {
+        QByteArray *ba = (QByteArray*) &d->c;
+        if (!d->cache || d->encoding != Data::Local8Bit) {
+            if (!d->c)
+                new (&d->c) QByteArray;
+            d->cache = true;
+            d->encoding = Data::Local8Bit;
+            if (d == &shared_null)
+                ba->clear();
+            else
+                *ba = QTextCodec::codecForLocale()->fromUnicode(*this);
+        }
+        return *ba;
     }
 #endif // QT_NO_TEXTCODEC
     return toLatin1();
@@ -2149,58 +2149,58 @@ QByteArray QString::toUtf8() const
 {
     QByteArray *ba = (QByteArray*) &d->c;
     if (!d->cache || d->encoding != Data::Utf8) {
-	if (!d->c)
-	    new (&d->c) QByteArray;
-	else
-	    ba->clear();
-	d->cache = true;
-	d->encoding = Data::Utf8;
-	if (d->size) {
-	    int l = d->size;
-	    int rlen = l*3+1;
-	    ba->resize(rlen);
-	    uchar *cursor = (uchar*)ba->data();
-	    const ushort *ch =d->data;
-	    for (int i=0; i < l; i++) {
-		uint u = *ch;
-		if ( u < 0x80 ) {
-		    *cursor++ = (uchar)u;
-		} else {
-		    if ( u < 0x0800 ) {
-			*cursor++ = 0xc0 | ((uchar) (u >> 6));
-		    } else {
-			if (u >= 0xd800 && u < 0xdc00 && i < l-1) {
-			    unsigned short low = ch[1];
-			    if (low >= 0xdc00 && low < 0xe000) {
-				++ch;
-				++i;
-				u = (u - 0xd800)*0x400 + (low - 0xdc00) + 0x10000;
-			    }
-			}
-			if (u > 0xffff) {
-			    // if people are working in utf8, but strings are encoded in eg. latin1, the resulting
-			    // name might be invalid utf8. This and the corresponding code in fromUtf8 takes care
-			    // we can handle this without loosing information. This can happen with latin filenames
-			    // and a utf8 locale under Unix.
-			    if (u > 0x10fe00 && u < 0x10ff00) {
-				*cursor++ = (u - 0x10fe00);
-				++ch;
-				continue;
-			    } else {
-				*cursor++ = 0xf0 | ((uchar) (u >> 18));
-				*cursor++ = 0x80 | ( ((uchar) (u >> 12)) & 0x3f);
-			    }
-			} else {
-			    *cursor++ = 0xe0 | ((uchar) (u >> 12));
-			}
-			*cursor++ = 0x80 | ( ((uchar) (u >> 6)) & 0x3f);
-		    }
-		    *cursor++ = 0x80 | ((uchar) (u&0x3f));
-		}
-		++ch;
-	    }
-	    ba->resize(cursor - (uchar*)ba->constData());
-	}
+        if (!d->c)
+            new (&d->c) QByteArray;
+        else
+            ba->clear();
+        d->cache = true;
+        d->encoding = Data::Utf8;
+        if (d->size) {
+            int l = d->size;
+            int rlen = l*3+1;
+            ba->resize(rlen);
+            uchar *cursor = (uchar*)ba->data();
+            const ushort *ch =d->data;
+            for (int i=0; i < l; i++) {
+                uint u = *ch;
+                if (u < 0x80) {
+                    *cursor++ = (uchar)u;
+                } else {
+                    if (u < 0x0800) {
+                        *cursor++ = 0xc0 | ((uchar) (u >> 6));
+                    } else {
+                        if (u >= 0xd800 && u < 0xdc00 && i < l-1) {
+                            unsigned short low = ch[1];
+                            if (low >= 0xdc00 && low < 0xe000) {
+                                ++ch;
+                                ++i;
+                                u = (u - 0xd800)*0x400 + (low - 0xdc00) + 0x10000;
+                            }
+                        }
+                        if (u > 0xffff) {
+                            // if people are working in utf8, but strings are encoded in eg. latin1, the resulting
+                            // name might be invalid utf8. This and the corresponding code in fromUtf8 takes care
+                            // we can handle this without loosing information. This can happen with latin filenames
+                            // and a utf8 locale under Unix.
+                            if (u > 0x10fe00 && u < 0x10ff00) {
+                                *cursor++ = (u - 0x10fe00);
+                                ++ch;
+                                continue;
+                            } else {
+                                *cursor++ = 0xf0 | ((uchar) (u >> 18));
+                                *cursor++ = 0x80 | (((uchar) (u >> 12)) & 0x3f);
+                            }
+                        } else {
+                            *cursor++ = 0xe0 | ((uchar) (u >> 12));
+                        }
+                        *cursor++ = 0x80 | (((uchar) (u >> 6)) & 0x3f);
+                    }
+                    *cursor++ = 0x80 | ((uchar) (u&0x3f));
+                }
+                ++ch;
+            }
+            ba->resize(cursor - (uchar*)ba->constData());
+        }
     }
     return *ba;
 }
@@ -2216,23 +2216,23 @@ QString QString::fromLatin1(const char *s, int size)
 {
     Data *d;
     if (!s) {
-	d = &shared_null;
-	++d->ref;
+        d = &shared_null;
+        ++d->ref;
     } else if (!*s) {
-	d = &shared_empty;
-	++d->ref;
+        d = &shared_empty;
+        ++d->ref;
     } else {
-	int slen = strlen(s);
-	int len = size < 0 ? slen : qMin(slen, size);
-	d = (Data*) qMalloc(sizeof(Data)+len*sizeof(QChar));
-	d->ref = 1;
-	d->alloc = d->size = len;
-	d->c = 0;
-	d->clean = d->encoding = d->cache = d->simpletext = d->righttoleft = 0;
-	d->data = d->array;
-	ushort *i = d->data;
-	while(len--)
-	   * i++ = (uchar)*s++;
+        int slen = strlen(s);
+        int len = size < 0 ? slen : qMin(slen, size);
+        d = (Data*) qMalloc(sizeof(Data)+len*sizeof(QChar));
+        d->ref = 1;
+        d->alloc = d->size = len;
+        d->c = 0;
+        d->clean = d->encoding = d->cache = d->simpletext = d->righttoleft = 0;
+        d->data = d->array;
+        ushort *i = d->data;
+        while(len--)
+           * i++ = (uchar)*s++;
     }
     return QString(d);
 }
@@ -2240,73 +2240,73 @@ QString QString::fromLatin1(const char *s, int size)
 #ifdef Q_OS_WIN32
 #include "qt_windows.h"
 
-QByteArray qt_winQString2MB( const QString& s, int uclen )
+QByteArray qt_winQString2MB(const QString& s, int uclen)
 {
-    if ( uclen < 0 )
-	uclen = s.length();
-    if ( s.isNull() )
-	return QByteArray();
-    if ( uclen == 0 )
-	return QByteArray("");
+    if (uclen < 0)
+        uclen = s.length();
+    if (s.isNull())
+        return QByteArray();
+    if (uclen == 0)
+        return QByteArray("");
     BOOL used_def;
     QByteArray mb(4096, 0);
     int len;
-    while ( !(len=WideCharToMultiByte(CP_ACP, 0, (const WCHAR*)s.unicode(), uclen,
-		mb.data(), mb.size()-1, 0, &used_def)) )
+    while (!(len=WideCharToMultiByte(CP_ACP, 0, (const WCHAR*)s.unicode(), uclen,
+                mb.data(), mb.size()-1, 0, &used_def)))
     {
-	int r = GetLastError();
-	if ( r == ERROR_INSUFFICIENT_BUFFER ) {
-	    mb.resize(1+WideCharToMultiByte( CP_ACP, 0,
-				(const WCHAR*)s.unicode(), uclen,
-				0, 0, 0, &used_def));
-		// and try again...
-	} else {
+        int r = GetLastError();
+        if (r == ERROR_INSUFFICIENT_BUFFER) {
+            mb.resize(1+WideCharToMultiByte(CP_ACP, 0,
+                                (const WCHAR*)s.unicode(), uclen,
+                                0, 0, 0, &used_def));
+                // and try again...
+        } else {
 #ifndef QT_NO_DEBUG
-	    // Fail.
-	    qWarning("WideCharToMultiByte cannot convert multibyte text (error %d): %s (UTF-8)",
-		r, s.utf8());
+            // Fail.
+            qWarning("WideCharToMultiByte cannot convert multibyte text (error %d): %s (UTF-8)",
+                r, s.utf8());
 #endif
-	    break;
-	}
+            break;
+        }
     }
     mb.resize(len);
     return mb;
 }
 
-QString qt_winMB2QString( const char* mb, int mblen )
+QString qt_winMB2QString(const char* mb, int mblen)
 {
-    if ( !mb || !mblen )
-	return QString::null;
+    if (!mb || !mblen)
+        return QString::null;
     const int wclen_auto = 4096;
     WCHAR wc_auto[wclen_auto];
     int wclen = wclen_auto;
     WCHAR *wc = wc_auto;
     int len;
-    while ( !(len=MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED,
-		mb, mblen, wc, wclen )) )
+    while (!(len=MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED,
+                mb, mblen, wc, wclen)))
     {
-	int r = GetLastError();
-	if ( r == ERROR_INSUFFICIENT_BUFFER ) {
-	    if ( wc != wc_auto ) {
-		qWarning("Size changed in MultiByteToWideChar");
-		break;
-	    } else {
-		wclen = MultiByteToWideChar( CP_ACP, MB_PRECOMPOSED,
-				    mb, mblen, 0, 0 );
-		wc = new WCHAR[wclen];
-		// and try again...
-	    }
-	} else {
-	    // Fail.
-	    qWarning("MultiByteToWideChar cannot convert multibyte text");
-	    break;
-	}
+        int r = GetLastError();
+        if (r == ERROR_INSUFFICIENT_BUFFER) {
+            if (wc != wc_auto) {
+                qWarning("Size changed in MultiByteToWideChar");
+                break;
+            } else {
+                wclen = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED,
+                                    mb, mblen, 0, 0);
+                wc = new WCHAR[wclen];
+                // and try again...
+            }
+        } else {
+            // Fail.
+            qWarning("MultiByteToWideChar cannot convert multibyte text");
+            break;
+        }
     }
-    if ( len <= 0 )
-	return QString::null;
-    QString s( (QChar*)wc, len - 1 ); // len - 1: we don't want terminator
-    if ( wc != wc_auto )
-	delete [] wc;
+    if (len <= 0)
+        return QString::null;
+    QString s((QChar*)wc, len - 1); // len - 1: we don't want terminator
+    if (wc != wc_auto)
+        delete [] wc;
     return s;
 }
 #endif // Q_OS_WIN32
@@ -2319,36 +2319,36 @@ QString qt_winMB2QString( const char* mb, int mblen )
     of \a local8Bit.
 
     \code
-	QString str = QString::fromLocal8Bit( "123456789", 5 );
-	// str == "12345"
+        QString str = QString::fromLocal8Bit("123456789", 5);
+        // str == "12345"
     \endcode
 
     \a local8Bit is assumed to be encoded in a locale-specific format.
 
     See QTextCodec for more diverse coding/decoding of Unicode strings.
 */
-QString QString::fromLocal8Bit( const char* local8Bit, int size )
+QString QString::fromLocal8Bit(const char* local8Bit, int size)
 {
-    if ( !local8Bit )
-	return QString::null;
+    if (!local8Bit)
+        return QString::null;
     int slen = strlen(local8Bit);
     int len = size < 0 ? slen : qMin(slen, size);
 #if defined(Q_OS_DARWIN)
     return fromUtf8(local8Bit,len);
 #elif defined(Q_OS_WIN32)
-    if ( len >= 0 ) {
-	QByteArray s(local8Bit,len+1);
-	return qt_winMB2QString(s);
+    if (len >= 0) {
+        QByteArray s(local8Bit,len+1);
+        return qt_winMB2QString(s);
     }
-    return qt_winMB2QString( local8Bit );
+    return qt_winMB2QString(local8Bit);
 #elif defined(Q_OS_UNIX)
 #  if !defined(QT_NO_TEXTCODEC)
     QTextCodec *codec = QTextCodec::codecForLocale();
     if (codec)
-	return codec->toUnicode( local8Bit, len );
+        return codec->toUnicode(local8Bit, len);
 #  endif // !QT_NO_TEXTCODEC
 #endif
-    return fromLatin1( local8Bit, len );
+    return fromLatin1(local8Bit, len);
 }
 
 /*!
@@ -2368,24 +2368,24 @@ QString QString::fromLocal8Bit( const char* local8Bit, int size )
     QString from 8-bit ASCII text using this function.
 
     \code
-	QString str = QString::fromAscii( "123456789", 5 );
-	// str == "12345"
+        QString str = QString::fromAscii("123456789", 5);
+        // str == "12345"
     \endcode
  */
-QString QString::fromAscii( const char* ascii, int size )
+QString QString::fromAscii(const char* ascii, int size)
 {
 #ifndef QT_NO_TEXTCODEC
-    if ( codecForCStrings ) {
-	if ( !ascii )
-	    return QString::null;
-	int slen = strlen(ascii);
-	int len = size < 0 ? slen : qMin(slen, size);
-	if ( len == 0 || *ascii == '\0' )
-	    return QString::fromLatin1( "" );
-	return codecForCStrings->toUnicode( ascii, len );
+    if (codecForCStrings) {
+        if (!ascii)
+            return QString::null;
+        int slen = strlen(ascii);
+        int len = size < 0 ? slen : qMin(slen, size);
+        if (len == 0 || *ascii == '\0')
+            return QString::fromLatin1("");
+        return codecForCStrings->toUnicode(ascii, len);
     }
 #endif
-    return fromLatin1( ascii, size );
+    return fromLatin1(ascii, size);
 }
 
 
@@ -2396,85 +2396,85 @@ QString QString::fromAscii( const char* ascii, int size )
     the length of \a utf8 then it will use the length of \a utf8.
 
     \code
-	QString str = QString::fromUtf8("123456789", 5);
-	// str == "12345"
+        QString str = QString::fromUtf8("123456789", 5);
+        // str == "12345"
     \endcode
 
     See QTextCodec for more diverse coding/decoding of Unicode strings.
 */
-QString QString::fromUtf8( const char* utf8, int size )
+QString QString::fromUtf8(const char* utf8, int size)
 {
-    if ( !utf8 )
-	return QString::null;
+    if (!utf8)
+        return QString::null;
 
     int slen = strlen(utf8);
     int len = size < 0 ? slen : qMin(slen, size);
     QString result;
-    result.resize( len*2 ); // worst case
+    result.resize(len*2); // worst case
     unsigned short *qch = result.d->data;
     uint uc = 0;
     int need = 0;
     int error = -1;
     uchar ch;
     for (int i=0; i<len; i++) {
-	ch = utf8[i];
-	if (need) {
-	    if ( (ch&0xc0) == 0x80 ) {
-		uc = (uc << 6) | (ch & 0x3f);
-		need--;
-		if ( !need ) {
-		    if (uc > 0xffff) {
-			// surrogate pair
-			uc -= 0x10000;
-			unsigned short high = uc/0x400 + 0xd800;
-			unsigned short low = uc%0x400 + 0xdc00;
-			*qch++ = high;
-			*qch++ = low;
-		    } else {
-			*qch++ = uc;
-		    }
-		}
-	    } else {
-		// See QString::utf8() for explanation.
-		//
-		// The surrogate below corresponds to a Unicode value of (0x10fe00+ch) which
-		// is in one of the private use areas of Unicode.
-		i = error;
-		*qch++ = 0xdbff;
-		*qch++ = 0xde00+((uchar)utf8[i]);
-		need = 0;
-	    }
-	} else {
-	    if ( ch < 128 ) {
-		*qch++ = ch;
-	    } else if ((ch & 0xe0) == 0xc0) {
-		uc = ch & 0x1f;
-		need = 1;
-		error = i;
-	    } else if ((ch & 0xf0) == 0xe0) {
-		uc = ch & 0x0f;
-		need = 2;
-		error = i;
-	    } else if ((ch&0xf8) == 0xf0) {
-		uc = ch & 0x07;
-		need = 3;
-		error = i;
-	    } else {
-	        // Error
-	        *qch++ = 0xdbff;
-		*qch++ = 0xde00+((uchar)utf8[i]);
- 	    }
-	}
+        ch = utf8[i];
+        if (need) {
+            if ((ch&0xc0) == 0x80) {
+                uc = (uc << 6) | (ch & 0x3f);
+                need--;
+                if (!need) {
+                    if (uc > 0xffff) {
+                        // surrogate pair
+                        uc -= 0x10000;
+                        unsigned short high = uc/0x400 + 0xd800;
+                        unsigned short low = uc%0x400 + 0xdc00;
+                        *qch++ = high;
+                        *qch++ = low;
+                    } else {
+                        *qch++ = uc;
+                    }
+                }
+            } else {
+                // See QString::utf8() for explanation.
+                //
+                // The surrogate below corresponds to a Unicode value of (0x10fe00+ch) which
+                // is in one of the private use areas of Unicode.
+                i = error;
+                *qch++ = 0xdbff;
+                *qch++ = 0xde00+((uchar)utf8[i]);
+                need = 0;
+            }
+        } else {
+            if (ch < 128) {
+                *qch++ = ch;
+            } else if ((ch & 0xe0) == 0xc0) {
+                uc = ch & 0x1f;
+                need = 1;
+                error = i;
+            } else if ((ch & 0xf0) == 0xe0) {
+                uc = ch & 0x0f;
+                need = 2;
+                error = i;
+            } else if ((ch&0xf8) == 0xf0) {
+                uc = ch & 0x07;
+                need = 3;
+                error = i;
+            } else {
+                // Error
+                *qch++ = 0xdbff;
+                *qch++ = 0xde00+((uchar)utf8[i]);
+            }
+        }
     }
     if (need) {
-	// we have some invalid characters remaining we need to add to the string
-	for (int i = error; i < len; ++i) {
-	    *qch++ = 0xdbff;
-	    *qch++ = 0xde00+((uchar)utf8[i]);
-	}
+        // we have some invalid characters remaining we need to add to the string
+        for (int i = error; i < len; ++i) {
+            *qch++ = 0xdbff;
+            *qch++ = 0xde00+((uchar)utf8[i]);
+        }
     }
 
-    result.truncate( qch - result.d->data );
+    result.truncate(qch - result.d->data);
     return result;
 }
 
@@ -2486,13 +2486,13 @@ QString QString::fromUtf8( const char* utf8, int size )
 
   \sa isNull()
 */
-QString QString::fromUcs2( const unsigned short *str )
+QString QString::fromUcs2(const unsigned short *str)
 {
-    if ( !str )
-	return QString();
+    if (!str)
+        return QString();
     int length = 0;
-    while ( str[length] != 0 )
-	length++;
+    while (str[length] != 0)
+        length++;
     return QString((const QChar *)str, length);
 }
 
@@ -2507,7 +2507,7 @@ QString& QString::setUnicode(const QChar *unicode, int size)
 {
      resize(size);
      if (unicode && size)
-	 memcpy(d->data, unicode, size*sizeof(QChar));
+         memcpy(d->data, unicode, size*sizeof(QChar));
      return *this;
 }
 
@@ -2536,9 +2536,9 @@ QString& QString::setUnicodeCodes(const ushort *unicode_as_ushorts, int size)
     (TAB), 10 (LF), 11 (VT), 12 (FF), 13 (CR), and 32 (Space).
 
     \code
-	QString string = "  lots\t of\nwhite    space ";
-	QString t = string.simplified();
-	// t == "lots of white space"
+        QString string = "  lots\t of\nwhite    space ";
+        QString t = string.simplified();
+        // t == "lots of white space"
     \endcode
 
     \sa trimmed()
@@ -2546,7 +2546,7 @@ QString& QString::setUnicodeCodes(const ushort *unicode_as_ushorts, int size)
 QString QString::simplified() const
 {
     if (d->size == 0)
-	return *this;
+        return *this;
     QString result;
     result.resize(d->size);
     const QChar *from = (const QChar*) d->data;
@@ -2554,17 +2554,17 @@ QString QString::simplified() const
     int outc=0;
     QChar *to   = (QChar*) result.d->data;
     for (;;) {
-	while (from!=fromend && from->isSpace())
-	    from++;
-	while (from!=fromend && !from->isSpace())
-	    to[outc++] = *from++;
-	if (from!=fromend)
-	    to[outc++] = ' ';
-	else
-	    break;
+        while (from!=fromend && from->isSpace())
+            from++;
+        while (from!=fromend && !from->isSpace())
+            to[outc++] = *from++;
+        if (from!=fromend)
+            to[outc++] = ' ';
+        else
+            break;
     }
     if (outc > 0 && to[outc-1] == ' ')
-	outc--;
+        outc--;
     result.truncate(outc);
     return result;
 }
@@ -2579,8 +2579,8 @@ QString QString::simplified() const
     also include other Unicode characters.
 
     \code
-	QString string = "   white space   ";
-	QString s = string.trimmed();       // s == "white space"
+        QString string = "   white space   ";
+        QString s = string.trimmed();       // s == "white space"
     \endcode
 
     \sa simplified()
@@ -2588,22 +2588,22 @@ QString QString::simplified() const
 QString QString::trimmed() const
 {
     if (d->size == 0)
-	return *this;
+        return *this;
     const QChar *s = (const QChar*)d->data;
     if (!s->isSpace() && !s[d->size-1].isSpace())
-	return *this;
+        return *this;
     int start = 0;
     int end = d->size - 1;
     while (start<=end && s[start].isSpace())  // skip white space from start
-	start++;
+        start++;
     if (start <= end) {                          // only white space
-	while (end && s[end].isSpace())           // skip white space from end
-	    end--;
+        while (end && s[end].isSpace())           // skip white space from end
+            end--;
     }
     int l = end - start + 1;
     if (l <= 0) {
-	++shared_empty.ref;
-    	return QString(&shared_empty);
+        ++shared_empty.ref;
+        return QString(&shared_empty);
     }
     return QString(s+start, l);
 }
@@ -2646,8 +2646,8 @@ QString QString::trimmed() const
     happens.
 
     \code
-	QString s = "truncate me";
-	s.truncate(5);            // s == "trunc"
+        QString s = "truncate me";
+        s.truncate(5);            // s == "trunc"
     \endcode
 
     \sa resize();
@@ -2661,8 +2661,8 @@ QString QString::trimmed() const
     used.
 
     \code
-	QString str;
-	str.fill('g', 5);      // string == "ggggg"
+        QString str;
+        str.fill('g', 5);      // string == "ggggg"
     \endcode
 */
 
@@ -2670,10 +2670,10 @@ QString& QString::fill(QChar c, int size)
 {
     resize(size < 0 ? d->size : size);
     if (d->size) {
-	QChar *i = (QChar*)d->data + d->size;
-	QChar *b = (QChar*)d->data;
-	while (i != b)
-	   * --i = c;
+        QChar *i = (QChar*)d->data + d->size;
+        QChar *b = (QChar*)d->data;
+        while (i != b)
+           * --i = c;
     }
     return *this;
 }
@@ -2698,13 +2698,13 @@ QString& QString::fill(QChar c, int size)
 /*!
     \fn bool QString::isNull() const
 
-    Returns TRUE if the string is null; otherwise returns FALSE. A
+    Returns true if the string is null; otherwise returns false. A
     null string is always empty.
 
     \code
-	QString a;          // a.unicode() == 0, a.length() == 0
-	a.isNull();         // TRUE, because a.unicode() == 0
-	a.isEmpty();        // TRUE, because a.length() == 0
+        QString a;          // a.unicode() == 0, a.length() == 0
+        a.isNull();         // true, because a.unicode() == 0
+        a.isEmpty();        // true, because a.length() == 0
     \endcode
 
     \sa isEmpty(), length()
@@ -2995,9 +2995,9 @@ QString& QString::fill(QChar c, int size)
     QString::localeAwareCompare().
 
     \code
-	int a = QString::compare("def", "abc");   // a > 0
-	int b = QString::compare("abc", "def");   // b < 0
-	int c = QString::compare("abc", "abc");   // c == 0
+        int a = QString::compare("def", "abc");   // a > 0
+        int b = QString::compare("abc", "def");   // b < 0
+        int c = QString::compare("abc", "abc");   // c == 0
     \endcode
 */
 
@@ -3015,7 +3015,7 @@ int QString::compare(const QString& s) const
 
 
 /*!
-    \fn int QString::localeAwareCompare( const QString & s1, const QString & s2 )
+    \fn int QString::localeAwareCompare(const QString & s1, const QString & s2)
 
     Compares \a s1 with \a s2 and returns an integer less than, equal
     to, or greater than zero if \a s1 is less than, equal to, or
@@ -3040,40 +3040,40 @@ int QString::compare(const QString& s) const
 #define CSTR_GREATER_THAN 3
 #endif
 
-int QString::localeAwareCompare( const QString& s ) const
+int QString::localeAwareCompare(const QString& s) const
 {
     // do the right thing for null and empty
-    if ( isEmpty() || s.isEmpty() )
-	return compare( s );
+    if (isEmpty() || s.isEmpty())
+        return compare(s);
 
 #if defined(Q_OS_WIN32)
     int res;
-    QT_WA( {
-	const TCHAR* s1 = (TCHAR*)ucs2();
-	const TCHAR* s2 = (TCHAR*)s.ucs2();
-	res = CompareStringW( LOCALE_USER_DEFAULT, 0, s1, length(), s2, s.length() );
+    QT_WA({
+        const TCHAR* s1 = (TCHAR*)ucs2();
+        const TCHAR* s2 = (TCHAR*)s.ucs2();
+        res = CompareStringW(LOCALE_USER_DEFAULT, 0, s1, length(), s2, s.length());
     } , {
-	QByteArray s1 = toLocal8Bit();
-	QByteArray s2 = s.toLocal8Bit();
-	res = CompareStringA( LOCALE_USER_DEFAULT, 0, s1.data(), s1.length(), s2.data(), s2.length() );
-    } );
+        QByteArray s1 = toLocal8Bit();
+        QByteArray s2 = s.toLocal8Bit();
+        res = CompareStringA(LOCALE_USER_DEFAULT, 0, s1.data(), s1.length(), s2.data(), s2.length());
+    });
 
-    switch ( res ) {
+    switch (res) {
     case CSTR_LESS_THAN:
-	return -1;
+        return -1;
     case CSTR_GREATER_THAN:
-	return 1;
+        return 1;
     default:
-	return 0;
+        return 0;
     }
 #elif defined(Q_OS_UNIX)
     // declared in <string.h>
-    int delta = strcoll( local8Bit(), s.local8Bit() );
-    if ( delta == 0 )
-	delta = ucstrcmp( *this, s );
+    int delta = strcoll(local8Bit(), s.local8Bit());
+    if (delta == 0)
+        delta = ucstrcmp(*this, s);
     return delta;
 #else
-    return ucstrcmp( *this, s );
+    return ucstrcmp(*this, s);
 #endif
 }
 
@@ -3109,8 +3109,8 @@ int QString::localeAwareCompare( const QString& s ) const
     \a width are removed, and the copy is returned.
 
     \code
-	QString s("apple");
-	QString t = s.leftJustified(8, '.');        // t == "apple..."
+        QString s("apple");
+        QString t = s.leftJustified(8, '.');        // t == "apple..."
     \endcode
 
     \sa rightJustified()
@@ -3122,17 +3122,17 @@ QString QString::leftJustified(int width, QChar fill, bool truncate) const
     int len = length();
     int padlen = width - len;
     if (padlen > 0) {
-	result.resize(len+padlen);
-	if (len)
-	    memcpy(result.d->data, d->data, sizeof(QChar)*len);
-	QChar *uc = (QChar*)result.d->data + len;
-	while (padlen--)
-	   * uc++ = fill;
+        result.resize(len+padlen);
+        if (len)
+            memcpy(result.d->data, d->data, sizeof(QChar)*len);
+        QChar *uc = (QChar*)result.d->data + len;
+        while (padlen--)
+           * uc++ = fill;
     } else {
-	if (truncate)
-	    result = left(width);
-	else
-	    result = *this;
+        if (truncate)
+            result = left(width);
+        else
+            result = *this;
     }
     return result;
 }
@@ -3149,8 +3149,8 @@ QString QString::leftJustified(int width, QChar fill, bool truncate) const
     width.
 
     \code
-	QString string("apple");
-	QString t = string.rightJustified(8, '.');  // t == "...apple"
+        QString string("apple");
+        QString t = string.rightJustified(8, '.');  // t == "...apple"
     \endcode
 
     \sa leftJustified()
@@ -3162,17 +3162,17 @@ QString QString::rightJustified(int width, QChar fill, bool truncate) const
     int len = length();
     int padlen = width - len;
     if (padlen > 0) {
-	result.resize(len+padlen);
-	QChar *uc = (QChar*)result.d->data;
-	while (padlen--)
-	   * uc++ = fill;
-	if (len)
-	    memcpy(uc, d->data, sizeof(QChar)*len);
+        result.resize(len+padlen);
+        QChar *uc = (QChar*)result.d->data;
+        while (padlen--)
+           * uc++ = fill;
+        if (len)
+            memcpy(uc, d->data, sizeof(QChar)*len);
     } else {
-	if (truncate)
-	    result = left(width);
-	else
-	    result = *this;
+        if (truncate)
+            result = left(width);
+        else
+            result = *this;
     }
     return result;
 }
@@ -3181,8 +3181,8 @@ QString QString::rightJustified(int width, QChar fill, bool truncate) const
     Returns a lowercase copy of the string.
 
     \code
-	QString string("TROlltECH");
-	str = string.toLower();   // str == "trolltech"
+        QString string("TROlltECH");
+        str = string.toLower();   // str == "trolltech"
     \endcode
 
     \sa upper()
@@ -3192,23 +3192,23 @@ QString QString::toLower() const
 {
     int l = d->size;
     if (l) {
-	QChar *p = (QChar*)d->data;
-	if (p) {
-	    while (l) {
-		if (*p != ::lower(*p)) {
-		    QString s(*this);
-		    p = (QChar*)s.data() + (p - (QChar*)d->data);
-		    while (l) {
-			*p = ::lower(*p);
-			l--;
-			p++;
-		    }
-		    return s;
-		}
-		l--;
-		p++;
-	    }
-	}
+        QChar *p = (QChar*)d->data;
+        if (p) {
+            while (l) {
+                if (*p != ::lower(*p)) {
+                    QString s(*this);
+                    p = (QChar*)s.data() + (p - (QChar*)d->data);
+                    while (l) {
+                        *p = ::lower(*p);
+                        l--;
+                        p++;
+                    }
+                    return s;
+                }
+                l--;
+                p++;
+            }
+        }
     }
     return *this;
 }
@@ -3217,8 +3217,8 @@ QString QString::toLower() const
     Returns an uppercase copy of the string.
 
     \code
-	QString string("TeXt");
-	str = string.toUpper();     // t == "TEXT"
+        QString string("TeXt");
+        str = string.toUpper();     // t == "TEXT"
     \endcode
 
     \sa lower()
@@ -3228,23 +3228,23 @@ QString QString::toUpper() const
 {
     int l = d->size;
     if (l) {
-	QChar *p = (QChar*)d->data;
-	if (p) {
-	    while (l) {
-		if (*p != ::upper(*p)) {
-		    QString s(*this);
-		    p = s.data() + (p - (QChar*)d->data);
-		    while (l) {
-			*p = ::upper(*p);
-			l--;
-			p++;
-		    }
-		    return s;
-		}
-		l--;
-		p++;
-	    }
-	}
+        QChar *p = (QChar*)d->data;
+        if (p) {
+            while (l) {
+                if (*p != ::upper(*p)) {
+                    QString s(*this);
+                    p = s.data() + (p - (QChar*)d->data);
+                    while (l) {
+                        *p = ::upper(*p);
+                        l--;
+                        p++;
+                    }
+                    return s;
+                }
+                l--;
+                p++;
+            }
+        }
     }
     return *this;
 }
@@ -3262,9 +3262,9 @@ QString QString::toUpper() const
     instead:
 
     \code
-	char buf[BufSize];
-	::sprintf(buf, "%lld", 123456789LL);
-	QString str = QString::fromAscii(buf);
+        char buf[BufSize];
+        ::sprintf(buf, "%lld", 123456789LL);
+        QString str = QString::fromAscii(buf);
     \endcode
 
     \warning We do not recommend using QString::sprintf() in new Qt
@@ -3273,10 +3273,10 @@ QString QString::toUpper() const
     Here's an example that uses QTextOStream:
 
     \code
-	QString str;
-	QString s = ...;
-	int x = ...;
-	QTextOStream(&str) << s << " : " << x;
+        QString str;
+        QString s = ...;
+        int x = ...;
+        QTextOStream(&str) << s << " : " << x;
     \endcode
 
     For \link QObject::tr() translations,\endlink especially if the
@@ -3292,17 +3292,17 @@ QString QString::toUpper() const
     \sa arg()
 */
 
-QString &QString::sprintf( const char* cformat, ... )
+QString &QString::sprintf(const char* cformat, ...)
 {
     QLocale locale(QLocale::C);
 
     va_list ap;
-    va_start( ap, cformat );
+    va_start(ap, cformat);
 
-    if ( !cformat || !*cformat ) {
-	// Qt 1.x compat
-	*this = fromLatin1( "" );
-	return *this;
+    if (!cformat || !*cformat) {
+        // Qt 1.x compat
+        *this = fromLatin1("");
+        return *this;
     }
 
     // Parse cformat
@@ -3310,309 +3310,309 @@ QString &QString::sprintf( const char* cformat, ... )
     QString result;
     const char *c = cformat;
     for (;;) {
-    	// Copy non-escape chars to result
-    	while (*c != '\0' && *c != '%')
-	    result.append(*c++);
+        // Copy non-escape chars to result
+        while (*c != '\0' && *c != '%')
+            result.append(*c++);
 
-	if (*c == '\0')
-	    break;
+        if (*c == '\0')
+            break;
 
-	// Found '%'
-	const char *escape_start = c;
-	++c;
+        // Found '%'
+        const char *escape_start = c;
+        ++c;
 
-	if (*c == '\0') {
-	    result.append('%'); // a % at the end of the string - treat as non-escape text
-	    break;
-	}
-    	if (*c == '%') {
-	    result.append('%'); // %%
-	    ++c;
-	    continue;
-	}
+        if (*c == '\0') {
+            result.append('%'); // a % at the end of the string - treat as non-escape text
+            break;
+        }
+        if (*c == '%') {
+            result.append('%'); // %%
+            ++c;
+            continue;
+        }
 
-	// Parse flag characters
-	unsigned flags = 0;
-	bool no_more_flags = false;
-	do {
-	    switch (*c) {
-		case '#': flags |= QLocalePrivate::Alternate; break;
-		case '0': flags |= QLocalePrivate::ZeroPadded; break;
-		case '-': flags |= QLocalePrivate::LeftAdjusted; break;
-		case ' ': flags |= QLocalePrivate::BlankBeforePositive; break;
-		case '+': flags |= QLocalePrivate::AlwaysShowSign; break;
-		case '\'': flags |= QLocalePrivate::ThousandsGroup; break;
-		default: no_more_flags = true; break;
-    	    }
+        // Parse flag characters
+        unsigned flags = 0;
+        bool no_more_flags = false;
+        do {
+            switch (*c) {
+                case '#': flags |= QLocalePrivate::Alternate; break;
+                case '0': flags |= QLocalePrivate::ZeroPadded; break;
+                case '-': flags |= QLocalePrivate::LeftAdjusted; break;
+                case ' ': flags |= QLocalePrivate::BlankBeforePositive; break;
+                case '+': flags |= QLocalePrivate::AlwaysShowSign; break;
+                case '\'': flags |= QLocalePrivate::ThousandsGroup; break;
+                default: no_more_flags = true; break;
+            }
 
-	    if (!no_more_flags)
-	    	++c;
-	} while (!no_more_flags);
+            if (!no_more_flags)
+                ++c;
+        } while (!no_more_flags);
 
-	if (*c == QLatin1Char('\0')) {
-	    result.append(QLatin1String(escape_start)); // incomplete escape, treat as non-escape text
-	    break;
-	}
+        if (*c == QLatin1Char('\0')) {
+            result.append(QLatin1String(escape_start)); // incomplete escape, treat as non-escape text
+            break;
+        }
 
-	// Parse field width
-	int width = -1; // -1 means unspecified
-	if (qIsDigit(*c)) {
-	    QString width_str;
-	    while (*c != '\0' && qIsDigit(*c))
-	    	width_str.append(*c++);
+        // Parse field width
+        int width = -1; // -1 means unspecified
+        if (qIsDigit(*c)) {
+            QString width_str;
+            while (*c != '\0' && qIsDigit(*c))
+                width_str.append(*c++);
 
-	    // can't be negative - started with a digit
-    	    // contains at least one digit
-	    width = width_str.toInt();
-	}
-	else if (*c == '*') {
-	    width = va_arg(ap, int);
-	    if (width < 0)
-	    	width = -1; // treat all negative numbers as unspecified
-	    ++c;
-	}
+            // can't be negative - started with a digit
+            // contains at least one digit
+            width = width_str.toInt();
+        }
+        else if (*c == '*') {
+            width = va_arg(ap, int);
+            if (width < 0)
+                width = -1; // treat all negative numbers as unspecified
+            ++c;
+        }
 
-	if (*c == '\0') {
-	    result.append(QLatin1String(escape_start)); // incomplete escape, treat as non-escape text
-	    break;
-	}
+        if (*c == '\0') {
+            result.append(QLatin1String(escape_start)); // incomplete escape, treat as non-escape text
+            break;
+        }
 
-	// Parse precision
-	int precision = -1; // -1 means unspecified
-	if (*c == '.') {
-	    ++c;
-	    if (qIsDigit(*c)) {
-		QString precision_str;
-		while (*c != '\0' && qIsDigit(*c))
-	    	    precision_str.append(*c++);
+        // Parse precision
+        int precision = -1; // -1 means unspecified
+        if (*c == '.') {
+            ++c;
+            if (qIsDigit(*c)) {
+                QString precision_str;
+                while (*c != '\0' && qIsDigit(*c))
+                    precision_str.append(*c++);
 
-		// can't be negative - started with a digit
-    	    	// contains at least one digit
-		precision = precision_str.toInt();
-	    }
-	    else if (*c == '*') {
-		precision = va_arg(ap, int);
-		if (precision < 0)
-	    	    precision = -1; // treat all negative numbers as unspecified
-		++c;
-	    }
-	}
+                // can't be negative - started with a digit
+                // contains at least one digit
+                precision = precision_str.toInt();
+            }
+            else if (*c == '*') {
+                precision = va_arg(ap, int);
+                if (precision < 0)
+                    precision = -1; // treat all negative numbers as unspecified
+                ++c;
+            }
+        }
 
-	if (*c == '\0') {
-	    result.append(QLatin1String(escape_start)); // incomplete escape, treat as non-escape text
-	    break;
-	}
+        if (*c == '\0') {
+            result.append(QLatin1String(escape_start)); // incomplete escape, treat as non-escape text
+            break;
+        }
 
-    	// Parse the length modifier
-    	enum LengthMod { lm_none, lm_hh, lm_h, lm_l, lm_ll, lm_L, lm_j, lm_z, lm_t };
-	LengthMod length_mod = lm_none;
-	switch (*c) {
-	    case 'h':
-	    	++c;
-		if (*c == 'h') {
-		    length_mod = lm_hh;
-		    ++c;
-		}
-		else
-		    length_mod = lm_h;
-		break;
+        // Parse the length modifier
+        enum LengthMod { lm_none, lm_hh, lm_h, lm_l, lm_ll, lm_L, lm_j, lm_z, lm_t };
+        LengthMod length_mod = lm_none;
+        switch (*c) {
+            case 'h':
+                ++c;
+                if (*c == 'h') {
+                    length_mod = lm_hh;
+                    ++c;
+                }
+                else
+                    length_mod = lm_h;
+                break;
 
-	    case 'l':
-	    	++c;
-		if (*c == 'l') {
-		    length_mod = lm_ll;
-		    ++c;
-		}
-		else
-		    length_mod = lm_l;
-		break;
+            case 'l':
+                ++c;
+                if (*c == 'l') {
+                    length_mod = lm_ll;
+                    ++c;
+                }
+                else
+                    length_mod = lm_l;
+                break;
 
-	    case 'L':
-	    	++c;
-		length_mod = lm_L;
-		break;
+            case 'L':
+                ++c;
+                length_mod = lm_L;
+                break;
 
-	    case 'j':
-	    	++c;
-		length_mod = lm_j;
-		break;
+            case 'j':
+                ++c;
+                length_mod = lm_j;
+                break;
 
-	    case 'z':
-	    case 'Z':
-	    	++c;
-		length_mod = lm_z;
-		break;
+            case 'z':
+            case 'Z':
+                ++c;
+                length_mod = lm_z;
+                break;
 
-	    case 't':
-	    	++c;
-		length_mod = lm_t;
-		break;
+            case 't':
+                ++c;
+                length_mod = lm_t;
+                break;
 
-	    default: break;
-	}
+            default: break;
+        }
 
-	if (*c == '\0') {
-	    result.append(QLatin1String(escape_start)); // incomplete escape, treat as non-escape text
-	    break;
-	}
+        if (*c == '\0') {
+            result.append(QLatin1String(escape_start)); // incomplete escape, treat as non-escape text
+            break;
+        }
 
-	// Parse the conversion specifier and do the conversion
-	QString subst;
-	switch (*c) {
-	    case 'd':
-	    case 'i': {
-	    	Q_LLONG i;
-		switch (length_mod) {
-		    case lm_none: i = va_arg(ap, int); break;
-		    case lm_hh: i = va_arg(ap, int); break;
-		    case lm_h: i = va_arg(ap, int); break;
-		    case lm_l: i = va_arg(ap, long int); break;
-		    case lm_ll: i = va_arg(ap, Q_LLONG); break;
-		    case lm_j: i = va_arg(ap, long int); break;
-		    case lm_z: i = va_arg(ap, size_t); break;
-		    case lm_t: i = va_arg(ap, int); break;
-		    default: i = 0; break;
-		}
-		subst = locale.d->longLongToString(i, precision, 10, width, flags);
-		++c;
-		break;
-    	    }
-	    case 'o':
-	    case 'u':
-	    case 'x':
-	    case 'X': {
-	    	Q_ULLONG u;
-		switch (length_mod) {
-		    case lm_none: u = va_arg(ap, unsigned int); break;
-		    case lm_hh: u = va_arg(ap, unsigned int); break;
-		    case lm_h: u = va_arg(ap, unsigned int); break;
-		    case lm_l: u = va_arg(ap, unsigned long int); break;
-		    case lm_ll: u = va_arg(ap, Q_ULLONG); break;
-		    default: u = 0; break;
-		}
+        // Parse the conversion specifier and do the conversion
+        QString subst;
+        switch (*c) {
+            case 'd':
+            case 'i': {
+                Q_LLONG i;
+                switch (length_mod) {
+                    case lm_none: i = va_arg(ap, int); break;
+                    case lm_hh: i = va_arg(ap, int); break;
+                    case lm_h: i = va_arg(ap, int); break;
+                    case lm_l: i = va_arg(ap, long int); break;
+                    case lm_ll: i = va_arg(ap, Q_LLONG); break;
+                    case lm_j: i = va_arg(ap, long int); break;
+                    case lm_z: i = va_arg(ap, size_t); break;
+                    case lm_t: i = va_arg(ap, int); break;
+                    default: i = 0; break;
+                }
+                subst = locale.d->longLongToString(i, precision, 10, width, flags);
+                ++c;
+                break;
+            }
+            case 'o':
+            case 'u':
+            case 'x':
+            case 'X': {
+                Q_ULLONG u;
+                switch (length_mod) {
+                    case lm_none: u = va_arg(ap, unsigned int); break;
+                    case lm_hh: u = va_arg(ap, unsigned int); break;
+                    case lm_h: u = va_arg(ap, unsigned int); break;
+                    case lm_l: u = va_arg(ap, unsigned long int); break;
+                    case lm_ll: u = va_arg(ap, Q_ULLONG); break;
+                    default: u = 0; break;
+                }
 
-		if (qIsUpper(*c))
-		    flags |= QLocalePrivate::CapitalEorX;
+                if (qIsUpper(*c))
+                    flags |= QLocalePrivate::CapitalEorX;
 
-    	    	int base = 10;
-		switch (qToLower(*c)) {
-		    case 'o':
-	    		base = 8; break;
-		    case 'u':
-			base = 10; break;
-		    case 'x':
-			base = 16; break;
-		    default: break;
-		}
-		subst = locale.d->unsLongLongToString(u, precision, base, width, flags);
-		++c;
-		break;
-    	    }
-	    case 'E':
-	    case 'e':
-    	    case 'F':
-	    case 'f':
-	    case 'G':
-	    case 'g':
-	    case 'A':
-	    case 'a': {
-	    	double d;
-		if (length_mod == lm_L)
-		    d = va_arg(ap, long double); // not supported - converted to a double
-		else
-		    d = va_arg(ap, double);
+                int base = 10;
+                switch (qToLower(*c)) {
+                    case 'o':
+                        base = 8; break;
+                    case 'u':
+                        base = 10; break;
+                    case 'x':
+                        base = 16; break;
+                    default: break;
+                }
+                subst = locale.d->unsLongLongToString(u, precision, base, width, flags);
+                ++c;
+                break;
+            }
+            case 'E':
+            case 'e':
+            case 'F':
+            case 'f':
+            case 'G':
+            case 'g':
+            case 'A':
+            case 'a': {
+                double d;
+                if (length_mod == lm_L)
+                    d = va_arg(ap, long double); // not supported - converted to a double
+                else
+                    d = va_arg(ap, double);
 
-		if (qIsUpper(*c))
-		    flags |= QLocalePrivate::CapitalEorX;
+                if (qIsUpper(*c))
+                    flags |= QLocalePrivate::CapitalEorX;
 
-    	    	QLocalePrivate::DoubleForm form = QLocalePrivate::DFDecimal;
-		switch (qToLower(*c)) {
-		    case 'e': form = QLocalePrivate::DFExponent; break;
-		    case 'a': 	    	    	// not supported - decimal form used instead
-		    case 'f': form = QLocalePrivate::DFDecimal; break;
-		    case 'g': form = QLocalePrivate::DFSignificantDigits; break;
-		    default: break;
-		}
-		subst = locale.d->doubleToString(d, precision, form, width, flags);
-		++c;
-		break;
-	    }
-	    case 'c': {
-	    	if (length_mod == lm_l)
-		    subst = QChar((ushort) va_arg(ap, int));
-    	    	else
-		    subst = (uchar) va_arg(ap, int);
-		++c;
-		break;
-	    }
-	    case 's': {
-	    	if (length_mod == lm_l) {
-		    const ushort *buff = va_arg(ap, const ushort*);
-		    const ushort *ch = buff;
-		    while (*ch != 0)
-		    	++ch;
-		    subst.setUnicodeCodes(buff, ch - buff);
-		} else
-	    	    subst = QString::fromUtf8(va_arg(ap, const char*));
-		if (precision != -1)
-		    subst.truncate(precision);
-		++c;
-		break;
-	    }
-	    case 'p': {
-		Q_ULLONG i;
+                QLocalePrivate::DoubleForm form = QLocalePrivate::DFDecimal;
+                switch (qToLower(*c)) {
+                    case 'e': form = QLocalePrivate::DFExponent; break;
+                    case 'a':                             // not supported - decimal form used instead
+                    case 'f': form = QLocalePrivate::DFDecimal; break;
+                    case 'g': form = QLocalePrivate::DFSignificantDigits; break;
+                    default: break;
+                }
+                subst = locale.d->doubleToString(d, precision, form, width, flags);
+                ++c;
+                break;
+            }
+            case 'c': {
+                if (length_mod == lm_l)
+                    subst = QChar((ushort) va_arg(ap, int));
+                else
+                    subst = (uchar) va_arg(ap, int);
+                ++c;
+                break;
+            }
+            case 's': {
+                if (length_mod == lm_l) {
+                    const ushort *buff = va_arg(ap, const ushort*);
+                    const ushort *ch = buff;
+                    while (*ch != 0)
+                        ++ch;
+                    subst.setUnicodeCodes(buff, ch - buff);
+                } else
+                    subst = QString::fromUtf8(va_arg(ap, const char*));
+                if (precision != -1)
+                    subst.truncate(precision);
+                ++c;
+                break;
+            }
+            case 'p': {
+                Q_ULLONG i;
 #ifdef Q_OS_WIN64
                 i = (Q_ULLONG) va_arg(ap, void*);
 #else
                 i = (Q_ULONG) va_arg(ap, void*);
 #endif
-		flags |= QLocalePrivate::Alternate;
-		subst = locale.d->unsLongLongToString(i, precision, 16, width, flags);
-		++c;
-		break;
-	    }
-	    case 'n':
-	    	switch (length_mod) {
-		    case lm_hh: {
-		    	signed char *n = va_arg(ap, signed char*);
-			*n = result.length();
-			break;
-		    }
-		    case lm_h: {
-		    	short int *n = va_arg(ap, short int*);
-			*n = result.length();
-    	    	    	break;
-		    }
-		    case lm_l: {
-		    	long int *n = va_arg(ap, long int*);
-			*n = result.length();
-			break;
-		    }
-		    case lm_ll: {
-		    	Q_LLONG *n = va_arg(ap, Q_LLONG*);
-			volatile uint tmp = result.length(); // egcs-2.91.66 gets internal
-			*n = tmp;			     // compiler error without volatile
-			break;
-		    }
-		    default: {
-		    	int *n = va_arg(ap, int*);
-			*n = result.length();
-			break;
-		    }
-		}
-		++c;
-		break;
+                flags |= QLocalePrivate::Alternate;
+                subst = locale.d->unsLongLongToString(i, precision, 16, width, flags);
+                ++c;
+                break;
+            }
+            case 'n':
+                switch (length_mod) {
+                    case lm_hh: {
+                        signed char *n = va_arg(ap, signed char*);
+                        *n = result.length();
+                        break;
+                    }
+                    case lm_h: {
+                        short int *n = va_arg(ap, short int*);
+                        *n = result.length();
+                            break;
+                    }
+                    case lm_l: {
+                        long int *n = va_arg(ap, long int*);
+                        *n = result.length();
+                        break;
+                    }
+                    case lm_ll: {
+                        Q_LLONG *n = va_arg(ap, Q_LLONG*);
+                        volatile uint tmp = result.length(); // egcs-2.91.66 gets internal
+                        *n = tmp;                             // compiler error without volatile
+                        break;
+                    }
+                    default: {
+                        int *n = va_arg(ap, int*);
+                        *n = result.length();
+                        break;
+                    }
+                }
+                ++c;
+                break;
 
-	    default: // bad escape, treat as non-escape text
-	    	for (const char *cc = escape_start; cc != c; ++cc)
-		    result.append(*cc);
-		continue;
-	}
+            default: // bad escape, treat as non-escape text
+                for (const char *cc = escape_start; cc != c; ++cc)
+                    result.append(*cc);
+                continue;
+        }
 
-	if (flags & QLocalePrivate::LeftAdjusted)
-	    result.append(subst.leftJustified(width));
-	else
-	    result.append(subst.rightJustified(width));
+        if (flags & QLocalePrivate::LeftAdjusted)
+            result.append(subst.leftJustified(width));
+        else
+            result.append(subst.rightJustified(width));
     }
 
     va_end(ap);
@@ -3633,7 +3633,7 @@ QString &QString::sprintf( const char* cformat, ... )
     Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
-    FALSE; otherwise *\a{ok} is set to TRUE.
+    false; otherwise *\a{ok} is set to true.
 
     \sa number()
 */
@@ -3641,9 +3641,9 @@ QString &QString::sprintf( const char* cformat, ... )
 Q_LLONG QString::toLongLong(bool *ok, int base) const
 {
 #if defined(QT_CHECK_RANGE)
-    if ( base != 0 && (base < 2 || base > 36) ) {
-	qWarning( "QString::toLongLong: Invalid base (%d)", base );
-	base = 10;
+    if (base != 0 && (base < 2 || base > 36)) {
+        qWarning("QString::toLongLong: Invalid base (%d)", base);
+        base = 10;
     }
 #endif
 
@@ -3662,7 +3662,7 @@ Q_LLONG QString::toLongLong(bool *ok, int base) const
     Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
-    FALSE; otherwise *\a{ok} is set to TRUE.
+    false; otherwise *\a{ok} is set to true.
 
     \sa number()
 */
@@ -3670,9 +3670,9 @@ Q_LLONG QString::toLongLong(bool *ok, int base) const
 Q_ULLONG QString::toULongLong(bool *ok, int base) const
 {
 #if defined(QT_CHECK_RANGE)
-    if ( base != 0 && (base < 2 || base > 36) ) {
-	qWarning( "QString::toULongLong: Invalid base %d", base );
-	base = 10;
+    if (base != 0 && (base < 2 || base > 36)) {
+        qWarning("QString::toULongLong: Invalid base %d", base);
+        base = 10;
     }
 #endif
 
@@ -3691,7 +3691,7 @@ Q_ULLONG QString::toULongLong(bool *ok, int base) const
     Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
-    FALSE; otherwise *\a{ok} is set to TRUE.
+    false; otherwise *\a{ok} is set to true.
 
     \sa number()
 */
@@ -3700,9 +3700,9 @@ long QString::toLong(bool *ok, int base) const
 {
     Q_LLONG v = toLongLong(ok, base);
     if (v < LONG_MIN || v > LONG_MAX) {
-	if (ok)
-	    *ok = false;
-	v = 0;
+        if (ok)
+            *ok = false;
+        v = 0;
     }
     return long(v);
 }
@@ -3718,7 +3718,7 @@ long QString::toLong(bool *ok, int base) const
     Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
-    FALSE; otherwise *\a{ok} is set to TRUE.
+    false; otherwise *\a{ok} is set to true.
 
     \sa number()
 */
@@ -3727,9 +3727,9 @@ ulong QString::toULong(bool *ok, int base) const
 {
     Q_ULLONG v = toULongLong(ok, base);
     if (v > ULONG_MAX) {
-	if (ok)
-	    *ok = false;
-	v = 0;
+        if (ok)
+            *ok = false;
+        v = 0;
     }
     return ulong(v);
 }
@@ -3745,13 +3745,13 @@ ulong QString::toULong(bool *ok, int base) const
     Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
-    FALSE; otherwise *\a{ok} is set to TRUE.
+    false; otherwise *\a{ok} is set to true.
 
     \code
-	QString str("FF");
-	bool ok;
-	int hex = str.toInt(&ok, 16);     // hex == 255, ok == true
-	int dec = str.toInt(&ok, 10);     // dec == 0, ok == false
+        QString str("FF");
+        bool ok;
+        int hex = str.toInt(&ok, 16);     // hex == 255, ok == true
+        int dec = str.toInt(&ok, 10);     // dec == 0, ok == false
     \endcode
 
     \sa number()
@@ -3761,9 +3761,9 @@ int QString::toInt(bool *ok, int base) const
 {
     Q_LLONG v = toLongLong(ok, base);
     if (v < INT_MIN || v > INT_MAX) {
-	if (ok)
-	    *ok = false;
-	v = 0;
+        if (ok)
+            *ok = false;
+        v = 0;
     }
     return (int)v;
 }
@@ -3779,7 +3779,7 @@ int QString::toInt(bool *ok, int base) const
     Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
-    FALSE; otherwise *\a{ok} is set to TRUE.
+    false; otherwise *\a{ok} is set to true.
 
     \sa number()
 */
@@ -3788,9 +3788,9 @@ uint QString::toUInt(bool *ok, int base) const
 {
     Q_ULLONG v = toULongLong(ok, base);
     if (v > UINT_MAX) {
-	if (ok)
-	    *ok = false;
-	v = 0;
+        if (ok)
+            *ok = false;
+        v = 0;
     }
     return (uint)v;
 }
@@ -3806,7 +3806,7 @@ uint QString::toUInt(bool *ok, int base) const
     Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
-    FALSE; otherwise *\a{ok} is set to TRUE.
+    false; otherwise *\a{ok} is set to true.
 
     \sa number()
 */
@@ -3815,9 +3815,9 @@ short QString::toShort(bool *ok, int base) const
 {
     long v = toLongLong(ok, base);
     if (v < SHRT_MIN || v > SHRT_MAX) {
-	if (ok)
-	    *ok = false;
-	v = 0;
+        if (ok)
+            *ok = false;
+        v = 0;
     }
     return (short)v;
 }
@@ -3833,7 +3833,7 @@ short QString::toShort(bool *ok, int base) const
     Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
-    FALSE; otherwise *\a{ok} is set to TRUE.
+    false; otherwise *\a{ok} is set to true.
 
     \sa number()
 */
@@ -3842,9 +3842,9 @@ ushort QString::toUShort(bool *ok, int base) const
 {
     ulong v = toULongLong(ok, base);
     if (v > USHRT_MAX) {
-	if (ok)
-	    *ok = false;
-	v = 0;
+        if (ok)
+            *ok = false;
+        v = 0;
     }
     return (ushort)v;
 }
@@ -3859,8 +3859,8 @@ ushort QString::toUShort(bool *ok, int base) const
     false; otherwise *\a{ok} is set to true.
 
     \code
-	QString string("1234.56");
-	double a = string.toDouble();   // a == 1234.56
+        QString string("1234.56");
+        double a = string.toDouble();   // a == 1234.56
     \endcode
 
     \sa number()
@@ -3873,18 +3873,18 @@ double QString::toDouble(bool *ok) const
     QLocale def_locale;
     double result = def_locale.d->stringToDouble(*this, &my_ok);
     if (my_ok) {
-    	if (ok != 0)
-	    *ok = true;
-	return result;
+        if (ok != 0)
+            *ok = true;
+        return result;
     }
-    
+
     // If the default was not "C", try the "C" locale
     if (def_locale.language() == QLocale::C) {
-    	if (ok != 0)
-	    *ok = false;
-	return 0.0;
+        if (ok != 0)
+            *ok = false;
+        return 0.0;
     }
-    
+
     QLocale c_locale(QLocale::C);
     return c_locale.d->stringToDouble(*this, ok);
 }
@@ -3913,17 +3913,17 @@ float QString::toFloat(bool *ok) const
     The base is 10 by default and must be between 2 and 36.
 
     \code
-	QString string;
-	string = string.setNum(1234);     // string == "1234"
+        QString string;
+        string = string.setNum(1234);     // string == "1234"
     \endcode
 */
 
 QString &QString::setNum(Q_LLONG n, int base)
 {
 #if defined(QT_CHECK_RANGE)
-    if ( base < 2 || base > 36 ) {
-	qWarning( "QString::setNum: Invalid base %d", base );
-	base = 10;
+    if (base < 2 || base > 36) {
+        qWarning("QString::setNum: Invalid base %d", base);
+        base = 10;
     }
 #endif
     QLocale locale(QLocale::C);
@@ -3943,9 +3943,9 @@ QString &QString::setNum(Q_LLONG n, int base)
 QString &QString::setNum(Q_ULLONG n, int base)
 {
 #if defined(QT_CHECK_RANGE)
-    if ( base < 2 || base > 36 ) {
-	qWarning( "QString::setNum: Invalid base %d", base );
-	base = 10;
+    if (base < 2 || base > 36) {
+        qWarning("QString::setNum: Invalid base %d", base);
+        base = 10;
     }
 #endif
     QLocale locale(QLocale::C);
@@ -4036,24 +4036,24 @@ QString &QString::setNum(double n, char f, int prec)
     uint flags = 0;
 
     if (qIsUpper(f))
-    	flags = QLocalePrivate::CapitalEorX;
+        flags = QLocalePrivate::CapitalEorX;
     f = qToLower(f);
 
     switch (f) {
-	case 'f':
-	    form = QLocalePrivate::DFDecimal;
-	    break;
-	case 'e':
-	    form = QLocalePrivate::DFExponent;
-	    break;
-	case 'g':
-	    form = QLocalePrivate::DFSignificantDigits;
-	    break;
-	default:
+        case 'f':
+            form = QLocalePrivate::DFDecimal;
+            break;
+        case 'e':
+            form = QLocalePrivate::DFExponent;
+            break;
+        case 'g':
+            form = QLocalePrivate::DFSignificantDigits;
+            break;
+        default:
 #if defined(QT_CHECK_RANGE)
-	    qWarning( "QString::setNum: Invalid format char '%c'", f );
+            qWarning("QString::setNum: Invalid format char '%c'", f);
 #endif
-	    break;
+            break;
     }
 
     QLocale locale(QLocale::C);
@@ -4081,9 +4081,9 @@ QString &QString::setNum(double n, char f, int prec)
     between 2 and 36.
 
     \code
-	long a = 63;
-	QString str = QString::number(a, 16);             // str == "3f"
-	QString str = QString::number(a, 16).upper();     // str == "3F"
+        long a = 63;
+        QString str = QString::number(a, 16);             // str == "3f"
+        QString str = QString::number(a, 16).upper();     // str == "3F"
     \endcode
 
     \sa setNum()
@@ -4140,10 +4140,10 @@ QString QString::number(uint n, int base)
 
     \sa setNum()
 */
-QString QString::number( Q_LLONG n, int base )
+QString QString::number(Q_LLONG n, int base)
 {
     QString s;
-    s.setNum( n, base );
+    s.setNum(n, base);
     return s;
 }
 
@@ -4152,10 +4152,10 @@ QString QString::number( Q_LLONG n, int base )
 
     \sa setNum()
 */
-QString QString::number( Q_ULLONG n, int base )
+QString QString::number(Q_ULLONG n, int base)
 {
     QString s;
-    s.setNum( n, base );
+    s.setNum(n, base);
     return s;
 }
 
@@ -4182,7 +4182,7 @@ QString QString::number( Q_ULLONG n, int base )
     \code
     double d = 12.34;
     QString ds = QString("'E' format, precision 3, gives %1")
-		    .arg(d, 0, 'E', 3);
+                    .arg(d, 0, 'E', 3);
     // ds == "1.234E+001"
     \endcode
 
@@ -4209,8 +4209,8 @@ QStringList QString::split(const QString &sep) const
     int start = 0;
     int end;
     while ((end = indexOf(sep, start)) != -1) {
-	list.append(mid(start, end - start));
-	start = end + sep.length();
+        list.append(mid(start, end - start));
+        start = end + sep.length();
     }
     list.append(mid(start));
     return list;
@@ -4230,8 +4230,8 @@ QStringList QString::split(const QChar &sep) const
     int start = 0;
     int end;
     while ((end = indexOf(sep, start)) != -1) {
-	list.append(mid(start, end - start));
-	start = end + 1;
+        list.append(mid(start, end - start));
+        start = end + 1;
     }
     list.append(mid(start));
     return list;
@@ -4253,12 +4253,12 @@ QStringList QString::split(const QChar &sep) const
 
     Example:
     \code
-	QString str = "1,2,,6,9";
+        QString str = "1,2,,6,9";
         QStringList list = str.split(QRegExp("[,;]"));
-        // list: [ "1", "2", "", "6", "9" ]
+        // list: ["1", "2", "", "6", "9"]
 
         list.remove(QString());
-        // list: [ "1", "2", "6", "9" ]
+        // list: ["1", "2", "6", "9"]
     \endcode
 
     \sa join(), section()
@@ -4269,8 +4269,8 @@ QStringList QString::split(const QRegExp &sep) const
     int start = 0;
     int end;
     while ((end = indexOf(sep, start)) != -1) {
-	list.append(mid(start, end - start));
-	start = end + sep.matchedLength();
+        list.append(mid(start, end - start));
+        start = end + sep.matchedLength();
     }
     list.append(mid(start));
     return list;
@@ -4279,13 +4279,13 @@ QStringList QString::split(const QRegExp &sep) const
 
 struct ArgEscapeData
 {
-    uint min_escape;	    // lowest escape sequence number
-    uint occurrences;	    // number of occurences of the lowest escape
-    	    	    	    // sequence number
+    uint min_escape;            // lowest escape sequence number
+    uint occurrences;            // number of occurences of the lowest escape
+                                // sequence number
     uint locale_occurrences; // number of occurences of the lowest escape
-    	    	    	    // sequence number which contain 'L'
-    uint escape_len;	    // total length of escape sequences which will
-    	    	    	    // be replaced
+                                // sequence number which contain 'L'
+    uint escape_len;            // total length of escape sequences which will
+                                // be replaced
 };
 
 static ArgEscapeData findArgEscapes(const QString &s)
@@ -4302,69 +4302,69 @@ static ArgEscapeData findArgEscapes(const QString &s)
 
     const QChar *c = uc_begin;
     while (c != uc_end) {
-    	while (c != uc_end && c->unicode() != '%')
-	    ++c;
+        while (c != uc_end && c->unicode() != '%')
+            ++c;
 
-	if (c == uc_end || ++c == uc_end)
-	    break;
+        if (c == uc_end || ++c == uc_end)
+            break;
 
-	bool locale_arg = false;
-    	if (c->unicode() == 'L') {
-	    locale_arg = true;
-	    if (++c == uc_end)
-		break;
-	}
+        bool locale_arg = false;
+        if (c->unicode() == 'L') {
+            locale_arg = true;
+            if (++c == uc_end)
+                break;
+        }
 
-    	if (c->unicode() < '0' || c->unicode() > '9')
-	    continue;
+        if (c->unicode() < '0' || c->unicode() > '9')
+            continue;
 
-	uint escape = c->unicode() - '0';
-    	++c;
+        uint escape = c->unicode() - '0';
+        ++c;
 
-    	if (escape > d.min_escape)
-	    continue;
+        if (escape > d.min_escape)
+            continue;
 
-    	if (escape < d.min_escape) {
-	    d.min_escape = escape;
-	    d.occurrences = 0;
-	    d.escape_len = 0;
-	    d.locale_occurrences = 0;
-	}
+        if (escape < d.min_escape) {
+            d.min_escape = escape;
+            d.occurrences = 0;
+            d.escape_len = 0;
+            d.locale_occurrences = 0;
+        }
 
 #if QT_VERSION < 0x040000
-    	// ### remove preprocessor in Qt 4.0
-	/* Since in Qt < 4.0 only the first instance is replaced,
-	   escape_len should hold the length of only the first escape
-	   sequence */
-    	if (d.occurrences == 0)
+        // ### remove preprocessor in Qt 4.0
+        /* Since in Qt < 4.0 only the first instance is replaced,
+           escape_len should hold the length of only the first escape
+           sequence */
+        if (d.occurrences == 0)
 #endif
-    	{
-	    ++d.occurrences;
-    	    if (locale_arg) {
-    	    	++d.locale_occurrences;
-		d.escape_len += 3;
-	    }
-	    else
-		d.escape_len += 2;
-	}
+        {
+            ++d.occurrences;
+            if (locale_arg) {
+                ++d.locale_occurrences;
+                d.escape_len += 3;
+            }
+            else
+                d.escape_len += 2;
+        }
     }
 
     return d;
 }
 
 static QString replaceArgEscapes(const QString &s, const ArgEscapeData &d, int field_width,
-    	    	    	    	 const QString &arg, const QString &larg)
+                                     const QString &arg, const QString &larg)
 {
     const QChar *uc_begin = s.unicode();
     const QChar *uc_end = uc_begin + s.length();
 
     int abs_field_width = QABS(field_width);
     uint result_len = s.length()
-    	    	    	- d.escape_len
-			+ (d.occurrences - d.locale_occurrences)
-			    *qMax(abs_field_width, arg.length())
-			+ d.locale_occurrences
-			    *qMax(abs_field_width, larg.length());
+                            - d.escape_len
+                        + (d.occurrences - d.locale_occurrences)
+                            *qMax(abs_field_width, arg.length())
+                        + d.locale_occurrences
+                            *qMax(abs_field_width, larg.length());
 
     QString result;
     result.resize(result_len);
@@ -4374,65 +4374,65 @@ static QString replaceArgEscapes(const QString &s, const ArgEscapeData &d, int f
     const QChar *c = uc_begin;
     uint repl_cnt = 0;
     while (c != uc_end) {
-    	/* We don't have to check if we run off the end of the string with c,
-	   because as long as d.occurrences > 0 we KNOW there are valid escape
-	   sequences. */
+        /* We don't have to check if we run off the end of the string with c,
+           because as long as d.occurrences > 0 we KNOW there are valid escape
+           sequences. */
 
-    	const QChar *text_start = c;
+        const QChar *text_start = c;
 
-    	while (c->unicode() != '%')
-	    ++c;
+        while (c->unicode() != '%')
+            ++c;
 
-	const QChar *escape_start = c++;
+        const QChar *escape_start = c++;
 
-	bool locale_arg = false;
-    	if (c->unicode() == 'L') {
-	    locale_arg = true;
-	    ++c;
-	}
+        bool locale_arg = false;
+        if (c->unicode() == 'L') {
+            locale_arg = true;
+            ++c;
+        }
 
-    	if (c->unicode() != '0' + d.min_escape) {
-	    memcpy(rc, text_start, (c - text_start)*sizeof(QChar));
-	    rc += c - text_start;
-	}
-	else {
-    	    ++c;
+        if (c->unicode() != '0' + d.min_escape) {
+            memcpy(rc, text_start, (c - text_start)*sizeof(QChar));
+            rc += c - text_start;
+        }
+        else {
+            ++c;
 
-	    memcpy(rc, text_start, (escape_start - text_start)*sizeof(QChar));
-	    rc += escape_start - text_start;
+            memcpy(rc, text_start, (escape_start - text_start)*sizeof(QChar));
+            rc += escape_start - text_start;
 
-    	    uint pad_chars;
-    	    if (locale_arg)
-	    	pad_chars = qMax(abs_field_width, larg.length()) - larg.length();
-	    else
-	    	pad_chars = qMax(abs_field_width, arg.length()) - arg.length();
+            uint pad_chars;
+            if (locale_arg)
+                pad_chars = qMax(abs_field_width, larg.length()) - larg.length();
+            else
+                pad_chars = qMax(abs_field_width, arg.length()) - arg.length();
 
-    	    if (field_width > 0) { // left padded
-		for (uint i = 0; i < pad_chars; ++i)
-	    	    (rc++)->unicode() = ' ';
-	    }
+            if (field_width > 0) { // left padded
+                for (uint i = 0; i < pad_chars; ++i)
+                    (rc++)->unicode() = ' ';
+            }
 
-    	    if (locale_arg) {
-	    	memcpy(rc, larg.unicode(), larg.length()*sizeof(QChar));
-		rc += larg.length();
-	    }
-	    else {
-	    	memcpy(rc, arg.unicode(), arg.length()*sizeof(QChar));
-	    	rc += arg.length();
-	    }
+            if (locale_arg) {
+                memcpy(rc, larg.unicode(), larg.length()*sizeof(QChar));
+                rc += larg.length();
+            }
+            else {
+                memcpy(rc, arg.unicode(), arg.length()*sizeof(QChar));
+                rc += arg.length();
+            }
 
-    	    if (field_width < 0) { // right padded
-		for (uint i = 0; i < pad_chars; ++i)
-	    	    (rc++)->unicode() = ' ';
-	    }
+            if (field_width < 0) { // right padded
+                for (uint i = 0; i < pad_chars; ++i)
+                    (rc++)->unicode() = ' ';
+            }
 
-	    if (++repl_cnt == d.occurrences) {
-		memcpy(rc, c, (uc_end - c)*sizeof(QChar));
-		rc += uc_end - c;
-		Q_ASSERT(rc - result_buff == (int)result_len);
-		c = uc_end;
-	    }
-	}
+            if (++repl_cnt == d.occurrences) {
+                memcpy(rc, c, (uc_end - c)*sizeof(QChar));
+                rc += uc_end - c;
+                Q_ASSERT(rc - result_buff == (int)result_len);
+                c = uc_end;
+            }
+        }
     }
 
     return result;
@@ -4449,10 +4449,10 @@ static QString replaceArgEscapes(const QString &s, const ArgEscapeData &d, int f
     The following example shows how we could create a 'status' string
     when processing a list of files:
     \code
-    QString status = QString( "Processing file %1 of %2: %3" )
-			.arg( i )         // current file's number
-			.arg( total )     // number of files to process
-			.arg( fileName ); // current file's name
+    QString status = QString("Processing file %1 of %2: %3")
+                        .arg(i)         // current file's number
+                        .arg(total)     // number of files to process
+                        .arg(fileName); // current file's name
     \endcode
 
     It is generally fine to use filenames and numbers as we have done
@@ -4469,8 +4469,8 @@ QString QString::arg(const QString& a, int fieldWidth) const
     ArgEscapeData d = findArgEscapes(*this);
 
     if (d.occurrences == 0) {
-        qWarning( "QString::arg(): Argument missing: %s, %s", latin1(),
-                  a.latin1() );
+        qWarning("QString::arg(): Argument missing: %s, %s", latin1(),
+                  a.latin1());
         return *this;
     }
 
@@ -4497,7 +4497,7 @@ QString QString::arg(const QString& a, int fieldWidth) const
 
 /*!
     \fn QString QString::arg(const QString& a1, const QString& a2,
-			      const QString& a3) const
+                              const QString& a3) const
     \overload
 
     This is the same as calling str.arg(\a a1).arg(\a a2).arg(\a a3),
@@ -4506,7 +4506,7 @@ QString QString::arg(const QString& a, int fieldWidth) const
 
 /*!
     \fn QString QString::arg(const QString& a1, const QString& a2,
-			      const QString& a3, const QString& a4) const
+                              const QString& a3, const QString& a4) const
     \overload
 
     This is the same as calling
@@ -4532,37 +4532,37 @@ QString QString::arg(const QString& a, int fieldWidth) const
     if \a base is not 10.
 
     \code
-	QString str;
-	str = QString("Decimal 63 is %1 in hexadecimal")
-		.arg(63, 0, 16);
-	// str == "Decimal 63 is 3f in hexadecimal"
+        QString str;
+        str = QString("Decimal 63 is %1 in hexadecimal")
+                .arg(63, 0, 16);
+        // str == "Decimal 63 is 3f in hexadecimal"
 
-	QLocale::setDefaultLocale(QLocale::English, QLocale::UnitedStates);
-	str = QString( "%1 %l2 %l3" )
-		.arg( 12345 )
-		.arg( 12345 )
-		.arg( 12345, 0, 16 );
-	// str == "12345 12,345 3039"
+        QLocale::setDefaultLocale(QLocale::English, QLocale::UnitedStates);
+        str = QString("%1 %l2 %l3")
+                .arg(12345)
+                .arg(12345)
+                .arg(12345, 0, 16);
+        // str == "12345 12,345 3039"
     \endcode
 */
-QString QString::arg( Q_LLONG a, int fieldWidth, int base ) const
+QString QString::arg(Q_LLONG a, int fieldWidth, int base) const
 {
     ArgEscapeData d = findArgEscapes(*this);
 
     if (d.occurrences == 0) {
-        qWarning( "QString::arg(): Argument missing: %s, %lld", latin1(),
-                  a );
+        qWarning("QString::arg(): Argument missing: %s, %lld", latin1(),
+                  a);
         return *this;
     }
 
     QString arg;
     if (d.occurrences > d.locale_occurrences)
-    	arg = number(a, base);
+        arg = number(a, base);
 
     QString locale_arg;
     if (d.locale_occurrences > 0) {
-	QLocale locale;
-	locale_arg = locale.d->longLongToString(a, -1, base, -1, QLocalePrivate::ThousandsGroup);
+        QLocale locale;
+        locale_arg = locale.d->longLongToString(a, -1, base, -1, QLocalePrivate::ThousandsGroup);
     }
 
     return replaceArgEscapes(*this, d, fieldWidth, arg, locale_arg);
@@ -4576,24 +4576,24 @@ QString QString::arg( Q_LLONG a, int fieldWidth, int base ) const
     to produce localized strings.
 
 */
-QString QString::arg( Q_ULLONG a, int fieldWidth, int base ) const
+QString QString::arg(Q_ULLONG a, int fieldWidth, int base) const
 {
     ArgEscapeData d = findArgEscapes(*this);
 
     if (d.occurrences == 0) {
-        qWarning( "QString::arg(): Argument missing: %s, %llu", latin1(),
-                  a );
+        qWarning("QString::arg(): Argument missing: %s, %llu", latin1(),
+                  a);
         return *this;
     }
 
     QString arg;
     if (d.occurrences > d.locale_occurrences)
-    	arg = number(a, base);
+        arg = number(a, base);
 
     QString locale_arg;
     if (d.locale_occurrences > 0) {
-	QLocale locale;
-	locale_arg = locale.d->unsLongLongToString(a, -1, base, -1, QLocalePrivate::ThousandsGroup);
+        QLocale locale;
+        locale_arg = locale.d->unsLongLongToString(a, -1, base, -1, QLocalePrivate::ThousandsGroup);
     }
 
     return replaceArgEscapes(*this, d, fieldWidth, arg, locale_arg);
@@ -4684,59 +4684,59 @@ QString QString::arg(QChar a, int fieldWidth) const
     significant digits (trailing zeroes are omitted).
 
     \code
-	double d = 12.34;
-	QString ds = QString("'E' format, precision 3, gives %1")
-			.arg(d, 0, 'E', 3);
-	// ds == "1.234E+001"
+        double d = 12.34;
+        QString ds = QString("'E' format, precision 3, gives %1")
+                        .arg(d, 0, 'E', 3);
+        // ds == "1.234E+001"
     \endcode
 
     The '%l' syntax can be used to produce localized strings.
 */
-QString QString::arg( double a, int fieldWidth, char fmt, int prec ) const
+QString QString::arg(double a, int fieldWidth, char fmt, int prec) const
 {
     ArgEscapeData d = findArgEscapes(*this);
 
     if (d.occurrences == 0) {
-        qWarning( "QString::arg(): Argument missing: %s, %g", latin1(),
-                  a );
+        qWarning("QString::arg(): Argument missing: %s, %g", latin1(),
+                  a);
         return *this;
     }
 
     QString arg;
     if (d.occurrences > d.locale_occurrences)
-    	arg = number(a, fmt, prec);
+        arg = number(a, fmt, prec);
 
     QString locale_arg;
     if (d.locale_occurrences > 0) {
-	QLocale locale;
+        QLocale locale;
 
-	QLocalePrivate::DoubleForm form = QLocalePrivate::DFDecimal;
-	uint flags = 0;
+        QLocalePrivate::DoubleForm form = QLocalePrivate::DFDecimal;
+        uint flags = 0;
 
-	if (qIsUpper(fmt))
-    	    flags = QLocalePrivate::CapitalEorX;
-	fmt = qToLower(fmt);
+        if (qIsUpper(fmt))
+            flags = QLocalePrivate::CapitalEorX;
+        fmt = qToLower(fmt);
 
-	switch (fmt) {
-	    case 'f':
-		form = QLocalePrivate::DFDecimal;
-		break;
-	    case 'e':
-		form = QLocalePrivate::DFExponent;
-		break;
-	    case 'g':
-		form = QLocalePrivate::DFSignificantDigits;
-		break;
-	    default:
+        switch (fmt) {
+            case 'f':
+                form = QLocalePrivate::DFDecimal;
+                break;
+            case 'e':
+                form = QLocalePrivate::DFExponent;
+                break;
+            case 'g':
+                form = QLocalePrivate::DFSignificantDigits;
+                break;
+            default:
 #if defined(QT_CHECK_RANGE)
-		qWarning( "QString::setNum: Invalid format char '%c'", fmt );
+                qWarning("QString::setNum: Invalid format char '%c'", fmt);
 #endif
-		break;
-	}
+                break;
+        }
 
-    	flags |= QLocalePrivate::ThousandsGroup;
+        flags |= QLocalePrivate::ThousandsGroup;
 
-	locale_arg = locale.d->doubleToString(a, prec, form, -1, flags);
+        locale_arg = locale.d->doubleToString(a, prec, form, -1, flags);
     }
 
     return replaceArgEscapes(*this, d, fieldWidth, arg, locale_arg);
@@ -4744,12 +4744,12 @@ QString QString::arg( double a, int fieldWidth, char fmt, int prec ) const
 
 
 QString QString::multiArg(int numArgs, const QString& a1, const QString& a2,
-			   const QString& a3, const QString& a4) const
+                           const QString& a3, const QString& a4) const
 {
     QString result;
     union {
-	int digitUsed[10];
-	int argForDigit[10];
+        int digitUsed[10];
+        int argForDigit[10];
     };
     const QChar *uc = (const QChar*) d->data;
     const QString *args[4];
@@ -4765,39 +4765,39 @@ QString QString::multiArg(int numArgs, const QString& a1, const QString& a2,
     args[3] = &a4;
 
     for (i = 0; i < end; i++) {
-	if (uc[i] == '%') {
-	    int digit = uc[i + 1].unicode() - '0';
-	    if (digit >= 0 && digit <= 9)
-		digitUsed[digit]++;
-	}
+        if (uc[i] == '%') {
+            int digit = uc[i + 1].unicode() - '0';
+            if (digit >= 0 && digit <= 9)
+                digitUsed[digit]++;
+        }
     }
 
     for (i = 0; i < numArgs; i++) {
-	do {
-	    ++lastDigit;
-	} while (lastDigit < 10 && digitUsed[lastDigit] == 0);
+        do {
+            ++lastDigit;
+        } while (lastDigit < 10 && digitUsed[lastDigit] == 0);
 
-	if (lastDigit == 10) {
-	    qWarning("QString::arg(): Argument missing: %s, %s",
-		      latin1(), args[i]->latin1());
-	    numArgs = i;
-	    lastDigit = 9;
-	    break;
-	}
-	argForDigit[lastDigit] = i;
+        if (lastDigit == 10) {
+            qWarning("QString::arg(): Argument missing: %s, %s",
+                      latin1(), args[i]->latin1());
+            numArgs = i;
+            lastDigit = 9;
+            break;
+        }
+        argForDigit[lastDigit] = i;
     }
 
     i = 0;
     while (i < len) {
-	if (uc[i] == '%' && i != end) {
-	    int digit = uc[i + 1].unicode() - '0';
-	    if (digit >= 0 && digit <= lastDigit) {
-		result += *args[argForDigit[digit]];
-		i += 2;
-		continue;
-	    }
-	}
-	result += uc[i++];
+        if (uc[i] == '%' && i != end) {
+            int digit = uc[i + 1].unicode() - '0';
+            if (digit >= 0 && digit <= lastDigit) {
+                result += *args[argForDigit[digit]];
+                i += 2;
+                continue;
+            }
+        }
+        result += uc[i++];
     }
     return result;
 }
@@ -4811,34 +4811,34 @@ void QString::updateProperties() const
     unsigned short *p = d->data;
     unsigned short *end = p + d->size;
     d->simpletext = true;
-    while ( p < end ) {
-	ushort uc = *p;
-	// sort out regions of complex text formatting
-	if ( uc > 0x058f && ( uc < 0x1100 || uc > 0xfb0f ) ) {
-	    d->simpletext = false;
-	}
-	p++;
+    while (p < end) {
+        ushort uc = *p;
+        // sort out regions of complex text formatting
+        if (uc > 0x058f && (uc < 0x1100 || uc > 0xfb0f)) {
+            d->simpletext = false;
+        }
+        p++;
     }
 
     p = d->data;
     d->righttoleft = false;
-    while ( p < end ) {
-	switch( ::direction( *p ) )
-	{
-	case QChar::DirL:
-	case QChar::DirLRO:
-	case QChar::DirLRE:
-	    goto end;
-	case QChar::DirR:
-	case QChar::DirAL:
-	case QChar::DirRLO:
-	case QChar::DirRLE:
-	    d->righttoleft = true;
-	    goto end;
-	default:
-	    break;
-	}
-	++p;
+    while (p < end) {
+        switch(::direction(*p))
+        {
+        case QChar::DirL:
+        case QChar::DirLRO:
+        case QChar::DirLRE:
+            goto end;
+        case QChar::DirR:
+        case QChar::DirAL:
+        case QChar::DirRLO:
+        case QChar::DirRLE:
+            d->righttoleft = true;
+            goto end;
+        default:
+            break;
+        }
+        ++p;
     }
  end:
     d->clean = true;
@@ -4907,42 +4907,42 @@ QConstString::QConstString(const QChar *unicode, int length)
     See also \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
-QDataStream &operator<<( QDataStream &s, const QString &str )
+QDataStream &operator<<(QDataStream &s, const QString &str)
 {
-    if ( s.version() == 1 ) {
-	QByteArray l( str.latin1() );
-	s << l;
+    if (s.version() == 1) {
+        QByteArray l(str.latin1());
+        s << l;
     } else {
-	if ( !str.isNull() || s.version() < 3 ) {
+        if (!str.isNull() || s.version() < 3) {
             int byteOrder = s.byteOrder();
             const QChar* ub = str.unicode();
-	    static const uint auto_size = 1024;
-	    char t[auto_size];
-	    char *b;
-	    if ( str.length()*sizeof(QChar) > auto_size ) {
-		b = new char[str.length()*sizeof(QChar)];
-	    } else {
-		b = t;
-	    }
-	    int l = str.length();
-	    char *c=b;
-	    while ( l-- ) {
-		if ( byteOrder == QDataStream::BigEndian ) {
-		    *c++ = (char)ub->row();
-		    *c++ = (char)ub->cell();
-		} else {
-		    *c++ = (char)ub->cell();
-		    *c++ = (char)ub->row();
-		}
-		ub++;
-	    }
-	    s.writeBytes( b, sizeof(QChar)*str.length() );
-	    if ( str.length()*sizeof(QChar) > auto_size )
-		delete [] b;
-	} else {
-	    // write null marker
-	    s << (Q_UINT32)0xffffffff;
-	}
+            static const uint auto_size = 1024;
+            char t[auto_size];
+            char *b;
+            if (str.length()*sizeof(QChar) > auto_size) {
+                b = new char[str.length()*sizeof(QChar)];
+            } else {
+                b = t;
+            }
+            int l = str.length();
+            char *c=b;
+            while (l--) {
+                if (byteOrder == QDataStream::BigEndian) {
+                    *c++ = (char)ub->row();
+                    *c++ = (char)ub->cell();
+                } else {
+                    *c++ = (char)ub->cell();
+                    *c++ = (char)ub->row();
+                }
+                ub++;
+            }
+            s.writeBytes(b, sizeof(QChar)*str.length());
+            if (str.length()*sizeof(QChar) > auto_size)
+                delete [] b;
+        } else {
+            // write null marker
+            s << (Q_UINT32)0xffffffff;
+        }
     }
     return s;
 }
@@ -4955,50 +4955,50 @@ QDataStream &operator<<( QDataStream &s, const QString &str )
     See also \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
-QDataStream &operator>>( QDataStream &s, QString &str )
+QDataStream &operator>>(QDataStream &s, QString &str)
 {
 #ifdef QT_QSTRING_UCS_4
 #if defined(Q_CC_GNU)
 #warning "operator>> not working properly"
 #endif
 #endif
-    if ( s.version() == 1 ) {
-	QByteArray l;
-	s >> l;
-	str = QString::fromAscii( l );
+    if (s.version() == 1) {
+        QByteArray l;
+        s >> l;
+        str = QString::fromAscii(l);
     }
     else {
-	Q_UINT32 bytes;
-	s >> bytes;                                     // read size of string
-	if ( bytes == 0xffffffff ) {                    // null string
-	    str = QString::null;
-	} else if ( bytes > 0 ) {                       // not empty
-	    int byteOrder = s.byteOrder();
-	    str.resize( bytes/2 );
-	    QChar* ch = str.data();
-	    static const uint auto_size = 1024;
-	    char t[auto_size];
-	    char *b;
-	    if ( bytes > auto_size ) {
-		b = new char[bytes];
-	    } else {
-		b = t;
-	    }
-	    s.readRawBytes( b, bytes );
-	    int bt = bytes/2;
-	    char *oldb = b;
-	    while ( bt-- ) {
-		if ( byteOrder == QDataStream::BigEndian )
-		    *ch++ = (ushort) (((ushort)b[0])<<8) | (uchar)b[1];
-		else
-		    *ch++ = (ushort) (((ushort)b[1])<<8) | (uchar)b[0];
-		b += 2;
-	    }
-	    if ( bytes > auto_size )
-		delete [] oldb;
-	} else {
-	    str = QLatin1String("");
-	}
+        Q_UINT32 bytes;
+        s >> bytes;                                     // read size of string
+        if (bytes == 0xffffffff) {                    // null string
+            str = QString::null;
+        } else if (bytes > 0) {                       // not empty
+            int byteOrder = s.byteOrder();
+            str.resize(bytes/2);
+            QChar* ch = str.data();
+            static const uint auto_size = 1024;
+            char t[auto_size];
+            char *b;
+            if (bytes > auto_size) {
+                b = new char[bytes];
+            } else {
+                b = t;
+            }
+            s.readRawBytes(b, bytes);
+            int bt = bytes/2;
+            char *oldb = b;
+            while (bt--) {
+                if (byteOrder == QDataStream::BigEndian)
+                    *ch++ = (ushort) (((ushort)b[0])<<8) | (uchar)b[1];
+                else
+                    *ch++ = (ushort) (((ushort)b[1])<<8) | (uchar)b[0];
+                b += 2;
+            }
+            if (bytes > auto_size)
+                delete [] oldb;
+        } else {
+            str = QLatin1String("");
+        }
     }
     return s;
 }

@@ -58,18 +58,18 @@ QWidgetView::~QWidgetView()
 void QWidgetViewPrivate::updateScrollBars()
 {
     if (!widget)
-	return;
+        return;
     QSize p = viewport->size();
     QSize m = q->maximumViewportSize();
 
     QSize min = qSmartMinSize(widget);
     QSize max = qSmartMaxSize(widget);
     if ((resizable && m.expandedTo(min) == m && m.boundedTo(max) == m)
-	|| (!resizable && m.expandedTo(widget->size()) == m))
-	p = m; // no scroll bars needed
+        || (!resizable && m.expandedTo(widget->size()) == m))
+        p = m; // no scroll bars needed
 
     if (resizable)
-	widget->resize(p.expandedTo(min).boundedTo(max));
+        widget->resize(p.expandedTo(min).boundedTo(max));
     QSize v = widget->size();
 
     d->hbar->setRange(0, v.width() - p.width());
@@ -100,18 +100,18 @@ QWidget *QWidgetView::widget() const
 void QWidgetView::setWidget(QWidget *w)
 {
     if (w == d->widget || !w)
-	return;
+        return;
 
     delete d->widget;
     d->widget = 0;
     d->hbar->setValue(0);
     d->vbar->setValue(0);
     if (w->parentWidget() != d->viewport)
-	w->setParent(d->viewport);
+        w->setParent(d->viewport);
     else
-	w->move(0,0);
+        w->move(0,0);
      if (!w->testAttribute(WA_Resized))
-	 w->resize(w->sizeHint());
+         w->resize(w->sizeHint());
     d->widget = w;
     w->installEventFilter(this);
     d->widgetSize = QSize();
@@ -124,7 +124,7 @@ void QWidgetView::setWidget(QWidget *w)
 bool QWidgetView::event(QEvent *e)
 {
     if (e->type() == QEvent::StyleChange) {
-	d->updateScrollBars();
+        d->updateScrollBars();
     }
     return QViewport::event(e);
 }
@@ -135,7 +135,7 @@ bool QWidgetView::event(QEvent *e)
 bool QWidgetView::eventFilter(QObject *o, QEvent *e)
 {
     if (o == d->widget && e->type() == QEvent::Resize)
-	d->updateScrollBars();
+        d->updateScrollBars();
     return false;
 }
 
@@ -152,7 +152,7 @@ void QWidgetView::resizeEvent(QResizeEvent *)
 void QWidgetView::scrollContentsBy(int, int)
 {
     if (!d->widget)
-	return;
+        return;
     d->widget->move(-d->hbar->value(), -d->vbar->value());
 }
 
@@ -186,20 +186,20 @@ void QWidgetView::setWidgetResizable(bool resizable)
 QSize QWidgetView::sizeHint() const
 {
     int f = 2 * d->frameWidth;
-    QSize sz( f, f );
+    QSize sz(f, f);
     int h = fontMetrics().height();
     if (d->widget) {
-	if (!d->widgetSize.isValid())
-	    d->widgetSize = d->resizable ? d->widget->sizeHint() : d->widget->size();
-	sz += d->widgetSize;
+        if (!d->widgetSize.isValid())
+            d->widgetSize = d->resizable ? d->widget->sizeHint() : d->widget->size();
+        sz += d->widgetSize;
     } else {
         sz += QSize(12 * h, 8 * h);
     }
     if (d->vbarpolicy == ScrollBarAlwaysOn)
-	sz.setWidth(sz.width() + d->vbar->sizeHint().width());
+        sz.setWidth(sz.width() + d->vbar->sizeHint().width());
     if (d->hbarpolicy == ScrollBarAlwaysOn)
-	sz.setHeight(sz.height() + d->hbar->sizeHint().height());
-    return sz.boundedTo( QSize(36 * h, 24 * h) );
+        sz.setHeight(sz.height() + d->hbar->sizeHint().height());
+    return sz.boundedTo(QSize(36 * h, 24 * h));
 }
 
 

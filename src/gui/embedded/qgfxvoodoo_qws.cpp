@@ -134,7 +134,7 @@ inline unsigned int QGfxVoodoo<depth,type>::getRop(RasterOp r)
 // Read a 32-bit graphics card register from 2d engine register block
 template<const int depth,const int type>
 inline unsigned int QGfxVoodoo<depth,type>::regr(volatile unsigned int
-						 regindex)
+                                                 regindex)
 {
     unsigned long int val;
     val=*((volatile unsigned long *)(voodoo_regbase+regindex));
@@ -144,7 +144,7 @@ inline unsigned int QGfxVoodoo<depth,type>::regr(volatile unsigned int
 // Write a 32-bit graphics card register to 2d engine register block
 template<const int depth,const int type>
 inline void QGfxVoodoo<depth,type>::regw(volatile unsigned int regindex,
-					 unsigned long val)
+                                         unsigned long val)
 {
     *((volatile unsigned long int *)(voodoo_regbase+regindex))=val;
 }
@@ -160,15 +160,15 @@ inline void QGfxVoodoo<depth,type>::wait_for_fifo(short entries)
     QLinuxFb_Shared * tmp=(QLinuxFb_Shared *)shared_data;
     tmp->fifocount+=entries;
     if(tmp->fifocount<tmp->fifomax)
-	return;
+        return;
 
     for(int loopc=0;loopc<1000000;loopc++) {
-	int fifoval=regr(VOODOOSTATUS);
-	fifoval&=0x1f;
-	if(fifoval==0x1f) {
-	    tmp->fifocount=0;
-	    return;
-	}
+        int fifoval=regr(VOODOOSTATUS);
+        fifoval&=0x1f;
+        if(fifoval==0x1f) {
+            tmp->fifocount=0;
+            return;
+        }
     }
 
     qDebug("Wait for fifo timeout!");
@@ -183,15 +183,15 @@ inline void QGfxVoodoo<depth,type>::do_scissors(QRect & r)
     if(tmp->clipleft!=r.left() || tmp->cliptop!=r.top()) {
         wait_for_fifo(1);
         regw(CLIP0MIN,(r.top()) << 16 | r.left());
-	tmp->clipleft=r.left();
-	tmp->cliptop=r.top();
+        tmp->clipleft=r.left();
+        tmp->cliptop=r.top();
     }
     if(tmp->clipright!=r.right() ||
        tmp->clipbottom!=r.bottom()) {
         wait_for_fifo(1);
         regw(CLIP0MIN,(r.bottom()) << 16 | r.right());
-	tmp->clipright=r.right();
-	tmp->clipbottom=r.bottom();
+        tmp->clipright=r.right();
+        tmp->clipbottom=r.bottom();
     }
 }
 
@@ -211,8 +211,8 @@ inline void QGfxVoodoo<depth,type>::sync()
     int loopc;
     for(loopc=0;loopc<1000;loopc++) {
         unsigned int stat=regr(VOODOOSTATUS);
-	if((stat & ~0x40)==0x1f)
-	    return;
+        if((stat & ~0x40)==0x1f)
+            return;
     }
     qDebug("Idle timeout!");
 }
@@ -222,14 +222,14 @@ inline int voodoo_depthcode(int d)
 {
     int ret;
     if(d==32) {
-	ret=5;
+        ret=5;
     } else if(d==16) {
-	ret=3;
+        ret=3;
     } else if(d==8) {
-	ret=1;
+        ret=1;
     } else {
-	qFatal("Unexpected depth %d",d);
-	ret=0;
+        qFatal("Unexpected depth %d",d);
+        ret=0;
     }
     return ret;
 }
@@ -271,32 +271,32 @@ inline bool QGfxVoodoo<depth,type>::checkSourceDest()
 
     ulong src_buffer_offset;
     if (srctype == SourcePen) {
-	src_buffer_offset = -1;
+        src_buffer_offset = -1;
     } else {
-	if (!gfx_screen->onCard(srcbits,src_buffer_offset)) {
-	    return FALSE;
-	}
-	if(src_buffer_offset & 0x7) {
-	    qDebug("Unaligned offset %lx",src_buffer_offset);
-	    return FALSE;
-	}
-	int srcstep;
-	if (srclinestep==0) {
-	    srcstep=(width*srcdepth)/8;
-	} else {
-	    srcstep=srclinestep;
-	}
+        if (!gfx_screen->onCard(srcbits,src_buffer_offset)) {
+            return false;
+        }
+        if(src_buffer_offset & 0x7) {
+            qDebug("Unaligned offset %lx",src_buffer_offset);
+            return false;
+        }
+        int srcstep;
+        if (srclinestep==0) {
+            srcstep=(width*srcdepth)/8;
+        } else {
+            srcstep=srclinestep;
+        }
 
-	wait_for_fifo(2);
-	regw(SRCBASEADDR, src_buffer_offset);
-	regw(SRCFORMAT,(srcstep | (voodoo_depthcode(srcdepth) << 16)));
+        wait_for_fifo(2);
+        regw(SRCBASEADDR, src_buffer_offset);
+        regw(SRCFORMAT,(srcstep | (voodoo_depthcode(srcdepth) << 16)));
     }
-    return TRUE;
+    return true;
 }
 
 template<const int depth,const int type>
 QGfxVoodoo<depth,type>::QGfxVoodoo(unsigned char * a,int b,int c,
-				   unsigned char * r)
+                                   unsigned char * r)
     : QGfxRaster<depth,type>(a,b,c)
 {
     voodoo_regbase=r;
@@ -307,13 +307,13 @@ void QGfxVoodoo<depth,type>::fillRect(int rx,int ry,int w,int h)
 {
     // No point going any further if the window isn't visible
     if(ncliprect<1) {
-	return;
+        return;
     }
 
     // Only handle 'normal' rectangles
-    if((cbrush.style()!=NoBrush) && (cbrush.style()!=SolidPattern) ) {
-	QGfxRaster<depth,type>::fillRect(rx,ry,w,h);
-	return;
+    if((cbrush.style()!=NoBrush) && (cbrush.style()!=SolidPattern)) {
+        QGfxRaster<depth,type>::fillRect(rx,ry,w,h);
+        return;
     }
 
     // Stop anyone else trying to access optype/lastop/the graphics engine
@@ -341,12 +341,12 @@ void QGfxVoodoo<depth,type>::fillRect(int rx,int ry,int w,int h)
     int x3,y3,x4,y4;
 
     if(true /*(*gfx_lastop)!=LASTOP_RECT*/) {
-	wait_for_fifo(2);
-	regw(SRCFORMAT,3 << 16);
-	// With the Voodoo 3 you write the command code into COMMAND
-	// and then write parameters (usually x/y coordinates of some sort)
-	// into LAUNCHAREA to kick off the operation
-	regw(COMMAND,0x5 | (getRop(myrop) << 24));
+        wait_for_fifo(2);
+        regw(SRCFORMAT,3 << 16);
+        // With the Voodoo 3 you write the command code into COMMAND
+        // and then write parameters (usually x/y coordinates of some sort)
+        // into LAUNCHAREA to kick off the operation
+        regw(COMMAND,0x5 | (getRop(myrop) << 24));
     }
 
     (*gfx_optype)=1;
@@ -363,9 +363,9 @@ void QGfxVoodoo<depth,type>::fillRect(int rx,int ry,int w,int h)
 #endif
 
     if(((QLinuxFb_Shared *)shared_data)->forecol!=srccol) {
-	wait_for_fifo(1);
-	regw(COLORFORE,srccol);
-	((QLinuxFb_Shared *)shared_data)->forecol=srccol;
+        wait_for_fifo(1);
+        regw(COLORFORE,srccol);
+        ((QLinuxFb_Shared *)shared_data)->forecol=srccol;
     }
 
     // We clip in software here because rectangle-rectangle intersections
@@ -373,43 +373,43 @@ void QGfxVoodoo<depth,type>::fillRect(int rx,int ry,int w,int h)
     // registers to set up the clip
 
     if(cbrush.style()!=NoBrush) {
-	int p=ncliprect;
-	if(p<8) {
-	    // We can wait for all our fifos at once
-	    // (slight performance optimisation)
-	    wait_for_fifo(p*2);
-	    for(loopc=0;loopc<p;loopc++) {
-		QRect r=cliprect[loopc];
-		// Clip rectangle to current clip rectangle
-		if(xp<=r.right() && yp<=r.bottom() &&
-		   x2>=r.left() && y2>=r.top()) {
-		    x3=r.left() > xp ? r.left() : xp;
-		    y3=r.top() > yp ? r.top() : yp;
-		    x4=r.right() > x2 ? x2 : r.right();
-		    y4=r.bottom() > y2 ? y2 : r.bottom();
-		    int ww=(x4-x3)+1;
-		    int hh=(y4-y3)+1;
-		    regw(DSTSIZE,(hh << 16) | ww);
-		    regw(LAUNCHAREA,x3 | (y3 << 16));
-		}
-	    }
-	} else {
-	    for(loopc=0;loopc<p;loopc++) {
-		QRect r=cliprect[loopc];
-		if(xp<=r.right() && yp<=r.bottom() &&
-		   x2>=r.left() && y2>=r.top()) {
-		    x3=r.left() > xp ? r.left() : xp;
-		    y3=r.top() > yp ? r.top() : yp;
-		    x4=r.right() > x2 ? x2 : r.right();
-		    y4=r.bottom() > y2 ? y2 : r.bottom();
-		    int ww=(x4-x3)+1;
-		    int hh=(y4-y3)+1;
-		    wait_for_fifo(2);
-		    regw(DSTSIZE,(hh << 16) | ww);
-		    regw(LAUNCHAREA,x3 | (y3 << 16));
-		}
-	    }
-	}
+        int p=ncliprect;
+        if(p<8) {
+            // We can wait for all our fifos at once
+            // (slight performance optimisation)
+            wait_for_fifo(p*2);
+            for(loopc=0;loopc<p;loopc++) {
+                QRect r=cliprect[loopc];
+                // Clip rectangle to current clip rectangle
+                if(xp<=r.right() && yp<=r.bottom() &&
+                   x2>=r.left() && y2>=r.top()) {
+                    x3=r.left() > xp ? r.left() : xp;
+                    y3=r.top() > yp ? r.top() : yp;
+                    x4=r.right() > x2 ? x2 : r.right();
+                    y4=r.bottom() > y2 ? y2 : r.bottom();
+                    int ww=(x4-x3)+1;
+                    int hh=(y4-y3)+1;
+                    regw(DSTSIZE,(hh << 16) | ww);
+                    regw(LAUNCHAREA,x3 | (y3 << 16));
+                }
+            }
+        } else {
+            for(loopc=0;loopc<p;loopc++) {
+                QRect r=cliprect[loopc];
+                if(xp<=r.right() && yp<=r.bottom() &&
+                   x2>=r.left() && y2>=r.top()) {
+                    x3=r.left() > xp ? r.left() : xp;
+                    y3=r.top() > yp ? r.top() : yp;
+                    x4=r.right() > x2 ? x2 : r.right();
+                    y4=r.bottom() > y2 ? y2 : r.bottom();
+                    int ww=(x4-x3)+1;
+                    int hh=(y4-y3)+1;
+                    wait_for_fifo(2);
+                    regw(DSTSIZE,(hh << 16) | ww);
+                    regw(LAUNCHAREA,x3 | (y3 << 16));
+                }
+            }
+        }
     }
     GFX_END
 #if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
@@ -421,137 +421,137 @@ template<const int depth,const int type>
 inline void QGfxVoodoo<depth,type>::blt(int rx,int ry,int w,int h, int sx, int sy)
 {
     if(ncliprect<1)
-	return;
+        return;
 
     if(srctype==SourceImage && alphatype!=IgnoreAlpha) {
-	QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
-	return;
+        QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
+        return;
     }
 
     if(srctype==SourcePen) {
-	QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
-	return;
+        QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
+        return;
     }
 
-    if( (srcdepth!=32) && (srcdepth!=16) && (srcdepth!=8) ) {
-	QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
-	return;
+    if((srcdepth!=32) && (srcdepth!=16) && (srcdepth!=8)) {
+        QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
+        return;
     }
 
     int xp=xoffs+rx;
     int yp=yoffs+ry;
     QRect cursRect(xp, yp, w+1, h+1);
     GFX_START(cursRect)
-	
+
     if(checkSourceDest()) {
 
-	int xp2=srcwidgetoffs.x() + sx;
-	int yp2=srcwidgetoffs.y() + sy;
+        int xp2=srcwidgetoffs.x() + sx;
+        int yp2=srcwidgetoffs.y() + sy;
 
-	(*gfx_optype)=1;
-	(*gfx_lastop)=LASTOP_BLT;
-	
+        (*gfx_optype)=1;
+        (*gfx_lastop)=LASTOP_BLT;
+
         unsigned int dirmask=0;
 
-	// Tell the engine whether to copy bits from left to right,
-	// top to bottom, right to left, bottom to top - this is
-	// important for getting the right results with an overlapping
-	// blt
+        // Tell the engine whether to copy bits from left to right,
+        // top to bottom, right to left, bottom to top - this is
+        // important for getting the right results with an overlapping
+        // blt
 
-	int mx = qMin(xp,xp2);
-	if ( mx < 0 ) {
-	    xp -= mx;
-	    xp2 -= mx;
-	    w += mx;
-	}
+        int mx = qMin(xp,xp2);
+        if (mx < 0) {
+            xp -= mx;
+            xp2 -= mx;
+            w += mx;
+        }
 
-	bool down, right;
+        bool down, right;
 
-	if(yp>yp2) {
-	    // Down, reverse
-	    down=TRUE;
-	    if(xp>xp2) {
-		// Right, reverse
-		right=TRUE;
-		dirmask|=0x4000 | 0x8000;
-	    } else {
-		// Left, normal
-		right=FALSE;
-		dirmask|=0x8000;
-	    }
-	} else {
-	    // Up, normal
-	    // Down, reverse
-	    down=FALSE;
-	    if(xp>xp2) {
-		// Right, reverse
-		dirmask|=0x4000;
-		right=TRUE;
-	    } else {
-		// Left, normal
-		right=FALSE;
-	    }
-	}
+        if(yp>yp2) {
+            // Down, reverse
+            down=true;
+            if(xp>xp2) {
+                // Right, reverse
+                right=true;
+                dirmask|=0x4000 | 0x8000;
+            } else {
+                // Left, normal
+                right=false;
+                dirmask|=0x8000;
+            }
+        } else {
+            // Up, normal
+            // Down, reverse
+            down=false;
+            if(xp>xp2) {
+                // Right, reverse
+                dirmask|=0x4000;
+                right=true;
+            } else {
+                // Left, normal
+                right=false;
+            }
+        }
 
-	int loopc=down ? ncliprect-1 : 0;
+        int loopc=down ? ncliprect-1 : 0;
 
-	while ( loopc >=0 && loopc < ncliprect ) {
+        while (loopc >=0 && loopc < ncliprect) {
 
-	    QRect r1(cliprect[loopc]);
-	    QRect r2(xp,yp,w,h);
-	    r2=r2.intersect(r1);
-	    int ww=r2.width();
-	    int hh=r2.height();
-	    int xp3=r2.left();
-	    int yp3=r2.top();
-	    int dx=r2.left()-xp;
-	    int dy=r2.top()-yp;
-	    int xp4=xp2+dx;
-	    int yp4=yp2+dy;
+            QRect r1(cliprect[loopc]);
+            QRect r2(xp,yp,w,h);
+            r2=r2.intersect(r1);
+            int ww=r2.width();
+            int hh=r2.height();
+            int xp3=r2.left();
+            int yp3=r2.top();
+            int dx=r2.left()-xp;
+            int dy=r2.top()-yp;
+            int xp4=xp2+dx;
+            int yp4=yp2+dy;
 
 
-	    if(ww>0 && hh>0) {
+            if(ww>0 && hh>0) {
 
-		if(right) {
-		    xp3+=(ww-1);
-		    xp4+=(ww-1);
-		}
-		if(down) {
-		    yp3+=(hh-1);
-		    yp4+=(hh-1);
-		}
+                if(right) {
+                    xp3+=(ww-1);
+                    xp4+=(ww-1);
+                }
+                if(down) {
+                    yp3+=(hh-1);
+                    yp4+=(hh-1);
+                }
 
-		wait_for_fifo(4);
-		regw(SRCXY,xp4 | (yp4 << 16));
-		regw(DSTSIZE,ww | (hh << 16));
-		regw(DSTXY,xp3 | (yp3 << 16));
-		regw(COMMAND,0x1 | (0x1cc << 24) | dirmask | 0x100);
-	    }
-	    if(down) {
-		loopc--;
-	    } else {
-		loopc++;
-	    }
-	}
+                wait_for_fifo(4);
+                regw(SRCXY,xp4 | (yp4 << 16));
+                regw(DSTSIZE,ww | (hh << 16));
+                regw(DSTXY,xp3 | (yp3 << 16));
+                regw(COMMAND,0x1 | (0x1cc << 24) | dirmask | 0x100);
+            }
+            if(down) {
+                loopc--;
+            } else {
+                loopc++;
+            }
+        }
 
-	QRect r(0,0,width,height);
-	do_scissors(r);
+        QRect r(0,0,width,height);
+        do_scissors(r);
 
-	GFX_END
+        GFX_END
 
-	return;
+        return;
     } else {
-	GFX_END
-	
-	// software fallback
-	QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
+        GFX_END
+
+        // software fallback
+        QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
     }
 }
 
 #if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
 template<const int depth,const int type>
 inline void QGfxVoodoo<depth,type>::stretchBlt(int rx,int ry,int w,int h,
-					       int sw,int sh)
+                                               int sw,int sh)
 {
     // On Voodoo3's, as opposed to Mach64, stretchBlt is a normal 2d operation
     // and not part of a separate pipeline
@@ -561,57 +561,57 @@ inline void QGfxVoodoo<depth,type>::stretchBlt(int rx,int ry,int w,int h,
     // and both write to the same area simultaneously
 
     if(ncliprect)
-	return;
+        return;
 
     if(srctype==SourceImage && alphatype!=IgnoreAlpha) {
-	QGfxRaster<depth,type>::stretchBlt(rx,ry,w,h,sw,sh);
-	return;
+        QGfxRaster<depth,type>::stretchBlt(rx,ry,w,h,sw,sh);
+        return;
     }
 
     if(srctype==SourcePen) {
-	QGfxRaster<depth,type>::stretchBlt(rx,ry,w,h,sw,sh);
-	return;
+        QGfxRaster<depth,type>::stretchBlt(rx,ry,w,h,sw,sh);
+        return;
     }
 
-    if( (srcdepth!=32) && (srcdepth!=16) && (srcdepth!=8) ) {
-	QGfxRaster<depth,type>::stretchBlt(rx,ry,w,h,sw,sh);
-	return;
+    if((srcdepth!=32) && (srcdepth!=16) && (srcdepth!=8)) {
+        QGfxRaster<depth,type>::stretchBlt(rx,ry,w,h,sw,sh);
+        return;
     }
 
     int xp=xoffs+rx;
     int yp=yoffs+ry;
     QRect cursRect(xp, yp, w+1, h+1);
     GFX_START(cursRect)
-	
+
     if(checkSourceDest()) {
 
-	int xp2=srcwidgetoffs.x(); // + sx;
-	int yp2=srcwidgetoffs.y(); // + sy;
+        int xp2=srcwidgetoffs.x(); // + sx;
+        int yp2=srcwidgetoffs.y(); // + sy;
 
-	(*gfx_optype)=1;
-	(*gfx_lastop)=LASTOP_STRETCHBLT;
+        (*gfx_optype)=1;
+        (*gfx_lastop)=LASTOP_STRETCHBLT;
 
-	wait_for_fifo(4);
-	regw(COMMAND,0x2 | (getRop(myrop) << 24));
-	regw(SRCSIZE,sw | (sh << 16));
-	regw(DSTSIZE,w | (h << 16));
-	regw(DSTXY,xp | (yp << 16));
+        wait_for_fifo(4);
+        regw(COMMAND,0x2 | (getRop(myrop) << 24));
+        regw(SRCSIZE,sw | (sh << 16));
+        regw(DSTSIZE,w | (h << 16));
+        regw(DSTXY,xp | (yp << 16));
 
-	int loopc;
-	for(loopc=0;loopc<ncliprect;loopc++) {
-	    do_scissors(cliprect[loopc]);
-	    wait_for_fifo(1);
-	    regw(LAUNCHAREA,xp2 | (yp2 << 16));
-	}
-	QRect tmprect(0,0,width,height);
-	do_scissors(tmprect);
+        int loopc;
+        for(loopc=0;loopc<ncliprect;loopc++) {
+            do_scissors(cliprect[loopc]);
+            wait_for_fifo(1);
+            regw(LAUNCHAREA,xp2 | (yp2 << 16));
+        }
+        QRect tmprect(0,0,width,height);
+        do_scissors(tmprect);
 
-	GFX_END
+        GFX_END
 
-	return;
+        return;
     } else {
-	GFX_END
-	QGfxRaster<depth,type>::stretchBlt(rx,ry,w,h,sw,sh);
+        GFX_END
+        QGfxRaster<depth,type>::stretchBlt(rx,ry,w,h,sw,sh);
     }
 }
 #endif
@@ -620,9 +620,9 @@ template<const int depth,const int type>
 void QGfxVoodoo<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 {
     if(ncliprect<1 || cpen.style()!=SolidLine
-       || x1+xoffs<0 || y1+yoffs<0 || x2+xoffs<0 || y2+yoffs<0 || TRUE) {
-	QGfxRaster<depth,type>::drawLine(x1,y1,x2,y2);
-	return;
+       || x1+xoffs<0 || y1+yoffs<0 || x2+xoffs<0 || y2+yoffs<0 || true) {
+        QGfxRaster<depth,type>::drawLine(x1,y1,x2,y2);
+        return;
     }
 
     x1+=xoffs;
@@ -685,21 +685,21 @@ public:
     QVoodooCursor();
     ~QVoodooCursor();
 
-    virtual void init(SWCursorData *,bool=FALSE);
+    virtual void init(SWCursorData *,bool=false);
 
-    virtual void set( const QImage &image, int hotx, int hoty );
-    virtual void move( int x, int y );
+    virtual void set(const QImage &image, int hotx, int hoty);
+    virtual void move(int x, int y);
     virtual void show();
     virtual void hide();
 
-    virtual bool restoreUnder( const QRect &, QGfxRasterBase * = 0 )
-                { return FALSE; }
+    virtual bool restoreUnder(const QRect &, QGfxRasterBase * = 0)
+                { return false; }
     virtual void saveUnder() {}
     virtual void drawCursor() {}
     virtual void draw() {}
-    virtual bool supportsAlphaCursor() { return FALSE; }
+    virtual bool supportsAlphaCursor() { return false; }
 
-    static bool enabled() { return FALSE; }
+    static bool enabled() { return false; }
 
 
     void regw(volatile unsigned int, unsigned long);
@@ -718,13 +718,13 @@ private:
 
 // Write a 32-bit graphics card register to 2d engine register block
 inline void QVoodooCursor::regw(volatile unsigned int regindex,
-					 unsigned long val)
+                                         unsigned long val)
 {
     *((volatile unsigned long int *)(voodoo_regbase+regindex))=val;
 }
 
 inline unsigned int QVoodooCursor::regr(volatile unsigned int
-					regindex)
+                                        regindex)
 {
     unsigned long int val;
     val=*((volatile unsigned long *)(voodoo_regbase+regindex));
@@ -741,15 +741,15 @@ inline void QVoodooCursor::wait_for_fifo(short entries)
     QLinuxFb_Shared * tmp=(QLinuxFb_Shared *)shared_data;
     tmp->fifocount+=entries;
     if(tmp->fifocount<tmp->fifomax)
-	return;
+        return;
 
     for(int loopc=0;loopc<1000000;loopc++) {
-	int fifoval=regr(VOODOOSTATUS);
-	fifoval&=0x1f;
-	if(fifoval==0x1f) {
-	    tmp->fifocount=0;
-	    return;
-	}
+        int fifoval=regr(VOODOOSTATUS);
+        fifoval&=0x1f;
+        if(fifoval==0x1f) {
+            tmp->fifocount=0;
+            return;
+        }
     }
 
     qDebug("Wait for fifo timeout!");
@@ -757,20 +757,20 @@ inline void QVoodooCursor::wait_for_fifo(short entries)
 
 #endif // QT_NO_QWS_CURSOR
 
-QVoodooScreen::QVoodooScreen( int display_id  )
-    : QLinuxFbScreen( display_id )
+QVoodooScreen::QVoodooScreen(int display_id )
+    : QLinuxFbScreen(display_id)
 {
 }
 
 bool QVoodooScreen::useOffscreen() { return false; }
 
-bool QVoodooScreen::connect( const QString &spec )
+bool QVoodooScreen::connect(const QString &spec)
 {
-    if (!QLinuxFbScreen::connect( spec )) {
-	return FALSE;
+    if (!QLinuxFbScreen::connect(spec)) {
+        return false;
     }
 
-    canaccel=FALSE;
+    canaccel=false;
 
     // This is the 256-byte PCI config space information for the
     // card pointed to by QWS_CARD_SLOT, as read from /proc/bus/pci
@@ -782,14 +782,14 @@ bool QVoodooScreen::connect( const QString &spec )
     const unsigned char* config = qt_probe_bus();
 
     if(!config)
-	return FALSE;
+        return false;
 
     unsigned short int * manufacturer=(unsigned short int *)config;
     if(*manufacturer!=0x121a) {
-	qDebug("This does not appear to be a 3Dfx card");
-	qDebug("Are you sure QWS_CARD_SLOT is pointing to the right entry in "
-	       "/proc/bus/pci?");
-	return FALSE;
+        qDebug("This does not appear to be a 3Dfx card");
+        qDebug("Are you sure QWS_CARD_SLOT is pointing to the right entry in "
+               "/proc/bus/pci?");
+        return false;
     }
 
     const unsigned char * bar=config+0x10;
@@ -801,54 +801,54 @@ bool QVoodooScreen::connect( const QString &spec )
     unsigned long int olds=s;
     if(s & 0x1) {
 #ifdef DEBUG_INIT
-	printf("IO space - not right\n");
+        printf("IO space - not right\n");
 #endif
-	return FALSE;
+        return false;
     } else {
 #ifdef DEBUG_INIT
-	qDebug("First address thing look right");
+        qDebug("First address thing look right");
 #endif
-	s=s >> 1;
-	s=s >> 2;
-	s=olds;
-	unsigned char * membase;
-	int aperturefd;
-	// We map in the registers from /dev/mem, which is memory
-	// as seen from a physical-address point of view (rather than
-	// the application's virtual address space) but including PCI-mapped
-	// memory
-	aperturefd=open("/dev/mem",O_RDWR);
-	if(aperturefd==-1) {
+        s=s >> 1;
+        s=s >> 2;
+        s=olds;
+        unsigned char * membase;
+        int aperturefd;
+        // We map in the registers from /dev/mem, which is memory
+        // as seen from a physical-address point of view (rather than
+        // the application's virtual address space) but including PCI-mapped
+        // memory
+        aperturefd=open("/dev/mem",O_RDWR);
+        if(aperturefd==-1) {
 #ifdef DEBUG_INIT
-	    qDebug("Can't open /dev/mem");
+            qDebug("Can't open /dev/mem");
 #endif
-	    return FALSE;
-	}
-	s=(s >> 4) << 4;
+            return false;
+        }
+        s=(s >> 4) << 4;
 #ifdef DEBUG_INIT
-	qDebug("Using physical address %lx, mapping %d",s,0x5fffff);
+        qDebug("Using physical address %lx, mapping %d",s,0x5fffff);
 #endif
-	membase=(unsigned char *)mmap(0,0x5fffff,PROT_READ |
-				      PROT_WRITE,MAP_SHARED,
-				      aperturefd,s);
-	if(membase==0 || membase==(unsigned char *)-1) {
+        membase=(unsigned char *)mmap(0,0x5fffff,PROT_READ |
+                                      PROT_WRITE,MAP_SHARED,
+                                      aperturefd,s);
+        if(membase==0 || membase==(unsigned char *)-1) {
 #ifdef DEBUG_INIT
-	    qDebug("Failure to mmap /dev/mem, offset %ld, %s",s,
-		   strerror(errno));
+            qDebug("Failure to mmap /dev/mem, offset %ld, %s",s,
+                   strerror(errno));
 #endif
-	    close(aperturefd);
-	    return FALSE;
-	}
-	voodoo_regbase=membase;
+            close(aperturefd);
+            return false;
+        }
+        voodoo_regbase=membase;
     }
 
     qDebug("Detected Voodoo 3");
 
     // Yes, we detected the card correctly so can safely make accelerated
     // gfxen
-    canaccel=TRUE;
+    canaccel=true;
 
-    return TRUE;
+    return true;
 }
 
 
@@ -876,7 +876,7 @@ bool QVoodooScreen::initDevice()
     regw(COMMANDEXTRA,0);
     */
 
-    return TRUE;
+    return true;
 }
 
 void QVoodooScreen::shutdownDevice()
@@ -889,32 +889,32 @@ int QVoodooScreen::initCursor(void* e, bool init)
 #ifndef QT_NO_QWS_CURSOR
     extern bool qws_sw_cursor;
 
-    if(qws_sw_cursor==TRUE) {
-	return QLinuxFbScreen::initCursor(e,init);
+    if(qws_sw_cursor==true) {
+        return QLinuxFbScreen::initCursor(e,init);
     }
     qt_screencursor=new QVoodooCursor();
-    qt_screencursor->init(0,FALSE);
+    qt_screencursor->init(0,false);
 #endif
     return 0;
 }
 
 QGfx * QVoodooScreen::createGfx(unsigned char * b,int w,int h,int d,
-				int linestep)
+                                int linestep)
 {
     QGfx * ret=0;
-    if( onCard(b) ) {
-	if( d==16 ) {
-	    ret = new QGfxVoodoo<16,0>(b,w,h,voodoo_regbase);
-	} else if ( d==32 ) {
-	    ret = new QGfxVoodoo<32,0>(b,w,h,voodoo_regbase);
-	} else if ( d==8 ) {
-	    ret = new QGfxVoodoo<8,0>(b,w,h,voodoo_regbase);
-	}
-	if(ret) {
-	    ret->setShared(shared);
-	    ret->setLineStep(linestep);
-	    return ret;
-	}
+    if(onCard(b)) {
+        if(d==16) {
+            ret = new QGfxVoodoo<16,0>(b,w,h,voodoo_regbase);
+        } else if (d==32) {
+            ret = new QGfxVoodoo<32,0>(b,w,h,voodoo_regbase);
+        } else if (d==8) {
+            ret = new QGfxVoodoo<8,0>(b,w,h,voodoo_regbase);
+        }
+        if(ret) {
+            ret->setShared(shared);
+            ret->setLineStep(linestep);
+            return ret;
+        }
     }
     return QLinuxFbScreen::createGfx(b,w,h,d,linestep);
 }
@@ -952,7 +952,7 @@ void QVoodooCursor::init(SWCursorData *,bool)
 int voodoo_ngval(QRgb r)
 {
     if(qAlpha(r)<255) {
-	return 1;        // Transparent
+        return 1;        // Transparent
     } else if(qBlue(r)>240) {
         return 0;        // White
     } else {
@@ -968,27 +968,27 @@ void QVoodooCursor::set(const QImage& image,int hx,int hy)
 
     if(cursor->isNull()) {
         qDebug("Null cursor image!");
-	abort();
+        abort();
         return;
     }
 
     // 1k-align it
     unsigned int offset=myoffset;
     while(offset & 0x40)
-	offset++;
+        offset++;
 
     int loopc,loopc2;
 
     unsigned char * tmp;
 
     for(loopc=0;loopc<64;loopc++) {
-	tmp=fb_start+offset+(loopc*16);
-	for(loopc2=0;loopc2<8;loopc2++) {
-	    *(tmp++)=0xff;
-	}
-	for(loopc2=0;loopc2<8;loopc2++) {
-	    *(tmp++)=0x00;
-	}
+        tmp=fb_start+offset+(loopc*16);
+        for(loopc2=0;loopc2<8;loopc2++) {
+            *(tmp++)=0xff;
+        }
+        for(loopc2=0;loopc2<8;loopc2++) {
+            *(tmp++)=0x00;
+        }
     }
 
     // Write the cursor data in the image into the weird format
@@ -996,7 +996,7 @@ void QVoodooCursor::set(const QImage& image,int hx,int hy)
     // planar format (hence the two inner loops)
     // We assume cursors are multiples of 8 pixels wide
     for(loopc=0;loopc<cursor->height();loopc++) {
-	tmp=fb_start+offset+(loopc*16);
+        tmp=fb_start+offset+(loopc*16);
         for(loopc2=0;loopc2<(cursor->width()/8);loopc2++) {
             unsigned int v1,v2,v3,v4,v5,v6,v7,v8;
             unsigned int pos=loopc2*8;
@@ -1009,12 +1009,12 @@ void QVoodooCursor::set(const QImage& image,int hx,int hy)
             v2=voodoo_ngval(cursor->pixel(pos+6,loopc)) & 1;
             v1=voodoo_ngval(cursor->pixel(pos+7,loopc)) & 1;
             unsigned char put=(v8 << 7) | (v7 << 6) | (v6 << 5) |
-			      (v5 << 4) | (v4 << 3) | (v3 << 2) |
-			      (v2 << 1) | v1;
+                              (v5 << 4) | (v4 << 3) | (v3 << 2) |
+                              (v2 << 1) | v1;
             *(tmp++)=put;
         }
-	int add=8-(cursor->width()/8);
-	tmp+=add;
+        int add=8-(cursor->width()/8);
+        tmp+=add;
         for(loopc2=0;loopc2<(cursor->width()/8);loopc2++) {
             unsigned int v1,v2,v3,v4,v5,v6,v7,v8;
             unsigned int pos=loopc2*8;
@@ -1027,12 +1027,12 @@ void QVoodooCursor::set(const QImage& image,int hx,int hy)
             v2=voodoo_ngval(cursor->pixel(pos+6,loopc)) >> 1;
             v1=voodoo_ngval(cursor->pixel(pos+7,loopc)) >> 1;
             unsigned char put=(v8 << 7) | (v7 << 6) | (v6 << 5) |
-			      (v5 << 4) | (v4 << 3) | (v3 << 2) |
-			      (v2 << 1) | v1;
+                              (v5 << 4) | (v4 << 3) | (v3 << 2) |
+                              (v2 << 1) | v1;
             *(tmp++)=put;
         }
         add=8-(cursor->width()/8);
-	tmp+=add;
+        tmp+=add;
     }
     QRgb a=cursor->color(1);
     QRgb b=cursor->color(0);

@@ -49,54 +49,54 @@ QPaintEngine::~QPaintEngine()
 void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
 {
     if (!s || !updateGC) {
-	state = s;
-	return;
+        state = s;
+        return;
     }
 
     // Same state, do minimal update...
     if (s==state) {
-	if (testDirty(DirtyPen))
-	    updatePen(s);
-	if (testDirty(DirtyBrush))
-	    updateBrush(s);
-	if (testDirty(DirtyFont))
-	    updateFont(s);
-	if (testDirty(DirtyRasterOp))
-	    updateRasterOp(s);
-	if (testDirty(DirtyBackground))
-	    updateBackground(s);
-	if (testDirty(DirtyTransform))
-	    updateXForm(s);
-	if (testDirty(DirtyClip)) {
-	    updateClipRegion(s);
-	}
-	// Same painter, restoring old state.
+        if (testDirty(DirtyPen))
+            updatePen(s);
+        if (testDirty(DirtyBrush))
+            updateBrush(s);
+        if (testDirty(DirtyFont))
+            updateFont(s);
+        if (testDirty(DirtyRasterOp))
+            updateRasterOp(s);
+        if (testDirty(DirtyBackground))
+            updateBackground(s);
+        if (testDirty(DirtyTransform))
+            updateXForm(s);
+        if (testDirty(DirtyClip)) {
+            updateClipRegion(s);
+        }
+        // Same painter, restoring old state.
     } else if (state && s->painter == state->painter) {
-	if ((changeFlag&DirtyPen)!=0)
-	    updatePen(s);
-	if ((changeFlag&DirtyBrush)!=0)
-	    updateBrush(s);
-	if ((changeFlag&DirtyFont)!=0)
-	    updateFont(s);
-	if ((changeFlag&DirtyRasterOp)!=0)
-	    updateRasterOp(s);
-	if ((changeFlag&DirtyBackground)!=0)
-	    updateBackground(s);
-	if ((changeFlag&DirtyTransform)!=0)
-	    updateXForm(s);
-	if ((changeFlag&DirtyClip)!=0 || (changeFlag&DirtyClip) != 0)
-	    updateClipRegion(s);
-	changeFlag = 0;
-	// Different painter or state == 0 which is true for first time call
+        if ((changeFlag&DirtyPen)!=0)
+            updatePen(s);
+        if ((changeFlag&DirtyBrush)!=0)
+            updateBrush(s);
+        if ((changeFlag&DirtyFont)!=0)
+            updateFont(s);
+        if ((changeFlag&DirtyRasterOp)!=0)
+            updateRasterOp(s);
+        if ((changeFlag&DirtyBackground)!=0)
+            updateBackground(s);
+        if ((changeFlag&DirtyTransform)!=0)
+            updateXForm(s);
+        if ((changeFlag&DirtyClip)!=0 || (changeFlag&DirtyClip) != 0)
+            updateClipRegion(s);
+        changeFlag = 0;
+        // Different painter or state == 0 which is true for first time call
     } else {
-	updatePen(s);
-	updateBrush(s);
-	updateFont(s);
-	updateRasterOp(s);
-	updateBackground(s);
-	updateXForm(s);
-	updateClipRegion(s);
-	changeFlag = 0;
+        updatePen(s);
+        updateBrush(s);
+        updateFont(s);
+        updateRasterOp(s);
+        updateBackground(s);
+        updateXForm(s);
+        updateClipRegion(s);
+        changeFlag = 0;
     }
     dirtyFlag = 0;
     state = s;

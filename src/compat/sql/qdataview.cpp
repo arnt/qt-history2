@@ -54,8 +54,8 @@ public:
     name, and with widget flags \a fl.
 */
 
-QDataView::QDataView( QWidget *parent, const char *name, WFlags fl )
-    : QWidget( parent, name, fl )
+QDataView::QDataView(QWidget *parent, const char *name, WFlags fl)
+    : QWidget(parent, name, fl)
 {
     d = new QDataViewPrivate();
 }
@@ -88,9 +88,9 @@ void QDataView::clearValues()
     \sa form()
 */
 
-void QDataView::setForm( QSqlForm* form )
+void QDataView::setForm(QSqlForm* form)
 {
-    d->frm.setForm( form );
+    d->frm.setForm(form);
 }
 
 
@@ -115,9 +115,9 @@ QSqlForm* QDataView::form()
     \sa record()
 */
 
-void QDataView::setRecord( QSqlRecord* record )
+void QDataView::setRecord(QSqlRecord* record)
 {
-    d->frm.setRecord( record );
+    d->frm.setRecord(record);
 }
 
 
@@ -165,17 +165,17 @@ void QDataView::writeFields()
     writefields(). This slot is equivalant to calling:
 
     \code
-    myView.setRecord( record );
+    myView.setRecord(record);
     myView.readFields();
     \endcode
 
     \sa setRecord() readFields()
 */
 
-void QDataView::refresh( QSqlRecord* buf )
+void QDataView::refresh(QSqlRecord* buf)
 {
-    if ( buf && buf != record() )
-	setRecord( buf );
+    if (buf && buf != record())
+        setRecord(buf);
     readFields();
 }
 

@@ -36,7 +36,7 @@ public:
 private:
     QPageSetupDialogPrivate *d;
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QPageSetupDialog(const QPageSetupDialog &);
     QPageSetupDialog &operator=(const QPageSetupDialog &);

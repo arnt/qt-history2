@@ -36,13 +36,13 @@ class QLockData;
 class QLock
 {
 public:
-    QLock( const QString &filename, char id, bool create = FALSE );
+    QLock(const QString &filename, char id, bool create = false);
     ~QLock();
 
     enum Type { Read, Write };
 
     bool isValid() const;
-    void lock( Type type );
+    void lock(Type type);
     void unlock();
     bool locked() const;
 
@@ -58,12 +58,12 @@ private:
 class QLockHolder
 {
 public:
-    QLockHolder( QLock *l, QLock::Type type ) : qlock(l) {
-	qlock->lock( type );
+    QLockHolder(QLock *l, QLock::Type type) : qlock(l) {
+        qlock->lock(type);
     }
-    ~QLockHolder() { if ( locked() ) qlock->unlock(); }
+    ~QLockHolder() { if (locked()) qlock->unlock(); }
 
-    void lock( QLock::Type type ) { qlock->lock( type ); }
+    void lock(QLock::Type type) { qlock->lock(type); }
     void unlock() { qlock->unlock(); }
     bool locked() const { return qlock->locked(); }
 

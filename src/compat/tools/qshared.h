@@ -22,9 +22,9 @@
 
 struct Q_COMPAT_EXPORT QShared
 {
-    QShared() : count( 1 ) { }
-    void ref()		{ count++; }
-    bool deref()	{ return !--count; }
+    QShared() : count(1) { }
+    void ref()                { count++; }
+    bool deref()        { return !--count; }
     uint count;
 };
 

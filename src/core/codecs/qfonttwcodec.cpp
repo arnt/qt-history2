@@ -27,9 +27,9 @@ int QFontBig5Codec::heuristicContentMatch(const char *, int) const
 int QFontBig5Codec::heuristicNameMatch(const char* hint) const
 {
     //qDebug("QFontBig5Codec::heuristicNameMatch(const char* hint = \"%s\")", hint);
-    return ( qstricmp(hint, "big5-0") == 0 ||
-	     qstricmp(hint, "big5.eten-0") == 0 )
-	? 13 : 0;
+    return (qstricmp(hint, "big5-0") == 0 ||
+             qstricmp(hint, "big5.eten-0") == 0)
+        ? 13 : 0;
 }
 
 
@@ -62,12 +62,12 @@ unsigned short QFontBig5Codec::characterFromUnicode(const QString &str, int pos)
 {
     uchar c[2];
     if (qt_UnicodeToBig5hkscs((str.unicode() + pos)->unicode(), c) == 2 &&
-        c[0] >= 0xa1 && c[0] <= 0xf9 )
+        c[0] >= 0xa1 && c[0] <= 0xf9)
         return (c[0] << 8) + c[1];
     return 0;
 }
 
-QByteArray QFontBig5Codec::fromUnicode(const QString& uc, int& lenInOut ) const
+QByteArray QFontBig5Codec::fromUnicode(const QString& uc, int& lenInOut) const
 {
     //qDebug("QFontBig5Codec::fromUnicode(const QString& uc, int& lenInOut = %d)", lenInOut);
     QByteArray result;
@@ -75,27 +75,27 @@ QByteArray QFontBig5Codec::fromUnicode(const QString& uc, int& lenInOut ) const
     uchar *rdata = (uchar *) result.data();
     const QChar *ucp = uc.unicode();
 
-    for ( int i = 0; i < lenInOut; i++ ) {
-	QChar ch(*ucp++);
-	uchar c[2];
+    for (int i = 0; i < lenInOut; i++) {
+        QChar ch(*ucp++);
+        uchar c[2];
 
 #if 0
-	if ( ch.row() == 0) {
-	    if ( ch.cell() == ' ' )
-		ch = QChar( 0x3000 );
-	    else if ( ch.cell() > ' ' && ch.cell() < 127 )
-		ch = QChar( ch.cell()-' ', 255 );
-	}
+        if (ch.row() == 0) {
+            if (ch.cell() == ' ')
+                ch = QChar(0x3000);
+            else if (ch.cell() > ' ' && ch.cell() < 127)
+                ch = QChar(ch.cell()-' ', 255);
+        }
 #endif
-	if ( qt_UnicodeToBig5hkscs( ch.unicode(), c ) == 2 &&
-	     c[0] >= 0xa1 && c[0] <= 0xf9 ) {
-	    *rdata++ = c[0];
-	    *rdata++ = c[1];
-	} else {
-	    //white square
-	    *rdata++ = 0xa1;
-	    *rdata++ = 0xbc;
-	}
+        if (qt_UnicodeToBig5hkscs(ch.unicode(), c) == 2 &&
+             c[0] >= 0xa1 && c[0] <= 0xf9) {
+            *rdata++ = c[0];
+            *rdata++ = c[1];
+        } else {
+            //white square
+            *rdata++ = 0xa1;
+            *rdata++ = 0xbc;
+        }
     }
     lenInOut *=2;
     return result;
@@ -106,29 +106,29 @@ void QFontBig5Codec::fromUnicode(const QChar *in, unsigned short *out, int lengt
 {
     uchar c[2];
     while (length--) {
-	if ( in->row() == 0x00 && in->cell() < 0x80 ) {
-	    // ASCII
-	    *out = in->cell();
-	} else if ( qt_UnicodeToBig5hkscs( in->unicode(), c ) == 2
-		    && c[0] >= 0xa1 && c[0] <= 0xf9 ) {
-	    // Big5-ETen
-	    *out = (c[0] << 8) | c[1];
-	} else {
-	    // Unknown char
-	    *out = 0;
-	}
+        if (in->row() == 0x00 && in->cell() < 0x80) {
+            // ASCII
+            *out = in->cell();
+        } else if (qt_UnicodeToBig5hkscs(in->unicode(), c) == 2
+                    && c[0] >= 0xa1 && c[0] <= 0xf9) {
+            // Big5-ETen
+            *out = (c[0] << 8) | c[1];
+        } else {
+            // Unknown char
+            *out = 0;
+        }
 
-	++in;
-	++out;
+        ++in;
+        ++out;
     }
 }
 
-bool QFontBig5Codec::canEncode( QChar ch ) const
+bool QFontBig5Codec::canEncode(QChar ch) const
 {
-    //qDebug("QFontBig5Codec::canEncode( QChar ch = %02X%02X )", ch.row(), ch.cell());
+    //qDebug("QFontBig5Codec::canEncode(QChar ch = %02X%02X)", ch.row(), ch.cell());
     uchar c[2];
-    return ( qt_UnicodeToBig5hkscs( ch.unicode(), c ) == 2 &&
-	 c[0] >= 0xa1 && c[0] <= 0xf9 );
+    return (qt_UnicodeToBig5hkscs(ch.unicode(), c) == 2 &&
+         c[0] >= 0xa1 && c[0] <= 0xf9);
 }
 
 #endif // QT_NO_BIG_CODECS

@@ -74,7 +74,7 @@
     \row \i Qt::UpArrowCursor           \i up_arrow
     \row \i Qt::CrossCursor             \i cross
     \row \i Qt::WaitCursor              \i wait
-    \row \i Qt::BusyCursor		\i left_ptr_watch
+    \row \i Qt::BusyCursor                \i left_ptr_watch
     \row \i Qt::IbeamCursor             \i ibeam
     \row \i Qt::SizeVerCursor           \i size_ver
     \row \i Qt::SizeHorCursor           \i size_hor
@@ -132,15 +132,15 @@
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
-QDataStream &operator<<( QDataStream &s, const QCursor &c )
+QDataStream &operator<<(QDataStream &s, const QCursor &c)
 {
-    s << (Q_INT16)c.shape();			// write shape id to stream
-    if ( c.shape() == Qt::BitmapCursor ) {		// bitmap cursor
+    s << (Q_INT16)c.shape();                        // write shape id to stream
+    if (c.shape() == Qt::BitmapCursor) {                // bitmap cursor
 #if !defined(QT_NO_IMAGEIO)
-	s << *c.bitmap() << *c.mask();
-	s << c.hotSpot();
+        s << *c.bitmap() << *c.mask();
+        s << c.hotSpot();
 #else
-	qWarning("No Image Cursor I/O");
+        qWarning("No Image Cursor I/O");
 #endif
     }
     return s;
@@ -153,21 +153,21 @@ QDataStream &operator<<( QDataStream &s, const QCursor &c )
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
-QDataStream &operator>>( QDataStream &s, QCursor &c )
+QDataStream &operator>>(QDataStream &s, QCursor &c)
 {
     Q_INT16 shape;
-    s >> shape;					// read shape id from stream
-    if ( shape == Qt::BitmapCursor ) {		// read bitmap cursor
+    s >> shape;                                        // read shape id from stream
+    if (shape == Qt::BitmapCursor) {                // read bitmap cursor
 #if !defined(QT_NO_IMAGEIO)
-	QBitmap bm, bmm;
-	QPoint	hot;
-	s >> bm >> bmm >> hot;
-	c = QCursor( bm, bmm, hot.x(), hot.y() );
+        QBitmap bm, bmm;
+        QPoint        hot;
+        s >> bm >> bmm >> hot;
+        c = QCursor(bm, bmm, hot.x(), hot.y());
 #else
-	qWarning("No Image Cursor I/O");
+        qWarning("No Image Cursor I/O");
 #endif
     } else {
-	c.setShape( (int)shape );		// create cursor with shape
+        c.setShape((int)shape);                // create cursor with shape
     }
     return s;
 }
@@ -194,27 +194,27 @@ QDataStream &operator>>( QDataStream &s, QCursor &c )
     \sa QPixmap::QPixmap(), QPixmap::setMask()
 */
 
-QCursor::QCursor( const QPixmap &pixmap, int hotX, int hotY )
+QCursor::QCursor(const QPixmap &pixmap, int hotX, int hotY)
     : d(0)
 {
     QImage img = pixmap.convertToImage().
-		    convertDepth( 8, Qt::ThresholdDither|Qt::AvoidDither );
+                    convertDepth(8, Qt::ThresholdDither|Qt::AvoidDither);
     QBitmap bm;
-    bm.convertFromImage( img, Qt::ThresholdDither|Qt::AvoidDither );
+    bm.convertFromImage(img, Qt::ThresholdDither|Qt::AvoidDither);
     QBitmap bmm;
-    if ( bm.mask() ) {
-	bmm = *bm.mask();
-	QBitmap nullBm;
-	bm.setMask( nullBm );
+    if (bm.mask()) {
+        bmm = *bm.mask();
+        QBitmap nullBm;
+        bm.setMask(nullBm);
     }
-    else if ( pixmap.mask() ) {
-	QImage mimg = pixmap.mask()->convertToImage().
-	              convertDepth( 8, Qt::ThresholdDither|Qt::AvoidDither );
-	bmm.convertFromImage( mimg, Qt::ThresholdDither|Qt::AvoidDither );
+    else if (pixmap.mask()) {
+        QImage mimg = pixmap.mask()->convertToImage().
+                      convertDepth(8, Qt::ThresholdDither|Qt::AvoidDither);
+        bmm.convertFromImage(mimg, Qt::ThresholdDither|Qt::AvoidDither);
     }
     else {
-	bmm.resize( bm.size() );
-	bmm.fill( Qt::color1 );
+        bmm.resize(bm.size());
+        bmm.fill(Qt::color1);
     }
 
     setBitmap(bm, bmm, hotX, hotY);
@@ -265,11 +265,11 @@ bool QCursor::initialized = false;
 void QCursor::cleanup()
 {
     if(!initialized)
-	return;
+        return;
 
     for (int shape = 0; shape <= LastCursor; ++shape) {
-	delete cursorTable[shape].d;
-	cursorTable[shape].d = 0;
+        delete cursorTable[shape].d;
+        cursorTable[shape].d = 0;
     }
     initialized = false;
 }
@@ -281,7 +281,7 @@ void QCursor::initialize()
     InitCursor();
 #endif
     for (int shape = 0; shape <= LastCursor; ++shape)
-	cursorTable[shape].d = new QCursorData(shape);
+        cursorTable[shape].d = new QCursorData(shape);
     initialized = true;
     qAddPostRoutine(cleanup);
 }
@@ -297,11 +297,11 @@ QCursor *QCursor::find_cur(int shape)
 QCursor::QCursor()
 {
     if (!initialized) {
-	if (qApp->startingUp()) {
-	    d = 0;
-	    return;
-	}
-	initialize();
+        if (qApp->startingUp()) {
+            d = 0;
+            return;
+        }
+        initialize();
     }
     QCursor *c = &cursorTable[0];
     d = c->d;
@@ -319,7 +319,7 @@ QCursor::QCursor(int shape)
     : d(0)
 {
     if (!initialized)
-	initialize();
+        initialize();
     setShape(shape);
 }
 
@@ -333,7 +333,7 @@ QCursor::QCursor(int shape)
 int QCursor::shape() const
 {
     if (!initialized)
-	initialize();
+        initialize();
     return d->cshape;
 }
 
@@ -346,19 +346,19 @@ int QCursor::shape() const
 */
 void QCursor::setShape(int shape)
 {
-    if ( !initialized )
-	initialize();
+    if (!initialized)
+        initialize();
     QCursor *c = find_cur(shape);
     if (!c)
-	c = &cursorTable[0];
+        c = &cursorTable[0];
     QCursorData *x = c->d;
     ++x->ref;
     if (!d) {
-	d = x;
+        d = x;
     } else {
-	x = qAtomicSetPtr(&d, x);
-	if (!--x->ref)
-	    delete x;
+        x = qAtomicSetPtr(&d, x);
+        if (!--x->ref)
+            delete x;
     }
 }
 
@@ -369,7 +369,7 @@ void QCursor::setShape(int shape)
 const QBitmap *QCursor::bitmap() const
 {
     if (!initialized)
-	initialize();
+        initialize();
     return d->bm;
 }
 
@@ -381,7 +381,7 @@ const QBitmap *QCursor::bitmap() const
 const QBitmap *QCursor::mask() const
 {
     if (!initialized)
-	initialize();
+        initialize();
     return d->bmm;
 }
 
@@ -393,7 +393,7 @@ const QBitmap *QCursor::mask() const
 QPoint QCursor::hotSpot() const
 {
     if (!initialized)
-	initialize();
+        initialize();
     return QPoint(d->hx, d->hy);
 }
 
@@ -404,7 +404,7 @@ QPoint QCursor::hotSpot() const
 QCursor::QCursor(const QCursor &c)
 {
     if (!initialized)
-	initialize();
+        initialize();
     d = c.d;
     ++d->ref;
 }
@@ -416,7 +416,7 @@ QCursor::QCursor(const QCursor &c)
 QCursor::~QCursor()
 {
     if (d && !--d->ref)
-	delete d;
+        delete d;
 }
 
 
@@ -428,12 +428,12 @@ QCursor::~QCursor()
 QCursor &QCursor::operator=(const QCursor &c)
 {
     if (!initialized)
-	initialize();
+        initialize();
     QCursorData *x = c.d;
     ++x->ref;
     x = qAtomicSetPtr(&d, x);
     if (!--x->ref)
-	delete x;
+        delete x;
     return *this;
 }
 

@@ -62,13 +62,13 @@
 QBitArray::QBitArray(int size, bool val)
 {
     if (!size)
-	return;
+        return;
     d.resize(1 + (size+7)/8);
     uchar* c = (uchar*)d.data();
     memset(c, val ? 0xff : 0, d.size());
     *c = d.size()*8 - size;
     if (val && size && size%8)
-	*(c+1+size/8) &= (1 << (size%8)) - 1;
+        *(c+1+size/8) &= (1 << (size%8)) - 1;
 }
 
 /*!
@@ -98,7 +98,7 @@ void QBitArray::resize(int size)
     d.resize(1 + (size+7)/8);
     uchar* c = (uchar*)d.data();
     if (size > (s << 3))
-	memset(c + s, 0, d.size() - s);
+        memset(c + s, 0, d.size() - s);
     *c = d.size()*8 - size;
 }
 
@@ -136,16 +136,16 @@ void QBitArray::resize(int size)
 void QBitArray::fill(bool val, int first, int last)
 {
     while (first <= last && first & 0x00000007)
-	setBit(first++, val);
+        setBit(first++, val);
     int len = last - first;
     if (len < 0)
-	return;
+        return;
     int s = len & 0xfffffff8;
     uchar *c = (uchar*)d.data();
     memset(c + (first >> 3) + 1, val ? 0xff : 0, s >> 3);
     s += first;
     while (s <= last)
-	setBit(s++, val);
+        setBit(s++, val);
     return;
 }
 
@@ -189,9 +189,9 @@ void QBitArray::fill(bool val, int first, int last)
     Equivalent to:
     \code
     if (val)
-	setBit(i);
+        setBit(i);
     else
-	clearBit(i);
+        clearBit(i);
     \endcode
 
     \sa clearBit() toggleBit()
@@ -298,9 +298,9 @@ QBitArray &QBitArray::operator&=(const QBitArray &a)
     int n = qMin(d.size(), a.d.size()) - 1;
     int p = qMax(d.size(), a.d.size()) - 1 - n;
     while (n-- > 0)
-	*a1++ &= *a2++;
+        *a1++ &= *a2++;
     while (p-- > 0)
-	*a1++ = 0;
+        *a1++ = 0;
     return *this;
 }
 
@@ -328,7 +328,7 @@ QBitArray &QBitArray::operator|=(const QBitArray &a)
     const uchar *a2 = (const uchar *)a.d.constData()+1;
     int n = qMin(d.size(), a.d.size()) - 1;
     while (n-- > 0)
-	*a1++ |= *a2++;
+        *a1++ |= *a2++;
     return *this;
 }
 
@@ -356,7 +356,7 @@ QBitArray &QBitArray::operator^=(const QBitArray &a)
     const uchar *a2 = (const uchar *)a.d.constData();
     int n = qMin(d.size(), a.d.size()) - 1;
     while (n-- > 0)
-	*a1++ ^= *a2++;
+        *a1++ ^= *a2++;
     return *this;
 }
 
@@ -366,8 +366,8 @@ QBitArray &QBitArray::operator^=(const QBitArray &a)
     Example:
     \code
     QBitArray a(3), b;
-    a[0] = 1;  a[1] = 0; a[2] = 1;	// a = [1 0 1]
-    b = ~a;				// b = [0 1 0]
+    a[0] = 1;  a[1] = 0; a[2] = 1;        // a = [1 0 1]
+    b = ~a;                                // b = [0 1 0]
     \endcode
 */
 
@@ -379,9 +379,9 @@ QBitArray QBitArray::operator~() const
     uchar *a2 = (uchar *)a.d.data() + 1;
     int n = d.size() - 1;
     while (n--)
-	*a2++ = ~*a1++;
+        *a2++ = ~*a1++;
      if (sz && sz%8)
-	 *(a2-1) &= (1 << (sz%8)) - 1;
+         *(a2-1) &= (1 << (sz%8)) - 1;
     return a;
 }
 
@@ -499,12 +499,12 @@ QBitArray operator^(const QBitArray &a1, const QBitArray &a2)
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 #ifndef QT_NO_DATASTREAM
-QDataStream &operator<<( QDataStream &s, const QBitArray &a )
+QDataStream &operator<<(QDataStream &s, const QBitArray &a)
 {
     Q_UINT32 len = a.size();
-    s << len;					// write size of array
-    if ( len > 0 )				// write data
-	s.writeRawBytes( a.d, a.d.size() );
+    s << len;                                        // write size of array
+    if (len > 0)                                // write data
+        s.writeRawBytes(a.d, a.d.size());
     return s;
 }
 
@@ -516,20 +516,20 @@ QDataStream &operator<<( QDataStream &s, const QBitArray &a )
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
-QDataStream &operator>>( QDataStream &s, QBitArray &a )
+QDataStream &operator>>(QDataStream &s, QBitArray &a)
 {
     Q_UINT32 len;
     s >> len;
     if (!len) {
-	a.d.clear();
+        a.d.clear();
     } else {
-	a.resize( len ); // read size of array
-	if ( a.size() != (int)len ) {		// resize array
-	    qWarning( "QDataStream: Not enough memory to read QBitArray" );
-	    len = 0;
-	}
-	if ( len > 0 )				// read data
-	    s.readRawBytes( a.d.data(), a.d.size() );
+        a.resize(len); // read size of array
+        if (a.size() != (int)len) {                // resize array
+            qWarning("QDataStream: Not enough memory to read QBitArray");
+            len = 0;
+        }
+        if (len > 0)                                // read data
+            s.readRawBytes(a.d.data(), a.d.size());
     }
     return s;
 }

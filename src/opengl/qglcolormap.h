@@ -20,7 +20,7 @@
 #include "qvector.h"
 #endif // QT_H
 
-#if !defined( QT_MODULE_OPENGL ) || defined( QT_LICENSE_PROFESSIONAL )
+#if !defined(QT_MODULE_OPENGL) || defined(QT_LICENSE_PROFESSIONAL)
 #define QM_EXPORT_OPENGL
 #else
 #define QM_EXPORT_OPENGL Q_OPENGL_EXPORT
@@ -31,22 +31,22 @@ class QM_EXPORT_OPENGL QGLColormap
 {
 public:
     QGLColormap();
-    QGLColormap( const QGLColormap & );
+    QGLColormap(const QGLColormap &);
     ~QGLColormap();
 
-    QGLColormap &operator=( const QGLColormap & );
+    QGLColormap &operator=(const QGLColormap &);
 
     bool   isEmpty() const;
     int    size() const;
     void   detach();
 
-    void   setEntries( int count, const QRgb * colors, int base = 0 );
-    void   setEntry( int idx, QRgb color );
-    void   setEntry( int idx, const QColor & color );
-    QRgb   entryRgb( int idx ) const;
-    QColor entryColor( int idx ) const;
-    int    find( QRgb color ) const;
-    int    findNearest( QRgb color ) const;
+    void   setEntries(int count, const QRgb * colors, int base = 0);
+    void   setEntry(int idx, QRgb color);
+    void   setEntry(int idx, const QColor & color);
+    QRgb   entryRgb(int idx) const;
+    QColor entryColor(int idx) const;
+    int    find(QRgb color) const;
+    int    findNearest(QRgb color) const;
 
 protected:
     Qt::HANDLE handle() { return d ? d->cmapHandle : 0; }
@@ -54,9 +54,9 @@ protected:
 
 private:
     struct QGLColormapData {
-	QAtomic ref;
-	QVector<QRgb> *cells;
-	Qt::HANDLE cmapHandle;
+        QAtomic ref;
+        QVector<QRgb> *cells;
+        Qt::HANDLE cmapHandle;
     };
 
     QGLColormapData *d;
@@ -69,8 +69,8 @@ private:
 
 inline void QGLColormap::detach()
 {
-    if (d->ref != 1 )
-	detach_helper();
+    if (d->ref != 1)
+        detach_helper();
 }
 
 #endif

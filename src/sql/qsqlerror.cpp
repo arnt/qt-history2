@@ -22,7 +22,7 @@
 QDebug operator<<(QDebug dbg, const QSqlError &s)
 {
     dbg.nospace() << "QSqlError("<< s.number() << ", \"" << s.driverText() <<
-		     "\", \"" << s.databaseText() << "\")";
+                     "\", \"" << s.databaseText() << "\")";
     return dbg.space();
 }
 #endif
@@ -58,10 +58,10 @@ QDebug operator<<(QDebug dbg, const QSqlError &s)
     type \a type and the optional error number \a number.
 */
 
-QSqlError::QSqlError(  const QString& driverText,
-    		const QString& databaseText,
-		int type,
-		int number )
+QSqlError::QSqlError( const QString& driverText,
+                const QString& databaseText,
+                int type,
+                int number)
 : driverError(driverText),
   databaseError(databaseText),
   errorType(type),
@@ -73,7 +73,7 @@ QSqlError::QSqlError(  const QString& driverText,
     Creates a copy of \a other.
 */
 
-QSqlError::QSqlError( const QSqlError& other )
+QSqlError::QSqlError(const QSqlError& other)
 : driverError(other.driverError),
   databaseError(other.databaseError),
   errorType(other.errorType),
@@ -85,7 +85,7 @@ QSqlError::QSqlError( const QSqlError& other )
     Sets the error equal to \a other.
 */
 
-QSqlError& QSqlError::operator=( const QSqlError& other )
+QSqlError& QSqlError::operator=(const QSqlError& other)
 {
     driverError = other.driverError;
     databaseError = other.databaseError;
@@ -115,7 +115,7 @@ QString QSqlError::driverText() const
     Sets the driver error text to the value of \a driverText.
 */
 
-void QSqlError::setDriverText( const QString& driverText )
+void QSqlError::setDriverText(const QString& driverText)
 {
     driverError = driverText;
 }
@@ -134,7 +134,7 @@ QString QSqlError::databaseText() const
     Sets the database error text to the value of \a databaseText.
 */
 
-void QSqlError::setDatabaseText( const QString& databaseText )
+void QSqlError::setDatabaseText(const QString& databaseText)
 {
     databaseError = databaseText;
 }
@@ -154,7 +154,7 @@ int QSqlError::type() const
     Sets the error type to the value of \a type.
 */
 
-void QSqlError::setType( int type )
+void QSqlError::setType(int type)
 {
     errorType = type;
 }
@@ -173,7 +173,7 @@ int QSqlError::number() const
     Sets the database-specific error number to \a number.
 */
 
-void QSqlError::setNumber( int number )
+void QSqlError::setNumber(int number)
 {
     errorNumber = number;
 }
@@ -187,10 +187,10 @@ void QSqlError::setNumber( int number )
 
 QString QSqlError::text() const
 {
-    if ( databaseError.endsWith("\n") )
-	return databaseError + driverError;
+    if (databaseError.endsWith("\n"))
+        return databaseError + driverError;
     else
-	return databaseError + " " + driverError;
+        return databaseError + " " + driverError;
 }
 
 #endif // QT_NO_SQL

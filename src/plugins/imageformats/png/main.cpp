@@ -16,9 +16,9 @@ public:
     PNGFormat();
 
     QStringList keys() const;
-    bool loadImage( const QString &format, const QString &filename, QImage * );
-    bool saveImage( const QString &format, const QString &filename, const QImage& );
-    bool installIOHandler( const QString & );
+    bool loadImage(const QString &format, const QString &filename, QImage *);
+    bool saveImage(const QString &format, const QString &filename, const QImage&);
+    bool installIOHandler(const QString &);
 };
 
 PNGFormat::PNGFormat()
@@ -34,43 +34,43 @@ QStringList PNGFormat::keys() const
     return list;
 }
 
-bool PNGFormat::loadImage( const QString &format, const QString &filename, QImage *image )
+bool PNGFormat::loadImage(const QString &format, const QString &filename, QImage *image)
 {
-    if ( format != "PNG" )
-	return FALSE;
+    if (format != "PNG")
+        return false;
 
     QImageIO io;
-    io.setFileName( filename );
-    io.setImage( *image );
+    io.setFileName(filename);
+    io.setImage(*image);
 
-    read_png_image( &io );
+    read_png_image(&io);
 
-    return TRUE;
+    return true;
 }
 
-bool PNGFormat::saveImage( const QString &format, const QString &filename, const QImage &image )
+bool PNGFormat::saveImage(const QString &format, const QString &filename, const QImage &image)
 {
-    if ( format != "PNG" )
-	return FALSE;
+    if (format != "PNG")
+        return false;
 
     QImageIO io;
-    io.setFileName( filename );
-    io.setImage( image );
+    io.setFileName(filename);
+    io.setImage(image);
 
-    write_png_image( &io );
+    write_png_image(&io);
 
-    return TRUE;
+    return true;
 }
 
-bool PNGFormat::installIOHandler( const QString &name )
+bool PNGFormat::installIOHandler(const QString &name)
 {
-    if ( name != "PNG" )
-	return FALSE;
+    if (name != "PNG")
+        return false;
 
     qInitPngIO();
-    return TRUE;
+    return true;
 }
 
-Q_EXPORT_PLUGIN( PNGFormat )
+Q_EXPORT_PLUGIN(PNGFormat)
 
 #endif // QT_NO_IMAGEFORMATPLUGIN

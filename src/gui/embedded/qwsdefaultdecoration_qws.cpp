@@ -215,53 +215,53 @@ const QPixmap* QWSDefaultDecoration::pixmapFor(const QWidget* w, QWSDecoration::
 
     // Why don't we just use/extend the enum type...
 
-    if ( staticMenuPixmapXPM != (xpm=menuPixmap()) ) {
-	staticMenuPixmapXPM = xpm;
-	staticMenuPixmap = new QPixmap(xpm);
+    if (staticMenuPixmapXPM != (xpm=menuPixmap())) {
+        staticMenuPixmapXPM = xpm;
+        staticMenuPixmap = new QPixmap(xpm);
     }
-    if ( staticClosePixmapXPM != (xpm=closePixmap()) ) {
-	staticClosePixmapXPM = xpm;
-	staticClosePixmap = new QPixmap(xpm);
+    if (staticClosePixmapXPM != (xpm=closePixmap())) {
+        staticClosePixmapXPM = xpm;
+        staticClosePixmap = new QPixmap(xpm);
     }
-    if ( staticMinimizePixmapXPM != (xpm=minimizePixmap()) ) {
-	staticMinimizePixmapXPM = xpm;
-	staticMinimizePixmap = new QPixmap(xpm);
+    if (staticMinimizePixmapXPM != (xpm=minimizePixmap())) {
+        staticMinimizePixmapXPM = xpm;
+        staticMinimizePixmap = new QPixmap(xpm);
     }
-    if ( staticMaximizePixmapXPM != (xpm=maximizePixmap()) ) {
-	staticMaximizePixmapXPM = xpm;
-	staticMaximizePixmap = new QPixmap(xpm);
+    if (staticMaximizePixmapXPM != (xpm=maximizePixmap())) {
+        staticMaximizePixmapXPM = xpm;
+        staticMaximizePixmap = new QPixmap(xpm);
     }
-    if ( staticNormalizePixmapXPM != (xpm=normalizePixmap()) ) {
-	staticNormalizePixmapXPM = xpm;
-	staticNormalizePixmap = new QPixmap(xpm);
+    if (staticNormalizePixmapXPM != (xpm=normalizePixmap())) {
+        staticNormalizePixmapXPM = xpm;
+        staticNormalizePixmap = new QPixmap(xpm);
     }
 
     const QPixmap *pm = 0;
 
     switch (type) {
-	case Menu:
+        case Menu:
 #ifndef QT_NO_WIDGET_TOPEXTRA
-	    pm = w->icon(); //##### will be &windowIcon() when that returns a const QPixmap&;
+            pm = w->icon(); //##### will be &windowIcon() when that returns a const QPixmap&;
 #endif
-	    if ( !pm ) {
-		xoff = 1;
-		pm = staticMenuPixmap;
-	    }
-	    break;
-	case Close:
-	    pm = staticClosePixmap;
-	    break;
-	case Maximize:
-	    if (on)
-		pm = staticNormalizePixmap;
-	    else
-		pm = staticMaximizePixmap;
-	    break;
-	case Minimize:
-	    pm = staticMinimizePixmap;
-	    break;
-	default:
-	    break;
+            if (!pm) {
+                xoff = 1;
+                pm = staticMenuPixmap;
+            }
+            break;
+        case Close:
+            pm = staticClosePixmap;
+            break;
+        case Maximize:
+            if (on)
+                pm = staticNormalizePixmap;
+            else
+                pm = staticMaximizePixmap;
+            break;
+        case Minimize:
+            pm = staticMinimizePixmap;
+            break;
+        default:
+            break;
     }
     return pm;
 #else
@@ -289,157 +289,157 @@ QRegion QWSDefaultDecoration::region(const QWidget *widget, const QRect &rect, Q
     int bw = BORDER_WIDTH;
 
     switch (type) {
-	case All: {
-		if ( widget->isMaximized() ) {
-		    QRect r(rect.left(), rect.top() - titleHeight,
-			    rect.width(), rect.height() + titleHeight);
-		    region = r;
-		} else {
-		    QRect r(rect.left() - bw,
-			    rect.top() - titleHeight - bw,
-			    rect.width() + 2 * bw,
-			    rect.height() + titleHeight + 2 * bw);
-		    region = r;
-		}
-		region -= rect;
-	    }
-	    break;
+        case All: {
+                if (widget->isMaximized()) {
+                    QRect r(rect.left(), rect.top() - titleHeight,
+                            rect.width(), rect.height() + titleHeight);
+                    region = r;
+                } else {
+                    QRect r(rect.left() - bw,
+                            rect.top() - titleHeight - bw,
+                            rect.width() + 2 * bw,
+                            rect.height() + titleHeight + 2 * bw);
+                    region = r;
+                }
+                region -= rect;
+            }
+            break;
 
-	case Title: {
-		    QRect r(rect.left() + titleHeight, rect.top() - titleHeight,
-			    rect.width() - 4*titleHeight, titleHeight);
-		    if (r.width() > 0)
-			region = r;
-	    }
-	    break;
+        case Title: {
+                    QRect r(rect.left() + titleHeight, rect.top() - titleHeight,
+                            rect.width() - 4*titleHeight, titleHeight);
+                    if (r.width() > 0)
+                        region = r;
+            }
+            break;
 
-	case Top: {
-		    QRect r(rect.left() + CORNER_GRAB,
-			    rect.top() - titleHeight - bw,
-			    rect.width() - 2 * CORNER_GRAB,
-			    bw);
-		    region = r;
-	    }
-	    break;
+        case Top: {
+                    QRect r(rect.left() + CORNER_GRAB,
+                            rect.top() - titleHeight - bw,
+                            rect.width() - 2 * CORNER_GRAB,
+                            bw);
+                    region = r;
+            }
+            break;
 
-	case Left: {
-		QRect r(rect.left() - bw,
-			rect.top() - titleHeight + CORNER_GRAB,
-			bw,
-			rect.height() + titleHeight - 2 * CORNER_GRAB);
-		region = r;
-	    }
-	    break;
+        case Left: {
+                QRect r(rect.left() - bw,
+                        rect.top() - titleHeight + CORNER_GRAB,
+                        bw,
+                        rect.height() + titleHeight - 2 * CORNER_GRAB);
+                region = r;
+            }
+            break;
 
-	case Right: {
-		QRect r(rect.right() + 1,
-			rect.top() - titleHeight + CORNER_GRAB,
-			bw,
-			rect.height() + titleHeight - 2 * CORNER_GRAB);
-		region = r;
-	    }
-	    break;
+        case Right: {
+                QRect r(rect.right() + 1,
+                        rect.top() - titleHeight + CORNER_GRAB,
+                        bw,
+                        rect.height() + titleHeight - 2 * CORNER_GRAB);
+                region = r;
+            }
+            break;
 
-	case Bottom: {
-		QRect r(rect.left() + CORNER_GRAB,
-			rect.bottom() + 1,
-			rect.width() - 2 * CORNER_GRAB,
-			bw);
-		region = r;
-	    }
-	    break;
+        case Bottom: {
+                QRect r(rect.left() + CORNER_GRAB,
+                        rect.bottom() + 1,
+                        rect.width() - 2 * CORNER_GRAB,
+                        bw);
+                region = r;
+            }
+            break;
 
-	case TopLeft: {
-		QRect r1(rect.left() - bw,
-			rect.top() - bw - titleHeight,
-			CORNER_GRAB + bw,
-			bw);
+        case TopLeft: {
+                QRect r1(rect.left() - bw,
+                        rect.top() - bw - titleHeight,
+                        CORNER_GRAB + bw,
+                        bw);
 
-		QRect r2(rect.left() - bw,
-			rect.top() - bw - titleHeight,
-			bw,
-			CORNER_GRAB + bw);
+                QRect r2(rect.left() - bw,
+                        rect.top() - bw - titleHeight,
+                        bw,
+                        CORNER_GRAB + bw);
 
-		region = QRegion(r1) + r2;
-	    }
-	    break;
+                region = QRegion(r1) + r2;
+            }
+            break;
 
-	case TopRight: {
-		QRect r1(rect.right() - CORNER_GRAB,
-			rect.top() - bw - titleHeight,
-			CORNER_GRAB + bw,
-			bw);
+        case TopRight: {
+                QRect r1(rect.right() - CORNER_GRAB,
+                        rect.top() - bw - titleHeight,
+                        CORNER_GRAB + bw,
+                        bw);
 
-		QRect r2(rect.right() + 1,
-			rect.top() - bw - titleHeight,
-			bw,
-			CORNER_GRAB + bw);
+                QRect r2(rect.right() + 1,
+                        rect.top() - bw - titleHeight,
+                        bw,
+                        CORNER_GRAB + bw);
 
-		region = QRegion(r1) + r2;
-	    }
-	    break;
+                region = QRegion(r1) + r2;
+            }
+            break;
 
-	case BottomLeft: {
-		QRect r1(rect.left() - bw,
-			rect.bottom() + 1,
-			CORNER_GRAB + bw,
-			bw);
+        case BottomLeft: {
+                QRect r1(rect.left() - bw,
+                        rect.bottom() + 1,
+                        CORNER_GRAB + bw,
+                        bw);
 
-		QRect r2(rect.left() - bw,
-			rect.bottom() - CORNER_GRAB,
-			bw,
-			CORNER_GRAB + bw);
-		region = QRegion(r1) + r2;
-	    }
-	    break;
+                QRect r2(rect.left() - bw,
+                        rect.bottom() - CORNER_GRAB,
+                        bw,
+                        CORNER_GRAB + bw);
+                region = QRegion(r1) + r2;
+            }
+            break;
 
-	case BottomRight: {
-		QRect r1(rect.right() - CORNER_GRAB,
-			rect.bottom() + 1,
-			CORNER_GRAB + bw,
-			bw);
+        case BottomRight: {
+                QRect r1(rect.right() - CORNER_GRAB,
+                        rect.bottom() + 1,
+                        CORNER_GRAB + bw,
+                        bw);
 
-		QRect r2(rect.right() + 1,
-			rect.bottom() - CORNER_GRAB,
-			bw,
-			CORNER_GRAB + bw);
-		region = QRegion(r1) + r2;
-	    }
-	    break;
+                QRect r2(rect.right() + 1,
+                        rect.bottom() - CORNER_GRAB,
+                        bw,
+                        CORNER_GRAB + bw);
+                region = QRegion(r1) + r2;
+            }
+            break;
 
-	case Menu: {
-		    QRect r(rect.left(), rect.top() - titleHeight,
-			    titleHeight, titleHeight);
-		    region = r;
-	    }
-	    break;
+        case Menu: {
+                    QRect r(rect.left(), rect.top() - titleHeight,
+                            titleHeight, titleHeight);
+                    region = r;
+            }
+            break;
 
-	case Close: {
-		QRect r(rect.right() - titleHeight, rect.top() - titleHeight,
-			titleHeight, titleHeight);
-		if (r.left() > rect.left() + titleHeight)
-		    region = r;
-	    }
-	    break;
+        case Close: {
+                QRect r(rect.right() - titleHeight, rect.top() - titleHeight,
+                        titleHeight, titleHeight);
+                if (r.left() > rect.left() + titleHeight)
+                    region = r;
+            }
+            break;
 
-	case Maximize: {
-		QRect r(rect.right() - 2*titleHeight, rect.top() - titleHeight,
-			titleHeight, titleHeight);
-		if (r.left() > rect.left() + titleHeight)
-		    region = r;
-	    }
-	    break;
+        case Maximize: {
+                QRect r(rect.right() - 2*titleHeight, rect.top() - titleHeight,
+                        titleHeight, titleHeight);
+                if (r.left() > rect.left() + titleHeight)
+                    region = r;
+            }
+            break;
 
-	case Minimize: {
-		QRect r(rect.right() - 3*titleHeight, rect.top() - titleHeight,
-			titleHeight, titleHeight);
-		if (r.left() > rect.left() + titleHeight)
-		    region = r;
-	    }
-	    break;
+        case Minimize: {
+                QRect r(rect.right() - 3*titleHeight, rect.top() - titleHeight,
+                        titleHeight, titleHeight);
+                if (r.left() > rect.left() + titleHeight)
+                    region = r;
+            }
+            break;
 
-	default:
-	    break;
+        default:
+            break;
     }
 
     return region;
@@ -456,7 +456,7 @@ void QWSDefaultDecoration::paint(QPainter *painter, const QWidget *widget)
     QRect tr(titleHeight, -titleHeight,  titleWidth, titleHeight - 1);
 
     QRegion oldClip = painter->clipRegion();
-    painter->setClipRegion( oldClip - QRegion( tr ) );	// reduce flicker
+    painter->setClipRegion(oldClip - QRegion(tr));        // reduce flicker
 
 #ifndef QT_NO_PALETTE
     QPalette pal = QApplication::palette();
@@ -465,56 +465,56 @@ void QWSDefaultDecoration::paint(QPainter *painter, const QWidget *widget)
 
 #if !defined(QT_NO_DRAWUTIL)
     // Border rect
-    QRect br( rect.left() - BORDER_WIDTH,
+    QRect br(rect.left() - BORDER_WIDTH,
                 rect.top() - BORDER_WIDTH - titleHeight,
                 rect.width() + 2 * BORDER_WIDTH,
-                rect.height() + BORDER_WIDTH + BOTTOM_BORDER_WIDTH + titleHeight );
+                rect.height() + BORDER_WIDTH + BOTTOM_BORDER_WIDTH + titleHeight);
 
     qDrawWinPanel(painter, br.x(), br.y(), br.width(),
-		  br.height() - 4, pal, FALSE,
-		  &pal.brush(QPalette::Background));
+                  br.height() - 4, pal, false,
+                  &pal.brush(QPalette::Background));
 #endif
 
-    painter->setClipRegion( oldClip );
+    painter->setClipRegion(oldClip);
 
     if (titleWidth > 0) {
-	QBrush titleBrush;
-	QPen   titlePen;
-	int    titleLeft = titleHeight + 4;
+        QBrush titleBrush;
+        QPen   titlePen;
+        int    titleLeft = titleHeight + 4;
 
-	if (widget == qApp->activeWindow()) {
-	    titleBrush = pal.brush(QPalette::Highlight);
-	    titlePen   = pal.color(QPalette::HighlightedText);
-	} else {
-	    titleBrush = pal.brush(QPalette::Background);
-	    titlePen   = pal.color(QPalette::Text);
-	}
+        if (widget == qApp->activeWindow()) {
+            titleBrush = pal.brush(QPalette::Highlight);
+            titlePen   = pal.color(QPalette::HighlightedText);
+        } else {
+            titleBrush = pal.brush(QPalette::Background);
+            titlePen   = pal.color(QPalette::Text);
+        }
 
-#define CLAMP(x, y)	    ( ((x) > (y)) ? (y) : (x) )
+#define CLAMP(x, y)            (((x) > (y)) ? (y) : (x))
 
-	{
+        {
 
 #if !defined(QT_NO_DRAWUTIL)
-	    qDrawShadePanel(painter, tr.x(), tr.y(), tr.width(), tr.height(),
-			    pal, TRUE, 1, &titleBrush);
+            qDrawShadePanel(painter, tr.x(), tr.y(), tr.width(), tr.height(),
+                            pal, true, 1, &titleBrush);
 #endif
 
 #ifndef QT_NO_WIDGET_TOPEXTRA
-	    painter->setPen(titlePen);
-	    painter->setFont(widget->font());
-	    painter->drawText( titleLeft, -titleHeight,
-			    titleWidth-5, titleHeight - 1,
-			    QPainter::AlignVCenter, widget->windowTitle());
+            painter->setPen(titlePen);
+            painter->setFont(widget->font());
+            painter->drawText(titleLeft, -titleHeight,
+                            titleWidth-5, titleHeight - 1,
+                            QPainter::AlignVCenter, widget->windowTitle());
 #endif
-	    return;
-	}
+            return;
+        }
 
 #ifndef QT_NO_WIDGET_TOPEXTRA
-	painter->setPen(titlePen);
-	painter->setFont(widget->font());
-	painter->drawText( titleLeft, -titleHeight,
-	 		rect.width() - titleHeight - 10, titleHeight-1,
-			QPainter::AlignVCenter, widget->windowTitle());
+        painter->setPen(titlePen);
+        painter->setFont(widget->font());
+        painter->drawText(titleLeft, -titleHeight,
+                        rect.width() - titleHeight - 10, titleHeight-1,
+                        QPainter::AlignVCenter, widget->windowTitle());
 #endif
     }
 
@@ -523,7 +523,7 @@ void QWSDefaultDecoration::paint(QPainter *painter, const QWidget *widget)
 }
 
 void QWSDefaultDecoration::paintButton(QPainter *painter, const QWidget *w,
-			QWSDecoration::Region type, int state)
+                        QWSDecoration::Region type, int state)
 {
 #ifndef QT_NO_PALETTE
     QPalette pal = QApplication::palette();
@@ -539,18 +539,18 @@ void QWSDefaultDecoration::paintButton(QPainter *painter, const QWidget *w,
 
     {
 
-	if ((state & QWSButton::MouseOver) && (state & QWSButton::Clicked)) {
+        if ((state & QWSButton::MouseOver) && (state & QWSButton::Clicked)) {
 #if !defined(QT_NO_DRAWUTIL)
-	    qDrawWinPanel(painter, brect.x(), brect.y(), brect.width()-1,
-			brect.height()-1, pal, TRUE,
-			&pal.brush(QPalette::Background));
-#endif	
-	    if (pm) painter->drawPixmap(brect.x()+xoff+1, brect.y()+yoff+1, *pm);
-	} else {
-	    painter->fillRect(brect.x(), brect.y(), brect.width()-1,
-			brect.height()-1, pal.brush(QPalette::Background));
-	    if (pm) painter->drawPixmap(brect.x()+xoff, brect.y()+yoff, *pm);
-	}
+            qDrawWinPanel(painter, brect.x(), brect.y(), brect.width()-1,
+                        brect.height()-1, pal, true,
+                        &pal.brush(QPalette::Background));
+#endif
+            if (pm) painter->drawPixmap(brect.x()+xoff+1, brect.y()+yoff+1, *pm);
+        } else {
+            painter->fillRect(brect.x(), brect.y(), brect.width()-1,
+                        brect.height()-1, pal.brush(QPalette::Background));
+            if (pm) painter->drawPixmap(brect.x()+xoff, brect.y()+yoff, *pm);
+        }
     }
 
 #endif

@@ -13,7 +13,7 @@
 ****************************************************************************/
 
 #include "qwskeyboard_qnx4.h"
- 
+
 #if defined(Q_OS_QNX4)
 
 #include <qkeyboard_qws.h>
@@ -29,39 +29,39 @@ QWSQnx4KeyboardHandler::QWSQnx4KeyboardHandler() {
     shift = 0;
     alt   = 0;
     ctrl  = 0;
-    extended = FALSE;
+    extended = false;
     prevuni = 0;
     prevkey = 0;
 
     kbdFD = open("/dev/kbd", O_RDONLY);
-    if (kbdFD == -1) 
-	qFatal("Cannot access keyboard device\n");
-    QSocketNotifier *kbdNotifier = new QSocketNotifier(kbdFD, 
-					       QSocketNotifier::Read, this );
+    if (kbdFD == -1)
+        qFatal("Cannot access keyboard device\n");
+    QSocketNotifier *kbdNotifier = new QSocketNotifier(kbdFD,
+                                               QSocketNotifier::Read, this);
     connect(kbdNotifier, SIGNAL(activated(int)),this, SLOT(readKbdData(int)));
-    notifiers.append( kbdNotifier ); 
+    notifiers.append(kbdNotifier);
 }
 
 void QWSQnx4KeyboardHandler::readKbdData(int fd) {
-	char inChar;
-	int ret = read(kbdFD, &inChar, 1);
-	switch (gState) {
-		case GuidantNone:
-			if ( inChar == 85 || inChar == 86 )
-				gState = inChar == 85 ? GuidantPressed : GuidantReleased;
-			else
-				doKey(inChar);
-			break;
-		case GuidantDropped:
-			gState = GuidantNone;
-			break;
-		case GuidantReleased:
-			inChar |= 0x80;
-		case GuidantPressed:
-			gState = GuidantDropped;
-			doKey(inChar);
-			break;
-	};
+        char inChar;
+        int ret = read(kbdFD, &inChar, 1);
+        switch (gState) {
+                case GuidantNone:
+                        if (inChar == 85 || inChar == 86)
+                                gState = inChar == 85 ? GuidantPressed : GuidantReleased;
+                        else
+                                doKey(inChar);
+                        break;
+                case GuidantDropped:
+                        gState = GuidantNone;
+                        break;
+                case GuidantReleased:
+                        inChar |= 0x80;
+                case GuidantPressed:
+                        gState = GuidantDropped;
+                        doKey(inChar);
+                        break;
+        };
 }
 
 QWSQnx4KeyboardHandler::~QWSQnx4KeyboardHandler() {

@@ -26,9 +26,9 @@ void QMapData::continueFreeData(int offset)
     Node *cur = forward[0];
     Node *prev;
     while (cur != e) {
-	prev = cur;
-	cur = cur->forward[0];
-	qFree(reinterpret_cast<char *>(prev) - offset);
+        prev = cur;
+        cur = cur->forward[0];
+        qFree(reinterpret_cast<char *>(prev) - offset);
     }
     delete this;
 }
@@ -39,19 +39,19 @@ QMapData::Node *QMapData::node_create(Node *update[], int offset)
     uint mask = (1 << Sparseness) - 1;
 
     while ((randomBits & mask) == mask && level < LastLevel) {
-	++level;
-	mask <<= Sparseness;
+        ++level;
+        mask <<= Sparseness;
     }
 
     ++randomBits;
     if (level == 3 && !insertInOrder)
-	randomBits = qRand();
+        randomBits = qRand();
 
     if (level > topLevel) {
-	Node *e = reinterpret_cast<Node *>(this);
-	level = ++topLevel;
-	e->forward[level] = e;
-	update[level] = e;
+        Node *e = reinterpret_cast<Node *>(this);
+        level = ++topLevel;
+        e->forward[level] = e;
+        update[level] = e;
     }
 
     void *concreteNode = qMalloc(offset + sizeof(Node) + level * sizeof(Node *));
@@ -61,9 +61,9 @@ QMapData::Node *QMapData::node_create(Node *update[], int offset)
     update[0]->forward[0]->backward = abstractNode;
 
     for (int i = level; i >= 0; i--) {
-	abstractNode->forward[i] = update[i]->forward[i];
-	update[i]->forward[i] = abstractNode;
-	update[i] = abstractNode;
+        abstractNode->forward[i] = update[i]->forward[i];
+        update[i]->forward[i] = abstractNode;
+        update[i] = abstractNode;
     }
     ++size;
     return abstractNode;
@@ -74,9 +74,9 @@ void QMapData::node_delete(Node *update[], int offset, Node *node)
     node->forward[0]->backward = node->backward;
 
     for (int i = 0; i <= topLevel; ++i) {
-	if (update[i]->forward[i] != node)
-	    break;
-	update[i]->forward[i] = node->forward[i];
+        if (update[i]->forward[i] != node)
+            break;
+        update[i]->forward[i] = node->forward[i];
     }
     --size;
     qFree(reinterpret_cast<char *>(node) - offset);
@@ -89,9 +89,9 @@ void QMapData::node_delete(Node *update[], int offset, Node *node)
 uint QMapData::adjust_ptr(Node *node)
 {
     if (node == reinterpret_cast<Node *>(this)) {
-	return (uint)0xFFFFFFFF;
+        return (uint)0xFFFFFFFF;
     } else {
-	return (uint)node;
+        return (uint)node;
     }
 }
 
@@ -111,31 +111,31 @@ void QMapData::dump()
     for (int i = 0; i <= topLevel; ++i) {
         str.sprintf("%d: [%.8x] -", i, adjust_ptr(forward[i]));
         output[i] += str;
-	update[i] = forward[i];
+        update[i] = forward[i];
     }
 
     Node *node = forward[0];
     while (node != e) {
-	int level = 0;
+        int level = 0;
         while (level < topLevel && update[level + 1] == node)
-	    ++level;
+            ++level;
 
-	str.sprintf("       %.8x", adjust_ptr(node));
-	preOutput += str;
+        str.sprintf("       %.8x", adjust_ptr(node));
+        preOutput += str;
 
-	for (int i = 0; i <= level; ++i) {
+        for (int i = 0; i <= level; ++i) {
             str.sprintf("-> [%.8x] -", adjust_ptr(node->forward[i]));
-	    output[i] += str;
-	    update[i] = node->forward[i];
+            output[i] += str;
+            update[i] = node->forward[i];
         }
         for (int j = level + 1; j <= topLevel; ++j)
-	    output[j] += "---------------";
-	node = node->forward[0];
+            output[j] += "---------------";
+        node = node->forward[0];
     }
 
     qDebug(preOutput.ascii());
     for (int i = 0; i <= topLevel; ++i)
-	qDebug(output[i].ascii());
+        qDebug(output[i].ascii());
 }
 #endif
 
@@ -167,7 +167,7 @@ void QMapData::dump()
 
     Here's an example QMap with QString keys and int values:
     \code
-	QMap<QString, int> map;
+        QMap<QString, int> map;
     \endcode
 
     To insert a (key, value) pair into the map, you can use operator[]():
@@ -184,14 +184,14 @@ void QMapData::dump()
     Another way to insert items into the map is to use insert():
 
     \code
-	map.insert("twelve", 12);
+        map.insert("twelve", 12);
     \endcode
 
     To look up a value, use operator[]() or value():
 
     \code
         int num1 = map["thirteen"];
-	int num2 = map.value("thirteen");
+        int num2 = map.value("thirteen");
     \endcode
 
     If there is no item with the specified key in the map, these
@@ -201,16 +201,16 @@ void QMapData::dump()
     contains():
 
     \code
-	int timeout = 30;
+        int timeout = 30;
         if (map.contains("TIMEOUT"))
-	    timeout = map.value("TIMEOUT");
+            timeout = map.value("TIMEOUT");
     \endcode
 
     There is also a value() overload that uses its second argument as
     a default value if there is no item with the specified key:
 
     \code
-	int timeout = map.value("TIMEOUT", 30);
+        int timeout = map.value("TIMEOUT", 30);
     \endcode
 
     In general, we recommend that you use contains() and value()
@@ -221,12 +221,12 @@ void QMapData::dump()
     items in memory:
 
     \code
-	// WRONG
-	QMap<int, QWidget *> map;
-	...
-	for (int i = 0; i < 1000; ++i) {
-	    if (map[i] == okButton)
-		cout << "Found button at index " << i << endl;
+        // WRONG
+        QMap<int, QWidget *> map;
+        ...
+        for (int i = 0; i < 1000; ++i) {
+            if (map[i] == okButton)
+                cout << "Found button at index " << i << endl;
         }
     \endcode
 
@@ -241,9 +241,9 @@ void QMapData::dump()
     using a Java-style iterator:
 
     \code
-	QMapIterator<QString, int> i(hash);
+        QMapIterator<QString, int> i(hash);
         while (i.hasNext()) {
-	    i.next();
+            i.next();
             cout << i.key() << ": " << i.value() << endl;
         }
     \endcode
@@ -251,10 +251,10 @@ void QMapData::dump()
     Here's the same code, but using an STL-style iterator this time:
 
     \code
-	QMap<QString, int>::const_iterator i = map.constBegin();
+        QMap<QString, int>::const_iterator i = map.constBegin();
         while (i != map.constEnd()) {
-	    cout << i.key() << ": " << i.value() << endl;
-	    ++i;
+            cout << i.key() << ": " << i.value() << endl;
+            ++i;
         }
     \endcode
 
@@ -266,7 +266,7 @@ void QMapData::dump()
     previous value will be erased. For example:
 
     \code
-	map.insert("plenty", 100);
+        map.insert("plenty", 100);
         map.insert("plenty", 2000);
         // map.value("plenty") == 2000
     \endcode
@@ -278,9 +278,9 @@ void QMapData::dump()
     QList<T>:
 
     \code
-	QList<int> values = map.values("plenty");
+        QList<int> values = map.values("plenty");
         for (int i = 0; i < values.size(); ++i)
-	    cout << values.at(i) << endl;
+            cout << values.at(i) << endl;
     \endcode
 
     The items that share the same key are available from most
@@ -290,9 +290,9 @@ void QMapData::dump()
     QMapMutableIterator::findNextKey():
 
     \code
-	QMapIterator<QString, int> i(map);
+        QMapIterator<QString, int> i(map);
         while (i.findNextKey("plenty"))
-	    cout << i.value() << endl;
+            cout << i.value() << endl;
     \endcode
 
     If you prefer the STL-style iterators, you can call find() to get
@@ -300,10 +300,10 @@ void QMapData::dump()
     there:
 
     \code
-	QMap<QString, int>::iterator i = map.find("plenty");
+        QMap<QString, int>::iterator i = map.find("plenty");
         while (i != map.end() && i.key() == "plenty") {
-	    cout << i.value() << endl;
-	    ++i;
+            cout << i.value() << endl;
+            ++i;
         }
     \endcode
 
@@ -311,10 +311,10 @@ void QMapData::dump()
     you can also use \l{foreach}:
 
     \code
-	QMap<QString, int> map;
+        QMap<QString, int> map;
         ...
-	foreach (int value, map)
-	    cout << value << endl;
+        foreach (int value, map)
+            cout << value << endl;
     \endcode
 
     Items can be removed from the map in several ways. One way is to
@@ -332,29 +332,29 @@ void QMapData::dump()
 
     Example:
     \code
-	#ifndef EMPLOYEE_H
+        #ifndef EMPLOYEE_H
         #define EMPLOYEE_H
 
-	class Employee
+        class Employee
         {
-	public:
-	    Employee() {}
+        public:
+            Employee() {}
             Employee(const QString &name, const QDate &dateOfBirth);
-	    ...
+            ...
 
-	private:
-	    QString myName;
+        private:
+            QString myName;
             QDate myDateOfBirth;
         };
 
-	inline bool operator<(const Employee &e1, const Employee &e2)
+        inline bool operator<(const Employee &e1, const Employee &e2)
         {
-	    if (e1.name() != e2.name())
-		return e1.name() < e2.name();
-	    return e1.dateOfBirth() < e2.dateOfBirth();
+            if (e1.name() != e2.name())
+                return e1.name() < e2.name();
+            return e1.dateOfBirth() < e2.dateOfBirth();
         }
 
-	#endif // EMPLOYEE_H
+        #endif // EMPLOYEE_H
     \endcode
 
     In the example, we start by comparing the employees' names. If
@@ -677,12 +677,12 @@ void QMapData::dump()
     the items with the same key:
 
     \code
-	QMap<QString, int> map;
+        QMap<QString, int> map;
         ...
-	QMap<QString, int>::const_iterator i = map.find("HDR");
+        QMap<QString, int>::const_iterator i = map.find("HDR");
         while (i != map.end() && i.key() == "HDR") {
-	    cout << i.value() << endl;
-	    ++i;
+            cout << i.value() << endl;
+            ++i;
         }
     \endcode
 
@@ -773,7 +773,7 @@ void QMapData::dump()
     value) pairs stored in a map:
 
     \code
-	QMap<QString, int> map;
+        QMap<QString, int> map;
         map.insert("January", 1);
         map.insert("February", 2);
         ...
@@ -781,7 +781,7 @@ void QMapData::dump()
 
         QMap<QString, int>::iterator i;
         for (i = map.begin(); i != map.end(); ++i)
-	    cout << i.key() << ": " << i.value() << endl;
+            cout << i.key() << ": " << i.value() << endl;
     \endcode
 
     Unlike QHash, which stores its items in an arbitrary order, QMap
@@ -796,21 +796,21 @@ void QMapData::dump()
     by 2:
 
     \code
-	QMap<QString, int>::iterator i;
+        QMap<QString, int>::iterator i;
         for (i = map.begin(); i != map.end(); ++i)
-	    i.value() += 2;
+            i.value() += 2;
     \endcode
 
     Here's an example that removes all the items whose key is a
     string that starts with an underscore character:
 
     \code
-	QMap<QString, int>::iterator i = map.begin();
+        QMap<QString, int>::iterator i = map.begin();
         while (i != map.end()) {
-	    if (i.key().startsWith("_"))
-		i = map.erase(i);
-	    else
-		++i;
+            if (i.key().startsWith("_"))
+                i = map.erase(i);
+            else
+                ++i;
         }
     \endcode
 
@@ -819,23 +819,23 @@ void QMapData::dump()
     Here's another way of removing an item while iterating:
 
     \code
-	QMap<QString, int>::iterator i = map.begin();
+        QMap<QString, int>::iterator i = map.begin();
         while (i != map.end()) {
-	    QMap<QString, int>::iterator prev = i;
-	    ++i;
+            QMap<QString, int>::iterator prev = i;
+            ++i;
             if (prev.key().startsWith("_"))
-		map.erase(prev);
+                map.erase(prev);
         }
     \endcode
 
     It might be tempting to write code like this:
 
     \code
-	// WRONG
+        // WRONG
         while (i != map.end()) {
-	    if (i.key().startsWith("_"))
-		map.erase(i);
-	    ++i;
+            if (i.key().startsWith("_"))
+                map.erase(i);
+            ++i;
         }
     \endcode
 
@@ -913,8 +913,8 @@ void QMapData::dump()
     the left side of an assignment, for example:
 
     \code
-	if (i.key() == "Hello")
-	    i.value() = "Bonjour";
+        if (i.key() == "Hello")
+            i.value() = "Bonjour";
     \endcode
 
     \sa key(), operator*()
@@ -1046,7 +1046,7 @@ void QMapData::dump()
     loop that prints all the (key, value) pairs stored in a map:
 
     \code
-	QMap<QString, int> map;
+        QMap<QString, int> map;
         map.insert("January", 1);
         map.insert("February", 2);
         ...
@@ -1054,7 +1054,7 @@ void QMapData::dump()
 
         QMap<QString, int>::const_iterator i;
         for (i = map.constBegin(); i != map.constEnd(); ++i)
-	    cout << i.key() << ": " << i.value() << endl;
+            cout << i.key() << ": " << i.value() << endl;
     \endcode
 
     Unlike QHash, which stores its items in an arbitrary order, QMap
@@ -1288,16 +1288,16 @@ void QMapData::dump()
 
     Example:
     \code
-	QMultiMap<QString, int> map1, map2, map3;
+        QMultiMap<QString, int> map1, map2, map3;
 
-	map1.insert("plenty", 100);
+        map1.insert("plenty", 100);
         map1.insert("plenty", 2000);
         // map1.size() == 2
 
-	map2.insert("plenty", 5000);
+        map2.insert("plenty", 5000);
         // map2.size() == 1
 
-	map3 = map1 + map2;
+        map3 = map1 + map2;
         // map3.size() == 3
     \endcode
 
@@ -1305,9 +1305,9 @@ void QMapData::dump()
     use values(const Key &key), which returns a QList<T>:
 
     \code
-	QList<int> values = map.values("plenty");
+        QList<int> values = map.values("plenty");
         for (int i = 0; i < values.size(); ++i)
-	    cout << values.at(i) << endl;
+            cout << values.at(i) << endl;
     \endcode
 
     The items that share the same key are available from most
@@ -1317,9 +1317,9 @@ void QMapData::dump()
     QMapMutableIterator::findNextKey():
 
     \code
-	QMapIterator<QString, int> i(map);
+        QMapIterator<QString, int> i(map);
         while (i.findNextKey("plenty"))
-	    cout << i.value() << endl;
+            cout << i.value() << endl;
     \endcode
 
     If you prefer the STL-style iterators, you can call find() to get
@@ -1327,10 +1327,10 @@ void QMapData::dump()
     there:
 
     \code
-	QMultiMap<QString, int>::iterator i = map.find("plenty");
+        QMultiMap<QString, int>::iterator i = map.find("plenty");
         while (i != map.end() && i.key() == "plenty") {
-	    cout << i.value() << endl;
-	    ++i;
+            cout << i.value() << endl;
+            ++i;
         }
     \endcode
 

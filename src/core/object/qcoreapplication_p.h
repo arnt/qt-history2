@@ -14,10 +14,10 @@ struct QPostEvent
     QObject *receiver;
     QEvent *event;
     inline QPostEvent()
-	: receiver(0), event(0)
+        : receiver(0), event(0)
     { }
     inline QPostEvent(QObject *r, QEvent *e)
-	: receiver(r), event(e)
+        : receiver(r), event(e)
     { }
 };
 
@@ -28,7 +28,7 @@ public:
     QSpinLock spinlock;
 
     inline QPostEventList()
-	: QVector<QPostEvent>(), offset(0)
+        : QVector<QPostEvent>(), offset(0)
     { }
     ~QPostEventList();
 };

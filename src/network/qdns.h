@@ -22,7 +22,7 @@
 #include "qstringlist.h"
 #endif // QT_H
 
-#if !defined( QT_MODULE_NETWORK ) || defined( QT_LICENSE_PROFESSIONAL ) || defined( QT_INTERNAL_NETWORK )
+#if !defined(QT_MODULE_NETWORK) || defined(QT_LICENSE_PROFESSIONAL) || defined(QT_INTERNAL_NETWORK)
 #define QM_EXPORT_DNS
 #else
 #define QM_EXPORT_DNS Q_NETWORK_EXPORT
@@ -40,25 +40,25 @@ class QM_EXPORT_DNS QDns: public QObject {
     Q_OBJECT
 public:
     enum RecordType {
-	None,
-	A, Aaaa,
-	Mx, Srv,
-	Cname,
-	Ptr,
-	Txt
+        None,
+        A, Aaaa,
+        Mx, Srv,
+        Cname,
+        Ptr,
+        Txt
     };
 
     QDns();
-    QDns( const QString & label, RecordType rr = A );
-    QDns( const QHostAddress & address, RecordType rr = Ptr );
+    QDns(const QString & label, RecordType rr = A);
+    QDns(const QHostAddress & address, RecordType rr = Ptr);
     virtual ~QDns();
 
     // to set/change the query
-    virtual void setLabel( const QString & label );
-    virtual void setLabel( const QHostAddress & address );
+    virtual void setLabel(const QString & label);
+    virtual void setLabel(const QHostAddress & address);
     QString label() const { return l; }
 
-    virtual void setRecordType( RecordType rr = A );
+    virtual void setRecordType(RecordType rr = A);
     RecordType recordType() const { return t; }
 
     // whether something is happening behind the scenes
@@ -69,23 +69,23 @@ public:
 
     class QM_EXPORT_DNS MailServer {
     public:
-	MailServer( const QString & n=QString::null, Q_UINT16 p=0 )
-	    :name(n), priority(p) {}
-	QString name;
-	Q_UINT16 priority;
-	Q_DUMMY_COMPARISON_OPERATOR(MailServer)
+        MailServer(const QString & n=QString::null, Q_UINT16 p=0)
+            :name(n), priority(p) {}
+        QString name;
+        Q_UINT16 priority;
+        Q_DUMMY_COMPARISON_OPERATOR(MailServer)
     };
     QList<MailServer> mailServers() const;
 
     class QM_EXPORT_DNS Server {
     public:
-	Server(const QString & n=QString::null, Q_UINT16 p=0, Q_UINT16 w=0, Q_UINT16 po=0 )
-	    : name(n), priority(p), weight(w), port(po) {}
-	QString name;
-	Q_UINT16 priority;
-	Q_UINT16 weight;
-	Q_UINT16 port;
-	Q_DUMMY_COMPARISON_OPERATOR(Server)
+        Server(const QString & n=QString::null, Q_UINT16 p=0, Q_UINT16 w=0, Q_UINT16 po=0)
+            : name(n), priority(p), weight(w), port(po) {}
+        QString name;
+        Q_UINT16 priority;
+        Q_UINT16 weight;
+        Q_UINT16 port;
+        Q_DUMMY_COMPARISON_OPERATOR(Server)
     };
     QList<Server> servers() const;
 
@@ -99,7 +99,7 @@ public:
 
 #if defined(Q_DNS_SYNCHRONOUS)
 protected:
-    void connectNotify( const char *signal );
+    void connectNotify(const char *signal);
 #endif
 
 signals:
@@ -111,7 +111,7 @@ private slots:
 private:
     static void doResInit();
     void setStartQueryTimer();
-    static QString toInAddrArpaDomain( const QHostAddress &address );
+    static QString toInAddrArpaDomain(const QHostAddress &address);
 #if defined(Q_DNS_SYNCHRONOUS)
     void doSynchronousLookup();
 #endif
@@ -132,7 +132,7 @@ class QDnsSocket: public QObject {
     Q_OBJECT
     // note: Private not public.  This class contains NO public API.
 protected:
-    QDnsSocket( QObject *, const char * );
+    QDnsSocket(QObject *, const char *);
     virtual ~QDnsSocket();
 
 private slots:

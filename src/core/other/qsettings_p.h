@@ -58,7 +58,7 @@ public:
 class QSettingsPrivate
 {
 public:
-    QSettingsPrivate( QSettings::Format format );
+    QSettingsPrivate(QSettings::Format format);
     ~QSettingsPrivate();
 
     QSettingsGroup readGroup();
@@ -87,34 +87,34 @@ public:
     // system specific setting database (ie. registry on Windows)
 
     QSettingsSysPrivate *sysd;
-    void	sysInit();
-    void	sysClear();
+    void        sysInit();
+    void        sysClear();
 
 #if !defined(Q_NO_BOOL_TYPE)
-    bool	sysWriteEntry( const QString &, bool );
+    bool        sysWriteEntry(const QString &, bool);
 #endif
-    bool	sysWriteEntry( const QString &, double );
-    bool	sysWriteEntry( const QString &, int );
-    bool	sysWriteEntry( const QString &, const QString & );
-    bool	sysWriteEntry( const QString &, const QStringList & );
-    bool	sysWriteEntry( const QString &, const QStringList &, const QChar& sep );
+    bool        sysWriteEntry(const QString &, double);
+    bool        sysWriteEntry(const QString &, int);
+    bool        sysWriteEntry(const QString &, const QString &);
+    bool        sysWriteEntry(const QString &, const QStringList &);
+    bool        sysWriteEntry(const QString &, const QStringList &, const QChar& sep);
 
     QStringList sysEntryList(const QString &) const;
     QStringList sysSubkeyList(const QString &) const;
 
-    QStringList sysReadListEntry( const QString &, bool * = 0 ) const;
-    QStringList sysReadListEntry( const QString &, const QChar& sep, bool * = 0 ) const;
-    QString	sysReadEntry( const QString &, const QString &def = QString::null, bool * = 0 ) const;
-    int		sysReadNumEntry( const QString &, int def = 0, bool * = 0 ) const;
-    double	sysReadDoubleEntry( const QString &, double def = 0, bool * = 0 ) const;
-    bool	sysReadBoolEntry( const QString &, bool def = 0, bool * = 0 ) const;
+    QStringList sysReadListEntry(const QString &, bool * = 0) const;
+    QStringList sysReadListEntry(const QString &, const QChar& sep, bool * = 0) const;
+    QString        sysReadEntry(const QString &, const QString &def = QString::null, bool * = 0) const;
+    int                sysReadNumEntry(const QString &, int def = 0, bool * = 0) const;
+    double        sysReadDoubleEntry(const QString &, double def = 0, bool * = 0) const;
+    bool        sysReadBoolEntry(const QString &, bool def = 0, bool * = 0) const;
 
-    bool	sysRemoveEntry( const QString & );
+    bool        sysRemoveEntry(const QString &);
 
-    bool	sysSync();
+    bool        sysSync();
 
-    void	sysInsertSearchPath( QSettings::System, const QString & );
-    void	sysRemoveSearchPath( QSettings::System, const QString & );
+    void        sysInsertSearchPath(QSettings::System, const QString &);
+    void        sysRemoveSearchPath(QSettings::System, const QString &);
 #endif
 
 };

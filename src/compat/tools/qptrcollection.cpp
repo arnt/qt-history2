@@ -50,9 +50,9 @@
 */
 
 /*!
-    \fn QPtrCollection::QPtrCollection( const QPtrCollection & source )
+    \fn QPtrCollection::QPtrCollection(const QPtrCollection & source)
 
-    Constructs a copy of \a source with autoDelete() set to FALSE. The
+    Constructs a copy of \a source with autoDelete() set to false. The
     constructor is protected because QPtrCollection is an abstract
     class.
 
@@ -71,22 +71,22 @@
 /*!
     \fn bool QPtrCollection::autoDelete() const
 
-    Returns the setting of the auto-delete option. The default is FALSE.
+    Returns the setting of the auto-delete option. The default is false.
 
     \sa setAutoDelete()
 */
 
 /*!
-    \fn void QPtrCollection::setAutoDelete( bool enable )
+    \fn void QPtrCollection::setAutoDelete(bool enable)
 
     Sets the collection to auto-delete its contents if \a enable is
-    TRUE and to never delete them if \a enable is FALSE.
+    true and to never delete them if \a enable is false.
 
     If auto-deleting is turned on, all the items in a collection are
     deleted when the collection itself is deleted. This is convenient
     if the collection has the only pointer to the items.
 
-    The default setting is FALSE, for safety. If you turn it on, be
+    The default setting is false, for safety. If you turn it on, be
     careful about copying the collection - you might find yourself
     with two collections deleting the same items.
 
@@ -115,7 +115,7 @@
 */
 
 /*!
-    \fn void QPtrCollection::deleteItem( Item d )
+    \fn void QPtrCollection::deleteItem(Item d)
 
     Reimplement this function if you want to be able to delete items.
 
@@ -150,7 +150,7 @@
     \sa deleteItem()
 */
 
-QPtrCollection::Item QPtrCollection::newItem( Item d )
+QPtrCollection::Item QPtrCollection::newItem(Item d)
 {
-    return d;					// just return reference
+    return d;                                        // just return reference
 }

@@ -29,7 +29,7 @@ class Q_COMPAT_EXPORT Q3WhatsThis: public QObject
 {
     Q_OBJECT
 public:
-    Q3WhatsThis( QWidget *);
+    Q3WhatsThis(QWidget *);
     ~Q3WhatsThis();
     bool eventFilter(QObject *, QEvent *);
 
@@ -37,16 +37,16 @@ public:
     static inline bool inWhatsThisMode();
     static inline void leaveWhatsThisMode();
 
-    static inline void add( QWidget *w, const QString &s) { QWhatsThis::add(w, s); }
-    static inline void remove( QWidget *w) { QWhatsThis::remove(w); }
-    static QToolButton * whatsThisButton( QWidget * parent ) { return QWhatsThis::whatsThisButton(parent); }
-    static inline void leaveWhatsThisMode( const QString& text = QString::null, const QPoint& pos = QCursor::pos(), QWidget* w = 0 )
-	{ QWhatsThis::showText(pos, text, w); }
-    static inline void display( const QString& text, const QPoint& pos = QCursor::pos(), QWidget* w = 0 )
-	{ QWhatsThis::showText(pos, text, w); }
+    static inline void add(QWidget *w, const QString &s) { QWhatsThis::add(w, s); }
+    static inline void remove(QWidget *w) { QWhatsThis::remove(w); }
+    static QToolButton * whatsThisButton(QWidget * parent) { return QWhatsThis::whatsThisButton(parent); }
+    static inline void leaveWhatsThisMode(const QString& text = QString::null, const QPoint& pos = QCursor::pos(), QWidget* w = 0)
+        { QWhatsThis::showText(pos, text, w); }
+    static inline void display(const QString& text, const QPoint& pos = QCursor::pos(), QWidget* w = 0)
+        { QWhatsThis::showText(pos, text, w); }
 
-    virtual QString text( const QPoint & );
-    virtual bool clicked( const QString& href );
+    virtual QString text(const QPoint &);
+    virtual bool clicked(const QString& href);
 
 private slots:
     void hyperLinkClicked(const QString &);

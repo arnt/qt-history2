@@ -29,8 +29,8 @@ public:
     QObjectCleanupHandler();
     ~QObjectCleanupHandler();
 
-    QObject* add( QObject* object );
-    void remove( QObject *object );
+    QObject* add(QObject* object);
+    void remove(QObject *object);
     bool isEmpty() const;
     void clear();
 
@@ -39,7 +39,7 @@ private:
     QObjectList cleanupObjects;
 
 private slots:
-    void objectDestroyed( QObject * );
+    void objectDestroyed(QObject *);
 };
 
 #endif // QOBJECTCLEANUPHANDLER_H

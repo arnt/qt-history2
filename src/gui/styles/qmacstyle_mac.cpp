@@ -29,9 +29,9 @@
 
 struct QMacStylePrivate {
     struct PolicyState {
-	static QMap<const QWidget*, QMacStyle::FocusRectPolicy> focusMap;
-	static QMap<const QWidget*, QMacStyle::WidgetSizePolicy> sizeMap;
-	static void watchObject(const QObject *o);
+        static QMap<const QWidget*, QMacStyle::FocusRectPolicy> focusMap;
+        static QMap<const QWidget*, QMacStyle::WidgetSizePolicy> sizeMap;
+        static void watchObject(const QObject *o);
     };
 };
 QMap<const QWidget*, QMacStyle::FocusRectPolicy> QMacStylePrivate::PolicyState::focusMap;
@@ -50,7 +50,7 @@ void QMacStylePrivate::PolicyState::watchObject(const QObject *o)
 {
     static QGuardedPtr<QMacStylePrivateObjectWatcher> watcher;
     if(!watcher)
-	watcher = new QMacStylePrivateObjectWatcher(NULL);
+        watcher = new QMacStylePrivateObjectWatcher(NULL);
     QObject::connect(o, SIGNAL(destroyed(QObject*)), watcher, SLOT(destroyedObject(QObject*)));
 }
 void QMacStylePrivateObjectWatcher::destroyedObject(QObject *o)
@@ -138,20 +138,20 @@ QMacStyle::QMacStyle()  : QWindowsStyle()
 QMacStyle::~QMacStyle()
 {
     if(qd_style)
-	delete qd_style;
+        delete qd_style;
     if(cg_style)
-	delete cg_style;
+        delete cg_style;
 }
 
 /*! \reimp */
 void QMacStyle::polish(QApplication* app)
 {
-#if defined( USE_CORE_GRAPHICS ) && QT_MACOSX_VERSION >= 0x1030
+#if defined(USE_CORE_GRAPHICS) && QT_MACOSX_VERSION >= 0x1030
     if(!getenv("QT_MAC_USE_APPMANAGER")) {
         if(!cg_style)
             cg_style = new QMacStyleCG();
         cg_style->polish(app);
-    } 
+    }
 #endif
     {
         if(!qd_style)
@@ -174,36 +174,36 @@ void QMacStyle::unPolish(QWidget* w)
 
 /*! \reimp */
 void QMacStyle::drawPrimitive(PrimitiveElement pe,
-			       QPainter *p,
-			       const QRect &r,
-			       const QPalette &pal,
-			       SFlags flags,
-			       const QStyleOption& opt) const
+                               QPainter *p,
+                               const QRect &r,
+                               const QPalette &pal,
+                               SFlags flags,
+                               const QStyleOption& opt) const
 {
     correctStyle(p)->drawPrimitive(pe, p, r, pal, flags, opt);
 }
 
 /*! \reimp */
 void QMacStyle::drawControl(ControlElement element,
-				 QPainter *p,
-				 const QWidget *widget,
-				 const QRect &r,
-				 const QPalette &pal,
-				 SFlags how,
-				 const QStyleOption& opt) const
+                                 QPainter *p,
+                                 const QWidget *widget,
+                                 const QRect &r,
+                                 const QPalette &pal,
+                                 SFlags how,
+                                 const QStyleOption& opt) const
 {
     correctStyle(p)->drawControl(element, p, widget, r, pal, how, opt);
 }
 
 /*! \reimp */
 void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
-					const QWidget *widget,
-					const QRect &r,
-					const QPalette &pal,
-					SFlags flags,
-					SCFlags sub,
-					SCFlags subActive,
-					const QStyleOption& opt) const
+                                        const QWidget *widget,
+                                        const QRect &r,
+                                        const QPalette &pal,
+                                        SFlags flags,
+                                        SCFlags sub,
+                                        SCFlags subActive,
+                                        const QStyleOption& opt) const
 {
     correctStyle(p)->drawComplexControl(ctrl, p, widget, r, pal, flags, sub, subActive, opt);
 }
@@ -216,9 +216,9 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 
 /*! \reimp */
 QRect QMacStyle::querySubControlMetrics(ComplexControl control,
-					    const QWidget *w,
-					    SubControl sc,
-					    const QStyleOption& opt) const
+                                            const QWidget *w,
+                                            SubControl sc,
+                                            const QStyleOption& opt) const
 {
     return correctStyle(w)->querySubControlMetrics(control, w, sc, opt);
 }
@@ -231,9 +231,9 @@ QRect QMacStyle::subRect(SubRect r, const QWidget *w) const
 
 /*! \reimp */
 QStyle::SubControl QMacStyle::querySubControl(ComplexControl control,
-						 const QWidget *widget,
-						 const QPoint &pos,
-						 const QStyleOption& opt) const
+                                                 const QWidget *widget,
+                                                 const QPoint &pos,
+                                                 const QStyleOption& opt) const
 {
     return correctStyle(widget)->querySubControl(control, widget, pos, opt);
 }
@@ -246,14 +246,14 @@ int QMacStyle::styleHint(StyleHint sh, const QWidget *w, const QStyleOption &opt
 
 /*! \reimp */
 QSize QMacStyle::sizeFromContents(ContentsType contents, const QWidget *widget,
-				       const QSize &contentsSize, const QStyleOption& opt) const
+                                       const QSize &contentsSize, const QStyleOption& opt) const
 {
     return correctStyle(widget)->sizeFromContents(contents, widget, contentsSize, opt);
 }
 
 /*! \reimp */
-QPixmap QMacStyle::stylePixmap( PixmapType pixmaptype, const QPixmap &pixmap,
-				const QPalette &pal, const QStyleOption &opt ) const
+QPixmap QMacStyle::stylePixmap(PixmapType pixmaptype, const QPixmap &pixmap,
+                                const QPalette &pal, const QStyleOption &opt) const
 {
     return correctStyle(&pixmap)->stylePixmap(pixmaptype, pixmap, pal, opt);
 }
@@ -285,11 +285,11 @@ QPixmap QMacStyle::stylePixmap(StylePixmap stylepixmap, const QWidget *widget, c
 */
 void QMacStyle::setFocusRectPolicy(QWidget *w, FocusRectPolicy policy)
 {
-    QMacStylePrivate::PolicyState::focusMap.insert( w, policy );
+    QMacStylePrivate::PolicyState::focusMap.insert(w, policy);
     QMacStylePrivate::PolicyState::watchObject(w);
     if (w->hasFocus()) {
-	w->clearFocus();
-	w->setFocus();
+        w->clearFocus();
+        w->setFocus();
     }
 }
 
@@ -303,7 +303,7 @@ void QMacStyle::setFocusRectPolicy(QWidget *w, FocusRectPolicy policy)
 QMacStyle::FocusRectPolicy QMacStyle::focusRectPolicy(const QWidget *w)
 {
     if (QMacStylePrivate::PolicyState::focusMap.contains(w))
-	return QMacStylePrivate::PolicyState::focusMap[w];
+        return QMacStylePrivate::PolicyState::focusMap[w];
     return FocusDefault;
 }
 
@@ -315,7 +315,7 @@ QMacStyle::FocusRectPolicy QMacStyle::focusRectPolicy(const QWidget *w)
 */
 void QMacStyle::setWidgetSizePolicy(const QWidget *w, WidgetSizePolicy policy)
 {
-    QMacStylePrivate::PolicyState::sizeMap.insert( w, policy );
+    QMacStylePrivate::PolicyState::sizeMap.insert(w, policy);
     QMacStylePrivate::PolicyState::watchObject(w);
 }
 
@@ -330,42 +330,42 @@ QMacStyle::WidgetSizePolicy QMacStyle::widgetSizePolicy(const QWidget *w)
 {
     WidgetSizePolicy ret = SizeDefault;
     if(w) {
-	if (QMacStylePrivate::PolicyState::sizeMap.contains(w))
-	    ret = QMacStylePrivate::PolicyState::sizeMap[w];
-	if(ret == SizeDefault) {
-	    for(QWidget *p = w->parentWidget(); ret == SizeDefault && p; p = p->parentWidget()) {
-		ret = widgetSizePolicy(p);
-		if(p->isTopLevel())
-		    break;
-	    }
-	}
+        if (QMacStylePrivate::PolicyState::sizeMap.contains(w))
+            ret = QMacStylePrivate::PolicyState::sizeMap[w];
+        if(ret == SizeDefault) {
+            for(QWidget *p = w->parentWidget(); ret == SizeDefault && p; p = p->parentWidget()) {
+                ret = widgetSizePolicy(p);
+                if(p->isTopLevel())
+                    break;
+            }
+        }
     }
     return ret;
 }
 
-QStyle *QMacStyle::correctStyle(const QPainter *p) const 
+QStyle *QMacStyle::correctStyle(const QPainter *p) const
 {
     return correctStyle(p ? p->device() : 0);
 }
 
 QStyle *QMacStyle::correctStyle(const QPaintDevice *pdev) const
 {
-#if !(defined( USE_CORE_GRAPHICS ) && QT_MACOSX_VERSION >= 0x1030)
+#if !(defined(USE_CORE_GRAPHICS) && QT_MACOSX_VERSION >= 0x1030)
     Q_UNUSED(pdev);
 #else
-    bool ret_cg_style = TRUE; //default to TRUE when using CORE_GRAPHICS if there is no pdev
+    bool ret_cg_style = true; //default to true when using CORE_GRAPHICS if there is no pdev
     if(pdev && pdev->engine())
-	ret_cg_style = (pdev->engine()->type() == QPaintEngine::CoreGraphics);
+        ret_cg_style = (pdev->engine()->type() == QPaintEngine::CoreGraphics);
     if(ret_cg_style && !getenv("QT_MAC_USE_APPMANAGER")) {
-	if(!cg_style)
-	    cg_style = new QMacStyleCG();
-	return cg_style;
-    } else 
+        if(!cg_style)
+            cg_style = new QMacStyleCG();
+        return cg_style;
+    } else
 #endif
     {
-	if(!qd_style)
-	    qd_style = new QMacStyleQD();
-	return qd_style;
+        if(!qd_style)
+            qd_style = new QMacStyleQD();
+        return qd_style;
     }
     return 0;
 }

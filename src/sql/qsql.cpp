@@ -66,8 +66,8 @@
     \value In  the bind parameter is used to put data into the database
     \value Out  the bind parameter is used to receive data from the database
     \value InOut  the bind parameter is used to put data into the
-	database; it will be overwritten with output data on executing
-	a query.
+        database; it will be overwritten with output data on executing
+        a query.
 */
 
 /*!

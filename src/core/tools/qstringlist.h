@@ -57,12 +57,12 @@ public:
 
 #ifdef QT_COMPAT
     inline QT_COMPAT QStringList grep(const QString &str, bool cs = true) const
-	{ return find(str, cs ? QString::CaseSensitive : QString::CaseInsensitive); }
+        { return find(str, cs ? QString::CaseSensitive : QString::CaseInsensitive); }
     inline QT_COMPAT QStringList grep(const QRegExp &rx) const { return find(rx); }
     inline QT_COMPAT QStringList &gres(const QString &before, const QString &after, bool cs = true)
-	{ return replace(before, after, cs ? QString::CaseSensitive : QString::CaseInsensitive); }
+        { return replace(before, after, cs ? QString::CaseSensitive : QString::CaseInsensitive); }
     inline QT_COMPAT QStringList &gres(const QRegExp &rx, const QString &after)
-	{ return replace(rx, after); }
+        { return replace(rx, after); }
     Iterator QT_COMPAT fromLast() { return (isEmpty() ? end() : --end()); }
     ConstIterator QT_COMPAT fromLast() const { return (isEmpty() ? end() : --end()); }
 #endif
@@ -74,10 +74,10 @@ QStringList QStringList::split(const QString &sep, const QString &str, bool allo
 {
     QStringList s;
     if (str.isEmpty())
-	return s;
+        return s;
     s = str.split(sep);
     if (!allowEmptyEntries)
-	s.remove(QString());
+        s.remove(QString());
     return s;
 }
 
@@ -86,10 +86,10 @@ QStringList QStringList::split(const QChar &sep, const QString &str, bool allowE
 {
     QStringList s;
     if (str.isEmpty())
-	return s;
+        return s;
     s = str.split(sep);
     if (!allowEmptyEntries)
-	s.remove(QString());
+        s.remove(QString());
     return s;
 }
 
@@ -98,10 +98,10 @@ QStringList QStringList::split(const QRegExp &sep, const QString &str, bool allo
 {
     QStringList s;
     if (str.isEmpty())
-	return s;
+        return s;
     s = str.split(sep);
     if (!allowEmptyEntries)
-	s.remove(QString());
+        s.remove(QString());
     return s;
 }
 #endif

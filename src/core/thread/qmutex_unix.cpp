@@ -44,13 +44,13 @@
     void method1()
     {
         number *= 5;
-	number /= 4;
+        number /= 4;
     }
 
     void method1()
     {
         number *= 3;
-	number /= 2;
+        number /= 2;
     }
     \endcode
 
@@ -58,12 +58,12 @@
 
     \code
     // method1()
-    number *= 5;	// number is now 30
-    number /= 4;	// number is now 7
+    number *= 5;        // number is now 30
+    number /= 4;        // number is now 7
 
     // method2()
-    number *= 3;	// nubmer is now 21
-    number /= 2;	// number is now 10
+    number *= 3;        // nubmer is now 21
+    number /= 2;        // number is now 10
     \endcode
 
     If these two methods are called simultaneously from two threads then the
@@ -71,17 +71,17 @@
 
     \code
     // Thread 1 calls method1()
-    number *= 5;	// number is now 30
+    number *= 5;        // number is now 30
 
     // Thread 2 calls method2().
     //
     // Most likely Thread 1 has been put to sleep by the operating
     // system to allow Thread 2 to run.
-    number *= 3;	// number is now 90
-    number /= 2;	// number is now 45
+    number *= 3;        // number is now 90
+    number /= 2;        // number is now 45
 
     // Thread 1 finishes executing.
-    number /= 4;	// number is now 11, instead of 10
+    number /= 4;        // number is now 11, instead of 10
     \endcode
 
     If we add a mutex, we should get the result we want:
@@ -92,18 +92,18 @@
 
     void method1()
     {
-	mutex.lock();
+        mutex.lock();
         number *= 5;
-	number /= 4;
-	mutex.unlock();
+        number /= 4;
+        mutex.unlock();
     }
 
     void method2()
     {
-	mutex.lock();
+        mutex.lock();
         number *= 3;
-	number /= 2;
-	mutex.unlock();
+        number /= 2;
+        mutex.unlock();
     }
     \endcode
 
@@ -136,11 +136,11 @@ QMutex::QMutex(bool recursive)
     int code;
     code = pthread_mutex_init(&d->mutex, NULL);
     if (code != 0)
-	qWarning("QMutex: cannot create mutex: %s", strerror(code));
+        qWarning("QMutex: cannot create mutex: %s", strerror(code));
     if (d->recursive) {
         code = pthread_mutex_init(&d->mutex2, NULL);
-	if (code != 0)
-	    qWarning("QMutex: cannot create support mutex: %s", strerror(code));
+        if (code != 0)
+            qWarning("QMutex: cannot create support mutex: %s", strerror(code));
     }
 }
 
@@ -155,8 +155,8 @@ QMutex::~QMutex()
     int code;
     if (d->recursive) {
         code = pthread_mutex_destroy(&d->mutex2);
-	if (code != 0)
-	    qWarning("QMutex: cannot destroy support mutex: %s", strerror(code));
+        if (code != 0)
+            qWarning("QMutex: cannot destroy support mutex: %s", strerror(code));
     }
     code = pthread_mutex_destroy(&d->mutex);
     if (code != 0)
@@ -176,8 +176,8 @@ void QMutex::lock()
     int code;
     if (! d->recursive) {
         code = pthread_mutex_lock(&d->mutex);
-	if (code != 0)
-	    qWarning("QMutex::lock: %s", strerror(code));
+        if (code != 0)
+            qWarning("QMutex::lock: %s", strerror(code));
         return;
     }
 
@@ -189,8 +189,8 @@ void QMutex::lock()
         pthread_mutex_unlock(&d->mutex2);
 
         code = pthread_mutex_lock(&d->mutex);
-	if (code != 0)
-	    qWarning("QMutex::lock: %s", strerror(code));
+        if (code != 0)
+            qWarning("QMutex::lock: %s", strerror(code));
 
         pthread_mutex_lock(&d->mutex2);
         d->count = 1;
@@ -215,12 +215,12 @@ bool QMutex::tryLock()
 {
     int code;
     if (! d->recursive) {
-	code = pthread_mutex_trylock(&d->mutex);
+        code = pthread_mutex_trylock(&d->mutex);
         if (code != 0) {
             if (code != EBUSY)
                 qWarning("QMutex:tryLock: %s", strerror(code));
-	    return false;
-	}
+            return false;
+        }
         return true;
     }
 
@@ -231,7 +231,7 @@ bool QMutex::tryLock()
     if (d->count > 0 && d->owner == pthread_self()) {
         d->count++;
     } else {
-	code = pthread_mutex_trylock(&d->mutex);
+        code = pthread_mutex_trylock(&d->mutex);
 
         if (code != 0) {
             if (code != EBUSY)
@@ -260,9 +260,9 @@ void QMutex::unlock()
 {
     int code;
     if (! d->recursive) {
-	code = pthread_mutex_unlock(&d->mutex);
-	if (code != 0)
-	    qWarning("QMutex::unlock: %s", strerror(code));
+        code = pthread_mutex_unlock(&d->mutex);
+        if (code != 0)
+            qWarning("QMutex::unlock: %s", strerror(code));
         return;
     }
 
@@ -273,9 +273,9 @@ void QMutex::unlock()
         // in the docs
         if (d->count && (--d->count) < 1) {
             d->count = 0;
-	    code = pthread_mutex_unlock(&d->mutex);
-	    if (code != 0)
-		qWarning("QMutex::unlock: %s", strerror(code));
+            code = pthread_mutex_unlock(&d->mutex);
+            if (code != 0)
+                qWarning("QMutex::unlock: %s", strerror(code));
         }
     } else {
         qWarning("QMutex::unlock: unlock from different thread than locker");
@@ -324,41 +324,41 @@ void QMutex::unlock()
     \code
     int complexFunction(int flag)
     {
-	mutex.lock();
+        mutex.lock();
 
-	int return_value = 0;
+        int return_value = 0;
 
-	switch (flag) {
-	case 0:
-	case 1:
-	    {
-		mutex.unlock();
-		return moreComplexFunction(flag);
-	    }
+        switch (flag) {
+        case 0:
+        case 1:
+            {
+                mutex.unlock();
+                return moreComplexFunction(flag);
+            }
 
-	case 2:
-	    {
-		int status = anotherFunction();
-		if (status < 0) {
-		    mutex.unlock();
-		    return -2;
-		}
-		return_value = status + flag;
-		break;
-	    }
+        case 2:
+            {
+                int status = anotherFunction();
+                if (status < 0) {
+                    mutex.unlock();
+                    return -2;
+                }
+                return_value = status + flag;
+                break;
+            }
 
-	default:
-	    {
-		if (flag > 10) {
-		    mutex.unlock();
-		    return -1;
-		}
-		break;
-	    }
-	}
+        default:
+            {
+                if (flag > 10) {
+                    mutex.unlock();
+                    return -1;
+                }
+                break;
+            }
+        }
 
-	mutex.unlock();
-	return return_value;
+        mutex.unlock();
+        return return_value;
     }
     \endcode
 
@@ -371,35 +371,35 @@ void QMutex::unlock()
     \code
     int complexFunction(int flag)
     {
-	QMutexLocker locker(&mutex);
+        QMutexLocker locker(&mutex);
 
-	int return_value = 0;
+        int return_value = 0;
 
-	switch (flag) {
-	case 0:
-	case 1:
-	    {
-		return moreComplexFunction(flag);
-	    }
+        switch (flag) {
+        case 0:
+        case 1:
+            {
+                return moreComplexFunction(flag);
+            }
 
-	case 2:
-	    {
-		int status = anotherFunction();
-		if (status < 0)
-		    return -2;
-		return_value = status + flag;
-		break;
-	    }
+        case 2:
+            {
+                int status = anotherFunction();
+                if (status < 0)
+                    return -2;
+                return_value = status + flag;
+                break;
+            }
 
-	default:
-	    {
-		if (flag > 10)
-		    return -1;
-		break;
-	    }
-	}
+        default:
+            {
+                if (flag > 10)
+                    return -1;
+                break;
+            }
+        }
 
-	return return_value;
+        return return_value;
     }
     \endcode
 
@@ -421,27 +421,27 @@ void QMutex::unlock()
     class SignalWaiter
     {
     private:
-	QMutexLocker locker;
+        QMutexLocker locker;
 
     public:
-	SignalWaiter(QMutex *mutex)
-	    : locker(mutex)
-	{
-	}
+        SignalWaiter(QMutex *mutex)
+            : locker(mutex)
+        {
+        }
 
-	void waitForSignal()
-	{
-	    ...
-	    ...
-	    ...
+        void waitForSignal()
+        {
+            ...
+            ...
+            ...
 
-	    while (! signalled)
-		waitcondition.wait(locker.mutex());
+            while (! signalled)
+                waitcondition.wait(locker.mutex());
 
-	    ...
-	    ...
-	    ...
-	}
+            ...
+            ...
+            ...
+        }
     };
     \endcode
 

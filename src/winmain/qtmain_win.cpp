@@ -26,19 +26,19 @@
   initializes Qt.
 */
 
-#if defined( Q_OS_TEMP )
+#if defined(Q_OS_TEMP)
 extern void __cdecl qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QVector<pchar> &);
 #else
 extern void qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QVector<pchar> &);
 #endif
 
 #if defined(NEEDS_QMAIN)
-int qMain( int, char ** );
+int qMain(int, char **);
 #else
 #ifdef Q_OS_TEMP
-extern "C" int __cdecl main( int, char ** );
+extern "C" int __cdecl main(int, char **);
 #else
-extern "C" int main( int, char ** );
+extern "C" int main(int, char **);
 #endif
 #endif
 
@@ -49,12 +49,12 @@ extern "C" int main( int, char ** );
 */
 
 #ifdef Q_OS_TEMP
-int WINAPI WinMain( HINSTANCE instance, HINSTANCE prevInstance,
-			  LPWSTR wCmdParam, int cmdShow )
+int WINAPI WinMain(HINSTANCE instance, HINSTANCE prevInstance,
+                          LPWSTR wCmdParam, int cmdShow)
 #else
 extern "C"
-int APIENTRY WinMain( HINSTANCE instance, HINSTANCE prevInstance,
-		      LPSTR  cmdParam, int cmdShow )
+int APIENTRY WinMain(HINSTANCE instance, HINSTANCE prevInstance,
+                      LPSTR  cmdParam, int cmdShow)
 #endif
 {
 #ifdef Q_OS_TEMP
@@ -63,40 +63,40 @@ int APIENTRY WinMain( HINSTANCE instance, HINSTANCE prevInstance,
 
     int argc = 0;
     char* cmdp = 0;
-    if ( cmdParam ) {
-	// Use malloc/free for eval package compability
-	cmdp = (char*) malloc( (qstrlen( cmdParam ) + 1) * sizeof(char) );
-	qstrcpy( cmdp, cmdParam );
+    if (cmdParam) {
+        // Use malloc/free for eval package compability
+        cmdp = (char*) malloc((qstrlen(cmdParam) + 1) * sizeof(char));
+        qstrcpy(cmdp, cmdParam);
     }
-    QVector<pchar> argv( 8 );
-    qWinMain( instance, prevInstance, cmdp, cmdShow, argc, argv );
+    QVector<pchar> argv(8);
+    qWinMain(instance, prevInstance, cmdp, cmdShow, argc, argv);
 
 #ifdef Q_OS_TEMP
     TCHAR uniqueAppID[256];
-    GetModuleFileName( 0, uniqueAppID, 255 );
+    GetModuleFileName(0, uniqueAppID, 255);
     QString uid = QString::fromUcs2(uniqueAppID).lower().remove('\\');
 
     // If there exists an other instance of this application
     // it will be the owner of a mutex with the unique ID.
-    HANDLE mutex = CreateMutex( NULL, TRUE, uid.ucs2() );
-    if ( mutex && ERROR_ALREADY_EXISTS == GetLastError() ) {
-	CloseHandle( mutex );
+    HANDLE mutex = CreateMutex(NULL, true, uid.ucs2());
+    if (mutex && ERROR_ALREADY_EXISTS == GetLastError()) {
+        CloseHandle(mutex);
 
-	// The app is already running, so we use the unique
-	// ID to create a unique messageNo, which is used
-	// as the registered class name for the windows
-	// created. Set the first instance's window to the
-	// foreground, else just terminate.
-	UINT msgNo = RegisterWindowMessage( uid.ucs2() );
-	HWND aHwnd = FindWindow( QString::number(msgNo).ucs2(), 0 );
-	if ( aHwnd )
-	    SetForegroundWindow( aHwnd );
-	return 0;
+        // The app is already running, so we use the unique
+        // ID to create a unique messageNo, which is used
+        // as the registered class name for the windows
+        // created. Set the first instance's window to the
+        // foreground, else just terminate.
+        UINT msgNo = RegisterWindowMessage(uid.ucs2());
+        HWND aHwnd = FindWindow(QString::number(msgNo).ucs2(), 0);
+        if (aHwnd)
+            SetForegroundWindow(aHwnd);
+        return 0;
     }
 #endif // Q_OS_TEMP
 
-    int result = main( argc, argv.data() );
-    if ( cmdp ) free( cmdp );
+    int result = main(argc, argv.data());
+    if (cmdp) free(cmdp);
     return result;
 }
 

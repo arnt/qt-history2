@@ -37,7 +37,7 @@ class QWSBusMouseHandlerPrivate : public QObject
 {
     Q_OBJECT
 public:
-    QWSBusMouseHandlerPrivate( QWSBusMouseHandler *h, const QString &driver, const QString &device );
+    QWSBusMouseHandlerPrivate(QWSBusMouseHandler *h, const QString &driver, const QString &device);
     ~QWSBusMouseHandlerPrivate();
 
 private slots:
@@ -52,9 +52,9 @@ protected:
     uchar mouseBuf[mouseBufSize];
 };
 
-QWSBusMouseHandler::QWSBusMouseHandler( const QString &driver, const QString &device )
+QWSBusMouseHandler::QWSBusMouseHandler(const QString &driver, const QString &device)
 {
-    d = new QWSBusMouseHandlerPrivate( this, driver, device );
+    d = new QWSBusMouseHandlerPrivate(this, driver, device);
 }
 
 QWSBusMouseHandler::~QWSBusMouseHandler()
@@ -62,43 +62,43 @@ QWSBusMouseHandler::~QWSBusMouseHandler()
     delete d;
 }
 
-QWSBusMouseHandlerPrivate::QWSBusMouseHandlerPrivate( QWSBusMouseHandler *h,
-    const QString &, const QString &device )
-    : handler( h )
-					  
+QWSBusMouseHandlerPrivate::QWSBusMouseHandlerPrivate(QWSBusMouseHandler *h,
+    const QString &, const QString &device)
+    : handler(h)
+
 {
     QString mouseDev = device;
-    if ( mouseDev.isEmpty() )
-	mouseDev = "/dev/mouse";
+    if (mouseDev.isEmpty())
+        mouseDev = "/dev/mouse";
     obstate = -1;
     mouseFD = -1;
-    mouseFD = open( mouseDev.local8Bit(), O_RDWR | O_NDELAY);
-    if ( mouseFD < 0 ) {
-	mouseFD = open( mouseDev.local8Bit(), O_RDONLY | O_NDELAY);
-	if ( mouseFD < 0 )
-	    qDebug( "Cannot open %s (%s)", mouseDev.ascii(),
-		    strerror(errno));
+    mouseFD = open(mouseDev.local8Bit(), O_RDWR | O_NDELAY);
+    if (mouseFD < 0) {
+        mouseFD = open(mouseDev.local8Bit(), O_RDONLY | O_NDELAY);
+        if (mouseFD < 0)
+            qDebug("Cannot open %s (%s)", mouseDev.ascii(),
+                    strerror(errno));
     }
 
     // Clear pending input
     tcflush(mouseFD,TCIFLUSH);
     usleep(50000);
 
-    char buf[100];				// busmouse driver will not read if bufsize < 3,  YYD
+    char buf[100];                                // busmouse driver will not read if bufsize < 3,  YYD
     while (read(mouseFD, buf, 100) > 0) { }  // eat unwanted replies
 
     mouseIdx = 0;
 
     QSocketNotifier *mouseNotifier;
-    mouseNotifier = new QSocketNotifier( mouseFD, QSocketNotifier::Read, this );
+    mouseNotifier = new QSocketNotifier(mouseFD, QSocketNotifier::Read, this);
     connect(mouseNotifier, SIGNAL(activated(int)),this, SLOT(readMouseData()));
 }
 
 QWSBusMouseHandlerPrivate::~QWSBusMouseHandlerPrivate()
 {
     if (mouseFD >= 0) {
-	tcflush(mouseFD,TCIFLUSH);	    // yyd.
-	close(mouseFD);
+        tcflush(mouseFD,TCIFLUSH);            // yyd.
+        close(mouseFD);
     }
 }
 
@@ -107,12 +107,12 @@ void QWSBusMouseHandlerPrivate::readMouseData()
     int n;
     // It'll only read 3 bytes a time and return all other buffer zeroed, thus cause protocol errors
     for (;;) {
-	if ( mouseBufSize - mouseIdx < 3 )
-	    break;
-	n = read( mouseFD, mouseBuf+mouseIdx, 3 );
-	if ( n != 3 )
-	    break;
-	mouseIdx += 3;
+        if (mouseBufSize - mouseIdx < 3)
+            break;
+        n = read(mouseFD, mouseBuf+mouseIdx, 3);
+        if (n != 3)
+            break;
+        mouseIdx += 3;
     }
 
     static const int accel_limit = 5;
@@ -124,52 +124,52 @@ void QWSBusMouseHandlerPrivate::readMouseData()
     bool sendEvent = false;
     int tdx = 0, tdy = 0;
 
-    while ( mouseIdx-idx >= 3 ) {
+    while (mouseIdx-idx >= 3) {
 #if 0 // debug
-	qDebug( "Got mouse data" );
+        qDebug("Got mouse data");
 #endif
-	uchar *mb = mouseBuf+idx;
-	bstate = 0;
-	dx = 0;
-	dy = 0;
-	sendEvent = false;
-	if ( ((mb[0] & 0x04)) )
-	    bstate |= Qt::LeftButton;
-	if ( ((mb[0] & 0x01)) )
-	    bstate |= Qt::RightButton;
+        uchar *mb = mouseBuf+idx;
+        bstate = 0;
+        dx = 0;
+        dy = 0;
+        sendEvent = false;
+        if (((mb[0] & 0x04)))
+            bstate |= Qt::LeftButton;
+        if (((mb[0] & 0x01)))
+            bstate |= Qt::RightButton;
 
-	dx=(signed char)mb[1];
-	dy=(signed char)mb[2];
-	sendEvent=true;
+        dx=(signed char)mb[1];
+        dy=(signed char)mb[2];
+        sendEvent=true;
 
-	if (sendEvent) {
-	    if ( QABS(dx) > accel_limit || QABS(dy) > accel_limit ) {
-		dx *= accel;
-		dy *= accel;
-	    }
-	    tdx += dx;
-	    tdy += dy;
-	    if ( bstate != obstate ) {
-		QPoint pos = handler->pos() + QPoint(tdx,-tdy);
-		handler->limitToScreen( pos );
-		handler->mouseChanged(pos,bstate);
-		sendEvent = FALSE;
-		tdx = 0;
-		tdy = 0;
-		obstate = bstate;
-	    }
-	}
-	idx += 3;
+        if (sendEvent) {
+            if (QABS(dx) > accel_limit || QABS(dy) > accel_limit) {
+                dx *= accel;
+                dy *= accel;
+            }
+            tdx += dx;
+            tdy += dy;
+            if (bstate != obstate) {
+                QPoint pos = handler->pos() + QPoint(tdx,-tdy);
+                handler->limitToScreen(pos);
+                handler->mouseChanged(pos,bstate);
+                sendEvent = false;
+                tdx = 0;
+                tdy = 0;
+                obstate = bstate;
+            }
+        }
+        idx += 3;
     }
-    if ( sendEvent ) {
-	QPoint pos = handler->pos() + QPoint(tdx,-tdy);
-	handler->limitToScreen( pos );
-	handler->mouseChanged(pos,bstate);
+    if (sendEvent) {
+        QPoint pos = handler->pos() + QPoint(tdx,-tdy);
+        handler->limitToScreen(pos);
+        handler->mouseChanged(pos,bstate);
     }
 
     int surplus = mouseIdx - idx;
-    for ( int i = 0; i < surplus; i++ )
-	mouseBuf[i] = mouseBuf[idx+i];
+    for (int i = 0; i < surplus; i++)
+        mouseBuf[i] = mouseBuf[idx+i];
     mouseIdx = surplus;
 }
 

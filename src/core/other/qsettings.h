@@ -29,87 +29,87 @@ class Q_CORE_EXPORT QSettings
 {
 public:
     enum Format {
-	Native = 0,
-	Ini
+        Native = 0,
+        Ini
     };
     enum System {
-	Unix = 0,
-	Windows,
-	Mac
+        Unix = 0,
+        Windows,
+        Mac
     };
     enum Scope {
-	User,
-	Global
+        User,
+        Global
     };
 
     QSettings();
-    QSettings( Format format );
+    QSettings(Format format);
 
     ~QSettings();
 
 #if !defined(Q_NO_BOOL_TYPE)
-    bool	writeEntry( const QString &, bool );
+    bool        writeEntry(const QString &, bool);
 #endif
-    bool	writeEntry( const QString &, double );
-    bool	writeEntry( const QString &, int );
-    bool	writeEntry( const QString &, const char * );
-    bool	writeEntry( const QString &, const QString & );
-    bool	writeEntry( const QString &, const QStringList & );
-    bool	writeEntry( const QString &, const QStringList &, const QChar& sep );
+    bool        writeEntry(const QString &, double);
+    bool        writeEntry(const QString &, int);
+    bool        writeEntry(const QString &, const char *);
+    bool        writeEntry(const QString &, const QString &);
+    bool        writeEntry(const QString &, const QStringList &);
+    bool        writeEntry(const QString &, const QStringList &, const QChar& sep);
 
     QStringList entryList(const QString &) const;
     QStringList subkeyList(const QString &) const;
 
     //### remove non const versions in 4.0
-    QStringList readListEntry( const QString &, bool * = 0 );
-    QStringList readListEntry( const QString &, const QChar& sep, bool * = 0 );
-    QString	readEntry( const QString &, const QString &def = QString::null, bool * = 0 );
-    int		readNumEntry( const QString &, int def = 0, bool * = 0 );
-    double	readDoubleEntry( const QString &, double def = 0, bool * = 0 );
-    bool	readBoolEntry( const QString &, bool def = FALSE, bool * = 0 );
+    QStringList readListEntry(const QString &, bool * = 0);
+    QStringList readListEntry(const QString &, const QChar& sep, bool * = 0);
+    QString        readEntry(const QString &, const QString &def = QString::null, bool * = 0);
+    int                readNumEntry(const QString &, int def = 0, bool * = 0);
+    double        readDoubleEntry(const QString &, double def = 0, bool * = 0);
+    bool        readBoolEntry(const QString &, bool def = false, bool * = 0);
 
     //### make those non-inlined in 4.0
-    QStringList readListEntry( const QString &key, bool *ok = 0 ) const
+    QStringList readListEntry(const QString &key, bool *ok = 0) const
     {
-	QSettings *that = (QSettings*)this;
-	return that->readListEntry( key, ok );
+        QSettings *that = (QSettings*)this;
+        return that->readListEntry(key, ok);
     }
-    QStringList readListEntry( const QString &key, const QChar& sep, bool *ok = 0 ) const
+    QStringList readListEntry(const QString &key, const QChar& sep, bool *ok = 0) const
     {
-	QSettings *that = (QSettings*)this;
-	return that->readListEntry( key, sep, ok );
+        QSettings *that = (QSettings*)this;
+        return that->readListEntry(key, sep, ok);
     }
-    QString	readEntry( const QString &key, const QString &def = QString::null,
-			   bool *ok = 0 ) const
+    QString        readEntry(const QString &key, const QString &def = QString::null,
+                           bool *ok = 0) const
     {
-	QSettings *that = (QSettings*)this;
-	return that->readEntry( key, def, ok );
+        QSettings *that = (QSettings*)this;
+        return that->readEntry(key, def, ok);
     }
-    int		readNumEntry( const QString &key, int def = 0, bool *ok = 0 ) const
+    int                readNumEntry(const QString &key, int def = 0, bool *ok = 0) const
     {
-	QSettings *that = (QSettings*)this;
-	return that->readNumEntry( key, def, ok );
-    }
-
-    double	readDoubleEntry( const QString &key, double def = 0, bool *ok = 0 ) const
-    {
-	QSettings *that = (QSettings*)this;
-	return that->readDoubleEntry( key, def, ok );
-    }
-    bool	readBoolEntry( const QString &key, bool def = FALSE, bool *ok = 0 ) const
-    {
-	QSettings *that = (QSettings*)this;
-	return that->readBoolEntry( key, def, ok );
+        QSettings *that = (QSettings*)this;
+        return that->readNumEntry(key, def, ok);
     }
 
-    bool	removeEntry( const QString & );
+    double        readDoubleEntry(const QString &key, double def = 0, bool *ok = 0) const
+    {
+        QSettings *that = (QSettings*)this;
+        return that->readDoubleEntry(key, def, ok);
+    }
+    bool        readBoolEntry(const QString &key, bool def = false, bool *ok = 0) const
+    {
+        QSettings *that = (QSettings*)this;
+        return that->readBoolEntry(key, def, ok);
+    }
 
-    void insertSearchPath( System, const QString & );
-    void removeSearchPath( System, const QString & );
+    bool        removeEntry(const QString &);
 
-    void setPath( const QString &domain, const QString &product, Scope = Global );
+    void insertSearchPath(System, const QString &);
+    void removeSearchPath(System, const QString &);
 
-    void beginGroup( const QString &group );
+    void setPath(const QString &domain, const QString &product, Scope = Global);
+
+    void beginGroup(const QString &group);
     void endGroup();
     void resetGroup();
     QString group() const;
@@ -124,7 +124,7 @@ private:
     QSettings &operator=(const QSettings &);
 #endif
 
-    QDateTime lastModificationTime( const QString & );
+    QDateTime lastModificationTime(const QString &);
 
     friend class QApplication;
 };

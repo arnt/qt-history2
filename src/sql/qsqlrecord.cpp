@@ -30,114 +30,114 @@ class QSqlRecordPrivate
 public:
     class info {
     public:
-	info() : nogen(FALSE){}
-	~info() {}
-	info( const info& other )
-	    : field( other.field ), nogen( other.nogen )
-	{
-	}
-	info& operator=(const info& other)
-	{
-	    field = other.field;
-	    nogen = other.nogen;
-	    return *this;
-	}
-	bool isValid() const
-	{
-	    return !field.name().isEmpty();
-	}
-	bool operator==(const info &other) const {
-	    return other.nogen == nogen && other.field == field;
-	}
+        info() : nogen(false){}
+        ~info() {}
+        info(const info& other)
+            : field(other.field), nogen(other.nogen)
+        {
+        }
+        info& operator=(const info& other)
+        {
+            field = other.field;
+            nogen = other.nogen;
+            return *this;
+        }
+        bool isValid() const
+        {
+            return !field.name().isEmpty();
+        }
+        bool operator==(const info &other) const {
+            return other.nogen == nogen && other.field == field;
+        }
 
-	QSqlField field;
-	bool    nogen;
+        QSqlField field;
+        bool    nogen;
     };
 
     QSqlRecordPrivate(): cnt(0)
     {
-	ref = 1;
+        ref = 1;
     }
-    QSqlRecordPrivate( const QSqlRecordPrivate& other )
+    QSqlRecordPrivate(const QSqlRecordPrivate& other)
     {
-	*this = other;
+        *this = other;
         ref = 1;
     }
     ~QSqlRecordPrivate() {};
-    QSqlRecordPrivate& operator=( const QSqlRecordPrivate& other )
+    QSqlRecordPrivate& operator=(const QSqlRecordPrivate& other)
     {
-	fi = other.fi;
-	cnt = other.cnt;
-	return *this;
+        fi = other.fi;
+        cnt = other.cnt;
+        return *this;
     }
-    void append( const QSqlField& field )
+    void append(const QSqlField& field)
     {
-	info i;
-	i.field = field;
-	fi.append( i );
-	cnt++;
+        info i;
+        i.field = field;
+        fi.append(i);
+        cnt++;
     }
-    void insert( int pos, const QSqlField& field )
+    void insert(int pos, const QSqlField& field)
     {
-	if (pos < 0)
-	    return;
-	info i;
-	i.field = field;
-	if ( pos == (int)fi.size() )
-	    append( field );
-	if ( pos > (int)fi.size() ) {
-	    fi.resize( pos + 1 );
-	    cnt++;
-	}
-	fi[ pos ] = i;
+        if (pos < 0)
+            return;
+        info i;
+        i.field = field;
+        if (pos == (int)fi.size())
+            append(field);
+        if (pos > (int)fi.size()) {
+            fi.resize(pos + 1);
+            cnt++;
+        }
+        fi[pos] = i;
     }
-    void remove( int i )
+    void remove(int i)
     {
-	if (i < 0)
-	    return;
-	info inf;
-	if ( i >= (int)fi.count() )
-	    return;
-	if ( fi[ i ].isValid() )
-	    cnt--;
-	fi[ i ] = inf;
-	// clean up some memory
-	while ( fi.count() && !fi.back().isValid() )
-	    fi.pop_back();
+        if (i < 0)
+            return;
+        info inf;
+        if (i >= (int)fi.count())
+            return;
+        if (fi[i].isValid())
+            cnt--;
+        fi[i] = inf;
+        // clean up some memory
+        while (fi.count() && !fi.back().isValid())
+            fi.pop_back();
     }
     void clear()
     {
-	fi.clear();
-	cnt = 0;
+        fi.clear();
+        cnt = 0;
     }
     bool isEmpty()
     {
-	return cnt == 0;
+        return cnt == 0;
     }
-    info* fieldInfo( int i )
+    info* fieldInfo(int i)
     {
-	if ( i >= 0 && i < (int)fi.count() )
-	    return &fi[i];
-	return 0;
+        if (i >= 0 && i < (int)fi.count())
+            return &fi[i];
+        return 0;
     }
     int count() const
     {
-	return cnt;
+        return cnt;
     }
-    bool contains( int i ) const
+    bool contains(int i) const
     {
-	return i >= 0 && i < (int)fi.count() && fi[ i ].isValid();
+        return i >= 0 && i < (int)fi.count() && fi[i].isValid();
     }
 
-    QString createField( int i, const QString& prefix ) const
+    QString createField(int i, const QString& prefix) const
     {
-	if ( i < 0 || i >= (int)fi.count() )
-	    return QString();
-	QString f;
-	if ( !prefix.isEmpty() )
-	    f = prefix + ".";
-	f += fi.at(i).field.name();
-	return f;
+        if (i < 0 || i >= (int)fi.count())
+            return QString();
+        QString f;
+        if (!prefix.isEmpty())
+            f = prefix + ".";
+        f += fi.at(i).field.name();
+        return f;
     }
 
 public:
@@ -184,7 +184,7 @@ QSqlRecord::QSqlRecord()
     Constructs a copy of \a other.
 */
 
-QSqlRecord::QSqlRecord( const QSqlRecord& other )
+QSqlRecord::QSqlRecord(const QSqlRecord& other)
 {
     d = other.d;
     ++d->ref;
@@ -194,13 +194,13 @@ QSqlRecord::QSqlRecord( const QSqlRecord& other )
     Sets the record equal to \a other.
 */
 
-QSqlRecord& QSqlRecord::operator=( const QSqlRecord& other )
+QSqlRecord& QSqlRecord::operator=(const QSqlRecord& other)
 {
     QSqlRecordPrivate *x = other.d;
     ++x->ref;
     x = qAtomicSetPtr(&d, x);
     if (!--x->ref)
-	delete x;
+        delete x;
     return *this;
 }
 
@@ -212,7 +212,7 @@ QSqlRecord& QSqlRecord::operator=( const QSqlRecord& other )
 QSqlRecord::~QSqlRecord()
 {
     if (!--d->ref)
-	delete d;
+        delete d;
 }
 
 /*!
@@ -226,12 +226,12 @@ QSqlRecord::~QSqlRecord()
     appropriate.
 */
 
-QCoreVariant QSqlRecord::value( int i ) const
+QCoreVariant QSqlRecord::value(int i) const
 {
     const QSqlField * f = field(i);
 
-    if( f )
-	return f->value();
+    if(f)
+        return f->value();
     return QCoreVariant();
 }
 
@@ -242,7 +242,7 @@ QCoreVariant QSqlRecord::value( int i ) const
     field \a name does not exist the resultant behaviour is undefined.
 */
 
-QCoreVariant  QSqlRecord::value( const QString& name ) const
+QCoreVariant  QSqlRecord::value(const QString& name) const
 {
     return value(position(name));
 }
@@ -252,11 +252,11 @@ QCoreVariant  QSqlRecord::value( const QString& name ) const
     not exist, an empty QString is returned.
 */
 
-QString QSqlRecord::fieldName( int i ) const
+QString QSqlRecord::fieldName(int i) const
 {
-    const QSqlField* f = field( i );
-    if ( f )
-	return f->name();
+    const QSqlField* f = field(i);
+    if (f)
+        return f->name();
     return QString();
 }
 
@@ -267,13 +267,13 @@ QString QSqlRecord::fieldName( int i ) const
     returned.
 */
 
-int QSqlRecord::position( const QString& name ) const
+int QSqlRecord::position(const QString& name) const
 {
-    for ( int i = 0; i < count(); ++i ) {
-	if ( fieldName(i).toUpper() == name.toUpper() )
-	    return i;
+    for (int i = 0; i < count(); ++i) {
+        if (fieldName(i).toUpper() == name.toUpper())
+            return i;
     }
-    qWarning( "QSqlRecord::position: unable to find field %s", name.latin1() );
+    qWarning("QSqlRecord::position: unable to find field %s", name.latin1());
     return -1;
 }
 
@@ -282,14 +282,14 @@ int QSqlRecord::position( const QString& name ) const
     cannot be found.
 */
 
-QSqlField* QSqlRecord::field( int i )
+QSqlField* QSqlRecord::field(int i)
 {
-    if ( !d->contains( i ) ) {
-	qWarning( "QSqlRecord::field: index out of range: %d", i );
-	return 0;
+    if (!d->contains(i)) {
+        qWarning("QSqlRecord::field: index out of range: %d", i);
+        return 0;
     }
     detach();
-    return &d->fieldInfo( i )->field;
+    return &d->fieldInfo(i)->field;
 }
 
 /*!
@@ -299,7 +299,7 @@ QSqlField* QSqlRecord::field( int i )
     cannot be found. Field names are not case-sensitive.
 */
 
-QSqlField* QSqlRecord::field( const QString& name )
+QSqlField* QSqlRecord::field(const QString& name)
 {
     return field(position(name));
 }
@@ -309,13 +309,13 @@ QSqlField* QSqlRecord::field( const QString& name )
     \overload
 */
 
-const QSqlField* QSqlRecord::field( int i ) const
+const QSqlField* QSqlRecord::field(int i) const
 {
     if (!d->contains(i)) {
-	qWarning( "QSqlRecord::field: index out of range: %d", i );
-	return 0;
+        qWarning("QSqlRecord::field: index out of range: %d", i);
+        return 0;
     }
-    return &d->fieldInfo( i )->field;
+    return &d->fieldInfo(i)->field;
 }
 
 /*!
@@ -325,21 +325,21 @@ const QSqlField* QSqlRecord::field( int i ) const
     cannot be found. Field names are not case-sensitive.
 */
 
-const QSqlField* QSqlRecord::field( const QString& name ) const
+const QSqlField* QSqlRecord::field(const QString& name) const
 {
     if (!d->contains(position(name)))
-	return 0;
-    return &d->fieldInfo( position( name ) )->field;
+        return 0;
+    return &d->fieldInfo(position(name))->field;
 }
 
 /*!
     Append a copy of field \a field to the end of the record.
 */
 
-void QSqlRecord::append( const QSqlField& field )
+void QSqlRecord::append(const QSqlField& field)
 {
     detach();
-    d->append( field );
+    d->append(field);
 }
 
 /*!
@@ -364,10 +364,10 @@ void QSqlRecord::replace(int pos, const QSqlField& field)
     happens.
 */
 
-void QSqlRecord::remove( int pos )
+void QSqlRecord::remove(int pos)
 {
     detach();
-    d->remove( pos );
+    d->remove(pos);
 }
 
 /*!
@@ -383,8 +383,8 @@ void QSqlRecord::clear()
 }
 
 /*!
-    Returns TRUE if there are no fields in the record; otherwise
-    returns FALSE.
+    Returns true if there are no fields in the record; otherwise
+    returns false.
 */
 
 bool QSqlRecord::isEmpty() const
@@ -394,17 +394,17 @@ bool QSqlRecord::isEmpty() const
 
 
 /*!
-    Returns TRUE if there is a field in the record called \a name;
-    otherwise returns FALSE.
+    Returns true if there is a field in the record called \a name;
+    otherwise returns false.
 */
 
-bool QSqlRecord::contains( const QString& name ) const
+bool QSqlRecord::contains(const QString& name) const
 {
-    for ( int i = 0; i < count(); ++i ) {
-	if ( fieldName(i).toUpper() == name.toUpper() )
-	    return TRUE;
+    for (int i = 0; i < count(); ++i) {
+        if (fieldName(i).toUpper() == name.toUpper())
+            return true;
     }
-    return FALSE;
+    return false;
 }
 
 /*!
@@ -417,22 +417,22 @@ void QSqlRecord::clearValues()
     detach();
     int cnt = count();
     int i;
-    for ( i = 0; i < cnt; ++i )
-	field( i )->clear();
+    for (i = 0; i < cnt; ++i)
+        field(i)->clear();
 }
 
 /*!
     Sets the generated flag for the field called \a name to \a
     generated. If the field does not exist, nothing happens. Only
-    fields that have \a generated set to TRUE are included in the SQL
+    fields that have \a generated set to true are included in the SQL
     that is generated, e.g. by QSqlCursor.
 
     \sa isGenerated()
 */
 
-void QSqlRecord::setGenerated( const QString& name, bool generated )
+void QSqlRecord::setGenerated(const QString& name, bool generated)
 {
-    setGenerated( position( name ), generated );
+    setGenerated(position(name), generated);
 }
 
 /*!
@@ -443,10 +443,10 @@ void QSqlRecord::setGenerated( const QString& name, bool generated )
     \sa isGenerated()
 */
 
-void QSqlRecord::setGenerated( int i, bool generated )
+void QSqlRecord::setGenerated(int i, bool generated)
 {
     if (!d->contains(i))
-	return;
+        return;
     detach();
     d->fieldInfo(i)->nogen = !generated;
 }
@@ -454,38 +454,38 @@ void QSqlRecord::setGenerated( int i, bool generated )
 /*!
     \overload
 
-    Returns TRUE if the field \a i is NULL or if there is no field at
-    position \a i; otherwise returns FALSE.
+    Returns true if the field \a i is NULL or if there is no field at
+    position \a i; otherwise returns false.
 
     \sa fieldName()
 */
-bool QSqlRecord::isNull( int i ) const
+bool QSqlRecord::isNull(int i) const
 {
-    const QSqlField* f = field( i );
-    if ( !f )
-	return TRUE;
+    const QSqlField* f = field(i);
+    if (!f)
+        return true;
     return f->isNull();
 }
 
 /*!
-    Returns TRUE if the field called \a name is NULL or if there is no
-    field called \a name; otherwise returns FALSE.
+    Returns true if the field called \a name is NULL or if there is no
+    field called \a name; otherwise returns false.
 
     \sa position()
 */
-bool QSqlRecord::isNull( const QString& name ) const
+bool QSqlRecord::isNull(const QString& name) const
 {
-    return isNull( position( name ) );
+    return isNull(position(name));
 }
 
 /*!
     Sets the value of field \a i to NULL. If the field does not exist,
     nothing happens.
 */
-void QSqlRecord::setNull( int i )
+void QSqlRecord::setNull(int i)
 {
     if (!d->contains(i))
-	return;
+        return;
     detach();
     d->fieldInfo(i)->field.clear();
 }
@@ -496,37 +496,37 @@ void QSqlRecord::setNull( int i )
     Sets the value of the field called \a name to NULL. If the field
     does not exist, nothing happens.
 */
-void QSqlRecord::setNull( const QString& name )
+void QSqlRecord::setNull(const QString& name)
 {
-    setNull( position( name ) );
+    setNull(position(name));
 }
 
 
 /*!
-    Returns TRUE if the record has a field called \a name and this
-    field is to be generated (the default); otherwise returns FALSE.
+    Returns true if the record has a field called \a name and this
+    field is to be generated (the default); otherwise returns false.
 
     \sa setGenerated()
 */
-bool QSqlRecord::isGenerated( const QString& name ) const
+bool QSqlRecord::isGenerated(const QString& name) const
 {
-    return isGenerated( position( name ) );
+    return isGenerated(position(name));
 }
 
 /*!
     \overload
 
-    Returns TRUE if the record has a field at position \a i and this
-    field is to be generated (the default); otherwise returns FALSE.
+    Returns true if the record has a field at position \a i and this
+    field is to be generated (the default); otherwise returns false.
 
     \sa setGenerated()
 */
-bool QSqlRecord::isGenerated( int i ) const
+bool QSqlRecord::isGenerated(int i) const
 {
     QSqlRecordPrivate::info* inf = d->fieldInfo(i);
     if (!inf) {
-	qWarning("QSqlRecord::isGenerated: index %d out of range", i);
-	return false;
+        qWarning("QSqlRecord::isGenerated: index %d out of range", i);
+        return false;
     }
     return !inf->nogen;
 }
@@ -544,17 +544,17 @@ bool QSqlRecord::isGenerated( int i ) const
     "\a{prefix}.\<fieldname\>"
 */
 
-QString QSqlRecord::toString( const QString& prefix, const QString& sep ) const
+QString QSqlRecord::toString(const QString& prefix, const QString& sep) const
 {
     QString pflist;
-    bool comma = FALSE;
-    for ( int i = 0; i < count(); ++i ){
-	if ( isGenerated( field(i)->name() ) ) {
-	    if( comma )
-		pflist += sep + " ";
-	    pflist += d->createField( i, prefix );
-	    comma = TRUE;
-	}
+    bool comma = false;
+    for (int i = 0; i < count(); ++i){
+        if (isGenerated(field(i)->name())) {
+            if(comma)
+                pflist += sep + " ";
+            pflist += d->createField(i, prefix);
+            comma = true;
+        }
     }
     return pflist;
 }
@@ -563,19 +563,19 @@ QString QSqlRecord::toString( const QString& prefix, const QString& sep ) const
     Returns a list of all the record's field names, each having the
     prefix \a prefix.
 
-    Note that fields which have generated set to FALSE are \e not
+    Note that fields which have generated set to false are \e not
     included. (See \l{isGenerated()}). If \a prefix is supplied, e.g.
     a table name, all fields are prefixed in the form:
 
     "\a{prefix}.\<fieldname\>"
 */
 
-QStringList QSqlRecord::toStringList( const QString& prefix ) const
+QStringList QSqlRecord::toStringList(const QString& prefix) const
 {
     QStringList s;
-    for ( int i = 0; i < count(); ++i ) {
-	if ( isGenerated( field(i)->name() ) )
-	    s += d->createField( i, prefix );
+    for (int i = 0; i < count(); ++i) {
+        if (isGenerated(field(i)->name()))
+            s += d->createField(i, prefix);
     }
     return s;
 }
@@ -594,10 +594,10 @@ int QSqlRecord::count() const
     field does not exist, nothing happens.
 */
 
-void QSqlRecord::setValue( int i, const QCoreVariant& val )
+void QSqlRecord::setValue(int i, const QCoreVariant& val)
 {
     if (!d->contains(i))
-	return;
+        return;
     detach();
     d->fieldInfo(i)->field.setValue(val);
 }
@@ -610,9 +610,9 @@ void QSqlRecord::setValue( int i, const QCoreVariant& val )
     does not exist, nothing happens.
 */
 
-void QSqlRecord::setValue( const QString& name, const QCoreVariant& val )
+void QSqlRecord::setValue(const QString& name, const QCoreVariant& val)
 {
-    setValue( position( name ), val );
+    setValue(position(name), val);
 }
 
 
@@ -621,12 +621,12 @@ void QSqlRecord::setValue( const QString& name, const QCoreVariant& val )
 void QSqlRecord::detach()
 {
     if (d->ref == 1)
-	return;
+        return;
 
     QSqlRecordPrivate *x = new QSqlRecordPrivate(*d);
     x = qAtomicSetPtr(&d, x);
     if (!--x->ref)
-	delete x;
+        delete x;
 }
 
 #if !defined(Q_OS_MAC) || QT_MACOSX_VERSION >= 0x1030
@@ -635,7 +635,7 @@ QDebug operator<<(QDebug dbg, const QSqlRecord &r)
 {
     dbg.nospace() << "QSqlRecord(" << r.count() << ")";
     for (int i = 0; i < r.count(); ++i)
-	dbg.nospace() << "\n " << QString("%1: ").arg(i, 2) << *r.field(i);
+        dbg.nospace() << "\n " << QString("%1: ").arg(i, 2) << *r.field(i);
     return dbg.space();
 }
 #endif

@@ -42,13 +42,13 @@ public:
 class QLinuxFbScreen : public QScreen
 {
 public:
-    QLinuxFbScreen( int display_id );
+    QLinuxFbScreen(int display_id);
     virtual ~QLinuxFbScreen();
 
     virtual bool initDevice();
-    virtual bool connect( const QString &displaySpec );
+    virtual bool connect(const QString &displaySpec);
 
-    virtual bool useOffscreen() { return FALSE; }
+    virtual bool useOffscreen() { return false; }
 
     virtual void disconnect();
     virtual void shutdownDevice();
@@ -71,7 +71,7 @@ protected:
     int dataoffset;
     int cacheStart;
 
-    static void clearCache( QScreen *instance, int );
+    static void clearCache(QScreen *instance, int);
 
 private:
 

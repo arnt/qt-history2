@@ -40,7 +40,7 @@ class Q_GUI_EXPORT QDragObject: public QObject, public QMimeSource {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QDragObject);
 public:
-    QDragObject( QWidget * dragSource = 0, const char * name = 0 );
+    QDragObject(QWidget * dragSource = 0, const char * name = 0);
     virtual ~QDragObject();
 
 #ifndef QT_NO_DRAGANDDROP
@@ -70,8 +70,8 @@ protected:
 
 private:
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QDragObject( const QDragObject & );
-    QDragObject &operator=( const QDragObject & );
+    QDragObject(const QDragObject &);
+    QDragObject &operator=(const QDragObject &);
 #endif
 };
 
@@ -79,11 +79,11 @@ class Q_GUI_EXPORT QStoredDrag: public QDragObject {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QStoredDrag);
 public:
-    QStoredDrag( const char * mimeType,
-		 QWidget * dragSource = 0, const char * name = 0 );
+    QStoredDrag(const char * mimeType,
+                 QWidget * dragSource = 0, const char * name = 0);
     ~QStoredDrag();
 
-    virtual void setEncodedData( const QByteArray & );
+    virtual void setEncodedData(const QByteArray &);
 
     const char * format(int i) const;
     virtual QByteArray encodedData(const char*) const;
@@ -93,8 +93,8 @@ protected:
 
 private:
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QStoredDrag( const QStoredDrag & );
-    QStoredDrag &operator=( const QStoredDrag & );
+    QStoredDrag(const QStoredDrag &);
+    QStoredDrag &operator=(const QStoredDrag &);
 #endif
 };
 
@@ -102,28 +102,28 @@ class Q_GUI_EXPORT QTextDrag: public QDragObject {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTextDrag);
 public:
-    QTextDrag( const QString &,
-	       QWidget * dragSource = 0, const char * name = 0 );
-    QTextDrag( QWidget * dragSource = 0, const char * name = 0 );
+    QTextDrag(const QString &,
+               QWidget * dragSource = 0, const char * name = 0);
+    QTextDrag(QWidget * dragSource = 0, const char * name = 0);
     ~QTextDrag();
 
-    virtual void setText( const QString &);
-    virtual void setSubtype( const QString &);
+    virtual void setText(const QString &);
+    virtual void setSubtype(const QString &);
 
     const char * format(int i) const;
     virtual QByteArray encodedData(const char*) const;
 
-    static bool canDecode( const QMimeSource* e );
-    static bool decode( const QMimeSource* e, QString& s );
-    static bool decode( const QMimeSource* e, QString& s, QString& subtype );
+    static bool canDecode(const QMimeSource* e);
+    static bool decode(const QMimeSource* e, QString& s);
+    static bool decode(const QMimeSource* e, QString& s, QString& subtype);
 
 protected:
     QTextDrag(QTextDragPrivate &, QWidget * dragSource = 0);
 
 private:
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QTextDrag( const QTextDrag & );
-    QTextDrag &operator=( const QTextDrag & );
+    QTextDrag(const QTextDrag &);
+    QTextDrag &operator=(const QTextDrag &);
 #endif
 };
 
@@ -131,26 +131,26 @@ class Q_GUI_EXPORT QImageDrag: public QDragObject {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QImageDrag);
 public:
-    QImageDrag( QImage image, QWidget * dragSource = 0, const char * name = 0 );
-    QImageDrag( QWidget * dragSource = 0, const char * name = 0 );
+    QImageDrag(QImage image, QWidget * dragSource = 0, const char * name = 0);
+    QImageDrag(QWidget * dragSource = 0, const char * name = 0);
     ~QImageDrag();
 
-    virtual void setImage( QImage image );
+    virtual void setImage(QImage image);
 
     const char * format(int i) const;
     virtual QByteArray encodedData(const char*) const;
 
-    static bool canDecode( const QMimeSource* e );
-    static bool decode( const QMimeSource* e, QImage& i );
-    static bool decode( const QMimeSource* e, QPixmap& i );
+    static bool canDecode(const QMimeSource* e);
+    static bool decode(const QMimeSource* e, QImage& i);
+    static bool decode(const QMimeSource* e, QPixmap& i);
 
 protected:
     QImageDrag(QImageDragPrivate &, QWidget * dragSource = 0);
 
 private:
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QImageDrag( const QImageDrag & );
-    QImageDrag &operator=( const QImageDrag & );
+    QImageDrag(const QImageDrag &);
+    QImageDrag &operator=(const QImageDrag &);
 #endif
 };
 
@@ -159,28 +159,28 @@ class Q_GUI_EXPORT QUriDrag: public QStoredDrag {
     Q_OBJECT
 
 public:
-    QUriDrag( const QList<QByteArray> &uris, QWidget * dragSource = 0, const char * name = 0 );
-    QUriDrag( QWidget * dragSource = 0, const char * name = 0 );
+    QUriDrag(const QList<QByteArray> &uris, QWidget * dragSource = 0, const char * name = 0);
+    QUriDrag(QWidget * dragSource = 0, const char * name = 0);
     ~QUriDrag();
 
-    void setFilenames( const QStringList & fnames ) { setFileNames( fnames ); }
-    void setFileNames( const QStringList & fnames );
-    void setUnicodeUris( const QStringList & uuris );
-    virtual void setUris( const QList<QByteArray> &uris );
+    void setFilenames(const QStringList & fnames) { setFileNames(fnames); }
+    void setFileNames(const QStringList & fnames);
+    void setUnicodeUris(const QStringList & uuris);
+    virtual void setUris(const QList<QByteArray> &uris);
 
     static QString uriToLocalFile(const char*);
     static QByteArray localFileToUri(const QString&);
     static QString uriToUnicodeUri(const char*);
     static QByteArray unicodeUriToUri(const QString&);
-    static bool canDecode( const QMimeSource* e );
-    static bool decode( const QMimeSource* e, QList<QByteArray>& i );
-    static bool decodeToUnicodeUris( const QMimeSource* e, QStringList& i );
-    static bool decodeLocalFiles( const QMimeSource* e, QStringList& i );
+    static bool canDecode(const QMimeSource* e);
+    static bool decode(const QMimeSource* e, QList<QByteArray>& i);
+    static bool decodeToUnicodeUris(const QMimeSource* e, QStringList& i);
+    static bool decodeLocalFiles(const QMimeSource* e, QStringList& i);
 
 private:
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QUriDrag( const QUriDrag & );
-    QUriDrag &operator=( const QUriDrag & );
+    QUriDrag(const QUriDrag &);
+    QUriDrag &operator=(const QUriDrag &);
 #endif
 };
 
@@ -190,17 +190,17 @@ class Q_GUI_EXPORT QColorDrag : public QStoredDrag
     QColor color;
 
 public:
-    QColorDrag( const QColor &col, QWidget *dragsource = 0, const char *name = 0 );
-    QColorDrag( QWidget * dragSource = 0, const char * name = 0 );
-    void setColor( const QColor &col );
+    QColorDrag(const QColor &col, QWidget *dragsource = 0, const char *name = 0);
+    QColorDrag(QWidget * dragSource = 0, const char * name = 0);
+    void setColor(const QColor &col);
 
-    static bool canDecode( QMimeSource * );
-    static bool decode( QMimeSource *, QColor &col );
+    static bool canDecode(QMimeSource *);
+    static bool decode(QMimeSource *, QColor &col);
 
 private:
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QColorDrag( const QColorDrag & );
-    QColorDrag &operator=( const QColorDrag & );
+    QColorDrag(const QColorDrag &);
+    QColorDrag &operator=(const QColorDrag &);
 #endif
 };
 
@@ -227,19 +227,19 @@ private:
     friend class QDropEvent;
     friend class QApplication;
 
-    bool eventFilter( QObject *, QEvent * );
-    void timerEvent( QTimerEvent* );
+    bool eventFilter(QObject *, QEvent *);
+    void timerEvent(QTimerEvent*);
 
-    bool drag( QDragObject *, QDragObject::DragMode );
+    bool drag(QDragObject *, QDragObject::DragMode);
 
-    void cancel( bool deleteSource = TRUE );
-    void move( const QPoint & );
+    void cancel(bool deleteSource = true);
+    void move(const QPoint &);
     void drop();
     void updatePixmap();
 
 private:
     QDragObject * object;
-    void updateMode( ButtonState newstate );
+    void updateMode(ButtonState newstate);
     void updateCursor();
 
     QWidget * dragSource;
@@ -251,8 +251,8 @@ private:
     QPixmap *pm_cursor;
     int n_cursor;
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QDragManager( const QDragManager & );
-    QDragManager &operator=( const QDragManager & );
+    QDragManager(const QDragManager &);
+    QDragManager &operator=(const QDragManager &);
 #endif
 };
 

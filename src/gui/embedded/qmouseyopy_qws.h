@@ -29,7 +29,7 @@ class QWSYopyMouseHandlerPrivate;
 class QWSYopyMouseHandler : public QWSMouseHandler
 {
 public:
-    QWSYopyMouseHandler( const QString & = QString::null, const QString & = QString::null );
+    QWSYopyMouseHandler(const QString & = QString::null, const QString & = QString::null);
     ~QWSYopyMouseHandler();
 
 protected:

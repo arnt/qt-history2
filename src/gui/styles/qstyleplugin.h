@@ -34,7 +34,7 @@ public:
     ~QStylePlugin();
 
     virtual QStringList keys() const = 0;
-    virtual QStyle *create( const QString &key ) = 0;
+    virtual QStyle *create(const QString &key) = 0;
 
 private:
     QStylePluginPrivate *d;

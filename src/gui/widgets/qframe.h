@@ -59,9 +59,9 @@ public:
                  PopupPanel = 0x0007,           // rectangular panel depending on the GUI style
                  MenuBarPanel = 0x0008,
                  ToolBarPanel = 0x0009,
-		 LineEditPanel = 0x000a,
-		 TabWidgetPanel = 0x000b,
-		 GroupBoxPanel = 0x000c,
+                 LineEditPanel = 0x000a,
+                 TabWidgetPanel = 0x000b,
+                 GroupBoxPanel = 0x000c,
 
 
                  MShape   = 0x000f              // mask for the shape
@@ -112,7 +112,7 @@ public:
     Q3Frame(QWidget* parent, const char* name = 0, WFlags f = 0);
     ~Q3Frame();
 #ifndef Q_QDOC
-    bool        lineShapesOk()  const { return TRUE; }
+    bool        lineShapesOk()  const { return true; }
 #endif
 
 protected:

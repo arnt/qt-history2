@@ -65,7 +65,7 @@ void QMetaObject::changeGuard(QObject **ptr, QObject *o)
 /*! \internal
  */
 QMetaCallEvent::QMetaCallEvent(QEvent::Type type, int id, const QObject *sender,
-			       int nargs, int *types, void **args)
+                               int nargs, int *types, void **args)
     :QEvent(type), id_(id), sender_(sender), nargs_(nargs), types_(types), args_(args)
 { }
 
@@ -74,8 +74,8 @@ QMetaCallEvent::QMetaCallEvent(QEvent::Type type, int id, const QObject *sender,
 QMetaCallEvent::~QMetaCallEvent()
 {
     for (int i = 0; i < nargs_; ++i) {
-	if (types_[i] && args_[i])
-	    QMetaType::destroy(types_[i], args_[i]);
+        if (types_[i] && args_[i])
+            QMetaType::destroy(types_[i], args_[i]);
     }
     if (types_) qFree(types_);
     if (args_) qFree(args_);
@@ -166,7 +166,7 @@ QMetaCallEvent::~QMetaCallEvent()
 
     All Qt widgets inherit QObject. The convenience function
     isWidgetType() returns whether an object is actually a widget. It
-    is much faster than inherits( "QWidget" ).
+    is much faster than inherits("QWidget").
 
     Some QObject functions, e.g. children(), objectTrees() and
     queryList() return a QObjectList. A QObjectList is a QList of
@@ -179,13 +179,13 @@ QMetaCallEvent::~QMetaCallEvent()
 // Internal for QObject::connect() and QObject::disconnect()
 //
 
-static inline bool isIdentChar( char x )
-{						// Avoid bug in isalnum
+static inline bool isIdentChar(char x)
+{                                                // Avoid bug in isalnum
     return x == '_' || (x >= '0' && x <= '9') ||
-	 (x >= 'a' && x <= 'z') || (x >= 'A' && x <= 'Z');
+         (x >= 'a' && x <= 'z') || (x >= 'A' && x <= 'Z');
 }
 
-static inline bool isSpace( char x )
+static inline bool isSpace(char x)
 {
 #if defined(Q_CC_BOR)
   /*
@@ -195,7 +195,7 @@ static inline bool isSpace( char x )
   */
     return (uchar) x <= 32;
 #else
-    return isspace( (uchar) x );
+    return isspace((uchar) x);
 #endif
 }
 
@@ -209,21 +209,21 @@ static inline bool isSpace( char x )
     Returns 0 if there is no such child.
 
     \code
-	QListBox *c = (QListBox *) qt_find_obj_child( myWidget, "QListBox",
-						      "my list box" );
-	if ( c )
-	    c->insertItem( "another string" );
+        QListBox *c = (QListBox *) qt_find_obj_child(myWidget, "QListBox",
+                                                      "my list box");
+        if (c)
+            c->insertItem("another string");
     \endcode
 */
 
-void *qt_find_obj_child( QObject *parent, const char *type, const char *name )
+void *qt_find_obj_child(QObject *parent, const char *type, const char *name)
 {
     QObjectList list = parent->children();
     if (list.size() == 0) return 0;
     for (int i = 0; i < list.size(); ++i) {
-	QObject *obj = list.at(i);
-	if ( qstrcmp(name,obj->objectName()) == 0 && obj->inherits(type) )
-	    return obj;
+        QObject *obj = list.at(i);
+        if (qstrcmp(name,obj->objectName()) == 0 && obj->inherits(type))
+            return obj;
     }
     return 0;
 }
@@ -249,13 +249,13 @@ void *qt_find_obj_child( QObject *parent, const char *type, const char *name )
 */
 
 QObject::QObject(QObject *parent)
-    : d_ptr( new QObjectPrivate )
+    : d_ptr(new QObjectPrivate)
 {
     d_ptr->q_ptr = this;
     d->thread = QThread::currentThread();
     setParent(parent);
-    QEvent e( QEvent::Create );
-    QCoreApplication::sendEvent( this, &e );
+    QEvent e(QEvent::Create);
+    QCoreApplication::sendEvent(this, &e);
     QCoreApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
 }
 
@@ -264,16 +264,16 @@ QObject::QObject(QObject *parent)
     \overload
     \obsolete
  */
-QObject::QObject( QObject *parent, const char *name )
-    : d_ptr( new QObjectPrivate )
+QObject::QObject(QObject *parent, const char *name)
+    : d_ptr(new QObjectPrivate)
 {
     d_ptr->q_ptr = this;
     d->thread = QThread::currentThread();
     setParent(parent);
     if (name)
-	setObjectName(name);
-    QEvent e( QEvent::Create );
-    QCoreApplication::sendEvent( this, &e );
+        setObjectName(name);
+    QEvent e(QEvent::Create);
+    QCoreApplication::sendEvent(this, &e);
     QCoreApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
 }
 
@@ -285,17 +285,17 @@ QObject::QObject(QObjectPrivate &dd, QObject *parent)
     d_ptr->q_ptr = this;
     d->thread = QThread::currentThread();
     if (d->isWidget) {
-	if (parent) {
-	    d->parent = parent;
-	    d->parent->d->children.append(this);
-	    d->thread = 0;
-	}
-	// no events sent here, this is done at the end of the QWidget constructor
+        if (parent) {
+            d->parent = parent;
+            d->parent->d->children.append(this);
+            d->thread = 0;
+        }
+        // no events sent here, this is done at the end of the QWidget constructor
     } else {
-	setParent(parent);
-	QEvent e( QEvent::Create );
-	QCoreApplication::sendEvent( this, &e );
-	QCoreApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
+        setParent(parent);
+        QEvent e(QEvent::Create);
+        QCoreApplication::sendEvent(this, &e);
+        QCoreApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
     }
 }
 
@@ -321,88 +321,88 @@ QObject::QObject(QObjectPrivate &dd, QObject *parent)
 
 QObject::~QObject()
 {
-    if ( d->wasDeleted ) {
+    if (d->wasDeleted) {
 #if defined(QT_DEBUG)
-	qWarning( "Double QObject deletion detected." );
+        qWarning("Double QObject deletion detected.");
 #endif
-	return;
+        return;
     }
     d->wasDeleted = true;
 
-    QEvent e( QEvent::Destroy );
-    QCoreApplication::sendEvent( this, &e );
+    QEvent e(QEvent::Destroy);
+    QCoreApplication::sendEvent(this, &e);
 
     d->blockSig = 0; // unblock signals so we always emit destroyed()
-    emit destroyed( this );
+    emit destroyed(this);
 
     // disconnect receivers
     if (d->connections) {
-	d->connections->lock.acquire();
+        d->connections->lock.acquire();
 
-	// reset all guarded pointers
-	int i = 0;
-	QObjectPrivate::Connections::Connection *c;
-	while ((c = d->findConnection(GUARDED_SIGNAL, i))) {
-	    (void) qAtomicSetPtr(c->guarded, (QObject *) 0);
-	    (void) qAtomicSetPtr(&c->guarded, (QObject **) 0);
-	}
-	for (int i = 0; i < d->connections->count; ++i) {
-	    QObjectPrivate::Connections::Connection &c = d->connections->connections[i];
-	    if (c.receiver)
-		c.receiver->d->removeSender(this);
-	    if (c.types && c.types != &DIRECT_CONNECTION_ONLY) {
-		qFree(c.types);
-		c.types = 0;
-	    }
-	}
+        // reset all guarded pointers
+        int i = 0;
+        QObjectPrivate::Connections::Connection *c;
+        while ((c = d->findConnection(GUARDED_SIGNAL, i))) {
+            (void) qAtomicSetPtr(c->guarded, (QObject *) 0);
+            (void) qAtomicSetPtr(&c->guarded, (QObject **) 0);
+        }
+        for (int i = 0; i < d->connections->count; ++i) {
+            QObjectPrivate::Connections::Connection &c = d->connections->connections[i];
+            if (c.receiver)
+                c.receiver->d->removeSender(this);
+            if (c.types && c.types != &DIRECT_CONNECTION_ONLY) {
+                qFree(c.types);
+                c.types = 0;
+            }
+        }
 
-	d->connections->lock.release();
-	d->connections->lock.~QSpinLock();
+        d->connections->lock.release();
+        d->connections->lock.~QSpinLock();
 
-	qFree(d->connections);
-	d->connections = 0;
+        qFree(d->connections);
+        d->connections = 0;
     }
 
     // disconnect senders
     if (d->senders) {
-	d->senders->lock.acquire();
+        d->senders->lock.acquire();
 
-	for (int i = 0; i < d->senders->count; ++i) {
-	    QObjectPrivate::Senders::Sender &sender = d->senders->senders[i];
-	    if (sender.sender) sender.sender->d->removeReceiver(this);
-	}
-	if (!--d->senders->ref) {
-	    if (d->senders->senders != d->senders->stack)
-		qFree(d->senders->senders);
+        for (int i = 0; i < d->senders->count; ++i) {
+            QObjectPrivate::Senders::Sender &sender = d->senders->senders[i];
+            if (sender.sender) sender.sender->d->removeReceiver(this);
+        }
+        if (!--d->senders->ref) {
+            if (d->senders->senders != d->senders->stack)
+                qFree(d->senders->senders);
 
-	    d->senders->lock.release();
-	    d->senders->lock.~QSpinLock();
+            d->senders->lock.release();
+            d->senders->lock.~QSpinLock();
 
-	    qFree(d->senders);
-	} else {
-	    d->senders->lock.release();
-	}
-	d->senders = 0;
+            qFree(d->senders);
+        } else {
+            d->senders->lock.release();
+        }
+        d->senders = 0;
     }
 
     // might have pending timers
     QEventLoop *eventloop = QEventLoop::instance(thread());
     if (eventloop && d->pendTimer)
-	eventloop->unregisterTimers(this);
+        eventloop->unregisterTimers(this);
 
     d->eventFilters.clear();
 
-    while (!d->children.isEmpty())			// delete children objects
-	delete d->children.takeFirst();
+    while (!d->children.isEmpty())                        // delete children objects
+        delete d->children.takeFirst();
 
-    QCoreApplication::removePostedEvents( this );
+    QCoreApplication::removePostedEvents(this);
 
-    if ( d->parent )				// remove it from parent object
-	setParent_helper(0);
+    if (d->parent)                                // remove it from parent object
+        setParent_helper(0);
 
     if (d->objectName && d->ownObjectName) {
-	delete [] (char*)d->objectName;
-	d->objectName = 0;
+        delete [] (char*)d->objectName;
+        d->objectName = 0;
     }
 
     delete d;
@@ -437,17 +437,17 @@ const char *QObject::className() const
 }
 
 /*!
-    \fn bool QObject::isA( const char *clname ) const
+    \fn bool QObject::isA(const char *clname) const
 
     \obsolete
-    Returns TRUE if this object is an instance of the class \a clname;
-    otherwise returns FALSE.
+    Returns true if this object is an instance of the class \a clname;
+    otherwise returns false.
 
   Example:
   \code
     QTimer *t = new QTimer; // QTimer inherits QObject
-    t->isA( "QTimer" );     // returns TRUE
-    t->isA( "QObject" );    // returns FALSE
+    t->isA("QTimer");     // returns true
+    t->isA("QObject");    // returns false
   \endcode
 
   \sa inherits() metaObject()
@@ -463,11 +463,11 @@ const char *QObject::className() const
 
 
 /*!
-    \fn bool QObject::inherits( const char *clname ) const
+    \fn bool QObject::inherits(const char *clname) const
 
-    Returns TRUE if this object is an instance of a class that
+    Returns true if this object is an instance of a class that
     inherits \a clname or a QObject subclass that inherits classname,
-    otherwise returns FALSE.
+    otherwise returns false.
 
     A class is considered to inherit itself.
 
@@ -476,15 +476,15 @@ const char *QObject::className() const
 
     Example:
     \code
-	QTimer *t = new QTimer;         // QTimer inherits QObject
-	t->inherits( "QTimer" );        // returns TRUE
-	t->inherits( "QObject" );       // returns TRUE
-	t->inherits( "QButton" );       // returns FALSE
+        QTimer *t = new QTimer;         // QTimer inherits QObject
+        t->inherits("QTimer");        // returns true
+        t->inherits("QObject");       // returns true
+        t->inherits("QButton");       // returns false
 
-	// QScrollBar inherits QWidget and QRangeControl
-	QScrollBar *s = new QScrollBar( 0 );
-	s->inherits( "QWidget" );       // returns TRUE
-	s->inherits( "QRangeControl" ); // returns TRUE
+        // QScrollBar inherits QWidget and QRangeControl
+        QScrollBar *s = new QScrollBar(0);
+        s->inherits("QWidget");       // returns true
+        s->inherits("QRangeControl"); // returns true
     \endcode
 
     (\l QRangeControl is not a QObject.)
@@ -503,11 +503,11 @@ const char *QObject::className() const
     If the object does not have a name, the objectName() function
     returns "unnamed", so printf() (used in qDebug()) will not be
     asked to output a null pointer. If you want a null pointer to be
-    returned for unnamed objects, you can call objectName( 0 ).
+    returned for unnamed objects, you can call objectName(0).
 
     \code
-	qDebug( "MyClass::setPrecision(): (%s) invalid precision %f",
-		objectName(), newPrecision );
+        qDebug("MyClass::setPrecision(): (%s) invalid precision %f",
+                objectName(), newPrecision);
     \endcode
 
     \sa className(), child(), queryList()
@@ -521,10 +521,10 @@ const char * QObject::objectName() const
 /*!
     Sets the object's name to \a name.
 */
-void QObject::setObjectName( const char *name )
+void QObject::setObjectName(const char *name)
 {
     if (d->objectName && d->ownObjectName)
-	delete [] (char*) d->objectName;
+        delete [] (char*) d->objectName;
     d->ownObjectName = true;
     d->objectName = name ? qstrdup(name) : 0;
 }
@@ -535,7 +535,7 @@ void QObject::setObjectName( const char *name )
 void QObject::setObjectNameConst(const char *name)
 {
     if (d->objectName && d->ownObjectName)
-	delete [] (char*) d->objectName;
+        delete [] (char*) d->objectName;
     d->ownObjectName = false;
     d->objectName = name;
 }
@@ -547,7 +547,7 @@ void QObject::setObjectNameConst(const char *name)
     does not have a name.
 */
 
-const char * QObject::objectName( const char * defaultName ) const
+const char * QObject::objectName(const char * defaultName) const
 {
     return d->objectName ? d->objectName : defaultName;
 }
@@ -560,29 +560,29 @@ const char * QObject::objectName( const char * defaultName ) const
     inheritsClass. If \a inheritsClass is 0 (the default), any class
     matches.
 
-    If \a recursiveSearch is TRUE (the default), child() performs a
+    If \a recursiveSearch is true (the default), child() performs a
     depth-first search of the object's children.
 
     If there is no such object, this function returns 0. If there are
     more than one, the first one found is retured; if you need all of
     them, use queryList().
 */
-QObject* QObject::child( const char *objName, const char *inheritsClass,
-			 bool recursiveSearch ) const
+QObject* QObject::child(const char *objName, const char *inheritsClass,
+                         bool recursiveSearch) const
 {
-    if ( d->children.isEmpty() )
-	return 0;
+    if (d->children.isEmpty())
+        return 0;
 
-    bool onlyWidgets = ( inheritsClass && qstrcmp( inheritsClass, "QWidget" ) == 0 );
+    bool onlyWidgets = (inheritsClass && qstrcmp(inheritsClass, "QWidget") == 0);
     for (int i = 0; i < d->children.size(); ++i) {
-	QObject *obj = d->children.at(i);
-	if ( onlyWidgets ) {
-	    if ( obj->isWidgetType() && ( !objName || qstrcmp( objName, obj->objectName() ) == 0 ) )
-		return obj;
-	} else if ( ( !inheritsClass || obj->inherits(inheritsClass) ) && ( !objName || qstrcmp( objName, obj->objectName() ) == 0 ) )
-	    return obj;
-	if ( recursiveSearch && (obj = obj->child( objName, inheritsClass, recursiveSearch ) ) )
-	    return obj;
+        QObject *obj = d->children.at(i);
+        if (onlyWidgets) {
+            if (obj->isWidgetType() && (!objName || qstrcmp(objName, obj->objectName()) == 0))
+                return obj;
+        } else if ((!inheritsClass || obj->inherits(inheritsClass)) && (!objName || qstrcmp(objName, obj->objectName()) == 0))
+            return obj;
+        if (recursiveSearch && (obj = obj->child(objName, inheritsClass, recursiveSearch)))
+            return obj;
     }
     return 0;
 }
@@ -591,7 +591,7 @@ QObject* QObject::child( const char *objName, const char *inheritsClass,
 /*!
     \fn bool QObject::isWidgetType() const
 
-    Returns TRUE if the object is a widget; otherwise returns FALSE.
+    Returns true if the object is a widget; otherwise returns false.
 
     Calling this function is equivalent to calling
     inherits("QWidget"), except that it is much faster.
@@ -600,7 +600,7 @@ QObject* QObject::child( const char *objName, const char *inheritsClass,
 
 /*!
     This virtual function receives events to an object and should
-    return TRUE if the event \a e was recognized and processed.
+    return true if the event \a e was recognized and processed.
 
     The event() function can be reimplemented to customize the
     behavior of an object.
@@ -609,12 +609,12 @@ QObject* QObject::child( const char *objName, const char *inheritsClass,
     QApplication::postEvent(), QWidget::event()
 */
 
-bool QObject::event( QEvent *e )
+bool QObject::event(QEvent *e)
 {
-    switch ( e->type() ) {
+    switch (e->type()) {
     case QEvent::Timer:
-	timerEvent( (QTimerEvent*)e );
-	return TRUE;
+        timerEvent((QTimerEvent*)e);
+        return true;
 
     case QEvent::ChildAdded:
     case QEvent::ChildPolished:
@@ -622,51 +622,51 @@ bool QObject::event( QEvent *e )
     case QEvent::ChildInserted:
 #endif
     case QEvent::ChildRemoved:
-	childEvent( (QChildEvent*)e );
-	return TRUE;
+        childEvent((QChildEvent*)e);
+        return true;
 
     case QEvent::Polish:
-	polishEvent(e);
-	return TRUE;
+        polishEvent(e);
+        return true;
 
     case QEvent::DeferredDelete:
-	delete this;
-	return TRUE;
+        delete this;
+        return true;
 
     case QEvent::InvokeSlot:
     case QEvent::EmitSignal: {
-	QMetaCallEvent *mce = static_cast<QMetaCallEvent*>(e);
-	QObjectPrivate::Senders *senders = d->senders;
-	QObject *sender =
-	    QObjectPrivate::setCurrentSender(senders, const_cast<QObject*>(mce->sender()));
+        QMetaCallEvent *mce = static_cast<QMetaCallEvent*>(e);
+        QObjectPrivate::Senders *senders = d->senders;
+        QObject *sender =
+            QObjectPrivate::setCurrentSender(senders, const_cast<QObject*>(mce->sender()));
 #if defined(QT_NO_EXCEPTIONS)
-	qt_metacall((e->type() == QEvent::InvokeSlot
-		     ? QMetaObject::InvokeSlot
-		     : QMetaObject::EmitSignal),
-		    mce->id(), mce->args());
+        qt_metacall((e->type() == QEvent::InvokeSlot
+                     ? QMetaObject::InvokeSlot
+                     : QMetaObject::EmitSignal),
+                    mce->id(), mce->args());
 #else
-	try {
-	    qt_metacall((e->type() == QEvent::InvokeSlot
-			 ? QMetaObject::InvokeSlot
-			 : QMetaObject::EmitSignal),
-			mce->id(), mce->args());
-	} catch (...) {
-	    QObjectPrivate::resetCurrentSender(senders, sender);
-	    throw;
-	}
+        try {
+            qt_metacall((e->type() == QEvent::InvokeSlot
+                         ? QMetaObject::InvokeSlot
+                         : QMetaObject::EmitSignal),
+                        mce->id(), mce->args());
+        } catch (...) {
+            QObjectPrivate::resetCurrentSender(senders, sender);
+            throw;
+        }
 #endif
-	QObjectPrivate::resetCurrentSender(senders, sender);
-	return true;
+        QObjectPrivate::resetCurrentSender(senders, sender);
+        return true;
     }
 
     default:
-	if ( e->type() >= QEvent::User ) {
-	    customEvent( (QCustomEvent*) e );
-	    return TRUE;
-	}
-	break;
+        if (e->type() >= QEvent::User) {
+            customEvent((QCustomEvent*) e);
+            return true;
+        }
+        break;
     }
-    return FALSE;
+    return false;
 }
 
 /*!
@@ -679,7 +679,7 @@ bool QObject::event( QEvent *e )
     \sa startTimer(), killTimer(), event()
 */
 
-void QObject::timerEvent( QTimerEvent * )
+void QObject::timerEvent(QTimerEvent *)
 {
 }
 
@@ -693,7 +693,7 @@ void QObject::timerEvent( QTimerEvent * )
     can only rely on the child being a QObject, or if isWidgetType()
     returns true, a QWidget (Reason: in the \c ChildAdded case the
     child is not yet fully constructed, in the \c ChildRemoved case it
-    might have been destructed already ).
+    might have been destructed already).
 
     \c QEvent::ChildPolished events are sent to objects when children
     are polished, or polished children added. If you receive a child
@@ -711,7 +711,7 @@ void QObject::timerEvent( QTimerEvent * )
     \sa event(), QChildEvent
 */
 
-void QObject::childEvent( QChildEvent * )
+void QObject::childEvent(QChildEvent *)
 {
 }
 
@@ -738,14 +738,14 @@ void QObject::ensurePolished() const
 {
     const QMetaObject *m = metaObject();
     if (m == d->polished)
-	return;
+        return;
     d->polished = m;
 
     QEvent e(QEvent::Polish);
     QCoreApplication::sendEvent((QObject*)this, &e);
     if (d->parent) {
-	QChildEvent e(QEvent::ChildPolished, (QObject*)this);
-	QCoreApplication::sendEvent(d->parent, &e);
+        QChildEvent e(QEvent::ChildPolished, (QObject*)this);
+        QCoreApplication::sendEvent(d->parent, &e);
     }
 }
 
@@ -767,7 +767,7 @@ void QObject::polishEvent(QEvent *)
 
     \sa event(), QCustomEvent
 */
-void QObject::customEvent( QCustomEvent * )
+void QObject::customEvent(QCustomEvent *)
 {
 }
 
@@ -779,43 +779,43 @@ void QObject::customEvent( QCustomEvent * )
 
     In your reimplementation of this function, if you want to filter
     the event \a e, out, i.e. stop it being handled further, return
-    TRUE; otherwise return FALSE.
+    true; otherwise return false.
 
     Example:
     \code
     class MyMainWindow : public QMainWindow
     {
     public:
-	MyMainWindow( QWidget *parent = 0, const char *name = 0 );
+        MyMainWindow(QWidget *parent = 0, const char *name = 0);
 
     protected:
-	bool eventFilter( QObject *obj, QEvent *ev );
+        bool eventFilter(QObject *obj, QEvent *ev);
 
     private:
-	QTextEdit *textEdit;
+        QTextEdit *textEdit;
     };
 
-    MyMainWindow::MyMainWindow( QWidget *parent, const char *name )
-	: QMainWindow( parent, name )
+    MyMainWindow::MyMainWindow(QWidget *parent, const char *name)
+        : QMainWindow(parent, name)
     {
-	textEdit = new QTextEdit( this );
-	setCentralWidget( textEdit );
-	textEdit->installEventFilter( this );
+        textEdit = new QTextEdit(this);
+        setCentralWidget(textEdit);
+        textEdit->installEventFilter(this);
     }
 
-    bool MyMainWindow::eventFilter( QObject *obj, QEvent *ev )
+    bool MyMainWindow::eventFilter(QObject *obj, QEvent *ev)
     {
-	if ( obj == textEdit ) {
-	    if ( e->type() == QEvent::KeyPress ) {
-		qDebug( "Ate key press %d", k->key() );
-		return TRUE;
-	    } else {
-		return FALSE;
-	    }
-	} else {
-	    // pass the event on to the parent class
-	    return QMainWindow::eventFilter( obj, ev );
-	}
+        if (obj == textEdit) {
+            if (e->type() == QEvent::KeyPress) {
+                qDebug("Ate key press %d", k->key());
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            // pass the event on to the parent class
+            return QMainWindow::eventFilter(obj, ev);
+        }
     }
     \endcode
 
@@ -825,21 +825,21 @@ void QObject::customEvent( QCustomEvent * )
     purposes.
 
     \warning If you delete the receiver object in this function, be
-    sure to return TRUE. Otherwise, Qt will forward the event to the
+    sure to return true. Otherwise, Qt will forward the event to the
     deleted object and the program might crash.
 
     \sa installEventFilter()
 */
 
-bool QObject::eventFilter( QObject * /* watched */, QEvent * /* e */ )
+bool QObject::eventFilter(QObject * /* watched */, QEvent * /* e */)
 {
-    return FALSE;
+    return false;
 }
 
 /*!
     \fn bool QObject::signalsBlocked() const
 
-    Returns TRUE if signals are blocked; otherwise returns FALSE.
+    Returns true if signals are blocked; otherwise returns false.
 
     Signals are not blocked by default.
 
@@ -847,15 +847,15 @@ bool QObject::eventFilter( QObject * /* watched */, QEvent * /* e */ )
 */
 
 /*!
-    Blocks signals if \a block is TRUE, or unblocks signals if \a
-    block is FALSE.
+    Blocks signals if \a block is true, or unblocks signals if \a
+    block is false.
 
     Emitted signals disappear into hyperspace if signals are blocked.
     Note that the destroyed() signals will be emitted even if the signals
     for this object have been blocked.
 */
 
-bool QObject::blockSignals( bool block )
+bool QObject::blockSignals(bool block)
 {
     bool previous = d->blockSig;
     d->blockSig = block;
@@ -869,7 +869,7 @@ Qt::HANDLE QObject::thread() const
 {
     const QObject *toplevel = this;
     for (; toplevel && toplevel->d->parent; toplevel = toplevel->d->parent)
-	;
+        ;
     Q_ASSERT(toplevel->d->thread != 0);
     return toplevel->d->thread;
 }
@@ -884,20 +884,20 @@ Qt::HANDLE QObject::thread() const
 void QObject::setThread(Qt::HANDLE thr)
 {
     Q_ASSERT_X(!d->parent, "QObject::setThread",
-	       "Cannot set the thread on an object with a parent.");
+               "Cannot set the thread on an object with a parent.");
     Q_ASSERT_X(thr != 0, "QObject::setThread",
-	       "thread argument must not be zero.");
+               "thread argument must not be zero.");
 
     // ### TODO: make sure this works for objects with children
     Q_ASSERT_X(d->children.size() == 0, "QObject::setThread",
-	       "TODO: make sure this works for objects with children");
+               "TODO: make sure this works for objects with children");
 
     if (d->thread == thr) return;
 
     // might have pending timers
     QEventLoop *eventloop = QEventLoop::instance(thread());
     if (eventloop && d->pendTimer)
-	eventloop->unregisterTimers(this);
+        eventloop->unregisterTimers(this);
     d->pendTimer = false;
 
     // move any posted events to the new thread
@@ -933,25 +933,25 @@ void QObject::setThread(Qt::HANDLE thr)
     \code
     class MyObject : public QObject
     {
-	Q_OBJECT
+        Q_OBJECT
     public:
-	MyObject( QObject *parent = 0, const char *name = 0 );
+        MyObject(QObject *parent = 0, const char *name = 0);
 
     protected:
-	void timerEvent( QTimerEvent * );
+        void timerEvent(QTimerEvent *);
     };
 
-    MyObject::MyObject( QObject *parent, const char *name )
-	: QObject( parent, name )
+    MyObject::MyObject(QObject *parent, const char *name)
+        : QObject(parent, name)
     {
-	startTimer( 50 );    // 50-millisecond timer
-	startTimer( 1000 );  // 1-second timer
-	startTimer( 60000 ); // 1-minute timer
+        startTimer(50);    // 50-millisecond timer
+        startTimer(1000);  // 1-second timer
+        startTimer(60000); // 1-minute timer
     }
 
-    void MyObject::timerEvent( QTimerEvent *e )
+    void MyObject::timerEvent(QTimerEvent *e)
     {
-	qDebug( "timer event, id %d", e->timerId() );
+        qDebug("timer event, id %d", e->timerId());
     }
     \endcode
 
@@ -968,9 +968,9 @@ void QObject::setThread(Qt::HANDLE thr)
     \sa timerEvent(), killTimer()
 */
 
-int QObject::startTimer( int interval )
+int QObject::startTimer(int interval)
 {
-    d->pendTimer = TRUE;				// set timer flag
+    d->pendTimer = true;                                // set timer flag
     QEventLoop *eventloop = QEventLoop::instance(thread());
     Q_ASSERT_X(eventloop, "QObject::startTimer", "Cannot start timer without an event loop");
     return eventloop->registerTimer(interval, (QObject *)this);
@@ -985,43 +985,43 @@ int QObject::startTimer( int interval )
     \sa timerEvent(), startTimer()
 */
 
-void QObject::killTimer( int id )
+void QObject::killTimer(int id)
 {
     QEventLoop *eventloop = QEventLoop::instance(thread());
     if (eventloop) eventloop->unregisterTimer(id);
 }
 
-static void objSearch( QObjectList &result,
-		       const QObjectList &list,
-		       const char  *inheritsClass,
-		       bool onlyWidgets,
-		       const char  *objName,
-		       QRegExp	   *rx,
-		       bool	    recurse )
+static void objSearch(QObjectList &result,
+                       const QObjectList &list,
+                       const char  *inheritsClass,
+                       bool onlyWidgets,
+                       const char  *objName,
+                       QRegExp           *rx,
+                       bool            recurse)
 {
     for (int i = 0; i < list.size(); ++i) {
-	QObject *obj = list.at(i);
-	bool ok = TRUE;
-	if ( onlyWidgets )
-	    ok = obj->isWidgetType();
-	else if ( inheritsClass && !obj->inherits(inheritsClass) )
-	    ok = FALSE;
-	if ( ok ) {
-	    if ( objName )
-		ok = ( qstrcmp(objName,obj->objectName()) == 0 );
+        QObject *obj = list.at(i);
+        bool ok = true;
+        if (onlyWidgets)
+            ok = obj->isWidgetType();
+        else if (inheritsClass && !obj->inherits(inheritsClass))
+            ok = false;
+        if (ok) {
+            if (objName)
+                ok = (qstrcmp(objName,obj->objectName()) == 0);
 #ifndef QT_NO_REGEXP
-	    else if ( rx )
-		ok = ( rx->search(QString::fromLatin1(obj->objectName())) != -1 );
+            else if (rx)
+                ok = (rx->search(QString::fromLatin1(obj->objectName())) != -1);
 #endif
-	}
-	if ( ok )				// match!
-	    result.append( obj );
-	if ( recurse ) {
-	    QObjectList clist = obj->children();
-	    if (!clist.isEmpty() )
-		objSearch( result, clist, inheritsClass,
-			   onlyWidgets, objName, rx, recurse );
-	}
+        }
+        if (ok)                                // match!
+            result.append(obj);
+        if (recurse) {
+            QObjectList clist = obj->children();
+            if (!clist.isEmpty())
+                objSearch(result, clist, inheritsClass,
+                           onlyWidgets, objName, rx, recurse);
+        }
     }
 }
 
@@ -1064,9 +1064,9 @@ static void objSearch( QObjectList &result,
     (the default), all classes match. If \a objName is 0 (the
     default), all object names match.
 
-    If \a regexpMatch is TRUE (the default), \a objName is a regular
+    If \a regexpMatch is true (the default), \a objName is a regular
     expression that the objects's names must match. The syntax is that
-    of a QRegExp. If \a regexpMatch is FALSE, \a objName is a string
+    of a QRegExp. If \a regexpMatch is false, \a objName is a string
     and object names must match it exactly.
 
     Note that \a inheritsClass uses single inheritance from QObject,
@@ -1075,7 +1075,7 @@ static void objSearch( QObjectList &result,
     reality, but is the best that can be done on the wide variety of
     compilers Qt supports.
 
-    Finally, if \a recursiveSearch is TRUE (the default), queryList()
+    Finally, if \a recursiveSearch is true (the default), queryList()
     searches \e{n}th-generation as well as first-generation children.
 
     If all this seems a bit complex for your needs, the simpler
@@ -1084,14 +1084,14 @@ static void objSearch( QObjectList &result,
     This somewhat contrived example disables all the buttons in this
     window:
     \code
-    QObjectList *l = topLevelWidget()->queryList( "QButton" );
-    QObjectListIterator it( *l ); // iterate over the buttons
+    QObjectList *l = topLevelWidget()->queryList("QButton");
+    QObjectListIterator it(*l); // iterate over the buttons
     QObject *obj;
 
-    while ( (obj = it.current()) != 0 ) {
-	// for each found object...
-	++it;
-	((QButton*)obj)->setEnabled( FALSE );
+    while ((obj = it.current()) != 0) {
+        // for each found object...
+        ++it;
+        ((QButton*)obj)->setEnabled(false);
     }
     delete l; // delete the list, not the objects
     \endcode
@@ -1107,21 +1107,21 @@ static void objSearch( QObjectList &result,
     \sa child() children(), parent(), inherits(), objectName(), QRegExp
 */
 
-QObjectList QObject::queryList( const char *inheritsClass,
-				const char *objName,
-				bool regexpMatch,
-				bool recursiveSearch ) const
+QObjectList QObject::queryList(const char *inheritsClass,
+                                const char *objName,
+                                bool regexpMatch,
+                                bool recursiveSearch) const
 {
     QObjectList list;
-    bool onlyWidgets = ( inheritsClass && qstrcmp(inheritsClass, "QWidget") == 0 );
+    bool onlyWidgets = (inheritsClass && qstrcmp(inheritsClass, "QWidget") == 0);
 #ifndef QT_NO_REGEXP
-    if ( regexpMatch && objName ) {		// regexp matching
-	QRegExp rx(QString::fromLatin1(objName));
-	objSearch( list, d->children, inheritsClass, onlyWidgets, 0, &rx, recursiveSearch );
+    if (regexpMatch && objName) {                // regexp matching
+        QRegExp rx(QString::fromLatin1(objName));
+        objSearch(list, d->children, inheritsClass, onlyWidgets, 0, &rx, recursiveSearch);
     } else
 #endif
     {
-	objSearch( list, d->children, inheritsClass, onlyWidgets, objName, 0, recursiveSearch );
+        objSearch(list, d->children, inheritsClass, onlyWidgets, objName, 0, recursiveSearch);
     }
     return list;
 }
@@ -1178,14 +1178,14 @@ QObject *QObject::findChild_helper(const char *name, const QMetaObject &mo) cons
     QObject *obj;
     int i;
     for (i = 0; i < d->children.size(); ++i) {
-	obj = d->children.at(i);
-	if (mo.cast(obj) && (!name || qstrcmp(obj->d->objectName, name) == 0))
-	    return obj;
+        obj = d->children.at(i);
+        if (mo.cast(obj) && (!name || qstrcmp(obj->d->objectName, name) == 0))
+            return obj;
     }
     for (i = 0; i < d->children.size(); ++i) {
-	obj = d->children.at(i)->findChild_helper(name, mo);
-	if (obj)
-	    return obj;
+        obj = d->children.at(i)->findChild_helper(name, mo);
+        if (obj)
+            return obj;
     }
     return 0;
 }
@@ -1206,50 +1206,50 @@ void QObject::setParent(QObject *parent)
 void QObject::setParent_helper(QObject *parent)
 {
     if (parent == d->parent)
-	return;
+        return;
     if (d->parent && d->parent->d->children.remove(this)) {
-	QChildEvent e(QEvent::ChildRemoved, this);
-	QCoreApplication::sendEvent(d->parent, &e);
+        QChildEvent e(QEvent::ChildRemoved, this);
+        QCoreApplication::sendEvent(d->parent, &e);
     }
     const Qt::HANDLE thr = thread();
     d->parent = parent;
     if (d->parent) {
-	// object heirarchies are constrained to a single thread
-	Q_ASSERT_X(thr == d->parent->thread(), "QObject::setParent",
-		   "New parent must be in the same thread as the previous parent");
-	d->thread = 0;
+        // object heirarchies are constrained to a single thread
+        Q_ASSERT_X(thr == d->parent->thread(), "QObject::setParent",
+                   "New parent must be in the same thread as the previous parent");
+        d->thread = 0;
 
-	d->parent->d->children.append(this);
-	const QMetaObject *polished = d->polished;
-	QChildEvent e(QEvent::ChildAdded, this);
-	QCoreApplication::sendEvent(d->parent, &e);
-	if (polished) {
-	    QChildEvent e(QEvent::ChildPolished, this);
-	    QCoreApplication::sendEvent(d->parent, &e);
-	}
+        d->parent->d->children.append(this);
+        const QMetaObject *polished = d->polished;
+        QChildEvent e(QEvent::ChildAdded, this);
+        QCoreApplication::sendEvent(d->parent, &e);
+        if (polished) {
+            QChildEvent e(QEvent::ChildPolished, this);
+            QCoreApplication::sendEvent(d->parent, &e);
+        }
 #ifdef QT_COMPAT
-	QCoreApplication::postEvent(d->parent, new QChildEvent(QEvent::ChildInserted, this));
+        QCoreApplication::postEvent(d->parent, new QChildEvent(QEvent::ChildInserted, this));
 #endif
     } else {
-	const Qt::HANDLE current = QThread::currentThread();
-	if (thr != current) setThread(current);
+        const Qt::HANDLE current = QThread::currentThread();
+        if (thr != current) setThread(current);
     }
 }
 
 /*!
-    \fn void QObject::installEventFilter( const QObject *filterObj )
+    \fn void QObject::installEventFilter(const QObject *filterObj)
 
     Installs an event filter \a filterObj on this object. For example:
     \code
-    monitoredObj->installEventFilter( filterObj );
+    monitoredObj->installEventFilter(filterObj);
     \endcode
 
     An event filter is an object that receives all events that are
     sent to this object. The filter can either stop the event or
     forward it to this object. The event filter \a filterObj receives
     events via its eventFilter() function. The eventFilter() function
-    must return TRUE if the event should be filtered, (i.e. stopped);
-    otherwise it must return FALSE.
+    must return true if the event should be filtered, (i.e. stopped);
+    otherwise it must return false.
 
     If multiple event filters are installed on a single object, the
     filter that was installed last is activated first.
@@ -1259,49 +1259,49 @@ void QObject::setParent_helper(QObject *parent)
     \code
     class KeyPressEater : public QObject
     {
-	...
+        ...
     protected:
-	bool eventFilter( QObject *o, QEvent *e );
+        bool eventFilter(QObject *o, QEvent *e);
     };
 
-    bool KeyPressEater::eventFilter( QObject *o, QEvent *e )
+    bool KeyPressEater::eventFilter(QObject *o, QEvent *e)
     {
-	if ( e->type() == QEvent::KeyPress ) {
-	    // special processing for key press
-	    QKeyEvent *k = (QKeyEvent *)e;
-	    qDebug( "Ate key press %d", k->key() );
-	    return TRUE; // eat event
-	} else {
-	    // standard event processing
-	    return FALSE;
-	}
+        if (e->type() == QEvent::KeyPress) {
+            // special processing for key press
+            QKeyEvent *k = (QKeyEvent *)e;
+            qDebug("Ate key press %d", k->key());
+            return true; // eat event
+        } else {
+            // standard event processing
+            return false;
+        }
     }
     \endcode
 
     And here's how to install it on two widgets:
     \code
-	KeyPressEater *keyPressEater = new KeyPressEater( this );
-	QPushButton *pushButton = new QPushButton( this );
-	QListView *listView = new QListView( this );
+        KeyPressEater *keyPressEater = new KeyPressEater(this);
+        QPushButton *pushButton = new QPushButton(this);
+        QListView *listView = new QListView(this);
 
-	pushButton->installEventFilter( keyPressEater );
-	listView->installEventFilter( keyPressEater );
+        pushButton->installEventFilter(keyPressEater);
+        listView->installEventFilter(keyPressEater);
     \endcode
 
     The QAccel class, for example, uses this technique to intercept
     accelerator key presses.
 
     \warning If you delete the receiver object in your eventFilter()
-    function, be sure to return TRUE. If you return FALSE, Qt sends
+    function, be sure to return true. If you return false, Qt sends
     the event to the deleted object and the program will crash.
 
     \sa removeEventFilter(), eventFilter(), event()
 */
 
-void QObject::installEventFilter( const QObject *obj )
+void QObject::installEventFilter(const QObject *obj)
 {
     if (!obj)
-	return;
+        return;
     QObject *o = const_cast<QObject *>(obj);
     // clean up unused items in the list
     d->eventFilters.remove((QObject*)0);
@@ -1322,7 +1322,7 @@ void QObject::installEventFilter( const QObject *obj )
     \sa installEventFilter(), eventFilter(), event()
 */
 
-void QObject::removeEventFilter( const QObject *obj )
+void QObject::removeEventFilter(const QObject *obj)
 {
     QObject *o = const_cast<QObject *>(obj);
     d->eventFilters.remove(o);
@@ -1330,7 +1330,7 @@ void QObject::removeEventFilter( const QObject *obj )
 
 
 /*!
-    \fn QObject::destroyed( QObject* obj)
+    \fn QObject::destroyed(QObject* obj)
 
     This signal is emitted immediately before the object \a obj is
     destroyed, and can not be blocked.
@@ -1348,11 +1348,11 @@ void QObject::removeEventFilter( const QObject *obj )
 */
 void QObject::deleteLater()
 {
-    QCoreApplication::postEvent( this, new QEvent( QEvent::DeferredDelete) );
+    QCoreApplication::postEvent(this, new QEvent(QEvent::DeferredDelete));
 }
 
 /*!
-    \fn QString QObject::tr( const char *sourceText, const char * comment )
+    \fn QString QObject::tr(const char *sourceText, const char * comment)
     \reentrant
 
     Returns a translated version of \a sourceText, or \a sourceText
@@ -1368,12 +1368,12 @@ void QObject::deleteLater()
     so will probably result in crashes or other undesirable behavior.
 
     \sa trUtf8() QApplication::translate()
-	\link i18n.html Internationalization with Qt\endlink
+        \link i18n.html Internationalization with Qt\endlink
 */
 
 /*!
-    \fn QString QObject::trUtf8( const char *sourceText,
-                                 const char *comment )
+    \fn QString QObject::trUtf8(const char *sourceText,
+                                 const char *comment)
     \reentrant
 
     Returns a translated version of \a sourceText, or
@@ -1403,54 +1403,54 @@ void QObjectPrivate::refSender(QObject *sender)
     int i = 0;
     bool created = false;
     if (!senders) {
-	Senders *s = (Senders *) qMalloc(sizeof(Senders));
-	new (&s->lock) QSpinLock();
-	s->senders = s->stack;
-	s->ref = 1;
-	s->count = 1;
-	s->current = 0;
+        Senders *s = (Senders *) qMalloc(sizeof(Senders));
+        new (&s->lock) QSpinLock();
+        s->senders = s->stack;
+        s->ref = 1;
+        s->count = 1;
+        s->current = 0;
 
-	s->lock.acquire();
-	if (!q_atomic_test_and_set_ptr(&senders, 0, s)) {
-	    s->lock.release();
-	    s->lock.~QSpinLock();
-	    qFree(s);
-	} else {
-	    created = true;
-	}
+        s->lock.acquire();
+        if (!q_atomic_test_and_set_ptr(&senders, 0, s)) {
+            s->lock.release();
+            s->lock.~QSpinLock();
+            qFree(s);
+        } else {
+            created = true;
+        }
     }
 
     if (!created) {
-	senders->lock.acquire();
-	while (i < senders->count) {
-	    if (senders->senders[i].sender == sender) {
-		++senders->senders[i].ref;
-		senders->lock.release();
-		return;
-	    }
-	    ++i;
-	}
-	i = 0;
-	while (i < senders->count && senders->senders[i].sender)
-	    ++i;
-	if (i == senders->count) {
-	    if (senders->senders != senders->stack) {
-		senders->senders =
-		    (Senders::Sender*)
-		    qRealloc(senders->senders, (i+1)*sizeof(Senders::Sender));
-	    } else if (senders->ref > 1) { // we cannot realloc
-		senders->senders =
-		    (Senders::Sender*)
-		    qMalloc((i+1)*sizeof(Senders::Sender));
-		::memcpy(senders->senders, senders->stack,
-			 i*sizeof(Senders::Sender));
-	    } else {
-		senders = (Senders*)qRealloc(senders, sizeof(Senders)
-					     + i * sizeof(Senders::Sender));
- 		senders->senders = senders->stack;
-	    }
-	    ++senders->count;
-	}
+        senders->lock.acquire();
+        while (i < senders->count) {
+            if (senders->senders[i].sender == sender) {
+                ++senders->senders[i].ref;
+                senders->lock.release();
+                return;
+            }
+            ++i;
+        }
+        i = 0;
+        while (i < senders->count && senders->senders[i].sender)
+            ++i;
+        if (i == senders->count) {
+            if (senders->senders != senders->stack) {
+                senders->senders =
+                    (Senders::Sender*)
+                    qRealloc(senders->senders, (i+1)*sizeof(Senders::Sender));
+            } else if (senders->ref > 1) { // we cannot realloc
+                senders->senders =
+                    (Senders::Sender*)
+                    qMalloc((i+1)*sizeof(Senders::Sender));
+                ::memcpy(senders->senders, senders->stack,
+                         i*sizeof(Senders::Sender));
+            } else {
+                senders = (Senders*)qRealloc(senders, sizeof(Senders)
+                                             + i * sizeof(Senders::Sender));
+                senders->senders = senders->stack;
+            }
+            ++senders->count;
+        }
     }
     senders->senders[i].sender = sender;
     senders->senders[i].ref = 1;
@@ -1470,14 +1470,14 @@ void QObjectPrivate::derefSender(QObject *sender)
     QSpinLockLocker locker(&senders->lock);
 
     for (int i = 0; i < senders->count; ++i) {
-	if (senders->senders[i].sender == sender) {
-	    if (!--senders->senders[i].ref) {
-		senders->senders[i].sender = 0;
-		if (senders->current == sender)
-		    senders->current = 0;
-	    }
-	    break;
-	}
+        if (senders->senders[i].sender == sender) {
+            if (!--senders->senders[i].ref) {
+                senders->senders[i].sender = 0;
+                if (senders->current == sender)
+                    senders->current = 0;
+            }
+            break;
+        }
     }
 }
 
@@ -1492,11 +1492,11 @@ void QObjectPrivate::removeSender(QObject *sender)
     QSpinLockLocker locker(&senders->lock);
 
     for (int i = 0; i < senders->count; ++i) {
-	if (senders->senders[i].sender == sender)
-	    senders->senders[i].sender = 0;
+        if (senders->senders[i].sender == sender)
+            senders->senders[i].sender = 0;
     }
     if (senders->current == sender)
-	senders->current = 0;
+        senders->current = 0;
 }
 
 /*
@@ -1528,24 +1528,24 @@ void QObjectPrivate::resetCurrentSender(Senders *senders, QObject *sender)
     senders->current = 0;
     if (sender) {
         // only if the new current sender is still in the list
-	for (int i = 0; i < senders->count; ++i) {
-	    if (senders->senders[i].sender == sender) {
-		senders->current = sender;
-		break;
-	    }
-	}
+        for (int i = 0; i < senders->count; ++i) {
+            if (senders->senders[i].sender == sender) {
+                senders->current = sender;
+                break;
+            }
+        }
     }
 
     if (!--senders->ref) {
-	if (senders->senders != senders->stack)
-	    qFree(senders->senders);
+        if (senders->senders != senders->stack)
+            qFree(senders->senders);
 
-	senders->lock.release();
-	senders->lock.~QSpinLock();
+        senders->lock.release();
+        senders->lock.~QSpinLock();
 
-	qFree(senders);
+        qFree(senders);
     } else {
-	senders->lock.release();
+        senders->lock.release();
     }
 }
 
@@ -1553,58 +1553,58 @@ void QObjectPrivate::resetCurrentSender(Senders *senders, QObject *sender)
 #ifndef QT_NO_DEBUG
 
 static bool check_signal_macro(const QObject *sender, const char *signal,
-				const char *func, const char *op)
+                                const char *func, const char *op)
 {
     int sigcode = (int)(*signal) - '0';
     if (sigcode != QSIGNAL_CODE) {
-	if (sigcode == QSLOT_CODE)
-	    qWarning("Object::%s: Attempt to %s non-signal %s::%s",
-		     func, op, sender->className(), signal+1);
-	else
-	    qWarning("Object::%s: Use the SIGNAL macro to %s %s::%s",
-		     func, op, sender->className(), signal);
-	return false;
+        if (sigcode == QSLOT_CODE)
+            qWarning("Object::%s: Attempt to %s non-signal %s::%s",
+                     func, op, sender->className(), signal+1);
+        else
+            qWarning("Object::%s: Use the SIGNAL macro to %s %s::%s",
+                     func, op, sender->className(), signal);
+        return false;
     }
     return true;
 }
 
 static bool check_member_code(int code, const QObject *object,
-			       const char *member, const char *func)
+                               const char *member, const char *func)
 {
     if (code != QSLOT_CODE && code != QSIGNAL_CODE) {
-	qWarning("Object::%s: Use the SLOT or SIGNAL macro to "
-		 "%s %s::%s", func, func, object->className(), member);
-	return false;
+        qWarning("Object::%s: Use the SLOT or SIGNAL macro to "
+                 "%s %s::%s", func, func, object->className(), member);
+        return false;
     }
     return true;
 }
 
 static void err_member_notfound(int code, const QObject *object,
-				 const char *member, const char *func)
+                                 const char *member, const char *func)
 {
     const char *type = 0;
     switch (code) {
-	case QSLOT_CODE:   type = "slot";   break;
-	case QSIGNAL_CODE: type = "signal"; break;
+        case QSLOT_CODE:   type = "slot";   break;
+        case QSIGNAL_CODE: type = "signal"; break;
     }
-    if (strchr(member,')') == 0)		// common typing mistake
-	qWarning("Object::%s: Parentheses expected, %s %s::%s",
-		 func, type, object->className(), member);
+    if (strchr(member,')') == 0)                // common typing mistake
+        qWarning("Object::%s: Parentheses expected, %s %s::%s",
+                 func, type, object->className(), member);
     else
-	qWarning("Object::%s: No such %s %s::%s",
-		 func, type, object->className(), member);
+        qWarning("Object::%s: No such %s %s::%s",
+                 func, type, object->className(), member);
 }
 
 
 static void err_info_about_objects(const char * func,
-				    const QObject * sender,
-				    const QObject * receiver)
+                                    const QObject * sender,
+                                    const QObject * receiver)
 {
     const char * a = sender->objectName(0), * b = receiver->objectName(0);
     if (a)
-	qWarning("Object::%s:  (sender name:   '%s')", func, a);
+        qWarning("Object::%s:  (sender name:   '%s')", func, a);
     if (b)
-	qWarning("Object::%s:  (receiver name: '%s')", func, b);
+        qWarning("Object::%s:  (receiver name: '%s')", func, b);
 }
 
 #endif // !QT_NO_DEBUG
@@ -1617,30 +1617,30 @@ int *QObjectPrivate::queuedConnectionTypes(const char *signal)
     int nargs = 0;
     const char *e = s;
     while (*e != ')') {
-	++e;
-	if (*e == ')' || *e == ',')
-	    ++nargs;
+        ++e;
+        if (*e == ')' || *e == ',')
+            ++nargs;
     }
 
     types = (int *) qMalloc((nargs+1)*sizeof(int));
     types[nargs] = 0;
     for (int n = 0; n < nargs; ++n) {
-	e = s;
-	while (*s != ',' && *s != ')')
-	    ++s;
-	QByteArray type(e, s-e);
-	++s;
+        e = s;
+        while (*s != ',' && *s != ')')
+            ++s;
+        QByteArray type(e, s-e);
+        ++s;
 
-	if (type.at(type.size()-1) == '*') {
-	    types[n] = QMetaType::type("void*");
-	} else {
-	    types[n] = QMetaType::type(type);
-	}
-	if (!types[n]) {
-	    qWarning("QObject::connect: Cannot queue arguments of type '%s'", type.data());
-	    qFree(types);
-	    return 0;
-	}
+        if (type.at(type.size()-1) == '*') {
+            types[n] = QMetaType::type("void*");
+        } else {
+            types[n] = QMetaType::type(type);
+        }
+        if (!types[n]) {
+            qWarning("QObject::connect: Cannot queue arguments of type '%s'", type.data());
+            qFree(types);
+            return 0;
+        }
     }
     return types;
 }
@@ -1650,29 +1650,29 @@ void QObjectPrivate::addConnection(int signal, QObject *receiver, int member, in
     int i = 0;
     bool created = false;
     if (!connections) {
-	Connections *c = (Connections *) qMalloc(sizeof(Connections));
-	new (&c->lock) QSpinLock();
-	c->count = 1;
+        Connections *c = (Connections *) qMalloc(sizeof(Connections));
+        new (&c->lock) QSpinLock();
+        c->count = 1;
 
-	c->lock.acquire();
-	if (!q_atomic_test_and_set_ptr(&connections, 0, c)) {
-	    c->lock.release();
-	    c->lock.~QSpinLock();
-	    qFree(c);
-	} else {
-	    created = true;
-	}
+        c->lock.acquire();
+        if (!q_atomic_test_and_set_ptr(&connections, 0, c)) {
+            c->lock.release();
+            c->lock.~QSpinLock();
+            qFree(c);
+        } else {
+            created = true;
+        }
     }
 
     if (!created) {
-	connections->lock.acquire();
-	while (i < connections->count && connections->connections[i].receiver)
-	    ++i;
-	if (i == connections->count) {
-	    connections = (Connections *) qRealloc(connections, sizeof(Connections) +
-						   i*sizeof(Connections::Connection));
-	    ++connections->count;
-	}
+        connections->lock.acquire();
+        while (i < connections->count && connections->connections[i].receiver)
+            ++i;
+        if (i == connections->count) {
+            connections = (Connections *) qRealloc(connections, sizeof(Connections) +
+                                                   i*sizeof(Connections::Connection));
+            ++connections->count;
+        }
     }
 
     Connections::Connection &c = connections->connections[i];
@@ -1694,10 +1694,10 @@ QObjectPrivate::Connections::Connection *QObjectPrivate::findConnection(int sign
 {
     if (!connections) return 0;
     while (i < connections->count) {
-	if (connections->connections[i].receiver
-	    && connections->connections[i].signal == signal)
-	    return &connections->connections[i++];
-	++i;
+        if (connections->connections[i].receiver
+            && connections->connections[i].signal == signal)
+            return &connections->connections[i++];
+        ++i;
     }
     return 0;
 }
@@ -1709,14 +1709,14 @@ void QObjectPrivate::removeReceiver(QObject *receiver)
     QSpinLockLocker locker(&connections->lock);
 
     for (int i = 0; i < connections->count; ++i) {
-	QObjectPrivate::Connections::Connection &c = connections->connections[i];
-	if (c.receiver == receiver) {
-	    c.receiver = 0;
-	    if (c.types && c.types != &DIRECT_CONNECTION_ONLY) {
-		qFree(c.types);
-		c.types = 0;
-	    }
-	}
+        QObjectPrivate::Connections::Connection &c = connections->connections[i];
+        if (c.receiver == receiver) {
+            c.receiver = 0;
+            if (c.types && c.types != &DIRECT_CONNECTION_ONLY) {
+                qFree(c.types);
+                c.types = 0;
+            }
+        }
     }
 }
 
@@ -1755,25 +1755,25 @@ const QObject *QObject::sender()
 int QObject::receivers(const char *signal) const
 {
     int receivers = 0;
-    if ( d->connections && signal ) {
-	QByteArray signal_name = QMetaObject::normalizedSignature(signal);
-	signal = signal_name;
+    if (d->connections && signal) {
+        QByteArray signal_name = QMetaObject::normalizedSignature(signal);
+        signal = signal_name;
 #ifndef QT_NO_DEBUG
-	if (!check_signal_macro(this, signal, "receivers", "bind"))
-	    return 0;
+        if (!check_signal_macro(this, signal, "receivers", "bind"))
+            return 0;
 #endif
-	signal++; // skip code
-	const QMetaObject *smeta = this->metaObject();
-	int signal_index = smeta->indexOfSignal(signal);
-	if (signal_index < 0) {
+        signal++; // skip code
+        const QMetaObject *smeta = this->metaObject();
+        int signal_index = smeta->indexOfSignal(signal);
+        if (signal_index < 0) {
 #ifndef QT_NO_DEBUG
-	    err_member_notfound(QSIGNAL_CODE, this, signal, "receivers");
+            err_member_notfound(QSIGNAL_CODE, this, signal, "receivers");
 #endif
-	    return false;
-	}
-	QSpinLockLocker locker(&d->connections->lock);
-	for (int i = 0; d->findConnection(signal_index, i); ++receivers)
-	    ;
+            return false;
+        }
+        QSpinLockLocker locker(&d->connections->lock);
+        for (int i = 0; d->findConnection(signal_index, i); ++receivers)
+            ;
     }
     return receivers;
 }
@@ -1807,21 +1807,21 @@ int QObject::receivers(const char *signal) const
     \code
     class MyWidget : public QWidget
     {
-	Q_OBJECT
+        Q_OBJECT
     public:
-	MyWidget();
+        MyWidget();
 
     signals:
-	void myUsefulSignal();
+        void myUsefulSignal();
 
     private:
-	QPushButton *aButton;
+        QPushButton *aButton;
     };
 
     MyWidget::MyWidget()
     {
-	aButton = new QPushButton(this);
-	connect(aButton, SIGNAL(clicked()), SIGNAL(myUsefulSignal()));
+        aButton = new QPushButton(this);
+        connect(aButton, SIGNAL(clicked()), SIGNAL(myUsefulSignal()));
     }
     \endcode
 
@@ -1849,24 +1849,24 @@ int QObject::receivers(const char *signal) const
 */
 
 bool QObject::connect(const QObject *sender, const char *signal,
-		      const QObject *receiver, const char *member,
-		      Qt::ConnectionType type)
+                      const QObject *receiver, const char *member,
+                      Qt::ConnectionType type)
 {
 #ifndef QT_NO_DEBUG
     if (sender == 0 || receiver == 0 || signal == 0 || member == 0) {
-	qWarning("Object::connect: Cannot connect %s::%s to %s::%s",
-		 sender ? sender->className() : "(null)",
-		 signal ? signal+1 : "(null)",
-		 receiver ? receiver->className() : "(null)",
-		 member ? member+1 : "(null)");
-	return false;
+        qWarning("Object::connect: Cannot connect %s::%s to %s::%s",
+                 sender ? sender->className() : "(null)",
+                 signal ? signal+1 : "(null)",
+                 receiver ? receiver->className() : "(null)",
+                 member ? member+1 : "(null)");
+        return false;
     }
 #endif
     QByteArray tmp_signal_name;
 
 #ifndef QT_NO_DEBUG
     if (!check_signal_macro(sender, signal, "connect", "bind"))
-	return false;
+        return false;
 #endif
     const QMetaObject *smeta = sender->metaObject();
     ++signal; //skip code
@@ -1878,10 +1878,10 @@ bool QObject::connect(const QObject *sender, const char *signal,
         signal_index = smeta->indexOfSignal(signal);
         if (signal_index < 0) {
 #ifndef QT_NO_DEBUG
-	    err_member_notfound(QSIGNAL_CODE, sender, signal, "connect");
-	    err_info_about_objects("connect", sender, receiver);
+            err_member_notfound(QSIGNAL_CODE, sender, signal, "connect");
+            err_info_about_objects("connect", sender, receiver);
 #endif
-	    return false;
+            return false;
         }
     }
 
@@ -1890,7 +1890,7 @@ bool QObject::connect(const QObject *sender, const char *signal,
 
 #ifndef QT_NO_DEBUG
     if (!check_member_code(membcode, receiver, member, "connect"))
-	return false;
+        return false;
 #endif
     ++member; // skip code
 
@@ -1898,11 +1898,11 @@ bool QObject::connect(const QObject *sender, const char *signal,
     int member_index = -1;
     switch (membcode) {
     case QSLOT_CODE:
-	member_index = rmeta->indexOfSlot(member);
-	break;
+        member_index = rmeta->indexOfSlot(member);
+        break;
     case QSIGNAL_CODE:
-	member_index = rmeta->indexOfSignal(member);
-	break;
+        member_index = rmeta->indexOfSignal(member);
+        break;
     }
     if (member_index < 0) {
         // check for normalized members
@@ -1918,25 +1918,25 @@ bool QObject::connect(const QObject *sender, const char *signal,
         }
         if (member_index < 0) {
 #ifndef QT_NO_DEBUG
-	    err_member_notfound(membcode, receiver, member, "connect");
-	    err_info_about_objects("connect", sender, receiver);
+            err_member_notfound(membcode, receiver, member, "connect");
+            err_info_about_objects("connect", sender, receiver);
 #endif
-	    return false;
+            return false;
         }
     }
 #ifndef QT_NO_DEBUG
     if (!QMetaObject::checkConnectArgs(signal, member)) {
-	qWarning("Object::connect: Incompatible sender/receiver arguments"
-		 "\n\t%s::%s --> %s::%s",
-		 sender->className(), signal,
-		 receiver->className(), member);
-	return false;
+        qWarning("Object::connect: Incompatible sender/receiver arguments"
+                 "\n\t%s::%s --> %s::%s",
+                 sender->className(), signal,
+                 receiver->className(), member);
+        return false;
     }
 #endif
 
     int *types = 0;
     if (type == QueuedConnection && !(types = QObjectPrivate::queuedConnectionTypes(signal)))
-	return false;
+        return false;
     QMetaObject::connect(sender, signal_index, receiver, membcode, member_index, type, types);
     const_cast<QObject*>(sender)->connectNotify(signal - 1);
     return true;
@@ -2017,40 +2017,40 @@ bool QObject::connect(const QObject *sender, const char *signal,
     \sa connect()
 */
 bool QObject::disconnect(const QObject *sender, const char *signal,
-			 const QObject *receiver, const char *member)
+                         const QObject *receiver, const char *member)
 {
     if (sender == 0 || (receiver == 0 && member != 0)) {
-	qWarning("Object::disconnect: Unexpected null parameter");
-	return false;
+        qWarning("Object::disconnect: Unexpected null parameter");
+        return false;
     }
 
     if (!sender->d->connections)
-	return false;
+        return false;
 
     QByteArray signal_name;
     bool signal_found = false;
     if (signal) {
-	signal_name = QMetaObject::normalizedSignature(signal);
-	signal = signal_name;
+        signal_name = QMetaObject::normalizedSignature(signal);
+        signal = signal_name;
 #ifndef QT_NO_DEBUG
-	if (!check_signal_macro(sender, signal, "disconnect", "unbind"))
-	    return false;
+        if (!check_signal_macro(sender, signal, "disconnect", "unbind"))
+            return false;
 #endif
-	signal++; // skip code
+        signal++; // skip code
     }
 
     QByteArray member_name;
     int membcode = -1;
     bool member_found = false;
     if (member) {
-	member_name = QMetaObject::normalizedSignature(member);
-	member = member_name;
-	membcode = member[0] - '0';
+        member_name = QMetaObject::normalizedSignature(member);
+        member = member_name;
+        membcode = member[0] - '0';
 #ifndef QT_NO_DEBUG
-	if (!check_member_code(membcode, receiver, member, "disconnect"))
-	    return false;
+        if (!check_member_code(membcode, receiver, member, "disconnect"))
+            return false;
 #endif
-	member++; // skip code
+        member++; // skip code
     }
 
     /* We now iterate through all the sender's and receiver's meta
@@ -2060,59 +2060,59 @@ bool QObject::disconnect(const QObject *sender, const char *signal,
     bool res = false;
     const QMetaObject *smeta = sender->metaObject();
     do {
-	int signal_index = -1;
-	if (signal) {
-	    signal_index = smeta->indexOfSignal(signal);
-	    if (signal_index < smeta->signalOffset())
-		continue;
-	    signal_found = true;
-	}
+        int signal_index = -1;
+        if (signal) {
+            signal_index = smeta->indexOfSignal(signal);
+            if (signal_index < smeta->signalOffset())
+                continue;
+            signal_found = true;
+        }
 
-	if (!member) {
-	    res |= QMetaObject::disconnect(sender,
-					  signal_index,
-					  receiver,
-					  -1, -1);
-	} else {
-	    const QMetaObject *rmeta = receiver->metaObject();
-	    do {
-		int member_index = -1;
-		switch (membcode) {
-		case QSLOT_CODE:
-		    member_index = rmeta->indexOfSlot(member);
-		    if (member_index >= 0)
-			while (member_index < rmeta->slotOffset())
-			    rmeta = rmeta->superClass();
-		    break;
-		case QSIGNAL_CODE:
-		    member_index = rmeta->indexOfSignal(member);
-		    if (member_index >= 0)
-			while (member_index < rmeta->signalOffset())
-			    rmeta = rmeta->superClass();
-		    break;
-		}
-		if (member_index < 0)
-		    break;
-		res |= QMetaObject::disconnect(sender,
-					      signal_index,
-					      receiver,
-					      membcode, member_index);
-		member_found = true;
-	    } while ((rmeta = rmeta->superClass()));
-	}
+        if (!member) {
+            res |= QMetaObject::disconnect(sender,
+                                          signal_index,
+                                          receiver,
+                                          -1, -1);
+        } else {
+            const QMetaObject *rmeta = receiver->metaObject();
+            do {
+                int member_index = -1;
+                switch (membcode) {
+                case QSLOT_CODE:
+                    member_index = rmeta->indexOfSlot(member);
+                    if (member_index >= 0)
+                        while (member_index < rmeta->slotOffset())
+                            rmeta = rmeta->superClass();
+                    break;
+                case QSIGNAL_CODE:
+                    member_index = rmeta->indexOfSignal(member);
+                    if (member_index >= 0)
+                        while (member_index < rmeta->signalOffset())
+                            rmeta = rmeta->superClass();
+                    break;
+                }
+                if (member_index < 0)
+                    break;
+                res |= QMetaObject::disconnect(sender,
+                                              signal_index,
+                                              receiver,
+                                              membcode, member_index);
+                member_found = true;
+            } while ((rmeta = rmeta->superClass()));
+        }
     } while (signal && (smeta = smeta->superClass()));
 
 #ifndef QT_NO_DEBUG
-    if (signal && !signal_found ) {
-	err_member_notfound(QSIGNAL_CODE, sender, signal, "disconnect");
-	err_info_about_objects("disconnect", sender, receiver);
+    if (signal && !signal_found) {
+        err_member_notfound(QSIGNAL_CODE, sender, signal, "disconnect");
+        err_info_about_objects("disconnect", sender, receiver);
     } else if (member && !member_found) {
-	err_member_notfound(membcode, receiver, member, "disconnect");
-	err_info_about_objects("disconnect", sender, receiver);
+        err_member_notfound(membcode, receiver, member, "disconnect");
+        err_info_about_objects("disconnect", sender, receiver);
     }
 #endif
     if (res)
-	const_cast<QObject*>(sender)->disconnectNotify(signal);
+        const_cast<QObject*>(sender)->disconnectNotify(signal);
     return res;
 }
 
@@ -2182,12 +2182,12 @@ void QObject::disconnectNotify(const char *)
   connections.
 */
 bool QMetaObject::connect(const QObject *sender, int signal_index,
-			  const QObject *receiver,
-			  int membcode, int member_index,
-			  int type, int *types)
+                          const QObject *receiver,
+                          int membcode, int member_index,
+                          int type, int *types)
 {
     if (membcode != QSLOT_CODE && membcode != QSIGNAL_CODE)
-	return false;
+        return false;
 
     QObject *s = const_cast<QObject*>(sender);
     QObject *r = const_cast<QObject*>(receiver);
@@ -2201,32 +2201,32 @@ bool QMetaObject::connect(const QObject *sender, int signal_index,
 /*!\internal
  */
 bool QMetaObject::disconnect(const QObject *sender, int signal_index,
-			     const QObject *receiver, int membcode, int member_index)
+                             const QObject *receiver, int membcode, int member_index)
 {
-    if ( !sender || !sender->d->connections
-	 || ( member_index >= 0
-	      && (membcode != QSLOT_CODE && membcode != QSIGNAL_CODE) ) )
-	return false;
+    if (!sender || !sender->d->connections
+         || (member_index >= 0
+              && (membcode != QSLOT_CODE && membcode != QSIGNAL_CODE)))
+        return false;
     QObject *s = const_cast<QObject*>(sender);
     QObject *r = const_cast<QObject*>(receiver);
 
     QSpinLockLocker locker(&s->d->connections->lock);
     bool success = false;
     for (int i = 0; i < s->d->connections->count; ++i) {
-	QObjectPrivate::Connections::Connection &c = s->d->connections->connections[i];
-	if (c.receiver && c.signal != GUARDED_SIGNAL
-	    && (signal_index < 0 || signal_index == c.signal)
-	    && (r == 0 || (c.receiver == r
-			   && (member_index < 0
-			       || (member_index<<1)+membcode-1 == c.member)))) {
-	    c.receiver->d->derefSender(s);
-	    c.receiver = 0;
-	    if (c.types && c.types != &DIRECT_CONNECTION_ONLY) {
-		qFree(c.types);
-		c.types = 0;
-	    }
-	    success = true;
-	}
+        QObjectPrivate::Connections::Connection &c = s->d->connections->connections[i];
+        if (c.receiver && c.signal != GUARDED_SIGNAL
+            && (signal_index < 0 || signal_index == c.signal)
+            && (r == 0 || (c.receiver == r
+                           && (member_index < 0
+                               || (member_index<<1)+membcode-1 == c.member)))) {
+            c.receiver->d->derefSender(s);
+            c.receiver = 0;
+            if (c.types && c.types != &DIRECT_CONNECTION_ONLY) {
+                qFree(c.types);
+                c.types = 0;
+            }
+            success = true;
+        }
     }
     return success;
 }
@@ -2272,74 +2272,74 @@ void QMetaObject::connectSlotsByName(const QObject *o)
 void QMetaObject::activate(QObject * const obj, int signal_index, void **argv)
 {
     if (obj->d->blockSig || !obj->d->connections)
-	return;
+        return;
     int i = 0;
     QObjectPrivate::Connections::Connection *c = 0, *nc = 0;
     bool first = true;
     void *static_argv[] = { 0 };
     if (!argv)
-	argv = static_argv;
+        argv = static_argv;
     for (; first || c != 0; c = nc) {
-	obj->d->connections->lock.acquire();
-	if (first) {
-	    first = false;
-	    c = obj->d->findConnection(signal_index, i);
-	    if (!c) {
-		obj->d->connections->lock.release();
-		break;
-	    }
-	}
-	// find the next connection before activating the current
-	// connection
-	nc = obj->d->findConnection(signal_index, i);
-	// determine if this connection should be sent immediately or
-	// put into the event queue
-	const bool queued = (c->type == Qt::QueuedConnection
-			     || (c->type == Qt::AutoConnection
-				 && c->receiver->thread() != obj->thread()));
-	if (queued && !c->types && c->types != &DIRECT_CONNECTION_ONLY) {
-	    QMetaMember m = obj->metaObject()->signal(signal_index);
-	    c->types = QObjectPrivate::queuedConnectionTypes(m.signature());
-	    if (!c->types) // cannot queue arguments
-		c->types = &DIRECT_CONNECTION_ONLY;
-	    if (c->types == &DIRECT_CONNECTION_ONLY) { // cannot activate
-		obj->d->connections->lock.release();
-		continue;
-	    }
-	}
+        obj->d->connections->lock.acquire();
+        if (first) {
+            first = false;
+            c = obj->d->findConnection(signal_index, i);
+            if (!c) {
+                obj->d->connections->lock.release();
+                break;
+            }
+        }
+        // find the next connection before activating the current
+        // connection
+        nc = obj->d->findConnection(signal_index, i);
+        // determine if this connection should be sent immediately or
+        // put into the event queue
+        const bool queued = (c->type == Qt::QueuedConnection
+                             || (c->type == Qt::AutoConnection
+                                 && c->receiver->thread() != obj->thread()));
+        if (queued && !c->types && c->types != &DIRECT_CONNECTION_ONLY) {
+            QMetaMember m = obj->metaObject()->signal(signal_index);
+            c->types = QObjectPrivate::queuedConnectionTypes(m.signature());
+            if (!c->types) // cannot queue arguments
+                c->types = &DIRECT_CONNECTION_ONLY;
+            if (c->types == &DIRECT_CONNECTION_ONLY) { // cannot activate
+                obj->d->connections->lock.release();
+                continue;
+            }
+        }
 
-	obj->d->connections->lock.release();
+        obj->d->connections->lock.release();
 
-	if (queued) { // QueuedConnection
-	    int nargs = 1; // include return type
-	    while (c->types[nargs-1]) { ++nargs; }
-	    int *types = (int *) qMalloc(nargs*sizeof(int));
-	    void **args = (void **) qMalloc(nargs*sizeof(void *));
-	    types[0] = 0; // return type
-	    args[0] = 0; // return value
-	    for (int n = 1; n < nargs; ++n)
-		args[n] = QMetaType::copy((types[n] = c->types[n-1]), argv[n]);
-	    QCoreApplication::postEvent(c->receiver,
-					new QMetaCallEvent((c->member & 1)
-							   ? QEvent::EmitSignal
-							   : QEvent::InvokeSlot,
-							   c->member >> 1, obj,
-							   nargs, types, args));
-	} else { // DirectConnection
-	    QObjectPrivate::Senders *senders = c->receiver->d->senders;
-	    QObject *sender = QObjectPrivate::setCurrentSender(senders, obj);
+        if (queued) { // QueuedConnection
+            int nargs = 1; // include return type
+            while (c->types[nargs-1]) { ++nargs; }
+            int *types = (int *) qMalloc(nargs*sizeof(int));
+            void **args = (void **) qMalloc(nargs*sizeof(void *));
+            types[0] = 0; // return type
+            args[0] = 0; // return value
+            for (int n = 1; n < nargs; ++n)
+                args[n] = QMetaType::copy((types[n] = c->types[n-1]), argv[n]);
+            QCoreApplication::postEvent(c->receiver,
+                                        new QMetaCallEvent((c->member & 1)
+                                                           ? QEvent::EmitSignal
+                                                           : QEvent::InvokeSlot,
+                                                           c->member >> 1, obj,
+                                                           nargs, types, args));
+        } else { // DirectConnection
+            QObjectPrivate::Senders *senders = c->receiver->d->senders;
+            QObject *sender = QObjectPrivate::setCurrentSender(senders, obj);
 #if defined(QT_NO_EXCEPTIONS)
-	    c->receiver->qt_metacall((Call)((c->member & 1) + 1), c->member >> 1, argv);
+            c->receiver->qt_metacall((Call)((c->member & 1) + 1), c->member >> 1, argv);
 #else
-	    try {
-		c->receiver->qt_metacall((Call)((c->member & 1) + 1), c->member >> 1, argv);
-	    } catch (...) {
-		QObjectPrivate::resetCurrentSender(senders, sender);
-		throw;
-	    }
+            try {
+                c->receiver->qt_metacall((Call)((c->member & 1) + 1), c->member >> 1, argv);
+            } catch (...) {
+                QObjectPrivate::resetCurrentSender(senders, sender);
+                throw;
+            }
 #endif
-	    QObjectPrivate::resetCurrentSender(senders, sender);
-	}
+            QObjectPrivate::resetCurrentSender(senders, sender);
+        }
     }
 }
 
@@ -2371,14 +2371,14 @@ bool QObject::setProperty(const char *name, const QCoreVariant &value)
 {
     const QMetaObject* meta = metaObject();
     if (!value.isValid() || !meta)
-	return false;
+        return false;
 
     int id = meta->indexOfProperty(name);
     QMetaProperty p = meta->property(id);
 #ifndef QT_NO_DEBUG
     if (!p.isWritable())
-	qWarning( "%s::setProperty( \"%s\", value ) failed: property invalid,"
-		  " read-only or does not exist", className(), name );
+        qWarning("%s::setProperty(\"%s\", value) failed: property invalid,"
+                  " read-only or does not exist", className(), name);
 #endif
     return p.write(this, value);
 }
@@ -2397,15 +2397,15 @@ QCoreVariant QObject::property(const char *name) const
 {
     const QMetaObject* meta = metaObject();
     if (!name || !meta)
-	return QCoreVariant();
+        return QCoreVariant();
 
     int id = meta->indexOfProperty(name);
     QMetaProperty p = meta->property(id);
 #ifndef QT_NO_DEBUG
     if (!p.isReadable())
-	qWarning( "%s::property( \"%s\" ) failed:"
-		  " property invalid or does not exist",
-		  className(), name );
+        qWarning("%s::property(\"%s\") failed:"
+                  " property invalid or does not exist",
+                  className(), name);
 #endif
     return p.read(this);
 }
@@ -2417,40 +2417,40 @@ QCoreVariant QObject::property(const char *name) const
   QObject debugging output routines.
  *****************************************************************************/
 
-static void dumpRecursive( int level, QObject *object )
+static void dumpRecursive(int level, QObject *object)
 {
 #if defined(QT_DEBUG)
-    if ( object ) {
-	QByteArray buf;
-	buf.fill( '\t', level/2 );
-	if ( level % 2 )
-	    buf += "    ";
-	const char *name = object->objectName();
-	QString flags="";
+    if (object) {
+        QByteArray buf;
+        buf.fill('\t', level/2);
+        if (level % 2)
+            buf += "    ";
+        const char *name = object->objectName();
+        QString flags="";
 #if 0
-	if ( qApp->focusWidget() == object )
-	    flags += 'F';
-	if ( object->isWidgetType() ) {
-	    QWidget * w = (QWidget *)object;
-	    if ( w->isVisible() ) {
-		QString t( "<%1,%2,%3,%4>" );
-		flags += t.arg(w->x()).arg(w->y()).arg(w->width()).arg(w->height());
-	    } else {
-		flags += 'I';
-	    }
-	}
+        if (qApp->focusWidget() == object)
+            flags += 'F';
+        if (object->isWidgetType()) {
+            QWidget * w = (QWidget *)object;
+            if (w->isVisible()) {
+                QString t("<%1,%2,%3,%4>");
+                flags += t.arg(w->x()).arg(w->y()).arg(w->width()).arg(w->height());
+            } else {
+                flags += 'I';
+            }
+        }
 #endif
-	qDebug( "%s%s::%s %s", (const char*)buf, object->className(), name,
-	    flags.latin1() );
-	QObjectList children = object->children();
-	if ( !children.isEmpty() ) {
-	    for (int i = 0; i < children.size(); ++i)
-		dumpRecursive( level+1, children.at(i) );
-	}
+        qDebug("%s%s::%s %s", (const char*)buf, object->className(), name,
+            flags.latin1());
+        QObjectList children = object->children();
+        if (!children.isEmpty()) {
+            for (int i = 0; i < children.size(); ++i)
+                dumpRecursive(level+1, children.at(i));
+        }
     }
 #else
-    Q_UNUSED( level )
-    Q_UNUSED( object )
+    Q_UNUSED(level)
+    Q_UNUSED(object)
 #endif
 }
 
@@ -2464,7 +2464,7 @@ static void dumpRecursive( int level, QObject *object )
 
 void QObject::dumpObjectTree()
 {
-    dumpRecursive( 0, this );
+    dumpRecursive(0, this);
 }
 
 /*!
@@ -2479,7 +2479,7 @@ void QObject::dumpObjectTree()
 void QObject::dumpObjectInfo()
 {
 #if defined(QT_DEBUG)
-    qDebug( "OBJECT %s::%s", className(), objectName( "unnamed" ) );
+    qDebug("OBJECT %s::%s", className(), objectName("unnamed"));
     //#### signals and slots info missing
 #endif
 }
@@ -2508,10 +2508,10 @@ void QObject::setUserData(uint id, QObjectUserData* data)
 
 /*!\internal
  */
-QObjectUserData* QObject::userData( uint id ) const
+QObjectUserData* QObject::userData(uint id) const
 {
     if ((int)id < d->userData.size())
-	return d->userData.at(id);
+        return d->userData.at(id);
     return 0;
 }
 
@@ -2522,10 +2522,10 @@ QObjectUserData* QObject::userData( uint id ) const
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QObject *o) {
     if (!o)
-	return dbg << "QObject(0x0) ";
+        return dbg << "QObject(0x0) ";
     dbg.nospace() << o->className() << "(" << (void *)o;
     if (o->objectName(0))
-	dbg << ", name = \"" << o->objectName(0) << '\"';
+        dbg << ", name = \"" << o->objectName(0) << '\"';
     dbg << ')';
     return dbg.space();
 }

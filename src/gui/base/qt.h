@@ -282,7 +282,7 @@
 #include <qxml.h>
 #include <qpagesetupdialog.h>
 
-#if defined( QT_MOC_CPP ) || defined( QT_H_CPP ) || defined( Q_OS_MACX )
+#if defined(QT_MOC_CPP) || defined(QT_H_CPP) || defined(Q_OS_MACX)
 #include <private/qcom_p.h>
 #include <private/qfontdata_p.h>
 #include "qplatformdefs.h"

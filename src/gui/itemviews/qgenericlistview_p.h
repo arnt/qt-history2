@@ -9,10 +9,10 @@ class BinTree
 public:
     struct Node
     {
-	enum Type { None = 0, VerticalPlane = 1, HorizontalPlane = 2, Both = 3 };
-	inline Node() : pos(0), type(None) {}
-	uint pos : 30;
-	uint type : 2;
+        enum Type { None = 0, VerticalPlane = 1, HorizontalPlane = 2, Both = 3 };
+        inline Node() : pos(0), type(None) {}
+        uint pos : 30;
+        uint type : 2;
     };
 
     typedef void callback(QVector<int> &leaf, const QRect &area, uint visited, void *data);
@@ -67,18 +67,18 @@ class QGenericListViewItem
 {
 public:
     inline QGenericListViewItem()
-	: x(-1), y(-1), w(-1), h(-1), indexHint(-1), visited(0xffff) {}
+        : x(-1), y(-1), w(-1), h(-1), indexHint(-1), visited(0xffff) {}
     inline QGenericListViewItem(const QGenericListViewItem &other)
-	: x(other.x), y(other.y), w(other.w), h(other.h),
-	  indexHint(other.indexHint), visited(other.visited) {}
+        : x(other.x), y(other.y), w(other.w), h(other.h),
+          indexHint(other.indexHint), visited(other.visited) {}
     inline QGenericListViewItem(QRect r, int i)
-	: x(r.x()), y(r.y()), w(r.width()), h(r.height()),
-	  indexHint(i), visited(0xffff) {}
+        : x(r.x()), y(r.y()), w(r.width()), h(r.height()),
+          indexHint(i), visited(0xffff) {}
 
     inline bool operator==(const QGenericListViewItem &other) const
     {
-	return (x == other.x && y == other.y && w == other.w && h == other.h &&
-		indexHint == other.indexHint);
+        return (x == other.x && y == other.y && w == other.w && h == other.h &&
+                indexHint == other.indexHint);
     }
     inline bool operator!=(const QGenericListViewItem &other) const { return !(*this == other); }
 
@@ -118,13 +118,13 @@ public:
     { return q_func()->model()->index(itemIndex(item), 0, q_func()->root()); }
     int itemIndex(const QGenericListViewItem item) const;
     static void addLeaf(QVector<int> &leaf,
- 			const QRect &area, uint visited, void *data);
+                        const QRect &area, uint visited, void *data);
     void createStaticRow(int &x, int &y, int &dy, int &wraps, int i,
-			 const QRect &bounds, int spacing, int delta);
+                         const QRect &bounds, int spacing, int delta);
     void createStaticColumn(int &x, int &y, int &dx, int &wraps, int i,
-			    const QRect &bounds, int spacing, int delta);
+                            const QRect &bounds, int spacing, int delta);
     void initStaticLayout(int &x, int &y, int first, const QRect &bounds);
-    
+
     QPoint snapToGrid(const QPoint &pos) const;
 
     QGenericListView::Flow flow;

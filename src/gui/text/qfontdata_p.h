@@ -38,10 +38,10 @@ class QPaintDevice;
 struct QFontDef
 {
     inline QFontDef()
-	: pointSize( -1 ), pixelSize( -1 ),
-	  styleHint( QFont::AnyStyle ), styleStrategy( QFont::PreferDefault ),
-	  weight( 50 ), italic( false ), fixedPitch( false ), stretch( 100 ),
-	  ignorePitch(true)
+        : pointSize(-1), pixelSize(-1),
+          styleHint(QFont::AnyStyle), styleStrategy(QFont::PreferDefault),
+          weight(50), italic(false), fixedPitch(false), stretch(100),
+          ignorePitch(true)
 #ifdef Q_WS_MAC
           ,fixedPitchComputed(false)
 #endif
@@ -70,9 +70,9 @@ struct QFontDef
     uint reserved   : 14; // for future extensions
 
     bool exactMatch(const QFontDef &other) const;
-    bool operator==( const QFontDef &other ) const
+    bool operator==(const QFontDef &other) const
     {
-	return  pointSize == other.pointSize
+        return  pointSize == other.pointSize
                     && pixelSize == other.pixelSize
                     && weight == other.weight
                     && italic == other.italic
@@ -83,23 +83,23 @@ struct QFontDef
 #ifdef Q_WS_X11
                     && addStyle == other.addStyle
 #endif
-			  ;
+                          ;
     }
-    inline bool operator<( const QFontDef &other ) const
+    inline bool operator<(const QFontDef &other) const
     {
-	if ( pixelSize != other.pixelSize ) return pixelSize < other.pixelSize;
-	if ( weight != other.weight ) return weight < other.weight;
-	if ( italic != other.italic ) return italic < other.italic;
-	if ( stretch != other.stretch ) return stretch < other.stretch;
-	if ( styleHint != other.styleHint ) return styleHint < other.styleHint;
-	if ( styleStrategy != other.styleStrategy ) return styleStrategy < other.styleStrategy;
-	if ( family != other.family ) return family < other.family;
+        if (pixelSize != other.pixelSize) return pixelSize < other.pixelSize;
+        if (weight != other.weight) return weight < other.weight;
+        if (italic != other.italic) return italic < other.italic;
+        if (stretch != other.stretch) return stretch < other.stretch;
+        if (styleHint != other.styleHint) return styleHint < other.styleHint;
+        if (styleStrategy != other.styleStrategy) return styleStrategy < other.styleStrategy;
+        if (family != other.family) return family < other.family;
 
 #ifdef Q_WS_X11
-	if ( addStyle != other.addStyle ) return addStyle < other.addStyle;
+        if (addStyle != other.addStyle) return addStyle < other.addStyle;
 #endif // Q_WS_X11
 
-	return false;
+        return false;
     }
 };
 
@@ -133,20 +133,20 @@ public:
 #endif // Q_WS_X11
 
     QFontPrivate();
-    QFontPrivate( const QFontPrivate &other );
+    QFontPrivate(const QFontPrivate &other);
     ~QFontPrivate();
 
-    void load( QFont::Script script );
-    QFontEngine *engineForScript( QFont::Script script ) const {
-	if ( script == QFont::NoScript )
-	    script = QFontPrivate::defaultScript;
+    void load(QFont::Script script);
+    QFontEngine *engineForScript(QFont::Script script) const {
+        if (script == QFont::NoScript)
+            script = QFontPrivate::defaultScript;
 #if defined(Q_WS_X11) || defined(Q_WS_WIN)
-	if ( ! engineData || ! engineData->engines[script] )
-	    ((QFontPrivate *) this)->load( script );
-	return engineData->engines[script];
+        if (! engineData || ! engineData->engines[script])
+            ((QFontPrivate *) this)->load(script);
+        return engineData->engines[script];
 #else
-        if ( ! engineData || ! engineData->engine )
-	    ((QFontPrivate *) this)->load( script );
+        if (! engineData || ! engineData->engine)
+            ((QFontPrivate *) this)->load(script);
         return engineData->engine;
 #endif // Q_WS_X11 || Q_WS_WIN
     }
@@ -163,22 +163,22 @@ public:
     uint kerning    :  1;
 
     enum {
-	Family        = 0x0001,
-	Size          = 0x0002,
-	StyleHint     = 0x0004,
-	StyleStrategy = 0x0008,
-	Weight        = 0x0010,
-	Italic        = 0x0020,
-	Underline     = 0x0040,
-	Overline      = 0x0080,
-	StrikeOut     = 0x0100,
-	FixedPitch    = 0x0200,
-	Stretch       = 0x0400,
-	Kerning       = 0x0800,
-	Complete      = 0x0fff
+        Family        = 0x0001,
+        Size          = 0x0002,
+        StyleHint     = 0x0004,
+        StyleStrategy = 0x0008,
+        Weight        = 0x0010,
+        Italic        = 0x0020,
+        Underline     = 0x0040,
+        Overline      = 0x0080,
+        StrikeOut     = 0x0100,
+        FixedPitch    = 0x0200,
+        Stretch       = 0x0400,
+        Kerning       = 0x0800,
+        Complete      = 0x0fff
     };
 
-    void resolve( uint mask, const QFontPrivate *other );
+    void resolve(uint mask, const QFontPrivate *other);
 };
 
 
@@ -196,55 +196,55 @@ public:
     // universal key structure.  QFontEngineDatas and QFontEngines are cached using
     // the same keys
     struct Key {
-	Key() : screen( 0 ) { }
-	Key( const QFontDef &d, QFont::Script c, int s = 0 )
-	    : def( d ), script( c ), screen( s ) { }
+        Key() : screen(0) { }
+        Key(const QFontDef &d, QFont::Script c, int s = 0)
+            : def(d), script(c), screen(s) { }
 
-	QFontDef def;
-	int script;
-	int screen;
+        QFontDef def;
+        int script;
+        int screen;
 
-	inline bool operator<( const Key &other ) const
-	{
-	    if ( script != other.script ) return script < other.script;
-	    if ( screen != other.screen ) return screen < other.screen;
-	    return def < other.def;
-	}
-	inline bool operator==( const Key &other ) const
-	{ return def == other.def && script == other.script && screen == other.screen; }
+        inline bool operator<(const Key &other) const
+        {
+            if (script != other.script) return script < other.script;
+            if (screen != other.screen) return screen < other.screen;
+            return def < other.def;
+        }
+        inline bool operator==(const Key &other) const
+        { return def == other.def && script == other.script && screen == other.screen; }
     };
 
     // QFontEngineData cache
     typedef QMap<Key,QFontEngineData*> EngineDataCache;
     EngineDataCache engineDataCache;
 
-    QFontEngineData *findEngineData( const Key &key ) const;
-    void insertEngineData( const Key &key, QFontEngineData *engineData );
+    QFontEngineData *findEngineData(const Key &key) const;
+    void insertEngineData(const Key &key, QFontEngineData *engineData);
 
     // QFontEngine cache
     struct Engine {
-	Engine() : data( 0 ), timestamp( 0 ), hits( 0 ) { }
-	Engine( QFontEngine *d ) : data( d ), timestamp( 0 ), hits( 0 ) { }
+        Engine() : data(0), timestamp(0), hits(0) { }
+        Engine(QFontEngine *d) : data(d), timestamp(0), hits(0) { }
 
-	QFontEngine *data;
-	uint timestamp;
-	uint hits;
+        QFontEngine *data;
+        uint timestamp;
+        uint hits;
     };
 
     typedef QMap<Key,Engine> EngineCache;
     EngineCache engineCache;
 
-    QFontEngine *findEngine( const Key &key );
-    void insertEngine( const Key &key, QFontEngine *engine );
+    QFontEngine *findEngine(const Key &key);
+    void insertEngine(const Key &key, QFontEngine *engine);
 
 #if defined(Q_WS_WIN) || defined(Q_WS_QWS)
     void cleanupPrinterFonts();
 #endif
 
     private:
-    void increaseCost( uint cost );
-    void decreaseCost( uint cost );
-    void timerEvent( QTimerEvent *event );
+    void increaseCost(uint cost);
+    void decreaseCost(uint cost);
+    void timerEvent(QTimerEvent *event);
 
     static const uint min_cost;
     uint total_cost, max_cost;

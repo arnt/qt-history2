@@ -26,16 +26,16 @@
 class QWSPropertyManager::Data {
 public:
     struct Property {
-	~Property() { if ( data ) delete [] data; }
-	int len;
-	char *data;
+        ~Property() { if (data) delete [] data; }
+        int len;
+        char *data;
     };
-    Property* find( int winId, int property )
+    Property* find(int winId, int property)
     {
-	QHash<int,Property*>* wp = properties.value(winId);
-	if ( !wp ) return 0;
-	Property* prop = wp->value(property);
-	return prop;
+        QHash<int,Property*>* wp = properties.value(winId);
+        if (!wp) return 0;
+        Property* prop = wp->value(property);
+        return prop;
     }
 
     QHash<int,QHash<int,Property*>*> properties;
@@ -63,65 +63,65 @@ QWSPropertyManager::~QWSPropertyManager()
 //#define QWS_PROPERTY_DEBUG
 
 
-bool QWSPropertyManager::setProperty( int winId, int property, int mode, const char *data, int len )
+bool QWSPropertyManager::setProperty(int winId, int property, int mode, const char *data, int len)
 {
     Data::Property* prop = d->find(winId,property);
-    if ( !prop ) return FALSE;
+    if (!prop) return false;
 
-    switch ( mode ) {
+    switch (mode) {
     case PropReplace: {
 #ifdef QWS_PROPERTY_DEBUG
-	qDebug( "PropReplace" );
+        qDebug("PropReplace");
 #endif
-	delete [] prop->data;
-	char *nd = new char[len]; //###Must make sure this is deleted
-	memcpy(nd, data, len );
-	prop->len = len;
-	prop->data = nd;
+        delete [] prop->data;
+        char *nd = new char[len]; //###Must make sure this is deleted
+        memcpy(nd, data, len);
+        prop->len = len;
+        prop->data = nd;
     } break;
     case PropAppend: {
 #ifdef QWS_PROPERTY_DEBUG
-	qDebug( "PropAppend" );
+        qDebug("PropAppend");
 #endif
-	int origLen = prop->len;
-	char *nd = new char[ len + origLen ];
-	memcpy( nd, prop->data, origLen );
-	memcpy( nd+origLen, data, len );
-	delete [] prop->data;
-	prop->len = len + origLen;
-	prop->data = nd;
+        int origLen = prop->len;
+        char *nd = new char[len + origLen];
+        memcpy(nd, prop->data, origLen);
+        memcpy(nd+origLen, data, len);
+        delete [] prop->data;
+        prop->len = len + origLen;
+        prop->data = nd;
     } break;
     case PropPrepend: {
 #ifdef QWS_PROPERTY_DEBUG
-	qDebug( "PropPrepend" );
+        qDebug("PropPrepend");
 #endif
-	int origLen = origLen = prop->len;
-	char *nd = new char[ len + origLen ];
-	memcpy( nd, data, len );
-	memcpy( nd+len, prop->data, origLen );
-	delete [] prop->data;
-	prop->len = len + origLen;
-	prop->data = nd;
+        int origLen = origLen = prop->len;
+        char *nd = new char[len + origLen];
+        memcpy(nd, data, len);
+        memcpy(nd+len, prop->data, origLen);
+        delete [] prop->data;
+        prop->len = len + origLen;
+        prop->data = nd;
     } break;
     }
 #ifdef QWS_PROPERTY_DEBUG
-    qDebug( "QWSPropertyManager::setProperty: %d %d (%s) to %s", winId, property, key,
-	    d->properties.find( key )->data );
+    qDebug("QWSPropertyManager::setProperty: %d %d (%s) to %s", winId, property, key,
+            d->properties.find(key)->data);
 #endif
 
-    return TRUE;
+    return true;
 }
 
-bool QWSPropertyManager::hasProperty( int winId, int property )
+bool QWSPropertyManager::hasProperty(int winId, int property)
 {
     Data::Property* prop = d->find(winId,property);
     return !!prop;
 }
 
-bool QWSPropertyManager::removeProperty( int winId, int property )
+bool QWSPropertyManager::removeProperty(int winId, int property)
 {
 #ifdef QWS_PROPERTY_DEBUG
-    qDebug( "QWSPropertyManager::removeProperty %d %d (%s)", winId, property, key );
+    qDebug("QWSPropertyManager::removeProperty %d %d (%s)", winId, property, key);
 #endif
     QHash<int,Data::Property*>* wp = d->properties.value(winId);
     if (!wp) return false;
@@ -129,15 +129,15 @@ bool QWSPropertyManager::removeProperty( int winId, int property )
     if (!prop) return false;
     delete wp->take(property);
     if (wp->count() == 0)
-	delete d->properties.take(winId);
-    return TRUE;
+        delete d->properties.take(winId);
+    return true;
 }
 
-bool QWSPropertyManager::addProperty( int winId, int property )
+bool QWSPropertyManager::addProperty(int winId, int property)
 {
     QHash<int,Data::Property*>* wp = d->properties.value(winId);
     if (!wp) {
-	d->properties.insert(winId,wp = new QHash<int,Data::Property*>);
+        d->properties.insert(winId,wp = new QHash<int,Data::Property*>);
     }
     Data::Property* prop = wp->value(property);
     if (prop) return false;
@@ -146,42 +146,42 @@ bool QWSPropertyManager::addProperty( int winId, int property )
     prop->len = -1;
     prop->data = 0;
 #ifdef QWS_PROPERTY_DEBUG
-    qDebug( "QWSPropertyManager::addProperty: %d %d (%s)", winId, property, key );
+    qDebug("QWSPropertyManager::addProperty: %d %d (%s)", winId, property, key);
 #endif
-    return TRUE;
+    return true;
 }
 
-bool QWSPropertyManager::getProperty( int winId, int property, char *&data, int &len )
+bool QWSPropertyManager::getProperty(int winId, int property, char *&data, int &len)
 {
     Data::Property* prop = d->find(winId,property);
-    if ( !prop ) {
-	data = 0;
-	len = -1;
-	return FALSE;
+    if (!prop) {
+        data = 0;
+        len = -1;
+        return false;
     }
 
     len = prop->len;
     data = prop->data;
 #ifdef QWS_PROPERTY_DEBUG
-    qDebug( "QWSPropertyManager::getProperty: %d %d (%s) %d", winId, property,
-	    key, len );
-    if ( len > 0 ) {
-	for ( int i = 0; i < len; i++ )
-	    printf( "%c",data[i] );
-	printf( "\n" );
+    qDebug("QWSPropertyManager::getProperty: %d %d (%s) %d", winId, property,
+            key, len);
+    if (len > 0) {
+        for (int i = 0; i < len; i++)
+            printf("%c",data[i]);
+        printf("\n");
     }
 #endif
 
-    return TRUE;
+    return true;
 }
 
-bool QWSPropertyManager::removeProperties( int winId )
+bool QWSPropertyManager::removeProperties(int winId)
 {
     QHash<int,Data::Property*> *wp = d->properties.take(winId);
 
     if (wp) {
-	qDeleteAll(*wp);
-	delete wp;
+        qDeleteAll(*wp);
+        delete wp;
     }
     return wp != 0;
 }

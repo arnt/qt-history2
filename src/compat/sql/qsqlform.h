@@ -36,21 +36,21 @@ public:
     QSqlForm(QObject * parent = 0);
     ~QSqlForm();
 
-    virtual void insert( QWidget * widget, const QString& field );
-    virtual void remove( const QString& field );
+    virtual void insert(QWidget * widget, const QString& field);
+    virtual void remove(const QString& field);
     int         count() const;
 
-    QWidget *   widget( int i ) const;
-    QSqlField * widgetToField( QWidget * widget ) const;
-    QWidget *   fieldToWidget( QSqlField * field ) const;
+    QWidget *   widget(int i) const;
+    QSqlField * widgetToField(QWidget * widget) const;
+    QWidget *   fieldToWidget(QSqlField * field) const;
 
-    void        installPropertyMap( QSqlPropertyMap * map );
+    void        installPropertyMap(QSqlPropertyMap * map);
 
-    virtual void setRecord( QSqlRecord* buf );
+    virtual void setRecord(QSqlRecord* buf);
 
 public slots:
-    virtual void readField( QWidget * widget );
-    virtual void writeField( QWidget * widget );
+    virtual void readField(QWidget * widget);
+    virtual void writeField(QWidget * widget);
     virtual void readFields();
     virtual void writeFields();
 
@@ -58,8 +58,8 @@ public slots:
     virtual void clearValues();
 
 protected:
-    virtual void insert( QWidget * widget, QSqlField * field );
-    virtual void remove( QWidget * widget );
+    virtual void insert(QWidget * widget, QSqlField * field);
+    virtual void remove(QWidget * widget);
     void clearMap();
 
 private:
@@ -67,8 +67,8 @@ private:
     QSqlFormPrivate* d;
 
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QSqlForm( const QSqlForm & );
-    QSqlForm &operator=( const QSqlForm & );
+    QSqlForm(const QSqlForm &);
+    QSqlForm &operator=(const QSqlForm &);
 #endif
 };
 

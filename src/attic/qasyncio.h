@@ -89,6 +89,6 @@ private slots:
     void tryToPump();
 };
 
-#endif	// QT_NO_ASYNC_IO
+#endif        // QT_NO_ASYNC_IO
 
 #endif

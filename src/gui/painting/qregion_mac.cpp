@@ -26,11 +26,11 @@ static void qt_mac_cleanup_rgncache()
 {
     rgncache_init = false;
     for(int i = 0; i < RGN_CACHE_SIZE; ++i) {
-	if(rgncache[i]) {
-	    --rgncache_used;
-	    DisposeRgn(rgncache[i]);
-	    rgncache[i] = 0;
-	}
+        if(rgncache[i]) {
+            --rgncache_used;
+            DisposeRgn(rgncache[i]);
+            rgncache[i] = 0;
+        }
     }
 }
 
@@ -38,48 +38,48 @@ RgnHandle qt_mac_get_rgn()
 {
     RgnHandle ret = 0;
     if(!rgncache_init) {
-	rgncache_used = 0;
-	rgncache_init = true;
-	for(int i = 0; i < RGN_CACHE_SIZE; ++i)
-	    rgncache[i] = 0;
-	qAddPostRoutine(qt_mac_cleanup_rgncache);
+        rgncache_used = 0;
+        rgncache_init = true;
+        for(int i = 0; i < RGN_CACHE_SIZE; ++i)
+            rgncache[i] = 0;
+        qAddPostRoutine(qt_mac_cleanup_rgncache);
     } else if(rgncache_used) {
-	for(int i = 0; i < RGN_CACHE_SIZE; ++i) {
-	    if(rgncache[i]) {
-		ret = rgncache[i];
-		SetEmptyRgn(ret);
-		rgncache[i] = 0;
-		--rgncache_used;
-		break;
-	    }
-	}
+        for(int i = 0; i < RGN_CACHE_SIZE; ++i) {
+            if(rgncache[i]) {
+                ret = rgncache[i];
+                SetEmptyRgn(ret);
+                rgncache[i] = 0;
+                --rgncache_used;
+                break;
+            }
+        }
     }
     if(!ret)
-	ret = NewRgn();
+        ret = NewRgn();
     return ret;
 }
 
 void qt_mac_dispose_rgn(RgnHandle r)
 {
     if(rgncache_init && rgncache_used < RGN_CACHE_SIZE) {
-	for(int i = 0; i < RGN_CACHE_SIZE; ++i) {
-	    if(!rgncache[i]) {
-		++rgncache_used;
-		rgncache[i] = r;
-		break;
-	    }
-	}
+        for(int i = 0; i < RGN_CACHE_SIZE; ++i) {
+            if(!rgncache[i]) {
+                ++rgncache_used;
+                rgncache[i] = r;
+                break;
+            }
+        }
     } else {
-	DisposeRgn(r);
+        DisposeRgn(r);
     }
 }
 
 static OSStatus qt_mac_get_rgn_rect(UInt16 msg, RgnHandle, const Rect *rect, void *reg)
 {
     if(msg == kQDRegionToRectsMsgParse) {
-	QRect rct(rect->left, rect->top, (rect->right - rect->left), (rect->bottom - rect->top));
-	if(!rct.isEmpty())
-	    *((QRegion *)reg) += rct;
+        QRect rct(rect->left, rect->top, (rect->right - rect->left), (rect->bottom - rect->top));
+        if(!rct.isEmpty())
+            *((QRegion *)reg) += rct;
     }
     return noErr;
 }
@@ -92,7 +92,7 @@ QRegion qt_mac_convert_mac_region(RgnHandle rgn)
     OSStatus oss = QDRegionToRects(rgn, kQDParseRegionFromTopLeft, cbk, (void *)&ret);
     DisposeRegionToRectsUPP(cbk);
     if(oss != noErr)
-	return QRegion();
+        return QRegion();
     return ret;
 }
 
@@ -111,17 +111,17 @@ QRegion qt_mac_convert_mac_region(HIShapeRef shape)
 RgnHandle QRegion::handle(bool require_rgn) const
 {
     if(!d->rgn && (require_rgn || d->qt_rgn->numRects > 1)) {
-	d->rgn = qt_mac_get_rgn();
-	if(d->qt_rgn->numRects) {
-	    RgnHandle tmp_rgn = qt_mac_get_rgn();
-	    for(int i = 0; i < d->qt_rgn->numRects; ++i) {
-		QRect qt_r = d->qt_rgn->rects[i];
-		SetRectRgn(tmp_rgn, qMax(SHRT_MIN, qt_r.x()), qMax(SHRT_MIN, qt_r.y()),
-			   qMin(SHRT_MAX, qt_r.right() + 1), qMin(SHRT_MAX, qt_r.bottom() + 1));
-		UnionRgn(d->rgn, tmp_rgn, d->rgn);
-	    }
-	    qt_mac_dispose_rgn(tmp_rgn);
-	}
+        d->rgn = qt_mac_get_rgn();
+        if(d->qt_rgn->numRects) {
+            RgnHandle tmp_rgn = qt_mac_get_rgn();
+            for(int i = 0; i < d->qt_rgn->numRects; ++i) {
+                QRect qt_r = d->qt_rgn->rects[i];
+                SetRectRgn(tmp_rgn, qMax(SHRT_MIN, qt_r.x()), qMax(SHRT_MIN, qt_r.y()),
+                           qMin(SHRT_MAX, qt_r.right() + 1), qMin(SHRT_MAX, qt_r.bottom() + 1));
+                UnionRgn(d->rgn, tmp_rgn, d->rgn);
+            }
+            qt_mac_dispose_rgn(tmp_rgn);
+        }
     }
     return d->rgn;
 }

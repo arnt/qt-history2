@@ -39,29 +39,29 @@ class QFontEngine
 public:
 
     enum Type {
-	// X11 types
-	Box,
-	XLFD,
-	LatinXLFD,
-	Xft,
+        // X11 types
+        Box,
+        XLFD,
+        LatinXLFD,
+        Xft,
 
-	// MS Windows types
-	Win,
+        // MS Windows types
+        Win,
 
-	// Apple MacOS types
-	Mac,
+        // Apple MacOS types
+        Mac,
 
-	// Trolltech QWS types
-	Freetype
+        // Trolltech QWS types
+        Freetype
     };
 
     enum Capabilities {
-	NoTransformations = 0x00,
-	Scale = 0x01,
-	Rotate = 0x02,
-	RotScale = 0x03,
-	Shear = 0x04,
-	FullTransformations = 0x0f
+        NoTransformations = 0x00,
+        Scale = 0x01,
+        Rotate = 0x02,
+        RotScale = 0x03,
+        Shear = 0x04,
+        FullTransformations = 0x0f
     };
     Q_DECLARE_FLAGS(FECaps, Capabilities);
 
@@ -120,20 +120,20 @@ public:
     void getGlyphIndexes(const QChar *ch, int numChars, QGlyphLayout *glyphs, bool mirrored) const;
     void getCMap();
 
-    QString	_name;
-    HDC		hdc;
-    HFONT	hfont;
+    QString        _name;
+    HDC                hdc;
+    HFONT        hfont;
     LOGFONT     logfont;
-    uint	stockFont   : 1;
-    uint	paintDevice : 1;
+    uint        stockFont   : 1;
+    uint        paintDevice : 1;
     uint        useTextOutA : 1;
     uint        ttf         : 1;
     uint        symbol      : 1;
     union {
-	TEXTMETRICW	w;
-	TEXTMETRICA	a;
+        TEXTMETRICW        w;
+        TEXTMETRICA        a;
     } tm;
-    int		lw;
+    int                lw;
     unsigned char *cmap;
     void *script_cache;
     short lbearing;
@@ -248,7 +248,7 @@ struct TransformedFont
     float yx;
     float yy;
     union {
-	XftFont *xft_font;
+        XftFont *xft_font;
     };
     TransformedFont *next;
 };
@@ -441,7 +441,7 @@ public:
 
     enum { WIDTH=0x01, DRAW=0x02, EXISTS=0x04 };
     int doTextTask(const QChar *s, int pos, int use_len, int len, uchar task, int =-1, int y=-1,
-		   QPaintEngine *p=NULL) const;
+                   QPaintEngine *p=NULL) const;
 };
 
 #elif defined(Q_WS_WIN)

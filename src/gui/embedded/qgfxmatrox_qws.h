@@ -24,10 +24,10 @@
 class QMatroxScreen : public QLinuxFbScreen
 {
 public:
-    QMatroxScreen( int display_id );
+    QMatroxScreen(int display_id);
     virtual ~QMatroxScreen();
 
-    virtual bool connect( const QString &spec );
+    virtual bool connect(const QString &spec);
     virtual bool initDevice();
     virtual void shutdownDevice();
     virtual bool useOffscreen();

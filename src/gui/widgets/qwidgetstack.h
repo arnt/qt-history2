@@ -33,39 +33,39 @@ public:
 
     ~QWidgetStack();
 
-    int addWidget( QWidget *, int = -1 );
-    void removeWidget( QWidget * );
+    int addWidget(QWidget *, int = -1);
+    void removeWidget(QWidget *);
 
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
     void show();
 
-    QWidget * widget( int ) const;
-    int id( QWidget * ) const;
+    QWidget * widget(int) const;
+    int id(QWidget *) const;
 
     QWidget * visibleWidget() const;
 
 signals:
-    void aboutToShow( int );
-    void aboutToShow( QWidget * );
+    void aboutToShow(int);
+    void aboutToShow(QWidget *);
 
 public slots:
-    void raiseWidget( int );
-    void raiseWidget( QWidget * );
+    void raiseWidget(int);
+    void raiseWidget(QWidget *);
 
 protected:
-    void resizeEvent( QResizeEvent * );
+    void resizeEvent(QResizeEvent *);
 
     void setChildGeometries();
-    void childEvent( QChildEvent * );
-    bool event( QEvent * );
+    void childEvent(QChildEvent *);
+    bool event(QEvent *);
 
     QWidgetStackPrivate * d;
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QWidgetStack( const QWidgetStack & );
-    QWidgetStack& operator=( const QWidgetStack & );
+    QWidgetStack(const QWidgetStack &);
+    QWidgetStack& operator=(const QWidgetStack &);
 #endif
 };
 

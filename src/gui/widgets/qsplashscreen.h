@@ -27,25 +27,25 @@ class Q_GUI_EXPORT QSplashScreen : public QWidget
 {
     Q_OBJECT
 public:
-    QSplashScreen( const QPixmap &pixmap = QPixmap(), WFlags f = 0 );
+    QSplashScreen(const QPixmap &pixmap = QPixmap(), WFlags f = 0);
     virtual ~QSplashScreen();
 
-    void setPixmap( const QPixmap &pixmap );
+    void setPixmap(const QPixmap &pixmap);
     QPixmap* pixmap() const;
-    void finish( QWidget *w );
+    void finish(QWidget *w);
     void repaint();
 
 public slots:
-    void message( const QString &str, int flags = AlignLeft,
-		  const QColor &color = black );
+    void message(const QString &str, int flags = AlignLeft,
+                  const QColor &color = black);
     void clear();
 
 signals:
-    void messageChanged( const QString &str );
+    void messageChanged(const QString &str);
 
 protected:
-    virtual void drawContents( QPainter *painter );
-    void mousePressEvent( QMouseEvent * );
+    virtual void drawContents(QPainter *painter);
+    void mousePressEvent(QMouseEvent *);
 
 private:
     void drawContents();

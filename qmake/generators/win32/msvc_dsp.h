@@ -41,8 +41,8 @@ protected:
     virtual void processPrlVariable(const QString &, const QStringList &);
     virtual bool findLibraries();
 
-    QString precompH, 
-	    precompObj, precompPch;
+    QString precompH,
+            precompObj, precompPch;
     bool usePCH;
 };
 

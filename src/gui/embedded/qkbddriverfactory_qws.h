@@ -24,7 +24,7 @@ class Q_GUI_EXPORT QKbdDriverFactory
 {
 public:
     static QStringList keys();
-    static QWSKeyboardHandler *create( const QString&, const QString& );
+    static QWSKeyboardHandler *create(const QString&, const QString&);
 };
 
 #endif //QKBDDRIVERFACTORY_QWS_H

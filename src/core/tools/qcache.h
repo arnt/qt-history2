@@ -9,35 +9,35 @@ template <class Key, class T>
 class QCache
 {
     struct Node {
-	inline Node() {}
-	inline Node(const Key &key, T *data, int cost)
-	    : k(key), t(data), c(cost), p(0), n(0) {}
-	Key k; T *t; int c; Node *p,*n;
+        inline Node() {}
+        inline Node(const Key &key, T *data, int cost)
+            : k(key), t(data), c(cost), p(0), n(0) {}
+        Key k; T *t; int c; Node *p,*n;
     };
     Node *f, *l;
     QHash<Key, Node> hash;
     int mx, total;
     inline void unlink(Node &n) {
-	if (n.p) n.p->n = n.n;
-	if (n.n) n.n->p = n.p;
-	if (l == &n) l = n.p;
-	if (f == &n) f = n.n;
-	total -= n.c;
-	delete n.t;
-	hash.remove(Key(n.k));
+        if (n.p) n.p->n = n.n;
+        if (n.n) n.n->p = n.p;
+        if (l == &n) l = n.p;
+        if (f == &n) f = n.n;
+        total -= n.c;
+        delete n.t;
+        hash.remove(Key(n.k));
     }
     inline T *&relink(const Key &key) {
-	Node &n = hash[key];
-	if (f != &n) {
-	    if (n.p) n.p->n = n.n;
-	    if (n.n) n.n->p = n.p;
-	    if (l == &n) l = n.p;
-	    n.p = 0;
-	    n.n = f;
-	    f->p = &n;
-	    f = &n;
-	}
-	return n.t;
+        Node &n = hash[key];
+        if (f != &n) {
+            if (n.p) n.p->n = n.n;
+            if (n.n) n.n->p = n.p;
+            if (l == &n) l = n.p;
+            n.p = 0;
+            n.n = f;
+            f->p = &n;
+            f = &n;
+        }
+        return n.t;
     }
 
 #if defined(Q_DISABLE_COPY)
@@ -47,10 +47,10 @@ class QCache
 
 public:
     inline QCache(int maxCost = 100)
-	: f(0), l(0), mx(maxCost), total(0) {}
+        : f(0), l(0), mx(maxCost), total(0) {}
 #ifdef QT_COMPAT
     inline QCache(int maxCost, int /* dummy */)
-	: f(0), l(0), mx(maxCost), total(0) {}
+        : f(0), l(0), mx(maxCost), total(0) {}
 #endif
     inline ~QCache() { clear(); }
 
@@ -110,10 +110,10 @@ void QCache<Key,T>::insert(const Key &key, T *data, int cost)
     remove(key);
     Node *n = l;
     while (n && total > mx - cost) {
-	Node *u = n;
-	n = n->p;
-	if (qIsDetached(*u->t))
-	    unlink(*u);
+        Node *u = n;
+        n = n->p;
+        if (qIsDetached(*u->t))
+            unlink(*u);
     }
     Node sn(key, data, cost);
     hash.insert(key, sn);

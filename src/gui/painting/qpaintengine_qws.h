@@ -32,7 +32,7 @@ public:
     QWSPaintEngine(QPaintDevice *);
     ~QWSPaintEngine();
 
-    bool begin(QPaintDevice *pdev, QPainterState *state, bool unclipped = FALSE);
+    bool begin(QPaintDevice *pdev, QPainterState *state, bool unclipped = false);
     bool end();
 
     void updatePen(QPainterState *ps);
@@ -79,17 +79,17 @@ public:
 protected:
     QWSPaintEngine(QPaintEnginePrivate &dptr, QPaintDevice *);
 
-    void drawPolyInternal(const QPointArray &a, bool close=TRUE);
+    void drawPolyInternal(const QPointArray &a, bool close=true);
 
     void copyQWSData(const QWSPaintEngine *);
     void cloneQWSData(const QWSPaintEngine *);
     //virtual void setQWSData(const QWSPaintEngineData *);
-    QWSPaintEngineData* getQWSData(bool def = FALSE) const;
+    QWSPaintEngineData* getQWSData(bool def = false) const;
 
-    friend void qt_init( QApplicationPrivate *, int );
+    friend void qt_init(QApplicationPrivate *, int);
     friend void qt_cleanup();
-    friend void qt_draw_transformed_rect( QPainter *pp,  int x, int y, int w,  int h, bool fill );
-    friend void qt_draw_background( QPainter *pp, int x, int y, int w,  int h );
+    friend void qt_draw_transformed_rect(QPainter *pp,  int x, int y, int w,  int h, bool fill);
+    friend void qt_draw_background(QPainter *pp, int x, int y, int w,  int h);
     friend class QWidget;
     friend class QPixmap;
     friend class QFontEngineBox;

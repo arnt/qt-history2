@@ -209,8 +209,8 @@ QMoviePrivate::QMoviePrivate(QIODevice *src, QMovie *movie, int bufsize) :
 
 QMoviePrivate::~QMoviePrivate()
 {
-    if (buffer)				// Avoid purify complaint
-	delete [] buffer;
+    if (buffer)                                // Avoid purify complaint
+        delete [] buffer;
     delete decoder;
     delete source;
 }
@@ -230,27 +230,27 @@ void QMoviePrivate::init(bool fully)
 #endif
 
     buf_usage = 0;
-    if (buffer)				// Avoid purify complaint
-	delete [] buffer;
+    if (buffer)                                // Avoid purify complaint
+        delete [] buffer;
     buffer = fully ? new uchar[buf_size] : 0;
     if (buffer)
-	memset( buffer, 0, buf_size );
+        memset(buffer, 0, buf_size);
 
     delete decoder;
     decoder = fully ? new QImageDecoder(this) : 0;
 
 #ifdef AVOID_OPEN_FDS
     if (source && !source->isOpen())
-	source->open(IO_ReadOnly);
+        source->open(IO_ReadOnly);
 #endif
     waitingForFrameTick = false;
     stepping = -1;
     framenumber = 0;
     frameperiod = -1;
     if (fully)
-	polltimer->start(0);
+        polltimer->start(0);
     if (fully)
-	frametimer->stop();
+        frametimer->stop();
     lasttimerinterval = -1;
     changed_area.setRect(0, 0, -1, -1);
     valid_area = changed_area;
@@ -265,36 +265,36 @@ void QMoviePrivate::flushBuffer()
     int used;
     int off = 0;
     while (off < buf_usage && !waitingForFrameTick && stepping != 0 && !error) {
-	used = decoder->decode(buffer + off, buf_usage-off);
-	if (used <= 0) {
-	    if ( used < 0 ) {
-		error = 1;
-		emit dataStatus(QMovie::UnrecognizedFormat);
-	    }
-	    break;
-	}
-	off += used;
+        used = decoder->decode(buffer + off, buf_usage-off);
+        if (used <= 0) {
+            if (used < 0) {
+                error = 1;
+                emit dataStatus(QMovie::UnrecognizedFormat);
+            }
+            break;
+        }
+        off += used;
     }
     if (off) {
-	buf_usage -= off;
-	if (buf_usage)
-	    memcpy(buffer, buffer + off, buf_usage);
+        buf_usage -= off;
+        if (buf_usage)
+            memcpy(buffer, buffer + off, buf_usage);
     }
 
     // Some formats, like MNG, can make stuff happen without any extra data.
     // Only do this if the movie hasn't ended, however or we'll never get the end of loop signal.
     if (!movie_ended) {
-	used = decoder->decode(buffer, 0);
-	if (used <= 0) {
-	    if ( used < 0 ) {
-		error = 1;
-		emit dataStatus(QMovie::UnrecognizedFormat);
-	    }
-	}
+        used = decoder->decode(buffer, 0);
+        if (used <= 0) {
+            if (used < 0) {
+                error = 1;
+                emit dataStatus(QMovie::UnrecognizedFormat);
+            }
+        }
     }
 
     if (error)
-	frametimer->stop();
+        frametimer->stop();
 }
 
 void QMoviePrivate::updatePixmapFromImage()
@@ -311,16 +311,16 @@ void QMoviePrivate::updatePixmapFromImage(const QPoint &off, const QRect &area)
     QImage img = gimg.copy(area);
 
 #ifdef QT_SAVE_MOVIE_HACK
-    if ( save_image ) {
-	QString name;
-	name.sprintf("movie%i.ppm",image_number++);
-	gimg.save( name, "PPM" );
+    if (save_image) {
+        QString name;
+        name.sprintf("movie%i.ppm",image_number++);
+        gimg.save(name, "PPM");
     }
 #endif
 
     // Resize to size of image
     if (mypixmap.width() != gimg.width() || mypixmap.height() != gimg.height())
-	mypixmap.resize(gimg.width(), gimg.height());
+        mypixmap.resize(gimg.width(), gimg.height());
 
     // Convert to pixmap and bitBlt that onto myself
     QPixmap lines;
@@ -329,12 +329,12 @@ void QMoviePrivate::updatePixmapFromImage(const QPoint &off, const QRect &area)
         // its an animation, lets see if we converted
         // this frame already.
          QString key("qt_movie012301"); // reserve 8+4 bytes for the key
-	 void *p = this;
+         void *p = this;
          memcpy(static_cast<void *>(const_cast<QChar *>(key.unicode() + 8)),
                 static_cast<void *>(&p), sizeof(void *));
          memcpy(static_cast<void *>(const_cast<QChar *>(key.unicode() + 12)), &framenumber,
                 sizeof(framenumber));
-	 if (!QPixmapCache::find(key, lines)) {
+         if (!QPixmapCache::find(key, lines)) {
             lines.convertFromImage(img, Qt::ColorOnly);
             QPixmapCache::insert(key, lines);
         }
@@ -343,22 +343,22 @@ void QMoviePrivate::updatePixmapFromImage(const QPoint &off, const QRect &area)
     }
 
     if (bg.isValid()) {
-	QPainter p;
-	p.begin(&mypixmap);
-	p.fillRect(area, bg);
-	p.drawPixmap(area, lines);
-	p.end();
+        QPainter p;
+        p.begin(&mypixmap);
+        p.fillRect(area, bg);
+        p.drawPixmap(area, lines);
+        p.end();
     } else {
-	if (gimg.hasAlphaBuffer()) {
-	    // Resize to size of image
-	    if (mymask.isNull()) {
-		mymask.resize(gimg.width(), gimg.height());
-		mymask.fill(Qt::color1);
-	    }
-	}
-	mypixmap.setMask(QBitmap()); // Remove reference to my mask
-	copyBlt(&mypixmap, area.left(), area.top(),
-		&lines, off.x(), off.y(), area.width(), area.height());
+        if (gimg.hasAlphaBuffer()) {
+            // Resize to size of image
+            if (mymask.isNull()) {
+                mymask.resize(gimg.width(), gimg.height());
+                mymask.fill(Qt::color1);
+            }
+        }
+        mypixmap.setMask(QBitmap()); // Remove reference to my mask
+        copyBlt(&mypixmap, area.left(), area.top(),
+                &lines, off.x(), off.y(), area.width(), area.height());
     }
 
 #if 0 //def Q_WS_QWS
@@ -366,23 +366,23 @@ void QMoviePrivate::updatePixmapFromImage(const QPoint &off, const QRect &area)
 //########################
 // part of QT_OLD_GFX, but do we need it at all ???
     if(display_widget) {
-	QGfx *mygfx = display_widget->graphicsContext();
-	if(mygfx) {
-	    double xscale,yscale;
-	    xscale=display_widget->width();
-	    yscale=display_widget->height();
-	    xscale=xscale / ((double)mypixmap.width());
-	    yscale=yscale / ((double)mypixmap.height());
-	    double xh,yh;
-	    xh = xscale * ((double)area.left());
-	    yh = yscale * ((double)area.top());
-	    mygfx->setSource(&mypixmap);
-	    mygfx->setAlphaType(QGfx::IgnoreAlpha);
-	    mygfx->stretchBlt(0, 0, display_widget->width(),
-			      display_widget->height(), mypixmap.width(),
-			      mypixmap.height());
-	    delete mygfx;
-	}
+        QGfx *mygfx = display_widget->graphicsContext();
+        if(mygfx) {
+            double xscale,yscale;
+            xscale=display_widget->width();
+            yscale=display_widget->height();
+            xscale=xscale / ((double)mypixmap.width());
+            yscale=yscale / ((double)mypixmap.height());
+            double xh,yh;
+            xh = xscale * ((double)area.left());
+            yh = yscale * ((double)area.top());
+            mygfx->setSource(&mypixmap);
+            mygfx->setAlphaType(QGfx::IgnoreAlpha);
+            mygfx->stretchBlt(0, 0, display_widget->width(),
+                              display_widget->height(), mypixmap.width(),
+                              mypixmap.height());
+            delete mygfx;
+        }
     }
 #endif
 }
@@ -390,12 +390,12 @@ void QMoviePrivate::updatePixmapFromImage(const QPoint &off, const QRect &area)
 void QMoviePrivate::showChanges()
 {
     if (changed_area.isValid()) {
-	updatePixmapFromImage();
+        updatePixmapFromImage();
 
-	valid_area = valid_area.unite(changed_area);
-	emit areaChanged(changed_area);
+        valid_area = valid_area.unite(changed_area);
+        emit areaChanged(changed_area);
 
-	changed_area.setWidth(-1); // make empty
+        changed_area.setWidth(-1); // make empty
     }
 }
 
@@ -403,7 +403,7 @@ void QMoviePrivate::showChanges()
 void QMoviePrivate::changed(const QRect& rect)
 {
     if (!frametimer->isActive())
-	frametimer->start(0);
+        frametimer->start(0);
     changed_area = changed_area.unite(rect);
 }
 
@@ -415,14 +415,14 @@ void QMoviePrivate::end()
 void QMoviePrivate::preFrameDone()
 {
     if (stepping > 0) {
-	stepping--;
-	if (!stepping) {
-	    frametimer->stop();
-	    emit dataStatus( QMovie::Paused );
-	}
+        stepping--;
+        if (!stepping) {
+            frametimer->stop();
+            emit dataStatus(QMovie::Paused);
+        }
     } else {
-	waitingForFrameTick = true;
-	restartTimer();
+        waitingForFrameTick = true;
+        restartTimer();
     }
 }
 void QMoviePrivate::frameDone()
@@ -433,12 +433,12 @@ void QMoviePrivate::frameDone()
     ++framenumber;
 }
 void QMoviePrivate::frameDone(const QPoint& p,
-				const QRect& rect)
+                                const QRect& rect)
 {
     preFrameDone();
     const QImage& gimg = decoder->image();
     if (framenumber==0)
-	emit sizeChanged(gimg.size());
+        emit sizeChanged(gimg.size());
     valid_area = valid_area.unite(QRect(p,rect.size()));
     updatePixmapFromImage(p,rect);
     emit areaChanged(QRect(p,rect.size()));
@@ -449,20 +449,20 @@ void QMoviePrivate::frameDone(const QPoint& p,
 void QMoviePrivate::restartTimer()
 {
     if (speed > 0) {
-	int i = frameperiod >= 0 ? frameperiod * 100 / speed : 0;
-	if (i != lasttimerinterval || !frametimer->isActive()) {
-	    lasttimerinterval = i;
-	    frametimer->start(i);
-	}
+        int i = frameperiod >= 0 ? frameperiod * 100 / speed : 0;
+        if (i != lasttimerinterval || !frametimer->isActive()) {
+            lasttimerinterval = i;
+            frametimer->start(i);
+        }
     } else {
-	frametimer->stop();
+        frametimer->stop();
     }
 }
 
 void QMoviePrivate::setLooping(int nloops)
 {
     if (loop == -1) // Only if we don't already know how many loops!
-	loop = nloops;
+        loop = nloops;
 }
 
 void QMoviePrivate::setFramePeriod(int milliseconds)
@@ -476,8 +476,8 @@ void QMoviePrivate::setFramePeriod(int milliseconds)
 void QMoviePrivate::setSize(int w, int h)
 {
     if (mypixmap.width() != w || mypixmap.height() != h) {
-	mypixmap.resize(w, h);
-	emit sizeChanged(QSize(w, h));
+        mypixmap.resize(w, h);
+        emit sizeChanged(QSize(w, h));
     }
 }
 
@@ -488,16 +488,16 @@ void QMoviePrivate::receive(const uchar* b, int bytecount)
         empty = false;
 
     while (bytecount && !waitingForFrameTick && stepping != 0) {
-	int used = decoder->decode(b, bytecount);
-	if (used<=0) {
-	    if ( used < 0 ) {
-		error = 1;
-		emit dataStatus(QMovie::UnrecognizedFormat);
-	    }
-	    break;
-	}
-	b += used;
-	bytecount -= used;
+        int used = decoder->decode(b, bytecount);
+        if (used<=0) {
+            if (used < 0) {
+                error = 1;
+                emit dataStatus(QMovie::UnrecognizedFormat);
+            }
+            break;
+        }
+        b += used;
+        bytecount -= used;
     }
 
     // Append unused to buffer
@@ -516,69 +516,69 @@ void QMoviePrivate::pollForData()
 {
     if(waitingForFrameTick || !stepping || buf_usage || error ||
        source->status() != IO_Ok || !(source->state() & IO_Open))
-	return;
+        return;
 
     if(!bufferSpace()) { //EOF
-	if ( !movie_ended )
-	    return;
-	if ( empty )
-	    emit dataStatus(QMovie::SourceEmpty);
+        if (!movie_ended)
+            return;
+        if (empty)
+            emit dataStatus(QMovie::SourceEmpty);
 
 #ifdef QT_SAVE_MOVIE_HACK
-	save_image = false;
+        save_image = false;
 #endif
-	emit dataStatus(QMovie::EndOfLoop);
+        emit dataStatus(QMovie::EndOfLoop);
 
-	if (loop >= 0) {
-	    if (loop) {
-		loop--;
-		if (!loop)
-		    return;
-	    }
-	    delete decoder;
-	    decoder = new QImageDecoder(this);
-	    source->reset();
-	    framenumber = 0;
-	    movie_ended = false;
-	} else {
-	    delete decoder;
-	    decoder = 0;
-	    if ( buffer )				// Avoid purify complaint
-		delete [] buffer;
-	    buffer = 0;
-	    emit dataStatus(QMovie::EndOfMovie);
+        if (loop >= 0) {
+            if (loop) {
+                loop--;
+                if (!loop)
+                    return;
+            }
+            delete decoder;
+            decoder = new QImageDecoder(this);
+            source->reset();
+            framenumber = 0;
+            movie_ended = false;
+        } else {
+            delete decoder;
+            decoder = 0;
+            if (buffer)                                // Avoid purify complaint
+                delete [] buffer;
+            buffer = 0;
+            emit dataStatus(QMovie::EndOfMovie);
 #ifdef AVOID_OPEN_FDS
-	    if ( source )
-		source->close();
+            if (source)
+                source->close();
 #endif
-	}
+        }
     } else if(int space = bufferSpace()) {
-	int avail = source->readBlock((char*)buffer, space);
-	if(avail > 0)
-	   receive(buffer, avail);
+        int avail = source->readBlock((char*)buffer, space);
+        if(avail > 0)
+           receive(buffer, avail);
     }
 }
 
 void QMoviePrivate::pause()
 {
-    if ( stepping ) {
-	stepping = 0;
-	frametimer->stop();
-	emit dataStatus( QMovie::Paused );
+    if (stepping) {
+        stepping = 0;
+        frametimer->stop();
+        emit dataStatus(QMovie::Paused);
     }
 }
 
 void QMoviePrivate::refresh()
 {
     if (!decoder) {
-	frametimer->stop();
-	return;
+        frametimer->stop();
+        return;
     }
 
     if (frameperiod < 0 && loop == -1) // Only show changes if probably not an animation
-	showChanges();
+        showChanges();
     if (!buf_usage)
-	frametimer->stop();
+        frametimer->stop();
     waitingForFrameTick = false;
     flushBuffer();
 }
@@ -680,7 +680,7 @@ QMovie::QMovie(const QString &fileName, int bufsize)
 {
     QFile *file = new QFile(fileName);
     if (!fileName.isEmpty())
- 	file->open(IO_ReadOnly);
+        file->open(IO_ReadOnly);
     d = new QMoviePrivate(file, this, bufsize);
 }
 
@@ -849,8 +849,8 @@ void QMovie::pause()
 void QMovie::unpause()
 {
     if (d->stepping >= 0 && !d->isNull()) {
-	d->stepping = -1;
-	d->restartTimer();
+        d->stepping = -1;
+        d->restartTimer();
     }
 }
 
@@ -862,7 +862,7 @@ void QMovie::unpause()
 void QMovie::step(int steps)
 {
     if (d->isNull())
-	return;
+        return;
     d->stepping = steps;
     d->frametimer->start(0);
     d->waitingForFrameTick = false; // Full speed ahead!
@@ -883,14 +883,14 @@ void QMovie::step()
 void QMovie::restart()
 {
     if (d->isNull())
-	return;
+        return;
     d->source->reset();
     int s = d->stepping;
     d->init(true);
     if (s > 0)
-	step(s);
+        step(s);
     else if (s == 0)
-	pause();
+        pause();
 }
 
 /*!
@@ -913,15 +913,15 @@ void QMovie::setSpeed(int percent)
 {
     int oldspeed = d->speed;
     if (oldspeed != percent && percent >= 0) {
-	d->speed = percent;
-	// Restart timer only if really needed
-	if (d->stepping < 0) {
-	    if (!percent || !oldspeed    // To or from zero
-		 || oldspeed*4 / percent > 4   // More than 20% slower
-		 || percent*4 / oldspeed > 4   // More than 20% faster
-                )
-		d->restartTimer();
-	}
+        d->speed = percent;
+        // Restart timer only if really needed
+        if (d->stepping < 0) {
+            if (!percent || !oldspeed    // To or from zero
+                 || oldspeed*4 / percent > 4   // More than 20% slower
+                 || percent*4 / oldspeed > 4   // More than 20% faster
+               )
+                d->restartTimer();
+        }
     }
 }
 
@@ -981,19 +981,19 @@ void QMovie::disconnectUpdate(QObject* receiver, const char *member)
     \table
     \header \i Status Code \i Meaning
     \row \i QMovie::SourceEmpty
-	 \i signalled if the input cannot be read.
+         \i signalled if the input cannot be read.
     \row \i QMovie::UnrecognizedFormat
-	 \i signalled if the input data is unrecognized.
+         \i signalled if the input data is unrecognized.
     \row \i QMovie::Paused
-	  \i signalled when the movie is paused by a call to paused()
-	  or by after \link step() stepping \endlink pauses.
+          \i signalled when the movie is paused by a call to paused()
+          or by after \link step() stepping \endlink pauses.
     \row \i QMovie::EndOfFrame
-	 \i signalled at end-of-frame after any update and Paused signals.
+         \i signalled at end-of-frame after any update and Paused signals.
     \row \i QMovie::EndOfLoop
-	 \i signalled at end-of-loop, after any update signals,
-	 EndOfFrame - but before EndOfMovie.
+         \i signalled at end-of-loop, after any update signals,
+         EndOfFrame - but before EndOfMovie.
     \row \i QMovie::EndOfMovie
-	 \i signalled when the movie completes and is not about to loop.
+         \i signalled when the movie completes and is not about to loop.
     \endtable
 
     More status messages may be added in the future, so a general test
@@ -1021,4 +1021,4 @@ void QMovie::disconnectStatus(QObject* receiver, const char *member)
 
 #include "qmovie.moc"
 
-#endif	// QT_NO_MOVIE
+#endif        // QT_NO_MOVIE

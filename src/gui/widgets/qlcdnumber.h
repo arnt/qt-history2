@@ -25,86 +25,86 @@
 
 class QLCDNumberPrivate;
 
-class Q_GUI_EXPORT QLCDNumber : public QFrame		// LCD number widget
+class Q_GUI_EXPORT QLCDNumber : public QFrame                // LCD number widget
 {
     Q_OBJECT
-    Q_ENUMS( Mode SegmentStyle )
-    Q_PROPERTY( bool smallDecimalPoint READ smallDecimalPoint WRITE setSmallDecimalPoint )
-    Q_PROPERTY( int numDigits READ numDigits WRITE setNumDigits )
-    Q_PROPERTY( Mode mode READ mode WRITE setMode )
-    Q_PROPERTY( SegmentStyle segmentStyle READ segmentStyle WRITE setSegmentStyle )
-    Q_PROPERTY( double value READ value WRITE display )
-    Q_PROPERTY( int intValue READ intValue WRITE display )
+    Q_ENUMS(Mode SegmentStyle)
+    Q_PROPERTY(bool smallDecimalPoint READ smallDecimalPoint WRITE setSmallDecimalPoint)
+    Q_PROPERTY(int numDigits READ numDigits WRITE setNumDigits)
+    Q_PROPERTY(Mode mode READ mode WRITE setMode)
+    Q_PROPERTY(SegmentStyle segmentStyle READ segmentStyle WRITE setSegmentStyle)
+    Q_PROPERTY(double value READ value WRITE display)
+    Q_PROPERTY(int intValue READ intValue WRITE display)
 
 public:
-    QLCDNumber( QWidget* parent=0, const char* name=0 );
-    QLCDNumber( uint numDigits, QWidget* parent=0, const char* name=0 );
+    QLCDNumber(QWidget* parent=0, const char* name=0);
+    QLCDNumber(uint numDigits, QWidget* parent=0, const char* name=0);
     ~QLCDNumber();
 
     enum Mode { Hex, Dec, Oct, Bin, HEX = Hex, DEC = Dec, OCT = Oct,
-		BIN = Bin };
+                BIN = Bin };
     enum SegmentStyle { Outline, Filled, Flat };
 
     bool    smallDecimalPoint() const;
 
-    int	    numDigits() const;
-    virtual void setNumDigits( int nDigits );
+    int            numDigits() const;
+    virtual void setNumDigits(int nDigits);
 
-    bool    checkOverflow( double num ) const;
-    bool    checkOverflow( int	  num ) const;
+    bool    checkOverflow(double num) const;
+    bool    checkOverflow(int          num) const;
 
     Mode mode() const;
-    virtual void setMode( Mode );
+    virtual void setMode(Mode);
 
     SegmentStyle segmentStyle() const;
-    virtual void setSegmentStyle( SegmentStyle );
+    virtual void setSegmentStyle(SegmentStyle);
 
     double  value() const;
-    int	    intValue() const;
+    int            intValue() const;
 
     QSize sizeHint() const;
 
 public slots:
-    void    display( const QString &str );
-    void    display( int num );
-    void    display( double num );
+    void    display(const QString &str);
+    void    display(int num);
+    void    display(double num);
     virtual void setHexMode();
     virtual void setDecMode();
     virtual void setOctMode();
     virtual void setBinMode();
-    virtual void setSmallDecimalPoint( bool );
+    virtual void setSmallDecimalPoint(bool);
 
 signals:
     void    overflow();
 
 protected:
-    void    paintEvent( QPaintEvent * );
+    void    paintEvent(QPaintEvent *);
 
 private:
     void    init();
-    void    internalDisplay( const QString &);
-    void    internalSetString( const QString& s );
-    void    drawString( const QString& s, QPainter &, QBitArray * = 0,
-			bool = TRUE );
-    //void    drawString( const QString &, QPainter &, QBitArray * = 0 ) const;
-    void    drawDigit( const QPoint &, QPainter &, int, char,
-		       char = ' ' );
-    void    drawSegment( const QPoint &, char, QPainter &, int, bool = FALSE );
+    void    internalDisplay(const QString &);
+    void    internalSetString(const QString& s);
+    void    drawString(const QString& s, QPainter &, QBitArray * = 0,
+                        bool = true);
+    //void    drawString(const QString &, QPainter &, QBitArray * = 0) const;
+    void    drawDigit(const QPoint &, QPainter &, int, char,
+                       char = ' ');
+    void    drawSegment(const QPoint &, char, QPainter &, int, bool = false);
 
-    int	    ndigits;
+    int            ndigits;
     double  val;
-    uint    base	: 2;
-    uint    smallPoint	: 1;
-    uint    fill	: 1;
-    uint    shadow	: 1;
+    uint    base        : 2;
+    uint    smallPoint        : 1;
+    uint    fill        : 1;
+    uint    shadow        : 1;
     QString digitStr;
     QBitArray points;
     QLCDNumberPrivate * d;
 
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QLCDNumber( const QLCDNumber & );
-    QLCDNumber &operator=( const QLCDNumber & );
+    QLCDNumber(const QLCDNumber &);
+    QLCDNumber &operator=(const QLCDNumber &);
 #endif
 };
 

@@ -45,19 +45,19 @@
     columns. If \a orient is \c Vertical, \a n specifies the number of
     rows. The widget flags \a f are passed to the QFrame constructor.
 */
-QGrid::QGrid( int n, Orientation orient, QWidget *parent, const char *name,
-	      WFlags f )
-    : QFrame( parent, name, f )
+QGrid::QGrid(int n, Orientation orient, QWidget *parent, const char *name,
+              WFlags f)
+    : QFrame(parent, name, f)
 {
     int nCols, nRows;
-    if ( orient == Horizontal ) {
-	nCols = n;
-	nRows = -1;
+    if (orient == Horizontal) {
+        nCols = n;
+        nRows = -1;
     } else {
-	nCols = -1;
-	nRows = n;
+        nCols = -1;
+        nRows = n;
     }
-    lay = new QGridLayout( this, nRows, nCols, 0, 0, name );
+    lay = new QGridLayout(this, nRows, nCols, 0, 0, name);
 }
 
 
@@ -67,10 +67,10 @@ QGrid::QGrid( int n, Orientation orient, QWidget *parent, const char *name,
     \a n specifies the number of columns. The widget flags \a f are
     passed to the QFrame constructor.
  */
-QGrid::QGrid( int n, QWidget *parent, const char *name, WFlags f )
-    : QFrame( parent, name, f )
+QGrid::QGrid(int n, QWidget *parent, const char *name, WFlags f)
+    : QFrame(parent, name, f)
 {
-    lay = new QGridLayout( this, -1, n, 0, 0, name );
+    lay = new QGridLayout(this, -1, n, 0, 0, name);
 }
 
 /*!
@@ -80,15 +80,15 @@ void QGrid::childEvent(QChildEvent *e)
 {
     QWidget *child = qt_cast<QWidget*>(e->child());
     if (!child || child->isTopLevel())
-	return;
+        return;
     if (e->added()) {
-	lay->addWidget(child);
+        lay->addWidget(child);
     } else if (e->polished()) {
-	QMenuBar *mb;
-	if ((mb=qt_cast<QMenuBar*>(child))) {
-	    lay->removeWidget(mb);
-	    lay->setMenuBar(mb);
-	}
+        QMenuBar *mb;
+        if ((mb=qt_cast<QMenuBar*>(child))) {
+            lay->removeWidget(mb);
+            lay->setMenuBar(mb);
+        }
     }
 }
 
@@ -96,10 +96,10 @@ void QGrid::childEvent(QChildEvent *e)
     Sets the spacing between the child widgets to \a space.
 */
 
-void QGrid::setSpacing( int space )
+void QGrid::setSpacing(int space)
 {
-    if ( layout() )
-	layout()->setSpacing( space );
+    if (layout())
+        layout()->setSpacing(space);
 }
 
 #endif

@@ -35,14 +35,14 @@
 
 // {4367CF5A-F7CE-407B-8BB6-DF19AEDA2EBB}
 #ifndef IID_QMouseDriver
-#define IID_QMouseDriver QUuid( 0x4367cf5a, 0xf7ce, 0x407b, 0x8b, 0xb6, 0xdf, 0x19, 0xae, 0xda, 0x2e, 0xbb)
+#define IID_QMouseDriver QUuid(0x4367cf5a, 0xf7ce, 0x407b, 0x8b, 0xb6, 0xdf, 0x19, 0xae, 0xda, 0x2e, 0xbb)
 #endif
 
 class QWSMouseHandler;
 
 struct Q_GUI_EXPORT QMouseDriverInterface : public QFeatureListInterface
 {
-    virtual QWSMouseHandler* create( const QString& driver, const QString &device ) = 0;
+    virtual QWSMouseHandler* create(const QString& driver, const QString &device) = 0;
 };
 
 #endif // QT_NO_COMPONENT

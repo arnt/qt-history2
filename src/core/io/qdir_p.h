@@ -33,8 +33,8 @@
 #include "qlist.h"
 #endif // QT_H
 
-extern QList<QRegExp> qt_makeFilterList( const QString & );
-extern bool qt_matchFilterList( const QList<QRegExp> &, const QString & );
+extern QList<QRegExp> qt_makeFilterList(const QString &);
+extern bool qt_matchFilterList(const QList<QRegExp> &, const QString &);
 
 extern int qt_cmp_si_sortSpec;
 
@@ -43,9 +43,9 @@ extern "C" {
 #endif
 
 #ifdef Q_OS_TEMP
-extern int __cdecl qt_cmp_si( const void *, const void * );
+extern int __cdecl qt_cmp_si(const void *, const void *);
 #else
-extern int qt_cmp_si( const void *, const void * );
+extern int qt_cmp_si(const void *, const void *);
 #endif
 
 #if defined(Q_C_CALLBACKS)

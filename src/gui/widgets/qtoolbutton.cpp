@@ -42,9 +42,9 @@ public:
     int delay;
 #endif
     Qt::ArrowType arrow;
-    uint instantPopup	    : 1;
-    uint autoraise	    : 1;
-    uint repeat		    : 1;
+    uint instantPopup            : 1;
+    uint autoraise            : 1;
+    uint repeat                    : 1;
     uint discardNextMouseEvent : 1;
     QToolButton::TextPosition textPos;
 };
@@ -63,7 +63,7 @@ public:
     button, a tool button usually doesn't show a text label, but shows
     an icon instead. Its classic usage is to select tools, for example
     the "pen" tool in a drawing program. This would be implemented
-    with a QToolButton as toggle button (see setToggleButton() ).
+    with a QToolButton as toggle button (see setToggleButton()).
 
     QToolButton supports auto-raising. In auto-raise mode, the button
     draws a 3D frame only when the mouse points at it. The feature is
@@ -82,7 +82,7 @@ public:
     QMainWindow's settings (see QMainWindow::setUsesTextLabel() and
     QMainWindow::setUsesBigPixmaps()). The pixmap set on a QToolButton
     will be set to 22x22 if it is bigger than this size. If
-    usesBigPixmap() is TRUE, then the pixmap will be set to 32x32.
+    usesBigPixmap() is true, then the pixmap will be set to 32x32.
 
     A tool button can offer additional choices in a popup menu. The
     feature is sometimes used with the "Back" button in a web browser.
@@ -114,28 +114,28 @@ public:
     parent.
 */
 
-QToolButton::QToolButton( QWidget * parent, const char *name )
-    : QButton( parent, name )
+QToolButton::QToolButton(QWidget * parent, const char *name)
+    : QButton(parent, name)
 {
     init();
 #ifndef QT_NO_TOOLBAR
     QToolBar* tb = qt_cast<QToolBar*>(parent);
-    if ( tb ) {
-	setAutoRaise( TRUE );
-	if ( tb->mainWindow() ) {
-	    connect( tb->mainWindow(), SIGNAL(pixmapSizeChanged(bool)),
-	             this, SLOT(setUsesBigPixmap(bool)) );
-	    setUsesBigPixmap( tb->mainWindow()->usesBigPixmaps() );
-	    connect( tb->mainWindow(), SIGNAL(usesTextLabelChanged(bool)),
-	             this, SLOT(setUsesTextLabel(bool)) );
-	    setUsesTextLabel( tb->mainWindow()->usesTextLabel() );
-	} else {
-	    setUsesBigPixmap( FALSE );
-	}
+    if (tb) {
+        setAutoRaise(true);
+        if (tb->mainWindow()) {
+            connect(tb->mainWindow(), SIGNAL(pixmapSizeChanged(bool)),
+                     this, SLOT(setUsesBigPixmap(bool)));
+            setUsesBigPixmap(tb->mainWindow()->usesBigPixmaps());
+            connect(tb->mainWindow(), SIGNAL(usesTextLabelChanged(bool)),
+                     this, SLOT(setUsesTextLabel(bool)));
+            setUsesTextLabel(tb->mainWindow()->usesTextLabel());
+        } else {
+            setUsesBigPixmap(false);
+        }
     } else
 #endif
     {
-	setUsesBigPixmap( FALSE );
+        setUsesBigPixmap(false);
     }
 }
 
@@ -150,14 +150,14 @@ QToolButton::QToolButton( QWidget * parent, const char *name )
     The \a parent and \a name arguments are sent to the QWidget
     constructor.
 */
-QToolButton::QToolButton( ArrowType type, QWidget *parent, const char *name )
-    : QButton( parent, name )
+QToolButton::QToolButton(ArrowType type, QWidget *parent, const char *name)
+    : QButton(parent, name)
 {
     init();
-    setUsesBigPixmap( FALSE );
-    setAutoRepeat( TRUE );
+    setUsesBigPixmap(false);
+    setAutoRepeat(true);
     d->arrow = type;
-    hasArrow = TRUE;
+    hasArrow = true;
 }
 
 
@@ -172,22 +172,22 @@ void QToolButton::init()
     d->popup = 0;
     d->popupTimer = 0;
 #endif
-    d->autoraise = FALSE;
+    d->autoraise = false;
     d->arrow = LeftArrow;
-    d->instantPopup = FALSE;
-    d->discardNextMouseEvent = FALSE;
+    d->instantPopup = false;
+    d->discardNextMouseEvent = false;
     bpID = bp.serialNumber();
     spID = sp.serialNumber();
 
-    utl = FALSE;
-    ubp = TRUE;
-    hasArrow = FALSE;
+    utl = false;
+    ubp = true;
+    hasArrow = false;
 
     s = 0;
 
-    setFocusPolicy( NoFocus );
+    setFocusPolicy(NoFocus);
     setAttribute(WA_BackgroundInherited);
-    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum ) );
+    setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum));
 }
 
 #ifndef QT_NO_TOOLBAR
@@ -202,38 +202,38 @@ void QToolButton::init()
     receiver.
 */
 
-QToolButton::QToolButton( const QIconSet& iconSet, const QString &textLabel,
-			  const QString& grouptext,
-			  QObject * receiver, const char *slot,
-			  QToolBar * parent, const char *name )
-    : QButton( parent, name )
+QToolButton::QToolButton(const QIconSet& iconSet, const QString &textLabel,
+                          const QString& grouptext,
+                          QObject * receiver, const char *slot,
+                          QToolBar * parent, const char *name)
+    : QButton(parent, name)
 {
     init();
-    setAutoRaise( TRUE );
-    setIconSet( iconSet );
-    setTextLabel( textLabel );
-    if ( receiver && slot )
-	connect( this, SIGNAL(clicked()), receiver, slot );
-    if ( parent->mainWindow() ) {
-	connect( parent->mainWindow(), SIGNAL(pixmapSizeChanged(bool)),
-		 this, SLOT(setUsesBigPixmap(bool)) );
-	setUsesBigPixmap( parent->mainWindow()->usesBigPixmaps() );
-	connect( parent->mainWindow(), SIGNAL(usesTextLabelChanged(bool)),
-		 this, SLOT(setUsesTextLabel(bool)) );
-	setUsesTextLabel( parent->mainWindow()->usesTextLabel() );
+    setAutoRaise(true);
+    setIconSet(iconSet);
+    setTextLabel(textLabel);
+    if (receiver && slot)
+        connect(this, SIGNAL(clicked()), receiver, slot);
+    if (parent->mainWindow()) {
+        connect(parent->mainWindow(), SIGNAL(pixmapSizeChanged(bool)),
+                 this, SLOT(setUsesBigPixmap(bool)));
+        setUsesBigPixmap(parent->mainWindow()->usesBigPixmaps());
+        connect(parent->mainWindow(), SIGNAL(usesTextLabelChanged(bool)),
+                 this, SLOT(setUsesTextLabel(bool)));
+        setUsesTextLabel(parent->mainWindow()->usesTextLabel());
     } else {
-	setUsesBigPixmap( FALSE );
+        setUsesBigPixmap(false);
     }
 #ifndef QT_NO_TOOLTIP
-    if ( !textLabel.isEmpty() ) {
-	if ( !grouptext.isEmpty() )
-	    QToolTip::add( this, textLabel,
-			   parent->mainWindow()->toolTipGroup(), grouptext );
-	else
-	    QToolTip::add( this, textLabel );
-    } else if ( !grouptext.isEmpty() )
-	QToolTip::add( this, QString::null,
-		parent->mainWindow()->toolTipGroup(), grouptext );
+    if (!textLabel.isEmpty()) {
+        if (!grouptext.isEmpty())
+            QToolTip::add(this, textLabel,
+                           parent->mainWindow()->toolTipGroup(), grouptext);
+        else
+            QToolTip::add(this, textLabel);
+    } else if (!grouptext.isEmpty())
+        QToolTip::add(this, QString::null,
+                parent->mainWindow()->toolTipGroup(), grouptext);
 #endif
 }
 
@@ -273,9 +273,9 @@ QToolButton::~QToolButton()
     \sa setOn(), toggle()
 */
 
-void QToolButton::setToggleButton( bool enable )
+void QToolButton::setToggleButton(bool enable)
 {
-    QButton::setToggleButton( enable );
+    QButton::setToggleButton(enable);
 }
 
 
@@ -288,49 +288,49 @@ QSize QToolButton::sizeHint() const
 
     int w = 0, h = 0;
 
-    if ( iconSet().isNull() && !text().isNull() && !usesTextLabel() ) {
-     	w = fontMetrics().width( text() );
-     	h = fontMetrics().height(); // boundingRect()?
-    } else if ( usesBigPixmap() ) {
-     	QPixmap pm = iconSet().pixmap( QIconSet::Large, QIconSet::Normal );
-     	w = pm.width();
-     	h = pm.height();
-	QSize iconSize = QIconSet::iconSize( QIconSet::Large );
-	if ( w < iconSize.width() )
-     	    w = iconSize.width();
-     	if ( h < iconSize.height() )
-     	    h = iconSize.height();
-    } else if ( !iconSet().isNull() ) {
-	// ### in 3.1, use QIconSet::iconSize( QIconSet::Small );
-     	QPixmap pm = iconSet().pixmap( QIconSet::Small, QIconSet::Normal );
-     	w = pm.width();
-     	h = pm.height();
-	if ( w < 16 )
-	    w = 16;
-	if ( h < 16 )
-	    h = 16;
+    if (iconSet().isNull() && !text().isNull() && !usesTextLabel()) {
+        w = fontMetrics().width(text());
+        h = fontMetrics().height(); // boundingRect()?
+    } else if (usesBigPixmap()) {
+        QPixmap pm = iconSet().pixmap(QIconSet::Large, QIconSet::Normal);
+        w = pm.width();
+        h = pm.height();
+        QSize iconSize = QIconSet::iconSize(QIconSet::Large);
+        if (w < iconSize.width())
+            w = iconSize.width();
+        if (h < iconSize.height())
+            h = iconSize.height();
+    } else if (!iconSet().isNull()) {
+        // ### in 3.1, use QIconSet::iconSize(QIconSet::Small);
+        QPixmap pm = iconSet().pixmap(QIconSet::Small, QIconSet::Normal);
+        w = pm.width();
+        h = pm.height();
+        if (w < 16)
+            w = 16;
+        if (h < 16)
+            h = 16;
     }
 
-    if ( usesTextLabel() ) {
-	QSize textSize = fontMetrics().size( Qt::ShowPrefix, textLabel() );
-	textSize.setWidth( textSize.width() + fontMetrics().width(' ')*2 );
-	if ( d->textPos == Under ) {
-	    h += 4 + textSize.height();
-	    if ( textSize.width() > w )
-		w = textSize.width();
-	} else { // Right
-	    w += 4 + textSize.width();
-	    if ( textSize.height() > h )
-		h = textSize.height();
-	}
+    if (usesTextLabel()) {
+        QSize textSize = fontMetrics().size(Qt::ShowPrefix, textLabel());
+        textSize.setWidth(textSize.width() + fontMetrics().width(' ')*2);
+        if (d->textPos == Under) {
+            h += 4 + textSize.height();
+            if (textSize.width() > w)
+                w = textSize.width();
+        } else { // Right
+            w += 4 + textSize.width();
+            if (textSize.height() > h)
+                h = textSize.height();
+        }
     }
 
 #ifndef QT_NO_POPUPMENU
-    if ( popup() && ! popupDelay() )
-     	w += style().pixelMetric(QStyle::PM_MenuButtonIndicator, this);
+    if (popup() && ! popupDelay())
+        w += style().pixelMetric(QStyle::PM_MenuButtonIndicator, this);
 #endif
     return (style().sizeFromContents(QStyle::CT_ToolButton, this, QSize(w, h)).
-	    expandedTo(QApplication::globalStrut()));
+            expandedTo(QApplication::globalStrut()));
 }
 
 /*!
@@ -349,22 +349,22 @@ QSize QToolButton::minimumSizeHint() const
     signal in the QMainWindow in which it resides. We strongly
     recommend that you use QMainWindow::setUsesBigPixmaps() instead.
 
-    This property's default is TRUE.
+    This property's default is true.
 
     \warning If you set some buttons (in a QMainWindow) to have big
     pixmaps and others to have small pixmaps, QMainWindow may not get
     the geometry right.
 */
 
-void QToolButton::setUsesBigPixmap( bool enable )
+void QToolButton::setUsesBigPixmap(bool enable)
 {
-    if ( (bool)ubp == enable )
-	return;
+    if ((bool)ubp == enable)
+        return;
 
     ubp = enable;
-    if ( isVisible() ) {
-	update();
-	updateGeometry();
+    if (isVisible()) {
+        update();
+        updateGeometry();
     }
 }
 
@@ -373,21 +373,21 @@ void QToolButton::setUsesBigPixmap( bool enable )
     \property QToolButton::usesTextLabel
     \brief whether the toolbutton displays a text label below the button pixmap.
 
-    The default is FALSE.
+    The default is false.
 
     QToolButton automatically connects this slot to the relevant
     signal in the QMainWindow in which is resides.
 */
 
-void QToolButton::setUsesTextLabel( bool enable )
+void QToolButton::setUsesTextLabel(bool enable)
 {
-    if ( (bool)utl == enable )
-	return;
+    if ((bool)utl == enable)
+        return;
 
     utl = enable;
-    if ( isVisible() ) {
-	update();
-	updateGeometry();
+    if (isVisible()) {
+        update();
+        updateGeometry();
     }
 }
 
@@ -397,16 +397,16 @@ void QToolButton::setUsesTextLabel( bool enable )
     \brief whether this tool button is on.
 
     This property has no effect on \link isToggleButton() non-toggling
-    buttons. \endlink The default is FALSE (i.e. off).
+    buttons. \endlink The default is false (i.e. off).
 
     \sa isToggleButton() toggle()
 */
 
-void QToolButton::setOn( bool enable )
+void QToolButton::setOn(bool enable)
 {
-    if ( !isToggleButton() )
-	return;
-    QButton::setOn( enable );
+    if (!isToggleButton())
+        return;
+    QButton::setOn(enable);
 }
 
 
@@ -421,16 +421,16 @@ void QToolButton::setOn( bool enable )
 
 void QToolButton::toggle()
 {
-    if ( !isToggleButton() )
-	return;
-    QButton::setOn( !isOn() );
+    if (!isToggleButton())
+        return;
+    QButton::setOn(!isOn());
 }
 
 
 /*!
     \reimp
 */
-void QToolButton::drawButton( QPainter * p )
+void QToolButton::drawButton(QPainter * p)
 {
     QStyle::SCFlags controls = QStyle::SC_ToolButton;
     QStyle::SCFlags active = QStyle::SC_None;
@@ -438,39 +438,39 @@ void QToolButton::drawButton( QPainter * p )
     Qt::ArrowType arrowtype = d->arrow;
 
     if (isDown())
-	active |= QStyle::SC_ToolButton;
+        active |= QStyle::SC_ToolButton;
 
 #ifndef QT_NO_POPUPMENU
     if (d->popup && !d->delay) {
-	controls |= QStyle::SC_ToolButtonMenu;
-	if (d->instantPopup || isDown())
-	    active |= QStyle::SC_ToolButtonMenu;
+        controls |= QStyle::SC_ToolButtonMenu;
+        if (d->instantPopup || isDown())
+            active |= QStyle::SC_ToolButtonMenu;
     }
 #endif
 
     QStyle::SFlags flags = QStyle::Style_Default;
     if (isEnabled())
-	flags |= QStyle::Style_Enabled;
+        flags |= QStyle::Style_Enabled;
     if (hasFocus())
-	flags |= QStyle::Style_HasFocus;
+        flags |= QStyle::Style_HasFocus;
     if (isDown())
-	flags |= QStyle::Style_Down;
+        flags |= QStyle::Style_Down;
     if (isOn())
-	flags |= QStyle::Style_On;
+        flags |= QStyle::Style_On;
     if (autoRaise()) {
-	flags |= QStyle::Style_AutoRaise;
-	if (uses3D()) {
-	    flags |= QStyle::Style_MouseOver;
-	    if (! isOn() && ! isDown())
-		flags |= QStyle::Style_Raised;
-	}
+        flags |= QStyle::Style_AutoRaise;
+        if (uses3D()) {
+            flags |= QStyle::Style_MouseOver;
+            if (! isOn() && ! isDown())
+                flags |= QStyle::Style_Raised;
+        }
     } else if (! isOn() && ! isDown())
-	flags |= QStyle::Style_Raised;
+        flags |= QStyle::Style_Raised;
 
     style().drawComplexControl(QStyle::CC_ToolButton, p, this, rect(), palette(),
-			       flags, controls, active,
-				hasArrow ? QStyleOption(arrowtype) :
-				    QStyleOption());
+                               flags, controls, active,
+                                hasArrow ? QStyleOption(arrowtype) :
+                                    QStyleOption());
     drawButtonLabel(p);
 }
 
@@ -481,127 +481,127 @@ void QToolButton::drawButton( QPainter * p )
 void QToolButton::drawButtonLabel(QPainter *p)
 {
     QRect r =
-	QStyle::visualRect(style().subRect(QStyle::SR_ToolButtonContents, this), this);
+        QStyle::visualRect(style().subRect(QStyle::SR_ToolButtonContents, this), this);
 
     Qt::ArrowType arrowtype = d->arrow;
 
     QStyle::SFlags flags = QStyle::Style_Default;
     if (isEnabled())
-	flags |= QStyle::Style_Enabled;
+        flags |= QStyle::Style_Enabled;
     if (hasFocus())
-	flags |= QStyle::Style_HasFocus;
+        flags |= QStyle::Style_HasFocus;
     if (isDown())
-	flags |= QStyle::Style_Down;
+        flags |= QStyle::Style_Down;
     if (isOn())
-	flags |= QStyle::Style_On;
+        flags |= QStyle::Style_On;
     if (autoRaise()) {
-	flags |= QStyle::Style_AutoRaise;
-	if (uses3D()) {
-	    flags |= QStyle::Style_MouseOver;
-	    if (! isOn() && ! isDown())
-		flags |= QStyle::Style_Raised;
-	}
+        flags |= QStyle::Style_AutoRaise;
+        if (uses3D()) {
+            flags |= QStyle::Style_MouseOver;
+            if (! isOn() && ! isDown())
+                flags |= QStyle::Style_Raised;
+        }
     } else if (! isOn() && ! isDown())
-	flags |= QStyle::Style_Raised;
+        flags |= QStyle::Style_Raised;
 
     style().drawControl(QStyle::CE_ToolButtonLabel, p, this, r,
-			palette(), flags,
-			hasArrow ? QStyleOption(arrowtype) :
-			    QStyleOption());
+                        palette(), flags,
+                        hasArrow ? QStyleOption(arrowtype) :
+                            QStyleOption());
 }
 
 
 /*!
     \reimp
  */
-void QToolButton::enterEvent( QEvent * e )
+void QToolButton::enterEvent(QEvent * e)
 {
-    if ( autoRaise() && isEnabled() )
-	repaint();
+    if (autoRaise() && isEnabled())
+        repaint();
 
-    QButton::enterEvent( e );
+    QButton::enterEvent(e);
 }
 
 
 /*!
     \reimp
  */
-void QToolButton::leaveEvent( QEvent * e )
+void QToolButton::leaveEvent(QEvent * e)
 {
-    if ( autoRaise() && isEnabled() )
-	repaint();
+    if (autoRaise() && isEnabled())
+        repaint();
 
-    QButton::leaveEvent( e );
+    QButton::leaveEvent(e);
 }
 
 /*!
     \reimp
  */
-void QToolButton::moveEvent( QMoveEvent * )
+void QToolButton::moveEvent(QMoveEvent *)
 {
     //   Reimplemented to handle pseudo transparency in case the toolbars
     //   has a fancy pixmap background.
     QWidget *pW = static_cast<QWidget *>(parent());
-    if ( pW && pW->palette().brush(backgroundRole()).pixmap() &&
-	 autoRaise() && !uses3D() )
-	repaint();
+    if (pW && pW->palette().brush(backgroundRole()).pixmap() &&
+         autoRaise() && !uses3D())
+        repaint();
 }
 
 /*!
     \reimp
 */
-void QToolButton::mousePressEvent( QMouseEvent *e )
+void QToolButton::mousePressEvent(QMouseEvent *e)
 {
     QRect popupr =
-	QStyle::visualRect( style().querySubControlMetrics(QStyle::CC_ToolButton, this,
-				       QStyle::SC_ToolButtonMenu), this );
+        QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_ToolButton, this,
+                                       QStyle::SC_ToolButtonMenu), this);
     d->instantPopup = (popupr.isValid() && popupr.contains(e->pos()));
 
 #ifndef QT_NO_POPUPMENU
-    if ( d->discardNextMouseEvent ) {
-	d->discardNextMouseEvent = FALSE;
-	d->instantPopup = FALSE;
-	d->popup->removeEventFilter( this );
-	return;
+    if (d->discardNextMouseEvent) {
+        d->discardNextMouseEvent = false;
+        d->instantPopup = false;
+        d->popup->removeEventFilter(this);
+        return;
     }
-    if ( e->button() == LeftButton && d->delay <= 0 && d->popup && d->instantPopup && !d->popup->isVisible() ) {
-	openPopup();
-	return;
+    if (e->button() == LeftButton && d->delay <= 0 && d->popup && d->instantPopup && !d->popup->isVisible()) {
+        openPopup();
+        return;
     }
 #endif
 
-    d->instantPopup = FALSE;
-    QButton::mousePressEvent( e );
+    d->instantPopup = false;
+    QButton::mousePressEvent(e);
 }
 
 /*!
     \reimp
 */
-bool QToolButton::eventFilter( QObject *o, QEvent *e )
+bool QToolButton::eventFilter(QObject *o, QEvent *e)
 {
 #ifndef QT_NO_POPUPMENU
-    if ( o != d->popup )
-	return QButton::eventFilter( o, e );
-    switch ( e->type() ) {
+    if (o != d->popup)
+        return QButton::eventFilter(o, e);
+    switch (e->type()) {
     case QEvent::MouseButtonPress:
     case QEvent::MouseButtonDblClick:
-	{
-	    QMouseEvent *me = (QMouseEvent*)e;
-	    QPoint p = me->globalPos();
-	    if ( QApplication::widgetAt(p) == this )
-		d->discardNextMouseEvent = TRUE;
-	}
-	break;
+        {
+            QMouseEvent *me = (QMouseEvent*)e;
+            QPoint p = me->globalPos();
+            if (QApplication::widgetAt(p) == this)
+                d->discardNextMouseEvent = true;
+        }
+        break;
     default:
-	break;
+        break;
     }
 #endif
-    return QButton::eventFilter( o, e );
+    return QButton::eventFilter(o, e);
 }
 
 /*!
-    Returns TRUE if this button should be drawn using raised edges;
-    otherwise returns FALSE.
+    Returns true if this button should be drawn using raised edges;
+    otherwise returns false.
 
     \sa drawButton()
 */
@@ -614,11 +614,11 @@ bool QToolButton::eventFilter( QObject *o, QEvent *e )
 bool QToolButton::uses3D() const
 {
     return style().styleHint(QStyle::SH_ToolButton_Uses3D)
-	&& (!autoRaise() || ( underMouse() && isEnabled() )
+        && (!autoRaise() || (underMouse() && isEnabled())
 #ifndef QT_NO_POPUPMENU
-	    || ( d->popup && d->popup->isVisible() && d->delay <= 0 ) || d->instantPopup
+            || (d->popup && d->popup->isVisible() && d->delay <= 0) || d->instantPopup
 #endif
-	    );
+           );
 }
 
 
@@ -630,34 +630,34 @@ bool QToolButton::uses3D() const
     too. There is no default text.
 */
 
-void QToolButton::setTextLabel( const QString &newLabel )
+void QToolButton::setTextLabel(const QString &newLabel)
 {
-    setTextLabel( newLabel, TRUE );
+    setTextLabel(newLabel, true);
 }
 
 /*!
     \overload
 
     Sets the label of this button to \a newLabel and automatically
-    sets it as a tool tip if \a tipToo is TRUE.
+    sets it as a tool tip if \a tipToo is true.
 */
 
-void QToolButton::setTextLabel( const QString &newLabel , bool tipToo )
+void QToolButton::setTextLabel(const QString &newLabel , bool tipToo)
 {
-    if ( tl == newLabel )
-	return;
+    if (tl == newLabel)
+        return;
 
 #ifndef QT_NO_TOOLTIP
-    if ( tipToo ) {
-        QToolTip::remove( this );
-        QToolTip::add( this, newLabel );
+    if (tipToo) {
+        QToolTip::remove(this);
+        QToolTip::add(this, newLabel);
     }
 #endif
 
     tl = newLabel;
-    if ( usesTextLabel() && isVisible() ) {
-	update();
-	updateGeometry();
+    if (usesTextLabel() && isVisible()) {
+        update();
+        updateGeometry();
     }
 
 }
@@ -669,7 +669,7 @@ QIconSet QToolButton::onIconSet() const
     return iconSet();
 }
 
-QIconSet QToolButton::offIconSet( ) const
+QIconSet QToolButton::offIconSet() const
 {
     return iconSet();
 }
@@ -691,15 +691,15 @@ QIconSet QToolButton::offIconSet( ) const
 
   \sa iconSet QIconSet::State
 */
-void QToolButton::setOnIconSet( const QIconSet& set )
+void QToolButton::setOnIconSet(const QIconSet& set)
 {
-    setIconSet( set );
+    setIconSet(set);
     /*
       ### Get rid of all qWarning in this file in 4.0.
       Also consider inlining the obsolete functions then.
     */
-    qWarning( "QToolButton::setOnIconSet(): This function is not supported"
-	      " anymore" );
+    qWarning("QToolButton::setOnIconSet(): This function is not supported"
+              " anymore");
 }
 
 /*!
@@ -718,9 +718,9 @@ void QToolButton::setOnIconSet( const QIconSet& set )
 
   \sa iconSet QIconSet::State
 */
-void QToolButton::setOffIconSet( const QIconSet& set )
+void QToolButton::setOffIconSet(const QIconSet& set)
 {
-    setIconSet( set );
+    setIconSet(set);
 }
 
 #endif
@@ -741,14 +741,14 @@ void QToolButton::setOffIconSet( const QIconSet& set )
 
     \sa pixmap(), setToggleButton(), isOn()
 */
-void QToolButton::setIconSet( const QIconSet & set )
+void QToolButton::setIconSet(const QIconSet & set)
 {
-    if ( s )
-	delete s;
-    setPixmap( QPixmap() );
-    s = new QIconSet( set );
-    if ( isVisible() )
-	update();
+    if (s)
+        delete s;
+    setPixmap(QPixmap());
+    s = new QIconSet(set);
+    if (isVisible())
+        update();
 }
 
 #ifdef QT_COMPAT
@@ -766,10 +766,10 @@ void QToolButton::setIconSet( const QIconSet & set )
   \sa iconSet QIconSet::State
 */
 
-void QToolButton::setIconSet( const QIconSet & set, bool /* on */ )
+void QToolButton::setIconSet(const QIconSet & set, bool /* on */)
 {
-    setIconSet( set );
-    qWarning( "QToolButton::setIconSet(): 'on' parameter ignored" );
+    setIconSet(set);
+    qWarning("QToolButton::setIconSet(): 'on' parameter ignored");
 }
 
 #endif
@@ -778,15 +778,15 @@ QIconSet QToolButton::iconSet() const
 {
     QToolButton *that = (QToolButton *) this;
 
-    if ( pixmap() && !pixmap()->isNull() &&
-	 (!that->s || (that->s->pixmap().serialNumber() !=
-	 pixmap()->serialNumber())) ) {
-	if ( that->s )
-	    delete that->s;
-	that->s = new QIconSet( *pixmap() );
+    if (pixmap() && !pixmap()->isNull() &&
+         (!that->s || (that->s->pixmap().serialNumber() !=
+         pixmap()->serialNumber()))) {
+        if (that->s)
+            delete that->s;
+        that->s = new QIconSet(*pixmap());
     }
-    if ( that->s )
-	return *that->s;
+    if (that->s)
+        return *that->s;
     /*
       In 2.x, we used to return a temporary nonnull QIconSet. If you
       revert to the old behavior, you will break calls to
@@ -806,7 +806,7 @@ QIconSet QToolButton::iconSet() const
   parameter, you probably want to update your code to use the QIconSet
   On/Off mechanism.
 */
-QIconSet QToolButton::iconSet( bool /* on */ ) const
+QIconSet QToolButton::iconSet(bool /* on */) const
 {
     return iconSet();
 }
@@ -828,12 +828,12 @@ QIconSet QToolButton::iconSet( bool /* on */ ) const
 
     \sa popup()
 */
-void QToolButton::setPopup( QPopupMenu* popup )
+void QToolButton::setPopup(QPopupMenu* popup)
 {
-    if ( popup && !d->popupTimer ) {
-	connect( this, SIGNAL(pressed()), this, SLOT(popupPressed()) );
-	d->popupTimer = new QTimer( this );
-	connect( d->popupTimer, SIGNAL(timeout()), this, SLOT(popupTimerDone()) );
+    if (popup && !d->popupTimer) {
+        connect(this, SIGNAL(pressed()), this, SLOT(popupPressed()));
+        d->popupTimer = new QTimer(this);
+        connect(d->popupTimer, SIGNAL(timeout()), this, SLOT(popupTimerDone()));
     }
     d->popup = popup;
 
@@ -858,82 +858,82 @@ QPopupMenu* QToolButton::popup() const
 */
 void QToolButton::openPopup()
 {
-    if ( !d->popup )
-	return;
+    if (!d->popup)
+        return;
 
-    d->instantPopup = TRUE;
+    d->instantPopup = true;
     repaint();
-    if ( d->popupTimer )
-	d->popupTimer->stop();
+    if (d->popupTimer)
+        d->popupTimer->stop();
     QGuardedPtr<QToolButton> that = this;
     popupTimerDone();
-    if ( !that )
-	return;
-    d->instantPopup = FALSE;
+    if (!that)
+        return;
+    d->instantPopup = false;
     repaint();
 }
 
 void QToolButton::popupPressed()
 {
-    if ( d->popupTimer && d->delay > 0 )
-	d->popupTimer->start( d->delay, TRUE );
+    if (d->popupTimer && d->delay > 0)
+        d->popupTimer->start(d->delay, true);
 }
 
 void QToolButton::popupTimerDone()
 {
-    if ( (!isDown() && d->delay > 0 ) || !d->popup )
-	return;
+    if ((!isDown() && d->delay > 0) || !d->popup)
+        return;
 
-    d->popup->installEventFilter( this );
+    d->popup->installEventFilter(this);
     d->repeat = autoRepeat();
-    setAutoRepeat( FALSE );
-    bool horizontal = TRUE;
+    setAutoRepeat(false);
+    bool horizontal = true;
 #ifndef QT_NO_TOOLBAR
     QToolBar *tb = qt_cast<QToolBar*>(parentWidget());
-    if ( tb && tb->orientation() == Vertical )
-	horizontal = FALSE;
+    if (tb && tb->orientation() == Vertical)
+        horizontal = false;
 #endif
     QPoint p;
-    QRect screen = qApp->desktop()->availableGeometry( this );
-    if ( horizontal ) {
-	if ( QApplication::reverseLayout() ) {
-	    if ( mapToGlobal( QPoint( 0, rect().bottom() ) ).y() + d->popup->sizeHint().height() <= screen.height() ) {
-		p = mapToGlobal( rect().bottomRight() );
-	    } else {
-		p = mapToGlobal( rect().topRight() - QPoint( 0, d->popup->sizeHint().height() ) );
-	    }
-	    p.rx() -= d->popup->sizeHint().width();
-	} else {
-	    if ( mapToGlobal( QPoint( 0, rect().bottom() ) ).y() + d->popup->sizeHint().height() <= screen.height() ) {
-		p = mapToGlobal( rect().bottomLeft() );
-	    } else {
-		p = mapToGlobal( rect().topLeft() - QPoint( 0, d->popup->sizeHint().height() ) );
-	    }
-	}
+    QRect screen = qApp->desktop()->availableGeometry(this);
+    if (horizontal) {
+        if (QApplication::reverseLayout()) {
+            if (mapToGlobal(QPoint(0, rect().bottom())).y() + d->popup->sizeHint().height() <= screen.height()) {
+                p = mapToGlobal(rect().bottomRight());
+            } else {
+                p = mapToGlobal(rect().topRight() - QPoint(0, d->popup->sizeHint().height()));
+            }
+            p.rx() -= d->popup->sizeHint().width();
+        } else {
+            if (mapToGlobal(QPoint(0, rect().bottom())).y() + d->popup->sizeHint().height() <= screen.height()) {
+                p = mapToGlobal(rect().bottomLeft());
+            } else {
+                p = mapToGlobal(rect().topLeft() - QPoint(0, d->popup->sizeHint().height()));
+            }
+        }
     } else {
-	if ( QApplication::reverseLayout() ) {
-	    if ( mapToGlobal( QPoint( rect().left(), 0 ) ).x() - d->popup->sizeHint().width() <= screen.x() ) {
-		p = mapToGlobal( rect().topRight() );
-	    } else {
-		p = mapToGlobal( rect().topLeft() );
-		p.rx() -= d->popup->sizeHint().width();
-	    }
-	} else {
-	    if ( mapToGlobal( QPoint( rect().right(), 0 ) ).x() + d->popup->sizeHint().width() <= screen.width() ) {
-		p = mapToGlobal( rect().topRight() );
-	    } else {
-		p = mapToGlobal( rect().topLeft() - QPoint( d->popup->sizeHint().width(), 0 ) );
-	    }
-	}
+        if (QApplication::reverseLayout()) {
+            if (mapToGlobal(QPoint(rect().left(), 0)).x() - d->popup->sizeHint().width() <= screen.x()) {
+                p = mapToGlobal(rect().topRight());
+            } else {
+                p = mapToGlobal(rect().topLeft());
+                p.rx() -= d->popup->sizeHint().width();
+            }
+        } else {
+            if (mapToGlobal(QPoint(rect().right(), 0)).x() + d->popup->sizeHint().width() <= screen.width()) {
+                p = mapToGlobal(rect().topRight());
+            } else {
+                p = mapToGlobal(rect().topLeft() - QPoint(d->popup->sizeHint().width(), 0));
+            }
+        }
     }
     QGuardedPtr<QToolButton> that = this;
-    d->popup->exec( p, -1 );
-    if ( !that )
-	return;
+    d->popup->exec(p, -1);
+    if (!that)
+        return;
 
-    setDown( FALSE );
-    if ( d->repeat )
-	setAutoRepeat( TRUE );
+    setDown(false);
+    if (d->repeat)
+        setAutoRepeat(true);
 }
 
 /*!
@@ -946,7 +946,7 @@ void QToolButton::popupTimerDone()
 
     \sa setPopup()
 */
-void QToolButton::setPopupDelay( int delay )
+void QToolButton::setPopupDelay(int delay)
 {
     d->delay = delay;
 
@@ -964,9 +964,9 @@ int QToolButton::popupDelay() const
     \property QToolButton::autoRaise
     \brief whether auto-raising is enabled or not.
 
-    The default is disabled (i.e. FALSE).
+    The default is disabled (i.e. false).
 */
-void QToolButton::setAutoRaise( bool enable )
+void QToolButton::setAutoRaise(bool enable)
 {
     d->autoraise = enable;
 
@@ -988,7 +988,7 @@ QToolButton::TextPosition QToolButton::textPosition() const
     return d->textPos;
 }
 
-void QToolButton::setTextPosition( TextPosition pos )
+void QToolButton::setTextPosition(TextPosition pos)
 {
     d->textPos = pos;
     updateGeometry();
@@ -997,12 +997,12 @@ void QToolButton::setTextPosition( TextPosition pos )
 
 /*! \reimp */
 
-void QToolButton::setText( const QString &txt )
+void QToolButton::setText(const QString &txt)
 {
-    QButton::setText( txt );
-    if ( !text().isEmpty() ) {
-	delete s;
-	s = 0;
+    QButton::setText(txt);
+    if (!text().isEmpty()) {
+        delete s;
+        s = 0;
     }
 }
 
@@ -1010,11 +1010,11 @@ void QToolButton::setText( const QString &txt )
 /*!
     \reimp
 */
-void QToolButton::changeEvent( QEvent *ev )
+void QToolButton::changeEvent(QEvent *ev)
 {
     if(ev->type() == QEvent::PaletteChange) {
-	if ( s )
-	    s->clearGenerated();
+        if (s)
+            s->clearGenerated();
     }
     QButton::changeEvent(ev);
 }

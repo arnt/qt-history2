@@ -17,9 +17,9 @@ public:
     MNGFormat();
 
     QStringList keys() const;
-    bool loadImage( const QString &format, const QString &filename, QImage *image );
-    bool saveImage( const QString &format, const QString &filename, const QImage &image );
-    bool installIOHandler( const QString & );
+    bool loadImage(const QString &format, const QString &filename, QImage *image);
+    bool saveImage(const QString &format, const QString &filename, const QImage &image);
+    bool installIOHandler(const QString &);
 };
 
 MNGFormat::MNGFormat()
@@ -35,25 +35,25 @@ QStringList MNGFormat::keys() const
     return list;
 }
 
-bool MNGFormat::loadImage( const QString &, const QString &, QImage * )
+bool MNGFormat::loadImage(const QString &, const QString &, QImage *)
 {
-    return FALSE;
+    return false;
 }
 
-bool MNGFormat::saveImage( const QString &, const QString &, const QImage& )
+bool MNGFormat::saveImage(const QString &, const QString &, const QImage&)
 {
-    return FALSE;
+    return false;
 }
 
-bool MNGFormat::installIOHandler( const QString &name )
+bool MNGFormat::installIOHandler(const QString &name)
 {
-    if ( name != "MNG" )
-	return FALSE;
+    if (name != "MNG")
+        return false;
 
     qInitMngIO();
-    return TRUE;
+    return true;
 }
 
-Q_EXPORT_PLUGIN( MNGFormat )
+Q_EXPORT_PLUGIN(MNGFormat)
 
 #endif // QT_NO_IMAGEFORMATPLUGIN

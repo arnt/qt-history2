@@ -26,16 +26,16 @@ class Q_GUI_EXPORT QAbstractSlider : public QWidget
     Q_OBJECT
     Q_DECLARE_PRIVATE(QAbstractSlider);
 
-    Q_PROPERTY( int minimum READ minimum WRITE setMinimum )
-    Q_PROPERTY( int maximum READ maximum WRITE setMaximum )
-    Q_PROPERTY( int singleStep READ singleStep WRITE setSingleStep )
-    Q_PROPERTY( int pageStep READ pageStep WRITE setPageStep )
-    Q_PROPERTY( int value READ value WRITE setValue )
-    Q_PROPERTY( bool tracking READ hasTracking WRITE setTracking )
-    Q_PROPERTY( Orientation orientation READ orientation WRITE setOrientation )
-    Q_PROPERTY( bool invertedAppearance READ invertedAppearance WRITE setInvertedAppearance )
-    Q_PROPERTY( bool invertedControls READ invertedControls WRITE setInvertedControls )
-    QDOC_PROPERTY( bool sliderDown READ isSliderDown WRITE setSliderDown )
+    Q_PROPERTY(int minimum READ minimum WRITE setMinimum)
+    Q_PROPERTY(int maximum READ maximum WRITE setMaximum)
+    Q_PROPERTY(int singleStep READ singleStep WRITE setSingleStep)
+    Q_PROPERTY(int pageStep READ pageStep WRITE setPageStep)
+    Q_PROPERTY(int value READ value WRITE setValue)
+    Q_PROPERTY(bool tracking READ hasTracking WRITE setTracking)
+    Q_PROPERTY(Orientation orientation READ orientation WRITE setOrientation)
+    Q_PROPERTY(bool invertedAppearance READ invertedAppearance WRITE setInvertedAppearance)
+    Q_PROPERTY(bool invertedControls READ invertedControls WRITE setInvertedControls)
+    QDOC_PROPERTY(bool sliderDown READ isSliderDown WRITE setSliderDown)
 
 public:
     QAbstractSlider(QWidget *parent=0);
@@ -74,14 +74,14 @@ public:
     bool invertedControls() const;
 
     enum SliderAction {
-	SliderNoAction,
-	SliderSingleStepAdd,
-	SliderSingleStepSub,
-	SliderPageStepAdd,
-	SliderPageStepSub,
-	SliderToMinimum,
-	SliderToMaximum,
-	SliderMove
+        SliderNoAction,
+        SliderSingleStepAdd,
+        SliderSingleStepSub,
+        SliderPageStepAdd,
+        SliderPageStepSub,
+        SliderToMinimum,
+        SliderToMaximum,
+        SliderMove
     };
 
     int value() const;
@@ -107,10 +107,10 @@ protected:
     SliderAction repeatAction() const;
 
     enum SliderChange {
-	SliderRangeChange,
-	SliderOrientationChange,
-	SliderStepsChange,
-	SliderValueChange
+        SliderRangeChange,
+        SliderOrientationChange,
+        SliderStepsChange,
+        SliderValueChange
     };
     virtual void sliderChange(SliderChange change);
 
@@ -136,7 +136,7 @@ public:
     inline QT_COMPAT void addLine() { triggerAction(SliderSingleStepAdd); }
     inline QT_COMPAT void subtractLine() { triggerAction(SliderSingleStepSub); }
 #endif
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QAbstractSlider(const QAbstractSlider &);
     QAbstractSlider &operator=(const QAbstractSlider &);

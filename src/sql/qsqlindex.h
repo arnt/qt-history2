@@ -23,7 +23,7 @@
 #include "qlist.h"
 #endif // QT_H
 
-#if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
+#if !defined(QT_MODULE_SQL) || defined(QT_LICENSE_PROFESSIONAL)
 #define QM_EXPORT_SQL
 #else
 #define QM_EXPORT_SQL Q_SQL_EXPORT
@@ -36,33 +36,33 @@ class QSqlCursor;
 class QM_EXPORT_SQL QSqlIndex : public QSqlRecord
 {
 public:
-    QSqlIndex( const QString& cursorName = QString(), const QString& name = QString() );
-    QSqlIndex( const QSqlIndex& other );
+    QSqlIndex(const QString& cursorName = QString(), const QString& name = QString());
+    QSqlIndex(const QSqlIndex& other);
     ~QSqlIndex();
-    QSqlIndex&       operator=( const QSqlIndex& other );
-    virtual void     setCursorName( const QString& cursorName );
+    QSqlIndex&       operator=(const QSqlIndex& other);
+    virtual void     setCursorName(const QString& cursorName);
     QString          cursorName() const { return cursor; }
-    virtual void     setName( const QString& name );
+    virtual void     setName(const QString& name);
     QString          name() const { return nm; }
 
-    void             append( const QSqlField& field );
-    virtual void     append( const QSqlField& field, bool desc );
+    void             append(const QSqlField& field);
+    virtual void     append(const QSqlField& field, bool desc);
 
-    bool             isDescending( int i ) const;
-    virtual void     setDescending( int i, bool desc );
+    bool             isDescending(int i) const;
+    virtual void     setDescending(int i, bool desc);
 
-    QString          toString( const QString& prefix = QString(),
-			       const QString& sep = ",",
-			       bool verbose = TRUE ) const;
-    QStringList      toStringList( const QString& prefix = QString(),
-				   bool verbose = TRUE ) const;
+    QString          toString(const QString& prefix = QString(),
+                               const QString& sep = ",",
+                               bool verbose = true) const;
+    QStringList      toStringList(const QString& prefix = QString(),
+                                   bool verbose = true) const;
 
 private:
-    QString          createField( int i, const QString& prefix, bool verbose ) const;
+    QString          createField(int i, const QString& prefix, bool verbose) const;
     QString          cursor;
     QString          nm;
     QList<bool> sorts;
 };
 
-#endif	// QT_NO_SQL
+#endif        // QT_NO_SQL
 #endif

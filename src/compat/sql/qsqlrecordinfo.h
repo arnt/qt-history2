@@ -36,36 +36,36 @@ class Q_COMPAT_EXPORT QSqlRecordInfo: public QSqlFieldInfoList
 {
 public:
     QSqlRecordInfo(): QSqlFieldInfoList() {}
-    QSqlRecordInfo( const QSqlFieldInfoList& other ): QSqlFieldInfoList( other ) {}
-    QSqlRecordInfo( const QSqlRecord& other )
+    QSqlRecordInfo(const QSqlFieldInfoList& other): QSqlFieldInfoList(other) {}
+    QSqlRecordInfo(const QSqlRecord& other)
     {
-	for ( int i = 0; i < other.count(); ++i )
-	    push_back( QSqlFieldInfo( *(other.field( i )), other.isGenerated( i ) ) );
+        for (int i = 0; i < other.count(); ++i)
+            push_back(QSqlFieldInfo(*(other.field(i)), other.isGenerated(i)));
     }
 
-    size_type contains( const QString& fieldName ) const;
-    QSqlFieldInfo find( const QString& fieldName ) const;
+    size_type contains(const QString& fieldName) const;
+    QSqlFieldInfo find(const QString& fieldName) const;
     QSqlRecord toRecord() const;
 };
 
-inline QSqlRecordInfo::size_type QSqlRecordInfo::contains( const QString& fieldName ) const
+inline QSqlRecordInfo::size_type QSqlRecordInfo::contains(const QString& fieldName) const
 {
     size_type i = 0;
     QString fName = fieldName.toUpper();
 
-    for( const_iterator it = begin(); it != end(); ++it ) {
-	if ( (*it).name().toUpper() == fName ) {
+    for(const_iterator it = begin(); it != end(); ++it) {
+        if ((*it).name().toUpper() == fName) {
             ++i;
         }
     }
     return i;
 }
 
-inline QSqlFieldInfo QSqlRecordInfo::find( const QString& fieldName ) const
+inline QSqlFieldInfo QSqlRecordInfo::find(const QString& fieldName) const
 {
     QString fName = fieldName.toUpper();
-    for( const_iterator it = begin(); it != end(); ++it ) {
-        if ( (*it).name().toUpper() == fName ) {
+    for(const_iterator it = begin(); it != end(); ++it) {
+        if ((*it).name().toUpper() == fName) {
             return *it;
         }
     }
@@ -75,12 +75,12 @@ inline QSqlFieldInfo QSqlRecordInfo::find( const QString& fieldName ) const
 inline QSqlRecord QSqlRecordInfo::toRecord() const
 {
     QSqlRecord buf;
-    for( const_iterator it = begin(); it != end(); ++it ) {
-	buf.append( (*it).toField() );
+    for(const_iterator it = begin(); it != end(); ++it) {
+        buf.append((*it).toField());
     }
     return buf;
 }
 
-#endif	// QT_NO_SQL
+#endif        // QT_NO_SQL
 #endif  // QT_COMPAT
 #endif

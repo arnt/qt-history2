@@ -16,9 +16,9 @@ class Q_GUI_EXPORT QModelIndex
 public:
     enum Type { View, HorizontalHeader, VerticalHeader };
     inline QModelIndex(const QModelIndex &other)
-	: r(other.row()), c(other.column()), d(other.data()), t(other.t) {}
+        : r(other.row()), c(other.column()), d(other.data()), t(other.t) {}
     inline QModelIndex(int row = -1, int column = -1, void *data = 0, Type type = View)
-	: r(row), c(column), d(data), t(type) {}
+        : r(row), c(column), d(data), t(type) {}
     inline ~QModelIndex() {}
     inline int row() const { return r; }
     inline int column() const { return c; }
@@ -51,13 +51,13 @@ class Q_GUI_EXPORT QAbstractItemModel : public QObject
 
 public:
     enum Role {
-	Display = 0,
-	Decoration = 1,
-	Edit = 2,
-	ToolTip = 3,
-	StatusTip = 4,
-	WhatsThis = 5,
-	User = 32
+        Display = 0,
+        Decoration = 1,
+        Edit = 2,
+        ToolTip = 3,
+        StatusTip = 4,
+        WhatsThis = 5,
+        User = 32
     };
 
     QAbstractItemModel(QObject *parent = 0);
@@ -68,11 +68,11 @@ public:
     virtual QModelIndex parent(const QModelIndex &child) const;
 
     inline QModelIndex topLeft(const QModelIndex &parent = 0) const
-	{ return index(0, 0, parent); }
+        { return index(0, 0, parent); }
     inline QModelIndex bottomRight(const QModelIndex &parent = 0) const
-	{ return index(rowCount(parent) - 1, columnCount(parent) - 1, parent); }
+        { return index(rowCount(parent) - 1, columnCount(parent) - 1, parent); }
     inline QModelIndex sibling(int row, int column, const QModelIndex &idx) const
-	{ return index(row, column, parent(idx), idx.type()); }
+        { return index(row, column, parent(idx), idx.type()); }
 
     virtual int rowCount(const QModelIndex &parent = 0) const = 0;
     virtual int columnCount(const QModelIndex &parent = 0) const = 0;
@@ -102,7 +102,7 @@ public:
     virtual bool equal(const QModelIndex &left, const QModelIndex &right) const;
     virtual bool greater(const QModelIndex &left, const QModelIndex &right) const;
     inline bool less(const QModelIndex &left, const QModelIndex &right) const
-	{ return !(greater(left, right) || equal(left, right)); }
+        { return !(greater(left, right) || equal(left, right)); }
 
 public slots:
     virtual void fetchMore();

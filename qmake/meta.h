@@ -19,7 +19,7 @@
 #include <qstringlist.h>
 #include <qstring.h>
 
-class QMakeMetaInfo 
+class QMakeMetaInfo
 {
     bool readLibtoolFile(const QString &f);
     bool readPkgCfgFile(const QString &f);
@@ -55,9 +55,9 @@ inline QString QMakeMetaInfo::first(const QString &v)
 #if defined(Q_CC_SUN) && (__SUNPRO_CC == 0x500) || defined(Q_CC_HP)
     // workaround for Sun WorkShop 5.0 bug fixed in Forte 6
     if (isEmpty(v))
-	return QString("");
+        return QString("");
     else
-	return vars[v].first();
+        return vars[v].first();
 #else
     return isEmpty(v) ? QString("") : vars[v].first();
 #endif

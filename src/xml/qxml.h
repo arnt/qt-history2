@@ -22,7 +22,7 @@
 #include "qstringlist.h"
 #endif // QT_H
 
-#if !defined(QT_MODULE_XML) || defined( QT_LICENSE_PROFESSIONAL ) || defined( QT_INTERNAL_XML )
+#if !defined(QT_MODULE_XML) || defined(QT_LICENSE_PROFESSIONAL) || defined(QT_INTERNAL_XML)
 #define QM_EXPORT_XML
 #else
 #define QM_EXPORT_XML Q_XML_EXPORT
@@ -66,14 +66,14 @@ public:
     QXmlNamespaceSupport();
     ~QXmlNamespaceSupport();
 
-    void setPrefix( const QString&, const QString& );
+    void setPrefix(const QString&, const QString&);
 
-    QString prefix( const QString& ) const;
-    QString uri( const QString& ) const;
-    void splitName( const QString&, QString&, QString& ) const;
-    void processName( const QString&, bool, QString&, QString& ) const;
+    QString prefix(const QString&) const;
+    QString uri(const QString&) const;
+    void splitName(const QString&, QString&, QString&) const;
+    void processName(const QString&, bool, QString&, QString&) const;
     QStringList prefixes() const;
-    QStringList prefixes( const QString& ) const;
+    QStringList prefixes(const QString&) const;
 
     void pushContext();
     void popContext();
@@ -94,22 +94,22 @@ public:
     QXmlAttributes() {}
     virtual ~QXmlAttributes() {}
 
-    int index( const QString& qName ) const;
-    int index( const QString& uri, const QString& localPart ) const;
+    int index(const QString& qName) const;
+    int index(const QString& uri, const QString& localPart) const;
     int length() const;
     int count() const;
-    QString localName( int index ) const;
-    QString qName( int index ) const;
-    QString uri( int index ) const;
-    QString type( int index ) const;
-    QString type( const QString& qName ) const;
-    QString type( const QString& uri, const QString& localName ) const;
-    QString value( int index ) const;
-    QString value( const QString& qName ) const;
-    QString value( const QString& uri, const QString& localName ) const;
+    QString localName(int index) const;
+    QString qName(int index) const;
+    QString uri(int index) const;
+    QString type(int index) const;
+    QString type(const QString& qName) const;
+    QString type(const QString& uri, const QString& localName) const;
+    QString value(int index) const;
+    QString value(const QString& qName) const;
+    QString value(const QString& uri, const QString& localName) const;
 
     void clear();
-    void append( const QString &qName, const QString &uri, const QString &localPart, const QString &value );
+    void append(const QString &qName, const QString &uri, const QString &localPart, const QString &value);
 
 private:
     QStringList qnameList;
@@ -128,13 +128,13 @@ class QM_EXPORT_XML QXmlInputSource
 {
 public:
     QXmlInputSource();
-    QXmlInputSource( QIODevice *dev );
-    QXmlInputSource( QFile& file ); // obsolete
-    QXmlInputSource( QTextStream& stream ); // obsolete
+    QXmlInputSource(QIODevice *dev);
+    QXmlInputSource(QFile& file); // obsolete
+    QXmlInputSource(QTextStream& stream); // obsolete
     virtual ~QXmlInputSource();
 
-    virtual void setData( const QString& dat );
-    virtual void setData( const QByteArray& dat );
+    virtual void setData(const QString& dat);
+    virtual void setData(const QByteArray& dat);
     virtual void fetchData();
     virtual QString data() const;
     virtual QChar next();
@@ -144,7 +144,7 @@ public:
     static const QChar EndOfDocument;
 
 protected:
-    virtual QString fromRawData( const QByteArray &data, bool beginning = FALSE );
+    virtual QString fromRawData(const QByteArray &data, bool beginning = false);
 
 private:
     void init();
@@ -169,8 +169,8 @@ private:
 class QM_EXPORT_XML QXmlParseException
 {
 public:
-    QXmlParseException( const QString& name="", int c=-1, int l=-1, const QString& p="", const QString& s="" )
-	: msg( name ), column( c ), line( l ), pub( p ), sys( s )
+    QXmlParseException(const QString& name="", int c=-1, int l=-1, const QString& p="", const QString& s="")
+        : msg(name), column(c), line(l), pub(p), sys(s)
     { }
 
     int columnNumber() const;
@@ -197,26 +197,26 @@ private:
 class QM_EXPORT_XML QXmlReader
 {
 public:
-    virtual bool feature( const QString& name, bool *ok = 0 ) const = 0;
-    virtual void setFeature( const QString& name, bool value ) = 0;
-    virtual bool hasFeature( const QString& name ) const = 0;
-    virtual void* property( const QString& name, bool *ok = 0 ) const = 0;
-    virtual void setProperty( const QString& name, void* value ) = 0;
-    virtual bool hasProperty( const QString& name ) const = 0;
-    virtual void setEntityResolver( QXmlEntityResolver* handler ) = 0;
+    virtual bool feature(const QString& name, bool *ok = 0) const = 0;
+    virtual void setFeature(const QString& name, bool value) = 0;
+    virtual bool hasFeature(const QString& name) const = 0;
+    virtual void* property(const QString& name, bool *ok = 0) const = 0;
+    virtual void setProperty(const QString& name, void* value) = 0;
+    virtual bool hasProperty(const QString& name) const = 0;
+    virtual void setEntityResolver(QXmlEntityResolver* handler) = 0;
     virtual QXmlEntityResolver* entityResolver() const = 0;
-    virtual void setDTDHandler( QXmlDTDHandler* handler ) = 0;
+    virtual void setDTDHandler(QXmlDTDHandler* handler) = 0;
     virtual QXmlDTDHandler* DTDHandler() const = 0;
-    virtual void setContentHandler( QXmlContentHandler* handler ) = 0;
+    virtual void setContentHandler(QXmlContentHandler* handler) = 0;
     virtual QXmlContentHandler* contentHandler() const = 0;
-    virtual void setErrorHandler( QXmlErrorHandler* handler ) = 0;
+    virtual void setErrorHandler(QXmlErrorHandler* handler) = 0;
     virtual QXmlErrorHandler* errorHandler() const = 0;
-    virtual void setLexicalHandler( QXmlLexicalHandler* handler ) = 0;
+    virtual void setLexicalHandler(QXmlLexicalHandler* handler) = 0;
     virtual QXmlLexicalHandler* lexicalHandler() const = 0;
-    virtual void setDeclHandler( QXmlDeclHandler* handler ) = 0;
+    virtual void setDeclHandler(QXmlDeclHandler* handler) = 0;
     virtual QXmlDeclHandler* declHandler() const = 0;
-    virtual bool parse( const QXmlInputSource& input ) = 0;
-    virtual bool parse( const QXmlInputSource* input ) = 0;
+    virtual bool parse(const QXmlInputSource& input) = 0;
+    virtual bool parse(const QXmlInputSource* input) = 0;
 };
 
 class QM_EXPORT_XML QXmlSimpleReader : public QXmlReader
@@ -225,30 +225,30 @@ public:
     QXmlSimpleReader();
     virtual ~QXmlSimpleReader();
 
-    bool feature( const QString& name, bool *ok = 0 ) const;
-    void setFeature( const QString& name, bool value );
-    bool hasFeature( const QString& name ) const;
+    bool feature(const QString& name, bool *ok = 0) const;
+    void setFeature(const QString& name, bool value);
+    bool hasFeature(const QString& name) const;
 
-    void* property( const QString& name, bool *ok = 0 ) const;
-    void setProperty( const QString& name, void* value );
-    bool hasProperty( const QString& name ) const;
+    void* property(const QString& name, bool *ok = 0) const;
+    void setProperty(const QString& name, void* value);
+    bool hasProperty(const QString& name) const;
 
-    void setEntityResolver( QXmlEntityResolver* handler );
+    void setEntityResolver(QXmlEntityResolver* handler);
     QXmlEntityResolver* entityResolver() const;
-    void setDTDHandler( QXmlDTDHandler* handler );
+    void setDTDHandler(QXmlDTDHandler* handler);
     QXmlDTDHandler* DTDHandler() const;
-    void setContentHandler( QXmlContentHandler* handler );
+    void setContentHandler(QXmlContentHandler* handler);
     QXmlContentHandler* contentHandler() const;
-    void setErrorHandler( QXmlErrorHandler* handler );
+    void setErrorHandler(QXmlErrorHandler* handler);
     QXmlErrorHandler* errorHandler() const;
-    void setLexicalHandler( QXmlLexicalHandler* handler );
+    void setLexicalHandler(QXmlLexicalHandler* handler);
     QXmlLexicalHandler* lexicalHandler() const;
-    void setDeclHandler( QXmlDeclHandler* handler );
+    void setDeclHandler(QXmlDeclHandler* handler);
     QXmlDeclHandler* declHandler() const;
 
-    bool parse( const QXmlInputSource& input );
-    bool parse( const QXmlInputSource* input );
-    virtual bool parse( const QXmlInputSource* input, bool incremental );
+    bool parse(const QXmlInputSource& input);
+    bool parse(const QXmlInputSource* input);
+    virtual bool parse(const QXmlInputSource* input, bool incremental);
     virtual bool parseContinue();
 
 private:
@@ -279,9 +279,9 @@ private:
     QXmlSimpleReaderPrivate* d;
 
     // inlines
-    bool is_S( const QChar& );
-    bool is_NameBeginning( const QChar& );
-    bool is_NameChar( const QChar& );
+    bool is_S(const QChar&);
+    bool is_NameBeginning(const QChar&);
+    bool is_NameChar(const QChar&);
 
     QString& string();
     void stringClear();
@@ -306,12 +306,12 @@ private:
     void next();
     bool atEnd();
 
-    void init( const QXmlInputSource* i );
+    void init(const QXmlInputSource* i);
     void initData();
 
-    bool entityExist( const QString& ) const;
+    bool entityExist(const QString&) const;
 
-    bool parseBeginOrContinue( int state, bool incremental );
+    bool parseBeginOrContinue(int state, bool incremental);
 
     bool parseProlog();
     bool parseElement();
@@ -345,15 +345,15 @@ private:
 
     bool parseString();
 
-    bool insertXmlRef( const QString&, const QString&, bool );
+    bool insertXmlRef(const QString&, const QString&, bool);
 
     bool reportEndEntities();
-    void reportParseError( const QString& error );
+    void reportParseError(const QString& error);
 
     typedef bool (QXmlSimpleReader::*ParseFunction) ();
-    void unexpectedEof( ParseFunction where, int state );
-    void parseFailed( ParseFunction where, int state );
-    void pushParseState( ParseFunction function, int state );
+    void unexpectedEof(ParseFunction where, int state);
+    void parseFailed(ParseFunction where, int state);
+    void pushParseState(ParseFunction function, int state);
 
     friend class QXmlSimpleReaderPrivate;
     friend class QXmlSimpleReaderLocator;
@@ -382,63 +382,63 @@ public:
 class QM_EXPORT_XML QXmlContentHandler
 {
 public:
-    virtual void setDocumentLocator( QXmlLocator* locator ) = 0;
+    virtual void setDocumentLocator(QXmlLocator* locator) = 0;
     virtual bool startDocument() = 0;
     virtual bool endDocument() = 0;
-    virtual bool startPrefixMapping( const QString& prefix, const QString& uri ) = 0;
-    virtual bool endPrefixMapping( const QString& prefix ) = 0;
-    virtual bool startElement( const QString& namespaceURI, const QString& localName, const QString& qName, const QXmlAttributes& atts ) = 0;
-    virtual bool endElement( const QString& namespaceURI, const QString& localName, const QString& qName ) = 0;
-    virtual bool characters( const QString& ch ) = 0;
-    virtual bool ignorableWhitespace( const QString& ch ) = 0;
-    virtual bool processingInstruction( const QString& target, const QString& data ) = 0;
-    virtual bool skippedEntity( const QString& name ) = 0;
+    virtual bool startPrefixMapping(const QString& prefix, const QString& uri) = 0;
+    virtual bool endPrefixMapping(const QString& prefix) = 0;
+    virtual bool startElement(const QString& namespaceURI, const QString& localName, const QString& qName, const QXmlAttributes& atts) = 0;
+    virtual bool endElement(const QString& namespaceURI, const QString& localName, const QString& qName) = 0;
+    virtual bool characters(const QString& ch) = 0;
+    virtual bool ignorableWhitespace(const QString& ch) = 0;
+    virtual bool processingInstruction(const QString& target, const QString& data) = 0;
+    virtual bool skippedEntity(const QString& name) = 0;
     virtual QString errorString() const = 0;
 };
 
 class QM_EXPORT_XML QXmlErrorHandler
 {
 public:
-    virtual bool warning( const QXmlParseException& exception ) = 0;
-    virtual bool error( const QXmlParseException& exception ) = 0;
-    virtual bool fatalError( const QXmlParseException& exception ) = 0;
+    virtual bool warning(const QXmlParseException& exception) = 0;
+    virtual bool error(const QXmlParseException& exception) = 0;
+    virtual bool fatalError(const QXmlParseException& exception) = 0;
     virtual QString errorString() const = 0;
 };
 
 class QM_EXPORT_XML QXmlDTDHandler
 {
 public:
-    virtual bool notationDecl( const QString& name, const QString& publicId, const QString& systemId ) = 0;
-    virtual bool unparsedEntityDecl( const QString& name, const QString& publicId, const QString& systemId, const QString& notationName ) = 0;
+    virtual bool notationDecl(const QString& name, const QString& publicId, const QString& systemId) = 0;
+    virtual bool unparsedEntityDecl(const QString& name, const QString& publicId, const QString& systemId, const QString& notationName) = 0;
     virtual QString errorString() const = 0;
 };
 
 class QM_EXPORT_XML QXmlEntityResolver
 {
 public:
-    virtual bool resolveEntity( const QString& publicId, const QString& systemId, QXmlInputSource*& ret ) = 0;
+    virtual bool resolveEntity(const QString& publicId, const QString& systemId, QXmlInputSource*& ret) = 0;
     virtual QString errorString() const = 0;
 };
 
 class QM_EXPORT_XML QXmlLexicalHandler
 {
 public:
-    virtual bool startDTD( const QString& name, const QString& publicId, const QString& systemId ) = 0;
+    virtual bool startDTD(const QString& name, const QString& publicId, const QString& systemId) = 0;
     virtual bool endDTD() = 0;
-    virtual bool startEntity( const QString& name ) = 0;
-    virtual bool endEntity( const QString& name ) = 0;
+    virtual bool startEntity(const QString& name) = 0;
+    virtual bool endEntity(const QString& name) = 0;
     virtual bool startCDATA() = 0;
     virtual bool endCDATA() = 0;
-    virtual bool comment( const QString& ch ) = 0;
+    virtual bool comment(const QString& ch) = 0;
     virtual QString errorString() const = 0;
 };
 
 class QM_EXPORT_XML QXmlDeclHandler
 {
 public:
-    virtual bool attributeDecl( const QString& eName, const QString& aName, const QString& type, const QString& valueDefault, const QString& value ) = 0;
-    virtual bool internalEntityDecl( const QString& name, const QString& value ) = 0;
-    virtual bool externalEntityDecl( const QString& name, const QString& publicId, const QString& systemId ) = 0;
+    virtual bool attributeDecl(const QString& eName, const QString& aName, const QString& type, const QString& valueDefault, const QString& value) = 0;
+    virtual bool internalEntityDecl(const QString& name, const QString& value) = 0;
+    virtual bool externalEntityDecl(const QString& name, const QString& publicId, const QString& systemId) = 0;
     virtual QString errorString() const = 0;
 };
 
@@ -449,38 +449,38 @@ public:
     QXmlDefaultHandler() { }
     virtual ~QXmlDefaultHandler() { }
 
-    void setDocumentLocator( QXmlLocator* locator );
+    void setDocumentLocator(QXmlLocator* locator);
     bool startDocument();
     bool endDocument();
-    bool startPrefixMapping( const QString& prefix, const QString& uri );
-    bool endPrefixMapping( const QString& prefix );
-    bool startElement( const QString& namespaceURI, const QString& localName, const QString& qName, const QXmlAttributes& atts );
-    bool endElement( const QString& namespaceURI, const QString& localName, const QString& qName );
-    bool characters( const QString& ch );
-    bool ignorableWhitespace( const QString& ch );
-    bool processingInstruction( const QString& target, const QString& data );
-    bool skippedEntity( const QString& name );
+    bool startPrefixMapping(const QString& prefix, const QString& uri);
+    bool endPrefixMapping(const QString& prefix);
+    bool startElement(const QString& namespaceURI, const QString& localName, const QString& qName, const QXmlAttributes& atts);
+    bool endElement(const QString& namespaceURI, const QString& localName, const QString& qName);
+    bool characters(const QString& ch);
+    bool ignorableWhitespace(const QString& ch);
+    bool processingInstruction(const QString& target, const QString& data);
+    bool skippedEntity(const QString& name);
 
-    bool warning( const QXmlParseException& exception );
-    bool error( const QXmlParseException& exception );
-    bool fatalError( const QXmlParseException& exception );
+    bool warning(const QXmlParseException& exception);
+    bool error(const QXmlParseException& exception);
+    bool fatalError(const QXmlParseException& exception);
 
-    bool notationDecl( const QString& name, const QString& publicId, const QString& systemId );
-    bool unparsedEntityDecl( const QString& name, const QString& publicId, const QString& systemId, const QString& notationName );
+    bool notationDecl(const QString& name, const QString& publicId, const QString& systemId);
+    bool unparsedEntityDecl(const QString& name, const QString& publicId, const QString& systemId, const QString& notationName);
 
-    bool resolveEntity( const QString& publicId, const QString& systemId, QXmlInputSource*& ret );
+    bool resolveEntity(const QString& publicId, const QString& systemId, QXmlInputSource*& ret);
 
-    bool startDTD( const QString& name, const QString& publicId, const QString& systemId );
+    bool startDTD(const QString& name, const QString& publicId, const QString& systemId);
     bool endDTD();
-    bool startEntity( const QString& name );
-    bool endEntity( const QString& name );
+    bool startEntity(const QString& name);
+    bool endEntity(const QString& name);
     bool startCDATA();
     bool endCDATA();
-    bool comment( const QString& ch );
+    bool comment(const QString& ch);
 
-    bool attributeDecl( const QString& eName, const QString& aName, const QString& type, const QString& valueDefault, const QString& value );
-    bool internalEntityDecl( const QString& name, const QString& value );
-    bool externalEntityDecl( const QString& name, const QString& publicId, const QString& systemId );
+    bool attributeDecl(const QString& eName, const QString& aName, const QString& type, const QString& valueDefault, const QString& value);
+    bool internalEntityDecl(const QString& name, const QString& value);
+    bool externalEntityDecl(const QString& name, const QString& publicId, const QString& systemId);
 
     QString errorString() const;
 
@@ -497,13 +497,13 @@ inline bool QXmlSimpleReader::is_S(const QChar& ch)
 {
     return ch==' ' || ch=='\t' || ch=='\n' || ch=='\r';
 }
-inline bool QXmlSimpleReader::is_NameBeginning( const QChar& ch )
+inline bool QXmlSimpleReader::is_NameBeginning(const QChar& ch)
 {
     return ch=='_' || ch==':' ||
-	ch.isLetter() || // ### Category Lm is not allowed
-	ch.category()==QChar::Number_Letter;
+        ch.isLetter() || // ### Category Lm is not allowed
+        ch.category()==QChar::Number_Letter;
 }
-inline bool QXmlSimpleReader::is_NameChar( const QChar& ch )
+inline bool QXmlSimpleReader::is_NameChar(const QChar& ch)
 {
     return ch=='.' || ch=='-' || ch=='_' || ch==':' ||
     ch.isLetterOrNumber() || // ### Category No is not allowed

@@ -7,7 +7,7 @@ public:
     GfxShadowFbDriver();
 
     QStringList keys() const;
-    QScreen *create( const QString&, int displayId );
+    QScreen *create(const QString&, int displayId);
 };
 
 GfxShadowFbDriver::GfxShadowFbDriver()
@@ -22,12 +22,12 @@ QStringList GfxShadowFbDriver::keys() const
     return list;
 }
 
-QScreen* GfxShadowFbDriver::create( const QString& driver, int displayId )
+QScreen* GfxShadowFbDriver::create(const QString& driver, int displayId)
 {
-    if ( driver.lower() == "shadowfb" )
-        return new QShadowFbScreen( displayId );
+    if (driver.lower() == "shadowfb")
+        return new QShadowFbScreen(displayId);
 
     return 0;
 }
 
-Q_EXPORT_PLUGIN( GfxShadowFbDriver )
+Q_EXPORT_PLUGIN(GfxShadowFbDriver)

@@ -64,7 +64,7 @@ protected:
     friend class QWidget;
     friend class QGLWidget;
     friend void qt_init(QApplicationPrivate *priv, int, Display *display, Qt::HANDLE visual,
-			Qt::HANDLE colormap);
+                        Qt::HANDLE colormap);
     friend void qt_cleanup();
 };
 

@@ -19,21 +19,21 @@
 class QHostAddressPrivate
 {
 public:
-    QHostAddressPrivate( Q_UINT32 a_=0 ) : a(a_), isIp4(TRUE)
+    QHostAddressPrivate(Q_UINT32 a_=0) : a(a_), isIp4(true)
     {
     }
-    QHostAddressPrivate( Q_UINT8 *a_ );
+    QHostAddressPrivate(Q_UINT8 *a_);
     QHostAddressPrivate(const Q_IPV6ADDR &a_);
     ~QHostAddressPrivate()
     {
     }
 
-    QHostAddressPrivate & operator=( const QHostAddressPrivate &from )
+    QHostAddressPrivate & operator=(const QHostAddressPrivate &from)
     {
-	a = from.a;
-	isIp4 = from.isIp4;
-	a6 = from.a6;
-	return *this;
+        a = from.a;
+        isIp4 = from.isIp4;
+        a6 = from.a6;
+        return *this;
     }
 
 private:
@@ -44,14 +44,14 @@ private:
     friend class QHostAddress;
 };
 
-QHostAddressPrivate::QHostAddressPrivate(Q_UINT8 *a_) : a(0), isIp4(FALSE)
+QHostAddressPrivate::QHostAddressPrivate(Q_UINT8 *a_) : a(0), isIp4(false)
 {
-    for ( int i=0; i<16; i++ ) {
-	a6.c[i] = a_[i];
+    for (int i=0; i<16; i++) {
+        a6.c[i] = a_[i];
     }
 }
 
-QHostAddressPrivate::QHostAddressPrivate(const Q_IPV6ADDR &a_) : a(0), isIp4(FALSE)
+QHostAddressPrivate::QHostAddressPrivate(const Q_IPV6ADDR &a_) : a(0), isIp4(false)
 {
     a6 = a_;
 }
@@ -85,7 +85,7 @@ QHostAddressPrivate::QHostAddressPrivate(const Q_IPV6ADDR &a_) : a(0), isIp4(FAL
     Creates a host address object with the IP address 0.0.0.0.
 */
 QHostAddress::QHostAddress()
-    : d( new QHostAddressPrivate )
+    : d(new QHostAddressPrivate)
 {
 }
 
@@ -93,8 +93,8 @@ QHostAddress::QHostAddress()
 /*!
     Creates a host address object for the IPv4 address \a ip4Addr.
 */
-QHostAddress::QHostAddress( Q_UINT32 ip4Addr )
-    : d( new QHostAddressPrivate( ip4Addr ) )
+QHostAddress::QHostAddress(Q_UINT32 ip4Addr)
+    : d(new QHostAddressPrivate(ip4Addr))
 {
 }
 
@@ -105,8 +105,8 @@ QHostAddress::QHostAddress( Q_UINT32 ip4Addr )
     \a ip6Addr must be a 16 byte array in network byte order
     (high-order byte first).
 */
-QHostAddress::QHostAddress( Q_UINT8 *ip6Addr )
-    : d( new QHostAddressPrivate( ip6Addr ) )
+QHostAddress::QHostAddress(Q_UINT8 *ip6Addr)
+    : d(new QHostAddressPrivate(ip6Addr))
 {
 }
 
@@ -124,16 +124,16 @@ QHostAddress::QHostAddress(const Q_IPV6ADDR &ip6Addr)
     \internal
 */
 QHostAddress::QHostAddress(const QString &address)
-    : d( new QHostAddressPrivate )
+    : d(new QHostAddressPrivate)
 {
-    setAddress( address );
+    setAddress(address);
 }
 
 /*!
     Creates a copy of \a address.
 */
-QHostAddress::QHostAddress( const QHostAddress &address )
-    : d( new QHostAddressPrivate )
+QHostAddress::QHostAddress(const QHostAddress &address)
+    : d(new QHostAddressPrivate)
 {
     *d = *(address.d);
 }
@@ -152,7 +152,7 @@ QHostAddress::~QHostAddress()
     Assigns another host address object \a address to this object and
     returns a reference to this object.
 */
-QHostAddress & QHostAddress::operator=( const QHostAddress & address )
+QHostAddress & QHostAddress::operator=(const QHostAddress & address)
 {
     *d = *(address.d);
     return *this;
@@ -162,10 +162,10 @@ QHostAddress & QHostAddress::operator=( const QHostAddress & address )
 /*!
     Set the IPv4 address specified by \a ip4Addr.
 */
-void QHostAddress::setAddress( Q_UINT32 ip4Addr )
+void QHostAddress::setAddress(Q_UINT32 ip4Addr)
 {
     delete d;
-    d = new QHostAddressPrivate( ip4Addr );
+    d = new QHostAddressPrivate(ip4Addr);
 }
 
 
@@ -177,10 +177,10 @@ void QHostAddress::setAddress( Q_UINT32 ip4Addr )
     \a ip6Addr must be a 16 byte array in network byte order
     (high-order byte first).
 */
-void QHostAddress::setAddress( Q_UINT8 *ip6Addr )
+void QHostAddress::setAddress(Q_UINT8 *ip6Addr)
 {
     delete d;
-    d = new QHostAddressPrivate( ip6Addr );
+    d = new QHostAddressPrivate(ip6Addr);
 }
 
 static bool parseIp4(const QString& address, Q_UINT32 *addr)
@@ -188,29 +188,29 @@ static bool parseIp4(const QString& address, Q_UINT32 *addr)
     QStringList ipv4 = address.split(".");
     ipv4.remove(QString()); // Remove empties
     if (ipv4.count() == 4) {
-	int i = 0;
-	bool ok = TRUE;
-	while(ok && i < 4) {
-	    uint byteValue = ipv4[i].toUInt(&ok);
-	    if (byteValue > 255)
-		ok = FALSE;
-	    if (ok)
-		*addr = (*addr << 8) + byteValue;
-	    ++i;
-	}
-	if (ok)
-	    return TRUE;
+        int i = 0;
+        bool ok = true;
+        while(ok && i < 4) {
+            uint byteValue = ipv4[i].toUInt(&ok);
+            if (byteValue > 255)
+                ok = false;
+            if (ok)
+                *addr = (*addr << 8) + byteValue;
+            ++i;
+        }
+        if (ok)
+            return true;
     }
-    return FALSE;
+    return false;
 }
 
 /*!
     \overload
 
     Sets the IPv4 or IPv6 address specified by the string
-    representation \a address (e.g. "127.0.0.1"). Returns TRUE and
+    representation \a address (e.g. "127.0.0.1"). Returns true and
     sets the address if the address was successfully parsed; otherwise
-    returns FALSE and leaves the address unchanged.
+    returns false and leaves the address unchanged.
 */
 bool QHostAddress::setAddress(const QString& address)
 {
@@ -219,73 +219,73 @@ bool QHostAddress::setAddress(const QString& address)
     // try ipv4
     Q_UINT32 maybeIp4 = 0;
     if (parseIp4(address, &maybeIp4)) {
-	setAddress(maybeIp4);
-	return TRUE;
+        setAddress(maybeIp4);
+        return true;
     }
 
     // try ipv6
     QStringList ipv6 = a.split(":");
     int count = ipv6.count();
     if (count < 3)
-	return FALSE; // there must be at least two ":"
+        return false; // there must be at least two ":"
     if (count > 8)
-	return FALSE; // maximum of seven ":" exceeded
+        return false; // maximum of seven ":" exceeded
     Q_UINT8 maybeIp6[16];
     int mc = 16;
     int fillCount = 9 - count;
     for (int i=count-1; i>=0; --i) {
-	if ( mc <= 0 )
-	    return FALSE;
+        if (mc <= 0)
+            return false;
 
-	if (ipv6[i].isEmpty()) {
-	    if (i==count-1) {
-		// special case: ":" is last character
-		if (!ipv6[i-1].isEmpty())
-		    return FALSE;
-		maybeIp6[--mc] = 0;
-		maybeIp6[--mc] = 0;
-	    } else if (i==0) {
-		// special case: ":" is first character
-		if (!ipv6[i+1].isEmpty())
-		    return FALSE;
-		maybeIp6[--mc] = 0;
-		maybeIp6[--mc] = 0;
-	    } else {
-		for (int j=0; j<fillCount; ++j) {
-		    if ( mc <= 0 )
-			return FALSE;
-		    maybeIp6[--mc] = 0;
-		    maybeIp6[--mc] = 0;
-		}
-	    }
-	} else {
-	    bool ok = FALSE;
-	    uint byteValue = ipv6[i].toUInt(&ok, 16);
-	    if (ok && byteValue <= 0xffff) {
-		maybeIp6[--mc] = byteValue & 0xff;
-		maybeIp6[--mc] = (byteValue >> 8) & 0xff;
-	    } else {
-		if (i == count-1) {
-		    // parse the ipv4 part of a mixed type
-		    if (!parseIp4(ipv6[i], &maybeIp4))
-			return FALSE;
-		    maybeIp6[--mc] = maybeIp4 & 0xff;
-		    maybeIp6[--mc] = (maybeIp4 >> 8) & 0xff;
-		    maybeIp6[--mc] = (maybeIp4 >> 16) & 0xff;
-		    maybeIp6[--mc] = (maybeIp4 >> 24) & 0xff;
-		    --fillCount;
-		} else {
-		    return FALSE;
-		}
-	    }
-	}
+        if (ipv6[i].isEmpty()) {
+            if (i==count-1) {
+                // special case: ":" is last character
+                if (!ipv6[i-1].isEmpty())
+                    return false;
+                maybeIp6[--mc] = 0;
+                maybeIp6[--mc] = 0;
+            } else if (i==0) {
+                // special case: ":" is first character
+                if (!ipv6[i+1].isEmpty())
+                    return false;
+                maybeIp6[--mc] = 0;
+                maybeIp6[--mc] = 0;
+            } else {
+                for (int j=0; j<fillCount; ++j) {
+                    if (mc <= 0)
+                        return false;
+                    maybeIp6[--mc] = 0;
+                    maybeIp6[--mc] = 0;
+                }
+            }
+        } else {
+            bool ok = false;
+            uint byteValue = ipv6[i].toUInt(&ok, 16);
+            if (ok && byteValue <= 0xffff) {
+                maybeIp6[--mc] = byteValue & 0xff;
+                maybeIp6[--mc] = (byteValue >> 8) & 0xff;
+            } else {
+                if (i == count-1) {
+                    // parse the ipv4 part of a mixed type
+                    if (!parseIp4(ipv6[i], &maybeIp4))
+                        return false;
+                    maybeIp6[--mc] = maybeIp4 & 0xff;
+                    maybeIp6[--mc] = (maybeIp4 >> 8) & 0xff;
+                    maybeIp6[--mc] = (maybeIp4 >> 16) & 0xff;
+                    maybeIp6[--mc] = (maybeIp4 >> 24) & 0xff;
+                    --fillCount;
+                } else {
+                    return false;
+                }
+            }
+        }
     }
     if (mc == 0) {
-	setAddress(maybeIp6);
-	return TRUE;
+        setAddress(maybeIp6);
+        return true;
     }
 
-    return FALSE;
+    return false;
 }
 
 /*!
@@ -299,8 +299,8 @@ bool QHostAddress::isIp4Addr() const
 }
 
 /*!
-    Returns TRUE if the host address represents an IPv4 address;
-    otherwise returns FALSE.
+    Returns true if the host address represents an IPv4 address;
+    otherwise returns false.
 */
 bool QHostAddress::isIPv4Address() const
 {
@@ -323,7 +323,7 @@ Q_UINT32 QHostAddress::ip4Addr() const
     For example, if the address is 127.0.0.1, the returned value is
     2130706433 (i.e. 0x7f000001).
 
-    This value is only valid when isIp4Addr() returns TRUE.
+    This value is only valid when isIp4Addr() returns true.
 
     \sa toString()
 */
@@ -333,8 +333,8 @@ Q_UINT32 QHostAddress::toIPv4Address() const
 }
 
 /*!
-    Returns TRUE if the host address represents an IPv6 address;
-    otherwise returns FALSE.
+    Returns true if the host address represents an IPv6 address;
+    otherwise returns false.
 */
 bool QHostAddress::isIPv6Address() const
 {
@@ -354,7 +354,7 @@ bool QHostAddress::isIPv6Address() const
         }
     \endcode
 
-    This value is only valid when isIPv6Address() returns TRUE.
+    This value is only valid when isIPv6Address() returns true.
 
     \sa toString()
 */
@@ -374,53 +374,53 @@ Q_IPV6ADDR QHostAddress::toIPv6Address() const
 */
 QString QHostAddress::toString() const
 {
-    if ( d->isIp4 ) {
-	Q_UINT32 i = ip4Addr();
-	QString s;
-	s.sprintf( "%d.%d.%d.%d", (i>>24) & 0xff, (i>>16) & 0xff,
-		(i >> 8) & 0xff, i & 0xff );
-	return s;
+    if (d->isIp4) {
+        Q_UINT32 i = ip4Addr();
+        QString s;
+        s.sprintf("%d.%d.%d.%d", (i>>24) & 0xff, (i>>16) & 0xff,
+                (i >> 8) & 0xff, i & 0xff);
+        return s;
     } else {
-	Q_UINT16 ugle[8];
-	for ( int i=0; i<8; i++ ) {
-	    ugle[i] = ( (Q_UINT16)( d->a6.c[2*i] ) << 8 ) |
-		( (Q_UINT16)( d->a6.c[2*i+1] ) );
-	}
-	QString s;
-	s.sprintf( "%X:%X:%X:%X:%X:%X:%X:%X",
-		ugle[0], ugle[1], ugle[2], ugle[3],
-		ugle[4], ugle[5], ugle[6], ugle[7] );
-	return s;
+        Q_UINT16 ugle[8];
+        for (int i=0; i<8; i++) {
+            ugle[i] = ((Q_UINT16)(d->a6.c[2*i]) << 8) |
+                ((Q_UINT16)(d->a6.c[2*i+1]));
+        }
+        QString s;
+        s.sprintf("%X:%X:%X:%X:%X:%X:%X:%X",
+                ugle[0], ugle[1], ugle[2], ugle[3],
+                ugle[4], ugle[5], ugle[6], ugle[7]);
+        return s;
     }
 }
 #endif
 
 
 /*!
-    Returns TRUE if this host address is the same as \a other;
-    otherwise returns FALSE.
+    Returns true if this host address is the same as \a other;
+    otherwise returns false.
 */
-bool QHostAddress::operator==( const QHostAddress & other ) const
+bool QHostAddress::operator==(const QHostAddress & other) const
 {
     return d->a == other.d->a;
 }
 
 
 /*!
-    Returns TRUE if this host address is null (INADDR_ANY or in6addr_any). The
+    Returns true if this host address is null (INADDR_ANY or in6addr_any). The
     default constructor creates a null address, and that address isn't valid
     for any particular host or interface.
 */
 bool QHostAddress::isNull() const
 {
-    if ( d->isIp4 )
-	return d->a == 0;
+    if (d->isIp4)
+        return d->a == 0;
     int i = 0;
-    while( i < 16 ) {
-	if ( d->a6.c[i++] != 0 )
-	    return FALSE;
+    while(i < 16) {
+        if (d->a6.c[i++] != 0)
+            return false;
     }
-    return TRUE;
+    return true;
 }
 
 #endif //QT_NO_NETWORK

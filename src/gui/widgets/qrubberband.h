@@ -50,19 +50,19 @@ private:
 };
 
 inline void QRubberBand::move(const QPoint &p)
-{ move( p.x(), p.y() ); }
+{ move(p.x(), p.y()); }
 
 inline void QRubberBand::move(int x, int y)
 { setGeometry(x + geometry().x() - QWidget::x(), y - geometry().y() - QWidget::y(), width(), height()); }
 
 inline void QRubberBand::resize(const QSize &s)
-{ resize( s.width(), s.height()); }
+{ resize(s.width(), s.height()); }
 
 inline void QRubberBand::resize(int w, int h)
 { setGeometry(geometry().x(), geometry().y(), w, h); }
 
 inline void QRubberBand::setGeometry(const QRect &r)
-{ setGeometry( r.left(), r.top(), r.width(), r.height() ); }
+{ setGeometry(r.left(), r.top(), r.width(), r.height()); }
 
 
 #endif /* __QRUBBERBAND_H__ */

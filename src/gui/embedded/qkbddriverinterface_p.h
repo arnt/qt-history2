@@ -35,14 +35,14 @@
 
 // {C7C838EA-FC3E-4905-92AD-F479E81F1D02}
 #ifndef IID_QKbdDriver
-#define IID_QKbdDriver QUuid( 0xc7c838ea, 0xfc3e, 0x4905, 0x92, 0xad, 0xf4, 0x79, 0xe8, 0x1f, 0x1d, 0x02)
+#define IID_QKbdDriver QUuid(0xc7c838ea, 0xfc3e, 0x4905, 0x92, 0xad, 0xf4, 0x79, 0xe8, 0x1f, 0x1d, 0x02)
 #endif
 
 class QWSKeyboardHandler;
 
 struct Q_GUI_EXPORT QKbdDriverInterface : public QFeatureListInterface
 {
-    virtual QWSKeyboardHandler* create( const QString& driver, const QString& device ) = 0;
+    virtual QWSKeyboardHandler* create(const QString& driver, const QString& device) = 0;
 };
 
 #endif // QT_NO_COMPONENT

@@ -36,9 +36,9 @@
 
     Example:
     \code
-	QTimer *timer = new QTimer( myObject );
-	connect( timer, SIGNAL(timeout()), myObject, SLOT(timerDone()) );
-	timer->start( 2000, TRUE ); // 2 seconds single-shot timer
+        QTimer *timer = new QTimer(myObject);
+        connect(timer, SIGNAL(timeout()), myObject, SLOT(timerDone()));
+        timer->start(2000, true); // 2 seconds single-shot timer
     \endcode
 
     You can also use the static singleShot() function to create a
@@ -51,9 +51,9 @@
     This can be used to do heavy work while providing a snappy
     user interface:
     \code
-	QTimer *t = new QTimer( myObject );
-	connect( t, SIGNAL(timeout()), SLOT(processOneThing()) );
-	t->start( 0, FALSE );
+        QTimer *t = new QTimer(myObject);
+        connect(t, SIGNAL(timeout()), SLOT(processOneThing()));
+        t->start(0, false);
     \endcode
 
     myObject->processOneThing() will be called repeatedly and should
@@ -80,7 +80,7 @@
 */
 
 
-static const int INV_TIMER = -1;		// invalid timer id
+static const int INV_TIMER = -1;                // invalid timer id
 
 
 /*!
@@ -90,8 +90,8 @@ static const int INV_TIMER = -1;		// invalid timer id
     object.
 */
 
-QTimer::QTimer( QObject *parent, const char *name )
-    : QObject( parent, name ), id(INV_TIMER), single(0), nulltimer(0)
+QTimer::QTimer(QObject *parent, const char *name)
+    : QObject(parent, name), id(INV_TIMER), single(0), nulltimer(0)
 {
 }
 
@@ -101,8 +101,8 @@ QTimer::QTimer( QObject *parent, const char *name )
 
 QTimer::~QTimer()
 {
-    if ( id != INV_TIMER )			// stop running timer
-	stop();
+    if (id != INV_TIMER)                        // stop running timer
+        stop();
 }
 
 
@@ -115,8 +115,8 @@ QTimer::~QTimer()
 /*!
     \fn bool QTimer::isActive() const
 
-    Returns TRUE if the timer is running (pending); otherwise returns
-    FALSE.
+    Returns true if the timer is running (pending); otherwise returns
+    false.
 */
 
 /*!
@@ -131,7 +131,7 @@ QTimer::~QTimer()
     Starts the timer with a \a msec milliseconds timeout, and returns
     the ID of the timer, or zero when starting the timer failed.
 
-    If \a sshot is TRUE, the timer will be activated only once;
+    If \a sshot is true, the timer will be activated only once;
     otherwise it will continue until it is stopped.
 
     Any pending timer will be stopped.
@@ -139,15 +139,15 @@ QTimer::~QTimer()
     \sa singleShot() stop(), changeInterval(), isActive()
 */
 
-int QTimer::start( int msec, bool sshot )
+int QTimer::start(int msec, bool sshot)
 {
-    if ( id >=0 && nulltimer && !msec && sshot )
-	return id;
-    if ( id != INV_TIMER )			// stop running timer
-	stop();
+    if (id >=0 && nulltimer && !msec && sshot)
+        return id;
+    if (id != INV_TIMER)                        // stop running timer
+        stop();
     single = sshot;
-    nulltimer = ( !msec && sshot );
-    return id = startTimer( msec );
+    nulltimer = (!msec && sshot);
+    return id = startTimer(msec);
 }
 
 
@@ -160,13 +160,13 @@ int QTimer::start( int msec, bool sshot )
     \sa start(), isActive()
 */
 
-void QTimer::changeInterval( int msec )
+void QTimer::changeInterval(int msec)
 {
-    if ( id == INV_TIMER ) {			// create new timer
-	start( msec );
+    if (id == INV_TIMER) {                        // create new timer
+        start(msec);
     } else {
-	killTimer( id );			// restart timer
-	id = startTimer( msec );
+        killTimer(id);                        // restart timer
+        id = startTimer(msec);
     }
 }
 
@@ -178,9 +178,9 @@ void QTimer::changeInterval( int msec )
 
 void QTimer::stop()
 {
-    if ( id != INV_TIMER ) {
-	killTimer( id );
-	id = INV_TIMER;
+    if (id != INV_TIMER) {
+        killTimer(id);
+        id = INV_TIMER;
     }
 }
 
@@ -188,14 +188,14 @@ void QTimer::stop()
 /*!
     \reimp
 */
-bool QTimer::event( QEvent *e )
+bool QTimer::event(QEvent *e)
 {
-    if ( e->type() != QEvent::Timer )		// ignore all other events
-	return FALSE;
-    if ( single )				// stop single shot timer
-	stop();
-    emit timeout();				// emit timeout signal
-    return TRUE;
+    if (e->type() != QEvent::Timer)                // ignore all other events
+        return false;
+    if (single)                                // stop single shot timer
+        stop();
+    emit timeout();                                // emit timeout signal
+    return true;
 }
 
 
@@ -223,7 +223,7 @@ void QSingleShotTimer::timerEvent(QTimerEvent *)
     // to timeout calls processEvents()
     QEventLoop *eventloop = QEventLoop::instance(thread());
     if (eventloop)
-	eventloop->unregisterTimers(this);
+        eventloop->unregisterTimers(this);
 
     emit timeout();
     delete this;
@@ -240,16 +240,16 @@ void QSingleShotTimer::timerEvent(QTimerEvent *)
 
     Example:
     \code
-	#include <qapplication.h>
-	#include <qtimer.h>
+        #include <qapplication.h>
+        #include <qtimer.h>
 
-	int main( int argc, char **argv )
-	{
-	    QApplication a( argc, argv );
-	    QTimer::singleShot( 10*60*1000, &a, SLOT(quit()) );
-		... // create and show your widgets
-	    return a.exec();
-	}
+        int main(int argc, char **argv)
+        {
+            QApplication a(argc, argv);
+            QTimer::singleShot(10*60*1000, &a, SLOT(quit()));
+                ... // create and show your widgets
+            return a.exec();
+        }
     \endcode
 
     This sample program automatically terminates after 10 minutes (i.e.
@@ -259,8 +259,8 @@ void QSingleShotTimer::timerEvent(QTimerEvent *)
     slot. The time interval is \a msec.
 */
 
-void QTimer::singleShot( int msec, QObject *receiver, const char *member )
+void QTimer::singleShot(int msec, QObject *receiver, const char *member)
 {
     if (receiver && member)
-	(void) new QSingleShotTimer(msec, receiver, member);
+        (void) new QSingleShotTimer(msec, receiver, member);
 }

@@ -30,19 +30,19 @@ extern QString cfstring2qstring(CFStringRef); //qglobal.cpp
 /*****************************************************************************
   QCoreApplication utility functions
  *****************************************************************************/
-const char *qAppName()				// get application name
+const char *qAppName()                                // get application name
 {
     if(!appName) {
-	ProcessSerialNumber psn;
-	if(GetCurrentProcess(&psn) == noErr) {
-	    CFStringRef cfstr;
-	    CopyProcessName(&psn, &cfstr);
-	    appName = strdup(cfstring2qstring(cfstr).latin1());
-	    CFRelease(cfstr);
-	} else if(QCoreApplication *app = QCoreApplication::instance()) {
-	    char *p = strrchr(app->argv()[0], '/');
-	    appName = strdup(p ? p + 1 : app->argv()[0]);
-	}
+        ProcessSerialNumber psn;
+        if(GetCurrentProcess(&psn) == noErr) {
+            CFStringRef cfstr;
+            CopyProcessName(&psn, &cfstr);
+            appName = strdup(cfstring2qstring(cfstr).latin1());
+            CFRelease(cfstr);
+        } else if(QCoreApplication *app = QCoreApplication::instance()) {
+            char *p = strrchr(app->argv()[0], '/');
+            appName = strdup(p ? p + 1 : app->argv()[0]);
+        }
     }
     return appName;
 }
@@ -50,12 +50,12 @@ const char *qAppName()				// get application name
 const char *qAppFileName()
 {
     if(!appFileName) {
-	CFURLRef bundleURL = CFBundleCopyExecutableURL(CFBundleGetMainBundle());
-	CFStringRef cfPath = CFURLCopyFileSystemPath(bundleURL, kCFURLPOSIXPathStyle);
-	QString tmp = cfstring2qstring(cfPath);
-	appFileName = strdup(tmp.latin1());
-	CFRelease(bundleURL);
-	CFRelease(cfPath);
+        CFURLRef bundleURL = CFBundleCopyExecutableURL(CFBundleGetMainBundle());
+        CFStringRef cfPath = CFURLCopyFileSystemPath(bundleURL, kCFURLPOSIXPathStyle);
+        QString tmp = cfstring2qstring(cfPath);
+        appFileName = strdup(tmp.latin1());
+        CFRelease(bundleURL);
+        CFRelease(cfPath);
     }
     return appFileName;
 }

@@ -28,15 +28,15 @@ public:
     QEditorFactory (QObject * parent = 0);
     ~QEditorFactory();
 
-    virtual QWidget * createEditor( QWidget * parent, const QVariant & v );
+    virtual QWidget * createEditor(QWidget * parent, const QVariant & v);
 
     static QEditorFactory * defaultFactory();
-    static void installDefaultFactory( QEditorFactory * factory);
+    static void installDefaultFactory(QEditorFactory * factory);
 
 private:
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
-    QEditorFactory( const QEditorFactory & );
-    QEditorFactory &operator=( const QEditorFactory & );
+    QEditorFactory(const QEditorFactory &);
+    QEditorFactory &operator=(const QEditorFactory &);
 #endif
 };
 

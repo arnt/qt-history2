@@ -34,13 +34,13 @@ public:
 
 private:
     struct Data {
-	Data() {}
-	Data(int r, QVariant v) {
-	    role = r;
-	    value = v;
-	}
-	int role;
-	QVariant value;
+        Data() {}
+        Data(int r, QVariant v) {
+            role = r;
+            value = v;
+        }
+        int role;
+        QVariant value;
     };
 
     QVector<Data> values;
@@ -63,7 +63,7 @@ public:
     void setColumnCount(int columns);
     int rowCount() const;
     int columnCount() const;
-    
+
     QTableViewItem item(int row, int column) const;
     void setItem(int row, int column, const QTableViewItem &item);
 

@@ -54,10 +54,10 @@ int QColor::numBitPlanes()
 
 void QColor::initialize()
 {
-    if ( color_init )
-	return;
+    if (color_init)
+        return;
 
-    color_init = TRUE;
+    color_init = true;
 }
 
 void QColor::cleanup()
@@ -71,32 +71,32 @@ void QColor::cleanup()
 
 uint QColor::alloc()
 {
-    d.d32.pix = qRed( d.argb ) << 16 | qGreen( d.argb ) << 8 | qBlue( d.argb );
+    d.d32.pix = qRed(d.argb) << 16 | qGreen(d.argb) << 8 | qBlue(d.argb);
     return d.d32.pix;
 }
 
 
-void QColor::setSystemNamedColor( const QString& name )
+void QColor::setSystemNamedColor(const QString& name)
 {
     // setSystemNamedColor should look up rgb values from the built in
     // color tables first (see qcolor_p.cpp), and failing that, use
     // the window system's interface for translating names to rgb values...
     // we do this so that things like uic can load an XPM file with named colors
     // and convert it to a png without having to use window system functions...
-    d.argb = qt_get_rgb_val( name.latin1() );
+    d.argb = qt_get_rgb_val(name.latin1());
     QRgb rgb;
-    if ( qt_get_named_rgb( name.latin1(), &rgb ) ) {
-	d.argb = rgb;
-	if ( colormodel == d8 ) {
-	    d.d8.invalid = FALSE;
-	    d.d8.dirty = TRUE;
-	    d.d8.pix = 0;
-	} else {
-	    alloc();
-	}
+    if (qt_get_named_rgb(name.latin1(), &rgb)) {
+        d.argb = rgb;
+        if (colormodel == d8) {
+            d.d8.invalid = false;
+            d.d8.dirty = true;
+            d.d8.pix = 0;
+        } else {
+            alloc();
+        }
     } else {
-	// set to invalid color
-	*this = QColor();
+        // set to invalid color
+        *this = QColor();
     }
 }
 
@@ -118,7 +118,7 @@ int QColor::currentAllocContext()
 }
 
 
-void QColor::destroyAllocContext( int )
+void QColor::destroyAllocContext(int)
 {
 }
 

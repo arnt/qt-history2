@@ -74,62 +74,62 @@ class QGListIteratorList
 {
 public:
     QGListIteratorList()
-	: list(0), iterator(0) {
+        : list(0), iterator(0) {
     }
     ~QGListIteratorList() {
-	notifyClear( TRUE );
-	delete list;
+        notifyClear(true);
+        delete list;
     }
 
-    void add( QGListIterator* i ) {
-	if ( !iterator ) {
-	    iterator = i;
-	} else if ( list ) {
-	    list->push_front( i );
-	} else {
-	    list = new QList<QGListIterator*>;
-	    list->push_front( i );
-	}
+    void add(QGListIterator* i) {
+        if (!iterator) {
+            iterator = i;
+        } else if (list) {
+            list->push_front(i);
+        } else {
+            list = new QList<QGListIterator*>;
+            list->push_front(i);
+        }
     }
 
-    void remove( QGListIterator* i ) {
-	if ( iterator == i ) {
-	    iterator = 0;
-	} else if ( list ) {
-	    list->remove( i );
-	    if ( list->isEmpty() ) {
-		delete list;
-		list = 0;
-	    }
-	}
+    void remove(QGListIterator* i) {
+        if (iterator == i) {
+            iterator = 0;
+        } else if (list) {
+            list->remove(i);
+            if (list->isEmpty()) {
+                delete list;
+                list = 0;
+            }
+        }
     }
 
-    void notifyClear( bool zeroList ) {
-	if ( iterator ) {
-	    if ( zeroList )
-		iterator->list = 0;
-	    iterator->curNode = 0;
-	}
-	if ( list ) {
-	    for ( QList<QGListIterator*>::Iterator i = list->begin(); i != list->end(); ++i ) {
-		if ( zeroList )
-		    (*i)->list = 0;
-		(*i)->curNode = 0;
-	    }
-	}
+    void notifyClear(bool zeroList) {
+        if (iterator) {
+            if (zeroList)
+                iterator->list = 0;
+            iterator->curNode = 0;
+        }
+        if (list) {
+            for (QList<QGListIterator*>::Iterator i = list->begin(); i != list->end(); ++i) {
+                if (zeroList)
+                    (*i)->list = 0;
+                (*i)->curNode = 0;
+            }
+        }
     }
 
-    void notifyRemove( QLNode* n, QLNode* curNode ) {
-	if ( iterator ) {
-	    if ( iterator->curNode == n )
-		iterator->curNode = curNode;
-	}
-	if ( list ) {
-	    for ( QList<QGListIterator*>::Iterator i = list->begin(); i != list->end(); ++i ) {
-		if ( (*i)->curNode == n )
-		    (*i)->curNode = curNode;
-	    }
-	}
+    void notifyRemove(QLNode* n, QLNode* curNode) {
+        if (iterator) {
+            if (iterator->curNode == n)
+                iterator->curNode = curNode;
+        }
+        if (list) {
+            for (QList<QGListIterator*>::Iterator i = list->begin(); i != list->end(); ++i) {
+                if ((*i)->curNode == n)
+                    (*i)->curNode = curNode;
+            }
+        }
     }
 
 private:
@@ -148,9 +148,9 @@ private:
 
   Compares \a item1 with \a item2.
 */
-int QGList::compareItems( QPtrCollection::Item item1, QPtrCollection::Item item2 )
+int QGList::compareItems(QPtrCollection::Item item1, QPtrCollection::Item item2)
 {
-    return item1 != item2;			// compare pointers
+    return item1 != item2;                        // compare pointers
 }
 
 #ifndef QT_NO_DATASTREAM
@@ -164,7 +164,7 @@ int QGList::compareItems( QPtrCollection::Item item1, QPtrCollection::Item item2
   \sa write()
 */
 
-QDataStream &QGList::read( QDataStream &s, QPtrCollection::Item &item )
+QDataStream &QGList::read(QDataStream &s, QPtrCollection::Item &item)
 {
     item = 0;
     return s;
@@ -180,7 +180,7 @@ QDataStream &QGList::read( QDataStream &s, QPtrCollection::Item &item )
   \sa read()
 */
 
-QDataStream &QGList::write( QDataStream &s, QPtrCollection::Item ) const
+QDataStream &QGList::write(QDataStream &s, QPtrCollection::Item) const
 {
     return s;
 }
@@ -196,27 +196,27 @@ QDataStream &QGList::write( QDataStream &s, QPtrCollection::Item ) const
 
 QGList::QGList()
 {
-    firstNode = lastNode = curNode = 0;		// initialize list
+    firstNode = lastNode = curNode = 0;                // initialize list
     numNodes  = 0;
     curIndex  = -1;
-    iterators = 0;				// initialize iterator list
+    iterators = 0;                                // initialize iterator list
 }
 
 /*!
   Constructs a copy of \a list.
 */
 
-QGList::QGList( const QGList & list )
-    : QPtrCollection( list )
+QGList::QGList(const QGList & list)
+    : QPtrCollection(list)
 {
-    firstNode = lastNode = curNode = 0;		// initialize list
+    firstNode = lastNode = curNode = 0;                // initialize list
     numNodes  = 0;
     curIndex  = -1;
-    iterators = 0;				// initialize iterator list
+    iterators = 0;                                // initialize iterator list
     QLNode *n = list.firstNode;
-    while ( n ) {				// copy all items from list
-	append( n->data );
-	n = n->next;
+    while (n) {                                // copy all items from list
+        append(n->data);
+        n = n->next;
     }
 }
 
@@ -240,48 +240,48 @@ QGList::~QGList()
   Assigns \a list to this list.
 */
 
-QGList& QGList::operator=( const QGList &list )
+QGList& QGList::operator=(const QGList &list)
 {
-    if ( &list == this )
-	return *this;
+    if (&list == this)
+        return *this;
 
     clear();
-    if ( list.count() > 0 ) {
-	QLNode *n = list.firstNode;
-	while ( n ) {				// copy all items from list
-	    append( n->data );
-	    n = n->next;
-	}
-	curNode	 = firstNode;
-	curIndex = 0;
+    if (list.count() > 0) {
+        QLNode *n = list.firstNode;
+        while (n) {                                // copy all items from list
+            append(n->data);
+            n = n->next;
+        }
+        curNode         = firstNode;
+        curIndex = 0;
     }
     return *this;
 }
 
 /*!
-  Compares this list with \a list. Returns TRUE if the lists
-  contain the same data, otherwise FALSE.
+  Compares this list with \a list. Returns true if the lists
+  contain the same data, otherwise false.
 */
 
-bool QGList::operator==( const QGList &list ) const
+bool QGList::operator==(const QGList &list) const
 {
-    if ( count() != list.count() )
-	return FALSE;
+    if (count() != list.count())
+        return false;
 
-    if ( count() == 0 )
-	return TRUE;
+    if (count() == 0)
+        return true;
 
     QLNode *n1 = firstNode;
     QLNode *n2 = list.firstNode;
-    while ( n1 && n2 ) {
-	// should be mutable
-	if ( ( (QGList*)this )->compareItems( n1->data, n2->data ) != 0 )
-	    return FALSE;
-	n1 = n1->next;
-	n2 = n2->next;
+    while (n1 && n2) {
+        // should be mutable
+        if (((QGList*)this)->compareItems(n1->data, n2->data) != 0)
+            return false;
+        n1 = n1->next;
+        n2 = n2->next;
     }
 
-    return TRUE;
+    return true;
 }
 
 /*!
@@ -295,45 +295,45 @@ bool QGList::operator==( const QGList &list ) const
   Returns the node at position \a index.  Sets this node to current.
 */
 
-QLNode *QGList::locate( uint index )
+QLNode *QGList::locate(uint index)
 {
-    if ( index == (uint)curIndex )		// current node ?
-	return curNode;
-    if ( !curNode && firstNode ) {		// set current node
-	curNode	 = firstNode;
-	curIndex = 0;
+    if (index == (uint)curIndex)                // current node ?
+        return curNode;
+    if (!curNode && firstNode) {                // set current node
+        curNode         = firstNode;
+        curIndex = 0;
     }
     register QLNode *node;
-    int	 distance = index - curIndex;		// node distance to cur node
-    bool forward;				// direction to traverse
+    int         distance = index - curIndex;                // node distance to cur node
+    bool forward;                                // direction to traverse
 
-    if ( index >= numNodes )
-	return 0;
+    if (index >= numNodes)
+        return 0;
 
-    if ( distance < 0 )
-	distance = -distance;
-    if ( (uint)distance < index && (uint)distance < numNodes - index ) {
-	node =	curNode;			// start from current node
-	forward = index > (uint)curIndex;
-    } else if ( index < numNodes - index ) {	// start from first node
-	node = firstNode;
-	distance = index;
-	forward = TRUE;
-    } else {					// start from last node
-	node = lastNode;
-	distance = numNodes - index - 1;
-	if ( distance < 0 )
-	    distance = 0;
-	forward = FALSE;
+    if (distance < 0)
+        distance = -distance;
+    if ((uint)distance < index && (uint)distance < numNodes - index) {
+        node =        curNode;                        // start from current node
+        forward = index > (uint)curIndex;
+    } else if (index < numNodes - index) {        // start from first node
+        node = firstNode;
+        distance = index;
+        forward = true;
+    } else {                                        // start from last node
+        node = lastNode;
+        distance = numNodes - index - 1;
+        if (distance < 0)
+            distance = 0;
+        forward = false;
     }
-    if ( forward ) {				// now run through nodes
-	while ( distance-- )
-	    node = node->next;
+    if (forward) {                                // now run through nodes
+        while (distance--)
+            node = node->next;
     } else {
-	while ( distance-- )
-	    node = node->prev;
+        while (distance--)
+            node = node->prev;
     }
-    curIndex = index;				// must update index
+    curIndex = index;                                // must update index
     return curNode = node;
 }
 
@@ -342,15 +342,15 @@ QLNode *QGList::locate( uint index )
   Inserts item \a d at its sorted position in the list.
 */
 
-void QGList::inSort( QPtrCollection::Item d )
+void QGList::inSort(QPtrCollection::Item d)
 {
     int index = 0;
     register QLNode *n = firstNode;
-    while ( n && compareItems(n->data,d) < 0 ){ // find position in list
-	n = n->next;
-	index++;
+    while (n && compareItems(n->data,d) < 0){ // find position in list
+        n = n->next;
+        index++;
     }
-    insertAt( index, d );
+    insertAt(index, d);
 }
 
 
@@ -358,15 +358,15 @@ void QGList::inSort( QPtrCollection::Item d )
   Inserts item \a d at the start of the list.
 */
 
-void QGList::prepend( QPtrCollection::Item d )
+void QGList::prepend(QPtrCollection::Item d)
 {
-    register QLNode *n = new QLNode( newItem(d) );
+    register QLNode *n = new QLNode(newItem(d));
     n->prev = 0;
-    if ( (n->next = firstNode) )		// list is not empty
-	firstNode->prev = n;
-    else					// initialize list
-	lastNode = n;
-    firstNode = curNode = n;			// curNode affected
+    if ((n->next = firstNode))                // list is not empty
+        firstNode->prev = n;
+    else                                        // initialize list
+        lastNode = n;
+    firstNode = curNode = n;                        // curNode affected
     numNodes++;
     curIndex = 0;
 }
@@ -376,15 +376,15 @@ void QGList::prepend( QPtrCollection::Item d )
   Inserts item \a d at the end of the list.
 */
 
-void QGList::append( QPtrCollection::Item d )
+void QGList::append(QPtrCollection::Item d)
 {
-    register QLNode *n = new QLNode( newItem(d) );
+    register QLNode *n = new QLNode(newItem(d));
     n->next = 0;
-    if ( (n->prev = lastNode) )			// list is not empty
-	lastNode->next = n;
-    else					// initialize list
-	firstNode = n;
-    lastNode = curNode = n;			// curNode affected
+    if ((n->prev = lastNode))                        // list is not empty
+        lastNode->next = n;
+    else                                        // initialize list
+        firstNode = n;
+    lastNode = curNode = n;                        // curNode affected
     curIndex = numNodes;
     numNodes++;
 }
@@ -394,27 +394,27 @@ void QGList::append( QPtrCollection::Item d )
   Inserts item \a d at position \a index in the list.
 */
 
-bool QGList::insertAt( uint index, QPtrCollection::Item d )
+bool QGList::insertAt(uint index, QPtrCollection::Item d)
 {
-    if ( index == 0 ) {
-	prepend( d );
-	return TRUE;
-    } else if ( index == numNodes ) {
-	append( d );
-	return TRUE;
+    if (index == 0) {
+        prepend(d);
+        return true;
+    } else if (index == numNodes) {
+        append(d);
+        return true;
     }
-    QLNode *nextNode = locate( index );
-    if ( !nextNode )
-	return FALSE;
+    QLNode *nextNode = locate(index);
+    if (!nextNode)
+        return false;
     QLNode *prevNode = nextNode->prev;
-    register QLNode *n = new QLNode( newItem(d) );
+    register QLNode *n = new QLNode(newItem(d));
     nextNode->prev = n;
     prevNode->next = n;
-    n->prev = prevNode;				// link new node into list
+    n->prev = prevNode;                                // link new node into list
     n->next = nextNode;
-    curNode = n;				// curIndex set by locate()
+    curNode = n;                                // curIndex set by locate()
     numNodes++;
-    return TRUE;
+    return true;
 }
 
 
@@ -422,18 +422,18 @@ bool QGList::insertAt( uint index, QPtrCollection::Item d )
   Relinks node \a n and makes it the first node in the list.
 */
 
-void QGList::relinkNode( QLNode *n )
+void QGList::relinkNode(QLNode *n)
 {
-    if ( n == firstNode )			// already first
-	return;
+    if (n == firstNode)                        // already first
+        return;
     curNode = n;
     unlink();
     n->prev = 0;
-    if ( (n->next = firstNode) )		// list is not empty
-	firstNode->prev = n;
-    else					// initialize list
-	lastNode = n;
-    firstNode = curNode = n;			// curNode affected
+    if ((n->next = firstNode))                // list is not empty
+        firstNode->prev = n;
+    else                                        // initialize list
+        lastNode = n;
+    firstNode = curNode = n;                        // curNode affected
     numNodes++;
     curIndex = 0;
 }
@@ -445,35 +445,35 @@ void QGList::relinkNode( QLNode *n )
 
 QLNode *QGList::unlink()
 {
-    if ( curNode == 0 )				// null current node
-	return 0;
-    register QLNode *n = curNode;		// unlink this node
-    if ( n == firstNode ) {			// removing first node ?
-	if ( (firstNode = n->next) ) {
-	    firstNode->prev = 0;
-	} else {
-	    lastNode = curNode = 0;		// list becomes empty
-	    curIndex = -1;
-	}
+    if (curNode == 0)                                // null current node
+        return 0;
+    register QLNode *n = curNode;                // unlink this node
+    if (n == firstNode) {                        // removing first node ?
+        if ((firstNode = n->next)) {
+            firstNode->prev = 0;
+        } else {
+            lastNode = curNode = 0;                // list becomes empty
+            curIndex = -1;
+        }
     } else {
-	if ( n == lastNode ) {			// removing last node ?
-	    lastNode = n->prev;
-	    lastNode->next = 0;
-	} else {				// neither last nor first node
-	    n->prev->next = n->next;
-	    n->next->prev = n->prev;
-	}
+        if (n == lastNode) {                        // removing last node ?
+            lastNode = n->prev;
+            lastNode->next = 0;
+        } else {                                // neither last nor first node
+            n->prev->next = n->next;
+            n->next->prev = n->prev;
+        }
     }
 
-    if ( n->next ) {                            // change current node
+    if (n->next) {                            // change current node
         curNode = n->next;
-    } else if ( n->prev ) {
+    } else if (n->prev) {
         curNode = n->prev;
         curIndex--;
     }
 
-    if ( iterators )
-	iterators->notifyRemove( n, curNode );
+    if (iterators)
+        iterators->notifyRemove(n, curNode);
     numNodes--;
     return n;
 }
@@ -483,54 +483,54 @@ QLNode *QGList::unlink()
   Removes the node \a n from the list.
 */
 
-bool QGList::removeNode( QLNode *n )
+bool QGList::removeNode(QLNode *n)
 {
-    if ( n == 0 || (n->prev && n->prev->next != n) ||
-	 (n->next && n->next->prev != n) ) {
-	qWarning( "QGList::removeNode: Corrupted node" );
-	return FALSE;
+    if (n == 0 || (n->prev && n->prev->next != n) ||
+         (n->next && n->next->prev != n)) {
+        qWarning("QGList::removeNode: Corrupted node");
+        return false;
     }
     curNode = n;
-    unlink();					// unlink node
-    deleteItem( n->data );			// deallocate this node
+    unlink();                                        // unlink node
+    deleteItem(n->data);                        // deallocate this node
     delete n;
     curNode  = firstNode;
     curIndex = curNode ? 0 : -1;
-    return TRUE;
+    return true;
 }
 
 /*!
-  Removes the item \a d from the list.	Uses compareItems() to find the item.
+  Removes the item \a d from the list.        Uses compareItems() to find the item.
 
   If \a d is 0, removes the current item.
 */
 
-bool QGList::remove( QPtrCollection::Item d )
+bool QGList::remove(QPtrCollection::Item d)
 {
-    if ( d && find(d) == -1 )
-	return FALSE;
+    if (d && find(d) == -1)
+        return false;
     QLNode *n = unlink();
-    if ( !n )
-	return FALSE;
-    deleteItem( n->data );
+    if (!n)
+        return false;
+    deleteItem(n->data);
     delete n;
-    return TRUE;
+    return true;
 }
 
 /*!
   Removes the item \a d from the list.
 */
 
-bool QGList::removeRef( QPtrCollection::Item d )
+bool QGList::removeRef(QPtrCollection::Item d)
 {
-    if ( findRef(d) == -1 )
-	return FALSE;
+    if (findRef(d) == -1)
+        return false;
     QLNode *n = unlink();
-    if ( !n )
-	return FALSE;
-    deleteItem( n->data );
+    if (!n)
+        return false;
+    deleteItem(n->data);
     delete n;
-    return TRUE;
+    return true;
 }
 
 /*!
@@ -549,32 +549,32 @@ bool QGList::removeRef( QPtrCollection::Item d )
   Removes the item at position \a index from the list.
 */
 
-bool QGList::removeAt( uint index )
+bool QGList::removeAt(uint index)
 {
-    if ( !locate(index) )
-	return FALSE;
+    if (!locate(index))
+        return false;
     QLNode *n = unlink();
-    if ( !n )
-	return FALSE;
-    deleteItem( n->data );
+    if (!n)
+        return false;
+    deleteItem(n->data);
     delete n;
-    return TRUE;
+    return true;
 }
 
 
 /*!
   Replaces the item at index \a index with \a d.
 */
-bool QGList::replaceAt( uint index, QPtrCollection::Item d )
+bool QGList::replaceAt(uint index, QPtrCollection::Item d)
 {
-    QLNode *n = locate( index );
-    if ( !n )
-	return FALSE;
-    if ( n->data != d ) {
-	deleteItem( n->data );
-	n->data = newItem( d );
+    QLNode *n = locate(index);
+    if (!n)
+        return false;
+    if (n->data != d) {
+        deleteItem(n->data);
+        n->data = newItem(d);
     }
-    return TRUE;
+    return true;
 }
 
 
@@ -583,17 +583,17 @@ bool QGList::replaceAt( uint index, QPtrCollection::Item d )
   Takes the node \a n out of the list.
 */
 
-QPtrCollection::Item QGList::takeNode( QLNode *n )
+QPtrCollection::Item QGList::takeNode(QLNode *n)
 {
-    if ( n == 0 || (n->prev && n->prev->next != n) ||
-	 (n->next && n->next->prev != n) ) {
-	qWarning( "QGList::takeNode: Corrupted node" );
-	return 0;
+    if (n == 0 || (n->prev && n->prev->next != n) ||
+         (n->next && n->next->prev != n)) {
+        qWarning("QGList::takeNode: Corrupted node");
+        return 0;
     }
     curNode = n;
-    unlink();					// unlink node
+    unlink();                                        // unlink node
     Item d = n->data;
-    delete n;					// delete the node, not data
+    delete n;                                        // delete the node, not data
     curNode  = firstNode;
     curIndex = curNode ? 0 : -1;
     return d;
@@ -605,9 +605,9 @@ QPtrCollection::Item QGList::takeNode( QLNode *n )
 
 QPtrCollection::Item QGList::take()
 {
-    QLNode *n = unlink();			// unlink node
+    QLNode *n = unlink();                        // unlink node
     Item d = n ? n->data : 0;
-    delete n;					// delete node, keep contents
+    delete n;                                        // delete node, keep contents
     return d;
 }
 
@@ -615,13 +615,13 @@ QPtrCollection::Item QGList::take()
   Takes the item at position \a index out of the list.
 */
 
-QPtrCollection::Item QGList::takeAt( uint index )
+QPtrCollection::Item QGList::takeAt(uint index)
 {
-    if ( !locate(index) )
-	return 0;
-    QLNode *n = unlink();			// unlink node
+    if (!locate(index))
+        return 0;
+    QLNode *n = unlink();                        // unlink node
     Item d = n ? n->data : 0;
-    delete n;					// delete node, keep contents
+    delete n;                                        // delete node, keep contents
     return d;
 }
 
@@ -632,7 +632,7 @@ QPtrCollection::Item QGList::takeAt( uint index )
 QPtrCollection::Item QGList::takeFirst()
 {
     first();
-    QLNode *n = unlink();			// unlink node
+    QLNode *n = unlink();                        // unlink node
     Item d = n ? n->data : 0;
     delete n;
     return d;
@@ -645,7 +645,7 @@ QPtrCollection::Item QGList::takeFirst()
 QPtrCollection::Item QGList::takeLast()
 {
     last();
-    QLNode *n = unlink();			// unlink node
+    QLNode *n = unlink();                        // unlink node
     Item d = n ? n->data : 0;
     delete n;
     return d;
@@ -660,72 +660,72 @@ void QGList::clear()
 {
     register QLNode *n = firstNode;
 
-    firstNode = lastNode = curNode = 0;		// initialize list
+    firstNode = lastNode = curNode = 0;                // initialize list
     numNodes = 0;
     curIndex = -1;
 
-    if ( iterators )
-	iterators->notifyClear( FALSE );
+    if (iterators)
+        iterators->notifyClear(false);
 
     QLNode *prevNode;
-    while ( n ) {				// for all nodes ...
-	deleteItem( n->data );			// deallocate data
-	prevNode = n;
-	n = n->next;
-	delete prevNode;			// deallocate node
+    while (n) {                                // for all nodes ...
+        deleteItem(n->data);                        // deallocate data
+        prevNode = n;
+        n = n->next;
+        delete prevNode;                        // deallocate node
     }
 }
 
 
 /*!
-  Finds item \a d in the list. If \a fromStart is TRUE the search
+  Finds item \a d in the list. If \a fromStart is true the search
   begins at the first node; otherwise it begins at the current node.
 */
 
-int QGList::findRef( QPtrCollection::Item d, bool fromStart )
+int QGList::findRef(QPtrCollection::Item d, bool fromStart)
 {
     register QLNode *n;
-    int	     index;
-    if ( fromStart ) {				// start from first node
-	n = firstNode;
-	index = 0;
-    } else {					// start from current node
-	n = curNode;
-	index = curIndex;
+    int             index;
+    if (fromStart) {                                // start from first node
+        n = firstNode;
+        index = 0;
+    } else {                                        // start from current node
+        n = curNode;
+        index = curIndex;
     }
-    while ( n && n->data != d ) {		// find exact match
-	n = n->next;
-	index++;
+    while (n && n->data != d) {                // find exact match
+        n = n->next;
+        index++;
     }
     curNode = n;
     curIndex = n ? index : -1;
-    return curIndex;				// return position of item
+    return curIndex;                                // return position of item
 }
 
 /*!
   Finds item \a d in the list using compareItems(). If \a fromStart is
-  TRUE the search begins at the first node; otherwise it begins at the
+  true the search begins at the first node; otherwise it begins at the
   current node.
 */
 
-int QGList::find( QPtrCollection::Item d, bool fromStart )
+int QGList::find(QPtrCollection::Item d, bool fromStart)
 {
     register QLNode *n;
-    int	     index;
-    if ( fromStart ) {				// start from first node
-	n = firstNode;
-	index = 0;
-    } else {					// start from current node
-	n = curNode;
-	index = curIndex;
+    int             index;
+    if (fromStart) {                                // start from first node
+        n = firstNode;
+        index = 0;
+    } else {                                        // start from current node
+        n = curNode;
+        index = curIndex;
     }
-    while ( n && compareItems(n->data,d) ){	// find equal match
-	n = n->next;
-	index++;
+    while (n && compareItems(n->data,d)){        // find equal match
+        n = n->next;
+        index++;
     }
     curNode = n;
     curIndex = n ? index : -1;
-    return curIndex;				// return position of item
+    return curIndex;                                // return position of item
 }
 
 
@@ -733,14 +733,14 @@ int QGList::find( QPtrCollection::Item d, bool fromStart )
   Counts the number item \a d occurs in the list.
 */
 
-uint QGList::containsRef( QPtrCollection::Item d ) const
+uint QGList::containsRef(QPtrCollection::Item d) const
 {
     register QLNode *n = firstNode;
     uint     count = 0;
-    while ( n ) {				// for all nodes...
-	if ( n->data == d )			// count # exact matches
-	    count++;
-	n = n->next;
+    while (n) {                                // for all nodes...
+        if (n->data == d)                        // count # exact matches
+            count++;
+        n = n->next;
     }
     return count;
 }
@@ -750,22 +750,22 @@ uint QGList::containsRef( QPtrCollection::Item d ) const
   compareItems().
 */
 
-uint QGList::contains( QPtrCollection::Item d ) const
+uint QGList::contains(QPtrCollection::Item d) const
 {
     register QLNode *n = firstNode;
     uint     count = 0;
-    QGList  *that = (QGList*)this;		// mutable for compareItems()
-    while ( n ) {				// for all nodes...
-	if ( !that->compareItems(n->data,d) )	// count # equal matches
-	    count++;
-	n = n->next;
+    QGList  *that = (QGList*)this;                // mutable for compareItems()
+    while (n) {                                // for all nodes...
+        if (!that->compareItems(n->data,d))        // count # equal matches
+            count++;
+        n = n->next;
     }
     return count;
 }
 
 
 /*!
-  \fn QPtrCollection::Item QGList::at( uint index )
+  \fn QPtrCollection::Item QGList::at(uint index)
   \overload
 
   Sets the item at position \a index to the current item.
@@ -803,14 +803,14 @@ uint QGList::contains( QPtrCollection::Item d ) const
 
 
 /*!
-  Returns the first list item.	Sets this to current.
+  Returns the first list item.        Sets this to current.
 */
 
 QPtrCollection::Item QGList::first()
 {
-    if ( firstNode ) {
-	curIndex = 0;
-	return (curNode=firstNode)->data;
+    if (firstNode) {
+        curIndex = 0;
+        return (curNode=firstNode)->data;
     }
     return 0;
 }
@@ -821,9 +821,9 @@ QPtrCollection::Item QGList::first()
 
 QPtrCollection::Item QGList::last()
 {
-    if ( lastNode ) {
-	curIndex = numNodes-1;
-	return (curNode=lastNode)->data;
+    if (lastNode) {
+        curIndex = numNodes-1;
+        return (curNode=lastNode)->data;
     }
     return 0;
 }
@@ -834,14 +834,14 @@ QPtrCollection::Item QGList::last()
 
 QPtrCollection::Item QGList::next()
 {
-    if ( curNode ) {
-	if ( curNode->next ) {
-	    curIndex++;
-	    curNode = curNode->next;
-	    return curNode->data;
-	}
-	curIndex = -1;
-	curNode = 0;
+    if (curNode) {
+        if (curNode->next) {
+            curIndex++;
+            curNode = curNode->next;
+            return curNode->data;
+        }
+        curIndex = -1;
+        curNode = 0;
     }
     return 0;
 }
@@ -852,14 +852,14 @@ QPtrCollection::Item QGList::next()
 
 QPtrCollection::Item QGList::prev()
 {
-    if ( curNode ) {
-	if ( curNode->prev ) {
-	    curIndex--;
-	    curNode = curNode->prev;
-	    return curNode->data;
-	}
-	curIndex = -1;
-	curNode = 0;
+    if (curNode) {
+        if (curNode->prev) {
+            curIndex--;
+            curNode = curNode->prev;
+            return curNode->data;
+        }
+        curIndex = -1;
+        curNode = 0;
     }
     return 0;
 }
@@ -869,55 +869,55 @@ QPtrCollection::Item QGList::prev()
   Converts the list to a vector, \a vector.
 */
 
-void QGList::toVector( QGVector *vector ) const
+void QGList::toVector(QGVector *vector) const
 {
     vector->clear();
-    if ( !vector->resize( count() ) )
-	return;
+    if (!vector->resize(count()))
+        return;
     register QLNode *n = firstNode;
     uint i = 0;
-    while ( n ) {
-	vector->insert( i, n->data );
-	n = n->next;
-	i++;
+    while (n) {
+        vector->insert(i, n->data);
+        n = n->next;
+        i++;
     }
 }
 
-void QGList::heapSortPushDown( QPtrCollection::Item* heap, int first, int last )
+void QGList::heapSortPushDown(QPtrCollection::Item* heap, int first, int last)
 {
     int r = first;
-    while( r <= last/2 ) {
-	// Node r has only one child ?
-	if ( last == 2*r ) {
-	    // Need for swapping ?
-	    if ( compareItems( heap[r], heap[ 2*r ] ) > 0 ) {
-		QPtrCollection::Item tmp = heap[r];
-		heap[ r ] = heap[ 2*r ];
-		heap[ 2*r ] = tmp;
-	    }
-	    // That's it ...
-	    r = last;
-	} else {
-	    // Node has two children
-	    if ( compareItems( heap[r], heap[ 2*r ] ) > 0 &&
-		 compareItems( heap[ 2*r ], heap[ 2*r+1 ] ) <= 0 ) {
-		// Swap with left child
-		QPtrCollection::Item tmp = heap[r];
-		heap[ r ] = heap[ 2*r ];
-		heap[ 2*r ] = tmp;
-		r *= 2;
-	    } else if ( compareItems( heap[r], heap[ 2*r+1 ] ) > 0 &&
-			compareItems( heap[ 2*r+1 ], heap[ 2*r ] ) < 0 ) {
-		// Swap with right child
-		QPtrCollection::Item tmp = heap[r];
-		heap[ r ] = heap[ 2*r+1 ];
-		heap[ 2*r+1 ] = tmp;
-		r = 2*r+1;
-	    } else {
-		// We are done
-		r = last;
-	    }
-	}
+    while(r <= last/2) {
+        // Node r has only one child ?
+        if (last == 2*r) {
+            // Need for swapping ?
+            if (compareItems(heap[r], heap[2*r]) > 0) {
+                QPtrCollection::Item tmp = heap[r];
+                heap[r] = heap[2*r];
+                heap[2*r] = tmp;
+            }
+            // That's it ...
+            r = last;
+        } else {
+            // Node has two children
+            if (compareItems(heap[r], heap[2*r]) > 0 &&
+                 compareItems(heap[2*r], heap[2*r+1]) <= 0) {
+                // Swap with left child
+                QPtrCollection::Item tmp = heap[r];
+                heap[r] = heap[2*r];
+                heap[2*r] = tmp;
+                r *= 2;
+            } else if (compareItems(heap[r], heap[2*r+1]) > 0 &&
+                        compareItems(heap[2*r+1], heap[2*r]) < 0) {
+                // Swap with right child
+                QPtrCollection::Item tmp = heap[r];
+                heap[r] = heap[2*r+1];
+                heap[2*r+1] = tmp;
+                r = 2*r+1;
+            } else {
+                // We are done
+                r = last;
+            }
+        }
     }
 }
 
@@ -932,35 +932,35 @@ void QGList::heapSortPushDown( QPtrCollection::Item* heap, int first, int last )
 void QGList::sort()
 {
     uint n = count();
-    if ( n < 2 )
-	return;
+    if (n < 2)
+        return;
 
     // Create the heap
-    QPtrCollection::Item* realheap = new QPtrCollection::Item[ n ];
+    QPtrCollection::Item* realheap = new QPtrCollection::Item[n];
     // Wow, what a fake. But I want the heap to be indexed as 1...n
     QPtrCollection::Item* heap = realheap - 1;
     int size = 0;
     QLNode* insert = firstNode;
-    for( ; insert != 0; insert = insert->next ) {
-	heap[++size] = insert->data;
-	int i = size;
-	while( i > 1 && compareItems( heap[i], heap[ i / 2 ] ) < 0 ) {
-	    QPtrCollection::Item tmp = heap[ i ];
-	    heap[ i ] = heap[ i/2 ];
-	    heap[ i/2 ] = tmp;
-	    i /= 2;
-	}
+    for(; insert != 0; insert = insert->next) {
+        heap[++size] = insert->data;
+        int i = size;
+        while(i > 1 && compareItems(heap[i], heap[i / 2]) < 0) {
+            QPtrCollection::Item tmp = heap[i];
+            heap[i] = heap[i/2];
+            heap[i/2] = tmp;
+            i /= 2;
+        }
     }
 
     insert = firstNode;
     // Now do the sorting
-    for ( int i = n; i > 0; i-- ) {
-	insert->data = heap[1];
-	insert = insert->next;
-	if ( i > 1 ) {
-	    heap[1] = heap[i];
-	    heapSortPushDown( heap, 1, i - 1 );
-	}
+    for (int i = n; i > 0; i--) {
+        insert->data = heap[1];
+        insert = insert->next;
+        if (i > 1) {
+            heap[1] = heap[i];
+            heapSortPushDown(heap, 1, i - 1);
+        }
     }
 
     delete [] realheap;
@@ -972,40 +972,40 @@ void QGList::sort()
  *****************************************************************************/
 
 #ifndef QT_NO_DATASTREAM
-QDataStream &operator>>( QDataStream &s, QGList &list )
-{						// read list
-    return list.read( s );
+QDataStream &operator>>(QDataStream &s, QGList &list)
+{                                                // read list
+    return list.read(s);
 }
 
-QDataStream &operator<<( QDataStream &s, const QGList &list )
-{						// write list
-    return list.write( s );
+QDataStream &operator<<(QDataStream &s, const QGList &list)
+{                                                // write list
+    return list.write(s);
 }
 
 /*!
   Reads a list from the stream \a s.
 */
 
-QDataStream &QGList::read( QDataStream &s )
+QDataStream &QGList::read(QDataStream &s)
 {
     uint num;
-    s >> num;					// read number of items
-    clear();					// clear list
-    while ( num-- ) {				// read all items
-	Item d;
-	read( s, d );
-	if ( !d )				// no memory
-	    break;
-	QLNode *n = new QLNode( d );
-	if ( !n )				// no memory
-	    break;
-	n->next = 0;
-	if ( (n->prev = lastNode) )		// list is not empty
-	    lastNode->next = n;
-	else					// initialize list
-	    firstNode = n;
-	lastNode = n;
-	numNodes++;
+    s >> num;                                        // read number of items
+    clear();                                        // clear list
+    while (num--) {                                // read all items
+        Item d;
+        read(s, d);
+        if (!d)                                // no memory
+            break;
+        QLNode *n = new QLNode(d);
+        if (!n)                                // no memory
+            break;
+        n->next = 0;
+        if ((n->prev = lastNode))                // list is not empty
+            lastNode->next = n;
+        else                                        // initialize list
+            firstNode = n;
+        lastNode = n;
+        numNodes++;
     }
     curNode  = firstNode;
     curIndex = curNode ? 0 : -1;
@@ -1016,13 +1016,13 @@ QDataStream &QGList::read( QDataStream &s )
   Writes the list to the stream \a s.
 */
 
-QDataStream &QGList::write( QDataStream &s ) const
+QDataStream &QGList::write(QDataStream &s) const
 {
-    s << count();				// write number of items
+    s << count();                                // write number of items
     QLNode *n = firstNode;
-    while ( n ) {				// write all items
-	write( s, n->data );
-	n = n->next;
+    while (n) {                                // write all items
+        write(s, n->data);
+        n = n->next;
     }
     return s;
 }
@@ -1033,11 +1033,11 @@ QDataStream &QGList::write( QDataStream &s ) const
 
 /*! \internal
  */
-QLNode* QGList::erase( QLNode* it )
+QLNode* QGList::erase(QLNode* it)
 {
     QLNode* n = it;
     it = it->next;
-    removeNode( n );
+    removeNode(n);
     return it;
 }
 
@@ -1063,14 +1063,14 @@ QLNode* QGList::erase( QLNode* it )
   Constructs an iterator that operates on the list \a l.
 */
 
-QGListIterator::QGListIterator( const QGList &l )
+QGListIterator::QGListIterator(const QGList &l)
 {
-    list = (QGList *)&l;			// get reference to list
-    curNode = list->firstNode;			// set to first node
-    if ( !list->iterators ) {
-	list->iterators = new QGListIteratorList;		// create iterator list
+    list = (QGList *)&l;                        // get reference to list
+    curNode = list->firstNode;                        // set to first node
+    if (!list->iterators) {
+        list->iterators = new QGListIteratorList;                // create iterator list
     }
-    list->iterators->add( this );		// attach iterator to list
+    list->iterators->add(this);                // attach iterator to list
 }
 
 /*!
@@ -1078,12 +1078,12 @@ QGListIterator::QGListIterator( const QGList &l )
   Constructs a copy of the iterator \a it.
 */
 
-QGListIterator::QGListIterator( const QGListIterator &it )
+QGListIterator::QGListIterator(const QGListIterator &it)
 {
     list = it.list;
     curNode = it.curNode;
-    if ( list )
-	list->iterators->add( this );	// attach iterator to list
+    if (list)
+        list->iterators->add(this);        // attach iterator to list
 }
 
 /*!
@@ -1092,14 +1092,14 @@ QGListIterator::QGListIterator( const QGListIterator &it )
   iterator.
 */
 
-QGListIterator &QGListIterator::operator=( const QGListIterator &it )
+QGListIterator &QGListIterator::operator=(const QGListIterator &it)
 {
-    if ( list )					// detach from old list
-	list->iterators->remove( this );
+    if (list)                                        // detach from old list
+        list->iterators->remove(this);
     list = it.list;
     curNode = it.curNode;
-    if ( list )
-	list->iterators->add( this );	// attach to new list
+    if (list)
+        list->iterators->add(this);        // attach to new list
     return *this;
 }
 
@@ -1110,21 +1110,21 @@ QGListIterator &QGListIterator::operator=( const QGListIterator &it )
 
 QGListIterator::~QGListIterator()
 {
-    if ( list )					// detach iterator from list
-	list->iterators->remove(this);
+    if (list)                                        // detach iterator from list
+        list->iterators->remove(this);
 }
 
 
 /*!
   \fn bool QGListIterator::atFirst() const
   \internal
-  Returns TRUE if the iterator points to the first item, otherwise FALSE.
+  Returns true if the iterator points to the first item, otherwise false.
 */
 
 /*!
   \fn bool QGListIterator::atLast() const
   \internal
-  Returns TRUE if the iterator points to the last item, otherwise FALSE.
+  Returns true if the iterator points to the last item, otherwise false.
 */
 
 
@@ -1135,9 +1135,9 @@ QGListIterator::~QGListIterator()
 
 QPtrCollection::Item QGListIterator::toFirst()
 {
-    if ( !list ) {
-	qWarning( "QGListIterator::toFirst: List has been deleted" );
-	return 0;
+    if (!list) {
+        qWarning("QGListIterator::toFirst: List has been deleted");
+        return 0;
     }
     return list->firstNode ? (curNode = list->firstNode)->getData() : 0;
 }
@@ -1149,9 +1149,9 @@ QPtrCollection::Item QGListIterator::toFirst()
 
 QPtrCollection::Item QGListIterator::toLast()
 {
-    if ( !list ) {
-	qWarning( "QGListIterator::toLast: List has been deleted" );
-	return 0;
+    if (!list) {
+        qWarning("QGListIterator::toLast: List has been deleted");
+        return 0;
     }
     return list->lastNode ? (curNode = list->lastNode)->getData() : 0;
 }
@@ -1171,8 +1171,8 @@ QPtrCollection::Item QGListIterator::toLast()
 
 QPtrCollection::Item QGListIterator::operator()()
 {
-    if ( !curNode )
-	return 0;
+    if (!curNode)
+        return 0;
     QPtrCollection::Item d = curNode->getData();
     curNode = curNode->next;
     return  d;
@@ -1185,8 +1185,8 @@ QPtrCollection::Item QGListIterator::operator()()
 
 QPtrCollection::Item QGListIterator::operator++()
 {
-    if ( !curNode )
-	return 0;
+    if (!curNode)
+        return 0;
     curNode = curNode->next;
     return curNode ? curNode->getData() : 0;
 }
@@ -1196,10 +1196,10 @@ QPtrCollection::Item QGListIterator::operator++()
   Moves \a jumps positions forward.
 */
 
-QPtrCollection::Item QGListIterator::operator+=( uint jumps )
+QPtrCollection::Item QGListIterator::operator+=(uint jumps)
 {
-    while ( curNode && jumps-- )
-	curNode = curNode->next;
+    while (curNode && jumps--)
+        curNode = curNode->next;
     return curNode ? curNode->getData() : 0;
 }
 
@@ -1210,8 +1210,8 @@ QPtrCollection::Item QGListIterator::operator+=( uint jumps )
 
 QPtrCollection::Item QGListIterator::operator--()
 {
-    if ( !curNode )
-	return 0;
+    if (!curNode)
+        return 0;
     curNode = curNode->prev;
     return curNode ? curNode->getData() : 0;
 }
@@ -1221,10 +1221,10 @@ QPtrCollection::Item QGListIterator::operator--()
   Moves \a jumps positions backward.
 */
 
-QPtrCollection::Item QGListIterator::operator-=( uint jumps )
+QPtrCollection::Item QGListIterator::operator-=(uint jumps)
 {
-    while ( curNode && jumps-- )
-	curNode = curNode->prev;
+    while (curNode && jumps--)
+        curNode = curNode->prev;
     return curNode ? curNode->getData() : 0;
 }
 
@@ -1239,7 +1239,7 @@ QStringList QStrList::toStringList() const
 {
     QStringList res;
     const char * s;
-    for ( QStrListIterator it(*this); (s=it.current()); ++it )
-	res << s;
+    for (QStrListIterator it(*this); (s=it.current()); ++it)
+        res << s;
     return res;
 }

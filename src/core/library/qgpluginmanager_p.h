@@ -40,32 +40,32 @@
 class Q_CORE_EXPORT QGPluginManager
 {
 public:
-    QGPluginManager( const QUuid& id, const QStringList& paths = QString(), const QString &suffix = QString(), bool cs = TRUE );
+    QGPluginManager(const QUuid& id, const QStringList& paths = QString(), const QString &suffix = QString(), bool cs = true);
     ~QGPluginManager();
 
-    void addLibraryPath( const QString& path );
-    const QLibrary* library( const QString& feature ) const;
+    void addLibraryPath(const QString& path);
+    const QLibrary* library(const QString& feature) const;
     QStringList featureList() const;
 
     bool autoUnload() const;
-    void setAutoUnload( bool );
+    void setAutoUnload(bool);
 
 protected:
     bool enabled() const;
-    bool addLibrary( QLibrary* plugin );
+    bool addLibrary(QLibrary* plugin);
 
     QRESULT queryUnknownInterface(const QString& feature, QUnknownInterface** iface) const;
 
     QUuid interfaceId;
-    QHash<QString, QLibrary *> plugDict;	    // Hash to match feature with library
-    QHash<QString, QLibrary *> libDict;	    // Hash to match library file with library
+    QHash<QString, QLibrary *> plugDict;            // Hash to match feature with library
+    QHash<QString, QLibrary *> libDict;            // Hash to match library file with library
     QStringList libList;
 
     uint casesens : 1;
     uint autounload : 1;
 };
 
-inline void QGPluginManager::setAutoUnload( bool unload )
+inline void QGPluginManager::setAutoUnload(bool unload)
 {
     autounload = unload;
 }

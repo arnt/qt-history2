@@ -28,7 +28,7 @@ public:
 
     QRegExp();
     QRegExp(const QString &pattern, QString::CaseSensitivity cs = QString::CaseSensitive,
-	    bool wildcard = false);
+            bool wildcard = false);
     QRegExp(const QRegExp &rx);
     ~QRegExp();
     QRegExp &operator=(const QRegExp &rx);

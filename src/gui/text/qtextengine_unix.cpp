@@ -19,21 +19,21 @@
 #endif
 
 
-void QTextEngine::shapeText( int item ) const
+void QTextEngine::shapeText(int item) const
 {
-    assert( item < items.size() );
+    assert(item < items.size());
     QScriptItem &si = items[item];
 
     if (si.num_glyphs)
-	return;
+        return;
 
     si.glyph_data_offset = used;
 
     QFontEngine *font = fontEngine(si);
 
-    if ( !widthOnly ) {
-	si.ascent = font->ascent();
-	si.descent = font->descent();
+    if (!widthOnly) {
+        si.ascent = font->ascent();
+        si.descent = font->descent();
     }
 
     QShaperItem shaper_item;
@@ -45,18 +45,18 @@ void QTextEngine::shapeText( int item ) const
     shaper_item.num_glyphs = qMax(num_glyphs - used, shaper_item.length);
     shaper_item.flags = si.analysis.bidiLevel % 2 ? RightToLeft : 0;
 //     if (designMetrics)
-	shaper_item.flags |= DesignMetrics;
+        shaper_item.flags |= DesignMetrics;
 
 //     qDebug("shaping");
     while (1) {
-// 	qDebug("    . num_glyphs=%d, used=%d, item.num_glyphs=%d", num_glyphs, used, shaper_item.num_glyphs);
-	ensureSpace(shaper_item.num_glyphs);
-	shaper_item.num_glyphs = num_glyphs - used;
-//  	qDebug("    .. num_glyphs=%d, used=%d, item.num_glyphs=%d", num_glyphs, used, shaper_item.num_glyphs);
-	shaper_item.glyphs = glyphs(&si);
-	shaper_item.log_clusters = logClusters(&si);
-	if (scriptEngines[shaper_item.script].shape(&shaper_item))
-	    break;
+//         qDebug("    . num_glyphs=%d, used=%d, item.num_glyphs=%d", num_glyphs, used, shaper_item.num_glyphs);
+        ensureSpace(shaper_item.num_glyphs);
+        shaper_item.num_glyphs = num_glyphs - used;
+//          qDebug("    .. num_glyphs=%d, used=%d, item.num_glyphs=%d", num_glyphs, used, shaper_item.num_glyphs);
+        shaper_item.glyphs = glyphs(&si);
+        shaper_item.log_clusters = logClusters(&si);
+        if (scriptEngines[shaper_item.script].shape(&shaper_item))
+            break;
     }
 
 //     qDebug("    -> item: script=%d num_glyphs=%d", shaper_item.script, shaper_item.num_glyphs);
@@ -67,23 +67,23 @@ void QTextEngine::shapeText( int item ) const
     QGlyphLayout *g = shaper_item.glyphs;
     // ############ general solution needed
 #if defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE)
-    if ( this->font(si).d->kerning && font->type() == QFontEngine::Xft) {
-	FT_Face face = static_cast<QFontEngineXft *>(font)->freetypeFace();
-	if (FT_HAS_KERNING(face)) {
-	    for (int i = 0; i < si.num_glyphs-1; ++i) {
-		FT_Vector kerning;
-		FT_Get_Kerning(face, g[i].glyph, g[i+1].glyph, designMetrics ? FT_KERNING_UNFITTED : FT_KERNING_DEFAULT, &kerning);
-		g[i].advance.x += Q26Dot6(kerning.x, F26Dot6);
-		g[i].advance.y += Q26Dot6(kerning.y, F26Dot6);
-	    }
-	}
+    if (this->font(si).d->kerning && font->type() == QFontEngine::Xft) {
+        FT_Face face = static_cast<QFontEngineXft *>(font)->freetypeFace();
+        if (FT_HAS_KERNING(face)) {
+            for (int i = 0; i < si.num_glyphs-1; ++i) {
+                FT_Vector kerning;
+                FT_Get_Kerning(face, g[i].glyph, g[i+1].glyph, designMetrics ? FT_KERNING_UNFITTED : FT_KERNING_DEFAULT, &kerning);
+                g[i].advance.x += Q26Dot6(kerning.x, F26Dot6);
+                g[i].advance.y += Q26Dot6(kerning.y, F26Dot6);
+            }
+        }
     }
 #endif
 
     si.width = 0;
     QGlyphLayout *end = g + si.num_glyphs;
-    while ( g < end )
-	si.width += (g++)->advance.x;
+    while (g < end)
+        si.width += (g++)->advance.x;
 
     return;
 }

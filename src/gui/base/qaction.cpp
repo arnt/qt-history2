@@ -85,7 +85,7 @@ QAction::QAction(const QString& text, QKeySequence accel, QActionGroup* parent) 
 }
 
 QAction::QAction(const QIconSet& icon, const QString& text, QKeySequence accel,
-		   QActionGroup* parent) : QObject(*(new QActionPrivate), parent)
+                   QActionGroup* parent) : QObject(*(new QActionPrivate), parent)
 {
     d->group = parent;
     d->text = text;
@@ -100,7 +100,7 @@ QAction::QAction(const QString& text, QKeySequence accel, QWidget* parent) : QOb
 }
 
 QAction::QAction(const QIconSet& icon, const QString& text, QKeySequence accel,
-		   QWidget* parent) : QObject(*(new QActionPrivate), parent)
+                   QWidget* parent) : QObject(*(new QActionPrivate), parent)
 {
     d->text = text;
     setAccel(accel);
@@ -110,14 +110,14 @@ QAction::QAction(const QIconSet& icon, const QString& text, QKeySequence accel,
 void QAction::setAccel(const QKeySequence &accel)
 {
     if(!accel.isEmpty()) {
-	if(!QActionPrivate::actionAccels) {
-	    QActionPrivate::actionAccels = new QAccel(0, qApp);
-	} else if(d->accel != -1) {
-	    QActionPrivate::actionAccels->removeItem(d->accel);
-	    d->accel = -1;
-	}
-	d->accel = QActionPrivate::actionAccels->insertItem(accel);
-	QActionPrivate::actionAccels->connectItem(d->accel, this, SLOT(sendAccelActivated()));
+        if(!QActionPrivate::actionAccels) {
+            QActionPrivate::actionAccels = new QAccel(0, qApp);
+        } else if(d->accel != -1) {
+            QActionPrivate::actionAccels->removeItem(d->accel);
+            d->accel = -1;
+        }
+        d->accel = QActionPrivate::actionAccels->insertItem(accel);
+        QActionPrivate::actionAccels->connectItem(d->accel, this, SLOT(sendAccelActivated()));
     }
     d->sendDataChanged();
 }
@@ -126,7 +126,7 @@ QKeySequence QAction::accel() const
 {
     QKeySequence ret;
     if(QActionPrivate::actionAccels && d->accel != -1)
-	ret = QActionPrivate::actionAccels->key(d->accel);
+        ret = QActionPrivate::actionAccels->key(d->accel);
     return ret;
 }
 #endif
@@ -138,10 +138,10 @@ QAction::~QAction()
 void QAction::setActionGroup(QActionGroup *group)
 {
     if(group == d->group)
-	return;
+        return;
 
     if(d->group)
-	d->group->removeAction(this);
+        d->group->removeAction(this);
     d->group = group;
     d->group->addAction(this);
 }
@@ -160,7 +160,7 @@ void QAction::setIcon(const QIconSet &icons)
 QIconSet QAction::icon() const
 {
     if(d->icons)
-	return *d->icons;
+        return *d->icons;
     return QIconSet();
 }
 
@@ -284,9 +284,9 @@ void QAction::sendAccelActivated()
 void QAction::activate(ActionEvent event)
 {
     if(event == Trigger)
-	emit triggered();
+        emit triggered();
     else if(event == Hover)
-	emit hovered();
+        emit hovered();
 }
 
 /* QActionGroup code */
@@ -306,12 +306,12 @@ QActionGroup::~QActionGroup()
 QAction *QActionGroup::addAction(QAction* a)
 {
     if(!d->actions.contains(a)) {
-	d->actions.append(a);
-	QObject::connect(a, SIGNAL(triggered()), this, SLOT(internalTriggered()));
-	QObject::connect(a, SIGNAL(hovered()), this, SLOT(internalHovered()));
+        d->actions.append(a);
+        QObject::connect(a, SIGNAL(triggered()), this, SLOT(internalTriggered()));
+        QObject::connect(a, SIGNAL(hovered()), this, SLOT(internalHovered()));
     }
     if(d->exclusive)
-	a->setCheckable(true);
+        a->setCheckable(true);
     a->setEnabled(d->enabled);
     a->setVisible(d->visible);
     return a;
@@ -343,7 +343,7 @@ void QActionGroup::setExclusive(bool b)
 {
     d->exclusive = b;
     for(QList<QAction*>::Iterator it = d->actions.begin(); it != d->actions.end(); ++it)
-	(*it)->setCheckable(b);
+        (*it)->setCheckable(b);
 }
 
 bool QActionGroup::isExclusive() const
@@ -355,7 +355,7 @@ void QActionGroup::setEnabled(bool b)
 {
     d->enabled = b;
     for(QList<QAction*>::Iterator it = d->actions.begin(); it != d->actions.end(); ++it)
-	(*it)->setEnabled(b);
+        (*it)->setEnabled(b);
 }
 
 bool QActionGroup::isEnabled() const
@@ -372,7 +372,7 @@ void QActionGroup::setVisible(bool b)
 {
     d->visible = b;
     for(QList<QAction*>::Iterator it = d->actions.begin(); it != d->actions.end(); ++it)
-	(*it)->setVisible(b);
+        (*it)->setVisible(b);
 }
 
 bool QActionGroup::isVisible() const
@@ -383,8 +383,8 @@ bool QActionGroup::isVisible() const
 void QActionGroup::childEvent(QChildEvent* e)
 {
     if(e->type() == QEvent::ChildAdded) {
-	if(QAction *action = qt_cast<QAction*>(sender()))
-	    addAction(action);
+        if(QAction *action = qt_cast<QAction*>(sender()))
+            addAction(action);
     }
     QObject::childEvent(e);
 }
@@ -393,7 +393,7 @@ void QActionGroup::internalTriggered()
 {
     QAction *action = qt_cast<QAction*>(sender());
     if(!action)
-	qWarning("not possible..");
+        qWarning("not possible..");
     d->current = action;
     emit triggered(action);
 }
@@ -402,7 +402,7 @@ void QActionGroup::internalHovered()
 {
     QAction *action = qt_cast<QAction*>(sender());
     if(!action)
-	qWarning("not possible..");
+        qWarning("not possible..");
     d->current = action;
     emit hovered(action);
 }

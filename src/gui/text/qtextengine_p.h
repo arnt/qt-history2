@@ -79,20 +79,20 @@ public:
     inline Q26Dot6 &operator/=(int d) { val /= d; return *this; }
     inline Q26Dot6 &operator/=(double d) { val = (int)(val/d); return *this; }
     inline Q26Dot6 &operator/=(const Q26Dot6 &o) {
-	if ( o == Q26Dot6() ) {
-	    val =0x7FFFFFFFL;
-	} else {
-	    bool neg = false;
-	    Q_INT64 a = val;
-	    Q_INT64 b = o.val;
-	    if ( a < 0 ) { a = -a; neg = true; }
-	    if ( b < 0 ) { b = -b; neg = !neg; }
+        if (o == Q26Dot6()) {
+            val =0x7FFFFFFFL;
+        } else {
+            bool neg = false;
+            Q_INT64 a = val;
+            Q_INT64 b = o.val;
+            if (a < 0) { a = -a; neg = true; }
+            if (b < 0) { b = -b; neg = !neg; }
 
-	    int res = (int)(((a << 6) + (b >> 1)) / b);
+            int res = (int)(((a << 6) + (b >> 1)) / b);
 
-	    val = (neg ? -res : res);
-	}
-	return *this;
+            val = (neg ? -res : res);
+        }
+        return *this;
     }
     inline Q26Dot6 operator/(int d) const { return Q26Dot6(val/d, F26Dot6); }
     inline Q26Dot6 operator/(double d) const { return Q26Dot6((int)(val/d), F26Dot6); }
@@ -100,15 +100,15 @@ public:
     inline Q26Dot6 &operator*=(int i) { val *= i; return *this; }
     inline Q26Dot6 &operator*=(double d) { val = (int) (val*d); return *this; }
     inline Q26Dot6 &operator*=(const Q26Dot6 &o) {
-	bool neg = false;
-	Q_INT64 a = val;
-	Q_INT64 b = o.val;
-	if ( a < 0 ) { a = -a; neg = true; }
-	if ( b < 0 ) { b = -b; neg = !neg; }
+        bool neg = false;
+        Q_INT64 a = val;
+        Q_INT64 b = o.val;
+        if (a < 0) { a = -a; neg = true; }
+        if (b < 0) { b = -b; neg = !neg; }
 
-	int res = (int)((a * b + 0x20L) >> 6);
-	val = neg ? -res : res;
-	return *this;
+        int res = (int)((a * b + 0x20L) >> 6);
+        val = neg ? -res : res;
+        return *this;
     }
     inline Q26Dot6 operator*(int i) const { return Q26Dot6(val*i, F26Dot6); }
     inline Q26Dot6 operator*(double d) const { return Q26Dot6((int)(val*d), F26Dot6); }
@@ -131,22 +131,22 @@ struct Q26Dot6Offset {
 // this uses the same coordinate system as Qt, but a different one to freetype and Xft.
 // * y is usually negative, and is equal to the ascent.
 // * negative yoff means the following stuff is drawn higher up.
-// the characters bounding rect is given by QRect( x,y,width,height), it's advance by
+// the characters bounding rect is given by QRect(x,y,width,height), it's advance by
 // xoo and yoff
 struct glyph_metrics_t
 {
     inline glyph_metrics_t()
-	: x(100000),
-	  y(100000)
-	{}
+        : x(100000),
+          y(100000)
+        {}
     inline glyph_metrics_t(Q26Dot6 _x, Q26Dot6 _y, Q26Dot6 _width, Q26Dot6 _height, Q26Dot6 _xoff, Q26Dot6 _yoff)
-	: x(_x),
-	  y(_y),
-	  width(_width),
-	  height(_height),
-	  xoff(_xoff),
-	  yoff(_yoff)
-	{}
+        : x(_x),
+          y(_y),
+          width(_width),
+          height(_height),
+          xoff(_xoff),
+          yoff(_yoff)
+        {}
     Q26Dot6 x;
     Q26Dot6 y;
     Q26Dot6 width;
@@ -158,7 +158,7 @@ Q_DECLARE_TYPEINFO(glyph_metrics_t, Q_PRIMITIVE_TYPE);
 
 typedef unsigned short glyph_t;
 
-#if defined( Q_WS_X11 ) || defined ( Q_WS_QWS ) || defined (Q_WS_MAC)
+#if defined(Q_WS_X11) || defined (Q_WS_QWS) || defined (Q_WS_MAC)
 
 
 struct QScriptAnalysis
@@ -167,18 +167,18 @@ struct QScriptAnalysis
     unsigned short override  : 1;  // Set when in LRO/RLO embedding
     unsigned short bidiLevel : 6;  // Unicode Bidi algorithm embedding level (0-61)
     unsigned short reserved  : 2;
-    bool operator == ( const QScriptAnalysis &other ) {
-	return
-	    script == other.script &&
-	    bidiLevel == other.bidiLevel;
-	// ###
-// 	    && override == other.override;
+    bool operator == (const QScriptAnalysis &other) {
+        return
+            script == other.script &&
+            bidiLevel == other.bidiLevel;
+        // ###
+//             && override == other.override;
     }
 
 };
 Q_DECLARE_TYPEINFO(QScriptAnalysis, Q_PRIMITIVE_TYPE);
 
-#elif defined( Q_WS_WIN )
+#elif defined(Q_WS_WIN)
 
 struct QScriptAnalysis {
     unsigned short script         :10;
@@ -202,13 +202,13 @@ struct QScriptAnalysis {
 };
 Q_DECLARE_TYPEINFO(QScriptAnalysis, Q_PRIMITIVE_TYPE);
 
-inline bool operator == ( const QScriptAnalysis &sa1, const QScriptAnalysis &sa2 )
+inline bool operator == (const QScriptAnalysis &sa1, const QScriptAnalysis &sa2)
 {
     return
-	sa1.script == sa2.script &&
-	sa1.bidiLevel == sa2.bidiLevel;
-	// ###
-// 	    && override == other.override;
+        sa1.script == sa2.script &&
+        sa1.bidiLevel == sa2.bidiLevel;
+        // ###
+//             && override == other.override;
 }
 
 #endif
@@ -220,36 +220,36 @@ struct QGlyphLayout
     // spacing, and last spacing between arabic words.
     // NoJustification is for example set for arabic where no Kashida can be inserted or for diacritics.
     enum Justification {
-	NoJustification= 0,   // Justification can't be applied after this glyph
-	Arabic_Space   = 1,   // This glyph represents a space inside arabic text
-	Character      = 2,   // Inter-character justification point follows this glyph
-	Space          = 4,   // This glyph represents a blank outside an Arabic run
-	Arabic_Normal  = 7,   // Normal Middle-Of-Word glyph that connects to the right (begin)
-	Arabic_Waw     = 8,    // Next character is final form of Waw/Ain/Qaf/Fa
-	Arabic_BaRa    = 9,   // Next two chars are Ba + Ra/Ya/AlefMaksura
-	Arabic_Alef    = 10,  // Next character is final form of Alef/Tah/Lam/Kaf/Gaf
-	Arabic_HaaDal  = 11,  // Next character is final form of Haa/Dal/Taa Marbutah
-	Arabic_Seen    = 12,  // Initial or Medial form Of Seen/Sad
-	Arabic_Kashida = 13   // Kashida(U+640) in middle of word
+        NoJustification= 0,   // Justification can't be applied after this glyph
+        Arabic_Space   = 1,   // This glyph represents a space inside arabic text
+        Character      = 2,   // Inter-character justification point follows this glyph
+        Space          = 4,   // This glyph represents a blank outside an Arabic run
+        Arabic_Normal  = 7,   // Normal Middle-Of-Word glyph that connects to the right (begin)
+        Arabic_Waw     = 8,    // Next character is final form of Waw/Ain/Qaf/Fa
+        Arabic_BaRa    = 9,   // Next two chars are Ba + Ra/Ya/AlefMaksura
+        Arabic_Alef    = 10,  // Next character is final form of Alef/Tah/Lam/Kaf/Gaf
+        Arabic_HaaDal  = 11,  // Next character is final form of Haa/Dal/Taa Marbutah
+        Arabic_Seen    = 12,  // Initial or Medial form Of Seen/Sad
+        Arabic_Kashida = 13   // Kashida(U+640) in middle of word
     };
 
     unsigned short glyph;
     struct Attributes {
-	unsigned short justification   :4;  // Justification class
-	unsigned short clusterStart    :1;  // First glyph of representation of cluster
-	unsigned short mark            :1;  // needs to be positioned around base char
-	unsigned short zeroWidth       :1;  // ZWJ, ZWNJ etc, with no width
-	unsigned short dontPrint       :1;
-	unsigned short combiningClass  :8;
+        unsigned short justification   :4;  // Justification class
+        unsigned short clusterStart    :1;  // First glyph of representation of cluster
+        unsigned short mark            :1;  // needs to be positioned around base char
+        unsigned short zeroWidth       :1;  // ZWJ, ZWNJ etc, with no width
+        unsigned short dontPrint       :1;
+        unsigned short combiningClass  :8;
     };
     Attributes attributes;
     Q26Dot6Offset advance;
     Q26Dot6Offset offset;
 
     enum JustificationType {
-	JustifyNone,
-	JustifySpace,
-	JustifyKashida
+        JustifyNone,
+        JustifySpace,
+        JustifyKashida
     };
     uint justificationType :2;
     uint nKashidas : 6; // more do not make sense...
@@ -270,11 +270,11 @@ Q_DECLARE_TYPEINFO(QCharAttributes, Q_PRIMITIVE_TYPE);
 
 struct QScriptItem
 {
-    inline QScriptItem() : position( 0 ), isSpace( FALSE ), isTab( FALSE ),
-			   isObject( FALSE ),
-			   num_glyphs( 0 ), descent( -1 ), ascent( -1 ), width( -1 ),
-			   glyph_data_offset( 0 ),
-			   format(-1) { }
+    inline QScriptItem() : position(0), isSpace(false), isTab(false),
+                           isObject(false),
+                           num_glyphs(0), descent(-1), ascent(-1), width(-1),
+                           glyph_data_offset(0),
+                           format(-1) { }
 
     int position;
     QScriptAnalysis analysis;
@@ -318,82 +318,82 @@ class QPalette;
 class QTextEngine {
 public:
     QTextEngine();
-    QTextEngine(const QString &str, QFontPrivate *f );
+    QTextEngine(const QString &str, QFontPrivate *f);
     ~QTextEngine();
 
     void setText(const QString &str);
     void setFormatCollection(const QTextFormatCollection *fmts) {
-	// ##### atomic!
-	if (fmts != formats) {
-	    if (fmts) ++fmts->ref;
-	    if (formats && !--formats->ref)
-		    delete formats;
-	    formats = fmts;
-	}
+        // ##### atomic!
+        if (fmts != formats) {
+            if (fmts) ++fmts->ref;
+            if (formats && !--formats->ref)
+                    delete formats;
+            formats = fmts;
+        }
     }
     void setDocumentLayout(QAbstractTextDocumentLayout *layout) { docLayout = layout; }
 
     enum Mode {
-	Full = 0x00,
-	NoBidi = 0x01,
-	SingleLine = 0x02,
-	WidthOnly = 0x07
+        Full = 0x00,
+        NoBidi = 0x01,
+        SingleLine = 0x02,
+        WidthOnly = 0x07
     };
 
     enum ShaperFlagsEnum {
-	RightToLeft = 0x0001,
-	Mirrored = 0x0001,
-	DesignMetrics = 0x0002
+        RightToLeft = 0x0001,
+        Mirrored = 0x0001,
+        DesignMetrics = 0x0002
     };
     Q_DECLARE_FLAGS(ShaperFlags, ShaperFlagsEnum);
 
 
-    void itemize( int mode = Full );
+    void itemize(int mode = Full);
 
-    static void bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOrder );
+    static void bidiReorder(int numRuns, const Q_UINT8 *levels, int *visualOrder);
 
     const QCharAttributes *attributes();
 
     void setFormat(int from, int length, int format);
     void setBoundary(int strPos);
 
-    void shape( int item ) const;
+    void shape(int item) const;
 
     void justify(const QScriptLine &si);
 
     enum Edge {
-	Leading,
-	Trailing
+        Leading,
+        Trailing
     };
 
-    Q26Dot6 width( int charFrom, int numChars ) const;
-    glyph_metrics_t boundingBox( int from,  int len ) const;
+    Q26Dot6 width(int charFrom, int numChars) const;
+    glyph_metrics_t boundingBox(int from,  int len) const;
 
-    int length( int item ) const {
-	const QScriptItem &si = items[item];
-	int from = si.position;
-	item++;
-	return ( item < items.size() ? items[item].position : string.length() ) - from;
+    int length(int item) const {
+        const QScriptItem &si = items[item];
+        int from = si.position;
+        item++;
+        return (item < items.size() ? items[item].position : string.length()) - from;
     }
 
     QFontEngine *fontEngine(const QScriptItem &si) const;
     QFont font(const QScriptItem &si) const;
     QFont font() const { if (fnt) return QFont(fnt, 0); return QFont(); }
 
-    void splitItem( int item, int pos );
+    void splitItem(int item, int pos);
 
     unsigned short *logClustersPtr;
     QGlyphLayout *glyphPtr;
 
-    inline unsigned short *logClusters( const QScriptItem *si ) const
-	{ return logClustersPtr+si->position; }
+    inline unsigned short *logClusters(const QScriptItem *si) const
+        { return logClustersPtr+si->position; }
     inline QGlyphLayout *glyphs(const QScriptItem *si) const
-	{ return glyphPtr + si->glyph_data_offset; }
+        { return glyphPtr + si->glyph_data_offset; }
 
-    void reallocate( int totalGlyphs );
-    inline void ensureSpace( int nGlyphs ) const {
-	if ( num_glyphs - used < nGlyphs )
-	    ((QTextEngine *)this)->reallocate( (((used + nGlyphs)*3/2) >> 4 ) << 4 );
+    void reallocate(int totalGlyphs);
+    inline void ensureSpace(int nGlyphs) const {
+        if (num_glyphs - used < nGlyphs)
+            ((QTextEngine *)this)->reallocate((((used + nGlyphs)*3/2) >> 4) << 4);
     }
 
 
@@ -425,7 +425,7 @@ public:
     int nSelections;
     int *underlinePositions;
 private:
-    void shapeText( int item ) const;
+    void shapeText(int item) const;
 };
 
 #endif

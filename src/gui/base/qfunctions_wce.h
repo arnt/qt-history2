@@ -31,13 +31,13 @@
 extern "C" {
 #endif
 
-#define POCKET_PC		// POCKETPC
-//#undef POCKETPC		// HPCPRO
+#define POCKET_PC                // POCKETPC
+//#undef POCKETPC                // HPCPRO
 
-#define SetWindowLongA		SetWindowLong
-#define GetWindowLongA		GetWindowLong
-#define SendMessageA		SendMessage
-#define calloc			_calloc
+#define SetWindowLongA                SetWindowLong
+#define GetWindowLongA                GetWindowLong
+#define SendMessageA                SendMessage
+#define calloc                        _calloc
 
 #if !defined(NO_ERRNO_H) && defined(POCKET_PC)
 #define NO_ERRNO_H
@@ -63,34 +63,34 @@ struct tm {
 };
 #endif // _TM_DEFINED
 
-size_t	    strftime( char *strDest, size_t maxsize, const char *format, const struct tm *timeptr );
-struct tm  *gmtime( const time_t *timer );
+size_t            strftime(char *strDest, size_t maxsize, const char *format, const struct tm *timeptr);
+struct tm  *gmtime(const time_t *timer);
 struct tm  *localtime(const time_t *);
-time_t	    mktime( struct tm *timeptr );
+time_t            mktime(struct tm *timeptr);
 
 // Time conversion functions
-time_t	 ftToTime_t( const FILETIME ft );
-FILETIME time_tToFt( time_t tt );
+time_t         ftToTime_t(const FILETIME ft);
+FILETIME time_tToFt(time_t tt);
 
 
 // File I/O ---------------------------------------------------------
-#define PATH_MAX		  1024
-#define _O_RDONLY		0x0001
-#define _O_RDWR			0x0002
-#define _O_WRONLY		0x0004
-#define _O_CREAT		0x0008
-#define _O_TRUNC		0x0010
-#define _O_APPEND		0x0020
+#define PATH_MAX                  1024
+#define _O_RDONLY                0x0001
+#define _O_RDWR                        0x0002
+#define _O_WRONLY                0x0004
+#define _O_CREAT                0x0008
+#define _O_TRUNC                0x0010
+#define _O_APPEND                0x0020
 
-#define _S_IFMT			0x0600
-#define _S_IFDIR		0x0200
-#define _S_IFREG		0x0400
+#define _S_IFMT                        0x0600
+#define _S_IFDIR                0x0200
+#define _S_IFREG                0x0400
 
 // Regular Berkeley error constants
-#define EMFILE			ERROR_TOO_MANY_OPEN_FILES   // was 0x0800
-#define ENOSPC			ERROR_DISK_FULL		    // was 0x1000
-#define EACCES			ERROR_ACCESS_DENIED	    // was 13
-#define ENOENT			ERROR_FILE_NOT_FOUND	    // was 2
+#define EMFILE                        ERROR_TOO_MANY_OPEN_FILES   // was 0x0800
+#define ENOSPC                        ERROR_DISK_FULL                    // was 0x1000
+#define EACCES                        ERROR_ACCESS_DENIED            // was 13
+#define ENOENT                        ERROR_FILE_NOT_FOUND            // was 2
 
 struct _stat
 {
@@ -105,31 +105,31 @@ struct _stat
 typedef int mode_t;
 extern int errno;
 
-DWORD	 GetLogicalDrives(VOID);
-int	_getdrive( void );
-WCHAR  *_wgetcwd( WCHAR *buffer, int maxlen );
-WCHAR  *_wgetdcwd( int drive, WCHAR *buffer, int maxlen );
-int	_wmkdir( const WCHAR *dirname );
-int	_wrmdir( const WCHAR *dirname );
-int	_waccess( const WCHAR *path, int pmode );
-int	_wrename( const WCHAR *oldname, const WCHAR *newname );
-int	_wremove( const WCHAR *name );
-int	 open( const char *filename, int oflag, int pmode );
-int	_wopen( const WCHAR *filename, int oflag, int pmode );
-int	_wstat( const WCHAR *path, struct _stat *buffer );
-long	_lseek( int handle, long offset, int origin );
-int	_read( int handle, void *buffer, unsigned int count );
-int	_write( int handle, const void *buffer, unsigned int count );
-int	_close( int handle );
+DWORD         GetLogicalDrives(VOID);
+int        _getdrive(void);
+WCHAR  *_wgetcwd(WCHAR *buffer, int maxlen);
+WCHAR  *_wgetdcwd(int drive, WCHAR *buffer, int maxlen);
+int        _wmkdir(const WCHAR *dirname);
+int        _wrmdir(const WCHAR *dirname);
+int        _waccess(const WCHAR *path, int pmode);
+int        _wrename(const WCHAR *oldname, const WCHAR *newname);
+int        _wremove(const WCHAR *name);
+int         open(const char *filename, int oflag, int pmode);
+int        _wopen(const WCHAR *filename, int oflag, int pmode);
+int        _wstat(const WCHAR *path, struct _stat *buffer);
+long        _lseek(int handle, long offset, int origin);
+int        _read(int handle, void *buffer, unsigned int count);
+int        _write(int handle, const void *buffer, unsigned int count);
+int        _close(int handle);
 FILE   *_fdopen(int handle, const char *mode);
 FILE   *fdopen(int handle, const char *mode);
-void	rewind( FILE *stream );
-FILE   *tmpfile( void );
+void        rewind(FILE *stream);
+FILE   *tmpfile(void);
 
 
 // Clipboard --------------------------------------------------------
-#define WM_CHANGECBCHAIN	1
-#define WM_DRAWCLIPBOARD	2
+#define WM_CHANGECBCHAIN        1
+#define WM_DRAWCLIPBOARD        2
 
 BOOL ChangeClipboardChain(
     HWND hWndRemove,  // handle to window to remove
@@ -142,7 +142,7 @@ HWND SetClipboardViewer(
 
 
 // Printer ----------------------------------------------------------
-#define ETO_GLYPH_INDEX		0x0010
+#define ETO_GLYPH_INDEX                0x0010
 
 typedef struct tagENUMLOGFONTEX {
     LOGFONT  elfLogFont;
@@ -154,62 +154,62 @@ typedef struct tagENUMLOGFONTEX {
 
 // Graphics ---------------------------------------------------------
 #ifdef POCKET_PC
-#   define SM_CXCURSOR		13
-#   define SM_CYCURSOR		14
+#   define SM_CXCURSOR                13
+#   define SM_CYCURSOR                14
 #else
 // ###
-#define GHND			GMEM_MOVEABLE | GMEM_ZEROINIT
+#define GHND                        GMEM_MOVEABLE | GMEM_ZEROINIT
 #endif // POCKET_PC
 
-BOOL ResizePalette( HPALETTE hpal, UINT nEntries );
-COLORREF PALETTEINDEX( WORD wPaletteIndex );
+BOOL ResizePalette(HPALETTE hpal, UINT nEntries);
+COLORREF PALETTEINDEX(WORD wPaletteIndex);
 
-BOOL SetWindowOrgEx( HDC hdc, int X, int Y, LPPOINT lpPoint );
-BOOL TextOut( HDC hdc, int nXStart, int nYStart, LPCTSTR lpString, int cbString );
-BOOL GetViewportOrgEx( HDC hdc, LPPOINT lpPoint );
-BOOL GetViewportExtEx( HDC hdc, LPSIZE lpSize );
-BOOL GetWindowOrgEx( HDC hdc, LPPOINT lpPoint );
-BOOL GetWindowExtEx( HDC hdc, LPSIZE lpSize );
+BOOL SetWindowOrgEx(HDC hdc, int X, int Y, LPPOINT lpPoint);
+BOOL TextOut(HDC hdc, int nXStart, int nYStart, LPCTSTR lpString, int cbString);
+BOOL GetViewportOrgEx(HDC hdc, LPPOINT lpPoint);
+BOOL GetViewportExtEx(HDC hdc, LPSIZE lpSize);
+BOOL GetWindowOrgEx(HDC hdc, LPPOINT lpPoint);
+BOOL GetWindowExtEx(HDC hdc, LPSIZE lpSize);
 
-UINT qt_GetDIBColorTable( HDC hdc, DIBSECTION *ds, UINT uStartIndex, UINT cEntries, RGBQUAD *pColors );
+UINT qt_GetDIBColorTable(HDC hdc, DIBSECTION *ds, UINT uStartIndex, UINT cEntries, RGBQUAD *pColors);
 
 
 // Other stuff ------------------------------------------------------
 // ### not the real values
-#define STARTF_USESTDHANDLES	1
-#define CREATE_NO_WINDOW	2
-#define DETACHED_PROCESS	3
-#define CF_HDROP		15
+#define STARTF_USESTDHANDLES        1
+#define CREATE_NO_WINDOW        2
+#define DETACHED_PROCESS        3
+#define CF_HDROP                15
 
 void abort();
 void *_expand(void* pvMemBlock, size_t iSize);
 void *calloc(size_t num, size_t size);
 
-unsigned long _beginthreadex( void *security,
-			      unsigned stack_size,
-			      unsigned (__stdcall *start_address)(void *),
-			      void *arglist,
-			      unsigned initflag,
-			      unsigned *thrdaddr );
+unsigned long _beginthreadex(void *security,
+                              unsigned stack_size,
+                              unsigned (__stdcall *start_address)(void *),
+                              void *arglist,
+                              unsigned initflag,
+                              unsigned *thrdaddr);
 void _endthreadex(unsigned nExitCode);
 
 #ifndef POCKET_PC
-    int isprint( int c );
-    int isdigit( int c );
-    int isxdigit( int c );
-    int isspace( int c );
-    int isgraph( int c );
-    double atof( const char *string );
-    char *strrchr( const char *string, int c );
-    double strtod( const char *nptr, char **endptr );
-    long strtol( const char *nptr, char **endptr, int base );
+    int isprint(int c);
+    int isdigit(int c);
+    int isxdigit(int c);
+    int isspace(int c);
+    int isgraph(int c);
+    double atof(const char *string);
+    char *strrchr(const char *string, int c);
+    double strtod(const char *nptr, char **endptr);
+    long strtol(const char *nptr, char **endptr, int base);
 #endif // POCKET_PC
 
-void *bsearch( const void *key, 
-	       const void *base0, 
-	       size_t nmemb, 
-	       size_t size, 
-	       int ( __cdecl *compar ) ( const void *, const void * ) );
+void *bsearch(const void *key,
+               const void *base0,
+               size_t nmemb,
+               size_t size,
+               int (__cdecl *compar) (const void *, const void *));
 
 
 /////////////////////////////////////////////////////////////////
@@ -217,7 +217,7 @@ void *bsearch( const void *key,
 ///////////////// MFC compatibility functions ///////////////////
 // This code has been copied from the MFC library source code  //
 // and will need replacing. Some of this is not used also, and //
-// needs removing					       //
+// needs removing                                               //
 /////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////
 
@@ -232,19 +232,19 @@ typedef wchar_t _TUCHAR;
 typedef LPVOID  LPPRINTER_DEFAULTS;
 
 #ifndef WS_THICKFRAME
-#define WS_THICKFRAME	WS_DLGFRAME
+#define WS_THICKFRAME        WS_DLGFRAME
 #endif
 
 #if (_WIN32_WCE < 400) // CE 4.0, CE.NET has these
     typedef struct _DROPFILES
     {
-	DWORD pFiles;
-	POINT pt;
-	BOOL fNC;
-	BOOL fWide;
+        DWORD pFiles;
+        POINT pt;
+        BOOL fNC;
+        BOOL fWide;
     } DROPFILES, FAR *LPDROPFILES;
 
-    typedef LPVOID      	LPCHOOSEFONT;
+    typedef LPVOID              LPCHOOSEFONT;
 #   define RDW_INVALIDATE       (0x0001)
 #   define RDW_INTERNALPAINT    (0x0002)
 #   define RDW_ERASE            (0x0004)
@@ -281,7 +281,7 @@ typedef UINT    UWORD;
 #define SW_RESTORE                (SW_SHOWNORMAL)
 #endif
 #define SW_NORMAL                 (SW_SHOWNORMAL)
-#define SW_SHOWMINNOACTIVE	      (SW_HIDE)
+#define SW_SHOWMINNOACTIVE              (SW_HIDE)
 #define MB_TYPEMASK               (0x0000000FL)
 #define MB_ICONMASK               (0x000000F0L)
 #define CTLCOLOR_SCROLLBAR        CTLCOLOR_EDIT
@@ -305,7 +305,7 @@ typedef UINT    UWORD;
 #define FW_REGULAR                FW_NORMAL
 #define MB_TASKMODAL              0
 #define MB_SYSTEMMODAL            MB_APPLMODAL
-#define PDERR_DNDMMISMATCH	      0x1009
+#define PDERR_DNDMMISMATCH              0x1009
 #define PDERR_DEFAULTDIFFERENT    0x100C
 #define IDB_HIST_SMALL_COLOR      8
 #define IDB_HIST_LARGE_COLOR      9
@@ -327,7 +327,7 @@ typedef UINT    UWORD;
 #define WSAGETSELECTEVENT(lParam) LOWORD(lParam)
 #define WSAGETSELECTERROR(lParam) HIWORD(lParam)
 #define HWND_TOPMOST              ((HWND)-1)
-#define HWND_NOTOPMOST 	          ((HWND)-2)
+#define HWND_NOTOPMOST                   ((HWND)-2)
 #define HCBT_CREATEWND            (3)
 #define CC_SHOWHELP               0
 #define PS_DOT                    2
@@ -375,23 +375,23 @@ typedef UINT    UWORD;
 #define OFN_ENABLESIZING 0
 
 #ifndef WM_SETCURSOR
-	#define WM_SETCURSOR 0x0020
-	#define IDC_ARROW           MAKEINTRESOURCE(32512)
-	#define IDC_IBEAM           MAKEINTRESOURCE(32513)
-	#define IDC_WAIT            MAKEINTRESOURCE(32514)
-	#define IDC_CROSS           MAKEINTRESOURCE(32515)
-	#define IDC_UPARROW         MAKEINTRESOURCE(32516)
-	#define IDC_SIZE            MAKEINTRESOURCE(32646)
-	#define IDC_ICON            MAKEINTRESOURCE(32512)
-	#define IDC_SIZENWSE        MAKEINTRESOURCE(32642)
-	#define IDC_SIZENESW        MAKEINTRESOURCE(32643)
-	#define IDC_SIZEWE          MAKEINTRESOURCE(32644)
-	#define IDC_SIZENS          MAKEINTRESOURCE(32645)
-	#define IDC_SIZEALL         MAKEINTRESOURCE(32646)
-	#define IDC_NO              MAKEINTRESOURCE(32648)
-	#define IDC_APPSTARTING     MAKEINTRESOURCE(32650)
-	#define IDC_HELP            MAKEINTRESOURCE(32651)
-	#define IDC_HAND	    MAKEINTRESOURCE(32649)
+        #define WM_SETCURSOR 0x0020
+        #define IDC_ARROW           MAKEINTRESOURCE(32512)
+        #define IDC_IBEAM           MAKEINTRESOURCE(32513)
+        #define IDC_WAIT            MAKEINTRESOURCE(32514)
+        #define IDC_CROSS           MAKEINTRESOURCE(32515)
+        #define IDC_UPARROW         MAKEINTRESOURCE(32516)
+        #define IDC_SIZE            MAKEINTRESOURCE(32646)
+        #define IDC_ICON            MAKEINTRESOURCE(32512)
+        #define IDC_SIZENWSE        MAKEINTRESOURCE(32642)
+        #define IDC_SIZENESW        MAKEINTRESOURCE(32643)
+        #define IDC_SIZEWE          MAKEINTRESOURCE(32644)
+        #define IDC_SIZENS          MAKEINTRESOURCE(32645)
+        #define IDC_SIZEALL         MAKEINTRESOURCE(32646)
+        #define IDC_NO              MAKEINTRESOURCE(32648)
+        #define IDC_APPSTARTING     MAKEINTRESOURCE(32650)
+        #define IDC_HELP            MAKEINTRESOURCE(32651)
+        #define IDC_HAND            MAKEINTRESOURCE(32649)
 #endif
 
 #if defined(_MIPS_)
@@ -462,7 +462,7 @@ UINT    GlobalFlags(HGLOBAL hMem);
 #endif
 
 #ifdef __cplusplus
-}	// Extern C.
+}        // Extern C.
 #endif
 #endif // Q_OS_TEMP
 #endif // QFUNCTIONS_WCE_H

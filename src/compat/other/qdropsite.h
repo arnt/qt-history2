@@ -25,7 +25,7 @@ class QWidget;
 
 class Q_COMPAT_EXPORT QDropSite {
 public:
-    QDropSite( QWidget* parent );
+    QDropSite(QWidget* parent);
     virtual ~QDropSite();
 };
 

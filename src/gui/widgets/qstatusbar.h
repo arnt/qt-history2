@@ -28,40 +28,40 @@ class QStatusBarPrivate;
 class Q_GUI_EXPORT QStatusBar: public QWidget
 {
     Q_OBJECT
-    Q_PROPERTY( bool sizeGripEnabled READ isSizeGripEnabled WRITE setSizeGripEnabled )
+    Q_PROPERTY(bool sizeGripEnabled READ isSizeGripEnabled WRITE setSizeGripEnabled)
 
 public:
-    QStatusBar( QWidget* parent=0, const char* name=0 );
+    QStatusBar(QWidget* parent=0, const char* name=0);
     virtual ~QStatusBar();
 
-    virtual void addWidget( QWidget *, int stretch = 0, bool = FALSE );
-    virtual void removeWidget( QWidget * );
+    virtual void addWidget(QWidget *, int stretch = 0, bool = false);
+    virtual void removeWidget(QWidget *);
 
     void setSizeGripEnabled(bool);
     bool isSizeGripEnabled() const;
 
 public slots:
-    void message( const QString &);
-    void message( const QString &, int );
+    void message(const QString &);
+    void message(const QString &, int);
     void clear();
 
 signals:
-    void messageChanged( const QString &text );
+    void messageChanged(const QString &text);
 
 protected:
-    void paintEvent( QPaintEvent * );
-    void resizeEvent( QResizeEvent * );
+    void paintEvent(QPaintEvent *);
+    void resizeEvent(QResizeEvent *);
 
     void reformat();
     void hideOrShow();
-    bool event( QEvent *);
+    bool event(QEvent *);
 
 private:
     QStatusBarPrivate * d;
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QStatusBar( const QStatusBar & );
-    QStatusBar& operator=( const QStatusBar & );
+    QStatusBar(const QStatusBar &);
+    QStatusBar& operator=(const QStatusBar &);
 #endif
 };
 

@@ -47,7 +47,7 @@ protected:
     bool findLibraries(const QString &);
     QString findDependency(const QString &);
     virtual bool findLibraries();
-    
+
     virtual void processMocConfig();
     virtual void processPrlFiles();
     virtual void processVars();

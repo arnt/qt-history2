@@ -70,15 +70,15 @@ public:
 
     virtual QString toUnicode(const char* chars, int len) const;
     virtual QByteArray fromUnicode(const QString& uc, int& lenInOut) const;
-    virtual void fromUnicode( const QChar *in, unsigned short *out,  int length );
+    virtual void fromUnicode(const QChar *in, unsigned short *out,  int length);
 
     QByteArray fromUnicode(const QString& uc) const;
 
     QString toUnicode(const QByteArray&, int len) const;
     QString toUnicode(const QByteArray&) const;
     QString toUnicode(const char* chars) const;
-    virtual bool canEncode( QChar ) const;
-    virtual bool canEncode( const QString& ) const;
+    virtual bool canEncode(QChar) const;
+    virtual bool canEncode(const QString&) const;
 
     virtual int heuristicContentMatch(const char* chars, int len) const = 0;
     virtual int heuristicNameMatch(const char* hint) const;

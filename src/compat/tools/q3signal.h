@@ -26,43 +26,43 @@ class Q_COMPAT_EXPORT Q3Signal : public QObject
     Q_OBJECT
 
 public:
-    Q3Signal( QObject *parent=0, const char *name=0 );
+    Q3Signal(QObject *parent=0, const char *name=0);
     ~Q3Signal();
 
-    bool	connect( const QObject *receiver, const char *member );
-    bool	disconnect( const QObject *receiver, const char *member=0 );
+    bool        connect(const QObject *receiver, const char *member);
+    bool        disconnect(const QObject *receiver, const char *member=0);
 
-    void	activate();
+    void        activate();
 
 #ifdef QT_COMPAT
-    QT_COMPAT bool	isBlocked() const
-	{ return QObject::signalsBlocked(); }
-    QT_COMPAT void	block( bool b )
-	{ QObject::blockSignals( b ); }
+    QT_COMPAT bool        isBlocked() const
+        { return QObject::signalsBlocked(); }
+    QT_COMPAT void        block(bool b)
+        { QObject::blockSignals(b); }
 #ifndef QT_NO_VARIANT
-    QT_COMPAT void	setParameter( int value );
-    QT_COMPAT int	parameter() const;
+    QT_COMPAT void        setParameter(int value);
+    QT_COMPAT int        parameter() const;
 #endif
 #endif
 
 #ifndef QT_NO_VARIANT
-    void	setValue( const QCoreVariant &value );
-    QCoreVariant	value() const;
+    void        setValue(const QCoreVariant &value);
+    QCoreVariant        value() const;
 #endif
 signals:
 #ifndef QT_NO_VARIANT
-    void signal( const QCoreVariant& );
+    void signal(const QCoreVariant&);
 #endif
-    void intSignal( int );
+    void intSignal(int);
 
 private:
 #ifndef QT_NO_VARIANT
     QCoreVariant val;
 #endif
-private:	// Disabled copy constructor and operator=
+private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    Q3Signal( const Q3Signal & );
-    Q3Signal &operator=( const Q3Signal & );
+    Q3Signal(const Q3Signal &);
+    Q3Signal &operator=(const Q3Signal &);
 #endif
 };
 

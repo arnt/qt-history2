@@ -24,7 +24,7 @@ class Q_GUI_EXPORT QGfxDriverFactory
 {
 public:
     static QStringList keys();
-    static QScreen *create( const QString&, int );
+    static QScreen *create(const QString&, int);
 };
 
 #endif //QGFXDRIVERFACTORY_QWS_H
