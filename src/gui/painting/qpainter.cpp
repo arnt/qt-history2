@@ -3749,6 +3749,34 @@ void QPainter::drawText(const QRectF &r, int flags, const QString &str, QRectF *
     qt_format_text(font(), r, flags, str, br, 0, 0, 0, this);
 }
 
+
+void QPainter::drawText(const QRectF &r, const QString &text, const QTextOption &o)
+{
+#ifdef QT_DEBUG_DRAW
+    if (qt_show_painter_debug_output)
+        printf("QPainter::drawText(), r=[%.2f,%.2f,%.2f,%.2f], flags=%d, str='%s'\n",
+           r.x(), r.y(), r.width(), r.height(), flags, str.latin1());
+#endif
+
+    if (!isActive() || text.length() == 0)
+        return;
+
+    Q_D(QPainter);
+    d->engine->updateState(d->state);
+
+    int flags = o.alignment();
+
+    if (o.wrapMode() == QTextOption::WordWrap)
+        flags |= Qt::TextWordWrap;
+    else if (o.wrapMode() == QTextOption::WrapAnywhere)
+        flags |= Qt::TextWrapAnywhere;
+
+    if (o.flags() & QTextOption::IncludeTrailingSpaces)
+        flags |= Qt::TextIncludeTrailingSpaces;
+
+    qt_format_text(font(), r, flags, text, 0, 0, 0, 0, this);
+}
+
 /*!
     \fn void QPainter::drawTextItem(int x, int y, const QTextItem &ti)
 
@@ -3864,6 +3892,28 @@ QRectF QPainter::boundingRect(const QRectF &rect, int flags, const QString &str)
     QRectF brect;
     drawText(rect, flags | Qt::TextDontPrint, str, &brect);
     return brect;
+}
+
+
+QRectF QPainter::boundingRect(const QRectF &r, const QString &text, const QTextOption &o)
+{
+    if (!isActive() || text.length() == 0)
+        return QRectF(r.x(),r.y(), 0,0);
+
+    Q_D(QPainter);
+    d->engine->updateState(d->state);
+
+    int flags = o.alignment() | Qt::TextDontPrint;
+    if (o.wrapMode() == QTextOption::WordWrap)
+        flags |= Qt::TextWordWrap;
+    else if (o.wrapMode() == QTextOption::WrapAnywhere)
+        flags |= Qt::TextWrapAnywhere;
+    if (o.flags() & QTextOption::IncludeTrailingSpaces)
+        flags |= Qt::TextIncludeTrailingSpaces;
+
+    QRectF br;
+    qt_format_text(font(), r, flags, text, &br, 0, 0, 0, this);
+    return br;
 }
 
 /*!

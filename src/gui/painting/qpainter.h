@@ -19,6 +19,7 @@
 #include "qpoint.h"
 #include "qpixmap.h"
 #include "qimage.h"
+#include "qtextoption.h"
 
 #ifndef QT_INCLUDE_COMPAT
 #include "qpolygon.h"
@@ -261,17 +262,21 @@ public:
     inline void drawImage(int x, int y, const QImage &image, int sx = 0, int sy = 0,
                           int sw = -1, int sh = -1, Qt::ImageConversionFlags flags = Qt::AutoColor);
 
-    void drawText(const QRectF &r, int flags, const QString &text, QRectF *br=0);
-    void drawText(const QRect &r, int flags, const QString &text, QRect *br=0);
-    inline void drawText(int x, int y, int w, int h, int flags, const QString &text, QRect *br=0);
-
     void drawText(const QPointF &p, const QString &s, TextDirection dir = Auto);
     inline void drawText(const QPoint &p, const QString &s, TextDirection dir = Auto);
     inline void drawText(int x, int y, const QString &s, TextDirection dir = Auto);
 
+    void drawText(const QRectF &r, int flags, const QString &text, QRectF *br=0);
+    void drawText(const QRect &r, int flags, const QString &text, QRect *br=0);
+    inline void drawText(int x, int y, int w, int h, int flags, const QString &text, QRect *br=0);
+
+    void drawText(const QRectF &r, const QString &text, const QTextOption &o = QTextOption());
+
     QRectF boundingRect(const QRectF &rect, int flags, const QString &text);
     QRect boundingRect(const QRect &rect, int flags, const QString &text);
     inline QRect boundingRect(int x, int y, int w, int h, int flags, const QString &text);
+
+    QRectF boundingRect(const QRectF &rect, const QString &text, const QTextOption &o = QTextOption());
 
     void drawTextItem(const QPointF &p, const QTextItem &ti);
     inline void drawTextItem(int x, int y, const QTextItem &ti);
