@@ -4700,12 +4700,6 @@ void QListView::keyPressEvent( QKeyEvent * e )
     QListViewItem * i = currentItem();
     QListViewItem *old = i;
 
-    if ( ( d->selectionMode == Multi || d->selectionMode == Extended ) && i->isSelectable() && e->ascii() == ' ' ) {
-	setSelected( i, !i->isSelected() );
-	d->currentPrefix.truncate( 0 );
-	return;
-    }
-
     QRect r( itemRect( i ) );
     QListViewItem * i2;
 
@@ -4839,10 +4833,14 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	break;
     case Key_Space:
 	activatedByClick = FALSE;
-	i->activate();
 	d->currentPrefix.truncate( 0 );
 	if ( currentItem() && !currentItem()->isEnabled() )
 	    break;
+	i->activate();
+	if ( i->isSelectable() && ( d->selectionMode == Multi || d->selectionMode == Extended ) ) {
+	    setSelected( i, !i->isSelected() );
+	    d->currentPrefix.truncate( 0 );
+	}
 	emit spacePressed( currentItem() );
 	break;
     case Key_Escape:
