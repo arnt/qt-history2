@@ -138,7 +138,7 @@ static QPixmap *get_qiv_buffer_pixmap( const QSize &s )
 
 #ifndef QT_NO_DRAGANDDROP
 
-class QM_EXPORT_ICONVIEW QIconDragData
+class Q_COMPAT_EXPORT QIconDragData
 {
 public:
     QIconDragData();
@@ -156,7 +156,7 @@ public:
     bool operator==( const QIconDragData &i ) const;
 };
 
-class QM_EXPORT_ICONVIEW QIconDragDataItem
+class Q_COMPAT_EXPORT QIconDragDataItem
 {
 public:
     QIconDragDataItem() {}
