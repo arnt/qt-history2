@@ -158,13 +158,11 @@ public:
 	    const size_t lastSize = size();
 	    const size_t len = lastSize + QMAX( lastSize, n );
 	    pointer newStart = new T[len];
-	    pointer newFinish = newStart;
-	    newFinish = qCopy( start, pos, newStart );
-	    pointer filler = newFinish;
+	    pointer newFinish = qCopy( start, pos, newStart );
+	    // fill up inserted space
 	    size_t i = n;
-	    for ( ; i > 0; --i, ++filler )
-		*filler = x;
-	    newFinish = filler;
+	    for ( ; i > 0; --i, ++newFinish )
+		*newFinish = x;
 	    newFinish = qCopy( pos, finish, newFinish );
 	    delete[] start;
 	    start = newStart;
@@ -383,8 +381,8 @@ public:
 
     iterator insert( iterator pos, const T& x )
     {
+	size_type offset = pos - sh->start;
 	detach();
-	size_type offset = pos - begin();
 	if ( pos == end() ) {
 	    if ( sh->finish == sh->end )
 		push_back( x );
@@ -407,13 +405,13 @@ public:
 
     iterator insert( iterator pos, size_type n, const T& x )
     {
-		size_type offset = pos - begin();
 		if ( n != 0 ) {
+		        size_type offset = pos - sh->start;
 			detach();
-			offset = pos - begin();
+			pos = begin() + offset;
 			sh->insert( pos, n, x );
 		}
-		return begin() + offset;
+		return pos;
     }
 
     void reserve( size_type n )
