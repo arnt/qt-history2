@@ -562,10 +562,10 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation o
   This enum type describes the keyboard modifier keys supported by Qt.
   The currently defined values are:
 
-  \value SHIFT (0x00200000) - the shift keys provided on all normal keyboards
-  \value CTRL (0x00400000) - the control keys
-  \value ALT (0x00800000) - the normal alt keys, but not e.g. AltGr.
-  \value UNICODE_ACCEL - the accelerator is specified as a Unicode code
+  \value SHIFT the shift keys provided on all normal keyboards
+  \value CTRL the control keys
+  \value ALT the normal alt keys, but not e.g. AltGr.
+  \value UNICODE_ACCEL the accelerator is specified as a Unicode code
   point, not a Qt Key
 */
 
