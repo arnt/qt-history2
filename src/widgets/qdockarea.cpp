@@ -461,7 +461,9 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
 		    dockWidget->setNewLine( FALSE );
 		}
 	    } else { // insert in a new line, so make sure the dock widget and the widget which will be after it have a newline
-		dockWidgets->at( index )->setNewLine( TRUE );
+		QDockWidget* nldw = dockWidgets->at( index );
+		if ( nldw )
+		    nldw->setNewLine( TRUE );
 		dockWidget->setNewLine( TRUE );
 	    }
 	    // finally insert the widget
