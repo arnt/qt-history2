@@ -340,55 +340,12 @@ void QWSPaintEngine::drawPoint(const QPoint &p)
     d->gfx->drawPoint(p.x(), p.y());
 }
 
-void QWSPaintEngine::drawPoints(const QPointArray &pa, int index, int npoints)
+void QWSPaintEngine::drawPoints(const QPointArray &pa)
 {
     if (state->pen.style() == Qt::NoPen)
         return;
 
-    d->gfx->drawPoints(pa, index, npoints);
-}
-
-void QWSPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
-{
-    QPointArray a;
-
-    int x, y, w, h;
-    r.rect(&x, &y, &w, &h);
-
-    w--;
-    h--;
-    int rxx = w*xRnd/200;
-    int ryy = h*yRnd/200;
-    int rxx2 = 2*rxx;
-    int ryy2 = 2*ryy;
-    int xx, yy;
-
-    // ###### WWA: this should use the new makeArc (with xmat)
-
-    a.makeEllipse(x, y, rxx2, ryy2);
-    int s = a.size()/4;
-    int i = 0;
-    while (i < s) {
-        a.point(i, &xx, &yy);
-        xx += w - rxx2;
-        a.setPoint(i++, xx, yy);
-    }
-    i = 2*s;
-    while (i < 3*s) {
-        a.point(i, &xx, &yy);
-        yy += h - ryy2;
-        a.setPoint(i++, xx, yy);
-    }
-    while (i < 4*s) {
-        a.point(i, &xx, &yy);
-        xx += w - rxx2;
-        yy += h - ryy2;
-        a.setPoint(i++, xx, yy);
-    }
-    //  a = xForm(a);
-    //a.translate(-redirection_offset);
-    drawPolyInternal(a);
-//    qDebug("QWSPaintEngine::drawRoundRect");
+    d->gfx->drawPoints(pa, 0, pa.size());
 }
 
 
@@ -442,106 +399,36 @@ void QWSPaintEngine::drawEllipse(const QRect &r)
     drawPolyInternal(a);
 }
 
-void QWSPaintEngine::drawArc(const QRect &r, int a, int alen)
-{
-    int x, y, w, h;
-    r.rect(&x, &y, &w, &h);
-
-    QPointArray pa;
-    pa.makeArc(x, y, w, h, a, alen);
-    drawPolyInternal(pa, false);
-}
-
-void QWSPaintEngine::drawPie(const QRect &r, int a, int alen)
-{
-    int x, y, w, h;
-    r.rect(&x, &y, &w, &h);
-
-    QPointArray pa;
-// #ifndef QT_NO_TRANSFORMATIONS
-//     pa.makeArc(x, y, w, h, a, alen, xmat);        // arc polyline
-// #else
-//     map(x, y, &x, &y);
-    pa.makeArc(x, y, w, h, a, alen);                // arc polyline
-//#endif
-    int n = pa.size();
-    int cx, cy;
-// #ifndef QT_NO_TRANSFORMATIONS
-//     xmat.map(x+w/2, y+h/2, &cx, &cy);
-//#else
-    cx = x+w/2;
-    cy = y+h/2;
-//#endif
-    pa.resize(n+2);
-    pa.setPoint(n, cx, cy);                        // add legs
-    pa.setPoint(n+1, pa.at(0));
-    drawPolyInternal(pa);
-
-}
-
-void QWSPaintEngine::drawChord(const QRect &r, int a, int alen)
-{
-    int x, y, w, h;
-    r.rect(&x, &y, &w, &h);
-
-    QPointArray pa;
-    pa.makeArc(x, y, w-1, h-1, a, alen);        // arc polygon
-    int n = pa.size();
-    pa.resize(n+1);
-    pa.setPoint(n, pa.at(0));                        // connect endpoints
-    drawPolyInternal(pa);
-}
-
-void QWSPaintEngine::drawLineSegments(const QPointArray &a, int index, int nlines)
-{
-    for (int i=0; i<nlines; i++) {
-        int x1,y1,x2,y2;
-        a.point(index++, &x1, &y1);
-        a.point(index++, &x2, &y2);
-        if (state->pen.style() != Qt::NoPen)
-            d->gfx->drawLine(x1, y1, x2, y2);
-    }
-}
-
 void QWSPaintEngine::drawPolyline(const QPointArray &pa, int index, int npoints)
 {
-    if (state->pen.style() != Qt::NoPen)
-        d->gfx->drawPolyline(pa, index, npoints);
 }
 
 void QWSPaintEngine::drawPolygon(const QPointArray &pa, bool winding, int index, int npoints)
 {
 #if 0
 #ifndef QT_NO_TRANSFORMATIONS
-        bool tx = (txop != TxNone);
+    bool tx = (txop != TxNone);
 #else
-        bool tx = xlatex || xlatey;
+    bool tx = xlatex || xlatey;
 #endif
-        if (tx) {
-            pa = xForm(a, index, npoints);
-            if (pa.size() != a.size()) {
-                index   = 0;
-                npoints = pa.size();
-            }
-            pa.translate(-redirection_offset);
+    if (tx) {
+        pa = xForm(a, index, npoints);
+        if (pa.size() != a.size()) {
+            index   = 0;
+            npoints = pa.size();
         }
+        pa.translate(-redirection_offset);
+    }
 
 #endif
-    d->gfx->drawPolygon(pa, winding, index, npoints);
+    if (mode == UnconnectedMode) {
+        if (state->pen.style() != Qt::NoPen)
+            d->gfx->drawPolyline(pa, 0, pa.size());
+    } else {
+        d->gfx->drawPolygon(pa, (mode == WindingMode), 0, pa.size());
+    }
 
 }
-
-void QWSPaintEngine::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
-{
-//    qDebug("QWSPaintEngine::drawConvexPolygon");
-    drawPolygon(pa, false, index, npoints);
-}
-
-#ifndef QT_NO_BEZIER
-void QWSPaintEngine::drawCubicBezier(const QPointArray &pa, int index){
-    ////qDebug("QWSPaintEngine::drawCubicBezier");
-}
-#endif
 
 void QWSPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr,
                                 Qt::PixmapDrawingMode mode)
