@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#218 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#219 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -28,7 +28,7 @@ typedef char *XPointer;
 #undef  X11R4
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#218 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#219 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -1204,7 +1204,7 @@ void QWidget::resize( int w, int h )
     cancelResize();
     internalResize( w, h );
     QResizeEvent e( s, olds );
-    QApplication::sendEvent( this, &e );	// send resize event immediatly
+    QApplication::sendEvent( this, &e );       // send resize event immediately
 }
 
 
