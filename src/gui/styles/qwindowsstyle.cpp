@@ -955,6 +955,9 @@ int QWindowsStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWid
 void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
                                   const QWidget *w) const
 {
+    // Used to restore across fallthrough cases. Currently only used in PE_Indicator
+    bool doRestore = false;
+
     switch (pe) {
     case PE_ButtonTool: {
         QBrush fill;
@@ -1068,6 +1071,8 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             fill = opt->palette.base();
         else
             fill = opt->palette.background();
+        p->save();
+        doRestore = true;
         qDrawWinPanel(p, opt->rect, opt->palette, true, &fill);
         if (opt->state & Style_NoChange)
             p->setPen(opt->palette.dark());
@@ -1075,6 +1080,10 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             p->setPen(opt->palette.text());
         } // Fall through!
     case PE_CheckListIndicator:
+        if (!doRestore) {
+            p->save();
+            doRestore = true;
+        }
         if (pe == PE_CheckListIndicator) {
             if (opt->state & Style_Enabled)
                 p->setPen(QPen(opt->palette.text(), 1));
@@ -1104,13 +1113,16 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             }
             p->drawLineSegments(a);
         }
+        if (doRestore)
+            p->restore();
         break;
     case PE_FocusRect:
         if (const QStyleOptionFocusRect *fropt = qt_cast<const QStyleOptionFocusRect *>(opt)) {
-#if defined (Q_WS_WIN) && !defined(QT_GDIPLUS_SUPPORT)
+#if defined (Q_WS_WIN)
             {
                 HDC hdc = p->device()->getDC();
-                RECT rect = { opt->rect.left(), opt->rect.top(), opt->rect.right() + 1, opt->rect.bottom() + 1 };
+                RECT rect = { opt->rect.left(), opt->rect.top(),
+                              opt->rect.right() + 1, opt->rect.bottom() + 1 };
                 DrawFocusRect(hdc, &rect);
                 p->device()->releaseDC(hdc);
             }
@@ -1160,6 +1172,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
                 ir.setWidth(opt->rect.height());
             }
 
+            p->save();
             bool down = opt->state & Style_Down;
             bool enabled = opt->state & Style_Enabled;
             bool on = opt->state & Style_On;
@@ -1192,6 +1205,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
                 p->drawRect(ir.x() + 5, ir.y() + 4, 2, 4);
                 p->drawRect(ir.x() + 4, ir.y() + 5, 4, 2);
             }
+            p->restore();
             break;
         }
     case PE_ScrollBarSubLine:
