@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#451 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#452 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1694,7 +1694,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		{
 		    QWidget *fw = qApp->focusWidget();
 		    if ( fw ) {
-			QContextMenuEvent e( QContextMenuEvent::Keyboard, QPoint( 0, 0 ), fw->mapToGlobal( QPoint( 0, 0 ) ) );
+			QContextMenuEvent e( QContextMenuEvent::Keyboard, QPoint( 5, 5 ), fw->mapToGlobal( QPoint( 5, 5 ) ) );
 			QApplication::sendEvent( fw, &e );
 		    }
 		}
