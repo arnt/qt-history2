@@ -501,6 +501,7 @@ static bool compare(const QCoreVariant::Private *a, const QCoreVariant::Private 
     case QCoreVariant::BitArray:
 	QCOMPARE(QBitArray);
     case QCoreVariant::Invalid:
+        return true;
 	break;
     default:
 	qFatal("cannot handle GUI types of QCoreVariant without a Gui application");
