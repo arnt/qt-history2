@@ -39,7 +39,7 @@ class QTextDocumentFragmentPrivate
 public:
     QTextDocumentFragmentPrivate() {
         localFormatCollection = new QTextFormatCollection;
-        ++localFormatCollection->ref;
+        localFormatCollection->ref = 1;
     }
     QTextDocumentFragmentPrivate(const QTextCursor &cursor);
     ~QTextDocumentFragmentPrivate();
@@ -50,27 +50,38 @@ public:
 
     QTextFormatCollectionState formatCollectionState() const;
 
-    struct Fragment;
-
     inline void appendBlock(const QTextBlockFormat &format)
-    { appendText(QString(QTextParagraphSeparator), format); }
-    inline void appendBlock(int formatIdx)
-    { appendText(QString(QTextParagraphSeparator), formatIdx); }
+    { appendBlock(localFormatCollection->indexForFormat(format), localFormatCollection->indexForFormat(QTextCharFormat())); }
+    void appendBlock(int blockFormatIndex, int charFormatIndex);
+
     inline void appendText(const QString &text, const QTextFormat &format)
     { appendText(text, localFormatCollection->indexForFormat(format)); }
     void appendText(const QString &text, int formatIdx);
+
     inline void appendImage(const QTextImageFormat &format)
     { appendText(QString(QTextObjectReplacementChar), format); }
 
-    struct Fragment
+    // ### TODO: merge back into one big vector.
+
+    struct TextFragment
     {
         int position;
         Q_UINT32 size;
         int format;
     };
-    typedef QList<Fragment> FragmentList;
+    typedef QVector<TextFragment> FragmentVector;
 
-    FragmentList fragments;
+    struct Block
+    {
+        Block() : createBlockUponInsertion(true), blockFormat(-1), charFormat(-1) {}
+        bool createBlockUponInsertion;
+        int blockFormat;
+        int charFormat;
+        FragmentVector fragments;
+    };
+    typedef QVector<Block> BlockVector;
+
+    BlockVector blocks;
 
     QString localBuffer;
     QTextFormatCollection *localFormatCollection;

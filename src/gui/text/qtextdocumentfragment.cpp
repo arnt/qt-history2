@@ -213,34 +213,77 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
     pieceTable = const_cast<QTextPieceTable *>(p);
     Q_ASSERT(pieceTable);
 
-    int pos = cursor.selectionStart();
-    int endPos = cursor.selectionEnd();
-    Q_ASSERT (pos < endPos);
+    const int startPos = cursor.selectionStart();
+    const int endPos = cursor.selectionEnd();
 
-    QList<int> usedFormats;
+    Q_ASSERT(startPos < cursor.selectionEnd());
 
     const QString originalText = pieceTable->buffer();
 
+    // ## varlengtharray
+    QList<int> usedFormats;
+
+    int pos = startPos;
+    QTextBlockIterator currentBlock = p->blocksFind(pos);
+    int remainingBlockLen = qMin(currentBlock.length() - 1, endPos - pos);
+
+    QTextPieceTable::FragmentIterator currentFragment = p->find(pos);
+
     while (pos < endPos) {
-        QTextPieceTable::FragmentIterator it = pieceTable->find(pos);
-        const QTextFragment *ptFragment = it.value();
+        int inFragmentOffset = qMax(0, pos - currentFragment.position());
 
-        int offset = qMax(0, pos - it.position());
+        int position = currentFragment.value()->stringPosition + inFragmentOffset;
 
-        int size = qMin(int(ptFragment->size - offset), endPos - pos);
-        int position = ptFragment->stringPosition + offset;
+        int size = qMin(int(currentFragment.value()->size - inFragmentOffset), endPos - pos);
 
-        usedFormats << ptFragment->format;
+        while (size > remainingBlockLen) {
+            const int formatIdx = currentFragment.value()->format;
+            usedFormats << formatIdx;
+
+            appendText(QConstString(originalText.constData() + position, remainingBlockLen), formatIdx);
+
+            pos += remainingBlockLen;
+            size -= remainingBlockLen;
+            position += remainingBlockLen;
+
+            ++currentBlock;
+
+            Q_ASSERT(currentBlock.position() == pos + 1);
+            ++pos;
+            --size;
+            ++position;
+
+            const int blockFormat = pieceTable->formatCollection()->indexForFormat(currentBlock.blockFormat());
+            const int charFormat = pieceTable->formatCollection()->indexForFormat(currentBlock.charFormat());
+
+            usedFormats << blockFormat << charFormat;
+
+            appendBlock(blockFormat, charFormat);
+
+            remainingBlockLen = qMin(currentBlock.length() - 1, endPos - pos);
+        }
+
+        const int formatIdx = currentFragment.value()->format;
+        usedFormats << formatIdx;
+
+        appendText(QConstString(originalText.constData() + position, size), formatIdx);
         pos += size;
 
-        appendText(QConstString(originalText.constData() + position, size), ptFragment->format);
+        ++currentFragment;
     }
 
     QTextFormatCollectionState collState(pieceTable->formatCollection(), usedFormats);
     QMap<int, int> formatIndexMap = collState.insertIntoOtherCollection(localFormatCollection);
-    for (int i = 0; i < fragments.count(); ++i) {
-        Fragment &f = fragments[i];
-        f.format = formatIndexMap.value(f.format, -1);
+
+    for (int i = 0; i < blocks.count(); ++i) {
+        Block &b = blocks[i];
+        b.blockFormat = formatIndexMap.value(b.blockFormat, -1);
+        b.charFormat = formatIndexMap.value(b.charFormat, -1);
+
+        for (int i = 0; i < b.fragments.count(); ++i) {
+            TextFragment &f = b.fragments[i];
+            f.format = formatIndexMap.value(f.format, -1);
+        }
     }
 }
 
@@ -252,7 +295,7 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextDocumentFr
 
 QTextDocumentFragmentPrivate &QTextDocumentFragmentPrivate::operator=(const QTextDocumentFragmentPrivate &rhs)
 {
-    fragments = rhs.fragments;
+    blocks = rhs.blocks;
     localBuffer = rhs.localBuffer;
     QTextFormatCollection *x = new QTextFormatCollection(*rhs.localFormatCollection);
     x->ref = 1;
@@ -286,33 +329,27 @@ void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
 
     QTextPieceTablePointer destPieceTable = cursor.d->pieceTable;
 
-    Q_FOREACH(const Fragment &f, fragments) {
+    Q_FOREACH(const Block &b, blocks) {
+        if (b.createBlockUponInsertion) {
+            int blockFormatIdx;
+            if (b.blockFormat != -1)
+                blockFormatIdx = formatIndexMap.value(b.blockFormat, -1);
+            else
+                blockFormatIdx = formats->indexForFormat(cursor.blockFormat());
 
-        int mappedFormatIdx = formatIndexMap.value(f.format, -1);
+            destPieceTable->insertBlock(cursor.position(), blockFormatIdx, formats->indexForFormat(QTextCharFormat()));
+        }
 
-        QConstString text(localBuffer.constData() + f.position, f.size);
+        Q_FOREACH(const TextFragment &f, b.fragments) {
+            QConstString text(localBuffer.constData() + f.position, f.size);
 
-        int blockFormatIdx = formats->indexForFormat(cursor.blockFormat());
+            int formatIdx;
+            if (f.format != -1)
+                formatIdx = formatIndexMap.value(f.format, -1);
+            else
+                formatIdx = formats->indexForFormat(cursor.charFormat());
 
-        int formatIdx;
-        if (f.format == -1)
-            formatIdx = formats->indexForFormat(cursor.charFormat());
-        else
-            formatIdx = mappedFormatIdx;
-
-        if (formats->format(formatIdx).isBlockFormat())
-            blockFormatIdx = formatIdx;
-
-        int pos = cursor.position();
-        QStringList blocks = text.split(QTextParagraphSeparator);
-        for (int i = 0; i < blocks.size(); ++i) {
-            if (i > 0) {
-                destPieceTable->insertBlock(pos, blockFormatIdx, destPieceTable->formatCollection()->indexForFormat(QTextCharFormat()));
-                ++pos;
-            }
-            const QString &txt = blocks.at(i);
-            destPieceTable->insert(pos, txt, formatIdx);
-            pos += txt.length();
+            destPieceTable->insert(cursor.position(), text, formatIdx);
         }
     }
 }
@@ -321,20 +358,44 @@ QTextFormatCollectionState QTextDocumentFragmentPrivate::formatCollectionState()
 {
     QList<int> usedFormats;
 
-    Q_FOREACH(const Fragment &f, fragments)
-        usedFormats << f.format;
+    Q_FOREACH(const Block &b, blocks) {
+
+        if (b.blockFormat != -1)
+            usedFormats << b.blockFormat;
+
+        if (b.charFormat != -1)
+            usedFormats << b.charFormat;
+
+        Q_FOREACH(const TextFragment &f, b.fragments)
+            if (f.format != -1)
+                usedFormats << f.format;
+    }
 
     return QTextFormatCollectionState(localFormatCollection, usedFormats);
 }
 
+void QTextDocumentFragmentPrivate::appendBlock(int blockFormatIndex, int charFormatIndex)
+{
+    Block b;
+    b.blockFormat = blockFormatIndex;
+    b.charFormat = charFormatIndex;
+    blocks.append(b);
+}
+
 void QTextDocumentFragmentPrivate::appendText(const QString &text, int formatIdx)
 {
-    Fragment f;
+    if (blocks.isEmpty()) {
+        Block b;
+        b.createBlockUponInsertion = false;
+        blocks.append(b);
+    }
+
+    TextFragment f;
     f.position = localBuffer.length();
     localBuffer.append(text);
     f.size = text.length();
     f.format = formatIdx;
-    fragments << f;
+    blocks.last().fragments.append(f);
 }
 
 
@@ -431,7 +492,7 @@ QTextDocumentFragment::~QTextDocumentFragment()
 */
 bool QTextDocumentFragment::isEmpty() const
 {
-    return !d || d->fragments.isEmpty();
+    return !d || d->blocks.isEmpty();
 }
 
 /*!
@@ -441,10 +502,16 @@ QString QTextDocumentFragment::toPlainText() const
 {
     QString result;
 
-    Q_FOREACH(const QTextDocumentFragmentPrivate::Fragment &f, d->fragments)
-        result += QConstString(d->localBuffer.constData() + f.position, f.size);
+    if (!d)
+        return result;
 
-    result.replace(QTextParagraphSeparator, '\n');
+    for (int i = 0; i < d->blocks.count(); ++i) {
+        if (i > 0)
+            result += '\n';
+
+        Q_FOREACH(const QTextDocumentFragmentPrivate::TextFragment &f, d->blocks[i].fragments)
+            result += QConstString(d->localBuffer.constData() + f.position, f.size);
+    }
 
     return result;
 }
@@ -474,18 +541,34 @@ void QTextDocumentFragment::save(QTextStream &stream) const
            << "<!DOCTYPE QRichText>" << endl
            << "<QRichText>" << endl;
     // ### version
+    // ### rethink xml format. use more attributes?
+    // ### clean up loading code, centralize read-node-text-and-turn-into-int alike
+    // duplicated code
 
     d->formatCollectionState().save(stream);
 
-    stream << "<Fragments>" << endl;
+    stream << "<Blocks>" << endl;
 
-    Q_FOREACH(const QTextDocumentFragmentPrivate::Fragment &fragment, d->fragments) {
-        stream << "<Fragment format=\"" << fragment.format << "\">";
-        stream << QStyleSheet::escape(QConstString(d->localBuffer.constData() + fragment.position, fragment.size));
-        stream << "</Fragment>" << endl;
+    Q_FOREACH(const QTextDocumentFragmentPrivate::Block &block, d->blocks) {
+
+        stream << "<Block>" << endl; // ### save block attributes
+
+        if (block.blockFormat != -1)
+            stream << "<BlockFormatIndex>" << block.blockFormat << "</BlockFormatIndex>" << endl;
+        if (block.charFormat != -1)
+            stream << "<CharFormatIndex>" << block.charFormat << "</CharFormatIndex>" << endl;
+
+        Q_FOREACH(const QTextDocumentFragmentPrivate::TextFragment &fragment, block.fragments) {
+            stream << "<Fragment format=\"" << fragment.format << "\">";
+            stream << QStyleSheet::escape(QConstString(d->localBuffer.constData() + fragment.position, fragment.size));
+            stream << "</Fragment>" << endl;
+        }
+
+        stream << "</Block>" << endl;
     }
 
-    stream << "</Fragments>" << endl;
+    stream << "</Blocks>" << endl;
+
     stream << "</QRichText>";
 }
 
@@ -508,8 +591,8 @@ QTextDocumentFragment QTextDocumentFragment::fromXML(const QString &xml)
         return res;
 
     int formatsNode = parser.findChild(root, "formats");
-    int fragmentsNode = parser.findChild(root, "fragments");
-    if (formatsNode == -1 || fragmentsNode == -1)
+    int blocksNode = parser.findChild(root, "blocks");
+    if (formatsNode == -1 || blocksNode == -1)
         return res;
 
     QTextDocumentFragmentPrivate *d = new QTextDocumentFragmentPrivate;
@@ -517,11 +600,36 @@ QTextDocumentFragment QTextDocumentFragment::fromXML(const QString &xml)
     QTextFormatCollectionState collState(parser, formatsNode);
     QMap<int, int> formatIndexMap = collState.insertIntoOtherCollection(d->localFormatCollection);
 
-    for (int fragmentNode = parser.findChild(fragmentsNode, "fragment");
-         fragmentNode != -1; fragmentNode = parser.findNextChild(fragmentsNode, fragmentNode)) {
+    for (int blockNode = parser.findChild(blocksNode, "block");
+         blockNode != -1; blockNode = parser.findNextChild(blocksNode, blockNode)) {
 
-        const QTextHtmlParserNode &n = parser.at(fragmentNode);
-        d->appendText(n.text, formatIndexMap.value(n.formatIndex, -1));
+        QTextDocumentFragmentPrivate::Block b;
+
+        bool ok = false;
+
+        int blockFormatNode = parser.findChild(blockNode, "blockformatindex");
+        if (blockFormatNode != -1) {
+            int idx = parser.at(blockFormatNode).text.toInt(&ok);
+            if (ok)
+                b.blockFormat = formatIndexMap.value(idx, -1);
+        }
+
+        int charFormatNode = parser.findChild(blockNode, "charformatindex");
+        if (charFormatNode != -1) {
+            int idx = parser.at(charFormatNode).text.toInt(&ok);
+            if (ok)
+                b.charFormat = formatIndexMap.value(idx, -1);
+        }
+
+        if (b.blockFormat != -1)
+            d->blocks.append(b);
+
+        for (int fragmentNode = parser.findChild(blockNode, "fragment");
+                fragmentNode != -1; fragmentNode = parser.findNextChild(blockNode, fragmentNode)) {
+
+            const QTextHtmlParserNode &n = parser.at(fragmentNode);
+            d->appendText(n.text, formatIndexMap.value(n.formatIndex, -1));
+        }
     }
 
     res.d = d;
@@ -537,10 +645,13 @@ QTextDocumentFragment QTextDocumentFragment::fromPlainText(const QString &plainT
 
     res.d = new QTextDocumentFragmentPrivate;
 
-    QString text = plainText;
-    text.replace('\n', QTextParagraphSeparator);
-    // -1 as format idx means reuse current chat format when inserting/pasting
-    res.d->appendText(text, -1);
+    QStringList blocks = plainText.split(QTextParagraphSeparator);
+    for (int i = 0; i < blocks.count(); ++i) {
+        if (i > 0)
+            res.d->appendBlock(-1, -1);
+        // -1 as format idx means reuse current chat format when inserting/pasting
+        res.d->appendText(blocks.at(i), -1);
+    }
 
     return res;
 }
