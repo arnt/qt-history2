@@ -2228,7 +2228,7 @@ QRegion::QRegion(const QPointArray &a, Qt::FillRule fillRule)
         d->rgn = 0;
 #endif
         d->qt_rgn = PolygonRegion(a.constData(), a.size(),
-                                  fillRule == Qt::WindingMode ? WindingRule : EvenOddRule);
+                                  fillRule == Qt::WindingFill ? WindingRule : EvenOddRule);
     } else {
         d = &shared_empty;
         ++d->ref;
