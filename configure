@@ -3085,7 +3085,12 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     fi
     if [ "$CFG_XRANDR" = "yes" ]; then
         QT_CONFIG="$QT_CONFIG xrandr"
-        QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11 = -lXrandr \$\$QMAKE_LIBS_X11\""
+	if [ "$CFG_XRENDER" != "yes" ]; then
+	    # libXranr uses 1 function from libXrender, so we always have to have it :/
+	    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11 = -lXrandr -lXrender \$\$QMAKE_LIBS_X11\""
+	else
+	    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11 = -lXrandr \$\$QMAKE_LIBS_X11\""
+	fi
     fi
     if [ "$CFG_XRENDER" = "yes" ]; then
 	QT_CONFIG="$QT_CONFIG xrender"
