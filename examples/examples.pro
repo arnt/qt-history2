@@ -58,8 +58,7 @@ SUBDIRS	=	aclock \
 		wizard \
 		xform
 
-thread:SUBDIRS +=   thread/guithreads \
-		    thread/semaphores
+thread:SUBDIRS +=   thread/semaphores
 
 canvas:SUBDIRS +=   canvas
 
