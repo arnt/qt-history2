@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.h#24 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.h#25 $
 **
 ** Definition of QToolBar class
 **
@@ -64,18 +64,19 @@ public:
 
     virtual void setLabel( const QString & );
     QString label() const;
-    
+
     void clear();
 
 #ifdef QT_BUILDER
-    bool setConfiguration( const QDomElement& element );
-
     static QObject* factory( QObject* parent );
 #endif // QT_BUILDER
 
 protected:
     void paintEvent( QPaintEvent * );
-
+#ifdef QT_BUILDER
+    void configureEvent( QConfigureEvent* );
+#endif
+    
 private:
     virtual void setUpGM();
 

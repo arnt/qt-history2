@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#70 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#71 $
 **
 ** Definition of QPopupMenu class
 **
@@ -62,7 +62,7 @@ public:
     bool 	customWhatsThis() const;
 
 #ifdef QT_BUILDER
-    bool setConfiguration( const QDomElement& element );
+    bool	event( QEvent* e );
 #endif
 
 signals:
@@ -80,6 +80,9 @@ protected:
 
     void 	drawContents( QPainter * );
 
+#ifdef QT_BUILDER
+    void	configureEvent( QConfigureEvent* );
+#endif
     void 	closeEvent( QCloseEvent *e );
     void	paintEvent( QPaintEvent * );
     void	mousePressEvent( QMouseEvent * );

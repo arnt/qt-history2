@@ -45,7 +45,7 @@ public:
 
     virtual bool isPlugged() const;
 
-    QDomElement configuration( QDomDocument& doc, bool properties ) const;
+    // ##### Torben ??? QDomElement configuration( QDomDocument& doc, bool properties ) const;
 
     QWidget* container( int index );
     QWidget* representative( int index );
@@ -85,7 +85,7 @@ q_properties:
 protected slots:
     virtual void slotDestroyed();
     virtual void slotActivated();
-    
+
 protected:
     QToolBar* toolBar( int index );
     QPopupMenu* popupMenu( int index );
@@ -103,7 +103,7 @@ protected:
     virtual void setText( int id, const QString& text );
     virtual void setIconSet( int id, const QIconSet& iconset );
     virtual void setWhatsThis( int id, const QString& text );
-    
+
 signals:
     void activated();
     void enabled( bool );
@@ -166,8 +166,11 @@ public:
     QPopupMenu* popupMenu();
     void popup( const QPoint& global );
 
-    virtual bool setConfiguration( const QDomElement& element );
-
+    bool event( QEvent* );
+    
+protected:
+    void configureEvent( QConfigureEvent* );
+    
 private:
     QPopupMenu* m_popup;
 };
@@ -195,7 +198,7 @@ public:
 
 protected:
     virtual void setChecked( int id, bool checked );
-    
+
 protected slots:
     void slotActivated();
 
@@ -325,8 +328,9 @@ public:
     virtual QValueList<QAction*> actions( const QString& group );
     virtual QValueList<QAction*> actions();
 
-    bool setConfiguration( const QDomElement& element );
-    QDomElement configuration( QDomDocument& doc, bool properties ) const;
+    bool event( QEvent* );
+    
+    // ####### Torben: QDomElement configuration( QDomDocument& doc, bool properties ) const;
 
 signals:
     void inserted( QAction* );
@@ -334,6 +338,7 @@ signals:
 
 protected:
     void childEvent( QChildEvent* );
+    void configureEvent( QConfigureEvent* );
 
 private:
     QList<QAction> m_actions;

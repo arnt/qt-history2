@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#115 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#116 $
 **
 ** Definition of QListView widget class
 **
@@ -136,7 +136,8 @@ public:
     void sort(); // ######## make virtual in next major release
 
 #ifdef QT_BUILDER
-    bool setConfiguration( const QDomElement& item, int columns );
+    // ## Make virtual in Qt 3.0
+    bool configure( const QDomElement& item, int columns );
 #endif // QT_BUILDER
 
 protected:
@@ -262,7 +263,7 @@ public:
     bool showSortIndicator() const;
 
 #ifdef QT_BUILDER
-    bool setConfiguration( const QDomElement& element );
+    bool event( QEvent* event );
 #endif // QT_BUILDER
 
 public slots:
@@ -298,6 +299,10 @@ protected:
 
     void showEvent( QShowEvent * );
 
+#ifdef QT_BUILDER
+    void configureEvent( QConfigureEvent* );
+#endif
+    
     void drawContentsOffset( QPainter *, int ox, int oy,
 			     int cx, int cy, int cw, int ch );
 

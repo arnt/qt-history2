@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#355 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#356 $
 **
 ** Implementation of QListView widget class
 **
@@ -1422,7 +1422,7 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 }
 
 #ifdef QT_BUILDER
-bool QListViewItem::setConfiguration( const QDomElement& item, int columns )
+bool QListViewItem::configure( const QDomElement& item, int columns )
 {
     QListViewItem* lv = 0;
     int c = 0;
@@ -1449,7 +1449,7 @@ bool QListViewItem::setConfiguration( const QDomElement& item, int columns )
 	  lv = new QListViewItem( this, lv );
 	else
 	  lv = new QListViewItem( this );
-	if ( !lv->setConfiguration( p, columns ) )
+	if ( !lv->configure( p, columns ) )
 	  return FALSE;
       }
       else
@@ -4677,9 +4677,20 @@ void QListView::takeItem( QListViewItem * i )
 }
 
 #ifdef QT_BUILDER
-bool QListView::setConfiguration( const QDomElement& element )
+bool QListView::event( QEvent* e )
 {
-    QDomElement t = element.namedItem( "Head" ).toElement();
+    if ( e->type() == QEvent::Configure )
+    {
+	configureEvent( (QConfigureEvent*)e );
+	return TRUE;
+    }
+
+    return QScrollView::event( e );
+}
+
+void QListView::configureEvent( QConfigureEvent* ev )
+{
+    QDomElement t = ev->element()->namedItem( "Head" ).toElement();
     if ( !t.isNull() )
     {
 	int columns = 0;
@@ -4687,36 +4698,47 @@ bool QListView::setConfiguration( const QDomElement& element )
 	for( ; !h.isNull(); h = h.nextSibling().toElement() )
         {
 	    if ( h.tagName() != "Column" )
-		return FALSE;
-
+	    {
+		ev->ignore();
+		return;
+	    }
 	    addColumn( h.text() );
 	    ++columns;
 	}
 
-	t = element.namedItem( "List" ).toElement();
+	t = ev->element()->namedItem( "List" ).toElement();
 	if ( !t.isNull() )
         {
 	    if (  t.tagName() != "List" )
-		return FALSE;
-
+	    {
+		ev->ignore();
+		return;
+	    }
+	    
 	    QListViewItem* lv = 0;
 	    QDomElement l = t.firstChild().toElement();
 	    for( ; !l.isNull(); l = l.nextSibling().toElement() )
 	    {
 		if ( l.tagName() != "QListViewItem" )
-		    return FALSE;
+	        {
+		    ev->ignore();
+		    return;
+		}
 
 		if ( lv )
 		    lv = new QListViewItem( this, lv );
 		else
 		    lv = new QListViewItem( this );
-		if ( !lv->setConfiguration( l, columns ) )
-		    return FALSE;
+		if ( !lv->configure( l, columns ) )
+	        {
+		    ev->ignore();
+		    return;
+		}
 	    }
 	}
     }
 
-    return QScrollView::setConfiguration( element );
+    QScrollView::configureEvent( ev );
 }
 #endif // QT_BUILDER
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#174 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#175 $
 **
 ** Implementation of QMenuBar class
 **
@@ -1143,14 +1143,28 @@ void QMenuBar::focusOutEvent( QFocusEvent * )
 }
 
 #ifdef QT_BUILDER
-bool QMenuBar::setConfiguration( const QDomElement& element )
+bool QMenuBar::event( QEvent* e )
 {
-  if ( !QMenuData::setConfiguration( this, element ) )
-    return FALSE;
+    if ( e->type() == QEvent::Configure )
+    {
+	configureEvent( (QConfigureEvent*) e );
+	return TRUE;
+    }
 
-  // Dont call QWidget configure since we do not accept layouts or
-  // or direct child widget except for bars and the central widget
-  return QObject::setConfiguration( element );
+    return QFrame::event( e );
+}
+
+void QMenuBar::configureEvent( QConfigureEvent* ev )
+{
+    if ( !QMenuData::configure( this, *(ev->element()) ) )
+    {
+	ev->ignore();
+	return;
+    }
+    
+    // Dont call QWidget configure since we do not accept layouts or
+    // or direct child widget except for bars and the central widget
+    QObject::configureEvent( ev );
 }
 #endif // QT_BUILDER
 

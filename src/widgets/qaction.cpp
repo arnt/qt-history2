@@ -463,7 +463,7 @@ void QAction::setToolTip( const QString& tt )
 }
 
 void QAction::setToolTip( int i, const QString& tt )
-{ 
+{
     QWidget* w = container( i );
     QWidget* r = representative( i );
     if ( w->inherits( "QToolBar" ) && r->inherits( "QToolButton" ) )
@@ -696,6 +696,7 @@ void QAction::slotActivated()
     emit activated();
 }
 
+#if 0
 /*!
  For Qt 3.0
 */
@@ -707,6 +708,7 @@ QDomElement QAction::configuration( QDomDocument& doc, bool properties ) const
 
     return e;
 }
+#endif 0
 
 /******************************************************
  *
@@ -847,9 +849,20 @@ void QActionMenu::unplug( QWidget* widget )
 	QAction::unplug( widget );
 }
 
-bool QActionMenu::setConfiguration( const QDomElement& element )
+bool QActionMenu::event( QEvent* e )
 {
-    QDomElement i = element.firstChild().toElement();
+    if ( e->type() == QEvent::Configure )
+    {
+	configureEvent( (QConfigureEvent*) e );
+	return TRUE;
+    }
+
+    return QAction::event( e );    
+}
+
+void QActionMenu::configureEvent( QConfigureEvent* ev )
+{
+    QDomElement i = ev->element()->firstChild().toElement();
     for( ; !i.isNull(); i = i.nextSibling().toElement() )
     {
 	if ( i.tagName() == "Action" )
@@ -861,7 +874,8 @@ bool QActionMenu::setConfiguration( const QDomElement& element )
 	    if ( !col )
             {
 		qDebug("QActionMenu: The toplevel widget does not have a QActionCollection." );
-		return FALSE;
+		ev->ignore();
+		return;
 	    }
 	
 	    // Find the action
@@ -879,14 +893,17 @@ bool QActionMenu::setConfiguration( const QDomElement& element )
             {
 		QObject* o = i.toObject( parent() );
 		if ( !o || !o->inherits( "QAction" ) )
-		    return FALSE;
-	
+	        {
+		    ev->ignore();
+		    return;
+		}
+		
 		insert( (QAction*)o );
 	    }
 	}
     }
 
-    return QAction::setConfiguration( element );
+    QAction::configureEvent( ev );
 }
 
 /******************************************************
@@ -1026,9 +1043,20 @@ QValueList<QAction*> QActionCollection::actions()
     return lst;
 }
 
-bool QActionCollection::setConfiguration( const QDomElement& element )
+bool QActionCollection::event( QEvent* e )
 {
-    QDomElement it = element.firstChild().toElement();
+    if ( e->type() == QEvent::Configure )
+    {
+	configureEvent( (QConfigureEvent*) e );
+	return TRUE;
+    }
+
+    return QObject::event( e );    
+}
+
+void QActionCollection::configureEvent( QConfigureEvent* ev )
+{
+    QDomElement it = ev->element()->firstChild().toElement();
     for( ; !it.isNull(); it = it.nextSibling().toElement() )
     {
 	QObject* o = it.toObject( this );
@@ -1040,9 +1068,10 @@ bool QActionCollection::setConfiguration( const QDomElement& element )
 	    qDebug("QActionCollection: <%s> is not a QAction.", it.tagName().latin1() );
     }
 
-    return QObject::setConfiguration( element );
+    QObject::configureEvent( ev );
 }
 
+#if 0
 QDomElement QActionCollection::configuration( QDomDocument& doc, bool properties ) const
 {
     QDomElement e = QObject::configuration( doc, properties );
@@ -1054,6 +1083,7 @@ QDomElement QActionCollection::configuration( QDomDocument& doc, bool properties
 
     return e;
 }
+#endif 0
 
 /******************************************************
  *

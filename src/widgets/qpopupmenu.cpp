@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#264 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#265 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -1579,13 +1579,27 @@ void QPopupMenu::focusOutEvent( QFocusEvent * )
 }
 
 #ifdef QT_BUILDER
-bool QPopupMenu::setConfiguration( const QDomElement& element )
+bool QPopupMenu::event( QEvent* e )
 {
-  // Dont call QWidget configure since we do not accept layouts or
-  // or direct child widget except for bars and the central widget
-  if ( !QMenuData::setConfiguration( this, element ) )
-    return FALSE;
+    if ( e->type() == QEvent::Configure )
+    {
+	configureEvent( (QConfigureEvent*) e );
+	return TRUE;
+    }
 
-  return QObject::setConfiguration( element );
+    return QFrame::event( e );
+}
+
+void QPopupMenu::configureEvent( QConfigureEvent* ev )
+{
+    // Dont call QWidget configure since we do not accept layouts or
+    // or direct child widget except for bars and the central widget
+    if ( !QMenuData::configure( this, *(ev->element()) ) )
+    {
+	ev->ignore();
+	return;
+    }
+    
+    QFrame::configureEvent( ev );
 }
 #endif

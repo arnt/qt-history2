@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#55 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#56 $
 **
 ** Implementation of QToolBar class
 **
@@ -361,6 +361,14 @@ void QToolBar::setStretchableWidget( QWidget * w )
 
 bool QToolBar::event( QEvent * e )
 {
+#ifdef QT_BUILDER
+    if ( e->type() == QEvent::Configure )
+    {
+	configureEvent( (QConfigureEvent*) e );
+	return TRUE;
+    }
+#endif
+
     if ( e->type() == QEvent::LayoutHint ) {
 	setUpGM();
     } else if ( e->type() == QEvent::ChildInserted ) {
@@ -425,17 +433,20 @@ void QToolBar::clear()
 }
 
 #ifdef QT_BUILDER
-bool QToolBar::setConfiguration( const QDomElement& element )
+void QToolBar::configureEvent( QConfigureEvent* ev )
 {
     // When this code changes then the code in the builder
     // must be changed, too. Unfortunately it had to be copied.
-    QDomElement r = element.firstChild().toElement();
+    QDomElement r = ev->element()->firstChild().toElement();
     for( ; !r.isNull(); r = r.nextSibling().toElement() )
     {
 	if ( r.tagName() == "Widget" )
         {
 	    if ( !r.firstChild().toElement().toWidget( this ) )
-		return FALSE;
+	    {
+		ev->ignore();
+		return;
+	    }
 	}
 	else if ( r.tagName() == "Separator" )
 	    addSeparator();
@@ -452,7 +463,8 @@ bool QToolBar::setConfiguration( const QDomElement& element )
 	    if ( !col )
             {
 		qDebug("DGridLayout: The toplevel widget does not have a QActionCollection." );
-		return FALSE;
+		ev->ignore();
+		return;
 	    }
 
 	    // Find the action
@@ -465,10 +477,7 @@ bool QToolBar::setConfiguration( const QDomElement& element )
 
     // Dont call QWidget configure: For example we dont
     // allow for layouts
-    if ( !QObject::setConfiguration( element ) )
-	return FALSE;
-
-    return TRUE;
+    QObject::configureEvent( ev );
 }
 
 QObject* QToolBar::factory( QObject* parent )

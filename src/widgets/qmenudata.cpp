@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#101 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#102 $
 **
 ** Implementation of QMenuData class
 **
@@ -707,13 +707,13 @@ int QMenuData::insertItem( const QIconSet& icon,
 
   The \a index specifies the position in the menu.  The menu item is
   appended at the end of the list if \a index is negative.
-  
+
   Theoretically, any widget can be inserted into a popup menu. In
   practise, this only makes sense with certain widgets.
-  
+
   TODO### describe them (focus policy, size hint, keyboard handling
   with close on enter/exit etc.)
-  
+
   If a widget is not focus enabled ( see QWidget::isFocusEnabled() ),
   the menu treats it as a separator. This means, the item is not
   selectable and will never get focus. This way you can for example
@@ -1306,7 +1306,7 @@ QString QMenuData::whatsThis( int id ) const
 }
 
 #ifdef QT_BUILDER
-bool QMenuData::setConfiguration( QWidget* _this, const QDomElement& element )
+bool QMenuData::configure( QWidget* _this, const QDomElement& element )
 {
   QDomElement r = element.firstChild().toElement();
   for( ; !r.isNull(); r = r.nextSibling().toElement() )

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.h#34 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.h#35 $
 **
 ** Definition of QGroupBox widget class
 **
@@ -56,10 +56,13 @@ public:
     virtual void setAlignment( int );
 
 #ifdef QT_BUILDER
-    bool setConfiguration( const QDomElement& element );
+    bool event( QEvent* event );
 #endif // QT_BUILDER
 
 protected:
+#ifdef QT_BUILDER
+    void configureEvent( QConfigureEvent* );
+#endif
     void childEvent( QChildEvent * );
     void resizeEvent( QResizeEvent * );
     void paintEvent( QPaintEvent * );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#46 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#47 $
 **
 ** Definition of QMenuBar class
 **
@@ -55,7 +55,7 @@ public:
     bool customWhatsThis() const;
 
 #ifdef QT_BUILDER
-    bool setConfiguration( const QDomElement& element );
+    bool event( QEvent* e );
 #endif
 
 signals:
@@ -65,6 +65,9 @@ signals:
 protected:
     void	drawContents( QPainter * );
     void	fontChange( const QFont & );
+#ifdef QT_BUILDER
+    void	configureEvent( QConfigureEvent* );
+#endif
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
     void	mouseMoveEvent( QMouseEvent * );

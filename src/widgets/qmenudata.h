@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#76 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#77 $
 **
 ** Definition of QMenuData class
 **
@@ -214,7 +214,7 @@ public:
     QMenuItem  *findItem( int id, QMenuData ** parent )	const;
 
 #ifdef QT_BUILDER
-    bool setConfiguration( QWidget* _this, const QDomElement& element );
+    bool configure( QWidget* _this, const QDomElement& element );
 #endif // QT_BUILDER
 
 protected:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#86 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#87 $
 **
 ** Implementation of QMainWindow class
 **
@@ -987,6 +987,15 @@ void QMainWindow::paintEvent( QPaintEvent * )
 
 bool QMainWindow::eventFilter( QObject* o, QEvent *e )
 {
+#ifdef QT_BUILDER
+    if ( e->type() == QEvent::Configure )
+    {
+	QDomElement* e = (QDomElement*) ((QCustomEvent*)e)->data();
+	configure( *e );
+	return TRUE;
+    }
+#endif // QT_BUILDER
+
     if ( ( e->type() == QEvent::MouseButtonPress ||
 		  e->type() == QEvent::MouseMove ||
 		  e->type() == QEvent::MouseButtonRelease ) &&
@@ -1039,6 +1048,12 @@ void QMainWindow::childEvent( QChildEvent* e)
 
 bool QMainWindow::event( QEvent * e )
 {
+    if ( e->type() == QEvent::Configure )
+    {
+	configureEvent( (QConfigureEvent*) e );
+	return TRUE;
+    }
+
     if ( e->type() == QEvent::LayoutHint )
 	triggerLayout();
     return QWidget::event( e );
@@ -1356,23 +1371,29 @@ void QMainWindow::styleChange( QStyle& old )
 }
 
 #ifdef QT_BUILDER
-bool QMainWindow::setConfiguration( const QDomElement& element )
+void QMainWindow::configureEvent( QConfigureEvent* ev )
 {
     QActionCollection* col = 0;
     QDomElement ecol;
 
-    QDomElement r = element.firstChild().toElement();
+    QDomElement r = ev->element()->firstChild().toElement();
     for( ; !r.isNull(); r = r.nextSibling().toElement() )
     {
 	if ( r.tagName() == "ToolBar" )
 	{
 	    if ( !r.firstChild().toElement().toWidget( this ) )
-		return FALSE;
+	    {
+		ev->ignore();
+		return;
+	    }
 	}
 	else if ( r.tagName() == "MenuBar" )
         {
 	    if ( !r.firstChild().toElement().toWidget( this ) )
-		return FALSE;
+	    {
+		ev->ignore();
+		return;
+	    }
 	}
 	else if ( r.tagName() == "CentralWidget" )
 	{
@@ -1381,7 +1402,10 @@ bool QMainWindow::setConfiguration( const QDomElement& element )
 	    {
 		QWidget* w = ch.firstChild().toElement().toWidget( this );
 		if ( w == 0 )
-		    return FALSE;
+	        {
+		    ev->ignore();
+		    return;
+		}
 		setCentralWidget( w );
 	    }
 	    else if ( ch.tagName() == "Layout" )
@@ -1389,11 +1413,17 @@ bool QMainWindow::setConfiguration( const QDomElement& element )
 		QWidget* w = new QWidget( this );
 		QLayout* l = ch.firstChild().toElement().toLayout( w );
 		if ( l == 0 )
-		    return FALSE;
+	        {
+		    ev->ignore();
+		    return;
+		}
 		setCentralWidget( w );
 	    }
 	    else
-		return FALSE;
+	    {
+		ev->ignore();
+		return;
+	    }
 	}
 	else if ( r.tagName() == "Actions" )
         {
@@ -1401,7 +1431,10 @@ bool QMainWindow::setConfiguration( const QDomElement& element )
 	
 	    QObject* o = ecol.toObject( this );
 	    if ( !o )
-		return FALSE;
+	    {
+		ev->ignore();
+		return;
+	    }
 	    if ( o->inherits("QActionCollection") )
 	    {
 		col = (QActionCollection*)o;
@@ -1412,8 +1445,9 @@ bool QMainWindow::setConfiguration( const QDomElement& element )
 
     // Dont call QWidget configure since we do not accept layouts or
     // or direct child widget except for bars and the central widget
-    if ( !QObject::setConfiguration( element ) )
-	return FALSE;
+    QObject::configureEvent( ev );
+    if ( !ev->isAccepted() )
+	return;
 
     // Lets connect the actions with their components
     // This can not be done earlier since the components, which are
@@ -1429,7 +1463,5 @@ bool QMainWindow::setConfiguration( const QDomElement& element )
 		action->setComponent( component );
 	}
     }
-
-    return TRUE;
 }
 #endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.h#34 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.h#35 $
 **
 ** Definition of QMainWindow class
 **
@@ -75,10 +75,6 @@ public:
 
     bool eventFilter( QObject*, QEvent* );
 
-#ifdef QT_BUILDER
-    bool setConfiguration( const QDomElement& element );
-#endif // QT_BUILDER
-
 public slots:
     virtual void setRightJustification( bool );
     virtual void setUsesBigPixmaps( bool );
@@ -92,6 +88,9 @@ protected slots:
     virtual void setUpLayout();
 
 protected:
+#ifdef QT_BUILDER
+    void configureEvent( QConfigureEvent* );
+#endif // QT_BUILDER
     void paintEvent( QPaintEvent * );
     void resizeEvent( QResizeEvent * );
     void childEvent( QChildEvent * );

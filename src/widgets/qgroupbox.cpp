@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#72 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#73 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -464,7 +464,18 @@ void QGroupBox::calculateFrame()
 }
 
 #ifdef QT_BUILDER
-bool QGroupBox::setConfiguration( const QDomElement& element )
+bool QGroupBox::event( QEvent* e )
+{
+    if ( e->type() == QEvent::Configure )
+    {
+	configureEvent( (QConfigureEvent*) e );
+	return TRUE;
+    }
+
+    return QFrame::event( e );
+}
+
+void QGroupBox::configureEvent( QConfigureEvent* ev )
 {
     // Use the -1 one here to tell the group box:
     // Dont use your QGridLayout. We will use ours.
@@ -472,11 +483,14 @@ bool QGroupBox::setConfiguration( const QDomElement& element )
 
     // Handle our children. QWidget knows about this and wont
     // create them again.
-    QDomElement l = element.namedItem( "Layout" ).toElement();
+    QDomElement l = ev->element()->namedItem( "Layout" ).toElement();
     if ( !l.isNull() )
     {
 	if ( !( l.firstChild().toElement().toLayout( vbox ) ) )
-	    return FALSE;
+        {
+	    ev->ignore();
+	    return;
+	}
     }
     else
     {
@@ -486,20 +500,20 @@ bool QGroupBox::setConfiguration( const QDomElement& element )
 	// when people ue absolute positioning I cant help them anyways.
 	QWidget* w = new QWidget( this );
 	vbox->addWidget( w );
-	QDomElement e = element.firstChild().toElement();
+	QDomElement e = ev->element()->firstChild().toElement();
 	for( ; !e.isNull(); e = e.nextSibling().toElement() )
 	{
 	    if ( e.tagName() == "Widget" )
 	    {
 		if ( !e.firstChild().toElement().toWidget( w ) )
-		    return FALSE;
+	        {
+		    ev->ignore();
+		    return;
+		}
 	    }
 	}
     }
 
-    if ( !QFrame::setConfiguration( element ) )
-	return FALSE;
-
-    return TRUE;
+    QFrame::configureEvent( ev );
 }
 #endif // QT_BUILDER
