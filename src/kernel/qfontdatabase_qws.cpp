@@ -97,6 +97,8 @@ void QFontDatabase::qwsAddDiskFont( QDiskFont *qdf )
     }
     if ( qdf->factory->name() == "FT" )
 	mystyle->setSmoothlyScalable();
+    else
+	mystyle->addPointSize( qdf->size/10 );
 }
 
 void QFontDatabase::createDatabase()
@@ -105,12 +107,12 @@ void QFontDatabase::createDatabase()
     db = new QFontDatabasePrivate;
 
     if ( !qt_ttffoundry ) {
-	qt_ttffoundry=new QtFontFoundry( "Truetype" );
+	qt_ttffoundry=new QtFontFoundry( "truetype" );
 	db->addFoundry(qt_ttffoundry);
     }
 
     if ( !qt_bdffoundry ) {
-	qt_bdffoundry = new QtFontFoundry( "BDF" );
+	qt_bdffoundry = new QtFontFoundry( "bdf" );
 	db->addFoundry(qt_bdffoundry);
     }
 
@@ -126,7 +128,7 @@ void QFontDatabase::createDatabase()
     }
 
 #ifndef QT_NO_DIR
-    foundry=new QtFontFoundry( "Qt" );
+    foundry=new QtFontFoundry( "qt" );
     db->addFoundry( foundry );
 
     QDir dir(qws_topdir()+"/lib/fonts/","*.qpf");
