@@ -255,7 +255,7 @@ HRESULT UpdateRegistry(BOOL bRegister)
                 settings.setValue("/CLSID/" + classId + "/TypeLib/.", libId);
                 settings.setValue("/CLSID/" + classId + "/Version/.", classVersion);
                 settings.setValue("/CLSID/" + classId + "/VersionIndependentProgID/.", module + "." + className);
-                settings.setValue("/CLSID/" + classId + "/ProgID/.", module + "." + className + ".1");
+                settings.setValue("/CLSID/" + classId + "/ProgID/.", module + "." + className + "." + classVersion.left(classVersion.indexOf('.')));
 
                 delete object;
             }

@@ -26,7 +26,7 @@ class QSettings;
 struct IUnknown;
 struct IDispatch;
 
-class QAxFactory
+class QAxFactory : public QObject
 {
 public:
     QAxFactory(const QUuid &libId, const QUuid &appId);
