@@ -145,9 +145,10 @@ QSqlForm::~QSqlForm()
 }
 
 /*!  Installs a custom QSqlPropertyMap. This is useful if you plan to
-  create your own custom editor widgets. \e{QSqlForm takes ownership
-  of \a pmap, and \a pmap is therefore deleted when QSqlForm goes out
-  of scope.}
+  create your own custom editor widgets.
+
+  Note: QSqlForm takes ownership of \a pmap, and \a pmap is therefore
+  deleted when QSqlForm goes out of scope.
 
   \sa QDataTable::installEditorFactory()
 */
