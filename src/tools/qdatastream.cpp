@@ -391,10 +391,10 @@ void QDataStream::setByteOrder( int bo )
 
   For Qt 1.x compatibility, use \a v == 1.
 
-  For Qt 2.0.x compatibility, use \a v == 2 (Not required for reading in
+  For Qt 2.0.x compatibility, use \a v == 2 (not required for reading in
   Qt 2.1).
 
-  for Qt 2.1.x and Qt 2.2.x compatibility, use \a v == 3.
+  For Qt 2.1.x and Qt 2.2.x compatibility, use \a v == 3.
 
   \sa version()
 */
