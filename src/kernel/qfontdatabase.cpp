@@ -1273,10 +1273,18 @@ void QFontDatabase::createDatabase()
       static Str255 n;
       if(FMGetFontFamilyName(fam, n))
 	qDebug("Whoa! %s %d", __FILE__, __LINE__);
-      int len = n[0];
-      memcpy(n, n+1, len);
-      n[len] = '\0';
-      fam_name = (char *)n;
+
+      TextEncoding encoding;
+      FMGetFontFamilyTextEncoding( fam, &encoding);
+      TextToUnicodeInfo uni_info;
+      CreateTextToUnicodeInfoByEncoding( encoding, &uni_info);
+
+      unsigned long len = n[0] * 2;
+      unsigned char *buff = (unsigned char *)malloc(len);
+      ConvertFromPStringToUnicode(uni_info, n, len, &len, (UniCharArrayPtr)buff);
+      fam_name = "";
+      for(unsigned long x = 0; x < len; x+=2) 
+	  fam_name += QChar(buff[x+1], buff[x]);
 
       QtFontFamily *family = foundry->familyDict.find( fam_name );
       if ( !family ) {
