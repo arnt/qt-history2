@@ -1767,7 +1767,7 @@ int generateEnums()
 		 i,(const char*)it.current()->count() );
 	int k = 0;
 	for( QStrListIterator eit( *it.current() ); eit.current(); ++eit, ++k ) {
-	    fprintf( out, "    enum_tbl[%i].items[%i].name = \"%s\";\n", i, k, eit.current() );
+	    fprintf( out, "    enum_tbl[%i].items[%i].key = \"%s\";\n", i, k, eit.current() );
 	    fprintf( out, "    enum_tbl[%i].items[%i].value = (int) %s::%s;\n",
 		     i, k, (const char*)className, eit.current() );
 	}
@@ -1974,9 +1974,9 @@ int generateProps()
 	int entry = 0;
 	for( QListIterator<Property> it( props ); it.current(); ++it ){
 	
-	    fprintf( out, "    props_tbl[%d].type = \"%s\";\n", entry,
+	    fprintf( out, "    props_tbl[%d].t = \"%s\";\n", entry,
 		     (const char*)it.current()->type );
-	    fprintf( out, "    props_tbl[%d].name = \"%s\";\n",
+	    fprintf( out, "    props_tbl[%d].n = \"%s\";\n",
 		     entry, (const char*) it.current()->name );
 	
 	    if ( it.current()->getfunc )
@@ -2006,7 +2006,7 @@ int generateProps()
 	    }
 
 	    if ( enumpos != -1 )
-		fprintf( out, "    props_tbl[%d].enumType = &enum_tbl[%i];\n", entry, enumpos );
+		fprintf( out, "    props_tbl[%d].enumData = &enum_tbl[%i];\n", entry, enumpos );
 	    else if (!isPropertyType( it.current()->type ) )
 		fprintf( out, "    props_tbl[%d].setFlags(QMetaProperty::UnresolvedEnum);\n", entry );
 

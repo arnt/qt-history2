@@ -410,7 +410,7 @@ void QMetaObject::resolveProperty( QMetaProperty* prop )
 {
     QMetaObject* super = superclass;
     while ( super ) {
-	QMetaProperty* p = super->property( prop->name );
+	const QMetaProperty* p = super->property( prop->n );
 	if( p ) {
 	    if ( prop->get == 0 ) {
 		if ( p->get ) {
@@ -426,9 +426,9 @@ void QMetaObject::resolveProperty( QMetaProperty* prop )
 	    }
 	}
 	if ( prop->testFlags( QMetaProperty::UnresolvedEnum ) ) {
-	    QMetaEnum* e = super->enumerator( prop->type );
+	    QMetaEnum* e = super->enumerator( prop->t);
 	    if ( e ) {
-		prop->enumType = e;
+		prop->enumData = e;
 		prop->clearFlags( QMetaProperty::UnresolvedEnum );
 	    }
 	}
@@ -437,10 +437,10 @@ void QMetaObject::resolveProperty( QMetaProperty* prop )
 }
 
 
-QMetaProperty* QMetaObject::property( const char* name, bool super ) const
+const QMetaProperty* QMetaObject::property( const char* name, bool super ) const
 {
     for( int i = 0; i < d->numPropData; ++i ) {
-	if ( d->propData[i].isValid() && strcmp( d->propData[i].name, name ) == 0 )
+	if ( d->propData[i].isValid() && strcmp( d->propData[i].name(), name ) == 0 )
 	    return &(d->propData[i]);
     }
     if ( !super || !superclass )
@@ -453,7 +453,7 @@ QStrList QMetaObject::propertyNames( bool super ) const
     QStrList l( FALSE );
     for( int i = 0; i < d->numPropData; ++i ) {
 	if ( d->propData[i].isValid() )
-	    l.inSort( d->propData[i].name );
+	    l.inSort( d->propData[i].name() );
     }
 
     if ( superclass && super ) {
@@ -479,6 +479,55 @@ QStrList QMetaObject::propertyNames( bool super ) const
     return l;
 }
 
+QStrList QMetaObject::signalNames( bool super ) const
+{
+    QStrList l( FALSE );
+    int n = numSignals( super );
+    for( int i = 0; i < n; ++i ) {
+	l.inSort( signal(i, super)->name );
+    }
+    if ( l.count() < 2 )
+	return l;
+
+    // Remove dups
+    QStrListIterator it( l );
+    const char* old = it.current();
+    ++it;
+    while( it.current() ) {
+	if ( strcmp( old, it.current() ) == 0 ) {
+	    l.removeRef( old );
+	}
+	old = it.current();
+	++it;
+    }
+    return l;
+}
+
+QStrList QMetaObject::slotNames( bool super ) const
+{
+    QStrList l( FALSE );
+    int n = numSlots( super );
+    for( int i = 0; i < n; ++i ) {
+	l.inSort( slot(i, super)->name );
+    }
+    if ( l.count() < 2 )
+	return l;
+
+    // Remove dups
+    QStrListIterator it( l );
+    const char* old = it.current();
+    ++it;
+    while( it.current() ) {
+	if ( strcmp( old, it.current() ) == 0 ) {
+	    l.removeRef( old );
+	}
+	old = it.current();
+	++it;
+    }
+    return l;
+}
+
+
 QMetaEnum* QMetaObject::enumerator( const char* name, bool super ) const
 {
     for( int i = 0; i < d->numEnumData; ++i )
@@ -501,12 +550,12 @@ bool QMetaObject::inherits( const char* clname ) const
 }
 
 
-QStrList QMetaProperty::enumNames() const
+QStrList QMetaProperty::enumKeys() const
 {
      QStrList l( FALSE );
-     if ( enumType != 0 ) {
-	 for( uint i = 0; i < enumType->count; ++i )
-	     l.append( enumType->items[i].name );
+     if ( enumData != 0 ) {
+	 for( uint i = 0; i < enumData->count; ++i )
+	     l.append( enumData->items[i].key );
      }
      return l;
 }

@@ -1802,11 +1802,11 @@ QMetaObject* QObject::staticMetaObject()
     typedef void(QObject::*m3_t1)(const char*);
     m3_t0 v3_0 = &QObject::name;
     m3_t1 v3_1 = &QObject::setName;
-    props_tbl[0].name = "name";
+    props_tbl[0].n = "name";
     props_tbl[0].get = *((QMember*)&v3_0);
     props_tbl[0].set = *((QMember*)&v3_1);
-    props_tbl[0].type = "QCString";
-    props_tbl[0].enumType = 0;
+    props_tbl[0].t = "QCString";
+    props_tbl[0].enumData = 0;
     props_tbl[0].gspec = QMetaProperty::ConstCharStar;
     props_tbl[0].sspec = QMetaProperty::ConstCharStar;
     metaObj = new QMetaObject( "QObject", "",
@@ -2089,7 +2089,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 
     typedef void (QObject::*ProtoImage)( QImage );
     typedef void (QObject::*RProtoImage)( const QImage& );
-    
+
     typedef void (QObject::*ProtoPoint)( QPoint );
     typedef void (QObject::*RProtoPoint)( const QPoint& );
 
@@ -2099,20 +2099,20 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     QMetaObject* meta = queryMetaObject();
     if ( !meta )
 	return FALSE;
-    QMetaProperty* p = meta->property( name, TRUE );
+    const QMetaProperty* p = meta->property( name, TRUE );
     if ( !p )
 	return FALSE;
 
 
-    if ( p->enumType ) {
+    if ( p->enumData ) {
 	if ( value.type() != QVariant::String && value.type() != QVariant::CString )
 	    return FALSE;
 	QCString s = value.toCString();
-	for( uint i = 0; i < p->enumType->count; ++i ) {
-	    if ( s == p->enumType->items[i].name ) {
+	for( uint i = 0; i < p->enumData->count; ++i ) {
+	    if ( s == p->enumData->items[i].key ) {
 		ProtoInt m;
 		m = *((ProtoInt*)&p->set);
-		(this->*m)( p->enumType->items[i].value );
+		(this->*m)( p->enumData->items[i].value );
 		return TRUE;
 	    }
 	}
@@ -2509,17 +2509,17 @@ QVariant QObject::property( const char *name ) const
     QMetaObject* meta = queryMetaObject();
     if ( !meta )
 	return value;
-    QMetaProperty* p = meta->property( name, TRUE );
+    const QMetaProperty* p = meta->property( name, TRUE );
     if ( !p )
 	return value;
 
-    if ( p->enumType ) {
+    if ( p->enumData ) {
 	ProtoInt m;
 	m = *((ProtoInt*)&p->get);
 	int x = (int) (this->*m)();
-	for( uint i = 0; i < p->enumType->count; ++i ) {
-	    if ( x == p->enumType->items[i].value ) {
-		value.setValue( p->enumType->items[i].name );
+	for( uint i = 0; i < p->enumData->count; ++i ) {
+	    if ( x == p->enumData->items[i].value ) {
+		value.setValue( p->enumData->items[i].key );
 		return value;
 	    }
 	}
@@ -2527,7 +2527,7 @@ QVariant QObject::property( const char *name ) const
     }
 
     // p->type must be a type understood by QVariant, so we can savely convert it.
-    QVariant::Type type = QVariant::nameToType( p->type );
+    QVariant::Type type = QVariant::nameToType( p->type() );
 
     switch ( type ) {
     case QVariant::Custom:

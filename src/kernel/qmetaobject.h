@@ -46,36 +46,39 @@ struct QMetaEnum 				// enumerator meta data
     uint count;					// - number of values
     struct Item 				// - a name/value pair
     {
-	const char *name;
+	const char *key;
 	int value;
     };
     Item *items;				// - the name/value pairs
 };
 
-struct QMetaProperty 				// property meta data
+class QMetaProperty 				// property meta data
 {
+public:
     QMetaProperty()
-	:type(0),name(0),
-	 get(0),set(0),enumType(0),
+	:t(0),n(0),
+	 get(0),set(0),enumData(0),
 	 gspec(Unspecified),sspec(Unspecified),
 	 flags(0)
     {
     }
 
-    const char 	*type;				// type of the property
-    const char*	name;				// name of the property
-    QMember 	get;				// get-function or 0 ( 0 indicates an error )
-    QMember 	set;				// set-function or 0
-    QMetaEnum	*enumType;			// the enum-type or 0
+    const char 	*type() const { return t; }		// type of the property
+    const char*	name() const { return n; }		// name of the property
 
     bool writeable() const { return set != 0; }
     bool isValid() const { return get != 0 && !testFlags( UnresolvedEnum) ; }
 
-    bool isEnumType() const { return enumType != 0; }
-    QStrList enumNames() const;			// convenience function
+    bool isEnumType() const { return enumData != 0; }
+    QStrList enumKeys() const;			// enumeration names
 
+    const char* t;
+    const char* n;
+    QMember 	get;				// get-function or 0 ( 0 indicates an error )
+    QMember 	set;				// set-function or 0
+    QMetaEnum	*enumData; 			// a pointer to the enum specification or 0
+    
     enum Specification  { Unspecified, Class, Reference, Pointer, ConstCharStar };
-
     Specification gspec;			// specification of the get-function
     Specification sspec;			// specification of the set-function
 
@@ -134,17 +137,16 @@ public:
     QMetaData	*slot( const char *, bool super = FALSE ) const;
     QMetaData	*signal( const char *, bool super = FALSE ) const;
 
+    QStrList	slotNames( bool super = FALSE ) const;
+    QStrList	signalNames( bool super = FALSE ) const;
+
     int		numClassInfo( bool super = FALSE ) const;
     QClassInfo 	*classInfo( int index, bool super = FALSE ) const;
     const char 	*classInfo( const char* name, bool super = FALSE ) const;
 
-    QMetaProperty	*property( const char* name, bool super = FALSE ) const;
+    const QMetaProperty	*property( const char* name, bool super = FALSE ) const;
     QStrList		propertyNames( bool super = FALSE ) const;
     void		resolveProperty( QMetaProperty* prop );
-
-    QMetaEnum		*enumerator( const char* name, bool super = FALSE ) const;
-
-
 
     // static wrappers around constructors, necessary to work around a
     // Windows-DLL limitation: objects can only be deleted within a
@@ -178,6 +180,7 @@ private:
     QMemberDict 	*slotDict;			// slot dictionary
     QMetaData		*signalData;			// signal meta data
     QMemberDict 	*signalDict;			// signal dictionary
+    QMetaEnum		*enumerator( const char* name, bool super = FALSE ) const;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
