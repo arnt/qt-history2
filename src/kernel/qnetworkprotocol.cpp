@@ -127,7 +127,7 @@ struct QNetworkProtocolPrivate
   and the directory has been created. \a i holds the information
   about the new directory.
   \a op is the pointer to the operation object, which contains all infos
-  of the operation, including the state and so on and using op->arg1()
+  of the operation, including the state and so on and using op->arg( 0 )
   you also get the filename of the new directory.
 
   When a protocol emits this signal, QNetworkProtocol is smart enough
@@ -141,7 +141,7 @@ struct QNetworkProtocolPrivate
   This signal is emitted when remove() has been succesful
   and the file has been removed. \a op holds the filename
   of the removed file in the first argument, you get it
-  with op->arg1().
+  with op->arg( 0 ).
 
   \a op is the pointer to the operation object, which contains all infos
   of the operation, including the state and so on.
@@ -157,7 +157,7 @@ struct QNetworkProtocolPrivate
   This signal is emitted whenever a file, which is a child of this URL,
   has been changed e.g. by successfully calling rename(). \a op holds
   the original and the new filenames in the first and second arguments.
-  You get them with op->arg1() and op->arg2().
+  You get them with op->arg( 0 ) and op->arg( 1 ).
 
   \a op is the pointer to the operation object, which contains all infos
   of the operation, including the state and so on.
@@ -173,7 +173,7 @@ struct QNetworkProtocolPrivate
   This signal is emitted when new \a data has been received
   after e.g. calling get() or put(). \op holds the name of the file which data
   is retrieved in the first argument and the data in the second argument (raw).
-  You get them with op->arg1() and op->rawArg2().
+  You get them with op->arg( 0 ) and op->rawArg( 1 ).
 
   \a op is the pointer to the operation object, which contains all infos
   of the operation, including the state and so on.
@@ -719,7 +719,7 @@ void QNetworkProtocol::processNextOperation( QNetworkOperation *old )
 
     if ( old )
 	d->oldOps.append( old );
-    
+
     if ( d->operationQueue.isEmpty() ) {
 	d->opInProgress = 0;
 	if ( d->autoDelete )

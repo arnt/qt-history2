@@ -116,9 +116,9 @@ void MyClass::slotOperationFinished( QNetworkOperation *op )
     switch ( op->operation() ) {
     case QNetworkProtocol::OpMkdir: {
         if ( op->state() == QNetworkProtocol::StFailed )
-            qDebug( "Couldn't create directory %s", op->arg1().latin1() );
+            qDebug( "Couldn't create directory %s", op->arg( 0 ).latin1() );
         else
-            qDebug( "Successfully created directory %s", op->arg1().latin1() );
+            qDebug( "Successfully created directory %s", op->arg( 0 ).latin1() );
     } break;
     // ... and so on
     }
@@ -144,7 +144,7 @@ MyClass::MyClass() : QObject(), op( "ftp://ftp.troll.no" )
 	     this, SLOT( slotFinished( QNetworkOperation *) ) );
 }
 
-void MyClass::newChild( const QUrlInfo &info, QNetworkOperation * )
+void MyClass::slotInsertEntry( const QUrlInfo &info, QNetworkOperation * )
 {
     qDebug( "Name: %s, Size: %d, Last Modified: %s",
 	info.name().latin1(), info.size(), info.lastModified().toString().latin1() );
@@ -187,7 +187,7 @@ the architecture described here is designed to work with all kinds
 of hierarchical structures, like filesystems. So everything which can
 be interpreted as hierarchical structure and accessed via URLs,
 can be implemented as network protocol and easily used in Qt. This
-is not limited to filesystems!
+is not limited to filesystems only!
 
 To implement a network protocol create a class derived from
 \c QNetworkProtocol.
@@ -278,31 +278,31 @@ name filter and everything else of the URL)
   </ul>
   <li>In \c operationMkDir:
   <ul>
-    <li>\c QNetworkOperation::arg1() contains the name of the directory which should be created
+    <li>\c QNetworkOperation::arg( 0 ) contains the name of the directory which should be created
   </ul>
   <li>In \c operationRemove:
   <ul>
-    <li>\c QNetworkOperation::arg1() contains the name of the file which should be removed. Normally this
-	is a relative name. But it may be absolute too, so use QUrl( op->arg1() ).fileName() to get
+    <li>\c QNetworkOperation::arg( 0 ) contains the name of the file which should be removed. Normally this
+	is a relative name. But it may be absolute too, so use QUrl( op->arg( 0 ) ).fileName() to get
 	the filename.
   </ul>
   <li>In \c operationRename:
   <ul>
-    <li>\c QNetworkOperation::arg1() contains the name of the file which should be renamed
-    <li>\c QNetworkOperation::arg2() contains the name to which it should be renamed.
+    <li>\c QNetworkOperation::arg( 0 ) contains the name of the file which should be renamed
+    <li>\c QNetworkOperation::arg( 1 ) contains the name to which it should be renamed.
   </ul>
   <li>In \c operationGet:
   <ul>
-    <li>\c QNetworkOperation::arg1() contains the full URL of the file which should be retrieved.
+    <li>\c QNetworkOperation::arg( 0 ) contains the full URL of the file which should be retrieved.
   </ul>
   <li>In \c operationPut:
   <ul>
-    <li>\c QNetworkOperation::arg1() contains the full URL of the file in which the data should be stored.
-    <li>\c QNetworkOperation::rawArg2() contains the data which should be stored in \c QNetworkOperation::arg1()
+    <li>\c QNetworkOperation::arg( 0 ) contains the full URL of the file in which the data should be stored.
+    <li>\c QNetworkOperation::rawArg( 1 ) contains the data which should be stored in \c QNetworkOperation::arg( 0 )
   </ul>
 </ul>
 
-So, to sum it up: If you reimplement such a operation method, you
+So, to sum it up: If you reimplement such an operation method, you
 have to emit some special signals and <b>always</b> at the end a
 \c finished() signal, either on success or on failure. Also you have to change
 the state of the \c QNetworkOperation during processing it and can get
@@ -420,7 +420,7 @@ According tho this information it should be possible to react on errors.
 Now, if you implement your work network protocol, you will need to tell about errors
 which occurred. First you always need to be able to access the \c QNetworkOperation
 which is processed at the moment. This can be done using \c QNetworkOperation::operationInProgress(),
-which returns a pointer to the current network operation.
+which returns a pointer to the current network operation or 0 if no operation is processed at the moment.
 
 Now if and error occurred and you need to handle it, do
 
