@@ -334,7 +334,6 @@ QTranslator::~QTranslator()
     if ( qApp )
 	qApp->removeTranslator( this );
     clear();
-    delete d;
 }
 
 
