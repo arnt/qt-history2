@@ -881,7 +881,7 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
                 CFRelease(bundleURL);
                 CFRelease(cfPath);
             }
-#ifdef Q_WS_MACX
+#ifdef Q_WS_MAC
             if(qbundlePath.endsWith(".app"))
                 QDir::setCurrent(qbundlePath.section('/', 0, -2));
 #endif

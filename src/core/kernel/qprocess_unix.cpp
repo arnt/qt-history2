@@ -716,7 +716,7 @@ bool QProcess::start(QStringList *env)
 #endif
         i++;
     }
-#ifdef Q_OS_MACX
+#ifdef Q_OS_MAC
     if(i) {
         QCString arg_bundle = arglistQ[0];
         QFileInfo fi(arg_bundle);
