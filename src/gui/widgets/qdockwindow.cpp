@@ -499,6 +499,8 @@ void QDockWindowPrivate::place(Qt::DockWindowArea area, Qt::Orientation directio
         dwl->extend(q, direction);
     else
         dwl->split(q, direction);
+    if (d->mainWindow->isVisible())
+        mwl->relayout();
 }
 
 
