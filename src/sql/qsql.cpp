@@ -24,7 +24,7 @@
 
     Normally, you can ignore this class. Several Qt SQL classes
     inherit it, so all the identifiers in the Qt SQL namespace are
-    visible to you without qualification.
+    visible without qualification.
 */
 
 /*!
@@ -62,11 +62,12 @@
     \enum QSql::ParameterType
 
     This enum is used to set the type of a bind parameter
-    
+
     \value In  the bind parameter is used to put data into the database
-    \value Out  the bind parameter can only receive data from the database
-    \value InOut  the bind parameter is used to put data into the database and
-		  it will be overwritten with output data on executing a query.
+    \value Out  the bind parameter is used to receive data from the database
+    \value InOut  the bind parameter is used to put data into the
+	database; it will be overwritten with output data on executing
+	a query.
 */
 
 /*!
@@ -74,10 +75,10 @@
 
     This enum type describes types of tables
 
-    \value Tables  all tables visible by the user
-    \value SystemTables  internal tables used by the DBMS
-    \value Views  Database views
-    \value AllTables  all of the above
+    \value Tables  All the tables visible to the user
+    \value SystemTables  Internal tables used by the DBMS
+    \value Views  All the views visible to the user
+    \value AllTables  All of the above
 */
 
 /*!

@@ -274,7 +274,7 @@ static int mac_count = 0;
     (except where Appearance Manager does not provide certain
     capabilities), for example QPushButton pulsing effects. In this case a
     near matching emulation has been implemented, but naturally this will
-    not be as reliable as similar functionality built into the Appearance
+    not be identical to the similar functionality built into the Appearance
     Manager. Please report any issues you see in effects or non-standard
     widgets.
 
@@ -2206,13 +2206,16 @@ bool QMacStyle::event(QEvent *e)
 
     \value FocusEnabled  show a focus rectangle when the widget has focus.
     \value FocusDisabled  never show a focus rectangle for the widget.
-    \value FocusDefault  show a focus rectangle when the widget has focus and the widget is a or is derived from a QSpinWidget, QDateTimeEditor, QLineEdit, QListBox, QListView or editable QTextEdit.
+    \value FocusDefault  show a focus rectangle when the widget has
+    focus and the widget is a QSpinWidget, QDateTimeEdit, QLineEdit,
+    QListBox, QListView, editable QTextEdit, or one of their
+    subclasses.
 */
 
 /*!
     \fn void QMacStyle::setFocusRectPolicy( QWidget *w, FocusRectPolicy policy )
 
-    Sets the focus rectangle policy of \a w. The \a policy can be one of 
+    Sets the focus rectangle policy of \a w. The \a policy can be one of
     \l{QMacStyle::FocusRectPolicy}.
 
     \sa focusRectPolicy()
