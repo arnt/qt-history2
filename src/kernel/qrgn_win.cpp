@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrgn_win.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qrgn_win.cpp#7 $
 **
 ** Implementation of QRegion class for Windows
 **
@@ -16,7 +16,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qrgn_win.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qrgn_win.cpp#7 $";
 #endif
 
 
@@ -30,17 +30,18 @@ QRegion::QRegion()				// create empty region
 QRegion::QRegion( const QRect &r, RegionType t )
 {						// create region from rect
     QRect rr = r;
+    rr.fixup();
     data = new QRegionData;
     CHECK_PTR( data );
     int id;
     if ( t == Rectangle ) {			// rectangular region
-	data->rgn = CreateRectRgn( rr.left(),  rr.top(),
-				   rr.right(), rr.bottom() );
+	data->rgn = CreateRectRgn( rr.left(),	 rr.top(),
+				   rr.right()+1, rr.bottom()+1 );
 	id = QRGN_SETRECT;
     }
     else if ( t == Ellipse )	{		// elliptic region
-	data->rgn = CreateEllipticRgn( rr.left(),  rr.top(),
-				       rr.right(), rr.bottom() );
+	data->rgn = CreateEllipticRgn( rr.left(),    rr.top(),
+				       rr.right()+1, rr.bottom()+1 );
 	id = QRGN_SETELLIPSE;
     }
     else {
