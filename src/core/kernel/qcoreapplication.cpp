@@ -367,7 +367,7 @@ bool QCoreApplication::notify(QObject *receiver, QEvent *e)
                        "Receiver '%2' (of type '%3') was created in thread %4")
                .arg(QString::number((ulong) QThread::currentThread(), 16))
                .arg(receiver->objectName())
-               .arg(receiver->className())
+               .arg(receiver->metaObject()->className())
                .arg(QString::number((ulong) receiver->thread(), 16))
                .latin1());
 
@@ -876,7 +876,7 @@ void QCoreApplication::removePostedEvent(QEvent * event)
 #ifndef QT_NO_DEBUG
             qWarning("QEvent: Warning: event of type %d deleted while posted to %s %s",
                      event->type(),
-                     pe.receiver ? pe.receiver->className() : "null",
+                     pe.receiver ? pe.receiver->metaObject()->className() : "null",
                      pe.receiver ? pe.receiver->objectName().local8Bit() : "object");
 #endif
             pe.event->posted = false;

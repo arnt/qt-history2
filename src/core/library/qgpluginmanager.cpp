@@ -289,14 +289,15 @@ void QGPluginManager::addLibraryPath(const QString& path)
     if (!enabled() || !QDir(path).exists(".", true))
         return;
 
+    QStringList filter;
 #if defined(Q_OS_WIN32)
-    QString filter = "*.dll";
+    filter << "*.dll";
 #elif defined(Q_OS_DARWIN)
-    QString filter = "*.dylib; *.so; *.bundle";
+    filter << "*.dylib" << "*.so" << "*.bundle";
 #elif defined(Q_OS_HPUX)
-    QString filter = "*.sl";
+    filter << "*.sl";
 #elif defined(Q_OS_UNIX)
-    QString filter = "*.so";
+    filter << "*.so";
 #endif
 
     QStringList plugins = QDir(path).entryList(filter);
