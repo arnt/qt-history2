@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#37 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#38 $
 **
 ** Implementation of QScrollBar class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#37 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#38 $")
 
 
 /*----------------------------------------------------------------------------
@@ -685,54 +685,30 @@ static void qDrawWinArrow( QPainter *p, ArrowType type, bool /* down */,
 			   int x, int y, int w, int h,
 			   const QColorGroup &g )
 {
-    QPointArray arrow;				// arrow polygon
     int	 dim = QMIN(w,h);
-
-    if ( dim == 3 ) {
-	QPen savePen = p->pen();
-	p->setPen( g.foreground() );
-	p->drawPoint( x+w/2, y+h/2 );
-	p->setPen( savePen );
-    }
-    if ( dim <= 3 )
-	return;
-
-    static char awidth[] = { 2, 2, 2, 3, 3, 4, 4, 4, 4 };
-    int aw;
-    if ( dim <= 12 )
-	aw = awidth[dim-4];
-    else
-	aw = dim/3 + 1;
+    QPointArray arrow;				// arrow polygon
 
     switch ( type ) {
 	case UpArrow:
-	    arrow.setPoints( 3, 0,aw-1, aw-1,0, aw*2-1,aw-1 );
-	    arrow.move( w/2 - aw, h/2 - aw );
+	    arrow.setPoints( 3, -3,1, 0,-2, 3,1 );
 	    break;
 	case DownArrow:
-	    arrow.setPoints( 3, 0,0, aw*2-1,0, aw-1,aw-1 );
-	    arrow.move( w/2 - aw, h/2 - aw );
+	    arrow.setPoints( 3, -3,-1, 0,2, 3,-1 );
 	    break;
 	case LeftArrow:
-	    arrow.setPoints( 3, aw-1,0, aw-1,aw*2-1, 0,aw-1 );
-	    arrow.move( w/2 - aw, h/2 - aw );
+	    arrow.setPoints( 3, -2,0, 1,-3, 1,3 );
 	    break;
 	case RightArrow:
-	    arrow.setPoints( 3, 0,0, aw-1,aw-1, 0,aw*2-1 );
-	    arrow.move( w/2 - aw, h/2 - aw );
+	    arrow.setPoints( 3, -1,-3, 2,0, -1,3 );
 	    break;
     }
-    if ( !arrow.isNull() )
-	arrow.move( x, y );
+    arrow.move( w/2 +x , h/2 + y);
 
     QPen   savePen   = p->pen();		// save current pen
     QBrush saveBrush = p->brush();		// save current brush
-    p->setBrush( NoBrush );
-
     p->setPen( NoPen );
     p->setBrush( g.foreground() );
     p->drawPolygon( arrow );			// fill arrow
-
     p->setBrush( saveBrush );			// restore brush
     p->setPen( savePen );			// restore pen
 }
