@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#101 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#102 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1485,6 +1485,8 @@ void QMultiLineEdit::cursorLeft( bool mark, bool clear_mark, bool wrap )
 	    if ( cursorY > 0 ) {
 		cursorY--;
 		cursorX = lineLength( cursorY );
+		if ( cursorX > 1 && !isEndOfParagraph( cursorY ) )
+		    cursorX--;
 	    } else {
 		cursorY = 0; //### ?
 		cursorX = 0;
@@ -1516,7 +1518,8 @@ void QMultiLineEdit::cursorRight( bool mark, bool wrap )
 void QMultiLineEdit::cursorRight( bool mark, bool clear_mark, bool wrap )
 {
     int strl = lineLength( cursorY );
-
+    if ( strl > 1 && !isEndOfParagraph( cursorY ) )
+	 strl--;
     if ( cursorX < strl || cursorY < (int)contents->count() - 1 && wrap ) {
 	if ( mark && !hasMarkedText() ) {
 	    markAnchorX    = cursorX;
@@ -1720,12 +1723,9 @@ void QMultiLineEdit::delAux()
 	    QMultiLineEditRow *r = contents->at( cursorY );
 	    if ( cursorX == (int) r->s.length() ) { // remove newline
 		QMultiLineEditRow* other = contents->at( cursorY + 1 );
-		/* What is the purpose of these lines?
-		   Was it meant to be for when cursor is at end of file?
-		   The cause incorrect behaviour -sanders
-		   if ( ! r->newline && cursorX )
-		   r->s.truncate( r->s.length()-1 );
-		*/
+		if ( ! r->newline && cursorX )
+		    r->s.truncate( r->s.length()-1 );
+
 		bool needBreak = !r->s.isEmpty();
 		r->s += other->s;
 		r->newline =  other->newline;
