@@ -6,6 +6,7 @@ kernel {
 		  $$KERNEL_H/qbasictimer.h \
 		  $$KERNEL_H/qeventloop.h\
 		  $$KERNEL_H/qgplugin.h \
+		  $$KERNEL_H/qpointer.h \
 		  $$KERNEL_H/qguardedptr.h \
 		  $$KERNEL_H/qimage.h \
 		  $$KERNEL_H/qimageformatplugin.h \

@@ -93,7 +93,7 @@ struct QTLWExtra {
 struct QWExtra {
     Q_INT16  minw, minh;			// minimum size
     Q_INT16  maxw, maxh;			// maximum size
-    QWidgetPointer focus_proxy;
+    QPointer<QWidget> focus_proxy;
 #ifndef QT_NO_CURSOR
     QCursor *curs;
 #endif

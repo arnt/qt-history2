@@ -32,7 +32,7 @@
 
 #include "qlist.h"
 #include "qobject.h"
-
+#include "qpointer.h"
 #if defined(QT_THREAD_SUPPORT)
 #  include "qthread.h"
 #endif
@@ -54,15 +54,15 @@ public:
     using QList<QObjectUserData*>::size;
 };
 
-class Q_KERNEL_EXPORT QObjectPointerList : private QList<QObjectPointer>
+class Q_KERNEL_EXPORT QObjectPointerList : private QList<QPointer<QObject> >
 {
 public:
-    using QList<QObjectPointer>::at;
-    using QList<QObjectPointer>::size;
-    using QList<QObjectPointer>::remove;
-    using QList<QObjectPointer>::prepend;
-    using QList<QObjectPointer>::clear;
-    using QList<QObjectPointer>::setAutoDelete;
+    using QList<QPointer<QObject> >::at;
+    using QList<QPointer<QObject> >::size;
+    using QList<QPointer<QObject> >::remove;
+    using QList<QPointer<QObject> >::prepend;
+    using QList<QPointer<QObject> >::clear;
+    using QList<QPointer<QObject> >::setAutoDelete;
 
 };
 

@@ -1311,16 +1311,6 @@ Q_KERNEL_EXPORT void *qMemCopy(void *dest, const void *src, size_t n);
 #  endif
 #endif
 
-class QObject;
-template <typename T>
-inline T qt_cast(const QObject *object)
-{ return (T) ((T)0)->staticMetaObject.cast(object); }
-
-#define Q_DECLARE_INTERFACE(IFace) \
-template <> inline IFace *qt_cast<IFace *>(const QObject *object) \
-{ return (IFace *)(object ? object->qt_metacast(#IFace) : 0); }
-
-
 class Q_KERNEL_EXPORT QFlag
 {
     int i;

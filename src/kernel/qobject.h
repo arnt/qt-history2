@@ -257,40 +257,15 @@ public:
 };
 #endif
 
-template <class T>
-class QPointer
-{
-    QObject *o;
-public:
-    inline QPointer() : o(0) {}
-    inline QPointer(T *obj) : o(obj)
-	{ QMetaObject::addGuard(&o); }
-    inline QPointer(const QPointer<T> &p) : o(p.o)
-	{ QMetaObject::addGuard(&o); }
-    inline ~QPointer()
-	{ QMetaObject::removeGuard(&o); }
-    inline QPointer<T> &operator=(const QPointer<T> &p)
-	{ QMetaObject::changeGuard(&o, p.o); return *this; }
-    inline QPointer<T> &operator=(T* obj)
-	{ QMetaObject::changeGuard(&o, obj); return *this; }
 
-    inline bool operator==( const QPointer<T> &p ) const
-	{ return o == p.o; }
-    inline bool operator!= ( const QPointer<T>& p ) const
-	{ return o != p.o; }
+template <typename T>
+inline T qt_cast(const QObject *object)
+{ return (T) ((T)0)->staticMetaObject.cast(object); }
 
-    inline bool isNull() const
-	{ return !o; }
+#define Q_DECLARE_INTERFACE(IFace) \
+template <> inline IFace *qt_cast<IFace *>(const QObject *object) \
+{ return (IFace *)(object ? object->qt_metacast(#IFace) : 0); }
 
-    inline T* operator->() const
-	{ return static_cast<T*>(const_cast<QObject*>(o)); }
-    inline T& operator*() const
-	{ return *static_cast<T*>(const_cast<QObject*>(o)); }
-    inline operator T*() const
-	{ return static_cast<T*>(const_cast<QObject*>(o)); }
-};
-
-typedef QPointer<QObject> QObjectPointer;
 
 #define Q_DEFINED_QOBJECT
 #include "qwinexport.h"

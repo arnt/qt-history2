@@ -133,6 +133,8 @@ protected:
     int	  id;
 };
 
+class QObject;
+
 class Q_KERNEL_EXPORT QChildEvent : public QEvent
 {
 public:

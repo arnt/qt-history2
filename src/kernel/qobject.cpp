@@ -1224,7 +1224,7 @@ void QObject::installEventFilter( const QObject *obj )
 	return;
     QObject *o = const_cast<QObject *>(obj);
     // clean up unused items in the list
-    d->eventFilters.remove(QObjectPointer());
+    d->eventFilters.remove((QObject*)0);
     d->eventFilters.remove(o);
     d->eventFilters.prepend(o);
 }

@@ -16,7 +16,7 @@
 #define QGUARDEDPTR_H
 
 #ifndef QT_H
-#include "qobject.h"
+#include "qpointer.h"
 #endif // QT_H
 
 template <class T> class QGuardedPtr : public QPointer<T>

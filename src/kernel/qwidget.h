@@ -727,7 +727,6 @@ public:
 #endif
 };
 
-typedef QPointer<QWidget> QWidgetPointer;
 template <> inline QWidget *qt_cast<QWidget*>(const QObject *o)
 {
     if (!o || !o->isWidgetType()) return 0;
