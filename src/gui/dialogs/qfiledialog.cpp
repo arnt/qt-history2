@@ -26,6 +26,7 @@
 #include <qpixmap.h>
 #include <qregexp.h>
 #include <qsignal.h>
+#include <qmenu.h>
 
 #include <private/qdialog_p.h>
 
@@ -277,6 +278,12 @@ public:
     QFileDialogLineEdit *fileName;
     QComboBox *fileType;
 
+    QMenu *fileContextMenu;
+    QAction *openAction;
+    QAction *renameAction;
+    QAction *deleteAction;
+    QMenu *viewContextMenu;
+
     QToolButton *back;
     QToolButton *toParent;
     QToolButton *newFolder;
@@ -525,8 +532,8 @@ void QFileDialog::textChanged(const QString &text)
         if (indices.count() > 0 && key != Qt::Key_Delete && key != Qt::Key_Backspace) {
             d->setCurrent(indices.first());
             QString completed = d->model->data(indices.first(), QAbstractItemModel::Display).toString();
-            int start = text.length();
-            int length = completed.length() - start;
+            int start = completed.length();
+            int length = text.length() - start; // negative length
             bool block = d->fileName->blockSignals(true);
             d->fileName->setText(completed);
             d->fileName->setSelection(start, length);
@@ -560,6 +567,28 @@ void QFileDialog::setFilter(const QString &filter)
 void QFileDialog::setCurrentDir(const QString &path)
 {
     d->setRoot(d->model->index(path));
+}
+
+void QFileDialog::showContextMenu(const QModelIndex &index, const QPoint &position)
+{
+    if (index.isValid()) {
+        QAbstractItemView *view = d->listMode->isDown()
+                                  ? static_cast<QAbstractItemView*>(d->lview)
+                                  : static_cast<QAbstractItemView*>(d->tview);
+        bool editable = d->model->isEditable(index);
+        bool children = d->model->hasChildren(index);
+        d->renameAction->setEnabled(editable);
+        d->deleteAction->setEnabled(editable && !children);
+        QAction *selected = d->fileContextMenu->exec(view->mapToGlobal(position));
+        if (selected == d->openAction)
+            accept();
+        else if (selected == d->renameAction)
+            view->edit(index);
+        else if (selected == d->deleteAction)
+            deletePressed(index);
+    }
+//     else
+//         d->viewContextMenu->exec(position);
 }
 
 void QFileDialogPrivate::setup()
@@ -639,6 +668,17 @@ void QFileDialogPrivate::setup()
     QObject::connect(fileType, SIGNAL(activated(const QString&)),
                      q, SLOT(setFilter(const QString&)));
     grid->addWidget(fileType, 3, 2, 1, 3);
+
+    // context menu
+    fileContextMenu = new QMenu(q);
+    openAction = fileContextMenu->addAction("Open");
+    fileContextMenu->addSeparator();
+    renameAction = fileContextMenu->addAction("Rename");
+    deleteAction = fileContextMenu->addAction("Delete");
+    QObject::connect(lview, SIGNAL(contextMenuRequested(const QModelIndex&, const QPoint&)),
+                     q, SLOT(showContextMenu(const QModelIndex&, const QPoint&)));
+    QObject::connect(tview, SIGNAL(contextMenuRequested(const QModelIndex&, const QPoint&)),
+                     q, SLOT(showContextMenu(const QModelIndex&, const QPoint&)));
 
     // tool buttons
     QHBoxLayout *box = new QHBoxLayout(0, 3, 3);
