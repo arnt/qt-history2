@@ -116,12 +116,12 @@
 
     Since settings for Windows are stored in the registry there are size
     limits as follows:
-    <ul>
-    <li>A subkey may not exceed 255 characters.
-    <li>An entry's value may not exceed 16,300 characters.
-    <li>All the values of a key (for example, all the 'recent files'
+    \list
+    \i A subkey may not exceed 255 characters.
+    \i An entry's value may not exceed 16,300 characters.
+    \i All the values of a key (for example, all the 'recent files'
     subkeys values), may not exceed 64,535 characters.
-    </ul>
+    \endlist
 
     These limitations are not enforced on Unix.
 
@@ -130,18 +130,18 @@
     There is no universally accepted place for storing application
     settings under Unix. In the examples the settings file will be
     searched for in the following directories:
-    <ol>
-    <li>$QID/etc
-    <li>/opt/MyCompany/share/etc
-    <li>/opt/MyCompany/share/MyApplication/etc
-    <li>$HOME/.qt
-    </ol>
+    \list 1
+    \i $QTDIR/etc
+    \i /opt/MyCompany/share/etc
+    \i /opt/MyCompany/share/MyApplication/etc
+    \i $HOME/.qt
+    \endlist
     When reading settings the files are searched in the order shown
     above, with later settings overriding earlier settings. Files for
     which the user doesn't have read permission are ignored. When saving
     settings QSettings works forwards in the order shown above writing
     to the first settings file for which the user has write permission.
-    ($QID is the directory where Qt was installed.)
+    ($QTDIR is the directory where Qt was installed.)
 
     For cross-platform applications you should ensure that the Windows
     size limitations are not exceeded.
@@ -475,12 +475,12 @@ QDateTime QSettingsPrivate::modificationTime()
     folder (listed below) to the last, with later settings overriding
     settings found earlier, and ignoring any folders for which the user
     doesn't have read permission.
-  <ol>
-  <li>HKEY_CURRENT_USER/Software/MyCompany/MyApplication
-  <li>HKEY_CURRENT_USER/Software/MyApplication
-  <li>HKEY_LOCAL_MACHINE/Software/MyCompany/MyApplication
-  <li>HKEY_LOCAL_MACHINE/Software/MyApplication
-  </ol>
+  \list 1
+  \i HKEY_CURRENT_USER/Software/MyCompany/MyApplication
+  \i HKEY_CURRENT_USER/Software/MyApplication
+  \i HKEY_LOCAL_MACHINE/Software/MyCompany/MyApplication
+  \i HKEY_LOCAL_MACHINE/Software/MyApplication
+  \endlist
 
   \code
   QSettings settings;
@@ -490,22 +490,22 @@ QDateTime QSettingsPrivate::modificationTime()
     The code above will write the subkey "Tip of the day" into the \e first
     of the registry folders listed below that is found and for which the
     user has write permission.
-  <ol>
-  <li>HKEY_LOCAL_MACHINE/Software/MyApplication
-  <li>HKEY_LOCAL_MACHINE/Software/MyCompany/MyApplication
-  <li>HKEY_CURRENT_USER/Software/MyApplication
-  <li>HKEY_CURRENT_USER/Software/MyCompany/MyApplication
-  </ol>
+  \list 1
+  \i HKEY_LOCAL_MACHINE/Software/MyApplication
+  \i HKEY_LOCAL_MACHINE/Software/MyCompany/MyApplication
+  \i HKEY_CURRENT_USER/Software/MyApplication
+  \i HKEY_CURRENT_USER/Software/MyCompany/MyApplication
+  \endlist
 
   When \a s is \e Unix, and the execution environment is Unix, the
   search path list will be used when trying to determine a suitable
   filename for reading and writing settings files. By default, there are
   two entries in the search path:
 
-  <ol>
-  <li>$QID/etc - where $QID is the directory where Qt was installed.
-  <li>$HOME/.qt/ - where $HOME is the user's home directory.
-  </ol>
+  \list 1
+  \i $QTDIR/etc - where $QTDIR is the directory where Qt was installed.
+  \i $HOME/.qt/ - where $HOME is the user's home directory.
+  \endlist
 
   All insertions into the search path will go before $HOME/.qt/.
   For example:
@@ -516,18 +516,18 @@ QDateTime QSettingsPrivate::modificationTime()
   // ...
   \endcode
   Will result in a search path of:
-  <ol>
-  <li>$QID/etc
-  <li>/opt/MyCompany/share/etc
-  <li>/opt/MyCompany/share/MyApplication/etc
-  <li>$HOME/.qt
-  </ol>
+  \list 1
+  \i $QTDIR/etc
+  \i /opt/MyCompany/share/etc
+  \i /opt/MyCompany/share/MyApplication/etc
+  \i $HOME/.qt
+  \endlist
     When reading settings the files are searched in the order shown
     above, with later settings overriding earlier settings. Files for
     which the user doesn't have read permission are ignored. When saving
     settings QSettings works forwards in the order shown above writing
     to the first settings file for which the user has write permission.
-    ($QID is the directory where Qt was installed.)
+    ($QTDIR is the directory where Qt was installed.)
 
   Settings under Unix are stored in files whose names are based on the
   first subkey of the key (not including the search path). The algorithm

@@ -88,17 +88,18 @@
   The supported formats are MNG (if Qt is built with MNG support enabled)
   and GIF (if Qt is built with GIF support enabled).  For MNG support, you
   need to have installed libmng from
-  <a href="http://www.libmng.com/">http://www.libmng.com</a>.
+  \link http://www.libmng.com/ http://www.libmng.com\endlink.
 
-  Archives of animated GIFs and tools for building them can be found at
-  <a href="http://dir.yahoo.com/Arts/Visual_Arts/Animation/Computer_Animation/Animated_GIFs/">Yahoo</a>.
+  Archives of animated GIFs and tools for building them can be found,
+  for example, at \link
+  http://dir.yahoo.com/Arts/Visual_Arts/Animation/Computer_Animation/Animated_GIFs/ Yahoo\endlink.
 
-  We are required to state the following: The Graphics Interchange Format(c) is the
-  Copyright property of CompuServe Incorporated. GIF(sm) is a Service
-  Mark property of CompuServe Incorporated.
+  We are required to state the following: The Graphics Interchange
+  Format(c) is the Copyright property of CompuServe Incorporated.
+  GIF(sm) is a Service Mark property of CompuServe Incorporated.
 
-  \warning Unisys has changed its position regarding GIF.  If you are
-  in a country in which Unisys holds a patent on LZW compression and/or
+  \warning If you are in a country that recognizes software patents
+  and in which Unisys holds a patent on LZW compression and/or
   decompression and you want to use GIF, Unisys may require you to
   license that technology.  Such countries include Canada, Japan, the
   USA, France, Germany, Italy and the UK.
@@ -683,7 +684,7 @@ void QMovie::setDisplayWidget(QWidget * w)
 /*!
   Constructs a QMovie that reads an image sequence from the given
   data source, \a src.  The source must be allocated dynamically,
-  because it becomes QMovie will take ownership of it and will destroy
+  because QMovie will take ownership of it and will destroy
   it when the movie is destroyed. The movie starts playing as soon as
   event processing continues.
 
@@ -750,7 +751,7 @@ QMovie::~QMovie()
 }
 
 /*!
-  Returns TRUE if the movie is null.
+  Returns TRUE if the movie is null; otherwise returns FALSE.
 */
 bool QMovie::isNull() const
 {
@@ -799,10 +800,10 @@ const QRect& QMovie::getValidRect() const
 }
 
 /*!
-  Returns the current frame of the movie, as a QPixmap.
-  It is not generally useful to
-  keep a copy of this pixmap.  Better to keep a copy of the QMovie and
-  get the framePixmap() only when needed for drawing.
+  Returns the current frame of the movie, as a QPixmap. It is not
+  generally useful to keep a copy of this pixmap.  It is better to
+  keep a copy of the QMovie and get the framePixmap() only when needed
+  for drawing.
 
   \sa frameImage()
 */
@@ -835,18 +836,14 @@ int QMovie::steps() const
 
 /*!
   Returns the number of times EndOfFrame has been emitted since the
-  start of the current loop of the movie.  Thus, before
-  any EndOfFrame has been emitted the value will be 0;
-  within slots processing the first signal, frameNumber() will be 1, and
-  so on.
+  start of the current loop of the movie.  Thus, before any EndOfFrame
+  has been emitted the value will be 0; within slots processing the
+  first signal, frameNumber() will be 1, and so on.
 */
-int QMovie::frameNumber() const
-{
-    return d->framenumber;
-}
+int QMovie::frameNumber() const { return d->framenumber; }
 
 /*!
-  Returns TRUE if the image is paused.
+  Returns TRUE if the image is paused; otherwise returns FALSE.
 */
 bool QMovie::paused() const
 {
@@ -855,7 +852,7 @@ bool QMovie::paused() const
 
 /*!
   Returns TRUE if the image is no longer playing - this happens when all
-  loops of all frames are complete.
+  loops of all frames are complete; otherwise returns FALSE.
 */
 bool QMovie::finished() const
 {
@@ -864,7 +861,7 @@ bool QMovie::finished() const
 
 /*!
   Returns TRUE if the image is not single-stepping, not paused,
-  and not finished.
+  and not finished; otherwise returns FALSE.
 */
 bool QMovie::running() const
 {
@@ -946,8 +943,9 @@ int QMovie::speed() const
 }
 
 /*!
-  Sets the speed-up factor of the movie to \a percent.  This is a percentage of the
-  speed dictated by the input data format.  The default is 100 percent.
+  Sets the speed-up factor of the movie to \a percent.  This is a
+  percentage of the speed dictated by the input data format.  The
+  default is 100 percent.
 */
 void QMovie::setSpeed(int percent)
 {
@@ -967,7 +965,7 @@ void QMovie::setSpeed(int percent)
 
 /*!
   Connects the \a{receiver}'s \a member of type \c{void member(const QSize&)}
-  so it is signalled when the movie changes size.
+  so that it is signalled when the movie changes size.
 
   Note that due to the explicit sharing of QMovie objects, these connections
   persist until they are explicitly disconnected with disconnectResize() or
@@ -979,7 +977,7 @@ void QMovie::connectResize(QObject* receiver, const char *member)
 }
 
 /*!
-  Disconnects the \a{receiver}'s \a member (or all members if member
+  Disconnects the \a{receiver}'s \a member (or all members if \a member
   is zero) that were previously connected by connectResize().
 */
 void QMovie::disconnectResize(QObject* receiver, const char *member)
@@ -989,7 +987,7 @@ void QMovie::disconnectResize(QObject* receiver, const char *member)
 
 /*!
   Connects the \a{receiver}'s \a member of type \c{void member(const QRect&)}
-  so it is signalled when an area of the framePixmap() has
+  so that it is signalled when an area of the framePixmap() has
   changed since the previous frame.
 
   Note that due to the explicit sharing of QMovie objects, these connections
@@ -1002,8 +1000,8 @@ void QMovie::connectUpdate(QObject* receiver, const char *member)
 }
 
 /*!
-  Disconnects the \a{receiver}'s \a member (or all members if member is zero)
-  that were previously connected by connectUpdate().
+  Disconnects the \a{receiver}'s \a member (or all members if \q
+  member is zero) that were previously connected by connectUpdate().
 */
 void QMovie::disconnectUpdate(QObject* receiver, const char *member)
 {
@@ -1012,8 +1010,8 @@ void QMovie::disconnectUpdate(QObject* receiver, const char *member)
 
 /*!
   Connects the \a{receiver}'s \a member, of type \c{void member(int)}
-  so it is signalled when the movie changes status.  The
-  status code are negative for errors and positive for information,
+  so that it is signalled when the movie changes status.  The
+  status codes are negative for errors and positive for information,
   and they are currently:
 
   \list

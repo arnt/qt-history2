@@ -220,7 +220,7 @@ void QTableSelection::expandTo( int row, int col )
     }
 }
 
-/*! Returns TRUE if \a s includes the same cells as \e this selection;
+/*! Returns TRUE if \a s includes the same cells as the selection;
  otherwise returns FALSE.
 */
 
@@ -268,7 +268,7 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
 
 /*! \fn int QTableSelection::anchorCol() const
 
-  Returns the anchor column of \e this selection.
+  Returns the anchor column of the selection.
 
   \sa anchorRow() expandTo()
 */
@@ -290,7 +290,7 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
   For many applications QTableItems are ideal for presenting and editing
   the contents of table cells. In situations where you need to create
   very large tables you may prefer an alternative approach to using
-  QTableItems: see the notes on <a href="#bigtables">large tables</a>.
+  QTableItems: see the notes on \link #bigtables large tables\endlink.
 
     A QTableItem contains a cell's data, by default, a string and a
     pixmap. The table item also holds the cell's display size and how
@@ -332,7 +332,7 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
     \endcode
 
     You can move a table item from one cell to another, in the same or a
-    different table, using QTable::takeItem() and QTable::setItem(); but
+    different table, using QTable::takeItem() and QTable::setItem() but
     see also QTable::swapCells().
 
     Table items can be deleted with delete in the standard way; the
@@ -349,7 +349,7 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
 
 /*! \enum QTableItem::EditType
 
-  <a name="wheneditable">
+  \target wheneditable
   This enum is used to define whether a cell is editable or read-only
   (in conjunction with other settings), and how the cell should
   be displayed.
@@ -375,7 +375,7 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
   \value OnTyping
     The cell only looks editable when the user types in it or
     double-clicks it.<sup>1.</sup> It resembles the \c WhenCurrent
-    functionality but can look a bit cleaner.
+    functionality but can look a bit nicer.
     <br>
     The \c OnTyping edit type is the default when QTableItem objects
     are created by the convenience functions QTable::setText()
@@ -448,7 +448,7 @@ QTableItem::~QTableItem()
 int QTableItem::RTTI = 0;
 
 /*!
-    Returns the Run Time Type Identification number of this table item which
+    Returns the Run Time Type Identification value for this table item which
     for QTableItems is 0.
 
   Although often frowned upon by purists, Run Time Type Identification
@@ -468,7 +468,7 @@ int QTableItem::rtti() const
     return RTTI;
 }
 
-/*! Returns the table item's pixmap or a null-pixmap if no pixmap has been
+/*! Returns the table item's pixmap or a null pixmap if no pixmap has been
   set.
 
   \sa setPixmap() text()
@@ -522,7 +522,7 @@ void QTableItem::setText( const QString &str )
 }
 
 /*! This virtual function is used to paint the contents of an item
-  on the painter \a p in the rectangular area \a cr using
+  using the painter \a p in the rectangular area \a cr using
   the color group \a cg.
 
   If \a selected is TRUE the cell is displayed in a way that indicates
@@ -644,7 +644,7 @@ void QTableItem::setWordWrap( bool b )
 }
 
 /*!
-    Returns TRUE if the word wrap is enabled for the cell, otherwise
+    Returns TRUE if word wrap is enabled for the cell; otherwise
     returns FALSE.
 
   \sa setWordWrap()
@@ -720,7 +720,7 @@ bool QTableItem::isReplaceable() const
   sorting. The default implementation returns the text() of the
   relevant item.
 
-  \sa QTable::setSorting
+  \sa QTable::setSorting()
 */
 
 QString QTableItem::key() const
@@ -855,7 +855,8 @@ int QTableItem::col() const
     return cl;
 }
 
-/*! If \a b is TRUE, the table item is enabled, otherwise it is disabled.
+/*! If \a b is TRUE, the table item is enabled; if \a b is FALSE the
+    table item is disabled.
 
   A disabled item doesn't respond to user interaction.
 
@@ -893,7 +894,7 @@ bool QTableItem::isEnabled() const
   comboboxes is that a QComboTableItem uses far less resources than a real
   combobox. When the cell has the focus it displays a real combobox
   which the user can interact with. When the cell does not have the
-  focus the cell \e looks like a combobox. Only strings (i.e. no
+  focus the cell \e looks like a combobox. Only text items (i.e. no
   pixmaps) may be used in QComboTableItems.
 
   QComboTableItem items have the edit type \c WhenCurrent (see
@@ -907,7 +908,7 @@ bool QTableItem::isEnabled() const
   text().
 
   If isEditable() is TRUE the QComboTableItem will permit the user to
-  either choose an existing list item or create a new list item by
+  either choose an existing list item, or create a new list item by
   entering their own text; otherwise the user may only choose one of the
   existing list items.
 
@@ -1013,7 +1014,7 @@ void QComboTableItem::paint( QPainter *p, const QColorGroup &cg,
 }
 
 /*!
-    Sets list item \a i to be the combo table item's current list
+    Sets the list item \a i to be the combo table item's current list
     item.
 
   \sa currentItem()
@@ -1029,8 +1030,8 @@ void QComboTableItem::setCurrentItem( int i )
 /*! \overload
 
     Sets the list item whose text is \a s to be the combo table
-    item's current list item. Does nothing if no list item has text \a
-    s.
+    item's current list item. Does nothing if no list item has the
+    text \a s.
 
   \sa currentItem()
 */
@@ -1112,7 +1113,7 @@ int QComboTableItem::RTTI = 1;
 /*! \fn int QComboTableItem::rtti() const
 
   For QComboTableItems this function returns a Run Time Identification
-  number of 1.
+  value of 1.
 
   \sa QTableItem::rtti()
 */
@@ -1154,7 +1155,7 @@ int QComboTableItem::rtti() const
 
   QCheckTableItems can be distinguished from \l{QTableItem}s and
   \l{QComboTableItem}s using their Run Time Type Identification (rtti)
-  number.
+  value.
 
   \sa rtti() EditType
 */
@@ -1252,7 +1253,7 @@ int QCheckTableItem::RTTI = 2;
 
   Make your derived classes return their own values for rtti()to
   distinguish between different table item subclasses. You should use
-  values greater than 1000 preferably a large random number, to allow
+  values greater than 1000, preferably a large random number, to allow
   for extensions to this class.
 
   \sa QTableItem::rtti()
@@ -1275,11 +1276,11 @@ int QCheckTableItem::rtti() const
 
     QTable is easy to use, although it does have a large API because of
     the comprehensive functionality that it provides. QTable includes
-    functions for manipulating <a href="#headers">headers</a>, <a
-    href="#columnsrows">rows and columns</a>, <a href="#cells">cells</a>
-    and <a href="#selections">selections</a>. QTable also provides
-    in-place editing and <a href="dnd.html">drag and drop</a>, as well
-    as a useful set of <a href="#signals">signals</a>. QTable
+    functions for manipulating \link #headers headers\endlink,
+    \link #columnsrows rows and columns\endlink, \link #cells cells\endlink
+    and \link #selections selections\endlink. QTable also provides
+    in-place editing and \link dnd.html drag and drop\endlink, as well
+    as a useful set of \link #signals signals\endlink. QTable
     efficiently supports very large tables, for example, tables one
     million by one million cells are perfectly possible. QTable is
     economical with memory, using none for unused cells.
@@ -1298,7 +1299,8 @@ int QCheckTableItem::rtti() const
     showing column numbers. (The numbers displayed start at 1, although
     row and column numbers within QTable begin at 0.)
 
-    <a name="headers"><h4>Headers</h4>
+    \target headers
+    \section1 Headers
     QTable supports a header column, e.g. to display row numbers, and a
     header row, e.g to display column titles. To set row or column
     labels use QHeader::setLabel() on the pointers returned by
@@ -1308,7 +1310,8 @@ int QCheckTableItem::rtti() const
     the table's top margin whose height is set with setTopMargin(). The
     table's grid can be switched off with setShowGrid().
 
-    <a name="columnsrows"><h4>Rows and Columns</h4>
+    \target columnsrows
+    \section1 Rows and Columns
     Row and column sizes are set with setRowHeight() and
     setColumnWidth().  If you want a row high enough to show the tallest
     item in its entirety, use adjustRow(). Similarly, to make a column
@@ -1336,8 +1339,8 @@ int QCheckTableItem::rtti() const
     For editable tables (see setReadOnly()) you can set the read-only
     property of individual rows and columns with setRowReadOnly() and
     setColumnReadOnly(). (Whether a cell is editable or read-only
-    depends on these settings and the cell's <a
-    href="qtableitem.html#wheneditable">QTableItem::EditType</a>.)
+    depends on these settings and the cell's
+    \link qtableitem.html#wheneditable QTableItem::EditType\endlink.)
 
     The row and column which have the focus are returned by
     currentRow() and currentColumn() respectively.
@@ -1346,7 +1349,8 @@ int QCheckTableItem::rtti() const
     the indexOf() function returns a single integer identifying a
     particular cell.
 
-    <a name="cells"><h4>Cells</h4>
+    \target cells
+    \section1 Cells
     All of a QTable's cells are empty when the table is constructed.
 
     There are two approaches to populating the table's cells. The first
@@ -1387,7 +1391,7 @@ int QCheckTableItem::rtti() const
     In-place editing of the text in QTableItems, and the values in
     QComboTableItems and QCheckTableItems works automatically. Cells may
     be editable or read-only,
-    see <a href="qtableitem.html#wheneditable">QTableItem::EditType</a>.
+    see \link qtableitem.html#wheneditable QTableItem::EditType\endlink.
 
     The contents of a cell can be retrieved as a QTableItem using
     item(), or as a string with text() or as a pixmap (if there is one)
@@ -1403,8 +1407,8 @@ int QCheckTableItem::rtti() const
     approach. The cell's widget (if there is one) can be removed with
     clearCellWidget().
 
-    <a name="bigtables">
-    <h5>Large tables</h5>
+    \target bigtables
+    \section2 Large tables
     For large, sparse, tables using QTableItems or other widgets is
     inefficient. The solution is to \e draw the cell as it should appear
     and to create and destroy cell editors on demand.
@@ -1426,7 +1430,8 @@ int QCheckTableItem::rtti() const
 
     For more information on cells see the QTableItem documenation.
 
-    <a name="selections"><h4>Selections</h4>
+    \target selections
+    \section1 Selections
 
     QTable's support single selection, multi-selection (multiple cells)
     or no selection. The selection mode is set with setSelectionMode().
@@ -1441,7 +1446,8 @@ int QCheckTableItem::rtti() const
     removeSelection() and remove all selections with clearSelection().
     Selections are QTableSelection objects.
 
-    <a name="signals"><h4>Signals</h4>
+    \target signals
+    \section1 Signals
 
     When the user clicks a cell the currentChanged() signal is emitted.
     You can also connect to the lower level clicked(), doubleClicked()
@@ -1555,8 +1561,8 @@ QTable::QTable( QWidget *parent, const char *name )
 
   If you're using QTableItems to populate the table's cells, you can
   create QTableItem, QComboTableItem and QCheckTableItem items and
-  insert them into the table using setItem(). (See the notes on <a
-  href="#bigtables">large tables</a> for an alternative to using
+  insert them into the table using setItem(). (See the notes on
+  \link #bigtables large tables\endlink for an alternative to using
   QTableItems.)
 
   \sa QWidget::clearWFlags() Qt::WidgetFlags
@@ -1683,7 +1689,7 @@ void QTable::setReadOnly( bool b )
 
     Whether a cell in this row is editable or read-only depends on the
     cell's EditType, and this setting:
-    see <a href="qtableitem.html#wheneditable">QTableItem::EditType</a>.
+    see \link qtableitem.html#wheneditable QTableItem::EditType\endlink.
 
   \sa isRowReadOnly() setColumnReadOnly() setReadOnly()
 */
@@ -1702,7 +1708,7 @@ void QTable::setRowReadOnly( int row, bool ro )
 
     Whether a cell in this column is editable or read-only depends on
     the cell's EditType, and this setting:
-    see <a href="qtableitem.html#wheneditable">QTableItem::EditType</a>.
+    see \link qtableitem.html#wheneditable QTableItem::EditType\endlink.
 
     \sa isColumnReadOnly() setRowReadOnly() setReadOnly()
 
@@ -1721,7 +1727,7 @@ void QTable::setColumnReadOnly( int col, bool ro )
 
   Whether a cell in the table is editable or read-only depends on the
   cell's EditType, and this setting:
-  see <a href="qtableitem.html#wheneditable">QTableItem::EditType</a>.
+  see \link qtableitem.html#wheneditable QTableItem::EditType\endlink.
 
   \sa QWidget::enabled setColumnReadOnly() setRowReadOnly()
 */
@@ -1735,7 +1741,7 @@ bool QTable::isReadOnly() const
 
   Whether a cell in this row is editable or read-only depends on the
   cell's EditType, and this setting:
-  see <a href="qtableitem.html#wheneditable">QTableItem::EditType</a>.
+  see \link qtableitem.html#wheneditable QTableItem::EditType\endlink.
 
   \sa setRowReadOnly isColumnReadOnly()
 */
@@ -1749,7 +1755,7 @@ bool QTable::isRowReadOnly( int row ) const
 
   Whether a cell in this column is editable or read-only depends on the
   cell's EditType, and this setting:
-  see <a href="qtableitem.html#wheneditable">QTableItem::EditType</a>.
+  see \link qtableitem.html#wheneditable QTableItem::EditType\endlink.
 
   \sa setColumnReadOnly() isRowReadOnly()
 */
@@ -1865,7 +1871,7 @@ bool QTable::rowMovingEnabled() const
 
   If you don't use QTableItems you should reimplement this as an empty
   method to avoid wasting memory.
-  See the notes on <a href="#bigtables">large tables</a> for further details.
+  See the notes on \link #bigtables large tables\endlink for further details.
 */
 
 void QTable::resizeData( int len )
@@ -1881,7 +1887,7 @@ void QTable::resizeData( int len )
 
   If you don't use QTableItems and want your users to be able to swap
   rows, e.g. for sorting, you will need to reimplement this function.
-  (See the notes on <a href="#bigtables">large tables</a>.)
+  (See the notes on \link #bigtables large tables\endlink.)
 
   If \a swapHeader is TRUE, also the header contents of the rows is
   swapped.
@@ -1982,7 +1988,7 @@ void QTable::setTopMargin( int m )
 
     If you don't use QTableItems and want your users to be able to swap
     columns you will need to reimplement this function.
-  (See the notes on <a href="#bigtables">large tables</a>.)
+  (See the notes on \link #bigtables large tables\endlink.)
 
   If \a swapHeader is TRUE, also the header contents of the columns is
   swapped.
@@ -2054,7 +2060,7 @@ void QTable::swapColumns( int col1, int col2, bool swapHeader )
 
     If you don't use QTableItems and want your users to be able to swap
     cells, you will need to reimplement this function.
-  (See the notes on <a href="#bigtables">large tables</a>.)
+  (See the notes on \link #bigtables large tables\endlink.)
 
   \sa swapColumns() swapRows()
 */
@@ -2224,8 +2230,8 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
     approach. For data you want to draw immediately, e.g. data retrieved
     from a database, it is probably best to reimplement paintCell().
     Note that if you reimplement paintCell, i.e. don't use QTableItems,
-    you will have to reimplement other functions: see the notes on <a
-    href="#bigtables">large tables</a>.
+    you will have to reimplement other functions: see the notes on
+    \link #bigtables large tables\endlink.
 
     Note that the painter is not clipped by default in order to get maximum
     efficiency. If you want clipping, use
@@ -2346,7 +2352,7 @@ void QTable::paintEmptyArea( QPainter *p, int cx, int cy, int cw, int ch )
   been set for this cell, item() returns 0.
 
     If you don't use QTableItems you may need to reimplement this function:
-    see the notes on <a href="#bigtables">large tables</a>.
+    see the notes on \link #bigtables large tables\endlink.
 
     \sa setItem()
 */
@@ -2367,7 +2373,7 @@ QTableItem *QTable::item( int row, int col ) const
     takes ownership of the table item.
 
     If you don't use QTableItems you may need to reimplement this function:
-    see the notes on <a href="#bigtables">large tables</a>.
+    see the notes on \link #bigtables large tables\endlink.
 
   \sa item() takeItem()
 */
@@ -2394,7 +2400,7 @@ void QTable::setItem( int row, int col, QTableItem *item )
 /*! Removes the QTableItem at \a row, \a col.
 
     If you don't use QTableItems you may need to reimplement this function:
-    see the notes on <a href="#bigtables">large tables</a>.
+    see the notes on \link #bigtables large tables\endlink.
 */
 
 void QTable::clearCell( int row, int col )
@@ -3924,7 +3930,7 @@ void QTable::endEdit( int row, int col, bool accept, bool replace )
 
   If you want to work without QTableItems, you will need to reimplement
   this function to save the data the user entered into your data
-  structure. (See the notes on <a href="#bigtables">large tables</a>.)
+  structure. (See the notes on \link #bigtables large tables\endlink.)
 
   \sa QTableItem::setContentFromEditor() createEditor()
 */
@@ -4248,8 +4254,8 @@ static int cmpTableItems( const void *n1, const void *n2 )
   otherwise only cells in the column are sorted using swapCells().
 
   Note that if you are not using QTableItems you will need to
-  reimplement swapRows() and swapCells(). (See the notes on <a
-  href="#bigtables">large tables</a>.)
+  reimplement swapRows() and swapCells(). (See the notes on
+  \link #bigtables large tables\endlink.)
 
   \sa swapRows()
 */
@@ -4513,7 +4519,7 @@ void QTable::takeItem( QTableItem *i )
     By default widgets are inserted into a vector with numRows() *
     numCols() elements. In very large tables you will probably want to
     store the widgets in a data structure that consumes less memory (see
-    the notes on <a href="#bigtables">large tables</a>). To support the
+    the notes on \link #bigtables large tables\endlink). To support the
     use of your own data structure this function calls insertWidget() to
     add the widget to the internal data structure. To use your own data
     structure reimplement insertWidget(), cellWidget() and
@@ -4547,7 +4553,7 @@ void QTable::setCellWidget( int row, int col, QWidget *e )
   documentation of setCellWidget() for further details.
 
     If you don't use QTableItems you may need to reimplement this function:
-    see the notes on <a href="#bigtables">large tables</a>.
+    see the notes on \link #bigtables large tables\endlink.
 */
 
 void QTable::insertWidget( int row, int col, QWidget *w )
@@ -4565,7 +4571,7 @@ void QTable::insertWidget( int row, int col, QWidget *w )
   or 0 if no widget has been set.
 
     If you don't use QTableItems you may need to reimplement this function:
-    see the notes on <a href="#bigtables">large tables</a>.
+    see the notes on \link #bigtables large tables\endlink.
 
   \sa clearCellWidget() setCellWidget()
 */
@@ -4584,7 +4590,7 @@ QWidget *QTable::cellWidget( int row, int col ) const
 /*! Removes the widget (if there is one) set for the cell at \a row, \a col.
 
     If you don't use QTableItems you may need to reimplement this function:
-    see the notes on <a href="#bigtables">large tables</a>.
+    see the notes on \link #bigtables large tables\endlink.
 
   \sa cellWidget() setCellWidget()
 */

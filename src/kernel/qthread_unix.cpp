@@ -111,13 +111,18 @@
   but applies to any other case where things need to happen in a particular
   sequence.
 
+    When you call lock() in a thread, other threads that try to call
+    lock() in the same place will block until the thread that got the
+    lock calls unlock(). A non-blocking alternative to lock() is
+    tryLock().
+
 */
 
 
 /*!
   Constructs a new mutex. The mutex is created in an unlocked state. A
   recursive mutex is created if \a recursive is TRUE; a normal mutex is
-  created if \a recursive is FALSE (default argument). With a recursive
+  created if \a recursive is FALSE (the default). With a recursive
   mutex, a thread can lock the same mutex multiple times and it will
   not be unlocked until a corresponding number of unlock() calls have
   been made.
@@ -142,7 +147,7 @@ QMutex::~QMutex()
 
 /*!
   Attempt to lock the mutex. If another thread has locked the mutex
-  then this call will block until that thread has unlocked it.
+  then this call will \e block until that thread has unlocked it.
 
   \sa unlock(), locked()
 */
@@ -167,10 +172,11 @@ void QMutex::unlock()
 
 
 /*!
-  Returns TRUE if the mutex is locked by another thread.
+  Returns TRUE if the mutex is locked by another thread; otherwise
+  returns FALSE.
 
-  \e NOTE: Due to differing implementations of recursive mutexes on various
-  platforms, calling this function from the same thread that previous locked
+  \warning Due to differing implementations of recursive mutexes on various
+  platforms, calling this function from the same thread that previously locked
   the mutex will return undefined results.
 
   \sa lock(), unlock()
@@ -184,7 +190,8 @@ bool QMutex::locked()
 /*!
   Attempt to lock the mutex.  If the lock was obtained, this function
   returns TRUE.  If another thread has locked the mutex, this function
-  returns FALSE, instead of waiting for the mutex to become available.
+  returns FALSE, instead of waiting for the mutex to become available,
+  i.e. it does not block.
 
   The mutex must be unlocked with unlock() before another thread can
   successfully lock it.
@@ -268,11 +275,11 @@ static QThreadPostEventPrivate * qthreadposteventprivate = 0;
   \ingroup thread environment
 
   A QThread represents a separate thread of control within the program;
-  it shares all data with other threads within the process but
+  it shares data with all the other threads within the process but
   executes independently in the way that a separate program does on
   a multitasking operating system. Instead of starting in main(),
   however, QThreads begin executing in run(), which you inherit
-  to provide your code. For instance:
+  to provide your code. For example:
 
   \code
   class MyThread : public QThread {
@@ -285,9 +292,9 @@ static QThreadPostEventPrivate * qthreadposteventprivate = 0;
 
   void MyThread::run()
   {
-    for(int count=0;count<20;count++) {
-      sleep(1);
-      qDebug("Ping!");
+    for( int count = 0; count < 20; count++ ) {
+      sleep( 1 );
+      qDebug( "Ping!" );
     }
   }
 
@@ -309,7 +316,7 @@ static QThreadPostEventPrivate * qthreadposteventprivate = 0;
   reaches the end of MyThread::run(), just as an application does when
   it leaves main().
 
-  See also the paragraph on <a href="threads.html">Thread Support in Qt</a>.
+  \sa \link threads.html Thread Support in Qt\endlink.
 */
 
 
@@ -318,7 +325,7 @@ static QThreadPostEventPrivate * qthreadposteventprivate = 0;
   handle returned by this function is used for internal reasons and
   should not be used in any application code.
   On Windows, the returned value is a pseudo handle for the current thread,
-  and it can not be used for numerical comparison.
+  and it cannot be used for numerical comparison.
 */
 Qt::HANDLE QThread::currentThread()
 {
@@ -361,8 +368,9 @@ void QThread::cleanup()
   Since QThread::postEvent() posts events into the event queue of QApplication,
   you must create a QApplication object before calling QThread::postEvent().
 
-  Just as with \l QApplication::postEvent(), \a event must be allocated on the
-  heap, as it is deleted when the event has been posted.
+  Just like \l{QApplication::postEvent()}, the \a event must be
+  allocated on the heap, as it is deleted when the event has been
+  posted.
 */
 void QThread::postEvent( QObject * receiver, QEvent * event )
 {
@@ -484,17 +492,17 @@ void QThread::start()
 
 
 /*!
-  This allows similar functionality to POSIX pthread_join.  A thread
-  calling this will block until one of 2 conditions is met:
+  This provides similar functionality to POSIX pthread_join.  A thread
+  calling this will block until either of these conditions is met:
   \list
   \i The thread associated with this QThread object has finished
-       execution (i.e. when it returns from run() ).  This
+       execution (i.e. when it returns from \l{run()}).  This
        function will return TRUE if the thread has finished.
        It also returns TRUE if the thread has not been started yet.
-  \i \a time milliseconds has elapsed.  If \a time is ULONG_MAX (default
-       argument), then the wait will never timeout (the thread must
-       return from run() ).  This function will return FALSE
-       if the wait timed out.
+  \i \a time milliseconds has elapsed.  If \a time is ULONG_MAX (the
+	default), then the wait will never timeout (the thread must return
+	from \l{run()}). This function will return FALSE if the wait timed
+	out.
   \endlist
 */
 bool QThread::wait(unsigned long time)
@@ -507,7 +515,7 @@ bool QThread::wait(unsigned long time)
 
 
 /*!
-  Returns TRUE is the thread is finished.
+  Returns TRUE is the thread is finished; otherwise returns FALSE.
 */
 bool QThread::finished() const
 {
@@ -516,7 +524,7 @@ bool QThread::finished() const
 
 
 /*!
-  Returns TRUE if the thread is running.
+  Returns TRUE if the thread is running; otherwise returns FALSE.
 */
 bool QThread::running() const
 {
@@ -529,6 +537,8 @@ bool QThread::running() const
   This method is pure virtual, and it must be implemented in derived classes
   in order to do useful work. Returning from this method will end execution
   of the thread.
+
+  \sa wait()
 */
 
 
@@ -544,24 +554,24 @@ bool QThread::running() const
 
   QWaitConditions allow a thread to tell other threads that some sort of
   condition has been met; one or many threads can block waiting for a
-  QWaitCondition to set a condition with wakeOne() or wakeAll.  Use
-  wakeOne() to wake one randomly-selected event or wakeAll() to wake them
+  QWaitCondition to set a condition with wakeOne() or wakeAll().  Use
+  wakeOne() to wake one randomly selected event or wakeAll() to wake them
   all. For example, say we have three tasks that should be performed every
   time the user presses a key; each task could be split into a thread, each
-  of which would have a run() body like so:
+  of which would have a run() body like this:
 
   \code
   QWaitCondition key_pressed;
 
   for (;;) {
-     key_pressed.wait();    // This is a QWaitCondition global variable
+     key_pressed.wait(); // This is a QWaitCondition global variable
      // Key was pressed, do something interesting
      do_something();
   }
   \endcode
 
   A fourth thread would read key presses and wake the other three threads
-  up every time it receives one, like so:
+  up every time it receives one, like this:
 
   \code
   QWaitCondition key_pressed;
@@ -588,7 +598,7 @@ bool QThread::running() const
 
   // Worker thread code
   for (;;) {
-     key_pressed.wait();    // This is a QWaitCondition global variable
+     key_pressed.wait(); // This is a QWaitCondition global variable
      mymutex.lock();
      mycount++;
      mymutex.unlock();
@@ -603,9 +613,9 @@ bool QThread::running() const
      getchar();
      mymutex.lock();
      // Sleep until there are no busy worker threads
-     while(count>0) {
+     while( count > 0 ) {
        mymutex.unlock();
-       sleep(1);
+       sleep( 1 );
        mymutex.lock();
      }
      mymutex.unlock();
@@ -613,8 +623,8 @@ bool QThread::running() const
   }
   \endcode
 
-  The mutexes are necessary because the results if two threads
-  attempt to change the value of the same variable simultaneously
+  The mutexes are necessary because the results of two threads
+  attempting to change the value of the same variable simultaneously
   are unpredictable.
 
 */
@@ -640,13 +650,13 @@ QWaitCondition::~QWaitCondition()
 
 /*!
   Wait on the thread event object. The thread calling this will block
-  until one of 2 conditions is met:
+  until either of these conditions is met:
   \list
   \i Another thread signals it using wakeOne() or wakeAll(). This
        function will return TRUE in this case.
-  \i \a time milliseconds has elapsed.  If \a time is ULONG_MAX (default
-       argument), then the wait will never timeout (the event must
-       signalled).  This function will return FALSE if the
+  \i \a time milliseconds has elapsed.  If \a time is ULONG_MAX (the default),
+       then the wait will never timeout (the event must
+       be signalled).  This function will return FALSE if the
        wait timed out.
   \endlist
 
@@ -663,13 +673,13 @@ bool QWaitCondition::wait(unsigned long time)
   Release the locked \a mutex and wait on the thread event object. The
   \a mutex must be initially locked by the calling thread.  If \a mutex
   is not in a locked state, this function returns immediately.  The
-  \a mutex will be unlocked, and the thread calling will block until
-  one of 2 conditions is met:
+  \a mutex will be unlocked, and the calling thread will block until
+  either of these conditions is met:
   \list
   \i Another thread signals it using wakeOne() or wakeAll(). This
        function will return TRUE in this case.
-  \i \a time milliseconds has elapsed.  If \a time is ULONG_MAX (default
-       argument), then the wait will never timeout (the event must
+  \i \a time milliseconds has elapsed.  If \a time is ULONG_MAX (the default),
+       then the wait will never timeout (the event must be
        signalled).  This function will return FALSE if the
        wait timed out.
   \endlist
@@ -688,7 +698,7 @@ bool QWaitCondition::wait(QMutex *mutex, unsigned long time)
 
 /*!
   This wakes one thread waiting on the QWaitCondition.  The thread that
-  woken up depends on the operating system's scheduling policies, and
+  is woken up depends on the operating system's scheduling policies, and
   cannot be controlled or predicted.
 
   \sa wakeAll()
@@ -733,7 +743,7 @@ void QWaitCondition::wakeAll()
   don't try to search the same branch of the tree.
 
   A real world example of a semaphore would be dining at a restuarant.
-  A semaphore initialized to have a maximum count equal to the number
+  A semaphore is initialized to have a maximum count equal to the number
   of chairs in the restuarant.  As people arrive, they want a seat.  As
   seats are filled, the semaphore is accessed, once per person.  As people
   leave, the access is released, allowing more people to enter. If a
@@ -829,7 +839,7 @@ int QSemaphore::operator--(int)
 
 /*!
   Try to get access to the semaphore.  If \l available() is >= \l total(),
-  the calling thread blocks until it can get access.   The calling will
+  the calling thread blocks until it can get access.   The caller will
   only get access from the semaphore if it can get all \a n accesses
   at once.
 */
@@ -917,7 +927,7 @@ int QSemaphore::total() const {
 
 /*!
   Try to get access to the semaphore.  If \l available() is >= \l total(),
-  the calling thread blocks until it can get access.   The calling will
+  the calling thread blocks until it can get access.   The caller will
   only get access from the semaphore if it can get all \a n accesses
   at once.
 */

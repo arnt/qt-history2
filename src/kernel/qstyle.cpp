@@ -61,11 +61,14 @@ public:
   \preliminary
   \ingroup appearance
 
+    A large number of GUI elements are common to many widgets. The
+    QStyle class allows the look of these elements to be modified
+    across all widgets that use the QStyle functions.  It also
+    provides two feel options: Motif and Windows.
+
   Although it is not possible to fully enumerate the look of graphic elements
-  and the feel of widgets in a GUI, a large number of elements are common
-  to many widgets.  The QStyle class allows the look of these elements to
-  be modified across all widgets that use the QStyle functions.  It also
-  provides two feel options: Motif and Windows.
+  and the feel of widgets in a GUI, QStyle provides a considerable
+  amount of control and customisability.
 
   In Qt 1.x the look and feel option for widgets was specified by a
   single value - the GUIStyle.  Starting with Qt 2.0, this notion has
@@ -75,20 +78,25 @@ public:
   Derived classes may reimplement some or all of the drawing functions
   to modify the look of all widgets that use those functions.
 
-  Languages written from right to left (as hebrew and arabic) usually
-  also mirror the whole layout of widgets. If you design a style, you should
-  take special care when drawing asymmetric elements to make sure
-  they also look correct for a mirrored layout. You can start your application
-  with -reverse to check the mirrored layout. Also notice, that for a reversed
-  layout, the light usually comes from top right instead of top left.
+  Languages written from right to left (such as hebrew and arabic)
+  usually also mirror the whole layout of widgets. If you design a
+  style, you should take special care when drawing asymmetric elements
+  to make sure that they also look correct in a mirrored layout. You can
+  start your application with -reverse to check the mirrored layout.
+  Also notice, that for a reversed layout, the light usually comes
+  from top right instead of top left.
 
-  The actual reverse layout is performed automatically when possible.  However, in
-  the interest of flexibility, the translation cannot be performed everywhere.  The
-  documentation for each function in the QStyle API states whether the function
-  expects/returns logical or screen coordinates.  Using logical coordinates (in
-  ComplexControls, for example) provides much flexibility in controlling the look
-  of a widget.  Use visualRect() when needed to translate logical coordinates into
-  screen coordinates for drawing.
+  The actual reverse layout is performed automatically when possible.
+  However, for the sake of flexibility, the translation cannot be
+  performed everywhere.  The documentation for each function in the
+  QStyle API states whether the function expects/returns logical or
+  screen coordinates.  Using logical coordinates (in ComplexControls,
+  for example) provides great flexibility in controlling the look of a
+  widget.  Use visualRect() when necessary to translate logical
+  coordinates into screen coordinates for drawing.
+
+  ### How about telling people how to use it!
+
 */
 
 /*!
@@ -96,8 +104,7 @@ public:
 
   \obsolete
 
-  This enum only exists to keep existing source working and will be removed before
-  the Qt 3.0 release.
+  This enum only exists to keep existing source working.
 
   \value WindowsStyle
   \value MotifStyle
@@ -163,7 +170,7 @@ QStyle::~QStyle()
   The QWidget::inherits() function may provide enough information to
   allow class-specific customizations.  But be careful not to hard-code
   things too much because new QStyle subclasses will be expected to work
-  reasonably with all current \e and \e future widgets.
+  reasonably with all current and \e future widgets.
 
   \sa unPolish(QWidget*)
 */
@@ -219,17 +226,29 @@ void QStyle::polish( QPalette&)
 }
 
 /*!
-  Polishes the popup menu according to the GUI style. This is usually means
-  setting the mouse tracking ( QPopupMenu::setMouseTracking() ) and whether
-  the menu is checkable by default ( QPopupMenu::setCheckable() ).
+  Polishes the popup menu according to the GUI style. This usually means
+  setting the mouse tracking (\l{QPopupMenu::setMouseTracking()}) and whether
+  the menu is checkable by default (\l{QPopupMenu::setCheckable()}).
 */
 void QStyle::polishPopupMenu( QPopupMenu *)
 {
 }
 
 /*!
-  Returns the appropriate area within a rectangle in which to
-  draw text or a pixmap.
+  Returns the appropriate area (see below) within rectangle \a r in
+  which to draw the \a text or \a pixmap using painter \a p. If \a len
+  is -1 (the default) all the \a text is drawn; otherwise only the
+  first \a len characters of \a text are drawn. The text is aligned
+  according to the alignment \a flags (see \l{Qt::AlignmentFlags}).
+
+    If \a r is larger than the area needed to render the \a
+    text the rectangle that is returned will be offset within \a r in
+    accordance with the alignment \a flags. For example if \a flags is
+    \c{AlignVCenter | AlignHCenter} the returned rectangle will be
+    centered within \a r. If \a r is smaller than the area needed the
+    rectangle that is returned will be \e larger than \a r (the
+    smallest rectangle large enough to render the \a text or \a
+    pixmap).
 */
 QRect QStyle::itemRect( QPainter *p, const QRect &r,
 			int flags, bool enabled, const QPixmap *pixmap,
@@ -241,7 +260,15 @@ QRect QStyle::itemRect( QPainter *p, const QRect &r,
 
 
 /*!
-  Draws text or a pixmap in an area.
+  Draws the \a text or \a pixmap in rectangle \a r using painter \a p
+  and color group \a g. The pen color is specified with \a penColor.
+  The \a enabled bool indicates whether or not the item is enabled;
+  when reimplementing this bool should influence how the item is
+  drawn.
+    If \a len is -1 (the default) all the \a text is drawn; otherwise
+    only the first \a len characters of \a text are drawn. The text is
+    aligned according to the alignment \a flags (see
+    \l{Qt::AlignmentFlags}).
 */
 void QStyle::drawItem( QPainter *p, const QRect &r,
 		       int flags, const QColorGroup &g, bool enabled,
@@ -309,6 +336,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
 
   \value PO_HeaderSection  section of a list/table header.
+  \value PO_HeaderArrow arrow used to indicate sorting on a list/table
+  header
   \value PO_StatusBarSection  section of a status bar.
 
 
@@ -334,6 +363,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
 
   \value PO_ProgressBarChunk  section of a progress bar indicator.
+
+  \sa drawPrimitive()
 */
 
 /*!
@@ -360,6 +391,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \value PStyle_FocusAtBorder
   \value PStyle_AutoRaise
   \value PStyle_MouseOver
+  \value PStyle_Up
+
+  \sa drawPrimitive()
 */
 
 /*!
@@ -485,6 +519,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
 
   \value CE_MenuBarItem  a menu item of a QMenuBar.
+
+  \sa drawControl()
 */
 
 /*!
@@ -781,7 +817,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \value CC_TitleBar
   \value CC_ListView
 
-  \sa SubControl
+  \sa SubControl drawComplexControl()
 */
 
 /*!
@@ -1057,6 +1093,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \value PM_IndicatorHeight  height of a checkbox indicator.
   \value PM_ExclusiveIndicatorWidth  width of a radio button indicator.
   \value PM_ExclusiveIndicatorHeight  height of a radio button indicator.
+
+  \sa pixelMetric()
 */
 
 /*!
@@ -1274,6 +1312,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
 
   \value SP_DockWindowCloseButton  close button on dock windows.  See also QDockWindow.
+
+  \sa stylePixmap()
 */
 
 /*!
@@ -1332,14 +1372,16 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 /*!
   \fn QRect QStyle::visualRect( const QRect &logical, const QWidget *w );
 
-  Returns the rect \a logical in screen coordinates.  The bounding rect for \a widget
-  is used to perform the translation.  This function is provided to aid style
-  implementors in supporting right-to-left mode.
+  Returns the rect \a logical in screen coordinates.  The bounding
+  rect for widget \a w is used to perform the translation.  This
+  function is provided to aid style implementors in supporting
+  right-to-left mode.
 
   \sa QApplication::reverseLayout()
 */
 
 /*!
+    \overload
   \fn QRect QStyle::visualRect( const QRect &logical, const QRect &bounding );
 
   Returns the rect \a logical in screen coordinates.  The rect \a bounding

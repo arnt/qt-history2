@@ -135,7 +135,7 @@ public:
 /*!
   \class QHeader qheader.h
   \brief The QHeader class provides a header row or column, e.g. for
-  tables and lists.
+  tables and listviews.
   \ingroup advanced
 
   This class provides a header, e.g. a vertical header to display row
@@ -209,7 +209,7 @@ public:
   index of 1.
 
     QHeader provides the clicked(), pressed() and released() signals. If
-    the user changes the size of a section the sizeChange() signal is
+    the user changes the size of a section, the sizeChange() signal is
     emitted. If you want to have a sizeChange() signal emitted
     continuously whilst the user is resizing (rather than just after the
     resizing is finished), use setTracking(). If the user moves a
@@ -304,9 +304,8 @@ void QHeader::showEvent( QShowEvent *e )
 /*!
   \fn void QHeader::indexChange( int section, int fromIndex, int toIndex )
 
-  This signal is emitted when the user moves section \a section, which
-  was displayed at index position \a fromIndex, to index position \a
-  toIndex.
+  This signal is emitted when the user moves section \a section from
+  index position \a fromIndex, to index position \a toIndex.
 */
 
 /*!
@@ -810,7 +809,7 @@ QRect QHeader::sectionRect( int section ) const
 /*!
     \overload
   Sets the icon for section \a section to \a iconset and the text to \a s.
-  The section's width is set to \a size, unless size is negative in
+  The section's width is set to \a size, unless the size is negative in
   which case the size is calculated taking account of the size of the text.
   If the section does not exist, nothing happens.
 
@@ -1217,11 +1216,11 @@ void QHeader::setMovingEnabled( bool enable )
 
 
 /*!
-  If \a enable is TRUE, clicks on section \a section will result in
+  If \a enable is TRUE, any clicks on section \a section will result in
   clicked() signals being emitted; otherwise the section will ignore
   clicks.
 
-    If \a section is negative (the default) then the \a enable value is
+    If \a section is -1 (the default) then the \a enable value is
     set for all existing sections and will be applied to any new
     sections that are added.
 
@@ -1433,7 +1432,7 @@ void QHeader::setSortIndicator( int section, bool increasing )
 }
 
 /*!
-  Resizes the section \a section to \a s pixels wide (or high).
+  Resizes section \a section to \a s pixels wide (or high).
 */
 
 void QHeader::resizeSection( int section, int s )
@@ -1565,9 +1564,9 @@ bool QHeader::isClickEnabled( int section ) const
     Returns TRUE if section \a section is resizeable; otherwise returns
     FALSE.
 
-  If \a section is out of range (negative or larger than count() - 1),
-  TRUE is returned if all sections are resizeable; otherwise returns
-  FALSE.
+    If \a section is -1 then this function applies to all sections,
+    i.e. TRUE is returned if all sections are resizeable; otherwise
+    returns FALSE.
 
   \sa setResizeEnabled()
 */
