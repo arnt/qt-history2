@@ -1095,6 +1095,8 @@ QMakeProject::read(const QString &file, QMap<QString, QStringList> &place)
         qfile.setFileName("");
         ret = qfile.open(QIODevice::ReadOnly, stdin);
         using_stdin = true;
+    } else if(QFileInfo(file).isDir()) {
+        return false;
     } else {
         qfile.setFileName(filename);
         ret = qfile.open(QIODevice::ReadOnly);
