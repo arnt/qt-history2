@@ -27,6 +27,13 @@
 // undefine this to prevent initial check of the ODBC driver 
 #define ODBC_CHECK_DRIVER
 
+#if defined(Q_ODBC_VERSION_2)
+//crude hack to get non-unicode capable driver managers to work
+# undef UNICODE
+# define SQLTCHAR SQLCHAR
+# define SQL_C_WCHAR SQL_C_CHAR
+#endif
+
 static const int COLNAMESIZE = 255;
 //Map Qt parameter types to ODBC types
 static const SQLSMALLINT qParamType[ 4 ] = { SQL_PARAM_INPUT, SQL_PARAM_INPUT, SQL_PARAM_OUTPUT, SQL_PARAM_INPUT_OUTPUT };
@@ -189,11 +196,13 @@ static QVariant::Type qDecodeODBCType( SQLSMALLINT sqltype, const QODBCPrivate* 
     case SQL_TYPE_TIMESTAMP:
 	type = QVariant::DateTime;
 	break;
+#ifndef Q_ODBC_VERSION_2
     case SQL_WCHAR:
     case SQL_WVARCHAR:
     case SQL_WLONGVARCHAR:
 	type = QVariant::String;
 	break;
+#endif
     case SQL_CHAR:
 	type = p->sql_char_type;
 	break;
@@ -1136,6 +1145,7 @@ bool QODBCResult::exec()
 					  val.asByteArray().size(),
 					  ind );
 		    break; }
+#ifndef Q_ODBC_VERSION_2
 	        case QVariant::String:
 		    if ( d->unicode ) {
 			QString * str = new QString( val.asString() );
@@ -1154,6 +1164,7 @@ bool QODBCResult::exec()
 					      ind );
 			break;
 		    }
+#endif
 		    // fall through
 	        default: {
 		    QByteArray * str = new QByteArray( val.asString().local8Bit() );

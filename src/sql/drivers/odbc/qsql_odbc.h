@@ -26,6 +26,13 @@
 #include <qt_windows.h>
 #endif
 
+#if defined (Q_OS_MACX)
+// assume we use iodbc on MACX
+// comment next line out if you use a 
+// unicode compatible manager
+# define Q_ODBC_VERSION_2
+#endif
+
 #ifdef QT_PLUGIN
 #define Q_EXPORT_SQLDRIVER_ODBC
 #else
@@ -44,7 +51,11 @@
 #if defined(Q_CC_BOR)
 #  undef _MSC_VER
 #endif
+
+#ifndef Q_ODBC_VERSION_2
 #include <sqlucode.h>
+#endif
+
 #include <sqlext.h>
 
 class QODBCPrivate;
