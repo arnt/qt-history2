@@ -50,8 +50,16 @@
 #include <qbuttongroup.h>
 #include <qtoolbar.h>
 #include <qlayout.h>
+#include <qpopupmenu.h>
+#include <qmenubar.h>
+#include <qcombobox.h>
+#include <qdrawutil.h>
 
 static QColor qt_mac_highlight_color = QColor( 0xC2, 0xC2, 0xC2 ); //color of highlighted text
+static const int macItemFrame         = 2;    // menu item frame width
+static const int macItemHMargin       = 3;    // menu item hor text margin
+static const int macItemVMargin       = 2;    // menu item ver text margin
+static const int macRightBorder       = 12;   // right border on mac
 
 #include <qpainter.h>
 class QMacPainter : public QPainter
@@ -108,7 +116,7 @@ void QMacStyle::polish( QApplication* app )
 	SetThemeBackground(kThemeBrushDialogBackgroundActive, px.depth(), true);
 	EraseRect(qt_glb_mac_rect(QRect(-5, -5, px.width()+10, px.height()+10)));
     }
-    QBrush background( Qt::blue, px );
+    QBrush background( Qt::black, px );
     pal.setBrush( QColorGroup::Background, background );
     pal.setBrush( QColorGroup::Button, background );
 
@@ -277,56 +285,234 @@ void QMacStyle::drawControl( ControlElement element,
 	tds = kThemeStatePressed;
     
     switch(element) {
-    case CE_ProgressBarContents: {
-	if(!widget)
+    case CE_PopupMenuItem: {
+	if(!widget || opt.isDefault())
 	    break;
-	QProgressBar *pbar = (QProgressBar *) widget;
-	ThemeTrackDrawInfo ttdi;
-	memset(&ttdi, '\0', sizeof(ttdi));
-	ttdi.kind = kThemeLargeProgressBar;
-	ttdi.bounds = *qt_glb_mac_rect(r, p->device());
-	ttdi.max = pbar->totalSteps();
-	ttdi.value = pbar->progress();
-	ttdi.attributes |= kThemeTrackHorizontal;
-	if(widget->isEnabled())
-	    ttdi.enableState |= kThemeTrackActive;
-	if(!pbar->isEnabled())
-	    ttdi.enableState |= kThemeTrackDisabled;
-	((QMacPainter *)p)->noop();
-	DrawThemeTrack(&ttdi, NULL, NULL, 0);
-	break; }
-    case CE_TabBarTab: {
-	if(!widget)
+	QPopupMenu *popupmenu = (QPopupMenu *)widget;
+	QMenuItem *mi = opt.menuItem();
+	if ( !mi )
 	    break;
-	if(how & Style_Sunken)
-	    tds |= kThemeStatePressed;
-	QTabBar * tb = (QTabBar *) widget;
-	ThemeTabStyle tts = kThemeTabNonFront;
-	if(how & Style_Selected) {
-	    if(!(how & Style_Enabled))
-		tts = kThemeTabFrontInactive;
-	    else
-		tts = kThemeTabFront;
-	} else if(!(how & Style_Enabled)) {
-	    tts = kThemeTabNonFrontPressed;
-	} else if((how & Style_Sunken) && (how & Style_MouseOver)) {
-	    tts = kThemeTabNonFrontPressed;
+
+	QComboBox *combo = NULL;
+	if(popupmenu->parentWidget() && popupmenu->parentWidget()->inherits("QComboBox"))
+	    combo = (QComboBox*)popupmenu->parentWidget();
+	const QColorGroup & g = cg;
+	QColorGroup itemg = g;
+	bool dis = !mi->isEnabled();
+	int tab = opt.tabWidth();
+	int maxpmw = opt.maxIconWidth();
+	bool checked = combo ? mi->id() == popupmenu->idAt(combo->currentItem()) : mi->isChecked();
+	bool checkable = popupmenu->isCheckable();
+	bool act = how & Style_Active;
+	int x, y, w, h;
+	r.rect(&x, &y, &w, &h);
+	Rect mrect = *qt_glb_mac_rect(popupmenu->rect(), p->device()),
+	     irect = *qt_glb_mac_rect(r, p->device());
+
+	if ( checkable )
+	    maxpmw = QMAX( maxpmw, 12 ); // space for the checkmarks
+
+	int checkcol = maxpmw;
+	if ( mi && mi->isSeparator() ) {
+	    ((QMacPainter *)p)->noop();
+	    DrawThemeMenuSeparator(&irect);
+	    return;
 	}
-	ThemeTabDirection ttd = kThemeTabNorth;
-	if( tb->shape() == QTabBar::RoundedBelow )
-	    ttd = kThemeTabSouth;
+
+	ThemeMenuState tms = kThemeMenuActive;
+	if(!mi->isEnabled())
+	    tms |= kThemeMenuDisabled;
+	if(how & Style_Active)
+	    tms |= kThemeMenuSelected;
+	ThemeMenuItemType tmit = kThemeMenuItemPlain;
+	if(mi->popup())
+	    tmit |= kThemeMenuItemHierarchical;
+	if(mi->iconSet())
+	    tmit |= kThemeMenuItemHasIcon;
 	((QMacPainter *)p)->noop();
-	DrawThemeTab(qt_glb_mac_rect(r, p->device()), tts, ttd, NULL, 0);
+	DrawThemeMenuItem(&mrect, &irect, mrect.top, mrect.bottom, tms, tmit, NULL, 0);
+	bool reverse = QApplication::reverseLayout();
+
+	int xpos = x;
+	if ( reverse )
+	    xpos += w - checkcol;
+	if ( checked ) {
+	    int mw = checkcol + macItemFrame;
+	    int mh = h - 2*macItemFrame;
+	    ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOn, kThemeAdornmentDrawIndicatorOnly };
+	    if(!(how & Style_Enabled) || !widget->isEnabled())
+		info.state = kThemeStateInactive;
+	    ((QMacPainter *)p)->noop();
+	    DrawThemeButton(qt_glb_mac_rect(QRect(x + macItemFrame + 2, y + macItemFrame, mw-4, mh), p->device()), 
+			    kThemeCheckBox, &info, NULL, NULL, NULL, 0);
+	} 
+
+	if ( mi->iconSet() ) {              // draw iconset
+	    QIconSet::Mode mode = dis ? QIconSet::Disabled : QIconSet::Normal;
+	    if (act && !dis )
+		mode = QIconSet::Active;
+	    QPixmap pixmap;
+	    if ( checkable && mi->isChecked() )
+		pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode, QIconSet::On );
+	    else
+		pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode );
+	    int pixw = pixmap.width();
+	    int pixh = pixmap.height();
+	    if ( act && !dis ) {
+		if ( !mi->isChecked() )
+		    qDrawShadePanel( p, xpos, y, checkcol, h, g, FALSE, 1,
+				     &g.brush( QColorGroup::Button ) );
+	    }
+	    QRect cr( xpos, y, checkcol, h );
+	    QRect pmr( 0, 0, pixw, pixh );
+	    pmr.moveCenter( cr.center() );
+	    p->setPen( itemg.text() );
+	    p->drawPixmap( pmr.topLeft(), pixmap );
+	} else  if ( checkable ) {  // just "checking"...
+	    int mw = checkcol + macItemFrame;
+	    int mh = h - 2*macItemFrame;
+	    if ( mi->isChecked() ) {
+		int xp = xpos;
+		if( reverse )
+		    xp -= macItemFrame;
+		else
+		    xp += macItemFrame;
+
+		SFlags cflags = Style_Default;
+		if (! dis)
+		    cflags |= Style_Enabled;
+		if (act)
+		    cflags |= Style_On;
+		drawPrimitive(PE_CheckMark, p, QRect(xp, y+macItemFrame, mw, mh), cg, cflags);
+	    }
+	}
+
+	p->setPen( act ? Qt::white/*g.highlightedText()*/ : g.buttonText() );
+
+	QColor discol;
+	if ( dis ) {
+	    discol = itemg.text();
+	    p->setPen( discol );
+	}
+
+	int xm = macItemFrame + checkcol + macItemHMargin;
+	if ( reverse )
+	    xpos = macItemFrame + tab;
+	else
+	    xpos += xm;
+
+	if ( mi->custom() ) {
+	    int m = macItemVMargin;
+	    p->save();
+	    if ( dis && !act ) {
+		p->setPen( g.light() );
+		mi->custom()->paint( p, itemg, act, !dis,
+				     xpos+1, y+m+1, w-xm-tab+1, h-2*m );
+		p->setPen( discol );
+	    }
+	    mi->custom()->paint( p, itemg, act, !dis,
+				 x+xm, y+m, w-xm-tab+1, h-2*m );
+	    p->restore();
+	}
+	QString s = mi->text();
+	if ( !s.isNull() ) {                        // draw text
+	    int t = s.find( '\t' );
+	    int m = macItemVMargin;
+	    const int text_flags = AlignVCenter|NoAccel | DontClip | SingleLine;
+	    if ( t >= 0 ) {                         // draw tab text
+		int xp;
+		if( reverse )
+		    xp = x + macRightBorder+macItemHMargin+macItemFrame - 1;
+		else
+		    xp = x + w - tab - macRightBorder-macItemHMargin-macItemFrame+1;
+		if ( dis && !act ) {
+		    p->setPen( g.light() );
+		    p->drawText( xp, y+m+1, tab, h-2*m, text_flags, s.mid( t+1 ));
+		    p->setPen( discol );
+		}
+		p->drawText( xp, y+m, tab, h-2*m, text_flags, s.mid( t+1 ) );
+		s = s.left( t );
+	    }
+	    if ( dis && !act ) {
+		p->setPen( g.light() );
+		p->drawText( xpos+1, y+m+1, w-xm-tab+1, h-2*m, text_flags, s, t );
+		p->setPen( discol );
+	    }
+	    p->drawText( xpos, y+m, w-xm-tab+1, h-2*m, text_flags, s, t );
+	} else if ( mi->pixmap() ) {                        // draw pixmap
+	    QPixmap *pixmap = mi->pixmap();
+	    if ( pixmap->depth() == 1 )
+		p->setBackgroundMode( OpaqueMode );
+	    p->drawPixmap( xpos, y+macItemFrame, *pixmap );
+	    if ( pixmap->depth() == 1 )
+		p->setBackgroundMode( TransparentMode );
+	}
 	break; }
-    case CE_PushButton: {
-	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
-	((QMacPainter *)p)->noop();
-	DrawThemeButton(qt_glb_mac_rect(r, p->device(), QRect(3, 3, 6, 6)), kThemePushButton,
-			&info, NULL, NULL, NULL, 0);
-	break; }
-    default:
-	QWindowsStyle::drawControl(element, p, widget, r, cg, how, opt);
-    }
+ case CE_MenuBarItem: {
+     if(!widget)
+	 break;
+     const QMenuBar *mbar = (const QMenuBar *)widget;
+     Rect mrect = *qt_glb_mac_rect(mbar->rect(), p->device()),
+	  irect = *qt_glb_mac_rect(r, p->device());
+     ThemeMenuState tms = kThemeMenuActive;
+     if(!(how & Style_Active))
+	 tms |= kThemeMenuDisabled;
+     if(how & Style_Down)
+	 tms |= kThemeMenuSelected;
+     ((QMacPainter *)p)->noop();
+     DrawThemeMenuTitle(&mrect, &irect, tms, 0, NULL, 0);
+     QCommonStyle::drawControl(element, p, widget, r, cg, how, opt);
+     break; }
+ case CE_ProgressBarContents: {
+     if(!widget)
+	 break;
+     QProgressBar *pbar = (QProgressBar *) widget;
+     ThemeTrackDrawInfo ttdi;
+     memset(&ttdi, '\0', sizeof(ttdi));
+     ttdi.kind = kThemeLargeProgressBar;
+     ttdi.bounds = *qt_glb_mac_rect(r, p->device());
+     ttdi.max = pbar->totalSteps();
+     ttdi.value = pbar->progress();
+     ttdi.attributes |= kThemeTrackHorizontal;
+     if(widget->isEnabled())
+	 ttdi.enableState |= kThemeTrackActive;
+     if(!pbar->isEnabled())
+	 ttdi.enableState |= kThemeTrackDisabled;
+     ((QMacPainter *)p)->noop();
+     DrawThemeTrack(&ttdi, NULL, NULL, 0);
+     break; }
+ case CE_TabBarTab: {
+     if(!widget)
+	 break;
+     if(how & Style_Sunken)
+	 tds |= kThemeStatePressed;
+     QTabBar * tb = (QTabBar *) widget;
+     ThemeTabStyle tts = kThemeTabNonFront;
+     if(how & Style_Selected) {
+	 if(!(how & Style_Enabled))
+	     tts = kThemeTabFrontInactive;
+	 else
+	     tts = kThemeTabFront;
+     } else if(!(how & Style_Enabled)) {
+	 tts = kThemeTabNonFrontPressed;
+     } else if((how & Style_Sunken) && (how & Style_MouseOver)) {
+	 tts = kThemeTabNonFrontPressed;
+     }
+     ThemeTabDirection ttd = kThemeTabNorth;
+     if( tb->shape() == QTabBar::RoundedBelow )
+	 ttd = kThemeTabSouth;
+     ((QMacPainter *)p)->noop();
+     DrawThemeTab(qt_glb_mac_rect(r, p->device()), tts, ttd, NULL, 0);
+     break; }
+ case CE_PushButton: {
+     ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
+     ((QMacPainter *)p)->noop();
+     DrawThemeButton(qt_glb_mac_rect(r, p->device(), QRect(3, 3, 6, 6)), kThemePushButton,
+		     &info, NULL, NULL, NULL, 0);
+     break; }
+ default:
+     QWindowsStyle::drawControl(element, p, widget, r, cg, how, opt);
+}
 }
 
 void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
@@ -820,6 +1006,53 @@ QSize QMacStyle::sizeFromContents( ContentsType contents,
 {
     QSize sz(contentsSize);
     switch(contents) {
+    case CT_PopupMenuItem: {
+	if(!widget || opt.isDefault())
+	    break;
+	const QPopupMenu *popup = (const QPopupMenu *) widget;
+	bool checkable = popup->isCheckable();
+	QMenuItem *mi = opt.menuItem();
+	int maxpmw = opt.maxIconWidth();
+	int w = sz.width(), h = sz.height();
+
+	if (mi->custom()) {
+	    w = mi->custom()->sizeHint().width();
+	    h = mi->custom()->sizeHint().height();
+	    if (! mi->custom()->fullSpan())
+		h += 8;
+	} else if ( mi->widget() ) {
+	} else if (mi->isSeparator()) {
+	    w = 10;
+	    SInt16 ash;
+	    GetThemeMenuSeparatorHeight(&ash);
+	    h = ash;
+	} else {
+	    if (mi->pixmap())
+		h = QMAX(h, mi->pixmap()->height() + 4);
+	    else
+		h = QMAX(h, popup->fontMetrics().height() + 8);
+
+	    if (mi->iconSet() != 0)
+		h = QMAX(h, mi->iconSet()->pixmap(QIconSet::Small,
+						  QIconSet::Normal).height() + 4);
+	}
+
+	if (! mi->text().isNull()) {
+	    if (mi->text().find('\t') >= 0)
+		w += 12;
+	}
+
+	if (maxpmw)
+	    w += maxpmw + 6;
+	if (checkable && maxpmw < 20)
+	    w += 20 - maxpmw;
+	if (checkable || maxpmw > 0)
+	    w += 2;
+	w += 12;
+	if(widget->parentWidget() && widget->parentWidget()->inherits("QComboBox")) 
+	    w = QMAX(w, widget->parentWidget()->width() - 20);
+	sz = QSize(w, h);
+	break; }
     case CT_PushButton:
 	sz = QWindowsStyle::sizeFromContents(contents, widget, contentsSize, opt);
 	sz = QSize(sz.width() + 16, sz.height()); //###
