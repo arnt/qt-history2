@@ -841,6 +841,9 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
  */
 void QLineEdit::imStartEvent( QIMEvent *e )
 {
+    if ( hasSelectedText() )
+	removeSelectedText();
+
     d->preeditStart = cursorPosition();
     d->preeditLength = 0;
     setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0,

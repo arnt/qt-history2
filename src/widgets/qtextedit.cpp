@@ -865,16 +865,6 @@ void QTextEdit::init()
     horizontalScrollBar()->installEventFilter( this );
     verticalScrollBar()->installEventFilter( this );
     installEventFilter( this );
-
-    const QColorGroup &cg = colorGroup();
-    int h1, s1, v1;
-    int h2, s2, v2;
-    cg.color( QColorGroup::Base ).hsv( &h1, &s1, &v1 );
-    cg.color( QColorGroup::Background ).hsv( &h2, &s2, &v2 );
-    doc->setSelectionColor( QTextDocument::IMCompositionText,
-			    QColor( h1, s1, ( v1 + v2 ) / 2, QColor::Hsv ) );
-    doc->setInvertSelectionText( QTextDocument::IMSelectionText, TRUE );
-    doc->setInvertSelectionText( QTextDocument::IMCompositionText, FALSE );
 }
 
 void QTextEdit::paintDocument( bool drawAll, QPainter *p, int cx, int cy, int cw, int ch )
@@ -1337,6 +1327,8 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 /*! \reimp */
 void QTextEdit::imStartEvent( QIMEvent *e )
 {
+    if ( hasSelectedText() )
+	removeSelectedText();
     d->preeditStart = cursor->index();
     e->accept();
 }
