@@ -1241,7 +1241,7 @@ void qt_bit_blt(QPaintDevice *dst, int dx, int dy,
     }
 
 #ifndef QT_NO_XRENDER
-    if (src_pm && !mono_src) {
+    if (X11->use_xrender && X11->has_xft && src_pm && !mono_src) {
         // use RENDER to do the blit
 	Qt::HANDLE src_pict, dst_pict;
 	if (src->devType() == QInternal::Widget)
@@ -1395,15 +1395,15 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
     QBitmap *mask = 0;
     if(mode != Qt::CopyPixmapNoMask && !pixmap.hasAlphaChannel())
         mask = const_cast<QBitmap *>(pixmap.mask());
-    bool mono = pixmap.depth() == 1;
+    bool mono_src = pixmap.depth() == 1;
 
-    if (mono && mode == Qt::CopyPixmap) {
+    if (mono_src && mode == Qt::CopyPixmap) {
 	qt_bit_blt(d->pdev, x, y, &pixmap, sx, sy, sw, sh, true);
         return;
     }
 
     if (mask && !hasClipping() && systemClip().isEmpty()) {
-        if (mono) {                           // needs GCs pen // color
+        if (mono_src) {                           // needs GCs pen // color
             bool selfmask = pixmap.data->selfmask;
             if (selfmask) {
                 XSetFillStyle(d->dpy, d->gc, FillStippled);
@@ -1473,7 +1473,7 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
         XSetClipOrigin(d->dpy, d->gc, x, y);
     }
 
-    if (mono) {
+    if (mono_src) {
         XSetClipMask(d->dpy, d->gc, pixmap.handle());
         XSetClipOrigin(d->dpy, d->gc, x-sx, y-sy);
         if (d->pdev->devType() == QInternal::Pixmap && d->pdev->depth() == 32
