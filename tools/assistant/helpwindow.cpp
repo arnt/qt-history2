@@ -102,6 +102,7 @@ void HelpWindow::setSource( const QString &name )
 	}
 	QProcess *proc = new QProcess(this);
 	proc->setCommunication(0);
+        QObject::connect(proc, SIGNAL(processExited()), proc, SLOT(deleteLater()));
 	proc->addArgument( webbrowser );
 	proc->addArgument( name );
 	proc->start();
@@ -133,6 +134,7 @@ void HelpWindow::setSource( const QString &name )
 	}
 	QProcess *proc = new QProcess(this);
 	proc->setCommunication(0);
+        QObject::connect(proc, SIGNAL(processExited()), proc, SLOT(deleteLater()));
 	proc->addArgument( pdfbrowser );
 	proc->addArgument( name );
 	proc->start();
