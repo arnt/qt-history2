@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#29 $
 **
 ** Implementation of QSlider class
 **
@@ -15,7 +15,7 @@
 #include "qtimer.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#28 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#29 $");
 
 
 static const int motifBorder = 2;
@@ -684,8 +684,8 @@ void QSlider::mouseMoveEvent( QMouseEvent *e )
 
 void QSlider::mouseReleaseEvent( QMouseEvent *e )
 {
-    if ( !(e->state() & LeftButton) )
-	return;					// left mouse button is up
+    if ( !(e->button() & LeftButton) )
+	return;
     resetState();
 }
 
