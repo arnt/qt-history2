@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatastream.cpp#5 $
+** $Id: //depot/qt/main/src/tools/qdatastream.cpp#6 $
 **
 ** Implementation of QDataStream class
 **
@@ -22,7 +22,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatastream.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatastream.cpp#6 $";
 #endif
 
 
@@ -268,8 +268,8 @@ QDataStream &QDataStream::readRawBytes( char *s, uint len )
 QDataStream &QDataStream::operator<<( INT8 i )	// write 8-bit signed int
 {
     CHECK_STREAM_PRECOND
-    if ( printable && !isprint(i) ) {		// printable data
-	char buf[8];				// write octal code
+    if ( printable && (i == '\\' || !isprint(i)) ) {
+	char buf[6];				// write octal code
 	buf[0] = '\\';
 	buf[1] = '0' + ((i >> 6) & 0x07);
 	buf[2] = '0' + ((i >> 3) & 0x07);
