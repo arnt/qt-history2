@@ -28,6 +28,7 @@ public:
 
 protected:
     virtual void drawButton( QPainter * );
+    virtual void drawButtonLabel( QPainter * );
     void	paintEvent( QPaintEvent * );
 
 };

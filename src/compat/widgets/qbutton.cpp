@@ -16,11 +16,24 @@
 #include "qpainter.h"
 
 /*!
+    \class QButton qbutton.h
+    \brief The QButton class is a compatibility base class of button
+    widgets
+
+    \ingroup abstractwidgets
+
+    <b>In new code, use QAbstractButton.</b>
+
+    To subclass QButton, you must reimplement at least drawButton()
+    (to draw the button's outline) and drawButtonLabel() (to draw its
+    text or pixmap). It is generally advisable to reimplement
+    sizeHint() as well, and sometimes hitButton() (to determine
+    whether a button press is within the button).
+*/
+
+/*!
     Constructs a standard button called \a name with parent \a parent,
     using the widget flags \a f.
-
-    If \a parent is a QButtonGroup, this constructor calls
-    QButtonGroup::insert().
 */
 
 QButton::QButton( QWidget *parent, const char *name, Qt::WFlags f )
@@ -62,5 +75,17 @@ void QButton::paintEvent( QPaintEvent *)
 */
 void QButton::drawButton( QPainter * )
 {
-    return;
+}
+
+/*!
+    Draws the button text or pixmap.
+
+    This virtual function is reimplemented by subclasses to draw real
+    buttons. It is invoked by drawButton().
+
+    \sa drawButton(), paintEvent()
+*/
+
+void QButton::drawButtonLabel( QPainter * )
+{
 }
