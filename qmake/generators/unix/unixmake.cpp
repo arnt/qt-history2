@@ -154,10 +154,13 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     if(!project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
 	t << "all: " << ofile <<  " " << varGlue("ALL_DEPS",""," "," ") <<  "$(TARGET)" << endl << endl;
 	t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t"
+	  << "[ -d " << var("DESTDIR") << " ] || mkdir -p " << var("DESTDIR") << "\n\t"
 	  << "$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)" << endl << endl;
     } else if(!project->isActiveConfig("staticlib")) {
 	t << "all: " << ofile << " " << varGlue("ALL_DEPS",""," ","") << " " <<  var("DESTDIR_TARGET") << endl << endl;
-	t << var("DESTDIR_TARGET") << ": $(OBJECTS) $(OBJMOC) $(SUBLIBS) " << var("TARGETDEPS");
+	t << var("DESTDIR_TARGET") << ": $(OBJECTS) $(OBJMOC) $(SUBLIBS) " << var("TARGETDEPS") << "\n\t"
+	  << "[ -d " << var("DESTDIR") << " ] || mkdir -p " << var("DESTDIR");
+
 	if(project->isActiveConfig("plugin")) {
 	    t << "\n\t"
 	      << "-rm -f $(TARGETD)" << "\n\t"
@@ -194,6 +197,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << "all: " << ofile << " " << varGlue("ALL_DEPS",""," "," ") << "$(TARGET)" << endl << endl;
 	t << "staticlib: $(TARGET)" << endl << endl;
 	t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t"
+	  << "[ -d " << var("DESTDIR") << " ] || mkdir -p " << var("DESTDIR") << "\n\t"
 	  << "-rm -f $(TARGET)" << "\n\t"
 	  << var("QMAKE_AR_CMD") << "\n\t"
 	  << varGlue("QMAKE_RANLIB","",""," $(TARGET)") << endl << endl;
@@ -435,6 +439,9 @@ UnixMakefileGenerator::init()
     if ( project->variables()["QMAKE_RUN_CXX_IMP"].isEmpty() ) {
 	project->variables()["QMAKE_RUN_CXX_IMP"].append("$(CXX) -c $(CXXFLAGS) $(INCPATH) -o $@ $<");
     }
+    if ( project->isActiveConfig("resource_fork") ) {
+	project->variables()["DESTDIR"].append(project->variables()["TARGET"].first() + ".app/Contents/MacOS/");
+    }
     project->variables()["QMAKE_FILETAGS"] += QStringList::split("HEADERS SOURCES TARGET DESTDIR", " ");
     if ( !project->variables()["PRECOMPH"].isEmpty() ) {
 	project->variables()["SOURCES"].append(project->variables()["MOC_DIR"].first() + "allmoc.cpp");
@@ -589,7 +596,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	}
 	if(Option::mode == Option::WIN_MODE) {
 	} else if(Option::mode == Option::UNIX_MODE) {
-	    return QString("$(COPY) -a ") + targs + project->variables()["target.path"].first();
+	    return QString("$(COPY) ") + targs + project->variables()["target.path"].first();
 	}
     }
     return "";
