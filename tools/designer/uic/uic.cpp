@@ -373,9 +373,9 @@ void Uic::createActionImpl( const QDomElement &n, const QString &parent )
 
 		QString call = objName + "->";
 		if ( stdset ) {
-		    call = mkStdSet( prop ) + "( " + value + ");";;
+		    call += mkStdSet( prop ) + "( " + value + ");";;
 		} else {
-		    call = "setProperty( \"" + prop + "\", QVariant(" + value + "));";
+		    call += "setProperty( \"" + prop + "\", QVariant(" + value + "));";
 		}
 
 		if ( n2.firstChild().toElement().tagName() == "string" ) {
