@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#120 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#121 $
 **
 ** Implementation of QObject class
 **
@@ -14,7 +14,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#120 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#121 $");
 
 
 /*!
@@ -847,7 +847,7 @@ void QObject::insertChild( QObject *obj )
 {
     if ( obj->parentObj ) {
 #if defined(CHECK_STATE)
-	if ( obj->isWidgetType() )
+	if ( obj->parentObj != this && obj->isWidgetType() )
 	    warning( "QObject::insertChild: Cannot reparent a widget, "
 		     "use QWidget::recreate() instead" );
 #endif

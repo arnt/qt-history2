@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#53 $
 **
 ** Implementation of QColor class for X11
 **
@@ -18,7 +18,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#52 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#53 $");
 
 
 /*****************************************************************************
@@ -175,13 +175,15 @@ void QColor::initialize()
 	ncols = DisplayCells(dpy,scr);
     }
     g_truecolor = g_vis->c_class == tc;
-    bool defVis = g_vis == DefaultVisual(dpy,scr);
+    bool defVis = (XVisualIDFromVisual(g_vis) == 
+		   XVisualIDFromVisual(DefaultVisual(dpy,scr)));
     bool defCmap;
 
     if ( g_truecolor )
-	defCmap = !defVis;
+	defCmap = defVis;
     else
-	defCmap = (spec & QApplication::PrivateColor) == 0;
+	defCmap = (spec & QApplication::PrivateColor)
+	    != QApplication::PrivateColor;
 
     if ( defCmap )
 	cmap = DefaultColormap(dpy,scr);
@@ -217,7 +219,7 @@ void QColor::initialize()
 
     ((QColor*)(&black))->rgbVal = qRgb( 0, 0, 0 );
     ((QColor*)(&white))->rgbVal = qRgb( 255, 255, 255 );
-    if ( defVis ) {
+    if ( defVis && defCmap ) {
 	((QColor*)(&black))->pix = BlackPixel( dpy, scr );
 	((QColor*)(&white))->pix = WhitePixel( dpy, scr );
     } else {
@@ -257,6 +259,8 @@ void QColor::cleanup()
     if ( !color_init )
 	return;
     color_init = FALSE;
+    if ( !QPaintDevice::x_defcmap )
+	XFreeColormap( QPaintDevice::x__Display(), QPaintDevice::x_colormap );
     if ( colorDict ) {
 	colorDict->setAutoDelete( TRUE );
 	colorDict->clear();
