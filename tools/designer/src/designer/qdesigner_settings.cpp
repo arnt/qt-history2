@@ -13,6 +13,8 @@
 
 #include "qdesigner_settings.h"
 
+#include <QVariant>
+
 QDesignerSettings::QDesignerSettings(QObject *parent)
     : QObject(parent)
 {
@@ -22,3 +24,8 @@ QDesignerSettings::~QDesignerSettings()
 {
 }
 
+QStringList QDesignerSettings::formTemplatePaths() const
+{
+    QStringList formTemplatePaths;
+    return m_settings.value("FormTemplatePaths", formTemplatePaths).toStringList();
+}

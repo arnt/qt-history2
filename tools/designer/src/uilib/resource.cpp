@@ -47,13 +47,13 @@ public:
 
 Resource::Resource()
 {
-    m_idToSizeType.insert("Fixed", QSizePolicy::Fixed);
-    m_idToSizeType.insert("Minimum", QSizePolicy::Minimum);
-    m_idToSizeType.insert("Maximum", QSizePolicy::Maximum);
-    m_idToSizeType.insert("Preferred", QSizePolicy::Preferred);
-    m_idToSizeType.insert("MinimumExpanding", QSizePolicy::MinimumExpanding);
-    m_idToSizeType.insert("Expanding", QSizePolicy::Expanding);
-    m_idToSizeType.insert("Ignored", QSizePolicy::Ignored);
+    m_idToSizeType.insert("QSizePolicy::Fixed", QSizePolicy::Fixed);
+    m_idToSizeType.insert("QSizePolicy::Minimum", QSizePolicy::Minimum);
+    m_idToSizeType.insert("QSizePolicy::Maximum", QSizePolicy::Maximum);
+    m_idToSizeType.insert("QSizePolicy::Preferred", QSizePolicy::Preferred);
+    m_idToSizeType.insert("QSizePolicy::MinimumExpanding", QSizePolicy::MinimumExpanding);
+    m_idToSizeType.insert("QSizePolicy::Expanding", QSizePolicy::Expanding);
+    m_idToSizeType.insert("QSizePolicy::Ignored", QSizePolicy::Ignored);
 
     m_defaultMargin = INT_MIN;
     m_defaultSpacing = INT_MIN;
@@ -350,9 +350,9 @@ QLayoutItem *Resource::create(DomLayoutItem *ui_layoutItem, QLayout *layout, QWi
             if (v.isNull())
                 continue;
 
-            if (p->attributeName() == QLatin1String("sizeHint") && p->kind() == DomProperty::Size)
+            if (p->attributeName() == QLatin1String("sizeHint") && p->kind() == DomProperty::Size) {
                 size = v.toSize();  // ###  remove me
-            else if (p->attributeName() == QLatin1String("sizeType") && p->kind() == DomProperty::Enum) {
+            } else if (p->attributeName() == QLatin1String("sizeType") && p->kind() == DomProperty::Enum) {
                 sizeType = m_idToSizeType.value(p->elementEnum(), QSizePolicy::Expanding);
             } else if (p->attributeName() == QLatin1String("orientation") && p->kind() == DomProperty::Enum)
                 isVspacer = isVertical(p->elementEnum());

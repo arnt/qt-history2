@@ -206,30 +206,17 @@ QLayoutItem *QDesignerResource::create(DomLayoutItem *ui_layoutItem, QLayout *la
     if (ui_layoutItem->kind() == DomLayoutItem::Spacer) {
         QHash<QString, DomProperty*> properties = propertyMap(ui_layoutItem->elementSpacer()->elementProperty());
 
-        Qt::Orientation o = Qt::Horizontal;
-        if (properties.contains("orientation") && isVertical(properties.value("orientation")->elementEnum()))
-            o = Qt::Vertical;
-
         Spacer *spacer = (Spacer*) m_core->widgetFactory()->createWidget("Spacer", parentWidget);
-        spacer->setOrientation(o);
+
         spacer->setInteraciveMode(false);
-        if (properties.contains("sizeHint"))
-            spacer->setSizeHint(toVariant(spacer->metaObject(), properties.value("sizeHint")).toSize());
-#if 0
-        while (!n.isNull()) {
-            if (n.tagName() == QLatin1String("property"))
-                setObjectProperty( spacer, n.attribute( "name" ), n.firstChild().toElement() );
-            n = n.nextSibling().toElement();
-        }
-#endif
+        applyProperties(spacer, ui_layoutItem->elementSpacer()->elementProperty());
         spacer->setInteraciveMode(true);
+
         if (m_formWindow) {
             m_formWindow->manageWidget(spacer);
             if (IPropertySheet *sheet = qt_extension<IPropertySheet*>(m_core->extensionManager(), spacer))
                 sheet->setChanged(sheet->indexOf("orientation"), true);
         }
-
-        // ### spacer->alignment()
 
         return new QWidgetItem(spacer);
     } else if (ui_layoutItem->kind() == DomLayoutItem::Layout && parentWidget) {
@@ -431,6 +418,17 @@ DomLayoutItem *QDesignerResource::createDom(QLayoutItem *item, DomLayout *ui_lay
 
         DomSpacer *spacer = new DomSpacer();
         QList<DomProperty*> properties = computeProperties(item->widget());
+
+        // fix the enum properties.
+        QString wrongPrefix = QLatin1String("Spacer::");
+
+        foreach (DomProperty *p, properties) {
+            if (p->kind() == DomProperty::Enum) {
+                QString e = p->elementEnum();
+                if (e.startsWith(wrongPrefix))
+                    p->setElementEnum(e.mid(wrongPrefix.length()));
+            }
+        }
 
         spacer->setElementProperty(properties); // ### filter the properties
 

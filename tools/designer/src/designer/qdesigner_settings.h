@@ -23,6 +23,8 @@ public:
     QDesignerSettings(QObject *parent = 0);
     virtual ~QDesignerSettings();
 
+    QStringList formTemplatePaths() const;
+
 // ### protected:
     inline QSettings *settings();
 
