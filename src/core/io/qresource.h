@@ -52,7 +52,7 @@ private:
     Q_DECLARE_PRIVATE(QMetaResource)
 
 public:
-    QMetaResource(uchar *resource);
+    QMetaResource(const uchar *resource);
     ~QMetaResource();
 };
 

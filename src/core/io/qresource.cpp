@@ -38,7 +38,7 @@ private:
     uint compressed : 1;
     uint container : 1;
     uint size;
-    uchar *data;
+    const uchar *data;
     QResource *parent;
     QString name;
     QList<QResource*> children;
@@ -155,7 +155,7 @@ protected:
     ~QMetaResourcePrivate() { q_ptr = 0; }
 };
 
-QMetaResource::QMetaResource(uchar *resource) : d_ptr(new QMetaResourcePrivate(this))
+QMetaResource::QMetaResource(const uchar *resource) : d_ptr(new QMetaResourcePrivate(this))
 {
     if(!qt_resource_root) {
         qt_resource_root = new QResource;
@@ -188,7 +188,7 @@ QMetaResource::QMetaResource(uchar *resource) : d_ptr(new QMetaResourcePrivate(t
         int len = 0;
         for(off += 1; bytes_in_len > 0; off++) 
             len += (resource[off] << ((--bytes_in_len) * 8));
-        uchar *bytes = len ? resource+off : 0;
+        const uchar *bytes = len ? resource+off : 0;
 
 #ifdef QRESOURCE_DEBUG
         qDebug("created %s %d %p", name.latin1(), len, bytes);
