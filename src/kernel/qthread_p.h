@@ -131,8 +131,8 @@
 #  undef Q_HAS_CONDATTR
 #  undef Q_HAS_RECURSIVE_MUTEX
 #  undef  Q_USE_PTHREAD_MUTEX_SETKIND
-#  undef Q_NORMAL_MUTEX_TYPE PTHREAD_MUTEX_ERRORCHECK
-#  define Q_RECURSIVE_MUTEX_TYPE PTHREAD_MUTEX_RECURSIVE
+#  undef Q_NORMAL_MUTEX_TYPE 
+#  undef Q_RECURSIVE_MUTEX_TYPE
 #else
 // Fall through for systems we don't know about
 #  define Q_HAS_CONDATTR
