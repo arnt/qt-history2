@@ -29,7 +29,6 @@
 class QEvent;
 class QTimerEvent;
 class QChildEvent;
-class QCustomEvent;
 struct QMetaObject;
 class QCoreVariant;
 class QObjectPrivate;
