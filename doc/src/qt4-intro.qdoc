@@ -78,14 +78,7 @@
 
     \section1 How to Provide Feedback
 
-    Trolltech has set up a special mailing list, \c qt4-preview-feedback,
-    for discussion of Qt 4 issues. To subscribe,
-    send a message containing just the word \e subscribe to
-    \l{mailto:qt4-preview-feedback-request@trolltech.com}{qt4-preview-feedback-request@trolltech.com}.
-    We encourage you to use this mailing list instead of \c qt-interest for
-    beta-specific issues. See \l http://lists.trolltech.com/ for more
-    information on Trolltech's mailing lists, including archived
-    discussions.
+    \input betafeedback.qdocinc
 
     \section1 Roadmap
 
