@@ -377,7 +377,7 @@ QListBoxText::~QListBoxText()
 void QListBoxText::paint( QPainter *painter )
 {
     QFontMetrics fm = painter->fontMetrics();
-    painter->drawText( 3, fm.ascent() + fm.leading()/2, text() );
+    painter->drawText( 0, fm.ascent() + fm.leading()/2, text() );
 }
 
 /*!
