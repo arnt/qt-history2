@@ -4049,7 +4049,7 @@ void QTextParag::drawParagString( QPainter &painter, const QString &s, int start
 	    painter.drawLine( startX, lastY + baseLine/2, startX + 10, lastY + baseLine/2 );
 	    int w = 0;
 	    int i = 0;
-	    while( i < len ) 
+	    while( i < len )
 		w += painter.fontMetrics().charWidth( str, start + i++ );
 	    painter.setPen ( Qt::blue );
 	    painter.drawLine( startX + w - 1, lastY, startX + w - 1, lastY + baseLine );
@@ -4096,9 +4096,10 @@ void QTextParag::drawLabel( QPainter* p, int x, int y, int w, int h, int base, c
     QStyleSheetItem::ListStyle s = listStyle();
 
     QFont font = p->font();
-    p->setFont( defFormat->font() );
+    p->setFont( length() > 0 && at( 0 )->format() ? at( 0 )->format()->font() : defFormat->font() );
     QFontMetrics fm( p->fontMetrics() );
-    int size = fm.lineSpacing() / 3;
+    QFontMetrics dfm( defFormat->font() );
+    int size = dfm.lineSpacing() / 3;
 
     switch ( s ) {
     case QStyleSheetItem::ListDecimal:
@@ -5145,11 +5146,11 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	x += ww;
     }
 
-    // ### hack. The last char in the paragraph is always invisible, and somehow sometimes has a wrong format. It changes between 
+    // ### hack. The last char in the paragraph is always invisible, and somehow sometimes has a wrong format. It changes between
     // layouting and printing. This corrects some layouting errors in BiDi mode due to this.
     if ( len > 1 )
 	c->setFormat( string->at( len - 2 ).format() );
-    
+
     if ( lineStart ) {
 	lineStart->baseLine = QMAX( lineStart->baseLine, tmpBaseLine );
 	h = QMAX( h, tmph );
