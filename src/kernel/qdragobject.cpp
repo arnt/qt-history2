@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#3 $
 **
 ** C++ file skeleton
 **
@@ -14,7 +14,7 @@
 #include "qkeycode.h"
 #include "qwidget.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdragobject.cpp#2 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdragobject.cpp#3 $");
 
 
 // both a struct for storing stuff in and a wrapper to avoid polluting
@@ -278,7 +278,7 @@ void QDragObject::setEncodedData( QByteArray & encodedData )
     d->enc = encodedData;
     d->enc.detach();
     if ( !manager )
-	new QDragData::Manager();
+	(void)new QDragData::Manager();
 }
 
 
