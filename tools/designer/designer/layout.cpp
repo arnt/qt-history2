@@ -954,9 +954,9 @@ QSize Spacer::sizeHint() const
     QSize s = sh.expandedTo( QSize(0,0) );
     if ( sizeType() == Expanding )
 	if ( orient == Horizontal )
-	    s.rwidth() = 0;
-	else
 	    s.rheight() = 0;
+	else
+	    s.rwidth() = 0;
     return s;
 }
 
