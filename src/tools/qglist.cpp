@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#40 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#41 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -13,7 +13,7 @@
 #include "qgvector.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#40 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#41 $");
 
 
 /*!
@@ -241,15 +241,13 @@ QLNode *QGList::locate( uint index )
     if ( distance < 0 )
 	distance = -distance;
     if ( (uint)distance < index && (uint)distance < numNodes - index ) {
-	node =	curNode;
-	forward = index > (uint)curIndex;	// start from current node
-    }
-    else if ( index < numNodes - index ) {	// start from first node
+	node =	curNode;			// start from current node
+	forward = index > (uint)curIndex;
+    } else if ( index < numNodes - index ) {	// start from first node
 	node = firstNode;
 	distance = index;
 	forward = TRUE;
-    }
-    else {					// start from last node
+    } else {					// start from last node
 	node = lastNode;
 	distance = numNodes - index - 1;
 	if ( distance < 0 )
@@ -259,8 +257,7 @@ QLNode *QGList::locate( uint index )
     if ( forward ) {				// now run through nodes
 	while ( distance-- )
 	    node = node->next;
-    }
-    else {
+    } else {
 	while ( distance-- )
 	    node = node->prev;
     }
@@ -336,8 +333,7 @@ bool QGList::insertAt( uint index, GCI d )
     if ( index == 0 ) {				// insert at head of list
 	prepend( d );
 	return TRUE;
-    }
-    else if ( index == numNodes ) {		// append at tail of list
+    } else if ( index == numNodes ) {		// append at tail of list
 	append( d );
 	return TRUE;
     }
@@ -390,26 +386,24 @@ QLNode *QGList::unlink()
 	return 0;
     register QLNode *n = curNode;		// unlink this node
     if ( n == firstNode ) {			// removing first node ?
-	if ( (firstNode = n->next) )
+	if ( (firstNode = n->next) ) {
 	    firstNode->prev = 0;
-	else {
+	} else {
 	    lastNode = curNode = 0;		// list becomes empty
 	    curIndex = -1;
 	}
-    }
-    else {
+    } else {
 	if ( n == lastNode ) {			// removing last node ?
 	    lastNode = n->prev;
 	    lastNode->next = 0;
-	}
-	else {					// neither last nor first node
+	} else {				// neither last nor first node
 	    n->prev->next = n->next;
 	    n->next->prev = n->prev;
 	}
     }
-    if ( n->next )				// change current node
+    if ( n->next ) {				// change current node
 	curNode = n->next;
-    else if ( n->prev ) {
+    } else if ( n->prev ) {
 	curNode = n->prev;
 	curIndex--;
     }
@@ -637,8 +631,7 @@ int QGList::findRef( GCI d, bool fromStart )
     if ( fromStart ) {				// start from first node
 	n = firstNode;
 	index = 0;
-    }
-    else {					// start from current node
+    } else {					// start from current node
 	n = curNode;
 	index = curIndex;
     }
@@ -663,8 +656,7 @@ int QGList::find( GCI d, bool fromStart )
     if ( fromStart ) {				// start from first node
 	n = firstNode;
 	index = 0;
-    }
-    else {					// start from current node
+    } else {					// start from current node
 	n = curNode;
 	index = curIndex;
     }
