@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlibrary.cpp#10 $
+** $Id: //depot/qt/main/src/tools/qlibrary.cpp#11 $
 **
 ** Implementation of QLibrary class
 **
@@ -439,6 +439,7 @@ void* QLibraryPrivate::resolveSymbol( const char* f )
   \class QLibrary qlibrary.h
 
   \brief The QLibrary class provides a wrapper for handling shared libraries.
+  \preliminary
   \ingroup componentmodel
 */
 

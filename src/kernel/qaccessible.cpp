@@ -8,6 +8,7 @@
 /*!
   \class QAccessibleInterface qaccessible.h
   \brief The QAccessibleInterface class is an interface that exposes information about accessible objects.
+  \preliminary
 */
 
 /*!
@@ -236,6 +237,7 @@ QAccessibleInterface *QAccessible::accessibleInterface( QObject *object )
 /*!
   \class QAccessibleObject qaccessible.h
   \brief The QAccessibleObject class implements the QUnknownInterface.
+  \preliminary
 
   This class is mainly provided for convenience. All further implementations 
   of the QAccessibleInterface should use this class as the base class.

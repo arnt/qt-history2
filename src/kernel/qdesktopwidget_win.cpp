@@ -107,7 +107,7 @@ QDesktopWidgetPrivate::~QDesktopWidgetPrivate()
 /*!
   \class QDesktopWidget qdesktopwidget.h
   \brief The QDesktopWidget class provides access to screen information on multi-head systems.
-
+  \preliminary
   \ingroup environment
 
   Systems with more than one graphics card and monitor can manage the

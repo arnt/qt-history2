@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#112 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#113 $
 **
 ** Implementation of QStyle class
 **
@@ -58,7 +58,7 @@ public:
 /*!
   \class QStyle qstyle.h
   \brief The QStyle class specifies the look and feel of a GUI.
-
+  \preliminary
   \ingroup appearance
 
   Although it is not possible to fully enumerate the look of graphic elements

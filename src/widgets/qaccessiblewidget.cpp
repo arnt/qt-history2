@@ -15,6 +15,7 @@
 #include "qprogressbar.h"
 #include "qgroupbox.h"
 #include "qtoolbutton.h"
+#include "qwhatsthis.h"
 
 static QString buddyString( QWidget *widget ) 
 {
@@ -76,6 +77,7 @@ static QString hotKey( const QString &text )
 /*!
   \class QAccessibleWidget qaccessiblewidget.h
   \brief The QAccessibleWidget class implements the QAccessibleInterface for QWidgets.
+  \preliminary
 */
 
 /*!
@@ -292,7 +294,12 @@ QString	QAccessibleWidget::help( int who ) const
     if ( who )
 	qWarning( "QAccessibleWidget::help: This implementation does not support subelements!" );
 #endif
-    return help_;
+    if ( help_.isNull() ) {
+	QString help = QWhatsThis::textFor( (QWidget*)object() );
+	return help;
+    } else {
+	return help_;
+    }
 }
 
 /*!
@@ -427,6 +434,7 @@ QAccessibleInterface *QAccessibleWidget::hasFocus( int *who ) const
 /*!
   \class QAccessibleButton qaccessible.h
   \brief The QAccessibleButton class implements the QAccessibleInterface for button type widgets.
+  \preliminary
 */
 
 /*!
@@ -540,6 +548,7 @@ QAccessible::State QAccessibleButton::state( int who ) const
 /*! 
   \class QAccessibleRangeControl qaccessiblewidget.h
   \brief The QAccessibleRangeControl class implements the QAccessibleInterface for range controls.
+  \preliminary
 */
 
 /*! 
@@ -601,6 +610,7 @@ QString QAccessibleRangeControl::value( int who ) const
 /*!
   \class QAccessibleText qaccessiblewidget.h
   \brief The QAccessibleText class implements the QAccessibleInterface for widgets with editable text.
+  \preliminary
 */
 
 /*! 
@@ -668,6 +678,7 @@ QAccessible::State QAccessibleText::state( int who ) const
 /*!
   \class QAccessibleDisplay qaccessiblewidget.h
   \brief The QAccessibleDisplay class implements the QAccessibleInterface for widgets that display static information.
+  \preliminary
 */
 
 /*! 

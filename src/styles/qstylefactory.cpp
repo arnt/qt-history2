@@ -96,6 +96,18 @@ QStyleFactoryPrivate::~QStyleFactoryPrivate()
 
 #endif //QT_NO_COMPONENT
 
+/*! 
+  \class QStyleFactory qstylefactory.h
+  \brief The QStyleFactory class creates QStyle objects.
+  \internal
+*/
+
+/*!
+  Creates a QStyle object that matches \a s. This is either a built-in style,
+  or a style from a style plugin.
+
+  \sa styles()
+*/
 QStyle *QStyleFactory::create( const QString& s )
 {
     QString style = s.lower();
@@ -161,6 +173,11 @@ QStyle *QStyleFactory::create( const QString& s )
 }
 
 #ifndef QT_NO_STRINGLIST
+/*!
+  Returns a list of all styles this factory can generate.
+
+  \sa create()
+*/
 QStringList QStyleFactory::styles()
 {
 #ifndef QT_NO_COMPONENT

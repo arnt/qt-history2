@@ -7,6 +7,7 @@
 /*!
   \class QUnknownInterface qcom.h
   \brief The QUnknownInterface class is the base class for all interfaces of the Qt Component Model.
+  \preliminary
   \ingroup componentmodel
 
   All ### interfaces are derived from the QUnknownInterface. This interface provides
@@ -14,7 +15,7 @@
   multiple interfaces.
   The object's lifetime is controlled using a reference count that is increased and
   decreased using the functions addRef and release, respectively.
-  The queryInterface functions determines whether the component supports a specific interface.
+  The queryInterface function determines whether the component supports a specific interface.
   For every interface a Unique Universal Identifier (UUID) is provided to identify requests
   for the interface. In Qt, this identifier is wrapped in the \link QUuid QUuid \endlink class
   that provides convenience operators for comparison and copying.
@@ -112,6 +113,7 @@
 /*!
   \class QComponentInterface qcom.h
   \brief The QComponentInterface class provides a means of obtaining basic information about components.
+  \preliminary
   \ingroup componentmodel
 
     The functions provided by QComponentInterface are name(),
@@ -147,6 +149,7 @@
 /*!
   \class QComponentFactoryInterface qcom.h
   \brief The QComponentFactoryInterface class is an interface for component creation.
+  \preliminary
   \ingroup componentmodel
 */
 
@@ -161,6 +164,7 @@
 /*!
   \class QLibraryInterface qcom.h
   \brief The QLibraryInterface class is an interface to control loading and unloading of components.
+  \preliminary
   \ingroup componentmodel
 */
 
@@ -188,6 +192,7 @@
 /*!
   \class QFeatureListInterface qcom.h
   \brief The QFeatureListInterface class is an interface to retrieve information about features provided by a component.
+  \preliminary
   \ingroup componentmodel
 */
 
@@ -201,6 +206,7 @@
 /*!
   \class QComponentServerInterface qcom.h
   \brief The QComponentServerInterface class provides a means of registering and unregistering components.
+  \preliminary
   \ingroup componentmodel
 
   This class provides two functions, registerComponents() and
