@@ -5,7 +5,7 @@
 #include "qtextlayout.h"
 
 
-inline void tag_to_string( char *string, FT_ULong tag )
+static inline void tag_to_string( char *string, FT_ULong tag )
 {
     string[0] = (tag >> 24)&0xff;
     string[1] = (tag >> 16)&0xff;
@@ -22,7 +22,7 @@ struct Features {
 };
 
 // ### keep in sync with Shape enum in scriptenginearabic.cpp
-Features arabicGSUBFeatures[] = {
+const Features arabicGSUBFeatures[] = {
     { FT_MAKE_TAG( 'c', 'c', 'm', 'p' ), 0x01 },
     { FT_MAKE_TAG( 'i', 's', 'o', 'l' ), 0x02 },
     { FT_MAKE_TAG( 'f', 'i', 'n', 'a' ), 0x04 },
@@ -38,14 +38,14 @@ Features arabicGSUBFeatures[] = {
 // required for minimal support are: fina, medi, init and rlig. Some old fonts actually only have liga instead of rlig,
 // so we also accept liga without rlig
 
-inline bool arabicFoundRequiredFeatures( int found_bits ) {
+static inline bool arabicFoundRequiredFeatures( int found_bits ) {
     return ((found_bits & 0x3c) == 0x3c || (found_bits & 0x9c) == 0x9c );
 }
 
 // these are the features that should get applied in all cases (if available in the font)
 static const short arabicGSUBorMask = 0xf1e1;
 
-Features arabicGPOSFeatures[] = {
+const Features arabicGPOSFeatures[] = {
     { FT_MAKE_TAG( 'c', 'u', 'r', 's' ), 0x1000 },
     { FT_MAKE_TAG( 'k', 'e', 'r', 'n' ), 0x2000 },
     { FT_MAKE_TAG( 'm', 'a', 'r', 'k' ), 0x4000 },
@@ -75,7 +75,7 @@ bool OpenTypeIface::loadArabicTables( FT_ULong script)
     for( int i = 0; i < numfeatures; i++ ) {
 	TTO_FeatureRecord *r = featurelist.FeatureRecord + i;
 	FT_ULong feature = r->FeatureTag;
-	Features *f = arabicGSUBFeatures;
+	const Features *f = arabicGSUBFeatures;
 	while ( f->tag ) {
 	    if ( f->tag == feature ) {
 		found_bits |= f->bit;
@@ -109,7 +109,7 @@ bool OpenTypeIface::loadArabicTables( FT_ULong script)
 	for( int i = 0; i < numfeatures; i++ ) {
 	    TTO_FeatureRecord *r = featurelist.FeatureRecord + i;
 	    FT_ULong feature = r->FeatureTag;
-	    Features *f = arabicGPOSFeatures;
+	    const Features *f = arabicGPOSFeatures;
 	    while ( f->tag ) {
 		if ( f->tag == feature ) {
 		    found_bits |= f->bit;
