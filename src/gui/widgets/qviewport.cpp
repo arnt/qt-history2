@@ -23,6 +23,76 @@
 #define d d_func()
 #define q q_func()
 
+
+
+/*!
+    \class QViewport qviewport.h
+
+    \brief The QViewport widget provides a scrolling area with
+    on-demand scroll bars.
+
+    \ingroup abstractwidgets
+
+    QViewport is a low-level abstraction of a scrolling area. It gives
+    you full control of the scroll bars, at the cost of simplicity. In
+    most cases, using a QWidgetView is preferable.
+
+    QViewport's central child widget is the scrolling area itself,
+    called viewport(). The viewport widget uses all available
+    space. Next to the viewport is a vertical scroll bar (accessible
+    with verticalScrollBar()), and below a horizontal scroll bar
+    (accessible with horizontalScrollBar()). Each scroll bar can be
+    either visible or hidden, depending on the scroll bar's policy
+    (see \l verticalScrollBarPolicy and \l horizontalScrollBarPolicy).
+    When a scroll bar is hidden, the viewport expands in order to
+    cover all available space. When a scroll bar becomes visible
+    again, the viewport shrinks in order to make room for the scroll
+    bar.
+
+    With a scroll bar policy of ScrollBarAsNeeded (the default),
+    QViewport shows a scroll bar when it provides a non-zero scrolling
+    range, and hides it otherwise. You control the range of each
+    scroll bar with QAbstractSlider::setRange().
+
+    In order to track scroll bar movements, reimplement the virtual
+    function scrollContentsBy(). In order to fine-tune scrolling
+    behaviour, connect to a scroll bar's
+    QAbstractSlider::actionTriggered() signal and adjust \l the
+    QAbstractSlider::sliderPosition as you wish.
+
+    It is possible to reserve a margin area around the viewport, see
+    setViewportMargins(). The feature is mostly used to place a
+    QHeader widget above or aside the scrolling area.
+
+    For convience, QViewport makes all viewport events available in
+    the virtual viewportEvent()-handler.  QWidget's specialised
+    handlers are remapped to viewport events in the cases where this
+    makes sense. The remapped specialised handlers are: paintEvent(),
+    mousePressEvent(), mouseReleaseEvent(), mouseDoubleClickEvent(),
+    mouseMoveEvent(), wheelEvent(), dragEnterEvent(), dragMoveEvent(),
+    dragLeaveEvent(), dropEvent() and resizeEvent().
+
+*/
+
+
+/*!
+    \enum Qt::ScrollBarPolicy
+
+    This enum type describes the various modes of QViewport's scroll
+    bars.
+
+    \value ScrollBarAsNeeded QViewport shows a scroll bar when the
+    content is too large to fit and not otherwise. This is the
+    default.
+
+    \value ScrollBarAlwaysOff QViewport never shows a scroll bar.
+
+    \value ScrollBarAlwaysOn  QViewport always shows a scroll bar.
+
+    (The modes for the horizontal and vertical scroll bars are
+    independent.)
+*/
+
 inline  bool QViewportPrivate::viewportEvent(QEvent *e) { return q->viewportEvent(e); }
 
 
@@ -133,6 +203,15 @@ QWidget *QViewport::viewport() const
 
 
 
+/*!
+    \property QViewport::verticalScrollBarPolicy
+    \brief the policy for the vertical scroll bar
+
+    The default policy is \c Qt::ScrollBarAsNeeded
+
+    \sa horizontalScrollBarPolicy
+*/
+
 Qt::ScrollBarPolicy QViewport::verticalScrollBarPolicy() const
 {
     return d->vbarpolicy;
@@ -145,10 +224,25 @@ void QViewport::setVerticalScrollBarPolicy(ScrollBarPolicy policy)
 	d->layoutChildren();
 }
 
+
+/*!
+  Returns the vertical scroll bar.
+
+  \sa verticalScrollBarPolicy,  verticalScrollBar()
+ */
 QScrollBar *QViewport::verticalScrollBar() const
 {
     return d->vbar;
 }
+
+/*!
+    \property QViewport::horizontalScrollBarPolicy
+    \brief the policy for the horizontal scroll bar
+
+    The default policy is \c Qt::ScrollBarAsNeeded
+
+    \sa verticalScrollBarPolicy
+*/
 
 Qt::ScrollBarPolicy QViewport::horizontalScrollBarPolicy() const
 {
@@ -162,11 +256,25 @@ void QViewport::setHorizontalScrollBarPolicy(ScrollBarPolicy policy)
 	d->layoutChildren();
 }
 
+/*!
+  Returns the horizontal scroll bar.
+
+  \sa horizontalScrollBarPolicy,  verticalScrollBar()
+ */
 QScrollBar *QViewport::horizontalScrollBar() const
 {
     return d->hbar;
 }
 
+/*!
+    Sets the margins around the scrolling area to \a left, \a top, \a
+    right and \a bottom. This is useful for applications such as
+    spreadsheets with "locked" rows and columns. The marginal space is
+    is left blank; put widgets in the unused area.
+
+    By default all margins are zero.
+
+*/
 void QViewport::setViewportMargins(int left, int top, int right, int bottom)
 {
     d->left = left;
@@ -176,6 +284,9 @@ void QViewport::setViewportMargins(int left, int top, int right, int bottom)
     d->layoutChildren();
 }
 
+/*!  The main event handler for the QViewport widget (\e not the
+  scrolling area viewport()).
+*/
 bool QViewport::event(QEvent *e)
 {
     switch (e->type()) {
@@ -204,6 +315,18 @@ bool QViewport::event(QEvent *e)
     return true;
 }
 
+/*!  The main event handler for the scrolling area (the viewport()
+  widget). It handles event \a e.
+
+  You can reimplement this function in a subclass, but we recommend
+  using one of the specialized event handlers instead.
+
+  Specialised handlers for viewport events are: paintEvent(),
+  mousePressEvent(), mouseReleaseEvent(), mouseDoubleClickEvent(),
+  mouseMoveEvent(), wheelEvent(), dragEnterEvent(), dragMoveEvent(),
+  dragLeaveEvent(), dropEvent() and resizeEvent().
+
+ */
 bool QViewport::viewportEvent(QEvent *e)
 {
     switch (e->type()) {
@@ -233,30 +356,81 @@ bool QViewport::viewportEvent(QEvent *e)
     return true;
 }
 
+/*!
+    This event handler can be reimplemented in a subclass to receive
+    resize events for the viewport() widget. When resizeEvent() is
+    called, the viewport already has its new geometry. The old size is
+    accessible through QResizeEvent::oldSize().
+
+    \sa QWidget::resizeEvent()
+ */
 void QViewport::resizeEvent(QResizeEvent *)
 {
 }
 
+/*!
+    This event handler can be reimplemented in a subclass to receive
+    paint events for the viewport() widget.
+
+    Note: If you open a painter, make sure to open it on the
+    viewport().
+
+    \sa QWidget::paintEvent()
+*/
 void QViewport::paintEvent(QPaintEvent*)
 {
 }
 
+/*!
+    This event handler can be reimplemented in a subclass to receive
+    mouse press events for the viewport() widget.
+
+    \sa QWidget::mousePressEvent()
+*/
 void QViewport::mousePressEvent(QMouseEvent *e)
 {
     e->ignore();
 }
+
+/*!
+    This event handler can be reimplemented in a subclass to receive
+    mouse release events for the viewport() widget.
+
+    \sa QWidget::mouseReleaseEvent()
+*/
 void QViewport::mouseReleaseEvent(QMouseEvent *e)
 {
     e->ignore();
 }
+
+/*!
+    This event handler can be reimplemented in a subclass to receive
+    mouse double click events for the viewport() widget.
+
+    \sa QWidget::mouseDoubleClickEvent()
+*/
 void QViewport::mouseDoubleClickEvent(QMouseEvent *e)
 {
     e->ignore();
 }
+
+/*!
+    This event handler can be reimplemented in a subclass to receive
+    mouse move events for the viewport() widget.
+
+    \sa QWidget::mouseMoveEvent()
+*/
 void QViewport::mouseMoveEvent(QMouseEvent *e)
 {
     e->ignore();
 }
+
+/*!
+    This event handler can be reimplemented in a subclass to receive
+    wheel events for the viewport() widget.
+
+    \sa QWidget::wheelEvent()
+*/
 #ifndef QT_NO_WHEELEVENT
 void QViewport::wheelEvent(QWheelEvent *e)
 {
@@ -288,18 +462,42 @@ void QViewport::keyPressEvent( QKeyEvent * e)
 
 
 #ifndef QT_NO_DRAGANDDROP
+/*!
+    This event handler can be reimplemented in a subclass to receive
+    drag enter events for the viewport() widget.
+
+    \sa QWidget::dragEnterEvent()
+*/
 void QViewport::dragEnterEvent( QDragEnterEvent * )
 {
 }
 
+/*!
+    This event handler can be reimplemented in a subclass to receive
+    drag move events for the viewport() widget.
+
+    \sa QWidget::dragMoveEvent()
+*/
 void QViewport::dragMoveEvent( QDragMoveEvent * )
 {
 }
 
+/*!
+    This event handler can be reimplemented in a subclass to receive
+    drag leave events for the viewport() widget.
+
+    \sa QWidget::dragLeaveEvent()
+*/
 void QViewport::dragLeaveEvent( QDragLeaveEvent * )
 {
 }
 
+/*!
+    This event handler can be reimplemented in a subclass to receive
+    drop events for the viewport() widget.
+
+    \sa QWidget::dropEvent()
+*/
 void QViewport::dropEvent( QDropEvent * )
 {
 }
