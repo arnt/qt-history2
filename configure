@@ -1025,19 +1025,19 @@ then
 	do
 	    case $_SQLDR in
 	    mysql)
-		$unixtests/checklib "MySQL" $VERBOSE $MYSQL_REQ $L_FLAGS $I_FLAGS && SQL_AUTODETECTED="$SQL_AUTODETECTED mysql"
+		$unixtests/checkavail "MySQL" $VERBOSE $MYSQL_REQ $L_FLAGS $I_FLAGS && SQL_AUTODETECTED="$SQL_AUTODETECTED mysql"
 		;;
 	    psql)
-		$unixtests/checklib "PostgreSQL" $VERBOSE $PSQL_REQ $L_FLAGS $I_FLAGS && SQL_AUTODETECTED="$SQL_AUTODETECTED psql"
+		$unixtests/checkavail "PostgreSQL" $VERBOSE $PSQL_REQ $L_FLAGS $I_FLAGS && SQL_AUTODETECTED="$SQL_AUTODETECTED psql"
 		;;
 	    odbc)
-		$unixtests/checklib "ODBC" $VERBOSE $ODBC_REQ $L_FLAGS $I_FLAGS && SQL_AUTODETECTED="$SQL_AUTODETECTED odbc"
+		$unixtests/checkavail "ODBC" $VERBOSE $ODBC_REQ $L_FLAGS $I_FLAGS && SQL_AUTODETECTED="$SQL_AUTODETECTED odbc"
 		;;
 	    oci)
-		$unixtests/checklib "OCI" $VERBOSE $OCI_REQ $L_FLAGS $I_FLAGS && SQL_AUTODETECTED="$SQL_AUTODETECTED oci"
+		$unixtests/checkavail "OCI" $VERBOSE $OCI_REQ $L_FLAGS $I_FLAGS && SQL_AUTODETECTED="$SQL_AUTODETECTED oci"
 		;;
 	    tds)
-		$unixtests/checklib "TDS" $VERBOSE $TDS_REQ $L_FLAGS $I_FLAGS && SQL_AUTODETECTED="$SQL_AUTODETECTED tds"
+		$unixtests/checkavail "TDS" $VERBOSE $TDS_REQ $L_FLAGS $I_FLAGS && SQL_AUTODETECTED="$SQL_AUTODETECTED tds"
 		;;
 	    *)
 		if [ "x$VERBOSE" = "xyes" ]
