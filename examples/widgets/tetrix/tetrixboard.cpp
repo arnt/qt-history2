@@ -71,12 +71,14 @@ void TetrixBoard::paintEvent(QPaintEvent *)
         return;
     }
 
+    int boardTop = rect.bottom() - BoardHeight*squareHeight();
+
     for (int i = 0; i < BoardHeight; ++i) {
         for (int j = 0; j < BoardWidth; ++j) {
             TetrixShape shape = shapeAt(j, BoardHeight - i - 1);
 	    if (shape != NoShape)
                 drawSquare(painter, rect.left() + j * squareWidth(),
-                           rect.top() + i * squareHeight(), shape);
+                           boardTop + i * squareHeight(), shape);
         }
     }
 
@@ -85,7 +87,7 @@ void TetrixBoard::paintEvent(QPaintEvent *)
             int x = curX + curPiece.x(i);
             int y = curY - curPiece.y(i);
             drawSquare(painter, rect.left() + x * squareWidth(),
-                       rect.top() + (BoardHeight - y - 1) * squareHeight(),
+                       boardTop + (BoardHeight - y - 1) * squareHeight(),
                        curPiece.shape());
         }
     }
