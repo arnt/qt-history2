@@ -51,21 +51,15 @@ static ushort mouseTbl[] = {
     0,			0,				0
 };
 
-static int translateButtonState(int s, int type, int button)
+static Qt::MouseButtons translateMouseButtonState(int s, int type, int button)
 {
-    int bst = 0;
+    Qt::MouseButtons bst = 0;
     if (s & MK_LBUTTON)
         bst |= Qt::LeftButton;
     if (s & MK_MBUTTON)
         bst |= Qt::MidButton;
     if (s & MK_RBUTTON)
         bst |= Qt::RightButton;
-    if (s & MK_SHIFT)
-        bst |= Qt::ShiftModifier;
-    if (s & MK_CONTROL)
-        bst |= Qt::ControlModifier;
-    if (GetKeyState(VK_MENU) < 0)
-        bst |= Qt::AltModifier;
     
     // Translate from Windows-style "state after event"
     // to X-style "state before event"
@@ -73,8 +67,21 @@ static int translateButtonState(int s, int type, int button)
         type == QEvent::MouseButtonDblClick)
         bst &= ~button;
     else if (type == QEvent::MouseButtonRelease)
-        bst |= button;
+        bst |= (Qt::MouseButton)button;
     
+    return bst;
+}
+
+static Qt::KeyboardModifiers translateModifierState(int s)
+{
+    Qt::KeyboardModifiers bst = 0;
+    if (s & MK_SHIFT)
+        bst |= Qt::ShiftModifier;
+    if (s & MK_CONTROL)
+        bst |= Qt::ControlModifier;
+    if (GetKeyState(VK_MENU) < 0)
+        bst |= Qt::AltModifier;
+
     return bst;
 }
 
@@ -368,7 +375,6 @@ LRESULT CALLBACK axc_FilterProc(int nCode, WPARAM wParam, LPARAM lParam)
     static POINT gpos={-1,-1};
     QEvent::Type type;				// event parameters
     int	   button;
-    int	   state;
     int	   i;
 
     if (!reentrant && lParam && nCode >= 0 && wParam == PM_REMOVE) {
@@ -399,15 +405,14 @@ LRESULT CALLBACK axc_FilterProc(int nCode, WPARAM wParam, LPARAM lParam)
                         return CallNextHookEx(hhook, nCode, wParam, lParam);
                     type   = (QEvent::Type)mouseTbl[++i];	// event type
                     button = mouseTbl[++i];			// which button
-                    state  = translateButtonState(msg->wParam, type, button); // button state
                     DWORD ol_pos = GetMessagePos();
                     gpos.x = LOWORD(ol_pos);
                     gpos.y = HIWORD(ol_pos);
                     pos = widget->mapFromGlobal(QPoint(gpos.x, gpos.y));
-                    
+
 					QMouseEvent e(type, pos, QPoint(gpos.x, gpos.y), (Qt::MouseButton)button,
-						Qt::MouseButtons(state & Qt::MouseButtonMask),
-						Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask));
+						translateMouseButtonState(msg->wParam, type, button),
+						translateModifierState(msg->wParam));
                     QApplication::sendEvent(ax, &e);
                 }
             }
