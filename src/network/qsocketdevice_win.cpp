@@ -678,10 +678,20 @@ Q_LONG QSocketDevice::readBlock( char *data, Q_ULONG maxlen )
 		e = Impossible;
 		break;
 	    case WSAECONNABORTED:
+	    	close();
+		r = 0;
+		break;
 	    case WSAETIMEDOUT:
 	    case WSAECONNRESET:
-		// connection closed
-		close();
+		/* 
+		From msdn doc:
+		On a UDP datagram socket this error would indicate that a previous
+		send operation resulted in an ICMP "Port Unreachable" message.
+		
+		So we should not close this socket just because one sendto failed.
+		*/
+		if ( t != Datagram ) 
+		    close(); // connection closed
 		r = 0;
 		break;
 	    case WSAENETDOWN:
