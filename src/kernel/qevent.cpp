@@ -85,7 +85,7 @@
   event refers to the left button.  Note that the left button may be
   the right button on left-handed mice.
   \value RightButton  the right button.
-  \value MidButton  the middle button
+  \value MidButton  the middle button.
   \value ShiftButton  a Shift key on the keyboard is also pressed.
   \value ControlButton  a Ctrl key on the keyboard is also pressed.
   \value AltButton  an Alt (or Meta) key on the keyboard is also pressed.
@@ -595,12 +595,12 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation o
   This enum type describes the keyboard modifier keys supported by Qt.
   The currently defined values are:
 
-  \value SHIFT the shift keys provided on all normal keyboards
-  \value CTRL the control keys
-  \value ALT the normal alt keys, but not e.g. AltGr.
-  \value MODIFIER_MASK is a mask of SHIFT, CTRL and ALT.
+  \value SHIFT the Shift keys provided on all standard keyboards.
+  \value CTRL the Ctrl keys.
+  \value ALT the normal Alt keys, but not e.g. AltGr.
+  \value MODIFIER_MASK is a mask of Shift, Ctrl and Alt.
   \value UNICODE_ACCEL the accelerator is specified as a Unicode code
-  point, not a Qt Key
+  point, not as a Qt Key.
 */
 
 /*!

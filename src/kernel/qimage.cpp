@@ -185,7 +185,7 @@
 /*! \enum Qt::ImageConversionFlags
 
   The conversion flag is a bitwise-OR of the following values.
-  The options marked \e (default) are the set if no other
+  The options marked "(default)" are the set if no other
   values from the list are included (since the defaults are zero):
 
   Color/Mono preference (ignored for QBitmap)
@@ -216,7 +216,8 @@
 	   colors and it is being converted to 8 bits.
     \value AutoDither Not supported.
 
-  The following are no values that are used directly, but masks for the above classes:
+  The following are not values that are used directly, but masks for
+  the above classes:
     \value ColorMode_Mask  Mask for the color mode.
     \value Dither_Mask  Mask for the dithering mode for RGB channels.
     \value AlphaDither_Mask  Mask for the dithering mode for the alpha channel.

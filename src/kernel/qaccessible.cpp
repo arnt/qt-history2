@@ -12,13 +12,14 @@
   \class QAccessible qaccessible.h
   \ingroup misc
   \brief The QAccessible class is provide a set of enums and static functions.
+
 */
 
 /*!
   \enum QAccessible::State
   This enum type defines bitflags that can be combined to indicate the state of the accessible object.
   Defined values are
-  
+
   \value Normal
   \value Unavailable
   \value Selected
@@ -196,12 +197,12 @@
 
   Call this function when the accessibility information of \a object is changed.
 
-  \a reason designates the cause of this change, e.g. ValueChange when the position of e.g. 
-  a slider has been changed. \a control is the ID of the child element that has changed. When 
+  \a reason designates the cause of this change, e.g. ValueChange when the position of e.g.
+  a slider has been changed. \a control is the ID of the child element that has changed. When
   \a control is null, the object itself has changed.
 
   Emit this signal whenever the state of your accessible object or one of it's subelements
-  has been changed either programmatically (e.g. by calling QLabel::setText() ) or by user 
+  has been changed either programmatically (e.g. by calling QLabel::setText() ) or by user
   interaction.
 
   If there are no accessibility tools listening to this event, the performance penalty for
@@ -232,7 +233,7 @@
 /*!
   \fn int QAccessibleInterface::childCount() const
 
-  Returns the number of children that belong to this object. 
+  Returns the number of children that belong to this object.
   A child can provide accessibility information on it's own (e.g. a child widget), or
   be a subelement of this accessible object.
 
@@ -245,8 +246,8 @@
   \fn QRESULT QAccessibleInterface::queryChild( int control, QAccessibleInterface **iface ) const
 
   Sets \a iface to point to the address of the QAccessibleInterface for the child specified
-  with \a control. If the child doesn't provide accessibility information on it's own, the 
-  value of \a iface is set to null. For those elements, this object is responsible for exposing 
+  with \a control. If the child doesn't provide accessibility information on it's own, the
+  value of \a iface is set to null. For those elements, this object is responsible for exposing
   the child's properties.
 
   All objects provide this information.
@@ -257,7 +258,7 @@
 /*!
   \fn QRESULT QAccessibleInterface::queryParent( QAccessibleInterface **iface ) const
 
-  Sets \a iface to point to the address of the QAccessibleInterface implementation of the 
+  Sets \a iface to point to the address of the QAccessibleInterface implementation of the
   parent object, or to null if there is no such object.
 
   All objects provide this information.
@@ -269,7 +270,7 @@
   \fn int QAccessibleInterface::controlAt( int x, int y ) const
 
   Returns the ID of the child that contains the screen coordinates (\a x, \a y). This
-  function returns 0 if the point is positioned on the object itself. If the tested point 
+  function returns 0 if the point is positioned on the object itself. If the tested point
   is outside the boundaries of the object this function returns -1.
 
   All visual objects provide this information.
@@ -280,19 +281,19 @@
 
   Returns the location of the child specified with \a control in screen coordinates.
   This function returns the location of the object itself if \a control is 0.
-  
+
   All visual objects provide this information.
 */
 
 /*!
   \fn int QAccessibleInterface::navigate( NavDirection direction, int startControl ) const
 
-  This function traverses to another object, or to a subelement of the current object. 
-  \a direction specifies in which direction to navigate, and \a startControl specifies 
-  the start point of the navigation, which is either 0 if the navigation starts at the 
+  This function traverses to another object, or to a subelement of the current object.
+  \a direction specifies in which direction to navigate, and \a startControl specifies
+  the start point of the navigation, which is either 0 if the navigation starts at the
   object itself, or an ID of one of the object's subelements.
 
-  The function returns the ID of the subelement located in the \a direction specified. 
+  The function returns the ID of the subelement located in the \a direction specified.
   If there is nothing at the navigated \a direction, this function returns -1.
 
   All objects support navigation.
@@ -304,34 +305,34 @@
   Returns a string property \a t of the child object specified by \a control,
   or the string property of the object itself if \a control is 0.
 
-  The \e Name is a string used by clients to identify, find or announce an 
+  The \e Name is a string used by clients to identify, find or announce an
   accessible object for the user. All objects must have a name that is unique
   within their container.
 
   An accessible object's \e Description provides textual information about
   an object's visual appearance. The description is primarily used to provide
   greater context for low-vision or blind users, but is also used for context
-  searching or other applications. Not all objects have a description. An "OK" 
-  button would not need a description, but a toolbutton that shows a picture of 
+  searching or other applications. Not all objects have a description. An "OK"
+  button would not need a description, but a toolbutton that shows a picture of
   a smiley would.
 
   The \e Value of an accessible object represents visual information
   contained by the object, e.g. the text in a line edit. Usually, the
-  value can be modified by the user. Not all objects have a value, e.g. 
-  static text labels don't, and some objects have a state that already is 
+  value can be modified by the user. Not all objects have a value, e.g.
+  static text labels don't, and some objects have a state that already is
   the value, e.g. toggle buttons.
 
-  The \e Help text provides information about the function and useage of an 
+  The \e Help text provides information about the function and useage of an
   accessible object. Not all objects provide this information.
 
   An accessible object's \e DefaultAction describes the object's primary
-  method of manipulation, and should be a verb or a short phrase, e.g. 
+  method of manipulation, and should be a verb or a short phrase, e.g.
   "Press" for a button.
 
   The accelerator is a keyboard shortcut that activates the default action of the object.
-  A keyboard shortcut is the underlined character in the text of a menu, menu item or control, 
-  and is either the character itself, or a combination of this character and a modifier key 
-  like ALT, CTRL or SHIFT. Command controls like tool buttons also have shortcut keys and 
+  A keyboard shortcut is the underlined character in the text of a menu, menu item or control,
+  and is either the character itself, or a combination of this character and a modifier key
+  like ALT, CTRL or SHIFT. Command controls like tool buttons also have shortcut keys and
   usually display them in their tooltip.
 
   \sa role(), state(), selection()
@@ -347,8 +348,8 @@
 /*!
   \fn QAccessible::Role QAccessibleInterface::role( int control ) const
 
-  Returns the role of the object if \a control is 0, or the role of the object's 
-  subelement with ID \a control. The role of an object is usually static. 
+  Returns the role of the object if \a control is 0, or the role of the object's
+  subelement with ID \a control. The role of an object is usually static.
   All accessible objects have a role.
 
   \sa text(), state(), selection()
@@ -357,7 +358,7 @@
 /*!
   \fn QAccessible::State QAccessibleInterface::state( int control ) const
 
-  Returns the current state of the object if \a control is 0, or the state of 
+  Returns the current state of the object if \a control is 0, or the state of
   the object's subelement element with ID \a control. All objects have a state.
 
   \sa text(), role(), selection()
@@ -374,7 +375,7 @@
 /*!
   \fn bool QAccessibleInterface::doDefaultAction( int control )
 
-  Calling this function performs the default action of the child object specified 
+  Calling this function performs the default action of the child object specified
   by \a control, or the default action of the object itself if \a control is 0.
 */
 
@@ -391,7 +392,7 @@
   \fn bool QAccessibleInterface::setSelected( int control, bool on, bool extend )
 
   Sets the selection of the child object with ID \a control to \a on. If \a extend
-  is TRUE, all child elements between the focused item and the specified child object 
+  is TRUE, all child elements between the focused item and the specified child object
   set the selection to \a on.
 
   Returns TRUE if the selection could be set, otherwise returns FALSE.
@@ -465,7 +466,7 @@ QRESULT QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInter
   \brief The QAccessibleObject class implements parts of the QAccessibleInterface for QObjects.
   \preliminary
 
-  This class is mainly provided for convenience. All further implementations 
+  This class is mainly provided for convenience. All further implementations
   of the QAccessibleInterface should use this class as the base class.
 */
 
@@ -481,9 +482,9 @@ QAccessibleObject::QAccessibleObject( QObject *object )
 }
 
 /*!
-  Destroys the QAccessibleObject. 
+  Destroys the QAccessibleObject.
 
-  This will only happen if a call to release() decrements the internal 
+  This will only happen if a call to release() decrements the internal
   reference counter to zero.
 */
 QAccessibleObject::~QAccessibleObject()

@@ -84,7 +84,7 @@
   The opposite of top-level widgets are child widgets. Those are child
   windows in their parent widgets.  You usually cannot distinguish a
   child widget from its parent visually.  Most other widgets in Qt are
-  useful only as child widgets.  (You \e can make a e.g. button into a
+  useful only as child widgets.  (You can make a e.g. button into a
   top-level widget, but most people prefer to put their buttons in
   e.g. dialogs.)
 
@@ -262,18 +262,18 @@
 
   Every widget's constructor accepts two or three standard arguments:
   \list
-  \i <code>QWidget *parent = 0</code> is the parent of the new widget.
+  \i \c{QWidget *parent = 0} is the parent of the new widget.
   If it is 0 (the default), the new widget will be a top-level window.
   If not, it will be a child of \e parent, and be constrained by \e
   parent's geometry (Unless you specify \c WType_TopLevel as
   widget flag).
-  \i <code>const char *name = 0</code> is the widget name of the new
+  \i \c{const char *name = 0} is the widget name of the new
   widget.  You can access it using name().  The widget name is little
   used by programmers but is quite useful with GUI builders such as the
   Qt Designer (you can name a widget in the builder, and connect() to
   it by name in your code).  The dumpObjectTree() debugging function also
   uses it.
-  \i <code>WFlags f = 0</code> (where available) sets the <a
+  \i \c{WFlags f = 0} (where available) sets the <a
   href="qt.html#WidgetFlags">widget flags</a>; the default is good for almost
   all widgets, but to get e.g. top-level widgets without a window
   system frame you must use special flags.
@@ -531,13 +531,14 @@ The main types are
 widget, usually with a window-system frame and so on.
 
 \value WType_Dialog  indicates that this widget is a secondary
-top-level widget.  In combination with \c WShowModal, the dialog becomes
-a modal dialog ie. it prevents widgets in all other top-level widget
-from getting any input. \c WType_Dialog implies \c WType_TopLevel.
+top-level widget.  When combined with \c WShowModal, the dialog
+becomes a modal dialog i.e. prevents any other top-level window in the
+application from getting any input. \c WType_Dialog implies \c
+WType_TopLevel.
 
 \value WType_Popup  indicates that this widget is a popup top-level
-window, ie., that it is modal, but has a window system frame appropriate
-for popup menus.\c WType_Popup implies WType_TopLevel.
+window, i.e. that it is modal, but has a window system frame appropriate
+for popup menus. \c WType_Popup implies WType_TopLevel.
 
 \value WType_Desktop  indicates that this widget is the desktop.
 See also \c WPaintDesktop below. \c WType_Desktop implies \c WType_TopLevel.
@@ -546,7 +547,7 @@ There are also a number of flags to let you customize the appearance
 of top-level windows.  These have no effect on other windows:
 
 \value WStyle_Customize  indicates that the \c WStyle_* flags should be
-used to build the window instead of the default.
+used to build the window instead of the default flags.
 
 \value WStyle_NormalBorder  gives the window a normal border. Cannot
 be combined with \c WStyle_DialogBorder or \c WStyle_NoBorder.
@@ -554,25 +555,24 @@ be combined with \c WStyle_DialogBorder or \c WStyle_NoBorder.
 \value WStyle_DialogBorder  gives the window a thin dialog border.
 Cannot be combined with \c WStyle_NormalBorder or \c WStyle_NoBorder.
 
-\value WStyle_NoBorder  gives a borderless window.  Note that the
-user cannot move or resize a borderless window via the window system.
-Cannot be combined with \c WStyle_NormalBorder or \c WStyle_DialogBorder.
-On Windows, the flag works fine. On X11, it bypasses the window manager
-completely. This results in a borderless window, but also in a window that
-is not managed at all (i.e. for example no keyboard focus unless you call
-QWidget::setActiveWindow() manually.) For compatibility, the flag was not changed
-for Qt-2.1. We suggest using \c WStyle_NoBorderEx instead.
+\value WStyle_NoBorder  produces a borderless window.  Note that the user
+cannot move or resize a borderless window via the window system.
+Cannot be combined with \c WStyle_NormalBorder or \c
+WStyle_DialogBorder. On Windows, the flag works fine. On X11, it
+bypasses the window manager completely, which results in a borderless
+window, but also in a window that is not managed at all (i.e. for
+example no keyboard focus unless you call QWidget::setActiveWindow()
+manually.) For compatibility, the flag was not changed for Qt-2.1. We
+suggest using \c WStyle_NoBorderEx instead.
 
-\value WStyle_NoBorderEx  gives a borderless window.  Note that the user
+\value WStyle_NoBorderEx  produces a borderless window.  Note that the user
 cannot move or resize a borderless window via the window system.  Cannot
 be combined with \c WStyle_NormalBorder or \c WStyle_DialogBorder. On X11,
-the result of the flag is depending on the window manager and its ability
-to understand MOTIF hints to some \c WStyle_DialogBorder. On X11 the result
-of the flag is depending on the window manager and its ability to
-understand MOTIF hints to some degree.  Most existing modern window
-managers do this. With \c WX11BypassWM, you can bypass the window manager
-completely. This results in a borderless window for sure, but also in a
-window that is not managed at all (i.e., no keyboard input unless you call
+the result of the flag is dependent on the window manager and its ability
+to understand MOTIF hints: most existing modern window
+managers can handle this. With \c WX11BypassWM, you can bypass the
+window manager completely. This results in a borderless window that is
+not managed at all (i.e. no keyboard input unless you call
 setActiveWindow() manually).
 
 \value WStyle_Title  gives the window a title bar.
@@ -590,13 +590,14 @@ Note that on Windows this has to be combined with \c WStyle_SysMenu to work.
 
 \value WStyle_ContextHelp  adds a context help button to dialogs.
 
-\value WStyle_Tool  makes the window a tool window.  A tool window
-is a small window that lives for a short time, and it is typically used
-for creating popup windows.  It there is a parent, the tool window
-will always be kept on top of it.  If there isn't a parent, you may
-consider passing \c WStyle_StaysOnTop as well.  If the window system
-supports it, a tool window can be decorated with a somewhat lighter
-frame.  It can also be combined with \c WStyle_NoBorder.
+\value WStyle_Tool  makes the window a tool window.  A tool window is
+often a small window with a smaller than usual title bar and
+decoration, typically used for collections of tool buttons. It there
+is a parent, the tool window will always be kept on top of it.  If
+there isn't a parent, you may consider passing \c WStyle_StaysOnTop as
+well.  If the window system supports it, a tool window can be
+decorated with a somewhat lighter frame.  It can also be combined with
+\c WStyle_NoBorder.
 
 \value WStyle_StaysOnTop  informs the window system that the window
 should stay on top of all other windows.
@@ -620,7 +621,7 @@ could not.
 unclipped.  Children of this widget or other widgets in front of it
 do not clip the area the painter can paint on.
 
-\value WPaintClever  indicates that Qt should not try to optimize
+\value WPaintClever  indicates that Qt should \e not try to optimize
 repainting for the widget, but instead pass on window system repaint
 events directly.  (This tends to produce more events and smaller
 repaint regions.)
@@ -2122,7 +2123,8 @@ void QWidget::setBackgroundFromMode()
   This enum describes how the background of a widget changes, as the
   widget's palette changes.
 
-  The background is what the widget contains when paintEvent() is
+  The background is what the widget contains when
+  \link QWidget::paintEvent() paintEvent()\endlink is
   called.  To minimize flicker, this should be the most common color
   or pixmap in the widget.  For \c PaletteBackground, use
   colorGroup().brush( \c QColorGroup::Background ), and so on.  There
@@ -2147,18 +2149,18 @@ void QWidget::setBackgroundFromMode()
   this mode can be both fast and flicker-free.
   \value FixedColor the widget is cleared to a fixed color,
   normally different from all the ones in the palette().  Set using
-  setBackgroundColor().
+  \link QWidget::setBackgroundColor() setBackgroundColor()\endlink.
   \value FixedPixmap the widget is cleared to a fixed pixmap,
   normally different from all the ones in the palette().  Set using
-  setBackgroundPixmap().
+  \link QWidget::setBackgroundPixmap() setBackgroundPixmap()\endlink.
   \value PaletteLink
   \value PaletteLinkVisited
-  \value X11ParentRelative (internal use)
+  \value X11ParentRelative (internal use only)
 
-  \c FixedColor and \c FixedPixmap sometimes are just the right
-  thing, but if you use them, make sure that your application looks
+  Although \c FixedColor and \c FixedPixmap are sometimes just right,
+  if you use them, make sure that your application looks
   right when the desktop color scheme has been changed.  (On X11, a
-  quick way to test is e.g. "./yourapp -bg paleblue".  On Windows, you
+  quick way to test this is e.g. "./myapp -bg paleblue".  On Windows, you
   have to use the control panel.)
 
   \sa QWidget::setBackgroundMode() QWidget::backgroundMode() QWidget::setBackgroundPixmap()

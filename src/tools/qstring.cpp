@@ -12460,24 +12460,26 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
 /*!
   \enum Qt::StringComparisonMode
 
-  This enum type is used to set the string comparison mode when searching
-  for an item.  This is implemented in QListBox, QListView and
-  QIconView.
+  This enum type is used to set the string comparison mode when
+  searching for an item.  This is implemented in QListBox, QListView
+  and QIconView, for example. We'll refer to the string being searched
+  as the 'target' string.
 
-  \value CaseSensitive The search is set to be case sensitive.
-  \value ExactMatch The search is set to check if the search string
-  matches the string exactly.
-  \value BeginsWith The search is set to check if the search string is at
-  the beginning of the string.
-  \value EndsWith The search is set to check if the search string is at the
-   end of the string.
-  \value Contains The search is set to check if the search string is
-  contained inside the string.
+  \value CaseSensitive The strings must match case sensitively.
 
-  You can use one or more of these flags (other than \c
-  CaseSensitive), it will individually check the options in the
-  following order: \c ExactMatch, \c BeginsWith, \c EndsWith, \c
-  Contains.
+
+  \value ExactMatch The target and search strings must match exactly.
+  \value BeginsWith The target string begins with the search string.
+  \value EndsWith The target string ends with the search string.
+  \value Contains The target string contains the search string.
+
+  If you 0R these flags together (excluding \c
+  CaseSensitive), the search criteria be applied in the following
+  order: \c ExactMatch, \c BeginsWith, \c EndsWith, \c Contains.
+
+  Matching is case-insensitive unless \c CaseSensitive is set. \c
+  CaseSensitive may be OR-ed with any combination of the other flags.
+
 */
 Q_EXPORT QStringData *QString::shared_null = 0;
 QT_STATIC_CONST_IMPL QString QString::null;

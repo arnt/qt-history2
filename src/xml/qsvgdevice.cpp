@@ -104,8 +104,12 @@ static QMap<QString,QString> *qSvgColMap=0; // recognized color keyword names
   \brief The QSvgDevice class provides a paint device for SVG vector graphics.
 
   \module XML
+  \ingroup xml
 
-  ###
+  SVG is an XML vector graphics format. This class supports the
+  loading and saving of SVG files with load() and save(), and the
+  rendering of an SVG onto a QPainter using play(). Use
+  toString() to put the SVG into a string.
 
   \sa QPaintDevice QPainter
 */
@@ -122,7 +126,7 @@ QSvgDevice::QSvgDevice()
 }
 
 /*!
-  Destructor.
+  Destroys the QSvgDevice object and frees the resources it used.
 */
 
 QSvgDevice::~QSvgDevice()
@@ -133,9 +137,9 @@ QSvgDevice::~QSvgDevice()
 }
 
 /*!
-  Loads and parses \a fileName into the device. Returns TRUE on success,
-  FALSE if errors were encountered.
- */
+  Loads and parses \a fileName into the device. Returns TRUE on
+  success, or FALSE if errors were encountered.
+*/
 
 bool QSvgDevice::load( const QString &fileName )
 {
@@ -148,9 +152,9 @@ bool QSvgDevice::load( const QString &fileName )
 }
 
 /*!
-  Replays the graphic using \a painter and returns TRUE if successful, or
-  FALSE if the document format is not valid.
- */
+  Renders (replays) the graphic on the \a painter and returns TRUE if
+  successful, or FALSE if the document format is not valid.
+*/
 
 bool QSvgDevice::play( QPainter *painter )
 {
@@ -241,7 +245,7 @@ bool QSvgDevice::play( QPainter *painter )
 }
 
 /*!
-    Returns the XML as a single string.
+    Returns the SVG as a single string of XML.
 */
 QString QSvgDevice::toString() const
 {
@@ -252,7 +256,7 @@ QString QSvgDevice::toString() const
 }
 
 /*!
-  Saves the current document to \a fileName.
+  Saves the SVG vector graphics to \a fileName.
  */
 
 bool QSvgDevice::save( const QString &fileName )
@@ -303,7 +307,7 @@ bool QSvgDevice::save( const QString &fileName )
  */
 
 /*!
-  Sets the bounding rectangle of the vector graphic to \a r.
+  Sets the bounding rectangle of the vector graphic to rectangle \a r.
  */
 
 void QSvgDevice::setBoundingRect( const QRect &r )

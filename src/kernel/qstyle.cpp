@@ -115,8 +115,6 @@ public:
 
   \obsolete
 
-  This enum only exists to keep existing source code working.
-
   \value WindowsStyle
   \value MotifStyle
   \value MacStyle
@@ -403,6 +401,12 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
   \sa drawPrimitive()
 */
+/*! \enum QStyle::SFlags
+    \internal
+*/
+/*! \enum QStyle::SCFlags
+    \internal
+*/
 
 /*!
   \enum QStyle::StyleFlags
@@ -488,7 +492,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 <td valign=top>int *</td>
 <td valign=top>line width for drawing the panel.</td>
 </tr>
-<tr bgcolor=#f0f0f0>
+<tr bgcolor=#d0d0d0>
 <td valign=top>data[1]</td>
 <td valign=top>int *</td>
 <td valign=top>mid-line width for drawing the panel.</td>
@@ -578,6 +582,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
 
   \value CE_MenuBarItem  a menu item in a QMenuBar.
+
+  \value CE_ToolButtonLabel a tool button's label.
 
   \sa drawControl()
 */
@@ -994,6 +1000,9 @@ the mouse is over the tool button, FALSE otherwise.</td>
   \value SR_ProgressBarGroove  area for the groove.
   \value SR_ProgressBarContents  area for the progress indicator.
   \value SR_ProgressBarLabel  area for the text label.
+
+
+  \value SR_ToolButtonContents area for the tool button's label.
 
   \sa subRect()
 */

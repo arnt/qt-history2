@@ -61,6 +61,7 @@
   \ingroup tools
   \ingroup misc
   \ingroup shared
+  \keyword regular expression
 
   Regular expressions, or "regexps", provide a way to find patterns
   within text. This is useful in many contexts, for example:

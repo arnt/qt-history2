@@ -894,6 +894,7 @@
 
   \ingroup collection
   \ingroup tools
+  \ingroup text
 
     If you want a string list of QStrings use QStringList.
 
@@ -901,24 +902,29 @@
 
   QStrList can make deep or shallow copies of the strings that are inserted.
 
-  A deep copy means to allocate space for the string and then copy the string
-  data into it.  A shallow copy is just a copy of the pointer value and not
-  the string data.
+  A deep copy means that memory is allocated for the string and then
+  the string data is copied into this memory.  A shallow copy is just
+  a copy of the pointer value and not of the string data itself.
 
-  The disadvantage of shallow copies is that because a pointer can
-  be deleted only once, the program must put all strings in a central place and
-  know when it is safe to delete them (i.e., when the strings are no longer
-  referenced by other parts of the program).  This can make the program
-  more complex.  The advantage of shallow copies is that shallow copies
-  consume far less memory than deep copies.  It is also much faster
-  to copy a pointer (typically 4 or 8 bytes) than to copy string data.
+  The disadvantage of shallow copies is that because a pointer can be
+  deleted only once, the program must put all strings in a central
+  place and know when it is safe to delete them (i.e. when the
+  strings are no longer referenced by other parts of the program).
+  This can make the program more complex.  The advantage of shallow
+  copies is that shallow copies consume far less memory than deep
+  copies.  It is also much faster to copy a pointer (typically 4 or 8
+  bytes) than to copy string data.
 
   A QStrList that operates on deep copies will, by default, turn on
   auto-deletion (see setAutoDelete()). Thus, by default QStrList will
   deallocate any string copies it allocates.
 
-  The virtual compareItems() function is reimplemented and does a case-sensitive string comparison. The inSort() function will insert
-  strings in a sorted order.
+  The virtual compareItems() function is reimplemented and does a
+  case-sensitive string comparison. The inSort() function will insert
+  strings in a sorted order. In general it is fastest to insert the
+  strings as they come and sort() at the end; inSort() is useful
+  when you just have to add a few extra strings to an already sorted
+  list.
 
   The QStrListIterator class is an iterator for QStrList.
 */
@@ -926,7 +932,7 @@
 /*!
   \fn QStrList::QStrList( bool deepCopies )
   Constructs an empty list of strings.  Will make deep copies of all inserted
-  strings if \a deepCopies is TRUE, or uses shallow copies if \a deepCopies
+  strings if \a deepCopies is TRUE, or use shallow copies if \a deepCopies
   is FALSE.
 */
 
@@ -971,7 +977,10 @@ case-insensitive comparison.
   QStrIList is identical to QStrList except that
   the virtual compareItems() function is reimplemented to compare
   strings case-insensitively.
-  The inSort() function inserts strings in a sorted order.
+  The inSort() function inserts strings in a sorted order. In general
+  it is fastest to insert the strings as they come and sort() at
+  the end; inSort() is useful when you just have to add a few extra
+  strings to an already sorted list.
 
   The QStrListIterator class works for QStrIList.
 */
@@ -979,7 +988,7 @@ case-insensitive comparison.
 /*!
   \fn QStrIList::QStrIList( bool deepCopies )
   Constructs a list of strings.  Will make deep copies of all inserted
-  strings if \a deepCopies is TRUE, or uses shallow copies if \a deepCopies
+  strings if \a deepCopies is TRUE, or use shallow copies if \a deepCopies
   is FALSE.
 */
 

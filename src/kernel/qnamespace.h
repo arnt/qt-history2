@@ -110,7 +110,7 @@ public:
 	AlignCenter		= AlignVCenter | AlignHCenter
     };
 
-    // documented in qtextedit.cpp
+    // documented in qpainter.cpp
     enum TextFlags {
 	SingleLine	= 0x0080,		// misc. flags
 	DontClip	= 0x0100,
@@ -269,6 +269,7 @@ public:
     };
 #endif
 
+    // documented in qevent.cpp
     enum Modifier {		// accelerator modifiers
 	SHIFT         = 0x00200000,
 	CTRL          = 0x00400000,
@@ -680,6 +681,7 @@ public:
 	LocalDate      // locale dependant
     };
 
+    // documented in qwidget.cpp
     enum BackgroundMode {
 	FixedColor,
 	FixedPixmap,

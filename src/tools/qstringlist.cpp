@@ -43,7 +43,6 @@
 #include "qdatastream.h"
 #include "qtl.h"
 
-// NOT REVISED
 /*!
   \class QStringList qstringlist.h
   \brief The QStringList class provides a list of strings.
@@ -62,38 +61,66 @@
   Like QString itself, QStringList objects are implicitly shared.
   Passing them around as value-parameters is both fast and safe.
 
-  There are several approaches to add strings to a string list:
+    Strings can be added to a list using append(), operator+=() or
+    operator<<(), e.g.
+    \code
+    QStringList fonts;
+    fonts.append( "Times" );
+    fonts += "Courier";
+    fonts += "Courier New";
+    fonts << "Helvetica [Cronyx]" << "Helvetica [Adobe]";
+    \endcode
 
-  \walkthrough fonts/simple-qfont-demo/viewer.cpp
+    String lists have an iterator, QStringList::Iterator(), e.g.
+    \code
+    for ( QStringList::Iterator it = fonts.begin(); it != fonts.end(); ++it ) {
+	cout << *it << ":";
+    }
+    cout << endl;
+    // Output:
+    //	Times:Courier:Courier New:Helvetica [Cronyx]:Helvetica [Adobe]:
+    \endcode
 
-  \skipto QStringList substitutes
-  \printline substitutes
-  \printline append
-  \printline +=
-  \printline <<
+    You can concatenate all the strings in a string list into a single
+    string (with an optional separator) using join(), e.g.
+    \code
+    QString allFonts = fonts.join( ", " );
+    cout << allFonts << endl;
+    // Output:
+    //	Times, Courier, Courier New, Helvetica [Cronyx], Helvetica [Adobe]
+    \endcode
 
-  To successively access the members of a QStringList use the provided
-  Iterator:
+    You can sort the list with sort(), and extract a new list which
+    contains only those strings which contain a particular substring
+    (or match a particular regular expression) using the
+    grep() functions, e.g.
+    \code
+    fonts.sort();
+    cout << fonts.join( ", " ) << endl;
+    // Output:
+    //	Courier, Courier New, Helvetica [Adobe], Helvetica [Cronyx], Times
 
-  \walkthrough fonts/simple-qfont-demo/viewer.cpp
+    QStringList helveticas = fonts.grep( "Helvetica" );
+    cout << helveticas.join( ", " ) << endl;
+    // Output:
+    //	Helvetica [Adobe], Helvetica [Cronyx]
+    \endcode
 
-  \skipto QStringList substitutions
-  \printline substitutes
-  \skipto QStringList::Iterator
-  \printline substitutions.begin
-  \printline substitutions.end
-  \printuntil }
+    Existing strings can be split into string lists with character,
+    string or regular expression separators, e.g.
+    \code
+    QString s = "Red\tGreen\tBlue";
+    QStringList colors = QStringList::split( "\t", s );
+    cout << colors.join( ", " ) << endl;
+    // Output:
+    //	Red, Green, Blue
+    \endcode
 
-  (Code examples taken from \link simple-font-demo-example.html
-  examples/fonts/simple-qfont-demo/viewer.cpp \endlink)
-
-  Convenience methods such as sort(), split(), join() and grep() make
-  working with QStringLists easy.
 */
 
 /*!
  \fn QStringList::QStringList()
-  Creates an empty list.
+  Creates an empty string list.
 */
 
 /*! \fn QStringList::QStringList( const QStringList& l )
@@ -102,7 +129,7 @@
   QStringList is implicitly shared. However, for the programmer this
   is the same as a deep copy. If this list or the original one or some
   other list referencing the same shared data is modified, the
-  modifying list first makes a copy.
+  modifying list first makes a copy, i.e. copy-on-write.
 */
 
 /*!
@@ -111,13 +138,10 @@
   Constructs a string list consisting of the single string \a i.
   Longer lists are easily created as follows:
 
-  \walkthrough table/small-table-demo/main.cpp
-  \skipto QStringList
-  \printline QStringList
-  \printline comboEntries <<
-
-  (example code taken from \link small-table-demo-example.html
-  table/small-table-demo/main.cpp\endlink)
+    \code
+    QStringList items;
+    items << "Buy" << "Sell" << "Update" << "Value";
+    \endcode
 */
 
 /*!
@@ -131,10 +155,16 @@
 */
 
 /*!
-  Sorts the list of strings in ascending order.
+  Sorts the list of strings in ascending case-sensitive order.
 
-  Sorting is very fast. It uses the Qt Template Library's
-  efficient HeapSort implementation that operates in O(n*log n).
+  Sorting is very fast. It uses the Qt Template Library's efficient
+  HeapSort implementation that has a time complexity of O(n*log n).
+
+  If you want to sort your strings in an arbitrary order consider
+  using a QMap. For example you could use a QMap\<QString,QString\> to
+  create a case-insensitive ordering (e.g. mapping the lowercase text
+  to the text), or a QMap\<int,QString\> to sort the strings by some
+  integer index, etc.
 */
 void QStringList::sort()
 {
@@ -144,7 +174,7 @@ void QStringList::sort()
 /*! \overload
 
   This version of the function uses a QChar as separator, rather than
-  a full regular expression.
+  a regular expression.
 
   \sa join()
 */
@@ -157,12 +187,12 @@ QStringList QStringList::split( const QChar &sep, const QString &str,
 
 /*! \overload
 
-  This version of the function uses a QChar as separator, rather than
-  a full regular expression.
+  This version of the function uses a QString as separator, rather than
+  a regular expression.
 
   If \a sep is an empty string, the return value is a list of
   one-character strings: split( QString( "" ), "mfc" ) returns the
-  three-item list "m", "f", "c".
+  three-item list, "m", "f", "c".
 
   If \a allowEmptyEntries is TRUE, an empty string is inserted in the
   list wherever the separator matches twice without intervening
@@ -195,7 +225,8 @@ QStringList QStringList::split( const QString &sep, const QString &str,
     return lst;
 }
 
-/*! Splits the string \a str into strings where \a sep occurs, and
+/*! Splits the string \a str into strings wherever the
+    regular expression \a sep occurs, and
   returns the list of those strings.
 
   If \a allowEmptyEntries is TRUE, an empty string is inserted in the
@@ -247,7 +278,8 @@ QStringList QStringList::split( const QRegExp &sep, const QString &str,
 /*!
   Returns a list of all strings containing the substring \a str.
 
-  If \a cs is TRUE, the grep is done case-sensitively, otherwise not.
+  If \a cs is TRUE, the grep is done case-sensitively; otherwise case
+  is ignored.
 */
 
 QStringList QStringList::grep( const QString &str, bool cs ) const
@@ -262,7 +294,7 @@ QStringList QStringList::grep( const QString &str, bool cs ) const
 
 /*! \overload
 
-  Returns a list of all strings containing a substring that matches
+  Returns a list of all the strings that contain a substring that matches
   the regular expression \a expr.
 */
 
@@ -277,8 +309,8 @@ QStringList QStringList::grep( const QRegExp &expr ) const
 }
 
 /*!
-  Joins the stringlist into a single string with each element
-  separated by \a sep.
+  Joins the string list into a single string with each element
+  separated by the string \a sep.
 
   \sa split()
 */
@@ -308,7 +340,7 @@ Q_EXPORT QDataStream &operator<<( QDataStream & s, const QStringList& l )
 }
 #endif
 
-/*! Converts from a ASCII-QStrList \a ascii to a QStringList (Unicode).
+/*! Converts from an ASCII-QStrList \a ascii to a QStringList (Unicode).
 */
 QStringList QStringList::fromStrList(const QStrList& ascii)
 {

@@ -329,26 +329,23 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
 
   \value AlignCenter Centers in both dimensions.
 
+  You can use at most one horizontal and one vertical flag at a time.  \c
+  AlignCenter counts as both horizontal and vertical.
+
   Masks:
 
   \value AlignHorizontal_Mask
   \value AlignVertical_Mask
-
-  This counts both as a horizontal and a vertical flag; it cannot be
-  combined with any other horizontal or vertical flags.
-
-  You can use at most one horizontal and one vertical flag at a time.  \c
-  AlignCenter counts as both horizontal and vertical.
 
   Conflicting combinations of flags have undefined meanings.
 */
 
 /*! \enum Qt::TextFlags
 
-  This enum type is used to define some modifier flags.  All of them
-  apply only to printing:
+  This enum type is used to define some modifier flags. Some of these
+  flags only make sense in the context of printing:
 
-  \value SingleLine Treats all whitespace as space and prints just
+  \value SingleLine Treats all whitespace as spaces and prints just
     one line.
   \value DontClip If it's impossible to stay within the given bounds,
     it prints outside.
@@ -356,8 +353,9 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
     the next tab stop.
   \value ShowPrefix Displays the string "\&P" as an underlined P
     (see QButton for an example).  For an ampersand, use "\&\&".
-  \value WordBreak Breaks lines at appropriate points.
-  \value BreakAnywhere Breaks lines anywhere.
+  \value WordBreak Breaks lines at appropriate points, e.g. at word
+  boundaries.
+  \value BreakAnywhere Breaks lines anywhere, even within words.
   \value NoAccel Synonym for ShowPrefix.
   \value DontPrint (internal)
 
