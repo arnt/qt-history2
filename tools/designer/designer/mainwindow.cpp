@@ -2020,17 +2020,19 @@ void MainWindow::readConfig()
 	grd.setX( config.readNumEntry( keybase + "Grid/x", 10 ) );
 	grd.setY( config.readNumEntry( keybase + "Grid/y", 10 ) );
 
-	QRect r( pos(), size() );
-	r.setX( config.readNumEntry( keybase + "Geometries/MainwindowX", r.x() ) );
-	r.setY( config.readNumEntry( keybase + "Geometries/MainwindowY", r.y() ) );
-	r.setWidth( config.readNumEntry( keybase + "Geometries/MainwindowWidth", r.width() ) );
-	r.setHeight( config.readNumEntry( keybase + "Geometries/MainwindowHeight", r.height() ) );
+	if ( !config.readBoolEntry( DesignerApplication::settingsKey() + "Geometries/MainwindowMaximized", FALSE ) ) {
+	    QRect r( pos(), size() );
+	    r.setX( config.readNumEntry( keybase + "Geometries/MainwindowX", r.x() ) );
+	    r.setY( config.readNumEntry( keybase + "Geometries/MainwindowY", r.y() ) );
+	    r.setWidth( config.readNumEntry( keybase + "Geometries/MainwindowWidth", r.width() ) );
+	    r.setHeight( config.readNumEntry( keybase + "Geometries/MainwindowHeight", r.height() ) );
 
-	QRect desk = QApplication::desktop()->geometry();
-	QRect inter = desk.intersect( r );
-	resize( r.size() );
-	if ( inter.width() * inter.height() > ( r.width() * r.height() / 20 ) ) {
-	    move( r.topLeft() );
+	    QRect desk = QApplication::desktop()->geometry();
+	    QRect inter = desk.intersect( r );
+	    resize( r.size() );
+	    if ( inter.width() * inter.height() > ( r.width() * r.height() / 20 ) ) {
+		move( r.topLeft() );
+	    }
 	}
 
 	setUsesTextLabel( config.readBoolEntry( keybase + "View/TextLabels", FALSE ) );
