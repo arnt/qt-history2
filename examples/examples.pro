@@ -21,6 +21,7 @@ SUBDIRS     =	aclock \
 		listbox \
 		listviews \
 		menu \
+		mdi \
 		movies \
 		picture \
 		popup \

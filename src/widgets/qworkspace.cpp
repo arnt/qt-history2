@@ -539,10 +539,6 @@ void QWorkspace::childEvent( QChildEvent * e)
 	    d->focus.removeRef( (QWorkspaceChild*)e->child() );
 	    if ( d->windows.isEmpty() )
 		hideMaximizeControls();
-	    if ( d->icons.contains( (QWidget*)e->child() ) ){
-		d->icons.remove( (QWidget*)e->child() );
-		layoutIcons();
-	    }
 	    if( e->child() == d->active )
 		d->active = 0;
 
@@ -1402,6 +1398,7 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
     case QEvent::Hide:
 	if ( !clientw->isVisibleTo( this ) ) {
 	    if (iconw) {
+		((QWorkspace*)parentWidget())->removeIcon( iconw->parentWidget() );
 		delete iconw->parentWidget();
 	    }
 	    hide();
@@ -1446,8 +1443,10 @@ void QWorkspaceChild::childEvent( QChildEvent*  e)
 {
     if ( e->type() == QEvent::ChildRemoved && e->child() == clientw ) {
 	clientw = 0;
-	if ( iconw )
+	if ( iconw ) {
+	    ((QWorkspace*)parentWidget())->removeIcon( iconw->parentWidget() );
 	    delete iconw->parentWidget();
+	}
 	close();
     }
 }
@@ -1658,6 +1657,7 @@ void QWorkspaceChild::showNormal()
 {
     ((QWorkspace*)parentWidget())->normalizeClient( clientWidget() );
     if (iconw) {
+	((QWorkspace*)parentWidget())->removeIcon( iconw->parentWidget() );
 	delete iconw->parentWidget();
     }
 }
