@@ -112,7 +112,7 @@ QGArray::QGArray( int, int )
 QGArray::QGArray( int size )
 {
     if ( size < 0 ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QGArray: Cannot allocate array with negative length" );
 #endif
 	size = 0;
@@ -499,7 +499,7 @@ QGArray &QGArray::setRawData( const char *d, uint len )
 void QGArray::resetRawData( const char *d, uint len )
 {
     if ( d != shd->data || len != shd->len ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "QGArray::resetRawData: Inconsistent arguments" );
 #endif
 	return;
@@ -523,7 +523,7 @@ int QGArray::find( const char *d, uint index, uint sz ) const
 {
     index *= sz;
     if ( index >= shd->len ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QGArray::find: Index %d out of range", index/sz );
 #endif
 	return -1;
@@ -716,7 +716,7 @@ bool QGArray::setExpand( uint index, const char *d, uint sz )
 
 void QGArray::msg_index( uint index )
 {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     qWarning( "QGArray::at: Absolute index %d out of range", index );
 #else
     Q_UNUSED( index )

@@ -43,7 +43,7 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
 bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 {
   if ( img.isNull() ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
     warning( "QPixmap::convertFromImage: Cannot convert a null image" );
 #endif
     return FALSE;
@@ -165,7 +165,7 @@ int get_index(QImage * qi,QRgb mycol)
 QImage QPixmap::convertToImage() const
 {
     if ( isNull() ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
         warning( "QPixmap::convertToImage: Cannot convert a null pixmap" );
 #endif
         QImage nullImage;
@@ -283,7 +283,7 @@ int QPixmap::metric(int m) const
 	    break;
 	default:
 	    val = 0;
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	    warning( "QPixmap::metric: Invalid metric command" );
 #endif
         }
@@ -502,7 +502,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 		break;
 
 		default: {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 		qWarning( "QPixmap::xForm: Display not supported (bpp=%d)",bpp);
 #endif
 		return QPixmap( 0, 0, 0, data->bitmap, data->optim );

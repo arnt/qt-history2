@@ -1007,7 +1007,7 @@ uint QListBox::count() const
 void QListBox::insertStrList( const QStrList *list, int index )
 {
     if ( !list ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	ASSERT( list != 0 );
 #endif
 	return;
@@ -1095,7 +1095,7 @@ void QListBox::insertStrList( const QStrList & list, int index )
 void QListBox::insertStrList( const char **strings, int numStrings, int index )
 {
     if ( !strings ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	ASSERT( strings != 0 );
 #endif
 	return;
@@ -1123,7 +1123,7 @@ void QListBox::insertStrList( const char **strings, int numStrings, int index )
 
 void QListBox::insertItem( const QListBoxItem *lbi, int index )
 {
-#if defined ( CHECK_NULL )
+#if defined ( QT_CHECK_NULL )
     ASSERT( lbi != 0 );
 #else
     if ( !lbi )
@@ -1189,7 +1189,7 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
 
 void QListBox::insertItem( const QListBoxItem *lbi, const QListBoxItem *after )
 {
-#if defined ( CHECK_NULL )
+#if defined ( QT_CHECK_NULL )
     ASSERT( lbi != 0 );
 #else
     if ( !lbi )

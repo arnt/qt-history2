@@ -97,7 +97,7 @@ static void setupBuiltinCodecs();
 
 static void realSetup()
 {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( destroying_is_ok )
         qWarning( "creating new codec during codec cleanup" );
 #endif

@@ -704,7 +704,7 @@ int QPrinter::metric( int m ) const
 	val = GetDeviceCaps( hdc, PLANES );
 	break;
     default:
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QPrinter::metric: Invalid metric command" );
 #endif
 	return 0;

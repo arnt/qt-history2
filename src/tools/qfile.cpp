@@ -175,7 +175,7 @@ void QFile::init()
 void QFile::setName( const QString &name )
 {
     if ( isOpen() ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "QFile::setName: File is open" );
 #endif
 	close();
@@ -247,7 +247,7 @@ void QFile::flush()
 bool QFile::atEnd() const
 {
     if ( !isOpen() ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "QFile::atEnd: File is not open" );
 #endif
 	return FALSE;
@@ -277,7 +277,7 @@ int QFile::readLine( char *p, uint maxlen )
 {
     if ( maxlen == 0 )				// application bug?
 	return 0;
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     CHECK_PTR( p );
     if ( !isOpen() ) {				// file not open
 	qWarning( "QFile::readLine: File not open" );
@@ -352,7 +352,7 @@ int QFile::readLine( QString& s, uint maxlen )
 
 int QFile::getch()
 {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {				// file not open
 	qWarning( "QFile::getch: File not open" );
 	return EOF;
@@ -401,7 +401,7 @@ int QFile::getch()
 
 int QFile::putch( int ch )
 {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {				// file not open
 	qWarning( "QFile::putch: File not open" );
 	return EOF;
@@ -440,7 +440,7 @@ int QFile::putch( int ch )
 
 int QFile::ungetch( int ch )
 {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {				// file not open
 	qWarning( "QFile::ungetch: File not open" );
 	return EOF;

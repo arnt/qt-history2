@@ -933,13 +933,13 @@ bool QPalette::isCopyOf( const QPalette & p )
 QBrush &QPalette::directBrush( ColorGroup gr, QColorGroup::ColorRole r ) const
 {
     if ( (uint)gr > (uint)QPalette::NColorGroups ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QPalette::directBrush: colorGroup(%i) out of range", gr );
 #endif
 	return data->active.br[QColorGroup::Foreground];
     }
     if ( (uint)r >= (uint)QColorGroup::NColorRoles ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QPalette::directBrush: colorRole(%i) out of range", r );
 #endif
 	return data->active.br[QColorGroup::Foreground];
@@ -957,7 +957,7 @@ QBrush &QPalette::directBrush( ColorGroup gr, QColorGroup::ColorRole r ) const
     default:
 	break;
     }
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     qWarning( "QPalette::directBrush: colorGroup(%i) internal error", gr );
 #endif
     return data->active.br[QColorGroup::Foreground]; // Satisfy compiler

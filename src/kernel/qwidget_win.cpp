@@ -963,7 +963,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 
 void QWidget::setMinimumSize( int minw, int minh )
 {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( minw < 0 || minh < 0 )
 	qWarning("QWidget::setMinimumSize: The smallest allowed size is (0,0)");
 #endif
@@ -983,7 +983,7 @@ void QWidget::setMinimumSize( int minw, int minh )
 
 void QWidget::setMaximumSize( int maxw, int maxh )
 {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( maxw > QWIDGETSIZE_MAX || maxh > QWIDGETSIZE_MAX ) {
 	qWarning("QWidget::setMaximumSize: The largest allowed size is (%d,%d)",
 		 QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
@@ -1157,7 +1157,7 @@ int QWidget::metric( int m ) const
 	    break;
 	default:
 	    val = 0;
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	    qWarning( "QWidget::metric: Invalid metric command" );
 #endif
 	}

@@ -245,7 +245,7 @@ void QToolBar::init()
     d = new QToolBarPrivate;
     sw = 0;
 
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
     if ( !mw )
 	qWarning( "QToolBar::QToolBar main window cannot be 0." );
 #endif

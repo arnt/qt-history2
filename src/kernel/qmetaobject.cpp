@@ -491,7 +491,7 @@ void QMetaObject::resolveProperty( QMetaProperty* prop )
 	const QMetaProperty* p = super->property( prop->n );
 	if( p ) {
 	    if ( qstrcmp( prop->type(), p->type() ) != 0 ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 		qWarning( "QMetaObject::resolveProperty: Attempt to override property type: %s %s::%s clashes with %s %s::%s", p->type(), super->className(), p->name(), prop->type(), className(), prop->name() );
 #endif
 	    }
@@ -532,7 +532,7 @@ void QMetaObject::resolveProperty( QMetaProperty* prop )
 	    QMetaEnum* e = super->enumerator( prop->t);
 	    if ( e && e->set ) {
 		if ( !prop->testFlags( QMetaProperty::UnresolvedSet | QMetaProperty::UnresolvedEnumOrSet ) ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 		    qWarning("QMetaObject::resolveProperty: The property %s %s::%s assumed that '%s' was listed in Q_ENUMS, but it was listed in Q_SETS", prop->type(), className(), prop->name(), prop->type() );
 #endif
 		}
@@ -541,7 +541,7 @@ void QMetaObject::resolveProperty( QMetaProperty* prop )
 	    }
 	    else if ( e && !e->set ) {
 		if ( !prop->testFlags( QMetaProperty::UnresolvedEnum | QMetaProperty::UnresolvedEnumOrSet ) ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 		    qWarning("QMetaObject::resolveProperty: The property %s %s::%s assumed that '%s' was listed in Q_SETS, but it was listed in Q_ENUMS", prop->type(), className(), prop->name(), prop->type() );
 #endif
 		}
@@ -553,7 +553,7 @@ void QMetaObject::resolveProperty( QMetaProperty* prop )
     }
 
     if ( !prop->isValid() ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning("QMetaObject::resolveProperty: Could not resolve property %s::%s. Property not available.", className(), prop->name() );
 #endif
     }
@@ -918,7 +918,7 @@ QMetaObjectCleanUp::~QMetaObjectCleanUp()
 
 void QMetaObjectCleanUp::setMetaObject( QMetaObject *mo )
 {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( metaObject )
 	qWarning( "QMetaObjectCleanUp::setMetaObject: Double use of QMetaObjectCleanUp!" );
 #endif

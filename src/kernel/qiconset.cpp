@@ -380,7 +380,7 @@ void QIconSet::setPixmap( const QPixmap & pm, Size size, Mode mode )
 	    *d->vsmall.pm = pm;
 	    break;
 	}
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     } else {
 	qWarning("QIconSet::setPixmap: invalid size passed");
 #endif

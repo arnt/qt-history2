@@ -68,7 +68,7 @@ QMimeSource::~QMimeSource()
     
 #ifndef QT_NO_MIMECLIPBOARD
     if (QApplication::clipboard()->data() == this) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qWarning("QMimeSource::~QMimeSource: clipboard data deleted!");
 #endif
 #if defined(Q_WS_X11)	

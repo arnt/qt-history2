@@ -691,7 +691,7 @@ int QMenuData::insertSeparator( int index )
 void QMenuData::removeItemAt( int index )
 {
     if ( index < 0 || index >= (int)mitems->count() ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QMenuData::removeItem: Index %d out of range", index );
 #endif
 	return;

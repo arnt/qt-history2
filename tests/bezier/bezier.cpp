@@ -23,7 +23,7 @@ BezierViewer::BezierViewer( const QPointArray& a, QWidget* parent, const char* n
 void BezierViewer::paintEvent( QPaintEvent* )
 {
     if ( points.size() != 4 ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QPointArray::bezier: The array must have 4 control points" );
 #endif
 	return;

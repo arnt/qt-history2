@@ -187,7 +187,7 @@ uint QColor::alloc()
 void QColor::setSystemNamedColor( const QString& name )
 {
     if ( !color_init ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "QColor::setSystemNamedColor: Cannot perform this operation "
 		 "because QApplication does not exist" );
 #endif

@@ -68,7 +68,7 @@ void qSystemWarning( const QString& message )
 #include "qintdict.h"
 #include <process.h>
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 #define QMUTEX_TYPE_NORMAL 0
 #define QMUTEX_TYPE_RECURSIVE 1
 #endif
@@ -116,7 +116,7 @@ public:
     virtual void lock();
     virtual void unlock();
     virtual bool locked();
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
     virtual int type() const { return QMUTEX_TYPE_RECURSIVE; }
 #endif
 };
@@ -127,7 +127,7 @@ QMutexPrivate::QMutexPrivate()
 	handle = CreateMutex( NULL, FALSE, NULL );
     else
 	handle = CreateMutexA( NULL, FALSE, NULL );
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
     if ( !handle )
 	qSystemWarning( "Mutex init failure" );
 #endif
@@ -137,7 +137,7 @@ QMutexPrivate::QMutexPrivate()
 QMutexPrivate::~QMutexPrivate()
 {
     if ( !CloseHandle( handle ) ) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qSystemWarning( "Mutex destroy failure" );
 #endif
     }
@@ -148,12 +148,12 @@ void QMutexPrivate::lock()
     switch ( WaitForSingleObject( handle, INFINITE ) ) {
     case WAIT_TIMEOUT:
     case WAIT_FAILED:
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qSystemWarning( "Couldn't lock mutex" );
 #endif
 	break;
     case WAIT_ABANDONED:
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qWarning( "Thread terminated while locking mutex!" );
 #endif
 	// Fall through
@@ -165,7 +165,7 @@ void QMutexPrivate::lock()
 void QMutexPrivate::unlock()
 {
     if ( !ReleaseMutex( handle ) ) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qSystemWarning( "Mutex unlock failure" );
 #endif
     }
@@ -177,14 +177,14 @@ bool QMutexPrivate::locked()
     case WAIT_TIMEOUT:
 	return TRUE;
     case WAIT_ABANDONED_0:
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qSystemWarning( "Mutex locktest failure" );
 #endif
 	return FALSE;
     case WAIT_OBJECT_0:
 	return FALSE;
     case WAIT_FAILED:
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qSystemWarning( "Mutex locktest failure" );
 #endif
 	break;
@@ -204,7 +204,7 @@ public:
     QNonRecursiveMutexPrivate();
     void lock();
     void unlock();
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
     virtual int type() const { return QMUTEX_TYPE_NORMAL; };
 #endif
 
@@ -223,7 +223,7 @@ void QNonRecursiveMutexPrivate::lock()
     protect.enter();
 
     if ( threadID == GetCurrentThreadId() ) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qWarning( "Non-recoursive mutex already locked by this thread" );
 #endif
     } else {
@@ -231,12 +231,12 @@ void QNonRecursiveMutexPrivate::lock()
 	switch ( WaitForSingleObject( handle, INFINITE ) ) {
 	case WAIT_TIMEOUT:
 	case WAIT_FAILED:
-    #ifdef CHECK_RANGE
+    #ifdef QT_CHECK_RANGE
 	    qSystemWarning( "Couldn't lock mutex" );
     #endif
 	    break;
 	case WAIT_ABANDONED:
-    #ifdef CHECK_RANGE
+    #ifdef QT_CHECK_RANGE
 	    qWarning( "Thread terminated while locking mutex!" );
     #endif
 	    // Fall through
@@ -371,7 +371,7 @@ QWaitConditionPrivate::QWaitConditionPrivate()
 	single = CreateEventA( NULL, FALSE, FALSE, NULL );
     }
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
     if ( !handle || !single )
     qSystemWarning( "Condition init failure" );
 #endif
@@ -380,7 +380,7 @@ QWaitConditionPrivate::QWaitConditionPrivate()
 QWaitConditionPrivate::~QWaitConditionPrivate()
 {
     if ( !CloseHandle( handle ) || !CloseHandle( single ) ) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
         qSystemWarning( "Condition destroy failure" );
 #endif
     }
@@ -422,7 +422,7 @@ bool QWaitCondition::wait( unsigned long time )
     case WAIT_ABANDONED:
     case WAIT_ABANDONED+1:
     case WAIT_FAILED:
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
     qSystemWarning( "Condition wait failure" );
 #endif
 	break;
@@ -438,7 +438,7 @@ bool QWaitCondition::wait( QMutex *mutex, unsigned long time)
        return FALSE;
 
     d->s.enter();
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
     if ( mutex->d->type() == QMUTEX_TYPE_RECURSIVE )
 	qWarning("Unlocking recursive mutex before wait");
 #endif
@@ -452,7 +452,7 @@ bool QWaitCondition::wait( QMutex *mutex, unsigned long time)
     d->s.leave();
     if ( lastWaiter ) {
         if ( !ResetEvent ( d->handle ) ) {
-    #ifdef CHECK_RANGE
+    #ifdef QT_CHECK_RANGE
         qSystemWarning( "Condition could not be reset" );
     #endif
         }
@@ -466,7 +466,7 @@ void QWaitCondition::wakeOne()
     bool haveWaiters = (d->waitersCount > 0);
     if ( haveWaiters ) {
         if ( !SetEvent( d->single ) ) {
-    #ifdef CHECK_RANGE
+    #ifdef QT_CHECK_RANGE
 	    qSystemWarning( "Condition could not be set" );
     #endif
         }
@@ -480,7 +480,7 @@ void QWaitCondition::wakeAll()
     bool haveWaiters = (d->waitersCount > 0);
     if ( haveWaiters ) {
         if ( !SetEvent( d->handle ) ) {
-    #ifdef CHECK_RANGE
+    #ifdef QT_CHECK_RANGE
         qSystemWarning( "Condition could not be set" );
     #endif
         }
@@ -536,7 +536,7 @@ QThreadPrivate::~QThreadPrivate()
 	TerminateThread( handle, 0 );
 	finished = TRUE;
     } else if ( !CloseHandle( handle ) ) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	    qSystemWarning( "Thread destroy failure");
 #endif
     }
@@ -602,7 +602,7 @@ QThread::~QThread()
 void QThread::start()
 {
     if ( d->running && !d->finished ) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qWarning( "Thread is already running" );
 #endif
 	wait();
@@ -613,7 +613,7 @@ void QThread::start()
     d->handle = (Qt::HANDLE)_beginthreadex( NULL, NULL, start_thread,
 	this, 0, &(d->id) );
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
     if ( !d->handle )
 	qSystemWarning( "Couldn't create thread" );
 #endif
@@ -622,7 +622,7 @@ void QThread::start()
 bool QThread::wait( unsigned long time )
 {
     if ( d->id == GetCurrentThreadId() ) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qWarning( "Thread tried to wait on itself" );
 #endif
 	return FALSE;
@@ -634,7 +634,7 @@ bool QThread::wait( unsigned long time )
 	return FALSE;
     case WAIT_ABANDONED_0:
     case WAIT_FAILED:
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qSystemWarning( "Thread wait failure" );
 #endif
 	return FALSE;
@@ -678,7 +678,7 @@ QSemaphore::QSemaphore( int maxcount )
 	d->handle = CreateSemaphoreA( NULL, maxcount, maxcount, NULL );
     }
     
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
     if ( !d->handle )
 	qSystemWarning( "Semaphore init failure" );
 #endif
@@ -688,7 +688,7 @@ QSemaphore::QSemaphore( int maxcount )
 QSemaphore::~QSemaphore()
 {
     if ( !CloseHandle( d->handle ) ) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qSystemWarning( "Semaphore close failure" );
 #endif
     }
@@ -715,7 +715,7 @@ int QSemaphore::operator--(int)
 
     int c = d->count;
     if ( !ReleaseSemaphore( d->handle, 1, NULL ) ) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qSystemWarning( "Semaphore release failure" );
 #endif
     } else {
@@ -732,7 +732,7 @@ int QSemaphore::operator -=(int s)
     d->protect.enter();
     int c = d->count;
     if ( !ReleaseSemaphore( d->handle, s, NULL ) ) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qSystemWarning( "Semaphore release failure" );
 #endif
     } else {
@@ -752,7 +752,7 @@ int QSemaphore::operator++(int)
     switch ( WaitForSingleObject( d->handle, INFINITE ) ) {
     case WAIT_TIMEOUT:
     case WAIT_FAILED:
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qSystemWarning( "Semaphore wait failure" );
 #endif
 	return d->count;
@@ -776,7 +776,7 @@ int QSemaphore::operator +=(int s)
 	switch ( WaitForSingleObject( d->handle, INFINITE ) ) {
 	case WAIT_TIMEOUT:
 	case WAIT_FAILED:
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	    qSystemWarning( "Semaphore wait failure" );
 #endif
 	    return d->count;

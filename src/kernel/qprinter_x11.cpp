@@ -360,7 +360,7 @@ int QPrinter::metric( int m ) const
 {
     int val;
     PageSize s = pageSize();
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     ASSERT( (uint)s < (uint)NPageSize );
 #endif
     static int widths[]	 = { 595, 516, 612, 612, 541,
@@ -410,7 +410,7 @@ int QPrinter::metric( int m ) const
 	break;
     default:
 	val = 0;
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QPixmap::metric: Invalid metric command" );
 #endif
     }

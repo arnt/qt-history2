@@ -107,7 +107,7 @@ private:
 
 inline char *QGArray::at( uint index ) const
 {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( index >= size() ) {
 	msg_index( index );
 	index = 0;

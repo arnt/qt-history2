@@ -915,7 +915,7 @@ bool QDir::operator==( const QDir &d ) const
 bool QDir::remove( const QString &fileName, bool acceptAbsPath )
 {
     if ( fileName.isEmpty() ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QDir::remove: Empty or null file name" );
 #endif
 	return FALSE;
@@ -939,7 +939,7 @@ bool QDir::remove( const QString &fileName, bool acceptAbsPath )
 bool QDir::exists( const QString &name, bool acceptAbsPath )
 {
     if ( name.isEmpty() ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QDir::exists: Empty or null file name" );
 #endif
 	return FALSE;

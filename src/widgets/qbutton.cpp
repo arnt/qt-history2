@@ -652,7 +652,7 @@ void QButton::setDown( bool enable )
 void QButton::setState( ToggleState s )
 {
     if ( !toggleTyp ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "QButton::setState() / setOn: (%s) Only toggle buttons "
 		 "may be switched", name( "unnamed" ) );
 #endif

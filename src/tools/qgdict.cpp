@@ -86,7 +86,7 @@ public:
 
 int QGDict::hashKeyString( const QString &key )
 {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
     if ( key.isNull() )
 	qWarning( "QGDict::hashStringKey: Invalid null key" );
 #endif
@@ -122,7 +122,7 @@ int QGDict::hashKeyString( const QString &key )
 
 int QGDict::hashKeyAscii( const char *key )
 {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
     if ( key == 0 )
 	qWarning( "QGDict::hashAsciiKey: Invalid null key" );
 #endif
@@ -378,7 +378,7 @@ QCollection::Item QGDict::look_string( const QString &key, QCollection::Item d, 
     // op_insert or op_replace
     n = new QStringBucket(key,newItem(d),vec[index]);
     CHECK_PTR( n );
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
     if ( n->getData() == 0 )
 	qWarning( "QDict: Cannot insert null item" );
 #endif
@@ -417,7 +417,7 @@ QCollection::Item QGDict::look_ascii( const char *key, QCollection::Item d, int 
     // op_insert or op_replace
     n = new QAsciiBucket(copyk ? qstrdup(key) : key,newItem(d),vec[index]);
     CHECK_PTR( n );
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
     if ( n->getData() == 0 )
 	qWarning( "QAsciiDict: Cannot insert null item" );
 #endif
@@ -448,7 +448,7 @@ QCollection::Item QGDict::look_int( long key, QCollection::Item d, int op )
     // op_insert or op_replace
     n = new QIntBucket(key,newItem(d),vec[index]);
     CHECK_PTR( n );
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
     if ( n->getData() == 0 )
 	qWarning( "QIntDict: Cannot insert null item" );
 #endif
@@ -479,7 +479,7 @@ QCollection::Item QGDict::look_ptr( void *key, QCollection::Item d, int op )
     // op_insert or op_replace
     n = new QPtrBucket(key,newItem(d),vec[index]);
     CHECK_PTR( n );
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
     if ( n->getData() == 0 )
 	qWarning( "QPtrDict: Cannot insert null item" );
 #endif
@@ -1132,7 +1132,7 @@ QGDictIterator::~QGDictIterator()
 QCollection::Item QGDictIterator::toFirst()
 {
     if ( !dict ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QGDictIterator::toFirst: Dictionary has been deleted" );
 #endif
 	return 0;
@@ -1159,7 +1159,7 @@ QCollection::Item QGDictIterator::toFirst()
 QCollection::Item QGDictIterator::operator()()
 {
     if ( !dict ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QGDictIterator::operator(): Dictionary has been deleted" );
 #endif
 	return 0;
@@ -1179,7 +1179,7 @@ QCollection::Item QGDictIterator::operator()()
 QCollection::Item QGDictIterator::operator++()
 {
     if ( !dict ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QGDictIterator::operator++: Dictionary has been deleted" );
 #endif
 	return 0;

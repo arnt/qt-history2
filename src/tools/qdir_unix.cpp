@@ -118,7 +118,7 @@ bool QDir::rename( const QString &name, const QString &newName,
 		   bool acceptAbsPaths	)
 {
     if ( name.isEmpty() || newName.isEmpty() ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QDir::rename: Empty or null file name(s)" );
 #endif
 	return FALSE;
@@ -208,7 +208,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 
     dir = opendir( QFile::encodeName(dPath) );
     if ( !dir ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QDir::readDirEntries: Cannot read the directory: %s",
 		  QFile::encodeName(dPath).data() );
 #endif
@@ -236,7 +236,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	}
     }
     if ( closedir(dir) != 0 ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QDir::readDirEntries: Cannot close the directory: %s",
 		  dPath.local8Bit().data() );
 #endif

@@ -245,7 +245,7 @@ QGVector& QGVector::operator=( const QGVector &v )
 
 bool QGVector::insert( uint index, Item d )	// insert item at index
 {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( index >= len ) {			// range error
 	qWarning( "QGVector::insert: Index %d out of range", index );
 	return FALSE;
@@ -272,7 +272,7 @@ bool QGVector::insert( uint index, Item d )	// insert item at index
 
 bool QGVector::remove( uint index )		// remove item at index
 {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( index >= len ) {			// range error
 	qWarning( "QGVector::remove: Index %d out of range", index );
 	return FALSE;
@@ -292,7 +292,7 @@ bool QGVector::remove( uint index )		// remove item at index
 
 QCollection::Item QGVector::take( uint index )		// take out item
 {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( index >= len ) {			// range error
 	qWarning( "QGVector::take: Index %d out of range", index );
 	return 0;
@@ -441,7 +441,7 @@ int QGVector::bsearch( Item d ) const		// binary search; when sorted
     if ( !len )
 	return -1;
     if ( !d ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QGVector::bsearch: Cannot search for null object" );
 #endif
 	return -1;
@@ -481,7 +481,7 @@ int QGVector::bsearch( Item d ) const		// binary search; when sorted
 
 int QGVector::findRef( Item d, uint index) const // find exact item in vector
 {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( index >= len ) {			// range error
 	qWarning( "QGVector::findRef: Index %d out of range", index );
 	return -1;
@@ -500,7 +500,7 @@ int QGVector::findRef( Item d, uint index) const // find exact item in vector
 
 int QGVector::find( Item d, uint index ) const	// find equal item in vector
 {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( index >= len ) {			// range error
 	qWarning( "QGVector::find: Index %d out of range", index );
 	return -1;
@@ -577,7 +577,7 @@ void QGVector::toList( QGList *list ) const	// store items in list
 
 void QGVector::warningIndexRange( uint i )
 {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     qWarning( "QGVector::operator[]: Index %d out of range", i );
 #else
     Q_UNUSED( i )

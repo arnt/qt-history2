@@ -240,7 +240,7 @@ bool QPicture::play( QPainter *painter )
     }
     s >> nrecords;
     if ( !exec( painter, s, nrecords ) ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QPicture::play: Format error" );
 #endif
 	pictb.close();
@@ -488,7 +488,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		painter->setClipRegion( rgn );
 		break;
 	    default:
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 		qWarning( "QPicture::play: Invalid command %d", c );
 #endif
 		if ( len )			// skip unknown command
@@ -683,7 +683,7 @@ bool QPicture::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 	case PdcSetClipRegion:
 	    s << *p[0].rgn;
 	    break;
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	default:
 	    qWarning( "QPicture::cmd: Command %d not recognized", c );
 #endif
@@ -763,7 +763,7 @@ int QPicture::metric( int m ) const
 	    break;
 	default:
 	    val = 0;
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	    qWarning( "QPicture::metric: Invalid metric command" );
 #endif
     }
@@ -827,7 +827,7 @@ bool QPicture::checkFormat()
     char mf_id[4];				// picture header tag
     s.readRawBytes( mf_id, 4 );			// read actual tag
     if ( memcmp(mf_id, mfhdr_tag, 4) != 0 ) { 	// wrong header id
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QPicture::checkFormat: Incorrect header" );
 #endif
 	pictb.close();
@@ -841,7 +841,7 @@ bool QPicture::checkFormat()
     s >> cs;				// read checksum
     ccs = qChecksum( buf.data() + data_start, buf.size() - data_start );
     if ( ccs != cs ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "QPicture::checkFormat: Invalid checksum %x, %x expected",
 		  ccs, cs );
 #endif
@@ -852,7 +852,7 @@ bool QPicture::checkFormat()
     Q_UINT16 major, minor;
     s >> major >> minor;			// read version number
     if ( major > mfhdr_maj ) {		// new, incompatible version
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QPicture::checkFormat: Incompatible version %d.%d",
 		  major, minor);
 #endif
@@ -870,7 +870,7 @@ bool QPicture::checkFormat()
 	    brect = QRect( l, t, w, h );
 	}
     } else {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QPicture::checkFormat: Format error" );
 #endif
 	pictb.close();

@@ -285,7 +285,7 @@ QLNode *QGList::locate( uint index )
     bool forward;				// direction to traverse
 
     if ( index >= numNodes ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QGList::locate: Index %d out of range", index );
 #endif
 	return 0;
@@ -480,7 +480,7 @@ QLNode *QGList::unlink()
 
 bool QGList::removeNode( QLNode *n )
 {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
     if ( n == 0 || (n->prev && n->prev->next != n) ||
 	 (n->next && n->next->prev != n) ) {
 	qWarning( "QGList::removeNode: Corrupted node" );
@@ -571,7 +571,7 @@ bool QGList::removeAt( uint index )
 
 QCollection::Item QGList::takeNode( QLNode *n )
 {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
     if ( n == 0 || (n->prev && n->prev->next != n) ||
 	 (n->next && n->next->prev != n) ) {
 	qWarning( "QGList::takeNode: Corrupted node" );
@@ -1126,7 +1126,7 @@ QGListIterator::~QGListIterator()
 QCollection::Item QGListIterator::toFirst()
 {
     if ( !list ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QGListIterator::toFirst: List has been deleted" );
 #endif
 	return 0;
@@ -1142,7 +1142,7 @@ QCollection::Item QGListIterator::toFirst()
 QCollection::Item QGListIterator::toLast()
 {
     if ( !list ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QGListIterator::toLast: List has been deleted" );
 #endif
 	return 0;

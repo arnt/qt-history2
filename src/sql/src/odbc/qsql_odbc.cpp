@@ -79,7 +79,7 @@ QString qODBCWarn( const QODBCPrivate* odbc)
 
 void qSqlWarning( const QString& message, const QODBCPrivate* odbc )
 {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
     qWarning( message + "\tError:" + qODBCWarn( odbc ) );
 #endif
 }
@@ -182,7 +182,7 @@ QSqlField qMakeField( const QODBCPrivate* p, int i  )
 			&nullable);
     qColName = qstrdup((const char*)colName);
 #endif
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
     if ( r != SQL_SUCCESS )
 	qSqlWarning( QString("qMakeField: Unable to describe column %1").arg(i), p );
 #endif
@@ -239,7 +239,7 @@ QString qGetStringData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndicator
 			&nullable);
     qColName = qstrdup( (const char*)colName );
 #endif
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
     if ( r != SQL_SUCCESS )
 	qWarning( QString("qGetStringData: Unable to describe column %1").arg(column) );
 #endif
@@ -362,7 +362,7 @@ QSqlField qMakeField( const QODBCPrivate* d, const QString& tablename, const QSt
 				  d->hDbc,
 				  &hStmt );
     if ( r != SQL_SUCCESS ) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qSqlWarning( "qMakeField: Unable to alloc handle", d );
 #endif
 	return fi;
@@ -404,7 +404,7 @@ QSqlField qMakeField( const QODBCPrivate* d, const QString& tablename, const QSt
 		     fieldname.length() );
 #endif
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
     if ( r != SQL_SUCCESS )
 	qSqlWarning( "qMakeField: Unable to execute column list", d );
 #endif
@@ -434,7 +434,7 @@ QODBCResult::~QODBCResult()
 {
     if ( d->hStmt ) {
 	SQLRETURN r = SQLFreeHandle( SQL_HANDLE_STMT, d->hStmt );
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	if ( r!= SQL_SUCCESS )
 	    qSqlWarning( "QODBCDriver: Unable to free statement handle" + QString::number(r), d );
 #endif
@@ -449,13 +449,13 @@ bool QODBCResult::reset ( const QString& query )
     SQLRETURN r;
     if ( d->hStmt ) {
 //    	r = SQLFreeHandle( SQL_HANDLE_STMT, d->hStmt );
-//#ifdef CHECK_RANGE
+//#ifdef QT_CHECK_RANGE
 //	if ( r!= SQL_SUCCESS )
 //	    qSqlWarning( "Unable to free statement handle", d );
 //#endif
     	r = SQLFreeStmt( d->hStmt, SQL_CLOSE );
     	if ( r != SQL_SUCCESS ) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 		qSqlWarning( "QODBCDriver::reset: Unable to close statement", d );
 #endif
 		return FALSE;
@@ -465,7 +465,7 @@ bool QODBCResult::reset ( const QString& query )
     			d->hDbc,
 			&d->hStmt );
     if ( r != SQL_SUCCESS ) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qSqlWarning( "QODBCDriver::reset: Unable to allocate statement handle", d );
 #endif
 	return FALSE;
@@ -475,7 +475,7 @@ bool QODBCResult::reset ( const QString& query )
                         (SQLPOINTER)SQL_CURSOR_STATIC,
                         SQL_IS_UINTEGER );
     if ( r != SQL_SUCCESS ) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qSqlWarning( "QODBCDriver::reset: Unable to set statement attribute", d );
 #endif
 	return FALSE;
@@ -695,7 +695,7 @@ int QODBCResult::numRowsAffected()
     SQLRETURN r = SQLRowCount( d->hStmt, &affectedRowCount);
     if ( r == SQL_SUCCESS )
 	return affectedRowCount;
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
     else
 	qSqlWarning( "QODBCDriver::afectedRows: Unable to count affected rows", d );
 #endif
@@ -738,7 +738,7 @@ bool QODBCDriver::open( const QString & db,
     			SQL_NULL_HANDLE,
 			&d->hEnv);
     if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qSqlWarning( "QODBCDriver::open: Unable to allocate environment", d );
 #endif
 	setOpenError( TRUE );
@@ -752,7 +752,7 @@ bool QODBCDriver::open( const QString & db,
     			d->hEnv,
 			&d->hDbc);
     if ( r != SQL_SUCCESS ) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qSqlWarning("QODBCDriver::open: Unable to allocate connection", d );
 #endif
 	setOpenError( TRUE );
@@ -826,7 +826,7 @@ void QODBCDriver::cleanup()
     	if ( d->hDbc ) {
 		SQLRETURN r = SQLDisconnect( d->hDbc );
 		r = SQLFreeHandle( SQL_HANDLE_DBC, d->hDbc );
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 		if ( r != SQL_SUCCESS )
 		    qSqlWarning( "QODBCDriver::cleanup: Unable to free connection handle", d );
 #endif
@@ -834,7 +834,7 @@ void QODBCDriver::cleanup()
     	}
     	if ( d->hEnv ) {
 		SQLRETURN r = SQLFreeHandle( SQL_HANDLE_ENV, d->hEnv );
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 		if ( r != SQL_SUCCESS )
 		    qSqlWarning( "QODBCDriver::cleanup: Unable to free environment handle", d );
 #endif
@@ -908,7 +908,7 @@ QStringList QODBCDriver::tables( const QString& user ) const
 				  d->hDbc,
 				  &hStmt );
     if ( r != SQL_SUCCESS ) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qSqlWarning( "QODBCDriver::tables: Unable to allocate handle", d );
 #endif
 	return tl;
@@ -949,7 +949,7 @@ QStringList QODBCDriver::tables( const QString& user ) const
 		   NULL,
 		   0);
 #endif
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
     if ( r != SQL_SUCCESS )
 	qSqlWarning( "QODBCDriver::tables Unable to execute table list", d );
 #endif
@@ -977,7 +977,7 @@ QSqlIndex QODBCDriver::primaryIndex( const QString& tablename ) const
 				  d->hDbc,
 				  &hStmt );
     if ( r != SQL_SUCCESS ) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qSqlWarning( "QODBCDriver::primaryIndex: Unable to list primary key", d );
 #endif
 	return index;
@@ -1012,7 +1012,7 @@ QSqlIndex QODBCDriver::primaryIndex( const QString& tablename ) const
 			(SQLCHAR*)tablename.local8Bit().data(),
 			tablename.length());
 #endif
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
     if ( r != SQL_SUCCESS )
 	qSqlWarning( "QODBCDriver::primaryIndex: Unable to execute primary key list", d );
 #endif
@@ -1044,7 +1044,7 @@ QSqlRecord QODBCDriver::record( const QString& tablename ) const
 				  d->hDbc,
 				  &hStmt );
     if ( r != SQL_SUCCESS ) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qSqlWarning( "QODBCDriver::record: Unable to allocate handle", d );
 #endif
 	return fil;
@@ -1085,7 +1085,7 @@ QSqlRecord QODBCDriver::record( const QString& tablename ) const
 		     NULL,
 		     0 );
 #endif
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
     if ( r != SQL_SUCCESS )
 	qSqlWarning( "QODBCDriver::record: Unable to execute column list", d );
 #endif
@@ -1117,7 +1117,7 @@ QSqlRecord QODBCDriver::record( const QSqlQuery& query ) const
 	SQLRETURN r;
 	SQLSMALLINT count;
 	r = SQLNumResultCols( result->d->hStmt, &count );
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	if ( r != SQL_SUCCESS )
 	    qSqlWarning( "QODBCDriver::record: Unable to count result columns", d );
 #endif

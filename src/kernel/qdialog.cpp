@@ -238,7 +238,7 @@ void QDialog::hideDefault()
 
 int QDialog::exec()
 {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( !testWFlags(WType_Modal) )
 	qWarning( "QDialog::exec: Calling this function for a modeless dialog "
 		 "makes no sense" );

@@ -154,7 +154,7 @@ QSocketNotifier::QSocketNotifier( int socket, Type type, QObject *parent,
 				  const char *name )
     : QObject( parent, name )
 {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( socket < 0 )
 	qWarning( "QSocketNotifier: Invalid socket specified" );
 #endif

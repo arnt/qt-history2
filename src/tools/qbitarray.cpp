@@ -258,7 +258,7 @@ QBitArray QBitArray::copy() const
 
 bool QBitArray::testBit( uint index ) const
 {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( index >= size() ) {
 	qWarning( "QBitArray::testBit: Index %d out of range", index );
 	return FALSE;
@@ -274,7 +274,7 @@ bool QBitArray::testBit( uint index ) const
 
 void QBitArray::setBit( uint index )
 {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( index >= size() ) {
 	qWarning( "QBitArray::setBit: Index %d out of range", index );
 	return;
@@ -305,7 +305,7 @@ void QBitArray::setBit( uint index )
 
 void QBitArray::clearBit( uint index )
 {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( index >= size() ) {
 	qWarning( "QBitArray::clearBit: Index %d out of range", index );
 	return;
@@ -325,7 +325,7 @@ void QBitArray::clearBit( uint index )
 
 bool QBitArray::toggleBit( uint index )
 {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( index >= size() ) {
 	qWarning( "QBitArray::toggleBit: Index %d out of range", index );
 	return FALSE;
@@ -585,7 +585,7 @@ QDataStream &operator>>( QDataStream &s, QBitArray &a )
     Q_UINT32 len;
     s >> len;					// read size of array
     if ( !a.resize( (uint)len ) ) {		// resize array
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QDataStream: Not enough memory to read QBitArray" );
 #endif
 	len = 0;

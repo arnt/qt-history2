@@ -303,7 +303,7 @@ static inline bool checkInsertIndex( const char *method, const char * name,
 				     int count, int *index)
 {
     bool range_err = (*index > count);
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( range_err )
 	qWarning( "QComboBox::%s: (%s) Index %d out of range",
 		 method, name ? name : "<no name>", *index );
@@ -321,7 +321,7 @@ static inline bool checkIndex( const char *method, const char * name,
 			       int count, int index )
 {
     bool range_err = (index >= count);
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( range_err )
 	qWarning( "QComboBox::%s: (%s) Index %i out of range",
 		 method, name ? name : "<no name>", index );
@@ -483,7 +483,7 @@ void QComboBox::insertStrList( const QStrList &list, int index )
 void QComboBox::insertStrList( const QStrList *list, int index )
 {
     if ( !list ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	ASSERT( list != 0 );
 #endif
 	return;
@@ -556,7 +556,7 @@ void QComboBox::insertStringList( const QStringList &list, int index )
 void QComboBox::insertStrList( const char **strings, int numStrings, int index)
 {
     if ( !strings ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	ASSERT( strings != 0 );
 #endif
 	return;

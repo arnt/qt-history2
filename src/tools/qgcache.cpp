@@ -263,7 +263,7 @@ QGCache::QGCache( int maxCost, uint size, KeyType kt, bool caseSensitive,
 QGCache::QGCache( const QGCache & )
     : QCollection()
 {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
     qFatal( "QGCache::QGCache(QGCache &): Cannot copy a cache" );
 #endif
 }
@@ -287,7 +287,7 @@ QGCache::~QGCache()
 
 QGCache &QGCache::operator=( const QGCache & )
 {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
     qFatal( "QGCache::operator=: Cannot copy a cache" );
 #endif
     return *this;				// satisfy the compiler

@@ -242,7 +242,7 @@ bool QDir::rename( const QString &name, const QString &newName,
 		   bool acceptAbsPaths	)
 {
     if ( name.isEmpty() || newName.isEmpty() ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QDir::rename: Empty or null file name(s)" );
 #endif
 	return FALSE;
@@ -400,7 +400,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 #define FF_ERROR    INVALID_HANDLE_VALUE
 
     if ( plen == 0 ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QDir::readDirEntries: No directory name specified" );
 #endif
 	return FALSE;
@@ -419,7 +419,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	// if it is a floppy disk drive, it might just not have a file on it
 	if ( plen > 1 && p[ 1 ] == ':' )
 	    return TRUE;
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QDir::readDirEntries: Cannot read the directory: %s (UTF8)",
 		  dPath.utf8().data() );
 #endif

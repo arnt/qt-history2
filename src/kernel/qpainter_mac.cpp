@@ -127,7 +127,7 @@ void QPainter::init()
 
 void QPainter::setFont( const QFont &font )
 {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( !isActive() )
         warning( "QPainter::setFont: Will be reset by begin()" );
 #endif
@@ -208,14 +208,14 @@ typedef QIntDict<QPaintDevice> QPaintDeviceDict;
 bool QPainter::begin( const QPaintDevice *pd )
 {
     if ( isActive() ) {                         // already active painting
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
         warning( "QPainter::begin: Painter is already active."
                  "\n\tYou must end() the painter before a second begin()" );
 #endif
         return FALSE;
     }
     if ( pd == 0 ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
         warning( "QPainter::begin: Paint device cannot be null" );
 #endif
         return FALSE;
@@ -239,7 +239,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 
     if ( pdev->isExtDev() && pdev->paintingActive() ) {
 	// somebody else is already painting
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
         warning( "QPainter::begin: Another QPainter is already painting "
                  "this device;\n\tAn extended paint device can only be painted "
                  "by one QPainter at a time." );
@@ -328,7 +328,7 @@ bool QPainter::begin( const QPaintDevice *pd )
     } else if ( dt == QInternal::Pixmap ) {             // device is a pixmap
         QPixmap *pm = (QPixmap*)pdev;
         if ( pm->isNull() ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
             warning( "QPainter::begin: Cannot paint null pixmap" );
 #endif
             end();
@@ -374,7 +374,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 bool QPainter::end()				// end painting
 {
     if ( !isActive() ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
         warning( "QPainter::end: Missing begin() or begin() failed" );
 #endif
         return FALSE;

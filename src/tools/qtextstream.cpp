@@ -155,7 +155,7 @@
   QTextStream member functions
  *****************************************************************************/
 
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 #undef  CHECK_STREAM_PRECOND
 #define CHECK_STREAM_PRECOND  if ( !dev ) {				\
 				qWarning( "QTextStream: No device" );	\
@@ -293,13 +293,13 @@ QStringBuffer::~QStringBuffer()
 bool QStringBuffer::open( int m )
 {
     if ( !s ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "QStringBuffer::open: No string" );
 #endif
 	return FALSE;
     }
     if ( isOpen() ) {                           // buffer already open
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "QStringBuffer::open: Buffer already open" );
 #endif
 	return FALSE;
@@ -342,14 +342,14 @@ int  QStringBuffer::at()   const
 
 bool QStringBuffer::at( int pos )
 {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {
 	qWarning( "QStringBuffer::at: Buffer is not open" );
 	return FALSE;
     }
 #endif
     if ( (uint)pos >= s->length()*2 ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QStringBuffer::at: Index %d out of range", pos );
 #endif
 	return FALSE;
@@ -361,7 +361,7 @@ bool QStringBuffer::at( int pos )
 
 int  QStringBuffer::readBlock( char *p, uint len )
 {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     CHECK_PTR( p );
     if ( !isOpen() ) {                          // buffer not open
 	qWarning( "QStringBuffer::readBlock: Buffer not open" );
@@ -388,11 +388,11 @@ int  QStringBuffer::readBlock( char *p, uint len )
 
 int QStringBuffer::writeBlock( const char *p, uint len )
 {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
     if ( p == 0 && len != 0 )
 	qWarning( "QStringBuffer::writeBlock: Null pointer error" );
 #endif
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {                          // buffer not open
 	qWarning( "QStringBuffer::writeBlock: Buffer not open" );
 	return -1;
@@ -417,7 +417,7 @@ int QStringBuffer::writeBlock( const char *p, uint len )
 
 int QStringBuffer::getch()
 {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {                          // buffer not open
 	qWarning( "QStringBuffer::getch: Buffer not open" );
 	return -1;
@@ -445,7 +445,7 @@ int QStringBuffer::putch( int ch )
 
 int QStringBuffer::ungetch( int ch )
 {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {                          // buffer not open
 	qWarning( "QStringBuffer::ungetch: Buffer not open" );
 	return -1;
@@ -1588,7 +1588,7 @@ QTextStream &QTextStream::operator>>( QCString &str )
 
 QString QTextStream::readLine()
 {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( !dev ) {
 	qWarning( "QTextStream::readLine: No device" );
 	return QString::null;
@@ -1670,7 +1670,7 @@ QString QTextStream::readLine()
 
 QString QTextStream::read()
 {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( !dev ) {
 	qWarning( "QTextStream::read: No device" );
 	return QString::null;

@@ -949,7 +949,7 @@ void QClipboard::setData( QMimeSource* src )
     Window prevOwner = XGetSelectionOwner( dpy, atom );
     XSetSelectionOwner( dpy, atom, win, qt_x_time );
 
-    // ### perhaps this should be CHECK_RANGE ?
+    // ### perhaps this should be QT_CHECK_RANGE ?
     if ( XGetSelectionOwner(dpy, atom) != win ) {
 #if defined(QT_CLIPBOARD_DEBUG)
 	qDebug( "QClipboard::setData: Cannot set X11 selection owner for %s",

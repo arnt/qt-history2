@@ -730,14 +730,14 @@ QGLContext::QGLContext( const QGLFormat &format, QPaintDevice *device )
     initDone = FALSE;
     sharing = FALSE;
     if ( paintDevice == 0 ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QGLContext: Paint device cannot be null" );
 	return;
 #endif
     }
     if ( paintDevice->devType() != QInternal::Widget &&
 	 paintDevice->devType() != QInternal::Pixmap ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QGLContext: Unsupported paint device type" );
 #endif
     }

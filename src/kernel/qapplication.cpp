@@ -671,7 +671,7 @@ void QApplication::init_precmdline()
     is_session_restored = FALSE;
 #endif
     app_exit_loop = FALSE;
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( qApp )
 	qWarning( "QApplication: There should be max one application object" );
 #endif
@@ -1094,7 +1094,7 @@ int QApplication::colorSpec()
 
 void QApplication::setColorSpec( int spec )
 {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( qApp ) {
 	qWarning( "QApplication::setColorSpec: This function must be "
 		 "called before the QApplication object is created" );
@@ -1148,7 +1148,7 @@ void QApplication::setGlobalStrut( const QSize& strut )
 #ifndef QT_NO_PALETTE
 QPalette QApplication::palette(const QWidget* w)
 {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( !qApp )
 	qWarning( "QApplication::palette: This function can only be "
 		  "called after the QApplication object has been created" );
@@ -1631,7 +1631,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	return FALSE;
 
     if ( receiver == 0 ) {			// serious error
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QApplication::notify: Unexpected null receiver" );
 #endif
 	return FALSE;
@@ -2069,7 +2069,7 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 	qapp_cleanup_events.addCleanUp( globalPostedEvents );
     }
     if ( receiver == 0 ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QApplication::postEvent: Unexpected null receiver" );
 #endif
 	return;

@@ -185,7 +185,7 @@ bool QPlugIn::use()
     if ( !pHnd || !info ) {
 	if ( libPol != Manual )
 	    return load();
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	else
 	    qWarning( "Tried to use library %s without loading!", libfile.latin1() );
 #endif
@@ -197,7 +197,7 @@ bool QPlugIn::use()
 QPlugInInterface* QPlugIn::loadInterface()
 {
     if ( !pHnd ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning("QPlugIn::loadInterface(): Failed to load library - no handle!");
 #endif
 	return 0;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#423 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#424 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -262,7 +262,7 @@ void qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
     static bool already_called = FALSE;
 
     if ( already_called ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "Qt internal error: qWinMain should be called only once" );
 #endif
 	return;
@@ -573,7 +573,7 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
     HRESULT r;
     r = OleInitialize(0);
     if ( r != S_OK && r != S_FALSE ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "Qt: Could not initialize OLE (error %x)", r );
 #endif
     }
@@ -1102,7 +1102,7 @@ static void sn_init()
 bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 {
     if ( sockfd < 0 || type < 0 || type > 2 || obj == 0 ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QSocketNotifier: Internal error" );
 #endif
 	return FALSE;
@@ -1124,7 +1124,7 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 	CHECK_PTR( sn );
 	sn->obj = obj;
 	sn->fd	= sockfd;
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	if ( dict->find(sockfd) ) {
 	    static const char *t[] = { "read", "write", "exception" };
 	    qWarning( "QSocketNotifier: Multiple socket notifiers for "
@@ -2145,7 +2145,7 @@ int qStartTimer( int interval, QObject *obj )
 	}
     }
     if ( t->id == 0 ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "qStartTimer: No more Windows timers" );
 #endif
 	delete t;				// could not set timer
@@ -2552,7 +2552,7 @@ static KeyRec* find_key_rec( int code, bool remove )
 static void store_key_rec( int code, int ascii, const QString& text )
 {
     if ( nrecs == maxrecs ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "Qt: Internal keyboard buffer overflow" );
 #endif
 	return;

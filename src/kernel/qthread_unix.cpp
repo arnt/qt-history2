@@ -442,7 +442,7 @@ bool QThread::wait(unsigned long time)
 void QThread::start()
 {
     if (d->running) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qWarning("QThread::start: thread already running");
 #endif
 
@@ -797,7 +797,7 @@ int QSemaphore::operator+=(int n)
     
     d->value += n;
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
     if (d->value > d->max) {
 	qWarning("QSemaphore::operator+=: attempt to allocate more resources than available");
 	d->value = d->max;
@@ -823,7 +823,7 @@ int QSemaphore::operator-=(int n)
 
     d->value -= n;
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
     if (d->value < 0) {
 	qWarning("QSemaphore::operator-=: attempt to deallocate more resources than taken");
 	d->value = 0;

@@ -1752,7 +1752,7 @@ GC qt_xget_temp_gc( bool monochrome )		// get temporary GC
 
 void QApplication::setMainWidget( QWidget *mainWidget )
 {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( mainWidget && mainWidget->parentWidget() )
 	qWarning( "QApplication::setMainWidget(): New main widget (%s/%s) "
 		  "has a parent!",
@@ -2223,7 +2223,7 @@ static void sn_init()
 bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 {
     if ( sockfd < 0 || type < 0 || type > 2 || obj == 0 ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QSocketNotifier: Internal error" );
 #endif
 	return FALSE;
@@ -2254,7 +2254,7 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 	    QSockNot *p = list->first();
 	    while ( p && p->fd > sockfd )
 		p = list->next();
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	    if ( p && p->fd == sockfd ) {
 		static const char *t[] = { "read", "write", "exception" };
 		qWarning( "QSocketNotifier: Multiple socket notifiers for "

@@ -207,7 +207,7 @@ void QWizard::addPage( QWidget * page, const QString & title )
     if ( !page )
 	return;
     if ( d->page( page ) ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "QWizard::addPage(): already added %s/%s to %s/%s",
 		  page->className(), page->name(),
 		  className(), name() );

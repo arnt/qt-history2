@@ -506,7 +506,7 @@ void QAction::setAccel( int key )
 	if ( !d->whatsthis.isEmpty() )
 	    d->accel->setWhatsThis( d->accelid, d->whatsthis );
     }
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     else
 	qWarning( "QAction::setAccel()  (%s) requires widget in parent chain.", name( "unnamed" ) );
 #endif
@@ -563,7 +563,7 @@ bool QAction::isToggleAction() const
 void QAction::setOn( bool enable )
 {
     if ( !isToggleAction() ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "QAction::setOn() (%s) Only toggle actions "
 		  "may be switched", name( "unnamed" ) );
 #endif

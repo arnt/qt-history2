@@ -231,13 +231,13 @@ uint QSqlRecord::count() const
 
 QSqlField* QSqlRecord::findField( int i )
 {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
     static QSqlField dbg;
     if( (unsigned int) i > fieldList.count() ){
 	qWarning( "QSqlRecord warning: index out of range" );
 	return &dbg;
     }
-#endif // CHECK_RANGE
+#endif // QT_CHECK_RANGE
     return &fieldList[ i ];
 }
 
@@ -248,13 +248,13 @@ QSqlField* QSqlRecord::findField( int i )
 
 QSqlField* QSqlRecord::findField( const QString& name )
 {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
     static QSqlField dbg;
     if( (unsigned int) position( name ) > fieldList.count() ){
 	qWarning( "QSqlRecord warning: index out of range" );
 	return &dbg;
     }
-#endif // CHECK_RANGE
+#endif // QT_CHECK_RANGE
     return &fieldList[ position( name ) ];
 }
 

@@ -293,7 +293,7 @@ void QTableView::repaint( int x, int y, int w, int h, bool erase )
 void QTableView::setNumRows( int rows )
 {
     if ( rows < 0 ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QTableView::setNumRows: (%s) Negative argument %d.",
 		 name( "unnamed" ), rows );
 #endif
@@ -335,7 +335,7 @@ void QTableView::setNumRows( int rows )
 void QTableView::setNumCols( int cols )
 {
     if ( cols < 0 ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QTableView::setNumCols: (%s) Negative argument %d.",
 		 name( "unnamed" ), cols );
 #endif
@@ -600,7 +600,7 @@ void QTableView::setCellWidth( int cellWidth )
 {
     if ( cellW == cellWidth )
 	return;
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( cellWidth < 0 || cellWidth > SHRT_MAX ) {
 	qWarning( "QTableView::setCellWidth: (%s) Argument out of range (%d)",
 		 name( "unnamed" ), cellWidth );
@@ -654,7 +654,7 @@ void QTableView::setCellHeight( int cellHeight )
 {
     if ( cellH == cellHeight )
 	return;
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( cellHeight < 0 || cellHeight > SHRT_MAX ) {
 	qWarning( "QTableView::setCellHeight: (%s) Argument out of range (%d)",
 		 name( "unnamed" ), cellHeight );
@@ -1599,7 +1599,7 @@ int QTableView::findRawRow( int yPos, int *cellMaxY, int *cellMinY,
 	return r;
     if ( goOutsideView || yPos >= minViewY() && yPos <= maxViewY() ) {
 	if ( yPos < minViewY() ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	    qWarning( "QTableView::findRawRow: (%s) internal error: "
 		     "yPos < minViewY() && goOutsideView "
 		     "not supported. (%d,%d)",
@@ -1646,7 +1646,7 @@ int QTableView::findRawCol( int xPos, int *cellMaxX, int *cellMinX ,
 	return c;
     if ( goOutsideView || xPos >= minViewX() && xPos <= maxViewX() ) {
 	if ( xPos < minViewX() ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	    qWarning( "QTableView::findRawCol: (%s) internal error: "
 		     "xPos < minViewX() && goOutsideView "
 		     "not supported. (%d,%d)",

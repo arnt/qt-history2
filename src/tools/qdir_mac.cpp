@@ -117,7 +117,7 @@ bool QDir::rename(const QString& name,const QString& newName,
 		  bool acceptAbsPaths)
 {
     if ( name.isEmpty() || newName.isEmpty() ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
         qWarning( "QDir::rename: Empty or null file name(s)" );
 #endif
         return FALSE;

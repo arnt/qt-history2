@@ -1167,7 +1167,7 @@ void QLayout::deleteAllItems()
 void QLayout::addChildLayout( QLayout *l )
 {
     if ( l->parent() ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QLayout::addChildLayout(), layout already has a parent." );
 #endif
 	return;
@@ -1307,7 +1307,7 @@ bool QLayout::activate()
 
     QWidget *mainW = mainWidget();
     if ( !mainW ) {
-#if defined( CHECK_NULL )
+#if defined( QT_CHECK_NULL )
 	    qWarning( "QLayout::activate(): %s \"%s\" does not have a "
 		      "main widget.",
 		     QObject::className(), QObject::name() );

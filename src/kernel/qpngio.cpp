@@ -399,7 +399,7 @@ bool QPNGImageWriter::writeImage(const QImage& image, int quality, int off_x, in
 
     if (quality >= 0) {
 	if (quality > 9) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	    qWarning( "PNG: Quality %d out of range", quality );
 #endif
 	    quality = 9;

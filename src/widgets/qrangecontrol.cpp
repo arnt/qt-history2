@@ -309,7 +309,7 @@ void QRangeControl::setRange( int minValue, int maxValue )
     if ( minValue == minVal && maxValue == maxVal )
 	return;
     if ( minValue > maxValue ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QRangeControl::setRange: minValue %d > maxValue %d",
 		 minValue, maxValue );
 #endif

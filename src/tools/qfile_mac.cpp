@@ -112,7 +112,7 @@ uint QFile::size() const
 bool QFile::at( int pos )
 {
     if ( !isOpen() ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
         qWarning( "QFile::at: File is not open" );
 #endif
         return FALSE;
@@ -126,7 +126,7 @@ bool QFile::at( int pos )
     }
     if ( ok )
         ioIndex = pos;
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     else
         qWarning( "QFile::at: Cannot set file position %d", pos );
 #endif

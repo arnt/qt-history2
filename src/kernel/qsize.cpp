@@ -288,7 +288,7 @@ void QSize::transpose()
 
 void QSize::warningDivByZero()
 {
-#if defined(CHECK_MATH)
+#if defined(QT_CHECK_MATH)
     qWarning( "QSize: Division by zero error" );
 #endif
 }

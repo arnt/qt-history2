@@ -2005,7 +2005,7 @@ void QPSPrinter::setFont( const QFont & f )
 	return;
     }
     if ( f.pointSize() == 0 ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QPrinter: Cannot set a font with zero point size." );
 #endif
 	return;
@@ -2696,7 +2696,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    while ( tmpC.length() > 0 && isspace(tmpC[(int)tmpC.length()-1]) )
 		tmpC.truncate( tmpC.length()-1 );
 	    char *tmp = new char[tmpC.length()*2 + 2];
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	    CHECK_PTR( tmp );
 #endif
 	    const char* from = (const char*)tmpC;
@@ -2780,7 +2780,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    stream << "/OMo true d\n";
 	break;
     case PdcSetROP:
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	if ( p[0].ival != Qt::CopyROP )
 	    qWarning( "QPrinter: Raster operation setting not supported" );
 #endif
@@ -2801,7 +2801,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	break;
     case PdcSetBrush:
 	if ( p[0].brush->style() == Qt::CustomPattern ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	    qWarning( "QPrinter: Pixmap brush not supported" );
 #endif
 	    return FALSE;

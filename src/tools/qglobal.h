@@ -503,11 +503,11 @@ Q_EXPORT bool qSysInfo( int *wordSize, bool *bigEndian );
 // Debugging and error handling
 //
 
-#if !defined(NO_CHECK)
-#  define CHECK_STATE				// check state of objects etc.
-#  define CHECK_RANGE				// check range of indexes etc.
-#  define CHECK_NULL				// check null pointers
-#  define CHECK_MATH				// check math functions
+#if !defined(QT_NO_CHECK)
+#  define QT_CHECK_STATE			// check state of objects etc.
+#  define QT_CHECK_RANGE			// check range of indexes etc.
+#  define QT_CHECK_NULL				// check null pointers
+#  define QT_CHECK_MATH				// check math functions
 #endif
 
 #if !defined(NO_DEBUG) && !defined(DEBUG)
@@ -561,7 +561,7 @@ Q_EXPORT void fatal( const char *, ... )	// print fatal message and exit
 #endif
 
 #if !defined(ASSERT)
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 #if defined(QT_FATAL_ASSERT)
 #define ASSERT(x)  if ( !(x) )\
 	qFatal("ASSERT: \"%s\" in %s (%d)",#x,__FILE__,__LINE__)
@@ -576,7 +576,7 @@ Q_EXPORT void fatal( const char *, ... )	// print fatal message and exit
 
 Q_EXPORT bool qt_check_pointer( bool c, const char *, int );
 
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 #  define CHECK_PTR(p) (qt_check_pointer((p)==0,__FILE__,__LINE__))
 #else
 #  define CHECK_PTR(p)

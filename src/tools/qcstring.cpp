@@ -337,7 +337,7 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
 	return s;
     }
     if ( !a.resize( (uint)len ) ) {		// resize array
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QDataStream: Not enough memory to read QByteArray" );
 #endif
 	len = 0;
@@ -1641,7 +1641,7 @@ QCString &QCString::setNum( ulong n )
 
 QCString &QCString::setNum( double n, char f, int prec )
 {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( !(f=='f' || f=='F' || f=='e' || f=='E' || f=='g' || f=='G') )
 	qWarning( "QCString::setNum: Invalid format char '%c'", f );
 #endif
@@ -1776,7 +1776,7 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 	return s;
     }
     if ( !str.QByteArray::resize( (uint)len )) {// resize string
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QDataStream: Not enough memory to read QCString" );
 #endif
 	len = 0;

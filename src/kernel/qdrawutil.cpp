@@ -85,7 +85,7 @@ void qDrawShadeLine( QPainter *p, int x1, int y1, int x2, int y2,
 		     int lineWidth, int midLineWidth )
 {
     if (!( p && lineWidth >= 0 && midLineWidth >= 0 ) )	{
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "qDrawShadeLine invalid parameters." );
 #endif
 	return;
@@ -224,7 +224,7 @@ void qDrawShadeRect( QPainter *p, int x, int y, int w, int h,
     if ( w == 0 || h == 0 )
 	return;
     if ( ! ( w > 0 && h > 0 && lineWidth >= 0 && midLineWidth >= 0 ) ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "qDrawShadeRect() Invalid parameters." );
 #endif
 	return;
@@ -344,7 +344,7 @@ void qDrawShadePanel( QPainter *p, int x, int y, int w, int h,
     if ( w == 0 || h == 0 )
 	return;
     if ( !( w > 0 && h > 0 && lineWidth >= 0 ) ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     	qWarning( "qDrawShadePanel() Invalid parameters." );
 #endif
     }
@@ -613,7 +613,7 @@ void qDrawPlainRect( QPainter *p, int x, int y, int w, int h, const QColor &c,
     if ( w == 0 || h == 0 )
 	return;
     if ( !( w > 0 && h > 0 && lineWidth >= 0 ) ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "qDrawPlainRect() Invalid parameters." );
 #endif
     }
@@ -1019,7 +1019,7 @@ void qDrawArrow( QPainter *p, Qt::ArrowType type, Qt::GUIStyle style, bool down,
 	    qDrawMotifArrow( p, type, down, x, y, w, h, g, enabled );
 	    break;
 	default:
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	    qWarning( "qDrawArrow: Requested GUI style not supported" );
 #else
 	    ;

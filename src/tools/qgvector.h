@@ -84,7 +84,7 @@ protected:
 
     Item	  at( uint index ) const		// return indexed item
     {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	if ( index >= len )
 	    warningIndexRange( index );
 #endif

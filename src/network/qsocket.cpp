@@ -449,7 +449,7 @@ void QSocket::tryConnecting()
 bool QSocket::open( int m )
 {
     if ( isOpen() ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "QSocket::open: Already open" );
 #endif
 	return FALSE;
@@ -822,13 +822,13 @@ int QSocket::bytesToWrite() const
 int QSocket::readBlock( char *data, uint maxlen )
 {
     if ( data == 0 && maxlen != 0 ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QSocket::readBlock: Null pointer error" );
 #endif
 	return -1;
     }
     if ( !isOpen() ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "QSocket::readBlock: Socket is not open" );
 #endif
 	return -1;
@@ -850,18 +850,18 @@ int QSocket::readBlock( char *data, uint maxlen )
 
 int QSocket::writeBlock( const char *data, uint len )
 {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
     if ( data == 0 && len != 0 ) {
 	qWarning( "QSocket::writeBlock: Null pointer error" );
     }
 #endif
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {
 	qWarning( "QSocket::writeBlock: Socket is not open" );
 	return -1;
     }
 #endif
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( d->state == Closing ) {
 	qWarning( "QSocket::writeBlock: Cannot write, socket is closing" );
     }
@@ -1041,7 +1041,7 @@ void QSocket::sn_read()
 		    // all is fine
 		    return;
 		}
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 		qWarning( "QSocket::sn_read (%s): Close error", name() );
 #endif
 		emit error( ErrSocketRead );	// socket close error
@@ -1069,7 +1069,7 @@ void QSocket::sn_read()
 	    }
 	}
 	if ( nread < 0 ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	    qWarning( "QSocket::sn_read: Read error" );
 #endif
 	    delete a;
@@ -1077,7 +1077,7 @@ void QSocket::sn_read()
 	    return;
 	}
 	if ( nread != (int)a->size() ) {		// unexpected
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	    qWarning( "QSocket::sn_read: Unexpected short read" );
 #endif
 	    a->resize( nread );

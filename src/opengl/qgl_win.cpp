@@ -181,7 +181,7 @@ void QGLColorMap::detach()
 
 void QGLColorMap::resize( int newSize )
 {
-#if defined (CHECK_RANGE)
+#if defined (QT_CHECK_RANGE)
     if ( newSize < 0 || newSize > d->maxSize ) {
 	qWarning( "QGLColorMap::resize(): size out of range" );
 	return;
@@ -278,7 +278,7 @@ int QGLColorMap::allocate( QRgb color, uint flags, Q_UINT8 context )
 
 void QGLColorMap::setEntry( int idx, QRgb color, uint flags, Q_UINT8 context )
 {
-#if defined (CHECK_RANGE)
+#if defined (QT_CHECK_RANGE)
     if ( idx < 0 || idx >= d->maxSize ) {
 	qWarning( "QGLColorMap::set(): Index out of range" );
 	return;
@@ -316,7 +316,7 @@ const QRgb* QGLColorMap::colors() const
 
 void qwglError( const char* method, const char* func )
 {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
     LPVOID lpMsgBuf;
     FormatMessage(
 		  FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
@@ -404,7 +404,7 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
     }
 
     if ( !myDc ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QGLContext::chooseContext(): Paint device cannot be null" );
 #endif
 	if ( win )
@@ -415,7 +415,7 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
     if ( glFormat.plane() ) {
 	pixelFormatId = ((QGLWidget*)paintDevice)->context()->pixelFormatId;
 	if ( !pixelFormatId ) {		// I.e. the glwidget is invalid
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	    qWarning( "QGLContext::chooseContext(): Cannot create overlay context for invalid widget" );
 #endif
 	    if ( win )
@@ -486,7 +486,7 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
     glFormat.setOverlay( glFormat.hasOverlay() && overlayRequested );
 
     if ( deviceIsPixmap() && !(realPfd.dwFlags & PFD_DRAW_TO_BITMAP) ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QGLContext::chooseContext(): Failed to get pixmap rendering context." );
 #endif
 	return FALSE;
@@ -494,7 +494,7 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 
     if ( deviceIsPixmap() && 
 	 (((QPixmap*)paintDevice)->depth() != realPfd.cColorBits ) ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QGLContext::chooseContext(): Failed to get pixmap rendering context of suitable depth." );
 #endif
 	return FALSE;
@@ -840,13 +840,13 @@ void QGLWidget::setContext( QGLContext *context,
 			    bool deleteOldContext )
 {
     if ( context == 0 ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QGLWidget::setContext: Cannot set null context" );
 #endif
 	return;
     }
     if ( !context->deviceIsPixmap() && context->device() != this ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "QGLWidget::setContext: Context must refer to this widget" );
 #endif
 	return;

@@ -594,7 +594,7 @@ void QSqlTable::insertCurrent()
     if ( d->mode != QSqlTable::Insert || ! numCols() )
 	return;
     if ( !d->editBuffer.canInsert() ) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qWarning("QSqlTable::insertCurrent: insert not allowed for " + d->editBuffer.name() );
 #endif
 	return;
@@ -667,13 +667,13 @@ void QSqlTable::updateCurrent()
     if ( d->mode != QSqlTable::Update )
 	return;
     if ( d->editBuffer.primaryIndex().count() == 0 ) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qWarning("QSqlTable::updateCurrent: no primary index for " + d->editBuffer.name() );
 #endif
 	return;
     }
     if ( !d->editBuffer.canUpdate() ) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qWarning("QSqlTable::updateCurrent: updates not allowed for " + d->editBuffer.name() );
 #endif
 	return;
@@ -741,7 +741,7 @@ void QSqlTable::deleteCurrent()
     if ( !d->cursor || isReadOnly() )
 	return;
     if ( d->cursor->primaryIndex().count() == 0 ) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qWarning("QSqlTable::deleteCurrent: no primary index " + d->cursor->name() );
 #endif
 	return;

@@ -343,7 +343,7 @@ inline QImage QImage::copy(const QRect& r) const
 
 inline QRgb QImage::color( int i ) const
 {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( i >= data->ncols )
 	warningIndexRange( "color", i );
 #endif
@@ -352,7 +352,7 @@ inline QRgb QImage::color( int i ) const
 
 inline void QImage::setColor( int i, QRgb c )
 {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( i >= data->ncols )
 	warningIndexRange( "setColor", i );
 #endif
@@ -362,7 +362,7 @@ inline void QImage::setColor( int i, QRgb c )
 
 inline uchar *QImage::scanLine( int i ) const
 {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( i >= data->h )
 	warningIndexRange( "scanLine", i );
 #endif

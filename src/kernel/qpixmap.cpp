@@ -358,7 +358,7 @@ QPixmap QPixmap::copy( bool ignoreMask ) const
 QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 {
     if ( paintingActive() ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning("QPixmap::operator=: Cannot assign to pixmap during painting");
 #endif
 	return *this;
@@ -599,7 +599,7 @@ void QPixmap::setMask( const QBitmap &newmask )
 	return;
     }
     if ( newmask.width() != width() || newmask.height() != height() ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QPixmap::setMask: The pixmap and the mask must have "
 		 "the same size" );
 #endif
@@ -819,7 +819,7 @@ bool QPixmap::save( const QString &fileName, const char *format, int quality ) c
     QImageIO io( fileName, format );
     io.setImage( convertToImage() );
     if ( quality > 100  || quality < -1 ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QPixmap::save: quality out of range [-1,100]" );
 #endif
         if ( quality > 100 )

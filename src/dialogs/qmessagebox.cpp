@@ -659,7 +659,7 @@ void QMessageBox::init( int button0, int button1, int button2 )
     label->setAlignment( AlignAuto );
 
     if ( (button2 && !button1) || (button1 && !button0) ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QMessageBox: Inconsistent button parameters" );
 #endif
 	button0 = button1 = button2 = 0;
@@ -677,7 +677,7 @@ void QMessageBox::init( int button0, int button1, int button2 )
 	int b = mbd->button[i];
 	if ( (b & Default) ) {
 	    if ( mbd->defButton >= 0 ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 		qWarning( "QMessageBox: There can be at most one "
 			   "default button" );
 #endif
@@ -687,7 +687,7 @@ void QMessageBox::init( int button0, int button1, int button2 )
 	}
 	if ( (b & Escape) ) {
 	    if ( mbd->escButton >= 0 ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 		qWarning( "QMessageBox: There can be at most one "
 			   "escape button" );
 #endif
@@ -700,13 +700,13 @@ void QMessageBox::init( int button0, int button1, int button2 )
 	    if ( i == 0 )			// no buttons, add an Ok button
 		b = Ok;
 	} else if ( b < 0 || b > LastButton ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	    qWarning( "QMessageBox: Invalid button specifier" );
 #endif
 	    b = Ok;
 	} else {
 	    if ( i > 0 && mbd->button[i-1] == 0 ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 		qWarning( "QMessageBox: Inconsistent button parameters; "
 			   "button %d defined but not button %d",
 			   i+1, i );

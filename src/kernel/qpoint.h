@@ -173,7 +173,7 @@ inline QPoint operator-( const QPoint &p )
 
 inline QPoint &QPoint::operator/=( int c )
 {
-#if defined(CHECK_MATH)
+#if defined(QT_CHECK_MATH)
     if ( c == 0 )
 	warningDivByZero();
 #endif
@@ -184,7 +184,7 @@ inline QPoint &QPoint::operator/=( int c )
 
 inline QPoint &QPoint::operator/=( double c )
 {
-#if defined(CHECK_MATH)
+#if defined(QT_CHECK_MATH)
     if ( c == 0.0 )
 	warningDivByZero();
 #endif
@@ -195,7 +195,7 @@ inline QPoint &QPoint::operator/=( double c )
 
 inline QPoint operator/( const QPoint &p, int c )
 {
-#if defined(CHECK_MATH)
+#if defined(QT_CHECK_MATH)
     if ( c == 0 )
 	QPoint::warningDivByZero();
 #endif
@@ -204,7 +204,7 @@ inline QPoint operator/( const QPoint &p, int c )
 
 inline QPoint operator/( const QPoint &p, double c )
 {
-#if defined(CHECK_MATH)
+#if defined(QT_CHECK_MATH)
     if ( c == 0.0 )
 	QPoint::warningDivByZero();
 #endif

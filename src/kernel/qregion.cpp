@@ -147,7 +147,7 @@ void QRegion::exec( const QByteArray &buffer, int ver )
 	s.setVersion( ver );
     buf.open( IO_ReadOnly );
     QRegion rgn;
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     int test_cnt = 0;
 #endif
     while ( !s.eof() ) {
@@ -159,7 +159,7 @@ void QRegion::exec( const QByteArray &buffer, int ver )
 	} else {
 	    s >> id;
 	}
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	if ( test_cnt > 0 && id != QRGN_TRANSLATE )
 	    qWarning( "QRegion::exec: Internal error" );
 	test_cnt++;

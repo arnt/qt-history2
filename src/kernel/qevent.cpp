@@ -1127,7 +1127,7 @@ void QFocusEvent::resetReason()
 QCustomEvent::QCustomEvent( int type )
     : QEvent( (QEvent::Type)type ), d( 0 )
 {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( type < (int)QEvent::User )
 	qWarning( "QCustomEvent: Illegal type id." );
 #endif

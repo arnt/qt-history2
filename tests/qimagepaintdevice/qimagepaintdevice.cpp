@@ -214,7 +214,7 @@ bool QImagePaintDevice32::cmd( int c, QPainter *painter, QPDevCmdParam *p )
 	    setClipRegion(*p[0].rgn);
 	    break;
 
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	default:
 	    qWarning( "QImagePaintDevice32::cmd: Command %d not recognized", c );
 #endif
@@ -1690,7 +1690,7 @@ int  QImagePaintDevice32::metric( int m ) const
 	    break;
 	default:
 	    val = 0;
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	    qWarning( "QImagePaintDevice32::metric: Invalid metric command" );
 #endif
     }

@@ -743,7 +743,7 @@ static bool noMoreToplevels();
 
 QWidget::~QWidget()
 {
-#if defined (CHECK_STATE)
+#if defined (QT_CHECK_STATE)
     if ( paintingActive() )
 	qWarning( "%s (%s): deleted while being painted", className(), name() );
 #endif

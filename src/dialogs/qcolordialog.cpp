@@ -408,7 +408,7 @@ void QWellArray::setCellBrush( int row, int col, const QBrush &b )
     }
     if ( row >= 0 && row < nRows && col >= 0 && col < nCols )
 	d->brush[row*nCols+col] = b;
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
     else
 	qWarning( "QWellArray::setCellBrush( %d, %d ) out of range", row, col );
 #endif
@@ -527,7 +527,7 @@ QRgb QColorDialog::customColor( int i )
 {
     initRGB();
     if ( i < 0 || i >= customCount() ) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qWarning( "QColorDialog::customColor() index %d out of range", i );
 #endif	
 	i = 0;
@@ -542,7 +542,7 @@ void QColorDialog::setCustomColor( int i, QRgb c )
 {
     initRGB();
     if ( i < 0 || i >= customCount() ) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qWarning( "QColorDialog::customColor() index %d out of range", i );
 #endif	
 	return;

@@ -369,7 +369,7 @@ QLCDNumber::~QLCDNumber()
 void QLCDNumber::setNumDigits( int numDigits )
 {
     if ( numDigits > 99 ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QLCDNumber::setNumDigits: (%s) Max 99 digits allowed",
 		 name( "unnamed" ) );
 #endif
@@ -964,7 +964,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 	    LINETO(0,-width);
 	    LINETO(0,0);
 	    break;
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	default :
 	    qWarning( "QLCDNumber::drawSegment: (%s) Internal error."
 		     "  Illegal segment id: %d\n",
@@ -1099,7 +1099,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 	    LINETO(0,-width);
 	    LINETO(0,0);
 	    break;
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	default :
 	    qWarning( "QLCDNumber::drawSegment: (%s) Internal error."
 		     "  Illegal segment id: %d\n",

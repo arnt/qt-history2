@@ -40,7 +40,7 @@
 QPaintDevice::QPaintDevice( uint devflags )
 {
     if ( !qApp ) {				// global constructor
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qFatal( "QPaintDevice: Must construct a QApplication before a "
 		"QPaintDevice" );
 #endif
@@ -53,7 +53,7 @@ QPaintDevice::QPaintDevice( uint devflags )
 
 QPaintDevice::~QPaintDevice()
 {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( paintingActive() )
 	qWarning( "QPaintDevice: Cannot destroy paint device that is being "
 		  "painted" );
@@ -63,7 +63,7 @@ QPaintDevice::~QPaintDevice()
 
 bool QPaintDevice::cmd( int, QPainter *, QPDevCmdParam * )
 {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     qWarning( "QPaintDevice::cmd: Not a paintable device" );
 #endif
     return FALSE;
@@ -71,7 +71,7 @@ bool QPaintDevice::cmd( int, QPainter *, QPDevCmdParam * )
 
 int QPaintDevice::metric( int m ) const
 {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     qWarning( "QPaintDevice::metrics: Device has no metric information" );
 #endif
     if ( m == QPaintDeviceMetrics::PdmDpiX ) {
@@ -104,7 +104,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 {
     if ( !src || !dst ) {
 	/*
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	ASSERT( src != 0 );
 	ASSERT( dst != 0 );
 #endif
@@ -155,7 +155,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    CHECK_PTR( pm );
 	    bitBlt( pm, 0, 0, src, sx, sy, sw, sh );
 	} else {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	    qWarning( "bitBlt: Cannot bitBlt from device" );
 #endif
 	    return;
@@ -176,7 +176,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	case QInternal::System:			// OK, can blt from these
 	    break;
 	default:
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	    qWarning( "bitBlt: Cannot bitBlt from device type %x", ts );
 #endif
 	    return;
@@ -187,14 +187,14 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	case QInternal::System:			// OK, can blt to these
 	    break;
 	default:
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	    qWarning( "bitBlt: Cannot bitBlt to device type %x", td );
 #endif
 	    return;
     }
 
     if ( rop > Qt::LastROP ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "bitBlt: Invalid ROP code" );
 #endif
 	return;
@@ -223,7 +223,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     }
 
     if ( mono_dst && !mono_src ) {	// dest is 1-bit pixmap, source is not
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "bitBlt: Incompatible destination pixmap" );
 #endif
 	return;

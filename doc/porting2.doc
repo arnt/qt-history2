@@ -236,8 +236,8 @@ This change has been made to avoid collisions with other namespaces.
 
 <h3><a name=DebugVsRelease>Debug vs. Release</a></h3>
 
-<p>The ASSERT macro is now a null expression if the CHECK_STATE flag
-is not set (i.e. if the NO_CHECK flag is defined).
+<p>The ASSERT macro is now a null expression if the QT_CHECK_STATE flag
+is not set (i.e. if the QT_NO_CHECK flag is defined).
 
 <p>The debug() function now outputs nothing if Qt was compiled with
 the NO_DEBUG macro defined.

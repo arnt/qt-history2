@@ -572,7 +572,7 @@ void QFont::setRawName( const QString &name )
     bool validXLFD = fillFontDef( name.latin1(), &d->req, 0 );
     d->req.dirty = TRUE;
     if ( !validXLFD ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "QFont::setRawMode(): Invalid XLFD: \"%s\"", name.latin1() );
 #endif
 	setFamily( name );
@@ -672,7 +672,7 @@ QString QFont::lastResortFont() const
 	}
 	i++;
     }
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
     qFatal( "QFont::lastResortFont: Cannot find any reasonable font" );
 #endif
     return last;
@@ -779,7 +779,7 @@ inline int maxIndex(XFontStruct *f)
 void QFont::load() const
 {
     if ( !fontCache ) {				// not initialized
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qFatal( "QFont: Must construct a QApplication before a QFont" );
 #endif
 
@@ -825,7 +825,7 @@ void QFont::load() const
 	    f = XLoadQueryFont( QPaintDevice::x11AppDisplay(),
 				lastResortFont().ascii() );
 	    fn->exactMatch = FALSE;
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	    if ( !f )
 		qFatal( "QFont::load: Internal error" );
 #endif
@@ -842,7 +842,7 @@ void QFont::load() const
 	// If we get a cache overflow, we make room for this font only
 	if ( size > fontCache->maxCost() + reserveCost )
 	    fontCache->setMaxCost( size + reserveCost );
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	if ( !fontCache->insert(d->fin->name(), d->fin, size) )
 	    qFatal( "QFont::load: Cache overflow error" );
 #endif

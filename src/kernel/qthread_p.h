@@ -137,12 +137,12 @@ public:
 
     QMutexPrivate(bool recursive = FALSE)
     {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	int ret =
 #endif
 	    mutex_init( &mutex, NULL, NULL );
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	if( ret )
 	    qWarning( "QMutex::QMutex: init failure: %s", strerror( ret ) );
 #endif
@@ -150,12 +150,12 @@ public:
 
     virtual ~QMutexPrivate()
     {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	int ret =
 #endif
 	    mutex_destroy( &mutex );
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	if ( ret )
 	    qWarning( "QMutex::~QMutex: destroy failure: %s", strerror( ret ) );
 #endif
@@ -163,12 +163,12 @@ public:
 
     virtual void lock()
     {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	int ret =
 #endif
 	    mutex_lock(&mutex);
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	if (ret)
 	    qWarning("QMutex::lock: mutex lock failure: %s", strerror(ret));
 #endif
@@ -176,12 +176,12 @@ public:
 
     virtual void unlock()
     {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	int ret =
 #endif
 	    mutex_unlock(&mutex);
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	if (ret)
 	    qWarning("QMutex::unlock: mutex unlock failure: %s", strerror(ret));
 #endif
@@ -194,7 +194,7 @@ public:
 	if (ret == EBUSY) {
 	    return TRUE;
 	} else if (ret) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	    qWarning("QMutex::locked: try lock failed: %s", strerror(ret));
 #endif
 	} else {
@@ -204,7 +204,7 @@ public:
 	return FALSE;
     }
 
-#if defined(CHECK_RANGE) || !defined(Q_HAS_RECURSIVE_MUTEX)
+#if defined(QT_CHECK_RANGE) || !defined(Q_HAS_RECURSIVE_MUTEX)
     virtual int type() const { return Q_MUTEX_NORMAL; }
 #endif
 };
@@ -220,13 +220,13 @@ public:
     QRMutexPrivate()
 	: QMutexPrivate(TRUE)
     {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	int ret =
 #endif
 	    mutex_init( &mutex2, NULL, NULL );
 
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	if( ret )
 	    qWarning( "QMutex::QMutex: init failure: %s", strerror( ret ) );
 #endif
@@ -236,12 +236,12 @@ public:
 
     ~QRMutexPrivate()
     {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	int ret =
 #endif
 	    mutex_destroy(&mutex2);
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	if( ret )
 	    qWarning( "QMutex::QMutex: destroy failure: %s", strerror( ret ) );
 #endif
@@ -270,7 +270,7 @@ public:
 	mutex_lock(&mutex2);
 
 	if (owner != QThread::currentThread()) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	    qWarning("QMutex::unlock: unlock from different thread than locker");
 	    qWarning("                was locked by %d, unlock attempt from %d",
 		     owner, QThread::currentThread());
@@ -299,7 +299,7 @@ public:
 	return ret;
     }
 
-#if defined(CHECK_RANGE) || !defined(Q_HAS_RECURSIVE_MUTEX)
+#if defined(QT_CHECK_RANGE) || !defined(Q_HAS_RECURSIVE_MUTEX)
     int type() const { return Q_MUTEX_RECURSIVE; }
 #endif
 };
@@ -342,7 +342,7 @@ public:
 	int ret = thr_create( NULL, NULL, start_thread, that, THR_DETACHED,
 			      &thread_id );
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	if (ret)
 	    qWarning("QThread::start: thread creation error: %s", strerror(ret));
 #endif
@@ -382,12 +382,12 @@ public:
 
     QWaitConditionPrivate()
     {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	int ret =
 #endif
 	    cond_init(&cond, NULL, NULL );
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	if( ret )
 	    qWarning( "QWaitCondition::QWaitCondition: event init failure %s", strerror( ret ) );
 #endif
@@ -397,7 +397,7 @@ public:
     {
 	int ret = cond_destroy(&cond);
 	if( ret ) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	    qWarning( "QWaitCondition::~QWaitCondition: event destroy failure %s", strerror( ret ) );
 #endif
 
@@ -410,12 +410,12 @@ public:
     {
 	mutex.lock();
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	int ret =
 #endif
 	    cond_signal(&(cond));
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	if ( ret ) qWarning("QWaitCondition::wakeOne: wake error: %s",strerror(ret));
 #endif
 
@@ -426,12 +426,12 @@ public:
     {
 	mutex.lock();
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	int ret =
 #endif
 	    cond_broadcast(& (cond) );
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	if( ret ) qWarning("QWaitCondition::wakeAll: wake error: %s",strerror(ret));
 #endif
 
@@ -455,7 +455,7 @@ public:
 
 	mutex.unlock();
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	if( ret ) qWarning("QWaitCondition::wait: wait error:%s",strerror(ret));
 #endif
 
@@ -466,7 +466,7 @@ public:
     {
 	if (! mtx) return FALSE;
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	if (mtx->d->type() == Q_MUTEX_RECURSIVE)
 	    qWarning("QWaitCondition::wait: warning - using recursive mutexes with\n"
 		     "                      conditions is undefined!");
@@ -481,7 +481,7 @@ public:
 	    mutex_lock(&(rmp->mutex2));
 
 	    if (! rmp->count) {
-#  ifdef CHECK_RANGE
+#  ifdef QT_CHECK_RANGE
 		qWarning("QWaitCondition::unlockAndWait: recursive mutex not locked!");
 #  endif
 
@@ -519,7 +519,7 @@ public:
 	}
 #endif
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	if ( ret ) qWarning("QWaitCondition::wait: wait error:%s",strerror(ret));
 #endif
 
@@ -573,14 +573,14 @@ public:
 	}
 #endif
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	int ret =
 #endif
 	    pthread_mutex_init( &mutex, &attr );
 
 	pthread_mutexattr_destroy(&attr);
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	if( ret )
 	    qWarning( "QMutex::QMutex: init failure: %s", strerror( ret ) );
 #endif
@@ -588,12 +588,12 @@ public:
 
     virtual ~QMutexPrivate()
     {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	int ret =
 #endif
 	    pthread_mutex_destroy( &mutex );
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	if ( ret )
 	    qWarning( "QMutex::~QMutex: destroy failure: %s", strerror( ret ) );
 #endif
@@ -601,12 +601,12 @@ public:
 
     virtual void lock()
     {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	int ret =
 #endif
 	    pthread_mutex_lock(&mutex);
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	if (ret)
 	    qWarning("QMutex::lock: mutex lock failure: %s", strerror(ret));
 #endif
@@ -614,12 +614,12 @@ public:
 
     virtual void unlock()
     {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	int ret =
 #endif
 	    pthread_mutex_unlock(&mutex);
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	if (ret)
 	    qWarning("QMutex::unlock: mutex unlock failure: %s", strerror(ret));
 #endif
@@ -632,7 +632,7 @@ public:
 	if (ret == EBUSY) {
 	    return TRUE;
 	} else if (ret) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	    qWarning("QMutex::locked: try lock failed: %s", strerror(ret));
 #endif
 	} else {
@@ -642,7 +642,7 @@ public:
 	return FALSE;
     }
 
-#if defined(CHECK_RANGE) || !defined(Q_HAS_RECURSIVE_MUTEX)
+#if defined(QT_CHECK_RANGE) || !defined(Q_HAS_RECURSIVE_MUTEX)
     virtual int type() const { return Q_MUTEX_NORMAL; }
 #endif
 };
@@ -658,12 +658,12 @@ public:
 
     ~QRMutexPrivate()
     {
-#  ifdef CHECK_RANGE
+#  ifdef QT_CHECK_RANGE
 	int ret =
 #  endif
 	    pthread_mutex_destroy(&mutex2);
 
-#  ifdef CHECK_RANGE
+#  ifdef QT_CHECK_RANGE
 	if( ret )
 	    qWarning( "QMutex::QMutex: destroy failure: %s", strerror( ret ) );
 #  endif
@@ -693,7 +693,7 @@ public:
 	pthread_mutex_lock(&mutex2);
 
 	if (owner != QThread::currentThread()) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	    qWarning("QMutex::unlock: unlock from different thread than locker");
 	    qWarning("                was locked by %d, unlock attempt from %d",
 		     owner, QThread::currentThread());
@@ -730,14 +730,14 @@ public:
 	pthread_mutexattr_t attr;
 	pthread_mutexattr_init(&attr);
 
-#  ifdef CHECK_RANGE
+#  ifdef QT_CHECK_RANGE
 	int ret =
 #  endif
 	    pthread_mutex_init( &mutex2, &attr );
 
 	pthread_mutexattr_destroy(&attr);
 
-#  ifdef CHECK_RANGE
+#  ifdef QT_CHECK_RANGE
 	if( ret )
 	    qWarning( "QMutex::QMutex: init failure: %s", strerror( ret ) );
 #  endif
@@ -746,7 +746,7 @@ public:
 #endif
     }
 
-#if defined(CHECK_RANGE) || !defined(Q_HAS_RECURSIVE_MUTEX)
+#if defined(QT_CHECK_RANGE) || !defined(Q_HAS_RECURSIVE_MUTEX)
     int type() const { return Q_MUTEX_RECURSIVE; }
 #endif
 };
@@ -796,7 +796,7 @@ public:
 	pthread_attr_destroy(&attr);
 
 	if ( ret ) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	    qWarning("QThread::start: thread creation error: %s", strerror(ret));
 #endif
 
@@ -838,14 +838,14 @@ public:
 	pthread_condattr_t cattr;
 	pthread_condattr_init(&cattr);
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	int ret =
 #endif
 	    pthread_cond_init(&cond, &cattr);
 
 	pthread_condattr_destroy(&cattr);
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	if( ret )
 	    qWarning( "QWaitCondition::QWaitCondition: event init failure %s", strerror( ret ) );
 #endif
@@ -855,7 +855,7 @@ public:
     {
 	int ret = pthread_cond_destroy(&cond);
 	if( ret ) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	    qWarning( "QWaitCondition::~QWaitCondition: event destroy failure %s", strerror( ret ) );
 #endif
 
@@ -868,12 +868,12 @@ public:
     {
 	mutex.lock();
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	int ret =
 #endif
 	    pthread_cond_signal( &(cond) );
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	if ( ret ) qWarning("QWaitCondition::wakeOne: wake error: %s",strerror(ret));
 #endif
 
@@ -884,12 +884,12 @@ public:
     {
 	mutex.lock();
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	int ret =
 #endif
 	    pthread_cond_broadcast(&(cond));
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	if( ret ) qWarning("QWaitCondition::wakeAll: wake error: %s",strerror(ret));
 #endif
 
@@ -913,7 +913,7 @@ public:
 
 	mutex.unlock();
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	if( ret ) qWarning("QWaitCondition::wait: wait error:%s",strerror(ret));
 #endif
 
@@ -924,7 +924,7 @@ public:
     {
 	if (! mtx) return FALSE;
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	if (mtx->d->type() == Q_MUTEX_RECURSIVE)
 	    qWarning("QWaitCondition::unlockAndWait: warning - using recursive mutexes"
 		     " with\n                               conditions is undefined!");
@@ -939,7 +939,7 @@ public:
 	    pthread_mutex_lock(&(rmp->mutex2));
 
 	    if (! rmp->count) {
-#  ifdef CHECK_RANGE
+#  ifdef QT_CHECK_RANGE
 		qWarning("QWaitCondition::unlockAndWait: recursive mutex not locked!");
 #  endif
 
@@ -977,7 +977,7 @@ public:
 	}
 #endif
 
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	if ( ret ) qWarning("QWaitCondition::wait: wait error:%s",strerror(ret));
 #endif
 

@@ -69,7 +69,7 @@
 
 #if defined(QT_DEMO_LINUX) || defined(QT_DEMO_SINGLE_FLOPPY)
 #define QT_NO_QWS_VFB
-#define NO_CHECK
+#define QT_NO_CHECK
 #endif
 
 //The new richtext stuff requires networkprotocol

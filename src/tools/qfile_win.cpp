@@ -79,7 +79,7 @@ bool qt_file_access( const QString& fn, int t )
 bool QFile::remove( const QString &fileName )
 {
     if ( fileName.isEmpty() ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QFile::remove: Empty or null file name" );
 #endif
 	return FALSE;
@@ -96,13 +96,13 @@ bool QFile::remove( const QString &fileName )
 bool QFile::open( int m )
 {
     if ( isOpen() ) {				// file already open
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "QFile::open: File already open" );
 #endif
 	return FALSE;
     }
     if ( fn.isNull() ) {			// no file name defined
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QFile::open: No file name specified" );
 #endif
 	return FALSE;
@@ -110,7 +110,7 @@ bool QFile::open( int m )
     init();					// reset params
     setMode( m );
     if ( !(isReadable() || isWritable()) ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QFile::open: File access not specified" );
 #endif
 	return FALSE;
@@ -239,7 +239,7 @@ bool QFile::open( int m )
 bool QFile::open( int m, FILE *f )
 {
     if ( isOpen() ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QFile::open: File already open" );
 #endif
 	return FALSE;
@@ -266,7 +266,7 @@ bool QFile::open( int m, FILE *f )
 bool QFile::open( int m, int f )
 {
     if ( isOpen() ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QFile::open: File already open" );
 #endif
 	return FALSE;
@@ -307,7 +307,7 @@ uint QFile::size() const
 bool QFile::at( int pos )
 {
     if ( !isOpen() ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "QFile::at: File is not open" );
 #endif
 	return FALSE;
@@ -321,7 +321,7 @@ bool QFile::at( int pos )
     }
     if ( okay )
 	ioIndex = pos;
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     else
 	qWarning( "QFile::at: Cannot set file position %d", pos );
 #endif
@@ -330,11 +330,11 @@ bool QFile::at( int pos )
 
 int QFile::readBlock( char *p, uint len )
 {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
     if ( !p )
 	qWarning( "QFile::readBlock: Null pointer error" );
 #endif
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {				// file not open
 	qWarning( "QFile::readBlock: File not open" );
 	return -1;
@@ -377,11 +377,11 @@ int QFile::readBlock( char *p, uint len )
 
 int QFile::writeBlock( const char *p, uint len )
 {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
     if ( p == 0 && len != 0 )
 	qWarning( "QFile::writeBlock: Null pointer error" );
 #endif
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {				// file not open
 	qWarning( "QFile::writeBlock: File not open" );
 	return -1;

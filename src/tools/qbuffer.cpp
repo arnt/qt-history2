@@ -145,7 +145,7 @@ QBuffer::~QBuffer()
 bool QBuffer::setBuffer( QByteArray buf )
 {
     if ( isOpen() ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "QBuffer::setBuffer: Buffer is open");
 #endif
 	return FALSE;
@@ -187,7 +187,7 @@ bool QBuffer::setBuffer( QByteArray buf )
 bool QBuffer::open( int m  )
 {
     if ( isOpen() ) {				// buffer already open
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "QBuffer::open: Buffer already open" );
 #endif
 	return FALSE;
@@ -250,14 +250,14 @@ void QBuffer::flush()
 
 bool QBuffer::at( int pos )
 {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {
 	qWarning( "QBuffer::at: Buffer is not open" );
 	return FALSE;
     }
 #endif
     if ( (uint)pos > a_len ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QBuffer::at: Index %d out of range", pos );
 #endif
 	return FALSE;
@@ -273,7 +273,7 @@ bool QBuffer::at( int pos )
 
 int QBuffer::readBlock( char *p, uint len )
 {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     CHECK_PTR( p );
     if ( !isOpen() ) {				// buffer not open
 	qWarning( "QBuffer::readBlock: Buffer not open" );
@@ -311,11 +311,11 @@ int QBuffer::readBlock( char *p, uint len )
 
 int QBuffer::writeBlock( const char *p, uint len )
 {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
     if ( p == 0 && len != 0 )
 	qWarning( "QBuffer::writeBlock: Null pointer error" );
 #endif
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {				// buffer not open
 	qWarning( "QBuffer::writeBlock: Buffer not open" );
 	return -1;
@@ -328,7 +328,7 @@ int QBuffer::writeBlock( const char *p, uint len )
     if ( (uint)ioIndex + len >= a_len ) {		// overflow
 	uint new_len = a_len + a_inc*(((uint)ioIndex+len-a_len)/a_inc+1);
 	if ( !a.resize( new_len ) ) {		// could not resize
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	    qWarning( "QBuffer::writeBlock: Memory allocation error" );
 #endif
 	    setStatus( IO_ResourceError );
@@ -352,7 +352,7 @@ int QBuffer::writeBlock( const char *p, uint len )
 
 int QBuffer::readLine( char *p, uint maxlen )
 {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     CHECK_PTR( p );
     if ( !isOpen() ) {				// buffer not open
 	qWarning( "QBuffer::readLine: Buffer not open" );
@@ -386,7 +386,7 @@ int QBuffer::readLine( char *p, uint maxlen )
 
 int QBuffer::getch()
 {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {				// buffer not open
 	qWarning( "QBuffer::getch: Buffer not open" );
 	return -1;
@@ -416,7 +416,7 @@ int QBuffer::getch()
 
 int QBuffer::putch( int ch )
 {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {				// buffer not open
 	qWarning( "QBuffer::putch: Buffer not open" );
 	return -1;
@@ -445,7 +445,7 @@ int QBuffer::putch( int ch )
 
 int QBuffer::ungetch( int ch )
 {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( !isOpen() ) {				// buffer not open
 	qWarning( "QBuffer::ungetch: Buffer not open" );
 	return -1;

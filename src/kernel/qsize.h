@@ -174,7 +174,7 @@ inline QSize operator*( double c, const QSize &s )
 
 inline QSize &QSize::operator/=( int c )
 {
-#if defined(CHECK_MATH)
+#if defined(QT_CHECK_MATH)
     if ( c == 0 )
 	warningDivByZero();
 #endif
@@ -184,7 +184,7 @@ inline QSize &QSize::operator/=( int c )
 
 inline QSize &QSize::operator/=( double c )
 {
-#if defined(CHECK_MATH)
+#if defined(QT_CHECK_MATH)
     if ( c == 0.0 )
 	warningDivByZero();
 #endif
@@ -194,7 +194,7 @@ inline QSize &QSize::operator/=( double c )
 
 inline QSize operator/( const QSize &s, int c )
 {
-#if defined(CHECK_MATH)
+#if defined(QT_CHECK_MATH)
     if ( c == 0 )
 	QSize::warningDivByZero();
 #endif
@@ -203,7 +203,7 @@ inline QSize operator/( const QSize &s, int c )
 
 inline QSize operator/( const QSize &s, double c )
 {
-#if defined(CHECK_MATH)
+#if defined(QT_CHECK_MATH)
     if ( c == 0.0 )
 	QSize::warningDivByZero();
 #endif

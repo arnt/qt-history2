@@ -95,7 +95,7 @@ public:
 		QStringList fl = iFace->featureList();
 		for ( QStringList::Iterator f = fl.begin(); f != fl.end(); f++ ) {
 		    useful = TRUE;
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 		    if ( !plugDict[*f] )
 			plugDict.replace( *f, plugin );
 		    else

@@ -120,7 +120,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     if ( make_null || w < 0 || h < 0 || data->d == 0 ) {
 	hdc = 0;
 	DATA_HBM = 0;
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	if ( !make_null )			// invalid parameters
 	    qWarning( "QPixmap: Invalid pixmap parameters" );
 #endif
@@ -141,7 +141,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	data->w = 0;
 	data->h = 0;
 	hdc = 0;
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QPixmap: Pixmap allocation failed" );
 #endif
 	return;
@@ -350,7 +350,7 @@ int QPixmap::metric( int m ) const
 		break;
 	    default:
 		val = 0;
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 		qWarning( "QPixmap::metric: Invalid metric command" );
 #endif
 	}
@@ -362,7 +362,7 @@ int QPixmap::metric( int m ) const
 QImage QPixmap::convertToImage() const
 {
     if ( isNull() ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QPixmap::convertToImage: Cannot convert a null pixmap" );
 #endif
 	QImage nullImage;
@@ -491,7 +491,7 @@ QImage QPixmap::convertToImage() const
 bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 {
     if ( img.isNull() ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QPixmap::convertFromImage: Cannot convert a null image" );
 #endif
 	return FALSE;
@@ -852,7 +852,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 		break;
 
 		default: {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 		qWarning( "QPixmap::xForm: Display not supported (bpp=%d)",bpp);
 #endif
 		return QPixmap( 0, 0, 0, data->bitmap, data->optim );

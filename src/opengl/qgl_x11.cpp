@@ -308,7 +308,7 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
     
     if ( shareContext && 
 	 ( !shareContext->isValid() || !shareContext->cx ) ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	    qWarning("QGLContext::chooseContext(): Cannot share with invalid context");
 #endif
 	    shareContext = 0;
@@ -523,7 +523,7 @@ void QGLContext::reset()
 void QGLContext::makeCurrent()
 {
     if ( !valid ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning("QGLContext::makeCurrent(): Cannot make invalid context current.");
 #endif
 	return;
@@ -538,7 +538,7 @@ void QGLContext::makeCurrent()
 	ok = glXMakeCurrent( paintDevice->x11Display(),
 			     ((QWidget *)paintDevice)->winId(),
 			     (GLXContext)cx );
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
     //    qDebug("makeCurrent: %i, vi=%i, vi->vi=%i, vi->id=%i", (int)this, (int)vi, (int)((XVisualInfo*)vi)->visual, (int)((XVisualInfo*)vi)->visualid );
     if ( !ok )
 	qWarning("QGLContext::makeCurrent(): Failed.");
@@ -793,13 +793,13 @@ void QGLWidget::setContext( QGLContext *context,
 			    bool deleteOldContext )
 {
     if ( context == 0 ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QGLWidget::setContext: Cannot set null context" );
 #endif
 	return;
     }
     if ( !context->deviceIsPixmap() && context->device() != this ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "QGLWidget::setContext: Context must refer to this widget" );
 #endif
 	return;

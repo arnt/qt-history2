@@ -322,7 +322,7 @@
 
 void QPoint::warningDivByZero()
 {
-#if defined(CHECK_MATH)
+#if defined(QT_CHECK_MATH)
     qWarning( "QPoint: Division by zero error" );
 #endif
 }

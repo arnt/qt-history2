@@ -630,7 +630,7 @@ QObject* QObject::child( const char *name, const char *type )
 
 bool QObject::event( QEvent *e )
 {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
     if ( e == 0 )
 	qWarning( "QObject::event: Null events are not permitted" );
 #endif
@@ -1040,7 +1040,7 @@ void QObject::insertChild( QObject *obj )
 	obj->isTree = FALSE;
     }
     if ( obj->parentObj && obj->parentObj != this ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	if ( obj->parentObj != this && obj->isWidgetType() )
 	    qWarning( "QObject::insertChild: Cannot reparent a widget, "
 		     "use QWidget::reparent() instead" );
@@ -1052,7 +1052,7 @@ void QObject::insertChild( QObject *obj )
 	childObjects = new QObjectList;
 	CHECK_PTR( childObjects );
     }
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     else if ( childObjects->findRef(obj) >= 0 ) {
 	qWarning( "QObject::insertChild: Object %s::%s already in list",
 		 obj->className(), obj->name( "unnamed" ) );
@@ -1196,7 +1196,7 @@ void QObject::removeEventFilter( const QObject *obj )
   Signal connection management
  *****************************************************************************/
 
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 
 static bool check_signal_macro( const QObject *sender, const char *signal,
 				const char *func, const char *op )
@@ -1281,7 +1281,7 @@ static void err_info_about_candidates( int code,
 }
 
 
-#endif // CHECK_RANGE
+#endif // QT_CHECK_RANGE
 
 
 /*! Returns a pointer to the object that sent the signal, if called in a
@@ -1459,7 +1459,7 @@ QCString QObject::normalizeSignalSlot( const char *signalSlot )
 bool QObject::connect( const QObject *sender,	const char *signal,
 		       const QObject *receiver, const char *member )
 {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
     if ( sender == 0 || receiver == 0 || signal == 0 || member == 0 ) {
 	qWarning( "QObject::connect: Cannot connect %s::%s to %s::%s",
 		 sender ? sender->className() : "(null)",
@@ -1476,7 +1476,7 @@ bool QObject::connect( const QObject *sender,	const char *signal,
 
     QMetaObject *smeta = sender->metaObject();
 
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( !check_signal_macro( sender, signal, "connect", "bind" ) )
 	return FALSE;
 #endif
@@ -1485,7 +1485,7 @@ bool QObject::connect( const QObject *sender,	const char *signal,
     int signal_index = smeta->findSignal( signal, TRUE );
 
     if ( signal_index < 0  ) {	// no such signal
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	err_member_notfound( SIGNAL_CODE, sender, signal, "connect" );
 	err_info_about_candidates( SIGNAL_CODE, smeta, signal, "connect" );
 	err_info_about_objects( "connect", sender, receiver );
@@ -1500,7 +1500,7 @@ bool QObject::connect( const QObject *sender,	const char *signal,
     QObject *s = (QObject *)sender;		// we need to change them
     QObject *r = (QObject *)receiver;		//   internally
 
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( !check_member_code( membcode, r, member, "connect" ) )
 	return FALSE;
 #endif
@@ -1518,14 +1518,14 @@ bool QObject::connect( const QObject *sender,	const char *signal,
 	    break;
     }
     if ( !rm ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	err_member_notfound( membcode, r, member, "connect" );
 	err_info_about_candidates( membcode, rmeta, member, "connect" );
 	err_info_about_objects( "connect", sender, receiver );
 #endif
 	return FALSE;
     }
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( !s->checkConnectArgs(signal,receiver,member) )
 	qWarning( "QObject::connect: Incompatible sender/receiver arguments"
 		 "\n\t%s::%s --> %s::%s",
@@ -1636,7 +1636,7 @@ bool QObject::connect( const QObject *sender,	const char *signal,
 bool QObject::disconnect( const QObject *sender,   const char *signal,
 			  const QObject *receiver, const char *member )
 {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
     if ( sender == 0 || (receiver == 0 && member != 0) ) {
 	qWarning( "QObject::disconnect: Unexpected null parameter" );
 	return FALSE;
@@ -1653,7 +1653,7 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 	member_name = qt_rmWS( member );
 	member = member_name.data();
 	int membcode = member[0] - '0';
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	if ( !check_member_code( membcode, r, member, "disconnect" ) )
 	    return FALSE;
 #endif
@@ -1669,7 +1669,7 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 		break;
 	}
 	if ( !rm ) {				// no such member
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	    err_member_notfound( membcode, r, member, "disconnect" );
 	    err_info_about_candidates( membcode, rmeta, member, "connect" );
 	    err_info_about_objects( "disconnect", sender, receiver );
@@ -1707,7 +1707,7 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
     } else {					// specific signal
 	signal_name = qt_rmWS( signal );
 	signal = signal_name.data();
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	if ( !check_signal_macro( s, signal, "disconnect", "unbind" ) )
 	    return FALSE;
 #endif
@@ -1718,7 +1718,7 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
  	    return FALSE;
  	int signal_index = smeta->findSignal( signal, TRUE );
  	if ( signal_index < 0 ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
   		qWarning( "QObject::disconnect: No such signal %s::%s",
   			 s->className(), signal );
 #endif

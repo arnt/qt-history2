@@ -1009,7 +1009,7 @@ void QWidget::grabMouse()
     if ( !qt_nograb() ) {
 	if ( mouseGrb )
 	    mouseGrb->releaseMouse();
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	int status =
 #endif
 	XGrabPointer( x11Display(), winId(), TRUE,
@@ -1018,7 +1018,7 @@ void QWidget::grabMouse()
 			      LeaveWindowMask ),
 		      GrabModeAsync, GrabModeAsync,
 		      None, None, qt_x_time );
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	if ( status ) {
 	    const char *s =
 		status == GrabNotViewable ? "\"GrabNotViewable\"" :
@@ -1050,7 +1050,7 @@ void QWidget::grabMouse( const QCursor &cursor )
     if ( !qt_nograb() ) {
 	if ( mouseGrb )
 	    mouseGrb->releaseMouse();
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	int status =
 #endif
 	XGrabPointer( x11Display(), winId(), TRUE,
@@ -1058,7 +1058,7 @@ void QWidget::grabMouse( const QCursor &cursor )
 			     PointerMotionMask | EnterWindowMask | LeaveWindowMask),
 		      GrabModeAsync, GrabModeAsync,
 		      None, cursor.handle(), qt_x_time );
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	if ( status ) {
 	    const char *s =
 		status == GrabNotViewable ? "\"GrabNotViewable\"" :
@@ -1717,7 +1717,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 
 void QWidget::setMinimumSize( int minw, int minh )
 {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( minw < 0 || minh < 0 )
 	qWarning("QWidget::setMinimumSize: The smallest allowed size is (0,0)");
 #endif
@@ -1753,7 +1753,7 @@ void QWidget::setMinimumSize( int minw, int minh )
 
 void QWidget::setMaximumSize( int maxw, int maxh )
 {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( maxw > QWIDGETSIZE_MAX || maxh > QWIDGETSIZE_MAX ) {
 	qWarning("QWidget::setMaximumSize: (%s/%s) "
 		"The largest allowed size is (%d,%d)",
@@ -2061,7 +2061,7 @@ int QWidget::metric( int m ) const
 		break;
 	    default:
 		val = 0;
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 		qWarning( "QWidget::metric: Invalid metric command" );
 #endif
 	}

@@ -483,7 +483,7 @@ uint QColor::alloc()
 void QColor::setSystemNamedColor( const QString& name )
 {
     if ( !color_init ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "QColor::setSystemNamedColor: Cannot perform this operation "
 		 "because QApplication does not exist" );
 #endif
@@ -584,7 +584,7 @@ int QColor::enterAllocContext()
     static int context_seq_no = 0;
     init_context_stack();
     if ( context_ptr+1 == MAX_CONTEXTS ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "QColor::enterAllocContext: Context stack overflow" );
 #endif
 	return 0;
@@ -606,7 +606,7 @@ void QColor::leaveAllocContext()
 {
     init_context_stack();
     if ( context_ptr == 0 ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "QColor::leaveAllocContext: Context stack underflow" );
 #endif
 	return;

@@ -72,7 +72,7 @@ QSqlDatabaseManager* QSqlDatabaseManager::instance()
     static QSqlDatabaseManager* sqlConnection = 0;
     // ### use cleanup handler
     if ( !sqlConnection ) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	if ( !qApp )
 	    qWarning("Warning: creating QSqlDatabaseManager with no parent." );
 #endif
@@ -92,13 +92,13 @@ QSqlDatabase* QSqlDatabaseManager::database( const QString& name )
 {
     QSqlDatabaseManager* sqlConnection = instance();
     QSqlDatabase* db = sqlConnection->dbDict.find( name );
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
     if ( !db )
 	qWarning("Warning: QSqlDatabaseManager unable to find database " + name );
 #endif
     if ( db && !db->isOpen() ) {
 	db->open();
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	if ( !db->isOpen() )
 	    qWarning("Warning: QSqlDatabaseManager unable to open database: " + db->lastError().databaseText() + ": " + db->lastError().driverText() );
 #endif
@@ -265,7 +265,7 @@ void QSqlDatabase::init( const QString& type, const QString&  )
 #endif
     }
     if ( !d->driver ) {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qWarning("QSqlDatabase warning: %s driver not loaded", type.data());
 #endif
 	d->driver = new QNullDriver();

@@ -1,7 +1,7 @@
 #ifndef QT_H
 #endif // QT_H
 
-#define NO_CHECK
+#define QT_NO_CHECK
 #define QT_NO_PROCESS
 #define QT_NO_PALETTE
 #define QT_NO_ACTION

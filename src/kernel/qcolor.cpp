@@ -500,7 +500,7 @@ void QColor::hsv( int *h, int *s, int *v ) const
 
 void QColor::setHsv( int h, int s, int v )
 {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( h < -1 || (uint)s > 255 || (uint)v > 255 ) {
 	qWarning( "QColor::setHsv: HSV parameters out of range" );
 	return;
@@ -567,7 +567,7 @@ void QColor::rgb( int *r, int *g, int *b ) const
 
 void QColor::setRgb( int r, int g, int b )
 {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( (uint)r > 255 || (uint)g > 255 || (uint)b > 255 )
 	qWarning( "QColor::setRgb: RGB parameter(s) out of range" );
 #endif

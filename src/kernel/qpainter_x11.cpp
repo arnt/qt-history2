@@ -265,7 +265,7 @@ static GC alloc_gc( Display *dpy, Drawable hd, bool monochrome=FALSE,
 	}
 	p++;
     }
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
     qWarning( "QPainter: Internal error; no available GC" );
 #endif
     GC gc = XCreateGC( dpy, hd, 0, 0 );
@@ -518,7 +518,7 @@ void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement )
 	pdev_dict = new QPaintDeviceDict;
 	CHECK_PTR( pdev_dict );
     }
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
     if ( pdev == 0 )
 	qWarning( "QPainter::redirect: The pdev argument cannot be 0" );
 #endif
@@ -571,7 +571,7 @@ void QPainter::init()
 
 void QPainter::setFont( const QFont &font )
 {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( !isActive() )
 	qWarning( "QPainter::setFont: Will be reset by begin()" );
 #endif
@@ -922,14 +922,14 @@ static uchar *pat_tbl[] = {
 bool QPainter::begin( const QPaintDevice *pd )
 {
     if ( isActive() ) {				// already active painting
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "QPainter::begin: Painter is already active."
 		  "\n\tYou must end() the painter before a second begin()" );
 #endif
 	return FALSE;
     }
     if ( pd == 0 ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QPainter::begin: Paint device cannot be null" );
 #endif
 	return FALSE;
@@ -950,7 +950,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 
     if ( pdev->isExtDev() && pdev->paintingActive() ) {
 	// somebody else is already painting
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "QPainter::begin: Another QPainter is already painting "
 		  "this device;\n\tAn extended paint device can only be "
 		  "painted by one QPainter at a time." );
@@ -1032,7 +1032,7 @@ bool QPainter::begin( const QPaintDevice *pd )
     } else if ( dt == QInternal::Pixmap ) {		// device is a pixmap
 	QPixmap *pm = (QPixmap*)pdev;
 	if ( pm->isNull() ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	    qWarning( "QPainter::begin: Cannot paint null pixmap" );
 #endif
 	    end();
@@ -1092,7 +1092,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 bool QPainter::end()				// end painting
 {
     if ( !isActive() ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "QPainter::end: Missing begin() or begin() failed" );
 #endif
 	return FALSE;
@@ -1167,7 +1167,7 @@ void QPainter::flush()
 void QPainter::setBackgroundColor( const QColor &c )
 {
     if ( !isActive() ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "QPainter::setBackgroundColor: Call begin() first" );
 #endif
 	return;
@@ -1201,13 +1201,13 @@ void QPainter::setBackgroundColor( const QColor &c )
 void QPainter::setBackgroundMode( BGMode m )
 {
     if ( !isActive() ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "QPainter::setBackgroundMode: Call begin() first" );
 #endif
 	return;
     }
     if ( m != TransparentMode && m != OpaqueMode ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QPainter::setBackgroundMode: Invalid mode" );
 #endif
 	return;
@@ -1240,13 +1240,13 @@ static short ropCodes[] = {			// ROP translation table
 void QPainter::setRasterOp( RasterOp r )
 {
     if ( !isActive() ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "QPainter::setRasterOp: Call begin() first" );
 #endif
 	return;
     }
     if ( (uint)r > LastROP ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QPainter::setRasterOp: Invalid ROP code" );
 #endif
 	return;
@@ -1281,7 +1281,7 @@ void QPainter::setRasterOp( RasterOp r )
 void QPainter::setBrushOrigin( int x, int y )
 {
     if ( !isActive() ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "QPainter::setBrushOrigin: Call begin() first" );
 #endif
 	return;
@@ -1309,7 +1309,7 @@ void QPainter::setBrushOrigin( int x, int y )
 void QPainter::setClipping( bool enable )
 {
     if ( !isActive() ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "QPainter::setClipping: Will be reset by begin()" );
 #endif
 	return;
@@ -1369,7 +1369,7 @@ void QPainter::setClipRect( const QRect &r )
 
 void QPainter::setClipRegion( const QRegion &rgn )
 {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( !isActive() )
 	qWarning( "QPainter::setClipRegion: Will be reset by begin()" );
 #endif
@@ -2285,7 +2285,7 @@ void QPainter::drawQuadBezier( const QPointArray &a, int index )
     if ( !isActive() )
 	return;
     if ( a.size() - index < 4 ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QPainter::drawQuadBezier: Cubic Bezier needs 4 control "
 		 "points" );
 #endif

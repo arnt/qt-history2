@@ -35,7 +35,7 @@ QActiveXControl::QActiveXControl( const char *name )
     is_active   = FALSE;
     old_parent  = 0;
     old_style   = 0;
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( qt_app == 0 )
 	warning( "QActiveXControl: Qt ActiveX support not initialized" );
 #endif
@@ -48,7 +48,7 @@ QActiveXControl::QActiveXControl( const char *name )
 
 QActiveXControl::~QActiveXControl()
 {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( qt_app == 0 )
 	warning( "QActiveXControl: Qt ActiveX support not initialized" );
 #endif
@@ -261,7 +261,7 @@ void QActiveXControl::terminate()
 	qt_app = 0;
 	debug( "Deleted Qt application" );
     } else if ( activex_init < 0 ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	warning( "QActiveXControl: Each call to 'initialize' must be balanced "
 		 "by a corresponding\n\tcall to 'terminate'" );
 #endif

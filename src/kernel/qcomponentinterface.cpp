@@ -146,7 +146,7 @@ bool QUnknownInterface::ref()
 bool QUnknownInterface::release()
 {
     if ( !refcount ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	if ( objname )
 	    qWarning( "%s: Interface refcount out of sync!", objname );
 #endif

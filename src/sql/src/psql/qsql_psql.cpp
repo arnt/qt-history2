@@ -298,7 +298,7 @@ QVariant QPSQLResult::data( int i )
 	    }
 	default:
 	case QVariant::Invalid:
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	    qWarning("QPSQLResult::data Warning: unknown data type");
 #endif
 	    return QVariant();
@@ -358,7 +358,7 @@ QVariant QPSQLResult::data( int i )
 	    }
 	default:
 	case QVariant::Invalid:
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	    qWarning("QPSQLResult::data Warning: unknown data type");
 #endif
 	    return QVariant();
@@ -451,7 +451,7 @@ bool QPSQLDriver::open( const QString & db,
         return FALSE;
     }
     PGresult* dateResult = PQexec( d->connection, "SET DATESTYLE=ISO;" );
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
     int status =  PQresultStatus( dateResult );
     if ( status != PGRES_COMMAND_OK )
 	qWarning( PQerrorMessage( d->connection ) );

@@ -1035,7 +1035,7 @@ void QSplitter::setHidden( QWidget *w, bool hide )
     } else if ( w == w2 ) {
 	w2show = !hide;
     } else {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
 	qWarning( "QSplitter::setHidden(), unknown widget" );
 #endif
 	return;
@@ -1058,7 +1058,7 @@ bool QSplitter::isHidden( QWidget *w ) const
 	return !w1show;
      else if ( w == w2 )
 	return !w2show;
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
     else
 	qWarning( "QSplitter::isHidden(), unknown widget" );
 #endif

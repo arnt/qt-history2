@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#8 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#9 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -650,12 +650,12 @@ int QSocketDevice::waitForMore( int msecs ) const
 */
 int QSocketDevice::readBlock( char *data, uint maxlen )
 {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
     if ( data == 0 && maxlen != 0 ) {
 	qWarning( "QSocketDevice::readBlock: Null pointer error" );
     }
 #endif
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( !isValid() ) {
 	qWarning( "QSocketDevice::readBlock: Invalid socket" );
 	return -1;
@@ -728,25 +728,25 @@ int QSocketDevice::readBlock( char *data, uint maxlen )
 int QSocketDevice::writeBlock( const char *data, uint len )
 {
     if ( data == 0 && len != 0 ) {
-#if defined(CHECK_NULL) || defined(QSOCKETDEVICE_DEBUG)
+#if defined(QT_CHECK_NULL) || defined(QSOCKETDEVICE_DEBUG)
 	qWarning( "QSocketDevice::writeBlock: Null pointer error" );
 #endif
 	return -1;
     }
     if ( !isValid() ) {
-#if defined(CHECK_STATE) || defined(QSOCKETDEVICE_DEBUG)
+#if defined(QT_CHECK_STATE) || defined(QSOCKETDEVICE_DEBUG)
 	qWarning( "QSocketDevice::writeBlock: Invalid socket" );
 #endif
 	return -1;
     }
     if ( !isOpen() ) {
-#if defined(CHECK_STATE) || defined(QSOCKETDEVICE_DEBUG)
+#if defined(QT_CHECK_STATE) || defined(QSOCKETDEVICE_DEBUG)
 	qWarning( "QSocketDevice::writeBlock: Device is not open" );
 #endif
 	return -1;
     }
     if ( !isWritable() ) {
-#if defined(CHECK_STATE) || defined(QSOCKETDEVICE_DEBUG)
+#if defined(QT_CHECK_STATE) || defined(QSOCKETDEVICE_DEBUG)
 	qWarning( "QSocketDevice::writeBlock: Write operation not permitted" );
 #endif
 	return -1;
@@ -803,32 +803,32 @@ int QSocketDevice::writeBlock( const char * data, uint len,
 			       const QHostAddress & host, Q_UINT16 port )
 {
     if ( t != Datagram ) {
-#if defined(CHECK_STATE) || defined(QSOCKETDEVICE_DEBUG)
+#if defined(QT_CHECK_STATE) || defined(QSOCKETDEVICE_DEBUG)
 	qWarning( "QSocketDevice::sendBlock: Not datagram" );
 #endif
 	return -1; // for now - later we can do t/tcp
     }
 
     if ( data == 0 && len != 0 ) {
-#if defined(CHECK_NULL) || defined(QSOCKETDEVICE_DEBUG)
+#if defined(QT_CHECK_NULL) || defined(QSOCKETDEVICE_DEBUG)
 	qWarning( "QSocketDevice::sendBlock: Null pointer error" );
 #endif
 	return -1;
     }
     if ( !isValid() ) {
-#if defined(CHECK_STATE) || defined(QSOCKETDEVICE_DEBUG)
+#if defined(QT_CHECK_STATE) || defined(QSOCKETDEVICE_DEBUG)
 	qWarning( "QSocketDevice::sendBlock: Invalid socket" );
 #endif
 	return -1;
     }
     if ( !isOpen() ) {
-#if defined(CHECK_STATE) || defined(QSOCKETDEVICE_DEBUG)
+#if defined(QT_CHECK_STATE) || defined(QSOCKETDEVICE_DEBUG)
 	qWarning( "QSocketDevice::sendBlock: Device is not open" );
 #endif
 	return -1;
     }
     if ( !isWritable() ) {
-#if defined(CHECK_STATE) || defined(QSOCKETDEVICE_DEBUG)
+#if defined(QT_CHECK_STATE) || defined(QSOCKETDEVICE_DEBUG)
 	qWarning( "QSocketDevice::sendBlock: Write operation not permitted" );
 #endif
 	return -1;

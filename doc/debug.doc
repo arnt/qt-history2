@@ -110,9 +110,9 @@ If you define the flag QT_FATAL_ASSERT, ASSERT will call fatal()
 instead of warning(), so a failed assertion will cause the program to
 exit after printing the error message.
 
-Note that the ASSERT macro is a null expression if \c CHECK_STATE (see
+Note that the ASSERT macro is a null expression if \c QT_CHECK_STATE (see
 below) is not defined. Any code in it will simply not be
-executed. Similarly CHECK_PTR is a null expression if \c CHECK_NULL is
+executed. Similarly CHECK_PTR is a null expression if \c QT_CHECK_NULL is
 not defined. Here is an example of how you should NOT use ASSERT and
 CHECK_PTR:
 
@@ -127,7 +127,7 @@ CHECK_PTR:
 
 The problem is tricky: \e p is set to a sane value only as long as the
 correct checking flags are defined. If this code is compiled without
-the CHECK_NULL flag defined, the code in the CHECK_PTR expression is
+the QT_CHECK_NULL flag defined, the code in the CHECK_PTR expression is
 not executed (correctly, since it's only a debugging aid) and \e alloc
 returns a wild pointer.
 
@@ -137,28 +137,28 @@ warning messages when some error is detected.
 The tests for sanity and the resulting warning messages inside Qt are
 conditional, based on the state of various debugging flags:
 <ul>
-<li> \c CHECK_STATE: Check for consistent/expected object state
-<li> \c CHECK_RANGE: Check for variables range errors
-<li> \c CHECK_NULL: Check for dangerous null pointer
-<li> \c CHECK_MATH: Check for dangerous math, e.g. division by 0.
-<li> \c NO_CHECK: Turn off all CHECK_... flags
+<li> \c QT_CHECK_STATE: Check for consistent/expected object state
+<li> \c QT_CHECK_RANGE: Check for variables range errors
+<li> \c QT_CHECK_NULL: Check for dangerous null pointer
+<li> \c QT_CHECK_MATH: Check for dangerous math, e.g. division by 0
+<li> \c QT_NO_CHECK: Turn off all QT_CHECK_... flags
 <li> \c DEBUG: Enable debugging code
 <li> \c NO_DEBUG: Turn off DEBUG flag
 </ul>
 
-By default, both DEBUG and all the CHECK flags are on. To turn off
-DEBUG, define NO_DEBUG. To turn off the CHECK flags, define NO_CHECK.
+By default, both DEBUG and all the QT_CHECK flags are on. To turn off
+DEBUG, define NO_DEBUG. To turn off the QT_CHECK flags, define QT_NO_CHECK.
 
 Example:
 \code
   void f( char *p, int i )
   {
-  #if defined(CHECK_NULL)
+  #if defined(QT_CHECK_NULL)
       if ( p == 0 )
 	  qWarning( "f: Null pointer not allowed" );
   #endif
 
-  #if defined(CHECK_RANGE)
+  #if defined(QT_CHECK_RANGE)
       if ( i < 0 )
 	  qWarning( "f: The index cannot be negative" );
   #endif

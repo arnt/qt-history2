@@ -45,7 +45,7 @@
 QPaintDevice::QPaintDevice( uint devflags )
 {
     if ( !qApp ) {				// global constructor
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qFatal( "QPaintDevice: Must construct a QApplication before a "
 		"QPaintDevice" );
 #endif
@@ -58,7 +58,7 @@ QPaintDevice::QPaintDevice( uint devflags )
 
 QPaintDevice::~QPaintDevice()
 {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( paintingActive() )
 	qWarning( "QPaintDevice: Cannot destroy paint device that is being "
 		  "painted.  Be sure to QPainter::end() painters!" );

@@ -296,7 +296,7 @@ QRegion QRegion::winCombine( const QRegion &r, int op ) const
 	    left = right = RGN_COPY;
 	    break;
 	default:
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	    qWarning( "QRegion: Internal error in winCombine" );
 #else
 	    ;

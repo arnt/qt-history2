@@ -478,7 +478,7 @@ QStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
 {
 	if ( w == 0 || h == 0 )
 	return;
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     ASSERT( w > 0 && h > 0 && lineWidth >= 0 );
 #endif
     QPen oldPen = p->pen();			// save pen

@@ -187,7 +187,7 @@ void QCursor::setBitmap( const QBitmap &bitmap, const QBitmap &mask,
 	initialize();
     if ( bitmap.depth() != 1 || mask.depth() != 1 ||
 	 bitmap.size() != mask.size() ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QCursor: Cannot create bitmap cursor; invalid bitmap(s)" );
 #endif
 	QCursor *c = &cursorTable[arrowCursorIdx];
@@ -516,7 +516,7 @@ void QCursor::update() const
 
 #endif
     default:
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QCursor::update: Invalid cursor shape %d", d->cshape );
 #endif
 	return;

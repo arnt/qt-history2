@@ -169,7 +169,7 @@
   QDataStream member functions
  *****************************************************************************/
 
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 #undef  CHECK_STREAM_PRECOND
 #define CHECK_STREAM_PRECOND  if ( !dev ) {				\
 				qWarning( "QDataStream: No device" );	\

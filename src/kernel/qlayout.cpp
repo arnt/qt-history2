@@ -395,7 +395,7 @@ void QLayoutArray::add( QLayoutBox *box, int row, int col )
 void QLayoutArray::add( QLayoutBox *box,  int row1, int row2,
 			int col1, int col2  )
 {
-#ifdef CHECK_RANGE
+#ifdef QT_CHECK_RANGE
     if ( row2 >= 0 && row2 < row1 )
 	qWarning( "QGridLayout: multicell fromRow greater than toRow" );
     if ( col2 >= 0 && col2 < col1 )
@@ -1167,13 +1167,13 @@ void QGridLayout::addMultiCell( QLayoutItem *item, int fromRow, int toRow,
 static bool checkWidget( QLayout *l, QWidget *w )
 {
     if ( !w ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "cannot add null widget to %s/%s", l->className(),
 		  l->name() );
 #endif
 	return FALSE;
     }
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( w->parentWidget() != l->mainWidget() ) {
 	if ( w->parentWidget() && l->mainWidget() )
 	    qWarning( "Warning: adding %s/%s (child of %s/%s) to layout for %s/%s",
@@ -1214,7 +1214,7 @@ void QGridLayout::addWidget( QWidget *w, int row, int col, int alignment )
     if ( !checkWidget( this, w ) )
 	return;
     if ( row < 0 || col < 0 ) {
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
 	qWarning( "cannot add %s/%s to %s/%s at row %d col %d",
 		 w->className(), w->name(),
 		 className(), name(),

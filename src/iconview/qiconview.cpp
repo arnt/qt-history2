@@ -5247,7 +5247,7 @@ void QIconView::updateItemContainer( QIconViewItem *item )
     }
 
     if ( !c ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QIconViewItem::updateItemContainer(): No fitting container found!" );
 #endif
 	return;

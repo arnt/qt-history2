@@ -975,7 +975,7 @@ void QWidget::addDirtyChildRegion( const QRegion &r )
 
 void QWidget::setMinimumSize( int minw, int minh )
 {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( minw < 0 || minh < 0 )
 	qWarning("QWidget::setMinimumSize: The smallest allowed size is (0,0)");
 #endif
@@ -994,7 +994,7 @@ void QWidget::setMinimumSize( int minw, int minh )
 
 void QWidget::setMaximumSize( int maxw, int maxh )
 {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( maxw > QWIDGETSIZE_MAX || maxh > QWIDGETSIZE_MAX ) {
 	qWarning("QWidget::setMaximumSize: (%s/%s) "
 		"The largest allowed size is (%d,%d)",

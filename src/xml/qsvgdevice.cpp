@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#4 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#5 $
 **
 ** Implementation of the QSVGDevice class
 **
@@ -154,7 +154,7 @@ int QSVGDevice::metric( int m ) const
 	break;
     default:
 	val = 0;
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QSVGDevice::metric: Invalid metric command" );
 #endif
     }

@@ -82,7 +82,7 @@ static bool si_bigEndian;
 
 bool qSysInfo( int *wordSize, bool *bigEndian )
 {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
     ASSERT( wordSize != 0 );
     ASSERT( bigEndian != 0 );
 #endif
@@ -105,14 +105,14 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
     if ( *wordSize != 64 &&
 	 *wordSize != 32 &&
 	 *wordSize != 16 ) {			// word size: 16, 32 or 64
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qFatal( "qSysInfo: Unsupported system word size %d", *wordSize );
 #endif
 	return FALSE;
     }
     if ( sizeof(Q_INT8) != 1 || sizeof(Q_INT16) != 2 || sizeof(Q_INT32) != 4 ||
 	 sizeof(float) != 4 || sizeof(double) != 8 ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qFatal( "qSysInfo: Unsupported system data type size" );
 #endif
 	return FALSE;
@@ -135,7 +135,7 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
 	be32 = !be16;
 
     if ( be16 != be32 ) {			// strange machine!
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qFatal( "qSysInfo: Inconsistent system byte order" );
 #endif
 	return FALSE;

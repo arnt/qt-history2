@@ -283,7 +283,7 @@ int QDate::daysInYear() const
 
 QString QDate::monthName( int month ) const
 {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( month < 1 || month > 12 ) {
 	qWarning( "QDate::monthName: Parameter out ouf range." );
 	month = 1;
@@ -303,7 +303,7 @@ QString QDate::monthName( int month ) const
 
 QString QDate::dayName( int weekday ) const
 {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
     if ( weekday < 1 || weekday > 7 ) {
 	qWarning( "QDate::dayName: Parameter out of range." );
 	weekday = 1;
@@ -373,7 +373,7 @@ bool QDate::setYMD( int y, int m, int d )
     if ( year() == y && month() == m && day() == d )
 	return isValid();
     if ( !isValid(y,m,d) ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	 qWarning( "QDate::setYMD: Invalid date %04d/%02d/%02d", y, m, d );
 #endif
 	 return FALSE;
@@ -777,7 +777,7 @@ QString QTime::toString( Qt::DateFormat f ) const
 bool QTime::setHMS( int h, int m, int s, int ms )
 {
     if ( !isValid(h,m,s,ms) ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "QTime::setHMS Invalid time %02d:%02d:%02d.%03d", h, m, s,
 		 ms );
 #endif
@@ -952,7 +952,7 @@ QTime QTime::fromString( const QString& s, Qt::DateFormat f )
 bool QTime::currentTime( QTime *ct )
 {
     if ( !ct ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QTime::currentTime(QTime *): Null pointer not allowed" );
 #endif
 	return FALSE;

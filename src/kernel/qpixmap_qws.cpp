@@ -117,7 +117,7 @@ static void cleanup_scale_tables()
 static void build_scale_table( uint **table, uint nBits )
 {
     if ( nBits > 7 ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	qWarning( "build_scale_table: internal error, nBits = %i", nBits );
 #endif
 	return;
@@ -174,7 +174,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	data->id = 0;
 	data->w = 0;
 	data->h = 0;
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 	if ( !make_null ) {
 	    qWarning( "QPixmap: Invalid pixmap parameters, %d %d %d",w,h,data->d);
 	    abort();
@@ -320,7 +320,7 @@ QImage QPixmap::convertToImage() const
 {
     QImage image;
     if ( isNull() ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QPixmap::convertToImage: Cannot convert a null pixmap" );
 #if defined(NASTY)
 	abort();
@@ -370,7 +370,7 @@ QImage QPixmap::convertToImage() const
 bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 {
     if ( img.isNull() ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
 	qWarning( "QPixmap::convertFromImage: Cannot convert a null image" );
 #if defined(NASTY)
 	abort();
@@ -695,7 +695,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 		break;
 
 		default: {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
 		qWarning( "QPixmap::xForm: Display not supported (bpp=%d)",bpp);
 #endif
 		return QPixmap( 0, 0, 0, data->bitmap, data->optim );

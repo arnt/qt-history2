@@ -457,7 +457,7 @@ int QFont::pointSize() const
 void QFont::setPointSize( int pointSize )
 {
     if ( pointSize <= 0 ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
         qWarning( "QFont::setPointSize: Point size <= 0 (%d)", pointSize );
 #endif
         return;
@@ -477,7 +477,7 @@ void QFont::setPointSize( int pointSize )
 void QFont::setPointSizeFloat( float pointSize )
 {
     if ( pointSize <= 0 ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
         qWarning( "QFont::setPointSize: Point size <= 0 (%f)", pointSize );
 #endif
         return;
@@ -586,7 +586,7 @@ int QFont::weight() const
 void QFont::setWeight( int weight )
 {
     if ( weight < 0 || weight > 99 ) {
-#if defined(CHECK_RANGE)
+#if defined(QT_CHECK_RANGE)
         qWarning( "QFont::setWeight: Value out of range (%d)", weight );
 #endif
         return;
@@ -1419,7 +1419,7 @@ static void insertFontMetrics( QFontMetrics *fm ) {
 static void removeFontMetrics( QFontMetrics *fm )
 {
     if ( !fm_list ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
         qWarning( "QFontMetrics::~QFontMetrics: Internal error" );
 #endif
         return;
@@ -1541,7 +1541,7 @@ QFontMetrics::QFontMetrics( const QFont &font )
 QFontMetrics::QFontMetrics( const QPainter *p )
 {
     painter = (QPainter *)p;
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( !painter->isActive() )
         qWarning( "QFontMetrics: Get font metrics between QPainter::begin() "
                  "and QPainter::end()" );
@@ -1768,7 +1768,7 @@ static void insertFontInfo( QFontInfo *fi )
 static void removeFontInfo( QFontInfo *fi )
 {
     if ( !fi_list ) {
-#if defined(CHECK_NULL)
+#if defined(QT_CHECK_NULL)
         qWarning( "QFontInfo::~QFontInfo: Internal error" );
 #endif
         return;
@@ -1871,7 +1871,7 @@ QFontInfo::QFontInfo( const QFont &font )
 QFontInfo::QFontInfo( const QPainter *p )
 {
     painter = (QPainter *)p;
-#if defined(CHECK_STATE)
+#if defined(QT_CHECK_STATE)
     if ( !painter->isActive() )
         qWarning( "QFontInfo: Get font info between QPainter::begin() "
                  "and QPainter::end()" );
