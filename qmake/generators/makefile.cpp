@@ -223,6 +223,7 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const
     QStringList &fndeps = findDependencies(f);
     if(!fndeps.isEmpty())
 	return TRUE;
+    QPtrList<QStringList> recurse_deps;
     QString fn = fileFixify(f, QDir::currentDirPath(), Option::output_dir);
     fn = Option::fixPathToLocalOS(fn, FALSE);
     QString fix_env_fn = Option::fixPathToLocalOS(fn);
@@ -543,6 +544,8 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const
 	    debug_msg(4, "Resolved dependency of %s to %s", inc.latin1(), fqn.latin1());
 	    if(outdeps && outdeps->findIndex(fqn) == -1)
 		outdeps->append(fqn);
+	    if(recurse && recurse_deps.find(outdeps) == -1)
+		recurse_deps.append(outdeps);
 	}
 	//read past new line now..
 	for( ; x < total_size_read && (*(big_buffer + x) != '\n'); x++);
@@ -550,13 +553,17 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const
     }
 
     if(recurse) {
-	for(int i = 0; i < fndeps.size(); ++i) {
-	    generateDependencies(dirs, fndeps[i], recurse);
-	    QStringList &deplist = findDependencies(fndeps[i]);
-	    for(QStringList::Iterator it = deplist.begin(); it != deplist.end(); ++it)
-		if(!fndeps.contains(*it))
-		    fndeps.append(*it);
-	}
+ 	for(QPtrList<QStringList>::Iterator recur_it = recurse_deps.begin(); recur_it != recurse_deps.end();
+ 	    ++recur_it) {
+ 	    QStringList *recurse_list = (*recur_it);
+	    for(int i = 0; i < recurse_list->size(); ++i) {
+ 		generateDependencies(dirs, (*recurse_list)[i], recurse);
+ 		QStringList &deplist = findDependencies((*recurse_list)[i]);
+ 		for(QStringList::Iterator it = deplist.begin(); it != deplist.end(); ++it)
+ 		    if(recurse_list->findIndex((*it)) == -1)
+ 			recurse_list->append((*it));
+ 	    }
+  	}
     }
     debug_msg(2, "Dependencies: %s -> %s", fn.latin1(), fndeps.join(" :: ").latin1());
     return TRUE;
