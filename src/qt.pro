@@ -15,8 +15,8 @@ unix:KERNEL_H	= kernel
 unix:TOOLS_H	= tools
 unix:WIDGETS_H	= widgets
 
-win32:DEPENDPATH = $(QTDIR)/include
-unix:DEPENDPATH	= $(QTDIR)/src/$$DIALOGS_H:$(QTDIR)/src/$$KERNEL_H:$(QTDIR)/src/$$TOOLS_H:$(QTDIR)/src/$$WIDGETS_H
+win32:DEPENDPATH = ../include
+unix:DEPENDPATH	= $$DIALOGS_H:$$KERNEL_H:$$TOOLS_H:$$WIDGETS_H
 
 HEADERS		= $$DIALOGS_H/qfiledialog.h \
 		  $$DIALOGS_H/qmessagebox.h \
@@ -253,6 +253,7 @@ win32:SOURCES  += kernel/qapplication_win.cpp \
 		  kernel/qclipboard_win.cpp \
 		  kernel/qcolor_win.cpp \
 		  kernel/qcursor_win.cpp \
+		  kernel/qdnd_win.cpp \
 		  kernel/qfont_win.cpp \
 		  kernel/qpicture_win.cpp \
 		  kernel/qpixmap_win.cpp \
@@ -260,9 +261,9 @@ win32:SOURCES  += kernel/qapplication_win.cpp \
 		  kernel/qpaintdevice_win.cpp \
 		  kernel/qpainter_win.cpp \
 		  kernel/qregion_win.cpp \
-		  kernel/qwidget_win.cpp \
-		  kernel/qole_win.c \
-		  kernel/qdnd_win.cpp
+		  kernel/qwidget_win.cpp
+
+win32:SOURCES  += kernel/qole_win.c
 
 unix:HEADERS   += $$DIALOGS_H/qprintdialog.h \
 		  $$KERNEL_H/qpsprinter.h
@@ -271,6 +272,7 @@ unix:SOURCES   += kernel/qapplication_x11.cpp \
 		  kernel/qclipboard_x11.cpp \
 		  kernel/qcolor_x11.cpp \
 		  kernel/qcursor_x11.cpp \
+		  kernel/qdnd_x11.cpp \
 		  kernel/qfont_x11.cpp \
 		  kernel/qpicture_x11.cpp \
 		  kernel/qpixmap_x11.cpp \
@@ -283,8 +285,7 @@ unix:SOURCES   += kernel/qapplication_x11.cpp \
 unix:SOURCES   += dialogs/qprintdialog.cpp \
 		  kernel/qpsprinter.cpp \
 		  kernel/qnpsupport.cpp \
-		  kernel/qwidgetcreate_x11.cpp \
-		  kernel/qdnd_x11.cpp
+		  kernel/qwidgetcreate_x11.cpp
 
 TARGET		= qt
 VERSION		= 1.39
