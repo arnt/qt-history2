@@ -67,6 +67,11 @@ bool QMutex::locked()
     return true;
 }
 
+MUTEX_HANDLE QMutex::handle()
+{
+    return 0;
+}
+
 class Q_EXPORT QThreadQtEvent {
 
 public:
@@ -131,7 +136,7 @@ extern "C" static unsigned long start_thread(QThread * t)
   return 0;
 }
 
-int QThread::currentThread()
+THREAD_HANDLE QThread::currentThread()
 {
   return 0;
 }
@@ -169,7 +174,7 @@ void QThread::setThreadData(void *)
 {
 }
 
-unsigned int QThread::threadId()
+THREAD_HANDLE QThread::handle()
 {
     return 0;
 }
@@ -198,6 +203,13 @@ void QThread::run()
     // Default implementation does nothing
 }
 
+void QThread::runWrapper()
+{
+    run();
+    // Tell any threads waiting for us to wake up
+    d->thread_done.wakeAll();
+}
+
 QThreadEvent::QThreadEvent()
 {
 }
@@ -210,7 +222,7 @@ void QThreadEvent::wait()
 {
 }
 
-void QThreadEvent::wait(QTime & t)
+void QThreadEvent::wait(QTime &)
 {
 }
 
@@ -221,3 +233,9 @@ void QThreadEvent::wakeOne()
 void QThreadEvent::wakeAll()
 {
 }
+
+THREADEVENT_HANDLE QThreadEvent::handle()
+{
+    return 0;
+}
+

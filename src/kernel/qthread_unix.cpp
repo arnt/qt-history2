@@ -46,12 +46,21 @@ public:
 class QThreadPrivate {
     
 public:
+
+    pthread_t mythread;
+    QThreadEvent thread_done;      // Used for QThread::wait()    
     
 };
 
 class QThreadEventPrivate {
     
 public:
+    
+    pthread_cond_t mycond;
+    QMutex m;
+    
+    QThreadEventPrivate();
+    ~QThreadEventPrivate();
     
 };
 
@@ -71,6 +80,21 @@ QMutexPrivate::~QMutexPrivate()
     }
 }
 
+QThreadEventPrivate::QThreadEventPrivate()
+{
+    int ret=pthread_cond_init(&mycond,0);
+    if( ret ) {
+	qFatal( "Thread event init failure %s", strerror( ret ) );
+    }
+}
+
+QThreadEventPrivate::~QThreadEventPrivate()
+{
+    int ret=pthread_cond_destroy(&mycond);
+    if( ret ) {
+	qFatal( "Thread event init failure %s", strerror( ret ) );
+    }
+}
 
 QMutex::QMutex()
 {
@@ -100,9 +124,20 @@ void QMutex::unlock()
 
 bool QMutex::locked()
 {
-    return true;
+    int ret = pthread_mutex_trylock( &(d->mymutex) );
+    if(ret==EBUSY) {
+	return true;
+    } else if(ret) {
+	qFatal( "Mutex try lock failure %s\n", strerror( ret ) );
+    }
+    return false;
 }
 
+MUTEX_HANDLE QMutex::handle()
+{
+    // Eeevil?
+    return (unsigned long) &( d->mymutex );
+}
 
 class QThreadQtEvent {
 
@@ -156,15 +191,15 @@ static QThreadEventsPrivate * qthreadeventsprivate = 0;
 
 extern "C" {
     static void * start_thread(QThread * t) {
-	t->run();
+	t->runWrapper();
 	return 0;
     }
 }
 
-int QThread::currentThread()
+THREAD_HANDLE QThread::currentThread()
 {
     // A pthread_t is an int
-    return pthread_self();
+    return (THREAD_HANDLE)pthread_self();
 }
 
 void QThread::postEvent( QObject * o, QEvent * e )
@@ -181,12 +216,9 @@ void QThread::postEvent( QObject * o, QEvent * e )
     qApp->wakeUpGuiThread();
 }
 
-void QThread::wait(const QThread &)
-{
-}
-
 void QThread::yield()
 {
+    // Do nothing. This is a real OS.
 }
 
 void * QThread::threadData()
@@ -196,19 +228,27 @@ void * QThread::threadData()
 
 void QThread::setThreadData(void *)
 {
+    
 }
 
-unsigned int QThread::threadId()
+THREAD_HANDLE QThread::handle()
 {
-    return 0;
+    return d->mythread;
 }
 
 QThread::QThread()
 {
+    d=new QThreadPrivate;
 }
 
 QThread::~QThread()
 {
+    delete d;
+}
+
+void QThread::wait()
+{
+    d->thread_done.wait();
 }
 
 void QThread::start()
@@ -224,20 +264,40 @@ void QThread::run()
     // Default implementation does nothing
 }
 
+void QThread::runWrapper()
+{
+    run();
+    // Tell any threads waiting for us to wake up
+    d->thread_done.wakeAll();
+}
+
 QThreadEvent::QThreadEvent()
 {
+    d=new QThreadEventPrivate;
 }
 
 QThreadEvent::~QThreadEvent()
 {
+    delete d;
 }
 
 void QThreadEvent::wait()
 {
+    if( pthread_cond_wait (&( d->mycond ),
+        ( pthread_mutex_t * )( d->m.handle() ))) {
+	qWarning("Threadevent wait error:%s",strerror(errno));
+    }
 }
 
 void QThreadEvent::wait(const QTime & t)
 {
+    timespec ti;
+    ti.tv_sec=t.second();
+    ti.tv_nsec=t.time().msec()*1000000;
+    if( pthread_cond_timedwait (&( d->mycond ),
+        ( pthread_mutex_t * )( d->m.handle() ), &ti) ) {
+	qWarning("Threadevent timed wait error:%s",strerror(errno));
+    }
 }
 
 void QThreadEvent::wakeOne()
@@ -246,4 +306,9 @@ void QThreadEvent::wakeOne()
 
 void QThreadEvent::wakeAll()
 {
+}
+
+THREADEVENT_HANDLE QThreadEvent::handle()
+{
+    return (unsigned long) &( d->mycond );
 }

@@ -36,6 +36,10 @@ class QMutexPrivate;
 class QThreadPrivate;
 class QThreadEventPrivate;
 
+typedef unsigned long MUTEX_HANDLE;
+typedef unsigned long THREAD_HANDLE;
+typedef unsigned long THREADEVENT_HANDLE;
+
 class Q_EXPORT QMutex {
 
  public:
@@ -44,6 +48,7 @@ class Q_EXPORT QMutex {
     ~QMutex();
     void lock();
     void unlock();
+    MUTEX_HANDLE handle();
     bool locked();
 
 private:
@@ -61,9 +66,8 @@ class Q_EXPORT QThread {
 
 public:
 
-    static int currentThread();
+    static THREAD_HANDLE currentThread();
     static void postEvent( QObject *,QEvent * );
-    static void wait(const QThread &);
     static void yield();   // Only useful on MacOS
     static void * threadData();
     static void setThreadData(void *);
@@ -71,10 +75,14 @@ public:
 
     QThread();
     virtual ~QThread();
+    void wait();
     void start();
     virtual void run();
-    unsigned int threadId();
+    THREAD_HANDLE handle();
     bool running();
+
+
+    void runWrapper();
 
 private:
 
@@ -99,10 +107,11 @@ class Q_EXPORT QThreadEvent {
     void wait(const QTime &);
     void wakeOne();
     void wakeAll();
+    THREADEVENT_HANDLE handle();
 
- private:
+private:
 
-    QThreadEventPrivate * qte;
+    QThreadEventPrivate * d;
 
 #if defined(Q_DISABLE_COPY)
     QThreadEvent( const QThreadEvent & );
