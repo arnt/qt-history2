@@ -21,102 +21,99 @@
 #include "fileopen.xpm"
 #include "filesave.xpm"
 
-QMenus::QMenus( QWidget *parent, const char *name ) 
-    : QMainWindow( parent, name, 0 ) // QMainWindow's default flag is WType_TopLevel
+QMenus::QMenus(QWidget *parent, const char *name) 
+    : QMainWindow(parent, name, 0) // QMainWindow's default flag is WType_TopLevel
 {
     QAction *action;
 
-    QPopupMenu *file = new QPopupMenu( this );
+    QMenu *file = new QMenu(this);
 
-    action = new QAction( "Open...", QPixmap( (const char**)fileopen ),
-	"&Open", CTRL+Key_O, this );
-    connect( action, SIGNAL(activated()), this, SLOT(fileOpen()) );
-    action->addTo( file );
+    action = new QAction(QPixmap((const char**)fileopen), "&Open", CTRL+Key_O, this);
+    connect(action, SIGNAL(activated()), this, SLOT(fileOpen()));
+    file->addAction(action);
 
-    action = new QAction( "Save", QPixmap( (const char**)filesave ),
-	"&Save", CTRL+Key_S, this );
-    connect( action, SIGNAL(activated()), this, SLOT(fileSave()) );
-    action->addTo( file );
+    action = new QAction(QPixmap((const char**)filesave),"&Save", CTRL+Key_S, this);
+    connect(action, SIGNAL(activated()), this, SLOT(fileSave()));
+    file->addAction(action);
 
+    QMenu *edit = new QMenu(this);
 
-    QPopupMenu *edit = new QPopupMenu( this );
+    action = new QAction("&Normal", CTRL+Key_N, this);
+    action->setCheckable(true);
+    connect(action, SIGNAL(activated()), this, SLOT(editNormal()));
+    edit->addAction(action);
 
-    action = new QAction( "Normal", "&Normal", CTRL+Key_N, this );
-    action->setToggleAction( TRUE );
-    connect( action, SIGNAL(activated()), this, SLOT(editNormal()) );
-    action->addTo( edit );
+    action = new QAction("&Bold", CTRL+Key_B, this);
+    action->setCheckable(true);
+    connect(action, SIGNAL(activated()), this, SLOT(editBold()));
+    edit->addAction(action);
 
-    action = new QAction( "Bold", "&Bold", CTRL+Key_B, this );
-    action->setToggleAction( TRUE );
-    connect( action, SIGNAL(activated()), this, SLOT(editBold()) );
-    action->addTo( edit );
+    action = new QAction("&Underline", CTRL+Key_U, this);
+    action->setCheckable(true);
+    connect(action, SIGNAL(activated()), this, SLOT(editUnderline()));
+    edit->addAction(action);
 
-    action = new QAction( "Underline", "&Underline", CTRL+Key_U, this );
-    action->setToggleAction( TRUE );
-    connect( action, SIGNAL(activated()), this, SLOT(editUnderline()) );
-    action->addTo( edit );
+    edit->insertSeparator(action);
 
-    edit->insertSeparator();
+    action = new QAction("Una&vailable", CTRL+Key_V, this);
+    action->setCheckable(true);
+    action->setEnabled(false);
+    connect(action, SIGNAL(activated()), this, SLOT(editUnderline()));
+    edit->addAction(action);
 
-    action = new QAction( "Unavailable", "Una&vailable", CTRL+Key_V, this );
-    action->setToggleAction( TRUE );
-    action->setEnabled( FALSE );
-    connect( action, SIGNAL(activated()), this, SLOT(editUnderline()) );
-    action->addTo( edit );
+    QMenu *help = new QMenu(this);
 
-    QPopupMenu *help = new QPopupMenu( this );
+    action = new QAction("&About...", Key_F1, this);
+    connect(action, SIGNAL(activated()), this, SLOT(helpAbout()));
+    help->addAction(action);
 
-    action = new QAction( "About", "&About...", Key_F1, this );
-    connect( action, SIGNAL(activated()), this, SLOT(helpAbout()) );
-    action->addTo( help );
+    action = new QAction("&About Qt...", 0, this);
+    connect(action, SIGNAL(activated()), this, SLOT(helpAboutQt()));
+    help->addAction(action);
 
-    action = new QAction( "About Qt", "&About Qt...", 0, this );
-    connect( action, SIGNAL(activated()), this, SLOT(helpAboutQt()) );
-    action->addTo( help );
+    if (!QAxFactory::isServer())
+        menuBar()->addMenu("&File", file);
+    menuBar()->addMenu("&Edit", edit);
+    menuBar()->addMenu("&Help", help);
 
-    if ( !QAxFactory::isServer() )
-	menuBar()->insertItem( "&File", file );
-    menuBar()->insertItem( "&Edit", edit );
-    menuBar()->insertItem( "&Help", help );
-
-    editor = new QTextEdit( this, "editor" );
-    setCentralWidget( editor );
+    editor = new QTextEdit(this, "editor");
+    setCentralWidget(editor);
 
     statusBar();
 }
 
 void QMenus::fileOpen()
 {
-    editor->append( "File Open selected." );
+    editor->append("File Open selected.");
 }
 
 void QMenus::fileSave()
 {
-    editor->append( "File Save selected." );
+    editor->append("File Save selected.");
 }
 
 void QMenus::editNormal()
 {
-    editor->append( "Edit Normal selected." );
+    editor->append("Edit Normal selected.");
 }
 
 void QMenus::editBold()
 {
-    editor->append( "Edit Bold selected." );
+    editor->append("Edit Bold selected.");
 }
 
 void QMenus::editUnderline()
 {
-    editor->append( "Edit Underline selected." );
+    editor->append("Edit Underline selected.");
 }
 
 void QMenus::helpAbout()
 {
-    QMessageBox::about( this, "About QMenus", 
-			"This example implements an in-place ActiveX control with menus and status messages." );
+    QMessageBox::about(this, "About QMenus", 
+			"This example implements an in-place ActiveX control with menus and status messages.");
 }
 
 void QMenus::helpAboutQt()
 {
-    QMessageBox::aboutQt( this );
+    QMessageBox::aboutQt(this);
 }
