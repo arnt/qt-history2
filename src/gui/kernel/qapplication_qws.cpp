@@ -63,6 +63,7 @@
 #include <stdio.h>
 #include <sys/types.h>
 #ifndef QT_NO_QWS_MULTIPROCESS
+
 #ifdef QT_NO_QSHM
 #include <sys/ipc.h>
 #include <sys/shm.h>
@@ -122,6 +123,7 @@ bool qt_override_paint_on_screen = false;
 static int mouse_x_root = -1;
 static int mouse_y_root = -1;
 static int mouse_state = 0;
+static QWSManager *last_manager = 0;
 
 bool qws_overrideCursor = false;
 static bool qws_regionRequest = false;
@@ -2048,6 +2050,15 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
 #endif
 
     QETWidget *widget = static_cast<QETWidget*>(QWidget::find(WId(event->window())));
+    if (last_manager && event->type == QWSEvent::Mouse) {
+        QPoint pos(event->asMouse()->simpleData.x_root, event->asMouse()->simpleData.y_root);
+        if (!last_manager->cachedRegion().contains(pos)) {
+            // MouseEvent not yet delivered, so QCursor::pos() is not yet updated, sending 2 x pos
+            QMouseEvent outside(QEvent::MouseMove, pos, pos, Qt::NoButton, 0, 0);
+            QApplication::sendSpontaneousEvent(last_manager, &outside);
+            last_manager = 0;
+        }
+    }
 
     QETWidget *keywidget=0;
     bool grabbed=false;
@@ -2648,7 +2659,7 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int oldstate)
     static bool manualGrab = false;
     QPoint pos;
     QPoint globalPos;
-    int           button = 0;
+    int button = 0;
 
     if (sm_blockUserInput) // block user interaction during session management
         return true;
@@ -2661,193 +2672,192 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int oldstate)
     globalPos.rx() = mouse.x_root;
     globalPos.ry() = mouse.y_root;
 
-    //    for (;;) { // Extract move and press/release from one QWSEvent
-        QEvent::Type type = QEvent::None;
+    QEvent::Type type = QEvent::None;
 
-        if (mouse.state == oldstate) {
-            // mouse move
-            type = QEvent::MouseMove;
-        } else if ((mouse.state&AnyButton) != (oldstate&AnyButton)) {
-            int old_state = oldstate;
-            for (button = Qt::LeftButton; !type && button <= Qt::MidButton; button<<=1) {
-                if ((mouse.state&button) != (old_state&button)) {
-                    // button press or release
+    if (mouse.state == oldstate) {
+        // mouse move
+        type = QEvent::MouseMove;
+    } else if ((mouse.state&AnyButton) != (oldstate&AnyButton)) {
+        int old_state = oldstate;
+        for (button = Qt::LeftButton; !type && button <= Qt::MidButton; button<<=1) {
+            if ((mouse.state&button) != (old_state&button)) {
+                // button press or release
 
 #ifndef QT_NO_QWS_IM
-                    //############ We used to do a QInputContext::reset(oldFocus);
-                    // when we changed the focus widget. See change 93389 for where the
-                    // focus code went. The IM code was (after testing for ClickToFocus):
-                    //if (mouse.state&button && w != QInputContext::microFocusWidget()) //button press
-                    //        QInputContext::reset(oldFocus);
+                //############ We used to do a QInputContext::reset(oldFocus);
+                // when we changed the focus widget. See change 93389 for where the
+                // focus code went. The IM code was (after testing for ClickToFocus):
+                //if (mouse.state&button && w != QInputContext::microFocusWidget()) //button press
+                //        QInputContext::reset(oldFocus);
 
 #endif
-                    if (mouse.state&button) { //button press
-                        qt_button_down = QApplication::findChildWidget(this, pos);        //magic for masked widgets
-                        if (!qt_button_down || !qt_button_down->testWFlags(Qt::WMouseNoMask))
-                            qt_button_down = this;
-                        if (/*XXX mouseActWindow == this &&*/
-                             mouseButtonPressed == button &&
-                             long(mouse.time) -long(mouseButtonPressTime)
-                                   < QApplication::doubleClickInterval() &&
-                             QABS(mouse.x_root - mouseXPos) < 5 &&
-                             QABS(mouse.y_root - mouseYPos) < 5) {
-                            type = QEvent::MouseButtonDblClick;
-                            mouseButtonPressTime -= 2000;        // no double-click next time
-                        } else {
-                            type = QEvent::MouseButtonPress;
-                            mouseButtonPressTime = mouse.time;
-                        }
-                        mouseButtonPressed = button;        // save event params for
-                        mouseXPos = globalPos.x();                // future double click tests
-                        mouseYPos = globalPos.y();
-                    } else {                                // mouse button released
-                        if (manualGrab) {                        // release manual grab
-                            manualGrab = false;
-                            // XXX XUngrabPointer(x11Display(), CurrentTime);
-                        }
-
-                        type = QEvent::MouseButtonRelease;
+                if (mouse.state&button) { //button press
+                    qt_button_down = QApplication::findChildWidget(this, pos);        //magic for masked widgets
+                    if (!qt_button_down || !qt_button_down->testWFlags(Qt::WMouseNoMask))
+                        qt_button_down = this;
+                    if (/*XXX mouseActWindow == this &&*/
+                        mouseButtonPressed == button &&
+                        long(mouse.time) -long(mouseButtonPressTime)
+                            < QApplication::doubleClickInterval() &&
+                        QABS(mouse.x_root - mouseXPos) < 5 &&
+                        QABS(mouse.y_root - mouseYPos) < 5) {
+                        type = QEvent::MouseButtonDblClick;
+                        mouseButtonPressTime -= 2000;        // no double-click next time
+                    } else {
+                        type = QEvent::MouseButtonPress;
+                        mouseButtonPressTime = mouse.time;
                     }
-                    old_state ^= button;
+                    mouseButtonPressed = button;        // save event params for
+                    mouseXPos = globalPos.x();                // future double click tests
+                    mouseYPos = globalPos.y();
+                } else {                                // mouse button released
+                    if (manualGrab) {                        // release manual grab
+                        manualGrab = false;
+                        // XXX XUngrabPointer(x11Display(), CurrentTime);
+                    }
+
+                    type = QEvent::MouseButtonRelease;
                 }
+                old_state ^= button;
             }
-            button >>= 1;
         }
-        //XXX mouseActWindow = winId();                        // save some event params
+        button >>= 1;
+    }
+    //XXX mouseActWindow = winId();                        // save some event params
 
-        if (type == 0) {                                // event consumed
-            return false; //EXIT in the normal case
-        }
+    if (type == 0) {                                // event consumed
+        return false; //EXIT in the normal case
+    }
 
-        if (qApp->inPopupMode()) {                        // in popup mode
-            QWidget *popup = qApp->activePopupWidget();
-            // in X11, this would be the window we are over.
-            // in QWS this is the top level popup.  to allow mouse
-            // events to other widgets, need to go through qApp->QApplicationPrivate::popupWidgets.
-            QSize s(qt_screen->width(), qt_screen->height());
-            QPoint dp = qt_screen->mapToDevice(globalPos, s);
-            for (int i = 0; i < QApplicationPrivate::popupWidgets->size(); ++i) {
-                QWidget *w = QApplicationPrivate::popupWidgets->at(i);
-                if (w->testWFlags(Qt::WType_Popup) && w->data->alloc_region.contains(dp)) {
-                    popup = w;
-                    break;
-                }
+    if (qApp->inPopupMode()) {                        // in popup mode
+        QWidget *popup = qApp->activePopupWidget();
+        // in X11, this would be the window we are over.
+        // in QWS this is the top level popup.  to allow mouse
+        // events to other widgets, need to go through qApp->QApplicationPrivate::popupWidgets.
+        QSize s(qt_screen->width(), qt_screen->height());
+        QPoint dp = qt_screen->mapToDevice(globalPos, s);
+        for (int i = 0; i < QApplicationPrivate::popupWidgets->size(); ++i) {
+            QWidget *w = QApplicationPrivate::popupWidgets->at(i);
+            if (w->testWFlags(Qt::WType_Popup) && w->data->alloc_region.contains(dp)) {
+                popup = w;
+                break;
             }
-            pos = popup->mapFromGlobal(globalPos);
-            bool releaseAfter = false;
-            QWidget *popupChild  = QApplication::findChildWidget(popup, pos);
-            QWidget *popupTarget = popupChild ? popupChild : popup;
+        }
+        pos = popup->mapFromGlobal(globalPos);
+        bool releaseAfter = false;
+        QWidget *popupChild  = QApplication::findChildWidget(popup, pos);
+        QWidget *popupTarget = popupChild ? popupChild : popup;
 
-            if (popup != popupOfPopupButtonFocus){
+        if (popup != popupOfPopupButtonFocus){
+            popupButtonFocus = 0;
+            popupOfPopupButtonFocus = 0;
+        }
+
+        if (!popupTarget->isEnabled()) {
+            return false; //EXIT special case
+        }
+
+        switch (type) {
+            case QEvent::MouseButtonPress:
+            case QEvent::MouseButtonDblClick:
+                popupButtonFocus = popupChild;
+                popupOfPopupButtonFocus = popup;
+                break;
+            case QEvent::MouseButtonRelease:
+                releaseAfter = true;
+                break;
+            default:
+                break;                                // nothing for mouse move
+        }
+
+        int oldOpenPopupCount = openPopupCount;
+
+        if (popupButtonFocus) {
+            QMouseEvent e(type, popupButtonFocus->mapFromGlobal(globalPos),
+                        globalPos, button, oldstate);
+            QApplication::sendSpontaneousEvent(popupButtonFocus, & e);
+            if (releaseAfter) {
                 popupButtonFocus = 0;
                 popupOfPopupButtonFocus = 0;
             }
-
-            if (!popupTarget->isEnabled()) {
-                return false; //EXIT special case
-            }
-
-            switch (type) {
-                case QEvent::MouseButtonPress:
-                case QEvent::MouseButtonDblClick:
-                    popupButtonFocus = popupChild;
-                    popupOfPopupButtonFocus = popup;
-                    break;
-                case QEvent::MouseButtonRelease:
-                    releaseAfter = true;
-                    break;
-                default:
-                    break;                                // nothing for mouse move
-            }
-
-            int oldOpenPopupCount = openPopupCount;
-
-            if (popupButtonFocus) {
-                QMouseEvent e(type, popupButtonFocus->mapFromGlobal(globalPos),
-                               globalPos, button, oldstate);
-                QApplication::sendSpontaneousEvent(popupButtonFocus, & e);
-                if (releaseAfter) {
-                    popupButtonFocus = 0;
-                    popupOfPopupButtonFocus = 0;
-                }
-            } else if (popupChild) {
-                QMouseEvent e(type, popupChild->mapFromGlobal(globalPos),
-                               globalPos, button, oldstate);
-                QApplication::sendSpontaneousEvent(popupChild, & e);
-            } else {
-                QMouseEvent e(type, pos, globalPos, button, oldstate);
-                QApplication::sendSpontaneousEvent(popupChild ? popupChild : popup, & e);
-            }
-            if (type == QEvent::MouseButtonPress && button == Qt::RightButton && (openPopupCount == oldOpenPopupCount)) {
-                QWidget *popupEvent = popup;
-                if(popupButtonFocus)
-                    popupEvent = popupButtonFocus;
-                else if(popupChild)
-                    popupEvent = popupChild;
-                QContextMenuEvent e(QContextMenuEvent::Mouse, pos, globalPos, oldstate);
-                QApplication::sendSpontaneousEvent(popupEvent, &e);
-            }
-
-            if (releaseAfter)
-                qt_button_down = 0;
-
-        } else { //qApp not in popup mode
-            QWidget *widget = this;
-            QWidget *w = QWidget::mouseGrabber();
-            if (!w && qt_button_down)
-                w = qt_button_down;
-            if (w && w != this) {
-                widget = w;
-                pos = mapToGlobal(pos);
-                pos = w->mapFromGlobal(pos);
-            }
-
-            if (popupCloseDownMode) {
-                popupCloseDownMode = false;
-                if (testWFlags(Qt::WType_Popup))        // ignore replayed event
-                    return true; //EXIT
-            }
-
-            if (type == QEvent::MouseButtonRelease &&
-                 (mouse.state & (~button) & (Qt::LeftButton |
-                                        Qt::MidButton |
-                                        Qt::RightButton)) == 0) {
-                qt_button_down = 0;
-            }
-
-            int oldOpenPopupCount = openPopupCount;
-
+        } else if (popupChild) {
+            QMouseEvent e(type, popupChild->mapFromGlobal(globalPos),
+                        globalPos, button, oldstate);
+            QApplication::sendSpontaneousEvent(popupChild, & e);
+        } else {
             QMouseEvent e(type, pos, globalPos, button, oldstate);
+            QApplication::sendSpontaneousEvent(popupChild ? popupChild : popup, & e);
+        }
+        if (type == QEvent::MouseButtonPress && button == Qt::RightButton && (openPopupCount == oldOpenPopupCount)) {
+            QWidget *popupEvent = popup;
+            if(popupButtonFocus)
+                popupEvent = popupButtonFocus;
+            else if(popupChild)
+                popupEvent = popupChild;
+            QContextMenuEvent e(QContextMenuEvent::Mouse, pos, globalPos, oldstate);
+            QApplication::sendSpontaneousEvent(popupEvent, &e);
+        }
+
+        if (releaseAfter)
+            qt_button_down = 0;
+
+    } else { //qApp not in popup mode
+        QWidget *widget = this;
+        QWidget *w = QWidget::mouseGrabber();
+        if (!w && qt_button_down)
+            w = qt_button_down;
+        if (w && w != this) {
+            widget = w;
+            pos = mapToGlobal(pos);
+            pos = w->mapFromGlobal(pos);
+        }
+
+        if (popupCloseDownMode) {
+            popupCloseDownMode = false;
+            if (testWFlags(Qt::WType_Popup))        // ignore replayed event
+                return true; //EXIT
+        }
+
+        if (type == QEvent::MouseButtonRelease &&
+            (mouse.state & (~button) & (Qt::LeftButton |
+                                    Qt::MidButton |
+                                    Qt::RightButton)) == 0) {
+            qt_button_down = 0;
+        }
+
+        int oldOpenPopupCount = openPopupCount;
+
+        QMouseEvent e(type, pos, globalPos, button, oldstate);
 #ifndef QT_NO_QWS_MANAGER
-            if (widget->isTopLevel() && widget->d->topData()->qwsManager
-                && (widget->d->topData()->qwsManager->region().contains(globalPos)
-                    || (QWSManager::grabbedMouse() && QWidget::mouseGrabber()))) {
-                if ((*mouseInWidget)) {
+        if (widget->isTopLevel() && widget->d->topData()->qwsManager
+            && (widget->d->topData()->qwsManager->region().contains(globalPos)
+                || (QWSManager::grabbedMouse() && QWidget::mouseGrabber()))) {
+            if ((*mouseInWidget)) {
+                QEvent leave(QEvent::Leave);
+                QApplication::sendSpontaneousEvent(*mouseInWidget, &leave);
+                (*mouseInWidget) = 0;
+            }
+            QApplication::sendSpontaneousEvent(widget->d->topData()->qwsManager, &e);
+            last_manager = widget->d->topData()->qwsManager;
+        } else
+#endif
+        {
+            if (widget != (*mouseInWidget)) {
+                if (*mouseInWidget) {
                     QEvent leave(QEvent::Leave);
                     QApplication::sendSpontaneousEvent(*mouseInWidget, &leave);
-                    (*mouseInWidget) = 0;
                 }
-                QApplication::sendSpontaneousEvent(widget->d->topData()->qwsManager, &e);
-            } else
-#endif
-            {
-                if (widget != (*mouseInWidget)) {
-                    if (*mouseInWidget) {
-                        QEvent leave(QEvent::Leave);
-                        QApplication::sendSpontaneousEvent(*mouseInWidget, &leave);
-                    }
-                    QEvent enter(QEvent::Enter);
-                    QApplication::sendSpontaneousEvent(widget, &enter);
-                    (*mouseInWidget) = widget;
-                }
-                QApplication::sendSpontaneousEvent(widget, &e);
+                QEvent enter(QEvent::Enter);
+                QApplication::sendSpontaneousEvent(widget, &enter);
+                (*mouseInWidget) = widget;
             }
-            if (type == QEvent::MouseButtonPress && button == Qt::RightButton && (openPopupCount == oldOpenPopupCount)) {
-                QContextMenuEvent e(QContextMenuEvent::Mouse, pos, globalPos, oldstate);
-                QApplication::sendSpontaneousEvent(widget, &e);
-            }
+            QApplication::sendSpontaneousEvent(widget, &e);
         }
-        // }
+        if (type == QEvent::MouseButtonPress && button == Qt::RightButton && (openPopupCount == oldOpenPopupCount)) {
+            QContextMenuEvent e(QContextMenuEvent::Mouse, pos, globalPos, oldstate);
+            QApplication::sendSpontaneousEvent(widget, &e);
+        }
+    }
     return true;
 }
 
