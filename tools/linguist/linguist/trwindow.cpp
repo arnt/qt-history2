@@ -144,7 +144,7 @@ static Ending ending( QString str )
 const QPixmap TrWindow::pageCurl()
 {
     QPixmap pixmap;
-    pixmap = qPixmapFromMimeSource( "pagecurl.png" );
+	pixmap = qPixmapFromMimeSource( "images/pagecurl.png" );
     if ( !pixmap.isNull() ) {
         QBitmap pageCurlMask( pagecurl_mask_width, pagecurl_mask_height,
                         pagecurl_mask_bits, TRUE );
@@ -160,14 +160,14 @@ TrWindow::TrWindow()
     setAttribute(Qt::WA_DeleteOnClose);
 
 #ifndef Q_WS_MAC
-    setWindowIcon( qPixmapFromMimeSource( "appicon.png" ) );
+    setWindowIcon( qPixmapFromMimeSource( "images/appicon.png" ) );
 #endif
 
     // Create the application global listview symbols
-    pxOn  = new QPixmap( qPixmapFromMimeSource( "s_check_on.png" ) );
-    pxOff = new QPixmap( qPixmapFromMimeSource( "s_check_off.png" ) );
-    pxObsolete = new QPixmap( qPixmapFromMimeSource( "d_s_check_obs.png" ) );
-    pxDanger = new QPixmap( qPixmapFromMimeSource( "s_check_danger.png" ) );
+    pxOn  = new QPixmap( qPixmapFromMimeSource( "images/s_check_on.png" ) );
+    pxOff = new QPixmap( qPixmapFromMimeSource( "images/s_check_off.png" ) );
+    pxObsolete = new QPixmap( qPixmapFromMimeSource( "images/d_s_check_obs.png" ) );
+    pxDanger = new QPixmap( qPixmapFromMimeSource( "images/s_check_danger.png" ) );
 
     setCorner(Qt::TopLeft, Qt::DockWindowAreaLeft);
     setCorner(Qt::TopRight, Qt::DockWindowAreaRight);
@@ -1347,7 +1347,7 @@ void TrWindow::setupMenuBar()
     connect( printPhraseBookp, SIGNAL(activated(int)),
              this, SLOT(printPhraseBook(int)) );
     // File menu
-    openAct = filep->addAction(loadPixmap("fileopen.png"), tr("&Open..."), this, SLOT(open()));
+	openAct = filep->addAction(loadPixmap("fileopen.png"), tr("&Open..."), this, SLOT(open()));
     openAct->setShortcut(QKeySequence("Ctrl+O"));
     filep->addSeparator();
     saveAct = filep->addAction(loadPixmap("filesave.png"), tr("&Save"), this, SLOT(save()));
@@ -1785,7 +1785,7 @@ void TrWindow::readConfig()
     QString keybase( "/Qt Linguist/" +
                      QString::number( (QT_VERSION >> 16) & 0xff ) +
                      "." + QString::number( (QT_VERSION >> 8) & 0xff ) + "/" );
-    QSettings config;
+    QSettings config("Trolltech", "Linguist");
 
     config.insertSearchPath( QSettings::Windows, "/Trolltech" );
 
@@ -1859,7 +1859,7 @@ void TrWindow::writeConfig()
     QString keybase( "/Qt Linguist/" +
                      QString::number( (QT_VERSION >> 16) & 0xff ) +
                      "." + QString::number( (QT_VERSION >> 8) & 0xff ) + "/" );
-    QSettings config;
+    QSettings config("Trolltech", "Linguist");
 
     config.insertSearchPath( QSettings::Windows, "/Trolltech" );
     config.writeEntry( keybase + "RecentlyOpenedFiles", recentFiles );
@@ -2013,10 +2013,11 @@ void TrWindow::doCharCounting( const QString& text, int& trW, int& trC, int& trC
 QIconSet TrWindow::loadPixmap(const QString &imageName)
 {
     if ( !imageName.isEmpty() ) {
-        QPixmap enabledPix = qPixmapFromMimeSource( imageName );
+		QPixmap enabledPix = qPixmapFromMimeSource( "images/" + imageName );
+
         QIconSet s( enabledPix );
         if ( imageName != QLatin1String("whatsthis.xpm") ) {
-            QPixmap disabledPix = qPixmapFromMimeSource( "d_" + imageName );
+            QPixmap disabledPix = qPixmapFromMimeSource( "images/d_" + imageName );
             s.setPixmap( disabledPix, QIconSet::Small, QIconSet::Disabled );
         }
         return s;

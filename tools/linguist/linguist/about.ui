@@ -61,7 +61,7 @@
                 <enum>Plain</enum>
             </property>
             <property name="pixmap">
-                <pixmap>splash.png</pixmap>
+                <pixmap>images/splash.png</pixmap>
             </property>
             <property name="scaledContents">
                 <bool>false</bool>

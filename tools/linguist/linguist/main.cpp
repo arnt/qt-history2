@@ -38,7 +38,7 @@ int main( int argc, char **argv )
     bool showSplash = TRUE;
 
     QString keybase("/Qt Linguist/3.1/");
-    QSettings config;
+    QSettings config("Trolltech", "Linguist");
     config.insertSearchPath( QSettings::Windows, "/Trolltech" );
 
     QRect r( QApplication::desktop()->screenGeometry() );
@@ -49,7 +49,7 @@ int main( int argc, char **argv )
 
     QSplashScreen *splash = 0;
     if ( showSplash ) {
-	splash = new QSplashScreen(qPixmapFromMimeSource("splash.png"));
+	splash = new QSplashScreen(qPixmapFromMimeSource("images/splash.png"));
 	splash->setAttribute(Qt::WA_DeleteOnClose);
 	splash->show();
     }
