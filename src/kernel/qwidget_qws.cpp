@@ -551,7 +551,7 @@ void QWidget::setCaption( const QString &caption )
 	return; // for less flicker
     createTLExtra();
     extra->topextra->caption = caption;
-    // XXX XSetWMName( x11Display(), winId(), qstring_to_xtp(caption) );
+    qwsDisplay()->setCaption(this, caption);
     QEvent e( QEvent::CaptionChange );
     QApplication::sendEvent( this, &e );
 }
@@ -716,7 +716,7 @@ void QWidget::showWindow()
 	    qwsDisplay()->requestFocus(winId(),TRUE);
 	if ( testWFlags(WStyle_StaysOnTop) )
 	    qwsDisplay()->setAltitude( winId(), 0, TRUE );
-    } else {
+    } else if ( !topLevelWidget()->in_show ) {
 	update();
     }
 }
