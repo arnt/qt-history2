@@ -5146,7 +5146,7 @@ int Q3TextParagraph::topMargin() const
         m = isListItem() ? (document()->li_tm/qMax(1,listDepth()*listDepth())) :
             (listDepth() ? 0 : document()->par_tm);
         if (listDepth() == 1 &&( !prev() || prev()->listDepth() < listDepth()))
-            m = qMax(m, document()->list_tm);
+            m = qMax<int>(m, document()->list_tm);
     }
     m += utm;
     return scale(m, Q3TextFormat::painter());
@@ -5159,7 +5159,7 @@ int Q3TextParagraph::bottomMargin() const
         m = isListItem() ? (document()->li_bm/qMax(1,listDepth()*listDepth())) :
             (listDepth() ? 0 : document()->par_bm);
         if (listDepth() == 1 &&( !next() || next()->listDepth() < listDepth()))
-            m = qMax(m, document()->list_bm);
+            m = qMax<int>(m, document()->list_bm);
     }
     m += ubm;
     return scale(m, Q3TextFormat::painter());

@@ -2212,7 +2212,7 @@ void QPainter::setPen(const QColor &color)
         printf("QPainter::setPen(), color=%04x\n", color.rgb());
 #endif
     Q_D(QPainter);
-    QPen newPen = QPen(color.isValid() ? color : Qt::black, 0, Qt::SolidLine);
+    QPen newPen = QPen(color.isValid() ? color : QColor(Qt::black), 0, Qt::SolidLine);
     if (newPen == d->state->pen)
         return;
     d->state->pen = newPen;
@@ -4722,7 +4722,7 @@ void qt_format_text(const QFont &font, const QRectF &_r,
         width = 0;
         tf |= Qt::TextDontPrint;
     } else {
-        qreal lineWidth = wordwrap ? qMax(0, r.width()) : 0x01000000;
+        qreal lineWidth = wordwrap ? qMax<qreal>(0, r.width()) : 0x01000000;
         if(!wordwrap)
             tf |= Qt::TextIncludeTrailingSpaces;
         textLayout.setLayoutMode((tf & Qt::TextDontPrint) ? QTextLayout::NoBidi : QTextLayout::MultiLine);

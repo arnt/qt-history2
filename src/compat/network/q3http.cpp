@@ -1877,7 +1877,7 @@ void Q3Http::slotBytesWritten( int written )
 	return;
 
     if ( d->socket.bytesToWrite() == 0 ) {
-	int max = QMIN( 4096, d->postDevice->size() - d->postDevice->at() );
+	int max = qMin<int>( 4096, d->postDevice->size() - d->postDevice->at() );
 	QByteArray arr( max );
 
 	int n = d->postDevice->readBlock( arr.data(), max );
@@ -2022,7 +2022,7 @@ void Q3Http::slotReadyRead()
 		    }
 		}
 	    } else if ( d->response.hasContentLength() ) {
-		n = QMIN( d->response.contentLength() - d->bytesDone, n );
+		n = qMin<ulong>( d->response.contentLength() - d->bytesDone, n );
 		if ( n > 0 ) {
 		    arr = new QByteArray( n );
 		    Q_LONG read = d->socket.readBlock( arr->data(), n );

@@ -820,7 +820,7 @@ qint64 QSocketLayerPrivate::nativeWrite(const char *data, qint64 len)
     qint64 ret = 0;
     // don't send more than 49152 per call to WSASendTo to avoid getting a WSAENOBUFS
     for (;;) {
-        qint64 bytesToSend = qMin(49152, len - ret);
+        qint64 bytesToSend = qMin<qint64>(49152, len - ret);
         WSABUF buf;
         buf.buf = (char*)data + ret;
         buf.len = bytesToSend;

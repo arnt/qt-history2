@@ -1545,7 +1545,7 @@ void QWidget::setMaximumSize(int maxw, int maxh)
     if (maxw < 0 || maxh < 0) {
         qWarning("QWidget::setMaximumSize: (%s/%s) Negative sizes (%d,%d) "
                 "are not possible",
-                 objectName().isEmpty() ? "unnamed" : objectName().toLatin1(),
+                 objectName().isEmpty() ? "unnamed" : objectName().toLatin1().constData(),
                  metaObject()->className(), maxw, maxh);
         maxw = qMax(maxw, 0);
         maxh = qMax(maxh, 0);
@@ -1796,7 +1796,7 @@ void QWidget::setWindowOpacity(qreal level)
     if (!ptrSetLayeredWindowAttributes)
         return;
 
-    level = qMin(qMax(level, 0), 1.0);
+    level = qMin<qreal>(qMax<qreal>(level, 0), 1.0);
     int wl = GetWindowLongA(winId(), GWL_EXSTYLE);
 
     if (level != 1.0) {

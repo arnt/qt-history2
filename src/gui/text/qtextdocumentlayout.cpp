@@ -1333,13 +1333,13 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
                     // lines min width more than what we have
                     layoutStruct->y = findY(layoutStruct->y, layoutStruct, qRound(line.textWidth()));
                     floatMargins(layoutStruct->y, layoutStruct, &left, &right);
-                    line.layout(qMax(line.textWidth(), right-left));
+                    line.layout(qMax<qreal>(line.textWidth(), right-left));
                 }
             }
 
             line.setPosition(QPoint(left - layoutStruct->x_left, layoutStruct->y - cy));
             layoutStruct->y += qRound(line.ascent() + line.descent() + 1);
-            layoutStruct->widthUsed = qRound(qMax(layoutStruct->widthUsed, left - layoutStruct->x_left + line.textWidth()));
+            layoutStruct->widthUsed = qRound(qMax<qreal>(layoutStruct->widthUsed, left - layoutStruct->x_left + line.textWidth()));
 
             // position floats
             for (int i = 0; i < layoutStruct->pendingFloats.size(); ++i) {

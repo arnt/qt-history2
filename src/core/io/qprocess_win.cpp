@@ -29,7 +29,7 @@
 #define SLEEPMIN 10
 #define SLEEPMAX 500
 #define NOTIFYTIMEOUT 100
-#define MAXSINGLEWRITE 10000 //### may not need this now
+#define MAXSINGLEWRITE qint64(10000) //### may not need this now
 
 class QWindowsPipeWriter : public QThread
 {
@@ -125,7 +125,7 @@ void QWindowsPipeWriter::run()
         qint64 totalWritten = 0;
         while ((!quitNow) && totalWritten < maxlen) {
             DWORD written = 0;
-            if (!WriteFile(writePipe, ptrData + totalWritten, qMin(8192, maxlen - totalWritten), &written, 0)) {
+            if (!WriteFile(writePipe, ptrData + totalWritten, qMin<int>(8192, maxlen - totalWritten), &written, 0)) {
                 if (GetLastError() == 0xE8 /*NT_STATUS_INVALID_USER_BUFFER*/) {
                     // give the os a rest
                     sleep(100);

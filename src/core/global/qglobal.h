@@ -721,124 +721,6 @@ inline const T &qMax(const T &a, const T &b) { if (a < b) return b; return a; }
 #  define QMIN(a, b) qMin((a), (b))
 #endif
 
-inline qint64 qMin(qint64 a, long b) { return (a < b) ? a : b; }
-inline qint64 qMin(long a, qint64 b) { return (a < b) ? a : b; }
-inline qint64 qMin(qint64 a, int b) { return (a < b) ? a : b; }
-inline qint64 qMin(int a, qint64 b) { return (a < b) ? a : b; }
-inline qint64 qMin(qint64 a, short b) { return (a < b) ? a : b; }
-inline qint64 qMin(short a, qint64 b) { return (a < b) ? a : b; }
-inline qint64 qMin(qint64 a, char b) { return (a < b) ? a : b; }
-inline qint64 qMin(char a, qint64 b) { return (a < b) ? a : b; }
-inline quint64 qMin(quint64 a, ulong b) { return (a < b) ? a : b; }
-inline quint64 qMin(ulong a, quint64 b) { return (a < b) ? a : b; }
-inline quint64 qMin(quint64 a, uint b) { return (a < b) ? a : b; }
-inline quint64 qMin(uint a, quint64 b) { return (a < b) ? a : b; }
-inline quint64 qMin(quint64 a, ushort b) { return (a < b) ? a : b; }
-inline quint64 qMin(ushort a, quint64 b) { return (a < b) ? a : b; }
-inline quint64 qMin(quint64 a, uchar b) { return (a < b) ? a : b; }
-inline quint64 qMin(uchar a, quint64 b) { return (a < b) ? a : b; }
-inline double qMin(double a, int b) { return (a < b) ? a : b; }
-inline double qMin(int a, double b) { return (a < b) ? a : b; }
-inline double qMin(double a, long b) { return (a < b) ? a : b; }
-inline double qMin(long a, double b) { return (a < b) ? a : b; }
-inline double qMin(double a, short b) { return (a < b) ? a : b; }
-inline double qMin(short a, double b) { return (a < b) ? a : b; }
-inline double qMin(double a, char b) { return (a < b) ? a : b; }
-inline double qMin(char a, double b) { return (a < b) ? a : b; }
-inline double qMin(double a, float b) { return (a < b) ? a : b; }
-inline double qMin(float a, double b) { return (a < b) ? a : b; }
-inline float qMin(float a, int b) { return (a < b) ? a : b; }
-inline float qMin(int a, float b) { return (a < b) ? a : b; }
-inline float qMin(float a, short b) { return (a < b) ? a : b; }
-inline float qMin(short a, float b) { return (a < b) ? a : b; }
-inline float qMin(float a, char b) { return (a < b) ? a : b; }
-inline float qMin(char a, float b) { return (a < b) ? a : b; }
-inline float qMin(float a, long b) { return (a < b) ? a : b; }
-inline float qMin(long a, float b) { return (a < b) ? a : b; }
-inline long qMin(long a, int b) { return (a < b) ? a : b; }
-inline long qMin(int a, long b) { return (a < b) ? a : b; }
-inline long qMin(long a, short b) { return (a < b) ? a : b; }
-inline long qMin(short a, long b) { return (a < b) ? a : b; }
-inline long qMin(long a, char b) { return (a < b) ? a : b; }
-inline long qMin(char a, long b) { return (a < b) ? a : b; }
-inline ulong qMin(ulong a, uint b) { return (a < ulong(b)) ? ulong(a) : b; }
-inline ulong qMin(uint a, ulong b) { return (ulong(a) < b) ? ulong(a) : b; }
-inline ulong qMin(ulong a, ushort b) { return (a < ulong(b)) ? a : ulong(b); }
-inline ulong qMin(ushort a, ulong b) { return (ulong(a) < b) ? ulong(a) : b; }
-inline ulong qMin(ulong a, uchar b) { return (a < ulong(b)) ? a : ulong(b); }
-inline ulong qMin(uchar a, ulong b) { return (ulong(a) < b) ? ulong(a) : b; }
-inline int qMin(int a, short b) { return (a < b) ? a : b; }
-inline int qMin(short a, int b) { return (a < b) ? a : b; }
-inline int qMin(int a, char b) { return (a < b) ? a : b; }
-inline int qMin(char a, int b) { return (a < b) ? a : b; }
-inline uint qMin(uint a, ushort b) { return (a < uint(b)) ? a : uint(b); }
-inline uint qMin(ushort a, uint b) { return (uint(a) < b) ? uint(a) : b; }
-inline uint qMin(uint a, uchar b) { return (a < uint(b)) ? a : uint(b); }
-inline uint qMin(uchar a, uint b) { return (uint(a) < b) ? uint(a) : b; }
-inline short qMin(short a, char b) { return (a < b) ? a : b; }
-inline short qMin(char a, short b) { return (a < b) ? a : b; }
-inline ushort qMin(ushort a, uchar b) { return (a < b) ? a : b; }
-inline ushort qMin(uchar a, ushort b) { return (a < b) ? a : b; }
-
-inline qint64 qMax(qint64 a, long b) { return (b < a) ? a : b; }
-inline qint64 qMax(long a, qint64 b) { return (b < a) ? a : b; }
-inline qint64 qMax(qint64 a, int b) { return (b < a) ? a : b; }
-inline qint64 qMax(int a, qint64 b) { return (b < a) ? a : b; }
-inline qint64 qMax(qint64 a, short b) { return (b < a) ? a : b; }
-inline qint64 qMax(short a, qint64 b) { return (b < a) ? a : b; }
-inline qint64 qMax(qint64 a, char b) { return (b < a) ? a : b; }
-inline qint64 qMax(char a, qint64 b) { return (b < a) ? a : b; }
-inline quint64 qMax(quint64 a, ulong b) { return (b < a) ? a : b; }
-inline quint64 qMax(ulong a, quint64 b) { return (b < a) ? a : b; }
-inline quint64 qMax(quint64 a, uint b) { return (b < a) ? a : b; }
-inline quint64 qMax(uint a, quint64 b) { return (b < a) ? a : b; }
-inline quint64 qMax(quint64 a, ushort b) { return (b < a) ? a : b; }
-inline quint64 qMax(ushort a, quint64 b) { return (b < a) ? a : b; }
-inline quint64 qMax(quint64 a, uchar b) { return (b < a) ? a : b; }
-inline quint64 qMax(uchar a, quint64 b) { return (b < a) ? a : b; }
-inline double qMax(double a, int b) { return (b < a) ? a : b; }
-inline double qMax(int a, double b) { return (b < a) ? a : b; }
-inline double qMax(double a, short b) { return (b < a) ? a : b; }
-inline double qMax(short a, double b) { return (b < a) ? a : b; }
-inline double qMax(double a, char b) { return (b < a) ? a : b; }
-inline double qMax(char a, double b) { return (b < a) ? a : b; }
-inline double qMax(double a, long b) { return (b < a) ? a : b; }
-inline double qMax(long a, double b) { return (b < a) ? a : b; }
-inline double qMax(double a, float b) { return (b < a) ? a : b; }
-inline double qMax(float a, double b) { return (b < a) ? a : b; }
-inline float qMax(float a, int b) { return (b < a) ? a : b; }
-inline float qMax(int a, float b) { return (b < a) ? a : b; }
-inline float qMax(float a, short b) { return (b < a) ? a : b; }
-inline float qMax(short a, float b) { return (b < a) ? a : b; }
-inline float qMax(float a, char b) { return (b < a) ? a : b; }
-inline float qMax(char a, float b) { return (b < a) ? a : b; }
-inline float qMax(float a, long b) { return (b < a) ? a : b; }
-inline float qMax(long a, float b) { return (b < a) ? a : b; }
-inline long qMax(long a, int b) { return (b < a) ? a : b; }
-inline long qMax(int a, long b) { return (b < a) ? a : b; }
-inline long qMax(long a, short b) { return (b < a) ? a : b; }
-inline long qMax(short a, long b) { return (b < a) ? a : b; }
-inline long qMax(long a, char b) { return (b < a) ? a : b; }
-inline long qMax(char a, long b) { return (b < a) ? a : b; }
-inline ulong qMax(ulong a, uint b) { return (b < a) ? a : b; }
-inline ulong qMax(uint a, ulong b) { return (b < a) ? a : b; }
-inline ulong qMax(ulong a, ushort b) { return (ulong(b) < a) ? a : ulong(b); }
-inline ulong qMax(ushort a, ulong b) { return (b < ulong(a)) ? ulong(a) : b; }
-inline ulong qMax(ulong a, uchar b) { return (ulong(b) < a) ? a : ulong(b); }
-inline ulong qMax(uchar a, ulong b) { return (b < ulong(a)) ? ulong(a) : b; }
-inline int qMax(int a, short b) { return (b < a) ? a : b; }
-inline int qMax(short a, int b) { return (b < a) ? a : b; }
-inline int qMax(int a, char b) { return (b < a) ? a : b; }
-inline int qMax(char a, int b) { return (b < a) ? a : b; }
-inline uint qMax(uint a, ushort b) { return (uint(b) < a) ? a : uint(b); }
-inline uint qMax(ushort a, uint b) { return (b < uint(a)) ? uint(a) : b; }
-inline uint qMax(uint a, uchar b) { return (uint(b) < a) ? a : uint(b); }
-inline uint qMax(uchar a, uint b) { return (b < uint(a)) ? uint(a) : b; }
-inline short qMax(short a, char b) { return (b < a) ? a : b; }
-inline short qMax(char a, short b) { return (b < a) ? a : b; }
-inline ushort qMax(ushort a, uchar b) { return (b < a) ? a : b; }
-inline ushort qMax(uchar a, ushort b) { return (b < a) ? a : b; }
-
 //
 // Data stream functions are provided by many classes (defined in qdatastream.h)
 //
@@ -1423,11 +1305,11 @@ class QTypeInfo<TYPE> \
 { \
 public: \
     enum { \
-        isComplex = ((FLAGS & Q_PRIMITIVE_TYPE) == 0), \
-        isStatic = ((FLAGS & (Q_MOVABLE_TYPE | Q_PRIMITIVE_TYPE)) == 0), \
+        isComplex = (((FLAGS) & Q_PRIMITIVE_TYPE) == 0), \
+        isStatic = (((FLAGS) & (Q_MOVABLE_TYPE | Q_PRIMITIVE_TYPE)) == 0), \
         isLarge = (sizeof(TYPE)>sizeof(void*)), \
         isPointer = false, \
-        isDummy = ((FLAGS & Q_DUMMY_TYPE) != 0) \
+        isDummy = (((FLAGS) & Q_DUMMY_TYPE) != 0) \
     }; \
     static inline const char *name() { return #TYPE; } \
 }
@@ -1610,7 +1492,7 @@ for (QForeachContainer<__typeof__(container)> _container_(container); \
      ({ ++_container_.brk; ++_container_.i; }))                       \
     for (variable = *_container_.i;;({--_container_.brk; break;}))
 
-#elif (defined Q_CC_MSVC && _MSC_VER < 1300) || (defined Q_CC_XLC) || (defined Q_CC_HPACC)
+#elif (defined Q_CC_MSVC && _MSC_VER < 1300) || (defined Q_CC_XLC) || (defined Q_CC_HPACC) || (defined Q_CC_BOR)
 
 template <typename T>
 class QForeachContainer  {
@@ -1619,7 +1501,11 @@ public:
     const T c;
     mutable int brk;
     typename T::const_iterator i, e;
+#ifdef Q_CC_BOR
+    inline bool condition() const { if (!brk++ && i != e) return true; this->~QForeachContainer<T>(); return false; }
+#else
     inline bool condition() const { if (!brk++ && i != e) return true; this->~QForeachContainer(); return false; }
+#endif
 };
 
 struct QForeachMemory {

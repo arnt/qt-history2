@@ -59,7 +59,7 @@ static inline void positionCluster(QShaperItem *item, int gfrom,  int glast)
 //     qDebug("baseInfo: %f/%f (%f/%f) off=%f/%f", baseInfo.x, baseInfo.y, baseInfo.width, baseInfo.height, baseInfo.xoff, baseInfo.yoff);
 
     qreal size = f->ascent()/10.;
-    qreal offsetBase = (size - 4) / 4 + qMin(size, 4) + 1;
+    qreal offsetBase = (size - 4) / 4 + qMin<qreal>(size, 4) + 1;
 //     qDebug("offset = %d", offsetBase);
 
     bool rightToLeft = item->flags & QTextEngine::RightToLeft;

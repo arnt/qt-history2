@@ -1644,7 +1644,7 @@ qint64 QHttp::read(char *data, qint64 maxlen)
     int readSoFar = 0;
     while (!d->rba.isEmpty() && readSoFar < maxlen) {
         int nextBlockSize = d->rba.nextDataBlockSize();
-        int bytesToRead = qMin(maxlen - readSoFar, nextBlockSize);
+        int bytesToRead = qMin<qint64>(maxlen - readSoFar, nextBlockSize);
         memcpy(data + readSoFar, d->rba.readPointer(), bytesToRead);
         d->rba.free(bytesToRead);
         readSoFar += bytesToRead;
@@ -2236,7 +2236,7 @@ void QHttpPrivate::slotBytesWritten(qint64 written)
         return;
 
     if (socket->bytesToWrite() == 0) {
-        int max = qMin(4096, postDevice->size() - postDevice->pos());
+        int max = qMin<qint64>(4096, postDevice->size() - postDevice->pos());
         QByteArray arr;
         arr.resize(max);
 

@@ -96,7 +96,7 @@ inline void QHashData::mightGrow()
 inline void QHashData::hasShrunk()
 {
     if (size <= (numBuckets >> 3) && numBits > userNumBits)
-        rehash(qMax(numBits - 2, userNumBits));
+        rehash(qMax<short>(numBits - 2, userNumBits));
 }
 
 inline QHashData::Node *QHashData::firstNode()
@@ -357,7 +357,9 @@ Q_INLINE_TEMPLATE void *QHash<Key, T>::allocateNode()
 template <class Key, class T>
 Q_INLINE_TEMPLATE void QHash<Key, T>::deleteNode(Node *node)
 {
-#ifdef QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
+#ifdef Q_CC_BOR
+    node->~QHashNode<Key, T>();
+#elif QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
     node->~QHashNode();
 #else
     node->~Node();

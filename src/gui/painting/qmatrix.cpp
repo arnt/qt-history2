@@ -498,8 +498,8 @@ QPolygon QMatrix::map(const QPolygon &a) const
         xmax = qMax(xmax, dp[i].xp);
         ymax = qMax(ymax, dp[i].yp);
     }
-    qreal w = qMax(xmax - xmin, 1.);
-    qreal h = qMax(ymax - ymin, 1.);
+    qreal w = qMax<qreal>(xmax - xmin, 1.);
+    qreal h = qMax<qreal>(ymax - ymin, 1.);
     for(i = 0; i < size; i++) {
         dp[i].xp += (dp[i].xp - xmin)/w;
         dp[i].yp += (dp[i].yp - ymin)/h;
@@ -512,13 +512,13 @@ QPolygon QMatrix::map(const QPolygon &a) const
     xmax = qreal(INT_MIN/256);
     ymax = xmax;
     for(i = 0; i < size; i++) {
-        xmin = qMin(xmin, dp[i].xp);
-        ymin = qMin(ymin, dp[i].yp);
-        xmax = qMax(xmax, dp[i].xp);
-        ymax = qMax(ymax, dp[i].yp);
+        xmin = qMin<qreal>(xmin, dp[i].xp);
+        ymin = qMin<qreal>(ymin, dp[i].yp);
+        xmax = qMax<qreal>(xmax, dp[i].xp);
+        ymax = qMax<qreal>(ymax, dp[i].yp);
     }
-    w = qMax(xmax - xmin, 1.);
-    h = qMax(ymax - ymin, 1.);
+    w = qMax<qreal>(xmax - xmin, 1.);
+    h = qMax<qreal>(ymax - ymin, 1.);
 
     QPolygon result(size);
     QPoint *dr = result.data();
