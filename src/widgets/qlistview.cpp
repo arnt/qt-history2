@@ -4625,7 +4625,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 		    input = input + e->text().lower();
 		else
 		    input = e->text().lower();
-		if ( input.length() == 1 ) {
+		if ( input.length() == e->text().length() ) {
 		    if ( keyItem->itemBelow() ) {
 			keyItem = keyItem->itemBelow();
 			tryFirst = TRUE;
@@ -4663,7 +4663,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 		    }
 		}
 		// then, if appropriate, with just this character
-		if ( input.length() > 1 ) {
+		if ( input.length() > e->text().length() ) {
 		    input.truncate(0);
 		    keyItem = i;
 		}
