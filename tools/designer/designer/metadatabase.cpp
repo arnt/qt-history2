@@ -386,6 +386,8 @@ void MetaDataBase::addConnection( QObject *o, QObject *sender, const QCString &s
 		  o, o->name(), o->className() );
 	return;
     }
+    if ( !(sender && receiver) )
+	return;
     Connection conn;
     conn.sender = sender;
     conn.signal = signal;
@@ -413,7 +415,8 @@ void MetaDataBase::removeConnection( QObject *o, QObject *sender, const QCString
 		  o, o->name(), o->className() );
 	return;
     }
-
+    if ( !(sender && receiver) )
+	return;
     for ( QValueList<Connection>::Iterator it = r->connections.begin(); it != r->connections.end(); ++it ) {
 	Connection conn = *it;
 	if ( conn.sender == sender &&
