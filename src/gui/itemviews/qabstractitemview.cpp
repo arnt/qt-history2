@@ -1235,7 +1235,7 @@ bool QAbstractItemView::edit(const QModelIndex &index,
                              BeginEditAction action,
                              QEvent *event)
 {
-    if (itemDelegate()->event(event, model(), index))
+    if (itemDelegate()->editorEvent(event, model(), index))
         return true; // the delegate handled the event
 
     QModelIndex buddy = model()->buddy(index);

@@ -227,7 +227,7 @@ void QAbstractItemDelegate::updateEditorGeometry(QWidget *,
     handled the event). If you reimplement this you should reimplement
     editorType() to return \c Events.
 */
-bool QAbstractItemDelegate::event(QEvent *, QAbstractItemModel *, const QModelIndex &)
+bool QAbstractItemDelegate::editorEvent(QEvent *, QAbstractItemModel *, const QModelIndex &)
 {
     // do nothing
     return false;

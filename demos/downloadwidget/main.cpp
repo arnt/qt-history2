@@ -36,7 +36,7 @@ public:
                const QAbstractItemModel *model, const QModelIndex &index) const;
     QSize sizeHint(const QStyleOptionViewItem &option, const QAbstractItemModel *model,
                    const QModelIndex &index) const;
-    bool event(QEvent *e, QAbstractItemModel* model, const QModelIndex &index);
+    bool editorEvent(QEvent *e, QAbstractItemModel* model, const QModelIndex &index);
 
 private:
     QPixmap star;
@@ -89,10 +89,10 @@ void DownloadDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
     painter->setPen(pen);
 }
 
-bool DownloadDelegate::event(QEvent *e, QAbstractItemModel* model, const QModelIndex &index)
+bool DownloadDelegate::editorEvent(QEvent *e, QAbstractItemModel* model, const QModelIndex &index)
 {
     if (!e || e->type() != QEvent::MouseButtonPress || index.column() != 0)
-        return QItemDelegate::event(e, model, index);
+        return QItemDelegate::editorEvent(e, model, index);
 
     if (static_cast<QMouseEvent*>(e)->x() < 20) {
         bool checked = model->data(index, DownloadDelegate::CheckedRole).toBool();
