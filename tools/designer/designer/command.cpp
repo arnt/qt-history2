@@ -1791,6 +1791,7 @@ void AddActionToToolBarCommand::execute()
 		    else
 			toolBar->insertAction( index + (i++), ac );
 		}
+		QObject::connect( o, SIGNAL( destroyed() ), toolBar, SLOT( actionRemoved() ) );
 	    }
 	}
 	toolBar->reInsert();
