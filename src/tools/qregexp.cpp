@@ -852,7 +852,7 @@ public:
 #else
     struct CharClass
     {
-	int x; // dummy
+	int dummy;
 
 #ifndef QT_NO_REGEXP_OPTIM
 	const QMemArray<int>& firstOccurrence() const {
@@ -870,7 +870,7 @@ public:
 
     bool isValid() const { return valid; }
     bool caseSensitive() const { return cs; }
-    int numCaptures() const { return realncap; }
+    int numCaptures() const { return officialncap; }
     QMemArray<int> match( const QString& str, int pos, bool minimal,
 		       bool oneTest );
     int matchedLength() const { return mmMatchedLen; }
@@ -1023,7 +1023,7 @@ private:
     int nf; // number of atoms
     int cf; // current atom
 #endif
-    int realncap; // number of captures, seen from the outside
+    int officialncap; // number of captures, seen from the outside
     int ncap; // number of captures, seen from the inside
 #ifndef QT_NO_REGEXP_CCLASS
     QPtrVector<CharClass> cl; // array of character classes
@@ -1242,7 +1242,7 @@ QMemArray<int> QRegExpEngine::match( const QString& str, int pos, bool minimal,
 	mmCaptured.detach();
 	mmCaptured[0] = mmPos;
 	mmCaptured[1] = mmMatchedLen;
-	for ( int j = 0; j < realncap; j++ ) {
+	for ( int j = 0; j < officialncap; j++ ) {
 	    int len = mmCapEnd[j] - mmCapBegin[j];
 	    mmCaptured[2 + 2 * j] = len > 0 ? mmPos + mmCapBegin[j] : 0;
 	    mmCaptured[2 + 2 * j + 1] = len;
@@ -1513,7 +1513,7 @@ void QRegExpEngine::setup( bool caseSensitive )
     nf = 0;
     cf = -1;
 #endif
-    realncap = 0;
+    officialncap = 0;
     ncap = 0;
 #ifndef QT_NO_REGEXP_CCLASS
     cl.setAutoDelete( TRUE );
@@ -2472,7 +2472,7 @@ void QRegExpEngine::Box::dump() const
     }
     qDebug( "  Right states:" );
     for ( i = 0; i < (int) rs.size(); i++ ) {
-	if ( at(ranchors, ls[i]) == 0 )
+	if ( at(ranchors, rs[i]) == 0 )
 	    qDebug( "    %d", rs[i] );
 	else
 	    qDebug( "    %d [anchors 0x%.8x]", rs[i], ranchors[rs[i]] );
@@ -2841,14 +2841,14 @@ int QRegExpEngine::parse( const QChar *pattern, int len )
     delete yyCharClass;
     yyCharClass = 0;
 
-    realncap = ncap;
+    officialncap = ncap;
 #ifndef QT_NO_REGEXP_BACKREF
     if ( nbrefs > ncap )
 	ncap = nbrefs;
 #endif
 
-    mmCaptured.resize( 2 + 2 * realncap );
-    mmCapturedNoMatch.fill( -1, 2 + 2 * realncap );
+    mmCaptured.resize( 2 + 2 * officialncap );
+    mmCapturedNoMatch.fill( -1, 2 + 2 * officialncap );
 
     /*
       We use one QMemArray<int> for all the big data used a lot in
