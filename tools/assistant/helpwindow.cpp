@@ -34,8 +34,12 @@ void HelpWindow::setSource( const QString &name )
 	QString s( "<a name=\"" + name.mid( name.find( '#' ) + 1 ) + "\"><p><table><tr><td bgcolor=gray>" );
 	txt.insert( i, s );
 	int j = txt.find( "<h3 class", i + 1 + s.length() );
-	if ( j == -1 )
-	    j = txt.find( "<!-- eo" );
+	if ( j == -1 ) {
+	    j = txt.find( "<!-- eo", i + 1 + s.length() );
+	} else {
+	    int k = txt.find( "<hr>", i + 1 + s.length() );
+	    j = QMIN( j, k );
+	}
 	txt.insert( j, "</td></tr></table>" );
 	QString home = QDir::homeDirPath();
 	QFile f( home + "/.designer/tmp_" +
