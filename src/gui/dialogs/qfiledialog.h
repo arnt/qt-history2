@@ -42,8 +42,8 @@ public:
     enum Option { DontResolveSymlinks = 0x01, ShowDirsOnly = 0x02 };
     Q_DECLARE_FLAGS(Options, Option);
 
-    QFileDialog(QWidget *parent = 0, Qt::WFlags f = 0);
-    QFileDialog(QWidget *parent,
+    QFileDialog(QWidget *parent, Qt::WFlags f);
+    QFileDialog(QWidget *parent = 0,
                 const QString &caption = QString::null,
                 const QString &dir = QString::null,
                 const QString &filter = QString::null,
