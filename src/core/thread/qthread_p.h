@@ -64,7 +64,7 @@ public:
     void **tls;
 };
 
-class Q_CORE_EXPORT QThreadPrivate : public QObjectPrivate
+class QThreadPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QThread)
 

@@ -547,7 +547,7 @@ void QEventDispatcherUNIX::setSocketNotifierPending(QSocketNotifier *notifier)
 
     Q_D(QEventDispatcherUNIX);
     QList<QSockNot *> &list = d->sn_vec[type].list;
-    QSockNot *sn;
+    QSockNot *sn = 0;
     int i;
     for (i = 0; i < list.size(); ++i) {
         sn = list.at(i);
