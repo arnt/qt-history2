@@ -178,7 +178,7 @@ Q_LONG QSocketEngine::readBlock(char *data, Q_LONG maxlen)
     if (maxlen >= socket->d->rba.size())
         maxlen = socket->d->rba.size();
 #if defined(QSOCKET_DEBUG)
-    qDebug("QSocket (%s): readBlock %d bytes", name(), (int)maxlen);
+    qDebug("QSocket: readBlock %d bytes", (int)maxlen);
 #endif
     socket->d->rba.consumeBytes(maxlen, data);
 #if defined(QSOCKET_EXTRA_DEBUG)
@@ -231,7 +231,7 @@ Q_LONG QSocketEngine::writeBlock(const char *data, Q_LONG len)
     else if (socket->d->wsn)
         socket->d->wsn->setEnabled(true);
 #if defined(QSOCKET_DEBUG)
-    qDebug("QSocket (%s): writeBlock %d bytes", socket-name(), (int)len);
+    qDebug("QSocket(): writeBlock %d bytes", (int)len);
 #endif
     return len;
 }
@@ -291,7 +291,7 @@ bool QSocketEngine::close()
     if (!socket->d->rsn || !socket->d->wsn)
         return false;
 #if defined(QSOCKET_DEBUG)
-    qDebug("QSocket (%s): close socket", socket->name());
+    qDebug("QSocket (%s): close socket", socket->objectName().latin1());
 #endif
     if (socket->d->socket && socket->d->wsize) {                // there's data to be written
         socket->d->state = QSocket::Closing;
@@ -313,7 +313,7 @@ void QSocketEngine::flush()
     int consumed = 0;
     while (!osBufferFull && socket->d->state >= QSocket::Connecting && socket->d->wsize > 0) {
 #if defined(QSOCKET_DEBUG)
-        qDebug("QSocket (%s): flush: Write data to the socket", name());
+        qDebug("QSocket(): flush: Write data to the socket");
 #endif
         QByteArray *a = socket->d->wba.first();
         int nwritten;
@@ -370,15 +370,14 @@ void QSocketEngine::flush()
     }
     if (consumed > 0) {
 #if defined(QSOCKET_DEBUG)
-        qDebug("QSocket (%s): flush: wrote %d bytes, %d left",
-                name(), consumed, (int)socket->d->wsize);
+        qDebug("QSocket(): flush: wrote %d bytes, %d left",
+               consumed, (int)socket->d->wsize);
 #endif
         emit socket->bytesWritten(consumed);
     }
     if (socket->d->state == QSocket::Closing && socket->d->wsize == 0) {
 #if defined(QSOCKET_DEBUG)
-        qDebug("QSocket (%s): flush: Delayed close done. Terminating.",
-                name());
+        qDebug("QSocket(): flush: Delayed close done. Terminating.");
 #endif
         socket->setFlags(IO_Sequential);
         socket->resetStatus();
@@ -537,7 +536,7 @@ bool QSocketPrivate::consumeWriteBuf(Q_ULONG nbytes)
     if (nbytes <= 0 || nbytes > wsize)
         return false;
 #if defined(QSOCKET_DEBUG)
-    qDebug("QSocket (%s): consumeWriteBuf %d bytes", q->name(), (int)nbytes);
+    qDebug("QSocket (%s): consumeWriteBuf %d bytes", q->objectName().latin1(), (int)nbytes);
 #endif
     wsize -= nbytes;
     for (;;) {
@@ -563,7 +562,7 @@ void QSocketPrivate::testConnection()
         state = QSocket::Connected;
 #if defined(QSOCKET_DEBUG)
         qDebug("QSocket (%s): testConnection(): Connection to %s established",
-               q->name(), q->peerName().ascii());
+               q->objectName().latin1(), q->peerName().ascii());
 #endif
         if (rsn)
             rsn->setEnabled(true);
@@ -573,7 +572,7 @@ void QSocketPrivate::testConnection()
 
 #if defined(QSOCKET_DEBUG)
     qDebug("QSocket (%s): testConnection(): Connection to %s failed",
-           q->name(), q->peerName().ascii());
+           q->objectName().latin1(), q->peerName().ascii());
 #endif
 
     qInvokeSlot(q, "connectToNextAddress", Qt::QueuedConnection);
@@ -622,7 +621,7 @@ void QSocketPrivate::setSocket(int socket)
 void QSocketPrivate::tryConnecting(const QDnsHostInfo &hostInfo)
 {
 #if defined(QSOCKET_DEBUG)
-    qDebug("QSocket (%s)::tryConnecting()", q->name());
+    qDebug("QSocket (%s)::tryConnecting()", q->objectName().latin1());
 #endif
 
     QList<QHostAddress> addrs = hostInfo.addresses();
@@ -675,7 +674,7 @@ void QSocketPrivate::connectToNextAddress()
     while (!addresses.isEmpty()) {
         addr = addresses.takeFirst();
 #if defined(QSOCKET_DEBUG)
-        qDebug("QSocket (%s)::connectToNextAddress(), connecting to %s on port %i", q->name(),
+        qDebug("QSocket (%s)::connectToNextAddress(), connecting to %s on port %i", q->objectName().latin1(),
                addr.toString().latin1(), port);
 #endif
 
@@ -691,7 +690,7 @@ void QSocketPrivate::connectToNextAddress()
 
 #if defined(QSOCKET_DEBUG)
         qDebug("QSocket (%s)::connectToNextAddress(), connection failed (%i attempts left)",
-               q->name(), addresses.count());
+               q->objectName().latin1(), addresses.count());
 #endif
     }
 
@@ -810,7 +809,7 @@ QSocket::QSocket(QObject *parent, const char *name)
 QSocket::~QSocket()
 {
 #if defined(QSOCKET_DEBUG)
-    qDebug("QSocket (%s): Destroy", name());
+    qDebug("QSocket (%s): Destroy", objectName().latin1());
 #endif
     if (d->state != Idle)
         close();
@@ -897,7 +896,7 @@ void QSocket::connectToHost(const QString &host, Q_UINT16 port)
 {
 #if defined(QSOCKET_DEBUG)
     qDebug("QSocket (%s)::connectToHost: host %s, port %d",
-            name(), host.ascii(), port);
+            objectName().latin1(), host.ascii(), port);
 #endif
     d->setSocket(-1);
     d->state = HostLookup;
@@ -1175,7 +1174,7 @@ void QSocket::sn_read(bool force)
         nread = d->socket->readBlock(buf, maxToRead ? qMin((Q_LONG)sizeof(buf),maxToRead) : sizeof(buf));
         if (nread == 0) {                        // really closed
 #if defined(QSOCKET_DEBUG)
-            qDebug("QSocket (%s): sn_read: Connection closed", name());
+            qDebug("QSocket (%s): sn_read: Connection closed", objectName().latin1());
 #endif
             // we should rather ask the socket device if it is closed
             d->internalConnectionClosed();
@@ -1187,7 +1186,7 @@ void QSocket::sn_read(bool force)
                     goto end;
                 }
 #if defined(QSOCKET_DEBUG)
-                qWarning("QSocket::sn_read (%s): Close error", name());
+                qWarning("QSocket::sn_read (%s): Close error", objectName().latin1());
 #endif
                 if (d->rsn)
                     d->rsn->setEnabled(false);
@@ -1200,7 +1199,7 @@ void QSocket::sn_read(bool force)
         }
     } else {                                        // data to be read
 #if defined(QSOCKET_DEBUG)
-        qDebug("QSocket (%s): sn_read: %ld incoming bytes", name(), nbytes);
+        qDebug("QSocket (%s): sn_read: %ld incoming bytes", objectName().latin1(), nbytes);
 #endif
         if (nbytes > (int)sizeof(buf)) {
             a = new QByteArray;
@@ -1217,7 +1216,7 @@ void QSocket::sn_read(bool force)
         }
         if (nread == 0) {
 #if defined(QSOCKET_DEBUG)
-            qDebug("QSocket (%s): sn_read: Connection closed", name());
+            qDebug("QSocket (%s): sn_read: Connection closed", objectName().latin1());
 #endif
             d->internalConnectionClosed();
             goto end;
