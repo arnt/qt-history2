@@ -1234,14 +1234,14 @@ This sets one of several alpha channel types for the next
 blt operation to \a a:
 
 \list
-\i IgnoreAlpha - Always draw source pixels as-is
+\i IgnoreAlpha - Always draw source pixels as-is (no alpha blending)
 \i InlineAlpha - An 8-bit alpha value is in the highest byte of the
                        (32-bit) source data
 \i SeparateAlpha - A separate 8-bit alpha channel buffer is provided
                        (used for anti-aliased text)
 \i LittleEndianMask - A separate little-bit-endian mask is provided
 \i BigEndianMask - A separate big-bit-endian mask is provided
-\i SolidAlpha - A single 8-bit alpha channel value is to be applied to
+\i SolidAlpha - A single 8-bit alpha value is to be applied to
                        all pixels
 \endlist
 
@@ -2302,7 +2302,7 @@ unpacked:
 /*!
 \fn void QGfxRaster<depth,type>::setSource(const QPaintDevice * p)
 \overload
-This sets the gfx to use an arbitrary paintdevice as the source for
+This sets the gfx to use an arbitrary paintdevice \a p as the source for
 future data. It sets up a default alpha-blending value of IgnoreAlpha.
 */
 
@@ -2354,7 +2354,7 @@ void QGfxRaster<depth,type>::setSource(const QPaintDevice * p)
 
 /*!
 \fn void QGfxRaster<depth,type>::setSource(const QImage * i)
-This sets up future blt's to use a QImage as a source - used by
+This sets up future blt's to use a QImage \a i as a source - used by
 QPainter::drawImage()
 */
 
@@ -2503,8 +2503,8 @@ GFX_INLINE void QGfxRaster<depth,type>::drawPointUnclipped( int x, unsigned char
 
 /*!
 \fn void QGfxRaster<depth,type>::drawPoint( int x, int y )
-Draw a point at \a x, \a y in the current pen color. As with most 
-externally-called dawing methods x and y are relevant to the current gfx 
+Draw a point at \a x, \a y in the current pen color. As with most
+externally-called dawing methods x and y are relevant to the current gfx
 offset, stored in the variables xoffs and yoffs.
 */
 
@@ -2932,8 +2932,8 @@ static QPointArray convertThickPolylineToPolygon( const QPointArray &points,int 
 
 /*!
 \fn void QGfxRaster<depth, type>::drawThickLine( int x1, int y1, int x2, int y2 )
-Draw a line with a thickness greater than one pixel - called from drawLine
-when necessary
+Draw a line with a thickness greater than one pixel from \a x1, \a y1
+to \a x2, \a y2. Called from drawLine when necessary.
 */
 
 template <const int depth, const int type>
@@ -2949,7 +2949,9 @@ void QGfxRaster<depth, type>::drawThickLine( int x1, int y1, int x2, int y2 )
 /*!
 \fn void QGfxRaster<depth,type>::drawThickPolyline( const QPointArray &points,int index, int npoints )
 Draw a series of lines of a thickness greater than one pixel - called
-from drawPolyline as necessary
+from drawPolyline as necessary. \a points is the array of points to
+use, \a index is the offset at which to start in that array, \a npoints
+is the number of points to use.
 */
 
 template <const int depth, const int type>
@@ -2974,7 +2976,7 @@ void QGfxRaster<depth,type>::drawThickPolyline( const QPointArray &points,int in
 
 /*!
 \fn void QGfxRaster<depth,type>::hline( int x1,int x2,int y)
-Draw a line at coordinate y from x1 to x2 - used by the polygon
+Draw a line at coordinate \a y from \a x1 to \a x2 - used by the polygon
 drawing code. Performs clipping.
 */
 
@@ -3001,7 +3003,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hline( int x1,int x2,int y)
 
 /*!
 \fn void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned char* l)
-Draws a line in the current pen colour from x1 to x2 on scanline l,
+Draws a line in the current pen colour from \a x1 to \a x2 on scanline \a l,
 ignoring clipping. Used by anything that draws in solid colors - drawLine,
 fillRect, and drawPolygon.
 */
@@ -3200,12 +3202,12 @@ GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned c
 						    unsigned char *l,
 						    unsigned char *srcdata,
 						    bool reverse)
- l points to the start of the destination line's data.
- x1 and x2 are the start and end pixels.
- srcdata points to the source's left pixel start byte if reverse is false.
- srcdata points to the source's right pixels's start byte if reverse is true.
- reverse will only be true if the source and destination are the same buffer
- and a mask is set.
+ \a l points to the start of the destination line's data.
+ \a x1 and \a x2 are the start and end pixels.
+ \a srcdata points to the source's left pixel start byte if \a reverse is 
+ false. srcdata points to the source's right pixels's start byte if reverse 
+ is true. reverse will only be true if the source and destination are the same
+ buffer and a mask is set.
  Image data comes from of the setSource calls (in which case the
  variable srcdata points to it) or as a solid value stored in srccol
  (if setSourcePen is used). This method is internal and called from blt and
@@ -3521,7 +3523,9 @@ that is, for each of r, g and b the result is
 
 Note that since blending requires some per-pixel computation and a read-write
 access on the destination it tends to be slower than the simpler alpha
-blending modes.
+blending modes. \a x1 and \a x2 specify where to draw in the destination,
+\a l is the pointer to the scanline to draw into, \a srcdata is the source
+pixel data and \a alphas is the alpha channel for the SeparateAlpha mode.
 */
 
 template <const int depth, const int type>
@@ -4041,7 +4045,8 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 
 /*!
 \fn void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
-Draw a filled rectangle in the current brush colour from rx,ry to w,h.
+Draw a filled rectangle in the current brush colour from \a rx,\a ry to \a w,
+\a h.
 */
 
 //widget coordinates
@@ -4320,8 +4325,8 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 
 /*!
 \fn void QGfxRaster<depth,type>::drawPolyline( const QPointArray &a,int index, int npoints )
-Draw a series of lines specified by npoints coordinates from a, starting
-from index.
+Draw a series of lines specified by \a npoints coordinates from array \a a,
+starting from \a index in the array.
 */
 
 template <const int depth, const int type>
@@ -4357,7 +4362,9 @@ void QGfxRaster<depth,type>::drawPolyline( const QPointArray &a,int index, int n
 /*!
 \fn void QGfxRaster<depth,type>::drawPolygon( const QPointArray &pa, bool winding, int index, int npoints )
 Draw a filled polygon in the current brush style, with a border in the current
-pen style.
+pen style. The polygon is specified in array \a pa by \a npoints points from
+\a index. \a winding specifies whether to use the winding fill algorithm
+or the even-odd (alternative) fill algorithm.
 */
 
 template <const int depth, const int type>
@@ -4411,7 +4418,9 @@ void QGfxRaster<depth,type>::drawPolygon( const QPointArray &pa, bool winding, i
 \fn void QGfxRaster<depth,type>::processSpans( int n, QPoint* point, int* width )
 
 This is used internally by drawPolygon (via scan()) to draw the individual
-scanlines of a polygon by calling hline.
+scanlines of a polygon by calling hline. \a point is an array of points
+describing the horizontal lines in this scanline of the polygon,
+\a n the array of points to draw, \a width the width of the scanline.
 */
 
 // widget coords
@@ -4458,7 +4467,7 @@ void QGfxRaster<depth,type>::processSpans( int n, QPoint* point, int* width )
 }
 
 /*!
-  \fn find_pointer(unsigned char * base,int x,int y,
+  \fn static find_pointer(unsigned char * base,int x,int y,
       int w, int linestep, int &astat,
       unsigned char &ahold,
       bool is_bigendian, bool rev)
@@ -4469,7 +4478,7 @@ void QGfxRaster<depth,type>::processSpans( int n, QPoint* point, int* width )
 
   \a astat returns the bit number within the byte
   \a ahold holds the \c monobitval which is the byte pre-shifted
-           to match the algoritm using this function
+           to match the algorithm using this function
 
   This is used by blt() to set up the pointer to the mask for
   Little/BigEndianMask alpha types.
@@ -4576,9 +4585,9 @@ void QGfxRaster<depth,type>::scroll( int rx,int ry,int w,int h,int sx, int sy )
 \fn void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
 This corresponds to QPixmap::drawPixmap (into a QPainter with no transformation
 other than a translation) or bitBlt. The source is set up using
-setSource and setSourceWidgetOffset before the blt. rx and ry are the
-destination coordinates, w and h the size of the rectangle to blt,
-sx and sy the source coordinates relative to the source's widget offset.
+setSource and setSourceWidgetOffset before the blt. \a rx and \a ry are the
+destination coordinates, \a w and \a h the size of the rectangle to blt,
+\a sx and \a sy the source coordinates relative to the source's widget offset.
 In the case of a pen source sx and sy are ignored. Source and destination
 can overlap and can be of arbitrary (different) depths.
 */
@@ -4789,7 +4798,9 @@ size to the destination - the source is expanded or shrunk as necessary
 to fit the destination. The source and destination cannot overlap.
 Note that since the software implementation uses floating point it will
 be slow on embedded processors without an FPU. Qt/Embedded uses
-stretchBlt to speed up QPixmap::xForm.
+stretchBlt to speed up QPixmap::xForm. \a rx, \a ry, \a w and \a h
+specify the destination rectangle, \a sw and \a sh specify the size
+of the source; its x and y position are assumed to be 0.
 */
 
 #if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
@@ -4916,7 +4927,9 @@ void QGfxRaster<depth,type>::stretchBlt( int rx,int ry,int w,int h,
 \fn void QGfxRaster<depth,type>::tiledBlt( int rx,int ry,int w,int h )
 Like scroll(), this is intended as a candidate for hardware acceleration
 - it's a special case of blt where the source can be a different size
-to the destination and is tiled across the destination.
+to the destination and is tiled across the destination. \a rx and \a ry
+specify the x and y position of the rectangle to fill, \a w and \a h
+its size.
 */
 
 template <const int depth, const int type>
@@ -5040,7 +5053,7 @@ QGfx * QScreen::screenGfx()
 
 /*!
   \fn int QScreen::alloc(unsigned int r,unsigned int g,unsigned int b)
-  Given an RGB value \a r \a g \a b, return an index which is the closest 
+  Given an RGB value \a r \a g \a b, return an index which is the closest
   match to it in the screen's palette. Used in paletted modes only.
 */
 
@@ -5144,7 +5157,7 @@ void QScreen::set(unsigned int, unsigned int, unsigned int, unsigned int)
 
 /*!
 \fn bool QScreen::supportsDepth(int d) const
-Returns true if the screen supports a particular color depth.
+Returns true if the screen supports a particular color depth \a d.
 Possible values are 1,4,8,16 and 32.
 */
 
@@ -5186,9 +5199,9 @@ bool QScreen::supportsDepth(int d) const
 
 /*!
 \fn Qfx * QScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linestep)
-Creates a gfx on an arbitrary buffer \a bytes, width \a w and height \a h in 
-pixels, depth \a d and \a linestep (length in bytes of each line in the 
-buffer). Accelerated drivers can check to see if \a bytes points into 
+Creates a gfx on an arbitrary buffer \a bytes, width \a w and height \a h in
+pixels, depth \a d and \a linestep (length in bytes of each line in the
+buffer). Accelerated drivers can check to see if \a bytes points into
 graphics memory and create an accelerated Gfx.
 */
 
