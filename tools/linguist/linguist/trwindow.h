@@ -148,7 +148,6 @@ private:
     QStringList phraseBookNames;
 
     QPrinter printer;
-    QDialog *ov;
 
     FindDialog *f;
     QString findText;
