@@ -186,7 +186,7 @@ public:
     QPainter *rectPainter;
     QRect oldPosRect;
     QRect origPosRect;
-    bool oldPosRectValid;
+    bool oldPosRectValid, movedEnough;
 
     QMap< int, bool > dockable;
 };
@@ -1393,7 +1393,9 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	d->rectPainter->drawRect( r );
 	d->oldPosRect = r;
 	d->origPosRect = r;
-	d->oldPosRectValid = TRUE;
+	d->oldPosRectValid = FALSE;
+	d->pos = mapFromGlobal( QCursor::pos() );
+	d->movedEnough = FALSE;
 	return;
     } else if ( e->type() == QEvent::MouseButtonRelease ) {
 	QApplication::restoreOverrideCursor();
@@ -1403,20 +1405,27 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	delete d->rectPainter;
 	d->invisibleDrawArea = 0;
 	d->rectPainter = 0;
-	QPoint pos = mapFromGlobal( QCursor::pos() );
-	QRect r;
-	ToolBarDock dock = findDockArea( pos, r, t );
-	if ( dock != Unmanaged && isDockEnabled( dock ) &&
-	     isDockEnabled( t, dock ) )
-	    moveToolBar( t, dock );
+	
+	if ( !d->movedEnough ) {
+	    //qDebug( "hide toolbar" );
+	} else {
+	    QPoint pos = mapFromGlobal( QCursor::pos() );
+	    QRect r;
+	    ToolBarDock dock = findDockArea( pos, r, t );
+	    if ( dock != Unmanaged && isDockEnabled( dock ) &&
+		 isDockEnabled( t, dock ) )
+		moveToolBar( t, dock );
+	}
 	return;
     }
 
     QPoint p( QCursor::pos() );
-    if ( QABS( p.x() - d->pos.x() ) < 3 && QABS( p.y() - d->pos.y() ) < 3 )
-	return;
-
     QPoint pos = mapFromGlobal( p );
+    if ( !d->movedEnough && 
+	 ( pos - d->pos ).manhattanLength() > 8 )
+	d->movedEnough = TRUE;
+
+    d->pos = pos;
     QRect r;
     ToolBarDock dock = findDockArea( pos, r, t );
 
