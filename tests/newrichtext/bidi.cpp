@@ -270,8 +270,7 @@ static void bidiItemize( const QString &text, ScriptItemArray &items, QChar::Dir
 				status.eor = QChar::DirON;
 				dir = QChar::DirR;
 			    }
-			    else
-				eor = current - 1;
+			    eor = current - 1;
 			    appendItems( items, sor, eor, control, dir, unicode );
 			    dir = direction( unicode[eor] ); status.eor = dir;
 			} else {
