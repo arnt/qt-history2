@@ -434,7 +434,6 @@ void QDockWindowPrivate::init() {
     q->setFrameStyle(QFrame::Panel | QFrame::Raised);
 
     d->top = new QVBoxLayout(q, 2, 2);
-    d->top->setAlignment(Qt::AlignTop);
 
     d->title = new QDockWindowTitle(q);
     d->top->addWidget(d->title);
