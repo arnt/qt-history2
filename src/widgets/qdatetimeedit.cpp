@@ -483,7 +483,7 @@ void QDateTimeEditor::paintEvent( QPaintEvent * )
 	    txt += d->separator();
     }
 
-    QSharedDoubleBuffer buffer( FALSE, FALSE );
+    QSharedDoubleBuffer buffer( (bool) FALSE, (bool) FALSE );
     buffer.begin( this );
     QBrush bg = colorGroup().brush( isEnabled() ? QColorGroup::Base
 				    : QColorGroup::Background );
