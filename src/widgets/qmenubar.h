@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#24 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#25 $
 **
 ** Definition of QMenuBar class
 **
@@ -70,6 +70,7 @@ private:
     void	hidePopups();
 
     void	setActItem( int, bool );
+    void	setWindowsAltMode( bool, int = 0 );
 
     int		calculateRects( int max_width = -1 );
     int		itemAtPos( const QPoint & );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#84 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#85 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#84 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#85 $");
 
 
 /*!
@@ -237,26 +237,22 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
     }
 
     if ( style() != WindowsStyle || 
+	 !object->isWidgetType() ||
 	 !( event->type() == Event_Accel || 
 	    event->type() == Event_KeyRelease ) )
 	return FALSE;
 
-    QWidget * tlw = topLevelWidget();
-    QWidget * f = tlw->focusWidget();
-
     // look for Alt press and Alt-anything press
-    if ( object == tlw && event->type() == Event_Accel ) {
+    if ( event->type() == Event_Accel ) {
+	QWidget * f = ((QWidget *)object)->focusWidget();
 	QKeyEvent * ke = (QKeyEvent *) event;
 	if ( f ) {
 	    if ( ke->key() == Key_Alt ) {
 		if ( windowsaltactive || actItem >= 0 ) {
-		    windowsaltactive = 0;
-		    actItem = -1;
-		    if ( focusWidget() )
-			focusWidget()->setFocus();
+		    setWindowsAltMode( FALSE, -1 );
 		} else {
 		    windowsaltactive = 1;
-		    if ( f != tlw )
+		    if ( f != object )
 			f->installEventFilter( this );
 		}
 	    }
@@ -264,13 +260,15 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
     }
 
     // look for Alt release
-    if ( object == f ) {
+    if ( ((QWidget*)object)->focusWidget() == object ) {
 	if ( windowsaltactive && event->type() == Event_KeyRelease &&
 	     ((QKeyEvent *)event)->key() == Key_Alt ) {
 	    actItem = 0;
 	    setFocus();
-	} else if ( event->type() == Event_KeyPress && f != tlw ) {
-	    f->removeEventFilter( this );
+	    if ( object->parent() )
+		object->removeEventFilter( this );
+	} else if ( event->type() == Event_KeyPress && object->parent() ) {
+	    object->removeEventFilter( this );	    
 	}
     }
 
@@ -323,10 +321,7 @@ void QMenuBar::accelActivated( int id )
 		popup->setFirstItemActive();
 	    }
 	} else {				// not a popup
-	    if ( focusWidget() )
-		focusWidget()->setFocus();
-	    windowsaltactive = 0;
-	    setActItem( -1, FALSE );
+	    setWindowsAltMode( FALSE, -1 );
 	    if ( mi->signal() )			// activate signal
 		mi->signal()->activate();
 	    emit activated( mi->id() );
@@ -373,10 +368,7 @@ void QMenuBar::tryKeyEvent( QPopupMenu *, QKeyEvent *e )
 
 void QMenuBar::goodbye()
 {
-    if ( focusWidget() )
-	focusWidget()->setFocus();
-    windowsaltactive = 0;
-    setActItem( -1, FALSE );
+    setWindowsAltMode( FALSE, -1 );
     mouseBtDn = FALSE;
 }
 
@@ -385,7 +377,7 @@ void QMenuBar::openActPopup()
 {
     if ( actItem < 0 )
 	return;
-    windowsaltactive = 0;
+    setWindowsAltMode( FALSE, actItem );
     QPopupMenu *popup = mitems->at(actItem)->popup();
     if ( !popup )
 	return;
@@ -470,12 +462,11 @@ void QMenuBar::show()
 
 void QMenuBar::hide()
 {
+    QWidget::hide();
     if ( focusWidget() )
 	focusWidget()->setFocus();
-    windowsaltactive = 0;
-    actItem = -1;
+    setWindowsAltMode( FALSE, -1 );
     hidePopups();
-    QWidget::hide();
 }
 
 
@@ -678,7 +669,8 @@ void QMenuBar::drawContents( QPainter *p )
 		p->fillRect( r, palette().normal().background() );
 		if ( i == actItem ) {
 		    QBrush b( palette().normal().background() );
-		    bool sunken = !windowsaltactive && mouseBtDn;
+		    bool sunken = !windowsaltactive ||
+				  (mi->popup() && mi->popup()->isVisible());
 		    qDrawShadeRect( p,
 				    r.left(), r.top(), r.width(), r.height(),
 				    g, sunken, 1, 0, &b );
@@ -721,21 +713,20 @@ void QMenuBar::mousePressEvent( QMouseEvent *e )
     mouseBtDn = TRUE;				// mouse button down
     int item = itemAtPos( e->pos() );
     if ( item == -1 ) {
-	if ( focusWidget() )
-	    focusWidget()->setFocus();
-	windowsaltactive = 0;
-	setActItem( -1, FALSE );
+	setWindowsAltMode( FALSE, -1 );
 	return;
     }
     register QMenuItem *mi = mitems->at(item);
     if ( item != actItem ) {			// new item highlighted
 	setActItem( item, FALSE );
 	emit highlighted( mi->id() );
+    } else {
+	repaint( irects[actItem], FALSE );
     }
 
     QPopupMenu *popup = mi->popup();
     if ( popup && mi->isEnabled() ) {
-	windowsaltactive = 0;
+	setWindowsAltMode( FALSE, actItem );
 	if ( popup->isVisible() ) {	// sub menu already open
 	    popup->hidePopups();
 	    popup->repaint( FALSE );
@@ -761,10 +752,7 @@ void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
     int item = itemAtPos( e->pos() );
     if ( item >= 0 && !mitems->at(item)->isEnabled() ||
 	 actItem >= 0 && !mitems->at(actItem)->isEnabled() ) {
-	if ( focusWidget() )
-	    focusWidget()->setFocus();
-	windowsaltactive = 0;
-	setActItem( -1, TRUE );
+	setWindowsAltMode( FALSE, -1 );
 	hidePopups();
 	return;
     }
@@ -778,10 +766,7 @@ void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 	    if (!hasMouseTracking() )
 		popup->setFirstItemActive();
 	} else {				// not a popup
-	    if ( focusWidget() )
-		focusWidget()->setFocus();
-	    windowsaltactive = 0;
-	    setActItem( -1, FALSE );
+	    setWindowsAltMode( FALSE, -1 );
 	    if ( mi->signal() )			// activate signal
 		mi->signal()->activate();
 	    emit activated( mi->id() );
@@ -802,8 +787,13 @@ void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 	if ( item != actItem &&
 	     (!mi ||
 	      (mi->popup() && !mi->popup()->isVisible())) ) {
-	    setActItem( item, FALSE );
-	    // ? emit highlighted( mi->id() );
+	    if ( item >= 0 ) {
+		setWindowsAltMode( TRUE, item );
+		mi = mitems->at( item );
+		emit highlighted( mi->id() );
+	    } else {
+		setWindowsAltMode( FALSE, -1 );
+	    }
 	    return;
 	}
     }
@@ -830,10 +820,10 @@ void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 
 void QMenuBar::leaveEvent( QEvent * e )
 {
-    if ( actItem >= 0 ) {
+    if ( windowsaltactive && actItem >= 0 ) {
 	QMenuItem *mi = mitems->at( actItem );
 	if ( mi && mi->popup() && !mi->popup()->isVisible() )
-	    setActItem( -1, FALSE );
+	    setWindowsAltMode( FALSE, -1 );
     }
     QFrame::leaveEvent( e );
 }
@@ -877,10 +867,7 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 	break;
 
     case Key_Escape:
-	if ( focusWidget() )
-	    focusWidget()->setFocus();
-	windowsaltactive = 0;
-	setActItem( -1, FALSE );
+	setWindowsAltMode( FALSE, -1 );
 	break;
     }
 
@@ -912,6 +899,38 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 		} else {
 		    emit highlighted( mi->id() );
 		}
+	    }
+	}
+    } else if ( !e->state() && e->key() >= Key_0 && e->key() <= Key_Z ) {
+	char c = '0' + e->key() - Key_0;
+
+	QMenuItemListIt it(*mitems);
+	register QMenuItem *m;
+	int indx = 0;
+	while ( (m=it.current()) ) {
+	    ++it;
+	    QString s = m->text();
+	    if ( !s.isEmpty() ) {
+		int i = s.find( '&' );
+		if ( i >= 0 && isalnum(s[i+1]) ) {
+		    int k = s[i+1];
+		    if ( toupper(k) == c ) {
+			mi = m;
+			break;
+		    }
+		}
+	    }
+	    indx++;
+	}
+	if ( mi ) {
+	    setWindowsAltMode( FALSE, indx );
+	    hidePopups();
+	    popup = mi->popup();
+	    if ( popup && mi->isEnabled() ) {
+		popup->setFirstItemActive();
+		openActPopup();
+	    } else {
+		emit highlighted( mi->id() );
 	    }
 	}
     }
@@ -960,5 +979,31 @@ void QMenuBar::setActItem( int i, bool clear )
 	actItem = i;
 	repaint( irects[o], clear );
 	repaint( irects[i], clear );
+    }
+}
+
+
+/*!  Sets the windows alt-key mode to \a enable, optionally setting
+  item \a index to be the active item.
+
+  Windows alt-key mode lets the user use the keys to move alond the
+  menu bar.  You get into this mode by pressing and releasing alt or
+  by moving the mouse onto the menu bar.
+*/
+
+void QMenuBar::setWindowsAltMode( bool enable, int index )
+{
+    if ( enable ) {
+	if ( !windowsaltactive ) {
+	    windowsaltactive = 1;
+	    setFocus();
+	}
+	setActItem( index, FALSE );
+    } else {
+	if ( windowsaltactive ) {
+	    focusWidget()->setFocus();
+	    windowsaltactive = 0;
+	}
+	setActItem( index, FALSE );
     }
 }
