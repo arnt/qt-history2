@@ -2,7 +2,7 @@
 #include "qsqldatabase.h"
 #include "qsqlfield.h"
 #include "qsqlform.h"
-#include "qsqlview.h"
+#include "qsqlcursor.h"
 #include "qsqlresult.h"
 #include "qeditorfactory.h"
 #include "qlabel.h"
@@ -199,7 +199,7 @@ QWidget * QSqlFormMap::widget( uint i ) const
 {
     QMap< QWidget *, QSqlField * >::ConstIterator it;
     uint cnt = 0;
-    
+
     if( i > map.count() ) return 0;
     for( it = map.begin(); it != map.end(); ++it ){
 	if( cnt++ == i )
@@ -265,9 +265,11 @@ void QSqlFormMap::syncFields()
   This class is used to create SQL forms for accessing, updating,
   inserting and deleting data from a database. Populate the form with
   widgets created by the QSqlEditorFactory class, to get the proper
-  widget for a certain field. The form needs a valid QSqlView on which
-  to perform its operations.
+  widget for a certain field. The form needs a valid QSqlCursor on
+  which to perform its operations.
+  
   Some sample code to initialize a form successfully:
+  
   \code
   QSqlForm form;
   QSqlEditorFactory factory;
@@ -314,7 +316,7 @@ QSqlForm::QSqlForm( QWidget * parent, const char * name )
   automatically creates a form, spread across \a columns
   number of columns.
 */
-QSqlForm::QSqlForm( QSqlView * view, uint columns, QWidget * parent,
+QSqlForm::QSqlForm( QSqlCursor * view, uint columns, QWidget * parent,
 		    const char * name )
     : QWidget( parent, name ),
       readOnly( FALSE ),
@@ -325,7 +327,7 @@ QSqlForm::QSqlForm( QSqlView * view, uint columns, QWidget * parent,
 }
 
 /*!
-  
+
   Destructs the form.
 */
 QSqlForm::~QSqlForm()
@@ -348,25 +350,25 @@ void QSqlForm::associate( QWidget * widget, QSqlField * field )
   with. <em> Do not delete the \a view until the QSqlForm goes out of
   scope.</em>
 */
-void QSqlForm::setView( QSqlView * view )
+void QSqlForm::setView( QSqlCursor * view )
 {
     v = view;
 }
 
 /*!
 
-  Returns the QSqlView that this form is associated with.
+  Returns the QSqlCursor that this form is associated with.
 */
-QSqlView * QSqlForm::view() const
+QSqlCursor * QSqlForm::view() const
 {
     return v;
 }
 
 /*!
-  
+
   Installs a custom QEditorFactory. This is used in the populate()
   function to automatically create the widgets in the form.
-  
+
   \sa installPropertyMap()
  */
 void QSqlForm::installEditorFactory( QEditorFactory * )
@@ -384,7 +386,7 @@ void QSqlForm::installPropertyMap( QSqlPropertyMap * m )
 }
 
 /*!
-  
+
   Sets the form state.
  */
 void QSqlForm::setReadOnly( bool state )
@@ -399,7 +401,7 @@ void QSqlForm::setReadOnly( bool state )
 }
 
 /*!
-  
+
   Returns the form state.
  */
 bool QSqlForm::isReadOnly() const
@@ -553,9 +555,9 @@ void QSqlForm::seek( uint i )
 }
 
 /*!
-  
+
   This is a convenience function used to quickly populate a form with
-  fields based on a QSqlView. The form will contain a name label and
+  fields based on a QSql. The form will contain a name label and
   an editor widget for each of the fields in the view. The widgets are
   layed out vertically in a QVBoxLayout.
   Example: \code
@@ -571,66 +573,66 @@ void QSqlForm::seek( uint i )
 				 "tk",	      // username
 				 "tk",        // password
 				 "myserver"); // hostname
-    
+
     QSqlDatabase * db = QSqlConnection::database();
     if( !db->isOpen() ) return 0;    // see if we can connect to the dbase
-    
-    QSqlView  view( "my_table" );
+
+    QSqlCursor  view( "my_table" );
 
     // select all records from 'my_table' - sort on 'my_field'
-    view.select( view.index( "my_field" ) ); 
-    if( !view.first() ) return 0; 
+    view.select( view.index( "my_field" ) );
+    if( !view.first() ) return 0;
 
     QSqlForm * form = new QSqlForm( &view );
     a.setMainWidget( form );
     form->show();
     return a.exec();
-  }  
+  }
   \endcode
  */
 
-void QSqlForm::populate( QSqlView * view, uint columns )
+void QSqlForm::populate( QSqlCursor * view, uint columns )
 {
     // ### Remember to remove the children before populating the form!
-    
+
     if( !view ) return;
-    
+
     QEditorFactory f( this );
     QWidget * le;
-    QLabel * lb; 
+    QLabel * lb;
     QVBoxLayout * vb = new QVBoxLayout( this);
     QGridLayout * g  = new QGridLayout( vb );
-    
+
     g->setMargin( 5 );
     g->setSpacing( 3 );
-    
+
     QString pi = view->primaryIndex().toString();
-    
+
     if( columns < 1 ) columns = 1;
     int numPerColumn = view->count()/columns;
     int col = 0, currentCol = 0;
-    
+
     for(uint i = 0; i < view->count(); i++){
 	if( col >= numPerColumn ){
 	    col = 0;
 	    currentCol += 2;
-	} 
-	
+	}
+
 	// Do not show primary index fields in the form
 	QString name = view->field( i )->name();
 	if( name == pi ) continue;
-	
+
 	name[0] = name[0].upper(); // capitalize the first letter
 	lb = new QLabel( name, this );
-	
+
 	g->addWidget( lb, col, currentCol );
-	
+
 	le = f.createEditor( this, view->value( i ) );
 	g->addWidget( le, col, currentCol + 1 );
 	associate( le, view->field( i ) );
 	col++;
     }
-    
+
     setView( view );
     syncWidgets();
 }

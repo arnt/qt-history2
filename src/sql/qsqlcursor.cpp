@@ -1,14 +1,15 @@
-#include "qsqlview.h"
+#include "qsqlcursor.h"
+
+#ifndef QT_NO_SQL
 #include "qsqldriver.h"
 #include "qsqlresult.h"
 #include "qdatetime.h"
+#include "qsqldatabase.h"
 
-#ifndef QT_NO_SQL
-
-class QSqlViewPrivate
+class QSqlCursorPrivate
 {
 public:
-    QSqlViewPrivate( const QString& name )
+    QSqlCursorPrivate( const QString& name )
 	: lastAt( QSqlResult::BeforeFirst ), nm( name ), srt( name ), md( 0 )
     {}
     int               lastAt;
@@ -28,15 +29,6 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
     return str;
 }
 
-bool qIsQuoted( QVariant::Type t )
-{
-    return ( t == QVariant::String ||
-	     t == QVariant::CString ||
-	     t == QVariant::Date ||
-	     t == QVariant::Time ||
-	     t == QVariant::DateTime );
-}
-
 /*!
   Constructs a view on database \a db.  If \a autopopulate is TRUE, the \a name of the view
   must correspond to an existing table or view name in the database so that field information
@@ -44,11 +36,11 @@ bool qIsQuoted( QVariant::Type t )
 
 */
 
-QSqlView::QSqlView( const QString & name, bool autopopulate, const QString& databaseName )
-    : QSqlFieldList(), QSql( QSqlConnection::database( databaseName )->driver()->createResult() )
+QSqlCursor::QSqlCursor( const QString & name, bool autopopulate, QSqlDatabase* db )
+    : QSqlRecord(), QSqlQuery( QString::null, db )
 {
-    d = new QSqlViewPrivate( name );
-    setMode( SQL_Writable );
+    d = new QSqlCursorPrivate( name );
+    setMode( Writable );
     if ( !d->nm.isNull() )
 	setName( d->nm, autopopulate );
 }
@@ -58,10 +50,10 @@ QSqlView::QSqlView( const QString & name, bool autopopulate, const QString& data
 
 */
 
-QSqlView::QSqlView( const QSqlView & s )
-    : QSqlFieldList( s ), QSql( s )
+QSqlCursor::QSqlCursor( const QSqlCursor & s )
+    : QSqlRecord( s ), QSqlQuery( s )
 {
-    d = new QSqlViewPrivate( s.d->nm );
+    d = new QSqlCursorPrivate( s.d->nm );
     d->lastAt = s.d->lastAt;
     d->nm = s.d->nm;
     d->srt = s.d->srt;
@@ -70,7 +62,7 @@ QSqlView::QSqlView( const QSqlView & s )
     setMode( s.mode() );
 }
 
-QSqlView::~QSqlView()
+QSqlCursor::~QSqlCursor()
 {
     delete d;
 }
@@ -80,13 +72,13 @@ QSqlView::~QSqlView()
 
 */
 
-QSqlView& QSqlView::operator=( const QSqlView& s )
+QSqlCursor& QSqlCursor::operator=( const QSqlCursor& s )
 {
-    QSqlFieldList::operator=( s );
-    QSql::operator=( s );
+    QSqlRecord::operator=( s );
+    QSqlQuery::operator=( s );
     if ( d )
 	delete d;
-    d = new QSqlViewPrivate( s.d->nm );
+    d = new QSqlCursorPrivate( s.d->nm );
     d->lastAt = s.d->lastAt;
     d->nm = s.d->nm;
     d->srt = s.d->srt;
@@ -100,7 +92,7 @@ QSqlView& QSqlView::operator=( const QSqlView& s )
   current sort.
 
 */
-QSqlIndex QSqlView::sort() const
+QSqlIndex QSqlCursor::sort() const
 {
     return d->srt;
 }
@@ -109,7 +101,7 @@ QSqlIndex QSqlView::sort() const
   current filter.
 
 */
-QString QSqlView::filter() const
+QString QSqlCursor::filter() const
 {
     return d->ftr;
 }
@@ -119,7 +111,7 @@ QString QSqlView::filter() const
   database.
 
 */
-void QSqlView::setName( const QString& name, bool autopopulate )
+void QSqlCursor::setName( const QString& name, bool autopopulate )
 {
     d->nm = name;
     if ( autopopulate ) {
@@ -132,7 +124,7 @@ void QSqlView::setName( const QString& name, bool autopopulate )
 
 */
 
-QString QSqlView::name() const
+QString QSqlCursor::name() const
 {
     return d->nm;
 }
@@ -141,9 +133,9 @@ QString QSqlView::name() const
   \internal
 
 */
-QSqlFieldList & QSqlView::operator=( const QSqlFieldList & list )
+QSqlRecord & QSqlCursor::operator=( const QSqlRecord & list )
 {
-    return QSqlFieldList::operator=( list );
+    return QSqlRecord::operator=( list );
 }
 
 /*!  Returns the primary index associated with the view, or an empty
@@ -153,7 +145,7 @@ QSqlFieldList & QSqlView::operator=( const QSqlFieldList & list )
 
 */
 
-QSqlIndex QSqlView::primaryIndex( bool prime ) const
+QSqlIndex QSqlCursor::primaryIndex( bool prime ) const
 {
     if ( prime ) {
 	for ( uint i = 0; i < d->priIndx.count(); ++i ) {
@@ -170,7 +162,7 @@ QSqlIndex QSqlView::primaryIndex( bool prime ) const
 
 */
 
-void QSqlView::setPrimaryIndex( QSqlIndex idx )
+void QSqlCursor::setPrimaryIndex( QSqlIndex idx )
 {
     d->priIndx = idx;
 }
@@ -181,7 +173,7 @@ void QSqlView::setPrimaryIndex( QSqlIndex idx )
 
 */
 
-QSqlIndex QSqlView::index( const QStringList& fieldNames ) const
+QSqlIndex QSqlCursor::index( const QStringList& fieldNames ) const
 {
     QSqlIndex idx;
     for ( QStringList::ConstIterator it = fieldNames.begin(); it != fieldNames.end(); ++it ) {
@@ -190,7 +182,7 @@ QSqlIndex QSqlView::index( const QStringList& fieldNames ) const
 	    idx.clear();
 	    break;
 	}
-	idx.append( f );
+	idx.append( *f );
     }
     return idx;
 }
@@ -201,12 +193,12 @@ QSqlIndex QSqlView::index( const QStringList& fieldNames ) const
 
 */
 
-QSqlIndex QSqlView::index( const QString& fieldName ) const
+QSqlIndex QSqlCursor::index( const QString& fieldName ) const
 {
     QSqlIndex idx;
     const QSqlField* f = field( fieldName );
     if ( f )
-	idx.append( f );
+	idx.append( *f );
     return idx;
 }
 
@@ -214,7 +206,7 @@ QSqlIndex QSqlView::index( const QString& fieldName ) const
 
 */
 
-QSqlIndex QSqlView::index( const char* fieldName ) const
+QSqlIndex QSqlCursor::index( const char* fieldName ) const
 {
     return index( QString( fieldName ) );
 }
@@ -225,7 +217,7 @@ QSqlIndex QSqlView::index( const char* fieldName ) const
 
 */
 
-bool QSqlView::select()
+bool QSqlCursor::select()
 {
     return select( "*", QSqlIndex() );
 }
@@ -236,7 +228,7 @@ bool QSqlView::select()
 
 */
 
-bool QSqlView::select( const QSqlIndex& sort )
+bool QSqlCursor::select( const QSqlIndex& sort )
 {
     return select( "*", sort );
 }
@@ -249,7 +241,7 @@ bool QSqlView::select( const QSqlIndex& sort )
   will retrieve all records.  For example:
 
   \code
-  QSqlView myRowset(db, "MyTable");
+  QSqlCursor myRowset(db, "MyTable");
   myRowset.select("deptID=10"); // select everything in department 10
   ...
   myRowset.select("*"); // select all records in rowset
@@ -261,7 +253,7 @@ bool QSqlView::select( const QSqlIndex& sort )
 
 */
 
-bool QSqlView::select( const QString & filter, const QSqlIndex & sort )
+bool QSqlCursor::select( const QString & filter, const QSqlIndex & sort )
 {
     QString str= "select " + toString( d->nm );
     str += " from " + d->nm;
@@ -275,7 +267,7 @@ bool QSqlView::select( const QString & filter, const QSqlIndex & sort )
     str += ";";
     d->srt = sort;
     d->lastAt = QSqlResult::BeforeFirst;
-    return setQuery( str );
+    return exec( str );
 }
 
 /*!
@@ -286,7 +278,7 @@ bool QSqlView::select( const QString & filter, const QSqlIndex & sort )
   for retrieving data based upon a table's primary index:
 
   \code
-  QSqlView myRowset(db, "MyTable");
+  QSqlCursor myRowset(db, "MyTable");
   QSqlIndex pk = db->primaryIndex("MyTable");
   myRowset["id"] = 10;
   myRowset.select( pk ); // generates "select ... from MyTable where id=10;"
@@ -294,7 +286,7 @@ bool QSqlView::select( const QString & filter, const QSqlIndex & sort )
   \endcode
 
 */
-bool QSqlView::select( const QSqlIndex & filter, const QSqlIndex & sort )
+bool QSqlCursor::select( const QSqlIndex & filter, const QSqlIndex & sort )
 {
     return select( fieldEqualsValue( d->nm, "and", filter ), sort );
 }
@@ -308,7 +300,7 @@ bool QSqlView::select( const QSqlIndex & filter, const QSqlIndex & sort )
   For example,
 
   \code
-  QSqlView view( "emp" );
+  QSqlCursor view( "emp" );
   view.setMode( SQL_Writeable ); // allow insert/update/delete
   ...
   view.setMode( SQL_Insert | SQL_Update ); // allow inserts and updates
@@ -317,7 +309,7 @@ bool QSqlView::select( const QSqlIndex & filter, const QSqlIndex & sort )
   \endcode
 */
 
-void QSqlView::setMode( int mode )
+void QSqlCursor::setMode( int mode )
 {
     d->md = mode;
 }
@@ -328,7 +320,7 @@ void QSqlView::setMode( int mode )
    \sa setMode
 */
 
-int QSqlView::mode() const
+int QSqlCursor::mode() const
 {
     return d->md;
 }
@@ -339,7 +331,7 @@ int QSqlView::mode() const
    \sa setMode
 */
 
-bool QSqlView::isReadOnly() const
+bool QSqlCursor::isReadOnly() const
 {
     return d->md == 0;
 }
@@ -350,9 +342,9 @@ bool QSqlView::isReadOnly() const
    \sa setMode
 */
 
-bool QSqlView::canInsert() const
+bool QSqlCursor::canInsert() const
 {
-    return ( ( d->md & SQL_Insert ) == SQL_Insert ) ;
+    return ( ( d->md & Insert ) == Insert ) ;
 }
 
 
@@ -362,9 +354,9 @@ bool QSqlView::canInsert() const
    \sa setMode
 */
 
-bool QSqlView::canUpdate() const
+bool QSqlCursor::canUpdate() const
 {
-    return ( ( d->md & SQL_Update ) == SQL_Update ) ;
+    return ( ( d->md & Update ) == Update ) ;
 }
 
 /*
@@ -374,9 +366,9 @@ bool QSqlView::canUpdate() const
 */
 
 
-bool QSqlView::canDelete() const
+bool QSqlCursor::canDelete() const
 {
-    return ( ( d->md & SQL_Update ) == SQL_Update ) ;
+    return ( ( d->md & Update ) == Update ) ;
 }
 
 
@@ -384,14 +376,7 @@ bool QSqlView::canDelete() const
 QString qMakeFieldValue( const QSqlDriver* driver, const QString& prefix, QSqlField* field, const QString& op = "=" )
 {
     QString f = ( prefix.length() > 0 ? prefix + QString(".") : QString::null ) + field->name();
-    if ( !field->isNull() ) {
-	if( qIsQuoted( field->type() ) )
-	    f += " " + op + " '" + field->value().toString() + "'";
-	else
-	    f += " " + op + " " + field->value().toString();
-    } else {
-	f += " " + op + " " + driver->nullText();
-    }
+    f += " " + op + " " + driver->formatValue( field );
     return f;
 }
 
@@ -399,7 +384,7 @@ QString qMakeFieldValue( const QSqlDriver* driver, const QString& prefix, QSqlFi
   \internal
 
 */
-QString QSqlView::fieldEqualsValue( const QString& prefix, const QString& fieldSep, const QSqlIndex & i )
+QString QSqlCursor::fieldEqualsValue( const QString& prefix, const QString& fieldSep, const QSqlIndex & i )
 {
     QString filter;
     int k = i.count();
@@ -432,32 +417,20 @@ QString QSqlView::fieldEqualsValue( const QString& prefix, const QString& fieldS
   \sa setMode
 */
 
-int QSqlView::insert( bool invalidate )
+int QSqlCursor::insert( bool invalidate )
 {
-    if ( ( d->md & SQL_Insert ) != SQL_Insert )
+    if ( ( d->md & Insert ) != Insert )
 	return FALSE;
     int k = count();
     if( k == 0 ) return 0;
     QString str = "insert into " + name();
-    str += " (" + QSqlFieldList::toString() + ")";
+    str += " (" + QSqlRecord::toString() + ")";
     str += " values (";
     QString vals;
     for( int j = 0; j < k; ++j ){
-	QVariant::Type type = field(j)->type();
-	QVariant       val  = field(j)->value();
 	if( j > 0 )
 	    vals += ",";
-	if ( !field(j)->isNull() ) {
-	    if( qIsQuoted( type ) ) {
-		if ( type == QVariant::Date )
-		    vals += "'" + driver()->formatDate( val.toDate() ) + "'";
-		else
-		    vals += "'" + val.toString() + "'";
-	    } else
-		vals += val.toString();
-	} else {
-	    vals += driver()->nullText();
-	}
+	vals += driver()->formatValue( field(j) );
     }
     str += vals + ");";
     return apply( str, invalidate );
@@ -473,9 +446,9 @@ int QSqlView::insert( bool invalidate )
 
 */
 
-int QSqlView::update( const QString & filter, bool invalidate )
+int QSqlCursor::update( const QString & filter, bool invalidate )
 {
-    if ( ( d->md & SQL_Update ) != SQL_Update )
+    if ( ( d->md & Update ) != Update )
 	return FALSE;
     int k = count();
     if( k == 0 ) return 0;
@@ -499,7 +472,7 @@ int QSqlView::update( const QString & filter, bool invalidate )
   \code
   QSqlDatabase* db;
   ...
-  QSqlView empView ( db, "Employee" );
+  QSqlCursor empView ( db, "Employee" );
   empView["id"] = 10;  // set the primary index field
   empView["firstName"] = "Dave";
   empView.update();  // update an employee name using primary index
@@ -507,7 +480,7 @@ int QSqlView::update( const QString & filter, bool invalidate )
 
 */
 
-int QSqlView::update( const QSqlIndex & filter, bool invalidate )
+int QSqlCursor::update( const QSqlIndex & filter, bool invalidate )
 {
     return update( fieldEqualsValue( "", "and", filter ), invalidate );
 }
@@ -521,9 +494,9 @@ int QSqlView::update( const QSqlIndex & filter, bool invalidate )
 
 */
 
-int QSqlView::del( const QString & filter, bool invalidate )
+int QSqlCursor::del( const QString & filter, bool invalidate )
 {
-    if ( ( d->md & SQL_Delete ) != SQL_Delete )
+    if ( ( d->md & Delete ) != Delete )
 	return FALSE;
     int k = count();
     if( k == 0 ) return 0;
@@ -545,7 +518,7 @@ int QSqlView::del( const QString & filter, bool invalidate )
 
 */
 
-int QSqlView::del( const QSqlIndex & filter, bool invalidate )
+int QSqlCursor::del( const QSqlIndex & filter, bool invalidate )
 {
     return del( fieldEqualsValue( "", "and", filter ), invalidate );
 }
@@ -554,16 +527,16 @@ int QSqlView::del( const QSqlIndex & filter, bool invalidate )
   \internal
 */
 
-int QSqlView::apply( const QString& q, bool invalidate )
+int QSqlCursor::apply( const QString& q, bool invalidate )
 {
     int ar = 0;
     if ( invalidate ) {
-	setQuery( q );
+	exec( q );
 	d->lastAt = QSqlResult::BeforeFirst;
 	ar = affectedRows();
     } else {
-	QSql sql( driver()->createResult() );
-	sql.setQuery( q );
+	QSqlQuery sql( driver()->createResult() );
+	sql.exec( q );
 	ar = sql.affectedRows();
     }
     return ar;
@@ -574,20 +547,20 @@ int QSqlView::apply( const QString& q, bool invalidate )
   otherwise returns FALSE.
 
 */
-bool QSqlView::setQuery( const QString & str )
+bool QSqlCursor::exec( const QString & str )
 {
-    QSql::setQuery( str );
+    QSqlQuery::exec( str );
     return isActive();
 }
 
-QVariant QSqlView::calculateField( uint )
+QVariant QSqlCursor::calculateField( uint )
 {
     return QVariant();
 }
 
-void QSqlView::detach()
+void QSqlCursor::detach()
 {
-    setQuery( QString::null );
+    exec( QString::null );
 }
 
 /*
@@ -596,17 +569,17 @@ void QSqlView::detach()
   Make sure fieldlist is synced with sql.
 
 */
-void QSqlView::sync()
+void QSqlCursor::sync()
 {
     if ( isActive() && isValid() && d->lastAt != at() ) {
 	d->lastAt = at();
 	uint i = 0;
 	for ( ; i < count(); ++i ){
 	    if ( field(i)->isCalculated() )
-		QSqlFieldList::setValue( i, calculateField( i ) );
+		QSqlRecord::setValue( i, calculateField( i ) );
 	    else {
-		QSqlFieldList::setValue( i, QSql::value(i) );
-		QSqlFieldList::field( i )->setIsNull( QSql::isNull( i ) );
+		QSqlRecord::setValue( i, QSqlQuery::value(i) );
+		QSqlRecord::field( i )->setIsNull( QSqlQuery::isNull( i ) );
 	    }
 	}
     }
@@ -616,7 +589,7 @@ void QSqlView::sync()
   \reimpl
 */
 
-void QSqlView::postSeek()
+void QSqlCursor::postSeek()
 {
     sync();
 }
@@ -625,22 +598,19 @@ void QSqlView::postSeek()
   \reimpl
 */
 
-QVariant QSqlView::value( int i )
+QVariant QSqlCursor::value( int i )
 {
-    return QSqlFieldList::value( i );
+    return QSqlRecord::value( i );
 }
 
 /*!
   \reimpl
 */
 
-QVariant QSqlView::value( const QString& name )
+QVariant QSqlCursor::value( const QString& name )
 {
-    return QSqlFieldList::value( name );
+    return QSqlRecord::value( name );
 }
 
 #endif
-
-
-
 

@@ -1,5 +1,6 @@
 #include "qsql_mysql.h"
 
+
 #include <qlist.h>
 #include <qdatetime.h>
 
@@ -10,7 +11,6 @@
 #include <mysql.h>
 
 #define QMYSQL_DRIVER_NAME "QMYSQL"
-
 
 class QMySQLPrivate
 {
@@ -191,29 +191,6 @@ bool QMySQLResult::reset ( const QString& query )
     return TRUE;
 }
 
-QSqlFieldList QMySQLResult::fields()
-{
-    QSqlFieldList fil;
-    if ( isActive() ) {
-	if ( !mysql_errno( d->mysql ) ) {
-	    int count = 0;
-	    for ( ;; ) {
-		MYSQL_FIELD* f = mysql_fetch_field( d->result );
-		if ( f ) {
-		    QSqlField fi( QString((const char*)f->name), count, qDecodeMYSQLType( f->type ) );
-		    if ( isValid() )
-			fi.setValue( data( count ) );
-		    fil.append( &fi  );
-		} else
-		    break;
-		count++;
-	    }
-	}
-    }
-    mysql_field_seek( d->result, 0 );
-    return fil;
-}
-
 int QMySQLResult::size()
 {
     return (int)mysql_num_rows( d->result );
@@ -285,9 +262,9 @@ void QMySQLDriver::close()
     }
 }
 
-QSql QMySQLDriver::createResult() const
+QSqlQuery QMySQLDriver::createResult() const
 {
-    return QSql(new QMySQLResult( this ) );
+    return QSqlQuery(new QMySQLResult( this ) );
 }
 
 QStringList QMySQLDriver::tables( const QString& ) const
@@ -311,30 +288,52 @@ QStringList QMySQLDriver::tables( const QString& ) const
 QSqlIndex QMySQLDriver::primaryIndex( const QString& tablename ) const
 {
     QSqlIndex idx;
-    QSql i = createResult();
+    QSqlQuery i = createResult();
     QString stmt( "show index from %1;" );
-    i.setQuery( stmt.arg( tablename ) );
+    i.exec( stmt.arg( tablename ) );
     while ( i.isActive() && i.next() ) {
 	if ( i.value(2).toString() == "PRIMARY" ) {
-	    QSqlFieldList fil = fields( tablename );
-	    idx.append( fil.field( i.value(3).toInt()-1 ) );
+	    QSqlRecord fil = fields( tablename );
+	    idx.append( *fil.field( i.value(3).toInt()-1 ) );
 	    break;
 	}
     }
     return idx;
 }
 
-QSqlFieldList QMySQLDriver::fields( const QString& tablename ) const
+QSqlRecord QMySQLDriver::fields( const QString& tablename ) const
 {
-    QSqlFieldList fil;
+    QSqlRecord fil;
     QString fieldStmt( "show columns from %1;");
-    QSql i = createResult();
-    i.setQuery( fieldStmt.arg( tablename ) );
+    QSqlQuery i = createResult();
+    i.exec( fieldStmt.arg( tablename ) );
     while ( i.isActive() && i.next() ) {
 	QSqlField f ( i.value(0).toString() , i.at(), qDecodeMYSQLType(i.value(1).toInt()) );
-	fil.append ( &f );
+	fil.append ( f );
     }
     return fil;
 }
 
+QSqlRecord QMySQLDriver::fields( const QSqlQuery& query ) const
+{
+    QSqlRecord fil;
+    if ( query.isActive() && query.driver() == this ) {
+	QMySQLResult* result =  (QMySQLResult*)query.result();
+	QMySQLPrivate* p = result->d;
+	if ( !mysql_errno( p->mysql ) ) {
+	    int count = 0;
+	    for ( ;; ) {
+		MYSQL_FIELD* f = mysql_fetch_field( p->result );
+		if ( f ) {
+		    QSqlField fi( QString((const char*)f->name), count, qDecodeMYSQLType( f->type ) );
+		    fil.append( fi  );
+		} else
+		    break;
+		count++;
+	    }
+	}
+	mysql_field_seek( p->result, 0 );	
+    }
+    return fil;
+}
 

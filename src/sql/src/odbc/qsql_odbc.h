@@ -12,6 +12,7 @@ class QODBCPrivate;
 class QODBCDriver;
 class QODBCResult : public QSqlResult
 {
+    friend class QODBCDriver;
 public:
     QODBCResult( const QODBCDriver * db, QODBCPrivate* p );
     ~QODBCResult();
@@ -22,7 +23,6 @@ protected:
     bool 	reset ( const QString& query );
     QVariant 	data( int field );
     bool	isNull( int field );
-    QSqlFieldList       fields();
     int                 size();
     int                 affectedRows();
 private:
@@ -43,9 +43,10 @@ public:
 			      const QString & password = QString::null,
 			      const QString & host = QString::null );
     void 	        close();
-    QSql 	        createResult() const;
+    QSqlQuery 	        createResult() const;
     QStringList         tables( const QString& user ) const;
-    QSqlFieldList       fields( const QString& tablename ) const;
+    QSqlRecord          fields( const QString& tablename ) const;
+    QSqlRecord          fields( const QSqlQuery& query ) const;            
     QSqlIndex           primaryIndex( const QString& tablename ) const;
 protected:
     bool                beginTransaction();

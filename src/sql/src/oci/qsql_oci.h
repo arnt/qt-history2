@@ -11,6 +11,7 @@ class QOCIResultPrivate;
 class QOCIDriver;
 class QOCIResult : public QSqlResult
 {
+    friend class QOCIDriver;
 public:
     QOCIResult( const QOCIDriver * db, QOCIPrivate* p );
     ~QOCIResult();
@@ -22,7 +23,6 @@ protected:
     bool 	reset ( const QString& query );
     QVariant 	data( int field );
     bool	isNull( int field );
-    QSqlFieldList       fields();
     int                 size();
     int                 affectedRows();
 private:
@@ -32,7 +32,7 @@ private:
     QOCIPrivate* 	d;
     QOCIResultPrivate*  cols;
     RowsetCache     	rowCache;
-    QSqlFieldList       fs;
+    QSqlRecord          fs;
     bool                cached;
     bool                cacheNext();
 };
@@ -47,10 +47,12 @@ public:
 			      const QString & password = QString::null,
 			      const QString & host = QString::null );
     void 	        close();
-    QSql 	        createResult() const;
+    QSqlQuery 	        createResult() const;
     QStringList         tables( const QString& user ) const;
-    QSqlFieldList       fields( const QString& tablename ) const;
+    QSqlRecord          fields( const QString& tablename ) const;
+    QSqlRecord          fields( const QSqlQuery& query ) const;        
     QSqlIndex           primaryIndex( const QString& tablename ) const;
+    QString             formatValue( const QSqlField* field ) const;
 protected:
     bool    	        beginTransaction();
     bool    	        commitTransaction();

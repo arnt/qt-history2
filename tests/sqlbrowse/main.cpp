@@ -5,11 +5,12 @@
 int main( int argc, char **argv )
 {
     QApplication a(argc,argv);
-    QSqlConnection::addDatabase( qApp->argv()[1],
-				 qApp->argv()[2],
-				 qApp->argv()[3],
-				 qApp->argv()[4],
-				 qApp->argv()[5]);
+    QSqlDatabase* db = QSqlDatabase::addDatabase( qApp->argv()[1] );
+    db->setDatabaseName( qApp->argv()[2] );
+    db->setUserName( qApp->argv()[3] );
+    db->setPassword( qApp->argv()[4] );
+    db->setHostName( qApp->argv()[5] );
+
     ResultWindow* rw = new ResultWindow();
     a.setMainWidget( rw );
     rw->show();

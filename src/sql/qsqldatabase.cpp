@@ -17,7 +17,130 @@
 #include "qsqlresult.h"
 #include "qsqldriver.h"
 #include "qsqldriverplugin.h"
+#include "qobject.h"
+#include "qdict.h"
+#include "qapplication.h"
 #include <stdlib.h>
+
+QT_STATIC_CONST_IMPL char * const QSqlDatabase::defaultDatabase = "qt_sql_default_database";
+
+class QSqlDatabaseManager : public QObject
+{
+public:
+    static QSqlDatabase* database( const QString& name );
+    static QSqlDatabase* addDatabase( QSqlDatabase* db, const QString & name );
+    static void          removeDatabase( const QString& name );
+
+protected:
+    static QSqlDatabaseManager* instance();
+    QSqlDatabaseManager( QObject* parent=0, const char* name=0 );
+    ~QSqlDatabaseManager();
+    QDict< QSqlDatabase > dbDict;
+};
+
+/*!  Constructs an SQL database manager.
+
+*/
+
+QSqlDatabaseManager::QSqlDatabaseManager( QObject* parent, const char* name )
+    : QObject( parent, name ), dbDict( 1 )
+{
+}
+
+/*!
+  Destroys the object and frees any allocated resources.  All open
+  databases are closed.  All databases are deleted.
+
+*/
+
+QSqlDatabaseManager::~QSqlDatabaseManager()
+{
+    QDictIterator< QSqlDatabase > it( dbDict );
+    while ( it.current() ) {
+	it.current()->close();
+	++it;
+    }
+}
+
+/*!
+  \internal
+
+*/
+
+QSqlDatabaseManager* QSqlDatabaseManager::instance()
+{
+    static QSqlDatabaseManager* sqlConnection = 0;
+    // ### use cleanup handler
+    if ( !sqlConnection ) {
+#ifdef CHECK_RANGE
+	if ( !qApp )
+	    qWarning("Warning: creating QSqlDatabaseManager with no parent." );
+#endif
+	sqlConnection = new QSqlDatabaseManager( qApp, "qt_qsqldatabasemanager_instance" );
+    }
+    return sqlConnection;
+}
+
+/*!
+  Returns a pointer to the database with name \a name.  If the database was not previously
+  opened, it is opened now.  If \name does not exist in the list of managed database,
+  0 is returned.
+
+*/
+
+QSqlDatabase* QSqlDatabaseManager::database( const QString& name )
+{
+    QSqlDatabaseManager* sqlConnection = instance();
+    QSqlDatabase* db = sqlConnection->dbDict.find( name );
+#ifdef CHECK_RANGE
+    if ( !db )
+	qWarning("Warning: QSqlDatabaseManager unable to find database " + name );
+#endif
+    if ( db && !db->isOpen() ) {
+	db->open();
+#ifdef CHECK_RANGE
+	if ( !db->isOpen() )
+	    qWarning("Warning: QSqlDatabaseManager unable to open database: " + db->lastError().databaseText() + ": " + db->lastError().driverText() );
+#endif
+    }
+    return db;
+}
+
+
+
+/*!
+  Adds a database to the SQL connection manager.  The database is
+  referred to by \name.  A pointer to the newly added database is
+  returned.
+
+  \sa QSqlDatabase database()
+
+*/
+
+QSqlDatabase* QSqlDatabaseManager::addDatabase( QSqlDatabase* db, const QString & name )
+{
+    QSqlDatabaseManager* sqlConnection = instance();
+    sqlConnection->dbDict.insert( name, db );
+    return db;
+}
+
+
+/*!
+  Removes the database \a name from the SQL connection manager.  Note that
+  there should be no open queries on the database when this method is called,
+  otherwise resources will be leaked.
+
+*/
+
+void QSqlDatabaseManager::removeDatabase( const QString& name )
+{
+    QSqlDatabaseManager* sqlConnection = instance();
+    sqlConnection->dbDict.setAutoDelete( TRUE );
+    sqlConnection->dbDict.remove( name );
+    sqlConnection->dbDict.setAutoDelete( FALSE );
+}
+
+//
 
 class QNullResult : public QSqlResult
 {
@@ -31,7 +154,7 @@ protected:
     bool	fetchFirst() { return FALSE; }
     bool	fetchLast() { return FALSE; }
     bool	isNull( int ) {return FALSE; }
-    QSqlFieldList   fields() {return QSqlFieldList();}
+    QSqlRecord   fields() {return QSqlRecord();}
     int             size()  {return 0;}
     int             affectedRows() {return 0;}
 };
@@ -48,7 +171,7 @@ public:
 				return FALSE;
 			}
     void    close() {}
-    QSql    createResult() const { return QSql( new QNullResult(this) ); }
+    QSqlQuery createResult() const { return QSqlQuery( new QNullResult(this) ); }
 };
 
 class QSqlDatabasePrivate
@@ -67,21 +190,36 @@ public:
 };
 
 /*!
-    \class QSqlDatabase qsql.h
+    \class QSqlDatabase qsqldatabase.h
     \brief Class used for accessing SQL databases
 
     \module database
 
-     This class is used to access SQL databases.  QSqlDatabase provides an abstract
-     interface for accessing many types of backends.
+     This class is used to access SQL databases.  QSqlDatabase
+     provides an abstract interface for accessing many types of
+     backends.
 
-     Database-specific drivers are used internally to actually access and manipulate data. (see QSqlDriver)
-     Result set objects  provide the interface for executing and manipulating SQL queries ( see QSql ).
+     Database-specific drivers are used internally to actually access
+     and manipulate data. (see QSqlDriver) Result set objects provide
+     the interface for executing and manipulating SQL queries ( see
+     QSqlQuery ).
 
 */
 
-/*!  Creates a QSqlDatabase that uses the driver described by \a type.  If the
-     \a type is not recognized, the database will have no functionality.
+QSqlDatabase* QSqlDatabase::addDatabase( const QString& type, const QString& name = defaultDatabase )
+{
+    return QSqlDatabaseManager::addDatabase( new QSqlDatabase( type, name ), name );
+}
+
+QSqlDatabase* QSqlDatabase::database( const QString& name = defaultDatabase )
+{
+    return QSqlDatabaseManager::database( name );
+}
+
+
+/*!  Creates a QSqlDatabase with name \a databaseName that uses the
+     driver described by \a type.  If the \a type is not recognized,
+     the database will have no functionality.
 
      Available types are:
 
@@ -92,34 +230,16 @@ public:
      <li>QMYSQL - MySQL Driver
      </ul>
 */
-QSqlDatabase::QSqlDatabase( const QString& type, QObject * parent, const char * name)
-: QObject(parent, name)
+QSqlDatabase::QSqlDatabase( const QString& type, const QString& name, QObject * parent=0, const char * objname=0 )
+: QObject(parent, objname)
 {
-    init( type );
-}
-
-/*!  Equivalent to the above constructor.  In addition, it resets the database with new
-     connection parameters.
-
-     \sa reset()
- */
-QSqlDatabase::QSqlDatabase( const QString& type,
-    			const QString & db,
-    			const QString & user,
-			const QString & password,
-			const QString & host,
-			QObject * parent,
-			const char * name )
-: QObject(parent, name)
-{
-    init( type );
-    reset( db, user, password, host );
+    init( type, name );
 }
 
 /*!
   \internal
 */
-void QSqlDatabase::init( const QString& type )
+void QSqlDatabase::init( const QString& type, const QString&  )
 {
     d = new QSqlDatabasePrivate();
 #ifndef QT_NO_PLUGIN
@@ -169,7 +289,7 @@ QSqlDatabase::~QSqlDatabase()
     \sa QSql
 */
 
-QSql QSqlDatabase::query( const QString & sqlquery ) const
+QSqlQuery QSqlDatabase::query( const QString & sqlquery ) const
 {
     return d->driver->query( sqlquery );
 }
@@ -183,16 +303,15 @@ QSql QSqlDatabase::query( const QString & sqlquery ) const
 
 int QSqlDatabase::exec( const QString & sql ) const
 {
-    QSql r = d->driver->createResult();
-    r.setQuery( sql );
+    QSqlQuery r = d->driver->createResult();
+    r.exec( sql );
     d->driver->setLastError( r.lastError() );
     return r.affectedRows();
 }
 
-/*! Opens the database using the connection values which were passed
-    to reset().  Returns TRUE on success, and FALSE if there was an
-    error.  Error information can be retrieved using the lastError()
-    method.
+/*! Opens the database using the current connection values .  Returns
+    TRUE on success, and FALSE if there was an error.  Error
+    information can be retrieved using the lastError() method.
 
     \sa lastError()
 */
@@ -205,6 +324,20 @@ bool QSqlDatabase::open()
 				d->hname);
 }
 
+/*! Opens the database using \a user name and \a password.  Returns
+ TRUE on success, and FALSE if there was an error.  Error information
+ can be retrieved using the lastError() method.
+
+    \sa lastError()
+*/
+
+bool QSqlDatabase::open( const QString& user, const QString& password )
+{
+    setUserName( user );
+    setPassword( password );
+    return open();
+}
+
 /*! Closes the database, freeing any resources aquired.
 
 */
@@ -214,12 +347,12 @@ void QSqlDatabase::close()
     d->driver->close();
 }
 
-/*! Creates an uninitialized QSql result object which can be used to send
+/*! Creates an uninitialized QSqlQuery result object which can be used to send
     queries to the database.
 
 */
 
-QSql QSqlDatabase::createResult() const
+QSqlQuery QSqlDatabase::createResult() const
 {
     return d->driver->createResult();
 }
@@ -251,25 +384,6 @@ bool QSqlDatabase::isOpenError() const
 bool QSqlDatabase::hasTransactionSupport() const
 {
     return d->driver->hasTransactionSupport();
-}
-
-/*! Closes the database and resets it to use new connection values.  \a db specifies the
-    name of the database, \a user specifies the user name connecting to the database, \a password
-    specifies the user's database password and \a host specifies the host on which the
-    database is running.
-
-*/
-
-void QSqlDatabase::reset( const QString & db,
-     		 const QString & user,
-     		 const QString & password,
-     		 const QString & host )
-{
-    d->dbname = db;
-    d->uname = user;
-    d->pword = password;
-    d->hname = host;
-    //    d->driver->close();
 }
 
 /*! Begins a transaction on the database if the driver supports transactions.
@@ -310,6 +424,44 @@ bool QSqlDatabase::rollback()
 	return FALSE;
     return d->driver->rollbackTransaction();
 }
+
+/*! Sets the name of the database.
+
+*/
+
+void QSqlDatabase::setDatabaseName( const QString& name )
+{
+    d->dbname = name;
+}
+
+/*! Sets the name of the database user.
+
+*/
+
+void QSqlDatabase::setUserName( const QString& name )
+{
+    d->uname = name;
+}
+
+/*! Sets the password of the database user.
+
+*/
+
+void QSqlDatabase::setPassword( const QString& password )
+{
+    d->pword = password;
+}
+
+/*! Sets the host name of the database.
+
+*/
+
+void QSqlDatabase::setHostName( const QString& host )
+{
+    d->hname = host;
+}
+
+
 
 /*! Returns the name of the database, or QString::null if a name has not been set.
 
@@ -396,9 +548,21 @@ QSqlIndex QSqlDatabase::primaryIndex( const QString& tablename ) const
 
 */
 
-QSqlFieldList QSqlDatabase::fields( const QString& tablename ) const
+QSqlRecord QSqlDatabase::fields( const QString& tablename ) const
 {
     return d->driver->fields( tablename );
 }
+
+
+/*!
+  Returns a list of fields used in the SQL \a query. 
+
+*/
+
+QSqlRecord QSqlDatabase::fields( const QSqlQuery& query ) const
+{
+    return d->driver->fields( query );
+}
+    
 
 #endif // QT_NO_SQL

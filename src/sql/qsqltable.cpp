@@ -9,7 +9,7 @@
 
 #ifndef QT_NO_SQL
 
-void qt_debug_buffer( const QString& msg, QSqlView* view )
+void qt_debug_buffer( const QString& msg, QSqlCursor* view )
 {
     qDebug("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
     qDebug(msg);
@@ -43,7 +43,8 @@ public:
 	  insertPreRows(-1),
 	  confEdits( FALSE ),
 	  confCancs( FALSE ),
-	  cancelMode( FALSE )
+	  cancelMode( FALSE ),
+	  autoDelete( FALSE )
     {}
     ~QSqlTablePrivate() { if ( propertyMap ) delete propertyMap; }
 
@@ -57,17 +58,18 @@ public:
     QSqlPropertyMap* propertyMap;
     QString trueTxt;
     QString falseTxt;
-    QSqlView* view;
+    QSqlCursor* view;
     QSqlTable::Mode mode;
     int editRow;
     int editCol;
     int insertRowLast;
     QString insertHeaderLabelLast;
     int insertPreRows;
-    QSqlView editBuffer;
+    QSqlCursor editBuffer;
     bool confEdits;
     bool confCancs;
     bool cancelMode;
+    bool autoDelete;
 };
 
 /*!
@@ -87,7 +89,7 @@ public:
   QSqlTable also offers an API for sorting columns. See setSorting()
   and sortColumn().
 
-  When displaying QSqlViews, cell editing can be enabled with
+  When displaying QSqls, cell editing can be enabled with
   setCellEditing().  QSqlTable creates editors.... ### The user can
   create their own special editors by ... ###
 
@@ -119,6 +121,8 @@ QSqlTable::QSqlTable ( QWidget * parent, const char * name )
 
 QSqlTable::~QSqlTable()
 {
+    if ( d->autoDelete )
+	delete d->view;
     delete d;
 }
 
@@ -502,7 +506,7 @@ void QSqlTable::endUpdate()
 bool QSqlTable::beginInsert()
 {
     qt_debug_buffer("beginInsert: start, VIEW", d->view);
-    QSqlView* vw = d->view;
+    QSqlCursor* vw = d->view;
     if ( !vw || isReadOnly() || ! numCols() )
 	return FALSE;
     int i = 0;
@@ -572,7 +576,7 @@ QWidget* QSqlTable::beginUpdate ( int row, int col, bool replace )
   \sa insertCurrent()
 */
 
-bool QSqlTable::primeInsert( QSqlView* )
+bool QSqlTable::primeInsert( QSqlCursor* )
 {
     return TRUE;
 }
@@ -641,7 +645,7 @@ void QSqlTable::updateRow( int row )
   \sa updateCurrent()
 */
 
-bool QSqlTable::primeUpdate( QSqlView* )
+bool QSqlTable::primeUpdate( QSqlCursor* )
 {
     return TRUE;
 }
@@ -717,7 +721,7 @@ void QSqlTable::updateCurrent()
   \sa deleteCurrent()
 */
 
-bool QSqlTable::primeDelete( QSqlView* )
+bool QSqlTable::primeDelete( QSqlCursor* )
 {
     return TRUE;
 }
@@ -735,7 +739,7 @@ bool QSqlTable::primeDelete( QSqlView* )
 
 void QSqlTable::deleteCurrent()
 {
-    QSqlView* vw = d->view;
+    QSqlCursor* vw = d->view;
     if ( !vw || isReadOnly() )
 	return;
     if ( vw->primaryIndex().count() == 0 ) {
@@ -827,10 +831,10 @@ QSqlTable::Confirm  QSqlTable::confirmCancel( QSqlTable::Mode )
   accomodate the view size, if possible.  If \a idx is specified, the
   table selects the first record matching the value of the index.
 
-  \sa QSqlView
+  \sa QSql
 */
 
-void QSqlTable::refresh( QSqlView* view, QSqlIndex idx )
+void QSqlTable::refresh( QSqlCursor* view, QSqlIndex idx )
 {
     bool seekPrimary = (idx.count() ? TRUE : FALSE );
     QSqlIndex pi;
@@ -841,17 +845,17 @@ void QSqlTable::refresh( QSqlView* view, QSqlIndex idx )
     setSize( view );
     if ( seekPrimary ) {
 	// ###
-	bool indexEquals = FALSE;	
+	bool indexEquals = FALSE;
 
 	/* common case, check current page */
-	int startIdx = verticalScrollBar()->value() / 20;    
+	int startIdx = verticalScrollBar()->value() / 20;
 	int pageSize = (int)( height() * 2 / 20 );
 	int endIdx = startIdx + pageSize;
 	for ( int j = startIdx; j <= endIdx; ++j ) {
 	    if ( view->seek( j ) ) {
 		for ( uint i = 0; i < pi.count(); ++i ) {
 		    const QString fn( pi.field(i)->name() );
-		    if ( pi.field(i)->value() == view->value( fn ) ) 
+		    if ( pi.field(i)->value() == view->value( fn ) )
 			indexEquals = TRUE;
 		    else {
 			indexEquals = FALSE;
@@ -862,8 +866,8 @@ void QSqlTable::refresh( QSqlView* view, QSqlIndex idx )
 		    break;
 	    }
 	}
-	
-	if ( indexEquals ) 
+
+	if ( indexEquals )
 	    setCurrentCell( view->at(), currentColumn() );
 	else {
 	    /* give up, use brute force */
@@ -903,7 +907,7 @@ void QSqlTable::find( const QString & str, bool caseSensitive,
     // ### Searching backwards is not implemented yet.
     Q_UNUSED( backwards );
 
-    QSqlView * rset = d->view;
+    QSqlCursor * rset = d->view;
     if ( !rset )
 	return;
     unsigned int  row = currentRow(), startRow = row,
@@ -1002,6 +1006,12 @@ int QSqlTable::indexOf( uint i ) const
     if ( it != d->colIndex.end() )
 	return *it;
     return -1;
+}
+
+
+void QSqlTable::setAutoDelete( bool enable )
+{
+    d->autoDelete = enable;
 }
 
 /*!
@@ -1112,7 +1122,7 @@ void QSqlTable::setNumCols ( int r )
 QString QSqlTable::text ( int row, int col ) const
 {
     //qDebug("QSqlTable::text ( int row, int col ) const");
-    QSql* sql = d->view;
+    QSqlCursor* sql = d->view;
     if ( !sql )
 	return QString::null;
     if ( sql->seek( row ) )
@@ -1130,7 +1140,7 @@ QString QSqlTable::text ( int row, int col ) const
 QVariant QSqlTable::value ( int row, int col ) const
 {
     //qDebug("QSqlTable::value ( int row, int col ) const");
-    QSql* sql = d->view;
+    QSqlCursor* sql = d->view;
     if ( !sql )
 	return QVariant();
     if ( sql->seek( row ) )
@@ -1149,7 +1159,7 @@ void QSqlTable::loadNextPage()
 {
     if ( d->haveAllRows )
 	return;
-    QSql* sql = d->view;
+    QSqlCursor* sql = d->view;
     if ( !sql )
 	return;
     int pageSize = 0;
@@ -1192,12 +1202,12 @@ void QSqlTable::sortColumn ( int col, bool ascending,
 			      bool  )
 {
     if ( sorting() ) {
-	QSqlView* rset = d->view;
+	QSqlCursor* rset = d->view;
 	if ( !rset )
 	    return;
 	QSqlIndex lastSort = rset->sort();
 	QSqlIndex newSort( lastSort.tableName() );
-	newSort.append( rset->field( indexOf( col ) ) );
+	newSort.append( *rset->field( indexOf( col ) ) );
 	newSort.setDescending( 0, !ascending );
 	horizontalHeader()->setSortIndicator( col, ascending );
 	QApplication::setOverrideCursor( Qt::waitCursor );
@@ -1216,7 +1226,7 @@ void QSqlTable::sortColumn ( int col, bool ascending,
 void QSqlTable::columnClicked ( int col )
 {
     if ( sorting() ) {
-	QSqlView* rset = d->view;
+	QSqlCursor* rset = d->view;
 	if ( !rset )
 	    return;
 	QSqlIndex lastSort = rset->sort();
@@ -1236,7 +1246,7 @@ void QSqlTable::columnClicked ( int col )
   current edit mode of the table, paintField() is called for the
   appropriate view field.
 
-  \sa QSqlView::isNull()
+  \sa QSql::isNull()
 */
 
 void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
@@ -1316,7 +1326,7 @@ int QSqlTable::fieldAlignment( const QSqlField* field )
 /*!  Adds the fields in \a fieldList to the column header.
 */
 
-void QSqlTable::addColumns( const QSqlFieldList& fieldList )
+void QSqlTable::addColumns( const QSqlRecord& fieldList )
 {
     for ( uint j = 0; j < fieldList.count(); ++j )
 	addColumn( fieldList.field(j) );
@@ -1331,7 +1341,7 @@ void QSqlTable::addColumns( const QSqlFieldList& fieldList )
 
 */
 
-void QSqlTable::setSize( const QSql* sql )
+void QSqlTable::setSize( const QSqlCursor* sql )
 {
     if ( sql->driver()->hasQuerySizeSupport() ) {
 	setVScrollBarMode( Auto );
@@ -1358,7 +1368,7 @@ void QSqlTable::setSize( const QSql* sql )
 
 */
 
-void QSqlTable::setView( QSqlView* view, bool autoPopulate )
+void QSqlTable::setView( QSqlCursor* view, bool autoPopulate )
 {
     setUpdatesEnabled( FALSE );
     reset();
@@ -1393,7 +1403,7 @@ void QSqlTable::handleError( const QSqlError& e )
 
 */
 
-QSqlView* QSqlTable::view() const
+QSqlCursor* QSqlTable::view() const
 {
     return d->view;
 }
@@ -1523,13 +1533,13 @@ void QSqlTable::installPropertyMap( QSqlPropertyMap* m )
 
 void QSqlTable::setCurrentSelection( int row, int )
 {
-    QSql* sql = d->view;
-    if ( !sql )
+    if ( !d->view )
 	return;
-    if ( !sql->seek( row ) )
+    if ( !d->view->seek( row ) )
 	return;
-    QSqlFieldList fil = sql->fields();
-    emit currentChanged( &fil );
+    // ###
+    //    QSqlRecord fil = d->view->fields();
+    //    emit currentChanged( &fil );
 }
 
 /*!
@@ -1538,16 +1548,17 @@ void QSqlTable::setCurrentSelection( int row, int )
 
 */
 
-QSqlFieldList QSqlTable::currentFieldSelection() const
+QSqlRecord QSqlTable::currentFieldSelection() const
 {
-    QSqlFieldList fil;
-    QSql* sql = d->view;
+    QSqlRecord fil;
+    QSqlCursor* sql = d->view;
     if ( !sql || currentRow() < 0 )
 	return fil;
     int row = currentRow();
     if ( !sql->seek( row ) )
 	return fil;
-    fil = sql->fields();
+    // ###
+    //    fil = sql->fields();
     return fil;
 }
 

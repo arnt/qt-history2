@@ -116,8 +116,8 @@ bool qIsPrimaryIndex( const QSqlDriver* driver, const QString& tablename, const 
 		  "and c2.oid=a.attrelid "
 		  "and (x.indexrelid=c2.oid "
 		  "and a.attrelid=c2.oid);");
-    QSql pIdxs = driver->createResult();
-    pIdxs.setQuery( pIdx.arg( tablename ).arg( fieldname ) );
+    QSqlQuery pIdxs = driver->createResult();
+    pIdxs.exec( pIdx.arg( tablename ).arg( fieldname ) );
     if ( pIdxs.next() )
 	ispIdx = pIdxs.value(0).toInt();
     return ispIdx;
@@ -133,8 +133,8 @@ QSqlField qMakeField( const QSqlDriver* driver, const QString& tablename, const 
 		   "and c.oid= a.attrelid "
 		   "and a.atttypid = t.oid "
 		   "and (a.attnum > 0);");
-    QSql fi = driver->createResult();
-    fi.setQuery( stmt.arg( tablename ).arg( fieldname ) );
+    QSqlQuery fi = driver->createResult();
+    fi.exec( stmt.arg( tablename ).arg( fieldname ) );
     if ( fi.next() ) {
 	QSqlField f( fieldname, 0, qDecodePSQLType( fi.value(0).toInt()) );
 	f.setPrimaryIndex( qIsPrimaryIndex( driver, tablename, fieldname ) );
@@ -160,7 +160,7 @@ QPSQLResult::~QPSQLResult()
 
 void QPSQLResult::cleanup()
 {
-    if ( d->result ) 
+    if ( d->result )
 	PQclear( d->result );
     d->result = 0;
     setAt( -1 );
@@ -382,7 +382,7 @@ bool QPSQLResult::reset ( const QString& query )
         return FALSE;
     setActive( FALSE );
     setAt( BeforeFirst );
-    if ( d->result ) 
+    if ( d->result )
     	PQclear( d->result );
     d->result = PQexec( d->connection, (const char*)query );
     int status =  PQresultStatus( d->result );
@@ -394,21 +394,6 @@ bool QPSQLResult::reset ( const QString& query )
     }
     setLastError( qMakeError( "Unable to create query", QSqlError::Statement, d ) );
     return FALSE;
-}
-
-QSqlFieldList QPSQLResult::fields()
-{
-    QSqlFieldList fil;
-    int count = PQnfields ( d->result );
-    for ( int i = 0; i < count; ++i ) {
-	QString name = PQfname( d->result, i );
-	QVariant::Type type = qDecodePSQLType( PQftype( d->result, i ) );
-	QSqlField rf( name, i, type );
-	if ( isActive() && isValid() )
-	    rf.setValue( data( i ) );
-	fil.append( &rf );
-    }
-    return fil;
 }
 
 int QPSQLResult::size()
@@ -485,9 +470,9 @@ void QPSQLDriver::close()
     }
 }
 
-QSql QPSQLDriver::createResult() const
+QSqlQuery QPSQLDriver::createResult() const
 {
-    return QSql( new QPSQLResult( this, d ) );
+    return QSqlQuery( new QPSQLResult( this, d ) );
 }
 
 bool QPSQLDriver::beginTransaction()
@@ -528,13 +513,13 @@ bool QPSQLDriver::rollbackTransaction()
 
 QStringList QPSQLDriver::tables( const QString& user ) const
 {
-    QSql t = createResult();
+    QSqlQuery t = createResult();
     QString stmt( "select relname from pg_class, pg_user "
 		  "where usename like '%1'"
 		  "and relkind = 'r' "
 		  "and int4out(usesysid) = int4out(relowner) "
 		  "order by relname;" );
-    t.setQuery( stmt.arg( user ) );
+    t.exec( stmt.arg( user ) );
     QStringList tl;
     while ( t.isActive() && t.next() )
 	tl.append( t.value(0).toString() );
@@ -544,23 +529,23 @@ QStringList QPSQLDriver::tables( const QString& user ) const
 QSqlIndex QPSQLDriver::primaryIndex( const QString& tablename ) const
 {
     QSqlIndex idx;
-    QSql i = createResult();
+    QSqlQuery i = createResult();
     QString stmt( "select a.attname from pg_attribute a, pg_class c1,"
 		  "pg_class c2, pg_index i where c1.relname = '%1' "
 		  "and c1.oid = i.indrelid and i.indexrelid = c2.oid "
 		  "and a.attrelid = c2.oid;");
-    i.setQuery( stmt.arg( tablename ) );
+    i.exec( stmt.arg( tablename ) );
     while ( i.isActive() && i.next() ) {
 	QSqlField f = qMakeField( this, tablename,  i.value(0).toString() );
 	f.setFieldNumber( i.at() );
-	idx.append( &f );
+	idx.append( f );
     }
     return idx;
 }
 
-QSqlFieldList QPSQLDriver::fields( const QString& tablename ) const
+QSqlRecord QPSQLDriver::fields( const QString& tablename ) const
 {
-    QSqlFieldList fil;
+    QSqlRecord fil;
     QString stmt ( "select a.attname "
 		   "from pg_user u, pg_class c, pg_attribute a, pg_type t "
 		   "where c.relname = '%1' "
@@ -568,12 +553,28 @@ QSqlFieldList QPSQLDriver::fields( const QString& tablename ) const
 		   "and c.oid= a.attrelid "
 		   "and a.atttypid = t.oid "
 		   "and (a.attnum > 0);");
-    QSql fi = createResult();
-    fi.setQuery( stmt.arg( tablename ) );
+    QSqlQuery fi = createResult();
+    fi.exec( stmt.arg( tablename ) );
     while ( fi.next() ) {
 	QSqlField f = qMakeField( this, tablename, fi.value(0).toString() );
 	f.setFieldNumber( fi.at() );
-	fil.append( &f );
+	fil.append( f );
+    }
+    return fil;
+}
+
+QSqlRecord QPSQLDriver::fields( const QSqlQuery& query ) const
+{
+    QSqlRecord fil;
+    if ( query.isActive() && query.driver() == this ) {
+	QPSQLResult* result = (QPSQLResult*)query.result();
+	int count = PQnfields ( result->d->result );
+	for ( int i = 0; i < count; ++i ) {
+	    QString name = PQfname( result->d->result, i );
+	    QVariant::Type type = qDecodePSQLType( PQftype( result->d->result, i ) );
+	    QSqlField rf( name, i, type );
+	    fil.append( rf );
+	}
     }
     return fil;
 }

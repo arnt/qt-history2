@@ -657,27 +657,6 @@ bool QODBCResult::isNull( int field )
     return nullCache[ field ];
 }
 
-QSqlFieldList QODBCResult::fields()
-{
-    QSqlFieldList fil;
-    SQLRETURN r;
-    SQLSMALLINT count;
-    r = SQLNumResultCols( d->hStmt, &count );
-#ifdef CHECK_RANGE
-    if ( r != SQL_SUCCESS )
-	qSqlWarning( "QODBCDriver::fields: Unable to count result columns", d );
-#endif
-    if ( count > 0 && r == SQL_SUCCESS ) {
-	for ( int i = 0; i < count; ++i ) {
-	    QSqlField fi = qMakeField( d, i );
-	    if ( isActive() && isValid() )
-		fi.setValue( data( i ) );
-            fil.append( &fi );
-        }
-    }
-    return fil;
-}
-
 int QODBCResult::size()
 {
     return -1;
@@ -864,9 +843,9 @@ void QODBCDriver::cleanup()
     }
 }
 
-QSql QODBCDriver::createResult() const
+QSqlQuery QODBCDriver::createResult() const
 {
-    return QSql( new QODBCResult( this, d ) );
+    return QSqlQuery( new QODBCResult( this, d ) );
 }
 
 bool QODBCDriver::beginTransaction()
@@ -1047,7 +1026,7 @@ QSqlIndex QODBCDriver::primaryIndex( const QString& tablename ) const
 	QString fieldVal = qGetStringData( hStmt, 3, lengthIndicator, isNull ); // column name
 	QSqlField f = qMakeField( d, tablename, fieldVal );
 	f.setFieldNumber( count );
-	index.append( &f );
+	index.append( f );
 	r = SQLFetchScroll( hStmt,
 			    SQL_FETCH_NEXT,
 			    0);
@@ -1057,9 +1036,9 @@ QSqlIndex QODBCDriver::primaryIndex( const QString& tablename ) const
     return index;
 }
 
-QSqlFieldList QODBCDriver::fields( const QString& tablename ) const
+QSqlRecord QODBCDriver::fields( const QString& tablename ) const
 {
-    QSqlFieldList fil;
+    QSqlRecord fil;
     SQLHANDLE hStmt;
     SQLRETURN r = SQLAllocHandle( SQL_HANDLE_STMT,
 				  d->hDbc,
@@ -1120,12 +1099,34 @@ QSqlFieldList QODBCDriver::fields( const QString& tablename ) const
 	QString fieldname = qGetStringData( hStmt, 3, lengthIndicator, isNull );
 	QSqlField f = qMakeField( d, tablename, fieldname );
 	f.setFieldNumber( count );
-	fil.append( &f );
+	fil.append( f );
 	r = SQLFetchScroll( hStmt,
 			    SQL_FETCH_NEXT,
 			    0);
 	count++;
     }
     r = SQLFreeStmt( hStmt, SQL_CLOSE );
+    return fil;
+}
+
+QSqlRecord QODBCDriver::fields( const QSqlQuery& query ) const
+{
+    QSqlRecord fil;
+    if ( query.isActive() && query.driver() == this ) {
+	QODBCResult* result = (QODBCResult*)query.result();
+	SQLRETURN r;
+	SQLSMALLINT count;
+	r = SQLNumResultCols( result->d->hStmt, &count );
+#ifdef CHECK_RANGE
+	if ( r != SQL_SUCCESS )
+	    qSqlWarning( "QODBCDriver::fields: Unable to count result columns", d );
+#endif
+	if ( count > 0 && r == SQL_SUCCESS ) {
+	    for ( int i = 0; i < count; ++i ) {
+		QSqlField fi = qMakeField( result->d, i );
+		fil.append( fi );
+	    }
+	}
+    }
     return fil;
 }

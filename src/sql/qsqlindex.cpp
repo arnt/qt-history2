@@ -1,5 +1,6 @@
 #include "qsqlindex.h"
 
+
 #ifndef QT_NO_SQL
 
 /*!
@@ -26,7 +27,7 @@
 */
 
 QSqlIndex::QSqlIndex( const QString& tablename, const QString& name )
-    : QSqlFieldList(), table(tablename), nm(name)
+    : QSqlRecord(), table(tablename), nm(name)
 {
 
 }
@@ -36,7 +37,7 @@ QSqlIndex::QSqlIndex( const QString& tablename, const QString& name )
 */
 
 QSqlIndex::QSqlIndex( const QSqlIndex& other )
-    : QSqlFieldList(other), table(other.table), nm(other.nm), sorts(other.sorts)
+    : QSqlRecord(other), table(other.table), nm(other.nm), sorts(other.sorts)
 {
 }
 
@@ -45,7 +46,7 @@ QSqlIndex& QSqlIndex::operator=( const QSqlIndex& other )
     table = other.table;
     nm = other.nm;
     sorts = other.sorts;
-    QSqlFieldList::operator=( other );
+    QSqlRecord::operator=( other );
     return *this;
 }
 
@@ -87,7 +88,7 @@ QString QSqlIndex::name() const
 
 */
 
-void QSqlIndex::append( const QSqlField* field )
+void QSqlIndex::append( const QSqlField& field )
 {
     append( field, FALSE );
 }
@@ -98,10 +99,10 @@ void QSqlIndex::append( const QSqlField* field )
 
 */
 
-void QSqlIndex::append( const QSqlField* field, bool desc )
+void QSqlIndex::append( const QSqlField& field, bool desc )
 {
     sorts.append( desc );
-    QSqlFieldList::append( field );
+    QSqlRecord::append( field );
 }
 
 

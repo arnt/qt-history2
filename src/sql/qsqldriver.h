@@ -6,7 +6,7 @@
 #include "qstring.h"
 #include "qsqldatabase.h"
 #include "qsqlerror.h"
-#include "qsql.h"
+#include "qsqlquery.h"
 #include "qsqlfield.h"
 #include "qsqlindex.h"
 #include "qstringlist.h"
@@ -21,7 +21,7 @@ class Q_EXPORT QSqlDriver : public QObject
 public:
     QSqlDriver( QObject * parent=0, const char * name=0 );
     ~QSqlDriver();
-    virtual QSql          query( const QString & sqlquery ) const;
+    virtual QSqlQuery     query( const QString & sqlquery ) const;
     bool 	          isOpen() const;
     bool 	          isOpenError() const;
 
@@ -30,9 +30,10 @@ public:
     virtual bool          rollbackTransaction();
     virtual QStringList   tables( const QString& user ) const;
     virtual QSqlIndex     primaryIndex( const QString& tablename ) const;
-    virtual QSqlFieldList fields( const QString& tablename ) const;
+    virtual QSqlRecord    fields( const QString& tablename ) const;
+    virtual QSqlRecord    fields( const QSqlQuery& query ) const;
     virtual QString       nullText() const;
-    virtual QString       formatDate( const QDate& date ) const;
+    virtual QString       formatValue( const QSqlField* field ) const;
     QSqlError	          lastError() const;
 
     bool    	          hasTransactionSupport() const;
@@ -43,7 +44,7 @@ public:
 				const QString & password = QString::null,
 				const QString & host = QString::null ) = 0;
     virtual void          close() = 0;
-    virtual QSql          createResult() const = 0;
+    virtual QSqlQuery     createResult() const = 0;
 protected:
     void 	          setOpen( bool o );
     void 	          setOpenError( bool e );

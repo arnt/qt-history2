@@ -3,10 +3,9 @@
 
 #include <qtable.h>
 #include <qstring.h>
-#include <qsql.h>
+#include <qsqlcursor.h>
 #include <qsqlfield.h>
 #include <qsqldatabase.h>
-#include <qsqlview.h>
 #include <qdialog.h>
 #include <qlayout.h>
 #include <qgroupbox.h>
@@ -26,10 +25,10 @@ public:
     ~ResultWindow();
 public slots:
     void slotExec();
-    void newSelection( const QSqlFieldList* fields );
+    void newSelection( const QSqlRecord* fields );
 private:
     QSqlDatabase* db;
-    QSqlView sql;
+    QSqlCursor sql;
 };
 
 #endif

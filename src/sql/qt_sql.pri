@@ -7,11 +7,11 @@ sql {
 		REQUIRES += table
 	}
 
-	HEADERS     += $$SQL_H/qsql.h \
-		    $$SQL_H/qsqlconnection.h \
+	HEADERS     += $$SQL_H/qsqlquery.h \
 		    $$SQL_H/qsqldatabase.h \
 		    $$SQL_H/qsqlfield.h \
-		    $$SQL_H/qsqlview.h \
+		    $$SQL_H/qsqlrecord.h \
+		    $$SQL_H/qsqlcursor.h \
 		    $$SQL_H/qsqlform.h \
 		    $$SQL_H/qeditorfactory.h \
 		    $$SQL_H/qsqldriver.h \
@@ -23,12 +23,12 @@ sql {
 		    $$SQL_H/qsqltable.h \
 		    $$SQL_H/qdatetimeedit.h
 
-	SOURCES     += $$SQL_CPP/qsql.cpp \
+	SOURCES     += $$SQL_CPP/qsqlquery.cpp \
 		    $$SQL_CPP/qsqldatabase.cpp \
-		    $$SQL_CPP/qsqlconnection.cpp \
 		    $$SQL_CPP/qsqlfield.cpp \
+		    $$SQL_CPP/qsqlrecord.cpp \
 		    $$SQL_CPP/qsqlform.cpp \
-		    $$SQL_CPP/qsqlview.cpp \
+		    $$SQL_CPP/qsqlcursor.cpp \
 		    $$SQL_CPP/qeditorfactory.cpp \
 		    $$SQL_CPP/qsqldriver.cpp \
 		    $$SQL_CPP/qsqldriverplugin.cpp \

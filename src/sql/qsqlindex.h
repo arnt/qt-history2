@@ -5,6 +5,7 @@
 #include "qstring.h"
 #include "qvaluelist.h"
 #include "qsqlfield.h"
+#include "qsqlrecord.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
@@ -15,7 +16,7 @@ template class Q_EXPORT QValueList<bool>;
 // MOC_SKIP_END
 #endif
 
-class Q_EXPORT QSqlIndex : public QSqlFieldList
+class Q_EXPORT QSqlIndex : public QSqlRecord
 {
 public:
     QSqlIndex( const QString& tablename = QString::null, const QString& name = QString::null );
@@ -27,8 +28,8 @@ public:
     void             setName( const QString& name );
     QString          name() const;
 
-    void             append( const QSqlField* field );
-    void             append( const QSqlField* field, bool desc );
+    void             append( const QSqlField& field );
+    void             append( const QSqlField& field, bool desc );
 
     bool             isDescending( int i ) const;
     void             setDescending( int i, bool desc );

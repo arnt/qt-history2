@@ -7,8 +7,8 @@
 #include "qtable.h"
 #include "qpainter.h"
 #include "qsqldatabase.h"
-#include "qsql.h"
-#include "qsqlview.h"
+#include "qsqlquery.h"
+#include "qsqlcursor.h"
 #include "qsqlfield.h"
 #include "qsqlindex.h"
 #include "qeditorfactory.h"
@@ -35,30 +35,31 @@ public:
     bool         confirmEdits() const;
     void         setConfirmCancels( bool confirm );
     bool         confirmCancels() const;
-
+    void         setAutoDelete( bool enable );
+    
     void         addColumn( const QSqlField* field );
     void         removeColumn( uint col );
     void         setColumn( uint col, const QSqlField* field );
-    void         addColumns( const QSqlFieldList& fieldList );
+    void         addColumns( const QSqlRecord& fieldList );
 
-    void         setView( QSqlView* view = 0, bool autoPopulate = TRUE );
-    QSqlView*    view() const;
+    void         setView( QSqlCursor* view = 0, bool autoPopulate = TRUE );
+    QSqlCursor*  view() const;
 
     void         setReadOnly( bool b );
     bool         isReadOnly() const;
 
     void         sortColumn ( int col, bool ascending = TRUE,
 			      bool wholeRows = FALSE );
-    void         refresh( QSqlIndex idx = QSqlIndex() );    
+    void         refresh( QSqlIndex idx = QSqlIndex() );
     QString      text ( int row, int col ) const;
     QVariant     value ( int row, int col ) const;
-    QSqlFieldList currentFieldSelection() const;
+    QSqlRecord   currentFieldSelection() const;
 
     void         installEditorFactory( QEditorFactory * f );
     void         installPropertyMap( QSqlPropertyMap* m );
 
 signals:
-    void         currentChanged( const QSqlFieldList* fields );
+    void         currentChanged( const QSqlRecord* fields );
 
 public slots:
     void 	 find( const QString & str, bool caseSensitive,
@@ -70,13 +71,12 @@ protected slots:
     virtual void deleteCurrent();
 
 protected:
+    friend class QSqlTablePrivate;     
     enum Confirm {
 	Yes = 0,
 	No = 1,
 	Cancel = 2
     };
-
-    friend class QSqlTablePrivate;
     enum Mode {
 	None,
 	Insert,
@@ -91,9 +91,9 @@ protected:
 
     virtual bool beginInsert();
     virtual QWidget* beginUpdate ( int row, int col, bool replace );
-    virtual bool primeInsert( QSqlView* view );
-    virtual bool primeUpdate( QSqlView* view );
-    virtual bool primeDelete( QSqlView* view );
+    virtual bool primeInsert( QSqlCursor* view );
+    virtual bool primeUpdate( QSqlCursor* view );
+    virtual bool primeDelete( QSqlCursor* view );
 
     bool         eventFilter( QObject *o, QEvent *e );
     void         resizeEvent ( QResizeEvent * );
@@ -104,7 +104,7 @@ protected:
     void         activateNextCell();
     int          indexOf( uint i ) const;
     void         reset();
-    void         setSize( const QSql* sql );
+    void         setSize( const QSqlCursor* sql );
     void         setNumRows ( int r );
     void         paintCell ( QPainter * p, int row, int col, const QRect & cr,
 			     bool selected );
@@ -126,7 +126,7 @@ private slots:
 
 private:
     QWidget*     beginEdit ( int row, int col, bool replace );
-    void         refresh( QSqlView* view, QSqlIndex idx = QSqlIndex() );
+    void         refresh( QSqlCursor* view, QSqlIndex idx = QSqlIndex() );
     void         setNumCols ( int r );
     void         updateRow( int row );
     void         endInsert();

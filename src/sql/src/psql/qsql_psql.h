@@ -10,6 +10,7 @@ class QPSQLDriver;
 
 class QPSQLResult : public QSqlResult
 {
+    friend class QPSQLDriver;
 public:
     QPSQLResult( const QPSQLDriver* db, const QPSQLPrivate* p );
     ~QPSQLResult();
@@ -21,7 +22,6 @@ protected:
     QVariant            data( int i );
     bool		isNull( int field );
     bool 		reset ( const QString& query );
-    QSqlFieldList       fields();
     int                 size();
     int                 affectedRows();
 private:
@@ -40,10 +40,11 @@ public:
 			const QString & password = QString::null,
 			const QString & host = QString::null );
     void 		close();
-    QSql		createResult() const;
+    QSqlQuery		createResult() const;
     QStringList         tables( const QString& user ) const;
     QSqlIndex           primaryIndex( const QString& tablename ) const;
-    QSqlFieldList       fields( const QString& tablename ) const;
+    QSqlRecord          fields( const QString& tablename ) const;
+    QSqlRecord          fields( const QSqlQuery& query ) const;
 protected:
     bool    		beginTransaction();
     bool    		commitTransaction();

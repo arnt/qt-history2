@@ -62,16 +62,16 @@ QSqlDriver::~QSqlDriver()
 
 */
 
-QSql QSqlDriver::query( const QString & sqlquery ) const
+QSqlQuery QSqlDriver::query( const QString & sqlquery ) const
 {
-    QSql r = createResult();
-    r.setQuery( sqlquery );
+    QSqlQuery r = createResult();
+    r.exec( sqlquery );
     return r;
 }
 
-/*! \fn QSql QSqlDriver::createResult() const
+/*! \fn QSqlQuery QSqlDriver::createResult() const
     Creates an empty SQL result on the database.  Derived classes must override this method
-    and return a QSql object to the caller.
+    and return a QSqlQuery object to the caller.
 
 */
 
@@ -274,9 +274,19 @@ QSqlIndex QSqlDriver::primaryIndex( const QString&  ) const
 
 */
 
-QSqlFieldList QSqlDriver::fields( const QString&  ) const
+QSqlRecord QSqlDriver::fields( const QString&  ) const
 {
-    return QSqlFieldList();
+    return QSqlRecord();
+}
+
+/*!  Returns a list of fields for the SQL \a query. The default
+implementation returns an empty list.
+
+*/
+
+QSqlRecord QSqlDriver::fields( const QSqlQuery& ) const
+{
+   return QSqlRecord();
 }
 
 /*!  Returns a string representation of the 'NULL' value for the
@@ -290,18 +300,42 @@ QString QSqlDriver::nullText() const
     return "NULL";
 }
 
-/*!  Returns a string representation of the \a date value for the
+/*!  Returns a string representation of the \a field value for the
   database.  This is used, for example, when constructing INSERT and
-  UPDATE statements.  The default implementation returns the date
-  formatted according to the ISO specification.
-  
-  \sa QDate::toString().
+  UPDATE statements.  The default implementation returns the value
+  formatted as a string.  If \a field is character data, the value is
+  returned enclosed by single quotation marks, which is appropriate
+  for many SQL databases.
+
+  \sa QVariant::toString().
 
 */
-
-QString QSqlDriver::formatDate( const QDate& date ) const
+QString QSqlDriver::formatValue( const QSqlField* field ) const
 {
-    return date.toString( Qt::ISODate );
+    QString r;
+    if ( field->isNull() )
+	r = nullText();
+    else {
+	switch ( field->type() ) {
+	case QVariant::Date:
+	    r = "'" + field->value().toDate().toString( Qt::ISODate ) + "'";
+	    break;
+	case QVariant::Time:
+	    r = "'" + field->value().toTime().toString( Qt::ISODate ) + "'";
+	    break;
+	case QVariant::DateTime:
+	    r = "'" + field->value().toDateTime().toString( Qt::ISODate ) + "'";
+	    break;
+	case QVariant::String:
+	case QVariant::CString:
+	    r = "'" + field->value().toString() + "'";
+	    break;
+	default:
+	    r = field->value().toString();
+	    break;
+	}
+    }
+    return r;
 }
 
 #endif // QT_NO_SQL

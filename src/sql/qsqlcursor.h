@@ -1,42 +1,43 @@
-#ifndef QSQLVIEW_H
-#define QSQLVIEW_H
+#ifndef QSQLCURSOR_H
+#define QSQLCURSOR_H
 
 #ifndef QT_H
 #include "qstring.h"
 #include "qstringlist.h"
 #include "qsqlfield.h"
-#include "qsql.h"
+#include "qsqlrecord.h"
+#include "qsqlquery.h"
 #include "qsqlindex.h"
-#include "qsqlconnection.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
 
-// View Modes
-#define SQL_ReadOnly            0x0000
-#define SQL_Insert	        0x0001
-#define SQL_Update		0x0002
-#define SQL_Delete		0x0004
-#define SQL_Writable		0x0007
-
 class QSqlDatabase;
-class QSqlViewPrivate;
-class Q_EXPORT QSqlView : public QSqlFieldList, public QSql
+class QSqlCursorPrivate;
+class Q_EXPORT QSqlCursor : public QSqlRecord, public QSqlQuery
 {
 public:
-    QSqlView( const QString & name = QString::null, bool autopopulate = TRUE, const QString& databaseName = QSqlConnection::defaultDatabase );
-    QSqlView( const QSqlView & s );
-    QSqlView& operator=( const QSqlView& s );
-    ~QSqlView();
+    QSqlCursor( const QString & name = QString::null, bool autopopulate = TRUE, QSqlDatabase* db = 0 );
+    QSqlCursor( const QSqlCursor & s );
+    QSqlCursor& operator=( const QSqlCursor& s );
+    ~QSqlCursor();
+    
+    enum Mode {
+	ReadOnly = 0,
+	Insert = 1,
+	Update = 2,
+	Delete = 4,
+	Writable = 7
+    };
 
     QVariant          value( int i );
-    QVariant          value( const QString& name );    
+    QVariant          value( const QString& name );
     QSqlIndex         primaryIndex( bool prime = FALSE ) const;
     QSqlIndex         index( const QStringList& fieldNames ) const;
     QSqlIndex         index( const QString& fieldName ) const;
     QSqlIndex         index( const char* fieldName ) const;
     void              setPrimaryIndex( QSqlIndex idx );
-    
+
     virtual int       insert( bool invalidate = TRUE );
     virtual int       update( const QSqlIndex & filter = QSqlIndex(), bool invalidate = TRUE );
     virtual int       del( const QSqlIndex & filter = QSqlIndex(), bool invalidate = TRUE );
@@ -61,8 +62,8 @@ public:
 protected:
     void              postSeek();
 
-    QSqlFieldList &   operator=( const QSqlFieldList & list );
-    bool              setQuery( const QString & str );
+    QSqlRecord&       operator=( const QSqlRecord & list );
+    bool              exec( const QString & str );
     QString           fieldEqualsValue( const QString& prefix, const QString& fieldSep, const QSqlIndex & i = QSqlIndex() );
     virtual QVariant  calculateField( uint fieldNumber );
 
@@ -70,11 +71,14 @@ protected:
     virtual int       del( const QString & filter, bool invalidate = TRUE );
 
 private:
-    QSqlFieldList     fields() const;     //hide
+    QSqlRecord        fields() const;     //hide
     void              sync();
     int               apply( const QString& q, bool invalidate );
-    QSqlViewPrivate*  d;
+    QSqlCursorPrivate*  d;
 };
 
-#endif // QT_NO_SQL
+
+
+
+#endif	// QT_NO_SQL
 #endif

@@ -19,8 +19,9 @@ public:
 
   \module database
 
-  QSqlResult provides an abstract interface for accessing data via SQL.  Normally, this
-  class is not used directly.  Rather, QSql should be used instead,  as a wrapper for database-specific
+  QSqlResult provides an abstract interface for accessing data via
+  SQL.  Normally, this class is not used directly.  Rather, QSqlQuery
+  should be used instead, as a wrapper for database-specific
   implementations of QSqlResult.
 
   \sa QSql
@@ -28,8 +29,8 @@ public:
 */
 
 
-/*! Protected constructor which creates a QSqlResult using database \a db.  The object
-    is initialized to an inactive state.
+/*! Protected constructor which creates a QSqlResult using database \a
+    db.  The object is initialized to an inactive state.
 
 */
 
@@ -63,7 +64,7 @@ void QSqlResult::setQuery( const QString& query )
 /*!  Returns the current SQL query, or QString::null if there is none.
 */
 
-QString QSqlResult::query() const
+QString QSqlResult::lastQuery() const
 {
     return d->sql;
 }
@@ -173,12 +174,6 @@ QSqlError QSqlResult::lastError() const
 {
     return d->error;
 }
-
-
-/*! \fn  QSqlFieldList QSqlDriver::fields( const QString& tablename ) const
-    Returns a list of fields used in the result.
-
-*/
 
 /*! \fn int QSqlResult::size()
     Returns the size of the result.

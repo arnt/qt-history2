@@ -11,10 +11,10 @@ class QMySQLDriver;
 
 class QMySQLResult : public QSqlResult
 {
+    friend class QMySQLDriver;
 public:
     QMySQLResult( const QMySQLDriver* db );
     ~QMySQLResult();
-    const QSqlResultInfo* 	info();
 protected:
     void 		cleanup();
     bool 		fetch( int i );
@@ -23,7 +23,6 @@ protected:
     QVariant 		data( int field );
     bool		isNull( int field );
     bool 		reset ( const QString& query );
-    QSqlFieldList       fields();
     int                 size();
     int                 affectedRows();
 private:
@@ -32,7 +31,7 @@ private:
 
 class QMySQLDriver : public QSqlDriver
 {
-friend class QMySQLResult;
+    friend class QMySQLResult;
 public:
     QMySQLDriver( QObject * parent=0, const char * name=0 );
     ~QMySQLDriver();
@@ -41,10 +40,11 @@ public:
 				const QString & password = QString::null,
 				const QString & host = QString::null );
     void 		close();
-    QSql		createResult() const;
+    QSqlQuery		createResult() const;
     QStringList         tables( const QString& user ) const;
     QSqlIndex           primaryIndex( const QString& tablename ) const;
-    QSqlFieldList       fields( const QString& tablename ) const;
+    QSqlRecord          fields( const QString& tablename ) const;
+    QSqlRecord          fields( const QSqlQuery& query ) const;    
 private:
     void		init();
     QMySQLPrivate* 	d;

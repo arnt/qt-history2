@@ -21,14 +21,14 @@ public:
     OCIStmt          *sql;
 };
 
-struct OraFieldInfo 
+struct OraFieldInfo
 {
     QString        name;
     QVariant::Type type;
     ub4            oraType;
     sb1 	   oraScale;
     ub4            oraLength;
-    sb2 	   oraPrecision;    
+    sb2 	   oraPrecision;
 };
 
 QString qOraWarn( const QOCIPrivate* d)
@@ -76,7 +76,7 @@ QVariant::Type qDecodeOCIType( const QString& ocitype, int ocilen, int ociprec, 
     return type;
 }
 
-QVariant::Type qDecodeOCIType( int ocitype ) 
+QVariant::Type qDecodeOCIType( int ocitype )
 {
     QVariant::Type type = QVariant::Invalid;
     switch ( ocitype ) {
@@ -147,12 +147,11 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
     ub4         colNameLen(0);
     sb1 	colScale(0);
     ub4         colLength(0);
-    sb2 	colPrecision(0);    
+    sb2 	colPrecision(0);
     int		r(0);
     QVariant::Type type( QVariant::Invalid );
-    
+
     //    if ( r == 0 ) {
-	qDebug("getting sql info");
 	r = OCIAttrGet( (dvoid*)param,
 			OCI_DTYPE_PARAM,
 			&colType,
@@ -163,7 +162,7 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
 	if ( r != 0 )
 	    qWarning( "qMakeOraField: " + qOraWarn( p ) );
 #endif
-	
+
 	r = OCIAttrGet( (dvoid*)param,
 			OCI_DTYPE_PARAM,
 			&colType,
@@ -197,7 +196,7 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
 	if ( r != 0 )
 	    qWarning( "qMakeOraField: " + qOraWarn( p ) );
 #endif
-	
+
         r = OCIAttrGet( (dvoid*) param,
 			OCI_DTYPE_PARAM,
 	                &colPrecision,
@@ -208,7 +207,7 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
 	if ( r != 0 )
 	    qWarning( "qMakeOraField: " + qOraWarn( p ) );
 #endif
-	
+
         r = OCIAttrGet( (dvoid*) param,
 			OCI_DTYPE_PARAM,
                 	&colScale,
@@ -220,14 +219,14 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
 	    qWarning( "qMakeOraField: " + qOraWarn( p ) );
 #endif
 	//    }
-    
+
     if ( type == QVariant::Int ) {
 	if ( colLength == 22 && colPrecision == 0 && colScale == 0 )
 	    type = QVariant::Double;
 	if ( colScale > 0 )
 	    type = QVariant::Double;
     }
-   
+
     ofi.name = QString((char*)colName);
     ofi.name.truncate(colNameLen);
     ofi.type = type;
@@ -236,12 +235,12 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
     ofi.oraScale = colScale;
     ofi.oraPrecision = colPrecision;
 
-    qDebug("field name:" + ofi.name);
-    qDebug("field type:" + QString::number(ofi.type));
-    qDebug("field oratype:" + QString::number(ofi.oraType));    
-    qDebug("field length:" + QString::number(colLength));
-    qDebug("field scale:" + QString::number(colScale));
-    qDebug("field prec:" + QString::number(colPrecision));
+//     qDebug("field name:" + ofi.name);
+//     qDebug("field type:" + QString::number(ofi.type));
+//     qDebug("field oratype:" + QString::number(ofi.oraType));
+//     qDebug("field length:" + QString::number(colLength));
+//     qDebug("field scale:" + QString::number(colScale));
+//     qDebug("field prec:" + QString::number(colPrecision));
 
     return ofi;
 }
@@ -258,13 +257,13 @@ public:
 	ub4		dataSize(0);
 	OCIDefine 	*dfn;
 	int 		r;
-	
+
 	OCIParam* param = 0;
 	sb4 parmStatus = 0;
 	ub4 count = 1;
-	parmStatus = OCIParamGet( d->sql, 
-				  OCI_HTYPE_STMT, 
-				  d->err, 
+	parmStatus = OCIParamGet( d->sql,
+				  OCI_HTYPE_STMT,
+				  d->err,
 				  (void**)&param,
 				  count );
 	while ( parmStatus == OCI_SUCCESS ) {
@@ -301,13 +300,13 @@ public:
 		break;
 	    }
 	    count++;
-	    parmStatus = OCIParamGet( d->sql, 
-				      OCI_HTYPE_STMT, 
-				      d->err, 
+	    parmStatus = OCIParamGet( d->sql,
+				      OCI_HTYPE_STMT,
+				      d->err,
 				      (void**)&param,
 				      count );
-	}	
-	    
+	}
+
 #ifdef CHECK_RANGE
 	    if ( r != 0 )
 	    	qWarning( "QOCIResultPrivate::bind fields: " + QString::number(r) + " " + qOraWarn( d ) );
@@ -374,7 +373,7 @@ public:
 	default:
 #ifdef CHECK_RANGE
 	    qWarning("QSqlResultPrivate::value: unknown data type");
-#endif	    
+#endif
 	    break;
 	}
 	return v;
@@ -420,7 +419,6 @@ QOCIResult::QOCIResult( const QOCIDriver * db, QOCIPrivate* p )
 QOCIResult::~QOCIResult()
 {
     if ( d->sql ) {
-	qDebug("freeing handle");
 	int r = OCIHandleFree( d->sql,OCI_HTYPE_STMT );
 #ifdef CHECK_RANGE
 	if ( r != 0 )
@@ -510,23 +508,23 @@ bool QOCIResult::reset ( const QString& query )
 	OCIParam* param = 0;
 	sb4 parmStatus = 0;
 	ub4 count = 1;
-	parmStatus = OCIParamGet( d->sql, 
-				  OCI_HTYPE_STMT, 
-				  d->err, 
+	parmStatus = OCIParamGet( d->sql,
+				  OCI_HTYPE_STMT,
+				  d->err,
 				  (void**)&param,
 				  count );
 	while ( parmStatus == OCI_SUCCESS ) {
 	    OraFieldInfo ofi = qMakeOraField( d, param );
 	    QSqlField fi( ofi.name, count, ofi.type );
-	    fs.append( &fi );
+	    fs.append( fi );
 	    count++;
-	    parmStatus = OCIParamGet( d->sql, 
-				      OCI_HTYPE_STMT, 
-				      d->err, 
+	    parmStatus = OCIParamGet( d->sql,
+				      OCI_HTYPE_STMT,
+				      d->err,
 				      (void**)&param,
 				      count );
-	}	
-	
+	}
+
     } else { // non-SELECT
     	r = OCIStmtExecute( d->svc, d->sql, d->err, 1,0,
 				(CONST OCISnapshot *) NULL,
@@ -549,7 +547,6 @@ bool QOCIResult::cacheNext()
 {
     if ( cached )
 	return FALSE;
-    qDebug("QOCIResult::cacheNext()");
     int currentRecord = at() + 1;
     int r = 0;
     r = OCIStmtFetch (  d->sql, d->err, 1, OCI_FETCH_NEXT, OCI_DEFAULT );
@@ -564,11 +561,11 @@ bool QOCIResult::cacheNext()
 		    OCI_HTYPE_ERROR);
 	switch ( errcode ) {
 	case 1406:
-	    qWarning("QOCI Warning: data truncated for " + query());
+	    qWarning("QOCI Warning: data truncated for " + lastQuery());
 	    r = 0; /* ignore it */
 	    break;
 	default:
-	    qWarning( "QOCI error fetching next:" + qOraWarn(d) );
+	    qWarning( "QOCIResult::cacheNext: " + qOraWarn(d) );
 	}
     }
     if ( r == 0 ) {
@@ -647,18 +644,6 @@ bool QOCIResult::isNull( int field )
     return cols->isNull( field );
 }
 
-QSqlFieldList QOCIResult::fields()
-{
-    QSqlFieldList fil;
-    if ( !isActive() )
-	return fil;
-    if ( isActive() && isValid() ) {
-	for ( uint i = 0; i < fs.count(); ++i ) 
-	    fs.setValue( i, data( i ) );
-    }
-    return fs;
-}
-
 int QOCIResult::size()
 {
     return -1;
@@ -690,7 +675,7 @@ void QOCIDriver::init()
     setQuerySizeSupport( FALSE );
     d = new QOCIPrivate();
     int r = OCIEnvCreate( &d->env,
-			    OCI_DEFAULT,
+			    OCI_DEFAULT | OCI_OBJECT,
 			    NULL,
 			    NULL,
 			    NULL,
@@ -770,9 +755,9 @@ void QOCIDriver::cleanup()
     }
 }
 
-QSql QOCIDriver::createResult() const
+QSqlQuery QOCIDriver::createResult() const
 {
-    return QSql( new QOCIResult( this, d ) );
+    return QSqlQuery( new QOCIResult( this, d ) );
 }
 
 bool QOCIDriver::beginTransaction()
@@ -820,48 +805,58 @@ bool QOCIDriver::rollbackTransaction()
 
 QStringList QOCIDriver::tables( const QString& ) const
 {
-    QSql t = createResult();
-    t.setQuery( "select table_name from user_tables;" );
+    QSqlQuery t = createResult();
+    t.exec( "select table_name from user_tables;" );
     QStringList tl;
     while ( t.next() )
 	tl.append( t.value(0).toString() );
     return tl;
 }
 
-QSqlFieldList QOCIDriver::fields( const QString& tablename ) const
+QSqlRecord QOCIDriver::fields( const QString& tablename ) const
 {
-    // ###
-    qDebug("QOCIDriver::fields");
-    QSql t = createResult();
+    QSqlQuery t = createResult();
     QString stmt ("select column_name, data_type, data_length, data_precision, data_scale "
 		  "from user_tab_columns "
 		  "where table_name='%1';" );
-    t.setQuery( stmt.arg( tablename.upper() ) );
-    QSqlFieldList fil;
+    t.exec( stmt.arg( tablename.upper() ) );
+    QSqlRecord fil;
     while ( t.next() ) {
 	QString dt = t.value(1).toString();
 	//	QVariant::Type ty = qDecodeOCIType( dt, t.value(1).toInt(), t.value(2).toInt(), t.value(3).toInt() );
 	QVariant::Type ty = QVariant::String;
 	QSqlField f( t.value(0).toString(), t.at(), ty );
-	fil.append( &f );
+	fil.append( f );
     }
-//     QSql t2 = createResult();    
-//     QString stmt2("select b.column_name "
-// 		  "from user_constraints a, user_tab_columns b, user_ind_columns c "
-// 		  "where a.constraint_type='P' "
-// 		  "and a.table_name='%1' "
-// 		  "and c.index_name = a.constraint_name "
-// 		  "and b.column_name = c.column_name "
-// 		  "and b.table_name = a.table_name;");
-//     t2.setQuery( stmt2.arg( tablename.upper() ) );
-//     while ( t2.next() )
-// 	fil.field( t2.value(0).toString() )->setPrimaryIndex( TRUE );
+    QSqlQuery t2 = createResult();
+    QString stmt2("select b.column_name "
+		  "from user_constraints a, user_tab_columns b, user_ind_columns c "
+		  "where a.constraint_type='P' "
+		  "and a.table_name='%1' "
+		  "and c.index_name = a.constraint_name "
+		  "and b.column_name = c.column_name "
+		  "and b.table_name = a.table_name;");
+    t2.exec( stmt2.arg( tablename.upper() ) );
+    while ( t2.next() )
+	fil.field( t2.value(0).toString() )->setPrimaryIndex( TRUE );
+    return fil;
+}
+
+QSqlRecord QOCIDriver::fields( const QSqlQuery& query ) const
+{
+    QSqlRecord fil;
+    if ( !query.isActive() )
+	return fil;
+    if ( query.isActive() && query.driver() == this ) {
+	QOCIResult* result = (QOCIResult*)query.result();
+	fil = result->fs;
+    }
     return fil;
 }
 
 QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
 {
-    QSql t = createResult();
+    QSqlQuery t = createResult();
     QString stmt ("select b.column_name, b.data_type "
 		  "from user_constraints a, user_tab_columns b, user_ind_columns c "
 		  "where a.constraint_type='P' "
@@ -869,14 +864,53 @@ QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
 		  "and c.index_name = a.constraint_name "
 		  "and b.column_name = c.column_name "
 		  "and b.table_name = a.table_name;" );
-    t.setQuery( stmt.arg( tablename.upper() ) );
+    t.exec( stmt.arg( tablename.upper() ) );
     QSqlIndex idx( tablename );
     if ( t.next() ) {
 	QSqlField f(t.value(0).toString(), t.at(), qDecodeOCIType(t.value(1).toInt()) );
-	idx.append( &f );
+	idx.append( f );
     }
     return idx;
     return QSqlIndex();
 }
 
+QString QOCIDriver::formatValue( const QSqlField* field ) const
+{
+    switch ( field->type() ) {
+    case QVariant::Date: {
+	QDate date = field->value().toDate();
+	QString datestring;
+	OCIDate ocidate;
+	ub4 buflen = 100;
+	text* buf = new text[buflen];
+	OCIDateSetTime( &ocidate, 0, 0, 0 );
+	OCIDateSetDate( &ocidate, date.year(), date.month(), date.day() );
+	uword invalid;
+	sword dc = OCIDateCheck( d->err, &ocidate, &invalid) != OCI_SUCCESS;
+	if ( dc == OCI_ERROR )
+	    return datestring;
+	int r = OCIDateToText ( d->err,
+				&ocidate,
+				(text*)0,
+				0,
+				(text*)0,
+				0,
+				&buflen,
+				buf );
+	if ( r == OCI_ERROR ) {
+#ifdef CHECK_RANGE
+	    qWarning( "QOCIDriver::: " + qOraWarn( d ) );
+#endif
+	    return datestring;
+	}
+	datestring = QString( (char*)buf );
+	delete buf;
+	return datestring;
+	break;
+    }
+    default:
+	break;
+    }
+    return QSqlDriver::formatValue( field );
+}
 

@@ -17,7 +17,7 @@ class QSqlResultInfo;
 class QSqlResultPrivate;
 class Q_EXPORT QSqlResult
 {
-friend class QSql;
+friend class QSqlQuery;
 friend struct QSqlResultShared;
 public:
     enum Location {
@@ -28,17 +28,17 @@ public:
 protected:
     QSqlResult(const QSqlDriver * db );
     int		    at() const;
-    void            setAt( int at );
-    void            setActive( bool a );
-    void	    setLastError( const QSqlError& e );
-    void            setQuery( const QString& query );
-    QString         query() const;
+    QString         lastQuery() const;
     QSqlError       lastError() const;
     bool            isValid() const;
     bool            isActive() const;
-    void            setSelect( bool s );
     bool            isSelect() const;
     const QSqlDriver* driver() const;
+    virtual void    setAt( int at );
+    virtual void    setActive( bool a );
+    virtual void    setLastError( const QSqlError& e );
+    virtual void    setQuery( const QString& query );
+    virtual void    setSelect( bool s );    
     virtual QVariant data( int i ) = 0;
     virtual bool    isNull( int i ) = 0;
     virtual bool    reset ( const QString& sqlquery ) = 0;
@@ -47,9 +47,8 @@ protected:
     virtual bool    fetchPrevious();
     virtual bool    fetchFirst() = 0;
     virtual bool    fetchLast() = 0;
-    virtual QSqlFieldList   fields() = 0;
-    virtual int             size() = 0;
-    virtual int             affectedRows() = 0;
+    virtual int     size() = 0;
+    virtual int     affectedRows() = 0;
 private:
     QSqlResultPrivate* d;
     QSqlResult( const QSqlResult & );
