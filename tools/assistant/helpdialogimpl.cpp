@@ -75,21 +75,21 @@ static const char * book_xpm[]={
 
 static QPixmap *bookPixmap = 0;
 
-class MyString : public QString
+class SortableString : public QString
 {
 public:
-    MyString() {}
-    MyString( const QString& other )
+    SortableString() {}
+    SortableString( const QString& other )
 	: QString( other ), key( other )
     {
 	// "Chapter 1" becomes "chapter01"; "Chapter 12" becomes
 	// "chapter102", which is wrong but good enough
 	key.replace( QRegExp("(?=\\b[0-9]\\b)"), "0" );
-	key.replace( QRegExp("\\W"), "" );
-	key = key.lower();
+	key.replace( QRegExp("\\W"), " " );
+	key = key.stripWhiteSpace().lower();
 
 	// use original string as second sort criterion
-	key += QChar::null + other;
+	key += QChar( ' ' ) + other;
     }
     QString key;
 };
@@ -104,11 +104,11 @@ struct Entry
 #endif
 };
 
-bool operator<=( const MyString &s1, const MyString &s2 )
+bool operator<=( const SortableString &s1, const SortableString &s2 )
 { return s1.key <= s2.key; }
-bool operator<( const MyString &s1, const MyString &s2 )
+bool operator<( const SortableString &s1, const SortableString &s2 )
 { return s1.key < s2.key; }
-bool operator>( const MyString &s1, const MyString &s2 )
+bool operator>( const SortableString &s1, const SortableString &s2 )
 { return s1.key > s2.key; }
 
 HelpNavigationListItem::HelpNavigationListItem( QListBox *ls, const QString &txt )
@@ -198,7 +198,7 @@ void HelpDialog::loadIndexFile()
     HelpNavigationListItem *lastItem = 0;
 
     //### if constructed on stack, it will crash on WindowsNT
-    QValueList<MyString>* lst = new QValueList<MyString>;
+    QValueList<SortableString>* lst = new QValueList<SortableString>;
     bool buildDb = TRUE;
     QFile f( indexFile );
     if ( QFile::exists( QDir::homeDirPath() + "/.indexdb" ) ) {
@@ -259,7 +259,7 @@ void HelpDialog::loadIndexFile()
 	}
     }
 
-    QValueList<MyString>::Iterator it = lst->begin();
+    QValueList<SortableString>::Iterator it = lst->begin();
     for ( ; it != lst->end(); ++it ) {
 	QString s( *it );
 	if ( s.find( "::" ) != -1 )
@@ -564,7 +564,7 @@ void HelpDialog::insertContents()
     HelpNavigationContentsItem *lastItem = 0;
     HelpNavigationContentsItem *lastGroup = 0;
 
-    QValueList<MyString>* lst = new QValueList<MyString>;
+    QValueList<SortableString>* lst = new QValueList<SortableString>;
     for ( QMap<QString, QString>::Iterator it = titleMap.begin(); it != titleMap.end(); ++it ) {
 	QString s = *it + " | " + it.key();
 	s = s.stripWhiteSpace();
@@ -576,7 +576,7 @@ void HelpDialog::insertContents()
 
     qHeapSort( *lst );
 
-    for ( QValueList<MyString>::Iterator sit = lst->begin(); sit != lst->end(); ++sit ) {
+    for ( QValueList<SortableString>::Iterator sit = lst->begin(); sit != lst->end(); ++sit ) {
 	QString s = *sit;
 	s = s.stripWhiteSpace();
 	int i = s.find( " - " );
