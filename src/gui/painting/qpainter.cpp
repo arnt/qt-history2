@@ -1187,10 +1187,15 @@ void QPainter::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
     if (img.depth() != 32)
 	img = img.convertDepth(32);
     img.setAlphaBuffer(true);
-    for (int y = 0; y < img.height(); ++y) {
-	for (int x = 0; x < img.width(); ++x) {
-	    img.setPixel(x, y, qRgba(0, 0, 0, 0xff-qGray(img.pixel(x, y))));
+    int i = 0;
+    while (i < img.height()) {
+	uint *p = (uint *) img.scanLine(i);
+	uint *end = p + img.width();
+	while (p < end) {
+	    *p = ((0xff - qGray(*p)) << 24) | (pen().color().rgb() & 0x00ffffff);
+	    ++p;
 	}
+	++i;
     }
 
     pm = img;
