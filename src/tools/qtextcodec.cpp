@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#71 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#72 $
 **
 ** Implementation of QTextCodec class
 **
@@ -1155,6 +1155,8 @@ public:
 
     int heuristicContentMatch(const char* chars, int len) const;
 
+    int heuristicNameMatch(const char* hint) const;
+
 private:
     int forwardIndex;
 };
@@ -1454,6 +1456,17 @@ int QSimpleTextCodec::mibEnum() const
     return unicodevalues[forwardIndex].mib;
 }
 
+int QSimpleTextCodec::heuristicNameMatch(const char* hint) const
+{
+    if ( hint[0]=='k' ) {
+	// Help people with messy fonts
+	if ( QCString(hint) == "koi8-1" )
+	    return QTextCodec::heuristicNameMatch("koi8-r")-1;
+	if ( QCString(hint) == "koi8-ru" )
+	    return QTextCodec::heuristicNameMatch("koi8-r")-1;
+    }
+    return QTextCodec::heuristicNameMatch(hint);
+}
 
 int QSimpleTextCodec::heuristicContentMatch(const char* chars, int len) const
 {
