@@ -488,7 +488,12 @@ miInsertEdgeInET(EdgeTable *ET, EdgeTableEntry *ETE,
  */
 
 typedef struct {
+#if defined(Q_OS_MAC)
+    int y, x;
+#else
     int x, y;
+#endif
+
 } DDXPointRec, *DDXPointPtr;
 
 /*

@@ -709,9 +709,8 @@ void QPainter::setClipRegion( const QRegion &r )
     }
 
     initPaintDevice();
-    QRegion rset(r);
+    QRegion rset(crgn = r);
     rset.translate(offx, offy);
-    crgn = rset;
 
     if(!clippedreg.isNull()) {
 	if(r.isNull())
@@ -1848,8 +1847,10 @@ void QPainter::initPaintDevice(bool force) {
     } 
 
     QRegion reg; 
-    if(testf(ClipOn) && !crgn.isNull())
+    if(testf(ClipOn) && !crgn.isNull()) {
 	reg = crgn;
+	reg.translate(offx, offy);
+    }
     if(!clippedreg.isNull()) {
 	if(reg.isNull())
 	    reg = clippedreg;
