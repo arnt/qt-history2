@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#132 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#133 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -26,7 +26,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#132 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#133 $")
 
 
 // --------------------------------------------------------------------------
@@ -568,8 +568,8 @@ void QPainter::setBrush( BrushStyle style )
     d->style = style;
     d->color = black;
     if ( d->pixmap ) {
-	delete data->pixmap;
-	data->pixmap = 0;
+	delete d->pixmap;
+	d->pixmap = 0;
     }
     updateBrush();
 }
@@ -590,8 +590,8 @@ void QPainter::setBrush( const QColor &color )
     d->style = SolidPattern;
     d->color = color;
     if ( d->pixmap ) {
-	delete data->pixmap;
-	data->pixmap = 0;
+	delete d->pixmap;
+	d->pixmap = 0;
     }
     updateBrush();
 }
