@@ -2143,8 +2143,8 @@ When you install Qt for X11, the configure script will autodetect if
 OpenGL headers and libraries are installed on your system, and if so,
 it will include the Qt OpenGL module in the Qt library. (If your
 OpenGL headers or libraries are placed in a non-standard directory,
-you may need to change the SYSCONF_CXXFLAGS_OPENGL and/or
-SYSCONF_LFLAGS_OPENGL in the config file for your system). Some
+you may need to change the QMAKE_INCDIR_OPENGL and/or
+QMAKE_LIBDIR_OPENGL in the config file for your system). Some
 configurations require threading to be enabled for OpenGL, so if
 OpenGL is not detected, try \c{configure -thread}.
 
@@ -2159,8 +2159,8 @@ Note about using Mesa on X11: Mesa versions earlier than 3.1 would use
 the name "MesaGL" and "MesaGLU" for the libraries, instead of "GL" and
 "GLU". If you want to use a pre-3.1 version of Mesa, you must change
 the Makefiles to use these library names instead. The easiest way to
-do this edit the SYSCONF_LIBS_OPENGL line in the config file you are
-using, changing "-lGL -lGLU" to "-lMesaGL -lMesaGLU"; then run
+do this is to edit the QMAKE_LIBS_OPENGL line in the config file you
+are using, changing "-lGL -lGLU" to "-lMesaGL -lMesaGLU"; then run
 "configure" again.
 
 \section1 The QGL Classes
