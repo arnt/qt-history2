@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#60 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#61 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#60 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#61 $");
 
 
 const int Unsorted = 32767;
@@ -1694,7 +1694,7 @@ void QListView::mousePressEvent( QMouseEvent * e )
 	return;
 
     if ( (i->isExpandable() || i->children()) &&
-	 d->h->mapToLogical( d->h->cellAt( e->pos().x() ) == 0 ) ) {
+	 d->h->mapToLogical( d->h->cellAt( e->pos().x() ) ) == 0 ) {
 	int x1 = e->pos().x() - d->h->cellPos( d->h->mapToActual( 0 ) );
 	QListIterator<QListViewPrivate::DrawableItem> it( *(d->drawables) );
 	while( it.current() && it.current()->i != i )
@@ -1704,6 +1704,9 @@ void QListView::mousePressEvent( QMouseEvent * e )
 	    x1 -= treeStepSize() * (it.current()->l - 1);
 	    if ( x1 >= 0 && x1 < treeStepSize() ) {
 		setOpen( i, !i->isOpen() );
+		if ( !d->currentSelected )
+		    setCurrentItem( i );
+		d->buttonDown = FALSE;
 		return;
 	    }
 	}
