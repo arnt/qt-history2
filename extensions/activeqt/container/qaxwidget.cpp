@@ -87,69 +87,6 @@ static int translateButtonState( int s, int type, int button )
     return bst;
 }
 
-LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
-{
-    static bool reentrant = FALSE;
-    static QPoint pos;
-    static POINT gpos={-1,-1};
-    QEvent::Type type;				// event parameters
-    int	   button;
-    int	   state;
-    int	   i;
-
-    if ( !reentrant && lParam ) {
-	reentrant = TRUE;
-	MSG *msg = (MSG*)lParam;
-	const uint message = msg->message;
-	if ( message >= WM_MOUSEFIRST && message <= WM_MOUSELAST ) {
-	    HWND hwnd = msg->hwnd;
-	    QWidget *widget = 0;
-	    QAxWidget *ax = 0;
-	    while ( !ax && hwnd ) {
-		widget = QWidget::find( hwnd );
-		if ( widget )
-		    ax = (QAxWidget*)widget->qt_cast( "QAxWidget" );
-		hwnd = ::GetParent( hwnd );
-	    }
-	    if ( ax && msg->hwnd != ax->winId() ) {
-		for ( i=0; (UINT)mouseTbl[i] != message && mouseTbl[i]; i += 3 )
-		    ;
-		if ( !mouseTbl[i] )
-		    return CallNextHookEx( hhook, nCode, wParam, lParam );
-		type   = (QEvent::Type)mouseTbl[++i];	// event type
-		button = mouseTbl[++i];			// which button
-		state  = translateButtonState( msg->wParam, type, button ); // button state
-		DWORD ol_pos = GetMessagePos();
-		gpos.x = LOWORD(ol_pos);
-		gpos.y = HIWORD(ol_pos);
-		pos = widget->mapFromGlobal( QPoint(gpos.x, gpos.y) );
-
-		QMouseEvent e( type, pos, QPoint(gpos.x,gpos.y), button, state );
-		QApplication::sendEvent( ax, &e );
-	    }
-	} else if ( message == WM_KEYDOWN && msg->wParam == VK_TAB ) {
-	    HWND hwnd = msg->hwnd;
-	    QWidget *widget = 0;
-	    QAxWidget *ax = 0;
-	    while ( !ax && hwnd ) {
-		widget = QWidget::find( hwnd );
-		if ( widget )
-		    ax = (QAxWidget*)widget->qt_cast( "QAxWidget" );
-		hwnd = ::GetParent( hwnd );
-	    }
-	    if ( ax && msg->hwnd != ax->winId() ) {
-		QObject *host = ax->child( "QAxHostWidget", "QWidget" );
-		if ( host ) {
-		    QKeyEvent e( QEvent::KeyPress, Qt::Key_Tab, 9, 0 );
-		    QApplication::sendEvent( host, &e );
-		}
-	    }
-	}
-	reentrant = FALSE;
-    }
-    return CallNextHookEx( hhook, nCode, wParam, lParam );
-}
-
 /*  \class QAxHostWidget qaxwidget.cpp
     \brief The QAxHostWindow class is the actual container widget.
     \internal
@@ -167,6 +104,10 @@ public:
     void show();
 
     bool qt_emit( int isignal, QUObject *obj );
+    QAxHostWindow *clientSite() const
+    {
+	return axhost;
+    }
 
 protected:
     bool event( QEvent *e );
@@ -214,6 +155,10 @@ public:
     QWidget *hostWidget() const
     {
 	return host;
+    }
+    IOleInPlaceActiveObject *inPlaceObject() const
+    {
+	return m_spInPlaceActiveObject;
     }
 
 // IUnknown
@@ -342,6 +287,67 @@ private:
     QGuardedPtr<QMenuBar> menuBar;
     QMap<int,OleMenuItem> menuItemMap;
 };
+
+// The filter procedure listening to user interaction on the control
+LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
+{
+    static bool reentrant = FALSE;
+    static QPoint pos;
+    static POINT gpos={-1,-1};
+    QEvent::Type type;				// event parameters
+    int	   button;
+    int	   state;
+    int	   i;
+
+    if ( !reentrant && lParam ) {
+	reentrant = TRUE;
+	MSG *msg = (MSG*)lParam;
+	const uint message = msg->message;
+	if ( ( message >= WM_MOUSEFIRST && message <= WM_MOUSELAST )
+	   ||( message >= WM_KEYFIRST && message <= WM_KEYLAST ) ) {
+	    HWND hwnd = msg->hwnd;
+	    QWidget *widget = 0;
+	    QAxWidget *ax = 0;
+	    while ( !ax && hwnd ) {
+		widget = QWidget::find( hwnd );
+		if ( widget )
+		    ax = (QAxWidget*)widget->qt_cast( "QAxWidget" );
+		hwnd = ::GetParent( hwnd );
+	    }
+	    if ( ax && msg->hwnd != ax->winId() ) {
+		if ( message >= WM_KEYFIRST && message <= WM_KEYLAST ) {
+		    QAxHostWidget *host = (QAxHostWidget*)ax->child( "QAxHostWidget", "QWidget" );
+		    if ( host ) {
+			QAxHostWindow *site = host->clientSite();
+			bool eaten = FALSE;
+			// give the control a chance, otherwise propagate to Qt
+			if ( site && site->inPlaceObject() )
+			    eaten = !site->inPlaceObject()->TranslateAccelerator( msg );
+			if ( !eaten )
+			    SendMessage( host->winId(), message, msg->wParam, msg->lParam );
+		    }
+		} else {
+		    for ( i=0; (UINT)mouseTbl[i] != message && mouseTbl[i]; i += 3 )
+			;
+		    if ( !mouseTbl[i] )
+			return CallNextHookEx( hhook, nCode, wParam, lParam );
+		    type   = (QEvent::Type)mouseTbl[++i];	// event type
+		    button = mouseTbl[++i];			// which button
+		    state  = translateButtonState( msg->wParam, type, button ); // button state
+		    DWORD ol_pos = GetMessagePos();
+		    gpos.x = LOWORD(ol_pos);
+		    gpos.y = HIWORD(ol_pos);
+		    pos = widget->mapFromGlobal( QPoint(gpos.x, gpos.y) );
+
+		    QMouseEvent e( type, pos, QPoint(gpos.x,gpos.y), button, state );
+		    QApplication::sendEvent( ax, &e );
+		}
+	    }
+	}
+	reentrant = FALSE;
+    }
+    return CallNextHookEx( hhook, nCode, wParam, lParam );
+}
 
 QAxHostWindow::QAxHostWindow( QAxWidget *c, bool bInited )
 : ref(1), widget( c )
