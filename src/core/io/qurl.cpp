@@ -81,7 +81,7 @@ public:
 #endif
 
 // ### put this somewhere. and ues wa{}
-QString qGetHostName()
+Q_CORE_EXPORT QString qGetHostName()
 {
 #if defined Q_OS_WIN32
     char hostname[512];
