@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#293 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#294 $
 **
 ** Implementation of QFileDialog class
 **
@@ -386,18 +386,6 @@ struct QFileDialogPrivate {
     QWidget *infoPreviewWidget, *contentsPreviewWidget;
     bool hadDotDot;
 
-    enum WaitForAction {
-	SetSelection = 0,
-	SetUrl
-    };
-
-    struct WaitForStruct {
-	WaitForAction action;
-	QString data;
-	QUrl data2;
-    };
-
-    QList<WaitForStruct> waitFor;
     bool ignoreNextKeyPress;
     QProgressDialog *progressDia;
 
@@ -554,7 +542,7 @@ void QFileListBox::viewportMouseMoveEvent( QMouseEvent *e )
 	if ( item ) {
 	    if ( !itemRect( item ).contains( e->pos() ) )
 		return;
-	    QString source = filedialog->dirPath() + "/" + item->text();
+	    QString source = filedialog->dirPath() + item->text();
 	    if ( QFile::exists( source ) ) {
 		QUriDrag* drag = new QUriDrag( viewport() );
 		drag->setFilenames( source );
@@ -767,7 +755,7 @@ void QFileListBox::changeDirDuringDrag()
     if ( !currDropItem )
 	return;
     changeDirTimer->stop();
-    filedialog->setDir( filedialog->dirPath() + "/" + currDropItem->text() );
+    filedialog->setDir( filedialog->dirPath() + currDropItem->text() );
     currDropItem = 0;
     eraseDragShape = FALSE;
 }
@@ -930,7 +918,7 @@ void QFileListView::viewportMouseMoveEvent( QMouseEvent *e )
 			      currentItem() :
 			      itemAt( e->pos() );
 	if ( item ) {
-	    QString source = filedialog->dirPath() + "/" + item->text( 0 );
+	    QString source = filedialog->dirPath() + item->text( 0 );
 	    if ( QFile::exists( source ) ) {
 		QUriDrag* drag = new QUriDrag( viewport() );
 		drag->setFilenames( source );
@@ -1143,7 +1131,7 @@ void QFileListView::changeDirDuringDrag()
     if ( !currDropItem )
 	return;
     changeDirTimer->stop();
-    filedialog->setDir( filedialog->dirPath() + "/" + currDropItem->text( 0 ) );
+    filedialog->setDir( filedialog->dirPath() + currDropItem->text( 0 ) );
     currDropItem = 0;
     eraseDragShape = FALSE;
 }
@@ -1439,18 +1427,6 @@ static QStringList makeFiltersList( const QString &filter )
 */
 
 /*!
-  \fn void QFileDialog::slotIsDir()
-
-  \internal
-*/
-
-/*!
-  \fn void QFileDialog::slotIsFile()
-
-  \internal
-*/
-
-/*!
   \fn void QFileDialog::showPreview( const QUrl &u )
 
   This signal is emitted when a preview of the URL \a u
@@ -1469,7 +1445,7 @@ QFileDialog::QFileDialog( QWidget *parent, const char *name, bool modal )
 {
     init();
     d->types->insertItem( QFileDialog::tr( "All files (*)" ) );
-    emit dirEntered( d->url.path() );
+    emit dirEntered( d->url.dirPath() );
     rereadDir();
 }
 
@@ -1497,8 +1473,7 @@ QFileDialog::QFileDialog( const QString& dirName, const QString & filter,
     if ( !dirName.isEmpty() )
 	d->url = dirName;
 
-    //d->url.convertToAbs();
-    emit dirEntered( d->url.path() );
+    emit dirEntered( d->url.dirPath() );
     rereadDir();
 }
 
@@ -1520,8 +1495,6 @@ void QFileDialog::init()
     d->ignoreNextKeyPress = FALSE;
     d->progressDia = 0;
 
-    d->waitFor.setAutoDelete( TRUE );
-
     d->url = QUrl( QDir::currentDirPath() );
     d->oldUrl = d->url;
 
@@ -1541,8 +1514,6 @@ void QFileDialog::init()
              this, SLOT( itemChanged( const QString &, const QString & ) ) );
     connect( &d->url, SIGNAL( copyProgress( const QString &, const QString &, int, int ) ),
              this, SLOT( copyProgress( const QString &, const QString &, int, int ) ) );
-    connect( &d->url, SIGNAL( urlIsDir() ), this, SLOT( slotIsDir() ) );
-    connect( &d->url, SIGNAL( urlIsFile() ), this, SLOT( slotIsFile() ) );
 
     nameEdit = new QLineEdit( this, "name/filter editor" );
     connect( nameEdit, SIGNAL(textChanged(const QString&)),
@@ -1854,95 +1825,24 @@ QString QFileDialog::selectedFile() const
 */
 void QFileDialog::setSelection( const QString & filename )
 {
-    QFileDialogPrivate::WaitForStruct *wfs = new QFileDialogPrivate::WaitForStruct;
-    wfs->action = QFileDialogPrivate::SetSelection;
-    wfs->data = filename;
-    d->waitFor.append( wfs );
-
     d->oldUrl = d->url;
     QString nf = d->url.nameFilter();
     d->url = QUrl( filename );
     d->url.setNameFilter( nf );
-    if ( !d->url.isDir() )
-	d->waitFor.remove( (uint)0 );
-}
-
-/*!
-  \internal
-*/
-
-void QFileDialog::slotIsDir()
-{
-    if ( d->waitFor.isEmpty() )
-	return;
-
-    QFileDialogPrivate::WaitForStruct *wfs = d->waitFor.first();
-
-    switch ( wfs->action ) {
-    case QFileDialogPrivate::SetSelection: {
-	QString nf( d->url.nameFilter() );
-	d->url = wfs->data;
-	d->url.setNameFilter( nf );
+    if ( !d->url.isDir() ) {
+	QUrl u = d->url;
+	d->url.setPath( d->url.dirPath() );
+	trySetSelection( FALSE, d->url, FALSE );
+	rereadDir();
+	emit dirEntered( d->url.dirPath() );
+	nameEdit->setText( u.fileName() );
+    } else {
 	trySetSelection( TRUE, d->url, FALSE );
 	rereadDir();
-	emit dirEntered( d->url.path() );
-
+	emit dirEntered( d->url.dirPath() );
 	nameEdit->setText( QString::fromLatin1("") );
-    } break;
-    case QFileDialogPrivate::SetUrl: {
-	QString nf( wfs->data );
-	d->url = wfs->data2;
-	d->url.setNameFilter( nf );
-	trySetSelection( TRUE, d->url, FALSE );
-	rereadDir();
-	emit dirEntered( d->url.path() );
-
-	nameEdit->setText( QString::fromLatin1("") );
-    } break;
     }
 
-    d->waitFor.remove( (uint)0 );
-}
-
-/*!
-  \internal
-*/
-
-void QFileDialog::slotIsFile()
-{
-    if ( d->waitFor.isEmpty() )
-	return;
-
-    QFileDialogPrivate::WaitForStruct *wfs = d->waitFor.first();
-
-    switch ( wfs->action ) {
-    case QFileDialogPrivate::SetSelection: {
-	QUrl u( wfs->data );
-
-	QString nf( d->url.nameFilter() );
-	d->url = u;
-	d->url.setPath( QFileInfo( d->url.path() ).dirPath() );
-	d->url.setNameFilter( nf );
-	trySetSelection( FALSE, u, FALSE );
-	rereadDir();
-	emit dirEntered( d->url.path() );
-
-	nameEdit->setText( QFileInfo( u.path() ).fileName() );
-    } break;
-    case QFileDialogPrivate::SetUrl: {
-	QString nf( wfs->data );
-	d->url = wfs->data2;
-	d->url.setPath( QFileInfo( d->url.path() ).dirPath() );
-	d->url.setNameFilter( nf );
-	trySetSelection( FALSE, wfs->data2, FALSE );
-	rereadDir();
-	emit dirEntered( d->url.path() );
-	
-	nameEdit->setText( QFileInfo( wfs->data2.path() ).fileName() );
-    } break;
-    }
-
-    d->waitFor.remove( (uint)0 );
 }
 
 /*!
@@ -1952,7 +1852,7 @@ void QFileDialog::slotIsFile()
 
 QString QFileDialog::dirPath() const
 {
-    return d->url.path();
+    return d->url.dirPath();
 }
 
 
@@ -2055,16 +1955,23 @@ void QFileDialog::setDir( const QDir &dir )
 void QFileDialog::setUrl( const QUrl &url )
 {
     d->oldUrl = d->url;
-    QFileDialogPrivate::WaitForStruct *wfs = new QFileDialogPrivate::WaitForStruct;
-    wfs->action = QFileDialogPrivate::SetUrl;
-    wfs->data = d->url.nameFilter();
-    wfs->data2 = url;
-    d->waitFor.append( wfs );
-
+    QString nf = d->url.nameFilter();
     d->url = url;
-
-    if ( !d->url.isDir() )
-	d->waitFor.remove( (uint)0 );
+    d->url.setNameFilter( nf );
+    
+    if ( !d->url.isDir() ) {
+	QUrl u = d->url;
+	d->url.setPath( d->url.dirPath() );
+	trySetSelection( FALSE, u, FALSE );
+	rereadDir();
+	emit dirEntered( d->url.dirPath() );
+	nameEdit->setText( u.fileName() );
+    } else {	
+	trySetSelection( TRUE, d->url, FALSE );
+	rereadDir();
+	emit dirEntered( d->url.dirPath() );
+	nameEdit->setText( QString::fromLatin1("") );
+    }
 }
 
 /*!
@@ -2190,7 +2097,7 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 	if ( u.isLocalFile() && QFileInfo( u ).isDir() ) {
 	    *workingDirectory = startWith;
 	} else {
-	    *workingDirectory = QFileInfo( u.path() ).dirPath();
+	    *workingDirectory = u.dirPath();
 	    initialSelection = u;
 	}
     }
@@ -2278,7 +2185,7 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 	if ( u.isLocalFile() && QFileInfo( u ).isDir() ) {
 	    *workingDirectory = startWith;
 	} else {
-	    *workingDirectory = QFileInfo( u.path() ).dirPath();
+	    *workingDirectory = u.dirPath();
 	    initialSelection = u;
 	}
     }
@@ -2413,7 +2320,7 @@ bool QFileDialog::trySetSelection( bool isDir, const QUrl &u, bool updatelined )
     if ( updatelined && !d->currentFileName.isNull() ) {
 	// If the selection is valid, or if its a directory, allow OK.
 	if ( !d->currentFileName.isNull() || isDir )
-	    nameEdit->setText( QFileInfo( u.path() ).fileName() );
+	    nameEdit->setText( u.fileName() );
 	else
 	    nameEdit->setText( QString::fromLatin1("") );
     }
@@ -2645,12 +2552,13 @@ void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
     QFileDialogPrivate::File * i = (QFileDialogPrivate::File *)newItem;
 
     if ( i->info.isDir() ) {
-	setDir( QUrl( d->url, i->info.name() ) );
+	setUrl( QUrl( d->url, i->info.name() + "/" ) );
 	if ( mode() == Directory ) {
 	    QUrlInfo f ( d->url, QString::fromLatin1(".") );
 	    trySetSelection( f.isDir(), d->url, TRUE );
 	}
-    } else if ( newItem->isSelectable() && trySetSelection( i->info.isDir(), QUrl( d->url, i->info.name() ), TRUE ) ) {
+    } else if ( newItem->isSelectable() && 
+		trySetSelection( i->info.isDir(), QUrl( d->url, i->info.name() ), TRUE ) ) {
 	if ( mode() != Directory ) {
 	    emit fileSelected( d->currentFileName );
 	    accept();
@@ -2976,41 +2884,50 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
     dialog->d->types->insertItem( QFileDialog::tr("Directories") );
     dialog->d->types->setEnabled( FALSE );
 
-    if ( !dir.isEmpty() ) {
-	QFileInfo f( dir );
-	if ( f.isDir() ) {
-	    dialog->setDir( dir );
-	    *workingDirectory = dir;
-	}
-    } else if ( !workingDirectory->isEmpty() ) {
-	QFileInfo f( *workingDirectory );
-	if ( f.isDir() )
-	    dialog->setDir( *workingDirectory );
-    } else {	
-	QString theDir = dir;
-	if ( theDir.isEmpty() )
-	    theDir = QDir::currentDirPath();
-	if ( !theDir.isEmpty() ) {
-	    QFileInfo f( dir );
+    QString dir_( dir );
+    QUrl u( dir_ );
+    if ( dir_.isEmpty() && !workingDirectory->isEmpty() )
+	dir_ = *workingDirectory;
+    if ( u.isLocalFile() ) {
+	if ( !dir_.isEmpty() ) {
+	    QFileInfo f( dir_ );	
 	    if ( f.isDir() ) {
-		*workingDirectory = theDir;
-		dialog->setDir( theDir );
+		dialog->setDir( dir_ );
+		*workingDirectory = dir_;
+	    }
+	} else if ( !workingDirectory->isEmpty() ) {
+	    QFileInfo f( *workingDirectory );
+	    if ( f.isDir() )
+		dialog->setDir( *workingDirectory );
+	} else {	
+	    QString theDir = dir_;
+	    if ( theDir.isEmpty() )
+		theDir = QDir::currentDirPath();
+	    if ( !theDir.isEmpty() ) {
+		QFileInfo f( dir_ );
+		if ( f.isDir() ) {
+		    *workingDirectory = theDir;
+		    dialog->setDir( theDir );
+		}
 	    }
 	}
+    } else {
+	if ( !dir_.isEmpty() )
+	    *workingDirectory = u.dirPath();
+	dialog->setDir( *workingDirectory );
     }
-
+    
     QString result;
 
     if ( dialog->exec() == QDialog::Accepted ) {
 	result = dialog->selectedFile();
-// 	QUrlInfo f( result );
-// 	if ( f.isDir() ) {
-	    *workingDirectory = result;
-// 	} else {
-// 	    result = QString::null;
-// 	}
+	*workingDirectory = result;
     }
     delete dialog;
+    
+    if ( !result.isEmpty() && result.right( 1 ) != "/" )
+	result += "/";
+    
     return result;
 }
 
@@ -3508,8 +3425,15 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
     if ( workingDirectory->isNull() )
 	*workingDirectory = QDir::currentDirPath();
 
-    if ( !dir.isEmpty() )
-	*workingDirectory = dir;
+    if ( !dir.isEmpty() ) {
+	// #### works only correct for local files
+	QUrl u( dir );
+	if ( u.isLocalFile() && QFileInfo( u ).isDir() ) {
+	    *workingDirectory = dir;
+	} else {
+	    *workingDirectory = u.dirPath();
+	}
+    }
 
 #if defined(_WS_WIN_)
     if ( qApp->style() == WindowsStyle )
@@ -3647,7 +3571,7 @@ void QFileDialog::insertEntry( const QUrlInfo &inf )
 	
 	i->i = i2;
     } else {
-	if ( !bShowHiddenFiles && inf.name() != ".." && 
+	if ( !bShowHiddenFiles && inf.name() != ".." &&
 	     inf.name() [ 0 ] == QChar( '.' ) )
 	    return;
 	

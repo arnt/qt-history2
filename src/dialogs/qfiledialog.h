@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#73 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#74 $
 **
 ** Definition of QFileDialog class
 **
@@ -262,8 +262,6 @@ protected slots:
     void detailViewSelectionChanged();
     void listBoxSelectionChanged();
     void changeMode( int );
-    void slotIsDir();
-    void slotIsFile();
 
 private slots:
     void fileSelected( int );
