@@ -14,11 +14,8 @@
 #ifndef QPAINTERPATH_H
 #define QPAINTERPATH_H
 
-#include "qrect.h"
+#include "qrectfloat.h"
 #include "qlinefloat.h"
-#include "qsizefloat.h"
-
-#define QRectFloat QRect
 
 class QPainterPathPrivate;
 

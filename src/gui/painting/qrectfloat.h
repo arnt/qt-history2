@@ -31,6 +31,7 @@ public:
     QRectFloat(const QPointFloat &topleft, const QPointFloat &bottomright);
     QRectFloat(const QPointFloat &topleft, const QSizeFloat &size);
     QRectFloat(float left, float top, float width, float height);
+    QRectFloat(const QRect &rect);
 
     bool isNull() const;
     bool isEmpty() const;
@@ -108,6 +109,8 @@ public:
     friend Q_GUI_EXPORT bool operator==(const QRectFloat &, const QRectFloat &);
     friend Q_GUI_EXPORT bool operator!=(const QRectFloat &, const QRectFloat &);
 
+    QRect toRect() const;
+
 private:
     float xp;
     float yp;
@@ -150,6 +153,11 @@ inline QRectFloat::QRectFloat(const QPointFloat &topLeft, const QSizeFloat &size
     yp = topLeft.y();
     w = size.width();
     h = size.height();
+}
+
+inline QRectFloat::QRectFloat(const QRect &r)
+    : xp(r.x()), yp(r.y()), w(r.width()), h(r.height())
+{
 }
 
 inline bool QRectFloat::isNull() const
@@ -390,6 +398,11 @@ inline bool operator==(const QRectFloat &r1, const QRectFloat &r2)
 inline bool operator!=(const QRectFloat &r1, const QRectFloat &r2)
 {
     return r1.xp != r2.xp || r1.yp != r2.yp || r1.w != r2.w || r1.h != r2.h;
+}
+
+inline QRect QRectFloat::toRect() const
+{
+    return QRect(qRound(xp), qRound(yp), qRound(w), qRound(h));
 }
 
 #ifndef QT_NO_DEBUG

@@ -354,7 +354,7 @@ QPainterPath QPainterPathPrivate::createPathOutline(int penWidth)
 
     for (int sp=0; subpaths.size(); ++sp) {
         const QPainterSubpath &subpath = subpaths.at(sp);
-        QPainterSubpath side1, side2;
+        QPainterSubpath side;
         for (int elmno=0; subpath.elements.size(); ++elmno) {
             const QPainterPathElement &elm = subpath.elements.at(elmno);
             switch (elm.type) {
@@ -365,14 +365,7 @@ QPainterPath QPainterPathPrivate::createPathOutline(int penWidth)
                     QLineFloat nv = l.normalVector();
                     nv.setLength(pw2);
                     l.moveBy(nv);
-                    side1.addLine(l);
-                }
-                {
-                    QLineFloat l(elm.lineData.x2, elm.lineData.y2, elm.lineData.x1, elm.lineData.y1);
-                    QLineFloat nv = l.normalVector();
-                    nv.setLength(pw2);
-                    l.moveBy(nv);
-                    side2.addLine(l);
+                    side.addLine(l);
                 }
                 break;
 
@@ -388,9 +381,7 @@ QPainterPath QPainterPathPrivate::createPathOutline(int penWidth)
                 break;
             }
         }
-
-        outline.d_func()->subpaths.append(side1);
-        outline.d_func()->subpaths.append(side2);
+        outline.d_func()->subpaths.append(side);
     }
 
     return outline;
@@ -657,11 +648,11 @@ void QPainterPath::setFillMode(QPainterPath::FillMode fillMode)
 /*!
     Returns the bounding rectangle of this painter path
 */
-QRect QPainterPath::boundingRect() const
+QRectFloat QPainterPath::boundingRect() const
 {
     if (d->subpaths.isEmpty())
-        return QRect();
-    QRect rect;
+        return QRectFloat();
+    QRectFloat rect;
     for (int j=0; j<d->subpaths.size(); ++j) {
         QPointArray pa = d->subpaths.at(j).toPolygon(QMatrix());
         rect |= pa.boundingRect();
