@@ -1,7 +1,10 @@
 #ifndef TABLEEDITOR_H
 #define TABLEEDITOR_H
-#include "tableeditor.h"
 
+#include "tableeditor.h"
+#include <qmap.h>
+
+class QListBoxItem;
 class QTable;
 class FormWindow;
 
@@ -39,10 +42,14 @@ private:
     void readFromTable();
     void readColumns();
     void readRows();
+    void saveFieldMap();
+    void restoreFieldMap();
 
 private:
     QTable *editTable;
     FormWindow *formWindow;
+    QMap<int, QString> fieldMap;
+    QMap<QListBoxItem*, QString> tmpFieldMap;
 
 };
 

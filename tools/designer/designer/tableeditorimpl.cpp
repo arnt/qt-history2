@@ -10,6 +10,7 @@
 #include "command.h"
 #include <qvaluelist.h>
 #include "project.h"
+#include "metadatabase.h"
 
 TableEditor::TableEditor( QWidget* parent,  QWidget *editWidget, FormWindow *fw, const char* name, bool modal, WFlags fl )
     : TableEditorBase( parent, name, modal, fl ), editTable( (QTable*)editWidget ), formWindow( fw )
@@ -45,12 +46,14 @@ void TableEditor::columnDownClicked()
 	 listColumns->currentItem() == (int)listColumns->count() - 1 ||
 	 listColumns->count() < 2 )
 	return;
+    saveFieldMap();
     int index = listColumns->currentItem() + 1;
     QListBoxItem *i = listColumns->item( listColumns->currentItem() );
     listColumns->takeItem( i );
     listColumns->insertItem( i, index );
     listColumns->setCurrentItem( i );
     readColumns();
+    restoreFieldMap();
 }
 
 void TableEditor::columnTextChanged( const QString &s )
@@ -70,12 +73,14 @@ void TableEditor::columnUpClicked()
     if ( listColumns->currentItem() <= 0 ||
 	 listColumns->count() < 2 )
 	return;
+    saveFieldMap();
     int index = listColumns->currentItem() - 1;
     QListBoxItem *i = listColumns->item( listColumns->currentItem() );
     listColumns->takeItem( i );
     listColumns->insertItem( i, index );
     listColumns->setCurrentItem( i );
     readColumns();
+    restoreFieldMap();
 }
 
 void TableEditor::currentColumnChanged( QListBoxItem *i )
@@ -90,11 +95,21 @@ void TableEditor::currentColumnChanged( QListBoxItem *i )
 	labelColumnPixmap->setText( "" );
     editColumnText->blockSignals( FALSE );
 
-    // ### field stuff
+    QString s = *fieldMap.find( listColumns->index( i ) );
+    if ( s.isEmpty() )
+	comboFields->setCurrentItem( 0 );
+    else if ( comboFields->listBox()->findItem( s ) )
+	comboFields->setCurrentItem( comboFields->listBox()->index( comboFields->listBox()->findItem( s ) ) );
+    else
+	comboFields->lineEdit()->setText( s );
 }
 
-void TableEditor::currentFieldChanged( const QString & )
+void TableEditor::currentFieldChanged( const QString &s )
 {
+    if ( listColumns->currentItem() == -1 )
+	return;
+    fieldMap.remove( listColumns->currentItem() );
+    fieldMap.insert( listColumns->currentItem(), s );
 }
 
 void TableEditor::currentRowChanged( QListBoxItem *i )
@@ -212,7 +227,7 @@ void TableEditor::applyClicked()
 	col.text = table->horizontalHeader()->label( i );
 	if ( table->horizontalHeader()->iconSet( i ) )
 	    col.pix = table->horizontalHeader()->iconSet( i )->pixmap();
-	// ### todo field stuff
+	col.field = *fieldMap.find( i );
 	cols.append( col );
     }
     for ( i = 0; i < table->verticalHeader()->count(); ++i ) {
@@ -283,6 +298,7 @@ void TableEditor::readFromTable()
 {
     QHeader *cols = editTable->horizontalHeader();
     table->setNumCols( cols->count() );
+    QMap<QString, QString> columnFields = MetaDataBase::columnFields( editTable );
     for ( int i = 0; i < cols->count(); ++i ) {
 	if ( editTable->horizontalHeader()->iconSet( i ) ) {
 	    table->horizontalHeader()->setLabel( i, *editTable->horizontalHeader()->iconSet( i ),
@@ -293,6 +309,8 @@ void TableEditor::readFromTable()
 	    table->horizontalHeader()->setLabel( i, editTable->horizontalHeader()->label( i ) );
 	    listColumns->insertItem( editTable->horizontalHeader()->label( i ) );
 	}
+	QString cf = *columnFields.find( editTable->horizontalHeader()->label( i ) );
+	fieldMap.insert( i, cf );
     }
 
     if ( listColumns->firstItem() ) {
@@ -340,4 +358,18 @@ void TableEditor::readRows()
 	else
 	    table->verticalHeader()->setLabel( j, i->text() );
     }
+}
+
+void TableEditor::saveFieldMap()
+{
+    tmpFieldMap.clear();
+    for ( QMap<int, QString>::Iterator it = fieldMap.begin(); it != fieldMap.end(); ++it )
+	tmpFieldMap.insert( listColumns->item( it.key() ), *it );
+}
+
+void TableEditor::restoreFieldMap()
+{
+    fieldMap.clear();
+    for ( QMap<QListBoxItem*, QString>::Iterator it = tmpFieldMap.begin(); it != tmpFieldMap.end(); ++it )
+	fieldMap.insert( listColumns->index( it.key() ), *it );
 }
