@@ -922,6 +922,8 @@ QPaintEngine *QPrinter::paintEngine() const
     return static_cast<QWin32PrintEngine*>(d->printEngine);
 #elif defined (Q_WS_MAC)
     return static_cast<QMacPrintEngine *>(d->printEngine);
+#elif defined (Q_OS_UNIX)
+    return static_cast<QPSPrintEngine *>(d->printEngine);
 #else
     return 0;
 #endif

@@ -15,6 +15,8 @@
 #include "qplatformdefs.h"
 
 // POSIX Large File Support redefines open -> open64
+static inline int qt_open(const char *pathname, int flags, mode_t mode)
+{ return ::open(pathname, flags, mode); }
 #if defined(open)
 # undef open
 #endif
@@ -755,7 +757,7 @@ class QPSPrintEngineFontPrivate;
 
 class QPSPrintEnginePrivate : public QPaintEnginePrivate {
 public:
-    QPSPrintEnginePrivate(QPrinter *prt, int filedes);
+    QPSPrintEnginePrivate(QPrinter *prt, QPrinter::PrinterMode m);
     ~QPSPrintEnginePrivate();
 
     void matrixSetup(QPainterState *);
@@ -766,13 +768,11 @@ public:
     void emitHeader(bool finished);
     void setFont(const QFont &, int script);
     void drawImage(float x, float y, float w, float h, const QImage &img, const QImage &mask);
-    void initPage(QPainterState *paint);
     void flushPage(bool last = false);
 
     QPrinter   *printer;
     int         pageCount;
     bool        dirtyMatrix;
-    bool        dirtyNewPage;
     bool        epsf;
     QString     fontsUsed;
 
@@ -797,6 +797,7 @@ public:
     QHash<QString, QString> pageFontNames;
     QHash<QString, QPSPrintEngineFontPrivate *> fonts;
     QPSPrintEngineFontPrivate *currentFontFile;
+    bool firstPage;
     int headerFontNumber;
     int pageFontNumber;
     QBuffer * fontBuffer;
@@ -807,7 +808,6 @@ public:
     QImage * savedImage;
     QPen cpen;
     QBrush cbrush;
-    bool dirtypen;
     bool dirtybrush;
     QColor bkColor;
     bool dirtyBkColor;
@@ -4538,14 +4538,19 @@ QPSPrintEngineFont::QPSPrintEngineFont(const QFont &f, int script, QPSPrintEngin
 
 #define d d_func()
 
-QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter *prt, int filedes)
-    : buffer(0), outDevice(0), fd(filedes), pageBuffer(0), fontBuffer(0), savedImage(0),
-      dirtypen(false), dirtybrush(false), dirtyBkColor(false), bkMode(Qt::TransparentMode), dirtyBkMode(false),
+QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter *prt, QPrinter::PrinterMode m)
+    : buffer(0), outDevice(0), fd(-1), pageBuffer(0), fontBuffer(0), savedImage(0),
+      dirtybrush(false), dirtyBkColor(false), bkMode(Qt::TransparentMode), dirtyBkMode(false),
 #ifndef QT_NO_TEXTCODEC
       currentFontCodec(0),
 #endif
         fm(QFont()), textY(0), collate(false), copies(1)
 {
+    // #####################
+    firstPage = true;
+    paperRect = QRect(10, 10, 595-20, 842-20);
+    pageRect = QRect(0, 0, 595, 842);
+
     printer = prt;
     currentFontFile = 0;
     scale = 1.;
@@ -5284,7 +5289,7 @@ void QPSPrintEnginePrivate::orientationSetup()
 void QPSPrintEnginePrivate::emitHeader(bool finished)
 {
     QString title = docName;
-    QString creator = creator;
+    QString creator = this->creator;
     if (creator.count() == 0)                             // default creator
         creator = QString::fromLatin1("Qt " QT_VERSION_STR);
     outDevice = new QFile();
@@ -5292,11 +5297,11 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
     outStream.setDevice(outDevice);
     outStream << "%!PS-Adobe-1.0";
     QPaintDeviceMetrics m(printer);
-    scale = 72. / ((float) m.logicalDpiY());
+    scale = 1;// ################# 72. / ((float) m.logicalDpiY());
     uint mtop, mleft, mbottom, mright;
     printer->margins(&mtop, &mleft, &mbottom, &mright);
-    int width = m.width();
-    int height = m.height();
+    int width = pageRect.width(); // #################### m.width();
+    int height = pageRect.height(); // ##########3 m.height();
     if (finished && pageCount == 1 && copies == 1 &&
          ((fullPage && qt_gen_epsf) ||
            (outputToFile && outputFileName.endsWith(".eps")))
@@ -5449,7 +5454,6 @@ void QPSPrintEnginePrivate::resetDrawingTools(QPainterState *ps)
         }
     }
 
-    dirtypen = true;
     dirtybrush = true;
 
     if (ps->VxF || ps->WxF)
@@ -5503,40 +5507,6 @@ void QPSPrintEnginePrivate::clippingSetup(QPainterState *ps)
     dirtyClipping = false;
 }
 
-void QPSPrintEnginePrivate::initPage(QPainterState *ps)
-{
-
-    // a restore undefines all the fonts that have been defined
-    // inside the scope (normally within pages) and all the glyphs that
-    // have been added in the scope.
-
-    for (QHash<QString, QPSPrintEngineFontPrivate *>::Iterator it = fonts.begin();
-         it != fonts.end(); ++it)
-        (*it)->restore();
-
-    if (!buffer) {
-        pageFontNames.clear();
-    }
-
-    pageStream.unsetDevice();
-    if (pageBuffer)
-        delete pageBuffer;
-    pageBuffer = new QBuffer();
-    pageBuffer->open(IO_WriteOnly);
-    pageStream.setEncoding(QTextStream::Latin1);
-    pageStream.setDevice(pageBuffer);
-    delete savedImage;
-    savedImage = 0;
-    textY = 0;
-    dirtyClipping   = true;
-    firstClipOnPage = true;
-
-
-    resetDrawingTools(ps);
-    dirtyNewPage      = false;
-    pageFontNumber = headerFontNumber;
-}
-
 void QPSPrintEnginePrivate::flushPage(bool last)
 {
     if (last && !pageBuffer)
@@ -5571,8 +5541,8 @@ void QPSPrintEnginePrivate::flushPage(bool last)
 
 // ================ PSPrinter class ========================
 
-QPSPrintEngine::QPSPrintEngine(QPrinter *prt, int fd)
-    : QPaintEngine(*(new QPSPrintEnginePrivate(prt, fd)),
+QPSPrintEngine::QPSPrintEngine(QPrinter *prt, QPrinter::PrinterMode m)
+    : QPaintEngine(*(new QPSPrintEnginePrivate(prt, m)),
                    CoordTransform | PenWidthTransform | PatternTransform | PixmapTransform)
 {
 }
@@ -5623,6 +5593,95 @@ static void ignoreSigPipe(bool b)
 
 bool QPSPrintEngine::begin(QPaintDevice *pdev)
 {
+    if (d->outputToFile) {
+        if (d->outputFileName.isEmpty())
+            d->outputFileName = "print.ps";
+        d->fd = qt_open( d->outputFileName.local8Bit(), O_CREAT | O_NOCTTY | O_TRUNC | O_WRONLY, 0666 );
+    } else {
+#if 0
+        QString pr;
+        if ( printer_name )
+            pr = printer_name;
+        QApplication::flushX();
+        int fds[2];
+        if ( pipe( fds ) != 0 ) {
+            qWarning( "QPSPrinter: could not open pipe to print" );
+            state = PST_ERROR;
+            return FALSE;
+        }
+
+        pid = fork();
+        if ( pid == 0 ) {       // child process
+            // if possible, exit quickly, so the actual lp/lpr
+            // becomes a child of init, and ::waitpid() is
+            // guaranteed not to wait.
+            if ( fork() > 0 ) {
+                closeAllOpenFds();
+
+                // try to replace this process with "true" - this prevents
+                // global destructors from being called (that could possibly
+                // do wrong things to the parent process)
+                (void)execlp("true", "true", (char *)0);
+                (void)execl("/bin/true", "true", (char *)0);
+                (void)execl("/usr/bin/true", "true", (char *)0);
+                ::exit( 0 );
+            }
+            dup2( fds[0], 0 );
+
+            closeAllOpenFds();
+
+            if ( print_prog ) {
+                if ( option_string )
+                    pr.prepend( option_string );
+                else
+                    pr.prepend( QString::fromLatin1( "-P" ) );
+                (void)execlp( print_prog.ascii(), print_prog.ascii(),
+                              pr.ascii(), (char *)0 );
+            } else {
+                // if no print program has been specified, be smart
+                // about the option string too.
+                const char * lprarg = 0;
+                QString lprhack;
+                const char * lparg = 0;
+                QString lphack;
+                if ( pr || option_string ) {
+                    lprhack = pr;
+                    if ( option_string )
+                        lprhack.prepend( option_string );
+                    else
+                        lprhack.prepend( QString::fromLatin1( "-P" ) );
+                    lprarg = lprhack.ascii();
+                    lphack = pr;
+                    if ( option_string )
+                        lphack.prepend( option_string );
+                    else
+                        lphack.prepend( QString::fromLatin1( "-d" ) );
+                    lparg = lphack.ascii();
+                }
+                (void)execlp( "lp", "lp", lparg, (char *)0 );
+                (void)execlp( "lpr", "lpr", lprarg, (char *)0 );
+                (void)execl( "/bin/lp", "lp", lparg, (char *)0 );
+                (void)execl( "/bin/lpr", "lpr", lprarg, (char *)0 );
+                (void)execl( "/usr/bin/lp", "lp", lparg, (char *)0 );
+                (void)execl( "/usr/bin/lpr", "lpr", lprarg, (char *)0 );
+            }
+            // if we couldn't exec anything, close the fd,
+            // wait for a second so the parent process (the
+            // child of the GUI process) has exited.  then
+            // exit.
+            ::close( 0 );
+            (void)::sleep( 1 );
+            ::exit( 0 );
+        } else {                // parent process
+            ::close( fds[0] );
+            pdrv = new QPSPrinter( this, fds[1] );
+            state = PST_ACTIVE;
+        }
+#endif
+    }
+    if (d->fd < 0)
+        return false;
+
     d->pagesInBuffer = 0;
     d->buffer = new QBuffer();
     d->buffer->open(IO_WriteOnly);
@@ -5636,7 +5695,6 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
     d->pageCount           = 1;                // initialize state
     d->dirtyMatrix         = true;
     d->dirtyClipping    = true;
-    d->dirtyNewPage        = true;
     d->firstClipOnPage  = true;
     d->boundingBox = QRect(0, 0, -1, -1);
     d->fontsUsed = QString::fromLatin1("");
@@ -5644,6 +5702,8 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
     QPaintDeviceMetrics m(d->printer);
     d->scale = 72. / ((float) m.logicalDpiY());
     setActive(true);
+
+    newPage();
 
     return true;
 }
@@ -5678,26 +5738,10 @@ bool QPSPrintEngine::end()
 
 bool QPSPrintEngine::updateState()
 {
-    if (d->dirtyNewPage)
-        d->initPage(state);
     if (d->dirtyMatrix)
         d->matrixSetup(state);
     if (d->dirtyClipping) // Must be after matrixSetup and initPage
         d->clippingSetup(state);
-    if (d->dirtypen) {
-        // we special-case for narrow solid lines with the default
-        // cap and join styles
-        if (d->cpen.style() == Qt::SolidLine && d->cpen.width() == 0 &&
-             d->cpen.capStyle() == Qt::FlatCap &&
-             d->cpen.joinStyle() == Qt::MiterJoin)
-            d->pageStream << color(d->cpen.color(), d) << "P1\n";
-        else
-            d->pageStream << (int)d->cpen.style() << ' ' << d->cpen.width()
-                          << ' ' << color(d->cpen.color(), d)
-                          << psCap(d->cpen.capStyle())
-                          << psJoin(d->cpen.joinStyle()) << "PE\n";
-        d->dirtypen = false;
-    }
     if (d->dirtybrush) {
         // we special-case for nobrush and solid white, since
         // those are the two most common brushes
@@ -5727,8 +5771,18 @@ bool QPSPrintEngine::updateState()
 
 void QPSPrintEngine::updatePen(const QPen &pen)
 {
-    d->dirtypen = true;
     d->cpen = pen;
+    // we special-case for narrow solid lines with the default
+    // cap and join styles
+    if (d->cpen.style() == Qt::SolidLine && d->cpen.width() == 0 &&
+        d->cpen.capStyle() == Qt::FlatCap &&
+        d->cpen.joinStyle() == Qt::MiterJoin)
+        d->pageStream << color(d->cpen.color(), d) << "P1\n";
+    else
+        d->pageStream << (int)d->cpen.style() << ' ' << d->cpen.width()
+                      << ' ' << color(d->cpen.color(), d)
+                      << psCap(d->cpen.capStyle())
+                      << psJoin(d->cpen.joinStyle()) << "PE\n";
 }
 
 void QPSPrintEngine::updateBrush(const QBrush &brush, const QPoint &origin)
@@ -5920,8 +5974,6 @@ void QPSPrintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int text
 void QPSPrintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p, bool optim)
 {
     // ####################
-}
-
 #if 0
  case PdcDrawImage: {
         if (p[1].image->isNull())
@@ -5937,15 +5989,48 @@ void QPSPrintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, cons
         break;
     }
 #endif
+}
+
 
 bool QPSPrintEngine::newPage()
 {
     // we're writing to lp/lpr through a pipe, we don't want to crash with SIGPIPE
     // if lp/lpr dies
     ignoreSigPipe(true);
-    d->flushPage();
+    if (!d->firstPage)
+        d->flushPage();
+    d->firstPage = false;
     ignoreSigPipe(false);
-    d->dirtyNewPage = true;
+
+    // a restore undefines all the fonts that have been defined
+    // inside the scope (normally within pages) and all the glyphs that
+    // have been added in the scope.
+
+    for (QHash<QString, QPSPrintEngineFontPrivate *>::Iterator it = d->fonts.begin();
+         it != d->fonts.end(); ++it)
+        (*it)->restore();
+
+    if (!d->buffer) {
+        d->pageFontNames.clear();
+    }
+
+    d->pageStream.unsetDevice();
+    if (d->pageBuffer)
+        delete d->pageBuffer;
+    d->pageBuffer = new QBuffer();
+    d->pageBuffer->open(IO_WriteOnly);
+    d->pageStream.setEncoding(QTextStream::Latin1);
+    d->pageStream.setDevice(d->pageBuffer);
+    delete d->savedImage;
+    d->savedImage = 0;
+    d->textY = 0;
+    d->dirtyClipping   = true;
+    d->firstClipOnPage = true;
+
+
+//     d->resetDrawingTools(d->ps);
+    d->pageFontNumber = d->headerFontNumber;
+
     return true;
 }
 
