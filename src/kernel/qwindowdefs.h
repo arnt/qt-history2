@@ -97,6 +97,7 @@ typedef struct OpaqueRgnHandle *RgnHandle;
 typedef struct OpaqueWindowPtr *WindowPtr;
 typedef struct OpaqueGrafPtr *GWorldPtr;
 typedef struct GDevice **GDHandle;
+typedef struct ColorTable ColorTable;
 typedef struct BitMap BitMap;
 typedef struct EventRecord EventRecord;
 typedef void * MSG;
