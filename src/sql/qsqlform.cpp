@@ -331,7 +331,7 @@ QSqlForm::QSqlForm( QObject * parent, const char * name )
 
   \sa populate()
 */
-QSqlForm::QSqlForm( QWidget * widget, QSqlCursor * view, uint columns = 1,
+QSqlForm::QSqlForm( QWidget * widget, QSqlCursor * view, uint columns,
 		    QObject * parent, const char * name )
     : QObject( parent, name ),
       autodelete( FALSE ),
