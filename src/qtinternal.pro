@@ -17,10 +17,10 @@ INT_SOURCES =	dialogs/qfontdialog.cpp \
 		widgets/qspinbox.cpp
 
 # Other non-public Qt files
-INT_MISC    =	qpshdr.txt \
-		qmutex.h \
-		qthread.h \
-		qthread.cpp
+INT_MISC    =	kernel/qpshdr.txt \
+		kernel/qmutex.h \
+		kernel/qthread.h \
+		kernel/qthread.cpp
 
 # Don't change anything below
 INTERNAL    =	$$INT_HEADERS $$INT_SOURCES $$INT_MISC
