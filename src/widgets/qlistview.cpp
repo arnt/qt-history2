@@ -3903,7 +3903,7 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
 	activatedP = vp - topLeft;
 	int xdepth = treeStepSize() * (i->depth() + (rootIsDecorated() ? 1 : 0))
 		     + itemMargin();
-	xdepth += d->h->cellPos( d->h->mapToActual( 0 ) );
+	xdepth += d->h->sectionPos( d->h->mapToSection( 0 ) );
 	activatedP.rx() -= xdepth;
     }
     i->activate();
