@@ -565,7 +565,7 @@ void QSharedDoubleBuffer::releasePixmap()
 #ifdef QT_CHECK_STATE
 	qWarning( "QSharedDoubleBuffer::releasePixmap: internal error."
 		  "\n\t%p does not own shared pixmap, %p does.",
-		  this, qdb_owner );
+		  (void*)this, (void*)qdb_owner );
 #endif // QT_CHECK_STATE
 
 	return;

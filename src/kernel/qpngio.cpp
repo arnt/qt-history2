@@ -925,6 +925,7 @@ CALLBACK_CALL_TYPE end_callback(png_structp png_ptr, png_infop info)
 }
 
 #ifdef PNG_USER_CHUNKS_SUPPORTED
+#if 0
 static int
 CALLBACK_CALL_TYPE user_chunk_callback(png_structp png_ptr,
          png_unknown_chunkp chunk)
@@ -932,6 +933,7 @@ CALLBACK_CALL_TYPE user_chunk_callback(png_structp png_ptr,
     QPNGFormat* that = (QPNGFormat*)png_get_progressive_ptr(png_ptr);
     return that->user_chunk(png_ptr,chunk->data,chunk->size);
 }
+#endif
 #endif
 
 #if defined(Q_C_CALLBACKS)

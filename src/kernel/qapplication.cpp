@@ -3001,7 +3001,7 @@ void QApplication::removePostedEvent( QEvent *  event )
     if ( !globalPostedEvents ) {
 #if defined(QT_DEBUG)
 	qDebug( "QApplication::removePostedEvent: %p %d is posted: impossible",
-		event, event->type() );
+		(void*)event, event->type() );
 	return;
 #endif
     }
