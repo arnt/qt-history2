@@ -27,6 +27,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define CONVERT_PROPERTY(o, n) \
+    do { \
+        if (name == QLatin1String(o) \
+                && !WidgetInfo::isValidProperty(className, (o)) \
+                && WidgetInfo::isValidProperty(className, (n))) { \
+            prop->setAttributeName((n)); \
+        } \
+    } while (0)
+
 DomUI *Ui3Reader::generateUi4(const QDomElement &e)
 {
     QDomElement n;
@@ -452,6 +461,7 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
 
             // changes in QWidget
             if (name == QLatin1String("ownCursor")) {
+                // skip
             } else if (name == QLatin1String("customWhatsThis")) {
                 prop->setAttributeName("whatsThis");
             } else if (name == QLatin1String("icon")) {
@@ -462,24 +472,12 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
                 prop->setAttributeName("windowTitle");
             }
 
-            // changes in QObject
-            if (name == QLatin1String("name")) {
+            if (name == QLatin1String("name"))
                 prop->setAttributeName("objectName");
-            } else if (name == QLatin1String("iconSet")) {
-                prop->setAttributeName("icon");
-            }
 
-            if (name == QLatin1String("accel")
-                    && !WidgetInfo::isValidProperty(className, "accel")
-                    && WidgetInfo::isValidProperty(className, "shortcut")) {
-                prop->setAttributeName("shortcut");
-            }
-
-            if (name == QLatin1String("textLabel")
-                    && !WidgetInfo::isValidProperty(className, "textLabel")
-                    && WidgetInfo::isValidProperty(className, "text")) {
-                prop->setAttributeName("text");
-            }
+            CONVERT_PROPERTY("iconSet", "icon");
+            CONVERT_PROPERTY("accel", "shortcut");
+            CONVERT_PROPERTY("textLabel", "text");
 
             name = prop->attributeName(); // sync the name
 
