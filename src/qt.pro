@@ -2,7 +2,7 @@ TEMPLATE    =	lib
 CONFIG      =	qt warn_on release
 
 win32:INCLUDEPATH =	tmp
-win:MOC_DIR     =	tmp
+win32:MOC_DIR     =	tmp
 
 win32:DIALOGS_H	=	../include
 win32:KERNEL_H	=	../include
