@@ -979,7 +979,7 @@ void QWidget::repaint(const QRegion& rgn)
         if (parents.size()) {
             w = parents.pop();
             for (;;) {
-                if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
+                if (w->testAttribute(Qt::WA_ContentsPropagated)) {
                     QPainter::setRedirected(w, q, offset);
                     QRect rr = d->clipRect();
                     rr.moveBy(offset);
@@ -1439,11 +1439,11 @@ void QWidgetPrivate::setWSGeometry()
     // unmap if we are outside the valid window system coord system
     bool outsideRange = !xrect.isValid();
     bool mapWindow = false;
-    if (q->testAttribute(QWidget::WA_OutsideWSRange) != outsideRange) {
-        q->setAttribute(QWidget::WA_OutsideWSRange, outsideRange);
+    if (q->testAttribute(Qt::WA_OutsideWSRange) != outsideRange) {
+        q->setAttribute(Qt::WA_OutsideWSRange, outsideRange);
         if (outsideRange) {
             ShowWindow(q->winId(), SW_HIDE);
-            q->setAttribute(QWidget::WA_Mapped, false);
+            q->setAttribute(Qt::WA_Mapped, false);
         } else if (q->isShown()) {
             mapWindow = true;
         }
@@ -1469,7 +1469,7 @@ void QWidgetPrivate::setWSGeometry()
     // than moving mapped windows
     MoveWindow(q->winId(), xrect.x(), xrect.y(), xrect.width(), xrect.height(), true);
     if (mapWindow) {
-            q->setAttribute(QWidget::WA_Mapped);
+            q->setAttribute(Qt::WA_Mapped);
             ShowWindow(q->winId(), SW_SHOWNOACTIVATE);
     }
 

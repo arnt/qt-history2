@@ -172,7 +172,7 @@ static WindowGroupRef qt_mac_get_stays_on_top_group()
 void qt_mac_update_metal_style(QWidget *w)
 {
     if(w->isTopLevel()) {
-        if(w->testAttribute(QWidget::WA_MacMetalStyle))
+        if(w->testAttribute(Qt::WA_MacMetalStyle))
             ChangeWindowAttributes((WindowRef)w->handle(), kWindowMetalAttribute, 0);
         else
             ChangeWindowAttributes((WindowRef)w->handle(), 0, kWindowMetalAttribute);
@@ -370,7 +370,7 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
                     // Mapping region from system to qt (32 bit) coordinate system.
                     QPoint redirectionOffset = widget->data->wrect.topLeft();
 
-                    if(!widget->testAttribute(QWidget::WA_NoBackground) &&
+                    if(!widget->testAttribute(Qt::WA_NoBackground) &&
                        !widget->d->isBackgroundInherited()) {
                         QBrush bg = widget->palette().brush(widget->d->bg_role);
                         QRect rr = qrgn.boundingRect();
@@ -381,7 +381,7 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
                             widget->setWFlags(Qt::WPaintUnclipped);
                         p.setClipRegion(qrgn);
                         if(bg.pixmap())
-                            p.drawTiledPixmap(rr, *bg.pixmap(), 
+                            p.drawTiledPixmap(rr, *bg.pixmap(),
                                               QPoint((rr.x()+redirectionOffset.x())%bg.pixmap()->width(),
                                                      (rr.y()+redirectionOffset.y())%bg.pixmap()->height()));
                         else
@@ -473,7 +473,7 @@ static HIViewRef qt_mac_create_widget(HIViewRef parent)
 bool qt_mac_is_macdrawer(QWidget *w)
 {
 #if 1
-    if(w && w->parentWidget() && w->testWFlags(Qt::WMacDrawer) == Qt::WMacDrawer) 
+    if(w && w->parentWidget() && w->testWFlags(Qt::WMacDrawer) == Qt::WMacDrawer)
         return true;
 #else
     Q_UNUSED(w);
@@ -504,7 +504,7 @@ bool qt_mac_is_macsheet(QWidget *w)
 {
 #if 1
     if(w && w->testWFlags(Qt::WMacSheet) == Qt::WMacSheet
-       && w->parentWidget() && !w->parentWidget()->topLevelWidget()->isDesktop() 
+       && w->parentWidget() && !w->parentWidget()->topLevelWidget()->isDesktop()
        && w->parentWidget()->topLevelWidget()->isVisible())
         return true;
 #else
@@ -1384,7 +1384,7 @@ void QWidget::hide_sys()
         WindowPtr window = qt_mac_window_for((HIViewRef)winId());
         if(qt_mac_is_macsheet(this)) {
             WindowPtr parent = 0;
-            if(GetSheetWindowParent(window, &parent) != noErr || !parent) 
+            if(GetSheetWindowParent(window, &parent) != noErr || !parent)
                 ShowHide(window, false);
             else
                 HideSheetWindow(window);
@@ -1407,7 +1407,7 @@ void QWidget::hide_sys()
             if(w && w->isVisible())
                 qt_event_request_activate(w);
         }
-    } else { 
+    } else {
         HIViewSetVisible((HIViewRef)winId(), false);
     }
     deactivateWidgetCleanup();
@@ -1656,11 +1656,11 @@ void QWidgetPrivate::setWSGeometry()
     // unmap if we are outside the valid window system coord system
     bool outsideRange = !xrect.isValid();
     bool mapWindow = false;
-    if (q->testAttribute(QWidget::WA_OutsideWSRange) != outsideRange) {
-        q->setAttribute(QWidget::WA_OutsideWSRange, outsideRange);
+    if (q->testAttribute(Qt::WA_OutsideWSRange) != outsideRange) {
+        q->setAttribute(Qt::WA_OutsideWSRange, outsideRange);
         if (outsideRange) {
             HIViewSetVisible((HIViewRef)q->winId(), false);
-            q->setAttribute(QWidget::WA_Mapped, false);
+            q->setAttribute(Qt::WA_Mapped, false);
         } else if (q->isShown()) {
             mapWindow = true;
         }
@@ -1698,7 +1698,7 @@ void QWidgetPrivate::setWSGeometry()
         q->update();
     }
     if (mapWindow) {
-        q->setAttribute(QWidget::WA_Mapped);
+        q->setAttribute(Qt::WA_Mapped);
         HIViewSetVisible((HIViewRef)q->winId(), true);
     }
 }

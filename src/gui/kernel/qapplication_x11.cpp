@@ -2460,7 +2460,7 @@ void QApplication::setOverrideCursor(const QCursor &cursor, bool replace)
 
     for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
         register QWidget *w = *it;
-        if (w->testAttribute(QWidget::WA_SetCursor))
+        if (w->testAttribute(Qt::WA_SetCursor))
             qt_x11_enforce_cursor(w);
     }
     XFlush(X11->display);                                // make X execute it NOW
@@ -2486,7 +2486,7 @@ void QApplication::restoreOverrideCursor()
     if (QWidget::mapper != 0 && !closingDown()) {
         for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
             register QWidget *w = *it;
-            if (w->testAttribute(QWidget::WA_SetCursor))
+            if (w->testAttribute(Qt::WA_SetCursor))
                 qt_x11_enforce_cursor(w);
         }
         XFlush(X11->display);
@@ -3192,7 +3192,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
 
     case UnmapNotify:                                // window hidden
         if (widget->isTopLevel()) {
-            widget->setAttribute(QWidget::WA_Mapped, false);
+            widget->setAttribute(Qt::WA_Mapped, false);
             if (widget->isShown()) {
                 widget->d->topData()->spont_unmapped = 1;
                 QHideEvent e;
@@ -3204,7 +3204,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
 
     case MapNotify:                                // window shown
         if (widget->isTopLevel()) {
-            widget->setAttribute(QWidget::WA_Mapped);
+            widget->setAttribute(Qt::WA_Mapped);
             if (widget->d->topData()->spont_unmapped) {
                  widget->d->topData()->spont_unmapped = 0;
                  widget->showChildren(true);

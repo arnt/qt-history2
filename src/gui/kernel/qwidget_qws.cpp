@@ -698,7 +698,7 @@ void QWidget::repaint(const QRegion& rgn)
         if (!parents.isEmpty()) {
             w = parents.pop();
             for (;;) {
-                if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
+                if (w->testAttribute(Qt::WA_ContentsPropagated)) {
                     QPainter::setRedirected(w, q, offset);
                     QRect rr = q->rect();
                     rr.moveBy(offset);

@@ -1904,7 +1904,7 @@ void QApplication::restoreOverrideCursor()
     int cursor_handle;
     if (qApp->d->cursor_list.isEmpty()) {
         qws_overrideCursor = false;
-        cursor_handle = (w->testAttribute(QWidget::WA_SetCursor))
+        cursor_handle = (w->testAttribute(Qt::WA_SetCursor))
                         ? (int)w->cursor().handle() : ArrowCursor;
     } else {
         cursor_handle = (int)qApp->d->cursor_list.first().handle();

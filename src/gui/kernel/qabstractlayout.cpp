@@ -809,7 +809,7 @@ void QLayout::widgetEvent(QEvent *e)
 #endif
             int b = marginImpl ? 0 : outsideBorder;
             QWidget *mw = parentWidget();
-            QRect rect = mw->testAttribute(QWidget::WA_LayoutOnEntireRect)?mw->rect():mw->contentsRect();
+            QRect rect = mw->testAttribute(Qt::WA_LayoutOnEntireRect)?mw->rect():mw->contentsRect();
             rect.addCoords(b, mbh + b, -b, -b);
             setGeometry(rect);
         } else {
@@ -1039,7 +1039,7 @@ void QLayout::addChildWidget(QWidget *w)
 
     //WA_Layouted is never reset. It only means that the widget at some point has
     //been in a layout.
-    if (w->testAttribute(QWidget::WA_Layouted)) {
+    if (w->testAttribute(Qt::WA_Layouted)) {
         QLayout *l = pw->layout();
         if (l && removeWidgetRecursively(l, w))
             qWarning("QLayout::addChildWidget: widget is already in a layout; moved to new layout");
@@ -1052,7 +1052,7 @@ void QLayout::addChildWidget(QWidget *w)
     }
     if (!pw && mw)
         w->setParent(mw);
-    w->setAttribute(QWidget::WA_Layouted);
+    w->setAttribute(Qt::WA_Layouted);
 }
 
 
@@ -1147,7 +1147,7 @@ void QLayout::activateRecursiveHelper(QLayoutItem *item)
     if (layout) {
         QLayoutItem *child;
         int i=0;
-        while ((child = layout->itemAt(i++))) 
+        while ((child = layout->itemAt(i++)))
             activateRecursiveHelper(child);
         layout->activated = true;
     }
@@ -1208,7 +1208,7 @@ bool QLayout::activate()
     mbh = menuBarHeightForWidth(menubar, s.width());
 #endif
     int b = marginImpl ? 0 : outsideBorder;
-    QRect rect = mw->testAttribute(QWidget::WA_LayoutOnEntireRect)?mw->rect():mw->contentsRect();
+    QRect rect = mw->testAttribute(Qt::WA_LayoutOnEntireRect)?mw->rect():mw->contentsRect();
     rect.addCoords(b, mbh + b, -b, -b);
     setGeometry(rect);
     if (frozen) {
@@ -1557,13 +1557,13 @@ bool QLayout::activate()
 
   The following code fragment shows a safe way to remove all items from a layout:
   \code
-  
+
   QLayoutItem *child;
   while((child = layout->takeAt(0)) != 0) {
      //process child...
   }
   \endcode
-  
+
     \sa QLayout::itemAt()
 */
 

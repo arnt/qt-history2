@@ -762,9 +762,9 @@ void QWidgetPrivate::init(Qt::WFlags f)
     data.widget_attributes = 0;
 #ifdef QT_COMPAT
     if (f & Qt::WNoAutoErase)
-        q->setAttribute(QWidget::WA_NoBackground);
+        q->setAttribute(Qt::WA_NoBackground);
     if (f & Qt::WStaticContents)
-        q->setAttribute(QWidget::WA_StaticContents);
+        q->setAttribute(Qt::WA_StaticContents);
 #endif
     data.widget_state = 0;
     data.widget_flags = f;
@@ -795,7 +795,7 @@ void QWidgetPrivate::init(Qt::WFlags f)
     } else {
         // propagate enabled state
         if (!q->parentWidget()->isEnabled())
-            q->setAttribute(QWidget::WA_Disabled, true);
+            q->setAttribute(Qt::WA_Disabled, true);
         // new widgets do not show up in already visible parents
         if (q->parentWidget()->isVisible())
             q->setWState(Qt::WState_Hidden);
@@ -813,8 +813,8 @@ void QWidgetPrivate::init(Qt::WFlags f)
         focus_next = focus_handler;
     }
 
-    q->setAttribute(QWidget::WA_PendingMoveEvent);
-    q->setAttribute(QWidget::WA_PendingResizeEvent);
+    q->setAttribute(Qt::WA_PendingMoveEvent);
+    q->setAttribute(Qt::WA_PendingResizeEvent);
 
     if (++QWidget::instanceCounter > QWidget::maxInstances)
         QWidget::maxInstances = QWidget::instanceCounter;
@@ -1006,10 +1006,10 @@ void QWidgetPrivate::deleteExtra()
 bool QWidgetPrivate::isForegroundInherited() const
 {
     return (q->testWFlags(Qt::WType_TopLevel|Qt::WSubWindow) == 0
-            && (q->testAttribute(QWidget::WA_ForegroundInherited)
-                || (!q->testAttribute(QWidget::WA_SetPalette)
-                    && !q->testAttribute(QWidget::WA_SetForegroundRole)
-                    && !q->testAttribute(QWidget::WA_SetBackgroundRole))));
+            && (q->testAttribute(Qt::WA_ForegroundInherited)
+                || (!q->testAttribute(Qt::WA_SetPalette)
+                    && !q->testAttribute(Qt::WA_SetForegroundRole)
+                    && !q->testAttribute(Qt::WA_SetBackgroundRole))));
 }
 
 
@@ -1028,9 +1028,9 @@ bool QWidgetPrivate::isForegroundInherited() const
 bool QWidgetPrivate::isBackgroundInherited() const
 {
     return (q->testWFlags(Qt::WType_TopLevel|Qt::WSubWindow) == 0
-            && (q->testAttribute(QWidget::WA_BackgroundInherited)
-                || (!q->testAttribute(QWidget::WA_SetPalette)
-                    && !q->testAttribute(QWidget::WA_SetBackgroundRole))));
+            && (q->testAttribute(Qt::WA_BackgroundInherited)
+                || (!q->testAttribute(Qt::WA_SetPalette)
+                    && !q->testAttribute(Qt::WA_SetBackgroundRole))));
 }
 
 /*
@@ -1042,7 +1042,7 @@ bool QWidgetPrivate::isTransparent() const
     const QWidget *w = q;
     while (w->d->isBackgroundInherited()) {
         w = w->parentWidget();
-        if (w->testAttribute(QWidget::WA_ContentsPropagated))
+        if (w->testAttribute(Qt::WA_ContentsPropagated))
             return true;
     }
     return false;
@@ -1201,7 +1201,7 @@ void QPixmap::fill(const QWidget *widget, int xoff, int yoff)
 
     w = parents.pop();
     for (;;) {
-        if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
+        if (w->testAttribute(Qt::WA_ContentsPropagated)) {
             QPainter::setRedirected(w, this, offset);
             QRect rr = widget->d->clipRect();
             rr.moveBy(offset);
@@ -3912,7 +3912,7 @@ void QWidget::showChildren(bool spontaneous)
             qDebug("go on my son..");
 #else
             continue;
-#endif            
+#endif
         }
         if (widget->testWState(WState_Hidden))
             continue;
@@ -3954,7 +3954,7 @@ void QWidget::hideChildren(bool spontaneous)
 
 bool QWidgetPrivate::compositeEvent(QEvent *e)
 {
-    if (!q->testAttribute(QWidget::WA_CompositeParent))
+    if (!q->testAttribute(Qt::WA_CompositeParent))
         return false;
 
     QWidget *w = 0;
@@ -3986,8 +3986,8 @@ bool QWidgetPrivate::compositeEvent(QEvent *e)
         // fall through
     case QEvent::KeyPress:
     case QEvent::KeyRelease:
-        if (q->testAttribute(QWidget::WA_CompositeParent) && (w = q->focusProxy())
-            && w->testAttribute(QWidget::WA_CompositeChild)) {
+        if (q->testAttribute(Qt::WA_CompositeParent) && (w = q->focusProxy())
+            && w->testAttribute(Qt::WA_CompositeChild)) {
             ((QInputEvent *)e)->accept();
             return QApplication::sendEvent(w, e);
         }
@@ -4000,7 +4000,7 @@ bool QWidgetPrivate::compositeEvent(QEvent *e)
         w = static_cast<QWidget *>(children.at(i));
         if (!w->isWidgetType())
             continue;
-        if (w->testAttribute(QWidget::WA_CompositeChild) && w->data->crect.contains(pos))
+        if (w->testAttribute(Qt::WA_CompositeChild) && w->data->crect.contains(pos))
             goto subwidget;
     }
     return false;
@@ -4541,7 +4541,7 @@ bool QWidget::event(QEvent *e)
     case QEvent::Polish: {
         QObject::event(e);
         qApp->polish(this);
-        if (!testAttribute(QWidget::WA_SetFont) && !QApplication::font(this).isCopyOf(QApplication::font()))
+        if (!testAttribute(Qt::WA_SetFont) && !QApplication::font(this).isCopyOf(QApplication::font()))
             d->resolveFont();
 #ifndef QT_NO_PALETTE
         if (!QApplication::palette(this).isCopyOf(QApplication::palette()))

@@ -504,7 +504,7 @@ static void qt_set_windows_resources()
         menu.setColor(QPalette::Disabled, QPalette::Text, disabled);
         menu.setColor(QPalette::Disabled, QPalette::Highlight,
                        QColor(qt_colorref2qrgb(GetSysColor(
-                                               QSysInfo::WindowsVersion == QSysInfo::WV_XP 
+                                               QSysInfo::WindowsVersion == QSysInfo::WV_XP
                                                && isFlat ? COLOR_MENUHILIGHT
                                                          : COLOR_HIGHLIGHT))));
         menu.setColor(QPalette::Disabled, QPalette::HighlightedText, disabled);
@@ -1555,7 +1555,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
             break;
 
         case WM_ERASEBKGND:                        // erase window background
-            if (!widget->testAttribute(QWidget::WA_PendingUpdate))
+            if (!widget->testAttribute(Qt::WA_PendingUpdate))
                 widget->eraseWindowBackground((HDC)wParam);
             RETURN(true);
             break;

@@ -186,7 +186,7 @@ static void create_wm_client_leader()
 
 Q_GUI_EXPORT void qt_x11_enforce_cursor(QWidget * w)
 {
-    if (w->testAttribute(QWidget::WA_SetCursor)) {
+    if (w->testAttribute(Qt::WA_SetCursor)) {
         QCursor *oc = QApplication::overrideCursor();
         if (oc) {
             XDefineCursor(w->x11Info()->display(), w->winId(), oc->handle());
@@ -983,7 +983,7 @@ void QWidgetPrivate::setFont_sys(QFont *)
 void QWidgetPrivate::updateSystemBackground()
 {
     QBrush brush = q->palette().brush(q->backgroundRole());
-    if (brush.style() == Qt::NoBrush || q->testAttribute(QWidget::WA_NoSystemBackground)) {
+    if (brush.style() == Qt::NoBrush || q->testAttribute(Qt::WA_NoSystemBackground)) {
         XSetWindowBackgroundPixmap(xinfo->display(), q->winId(), XNone);
     } else if (brush.pixmap()) {
         QPixmap pix = *brush.pixmap();
@@ -1574,7 +1574,7 @@ void QWidget::repaint(const QRegion& rgn)
         if (parents.size()) {
             w = parents.pop();
             for (;;) {
-                if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
+                if (w->testAttribute(Qt::WA_ContentsPropagated)) {
                     QPainter::setRedirected(w, q, offset + redirectionOffset);
                     QRect rr = d->clipRect();
                     rr.moveBy(offset);
@@ -1720,7 +1720,7 @@ void QWidget::setWindowState(uint newstate)
                                RootWindow(d->xinfo->display(),d->xinfo->screen()),
                                False, (SubstructureNotifyMask|SubstructureRedirectMask), &e);
                 } else {
-                    setAttribute(QWidget::WA_Mapped);
+                    setAttribute(Qt::WA_Mapped);
                     XMapWindow(d->xinfo->display(), winId());
                 }
             }
@@ -1843,7 +1843,7 @@ void QWidget::hide_sys()
 
         XFlush(d->xinfo->display());
     } else {
-        setAttribute(QWidget::WA_Mapped, false);
+        setAttribute(Qt::WA_Mapped, false);
         if (winId()) // in nsplugin, may be 0
             XUnmapWindow(d->xinfo->display(), winId());
     }
@@ -2046,11 +2046,11 @@ void QWidgetPrivate::setWSGeometry()
     // unmap if we are outside the valid window system coord system
     bool outsideRange = !xrect.isValid();
     bool mapWindow = false;
-    if (q->testAttribute(QWidget::WA_OutsideWSRange) != outsideRange) {
-        q->setAttribute(QWidget::WA_OutsideWSRange, outsideRange);
+    if (q->testAttribute(Qt::WA_OutsideWSRange) != outsideRange) {
+        q->setAttribute(Qt::WA_OutsideWSRange, outsideRange);
         if (outsideRange) {
             XUnmapWindow(dpy, data.winid);
-            q->setAttribute(QWidget::WA_Mapped, false);
+            q->setAttribute(Qt::WA_Mapped, false);
         } else if (q->isShown()) {
             mapWindow = true;
         }
@@ -2085,7 +2085,7 @@ void QWidgetPrivate::setWSGeometry()
         XClearArea(dpy, data.winid, 0, 0, wrect.width(), wrect.height(), True);
     }
     if (mapWindow) {
-            q->setAttribute(QWidget::WA_Mapped);
+            q->setAttribute(Qt::WA_Mapped);
             XMapWindow(dpy, data.winid);
     }
 }

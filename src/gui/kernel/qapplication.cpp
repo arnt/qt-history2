@@ -2542,8 +2542,8 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             if (res || key->isAccepted())
                 break;
             if (w->isTopLevel() || !w->parentWidget()
-                || (w->testAttribute(QWidget::WA_CompositeChild)
-                    && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent))
+                || (w->testAttribute(Qt::WA_CompositeChild)
+                    && w->parentWidget()->testAttribute(Qt::WA_CompositeParent))
                )
                 break;
             w = w->parentWidget();
@@ -2560,9 +2560,9 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
         QPoint relpos = mouse->pos();
 
         if (e->spontaneous()) {
-            while (w->testAttribute(QWidget::WA_CompositeChild)
+            while (w->testAttribute(Qt::WA_CompositeChild)
                    && w->parentWidget()
-                   && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)) {
+                   && w->parentWidget()->testAttribute(Qt::WA_CompositeParent)) {
                 relpos += w->pos();
                 w = w->parentWidget();
             }
@@ -2596,9 +2596,9 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             res = notify_helper(w, w == receiver ? mouse : &me);
             e->spont = false;
             if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation)
-                || (w->testAttribute(QWidget::WA_CompositeChild)
+                || (w->testAttribute(Qt::WA_CompositeChild)
                     && w->parentWidget()
-                    && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)))
+                    && w->parentWidget()->testAttribute(Qt::WA_CompositeParent)))
                 break;
 
             relpos += w->pos();
@@ -2618,9 +2618,9 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
         QPoint relpos = wheel->pos();
 
         if (e->spontaneous()) {
-            while (w->testAttribute(QWidget::WA_CompositeChild)
+            while (w->testAttribute(Qt::WA_CompositeChild)
                    && w->parentWidget()
-                   && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)) {
+                   && w->parentWidget()->testAttribute(Qt::WA_CompositeParent)) {
                 relpos += w->pos();
                 w = w->parentWidget();
             }
@@ -2645,9 +2645,9 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             res = notify_helper(w,  w == receiver ? wheel : &we);
             e->spont = false;
             if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation)
-                || (w->testAttribute(QWidget::WA_CompositeChild)
+                || (w->testAttribute(Qt::WA_CompositeChild)
                     && w->parentWidget()
-                    && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)))
+                    && w->parentWidget()->testAttribute(Qt::WA_CompositeParent)))
                 break;
 
             relpos += w->pos();
@@ -2666,9 +2666,9 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
         QContextMenuEvent *context = (QContextMenuEvent*) e;
         QPoint relpos = context->pos();
         if (e->spontaneous())
-            while (w->testAttribute(QWidget::WA_CompositeChild)
+            while (w->testAttribute(Qt::WA_CompositeChild)
                    && w->parentWidget()
-                   && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)) {
+                   && w->parentWidget()->testAttribute(Qt::WA_CompositeParent)) {
                 relpos += w->pos();
                 w = w->parentWidget();
             }
@@ -2680,9 +2680,9 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             e->spont = false;
 
             if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation)
-                || (w->testAttribute(QWidget::WA_CompositeChild)
+                || (w->testAttribute(Qt::WA_CompositeChild)
                     && w->parentWidget()
-                    && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)))
+                    && w->parentWidget()->testAttribute(Qt::WA_CompositeParent)))
                 break;
 
             relpos += w->pos();
@@ -2703,9 +2703,9 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
         QTabletEvent *tablet = (QTabletEvent*)e;
         QPoint relpos = tablet->pos();
         if (e->spontaneous()) {
-            while (w->testAttribute(QWidget::WA_CompositeChild)
+            while (w->testAttribute(Qt::WA_CompositeChild)
                    && w->parentWidget()
-                   && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)) {
+                   && w->parentWidget()->testAttribute(Qt::WA_CompositeParent)) {
                 relpos += w->pos();
                 w = w->parentWidget();
             }
@@ -2719,9 +2719,9 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             res = notify_helper(w, w == receiver ? tablet : &te);
             e->spont = false;
             if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation)
-                || (w->testAttribute(QWidget::WA_CompositeChild)
+                || (w->testAttribute(Qt::WA_CompositeChild)
                     && w->parentWidget()
-                    && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)))
+                    && w->parentWidget()->testAttribute(Qt::WA_CompositeParent)))
                 break;
 
             relpos += w->pos();
@@ -2743,9 +2743,9 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
         QHelpEvent *help = (QHelpEvent*) e;
         QPoint relpos = help->pos();
         if (e->spontaneous())
-            while (w->testAttribute(QWidget::WA_CompositeChild)
+            while (w->testAttribute(Qt::WA_CompositeChild)
                    && w->parentWidget()
-                   && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)) {
+                   && w->parentWidget()->testAttribute(Qt::WA_CompositeParent)) {
                 relpos += w->pos();
                 w = w->parentWidget();
             }
@@ -2757,9 +2757,9 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             e->spont = false;
 
             if (res || w->isTopLevel()
-                || (w->testAttribute(QWidget::WA_CompositeChild)
+                || (w->testAttribute(Qt::WA_CompositeChild)
                     && w->parentWidget()
-                    && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)))
+                    && w->parentWidget()->testAttribute(Qt::WA_CompositeParent)))
                 break;
 
             relpos += w->pos();
@@ -2775,9 +2775,9 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
         while (w) {
             res = notify_helper(w, e);
             if (res || w->isTopLevel()
-                || (w->testAttribute(QWidget::WA_CompositeChild)
+                || (w->testAttribute(Qt::WA_CompositeChild)
                     && w->parentWidget()
-                    && w->parentWidget()->testAttribute(QWidget::WA_CompositeParent)))
+                    && w->parentWidget()->testAttribute(Qt::WA_CompositeParent)))
                 break;
             w = w->parentWidget();
         }
@@ -2809,9 +2809,9 @@ bool QApplication::notify_helper(QObject *receiver, QEvent * e)
 
         // toggle HasMouse widget state on enter and leave
         if (e->type() == QEvent::Enter || e->type() == QEvent::DragEnter)
-            widget->setAttribute(QWidget::WA_UnderMouse, true);
+            widget->setAttribute(Qt::WA_UnderMouse, true);
         else if (e->type() == QEvent::Leave || e->type() == QEvent::DragLeave)
-            widget->setAttribute(QWidget::WA_UnderMouse, false);
+            widget->setAttribute(Qt::WA_UnderMouse, false);
 
         if (QLayout *layout=widget->d->layout) {
             layout->widgetEvent(e);

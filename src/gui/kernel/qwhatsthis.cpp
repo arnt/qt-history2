@@ -91,7 +91,7 @@
     QMainWindow::whatsThis() slot to invoke the mode from a menu item.
 
     If you wish to control the "What's this?" behavior of a widget
-    manually see QWidget::WA_CustomWhatsThis.
+    manually see Qt::WA_CustomWhatsThis.
 
     ### todo explain QHelpEvent with type QEvent::WhatsThis and the
     ### showText()/hideText() functions. Also explain
@@ -359,7 +359,7 @@ bool QWhatsThisPrivate::eventFilter(QObject *o, QEvent *e)
     if (!o->isWidgetType())
         return false;
     QWidget * w = static_cast<QWidget *>(o);
-    bool customWhatsThis = w->testAttribute(QWidget::WA_CustomWhatsThis);
+    bool customWhatsThis = w->testAttribute(Qt::WA_CustomWhatsThis);
     switch (e->type()) {
     case QEvent::MouseButtonPress:
     {
@@ -384,7 +384,7 @@ bool QWhatsThisPrivate::eventFilter(QObject *o, QEvent *e)
         if (kev->key() == Qt::Key_Escape) {
             QWhatsThis::leaveWhatsThisMode();
             return true;
-        } else if (o->isWidgetType() && ((QWidget*)o)->testAttribute(QWidget::WA_CustomWhatsThis)) {
+        } else if (o->isWidgetType() && ((QWidget*)o)->testAttribute(Qt::WA_CustomWhatsThis)) {
             return false;
         } else if (kev->key() == Key_Menu ||
                     (kev->key() == Key_F10 &&

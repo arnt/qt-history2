@@ -27,6 +27,7 @@ public:
 
 protected:
     void closeEvent( QCloseEvent* );
+    bool event(QEvent *);
 
 private slots:
     void newDoc();

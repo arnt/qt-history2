@@ -68,7 +68,7 @@ ApplicationWindow::ApplicationWindow()
     const char * fileOpenText = "<p><img source=\"fileopen\"> "
 	         "Click this button to open a <em>new file</em>.<br>"
                  "You can also select the <b>Open</b> command "
-                 "from the <b>File</b> menu.</p>";
+                 "from the <b>File</b> menu. Or click this <a href=\"foobar\">link</a></p>";
 
     QWhatsThis::add( fileOpen, fileOpenText );
 
@@ -138,6 +138,7 @@ ApplicationWindow::ApplicationWindow()
 
     resize( 450, 600 );
 }
+
 
 
 ApplicationWindow::~ApplicationWindow()
@@ -293,6 +294,15 @@ void ApplicationWindow::closeEvent( QCloseEvent* ce )
     }
 }
 
+
+bool ApplicationWindow::event(QEvent *e)
+{
+    if (e->type() == QEvent::WhatsThisClicked) {
+        qDebug("%s", static_cast<QWhatsThisClickedEvent*>(e)->href().latin1());
+        return true;
+    }
+    return QMainWindow::event(e);
+}
 
 void ApplicationWindow::about()
 {

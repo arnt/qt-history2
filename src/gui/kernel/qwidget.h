@@ -459,45 +459,6 @@ public:
     QX11Info *x11Info() const;
 #endif
 
-    enum WidgetAttribute {
-        WA_Disabled,
-        WA_UnderMouse,
-        WA_MouseTracking,
-        WA_ContentsPropagated,
-        WA_NoBackground,
-        WA_StaticContents,
-        WA_ForegroundInherited,
-        WA_BackgroundInherited,
-        WA_Layouted,
-        WA_PaintOnScreen,
-        WA_NoSystemBackground,
-        WA_Mapped,
-
-        WA_ForceDisabled = 32,
-        WA_KeyCompression,
-        WA_PendingMoveEvent,
-        WA_PendingResizeEvent,
-        WA_SetPalette,
-        WA_SetFont,
-        WA_SetCursor,
-        WA_SetForegroundRole,
-        WA_SetBackgroundRole,
-        WA_WindowModified,
-        WA_Resized,
-        WA_Moved,
-        WA_PendingUpdate,
-        WA_InvalidSize,
-        WA_MacMetalStyle, //mac only
-        WA_CompositeParent,
-        WA_CompositeChild,
-        WA_CustomWhatsThis,
-        WA_LayoutOnEntireRect,
-        WA_OutsideWSRange,
-        WA_GrabbedShortcut,
-
-        // Add new attributes above this!
-        WA_AttributeCount
-    };
     void setAttribute(WidgetAttribute, bool = true);
     inline bool testAttribute(WidgetAttribute) const;
 
