@@ -2978,8 +2978,16 @@ void QListBox::ensureCurrentVisible()
     int row = currentRow();
     int column = currentColumn();
     int w = ( d->columnPos[column+1] - d->columnPos[column] ) / 2;
-    if ( numColumns() == 1 ) w = 0;
     int h = ( d->rowPos[row+1] - d->rowPos[row] ) / 2;
+    // next four lines are Bad.  they mean that for pure left-to-right
+    // languages, textual list box items are displayed better than
+    // before when there is little space.  for non-textual items, or
+    // other languages, it means... that you really should have enough
+    // space in the first place :)
+    if ( numColumns() == 1 )
+	w = 0;
+    if ( w*2 > viewport()->width() )
+	w = viewport()->width()/2;
 
     ensureVisible( d->columnPos[column] + w, d->rowPos[row] + h, w, h);
 }
