@@ -113,7 +113,7 @@ const char *QAbstractItemModelDrag::format()
 */
 
 /*!
-  \class QAbstractItemModel qgenericitemmodel.h
+  \class QAbstractItemModel qabstractitemmodel.h
 
   \brief Abstract class used to provide abitrary data.
 
@@ -143,6 +143,9 @@ QAbstractItemModel::~QAbstractItemModel()
 {
 }
 
+/*!
+  Returns the QModelIndex object associated with the data in \a row \a column with \a parent.
+ */
 QModelIndex QAbstractItemModel::index(int row, int column, const QModelIndex &parent,
                                      QModelIndex::Type type) const
 {
@@ -151,31 +154,55 @@ QModelIndex QAbstractItemModel::index(int row, int column, const QModelIndex &pa
     return QModelIndex();
 }
 
+/*!
+  Returns the parent QModelIndex object of \a child.
+*/
 QModelIndex QAbstractItemModel::parent(const QModelIndex &) const
 {
     return QModelIndex();
 }
 
+/*!
+  Returns true if \a parent has any children; otherwise returns false.
+*/
 bool QAbstractItemModel::hasChildren(const QModelIndex &parent) const
 {
     return (rowCount(parent) > 0) && (columnCount(parent) > 0);
 }
 
+/*!
+  FIXME
+*/
 void QAbstractItemModel::fetchMore()
 {
     // do nothing
 }
 
+/*!
+  Returns true if decode() would be able to decode \a src;
+  otherwise returns false.
+*/
 bool QAbstractItemModel::canDecode(QMimeSource *src) const
 {
     return QAbstractItemModelDrag::canDecode(src);
 }
 
+/*!
+  Decodes data from \a e, inserting the data under \a parent (if possible).
+
+  Returns true if the data was successfully decoded and inserted;
+  otherwise returns false.
+*/
 bool QAbstractItemModel::decode(QDropEvent *e, const QModelIndex &parent)
 {
     return QAbstractItemModelDrag::decode(e, this, parent);
 }
 
+/*!
+  Returns a pointer to a QDragObject object containing the data associated with \a indices.
+
+  \sa itemData
+ */
 QDragObject *QAbstractItemModel::dragObject(const QModelIndexList &indices, QWidget *dragSource)
 {
     return new QAbstractItemModelDrag(indices, this, dragSource);
@@ -187,7 +214,6 @@ QDragObject *QAbstractItemModel::dragObject(const QModelIndexList &indices, QWid
 
   \sa Role
 */
-
 QMap<int, QVariant> QAbstractItemModel::itemData(const QModelIndex &index) const
 {
     QMap<int, QVariant> roles;
@@ -199,11 +225,20 @@ QMap<int, QVariant> QAbstractItemModel::itemData(const QModelIndex &index) const
     return roles;
 }
 
+/*!
+  Sets the data in \a index, \a role to \a value.
+  Returns true if successfull; otherwise returns false.
+
+  \sa data
+*/
 bool QAbstractItemModel::setData(const QModelIndex &, int, const QVariant &)
 {
     return false;
 }
 
+/*!
+  FIXME
+*/
 bool QAbstractItemModel::setItemData(const QModelIndex &index, const QMap<int, QVariant> &roles)
 {
     bool b = true;
@@ -212,61 +247,111 @@ bool QAbstractItemModel::setItemData(const QModelIndex &index, const QMap<int, Q
     return b;
 }
 
+/*!
+  Inserts a new row in the model after \a row. The row will be a child of \a parent.
+  Returns true if the row was successfully inserted; otherwise returns false.
+*/
 bool QAbstractItemModel::insertRow(int, const QModelIndex &)
 {
     return false;
 }
 
+/*!
+  Inserts a new column in the model after \a column. The column will be a child of \a parent.
+  Returns true if the column was successfully inserted; otherwise returns false.
+*/
 bool QAbstractItemModel::insertColumn(int, const QModelIndex &)
 {
     return false;
 }
 
+/*!
+  Removes row \a row in the model.
+  Returns true if the row was successfully removed; otherwise returns false.
+*/
 bool QAbstractItemModel::removeRow(int, const QModelIndex &)
 {
     return false;
 }
 
+/*!
+  Removes column \a column in the model.
+  Returns true if the column was successfully removed; otherwise returns false.
+*/
 bool QAbstractItemModel::removeColumn(int, const QModelIndex &)
 {
     return false;
 }
 
+/*!
+  Returns true if the item associated with \a index is selectable; otherwise returns false.
+*/
 bool QAbstractItemModel::isSelectable(const QModelIndex &) const
 {
     return false;
 }
 
+/*!
+  Returns true if the item associated with \a index is editable; otherwise returns false.
+*/
 bool QAbstractItemModel::isEditable(const QModelIndex &) const
 {
     return false;
 }
 
+/*!
+  Returns true if the item associated with \a index can be dragged; otherwise returns false.
+*/
 bool QAbstractItemModel::isDragEnabled(const QModelIndex &) const
 {
     return false;
 }
 
+/*!
+  Returns true if other items can be dropped on the item associated with \a index;
+  otherwise returns false.
+*/
 bool QAbstractItemModel::isDropEnabled(const QModelIndex &) const
 {
     return false;
 }
 
+/*!
+  Returns true if the items in the model can be sorted; otherwise returns false.
+
+  \sa sort()
+*/
 bool QAbstractItemModel::isSortable() const
 {
     return false;
 }
 
+/*!
+  Sorts the model if it is sortable.
+
+  \sa isSortable()
+*/
 void QAbstractItemModel::sort(int, SortOrder)
 {
     // do nothing
 }
 
+/*!
+  Returns true if the data associated with \a left and \a right are equal; otherwise returns false.
+
+  \sa greater()
+ */
 bool QAbstractItemModel::equal(const QModelIndex &left, const QModelIndex &right) const
 {
     return left == right;
 }
 
+/*!
+  Returns true if the data associated with \a left is greater than the data associated with \a right;
+  otherwise returns false.
+
+  \sa equal()
+ */
 bool QAbstractItemModel::greater(const QModelIndex &left, const QModelIndex &right) const
 {
     if (left.row() == right.row())
@@ -274,6 +359,11 @@ bool QAbstractItemModel::greater(const QModelIndex &left, const QModelIndex &rig
     return left.row() > right.row();
 }
 
+/*!
+  Retuns the list of the QModelIndex objects associated with the data items matching \a value in role \a role.
+  The search starts from \a start and continues the number of matching data items equals \a hits
+  or the search reaches the last row.
+ */
 QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role, const QVariant &value, int hits) const
 {
     QModelIndexList result;
