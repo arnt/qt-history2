@@ -1841,7 +1841,7 @@ QPixmap QGLWidget::renderPixmap( int w, int h, bool useContext )
 
 #endif
 
-    glcx->doneCurrent();
+    d->glcx->doneCurrent();
 
     bool success = TRUE;
 

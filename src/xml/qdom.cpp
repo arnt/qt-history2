@@ -86,7 +86,7 @@ static void qt_split_namespace( QString& prefix, QString& name, const QString& q
 /*
   Counter for the QDomNodeListPrivate timestamps.
 */
-volatile static long qt_nodeListTime = 0;
+static volatile long qt_nodeListTime = 0;
 
 /**************************************************************
  *
