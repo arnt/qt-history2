@@ -775,7 +775,7 @@ QDir::Filters QDir::filter() const
 
     This enum describes the filtering options available to QDir; e.g.
     for entryList() and entryInfoList(). The filter value is specified
-    by combining values from the following list using the OR
+    by combining values from the following list using the bitwise OR
     operator:
 
     \value Dirs    List directories that match the filters.
@@ -807,6 +807,10 @@ QDir::Filters QDir::filter() const
     \omitvalue AccessMask
     \omitvalue PermissionMask
     \omitvalue NoFilter
+
+    Functions that use \c Filter enum values to filter lists of files
+    and directories will include symbolic links to files and directories
+    unless you set the \c NoSymLinks value.
 
     If you do not set any of \c Readable, \c Writable, or \c
     Executable, QDir will set all three of them. This makes the
