@@ -184,7 +184,6 @@ void Location::fatal( const QString& message, const QString& details ) const
 void Location::initialize( const Config& config )
 {
     tabSize = config.getInt( CONFIG_TABSIZE );
-
     programName = config.programName();
 
     QRegExp regExp = config.getRegExp( CONFIG_SPURIOUS );

@@ -12,6 +12,7 @@
 #include "config.h"
 #include "cppcodemarker.h"
 #include "cppcodeparser.h"
+#include "cpptoqsconverter.h"
 #include "doc.h"
 #include "htmlgenerator.h"
 #include "loutgenerator.h"
@@ -90,6 +91,7 @@ static void processQdocFile( const QString& fileName )
     Location::initialize( config );
     Tokenizer::initialize( config );
     Doc::initialize( config );
+    CppToQsConverter::initialize( config );
     CodeMarker::initialize( config );
     CodeParser::initialize( config );
     Generator::initialize( config );
@@ -152,6 +154,7 @@ static void processQdocFile( const QString& fileName )
     Generator::terminate();
     CodeParser::terminate();
     CodeMarker::terminate();
+    CppToQsConverter::terminate();
     Doc::terminate();
     Tokenizer::terminate();
     Location::terminate();

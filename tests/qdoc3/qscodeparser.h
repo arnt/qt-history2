@@ -6,6 +6,7 @@
 #define QSCODEPARSER_H
 
 #include "cppcodeparser.h"
+#include "cpptoqsconverter.h"
 
 class QsCodeParser : public CppCodeParser
 {
@@ -52,9 +53,6 @@ private:
 			   FunctionNode *func );
     void quickifyProperty( ClassNode *quickClass, ClassNode *qtClass,
 			   PropertyNode *property );
-    QString quickifiedDataType( const QString& leftType,
-				const QString& rightType = "" );
-    QString quickifiedCode( const QString& code );
     QString quickifiedDoc( const QString& source );
     void setQtDoc( Node *quickNode, const Doc& doc );
     void setQuickDoc( Node *quickNode, const Doc& doc,
@@ -66,13 +64,13 @@ private:
     static bool isWord( QChar ch );
     static bool leftWordBoundary( const QString& str, int pos );
     static bool rightWordBoundary( const QString& str, int pos );
-    static int columnForIndex( const QString& str, int index );
 
     QMap<QString, Node::Type> nodeTypeMap;
     QMap<QString, Node *> classesWithNoQuickDoc;
     Tree *cppTre;
     Tree *qsTre;
     QRegExp replaceRegExp;
+    CppToQsConverter cpp2qs;
 
     static int tabSize;
     static QValueList<QRegExp> replaceBefores;

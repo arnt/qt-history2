@@ -11,6 +11,7 @@ HEADERS += archiveextractor.h \
            config.h \
 	   cppcodemarker.h \
 	   cppcodeparser.h \
+	   cpptoqsconverter.h \
            doc.h \
 	   editdistance.h \
 	   generator.h \
@@ -46,6 +47,7 @@ SOURCES += archiveextractor.cpp \
            config.cpp \
 	   cppcodemarker.cpp \
 	   cppcodeparser.cpp \
+	   cpptoqsconverter.cpp \
            doc.cpp \
 	   editdistance.cpp \
 	   generator.cpp \

@@ -29,7 +29,6 @@
 
 static QString balancedParens = "(?:[^()]+|\\([^()]*\\))*";
 
-int QsCodeParser::tabSize;
 QValueList<QRegExp> QsCodeParser::replaceBefores;
 QStringList QsCodeParser::replaceAfters;
 
@@ -50,8 +49,6 @@ void QsCodeParser::initializeParser( const Config& config )
     nodeTypeMap.insert( COMMAND_QUICKENUM, Node::Enum );
     nodeTypeMap.insert( COMMAND_QUICKPROPERTY, Node::Property );
     nodeTypeMap.insert( COMMAND_QUICKFN, Node::Function );
-
-    tabSize = config.getInt( CONFIG_TABSIZE );
 
     QString quickDotReplaces = CONFIG_QUICK + Config::dot + CONFIG_REPLACES;
     QStringList replaces = config.getStringList( CONFIG_QUICK + Config::dot +
@@ -83,7 +80,6 @@ void QsCodeParser::terminateParser()
 {
     nodeTypeMap.clear();
     classesWithNoQuickDoc.clear();
-    tabSize = 0;
     replaceBefores.clear();
     replaceAfters.clear();
     CppCodeParser::terminateParser();
@@ -487,15 +483,16 @@ void QsCodeParser::quickifyFunction( ClassNode *quickClass, ClassNode *qtClass,
     quickFunc->setLocation( func->location() );
     if ( func->metaness() == FunctionNode::Plain )
 	quickFunc->setAccess( Node::Protected );
-    quickFunc->setReturnType( quickifiedDataType(func->returnType()) );
+    quickFunc->setReturnType( cpp2qs.convertedDataType(qsTre,
+						       func->returnType()) );
     if ( func->metaness() != FunctionNode::Slot )
 	quickFunc->setMetaness( func->metaness() );
     quickFunc->setOverload( func->isOverload() );
 
     QValueList<Parameter>::ConstIterator q = func->parameters().begin();
     while ( q != func->parameters().end() ) {
-	Parameter param( quickifiedDataType((*q).leftType(),
-					    (*q).rightType()),
+	Parameter param( cpp2qs.convertedDataType(qsTre, (*q).leftType(),
+						  (*q).rightType()),
 			 "", (*q).name() );
 	quickFunc->addParameter( param );
 	++q;
@@ -519,7 +516,8 @@ void QsCodeParser::quickifyProperty( ClassNode *quickClass,
     PropertyNode *quickProperty =
 	    new PropertyNode( quickClass, property->name() );
     quickProperty->setLocation( property->location() );
-    quickProperty->setDataType( quickifiedDataType(property->dataType()) );
+    quickProperty->setDataType(
+	    cpp2qs.convertedDataType(qsTre, property->dataType()) );
     quickProperty->setGetter( property->getter() );
     quickProperty->setSetter( property->setter() );
     quickProperty->setResetter( property->resetter() );
@@ -527,216 +525,6 @@ void QsCodeParser::quickifyProperty( ClassNode *quickClass,
     quickProperty->setDesignable( property->isDesignable() );
 
     setQtDoc( quickProperty, property->doc() );
-}
-
-QString QsCodeParser::quickifiedDataType( const QString& leftType,
-					  const QString& /* rightType */ )
-{
-    QString s = leftType;
-
-    if ( s.startsWith("const ") )
-	s = s.mid( 6 );
-    while ( s.endsWith("*") || s.endsWith("&") || s.endsWith(" ") )
-	s.truncate( s.length() - 1 );
-
-    switch ( s[0].unicode() ) {
-    case 'Q':
-	if ( s == "QCString" ) {
-	    return "String";
-	} else {
-	    Node *node = qsTre->findNode( s, Node::Class );
-	    if ( node == 0 )
-		node = qsTre->findNode( s.mid(1), Node::Class );
-
-	    if ( node == 0 ) {
-		return "UNKNOWN";
-	    } else {
-		return node->name();
-	    }
-	}
-	break;
-    case 'b':
-	if ( s == "bool" )
-	    return "Boolean";
-	break;
-    case 'c':
-	if ( s == "char" ) {
-	    if ( leftType == "const char *" ) {
-		return "String";
-	    } else {
-		return "Number";	    
-	    }
-	}
-	break;
-    case 'd':
-	if ( s == "double" )
-	    return "Number";
-	break;
-    case 'f':
-	if ( s == "float" )
-	    return "Number";
-    case 'i':
-	if ( s == "int" )
-	    return "Number";
-	break;
-    case 'l':
-	if ( s == "long" || s == "long int" || s == "long long" ||
-	     s == "long long int" || s == "long double" )
-	    return "Number";
-	break;
-    case 's':
-	if ( s == "short" || s == "short int" || s == "signed char" ||
-	     s == "signed short" || s == "signed short int" || s == "signed" ||
-	     s == "signed int" || s == "signed long" || s == "signed long int" )
-	    return "Number";
-	break;
-    case 'u':
-	if ( s == "uchar" || s == "unsigned" || s == "unsigned char" ||
-	     s == "ushort" || s == "unsigned short" ||
-	     s == "unsigned short int" || s == "uint" || s == "unsigned int" ||
-	     s == "ulong" || s == "unsigned long" || s == "unsigned long int" )
-	    return "Number";
-	break;
-    case 'v':
-	if ( s == "void" )
-	    return "";
-    }
-    return s;
-}
-
-QString QsCodeParser::quickifiedCode( const QString& code )
-{
-    QRegExp funcRegExp(
-	    "^([ \t]*)(?:[\\w<>,&*]+[ \t]+)+((?:\\w+::)*\\w+)\\((" +
-	    balancedParens + ")\\)(?:[ \t]*const)?(?=[ \n\t]*\\{)" );
-    QRegExp paramRegExp(
-	    "\\s*(const\\s+)?([^\\s=]+)\\b[^=]*\\W(\\w+)\\s*(?:=.*)?" );
-    QRegExp qtVarRegExp(
-	    "^([ \t]*)(const[ \t]+)?Q([A-Z][A-Za-z_0-9]*)\\s+"
-	    "([a-z][A-Za-z_0-9]*)\\s*(?:\\((" + balancedParens +
-	    ")\\))?\\s*;" );
-    QRegExp signalOrSlotRegExp(
-	     "^(SIGNAL|SLOT)\\((" + balancedParens + ")\\)" );
-    QString result;
-    bool inString = FALSE;
-    QChar quote;
-    int i = 0;
-
-    while ( i < (int) code.length() ) {
-	if ( inString ) {
-	    if ( code[i] == quote ) {
-		result += code[i++];
-		inString = FALSE;
-	    } else if ( code[i] == '\\' ) {
-		result += code[i++];
-		result += code[i++];
-	    } else {
-		result += code[i++];
-	    }
-	} else {
-	    bool newLine = ( i == 0 || code[i - 1] == '\n' );
-
-	    if ( newLine && funcRegExp.search(code.mid(i)) != -1 ) {
-		QString indent = funcRegExp.cap( 1 );
-		QString name = funcRegExp.cap( 2 );
-		// ### remove QRegExp cast once Mark has Qt 3.1 up and running
-		name.replace( QRegExp("::"), "." );
-		QStringList params =
-			QStringList::split( ",", funcRegExp.cap(3) );
-		QStringList::Iterator p = params.begin();
-		while ( p != params.end() ) {
-		    if ( paramRegExp.exactMatch(*p) ) {
-#if 0
-			bool isVar = paramRegExp.cap( 1 ).isEmpty();
-#endif
-			QString qtDataType = paramRegExp.cap( 2 );
-			QString name = paramRegExp.cap( 3 );
-			*p = "var " + name + " : " +
-			     quickifiedDataType( qtDataType );
-		    }
-		    ++p;
-		}
-		result += indent + "function " + name + "( " +
-			  params.join(", ") + " )";
-		i += funcRegExp.matchedLength();
-	    } else if ( newLine && qtVarRegExp.search(code.mid(i)) != -1 ) {
-		QString indent = qtVarRegExp.cap( 1 );
-		bool isVar = qtVarRegExp.cap( 2 ).isEmpty();
-		QString quickClass = qtVarRegExp.cap( 3 );
-		QString name = qtVarRegExp.cap( 4 );
-		QString initializer = qtVarRegExp.cap( 5 ).simplifyWhiteSpace();
-		result += indent + ( isVar ? "var " : "const " ) + name;
-		if ( initializer.isEmpty() ) {
-		    result += " = new " + quickClass + ";";
-		} else {
-		    result += " = new " + quickClass + "( " + initializer +
-			      " );";
-		}
-		i += qtVarRegExp.matchedLength();
-	    } else if ( code[i] == '"' || code[i] == '\'' ) {
-		quote = code[i];
-		result += code[i++];
-		inString = TRUE;
-	    } else if ( code[i] == 'F' && leftWordBoundary(code, i) &&
-			code.mid(i, 5) == "FALSE" &&
-			rightWordBoundary(code, i + 5) ) {
-		result += "false";
-		i += 5;
-	    } else if ( code[i] == 'Q' && leftWordBoundary(code, i) ) {
-		if ( code.mid(i - 4, 3) == "new" ) {
-		    if ( code[i + 1].lower() == code[i + 1] ) {
-			result += code[i++];
-		    } else {
-			i++;
-		    }
-		} else {
-		    result += "var ";
-		    while ( i < (int) code.length() &&
-			    code[i].isLetterOrNumber() )
-			i++;
-		    while ( i < (int) code.length() &&
-			    !code[i].isLetterOrNumber() && code[i] != '\n' )
-			i++;
-		}
-	    } else if ( code[i] == 'S' && leftWordBoundary(code, i) &&
-			(code.mid(i, 7) == "SIGNAL(" ||
-			 code.mid(i, 5) == "SLOT(") ) {
-		if ( signalOrSlotRegExp.search(code, i
-#if QT_VERSION >= 0x030100
-						      , QRegExp::CaretAtOffset
-#endif
-					 ) == i ) {
-		    result += signalOrSlotRegExp.cap( 1 ) + "(\"" +
-			      signalOrSlotRegExp.cap( 2 ) + "\")";
-		    i += signalOrSlotRegExp.matchedLength();
-		}
-	    } else if ( code[i] == 'T' && leftWordBoundary(code, i) &&
-			code.mid(i, 4) == "TRUE" &&
-			rightWordBoundary(code, i + 4) ) {
-		result += "true";
-		i += 4;
-	    } else if ( code[i] == '/' && code[i + 1] == '/' ) {
-		int numSpaces = columnForIndex( code, i ) -
-				columnForIndex( result, result.length() );
-		if ( numSpaces > 0 ) {
-		    while ( numSpaces-- > 0 )
-			result += " ";
-		} else if ( numSpaces < 0 ) {
-		    while ( numSpaces++ < 0 && result.right(1) == " " )
-			result.truncate( result.length() - 1 );
-		}
-		while ( i < (int) code.length() && code[i] != '\n' )
-		    result += code[i++];
-	    } else if ( (code[i] == ':' && code[i + 1] == ':') ||
-			(code[i] == '-' && code[i + 1] == '>') ) {
-		result += '.';
-		i += 2;
-	    } else {
-		result += code[i++];
-	    }
-	}
-    }
-    return result;
 }
 
 QString QsCodeParser::quickifiedDoc( const QString& source )
@@ -766,6 +554,7 @@ QString QsCodeParser::quickifiedDoc( const QString& source )
 	    result += '.';
 	    i += 2;
 	} else if ( source[i] == '\\' ) {
+	    // ### make independent of the name
 	    if ( source.mid(i, 5) == "\\code" ) {
 		do {
 		    result += source[i++];
@@ -774,7 +563,8 @@ QString QsCodeParser::quickifiedDoc( const QString& source )
 		int begin = i;
 		int end = source.find( "\\endcode", i );
 		if ( end != -1 ) {
-		    result += quickifiedCode( source.mid(begin, end - begin) );
+		    QString code = source.mid( begin, end - begin );
+		    result += cpp2qs.convertedCode( qsTre, code );
 		    i = end;
 		}
 	    } else {
@@ -908,19 +698,4 @@ bool QsCodeParser::leftWordBoundary( const QString& str, int pos )
 bool QsCodeParser::rightWordBoundary( const QString& str, int pos )
 {
     return isWord( str[pos - 1] ) && !isWord( str[pos] );
-}
-
-int QsCodeParser::columnForIndex( const QString& str, int index )
-{
-    int endOfPrevLine = str.findRev( "\n", index - 1 );
-    int column = 0;
-
-    for ( int i = endOfPrevLine + 1; i < index; i++ ) {
-	if ( str[i] == '\t' ) {
-	    column = ( (column / tabSize) + 1 ) * tabSize;
-	} else {
-	    column++;
-	}
-    }
-    return column;
 }

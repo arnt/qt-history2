@@ -1891,7 +1891,6 @@ void Doc::initialize( const Config& config )
 
 void Doc::terminate()
 {
-    DocParser::tabSize = 0;
     DocParser::exampleFiles.clear();
     DocParser::exampleDirs.clear();
     DocParser::sourceFiles.clear();
