@@ -167,10 +167,10 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
       << var("PROJECT") << ".pro $(SOURCES) $(HEADERS) $(DIST) $(FORMS)" << endl << endl;
 
     t << "clean:" << "\n"
-      << varGlue("OBJECTS","\t-del ","\n\t-del ","") 
+      << varGlue("OBJECTS","\t-del ","\n\t-del ","")
       << varGlue("SRCMOC" ,"\n\t-del ","\n\t-del ","")
       << varGlue("OBJMOC" ,"\n\t-del ","\n\t-del ","")
-      << varGlue("UICDECLS" ,"\n\t-del ","\n\t-del ","") 
+      << varGlue("UICDECLS" ,"\n\t-del ","\n\t-del ","")
       << varGlue("UICIMPLS" ,"\n\t-del ","\n\t-del ","")
       << "\n\t-del $(TARGET)"
       << varGlue("QMAKE_CLEAN","\n\t-del ","\n\t-del ","")
@@ -196,6 +196,8 @@ NmakeMakefileGenerator::init()
     else if(project->first("TEMPLATE") == "lib")
 	project->variables()["QMAKE_LIB_FLAG"].append("1");
 
+    project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
+    
     QStringList &configs = project->variables()["CONFIG"];
     if (project->isActiveConfig("qt_dll"))
 	if(configs.findIndex("qt") == -1) configs.append("qt");
@@ -209,7 +211,7 @@ NmakeMakefileGenerator::init()
            project->variables()["DEFINES"].findIndex("QT_DLL") != -1) ||
           (getenv("QT_DLL") && !getenv("QT_NODLL"))) ) {
 	    project->variables()["QMAKE_QT_DLL"].append("1");
-	    if ( (project->first("TARGET") == "qt" || 
+	    if ( (project->first("TARGET") == "qt" ||
 		  project->first("TARGET") == "qt-mt") &&
 		 !project->variables()["QMAKE_LIB_FLAG"].isEmpty() )
 		project->variables()["CONFIG"].append("dll");
@@ -265,7 +267,7 @@ NmakeMakefileGenerator::init()
 	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_RELEASE"];
 	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_RELEASE"];
     }
-    if ( project->isActiveConfig("thread") && !project->variables()["DEFINES"].contains("QT_DLL") 
+    if ( project->isActiveConfig("thread") && !project->variables()["DEFINES"].contains("QT_DLL")
 	&& project->first("TARGET") != "qt-mt" && project->first("TARGET") != "qtmain") {
 	project->variables()["QMAKE_LFLAGS"].append("/NODEFAULTLIB:\"libc\"");
     }
@@ -273,7 +275,7 @@ NmakeMakefileGenerator::init()
 	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_STL"];
 	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_STL"];
     }
-    
+
     if ( !project->variables()["QMAKE_INCDIR"].isEmpty()) {
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR"];
     }
@@ -286,7 +288,7 @@ NmakeMakefileGenerator::init()
 	if ( !project->isActiveConfig("debug") ) {
 	    project->variables()["DEFINES"].append("QT_NO_DEBUG");
 	}
-	if ( (project->first("TARGET") == "qt" || 
+	if ( (project->first("TARGET") == "qt" ||
 	      project->first("TARGET") == "qt-mt") &&
 	     !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
 	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty()) {
@@ -363,7 +365,7 @@ NmakeMakefileGenerator::init()
     if ( !project->variables()["DEF_FILE"].isEmpty() ) {
 	project->variables()["QMAKE_LFLAGS"].append(QString("/DEF:") + project->first("DEF_FILE"));
     }
-    if(!project->isActiveConfig("incremental")) 
+    if(!project->isActiveConfig("incremental"))
 	project->variables()["QMAKE_LFLAGS"].append(QString("/incremental:no"));
 
     if ( !project->variables()["RC_FILE"].isEmpty()) {

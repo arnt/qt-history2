@@ -830,7 +830,8 @@ MakefileGenerator::writeImageSrc(QTextStream &t, const QString &src)
     QStringList &l = project->variables()[src];
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	t << (*it) << ": " << depends[(*it)].join(" \\\n\t\t") << "\n\t"
-	  << "$(UIC) " << " -images " << depends[(*it)].join(" ") << " -o " << (*it) << endl << endl;
+	  << "$(UIC) " << " -embed " << project->first("QMAKE_ORIG_TARGET") 
+	  << " " << depends[(*it)].join(" ") << " -o " << (*it) << endl << endl;
     }
 }
 

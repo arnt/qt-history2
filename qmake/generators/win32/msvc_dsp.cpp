@@ -191,7 +191,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    if ( lbs != -1 )
 			fpath = fname.left( lbs + 1 );
 		    fname = fname.right( fname.length() - fname.find( "\\" ) - 1 );
-		    
+		
 		    QString mocFile;
 		    if(!project->variables()["MOC_DIR"].isEmpty())
 			mocFile = project->first("MOC_DIR");
@@ -238,8 +238,8 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 
 		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
 		      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\"" << build
-		      << "!ENDIF \n\n" << build 
-		      
+		      << "!ENDIF \n\n" << build
+		
 		      << "# End Source File" << endl;
 		}
 	    } else if(variable == "MSVCDSP_YACCSOURCES") {
@@ -303,6 +303,8 @@ DspMakefileGenerator::init()
 	project->variables()["QMAKE_APP_FLAG"].append("1");
     else if(project->first("TEMPLATE") == "vclib")
 	project->variables()["QMAKE_LIB_FLAG"].append("1");
+
+    project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
     
     QStringList &configs = project->variables()["CONFIG"];
     if (project->isActiveConfig("qt_dll"))
@@ -375,7 +377,7 @@ DspMakefileGenerator::init()
     }
     if ( project->isActiveConfig("thread") ) {
 	project->variables()["DEFINES"].append("QT_THREAD_SUPPORT" );
-        if ( project->isActiveConfig("dll") || project->first("TARGET") == "qtmain" 
+        if ( project->isActiveConfig("dll") || project->first("TARGET") == "qtmain"
             || !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
 	    project->variables()["MSVCDSP_MTDEFD"].append("-MDd");
 	    project->variables()["MSVCDSP_MTDEF"].append("-MD");
@@ -384,14 +386,14 @@ DspMakefileGenerator::init()
 	    project->variables()["MSVCDSP_MTDEFD"].append("-MDd");
 	    project->variables()["MSVCDSP_MTDEF"].append("-MD");
 	}
-	if ( !project->variables()["DEFINES"].contains("QT_DLL") && project->first("TARGET") != "qt-mt" 
+	if ( !project->variables()["DEFINES"].contains("QT_DLL") && project->first("TARGET") != "qt-mt"
 	    && project->first("TARGET") != "qtmain" )
 	    project->variables()["MSVCDSP_NODEFLIBS"].append("/NODEFAULTLIB:\"libc\"");
     }
 
     if ( !project->variables()["DEFINES"].contains("QT_NO_STL") )
 	project->variables()["MSVCDSP_STL"].append("/GX");
-    
+
     if ( project->isActiveConfig("accessibility" ) )
 	project->variables()["DEFINES"].append("QT_ACCESSIBILITY_SUPPORT");
 
@@ -422,7 +424,7 @@ DspMakefileGenerator::init()
 	if ( project->first("TARGET") == "qt" || project->first("TARGET") == "qt-mt" )
 	    project->variables()["MSVCDSP_DEBUG_OPT"] = "/GZ /Zi";
     }
-    
+
     project->variables()["TARGET"].first() += project->first("TARGET_EXT");
     if ( project->isActiveConfig("moc") ) {
 	setMocAware(TRUE);
@@ -479,7 +481,7 @@ DspMakefileGenerator::init()
     } else {
 	project->variables()["MSVCDSP_RELDEFS"].clear();
     }
-    
+
     QString dest;
     if ( !project->variables()["DESTDIR"].isEmpty() ) {
 	project->variables()["TARGET"].first().prepend(project->first("DESTDIR"));
@@ -517,9 +519,9 @@ QString
 DspMakefileGenerator::findTemplate(QString file)
 {
     QString ret;
-    if(!QFile::exists((ret = file)) && 
+    if(!QFile::exists((ret = file)) &&
        !QFile::exists((ret = QString(Option::mkfile::qmakespec + "/" + file))) &&
-       !QFile::exists((ret = QString(getenv("QTDIR")) + "/mkspecs/win32-msvc/" + file)) && 
+       !QFile::exists((ret = QString(getenv("QTDIR")) + "/mkspecs/win32-msvc/" + file)) &&
        !QFile::exists((ret = (QString(getenv("HOME")) + "/.tmake/" + file))))
 	return "";
     return ret;

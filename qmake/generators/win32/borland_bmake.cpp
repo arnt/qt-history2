@@ -190,6 +190,8 @@ BorlandMakefileGenerator::init()
 	return;
     init_flag = TRUE;
 
+    project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
+    
     /* this should probably not be here, but I'm using it to wrap the .t files */
     if(project->first("TEMPLATE") == "app")
 	project->variables()["QMAKE_APP_FLAG"].append("1");
@@ -203,7 +205,7 @@ BorlandMakefileGenerator::init()
 	    project->variables()["QMAKE"].append("qmake");
 	return;
     }
-
+    
     QStringList &configs = project->variables()["CONFIG"];
     if (project->isActiveConfig("qt_dll"))
 	if(configs.findIndex("qt") == -1) configs.append("qt");
@@ -217,7 +219,7 @@ BorlandMakefileGenerator::init()
 	       project->variables()["DEFINES"].findIndex("QT_DLL") != -1) ||
 	      (getenv("QT_DLL") && !getenv("QT_NODLL"))) ) {
 	    project->variables()["QMAKE_QT_DLL"].append("1");
-	    if ( (project->first("TARGET") == "qt" || 
+	    if ( (project->first("TARGET") == "qt" ||
 		  project->first("TARGET") == "qtmt") &&
 		 !project->variables()["QMAKE_LIB_FLAG"].isEmpty() )
 		project->variables()["CONFIG"].append("dll");
