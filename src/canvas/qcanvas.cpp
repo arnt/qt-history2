@@ -1275,8 +1275,7 @@ void QCanvas::ensureOffScrSize( int osw, int osh )
   Paints all canvas items that are in the area \a clip to \a painter,
   using double-buffering if \a dbuf is TRUE.
 
-  eg. to print the canvas to a printer:
-
+  e.g. to print the canvas to a printer:
   \code
   QPrinter pr;
   if ( pr.setup() ) {
@@ -1492,10 +1491,10 @@ void QCanvas::removeItemFromChunkContaining(QCanvasItem* g, int x, int y)
   Returns the color set by setBackgroundColor().
   By default, this is white.
 
-  Note that this function is not a reimplementation
-  of QWidget::backgroundColor() (QCanvas is not a subclass
-  of QWidget), but all QCanvasViews that are viewing the
-  canvas will set their backgrounds to this color.
+  This function is not a reimplementation of
+  QWidget::backgroundColor() (QCanvas is not a subclass of QWidget),
+  but all QCanvasViews that are viewing the canvas will set their
+  backgrounds to this color.
 
   \sa setBackgroundColor(), backgroundPixmap()
 */
@@ -1506,6 +1505,7 @@ QColor QCanvas::backgroundColor() const
 
 /*!
   Sets the solid background to be the color \a c.
+
   \sa backgroundColor(), setBackgroundPixmap(), setTiles()
 */
 void QCanvas::setBackgroundColor( const QColor& c )
@@ -1650,8 +1650,7 @@ void QCanvas::setDoubleBuffering(bool y)
   tiles to the right and bottom are not visible.
 
   The width and height of \a p must be a multiple of \a tilewidth and
-  \a tileheight. If they are not the function will return without
-  performing any action.
+  \a tileheight. If they are not the function will do nothing.
 */
 void QCanvas::setTiles( QPixmap p,
 			int h, int v, int tilewidth, int tileheight )
@@ -1693,20 +1692,24 @@ void QCanvas::setTiles( QPixmap p,
 
 /*!
   \fn int QCanvas::tilesHorizontally() const
+
   Returns the number of tiles horizontally.
 */
 
 /*!
   \fn int QCanvas::tilesVertically() const
+
   Returns the number of tiles vertically.
 */
 
 /*!
   \fn int QCanvas::tileWidth() const
+
   Returns the width of each tile.
 */
 /*!
   \fn int QCanvas::tileHeight() const
+
   Returns the height of each tile.
 */
 
@@ -1753,15 +1756,16 @@ class QCanvasItemExtra {
 \class QCanvasItem qcanvas.h
 \brief The QCanvasItem class provides an abstract graphic object on a QCanvas.
 \module canvas
-    \ingroup graphics
-    \ingroup images
+\ingroup graphics
+\ingroup images
 
-A variety of subclasses provide immediately usable behaviour; this class
-is a pure abstract superclass providing the behaviour that is shared
-among all the concrete canvas item classes. QCanvasItem is not intended
-for direct subclassing. It is much easier to subclass one of its
-subclasses, e.g. QCanvasPolygonalItem (the commonest base class),
-QCanvasRectangle, QCanvasSprite, QCanvasEllipse or QCanvasText.
+A variety of QCanvasItem subclasses provide immediately usable
+behaviour. This class is a pure abstract superclass providing the
+behaviour that is shared among all the concrete canvas item classes.
+QCanvasItem is not intended for direct subclassing. It is much easier
+to subclass one of its subclasses, e.g. QCanvasPolygonalItem (the
+commonest base class), QCanvasRectangle, QCanvasSprite, QCanvasEllipse
+or QCanvasText.
 
 Canvas items are added to a canvas by constructing them and passing the
 canvas to the canvas item's constructor. An item can be moved to a
@@ -1795,9 +1799,9 @@ setSelected() functions; these functions set the relevant boolean and
 cause a repaint but the boolean values they set are not used in
 QCanvasItem itself. You can make use of these booleans in your subclasses.
 
-By default canvas items have no velocity, no size and are not in motion.
-The subclasses provided in Qt do not change these defaults except where
-noted.
+By default, canvas items have no velocity, no size, and are not in
+motion. The subclasses provided in Qt do not change these defaults
+except where noted.
 
 */
 
@@ -2077,7 +2081,7 @@ void QCanvasItem::setVisible(bool yes)
 */
 /*! \fn bool QCanvasItem::isVisible() const
 
-  Returns TRUE if the canvas item is visible otherwise returns FALSE.
+  Returns TRUE if the canvas item is visible; otherwise returns FALSE.
 
   Note that in this context TRUE does \e not mean that the canvas item
   is currently in a view, merely that if a view is showing the area
@@ -2098,8 +2102,9 @@ void QCanvasItem::setVisible(bool yes)
   Returns TRUE if the canvas item is selected; otherwise returns FALSE.
 */
 
-/*! Sets the selected flag of the item to \a yes and causes it to be
-  redrawn when QCanvas::update() is next called.
+/*! Sets the selected flag of the item to \a yes. If this changes the
+  item's selected state the item will be redrawn when
+  QCanvas::update() is next called.
 
   The QCanvas, QCanvasItem and the Qt-supplied QCanvasItem subclasses do
   not make use of this value. The setSelected() function is supplied
@@ -2121,11 +2126,13 @@ void QCanvasItem::setSelected(bool yes)
 */
 /*!
   \fn bool QCanvasItem::isEnabled() const
+
   Returns TRUE if the QCanvasItem is enabled; otherwise returns FALSE.
 */
 
-/*!  Sets the enabled flag of the item to \a yes and causes it to be
-  redrawn when QCanvas::update() is next called.
+/*!  Sets the enabled flag of the item to \a yes. If this changes the
+  item's enabled state the item will be redrawn when
+  QCanvas::update() is next called.
 
   The QCanvas, QCanvasItem and the Qt-supplied QCanvasItem subclasses do
   not make use of this value. The setEnabled() function is supplied
@@ -2147,11 +2154,13 @@ void QCanvasItem::setEnabled(bool yes)
 */
 /*!
   \fn bool QCanvasItem::isActive() const
+
   Returns TRUE if the QCanvasItem is active; otherwise returns FALSE.
 */
 
-/*!  Sets the active flag of the item to \a yes and causes it to be
-  redrawn when QCanvas::update() is next called.
+/*!  Sets the active flag of the item to \a yes. If this changes the
+  item's active state the item will be redrawn when QCanvas::update()
+  is next called.
 
   The QCanvas, QCanvasItem and the Qt-supplied QCanvasItem subclasses do
   not make use of this value. The setActive() function is supplied
@@ -2330,14 +2339,14 @@ static bool collision_double_dispatch( const QCanvasSprite* s1,
 
 
 /*!
-  \class QCanvasSprite qcanvas.h
-  \brief The QCanvasSprite class provides an animated canvas item on a QCanvas.
-  \module canvas
-    \ingroup graphics
-    \ingroup images
+\class QCanvasSprite qcanvas.h
+\brief The QCanvasSprite class provides an animated canvas item on a QCanvas.
+\module canvas
+\ingroup graphics
+\ingroup images
 
-    A canvas sprite is an object which contains any number of images
-    (referred to as frames), only one of which is current, e.g.
+    A canvas sprite is an object which can contain any number of images
+    (referred to as frames), only one of which is current, i.e.
     displayed, at any one time. The images can be passed in the
     constructor or set or changed later with setSequence(). If you
     subclass QCanvasSprite you can change the frame that is displayed
@@ -2358,17 +2367,17 @@ static bool collision_double_dispatch( const QCanvasSprite* s1,
     frame.
 
     Use leftEdge() and rightEdge() to retrieve the current frame's
-    left-hand and right-hand x coordinates respectively. Use
-    bottomEdge() and topEdge()  to retrieve the current frame's bottom
-    and top y coordinates respectively. These functions have an overload
+    left-hand and right-hand x-coordinates respectively. Use
+    bottomEdge() and topEdge() to retrieve the current frame's bottom
+    and top y-coordinates respectively. These functions have an overload
     which will accept an integer frame number to retrieve the
     coordinates of a particular frame.
 
-  QCanvasSprite draws very quickly, at the cost of some memory.
+  QCanvasSprite draws very quickly, at the expense of memory.
 
   The current frame's image can be drawn on a painter with draw().
 
-  Like any other canvas item canvas sprites can be moved with move()
+  Like any other canvas item, canvas sprites can be moved with move()
   which sets the x and y coordinates and the frame number, as well as
   with QCanvasItem::move() and QCanvasItem::moveBy(), or by setting
   coordinates with QCanvasItem::setX(), QCanvasItem::setY() and
@@ -2386,7 +2395,8 @@ bool QCanvasSprite::collidesWith( const QCanvasItem* i ) const
 }
 
 /*!
-  Returns TRUE if the canvas item collides with any of the given items.
+  Returns TRUE if the canvas item collides with any of the given
+  items; otherwise returns FALSE.
   The parameters, \a s, \a p, \a r, \a e and \a t, are all the same
   object, this is just a type resolution trick.
 */
@@ -2472,11 +2482,11 @@ bool QCanvasText::collidesWith(  const QCanvasSprite* s,
   Returns the list of canvas items that this canvas item has collided
   with.
 
-  A collision is generally defined as pixels of one item drawing on the
-  pixels of another item, but not all subclasses are so precise. Also,
-  since pixel-wise collision detection can be slow, this function
-  works in either exact or inexact mode, according to the \a exact
-  parameter.
+  A collision is generally defined as occurring when the pixels of one
+  item draw on the pixels of another item, but not all subclasses are
+  so precise. Also, since pixel-wise collision detection can be slow,
+  this function works in either exact or inexact mode, according to
+  the \a exact parameter.
 
   If \a exact is TRUE, the canvas items returned have been accurately
   tested for collision with the canvas item.
@@ -2540,8 +2550,8 @@ QCanvasItemList QCanvas::collisions(const QRect& r) const
   \overload
 
   Returns a list of canvas items which intersect with the chunks listed
-  in \a chunklist, excluding \a item. If \a exact is TRUE, only only
-  those which actually QCanvasItem::collidesWith() \a item are returned,
+  in \a chunklist, excluding \a item. If \a exact is TRUE, only
+  those which actually QCanvasItem::collidesWith() \a item are returned;
   otherwise canvas items are included just for being in the chunks.
 
   This is a utility function mainly used to implement the simpler
@@ -2663,7 +2673,7 @@ QRect QCanvasItem::boundingRectAdvanced() const
   position of each QCanvasPixmap object is set so that the hotspot
   stays in the same position.
 
-  Like any other canvas item canvas pixmaps can be moved with
+  Like any other canvas item, canvas pixmaps can be moved with
   QCanvasItem::move() and QCanvasItem::moveBy(), or by setting coordinates
   with QCanvasItem::setX(), QCanvasItem::setY() and QCanvasItem::setZ().
 
@@ -2736,14 +2746,14 @@ QCanvasPixmap::~QCanvasPixmap()
 /*!
   \fn int QCanvasPixmap::offsetX() const
 
-  Returns the X-offset of the pixmap's hotspot.
+  Returns the x-offset of the pixmap's hotspot.
 
   \sa setOffset()
 */
 /*!
   \fn int QCanvasPixmap::offsetY() const
 
-  Returns the Y-offset of the pixmap's hotspot.
+  Returns the y-offset of the pixmap's hotspot.
 
   \sa setOffset()
 */
@@ -2752,8 +2762,8 @@ QCanvasPixmap::~QCanvasPixmap()
 
   Sets the offset of the pixmap's hotspot to (\a x, \a y).
 
-  Note that you must not call this function if any QCanvasSprites
-  are currently showing this pixmap.
+  \warning Do not call this function if any QCanvasSprites are
+  currently showing this pixmap.
 */
 
 // ### this needs some more words. Lars
@@ -2785,8 +2795,8 @@ QCanvasPixmap::~QCanvasPixmap()
 */
 
 /*!  Constructs an invalid array (i.e. isValid() will return FALSE).
- You will need to call readPixmaps() before being able to use it
- further.
+ You must call readPixmaps() before being able to use this
+ QCanvasPixmapArray.
 */
 QCanvasPixmapArray::QCanvasPixmapArray()
 : framecount( 0 ), img( 0 )
@@ -2907,7 +2917,8 @@ void QCanvasPixmapArray::reset()
 
   If \a filenamepattern does not exist, is not readable, isn't an
   image, or some other error occurs, this function will return FALSE,
-  and isValid() will return FALSE.
+  and isValid() will return FALSE; otherwise this function will return
+  TRUE.
 
   \sa isValid()
 */
@@ -2922,7 +2933,6 @@ bool QCanvasPixmapArray::readPixmaps( const QString& filenamepattern,
   By default, QCanvasSprite uses the image mask of a sprite to detect
   collisions. Use this function to set your own collision image masks.
 
-
   If count() is 1 \a filename must specify a real filename to read the
   mask from. If count() is greater than 1, the \a filename must
   contain a "%1" that will get replaced by the number of the mask to
@@ -2933,7 +2943,8 @@ bool QCanvasPixmapArray::readPixmaps( const QString& filenamepattern,
 
   If the file isn't readable, contains the wrong number of images, or
   there is some other error, this function will return FALSE,
-  and the array will be flagged as invalid.
+  and the array will be flagged as invalid; otherwise this function
+  returns TRUE.
 
   \sa isValid()
 */
@@ -2992,7 +3003,7 @@ bool QCanvasPixmapArray::operator!()
 }
 
 /*!
-  returns TRUE if the pixmap array is valid; otherwise returns FALSE.
+  Returns TRUE if the pixmap array is valid; otherwise returns FALSE.
 */
 bool QCanvasPixmapArray::isValid() const
 {
@@ -3002,8 +3013,8 @@ bool QCanvasPixmapArray::isValid() const
 /*!
 \fn QCanvasPixmap* QCanvasPixmapArray::image(int i) const
 
-Returns pixmap \a i in the array, if \a i is nonnegative and smaller
-than count(), and returns an unspecified value otherwise.
+Returns pixmap \a i in the array, if \a i is non-negative and less
+than than count(), and returns an unspecified value otherwise.
 */
 
 // ### wouldn't it be better to put empty QCanvasPixmaps in there instead of
@@ -3038,7 +3049,7 @@ void QCanvasPixmapArray::setImage(int i, QCanvasPixmap* p)
 Returns the number of pixmaps in the array.
 */
 
-/*! Returns the x coordinate of the current left edge of the
+/*! Returns the x-coordinate of the current left edge of the
   sprite. (This may change as the sprite animates since different frames
   may have different left edges.)
 
@@ -3052,7 +3063,7 @@ int QCanvasSprite::leftEdge() const
 /*!
   \overload
 
-  Returns what the x coordinate of the left edge of the sprite would be
+  Returns what the x-coordinate of the left edge of the sprite would be
   if the sprite (actually its hotspot) were moved to x-position \a nx.
 
   \sa rightEdge() bottomEdge() topEdge()
@@ -3062,7 +3073,7 @@ int QCanvasSprite::leftEdge(int nx) const
     return nx - image()->hotx;
 }
 
-/*!  Returns the y coordinate of the top edge of the sprite. (This may
+/*!  Returns the y-coordinate of the top edge of the sprite. (This may
   change as the sprite animates since different frames may have
   different top edges.)
 
@@ -3076,7 +3087,7 @@ int QCanvasSprite::topEdge() const
 /*!
   \overload
 
-  Returns what the y coordinate of the top edge of the sprite would be
+  Returns what the y-coordinate of the top edge of the sprite would be
   if the sprite (actually its hotspot) were moved to y-position \a ny.
 
   \sa leftEdge() rightEdge() bottomEdge()
@@ -3086,7 +3097,7 @@ int QCanvasSprite::topEdge(int ny) const
     return ny - image()->hoty;
 }
 
-/*! Returns the x coordinate of the current right edge of the
+/*! Returns the x-coordinate of the current right edge of the
   sprite. (This may change as the sprite animates since different frames
   may have different right edges.)
 
@@ -3100,7 +3111,7 @@ int QCanvasSprite::rightEdge() const
 /*!
   \overload
 
-  Returns what the x coordinate of the right edge of the sprite
+  Returns what the x-coordinate of the right edge of the sprite
   would be if the sprite (actually its hotspot) were moved to
   x-position \a nx.
 
@@ -3111,7 +3122,7 @@ int QCanvasSprite::rightEdge(int nx) const
     return leftEdge(nx) + image()->width()-1;
 }
 
-/*! Returns the y coordinate of the current bottom edge of the
+/*! Returns the y-coordinate of the current bottom edge of the
   sprite. (This may change as the sprite animates since different frames
   may have different bottom edges.)
 
@@ -3125,7 +3136,7 @@ int QCanvasSprite::bottomEdge() const
 /*!
   \overload
 
-  Returns what the y coordinate of the top edge of the sprite
+  Returns what the y-coordinate of the top edge of the sprite
   would be if the sprite (actually its hotspot) were moved to
   y-position \a ny.
 
@@ -3138,12 +3149,14 @@ int QCanvasSprite::bottomEdge(int ny) const
 
 /*!
   \fn QCanvasPixmap* QCanvasSprite::image() const
+
   Returns the current frame's image.
   \sa frame(), setFrame()
 */
 
 /*!
   \overload QCanvasPixmap* QCanvasSprite::image(int f) const
+
   Returns the image for frame \a f. Does not do any bounds checking on \a f.
 */
 
@@ -3158,7 +3171,7 @@ QCanvasPixmap* QCanvasSprite::imageAdvanced() const
 
 /*!
   Returns the bounding rectangle for the image in sprite's current
-  frame. This assumes that the images are tightly cropped (ie. do not
+  frame. This assumes that the images are tightly cropped (i.e. do not
   have transparent pixels all along a side).
 */
 QRect QCanvasSprite::boundingRect() const
