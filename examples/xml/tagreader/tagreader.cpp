@@ -11,7 +11,12 @@ int main( int argc, char **argv )
     for ( int i=1; i < argc; i++ ) {
         StructureParser handler;
         QFile xmlFile( argv[i] );
-        QXmlInputSource source( xmlFile );
+	if ( !xmlFile.open( IO_ReadOnly ) ) {
+	    qWarning( "Can't open file %s", argv[i] );
+	    continue;
+	}
+        QXmlInputSource source( &xmlFile );
+	xmlFile.close();
         QXmlSimpleReader reader;
         reader.setContentHandler( &handler );
         reader.parse( source );

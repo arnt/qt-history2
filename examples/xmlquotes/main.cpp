@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/xmlquotes/main.cpp#4 $
+** $Id: //depot/qt/main/examples/xmlquotes/main.cpp#5 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -21,7 +21,14 @@ int main( int argc, char **argv )
     // parse xml file
     QuoteHandler handler;
     QFile file( "quotes.xml" );
-    QXmlInputSource source( file );
+    if ( !file.open( IO_ReadOnly ) ) {
+	QMessageBox::critical( 0,
+		a.tr( "Error" ),
+		a.tr( "Can't open file %1." ).arg( file.name() ) );
+	return -1;
+    }
+    QXmlInputSource source( &file );
+    file.close();
     QXmlSimpleReader reader;
     reader.setContentHandler( &handler );
     reader.setErrorHandler( &handler );

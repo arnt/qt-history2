@@ -5,19 +5,27 @@ The intresting parts are:
 
  o The following lines of main.cpp which parses the XML file:
 
+
       QuoteHandler handler;
       QFile file( "quotes.xml" );
-      QXmlInputSource source( file );
+      if ( !file.open( IO_ReadOnly ) ) {
+	  QMessageBox::critical( 0,
+		  a.tr( "Error" ),
+		  a.tr( "Can't open file %1." ).arg( file.name() ) );
+	  return -1;
+      }
+      QXmlInputSource source( &file );
+      file.close();
       QXmlSimpleReader reader;
       reader.setContentHandler( &handler );
       reader.setErrorHandler( &handler );
       bool ok = reader.parse( source );
       file.close();
       if ( !ok ) {
-          QMessageBox::critical( 0,
-              a.tr( "Parse Error" ),
-              a.tr( handler.errorProtocol() ) );
-          return -1;
+	  QMessageBox::critical( 0,
+		  a.tr( "Parse Error" ),
+		  a.tr( handler.errorProtocol() ) );
+	  return -1;
       }
 
     The QuoteHandler handles the parsing events. The input is read from a
