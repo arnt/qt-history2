@@ -20,7 +20,7 @@
 #    include <AGL/agl.h>
 #    include <AGL/aglRenderers.h>
 #    include <OpenGL/gl.h>
-#    ifdef QT_NO_DEBUG 
+#    ifdef QT_NO_DEBUG
 #        define qDebug qt_noop(),1?(void)0:qDebug
 #    endif
 #else
@@ -356,35 +356,38 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
   QGLWidget AGL-specific code
  *****************************************************************************/
 
+#define d d_func()
+#define q q_func()
+
 void QGLWidget::init(QGLContext *ctx, const QGLWidget* shareWidget)
 {
-    slcx = glcx = 0;
-    autoSwap = TRUE;
+    d->slcx = d->glcx = 0;
+    d->autoSwap = TRUE;
 
-    gl_pix = NULL;
-    req_format = ctx->format();
-    pending_fix = 0;
+    d->gl_pix = NULL;
+    d->req_format = ctx->format();
+    d->pending_fix = 0;
 #if defined(QMAC_OPENGL_DOUBLEBUFFER)
-    dblbuf = QMAC_OPENGL_DOUBLEBUFFER;
+    d->dblbuf = QMAC_OPENGL_DOUBLEBUFFER;
 #else
-    dblbuf = 1;
+    d->dblbuf = 1;
 #endif
 
-    glcx_dblbuf = 2;
-    clp_serial = 0;
+    d->glcx_dblbuf = 2;
+    d->clp_serial = 0;
     macInternalDoubleBuffer(FALSE); //just get things going
     macInternalRecreateContext(ctx, shareWidget ? shareWidget->context() : NULL, FALSE);
 
     if(isValid() && context()->format().hasOverlay()) {
-	olcx = new QGLContext(QGLFormat::defaultOverlayFormat(), this);
-        if(!olcx->create(shareWidget ? shareWidget->overlayContext() : 0)) {
-	    delete olcx;
-	    olcx = 0;
-	    glcx->glFormat.setOverlay(FALSE);
+	d->olcx = new QGLContext(QGLFormat::defaultOverlayFormat(), this);
+        if(!d->olcx->create(shareWidget ? shareWidget->overlayContext() : 0)) {
+	    delete d->olcx;
+	    d->olcx = 0;
+	    d->glcx->glFormat.setOverlay(FALSE);
 	}
     }
     else {
-	olcx = 0;
+	d->olcx = 0;
     }
 }
 
@@ -397,9 +400,9 @@ bool QGLWidget::event(QEvent *e)
 void QGLWidget::macWidgetChangedWindow()
 {
     if(!macInternalDoubleBuffer(FALSE)) {
-	delete glcx;
-	glcx = NULL;
-	macInternalRecreateContext(new QGLContext(req_format, this));
+	delete d->glcx;
+	d->glcx = NULL;
+	macInternalRecreateContext(new QGLContext(d->req_format, this));
     }
 }
 
@@ -414,12 +417,12 @@ void QGLWidget::resizeEvent(QResizeEvent *)
     if(!isValid())
 	return;
     makeCurrent();
-    if(!glcx->initialized())
+    if(!d->glcx->initialized())
 	glInit();
-    aglUpdateContext((AGLContext)glcx->cx);
+    aglUpdateContext((AGLContext)d->glcx->cx);
     resizeGL(width(), height());
 
-    if(olcx) {
+    if(d->olcx) {
 	makeOverlayCurrent();
 	resizeOverlayGL(width(), height());
     }
@@ -427,17 +430,17 @@ void QGLWidget::resizeEvent(QResizeEvent *)
 
 const QGLContext* QGLWidget::overlayContext() const
 {
-    return olcx;
+    return d->olcx;
 }
 
 
 void QGLWidget::makeOverlayCurrent()
 {
-    if(olcx) {
-	olcx->makeCurrent();
-	if(!olcx->initialized()) {
+    if(d->olcx) {
+	d->olcx->makeCurrent();
+	if(!d->olcx->initialized()) {
 	    initializeOverlayGL();
-	    olcx->setInitialized(TRUE);
+	    d->olcx->setInitialized(TRUE);
 	}
     }
 }
@@ -445,12 +448,12 @@ void QGLWidget::makeOverlayCurrent()
 
 void QGLWidget::updateOverlayGL()
 {
-    if(olcx) {
+    if(d->olcx) {
 	makeOverlayCurrent();
 	paintOverlayGL();
-	if(olcx->format().doubleBuffer()) {
-	    if(autoSwap)
-		olcx->swapBuffers();
+	if(d->olcx->format().doubleBuffer()) {
+	    if(d->autoSwap)
+		d->olcx->swapBuffers();
 	}
 	else {
 	    glFlush();
@@ -469,26 +472,26 @@ void QGLWidget::setContext(QGLContext *context,
 
     const QPaintDevice *me = this;
     if(macInternalDoubleBuffer()) {
-	me = gl_pix;
+	me = d->gl_pix;
     } else if(!context->deviceIsPixmap() && context->device() != me) {
 	qWarning("QGLWidget::setContext: Context must refer to this widget");
 	return;
     }
 
-    if(glcx)
-	glcx->doneCurrent();
-    QGLContext* oldcx = glcx;
-    glcx = context;
-    slcx = shareContext;
-    glcx_dblbuf = dblbuf;
+    if(d->glcx)
+	d->glcx->doneCurrent();
+    QGLContext* oldcx = d->glcx;
+    d->glcx = context;
+    d->slcx = shareContext;
+    d->glcx_dblbuf = d->dblbuf;
 
-    if(!glcx->isValid()) {
+    if(!d->glcx->isValid()) {
 	const QGLContext *share = shareContext;
 #if 0
 	if(!share && !deleteOldContext)
 	    share = oldcx;
 #endif
-	glcx->create(share);
+	d->glcx->create(share);
     }
     if(deleteOldContext)
 	delete oldcx;
@@ -501,7 +504,7 @@ bool QGLWidget::renderCxPm(QPixmap*)
 
 const QGLColormap & QGLWidget::colormap() const
 {
-    return cmap;
+    return d->cmap;
 }
 
 void QGLWidget::setColormap(const QGLColormap &)
@@ -517,8 +520,8 @@ bool QGLWidget::macInternalDoubleBuffer(bool fix)
 #if !defined(QMAC_OPENGL_DOUBLEBUFFER)
     bool need_fix = FALSE;
     if(isTopLevel()) {
-	dblbuf = 0;
-	if(clippedSerial() != clp_serial) {
+	d->dblbuf = 0;
+	if(clippedSerial() != d->clp_serial) {
 	    if(children()) {
 		QRect myrect(rect());
 		register QObject *obj;
@@ -526,40 +529,40 @@ bool QGLWidget::macInternalDoubleBuffer(bool fix)
 		    if(obj->isWidgetType()) {
 			QWidget *w = (QWidget*)obj;
 			if(w->isVisible() && !w->isTopLevel() && myrect.intersects(QRect(w->pos(), w->size()))) {
-			    dblbuf = 1;
+			    d->dblbuf = 1;
 			    break;
 			}
 		    }
 		}
 	    }
-	    clp_serial = clippedSerial();
+	    d->clp_serial = clippedSerial();
         }
-    } else if(clippedSerial() != clp_serial) {
+    } else if(clippedSerial() != d->clp_serial) {
 	QRegion rgn = clippedRegion();
-	clp_serial = clippedSerial();
+	d->clp_serial = clippedSerial();
 	if(rgn.isNull() || rgn.isEmpty()) { //don't double buffer, we'll just make the area empty
-	    dblbuf = 0;
+	    d->dblbuf = 0;
 	} else {
 	    QRect rct(posInWindow(this), size());
 	    if(!isTopLevel())
 		rct &= topLevelWidget()->rect();
-	    dblbuf = (rgn != QRegion(rct));
+	    d->dblbuf = (rgn != QRegion(rct));
 	}
     }
-    if(glcx_dblbuf != dblbuf)
+    if(d->glcx_dblbuf != d->dblbuf)
 	need_fix = TRUE;
-    else if(dblbuf && (!gl_pix || gl_pix->size() != size()))
+    else if(d->dblbuf && (!d->gl_pix || d->gl_pix->size() != size()))
 	need_fix = TRUE;
-    if(pending_fix || need_fix) {
+    if(d->pending_fix || need_fix) {
 	if(fix)
-	    macInternalRecreateContext(new QGLContext(req_format,this));
+	    macInternalRecreateContext(new QGLContext(d->req_format,this));
 	else
-	    pending_fix = TRUE;
+	    d->pending_fix = TRUE;
     }
 #else
     Q_UNUSED(fix);
 #endif
-    return (bool)dblbuf;
+    return (bool)d->dblbuf;
 }
 
 void QGLWidget::macInternalRecreateContext(QGLContext *ctx, const QGLContext *share_ctx,
@@ -569,61 +572,61 @@ void QGLWidget::macInternalRecreateContext(QGLContext *ctx, const QGLContext *sh
 	return;
     if (!ctx->device())
 	ctx->setDevice(this);
-    if(glcx && QMacBlockingFunction::blocking()) { //nah, let's do it "later"
-	if(!dblbuf) {
-	    glcx->fixBufferRect();
-	} else if(gl_pix && gl_pix->size() != size()) {
-	    aglSetDrawable((AGLContext)glcx->cx, NULL);
-	    gl_pix->resize(size());
-	    PixMapHandle mac_pm = GetGWorldPixMap((GWorldPtr)gl_pix->handle());
-	    aglSetOffScreen((AGLContext)glcx->cx, gl_pix->width(), gl_pix->height(),
+    if(d->glcx && QMacBlockingFunction::blocking()) { //nah, let's do it "later"
+	if(!d->dblbuf) {
+	    d->glcx->fixBufferRect();
+	} else if(d->gl_pix && d->gl_pix->size() != size()) {
+	    aglSetDrawable((AGLContext)d->glcx->cx, NULL);
+	    d->gl_pix->resize(size());
+	    PixMapHandle mac_pm = GetGWorldPixMap((GWorldPtr)d->gl_pix->handle());
+	    aglSetOffScreen((AGLContext)d->glcx->cx, d->gl_pix->width(), d->gl_pix->height(),
 			    GetPixRowBytes(mac_pm), GetPixBaseAddr(mac_pm));
 	}
-	pending_fix = TRUE;
+	d->pending_fix = TRUE;
 	return;
     }
 
-    QGLContext* oldcx = glcx;
-    glcx_dblbuf = dblbuf;
-    pending_fix = FALSE;
-    if(dblbuf) {
+    QGLContext* oldcx = d->glcx;
+    d->glcx_dblbuf = d->dblbuf;
+    d->pending_fix = FALSE;
+    if(d->dblbuf) {
 	setAttribute(WA_NoSystemBackground, true);
-	if(gl_pix && glcx_dblbuf == dblbuf) { //currently double buffered, just resize
+	if(d->gl_pix && d->glcx_dblbuf == d->dblbuf) { //currently double buffered, just resize
 	    int w = width(), h = height();
-	    if(gl_pix->size() != size()) {
-		aglSetDrawable((AGLContext)glcx->cx, NULL);
-		gl_pix->resize(w, h);
-		PixMapHandle mac_pm = GetGWorldPixMap((GWorldPtr)gl_pix->handle());
-		aglSetOffScreen((AGLContext)glcx->cx, gl_pix->width(), gl_pix->height(),
+	    if(d->gl_pix->size() != size()) {
+		aglSetDrawable((AGLContext)d->glcx->cx, NULL);
+		d->gl_pix->resize(w, h);
+		PixMapHandle mac_pm = GetGWorldPixMap((GWorldPtr)d->gl_pix->handle());
+		aglSetOffScreen((AGLContext)d->glcx->cx, d->gl_pix->width(), d->gl_pix->height(),
 				GetPixRowBytes(mac_pm), GetPixBaseAddr(mac_pm));
 	    }
 	} else {
-	    if(gl_pix && glcx && glcx->cx) {
-		aglSetDrawable((AGLContext)glcx->cx, NULL);
-		delete gl_pix;
+	    if(d->gl_pix && d->glcx && d->glcx->cx) {
+		aglSetDrawable((AGLContext)d->glcx->cx, NULL);
+		delete d->gl_pix;
 	    }
-	    gl_pix = new QPixmap(width(), height(), QPixmap::BestOptim);
+	    d->gl_pix = new QPixmap(width(), height(), QPixmap::BestOptim);
 	    if(oldcx)
 		qgl_delete_d(this);
-	    setContext(ctx, share_ctx ? share_ctx : slcx, FALSE);
+	    setContext(ctx, share_ctx ? share_ctx : d->slcx, FALSE);
 	}
     } else {
 	setEraseColor(black);
 	if(oldcx)
 	    qgl_delete_d(this);
-	setContext(ctx, share_ctx ? share_ctx : slcx, FALSE);
-	glcx->fixBufferRect();
+	setContext(ctx, share_ctx ? share_ctx : d->slcx, FALSE);
+	d->glcx->fixBufferRect();
     }
     if(update)
 	repaint();
-    if(oldcx && oldcx != glcx)
+    if(oldcx && oldcx != d->glcx)
 	delete oldcx;
 }
 
 void QGLWidget::setRegionDirty(bool b) //Internally we must put this off until "later"
 {
     QWidget::setRegionDirty(b);
-    if (!isVisibleTo(topLevelWidget())) { 
+    if (!isVisibleTo(topLevelWidget())) {
 	QTimer::singleShot(0, this, SLOT(macInternalFixBufferRect()));
     } else {
 	macInternalFixBufferRect();
@@ -632,7 +635,7 @@ void QGLWidget::setRegionDirty(bool b) //Internally we must put this off until "
 
 void QGLWidget::macInternalFixBufferRect()
 {
-    glcx->fixBufferRect();
+    d->glcx->fixBufferRect();
     update();
 }
 #endif

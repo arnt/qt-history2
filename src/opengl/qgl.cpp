@@ -17,10 +17,10 @@
 #include "qpaintdevicemetrics.h"
 #include "qimage.h"
 #include "qcleanuphandler.h"
+#include "qgl_p.h"
 
 static QGLFormat* qgl_default_format = 0;
 static QGLFormat* qgl_default_overlay_format = 0;
-
 
 static QCleanupHandler<QGLFormat> qgl_cleanup_format;
 
@@ -1240,10 +1240,15 @@ bool QGLContext::create( const QGLContext* shareContext )
     \sa QGLFormat::defaultFormat()
 */
 
+#define d d_func()
+#define q q_func()
+
 QGLWidget::QGLWidget( QWidget *parent, const char *name,
 		      const QGLWidget* shareWidget, WFlags f )
-    : QWidget( parent, name, f | Qt::WWinOwnDC | Qt::WNoAutoErase )
+    : QWidget(*(new QGLWidgetPrivate), parent, f | Qt::WWinOwnDC | Qt::WNoAutoErase)
 {
+    if (name)
+	setObjectName(name);
     setAttribute(WA_PaintOnScreen);
     setAttribute(WA_NoBackground);
     init( new QGLContext(QGLFormat::defaultFormat(), this), shareWidget );
@@ -1281,8 +1286,10 @@ QGLWidget::QGLWidget( QWidget *parent, const char *name,
 QGLWidget::QGLWidget( const QGLFormat &format, QWidget *parent,
 		      const char *name, const QGLWidget* shareWidget,
 		      WFlags f )
-    : QWidget( parent, name, f | Qt::WWinOwnDC | Qt::WNoAutoErase )
+    : QWidget( *(new QGLWidgetPrivate), parent, f | Qt::WWinOwnDC | Qt::WNoAutoErase )
 {
+    if (name)
+	setObjectName(name);
     init( new QGLContext(format, this), shareWidget );
 }
 
@@ -1313,8 +1320,10 @@ QGLWidget::QGLWidget( const QGLFormat &format, QWidget *parent,
 */
 QGLWidget::QGLWidget( QGLContext *context, QWidget *parent,
 		      const char *name, const QGLWidget *shareWidget, WFlags f )
-    : QWidget( parent, name, f | Qt::WWinOwnDC | Qt::WNoAutoErase )
+    : QWidget( *(new QGLWidgetPrivate), parent, f | Qt::WWinOwnDC | Qt::WNoAutoErase )
 {
+    if (name)
+	setObjectName(name);
     init( context, shareWidget );
 }
 
@@ -1327,18 +1336,18 @@ QGLWidget::~QGLWidget()
 #if defined(GLX_MESA_release_buffers) && defined(QGL_USE_MESA_EXT)
     bool doRelease = ( glcx && glcx->windowCreated() );
 #endif
-    delete glcx;
+    delete d->glcx;
 #if defined(Q_WGL)
-    delete olcx;
+    delete d->olcx;
 #endif
 #if defined(GLX_MESA_release_buffers) && defined(QGL_USE_MESA_EXT)
     if ( doRelease )
 	glXReleaseBuffersMESA( x11Display(), winId() );
 #endif
 #if defined(Q_WS_MAC)
-    if(gl_pix) {
-	delete gl_pix;
-	gl_pix = NULL;
+    if(d->gl_pix) {
+	delete d->gl_pix;
+	d->gl_pix = NULL;
     }
 #endif
     cleanupColormaps();
@@ -1397,7 +1406,7 @@ QGLWidget::~QGLWidget()
 
 bool QGLWidget::isValid() const
 {
-    return glcx->isValid();
+    return d->glcx->isValid();
 }
 
 /*!
@@ -1414,7 +1423,7 @@ bool QGLWidget::isValid() const
 
 bool QGLWidget::isSharing() const
 {
-    return glcx->isSharing();
+    return d->glcx->isSharing();
 }
 
 /*!
@@ -1430,7 +1439,7 @@ void QGLWidget::makeCurrent()
 #if defined( Q_WS_MAC )
     macInternalDoubleBuffer(); //make sure the correct context is used
 #endif
-    glcx->makeCurrent();
+    d->glcx->makeCurrent();
 }
 
 /*!
@@ -1443,7 +1452,7 @@ void QGLWidget::makeCurrent()
 
 void QGLWidget::doneCurrent()
 {
-    glcx->doneCurrent();
+    d->glcx->doneCurrent();
 }
 
 /*!
@@ -1461,10 +1470,10 @@ void QGLWidget::doneCurrent()
 
 void QGLWidget::swapBuffers()
 {
-    glcx->swapBuffers();
+    d->glcx->swapBuffers();
 #if defined(Q_WS_MAC)
-    if(macInternalDoubleBuffer() && gl_pix)
-	bitBlt(this, 0, 0, gl_pix);
+    if(macInternalDoubleBuffer() && d->gl_pix)
+	bitBlt(this, 0, 0, d->gl_pix);
 #endif
 }
 
@@ -1752,29 +1761,29 @@ QPixmap QGLWidget::renderPixmap( int w, int h, bool useContext )
     if ( (w > 0) && (h > 0) )
 	sz = QSize( w, h );
     QPixmap pm( sz );
-    glcx->doneCurrent();
+    d->glcx->doneCurrent();
     bool success = TRUE;
 
     if ( useContext && isValid() && renderCxPm( &pm ) )
 	return pm;
 
-    QGLFormat fmt = glcx->requestedFormat();
+    QGLFormat fmt = d->glcx->requestedFormat();
     fmt.setDirectRendering( FALSE );		// Direct is unlikely to work
     fmt.setDoubleBuffer( FALSE );		// We don't need dbl buf
 
-    QGLContext* ocx = glcx;
+    QGLContext* ocx = d->glcx;
     bool wasCurrent = (QGLContext::currentContext() == ocx );
     ocx->doneCurrent();
-    glcx = new QGLContext( fmt, &pm );
-    glcx->create();
+    d->glcx = new QGLContext( fmt, &pm );
+    d->glcx->create();
 
-    if ( glcx->isValid() )
+    if ( d->glcx->isValid() )
 	updateGL();
     else
 	success = FALSE;
 
-    delete glcx;
-    glcx = ocx;
+    delete d->glcx;
+    d->glcx = ocx;
 
     if ( wasCurrent )
 	ocx->makeCurrent();
@@ -1798,8 +1807,8 @@ QPixmap QGLWidget::renderPixmap( int w, int h, bool useContext )
 QImage QGLWidget::grabFrameBuffer( bool withAlpha )
 {
 #if defined( Q_WS_MAC )
-    if(dblbuf == macInternalDoubleBuffer(FALSE) && gl_pix) //why not optimize?
-	return ((QPixmap*)gl_pix)->convertToImage();
+    if(d->dblbuf == macInternalDoubleBuffer(FALSE) && d->gl_pix) //why not optimize?
+	return ((QPixmap*)d->gl_pix)->convertToImage();
 #endif
     makeCurrent();
     QImage res;
@@ -1861,7 +1870,7 @@ void QGLWidget::glInit()
 	return;
     makeCurrent();
     initializeGL();
-    glcx->setInitialized( TRUE );
+    d->glcx->setInitialized( TRUE );
 }
 
 
@@ -1877,22 +1886,22 @@ void QGLWidget::glDraw()
     if ( !isValid() )
 	return;
     makeCurrent();
-    if ( glcx->deviceIsPixmap() )
+    if ( d->glcx->deviceIsPixmap() )
 	glDrawBuffer( GL_FRONT );
-    if ( !glcx->initialized() ) {
+    if ( !d->glcx->initialized() ) {
 	glInit();
-	QPaintDeviceMetrics dm( glcx->device() );
+	QPaintDeviceMetrics dm( d->glcx->device() );
 	resizeGL( dm.width(), dm.height() ); // New context needs this "resize"
     }
     paintGL();
     if ( doubleBuffer() ) {
-	if ( autoSwap )
+	if ( d->autoSwap )
 	    swapBuffers();
     } else {
 	glFlush();
 #if defined( Q_WS_MAC )
-	if(dblbuf && gl_pix)
-	    bitBlt(this, 0, 0, gl_pix);
+	if(d->dblbuf && d->gl_pix)
+	    bitBlt(this, 0, 0, d->gl_pix);
 #endif
     }
 }
@@ -1912,10 +1921,10 @@ void QGLWidget::qglColor( const QColor& c ) const
     if ( ctx ) {
 	if ( ctx->format().rgba() )
 	    glColor3ub( c.red(), c.green(), c.blue() );
-	else if ( !cmap.isEmpty() ) { // QGLColormap in use?
-	    int i = cmap.find( c.rgb() );
+	else if ( !d->cmap.isEmpty() ) { // QGLColormap in use?
+	    int i = d->cmap.find( c.rgb() );
 	    if ( i < 0 )
-		i = cmap.findNearest( c.rgb() );
+		i = d->cmap.findNearest( c.rgb() );
 	    glIndexi( i );
 	} else
 	    glIndexi( ctx->colorIndex( c ) );
@@ -1937,10 +1946,10 @@ void QGLWidget::qglClearColor( const QColor& c ) const
 	if ( ctx->format().rgba() )
 	    glClearColor( (GLfloat)c.red() / 255.0, (GLfloat)c.green() / 255.0,
 			  (GLfloat)c.blue() / 255.0, (GLfloat) 0.0 );
-	else if ( !cmap.isEmpty() ) { // QGLColormap in use?
-	    int i = cmap.find( c.rgb() );
+	else if ( !d->cmap.isEmpty() ) { // QGLColormap in use?
+	    int i = d->cmap.find( c.rgb() );
 	    if ( i < 0 )
-		i = cmap.findNearest( c.rgb() );
+		i = d->cmap.findNearest( c.rgb() );
 	    glClearIndex( i );
 	} else
 	    glClearIndex( ctx->colorIndex( c ) );
@@ -2035,27 +2044,27 @@ int QGLWidget::displayListBase( const QFont & fnt, int listBase )
 {
     int base;
 
-    if ( !glcx ) { // this can't happen unless we run out of mem
+    if ( !d->glcx ) { // this can't happen unless we run out of mem
 	return 0;
     }
 
     // always regenerate font disp. lists for pixmaps - hw accelerated
     // contexts can't handle this otherwise
-    bool regenerate = glcx->deviceIsPixmap();
+    bool regenerate = d->glcx->deviceIsPixmap();
     QString key = fnt.key() + QString::number( (int)regenerate );
-    if ( !regenerate && (displayListCache.find( key ) != displayListCache.end()) ) {
-	base = displayListCache[ key ];
+    if ( !regenerate && (d->displayListCache.find( key ) != d->displayListCache.end()) ) {
+	base = d->displayListCache[ key ];
     } else {
 	int maxBase = listBase - 256;
 	QMap<QString,int>::ConstIterator it;
-	for ( it = displayListCache.constBegin(); it != displayListCache.constEnd(); ++it ) {
+	for ( it = d->displayListCache.constBegin(); it != d->displayListCache.constEnd(); ++it ) {
 	    if ( maxBase < it.value() ) {
 		maxBase = it.value();
 	    }
 	}
 	maxBase += 256;
-	glcx->generateFontDisplayLists( fnt, maxBase );
-	displayListCache[ key ] = maxBase;
+	d->glcx->generateFontDisplayLists( fnt, maxBase );
+	d->displayListCache[ key ] = maxBase;
 	base = maxBase;
     }
     return base;
@@ -2123,6 +2132,31 @@ void QGLWidget::renderText( double x, double y, double z, const QString & str, c
     glRasterPos3d( x, y, z );
     glListBase( displayListBase( fnt, listBase ) );
     glCallLists( str.length(), GL_UNSIGNED_BYTE, str.local8Bit() );
+}
+
+QGLFormat QGLWidget::format() const
+{
+    return d->glcx->format();
+}
+
+const QGLContext *QGLWidget::context() const
+{
+    return d->glcx;
+}
+
+bool QGLWidget::doubleBuffer() const
+{
+    return d->glcx->format().doubleBuffer();
+}
+
+void QGLWidget::setAutoBufferSwap( bool on )
+{
+    d->autoSwap = on;
+}
+
+bool QGLWidget::autoBufferSwap() const
+{
+    return d->autoSwap;
 }
 
 /*****************************************************************************

@@ -880,10 +880,13 @@ void QGLContext::generateFontDisplayLists( const QFont & fnt, int listBase )
   QGLWidget Win32/WGL-specific code
  *****************************************************************************/
 
+#define d d_func()
+#define q q_func()
+
 void QGLWidget::init( QGLContext *ctx, const QGLWidget* shareWidget )
 {
-    glcx = 0;
-    autoSwap = TRUE;
+    d->glcx = 0;
+    d->autoSwap = TRUE;
 
     if ( !ctx->device() )
 	ctx->setDevice( this );
@@ -900,7 +903,7 @@ void QGLWidget::init( QGLContext *ctx, const QGLWidget* shareWidget )
         if ( !olcx->create(shareWidget ? shareWidget->overlayContext() : 0) ) {
 	    delete olcx;
 	    olcx = 0;
-	    glcx->glFormat.setOverlay( FALSE );
+	    d->glcx->glFormat.setOverlay( FALSE );
 	}
     } else {
 	olcx = 0;
@@ -911,7 +914,7 @@ void QGLWidget::init( QGLContext *ctx, const QGLWidget* shareWidget )
 bool QGLWidget::event(QEvent *e)
 {
     if (e->type() == QEvent::Reparent)
-	setContext( new QGLContext( glcx->requestedFormat(), this ) );
+	setContext( new QGLContext( d->glcx->requestedFormat(), this ) );
     return QWidget::event(e);
 }
 
@@ -927,7 +930,7 @@ void QGLWidget::resizeEvent( QResizeEvent * )
     if ( !isValid() )
 	return;
     makeCurrent();
-    if ( !glcx->initialized() )
+    if ( !d->glcx->initialized() )
 	glInit();
     resizeGL( width(), height() );
     if ( olcx ) {
@@ -961,7 +964,7 @@ void QGLWidget::updateOverlayGL()
 	makeOverlayCurrent();
 	paintOverlayGL();
 	if ( olcx->format().doubleBuffer() ) {
-	    if ( autoSwap )
+	    if ( d->autoSwap )
 		olcx->swapBuffers();
 	}
 	else {
@@ -984,13 +987,13 @@ void QGLWidget::setContext( QGLContext *context,
 	return;
     }
 
-    if ( glcx )
-	glcx->doneCurrent();
-    QGLContext* oldcx = glcx;
-    glcx = context;
+    if ( d->glcx )
+	d->glcx->doneCurrent();
+    QGLContext* oldcx = d->glcx;
+    d->glcx = context;
 
     bool doShow = FALSE;
-    if ( oldcx && oldcx->win == winId() && !glcx->deviceIsPixmap() ) {
+    if ( oldcx && oldcx->win == winId() && !d->glcx->deviceIsPixmap() ) {
 	// We already have a context and must therefore create a new
 	// window since Windows does not permit setting a new OpenGL
 	// context for a window that already has one set.
@@ -998,8 +1001,8 @@ void QGLWidget::setContext( QGLContext *context,
         QWidget::reparent( parentWidget(), getWFlags(), geometry().topLeft(), FALSE );
     }
 
-    if ( !glcx->isValid() )
-	glcx->create( shareContext ? shareContext : oldcx );
+    if ( !d->glcx->isValid() )
+	d->glcx->create( shareContext ? shareContext : oldcx );
 
     if ( deleteOldContext )
 	delete oldcx;
@@ -1017,7 +1020,7 @@ bool QGLWidget::renderCxPm( QPixmap* )
 
 const QGLColormap & QGLWidget::colormap() const
 {
-    return cmap;
+    return d->cmap;
 }
 
 /*\internal
@@ -1041,14 +1044,14 @@ static void qStoreColors( HPALETTE cmap, const QGLColormap & cols )
 
 void QGLWidget::setColormap( const QGLColormap & c )
 {
-    cmap = c;
-    if ( !cmap.d )
+    d->cmap = c;
+    if ( !d->cmap.handle() )
 	return;
 
-    if ( cmap.d->cmapHandle ) { // already have an allocated cmap
+    if ( d->cmap.handle() ) { // already have an allocated cmap
         HDC hdc = GetDC( winId() );
-	SelectPalette( hdc, (HPALETTE) cmap.d->cmapHandle, FALSE );
-	qStoreColors( (HPALETTE) cmap.d->cmapHandle, c );
+	SelectPalette( hdc, (HPALETTE) d->cmap.handle(), FALSE );
+	qStoreColors( (HPALETTE) d->cmap.handle(), c );
         RealizePalette( hdc );
 	ReleaseDC( winId(), hdc );
     } else {
@@ -1057,12 +1060,12 @@ void QGLWidget::setColormap( const QGLColormap & c )
 
 	lpal->palVersion    = 0x300;
 	lpal->palNumEntries = c.size();
-	cmap.d->cmapHandle  = CreatePalette( lpal );
+	d->cmap.setHandle(CreatePalette( lpal ));
 
-	if ( cmap.d->cmapHandle ) {
+	if ( d->cmap.handle() ) {
 	    HDC hdc = GetDC( winId() );
-	    SelectPalette( hdc, (HPALETTE) cmap.d->cmapHandle, FALSE );
-	    qStoreColors( (HPALETTE) cmap.d->cmapHandle, c );
+	    SelectPalette( hdc, (HPALETTE) d->cmap.handle(), FALSE );
+	    qStoreColors( (HPALETTE) d->cmap.handle(), c );
 	    RealizePalette( hdc );
 	    ReleaseDC( winId(), hdc );
 	}
@@ -1072,17 +1075,15 @@ void QGLWidget::setColormap( const QGLColormap & c )
 
 void QGLWidget::cleanupColormaps()
 {
-    if ( !cmap.d )
-	return;
-
-    if ( cmap.d->cmapHandle ) {
+    if ( d->cmap.handle() ) {
 	HDC hdc = GetDC( winId() );
 	SelectPalette( hdc, (HPALETTE) GetStockObject( DEFAULT_PALETTE ),
 		       FALSE );
-	DeleteObject( (HPALETTE) cmap.d->cmapHandle );
+	DeleteObject( (HPALETTE) d->cmap.handle() );
 	ReleaseDC( winId(), hdc );
-	cmap.d->cmapHandle = 0;
+	d->cmap.setHandle(0);
     }
+    return;
 }
 
 void QGLWidget::macInternalFixBufferRect()

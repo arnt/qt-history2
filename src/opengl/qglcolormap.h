@@ -33,9 +33,9 @@ public:
     QGLColormap();
     QGLColormap( const QGLColormap & );
     ~QGLColormap();
-    
+
     QGLColormap &operator=( const QGLColormap & );
-    
+
     bool   isEmpty() const;
     int    size() const;
     void   detach();
@@ -47,14 +47,18 @@ public:
     QColor entryColor( int idx ) const;
     int    find( QRgb color ) const;
     int    findNearest( QRgb color ) const;
-    
+
+protected:
+    Qt::HANDLE handle() { return d ? d->cmapHandle : 0; }
+    void setHandle(Qt::HANDLE handle) { d->cmapHandle = handle; }
+
 private:
     struct QGLColormapData {
 	QAtomic ref;
 	QVector<QRgb> *cells;
 	Qt::HANDLE cmapHandle;
     };
-    
+
     QGLColormapData *d;
     static struct QGLColormapData shared_null;
     static void cleanup(QGLColormapData *x);

@@ -13,6 +13,7 @@
 ****************************************************************************/
 
 #include "qgl.h"
+#include "qgl_p.h"
 
 #if defined(Q_WS_X11)
 
@@ -688,6 +689,9 @@ void QGLContext::generateFontDisplayLists( const QFont & fnt, int listBase )
   QGLOverlayWidget (Internal overlay class for X11)
  *****************************************************************************/
 
+#define d d_func()
+#define q q_func()
+
 class QGLOverlayWidget : public QGLWidget
 {
     Q_OBJECT
@@ -714,7 +718,7 @@ private:	// Disabled copy constructor and operator=
 QGLOverlayWidget::QGLOverlayWidget( const QGLFormat& format, QGLWidget* parent,
 				    const char* name,
 				    const QGLWidget* shareWidget )
-    : QGLWidget( format, parent, name, shareWidget ? shareWidget->olw : 0 )
+    : QGLWidget( format, parent, name, shareWidget ? shareWidget->d->olw : 0 )
 {
     realWidget = parent;
 }
@@ -752,9 +756,9 @@ void QGLOverlayWidget::paintGL()
  *****************************************************************************/
 void QGLWidget::init( QGLContext *context, const QGLWidget *shareWidget )
 {
-    glcx = 0;
-    olw = 0;
-    autoSwap = TRUE;
+    d->glcx = 0;
+    d->olw = 0;
+    d->autoSwap = true;
     if ( !context->device() )
 	context->setDevice( this );
 
@@ -767,16 +771,16 @@ void QGLWidget::init( QGLContext *context, const QGLWidget *shareWidget )
     if ( isValid() && context->format().hasOverlay() ) {
 	QByteArray olwName( objectName() );
 	olwName += "-QGL_internal_overlay_widget";
-	olw = new QGLOverlayWidget( QGLFormat::defaultOverlayFormat(),
-				    this, olwName, shareWidget );
-	if ( olw->isValid() ) {
-	    olw->setAutoBufferSwap( FALSE );
-	    olw->setFocusProxy( this );
+	d->olw = new QGLOverlayWidget( QGLFormat::defaultOverlayFormat(),
+				       this, olwName, shareWidget );
+	if ( d->olw->isValid() ) {
+	    d->olw->setAutoBufferSwap(false);
+	    d->olw->setFocusProxy(this);
 	}
 	else {
-	    delete olw;
-	    olw = 0;
-	    glcx->glFormat.setOverlay( FALSE );
+	    delete d->olw;
+	    d->olw = 0;
+	    d->glcx->glFormat.setOverlay(false);
 	}
     }
 }
@@ -790,8 +794,8 @@ bool QGLWidget::event(QEvent *e)
 
 void QGLWidget::setMouseTracking( bool enable )
 {
-    if ( olw )
-	olw->setMouseTracking( enable );
+    if ( d->olw )
+	d->olw->setMouseTracking( enable );
     QWidget::setMouseTracking( enable );
 }
 
@@ -801,18 +805,18 @@ void QGLWidget::resizeEvent( QResizeEvent * )
     if ( !isValid() )
 	return;
     makeCurrent();
-    if ( !glcx->initialized() )
+    if ( !d->glcx->initialized() )
 	glInit();
     glXWaitX();
     resizeGL( width(), height() );
-    if ( olw )
-	olw->setGeometry( rect() );
+    if ( d->olw )
+	d->olw->setGeometry( rect() );
 }
 
 const QGLContext* QGLWidget::overlayContext() const
 {
-    if ( olw )
-	return olw->context();
+    if ( d->olw )
+	return d->olw->context();
     else
 	return 0;
 }
@@ -820,15 +824,15 @@ const QGLContext* QGLWidget::overlayContext() const
 
 void QGLWidget::makeOverlayCurrent()
 {
-    if ( olw )
-	olw->makeCurrent();
+    if ( d->olw )
+	d->olw->makeCurrent();
 }
 
 
 void QGLWidget::updateOverlayGL()
 {
-    if ( olw )
-	olw->updateGL();
+    if ( d->olw )
+	d->olw->updateGL();
 }
 
 void QGLWidget::setContext( QGLContext *context,
@@ -844,14 +848,14 @@ void QGLWidget::setContext( QGLContext *context,
 	return;
     }
 
-    if ( glcx )
-	glcx->doneCurrent();
-    QGLContext* oldcx = glcx;
-    glcx = context;
+    if ( d->glcx )
+	d->glcx->doneCurrent();
+    QGLContext* oldcx = d->glcx;
+    d->glcx = context;
 
     bool createFailed = FALSE;
-    if ( !glcx->isValid() ) {
-	if ( !glcx->create( shareContext ? shareContext : oldcx ) )
+    if ( !d->glcx->isValid() ) {
+	if ( !d->glcx->create( shareContext ? shareContext : oldcx ) )
 	    createFailed = TRUE;
     }
     if ( createFailed ) {
@@ -860,7 +864,7 @@ void QGLWidget::setContext( QGLContext *context,
 	return;
     }
 
-    if ( glcx->windowCreated() || glcx->deviceIsPixmap() ) {
+    if ( d->glcx->windowCreated() || d->glcx->deviceIsPixmap() ) {
 	if ( deleteOldContext )
 	    delete oldcx;
 	return;
@@ -870,7 +874,7 @@ void QGLWidget::setContext( QGLContext *context,
     if ( visible )
 	hide();
 
-    XVisualInfo *vi = (XVisualInfo*)glcx->vi;
+    XVisualInfo *vi = (XVisualInfo*)d->glcx->vi;
     XSetWindowAttributes a;
 
     a.colormap = choose_cmap( x11Info()->display(), vi );	// find best colormap
@@ -924,35 +928,35 @@ void QGLWidget::setContext( QGLContext *context,
     if ( visible )
 	show();
     XFlush( x11Info()->display() );
-    glcx->setWindowCreated( TRUE );
+    d->glcx->setWindowCreated( TRUE );
 }
 
 
 bool QGLWidget::renderCxPm( QPixmap* pm )
 {
-    if ( ((XVisualInfo*)glcx->vi)->depth != pm->depth() )
+    if ( ((XVisualInfo*)d->glcx->vi)->depth != pm->depth() )
 	return FALSE;
 
     GLXPixmap glPm;
 #if defined(GLX_MESA_pixmap_colormap) && defined(QGL_USE_MESA_EXT)
     glPm = glXCreateGLXPixmapMESA( x11Info()->display(),
-				   (XVisualInfo*)glcx->vi,
+				   (XVisualInfo*)d->glcx->vi,
 				   (Pixmap)pm->handle(),
 				   choose_cmap( pm->x11Info()->display(),
-						(XVisualInfo*)glcx->vi ) );
+						(XVisualInfo*)d->glcx->vi ) );
 #else
     glPm = (Q_UINT32)glXCreateGLXPixmap( x11Info()->display(),
-					 (XVisualInfo*)glcx->vi,
+					 (XVisualInfo*)d->glcx->vi,
 					 (Pixmap)pm->handle() );
 #endif
 
-    if ( !glXMakeCurrent( x11Info()->display(), glPm, (GLXContext)glcx->cx ) ) {
+    if ( !glXMakeCurrent( x11Info()->display(), glPm, (GLXContext)d->glcx->cx ) ) {
 	glXDestroyGLXPixmap( x11Info()->display(), glPm );
 	return FALSE;
     }
 
     glDrawBuffer( GL_FRONT );
-    if ( !glcx->initialized() )
+    if ( !d->glcx->initialized() )
 	glInit();
     resizeGL( pm->width(), pm->height() );
     paintGL();
@@ -965,7 +969,7 @@ bool QGLWidget::renderCxPm( QPixmap* pm )
 
 const QGLColormap & QGLWidget::colormap() const
 {
-    return cmap;
+    return d->cmap;
 }
 
 /*\internal
@@ -1028,15 +1032,16 @@ static bool qCanAllocColors( QWidget * w )
     return TRUE;
 }
 
+
 void QGLWidget::setColormap( const QGLColormap & c )
 {
     QWidget * tlw = topLevelWidget(); // must return a valid widget
 
-    cmap = c;
-    if ( !cmap.d )
+    d->cmap = c;
+    if ( !d->cmap.handle() )
 	return;
 
-    if ( !cmap.d->cmapHandle && !qCanAllocColors( this ) ) {
+    if ( !qCanAllocColors( this ) ) {
 	qWarning( "QGLWidget::setColormap: Cannot create a read/write "
 		  "colormap for this visual" );
 	return;
@@ -1053,11 +1058,11 @@ void QGLWidget::setColormap( const QGLColormap & c )
 	vis = x11Info()->visual();
     }
 
-    if ( !cmap.d->cmapHandle ) // allocate a cmap if necessary
-	cmap.d->cmapHandle = XCreateColormap( x11Info()->display(), wid, vis, AllocAll );
+    if ( !d->cmap.handle() ) // allocate a cmap if necessary
+	d->cmap.setHandle( XCreateColormap( x11Info()->display(), wid, vis, AllocAll ) );
 
-    qStoreColors( this, (Colormap) cmap.d->cmapHandle, c );
-    XSetWindowColormap( x11Info()->display(), wid, (Colormap) cmap.d->cmapHandle );
+    qStoreColors( this, (Colormap) d->cmap.handle(), c );
+    XSetWindowColormap( x11Info()->display(), wid, (Colormap) d->cmap.handle() );
 
     // tell the wm that this window has a special colormap
     Window * cmw;
@@ -1091,12 +1096,11 @@ void QGLWidget::setColormap( const QGLColormap & c )
 */
 void QGLWidget::cleanupColormaps()
 {
-    if ( !cmap.d )
+    if ( !d->cmap.handle() ) {
 	return;
-
-    if ( cmap.d->cmapHandle ) {
-	XFreeColormap( topLevelWidget()->x11Info()->display(), (Colormap) cmap.d->cmapHandle );
-	cmap.d->cmapHandle = 0;
+    } else {
+	XFreeColormap( topLevelWidget()->x11Info()->display(), (Colormap) d->cmap.handle() );
+	d->cmap.setHandle(0);
     }
 }
 

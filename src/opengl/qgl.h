@@ -65,6 +65,7 @@ class QPixmap;
 #if defined(Q_WS_X11)
 class QGLOverlayWidget;
 #endif
+class QGLWidgetPrivate;
 
 // Namespace class:
 class QM_EXPORT_OPENGL QGL
@@ -244,8 +245,6 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-
-
 class QM_EXPORT_OPENGL QGLWidget : public QWidget, public QGL
 {
     Q_OBJECT
@@ -327,35 +326,17 @@ private:
     void cleanupColormaps();
     void init( QGLContext *context, const QGLWidget* shareWidget );
     bool renderCxPm( QPixmap* pm );
-    QGLContext* glcx;
-    bool autoSwap;
-
-    QGLColormap cmap;
-    QMap<QString, int> displayListCache;
-
-#if defined(Q_WS_WIN) || defined(Q_WS_MAC)
-    QGLContext* olcx;
-#elif defined(Q_WS_X11)
-    QGLOverlayWidget*	olw;
-    friend class QGLOverlayWidget;
-#endif
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QGLWidget( const QGLWidget& );
     QGLWidget& operator=( const QGLWidget& );
 #endif
+    friend class QGLOverlayWidget;
+
+    Q_DECL_PRIVATE(QGLWidget);
 
 #if defined(Q_WS_MAC)
-private:
-    const QGLContext *slcx;
-    uint pending_fix : 1,
-	 glcx_dblbuf : 2,
-	 dblbuf : 1,
-	 clp_serial : 15;
-    QPixmap *gl_pix;
-    QGLFormat req_format;
-
     void macInternalRecreateContext( QGLContext *ctx,
 				     const QGLContext* = NULL,
 				     bool update = TRUE );
@@ -482,34 +463,4 @@ inline const QGLContext* QGLContext::currentContext()
 {
     return currentCtx;
 }
-
-//
-// QGLWidget inline functions
-//
-
-inline QGLFormat QGLWidget::format() const
-{
-    return glcx->format();
-}
-
-inline const QGLContext *QGLWidget::context() const
-{
-    return glcx;
-}
-
-inline bool QGLWidget::doubleBuffer() const
-{
-    return glcx->format().doubleBuffer();
-}
-
-inline void QGLWidget::setAutoBufferSwap( bool on )
-{
-    autoSwap = on;
-}
-
-inline bool QGLWidget::autoBufferSwap() const
-{
-    return autoSwap;
-}
-
 #endif

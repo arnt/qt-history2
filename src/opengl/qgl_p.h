@@ -1,0 +1,55 @@
+/****************************************************************************
+**
+** Definition of some Qt private functions.
+**
+** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+**
+** This file is part of the kernel module of the Qt GUI Toolkit.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+#ifndef QGL_P_H
+#define QGL_P_H
+
+#include "private/qwidget_p.h"
+#include "qglcolormap.h"
+#include "qgl.h"
+#include "qmap.h"
+
+class QGLContext;
+class QGLOverlayWidget;
+class QPixmap;
+
+class QGLWidgetPrivate : public QWidgetPrivate
+{
+public:
+    QGLWidgetPrivate():	QWidgetPrivate() {}
+    ~QGLWidgetPrivate() {}
+
+    QGLContext* glcx;
+    bool autoSwap;
+
+    QGLColormap cmap;
+    QMap<QString, int> displayListCache;
+
+#if defined(Q_WS_WIN) || defined(Q_WS_MAC)
+    QGLContext* olcx;
+#elif defined(Q_WS_X11)
+    QGLOverlayWidget*	olw;
+#endif
+#if defined(Q_WS_MAC)
+    const QGLContext *slcx;
+    uint pending_fix : 1,
+	 glcx_dblbuf : 2,
+	 dblbuf : 1,
+	 clp_serial : 15;
+    QPixmap *gl_pix;
+    QGLFormat req_format;
+#endif
+};
+
+#endif // QGL_P_H
