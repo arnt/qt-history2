@@ -32,8 +32,7 @@ PrintOut::PrintOut( QPrinter *printer )
     hsize = printer->width() - 2 * hmargin;
     vsize = printer->height() - vmargin;
     dateTime = QDateTime::currentDateTime();
-    breakPage();
-    vsize -= voffset;
+    breakPage(true); // init vsize and draw first header
     cp = Paragraph( QPoint(hmargin, voffset) );
 }
 
@@ -100,7 +99,8 @@ void PrintOut::addBox( int percent, const QString& text, Style style,
     cp.rect.setSize( QSize(cp.rect.width() + wd, qMax(cp.rect.height(), ht)) );
 }
 
-void PrintOut::breakPage()
+// use init if inital vsize should be calculated (first breakPage call)
+void PrintOut::breakPage(bool init)
 {
     static const int LeftAlign = Qt::AlignLeft | Qt::AlignTop;
     static const int RightAlign = Qt::AlignRight | Qt::AlignTop;
@@ -108,30 +108,46 @@ void PrintOut::breakPage()
     int h1 = 0;
     int h2 = 0;
 
-    if ( page++ > 0 )
+    if (page > 0)
         pr->newPage();
+
+    if (!init)
+        page++;
+
     voffset = 0;
 
     p.setFont( f10 );
     r1 = QRect( hmargin, voffset, 3 * hsize / 4, vsize );
     r2 = QRect( r1.x() + r1.width(), voffset, hsize - r1.width(), vsize );
     h1 = p.boundingRect( r1, LeftAlign, pr->docName() ).height();
-    p.drawText( r1, LeftAlign, pr->docName() );
+    if (!init)
+        p.drawText( r1, LeftAlign, pr->docName() );
     h2 = p.boundingRect( r2, RightAlign, QString::number(page) ).height();
-    p.drawText( r2, RightAlign, QString::number(page) );
+    if (!init)
+        p.drawText( r2, RightAlign, QString::number(page) );
     voffset += qMax( h1, h2 );
 
     r1 = QRect( hmargin, voffset, hsize / 2, LeftAlign );
     p.setFont( f8 );
     h1 = p.boundingRect( r1, LeftAlign, dateTime.toString() ).height();
-    p.drawText( r1, LeftAlign, dateTime.toString() );
+    if (!init)
+        p.drawText ( r1, LeftAlign, dateTime.toString() );
     p.setFont( f10 );
     voffset += qMax( h1, h2 );
 
     voffset += 4;
-    p.drawLine( QPoint(hmargin, voffset), QPoint(hmargin + hsize, voffset) );
+    if (!init)
+        p.drawLine( QPoint(hmargin, voffset), QPoint(hmargin + hsize, voffset) );
     voffset += 14;
+
     firstParagraph = true;
+
+    if (init)
+    {
+        vsize -= voffset;
+        breakPage(); // now draw it when the vsize is ok
+    }
+
 }
 
 void PrintOut::drawRule( Rule rule )

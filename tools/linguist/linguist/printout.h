@@ -71,7 +71,7 @@ public:
     };
 
 private:
-    void breakPage();
+    void breakPage(bool init = false);
     void drawRule( Rule rule );
 
     struct Paragraph {
