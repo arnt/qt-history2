@@ -10,7 +10,7 @@ const qdocCommand = qdocDir + "/qdoc3";
 const outputDir = System.getenv("PWD");
 
 const validPlatforms = ["win", "x11", "mac", "embedded"];
-const validEditions = ["free", "commercial", "preview"];
+const validEditions = ["opensource", "commercial", "preview", "beta"];
 const validSwitches = ["gzip", "bzip", "zip"]; // these are either true or false, set by -do-foo/-no-foo
 const validVars = ["branch", "version"];       // variables with arbitrary values, set by -foo value
 
@@ -140,8 +140,15 @@ platformKeep["embedded"] = [ new RegExp(".") ];
 
 editionRemove["commercial"] = [ new RegExp("GPL") ];
 editionKeep["commercial"] = [ new RegExp(".") ];
+
+editionRemove["opensource"] = [ new RegExp("GPL") ];
+editionKeep["opensource"] = [ new RegExp(".") ];
+
 editionRemove["preview"] = [ new RegExp("GPL") ];
 editionKeep["preview"] = [ new RegExp(".") ];
+
+editionRemove["beta"] = [ new RegExp("GPL") ];
+editionKeep["beta"] = [ new RegExp(".") ];
 
 var finalRemove = [ new RegExp("^dist") ];
 var finalKeep = [ /./ ];
@@ -290,20 +297,20 @@ function initialize()
 	if (!(validVars[i] in options))
 	    throw "%1 was not specified.".arg(validVars[i]);
 
-    // by default turn on all valid switches that were not defined
+    // by default turn off all valid switches that were not defined
     for (var i in validSwitches)
 	if (!(validSwitches[i] in options))
-	    options[validSwitches[i]] = true;
+	    options[validSwitches[i]] = false;
 
-    // by default turn on all valid platforms that were not defined
+    // by default turn off all valid platforms that were not defined
     for (var i in validPlatforms)
 	if (!(validPlatforms[i] in options))
-	    options[validPlatforms[i]] = true;
+	    options[validPlatforms[i]] = false;
 
-    // by default turn on all valid editions that were not defined
+    // by default turn off all valid editions that were not defined
     for (var i in validEditions)
 	if (!(validEditions[i] in options))
-	    options[validEditions[i]] = true;
+	    options[validEditions[i]] = false;
 
     // make sure platform and edition filters are defined
     for (var i in validPlatforms) {
@@ -524,9 +531,9 @@ function compress(packageDir, platform, edition)
  	}
  	if (options["gzip"]) {
  	    execute(["gzip", "-f", tarFile]);
- 	}
-	// remove .tar
-	if (File.exists(tarFile))
+	}
+	// remove .tar if we have bzipped or gzipped
+	if ((options["gzip"] || options["bzip"]) && File.exists(tarFile))
 	    File.remove(tarFile);
     }
 }
@@ -631,9 +638,11 @@ function copyDist(packageDir, platform, edition)
 
     // rename any LICENSE and LICENSE-US to hidden . files
     var dir = new Dir(packageDir);
-    dir.rename("LICENSE", ".LICENSE");
-    dir.rename("LICENSE-US", ".LICENSE-US");
-    if (edition == "preview")
+    if (dir.fileExists("LICENSE"))
+	dir.rename("LICENSE", ".LICENSE");
+    if (dir.fileExists("LICENSE-US"))
+	dir.rename("LICENSE-US", ".LICENSE-US");
+    if (dir.fileExists("LICENSE-COMBINED"))
 	dir.rename("LICENSE-COMBINED", "LICENSE.PREVIEW");
 
     // populate licenseHeaders with all files found in dist/licenses
