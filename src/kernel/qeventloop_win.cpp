@@ -36,7 +36,7 @@
 #endif // QT_THREAD_SUPPORT
 
 extern uint qGlobalPostedEventsCount();
-extern bool qt_winEventFilter( MSG* msg );
+extern bool qt_winEventFilter( MSG* msg, long &result );
 
 static DWORD qt_gui_thread = 0;
 // Simpler timers are needed when Qt does not have the event loop,
@@ -203,7 +203,8 @@ void CALLBACK qt_simple_timer_func( HWND, UINT, UINT idEvent, DWORD )
 
 static bool dispatchTimer( uint timerId, MSG *msg )
 {
-    if ( !msg || !qApp || !qt_winEventFilter(msg) )
+    long res = 0;
+    if ( !msg || !qApp || !qt_winEventFilter(msg,res) )
 	return activateTimer( timerId );
     return TRUE;
 }
@@ -632,7 +633,8 @@ bool QEventLoop::processEvents( ProcessEventsFlags flags )
 	if ( handled )
 	    return TRUE;
     } else if ( !msg.hwnd && msg.message ) {
-	qt_winEventFilter( &msg );
+	long res = 0;
+	qt_winEventFilter( &msg, res );
     }
 
     QInputContext::TranslateMessage( &msg );			// translate to WM_CHAR

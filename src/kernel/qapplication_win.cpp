@@ -331,12 +331,25 @@ Q_EXPORT QWinEventFilter qt_set_win_event_filter (QWinEventFilter filter)
     qt_win_event_filter = filter;
     return old_filter;
 }
-// ### Remove 4.0 [end] --------------------
 
-bool qt_winEventFilter( MSG* msg )
+typedef bool (*QWinEventFilterEx)(MSG*,long&);
+static QWinEventFilterEx qt_win_event_filter_ex = 0;
+
+Q_EXPORT QWinEventFilterEx qt_set_win_event_filter_ex( QWinEventFilterEx filter )
 {
+    QWinEventFilterEx old = qt_win_event_filter_ex;
+    qt_win_event_filter_ex = filter;
+    return old;
+}
+
+// ### Remove 4.0 [end] --------------------
+bool qt_winEventFilter( MSG* msg, long &result )
+{
+    result = 0;
     if ( qt_win_event_filter && qt_win_event_filter( msg )  )
 	return TRUE;
+    if ( qt_win_event_filter_ex && qt_win_event_filter_ex( msg, result ) )
+        return TRUE;
     return qApp->winEventFilter( msg );
 }
 
@@ -1428,6 +1441,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			    LPARAM lParam )
 {
     bool result = TRUE;
+    long filterRes = 0;
     QEvent::Type evt_type = QEvent::None;
     QETWidget *widget;
 
@@ -1473,8 +1487,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     QT_NC_WNDPROC
 #endif
 
-    if ( qt_winEventFilter(&msg) )		// send through app filter
-	RETURN(0);
+    if ( qt_winEventFilter(&msg, filterRes) )		// send through app filter
+	RETURN(filterRes);
 
     switch ( message ) {
 #ifndef Q_OS_TEMP
