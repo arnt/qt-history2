@@ -38,6 +38,7 @@ class QToolBarPrivate;
 class Q_EXPORT QToolBar: public QWidget
 {
     Q_OBJECT
+
 public:
     QToolBar( const QString &label,
 	      QMainWindow *, QMainWindow::ToolBarDock = QMainWindow::Top,
@@ -72,7 +73,7 @@ protected:
 protected slots:
     void startMoving( QToolBar *tb );
     void endMoving( QToolBar *tb );
-    
+
 private:
     virtual void setUpGM();
 
@@ -83,7 +84,7 @@ private:
     QWidget * sw;
     QString l;
 
-    friend QMainWindow;
+    friend class QMainWindow;
 };
 
 

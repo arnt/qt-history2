@@ -248,12 +248,12 @@ QToolBar* ApplicationWindow::createToolbar( const QString &name, bool nl )
 ApplicationWindow::~ApplicationWindow()
 {
     QList<QToolBar> lst;
-    ToolBarDock da[] = { Left, Right, Top, Bottom };
+    ToolBarDock da[] = { Left, Right, Top, Bottom, Hidden };
     QMap< QString, int > docks;
     QMap< QString, int > indices;
     QMap< QString, int > nls;
     int j = 0;
-    for ( unsigned int i = 0; i < 4; ++i ) {
+    for ( unsigned int i = 0; i < 5; ++i ) {
 	lst = toolBarsOnDock( da[ i ] );
 	QToolBar *tb = lst.first();
 	while ( tb ) {

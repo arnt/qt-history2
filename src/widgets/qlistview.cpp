@@ -1089,7 +1089,7 @@ void QListViewItem::setText( int column, const QString &text )
 	return;
 
     l->text = text;
-    if ( column == lsc )
+    if ( column == (int)lsc )
 	lsc = Unsorted;
     QListView * lv = listView();
     int oldW = lv ? lv->columnWidth( column ) : 0;

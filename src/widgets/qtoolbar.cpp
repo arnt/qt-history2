@@ -36,7 +36,6 @@
 #include "qdrawutil.h"
 #include "qapplication.h"
 
-
 class QToolBarPrivate
 {
 public:
@@ -281,9 +280,9 @@ void QToolBar::setUpGM()
 }
 
 
-/*!  
+/*!
   Paint the handle.  The Motif style is rather close to Netscape
-  and even closer to KDE. 
+  and even closer to KDE.
 */
 
 void QToolBar::paintEvent( QPaintEvent * )
@@ -291,73 +290,8 @@ void QToolBar::paintEvent( QPaintEvent * )
     QPainter p( this );
     qDrawShadePanel( &p, 0, 0, width(), height(),
 		     colorGroup(), FALSE, 1, 0 );
-    if ( style() == MotifStyle ) {
-	QColor dark( colorGroup().dark() );
-	QColor light( colorGroup().light() );
-	unsigned int i;
-	if ( orientation() == Vertical ) {
-	    int w = width();
-	    if ( w > 6 ) {
-		if ( d->moving )
-		    p.fillRect( 1, 1, w - 2, 9, colorGroup().highlight() ); 
-		QPointArray a( 2 * ((w-6)/3) );
-		
-		int x = 3 + (w%3)/2;
-		p.setPen( dark );
-		p.drawLine( 1, 8, w-2, 8 );
-		for( i=0; 2*i < a.size(); i ++ ) {
-		    a.setPoint( 2*i, x+1+3*i, 6 );
-		    a.setPoint( 2*i+1, x+2+3*i, 3 );
-		}
-		p.drawPoints( a );
-		p.setPen( light );
-		p.drawLine( 1, 9, w-2, 9 );
-		for( i=0; 2*i < a.size(); i++ ) {
-		    a.setPoint( 2*i, x+3*i, 5 );
-		    a.setPoint( 2*i+1, x+1+3*i, 2 );
-		}
-		p.drawPoints( a );
-	    }
-	} else {
-	    int h = height();
-	    if ( h > 6 ) {
-		if ( d->moving )
-		    p.fillRect( 1, 1, 8, h - 2, colorGroup().highlight() ); 
-		QPointArray a( 2 * ((h-6)/3) );
-		int y = 3 + (h%3)/2;
-		p.setPen( dark );
-		p.drawLine( 8, 1, 8, h-2 );
-		for( i=0; 2*i < a.size(); i ++ ) {
-		    a.setPoint( 2*i, 5, y+1+3*i );
-		    a.setPoint( 2*i+1, 2, y+2+3*i );
-		}
-		p.drawPoints( a );
-		p.setPen( light );
-		p.drawLine( 9, 1, 9, h-2 );
-		for( i=0; 2*i < a.size(); i++ ) {
-		    a.setPoint( 2*i, 4, y+3*i );
-		    a.setPoint( 2*i+1, 1, y+1+3*i );
-		}
-		p.drawPoints( a );
-	    }
-	}
-    } else {
-	if ( orientation() == Vertical ) {
-	    if ( width() > 4 ) {
-		qDrawShadePanel( &p, 2, 4, width() - 4, 3,
-				 colorGroup(), d->moving, 1, 0 );
-		qDrawShadePanel( &p, 2, 7, width() - 4, 3,
-				 colorGroup(), d->moving, 1, 0 );
-	    }
-	} else {
-	    if ( height() > 4 ) {
-		qDrawShadePanel( &p, 4, 2, 3, height() - 4,
-				 colorGroup(), d->moving, 1, 0 );
-		qDrawShadePanel( &p, 7, 2, 3, height() - 4,
-				 colorGroup(), d->moving, 1, 0 );
-	    }
-	}
-    }
+    style().drawToolBarHandle( &p, QRect( 0, 0, width(), height() ), 
+			       orientation(), d->moving, colorGroup() );
 }
 
 

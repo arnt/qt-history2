@@ -707,6 +707,99 @@ QSize QStyle::scrollBarExtent()
     return d(this)->sbextent;
 }
 
+int QStyle::toolBarHandleExtend() const
+{
+    if ( guiStyle() == Qt::MotifStyle )
+	return 9;
+    return 11;
+}
+
+void QStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation orientation, 
+				bool highlight, const QColorGroup &cg,
+				bool drawBorder )
+{
+    p->save();
+    p->translate( r.x(), r.y() );
+    
+    if ( guiStyle() == Qt::MotifStyle ) {
+	QColor dark( cg.dark() );
+	QColor light( cg.light() );
+	unsigned int i;
+	if ( orientation == Qt::Vertical ) {
+	    int w = r.width();
+	    if ( w > 6 ) {
+		if ( highlight )
+		    p->fillRect( 1, 1, w - 2, 9, cg.highlight() );
+		QPointArray a( 2 * ((w-6)/3) );
+		
+		int x = 3 + (w%3)/2;
+		p->setPen( dark );
+		p->drawLine( 1, 8, w-2, 8 );
+		for( i=0; 2*i < a.size(); i ++ ) {
+		    a.setPoint( 2*i, x+1+3*i, 6 );
+		    a.setPoint( 2*i+1, x+2+3*i, 3 );
+		}
+		p->drawPoints( a );
+		p->setPen( light );
+		p->drawLine( 1, 9, w-2, 9 );
+		for( i=0; 2*i < a.size(); i++ ) {
+		    a.setPoint( 2*i, x+3*i, 5 );
+		    a.setPoint( 2*i+1, x+1+3*i, 2 );
+		}
+		p->drawPoints( a );
+		if ( drawBorder ) {
+		    p->setPen( QPen( Qt::gray ) );
+		    p->drawLine( r.width() - 1, 0, r.width() - 1, toolBarHandleExtend() );
+		}
+	    }
+	} else {
+	    int h = r.height();
+	    if ( h > 6 ) {
+		if ( highlight )
+		    p->fillRect( 1, 1, 8, h - 2, cg.highlight() );
+		QPointArray a( 2 * ((h-6)/3) );
+		int y = 3 + (h%3)/2;
+		p->setPen( dark );
+		p->drawLine( 8, 1, 8, h-2 );
+		for( i=0; 2*i < a.size(); i ++ ) {
+		    a.setPoint( 2*i, 5, y+1+3*i );
+		    a.setPoint( 2*i+1, 2, y+2+3*i );
+		}
+		p->drawPoints( a );
+		p->setPen( light );
+		p->drawLine( 9, 1, 9, h-2 );
+		for( i=0; 2*i < a.size(); i++ ) {
+		    a.setPoint( 2*i, 4, y+3*i );
+		    a.setPoint( 2*i+1, 1, y+1+3*i );
+		}
+		p->drawPoints( a );
+		if ( drawBorder ) {
+		    p->setPen( QPen( Qt::gray ) );
+		    p->drawLine( 0, r.height() - 1, toolBarHandleExtend(), r.height() - 1 );
+		}
+	    }
+	}
+    } else {
+	if ( orientation == Qt::Vertical ) {
+	    if ( r.width() > 4 ) {
+		qDrawShadePanel( p, 2, 4, r.width() - 4, 3,
+				 cg, highlight, 1, 0 );
+		qDrawShadePanel( p, 2, 7, r.width() - 4, 3,
+				 cg, highlight, 1, 0 );
+	    }
+	} else {
+	    if ( r.height() > 4 ) {
+		qDrawShadePanel( p, 4, 2, 3, r.height() - 4,
+				 cg, highlight, 1, 0 );
+		qDrawShadePanel( p, 7, 2, 3, r.height() - 4,
+				 cg, highlight, 1, 0 );
+	    }
+	}
+    }
+    
+    p->restore();
+}
+
 /*!
   Sets the width of a vertical scrollbar in this style to \a width and
   the height of a horizontal scrollbar to \a height. If \a height is
@@ -737,7 +830,7 @@ int QStyle::buttonDefaultIndicatorWidth() const
 
 /*!
   Sets the width of the default-button indicator frame.
-  
+
   In a future version of the Qt library, this function will be removed
   and subclasses will be able to reimplement buttonDefaultIndicatorWidth()
 */

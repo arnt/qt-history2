@@ -52,7 +52,7 @@ public:
     virtual void setCentralWidget( QWidget * );
     QWidget * centralWidget() const;
 
-    enum ToolBarDock { Unmanaged, TornOff, Top, Bottom, Right, Left };
+    enum ToolBarDock { Unmanaged, TornOff, Top, Bottom, Right, Left, Hidden };
 
     virtual void setDockEnabled( ToolBarDock dock, bool enable );
     bool isDockEnabled( ToolBarDock dock ) const;
@@ -93,7 +93,7 @@ signals:
     void pixmapSizeChanged( bool );
     void startMovingToolbar( QToolBar * );
     void endMovingToolbar( QToolBar * );
-    
+
 protected slots:
     virtual void setUpLayout();
 
