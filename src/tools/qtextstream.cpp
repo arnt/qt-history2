@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#23 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#24 $
 **
 ** Implementation of QTextStream class
 **
@@ -17,7 +17,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#23 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#24 $")
 
 
 /*----------------------------------------------------------------------------
@@ -414,10 +414,8 @@ static double input_double( QTextStream *s )
     const ExpSign  = 6;
     const Exponent = 7;
     const Done     = 8;
-    const Error	   = 9;
 
-    const InputNone  = 0;			// input tokens
-    const InputSign  = 1;
+    const InputSign  = 1;			// input tokens
     const InputDigit = 2;
     const InputDot   = 3;
     const InputExp   = 4;
@@ -476,7 +474,7 @@ static double input_double( QTextStream *s )
 	}
 
 	buf[i++] = c;
-	if ( i == buf.size()-1 )
+	if ( i == (int)buf.size()-1 )
 	    buf.resize( buf.size()*2 );
 
 	c = d->getch();
@@ -629,7 +627,7 @@ QTextStream &QTextStream::operator>>( QString &s )
 	    break;
 	}
 	s[i++] = c;
-	if ( i == s.size()-1 )
+	if ( i == (int)s.size()-1 )
 	    s.resize( s.size()*2 );
 	c = dev->getch();
     }
