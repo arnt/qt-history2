@@ -21,6 +21,8 @@
 #include "paletteeditorimpl.h"
 #include "previewstack.h"
 #include "styledbutton.h"
+#include "mainwindow.h"
+#include "formwindow.h"
 #include "pixmapchooser.h"
 #include <qgroupbox.h>
 #include <qcheckbox.h>
@@ -35,9 +37,6 @@
 #include <qstring.h>
 #include <qscrollview.h>
 #include <qpainter.h>
-
-#include "mainwindow.h"
-#include "formwindow.h"
 
 /*!
     Class used by PaletteEditor for bold combobox items

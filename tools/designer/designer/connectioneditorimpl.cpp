@@ -21,10 +21,10 @@
 #include "connectioneditorimpl.h"
 #include "metadatabase.h"
 #include "formwindow.h"
+#include "mainwindow.h"
 #include "command.h"
 #include "widgetfactory.h"
 #include "editslotsimpl.h"
-#include "mainwindow.h"
 
 #include <qmetaobject.h>
 #include <qlistbox.h>
@@ -111,7 +111,7 @@ ConnectionEditor::ConnectionEditor( QWidget *parent, QObject* sndr, QObject* rcv
 	    i->setText( 1, conn.signal );
 	    i->setText( 2, conn.receiver->name() );
 	    i->setText( 3, conn.slot );
-	    Connection c;
+	    MyConnection c;
 	    c.signal = conn.signal;
 	    c.slot = conn.slot;
 	    this->connections.insert( i, c );
@@ -202,7 +202,7 @@ void ConnectionEditor::connectClicked()
     if ( signalBox->currentItem() == -1 ||
 	 slotBox->currentItem() == -1 )
 	return;
-    Connection conn;
+    MyConnection conn;
     conn.signal = signalBox->currentText();
     conn.slot = slotBox->currentText();
     QListViewItem *i = new QListViewItem( connectionView );
@@ -221,7 +221,7 @@ void ConnectionEditor::disconnectClicked()
     if ( !i )
 	return;
 
-    QMap<QListViewItem*, Connection>::Iterator it = connections.find( i );
+    QMap<QListViewItem*, MyConnection>::Iterator it = connections.find( i );
     if ( it != connections.end() )
 	connections.remove( it );
     delete i;
@@ -245,10 +245,10 @@ void ConnectionEditor::okClicked()
     }
 
     if ( !connections.isEmpty() ) {
-	QMap<QListViewItem*, Connection>::Iterator it = connections.begin();
+	QMap<QListViewItem*, MyConnection>::Iterator it = connections.begin();
 	QList<Command> commands;
 	for ( ; it != connections.end(); ++it ) {
-	    Connection c = *it;
+	    MyConnection c = *it;
 	    MetaDataBase::Connection conn;
 	    conn.sender = sender;
 	    conn.signal = c.signal;

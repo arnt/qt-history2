@@ -18,13 +18,13 @@
 **
 **********************************************************************/
 
-#include "widgetdatabase.h"
-#include "widgetplugin.h"
-
 #if defined(DESIGNER)
 #include "../designer/formwindow.h"
 #include "../designer/pixmapchooser.h"
 #endif
+
+#include "widgetdatabase.h"
+#include "widgetplugin.h"
 
 #include "../integration/kdevelop/kdewidgets.h"
 

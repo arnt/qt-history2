@@ -18,8 +18,8 @@
 **
 **********************************************************************/
 
-#include "topicchooserimpl.h"
 #include "mainwindow.h"
+#include "topicchooserimpl.h"
 
 #include <qlabel.h>
 #include <qlistbox.h>

@@ -19,10 +19,10 @@
 **********************************************************************/
 
 #include "listboxeditorimpl.h"
-#include "pixmapchooser.h"
-#include "command.h"
 #include "formwindow.h"
 #include "mainwindow.h"
+#include "pixmapchooser.h"
+#include "command.h"
 
 #include <qlineedit.h>
 #include <qlabel.h>

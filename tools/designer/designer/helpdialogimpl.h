@@ -25,6 +25,7 @@
 #include <qlistbox.h>
 #include <qlistview.h>
 #include <qmap.h>
+#include <qstringlist.h>
 
 class MainWindow;
 class QProgressBar;

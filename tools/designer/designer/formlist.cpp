@@ -19,11 +19,11 @@
 **********************************************************************/
 
 #include "formlist.h"
-#include "pixmapchooser.h"
 #include "formwindow.h"
+#include "mainwindow.h"
+#include "pixmapchooser.h"
 #include "globaldefs.h"
 #include "command.h"
-#include "mainwindow.h"
 
 #include <qheader.h>
 #include <qdragobject.h>

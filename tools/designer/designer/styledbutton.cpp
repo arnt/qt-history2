@@ -19,8 +19,8 @@
 **********************************************************************/
 
 #include "styledbutton.h"
-#include "pixmapchooser.h"
 #include "formwindow.h"
+#include "pixmapchooser.h"
 #include <qcolordialog.h>
 #include <qpalette.h>
 #include <qlabel.h>

@@ -50,12 +50,12 @@ protected:
     
 private:
     bool ignoreSlot( const char* ) const;
-    struct Connection
+    struct MyConnection
     {
 	QCString signal, slot;
     };
 
-    QMap<QListViewItem*, Connection> connections;
+    QMap<QListViewItem*, MyConnection> connections;
     QValueList<MetaDataBase::Connection> oldConnections;
     QObject* sender;
     QObject* receiver;

@@ -19,15 +19,15 @@
 **********************************************************************/
 
 #include "newformimpl.h"
-#include "pixmapchooser.h"
 #include "mainwindow.h"
-#include "stdlib.h"
+#include "pixmapchooser.h"
 
 #include <qiconview.h>
 #include <qfileinfo.h>
 #include <qdir.h>
 #include <qregexp.h>
 #include <qpushbutton.h>
+#include <stdlib.h>
 
 static QString templatePath()
 {

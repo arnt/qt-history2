@@ -18,11 +18,11 @@
 **
 **********************************************************************/
 
+#include "mainwindow.h"
 #include "help.h"
 #include "helpdialogimpl.h"
 #include "qaction.h"
 #include "pixmapchooser.h"
-#include "mainwindow.h"
 
 #include <qpixmap.h>
 #include <qpopupmenu.h>

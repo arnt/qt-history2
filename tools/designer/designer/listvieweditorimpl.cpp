@@ -18,11 +18,11 @@
 **
 **********************************************************************/
 
+#include "formwindow.h"
+#include "mainwindow.h"
 #include "listvieweditorimpl.h"
 #include "pixmapchooser.h"
 #include "command.h"
-#include "formwindow.h"
-#include "mainwindow.h"
 
 #include <qlistview.h>
 #include <qheader.h>

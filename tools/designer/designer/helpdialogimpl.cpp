@@ -18,8 +18,8 @@
 **
 **********************************************************************/
 
-#include "helpdialogimpl.h"
 #include "mainwindow.h"
+#include "helpdialogimpl.h"
 #include "topicchooserimpl.h"
 #include "help.h"
 
@@ -59,6 +59,9 @@ struct Entry
     QString link;
     QString title;
     int depth;
+#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
+    bool operator==( const Entry& ) const { return FALSE; }
+#endif
 };
 
 bool operator<=( const MyString &s1, const MyString &s2 )

@@ -22,6 +22,7 @@
 #define TOPICCHOOSERIMPL_H
 
 #include "topicchooser.h"
+#include <qstringlist.h>
 
 class TopicChooser : public TopicChooserBase
 {
