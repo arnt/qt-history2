@@ -81,12 +81,12 @@ void warning( int level, const Location& loc, const char *message, ... )
     QString filenameBase = loc.filePath();
     filenameBase
 	= filenameBase.left( filenameBase.length() - filename.length() - 1 );
-    if ( currentDirectory.length() > 8 &&
+    if ( currentDirectory.length() > 5 &&
 	 currentDirectory.length() < filenameBase.length() &&
 	 filenameBase.left( currentDirectory.length() ) == currentDirectory &&
-	 filenameBase.length() < currentDirectory.length() + 8 ) {
+	 filenameBase.length() < currentDirectory.length() + 10 ) {
 	// If we can avoid two lines of directory changes by adding at
-	// most 8 characters to each line, we'll do it.
+	// most 10 characters to each line, we'll do it.
 	QString extra = filenameBase.mid( currentDirectory.length() );
 	filenameBase = currentDirectory;
 	filename.prepend( extra.mid( 1 ) + extra[0] );

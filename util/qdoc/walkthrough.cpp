@@ -167,8 +167,9 @@ QString Walkthrough::xline( const QString& substr, const Location& docLoc,
 		     command.latin1(), subs.latin1(), walkloc.lineNum(),
 		     walkloc.shortFilePath().latin1() );
 	    warning( 2, walkloc,
-		     "Did not match command '\\%s %s' on line %d of '%s'",
-		     command.latin1(), subs.latin1(),
+		     "Text '%s' does not contain '%s' (see line %d of '%s')",
+		     plainlines.first().simplifyWhiteSpace().latin1(),
+		     subs.latin1(), 
 		     docLoc.lineNum(), docLoc.shortFilePath().latin1() );
 	    shutUp = TRUE;
 	}
