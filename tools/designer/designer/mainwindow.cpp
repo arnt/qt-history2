@@ -528,9 +528,8 @@ QObjectList *MainWindow::runProject( bool execMain )
 			if ( it == qwf_functions->end() )
 			    continue;
 			if ( !piface->check( *it, error, line ) && !error.isEmpty() && !error[ 0 ].isEmpty() ) {
-			    if ( !isVisible() )
-				show();
 			    showSourceLine( it.key(), line[ 0 ] - 1, Error );
+			    emit runtimeError( error[0] );
 			    QStringList l;
 			    QObjectList l2;
 			    for ( int i = 0; i < (int)error.count(); ++i ) {
@@ -553,9 +552,8 @@ QObjectList *MainWindow::runProject( bool execMain )
 			QStringList error;
 			QValueList<int> line;
 			if ( !piface->check( f->text(), error, line ) && !error.isEmpty() && !error[ 0 ].isEmpty() ) {
-			    if ( !isVisible() )
-				show();
 			    showSourceLine( f, line[ 0 ] - 1, Error );
+			    emit runtimeError( error[0] );
 			    QStringList l;
 			    QObjectList l2;
 			    for ( int i = 0; i < (int)error.count(); ++i ) {
@@ -3104,8 +3102,6 @@ void MainWindow::showStackFrame( QObject *o, int line )
 
 void MainWindow::showErrorMessage( QObject *o, int errorLine, const QString &errorMessage )
 {
-    if ( !isVisible() )
-	show();
     errorLine--; // ######
     QValueList<int> l;
     l << errorLine;
@@ -3113,6 +3109,7 @@ void MainWindow::showErrorMessage( QObject *o, int errorLine, const QString &err
     l2 << errorMessage;
     oWindow->setErrorMessages( l2, l, TRUE, QStringList(), QObjectList() );
     showSourceLine( o, errorLine, Error );
+    emit runtimeError( errorMessage );
 }
 
 void MainWindow::finishedRun()
@@ -3480,10 +3477,7 @@ Project *MainWindow::setSingleProject( const QString &lang, const QString &proje
 
     if ( !QFile::exists( eProject->makeAbsolute( eProject->fileName() ) ) ) {
 	SourceFile *f = new SourceFile( "main.qs", FALSE, currentProject );
-	f->setText( "// This function is called first, when the script is executed.\n"
-		    "// Put the startup code for your script into this functions\n\n"
-		    "function main()\n"
-		    "{\n}\n" );
+	f->setText( "// Put all global functions here\n" );
 	MainWindow::self->editSource( f );
 	f->setModified( TRUE );
     }

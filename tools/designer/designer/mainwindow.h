@@ -194,6 +194,7 @@ signals:
     void formWindowChanged();
     void projectChanged();
     void editorChanged();
+    void runtimeError( const QString &message );
 
 protected:
     bool eventFilter( QObject *o, QEvent *e );
