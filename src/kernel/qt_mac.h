@@ -11,8 +11,8 @@
 #ifndef __IMAGECAPTURE__
 #define __IMAGECAPTURE__
 #endif
-#include "Carbon.h"
-#include "Movies.h"
+#include <Carbon/Carbon.h>
+#include <QuickTime/Movies.h>
 
 #ifdef Q_WS_MAC9
 #include "qt_mac9.h"

@@ -96,6 +96,7 @@ class QWidgetListIt;
 #ifndef QMAC_NO_QUARTZ
 typedef struct CGContext *CGContextRef;
 #endif
+typedef struct OpaqueControlRef *ControlRef;
 typedef struct OpaqueWindowGroupRef *WindowGroupRef;
 typedef struct OpaqueGrafPtr *CGrafPtr;
 typedef struct OpaqueMenuHandle *MenuRef;
