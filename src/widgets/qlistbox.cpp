@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#300 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#301 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1011,6 +1011,14 @@ void QListBox::clear()
 	i = n;
     }
     d->count = 0;
+    d->numRows = 1;
+    d->numColumns = 1;
+    d->currentRow = 0;
+    d->currentColumn = 0;
+    d->mousePressRow = -1; 
+    d->mousePressColumn = -1;
+    d->mouseMoveRow = -1;
+    d->mouseMoveColumn = -1;
     triggerUpdate( TRUE );
 }
 
