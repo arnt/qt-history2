@@ -26,6 +26,16 @@ can be used to start and stop an out-of-process ActiveQt server in runtime.
 In-process server DLLs no longer need a dummy implementation of the main() 
 entry point function.
 
+COM objects developed with ActiveQt are now supported in a wider range of
+standard clients, including .NET.
+
+The QAxContainer library is now static even for shared configurations of Qt,
+which simplifies depolyment and allows using of both QAxServer and 
+QAxContainer in one project (ie. an OLE automatable application that uses
+COM objects itself).
+Calling of COM object methods with out-parameters of type short is now 
+supported (the parameters are of type int& in the Qt wrapper), and QVariants
+used for out-parameters don't have to be initialized to the expected type.
 
 Qt Designer
 -----------
