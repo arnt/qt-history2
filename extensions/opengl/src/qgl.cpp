@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#15 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#16 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -26,7 +26,7 @@
 #include <X11/Xmu/StdCmap.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#15 $");
+RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#16 $");
 
 
 #if defined(_CC_MSVC_)
@@ -976,6 +976,9 @@ void QGLContext::swapBuffers()
   The \link QGLFormat::defaultFormat() default format\endlink is
   used.
 
+  The \e parent, \e name and \e f arguments are passed to the QWidget
+  constructor.
+
   Note: If the constructor of your QGLWidget subclass calls any OpenGL
   functions, it must first call makeCurrent() to set the correct
   rendering context.
@@ -983,8 +986,8 @@ void QGLContext::swapBuffers()
   \sa QGLFormat::defaultFormat()
 */
 
-QGLWidget::QGLWidget( QWidget *parent, const char *name )
-    : QWidget(parent, name)
+QGLWidget::QGLWidget( QWidget *parent, const char *name, WFlags f )
+    : QWidget(parent, name, f)
 {
     setBackgroundColor( black );
     glcx = 0;
@@ -999,16 +1002,19 @@ QGLWidget::QGLWidget( QWidget *parent, const char *name )
   The widget becomes invalid if the driver/hardware cannot satisfy
   the requested format.
 
+  The \e parent, \e name and \e f arguments are passed to the QWidget
+  constructor.
+
   Note: If the constructor of your QGLWidget subclass calls any OpenGL
   functions, it must first call makeCurrent() to set the correct
   rendering context.
 
-  \sa isValid()
+  \sa QGLFormat::defaultFormat(), isValid()
 */
 
 QGLWidget::QGLWidget( const QGLFormat &format, QWidget *parent,
-		      const char *name )
-    : QWidget(parent, name)
+		      const char *name, WFlags f )
+    : QWidget(parent, name, f)
 {
     setBackgroundColor( black );
     glcx = 0;
