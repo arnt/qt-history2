@@ -29,10 +29,10 @@ SOURCES =	qgl.cpp
 OBJECTS =	qgl.o
 SRCMOC	=	moc_qgl.cpp
 OBJMOC	=	moc_qgl.o
-VERSION =	0.9
-VER_MAJ =	0
-VER_MIN =	9
-TARGET	=	libqgl.so.0.9
+VERSION =	1.0
+VER_MAJ =	1
+VER_MIN =	0
+TARGET	=	libqgl.so.1.0
 
 ####### Implicit rules
 
@@ -67,53 +67,10 @@ clean:
 ####### Compile
 
 qgl.o: qgl.cpp \
-		qgl.h \
-		$(QTDIR)/include/qwidget.h \
-		$(QTDIR)/include/qwindefs.h \
-		$(QTDIR)/include/qobjdefs.h \
-		$(QTDIR)/include/qglobal.h \
-		$(QTDIR)/include/qobject.h \
-		$(QTDIR)/include/qstring.h \
-		$(QTDIR)/include/qarray.h \
-		$(QTDIR)/include/qgarray.h \
-		$(QTDIR)/include/qshared.h \
-		$(QTDIR)/include/qgeneric.h \
-		$(QTDIR)/include/qevent.h \
-		$(QTDIR)/include/qrect.h \
-		$(QTDIR)/include/qsize.h \
-		$(QTDIR)/include/qpoint.h \
-		$(QTDIR)/include/qpaintd.h \
-		$(QTDIR)/include/qpalette.h \
-		$(QTDIR)/include/qcolor.h \
-		$(QTDIR)/include/qcursor.h \
-		$(QTDIR)/include/qfont.h \
-		$(QTDIR)/include/qfontmet.h \
-		$(QTDIR)/include/qfontinf.h
+		qgl.h
 
 moc_qgl.o: moc_qgl.cpp \
-		qgl.h \
-		$(QTDIR)/include/qwidget.h \
-		$(QTDIR)/include/qwindefs.h \
-		$(QTDIR)/include/qobjdefs.h \
-		$(QTDIR)/include/qglobal.h \
-		$(QTDIR)/include/qobject.h \
-		$(QTDIR)/include/qstring.h \
-		$(QTDIR)/include/qarray.h \
-		$(QTDIR)/include/qgarray.h \
-		$(QTDIR)/include/qshared.h \
-		$(QTDIR)/include/qgeneric.h \
-		$(QTDIR)/include/qevent.h \
-		$(QTDIR)/include/qrect.h \
-		$(QTDIR)/include/qsize.h \
-		$(QTDIR)/include/qpoint.h \
-		$(QTDIR)/include/qpaintd.h \
-		$(QTDIR)/include/qpalette.h \
-		$(QTDIR)/include/qcolor.h \
-		$(QTDIR)/include/qcursor.h \
-		$(QTDIR)/include/qfont.h \
-		$(QTDIR)/include/qfontmet.h \
-		$(QTDIR)/include/qfontinf.h
+		qgl.h
 
 moc_qgl.cpp: qgl.h
 	$(MOC) qgl.h -o moc_qgl.cpp
-
