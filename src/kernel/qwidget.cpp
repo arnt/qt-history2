@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#318 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#319 $
 **
 ** Implementation of QWidget class
 **
@@ -50,11 +50,12 @@
   rectangular, and they are sorted in a Z-order.  A widget is clipped
   by its parent and by the widgets in front of it.
 
-  A widget without a parent, called a top-level widget, is a
-  window with a frame and a title bar (though it is also possible to
-  create top level widgets without such decoration).  A widget with a
-  parent is a child window in its parent.  You usually cannot distinguish
-  a child widget from its parent visually.
+  A widget without a parent, called a top-level widget, is a window
+  with a frame and a title bar (though it is also possible to create
+  top level widgets without such decoration by the use of <a
+  href="#widgetflags">widget flags</a>).  A widget with a parent is a
+  child window in its parent.  You usually cannot distinguish a child
+  widget from its parent visually.
 
   QWidget has many member functions, but some of them have little
   direct functionality - for example it has a font but never uses it
@@ -90,9 +91,6 @@
 	scroll().
 
   <li> Geometry:
-	move(),
-	resize(),
-	setGeometry(),
 	pos(),
 	size(),
 	rect(),
@@ -100,10 +98,16 @@
 	y(),
 	width(),
 	height(),
+	sizePolicy(),
+	sizeHint(),
+	layout(),
+	setLayout()
+	move(),
+	resize(),
+	setGeometry(),
 	frameGeometry(),
 	geometry(),
 	childrenRect(),
-	sizeHint(),
 	adjustSize(),
 	mapFromGlobal(),
 	mapFromParent()
@@ -258,16 +262,14 @@
   <li> paintEvent() - called whenever the widget needs to be
   repainted.  Every widget which displays output must implement it,
   and it is sensible to \e never paint on the screen outside
-  paintEvent().
-  The widget is guaranteed to receive a paint event when the widget
-  is first shown.
-  Unless the widget was created with the
-  WResizeNoErase flag, the widget will also receive a paint event
-  immediately after every resize events
+  paintEvent().  The widget is guaranteed to receive a paint event
+  when the widget is first shown.  Unless the widget was created with
+  the WResizeNoErase flag, the widget will also receive a paint event
+  immediately after every resize events.
 
-  <li> resizeEvent() - called when the widget has been resized.
-  For widgets created with the WResizeNoErase flag,
-  see the full documentation for resizeEvent() for details.
+  <li> resizeEvent() - normally called when the widget has been
+  resized.  For widgets created with the WResizeNoErase flag, see the
+  full documentation for resizeEvent() for details.
 
   <li> mousePressEvent() - called when a mouse button is pressed.
   There are six mouse-related events, mouse press and mouse release
@@ -291,12 +293,11 @@
   not \e possible to distinguish a click from a double click until you've
   seen whether the second click arrives.  (This is one reason why most GUI
   books recommend that double clicks be an extension of single clicks,
-  rather than a different action.)
+  rather than trigger a different action.)
   </ul>
 
   If your widget only contains child widgets, you probably do not need to
-  implement any event handlers (except resizeEvent() for custom layout
-  management).
+  implement any event handlers.
 
   Widgets that accept keyboard input need to reimplement a few more
   event handlers: <ul>
@@ -329,10 +330,10 @@
   <li> keyReleaseEvent() - called whenever a key is released, and also
   while it is held down if the key is auto-repeating.  In that case
   the widget receives a key release event and immediately a key press
-  event for every repeat.
-  Note that the Tab and shift-Tab keys are only passed to the widget
-  if they are not used by the focus-change mechanisms.  To force those
-  keys to be processed by your widget, you must override QWidget::event().
+  event for every repeat.  Note that the Tab and shift-Tab keys are
+  only passed to the widget if they are not used by the focus-change
+  mechanisms.  To force those keys to be processed by your widget, you
+  must override QWidget::event().
 
   <li> enterEvent() - called when the mouse enters the widget's screen
   space.  (This excludes screen space owned by any children of the
@@ -354,16 +355,24 @@
   the keyboard focus), and passes on every other event to one of the
   more specialized handlers above.
 
-  When writing a widget, there are a few more things to look out for.
-  In the constructor, be sure to set up your member variables early
-  on, before there's any chance that you might receive an event.
+  When writing a widget, there are a few more things to look out
+  for. <ul>
 
-  It is often a good idea to reimplement sizeHint(), so users of your
-  class can set up layout management more easily.  If you do, consider
-  offering size management using autoMinimumSize() too.
+  <li> In the constructor, be sure to set up your member variables
+  early on, before there's any chance that you might receive an event.
 
-  If your widget is a top-level window, setCaption() and setIcon() set
+  <li>It is almost always useful to reimplement sizePolicy or at least
+  sizeHint(), so users of your class can set up layout management more
+  easily.
+
+  sizePolicy() lets you supply good defaults for the layout management
+  handling, so that other widgets can contain yours easily.
+  sizeHint() indicates a "good" size for the widget.
+
+  <li>If your widget is a top-level window, setCaption() and setIcon() set
   the title bar and icon respectively.
+
+  </ul>
 
   \sa QEvent, QPainter, QGridLayout, QBoxLayout
 */
@@ -3041,13 +3050,6 @@ QSize QWidget::sizeHint() const
 }
 
 /*!
-  \fn QLayout* QWidget::layout () const
-  Returns a pointer to the layout engine for this widget. (The layout
-  responsible for the geometry of this widget's children.)
-  Returns a null pointer if the widget does not have a layout.
-*/
-
-/*!
   \fn QWidget *QWidget::parentWidget() const
   Returns a pointer to the parent of this widget, or a null pointer if
   it does not have any parent widget.
@@ -3923,9 +3925,25 @@ void QWidget::updateMask()
 }
 
 
-
 /*!
-  Sets the layout.
+  \fn QLayout* QWidget::layout () const
+
+  Returns a pointer to the layout engine that manages the geometry of
+  this widget's children.
+
+  If the widget does not have a layout, layout() returns a null pointer.
+
+  \sa setLayout() sizePolicy()
+*/
+
+
+/*!  Sets this widget to use \a l to manage the geometry of its
+  children.
+
+  If there already was a layout for this widget, the old layout is
+  forgotten.  (Note that it is not deleted.)
+
+  \sa layout() QLayout sizePolicy()
 */
 
 void QWidget::setLayout( QLayout *l )
@@ -3934,14 +3952,20 @@ void QWidget::setLayout( QLayout *l )
 }
 
 
-/*!
-  Reimplemented in subclasses to specify how layouts should handle this
-  widget.
+/*!  This function can be reimplemented in subclasses to specify the
+  default layout behaviour of that subclass.
 
-  The default implementation returns the layout's size policy if there
-  is a layout for this widget, otherwise it gives a widget that can be
-  freely resized, but that prefers to be of the size specified by
-  sizeHint().
+  The default implementation returns a value which means <ul>
+
+  <li> If there is a QLayout that manages this widget's children, the
+  size policy specified by that layout is used.
+
+  <li> If there is no such QLayout, the widget can be freely resized,
+  but prefers to be the size sizeHint() returns.
+
+  </ul>
+
+  \sa sizeHint() QLayout QSizePolicy
 */
 
 QSizePolicy QWidget::sizePolicy() const
