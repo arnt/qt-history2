@@ -3810,6 +3810,7 @@ void Q3TextString::setFormat(int index, Q3TextFormat *f, bool useCollection)
 
 void Q3TextString::checkBidi() const
 {
+    // ############ fix BIDI handling
     Q3TextString *that = (Q3TextString *)this;
     that->bidiDirty = false;
     int length = data.size();
@@ -3826,8 +3827,7 @@ void Q3TextString::checkBidi() const
     // determines the properties we need for layouting
     QTextEngine textEngine;
     textEngine.setText(toString());
-    textEngine.direction = (dir == QChar::DirR) ? Qt::RightToLeft : Qt::LeftToRight;
-    textEngine.setMode(QTextLayout::SingleLine);
+    textEngine.option.setLayoutDirection((dir == QChar::DirR) ? Qt::RightToLeft : Qt::LeftToRight);
     textEngine.itemize();
     const QCharAttributes *ca = textEngine.attributes() + length-1;
     Q3TextStringChar *ch = (Q3TextStringChar *)end - 1;
@@ -3860,8 +3860,6 @@ void Q3TextString::checkBidi() const
         that->rightToLeft = true;
     } else if (dir == QChar::DirL) {
         that->rightToLeft = false;
-    } else {
-        that->rightToLeft = (textEngine.direction == Qt::RightToLeft);
     }
 }
 

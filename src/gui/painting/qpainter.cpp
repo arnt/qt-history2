@@ -3561,7 +3561,6 @@ void QPainter::drawText(const QPointF &p, const QString &str, TextDirection dir)
     QTextLayout layout(str, d->state->pfont ? *d->state->pfont : d->state->font);
     QTextEngine *engine = layout.engine();
 
-    engine->setMode(QTextLayout::SingleLine);
     engine->itemize();
 
     if (dir != Auto) {

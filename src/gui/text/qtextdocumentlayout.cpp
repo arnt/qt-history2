@@ -1234,10 +1234,6 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruc
                 if (QTextTable *table = qt_cast<QTextTable *>(c))
                     align = table->format().alignment();
 
-                // ### correct? I guess not...
-                if (align == Qt::AlignAuto)
-                    align = Qt::AlignLeft;
-
                 QPoint pos(layoutStruct->x_left, layoutStruct->y);
 
                 if (align == Qt::AlignRight)
@@ -1273,6 +1269,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
     LDEBUG << "layoutBlock from=" << layoutFrom << "to=" << layoutTo;
 
     QTextOption option(blockFormat.alignment());
+    option.setLayoutDirection(blockFormat.layoutDirection());
     if (d->blockTextFlags & Qt::TextSingleLine || blockFormat.nonBreakableLines())
         option.setWrapMode(QTextOption::ManualWrap);
     tl->setTextOption(option);

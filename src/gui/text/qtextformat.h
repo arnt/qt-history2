@@ -96,6 +96,7 @@ public:
 
         // paragraph and char
         CssFloat = 0x0800,
+        LayoutDirection = 0x0801,
 
         // paragraph
         BlockDirection = 0x1000,
@@ -234,6 +235,11 @@ public:
     bool operator==(const QTextFormat &rhs) const;
     inline bool operator!=(const QTextFormat &rhs) const { return !operator==(rhs); }
 
+    inline void setLayoutDirection(Qt::LayoutDirection direction)
+        { setProperty(QTextFormat::LayoutDirection, direction); }
+    inline Qt::LayoutDirection layoutDirection() const
+        { return (Qt::LayoutDirection)intProperty(QTextFormat::LayoutDirection); }
+
 private:
     QSharedDataPointer<QTextFormatPrivate> d;
     friend class QTextFormatCollection;
@@ -342,7 +348,6 @@ public:
     { setProperty(TableCellBackgroundColor, color); }
     inline QColor tableCellBackgroundColor() const
     { return colorProperty(TableCellBackgroundColor); }
-
 };
 
 class Q_GUI_EXPORT QTextBlockFormat : public QTextFormat

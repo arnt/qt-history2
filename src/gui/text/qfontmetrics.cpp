@@ -108,7 +108,7 @@ extern int qt_defaultDpi();
     \overload
 
     Returns the bounding rectangle for the given \a text within the
-    rectangle specified by the \a x and \a y coordinates, \a width, and 
+    rectangle specified by the \a x and \a y coordinates, \a width, and
     \a height.
 
     If \c Qt::TextExpandTabs is set in \a flags and \a tabarray is
@@ -1306,7 +1306,7 @@ QRectF QFontMetricsF::boundingRect(const QString &str) const
         return QRectF();
 
     QTextEngine layout(str, d);
-    layout.setMode(QTextLayout::NoBidi|QTextLayout::SingleLine);
+    layout.setMode(QTextLayout::NoBidi);
     layout.itemize();
     glyph_metrics_t gm = layout.boundingBox(0, len);
     return QRectF(gm.x, gm.y, gm.width, gm.height);

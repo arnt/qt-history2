@@ -65,7 +65,7 @@ enum { MaxBidiLevel = 61 };
 
 struct BidiControl {
     inline BidiControl(bool rtl)
-        : cCtx(0), base(rtl), singleLine(false), override(false), level(rtl) {}
+        : cCtx(0), base(rtl), override(false), level(rtl) {}
 
     inline void embed(bool rtl, bool o = false) {
         uchar plus2 = 0;
@@ -107,9 +107,8 @@ struct BidiControl {
     unsigned char ctx[(MaxBidiLevel+3)/4];
     unsigned char cCtx : 6;
     unsigned char base : 1;
-    unsigned char singleLine : 1;
     unsigned char override : 1;
-    unsigned char unused : 1;
+    unsigned char unused : 2;
     unsigned char level : 6;
 };
 
@@ -150,64 +149,36 @@ static void qAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl
     item.analysis.override = control.override;
     item.analysis.reserved = 0;
 
-    if (control.singleLine) {
-        for (int i = start; i <= stop; i++) {
+    for (int i = start; i <= stop; i++) {
 
-            unsigned short uc = text[i].unicode();
-            QFont::Script s = (QFont::Script)qt_scriptForChar(uc);
-            if (s == QFont::UnknownScript || s == QFont::CombiningMarks)
-                s = script;
+        unsigned short uc = text[i].unicode();
+        QFont::Script s = (QFont::Script)qt_scriptForChar(uc);
+        if (s == QFont::UnknownScript || s == QFont::CombiningMarks)
+            s = script;
 
-            if (s != script) {
-                item.analysis.script = s;
-                item.analysis.bidiLevel = level;
-                item.position = i;
-                items.append(item);
-                script = s;
-            }
+        QChar::Category category = ::category(uc);
+        if (uc == QChar::ObjectReplacementCharacter || uc == QChar::LineSeparator) {
+            item.analysis.bidiLevel = level % 2 ? level-1 : level;
+            item.analysis.script = QFont::Latin;
+            item.isObject = true;
+            s = QFont::NoScript;
+        } else if (uc == 9) {
+            item.analysis.script = QFont::Latin;
+            item.isSpace = true;
+            item.isTab = true;
+            item.analysis.bidiLevel = control.baseLevel();
+            s = QFont::NoScript;
+        } else if (s != script && (category != QChar::Mark_NonSpacing || script == QFont::NoScript)) {
+            item.analysis.script = s;
+            item.analysis.bidiLevel = level;
+        } else {
+            continue;
         }
-    } else {
-        for (int i = start; i <= stop; i++) {
 
-            unsigned short uc = text[i].unicode();
-            QFont::Script s = (QFont::Script)qt_scriptForChar(uc);
-            if (s == QFont::UnknownScript || s == QFont::CombiningMarks)
-                s = script;
-
-            QChar::Category category = ::category(uc);
-            if (uc == QChar::ObjectReplacementCharacter || uc == QChar::LineSeparator) {
-                item.analysis.bidiLevel = level % 2 ? level-1 : level;
-                item.analysis.script = QFont::Latin;
-                item.isObject = true;
-                s = QFont::NoScript;
-#if 0
-            } else if ((uc >= 9 && uc <=13) ||
-                       (category >= QChar::Separator_Space && category <= QChar::Separator_Paragraph)) {
-                item.analysis.script = QFont::Latin;
-                item.isSpace = true;
-                item.isTab = (uc == '\t');
-                item.analysis.bidiLevel = item.isTab ? control.baseLevel() : level;
-                s = QFont::NoScript;
-#else
-            } else if (uc == 9) {
-                item.analysis.script = QFont::Latin;
-                item.isSpace = true;
-                item.isTab = true;
-                item.analysis.bidiLevel = control.baseLevel();
-                s = QFont::NoScript;
-#endif
-            } else if (s != script && (category != QChar::Mark_NonSpacing || script == QFont::NoScript)) {
-                item.analysis.script = s;
-                item.analysis.bidiLevel = level;
-            } else {
-                continue;
-            }
-
-            item.position = i;
-            items.append(item);
-            script = s;
-            item.isSpace = item.isTab = item.isObject = false;
-        }
+        item.position = i;
+        items.append(item);
+        script = s;
+        item.isSpace = item.isTab = item.isObject = false;
     }
     ++stop;
     start = stop;
@@ -217,11 +188,9 @@ typedef void (* fAppendItems)(QTextEngine *, int &start, int &stop, BidiControl 
 static fAppendItems appendItems = qAppendItems;
 
 // creates the next QScript items.
-static void bidiItemize(QTextEngine *engine, bool rightToLeft, int mode)
+static void bidiItemize(QTextEngine *engine, bool rightToLeft)
 {
     BidiControl control(rightToLeft);
-    if (mode & QTextLayout::SingleLine)
-        control.singleLine = true;
 
     int sor = 0;
     int eor = -1;
@@ -818,8 +787,6 @@ static void init(QTextEngine *e)
     if(!resolvedUsp10)
         resolveUsp10();
 #endif
-
-    e->direction = QApplication::layoutDirection();
     e->itemization_mode = 0;
 
     e->pal = 0;
@@ -961,11 +928,9 @@ void QTextEngine::itemize() const
         return;
 
     if (!(itemization_mode & QTextLayout::NoBidi)) {
-        bidiItemize(const_cast<QTextEngine *>(this), (direction == Qt::RightToLeft), itemization_mode);
+        bidiItemize(const_cast<QTextEngine *>(this), (option.layoutDirection() == Qt::RightToLeft));
     } else {
         BidiControl control(false);
-        if (itemization_mode & QTextLayout::SingleLine)
-            control.singleLine = true;
         int start = 0;
         int stop = layoutData->string.length() - 1;
         appendItems(const_cast<QTextEngine *>(this), start, stop, control, QChar::DirL);

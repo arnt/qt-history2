@@ -323,8 +323,7 @@ public:
     QFontPrivate *fnt;
     QTextBlock block;
 
-    Qt::LayoutDirection direction : 1;
-    unsigned int itemization_mode : 15;
+    unsigned int itemization_mode : 16;
     QTextOption option;
 
     QPalette *pal;

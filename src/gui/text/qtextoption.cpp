@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "qtextoption.h"
-
+#include "qapplication.h"
 #include <QtCore/qlist.h>
 
 struct QTextOptionPrivate
@@ -29,6 +29,7 @@ QTextOption::QTextOption()
       tab(0),
       d(0)
 {
+    direction = QApplication::layoutDirection();
 }
 
 QTextOption::QTextOption(Qt::Alignment alignment)
@@ -40,6 +41,7 @@ QTextOption::QTextOption(Qt::Alignment alignment)
       tab(0),
       d(0)
 {
+    direction = QApplication::layoutDirection();
 }
 
 QTextOption::~QTextOption()
@@ -51,6 +53,7 @@ QTextOption::QTextOption(const QTextOption &o)
     : align(o.align),
       wordWrap(o.wordWrap),
       design(o.design),
+      direction(o.direction),
       unused(o.unused),
       f(o.f),
       tab(o.tab),
@@ -68,6 +71,7 @@ QTextOption &QTextOption::operator=(const QTextOption &o)
     align = o.align;
     wordWrap = o.wordWrap;
     design = o.design;
+    direction = o.direction;
     unused = o.unused;
     f = o.f;
     tab = o.tab;

@@ -504,53 +504,41 @@ static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiContr
         }
     }
     int i;
-    if (control.singleLine) {
-        for(i = 0; i < numItems; i++) {
-            QScriptItem item;
-            item.analysis = usp_items[i].a;
-            item.position = usp_items[i].iCharPos+start;
-            item.analysis.bidiLevel = level;
-            item.analysis.override = control.override;
-            item.analysis.reserved = 0;
-            items.append(item);
-        }
-    } else {
-        for(i = 0; i < numItems; i++) {
-            QScriptItem item;
-            item.analysis = usp_items[i].a;
-            item.position = usp_items[i].iCharPos+start;
-            item.analysis.bidiLevel = level;
-            item.analysis.override = control.override;
+    for(i = 0; i < numItems; i++) {
+        QScriptItem item;
+        item.analysis = usp_items[i].a;
+        item.position = usp_items[i].iCharPos+start;
+        item.analysis.bidiLevel = level;
+        item.analysis.override = control.override;
 
-            int rstart = usp_items[i].iCharPos;
-            int rstop = usp_items[i+1].iCharPos-1;
-            bool b = true;
-            for (int j = rstart; j <= rstop; j++) {
+        int rstart = usp_items[i].iCharPos;
+        int rstop = usp_items[i+1].iCharPos-1;
+        bool b = true;
+        for (int j = rstart; j <= rstop; j++) {
 
-                unsigned short uc = text[j+start].unicode();
-                if (uc == QChar::ObjectReplacementCharacter || uc == QChar::LineSeparator) {
-                    item.analysis.script = usp_latin_script;
-                    item.isObject = true;
-                    b = true;
-                } else if (uc == 9) {
-                    item.analysis.script = usp_latin_script;
-                    item.isSpace = true;
-                    item.isTab = true;
-                    item.analysis.bidiLevel = control.baseLevel();
-                    b = true;
-                } else if (b) {
-                    b = false;
-                } else {
-                    continue;
-                }
-
-                item.position = j+start;
-                items.append(item);
-                item.analysis = usp_items[i].a;
-                item.analysis.bidiLevel = level;
-                item.analysis.override = control.override;
-                item.isSpace = item.isTab = item.isObject = false;
+            unsigned short uc = text[j+start].unicode();
+            if (uc == QChar::ObjectReplacementCharacter || uc == QChar::LineSeparator) {
+                item.analysis.script = usp_latin_script;
+                item.isObject = true;
+                b = true;
+            } else if (uc == 9) {
+                item.analysis.script = usp_latin_script;
+                item.isSpace = true;
+                item.isTab = true;
+                item.analysis.bidiLevel = control.baseLevel();
+                b = true;
+            } else if (b) {
+                b = false;
+            } else {
+                continue;
             }
+
+            item.position = j+start;
+            items.append(item);
+            item.analysis = usp_items[i].a;
+            item.analysis.bidiLevel = level;
+            item.analysis.override = control.override;
+            item.isSpace = item.isTab = item.isObject = false;
         }
     }
 

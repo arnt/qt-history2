@@ -32,6 +32,9 @@ public:
     inline void setAlignment(Qt::Alignment alignment) { align = alignment; }
     inline Qt::Alignment alignment() const { return Qt::Alignment(align); }
 
+    inline void setLayoutDirection(Qt::LayoutDirection direction) { this->direction = direction; }
+    inline Qt::LayoutDirection layoutDirection() const { return (Qt::LayoutDirection)direction; }
+
     enum WrapMode {
         WordWrap,
         ManualWrap,
@@ -59,6 +62,7 @@ private:
     uint align : 8;
     uint wordWrap : 4;
     uint design : 1;
+    uint direction : 1;
     uint unused : 19;
     uint f;
     qreal tab;

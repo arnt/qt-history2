@@ -2092,8 +2092,9 @@ void QLineEditPrivate::updateTextLayout()
     }
     textLayout.setFont(q->font());
     textLayout.setText(str);
-    textLayout.setDirection(Qt::LayoutDirection(direction));
-    textLayout.setLayoutMode(QTextLayout::SingleLine);
+    QTextOption option;
+    option.setLayoutDirection(Qt::LayoutDirection(direction));
+    textLayout.setTextOption(option);
 
     textLayout.beginLayout();
     QTextLine l = textLayout.createLine();

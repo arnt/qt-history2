@@ -284,7 +284,6 @@ bool QTextInlineObject::isRightToLeft() const
     \internal
 
     \value NoBidi
-    \value SingleLine
     \value MultiLine
 */
 
@@ -748,17 +747,6 @@ int QTextLayout::minimumWidth() const
 int QTextLayout::maximumWidth() const
 {
     return qRound(d->maxWidth);
-}
-
-
-/*!
-    \fn void QTextLayout::setDirection(QChar::Direction direction)
-
-    Sets the \a direction of the text flow in the layout.
-*/
-void QTextLayout::setDirection(Qt::LayoutDirection dir)
-{
-    d->direction = dir;
 }
 
 /*!

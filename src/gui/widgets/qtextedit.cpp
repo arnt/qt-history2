@@ -1323,6 +1323,13 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
     // example)
     d->update(d->cursorRect());
 
+    if (e->key() == Qt::Key_Direction_L || e->key() == Qt::Key_Direction_R) {
+        QTextBlockFormat fmt;
+        fmt.setLayoutDirection((e->key() == Qt::Key_Direction_L) ? Qt::LeftToRight : Qt::RightToLeft);
+        d->cursor.mergeBlockFormat(fmt);
+        goto accept;
+    }
+
     if (d->cursorMoveKeyEvent(e))
         goto accept;
 
