@@ -259,7 +259,7 @@ the \c Xmd/Help.h, \c Xmd/HelpP.h and \c Xmd/Help.c files from our
 project file and regenerate our \c Makefile.
 
 The code to create the \e Help menu and \e Help dialog is in \c
-todo.cpp.  We comment the \c Xmd/Help.h include, the \c *help_manager
+todo.cpp.  We remove the \c Xmd/Help.h include, the \c *help_manager
 resource string, the \c help_cb() function forward declaration and the
 \c help_widget global variable.
 
@@ -282,9 +282,9 @@ resource string, the \c help_cb() function forward declaration and the
 \skipto Widget shell, notebook, textw, labelw;
 \printuntil  Widget help_widget;
 
-We also need to comment out the code that creates the \e Help dialog.
-We will also comment out the code to create the \e Help menu, since
-this menu is now empty.
+We also need to remove the code that creates the \e Help dialog.  We
+will also remove the code to create the \e Help menu, since this menu
+is now empty.
 
 \skipto XmdCreateMenu(HELP_MENU, menubar, &help_menu, &size);
 \printuntil XtManageChild(help_menu[HELP_OVERVIEW]);
