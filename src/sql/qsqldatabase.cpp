@@ -50,6 +50,9 @@
 #ifdef QT_SQL_OCI
 #include "drivers/oci/qsql_oci.h"
 #endif
+#ifdef QT_SQL_TDS
+#include "drivers/tds/qsql_tds.h"
+#endif
 
 #include "qapplication.h"
 #include "qsqlresult.h"
@@ -352,6 +355,9 @@ QStringList QSqlDatabase::drivers()
 #ifdef QT_SQL_OCI
     l << "QOCI8";
 #endif
+#ifdef QT_SQL_TDS
+    l << "QTDS7";
+#endif
 
 #ifndef QT_NO_COMPONENT
     QPluginManager<QSqlDriverFactoryInterface> *plugIns;
@@ -456,6 +462,11 @@ void QSqlDatabase::init( const QString& type, const QString&  )
 #ifdef QT_SQL_OCI
 	if ( type == "QOCI8" )
 	    d->driver = new QOCIDriver();
+#endif
+
+#ifdef QT_SQL_TDS
+	if ( type == "QTDS7" )
+	    d->driver = new QTDSDriver();
 #endif
 
     }
