@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: mpp,v 1.5 2001/01/22 22:26:56 mark Exp $
+# $Id: mpp,v 1.8 2001/01/24 22:52:45 mark Exp mark $
 
 # Documented at the __END__
 
@@ -14,16 +14,17 @@ use Getopt::Long;
 use Symbol();
 
 use vars qw( $VERSION );
-$VERSION = '1.01';
+$VERSION = '1.10';
 
 my %Opt;
 my $Param;
 my $Macro;
 
 my %Audit = (
-    -config	=> 0,
     -files	=> 0,
+    -config	=> 0,
     -skipped	=> 0,
+    -lines	=> 0,
     -started	=> time,
     );
 
@@ -40,9 +41,11 @@ sub show_audit {
     my $time = time - $Audit{'-started'};
     my $sec  = $time % 60; $time /= 60;
     my $min  = $time % 60; $time /= 60;
+    my $ls   = $Audit{'-lines'}  == 1 ? '' : 's';
     my $s    = $Audit{'-files'}  == 1 ? '' : 's';
     my $cs   = $Audit{'-config'} == 1 ? '' : 's';
     printf STDERR "%1d:%02d:%02d " .
+		  "$Audit{'-lines'} line$ls, " .
 		  "$Audit{'-files'} file$s, " .
 		  "$Audit{'-skipped'} skipped, " .
 		  "$Audit{'-config'} config$cs.\n",
@@ -114,8 +117,9 @@ sub process_file {
 		);
     $mpp->process();
     $mpp->msg( "converted to $outfile", 1 );
-    $Audit{'-files'}++;
     $Macro = $mpp->get( '-macros' );
+    $Audit{'-lines'} += $mpp->get( '-lino' );
+    $Audit{'-files'}++;
 }
 
 
@@ -146,8 +150,9 @@ sub configure {
 		    );
 	$mpp->process();
 	$mpp->msg( "read configuration", 2 );
-	$Audit{'-config'}++;
 	$Macro = $mpp->get( '-macros' );
+	$Audit{'-lines'} += $mpp->get( '-lino' );
+	$Audit{'-config'}++;
     }
 }
 
@@ -223,10 +228,13 @@ options: (these are rarely needed)
 -M --mpponly	only process files with suffix .mpp, default is 1
 -h --help	show this usage text and exit
 
-mpp supports three functions:
+mpp supports six functions:
     \\macro name {% "perl subroutine or string" %}
     \\load file
     \\scan file filter.numbering start end
+    \\set param = value
+    \\if param -or- \\if param = value -or- \\if param != value
+    \\endif
 macros are invoked like this
     \\name or \\name[parameter string]
 
@@ -248,13 +256,14 @@ sub new {
     local $_;
     if ( ref( $self ) ) { # Copy constructor, args override
 	my $newself = {};
-	foreach ( qw( -format -filter -outfile -out -params
+	foreach ( qw( -format -filter -outfile -out -params -skip
 		      -warnings -messages -configuring -macros ) ) {
 	    $newself->{$_} = exists $arg{$_} ? delete $arg{$_} : $self->get( $_ ); 
 	}
 	foreach ( keys %arg ) { # Args which must be given anew, e.g. -infile
 	    $newself->{$_} = $arg{$_};
 	}
+	$newself->{'-lino'} = 0;
 	$self = $newself;
     }
     else {
@@ -268,17 +277,18 @@ sub new {
 		'-warnings'	=> 1,
 		'-messages'	=> 1,
 		'-configuring'	=> 0,
+		'-skip'		=> 0,
 		'-macros'	=> {},
 		'-params'	=> {},
+		'-lino'		=> 0,
 		%arg,
 	    }
     }
 
     # Private
     $self->{'_lastwarning'} = '',
-    $self->{'_lino'}	    = 0,
     $self->{'_macro_re'} = qr/(?!<\\)\\([A-Za-z][-A-Za-z_0-9]*)(?:\[([^\]]*?)\])?/, #/
-    $self->{'_warn_re'}  = qr/(?!<\\)(\\[A-Za-z][-A-Za-z_0-9]*\[[^\]]*)\n$/, #/
+    $self->{'_warn_re'}  = qr/(?!<\\)(\\[A-Za-z][-A-Za-z_0-9]*\[[^\]]*)\n$/s, #/
     $self->{'_scan'}	    = undef,
     $self->{'_scanfile'}    = undef,
     $self->{'_scanlino'}    = 0,
@@ -370,33 +380,76 @@ sub process {
     $macroref->{$pre}->( $self ) if exists $macroref->{$pre};
 
     my $configuring = $self->get( '-configuring' ); 
-    my $in  = $self->get( '-in' ); 
-    my $out = $self->get( '-out' ); 
+    my $in	    = $self->get( '-in' ); 
+    my $out	    = $self->get( '-out' ); 
+    my $skip	    = $self->_getref( '-skip' );
     local $_;
     while ( <$in> ) {
-	$self->_inc( '_lino' );		
-	if ( s/^\s*\\macro\s+(\S+)\s*\{%// ) {
-	    $self->_read_macro( $1, $_ );
-	}
-	elsif ( s/^\s*\\load\s+(\S+)// ) {
-	    # We might load more macros from within a macro `master file'
-	    $self->load_file( $1 );
-	}
-	elsif ( s/^\s*\\scan\s+// ) {
-	    if ( $configuring ) {
-		$self->warning( "\\scan does nothing when configuring", 2 );
+	$self->_inc( '-lino' );		
+	$$skip = 0, next if /^\s*\\endif/;
+	next if $$skip;
+	if ( /^\s*\\(?:if|set|macro|load|scan)/ ) {
+	    if ( /^\s*\\if\s+(\S+)\s*(?:(=|==|!=)\s*(.*))?$/ ) {
+		$self->_if( $1, defined $2 ? $2 : '', defined $3 ? $3 : '' );
 	    }
-	    else {
-		$self->scan_file( $_ );
+	    elsif ( /^\s*\\set\s+(\S+)(?:\s*=(.*))?$/ ) {
+		$self->set( $1, defined $2 ? $2 : '' );
+	    }
+	    elsif ( /^\s*\\macro\s+(\S+)\s*\{%(.*)/ ) { #}
+		$self->_read_macro( $1, $2 );
+	    }
+	    elsif ( /^\s*\\load\s+(\S+)/ ) {
+		$self->load_file( $1 );
+	    }
+	    elsif ( /^\s*\\scan\s+(.*)/ ) {
+		if ( $configuring ) {
+		    $self->warning( "\\scan does nothing when configuring", 2 );
+		}
+		else {
+		    $self->scan_file( $1 );
+		}
+	    }
+	    elsif ( /(if|set|macro|load|scan)/ ) {
+		$self->warning( "syntax error in \\$1", 1 );
 	    }
 	}
-	elsif ( not $configuring  ) {	     
+	elsif ( not $configuring ) {	     
 	    print $out $self->_expand_macros( $self->filter( $_ ) );
 	}
     }
 
     my $post = $self->get( '-format' ) . '-post';
     $macroref->{$post}->( $self ) if exists $macroref->{$post};
+}
+
+
+sub _if {
+    my $self  = shift;
+    my $param = shift;
+    my $op    = shift;
+    my $val   = shift;
+
+    my $result = $self->get( $param );
+    if ( not $op ) {
+	# NOOP
+    }
+    elsif ( $val =~ /^\d+(?:\.\d+)?$/ ) {
+	if ( $op eq '!=' ) {
+	    $result = $result != $val;
+	}
+	else {
+	    $result = $result == $val;
+	}
+    }
+    else {
+	if ( $op eq '!=' ) {
+	    $result = $result ne $val;
+	}
+	else {
+	    $result = $result eq $val;
+	}
+    }
+    $self->set( '-skip', not $result );
 }
 
 
@@ -422,7 +475,7 @@ sub _read_macro {
 	local $_; 
 	my $in = $self->get( '-in' );
 	while ( <$in> ) { 
-	    $self->_inc( '_lino' ); #{
+	    $self->_inc( '-lino' ); #{
 	    $pos = index( $_, '%}' );
 	    if ( $pos > -1 ) {
 		last;
@@ -649,7 +702,7 @@ sub _expand_macros {
     local $_ = shift;
 
     my $warn_re  = $self->get( '_warn_re' );
-    $self->warning( "possibly line-wrapped macro $1", 2 ) if /$warn_re/; 
+    $self->warning( "possibly line-wrapped macro $1", 1 ) if /$warn_re/; 
     my $macro_re = $self->get( '_macro_re' );
     s/$macro_re/defined $1 ? $self->getval( $1, defined $2 ? $2 : '' ) : ''/ge;
 
@@ -708,7 +761,7 @@ sub msg {
     return unless $level <= $self->get( '-messages' );
 
     printf STDERR " %6d %s %s\n",
-	$self->get( '_lino' ), $self->get( '-infile' ), $msg
+	$self->get( '-lino' ), $self->get( '-infile' ), $msg
     if $self->get( '-messages' ) > 0;
 }
 
@@ -722,7 +775,7 @@ sub warning {
     return unless $level <= $self->get( '-warnings' );
 
     my $warning = sprintf "*%6d %s %s\n",
-	$self->get( '_lino' ), $self->get( '-infile' ), $msg;
+	$self->get( '-lino' ), $self->get( '-infile' ), $msg;
     if ( $self->get( '-warnings' ) > 0 ) {
 	my ( $prev ) = $self->get( '_lastwarning' ) =~ /^\*?\s*\d+ \S+ (.*)$/;
 	print STDERR $warning if not defined $prev or $msg ne $prev;
@@ -758,11 +811,13 @@ mpp -- macro pre-processor, filter and file extract inserter
     -M --mpponly    only process files with suffix .mpp, default is 1
     -h --help	    show this usage text and exit
 
-
-    mpp supports three functions:
+    mpp supports six functions:
 	\macro name {% "perl subroutine or string" %}
 	\load file
 	\scan file filter.numbering start end
+	\\set param = value
+	\\if param -or- \\if param = value -or- \\if param != value
+	\\endif
     macros are invoked like this
 	\name or \name[parameter string]
 
@@ -782,11 +837,40 @@ Pre-Processor'. Because every macro definition is a subroutine the text
 returned may dynamically depend on the execution of the subroutine; for
 example a \time macro might be replaced by the time at which mpp is run.
 
-mpp supports three built-in commands, \macro (define macro), \scan (insert
-file extract) and \load (insert file as if it were inline, i.e. process it for
-macros). The built-in commands are always placed on a line of their own
-(except \macro which delimits its contents with {% and %} and may span
-multiple lines). 
+mpp supports six built-in commands:
+
+=over
+
+=item *
+
+\macro -- define a macro
+
+=item *
+
+\set -- set a parameter
+
+=item *
+
+\scan -- insert a file extract
+
+=item *
+
+\load -- insert a file as if it were inline, i.e. process it for macros
+
+=item *
+
+\if -- process lines up to the \endif if the expression is true, otherwise skip
+them
+
+=item *
+
+\endif -- lines will be processed from this point on (until an \if whose
+expression is false is encountered)
+
+=back
+
+The built-in commands are always placed on a line of their own (except \macro
+which delimits its contents with {% and %} and may span multiple lines). 
 
 =head2 Defining Macros with C<\macro>
 
@@ -896,7 +980,8 @@ I<format-c_filter> using the current format.
 
 Note that filtering applies to macro names and their parameters.
 
-You can easily change filters using \setfilter[filtername] or switch filtering off by giving no filtername.
+You can easily change filters using C<\set -filter = filtername> or switch
+filtering off by giving no filtername.
 
 =head2 Scanning: Inserting File Extracts with C<\scan>
 
@@ -956,6 +1041,42 @@ The \load function is used to load a file and apply macro expansion and
 filtering to that file as if its text was inline. Its syntax is simple:
 
     \load filename
+
+=head2 Setting Parameters with C<\set>
+
+    \set param = value
+
+Parameters can be set in files using C<\set>, on the command line with
+C<--params> and in code with C<set>.
+
+Although normally used for user parameters, internal ones can also be set,
+although the only internal parameters that should be set are -filter and
+-skip.
+
+=head2 Skipping Lines with C<\if> and C<\endif>
+
+    \if param
+	:
+    \endif
+
+If the param (set with C<\set param = val> or with C<$self-E<gt>set( param, val )>)
+is true, i.e. not zero or empty string, the lines up to the \endif will be
+processed otherwise they will be skipped.
+
+    \if param = val
+	:
+    \endif
+
+Similar to the above; the lines will be processed if the param has the value
+val, otherwise they will be skipped until the \endif. Can also be written
+C<\if param == val>.
+
+    \if param != val
+	:
+    \endif
+
+Similar to the above; the lines will be processed if the param is not equal to
+the val, otherwise they will be skipped until the \endif.
 
 =head2 Configuration Files
 
@@ -1071,13 +1192,13 @@ B<get>
     my $format = $self->get( '-format' );
 
 Get the value of one of the fields (as listed in the new() constructor above),
-or that has been created with C<set> or C<--params>.
+or that has been created with C<set>, C<\set> or C<--params>.
 
 B<set>
 
 Set the value of one of the fields (as listed in the new() constructor above),
-or that has been created with C<set> or C<--params>. Don't create any with
-names that begin with a hyphen or underscore. To create/set fields on the
+or that has been created with C<set>, C<\set> or C<--params>. Don't create any
+with names that begin with a hyphen or underscore. To create/set fields on the
 command line is achieved thus:
 
     --params='name1=val1 name2=val2' 
