@@ -33,7 +33,9 @@ class QAxBase
     Q_PROPERTY( QString control READ control WRITE setControl )
 #endif
 public:
+#ifndef Q_QDOC
     typedef QMap<QCString, QVariant> PropertyBag;
+#endif
 
     QAxBase( IUnknown *iface = 0 );
     virtual ~QAxBase();
@@ -81,6 +83,7 @@ public:
 
 #ifdef Q_QDOC
 #error "The Symbol Q_QDOC is reserved for documentation purposes."
+    enum PropertyBag {};
 signals:
     void signal(const QString&,int,void*);
     void propertyChanged(const QString&);
