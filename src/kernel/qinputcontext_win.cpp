@@ -527,7 +527,9 @@ bool QInputContext::composition( LPARAM lParam )
     QWidget *fw = qApp->focusWidget();
     if ( fw ) {
 	HIMC imc = getContext( fw->winId() );
-	if (lParam & GCS_RESULTSTR ) {
+	if (lParam & GCS_RESULTSTR) {
+	    if(imePosition == -1)
+		startComposition();
 	    // a fixed result, return the converted string
 	    *imeComposition = getString( imc, GCS_RESULTSTR );
 	    imePosition = -1;
