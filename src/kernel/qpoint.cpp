@@ -39,12 +39,12 @@
 #include "qdatastream.h"
 
 
-// REVISED: paul
 /*!
   \class QPoint qpoint.h
   \brief The QPoint class defines a point in the plane.
 
-  \ingroup images graphics
+  \ingroup images
+  \ingroup graphics
 
   A point is specified by an x coordinate and a y coordinate.
 
@@ -54,24 +54,24 @@
 
   The coordinates are accessed by the functions x() and y(); they can
   be set by setX() and setY() or by the reference functions rx() and ry().
-  
+
   Given a point \e p, the following statements are all equivalent:
   \code
      p.setX( p.x() + 1 );
      p += QPoint( 1, 0 );
      p.rx()++;
   \endcode
-  
-  
+
+
   A QPoint can also be used as a vector.  Addition and subtraction of
-  QPoint are defined as for vectors (each component is added
+  QPoints are defined as for vectors (each component is added
   separately). You can divide or multiply a QPoint by an \c int or a
   \c double. The function manhattanLength() gives an inexpensive
-  approximation to the length of the QPoint interpreted as a vector.
+  approximation of the length of the QPoint interpreted as a vector.
 
   Example:
   \code
-     //QPoint oldPos is defined somewhere else 
+     //QPoint oldPos is defined somewhere else
      MyWidget::mouseMoveEvent( QMouseEvent *e )
      {
         QPoint vector = e->pos() - oldPos;
@@ -79,10 +79,10 @@
 	   ... //mouse has moved more than 3 pixels since oldPos
      }
   \endcode
-  
+
   QPoints can be compared for equality or inequality, and they can be
   written to and read from a QStream.
-  
+
   \sa QSize, QRect
 */
 
@@ -103,7 +103,8 @@
 
 /*!
   \fn bool QPoint::isNull() const
-  Returns TRUE if both the x value and the y value are 0.
+  Returns TRUE if both the x value and the y value are 0; otherwise
+  returns FALSE.
 */
 
 /*!
@@ -199,7 +200,7 @@
 
 /*!
   \overload QPoint &QPoint::operator*=( double c )
-  Multiplies both x and y with \a c, and return a reference to this point.
+  Multiplies both x and y with \a c, and returns a reference to this point.
 
   Example:
   \code
@@ -214,13 +215,13 @@
 /*!
   \fn bool operator==( const QPoint &p1, const QPoint &p2 )
   \relates QPoint
-  Returns TRUE if \a p1 and \a p2 are equal, or FALSE if they are different.
+  Returns TRUE if \a p1 and \a p2 are equal; otherwise returns FALSE.
 */
 
 /*!
   \fn bool operator!=( const QPoint &p1, const QPoint &p2 )
   \relates QPoint
-  Returns TRUE if \a p1 and \a p2 are different, or FALSE if they are equal.
+  Returns TRUE if \a p1 and \a p2 are not equal; otherwise returns FALSE.
 */
 
 /*!
@@ -256,7 +257,8 @@
   Returns the QPoint formed by multiplying both components of \a p
   by \a c.
 
-  Note that the result is truncated.
+  Note that the result is truncated because points are held as
+  integers.
 */
 
 /*!
@@ -265,15 +267,16 @@
   Returns the QPoint formed by multiplying both components of \a p
   by \a c.
 
-  Note that the result is truncated.
+  Note that the result is truncated because points are held as
+  integers.
 */
 
 /*!
-  \overload const QPoint operator-( const QPoint &p ) 
-  \relates QPoint 
-  
+  \overload const QPoint operator-( const QPoint &p )
+  \relates QPoint
+
   Returns the QPoint formed by changing the sign of both components of
-  \a p, equivalent to <code>QPoint(0,0) - p</code>.
+  \a p, equivalent to \c{QPoint(0,0) - p}.
 */
 
 /*!
@@ -299,7 +302,8 @@
     p /= 2.5;			// p becomes (-1,4)
   \endcode
 
-  Note that the result is truncated.
+  Note that the result is truncated because points are held as
+  integers.
 */
 
 /*!
@@ -316,7 +320,8 @@
   Returns the QPoint formed by dividing both components of \a p
   by \a c.
 
-  Note that the result is truncated.
+  Note that the result is truncated because points are held as
+  integers.
 */
 
 
@@ -378,7 +383,7 @@ QDataStream &operator>>( QDataStream &s, QPoint &p )
   to travelers who can only travel on a rectangular grid, like the streets
   of Manhattan.
 
-  This is a useful approximation to the true length:
+  This is a useful, and quick to calculate, approximation to the true length:
   sqrt(pow(x(),2)+pow(y(),2)).
 */
 int QPoint::manhattanLength() const

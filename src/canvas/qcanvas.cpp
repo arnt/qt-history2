@@ -309,7 +309,8 @@ private:
 /*! \class QCanvasItemList
   \brief The QCanvasItemList class is a list of QCanvasItems.
     \module canvas
-    \ingroup graphics images
+    \ingroup graphics
+    \ingroup images
 
   QCanvasItemList is a QValueList of pointers to QCanvasItems. This
   class is used by some methods in QCanvas that need to return a list of
@@ -414,7 +415,9 @@ static int scm(int a, int b)
 \class QCanvas qcanvas.h
 \brief The QCanvas class provides a 2D area that can contain QCanvasItem objects.
 
-\ingroup abstractwidgets graphics images
+\ingroup abstractwidgets
+\ingroup graphics
+\ingroup images
 \module canvas
 
 The QCanvas class manages its 2D graphic area and all the canvas items
@@ -1718,7 +1721,8 @@ class QCanvasItemExtra {
 \class QCanvasItem qcanvas.h
 \brief The QCanvasItem class provides an abstract graphic object on a QCanvas.
 \module canvas
-    \ingroup graphics images
+    \ingroup graphics
+    \ingroup images
 
 A variety of subclasses provide immediately usable behaviour; this class
 is a pure abstract superclass providing the behaviour that is shared
@@ -2276,7 +2280,8 @@ static bool collision_double_dispatch( const QCanvasSprite* s1,
   \class QCanvasSprite qcanvas.h
   \brief The QCanvasSprite class provides an animated canvas item on a QCanvas.
   \module canvas
-    \ingroup graphics images
+    \ingroup graphics
+    \ingroup images
 
     A canvas sprite is an object which contains any number of images
     (referred to as frames), only one of which is current, e.g.
@@ -2578,7 +2583,8 @@ QRect QCanvasItem::boundingRectAdvanced() const
   \class QCanvasPixmap qcanvas.h
   \brief The QCanvasPixmap class provides a pixmap in a QCanvas.
   \module canvas
-    \ingroup graphics images
+    \ingroup graphics
+    \ingroup images
 
   The pixmap is a QPixmap and can only be set in the
   constructor. There are three different constructors, one taking a
@@ -2684,7 +2690,8 @@ QCanvasPixmap::~QCanvasPixmap()
 /*!
   \class QCanvasPixmapArray qcanvas.h
     \module canvas
-    \ingroup graphics images
+    \ingroup graphics
+    \ingroup images
 
   \brief The QCanvasPixmapArray class provides an array of
   QCanvasPixmaps.
@@ -3186,7 +3193,8 @@ void QCanvasSprite::draw(QPainter& painter)
   \class QCanvasView qcanvas.h
   \brief The QCanvasView class provides an on-screen view of a QCanvas.
   \module canvas
-    \ingroup graphics images
+    \ingroup graphics
+    \ingroup images
 
   A QCanvasView is widget which provides a view of a QCanvas.
 
@@ -3404,7 +3412,8 @@ QSize QCanvasView::sizeHint() const
   \brief The QCanvasPolygonalItem class provides a polygonal canvas item
   on a QCanvas.
   \module canvas
-    \ingroup graphics images
+    \ingroup graphics
+    \ingroup images
 
   The mostly rectangular classes, such as QCanvasSprite and QCanvasText,
   use the object's bounding rectangle for movement, repainting and
@@ -3766,7 +3775,8 @@ void QCanvasPolygonalItem::setBrush(QBrush b)
   \class QCanvasPolygon qcanvas.h
   \brief The QCanvasPolygon class provides a polygon on a QCanvas.
   \module canvas
-    \ingroup graphics images
+    \ingroup graphics
+    \ingroup images
 
   Paints a polygon with a QBrush. The polygon's points can be set in the
   constructor or set or changed later using setPoints(). Use points() to
@@ -3853,7 +3863,8 @@ void QCanvasPolygon::moveBy(double dx, double dy)
   \brief The QCanvasSpline class provides multi-bezier splines on a
   QCanvas.
   \module canvas
-    \ingroup graphics images
+    \ingroup graphics
+    \ingroup images
 
   A QCanvasSpline is a sequence of 4-point bezier curves joined
   together to make a curved shape.
@@ -4007,7 +4018,8 @@ QPointArray QCanvasPolygon::areaPoints() const
   \class QCanvasLine qcanvas.h
   \brief The QCanvasLine class provides a line on a QCanvas.
   \module canvas
-    \ingroup graphics images
+    \ingroup graphics
+    \ingroup images
 
     The line inherits functionality from QCanvasPolygonalItem, for
     example the setPen() function. The start and end points of the line
@@ -4155,7 +4167,8 @@ QPointArray QCanvasLine::areaPoints() const
   \class QCanvasRectangle qcanvas.h
   \brief The QCanvasRectangle class provides a rectangle on a QCanvas.
   \module canvas
-    \ingroup graphics images
+    \ingroup graphics
+    \ingroup images
 
   This item paints a single rectangle which may have any pen() and
   brush(), but may not be tilted/rotated. For rotated rectangles, use
@@ -4286,7 +4299,8 @@ void QCanvasRectangle::drawShape(QPainter & p)
   \class QCanvasEllipse qcanvas.h
   \brief The QCanvasEllipse class provides an ellipse or ellipse segment on a QCanvas.
   \module canvas
-    \ingroup graphics images
+    \ingroup graphics
+    \ingroup images
 
   A canvas item that paints an ellipse or ellipse segment with a QBrush.
   The ellipse's height, width, start angle and angle length can be set
@@ -4297,6 +4311,7 @@ void QCanvasRectangle::drawShape(QPainter & p)
     Note that angles are specified in
     <small><sup>1</sup>/<sub>16</sub></small>ths of a degree.
 
+    \target anglediagram
     <center><img src="qcanvasellipse.png" width="300" height="200" alt="Ellipse"></center>
     If a start angle and length angle are set then an ellipse segment
     will be drawn. The start angle is the angle that goes from zero in a
@@ -4498,7 +4513,8 @@ void QCanvasEllipse::drawShape(QPainter & p)
 \class QCanvasText qcanvas.h
 \brief The QCanvasText class provides a text object on a QCanvas.
 \module canvas
-    \ingroup graphics images
+    \ingroup graphics
+    \ingroup images
 
   A canvas text item has text with font, color and alignment attributes.
   The text and font can be set in the constructor or set or changed
@@ -4749,9 +4765,9 @@ Make your derived classes return their own values for rtti(), so that you
 can distinguish between objects returned by QCanvas::at().  You should
 use values greater than 1000 to allow extensions to this class.
 
-Overuse of this functionality can damage it's extensibility.  
-For example, once you have identified a base class of a QCanvasItem 
-found by QCanvas::at(), cast it to that type and call meaningful 
+Overuse of this functionality can damage it's extensibility.
+For example, once you have identified a base class of a QCanvasItem
+found by QCanvas::at(), cast it to that type and call meaningful
 methods rather than acting upon the object based on its rtti value.
 
 For example:

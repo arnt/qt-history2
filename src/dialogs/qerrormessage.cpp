@@ -56,7 +56,8 @@
 
 \brief The QErrorMessage class provides an error message display dialog.
 
-\ingroup dialogs misc
+\ingroup dialogs
+\ingroup misc
 
 This is basically a QLabel and a "show this message again" checkbox which
 remembers what not to show.

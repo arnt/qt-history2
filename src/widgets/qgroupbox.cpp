@@ -54,7 +54,9 @@
   \class QGroupBox qgroupbox.h
   \brief The QGroupBox widget provides a group box frame with a title.
 
-  \ingroup organizers geomanagement appearance
+  \ingroup organizers
+  \ingroup geomanagement
+  \ingroup appearance
 
   A group box provides a frame, a title and a keyboard shortcut, and
   displays various other widgets inside itself.  The title is on top,

@@ -66,7 +66,8 @@ public:
   \class QUrlInfo qurlinfo.h
   \brief The QUrlInfo class stores information about URLs.
 
-  \ingroup io misc
+  \ingroup io
+  \ingroup misc
 
   This class is just a container for storing information about
   URLs, which is why all informations has to be passed in the
@@ -115,7 +116,7 @@ QUrlInfo::QUrlInfo( const QUrlInfo &ui )
 }
 
 /*!
-  Constructs a QUrlInfo object by specifying all information of the URL. 
+  Constructs a QUrlInfo object by specifying all information of the URL.
   The information that is passed is the \a name, the \a permissions,
   the \a owner and \a group, as well as the \a size, \a lastModified
   date/time and \a lastRead date/time. Flags are also passed, namely, \a

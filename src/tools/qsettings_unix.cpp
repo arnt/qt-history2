@@ -45,7 +45,8 @@
   \class QSettings qsettings.h
   \brief The QSettings class provides persistent platform-independent application settings.
 
-  \ingroup io misc
+  \ingroup io
+  \ingroup misc
 
   On Unix systems, QSettings uses text files to store settings. On
   Windows systems, QSettings uses the system registry.

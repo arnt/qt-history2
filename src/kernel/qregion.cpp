@@ -45,7 +45,8 @@
   \class QRegion qregion.h
   \brief The QRegion class specifies a clip region for a painter.
 
-  \ingroup images graphics
+  \ingroup images
+  \ingroup graphics
 
   QRegion is used with QPainter::setClipRegion() to limit the paint area to what
   needs to be painted. There is also a QWidget::repaint() that takes a QRegion parameter.
@@ -96,7 +97,7 @@
  */
 
 /*!
-    \fn Region  QRegion::handle() const 
+    \fn Region  QRegion::handle() const
     Returns the region's handle.
 */
 
@@ -277,7 +278,7 @@ QDataStream &operator>>( QDataStream &s, QRegion &r )
 //  (eg. Windows at least provides 3-variable operations).  For now, simple.
 
 
-/*! 
+/*!
     Applies the unite() function to this region and \a r.
     \c r1|r2 is equivalent to \c r1.unite(r2)
  \sa unite(), operator+()
@@ -285,7 +286,7 @@ QDataStream &operator>>( QDataStream &s, QRegion &r )
 const QRegion QRegion::operator|( const QRegion &r ) const
     { return unite(r); }
 
-/*! 
+/*!
     Applies the unite() function to this region and \a r.
     \c r1+r2 is equivalent to \c r1.unite(r2)
  \sa unite(), operator|()
@@ -293,7 +294,7 @@ const QRegion QRegion::operator|( const QRegion &r ) const
 const QRegion QRegion::operator+( const QRegion &r ) const
     { return unite(r); }
 
-/*! 
+/*!
     Applies the intersect() function to this region and \a r.
     \c r1&r2 is equivalent to \c r1.intersect(r2)
  \sa intersect()
@@ -301,7 +302,7 @@ const QRegion QRegion::operator+( const QRegion &r ) const
 const QRegion QRegion::operator&( const QRegion &r ) const
     { return intersect(r); }
 
-/*! 
+/*!
     Applies the subtract() function to this region and \a r.
     \c r1-r2 is equivalent to \c r1.subtract(r2)
  \sa subtract()
@@ -309,7 +310,7 @@ const QRegion QRegion::operator&( const QRegion &r ) const
 const QRegion QRegion::operator-( const QRegion &r ) const
     { return subtract(r); }
 
-/*! 
+/*!
     Applies the eor() function to this region and \a r.
     \c r1^r2 is equivalent to \c r1.eor(r2)
  \sa eor()
@@ -317,7 +318,7 @@ const QRegion QRegion::operator-( const QRegion &r ) const
 const QRegion QRegion::operator^( const QRegion &r ) const
     { return eor(r); }
 
-/*! 
+/*!
     Applies the unite() function to this region and \a r and assigns the
     result to this region.
     \c r1|=r2 is equivalent to \c r1=r1.unite(r2)
@@ -326,7 +327,7 @@ const QRegion QRegion::operator^( const QRegion &r ) const
 QRegion& QRegion::operator|=( const QRegion &r )
     { return *this = *this | r; }
 
-/*! 
+/*!
     Applies the unite() function to this region and \a r and assigns the
     result to this region.
     \c r1+=r2 is equivalent to \c r1=r1.unite(r2)
@@ -335,7 +336,7 @@ QRegion& QRegion::operator|=( const QRegion &r )
 QRegion& QRegion::operator+=( const QRegion &r )
     { return *this = *this + r; }
 
-/*! 
+/*!
     Applies the intersect() function to this region and \a r and
     assigns the result to this region.
     \c r1&=r2 is equivalent to \c r1=r1.intersect(r2)
@@ -344,7 +345,7 @@ QRegion& QRegion::operator+=( const QRegion &r )
 QRegion& QRegion::operator&=( const QRegion &r )
     { return *this = *this & r; }
 
-/*! 
+/*!
     Applies the subtract() function to this region and \a r and
     assigns the result to this region.
     \c r1-=r2 is equivalent to \c r1=r1.subtract(r2)
@@ -353,7 +354,7 @@ QRegion& QRegion::operator&=( const QRegion &r )
 QRegion& QRegion::operator-=( const QRegion &r )
     { return *this = *this - r; }
 
-/*! 
+/*!
     Applies the eor() function to this region and \a r and
     assigns the result to this region.
     \c r1^=r2 is equivalent to \c r1=r1.eor(r2)

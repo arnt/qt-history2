@@ -43,7 +43,8 @@
   \class QSignal qsignal.h
   \brief The QSignal class can be used to send signals without parameters.
 
-  \ingroup io misc
+  \ingroup io
+  \ingroup misc
 
   QSignal is a simple extension of QObject that can send plain signals
   without parameters.  If you want to send signals from a class that does
@@ -124,8 +125,8 @@ QSignal::~QSignal()
 // Returns TRUE if it matches ".+(.*int.*"
 static inline bool intSignature( const char *member )
 {
-    QCString s(member); 
-    int p = s.find('('); 
+    QCString s(member);
+    int p = s.find('(');
     return p > 0 && p < s.find( "int" );
 }
 #endif
@@ -191,12 +192,12 @@ bool QSignal::disconnect( const QObject *receiver, const char *member )
 */
 void  QSignal::activate()
 {
-#ifndef QT_NO_VARIANT    
+#ifndef QT_NO_VARIANT
     emit intSignal( val.toInt() );
     emit signal( val );
 #else
     emit intSignal(0);
-#endif    
+#endif
 }
 
 #ifndef QT_NO_VARIANT
@@ -215,10 +216,10 @@ QVariant QSignal::value() const
 {
     return val;
 }
-/*! \fn void QSignal::signal( const QVariant & ) 
+/*! \fn void QSignal::signal( const QVariant & )
     \internal
 */
-/*! \fn void QSignal::intSignal( int ) 
+/*! \fn void QSignal::intSignal( int )
     \internal
 */
 

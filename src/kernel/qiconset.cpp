@@ -96,7 +96,8 @@ public:
 
   \brief The QIconSet class provides a set of icons with different styles and sizes.
 
-  \ingroup graphics images
+  \ingroup graphics
+  \ingroup images
   \ingroup shared
 
   A QIconSet can generate smaller, larger, active, and disabled pixmaps
@@ -131,8 +132,8 @@ public:
   the "Off" state, the QIconSet will provide the "Off" pixmaps. You may
   specify icons for both states in you wish.
 
-  You can set any of the icons using setPixmap(). 
-  
+  You can set any of the icons using setPixmap().
+
   When you retrieve a pixmap using pixmap(Size,Mode,State), QIconSet
   will return the icon that has been set or previously generated for
   that size, mode and state combination. If no pixmap has been set or
@@ -152,7 +153,7 @@ public:
   smooth scaling\endlink, which can partially blend the color component
   of pixmaps.  If the results look poor, the best solution
   is to supply pixmaps in both large and small sizes.
-  
+
   You can use the static function setIconSize() to set the preferred
   size of the generated large/small icons. The default small size is
   22x22 (compatible with Qt 2.x), while the default large size
@@ -266,7 +267,7 @@ QIconSet::QIconSet()
   QIconSet will determine whether the pixmap is Small or Large
   from its pixel size.
   Pixmaps less than the width of a small generated icon are
-  considered to be Small. You can use setIconSize() to set the preferred 
+  considered to be Small. You can use setIconSize() to set the preferred
   size of a generated icon.
 
   \sa setIconSize() reset()
@@ -375,7 +376,7 @@ void QIconSet::reset( const QPixmap & pm, Size size )
   pixel size.
 
   Pixmaps less than the width of a small generated icon are
-  considered to be Small. You can use setIconSize() to set the preferred 
+  considered to be Small. You can use setIconSize() to set the preferred
   size of a generated icon.
 
   This function does nothing if \a pm is a null pixmap.
@@ -445,7 +446,7 @@ void QIconSet::setPixmap( const QPixmap & pm, Size size, Mode mode, State state 
 	    break;
 	}
     } else if ( size == Small  ||
-		(size == Automatic && pm.width() <= iconSize( Small ).width()) ) 
+		(size == Automatic && pm.width() <= iconSize( Small ).width()) )
     {
 	switch( mode ) {
 	case Active:
@@ -502,7 +503,7 @@ void QIconSet::setPixmap( const QPixmap & pm, Size size, Mode mode, State state 
   used, QIconSet will determine if the pixmap is Small or Large from its
   pixel size.
   Pixmaps less than the width of a small generated icon are
-  considered to be Small. You can use setIconSize() to set the preferred 
+  considered to be Small. You can use setIconSize() to set the preferred
   size of a generated icon.
 */
 void QIconSet::setPixmap( const QString &fileName, Size size, Mode mode, State state )
@@ -975,7 +976,7 @@ void QIconSet::clearGenerated()
 
 /*!
   \overload
-  
+
   Returns the pixmap originally provided to the constructor or
   to reset().  This is the Normal pixmap of unspecified Size.
 
@@ -1051,11 +1052,11 @@ QCleanupHandler<QSize> qt_iconset_sizes_cleanup;
   Set the preferred size for all small or large icons that are generated
   after this call. If \a s is Small, sets the preferred size of small
   generated icons to \a size. Similarly, if \a s is Large, sets the
-  preferred size of large generated icons to \a size. 
-  
+  preferred size of large generated icons to \a size.
+
   Note that cached icons will not be regenerated, so it is recommended
   that you set the preferred icon sizes before generating any icon sets.
-  
+
   \sa iconSize()
 */
 void QIconSet::setIconSize( Size s, const QSize & size )
@@ -1063,7 +1064,7 @@ void QIconSet::setIconSize( Size s, const QSize & size )
     if ( QIconSetPrivate::instantiated )
 	qWarning( "QIconSet: setIconSize() is called after QIconSets have "
 		  "been instantiated." );
-    
+
     if ( !QIconSetPrivate::small_size ) {
 	QIconSetPrivate::small_size = new QSize( 22, 22 ); // default small size
 	QIconSetPrivate::large_size = new QSize( 32, 32 ); // default large size
@@ -1080,7 +1081,7 @@ void QIconSet::setIconSize( Size s, const QSize & size )
     If \a s is Small, returns the preferred size of a small generated
     icon; if \a s is Large, returns the preferred size of a large
     generated icon.
-  
+
   \sa setIconSize()
 */
 const QSize & QIconSet::iconSize( Size s )

@@ -91,7 +91,8 @@ public:
   \brief The QUrlOperator class provides common operations on URLs
   (get() and more).
 
-  \ingroup io misc
+  \ingroup io
+  \ingroup misc
 
   This class operates on hirachical structures (such as filesystems) using
   URLs. Its API allows all the common operations (listing children,

@@ -63,7 +63,8 @@ public:
 
 /*!
   \class QLock qlock_qws.h
-  \ingroup qws io
+  \ingroup qws
+  \ingroup io
   \brief The QLock class is a wrapper round a System V shared semaphore.
 
   It is used by Qt/Embedded for synchronizing access to the graphics

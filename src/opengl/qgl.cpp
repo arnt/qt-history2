@@ -49,7 +49,8 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
 
 
 /*! \class QGL qgl.h
-    \ingroup graphics images
+    \ingroup graphics
+    \ingroup images
   \brief The QGL class is a namespace for miscellaneous identifiers
   in the Qt OpenGL module.
 
@@ -74,7 +75,8 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
 
 /*!
   \class QGLFormat qgl.h
-    \ingroup graphics images
+    \ingroup graphics
+    \ingroup images
   \brief The QGLFormat class specifies the display format of an OpenGL
   rendering context.
 
@@ -684,7 +686,8 @@ QGLContext* QGLContext::currentCtx = 0;
 
 /*!
   \class QGLContext qgl.h
-    \ingroup graphics images
+    \ingroup graphics
+    \ingroup images
   \brief The QGLContext class encapsulates an OpenGL rendering context.
 
   \module OpenGL
@@ -698,13 +701,13 @@ QGLContext* QGLContext::currentCtx = 0;
   returned by requestedFormat(). The context is created by the create()
   function which is called from the constructors. The makeCurrent()
   function makes this context the current rendering context. You can
-  make \e no context current using doneCurrent(). 
-  The reset() function will reset the context and make it invalid. 
+  make \e no context current using doneCurrent().
+  The reset() function will reset the context and make it invalid.
 
   You can examine properties of the context with, e.g. isValid(),
   isSharing(), initialized(), windowCreated() and
-  overlayTransparentColor(). 
-  
+  overlayTransparentColor().
+
   If you're using double buffering you can swap the screen contents with
   the off-screen buffer using swapBuffers().
 
@@ -937,7 +940,7 @@ void QGLContext::setFormat( const QGLFormat &format )
   subclass to select a particular context. The problem is that virtual
   functions are not properly called during construction (even though
   this is correct C++) because C++ constructs class hierarchies from the
-  bottom up. For this reason we need a create() function. 
+  bottom up. For this reason we need a create() function.
 
   \sa chooseContext(), format(), isValid()
 */
@@ -1016,7 +1019,8 @@ bool QGLContext::create( const QGLContext* shareContext )
 
 /*!
   \class QGLWidget qgl.h
-    \ingroup graphics images
+    \ingroup graphics
+    \ingroup images
   \brief The QGLWidget class is a widget for rendering OpenGL graphics.
 
   \module OpenGL
@@ -1248,7 +1252,7 @@ QGLWidget::~QGLWidget()
 /*!
   \fn bool QGLWidget::doubleBuffer() const
   Returns TRUE if the contained GL rendering context has double
-  buffering; otherwise returns FALSE. 
+  buffering; otherwise returns FALSE.
   \sa QGLFormat::doubleBuffer()
 */
 
@@ -1397,8 +1401,8 @@ void QGLWidget::setFormat( const QGLFormat &format )
 
 /*!
   \fn const QGLContext *QGLWidget::context() const
-  Returns the context of this widget. 
-  
+  Returns the context of this widget.
+
   It is possible that the context is not valid (see isValid()), for
   example, if the underlying hardware does not support the format
   attributes that were requested.
@@ -1449,10 +1453,10 @@ void QGLWidget::updateGL()
 /*!
   \fn void QGLWidget::updateOverlayGL()
   Updates the widget's overlay (if any). Will cause the virtual
-  function paintOverlayGL() to be executed. 
+  function paintOverlayGL() to be executed.
 
   The widget's rendering context will become the current context and
-  initializeGL() will be called if it hasn't already been called. 
+  initializeGL() will be called if it hasn't already been called.
 */
 
 
@@ -1525,7 +1529,7 @@ void QGLWidget::initializeOverlayGL()
   This virtual function is used in the same manner as paintGL() except
   that it operates on the widget's overlay context instead of the
   widget's main context. This means that paintOverlayGL() is called
-  whenever the widget's overlay needs to be painted.  
+  whenever the widget's overlay needs to be painted.
   Reimplement it in a subclass.
 
   There is no need to call makeOverlayCurrent() because this
@@ -1542,7 +1546,7 @@ void QGLWidget::paintOverlayGL()
   This virtual function is used in the same manner as paintGL() except
   that it operates on the widget's overlay context instead of the
   widget's main context. This means that resizeOverlayGL() is called
-  whenever the widget has been resized. 
+  whenever the widget has been resized.
   The new size is passed in \a width and \a height.
   Reimplement it in a subclass.
 
@@ -1559,10 +1563,10 @@ void QGLWidget::resizeOverlayGL( int, int )
 
 /*!
   Handles paint events. Will cause the virtual paintGL() function to
-  be called. 
-  
+  be called.
+
   The widget's rendering context will become the current context and
-  initializeGL() will be called if it hasn't already been called. 
+  initializeGL() will be called if it hasn't already been called.
 */
 
 void QGLWidget::paintEvent( QPaintEvent * )
@@ -1715,7 +1719,7 @@ void QGLWidget::glInit()
   Executes the virtual function paintGL().
 
   The widget's rendering context will become the current context and
-  initializeGL() will be called if it hasn't already been called. 
+  initializeGL() will be called if it hasn't already been called.
 */
 
 void QGLWidget::glDraw()
@@ -1847,25 +1851,25 @@ QImage QGLWidget::convertToGLFormat( const QImage& img )
 
 /*!
   \fn QGLColormap & QGLWidget::colormap() const
-  
+
   Returns the colormap for this widget.
-    
+
   Usually it is only top-level widgets that can have different
   colormaps installed. Asking for the colormap of a child widget will
   return the colormap for the child's top-level widget.
-    
+
   If no colormap has been set for this widget, the QColormap returned
   will be empty.
-    
+
   \sa setColormap()
 */
 
 /*!
   \fn void QGLWidget::setColormap( const QGLColormap & cmap )
-  
+
   Set the colormap for this widget to \a cmap.
   Usually it is only top-level widgets that can have colormaps installed.
-    
+
   \sa colormap()
 */
 
@@ -1938,7 +1942,7 @@ colormaps in GL-index mode.
 \endlist
 
 Many applications only need the high-level QGLWidget class. The other QGL
-classes provide advanced features. 
+classes provide advanced features.
 
 The QGL documentation assumes that you are familiar with OpenGL
 programming. If you're new to the subject a good starting point is

@@ -232,7 +232,7 @@ public:
 
     void setControlWidget( QDateTimeEditBase * widget );
     QDateTimeEditBase * controlWidget() const;
-	
+
     void setSeparator( const QString& s );
     QString separator() const;
 
@@ -388,7 +388,7 @@ bool QDateTimeEditor::eventFilter( QObject *o, QEvent *e )
 		return TRUE;
 	    case Key_Tab:
 	    case Key_BackTab: {
-		
+
 		QWidget *w = this;
 		bool hadDateEdit = FALSE;
 		while ( w ) {
@@ -415,7 +415,7 @@ bool QDateTimeEditor::eventFilter( QObject *o, QEvent *e )
 				w = w->parentWidget();
 			}
 		    }
-		
+
 		    if ( w ) {
 			qApp->sendEvent( w, e );
 			return TRUE;
@@ -571,7 +571,8 @@ public:
 
 /*!
   \class QDateEdit qdatetimeedit.h
-  \ingroup advanced time
+  \ingroup advanced
+  \ingroup time
   \brief The QDateEdit class provides a date editor.
 
   QDateEdit allows the user to edit dates by using the keyboard or the
@@ -1381,7 +1382,8 @@ public:
 
 /*!
   \class QTimeEdit qdatetimeedit.h
-  \ingroup advanced time
+  \ingroup advanced
+  \ingroup time
   \brief The QTimeEdit class provides a time editor.
 
   QTimeEdit allows the user to edit times by using the keyboard or the
@@ -1986,7 +1988,8 @@ public:
 /*!
 
   \class QDateTimeEdit qdatetimeedit.h
-  \ingroup advanced time
+  \ingroup advanced
+  \ingroup time
   \brief The QDateTimeEdit class combines a QDateEdit and QTimeEdit
   widget into a single widget for editing datetimes.
 

@@ -3249,7 +3249,8 @@ bool QApplication::reverseLayout()
   \class QSessionManager qsessionmanager.h
   \brief The QSessionManager class provides access to the session manager.
 
-  \ingroup application environment
+  \ingroup application
+  \ingroup environment
 
   The session manager is responsible for session management, most
   importantly for interruption and resumption.

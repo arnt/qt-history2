@@ -43,7 +43,8 @@
 
 /*!
   \class QLayoutItem
-  \ingroup appearance geomanagement
+  \ingroup appearance
+  \ingroup geomanagement
   \brief The QLayoutItem class provides an abstract item that a
   QLayout manipulates.
 
@@ -54,7 +55,8 @@
 
 /*!
   \class QSpacerItem qabstractlayout.h
-  \ingroup appearance geomanagement
+  \ingroup appearance
+  \ingroup geomanagement
   \brief The QSpacerItem class provides blank space in a layout.
 
   This is used by custom layouts.
@@ -64,7 +66,8 @@
 
 /*!
   \class QWidgetItem
-  \ingroup appearance geomanagement
+  \ingroup appearance
+  \ingroup geomanagement
   \brief The QWidgetItem class is a layout item that represents a widget.
 
   This is used by custom layouts.
@@ -529,7 +532,8 @@ bool QWidgetItem::isEmpty() const
   \class QLayout qabstractlayout.h
   \brief The QLayout class is the base class of geometry managers.
 
-  \ingroup appearance geomanagement
+  \ingroup appearance
+  \ingroup geomanagement
 
   This is an abstract base class inherited by the concrete classes,
   QBoxLayout and QGridLayout.
@@ -1200,7 +1204,8 @@ bool QLayout::activate()
 
 /*!
   \class QSizePolicy
-  \ingroup appearance geomanagement
+  \ingroup appearance
+  \ingroup geomanagement
   \brief The QSizePolicy class is a layout attribute describing horizontal
   and vertical resizing.
 
@@ -1373,7 +1378,8 @@ Sets the hasHeightForWidth() flag to \a b.
 
 /*!
   \class QGLayoutIterator qabstractlayout.h
-  \ingroup appearance geomanagement
+  \ingroup appearance
+  \ingroup geomanagement
   \brief The QGLayoutIterator class is an abstract base class of internal layout iterators.
 
   (This class is \e not OpenGL related, it just happens to start with
@@ -1416,7 +1422,8 @@ QGLayoutIterator::~QGLayoutIterator()
 
 /*!
   \class QLayoutIterator qabstractlayout.h
-  \ingroup appearance geomanagement
+  \ingroup appearance
+  \ingroup geomanagement
   \brief The QLayoutIterator class provides iterators over QLayoutItem.
 
   Use QLayoutItem::iterator() to create an iterator over a layout.

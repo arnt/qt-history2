@@ -590,19 +590,21 @@ void write_png_image(QImageIO* iio)
     iio->setStatus( ok ? 0 : -1 );
 }
 
-// NOT REVISED
 /*!
   \class QPNGImagePacker qpngio.h
-  \ingroup images graphics
+  \ingroup images
+  \ingroup graphics
   \brief The QPNGImagePacker class creates well-compressed PNG animations.
 
   By using transparency, QPNGImagePacker allows you to build a PNG image
   from a sequence of QImages.
+
+  Images are added using packImage().
 */
 
 
 /*!
-  Creates an image packer that writes PNG data to \a iod using a
+  Creates an image packer that writes PNG data to IO device \a iod using a
   \a storage_depth bit encoding (use 8 or 32, depending on the
   desired quality and compression requirements).
 
@@ -624,7 +626,7 @@ QPNGImagePacker::QPNGImagePacker(QIODevice* iod, int storage_depth,
 /*!
   Aligns pixel differences to \a x pixels.  For example, using 8 can
   improve playback on certain hardware.  Normally the default of 1-pixel
-  alignment (i.e., no alignment) gives better compression and performance.
+  alignment (i.e. no alignment) gives better compression and performance.
 */
 void QPNGImagePacker::setPixelAlignment(int x)
 {
@@ -805,7 +807,8 @@ class QPNGFormatType : public QImageFormatType
   \brief The QPNGFormat class provides an incremental image decoder for PNG
   image format.
 
-  \ingroup images graphics
+  \ingroup images
+  \ingroup graphics
 
   This subclass of QImageFormat decodes PNG format images,
   including animated PNGs.
@@ -813,21 +816,21 @@ class QPNGFormatType : public QImageFormatType
   Animated PNG images are standard PNG images.  The PNG standard
   defines two extension chunks that are useful for animations:
 
-  <dl>
-   <dt>gIFg - GIF-like Graphic Control Extension
-    <dd>Includes frame disposal, user input flag (we ignore this),
+  \list
+    \i gIFg - GIF-like Graphic Control Extension.
+     This includes frame disposal, user input flag (we ignore this),
 	    and inter-frame delay.
-   <dt>gIFx - GIF-like Application Extension
-    <dd>Multi-purpose, but we just use the Netscape extension
+   \i gIFx - GIF-like Application Extension.
+    This is multi-purpose, but we just use the Netscape extension
 	    which specifies looping.
-  </dl>
+  \endlist
 
   The subimages usually contain a offset chunk (oFFs) but need not.
 
   The first image defines the "screen" size.  Any subsequent image that
   doesn't fit is clipped.
-
-TODO: decide on this point.  gIFg gives disposal types, so it can be done.
+*/
+/* ###TODO: decide on this point.  gIFg gives disposal types, so it can be done.
   All images paste (\e not composite, just place all-channel copying)
   over the previous image to produce a subsequent frame.
 */
@@ -837,7 +840,8 @@ TODO: decide on this point.  gIFg gives disposal types, so it can be done.
   \brief The QPNGFormatType class provides an incremental image decoder
   for PNG image format.
 
-  \ingroup images graphics
+  \ingroup images
+  \ingroup graphics
   \ingroup io
 
   This subclass of QImageFormatType recognizes PNG format images, creating
@@ -910,7 +914,7 @@ user_chunk_callback(png_structp png_ptr, png_infop info,
 
 
 /*!
-  Constructs a QPNGFormat.
+  Constructs a QPNGFormat object.
 */
 QPNGFormat::QPNGFormat()
 {
@@ -924,7 +928,7 @@ QPNGFormat::QPNGFormat()
 
 
 /*!
-  Destroys a QPNGFormat.
+  Destroys a QPNGFormat object.
 */
 QPNGFormat::~QPNGFormat()
 {
@@ -985,7 +989,7 @@ int QPNGFormat::decode(QImage& img, QImageConsumer* cons,
     }
 
     if ( !png_ptr ) return 0;
-    
+
     if (setjmp(png_ptr->jmpbuf)) {
 	png_destroy_read_struct(&png_ptr, &info_ptr, 0);
 	image = 0;

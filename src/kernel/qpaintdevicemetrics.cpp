@@ -42,7 +42,8 @@
   \brief The QPaintDeviceMetrics class provides information about a
   paint device.
 
-  \ingroup graphics images
+  \ingroup graphics
+  \ingroup images
 
   Sometimes when drawing graphics it is necessary to obtain
   information about the physical characteristics of a paint device.

@@ -76,7 +76,8 @@
 
 /*!
   \class QGArray qgarray.h
-  \ingroup shared collection
+  \ingroup shared
+  \ingroup collection
   \brief The QGArray class is an internal class for implementing the QArray class.
 
   \internal
@@ -365,7 +366,7 @@ QGArray &QGArray::duplicate( const QGArray &a )
 
 /*!
     \overload
-  Deep copy. Dereferences the current array and obtains a copy of 
+  Deep copy. Dereferences the current array and obtains a copy of
   \a len characters from array data \a d instead.  Returns a reference
   to this array.
   \sa assign(), operator=()
@@ -668,7 +669,7 @@ int QGArray::bsearch( const char *d, uint sz ) const
     if ( !r )
 	return -1;
     while( (r >= shd->data + sz) && (cmp_arr( r - sz, d ) == 0) )
-	r -= sz;	// search to first of equal elements; bsearch is undef 
+	r -= sz;	// search to first of equal elements; bsearch is undef
     return (int)(( r - shd->data ) / sz);
 }
 

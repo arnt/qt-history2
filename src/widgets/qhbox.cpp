@@ -42,7 +42,9 @@
   \class QHBox qhbox.h
   \brief The QHBox widget provides geometry management for its children.
 
-  \ingroup organizers geomanagement appearance
+  \ingroup organizers
+  \ingroup geomanagement
+  \ingroup appearance
 
   All the horizontal box's children will be placed alongside each
   other and sized according to their sizeHint()s.

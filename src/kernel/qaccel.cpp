@@ -50,7 +50,9 @@
   \class QAccel qaccel.h
   \brief The QAccel class handles keyboard accelerator and shortcut keys.
 
-  \ingroup basic application events
+  \ingroup basic
+  \ingroup application
+  \ingroup events
 
   A keyboard accelerator triggers an action when a certain key
   combination is pressed. The accelerator handles all keyboard

@@ -54,7 +54,8 @@
   \brief The QPicture class is a paint device that records and replays QPainter
   commands.
 
-  \ingroup graphics images
+  \ingroup graphics
+  \ingroup images
   \ingroup shared
 
   A picture serializes painter commands to an IO device in a
@@ -158,7 +159,7 @@ QPicture::~QPicture()
 
 /*!
   \fn bool QPicture::isNull() const
-  Returns TRUE if the picture contains no data, otherwise FALSE.
+  Returns TRUE if the picture contains no data; otherwise returns FALSE.
 */
 
 /*!
@@ -169,15 +170,15 @@ QPicture::~QPicture()
 
 /*!
   \fn const char* QPicture::data() const
-  Returns a pointer to the picture data. It is only valid until the next
-  non const function is called on this picture. The returned pointer is null
-  if the picture contains no data.
+  Returns a pointer to the picture data. The pointer is only valid
+  until the next non-const function is called on this picture. The
+  returned pointer is null if the picture contains no data.
   \sa size(), isNull()
 */
 
 /*!
   \fn QRect QPicture::boundingRect() const
-  Returns the bounding rectangle of the picture or an invalid rectangle if the
+  Returns the picture's bounding rectangle or an invalid rectangle if the
   picture contains no data.
 */
 
@@ -201,7 +202,7 @@ void QPicture::setData( const char* data, uint size )
   Loads a picture from the file specified by \a fileName and returns TRUE
   if successful; otherwise returns FALSE.
 
-  By default, the file will be interpreted as being of the native
+  By default, the file will be interpreted as being in the native
   QPicture format. Specifying the \a format string is optional and is
   only needed for importing picture data stored in a different
   format.
@@ -244,7 +245,7 @@ bool QPicture::load( const QString &fileName, const char *format )
 
 /*!
   Saves a picture to the file specified by \a fileName and returns TRUE
-  if successful, otherwise FALSE.
+  if successful; otherwise returns FALSE.
 
   Specifying the file \a format string is optional. It's not recommended
   unless you intend to export the picture data for the use in a 3rd party
@@ -821,7 +822,7 @@ bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 
   Use the QPaintDeviceMetrics class instead.
 
-  A picture has the following hard-coded values: dpi = 72,
+  A picture has the following hard-coded values: dpi=72,
   numcolors=16777216 and depth=24.
 
   \a m is the metric to get.
@@ -869,7 +870,7 @@ int QPicture::metric( int m ) const
 
 /*!
   Detaches from shared picture data and makes sure that this picture is the
-  only one referring the data.
+  only one referring to the data.
 
   If multiple pictures share common data, this picture makes a copy of the
   data and detaches itself from the sharing mechanism.	Nothing is

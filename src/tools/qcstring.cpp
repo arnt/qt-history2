@@ -203,7 +203,7 @@ int qstricmp( const char *str1, const char *str2 )
 
   A safe strnicmp() function.
 
-  Compares \a str1 and \a str2 up to \a len bytes ignoring the case. 
+  Compares \a str1 and \a str2 up to \a len bytes ignoring the case.
 
   Returns a negative value if \a str1 is less than \a str2, 0 if \a str1
   is equal to \a str2 or a positive value if \a str1 is greater than \a
@@ -301,9 +301,8 @@ Q_UINT16 qChecksum( const char *data, uint len )
 /*!
   \class QByteArray
   \ingroup collection
-  \brief The QByteArray class provides an array of bytes.
-
   \ingroup tools
+  \brief The QByteArray class provides an array of bytes.
 
   The QByteArray class provides an explicitly shared array of
   bytes. It is useful for manipulating memory areas with custom
@@ -376,17 +375,18 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
 
 /*!
   \class QCString qcstring.h
-  \ingroup text collection
+  \ingroup text
+  \ingroup collection
+  \ingroup tools
+  \ingroup shared
 
   \brief The QCString class provides an abstraction of the classic C
   zero-terminated char array (char *).
 
-  \ingroup tools
-  \ingroup shared
 
   QCString inherits QByteArray, which is defined as QMemArray\<char\>.
 
-  Since QCString is a QMemArray, it uses 
+  Since QCString is a QMemArray, it uses
   \link shclass.html explicit sharing\endlink with a reference count.
 
   You might use QCString for text that is never exposed to the user.
@@ -416,8 +416,8 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
     be filled with a character using fill(). Strings can be left or
     right padded with characters using leftJustify() and rightJustify().
     Characters, strings and regular expressions can be searched for
-    using find() and findRev(), and counted using contains(). 
-    
+    using find() and findRev(), and counted using contains().
+
     Strings and characters can be inserted with insert() and appended
     with append(). A string can be prepended with prepend(). Characters
     can be removed from the string with remove() and replaced with
@@ -713,7 +713,7 @@ bool QCString::fill( char c, int len )
   position \a index.
 
   The search is case sensitive if \a cs is TRUE, or case insensitive if
-  \a cs is FALSE. 
+  \a cs is FALSE.
 
   See the <a href="#asciinotion">Note on character comparisons</a>.
 
@@ -815,7 +815,7 @@ int QCString::findRev( char c, int index, bool cs ) const
     return d >= b ? (int)(d - b) : -1;
 }
 
-/*! 
+/*!
     \overload
   Finds the first occurrence of the string \a str, starting at
   position \a index and searching backwards.
@@ -1052,7 +1052,7 @@ QCString QCString::leftJustify( uint width, char fill, bool truncate ) const
 
 /*!
   Returns a string of length \a width (plus one for the terminating
-  '\0') that contains the \a fill character followed by this string. 
+  '\0') that contains the \a fill character followed by this string.
 
   If the length of the string exceeds \a width and \a truncate is FALSE,
   then the returned string is a copy of the string.
@@ -1701,17 +1701,17 @@ QCString &QCString::setNum( ulong n )
   returns a reference to the string.
 */
 
-/*!  
+/*!
   Sets the string to the string representation of the number \a n and
-  returns a reference to the string. 
-  
+  returns a reference to the string.
+
   The format of the string representation is specified by the format
   character \a f, and the precision (number of digits after the decimal
   point) is specified with \a prec.
 
     The valid formats for \a f are 'e', 'E', 'f', 'g' and 'G'. The
     formats are the same as for sprintf(); they are explained in \l
-    QString::arg(). 
+    QString::arg().
 */
 
 QCString &QCString::setNum( double n, char f, int prec )

@@ -54,7 +54,8 @@
   \brief The QProcess class is used to start external programs and to
   communicate with them.
 
-  \ingroup io misc
+  \ingroup io
+  \ingroup misc
 
   You can write to standard input of the started program. You can read the
   output of the program on standard output and standard error. You are notified
@@ -99,7 +100,7 @@
   \skipto }
   \printline }
   \printline }
-  
+
   \skipto void UicManager::readFromStdout()
   \printuntil // Keep in mind that the data might be reported in chunks.
   \skipto }

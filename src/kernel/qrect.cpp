@@ -39,12 +39,12 @@
 #include "qrect.h"
 #include "qdatastream.h"
 
-// NOT REVISED
 /*!
   \class QRect qrect.h
   \brief The QRect class defines a rectangle in the plane.
 
-  \ingroup images graphics
+  \ingroup images
+  \ingroup graphics
 
   A rectangle is internally represented as an upper-left corner and a
   bottom-right corner, but it is normally expressed as an upper-left
@@ -372,7 +372,7 @@ QRect QRect::normalize() const
 
 /*!
   Extracts the rectangle parameters as the position \c *\a x, \c *\a y
-  and width \c *\a w and height \c *\a h. 
+  and width \c *\a w and height \c *\a h.
   \sa setRect(), coords()
 */
 
@@ -519,7 +519,7 @@ void QRect::setCoords( int xp1, int yp1, int xp2, int yp2 )
     y2 = (QCOORD)yp2;
 }
 
-/*!  
+/*!
   Adds \a xp1, \a yp1, \a xp2 and \a yp2 respectively to the existing
   coordinates of the rectangle.
 */

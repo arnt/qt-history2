@@ -43,7 +43,8 @@
   \class QPrinter qprinter.h
   \brief The QPrinter class is a paint device that paints on a printer.
 
-  \ingroup images graphics
+  \ingroup images
+  \ingroup graphics
 
   On Windows it uses the built-in printer drivers.  On X11 it
   generates postscript and sends that to lpr, lp, or another print

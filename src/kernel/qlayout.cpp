@@ -816,7 +816,8 @@ private:
 
   \brief The QGridLayout class lays out widgets in a grid.
 
-  \ingroup geomanagement appearance
+  \ingroup geomanagement
+  \ingroup appearance
 
   QGridLayout takes the space it gets (from its parent layout or from
   the mainWidget()), divides it up into rows and columns, and puts
@@ -1514,7 +1515,8 @@ private:
   \brief The QBoxLayout class lines up child widgets horizontally or
   vertically.
 
-  \ingroup geomanagement appearance
+  \ingroup geomanagement
+  \ingroup appearance
 
   QBoxLayout takes the space it gets (from its parent layout or from
   the mainWidget()), divides it up into a row of boxes, and makes each
@@ -2346,7 +2348,8 @@ int QBoxLayout::calcHfw( int w )
 
   \brief The QHBoxLayout class lines up widgets horizontally.
 
-  \ingroup geomanagement appearance
+  \ingroup geomanagement
+  \ingroup appearance
 
   This class is used to construct horizontal box layout
   objects.  See \l QBoxLayout for more details.
@@ -2439,7 +2442,8 @@ QHBoxLayout::~QHBoxLayout()
 
   \brief The QVBoxLayout class lines up widgets vertically.
 
-  \ingroup geomanagement appearance
+  \ingroup geomanagement
+  \ingroup appearance
 
   This class is used to construct vertical box layout objects.  See \l
   QBoxLayout for more details.

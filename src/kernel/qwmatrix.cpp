@@ -49,7 +49,8 @@ double qsincos( double, bool calcCos );		// defined in qpainter_x11.cpp
 // NOT REVISED
 /*!
   \class QWMatrix qwmatrix.h
-  \ingroup graphics images
+  \ingroup graphics
+  \ingroup images
   \brief The QWMatrix class specifies 2D transformations of a
   coordinate system.
 
@@ -261,17 +262,17 @@ void QWMatrix::map( int x, int y, int *tx, int *ty ) const
 
 /*!
   \fn QPoint QWMatrix::map( const QPoint &p ) const
-  
+
   \obsolete
-  
+
   Does the same as operator *( const QPoint &)
 */
 
 /*!
   \fn QRect QWMatrix::map( const QRect &r ) const
-  
+
   \obsolete
-  
+
   Please use \l QWMatrix::mapRect() instead.
 
   Note that this method does return the bounding rectangle of the \a r, when
@@ -280,9 +281,9 @@ void QWMatrix::map( int x, int y, int *tx, int *ty ) const
 
 /*!
   \fn QPointArray QWMatrix::map( const QPointArray &a ) const
-  
+
   \obsolete
-  
+
   Does the same as operator *( const QPointArray &)
 */
 
@@ -291,7 +292,7 @@ void QWMatrix::map( int x, int y, int *tx, int *ty ) const
   Returns the transformed rectangle \a rect.
 
   The bounding rectangle is returned if rotation or shearing has been specified.
-  
+
   If you need to know the exact region \a rect maps to use \l operator*().
 
   \sa operator*()
@@ -348,12 +349,12 @@ QPointArray QWMatrix::operator *( const QPointArray &a ) const
 
 /*!
   \overload
-  
-  Transforms the rectangle \a r. 
-  
+
+  Transforms the rectangle \a r.
+
   Rotation and shearing of a rectangle results in a more general
-  region, which is returned here. 
-  
+  region, which is returned here.
+
   Calling this method can be rather expensive, if rotations or
   shearing are used.  If you just need to know the bounding rectangle
   of the returned region, use mapRect(), as the method is a lot
@@ -375,16 +376,16 @@ QRegion QWMatrix::operator * (const QRect &r ) const
 	result = QRegion( a );
     }
     return result;
-	
+
 }
 
 /*!
   \overload
-  
-  Transforms the region \a r. 
-  
+
+  Transforms the region \a r.
+
   Calling this method can be rather expensive, if rotations or
-  shearing are used.  
+  shearing are used.
 */
 QRegion QWMatrix::operator * (const QRegion &r ) const
 {
@@ -509,7 +510,7 @@ QWMatrix &QWMatrix::rotate( double a )
 }
 
 /*! \fn bool QWMatrix::isInvertible() const
-  
+
   returns TRUE if the matrix is invertible, FALSE otherwise.
 
   \sa invert()
@@ -524,7 +525,7 @@ QWMatrix &QWMatrix::rotate( double a )
   If \a *invertible is not null, the value of \a *invertible is set
   either to TRUE or FALSE to tell whether or not the matrix is
   invertible.
-  
+
   \sa invertible()
 */
 

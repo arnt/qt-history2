@@ -59,7 +59,8 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
   \class QPainter qpainter.h
   \brief The QPainter class does low-level painting e.g. on widgets.
 
-  \ingroup graphics images
+  \ingroup graphics
+  \ingroup images
 
   The painter provides highly optimized functions to do most of the
   drawing GUI programs require. QPainter can draw everything from
@@ -2733,7 +2734,8 @@ QRect QPainter::boundingRect( const QRect &r, int tf,
   \class QPen qpen.h
   \brief The QPen class defines how a QPainter should draw lines and outlines
   of shapes.
-  \ingroup graphics images
+  \ingroup graphics
+  \ingroup images
   \ingroup shared
 
   A pen has a style, width, color, cap style and join style.
@@ -3127,7 +3129,8 @@ QDataStream &operator>>( QDataStream &s, QPen &p )
 
   \brief The QBrush class defines the fill pattern of shapes drawn by a QPainter.
 
-  \ingroup graphics images
+  \ingroup graphics
+  \ingroup images
   \ingroup shared
 
   A brush has a style and a color.  One of the brush styles is a custom

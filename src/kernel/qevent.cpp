@@ -45,7 +45,8 @@
   \brief The QEvent class is the base class of all
   event classes. Event objects contain event parameters.
 
-  \ingroup events environment
+  \ingroup events
+  \ingroup environment
 
   The main event loop of Qt (QApplication::exec()) fetches
   native window system events from the event queue, translates them
@@ -2076,7 +2077,8 @@ QCustomEvent::QCustomEvent( int type )
 
 /*!
   \class QDragEnterEvent qevent.h
-  \ingroup events draganddrop
+  \ingroup events
+  \ingroup draganddrop
   \brief The QDragEnterEvent class provides an event which is sent to the widget when a drag and drop first drags onto the widget.
 
   This event is always immediately followed by a QDragMoveEvent, so you only
@@ -2097,7 +2099,8 @@ QCustomEvent::QCustomEvent( int type )
 
 /*!
   \class QDragLeaveEvent qevent.h
-  \ingroup events draganddrop
+  \ingroup events
+  \ingroup draganddrop
   \brief The QDragLeaveEvent class provides an event which is sent to the widget when a drag and drop leaves the widget.
 
   This event is always preceded by a QDragEnterEvent and a series

@@ -2305,9 +2305,9 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 }
 
 /*!
-  Returns the geometry of a cell in the cell's coordinate system. This
-  is a convenience function useful in paintCell(). It is equivalent to
-  QRect( QPoint(0,0), cellGeometry( row, col).size() );
+  Returns the geometry of cell \a row, \a col in the cell's coordinate
+  system. This is a convenience function useful in paintCell(). It is
+  equivalent to QRect( QPoint(0,0), cellGeometry( row, col).size() );
 
   \sa cellGeometry()
 */

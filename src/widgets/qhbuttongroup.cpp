@@ -38,14 +38,15 @@
 #include "qhbuttongroup.h"
 #ifndef QT_NO_HBUTTONGROUP
 
-// NOT REVISED
 /*!
   \class QHButtonGroup qhbuttongroup.h
 
   \brief The QHButtonGroup widget organizes QButton widgets in a group
   with one horizontal row.
 
-  \ingroup organizers geomanagement appearance
+  \ingroup organizers
+  \ingroup geomanagement
+  \ingroup appearance
 
   QHButtonGroup is a convenience class that offers a thin layer on top of
   QButtonGroup. Think of it as a QHBox that offers a frame with a title

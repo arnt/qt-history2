@@ -41,10 +41,9 @@
 // REVISED: paul
 /*!
   \class QBuffer qbuffer.h
-  \ingroup io collection
-  \brief The QBuffer class is an I/O device that operates on a QByteArray.
-
   \ingroup io
+  \ingroup collection
+  \brief The QBuffer class is an I/O device that operates on a QByteArray.
 
   QBuffer is used to read and write to a memory buffer. It is normally
   used with a QTextStream or a QDataStream.  QBuffer has an
@@ -105,7 +104,7 @@ QBuffer::QBuffer()
     b.at( 3 ); // position at the 4th character (the terminating \0)
     b.writeBlock( "def", 4 ); // write "def" including the terminating \0
     b.close();
-    // Now, str == "abcdef" with a terminating \0  
+    // Now, str == "abcdef" with a terminating \0
   \endcode
 
 

@@ -43,7 +43,9 @@
   \class QVBox qvbox.h
   \brief The QVBox widget provides simple geometry management on its children.
 
-  \ingroup geomanagement appearance organizers
+  \ingroup geomanagement
+  \ingroup appearance
+  \ingroup organizers
 
   All its children will be placed vertically and sized
   according to their sizeHint()s.
