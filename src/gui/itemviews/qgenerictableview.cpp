@@ -398,10 +398,12 @@ void QGenericTableView::updateGeometries()
     // update sliders
     QItemOptions options;
     getViewOptions(&options);
-    QSize def = itemDelegate()->sizeHint(fontMetrics(), options, model()->index(0, 0, 0));
 
     int h = d->viewport->height();
     int row = model()->rowCount(0);
+    if (h <= 0 || row <= 0) // if we have no viewport or no rows, there is nothing to do
+        return;
+    QSize def = itemDelegate()->sizeHint(fontMetrics(), options, model()->index(0, 0, 0));
     verticalScrollBar()->setPageStep(h / def.height() * verticalFactor());
     while (h > 0 && row > 0)
         h -= d->leftHeader->sectionSize(--row);

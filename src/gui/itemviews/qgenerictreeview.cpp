@@ -584,14 +584,13 @@ void QGenericTreeView::updateGeometries()
     // update sliders
     QItemOptions options;
     getViewOptions(&options);
-    QSize def = itemDelegate()->sizeHint(fontMetrics(), options, model()->index(0, 0, 0));
-    
-    if (def.isEmpty())
-        return;
     
     // vertical
     int h = viewport()->height();
     int item = d->items.count();
+    if (h <= 0 || item <= 0) // if we have no viewport or no rows, there is nothing to do
+        return;
+    QSize def = itemDelegate()->sizeHint(fontMetrics(), options, model()->index(0, 0, 0));
     verticalScrollBar()->setPageStep(h / def.height() * verticalFactor());
     while (h > 0 && item > 0)
         h -= itemDelegate()->sizeHint(fontMetrics(), options, d->modelIndex(--item)).height();

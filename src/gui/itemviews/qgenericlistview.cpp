@@ -182,7 +182,8 @@ void BinTree<T>::climbTree(const QRect &area, callback *function, void *data, in
     int tvs = nodeCount();
     if (index >= tvs) { // leaf
         int idx = index - tvs;
-        function(leaf(idx), area, visited, data);
+        if (tvs) // tvs == 0 => leaf is empty
+            function(leaf(idx), area, visited, data);
         return;
     }
 
