@@ -235,7 +235,7 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
 */
 
 
-static msg_handler handler = 0;			// pointer to debug handler
+static QMsgHandler handler = 0;			// pointer to debug handler
 
 
 #ifdef _OS_MAC_
@@ -669,9 +669,9 @@ void qObsolete(	 const char *message )
   \sa qDebug(), qWarning(), qFatal(), \link debug.html Debugging\endlink
 */
 
-msg_handler qInstallMsgHandler( msg_handler h )
+QMsgHandler qInstallMsgHandler( QMsgHandler h )
 {
-    msg_handler old = handler;
+    QMsgHandler old = handler;
     handler = h;
     return old;
 }
