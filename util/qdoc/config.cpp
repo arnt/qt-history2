@@ -440,7 +440,7 @@ void Config::showHelp()
 	    "  --supervisor=<yes|no>    Compare with previous run [%s]\n"
 	    "  --version                Display version of qdoc\n"
 	    "  --warning-level=<num>    Set warning level (0 to 4) [%d]\n",
-	    toYN(autoh), toYN(frend), toYN(internal), toYN(lint), maxSim,
+	    toYN(autoh), toYN(frend), toYN(internal), toYN(lin), maxSim,
 	    maxAll, toYN(super), wlevel );
     exit( EXIT_SUCCESS );
 }

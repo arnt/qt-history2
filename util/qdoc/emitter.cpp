@@ -618,7 +618,7 @@ void DocEmitter::lint() const
     while ( href != diff.end() ) {
 	if ( !(*href).startsWith("file:") && !(*href).startsWith("ftp:") &&
 	     !(*href).startsWith("http:") && !(*href).startsWith("mailto:") )
-	    message( 0, "Broken link to '%s'", (*href).latin1() );
+	    message( 0, "Broken link '%s'", (*href).latin1() );
 	++href;
     }
 }
