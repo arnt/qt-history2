@@ -5,7 +5,7 @@
 #include "qprocess.h"
 
 
-QProcessPrivate::QProcessPrivate()
+QProcessPrivate::QProcessPrivate( QProcess * )
 {
     stdinBufRead = 0;
 
