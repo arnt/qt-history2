@@ -587,8 +587,6 @@ void Dlg2Ui::emitWidgetBody( const QDomElement& e, bool layouted )
 			}
 			child = child.nextSibling();
 		    }
-		} else {
-		    syntaxError();
 		}
 	    } else {
 		QString propertyName( propertyDefs[*p].qtName );
@@ -630,11 +628,7 @@ void Dlg2Ui::emitWidgetBody( const QDomElement& e, bool layouted )
 					     !qdialogSlots.exactMatch(c.slot) )
 					    yySlots.insert( c.slot,
 							    connex.cap(1) );
-				    } else {
-					syntaxError();
 				    }
-				} else {
-				    syntaxError();
 				}
 				child = child.nextSibling();
 			    }
@@ -677,8 +671,6 @@ void Dlg2Ui::emitWidgetBody( const QDomElement& e, bool layouted )
 				    emitOpening( QString("column") );
 				    emitProperty( QString("text"), text );
 				    emitClosing( QString("column") );
-				} else {
-				    syntaxError();
 				}
 				child = child.nextSibling();
 				columnNo++;
@@ -999,12 +991,8 @@ void Dlg2Ui::matchBoxLayout( const QDomElement& boxLayout )
 		border = val.toInt();
 	    } else if ( tagName == QString("AutoBorder") ) {
 		autoBorder = val.toInt();
-	    } else if ( tagName == QString("Strut") ) {
-	    } else if ( tagName == QString("Stretch") ) {
 	    } else if ( tagName == QString("Name") ) {
 		name = val;
-	    } else {
-		syntaxError();
 	    }
 	}
 
@@ -1024,11 +1012,8 @@ void Dlg2Ui::matchBoxSpacing( const QDomElement& boxSpacing )
     while ( !n.isNull() ) {
 	QString val = getTextValue( n );
 
-	if ( n.toElement().tagName() == QString("Spacing") ) {
+	if ( n.toElement().tagName() == QString("Spacing") )
 	    spacing = val.toInt();
-	} else {
-	    syntaxError();
-	}
 	n = n.nextSibling();
     }
     emitSpacer( spacing, 0 );
@@ -1042,42 +1027,11 @@ void Dlg2Ui::matchBoxStretch( const QDomElement& boxStretch )
     while ( !n.isNull() ) {
 	QString val = getTextValue( n );
 
-	if ( n.toElement().tagName() == QString("Stretch") ) {
+	if ( n.toElement().tagName() == QString("Stretch") )
 	    stretch = val.toInt();
-	} else {
-	    syntaxError();
-	}
 	n = n.nextSibling();
     }
     emitSpacer( 0, stretch );
-}
-
-void Dlg2Ui::matchColumnInfo( const QDomElement& columnInfo )
-{
-    if ( !checkTagName(columnInfo, QString("ColumnInfo")) )
-	return;
-
-    QDomNode n = columnInfo.firstChild();
-    while ( !n.isNull() ) {
-	QString tagName = n.toElement().tagName();
-	QVariant val = getValue( n.toElement(), tagName, QString("integer") );
-
-	if ( tagName == QString("Spacing") ) {
-	} else if ( tagName == QString("Stretch") ) {
-	} else {
-	    syntaxError();
-	}
-	n = n.nextSibling();
-    }
-}
-
-void Dlg2Ui::matchColumnList( const QDomElement& columnList )
-{
-    QDomNode n = columnList.firstChild();
-    while ( !n.isNull() ) {
-	matchColumnInfo( n.toElement() );
-	n = n.nextSibling();
-    }
 }
 
 void Dlg2Ui::matchGridLayout( const QDomElement& gridLayout )
@@ -1104,22 +1058,15 @@ void Dlg2Ui::matchGridLayout( const QDomElement& gridLayout )
 		opened = TRUE;
 	    }
 	    matchLayout( n.toElement() );
-	} else if ( tagName == QString("ColumnList") ) {
-	    matchColumnList( n.toElement() );
 	} else {
-	    QString val = getTextValue( n );
-
 	    if ( tagName == QString("Border") ) {
-		border = val.toInt();
+		border = getTextValue( n ).toInt();
 	    } else if ( tagName == QString("AutoBorder") ) {
-		autoBorder = val.toInt();
+		autoBorder = getTextValue( n ).toInt();
 	    } else if ( tagName == QString("Name") ) {
-		name = val;
+		name = getTextValue( n );
 	    } else if ( tagName == QString("Menu") ) {
-		menu = val;
-	    } else if ( tagName == QString("BoxStretch") ) {
-	    } else {
-		syntaxError();
+		menu = getTextValue( n );
 	    }
 	}
 	n = n.nextSibling();
@@ -1141,14 +1088,6 @@ void Dlg2Ui::matchGridRow( const QDomElement& gridRow )
 	if ( tagName == QString("Children") ) {
 	    yyGridColumn = 0;
 	    matchLayout( n.toElement() );
-	} else {
-	    QString val = getTextValue( n );
-
-	    if ( tagName == QString("Spacing") ) {
-	    } else if ( tagName == QString("Stretch") ) {
-	    } else {
-		syntaxError();
-	    }
 	}
 	n = n.nextSibling();
     }
@@ -1170,20 +1109,10 @@ void Dlg2Ui::matchLayoutWidget( const QDomElement& layoutWidget )
     while ( !n.isNull() ) {
 	QString tagName = n.toElement().tagName();
 
-	if ( tagName == QString("Children") ) {
+	if ( tagName == QString("Children") )
 	    children = n.toElement();
-	} else {
-	    QString val = getTextValue( n );
-
-	    if ( tagName == QString("Widget") ) {
-		widget = val;
-	    } else if ( tagName == QString("BoxStretch") ) {
-	    } else if ( tagName == QString("Alignement") ||
-			tagName == QString("Alignment") ) {
-	    } else {
-		syntaxError();
-	    }
-	}
+	else if ( tagName == QString("Widget") )
+	    widget = getTextValue( n );
 	n = n.nextSibling();
     }
 
@@ -1389,8 +1318,6 @@ void Dlg2Ui::matchWidgetLayout( const QDomElement& widgetLayout )
 	    matchTabOrder( n.toElement() );
 	} else if ( tagName == QString("Layout") ) {
 	    matchLayout( n.toElement() );
-	} else {
-	    syntaxError();
 	}
 	n = n.nextSibling();
     }
@@ -1460,8 +1387,6 @@ void Dlg2Ui::matchDialog( const QDomElement& dialog )
 	    }
 	    emitClosing( QString("tabstops") );
 	}
-    } else {
-	syntaxError();
     }
 }
 

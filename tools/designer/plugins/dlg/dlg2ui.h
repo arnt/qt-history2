@@ -80,8 +80,6 @@ private:
     void matchBoxLayout( const QDomElement& boxLayout );
     void matchBoxSpacing( const QDomElement& boxSpacing );
     void matchBoxStretch( const QDomElement& boxStretch );
-    void matchColumnInfo( const QDomElement& columnInfo );
-    void matchColumnList( const QDomElement& columnList );
     void matchGridLayout( const QDomElement& gridLayout );
     void matchGridRow( const QDomElement& gridRow );
     void matchGridSpacer( const QDomElement& gridSpacer );
