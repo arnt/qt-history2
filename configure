@@ -1128,18 +1128,6 @@ if [ "$OPT_SHADOW" = "yes" ]; then
     echo "Preparing build tree..."
     [ -d $outpath/bin ] || mkdir -p $outpath/bin
 
-    # need a top level makefile, prefer gnu internally
-    if [ -f $relpath/GNUmakefile ]; then
-	rm -f $outpath/Makefile
-	ln -s $relpath/GNUmakefile $outpath/Makefile
-    elif [ -f $relpath/Makefile ]; then
-	rm -f $outpath/Makefile
-	ln -s $relpath/Makefile $outpath/Makefile
-    else
-	echo "No top level Makefile." >&2
-	exit 1
-    fi
-
     # symlink the qmake directory
     for a in `find $relpath/qmake`; do
 	my_a=`echo $a | sed "s,^${relpath}/,${outpath}/,"`
@@ -1194,14 +1182,6 @@ if [ "$OPT_SHADOW" = "yes" ]; then
     # symlink the doc directory
     rm -f $outpath/doc
     ln -s $relpath/doc $outpath/doc
-else
-    # override the Windows Makefile
-    if [ -f "$relpath/GNUmakefile" ]; then
-	[ "$Edition" = "troll" ] && $WHICH chflags >/dev/null 2>&1 && chflags nouchg $outpath/Makefile
-	rm -f $outpath/Makefile
-	cp $relpath/GNUmakefile $outpath/Makefile
-	chmod +w $outpath/Makefile
-    fi
 fi
 
 # binaries from qt
@@ -3407,12 +3387,11 @@ else
 	done
 	[ ! -z "$put_in" ] && QT_PROJECTS="$QT_PROJECTS $put_in"
     done
-    if [ -e "${relpath}/projects.pro" ]; then
-	for mkfile in "${outpath}/Makefile" "${outpath}/GNUmakefile"; do
-	    [ -f "$mkfile" ] && chmod +w "$mkfile"
-	    $outpath/bin/qmake "QT_PROJECTS=$QT_PROJECTS" ${relpath}/projects.pro -o $mkfile
-	done
-    fi
+fi
+if [ -e "${relpath}/projects.pro" ]; then
+    mkfile="${outpath}/Makefile"
+    [ -f "$mkfile" ] && chmod +w "$mkfile"
+    $outpath/bin/qmake "QT_PROJECTS=$QT_PROJECTS" ${relpath}/projects.pro -o $mkfile
 fi
 
 # .projects      -> projects to process

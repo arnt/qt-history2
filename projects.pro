@@ -14,10 +14,7 @@ TEMPLATE = subdirs
 isEmpty(QT_PROJECTS) {
    QT_PROJECTS = qmake qt plugins tools examples tutorials
    qmake:!win32-msvc.net:SUBDIRS+=qmake	  
-   qt {
-      SUBDIRS  = src/qt.pro 
-      win32:SUBDIRS += src/qtmain.pro 
-   }
+   qt:SUBDIRS  = src/qtlibs.pro 
    plugins:SUBDIRS += plugins/src
    tools:SUBDIRS += tools
    examples:SUBDIRS += examples
@@ -26,3 +23,8 @@ isEmpty(QT_PROJECTS) {
    SUBDIRS += $$QT_PROJECTS
 }
 
+unix {
+  confclean.depends += clean
+  confclean.commands += $(DEL_FILE) .qmake.cache
+  QMAKE_EXTRA_UNIX_TARGETS += confclean
+}
