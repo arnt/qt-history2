@@ -3260,23 +3260,10 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
     rx += xoffs;
     ry += yoffs;
     QRect cr;
-#if 0 //WRONG, must change source offset if changing rx or ry
-    // Gross clip
-    if ( rx < clipbounds.left() ) {
-	w -= clipbounds.left()-rx;
-	rx = clipbounds.left();
-    }
-    if ( ry < clipbounds.top() ) {
-	h -= clipbounds.top()-ry;
-	ry = clipbounds.top();
-    }
-    if ( rx+w-1 > clipbounds.right() )
-	w = clipbounds.right()-rx+1;
-    if ( ry+h-1 > clipbounds.bottom() )
-	h = clipbounds.bottom()-ry+1;
-    if ( w <= 0 || h <= 0 )
+
+    // Very gross clip
+    if ( !clipbounds.intersects(QRect(rx,ry,w,h)) )
 	return;
-#endif
 
     QRect cursRect(rx, ry, w+1, h+1);
 
