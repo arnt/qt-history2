@@ -1288,9 +1288,9 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
 	c = currentItem();
 	if ( ++c < count() )
 	    setCurrentItem( c );
-    } else if ( d->usingListBox() && e->key() == Key_Home ) {
+    } else if ( d->usingListBox() && e->key() == Key_Home && ( !d->ed || !d->ed->hasFocus() ) ) {
 	setCurrentItem( 0 );
-    } else if ( d->usingListBox() && e->key() == Key_End ) {
+    } else if ( d->usingListBox() && e->key() == Key_End && ( !d->ed || !d->ed->hasFocus() ) ) {
 	setCurrentItem( count()-1 );
     } else if ( /* d->useCompletion && */ d->ed == 0 &&
 		e->text() != QString::null ) {
