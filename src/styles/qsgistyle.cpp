@@ -496,7 +496,9 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
     const int h = r.height();
     const bool sunken = flags & ( Style_Sunken | Style_Down | Style_On );
     const int defaultFrameWidth = pixelMetric( PM_DefaultFrameWidth );
-    const bool hot = ( flags & Style_MouseOver ) && r.contains( d->mousePos );
+    const bool hot = ( flags & Style_MouseOver ) && ( flags & Style_Enabled ) && r.contains( d->mousePos );
+    if ( !hot )
+	flags &= ~Style_MouseOver;
 
     switch ( pe ) {
     case PE_ButtonCommand:
@@ -1122,12 +1124,16 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 
     case CC_ScrollBar:
 	{
+	    QScrollBar *scrollbar = (QScrollBar*)widget;
+	    bool maxedOut = (scrollbar->minValue() == scrollbar->maxValue());
 	    if ( sub & SC_ScrollBarGroove ) {
 		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarGroove, data ), widget );
 		qDrawShadePanel(p, widget->rect(), cg, TRUE,
   				pixelMetric(PM_DefaultFrameWidth, widget),
   				&cg.brush(QColorGroup::Mid));
 	    }
+	    if ( maxedOut )
+		flags &= ~Style_Enabled;
 	    if ( sub & SC_ScrollBarAddLine ) {
 		QRect er = QStyle::visualRect( querySubControlMetrics( CC_ScrollBar, widget, SC_ScrollBarAddLine, data ), widget );
 		drawPrimitive( PE_ScrollBarAddLine, p, er, cg, flags, data );
@@ -1226,6 +1232,9 @@ QRect QSGIStyle::querySubControlMetrics( ComplexControl control,
 	    break;
 	}
 	break;
+
+    case CC_ScrollBar:
+	return QCommonStyle::querySubControlMetrics( control, widget, sub, data );
 
     default:
 	return QMotifStyle::querySubControlMetrics( control, widget, sub, data );
