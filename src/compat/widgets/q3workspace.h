@@ -26,7 +26,6 @@ class Q3WorkspacePrivate;
 class Q_COMPAT_EXPORT Q3Workspace : public QWidget
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(Q3Workspace)
     Q_PROPERTY(bool scrollBarsEnabled READ scrollBarsEnabled WRITE setScrollBarsEnabled)
 
 public:
@@ -75,6 +74,7 @@ protected:
 #endif
 
 private:
+    Q_DECLARE_PRIVATE(Q3Workspace)
     Q_DISABLE_COPY(Q3Workspace)
     Q_PRIVATE_SLOT(d, void normalizeActiveWindow())
     Q_PRIVATE_SLOT(d, void minimizeActiveWindow())
