@@ -1228,8 +1228,6 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		theme.rec = querySubControlMetrics( CC_ToolButton, w, SC_ToolButtonMenu, opt );
 		if (mflags & (Style_Down | Style_On | Style_Raised))
 		    drawPrimitive(PE_ButtonDropDown, p, theme.rec, cg, mflags, opt);
-		else
-		    drawPrimitive( PE_ArrowDown, p, theme.rec, cg, mflags, opt );
 	    }
 
 	    if ( tb->hasFocus() && !tb->focusProxy() ) {
@@ -1588,7 +1586,7 @@ int QWindowsXPStyle::pixelMetric( PixelMetric metric,
 	    if ( theme.isValid() ) {
 		SIZE size;
 		GetThemePartSize( theme.handle(), NULL, theme.partId, theme.stateId, 0, TS_TRUE, &size );
-		return size.cy;
+		return size.cx;
 	    }
 	}
 	break;
