@@ -244,7 +244,7 @@ CFG_SM=auto
 CFG_XSHAPE=auto
 CFG_XINERAMA=auto
 CFG_BIG_CODECS=yes
-CFG_ZLIB=yes
+CFG_ZLIB=auto
 CFG_PNG=yes
 CFG_LIBPNG=auto
 CFG_JPEG=auto
@@ -1076,6 +1076,15 @@ if [ "$CFG_LIBJPEG" = "auto" ]; then
        CFG_LIBMNG=system
     else
        CFG_LIBJPEG=qt
+    fi
+fi
+
+#detect zlib
+if [ "$CFG_ZLIB" = "auto" ]; then
+    if $unixtests/checkavail "libzlib" -lz; then
+       CFG_ZLIB=system
+    else
+       CFG_ZLIB=yes
     fi
 fi
 
@@ -2777,6 +2786,8 @@ elif [ "$CFG_GIF" = "yes" ]; then
     QT_CONFIG="$QT_CONFIG gif"
 fi
 if [ "x$PLATFORM_MAC" = "xyes" ]; then
+    #On Mac we implicitly link against libz, so we
+    #never use the 3rdparty stuff.
     [ "$CFG_ZLIB" = "yes" ] && CFG_ZLIB="system"
 fi
 if [ "$CFG_ZLIB" = "no" ]; then
