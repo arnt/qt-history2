@@ -508,7 +508,7 @@ void QWSDisplay::Data::init()
         // now we want to get the exact display spec to use if we haven't
         // specified anything.
         if (qws_display_spec[0] == ':')
-            qws_display_spec = connected_event->display;
+            qws_display_spec = strdup(connected_event->display); //###memory leak
 
         if (!QWSDisplay::initLock(pipe, false))
             qFatal("Cannot get display lock");
@@ -849,6 +849,7 @@ QWSDisplay::~QWSDisplay()
 {
     delete dd;
     delete lock;
+    lock = 0;
 }
 
 QWSRegionManager *QWSDisplay::regionManager() const
@@ -965,6 +966,9 @@ bool QWSDisplay::getProperty(int winId, int property, char *&data, int &len)
 void QWSDisplay::setAltitude(int winId, int alt, bool fixed)
 {
     QWSChangeAltitudeCommand cmd;
+#ifdef QT_DEBUG
+    memset(cmd.simpleDataPtr, 0, sizeof(cmd.simpleData)); //shut up Valgrind
+#endif
     cmd.simpleData.windowid = winId;
     cmd.simpleData.altitude = alt;
     cmd.simpleData.fixed = fixed;
@@ -1273,6 +1277,9 @@ void QWSDisplay::grabMouse(QWidget *w, bool grab)
 {
     QWidget *top = w->topLevelWidget();
     QWSGrabMouseCommand cmd;
+#ifdef QT_DEBUG
+    memset(cmd.simpleDataPtr, 0, sizeof(cmd.simpleData)); //shut up Valgrind
+#endif
     cmd.simpleData.windowid = top->winId();
     cmd.simpleData.grab = grab;
     d->sendCommand(cmd);
@@ -1283,6 +1290,9 @@ void QWSDisplay::grabKeyboard(QWidget *w, bool grab)
 {
     QWidget *top = w->topLevelWidget();
     QWSGrabKeyboardCommand cmd;
+#ifdef QT_DEBUG
+    memset(cmd.simpleDataPtr, 0, sizeof(cmd.simpleData)); //shut up Valgrind
+#endif
     cmd.simpleData.windowid = top->winId();
     cmd.simpleData.grab = grab;
     d->sendCommand(cmd);
@@ -1514,8 +1524,10 @@ void qt_init(QApplicationPrivate *priv, int type)
 
     // Set application name
 
-    p = strrchr(argv[0], '/');
-    appName = p ? p + 1 : argv[0];
+    if (argv && *argv) { //apparently, we allow people to pass 0 on the other platforms
+        p = strrchr(argv[0], '/');
+        appName = p ? p + 1 : argv[0];
+    }
 
     // Get command line params
 
@@ -1651,6 +1663,7 @@ void qt_cleanup()
 
 #ifndef QT_NO_QWS_MANAGER
     delete qws_decoration;
+    qws_decoration = 0;
 #endif
 
     delete activeBeforePopup;
