@@ -44,7 +44,7 @@ contains(QT_CONFIG, largefile):CONFIG += largefile
 mac:contains(QT_CONFIG, qt_framework) {
    !debug_and_release|build_pass {
       QMAKE_FRAMEWORK_BUNDLE_NAME = $$TARGET
-      CONFIG += lib_bundle qt_no_framework_direct_includes qt_force_framework
+      CONFIG += lib_bundle qt_no_framework_direct_includes qt_framework
       FRAMEWORK_HEADERS.version = Versions
       FRAMEWORK_HEADERS.files = $$SYNCQT.HEADER_FILES $$SYNCQT.HEADER_CLASSES
       FRAMEWORK_HEADERS.path = Headers
