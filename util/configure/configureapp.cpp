@@ -53,12 +53,12 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
     dictionary[ "BIG_CODECS" ]	    = "yes";
     dictionary[ "TABLET" ]	    = "no";
 
-    dictionary[ "STYLE_WINDOWS" ]   = "direct";
-    dictionary[ "STYLE_MOTIF" ]	    = "direct";
-    dictionary[ "STYLE_MOTIFPLUS" ] = "direct";
-    dictionary[ "STYLE_PLATINUM" ]  = "direct";
-    dictionary[ "STYLE_SGI" ]	    = "direct";
-    dictionary[ "STYLE_CDE" ]	    = "direct";
+    dictionary[ "STYLE_WINDOWS" ]   = "yes";
+    dictionary[ "STYLE_MOTIF" ]	    = "yes";
+    dictionary[ "STYLE_MOTIFPLUS" ] = "yes";
+    dictionary[ "STYLE_PLATINUM" ]  = "yes";
+    dictionary[ "STYLE_SGI" ]	    = "yes";
+    dictionary[ "STYLE_CDE" ]	    = "yes";
 
     dictionary[ "SQL_MYSQL" ]	    = "no";
     dictionary[ "SQL_ODBC" ]	    = "no";
