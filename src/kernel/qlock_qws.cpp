@@ -38,7 +38,7 @@
 #include <errno.h>
 
 #if defined(__GNU_LIBRARY__) && !defined(_SEM_SEMUN_UNDEFINED) \
-    || defined _OS_FREEBSD_
+    || defined (Q_OS_FREEBSD)
 /* union semun is defined by including <sys/sem.h> */
 #else
 /* according to X/OPEN we have to define it ourselves */

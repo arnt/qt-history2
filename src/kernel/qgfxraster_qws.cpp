@@ -59,7 +59,7 @@ typedef __signed__ int __s32;
 typedef unsigned int __u32;
 #endif
 
-#if !defined(_OS_FREEBSD_) && !defined (QT_NO_QWS_LINUXFB)
+#if !defined(Q_OS_FREEBSD) && !defined (QT_NO_QWS_LINUXFB)
 #include <linux/fb.h>
 
 #ifdef __i386__

@@ -51,7 +51,7 @@
 #include <signal.h>
 
 #include <termios.h>
-#if !defined(_OS_FREEBSD_) && !defined(_OS_QNX_)
+#if !defined(Q_OS_FREEBSD) && !defined(Q_OS_QNX)
 #include <sys/kd.h>
 #include <sys/vt.h>
 #endif
@@ -240,7 +240,7 @@ private:
 
 static void vtSwitchHandler(int /*sig*/)
 {
-#if !defined(_OS_FREEBSD_)
+#if !defined(Q_OS_FREEBSD)
     if (vtActive) {
 	qwsServer->enablePainting(false);
 	qt_screen->save();
@@ -428,7 +428,7 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
     if (term && !release) {
 	ctrl = 0;
 	alt = 0;
-#if !defined(_OS_FREEBSD_)
+#if !defined(Q_OS_FREEBSD)
 	ioctl(kbdFD, VT_ACTIVATE, term);
 #endif
 	return;
@@ -506,7 +506,7 @@ QWSTtyKeyboardHandler::QWSTtyKeyboardHandler()
     struct termios termdata;
     tcgetattr( kbdFD, &termdata );
 
-#if !defined(_OS_FREEBSD_)
+#if !defined(Q_OS_FREEBSD)
     ioctl(kbdFD, KDSKBMODE, K_RAW);
 #endif
 
@@ -522,7 +522,7 @@ QWSTtyKeyboardHandler::QWSTtyKeyboardHandler()
 
     signal(VTSWITCHSIG, vtSwitchHandler);
 
-#if !defined(_OS_FREEBSD_)
+#if !defined(Q_OS_FREEBSD)
     struct vt_mode vtMode;
     ioctl(kbdFD, VT_GETMODE, &vtMode);
 
@@ -542,7 +542,7 @@ QWSTtyKeyboardHandler::~QWSTtyKeyboardHandler()
 {
     if (kbdFD >= 0)
     {
-#if !defined(_OS_FREEBSD_)
+#if !defined(Q_OS_FREEBSD)
 	ioctl(kbdFD, KDSKBMODE, K_XLATE);
 #endif
 	tcsetattr(kbdFD, TCSANOW, &origTermData);

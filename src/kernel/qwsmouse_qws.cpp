@@ -297,7 +297,7 @@ protected:
 	tty.c_oflag     = 0;
 	tty.c_lflag     = 0;
 	tty.c_cflag     = f | CREAD | CLOCAL | HUPCL;
-#if !defined(_OS_FREEBSD_) && !defined(QT_QWS_QNX)
+#if !defined(Q_OS_FREEBSD) && !defined(QT_QWS_QNX)
 	tty.c_line      = 0;
 #endif
 	tty.c_cc[VTIME] = 0;
@@ -834,7 +834,7 @@ QWSMouseHandlerPrivate::QWSMouseHandlerPrivate( MouseProtocol protocol,
 		tty.c_iflag = IGNBRK | IGNPAR;
 		tty.c_oflag = 0;
 		tty.c_lflag = 0;
-#if !defined(_OS_FREEBSD_) && !defined(QT_QWS_QNX)
+#if !defined(Q_OS_FREEBSD) && !defined(QT_QWS_QNX)
 		tty.c_line = 0;
 #endif
 		tty.c_cc[VTIME] = 0;

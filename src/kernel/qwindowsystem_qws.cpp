@@ -837,7 +837,7 @@ QWSServer::QWSServer( int flags, QObject *parent, const char *name ) :
 #ifndef QT_NO_QWS_MULTIPROCESS
 
     if ( !geteuid() ) {
-#if !defined(_OS_FREEBSD_)
+#if !defined(Q_OS_FREEBSD)
 	if(mount(0,"/var/shm","shm",0,0)) {
 #else
 	if( mount("shm", "/var/shm", 0, 0) ) {
@@ -1217,7 +1217,7 @@ void QWSServer::sendMaxWindowRectEvents()
 }
 
 /*!
-  Set the mouse driver \a m to use if $QWS_MOUSE_PROTO is not defined. 
+  Set the mouse driver \a m to use if $QWS_MOUSE_PROTO is not defined.
   The default is platform-dependant.
 */
 void QWSServer::setDefaultMouse( const char *m )
@@ -1226,7 +1226,7 @@ void QWSServer::setDefaultMouse( const char *m )
 }
 
 /*!
-  Set the keyboard driver \a k to use if $QWS_KEYBOARD is not defined. 
+  Set the keyboard driver \a k to use if $QWS_KEYBOARD is not defined.
   The default is platform-dependant.
 */
 
@@ -2276,7 +2276,7 @@ void QWSServer::refreshBackground()
 
 
 /*!
-  Sets the image \a img to use as the background in the absence of obscuring 
+  Sets the image \a img to use as the background in the absence of obscuring
   windows.
 */
 
@@ -2294,7 +2294,7 @@ void QWSServer::setDesktopBackground( const QImage &img )
 
 /*!
   \overload
-  Sets the color \a c to use as the background in the absence of obscuring 
+  Sets the color \a c to use as the background in the absence of obscuring
   windows.
 */
 
@@ -2475,7 +2475,7 @@ This determines what sort of QWS server to create:
 /*!
   \class QWSServer::KeyMap
   \brief The QWSServer::KeyMap class is used for mapping scancodes.
-  
+
   The KeyMap structure records an individual KeyMap entry in the
   array used to map keyboard scancodes to Qt key codes and unicode
   values.
@@ -2483,9 +2483,9 @@ This determines what sort of QWS server to create:
 
 /*!
   \class QWSServer::KeyboardFilter
-  \brief The QWSServer::KeyboardFilter class provides a global keyboard 
+  \brief The QWSServer::KeyboardFilter class provides a global keyboard
   event filter.
-  
+
   The KeyboardFilter class is used to implement a global, low-level
   filter on key events in the Qt/Embedded server application; this
   can be used to implement things like APM suspend from a button
