@@ -243,7 +243,7 @@ void QGroupBox::paintEvent(QPaintEvent *event)
         if(va & AlignTop)
             r.moveBy(0, fm.descent());
         QColor pen((QRgb) style().styleHint(QStyle::SH_GroupBox_TextLabelColor, this));
-        if (!style().styleHint(QStyle::SH_UnderlineAccelerator, this))
+        if (!style().styleHint(QStyle::SH_UnderlineShortcut, this))
             va |= NoAccel;
         style().drawItem(&paint, r, ShowPrefix | AlignHCenter | va, palette(),
                           isEnabled(), d->str, -1, testAttribute(WA_SetPalette) ? 0 : &pen);

@@ -783,7 +783,7 @@ void QCommonStyle::drawControl(ControlElement element,
             }
 
             int tf=AlignVCenter | ShowPrefix;
-            if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
+            if (!styleHint(SH_UnderlineShortcut, widget, QStyleOption::Default, 0))
                 tf |= NoAccel;
 
 #ifndef QT_NO_ICONSET
@@ -835,7 +835,7 @@ void QCommonStyle::drawControl(ControlElement element,
             const QCheckBox *checkbox = (const QCheckBox *) widget;
 
             int alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
-            if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
+            if (!styleHint(SH_UnderlineShortcut, widget, QStyleOption::Default, 0))
                 alignment |= NoAccel;
             drawItem(p, r, alignment | AlignVCenter | ShowPrefix, pal,
                      flags & Style_Enabled,
@@ -862,7 +862,7 @@ void QCommonStyle::drawControl(ControlElement element,
             const QRadioButton *radiobutton = (const QRadioButton *) widget;
 
             int alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
-            if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
+            if (!styleHint(SH_UnderlineShortcut, widget, QStyleOption::Default, 0))
                 alignment |= NoAccel;
             drawItem(p, r, alignment | AlignVCenter | ShowPrefix, pal,
                     flags & Style_Enabled,
@@ -936,7 +936,7 @@ void QCommonStyle::drawControl(ControlElement element,
                               pixelMetric(QStyle::PM_DefaultFrameWidth, tb));
 
             int alignment = AlignCenter | ShowPrefix;
-            if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
+            if (!styleHint(SH_UnderlineShortcut, widget, QStyleOption::Default, 0))
                 alignment |= NoAccel;
             drawItem(p, tr, alignment, pal, flags & Style_Enabled, t->text());
 
@@ -1086,7 +1086,7 @@ void QCommonStyle::drawControl(ControlElement element,
 
             QAction *mi = opt.action();
             int alignment = AlignCenter|ShowPrefix|DontClip|SingleLine;
-            if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
+            if (!styleHint(SH_UnderlineShortcut, widget, QStyleOption::Default, 0))
                 alignment |= NoAccel;
             QPixmap pix = mi->icon().pixmap(QIconSet::Small, QIconSet::Normal);
             drawItem(p, r, alignment, pal, flags & Style_Enabled, pix, mi->text(), -1,
@@ -1104,7 +1104,7 @@ void QCommonStyle::drawControl(ControlElement element,
 
             Q3MenuItem *mi = opt.menuItem();
             int alignment = AlignCenter|ShowPrefix|DontClip|SingleLine;
-            if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
+            if (!styleHint(SH_UnderlineShortcut, widget, QStyleOption::Default, 0))
                 alignment |= NoAccel;
             drawItem(p, r, alignment, pal,
                       flags & Style_Enabled, *mi->pixmap(), mi->text(),
@@ -1149,7 +1149,7 @@ void QCommonStyle::drawControl(ControlElement element,
                     ! toolbutton->text().isNull() &&
                     ! toolbutton->usesTextLabel()) {
                     int alignment = AlignCenter | ShowPrefix;
-                    if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
+                    if (!styleHint(SH_UnderlineShortcut, widget, QStyleOption::Default, 0))
                         alignment |= NoAccel;
                     rect.moveBy(shiftX, shiftY);
                     drawItem(p, rect, alignment, pal,
@@ -1174,7 +1174,7 @@ void QCommonStyle::drawControl(ControlElement element,
                         p->setFont(toolbutton->font());
                         QRect pr = rect, tr = rect;
                         int alignment = ShowPrefix;
-                        if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
+                        if (!styleHint(SH_UnderlineShortcut, widget, QStyleOption::Default, 0))
                             alignment |= NoAccel;
 
                         if (toolbutton->textPosition() == QToolButton::Under) {
@@ -1312,7 +1312,7 @@ void QCommonStyle::drawControl(ControlElement ce, const Q4StyleOption *opt,
         if (Q4StyleOptionButton *btn = qt_cast<Q4StyleOptionButton *>(opt)) {
             bool isRadio = (ce == CE_RadioButtonLabel);
             uint alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
-            if (styleHint(SH_UnderlineAccelerator, w, QStyleOption::Default, 0))
+            if (styleHint(SH_UnderlineShortcut, w, QStyleOption::Default, 0))
                 alignment |= NoAccel;
             QPixmap pix;
             if (btn->icon.isNull())
@@ -3301,7 +3301,7 @@ int QCommonStyle::styleHint(StyleHint sh, const QWidget * w, const QStyleOption 
         ret = 1;
         break;
 
-    case SH_UnderlineAccelerator:
+    case SH_UnderlineShortcut:
         ret = 1;
         break;
 

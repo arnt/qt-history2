@@ -1310,7 +1310,7 @@ void QWindowsXPStyle::drawControl(ControlElement element,
             if (!s.isNull()) {                        // draw text
                 int t = s.indexOf('\t');
                 int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
-                if (!styleHint(SH_UnderlineAccelerator, widget))
+                if (!styleHint(SH_UnderlineShortcut, widget))
                     text_flags |= NoAccel;
                 text_flags |= (QApplication::reverseLayout() ? AlignRight : AlignLeft);
                 if (t >= 0) {                         // draw tab text

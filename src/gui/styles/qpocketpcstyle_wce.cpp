@@ -878,7 +878,7 @@ int QPocketPCStyle::styleHint(StyleHint                  stylehint,
     // TabBar should not suggest a size to prevent scroll arrows
     case SH_TabBar_PreferNoArrows:
     // Don't show underlines on accelerators
-    case SH_UnderlineAccelerator:
+    case SH_UnderlineShortcut:
     // Comboboxes do not use popup menus
     case SH_ComboBox_Popup:
     // Menus and popups do not use mousetracking

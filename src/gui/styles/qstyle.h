@@ -738,8 +738,8 @@ public:
         // QEvent::Type - which mouse event to select a list view expansion
         SH_ListViewExpand_SelectMouseType,
 
-        //bool - if underline for accelerators
-        SH_UnderlineAccelerator,
+        //bool - if underline for shortcuts
+        SH_UnderlineShortcut,
 
         // bool - if tool buttons should use a 3D frame
         // when the mouse is over the button
@@ -760,6 +760,7 @@ public:
         SH_Menu_FillScreenWithScroll,
 
 #ifdef QT_COMPAT
+        SH_UnderlineAccelerator = SH_UnderlineShortcut,
         SH_Q3PopupMenu_SpaceActivatesItem = SH_Menu_SpaceActivatesItem,
         SH_Q3PopupMenu_SubMenuPopupDelay = SH_Menu_SubMenuPopupDelay,
         SH_Q3PopupMenu_AllowActiveAndDisabled = SH_Menu_AllowActiveAndDisabled,

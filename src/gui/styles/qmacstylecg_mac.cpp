@@ -1592,7 +1592,7 @@ int QMacStyleCG::styleHint(StyleHint sh, const QWidget *widget, const QStyleOpti
     case SH_Widget_ShareActivation:
         ret = true;
         break;
-    case SH_UnderlineAccelerator:
+    case SH_UnderlineShortcut:
         ret = false;
         break;
     case SH_TabBar_PreferNoArrows:

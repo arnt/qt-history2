@@ -2465,7 +2465,7 @@ int QMacStyleQD::styleHint(StyleHint sh, const QWidget *w,
     case SH_TabBar_Alignment:
         ret = Qt::AlignHCenter;
         break;
-    case SH_UnderlineAccelerator:
+    case SH_UnderlineShortcut:
         ret = false;
         break;
     default:

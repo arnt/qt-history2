@@ -1739,7 +1739,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
 
     \value SH_Table_GridLineColor
 
-    \value SH_UnderlineAccelerator whether shortcuts are underlined
+    \value SH_UnderlineShortcut whether shortcuts are underlined
 
     \value SH_SpinBox_AnimateButton animate a click when up or down is pressed in a spin box
     \value SH_SpinBox_KeyPressAutoRepeatRate autorepeat interval for

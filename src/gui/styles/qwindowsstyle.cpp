@@ -114,7 +114,7 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
             for (int pos=0; pos<l.size(); ++pos) {
                 QWidget *w = l.at(pos);
                 if (w->isTopLevel() || !w->isVisible() ||
-                    w->style().styleHint(SH_UnderlineAccelerator, w))
+                    w->style().styleHint(SH_UnderlineShortcut, w))
                     l.removeAt(pos);
             }
             // Update states before repainting
@@ -207,7 +207,7 @@ QWindowsStyle::~QWindowsStyle()
 void QWindowsStyle::polish(QApplication *app)
 {
     // We only need the overhead when shortcuts are sometimes hidden
-    if (!styleHint(SH_UnderlineAccelerator, 0)) {
+    if (!styleHint(SH_UnderlineShortcut, 0)) {
         d = new Private(this);
         app->installEventFilter(d);
     }
@@ -982,7 +982,7 @@ void QWindowsStyle::drawControl(ControlElement element,
             if (!s.isNull()) {                        // draw text
                 int t = s.indexOf('\t');
                 int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
-                if (!styleHint(SH_UnderlineAccelerator, widget))
+                if (!styleHint(SH_UnderlineShortcut, widget))
                     text_flags |= NoAccel;
                 text_flags |= (QApplication::reverseLayout() ? AlignRight : AlignLeft);
                 if (t >= 0) {                         // draw tab text
@@ -1168,7 +1168,7 @@ void QWindowsStyle::drawControl(ControlElement element,
             if (!s.isNull()) {                        // draw text
                 int t = s.indexOf('\t');
                 int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
-                if (!styleHint(SH_UnderlineAccelerator, widget))
+                if (!styleHint(SH_UnderlineShortcut, widget))
                     text_flags |= NoAccel;
                 text_flags |= (QApplication::reverseLayout() ? AlignRight : AlignLeft);
                 if (t >= 0) {                         // draw tab text
@@ -2317,7 +2317,7 @@ int QWindowsStyle::styleHint(StyleHint hint,
         break;
 
 #if defined(Q_WS_WIN)
-    case SH_UnderlineAccelerator:
+    case SH_UnderlineShortcut:
         ret = 1;
         if (QSysInfo::WindowsVersion != QSysInfo::WV_95 && QSysInfo::WindowsVersion != QSysInfo::WV_NT) {
             BOOL cues;

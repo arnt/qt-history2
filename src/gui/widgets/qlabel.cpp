@@ -847,7 +847,7 @@ void QLabel::paintEvent(QPaintEvent *)
         }
 #endif
         int alignment = d->align;
-        if ((alignment & ShowPrefix) && !style().styleHint(QStyle::SH_UnderlineAccelerator, this))
+        if ((alignment & ShowPrefix) && !style().styleHint(QStyle::SH_UnderlineShortcut, this))
             alignment |= NoAccel;
         // ordinary text or pixmap label
         style().drawItem(&paint, cr, alignment, palette(), isEnabled(), pix, d->ltext);
