@@ -1106,11 +1106,15 @@ void SetupWizardImpl::showPageProgress()
 	QFile licenseFile( installDir.filePath("LICENSE") );
 	if ( licenseFile.open( IO_WriteOnly ) ) {
 	    ResourceLoader *rcLoader;
+#if defined(EVAL)
+	    rcLoader = new ResourceLoader( "LICENSE" );
+#else
 	    if ( usLicense ) {
 		rcLoader = new ResourceLoader( "LICENSE-US" );
 	    } else {
 		rcLoader = new ResourceLoader( "LICENSE" );
 	    }
+#endif
 	    if ( rcLoader->isValid() ) {
 		licenseFile.writeBlock( rcLoader->data() );
 	    } else {
@@ -1557,7 +1561,7 @@ void SetupWizardImpl::licenseChanged()
     testFeature = Feature_Windows;
     platformString = "Windows";
 #endif
-    if ( !(features&testFeature) ) {
+    if ( !(features&testFeature) && currentPage() == licensePage ) {
 	if ( features & (Feature_Unix|Feature_Windows|Feature_Mac|Feature_Embedded) ) {
 	    int ret = QMessageBox::information( this,
 		    tr("No %1 license").arg(platformString),
@@ -1575,7 +1579,7 @@ void SetupWizardImpl::licenseChanged()
 	}
 	goto rejectLicense;
     }
-    if ( date < QDate::currentDate() ) {
+    if ( date < QDate::currentDate() && currentPage() == licensePage ) {
 	static bool alreadyShown = FALSE;
 	if ( !alreadyShown ) {
 	    QMessageBox::warning( this,
@@ -1880,11 +1884,15 @@ void SetupWizardImpl::readLicenseAgreement()
 {
     // Intropage
     ResourceLoader *rcLoader;
+#if defined(EVAL)
+    rcLoader = new ResourceLoader( "LICENSE" );
+#else
     if ( usLicense ) {
 	rcLoader = new ResourceLoader( "LICENSE-US" );
     } else {
 	rcLoader = new ResourceLoader( "LICENSE" );
     }
+#endif
     if ( rcLoader->isValid() ) {
 	licenseAgreementPage->introText->setText( rcLoader->data() );
 	licenseAgreementPage->acceptLicense->setEnabled( TRUE );
@@ -1902,4 +1910,17 @@ bool SetupWizardImpl::findXPSupport()
     return findFileInPaths( "uxtheme.lib", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "LIB" ) ) ) &&
 	findFileInPaths( "uxtheme.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) ) &&
 	findFileInPaths( "tmschema.h", QStringList::split( QRegExp( "[;,]" ), QEnvironment::getEnv( "INCLUDE" ) ) );
+}
+
+void SetupWizardImpl::accept()
+{
+#if defined(Q_OS_WIN32)
+    if ( finishPage->showReadmeCheck->isChecked() ) {
+	QProcess proc( QString("notepad.exe") );
+	QString qtDir = QEnvironment::getEnv( "QTDIR" );
+	proc.addArgument( qtDir + "\\README" );
+	proc.start();
+    }
+#endif
+    QDialog::accept();
 }

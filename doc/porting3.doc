@@ -72,6 +72,28 @@ Table of contents:
 
 \tableofcontents
 
+\target Linkerrors
+\section1 Link errors on Windows
+
+On Windows, originally in Qt 2.x, the default configuration of the Qt
+library is static. If you just use the default configuration you
+don't need to set certain preprocessor defines.  In Qt 3.0, the
+default configuration of the Qt library is to build it as a shared
+library, therefore the preprocessor define \c QT_DLL is needed.
+
+If you use tmake with Qt 2.x, and now use qmake with Qt 3.x, then the
+cause of the problem is with the project file. In the project file,
+there is usually line that looks like:
+
+\c CONFIG = ...
+
+this should be changed to 
+
+\c CONFIG += ...
+
+so that qmake can look at the configuration that Qt was built with and
+set any relevant preprocessor defines in the makefile.
+
 \target Headers
 \section1 Header file inclusion changes
 
@@ -169,8 +191,6 @@ All these functions have been removed in Qt 3.x:
 \i QMenuBar::setWindowsAltMode()
 \i QPainter::drawQuadBezier()
 \i QPointArray::quadBezier()
-\i QPushButton::downButton()
-\i QPushButton::upButton()
 \i QRegExp::find()
 \i QSpinBox::downButton()
 \i QSpinBox::upButton()

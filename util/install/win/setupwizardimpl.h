@@ -41,6 +41,9 @@ private:
     void saveSettings();
     void saveSet( QListView* list );
 
+protected slots:
+    void accept(); // reimplemented from QDialog
+
 private slots:
     void clickedPath();
     void clickedSystem( int );
@@ -95,7 +98,9 @@ private:
     bool persistentEnv;
     int filesToCompile;
     int filesCompiled;
+#if !defined(EVAL)
     bool usLicense;
+#endif
 
     QString currentOLine;
     QString currentELine;

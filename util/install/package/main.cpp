@@ -24,26 +24,68 @@ static int usage(const char *argv0, const char *un=NULL) {
     fprintf(stderr, "%s [options] [keyinfo] files...\n", argv0);
 
     fprintf(stderr, "\nOptions:\n");
-    fprintf(stderr, " -o file     : Outputs archive to file\n");
-    fprintf(stderr, " -n          : Follow symbolic links, do not archive the link\n");
-    fprintf(stderr, " -s          : Quiet mode, will not output process\n");
-    fprintf(stderr, " -desc text  : Add the description text to the archive (e.g. \"Qt 3.0.0\")\n");
-    fprintf(stderr, " -extra k v  : Adds the extra value v with the key k to the archive\n");
-    fprintf(stderr, " -h          : This help\n");
+    fprintf(stderr, " -o file       : Outputs archive to file\n");
+    fprintf(stderr, " -n            : Follow symbolic links, do not archive the link\n");
+    fprintf(stderr, " -s            : Quiet mode, will not output process\n");
+    fprintf(stderr, " -desc text    : Add the description text to the archive (e.g. \"Qt 3.0.0\")\n");
+    fprintf(stderr, " -extra k v    : Adds the extra value v with the key k to the archive\n");
+    fprintf(stderr, " -h            : This help\n");
 
     fprintf(stderr, "\nKey Info:\n");
-    fprintf(stderr, " -win        : Windows Archive\n");
-    fprintf(stderr, " -unix       : Unix Archive\n");
-    fprintf(stderr, " -mac        : MacOSX Archive\n");
-    fprintf(stderr, " -embedded   : Embedded Archive\n");
+    fprintf(stderr, " -win          : Windows Archive\n");
+    fprintf(stderr, " -unix         : Unix Archive\n");
+    fprintf(stderr, " -mac          : MacOSX Archive\n");
+    fprintf(stderr, " -embedded     : Embedded Archive\n");
+
+    fprintf(stderr, "\nThe following options are not for packaging and can't be\n" );
+    fprintf(stderr, "combined with the options above or any other option:\n\n" );
+    fprintf(stderr, " -unpack file  : Unpack the archive file to the current directory\n");
+    fprintf(stderr, " -getdesc file : Print the description text of the archive file\n");
 #if defined(Q_OS_WIN32)
-    fprintf(stderr, "\nOr:\n\n", argv0);
-    fprintf(stderr, "%s -res qt.arq install.exe\n\n", argv0);
-    fprintf(stderr, " -res        : Add qt.arq as the binary resource\n");
-    fprintf(stderr, "               QT_ARQ to install.exe\n");
+    fprintf(stderr, " -res file1 file2: Add the archive file1 as the binary resource\n");
+    fprintf(stderr, "                 QT_ARQ to the excutable file2\n");
+    fprintf(stderr, " -getres file  : Get the binary resource QT_ARQ from the executable\n" );
+    fprintf(stderr, "                 file and store it under qt.arq\n");
 #endif
     return 665;
 }
+
+static int unpack( char *filename )
+{
+    QArchive arq( filename );
+    ConsoleOutput output;
+    output.connect( &arq, SIGNAL(operationFeedback(const QString&)), SLOT(updateProgress(const QString&)) );
+    if ( !arq.open( IO_ReadOnly ) ) {
+	fprintf(stderr, "Can't open the archive %s file to unpack", filename);
+	return 42;
+    }
+    if ( !arq.readArchive( ".", "G87A-QJFE-DQF9" ) ) {
+	fprintf(stderr, "Couldn't unpack the archive %s", filename);
+	return 42;
+    }
+    return 0;
+}
+
+static int getdesc( char *filename )
+{
+    QArchive arq( filename );
+    ConsoleOutput output;
+    output.connect( &arq, SIGNAL(operationFeedback(const QString&)), SLOT(updateProgress(const QString&)) );
+    if ( !arq.open( IO_ReadOnly ) ) {
+	fprintf(stderr, "Can't open the archive %s file to get description", filename);
+	return 42;
+    }
+    QArchiveHeader *header = arq.readArchiveHeader();
+    if ( !header ) {
+	fprintf(stderr, "Can't find the header in the archive %s file", filename);
+	return 42;
+    }
+    if ( !header->description().isNull() ) {
+	fprintf(stdout, header->description().latin1() );
+    }
+    return 0;
+}
+
 
 int main( int argc, char** argv )
 {
@@ -96,6 +138,14 @@ int main( int argc, char** argv )
 	    features |= Feature_Mac;
 	} else if(!strcmp(argv[i], "-embedded")) {
 	    features |= Feature_Embedded;
+	//unpack
+	} else if(!strcmp(argv[i], "-unpack")) {
+	    if ( ++i < argc )
+		return unpack( argv[i] );
+	//getdesc
+	} else if(!strcmp(argv[i], "-getdesc")) {
+	    if ( ++i < argc )
+		return getdesc( argv[i] );
 #if defined(Q_OS_WIN32)
 	//res (Windows only)
 	} else if(!strcmp(argv[i], "-res")) {
@@ -104,7 +154,7 @@ int main( int argc, char** argv )
 		arq = argv[i];
 	    if ( ++i < argc )
 		exe = argv[i];
-	//res (Windows only)
+	//getres (Windows only)
 	} else if(!strcmp(argv[i], "-getres")) {
 	    getRes = TRUE;
 	    if ( ++i < argc )

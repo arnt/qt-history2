@@ -2,6 +2,7 @@
 #include <qlabel.h>
 #include <qlayout.h>
 #include <qgrid.h>
+#include <qregexp.h>
 
 /* XPM */
 static char *check_data[] = {
@@ -88,7 +89,13 @@ SideDecorationImpl::SideDecorationImpl( QWidget* parent, const char* name, WFlag
     if ( globalInformation.reconfig() ) {
 	versionLabel->setText( "Reconfigure Qt " + globalInformation.qtVersionStr() );
     } else {
+#if defined(EVAL)
+	QString versionStr = globalInformation.qtVersionStr();
+	versionStr.replace( QRegExp(" Evaluation"), "" );
+	versionLabel->setText( versionLabel->text() + " " + versionStr );
+#else
 	versionLabel->setText( versionLabel->text() + " " + globalInformation.qtVersionStr() );
+#endif
     }
 #if defined(EVAL)
     editionLabel->setText( "Evaluation Version" );

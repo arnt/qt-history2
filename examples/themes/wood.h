@@ -18,6 +18,8 @@
 #include <qwindowsstyle.h>
 #include <qpalette.h>
 
+#ifndef QT_NO_STYLE_WINDOWS
+
 class NorwegianWoodStyle : public QWindowsStyle
 {
 public:
@@ -80,5 +82,7 @@ private:
     QPixmap *sunkenLight;
 
 };
+
+#endif
 
 #endif

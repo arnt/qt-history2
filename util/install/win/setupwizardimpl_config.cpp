@@ -37,10 +37,17 @@ void SetupWizardImpl::cleanDone()
 	configDone();
     } else { // no proper process handling on DOS based systems - create a batch file instead
 	logOutput( "Generating batch file...\n" );
-	QFile outFile( optionsPage->installPath->text() + "\\build.bat" );
+	QDir installDir;
+	if ( optionsPage )
+	    installDir.setPath( optionsPage->installPath->text() );
+	else
+	    installDir.setPath( QEnvironment::getEnv( "QTDIR" ) );
+	QFile outFile( installDir.filePath("build.bat") );
 	QTextStream outStream( &outFile );
 
 	if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
+	    if ( installDir.absPath()[1] == ':' )
+		outStream << installDir.absPath().left(2) << endl;
 	    outStream << "cd %QTDIR%" << endl;
 	    if( !globalInformation.reconfig() ) {
 		QStringList makeCmds = QStringList::split( ' ', "nmake make gmake" );
@@ -292,8 +299,28 @@ void SetupWizardImpl::cleanDone()
 	QTextStream outStream( &outFile );
 
 	if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
+	    if ( installDir.absPath()[1] == ':' )
+		outStream << installDir.absPath().left(2) << endl;
 	    outStream << "cd %QTDIR%" << endl;
-	    outStream << args.join( " " ) << endl;
+
+	    // There is a limitatino on Windows 9x regarding the length of the
+	    // command line. So rather use the configure.cache than specifying
+	    // all configure options on the command line.
+	    QFile configureCache( installDir.filePath("configure.cache") );
+	    if( configureCache.open( IO_WriteOnly | IO_Translate ) ) {
+		QTextStream confCacheStream( &configureCache );
+		QStringList::Iterator it = args.begin();
+		++it; // skip args[0] (configure)
+		while ( it != args.end() ) {
+		    confCacheStream << *it << endl;
+		    ++it;
+		}
+		configureCache.close();
+		outStream << args[0] << " -redo" << endl;
+	    } else {
+		outStream << args.join( " " ) << endl;
+	    }
+
 	    if( !globalInformation.reconfig() ) {
 		QStringList makeCmds = QStringList::split( ' ', "nmake make gmake" );
 		outStream << makeCmds[ globalInformation.sysId() ].latin1() << endl;

@@ -3,14 +3,14 @@ This is Qt version 3.0.1, the cross-platform C++ GUI toolkit.
 Qt 3 contains many new features, improvements and extensions. It also
 includes a significantly improved Qt Designer, and introduces Qt
 Linguist, Qt Assistant and a new multi-platform build tool,
-'qmake'. In addition to the traditional Qt platforms Linux, Unix and
-the various flavours of MS-Windows, Qt 3 for the first time also
+'qmake'. In addition to the traditional Qt platforms- Linux, Unix and
+the various flavors of MS-Windows, Qt 3 for the first time also
 introduces a native port to MacOS X.
 
 Detailed information about the modifications and new features for Qt 3
 is included in the Online Reference Documentation.
 
-Because of our recently increased development team, we have been able
+Due to our recently increased development team, we have been able
 to realize far more of your requests in this release. Qt 3 is a great
 step towards realizing our vision of an ideal cross-platform
 development tool.
@@ -27,14 +27,14 @@ complete, so it is possible that you'll discover issues that are not
 yet covered in the documentation.
 
 The most visible change for long term Qt users is the reworked build
-system. On MS-Windows, unpack the package and start installer.exe; on
+system. On MS-Windows, run qt-win-commercial-3.0.1.exe; on
 Unix, unpack the package and run ./configure. Compiling and installing
 Qt uses a new utility 'qmake' which we recommend for writing Qt­based
 applications. 'qmake' is the successor of our free software add-on
 'tmake', and is written using Qt rather than Perl. 'qmake' is fully
 compatible with 'tmake'.
 
-To improve maintainaibility between different platforms, all specific
+To improve maintainability between different platforms, all specific
 platform #defines and #includes have been moved out of the Qt sources
 into a platform specific qplatformdefs.h file.  The files are located
 in qt/mkspec/<platform>-<compiler>/qplatformdefs.h. For this release,
@@ -62,8 +62,8 @@ hpux-g++
 openunix-cc
 openunix-g++
 
-If you try to use Qt 3 on an an unsupported version of Unix, please
-contact us at support@trolltech.com so that we can assist you.
+If you want to try and use Qt 3 on an unsupported version of Unix, please
+contact us at qt-bugs@trolltech.com so that we can assist you.
 
 
 How to get the release:
@@ -80,7 +80,7 @@ Professional or Enterprise Edition licensee and have not received this
 e-mail.
 
 
-Any problems encountered Qt 3 should be reported to
+Any problems encountered with Qt 3.0 should be reported to
 qt-bugs@trolltech.com.
 
 Qt is a trademark of Trolltech AS.

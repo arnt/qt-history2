@@ -1,0 +1,526 @@
+Qt 3.0.1 is a bugfix release. It keeps both forward and backward
+compatibility (source and binary) with Qt 3.0.0
+
+
+****************************************************************************
+*			    General					   *
+****************************************************************************
+
+- cosmetic fixes
+	Qt 3.0 introduced a new and more flexible style engine. This
+	release should fix most of the small visual flaws that the new
+	styles showed, plus it greatly improves appearance in
+	right-to-left mode.
+
+- MS-Windows XP
+	this is the first release to fully support Windows XP,
+	including the new themable GUI styles.
+	The Windows XP style can only be built as a plugin, which requires
+	Qt to be configured as a shared library. To build the plugin you have 
+	to install a Microsoft Platform SDK for	October 2001 or later. Your 
+	INCLUDE and LIB environment has to point to the respective directories 
+	in the SDK installation.
+
+- reverse layouts
+	many classes have been fixed to improve support for
+	right-to-left layout
+
+- drag'n'drop
+	mac only: decode HFS flavors
+
+- compile fixes on
+	Solaris 7 Intel, g++ version 2.8.1
+
+- documentation updates
+	enjoy lovely diagrams in the partially revised documentation
+
+- x11 only: multiple head improvements
+	Support for different TrueColor depths on each
+	head. Drag'n'drop support across multiple screens. Make sure
+	tooltips stay on the right screen. Improved OpenGL support on
+	multiple screens. Qt 3.1 will support different color depths
+	on every screen (e.g. one TrueColor screen, one 8bit
+	PseudoColor and one 8bit GreyScale).
+
+
+****************************************************************************
+*			   Library					   *
+****************************************************************************
+
+- QAction
+	fixed a memory leak in conjunction with action
+	accelerators. Turn toggle actions off when toggling is turned
+	off with setToggleAction(FALSE);
+
+- QApplication
+	cleanup shared double buffer on destruction. Again we can
+	create and use multiple QApplications in the same process.
+	On Solaris, default to the Interface System font (also default
+	in CDE)
+	win32 only: all _flushall on WM_QUERYENDSESSION to get all
+	open streams and buffers flushed to disk (or to OS'es
+	buffers). Better support for more input messages
+	(e.g. Chinese). Do not distribute enter events to modally
+	blocked widgets. Generate a Key_BackTab event rather than
+	Key_Tab with ShiftButton. Block floating toolbars when
+	application is modal. Disable Move/Resize in the system menu for
+	maximized toplevel windows
+	winXP only: handle WM_THEMECHANGED messages and repolish
+	widgets and style
+	x11 only: removed misleading warning message for main widgets
+	on heads other than the default head. Input context: Solve a
+	memory leak in Xlib, and save a server round trip when
+	updating the microfocushint. Workaround some broken
+	XmbLookupString implementations that do not report buffer
+	overflows correctly. Never report key events to a widget after
+	clearFocus() was called for that widget (same behavior as on
+	Windows)
+
+- QAquaStyle (MacOSX only):
+	optimizations, several minor visual bugs fixed
+
+- QCanvas
+	erase any exposed emptiness when shrinking canvas
+
+- QCanvasPixmapArray
+	initialize framecount to 0
+
+- QCanvasView
+	optimize background pixmaps: potentially they were drawn
+	twice, first untranslated then translated
+
+- QClipboard
+	x11 only: hopefully handling all race conditions now that
+	cause KDE to lock-up occasionally
+
+- QComboBox
+	fixed behavior with non-selectable items. Fixed a crash when
+	calling setCurrentItem(-1). Fixed autoscrolling when dragging
+	the mouse directly after opening the dropdown
+
+- QColor
+	make invalid named colors return non-valid QColor (as
+	documented)
+
+- QColorDialog
+	win32 only: use WStyle_DialogBorder, as resizing this dialog
+	does not make much sense anyway
+
+- QCommonStyle
+	respect QApplication::globalStrut() in scroll bars. Support
+	reverse layout in QTitleBar
+
+- QCursor
+	safer cleanup of cursor shapes (avoids possible free'd memory
+	read)
+	win32 only: fixed application override cursor with mouse
+	grabbing
+
+- QDate
+	fixed some possible overflows
+	win32 only: Improve locale support for short day and month
+	names etc. Initialize milliseconds correctly.
+
+- QDateTimeEdit
+	display AM/PM if set by locale. Improved sizeHint()
+
+- QDockAarea
+	more reliable sizeHint(). Better support for reverse layouts.
+
+- QDockWindow
+	emit placeChange() signal more reliably. Avoid floating docks
+	popping up everywhere before they have been layouted and
+	positioned
+
+- QDesktopWidget
+	x11 only: when using normal dualhead (not Xinerama), make sure
+	we report the correct screen number
+	win32 only: refresh on WM_DISPLAYCHANGE
+
+- QFrame
+	new panel styles LineEditPanel and TabWidgetPanel.  This
+	was required by the new support for Windows XP
+
+- QFileDialog
+	show unicode filenames to the user rather than encoded ASCII
+	(eg. latin1 characters were shown as "%XX" escapes).
+	Fixed multiple-selection of FTP files. Emit signal
+	fileHighlighted in existingfile mode
+	mac only: fixed existingFolder(). Fixed window position so it
+	will never fall outside the screen
+	win32 only: on Windows, there is no concept of case
+	sensitivity with files/directories/drives so don't add an
+	extra entry in the paths box if it already exists in a
+	different case
+
+- QFileInfo
+	unix only: Make sure that symlinks pointing to
+	invalid/non-existing targets are reported as symlinks
+
+- QFont
+	ensure a rounded-off value is returned from pointSize().
+	x11 only: improved line width calculation. Fixed off by one
+	error in interpreting Xft font extents. Allow using both Xft
+	and non Xft fonts in one application. Make sure fonts are
+	antialiased by default when using xftfreetype
+
+- QFontDialog
+	prevent relayouting when the size of the preview label changes
+
+- QFtp
+	In parseDir(), do not compare English month names to
+	shortMonthName(), since the latter is localized
+
+- QGList
+	make self-assignments work
+
+- QGLWidget
+	Fixed ARGB to RGBA conversion on BigEndian systems
+	win32 only: fixed colormap for 8-bit RGBA GL mode
+	x11 only: multiple heads with different color depths fixes
+
+- QHebrewCodec
+	assume the bidi algorithm is a reversible operation for the
+	visual 8859-8 codec. This is not true for very complex strings
+	but should hold in most cases
+
+- QIconSet
+	fixed detach() to really detach the internal pixmaps. In case
+	no image formats are installed, show black pixmaps rather than
+	ASSERT
+
+- QImage
+	allow 16 bit DIBs. Allow >32767 level PNMs. Fixed
+	smoothscale() for the following bug: Whenever the condition
+	new_width / original_width * 4096 is not an integer
+	applies, the last column of the scaled image is black.
+
+- QImageIO
+	fixed plugin loading in case the image format was explicitly
+	defined
+
+- QInputDialog
+	disable OK button when input is not Acceptable (QValidator)
+
+- QLabel
+	when showing rich text with tables (via QSimpleRichtext),
+	avoid drawing the table background
+
+- QLayout
+	in reverse layout mode: fix off by one error when layouting
+	right to left or bottom to top
+
+- QLineEdit
+	fixed offset calculation for horizontal scrolling. Invoke
+	validator when the user presses Backspace or
+	Delete. Compression of the undo/redo stack fixed. Security: Do
+	not reveal the position of spaces with Ctrl+RightArrow or
+	Ctrl+LeftArrow in password mode
+
+- QListBox
+	append items at the proper position even after sorting the
+	content. Make QWidget::setBackgroundMode() work correctly
+
+- QListBoxPixmap
+	use the function pixmap() when drawing the pixmap, so users
+	can reimplement QListBoxPixmap::pixmap()
+
+- QListView
+	fix misalignment of checkbox click zone. Make the selected and
+	focus rectangles cover the entire column for QCheckListItems
+	if the listview root is not decorated. Make
+	QWidget::setBackgroundMode() on the viewport work
+	correctly. Comply with user interface guidelines: clear the
+	selection when a click is in the empty area unless the CTRL
+	key is down. Fixed possible crash when starting a rename with
+	a double click. Smarter ensureItemVisible(). Draw listview background
+	in paintEmptyArea() with the style. Ensure the listview always
+	has a current item
+
+- QMainWindow
+	better layouting of dockareas when they are all
+	empty. Otherwise an empty QMainWindow looks awful in a
+	workspace. Maintain the toplevel layout's resize mode.
+
+- QMessageBox
+	avoid double deletion if the parent destructs while the
+	messagebox is open. Support y/n/c shortcuts without Alt
+	modifier
+
+- QMovie
+	allow pause() and restart() with MNG
+
+- QMultiLineEdit
+	remove internal trailing space when returning a textline with
+	textLine(int) and querying lineLength(int).
+
+- QPainter
+	boundingRect() should work properly now for the combination
+	richtext, right-aligned and an empty initial rect. Handle
+	DontClip-flag in the painter's complex drawText()
+	function. Reset the cached composition matrix (and inverse)
+	when reiniting a painter.
+
+- QPicture
+	fixed loading of binaries from older Qt versions
+
+- QPixmap
+	grabWidget(): when the widget sets WRepaintNoErase it might
+	erase itself with the non-redirected QWidget:.erase(); restore
+	those areas.
+	x11 only: (with XRENDER extension) when copying a pixmap,
+	bitBlt the entire data into the new pixmap rather than alpha
+	composition
+
+- QPopupMenu
+	fixed weird side effects with the menu effects. Support
+	minimumSize() for popups. Fixed a navigation issue where
+	Key_Right under certain circumstances was not propagated to
+	the menu bar. Speedups when disabling/enabling menu items
+	before showing them
+	x11 only: fixed mouse and keyboard grabbing side effects with
+	popup menu effects enabled
+
+- QPrintDialog (builtin dialog)
+	use the text in the lineedit for the file dialog
+
+- QPrinter
+	fixed crash when printing with incomplete combined unicode
+	fonts
+	win32 only: fixed a very rare and mysterious crash
+
+
+- QPSPrinter
+	make sure the fontPath is read correctly by the postscript driver, and the
+	qtconfig program. Small memory leaks closed. Better support
+	for asian printing. Limit line length of Postscript DSC
+	comments to 255 chars (as per spec)
+
+-  QRichText
+	fixed handling of &nbsp. Support both <qt title="..."> and
+	<title>. Avoid painting \n at end of lines (showed sometimes
+	up as empty unicode box). Fixed find() in "whole words only"
+	mode. Fixed unicode auto alignment. Make cursor movement in
+	BiDi paragraphs compliant with MS-Windows. Fixed paragraph
+	right and center alignments when using <br> tags. Fixed
+	superscript/subscript confusion
+
+- QScrollBar
+	allow scrolling with modifier keys pressed down
+
+- QScrollView
+	make autoscrolling work with drag and drop. Never generate
+	paintevents that are outside the visible area
+
+- QSettings
+	unix only: search paths are valid for individual objects, NOT
+	every object (windows behavior). When reading files, don't
+	replace the old groups with contents of the new groups, merge
+	them. Properly escape backslashes and newlines.
+	win32 only: improved error handling. Fixed subKeyList() and
+	entryList() for empty paths
+
+- QSimpleRichText
+	correctly transform clipping rectangle
+
+- QSizeGrip
+	reverted sizeHint() to the old size to avoid making the
+	statusbar tiny bit too big. Support right-to-left layout
+
+
+- QSgiStyle
+	make combobox arrow look nicer. Fix disabled combobox drawing.
+
+- QSlider
+	fixed click handling for reverse layouts
+
+- QSpinBox
+	usability fix: when changing a value with up/down or the arrow
+	buttons, select the new value
+
+- QSplitter
+	use the actual QSplitter ptr. as documented, and not a
+	QSplitterHandle ptr. as parameter to the
+	QStyle::sizeForContents() call. Fixed reverse layouting when
+	splitter movement is constrained
+
+- QSqlRecord
+	fixed double incrementation of the iterator in certain
+	circumstances
+
+- QString
+	fixed QString::setLatin1() when the length parameter is 0.
+	unix only: Use strcoll() in QString::localeAwareSorting()
+	mac only: clarify that local8Bit() is always utf8()
+
+- QStyle
+	new frame styles for tab widgets, window frames and line edit
+	controls. This was required by the new support for Windows XP.
+	Added SH_ScrollBar_StopMouseOverSlider style hint so one can
+	turn on/off the ability to stop the pageup/pagedown when the
+	slider hits the mouse (this is needed for aqua on MacOS X)
+
+- QSvgDevice
+	many fixes for saving/restoring attributes not part of
+	QPainter. Processing of 'tspan' elements. Uses now double
+	instead of int for internal 'path' arithmetic for better
+	scaling results. Support for QPicture's coordinate
+	transformations
+
+- QTabBar
+	fix the focus rectangles + spacing with icons and label texts.
+
+- QTable
+	improved layout in right-to-left mode. Fixed adjustRow() when
+	using header items with icon sets . Do not let hidden
+	columns/rows re-appear when adjusting. Update header correctly
+	when changing a table's dimension. Correctly reset the
+	updatesEnabled flag in sortColumn(). Fixed modifying the
+	contents of a combobox or checkbox table item while it is the
+	current cell
+
+- QTableItem
+	make sure an item cannot span over a table's maximum number of
+	rows and columns
+
+- QTabWidget
+	constrain sizehint to avoid having oversized dialogs
+
+- QTextCode
+	rename iso8859-6-I to to 8859-6. The old name is still
+	supported for backwards compatibility
+	win32 and mac: implemented locale()
+
+- QTextDrag
+	win32 only: performance improvements in encodedData()
+
+- QTextEdit
+	fixed HTML output. New property tabStopWidth. Fixed
+	append() and made it smarter: it only scrolls to the end if
+	the view was scrolled to the end before. Proper reformatting
+	when switching word wrap policies Do not blink the cursor
+	when the textedit is disabled. Make isModified() return the
+	new value in slots connected to the modificationChanged()
+	signal
+	x11 only: middle mouse selection pasting sets the cursor
+	position.
+
+- QTextStream
+	faster string output in latin1 mode
+
+- QThread
+	unix only: initialize threads in non-GUI mode as well
+	win32 only: fixed initial value of QThread::running()
+
+- QToolButton
+	fixed unwanted occurances of delayed popup menus
+
+- QUrlOperator
+	fixed the cache, so that QUrlInfo::name() is set correctly for
+	renamed files. This bug affected QFileDialog. More careful
+	check whether a file is writable before renaming/deleting it
+
+- QValueVector
+	make operator==() const. Fixed some sharing issues
+
+- QVariant
+	fixed a few memory leaks when casting complex values to simple
+	types. Faster operator==
+
+- QWaitCondition
+	win32 only: fixed wakeAll()
+
+- QWhatsThis
+	make QWidget::customWhatsThis() work with menu
+	accelerators. Avoid endless loops with menu effects
+
+- QWidget
+	Fix default focus so that setTabOrder( X, Y ); setTabOrder( Y,
+	Z ); gives focus to X, not Y or Z. Closing a modal dialog with
+	a double click on a widget could result in a mouse release
+	event being delivered to the widget underneath, this is fixed
+	now. Set/Reset WState_HasMouse on DragEnter/DragLeave
+	win32 only: obey WPaintUnclipped. Make reparent() with 0/0
+	positions do the requested positioning
+	x11 only: when reparenting widgets to/from toplevel, make sure the
+	XdndAware property is set. Make input methods work with servers
+	other than kinput2. More fixes for 4Dwm's incompliance with
+	ICCCM 4.1.5 concerning geometry handling. When hiding
+	toplevels, we issue a XFlush() to avoid having popup menus
+	handing around grabbing the mouse and keyboard while the
+	application is busy. Obey the 'erase' value in repaint(const
+	QRegion& reg, bool erase);
+
+- QWindowsStyle
+	various visual fixes, including fixes for right-to-left
+	mode. Most significantly the light source now comes from top
+	left also in reverse layout like newer versions of Windows do
+
+- QWorkspace
+	support document windows without titlebars. Scroll to topleft
+	corner when cascading/tiling a scrolled workspace. Define a
+	proper baseSize() for workspace children. Fix some side
+	effects with the workspace's maximize controls on Windows
+	style. Don't raise window over scrollbars. Clients can now call
+	adjustSize() on the workspace when their sizeHint()
+	changes. When showing two scrollbars, maintain a solid
+	corner. Obey a document window's maximum size when tiling
+
+****************************************************************************
+*			   Extensions					   *
+****************************************************************************
+
+
+****************************************************************************
+*			      Other					   *
+****************************************************************************
+
+- qtconfig
+	x11 only: possibility to turn Xft on and off, as well as
+	turning antialiasing-by-default on and off. This is necessary
+	since Xft doesn't work on dual head
+
+- moc
+	Q_PROPERTY: Support QMap<QString, QVariant> and
+	QValueList<QVariant> as "QMap" and "QValueList". Support
+	parameters of nested template types, for example
+	QValueVector<QValueVector<double> >, as well as
+	Foo<const int>.
+
+- uic
+	fix uic-generated code for QWizard with both "font" and
+	"titleFont" properties set. Put local includes after global
+	includes in generated files
+
+- lupdate
+	allow translation of menubar items generated with Qt Designer
+	(e.g. "&File", "&Edit", etc.)
+
+- libMNG
+	updated to version 1.0.3
+
+- libPNG
+	updated to version 1.0.12
+
+- translations
+	added Hebrew translations for Qt and the demo application
+
+- Qt Designer
+	support 'Ignored' size policy. Support properties of type
+	'double'. Fixed saving of custom widgets in toolbars. Various
+	smaller usability improvements
+
+- Qt Assistant
+	when users starts assistant themselves, always make a new
+	instance. Only use the unique-app feature when invoking from
+	designer
+
+- QMsDev
+	Invoke Qt Linguist when opening a .ts file in Visual Studio
+
+
+
+****************************************************************************
+*		    Qt/Embedded-specific changes		           *
+****************************************************************************
+

@@ -30,6 +30,9 @@ ConfigPageImpl::ConfigPageImpl( QWidget* parent, const char* name, WFlags fl )
 FinishPageImpl::FinishPageImpl( QWidget* parent, const char* name, WFlags fl )
     : FinishPage( parent, name, fl )
 {
+#if !defined(Q_OS_WIN32)
+    showReadmeCheck->hide();
+#endif
 }
 
 FoldersPageImpl::FoldersPageImpl( QWidget* parent, const char* name, WFlags fl )

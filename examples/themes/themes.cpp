@@ -61,8 +61,10 @@ Themes::Themes( QWidget *parent, const char *name, WFlags f )
     connect( styleMapper, SIGNAL( mapped( const QString& ) ), this, SLOT( makeStyle( const QString& ) ) );
     QStringList list = QStyleFactory::keys();
     list.sort();
+#ifndef QT_NO_STYLE_WINDOWS
     list.insert(list.begin(), "Norwegian Wood");
     list.insert(list.begin(), "Metal");
+#endif
     QDict<int> stylesDict( 17, FALSE );
     for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it ) {
 	QString styleStr = *it;
@@ -93,15 +95,21 @@ Themes::Themes( QWidget *parent, const char *name, WFlags f )
     help->insertItem( "&About", this, SLOT(about()), Key_F1);
     help->insertItem( "About &Qt", this, SLOT(aboutQt()));
 
+#ifndef QT_NO_STYLE_WINDOWS
     qApp->setStyle( new NorwegianWoodStyle );
+#endif
 }
 
 void Themes::makeStyle(const QString &style)
 {
     if(style == "Norwegian Wood") {
+#ifndef QT_NO_STYLE_WINDOWS
 	qApp->setStyle( new NorwegianWoodStyle );
+#endif
     } else if( style == "Metal" ) {
+#ifndef QT_NO_STYLE_WINDOWS
 	qApp->setStyle( new MetalStyle );
+#endif
     } else {
 	qApp->setStyle(style);
 	if(style == "Platinum") {

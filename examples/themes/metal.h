@@ -18,6 +18,8 @@
 #include <qwindowsstyle.h>
 #include <qpalette.h>
 
+#ifndef QT_NO_STYLE_WINDOWS
+
 class MetalStyle : public QWindowsStyle
 {
 public:
@@ -62,5 +64,7 @@ private:
 			  bool sunken, bool horz, bool flat=FALSE ) const;
     QPalette oldPalette;
 };
+
+#endif
 
 #endif

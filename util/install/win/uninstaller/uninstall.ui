@@ -36,7 +36,7 @@
                 <bool>false</bool>
             </property>
             <property name="alignment">
-                <set>AlignAuto|AlignTop</set>
+                <set>AlignTop</set>
             </property>
         </widget>
         <widget class="QGroupBox" row="0" column="1">
@@ -47,15 +47,23 @@
                 <string>Uninstallation progress</string>
             </property>
             <vbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
                 <property name="margin">
                     <number>11</number>
                 </property>
                 <property name="spacing">
                     <number>6</number>
                 </property>
-                <widget class="QMultiLineEdit">
+                <widget class="QTextView">
                     <property name="name">
                         <cstring>filesDisplay</cstring>
+                    </property>
+                    <property name="font">
+                        <font>
+                            <family>Courier</family>
+                        </font>
                     </property>
                     <property name="wordWrap">
                         <enum>NoWrap</enum>
@@ -138,7 +146,10 @@
         <receiver>UninstallDlg</receiver>
         <slot>accept()</slot>
     </connection>
-    <slot access="protected" language="C++">init()</slot>
-    <slot access="protected" language="C++">destroy()</slot>
 </connections>
+<slots>
+    <slot access="protected">init()</slot>
+    <slot access="protected">destroy()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
 </UI>

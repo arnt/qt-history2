@@ -1,7 +1,7 @@
 #include <qapplication.h>
 #include <qlabel.h>
 #include <qdir.h>
-#include <qmultilineedit.h>
+#include <qtextview.h>
 #include <qpushbutton.h>
 #include <qmessagebox.h>
 #include "uninstall.h"
@@ -10,27 +10,27 @@
 QApplication* app;
 UninstallDlg* progress;
 
-void rmDirRecursive( QString dirPath )
+void rmDirRecursive( const QDir &dir )
 {
-    QDir dir( dirPath );
-    const QFileInfoList* list = dir.entryInfoList();
-    QFileInfoListIterator it( *list );
-    QFileInfo* fi;
+    const QFileInfoList* list = dir.entryInfoList( QDir::All | QDir::System | QDir::Hidden );
+    if ( list ) {
+	QFileInfoListIterator it( *list );
+	QFileInfo* fi;
 
-    while( ( fi = it.current() ) ) {
-	if( ( fi->fileName() != "." ) && ( fi->fileName() != ".." ) ){
-	    QString fileName = dirPath + QString( "\\" ) + fi->fileName();
-	    progress->filesDisplay->append( fileName + "\n" );
-	    app->processEvents();
-	    if( fi->isDir() )
-		rmDirRecursive( fileName );
-	    else
-		QFile::remove( fileName );
+	while( ( fi = it.current() ) ) {
+	    if( ( fi->fileName() != "." ) && ( fi->fileName() != ".." ) ){
+		progress->filesDisplay->append( fi->absFilePath() + "\n" );
+		app->processEvents();
+		if( fi->isDir() )
+		    rmDirRecursive( QDir(fi->absFilePath()) );
+		else
+		    QFile::remove( fi->absFilePath() );
+	    }
+	    ++it;
 	}
-	++it;
     }
     // Remove this dir as well
-    dir.rmdir( dirPath );
+    dir.rmdir( dir.absPath() );
 }
 
 int main( int argc, char** argv )
@@ -41,7 +41,12 @@ int main( int argc, char** argv )
     if( argc != 4 )
 	qFatal( "Incorrect parameters" );
 
-    if( !QMessageBox::information( 0, QString( "Uninstalling Qt " ) + argv[ 3 ], "Are you sure you want to uninstall Qt?\nThis will remove the directory this version\nof Qt was installed to, along with ALL its contents.", "Yes", "No" ) )
+    if( !QMessageBox::information( 0,
+		QString( "Uninstalling Qt %1" ).arg(argv[3]),
+		QString("Are you sure you want to uninstall Qt %1?\n"
+		"This will remove the directory this version\n"
+		"of Qt was installed to, along with ALL its contents.").arg(argv[3]),
+		"Yes", "No" ) )
     {
 	progress->setCaption( QString( "Uninstalling Qt " ) + argv[ 3 ] );
 	progress->show();
@@ -51,8 +56,8 @@ int main( int argc, char** argv )
 	// Delete the two directories we have written files to during the installation.
 	// The OK button is disabled at this point.
 	// Messages will be processed during the delete process.
-	rmDirRecursive( argv[ 1 ] );
-	rmDirRecursive( argv[ 2 ] );
+	rmDirRecursive( QDir(argv[1]) );
+	rmDirRecursive( QDir(argv[2]) );
     
 	progress->okButton->setEnabled( true );
 	/*

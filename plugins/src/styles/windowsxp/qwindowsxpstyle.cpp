@@ -286,6 +286,22 @@ void QWindowsXPStyle::polish( QWidget *widget )
 		widget->parentWidget() &&
 		widget->parentWidget()->inherits( "QTabWidget" ) ) {
 	widget->setPaletteBackgroundPixmap( *d->tabBody( widget ) );
+    } else if ( widget->inherits( "QMenuBar" ) ) {
+	QPalette pal = widget->palette();
+
+	XPThemeData theme( widget, 0, L"MENUBAR", 0, 0 );
+	if ( theme.isValid() ) {
+	    COLORREF cref;
+	    GetThemeColor( theme.handle(), 0, 0, TMT_MENUBAR, &cref );
+	    QColor menubar( qRgb(GetRValue(cref),GetGValue(cref),GetBValue(cref)) );
+	    pal.setColor( QColorGroup::Button, menubar );
+	} else {
+	    QPalette apal = QApplication::palette();
+	    pal.setColor( QPalette::Active, QColorGroup::Button, apal.color( QPalette::Active, QColorGroup::Button ) );
+	    pal.setColor( QPalette::Inactive, QColorGroup::Button, apal.color( QPalette::Inactive, QColorGroup::Button ) );
+	    pal.setColor( QPalette::Disabled, QColorGroup::Button, apal.color( QPalette::Disabled, QColorGroup::Button ) );
+	}
+	widget->setPalette( pal );
     }
 
     updateRegion( widget );
@@ -694,18 +710,14 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 		break;
 
 	    QMenuItem *mi = opt.menuItem();
-	    if (flags & Style_Active) {
+	    if (flags & Style_Active)
 		p->fillRect(r, cg.brush( QColorGroup::Highlight) );
-		QMenuItem *mi = opt.menuItem();
-		drawItem(p, r, AlignCenter | ShowPrefix | DontClip | SingleLine, cg,
-			 flags & Style_Enabled, mi->pixmap(), mi->text(), -1,
-			 &cg.highlightedText());
-	    } else {
+	    else
 		p->fillRect(r, cg.brush( QColorGroup::Button) );
-		drawItem(p, r, AlignCenter | ShowPrefix | DontClip | SingleLine, cg,
-			 flags & Style_Enabled, mi->pixmap(), mi->text(), -1,
-			 &cg.buttonText());
-	    }
+
+	    drawItem(p, r, AlignCenter | ShowPrefix | DontClip | SingleLine, cg,
+		     flags & Style_Enabled, mi->pixmap(), mi->text(), -1,
+		     &cg.buttonText());
 	}
 	return;
 

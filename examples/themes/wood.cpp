@@ -9,6 +9,9 @@
 *****************************************************************************/
 
 #include "wood.h"
+
+#ifndef QT_NO_STYLE_WINDOWS
+
 #include "qapplication.h"
 #include "qcombobox.h"
 #include "qpainter.h"
@@ -1409,3 +1412,4 @@ void NorwegianWoodStyle::drawSemicircleButton( QPainter *p, const QRect &r,
     p->setClipping( bReallyClip );
 }
 
+#endif

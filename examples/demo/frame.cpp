@@ -203,8 +203,9 @@ void Frame::clickedCategory( QListBoxItem *item )
     if ( item ) {
 	CategoryItem *c = (CategoryItem*)item;
 	topLevelWidget()->setCaption( title + " - " + item->text() );
-	if(!c->widget()) {
-	    if(QWidget *w = createCategory(item->text())) {
+	if ( !c->widget() ) {
+	    QWidget *w = createCategory(item->text());
+	    if ( w ) {
 		c->setWidget(w);
 		stack->addWidget(w, c->id());
 	    } else {

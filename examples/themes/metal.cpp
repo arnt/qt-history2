@@ -9,6 +9,9 @@
 *****************************************************************************/
 
 #include "metal.h"
+
+#ifndef QT_NO_STYLE_WINDOWS
+
 #include "qapplication.h"
 #include "qcombobox.h"
 #include "qpainter.h"
@@ -480,3 +483,5 @@ int MetalStyle::pixelMetric( PixelMetric metric, const QWidget *w ) const
 	return QWindowsStyle::pixelMetric( metric, w );
     }
 }
+
+#endif

@@ -16,6 +16,10 @@ CComModule _Module;
 
 static QMetaObject *tempMetaObj = 0;
 
+#define PropDesignable	1001
+#define PropScriptable	1002
+#define PropStored	1004
+
 /*! 
     Helper functions 
 */
@@ -1238,11 +1242,11 @@ QMetaObject *QComBase::metaObject() const
 				prop->meta = (QMetaObject**)&metaobj;
 				prop->_id = -1;
 				prop->enumData = 0;
-				prop->flags = QMetaProperty::Stored;
+				prop->flags = PropStored;
 				if ( !(funcdesc->wFuncFlags & FUNCFLAG_FNONBROWSABLE) )
-				    prop->flags |= QMetaProperty::Designable;
+				    prop->flags |= PropDesignable;
 				if ( !(funcdesc->wFuncFlags & FUNCFLAG_FRESTRICTED) )
-				    prop->flags |= QMetaProperty::Scriptable;
+				    prop->flags |= PropScriptable;
 
 				QString ptype = paramTypes[0];
 				if ( ptype.isEmpty() )
@@ -1433,13 +1437,13 @@ QMetaObject *QComBase::metaObject() const
 			    prop->meta = (QMetaObject**)&metaobj;
 			    prop->_id = -1;
 			    prop->enumData = 0;
-			    prop->flags = QMetaProperty::Readable | QMetaProperty::Stored;
+			    prop->flags = QMetaProperty::Readable | PropStored;
 			    if ( !(vardesc->wVarFlags & VARFLAG_FREADONLY) )
 				prop->flags |= QMetaProperty::Writable;;
 			    if ( !(vardesc->wVarFlags & VARFLAG_FNONBROWSABLE) )
-				prop->flags |= QMetaProperty::Designable;
+				prop->flags |= PropDesignable;
 			    if ( !(vardesc->wVarFlags & VARFLAG_FRESTRICTED) )
-				prop->flags |= QMetaProperty::Scriptable;
+				prop->flags |= PropScriptable;
 
 			    prop->t = new char[variableType.length()+1];
 			    prop->t = qstrcpy( (char*)prop->t, variableType );
@@ -2057,11 +2061,11 @@ bool QComBase::qt_property( int _id, int _f, QVariant* _v )
 	case 2: // Reset
 	    return TRUE;
 	case 3: // Designable
-	    return prop->flags & QMetaProperty::Designable;
+	    return prop->flags & PropDesignable;
 	case 4: // Scriptable
-	    return prop->flags & QMetaProperty::Scriptable;
+	    return prop->flags & PropScriptable;
 	case 5: // Stored
-	    return prop->flags & QMetaProperty::Stored;
+	    return prop->flags & PropStored;
 	default:
 	    break;
 	}
