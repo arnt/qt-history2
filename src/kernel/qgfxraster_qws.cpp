@@ -4406,7 +4406,7 @@ void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 		  myptr+=2;
 		}
 		for(loopc2=0;loopc2<backadd;loopc2++) {
-		  *(myptr++)=~(*myptr);
+		  *(myptr)=~(*myptr);
 		  myptr++;
 		}
 		myptr+=add;
