@@ -33,6 +33,7 @@
 #include "qstack.h"
 #endif // QT_H
 
+#ifndef QT_NO_SETTINGS
 class QSettingsSysPrivate;
 
 // QSettingsGroup is a map of key/value pairs
@@ -116,5 +117,5 @@ public:
     void	sysRemoveSearchPath( QSettings::System, const QString & );
 #endif
 };
-
+#endif //QT_NO_SETTINGS
 #endif // QSETTINGS_P_H
