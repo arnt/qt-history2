@@ -93,6 +93,7 @@ protected:
     virtual void drawBranches(QPainter *painter, const QRect &rect, const QModelIndex &index) const;
 
     void mousePressEvent(QMouseEvent *e);
+    void mouseDoubleClickEvent(QMouseEvent *e);
 
     void updateGeometries();
     void verticalScrollbarAction(int action);

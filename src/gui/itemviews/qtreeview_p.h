@@ -64,6 +64,8 @@ public:
     void updateVerticalScrollbar(int itemHeight);
     void updateHorizontalScrollbar(int itemWidth);
 
+    int itemDecorationAt(const QPoint &pos) const;
+
     QHeaderView *header;
     int indent;
 

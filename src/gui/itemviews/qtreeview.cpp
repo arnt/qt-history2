@@ -587,28 +587,25 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
 
 void QTreeView::mousePressEvent(QMouseEvent *e)
 {
-    bool reverse = QApplication::reverseLayout();
-    int scrollbar = reverse && verticalScrollBar()->isVisible() ? verticalScrollBar()->width() : 0;
-    int x = e->x() - d->header->x() + d->header->offset() + scrollbar;
-    int column = d->header->sectionAt(x);
-    int position = d->header->sectionPosition(column);
-    int cx = reverse ? position + d->header->sectionSize(column) - x : x - position;
-    int vi = d->item(e->y());
-    QModelIndex mi = d->modelIndex(vi);
-
-    if (mi.isValid()) {
-        int indent = d->indentation(vi);
-        if (column == 0 && cx < (indent - d->indent))
-            return; // we are in the empty area in front of the tree - do nothing
-        if (column != 0 || cx > indent) {
-            QAbstractItemView::mousePressEvent(e);
-            return; // we are on an item - select it
-        }
-        if (d->items.at(vi).open)
-            d->close(vi, true);
+    int i = d->itemDecorationAt(e->pos());
+    if (i == -1)
+        QAbstractItemView::mousePressEvent(e);
+    else
+        if (d->items.at(i).open)
+            d->close(i, true);
         else
-            d->open(vi, true);
-    }
+            d->open(i, true);
+}
+
+/*!
+  \reimp
+*/
+
+void QTreeView::mouseDoubleClickEvent(QMouseEvent *e)
+{
+    int i = d->itemDecorationAt(e->pos());
+    if (i == -1)
+        QAbstractItemView::mouseDoubleClickEvent(e);
 }
 
 /*!
@@ -1458,4 +1455,20 @@ void  QTreeViewPrivate::updateHorizontalScrollbar(int itemWidth)
     }
 
     q->horizontalScrollBar()->setRange(0, max);
+}
+
+int QTreeViewPrivate::itemDecorationAt(const QPoint &pos) const
+{
+    bool reverse = QApplication::reverseLayout();
+    int scrollbar = reverse && q->verticalScrollBar()->isVisible()
+                    ? q->verticalScrollBar()->width() : 0;
+    int x = pos.x() - header->x() + header->offset() + scrollbar;
+    int column = header->sectionAt(x);
+    int position = header->sectionPosition(column);
+    int cx = reverse ? position + header->sectionSize(column) - x : x - position;
+    int vi = item(pos.y());
+    int ind = indentation(vi);
+    if (!modelIndex(vi).isValid() || column != 0 || cx < ind - indent  || cx > ind)
+        return -1; // pos is outside the decoration rect
+    return vi;
 }
