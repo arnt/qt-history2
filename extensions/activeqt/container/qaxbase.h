@@ -28,6 +28,7 @@ struct QUuid;
 class QAxEventSink;
 class QAxObject;
 class QAxBasePrivate;
+struct QAxMetaObject;
 
 class QAxBase
 {
@@ -47,24 +48,24 @@ public:
     
     long queryInterface(const QUuid &, void**) const;
     
-    QVariant dynamicCall(const QString &name, const QVariant &v1 = QVariant(), 
-                                            const QVariant &v2 = QVariant(),
-                                            const QVariant &v3 = QVariant(),
-                                            const QVariant &v4 = QVariant(),
-                                            const QVariant &v5 = QVariant(),
-                                            const QVariant &v6 = QVariant(),
-                                            const QVariant &v7 = QVariant(),
-                                            const QVariant &v8 = QVariant());
-    QVariant dynamicCall(const QString &name, QList<QVariant> &vars);
-    QAxObject *querySubObject(const QString &name, const QVariant &v1 = QVariant(),
-                                            const QVariant &v2 = QVariant(),
-                                            const QVariant &v3 = QVariant(),
-                                            const QVariant &v4 = QVariant(),
-                                            const QVariant &v5 = QVariant(),
-                                            const QVariant &v6 = QVariant(),
-                                            const QVariant &v7 = QVariant(),
-                                            const QVariant &v8 = QVariant());
-    QAxObject* querySubObject(const QString &name, QList<QVariant> &vars);
+    QVariant dynamicCall(const char *name, const QVariant &v1 = QVariant(), 
+                                           const QVariant &v2 = QVariant(),
+                                           const QVariant &v3 = QVariant(),
+                                           const QVariant &v4 = QVariant(),
+                                           const QVariant &v5 = QVariant(),
+                                           const QVariant &v6 = QVariant(),
+                                           const QVariant &v7 = QVariant(),
+                                           const QVariant &v8 = QVariant());
+    QVariant dynamicCall(const char *name, QList<QVariant> &vars);
+    QAxObject *querySubObject(const char *name, const QVariant &v1 = QVariant(),
+                                           const QVariant &v2 = QVariant(),
+                                           const QVariant &v3 = QVariant(),
+                                           const QVariant &v4 = QVariant(),
+                                           const QVariant &v5 = QVariant(),
+                                           const QVariant &v6 = QVariant(),
+                                           const QVariant &v7 = QVariant(),
+                                           const QVariant &v8 = QVariant());
+    QAxObject* querySubObject(const char *name, QList<QVariant> &vars);
     
     virtual const QMetaObject *metaObject() const;
     virtual int qt_metacall(QMetaObject::Call, int, void **);
@@ -108,18 +109,31 @@ protected:
     bool initializeActive(IUnknown** ptr);
 
     void internalRelease();
+    void connectNotify();
     
 private:
+    friend class QAxEventSink;
     bool initializeLicensedHelper(void *factory, const QString &key, IUnknown **ptr);
     QAxBasePrivate *d;
+    QAxMetaObject *internalMetaObject() const;
     
     virtual const QMetaObject *parentMetaObject() const = 0;
     int internalProperty(QMetaObject::Call, int index, void **v);
     int internalInvoke(QMetaObject::Call, int index, void **v);
-    bool dynamicCallHelper(const QByteArray &name, void *out, QList<QVariant> &var, QByteArray &type);
-    
-    QString ctrl;
+    bool dynamicCallHelper(const char *name, void *out, QList<QVariant> &var, QByteArray &type);
+
+    static QMetaObject staticMetaObject;
 };
+
+#if defined Q_CC_MSVC && _MSC_VER < 1300
+template <> inline QAxBase *qt_cast_helper<QAxBase*>(const QObject *o, QAxBase *)
+#else
+template <> inline QAxBase *qt_cast<QAxBase*>(const QObject *o)
+#endif
+{
+    void *result = o ? o->qt_metacast("QAxBase") : 0;
+    return (QAxBase*)(result);
+}
 
 inline QString QAxBase::generateDocumentation()
 {

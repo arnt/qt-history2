@@ -17,6 +17,7 @@ contains( QT_PRODUCT, qt-(enterprise|internal) ) {
 		      qaxwidget.h \
 		      qaxobject.h \
 		      qaxscript.h \
+                      qaxselect.h \
 		      ../shared/types.h
 
     SOURCES         = qaxbase.cpp \
@@ -25,7 +26,8 @@ contains( QT_PRODUCT, qt-(enterprise|internal) ) {
 		      qaxobject.cpp \
 		      qaxscript.cpp \
 		      qaxscriptwrapper.cpp \
+                      qaxselect.cpp \
 		      ../shared/types.cpp
 
-    FORMS           = qactivexselect.ui
+    FORMS           = qaxselect.ui
 }

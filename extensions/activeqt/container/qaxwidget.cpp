@@ -1293,7 +1293,7 @@ void QAxHostWidget::resizeEvent(QResizeEvent *e)
 
 bool QAxHostWidget::winEvent(MSG *msg)
 {
-    if (axhost->inPlaceObjectWindowless) {
+    if (axhost && axhost->inPlaceObjectWindowless) {
         Q_ASSERT(axhost->m_spInPlaceObject);
         IOleInPlaceObjectWindowless *windowless = (IOleInPlaceObjectWindowless*)axhost->m_spInPlaceObject;
         Q_ASSERT(windowless);
@@ -1713,6 +1713,15 @@ void QAxWidget::resizeEvent(QResizeEvent *e)
     
     QWidget::resizeEvent(e);
 }
+
+/*!
+    \reimp
+*/
+void QAxWidget::connectNotify(const char *)
+{
+    QAxBase::connectNotify();
+}
+
 
 /*!
     This function is called when the ActiveX control wants to display

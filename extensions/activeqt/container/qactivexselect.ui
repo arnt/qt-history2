@@ -1,8 +1,8 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
-<class>QActiveXSelect</class>
+<class>QAxSelect</class>
 <widget class="QDialog">
     <property name="name">
-        <cstring>QActiveXSelect</cstring>
+        <cstring>QAxSelect</cstring>
     </property>
     <property name="geometry">
         <rect>
@@ -86,7 +86,7 @@
                 </spacer>
             </vbox>
         </widget>
-        <widget class="QListBox" row="0" column="0">
+        <widget class="QListView" row="0" column="0">
             <property name="name">
                 <cstring>ActiveXList</cstring>
             </property>
@@ -140,9 +140,9 @@
     </connection>
     <connection>
         <sender>ActiveXList</sender>
-        <signal>highlighted(QListBoxItem*)</signal>
+        <signal>highlighted(QListViewItem*)</signal>
         <receiver>QActiveXSelect</receiver>
-        <slot>controlSelected(QListBoxItem*)</slot>
+        <slot>controlSelected(QListViewItem*)</slot>
     </connection>
     <connection>
         <sender>ActiveXList</sender>
@@ -165,7 +165,7 @@
 </variables>
 <slots>
     <slot>init()</slot>
-    <slot>controlSelected( QListBoxItem *ctrl )</slot>
+    <slot>controlSelected( QListViewItem *ctrl )</slot>
     <slot>openLater()</slot>
     <slot>setActiveX( QAxWidget * ax )</slot>
     <slot>setDesigner( DesignerInterface * des )</slot>

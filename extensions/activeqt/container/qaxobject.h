@@ -35,8 +35,22 @@ public:
     QAxObject(IUnknown *iface, QObject *parent = 0);
     ~QAxObject();
     
+protected:
+    void connectNotify(const char *signal);
+
 private:
     const QMetaObject *parentMetaObject() const;
+    static QMetaObject staticMetaObject;
 };
+
+#if defined Q_CC_MSVC && _MSC_VER < 1300
+template <> inline QAxObject *qt_cast_helper<QAxObject*>(const QObject *o, QAxObject *)
+#else
+template <> inline QAxObject *qt_cast<QAxObject*>(const QObject *o)
+#endif
+{
+    void *result = o ? o->qt_metacast("QAxObject") : 0;
+    return (QAxObject*)(result);
+}
 
 #endif //QAXOBJECT_H

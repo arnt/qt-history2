@@ -138,3 +138,11 @@ int QAxObject::qt_metacall(QMetaObject::Call call, int id, void **v)
     \fn QObject *QAxObject::qObject()
     \reimp
 */
+
+/*!
+    \reimp
+*/
+void QAxObject::connectNotify(const char *)
+{
+    QAxBase::connectNotify();
+}

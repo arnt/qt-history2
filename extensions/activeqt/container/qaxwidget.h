@@ -53,12 +53,24 @@ protected:
     void resizeEvent(QResizeEvent *);
     virtual bool translateKeyEvent(int message, int keycode) const;
     virtual void setStatusText(const QString &text);
+
+    void connectNotify(const char *signal);
 private:
     friend class QAxHostWindow;
+    QAxHostWindow *container;
     
     const QMetaObject *parentMetaObject() const;
-    
-    QAxHostWindow *container;
+    static QMetaObject staticMetaObject;
 };
+
+#if defined Q_CC_MSVC && _MSC_VER < 1300
+template <> inline QAxWidget *qt_cast_helper<QAxWidget*>(const QObject *o, QAxWidget *)
+#else
+template <> inline QAxWidget *qt_cast<QAxWidget*>(const QObject *o)
+#endif
+{
+    void *result = o ? o->qt_metacast("QAxWidget") : 0;
+    return (QAxWidget*)(result);
+}
 
 #endif // QAXWIDGET_H
