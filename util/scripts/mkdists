@@ -681,7 +681,7 @@ copy_platform_files() {
 	    *.qws) o_file=`basename $a | sed "s,\.qws,,"` ;;
 	    *) [ -e "${a}.qws" ] && continue ;;
 	    esac
-	    if [ "$edition" = "commercial" ] || [ "$edition" = "review" ]; then
+	    if [ "$edition" = "commercial" ] || [ "$edition" = "review" ] || [ "$edition" = "academic" ]; then
 		[ $o_file = "LICENSE" ] && o_file=".LICENSE"
 		[ $o_file = "LICENSE-US" ] && o_file=".LICENSE-US"
 	    fi
@@ -691,7 +691,7 @@ copy_platform_files() {
 	[ "$platform" = "mac" ] && [ `basename $a` = "README.outside" ] && continue
 
 	case $edition in
-	commercial|review)
+	commercial|review|academic)
 	    if [ "$platform" = "win" ]; then
 		[ `basename $a` = "LICENSE" ] && continue
 		[ `basename $a` = "LICENSE-US" ] && continue
