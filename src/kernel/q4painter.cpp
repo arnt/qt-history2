@@ -87,11 +87,17 @@ bool QPainter::isActive() const
 void QPainter::save()
 {
     d->save();
+    if (isActive())
+	dgc->setState(ds, false);
 }
 
 void QPainter::restore()
 {
     d->restore();
+
+    updateXForm();
+    if (isActive())
+	dgc->setState(ds);
 }
 
 bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
@@ -265,9 +271,10 @@ void QPainter::setClipRegion(const QRegion &r, CoordinateMode m)
 {
     // ### Properly port coordinatemode
     Q_ASSERT(dgc);
-    ds->clipRegion = r;
+    ds->clipRegion = (ds->VxF || ds->WxF) ? ds->matrix * r : r;
     ds->clipEnabled = true;
     ds->coordinateMode = m;
+
     dgc->updateClipRegion(ds);
 }
 

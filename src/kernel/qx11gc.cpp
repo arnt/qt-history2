@@ -1567,10 +1567,10 @@ void QX11GC::updateClipRegion(QPainterState *ps)
     //     crgn = rgn;
     // else
     //     crgn = xmat * rgn;
-    if (ps->VxF || ps->WxF)
-	d->crgn = ps->worldMatrix * ps->clipRegion;
-    else
-	d->crgn = ps->clipRegion;
+//     if (ps->VxF || ps->WxF)
+// 	d->crgn = ps->worldMatrix * ps->clipRegion;
+//     else
+    d->crgn = ps->clipRegion;
     if (ps->clipEnabled) {
  	if (d->pdev == paintEventDevice && paintEventClipRegion)
  	    d->crgn = d->crgn.intersect(*paintEventClipRegion);

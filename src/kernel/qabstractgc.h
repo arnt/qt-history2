@@ -84,10 +84,10 @@ public:
 
     bool hasCapability(Capability cap) const { return gccaps&cap; }
 
-    inline void setState(QPainterState *state);
+    inline void setState(QPainterState *state, bool updateGC = true);
 
 private:
-    void updateInternal(QPainterState *state);
+    void updateInternal(QPainterState *state, bool updateGC = true);
 
 protected:
     QPainterState *state;
@@ -113,11 +113,11 @@ inline void QAbstractGC::fix_neg_rect(int *x, int *y, int *w, int *h)
     }
 }
 
-inline void QAbstractGC::setState(QPainterState *newState)
+inline void QAbstractGC::setState(QPainterState *newState, bool updateGC)
 {
     if (state==newState)
 	return;
-    updateInternal(newState);
+    updateInternal(newState, updateGC);
 }
 
 

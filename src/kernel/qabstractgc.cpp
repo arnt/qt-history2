@@ -7,9 +7,9 @@ QAbstractGC::QAbstractGC(GCCaps caps)
     d_ptr = new QAbstractGCPrivate;
 }
 
-void QAbstractGC::updateInternal(QPainterState *s)
+void QAbstractGC::updateInternal(QPainterState *s, bool updateGC)
 {
-    if (s) {
+    if (s && updateGC) {
 	updatePen(s);
 	updateBrush(s);
 	updateFont(s);

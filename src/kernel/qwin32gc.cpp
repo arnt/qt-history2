@@ -1212,8 +1212,10 @@ void QWin32GC::updateClipRegion(QPainterState *state)
 // 	if ( pdev == dirty_hack_paintDevice() )
 // 	rgn = rgn.intersect( *(QPainter::dirty_hack_paintRegion()) );
 
-	if (state->VxF || state->WxF)
-	    rgn = state->worldMatrix * rgn;
+// 	if (state->VxF || state->WxF) {
+// 	    qDebug(" --> Translate region...");
+// 	    rgn = state->worldMatrix * rgn;
+// 	}
 
 	// Setting an empty region as clip region on Win just dmainisables clipping completely.
 	// To workaround this and get the same semantics on Win and Unix, we set a 1x1 pixel
