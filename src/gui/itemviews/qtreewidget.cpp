@@ -589,7 +589,11 @@ QTreeWidgetItem *QTreeModel::takeFromTopLevel(int row)
 {
     Q_ASSERT(row != -1);
     notifyItemAboutToBeRemoved(tree.at(row));
-    return tree.takeAt(row);
+    QTreeWidgetItem *item = tree.takeAt(row);
+    item->model = 0;
+    item->view = 0;
+    item->par = 0;
+    return item;
 }
 
 /*!
@@ -1199,7 +1203,11 @@ QTreeWidgetItem *QTreeWidgetItem::takeChild(int index)
     if (index >= 0 && index < children.count()) {
         if (model)
             model->notifyItemAboutToBeRemoved(children.at(index));
-        return children.takeAt(index);
+        QTreeWidgetItem *item = children.takeAt(index);
+        item->model = 0;
+        item->view = 0;
+        item->par = 0;
+        return item;
     }
     return 0;
 }
