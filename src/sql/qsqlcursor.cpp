@@ -1294,7 +1294,9 @@ int QSqlCursor::applyPrepared( const QString& q, bool invalidate )
 	    return 0;
 	}
     } else if ( driver() ) {
-	sql = new QSqlQuery( driver()->createQuery() );
+	// workaround for VC++ bug
+	QSqlQuery temp = driver()->createQuery();
+	sql = new QSqlQuery( temp );
 	if ( !sql->prepare( q ) ) {
 	    delete sql;
 	    return 0;

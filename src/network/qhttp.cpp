@@ -2063,7 +2063,9 @@ void QHttp::slotReadyRead()
 		if ( d->bytesDone + bytesAvailable() + n == d->response.contentLength() )
 		    everythingRead = TRUE;
 	    } else {
-		arr = new QByteArray( d->socket.readAll() );
+		// workaround for VC++ bug
+		QByteArray temp = d->socket.readAll();
+		arr = new QByteArray( temp );
 	    }
 
 	    if ( arr ) {
