@@ -17,7 +17,8 @@ const validVars = ["branch", "version"];       // variables with arbitrary value
 const binaryExtensions = ["msi", "dll", "gif", "png", "mng",
 			  "jpg", "bmp", "any", "pic", "ppm",
 			  "exe", "zip", "qm", "ico", "wav",
-			  "icns"];
+			  "icns", "qpf", "bdf", "pfb", "pfa",
+			  "ttf"];
 
 const user = System.getenv("USER");
 
@@ -59,6 +60,7 @@ var checkoutRemove = [ new RegExp("^tests"),
 		       new RegExp("^src/sql/drivers/db2"),
 		       new RegExp("^src/sql/drivers/oci"),
 		       new RegExp("^src/sql/drivers/tds"),
+		       new RegExp("^src/gui/itemviews/qheaderwidget"),
 		       new RegExp("^doc/tutorial"),
 		       new RegExp("^src/gui/painting/makepsheader.pl"),
 		       new RegExp("^src/gui/painting/qpsprinter"),
@@ -627,8 +629,12 @@ function copyDist(packageDir, platform, edition)
     for (var i in platformFiles) {
 	var fileName = platformFiles[i];
 	var absFileName = packageDir + "/dist/" + platform + "/" + fileName;
-	if (File.exists(absFileName) && File.isFile(absFileName))
+	if (File.exists(absFileName) && File.isFile(absFileName)) {
+	    var dir = new Dir(new File(packageDir + "/" + fileName).path);
+	    if (!dir.exists)
+		dir.mkdirs();
 	    execute(["cp", absFileName, packageDir + "/" + fileName]);
+	}
     }
 
     // copies any edition specific files
@@ -790,8 +796,8 @@ function execute(command, stdin) {
     var runTime = Math.floor((Date().getTime() - start)/1000);
     if (runTime > 0)
 	print("...took %1 second(s)".arg(runTime));
-    if (Process.stderr.length > 0 &&
-	Process.stderr.left(80).toLowerCase().find(/warning|error/) != -1)
-	warning("Running %1 stderr: %2".arg(command).arg(Process.stderr.left(80)))
+    if (error > 0 || (Process.stderr.length > 0 &&
+		      Process.stderr.left(80).toLowerCase().find(/warning|error/) != -1))
+	warning("Running %1 stderr: %2".arg(command).arg(Process.stderr.left(80)));
     return error;
 }
