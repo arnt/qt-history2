@@ -588,15 +588,16 @@ QFSFileEngine::rootPath()
 QString
 QFSFileEngine::tempPath()
 {
-#ifdef UNICODE
-    wchar_t tempPath[MAX_PATH];
-    GetTempPath(MAX_PATH, tempPath);
-    QString ret = QString::fromUtf16((ushort*)tempPath);
-#else
-    char tempPath[MAX_PATH];
-    GetTempPath(MAX_PATH, tempPath);
-    QString ret(tempPath);
-#endif
+    QString ret;
+    QT_WA({
+	wchar_t tempPath[MAX_PATH];
+	GetTempPath(MAX_PATH, tempPath);
+	ret = QString::fromUtf16((ushort*)tempPath);
+    } , {
+	char tempPath[MAX_PATH];
+	GetTempPathA(MAX_PATH, tempPath);
+	ret = QString(tempPath);
+    });
     if(ret.isEmpty())
         ret = QString::fromLatin1("c:/tmp");
     return ret;
