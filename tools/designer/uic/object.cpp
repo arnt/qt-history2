@@ -34,9 +34,6 @@
 #include <qregexp.h>
 #include <zlib.h>
 
-#undef main
-
-
 /*!
   Creates a declaration for the object given in \a e.
 

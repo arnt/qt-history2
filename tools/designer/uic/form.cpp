@@ -34,8 +34,6 @@
 #include <qregexp.h>
 #include <zlib.h>
 
-#undef main
-
 QByteArray unzipXPM( QString data, ulong& length )
 {
     char *ba = new char[ data.length() / 2 ];

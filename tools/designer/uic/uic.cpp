@@ -34,8 +34,6 @@
 #include <qregexp.h>
 #include <zlib.h>
 
-#undef main
-
 bool Uic::isMainWindow = FALSE;
 
 QString Uic::mkBool( bool b )
