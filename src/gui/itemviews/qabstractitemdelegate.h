@@ -26,6 +26,15 @@ class Q_GUI_EXPORT QAbstractItemDelegate : public QObject
     Q_OBJECT
 
 public:
+
+    enum EndEditHint {
+        NoHint,
+        EditNextItem,
+        EditPreviousItem,
+        SubmitModelCache,
+        RevertModelCache
+    };
+
     QAbstractItemDelegate(QObject *parent = 0);
     virtual ~QAbstractItemDelegate();
 
@@ -63,11 +72,7 @@ public:
 
 signals:
     void commitData(QWidget *editor);
-    void doneEditing(QWidget *editor);
-    void editingAccepted();
-    void editingAborted();
-    void editNextItem();
-    void editPreviousItem();
+    void closeEditor(QWidget *editor, EndEditHint hint = NoHint);
 
 protected:
     QAbstractItemDelegate(QObjectPrivate &, QObject *parent = 0);

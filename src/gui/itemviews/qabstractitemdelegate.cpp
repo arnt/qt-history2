@@ -52,7 +52,7 @@
 */
 
 /*!
-    \fn void QAbstractItemDelegate::doneEditing(QWidget *editor)
+    \fn void QAbstractItemDelegate::closeEditor(QWidget *editor, EndEditHint hint)
 
     This signal is emitted when the user has finished editing an item.
     The arguments are the \a editor that was used.
@@ -231,7 +231,7 @@ QString QAbstractItemDelegate::ellipsisText(const QFontMetrics &fontMetrics, int
             offset = ++i;
         }
     }
- 
+
     if (align & Qt::AlignRight) {
         if (text.isEmpty())
             text = org.right(1);

@@ -39,6 +39,7 @@ public:
     virtual ~QHeaderView();
 
     void setModel(QAbstractItemModel *model);
+    void setSelectionModel(QItemSelectionModel *selectionModel);
 
     Qt::Orientation orientation() const;
     int offset() const;
@@ -63,7 +64,7 @@ public:
 
     bool isSectionHidden(int logicalIndex) const;
     void setSectionHidden(int logicalIndex, bool hide);
-    
+
     inline void hideSection(int logicalIndex)
         { setSectionHidden(logicalIndex, true); }
     inline void showSection(int logicalIndex)
@@ -143,7 +144,7 @@ protected:
 
     QModelIndex itemAt(int x, int y) const;
     bool isIndexHidden(const QModelIndex &index) const;
-    
+
     QModelIndex moveCursor(QAbstractItemView::CursorAction, Qt::KeyboardModifiers);
     void setSelection(const QRect&, QItemSelectionModel::SelectionFlags);
     QRect selectionViewportRect(const QItemSelection &selection) const;

@@ -189,34 +189,52 @@ QHeaderView::~QHeaderView()
 */
 void QHeaderView::setModel(QAbstractItemModel *model)
 {
-    if (d->orientation == Qt::Horizontal) {
-        QObject::disconnect(d->model, SIGNAL(columnsInserted(QModelIndex,int,int)),
-                            this, SLOT(sectionsInserted(QModelIndex,int,int)));
-        QObject::disconnect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
-                            this, SLOT(sectionsRemoved(QModelIndex,int,int)));
-        QObject::connect(model, SIGNAL(columnsInserted(QModelIndex,int,int)),
-                         this, SLOT(sectionsInserted(QModelIndex,int,int)));
-        QObject::connect(model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
-                         this, SLOT(sectionsRemoved(QModelIndex,int,int)));
-    } else {
-        QObject::disconnect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
-                            this, SLOT(sectionsInserted(QModelIndex,int,int)));
-        QObject::disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-                            this, SLOT(sectionsRemoved(QModelIndex,int,int)));
-        QObject::connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)),
-                         this, SLOT(sectionsInserted(QModelIndex,int,int)));
-        QObject::connect(model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-                         this, SLOT(sectionsRemoved(QModelIndex,int,int)));
+    if (d->model) {
+        if (d->orientation == Qt::Horizontal) {
+            QObject::disconnect(d->model, SIGNAL(columnsInserted(QModelIndex,int,int)),
+                                this, SLOT(sectionsInserted(QModelIndex,int,int)));
+            QObject::disconnect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
+                                this, SLOT(sectionsRemoved(QModelIndex,int,int)));
+            QObject::connect(model, SIGNAL(columnsInserted(QModelIndex,int,int)),
+                             this, SLOT(sectionsInserted(QModelIndex,int,int)));
+            QObject::connect(model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
+                             this, SLOT(sectionsRemoved(QModelIndex,int,int)));
+        } else {
+            QObject::disconnect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
+                                this, SLOT(sectionsInserted(QModelIndex,int,int)));
+            QObject::disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+                                this, SLOT(sectionsRemoved(QModelIndex,int,int)));
+            QObject::connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)),
+                             this, SLOT(sectionsInserted(QModelIndex,int,int)));
+            QObject::connect(model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
+                             this, SLOT(sectionsRemoved(QModelIndex,int,int)));
+        }
+        QObject::disconnect(d->model, SIGNAL(headerDataChanged(Orientation,int,int)),
+                            this, SLOT(headerDataChanged(Orientation,int,int)));
+        QObject::connect(d->model, SIGNAL(headerDataChanged(Orientation,int,int)),
+                         this, SLOT(headerDataChanged(Orientation,int,int)));
     }
-    QObject::disconnect(d->model, SIGNAL(headerDataChanged(Orientation,int,int)),
-                        this, SLOT(headerDataChanged(Orientation,int,int)));
-    QObject::connect(d->model, SIGNAL(headerDataChanged(Orientation,int,int)),
-                     this, SLOT(headerDataChanged(Orientation,int,int)));
+
     QAbstractItemView::setModel(model);
+
+    if (d->model && d->selectionModel)
+        QObject::disconnect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
+                            d->model, SLOT(submit()));
     // Users want to set sizes and modes before the widget is shown.
     // Thus, we have to initialize when the model is set,
     // and not lazily like we do in the other views.
     initializeSections();
+}
+
+/*!
+  \reimp
+*/
+void QHeaderView::setSelectionModel(QItemSelectionModel *selectionModel)
+{
+    QAbstractItemView::setSelectionModel(selectionModel);
+    if (d->model && d->selectionModel)
+        QObject::disconnect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
+                            d->model, SLOT(submit()));
 }
 
 /*!

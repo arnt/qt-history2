@@ -433,11 +433,6 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
         disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
                    this, SLOT(rowsRemoved(QModelIndex,int,int)));
         disconnect(d->model, SIGNAL(reset()), this, SLOT(reset()));
-        // delegate
-        if (d->delegate) {
-            disconnect(d->delegate, SIGNAL(editingAccepted()), d->model, SLOT(submit()));
-            disconnect(d->delegate, SIGNAL(editingAborted()), d->model, SLOT(revert()));
-        }
         // selections
         if (d->selectionModel)
             disconnect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
@@ -455,15 +450,7 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
         connect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
                 this, SLOT(rowsRemoved(QModelIndex,int,int)));
         connect(d->model, SIGNAL(reset()), this, SLOT(reset()));
-        // delegate
-        if (d->delegate) {
-            connect(d->delegate, SIGNAL(editingAccepted()), d->model, SLOT(submit()));
-            connect(d->delegate, SIGNAL(editingAborted()), d->model, SLOT(revert()));
-        }
-        // selections
-        if (d->selectionModel)
-            connect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
-                    d->model, SLOT(submit()));
+        // will connect in setSelectionModel
     }
 
     setRoot(QModelIndex::Null);// triggers layout
@@ -556,28 +543,16 @@ void QAbstractItemView::setItemDelegate(QAbstractItemDelegate *delegate)
 {
     if (d->delegate) {
         // view
-        disconnect(d->delegate, SIGNAL(doneEditing(QWidget*)), this, SLOT(doneEditing(QWidget*)));
+        disconnect(d->delegate, SIGNAL(closeEditor(QWidget*, QAbstractItemDelegate::EndEditHint)),
+                   this, SLOT(closeEditor(QWidget*, QAbstractItemDelegate::EndEditHint)));
         disconnect(d->delegate, SIGNAL(commitData(QWidget*)), this, SLOT(commitData(QWidget*)));
-        disconnect(d->delegate, SIGNAL(editNextItem()), this, SLOT(editNextItem()));
-        disconnect(d->delegate, SIGNAL(editPreviousItem()), this, SLOT(editPreviousItem()));
-        // model
-        if (d->model) {
-            disconnect(d->delegate, SIGNAL(editingAccepted()), d->model, SLOT(submit()));
-            disconnect(d->delegate, SIGNAL(editingAborted()), d->model, SLOT(revert()));
-        }
     }
     d->delegate = delegate;
     if (d->delegate) {
         // view
-        connect(d->delegate, SIGNAL(doneEditing(QWidget*)), this, SLOT(doneEditing(QWidget*)));
+        connect(d->delegate, SIGNAL(closeEditor(QWidget*, QAbstractItemDelegate::EndEditHint)),
+                this, SLOT(closeEditor(QWidget*, QAbstractItemDelegate::EndEditHint)));
         connect(d->delegate, SIGNAL(commitData(QWidget*)), this, SLOT(commitData(QWidget*)));
-        connect(d->delegate, SIGNAL(editNextItem()), this, SLOT(editNextItem()));
-        connect(d->delegate, SIGNAL(editPreviousItem()), this, SLOT(editPreviousItem()));
-        // model
-        if (d->model) {
-            connect(d->delegate, SIGNAL(editingAccepted()), d->model, SLOT(submit()));
-            connect(d->delegate, SIGNAL(editingAborted()), d->model, SLOT(revert()));
-        }
     }
 }
 
@@ -1425,15 +1400,31 @@ void QAbstractItemView::selectionModelDestroyed()
 
   \sa endEdit()
 */
-void QAbstractItemView::doneEditing(QWidget *editor)
+void QAbstractItemView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndEditHint hint)
 {
     endEdit(d->editors.key(editor));
+    switch (hint) {
+    case QAbstractItemDelegate::EditNextItem:
+        editNextItem();
+        break;
+    case QAbstractItemDelegate::EditPreviousItem:
+        editPreviousItem();
+        break;
+    case QAbstractItemDelegate::SubmitModelCache:
+        model()->submit();
+        break;
+    case QAbstractItemDelegate::RevertModelCache:
+        model()->revert();
+        break;
+    default:
+        break;
+    }
 }
 
 /*!
   Commit the data in the \a editor to the model.
 
-  \sa doneEditing()
+  \sa closeEditor()
 */
 void QAbstractItemView::commitData(QWidget *editor)
 {

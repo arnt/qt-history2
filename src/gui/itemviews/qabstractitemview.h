@@ -145,7 +145,7 @@ protected slots:
     virtual void verticalScrollbarValueChanged(int value);
     virtual void horizontalScrollbarValueChanged(int value);
     virtual void selectionModelDestroyed();
-    virtual void doneEditing(QWidget *editor);
+    virtual void closeEditor(QWidget *editor, QAbstractItemDelegate::EndEditHint hint);
     virtual void commitData(QWidget *editor);
     virtual void editorDestroyed(QObject *editor);
     virtual void editNextItem();
