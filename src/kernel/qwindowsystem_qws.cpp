@@ -177,6 +177,7 @@ static QWSInputMethod *current_IM = 0;
     setActiveWindow().
 */
 
+
 /*!
     \fn int QWSWindow::winId() const
 
@@ -887,6 +888,18 @@ static void ignoreSignal( int )
 */
 
 /*!
+    \enum QWSServer::KeyMap
+
+    \internal
+*/
+
+/*!
+    \enum QWSServer::KeyOverride
+
+    \internal
+*/
+
+/*!
     \fn const QPtrList<QWSWindow> &QWSServer::clientWindows()
 
     Returns the list of top-level windows. This list will change as
@@ -909,11 +922,14 @@ static void ignoreSignal( int )
 */
 
 /*!
-  Construct a QWSServer class.
+    Construct a QWSServer class.
 
     \warning This class is instantiated by QApplication for
     Qt/Embedded server processes. You should never construct this
     class yourself.
+
+    The \a flags are used for keyboard and mouse setting. The server's
+    parent is \a parent and it is called \a name.
 */
 
 QWSServer::QWSServer( int flags, QObject *parent, const char *name ) :
@@ -1657,6 +1673,12 @@ void QWSServer::sendKeyEventUnfiltered(int unicode, int keycode, int modifiers, 
 
 #ifndef QT_NO_QWS_IM
 
+/*!
+    This function sents an input method event to the server. The
+    current state is passed in \a state and the current text in \a
+    txt. The cursor's position in the text is given by \a cpos, and
+    the selection length (which could be 0) is given in \a selLen.
+*/
 void QWSServer::sendIMEvent( IMState state, const QString& txt, int cpos, int selLen )
 {
     QWSIMEvent event;
@@ -1681,10 +1703,27 @@ void QWSServer::sendIMEvent( IMState state, const QString& txt, int cpos, int se
 }
 
 
+/*!
+    \internal
+
+    Sets the current input method to \a im.
+*/
 void QWSServer::setCurrentInputMethod( QWSInputMethod *im )
 {
     current_IM = im;
 }
+
+/*!
+    \fn static void QWSServer::resetInputMethod()
+
+    \internal
+*/
+
+/*!
+    \fn static void QWSServer::setMicroFocus( int x, int y )
+
+    \internal
+*/
 
 #endif //QT_NO_QWS_IM
 
@@ -2933,9 +2972,10 @@ void QWSServer::disconnectClient( QWSClient *c )
 
 /*!
   \class QWSInputMethod
-  \brief International input methods for Qt/Embedded
+  \brief The QWSInputMethod class provides international input methods
+  for Qt/Embedded.
 
-  Subclass this to implement your own input method
+  Subclass this class to implement your own input method.
 
   An input methods consists of a keyboard filter and optionally a
   graphical interface. The keyboard filter intercepts key events
@@ -2976,16 +3016,20 @@ QWSInputMethod::~QWSInputMethod()
 
 
 /*!
-  \fn bool filter(int unicode, int keycode, int modifiers, bool isPress, bool autoRepeat)
+    \fn bool QWSInputMethod::filter(int unicode, int keycode, int modifiers, bool isPress, bool autoRepeat)
 
-  Must be implemented in subclasses to handle key input from physical
-  or virtual keyboards. Returning TRUE will block the event from
-  further processing.
+    This function must be implemented in subclasses to handle key
+    input from physical or virtual keyboards. Returning TRUE will
+    block the event from further processing.
 
-  All normal key events should be blocked while in compose mode
-  (between \c IMStart and \c IMEnd).
+    The Unicode value is given in \a unicode and the key code in \a
+    keycode. Keyboard modifiers are OR-ed together in \a modifiers.
+    If \a isPress is TRUE this is a key press; otherwise it is a key
+    release. If \a autoRepeat is TRUE this is an auto-repeated key
+    press.
 
-  
+    All normal key events should be blocked while in compose mode
+    (i.e., between \c IMStart and \c IMEnd).
 
 */
 
@@ -3066,12 +3110,18 @@ void QWSInputMethod::setFont( const QFont& )
     which the event of type \a e has occurred.
 */
 
-/*
+/*!
     \fn QWSServer::keyMap()
 
     Returns the keyboard mapping table used to convert keyboard
     scancodes to Qt keycodes and Unicode values. It's used by the
     keyboard driver in \c qkeyboard_qws.cpp.
+*/
+
+/*!
+    \fn static void QWSServer::setOverrideKeys( const KeyOverride* )
+
+    \internal
 */
 
 /*!

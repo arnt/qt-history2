@@ -1,9 +1,14 @@
-/*!
+/*
+    This is under development; the text is intended to replace
+    network.doc.
+*/
 
+/*
 
 \page networking.html
 
 \title Network Module
+
 
 This module is part of the \link editions.html Qt Enterprise Edition \endlink.
 

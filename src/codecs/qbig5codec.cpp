@@ -330,7 +330,7 @@ int QBig5Codec::heuristicNameMatch(const char* hint) const
 
 /*! \class QBig5hkscsCodec
 
-  \brief Th QBig5hkscsCodec class provides conversion to and from the Big5-HKSCS encoding.
+  \brief The QBig5hkscsCodec class provides conversion to and from the Big5-HKSCS encoding.
 
   QBig5hkscsCodec grew out of the QBig5Codec originally contributed by
   Ming-Che Chuang \<mingche@cobra.ee.ntu.edu.tw\>.  James Su

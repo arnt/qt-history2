@@ -42,6 +42,8 @@
 #include "qglobal.h"
 #endif // QT_H
 
+// Documentation is in qabstractlayout.cpp.
+
 class Q_EXPORT QSizePolicy
 {
 private:

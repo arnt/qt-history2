@@ -360,7 +360,7 @@ struct QLineEditPrivate {
     \sa hasSelectedText(), selectedText()
 */
 
-/*!
+/* IGNORE!
   \fn void QLineEdit::invalidInput()
 
   This signal is emitted whenever the QLineEdit loses focus and the input
