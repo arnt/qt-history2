@@ -532,7 +532,7 @@ QString QAction::statusTip() const
   <A HREF="simple-application-action.html">Simple Application Walkthrough
   featuring QAction</A>.)
 
-  \sa whatsThis(), QStyleSheet
+  \sa whatsThis(), QStyleSheet, QWhatsThis
  */
 void QAction::setWhatsThis( const QString& whatsThis )
 {
@@ -1041,13 +1041,14 @@ void QActionGroupPrivate::update( const QActionGroup* that )
   QActionGroup is an action on its own and thus can be treated as
   such. Standard action functions like addTo(), removeFrom() and
   setEnabled() are automatically performed on all members of the
-  group, i.e. for example that adding a group to a tool bar creates a
+  group. Thus adding a group to a tool bar creates a
   tool bar entry for each child action.
 
   Whilst a QActionGroup emits an activated() signal when
   one of its members is activated, the QAction::toggled() signal
-  is not propagated as an action group on its own can't
-  be setOn().
+  is not propagated as an action group can't
+  be a toggle action on its own. Therefore isToggleAction()
+  and isOn() are not useful in connection with action groups.
 
   For toggle actions an action group provides "one of many" choice
   similar to a group of radio buttons (see QRadioButton).
@@ -1057,14 +1058,15 @@ void QActionGroupPrivate::update( const QActionGroup* that )
   emitting the selected() signal. On command action members of an
   exclusive QActionGroup this property has no effect.
 
-  Per default member actions of a QActionGroup can't be visibly
+  By default member actions of a QActionGroup can't be visibly
   distinguished from single actions in a menu or a tool bar. To place
   group members in a separate subwidget use setUsesDropDown().
-  Whilst some QAction properties like isToggleAction() and isOn()
-  don't make sense with action groups, this is where iconSet(),
-  text() and menuText() come handy.
+  This is where iconSet(), text() and menuText() come handy to
+  illustrate and describe the subwidget. For action groups with
+  usesDropDown() being TRUE whatsThis() help and toolTip()s are
+  available where appropriate.
 
-  Other QAction properties like toolTip(), statusTip(), whatsThis()
+  Other QAction properties like statusTip()
   and accel() have no effect with action groups.
 */
 
