@@ -149,12 +149,11 @@ bool QRichTextDrag::canDecode( QMimeSource* e )
 
 const char* QRichTextDrag::format( int i ) const
 {
-    if ( i < 4 ) // #### not nice
+    if ( QTextDrag::format( i ) )
 	return QTextDrag::format( i );
-    else if ( i == 4 )
+    if ( QTextDrag::format( i-1 ) )
 	return "application/x-qrichtext";
-    else
-	return 0;
+    return 0;
 }
 
 static bool block_set_alignment = FALSE;
