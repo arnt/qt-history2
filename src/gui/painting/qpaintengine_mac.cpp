@@ -1167,19 +1167,19 @@ QCoreGraphicsPaintEngine::updatePen(const QPen &pen)
     if(pen.style() == Qt::DashLine) {
         static float inner_lengths[] = { 3, 1 };
         lengths = inner_lengths;
-        count = sizeof(sizeof(inner_lengths) / sizeof(inner_lengths[0]));
+        count = 2;
     } else if(pen.style() == Qt::DotLine) {
         static float inner_lengths[] = { 1, 1 };
         lengths = inner_lengths;
-        count = sizeof(sizeof(inner_lengths) / sizeof(inner_lengths[0]));
+        count = 2;
     } else if(pen.style() == Qt::DashDotLine) {
         static float inner_lengths[] = { 3, 1, 1, 1 };
         lengths = inner_lengths;
-        count = sizeof(sizeof(inner_lengths) / sizeof(inner_lengths[0]));
+        count = 4;
     } else if(pen.style() == Qt::DashDotDotLine) {
         static float inner_lengths[] = { 3, 1, 1, 1, 1, 1 };
         lengths = inner_lengths;
-        count = sizeof(sizeof(inner_lengths) / sizeof(inner_lengths[0]));
+        count = 6;
     }
     CGContextSetLineDash(d->hd, 0, lengths, count);
 
