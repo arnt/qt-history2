@@ -99,7 +99,7 @@ void qt_generate_epsf( bool b )
     qt_gen_epsf = b;
 }
 
-static const char *const ps_header = 
+static const char *const ps_header =
 "/d/def load def/D{bind d}bind d/d2{dup dup}D/B{0 d2}D/W{255 d2}D/ED{exch d}D\n"
 "/D0{0 ED}D/LT{lineto}D/MT{moveto}D/S{stroke}D/F{setfont}D/SW{setlinewidth}D\n"
 "/CP{closepath}D/RL{rlineto}D/NP{newpath}D/CM{currentmatrix}D/SM{setmatrix}D\n"
@@ -1375,7 +1375,7 @@ public:
     int scriptUsed;
     QFont currentSet;
     float scale;
-    
+
     bool embedFonts;
     QStringList fontpath;
 };
@@ -1400,9 +1400,9 @@ public:
     virtual unsigned short glyph_for_unicode(unsigned short unicode) { return unicode; }
     unsigned short insertIntoSubset( unsigned short unicode );
     virtual bool embedded() { return FALSE; }
-    
+
     bool operator == ( const QPSPrinterFontPrivate &other ) {
-	return other.psname == psname; 
+	return other.psname == psname;
     }
 
 protected:
@@ -1490,7 +1490,7 @@ QString qt_makePSFontName( const QFont &f, int *listpos, int *ftype)
       i++;
     }
   }
-  
+
   if ( ps.isEmpty() )
       ps = "Helvetica";
 
@@ -1635,7 +1635,7 @@ static inline const char *toHex( uchar u )
     int i = 1;
     while ( i >= 0 ) {
 	ushort hex = (u & 0x000f);
-	if ( hex < 0x0a ) 
+	if ( hex < 0x0a )
 	    hexVal[i] = '0'+hex;
 	else
 	    hexVal[i] = 'A'+(hex-0x0a);
@@ -1646,13 +1646,13 @@ static inline const char *toHex( uchar u )
     return hexVal;
 }
 
-static inline const char *toHex( ushort u ) 
+static inline const char *toHex( ushort u )
 {
     static char hexVal[5];
     int i = 3;
     while ( i >= 0 ) {
 	ushort hex = (u & 0x000f);
-	if ( hex < 0x0a ) 
+	if ( hex < 0x0a )
 	    hexVal[i] = '0'+hex;
 	else
 	    hexVal[i] = 'A'+(hex-0x0a);
@@ -2282,7 +2282,7 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFont &f, QByteArray& d)
           // defective = true;
       }
   }
-#endif  
+#endif
   BYTE *maxp = getTable("maxp");
   if ( !maxp ) {
       defective = TRUE;
@@ -4017,10 +4017,10 @@ public:
                           QPSPrinterPrivate *d );
       void drawText( QTextStream &stream, uint spaces, const QPoint &p,
                      const QString &text, QPSPrinterPrivate *d, QPainter *paint );
-      
+
       QString makePSFontName( const QFont &f, int type ) const;
       virtual QString extension() const = 0;
-      
+
       QTextCodec *codec;
 };
 
@@ -4031,8 +4031,8 @@ QString QPSPrinterFontAsian::makePSFontName( const QFont &f, int type ) const
 
     QString family = f.family();
     family = family.lower();
- 
- 
+
+
     // try to make a "good" postscript name
     ps = family.simplifyWhiteSpace();
     i = 0;
@@ -4047,7 +4047,7 @@ QString QPSPrinterFontAsian::makePSFontName( const QFont &f, int type ) const
 	    i++;
 	}
     }
- 
+
     switch ( type ) {
 	case 1:
 	    ps.append( QString::fromLatin1("-Italic") );
@@ -4064,7 +4064,7 @@ QString QPSPrinterFontAsian::makePSFontName( const QFont &f, int type ) const
     }
 
     ps += extension();
-    
+
     return ps;
 }
 
@@ -4076,7 +4076,7 @@ QString QPSPrinterFontAsian::defineFont( QTextStream &stream, const QString &ps,
     QString fontName2;
 
     QString *tmp = d->headerFontNames.find( ps );
-    
+
     if ( d->buffer ) {
         if ( tmp ) {
             fontName = *tmp;
@@ -4320,7 +4320,7 @@ static const psfont MunhwaHoonMin [] = {
 
 
 static const psfont * const KoreanReplacements[] = {
-    SMGothic, Munhwa, MunhwaGothic, MKai, MunhwaGungSeo, MunhwaGungSeoHeulim, 
+    SMGothic, Munhwa, MunhwaGothic, MKai, MunhwaGungSeo, MunhwaGungSeoHeulim,
     MunhwaHoonMin, Helvetica, 0
         };
 
@@ -4343,7 +4343,7 @@ QPSPrinterFontKorean::QPSPrinterFontKorean(const QFont& f)
 
 QString QPSPrinterFontKorean::extension() const
 {
-    return "-KSC-EUC-H"; 
+    return "-KSC-EUC-H";
 }
 // ----------- traditional chinese ------------
 
@@ -4484,7 +4484,7 @@ QPSPrinterFontTraditionalChinese::QPSPrinterFontTraditionalChinese(const QFont& 
 
 QString QPSPrinterFontTraditionalChinese::extension() const
 {
-    return "-B5-H"; 
+    return "-B5-H";
 }
 
 // ----------- simplified chinese ------------
@@ -4600,7 +4600,7 @@ QPSPrinterFontSimplifiedChinese::QPSPrinterFontSimplifiedChinese(const QFont& f)
 
 QString QPSPrinterFontSimplifiedChinese::extension() const
 {
-    return "-GBK-EUC-H"; 
+    return "-GBK-EUC-H";
 }
 
 #endif
@@ -4641,7 +4641,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 
     // ### implement similar code for QWS and WIN
     xfontname = makePSFontName( f );
-    
+
 #ifdef Q_WS_X11
     bool xlfd = FALSE;
     if ( priv->embedFonts ) {
@@ -4715,13 +4715,13 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 #endif
 
     QString searchname = xfontname;
-#ifdef Q_WS_X11    
+#ifdef Q_WS_X11
     // we need an extension here due to the fact that we use different
     // fonts for different scripts
-    if ( xlfd && script >= QFont::Han && script <= QFont::Bopomofo ) 
+    if ( xlfd && script >= QFont::Han && script <= QFont::Bopomofo )
 	xfontname += "/"+QString::number( script );
 #endif
-    
+
     //qDebug("looking for font %s in dict", xfontname.latin1() );
     p = priv->fonts.find(xfontname);
     if ( p )
@@ -4815,7 +4815,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
         default:
 
 #ifndef QT_NO_TEXTCODEC
-	    
+
 	    if ( script == QFont::Hiragana )
 		p = new QPSPrinterFontJapanese( f );
 	    else if ( script == QFont::Hangul)
@@ -4837,10 +4837,10 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 	    } else
 #endif
 		//qDebug("didnt find font for %s", xfontname.latin1());
-		p = new QPSPrinterFontNotFound( f ); 
+		p = new QPSPrinterFontNotFound( f );
 	    break;
     }
-    
+
     // this is needed to make sure we don't get the same postscriptname twice
     QDictIterator<QPSPrinterFontPrivate> it( priv->fonts );
     for( it.toFirst(); it.current(); ++it ) {
@@ -4849,7 +4849,7 @@ QPSPrinterFont::QPSPrinterFont(const QFont& f, int script, QPSPrinterPrivate *pr
 	    return;
 	}
     }
-    
+
     //qDebug("inserting font %s in dict psname=%s", xfontname.latin1(), p->postScriptFontName().latin1() );
     priv->fonts.insert( xfontname, p );
 }
@@ -4872,7 +4872,7 @@ QPSPrinterPrivate::QPSPrinterPrivate( QPrinter *prt, int filedes )
     currentFontFile = 0;
     scale = 1.;
     scriptUsed = -1;
-    
+
 #ifdef Q_WS_X11
     // append qsettings fontpath
     QSettings settings;
@@ -5173,7 +5173,7 @@ QByteArray compress( const QImage & image, bool gray ) {
        when we find a spot, we'll try a string-compare of all the
        intervening pixels. we only do a maximum of 128 both-ends
        compares or 64 full-string compares. it's more important to be
-       fast than get the ultimate in compression. 
+       fast than get the ultimate in compression.
 
        The format of the compressed stream is as follows:
        // 2 bits step size for search and backreference ( 1 or 3 )
@@ -5199,7 +5199,7 @@ QByteArray compress( const QImage & image, bool gray ) {
     int outLen = 256;
     int outOffset = 0;
     int outBit = 0;
-    
+
     /* we process pixels serially, emitting as necessary/possible. */
     while( index <= size ) {
         int bestCandidate = None;
@@ -5325,7 +5325,7 @@ QByteArray compress( const QImage & image, bool gray ) {
                     end = None;
             }
         }
-	/* backreferences to 1 byte of data are actually more costly than 
+	/* backreferences to 1 byte of data are actually more costly than
          emitting the data directly, 2 bytes don't save much. */
 	if ( bestCandidate != None && bestLength < 3 )
 	    bestCandidate = None;
@@ -5447,7 +5447,7 @@ QByteArray compress( const QImage & image, bool gray ) {
     qDebug( "===> total compression ratio %d/%d = %f", outOffset, size, (float)outOffset/(float)size );
     qDebug( "-----------------------------------------------------------" );
 #endif
-    
+
     return outarr;
 }
 
@@ -5534,7 +5534,7 @@ void QPSPrinterPrivate::drawImage( QPainter *paint, float x, float y, float w, f
         }
         int suby = 0;
         while( suby < height ) {
-            drawImage( paint, x, y + suby*scaleY, w, QMIN( subheight, height-suby )*scaleY,
+            drawImage( paint, x, y + suby/scaleY, w, QMIN( subheight, height-suby )/scaleY,
                        img.copy( 0, suby, width, QMIN( subheight, height-suby ) ) );
             suby += subheight;
         }
@@ -5542,7 +5542,7 @@ void QPSPrinterPrivate::drawImage( QPainter *paint, float x, float y, float w, f
 	QByteArray out;
 	int size = 0;
 	const char *bits;
-	
+
 	bool hasMask = img.hasAlphaBuffer();
 	if ( hasMask ) {
 	    out = ::compress( img.createAlphaMask(), TRUE );
@@ -5563,7 +5563,7 @@ void QPSPrinterPrivate::drawImage( QPainter *paint, float x, float y, float w, f
 	    size = width*height*3;
 	    bits = "24 ";
         }
-	
+
 	out = ::compress( img, gray );
 	pageStream << "/sl " << size << " string d\n"
 		   << "sl uc\n";
