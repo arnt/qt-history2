@@ -51,12 +51,15 @@ int main( int argc, char **argv )
     for ( int j = 0; j < 2; j++ ) {
 	QListViewItem * root= new QListViewItem( roo, "a", "b", "c", "d" );
 
+	root->setOpen(TRUE);
+
 	QListViewItem *hurfu = 0;
 
 	for ( int i=45; i>35; i-- ) {
 	    QString str;
 	    str.sprintf( "%d item", i );
 	    QListViewItem* h= new QListViewItem( root, str, "test", "hei", "hopp", 0 );
+	    //	    h->setOpen( TRUE );
 	    if ( i == 42 )
 		hurfu = h;
 	}
@@ -75,7 +78,6 @@ int main( int argc, char **argv )
 	new QListViewItem(  gruff, "Dutt", "hepp", "glurk", "niks", 0 );
 
     }
-
     a.setMainWidget( lb );
     lb->show();
 
