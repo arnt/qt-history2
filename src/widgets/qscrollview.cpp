@@ -1265,7 +1265,7 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
     if (!d) return FALSE; // we are destructing
     if ( obj == &d->viewport || obj == d->clipped_viewport ) {
 	switch ( e->type() ) {
-	/* Forward many events to viewport...() functions */
+	    /* Forward many events to viewport...() functions */
 	case QEvent::Paint:
 	    viewportPaintEvent( (QPaintEvent*)e );
 	    break;
@@ -1290,13 +1290,14 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 	    break;
 	case QEvent::DragMove: {
 	    if ( d->drag_autoscroll ) {
-		QPoint vp = contentsToViewport( ( (QDragMoveEvent*)e )->pos() );
+		QPoint vp = ((QDragMoveEvent*) e)->pos();
 		QRect inside_margin( autoscroll_margin, autoscroll_margin,
 				     visibleWidth() - autoscroll_margin * 2,
 				     visibleHeight() - autoscroll_margin * 2 );
 		if ( !inside_margin.contains( vp ) ) {
 		    startDragAutoScroll();
-		    ( (QDragMoveEvent*)e )->accept( QRect(0,0,0,0) ); // Keep sending move events
+		    // Keep sending move events
+		    ( (QDragMoveEvent*)e )->accept( QRect(0,0,0,0) );
 		}
 	    }
 	    viewportDragMoveEvent( (QDragMoveEvent*)e );
