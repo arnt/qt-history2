@@ -1,6 +1,6 @@
-\chapter Qt Designer
+\chapter Qt Designer and Qt Assistant
 
-\section1 Visual Form Design 
+\section1 Qt Designer 
 
 \QD is written in Qt and provides visual user interface design. Qt
 applications can be written entirely as source code, or using \QD
@@ -67,6 +67,22 @@ the application's forms. Loading a dynamic dialog is trivial:
     QDialog *creditForm = (QDialog *)
 			  QWidgetFactory::create( "creditform.ui" ); 
 \endcode
+
+\section2 Qt Assistant
+
+\QD's on-line help is provided by the Qt Assistant application. Qt
+Assistant displays Qt's entire documentation set, and works in a
+similar way to a web browser. Unlike web browsers, Qt Assistant
+applies an intelligent indexing algorithm to provide fast searching
+for words and phrases that occur in the documentation.
+
+\img assistant-wp.png
+\caption Qt Assistant
+
+Qt's reference documentation consists of around 1,500 HTML pages (over
+2,500 US letter sized pages), which document Qt's classes and tools,
+and which include overviews and introductions to various aspects of Qt
+programming.
 
 \section1 GUI Application Example
 
