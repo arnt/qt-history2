@@ -26,7 +26,7 @@ GLObjectWindow::GLObjectWindow( QWidget* parent, const char* name )
 {
 
     // Create a menu
-    QMenu *file = new QPopupMenu( this );
+    QMenu *file = new QMenu( this );
     file->addAction( "Exit",  qApp, SLOT(quit())/*, CTRL+Key_Q*/);
 
     // Create a menu bar
