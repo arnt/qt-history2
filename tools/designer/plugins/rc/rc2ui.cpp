@@ -212,7 +212,7 @@ bool RC2UI::parse()
 		if ( type == "Dialog" ) {
 		    if ( !makeDialog() )
 			return FALSE;
-		} 
+		}
 /*
 		  else if ( type == "Bitmap" ) {
 		    if ( !makeBitmap() )
@@ -321,7 +321,7 @@ bool RC2UI::makeDialog()
 	    line = "";
 	    do {
 		line += in->readLine();
-	    } while ( line[(int)line.length()-1] == '|' || 
+	    } while ( line[(int)line.length()-1] == '|' ||
 		      line[(int)line.length()-1] == ',' );
 	    count = sscanf( line, "%s", property );
 	    line = line.right( line.length() - line.find(" ") -1 );
@@ -368,7 +368,7 @@ bool RC2UI::makeDialog()
 
 	    widgetType = parseNext(line, ' ');
 	    arguments = line.stripWhiteSpace();
-	    while ( arguments[(int)arguments.length()-1] == ',' || 
+	    while ( arguments[(int)arguments.length()-1] == ',' ||
 		    arguments[(int)arguments.length()-1] == '|'  )
 		arguments += " "+in->readLine().stripWhiteSpace();
 
@@ -481,7 +481,7 @@ bool RC2UI::makeDialog()
 	    switch ( ID ) {
 	    case IDWidget:
 		break;
-	    case IDPushButton: 
+	    case IDPushButton:
 		{
 		    writeClass("QPushButton");
 		    writeCString( "name", useName("PushButton_"+widgetID) );
@@ -646,7 +646,7 @@ bool RC2UI::makeDialog()
 		    writeCString("name", useName("ComboBox_"+widgetID) );
 		    if ( isControl )
 			writeRect( "geometry", x,y,w,14 );
-		    else 
+		    else
 			writeRect( "geometry", x,y,w,h );
 		}
 		break;
@@ -670,7 +670,7 @@ bool RC2UI::makeDialog()
 			writeEnum("selectionMode", "Multi");
 		    else if ( styles.contains("LBS_NOSEL") )
 			writeEnum("selectionMode", "NoSelection");
-		    else 
+		    else
 			writeEnum("selectionMode", "Single");
 		    if ( !styles.contains( "NO WS_BORDER" ) )
 			styles.append( "WS_BORDER" );
@@ -729,9 +729,6 @@ bool RC2UI::makeDialog()
 	}
 	fileOut.close();
 
-	if ( writeToFile )
-	    printf( QDir::currentDirPath() + "/" + fileOut.name() + '\n' );
-
     } while ( line != blockStart1 );
 
     return TRUE;
@@ -777,7 +774,7 @@ bool RC2UI::makeIcon()
     return TRUE;
 }
 
-/*! 
+/*!
   Writes a stringtable from the input stream to a c++ header file.
   All strings are assigned using QT_TR_NOOP to enable easy translation.
 */
@@ -820,7 +817,7 @@ bool RC2UI::makeStringTable()
 	    line = in->readLine().stripWhiteSpace();
 	    if ( line == "END" )
 		continue;
-	    
+	
 	    ID = parseNext(line, ' ');
 	    value = parseNext(line).stripWhiteSpace();
 
