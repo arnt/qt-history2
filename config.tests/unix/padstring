@@ -1,0 +1,14 @@
+#!/bin/sh
+
+LEN="$1"
+STR="$2"
+PAD="$3"
+STRLEN=`echo $STR | wc -c`
+echo -n "$STR"
+    
+EXTRALEN=`expr $LEN - $STRLEN`
+while [ "$EXTRALEN" -gt 0 ]; do
+   echo -n "$PAD"
+   EXTRALEN=`expr $EXTRALEN - 1`
+done
+echo #return
