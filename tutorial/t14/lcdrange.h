@@ -1,6 +1,6 @@
 /****************************************************************
 **
-** Definition of LCDRange class, Qt tutorial 13
+** Definition of LCDRange class, Qt tutorial 14
 **
 ****************************************************************/
 
