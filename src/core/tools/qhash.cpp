@@ -13,6 +13,10 @@
 
 #include "qhash.h"
 
+#ifdef truncate
+#undef truncate
+#endif
+
 #include <qbytearray.h>
 #include <qstring.h>
 
