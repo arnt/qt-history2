@@ -292,6 +292,8 @@ QClipboardINCRTransaction::QClipboardINCRTransaction(Window w, Atom p, Atom t, i
 	VDEBUG("QClipboard: created INCR transaction map");
 	transactions = new TransactionMap;
 	prev_x11_event_filter = qt_set_x11_event_filter(qt_xclb_transation_event_handler);
+
+	incr_timer_id = QApplication::clipboard()->startTimer(clipboard_timeout);
     }
     transactions->insert(window, this);
 }
@@ -308,6 +310,11 @@ QClipboardINCRTransaction::~QClipboardINCRTransaction(void)
 	delete transactions;
 	transactions = 0;
 	(void)qt_set_x11_event_filter(prev_x11_event_filter);
+
+	if (incr_timer_id != 0) {
+	    QApplication::clipboard()->killTimer(incr_timer_id);
+	    incr_timer_id = 0;
+	}
     }
 }
 
