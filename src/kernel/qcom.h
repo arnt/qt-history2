@@ -71,7 +71,7 @@ public:
 
     bool isNull() const { return !iface; } 
 
-    T* operator->() const { return (T*) iface; }
+    T* operator->() const { return iface; }
 
     T& operator*() const { return *iface; }
 
