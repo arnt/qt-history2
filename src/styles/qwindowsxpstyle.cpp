@@ -694,6 +694,8 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 	return;
 
     case PE_Panel:
+	name = "LISTVIEW";
+	partId = LVP_LISTGROUP;
 	break;
 
     case PE_PanelLineEdit:
@@ -2226,7 +2228,7 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 		const bool inArrow = rect.contains( d->hotSpot );
 		if ( ( inArrow && !clearCombo ) || ( !inArrow && clearCombo ) ) {
 		    clearCombo = inArrow;
-		    widget->repaint( rect, FALSE );
+		    widget->repaint( FALSE );
 		}
 	    } else {
 		widget->repaint( FALSE );
