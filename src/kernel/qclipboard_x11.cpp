@@ -648,7 +648,7 @@ bool QClipboard::event( QEvent *e )
 		    }
 		}
 
-		XSendEvent( dpy, req->requestor, FALSE, 0, &evt );
+		XSendEvent( dpy, req->requestor, False, 0, &evt );
 		if ( !nmulti )
 		    break;
 	    }
