@@ -1674,11 +1674,6 @@ void qt_init_internal( int *argcptr, char **argv,
 	QPaintDevice::x_appcells = DisplayCells(appDpy,appScreen);
 	QPaintDevice::x_approotwindow = RootWindow(appDpy, appScreen);
 
-	// work around a bug in vnc where DisplayCells returns 8 when Xvnc is run
-	// with depth 8
-	if (QPaintDevice::x_appdepth == 8)
-	    QPaintDevice::x_appcells = 256;
-
 	// allocate the arrays for the QPaintDevice data
 	QPaintDevice::x_appdepth_arr = new int[ appScreenCount ];
 	QPaintDevice::x_appcells_arr = new int[ appScreenCount ];
@@ -1802,6 +1797,11 @@ void qt_init_internal( int *argcptr, char **argv,
 	    QPaintDevice::x_appvisual_arr[appScreen] = vis;
 	    QPaintDevice::x_appdefvisual_arr[appScreen] = FALSE;
 	}
+
+	// work around a bug in vnc where DisplayCells returns 8 when Xvnc is run
+	// with depth 8
+	if (QPaintDevice::x_appdepth == 8)
+	    QPaintDevice::x_appcells = 256;
 
 	if (! colormap) {
 	    if ( vis->c_class == TrueColor ) {
@@ -3163,7 +3163,7 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 			groupLeader = groupLeader->parentWidget();
 		    if ( !groupLeader ) {
 			amw->raise(); //  help broken window managers
-                                                amw->setActiveWindow();                        
+			amw->setActiveWindow();
 		    }
 		}
 	    } else if ( a == qt_net_wm_context_help ) {
