@@ -617,6 +617,7 @@ QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
 					     const QString& caption )
 {
 #ifndef Q_OS_TEMP
+    QString currentDir = QDir::currentDirPath();
     QString result;
     if ( parent )
 	parent = parent->topLevelWidget();
@@ -689,6 +690,11 @@ QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
     } );
     if ( parent )
 	qt_leave_modal( parent );
+
+    // Due to a bug on Windows Me, we need to reset the current
+    // directory after using the 
+    if ( qWinVersion() == WV_98 && QDir::currentDirPath() != currentDir )
+	QDir::setCurrent( currentDir );
 
     if ( !result.isEmpty() )
 	result.replace( "\\", "/" );
