@@ -250,7 +250,7 @@ void QScrollBar::init()
 	setBackgroundMode( PaletteMid );
     else
 	setBackgroundMode( PaletteBackground );
-    
+
     if ( orient == Horizontal )
 	setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
     else
@@ -537,6 +537,9 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
     if ( maxValue() == minValue() ) // nothing to be done
 	return;
 
+    if ( e->state() ) // another button was already pressed
+	return;
+    
     clickedAt	   = TRUE;
     pressedControl = pointOver( e->pos() );
 
@@ -577,6 +580,10 @@ void QScrollBar::mouseReleaseEvent( QMouseEvent *e )
     if ( !clickedAt || !( e->button() == LeftButton ||
 			  e->button() == MidButton ) )
 	return;
+    
+    if ( e->stateAfter() ) // some other button is still pressed
+	return;
+    
     QStyle::ScrollControl tmp = (QStyle::ScrollControl) pressedControl;
     clickedAt = FALSE;
     stopAutoRepeat();
