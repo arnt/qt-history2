@@ -455,7 +455,7 @@ void Uic::createMenuBarImpl( const QDomElement &n, const QString &parentClass, c
 		else if ( n2.tagName() == "separator" )
 		    out << indent << itemName << "->insertSeparator();" << endl;
 	    }
-	    out << indent << objName << "->insertItem( \"\", " << itemName << ", " << i << " );" << endl;
+	    out << indent << objName << "->insertItem( QString(\"\"), " << itemName << ", " << i << " );" << endl;
 	    trout << indent << objName << "->findItem( " << i << " )->setText( " << trcall( c.attribute( "text" ) ) << " );" << endl;
 	} else if ( c.tagName() == "separator" ) {
 	    out << endl;
