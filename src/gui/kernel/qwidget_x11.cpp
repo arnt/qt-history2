@@ -31,7 +31,7 @@
 extern void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region);
 extern void qt_clear_paintevent_clipping();
 
-extern bool qt_has_accelerated_xrender; // declared in qapplication_x11.cpp
+extern bool qt_reuse_double_buffer; // declared in qapplication_x11.cpp
 
 #include <private/qpixmap_p.h>
 #include <private/qpaintengine_x11_p.h>
@@ -1368,10 +1368,13 @@ void qt_discard_double_buffer()
 
 static void qt_x11_release_double_buffer(QX11DoubleBuffer **db)
 {
-    if (*db != qt_x11_global_double_buffer)
+    if (*db != qt_x11_global_double_buffer) {
+        qDebug("--> discarding temporary double buffer");
         qt_discard_double_buffer(db);
-    else
+    } else {
+        qDebug("--> global double buffer unused");
 	qt_x11_global_double_buffer_active = false;
+    }
 }
 
 static QX11DoubleBuffer *qt_x11_create_double_buffer(Qt::HANDLE hd, int screen, int depth, int width, int height)
@@ -1398,16 +1401,16 @@ static QX11DoubleBuffer *qt_x11_create_double_buffer(Qt::HANDLE hd, int screen, 
 static
 void qt_x11_get_double_buffer(QX11DoubleBuffer **db, Qt::HANDLE hd, int screen, int depth, int width, int height)
 {
-    if (!qt_has_accelerated_xrender)
-	qt_x11_global_double_buffer_active = true;
+    qDebug("qt_reuse_double_buffer %d", qt_reuse_double_buffer);
 
-    if (qt_x11_global_double_buffer_active) {
+    if (!qt_reuse_double_buffer || qt_x11_global_double_buffer_active) {
+        qDebug("<-- creating temporary double buffer");
         *db = qt_x11_create_double_buffer(hd, screen, depth, width, height);
 	return;
     }
 
-    if (qt_has_accelerated_xrender)
-	qt_x11_global_double_buffer_active = true;
+    qDebug("<-- using global double buffer");
+    qt_x11_global_double_buffer_active = true;
 
     // the db should consist of 128x128 chunks
     width  = qMin(((width / 128) + 1) * 128, (int)QX11DoubleBuffer::MaxWidth);

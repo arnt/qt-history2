@@ -41,12 +41,14 @@ Customization:
   as a starting point.
 
 
-Note regarding accelerated XRender support:
+Note regarding RENDER support:
 
-Users that have an accelerated XRender extension should add the
+Testing has shown that when using a video driver without accelerated
+RENDER support, drawing performance can be improved by adding the
 following section to their ~/.config/Trolltech.conf file:
 
 [Qt]
-hasAcceleratedXRender=true
+reuseDoubleBuffer=false
 
-This should improve the accelerated XRender performance noticeably.
+At this time, we are uncertain as to why this helps some video
+drivers, but not others.  Use at your discretion.
