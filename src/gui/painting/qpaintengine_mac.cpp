@@ -349,27 +349,6 @@ QQuickDrawPaintEngine::drawPoints(const QPointArray &pa, int index, int npoints)
 }
 
 void
-QQuickDrawPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
-{
-    Q_ASSERT(isActive());
-
-    setupQDPort();
-    if(d->clip.paintable.isEmpty())
-        return;
-
-    Rect rect;
-    SetRect(&rect, r.x()+d->offx, r.y()+d->offy, r.right()+d->offx+1, r.bottom()+d->offy+1);
-    if(d->current.brush.style() == Qt::SolidPattern) {
-        setupQDBrush();
-        PaintRoundRect(&rect, r.width()*xRnd/100, r.height()*yRnd/100);
-    }
-    if(d->current.pen.style() != Qt::NoPen) {
-        setupQDPen();
-        FrameRoundRect(&rect, r.width()*xRnd/100, r.height()*yRnd/100);
-    }
-}
-
-void
 QQuickDrawPaintEngine::drawPolyInternal(const QPointArray &pa, bool close)
 {
     Q_ASSERT(isActive());
@@ -490,19 +469,6 @@ QQuickDrawPaintEngine::drawEllipse(const QRect &r)
 }
 
 void
-QQuickDrawPaintEngine::drawChord(const QRect &r, int a, int alen)
-{
-    Q_ASSERT(isActive());
-
-    QPointArray pa;
-    pa.makeArc(r.x(), r.y(), r.width()-1, r.height()-1, a, alen);
-    int n = pa.size();
-    pa.resize(n + 1);
-    pa.setPoint(n, pa.at(0));
-    drawPolyInternal(pa);
-}
-
-void
 QQuickDrawPaintEngine::drawLineSegments(const QPointArray &pa, int index, int nlines)
 {
     Q_ASSERT(isActive());
@@ -521,91 +487,59 @@ QQuickDrawPaintEngine::drawLineSegments(const QPointArray &pa, int index, int nl
 }
 
 void
-QQuickDrawPaintEngine::drawPolyline(const QPointArray &pa, int index, int npoints)
+QQuickDrawPaintEngine::drawPolygon(const QPointArray &a, PolygonDrawMode mode)
 {
     Q_ASSERT(isActive());
-    if(npoints == -1)
-        npoints = pa.size()-index;
-    if(pa.size() < index+npoints || npoints < 2)
-        return;
+    if (mode == UnconnectedMode) {
+        int npoints = a.size();
+        int index = 0;
+        if(npoints == -1)
+            npoints = a.size()-index;
+        if(a.size() < index+npoints || npoints < 2)
+            return;
 
-    int x1, y1, x2, y2, xsave, ysave;
-    pa.point(index+npoints-2, &x1, &y1);      // last line segment
-    pa.point(index+npoints-1, &x2, &y2);
-    xsave = x2; ysave = y2;
-    bool plot_pixel = false;
-    if(x1 == x2) {                           // vertical
-        if(y1 < y2)
-            y2++;
-        else
-            y2--;
-    } else if(y1 == y2) {                    // horizontal
-        if(x1 < x2)
-            x2++;
-        else
-            x2--;
-    } else {
-        plot_pixel = d->current.pen.style() == Qt::SolidLine; // plot last pixel
-    }
-    setupQDPort();
-    if(d->clip.paintable.isEmpty())
-        return;
-
-    setupQDPen();
-    /* We draw 5000 chunks at a time because of limitations in QD */
-    for(int chunk = index; chunk < npoints;) {
-        //make a region of it
-        PolyHandle poly = OpenPoly();
-        MoveTo(pa[chunk].x()+d->offx, pa[chunk].y()+d->offy);
-        for(int last_chunk=chunk+5000; chunk < last_chunk; chunk++) {
-            if(chunk == npoints)
-                break;
-            LineTo(pa[chunk].x()+d->offx, pa[chunk].y()+d->offy);
+        int x1, y1, x2, y2, xsave, ysave;
+        a.point(index+npoints-2, &x1, &y1);      // last line segment
+        a.point(index+npoints-1, &x2, &y2);
+        xsave = x2; ysave = y2;
+        bool plot_pixel = false;
+        if(x1 == x2) {                           // vertical
+            if(y1 < y2)
+                y2++;
+            else
+                y2--;
+        } else if(y1 == y2) {                    // horizontal
+            if(x1 < x2)
+                x2++;
+            else
+                x2--;
+        } else {
+            plot_pixel = d->current.pen.style() == Qt::SolidLine; // plot last pixel
         }
-        ClosePoly();
-        //now draw it
-        FramePoly(poly);
-        KillPoly(poly);
-    }
-}
+        setupQDPort();
+        if(d->clip.paintable.isEmpty())
+            return;
 
-void
-QQuickDrawPaintEngine::drawPolygon(const QPointArray &a, bool /*winding*/, int index, int npoints)
-{
-    Q_ASSERT(isActive());
-    QPointArray pa;
-    if(index != 0 || npoints != (int)a.size()) {
-        pa = QPointArray(npoints);
-        for(int i=0; i<npoints; i++)
-            pa.setPoint(i, a.point(index+i));
-        index = 0;
+        setupQDPen();
+        /* We draw 5000 chunks at a time because of limitations in QD */
+        for(int chunk = index; chunk < npoints;) {
+            //make a region of it
+            PolyHandle poly = OpenPoly();
+            MoveTo(a[chunk].x()+d->offx, a[chunk].y()+d->offy);
+            for(int last_chunk=chunk+5000; chunk < last_chunk; chunk++) {
+                if(chunk == npoints)
+                    break;
+                LineTo(a[chunk].x()+d->offx, a[chunk].y()+d->offy);
+            }
+            ClosePoly();
+            //now draw it
+            FramePoly(poly);
+            KillPoly(poly);
+        }
     } else {
-        pa = a;
+        drawPolyInternal(a, true);
     }
-    drawPolyInternal(pa, true);
 }
-
-void
-QQuickDrawPaintEngine::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
-{
-    // Implemented in terms of drawPolygon() [no optimization]
-    drawPolygon(pa, false, index, npoints);
-}
-
-#ifndef QT_NO_BEZIER
-void
-QQuickDrawPaintEngine::drawCubicBezier(const QPointArray &pa, int index)
-{
-    Q_ASSERT(isActive());
-    QPointArray a(pa);
-    if(index != 0 || a.size() > 4) {
-        a = QPointArray(4);
-        for(int i=0; i<4; i++)
-            a.setPoint(i, pa.point(index+i));
-    }
-    drawPolyline(a.cubicBezier(), index);
-}
-#endif
 
 void
 QQuickDrawPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p,
@@ -630,30 +564,6 @@ QQuickDrawPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, co
         yPos += drawH;
         yOff = 0;
     }
-}
-
-void
-QQuickDrawPaintEngine::drawPie(const QRect &r, int a, int alen)
-{
-    Q_ASSERT(isActive());
-
-    QPointArray pa;
-    pa.makeArc(r.x(), r.y(), r.width(), r.height(), a, alen); // arc polyline
-    int n = pa.size();
-    pa.resize(n+2);
-    pa.setPoint(n, r.x()+(r.width()/2), r.y()+(r.height()/2));        // add legs
-    pa.setPoint(n+1, pa.at(0));
-    drawPolyInternal(pa, true);
-}
-
-void
-QQuickDrawPaintEngine::drawArc(const QRect &r, int a, int alen)
-{
-    Q_ASSERT(isActive());
-
-    QPointArray pa;
-    pa.makeArc(r.x(), r.y(), r.width(), r.height(), a, alen); // arc polyline
-    drawPolyline(pa);
 }
 
 void
@@ -1313,7 +1223,7 @@ QCoreGraphicsPaintEngine::drawPath(const QPainterPath &p)
         const QPainterSubpath &sub = pd->subpaths.at(i);
         if (sub.elements.isEmpty())
             continue;
-        const QPoint firstPoint = sub.firstPoint();
+        const QPointFloat firstPoint = sub.firstPoint();
         CGPathMoveToPoint(path, 0, firstPoint.x(), firstPoint.y());
         for (int j=0; j<sub.elements.size(); ++j) {
             const QPainterPathElement &elm = sub.elements.at(j);
@@ -1330,12 +1240,12 @@ QCoreGraphicsPaintEngine::drawPath(const QPainterPath &p)
             }
             case QPainterPathElement::Arc: {
                 CGMutablePathRef subpath = CGPathCreateMutable();
-                CGAffineTransform transform = CGAffineTransformMake(((float)elm.arcData.w)/elm.arcData.h,
+                CGAffineTransform transform = CGAffineTransformMake((elm.arcData.w)/elm.arcData.h,
                                                                     0, 0, -1, 1, (elm.arcData.y*2)+elm.arcData.h);
-                float begin_radians = ((float)elm.arcData.start/16) * (M_PI/180),
-                        end_radians = ((float)((elm.arcData.start+elm.arcData.length)/16)) * (M_PI/180);
+                float begin_radians = (elm.arcData.start) * (M_PI/180),
+                        end_radians = (((elm.arcData.start+elm.arcData.length))) * (M_PI/180);
                 CGPathAddArc(subpath, &transform,
-                             (elm.arcData.x+(elm.arcData.w/2))/((float)elm.arcData.w/elm.arcData.h),
+                             (elm.arcData.x+(elm.arcData.w/2))/(elm.arcData.w/elm.arcData.h),
                              elm.arcData.y + (elm.arcData.h/2),
                              elm.arcData.h/2, begin_radians, end_radians,
                              elm.arcData.start < 0 || elm.arcData.length < 0);
@@ -1404,27 +1314,6 @@ QCoreGraphicsPaintEngine::drawPoints(const QPointArray &pa, int index, int npoin
 }
 
 void
-QCoreGraphicsPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
-{
-    Q_ASSERT(isActive());
-
-    CGMutablePathRef path = CGPathCreateMutable();
-    const float ow = r.width()*xRnd/200, oh = r.height()*yRnd/200;
-    CGAffineTransform transform = CGAffineTransformMake(ow, 0, 0, oh, r.left(), r.top());
-    float fw = r.width() / ow, fh = r.height() / oh;
-    CGPathMoveToPoint(path, &transform, fw, fh/2);
-    CGPathAddArcToPoint(path, &transform, fw, fh, fw/2, fh, 1);
-    CGPathAddArcToPoint(path, &transform, 0, fh, 0, fh/2, 1);
-    CGPathAddArcToPoint(path, &transform, 0, 0, fw/2, 0, 1);
-    CGPathAddArcToPoint(path, &transform, fw, 0, fw, fh/2, 1);
-    CGPathCloseSubpath(path);
-    CGContextBeginPath(d->hd);
-    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill | QCoreGraphicsPaintEnginePrivate::CGStroke,
-                path);
-    CGPathRelease(path);
-}
-
-void
 QCoreGraphicsPaintEngine::drawEllipse(const QRect &rr)
 {
     Q_ASSERT(isActive());
@@ -1441,134 +1330,27 @@ QCoreGraphicsPaintEngine::drawEllipse(const QRect &rr)
     CGPathRelease(path);
 }
 
-void
-QCoreGraphicsPaintEngine::drawArc(const QRect &r, int a, int alen)
+void QCoreGraphicsPaintEngine::drawPolygon(const QPointArray &a, PolygonDrawMode mode)
 {
     Q_ASSERT(isActive());
 
-    CGMutablePathRef path = CGPathCreateMutable();
-    CGAffineTransform transform = CGAffineTransformMake(((float)r.width())/r.height(), 0, 0, -1, 1, (r.y()*2)+r.height());
-    float begin_radians = ((float)a/16) * (M_PI/180), end_radians = ((float)((a+alen)/16)) * (M_PI/180);
-    CGPathAddArc(path, &transform, (r.x()+(r.width()/2))/((float)r.width()/r.height()), r.y() + (r.height()/2),
-		 r.height()/2, begin_radians, end_radians, a < 0 || alen < 0);
-    CGContextBeginPath(d->hd);
-    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke, path);
-    CGPathRelease(path);
-}
-
-void
-QCoreGraphicsPaintEngine::drawPie(const QRect &r, int a, int alen)
-{
-    Q_ASSERT(isActive());
-
-    CGMutablePathRef path = CGPathCreateMutable();
-    CGAffineTransform transform = CGAffineTransformMake(((float)r.width())/r.height(), 0, 0, -1, 1, (r.y()*2)+r.height());
-    float begin_radians = ((float)a/16) * (M_PI/180), end_radians = ((float)((a+alen)/16)) * (M_PI/180);
-    CGPathMoveToPoint(path, 0, r.x() + (r.width()/2), r.y() + (r.height()/2));
-    CGPathAddArc(path, &transform, (r.x()+(r.width()/2))/((float)r.width()/r.height()),
-                 r.y() + (r.height()/2), r.height()/2, begin_radians, end_radians, a < 0 || alen < 0);
-    CGPathAddLineToPoint(path, 0, r.x() + (r.width()/2), r.y() + (r.height()/2));
-    CGContextBeginPath(d->hd);
-    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill | QCoreGraphicsPaintEnginePrivate::CGStroke,
-                path);
-    CGPathRelease(path);
-}
-
-void
-QCoreGraphicsPaintEngine::drawPolyInternal(const QPointArray &a, bool close)
-{
-    Q_ASSERT(isActive());
-
-    CGMutablePathRef path = CGPathCreateMutable();
-    CGPathMoveToPoint(path, 0, a[0].x(), a[0].y());
-    for(int x = 1; x < a.size(); x++)
-        CGPathAddLineToPoint(path, 0, a[x].x(), a[x].y());
-    if(close)
-        CGPathAddLineToPoint(path, 0, a[0].x(), a[0].y());
-    CGContextBeginPath(d->hd);
-    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill|QCoreGraphicsPaintEnginePrivate::CGStroke, path);
-}
-
-void
-QCoreGraphicsPaintEngine::drawChord(const QRect &r, int a, int alen)
-{
-    Q_ASSERT(isActive());
-
-    CGMutablePathRef path = CGPathCreateMutable();
-    CGAffineTransform transform = CGAffineTransformMake(((float)r.width())/r.height(), 0, 0, -1, 1, (r.y()*2)+r.height());
-    float begin_radians = ((float)a/16) * (M_PI/180), end_radians = ((float)((a+alen)/16)) * (M_PI/180);
-    //We draw twice because the first draw will set the point to the end of arc, and the second pass will draw the line to the first point
-    for(int i = 0; i < 2; i++)
-        CGPathAddArc(path, &transform, (r.x()+(r.width()/2))/((float)r.width()/r.height()),
-                     r.y()+(r.height()/2), r.height()/2, begin_radians, end_radians, a < 0 || alen < 0);
-    CGContextBeginPath(d->hd);
-    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill | QCoreGraphicsPaintEnginePrivate::CGStroke, path);
-    CGPathRelease(path);
-}
-
-void
-QCoreGraphicsPaintEngine::drawLineSegments(const QPointArray &pa, int index, int nlines)
-{
-    Q_ASSERT(isActive());
-
-    int  x, y;
-    uint i = index;
-    while(nlines--) {
-        pa.point(i++, &x, &y);
-        CGContextMoveToPoint(d->hd, x, y);
-        pa.point(i++, &x, &y);
-        CGContextAddLineToPoint(d->hd, x, y);
+    if (mode == UnconnectedMode) {
+        CGContextMoveToPoint(d->hd, a[0].x(), a[0].y());
+        for(int x = 1; x < a.size(); ++x)
+            CGContextAddLineToPoint(d->hd, a[x].x(), a[x].y());
         d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke);
-    }
-}
-
-void
-QCoreGraphicsPaintEngine::drawPolyline(const QPointArray &pa, int index, int npoints)
-{
-    Q_ASSERT(isActive());
-
-    CGContextMoveToPoint(d->hd, pa[index].x(), pa[index].y());
-    for(int x = index+1; x < index+npoints; x++)
-        CGContextAddLineToPoint(d->hd, pa[x].x(), pa[x].y());
-    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke);
-}
-
-void
-QCoreGraphicsPaintEngine::drawPolygon(const QPointArray &a, bool, int index, int npoints)
-{
-    Q_ASSERT(isActive());
-
-    QPointArray pa;
-    if(index != 0 || npoints != (int)a.size()) {
-        pa = QPointArray(npoints);
-        for(int i=0; i<npoints; i++)
-            pa.setPoint(i, a.point(index+i));
-        index = 0;
     } else {
-        pa = a;
+        CGMutablePathRef path = CGPathCreateMutable();
+        CGPathMoveToPoint(path, 0, a[0].x(), a[0].y());
+        for(int x = 1; x < a.size(); ++x)
+            CGPathAddLineToPoint(path, 0, a[x].x(), a[x].y());
+        if (a.first() != a.last())
+            CGPathAddLineToPoint(path, 0, a[0].x(), a[0].y());
+        CGContextBeginPath(d->hd);
+        d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill
+                    | QCoreGraphicsPaintEnginePrivate::CGStroke, path);
     }
-    drawPolyInternal(pa, true);
 }
-
-void
-QCoreGraphicsPaintEngine::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
-{
-    // Implemented in terms of drawPolygon() [no optimization]
-    drawPolygon(pa,false,index,npoints);
-}
-
-#ifndef QT_NO_BEZIER
-void
-QCoreGraphicsPaintEngine::drawCubicBezier(const QPointArray &pa, int index)
-{
-    Q_ASSERT(isActive());
-
-    CGContextMoveToPoint(d->hd, pa[index].x(), pa[index].y());
-    CGContextAddCurveToPoint(d->hd, pa[index+1].x(), pa[index+1].y(),
-                             pa[index+2].x(), pa[index+2].y(), pa[index+3].x(), pa[index+3].y());
-    d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke);
-}
-#endif
 
 void
 QCoreGraphicsPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr,

@@ -622,26 +622,27 @@ static int nearest_gl_texture_size(int v)
 }
 
 static bool add_texture_cleanup = true;
-QMap<int, GLuint> tx_cache;
+typedef QMap<int, GLuint> TextureCache;
+Q_GLOBAL_STATIC(TextureCache, tx_cache)
 
 static void cleanup_texture_cache()
 {
-    QVarLengthArray<GLuint> textures(tx_cache.size());
+    QVarLengthArray<GLuint> textures(tx_cache()->size());
     QMap<int, GLuint>::ConstIterator it;
     int i = 0;
-    for(it = tx_cache.constBegin(); it != tx_cache.constEnd(); ++it)
+    for(it = tx_cache()->constBegin(); it != tx_cache()->constEnd(); ++it)
         textures[i++] = *it;
-    glDeleteTextures(tx_cache.size(), textures.data());
-    tx_cache.clear();
+    glDeleteTextures(tx_cache()->size(), textures.data());
+    tx_cache()->clear();
 }
 
 static void bind_texture_from_cache(const QPixmap &pm)
 {
-    if (tx_cache.size() > 25)
+    if (tx_cache()->size() > 25)
         cleanup_texture_cache();
 
-    if (tx_cache.contains(pm.serialNumber())) {
-        glBindTexture(GL_TEXTURE_2D, tx_cache.value(pm.serialNumber()));
+    if (tx_cache()->contains(pm.serialNumber())) {
+        glBindTexture(GL_TEXTURE_2D, tx_cache()->value(pm.serialNumber()));
     } else {
         // not cached - cache it!
         if (add_texture_cleanup) {
@@ -666,7 +667,7 @@ static void bind_texture_from_cache(const QPixmap &pm)
         glBindTexture(GL_TEXTURE_2D, tx_id);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tx.width(), tx.height(), 0, GL_RGBA,
                      GL_UNSIGNED_BYTE, tx.bits());
-        tx_cache.insert(pm.serialNumber(), tx_id);
+        tx_cache()->insert(pm.serialNumber(), tx_id);
     }
 }
 

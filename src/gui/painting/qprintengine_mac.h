@@ -106,17 +106,10 @@ public:
     virtual void drawLine(const QPoint &p1, const QPoint &ps);
     virtual void drawRect(const QRect &r);
     virtual void drawPoint(const QPoint &p);
-    virtual void drawPoints(const QPointArray &pa, int index = 0, int npoints = -1);
-    virtual void drawRoundRect(const QRect &r, int xRnd, int yRnd);
+    virtual void drawPoints(const QPointArray &pa);
     virtual void drawEllipse(const QRect &r);
-    virtual void drawArc(const QRect &r, int a, int alen);
-    virtual void drawPie(const QRect &r, int a, int alen);
-    virtual void drawChord(const QRect &r, int a, int alen);
-    virtual void drawLineSegments(const QPointArray &, int index = 0, int nlines = -1);
-    virtual void drawPolyline(const QPointArray &pa, int index = 0, int npoints = -1);
-    virtual void drawPolygon(const QPointArray &pa, bool winding = false, int index = 0, int npoints = -1);
-    virtual void drawConvexPolygon(const QPointArray &, int index = 0, int npoints = -1);
-    virtual void drawCubicBezier(const QPointArray &, int index = 0);
+    virtual void drawLineSegments(const QPointArray &);
+    virtual void drawPolygon(const QPointArray &pa, PolygonDrawMode mode);
     virtual void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::PixmapDrawingMode mode);
     virtual void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
     virtual void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s,

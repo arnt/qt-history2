@@ -610,16 +610,10 @@ void QMacPrintEngine::drawPoint(const QPoint &p)
     d->paintEngine->drawPoint(p);
 }
 
-void QMacPrintEngine::drawPoints(const QPointArray &pa, int index, int npoints)
+void QMacPrintEngine::drawPoints(const QPointArray &pa)
 {
     Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->drawPoints(pa, index, npoints);
-}
-
-void QMacPrintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
-{
-    Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->drawRoundRect(r, xRnd, yRnd);
+    d->paintEngine->drawPoints(pa);
 }
 
 void QMacPrintEngine::drawEllipse(const QRect &r)
@@ -628,52 +622,16 @@ void QMacPrintEngine::drawEllipse(const QRect &r)
     d->paintEngine->drawEllipse(r);
 }
 
-void QMacPrintEngine::drawArc(const QRect &r, int a, int alen)
+void QMacPrintEngine::drawLineSegments(const QPointArray &pa)
 {
     Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->drawArc(r, a, alen);
+    d->paintEngine->drawLineSegments(pa);
 }
 
-void QMacPrintEngine::drawPie(const QRect &r, int a, int alen)
+void QMacPrintEngine::drawPolygon(const QPointArray &pa, PolygonDrawMode mode)
 {
     Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->drawPie(r, a, alen);
-}
-
-void QMacPrintEngine::drawChord(const QRect &r, int a, int alen)
-{
-    Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->drawChord(r, a, alen);
-}
-
-void QMacPrintEngine::drawLineSegments(const QPointArray &pa, int index, int nlines)
-{
-    Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->drawLineSegments(pa, index, nlines);
-}
-
-void QMacPrintEngine::drawPolyline(const QPointArray &pa, int index, int npoints)
-{
-    Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->drawPolyline(pa, index, npoints);
-}
-
-void QMacPrintEngine::drawPolygon(const QPointArray &pa, bool winding, int index, int npoints)
-{
-    Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->drawPolygon(pa, winding, index, npoints);
-}
-
-void QMacPrintEngine::drawConvexPolygon(const QPointArray &pa, int index, int npoints)
-{
-    Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->drawConvexPolygon(pa, index, npoints);
-}
-
-void QMacPrintEngine::drawCubicBezier(const QPointArray &pa, int index)
-{
-    Q_ASSERT(d->state == QPrinter::Active);
-    d->paintEngine->drawCubicBezier(pa, index);
+    d->paintEngine->drawPolygon(pa, mode);
 }
 
 void QMacPrintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::PixmapDrawingMode mode)
