@@ -1403,8 +1403,8 @@ QSize LightStyle::sizeFromContents( ContentsType contents,
 
 
 int LightStyle::styleHint( StyleHint stylehint,
-			   const QWidget *widget = 0,
-			   QStyleHintReturn* returnData = 0 ) const
+			   const QWidget *widget,
+			   QStyleHintReturn* returnData ) const
 {
     int ret;
 
