@@ -1828,7 +1828,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 		else
 		    cevent->ignore();
 		delete ce;
-		if ( res || cevent->isAccepted() )
+		if ( res )
 		    break;
 
 		w = w->parentWidget( TRUE );
