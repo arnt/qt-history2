@@ -59,7 +59,10 @@ bool FormWindowCursor::movePosition(MoveOperation op, MoveMode mode)
     case Prev:
         --m_iterator;
         if (m_iterator < 0)
-            m_iterator = 0;
+            m_iterator = widgetCount() - 1;
+
+        if (m_iterator < 0)
+            return false;
 
         m_formWindow->selectWidget(m_formWindow->widgetAt(m_iterator), true);
         return true;
