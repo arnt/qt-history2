@@ -663,6 +663,15 @@ QTextCodec::~QTextCodec()
 }
 
 /*!
+    \fn QTextCodec *QTextCodec::codecForName(const char *name)
+    \reimpl
+
+    Searches all installed QTextCodec objects and returns the one
+    which best matches \a name; the match is case-insensitive. Returns
+    0 if no codec matching the name \a name could be found.
+*/
+
+/*!
     Searches all installed QTextCodec objects and returns the one
     which best matches \a name; the match is case-insensitive. Returns
     0 if no codec matching the name \a name could be found.
@@ -811,7 +820,8 @@ QList<QByteArray> QTextCodec::aliases() const
     QTextCodec subclasses must reimplement this function.
 
     It converts the first \a len characters of \a chars from the
-    encoding of the subclass to Unicode, producing a QString.
+    encoding of the subclass to Unicode, and returns the result in a
+    QString.
 
     \a state can be 0 in which case the conversion is stateless and
     default conversion rules should be used. If state is not 0, the
@@ -820,13 +830,14 @@ QList<QByteArray> QTextCodec::aliases() const
 */
 
 /*!
-    \fn QByteArray QTextCodec::convertFromUnicode(const QChar *in, int length,
+    \fn QByteArray QTextCodec::convertFromUnicode(const QChar *input, int number,
                                                   ConverterState *state) const
 
     QTextCodec subclasses must reimplement this function.
 
-    It converts the first \a len characters of \a uc from Unicode to
-    the encoding of the subclass, producing a QByteArray.
+    Converts the first \a number of characters from the \a input array
+    from Unicode to the encoding of the subclass, and returns the result
+    in a QByteArray.
 
     \a state can be 0 in which case the conversion is stateless and
     default conversion rules should be used. If state is not 0, the
@@ -858,18 +869,32 @@ QTextEncoder* QTextCodec::makeEncoder() const
 }
 
 /*!
-    Converts \a str from Unicode to the encoding of this codec,
-    producing a QByteArray.
+    \fn QByteArray QTextCodec::fromUnicode(const QChar *input, int number)
+
+    Converts the first \a number of characters from the \a input array
+    from Unicode to the encoding of this codec, and returns the result
+    in a QByteArray.
+*/
+
+/*!
+    Converts \a str from Unicode to the encoding of this codec, and
+    returns the result in a QByteArray.
 */
 QByteArray QTextCodec::fromUnicode(const QString& str) const
 {
     return convertFromUnicode(str.constData(), str.length(), 0);
 }
 
+/*!
+    \fn QString QTextCodec::toUnicode(const char *input, int number, ConverterState *state)
+
+    Converts the first \a number of characters from the \a input from the
+    encoding of this codec to Unicode, and returns the result in a QString.
+*/
 
 /*!
-    Converts \a a from the encoding of this codec t Unicode,
-    producing a QString.
+    Converts \a a from the encoding of this codec to Unicode, and
+    returns the result in a QString.
 */
 QString QTextCodec::toUnicode(const QByteArray& a) const
 {
@@ -956,10 +981,19 @@ QString QTextCodec::toUnicode(const char* chars) const
     \reentrant
     \ingroup i18n
 
+    A text encoder converts text from Unicode into an encoded text format
+    using a specific codec.
+
     The encoder converts Unicode into another format, remembering any
     state that is required between calls.
 
     \sa QTextCodec::makeEncoder()
+*/
+
+/*!
+    \fn QTextEncoder::QTextEncoder(const QTextCodec *codec)
+
+    Constructs a text encoder for the given \a codec.
 */
 
 /*!
@@ -981,8 +1015,8 @@ QByteArray QTextEncoder::fromUnicode(const QString& str)
 /*!
     \overload
 
-    Converts \a len characters (not bytes) from \a uc, producing a
-    QByteArray.
+    Converts \a len characters (not bytes) from \a uc, and returns the
+    result in a QByteArray.
 */
 QByteArray QTextEncoder::fromUnicode(const QChar *uc, int len)
 {
@@ -1008,12 +1042,20 @@ QByteArray QTextEncoder::fromUnicode(const QString& uc, int& lenInOut)
     \reentrant
     \ingroup i18n
 
-    The decoder converts a text format into Unicode, remembering any
+    A text decoder converts text from an encoded text format into Unicode
+    using a specific codec.
+
+    The decoder converts text in this format into Unicode, remembering any
     state that is required between calls.
 
     \sa QTextCodec::makeEncoder()
 */
 
+/*!
+    \fn QTextDecoder::QTextDecoder(const QTextCodec *codec)
+
+    Constructs a text decoder for the given \a codec.
+*/
 
 /*!
     Destroys the decoder.
@@ -1038,6 +1080,9 @@ QString QTextDecoder::toUnicode(const char* chars, int len)
 }
 
 /*!
+  Converts the bytes in the byte array specified by \a ba to Unicode
+  and returns the result.
+
   \overload
 */
 QString QTextDecoder::toUnicode(const QByteArray &ba)
