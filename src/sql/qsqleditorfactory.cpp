@@ -46,7 +46,7 @@
     \ingroup database
 
   \brief The QSqlEditorFactory class is used to create the editors
-  used by QSqlDataTable and QSqlForm.
+  used by QDataTable and QSqlForm.
 
   \module sql
 
