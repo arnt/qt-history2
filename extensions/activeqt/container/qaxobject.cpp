@@ -116,15 +116,23 @@ void *QAxObject::qt_metacast( const char *cname ) const
     return QObject::qt_metacast( cname );
 }
 
+/*!
+    \reimp
+*/
+const char *QAxObject::className() const
+{
+    return "QAxObject";
+}
 
 /*!
     \reimp
 */
-int QAxObject::qt_metacall(QMetaObject::Call call, int id, void **o)
+int QAxObject::qt_metacall(QMetaObject::Call call, int id, void **v)
 {
-    if ( QAxBase::qt_metacall(call, id, o ) )
-	return TRUE;
-    return QObject::qt_metacall(call, id, o );
+    id = QObject::qt_metacall(call, id, v);
+    if (id < 0)
+	return id;
+    return QAxBase::qt_metacall(call, id, v);
 }
 
 /*!

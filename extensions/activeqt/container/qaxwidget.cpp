@@ -1486,15 +1486,23 @@ void *QAxWidget::qt_metacast( const char *cname ) const
     return QWidget::qt_metacast( cname );
 }
 
+/*!
+    \reimp
+*/
+const char *QAxWidget::className() const
+{
+    return "QAxWidget";
+}
 
 /*!
     \reimp
 */
-int QAxWidget::qt_metacall(QMetaObject::Call call, int id, void **o)
+int QAxWidget::qt_metacall(QMetaObject::Call call, int id, void **v)
 {
-    if ( QAxBase::qt_metacall(call, id, o ) )
-	return TRUE;
-    return QWidget::qt_metacall(call, id, o );
+    id = QWidget::qt_metacall(call, id, v);
+    if (id < 0)
+	return id;
+    return QAxBase::qt_metacall(call, id, v);
 }
 
 /*!
