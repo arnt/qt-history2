@@ -104,6 +104,7 @@ static const char* const utype_map[] =
     "int",
     "uint",
     "double",
+    "float",
     "QString",
     "QVariant",
     0

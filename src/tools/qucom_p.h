@@ -396,7 +396,7 @@ struct Q_EXPORT QUType_int : public QUType
 };
 extern Q_EXPORT QUType_int static_QUType_int;
 
-// {5938712A-C496-11D5-8CB2-00C0F03BC0F3} 
+// {5938712A-C496-11D5-8CB2-00C0F03BC0F3}
 extern Q_EXPORT const QUuid TID_QUType_uint;
 struct Q_EXPORT QUType_uint : public QUType
 {
@@ -433,6 +433,25 @@ struct Q_EXPORT QUType_double : public QUType
     int serializeFrom( QUObject *, QUBuffer * );
 };
 extern Q_EXPORT QUType_double static_QUType_double;
+
+// {544C5175-6993-4486-B04D-CEC4D21BF4B9 }
+extern Q_EXPORT const QUuid TID_QUType_float;
+struct Q_EXPORT QUType_float : public QUType
+{
+    const QUuid *uuid() const;
+    const char *desc() const;
+
+    void set( QUObject *, float );
+    float &get( QUObject *o ) { return o->payload.f; }
+    bool canConvertFrom( QUObject *, QUType * );
+    bool canConvertTo( QUObject *, QUType * );
+    bool convertFrom( QUObject *, QUType * );
+    bool convertTo( QUObject *, QUType * );
+    void clear( QUObject * ) {}
+    int serializeTo( QUObject *, QUBuffer * );
+    int serializeFrom( QUObject *, QUBuffer * );
+};
+extern Q_EXPORT QUType_float static_QUType_float;
 
 // {EFCDD1D4-77A3-4b8e-8D46-DC14B8D393E9}
 extern Q_EXPORT const QUuid TID_QUType_charstar;

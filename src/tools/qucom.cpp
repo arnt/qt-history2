@@ -296,7 +296,8 @@ void QUType_int::set( QUObject *o, int v )
 
 bool QUType_int::canConvertFrom( QUObject *o, QUType *t )
 {
-    if ( isEqual( t, &static_QUType_double ) )
+    if ( isEqual( t, &static_QUType_double ) ||
+	 isEqual( t, &static_QUType_float ) )
 	return TRUE;
 
     return t->canConvertTo( o, this );
@@ -304,13 +305,16 @@ bool QUType_int::canConvertFrom( QUObject *o, QUType *t )
 
 bool QUType_int::canConvertTo( QUObject * /*o*/, QUType *t )
 {
-    return isEqual( t,  &static_QUType_double );
+    return isEqual( t,  &static_QUType_double ) ||
+	isEqual( t, &static_QUType_float );
 }
 
 bool QUType_int::convertFrom( QUObject *o, QUType *t )
 {
     if ( isEqual( t, &static_QUType_double ) )
 	o->payload.i = (long)o->payload.d;
+    else if ( isEqual( t, &static_QUType_float ) )
+	o->payload.i = (long)o->payload.f;
     else
 	return t->convertTo( o, this );
 
@@ -323,9 +327,12 @@ bool QUType_int::convertTo( QUObject *o, QUType *t )
     if ( isEqual( t,  &static_QUType_double ) ) {
 	o->payload.d = (double)o->payload.i;
 	o->type = &static_QUType_double;
-	return TRUE;
-    }
-    return FALSE;
+    } else if ( isEqual( t,  &static_QUType_float ) ) {	
+	o->payload.f = (float)o->payload.i;
+	o->type = &static_QUType_float;
+    } else
+	return FALSE;
+    return TRUE;
 }
 
 int QUType_int::serializeTo( QUObject *, QUBuffer * )
@@ -338,7 +345,7 @@ int QUType_int::serializeFrom( QUObject *, QUBuffer * )
     return 0;
 }
 
-// {5938712A-C496-11D5-8CB2-00C0F03BC0F3} 
+// {5938712A-C496-11D5-8CB2-00C0F03BC0F3}
 const QUuid TID_QUType_uint( 0x5938712a, 0xc496, 0x11d5, 0x8c, 0xb2, 0x00, 0xc0, 0xf0, 0x3b, 0xc0, 0xf3);
 QUType_uint static_QUType_uint;
 const QUuid *QUType_uint::uuid() const  { return &TID_QUType_uint; }
@@ -394,7 +401,8 @@ void QUType_double::set( QUObject *o, double v )
 
 bool QUType_double::canConvertFrom( QUObject *o, QUType *t )
 {
-    if ( isEqual( t, &static_QUType_int ) )
+    if ( isEqual( t, &static_QUType_int ) ||
+	 isEqual( t, &static_QUType_float) )
 	return TRUE;
 
     return t->canConvertTo( o, this );
@@ -402,13 +410,16 @@ bool QUType_double::canConvertFrom( QUObject *o, QUType *t )
 
 bool QUType_double::canConvertTo( QUObject * /*o*/, QUType *t )
 {
-    return isEqual( t,  &static_QUType_int );
+    return isEqual( t,  &static_QUType_int ) ||
+	isEqual( t,  &static_QUType_float );
 }
 
 bool QUType_double::convertFrom( QUObject *o, QUType *t )
 {
     if ( isEqual( t, &static_QUType_int ) )
 	o->payload.d = (double)o->payload.i;
+    else if ( isEqual( t, &static_QUType_float ) )
+	o->payload.d = (double)o->payload.f;
     else
 	return t->convertTo( o, this );
 
@@ -421,9 +432,12 @@ bool QUType_double::convertTo( QUObject *o, QUType *t )
     if ( isEqual( t,  &static_QUType_int ) ) {
 	o->payload.i = (int) o->payload.d;
 	o->type = &static_QUType_int;
-	return TRUE;
-    }
-    return FALSE;
+    } else if ( isEqual( t,  &static_QUType_double ) ) {
+	o->payload.d = (double) o->payload.f;
+	o->type = &static_QUType_double;
+    } else
+	return FALSE;
+    return TRUE;
 }
 
 int QUType_double::serializeTo( QUObject *, QUBuffer * )
@@ -432,6 +446,70 @@ int QUType_double::serializeTo( QUObject *, QUBuffer * )
 }
 
 int QUType_double::serializeFrom( QUObject *, QUBuffer * )
+{
+    return 0;
+}
+
+
+// {544C5175-6993-4486-B04D-CEC4D21BF4B9 }
+const QUuid TID_QUType_float( 0x544c5175, 0x6993, 0x4486, 0xb0, 0x4d, 0xce, 0xc4, 0xd2, 0x1b, 0xf4, 0xb9 );
+QUType_float static_QUType_float;
+const QUuid *QUType_float::uuid() const { return &TID_QUType_float; }
+const char *QUType_float::desc() const {return "float"; }
+
+void QUType_float::set( QUObject *o, float v )
+{
+    o->payload.f = v;
+    o->type = this;
+}
+
+bool QUType_float::canConvertFrom( QUObject *o, QUType *t )
+{
+    if ( isEqual( t, &static_QUType_int ) ||
+	 isEqual( t, &static_QUType_double ) )
+	return TRUE;
+
+    return t->canConvertTo( o, this );
+}
+
+bool QUType_float::canConvertTo( QUObject * /*o*/, QUType *t )
+{
+    return isEqual( t,  &static_QUType_int ) ||
+	isEqual( t,  &static_QUType_double );
+}
+
+bool QUType_float::convertFrom( QUObject *o, QUType *t )
+{
+    if ( isEqual( t, &static_QUType_int ) )
+	o->payload.f = (float)o->payload.i;
+    else if ( isEqual( t, &static_QUType_double ) )
+	o->payload.f = (float)o->payload.d;
+    else
+	return t->convertTo( o, this );
+
+    o->type = this;
+    return TRUE;
+}
+
+bool QUType_float::convertTo( QUObject *o, QUType *t )
+{
+    if ( isEqual( t,  &static_QUType_int ) ) {
+	o->payload.i = (int) o->payload.f;
+	o->type = &static_QUType_int;
+    } else if ( isEqual( t,  &static_QUType_double ) ) {
+	o->payload.d = (double) o->payload.f;
+	o->type = &static_QUType_double;
+    } else
+	return FALSE;
+    return TRUE;
+}
+
+int QUType_float::serializeTo( QUObject *, QUBuffer * )
+{
+    return 0;
+}
+
+int QUType_float::serializeFrom( QUObject *, QUBuffer * )
 {
     return 0;
 }
@@ -515,6 +593,7 @@ bool QUType_QString::canConvertFrom( QUObject *o, QUType *t )
 {
     if ( isEqual( t, &static_QUType_charstar ) ||
 	 isEqual( t, &static_QUType_double ) ||
+	 isEqual( t, &static_QUType_float ) ||
 	 isEqual( t, &static_QUType_int ) )
 	return TRUE;
 
@@ -525,7 +604,8 @@ bool QUType_QString::canConvertTo( QUObject * /*o*/, QUType *t )
 {
     return isEqual( t, &static_QUType_charstar ) ||
 	isEqual( t,  &static_QUType_int ) ||
-	isEqual( t,  &static_QUType_double );
+	isEqual( t,  &static_QUType_double ) ||
+	isEqual( t,  &static_QUType_float );
 }
 
 bool QUType_QString::convertFrom( QUObject *o, QUType *t )
@@ -535,6 +615,8 @@ bool QUType_QString::convertFrom( QUObject *o, QUType *t )
 	str = new QString( o->payload.charstar.ptr );
     else if ( isEqual( t, &static_QUType_double ) )
 	str = new QString( QString::number( o->payload.d ) );
+    else if ( isEqual( t, &static_QUType_float ) )
+	str = new QString( QString::number( o->payload.f ) );
     else if ( isEqual( t, &static_QUType_int ) )
 	str = new QString( QString::number( o->payload.i ) );
     else
@@ -559,6 +641,9 @@ bool QUType_QString::convertTo( QUObject *o, QUType *t )
     } else if ( isEqual( t,  &static_QUType_double ) ) {
 	o->payload.d = str->toDouble();
 	o->type = &static_QUType_double;
+    } else if ( isEqual( t,  &static_QUType_float ) ) {
+	o->payload.d = str->toFloat();
+	o->type = &static_QUType_float;
     } else {
         return FALSE;
     }
