@@ -17,7 +17,7 @@ CFLAGS	    = -c -Fo$@ \
               -I..\mkspecs\win32-msvc \
               -DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_LITE_COMPONENT -DQT_NODLL -DQT_NO_STL \
               -DQT_NO_COMPRESS -DUNICODE -DHAVE_QCONFIG_CPP -DQT_BUILD_QMAKE -DQT_NO_THREAD \
-              -DQT_NO_QOBJECT
+              -DQT_NO_QOBJECT -DQT_NO_GEOM_VARIANT -DQT_NO_DATASTREAM
 CXXFLAGS    = $(CFLAGS)
 LFLAGS	    =
 LIBS	    = ole32.lib advapi32.lib
@@ -68,7 +68,6 @@ QTOBJS= \
         qvsnprintf.obj \
 	qbytearraymatcher.obj \
 	qchar.obj \
-	qdatastream.obj \
 	qdatetime.obj \
 	qdir.obj \
 	qfile.obj \
@@ -113,7 +112,6 @@ clean::
         -del qvsnprintf.obj
 	-del qbytearraymatcher.obj
 	-del qchar.obj
-	-del qdatastream.obj
 	-del qdatetime.obj
 	-del qdir.obj
 	-del qfile.obj
@@ -239,9 +237,6 @@ qlocale.obj: ..\src\core\tools\qlocale.cpp
 
 quuid.obj: ..\src\core\plugin\quuid.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\plugin\quuid.cpp
-
-qdatastream.obj: ..\src\core\io\qdatastream.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\io\qdatastream.cpp
 
 qbuffer.obj: ..\src\core\io\qbuffer.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qbuffer.cpp
