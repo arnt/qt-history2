@@ -28,7 +28,7 @@
 MainWindow::MainWindow()
 {
     statusBar();
-    assistant = new QAssistantClient( QString::null, this );
+    assistant = new QAssistantClient( qInstallPathBins(), this );
 
     QTable* table = new QTable( 2, 3, this );
     setCentralWidget( table );
@@ -117,6 +117,6 @@ MainWindow::~MainWindow()
 
 void MainWindow::assistantSlot()
 {
-    QString docsPath = qApp->applicationDirPath() + "/../../doc";
+    QString docsPath = qInstallPathDocs();
     assistant->showPage( QString( "%1/html/qassistantclient.html" ).arg(docsPath ));
 }
