@@ -39,65 +39,59 @@
 #define QSTRINGLIST_H
 
 #ifndef QT_H
-#include "qvaluelist.h"
+#include "qlist.h"
 #include "qstring.h"
-#include "qstrlist.h"
 #endif // QT_H
 
-#ifndef QT_NO_STRINGLIST
-
 class QRegExp;
-template <class T> class QDeepCopy;
 
-#if defined(Q_TEMPLATEDLL)
-// MOC_SKIP_BEGIN
-//Q_TEMPLATE_EXTERN template class Q_EXPORT QValueList<QString>; 
-// MOC_SKIP_END
-#endif
-
-class Q_EXPORT QStringList : public QValueList<QString>
+class QStringList : public QList<QString>
 {
 public:
-    QStringList() { }
-    QStringList( const QStringList& l ) : QValueList<QString>(l) { }
-    QStringList( const QValueList<QString>& l ) : QValueList<QString>(l) { }
-    QStringList( const QString& i ) { append(i); }
-#ifndef QT_NO_CAST_ASCII
-    QStringList( const char* i ) { append(i); }
+    inline QStringList() { }
+    inline QStringList(const QStringList &l) : QList<QString>(l) { }
+    inline QStringList(const QList<QString> &l) : QList<QString>(l) { }
+    inline QStringList(const QString &i) { append(i); }
+#ifndef QT_NO_CAST_FROM_ASCII
+    inline QStringList(const char *i) { append(i); }
 #endif
-
-    static QStringList fromStrList(const QStrList&);
 
     void sort();
 
-    static QStringList split( const QString &sep, const QString &str, bool allowEmptyEntries = FALSE );
-    static QStringList split( const QChar &sep, const QString &str, bool allowEmptyEntries = FALSE );
-#ifndef QT_NO_REGEXP
-    static QStringList split( const QRegExp &sep, const QString &str, bool allowEmptyEntries = FALSE );
-#endif
-    QString join( const QString &sep ) const;
+    static QStringList split(const QString &sep, const QString &str, bool allowEmptyEntries = false);
+    static QStringList split(const QChar &sep, const QString &str, bool allowEmptyEntries = false);
+    static QStringList split(const QRegExp &sep, const QString &str, bool allowEmptyEntries = false);
+    QString join(const QString &sep) const;
 
-    QStringList grep( const QString &str, bool cs = TRUE ) const;
-#ifndef QT_NO_REGEXP
-    QStringList grep( const QRegExp &expr ) const;
-#endif
+    QStringList grep(const QString &str, QString::CaseSensitivity cs = QString::CaseSensitive) const;
+    QStringList grep(const QRegExp &expr) const;
 
-    QStringList& gres( const QString &before, const QString &after,
-		       bool cs = TRUE );
-#ifndef QT_NO_REGEXP_CAPTURE
-    QStringList& gres( const QRegExp &expr, const QString &after );
-#endif
+    QStringList &gres(const QString &before, const QString &after, QString::CaseSensitivity cs = QString::CaseSensitive);
+    QStringList &gres(const QRegExp &expr, const QString &after);
 
-protected:
-    void detach() { QValueList<QString>::detach(); }
-    friend class QDeepCopy< QStringList >;
+#ifndef QT_NO_COMPAT
+    inline QStringList grep(const QString &str, bool cs) const
+	{ return grep(str, cs ? QString::CaseSensitive : QString::CaseInsensitive); }
+    inline QStringList &gres(const QString &before, const QString &after, bool cs)
+	{  return gres(before, after, cs ? QString::CaseSensitive : QString::CaseInsensitive); }
+    Iterator fromLast() { return (isEmpty() ? end() : --end()); }
+    ConstIterator fromLast() const { return (isEmpty() ? end() : --end()); }
+#endif
 };
 
 #ifndef QT_NO_DATASTREAM
-class QDataStream;
-extern Q_EXPORT QDataStream &operator>>( QDataStream &, QStringList& );
-extern Q_EXPORT QDataStream &operator<<( QDataStream &, const QStringList& );
-#endif
+template <class T>
+QDataStream& operator>>( QDataStream& s, QStringList& l )
+{
+    return operator>>(s, (QList<T>&)l);
+}
 
-#endif // QT_NO_STRINGLIST
+template <class T>
+QDataStream& operator<<( QDataStream& s, const QStringList& l )
+{
+    return operator<<(s, (QList<T>&)l);
+}
+#endif // QT_NO_DATASTREAM
+
+
 #endif // QSTRINGLIST_H

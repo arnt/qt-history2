@@ -572,12 +572,12 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const
     }
 
     if(recurse) {
-	for(QStringList::Iterator fnit = fndeps.begin(); fnit != fndeps.end(); ++fnit) {
-	    generateDependencies(dirs, (*fnit), recurse);
-	    QStringList &deplist = findDependencies((*fnit));
+	for(int i = 0; i < fndeps.size(); ++i) {
+	    generateDependencies(dirs, fndeps[i], recurse);
+	    QStringList &deplist = findDependencies(fndeps[i]);
 	    for(QStringList::Iterator it = deplist.begin(); it != deplist.end(); ++it)
-		if(fndeps.findIndex((*it)) == -1)
-		    fndeps.append((*it));
+		if(!fndeps.contains(*it))
+		    fndeps.append(*it);
 	}
     }
     debug_msg(2, "Dependencies: %s -> %s", fn.latin1(), fndeps.join(" :: ").latin1());

@@ -23,6 +23,7 @@ SOURCES		= ../tools/qbuffer.cpp	    \
 		  ../tools/qglobal.cpp	    \
 		  ../tools/qgvector.cpp	    \
 		  ../tools/qiodevice.cpp    \
+		  ../tools/qlist.cpp	    \
 		  ../tools/qregexp.cpp	    \
 		  ../tools/qchar.cpp	    \
 		  ../tools/qstring.cpp	    \

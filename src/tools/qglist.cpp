@@ -40,6 +40,7 @@
 #include "qdatastream.h"
 #include "qvaluelist.h"
 
+inline  void qDelete( QGListIterator * ) {}
 /*!
   \class QLNode qglist.h
   \reentrant

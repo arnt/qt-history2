@@ -401,7 +401,7 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
 	lines.append( QRect( 0, sectionpos, r.width(), linestrut ) );
     else
 	lines.append( QRect( sectionpos, 0, linestrut, r.height() ) );
-    if ( *(--lines.end()) == *(--(--lines.end())) )
+    if ( lines.size() >= 2 && *(--lines.end()) == *(--(--lines.end())) )
 	lines.remove( lines.at( lines.count() - 1 ) );
 
     it.toFirst();

@@ -29,6 +29,7 @@
 
 #include <qxml.h>
 #include <qptrlist.h>
+#include <qvaluelist.h>
 
 struct ContentItem {
     ContentItem()

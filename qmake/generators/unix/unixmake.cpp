@@ -362,13 +362,8 @@ UnixMakefileGenerator::combineSetLFlags(const QStringList &list1, const QStringL
 		    if(ret.findIndex((*it)) == -1)
 			ret.append((*it));
 		} else if((*it).startsWith("-l")) {
-		    while(1) {
-			QStringList::Iterator idx = ret.find((*it));
-			if(idx == ret.end())
-			    break;
-			ret.remove(idx);
-		    }
-		    ret.append((*it));
+		    ret.remove(*it);
+		    ret.append(*it);
 		} else if(project->isActiveConfig("macx") && (*it).startsWith("-framework")) {
 		    int as_one = TRUE;
 		    QString framework_in;
@@ -409,24 +404,11 @@ UnixMakefileGenerator::combineSetLFlags(const QStringList &list1, const QStringL
 			}
 		    }
 		} else {
-#if 0
-		    while(1) {
-			QStringList::Iterator idx = ret.find((*it));
-			if(idx == ret.end())
-			    break;
-			ret.remove(idx);
-		    }
-#endif
 		    ret.append((*it));
 		}
 	    } else /*if(QFile::exists((*it)))*/ {
-		while(1) {
-		    QStringList::Iterator idx = ret.find((*it));
-		    if(idx == ret.end())
-			break;
-		    ret.remove(idx);
-		}
-		ret.append((*it));
+		ret.remove(*it);
+		ret.append(*it);
 	    }
 	}
     }

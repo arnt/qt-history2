@@ -47,6 +47,7 @@
 #include "qiodevice.h"
 #include "qregexp.h"
 #include "qbuffer.h"
+#include "qshared.h"
 
 /*
   ### old todo comments -- I don't know if they still apply...

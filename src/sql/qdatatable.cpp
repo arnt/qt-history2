@@ -345,7 +345,7 @@ void QDataTable::setColumn( uint col, const QString& fieldName,
 
 void QDataTable::removeColumn( uint col )
 {
-    if ( d->fld.at( col ) != d->fld.end() ) {
+    if ( d->fld.begin() + col != d->fld.end() ) {
 	d->fld.remove( d->fld.at( col ) );
 	d->fldLabel.remove( d->fldLabel.at( col ) );
 	d->fldIcon.remove( d->fldIcon.at( col ) );

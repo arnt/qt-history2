@@ -381,7 +381,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 	    valit != vallist.end(); ++valit) {
 	    if((*valit).isEmpty())
 		continue;
-	    if((op == "*=" && !(*varlist.find((*valit)))) ||
+	    if((op == "*=" && !varlist.contains((*valit))) ||
 	       op == "=" || op == "+=")
 		varlist.append((*valit));
 	    else if(op == "-=")

@@ -40,6 +40,7 @@
 #include "option.h"
 #include "project.h"
 #include <qtextstream.h>
+#include <qptrlist.h>
 
 class MakefileGenerator
 {
@@ -117,9 +118,9 @@ protected:
     QString valList(const QStringList &varList);
 
 
-    QString fileFixify(const QString& file, const QString &out_dir=QString::null, 
+    QString fileFixify(const QString& file, const QString &out_dir=QString::null,
 		       const QString &in_dir=QString::null, bool force_fix=FALSE, bool canon=TRUE) const;
-    QStringList fileFixify(const QStringList& files, const QString &out_dir=QString::null, 
+    QStringList fileFixify(const QStringList& files, const QString &out_dir=QString::null,
 			   const QString &in_dir=QString::null, bool force_fix=FALSE, bool canon=TRUE) const;
 public:
     MakefileGenerator(QMakeProject *p);

@@ -1967,7 +1967,7 @@ void TrWindow::recentFileActivated( int id )
 {
     if ( id != -1 ) {
 	if ( maybeSave() )
-	    openFile( *recentFiles.at( id ) );
+	    openFile( recentFiles.at( id ) );
     }
 }
 

@@ -41,6 +41,7 @@
 
 #include "qasyncimageio.h"
 #include "qiodevice.h"
+#include "qvaluelist.h"
 
 #include <png.h>
 

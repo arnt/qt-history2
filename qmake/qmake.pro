@@ -26,7 +26,7 @@ SOURCES+=qchar.cpp qstring.cpp qtextstream.cpp \
          qiodevice.cpp qglobal.cpp \
 	 qgdict.cpp qcstring.cpp qbytearray.cpp \
 	 qdatastream.cpp qgarray.cpp \
-	 qbuffer.cpp qglist.cpp \
+	 qbuffer.cpp qglist.cpp qlist.cpp\
 	 qptrcollection.cpp qfile.cpp \
 	 qregexp.cpp quuid.cpp \
 	 qgvector.cpp qgcache.cpp \

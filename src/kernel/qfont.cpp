@@ -1388,7 +1388,7 @@ QString QFont::substitute( const QString &familyName )
 
     QStringList *list = fontSubst->find(familyName);
     if (list && list->count() > 0)
-	return *(list->at(0));
+	return *(list->begin());
 
     return familyName;
 }

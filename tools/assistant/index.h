@@ -28,6 +28,7 @@
 #define INDEX_H
 
 #include <qstringlist.h>
+#include <qptrlist.h>
 #include <qdict.h>
 #include <qdatastream.h>
 #include <qobject.h>

@@ -39,8 +39,6 @@
 
 #ifndef QT_NO_STRINGLIST
 #include "qregexp.h"
-#include "qstrlist.h"
-#include "qdatastream.h"
 #include "qtl.h"
 
 /*!
@@ -67,7 +65,7 @@
     operator<<(), e.g.
     \code
     QStringList fonts;
-    fonts.append( "Times" );
+    fonts.append("Times");
     fonts += "Courier";
     fonts += "Courier New";
     fonts << "Helvetica [Cronyx]" << "Helvetica [Adobe]";
@@ -75,7 +73,7 @@
 
     String lists have an iterator, QStringList::Iterator(), e.g.
     \code
-    for ( QStringList::Iterator it = fonts.begin(); it != fonts.end(); ++it ) {
+    for (QStringList::Iterator it = fonts.begin(); it != fonts.end(); ++it) {
 	cout << *it << ":";
     }
     cout << endl;
@@ -89,7 +87,7 @@
     You can concatenate all the strings in a string list into a single
     string (with an optional separator) using join(), e.g.
     \code
-    QString allFonts = fonts.join( ", " );
+    QString allFonts = fonts.join(", ");
     cout << allFonts << endl;
     // Output:
     //	Times, Courier, Courier New, Helvetica [Cronyx], Helvetica [Adobe]
@@ -101,12 +99,12 @@
     functions, e.g.
     \code
     fonts.sort();
-    cout << fonts.join( ", " ) << endl;
+    cout << fonts.join(", ") << endl;
     // Output:
     //	Courier, Courier New, Helvetica [Adobe], Helvetica [Cronyx], Times
 
-    QStringList helveticas = fonts.grep( "Helvetica" );
-    cout << helveticas.join( ", " ) << endl;
+    QStringList helveticas = fonts.grep("Helvetica");
+    cout << helveticas.join(", ") << endl;
     // Output:
     //	Helvetica [Adobe], Helvetica [Cronyx]
     \endcode
@@ -115,8 +113,8 @@
     string or regular expression separators, e.g.
     \code
     QString s = "Red\tGreen\tBlue";
-    QStringList colors = QStringList::split( "\t", s );
-    cout << colors.join( ", " ) << endl;
+    QStringList colors = QStringList::split("\t", s);
+    cout << colors.join(", ") << endl;
     // Output:
     //	Red, Green, Blue
     \endcode
@@ -129,7 +127,7 @@
 */
 
 /*!
-    \fn QStringList::QStringList( const QStringList& l )
+    \fn QStringList::QStringList(const QStringList& l)
 
     Creates a copy of the list \a l. This function is very fast
     because QStringList is implicitly shared. In most situations this
@@ -154,13 +152,13 @@
 */
 
 /*!
-    \fn QStringList::QStringList (const char* i)
+    \fn QStringList::QStringList (const char *i)
 
     Constructs a string list consisting of the single latin-1 string \a i.
 */
 
 /*!
-    \fn QStringList::QStringList( const QValueList<QString>& l )
+    \fn QStringList::QStringList(const QValueList<QString>& l)
 
     Constructs a new string list that is a copy of \a l.
 */
@@ -180,7 +178,7 @@
 */
 void QStringList::sort()
 {
-    qHeapSort( *this );
+    qHeapSort(*this);
 }
 
 /*!
@@ -192,10 +190,10 @@ void QStringList::sort()
     \sa join() QString::section()
 */
 
-QStringList QStringList::split( const QChar &sep, const QString &str,
-				bool allowEmptyEntries )
+QStringList QStringList::split(const QChar &sep, const QString &str,
+				bool allowEmptyEntries)
 {
-    return split( QString(sep), str, allowEmptyEntries );
+    return split(QString(sep), str, allowEmptyEntries);
 }
 
 /*!
@@ -205,37 +203,37 @@ QStringList QStringList::split( const QChar &sep, const QString &str,
     than a regular expression.
 
     If \a sep is an empty string, the return value is a list of
-    one-character strings: split( QString( "" ), "four" ) returns the
+    one-character strings: split(QString(""), "four") returns the
     four-item list, "f", "o", "u", "r".
 
-    If \a allowEmptyEntries is TRUE, an empty string is inserted in
+    If \a allowEmptyEntries is true, an empty string is inserted in
     the list wherever the separator matches twice without intervening
     text.
 
     \sa join() QString::section()
 */
 
-QStringList QStringList::split( const QString &sep, const QString &str,
-				bool allowEmptyEntries )
+QStringList QStringList::split(const QString &sep, const QString &str,
+				bool allowEmptyEntries)
 {
     QStringList lst;
 
     int j = 0;
-    int i = str.find( sep, j );
+    int i = str.find(sep, j);
 
-    while ( i != -1 ) {
-	if ( i > j && i <= (int)str.length() )
-	    lst << str.mid( j, i - j );
-	else if ( allowEmptyEntries )
+    while (i != -1) {
+	if (i > j && i <= (int)str.length())
+	    lst << str.mid(j, i - j);
+	else if (allowEmptyEntries)
 	    lst << QString::null;
 	j = i + sep.length();
-	i = str.find( sep, sep.length() > 0 ? j : j+1 );
+	i = str.find(sep, sep.length() > 0 ? j : j+1);
     }
 
     int l = str.length() - 1;
-    if ( str.mid( j, l - j + 1 ).length() > 0 )
-	lst << str.mid( j, l - j + 1 );
-    else if ( allowEmptyEntries )
+    if (str.mid(j, l - j + 1).length() > 0)
+	lst << str.mid(j, l - j + 1);
+    else if (allowEmptyEntries)
 	lst << QString::null;
 
     return lst;
@@ -246,14 +244,14 @@ QStringList QStringList::split( const QString &sep, const QString &str,
     Splits the string \a str into strings wherever the regular
     expression \a sep occurs, and returns the list of those strings.
 
-    If \a allowEmptyEntries is TRUE, an empty string is inserted in
+    If \a allowEmptyEntries is true, an empty string is inserted in
     the list wherever the separator matches twice without intervening
     text.
 
     For example, if you split the string "a,,b,c" on commas, split()
     returns the three-item list "a", "b", "c" if \a allowEmptyEntries
-    is FALSE (the default), and the four-item list "a", "", "b", "c"
-    if \a allowEmptyEntries is TRUE.
+    is false (the default), and the four-item list "a", "", "b", "c"
+    if \a allowEmptyEntries is true.
 
     If \a sep does not match anywhere in \a str, split() returns a
     list consisting of the single string \a str.
@@ -261,32 +259,32 @@ QStringList QStringList::split( const QString &sep, const QString &str,
     \sa join() QString::section()
 */
 
-QStringList QStringList::split( const QRegExp &sep, const QString &str,
-				bool allowEmptyEntries )
+QStringList QStringList::split(const QRegExp &sep, const QString &str,
+				bool allowEmptyEntries)
 {
     QStringList lst;
 
     QRegExp tep = sep;
 
     int j = 0;
-    int i = tep.search( str, j );
+    int i = tep.search(str, j);
 
-    while ( i != -1 ) {
-	if ( str.mid( j, i - j ).length() > 0 )
-	    lst << str.mid( j, i - j );
-	else if ( allowEmptyEntries )
+    while (i != -1) {
+	if (str.mid(j, i - j).length() > 0)
+	    lst << str.mid(j, i - j);
+	else if (allowEmptyEntries)
 	    lst << QString::null;
-	if ( tep.matchedLength() == 0 )
+	if (tep.matchedLength() == 0)
 	    j = i + 1;
 	else
 	    j = i + tep.matchedLength();
-	i = tep.search( str, j );
+	i = tep.search(str, j);
     }
 
     int l = str.length() - 1;
-    if ( str.mid( j, l - j + 1 ).length() > 0 )
-	lst << str.mid( j, l - j + 1 );
-    else if ( allowEmptyEntries )
+    if (str.mid(j, l - j + 1).length() > 0)
+	lst << str.mid(j, l - j + 1);
+    else if (allowEmptyEntries)
 	lst << QString::null;
 
     return lst;
@@ -296,26 +294,25 @@ QStringList QStringList::split( const QRegExp &sep, const QString &str,
 /*!
     Returns a list of all strings containing the substring \a str.
 
-    If \a cs is TRUE, the grep is done case-sensitively; otherwise
+    If \a cs is true, the grep is done case-sensitively; otherwise
     case is ignored.
 
     \code
     QStringList list;
     list << "Bill Gates" << "Joe Blow" << "Bill Clinton";
-    list = list.grep( "Bill" );
+    list = list.grep("Bill");
     // list == ["Bill Gates", "Bill Clinton"]
     \endcode
 
     \sa QString::find()
 */
 
-QStringList QStringList::grep( const QString &str, bool cs ) const
+QStringList QStringList::grep(const QString &str, QString::CaseSensitivity cs) const
 {
     QStringList res;
-    for ( QStringList::ConstIterator it = begin(); it != end(); ++it )
-	if ( (*it).contains(str, cs) )
-	    res << *it;
-
+    for (int i = 0; i < size(); ++i)
+	if (at(i).contains(str, cs))
+	    res << at(i);
     return res;
 }
 
@@ -329,13 +326,12 @@ QStringList QStringList::grep( const QString &str, bool cs ) const
     \sa QString::find()
 */
 
-QStringList QStringList::grep( const QRegExp &rx ) const
+QStringList QStringList::grep(const QRegExp &rx) const
 {
     QStringList res;
-    for ( QStringList::ConstIterator it = begin(); it != end(); ++it )
-	if ( (*it).find(rx) != -1 )
-	    res << *it;
-
+    for (int i = 0; i < size(); ++i)
+	if (at(i).contains(rx))
+	    res << at(i);
     return res;
 }
 #endif
@@ -345,31 +341,27 @@ QStringList QStringList::grep( const QRegExp &rx ) const
     that constitute the string-list with the string \a after. Returns
     a reference to the string-list.
 
-    If \a cs is TRUE, the search is case sensitive; otherwise the
+    If \a cs is true, the search is case sensitive; otherwise the
     search is case insensitive.
 
     Example:
     \code
     QStringList list;
     list << "alpha" << "beta" << "gamma" << "epsilon";
-    list.gres( "a", "o" );
+    list.gres("a", "o");
     // list == ["olpho", "beto", "gommo", "epsilon"]
     \endcode
 
     \sa QString::replace()
 */
-QStringList& QStringList::gres( const QString &before, const QString &after,
-				bool cs )
+QStringList& QStringList::gres(const QString &before, const QString &after, QString::CaseSensitivity cs)
 {
-    QStringList::Iterator it = begin();
-    while ( it != end() ) {
-	(*it).replace( before, after, cs );
-	++it;
-    }
+    for (int i = 0; i < size(); ++i)
+	(*this)[i].replace(before, after, cs);
     return *this;
 }
 
-#ifndef QT_NO_REGEXP_CAPTURE
+#ifndef QT_NO_REGEXP
 /*!
     \overload
 
@@ -380,7 +372,7 @@ QStringList& QStringList::gres( const QString &before, const QString &after,
     \code
     QStringList list;
     list << "alpha" << "beta" << "gamma" << "epsilon";
-    list.gres( QRegExp("^a"), "o" );
+    list.gres(QRegExp("^a"), "o");
     // list == ["olpha", "beta", "gamma", "epsilon"]
     \endcode
 
@@ -393,19 +385,16 @@ QStringList& QStringList::gres( const QString &before, const QString &after,
     \code
     QStringList list;
     list << "Bill Clinton" << "Gates, Bill";
-    list.gres( QRegExp("^(.*), (.*)$"), "\\2 \\1" );
+    list.gres(QRegExp("^(.*), (.*)$"), "\\2 \\1");
     // list == ["Bill Clinton", "Bill Gates"]
     \endcode
 
     \sa QString::replace()
 */
-QStringList& QStringList::gres( const QRegExp &rx, const QString &after )
+QStringList& QStringList::gres(const QRegExp &rx, const QString &after)
 {
-    QStringList::Iterator it = begin();
-    while ( it != end() ) {
-	(*it).replace( rx, after );
-	++it;
-    }
+    for (int i = 0; i < size(); ++i)
+	(*this)[i].replace(rx, after);
     return *this;
 }
 
@@ -417,47 +406,26 @@ QStringList& QStringList::gres( const QRegExp &rx, const QString &after )
 
     \sa split()
 */
-QString QStringList::join( const QString &sep ) const
+QString QStringList::join(const QString &sep) const
 {
     QString res;
-    bool alredy = FALSE;
-    for ( QStringList::ConstIterator it = begin(); it != end(); ++it ) {
-	if ( alredy )
+    for (int i = 0; i < size(); ++i) {
+	if (i)
 	    res += sep;
-	alredy = TRUE;
-	res += *it;
+	res += at(i);
     }
-
     return res;
 }
 
-#ifndef QT_NO_DATASTREAM
-Q_EXPORT QDataStream &operator>>( QDataStream & s, QStringList& l )
-{
-    return s >> (QValueList<QString>&)l;
-}
-
-Q_EXPORT QDataStream &operator<<( QDataStream & s, const QStringList& l )
-{
-    return s << (const QValueList<QString>&)l;
-}
-#endif
-
-/*!
-    Converts from an ASCII-QStrList \a ascii to a QStringList (Unicode).
-*/
-QStringList QStringList::fromStrList(const QStrList& ascii)
+// ##### move away from here!!!!
+#include <qstrlist.h>
+QStringList QStrList::toStringList() const
 {
     QStringList res;
     const char * s;
-    for ( QStrListIterator it(ascii); (s=it.current()); ++it )
+    for ( QStrListIterator it(*this); (s=it.current()); ++it )
 	res << s;
     return res;
 }
-
-/*! \fn void QStringList::detach()
-    \reimp
-*/
-
 
 #endif //QT_NO_STRINGLIST

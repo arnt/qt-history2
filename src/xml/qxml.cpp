@@ -667,7 +667,7 @@ void QXmlNamespaceSupport::reset()
 */
 int QXmlAttributes::index( const QString& qName ) const
 {
-    return qnameList.findIndex( qName );
+    return qnameList.find( qName );
 }
 
 /*!

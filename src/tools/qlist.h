@@ -31,6 +31,7 @@ struct QListData {
     void **prepend();
     void **insert(int i);
     void remove(int i);
+    void remove(int i, int n);
     inline int size() const { return d->end - d->begin; }
     inline bool isEmpty() const { return d->end  == d->begin; }
     inline void **at(int i) const { return d->array + d->begin + i; }
@@ -57,7 +58,7 @@ public:
     void setAutoDelete(bool enable);
 
     inline int size() const { return p.size(); }
-    inline bool isEmpty() { return p.isEmpty(); }
+    inline bool isEmpty() const { return p.isEmpty(); }
     inline void detach() { if (d->ref != 1) detach_helper(); }
     inline bool isDetached() const { return d->ref == 1; }
 
@@ -96,6 +97,9 @@ public:
 	inline Iterator operator--(int) { Node *n = i; i--; return n; }
 	inline Iterator &operator+=(int j) { i+=j; return *this; }
 	inline Iterator &operator-=(int j) { i-=j; return *this; }
+	inline Iterator operator+(int j) { return Iterator(i+j); }
+	inline Iterator operator-(int j) { return Iterator(i-j); }
+	inline int operator-(Iterator j) { return i - j.i; }
     };
     class ConstIterator {
 	typedef std::random_access_iterator_tag  iterator_category;
@@ -115,6 +119,9 @@ public:
 	inline ConstIterator operator--(int) { Node *n = i; i--; return n; }
 	inline ConstIterator &operator+=(int j) { i+=j; return *this; }
 	inline ConstIterator &operator-=(int j) { i+=j; return *this; }
+	inline ConstIterator operator+(int j) { return ConstIterator(i+j); }
+	inline ConstIterator operator-(int j) { return ConstIterator(i-j); }
+	inline int operator-(Iterator j) { return i - j.i; }
     };
 
     inline Iterator begin() { detach(); return (Node*) p.begin(); }
@@ -126,17 +133,35 @@ public:
 
     Iterator insert(Iterator before, const T &t);
     Iterator erase(Iterator it);
+    Iterator erase(Iterator first, Iterator last);
+
+    inline T& first() { Q_ASSERT(!isEmpty()); return *begin(); }
+    inline const T& first() const { Q_ASSERT(!isEmpty()); return *begin(); }
+    T& last() { Q_ASSERT(!isEmpty()); return *(--end()); }
+    const T& last() const { Q_ASSERT(!isEmpty()); return *(--end()); }
+
+    inline void removeFirst() { Q_ASSERT(!isEmpty()); erase( begin() ); }
+    inline void removeLast() { Q_ASSERT(!isEmpty()); erase( --end() ); }
 
     // stl compatibility
     typedef Iterator iterator;
     typedef ConstIterator const_iterator;
     inline void push_back(const T &t) { append(t); }
     inline void push_front(const T &t) { prepend(t); }
+    inline T& front() { first(); }
+    inline const T& front() const { first(); }
+    inline T& back() { last(); }
+    inline const T& back() const { last(); }
+    inline void pop_front() { removeFirst(); }
+    inline void pop_back() { removeLast(); }
+    inline bool empty() const { return isEmpty(); }
+    typedef int size_type;
 
 #ifndef QT_NO_COMPAT
     // compatibility
     inline Iterator remove(Iterator it) { return erase(it); }
     inline int count() const { return p.size(); }
+    int findIndex( const T& x ) const { return find(x); }
 #endif
 
     // comfort
@@ -228,8 +253,8 @@ inline T &QList<T>::operator[](int i)
  return ((Node*) p.at(i))->t(); }
 template <class T>
 inline void QList<T>::removeAt(int i)
-{ Q_ASSERT(i >= 0 && i < size()); detach();
- node_destruct((Node*) p.at(i)); p.remove(i); }
+{ if(i >= 0 && i < p.size()) { detach();
+ node_destruct((Node*) p.at(i)); p.remove(i); } }
 template <class T>
 inline T QList<T>::takeAt(int i)
 { Q_ASSERT(i >= 0 && i < size()); detach();
@@ -354,6 +379,15 @@ int QList<T>::take(const T &t)
 }
 
 template <class T>
+Q_TYPENAME QList<T>::Iterator QList<T>::erase( Q_TYPENAME QList<T>::Iterator first,
+						Q_TYPENAME QList<T>::Iterator last )
+{
+    for ( Node *n = (Node*) first; n <= (Node*) last; ++n)
+	node_destruct(n);
+    p.remove(i, last - first + 1);
+}
+
+template <class T>
 QList<T> &QList<T>::operator+=(const QList<T> &l)
 {
     detach();
@@ -419,6 +453,35 @@ int QList<T>::count(const T &t) const
 }
 
 Q_DECLARE_ITERATOR(QList)
+
+#ifndef QT_NO_DATASTREAM
+template <class T>
+QDataStream& operator>>( QDataStream& s, QList<T>& l )
+{
+    l.clear();
+    Q_UINT32 c;
+    s >> c;
+    for( Q_UINT32 i = 0; i < c; ++i )
+    {
+	T t;
+	s >> t;
+	l.append( t );
+	if ( s.atEnd() )
+	    break;
+    }
+    return s;
+}
+
+template <class T>
+QDataStream& operator<<( QDataStream& s, const QList<T>& l )
+{
+    s << (Q_UINT32)l.size();
+    QList<T>::ConstIterator it = l.begin();
+    for( ; it != l.end(); ++it )
+	s << *it;
+    return s;
+}
+#endif // QT_NO_DATASTREAM
 
 #endif // QLIST_H
 

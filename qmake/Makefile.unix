@@ -6,7 +6,7 @@ OBJS=project.o property.o main.o makefile.o unixmake2.o unixmake.o msvc_nmake.o 
 
 #qt code
 QOBJS=qchar.o qstring.o qtextstream.o qiodevice.o qglobal.o qgdict.o qbytearray.o qcstring.o \
-      qdatastream.o qgarray.o qbuffer.o qglist.o qptrcollection.o qfile.o \
+      qdatastream.o qgarray.o qbuffer.o qglist.o qlist.o qptrcollection.o qfile.o \
       qfile_unix.o qregexp.o qgvector.o qgcache.o qbitarray.o qdir.o quuid.o \
       qfileinfo_unix.o qdir_unix.o qfileinfo.o qdatetime.o qstringlist.o qmap.o \
       qconfig.o qunicodetables.o qsettings.o @QMAKE_QTOBJS@
@@ -22,6 +22,7 @@ DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp generators/makefile.cpp ge
 	   @SOURCE_PATH@/src/tools/qbytearray.cpp @SOURCE_PATH@/src/tools/qcstring.cpp \
 	   @SOURCE_PATH@/src/tools/qdatastream.cpp @SOURCE_PATH@/src/tools/qgarray.cpp \
 	   @SOURCE_PATH@/src/tools/qbuffer.cpp @SOURCE_PATH@/src/tools/qglist.cpp \
+	   @SOURCE_PATH@/src/tools/qbuffer.cpp @SOURCE_PATH@/src/tools/qlist.cpp \
 	   @SOURCE_PATH@/src/tools/qptrcollection.cpp @SOURCE_PATH@/src/tools/qfile.cpp \
 	   @SOURCE_PATH@/src/tools/qfile_unix.cpp @SOURCE_PATH@/src/tools/qregexp.cpp \
 	   @SOURCE_PATH@/src/tools/qgvector.cpp @SOURCE_PATH@/src/tools/qgcache.cpp \
@@ -108,6 +109,9 @@ qbuffer.o: @SOURCE_PATH@/src/tools/qbuffer.cpp
 
 qglist.o: @SOURCE_PATH@/src/tools/qglist.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/tools/qglist.cpp
+
+qlist.o: @SOURCE_PATH@/src/tools/qlist.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/tools/qlist.cpp
 
 qptrcollection.o: @SOURCE_PATH@/src/tools/qptrcollection.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/tools/qptrcollection.cpp

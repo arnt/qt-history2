@@ -593,7 +593,7 @@ public:
     QString string() { return *this; }
 };
 
-// Q_DECLARE_SHARED_MOVABLE(QString)
+Q_DECLARE_SHARED_MOVABLE(QString)
 
 #if defined(Q_OS_WIN32)
 extern Q_EXPORT QByteArray qt_winQString2MB( const QString& s, int len=-1 );

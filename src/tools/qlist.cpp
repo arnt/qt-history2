@@ -123,6 +123,23 @@ void QListData::remove(int i)
     }
 }
 
+
+void QListData::remove(int i, int n)
+{
+    Q_ASSERT( d->ref == 1 );
+    i += d->begin;
+    int middle = i + n/2;
+    if (middle - d->begin < d->end - middle) {
+	::memmove(d->array + d->begin + n,  d->array + d->begin,
+		   (i - d->begin) * sizeof(void*));
+	d->begin += n;
+    } else {
+	::memmove(d->array + i,  d->array + i + n,
+		   (d->end - i - n) * sizeof(void*));
+	d->end -= n;
+    }
+}
+
 void **QListData::erase(void **xi)
 {
     Q_ASSERT( d->ref == 1 );

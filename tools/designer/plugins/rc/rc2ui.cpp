@@ -507,7 +507,7 @@ bool RC2UI::makeDialog()
 	    do {
 		extendedStyles = splitStyles(parseNext( arguments ));
 		for ( uint i = 0; i < extendedStyles.count(); i++ )
-		    styles << (*extendedStyles.at(i));
+		    styles << (extendedStyles.at(i));
 	    } while ( arguments.find(',') > -1 );
 
 	    switch ( ID ) {

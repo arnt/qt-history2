@@ -14,11 +14,15 @@
 #ifndef QT_NO_TEXTCODEC
 #include <qtextcodec.h>
 #endif
+#include <qdatastream.h>
+// ######
+#include <qptrlist.h>
 
 #include "qtools_p.h"
 #include <limits.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <stdarg.h>
 #include <new>
 

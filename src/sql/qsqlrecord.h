@@ -40,6 +40,7 @@
 #ifndef QT_H
 #include "qstring.h"
 #include "qstringlist.h"
+#include "qvaluelist.h"
 #include "qvariant.h"
 #include "qsqlfield.h"
 #endif // QT_H

@@ -772,7 +772,7 @@ void MainWindow::addSubstitute()
 
     int item = sublistbox->currentItem();
     QStringList subs = QFont::substitutes(familysubcombo->currentText());
-    subs.insert(++subs.at(sublistbox->currentItem()), choosesubcombo->currentText());
+    subs.insert(sublistbox->currentItem()+1, choosesubcombo->currentText());
     sublistbox->clear();
     sublistbox->insertStringList(subs);
     sublistbox->setCurrentItem(item);
@@ -790,11 +790,9 @@ void MainWindow::downSubstitute()
 
     int item = sublistbox->currentItem();
     QStringList subs = QFont::substitutes(familysubcombo->currentText());
-    QStringList::Iterator it = subs.at(item);
-    QString fam = *it;
-    subs.remove(it);
-    it = subs.at(item);
-    subs.insert(++it, fam);
+    QString fam = subs.at(item);
+    subs.removeAt(item);
+    subs.insert(item+1, fam);
     sublistbox->clear();
     sublistbox->insertStringList(subs);
     sublistbox->setCurrentItem(item + 1);
@@ -811,11 +809,9 @@ void MainWindow::upSubstitute()
 
     int item = sublistbox->currentItem();
     QStringList subs = QFont::substitutes(familysubcombo->currentText());
-    QStringList::Iterator it = subs.at(item);
-    QString fam = *it;
-    subs.remove(it);
-    it = subs.at(item - 1);
-    subs.insert(it, fam);
+    QString fam = subs.at(item);
+    subs.removeAt(item);
+    subs.insert(item-1, fam);
     sublistbox->clear();
     sublistbox->insertStringList(subs);
     sublistbox->setCurrentItem(item - 1);
@@ -863,7 +859,7 @@ void MainWindow::addLibpath()
 
     int item = libpathlistbox->currentItem();
     QStringList paths =QApplication::libraryPaths();
-    paths.insert(++paths.at(libpathlistbox->currentItem()),
+    paths.insert(libpathlistbox->currentItem()+1,
 		 libpathlineedit->text());
     libpathlistbox->clear();
     libpathlistbox->insertStringList(paths);
@@ -881,11 +877,9 @@ void MainWindow::downLibpath()
 
     int item = libpathlistbox->currentItem();
     QStringList paths = QApplication::libraryPaths();
-    QStringList::Iterator it = paths.at(item);
-    QString fam = *it;
-    paths.remove(it);
-    it = paths.at(item);
-    paths.insert(++it, fam);
+    QString fam = paths.at(item);
+    paths.removeAt(item);
+    paths.insert(item+1, fam);
     libpathlistbox->clear();
     libpathlistbox->insertStringList(paths);
     libpathlistbox->setCurrentItem(item + 1);
@@ -901,11 +895,9 @@ void MainWindow::upLibpath()
 
     int item = libpathlistbox->currentItem();
     QStringList paths = QApplication::libraryPaths();
-    QStringList::Iterator it = paths.at(item);
-    QString fam = *it;
-    paths.remove(it);
-    it = paths.at(item - 1);
-    paths.insert(it, fam);
+    QString fam = paths.at(item);
+    paths.removeAt(item);
+    paths.insert(item - 1, fam);
     libpathlistbox->clear();
     libpathlistbox->insertStringList(paths);
     libpathlistbox->setCurrentItem(item - 1);
@@ -958,7 +950,7 @@ void MainWindow::addFontpath()
     }
 
     int item = fontpathlistbox->currentItem();
-    fontpaths.insert(++fontpaths.at(fontpathlistbox->currentItem()),
+    fontpaths.insert(fontpathlistbox->currentItem()+1,
 		     fontpathlineedit->text());
     fontpathlistbox->clear();
     fontpathlistbox->insertStringList(fontpaths);
@@ -974,11 +966,9 @@ void MainWindow::downFontpath()
 	return;
 
     int item = fontpathlistbox->currentItem();
-    QStringList::Iterator it = fontpaths.at(item);
-    QString fam = *it;
-    fontpaths.remove(it);
-    it = fontpaths.at(item);
-    fontpaths.insert(++it, fam);
+    QString fam = fontpaths.at(item);
+    fontpaths.removeAt(item);
+    fontpaths.insert(item+1, fam);
     fontpathlistbox->clear();
     fontpathlistbox->insertStringList(fontpaths);
     fontpathlistbox->setCurrentItem(item + 1);
@@ -992,11 +982,9 @@ void MainWindow::upFontpath()
 	return;
 
     int item = fontpathlistbox->currentItem();
-    QStringList::Iterator it = fontpaths.at(item);
-    QString fam = *it;
-    fontpaths.remove(it);
-    it = fontpaths.at(item - 1);
-    fontpaths.insert(it, fam);
+    QString fam = fontpaths.at(item);
+    fontpaths.removeAt(item);
+    fontpaths.insert(item-1, fam);
     fontpathlistbox->clear();
     fontpathlistbox->insertStringList(fontpaths);
     fontpathlistbox->setCurrentItem(item - 1);

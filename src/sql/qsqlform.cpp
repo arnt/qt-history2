@@ -196,8 +196,9 @@ void QSqlForm::insert( QWidget * widget, const QString& field )
 void QSqlForm::remove( const QString& field )
 {
     d->dirty = TRUE;
-    if ( d->fld.find( field ) != d->fld.end() )
-	d->fld.remove( d->fld.find( field ) );
+    int i = d->fld.find( field );
+    if (i >= 0)
+	d->fld.removeAt(i);
     d->wgt.remove( field );
 }
 

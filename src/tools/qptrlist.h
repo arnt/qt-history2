@@ -181,11 +181,6 @@ public:
 			      { QGListIterator::operator=(it); return *this; }
 };
 
-#ifndef QT_NO_COMPAT
-#define QList QPtrList
-#define QListIterator QPtrListIterator
-#endif
-
 #define Q_DEFINED_QPTRLIST
 #include "qwinexport.h"
 

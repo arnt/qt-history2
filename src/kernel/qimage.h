@@ -209,7 +209,7 @@ public:
     QPoint offset() const;
     void setOffset(const QPoint&);
 #ifndef QT_NO_IMAGE_TEXT
-    QValueList<QImageTextKeyLang> textList() const;
+    QList<QImageTextKeyLang> textList() const;
     QStringList textLanguages() const;
     QStringList textKeys() const;
     QString text(const char* key, const char* lang=0) const;

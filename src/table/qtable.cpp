@@ -1184,7 +1184,7 @@ QComboTableItem::QComboTableItem( QTable *table, const QStringList &list, bool e
 	fakeCombo->hide();
     }
     if ( entries.count() )
-	setText( *entries.at( current ) );
+	setText( entries.at( current ) );
 }
 
 /*!
@@ -1197,7 +1197,7 @@ void QComboTableItem::setStringList( const QStringList &l )
     entries = l;
     current = 0;
     if ( entries.count() )
-	setText( *entries.at( current ) );
+	setText( entries.at( current ) );
     if ( table()->cellWidget( row(), col() ) ) {
 	cb->clear();
 	cb->insertStringList( entries );
@@ -1227,7 +1227,7 @@ void QComboTableItem::setContentFromEditor( QWidget *w )
 	for ( int i = 0; i < cb->count(); ++i )
 	    entries << cb->text( i );
 	current = cb->currentItem();
-	setText( *entries.at( current ) );
+	setText( entries.at( current ) );
     }
 }
 
@@ -1253,7 +1253,7 @@ void QComboTableItem::paint( QPainter *p, const QColorGroup &cg,
     QRect textR = table()->style().querySubControlMetrics(QStyle::CC_ComboBox, fakeCombo,
 							 QStyle::SC_ComboBoxEditField);
     int align = alignment(); // alignment() changes entries
-    p->drawText( textR, wordWrap() ? ( align | WordBreak ) : align, *entries.at( current ) );
+    p->drawText( textR, wordWrap() ? ( align | WordBreak ) : align, entries.at( current ) );
     p->restore();
 }
 
@@ -1274,7 +1274,7 @@ void QComboTableItem::setCurrentItem( int i )
 	setText( cb->currentText() );
     } else {
 	current = i;
-	setText( *entries.at( i ) );
+	setText( entries.at( i ) );
 	table()->updateCell( row(), col() );
     }
 }
@@ -1322,7 +1322,7 @@ QString QComboTableItem::currentText() const
     QComboBox *cb = qt_cast<QComboBox*>(w);
     if ( cb )
 	return cb->currentText();
-    return *entries.at( current );
+    return entries.at( current );
 }
 
 /*!
@@ -1350,7 +1350,7 @@ QString QComboTableItem::text( int i ) const
     QComboBox *cb = qt_cast<QComboBox*>(w);
     if ( cb )
 	return cb->text( i );
-    return *entries.at( i );
+    return entries.at( i );
 }
 
 /*!
@@ -2747,7 +2747,7 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
     }
     d->lastVisCol = collast;
     d->lastVisRow = rowlast;
-    
+
     // draw indication of current cell
     QRect focusRect = cellGeometry( curRow, curCol );
     p->translate( focusRect.x(), focusRect.y() );

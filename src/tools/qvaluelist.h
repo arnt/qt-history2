@@ -40,8 +40,8 @@
 
 #ifndef QT_H
 #include "qtl.h"
-#include "qshared.h"
 #include "qdatastream.h"
+#include "qlist.h"
 #endif // QT_H
 
 #ifndef QT_NO_STL
@@ -49,376 +49,43 @@
 #include <list>
 #endif
 
-//#define QT_CHECK_VALUELIST_RANGE
-
-#if defined(Q_CC_MSVC)
-#pragma warning(disable:4284) // "return type for operator -> is not a UDT"
-#endif
-
-template <class T>
-class QValueListNode
+#ifndef QT_NO_COMPAT
+template <class T> class QValueListIterator : public QList<T>::Iterator
 {
 public:
-    QValueListNode( const T& t ) : data( t ) { }
-    QValueListNode() { }
-#if defined(Q_TEMPLATEDLL)
-    // Workaround MS bug in memory de/allocation in DLL vs. EXE
-    virtual ~QValueListNode() { }
-#endif
-
-    QValueListNode<T>* next;
-    QValueListNode<T>* prev;
-    T data;
+    inline QValueListIterator<T>() :
+	QList<T>::Iterator() {}
+    inline QValueListIterator<T>(const QValueListIterator &o) :
+	QList<T>::Iterator(o) {}
+    inline QValueListIterator<T>(const QList<T>::Iterator &o) :
+	QList<T>::Iterator(o) {}
 };
 
-template<class T>
-class QValueListIterator
-{
- public:
-    /**
-     * Typedefs
-     */
-    typedef QValueListNode<T>* NodePtr;
-#ifndef QT_NO_STL
-    typedef std::bidirectional_iterator_tag  iterator_category;
-#endif
-    typedef T        value_type;
-    typedef size_t size_type;
-#ifndef QT_NO_STL
-    typedef ptrdiff_t  difference_type;
-#else
-    typedef int difference_type;
-#endif
-    typedef T*   pointer;
-    typedef T& reference;
-
-    /**
-     * Variables
-     */
-    NodePtr node;
-
-    /**
-     * Functions
-     */
-    QValueListIterator() : node( 0 ) {}
-    QValueListIterator( NodePtr p ) : node( p ) {}
-    QValueListIterator( const QValueListIterator<T>& it ) : node( it.node ) {}
-
-    bool operator==( const QValueListIterator<T>& it ) const { return node == it.node; }
-    bool operator!=( const QValueListIterator<T>& it ) const { return node != it.node; }
-    const T& operator*() const { return node->data; }
-    T& operator*() { return node->data; }
-    // UDT for T = x*
-    // T* operator->() const { return &node->data; }
-
-    QValueListIterator<T>& operator++() {
-	node = node->next;
-	return *this;
-    }
-
-    QValueListIterator<T> operator++(int) {
-	QValueListIterator<T> tmp = *this;
-	node = node->next;
-	return tmp;
-    }
-
-    QValueListIterator<T>& operator--() {
-	node = node->prev;
-	return *this;
-    }
-
-    QValueListIterator<T> operator--(int) {
-	QValueListIterator<T> tmp = *this;
-	node = node->prev;
-	return tmp;
-    }
-
-    QValueListIterator<T>& operator+=( int j ) {
-	while ( j-- )
-	    node = node->next;
-	return *this;
-    }
-
-    QValueListIterator<T>& operator-=( int j ) {
-	while ( j-- )
-	    node = node->prev;
-	return *this;
-    }
-
-};
-
-template<class T>
-class QValueListConstIterator
-{
- public:
-    /**
-     * Typedefs
-     */
-    typedef QValueListNode<T>* NodePtr;
-#ifndef QT_NO_STL
-    typedef std::bidirectional_iterator_tag  iterator_category;
-#endif
-    typedef T        value_type;
-    typedef size_t size_type;
-#ifndef QT_NO_STL
-    typedef ptrdiff_t  difference_type;
-#else
-    typedef int difference_type;
-#endif
-    typedef const T*   pointer;
-    typedef const T& reference;
-
-    /**
-     * Variables
-     */
-    NodePtr node;
-
-    /**
-     * Functions
-     */
-    QValueListConstIterator() : node( 0 ) {}
-    QValueListConstIterator( NodePtr p ) : node( p ) {}
-    QValueListConstIterator( const QValueListConstIterator<T>& it ) : node( it.node ) {}
-    QValueListConstIterator( const QValueListIterator<T>& it ) : node( it.node ) {}
-
-    bool operator==( const QValueListConstIterator<T>& it ) const { return node == it.node; }
-    bool operator!=( const QValueListConstIterator<T>& it ) const { return node != it.node; }
-    const T& operator*() const { return node->data; }
-    // UDT for T = x*
-    // const T* operator->() const { return &node->data; }
-
-    QValueListConstIterator<T>& operator++() {
-	node = node->next;
-	return *this;
-    }
-
-    QValueListConstIterator<T> operator++(int) {
-	QValueListConstIterator<T> tmp = *this;
-	node = node->next;
-	return tmp;
-    }
-
-    QValueListConstIterator<T>& operator--() {
-	node = node->prev;
-	return *this;
-    }
-
-    QValueListConstIterator<T> operator--(int) {
-	QValueListConstIterator<T> tmp = *this;
-	node = node->prev;
-	return tmp;
-    }
-};
-
-template <class T>
-class QValueListPrivate : public QShared
+template <class T> class QValueListConstIterator : public QList<T>::ConstIterator
 {
 public:
-    /**
-     * Typedefs
-     */
-    typedef QValueListIterator<T> Iterator;
-    typedef QValueListConstIterator<T> ConstIterator;
-    typedef QValueListNode<T> Node;
-    typedef QValueListNode<T>* NodePtr;
-    typedef size_t size_type;
-
-    /**
-     * Functions
-     */
-    QValueListPrivate();
-    QValueListPrivate( const QValueListPrivate<T>& _p );
-
-    void derefAndDelete() // ### hack to get around hp-cc brain damage
-    {
-	if ( deref() )
-	    delete this;
-    }
-
-#if defined(Q_TEMPLATEDLL)
-    // Workaround MS bug in memory de/allocation in DLL vs. EXE
-    virtual
-#endif
-    ~QValueListPrivate();
-
-    Iterator insert( Iterator it, const T& x );
-    Iterator remove( Iterator it );
-    NodePtr find( NodePtr start, const T& x ) const;
-    int findIndex( NodePtr start, const T& x ) const;
-    uint contains( const T& x ) const;
-    uint remove( const T& x );
-    NodePtr at( size_type i ) const;
-    void clear();
-
-    NodePtr node;
-    size_type nodes;
+    inline QValueListConstIterator<T>() :
+	QList<T>::ConstIterator() {}
+    inline QValueListConstIterator<T>(const QValueListConstIterator &o) :
+	QList<T>::ConstIterator(o) {}
+    inline QValueListConstIterator<T>(const QList<T>::ConstIterator &o) :
+	QList<T>::ConstIterator(o) {}
+    inline QValueListConstIterator<T>(const QList<T>::Iterator &o) :
+	QList<T>::ConstIterator(o) {}
 };
-
-template <class T>
-Q_INLINE_TEMPLATES QValueListPrivate<T>::QValueListPrivate()
-{
-    node = new Node; node->next = node->prev = node; nodes = 0;
-}
-
-template <class T>
-Q_INLINE_TEMPLATES QValueListPrivate<T>::QValueListPrivate( const QValueListPrivate<T>& _p )
-    : QShared()
-{
-    node = new Node; node->next = node->prev = node; nodes = 0;
-    Iterator b( _p.node->next );
-    Iterator e( _p.node );
-    Iterator i( node );
-    while( b != e )
-	insert( i, *b++ );
-}
-
-template <class T>
-Q_INLINE_TEMPLATES QValueListPrivate<T>::~QValueListPrivate() {
-    NodePtr p = node->next;
-    while( p != node ) {
-	NodePtr x = p->next;
-	delete p;
-	p = x;
-    }
-    delete node;
-}
-
-template <class T>
-Q_INLINE_TEMPLATES Q_TYPENAME QValueListPrivate<T>::Iterator QValueListPrivate<T>::insert( Q_TYPENAME QValueListPrivate<T>::Iterator it, const T& x )
-{
-    NodePtr p = new Node( x );
-    p->next = it.node;
-    p->prev = it.node->prev;
-    it.node->prev->next = p;
-    it.node->prev = p;
-    nodes++;
-    return p;
-}
-
-template <class T>
-Q_INLINE_TEMPLATES Q_TYPENAME QValueListPrivate<T>::Iterator QValueListPrivate<T>::remove( Q_TYPENAME QValueListPrivate<T>::Iterator it )
-{
-    Q_ASSERT ( it.node != node );
-    NodePtr next = it.node->next;
-    NodePtr prev = it.node->prev;
-    prev->next = next;
-    next->prev = prev;
-    delete it.node;
-    nodes--;
-    return Iterator( next );
-}
-
-template <class T>
-Q_INLINE_TEMPLATES Q_TYPENAME QValueListPrivate<T>::NodePtr QValueListPrivate<T>::find( Q_TYPENAME QValueListPrivate<T>::NodePtr start, const T& x ) const
-{
-    ConstIterator first( start );
-    ConstIterator last( node );
-    while( first != last) {
-	if ( *first == x )
-	    return first.node;
-	++first;
-    }
-    return last.node;
-}
-
-template <class T>
-Q_INLINE_TEMPLATES int QValueListPrivate<T>::findIndex( Q_TYPENAME QValueListPrivate<T>::NodePtr start, const T& x ) const
-{
-    ConstIterator first( start );
-    ConstIterator last( node );
-    int pos = 0;
-    while( first != last) {
-	if ( *first == x )
-	    return pos;
-	++first;
-	++pos;
-    }
-    return -1;
-}
-
-template <class T>
-Q_INLINE_TEMPLATES uint QValueListPrivate<T>::contains( const T& x ) const
-{
-    uint result = 0;
-    Iterator first = Iterator( node->next );
-    Iterator last = Iterator( node );
-    while( first != last) {
-	if ( *first == x )
-	    ++result;
-	++first;
-    }
-    return result;
-}
-
-template <class T>
-Q_INLINE_TEMPLATES uint QValueListPrivate<T>::remove( const T& x )
-{
-    uint result = 0;
-    Iterator first = Iterator( node->next );
-    Iterator last = Iterator( node );
-    while( first != last) {
-	if ( *first == x ) {
-	    first = remove( first );
-	    ++result;
-	} else
-	    ++first;
-    }
-    return result;
-}
-
-template <class T>
-Q_INLINE_TEMPLATES Q_TYPENAME QValueListPrivate<T>::NodePtr QValueListPrivate<T>::at( size_type i ) const
-{
-    Q_ASSERT( i <= nodes );
-    NodePtr p = node->next;
-    for( size_type x = 0; x < i; ++x )
-	p = p->next;
-    return p;
-}
-
-template <class T>
-Q_INLINE_TEMPLATES void QValueListPrivate<T>::clear()
-{
-    nodes = 0;
-    NodePtr p = node->next;
-    while( p != node ) {
-	NodePtr next = p->next;
-	delete p;
-	p = next;
-    }
-    node->next = node->prev = node;
-}
-
-#ifdef QT_CHECK_RANGE
-# if !defined( QT_NO_DEBUG ) && defined( QT_CHECK_VALUELIST_RANGE )
-#  define QT_CHECK_INVALID_LIST_ELEMENT if ( empty() ) qWarning( "QValueList: Warning invalid element" )
-#  define QT_CHECK_INVALID_LIST_ELEMENT_FATAL Q_ASSERT( !empty() );
-# else
-#  define QT_CHECK_INVALID_LIST_ELEMENT
-#  define QT_CHECK_INVALID_LIST_ELEMENT_FATAL
-# endif
-#else
-# define QT_CHECK_INVALID_LIST_ELEMENT
-# define QT_CHECK_INVALID_LIST_ELEMENT_FATAL
 #endif
 
-template <class T> class QDeepCopy;
-
 template <class T>
-class QValueList
+class QValueList : public QList<T>
 {
 public:
-    /**
-     * Typedefs
-     */
-    typedef QValueListIterator<T> iterator;
-    typedef QValueListConstIterator<T> const_iterator;
+    typedef Iterator iterator;
+    typedef ConstIterator const_iterator;
     typedef T value_type;
     typedef value_type* pointer;
     typedef const value_type* const_pointer;
     typedef value_type& reference;
     typedef const value_type& const_reference;
-    typedef size_t size_type;
 #ifndef QT_NO_STL
     typedef ptrdiff_t  difference_type;
 #else
@@ -428,22 +95,20 @@ public:
     /**
      * API
      */
-    QValueList() { sh = new QValueListPrivate<T>; }
-    QValueList( const QValueList<T>& l ) { sh = l.sh; sh->ref(); }
+    QValueList() {}
+    QValueList( const QValueList<T>& l ) : QList<T>( l ) {}
+    QValueList( const QList<T>& l ) : QList<T>( l ) {}
 #ifndef QT_NO_STL
     QValueList( const std::list<T>& l )
     {
-	sh = new QValueListPrivate<T>;
 	qCopy( l.begin(), l.end(), std::back_inserter( *this ) );
     }
 #endif
-    ~QValueList() { sh->derefAndDelete(); }
+    ~QValueList() {}
 
     QValueList<T>& operator= ( const QValueList<T>& l )
     {
-	l.sh->ref();
-	sh->derefAndDelete();
-	sh = l.sh;
+	QList<T>::operator=(l);
 	return *this;
     }
 #ifndef QT_NO_STL
@@ -468,193 +133,57 @@ public:
 	return TRUE;
     }
 #endif
-    bool operator== ( const QValueList<T>& l ) const;
-    bool operator!= ( const QValueList<T>& l ) const { return !( *this == l ); }
-    iterator begin() { detach(); return iterator( sh->node->next ); }
-    const_iterator begin() const { return const_iterator( sh->node->next ); }
-    const_iterator constBegin() const { return const_iterator( sh->node->next ); }
-    iterator end() { detach(); return iterator( sh->node ); }
-    const_iterator end() const { return const_iterator( sh->node ); }
-    const_iterator constEnd() const { return const_iterator( sh->node ); }
-    iterator insert( iterator it, const T& x ) { detach(); return sh->insert( it, x ); }
-    uint remove( const T& x ) { detach(); return sh->remove( x ); }
-    void clear();
+    bool operator== ( const QValueList<T>& l ) const { return QList<T>::operator==(l); }
+    bool operator!= ( const QValueList<T>& l ) const { return QList<T>::operator!=(l); }
 
-    // ### 4.0: move out of class
-    QValueList<T>& operator<< ( const T& x )
-    {
-	append( x );
-	return *this;
-    }
+    inline QValueList<T>& operator<< ( const T& x ) { append( x ); return *this; }
 
-    size_type size() const { return sh->nodes; }
-    bool empty() const { return sh->nodes == 0; }
-    void push_front( const T& x ) { detach(); sh->insert( begin(), x ); }
-    void push_back( const T& x ) { detach(); sh->insert( end(), x ); }
-    iterator erase( iterator pos ) { detach(); return sh->remove( pos ); }
-    iterator erase( iterator first, iterator last );
-    reference front() { QT_CHECK_INVALID_LIST_ELEMENT_FATAL; return *begin(); }
-    const_reference front() const { QT_CHECK_INVALID_LIST_ELEMENT_FATAL; return *begin(); }
-    reference back() { QT_CHECK_INVALID_LIST_ELEMENT_FATAL; return *(--end()); }
-    const_reference back() const { QT_CHECK_INVALID_LIST_ELEMENT_FATAL; return *(--end()); }
-    void pop_front() { QT_CHECK_INVALID_LIST_ELEMENT; erase( begin() ); }
-    void pop_back() {
-	QT_CHECK_INVALID_LIST_ELEMENT;
-	iterator tmp = end();
-	erase( --tmp );
-    }
-    void insert( iterator pos, size_type n, const T& x );
-    // Some compilers (incl. vc++) would instantiate this function even if
-    // it is not used; this would constrain QValueList to classes that provide
-    // an operator<
-    /*
-    void sort()
-    {
-	qHeapSort( *this );
-    }
-    */
+    void insert( Iterator pos, size_type n, const T& x );
+    Iterator insert( Iterator pos, const T& x ) { return QList<T>::insert(pos, x); }
 
-    QValueList<T> operator+ ( const QValueList<T>& l ) const;
-    QValueList<T>& operator+= ( const QValueList<T>& l );
+    inline QValueList<T> operator+ ( const QValueList<T>& l ) const
+	{ return static_cast<QValueList<T> >(QList<T>::operator+(l)); }
+    inline QValueList<T>& operator+= ( const QValueList<T>& l ) { QList<T>::operator+=(l); return *this; }
 
-    iterator fromLast() { detach(); return iterator( sh->node->prev ); }
-    const_iterator fromLast() const { return const_iterator( sh->node->prev ); }
+    Iterator fromLast() { return (isEmpty() ? end() : --end()); }
+    ConstIterator fromLast() const { return (isEmpty() ? end() : --end()); }
 
-    bool isEmpty() const { return ( sh->nodes == 0 ); }
+    Iterator append( const T& x ) { QList<T>::append(x); return begin(); }
+    Iterator prepend( const T& x ) { QList<T>::prepend(x); return --end(); }
 
-    iterator append( const T& x ) { detach(); return sh->insert( end(), x ); }
-    iterator prepend( const T& x ) { detach(); return sh->insert( begin(), x ); }
+    Iterator at( size_type i  ){ Q_ASSERT( i < size() ); detach(); return begin()+i; }
+    ConstIterator at( size_type i ) const { Q_ASSERT( i < size() ); return begin()+i; }
+    Iterator find ( const T& x ) { int i = QList<T>::find(x); return (i == -1 ? end() : (begin()+i)); }
+    ConstIterator find ( const T& x ) const { int i = QList<T>::find(x); return (i == -1 ? end() : (begin()+i)); }
+    Iterator find ( Iterator it, const T& x )
+	{ int i = QList<T>::find(x, it-begin()); return i == -1 ? end() : begin()+i; }
+    ConstIterator find ( ConstIterator it, const T& x ) const
+	{ int i = QList<T>::find(x, it-begin()); return i == -1 ? end() : begin()+i; }
+    size_type contains( const T& x ) const { return QList<T>::count(x); }
 
-    iterator remove( iterator it ) { detach(); return sh->remove( it ); }
+    size_type count() const { return size(); }
 
-    T& first() { QT_CHECK_INVALID_LIST_ELEMENT; detach(); return sh->node->next->data; }
-    const T& first() const { QT_CHECK_INVALID_LIST_ELEMENT; return sh->node->next->data; }
-    T& last() { QT_CHECK_INVALID_LIST_ELEMENT; detach(); return sh->node->prev->data; }
-    const T& last() const { QT_CHECK_INVALID_LIST_ELEMENT; return sh->node->prev->data; }
-
-    T& operator[] ( size_type i ) { QT_CHECK_INVALID_LIST_ELEMENT; detach(); return sh->at(i)->data; }
-    const T& operator[] ( size_type i ) const { QT_CHECK_INVALID_LIST_ELEMENT; return sh->at(i)->data; }
-    iterator at( size_type i ) { QT_CHECK_INVALID_LIST_ELEMENT; detach(); return iterator( sh->at(i) ); }
-    const_iterator at( size_type i ) const { QT_CHECK_INVALID_LIST_ELEMENT; return const_iterator( sh->at(i) ); }
-    iterator find ( const T& x ) { detach(); return iterator( sh->find( sh->node->next, x) ); }
-    const_iterator find ( const T& x ) const { return const_iterator( sh->find( sh->node->next, x) ); }
-    iterator find ( iterator it, const T& x ) { detach(); return iterator( sh->find( it.node, x ) ); }
-    const_iterator find ( const_iterator it, const T& x ) const { return const_iterator( sh->find( it.node, x ) ); }
-    int findIndex( const T& x ) const { return sh->findIndex( sh->node->next, x) ; }
-    size_type contains( const T& x ) const { return sh->contains( x ); }
-
-    size_type count() const { return sh->nodes; }
-
-    QValueList<T>& operator+= ( const T& x )
-    {
-	append( x );
-	return *this;
-    }
-    typedef QValueListIterator<T> Iterator;
-    typedef QValueListConstIterator<T> ConstIterator;
-    typedef T ValueType;
-
-protected:
-    /**
-     * Helpers
-     */
-    void detach() { if ( sh->count > 1 ) detachInternal(); }
-
-    /**
-     * Variables
-     */
-    QValueListPrivate<T>* sh;
-
-private:
-    void detachInternal();
-
-    friend class QDeepCopy< QValueList<T> >;
+    QValueList<T>& operator+= ( const T& x ) { append( x ); return *this; }
 };
 
 template <class T>
-Q_INLINE_TEMPLATES bool QValueList<T>::operator== ( const QValueList<T>& l ) const
-{
-    if ( size() != l.size() )
-	return FALSE;
-    const_iterator it2 = begin();
-    const_iterator it = l.begin();
-    for( ; it != l.end(); ++it, ++it2 )
-	if ( !( *it == *it2 ) )
-	    return FALSE;
-    return TRUE;
-}
-
-template <class T>
-Q_INLINE_TEMPLATES void QValueList<T>::clear()
-{
-    if ( sh->count == 1 ) sh->clear(); else { sh->deref(); sh = new QValueListPrivate<T>; }
-}
-
-template <class T>
-Q_INLINE_TEMPLATES Q_TYPENAME QValueList<T>::iterator QValueList<T>::erase( Q_TYPENAME QValueList<T>::iterator first, Q_TYPENAME QValueList<T>::iterator last )
-{
-    while ( first != last )
-	erase( first++ );
-    return last;
-}
-
-
-template <class T>
-Q_INLINE_TEMPLATES void QValueList<T>::insert( Q_TYPENAME QValueList<T>::iterator pos, size_type n, const T& x )
+void QValueList<T>::insert( Q_TYPENAME QValueList<T>::Iterator pos, size_type n, const T& x )
 {
     for ( ; n > 0; --n )
 	insert( pos, x );
 }
 
-template <class T>
-Q_INLINE_TEMPLATES QValueList<T> QValueList<T>::operator+ ( const QValueList<T>& l ) const
-{
-    QValueList<T> l2( *this );
-    for( const_iterator it = l.begin(); it != l.end(); ++it )
-	l2.append( *it );
-    return l2;
-}
-
-template <class T>
-Q_INLINE_TEMPLATES QValueList<T>& QValueList<T>::operator+= ( const QValueList<T>& l )
-{
-    for( const_iterator it = l.begin(); it != l.end(); ++it )
-	append( *it );
-    return *this;
-}
-
-template <class T>
-Q_INLINE_TEMPLATES void QValueList<T>::detachInternal()
-{
-    sh->deref(); sh = new QValueListPrivate<T>( *sh );
-}
-
 #ifndef QT_NO_DATASTREAM
 template <class T>
-Q_INLINE_TEMPLATES QDataStream& operator>>( QDataStream& s, QValueList<T>& l )
+QDataStream& operator>>( QDataStream& s, QValueList<T>& l )
 {
-    l.clear();
-    Q_UINT32 c;
-    s >> c;
-    for( Q_UINT32 i = 0; i < c; ++i )
-    {
-	T t;
-	s >> t;
-	l.append( t );
-	if ( s.atEnd() )
-	    break;
-    }
-    return s;
+    return operator>>(s, (QList<T>&)l);
 }
 
 template <class T>
-Q_INLINE_TEMPLATES QDataStream& operator<<( QDataStream& s, const QValueList<T>& l )
+QDataStream& operator<<( QDataStream& s, const QValueList<T>& l )
 {
-    s << (Q_UINT32)l.size();
-    QValueListConstIterator<T> it = l.begin();
-    for( ; it != l.end(); ++it )
-	s << *it;
-    return s;
+    return operator<<(s, (QList<T>&)l);
 }
 #endif // QT_NO_DATASTREAM
 

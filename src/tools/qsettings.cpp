@@ -845,9 +845,9 @@ void QSettings::insertSearchPath( System s, const QString &path)
     realPath = defPath + path;
 #endif
 
-    QStringList::Iterator it = d->searchPaths.find(d->searchPaths.last());
-    if (it != d->searchPaths.end()) {
-	d->searchPaths.insert(it, realPath);
+    int idx = d->searchPaths.find(d->searchPaths.last());
+    if (idx != -1) {
+	d->searchPaths.insert(idx, realPath);
     }
 }
 

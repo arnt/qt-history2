@@ -40,6 +40,7 @@
 
 #ifndef QT_H
 #include "qstring.h"
+#include "qstringlist.h"
 #include "qptrlist.h"
 #include "qdatastream.h"
 #endif // QT_H
@@ -60,6 +61,7 @@ public:
     ~QStrList()			{ clear(); }
     QStrList& operator=( const QStrList & );
 
+    QStringList toStringList() const;
 private:
     QPtrCollection::Item newItem( QPtrCollection::Item d ) { return dc ? qstrdup( (const char*)d ) : d; }
     void deleteItem( QPtrCollection::Item d ) { if ( del_item ) delete[] (char*)d; }

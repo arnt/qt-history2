@@ -3351,7 +3351,7 @@ QStrList QImage::inputFormats()
 */
 QStringList QImage::inputFormatList()
 {
-    return QStringList::fromStrList(QImageIO::inputFormats());
+    return QImageIO::inputFormats().toStringList();
 }
 
 
@@ -3374,7 +3374,7 @@ QStringList QImage::inputFormatList()
 */
 QStringList QImage::outputFormatList()
 {
-    return QStringList::fromStrList(QImageIO::outputFormats());
+    return QImageIO::outputFormats().toStringList();
 }
 #endif //QT_NO_STRINGLIST
 
@@ -5000,7 +5000,7 @@ static void write_bmp_image( QImageIO *iio )
 
     if ( !qt_write_dib( s, image ) )
 	iio->setStatus( 1 );
-    
+
 }
 
 #endif // QT_NO_IMAGEIO_BMP
@@ -6292,7 +6292,7 @@ QStringList QImage::textKeys() const
     }
     \endcode
 */
-QValueList<QImageTextKeyLang> QImage::textList() const
+QList<QImageTextKeyLang> QImage::textList() const
 {
     if ( !data->misc )
 	return QValueList<QImageTextKeyLang>();

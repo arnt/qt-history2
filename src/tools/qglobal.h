@@ -1134,6 +1134,7 @@ template <class T> inline void qInit(T &) {}
 template <class T> inline void qInit(T* &t) { t = 0; }
 template <class T> inline void qDelete(T &) {}
 template <class T> inline void qDelete(T* &t){ delete t; }
+inline void qDelete(void ()) {}
 
 #endif // QT_NO_GENERIC_POINTER_TEMPLATES
 
