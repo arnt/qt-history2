@@ -158,6 +158,7 @@ extern bool qt_file_access( const QString& fn, int t );
 */
 
 QFile::QFile()
+: d(0)
 {
     init();
 }
@@ -169,7 +170,7 @@ QFile::QFile()
 */
 
 QFile::QFile( const QString &name )
-    : fn(name)
+    : fn(name), d(0)
 {
     init();
 }
@@ -193,6 +194,7 @@ QFile::~QFile()
 
 void QFile::init()
 {
+    delete d;
     d = new QFilePrivate;
     setFlags( IO_Direct );
     setStatus( IO_Ok );
