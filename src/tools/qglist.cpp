@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#26 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#27 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -14,12 +14,12 @@
 #include "qgvector.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#26 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#27 $")
 
 
 /*----------------------------------------------------------------------------
   \class QLNode qglist.h
-  \brief The QLNode class is an internal class for the QList class.
+  \brief The QLNode class is an internal class for the QList template collection.
 
   QLNode is a doubly linked list node; it has three pointers:
   <ol>
@@ -28,10 +28,10 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#26 $")
   <li> Pointer to the actual data.
   </ol>
 
-  Sometimes it might be practical to have direct access to the list nodes in
-  a QList, but it is not required.
+  Sometimes it might be practical to have direct access to the list nodes
+  in a QList, but it is seldom required.
 
-  \warning Be very careful if you want to access the list nodes.  The heap
+  \warning Be very careful if you want to access the list nodes. The heap
   can easily get corrupted if you make a mistake.
 
   \sa QList::currentNode(), QList::removeNode(), QList::takeNode()
