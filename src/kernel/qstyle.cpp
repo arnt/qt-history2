@@ -586,15 +586,16 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     GUIStyle gs = (GUIStyle)styleHint( SH_GUIStyle );
 
     p->setPen( penColor?*penColor:g.foreground() );
-    QPixmap  pm( pixmap );
+    QPixmap pm( pixmap );
     bool clip = (flags & Qt::DontClip) == 0;
     if ( clip ) {
 	if ( pm.width() < w && pm.height() < h ) {
 	    clip = FALSE;
 	} else {
 	    p->save();
-	    QRegion cr = p->clipRegion(QPainter::CoordPainter);
-	    cr &= QRect(x, y, w, h);
+            QRegion cr = QRect(x, y, w, h);
+	    if (p->hasClipping())
+		cr &= p->clipRegion(QPainter::CoordPainter);
 	    p->setClipRegion(cr);
 	}
     }
