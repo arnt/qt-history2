@@ -1,5 +1,5 @@
  /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -21,9 +21,22 @@
 #ifndef FILTERINTERFACE_H
 #define FILTERINTERFACE_H
 
+//
+//  W A R N I N G  --  PRIVATE INTERFACES
+//  --------------------------------------
+//
+// This file and the interfaces declared in the file are not
+// public. It exists for internal purpose. This header file and
+// interfaces may change from version to version (even binary
+// incompatoble) without notice, or even be removed.
+//
+// We mean it.
+//
+//
+
 #include <qcom.h>
 
-// {EA8CB381-59B5-44a8-BAE5-9BEA8295762A}
+// {ea8cb381-59b5-44a8-bae5-9bea8295762a}
 #ifndef IID_ImportFilter
 #define IID_ImportFilter QUuid( 0xea8cb381, 0x59b5, 0x44a8, 0xba, 0xe5, 0x9b, 0xea, 0x82, 0x95, 0x76, 0x2a )
 #endif
@@ -49,7 +62,7 @@ struct ImportFilterInterface : public QFeatureListInterface
 
 // *************** INTERNAL *************************
 
-// {C32A07E0-B006-471e-AFCA-D227457A1280}
+// {c32a07e0-b006-471e-afca-d227457a1280}
 #ifndef IID_ExportFilterInterface
 #define IID_ExportFilterInterface QUuid( 0xc32a07e0, 0xb006, 0x471e, 0xaf, 0xca, 0xd2, 0x27, 0x45, 0x7a, 0x12, 0x80 )
 #endif

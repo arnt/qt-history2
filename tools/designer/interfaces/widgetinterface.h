@@ -1,5 +1,5 @@
  /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -21,12 +21,25 @@
 #ifndef WIDGETINTERFACE_H
 #define WIDGETINTERFACE_H
 
+//
+//  W A R N I N G  --  PRIVATE INTERFACES
+//  --------------------------------------
+//
+// This file and the interfaces declared in the file are not
+// public. It exists for internal purpose. This header file and
+// interfaces may change from version to version (even binary
+// incompatoble) without notice, or even be removed.
+//
+// We mean it.
+//
+//
+
 #include <qcom.h>
 #include <qiconset.h>
 
 class QWidget;
 
-// {55184143-F18F-42c0-A8EB-71C01516019A}
+// {55184143-f18f-42c0-a8eb-71c01516019a}
 #ifndef IID_Widget
 #define IID_Widget QUuid( 0x55184143, 0xf18f, 0x42c0, 0xa8, 0xeb, 0x71, 0xc0, 0x15, 0x16, 0x1, 0x9a )
 #endif

@@ -1,5 +1,5 @@
  /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -18,6 +18,9 @@
 **
 **********************************************************************/
 
+#ifndef DESIGNERINTERFACE_H
+#define DESIGNERINTERFACE_H
+
 //
 //  W A R N I N G  --  PRIVATE INTERFACES
 //  --------------------------------------
@@ -30,9 +33,6 @@
 // We mean it.
 //
 //
-
-#ifndef DESIGNERINTERFACE_H
-#define DESIGNERINTERFACE_H
 
 #include <qcom.h>
 #include <qptrlist.h>
@@ -59,16 +59,14 @@ class QAction;
 class QIconSet;
 class QSqlDatabase;
 
-/*!
-
-  These are the interfaces implemented by the Qt Designer which should
-  be used by plugins to access and use functionality of the Qt Designer.
-
-*/
-
+// {0e661da-f45c-4830-af47-03ec53eb1633}
 #ifndef IID_Designer
-#define IID_Designer QUuid(  0xa0e661da, 0xf45c, 0x4830, 0xaf, 0x47, 0x3, 0xec, 0x53, 0xeb, 0x16, 0x33 )
+#define IID_Designer QUuid( 0xa0e661da, 0xf45c, 0x4830, 0xaf, 0x47, 0x3, 0xec, 0x53, 0xeb, 0x16, 0x33 )
 #endif
+
+/*! These are the interfaces implemented by the Qt Designer which should
+  be used by plugins to access and use functionality of the Qt Designer.
+*/
 
 struct DesignerInterface : public QUnknownInterface
 {

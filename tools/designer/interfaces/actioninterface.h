@@ -1,5 +1,5 @@
  /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -21,22 +21,35 @@
 #ifndef ACTIONINTERFACE_H
 #define ACTIONINTERFACE_H
 
+//
+//  W A R N I N G  --  PRIVATE INTERFACES
+//  --------------------------------------
+//
+// This file and the interfaces declared in the file are not
+// public. It exists for internal purpose. This header file and
+// interfaces may change from version to version (even binary
+// incompatoble) without notice, or even be removed.
+//
+// We mean it.
+//
+//
+
 #include <qcom.h>
 
 class QAction;
 class QObject;
 
-// {BB206E09-84E5-4777-9FCE-706BABFAB931}
+// {bb206e09-84e5-4777-9fce-706babfab931}
 #ifndef IID_Action
 #define IID_Action QUuid( 0xbb206e09, 0x84e5, 0x4777, 0x9f, 0xce, 0x70, 0x6b, 0xab, 0xfa, 0xb9, 0x31 )
 #endif
 
 /*! To add actions to the Qt Designer menubars and toolbars, implement
-  this interface. You habe to implement the create(), group() and
+  this interface. You have to implement the create(), group() and
   connectTo() functions.
 
   You also have to implement the function featureList() (\sa
-  QFeatureListInterface) and return there all actions (names of it)
+  QFeatureListInterface) to return the names of all actions
   which this interface provides.
 */
 

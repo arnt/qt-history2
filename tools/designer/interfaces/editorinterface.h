@@ -1,5 +1,5 @@
  /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -18,6 +18,9 @@
 **
 **********************************************************************/
 
+#ifndef EDITORINTERFACE_H
+#define EDITORINTERFACE_H
+
 //
 //  W A R N I N G  --  PRIVATE INTERFACES
 //  --------------------------------------
@@ -31,9 +34,6 @@
 //
 //
 
-#ifndef EDITORINTERFACE_H
-#define EDITORINTERFACE_H
-
 #include <qcom.h>
 #include <qmap.h>
 #include <qvaluelist.h>
@@ -42,7 +42,7 @@ class QWidget;
 class QObjectList;
 class QObject;
 
-// {8668161A-6037-4220-86B6-CCAA20127DF8}
+// {8668161a-6037-4220-86b6-ccaa20127df8}
 #ifndef IID_Editor
 #define IID_Editor QUuid( 0x8668161a, 0x6037, 0x4220, 0x86, 0xb6, 0xcc, 0xaa, 0x20, 0x12, 0x7d, 0xf8 )
 #endif

@@ -1,5 +1,5 @@
  /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -18,6 +18,9 @@
 **
 **********************************************************************/
 
+#ifndef SOURCETEMPLATEINTERFACE_H
+#define SOURCETEMPLATEINTERFACE_H
+
 //
 //  W A R N I N G  --  PRIVATE INTERFACES
 //  --------------------------------------
@@ -30,9 +33,6 @@
 // We mean it.
 //
 //
-
-#ifndef SOURCETEMPLATEINTERFACE_H
-#define SOURCETEMPLATEINTERFACE_H
 
 #include <qcom.h>
 #include <qstring.h>
