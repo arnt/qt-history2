@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#43 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -28,7 +28,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#42 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#43 $";
 #endif
 
 
@@ -50,8 +50,10 @@ static char    *appDpyName = 0;			// X11 display name
 static bool	appSync = FALSE;		// X11 synchronization
 static int	appScreen;			// X11 screen number
 static Window	appRootWin;			// X11 root window
-static GC	app_gc1 = 0;			// read-only GC
-static GC	app_gc2 = 0;			// temporary GC
+static GC	app_gc_ro = 0;			// read-only GC
+static GC	app_gc_tmp = 0;			// temporary GC
+static GC	app_gc_ro_m = 0;		// read-only GC (monochrome)
+static GC	app_gc_tmp_m = 0;		// temporary GC (monochrome)
 static QWidget *desktopWidget = 0;		// root window widget
 Atom		q_wm_delete_window;		// delete window protocol
 #if defined(DEBUG)
@@ -249,10 +251,11 @@ int main( int argc, char **argv )
     cleanupTimers();
     QPainter::cleanup();
 
-    if ( app_gc1 )
-	XFreeGC( appDpy, app_gc1 );
-    if ( app_gc2 )
-	XFreeGC( appDpy, app_gc2 );
+#define CLEANUP_GC(g) if (g) XFreeGC(appDpy,g)
+    CLEANUP_GC(app_gc_ro);
+    CLEANUP_GC(app_gc_ro_m);
+    CLEANUP_GC(app_gc_tmp);
+    CLEANUP_GC(app_gc_tmp_m);
 
     XCloseDisplay( appDpy );			// close X display
 
@@ -324,18 +327,42 @@ Window qXRootWin()				// get X root window
     return appRootWin;
 }
 
-GC qXGetReadOnlyGC()				// get read-only GC
+GC qXGetReadOnlyGC( bool monochrome )		// get read-only GC
 {
-    if ( !app_gc1 )
-	app_gc1 = XCreateGC( appDpy, appRootWin, 0, 0 );
-    return app_gc1;
+    GC gc;
+    if ( monochrome ) {
+	if ( !app_gc_ro_m ) {			// create GC for bitmap
+	    Pixmap pm =  XCreatePixmap( appDpy, appRootWin, 8, 8, 1 );
+	    app_gc_ro_m = XCreateGC( appDpy, pm, 0, 0 );
+	    XFreePixmap( appDpy, pm );
+	}
+	gc = app_gc_ro_m;
+    }
+    else {					// create standard GC
+	if ( !app_gc_ro )
+	    app_gc_ro = XCreateGC( appDpy, appRootWin, 0, 0 );
+	gc = app_gc_ro;
+    }
+    return gc;
 }
 
-GC qXGetTempGC()				// get use'n throw GC
+GC qXGetTempGC( bool monochrome )		// get use'n throw GC
 {
-    if ( !app_gc2 )
-	app_gc2 = XCreateGC( appDpy, appRootWin, 0, 0 );
-    return app_gc2;
+    GC gc;
+    if ( monochrome ) {
+	if ( !app_gc_tmp_m ) {			// create GC for bitmap
+	    Pixmap pm =  XCreatePixmap( appDpy, appRootWin, 8, 8, 1 );
+	    app_gc_tmp_m = XCreateGC( appDpy, pm, 0, 0 );
+	    XFreePixmap( appDpy, pm );
+	}
+	gc = app_gc_tmp_m;
+    }
+    else {					// create standard GC
+	if ( !app_gc_tmp )
+	    app_gc_tmp = XCreateGC( appDpy, appRootWin, 0, 0 );
+	gc = app_gc_tmp;
+    }
+    return gc;
 }
 
 QWidget *QApplication::desktop()
