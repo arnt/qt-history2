@@ -19,7 +19,7 @@
 #include <qtextview.h>
 #include <qpushbutton.h>
 
-
+// HttpDaemon is the the class that implements the simple HTTP server.
 class HttpDaemon : public QServerSocket
 {
     Q_OBJECT
@@ -29,16 +29,20 @@ public:
     {
 	if ( !ok() ) {
 	    qWarning("Failed to bind to port 8080");
-	    exit(1);
+	    exit( 1 );
 	}
     }
 
     void newConnection( int socket )
     {
-	QSocket* s = new QSocket(this);
-	connect(s,SIGNAL(readyRead()),this,SLOT(readClient()));
-	connect(s,SIGNAL(delayedCloseFinished()),this,SLOT(discardClient()));
-	s->setSocket(socket);
+	// When a new client connects, the server constructs a QSocket and all
+	// communication with the client is done over this QSocket. QSocket
+	// works asynchronouslyl, this means that all the communication is done
+	// in the two slots readClient() and discardClient().
+	QSocket* s = new QSocket( this );
+	connect( s, SIGNAL(readyRead()), this, SLOT(readClient()) );
+	connect( s, SIGNAL(delayedCloseFinished()), this, SLOT(discardClient()) );
+	s->setSocket( socket );
 	emit newConnect();
     }
 
@@ -50,11 +54,14 @@ signals:
 private slots:
     void readClient()
     {
+	// This slot is called when the client sent data to the server. The
+	// server looks if it was a get request and sends a very simple HTML
+	// document back.
 	QSocket* socket = (QSocket*)sender();
-	if (socket->canReadLine()) {
-	    QStringList tokens = QStringList::split(QRegExp("[ \n\r][ \n\r]*"),socket->readLine());
+	if ( socket->canReadLine() ) {
+	    QStringList tokens = QStringList::split( QRegExp("[ \n\r][ \n\r]*"), socket->readLine() );
 	    if ( tokens[0] == "GET" ) {
-		QTextStream os(socket);
+		QTextStream os( socket );
 		os << "<h1>Nothing to see here</h1>\n";
 		socket->close();
 		emit wroteToClient();
@@ -62,7 +69,7 @@ private slots:
 	}
     }
     void discardClient()
-    {
+    { with this client.
 	QSocket* socket = (QSocket*)sender();
 	delete socket;
 	emit endConnect();
@@ -70,6 +77,8 @@ private slots:
 };
 
 
+// HttpInfo provides a simple graphical user interface to the server and shows
+// the actions of the server.
 class HttpInfo : public QVBox
 {
     Q_OBJECT
