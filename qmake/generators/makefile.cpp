@@ -529,7 +529,7 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const
 					//Since it is include, no need to link it in as well
 					project->variables()["_SRCMOC"].append((*it));
 					l.remove(it);
-				    } else if(!findMocSource(fqn).endsWith(fn)) {
+				    } else if(!findMocSource(fqn).endsWith(fileFixify(fn))) {
 					/* Not really a very good test, but this will at least avoid 
 					   confusion if it really does happen (since tmake/qmake
 					   previously didn't even allow this the test is mostly accurate) */
