@@ -5139,7 +5139,6 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	QApplication::sendSpontaneousEvent( topLevelWidget(), &a );
 	isAccel = a.isAccepted();
     }
-
     if ( type == QEvent::KeyPress && !grab ) {
 	// send accel events if the keyboard is not grabbed
 	QKeyEvent aa( QEvent::AccelOverride, code, ascii, state, text, autor,
@@ -5167,7 +5166,13 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     }
 
     // compress keys
-    if ( !isAccel && !text.isEmpty() && testWState(WState_CompressKeys) ) {
+    if ( !isAccel && !text.isEmpty() && testWState(WState_CompressKeys) &&
+	 // do not compress keys if the key event we just got above matches
+	 // one of the key ranges used to compute stopCompression
+	 ! ( ( code >= Key_Escape && code <= Key_SysReq ) ||
+	     ( code >= Key_Home && code <= Key_Next ) ||
+	     ( code >= Key_Super_L && code <= Key_Direction_R ) ||
+	     ( ( code == 0 ) && ( ascii == '\n' ) ) ) ) {
 	// the widget wants key compression so it gets it
 	int	codeIntern = -1;
 	int	countIntern = 0;
