@@ -74,13 +74,7 @@ enum QSliderDirection { SlUp, SlDown, SlLeft, SlRight };
 QWindowsStyle::QWindowsStyle() : QCommonStyle()
 {
 #if defined(Q_OS_WIN32)
-    if ( qWinVersion() != Qt::WV_NT &&
-	 qWinVersion() != Qt::WV_95 )
-	use2000style = TRUE;
-    else
-	use2000style = FALSE;
-#else
-    use2000style = TRUE;
+    use2000style = qWinVersion() != Qt::WV_NT && qWinVersion() != Qt::WV_95;
 #endif
 }
 
@@ -605,7 +599,7 @@ void QWindowsStyle::drawControl( ControlElement element,
 		    p->drawLine( r2.left()+1, r2.top(), r2.left()+1, r2.bottom()-2 );
 		    p->setPen( cg.dark() );
 		} else {
- 		    p->setPen( cg.shadow() );
+		    p->setPen( cg.shadow() );
 		    p->drawLine( r2.left() +
 				 (rightAligned && firstTab ? 0 : 1),
 				 r2.top() + 1,
@@ -628,8 +622,8 @@ void QWindowsStyle::drawControl( ControlElement element,
 			     r2.left() + 1, r2.bottom() - 1 );
 
 		p->setPen( cg.midlight() );
- 		p->drawLine( r2.left() + 1, r2.bottom() - 2,
- 			     r2.left() + 1, r2.top() + (selected ? 0 : 2) );
+		p->drawLine( r2.left() + 1, r2.bottom() - 2,
+			     r2.left() + 1, r2.top() + (selected ? 0 : 2) );
 
 		p->setPen( cg.shadow() );
 		p->drawLine( r2.right(),
