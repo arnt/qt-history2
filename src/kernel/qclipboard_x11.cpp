@@ -117,7 +117,7 @@ public:
 
 	delete s2;
     }
-    
+
     QMimeSource* source()
     { return src; }
     void addTransferredPixmap(QPixmap pm)
@@ -311,28 +311,7 @@ bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
 	    offset += (unsigned int)length;
 	    XFree( (char*)data );
 	}
-
-	// see if we read multibyte text data
-	static Atom xa_compound = *qt_xdnd_str_to_atom( "COMPOUND_TEXT" );
-	if (*format == 8 && *type == xa_compound) {
-	    XTextProperty textprop;
-	    textprop.encoding = *type;
-	    textprop.format = *format;
-	    textprop.nitems = offset;
-	    textprop.value = (unsigned char *) buffer->data();
-
-	    char **list_ret = 0;
-	    int unused;
-	    if (XmbTextPropertyToTextList(dpy, &textprop, &list_ret, &unused)
-		== Success) {
-		offset = strlen(list_ret[0]);
-		buffer->resize(offset + (nullterm ? 1 : 0));
-		memcpy(buffer->data(), list_ret[0], offset);
-	    }
-	    if (list_ret) XFreeStringList(list_ret);
-	}
-
-	if (nullterm)
+       	if (nullterm)
 	    buffer->at(offset) = '\0';		// zero-terminate (for text)
     }
     if ( size )
@@ -443,6 +422,11 @@ bool QClipboard::event( QEvent *e )
     switch ( xevent->type ) {
 
     case SelectionClear:			// new selection owner
+#if defined(QT_CLIPBOARD_DEBUG)
+	qDebug("qclipboard_x11.cpp: new selection owner 0x%lx",
+	       XGetSelectionOwner(dpy, XA_PRIMARY));
+#endif
+	
 	clipboardData()->clear();
 	emit dataChanged();
 	break;
@@ -469,6 +453,17 @@ bool QClipboard::event( QEvent *e )
 	    // ### Should we check that we own the clipboard?
 	    // ### We do above
 
+#if defined(QT_CLIPBOARD_DEBUG)
+	    qDebug("qclipboard_x11.cpp: selection requested\n"
+		   "                    from 0x%lx\n"
+		   "                    to 0x%lx (%s) 0x%lx (%s)",
+		   req->requestor,
+		   req->selection,
+		   XGetAtomName(req->display, req->selection),
+		   req->target,
+		   XGetAtomName(req->display, req->target));
+#endif
+
 	    if ( !d->source() )
 		d->setSource(new QClipboardWatcher());
 
@@ -476,8 +471,6 @@ bool QClipboard::event( QEvent *e )
 	    QByteArray data;
 	    static Atom xa_targets = *qt_xdnd_str_to_atom( "TARGETS" );
 	    static Atom xa_multiple = *qt_xdnd_str_to_atom( "MULTIPLE" );
-	    static Atom xa_text = *qt_xdnd_str_to_atom("TEXT");
-	    static Atom xa_compound = *qt_xdnd_str_to_atom("COMPOUND_TEXT");
 	    struct AtomPair { Atom target; Atom property; } *multi = 0;
 	    int nmulti = 0;
 	    int imulti = -1;
@@ -513,15 +506,13 @@ bool QClipboard::event( QEvent *e )
 		    while (d->source()->format(atoms)) atoms++;
 		    if (d->source()->provides("image/ppm")) atoms++;
 		    if (d->source()->provides("image/pbm")) atoms++;
-
-		    // local 8 bit and compound (multibyte) text
-		    if (d->source()->provides("text/plain")) atoms += 2;
+		    if (d->source()->provides("text/plain")) atoms++;
 
 #ifdef QT_CLIPBOARD_DEBUG
 		    qDebug("qclipboard_x11.cpp:%d: %d provided types", __LINE__, atoms);
 #endif
 
-		    // for 64 bit cleannes... XChangeProperty expects long* for data
+		    // for 64 bit cleanness... XChangeProperty expects long* for data
 		    // with format == 32
 		    data = QByteArray(atoms * sizeof(long));
 		    long *atarget = (long *) data.data();
@@ -529,11 +520,6 @@ bool QClipboard::event( QEvent *e )
 		    int n = 0;
 		    while ((fmt=d->source()->format(n)) && n < atoms) {
 			Atom *dnd = qt_xdnd_str_to_atom(fmt);
-
-#ifdef QT_CLIPBOARD_DEBUG
-			qDebug("qclipboard_x11.cpp:%d: atom* for '%s' = %p %d",
-			       __LINE__, fmt, dnd, n);
-#endif
 
 			// compiler should handle the Atom to long conversion implicitly
 			atarget[n++] = *dnd;
@@ -548,14 +534,16 @@ bool QClipboard::event( QEvent *e )
 			atarget[n++] = XA_PIXMAP;
 		    if ( d->source()->provides("image/pbm") )
 			atarget[n++] = XA_BITMAP;
-
-		    // we support local 8bit strings and compound (multibyte) text
-		    if ( d->source()->provides("text/plain") ) {
-			atarget[n++] = xa_compound;
+		    if ( d->source()->provides("text/plain") )
 			atarget[n++] = XA_STRING;
-		    }
 
 #ifdef QT_CLIPBOARD_DEBUG
+		    for (int index = 0; index < n; index++) {
+			qDebug("qclipboard_x11.cpp: atom %d: 0x%lx (%s)",
+			       index, atarget[index],
+			       XGetAtomName(dpy, atarget[index]));
+		    }
+
 		    qDebug("qclipboard_x11.cpp:%d: after standard, n(%d) atoms(%d)",
 			   __LINE__, n, atoms);
 		    qDebug("qclipboard_x11.cpp:%d: size %d %d",
@@ -567,26 +555,8 @@ bool QClipboard::event( QEvent *e )
 		    evt.xselection.property = property;
 		} else {
 		    bool already_done = FALSE;
-		    if ( target == XA_STRING || target == xa_text ) {
+		    if ( target == XA_STRING) {
 			fmt = "text/plain";
-		    } else if ( target == xa_compound ) {
-			fmt = "COMPOUND_TEXT";
-			data = d->source()->encodedData(fmt);
-			char *list[] = { data.data() };
-			
-			XTextProperty textprop;
-			if (XmbTextListToTextProperty(dpy, list, 1, XCompoundTextStyle,
-						      &textprop) == Success) {
-			    data.duplicate((const char *) textprop.value,
-					   textprop.nitems);
-			    XFree(textprop.value);
-			    XChangeProperty(dpy, req->requestor, property, xa_compound,
-					    8, PropModeReplace,
-					    (unsigned char *) data.data(),
-					    data.size());
-			    evt.xselection.property = property;
-			    already_done = TRUE;
-			}
 		    } else if ( target == XA_PIXMAP ) {
 			fmt = "image/ppm";
 			data = d->source()->encodedData(fmt);
@@ -648,7 +618,12 @@ bool QClipboard::event( QEvent *e )
 		    }
 		}
 
-		XSendEvent( dpy, req->requestor, False, 0, &evt );
+#if defined(QT_CLIPBOARD_DEBUG)
+		qDebug("qclipboard_x11.cpp: sending SelectionNotify to 0x%lx with property 0x%lx (%s)",
+		       req->requestor, evt.xselection.property, XGetAtomName(dpy, evt.xselection.property));
+#endif
+		
+		XSendEvent( dpy, req->requestor, FALSE, 0, &evt );
 		if ( !nmulti )
 		    break;
 	    }
@@ -700,7 +675,7 @@ QByteArray QClipboardWatcher::encodedData( const char* fmt ) const
 {
     if ( !fmt || empty() )
 	return QByteArray( 0 );
-    
+
     Atom fmtatom = 0;
 
     if ( 0==qstrcmp(fmt,"text/plain") ) {
