@@ -781,8 +781,10 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 		    if(wclass == kFloatingWindowClass)
 			wattr |= kWindowStandardFloatingAttributes;
 		}
-		if(wclass != kModalWindowClass && wclass != kMovableModalWindowClass && //no choice for these..
-		   wclass != kSheetWindowClass && wclass != kPlainWindowClass) {
+		// Only add extra decorations (well, buttons) for widgets that can have them
+		// and have an actual border we can put them on.
+		if(wclass != kModalWindowClass && wclass != kMovableModalWindowClass &&
+		   wclass != kSheetWindowClass && wclass != kPlainWindowClass && !testWFlags(WStyle_NoBorder)) {
 		    if(testWFlags(WStyle_Maximize))
 			wattr |= kWindowFullZoomAttribute;
 		    if(testWFlags(WStyle_Minimize))
