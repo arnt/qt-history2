@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#34 $
 **
 ** Implementation of QTabWidget class
 **
@@ -380,7 +380,8 @@ void QTabWidget::showPage( QWidget * w)
     if ( id >= 0 ) {
 	d->stack->raiseWidget( w );
 	d->tabs->setCurrentTab( id );
-	if ( d->stack->frameStyle() != ( QFrame::StyledPanel | QFrame::Raised ) )
+	// ### why overwrite the frame style?
+	if ( d->stack->frameStyle() != ( QFrame::StyledPanel|QFrame::Raised ) )
 	    d->stack->setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
     }
 }
