@@ -797,7 +797,8 @@ QRect QFontPrivate::boundingRect( const QChar &ch )
 	    r.setRect( 0, actual.pixelSize * -3 / 4,
 		       actual.pixelSize * 3 / 4, actual.pixelSize * 3 / 4);
 	else if ( xgi )
-	    r.setRect( -xgi->x*scale, -xgi->y*scale, xgi->width*scale, xgi->height*scale);
+	    r.setRect( int(-xgi->x*scale), int(-xgi->y*scale),
+		       int(xgi->width*scale), int(xgi->height*scale) );
     } else
 #endif // QT_NO_XFTFREETYPE
 
@@ -1548,6 +1549,7 @@ XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
     XftPattern *pattern = 0, *result = 0;
 
     pattern = XftPatternCreate();
+    if ( ! pattern ) return 0;
 
 #ifndef QT_XFT2
     XftPatternAddString (pattern, XFT_ENCODING, "iso10646-1");
@@ -1586,11 +1588,9 @@ XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
 	XftPatternAddBool( pattern, XFT_ANTIALIAS,requestAA );
     }
 
-    if (pattern) {
-	result = XftFontMatch(QPaintDevice::x11AppDisplay(),
-			      x11Screen, pattern, &res);
-	XftPatternDestroy(pattern);
-    }
+    result = XftFontMatch(QPaintDevice::x11AppDisplay(),
+			  x11Screen, pattern, &res);
+    XftPatternDestroy(pattern);
 
     return result;
 }
@@ -2648,11 +2648,11 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	qDebug("QFontLoader: loading xft font '%s'", fontname.data());
 #endif
 
-	xftfs = XftFontOpenPattern(QPaintDevice::x11AppDisplay(), xftmatch);
-
-	// xft font owns the pattern now, so we duplicate here so that
-	// initFontInfo continues to work
-	xftmatch = XftPatternDuplicate( xftmatch );
+	// We pass a duplicate to XftFontOpenPattern because either xft font
+	// will own the pattern after the call or the pattern will be
+	// destroyed.
+	XftPattern *dup = XftPatternDuplicate( xftmatch );
+	xftfs = XftFontOpenPattern(QPaintDevice::x11AppDisplay(), dup);
     } else if ( xftmatch ) {
 	qFatal( "this should not happen" );
     }
