@@ -1680,7 +1680,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 /*!
   \fn int QTabletEvent::xTilt() const
   Returns the difference from the perpendicular in the X Axis.  Positive values
-  are towards the tablet physical top; range is from -60 to +60 degrees.
+  are towards the tablet physical right; range is from -60 to +60 degrees.
 
   \sa yTilt()
 */
@@ -1688,7 +1688,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 /*!
   \fn int QTabletEvent::yTilt() const
   Returns the difference from the perpendicular in the Y Axis.  Positive values
-  are toward the right of the tablet; range is from -60 to +60 degrees.
+  are toward the bottom of the tablet; range is from -60 to +60 degrees.
 
   \sa xTilt()
 */
