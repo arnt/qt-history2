@@ -467,7 +467,9 @@ void SetupWizardImpl::initPages()
 #if defined(Q_OS_WIN32)
 	ADD_PAGE( winIntroPage,		WinIntroPageImpl	)
 #endif
+#if !defined(EVAL_CD)
 	ADD_PAGE( licensePage,		LicensePageImpl		)
+#endif
 	ADD_PAGE( licenseAgreementPage, LicenseAgreementPageImpl)
 	ADD_PAGE( optionsPage,		OptionsPageImpl		)
 #if !defined(Q_OS_UNIX)
@@ -1144,6 +1146,10 @@ void SetupWizardImpl::showPageProgress()
 
 	// Install the files -- use different fallbacks if one method failed.
 	QArchive ar;
+	QString licenseKey;
+#if !defined(EVAL_CD)
+	licenseKey = licensePage->key->text();
+#endif
 	ar.setVerbosity( QArchive::Destination | QArchive::Verbose | QArchive::Progress );
 	connect( &ar, SIGNAL( operationFeedback( const QString& ) ), this, SLOT( archiveMsg( const QString& ) ) );
 	connect( &ar, SIGNAL( operationFeedback( int ) ), progressPage->operationProgress, SLOT( setProgress( int ) ) );
@@ -1152,7 +1158,7 @@ void SetupWizardImpl::showPageProgress()
 	if ( rcLoader.isValid() ) {
 	    progressPage->operationProgress->setTotalSteps( rcLoader.data().count() );
 	    QDataStream ds( rcLoader.data(), IO_ReadOnly );
-	    ar.readArchive( &ds, optionsPage->installPath->text(), licensePage->key->text() );
+	    ar.readArchive( &ds, optionsPage->installPath->text(), licenseKey );
 	} else {
 	    // If the resource could not be loaded or is smaller than 500
 	    // bytes, we have the dummy qt.arq: try to find and install
@@ -1168,12 +1174,12 @@ void SetupWizardImpl::showPageProgress()
 
 	    ar.setPath( archiveName );
 	    if( ar.open( IO_ReadOnly ) )  {
-		ar.readArchive( optionsPage->installPath->text(), licensePage->key->text() );
+		ar.readArchive( optionsPage->installPath->text(), licenseKey );
 #if defined(Q_OS_MACX)
  		QString srcName  = "install.app/Contents/Qt/LICENSE";
     		QString destName = "/.LICENSE";
     		QString srcName2 = srcName;
-    		if (featuresForKeyOnUnix( licensePage->key->text() ) & Feature_US)
+    		if (featuresForKeyOnUnix( licenseKey ) & Feature_US)
         	    srcName2 += "-US";
     		if((!copyFile( srcName, optionsPage->installPath->text() + destName )) ||
        		   (!copyFile( srcName + "-US", optionsPage->installPath->text() + destName + "-US" )) ||
@@ -1247,10 +1253,11 @@ void SetupWizardImpl::showPageProgress()
 	    }
 #endif
 #if defined(EVAL)
-	    // patch qt*.dll
-	    QDir lib( optionsPage->installPath->text() );
 	    QStringList::Iterator it;
+	    QDir lib( optionsPage->installPath->text() );
 	    lib.cd( "lib" );
+#  if !defined(EVAL_CD)
+	    // patch qt*.dll
 	    QStringList qtDlls = lib.entryList( "qt*.dll" );
 	    if ( qtDlls.count() == 0 ) {
 		copySuccessful = FALSE;
@@ -1274,6 +1281,7 @@ void SetupWizardImpl::showPageProgress()
 				"any program linked against %1." ).arg( *it ) );
 		}
 	    }
+#  endif
 	    // copy lib/*.dll bin/
 	    QStringList dlls = lib.entryList( "*.dll" );
 	    for ( it=dlls.begin(); it!=dlls.end(); ++it ) {
