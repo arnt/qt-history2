@@ -463,6 +463,27 @@ public:
 	void initFontInfo();
 	HFONT create( bool *stockFont, HDC hdc = 0, bool VxF = FALSE );
 	QFontStruct *fin;
+	HDC currHDC;
+
+	struct TextRun {
+		TextRun() : xoff(0), yoff(0), string(0), length(0), next(0) {}
+		~TextRun() { delete next; }
+		setParams( int x, int y, const QChar *s, int l ) 
+		{
+			xoff = x;
+			yoff = y;
+			string = s;
+			length = l;
+		}
+		int xoff;
+		int yoff;
+		const QChar *string;
+		int length;
+		TextRun *next;
+	};
+	int textWidth( const QString &str, int pos, int len );
+	int textWidth( HDC hdc, const QString &str, int pos, int len, TextRun *cache );
+	void drawText( HDC hdc, int x, int y, TextRun *cache );
 #endif // Q_WS_WIN
 
 #ifdef Q_WS_QWS

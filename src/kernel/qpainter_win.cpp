@@ -40,6 +40,7 @@
 #include <math.h>
 #include "qapplication_p.h"
 #include "qcomplextext_p.h"
+#include "qfontdata_p.h"
 #include "qt_windows.h"
 
 
@@ -2272,15 +2273,17 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 	    map( x, y, &x, &y );
     }
 
-    const TCHAR* tc = (const TCHAR*)qt_winTchar(str,FALSE);
-
+ 	QFontPrivate::TextRun *cache = new QFontPrivate::TextRun();
+	cfont.d->textWidth( hdc, str, 0, len, cache );
     if ( rop == CopyROP ) {
-	TextOut( hdc, x, y, tc, len );
+		cfont.d->drawText( hdc, x, y, cache );
+	//TextOut( hdc, x, y, tc, len );
     } else {
 	// Doesn't work for non-TrueType fonts, but we dealt with those
 	// with the bitmap above.
 	BeginPath(hdc);
-	TextOut( hdc, x, y, tc, len );
+	cfont.d->drawText( hdc, x, y, cache );
+	//TextOut( hdc, x, y, tc, len );
 	EndPath(hdc);
 	uint pix = COLOR_VALUE(cpen.data->color);
 	HBRUSH tbrush = CreateSolidBrush( pix );
@@ -2291,6 +2294,8 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 
     if ( nat_xf )
 	nativeXForm( FALSE );
+
+	delete cache;
 }
 
 

@@ -205,16 +205,26 @@ bool QFont::dirty() const
     return DIRTY_FONT;
 }
 
+static MAT2 *mat = 0;
 
-/*
-** Added by ebakke
-**
-** This is just a dummy.   Lars will provide the real function
-** when he gets to look at the code
-*/
 QRect QFontPrivate::boundingRect( const QChar &ch )
 {
-    return QRect(0, 0, 1, 1); //take that
+	GLYPHMETRICS gm;
+	if ( !mat ) {
+		mat = new MAT2;
+		mat->eM11.value = mat->eM22.value = 1;
+		mat->eM11.fract = mat->eM22.fract = 0.;
+		mat->eM21.value = mat->eM12.value = 0;
+		mat->eM21.fract = mat->eM12.fract = 0.;
+	}
+#ifdef UNICODE
+	uint chr = ch.unicode();
+#else
+	uint chr = ch.latin1();
+#endif
+	if ( GetGlyphOutline( currHDC, chr, GGO_METRICS, &gm, 0, 0, mat ) == GDI_ERROR )
+		qDebug( "glyph metrics call failed" );
+    return QRect(gm.gmptGlyphOrigin.x, gm.gmptGlyphOrigin.y, gm.gmBlackBoxX, gm.gmBlackBoxY);
 }
 
 QString QFontPrivate::defaultFamily() const
@@ -465,6 +475,106 @@ HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool VxF )
     return hfont;
 }
 
+#ifdef UNICODE
+#define TMX (fin->textMetricW())
+#else
+#define TMX (fin->textMetricA())
+#endif
+
+int QFontPrivate::textWidth( const QString &str, int pos, int len )
+{
+    // Japanese win95 fails without this
+    if ( len == 0 )
+	return 0;
+
+	int width = 0;
+    SIZE s;
+    const TCHAR* tc = (const TCHAR*)qt_winTchar(str.mid(pos, len),FALSE);
+	int i;
+	int last = 0;
+	const QChar *uc = str.unicode() + pos;
+	for ( i = 0; i < len; i++ ) {
+		if ( uc->combiningClass() != 0 && pos + i > 0 ) {
+			if ( i - last > 0 ) {
+				GetTextExtentPoint32( fin->dc(), tc + last, i - last, &s );
+				width += s.cx;
+			}
+			last = i + 1;
+		}
+		uc++;
+	}
+
+	if ( (qt_winver & Qt::WV_NT_based) == 0 )
+		width -= TMX->tmOverhang;
+    return width;
+	
+}
+
+int QFontPrivate::textWidth( HDC hdc, const QString &str, int pos, int len, QFontPrivate::TextRun *cache )
+{
+    // Japanese win95 fails without this
+    if ( len == 0 )
+	return 0;
+	if ( hdc )
+		currHDC = hdc;
+	else
+		currHDC = fin->dc();
+
+	int width = 0;
+    SIZE s;
+    const TCHAR* tc = (const TCHAR*)qt_winTchar(str.mid(pos, len),FALSE);
+	QPointArray pa;
+	int nmarks = 0;
+	int i;
+	int lasts = 0;
+	const QChar *uc = str.unicode() + pos;
+	for ( i = 0; i < len; i++ ) {
+		if ( uc->combiningClass() != 0 && !nmarks && pos + i > 0 ) {
+			cache->setParams( width, 0, str.unicode() + lasts, i - lasts );
+			GetTextExtentPoint32( currHDC, tc + lasts, i - lasts, &s );
+			width += s.cx;
+			cache->next = new QFontPrivate::TextRun();
+			cache = cache->next;
+			lasts = i;
+			pa = QComplexText::positionMarks( this, str, pos + i - 1 );
+			nmarks = pa.size();
+		} else if ( nmarks ) {
+			QPoint p = pa[(int)(pa.size() - nmarks)];
+			cache->setParams( width + p.x(), p.y(), str.unicode() + lasts, i - lasts );
+			cache->next = new QFontPrivate::TextRun();
+			cache = cache->next;
+			nmarks--;
+			lasts = i;
+		}
+		uc++;
+	}
+	
+	if ( nmarks ) {
+		QPoint p = pa[(int)(pa.size() - nmarks)];
+		cache->setParams( width + p.x(), p.y(), str.unicode() + lasts, i - lasts );
+	} else {
+		cache->setParams( width, 0, str.unicode() + lasts, i - lasts );
+		GetTextExtentPoint32( currHDC, tc + lasts, i - lasts, &s );
+		width += s.cx;
+	}
+				
+	if ( (qt_winver & Qt::WV_NT_based) == 0 )
+		width -= TMX->tmOverhang;
+    return width;
+}
+
+void QFontPrivate::drawText( HDC hdc, int x, int y, QFontPrivate::TextRun *cache )
+{
+    while ( cache ) {
+//		qDebug( "drawing '%s' at (%d/%d)", 
+//			QConstString( (QChar *)cache->string, cache->length).string().latin1(),
+//			x + cache->xoff, y + cache->yoff);
+		const TCHAR *tc = (const TCHAR*)qt_winTchar(QConstString( (QChar *)cache->string, cache->length).string(),FALSE); 
+		TextOut( hdc, x + cache->xoff, y + cache->yoff, tc, cache->length );
+		cache = cache->next;
+    }
+
+}
 
 void *QFont::textMetric() const
 {
@@ -764,7 +874,7 @@ int QFontMetrics::lineSpacing() const
 
 int QFontMetrics::width( QChar ch ) const
 {
-    qObsolete( "QFontMetrics", "width" );
+    //qObsolete( "QFontMetrics", "width" );
     QString s(ch);
     return width(s,1);
 }
@@ -790,7 +900,18 @@ int QFontMetrics::width( const QString &str, int len ) const
 int QFontMetrics::charWidth( const QString &str, int pos ) const
 {
     QChar ch = QComplexText::shapedCharacter( str, pos );
-    return ch.unicode() ? width( ch ) : 0; 
+    if ( !ch.unicode() || ch.combiningClass() != 0 )
+		return 0;
+    SIZE s;
+#ifdef UNICODE
+    TCHAR tc = ch.unicode();
+#else
+	TCHAR tc = ch.latin1();
+#endif
+    GetTextExtentPoint32( hdc(), &tc, 1, &s );
+    if ( (qt_winver & Qt::WV_NT_based) == 0 )
+	s.cx -= TMX->tmOverhang;
+    return s.cx;
 }
 
 QRect QFontMetrics::boundingRect( const QString &str, int len ) const
