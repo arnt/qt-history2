@@ -248,6 +248,7 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
     else
 	ftype = C_FILE;
     for(int x = 0; x < total_size_read; x++) {
+	QStringList *outdeps=&fndeps;
 	QString inc;
 	if(ftype == C_FILE) {
 	    if(*(big_buffer + x) == '/') {
@@ -319,12 +320,42 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 	    if(*(big_buffer + x) == '<') {
 		x++;
 		if(total_size_read >= x + 8 && !strncmp(big_buffer + x, "include ", 8)) {
-		    x += 8;
-		    while(*(big_buffer + (x++)) != '>');
+		    for(x += 8; *(big_buffer + x) != '>'; x++) {
+			if(total_size_read >= x + 9 && *(big_buffer + x) == 'i' && 
+			   !strncmp(big_buffer + x, "impldecl", 8)) {
+			    for(x += 8; *(big_buffer + x) != '='; x++);
+			    if(*(big_buffer + x) != '=')
+				continue;
+			    for(x++; *(big_buffer+x) == '\t' || *(big_buffer+x) == ' '; x++);
+			    char quote = 0;
+			    if(*(big_buffer+x) == '\'' || *(big_buffer+x) == '"') {
+				quote = *(big_buffer + x);
+				x++;
+			    }
+			    int val_len;
+			    for(val_len = 0; TRUE; val_len++) {
+				if(quote) {
+				    if(*(big_buffer+x+val_len) == quote)
+					break;
+				} else if(*(big_buffer + x + val_len) == '>' || 
+					  *(big_buffer + x + val_len) == ' ') {
+				    break;
+				}
+			    }
+			    char saved = *(big_buffer + x + val_len);
+			    *(big_buffer + x + val_len) = '\0';
+			    QString where = big_buffer + x;
+			    *(big_buffer + x + val_len) = saved;
+			    if(where == "in implementation") {
+				QString cpp = fn.left(fn.length() - Option::ui_ext.length()) +
+					              Option::cpp_ext.first();
+				outdeps = &findDependencies(cpp);
+			    }
+			}
+		    }
 		    int inc_len = 0;
-		    for( ; *(big_buffer + x + inc_len) != '<'; inc_len++);
+		    for(x += 1 ; *(big_buffer + x + inc_len) != '<'; inc_len++);
 		    *(big_buffer + x + inc_len) = '\0';
-
 		    inc = big_buffer + x;
 		}
 	    }
@@ -425,8 +456,8 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
 	    fqn = Option::fixPathToTargetOS(fqn, FALSE);
 	    fileFixify(fqn);
 	    debug_msg(4, "Resolved dependancy of %s to %s", inc.latin1(), fqn.latin1());
-	    if(fndeps.findIndex(fqn) == -1)
-		fndeps.append(fqn);
+	    if(outdeps && outdeps->findIndex(fqn) == -1)
+		outdeps->append(fqn);
 	}
 	//read past new line now..
 	for( ; x < total_size_read && (*(big_buffer + x) != '\n'); x++);
