@@ -49,6 +49,9 @@ SGI Style/MotifPlus style
 QMultiLineEdit
     When using the Lucida font, then pressing the TAB key at the beginning of the line will keep the cursor at the beginning of the line, but will put any text inputted at the correct position.
 
+QToolButton/popups
+    See qt-bugs/arc-08/16903
+
 Cosmetic
 --------
 
