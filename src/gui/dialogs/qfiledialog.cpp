@@ -994,26 +994,30 @@ void QFileDialog::fileNameChanged(const QString &text)
 
 void QFileDialog::lookInChanged(const QString &text)
 {
-    if (d->lookInEdit->hasFocus() && !text.isEmpty()) {
-        QChar separator = QDir::separator();
+    if (d->lookInEdit->hasFocus()) {
+
         int key = d->lookInEdit->lastKeyPressed();
-        if (key == separator)
+        if (key == QDir::separator())
             return;
-        int sep = text.lastIndexOf(separator);
-        QString pth = (sep == 0 ? "/" : text.left(sep));
-        QModelIndex dirIndex = d->model->index(pth);
-        QString searchText = text.section(separator, -1);
-        int rowCount = d->model->rowCount(dirIndex);
-        QModelIndexList indices = d->model->match(d->model->topLeft(dirIndex),
-                                                  QAbstractItemModel::Role_Display,
-                                                  searchText, rowCount);
+        
         QModelIndex result;
-        for (int i = 0; i < indices.count(); ++i) {
-            if (d->model->isDir(indices.at(i))) {
-                result = indices.at(i);
-                break;
+        if (!text.isEmpty()) {
+            int s = text.lastIndexOf(QDir::separator());
+            QString pth = (s == 0 ? QDir::rootPath() : text.left(s));
+            QModelIndex dirIndex = d->model->index(pth);
+            QString searchText = text.section(QDir::separator(), -1);
+            int rowCount = d->model->rowCount(dirIndex);
+            QModelIndexList indices = d->model->match(d->model->topLeft(dirIndex),
+                                                      QAbstractItemModel::Role_Display,
+                                                      searchText, rowCount);
+            for (int i = 0; i < indices.count(); ++i) {
+                if (d->model->isDir(indices.at(i))) {
+                    result = indices.at(i);
+                    break;
+                }
             }
         }
+        
         if (result.isValid() && key != Qt::Key_Delete && key != Qt::Key_Backspace) {
             QString completed = d->model->path(result);
             int start = completed.length();
@@ -1173,12 +1177,16 @@ void QFileDialog::reload()
 /*!
     \internal
 
-    Sets the current directory to the path showed in the "look in" combobox
+    Sets the current directory to the path showed in the "look in" combobox.
+    Called when the enterPressed() signal is emitted.
 */
 
 void QFileDialog::lookIn()
 {
-    setDirectory(d->lookIn->currentText());
+    QString path = d->lookIn->currentText();
+    QModelIndex index = d->model->index(path);
+    d->setRoot(index);
+    d->updateButtons(index);
 }
 
 /*!
@@ -1438,12 +1446,14 @@ void QFileDialogPrivate::updateButtons(const QModelIndex &index)
     QString pth = d->model->path(index);
     QIconSet icn = d->model->icons(index);
     int i = lookIn->findItem(pth, QAbstractItemModel::Match_Exactly);
+    bool block = lookIn->blockSignals(true);
     if (i > -1) {
         lookIn->setCurrentItem(i);
     } else {
         lookIn->insertItem(icn, pth);
         lookIn->setCurrentItem(lookIn->count() - 1);
     }
+    lookIn->blockSignals(block);
 }
 
 void QFileDialogPrivate::setRoot(const QModelIndex &index)

@@ -302,7 +302,8 @@ public:
     };
 
     QDirModelPrivate()
-        : filterSpec(QDir::All),
+        : rootIsVirtual(true),
+          filterSpec(QDir::All),
           sortSpec(QDir::Name|QDir::IgnoreCase),
           nameFilters(QStringList(QString::fromLatin1("*"))),
           iconProvider(&defaultProvider) {}
@@ -319,11 +320,12 @@ public:
 
     QFileInfoList rootChildren() const;
     inline QString rootPath() const
-        { return root.info.exists() ? root.info.absoluteFilePath() : QString::null; }
+        { return rootIsVirtual ? QString::null : root.info.absoluteFilePath(); }
     inline QString rootName() const
-        { return root.info.exists() ? root.info.fileName() : QString::null; }
+        { return rootIsVirtual ? QString::null : root.info.fileName(); }
 
     mutable QDirNode root;
+    bool rootIsVirtual;
 
     int filterSpec;
     int sortSpec;
@@ -373,6 +375,7 @@ QDirModel::QDirModel(const QString &path, QObject *parent)
 {
     // the empty path means that we start with QDir::drives()
     if (path.isEmpty()) {
+        d->rootIsVirtual = true;
         d->root.parent = 0;
         d->root.info = QFileInfo();
         d->root.children = d->children(0);
@@ -540,9 +543,6 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
         return QVariant();
     }
 
-//     if (node == &d->root)
-//         qDebug("data: the node is the root '%s'", node->info.fileName().latin1());
-
     if (role == Role_Display || role == Role_Edit) {
         switch (index.column()) {
         case 0: return node->info.fileName();
@@ -610,7 +610,7 @@ bool QDirModel::setData(const QModelIndex &index, int role, const QVariant &valu
 bool QDirModel::hasChildren(const QModelIndex &parent) const
 {
     if (!parent.isValid())
-        return true; // root node
+        return true; // the drives or "." and ".."
     QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(parent.data());
     if (!p) {
         qWarning("hasChildren: valid index without data");
@@ -945,6 +945,9 @@ void QDirModel::refresh(const QModelIndex &parent)
 
 QModelIndex QDirModel::index(const QString &path) const
 {
+    if (path.isEmpty())
+        return QModelIndex();
+
 //    qDebug("index: path %s", path.latin1());
     QStringList pth = QDir(path).absolutePath().split(QDir::separator(), QString::SkipEmptyParts);
 
@@ -979,7 +982,7 @@ QModelIndex QDirModel::index(const QString &path) const
         node = idx.isValid() ? static_cast<QDirModelPrivate::QDirNode*>(idx.data()) : &(d->root);
 #if 0
         if (!idx.isValid()) {
-            qDebug("index: idx is not valid");
+//            qDebug("index: idx is not valid");
             QFileInfoList info = d->rootChildren(); // the children could be drives
             entries.clear();
             for (int j = 0; j < info.count(); ++j)
@@ -1043,10 +1046,8 @@ QString QDirModel::name(const QModelIndex &index) const
 
 QIconSet QDirModel::icons(const QModelIndex &index) const
 {
-    if (!index.isValid()) {
-        qWarning("icons: the index is invalid");
-        return QIconSet();
-    }
+    if (!index.isValid())
+        return QIconSet(); // FIXME: "My Computer" icon ?
     return d->iconProvider->icons(fileInfo(index));
 }
 
@@ -1059,7 +1060,7 @@ QFileInfo QDirModel::fileInfo(const QModelIndex &index) const
 {
     if (!index.isValid()) {
         qWarning("fileInfo: the index is invalid");
-        return QFileInfo();
+        return QFileInfo(); // FIXME: this returns current dir
     }
 
     QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
@@ -1223,9 +1224,11 @@ bool QDirModel::remove(const QModelIndex &index)
   
 void QDirModelPrivate::init(const QDir &directory)
 {
+    rootIsVirtual = false;
+    
     root.parent = 0;
     root.info = QFileInfo(directory.absolutePath());
-    root.children = children(&root);
+    root.children = children(0); // FIXME: ???
 
     filterSpec = directory.filter();
     sortSpec = directory.sorting();
@@ -1358,7 +1361,7 @@ void QDirModelPrivate::restorePersistentIndexes()
 
 QFileInfoList QDirModelPrivate::rootChildren() const
 {
-    if (!root.info.exists())
+    if (rootIsVirtual)
         return QDir::drives();
     QDir dir = QDir(root.info.absoluteFilePath());
     return dir.entryInfoList(nameFilters, filterSpec, sortSpec);
