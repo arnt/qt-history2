@@ -107,6 +107,10 @@ UnixMakefileGenerator::init()
     }
     if(!project->isEmpty("QMAKE_INCREMENTAL")) 
 	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_INCREMENTAL"];
+    else if(!project->isEmpty("QMAKE_LFLAGS_PREBIND") && 
+	    !project->variables()["QMAKE_LIB_FLAG"].isEmpty() && 
+	    project->isActiveConfig("dll"))
+	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_PREBIND"];
     if(!project->isEmpty("QMAKE_INCDIR")) 
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR"];
     if(!project->isEmpty("QMAKE_LIBDIR")) 

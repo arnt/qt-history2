@@ -1,5 +1,5 @@
 mac {
-   macx:LIBS += -framework Carbon -framework QuickTime -prebind -seg1addr 0x90000000
+   macx:LIBS += -framework Carbon -framework QuickTime
    *-mwerks:INCLUDEPATH += compat
    mac9 {
      LIBS       += "MSL C++.PPC.Lib" "MSL SIOUX.Carbon.Lib" "CarbonLib" \
