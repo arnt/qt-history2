@@ -309,7 +309,7 @@ void MainWindow::setupMenuBar()
 
 void MainWindow::setupPropertyEditor()
 {
-    QDockWindow *dw = new QDockWindow;
+    QDockWindow *dw = new QDockWindow( QDockWindow::InDock, this );
     dw->setResizeEnabled( TRUE );
     dw->setCloseMode( QDockWindow::Always );
     propertyEditor = new PropertyEditor( dw );
@@ -338,7 +338,7 @@ void MainWindow::setupPropertyEditor()
 
 void MainWindow::setupOutputWindow()
 {
-    QDockWindow *dw = new QDockWindow;
+    QDockWindow *dw = new QDockWindow( QDockWindow::InDock, this );
     dw->setResizeEnabled( TRUE );
     dw->setCloseMode( QDockWindow::Always );
     addToolBar( dw, Qt::DockBottom );
@@ -352,7 +352,7 @@ void MainWindow::setupHierarchyView()
 {
     if ( hierarchyView )
 	return;
-    QDockWindow *dw = new QDockWindow;
+    QDockWindow *dw = new QDockWindow( QDockWindow::InDock, this );
     dw->setResizeEnabled( TRUE );
     dw->setCloseMode( QDockWindow::Always );
     hierarchyView = new HierarchyView( dw );
@@ -374,7 +374,7 @@ void MainWindow::setupHierarchyView()
 
 void MainWindow::setupWorkspace()
 {
-    QDockWindow *dw = new QDockWindow;
+    QDockWindow *dw = new QDockWindow( QDockWindow::InDock, this );
     dw->setResizeEnabled( TRUE );
     dw->setCloseMode( QDockWindow::Always );
     QVBox *vbox = new QVBox( dw );
