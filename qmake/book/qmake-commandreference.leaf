@@ -653,9 +653,9 @@ modified.
 
 This variable contains the name of the \e qmake
 configuration to use when generating makefiles.  The value of this
-variable is typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely needs to be
-modified. Use the \link #QMAKESPEC QMAKESPEC \endlink environment
-variable instead.
+variable is typically handled by \e qmake and rarely needs to be modified.
+Use the \link #QMAKESPEC QMAKESPEC \endlink environment variable instead.
+
 
 
 
