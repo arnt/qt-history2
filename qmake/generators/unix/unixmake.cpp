@@ -586,23 +586,15 @@ UnixMakefileGenerator::init()
 	if(!project->variables()["QMAKE_APP_FLAG"].isEmpty())
 	    project->variables()["DESTDIR"].first() += project->variables()["TARGET"].first() + ".app/Contents/MacOS/";
     }
-    if(project->variables()["VERSION"].isEmpty()) {
-	project->variables()["VERSION"].append("1.0.0");
-	project->variables()["VER_MAJ"].append("1");
-	project->variables()["VER_MIN"].append("0");
-	project->variables()["VER_PAT"].append("0");
-    }
-    if ( project->variables()["VER_PAT"].isEmpty() ) {
-	QStringList l = QStringList::split('.', project->variables()["VERSION"].first());
-	project->variables()["VER_MAJ"].append(l[0]);
-	project->variables()["VER_MIN"].append(l[1]);
-	project->variables()["VER_PAT"].append("0");
-    }
-    if ( project->variables()["VER_MIN"].isEmpty() ) {
-	project->variables()["VER_MAJ"] = project->variables()["VERSION"];
-	project->variables()["VER_MIN"].append("0");
-	project->variables()["VER_PAT"].append("0");
-    }
+
+    //version handling
+    if(project->variables()["VERSION"].isEmpty()) 
+	project->variables()["VERSION"].append("1.0." + project->variables()["VER_PAT"].first() );
+    QStringList l = QStringList::split('.', project->variables()["VERSION"].first()) << "0" << "0"; //make sure there are three
+    project->variables()["VER_MAJ"].append(l[0]);
+    project->variables()["VER_MIN"].append(l[1]);
+    project->variables()["VER_PAT"].append(l[2]);
+
     if ( !project->variables()["QMAKE_APP_FLAG"].isEmpty() ) {
 #if 0
 	if ( project->isActiveConfig("dll") ) {
