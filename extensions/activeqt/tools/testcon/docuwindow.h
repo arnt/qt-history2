@@ -16,7 +16,7 @@
 
 #include <qmainwindow.h>
 
-class Q3TextBrowser;
+class QTextBrowser;
 
 class DocuWindow : public QMainWindow
 {
@@ -29,7 +29,7 @@ public slots:
     void print();
 
 private:
-    Q3TextBrowser *browser;
+    QTextBrowser *browser;
 };
 
 #endif // DOCUWINDOW_H
