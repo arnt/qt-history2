@@ -172,6 +172,7 @@ include(qt_install.pri)
 !staticlib:PRL_EXPORT_DEFINES += QT_SHARED
 
 wince-* {
+	CONFIG -= incremental
 	message( ...removing plugin stuff... (not permanent) )
 	HEADERS -=$$TOOLS_CPP/qcomlibrary.h \
 		  $$KERNEL_CPP/qgplugin.h \
