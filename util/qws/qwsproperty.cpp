@@ -108,14 +108,14 @@ bool QWSPropertyManager::addProperty( int winId, int property )
 
 /*
   Command character: S
-  
-  The format of a set property command is:
-  A,B,C,D;data
 
-  A .... winId
-  B .... property
-  C .... mode
-  D .... length of data
+  The format of a set property command is:
+  ABCDdata
+
+  A .... winId (4 bytes - hex)
+  B .... property (4 bytes - hex)
+  C .... mode (4 bytes - hex)
+  D .... length of data (4 bytes - hex)
   data .... D bytes of data
 */
 
@@ -130,34 +130,17 @@ QWSSetPropertyCommand::~QWSSetPropertyCommand()
 
 void QWSSetPropertyCommand::readData()
 {
-    QString s;
-    QStringList lst;
-    char c;
-    while ( ( c = client->getch() ) != ';' ) {
-	qDebug( "got: %c", c );
-	if ( c == ',' ) {
-	    lst.append( s );
-	    s = QString::null;
-	    continue;
-	}
-	s += c;
-    }
-    lst.append( s );
-
-    if ( lst.count() != 4 )
-	qFatal( "QWSSetPropertyCommand::readData: Protocol error" );
-
-    int len = -1;
-
-    winId = lst[ 0 ].toInt();
-    property = lst[ 1 ].toInt();
-    mode = lst[ 2 ].toInt();
-    len = lst[ 3 ].toInt();
+    winId = qws_read_uint( client );
+    property = qws_read_uint( client );
+    mode = qws_read_uint( client );
+    int len = qws_read_uint( client );
 
     if ( len > 0 ) {
 	data.resize( len );
 	client->readBlock( data.data(), len );
     }
+    qDebug( "QWSSetPropertyCommand::readData: %d %d %d %d %s",
+	    winId, property, mode, len, data.data() );
 }
 
 void QWSSetPropertyCommand::execute()
@@ -176,12 +159,12 @@ void QWSSetPropertyCommand::execute()
 
 /*
   Command character: A
-  
-  The format of a add property command is:
-  A,B;
 
-  A .... winId
-  B .... property
+  The format of a add property command is:
+  AB
+
+  A .... winId (4 bytes - hex)
+  B .... property (4 bytes - hex)
 */
 
 QWSAddPropertyCommand::QWSAddPropertyCommand( QWSServer *s, QWSClient *c )
@@ -195,25 +178,9 @@ QWSAddPropertyCommand::~QWSAddPropertyCommand()
 
 void QWSAddPropertyCommand::readData()
 {
-    QString s;
-    QStringList lst;
-    char c;
-    while ( ( c = client->getch() ) != ';' ) {
-	qDebug( "got: %c", c );
-	if ( c == ',' ) {
-	    lst.append( s );
-	    s = QString::null;
-	    continue;
-	}
-	s += c;
-    }
-    lst.append( s );
-
-    if ( lst.count() != 2 )
-	qFatal( "QWSAddPropertyCommand::readData: Protocol error" );
-
-    winId = lst[ 0 ].toInt();
-    property = lst[ 1 ].toInt();
+    winId = qws_read_uint( client );
+    property = qws_read_uint( client );
+    qDebug( "QWSAddPropertyCommand::readData: %d %d", winId, property );
 }
 
 void QWSAddPropertyCommand::execute()
@@ -232,12 +199,12 @@ void QWSAddPropertyCommand::execute()
 
 /*
   Command character: R
-  
-  The format of a add property command is:
-  A,B;
 
-  A .... winId
-  B .... property
+  The format of a add property command is:
+  AB
+
+  A .... winId (4 bytes - hex)
+  B .... property (4 bytes - hex)
 */
 
 QWSRemovePropertyCommand::QWSRemovePropertyCommand( QWSServer *s, QWSClient *c )
@@ -251,25 +218,9 @@ QWSRemovePropertyCommand::~QWSRemovePropertyCommand()
 
 void QWSRemovePropertyCommand::readData()
 {
-    QString s;
-    QStringList lst;
-    char c;
-    while ( ( c = client->getch() ) != ';' ) {
-	qDebug( "got: %c", c );
-	if ( c == ',' ) {
-	    lst.append( s );
-	    s = QString::null;
-	    continue;
-	}
-	s += c;
-    }
-    lst.append( s );
-
-    if ( lst.count() != 2 )
-	qFatal( "QWSRemovePropertyCommand::readData: Protocol error" );
-
-    winId = lst[ 0 ].toInt();
-    property = lst[ 1 ].toInt();
+    winId = qws_read_uint( client );
+    property = qws_read_uint( client );
+    qDebug( "QWSRemovePropertyCommand::readData: %d %d", winId, property );
 }
 
 void QWSRemovePropertyCommand::execute()

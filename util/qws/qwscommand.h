@@ -58,9 +58,19 @@ void qwsRegisterCommands();
 class QWSCommand
 {
 public:
+    enum Type {
+	Unknown = 0,
+	NewWindow,
+	SetProperty,
+	AddProperty,
+	RemoveProperty
+    };
+    
     QWSCommand( QWSServer *s, QWSClient *c );
     virtual ~QWSCommand();
 
+    virtual Type type() { return Unknown; }
+    
     virtual void readData();
     virtual void execute();
 
@@ -85,12 +95,81 @@ public:
     QWSNewWindowCommand( QWSServer *s, QWSClient *c );
     virtual ~QWSNewWindowCommand();
 
+    virtual Type type() { return NewWindow; }
+
     virtual void readData();
     virtual void execute();
 
 private:
     ushort x, y, w, h;
     ushort flags;
+
+};
+
+/*********************************************************************
+ *
+ * Class: QWSSetPropertyCommand
+ *
+ *********************************************************************/
+
+class QWSSetPropertyCommand : public QWSCommand
+{
+public:
+    QWSSetPropertyCommand( QWSServer *s, QWSClient *c );
+    virtual ~QWSSetPropertyCommand();
+
+    virtual Type type() { return SetProperty; }
+
+    virtual void readData();
+    virtual void execute();
+
+private:
+    int winId, property, mode;
+    QByteArray data;
+
+};
+
+/*********************************************************************
+ *
+ * Class: QWSAddPropertyCommand
+ *
+ *********************************************************************/
+
+class QWSAddPropertyCommand : public QWSCommand
+{
+public:
+    QWSAddPropertyCommand( QWSServer *s, QWSClient *c );
+    virtual ~QWSAddPropertyCommand();
+
+    virtual Type type() { return AddProperty; }
+
+    virtual void readData();
+    virtual void execute();
+
+private:
+    int winId, property;
+
+};
+
+/*********************************************************************
+ *
+ * Class: QWSRemovePropertyCommand
+ *
+ *********************************************************************/
+
+class QWSRemovePropertyCommand : public QWSCommand
+{
+public:
+    QWSRemovePropertyCommand( QWSServer *s, QWSClient *c );
+    virtual ~QWSRemovePropertyCommand();
+
+    virtual Type type() { return RemoveProperty; }
+
+    virtual void readData();
+    virtual void execute();
+
+private:
+    int winId, property;
 
 };
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qws.h#4 $
+** $Id: //depot/qt/main/util/qws/qws.h#5 $
 **
 ** Definition of Qt/FB central server classes
 **
@@ -31,6 +31,7 @@ const int QTFB_PORT=0x4642; // FB
 
 class QWSClient;
 
+int qws_read_uint( QSocket *socket );
 
 /*********************************************************************
  *
@@ -38,7 +39,8 @@ class QWSClient;
  *
  *********************************************************************/
 
-class QWSServer : public QServerSocket {
+class QWSServer : public QServerSocket 
+{
     Q_OBJECT
 
 public:
@@ -52,10 +54,10 @@ public:
     QWSPropertyManager *properties() {
 	return &propertyManager;
     }
-    
+
 private slots:
     void doClient();
-    
+
 private:
     typedef QMapIterator<int,QWSClient*> ClientIterator;
     typedef QMap<int,QWSClient*> ClientMap;
@@ -64,7 +66,7 @@ private:
     uchar* framebuffer;
     ClientMap client;
     QWSPropertyManager propertyManager;
-    
+
 };
 
 /*********************************************************************
@@ -73,7 +75,8 @@ private:
  *
  *********************************************************************/
 
-class QWSClient : public QSocket {
+class QWSClient : public QSocket 
+{
 public:
     QWSClient( int socket, int shmid );
 

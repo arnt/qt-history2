@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qws.cpp#7 $
+** $Id: //depot/qt/main/util/qws/qws.cpp#8 $
 **
 ** Implementation of Qt/FB central server
 **
@@ -119,13 +119,10 @@ void QWSServer::newConnection( int socket )
 void QWSServer::doClient()
 {
     QWSClient* c = (QWSClient*)sender();
-    int cmd = c->getch();
-    QWSCommand *command = QWSCommand::getCommand( cmd, this, c );
+    int command_type = qws_read_uint( c );
+    QWSCommand *command = QWSCommand::getCommand( command_type, this, c );
     if ( !command ) {
-	qWarning( "Protocol error - got: %c", cmd );
-// 	qDebug( "got: %c", cmd );
-// 	client[c->socket()] = 0;
-// 	delete c;
+	qWarning( "Protocol error - got: %d", command_type );
 	return;
     }
 
@@ -215,4 +212,34 @@ main(int argc, char** argv)
     m.show();
 
     return app.exec();
+}
+
+static ushort hex_ushort_to_int( ushort c )
+{
+    if ( c >= 'A' && c <= 'F')
+	return c - 'A' + 10;
+    if ( c >= 'a' && c <= 'f')
+	return c - 'a' + 10;
+    if ( c >= '0' && c <= '9')
+	return c - '0';
+    return 0;
+}
+
+static int hex_to_int( char *array )
+{
+    return ( 16 * 16 * 16 * hex_ushort_to_int( array[ 0 ] ) +
+	     16 * 16 * hex_ushort_to_int( array[ 1 ] ) +
+	     16 * hex_ushort_to_int( array[ 2 ] ) + 
+	     hex_ushort_to_int( array[ 3 ] ) );
+}
+
+int qws_read_uint( QSocket *socket )
+{
+    if ( !socket )
+	return -1;
+
+    int i;
+    socket->readBlock( (char*)&i, sizeof( int ) );
+    
+    return hex_to_int( (char*)&i );
 }

@@ -21,9 +21,6 @@
 #include "qwscommand.h"
 #include "qws.h"
 
-// commands
-#include "qwsproperty.h"
-
 #include <stdlib.h>
 
 #include <qstring.h>
@@ -32,10 +29,14 @@ QWSCommandDict *qwsCommandRegister = 0;
 
 void qwsRegisterCommands()
 {
-    QWSCommand::registerCommand( 'N', new QWSCommandFactory< QWSNewWindowCommand > );
-    QWSCommand::registerCommand( 'S', new QWSCommandFactory< QWSSetPropertyCommand > );
-    QWSCommand::registerCommand( 'A', new QWSCommandFactory< QWSAddPropertyCommand > );
-    QWSCommand::registerCommand( 'R', new QWSCommandFactory< QWSRemovePropertyCommand > );
+    QWSCommand::registerCommand( (int)QWSCommand::NewWindow, 
+				 new QWSCommandFactory< QWSNewWindowCommand > );
+    QWSCommand::registerCommand( (int)QWSCommand::SetProperty, 
+				 new QWSCommandFactory< QWSSetPropertyCommand > );
+    QWSCommand::registerCommand( (int)QWSCommand::AddProperty, 
+				 new QWSCommandFactory< QWSAddPropertyCommand > );
+    QWSCommand::registerCommand( (int)QWSCommand::RemoveProperty, 
+				 new QWSCommandFactory< QWSRemovePropertyCommand > );
 }
 
 /*********************************************************************
