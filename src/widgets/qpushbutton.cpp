@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#71 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#72 $
 **
 ** Implementation of QPushButton class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#71 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#72 $");
 
 
 /*!
@@ -436,7 +436,6 @@ void QPushButton::drawButtonLabel( QPainter *paint )
 	    dt = 1;
 	    break;
 	case MotifStyle:
-	    p->setPen( g.text() );
 	    break;
 	default:
 	    ;
@@ -449,6 +448,7 @@ void QPushButton::drawButtonLabel( QPainter *paint )
 	y += dt;
     }
     x += 2;  y += 2;  w -= 4;  h -= 4;
+    p->setPen( g.text() );
     if ( pixmap() ) {
 	const QPixmap *pm = pixmap();
 	if ( pm->width() > w || pm->height() > h )
@@ -463,7 +463,7 @@ void QPushButton::drawButtonLabel( QPainter *paint )
 	y += h/2 - pm->height()/2;
 	p->drawPixmap( x, y, *pm );
 	p->setClipping( FALSE );
-    }
-    else if ( text() )
+    } else if ( text() ) {
 	p->drawText( x, y, w, h, AlignCenter|ShowPrefix, text() );
+    }
 }
