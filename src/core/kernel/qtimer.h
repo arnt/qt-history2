@@ -58,10 +58,13 @@ signals:
     void timeout();
 
 protected:
-    bool event(QEvent *);
+    void timerEvent(QTimerEvent *);
 
 private:
     Q_DISABLE_COPY(QTimer)
+
+    inline int startTimer(int){ return -1;}
+    inline void killTimer(int){}
 
     int id, inter, del;
     uint single : 1;

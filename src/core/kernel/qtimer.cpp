@@ -163,7 +163,7 @@ void QTimer::start()
     if (id != INV_TIMER)                        // stop running timer
         stop();
     nulltimer = (!inter && single);
-    id = startTimer(inter);
+    id = QObject::startTimer(inter);
 }
 
 /*!
@@ -206,7 +206,7 @@ int QTimer::start(int msec, bool sshot)
 void QTimer::stop()
 {
     if (id != INV_TIMER) {
-        killTimer(id);
+        QObject::killTimer(id);
         id = INV_TIMER;
     }
 }
@@ -215,16 +215,14 @@ void QTimer::stop()
 /*!
     \reimp
 */
-bool QTimer::event(QEvent *e)
+void QTimer::timerEvent(QTimerEvent *e)
 {
-    if (e->type() != QEvent::Timer)                // ignore all other events
-        return false;
-    if (single)                                // stop single shot timer
-        stop();
-    emit timeout();                                // emit timeout signal
-    return true;
+    if (e->timerId() == id) {
+        if (single)
+            stop();
+        emit timeout();
+    }
 }
-
 
 class QSingleShotTimer : public QObject
 {
@@ -323,8 +321,8 @@ void QTimer::setInterval(int msec)
 {
     inter = msec;
     if (id != INV_TIMER) {                        // create new timer
-        killTimer(id);                        // restart timer
-        id = startTimer(msec);
+        QObject::killTimer(id);                        // restart timer
+        id = QObject::startTimer(msec);
     }
 }
 
