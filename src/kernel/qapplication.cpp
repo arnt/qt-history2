@@ -357,9 +357,6 @@ bool	  QApplication::fade_tooltip	= FALSE;
 bool	  QApplication::animate_toolbox	= FALSE;
 bool	  QApplication::widgetCount	= FALSE;
 QApplication::Type qt_appType=QApplication::Tty;
-#ifndef QT_NO_COMPONENT
-QStringList *QApplication::app_libpaths = 0;
-#endif
 
 #if defined(QT_TABLET_SUPPORT)
 bool chokeMouse = FALSE;
@@ -917,11 +914,6 @@ QApplication::~QApplication()
 #endif
 
     qt_cleanup();
-
-#ifndef QT_NO_COMPONENT
-    delete app_libpaths;
-    app_libpaths = 0;
-#endif
 
     if ( widgetCount ) {
 	qDebug( "Widgets left: %i    Max widgets: %i \n", QWidget::instanceCounter, QWidget::maxInstances );
@@ -1496,105 +1488,6 @@ QString QApplication::applicationFilePath()
 }
 #endif // QT_NO_DIR
 
-#ifndef QT_NO_COMPONENT
-
-/*!
-  Returns a list of paths that the application will search when
-  dynamically loading libraries.
-  The installation directory for plugins is the only entry if no
-  paths have been set.  The default installation directory for plugins
-  is \c INSTALL/plugins, where \c INSTALL is the directory where Qt was
-  installed. On Windows, the directory of the application executable (NOT the
-  working directory) is also added to the plugin paths.
-
-  If you want to iterate over the list, you should iterate over a
-  copy, e.g.
-    \code
-    QStringList list = app.libraryPaths();
-    QStringList::Iterator it = list.begin();
-    while( it != list.end() ) {
-	myProcessing( *it );
-	++it;
-    }
-    \endcode
-
-  See the \link plugins-howto.html plugins documentation\endlink for a
-  description of how the library paths are used.
-
-  \sa setLibraryPaths(), addLibraryPath(), removeLibraryPath(), QLibrary
-*/
-QStringList QApplication::libraryPaths()
-{
-    if ( !app_libpaths ) {
-	app_libpaths = new QStringList;
-	if ( QFile::exists( qInstallPathPlugins() ) )
-	    app_libpaths->append( qInstallPathPlugins() );
-#ifdef Q_WS_WIN
-	QString app_location = qAppFileName();
-	app_location.truncate( app_location.findRev( '\\' ) );
-	if ( app_location != qInstallPathPlugins() && QFile::exists( app_location ) )
-	    app_libpaths->append( app_location );
-#endif
-    }
-    return *app_libpaths;
-}
-
-
-/*!
-  Sets the list of directories to search when loading libraries to \a paths.
-  All existing paths will be deleted and the path list will consist of the
-  paths given in \a paths.
-
-  \sa libraryPaths(), addLibraryPath(), removeLibraryPath(), QLibrary
- */
-void QApplication::setLibraryPaths( const QStringList &paths )
-{
-    delete app_libpaths;
-    app_libpaths = new QStringList( paths );
-}
-
-/*!
-  Append \a path to the end of the library path list. If \a path is
-  empty or already in the path list, the path list is not changed.
-
-  The default path list consists of a single entry, the installation
-  directory for plugins.  The default installation directory for plugins
-  is \c INSTALL/plugins, where \c INSTALL is the directory where Qt was
-  installed.
-
-  \sa removeLibraryPath(), libraryPaths(), setLibraryPaths()
- */
-void QApplication::addLibraryPath( const QString &path )
-{
-    if ( path.isEmpty() )
-	return;
-
-    // make sure that library paths is initialized
-    libraryPaths();
-
-    if ( !app_libpaths->contains( path ) )
-	app_libpaths->prepend( path );
-}
-
-/*!
-  Removes \a path from the library path list. If \a path is empty or not
-  in the path list, the list is not changed.
-
-  \sa addLibraryPath(), libraryPaths(), setLibraryPaths()
-*/
-void QApplication::removeLibraryPath( const QString &path )
-{
-    if ( path.isEmpty() )
-	return;
-
-    // make sure that library paths is initialized
-    libraryPaths();
-
-    if ( app_libpaths->contains( path ) )
-	app_libpaths->remove( path );
-}
-#endif //QT_NO_COMPONENT
-
 /*!
   Returns the application palette.
 
@@ -1996,22 +1889,15 @@ void QApplication::aboutQt()
   \sa mainWidget(), topLevelWidgets(), QWidget::isTopLevel(), QWidget::close()
 */
 
-/*!
-  \fn void QApplication::aboutToQuit()
-
-  This signal is emitted when the application is about to quit the
-  main event loop, e.g. when the event loop level drops to zero.
-  This may happen either after a call to quit() from inside the
-  application or when the users shuts down the entire desktop session.
-
-  The signal is particularly useful if your application has to do some
-  last-second cleanup. Note that no user interaction is possible in
-  this state.
-
-  \sa quit()
-*/
-
-
+#ifndef QT_NO_TRANSLATION
+static bool qt_detectRTLLanguage()
+{
+    return QApplication::tr( "QT_LAYOUT_DIRECTION",
+	    "Translate this string to the string 'LTR' in left-to-right"
+	    " languages or to 'RTL' in right-to-left languages (such as Hebrew"
+	    " and Arabic) to get proper widget layout." ) == "RTL";
+}
+#endif
 
 /*
   \fn bool QApplication::sendEvent( QObject *receiver, QEvent *event )
@@ -2055,7 +1941,9 @@ bool QApplication::event( QEvent *e )
 	    return TRUE;
     } else if(e->type() == QEvent::LanguageChange) {
 	if(loopLevel()) {
+#ifndef QT_NO_TRANSLATION
 	    setReverseLayout( qt_detectRTLLanguage() );
+#endif
 	    QWidgetList list = topLevelWidgets();
 	    for (int i = 0; i < list.size(); ++i) {
 		QWidget *w = list.at(i);
@@ -2136,19 +2024,6 @@ Qt::WindowsVersion QApplication::winVersion()
     return qt_winver;
 }
 #endif
-
-#ifndef QT_NO_TRANSLATION
-
-bool qt_detectRTLLanguage()
-{
-    return QApplication::tr( "QT_LAYOUT_DIRECTION",
-	    "Translate this string to the string 'LTR' in left-to-right"
-	    " languages or to 'RTL' in right-to-left languages (such as Hebrew"
-	    " and Arabic) to get proper widget layout." ) == "RTL";
-}
-
-#endif
-
 
 /*!\internal
 

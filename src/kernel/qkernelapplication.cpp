@@ -2,6 +2,7 @@
 #include <qeventloop.h>
 #include <qevent.h>
 #include <qvector.h>
+#include <qfile.h>
 #include <qtextcodec.h>
 
 #ifdef QT_THREAD_SUPPORT
@@ -146,6 +147,11 @@ QKernelApplication::~QKernelApplication()
 	delete postRList;
 	postRList = 0;
     }
+
+#ifndef QT_NO_COMPONENT
+    delete d->app_libpaths;
+    d->app_libpaths = 0;
+#endif
 
     removePostedEvents(this);
     self = 0;
@@ -942,6 +948,21 @@ bool QKernelApplication::tryLock()
 }
 #endif
 
+/*!
+  \fn void QKernelApplication::aboutToQuit()
+
+  This signal is emitted when the application is about to quit the
+  main event loop, e.g. when the event loop level drops to zero.
+  This may happen either after a call to quit() from inside the
+  application or when the users shuts down the entire desktop session.
+
+  The signal is particularly useful if your application has to do some
+  last-second cleanup. Note that no user interaction is possible in
+  this state.
+
+  \sa quit()
+*/
+
 #ifndef QT_NO_TRANSLATION
 /*!
   Adds the message file \a mf to the list of message files to be used
@@ -1073,3 +1094,101 @@ QTextCodec* QKernelApplication::defaultCodec() const
 #endif //QT_NO_TEXTCODEC
 #endif //QT_NO_TRANSLATE
 
+#ifndef QT_NO_COMPONENT
+
+/*!
+  Returns a list of paths that the application will search when
+  dynamically loading libraries.
+  The installation directory for plugins is the only entry if no
+  paths have been set.  The default installation directory for plugins
+  is \c INSTALL/plugins, where \c INSTALL is the directory where Qt was
+  installed. On Windows, the directory of the application executable (NOT the
+  working directory) is also added to the plugin paths.
+
+  If you want to iterate over the list, you should iterate over a
+  copy, e.g.
+    \code
+    QStringList list = app.libraryPaths();
+    QStringList::Iterator it = list.begin();
+    while( it != list.end() ) {
+	myProcessing( *it );
+	++it;
+    }
+    \endcode
+
+  See the \link plugins-howto.html plugins documentation\endlink for a
+  description of how the library paths are used.
+
+  \sa setLibraryPaths(), addLibraryPath(), removeLibraryPath(), QLibrary
+*/
+QStringList QKernelApplication::libraryPaths()
+{
+    if ( !self->d->app_libpaths ) {
+	self->d->app_libpaths = new QStringList;
+	if ( QFile::exists( qInstallPathPlugins() ) )
+	    self->d->app_libpaths->append( qInstallPathPlugins() );
+#ifdef Q_WS_WIN
+	QString app_location = qAppFileName();
+	app_location.truncate( app_location.findRev( '\\' ) );
+	if ( app_location != qInstallPathPlugins() && QFile::exists( app_location ) )
+	    self->d->app_libpaths->append( app_location );
+#endif
+    }
+    return *self->d->app_libpaths;
+}
+
+
+/*!
+  Sets the list of directories to search when loading libraries to \a paths.
+  All existing paths will be deleted and the path list will consist of the
+  paths given in \a paths.
+
+  \sa libraryPaths(), addLibraryPath(), removeLibraryPath(), QLibrary
+ */
+void QKernelApplication::setLibraryPaths( const QStringList &paths )
+{
+    delete self->d->app_libpaths;
+    self->d->app_libpaths = new QStringList( paths );
+}
+
+/*!
+  Append \a path to the end of the library path list. If \a path is
+  empty or already in the path list, the path list is not changed.
+
+  The default path list consists of a single entry, the installation
+  directory for plugins.  The default installation directory for plugins
+  is \c INSTALL/plugins, where \c INSTALL is the directory where Qt was
+  installed.
+
+  \sa removeLibraryPath(), libraryPaths(), setLibraryPaths()
+ */
+void QKernelApplication::addLibraryPath( const QString &path )
+{
+    if ( path.isEmpty() )
+	return;
+
+    // make sure that library paths is initialized
+    libraryPaths();
+
+    if ( !self->d->app_libpaths->contains( path ) )
+	self->d->app_libpaths->prepend( path );
+}
+
+/*!
+  Removes \a path from the library path list. If \a path is empty or not
+  in the path list, the list is not changed.
+
+  \sa addLibraryPath(), libraryPaths(), setLibraryPaths()
+*/
+void QKernelApplication::removeLibraryPath( const QString &path )
+{
+    if ( path.isEmpty() )
+	return;
+
+    // make sure that library paths is initialized
+    libraryPaths();
+
+    if ( self->d->app_libpaths->contains( path ) )
+	self->d->app_libpaths->remove( path );
+}
+#endif //QT_NO_COMPONENT

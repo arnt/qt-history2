@@ -14,7 +14,12 @@ public:
 
     int &argc;
     char **argv;
+#ifndef QT_NO_TRANSLATION
     QList<QTranslator*> translators;
+#endif
+#ifndef QT_NO_COMPONENT
+    QStringList *app_libpaths;
+#endif
 };
 
 

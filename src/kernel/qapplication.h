@@ -151,12 +151,6 @@ public:
     static void	     setGlobalStrut( const QSize & );
     static QSize     globalStrut();
 
-#ifndef QT_NO_COMPONENT
-    static void      setLibraryPaths( const QStringList & );
-    static QStringList libraryPaths();
-    static void      addLibraryPath( const QString & );
-    static void      removeLibraryPath( const QString & );
-#endif // QT_NO_COMPONENT
     static void setStartDragTime( int ms );
     static int startDragTime();
     static void setStartDragDistance( int l );
@@ -221,7 +215,6 @@ public:
 
 signals:
     void	     lastWindowClosed();
-    void	     aboutToQuit();
 
 public slots:
     void	     closeAllWindows();
@@ -294,9 +287,6 @@ private:
 #endif
 
     static QSize     app_strut;
-#ifndef QT_NO_COMPONENT
-    static QStringList *app_libpaths;
-#endif
     static QAsciiDict<QPalette> *app_palettes;
     static QAsciiDict<QFont>    *app_fonts;
 

@@ -16,7 +16,7 @@
 #define QKERNELAPPLICATION_H
 
 #include <qobject.h>
-
+#include <qstringlist.h>
 
 class QKernelApplicationPrivate;
 class QTextCodec;
@@ -58,6 +58,12 @@ public:
     static bool	     startingUp();
     static bool	     closingDown();
 
+#ifndef QT_NO_COMPONENT
+    static void      setLibraryPaths( const QStringList & );
+    static QStringList libraryPaths();
+    static void      addLibraryPath( const QString & );
+    static void      removeLibraryPath( const QString & );
+#endif // QT_NO_COMPONENT
 
 #ifndef QT_NO_TRANSLATION
 # ifndef QT_NO_TEXTCODEC
@@ -82,6 +88,9 @@ public:
 
 public slots:
     void	     quit();
+
+signals:
+    void	     aboutToQuit();
 
 protected:
     bool event(QEvent *);
