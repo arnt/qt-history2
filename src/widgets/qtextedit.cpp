@@ -939,9 +939,10 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 	break;
     default: {
 	    if ( e->text().length() &&
-//		 !( e->state() & AltButton ) && !( e->state() & MetaButton ) &&
-		 ( !e->ascii() || e->ascii() >= 32 ) ||
-		 ( e->text() == "\t" && !( e->state() & ControlButton ) ) ) {
+		   !( e->state() & ControlButton ) &&
+		   !( e->state() & AltButton ) &&
+		   !( e->state() & MetaButton ) &&
+		 ( !e->ascii() || e->ascii() >= 32 || e->text() == "\t" ) ) {
 		clearUndoRedoInfo = FALSE;
 		if ( e->key() == Key_Tab ) {
 		    if ( d->allowTabs ) {
