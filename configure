@@ -1143,7 +1143,13 @@ if [ -z "$PLATFORM" ]; then
 	PLATFORM=dgux-g++
 	;;
 #     DYNIX/ptx:4*)
-#	PLATFORM=sequent-g++
+#	PLATFORM=dynix-g++
+#	;;
+#     HI-UX/MPP:*) 
+#	PLATFORM=hitachi-cc
+#	PLATFORM_NOTES="
+#	    - Also available for Hitachi UNIX: hitachi-g++
+#	"
 #	;;
      ULTRIX:*)
 	PLATFORM=ultrix-g++

@@ -70,8 +70,9 @@
      AIX	- AIX
      HURD	- GNU Hurd
      DGUX	- DG/UX
-     DYNIX	- DYNIX/ptx
      RELIANT	- Reliant UNIX
+     DYNIX	- DYNIX/ptx
+     HITACHI	- Hitachi UNIX
      QNX	- QNX
      QNX6	- QNX RTP 6.1
      LYNX	- LynxOS
@@ -155,6 +156,8 @@
 #  define Q_OS_UNIXWARE7
 #elif defined(_SEQUENT_)
 #  define Q_OS_DYNIX
+#elif defined(__SR8000)
+#  define Q_OS_HITACHI
 #elif defined(__svr4__)
 /*   generic fallback for the rest of svr4 systems, e.g. g++ on UnixWare7.*/
 #  define Q_OS_SVR4
