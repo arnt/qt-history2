@@ -1050,14 +1050,15 @@ QDir QDir::current()
 /*!
     Returns the home directory.
 
-    Under Windows NT/2000 the function forms the path by concatenating
-    the \c HOMEDRIVE and \c HOMEPATH environment variables.
+    Under Windows the \c HOME environment variable is used. If this
+    does not exist the \c USERPROFILE environment variable is used. If
+    that does not exist the path is formed by concatenating the \c
+    HOMEDRIVE and \c HOMEPATH environment variables. If they don't
+    exist the rootDirPath() is used (this uses the \c SystemDrive
+    environment variable). If none of these exist "C:\" is used.
 
-    Under Windows 9x and non-Windows operating systems the \c HOME
-    environment variable is used.
-
-    If the environment variables aren't set, rootDirPath() is used
-    instead.
+    Under non-Windows operating systems the \c HOME environment
+    variable is used if it exists, otherwise rootDirPath() is used.
 
     \sa homeDirPath()
 */

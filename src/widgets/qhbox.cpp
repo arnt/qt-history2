@@ -50,10 +50,11 @@
     All the horizontal box's child widgets will be placed alongside
     each other and sized according to their sizeHint()s.
 
-    Use setMargin() to add space around the edge, and use setSpacing()
-    to add space between the widgets. Use setStretchFactor() if you
-    want the widgets to be different sizes in proportion to one
-    another.
+    Use setMargin() to add space around the edges, and use
+    setSpacing() to add space between the widgets. Use
+    setStretchFactor() if you want the widgets to be different sizes
+    in proportion to one another. (See \link layout.html
+    Layouts\endlink for more information on stretch factors.)
 
     \img qhbox-m.png QHBox
 
@@ -62,10 +63,10 @@
 
 
 /*!
-  Constructs an hbox widget with parent \a parent and name \a name.
-  The parent, name and widget flags, \a f, are passed to the QFrame
-  constructor.
- */
+    Constructs an hbox widget with parent \a parent, called \a name.
+    The parent, name and widget flags, \a f, are passed to the QFrame
+    constructor.
+*/
 QHBox::QHBox( QWidget *parent, const char *name, WFlags f )
     :QFrame( parent, name, f )
 {
@@ -75,14 +76,14 @@ QHBox::QHBox( QWidget *parent, const char *name, WFlags f )
 
 
 /*!
-  Constructs a horizontal hbox if \a horizontal is TRUE, otherwise
-  constructs a vertical hbox (also known as a vbox).
+    Constructs a horizontal hbox if \a horizontal is TRUE, otherwise
+    constructs a vertical hbox (also known as a vbox).
 
-  This constructor is provided for the QVBox class. You should never need
-  to use it directly.
+    This constructor is provided for the QVBox class. You should never
+    need to use it directly.
 
-  The \a parent, \a name and widget flags, \a f, are passed to the QFrame
-  constructor.
+    The \a parent, \a name and widget flags, \a f, are passed to the
+    QFrame constructor.
 */
 
 QHBox::QHBox( bool horizontal, QWidget *parent , const char *name, WFlags f )
@@ -105,7 +106,7 @@ void QHBox::frameChanged()
 
 
 /*!
-  Sets the spacing between the child widgets to \a space.
+    Sets the spacing between the child widgets to \a space.
 */
 
 void QHBox::setSpacing( int space )
@@ -127,8 +128,9 @@ QSize QHBox::sizeHint() const
 }
 
 /*!
-  Sets the stretch factor of widget \a w to \a stretch.
-  \sa QBoxLayout::setStretchFactor()
+    Sets the stretch factor of widget \a w to \a stretch.
+
+    \sa QBoxLayout::setStretchFactor() \link layout.html Layouts\endlink
 */
 bool QHBox::setStretchFactor( QWidget* w, int stretch )
 {

@@ -39,28 +39,30 @@
 #ifndef QT_NO_HBUTTONGROUP
 
 /*!
-  \class QHButtonGroup qhbuttongroup.h
+    \class QHButtonGroup qhbuttongroup.h
+    \brief The QHButtonGroup widget organizes QButton widgets in a
+    group with one horizontal row.
 
-  \brief The QHButtonGroup widget organizes QButton widgets in a group
-  with one horizontal row.
+    \ingroup organizers
+    \ingroup geomanagement
+    \ingroup appearance
 
-  \ingroup organizers
-  \ingroup geomanagement
-  \ingroup appearance
+    QHButtonGroup is a convenience class that offers a thin layer on
+    top of QButtonGroup. From a layout point of view it is effectively
+    a QHBox that offers a frame with a title and is specifically
+    designed for buttons. From a functionality point of view it is a
+    QButtonGroup.
 
-  QHButtonGroup is a convenience class that offers a thin layer on top of
-  QButtonGroup. Think of it as a QHBox that offers a frame with a title
-  and is specifically designed for buttons.
+    \img qbuttongroup-h.png QButtonGroup
 
-  \img qbuttongroup-h.png QButtonGroup
-
-  \sa QVButtonGroup
+    \sa QVButtonGroup
 */
 
 /*!
-  Constructs a horizontal button group with no title.
+    Constructs a horizontal button group with no title.
 
-  The \a parent and \a name arguments are passed to the QWidget constructor.
+    The \a parent and \a name arguments are passed to the QWidget
+    constructor.
 */
 QHButtonGroup::QHButtonGroup( QWidget *parent, const char *name )
     : QButtonGroup( 1, Vertical /* sic! */, parent, name )
@@ -68,9 +70,10 @@ QHButtonGroup::QHButtonGroup( QWidget *parent, const char *name )
 }
 
 /*!
-  Constructs a horizontal button group with the title \a title.
+    Constructs a horizontal button group with the title \a title.
 
-  The \a parent and \a name arguments are passed to the QWidget constructor.
+    The \a parent and \a name arguments are passed to the QWidget
+    constructor.
 */
 
 QHButtonGroup::QHButtonGroup( const QString &title, QWidget *parent,
@@ -80,7 +83,7 @@ QHButtonGroup::QHButtonGroup( const QString &title, QWidget *parent,
 }
 
 /*!
-  Destroys the horizontal button group, deleting its child widgets.
+    Destroys the horizontal button group, deleting its child widgets.
 */
 QHButtonGroup::~QHButtonGroup()
 {

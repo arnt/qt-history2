@@ -39,27 +39,29 @@
 #ifndef QT_NO_HGROUPBOX
 
 /*!
-  \class QHGroupBox qhgroupbox.h
+    \class QHGroupBox qhgroupbox.h
 
-  \brief The QHGroupBox widget organizes widgets in a group
-  with one horizontal row.
+    \brief The QHGroupBox widget organizes widgets in a group with one
+    horizontal row.
 
-  \ingroup organizers
-  \ingroup geomanagement
-  \ingroup appearance
+    \ingroup organizers
+    \ingroup geomanagement
+    \ingroup appearance
 
-  QHGroupBox is a convenience class that offers a thin layer on top of
-  QGroupBox. Think of it as a QHBox that offers a frame with a title.
+    QHGroupBox is a convenience class that offers a thin layer on top
+    of QGroupBox. Think of it as a QHBox that offers a frame with a
+    title.
 
-  \img qgroupboxes.png Group Boxes
+    \img qgroupboxes.png Group Boxes
 
-  \sa QVGroupBox
+    \sa QVGroupBox
 */
 
 /*!
-  Constructs a horizontal group box with no title.
+    Constructs a horizontal group box with no title.
 
-  The \a parent and \a name arguments are passed to the QWidget constructor.
+    The \a parent and \a name arguments are passed to the QWidget
+    constructor.
 */
 QHGroupBox::QHGroupBox( QWidget *parent, const char *name )
     : QGroupBox( 1, Vertical /* sic! */, parent, name )
@@ -67,9 +69,10 @@ QHGroupBox::QHGroupBox( QWidget *parent, const char *name )
 }
 
 /*!
-  Constructs a horizontal group box with the title \a title.
+    Constructs a horizontal group box with the title \a title.
 
-  The \a parent and \a name arguments are passed to the QWidget constructor.
+    The \a parent and \a name arguments are passed to the QWidget
+    constructor.
 */
 
 QHGroupBox::QHGroupBox( const QString &title, QWidget *parent,
@@ -79,7 +82,7 @@ QHGroupBox::QHGroupBox( const QString &title, QWidget *parent,
 }
 
 /*!
-  Destroys the horizontal group box, deleting its child widgets.
+    Destroys the horizontal group box, deleting its child widgets.
 */
 QHGroupBox::~QHGroupBox()
 {

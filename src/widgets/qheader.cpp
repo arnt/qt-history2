@@ -137,98 +137,89 @@ public:
 
 
 /*!
-  \class QHeader qheader.h
-  \brief The QHeader class provides a header row or column, e.g. for
-  tables and listviews.
-  \ingroup advanced
+    \class QHeader qheader.h
+    \brief The QHeader class provides a header row or column, e.g. for
+    tables and listviews.
 
-  This class provides a header, e.g. a vertical header to display row
-  labels, or a horizontal header to display column labels. It is used by
-  QTable and QListView for example.
+    \ingroup advanced
 
-  A header is composed of one or more \e sections, each of which may
-  display a text label and an iconset. A sort indicator (an arrow) may
-  also be displayed using setSortIndicator().
+    This class provides a header, e.g. a vertical header to display
+    row labels, or a horizontal header to display column labels. It is
+    used by QTable and QListView for example.
 
-  Sections are added with addLabel() and removed with removeLabel(). The
-  label and iconset are set in addLabel() and can be changed later with
-  setLabel(). Use count() to retrieve the number of sections in the
-  header.
+    A header is composed of one or more \e sections, each of which can
+    display a text label and an \link QIconSet iconset\endlink. A sort
+    indicator (an arrow) can also be displayed using
+    setSortIndicator().
 
-  The orientation of the header is set with setOrientation(). If
-  setStretchEnabled() is TRUE, the sections will expand to take up the
-  full width (height for vertical headers) of the header. The user can
-  resize the sections manually if setResizeEnabled() is TRUE. Call
-  adjustHeaderSize() to have the sections resize to occupy the full
-  width (or height).
+    Sections are added with addLabel() and removed with removeLabel().
+    The label and iconset are set in addLabel() and can be changed
+    later with setLabel(). Use count() to retrieve the number of
+    sections in the header.
 
-  A section can be moved with moveSection(). If setMovingEnabled() is
-  TRUE the user may drag a section from one position to another. If a
-  section is moved, the index positions at which sections were added
-  (with addLabel()), may not be the same after the move. You don't have
-  to worry about this in practice because the QHeader API works in terms
-  of section numbers, so it doesn't matter where a particular section
-  has been moved to.
+    The orientation of the header is set with setOrientation(). If
+    setStretchEnabled() is TRUE, the sections will expand to take up
+    the full width (height for vertical headers) of the header. The
+    user can resize the sections manually if setResizeEnabled() is
+    TRUE. Call adjustHeaderSize() to have the sections resize to
+    occupy the full width (or height).
 
-  If you want the current index position of a section call mapToIndex()
-  giving it the section number. (This is the number returned by the
-  addLabel() call which created the section.) If you want to get the
-  section number of a section at a particular index position call
-  mapToSection() giving it the index number.
+    A section can be moved with moveSection(). If setMovingEnabled()
+    is TRUE the user may drag a section from one position to another.
+    If a section is moved, the index positions at which sections were
+    added (with addLabel()), may not be the same after the move. You
+    don't have to worry about this in practice because the QHeader API
+    works in terms of section numbers, so it doesn't matter where a
+    particular section has been moved to.
 
-  Here's an example to clarify mapToSection() and mapToIndex():
+    If you want the current index position of a section call
+    mapToIndex() giving it the section number. (This is the number
+    returned by the addLabel() call which created the section.) If you
+    want to get the section number of a section at a particular index
+    position call mapToSection() giving it the index number.
 
-  \table
-  \header \i41 Index positions
-  \row \i 0
-       \i 1
-       \i 2
-       \i 3
-  \header \i41 Original section ordering
-  \row \i Sect 0
-       \i Sect 1
-       \i Sect 2
-       \i Sect 3
-  \header \i41 Ordering after the user moves a section
-  \row \i Sect 0
-       \i Sect 2
-       \i Sect 3
-       \i Sect 1
-  \endtable
+    Here's an example to clarify mapToSection() and mapToIndex():
 
-  \table
-  \header \i \e k
-	  \i mapToSection(\e k)
-	  \i mapToIndex(\e k)
-  \row \i 0 \i 0 \i 0
-  \row \i 1 \i 2 \i 3
-  \row \i 2 \i 3 \i 1
-  \row \i 3 \i 1 \i 2
-  \endtable
+    \table
+    \header \i41 Index positions
+    \row \i 0 \i 1 \i 2 \i 3
+    \header \i41 Original section ordering
+    \row \i Sect 0 \i Sect 1 \i Sect 2 \i Sect 3
+    \header \i41 Ordering after the user moves a section
+    \row \i Sect 0 \i Sect 2 \i Sect 3 \i Sect 1
+    \endtable
 
-  In the example above, if we wanted to find out which section is at
-  index position 3 we'd call mapToSection(3) and get a section number of
-  1 since section 1 was moved. Similarly, if we wanted to know which
-  index position section 2 occupied we'd call mapToIndex(2) and get an
-  index of 1.
+    \table
+    \header \i \e k \i mapToSection(\e k) \i mapToIndex(\e k)
+    \row \i 0 \i 0 \i 0
+    \row \i 1 \i 2 \i 3
+    \row \i 2 \i 3 \i 1
+    \row \i 3 \i 1 \i 2
+    \endtable
 
-    QHeader provides the clicked(), pressed() and released() signals. If
-    the user changes the size of a section, the sizeChange() signal is
-    emitted. If you want to have a sizeChange() signal emitted
-    continuously whilst the user is resizing (rather than just after the
-    resizing is finished), use setTracking(). If the user moves a
+    In the example above, if we wanted to find out which section is at
+    index position 3 we'd call mapToSection(3) and get a section
+    number of 1 since section 1 was moved. Similarly, if we wanted to
+    know which index position section 2 occupied we'd call
+    mapToIndex(2) and get an index of 1.
+
+    QHeader provides the clicked(), pressed() and released() signals.
+    If the user changes the size of a section, the sizeChange() signal
+    is emitted. If you want to have a sizeChange() signal emitted
+    continuously whilst the user is resizing (rather than just after
+    the resizing is finished), use setTracking(). If the user moves a
     section the indexChange() signal is emitted.
 
-  <img src=qheader-m.png> <img src=qheader-w.png>
+    <img src=qheader-m.png> <img src=qheader-w.png>
 
-  \sa QListView QTable
- */
+    \sa QListView QTable
+*/
 
 
 
 /*!
-  Constructs a horizontal header called \a name, with parent \a parent.
-
+    Constructs a horizontal header called \a name, with parent \a
+    parent.
 */
 
 QHeader::QHeader( QWidget *parent, const char *name )
@@ -239,9 +230,8 @@ QHeader::QHeader( QWidget *parent, const char *name )
 }
 
 /*!
-  Constructs a horizontal header called \a name, with \a n sections and
-  parent \a parent.
-
+    Constructs a horizontal header called \a name, with \a n sections
+    and parent \a parent.
 */
 
 QHeader::QHeader( int n,  QWidget *parent, const char *name )
@@ -252,8 +242,8 @@ QHeader::QHeader( int n,  QWidget *parent, const char *name )
 }
 
 /*!
-  Destroys the header and all its sections.
- */
+    Destroys the header and all its sections.
+*/
 
 QHeader::~QHeader()
 {
@@ -271,45 +261,46 @@ void QHeader::showEvent( QShowEvent *e )
 }
 
 /*!
-  \fn void QHeader::sizeChange( int section, int oldSize, int newSize )
+    \fn void QHeader::sizeChange( int section, int oldSize, int newSize )
 
-  This signal is emitted when the user has changed the size of a
-  \a section from \a oldSize to \a newSize. This signal is
-  typically connected to a slot that repaints the table or list that
-  contains the header.
+    This signal is emitted when the user has changed the size of a \a
+    section from \a oldSize to \a newSize. This signal is typically
+    connected to a slot that repaints the table or list that contains
+    the header.
 */
 
 /*!
-  \fn void QHeader::clicked( int section )
+    \fn void QHeader::clicked( int section )
 
-  If isClickEnabled() is TRUE, this signal is emitted when the user
-  clicks section \a section.
+    If isClickEnabled() is TRUE, this signal is emitted when the user
+    clicks section \a section.
 
-  \sa pressed(), released()
+    \sa pressed(), released()
 */
 
 /*!
-  \fn void QHeader::pressed( int section )
+    \fn void QHeader::pressed( int section )
 
-  This signal is emitted when the user presses section \a section down.
+    This signal is emitted when the user presses section \a section
+    down.
 
-  \sa released()
+    \sa released()
 */
 
 /*!
-  \fn void QHeader::released( int section )
+    \fn void QHeader::released( int section )
 
-  This signal is emitted when section \a section is released.
+    This signal is emitted when section \a section is released.
 
-  \sa pressed()
+    \sa pressed()
 */
 
 
 /*!
-  \fn void QHeader::indexChange( int section, int fromIndex, int toIndex )
+    \fn void QHeader::indexChange( int section, int fromIndex, int toIndex )
 
-  This signal is emitted when the user moves section \a section from
-  index position \a fromIndex, to index position \a toIndex.
+    This signal is emitted when the user moves section \a section from
+    index position \a fromIndex, to index position \a toIndex.
 */
 
 /*!
@@ -361,7 +352,8 @@ int QHeader::cellPos( int i ) const
 }
 
 
-/*! \property QHeader::count
+/*!
+    \property QHeader::count
     \brief the number of sections in the header
 */
 
@@ -371,21 +363,22 @@ int QHeader::count() const
 }
 
 
-/*! \property QHeader::tracking
+/*!
+    \property QHeader::tracking
     \brief whether the sizeChange() signal is emitted continuously
 
-  If tracking is on, the sizeChange() signal is emitted continuously
-  while the mouse is moved (i.e. when the header is resized), otherwise
-  it is only emitted when the mouse button is released at the end of
-  resizing.
+    If tracking is on, the sizeChange() signal is emitted continuously
+    while the mouse is moved (i.e. when the header is resized),
+    otherwise it is only emitted when the mouse button is released at
+    the end of resizing.
 
-  Tracking defaults to FALSE.
+    Tracking defaults to FALSE.
 */
 
 
-/*!
-  Initializes with \a n columns.
- */
+/*
+    Initializes with \a n columns.
+*/
 void QHeader::init( int n )
 {
     state = Idle;
@@ -404,11 +397,12 @@ void QHeader::init( int n )
     setSizePolicy( QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Fixed ) );
 }
 
-/*! \property QHeader::orientation
-    \brief the header's physical orientation
+/*!
+    \property QHeader::orientation
+    \brief the header's orientation
 
-  The orientation is either QHeader::Vertical or
-  QHeader::Horizontal (the default).
+    The orientation is either \c Vertical or \c Horizontal (the
+    default).
 
     Call setOrientation() before adding labels if you don't provide a
     size parameter otherwise the sizes will be incorrect.
@@ -428,9 +422,9 @@ void QHeader::setOrientation( Orientation orientation )
 }
 
 
-/*!
-  Paints a rectangle starting at \a p, with length \s.
-  */
+/*
+    Paints a rectangle starting at \a p, with length \s.
+*/
 void QHeader::paintRect( int p, int s )
 {
     QPainter paint( this );
@@ -443,9 +437,9 @@ void QHeader::paintRect( int p, int s )
 	paint.drawRect( 3, p, height() - 5, s );
 }
 
-/*!
+/*
   Marks the division line at \a idx.
-  */
+*/
 void QHeader::markLine( int idx )
 {
     QPainter paint( this );
@@ -473,9 +467,9 @@ void QHeader::markLine( int idx )
     paint.drawLine( x2-1, y, x2-1, y2 );
 }
 
-/*!
+/*
   Removes the mark at the division line at \a idx.
-  */
+*/
 void QHeader::unMarkLine( int idx )
 {
     if ( idx < 0 )
@@ -502,9 +496,9 @@ void QHeader::unMarkLine( int idx )
   sections.
 */
 
-/*!
+/*
   Tries to find a line that is not a neighbor of  \c handleIdx.
- */
+*/
 int QHeader::findLine( int c )
 {
     int i = 0;
@@ -816,7 +810,7 @@ void QHeader::mouseMoveEvent( QMouseEvent *e )
     }
 }
 
-/*!
+/*
   Handles resizing of sections. This means it redraws the relevant parts
   of the header.
 */
@@ -867,7 +861,7 @@ void QHeader::handleColumnResize( int index, int c, bool final, bool recalcAll )
 }
 
 /*!
-  Returns the rectangle covered by the section at index \a index.
+    Returns the rectangle covered by the section at index \a index.
 */
 
 QRect QHeader::sRect( int index )
@@ -894,7 +888,7 @@ QRect QHeader::sRect( int index )
 }
 
 /*!
-  Returns the rectangle covered by section \a section.
+    Returns the rectangle covered by section \a section.
 */
 
 QRect QHeader::sectionRect( int section ) const
@@ -912,13 +906,13 @@ QRect QHeader::sectionRect( int section ) const
 }
 
 /*!
-  \overload
+    \overload
 
-  Sets the icon for section \a section to \a iconset and the text to
-  \a s. The section's width is set to \a size if \a size \>= 0;
-  otherwise it is left unchanged.
+    Sets the icon for section \a section to \a iconset and the text to
+    \a s. The section's width is set to \a size if \a size \>= 0;
+    otherwise it is left unchanged.
 
-  If the section does not exist, nothing happens.
+    If the section does not exist, nothing happens.
 */
 
 void QHeader::setLabel( int section, const QIconSet& iconset,
@@ -931,11 +925,12 @@ void QHeader::setLabel( int section, const QIconSet& iconset,
 }
 
 /*!
-  Sets the text of section \a section to \a s. The section's width is
-  set to \a size if \a size \>= 0; otherwise it is left unchanged. Any
-  icon set that has been set for this section remains unchanged.
+    Sets the text of section \a section to \a s. The section's width
+    is set to \a size if \a size \>= 0; otherwise it is left
+    unchanged. Any icon set that has been set for this section remains
+    unchanged.
 
-  If the section does not exist, nothing happens.
+    If the section does not exist, nothing happens.
 */
 void QHeader::setLabel( int section, const QString &s, int size )
 {
@@ -955,8 +950,8 @@ void QHeader::setLabel( int section, const QString &s, int size )
 
 bool qt_qheader_label_return_null_strings = FALSE;
 /*!
-  Returns the text for section \a section.
-  If the section does not exist, a null string is returned.
+    Returns the text for section \a section. If the section does not
+    exist, a QString::null is returned.
 */
 QString QHeader::label( int section ) const
 {
@@ -971,8 +966,8 @@ QString QHeader::label( int section ) const
 }
 
 /*!
-  Returns the icon set for section \a section.
-  If the section does not exist, 0 is returned.
+    Returns the icon set for section \a section. If the section does
+    not exist, 0 is returned.
 */
 
 QIconSet *QHeader::iconSet( int section ) const
@@ -985,12 +980,13 @@ QIconSet *QHeader::iconSet( int section ) const
 
 /*!
     \overload
-  Adds a new section with iconset \a iconset and label text \a
-  s. Returns the index position where the section was added (at the
-  right for horizontal headers, at the bottom for vertical headers).
-  The section's width is set to \a size, unless size is negative in
-  which case the size is calculated taking account of the size of the text.
 
+    Adds a new section with iconset \a iconset and label text \a s.
+    Returns the index position where the section was added (at the
+    right for horizontal headers, at the bottom for vertical headers).
+    The section's width is set to \a size, unless size is negative in
+    which case the size is calculated taking account of the size of
+    the text.
 */
 int QHeader::addLabel( const QIconSet& iconset, const QString &s, int size )
 {
@@ -1001,8 +997,8 @@ int QHeader::addLabel( const QIconSet& iconset, const QString &s, int size )
 }
 
 /*!
-  Removes section \a section.
-  If the section does not exist, nothing happens.
+    Removes section \a section. If the section does not exist, nothing
+    happens.
 */
 void QHeader::removeLabel( int section )
 {
@@ -1071,7 +1067,7 @@ QSize QHeader::sectionSizeHint( int section, const QFontMetrics& fm ) const
     return QSize( width, height );
 }
 
-/*!
+/*
     Sets d->sizes[\a section] to a bounding rect based on its size
     hint and font metrics, but constrained by \a size. It also updates
     d->height.
@@ -1102,11 +1098,11 @@ void QHeader::setSectionSizeAndHeight( int section, int size )
 }
 
 /*!
-  Adds a new section with label text \a s. Returns the index position
-  where the section was added (at the right for horizontal headers,
-  at the bottom for vertical headers). The section's width is set to
-  \a size. If \a size \< 0, an appropriate size for the text \a s is
-  chosen.
+    Adds a new section with label text \a s. Returns the index
+    position where the section was added (at the right for horizontal
+    headers, at the bottom for vertical headers). The section's width
+    is set to \a size. If \a size \< 0, an appropriate size for the
+    text \a s is chosen.
 */
 int QHeader::addLabel( const QString &s, int size )
 {
@@ -1201,11 +1197,13 @@ QSize QHeader::sizeHint() const
 				     QSize(width, height)).expandedTo(QApplication::globalStrut()));
 }
 
-/*! \property QHeader::offset
-    \brief the header's leftmost (or topmost) visible pixel
+/*!
+    \property QHeader::offset
+    \brief the header's left-most (or top-most) visible pixel
 
-  Setting this property will scroll the header so that \e offset becomes
-  the leftmost (or topmost for vertical headers) visible pixel.
+    Setting this property will scroll the header so that \e offset
+    becomes the left-most (or top-most for vertical headers) visible
+    pixel.
 */
 int QHeader::offset() const
 {
@@ -1230,13 +1228,13 @@ void QHeader::setOffset( int x )
 
 
 
-/*!
+/*
   Returns the position of actual division line \a i in widget
   coordinates. May return a position outside the widget.
 
   Note that the last division line is numbered count(). (There is one
   more line than the number of sections).
- */
+*/
 int QHeader::pPos( int i ) const
 {
     int pos;
@@ -1250,9 +1248,9 @@ int QHeader::pPos( int i ) const
 }
 
 
-/*!
+/*
   Returns the size of the section at index position \a i.
- */
+*/
 int QHeader::pSize( int i ) const
 {
     return d->sizes[ d->i2s[i] ];
@@ -1313,11 +1311,11 @@ void QHeader::setCellSize( int section, int s )
 
 
 /*!
-  If \a enable is TRUE the user may resize section \a section; otherwise
-  the section may not be manually resized.
+    If \a enable is TRUE the user may resize section \a section;
+    otherwise the section may not be manually resized.
 
-    If \a section is negative (the default) then the \a enable value is
-    set for all existing sections and will be applied to any new
+    If \a section is negative (the default) then the \a enable value
+    is set for all existing sections and will be applied to any new
     sections that are added.
     Example:
     \code
@@ -1327,9 +1325,9 @@ void QHeader::setCellSize( int section, int s )
     header->setResizeEnabled(FALSE, 3);
     \endcode
 
-  If the user resizes a section, a sizeChange() signal is emitted.
+    If the user resizes a section, a sizeChange() signal is emitted.
 
-  \sa setMovingEnabled() setClickEnabled() setTracking()
+    \sa setMovingEnabled() setClickEnabled() setTracking()
 */
 
 void QHeader::setResizeEnabled( bool enable, int section )
@@ -1344,13 +1342,14 @@ void QHeader::setResizeEnabled( bool enable, int section )
 }
 
 
-/*! \property QHeader::moving
+/*!
+    \property QHeader::moving
     \brief whether the header sections can be moved
 
-    If this property is TRUE the user may move sections. If the user
+    If this property is TRUE the user can move sections. If the user
     moves a section the indexChange() signal is emitted.
 
-  \sa setClickEnabled(), setResizeEnabled()
+    \sa setClickEnabled(), setResizeEnabled()
 */
 
 void QHeader::setMovingEnabled( bool enable )
@@ -1360,15 +1359,15 @@ void QHeader::setMovingEnabled( bool enable )
 
 
 /*!
-  If \a enable is TRUE, any clicks on section \a section will result in
-  clicked() signals being emitted; otherwise the section will ignore
-  clicks.
+    If \a enable is TRUE, any clicks on section \a section will result
+    in clicked() signals being emitted; otherwise the section will
+    ignore clicks.
 
-    If \a section is -1 (the default) then the \a enable value is
-    set for all existing sections and will be applied to any new
-    sections that are added.
+    If \a section is -1 (the default) then the \a enable value is set
+    for all existing sections and will be applied to any new sections
+    that are added.
 
-  \sa setMovingEnabled(), setResizeEnabled()
+    \sa setMovingEnabled(), setResizeEnabled()
 */
 
 void QHeader::setClickEnabled( bool enable, int section )
@@ -1384,10 +1383,10 @@ void QHeader::setClickEnabled( bool enable, int section )
 
 
 /*!
-  Paints the section at position \a index, inside rectangle \a fr (which
-  uses widget coordinates) using painter \a p.
+    Paints the section at position \a index, inside rectangle \a fr
+    (which uses widget coordinates) using painter \a p.
 
-  Calls paintSectionLabel().
+    Calls paintSectionLabel().
 */
 
 void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
@@ -1470,10 +1469,11 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 }
 
 /*!
-  Paints the label of the section at position \a index, inside rectangle
-  \a fr (which uses widget coordinates) using painter \a p.
+    Paints the label of the section at position \a index, inside
+    rectangle \a fr (which uses widget coordinates) using painter \a
+    p.
 
-  Called by paintSection()
+    Called by paintSection()
 */
 void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
 {
@@ -1584,17 +1584,16 @@ void QHeader::paintEvent( QPaintEvent *e )
 }
 
 /*!
-  Because the QHeader is often used together with table or list widgets,
-  QHeader can indicate a sort order. This is achieved by displaying an
-  arrow at the right edge of a section.
+    Because the QHeader is often used in conjunction with table and
+    list widgets, QHeader can indicate a sort order. This is achieved
+    by displaying an arrow at the right edge of a section.
 
-  If \a increasing is TRUE (the default) the arrow will point downwards;
-  otherwise it will point upwards.
+    If \a increasing is TRUE (the default) the arrow will point
+    downwards; otherwise it will point upwards.
 
-  Only one section can show a sort indicator at any one time. If you
-  don't want any section to show a sort indicator pass a \a section
-  number of -1.
-
+    Only one section can show a sort indicator at any one time. If you
+    don't want any section to show a sort indicator pass a \a section
+    number of -1.
 */
 
 void QHeader::setSortIndicator( int section, bool increasing )
@@ -1606,7 +1605,7 @@ void QHeader::setSortIndicator( int section, bool increasing )
 }
 
 /*!
-  Resizes section \a section to \a s pixels wide (or high).
+    Resizes section \a section to \a s pixels wide (or high).
 */
 
 void QHeader::resizeSection( int section, int s )
@@ -1616,7 +1615,7 @@ void QHeader::resizeSection( int section, int s )
 }
 
 /*!
-  Returns the width (or height) of the \a section in pixels.
+    Returns the width (or height) of the \a section in pixels.
 */
 
 int QHeader::sectionSize( int section ) const
@@ -1627,9 +1626,9 @@ int QHeader::sectionSize( int section ) const
 }
 
 /*!
-  Returns the position (in pixels) at which the \a section starts.
+    Returns the position (in pixels) at which the \a section starts.
 
-  \sa offset()
+    \sa offset()
 */
 
 int QHeader::sectionPos( int section ) const
@@ -1642,9 +1641,10 @@ int QHeader::sectionPos( int section ) const
 }
 
 /*!
-  Returns the index which contains the position \a pos given in pixels.
+    Returns the index of the section which contains the position \a
+    pos given in pixels from the left (or top).
 
-  \sa offset()
+    \sa offset()
 */
 
 int QHeader::sectionAt( int pos ) const
@@ -1655,9 +1655,11 @@ int QHeader::sectionAt( int pos ) const
 }
 
 /*!
-  Returns the section that is displayed at index position \a index.
+    Returns the number of the section that is displayed at index
+    position \a index.
 
-  For more explanation see the <a href="#mapexample">mapTo example</a>.
+    For more explanation see the \link #mapexample mapTo
+    example\endlink.
 */
 
 int QHeader::mapToSection( int index ) const
@@ -1666,10 +1668,11 @@ int QHeader::mapToSection( int index ) const
 }
 
 /*!
-  Returns the index at which the section \a section is
-  currently displayed.
+    Returns the index position at which section \a section is
+    displayed.
 
-  For more explanation see the <a href="#mapexample">mapTo example</a>.
+    For more explanation see the \link #mapexample mapTo
+    example\endlink.
 */
 
 int QHeader::mapToIndex( int section ) const
@@ -1678,7 +1681,7 @@ int QHeader::mapToIndex( int section ) const
 }
 
 /*!
-  Moves section \a section to index position \a toIndex.
+    Moves section \a section to index position \a toIndex.
 */
 
 void QHeader::moveSection( int section, int toIndex )
@@ -1714,11 +1717,11 @@ void QHeader::moveSection( int section, int toIndex )
     Returns TRUE if section \a section is clickable; otherwise returns
     FALSE.
 
-  If \a section is out of range (negative or larger than count() - 1),
-  TRUE is returned if all sections are clickable; otherwise returns
-  FALSE.
+    If \a section is out of range (negative or larger than count() -
+    1): returns TRUE if all sections are clickable; otherwise returns
+    FALSE.
 
-  \sa setClickEnabled()
+    \sa setClickEnabled()
 */
 
 bool QHeader::isClickEnabled( int section ) const
@@ -1735,14 +1738,14 @@ bool QHeader::isClickEnabled( int section ) const
 }
 
 /*!
-    Returns TRUE if section \a section is resizeable; otherwise returns
-    FALSE.
-
-    If \a section is -1 then this function applies to all sections,
-    i.e. TRUE is returned if all sections are resizeable; otherwise
+    Returns TRUE if section \a section is resizeable; otherwise
     returns FALSE.
 
-  \sa setResizeEnabled()
+    If \a section is -1 then this function applies to all sections,
+    i.e. returns TRUE if all sections are resizeable; otherwise
+    returns FALSE.
+
+    \sa setResizeEnabled()
 */
 
 bool QHeader::isResizeEnabled( int section ) const
@@ -1801,12 +1804,11 @@ void QHeader::resizeEvent( QResizeEvent *e )
 }
 
 /*!
-  \fn void QHeader::adjustHeaderSize()
+    \fn void QHeader::adjustHeaderSize()
 
-  Adjusts the size of the sections to fit the size of the header as
-  completely as possible. Only sections for which isStretchEnabled()
-  is TRUE will be resized.
-
+    Adjusts the size of the sections to fit the size of the header as
+    completely as possible. Only sections for which isStretchEnabled()
+    is TRUE will be resized.
 */
 
 void QHeader::adjustHeaderSize( int diff )
@@ -1847,7 +1849,7 @@ void QHeader::adjustHeaderSize( int diff )
 }
 
 /*!
-  Returns the total width of all the header columns.
+    Returns the total width of all the header columns.
 */
 int QHeader::headerWidth() const
 {
@@ -1872,26 +1874,27 @@ void QHeader::calculatePositions( bool onlyVisible, int start )
 }
 
 
-/*! \property QHeader::stretching
+/*!
+    \property QHeader::stretching
     \brief whether the header sections always take up the full width
     (or height) of the header
 */
 
 
 /*!
-    If \a b is TRUE, section \a section will be resized when the header
-    is resized, so that the sections take up the full width (or height
-    for vertical headers) of the header; otherwise section \a section
-    will be set to be unstretchable and will not resize when the header
-    is resized.
+    If \a b is TRUE, section \a section will be resized when the
+    header is resized, so that the sections take up the full width (or
+    height for vertical headers) of the header; otherwise section \a
+    section will be set to be unstretchable and will not resize when
+    the header is resized.
 
-  If \a section is -1, and if \a b is TRUE, then all sections will be
-  resized equally when the header is resized so that they take up the
-  full width (or height for vertical headers) of the header; otherwise
-  all the sections will be set to be unstretchable and will not resize
-  when the header is resized.
+    If \a section is -1, and if \a b is TRUE, then all sections will
+    be resized equally when the header is resized so that they take up
+    the full width (or height for vertical headers) of the header;
+    otherwise all the sections will be set to be unstretchable and
+    will not resize when the header is resized.
 
-  \sa adjustHeaderSize()
+    \sa adjustHeaderSize()
 */
 
 void QHeader::setStretchEnabled( bool b, int section )
@@ -1913,10 +1916,10 @@ bool QHeader::isStretchEnabled() const
 
     Returns TRUE if section \a section will resize to take up the full
     width (or height) of the header; otherwise returns FALSE. If at
-    least one section has stretch enabled the sections will always take
-    up the full width of the header.
+    least one section has stretch enabled the sections will always
+    take up the full width of the header.
 
-  \sa setStretchEnabled()
+    \sa setStretchEnabled()
 */
 
 bool QHeader::isStretchEnabled( int section ) const
