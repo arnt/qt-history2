@@ -461,8 +461,6 @@ void Uic::createMenuBarImpl( const QDomElement &n, const QString &parentClass, c
 	    out << endl;
 	    out << indent << objName << "->insertSeparator( " << i << " );" << endl;
 	}
-	out << indent << objName << "->insertItem( QString(\"\"), " << itemName << ", " << i << " );" << endl;
-	trout << indent << objName << "->findItem( " << i << " )->setText( " << trcall( ae.attribute( "text" ) ) << " );" << endl;
 	c = c.nextSibling().toElement();
 	i++;
     }
