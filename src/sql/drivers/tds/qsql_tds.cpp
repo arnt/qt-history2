@@ -538,7 +538,11 @@ void QTDSDriver::close()
 	dbclose( d->dbproc );
 	errs.remove ( d->dbproc );
 	d->dbproc = 0;
+#ifdef Q_USE_SYBASE
+	dbloginfree( d->login );
+#else
 	dbfreelogin( d->login );
+#endif
 	d->login = 0;
 	setOpen( FALSE );
 	setOpenError( FALSE );
