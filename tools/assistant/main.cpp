@@ -6,7 +6,6 @@
 #include <qptrlist.h>
 #include "assistant.h"
 
-
 const int server_port = 7358;
 
 
@@ -367,12 +366,20 @@ void ServerSocket::dataReceived()
     mainWindow->raise();
 }
 
-
-
+#ifdef Q_OS_MACX
+#include <stdlib.h>
+#include <qdir.h>
+#endif
 
 int main( int argc, char ** argv )
 {
     QApplication a( argc, argv );
+
+#ifdef Q_OS_MACX
+    QString qdir = QDir::cleanDirPath(QDir::currentDirPath() + QDir::separator() + 
+				      ".." + QDir::separator());
+    setenv("QTDIR", qdir.latin1(), 0);
+#endif
 
     Socket *s = new Socket( 0 );
     s->start();

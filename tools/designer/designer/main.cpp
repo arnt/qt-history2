@@ -126,8 +126,19 @@ static void crashHandler( int )
 }
 #endif
 
+#ifdef Q_OS_MACX
+#include <stdlib.h>
+#include <qdir.h>
+#endif
+
 int main( int argc, char *argv[] )
 {
+#ifdef Q_OS_MACX
+    QString qdir = QDir::cleanDirPath(QDir::currentDirPath() + QDir::separator() + 
+				      ".." + QDir::separator() + "bin") + ":" + getenv("PATH");
+    setenv("PATH", qdir.latin1(), 0);
+#endif
+
 #if defined(QT_NO_DEBUG)
     signal( SIGSEGV, crashHandler );
 #endif
