@@ -34,7 +34,7 @@ private:
     RowsetCache     	rowCache;
     uint                currentSize;
     bool                cached;
-    void                checkCacheResult();
+    bool                cacheNext();
 };
 
 class QOCIDriver : public QSqlDriver
