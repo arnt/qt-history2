@@ -5412,8 +5412,8 @@ QTextTableCell::QTextTableCell( QTextTable* table,
     richtext->setUseFormatCollection( table->parent->useFormatCollection() );
     richtext->setMimeSourceFactory( &factory );
     richtext->setStyleSheet( sheet );
-    richtext->setRichText( doc, context );
     richtext->setDefaultFont( table->parent->formatCollection()->defaultFormat()->font() );
+    richtext->setRichText( doc, context );
     rowspan_ = 1;
     colspan_ = 1;
     if ( attr.contains("colspan") )
@@ -5463,8 +5463,8 @@ QTextTableCell::QTextTableCell( QTextTable* table, int row, int column )
     richtext->setTableCell( this );
     richtext->setFormatter( table->parent->formatter() );
     richtext->setUseFormatCollection( table->parent->useFormatCollection() );
-    richtext->setRichText( "<html></html>", QString::null );
     richtext->setDefaultFont( table->parent->formatCollection()->defaultFormat()->font() );
+    richtext->setRichText( "<html></html>", QString::null );
     rowspan_ = 1;
     colspan_ = 1;
     background = 0;
