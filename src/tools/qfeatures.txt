@@ -48,7 +48,7 @@ SeeAlso: ???
 
 Feature: STRINGLIST
 Section: Data structures
-Requires: 
+Requires:
 Name: QStringList
 SeeAlso: ???
 
@@ -66,13 +66,13 @@ SeeAlso: ???
 
 Feature: TEMPLATE_VARIANT
 Section: Data structures
-Requires: VARIANT STRINGLIST 
+Requires: VARIANT STRINGLIST
 Name: Template classes in QVariant
 SeeAlso: ???
 
 Feature: VARIANT
 Section: Data structures
-Requires: 
+Requires:
 Name: QVariant
 SeeAlso: ???
 
@@ -156,25 +156,25 @@ SeeAlso: ???
 
 Feature: PALETTE
 Section: Kernel
-Requires: 
+Requires:
 Name: Palettes
 SeeAlso: ???
 
 Feature: TEXTSTREAM
 Section: File I/O
-Requires: 
+Requires:
 Name: QTextStream
 SeeAlso: ???
 
 Feature: DATASTREAM
 Section: File I/O
-Requires: 
+Requires:
 Name: QDataStream
 SeeAlso: ???
 
 Feature: COMPONENT
 Section: File I/O
-Requires: QUUID_STRING SETTINGS 
+Requires: QUUID_STRING SETTINGS
 Name: Dynamic module linking
 SeeAlso: ???
 
@@ -186,13 +186,13 @@ SeeAlso: ???
 
 Feature: SIGNALMAPPER
 Section: Widgets
-Requires: 
+Requires:
 Name: QSignalMapper
 SeeAlso: ???
 
 Feature: IMAGEIO
 Section: Images
-Requires: 
+Requires:
 Name: Image formats
 SeeAlso: ???
 
@@ -240,7 +240,7 @@ SeeAlso: ???
 
 Feature: ASYNC_IO
 Section: Images
-Requires: 
+Requires:
 Name: Asynchronous I/O
 SeeAlso: ???
 
@@ -258,7 +258,7 @@ SeeAlso: ???
 
 Feature: FREETYPE
 Section: Fonts
-Requires: 
+Requires:
 Name: Freetype font engine
 SeeAlso: ???
 
@@ -282,7 +282,7 @@ SeeAlso: ???
 
 Feature: TEXTCODEC
 Section: Internationalization
-Requires: 
+Requires:
 Name: Character set conversions
 SeeAlso: ???
 
@@ -306,7 +306,7 @@ SeeAlso: ???
 
 Feature: UNICODETABLES
 Section: Internationalization
-Requires: 
+Requires:
 Name: Unicode property tables
 SeeAlso: ???
 
@@ -336,7 +336,7 @@ SeeAlso: ???
 
 Feature: SOUND
 Section: Kernel
-Requires: 
+Requires:
 Name: Playing sounds
 SeeAlso: ???
 
@@ -354,7 +354,7 @@ SeeAlso: ???
 
 Feature: NETWORK
 Section: Networking
-Requires: 
+Requires:
 Name: Networking
 SeeAlso: ???
 
@@ -402,7 +402,7 @@ SeeAlso: ???
 
 Feature: QWS_KEYBOARD
 Section: Qt/Embedded-specific
-Requires: 
+Requires:
 Name: Console keyboard
 SeeAlso: ???
 
@@ -414,37 +414,37 @@ SeeAlso: ???
 
 Feature: QWS_ALPHA_CURSOR
 Section: Qt/Embedded-specific
-Requires: 
+Requires:
 Name: Alpha-blended cursor
 SeeAlso: ???
 
 Feature: QWS_MACH64
 Section: Qt/Embedded-specific
-Requires: 
+Requires:
 Name: Mach64 acceleration
 SeeAlso: ???
 
 Feature: QWS_VOODOO3
 Section: Qt/Embedded-specific
-Requires: 
+Requires:
 Name: Voodoo3 acceleration
 SeeAlso: ???
 
 Feature: QWS_MATROX
 Section: Qt/Embedded-specific
-Requires: 
+Requires:
 Name: Matrox MGA acceleration
 SeeAlso: ???
 
 Feature: QWS_VFB
 Section: Qt/Embedded-specific
-Requires: 
+Requires:
 Name: Virtual frame buffer
 SeeAlso: ???
 
 Feature: QWS_TRANSFORMED
 Section: Qt/Embedded-specific
-Requires: 
+Requires:
 Name: Transformed frame buffer
 SeeAlso: ???
 
@@ -462,49 +462,49 @@ SeeAlso: ???
 
 Feature: QWS_DEPTH_1
 Section: Qt/Embedded-specific
-Requires: 
+Requires:
 Name: 1-bit monochrome
 SeeAlso: ???
 
 Feature: QWS_DEPTH_4
 Section: Qt/Embedded-specific
-Requires: 
+Requires:
 Name: 4-bit greyscale
 SeeAlso: ???
 
 Feature: QWS_VGA_16
 Section: Qt/Embedded-specific
-Requires: 
+Requires:
 Name: 4-bit VGA
 SeeAlso: ???
 
 Feature: QWS_DEPTH_8GRAYSCALE
 Section: Qt/Embedded-specific
-Requires: 
+Requires:
 Name: 8-bit grayscale
 SeeAlso: ???
 
 Feature: QWS_DEPTH_8
 Section: Qt/Embedded-specific
-Requires: 
+Requires:
 Name: 8-bit color
 SeeAlso: ???
 
 Feature: QWS_DEPTH_16
 Section: Qt/Embedded-specific
-Requires: 
+Requires:
 Name: 15 or 16-bit color
 SeeAlso: ???
 
 Feature: QWS_DEPTH_24
 Section: Qt/Embedded-specific
-Requires: 
+Requires:
 Name: 24-bit color
 SeeAlso: ???
 
 Feature: QWS_DEPTH_32
 Section: Qt/Embedded-specific
-Requires: 
+Requires:
 Name: 32-bit color
 SeeAlso: ???
 
@@ -516,7 +516,7 @@ SeeAlso: ???
 
 Feature: QWS_MANAGER
 Section: Qt/Embedded-specific
-Requires: 
+Requires:
 Name: Window Manager
 SeeAlso: ???
 
@@ -552,31 +552,31 @@ SeeAlso: ???
 
 Feature: QWS_MOUSE_AUTO
 Section: Qt/Embedded-specific
-Requires: 
+Requires:
 Name: Autodetecting mouse driver
 SeeAlso: ???
 
 Feature: QWS_MOUSE_MANUAL
 Section: Qt/Embedded-specific
-Requires: 
+Requires:
 Name: Non-autodetecting mouse driver
 SeeAlso: ???
 
 Feature: QWS_SAVEFONTS
 Section: Qt/Embedded-specific
-Requires: 
+Requires:
 Name: Saving of fonts
 SeeAlso: ???
 
 Feature: QWS_GFX_SPEED
 Section: Qt/Embedded-specific
-Requires: 
+Requires:
 Name: Favour code size over graphics speed
 SeeAlso: ???
 
 Feature: QWS_PROPERTIES
 Section: Qt/Embedded-specific
-Requires: 
+Requires:
 Name: Qt/Embedded window system properties.
 SeeAlso: ???
 
@@ -606,31 +606,31 @@ SeeAlso: ???
 
 Feature: IMAGE_TRUECOLOR
 Section: Images
-Requires: 
+Requires:
 Name: TrueColor QImage
 SeeAlso: ???
 
 Feature: IMAGE_SMOOTHSCALE
 Section: Images
-Requires: 
+Requires:
 Name: Smooth QImage scaling
 SeeAlso: ???
 
 Feature: IMAGE_DITHER_TO_1
 Section: Images
-Requires: 
+Requires:
 Name: Dither QImage to 1-bit image
 SeeAlso: ???
 
 Feature: IMAGE_HEURISTIC_MASK
 Section: Images
-Requires: 
+Requires:
 Name: QImage::createHeuristicMask()
 SeeAlso: ???
 
 Feature: IMAGE_MIRROR
 Section: Images
-Requires: 
+Requires:
 Name: QImage mirroring
 SeeAlso: ???
 
@@ -648,13 +648,13 @@ SeeAlso: ???
 
 Feature: CURSOR
 Section: Kernel
-Requires: 
+Requires:
 Name: Cursors
 SeeAlso: ???
 
 Feature: COLORNAMES
 Section: Painting
-Requires: 
+Requires:
 Name: Named colors
 SeeAlso: ???
 
@@ -684,7 +684,7 @@ SeeAlso: ???
 
 Feature: BEZIER
 Section: Painting
-Requires: 
+Requires:
 Name: Bezier curves
 SeeAlso: ???
 
@@ -702,7 +702,7 @@ SeeAlso: ???
 
 Feature: LAYOUT
 Section: Kernel
-Requires: 
+Requires:
 Name: Automatic widget layout
 SeeAlso: ???
 
@@ -738,7 +738,7 @@ SeeAlso: ???
 
 Feature: EFFECTS
 Section: Kernel
-Requires: 
+Requires:
 Name: Special widget effects (fading, scrolling)
 SeeAlso: ???
 
@@ -756,7 +756,7 @@ SeeAlso: ???
 
 Feature: BUTTON
 Section: Widgets
-Requires: 
+Requires:
 Name: Buttons
 SeeAlso: ???
 
@@ -876,7 +876,7 @@ SeeAlso: ???
 
 Feature: RANGECONTROL
 Section: Widgets
-Requires: 
+Requires:
 Name: Range-control widgets
 SeeAlso: ???
 
@@ -990,7 +990,7 @@ SeeAlso: ???
 
 Feature: VALIDATOR
 Section: Widgets
-Requires: 
+Requires:
 Name: Input validators
 SeeAlso: ???
 
@@ -1064,12 +1064,6 @@ Feature: LISTVIEW
 Section: Widgets
 Requires: SCROLLVIEW HEADER LINEEDIT
 Name: QListView
-SeeAlso: ???
-
-Feature: STYLE_POCKETPC
-Section: Widgets
-Requires: STYLE_WINDOWS
-Name: Windows style
 SeeAlso: ???
 
 Feature: STYLE_WINDOWS

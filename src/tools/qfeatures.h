@@ -656,11 +656,6 @@
 #define QT_NO_STYLE_PLATINUM
 #endif
 
-// Windows style
-#if !defined(QT_NO_STYLE_POCKETPC) && (defined(QT_NO_STYLE_WINDOWS))
-#define QT_NO_STYLE_POCKETPC
-#endif
-
 // Drag and drop
 #if !defined(QT_NO_DRAGANDDROP) && (defined(QT_NO_MIME) || defined(QT_NO_QWS_PROPERTIES) || defined(QT_NO_IMAGEIO_XPM))
 #define QT_NO_DRAGANDDROP
