@@ -37,12 +37,11 @@
     \list
     \o  Rename classes that are now part of the Qt 3 compatibility
         library (e.g., replace QFileDialog with Q3FileDialog).
-    \o  Modify include directives to use the new Qt style (e.g.,
-        \c{#include <QCheckBox>}).
     \o  Prefix or rename enum values that have been moved or
         renamed (e.g., replace QButton::On with QCheckBox::On) or
         members of the Qt namespace (e.g., replace QWidget::red with
         Qt::red).
+    \o  Add \c #include directives that might be needed in Qt 4.
     \o  Perform miscellaneous trivial changes (e.g., replace \c TRUE
         with \c true).
     \endlist
@@ -70,11 +69,15 @@
         will be changed to \c Qt::lightGray, because the tool doesn't
         parse user variable declarations yet.
 
-    \o  \e{The \c .pro file isn't updated to take into account the Qt library split.}
+    \o  \e{The \c .pro file isn't always updated to take into account 
+	the Qt library split.}
         Since the Qt library has been split into several smaller
         libraries, a \c{QT} entry needs to be added to the \c .pro
-        file depending on witch classes are used. Currently, only the
+        file depending on witch classes are used. The
         \c compat library is added if it's not already specified.
+
+    \o  Porting of designer .ui files is incomplete and might require
+	some manual work.
 
     \o  \e{The \c rules.xml file isn't complete.}
     \endlist
