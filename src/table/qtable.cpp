@@ -628,7 +628,9 @@ QPixmap QTableItem::pixmap() const
 QString QTableItem::text() const
 {
     QWidget *w = table()->cellWidget( rw, cl );
-    if ( w && ( edType == Always || !qt_cast<QLineEdit*>(w) ) )
+    if ( w && ( edType == Always ||
+		rtti() == QComboTableItem::RTTI ||
+		rtti() == QCheckTableItem::RTTI ) )
 	( (QTableItem*)this )->setContentFromEditor( w );
     return txt;
 }
@@ -664,22 +666,6 @@ void QTableItem::setPixmap( const QPixmap &p )
 void QTableItem::setText( const QString &str )
 {
     txt = str;
-}
-
-/*!
-    \internal
-*/
-
-QString QTableItem::content() const
-{
-    if ( rtti() == 1 ) {
-	QComboTableItem *that = (QComboTableItem *)this;
-	return that->currentText();
-    } else if ( rtti() == 2 ) {
-	QCheckTableItem *that = (QCheckTableItem *)this;
-	return that->isChecked() ? "1" : "0";
-    }
-    return txt;
 }
 
 /*!
@@ -5049,7 +5035,7 @@ void QTable::endEdit( int row, int col, bool accept, bool replace )
     QTableItem *i = item( row, col );
     QString oldContent;
     if ( i )
-	oldContent = i->content();
+	oldContent = i->text();
 
     if ( !i || replace ) {
 	setCellContentFromEditor( row, col );
@@ -5064,7 +5050,7 @@ void QTable::endEdit( int row, int col, bool accept, bool replace )
     viewport()->setFocus();
     updateCell( row, col );
 
-    if (!i || (oldContent != i->content()))
+    if (!i || (oldContent != i->text()))
 	emit valueChanged( row, col );
 
     clearCellWidget( row, col );

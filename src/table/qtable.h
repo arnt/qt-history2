@@ -142,10 +142,6 @@ public:
     virtual int rtti() const;
     static int RTTI;
 
-protected:
-    // ### Make virtual in 4.0
-    QString content() const;
-
 private:
     QString txt;
     QPixmap pix;
