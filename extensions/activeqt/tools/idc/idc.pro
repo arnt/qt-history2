@@ -25,12 +25,7 @@ SOURCES		+= ../../../../src/core/global/qglobal.cpp \
 		   ../../../../src/core/tools/qstringmatcher.cpp \
 		   ../../../../src/core/tools/qunicodetables.cpp \
                    ../../../../src/core/tools/qvector.cpp \
-                   ../../../../src/core/tools/qregexp.cpp \
                    ../../../../src/core/kernel/qinternal.cpp \
-                   ../../../../src/core/tools/qbitarray.cpp \
-                   ../../../../src/core/tools/qhash.cpp \
-                   ../../../../src/core/tools/qmap.cpp
-
 
 SOURCES		+= ../../../../src/core/io/qdir.cpp \
                    ../../../../src/core/io/qfile.cpp \
