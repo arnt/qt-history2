@@ -4,11 +4,11 @@
 #include "fontengine.h"
 
 
-class FontEngineBox : public FontEngineIface
+class QFontEngineBox : public QFontEngineIface
 {
 public:
-    FontEngineBox( int size );
-    ~FontEngineBox();
+    QFontEngineBox( int size );
+    ~QFontEngineBox();
 
     Error stringToCMap( const QChar *str,  int len, GlyphIndex *glyphs, int *nglyphs ) const;
 

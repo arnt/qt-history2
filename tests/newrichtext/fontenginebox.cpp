@@ -13,17 +13,17 @@
 // #define FONTENGINE_DEBUG
 
 
-FontEngineBox::FontEngineBox( int size )
+QFontEngineBox::QFontEngineBox( int size )
     : _size( size )
 {
 
 }
 
-FontEngineBox::~FontEngineBox()
+QFontEngineBox::~QFontEngineBox()
 {
 }
 
-FontEngineIface::Error FontEngineBox::stringToCMap( const QChar *,  int len, GlyphIndex *glyphs, int *nglyphs ) const
+QFontEngineIface::Error QFontEngineBox::stringToCMap( const QChar *,  int len, GlyphIndex *glyphs, int *nglyphs ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;
@@ -36,10 +36,10 @@ FontEngineIface::Error FontEngineBox::stringToCMap( const QChar *,  int len, Gly
     return NoError;
 }
 
-void FontEngineBox::draw( QPainter *p, int x, int y, const GlyphIndex */*glyphs*/,
+void QFontEngineBox::draw( QPainter *p, int x, int y, const GlyphIndex */*glyphs*/,
 			  const Offset */*advances*/, const Offset */*offsets*/, int numGlyphs, bool )
 {
-//     qDebug("FontEngineXLFD::draw( %d, %d, numglyphs=%d", x, y, numGlyphs );
+//     qDebug("QFontEngineXLFD::draw( %d, %d, numglyphs=%d", x, y, numGlyphs );
 
     Display *dpy = QPaintDevice::x11AppDisplay();
     Qt::HANDLE hd = p->device()->handle();
@@ -87,7 +87,7 @@ void FontEngineBox::draw( QPainter *p, int x, int y, const GlyphIndex */*glyphs*
 #endif
 }
 
-QGlyphMetrics FontEngineBox::boundingBox( const GlyphIndex *, const Offset *, const Offset *, int numGlyphs )
+QGlyphMetrics QFontEngineBox::boundingBox( const GlyphIndex *, const Offset *, const Offset *, int numGlyphs )
 {
     QGlyphMetrics overall;
     overall.x = overall.y = 0;
@@ -98,50 +98,50 @@ QGlyphMetrics FontEngineBox::boundingBox( const GlyphIndex *, const Offset *, co
     return overall;
 }
 
-QGlyphMetrics FontEngineBox::boundingBox( GlyphIndex )
+QGlyphMetrics QFontEngineBox::boundingBox( GlyphIndex )
 {
     return QGlyphMetrics( 0, _size, _size, _size, _size, 0 );
 }
 
 
 
-int FontEngineBox::ascent() const
+int QFontEngineBox::ascent() const
 {
     return _size;
 }
 
-int FontEngineBox::descent() const
+int QFontEngineBox::descent() const
 {
     return 0;
 }
 
-int FontEngineBox::leading() const
+int QFontEngineBox::leading() const
 {
     int l = qRound( _size * 0.15 );
     return (l > 0) ? l : 1;
 }
 
-int FontEngineBox::maxCharWidth() const
+int QFontEngineBox::maxCharWidth() const
 {
     return _size;
 }
 
-int FontEngineBox::cmap() const
+int QFontEngineBox::cmap() const
 {
     return -1;
 }
 
-const char *FontEngineBox::name() const
+const char *QFontEngineBox::name() const
 {
     return "null";
 }
 
-bool FontEngineBox::canRender( const QChar *,  int )
+bool QFontEngineBox::canRender( const QChar *,  int )
 {
     return TRUE;
 }
 
-FontEngineIface::Type FontEngineBox::type() const
+QFontEngineIface::Type QFontEngineBox::type() const
 {
     return Box;
 }

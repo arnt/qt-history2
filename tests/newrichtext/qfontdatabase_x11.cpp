@@ -417,7 +417,7 @@ static QChar sampleCharacter(QFont::Script script)
     return QChar(ch);
 }
 
-static inline bool canRender( FontEngineIface *fe, const QChar &sample )
+static inline bool canRender( QFontEngineIface *fe, const QChar &sample )
 {
     if ( !fe ) return FALSE;
 
@@ -996,7 +996,7 @@ void QFontDatabase::createDatabase()
 }
 
 
-static inline FontEngineIface *loadEngine( int styleStrategy, int styleHint,
+static inline QFontEngineIface *loadEngine( int styleStrategy, int styleHint,
 					   const QString &family,
 					   const QString &foundry,
 					   int weight, bool italic,
@@ -1096,7 +1096,7 @@ static inline FontEngineIface *loadEngine( int styleStrategy, int styleHint,
 	XftPattern *dup = XftPatternDuplicate( result );
 	XftFont *xftfs = XftFontOpenPattern(QPaintDevice::x11AppDisplay(), dup);
 
-	return new FontEngineXft( xftfs, result, 0 );
+	return new QFontEngineXft( xftfs, result, 0 );
     }
 #endif // QT_NO_XFTFREETYPE
 
@@ -1135,7 +1135,7 @@ static inline FontEngineIface *loadEngine( int styleStrategy, int styleHint,
     if (! (xfs = XLoadQueryFont(QPaintDevice::x11AppDisplay(), xlfd.data() ) ) )
 	return 0;
 
-    return new FontEngineXLFD( xfs, xlfd.data(), encoding.data(), 0 );
+    return new QFontEngineXLFD( xfs, xlfd.data(), encoding.data(), 0 );
 }
 
 
@@ -1244,7 +1244,7 @@ static unsigned int bestFoundry( unsigned int score, int styleStrategy,
 
 
 
-FontEngineIface *QFontDatabase::findFont( QFont::Script script,
+QFontEngineIface *QFontDatabase::findFont( QFont::Script script,
 					  int styleStrategy, int styleHint,
 					  const QString &family, const QString &foundry,
 					  int weight, bool italic,
@@ -1253,7 +1253,7 @@ FontEngineIface *QFontDatabase::findFont( QFont::Script script,
 //     qDebug( "---> QFontDatabase::findFont: looking for font '%s' with script %d '%s'",
 // 	    family.latin1(), script, scriptName( script ).latin1() );
 
-    FontEngineIface *fe = 0;
+    QFontEngineIface *fe = 0;
 
     QtFontFamily *best_fam = 0;
     QtFontFoundry *best_fnd = 0;

@@ -10,7 +10,7 @@ class QPainter;
 class OpenTypeIface;
 class Offset;
 
-class FontEngineIface : public QShared
+class QFontEngineIface : public QShared
 {
 public:
     enum Error {
@@ -24,7 +24,7 @@ public:
 	Xft
     };
 
-    virtual ~FontEngineIface() = 0;
+    virtual ~QFontEngineIface() = 0;
 
     /* returns 0 as glyph index for non existant glyphs */
     virtual Error stringToCMap( const QChar *str,  int len, GlyphIndex *glyphs, int *nglyphs ) const = 0;
@@ -54,7 +54,7 @@ public:
 };
 
 
-inline FontEngineIface::~FontEngineIface()
+inline QFontEngineIface::~QFontEngineIface()
 {
 }
 

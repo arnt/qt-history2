@@ -47,7 +47,7 @@
 class QFontPrivate;                                     /* don't touch */
 class QStringList;
 class QTextFormatCollection;
-class FontEngineIface;
+class QFontEngineIface;
 
 class Q_EXPORT QFont
 {
@@ -270,7 +270,7 @@ public:
 
 #endif // QT_NO_COMPAT
 
-    FontEngineIface *engineForScript( QFont::Script script ) const;
+    QFontEngineIface *engineForScript( QFont::Script script ) const;
 
 protected:
     // why protected?

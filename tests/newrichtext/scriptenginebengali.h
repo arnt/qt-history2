@@ -4,11 +4,11 @@
 #include "scriptenginebasic.h"
 
 
-class ScriptEngineBengali : public ScriptEngineBasic
+class QScriptEngineBengali : public QScriptEngineBasic
 {
 public:
-    void shape( ShapedItem *result );
-    void position( ShapedItem *result );
+    void shape( QShapedItem *result );
+    void position( QShapedItem *result );
 };
 
 #endif

@@ -481,10 +481,10 @@ static QString reorderSyllable( const QString &string, int start, int end, unsig
     return reordered;
 }
 
-static QString analyzeSyllables( const ShapedItem *shaped, unsigned short *featuresToApply,
+static QString analyzeSyllables( const QShapedItem *shaped, unsigned short *featuresToApply,
 				 GlyphAttributes *attributes ) {
     QString reordered;
-    ShapedItemPrivate *d = shaped->d;
+    QShapedItemPrivate *d = shaped->d;
     int sstart = d->from;
     int end = sstart + d->length;
     int fpos = 0;
@@ -503,11 +503,11 @@ static QString analyzeSyllables( const ShapedItem *shaped, unsigned short *featu
 }
 
 
-void ScriptEngineBengali::shape( ShapedItem *result )
+void QScriptEngineBengali::shape( QShapedItem *result )
 {
-//     qDebug("ScriptEngineBengali::shape()");
+//     qDebug("QScriptEngineBengali::shape()");
 
-    ShapedItemPrivate *d = result->d;
+    QShapedItemPrivate *d = result->d;
 
     unsigned short fa[256];
     unsigned short *featuresToApply = fa;
@@ -530,7 +530,7 @@ void ScriptEngineBengali::shape( ShapedItem *result )
 
     d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
     int error = d->fontEngine->stringToCMap( reordered.unicode(), d->num_glyphs, d->glyphs, &d->num_glyphs );
-    if ( error == FontEngineIface::OutOfMemory ) {
+    if ( error == QFontEngineIface::OutOfMemory ) {
 	d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
 	d->fontEngine->stringToCMap( reordered.unicode(), d->num_glyphs, d->glyphs, &d->num_glyphs );
     }
@@ -549,7 +549,7 @@ void ScriptEngineBengali::shape( ShapedItem *result )
 }
 
 
-void ScriptEngineBengali::position( ShapedItem *result )
+void QScriptEngineBengali::position( QShapedItem *result )
 {
     if ( result->d->isPositioned )
 	return;

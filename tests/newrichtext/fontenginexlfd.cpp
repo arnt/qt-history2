@@ -73,20 +73,20 @@ static inline XCharStruct *charStruct( XFontStruct *xfs, int ch )
 }
 
 
-FontEngineXLFD::FontEngineXLFD( XFontStruct *fs, const char *name, const char *encoding, int cmap )
+QFontEngineXLFD::QFontEngineXLFD( XFontStruct *fs, const char *name, const char *encoding, int cmap )
     : _fs( fs ), _name( name ), _codec( 0 ), _scale( 1. ), _cmap( cmap )
 {
     int mib = qt_mibForXlfd( encoding );
     if ( mib ) _codec = QTextCodec::codecForMib( mib );
 }
 
-FontEngineXLFD::~FontEngineXLFD()
+QFontEngineXLFD::~QFontEngineXLFD()
 {
     XFreeFont( QPaintDevice::x11AppDisplay(), _fs );
     _fs = 0;
 }
 
-FontEngineIface::Error FontEngineXLFD::stringToCMap( const QChar *str,  int len, GlyphIndex *glyphs, int *nglyphs ) const
+QFontEngineIface::Error QFontEngineXLFD::stringToCMap( const QChar *str,  int len, GlyphIndex *glyphs, int *nglyphs ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;
@@ -103,12 +103,12 @@ FontEngineIface::Error FontEngineXLFD::stringToCMap( const QChar *str,  int len,
     return NoError;
 }
 
-void FontEngineXLFD::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs,
+void QFontEngineXLFD::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs,
 			   const Offset *advances, const Offset *offsets, int numGlyphs, bool reverse )
 {
     if ( !numGlyphs )
 	return;
-//     qDebug("FontEngineXLFD::draw( %d, %d, numglyphs=%d", x, y, numGlyphs );
+//     qDebug("QFontEngineXLFD::draw( %d, %d, numglyphs=%d", x, y, numGlyphs );
 
     Display *dpy = QPaintDevice::x11AppDisplay();
     Qt::HANDLE hd = p->device()->handle();
@@ -193,7 +193,7 @@ void FontEngineXLFD::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs,
 #endif
 }
 
-QGlyphMetrics FontEngineXLFD::boundingBox( const GlyphIndex *glyphs, const Offset *advances, const Offset *offsets, int numGlyphs )
+QGlyphMetrics QFontEngineXLFD::boundingBox( const GlyphIndex *glyphs, const Offset *advances, const Offset *offsets, int numGlyphs )
 {
     int i;
 
@@ -232,7 +232,7 @@ QGlyphMetrics FontEngineXLFD::boundingBox( const GlyphIndex *glyphs, const Offse
     return overall;
 }
 
-QGlyphMetrics FontEngineXLFD::boundingBox( GlyphIndex glyph )
+QGlyphMetrics QFontEngineXLFD::boundingBox( GlyphIndex glyph )
 {
     // ### scale missing!
     XCharStruct *xcs = charStruct( _fs, glyph );
@@ -244,39 +244,39 @@ QGlyphMetrics FontEngineXLFD::boundingBox( GlyphIndex glyph )
 }
 
 
-int FontEngineXLFD::ascent() const
+int QFontEngineXLFD::ascent() const
 {
     return (int)(_fs->ascent*_scale);
 }
 
-int FontEngineXLFD::descent() const
+int QFontEngineXLFD::descent() const
 {
     return (int)(_fs->descent*_scale);
 }
 
-int FontEngineXLFD::leading() const
+int QFontEngineXLFD::leading() const
 {
     int l = qRound((QMIN(_fs->ascent, _fs->max_bounds.ascent)
 		    + QMIN(_fs->descent, _fs->max_bounds.descent)) * _scale * 0.15 );
     return (l > 0) ? l : 1;
 }
 
-int FontEngineXLFD::maxCharWidth() const
+int QFontEngineXLFD::maxCharWidth() const
 {
     return (int)(_fs->max_bounds.width*_scale);
 }
 
-int FontEngineXLFD::cmap() const
+int QFontEngineXLFD::cmap() const
 {
     return _cmap;
 }
 
-const char *FontEngineXLFD::name() const
+const char *QFontEngineXLFD::name() const
 {
     return _name;
 }
 
-bool FontEngineXLFD::canRender( const QChar *string,  int len )
+bool QFontEngineXLFD::canRender( const QChar *string,  int len )
 {
     GlyphIndex glyphs[256];
     int nglyphs = 255;
@@ -300,13 +300,13 @@ bool FontEngineXLFD::canRender( const QChar *string,  int len )
 }
 
 
-void FontEngineXLFD::setScale( double scale )
+void QFontEngineXLFD::setScale( double scale )
 {
     _scale = scale;
 }
 
 
-FontEngineIface::Type FontEngineXLFD::type() const
+QFontEngineIface::Type QFontEngineXLFD::type() const
 {
     return Xlfd;
 }

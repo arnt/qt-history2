@@ -4,16 +4,16 @@
 #include "scriptengine.h"
 
 
-class ScriptEngineBasic : public ScriptEngine
+class QScriptEngineBasic : public QScriptEngine
 {
 public:
     void charAttributes( const QString &text, int from, int len, CharAttributes *attributes );
 
-    void shape( ShapedItem *result );
-    void position( ShapedItem *shaped );
+    void shape( QShapedItem *result );
+    void position( QShapedItem *shaped );
 
     // internal
-    static void calculateAdvances( ShapedItem *shaped );
+    static void calculateAdvances( QShapedItem *shaped );
 };
 
 

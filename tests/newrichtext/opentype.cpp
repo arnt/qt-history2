@@ -360,7 +360,7 @@ bool OpenTypeIface::supportsScript( unsigned int script )
     return FALSE;
 }
 
-void OpenTypeIface::apply( unsigned int script, ShapedItem *shaped, unsigned short *featuresToApply )
+void OpenTypeIface::apply( unsigned int script, QShapedItem *shaped, unsigned short *featuresToApply )
 {
     if ( current_script != supported_scripts[script].tag ) {
 	TT_GSUB_Clear_Features( gsub );
@@ -377,7 +377,7 @@ void OpenTypeIface::apply( unsigned int script, ShapedItem *shaped, unsigned sho
 	TT_GSUB_String_Done( string );
 }
 
-TTO_GSUB_String *OpenTypeIface::substitute( ShapedItem *shaped, unsigned short *featuresToApply )
+TTO_GSUB_String *OpenTypeIface::substitute( QShapedItem *shaped, unsigned short *featuresToApply )
 {
     TTO_GSUB_String *in = 0;
     TTO_GSUB_String *out = 0;
@@ -433,9 +433,9 @@ TTO_GSUB_String *OpenTypeIface::substitute( ShapedItem *shaped, unsigned short *
 }
 
 
-void OpenTypeIface::position( ShapedItem *shaped, TTO_GSUB_String *in )
+void OpenTypeIface::position( QShapedItem *shaped, TTO_GSUB_String *in )
 {
-    ScriptEngineBasic::calculateAdvances( shaped );
+    QScriptEngineBasic::calculateAdvances( shaped );
 
     if ( hasGPos ) {
 	TTO_GPOS_Data *out = 0;

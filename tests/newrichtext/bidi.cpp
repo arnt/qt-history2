@@ -96,7 +96,7 @@ static QChar::Direction basicDirection( const QString &str )
 
 
 
-static void appendItems(ScriptItemArray &items, int &start, int &stop, BidiControl &control, QChar::Direction dir,
+static void appendItems(QScriptItemArray &items, int &start, int &stop, BidiControl &control, QChar::Direction dir,
 			const QChar *text ) {
     if ( start > stop ) {
 	// #### the algorithm is currently not really safe against this. Still needs fixing.
@@ -123,7 +123,7 @@ static void appendItems(ScriptItemArray &items, int &start, int &stop, BidiContr
     qDebug("new run: dir=%s from %d, to %d level = %d\n", directions[dir], start, stop, level);
 #endif
     QFont::Script script = QTextData::scriptForChar( text[start].unicode() );
-    ScriptItem item;
+    QScriptItem item;
     item.position = start;
     item.analysis.script = script;
     item.analysis.bidiLevel = level;
@@ -135,7 +135,7 @@ static void appendItems(ScriptItemArray &items, int &start, int &stop, BidiContr
 
 	QFont::Script s = QTextData::scriptForChar( text[i].unicode() );
 	if ( s != script && !isSpace( text[i] ) && !isMark( text[i] ) ) {
-	    ScriptItem item;
+	    QScriptItem item;
 	    item.position = i;
 	    item.analysis.script = s;
 	    item.analysis.bidiLevel = level;
@@ -153,8 +153,8 @@ static void appendItems(ScriptItemArray &items, int &start, int &stop, BidiContr
 }
 
 
-// creates the next Script items.
-static void bidiItemize( const QString &text, ScriptItemArray &items, QChar::Direction dir = QChar::DirON )
+// creates the next QScript items.
+static void bidiItemize( const QString &text, QScriptItemArray &items, QChar::Direction dir = QChar::DirON )
 {
     if ( dir == QChar::DirON )
 	dir = basicDirection( text );

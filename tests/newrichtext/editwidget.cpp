@@ -13,8 +13,8 @@ class EditWidgetPrivate
 public:
     QString text;
     QFont font;
-    ScriptItemArray items;
-    ShapedItem shaped;
+    QScriptItemArray items;
+    QShapedItem shaped;
     int cursorPos;
     struct Line {
 	int pos;
@@ -132,8 +132,8 @@ void EditWidget::paintEvent( QPaintEvent * )
 	int x = 5;
 	for ( int i = 0; i < end-start; i++ ) {
 	    int current = visualOrder[i];
-	    const ScriptItem &it = d->items[ start+current ];
-	    ShapedItem shaped;
+	    const QScriptItem &it = d->items[ start+current ];
+	    QShapedItem shaped;
 	    layout->shape( shaped, d->font, d->text, d->items, current+start );
 	    if ( it.position <= d->cursorPos &&
 		 (current == d->items.size()-1 || d->items[ start+current+1 ].position > d->cursorPos) ) {
@@ -146,9 +146,9 @@ void EditWidget::paintEvent( QPaintEvent * )
 	    int swidth = layout->width( shaped );
 
 	    QFont::Script script = (QFont::Script)it.analysis.script;
-	    FontEngineIface *fe = d->font.engineForScript( script );
+	    QFontEngineIface *fe = d->font.engineForScript( script );
 // 	    qDebug("drawing item %d (pos=%d), script=%d, fe=%p", current, d->items[current].position, script, fe );
-	    if ( fe && fe != (FontEngineIface *)-1 ) {
+	    if ( fe && fe != (QFontEngineIface *)-1 ) {
 		fe->draw( &painter, x,  y, shaped.glyphs(), shaped.advances(), shaped.offsets(), shaped.count(),
 			  (shaped.d->analysis.bidiLevel%2) );
 		x += swidth;
@@ -177,7 +177,7 @@ void EditWidget::recalculate()
     int w = width() - 10; // we leave 5 px margin
 //     qDebug("recalulate: width=%d, numItems=%d", w, d->items.size() );
     // layout text
-    ShapedItem shaped;
+    QShapedItem shaped;
     int lw = 0;
     int line = 0;
     int allocLines = 10;

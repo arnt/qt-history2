@@ -95,13 +95,13 @@ struct QFontDef {
 };
 
 
-class FontEngineIface;
+class QFontEngineIface;
 
 class QFontX11Data  // used as a QFontPrivate member
 {
 public:
     // X fontstruct handles for each character set
-    FontEngineIface *fontstruct[QFont::LastPrivateScript];
+    QFontEngineIface *fontstruct[QFont::LastPrivateScript];
 
     QFontX11Data();
     ~QFontX11Data();
@@ -110,14 +110,14 @@ public:
 
 
 
-typedef QCacheIterator<FontEngineIface> QFontCacheIterator;
-class QFontCache : public QObject, public QCache<FontEngineIface>
+typedef QCacheIterator<QFontEngineIface> QFontCacheIterator;
+class QFontCache : public QObject, public QCache<QFontEngineIface>
 {
 public:
     QFontCache();
     ~QFontCache();
 
-    bool insert(const QString &, const FontEngineIface *, int c);
+    bool insert(const QString &, const QFontEngineIface *, int c);
     void deleteItem(Item d);
     void timerEvent(QTimerEvent *);
 

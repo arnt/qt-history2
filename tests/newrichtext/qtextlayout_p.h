@@ -8,7 +8,7 @@
 
 #include <assert.h>
 
-class FontEngineIface;
+class QFontEngineIface;
 class QFont;
 class QString;
 
@@ -43,13 +43,13 @@ struct QGlyphMetrics
     int yoff;
 };
 
-struct ScriptAnalysis
+struct QScriptAnalysis
 {
     int script    : 7;
     int bidiLevel : 6;  // Unicode Bidi algorithm embedding level (0-61)
     int override  : 1;  // Set when in LRO/RLO embedding
     int reserved  : 2;
-    bool operator == ( const ScriptAnalysis &other ) {
+    bool operator == ( const QScriptAnalysis &other ) {
 	return
 	    script == other.script &&
 	    bidiLevel == other.bidiLevel;
@@ -60,31 +60,31 @@ struct ScriptAnalysis
 
 };
 
-struct ScriptItem
+struct QScriptItem
 {
     int position;
-    ScriptAnalysis analysis;
+    QScriptAnalysis analysis;
 };
 
-struct ScriptItemArrayPrivate
+struct QScriptItemArrayPrivate
 {
     unsigned int alloc;
     unsigned int size;
-    ScriptItem items[1];
+    QScriptItem items[1];
 };
 
-class ScriptItemArray
+class QScriptItemArray
 {
 public:
-    ScriptItemArray() : d( 0 ) {}
-    ~ScriptItemArray();
+    QScriptItemArray() : d( 0 ) {}
+    ~QScriptItemArray();
 
-    const ScriptItem &operator[] (int i) const {
+    const QScriptItem &operator[] (int i) const {
 	return d->items[i];
     }
-    void append( const ScriptItem &item ) {
+    void append( const QScriptItem &item ) {
 	if ( d->size && d->items[d->size-1].analysis == item.analysis ) {
-	    //    qDebug("ScriptItemArray::append: trying to add same item" );
+	    //    qDebug("QScriptItemArray::append: trying to add same item" );
 	    return;
 	}
 	if ( d->size == d->alloc )
@@ -96,12 +96,12 @@ public:
 	return d->size;
     }
     void split( int pos );
-    ScriptItemArray( const ScriptItemArray & ) {}
-    ScriptItemArray &operator = ( const ScriptItemArray & ) { return *this; }
+    QScriptItemArray( const QScriptItemArray & ) {}
+    QScriptItemArray &operator = ( const QScriptItemArray & ) { return *this; }
 
     void resize( int s );
 
-    ScriptItemArrayPrivate *d;
+    QScriptItemArrayPrivate *d;
 };
 
 struct Offset {
@@ -140,15 +140,15 @@ struct GlyphAttributes {
 
 typedef unsigned short GlyphIndex;
 
-class ShapedItemPrivate : public QShared
+class QShapedItemPrivate : public QShared
 {
 public:
-    ShapedItemPrivate()
+    QShapedItemPrivate()
 	: num_glyphs( 0 ), glyphs( 0 ), advances( 0 ), offsets( 0 ), logClusters( 0 ),
 	  glyphAttributes( 0 ), fontEngine( 0 ),
 	  from( 0 ), length( 0 ), ascent( 0 ), descent( 0 ),
 	  isShaped( FALSE ), isPositioned( FALSE ) {}
-    ~ShapedItemPrivate() {
+    ~QShapedItemPrivate() {
 	free( glyphs );
 	free( offsets );
 	free( advances );
@@ -161,8 +161,8 @@ public:
     Offset *offsets;
     unsigned short *logClusters;
     GlyphAttributes *glyphAttributes;
-    FontEngineIface *fontEngine;
-    ScriptAnalysis analysis;
+    QFontEngineIface *fontEngine;
+    QScriptAnalysis analysis;
     QString string;
     int from;
     int length;
@@ -172,15 +172,15 @@ public:
     bool isPositioned : 1;
 };
 
-class ShapedItem
+class QShapedItem
 {
 public:
-    ShapedItem();
-    ShapedItem( const ShapedItem &other );
+    QShapedItem();
+    QShapedItem( const QShapedItem &other );
 
-    ~ShapedItem();
+    ~QShapedItem();
 
-    ShapedItem &operator =( const ShapedItem &other );
+    QShapedItem &operator =( const QShapedItem &other );
 
     const GlyphIndex *glyphs() const;
     int count() const;
@@ -189,7 +189,7 @@ public:
     int ascent() const;
     int descent() const;
 
-    ShapedItemPrivate *d;
+    QShapedItemPrivate *d;
 };
 
 struct CharAttributes {
@@ -227,15 +227,15 @@ class TextLayout
 public:
     static const TextLayout *instance();
 
-    virtual void itemize( ScriptItemArray &items, const QString & ) const = 0;
+    virtual void itemize( QScriptItemArray &items, const QString & ) const = 0;
 
     virtual void attributes( CharAttributesArray &attrs, const QString &string,
-		     const ScriptItemArray &items, int item ) const = 0;
+		     const QScriptItemArray &items, int item ) const = 0;
 
     void bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOrder ) const;
 
-    virtual void shape( ShapedItem &shaped, const QFont &f, const QString &string,
-			const ScriptItemArray &items, int item ) const = 0;
+    virtual void shape( QShapedItem &shaped, const QFont &f, const QString &string,
+			const QScriptItemArray &items, int item ) const = 0;
 
     // ### we need something for justification
 
@@ -244,15 +244,15 @@ public:
 	Trailing
     };
 
-    virtual int cursorToX( ShapedItem &shaped, int cpos, Edge edge = Leading ) const = 0;
-    virtual int xToCursor( ShapedItem &shaped, int x ) const = 0;
+    virtual int cursorToX( QShapedItem &shaped, int cpos, Edge edge = Leading ) const = 0;
+    virtual int xToCursor( QShapedItem &shaped, int x ) const = 0;
 
-    virtual int width( ShapedItem &shaped ) const = 0;
-    virtual int width( ShapedItem &shaped, int charFrom, int numChars ) const = 0;
-    virtual bool split( ScriptItemArray &items, int item, ShapedItem &, CharAttributesArray &,
-			int width, ShapedItem *splitoff = 0 ) const = 0;
+    virtual int width( QShapedItem &shaped ) const = 0;
+    virtual int width( QShapedItem &shaped, int charFrom, int numChars ) const = 0;
+    virtual bool split( QScriptItemArray &items, int item, QShapedItem &, CharAttributesArray &,
+			int width, QShapedItem *splitoff = 0 ) const = 0;
 
-//    static ScriptProperties scriptProperties( int script );
+//    static QScriptProperties scriptProperties( int script );
 
 };
 

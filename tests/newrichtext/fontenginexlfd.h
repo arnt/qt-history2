@@ -8,11 +8,11 @@ class QTextCodec;
 
 #include <qt_x11.h>
 
-class FontEngineXLFD : public FontEngineIface
+class QFontEngineXLFD : public QFontEngineIface
 {
 public:
-    FontEngineXLFD( XFontStruct *fs, const char *name, const char *encoding, int cmap );
-    ~FontEngineXLFD();
+    QFontEngineXLFD( XFontStruct *fs, const char *name, const char *encoding, int cmap );
+    ~QFontEngineXLFD();
 
     Error stringToCMap( const QChar *str,  int len, GlyphIndex *glyphs, int *nglyphs ) const;
 

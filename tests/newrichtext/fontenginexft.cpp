@@ -42,7 +42,7 @@ static inline void getGlyphInfo(XGlyphInfo *xgi, XftFont *font, int glyph)
 
 
 
-FontEngineXft::FontEngineXft( XftFont *font, XftPattern *pattern, int cmap )
+QFontEngineXft::QFontEngineXft( XftFont *font, XftPattern *pattern, int cmap )
     : _font( font ), _pattern( pattern ), _openType( 0 ), _cmap( cmap )
 {
     XftFontStruct *xftfs = getFontStruct( _font );
@@ -54,7 +54,7 @@ FontEngineXft::FontEngineXft( XftFont *font, XftPattern *pattern, int cmap )
     }
 }
 
-FontEngineXft::~FontEngineXft()
+QFontEngineXft::~QFontEngineXft()
 {
     XftFontClose( QPaintDevice::x11AppDisplay(),_font );
     XftPatternDestroy( _pattern );
@@ -63,7 +63,7 @@ FontEngineXft::~FontEngineXft()
     delete _openType;
 }
 
-FontEngineIface::Error FontEngineXft::stringToCMap( const QChar *str,  int len, GlyphIndex *glyphs, int *nglyphs ) const
+QFontEngineIface::Error QFontEngineXft::stringToCMap( const QChar *str,  int len, GlyphIndex *glyphs, int *nglyphs ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;
@@ -82,7 +82,7 @@ FontEngineIface::Error FontEngineXft::stringToCMap( const QChar *str,  int len, 
     return NoError;
 }
 
-void FontEngineXft::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs,
+void QFontEngineXft::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs,
 			   const Offset *advances, const Offset *offsets, int numGlyphs, bool reverse )
 {
     if ( !numGlyphs )
@@ -170,7 +170,7 @@ void FontEngineXft::draw( QPainter *p, int x, int y, const GlyphIndex *glyphs,
 #endif
 }
 
-QGlyphMetrics FontEngineXft::boundingBox( const GlyphIndex *glyphs, const Offset *advances, const Offset *offsets, int numGlyphs )
+QGlyphMetrics QFontEngineXft::boundingBox( const GlyphIndex *glyphs, const Offset *advances, const Offset *offsets, int numGlyphs )
 {
     XGlyphInfo xgi;
 
@@ -194,7 +194,7 @@ QGlyphMetrics FontEngineXft::boundingBox( const GlyphIndex *glyphs, const Offset
     return overall;
 }
 
-QGlyphMetrics FontEngineXft::boundingBox( GlyphIndex glyph )
+QGlyphMetrics QFontEngineXft::boundingBox( GlyphIndex glyph )
 {
     XGlyphInfo xgi;
     getGlyphInfo( &xgi, _font, glyph );
@@ -203,38 +203,38 @@ QGlyphMetrics FontEngineXft::boundingBox( GlyphIndex glyph )
 
 
 
-int FontEngineXft::ascent() const
+int QFontEngineXft::ascent() const
 {
     return _font->ascent;
 }
 
-int FontEngineXft::descent() const
+int QFontEngineXft::descent() const
 {
     return _font->descent;
 }
 
-int FontEngineXft::leading() const
+int QFontEngineXft::leading() const
 {
     int l = qRound( (ascent() + descent() ) * 0.15 );
     return (l > 0) ? l : 1;
 }
 
-int FontEngineXft::maxCharWidth() const
+int QFontEngineXft::maxCharWidth() const
 {
     return _font->max_advance_width;
 }
 
-int FontEngineXft::cmap() const
+int QFontEngineXft::cmap() const
 {
     return _cmap;
 }
 
-const char *FontEngineXft::name() const
+const char *QFontEngineXft::name() const
 {
     return "xft";
 }
 
-bool FontEngineXft::canRender( const QChar *string,  int len )
+bool QFontEngineXft::canRender( const QChar *string,  int len )
 {
     GlyphIndex glyphs[256];
     int nglyphs = 255;
@@ -258,7 +258,7 @@ bool FontEngineXft::canRender( const QChar *string,  int len )
 
 }
 
-OpenTypeIface *FontEngineXft::openTypeIface() const
+OpenTypeIface *QFontEngineXft::openTypeIface() const
 {
 //     qDebug("openTypeIface requested!");
     if ( _openType )
@@ -269,14 +269,14 @@ OpenTypeIface *FontEngineXft::openTypeIface() const
 	return 0;
     }
 
-    FontEngineXft *that = (FontEngineXft *)this;
+    QFontEngineXft *that = (QFontEngineXft *)this;
 
     that->_openType = new OpenTypeIface( xftfs->face );
     return _openType;
 }
 
 
-FontEngineIface::Type FontEngineXft::type() const
+QFontEngineIface::Type QFontEngineXft::type() const
 {
     return Xft;
 }

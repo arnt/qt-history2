@@ -4,10 +4,10 @@
 #include "scriptenginearabic.h"
 
 
-class ScriptEngineSyriac : public ScriptEngineArabic
+class QScriptEngineSyriac : public QScriptEngineArabic
 {
 public:
-    void shape( ShapedItem *result );
+    void shape( QShapedItem *result );
 };
 
 #endif

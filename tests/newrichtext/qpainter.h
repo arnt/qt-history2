@@ -373,8 +373,8 @@ private:
     void	killPStack();
 
 protected:
-    friend class FontEngineXLFD;
-    friend class FontEngineBox;
+    friend class QFontEngineXLFD;
+    friend class QFontEngineBox;
 #ifdef Q_OS_TEMP
 	QPoint	internalCurrentPos;
 #endif

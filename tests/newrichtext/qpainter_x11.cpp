@@ -3095,7 +3095,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     }
 
     const TextLayout *layout = TextLayout::instance();
-    ScriptItemArray items;
+    QScriptItemArray items;
     layout->itemize( items, str );
 
     int start = 0;
@@ -3129,13 +3129,13 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     qDebug("QPainter::drawText( pos=%d, len=%d): num items=%d ( start=%d (pos=%d), end=%d (pos=%d) )",  pos, len, numItems, start, items[start].position, end, items[end].position );
     for ( int i = 0; i < numItems; i++ ) {
 	int current = visualOrder[i] + start;
-	const ScriptItem &it = items[ current ];
-	ShapedItem shaped;
+	const QScriptItem &it = items[ current ];
+	QShapedItem shaped;
 	layout->shape( shaped, cfont, str, items, current );
 	int swidth = layout->width( shaped );
 
 	QFont::Script script = (QFont::Script)it.analysis.script;
-	FontEngineIface *fe = cfont.engineForScript( script );
+	QFontEngineIface *fe = cfont.engineForScript( script );
 	assert( fe );
 
 	bool rightToLeft;

@@ -4,7 +4,7 @@
 #include <qstring.h>
 #include "qtextdata.h"
 
-static inline void positionCluster( ShapedItem *shaped, int gfrom,  int glast )
+static inline void positionCluster( QShapedItem *shaped, int gfrom,  int glast )
 {
     int nmarks = glast - gfrom;
     if ( nmarks <= 0 ) {
@@ -12,7 +12,7 @@ static inline void positionCluster( ShapedItem *shaped, int gfrom,  int glast )
 	return;
     }
 
-    FontEngineIface *f = shaped->d->fontEngine;
+    QFontEngineIface *f = shaped->d->fontEngine;
     QGlyphMetrics baseInfo = f->boundingBox( shaped->d->glyphs[gfrom] );
     QRect baseRect( baseInfo.x, baseInfo.y, baseInfo.width, baseInfo.height );
 
@@ -137,9 +137,9 @@ static inline void positionCluster( ShapedItem *shaped, int gfrom,  int glast )
 }
 
 
-void ScriptEngine::heuristicPositionMarks( ShapedItem *shaped )
+void QScriptEngine::heuristicPositionMarks( QShapedItem *shaped )
 {
-    ShapedItemPrivate *d = shaped->d;
+    QShapedItemPrivate *d = shaped->d;
 
     int cEnd = -1;
     int i = d->num_glyphs;
@@ -158,15 +158,15 @@ void ScriptEngine::heuristicPositionMarks( ShapedItem *shaped )
 // set the glyph attributes heuristically. Assumes a 1 to 1 relationship between chars ang glyphs
 // and no reordering.
 // also computes logClusters heuristically
-void ScriptEngine::heuristicSetGlyphAttributes( ShapedItem *shaped )
+void QScriptEngine::heuristicSetGlyphAttributes( QShapedItem *shaped )
 {
     // ### zeroWidth and justification are missing here!!!!!
-    ShapedItemPrivate *d = shaped->d;
+    QShapedItemPrivate *d = shaped->d;
 
     if ( d->length != d->num_glyphs )
-	qWarning("ScriptEngine::heuristicSetGlyphAttributes: char length and num glyphs disagree" );
+	qWarning("QScriptEngine::heuristicSetGlyphAttributes: char length and num glyphs disagree" );
 
-//     qDebug("ScriptEngine::heuristicSetGlyphAttributes, num_glyphs=%d", d->num_glyphs);
+//     qDebug("QScriptEngine::heuristicSetGlyphAttributes, num_glyphs=%d", d->num_glyphs);
 
     d->glyphAttributes = (GlyphAttributes *)realloc( d->glyphAttributes, d->num_glyphs * sizeof( GlyphAttributes ) );
 
@@ -234,7 +234,7 @@ void ScriptEngine::heuristicSetGlyphAttributes( ShapedItem *shaped )
     }
 }
 
-void ScriptEngineBasic::charAttributes( const QString &text, int from, int len, CharAttributes *attributes )
+void QScriptEngineBasic::charAttributes( const QString &text, int from, int len, CharAttributes *attributes )
 {
     const QChar *uc = text.unicode() + from;
     for ( int i = 0; i < len; i++ ) {
@@ -247,17 +247,17 @@ void ScriptEngineBasic::charAttributes( const QString &text, int from, int len, 
 }
 
 
-void ScriptEngineBasic::shape( ShapedItem *result )
+void QScriptEngineBasic::shape( QShapedItem *result )
 {
     const QString &text = result->d->string;
     int from = result->d->from;
     int len = result->d->length;
 
-    ShapedItemPrivate *d = result->d;
+    QShapedItemPrivate *d = result->d;
     d->num_glyphs = len;
     d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
     int error = d->fontEngine->stringToCMap( text.unicode() + from, len, d->glyphs, &d->num_glyphs );
-    if ( error == FontEngineIface::OutOfMemory ) {
+    if ( error == QFontEngineIface::OutOfMemory ) {
 	d->glyphs = (GlyphIndex *)realloc( d->glyphs, d->num_glyphs*sizeof( GlyphIndex ) );
 	d->fontEngine->stringToCMap( text.unicode() + from, len, d->glyphs, &d->num_glyphs );
     }
@@ -267,9 +267,9 @@ void ScriptEngineBasic::shape( ShapedItem *result )
 }
 
 
-void ScriptEngineBasic::calculateAdvances( ShapedItem *shaped )
+void QScriptEngineBasic::calculateAdvances( QShapedItem *shaped )
 {
-    ShapedItemPrivate *d = shaped->d;
+    QShapedItemPrivate *d = shaped->d;
     d->offsets = (Offset *) realloc( d->offsets, d->num_glyphs * sizeof( Offset ) );
     memset( d->offsets, 0, d->num_glyphs * sizeof( Offset ) );
     d->advances = (Offset *) realloc( d->advances, d->num_glyphs * sizeof( Offset ) );
@@ -286,7 +286,7 @@ void ScriptEngineBasic::calculateAdvances( ShapedItem *shaped )
     }
 }
 
-void ScriptEngineBasic::position( ShapedItem *shaped )
+void QScriptEngineBasic::position( QShapedItem *shaped )
 {
     if ( shaped->d->isPositioned )
 	return;

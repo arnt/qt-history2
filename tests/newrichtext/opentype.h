@@ -4,7 +4,7 @@
 #include <freetype/freetype.h>
 #include "opentype/ftxopen.h"
 
-class ShapedItem;
+class QShapedItem;
 
 class OpenTypeIface
 {
@@ -13,12 +13,12 @@ public:
 
     bool supportsScript( unsigned int script );
 
-    void apply( unsigned int script, ShapedItem *shaped, unsigned short *featuresToApply );
+    void apply( unsigned int script, QShapedItem *shaped, unsigned short *featuresToApply );
 
 private:
     bool loadTables( FT_ULong script);
-    TTO_GSUB_String *substitute( ShapedItem *shaped, unsigned short *featuresToApply );
-    void position( ShapedItem *shaped, TTO_GSUB_String *in );
+    TTO_GSUB_String *substitute( QShapedItem *shaped, unsigned short *featuresToApply );
+    void position( QShapedItem *shaped, TTO_GSUB_String *in );
 
 
     FT_Face face;

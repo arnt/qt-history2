@@ -2,7 +2,7 @@
 #include "opentype.h"
 #include "qfont.h"
 
-void ScriptEngineSyriac::shape( ShapedItem *result )
+void QScriptEngineSyriac::shape( QShapedItem *result )
 {
     OpenTypeIface *openType = result->d->fontEngine->openTypeIface();
 
@@ -10,5 +10,5 @@ void ScriptEngineSyriac::shape( ShapedItem *result )
 	openTypeShape( QFont::Syriac, openType, result );
 	return;
     }
-    ScriptEngineBasic::shape( result );
+    QScriptEngineBasic::shape( result );
 }
