@@ -585,7 +585,6 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
         causedStack.append(widget);
         if (QMenu *qmenu = ::qt_cast<QMenu*>(widget))
             widget = qmenu->d->causedPopup;
-        break;
     }
     if (action_e == QAction::Trigger) {
         hideUpToMenuBar();
