@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#81 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#82 $
 **
 ** Definition of QListView widget class
 **
@@ -338,37 +338,37 @@ private:
 
 class Q_EXPORT QListViewItemIterator
 {
-	friend struct QListViewPrivate;
-	friend class QListView;
-	friend class QListViewItem;
+    friend struct QListViewPrivate;
+    friend class QListView;
+    friend class QListViewItem;
 
 public:
-	QListViewItemIterator();
-	QListViewItemIterator( QListViewItem *item );
-	QListViewItemIterator( const QListViewItemIterator &it );
-	QListViewItemIterator( QListView *lv );
+    QListViewItemIterator();
+    QListViewItemIterator( QListViewItem *item );
+    QListViewItemIterator( const QListViewItemIterator &it );
+    QListViewItemIterator( QListView *lv );
 
-	QListViewItemIterator &operator=( const QListViewItemIterator &it );
+    QListViewItemIterator &operator=( const QListViewItemIterator &it );
 
-	~QListViewItemIterator();
+    ~QListViewItemIterator();
 
-	QListViewItemIterator &operator++();
-	const QListViewItemIterator operator++( int );
-	QListViewItemIterator &operator+=( int j );
+    QListViewItemIterator &operator++();
+    const QListViewItemIterator operator++( int );
+    QListViewItemIterator &operator+=( int j );
 
-	QListViewItemIterator &operator--();
-	const QListViewItemIterator operator--( int );
-	QListViewItemIterator &operator-=( int j );
+    QListViewItemIterator &operator--();
+    const QListViewItemIterator operator--( int );
+    QListViewItemIterator &operator-=( int j );
 
-	QListViewItem *current() const;
+    QListViewItem *current() const;
 
 protected:
-	QListViewItem *curr;
-	QListView *listView;
+    QListViewItem *curr;
+    QListView *listView;
 
 private:
-	void addToListView();
-	void currentRemoved();
+    void addToListView();
+    void currentRemoved();
 
 };
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#231 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#232 $
 **
 ** Implementation of QListView widget class
 **
@@ -1082,11 +1082,11 @@ void QListViewItem::setPixmap( int column, const QPixmap & pm )
 const QPixmap * QListViewItem::pixmap( int column ) const
 {
     QListViewPrivate::ItemColumnInfo * l
-	= (QListViewPrivate::ItemColumnInfo*) columns;
+    = (QListViewPrivate::ItemColumnInfo*) columns;
 
     while( column && l ) {
-		l = l->next;
-		column--;
+        l = l->next;
+        column--;
     }
 
     return (l && l->pm) ? l->pm : 0;
@@ -4268,7 +4268,7 @@ void QListView::removeItem( QListViewItem * i )
 */
 
 QListViewItemIterator::QListViewItemIterator()
-	: curr( 0L ), listView( 0L )
+    : curr( 0L ), listView( 0L )
 {
 }
 
@@ -4279,9 +4279,9 @@ QListViewItemIterator::QListViewItemIterator()
 */
 
 QListViewItemIterator::QListViewItemIterator( QListViewItem *item )
-	: curr( item ), listView( item ? item->listView() : 0L )
+    : curr( item ), listView( item ? item->listView() : 0L )
 {
-	addToListView();
+    addToListView();
 }
 
 /*!
@@ -4291,9 +4291,9 @@ QListViewItemIterator::QListViewItemIterator( QListViewItem *item )
 */
 
 QListViewItemIterator::QListViewItemIterator( const QListViewItemIterator& it )
-	: curr( it.curr ), listView( it.listView )
+    : curr( it.curr ), listView( it.listView )
 {
-	addToListView();
+    addToListView();
 }
 
 /*!
@@ -4303,9 +4303,9 @@ QListViewItemIterator::QListViewItemIterator( const QListViewItemIterator& it )
 */
 
 QListViewItemIterator::QListViewItemIterator( QListView *lv )
-	: curr( lv->firstChild() ), listView( lv )
+    : curr( lv->firstChild() ), listView( lv )
 {
-	addToListView();
+    addToListView();
 }
 
 /*!
@@ -4315,20 +4315,20 @@ QListViewItemIterator::QListViewItemIterator( QListView *lv )
 
 QListViewItemIterator &QListViewItemIterator::operator=( const QListViewItemIterator &it )
 {
-	if ( listView ) {
-		if ( listView->d->iterators->removeRef( this ) ) {
-			if ( listView->d->iterators->count() == 0 ) {
-				delete listView->d->iterators;
-				listView->d->iterators = 0L;
-			}
-		}
+    if ( listView ) {
+        if ( listView->d->iterators->removeRef( this ) ) {
+            if ( listView->d->iterators->count() == 0 ) {
+                delete listView->d->iterators;
+                listView->d->iterators = 0L;
+            }
+        }
     }
 
-	listView = it.listView;
-	addToListView();
-	curr = it.curr;
+    listView = it.listView;
+    addToListView();
+    curr = it.curr;
 
-	return *this;
+    return *this;
 }
 
 /*!
@@ -4338,13 +4338,13 @@ QListViewItemIterator &QListViewItemIterator::operator=( const QListViewItemIter
 
 QListViewItemIterator::~QListViewItemIterator()
 {
-	if ( listView ) {
-		if ( listView->d->iterators->removeRef( this ) ) {
-			if ( listView->d->iterators->count() == 0 ) {
-				delete listView->d->iterators;
-				listView->d->iterators = 0L;
-			}
-		}
+    if ( listView ) {
+        if ( listView->d->iterators->removeRef( this ) ) {
+            if ( listView->d->iterators->count() == 0 ) {
+                delete listView->d->iterators;
+                listView->d->iterators = 0L;
+            }
+        }
     }
 }
 
@@ -4357,26 +4357,26 @@ QListViewItemIterator::~QListViewItemIterator()
 
 QListViewItemIterator &QListViewItemIterator::operator++()
 {
-	if ( !curr )
-		return *this;
+    if ( !curr )
+        return *this;
 
-	QListViewItem *item = curr->firstChild();
-	if ( item ) {
-		curr = item;	
-		return *this;
+    QListViewItem *item = curr->firstChild();
+    if ( item ) {
+        curr = item;    
+        return *this;
     }
 
-	item = curr->nextSibling();
-	if ( item ) {
-		curr = item;
-		return *this;
+    item = curr->nextSibling();
+    if ( item ) {
+        curr = item;
+        return *this;
     }
 
-	curr = curr->parent();
-	if ( curr )
-		curr = curr->nextSibling();
+    curr = curr->parent();
+    if ( curr )
+        curr = curr->nextSibling();
 
-	return *this;
+    return *this;
 }
 
 /*!
@@ -4387,9 +4387,9 @@ QListViewItemIterator &QListViewItemIterator::operator++()
 
 const QListViewItemIterator QListViewItemIterator::operator++( int )
 {
-	QListViewItemIterator oldValue = *this;
-	++( *this );
-	return oldValue;
+    QListViewItemIterator oldValue = *this;
+    ++( *this );
+    return oldValue;
 }
 
 /*!
@@ -4402,10 +4402,10 @@ const QListViewItemIterator QListViewItemIterator::operator++( int )
 
 QListViewItemIterator &QListViewItemIterator::operator+=( int j )
 {
-	while ( curr && j-- )
-		++( *this );
+    while ( curr && j-- )
+        ++( *this );
 
-	return *this;
+    return *this;
 }
 
 /*!
@@ -4417,59 +4417,59 @@ QListViewItemIterator &QListViewItemIterator::operator+=( int j )
 
 QListViewItemIterator &QListViewItemIterator::operator--()
 {
-	if ( !curr )
-		return *this;
+    if ( !curr )
+        return *this;
 
-	if ( !curr->parent() ) {
-       // we are in the first depth
-	   if ( curr->listView() ) {
-			if ( curr->listView()->firstChild() != curr ) {
-			   // go the previous sibling
-				QListViewItem *i = curr->listView()->firstChild();
-				while ( i && i->siblingItem != curr )
-					i = i->siblingItem;
-	
-				curr = i;
-	
-				if ( i && i->firstChild() ) {
-				   // go to the last child of this item
-					QListViewItemIterator it( curr->firstChild() );
-					for ( ; it.current() && it.current()->parent(); ++it )
-						curr = it.current();
-				}
+    if ( !curr->parent() ) {
+        // we are in the first depth
+       if ( curr->listView() ) {
+            if ( curr->listView()->firstChild() != curr ) {
+                // go the previous sibling
+                QListViewItem *i = curr->listView()->firstChild();
+                while ( i && i->siblingItem != curr )
+                    i = i->siblingItem;
+    
+                curr = i;
+    
+                if ( i && i->firstChild() ) {
+                    // go to the last child of this item
+                    QListViewItemIterator it( curr->firstChild() );
+                    for ( ; it.current() && it.current()->parent(); ++it )
+                        curr = it.current();
+                }
 
-				return *this;
-			} else {
-			   // we are already the first child of the listview, so it's over
-				curr = 0L;
-				return *this;
-			}
-		} else
-			return *this;
+                return *this;
+            } else {
+                // we are already the first child of the listview, so it's over
+                curr = 0L;
+                return *this;
+            }
+        } else
+            return *this;
     } else {
-		QListViewItem *parent = curr->parent();
+        QListViewItem *parent = curr->parent();
 
-		if ( curr != parent->firstChild() ) {
-		   // go to the previous sibling
-			QListViewItem *i = parent->firstChild();
-			while ( i && i->siblingItem != curr )
-				i = i->siblingItem;
-	
-			curr = i;
+        if ( curr != parent->firstChild() ) {
+            // go to the previous sibling
+            QListViewItem *i = parent->firstChild();
+            while ( i && i->siblingItem != curr )
+                i = i->siblingItem;
+    
+            curr = i;
 
-			if ( i && i->firstChild() ) {
-			   // go to the last child of this item
-				QListViewItemIterator it( curr->firstChild() );
-				for ( ; it.current() && it.current()->parent() != parent; ++it )
-					curr = it.current();
-			}
-	
-			return *this;
-		} else {
-		   // make our parent the current item
-			curr = parent;
-			return *this;
-		}
+            if ( i && i->firstChild() ) {
+                // go to the last child of this item
+                QListViewItemIterator it( curr->firstChild() );
+                for ( ; it.current() && it.current()->parent() != parent; ++it )
+                    curr = it.current();
+            }
+    
+            return *this;
+        } else {
+            // make our parent the current item
+            curr = parent;
+            return *this;
+        }
     }
 }
 
@@ -4481,9 +4481,9 @@ QListViewItemIterator &QListViewItemIterator::operator--()
 
 const QListViewItemIterator QListViewItemIterator::operator--( int )
 {
-	QListViewItemIterator oldValue = *this;
-	--( *this );
-	return oldValue;
+    QListViewItemIterator oldValue = *this;
+    --( *this );
+    return oldValue;
 }
 
 /*!
@@ -4496,10 +4496,10 @@ const QListViewItemIterator QListViewItemIterator::operator--( int )
 
 QListViewItemIterator &QListViewItemIterator::operator-=( int j )
 {
-	while ( curr && j-- )
-		--( *this );
+    while ( curr && j-- )
+        --( *this );
 
-	return *this;
+    return *this;
 }
 
 /*!
@@ -4509,7 +4509,7 @@ QListViewItemIterator &QListViewItemIterator::operator-=( int j )
 
 QListViewItem *QListViewItemIterator::current() const
 {
-	return curr;
+    return curr;
 }
 
 /*!
@@ -4519,12 +4519,12 @@ QListViewItem *QListViewItemIterator::current() const
 
 void QListViewItemIterator::addToListView()
 {
-	if ( listView ) {
-		if ( !listView->d->iterators ) {
-			listView->d->iterators = new QList<QListViewItemIterator>;
-			CHECK_PTR( listView->d->iterators );
-		}
-		listView->d->iterators->append( this );
+    if ( listView ) {
+        if ( !listView->d->iterators ) {
+            listView->d->iterators = new QList<QListViewItemIterator>;
+            CHECK_PTR( listView->d->iterators );
+        }
+        listView->d->iterators->append( this );
     }
 }
 
@@ -4536,15 +4536,15 @@ void QListViewItemIterator::addToListView()
 
 void QListViewItemIterator::currentRemoved()
 {
-	if ( !curr ) return;
+    if ( !curr ) return;
 
-	if ( curr->parent() )
-		curr = curr->parent();
-	else if ( curr->nextSibling() )
-		curr = curr->nextSibling();
-	else if ( listView && listView->firstChild() && listView->firstChild() != curr )
-		curr = listView->firstChild();
-	else
-		curr = 0L;
+    if ( curr->parent() )
+        curr = curr->parent();
+    else if ( curr->nextSibling() )
+        curr = curr->nextSibling();
+    else if ( listView && listView->firstChild() && listView->firstChild() != curr )
+        curr = listView->firstChild();
+    else
+        curr = 0L;
 }
 
