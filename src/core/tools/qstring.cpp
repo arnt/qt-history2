@@ -2004,7 +2004,7 @@ int QString::indexOf(QChar ch, int from, CaseSensitivity cs) const
     Example:
     \code
         QString x = "crazy azimuths";
-        QString y = "azy";
+        QString y = "az";
         x.lastIndexOf(y);           // returns 6
         x.lastIndexOf(y, 6);        // returns 6
         x.lastIndexOf(y, 5);        // returns 2
