@@ -1568,6 +1568,11 @@ void QWorkspace::hideMaximizeControls()
 #endif
 }
 
+/*!
+    Closes the child window that is currently active.
+
+    \sa closeAllWindows()
+*/
 void QWorkspace::closeActiveWindow()
 {
     setUpdatesEnabled( FALSE );
@@ -1579,14 +1584,23 @@ void QWorkspace::closeActiveWindow()
     updateWorkspace();
 }
 
+/*!
+    Closes all child windows.
+
+    The windows are closed in random order, until one window does
+    not accept the close event.
+
+    \sa closeActiveWindow()
+*/
 void QWorkspace::closeAllWindows()
 {
+    bool did_close = TRUE;
     QPtrListIterator<QWorkspaceChild> it( d->windows );
     QWorkspaceChild *c = 0;
-    while ( ( c = it.current() ) != 0 ) {
+    while ( ( c = it.current() ) && did_close ) {
 	++it;
 	if ( c->windowWidget() )
-	    c->windowWidget()->close();
+	    did_close = c->windowWidget()->close();
     }
 }
 
@@ -1720,6 +1734,11 @@ void QWorkspace::operationMenuActivated( int a )
     }
 }
 
+/*!
+    Activates the next window in the child window chain.
+
+    \sa activatePrevWindow()
+*/
 void QWorkspace::activateNextWindow()
 {
     if ( d->focus.isEmpty() )
@@ -1741,6 +1760,16 @@ void QWorkspace::activateNextWindow()
 }
 
 void QWorkspace::activatePreviousWindow()
+{
+    activatePrevWindow();
+}
+
+/*!
+    Activates the previous window in the child window chain.
+
+    \sa activateNextWindow()
+*/
+void QWorkspace::activatePrevWindow()
 {
     if ( d->focus.isEmpty() )
 	return;

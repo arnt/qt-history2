@@ -99,6 +99,10 @@ signals:
 public slots:
     void cascade();
     void tile();
+    void closeActiveWindow();
+    void closeAllWindows();
+    void activateNextWindow();
+    void activatePrevWindow();
 
 protected:
 #ifndef QT_NO_STYLE
@@ -114,8 +118,6 @@ protected:
 #endif
 
 private slots:
-    void closeActiveWindow();
-    void closeAllWindows();
     void normalizeActiveWindow();
     void minimizeActiveWindow();
     void showOperationMenu();
@@ -123,8 +125,7 @@ private slots:
     void operationMenuActivated( int );
     void operationMenuAboutToShow();
     void toolMenuAboutToShow();
-    void activateNextWindow();
-    void activatePreviousWindow();
+    void activatePreviousWindow(); // ### remove in Qt 4.0
     void dockWindowsShow();
     void scrollBarChanged();
 
