@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#129 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#130 $
 **
 ** Global type declarations and definitions
 **
@@ -335,8 +335,8 @@ class QDataStream;
 // System information
 //
 
-const char *qVersion();
-bool qSysInfo( int *wordSize, bool *bigEndian );
+Q_EXPORT const char *qVersion();
+Q_EXPORT bool qSysInfo( int *wordSize, bool *bigEndian );
 
 
 //
@@ -418,19 +418,19 @@ bool qSysInfo( int *wordSize, bool *bigEndian );
 #define RCSTAG(string)
 #endif
 
-void debug( const char *, ... )			// print debug message
+Q_EXPORT void debug( const char *, ... )	// print debug message
 #if defined(_CC_GNU_)
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
 
-void warning( const char *, ... )		// print warning message
+Q_EXPORT void warning( const char *, ... )	// print warning message
 #if defined(_CC_GNU_)
     __attribute__ ((format (printf, 1, 2)))
 #endif
 ;
 
-void fatal( const char *, ... )			// print fatal message and exit
+Q_EXPORT void fatal( const char *, ... )	// print fatal message and exit
 #if defined(_CC_GNU_)
     __attribute__ ((format (printf, 1, 2)))
 #endif
@@ -444,7 +444,7 @@ void fatal( const char *, ... )			// print fatal message and exit
 	warning("ASSERT: \"%s\" in %s (%d)",#x,__FILE__,__LINE__)
 #endif
 
-bool chk_pointer( bool c, const char *, int );	// fatal error if c is TRUE
+Q_EXPORT bool chk_pointer( bool c, const char *, int );
 
 #if defined(CHECK_NULL)
 #define CHECK_PTR(p) (chk_pointer((p)==0,__FILE__,__LINE__))
@@ -455,7 +455,7 @@ bool chk_pointer( bool c, const char *, int );	// fatal error if c is TRUE
 enum QtMsgType { QtDebugMsg, QtWarningMsg, QtFatalMsg };
 
 typedef void (*msg_handler)(QtMsgType, const char *);
-msg_handler qInstallMsgHandler( msg_handler );	// install message handler
+Q_EXPORT msg_handler qInstallMsgHandler( msg_handler );
 
 
 //
@@ -465,13 +465,14 @@ msg_handler qInstallMsgHandler( msg_handler );	// install message handler
 #define QT_ADD_GENERIC_MACROS
 #endif
 
-void qSuppressObsoleteWarnings( bool = TRUE );
+Q_EXPORT void qSuppressObsoleteWarnings( bool = TRUE );
 
 #if !defined(QT_REJECT_OBSOLETE)
 #define QT_OBSOLETE
-void qObsolete( const char *obj, const char *oldfunc, const char *newfunc );
-void qObsolete( const char *obj, const char *oldfunc );
-void qObsolete( const char *message );
+Q_EXPORT void qObsolete( const char *obj, const char *oldfunc,
+			 const char *newfunc );
+Q_EXPORT void qObsolete( const char *obj, const char *oldfunc );
+Q_EXPORT void qObsolete( const char *message );
 #endif
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstrlist.h#26 $
+** $Id: //depot/qt/main/src/tools/qstrlist.h#27 $
 **
 ** Definition of QStrList, QStrIList and QStrListIterator classes
 **
@@ -31,8 +31,13 @@
 #endif // QT_H
 
 
-typedef QList<char>			QStrListBase;
-typedef QListIterator<char>		QStrListIterator;
+#if defined(QT_DLL)
+template class Q_EXPORT QList<char>;
+template class Q_EXPORT QListIterator<char>;
+#endif
+
+typedef QList<char>		QStrListBase;
+typedef QListIterator<char>	QStrListIterator;
 
 
 class Q_EXPORT QStrList : public QStrListBase
@@ -57,7 +62,7 @@ private:
 };
 
 
-class Q_EXPORT QStrIList : public QStrList		// case insensitive string list
+class Q_EXPORT QStrIList : public QStrList	// case insensitive string list
 {
 public:
     QStrIList( bool deepCopies=TRUE ) : QStrList( deepCopies ) {}
