@@ -201,6 +201,7 @@ static int similarity( const QString& s1, const QString& s2 )
 }
 
 /*!
+  \internal
   \class QPluginManager qpluginmanager.h
   \brief The QPluginManager class provides basic functions to access a certain kind of functionality in libraries.
   \ingroup componentmodel
