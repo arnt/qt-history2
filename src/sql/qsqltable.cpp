@@ -179,7 +179,7 @@ public:
 */
 
 QSqlTable::QSqlTable ( QWidget * parent, const char * name )
-    : QTable( parent, name )
+    : QTable( parent, name ), QSqlNavigatorBase()
 {
     init();
 }
@@ -239,17 +239,17 @@ QSqlTable::~QSqlTable()
 
 void QSqlTable::addColumn( const QSqlField* field )
 {
-    if ( cursor() && field &&
-	 cursor()->isVisible( field->name() ) &&
-	 !cursor()->primaryIndex().contains( field->name() ) ) {
+    if ( defaultCursor() && field &&
+	 defaultCursor()->isVisible( field->name() ) &&
+	 !defaultCursor()->primaryIndex().contains( field->name() ) ) {
 	setNumCols( numCols() + 1 );
-	d->colIndex.append( cursor()->position( field->name() ) );
+	d->colIndex.append( defaultCursor()->position( field->name() ) );
 	if ( field->isReadOnly() )
 	    d->colReadOnly.append( TRUE );
 	else
 	    d->colReadOnly.append( FALSE );
 	QHeader* h = horizontalHeader();
-	h->setLabel( numCols()-1, cursor()->displayLabel( field->name() ) );
+	h->setLabel( numCols()-1, defaultCursor()->displayLabel( field->name() ) );
     }
 }
 
@@ -287,10 +287,10 @@ void QSqlTable::setColumn( uint col, const QSqlField* field )
 {
     if ( col >= (uint)numCols() )
 	return;
-    if ( !cursor() )
+    if ( !defaultCursor() )
 	return;
-    if ( cursor()->isVisible( field->name() ) && !cursor()->primaryIndex().field( field->name() ) ) {
-	d->colIndex[ col ] = cursor()->position( field->name() );
+    if ( defaultCursor()->isVisible( field->name() ) && !defaultCursor()->primaryIndex().field( field->name() ) ) {
+	d->colIndex[ col ] = defaultCursor()->position( field->name() );
 	if ( field->isReadOnly() )
 	    d->colReadOnly[ col ] =  TRUE;
 	else
@@ -340,9 +340,7 @@ bool QSqlTable::isColumnReadOnly( int col ) const
 
 QString QSqlTable::filter() const
 {
-    if ( cursor() )
-	return cursor()->filter();
-    return d->ftr;
+    return QSqlNavigatorBase::filter();
 }
 
 /*! Sets the filter to be used on the displayed data to \a filter.  To
@@ -353,7 +351,7 @@ QString QSqlTable::filter() const
 
 void QSqlTable::setFilter( const QString& filter )
 {
-    d->ftr = filter;
+    QSqlNavigatorBase::setFilter( filter );
 }
 
 /*! Sets the sort to be used on the displayed data to \a sort.  If
@@ -365,7 +363,7 @@ void QSqlTable::setFilter( const QString& filter )
 
 void QSqlTable::setSort( const QStringList& sort )
 {
-    d->srt = sort;
+    QSqlNavigatorBase::setSort( sort );
 }
 
 /*! Sets the sort to be used on the displayed data to \a sort.  If
@@ -376,7 +374,7 @@ void QSqlTable::setSort( const QStringList& sort )
 
 void QSqlTable::setSort( const QSqlIndex& sort )
 {
-    d->srt = sort.toStringList( QString::null, TRUE );
+    QSqlNavigatorBase::setSort( sort );
 }
 
 
@@ -394,9 +392,7 @@ void QSqlTable::setSort( const QSqlIndex& sort )
 
 QStringList QSqlTable::sort() const
 {
-    if ( cursor() )
-	return cursor()->sort().toStringList( QString::null, TRUE );
-    return d->srt;
+    return QSqlNavigatorBase::sort();
 }
 
 /*! If \a confirm is TRUE, all edits will be confirmed with the user
@@ -833,7 +829,8 @@ void QSqlTable::insertCurrent()
 	QSqlIndex idx = d->cursor->primaryIndex( TRUE );
 	endInsert();
 	setEditMode( NotEditing, -1, -1 );
-	refresh( d->cursor, d->cursor->editBuffer(), idx );
+	refresh();
+	findBuffer( idx, d->lastAt );
 	emit cursorChanged( QSqlCursor::Insert );
 	setCurrentCell( currentRow(), currentColumn() );
 	break;
@@ -903,7 +900,8 @@ void QSqlTable::updateCurrent()
 	    handleError( d->cursor->lastError() );
 	QSqlIndex idx = d->cursor->primaryIndex( TRUE );
 	endUpdate();
-	refresh( d->cursor, d->cursor->editBuffer(), idx );
+	refresh();
+	findBuffer( idx, d->lastAt );
 	emit cursorChanged( QSqlCursor::Update );
 	setCurrentCell( currentRow(), currentColumn() );
 	break;
@@ -960,7 +958,7 @@ void QSqlTable::deleteCurrent()
 	QApplication::restoreOverrideCursor();
 	if ( !b )
 	    handleError( d->cursor->lastError() );
-	refresh( d->cursor );
+	refresh();
 	emit cursorChanged( QSqlCursor::Delete );
 	setCurrentCell( currentRow(), currentColumn() );
 	updateRow( currentRow() );
@@ -1031,41 +1029,6 @@ QSqlTable::Confirm  QSqlTable::confirmCancel( QSqlTable::Mode )
     return conf;
 }
 
-/*!  Refreshes the \a cursor.  A \c select() is issued on the \a
-  cursor using the cursor's current filter and current sort.  The
-  table is resized to accomodate the new cursor size.  If \a idx is
-  specified, the table selects the first record matching the value of
-  the index.
-
-  \sa QSql
-*/
-
-void QSqlTable::refresh( QSqlCursor* cursor, const QSqlRecord* buf, const QSqlIndex& idx )
-{
-    if ( !cursor )
-	return;
-
-    bool seekPrimary = (idx.count() ? TRUE : FALSE );
-    int lastAt = d->lastAt;
-
-    QSqlIndex pi;
-    if ( seekPrimary )
-	pi = idx;
-    QString currentFilter = cursor->filter();
-    if ( currentFilter.isEmpty() )
-	currentFilter = d->ftr;
-    QStringList currentSort = cursor->sort().toStringList( QString::null, TRUE );
-    if ( !currentSort.count() )
-	currentSort = d->srt;
-    QSqlIndex newSort = QSqlIndex::fromStringList( currentSort, cursor );
-    cursor->select( currentFilter, newSort );
-    setSize( cursor );
-    bool found = FALSE;
-    if ( seekPrimary && buf )
-	found = QSqlNavigator::relocate( cursor, buf, idx, lastAt );
-    if ( found )
-	setCurrentCell( cursor->at(), currentColumn() );
-}
 
 /*! Searches the current cursor for the string \a str. If the string
  is found, the cell containing the string is set as the current cell.
@@ -1508,9 +1471,9 @@ void QSqlTable::paintField( QPainter * p, const QSqlField* field,
 
 int QSqlTable::fieldAlignment( const QSqlField* field )
 {
-    if ( !cursor() )
+    if ( !defaultCursor() )
 	return Qt::AlignLeft | Qt::AlignVCenter;
-    return cursor()->alignment( field->name() ) | Qt::AlignVCenter;
+    return defaultCursor()->alignment( field->name() ) | Qt::AlignVCenter;
 }
 
 
@@ -1584,7 +1547,7 @@ void QSqlTable::setCursor( QSqlCursor* cursor, bool autoPopulate, bool autoDelet
 
 
 /*!  Protected virtual function which is called when an error has
-  occurred on the current cursor().  The default implementation
+  occurred on the current defaultCursor().  The default implementation
   displays a warning message to the user with information about the
   error.
 
@@ -1594,12 +1557,13 @@ void QSqlTable::handleError( const QSqlError& e )
     QMessageBox::warning ( this, "Warning", e.driverText() + "\n" + e.databaseText(), 0, 0 );
 }
 
-/*!  Returns a pointer to the cursor associated with the table, or 0
+/*!  \reimp
+  Returns a pointer to the cursor associated with the table, or 0
   if there is no current cursor.
 
 */
 
-QSqlCursor* QSqlTable::cursor() const
+QSqlCursor*  QSqlTable::defaultCursor()
 {
     return d->cursor;
 }
@@ -1650,16 +1614,6 @@ void QSqlTable::setPixmap ( int , int , const QPixmap &  )
 void QSqlTable::takeItem ( QTableItem * )
 {
 
-}
-
-/*! Refreshes the table using the current cursor.  If \a idx is
-  specified, the first record matching the index is selected.
-*/
-
-void QSqlTable::refresh( const QSqlIndex& idx )
-{
-    if ( d->cursor )
-	refresh( d->cursor, d->cursor->editBuffer(), idx );
 }
 
 /*!  Installs a new SQL editor factory. This enables the user to
@@ -1754,7 +1708,26 @@ void QSqlTable::sortDescending( int col )
 
 void QSqlTable::refresh()
 {
-    refresh( QSqlIndex() );
+    QSqlCursor* cursor = defaultCursor();
+    if ( !cursor )
+	return;
+    QSqlNavigatorBase::refresh();
+    setSize( cursor );
+}
+
+/*!  \reimp
+
+*/
+
+bool QSqlTable::findBuffer( const QSqlIndex& idx, int atHint )
+{
+    QSqlCursor* cursor = defaultCursor();
+    if ( !cursor )
+	return FALSE;
+    bool found = QSqlNavigatorBase::findBuffer( idx, atHint );
+    if ( found )
+	setCurrentCell( cursor->at(), currentColumn() );
+    return found;
 }
 
 /*! \fn void QSqlTable::currentChanged( const QSqlRecord* record )

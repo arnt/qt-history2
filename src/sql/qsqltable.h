@@ -44,6 +44,7 @@
 #include "qsqlcursor.h"
 #include "qsqlindex.h"
 #include "qsqleditorfactory.h"
+#include "qsqlnavigator.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
@@ -53,7 +54,7 @@ class QSqlField;
 class QSqlPropertyMap;
 class QSqlTablePrivate;
 
-class Q_EXPORT QSqlTable : public QTable
+class Q_EXPORT QSqlTable : public QTable, public QSqlNavigatorBase
 {
     Q_OBJECT
 
@@ -99,11 +100,10 @@ public:
     virtual void setSort( const QStringList& sort );
     virtual void setSort( const QSqlIndex& sort );
 
-    QSqlCursor*  cursor() const;
+    QSqlCursor*  defaultCursor();
 
     void         sortColumn ( int col, bool ascending = TRUE,
 			      bool wholeRows = FALSE );
-    void         refresh( const QSqlIndex& idx );
     QString      text ( int row, int col ) const;
     QVariant     value ( int row, int col ) const;
     QSqlRecord   currentFieldSelection() const;
@@ -115,6 +115,7 @@ public:
     int          numRows() const;
     void         setNumCols( int c );
     void         setNumRows ( int r );
+    bool         findBuffer( const QSqlIndex& idx, int atHint = 0 );
 
 signals:
     void         currentChanged( const QSqlRecord* record );
@@ -191,7 +192,6 @@ private slots:
 private:
     void         init();
     QWidget*     beginEdit ( int row, int col, bool replace );
-    void         refresh( QSqlCursor* cursor, const QSqlRecord* buf = 0, const QSqlIndex& idx = QSqlIndex() );
     void         updateRow( int row );
     void         endInsert();
     void         endUpdate();
