@@ -315,6 +315,9 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 						     destroySubWindows);
 	}
 	releaseMouse();
+	if ( qt_pressGrab == this )
+	  qt_pressGrab = 0;
+
 	if ( keyboardGrb == this )
 	    releaseKeyboard();
 	if ( testWFlags(WShowModal) )		// just be sure we leave modal
@@ -602,8 +605,6 @@ void QWidget::releaseMouse()
 	qwsDisplay()->grabMouse(this,FALSE);
 	qt_mouseGrb = 0;
     }
-    if ( qt_pressGrab == this )
-	qt_pressGrab = 0;
 }
 
 void QWidget::grabKeyboard()
