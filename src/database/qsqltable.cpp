@@ -187,12 +187,9 @@ void QSqlTable::setColumn( uint col, const QSqlField& field )
 
 */
 
-QWidget * QSqlTable::createEditor( int row, int col, bool initFromCell ) const
+QWidget * QSqlTable::createEditor( int , int, bool ) const
 {
     return 0;
-    Q_UNUSED( row );
-    Q_UNUSED( col );
-    Q_UNUSED( initFromCell );
 }
 
 /*!
@@ -212,6 +209,8 @@ void QSqlTable::reset()
     setNumCols(0);
     d->haveAllRows = FALSE;
     d->colIndex.clear();
+    if ( sorting() ) 
+	horizontalHeader()->setSortIndicator( -1 );
 }
 
 /*!
