@@ -85,7 +85,8 @@ static int opaqueOldPos = -1; // this assumes that there's only one mouse
 
 static QPoint toggle( QWidget *w, QPoint pos )
 {
-    return -pos - QPoint( w->minimumWidth(), w->minimumHeight() );
+    QSize ms = qSmartMinSize( w );
+    return -pos - QPoint( ms.width(), ms.height() );
 }
 
 static bool inFirstQuadrant( QWidget *w )
@@ -233,10 +234,10 @@ public:
     vertical.
 
     By default, all widgets can be as large or as small as the user
-    wishes, between the \l minimumSize and \l maximumSize of the
-    widgets. Use setResizeMode() to specify that a widget should keep
-    its size when the splitter is resized, or set the stretch
-    component of the \l sizePolicy.
+    wishes, between the \l minimumSizeHint() (or \l minimumSize())
+    and \l maximumSize() of the widgets. Use setResizeMode() to
+    specify that a widget should keep its size when the splitter is
+    resized, or set the stretch component of the \l sizePolicy.
 
     Although QSplitter normally resizes the children only at the end
     of a resize operation, if you call setOpaqueResize( TRUE ) the
@@ -586,7 +587,7 @@ void QSplitter::setGeo( QWidget *w, int p, int s, bool splitterMoved )
       Hide the child widget, but without calling hide() so that the
       splitter handle is still shown.
     */
-    if ( s <= 0 && pick(w->minimumSize()) > 0 )
+    if ( s <= 0 && pick(qSmartMinSize(w)) > 0 )
 	r.moveTopLeft( toggle(w, r.topLeft()) );
     w->setGeometry( r );
 }
@@ -628,7 +629,7 @@ void QSplitter::doMove( bool backwards, int pos, int id, int delta, bool upLeft,
 	    int dd = backwards ? pos - pick( topLeft(w) )
 			       : pick( bottomRight(w) ) - pos + 1;
 	    if ( dd > 0 || (inFirstQuadrant(w) && !maySquash) ) {
-		dd = QMAX( pick(w->minimumSize()),
+		dd = QMAX( pick(qSmartMinSize(w)),
 			   QMIN(dd, pick(w->maximumSize())) );
 	    } else {
 		dd = 0;
@@ -677,13 +678,13 @@ void QSplitter::getRange( int id, int *farMin, int *min, int *max, int *farMax )
     }
 
     if ( farMin )
-	*farMin = minVal - pick( data->list.at(id - 1)->wid->minimumSize() );
+	*farMin = minVal - pick( qSmartMinSize(data->list.at(id - 1)->wid) );
     if ( min )
 	*min = minVal;
     if ( max )
 	*max = maxVal;
     if ( farMax )
-	*farMax = maxVal + pick( data->list.at( id + 1 )->wid->minimumSize() );
+	*farMax = maxVal + pick( qSmartMinSize(data->list.at(id + 1)->wid) );
 }
 
 
@@ -782,7 +783,7 @@ void QSplitter::doResize()
 		    }
 		}
 
-		a[i].minimumSize = pick( s->wid->minimumSize() );
+		a[i].minimumSize = pick( qSmartMinSize(s->wid) );
 		a[i].maximumSize = pick( s->wid->maximumSize() );
 		a[i].empty = FALSE;
 
@@ -855,7 +856,7 @@ void QSplitter::recalc( bool update )
 		minl += s->getSizer( orient );
 		maxl += s->getSizer( orient );
 	    } else {
-		QSize minS = s->wid->minimumSize();
+		QSize minS = qSmartMinSize( s->wid );
 		minl += pick( minS );
 		maxl += pick( s->wid->maximumSize() );
 		mint = QMAX( mint, trans(minS) );
@@ -1103,7 +1104,7 @@ void QSplitter::addContribution( int id, int *min, int *max,
 	    *max += s->getSizer( orient );
 	} else {
 	    if ( !onlyFirstQuadrant || inFirstQuadrant(s->wid) )
-		*min += pick( s->wid->minimumSize() );
+		*min += pick( qSmartMinSize(s->wid) );
 	    *max += pick( s->wid->maximumSize() );
 	}
     }
