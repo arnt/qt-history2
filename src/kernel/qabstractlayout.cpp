@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#18 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -69,10 +69,14 @@
   Returns the alignment of this item.
 */
 
-/*! \fn void QLayoutItem::setAlignment (int a)
-  Sets the alignment of this item to \a a.
+
+/*! Sets the alignment of this item to \a a.
 */
 
+void QLayoutItem::setAlignment( int a )
+{
+     align = a;
+}
 
 
 /*! \fn  QSize QLayoutItem::maximumSize () const
