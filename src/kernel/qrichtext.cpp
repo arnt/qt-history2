@@ -1612,7 +1612,7 @@ QString QTextDocument::plainText( QTextParag *p ) const
 
 static QString align_to_string( const QString &tag, int a )
 {
-    if ( tag == "p" || tag == "li" || tag[ 0 ] == "h" ) {
+    if ( tag == "p" || tag == "li" || tag[ 0 ] == 'h' ) {
 	if ( a & Qt::AlignRight )
 	    return " align=right ";
 	if ( a & Qt::AlignCenter )
