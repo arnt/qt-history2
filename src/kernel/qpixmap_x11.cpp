@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#14 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#14 $";
 #endif
 
 
@@ -80,18 +80,19 @@ The advantages of data sharing is that objects can easily be assigned,
 sent as parameters to functions and returned from functions.
 Shared classes also allocates less memory and require less copying of data.
 
+*/ /*
 The disadvantage of data sharing is that changing one object will
 automatically change all other objects that refer to the same data.
 This is always the case when using explicite sharing.  The programmer
 has to be careful when modifying objects, and in some cases, make
 copies or detach an object from the rest.
 
-Implicite sharing solves these problems. A class that uses implicit
+Implicit sharing solves these problems. A class that uses implicit
 sharing knows when it is about to be modified, and then detaches
-itself from the rest.  Implicite sharing is only possible when the
+itself from the rest.  Implicit sharing is only possible when the
 class has total control of the call interface.
 
-Implicite sharing cannot be done when a class exports some of its
+Implicit sharing cannot be done when a class exports some of its
 internal data. Therefore, classes like QString and QImage must be explicitly
 shared classes.
 */
