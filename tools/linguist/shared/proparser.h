@@ -1,8 +1,6 @@
 /**********************************************************************
 **   Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
-**   proparser.h
-**
 **   This file is part of Qt Linguist.
 **
 **   See the file LICENSE included in the distribution for the usage
