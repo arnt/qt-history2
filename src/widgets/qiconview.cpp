@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#139 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#140 $
 **
 ** Definition of QIconView widget class
 **
@@ -1459,9 +1459,9 @@ void QIconViewItem::paintItem( QPainter *p )
 
     QIconSet::Mode m = QIconSet::Normal;
     if ( isSelected() )
-	m = QIconSet::Active;
-    else if ( !isSelectable() )
-	m = QIconSet::Disabled;
+ 	m = QIconSet::Active;
+//     else if ( !isSelectable() )
+// 	m = QIconSet::Disabled;
 
     calcTmpText();
 
@@ -4453,7 +4453,7 @@ QSize QIconView::sizeHint() const
     h += d->spacing;
 
     d->dirty = TRUE;
-    
+
     return QSize( QMIN( 400, w ), QMIN( 400, h ) );
 }
 
