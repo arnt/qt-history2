@@ -972,7 +972,7 @@ const QObjectList *QObject::objectTrees()
 QObjectList *QObject::queryList( const char *inheritsClass,
 				 const char *objName,
 				 bool regexpMatch,
-				 bool recursiveSearch )
+				 bool recursiveSearch ) const
 {
     QObjectList *list = new QObjectList;
     CHECK_PTR( list );

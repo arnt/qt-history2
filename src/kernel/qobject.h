@@ -93,11 +93,10 @@ public:
 
     static const QObjectList *objectTrees();
 
-    //### make queryList const in 3.0
     QObjectList	      *queryList( const char *inheritsClass = 0,
 				  const char *objName = 0,
 				  bool regexpMatch = TRUE,
-				  bool recursiveSearch = TRUE );
+				  bool recursiveSearch = TRUE ) const;
 
     virtual void insertChild( QObject * );
     virtual void removeChild( QObject * );
@@ -119,8 +118,8 @@ public:
     void	 dumpObjectInfo();
 
 #ifndef QT_NO_PROPERTIES
-    bool setProperty( const char *name, const QVariant& value ); // virtual in Qt 3.0
-    QVariant property( const char *name ) const;    // virtual in Qt 3.0
+    virtual bool setProperty( const char *name, const QVariant& value );
+    virtual QVariant property( const char *name ) const;
 #endif // QT_NO_PROPERTIES
 
 signals:
