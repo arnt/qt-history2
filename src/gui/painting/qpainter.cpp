@@ -263,10 +263,6 @@ void QPainterPrivate::draw_helper_stroke_normal(const void *data, ShapeType shap
 */
 void QPainterPrivate::draw_helper_stroke_pathbased(const void *data, ShapeType shape)
 {
-#ifdef QT_DEBUG_DRAW
-    if (qt_show_painter_debug_output)
-        printf(" -> stroke pathbased()\n");
-#endif
     QPainterPath path;
     switch (shape) {
     case EllipseShape:
@@ -283,16 +279,19 @@ void QPainterPrivate::draw_helper_stroke_pathbased(const void *data, ShapeType s
         break;
     }
 
+#ifdef QT_DEBUG_DRAW
+    QRectF pathBounds = path.boundingRect();
+    if (qt_show_painter_debug_output)
+        printf(" -> stroke pathbased(), [%.2f,%.2f,%.2f,%.2f]\n",
+               pathBounds.x(), pathBounds.y(), pathBounds.width(), pathBounds.height());
+#endif
+
     Q_Q(QPainter);
-    bool doRestore = false;
+
     float width = state->pen.width();
     if (state->pen.width() == 0) {
-        if (state->txop != TxNone && state->pen.width() == 0) {
+        if (state->txop != TxNone)
             path = path * state->worldMatrix;
-            q->save();
-            q->resetMatrix();
-            doRestore = true;
-        }
         width = 1;
     }
 
@@ -302,10 +301,15 @@ void QPainterPrivate::draw_helper_stroke_pathbased(const void *data, ShapeType s
     stroker.setCapStyle(state->pen.capStyle());
     stroker.setJoinStyle(state->pen.joinStyle());
 
-    q->fillPath(stroker.createStroke(path), QBrush(state->pen.color()));
+    QPainterPath stroke = stroker.createStroke(path);
 
-    if (doRestore)
-        q->restore();
+    if (state->txop > TxNone)
+        stroke = stroke * state->worldMatrix;
+
+    q->save();
+    q->resetMatrix();
+    q->fillPath(stroke, QBrush(state->pen.color()));
+    q->restore();
 }
 
 
@@ -1822,8 +1826,11 @@ void QPainter::fillPath(const QPainterPath &path, const QBrush &brush)
 void QPainter::drawPath(const QPainterPath &path)
 {
 #ifdef QT_DEBUG_DRAW
+    QRectF pathBounds = path.boundingRect();
     if (qt_show_painter_debug_output)
-        printf("QPainter::drawPath(), size=%d\n", path.elementCount());
+        printf("QPainter::drawPath(), size=%d, [%.2f,%.2f,%.2f,%.2f]\n",
+               path.elementCount(),
+               pathBounds.x(), pathBounds.y(), pathBounds.width(), pathBounds.height());
 #endif
 
     if (!isActive())
@@ -1848,11 +1855,6 @@ void QPainter::drawPath(const QPainterPath &path)
         convertMatrix = d->state->matrix;
     }
 
-    QList<QPolygon> polygons = path.toSubpathPolygons(convertMatrix);
-    if (polygons.isEmpty())
-        return;
-
-
     save();
 
     if ((emulationSpecifier & QPaintEngine::LinearGradients)
@@ -1870,24 +1872,28 @@ void QPainter::drawPath(const QPainterPath &path)
         setPen(Qt::NoPen);
 	d->engine->updateState(d->state);
         for (int i=0; i<fills.size(); ++i) {
-            if (emulationSpecifier)
+            if (emulationSpecifier) {
                 d->draw_helper(&fills.at(i), path.fillRule(), QPainterPrivate::PolygonShape,
                                QPainterPrivate::StrokeAndFillDraw, emulationSpecifier);
-            else
+            } else {
                 d->engine->drawPolygon(fills.at(i), QPaintEngine::PolygonDrawMode(path.fillRule()));
+            }
         }
         setPen(oldPen);
     }
 
     // Draw the outline of the path...
     if (d->state->pen.style() != Qt::NoPen) {
-	for (int i=0; i<polygons.size(); ++i) {
-	    d->engine->updateState(d->state);
-            if (emulationSpecifier) {
-                QPolygon polygon = polygons.at(i);
-                d->draw_helper(&polygon, path.fillRule(), QPainterPrivate::LineShape,
-                               QPainterPrivate::StrokeDraw);
-            } else {
+        d->engine->updateState(d->state);
+        // Only use helper if we have other than xform or a penwidth != 0.
+        if (d->engine->emulationSpecifier
+            && (d->engine->emulationSpecifier != QPaintEngine::CoordTransform)
+            && (d->state->pen.width() != 0)) {
+            d->draw_helper(&path, path.fillRule(), QPainterPrivate::PathShape,
+                           QPainterPrivate::StrokeDraw, d->engine->emulationSpecifier);
+        } else {
+            QList<QPolygon> polygons = path.toSubpathPolygons(convertMatrix);
+            for (int i=0; i<polygons.size(); ++i) {
                 d->engine->drawPolygon(polygons.at(i), QPaintEngine::PolylineMode);
             }
 	}
