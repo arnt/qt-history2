@@ -111,6 +111,11 @@ public:
 
 bool QMacMimeAnyMime::loadMimeRegistry()
 {
+    static bool loaded = FALSE;
+    if(loaded) 
+	return TRUE;
+    loaded = TRUE;
+
     QSettings mime_settings;
     mime_settings.setPath("MimeRegistry", "qt");
     mime_registry.clear();
@@ -148,6 +153,7 @@ int QMacMimeAnyMime::registerMimeType(const char *mime)
 	    mime_settings.writeEntry(QString("keys/mime_type") + QString::number(ret - 'QT00') + "/mac_type", ret);
 	    mime_settings.writeEntry(QString("keys/mime_type") + QString::number(ret - 'QT00') + "/qt_type", mime);
 	    mime_settings.writeEntry("serial_reg", ++ser);
+	    mime_registry.insert(mime, ret);
 	    return ret;
 	}
     }
