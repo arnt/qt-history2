@@ -76,23 +76,15 @@ int main( int /*argc*/, char** /*argv*/ )
 #endif
 
 #if 0
-    /* update record with id = 2 */
-    env.program().append( new Open( 0, FILENAME ) );
-    env.program().append( new Next( 0, 7 ) );
-    env.program().append( new PushFieldValue( 0, 0 ) );
-    env.program().append( new Push( 2 ) );
-    env.program().append( new Ne( 1 ) );
-    env.program().append( new Mark( 0 ) );
-    env.program().append( new Goto( 1 ) );
-    QVariant name = "name";
-    QVariant value = QString("barf");
-    QValueList<QVariant> field;
-    field.append( name );
-    field.append( value );
-    env.program().append( new Push( field ) );
-    env.program().append( new PushList( 1 ) );
-    env.program().append( new UpdateMarked( 0 ) );
-    env.program().append( new Close( 0 ) );
+    /* update a record */
+    /* update a record */
+    env.program()->append( new Open( 0, FILENAME ) );
+    env.program()->append( new Next( 0, 6 ) );
+    env.program()->append( new Push( QString("name") ) );
+    env.program()->append( new Push( QString("blarg") ) );
+    env.program()->append( new PushList( 2 ) );
+    env.program()->append( new Update( 0 ) );
+    env.program()->append( new Close( 0 ) );
 #endif
 
 #if 0
