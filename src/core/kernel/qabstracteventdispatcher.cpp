@@ -61,7 +61,8 @@
 QAbstractEventDispatcher::QAbstractEventDispatcher(QObject *parent)
     : QObject(*new QAbstractEventDispatcherPrivate, parent)
 {
-    if (!QCoreApplication::instance()) {
+    QThreadData *data = QThreadData::current();
+    if (!data) {
         if (!QCoreApplicationPrivate::eventDispatcher) {
             QCoreApplicationPrivate::eventDispatcher = this;
         } else {
@@ -69,9 +70,6 @@ QAbstractEventDispatcher::QAbstractEventDispatcher(QObject *parent)
                        "An event dispatcher has already been created for the application");
         }
     } else {
-        QThreadData *data = QThreadData::current();
-        Q_ASSERT_X(data != 0, "QAbstractEventDispatcher",
-                   "QAbstractEventDispatcher can only be used with threads started with QThread");
         Q_ASSERT_X(!data->eventDispatcher, "QAbstractEventDispatcher",
                    "An event dispatcher has already been created for this thread");
         Q_UNUSED(data);
@@ -85,7 +83,8 @@ QAbstractEventDispatcher::QAbstractEventDispatcher(QAbstractEventDispatcherPriva
                                                    QObject *parent)
     : QObject(dd, parent)
 {
-    if (!QCoreApplication::instance()) {
+    QThreadData *data = QThreadData::current();
+    if (!data) {
         if (!QCoreApplicationPrivate::eventDispatcher) {
             QCoreApplicationPrivate::eventDispatcher = this;
         } else {
@@ -93,9 +92,6 @@ QAbstractEventDispatcher::QAbstractEventDispatcher(QAbstractEventDispatcherPriva
                        "An event dispatcher has already been created for the application");
         }
     } else {
-        QThreadData *data = QThreadData::current();
-        Q_ASSERT_X(data != 0, "QAbstractEventDispatcher",
-                   "QAbstractEventDispatcher can only be used with threads started with QThread");
         Q_ASSERT_X(!data->eventDispatcher, "QAbstractEventDispatcher",
                    "An event dispatcher has already been created for this thread");
         Q_UNUSED(data);
