@@ -932,7 +932,7 @@ void QWidget::repaint(const QRegion& rgn)
     }
 
     if (!testAttribute(Qt::WA_NoBackground) && !testAttribute(Qt::WA_NoSystemBackground) ) {
-        QPoint offset;
+        QPoint offset = redirectionOffset;
         QStack<QWidget*> parents;
         QWidget *w = q;
         while (w->d->isBackgroundInherited()) {
