@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: i18n.doc,v 1.8 1999/03/10 18:34:06 warwick Exp $
+** $Id: i18n.doc,v 1.9 1999/03/11 11:03:23 warwick Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -133,7 +133,12 @@ be too concerned with the actual limitations.
 If using the Kinput2 XIM Server, users may need to apply the
 bug-fix patch below.  Without this patch, Kinput2 produces bad
 XIM Protocol, causing application lock-up.
+<p>
+For a recent version of Kinput2 that includes all users need, see
+<a href=ftp://ftp.sra.co.jp/pub/x11/kinput2/>
+ftp://ftp.sra.co.jp/pub/x11/kinput2/</a>
 
+<p>Patch...
 \code
 --- lib/imlib/imrequest.c~	Mon Feb  3 10:21:46 1997
 +++ lib/imlib/imrequest.c	Wed Mar 10 19:23:09 1999
