@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#64 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -397,7 +397,8 @@ void QWidgetItem::setGeometry( const QRect &r )
     else if ( !(align & Qt::AlignTop) )
 	y = y + ( r.height() - s.height() ) / 2;
 
-    wid->setGeometry( x, y, s.width(), s.height() );
+    if ( !wid->testWState( QWidget::WState_ForceHide ) )
+	wid->setGeometry( x, y, s.width(), s.height() );
 }
 
 

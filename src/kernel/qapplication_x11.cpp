@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#534 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#535 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2351,11 +2351,11 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		QRect frect ( r );
 		
 		if ( x == 0 && y == 0 && a.width == r.width() && a.height == r.height() ) {
-		    // multi reparenting window manager, parent is just a shell		    
+		    // multi reparenting window manager, parent is just a shell		
 		    Window root_return, parent_return, *children_return;
 		    unsigned int nchildren;
-		    if ( XQueryTree( widget->x11Display(), parent, 
-				     &root_return, &parent_return, 
+		    if ( XQueryTree( widget->x11Display(), parent,
+				     &root_return, &parent_return,
 				     &children_return, &nchildren) ) {
 			if ( children_return )
 			    XFree( (void*) children_return );
@@ -3067,11 +3067,11 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	globalPos.rx() = xevent->xmotion.x_root;
 	globalPos.ry() = xevent->xmotion.y_root;
 	state = translateButtonState( xevent->xmotion.state );
-	if ( !qt_button_down )
-	    state &= ~(LeftButton |
-		       MidButton |
-		       RightButton );
-    } else if (	 event->type == EnterNotify || event->type == LeaveNotify) {
+	if ( qt_button_down && (state & (LeftButton |
+					 MidButton |
+					 RightButton ) ) == 0 )
+	    qt_button_down = 0;
+    } else if ( event->type == EnterNotify || event->type == LeaveNotify) {
 	XEvent *xevent = (XEvent *)event;
 	//unsigned int xstate = event->xcrossing.state;
 	type = QEvent::MouseMove;
@@ -3080,15 +3080,10 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	globalPos.rx() = xevent->xcrossing.x_root;
 	globalPos.ry() = xevent->xcrossing.y_root;
 	state = translateButtonState( xevent->xcrossing.state );
-	/*
-	  ########### Can you take a look at this, Matthias?
-	  if ( !qt_button_down )
-	    state &= ~(LeftButton |
-		       MidButton |
-		       RightButton );
-	*/
-	
-	
+	if ( qt_button_down && (state & (LeftButton |
+					 MidButton |
+					 RightButton ) ) == 0 )
+	    qt_button_down = 0;
     } else {					// button press or release
 	pos.rx() = event->xbutton.x;
 	pos.ry() = event->xbutton.y;
