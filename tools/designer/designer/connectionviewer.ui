@@ -1,5 +1,6 @@
-<!DOCTYPE UI><UI>
-<class>ConnectionViewerBase</class><comment>*********************************************************************
+<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<class>ConnectionViewerBase</class>
+<comment>*********************************************************************
 ** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
@@ -18,241 +19,192 @@
 ** not clear to you.
 **
 *********************************************************************</comment>
-<widget>
-    <class>QDialog</class>
-    <property stdset="1">
-        <name>name</name>
+<widget class="QDialog">
+    <property name="name">
         <cstring>ConnectionViewerBase</cstring>
     </property>
-    <property stdset="1">
-        <name>geometry</name>
+    <property name="geometry">
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>705</width>
-            <height>317</height>
+            <width>701</width>
+            <height>315</height>
         </rect>
     </property>
-    <property stdset="1">
-        <name>caption</name>
+    <property name="caption">
         <string>View Connections</string>
     </property>
-    <property stdset="1">
-        <name>sizeGripEnabled</name>
+    <property name="sizeGripEnabled">
         <bool>true</bool>
     </property>
-    <property>
-        <name>whatsThis</name>
+    <property name="whatsThis" stdset="0">
         <string>&lt;b&gt;View Connections&lt;/b&gt;&lt;p&gt;Displays all connections in the current form Select a connection from the list and click the &lt;b&gt;Edit&lt;/b&gt;-button to change the connection.&lt;/p&gt;</string>
     </property>
     <grid>
-        <property stdset="1">
-            <name>margin</name>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <property name="margin">
             <number>11</number>
         </property>
-        <property stdset="1">
-            <name>spacing</name>
+        <property name="spacing">
             <number>6</number>
         </property>
-        <widget row="3"  column="0"  rowspan="1"  colspan="2" >
-            <class>QLayoutWidget</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QLayoutWidget" row="3" column="0" rowspan="1" colspan="2">
+            <property name="name">
                 <cstring>Layout1</cstring>
             </property>
             <hbox>
-                <property stdset="1">
-                    <name>margin</name>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
                     <number>0</number>
                 </property>
-                <property stdset="1">
-                    <name>spacing</name>
+                <property name="spacing">
                     <number>6</number>
                 </property>
-                <widget>
-                    <class>QPushButton</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QPushButton">
+                    <property name="name">
                         <cstring>helpButton</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>text</name>
+                    <property name="text">
                         <string>&amp;Help</string>
                     </property>
-                    <property stdset="1">
-                        <name>autoDefault</name>
+                    <property name="autoDefault">
                         <bool>true</bool>
                     </property>
-                    <property>
-                        <name>whatsThis</name>
+                    <property name="whatsThis" stdset="0">
                         <string></string>
                     </property>
                 </widget>
                 <spacer>
-                    <property>
-                        <name>name</name>
+                    <property name="name">
                         <cstring>Horizontal Spacing2</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>orientation</name>
+                    <property name="orientation">
                         <enum>Horizontal</enum>
                     </property>
-                    <property stdset="1">
-                        <name>sizeType</name>
+                    <property name="sizeType">
                         <enum>Expanding</enum>
                     </property>
-                    <property>
-                        <name>sizeHint</name>
+                    <property name="sizeHint">
                         <size>
                             <width>20</width>
                             <height>20</height>
                         </size>
                     </property>
                 </spacer>
-                <widget>
-                    <class>QPushButton</class>
-                    <property stdset="1">
-                        <name>name</name>
+                <widget class="QPushButton">
+                    <property name="name">
                         <cstring>closeButton</cstring>
                     </property>
-                    <property stdset="1">
-                        <name>text</name>
+                    <property name="text">
                         <string>&amp;Close</string>
                     </property>
-                    <property stdset="1">
-                        <name>autoDefault</name>
+                    <property name="autoDefault">
                         <bool>true</bool>
                     </property>
-                    <property>
-                        <name>whatsThis</name>
+                    <property name="whatsThis" stdset="0">
                         <string>Close the Dialog.</string>
                     </property>
                 </widget>
             </hbox>
         </widget>
-        <widget row="0"  column="0"  rowspan="3"  colspan="1" >
-            <class>QListView</class>
+        <widget class="QListView" row="0" column="0" rowspan="3" colspan="1">
             <column>
-                <property>
-                    <name>text</name>
+                <property name="text">
                     <string>Sender</string>
                 </property>
-                <property>
-                    <name>clickable</name>
+                <property name="clickable">
                     <bool>true</bool>
                 </property>
-                <property>
-                    <name>resizeable</name>
+                <property name="resizeable">
                     <bool>true</bool>
                 </property>
             </column>
             <column>
-                <property>
-                    <name>text</name>
+                <property name="text">
                     <string>Signal</string>
                 </property>
-                <property>
-                    <name>clickable</name>
+                <property name="clickable">
                     <bool>true</bool>
                 </property>
-                <property>
-                    <name>resizeable</name>
+                <property name="resizeable">
                     <bool>true</bool>
                 </property>
             </column>
             <column>
-                <property>
-                    <name>text</name>
+                <property name="text">
                     <string>Receiver</string>
                 </property>
-                <property>
-                    <name>clickable</name>
+                <property name="clickable">
                     <bool>true</bool>
                 </property>
-                <property>
-                    <name>resizeable</name>
+                <property name="resizeable">
                     <bool>true</bool>
                 </property>
             </column>
             <column>
-                <property>
-                    <name>text</name>
+                <property name="text">
                     <string>Slot</string>
                 </property>
-                <property>
-                    <name>clickable</name>
+                <property name="clickable">
                     <bool>true</bool>
                 </property>
-                <property>
-                    <name>resizeable</name>
+                <property name="resizeable">
                     <bool>true</bool>
                 </property>
             </column>
-            <property stdset="1">
-                <name>name</name>
+            <property name="name">
                 <cstring>connectionListView</cstring>
             </property>
-            <property stdset="1">
-                <name>allColumnsShowFocus</name>
+            <property name="allColumnsShowFocus">
                 <bool>true</bool>
             </property>
-            <property stdset="1">
-                <name>showSortIndicator</name>
+            <property name="showSortIndicator">
                 <bool>true</bool>
             </property>
-            <property>
-                <name>whatsThis</name>
+            <property name="whatsThis" stdset="0">
                 <string>&lt;b&gt;Displays a list of connections.&lt;/b&gt;&lt;p&gt;Select a connection and choose edit, or double-click on an item to change the connection.&lt;/p&gt;</string>
             </property>
         </widget>
-        <widget row="0"  column="1" >
-            <class>QPushButton</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QPushButton" row="0" column="1">
+            <property name="name">
                 <cstring>editButton</cstring>
             </property>
-            <property stdset="1">
-                <name>text</name>
+            <property name="text">
                 <string>&amp;Edit...</string>
             </property>
-            <property>
-                <name>toolTip</name>
+            <property name="toolTip" stdset="0">
                 <string>Edit connection</string>
             </property>
-            <property>
-                <name>whatsThis</name>
+            <property name="whatsThis" stdset="0">
                 <string>Opens a dialog to change the selected connection.</string>
             </property>
         </widget>
-        <spacer row="2"  column="1" >
-            <property>
-                <name>name</name>
+        <spacer row="2" column="1">
+            <property name="name">
                 <cstring>Vertical Spacing1</cstring>
             </property>
-            <property stdset="1">
-                <name>orientation</name>
+            <property name="orientation">
                 <enum>Vertical</enum>
             </property>
-            <property stdset="1">
-                <name>sizeType</name>
+            <property name="sizeType">
                 <enum>Expanding</enum>
             </property>
-            <property>
-                <name>sizeHint</name>
+            <property name="sizeHint">
                 <size>
                     <width>20</width>
                     <height>20</height>
                 </size>
             </property>
         </spacer>
-        <widget row="1"  column="1" >
-            <class>QPushButton</class>
-            <property stdset="1">
-                <name>name</name>
+        <widget class="QPushButton" row="1" column="1">
+            <property name="name">
                 <cstring>disconnectButton</cstring>
             </property>
-            <property stdset="1">
-                <name>text</name>
+            <property name="text">
                 <string>&amp;Disconnect</string>
             </property>
         </widget>
@@ -301,8 +253,17 @@
         <receiver>ConnectionViewerBase</receiver>
         <slot>editConnection()</slot>
     </connection>
-    <slot access="protected">currentConnectionChanged(QListViewItem*)</slot>
-    <slot access="protected">disconnectConnection()</slot>
-    <slot access="protected">editConnection()</slot>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
+    <slot access="protected" language="C++" returnType="void">currentConnectionChanged(QListViewItem*)</slot>
+    <slot access="protected" language="C++" returnType="void">disconnectConnection()</slot>
+    <slot access="protected" language="C++" returnType="void">editConnection()</slot>
 </connections>
+<tabstops>
+    <tabstop>closeButton</tabstop>
+    <tabstop>connectionListView</tabstop>
+    <tabstop>editButton</tabstop>
+    <tabstop>disconnectButton</tabstop>
+    <tabstop>helpButton</tabstop>
+</tabstops>
 </UI>

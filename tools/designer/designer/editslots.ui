@@ -27,8 +27,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>502</width>
-            <height>351</height>
+            <width>498</width>
+            <height>349</height>
         </rect>
     </property>
     <property name="caption">
@@ -146,7 +146,7 @@
                     </property>
                 </widget>
                 <spacer>
-                    <property name="name" stdset="0">
+                    <property name="name">
                         <cstring>Horizontal Spacing2</cstring>
                     </property>
                     <property name="orientation">
@@ -224,7 +224,7 @@
             </property>
         </widget>
         <spacer row="1" column="0">
-            <property name="name" stdset="0">
+            <property name="name">
                 <cstring>Vertical Spacing1</cstring>
             </property>
             <property name="orientation">
@@ -254,6 +254,9 @@
                 <string>Slot Properties</string>
             </property>
             <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
                 <property name="margin">
                     <number>11</number>
                 </property>
@@ -430,6 +433,8 @@
     <slot access="protected" language="C++" returnType="void">slotRemove()</slot>
 </connections>
 <tabstops>
+    <tabstop>okButton</tabstop>
+    <tabstop>cancelButton</tabstop>
     <tabstop>slotListView</tabstop>
     <tabstop>addSlot</tabstop>
     <tabstop>deleteSlot</tabstop>
@@ -437,7 +442,5 @@
     <tabstop>slotName</tabstop>
     <tabstop>slotAccess</tabstop>
     <tabstop>helpButton</tabstop>
-    <tabstop>okButton</tabstop>
-    <tabstop>cancelButton</tabstop>
 </tabstops>
 </UI>

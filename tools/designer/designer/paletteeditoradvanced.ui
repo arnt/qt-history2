@@ -30,8 +30,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>331</width>
-            <height>343</height>
+            <width>327</width>
+            <height>341</height>
         </rect>
     </property>
     <property name="caption">
@@ -726,8 +726,17 @@
     <slot access="public" language="C++" returnType="void">showHelp()</slot>
 </connections>
 <tabstops>
-    <tabstop>buttonHelp</tabstop>
     <tabstop>buttonOk</tabstop>
     <tabstop>buttonCancel</tabstop>
+    <tabstop>paletteCombo</tabstop>
+    <tabstop>checkBuildInactive</tabstop>
+    <tabstop>checkBuildDisabled</tabstop>
+    <tabstop>comboCentral</tabstop>
+    <tabstop>buttonPixmap</tabstop>
+    <tabstop>buttonCentral</tabstop>
+    <tabstop>checkBuildEffect</tabstop>
+    <tabstop>comboEffect</tabstop>
+    <tabstop>buttonEffect</tabstop>
+    <tabstop>buttonHelp</tabstop>
 </tabstops>
 </UI>

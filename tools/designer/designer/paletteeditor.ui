@@ -27,8 +27,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>453</width>
-            <height>445</height>
+            <width>449</width>
+            <height>443</height>
         </rect>
     </property>
     <property name="sizePolicy">
@@ -122,7 +122,7 @@
                         </sizepolicy>
                     </property>
                     <property name="focusPolicy">
-                        <enum>NoFocus</enum>
+                        <enum>StrongFocus</enum>
                     </property>
                     <property name="scale" stdset="0">
                         <bool>false</bool>
@@ -180,7 +180,7 @@
                         </sizepolicy>
                     </property>
                     <property name="focusPolicy">
-                        <enum>NoFocus</enum>
+                        <enum>StrongFocus</enum>
                     </property>
                     <property name="scale" stdset="0">
                         <bool>false</bool>
@@ -478,4 +478,13 @@
     <slot access="protected" language="C++" returnType="void">onChooseMainColor()</slot>
     <slot access="protected" language="C++" returnType="void">paletteSelected(int)</slot>
 </connections>
+<tabstops>
+    <tabstop>buttonOk</tabstop>
+    <tabstop>buttonCancel</tabstop>
+    <tabstop>buttonMainColor</tabstop>
+    <tabstop>buttonMainColor2</tabstop>
+    <tabstop>btnAdvanced</tabstop>
+    <tabstop>paletteCombo</tabstop>
+    <tabstop>buttonHelp</tabstop>
+</tabstops>
 </UI>

@@ -27,8 +27,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>659</width>
-            <height>439</height>
+            <width>655</width>
+            <height>437</height>
         </rect>
     </property>
     <property name="caption">
@@ -173,7 +173,7 @@
             </property>
         </widget>
         <spacer row="6" column="2">
-            <property name="name" stdset="0">
+            <property name="name">
                 <cstring>Spacer3</cstring>
             </property>
             <property name="orientation">
@@ -215,7 +215,7 @@
                     </property>
                 </widget>
                 <spacer>
-                    <property name="name" stdset="0">
+                    <property name="name">
                         <cstring>Horizontal Spacing1</cstring>
                     </property>
                     <property name="orientation">
@@ -265,7 +265,7 @@
             </hbox>
         </widget>
         <spacer row="3" column="2">
-            <property name="name" stdset="0">
+            <property name="name">
                 <cstring>Spacer2</cstring>
             </property>
             <property name="orientation">
@@ -405,26 +405,30 @@
         <sender>comboReceiver</sender>
         <signal>activated(const QString&amp;)</signal>
         <receiver>ConnectionEditorBase</receiver>
-        <slot>receiverChanged( const QString &amp; )</slot>
+        <slot>receiverChanged(const QString&amp;)</slot>
     </connection>
-    <slot access="public">addSlotClicked()</slot>
-    <slot access="protected">connectClicked()</slot>
-    <slot access="protected">connectionsChanged()</slot>
-    <slot access="protected">disconnectClicked()</slot>
-    <slot access="protected">receiverChanged( const QString &amp; )</slot>
-    <slot access="protected">okClicked()</slot>
-    <slot access="protected">signalChanged()</slot>
-    <slot access="protected">slotsChanged()</slot>
-    <slot access="protected">cancelClicked()</slot>
+    <slot access="protected" language="C++" returnType="void">init()</slot>
+    <slot access="protected" language="C++" returnType="void">destroy()</slot>
+    <slot access="public" language="C++" returnType="void">addSlotClicked()</slot>
+    <slot access="protected" language="C++" returnType="void">connectClicked()</slot>
+    <slot access="protected" language="C++" returnType="void">connectionsChanged()</slot>
+    <slot access="protected" language="C++" returnType="void">disconnectClicked()</slot>
+    <slot access="protected" language="C++" returnType="void">receiverChanged( const QString &amp; )</slot>
+    <slot access="protected" language="C++" returnType="void">okClicked()</slot>
+    <slot access="protected" language="C++" returnType="void">signalChanged()</slot>
+    <slot access="protected" language="C++" returnType="void">slotsChanged()</slot>
+    <slot access="protected" language="C++" returnType="void">cancelClicked()</slot>
 </connections>
 <tabstops>
+    <tabstop>okButton</tabstop>
+    <tabstop>cancelButton</tabstop>
     <tabstop>signalBox</tabstop>
+    <tabstop>comboReceiver</tabstop>
     <tabstop>slotBox</tabstop>
     <tabstop>connectButton</tabstop>
+    <tabstop>buttonAddSlot</tabstop>
     <tabstop>connectionView</tabstop>
     <tabstop>disconnectButton</tabstop>
     <tabstop>helpButton</tabstop>
-    <tabstop>okButton</tabstop>
-    <tabstop>cancelButton</tabstop>
 </tabstops>
 </UI>
