@@ -41,10 +41,10 @@
 #include "styledbutton.h"
 #include "formsettingsimpl.h"
 #include "about.h"
-#include "import.h"
 #include "multilineeditorimpl.h"
 #include "createtemplate.h"
 #include "actionplugin.h"
+#include "filterplugin.h"
 #include <qinputdialog.h>
 #if defined(HAVE_KDE)
 #include <ktoolbar.h>
@@ -1116,19 +1116,37 @@ void MainWindow::fileNew()
 void MainWindow::fileOpen()
 {
     statusBar()->message( tr( "Select a file...") );
-    QString filename = QFileDialog::getOpenFileName( QString::null, Import::filters(), this );
+
+    QString dir = getenv( "QTDIR" );
+    dir += "/plugins";
+    FilterPlugInManager manager( dir );
+
+    QString filename;
+    {
+	QStringList list = manager.featureList();
+	QString filters = list.join( ";;" );
+
+	filename = QFileDialog::getOpenFileName( QString::null, tr( "Qt User-Interface Files (*.ui)" ) + ";;" + 
+								tr( "TMAKE Projectfile (*.pro)" ) + ";;" + 
+								filters + ";;" +
+								tr( "All Files (*.*)" ), this );
+    }
     if ( !filename.isEmpty() ) {
-	if ( filename.right( 4 ) == ".pro" ) {
+	QFileInfo fi( filename );
+
+	if ( fi.extension() == "pro" ) {
 	    QStringList lst = getUiFiles( filename );
 	    for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
 		QString fn = QUrl( QFileInfo( filename ).dirPath(), *it ).path();
 		openFile( fn );
 	    }
-	} else if ( filename.right( 3 ) == ".ui" ) {
+	} else if ( fi.extension() == "ui" ) {
 	    openFile( filename );
 	} else {
 	    statusBar()->message( tr( "Importing %1 using a 3rd party converter, this might take some time...").arg( filename ) );
-	    (void)new Import( filename, this ); // deletes itself
+	    QStringList list = manager.import( fi.extension(), filename );
+	    for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it )
+		openFile( *it, FALSE );
 	}
     }
 }
@@ -1195,8 +1213,10 @@ bool MainWindow::fileSaveAs()
     if ( !formWindow() )
 	return FALSE;
     FormWindow *fw = formWindow();
-    QString filename = QFileDialog::getSaveFileName( QString::null, tr( "Qt User-Interface Files (*.ui);;All Files (*)" ),
-						     this );
+
+    QString filename = QFileDialog::getSaveFileName( QString::null, tr( "Qt User-Interface Files (*.ui)" ) + ";;" +
+								tr( "All Files (*)" ), this );
+
     if ( filename.isEmpty() )
 	return FALSE;
     QFileInfo fi( filename );
@@ -2684,13 +2704,13 @@ void MainWindow::writeConfig()
 	w->pixmap->save( QDir::home().absPath() + "/.designer/" + w->className, "XPM" );
     }
 
-    config.setGroup( "Import" );
+/*    config.setGroup( "Import" );
     config.writeEntry( "numFilters", Import::numFilters() );
     for ( i = 0; i < Import::numFilters(); i++ ) {
 	config.writeEntry( "wildcard[" + QString::number( i ) + "]", Import::wildcard( i ) );
 	config.writeEntry( "command[" + QString::number( i ) + "]", Import::command( i ) );
     }
-
+*/
     config.write();
 }
 
@@ -2709,14 +2729,16 @@ void MainWindow::readConfig()
     config.setGroup( "General" );
     restoreConfig = config.readBoolEntry( "RestoreWorkspace", TRUE );
     docPath = config.readEntry( "DocPath", docPath );
-    config.setGroup( "Import" );
-    int num = config.readNumEntry( "numFilters" );
+    int num;
     int i;
+/*    config.setGroup( "Import" );
+    num = config.readNumEntry( "numFilters" );
+    i;
     for ( i = 0; i < num; ++i ) {
 	QString wildcard = config.readEntry( "wildcard[" + QString::number( i ) + "]" );
 	QString command = config.readEntry( "command[" + QString::number( i ) + "]" );
 	Import::addImportEntry( wildcard, command );
-    }
+    }*/
     config.setGroup( "General" );
     if ( restoreConfig ) {
 	splashScreen = config.readBoolEntry( "SplashScreen", TRUE );

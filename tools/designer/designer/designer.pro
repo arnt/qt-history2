@@ -33,7 +33,6 @@ HEADERS	= command.h \
 		  multilineeditorimpl.h \
 		  formsettingsimpl.h \
 		  asciivalidator.h \
-		  import.h \
 		  ../shared/widgetdatabase.h \
 		  ../shared/domtool.h \
 		  ../integration/kdevelop/kdewidgets.h \
@@ -44,7 +43,9 @@ HEADERS	= command.h \
 		  designerapp.h \
 		  designerappiface.h \
 		  actioniface.h \
-		  actionplugin.h
+		  actionplugin.h \
+		  filteriface.h \
+		  filterplugin.h 
 
 SOURCES	= command.cpp \
 		  formwindow.cpp \
@@ -79,7 +80,6 @@ SOURCES	= command.cpp \
 		  multilineeditorimpl.cpp \
 		  formsettingsimpl.cpp \
 		  asciivalidator.cpp \
-		  import.cpp \
 		  ../shared/widgetdatabase.cpp \
 		  ../integration/kdevelop/kdewidgets.cpp \
 		  ../shared/domtool.cpp \
@@ -87,7 +87,8 @@ SOURCES	= command.cpp \
 		  ../shared/widgetplugin.cpp \
 		  designerapp.cpp \
 		  designerappiface.cpp \
-		  actionplugin.cpp
+		  actionplugin.cpp \
+		  filterplugin.cpp
 
 INTERFACES	= listboxeditor.ui \
 		  connectioneditor.ui \
