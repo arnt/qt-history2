@@ -504,7 +504,7 @@ QPalette::QPalette( const QColor &button )
 
 /*!
   Constructs a palette from a \e button color and a background. The other colors are
-  automatically calculated, based on this color.
+  automatically calculated, based on these colors.
 */
 
 QPalette::QPalette( const QColor &button, const QColor &background )
