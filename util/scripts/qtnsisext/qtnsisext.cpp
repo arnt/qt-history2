@@ -2,6 +2,7 @@
 #include "exdll.h"
 #include "keycheck.h"
 #include "binpatch.h"
+#include "licensefinder.h"
 
 HINSTANCE g_hInstance;
 HWND g_hwndParent;
@@ -95,4 +96,21 @@ EXPORT_NSIS_FUNCTION(PatchFile)
     ok[1] = '\0';
 
     pushstring(ok);
+}
+
+EXPORT_NSIS_FUNCTION(GetLicenseKey)
+{
+    g_hwndParent = hwndParent;
+	EXDLL_INIT();
+
+    char *key1, *key2, *key3;
+
+    LicenseFinder f;
+    key1 = f.getLicenseKey(1);
+    key2 = f.getLicenseKey(2);
+    key3 = f.getLicenseKey(3);
+
+    pushstring(key3);
+    pushstring(key2);
+    pushstring(key1);
 }

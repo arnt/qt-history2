@@ -123,6 +123,9 @@
 				RelativePath=".\keycheck.cpp">
 			</File>
 			<File
+				RelativePath=".\licensefinder.cpp">
+			</File>
+			<File
 				RelativePath=".\qtnsisext.cpp">
 			</File>
 		</Filter>
@@ -138,6 +141,9 @@
 			</File>
 			<File
 				RelativePath=".\keycheck.h">
+			</File>
+			<File
+				RelativePath=".\licensefinder.h">
 			</File>
 		</Filter>
 		<Filter
