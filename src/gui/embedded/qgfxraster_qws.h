@@ -450,9 +450,6 @@ protected:
     // Optimised horizontal line drawing
     void hline(int,int,int);
     void hlineUnclipped(int,int,unsigned char*);
-#if defined(Q_OS_QNX6) // need a different signature for QNX acceleration, override to accel
-    virtual void hlineUnclipped(int x,int x1,int y){unsigned char *l=scanLine(y);hlineUnclipped(x,x1,l);};
-#endif
     void hImageLineUnclipped(int x1, int x2, unsigned char *l, unsigned const char *srcdata, bool reverse);
     void hAlphaLineUnclipped(int x1, int x2, unsigned char *l, unsigned const char *srcdata,
                              unsigned const char *alphas);

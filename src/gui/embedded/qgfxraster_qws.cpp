@@ -2745,13 +2745,11 @@ void QGfxRaster<depth,type>::drawLine(int x1, int y1, int x2, int y2)
             GFX_END
             return;
         }
-# if !defined(_OS_QNX6_)
         else if (x1 == x2) {
             vline(x1, y1, y2);
             GFX_END
             return;
         }
-# endif
     }
 #endif
     // Bresenham algorithm from Graphics Gems
@@ -3159,24 +3157,12 @@ void QGfxRaster<depth,type>::hline(int x1,int x2,int y)
     for (;;) {
         int xr = cr.right();
         if (xr >= x2) {
-            if (plot) {
-#if defined(_OS_QNX6_) // Qnx-style hline takes x,y not pointer
-                if (isScreenGfx())
-                    hlineUnclipped(x,x2,y);
-                else
-#endif
-                    hlineUnclipped(x,x2,l); // only call made for non-QNX
-            }
+            if (plot)
+                hlineUnclipped(x,x2,l);
             break;
         } else {
-            if (plot) {
-#if defined(_OS_QNX6_)
-                if (isScreenGfx())
-                    hlineUnclipped(x,xr,y);
-                else
-#endif
-                    hlineUnclipped(x,xr,l); // only call made for non-QNX
-            }
+            if (plot)
+                hlineUnclipped(x,xr,l);
             x=xr+1;
             plot=inClip(x,y,&cr,plot);
         }

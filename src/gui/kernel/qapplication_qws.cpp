@@ -83,10 +83,6 @@
 #include <errno.h>
 #include <sys/time.h>
 
-#if defined(Q_OS_QNX)
-#include <sys/select.h>
-#endif
-
 #include "private/qwidget_p.h"
 #define d d_func()
 #define q q_func()

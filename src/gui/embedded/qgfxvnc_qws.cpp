@@ -1257,11 +1257,9 @@ bool QVNCScreen::connect(const QString &displaySpec)
             dh=h=480;
         }
         lstep = (dw * d + 7) / 8;
-#if !defined(Q_OS_QNX6)
         dataoffset = 0;
         canaccel = false;
         initted = true;
-#endif
         size = h * lstep;
         vsize = size;
         mapsize = size;
