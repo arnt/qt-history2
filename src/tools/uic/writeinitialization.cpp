@@ -55,7 +55,7 @@ void WriteInitialization::accept(DomUI *node)
     m_generatedClass = className;
 
     QString varName = driver->findOrInsertWidget(node->elementWidget());
-    m_registerdWidgets.insert(varName, node->elementWidget()); // register the main widget
+    m_registeredWidgets.insert(varName, node->elementWidget()); // register the main widget
 
     QString widgetClassName = node->elementWidget()->attributeClass();
 
@@ -78,10 +78,10 @@ void WriteInitialization::accept(DomUI *node)
     for (int i=0; i<m_buddies.size(); ++i) {
         const Buddy &b = m_buddies.at(i);
 
-        if (!m_registerdWidgets.contains(b.objName)) {
+        if (!m_registeredWidgets.contains(b.objName)) {
             fprintf(stderr, "'%s' isn't a valid widget\n", b.objName.latin1());
             continue;
-        } else if (!m_registerdWidgets.contains(b.buddy)) {
+        } else if (!m_registeredWidgets.contains(b.buddy)) {
             fprintf(stderr, "'%s' isn't a valid widget\n", b.buddy.latin1());
             continue;
         }
@@ -107,7 +107,7 @@ void WriteInitialization::accept(DomWidget *node)
 {
     QString className = node->attributeClass();
     QString varName = driver->findOrInsertWidget(node);
-    m_registerdWidgets.insert(varName, node); // register the current widget
+    m_registeredWidgets.insert(varName, node); // register the current widget
 
     QString parentWidget, parentClass;
     if (m_widgetChain.top()) {
@@ -158,13 +158,13 @@ void WriteInitialization::accept(DomWidget *node)
 
     QHash<QString, DomProperty*> attributes = propertyMap(node->elementAttribute());
 
-    QString title = fixString(QLatin1String("Page"));
+    QString title = QLatin1String("Page");
     if (attributes.contains("title"))
-        title = fixString(attributes.value("title")->elementString());
+        title = attributes.value("title")->elementString();
 
-    QString label = fixString(QLatin1String("Page"));
+    QString label = QLatin1String("Page");
     if (attributes.contains("label"))
-        label = fixString(attributes.value("label")->elementString());
+        label = attributes.value("label")->elementString();
 
     int id = -1;
     if (attributes.contains("id"))
@@ -175,14 +175,14 @@ void WriteInitialization::accept(DomWidget *node)
     else if (parentClass == QLatin1String("QWidgetStack"))
         output << option.indent << parentWidget << "->addWidget(" << varName << ", " << id << ");\n";
     else if (parentClass == QLatin1String("QToolBox"))
-        output << option.indent << parentWidget << "->addItem(" << varName << ", " << translate(label, className) << ");\n";
+        output << option.indent << parentWidget << "->addItem(" << varName << ", " << trCall(label, className) << ");\n";
     else if (parentClass == QLatin1String("QTabWidget"))
-        output << option.indent << parentWidget << "->addTab(" << varName << ", " << translate(title, className) << ");\n";
+        output << option.indent << parentWidget << "->addTab(" << varName << ", " << trCall(title, className) << ");\n";
     else if (parentClass == QLatin1String("QWizard"))
-        output << option.indent << parentWidget << "->addPage(" << varName << ", " << translate(title, className) << ");\n";
+        output << option.indent << parentWidget << "->addPage(" << varName << ", " << trCall(title, className) << ");\n";
     else if (parentClass == QLatin1String("QMenuBar")
             || parentClass == QLatin1String("QMenu") && className == QLatin1String("QMenu"))
-        output << option.indent << parentWidget << "->addMenu(" << translate(title, className) << ", " << varName << ");\n";
+        output << option.indent << parentWidget << "->addMenu(" << trCall(title, className) << ", " << varName << ");\n";
 
     if (node->elementLayout().isEmpty())
         m_layoutChain.pop();
@@ -559,7 +559,7 @@ void WriteInitialization::writeProperties(const QString &varName, const QString 
             break;
         }
         case DomProperty::String: {
-            propertyValue = translate(fixString(p->elementString()), className);
+            propertyValue = trCall(p->elementString(), className);
             break;
         }
         case DomProperty::Number:
@@ -662,7 +662,7 @@ void WriteInitialization::accept(DomTabStops *tabStops)
     for (int i=0; i<l.size(); ++i) {
         QString name = l.at(i);
 
-        if (!m_registerdWidgets.contains(name)) {
+        if (!m_registeredWidgets.contains(name)) {
             fprintf(stderr, "'%s' isn't a valid widget\n", name.latin1());
             continue;
         }
@@ -720,7 +720,7 @@ void WriteInitialization::initializeListBox(DomWidget *w)
             if (text)
                 output << ", ";
         }
-        output << translate(fixString(text->elementString()), className) << ");\n";
+        output << trCall(text->elementString(), className) << ");\n";
     }
 }
 
@@ -748,7 +748,7 @@ void WriteInitialization::initializeIconView(DomWidget *w)
         }
 
         if (text) {
-            output << option.indent << itemName << "->setText(" << translate(fixString(text->elementString()), className) << ");\n";
+            output << option.indent << itemName << "->setText(" << trCall(text->elementString(), className) << ");\n";
         }
     }
 }
@@ -769,7 +769,7 @@ void WriteInitialization::initializeListView(DomWidget *w)
         DomProperty *clickable = properties.value("clickable");
         DomProperty *resizable = properties.value("resizable");
 
-        QString txt = translate(fixString(text->elementString()), className);
+        QString txt = trCall(text->elementString(), className);
         output << option.indent << varName << "->addColumn(" << txt << ");\n";
 
         if (pixmap) {
@@ -839,7 +839,7 @@ void WriteInitialization::initializeTable(DomWidget *w)
         if (pixmap) {
             output << pixCall(pixmap->elementPixmap()) << ", ";
         }
-        output << translate(fixString(text->elementString()), className) << ");\n";
+        output << trCall(text->elementString(), className) << ");\n";
     }
 
     // rows
@@ -857,7 +857,7 @@ void WriteInitialization::initializeTable(DomWidget *w)
         if (pixmap) {
             output << pixCall(pixmap->elementPixmap()) << ", ";
         }
-        output << translate(fixString(text->elementString()), className) << ");\n";
+        output << trCall(text->elementString(), className) << ");\n";
     }
 
 
