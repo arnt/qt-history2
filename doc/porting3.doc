@@ -245,7 +245,7 @@ like
     int index = rx.match( bigText );
 \endcode
 
-(where match() takes one argument), change it to use QRegexp::search():
+(where match() takes one argument), change it to use QRegExp::search():
 
 \code
     QString bigText = getBigText();
