@@ -225,7 +225,7 @@ void Location::emitMessage( MessageType type, const QString& message,
     QString result = message;
     if ( !details.isEmpty() )
 	result += "\n[" + details + "]";
-    result.replace( QRegExp("\n"), "\n    " );
+    result.replace( "\n", "\n    " );
     if ( type == Warning )
 	result.prepend( tr("warning: ") );
     result.prepend( toString() );

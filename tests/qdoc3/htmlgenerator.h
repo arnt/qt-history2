@@ -71,10 +71,6 @@ private:
     bool inLink;
     QString link;
     QRegExp funcLeftParen;
-    QRegExp amp;
-    QRegExp lt;
-    QRegExp gt;
-    QRegExp quot;
 };
 
 #endif

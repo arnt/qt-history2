@@ -9,8 +9,7 @@
 #include "tree.h"
 
 HtmlGenerator::HtmlGenerator()
-    : inLink( FALSE ), funcLeftParen( "\\S(\\()" ), amp( "&" ), lt( "<" ),
-      gt( ">" ), quot( "\"" )
+    : inLink( FALSE ), funcLeftParen( "\\S(\\()" )
 {
 }
 
@@ -448,7 +447,7 @@ QString HtmlGenerator::fileBase( const Node *node )
 	base = node->name();
 	base.replace( QRegExp("[^A-Za-z0-9]+"), " " );
 	base = base.simplifyWhiteSpace();
-	base.replace( QRegExp(" "), "-" );
+	base.replace( " ", "-" );
 	base = base.lower();
     }
     return base;
@@ -544,13 +543,13 @@ void HtmlGenerator::generateSynopsis( const Node *node,
     if ( style == CodeMarker::Summary ) {
 	if ( node->status() == Node::Commendable ||
 	     node->status() == Node::Preliminary ) {
-	    marked.replace( QRegExp("@name>"), "b>" );
+	    marked.replace( "@name>", "b>" );
 	} else {
 	    marked.replace( QRegExp("</?@link>"), "" );
 	}
     }
-    marked.replace( QRegExp("<@extra>"), "&nbsp;&nbsp;<tt>" );
-    marked.replace( QRegExp("</@extra>"), "</tt>" );
+    marked.replace( "<@extra>", "&nbsp;&nbsp;<tt>" );
+    marked.replace( "</@extra>", "</tt>" );
 
     out() << highlightedCode( marked, relative );
 }
@@ -615,10 +614,10 @@ QString HtmlGenerator::registerRef( const QString& ref )
 QString HtmlGenerator::protect( const QString& string )
 {
     QString html = string;
-    html.replace( amp, "&amp;" );
-    html.replace( lt, "&lt;" );
-    html.replace( gt, "&gt;" );
-    html.replace( quot, "&quot;" );
+    html.replace( "&", "&amp;" );
+    html.replace( "<", "&lt;" );
+    html.replace( ">", "&gt;" );
+    html.replace( "\"", "&quot;" );
     return html;
 }
 

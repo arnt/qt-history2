@@ -20,6 +20,13 @@ public:
     static void terminate();
 
 private:
+    int convertCodeLine( Tree *qsTree, QString& code );
+    void updateDelimDepths( const QString& code );
+
+    int indent;
+    int braceDepth;
+    int parenDepth;
+
     static int columnForIndex( const QString& str, int index );
 
     static int tabSize;

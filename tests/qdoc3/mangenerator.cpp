@@ -160,7 +160,7 @@ QString ManGenerator::fileBase( const Node *node )
     QString base = node->name();
     base.replace( QRegExp("[^A-Za-z0-9]+"), " " );
     base = base.simplifyWhiteSpace();
-    base.replace( QRegExp(" "), "_" );
+    base.replace( " ", "_" );
     return "man/" + base;
 }
 
@@ -184,16 +184,14 @@ void ManGenerator::generateFooter()
 
 QString ManGenerator::protectArg( const QString& str )
 {
-#if 1
     for ( int i = 0; i < (int) str.length(); i++ ) {
 	if ( str[i] == ' ' || str[i].isSpace() ) {
 	    QString quoted = str;
-	    quoted.replace( QRegExp("\""), "\"\"" );
+	    quoted.replace( "\"", "\"\"" );
 	    return "\"" + quoted + "\"";
 	}
     }
     return str;
-#endif
 }
 
 QString ManGenerator::protectTextLine( const QString& str )

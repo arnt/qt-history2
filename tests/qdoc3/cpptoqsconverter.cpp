@@ -47,7 +47,7 @@ QString CppToQsConverter::convertedDataType( Tree *qsTree,
 		node = qsTree->findNode( s.mid(1), Node::Class );
 
 	    if ( node == 0 ) {
-		return "UNKNOWN";
+		return "";
 	    } else {
 		return node->name();
 	    }
@@ -104,131 +104,61 @@ QString CppToQsConverter::convertedDataType( Tree *qsTree,
 
 QString CppToQsConverter::convertedCode( Tree *qsTree, const QString& code )
 {
-    QRegExp funcRegExp(
-	    "^([ \t]*)(?:[\\w<>,&*]+[ \t]+)+((?:\\w+::)*\\w+)\\((" +
-	    balancedParens + ")\\)(?:[ \t]*const)?(?=[ \n\t]*\\{)" );
-    QRegExp paramRegExp(
-	    "\\s*(const\\s+)?([^\\s=]+)\\b[^=]*\\W(\\w+)\\s*(?:=.*)?" );
-    QRegExp qtVarRegExp(
-	    "^([ \t]*)(const[ \t]+)?Q([A-Z][A-Za-z_0-9]*)\\s+"
-	    "([a-z][A-Za-z_0-9]*)\\s*(?:\\((" + balancedParens +
-	    ")\\))?\\s*;" );
-    QRegExp signalOrSlotRegExp(
-	     "^(SIGNAL|SLOT)\\((" + balancedParens + ")\\)" );
     QString result;
-    bool inString = FALSE;
-    QChar quote;
-    int i = 0;
+    QStringList leftSide;
+    QStringList rightSide;
+    int leftSizeWidth = 0;
 
-    while ( i < (int) code.length() ) {
-	if ( inString ) {
-	    if ( code[i] == quote ) {
-		result += code[i++];
-		inString = FALSE;
-	    } else if ( code[i] == '\\' ) {
-		result += code[i++];
-		result += code[i++];
-	    } else {
-		result += code[i++];
-	    }
-	} else {
-	    bool newLine = ( i == 0 || code[i - 1] == '\n' );
+    indent = 0;
+    braceDepth = 0;
+    parenDepth = 0;
 
-	    if ( newLine && funcRegExp.search(code.mid(i)) != -1 ) {
-		QString indent = funcRegExp.cap( 1 );
-		QString name = funcRegExp.cap( 2 );
-		// ### remove QRegExp cast once Mark has Qt 3.1 up and running
-		name.replace( QRegExp("::"), "." );
-		QStringList params =
-			QStringList::split( ",", funcRegExp.cap(3) );
-		QStringList::Iterator p = params.begin();
-		while ( p != params.end() ) {
-		    if ( paramRegExp.exactMatch(*p) ) {
-#if 0
-			bool isVar = paramRegExp.cap( 1 ).isEmpty();
-#endif
-			QString qtDataType = paramRegExp.cap( 2 );
-			QString name = paramRegExp.cap( 3 );
-			*p = "var " + name + " : " +
-			     convertedDataType( qsTree, qtDataType );
-		    }
-		    ++p;
-		}
-		result += indent + "function " + name + "( " +
-			  params.join(", ") + " )";
-		i += funcRegExp.matchedLength();
-	    } else if ( newLine && qtVarRegExp.search(code.mid(i)) != -1 ) {
-		QString indent = qtVarRegExp.cap( 1 );
-		bool isVar = qtVarRegExp.cap( 2 ).isEmpty();
-		QString quickClass = qtVarRegExp.cap( 3 );
-		QString name = qtVarRegExp.cap( 4 );
-		QString initializer = qtVarRegExp.cap( 5 ).simplifyWhiteSpace();
-		result += indent + ( isVar ? "var " : "const " ) + name;
-		if ( initializer.isEmpty() ) {
-		    result += " = new " + quickClass + ";";
-		} else {
-		    result += " = new " + quickClass + "( " + initializer +
-			      " );";
-		}
-		i += qtVarRegExp.matchedLength();
-	    } else if ( code[i] == '"' || code[i] == '\'' ) {
-		quote = code[i];
-		result += code[i++];
-		inString = TRUE;
-	    } else if ( code[i] == 'F' && code.mid(i, 5) == "FALSE" ) {
-		result += "false";
-		i += 5;
-	    } else if ( code[i] == 'Q' ) {
-		if ( code.mid(i - 4, 3) == "new" ) {
-		    if ( code[i + 1].lower() == code[i + 1] ) {
-			result += code[i++];
-		    } else {
-			i++;
-		    }
-		} else {
-		    result += "var ";
-		    while ( i < (int) code.length() &&
-			    code[i].isLetterOrNumber() )
-			i++;
-		    while ( i < (int) code.length() &&
-			    !code[i].isLetterOrNumber() && code[i] != '\n' )
-			i++;
-		}
-	    } else if ( code[i] == 'S' &&
-			(code.mid(i, 7) == "SIGNAL(" ||
-			 code.mid(i, 5) == "SLOT(") ) {
-		if ( signalOrSlotRegExp.search(code, i
-#if QT_VERSION >= 0x030100
-						      , QRegExp::CaretAtOffset
-#endif
-					 ) == i ) {
-		    result += signalOrSlotRegExp.cap( 1 ) + "(\"" +
-			      signalOrSlotRegExp.cap( 2 ) + "\")";
-		    i += signalOrSlotRegExp.matchedLength();
-		}
-	    } else if ( code[i] == 'T' && code.mid(i, 4) == "TRUE" ) {
-		result += "true";
-		i += 4;
-	    } else if ( code[i] == '/' && code[i + 1] == '/' ) {
-		int numSpaces = columnForIndex( code, i ) -
-				columnForIndex( result, result.length() );
-		if ( numSpaces > 0 ) {
-		    while ( numSpaces-- > 0 )
-			result += " ";
-		} else if ( numSpaces < 0 ) {
-		    while ( numSpaces++ < 0 && result.right(1) == " " )
-			result.truncate( result.length() - 1 );
-		}
-		while ( i < (int) code.length() && code[i] != '\n' )
-		    result += code[i++];
-	    } else if ( (code[i] == ':' && code[i + 1] == ':') ||
-			(code[i] == '-' && code[i + 1] == '>') ) {
-		result += '.';
-		i += 2;
-	    } else {
-		result += code[i++];
+    QStringList originalLines = QStringList::split( "\n", code, TRUE );
+    QStringList::ConstIterator ol = originalLines.begin();
+    while ( ol != originalLines.end() ) {
+	QString code = *ol;
+	QString comment;
+
+	int slashSlash = code.find( "//" );
+	if ( slashSlash != -1 ) {
+	    comment = code.mid( slashSlash );
+	    code.truncate( slashSlash );
+	    
+	    if ( !code.stripWhiteSpace().isEmpty() ) {
+		while ( code[code.length() - 1].isSpace() )
+		    code.truncate( code.length() - 1 );
 	    }
+
+	    int width = columnForIndex( code, code.length() );
+	    if ( width > leftSizeWidth )
+		leftSizeWidth = width;
 	}
+	convertCodeLine( qsTree, code );
+	updateDelimDepths( code );
+	leftSide.append( code );
+	rightSide.append( comment );
+	++ol;
+    }
+
+    leftSizeWidth += 2;
+    leftSizeWidth = ( (leftSizeWidth + (tabSize - 1)) / tabSize ) * tabSize;
+
+    QStringList::ConstIterator ls = leftSide.begin();
+    QStringList::ConstIterator rs = rightSide.begin();
+    while ( rs != rightSide.end() ) {
+	if ( rs != rightSide.begin() )
+	    result += "\n";
+	result += *ls;
+	if ( !(*rs).isEmpty() ) {
+	    if ( !(*ls).stripWhiteSpace().isEmpty() ) {
+		int i = columnForIndex( *ls, (*ls).length() );
+		while ( i++ < leftSizeWidth )
+		    result += " ";
+	    }
+	    result += *rs;
+	}
+	++ls;
+	++rs;
     }
     return result;
 }
@@ -240,4 +170,68 @@ void CppToQsConverter::initialize( const Config& config )
 
 void CppToQsConverter::terminate()
 {
+}
+
+int CppToQsConverter::convertCodeLine( Tree *qsTree, QString& code )
+{
+    static QString dataTypeFmt = "[^=()]*\\s+[*&]?";
+    static QRegExp funcPrototypeRegExp(
+	"(" + dataTypeFmt + ")\\s+[*&]?([A-Z][a-zA-Z_0-9]*::)"
+	"([a-z][a-zA-Z_0-9]*)\\(([^);]*)\\)?(?:\\s*const)?" );
+    static QRegExp paramRegExp(
+	"\\s*(" + dataTypeFmt + ")([a-z][a-zA-Z_0-9]*)\\s*(,)?\\s*" );
+
+    int start = 0;
+    while ( start < (int) code.length() && code[start].isSpace() )
+	start++;
+    QString core = code.mid( start );
+    if ( core.isEmpty() || core == "{" || core == "}" )
+	return indent;
+
+    if ( braceDepth == 0 && parenDepth == 0 &&
+	 funcPrototypeRegExp.exactMatch(core) ) {
+	QString returnType = funcPrototypeRegExp.cap( 1 );
+	QString className = funcPrototypeRegExp.cap( 2 );
+	QString funcName = funcPrototypeRegExp.cap( 3 );
+	QString params = funcPrototypeRegExp.cap( 4 );
+	bool continued = funcPrototypeRegExp.cap( 5 ).isEmpty();
+
+	className.replace( "::", "." );
+
+	core = "function " + className + funcName + "(";
+
+
+	if ( continued ) {
+	    core += ")";
+	    returnType = convertedDataType( qsTree, returnType );
+	    if ( !returnType.isEmpty() )
+		core += " : " + returnType;
+	}
+    } else {
+	// ...
+    }
+    code.replace( start, code.length() - start, core );
+    return indent;
+}
+
+void CppToQsConverter::updateDelimDepths( const QString& code )
+{
+    QChar quote( 'X' );
+
+    for ( int i = 0; i < (int) code.length(); i++ ) {
+	if ( quote == 'X' ) {
+	    if ( code[i] == QChar('"') || code[i] == QChar('\'') )
+		quote = code[i];
+	} else if ( code[i] == quote ) {
+	    quote = 'X';
+	} else if ( code[i] == QChar('{') ) {
+	    braceDepth++;
+	} else if ( code[i] == QChar('}') ) {
+	    braceDepth--;
+	} else if ( code[i] == QChar('(') ) {
+	    parenDepth++;
+	} else if ( code[i] == QChar(')') ) {
+	    parenDepth--;
+	}
+    }
 }

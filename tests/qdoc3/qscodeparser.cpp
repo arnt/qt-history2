@@ -364,8 +364,7 @@ void QsCodeParser::quickifyClass( ClassNode *quickClass )
 	    bare = bare.mid( 1 );
 	} else {
 	    qtClassName.prepend( "Q" );
-	    // ### use QRegExp::escape() in Qt 3.1
-	    replaceBefores << QRegExp( qtClassName );
+	    replaceBefores << QRegExp( QRegExp::escape(qtClassName) );
 	    replaceAfters << bare;
 	}
     }
@@ -462,7 +461,6 @@ void QsCodeParser::quickifyEnum( ClassNode *quickClass, EnumNode *enume )
     while ( it != enume->items().end() ) {
 	QString name = (*it).name();
 	QString value = (*it).value();
-	// ### drop value in most cases
 	quickEnum->addItem( EnumItem(name, value) );
 	++it;
     }
@@ -554,7 +552,7 @@ QString QsCodeParser::quickifiedDoc( const QString& source )
 	    result += '.';
 	    i += 2;
 	} else if ( source[i] == '\\' ) {
-	    // ### make independent of the name
+	    // ### make independent of the command name
 	    if ( source.mid(i, 5) == "\\code" ) {
 		do {
 		    result += source[i++];

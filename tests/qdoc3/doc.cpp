@@ -1622,8 +1622,7 @@ QString DocParser::unindent( int level, const QString& str )
 QString DocParser::slashed( const QString& str )
 {
     QString result = str;
-    // ### remove QRegExp cast in Qt 3.1
-    result.replace( QRegExp("/"), "\\/" );
+    result.replace( "/", "\\/" );
     return "/" + result + "/";
 }
 
