@@ -17,7 +17,6 @@ tools {
 		  $$TOOLS_H/qdir.h \
 		  $$TOOLS_P/qdir_p.h \
 		  $$TOOLS_H/qfile.h \
-		  $$TOOLS_H/qfile_p.h \
 		  $$TOOLS_P/qfiledefs_p.h \
 		  $$TOOLS_H/qfileinfo.h \
 		  $$TOOLS_H/qglobal.h \

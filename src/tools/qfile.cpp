@@ -25,7 +25,6 @@
 #endif
 
 #include "qfile.h"
-#include "qfile_p.h"
 #include "qdatastream.h"
 #ifndef NO_ERRNO_H
 #include <errno.h>
