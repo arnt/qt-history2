@@ -4734,7 +4734,7 @@ void QTextEdit::updateCursor( const QPoint & pos )
     }
 }
 
-void QTextEdit::placeCursor( const QPoint &pos, QTextCursor *c = 0 )
+void QTextEdit::placeCursor( const QPoint &pos, QTextCursor *c )
 {
     placeCursor( pos, c, FALSE );
 }
