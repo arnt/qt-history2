@@ -870,7 +870,7 @@ Qt::HANDLE QObject::thread() const
     const QObject *toplevel = this;
     for (; toplevel && toplevel->d->parent; toplevel = toplevel->d->parent)
 	;
-    Q_ASSERT(toplevel-d->thread != 0);
+    Q_ASSERT(toplevel->d->thread != 0);
     return toplevel->d->thread;
 }
 
