@@ -953,7 +953,7 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction,
     case MoveHome:
         return model()->index(0, d->column, root());
     case MoveEnd:
-        return model()->index(d->layoutStart - 1, d->column, root());
+        return model()->index(d->batchStartRow - 1, d->column, root());
     }
 
     return current;
@@ -1115,9 +1115,9 @@ QListViewPrivate::QListViewPrivate()
     : QAbstractItemViewPrivate(),
       layoutMode(QListView::SinglePass),
       modeProperties(0),
-      layoutStart(0),
-      translate(0),
-      position(0),
+      batchStartRow(0),
+      batchSavedDeltaSeg(0),
+      batchSavedPosition(0),
       startLayoutTimer(0),
       batchLayoutTimer(0),
       column(0)
@@ -1134,16 +1134,16 @@ void QListViewPrivate::init()
 void QListViewPrivate::prepareItemsLayout()
 {
     // initialization of data structs
-    layoutStart = 0;
-    translate = 0;
+    batchStartRow = 0;
+    batchSavedPosition = 0;
+    batchSavedDeltaSeg = 0;
     contentsSize = QSize(0, 0);
-    layoutBounds = viewport->rect();
     int sbx = q->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
-    layoutBounds.setWidth(layoutBounds.width() - sbx);
-    layoutBounds.setHeight(layoutBounds.height() - sbx);
+    layoutBounds.setWidth(viewport->width() - sbx);
+    layoutBounds.setHeight(viewport->height() - sbx);
 
-    int rowCount = qMax(model->rowCount(q->root()), 0);
-    if (model->columnCount(q->root()) <= 0)
+    int rowCount = qMax(model->rowCount(root), 0);
+    if (model->columnCount(root) <= 0)
         rowCount = 0; // no contents
     if (movement == QListView::Static) {
         flowPositions.resize(rowCount);
@@ -1169,19 +1169,19 @@ QPoint QListViewPrivate::initStaticLayout(const QRect &bounds, int spacing, int 
         segmentStartRows.append(0);
     } else if (wrap) {
         if (flow == QListView::LeftToRight) {
-            x = position;
+            x = batchSavedPosition;
             y = segmentPositions.last();
         } else { // flow == QListView::TopToBottom
             x = segmentPositions.last();
-            y = position;
+            y = batchSavedPosition;
         }
     } else { // not first and not wrap
         if (flow == QListView::LeftToRight) {
-            x = position;
+            x = batchSavedPosition;
             y = bounds.top() + spacing;
         } else { // flow == QListView::TopToBottom
             x = bounds.left() + spacing;
-            y = position;
+            y = batchSavedPosition;
         }
     }
     return QPoint(x, y);
@@ -1229,7 +1229,7 @@ void QListViewPrivate::initBinaryTree(const QSize &contents)
 bool QListViewPrivate::doItemsLayout(int delta)
 {
     int max = model->rowCount(root) - 1;
-    int first = layoutStart;
+    int first = batchStartRow;
     int last = qMin(first + delta - 1, max);
 
     if (max < 0)
@@ -1243,9 +1243,9 @@ bool QListViewPrivate::doItemsLayout(int delta)
         doDynamicLayout(layoutBounds, first, last);
     }
 
-    layoutStart = last + 1;
+    batchStartRow = last + 1;
 
-    if (layoutStart >= max) { // stop items layout
+    if (batchStartRow >= max) { // stop items layout
         flowPositions.resize(flowPositions.count());
         segmentPositions.resize(segmentPositions.count());
         segmentStartRows.resize(segmentStartRows.count());
@@ -1299,7 +1299,7 @@ void QListViewPrivate::doStaticLayout(const QRect &bounds, int first, int last)
         flowPosition = topLeft.x();
         segPosition = topLeft.y();
         deltaFlowPosition = gridSize.width(); // dx
-        deltaSegPosition = useItemSize ? translate : gridSize.height(); // dy
+        deltaSegPosition = useItemSize ? batchSavedDeltaSeg : gridSize.height(); // dy
         deltaSegHint = gridSize.height();
     } else { // flow == QListView::TopToBottom
         segStartPosition = bounds.top();
@@ -1307,7 +1307,7 @@ void QListViewPrivate::doStaticLayout(const QRect &bounds, int first, int last)
         flowPosition = topLeft.y();
         segPosition = topLeft.x();
         deltaFlowPosition = gridSize.height(); // dy
-        deltaSegPosition = useItemSize ? translate : gridSize.width(); // dx
+        deltaSegPosition = useItemSize ? batchSavedDeltaSeg : gridSize.width(); // dx
         deltaSegHint = gridSize.width();
     }
     
@@ -1343,8 +1343,8 @@ void QListViewPrivate::doStaticLayout(const QRect &bounds, int first, int last)
         }
     }
     // used when laying out next batch
-    position = flowPosition;
-    translate = deltaSegPosition;
+    batchSavedPosition = flowPosition;
+    batchSavedDeltaSeg = deltaSegPosition;
     // set the contents size
     QRect rect = bounds;
     if (flow == QListView::LeftToRight) {
@@ -1382,7 +1382,7 @@ void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
         segStartPosition = bounds.left() + gap;
         segEndPosition = bounds.right();
         deltaFlowPosition = gridSize.width(); // dx
-        deltaSegPosition = (useItemSize ? translate : gridSize.height()); // dy
+        deltaSegPosition = (useItemSize ? batchSavedDeltaSeg : gridSize.height()); // dy
         deltaSegHint = gridSize.height();
         flowPosition = topLeft.x();
         segPosition = topLeft.y();
@@ -1390,7 +1390,7 @@ void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
         segStartPosition = bounds.top() + gap;
         segEndPosition = bounds.bottom();
         deltaFlowPosition = gridSize.height(); // dy
-        deltaSegPosition = (useItemSize ? translate : gridSize.width()); // dx
+        deltaSegPosition = (useItemSize ? batchSavedDeltaSeg : gridSize.width()); // dx
         deltaSegHint = gridSize.width();
         flowPosition = topLeft.y();
         segPosition = topLeft.x();
@@ -1433,7 +1433,7 @@ void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
             }
         }
     }
-    translate = deltaSegPosition;
+    batchSavedDeltaSeg = deltaSegPosition;
     q->resizeContents(rect.width(), rect.height());
     // resize tree
     int insertFrom = first;
@@ -1480,7 +1480,7 @@ void QListViewPrivate::intersectingStaticSet(const QRect &area) const
     int seg = qBinarySearch<int>(segmentPositions, segStartPosition, 0, segLast);
     for (; seg <= segLast && segmentPositions.at(seg) < segEndPosition; ++seg) {
         int first = segmentStartRows.at(seg);
-        int last = (seg < segLast ? segmentStartRows.at(seg + 1) : layoutStart) - 1;
+        int last = (seg < segLast ? segmentStartRows.at(seg + 1) : batchStartRow) - 1;
         int row = qBinarySearch<int>(flowPositions, flowStartPosition, first, last);
         for (; row <= last && flowPositions.at(row) < flowEndPosition; ++row) {
             if (hiddenRows.contains(row))

@@ -325,11 +325,13 @@ public:
 
     uint modeProperties : 8;
 
-    int layoutStart;
-    int translate;
-    int position;
-    QRect layoutBounds;
     QSize contentsSize;
+    QRect layoutBounds;
+
+    // used when laying out in batches
+    int batchStartRow;
+    int batchSavedDeltaSeg;
+    int batchSavedPosition;
 
     // used for intersecting set
     mutable QVector<QModelIndex> intersectVector;
