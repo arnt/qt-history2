@@ -44,13 +44,13 @@ public:
     Example:
     \code
     ...
-    QSqlSelectCursor cur( "SELECT id, firstname, lastname FROM author" );
-    QDataTable table( this );
-    table.setSqlCursor( &cur, TRUE, FALSE );
-    table.refresh();
+    QSqlSelectCursor* cur = new QSqlSelectCursor( "SELECT id, firstname, lastname FROM author" );
+    QDataTable* table = new QDataTable( this );
+    table->setSqlCursor( cur, TRUE, TRUE );
+    table->refresh();
     ...
-    cur.exec( "SELECT * FROM books" );
-    table.refresh();
+    cur->exec( "SELECT * FROM books" );
+    table->refresh();
     ...
     \endcode
 */
