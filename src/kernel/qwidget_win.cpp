@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#37 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#36 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#37 $")
 
 
 const char *qt_reg_winclass( int type );	// defined in qapp_win.cpp
@@ -595,11 +595,11 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 }
 
 
-void QWidget::setMinSize( int w, int h )
+void QWidget::setMinimumSize( int w, int h )
 {
 #if defined(CHECK_RANGE)
     if ( w < 0 || h < 0 )
-	warning( "QWidget::setMinSize: The smallest allowed size is (0,0)" );
+	warning( "QWidget::setMinimumSize: The smallest allowed size is (0,0)" );
 #endif
     createExtra();
     extra->minw = w + frect.width()  - crect.width();
@@ -612,7 +612,7 @@ void QWidget::setMinSize( int w, int h )
 #endif
 }
 
-void QWidget::setMaxSize( int w, int h )
+void QWidget::setMaximumSize( int w, int h )
 {
 #if defined(CHECK_RANGE)
     if ( w > QCOORD_MAX || h > QCOORD_MAX )
@@ -698,7 +698,7 @@ void QWidget::drawText( int x, int y, const char *str )
 }
 
 
-int QWidget::metric( int m ) const		// return widget metrics
+int QWidget::metric( int m ) const
 {
     int val;
     if ( m == PDM_WIDTH || m == PDM_HEIGHT ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#117 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#118 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#117 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#118 $")
 
 
 /*----------------------------------------------------------------------------
@@ -171,7 +171,7 @@ QWidget::~QWidget()
 	    if ( obj->isWidgetType() ) {	// is child widget
 		QWidget *w = (QWidget *)obj;
 		w->clearWFlags( WState_Created );
-		w->set_id( 0 );			// Windows destroys children
+		w->setWinId( 0 );		// Windows destroys children
 	    }
 #endif
 	    obj->parentObj = 0;			// object should not remove
@@ -440,7 +440,7 @@ void QWidget::styleChange( GUIStyle )
 
   \sa isTopLevel()
  ----------------------------------------------------------------------------*/
-  
+
 
 /*----------------------------------------------------------------------------
   \fn bool QWidget::isDesktop() const
@@ -1302,7 +1302,7 @@ bool QWidget::event( QEvent *e )		// receive event(),
   mouse move events for the widget.
 
   If mouse tracking is switched off, mouse move events only occur if a
-  mouse button is down while the mouse is being moved.  If mouse
+  mouse button is down while the mouse is being moved.	If mouse
   tracking is switched on, mouse move events occur even if no mouse
   button is down.
 
@@ -1500,7 +1500,7 @@ void QWidget::moveEvent( QMoveEvent * )
 
 /*----------------------------------------------------------------------------
   This event handler can be reimplemented in a subclass to receive
-  widget resize events.  When resizeEvent() is called, the widget
+  widget resize events.	 When resizeEvent() is called, the widget
   already has its new geometry.
 
   The old size is accessible through QResizeEvent::oldSize().
