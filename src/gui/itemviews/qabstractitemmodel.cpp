@@ -1196,14 +1196,14 @@ void QAbstractItemModel::encodeData(const QModelIndexList &indexes, QDataStream 
             stream << it2.key();
             stream << it2.value();
         }
-        if (hasChildren(*it)) { // encode children
-            stream << rowCount(*it);
-            stream << columnCount(*it);
-            encodeData(*it, stream);
-        } else { // no children
+//         if (hasChildren(*it)) { // encode children FIXME: disabled for now
+//             stream << rowCount(*it);
+//             stream << columnCount(*it);
+//             encodeData(*it, stream);
+//         } else { // no children
             stream << 0;
             stream << 0;
-        }
+//        }
     }
 }
 
@@ -1222,14 +1222,14 @@ void QAbstractItemModel::encodeData(const QModelIndex &parent, QDataStream &stre
                 stream << it2.key();
                 stream << it2.value();
             }
-            if (hasChildren(idx)) { // encode children
-                stream << rowCount(idx);
-                stream << columnCount(idx);
-                encodeData(idx, stream);
-            } else { // no children
+//             if (hasChildren(idx)) { // encode children FIXME: disabled for now
+//                 stream << rowCount(idx);
+//                 stream << columnCount(idx);
+//                 encodeData(idx, stream);
+//             } else { // no children
                 stream << 0;
                 stream << 0;
-            }
+//            }
         }
     }
 }
