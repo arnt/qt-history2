@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#238 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#239 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -530,6 +530,7 @@ int QPopupMenu::itemPos( int index )		// get y coord for item
 
 void QPopupMenu::updateSize()
 {
+    polish();
     int height = 0;
     int max_width = 0;
     QFontMetrics fm = fontMetrics();
