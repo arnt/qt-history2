@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#119 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#120 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#119 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#120 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -743,7 +743,8 @@ bool QWidget::enableUpdates( bool enable )
   Updates the widget unless updates are disabled.
 
   Updating the widget will erase the widget contents and generate a paint
-  event from the window system.
+  event from the window system. The paint event is processed after the
+  program has returned to the main event loop.
 
   \sa repaint(), paintEvent(), enableUpdates(), erase()
  ----------------------------------------------------------------------------*/
@@ -759,7 +760,8 @@ void QWidget::update()
   unless updates are disabled.
 
   Updating the widget erases the widget area \e (x,y,w,h), which in turn
-  generates a paint event from the window system.
+  generates a paint event from the window system. The paint event is
+  processed after the program has returned to the main event loop.
 
   If \e w is negative, it is replaced with <code>width() - x</code>.
   If \e h is negative, it is replaced width <code>height() - y</code>.
@@ -808,8 +810,11 @@ void QWidget::update( int x, int y, int w, int h )
 
   Doing a repaint() usually is faster than doing an update(), but
   calling update() many times in a row will generate a single paint
-  event, and can safele be used in paintEvent() and in functions
-  called by paintEvent().
+  event.
+
+  \warning If you call repaint() in a function which may itself be called
+  from paintEvent(), you may see infinite recursion. The update() function
+  never generates recursion.
 
   \sa update(), paintEvent(), enableUpdates(), erase()
  ----------------------------------------------------------------------------*/
@@ -1042,11 +1047,8 @@ void QWidget::resize( int w, int h )
   This function is virtual, and all other overloaded setGeometry()
   implementations call it.
 
-  \warning If you call resize() or setGeometry() from resizeEvent(),
+  \warning If you call setGeometry() from resizeEvent() or moveEvent(),
   you may see infinite recursion.
-
-  \warning If you call move() or setGeometry() from moveEvent(), you
-  may see infinite recursion.
 
   \sa move(), resize(), moveEvent(), resizeEvent()
  ----------------------------------------------------------------------------*/
