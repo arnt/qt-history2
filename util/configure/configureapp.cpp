@@ -926,22 +926,22 @@ void Configure::generateOutputVars()
 	qmakeVars += "QMAKE_QT_VERSION_OVERRIDE=" + version;
     }
 
-    if( !dictionary[ "QT_INSTALL_HEADERS" ] )
+    if( !dictionary[ "QT_INSTALL_HEADERS" ].size() )
 	dictionary[ "QT_INSTALL_HEADERS" ] = QDir::convertSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/include" );
 
-    if( !dictionary[ "QT_INSTALL_DOCS" ] )
+    if( !dictionary[ "QT_INSTALL_DOCS" ].size() )
 	dictionary[ "QT_INSTALL_DOCS" ] = QDir::convertSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/doc" );
 
-    if( !dictionary[ "QT_INSTALL_PLUGINS" ] )
+    if( !dictionary[ "QT_INSTALL_PLUGINS" ].size() )
 	dictionary[ "QT_INSTALL_PLUGINS" ] = QDir::convertSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/plugins" );
 
-    if( !dictionary[ "QT_INSTALL_LIBS" ] )
+    if( !dictionary[ "QT_INSTALL_LIBS" ].size() )
 	dictionary[ "QT_INSTALL_LIBS" ] = QDir::convertSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/lib" );
 
-    if( !dictionary[ "QT_INSTALL_BINS" ] )
+    if( !dictionary[ "QT_INSTALL_BINS" ].size() )
 	dictionary[ "QT_INSTALL_BINS" ] = QDir::convertSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/bin" );
 
-    if( !dictionary[ "QT_INSTALL_DATA" ] )
+    if( !dictionary[ "QT_INSTALL_DATA" ].size() )
 	dictionary[ "QT_INSTALL_DATA" ] = QDir::convertSeparators( dictionary[ "QT_INSTALL_PREFIX" ] );
 
     qmakeVars += QString( "OBJECTS_DIR=" ) + QDir::convertSeparators( "tmp/obj/" + dictionary[ "QMAKE_OUTDIR" ] );
