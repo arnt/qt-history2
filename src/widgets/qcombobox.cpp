@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#82 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#83 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#82 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#83 $");
 
 
 /*!
@@ -900,7 +900,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 	    p.setPen( colorGroup().foreground() );
 	    p.drawText( clip, AlignCenter | SingleLine, str );
 	} else {
-	    QPixmap *pix = d->listbox->pixmap( d->current );
+	    const QPixmap *pix = d->listBox->pixmap( d->current );
 	    if ( pix ) {
 		p.setClipRect( clip );
 		p.drawPixmap( 4, (height()-pix->height())/2, *pix );
@@ -913,6 +913,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 	    p.drawRect( x1 - 2, y1 - 2, 20, 22 );
 
     } else {				// windows 95 style
+
 	QColor	  bg  = isEnabled() ? g.base() : g.background();
 	QFontMetrics  fm  = fontMetrics();
 	const char   *str = d->listBox->text( d->current );
