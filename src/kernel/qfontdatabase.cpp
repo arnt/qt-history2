@@ -1041,6 +1041,18 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 		QFontCache::instance->insertEngine( key, fe );
 	    }
 	}
+    } else {
+	if ( request.family.isEmpty() ) {
+#ifdef FONT_MATCH_DEBUG
+	    qDebug( "returning box engine" );
+#endif // FONT_MATCH_DEBUG
+	    fe = new QFontEngineBox( request.pixelSize );
+
+	    if ( fp ) {
+		QFontCache::Key key( request, script, fp->screen );
+		QFontCache::instance->insertEngine( key, fe );
+	    }
+	}
     }
 
     return fe;
