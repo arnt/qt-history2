@@ -42,7 +42,7 @@
 #include "qshared.h"
 #include "qdatastream.h"
 #include "qpair.h"
-#include "qtl.h"
+#include "qvaluelist.h"
 #endif // QT_H
 
 #ifndef QT_NO_STL
@@ -728,6 +728,20 @@ public:
 	//{ return sh->find( k ) != ((const Priv*)sh)->end(); }
 
     size_type count() const { return sh->node_count; }
+
+    QValueList<Key> keys() const {
+	QValueList<Key> r;
+	for (const_iterator i=begin(); i!=end(); ++i)
+	    r.append(i.key());
+	return r;
+    }
+
+    QValueList<T> values() const {
+	QValueList<T> r;
+	for (const_iterator i=begin(); i!=end(); ++i)
+	    r.append(*i);
+	return r;
+    }
 
     bool isEmpty() const { return sh->node_count == 0; }
 

@@ -188,10 +188,7 @@ void HelpWindow::textChanged()
 
 HelpWindow::~HelpWindow()
 {
-    history.clear();
-    QMap<int, QString>::Iterator it = mHistory.begin();
-    for ( ; it != mHistory.end(); ++it )
-	history.append( *it );
+    history =  mHistory.values();
 
     QFile f( QDir::currentDirPath() + "/.history" );
     f.open( IO_WriteOnly );
@@ -199,10 +196,7 @@ HelpWindow::~HelpWindow()
     s << history;
     f.close();
 
-    bookmarks.clear();
-    QMap<int, QString>::Iterator it2 = mBookmarks.begin();
-    for ( ; it2 != mBookmarks.end(); ++it2 )
-	bookmarks.append( *it2 );
+    bookmarks = mBookmarks.values();
 
     QFile f2( QDir::currentDirPath() + "/.bookmarks" );
     f2.open( IO_WriteOnly );
@@ -295,15 +289,7 @@ void HelpWindow::print()
 void HelpWindow::pathSelected( const QString &_path )
 {
     browser->setSource( _path );
-    QMap<int, QString>::Iterator it = mHistory.begin();
-    bool exists = FALSE;
-    for ( ; it != mHistory.end(); ++it ) {
-	if ( *it == _path ) {
-	    exists = TRUE;
-	    break;
-	}
-    }
-    if ( !exists )
+    if ( mHistory.values().contains(_path) )
 	mHistory[ hist->insertItem( _path ) ] = _path;
 }
 
