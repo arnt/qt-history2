@@ -27,7 +27,7 @@
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qbitmap.h"
-#include "qlayoutengine_p.h"
+#include "../kernel/qlayoutengine_p.h"
 #include "qlist.h"
 #include "qarray.h"
 #include "qobjectlist.h"
