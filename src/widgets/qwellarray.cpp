@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qwellarray.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qwellarray.cpp#10 $
 **
 ** Implementation of QWellArray widget class
 **
@@ -117,7 +117,8 @@ void QWellArray::paintCell( QPainter* p, int row, int col )
 
     QColorGroup g = colorGroup();
     p->setPen( QPen( black, 0, SolidLine ) );
-    if ( !smallStyle && row ==selRow && col == selCol && style() != MotifStyle ) {
+    if ( !smallStyle && row ==selRow && col == selCol && 
+	 style() != MotifStyle ) {
 	int n = 2;
 	p->drawRect( n, n, w-2*n, h-2*n );	
     }
@@ -161,7 +162,7 @@ void QWellArray::paintCell( QPainter* p, int row, int col )
 	    }
 	}
     }
-    drawContents( p, row, col, QRect(b, b, w - 2*b, h - 2*b) ); 
+    drawContents( p, row, col, QRect(b, b, w - 2*b, h - 2*b) );
 }
 
 /*!
@@ -216,12 +217,19 @@ void QWellArray::mouseMoveEvent( QMouseEvent* e )
     }
 }
 
-
+/*
+  Sets the cell currently having the focus. This is not necessarily
+  the same as the currently selected cell.
+*/
 
 void QWellArray::setCurrent( int row, int col )
 {
-    if ( (curRow == row) && (curCol == col) ) 
+
+    if ( (curRow == row) && (curCol == col) )
 	return;
+
+    if ( row < 0 || col < 0 )
+	row = col = -1;
 
     int oldRow = curRow;
     int oldCol = curCol;
@@ -233,19 +241,33 @@ void QWellArray::setCurrent( int row, int col )
     updateCell( curRow, curCol );
 }
 
+
+/*! 
+  Sets the currently selected cell to \a row, \a col.  If \a row or \a
+  col are less than zero, the current cell is unselected.
+  
+  Does not set the position of the focus indicator.
+*/
+
 void QWellArray::setSelected( int row, int col )
 {
-    if ( (selRow == row) && (selCol == col) ) 
+    if ( (selRow == row) && (selCol == col) )
 	return;
 
     int oldRow = selRow;
     int oldCol = selCol;
+
+    if ( row < 0 || col < 0 )
+	row = col = -1;
 
     selCol = col;
     selRow = row;
 
     updateCell( oldRow, oldCol );
     updateCell( selRow, selCol );
+    if ( row >= 0 )
+	emit selected( row, col );
+
 }
 
 
@@ -258,7 +280,7 @@ void QWellArray::setSelected( int row, int col )
 void QWellArray::focusInEvent( QFocusEvent* )
 {
     updateCell( curRow, curCol );
-}    
+}
 
 
 /*!
@@ -267,7 +289,7 @@ void QWellArray::focusInEvent( QFocusEvent* )
 
   Must be called by reimplementors.
  */
-void QWellArray::setDimension( int rows, int cols ) 
+void QWellArray::setDimension( int rows, int cols )
 {
     nRows = rows;
     nCols = cols;
@@ -281,15 +303,35 @@ void QWellArray::setDimension( int rows, int cols )
     setNumRows( nRows );			
 }
 
-
 void QWellArray::setCellBrush( int row, int col, const QBrush &b )
 {
     if ( !d ) {
 	d = new QWellArrayData;
 	d->brush = new QBrush[nRows*nCols];
     }
-    d->brush[row*nCols+col] = b;
+    if ( 0 <= row < nRows && 0 <= col < nCols )
+	d->brush[row*nCols+col] = b;
+#ifdef CHECK_RANGE
+    else
+	warning( "QWellArray::setCellBrush( %d, %d ) out of range", row, col );
+#endif    
 }
+
+
+
+/*!
+  Returns the brush set for the cell at \a row, \a col. If no brush is set,
+  \c NoBrush is returned.
+*/
+
+QBrush QWellArray::getCellBrush( int row, int col )
+{
+    if ( d && 0 <= row < nRows && 0 <= col < nCols )
+	return d->brush[row*nCols+col];
+    return NoBrush;
+}
+
+
 
 /*!
   Handles focus loss events for the well array.
@@ -299,7 +341,7 @@ void QWellArray::setCellBrush( int row, int col, const QBrush &b )
 void QWellArray::focusOutEvent( QFocusEvent* )
 {
     updateCell( curRow, curCol );
-}    
+}
 
 /*
   Handles key press events for the well array.
@@ -308,13 +350,11 @@ void QWellArray::focusOutEvent( QFocusEvent* )
 
 void QWellArray::keyPressEvent( QKeyEvent* e )
 {
-    int oldRow = curRow;			// store previous current cell
-    int oldCol = curCol;
     int edge = 0;
     switch( e->key() ) {			// Look at the key code
-    case Key_Left:				// If 'left arrow'-key, 
+    case Key_Left:				// If 'left arrow'-key,
 	if( curCol > 0 ) {			// and cr't not in leftmost col
-	    curCol--;     			// set cr't to next left column
+	    setCurrent( curRow, curCol - 1);	// set cr't to next left column
 	    edge = leftCell();		// find left edge
 	    if ( curCol < edge )		// if we have moved off  edge,
 		setLeftCell( edge - 1 );	// scroll view to rectify
@@ -322,7 +362,7 @@ void QWellArray::keyPressEvent( QKeyEvent* e )
 	break;
     case Key_Right:				// Correspondingly...
 	if( curCol < numCols()-1 ) {
-	    curCol++;
+	    setCurrent( curRow, curCol + 1);
 	    edge = lastColVisible();
 	    if ( curCol >= edge )
 		setLeftCell( leftCell() + 1 );
@@ -330,7 +370,7 @@ void QWellArray::keyPressEvent( QKeyEvent* e )
 	break;
     case Key_Up:
 	if( curRow > 0 ) {
-	    curRow--;
+	    setCurrent( curRow - 1, curCol);;
 	    edge = topCell();
 	    if ( curRow < edge )
 		setTopCell( edge - 1 );
@@ -338,7 +378,7 @@ void QWellArray::keyPressEvent( QKeyEvent* e )
 	break;
     case Key_Down:
 	if( curRow < numRows()-1 ) {
-	    curRow++;
+	    setCurrent( curRow + 1, curCol);
 	    edge = lastRowVisible();
 	    if ( curRow >= edge )
 		setTopCell( topCell() + 1 );
@@ -356,13 +396,11 @@ void QWellArray::keyPressEvent( QKeyEvent* e )
 	e->ignore();			// we don't accept the event
 	return;	
     }
-    
-    if ( (curRow != oldRow) 			// if current cell has moved,
-	 || (curCol != oldCol)  ) {
-	updateCell( oldRow, oldCol );		// erase previous marking
-	updateCell( curRow, curCol );		// show new current cell
-    }
+
+}
     //    if ( e->key() == Key_Enter || e->key() == Key_Return )
     //		emit return_pressed; // or ignore the event or something...
 
-}
+
+
+
