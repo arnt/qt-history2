@@ -938,6 +938,40 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
     \sa toList(), QList::toVector()
 */
 
+/*! \fn QVector<T> QVector<T>::fromStdVector(const std::vector<T> &vector)
+
+    Returns a QVector object with the data contained in \a vector. The
+    order of the elements in the QVector is the same as in \a vector.
+
+    Example:
+
+    \code
+        std::vector<double> stdvector;
+        vector.push_back(1.2);
+        vector.push_back(0.5);
+        vector.push_back(3.14);
+
+        QVector<double> vector = QVector<double>::fromStdVector(stdvector);
+    \endcode
+
+    \sa toStdVector(), QList::fromStdList()
+*/
+
+/*! \fn std::vector<T> QVector<T>::toStdVector() const
+
+    Returns a std::vector object with the data contained in this QVector.
+    Example:
+
+    \code
+        QVector<double> vector;
+        vector << 1.2 << 0.5 << 3.14;
+
+        std::vector<double> stdvector = vector.toStdVector();
+    \endcode
+
+    \sa fromStdVector(), QList::toStdList()
+*/
+
 /*! \fn QDataStream &operator<<(QDataStream &out, const QVector<T> &vector)
     \relates QVector
 

@@ -17,6 +17,11 @@
 #include "QtCore/qiterator.h"
 #include "QtCore/qatomic.h"
 
+#ifndef QT_NO_STL
+#include <iterator>
+#include <list>
+#endif
+
 template <typename T> class QVector;
 template <typename T> class QSet;
 
@@ -205,6 +210,11 @@ public:
     inline void pop_back() { removeLast(); }
     inline bool empty() const { return isEmpty(); }
     typedef int size_type;
+    typedef T value_type;
+    typedef value_type* pointer;
+    typedef const value_type* const_pointer;
+    typedef value_type& reference;
+    typedef const value_type& const_reference;
 
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT iterator remove(iterator pos) { return erase(pos); }
@@ -237,6 +247,13 @@ public:
     static QList<T> fromVector(const QVector<T> &vector);
     static QList<T> fromSet(const QSet<T> &set);
 
+#ifndef QT_NO_STL
+    static inline QList<T> fromStdList(const std::list<T> &list)
+    { QList<T> tmp; qCopy(list.begin(), list.end(), std::back_inserter(tmp)); return tmp; }
+    inline std::list<T> toStdList() const
+    { std::list<T> tmp; qCopy(constBegin(), constEnd(), std::back_inserter(tmp)); return tmp; }
+#endif
+    
 private:
     void detach_helper();
     void free(QListData::Data *d);

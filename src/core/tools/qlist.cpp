@@ -1628,3 +1628,37 @@ void **QListData::erase(void **xi)
 
     \sa toVector(), fromSet(), QSet::fromList()
 */
+
+/*! \fn QList<T> QList<T>::fromStdList(const std::list<T> &list)
+
+    Returns a QList object with the data contained in \a list. The
+    order of the elements in the QList is the same as in \a list.
+
+    Example:
+
+    \code
+        std::list<double> stdlist;
+        list.push_back(1.2);
+        list.push_back(0.5);
+        list.push_back(3.14);
+
+        QList<double> list = QList<double>::fromStdList(stdlist);
+    \endcode
+
+    \sa toStdList(), QVector::fromStdVector()
+*/
+
+/*! \fn std::list<T> QList<T>::toStdList() const
+
+    Returns a std::list object with the data contained in this QList.
+    Example:
+
+    \code
+        QList<double> list;
+        list << 1.2 << 0.5 << 3.14;
+
+        std::list<double> stdlist = list.toStdList();
+    \endcode
+
+    \sa fromStdList(), QVector::toStdVector()
+*/
