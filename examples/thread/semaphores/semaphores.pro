@@ -4,5 +4,5 @@ CONFIG		+= qt warn_on release thread
 HEADERS		= 
 SOURCES		= main.cpp
 INTERFACES	= 
-TARGET		= semaphore
+TARGET		= semaphores
 REQUIRES=full-config
