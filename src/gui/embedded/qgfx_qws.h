@@ -28,26 +28,6 @@ class QScreenCursor;
 class Q_GUI_EXPORT QGfx {
 
 public:
-     enum RasterOp { // raster op mode
-         CopyROP,
-         OrROP,
-         XorROP,
-         NotAndROP, EraseROP=NotAndROP,
-         NotCopyROP,
-         NotOrROP,
-         NotXorROP,
-         AndROP,        NotEraseROP=AndROP,
-         NotROP,
-         ClearROP,
-         SetROP,
-         NopROP,
-         AndNotROP,
-         OrNotROP,
-         NandROP,
-         NorROP,        LastROP=NorROP
-     };
-
-public:
     // With loadable drivers, do probe here
     static QGfx *createGfx(int depth, unsigned char *buffer,
                             int w, int h, int linestep);
@@ -143,7 +123,6 @@ public:
     virtual void save()=0;
     virtual void restore()=0;
 
-    virtual void setRop(RasterOp)=0;
     virtual void setScreen(QScreen *,QScreenCursor *,bool,int *,int *);
     void setShared(void * v) { shared_data=v; }
     bool isScreenGfx() { return is_screen_gfx; } //for cursor..

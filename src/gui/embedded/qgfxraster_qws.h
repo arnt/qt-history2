@@ -210,8 +210,6 @@ public:
     void save();
     void restore();
 
-    virtual void setRop(RasterOp r) { myrop=r; }
-
     void setClut(QRgb * cols,int numcols) { clut=cols; clutcols=numcols;  }
 
 protected:
@@ -399,8 +397,6 @@ protected:
     int globalRegionIndex;
     const int *globalRegionRevision;
     int currentRegionRevision;
-
-    RasterOp myrop;
 
     unsigned long int pixel; // == cpen.pixel() or cbrush.pixel()
 

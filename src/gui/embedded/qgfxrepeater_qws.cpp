@@ -110,7 +110,6 @@ public:
     virtual void setClut (QRgb *, int);
     virtual void save ();
     virtual void restore ();
-    virtual void setRop (Qt::RasterOp);
 
 private:
 
@@ -517,13 +516,6 @@ void QRepeaterGfx::restore ()
 {
     for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
         walker->gfx->restore();
-    }
-}
-
-void QRepeaterGfx::setRop (Qt::RasterOp r)
-{
-    for(QGfxRec * walker=gfxen.first();walker;walker=gfxen.next()) {
-        walker->gfx->setRop(r);
     }
 }
 

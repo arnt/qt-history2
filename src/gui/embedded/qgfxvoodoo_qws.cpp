@@ -76,8 +76,6 @@ public:
 
 private:
 
-    unsigned int getRop(RasterOp r);
-
     unsigned char * voodoo_regbase;
 
     bool checkSourceDest();
@@ -85,50 +83,6 @@ private:
     void do_scissors(QRect &);
 
 };
-
-// Oops, all these except CopyROP are wrong because they don't seem
-// to be documented!
-
-template<const int depth,const int type>
-inline unsigned int QGfxVoodoo<depth,type>::getRop(RasterOp r)
-{
-  if(r==CopyROP) {
-    return 0xcc;
-  } else if(r==OrROP) {
-    return 0xe;
-  } else if(r==XorROP) {
-    return 0x6;
-  } else if(r==NotAndROP) {
-    return 0x4;
-  } else if(r==NotCopyROP) {
-    return 0x3;
-  } else if(r==NotOrROP) {
-    return 0xd;
-  } else if(r==NotXorROP) {
-    return 0x9;
-  } else if(r==AndROP) {
-    return 0x8;
-  } else if(r==NotROP) {
-    return 0x5;
-  } else if(r==ClearROP) {
-    return 0x0;
-  } else if(r==SetROP) {
-    return 0xf;
-  } else if(r==NopROP) {
-    return 0xa;
-  } else if(r==AndNotROP) {
-    return 0x2;
-  } else if(r==OrNotROP) {
-    return 0xb;
-  } else if(r==NandROP) {
-    return 0x7;
-  } else if(r==NorROP) {
-    return 0x1;
-  } else {
-    qFatal("Unknown ROP!");
-    return 0;
-  }
-}
 
 // Read a 32-bit graphics card register from 2d engine register block
 template<const int depth,const int type>
