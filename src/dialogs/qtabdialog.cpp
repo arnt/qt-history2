@@ -58,14 +58,14 @@
   \ingroup dialogs
   \mainclass
 
-  A tabbed dialog is one in which several "pages" are available;
-  the user selects which page to see and use by clicking on its tab
+  A tabbed dialog is one in which several "pages" are available.
+  The user selects which page to see and use by clicking on its tab
   or by pressing the indicated Alt+\e{letter} key combination.
 
   QTabDialog provides a tab bar consisting of single row of tabs at
   the top; each tab has an associated widget which is that tab's
   "page". In addition, QTabDialog provides an OK button and the
-  following optional buttons: Apply, Cancel, Defaults, and Help.
+  following optional buttons: Apply, Cancel, Defaults and Help.
 
   QTabDialog doesn't provide for tabs on the sides or bottom, nor can
   you set or retrieve the visible page. If you need more functionality
