@@ -36,7 +36,6 @@ class QLabel;
 class QListView;
 class QListViewItem;
 class QPrinter;
-class QTextEdit;
 
 class Action;
 class FindDialog;
@@ -78,7 +77,7 @@ private slots:
     void release();
     void print();
     void find();
-    bool findAgain();
+    void findAgain();
     void replace();
     void newPhraseBook();
     void openPhraseBook();
@@ -101,8 +100,6 @@ private slots:
     void prevUnfinished();
     void nextUnfinished();
     void findNext( const QString& text, int where, bool matchCase );
-    void replace( const QString& before, const QString& after, bool matchCase,
-		  bool all );
     void revalidate();
     void toggleGuessing();
     void focusSourceList();
@@ -131,9 +128,8 @@ private:
 
     int itemToIndex( QListView * view, QListViewItem * item );
     QListViewItem * indexToItem( QListView * view, int index );
-    bool searchItem( QTextEdit *edit, const QString & searchWhat,
-		     QListViewItem * j, QListViewItem * k,
-		     bool wrapped );
+    bool searchItem( const QString & searchWhat, QListViewItem * j,
+		     QListViewItem * k );
 
     QListView     * plv;
     QListView     * lv;
@@ -159,16 +155,12 @@ private:
     FindDialog *f;
     FindDialog *h;
     QString findText;
-    QString replaceText;
-    bool replacing;
     int findWhere;
     bool findMatchCase;
     int foundItem;
     QListViewItem *foundScope;
     int foundWhere;
-    int foundStrIndex;
-    int foundPara;
-    int foundParaIndex;
+    int foundOffset;
 
     QPopupMenu * phrasep;
     QPopupMenu * closePhraseBookp;

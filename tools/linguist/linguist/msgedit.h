@@ -128,7 +128,6 @@ private:
     MED   * translationMed;
 
     friend class MessageEditor;
-    friend class TrWindow;
     
 private slots:
     void handleTranslationChanges();
@@ -208,8 +207,6 @@ private:
     QDockWindow * topDockWnd, *bottomDockWnd;
     EditorPage * editorPage;
     QVBoxLayout * v;
-
-    friend class TrWindow;
 
     QLabel * phraseLbl;
     PhraseLV * phraseLv;
