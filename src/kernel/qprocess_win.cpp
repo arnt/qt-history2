@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#29 $
 **
 ** Implementation of QProcess class for Win32
 **
@@ -312,19 +312,19 @@ void QProcess::socketRead( int fd )
 	return; // ### is it worth to dig for the reason of the error?
     }
     if ( i > 0 ) {
-	QByteArray buffer;
+	QByteArray *buffer;
 	uint oldSize;
 	if ( fd == 1 ) {
-	    buffer = bufStdout;
+	    buffer = &bufStdout;
 	} else {
-	    buffer = bufStderr;
+	    buffer = &bufStderr;
 	}
 
-	oldSize = buffer.size();
-	buffer.resize( oldSize + i );
-	uint sz = readStddev( dev, buffer.data()+oldSize, i );
+	oldSize = buffer->size();
+	buffer->resize( oldSize + i );
+	uint sz = readStddev( dev, buffer->data()+oldSize, i );
 	if ( sz != i )
-	    buffer.resize( oldSize + i );
+	    buffer->resize( oldSize + i );
 
 	if ( sz == 0 )
 	    return;
