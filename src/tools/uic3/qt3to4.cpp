@@ -167,6 +167,7 @@ void Porting::readXML(QString fileName, RuleList *renamedHeaders, RuleList *rena
 
     QXmlInputSource source(file);
     bool ok = reader.parse(&source);
+    Q_UNUSED(ok);
     Q_ASSERT(ok);
 
     if (renamedHeaders)
