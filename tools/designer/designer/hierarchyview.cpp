@@ -963,6 +963,7 @@ void HierarchyView::clear()
 
 void HierarchyView::setFormWindow( FormWindow *fw, QObject *o )
 {
+    bool fake = fw && qstrcmp( fw->name(), "qt_fakewindow" ) == 0;
     if ( fw == 0 || o == 0 ) {
 	listview->clear();
 	fView->clear();
@@ -976,7 +977,7 @@ void HierarchyView::setFormWindow( FormWindow *fw, QObject *o )
     setTabEnabled( fView, TRUE );
 
     if ( fw == formwindow ) {
-	if ( o && o->isWidgetType() )
+	if ( !fake )
 	    listview->setCurrent( (QWidget*)o );
 	else
 	    listview->clear();
@@ -988,15 +989,15 @@ void HierarchyView::setFormWindow( FormWindow *fw, QObject *o )
     }
 
     formwindow = fw;
-    if ( o && o->isWidgetType() ) {
+    if ( !fake ) {
 	listview->setFormWindow( fw );
     } else {
-	listview->clear();
 	listview->setFormWindow( 0 );
+	listview->clear();
     }
 
     fView->setFormWindow( fw );
-    if ( o && o->isWidgetType() ) {
+    if ( !fake ) {
 	listview->setup();
 	listview->setCurrent( (QWidget*)o );
     }

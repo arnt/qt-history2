@@ -33,6 +33,7 @@
 #include <qregexp.h>
 #include <qstatusbar.h>
 #include "propertyeditor.h"
+#include <qworkspace.h>
 
 static QString make_func_pretty( const QString &s )
 {
@@ -389,9 +390,12 @@ void FormFile::setCodeModified( bool m )
 void FormFile::showFormWindow()
 {
     if ( formWindow() ) {
-	if ( ( formWindow()->hasFocus() || formWindow() == MainWindow::self->formWindow() ) &&
+	if ( ( formWindow()->hasFocus() ||
+	      MainWindow::self->qWorkspace()->activeWindow() == formWindow() ) &&
 	     MainWindow::self->propertyeditor()->formWindow() != formWindow() ) {
 	    MainWindow::self->propertyeditor()->setWidget( formWindow()->currentWidget(), formWindow() );
+	    MainWindow::self->objectHierarchy()->setFormWindow( formWindow(),
+								formWindow()->currentWidget() );
 	}
 	formWindow()->setFocus();
 	return;
