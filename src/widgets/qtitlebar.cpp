@@ -201,13 +201,12 @@ void QTitleBar::readColors()
 #ifndef COLOR_GRADIENTINACTIVECAPTION
 #define COLOR_GRADIENTINACTIVECAPTION 28
 #endif
-    if ( qt_winver != Qt::WV_95 && qt_winver != WV_NT ) {
-	if ( QApplication::desktopSettingsAware() ) {
-	    pal.setColor( QPalette::Active, QColorGroup::Highlight, qt_colorref2qrgb(GetSysColor(COLOR_ACTIVECAPTION)) );
-	    pal.setColor( QPalette::Inactive, QColorGroup::Highlight, qt_colorref2qrgb(GetSysColor(COLOR_INACTIVECAPTION)) );
-	    pal.setColor( QPalette::Active, QColorGroup::HighlightedText, qt_colorref2qrgb(GetSysColor(COLOR_CAPTIONTEXT)) );
-	    pal.setColor( QPalette::Inactive, QColorGroup::HighlightedText, qt_colorref2qrgb(GetSysColor(COLOR_INACTIVECAPTIONTEXT)) );
-
+    if ( QApplication::desktopSettingsAware() ) {
+	pal.setColor( QPalette::Active, QColorGroup::Highlight, qt_colorref2qrgb(GetSysColor(COLOR_ACTIVECAPTION)) );
+	pal.setColor( QPalette::Inactive, QColorGroup::Highlight, qt_colorref2qrgb(GetSysColor(COLOR_INACTIVECAPTION)) );
+	pal.setColor( QPalette::Active, QColorGroup::HighlightedText, qt_colorref2qrgb(GetSysColor(COLOR_CAPTIONTEXT)) );
+	pal.setColor( QPalette::Inactive, QColorGroup::HighlightedText, qt_colorref2qrgb(GetSysColor(COLOR_INACTIVECAPTIONTEXT)) );
+	if ( qt_winver != Qt::WV_95 && qt_winver != WV_NT ) {
 	    BOOL gradient;
 #ifdef Q_OS_TEMP
 	    SystemParametersInfo( SPI_GETGRADIENTCAPTIONS, 0, &gradient, 0 );
