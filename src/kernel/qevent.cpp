@@ -28,7 +28,7 @@
 #include "qapplication.h"
 
 
-// NOT REVISED
+// BEING REVISED: paul
 /*!
   \class QEvent qevent.h
   \brief The QEvent class is base class of all
