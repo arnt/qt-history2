@@ -542,7 +542,8 @@ bool QSqlDatabase::open()
     return d->driver->open( d->dbname,
 				d->uname,
 				d->pword,
-				d->hname);
+				d->hname,
+				d->port);
 }
 
 /*! \overload
