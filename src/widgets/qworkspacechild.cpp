@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#26 $
+** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#27 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -22,12 +22,12 @@
 ** http://www.troll.no/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
-#include <qapplication.h>
-#include <qcursor.h>
-#include <qtoolbutton.h>
-#include <qlabel.h>
-#include <qobjectlist.h>
-#include <qlayout.h>
+#include "qapplication.h"
+#include "qcursor.h"
+#include "qtoolbutton.h"
+#include "qlabel.h"
+#include "qobjectlist.h"
+#include "qlayout.h"
 #include "qworkspacechild.h"
 #include "qworkspace.h"
 #include "qvbox.h"
@@ -198,6 +198,10 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* parent
     titleL->setAlignment( AlignVCenter );
     titleL->setFont( QFont(QString::fromLatin1("helvetica"), 12, QFont::Bold) );
 
+    iconL = new QLabel( this, "left" );
+    iconL->setFocusPolicy( NoFocus );
+    iconL->resize( BUTTON_SIZE, BUTTON_SIZE );
+
     resize( 256, TITLEBAR_HEIGHT );
 
 }
@@ -250,6 +254,13 @@ void QWorkspaceChildTitleBar::setText( const QString& title )
     titleL->setText( title );
 }
 
+
+void QWorkspaceChildTitleBar::setIcon( const QPixmap& icon )
+{
+    iconL->setPixmap( icon );
+}
+
+
 bool QWorkspaceChildTitleBar::eventFilter( QObject * o, QEvent * e)
 {
     if ( o == titleL ) {
@@ -279,6 +290,7 @@ void QWorkspaceChildTitleBar::resizeEvent( QResizeEvent * )
     closeB->move( width() - BUTTON_SIZE - bo, bo  );
     maxB->move( closeB->x() - BUTTON_SIZE - bo, closeB->y() );
     iconB->move( maxB->x() - BUTTON_SIZE, maxB->y() );
+    iconL->move( 0, iconB->y() );
 
     int to = ( height()- TITLE_HEIGHT) / 2;
 
@@ -365,6 +377,8 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 	return;
 
     titlebar->setText( clientw->caption() );
+	if( clientw->icon() )
+		titlebar->setIcon( *clientw->icon() );
 
     WFlags flags = ((QProtectedWidget*)clientw)->getWFlags();
     flags = flags & ~WType_Mask;
@@ -444,9 +458,19 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 	    hide();
 	}
 	break;
+#if QT_VERSION >= 210
     case QEvent::CaptionChange:
 	titlebar->setText( clientw->caption() );
 	break;
+    case QEvent::IconChange:
+	if ( clientw->icon() )
+	    titlebar->setIcon( *clientw->icon() );
+	else {
+	    QPixmap pm;
+	    titlebar->setIcon( pm );
+	}
+	break;
+#endif		
     case QEvent::LayoutHint:
 	//layout()->activate();
 	break;

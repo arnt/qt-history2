@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspacechild.h#12 $
+** $Id: //depot/qt/main/src/widgets/qworkspacechild.h#13 $
 **
 ** Definition of the QChildWindow class
 **
@@ -53,10 +53,11 @@ public:
     ~QWorkspaceChildTitleBar();
 
     bool isActive() const;
-    
+
  public slots:
     void setActive( bool );
     void setText( const QString& title );
+    void setIcon( const QPixmap& icon );
 
 signals:
     void doActivate();
@@ -77,6 +78,7 @@ private:
     QToolButton* maxB;
     QToolButton* iconB;
     QLabel* titleL;
+    QLabel* iconL;
     bool buttonDown;
     int mode;
     QPoint moveOffset;
