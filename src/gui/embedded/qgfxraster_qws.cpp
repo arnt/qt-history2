@@ -557,15 +557,12 @@ void QScreenCursor::move(int x, int y)
     This is relevant only to the software mouse cursor and should be
     reimplemented as a null method in hardware cursor drivers. It redraws
     what was under the mouse cursor when the cursor is moved. \a r
-    is the rectangle that needs updating, \a g is the QGfx that will be
-    used to redraw that rectangle.
+    is the rectangle that needs updating,
 */
-bool QScreenCursor::restoreUnder(const QRect &r, QGfxRasterBase *g)
+bool QScreenCursor::restoreUnder(const QRect &r)
 {
     if (!qws_sw_cursor)
         return false;
-
-    int depth = qt_screen->depth();
 
     if (!data || !data->enable) {
         return false;
@@ -575,14 +572,11 @@ bool QScreenCursor::restoreUnder(const QRect &r, QGfxRasterBase *g)
         return false;
     }
 
-    if (g && !g->is_screen_gfx) {
-        return false;
-    }
-
     if (!save_under) {
 #if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
         QWSDisplay::grab(true);
 #endif
+        int depth = gfx->bitDepth();
 
         int x = data->x - data->hotx;
         int y = data->y - data->hoty;
@@ -645,7 +639,7 @@ void QScreenCursor::saveUnder()
     if (!qws_sw_cursor)
         return;
 
-    int depth = qt_screen->depth();
+    int depth = gfx->bitDepth();
     int x = data->x - data->hotx;
     int y = data->y - data->hoty;
 

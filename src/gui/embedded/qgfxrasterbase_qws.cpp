@@ -203,8 +203,9 @@ void QGfxRasterBase::setPen(const QPen &p)
     }
 
 #ifndef QT_NO_QWS_REPEATER
-    if (isScreenGfx) {
+    if (isScreenGfx()) {
         int r = qRed(penColor), g = qGreen(penColor), b = qBlue(penColor);
+        int depth = bitDepth();
         if(depth==32||depth==24)
             penPixel=(r << 16) | (g << 8) | b;
         else if(depth==16)
@@ -244,8 +245,9 @@ void QGfxRasterBase::setBrush(const QBrush &b)
         patternedbrush = false;
 
 #ifndef QT_NO_QWS_REPEATER
-    if (isScreenGfx) {
+    if (isScreenGfx()) {
         int r = qRed(brushColor), g = qGreen(brushColor), b = qBlue(brushColor);
+        int depth = bitDepth();
         if(depth==32||depth==24)
             brushPixel=(r << 16) | (g << 8) | b;
         else if(depth==16)
@@ -901,15 +903,6 @@ bool QGfxRasterBase::inClip(int x, int y, QRect *cr, bool known_to_be_outside)
 */
 void QGfxRasterBase::setSourcePen()
 {
-#ifndef QT_NO_QWS_REPEATER
-    if (is_screen_gfx && qt_screen != gfx_screen) {
-        QScreen * tmp=qt_screen;
-        qt_screen=gfx_screen;
-        QColor tmpcol=cpen.color();
-        srccol = tmpcol.alloc();
-        qt_screen=tmp;
-    } else
-#endif
     srccol = penPixel;
     src_normal_palette = true;
     srctype = SourcePen;

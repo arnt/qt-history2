@@ -122,7 +122,7 @@ public:
     virtual void show();
     virtual void hide();
 
-    virtual bool restoreUnder(const QRect &r, QGfxRasterBase *g = 0);
+    virtual bool restoreUnder(const QRect &r);
     virtual void saveUnder();
     virtual void drawCursor();
     //void draw();

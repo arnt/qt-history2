@@ -53,7 +53,7 @@
     bool swc_do_save=false; \
     if(is_screen_gfx && gfx_swcursor) { \
         if((*gfx_optype)) sync(); \
-        swc_do_save = gfx_screencursor->restoreUnder(r,this); \
+        swc_do_save = gfx_screencursor->restoreUnder(r); \
         beginDraw(); \
     }
 

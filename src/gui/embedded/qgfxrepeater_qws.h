@@ -15,6 +15,7 @@
 #define QGFXREPEATER_QWS_H
 
 #include "QtGui/qgfx_qws.h"
+#include "QtGui/qscreen_qws.h"
 
 #ifndef QT_NO_QWS_REPEATER
 
@@ -37,7 +38,6 @@ public:
     virtual int initCursor(void *,bool=false);
     virtual void setDirty(const QRect &);
     virtual int sharedRamSize(void *);
-    QImage * readScreen(int,int,int,int,QRegion &);
     QRegion getRequiredUpdate(int,int,int,int,int,int);
 
 private:
