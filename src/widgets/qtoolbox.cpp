@@ -412,16 +412,7 @@ int QToolBox::count() const
 
 void QToolBox::setCurrentIndex( int index )
 {
-    setCurrentItem( item( index ) );
-}
-
-/*!
-    Sets the current item to be \a item.
-*/
-
-void QToolBox::setCurrentItem( QWidget *item )
-{
-    QToolBoxPrivate::Page *c = d->page( item );
+    QToolBoxPrivate::Page *c = d->page(index);
     if ( !c || d->currentPage == c )
 	return;
 
@@ -433,7 +424,7 @@ void QToolBox::setCurrentItem( QWidget *item )
     d->currentPage = c;
     d->currentPage->sv->show();
     d->updateTabs();
-    emit currentChanged( indexOf(item) );
+    emit currentChanged(index);
 }
 
 void QToolBox::relayout()
@@ -491,15 +482,6 @@ int QToolBox::removeItem( QWidget *item )
     return index;
 }
 
-
-/*!
-    Returns the toolbox's current item, or 0 if the toolbox is empty.
-*/
-
-QWidget *QToolBox::currentItem() const
-{
-    return d->currentPage ? d->currentPage->widget : 0;
-}
 
 /*!
     \property QToolBox::currentIndex

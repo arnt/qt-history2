@@ -53,9 +53,6 @@ public:
     void setItemToolTip( int index, const QString &toolTip );
     QString itemToolTip( int index ) const;
 
-    QWidget *currentItem() const;
-    void setCurrentItem( QWidget *item );
-
     int currentIndex() const;
     QWidget *item( int index ) const;
     int indexOf( QWidget *item ) const;
@@ -84,6 +81,11 @@ private:
 private:
     QToolBoxPrivate *d;
 
+#ifndef QT_NO_COMPAT
+public:
+    QWidget *currentItem() const { return item(currentIndex()); }
+    void setCurrentItem( QWidget *item ) { setCurrentIndex(indexOf(item)); }
+#endif
 };
 
 
