@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#140 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#141 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#140 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#141 $");
 
 Q_DECLARE(QListM, QListBoxItem);
 
@@ -1344,7 +1344,7 @@ void QListBox::mouseMoveEvent( QMouseEvent *e )
 		isTiming = FALSE;
 	    }
 	    if ( multiSelect ) {
-		bool s = currentItem() >= 0 
+		bool s = currentItem() >= 0
 			 ? isSelected( currentItem() ) : TRUE;
 		int i = QMIN( itemClicked, currentItem() );
 		if ( i < 0 )
@@ -1494,7 +1494,7 @@ void QListBox::focusOutEvent( QFocusEvent * )
 void QListBox::resizeEvent( QResizeEvent *e )
 {
     QTableView::resizeEvent( e );
-    setCellWidth( QMAX(maxItemWidth(), viewWidth()) );
+    setCellWidth( QMAX((int)maxItemWidth(), viewWidth()) );
 }
 
 
@@ -1935,7 +1935,7 @@ QSize QListBox::sizeHint() const
 {
     QSize sz = QTableView::sizeHint();
 
-    int w = maxItemWidth() + 2*frameWidth();
+    int w = (int)maxItemWidth() + 2*frameWidth();
     if ( testTableFlags(Tbl_vScrollBar) )
 	w += verticalScrollBar()->width();
     sz.setWidth(w);
