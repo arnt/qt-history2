@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#216 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#217 $
 **
 ** Implementation of QListView widget class
 **
@@ -1055,6 +1055,7 @@ void QListViewItem::setPixmap( int column, const QPixmap & pm )
 
 const QPixmap * QListViewItem::pixmap( int column ) const
 {
+    column = 0;
     QListViewPrivate::ItemColumnInfo * l
 	= (QListViewPrivate::ItemColumnInfo*) columns;
 
@@ -1739,9 +1740,9 @@ void QListView::buildDrawableList() const
     int cy = contentsY();
     int ch = ((QListView *)this)->viewport()->height();
     // ### hack to help sizeHint().  if not visible, assume that we'll
-    // ### use 200 pixels rather than whatever QSrollView.  this lets
-    // ### sizeHint() base its width on a more realistic number of
-    // ### items.
+    // ### use 200 pixels rather than whatever QScrollView thinks.
+    // ### this lets sizeHint() base its width on a more realistic
+    // ### number of items.
     if ( !isVisible() && ch < 200 )
 	ch = 200;
     d->topPixel = cy + ch; // one below bottom
@@ -3692,17 +3693,9 @@ void QCheckListItem::paintBranches( QPainter * p, const QColorGroup & cg,
 QSize QListView::sizeHint() const
 {
     if ( !isVisibleToTLW() &&
-	 (!d->drawables || d->drawables->isEmpty()) ) {
+	 (!d->drawables || d->drawables->isEmpty()) )
 	// force the column widths to sanity, if possible
 	buildDrawableList();
-
-	QListViewPrivate::DrawableItem * c = d->drawables->first();
-
-	while( c && c->i ) {
-	    c->i->setup();
-	    c = d->drawables->next();
-	}
-    }
 
     QSize s( d->h->sizeHint() );
     QListViewItem * l = d->r;
