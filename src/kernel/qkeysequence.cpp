@@ -205,7 +205,7 @@ done:
 }
 
 /*!
-  Copy constructor. Makes a copy of \a keysequence.
+  Copy constructor. Makes a copy of \a key sequence.
  */
 QKeySequence::QKeySequence( const QKeySequence& keysequence )
 {
@@ -223,7 +223,7 @@ QKeySequence::~QKeySequence()
 }
 
 /*!
-  Assignment operator. Assigns \a keysequence to this object.
+  Assignment operator. Assigns \a key sequence to this object.
  */
 QKeySequence &QKeySequence::operator=( const QKeySequence & keysequence )
 {
@@ -247,7 +247,7 @@ QKeySequence::operator int () const
 }
 
 /*!
-   Creates an accelerator string for the keysequence.
+   Creates an accelerator string for the key sequence.
    For instance CTRL+Key_O gives "Ctrl+O".  The strings, "Ctrl",
    "Shift", etc. are translated (using QObject::tr()) in the "QAccel"
    scope.
@@ -311,7 +311,7 @@ QKeySequence::operator QString() const
 
 
 /*!
-  Returns TRUE if \a keysequence is equal to this keysequence;
+  Returns TRUE if \a keysequence is equal to this key sequence;
   otherwise returns FALSE.
  */
 bool QKeySequence::operator==( const QKeySequence& keysequence ) const
@@ -320,7 +320,7 @@ bool QKeySequence::operator==( const QKeySequence& keysequence ) const
 }
 
 /*!
-  Returns TRUE if \a keysequence is not equal to this keysequence;
+  Returns TRUE if \a keysequence is not equal to this key sequence;
   otherwise returns FALSE.
  */
 bool QKeySequence::operator!= ( const QKeySequence& keysequence ) const
@@ -351,7 +351,7 @@ QDataStream &operator<<( QDataStream &s, const QKeySequence &keysequence )
 
 /*!
   \relates QKeySequence
-  Reads a key sequence from the stream \a s into the keysequence \a keysequence.
+  Reads a key sequence from the stream \a s into the key sequence \a keysequence.
 */
 
 QDataStream &operator>>( QDataStream &s, QKeySequence &keysequence )
