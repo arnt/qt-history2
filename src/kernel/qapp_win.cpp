@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#146 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#147 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -639,11 +639,11 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 
     while ( (pe = it.current()) ) {
 	++it;
-	postedEvents->take( postedEvents->findRef( pe ) );
 	if ( pe->event
 	  && pe->receiver == receiver
 	  && pe->event->type() == event_type )
 	{
+	    postedEvents->take( postedEvents->findRef( pe ) );
 	    switch ( event_type ) {
 	      case Event_Move:
 		if ( first ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#313 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#314 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -1394,11 +1394,11 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
     while ( (pe = it.current()) ) {
 	++it;
 	
-	postedEvents->take( postedEvents->findRef( pe ) );
 	if ( pe->event
 	     && pe->receiver == receiver
 	     && pe->event->type() == event_type )
 	    {
+		postedEvents->take( postedEvents->findRef( pe ) );
 		switch ( event_type ) {
 		case Event_Move:
 		    if ( first ) {
@@ -1984,7 +1984,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    QApplication::sendEvent( widget, &e );
 	}
 	break;
-	    
+	
     case MapNotify:				// window shown
 	if ( !widget->testWFlags( WState_Visible ) ) {
 	    widget->setWFlags( WState_Visible );
