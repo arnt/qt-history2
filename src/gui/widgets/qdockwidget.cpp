@@ -115,12 +115,12 @@ public:
     QBoxLayout *box;
 
     struct DragState {
-	QRubberBand *rubberband;
+        QRubberBand *rubberband;
         QRect origin;   // starting position
-	QRect current;  // current size of the dockwidget (can be either placed or floating)
-	QRect floating; // size of the floating dockwidget
+        QRect current;  // current size of the dockwidget (can be either placed or floating)
+        QRect floating; // size of the floating dockwidget
         QPoint offset;
-	bool canDrop;
+        bool canDrop;
     };
     DragState *state;
 
@@ -238,8 +238,7 @@ void QDockWidgetTitle::mousePressEvent(QMouseEvent *event)
                       : QRect(state->current.topLeft(), dockwidget->sizeHint());
 
     // the offset is the middle of the titlebar in a window of floating.size()
-    state->offset = mapFrom(dockwidget, QPoint(state->floating.width() / 2, 0));
-    state->offset = mapTo(dockwidget, QPoint(state->offset.x(), height() / 2));
+    state->offset = mapTo(dockwidget, event->pos());
     state->canDrop = true;
 
     state->rubberband->setGeometry(state->current);
@@ -255,26 +254,26 @@ void QDockWidgetTitle::mouseMoveEvent(QMouseEvent *event)
     // see if there is a main window under us, and ask it to place the tool window
     QWidget *widget = QApplication::widgetAt(event->globalPos());
     if (widget) {
-	while (widget && !qobject_cast<QMainWindow *>(widget)) {
-	    if (widget->isWindow()) {
-		widget = 0;
-		break;
-	    }
-	    widget = widget->parentWidget();
-	}
+        while (widget && !qobject_cast<QMainWindow *>(widget)) {
+            if (widget->isWindow()) {
+                widget = 0;
+                break;
+            }
+            widget = widget->parentWidget();
+        }
 
-	if (widget) {
+        if (widget) {
             QMainWindow *mainwindow = qobject_cast<QMainWindow *>(widget);
             if (mainwindow && mainwindow == dockwidget->parentWidget()) {
-		QMainWindowLayout *layout =
+                QMainWindowLayout *layout =
                     qobject_cast<QMainWindowLayout *>(dockwidget->parentWidget()->layout());
                 Q_ASSERT(layout != 0);
                 QRect request = state->origin;
                 request.moveTopLeft(event->globalPos() - state->offset);
-		target = layout->placeDockWidget(dockwidget, request, event->globalPos());
+                target = layout->placeDockWidget(dockwidget, request, event->globalPos());
                 layout->resetLayoutInfo();
-	    }
-	}
+            }
+        }
     }
 
     state->canDrop = target.isValid();
