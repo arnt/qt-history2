@@ -83,7 +83,7 @@ public:
     const QSqlResult*   result() const;
 
     virtual bool	exec ( const QString& query );
-    virtual QVariant    value( int i );
+    virtual QVariant    value( int i ) const;
 
     virtual bool	seek( int i, bool relative = FALSE );
     virtual bool        next();
