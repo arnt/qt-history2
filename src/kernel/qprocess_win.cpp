@@ -214,8 +214,8 @@ bool QProcess::start( QStringList *env )
     // read handles to avoid non-closable handles.
     SECURITY_ATTRIBUTES secAtt = { sizeof( SECURITY_ATTRIBUTES ), NULL, TRUE };
 #ifndef Q_OS_TEMP
-	// I guess there is no stdin stdout and stderr on PocketPC to dup
-	// CreatePipe and DupilcateHandle aren't avaliable for WinCE
+	// I guess there is no stdin stdout and stderr on Q_OS_TEMP to dup
+	// CreatePipe and DupilcateHandle aren't avaliable for Q_OS_TEMP
     HANDLE tmpStdin, tmpStdout, tmpStderr;
     if ( !CreatePipe( &d->pipeStdin[0], &tmpStdin, &secAtt, 0 ) ) {
 	return FALSE;
@@ -304,8 +304,11 @@ bool QProcess::start( QStringList *env )
 	    envlist[pos++] = 0;
 	}
 	success = CreateProcess( 0, commandLine,
-		0, 0, TRUE, CREATE_NO_WINDOW | CREATE_UNICODE_ENVIRONMENT,
-		env==0 ? 0 : envlist.data(),
+		0, 0, TRUE, CREATE_NO_WINDOW
+#ifndef Q_OS_TEMP
+		| CREATE_UNICODE_ENVIRONMENT
+#endif
+		, env==0 ? 0 : envlist.data(),
 		(TCHAR*)qt_winTchar(workingDir.absPath(),TRUE),
 		&startupInfo, d->pid );
 	delete[] commandLine;

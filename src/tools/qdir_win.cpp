@@ -36,6 +36,7 @@
 #include "qfiledefs_p.h"
 #include "qregexp.h"
 #include "qstringlist.h"
+#include "qwinfunctions.h"
 
 #include <windows.h>
 

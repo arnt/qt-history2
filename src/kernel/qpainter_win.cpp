@@ -739,8 +739,8 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 #ifndef Q_OS_TEMP
 		    SetWindowOrgEx( hdc, -dx, -dy, 0 );
 #else
-//			MoveWindow( w->winId(), w->frameGeometry().x(), w->frameGeometry().y(), w->frameGeometry().width(), w->frameGeometry().height(), FALSE );
-//			MoveWindow( w->winId(), w->frameGeometry().x() - 50, w->frameGeometry().y() - 50, w->frameGeometry().width(), w->frameGeometry().height(), FALSE );
+//		    MoveWindow( w->winId(), w->frameGeometry().x(), w->frameGeometry().y(), w->frameGeometry().width(), w->frameGeometry().height(), FALSE );
+//		    MoveWindow( w->winId(), w->frameGeometry().x() - 50, w->frameGeometry().y() - 50, w->frameGeometry().width(), w->frameGeometry().height(), FALSE );
 #endif
 		}
 	    } else {
@@ -1229,7 +1229,7 @@ void QPainter::moveTo( int x, int y )
 #ifndef Q_OS_TEMP
     MoveToEx( hdc, x, y, 0 );
 #else
-	internalCurrentPos = QPoint( x, y );
+    internalCurrentPos = QPoint( x, y );
 #endif
 }
 
@@ -1251,10 +1251,10 @@ void QPainter::lineTo( int x, int y )
 #ifndef Q_OS_TEMP
     LineTo( hdc, x, y );
 #else
-	// PolyLine from internalCurrentPos to x, y.
-	POINT linePts[2] = { { internalCurrentPos.x(), internalCurrentPos.y() }, { x, y } };
-	Polyline( hdc, linePts, 2 );
-	internalCurrentPos = QPoint( x, y );
+    // PolyLine from internalCurrentPos to x, y.
+    POINT linePts[2] = { { internalCurrentPos.x(), internalCurrentPos.y() }, { x, y } };
+    Polyline( hdc, linePts, 2 );
+    internalCurrentPos = QPoint( x, y );
 #endif
     if ( cpen.style() != NoPen )
 #ifndef Q_OS_TEMP
@@ -1314,7 +1314,7 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
 #ifndef Q_OS_TEMP
     MoveToEx( hdc, x2, y2, 0 );
 #else
-	internalCurrentPos = QPoint( x2, y2 );
+    internalCurrentPos = QPoint( x2, y2 );
 #endif
 }
 
@@ -1754,13 +1754,13 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 #ifndef Q_OS_TEMP
 	    SetPixelV( hdc, x2, y2, pixel );
 #else
-		SetPixel( hdc, x2, y2, pixel );
+	    SetPixel( hdc, x2, y2, pixel );
 #endif
 	}
 
 #ifndef Q_OS_TEMP
-    MoveToEx( hdc, x1, y1, 0 );
-    LineTo( hdc, x2, y2 );
+        MoveToEx( hdc, x1, y1, 0 );
+	LineTo( hdc, x2, y2 );
 #else
 	// PolyLine from x1, y1 to x2, y2.
 	POINT linePts[2] = { { x1, y1 }, { x2, y2 } };
@@ -2186,7 +2186,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 #ifndef Q_OS_TEMP
     bool nat_xf = ( (qt_winver & WV_NT_based) && txop >= TxScale );
 #else
-	bool nat_xf = FALSE;
+    bool nat_xf = FALSE;
 #endif
 
     if ( len < 0 )
@@ -2208,11 +2208,11 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 #ifdef Q_OS_TEMP
 	    force_bitmap &= !(((TEXTMETRICW*)textMetric())->tmPitchAndFamily&(TMPF_VECTOR|TMPF_TRUETYPE));
 #else
-#ifdef UNICODE
+#  ifdef UNICODE
 	if ( qt_winver & WV_NT_based ) {
 	    force_bitmap &= !(((TEXTMETRICW*)textMetric())->tmPitchAndFamily&(TMPF_VECTOR|TMPF_TRUETYPE));
 	} else
-#endif
+#  endif
 	{
 	    force_bitmap &= !(((TEXTMETRICA*)textMetric())->tmPitchAndFamily&(TMPF_VECTOR|TMPF_TRUETYPE));
 	}
@@ -2385,18 +2385,27 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     QFontPrivate::TextRun *cache = new QFontPrivate::TextRun();
     font->d->buildCache( hdc, shaped, 0, len, cache );
     if ( rop == CopyROP ) {
+#ifndef Q_OS_TEMP
 	font->d->drawText( hdc, x, y, cache );
 	//TextOut( hdc, x, y, tc, len );
+#else
+	// ### Problem here is that we can't align the text to the baseline of the font
+	// The value 3 is here to correct the difference between the bottom of the font
+	// and the baseline of it, however this should be calulated, or somehow the alignment
+	// set to the baseline
+	font->d->drawText( hdc, x, y + 5, cache );
+#endif
     } else {
 	// Doesn't work for non-TrueType fonts, but we dealt with those
 	// with the bitmap above.
 #ifndef Q_OS_TEMP
 	BeginPath(hdc);
-#endif
 	font->d->drawText( hdc, x, y, cache );
 	//TextOut( hdc, x, y, tc, len );
-#ifndef Q_OS_TEMP
 	EndPath(hdc);
+#else
+	// ### See last ### comment above
+	font->d->drawText( hdc, x, y + 5, cache );
 #endif
 	uint pix = COLOR_VALUE(cpen.data->color);
 	HBRUSH tbrush = CreateSolidBrush( pix );
@@ -2427,7 +2436,7 @@ QPoint QPainter::pos() const
     }
     return  p;
 #else
-	return internalCurrentPos;
+    return internalCurrentPos;
 #endif
 }
 

@@ -71,7 +71,11 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate( QDesktopWidget *that )
 	screenCount = GetSystemMetrics( 80 );  // SM_CMONITORS
 	rects->resize( screenCount );
 	// Trying to get the function pointers to Win98/2000 only functions
+#ifdef Q_OS_TEMP
+	user32hnd = LoadLibraryW( L"user32.dll" );
+#else
 	user32hnd = LoadLibraryA( "user32.dll" );
+#endif
 	if ( !user32hnd )
 	    return;
 #ifdef Q_OS_TEMP

@@ -134,11 +134,12 @@ bool QFile::open( int m )
 	if ( isAsynchronous() )
 	    oflags |= QT_OPEN_ASYNC;
 #endif
-	if ( qt_winunicode ) {
+#ifndef Q_OS_TEMP
+	if ( qt_winunicode )
 	    fd = ::_topen((const TCHAR*)qt_winTchar(fn,TRUE), oflags, 0666 );
-	} else {
+	else
+#endif
 	    fd = QT_OPEN(qt_win95Name(fn), oflags, 0666 );
-	}
 
 	if ( fd != -1 ) {			// open successful
 	    QT_STATBUF st;
@@ -181,6 +182,7 @@ bool QFile::open( int m )
 	    strcat( perm2, "b" );
 #endif
 	for (;;) { // At most twice
+#ifndef Q_OS_TEMP
 	    if ( qt_winunicode ) {
 		TCHAR tperm2[4];
 		tperm2[0] = perm2[0];
@@ -188,7 +190,9 @@ bool QFile::open( int m )
 		tperm2[2] = perm2[2];
 		tperm2[3] = perm2[3];
 		fh = ::_tfopen((const TCHAR*)qt_winTchar(fn,TRUE), tperm2 );
-	    } else {
+	    } else
+#endif
+	    {
 		fh = fopen(qt_win95Name(fn),
 			    perm2 );
 	    }

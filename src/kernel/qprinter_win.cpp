@@ -45,6 +45,10 @@
 #define DOCINFOA DOCINFO
 #endif
 
+#ifdef Q_OS_TEMP
+#include <commdlg.h>
+#endif
+
 // QPrinter states
 
 #define PST_IDLE        0

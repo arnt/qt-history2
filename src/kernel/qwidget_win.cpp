@@ -42,6 +42,9 @@
 #include "qpaintdevicemetrics.h"
 #include "qcursor.h"
 
+#ifdef Q_OS_TEMP
+#include "sip.h"
+#endif
 
 #if defined(QT_NON_COMMERCIAL)
 #include "qmessagebox.h"
@@ -114,6 +117,16 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     if ( sw < 0 ) {				// get the (primary) screen size
 	sw = GetSystemMetrics( SM_CXSCREEN );
 	sh = GetSystemMetrics( SM_CYSCREEN );
+#ifdef Q_OS_TEMP
+	SIPINFO si = { 0 };
+	si.cbSize = sizeof(si);
+	SipGetInfo( &si );
+#define Q_OS_TEMP_MENU_HEIGHT	26
+	// The menu should be at the bottom, it is to be 26 pixels high
+	int iDelta = (si.fdwFlags & SIPF_ON) ? 0 : Q_OS_TEMP_MENU_HEIGHT;
+	sw = si.rcVisibleDesktop.right - si.rcVisibleDesktop.left;
+	sh = si.rcVisibleDesktop.bottom - si.rcVisibleDesktop.top - iDelta;
+#endif
     }
 
     if ( window ) {
@@ -165,11 +178,16 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 		style = 0;
 	    }
 	} else {
+#ifndef Q_OS_TEMP
 	    style = WS_OVERLAPPED;
 	    if ( testWFlags(WType_Dialog ) )
 		setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu | WStyle_ContextHelp );
 	    else
 		setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu  );
+#else
+	    style = WS_OVERLAPPED;
+	    setWFlags( WStyle_NormalBorder );
+#endif
 	}
 	// workaround for some versions of Windows
 	if ( testWFlags( WStyle_MinMax ) )
@@ -178,14 +196,15 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     if ( !desktop ) {
 	style |= WS_CLIPSIBLINGS | WS_CLIPCHILDREN ;
 	if ( topLevel ) {
+#ifndef Q_OS_TEMP
 	    if ( testWFlags(WStyle_NormalBorder) )
-#ifdef Q_OS_TEMP
-		;
-#else
 		style |= WS_THICKFRAME;
-#endif
 	    else if ( testWFlags(WStyle_DialogBorder) )
 		style |= WS_POPUP | WS_DLGFRAME;
+#else
+	    if ( testWFlags(WStyle_DialogBorder) )
+		style |= WS_POPUP;
+#endif
 	    if ( testWFlags(WStyle_Title) )
 		style |= WS_CAPTION;
 	    if ( testWFlags(WStyle_SysMenu) )
@@ -202,13 +221,13 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     }
     if ( testWFlags(WStyle_Title) ) {
 #ifdef UNICODE
-#ifndef Q_OS_TEMP
+#  ifndef Q_OS_TEMP
 	if ( qt_winver & Qt::WV_NT_based ) {
-#endif
+#  endif
 	    title = (TCHAR*)qt_winTchar_new(QString::fromLatin1(qAppName()));
-#ifndef Q_OS_TEMP
+#  ifndef Q_OS_TEMP
 	} else
-#endif
+#  endif
 #endif
 #ifndef Q_OS_TEMP
 	{
@@ -248,17 +267,34 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	} else {
 	    setWinId( id );
 	}
-//#else
-//    setWinId( id );
 #endif
     } else if ( topLevel ) {			// create top-level widget
 	if ( popup )
 	    parentw = 0;
 
-#ifdef UNICODE
-#ifndef Q_OS_TEMP
+#ifdef Q_OS_TEMP
+
+	int x = CW_USEDEFAULT, y = CW_USEDEFAULT, cx, cy;
+	SIPINFO si = { 0 };
+	si.cbSize = sizeof(si);
+	SipGetInfo( &si );
+
+#define MENU_HEIGHT	26
+
+	// The menu should be at the bottom, it is to be 26 pixels high
+	int iDelta = (si.fdwFlags & SIPF_ON) ? 0 : MENU_HEIGHT;
+	cx = si.rcVisibleDesktop.right - si.rcVisibleDesktop.left;
+	cy = si.rcVisibleDesktop.bottom - si.rcVisibleDesktop.top - iDelta;
+
+	TCHAR *cname = (TCHAR*)qt_winTchar(windowClassName,TRUE);
+	if ( exsty )
+	    id = CreateWindowEx( exsty, cname, title, style, x, y, cx, cy, parentw, 0, appinst, 0 );
+	else
+	    id = CreateWindow( cname, title, style, x, y, cx, cy, parentw, 0, appinst, 0 );
+#else
+
+#  ifdef UNICODE
 	if ( qt_winver & Qt::WV_NT_based ) {
-#endif
 		// ### can this give problems due to the buffer in qt_winTchar????
 	    TCHAR *cname = (TCHAR*)qt_winTchar(windowClassName,TRUE);
 	    if ( exsty )
@@ -271,11 +307,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 				    CW_USEDEFAULT, CW_USEDEFAULT,
 				    CW_USEDEFAULT, CW_USEDEFAULT,
 				    parentw, 0, appinst, 0 );
-#ifndef Q_OS_TEMP
 	} else
-#endif
-#endif
-#ifndef Q_OS_TEMP
+#  endif
 	{
 	    if ( exsty )
 		id = CreateWindowExA( exsty, windowClassName.latin1(), title95, style,
@@ -288,7 +321,9 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 				    CW_USEDEFAULT, CW_USEDEFAULT,
 				    parentw, 0, appinst, 0 );
 	}
+
 #endif
+
 #ifndef Q_NO_DEBUG
 	if ( id == NULL )
 	    qSystemWarning( "QWidget: Failed to create window" );
@@ -301,7 +336,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 #ifndef Q_OS_TEMP
 	if ( qt_winver & Qt::WV_NT_based ) {
 #endif
-		TCHAR *cname = (TCHAR*)qt_winTchar(windowClassName,TRUE);
+	    TCHAR *cname = (TCHAR*)qt_winTchar(windowClassName,TRUE);
 	    id = CreateWindow( cname, title, style, 0, 0, 100, 30,
 			    parentw, NULL, appinst, NULL );
 #ifndef Q_OS_TEMP
@@ -382,8 +417,13 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
 #if defined(QT_NON_COMMERCIAL)
     HMENU menu = GetSystemMenu( winId(), FALSE );
+#  ifdef Q_OS_TEMP
+    AppendMenuW( menu, MF_SEPARATOR, NULL, NULL );
+    AppendMenuW( menu, MF_STRING, IDM_ABOUTQT, L"About Qt" );
+#  else
     AppendMenuA( menu, MF_SEPARATOR, NULL, NULL );
     AppendMenuA( menu, MF_STRING, IDM_ABOUTQT, "About Qt" );
+#  endif
 #endif
 
     if ( destroyw ) {
@@ -802,7 +842,7 @@ LRESULT CALLBACK qJournalRecordProc( int nCode, WPARAM wParam, LPARAM lParam )
 #ifndef Q_OS_TEMP
     return CallNextHookEx( journalRec, nCode, wParam, lParam );
 #else
-	return 0;
+    return 0;
 #endif
 }
 
@@ -979,19 +1019,21 @@ void QWidget::showWindow()
 #endif
 	int sm = SW_SHOW;
 	if ( isTopLevel() ) {
+#ifdef Q_OS_TEMP
+//	    sm = SW_SHOWMAXIMIZED;
+#else
 	    switch ( topData()->showMode ) {
-#ifndef Q_OS_TEMP
 	    case 1:
 		sm = SW_SHOWMINIMIZED;
 		break;
-#endif
-		case 2:
+	    case 2:
 		sm = SW_SHOWMAXIMIZED;
 		break;
 	    default:
 		sm = SW_SHOW;
 		break;
 	    }
+#endif
 	    topData()->showMode = 0; // reset
 	}
 	ShowWindow( winId(), sm );

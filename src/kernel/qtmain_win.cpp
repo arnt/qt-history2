@@ -40,7 +40,11 @@
   initializes Qt.
 */
 
+#if defined( Q_OS_TEMP )
+extern void __cdecl qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QMemArray<pchar> &);
+#else
 extern void qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QMemArray<pchar> &);
+#endif
 
 #if defined(NEEDS_QMAIN)
 int qMain( int, char ** );

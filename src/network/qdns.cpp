@@ -2226,12 +2226,16 @@ static void doResInit()
 #endif
 	{
 	// for 98 and 2000 try the API call GetNetworkParams()
+#ifdef Q_OS_TEMP
+	HINSTANCE hinstLib = LoadLibraryW( L"iphlpapi" );
+#else
 	HINSTANCE hinstLib = LoadLibraryA( "iphlpapi" );
+#endif
 	if ( hinstLib != 0 ) {
 #ifdef Q_OS_TEMP
-	    GNP getNetworkParams = (GNP) GetProcAddress( hinstLib, L"GetNetworkParams" );
+	    GNP getNetworkParams = (GNP) GetProcAddressW( hinstLib, L"GetNetworkParams" );
 #else
-		GNP getNetworkParams = (GNP) GetProcAddress( hinstLib, "GetNetworkParams" );
+	    GNP getNetworkParams = (GNP) GetProcAddress( hinstLib, "GetNetworkParams" );
 #endif
 	    if ( getNetworkParams != 0 ) {
 		ULONG l = 0;
