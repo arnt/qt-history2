@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#229 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#230 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -868,14 +868,14 @@ QSize QComboBox::sizeHint() const
 	maxH = 12;
 
     int sw, sh;
-    if ( style() == MotifStyle && d->usingListBox() ) {
+    if ( d->usingListBox() ) {
 	sw = 4 + 4 + maxW;
 	sh = 5 + 5 + maxH;
 	QRect cr = style().comboButtonRect( 0, 0, sw, sh );
 	sw += sw - cr.width();
     } else {
-	//hardcoded values
-	int extraW = 20;
+	//hardcoded values for motif 1.x style
+	int extraW = 20+5;
 	sw = 4 + 4 + maxW + extraW;
 	sh = 5 + 5 + maxH;
     }
@@ -1034,7 +1034,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 			 &g.brush( QColorGroup::Button ) );
 	qDrawShadePanel( &p, xPos, (height() - buttonH)/2,
 			 buttonW, buttonH, g, FALSE, style().defaultFrameWidth() );
-	QRect clip( 4, 2, xPos - 2 - 4, height() - 4 );
+	QRect clip( 4, 2, xPos - 2 - 4 - 5, height() - 4 );
 	QString str = d->popup()->text( this->d->current ); // this->gccsucks
 	if ( !str.isNull() ) {
 	    p.drawText( clip, AlignCenter | SingleLine, str );
