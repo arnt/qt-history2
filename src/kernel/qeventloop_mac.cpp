@@ -851,11 +851,26 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
 	emit qApp->guiThreadAwake();
     }
 
-
-
     return nevents > 0;
 }
 
+void QEventLoop::timeToWait() const
+{
+    if (!qt_is_gui_used)
+	return -1;
+
+    timeval *tm = qt_wait_timer();
+    if ( ! tm )	// no active timers
+	return -1;
+    return (tm->tv_sec*1000) + (tm->tv_usec/1000);
+}
+
+void QEventLoop::activateTimers()
+{
+    if (!qt_is_gui_used)
+	return 0;
+    return qt_activate_timers();
+}
 
 void QEventLoop::wakeUp()
 {

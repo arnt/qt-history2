@@ -309,6 +309,12 @@ void QEventLoop::processEvents( ProcessEventsFlags flags, int maxTime )
 
     QEventLoop subclasses that do their own timer handling need to
     call this after the time returned by timeToWait() has elapsed.
+
+    Note: This function is only useful on systems where \c select() is
+    used to block the eventloop.  On Windows, this function always
+    returns 0.  On MacOS X, this function always returns 0 when the
+    GUI is enabled.  On MacOS X, this function returns the documented
+    value when the GUI is disabled.
 */
 
 /*! \fn int QEventLoop::timeToWait() const
@@ -318,6 +324,12 @@ void QEventLoop::processEvents( ProcessEventsFlags flags, int maxTime )
 
     QEventLoop subclasses that do their own timer handling need to use
     this to make sure that Qt's timers continue to work.
+
+    Note: This function is only useful on systems where \c select() is
+    used to block the eventloop.  On Windows, this function always
+    returns -1.  On MacOS X, this function always returns -1 when the
+    GUI is enabled.  On MacOS X, this function returns the documented
+    value when the GUI is disabled.
 */
 
 /*! \fn void QEventLoop::wakeUp()
