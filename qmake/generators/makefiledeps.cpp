@@ -105,9 +105,8 @@ SourceFile *SourceFiles::lookupFile(const char *file)
 {
     int h = hash(file) % num_nodes;
     for(SourceFileNode *p = nodes[h]; p; p = p->next) {
-        if(!strcmp(p->key, file)) {
+        if(!strcmp(p->key, file)) 
             return p->file;
-        }
     }
     return 0;
 }
@@ -117,10 +116,8 @@ SourceFile *SourceFiles::lookupMocFile(const QString &mocfile)
     for(register int n = 0; n < num_nodes; n++) {
         if(nodes[n]) {
             for(SourceFileNode *next = nodes[n]; next; ) {
-                if (next->file->mocable
-                    && mocfile == next->file->mocfile.local()) {
+                if (next->file->mocable && mocfile == next->file->mocfile.local()) 
                     return next->file;
-                }
                 next = next->next;
             }
         }
@@ -134,9 +131,9 @@ void SourceFiles::addFile(SourceFile *p, const char *k)
         k = p->file.local();
     int h = hash(k) % num_nodes;
     SourceFileNode *pn = new SourceFileNode;
-    pn->next = nodes[h];
-    pn->key = k;
+    pn->key = strdup(k);
     pn->file = p;
+    pn->next = nodes[h];
     nodes[h] = pn;
 }
 
@@ -198,7 +195,7 @@ QString QMakeSourceFileInfo::mocFile(const QString &file)
 {
     if (!files)
         return QString();
-    if(SourceFile *node = files->lookupFile(file))
+    if(SourceFile *node = files->lookupFile(file)) 
         return node->mocfile.local();
     return QString();
 }
@@ -237,6 +234,7 @@ void QMakeSourceFileInfo::addSourceFiles(const QStringList &l, uchar seek, bool 
         if(!file) {
             file = new SourceFile;
             file->file = fixPathForFile(fn);
+            files->addFile(file);
         } else {
             if(file->uifile != uifile)
                 warn_msg(WarnLogic, "%s is marked as UI, then not!", (*it).latin1());
@@ -253,7 +251,6 @@ void QMakeSourceFileInfo::addSourceFiles(const QStringList &l, uchar seek, bool 
         }
         if(seek & SEEK_DEPS)
             findDeps(file);
-        files->addFile(file);
     }
 }
 
