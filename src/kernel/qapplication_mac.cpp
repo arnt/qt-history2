@@ -2294,6 +2294,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 			app->setActiveWindow(tmp_w);
 		}
 	    }
+#if !defined(QMAC_QMENUBAR_NO_NATIVE)
+	    QMenuBar::macUpdateMenuBar();
+#endif
 	} else if(ekind == kEventAppDeactivated) {
 	    while(app->inPopupMode())
 		app->activePopupWidget()->close();
