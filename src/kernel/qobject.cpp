@@ -181,11 +181,10 @@ static inline bool isSpace( char x )
 #endif
 }
 
-static QCString qt_rmWS( const char *src )
+static QCString qt_rmWS( const char *s )
 {
-    QCString result( qstrlen(src)+1 );
+    QCString result( qstrlen(s)+1 );
     char *d = result.data();
-    char *s = (char *)src;
     char last = 0;
     while( *s && isSpace(*s) )			// skip leading space
 	s++;
@@ -200,7 +199,7 @@ static QCString qt_rmWS( const char *src )
     result.truncate( (int)(d - result.data()) );
     int void_pos = result.find("(void)");
     if ( void_pos >= 0 )
-	result.remove( void_pos+1, qstrlen("void") );
+	result.remove( void_pos+1, strlen("void") );
     return result;
 }
 

@@ -122,7 +122,7 @@ inline bool isSmoothlyScalable( char **tokens )
 class QFont_Private : public QFont
 {
 public:
-    int	    fontMatchScore( char *fontName, QCString &buffer,
+    int	    fontMatchScore( const char *fontName, QCString &buffer,
 			    float *pointSizeDiff, int *weightDiff,
 			    bool *scalable, bool *smoothScalable );
 	// Font Guessing
@@ -1250,7 +1250,7 @@ void QFont::load() const
 // of a font.
 //
 
-int QFont_Private::fontMatchScore( char	 *fontName,	 QCString &buffer,
+int QFont_Private::fontMatchScore( const char *fontName, QCString &buffer,
 				   float *pointSizeDiff, int  *weightDiff,
 				   bool	 *scalable     , bool *smoothScalable )
 {

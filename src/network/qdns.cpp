@@ -893,7 +893,7 @@ QDnsManager::QDnsManager()
     QStrList * domains = new QStrList( TRUE );
 
     ::domains->first();
-    char * s;
+    const char * s;
     while( (s=::domains->current()) != 0 ) {
 	domains->first();
 	while( domains->current() != 0 && qstrcmp( domains->current(), s ) )

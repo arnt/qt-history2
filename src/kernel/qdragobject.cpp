@@ -85,7 +85,7 @@ void QDragObject::setTarget(QWidget* t)
 
 struct QStoredDragData {
     QStoredDragData() {}
-    char* fmt;
+    const char* fmt;
     QByteArray enc;
 };
 
@@ -1087,7 +1087,7 @@ bool QUriDrag::decode( const QMimeSource* e, QStrList& l )
 	l.clear();
 	l.setAutoDelete(TRUE);
 	uint c=0;
-	char* d = payload.data();
+	const char* d = payload.data();
 	while (c < payload.size() && d[c]) {
 	    uint f = c;
 	    // Find line end
