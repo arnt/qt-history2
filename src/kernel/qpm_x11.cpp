@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#74 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#75 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -28,7 +28,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#74 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#75 $")
 
 
 /*****************************************************************************
@@ -487,7 +487,7 @@ long QPixmap::metric( int m ) const		// get metric information
   If the pixmap has 1 bit depth, the returned image will also be 1
   bits deep.  If the pixmap has 2-8 bit depth, the returned image
   has 8 bit depth.  If the pixmap has greater than 8 bit depth, the
-  returned image has 24 bit depth.
+  returned image has 32 bit depth.
 
   \bug Does not support 2 or 4 bit display hardware. This function
   needs to be tested on different types of X servers.
@@ -517,7 +517,7 @@ QImage QPixmap::convertToImage() const
     if ( d > 1 && d <= 8 )			// set to nearest valid depth
 	d = 8;					//   2..8 ==> 8
     else if ( d > 8 || trucol )
-	d = 24;					//   > 8  ==> 24
+	d = 32;					//   > 8  ==> 32
 
     if ( data->optim ) {
 	if ( !data->dirty )
@@ -641,8 +641,8 @@ QImage QPixmap::convertToImage() const
 
     if ( mono ) {				// bitmap
 	image.setNumColors( 2 );
-	image.setColor( 0, QRGB(255,255,255) );
-	image.setColor( 1, QRGB(0,0,0) );
+	image.setColor( 0, qRgb(255,255,255) );
+	image.setColor( 1, qRgb(0,0,0) );
     }
     else if ( !trucol ) {			// pixmap with colormap
 	register uchar *p;
@@ -692,7 +692,7 @@ QImage QPixmap::convertToImage() const
 	for ( i=0; i<256; i++ ) {		// translate pixels
 	    if ( use[i] ) {
 		image.setColor( j++,
-				QRGB( (carr[i].red   >> 8) & 255,
+				qRgb( (carr[i].red   >> 8) & 255,
 				      (carr[i].green >> 8) & 255,
 				      (carr[i].blue  >> 8) & 255 ) );
 	    }
@@ -780,7 +780,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 	else if ( d == 1 && image.numColors() == 2 ) {
 	    ulong c0 = image.color(0);		// mode==Auto: convert to best
 	    ulong c1 = image.color(1);
-	    conv8 = QMIN(c0,c1) != 0 || QMAX(c0,c1) != QRGB(255,255,255);
+	    conv8 = QMIN(c0,c1) != 0 || QMAX(c0,c1) != qRgb(255,255,255);
 	}
 	if ( conv8 ) {
 	    image = image.convertDepth( 8 );
@@ -852,9 +852,9 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 
 	if ( d8 ) {				// setup pixel translation
 	    for ( int i=0; i<image.numColors(); i++ ) {
-		r = QRED  (image.color(i));
-		g = QGREEN(image.color(i));
-		b = QBLUE (image.color(i));
+		r = qRed  (image.color(i));
+		g = qGreen(image.color(i));
+		b = qBlue (image.color(i));
 		r = red_shift	> 0 ? r << red_shift   : r >> -red_shift;
 		g = green_shift > 0 ? g << green_shift : g >> -green_shift;
 		b = blue_shift	> 0 ? b << blue_shift  : b >> -blue_shift;
@@ -928,7 +928,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 	xi->data = (char *)newbits;
     }
 
-    if ( d == 24 && !trucol ) {			// convert to 8 bit
+    if ( d == 32 && !trucol ) {			// convert to 8 bit
 	image = image.convertDepth( 8 );
 	d = 8;
 	nbytes = image.numBytes();		// recalc image size
@@ -979,9 +979,9 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 	j = 0;
 	for ( i=0; i<256; i++ ) {		// init pixel array
 	    if ( pop[i] > 0 ) {
-		px->r = QRED  ( image.color(i) );
-		px->g = QGREEN( image.color(i) );
-		px->b = QBLUE ( image.color(i) );
+		px->r = qRed  ( image.color(i) );
+		px->g = qGreen( image.color(i) );
+		px->b = qBlue ( image.color(i) );
 		px->use = pop[i];
 		if ( pop[i] > maxpop ) {	// select most popular entry
 		    maxpop = pop[i];

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#22 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#23 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -43,14 +43,14 @@ public:
     int		numColors()	const	{ return data->ncols; }
     QImage::Endian bitOrder()	const	{ return (Endian) data->bitordr; }
 
-    ulong	color( int i )	const;
-    void	setColor( int i, ulong c );
+    QRgb	color( int i )	const;
+    void	setColor( int i, QRgb c );
     void	setNumColors( int );
 
     uchar      *bits()		const;
     uchar      *scanLine( int ) const;
     uchar     **jumpTable()	const;
-    ulong      *colorTable()	const;
+    QRgb       *colorTable()	const;
     int		numBytes()	const;
     int		bytesPerLine()	const;
 
@@ -75,7 +75,7 @@ private:
 	int	ncols;				// number of colors
 	int	nbytes;				// number of bytes data
 	int	bitordr;			// bit order (1 bit depth)
-	ulong  *ctbl;				// color table
+	QRgb   *ctbl;				// color table
 	uchar **bits;				// image data
     } *data;
 };
@@ -142,7 +142,7 @@ inline uchar **QImage::jumpTable() const
     return data->bits;
 }
 
-inline ulong *QImage::colorTable() const
+inline QRgb *QImage::colorTable() const
 {
     return data->ctbl;
 }
@@ -164,12 +164,12 @@ inline uchar *QImage::bits() const
 
 #if !(defined(QIMAGE_C) || defined(DEBUG))
 
-inline ulong QImage::color( int i ) const
+inline QRgb QImage::color( int i ) const
 {
     return data->ctbl ? data->ctbl[i] : (ulong)-1;
 }
 
-inline void QImage::setColor( int i, ulong c )
+inline void QImage::setColor( int i, QRgb c )
 {
     if ( data->ctbl )
 	data->ctbl[i] = c;

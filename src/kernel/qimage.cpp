@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#58 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#59 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#58 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#59 $")
 
 
 /*----------------------------------------------------------------------------
@@ -31,20 +31,25 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#58 $")
   The direct pixel access functionality of QImage makes it very suitable
   for image processing and for pixmap archiving.
 
-  An image contains the parameters width, height and depth (bits per
-  pixel, bpp), a color table and the actual pixels.  QImage support 1
-  bit, 8 bit and 24 bit depths.	 1 bit and 8 bit images use a color
-  lookup table, where the pixel value is the index of a color.
+  An image has the parameters \link width() width\endlink, \link height()
+  height\endlink and \link depth() depth\endlink (bits per pixel, bpp), a
+  color table and the actual \link bits() pixels\endlink.  QImage supports
+  1-bpp, 8-bpp and 32-bpp image data.  1-bpp and 8-bpp images use a color
+  lookup table; the pixel value is a color table index.
 
-  An entry in the color table is an RGB triplet encoded as \c ulong.  Use
-  the QRED, QGREEN and QBLUE functions (qcolor.h) to separate the
-  components, and QRGB to set an RGB value (see the QColor class
+  32-bpp images encode an RGB value in 24 bits and ignore the color table.
+  The last byte is reserved for alpha channel support in a future version
+  of Qt.
+
+  An entry in the color table is an RGB triplet encoded as \c uint.  Use
+  the qRed, qGreen and qBlue functions (qcolor.h) to access the
+  components, and qRgb to make an RGB triplet (see the QColor class
   documentation).
 
   1-bpp (monochrome) images have a color table with maximum 2 colors.
-  There are two ways of encoding such images; big endian (MSB first) or
-  little endian bit order (LSB first).	To access a single bit, you will
-  have to do some bitshifts:
+  There are two different formats; big endian (MSB first) or little endian
+  (LSB first) bit order. To access a single bit, you will have to do some
+  bitshifts:
 
   \code
     QImage image;
@@ -59,26 +64,25 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#58 $")
   image to an 8-bpp image using convertDepth().
 
   8-bpp images are much easier to work with than 1-bpp images because they
-  use a single byte per pixel:
+  have a single byte per pixel:
 
   \code
     QImage image;
       // set entry 19 in the color table to yellow
-    image.setColor( 19, QRGB(255,255,0) );
+    image.setColor( 19, qRgb(255,255,0) );
       // set 8 bit pixel at (x,y) to value yellow (in color table)
     *(image.scanLine(y) + x) = 19;
   \endcode
 
-  24-bpp images do not have a color table, instead each pixel is encoded
-  as red + green + blue.
+  32-bpp images ignore the color table, instead each pixel contains the
+  RGB triplet. 24 bits contains the RGB value and the upper 8 bits are
+  reserved for alpha channel.
 
   \code
     QImage image;
-      // sets 24 bit pixel at (x,y) to yellow.
-    uchar *p = image.scanLine(y) + 3*x;
-    p[0] = 255;		// red
-    p[1] = 255;		// green
-    p[2] = 0;		// blue
+      // sets 32 bit pixel at (x,y) to yellow.
+    uint *p = image.scanLine(y) + x;
+    *p = qRgb(255,255,0);
   \endcode
 
   The scanlines are 32-bit aligned for all depths.
@@ -232,7 +236,7 @@ QImage QImage::copy() const
     if ( !isNull() ) {
 	image.create( width(), height(), depth(), numColors(), bitOrder() );
 	memcpy( image.bits(), bits(), numBytes() );
-	memcpy( image.colorTable(), colorTable(), numColors()*sizeof(ulong) );
+	memcpy( image.colorTable(), colorTable(), numColors()*sizeof(QRgb) );
     }
     return image;
 }
@@ -248,7 +252,7 @@ QImage QImage::copy() const
 
 /*----------------------------------------------------------------------------
   \fn int QImage::width() const
-  Returns the width of the image
+  Returns the width of the image.
   \sa heigth(), size(), rect()
  ----------------------------------------------------------------------------*/
 
@@ -277,14 +281,14 @@ QImage QImage::copy() const
   The image depth is the number of bits used to encode a single pixel, also
   called bits per pixel (bpp) or bit planes of an image.
 
-  The supported depths are 1, 8 and 24 bit.
+  The supported depths are 1, 8 and 32.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn int QImage::numColors() const
   Returns the size of the color table for the image.
 
-  Notice that numColors() returns 0 for 24-bit images, since these images
+  Notice that numColors() returns 0 for 32-bpp images, since these images
   do not use color tables, but instead encode pixel values as RGB triplets.
  ----------------------------------------------------------------------------*/
 
@@ -308,7 +312,7 @@ QImage QImage::copy() const
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn ulong *QImage::colorTable() const
+  \fn QRgb *QImage::colorTable() const
   Returns a pointer to the color table.
  ----------------------------------------------------------------------------*/
 
@@ -334,25 +338,25 @@ QImage QImage::copy() const
   \sa setColor(), QColor
  ----------------------------------------------------------------------------*/
 
-ulong QImage::color( int i ) const
+QRgb QImage::color( int i ) const
 {
 #if defined(CHECK_RANGE)
     if ( i >= data->ncols )
 	warning( "QImage::color: Index %d out of range", i );
 #endif
-    return data->ctbl ? data->ctbl[i] : (ulong)-1;
+    return data->ctbl ? data->ctbl[i] : (QRgb)-1;
 }
 
 /*----------------------------------------------------------------------------
   Sets a color in the color table at index \e i to \e c.
 
-  A color value is an RGB triplet.  Use the QRGB function (defined in qcolor.h)
-  to make color values.
+  A color value is an RGB triplet.  Use the qRgb function (defined in qcolor.h)
+  to make RGB triplets.
 
   \sa color()
  ----------------------------------------------------------------------------*/
 
-void QImage::setColor( int i, ulong c )
+void QImage::setColor( int i, QRgb c )
 {
 #if defined(CHECK_RANGE)
     if ( i >= data->ncols )
@@ -468,32 +472,33 @@ void QImage::setNumColors( int numColors )
 	return;
     }
     if ( data->ctbl ) {				// already has color table
-	data->ctbl = (ulong*)realloc( data->ctbl, numColors*sizeof(ulong) );
+	data->ctbl = (QRgb*)realloc( data->ctbl, numColors*sizeof(QRgb) );
 	if ( data->ctbl && numColors > data->ncols )
 	    memset( (char *)&data->ctbl[data->ncols], 0,
-		    (numColors-data->ncols)*sizeof(ulong) );
+		    (numColors-data->ncols)*sizeof(QRgb) );
     }
     else					// create new color table
-	data->ctbl = (ulong*)calloc( numColors*sizeof(ulong), 1 );
+	data->ctbl = (QRgb*)calloc( numColors*sizeof(QRgb), 1 );
     data->ncols = data->ctbl == 0 ? 0 : numColors;
 }
 
 
 /*----------------------------------------------------------------------------
   Sets the image width, height, depth, number of colors and bit order.
-  Returns TRUE if successful, or FALSE if the parameters are incorrect
-  or if memory cannot be allocated.
+  Returns TRUE if successful, or FALSE if the parameters are incorrect or
+  if memory cannot be allocated.
 
-  Allocates a color table and a buffer for the image data.
+  The \e width and \e height is limited to 32767. \e depth must be 1, 8 or
+  32. If \e depth is 1, then \e bitOrder must be set to either
+  QImage::LittleEndian or QImage::BigEndian.  For other depths, \e
+  bitOrder must be QImage::IgnoreEndian.
+
+  This function allocates a color table and a buffer for the image data.
   The image data is filled with the pixel value 0.
 
-  If \e depth is 1, then \e bitOrder must be set to either
-  QImage::LittleEndian or QImage::BigEndian.  If \e depth is greater
-  than 1, \e bitOrder must be QImage::IgnoreEndian.
-
-  The image buffer is allocated as one block that consists of a table of
-  \link scanLine() scanline\endlink pointers (jumpTable()) and the image
-  data (bits()).
+  The image buffer is allocated as a single block that consists of a table
+  of \link scanLine() scanline\endlink pointers (jumpTable()) and the
+  image data (bits()).
 
   \sa width(), height(), depth(), numColors(), bitOrder(), jumpTable(),
   scanLine(), bits(), bytesPerLine(), numBytes()
@@ -514,10 +519,15 @@ bool QImage::create( int width, int height, int depth, int numColors,
     if ( depth != 1 )
 	bitOrder = IgnoreEndian;
 
+#if defined(DEBUG)
+    if ( depth == 24 )
+	warning( "QImage::create: 24-bpp images no longer supported, "
+		 "use 32-bpp instead" );
+#endif
     switch ( depth ) {
 	case 1:
 	case 8:
-	case 24:
+	case 32:
 	    break;
 	default:				// invalid depth
 	    return FALSE;
@@ -587,8 +597,8 @@ void QImage::freeBits()
  *****************************************************************************/
 
 //
-// convert_24_to_8:  Converts a 24 bits depth (true color) to an 8 bit
-// image with a colormap.  If the 24 bit image has more than 256 colors,
+// convert_32_to_8:  Converts a 32 bits depth (true color) to an 8 bit
+// image with a colormap.  If the 32 bit image has more than 256 colors,
 // we convert the red,green and blue bytes into a single byte encoded
 // as RRRGGGBB.
 //
@@ -596,9 +606,9 @@ void QImage::freeBits()
 declare(QIntDictM,char);
 declare(QIntDictIteratorM,char);
 
-static bool convert_24_to_8( const QImage *src, QImage *dst )
+static bool convert_32_to_8( const QImage *src, QImage *dst )
 {
-    register uchar *p;
+    register QRgb *p;
     uchar  *b;
     bool    do_quant = FALSE;
     int	    y, x;
@@ -609,39 +619,43 @@ static bool convert_24_to_8( const QImage *src, QImage *dst )
     QIntDictM(char) cdict( 21001 );		// dict of 24-bit RGB colors
     char *pixel=0, *pix;			// hack: use ptr as int value
     for ( y=0; y<src->height(); y++ ) {		// check if <= 256 colors
-	p = src->scanLine(y) - 1;
+	p = (QRgb *)src->scanLine(y);
 	b = dst->scanLine(y);
 	x = src->width();
 	while ( x-- ) {
-	    ulong rgb = (uchar)*++p + ((ushort)*++p << 8) + ((ulong)*++p <<16);
-	    if ( !(pix=cdict.find(rgb)) ) {	// new RGB color?
-		cdict.insert( rgb, (pix=++pixel) ); // yes -> keep it
-		if ( cdict.count() > 256 ) {	// oops: too many colors
+	    if ( !(pix=cdict.find(*p)) ) {	// new RGB, insert in dict
+		cdict.insert( *p, (pix=++pixel) );
+		if ( cdict.count() > 256 ) {	// too many colors
 		    do_quant = TRUE;
 		    y = src->height();
 		    break;
 		}
 	    }
 	    *b++ = (uchar)((int)pix - 1);	// map RGB color to pixel
+	    p++;
 	}
     }
     int ncols = do_quant ? 256 : cdict.count();
     dst->setNumColors( ncols );
     if ( do_quant ) {				// quantization needed
 	for ( int i=0; i<ncols; i++ )		// build 3+3+2 color table
-	    dst->setColor( i, QRGB( ((i & 0xe0)*255 + 0x70) / 0xe0,
+	    dst->setColor( i, qRgb( ((i & 0xe0)*255 + 0x70) / 0xe0,
 				    (((i << 3) & 0xe0)*255 + 0x70) / 0xe0,
 				    (((i << 6) & 0xc0)*255 + 0x60) / 0xc0 ) );
 	for ( y=0; y<src->height(); y++ ) {
-	    p = src->scanLine(y) - 1;
+	    p = (QRgb *)src->scanLine(y);
 	    b = dst->scanLine(y);
-	    uchar *end = p + src->width()*3;
-	    while ( p < end )			// perform fast quantization
-		*b++ = (*++p & 0xe0) | ((*++p >> 3) & 0x1c) |
-		       ((*++p >> 6) & 0x03);
+	    int x = 0;
+	    QRgb *end = p + src->width();
+	    while ( p < end ) {			// perform fast quantization
+		*b++ = (*p & 0xe0) | ((*p >> 11) & 0x1c) | ((*p >> 22) & 0x03);
+		p++;
+		x++;		
+	    }
+	    ASSERT( x == src->width() );
+	    ASSERT( x == dst->width() );
 	}
-    }
-    else {					// number of colors <= 256
+    } else {					// number of colors <= 256
 	QIntDictIteratorM(char) cdictit( cdict );
 	while ( cdictit.current() ) {		// build color table
 	    dst->setColor( (int)(cdictit.current())-1, cdictit.currentKey() );
@@ -652,41 +666,41 @@ static bool convert_24_to_8( const QImage *src, QImage *dst )
 }
 
 
-static bool convert_8_to_24( const QImage *src, QImage *dst )
+static bool convert_8_to_32( const QImage *src, QImage *dst )
 {
-    if ( !dst->create(src->width(), src->height(), 24) )
+    if ( !dst->create(src->width(), src->height(), 32) )
 	return FALSE;				// create failed
-    int bpl = dst->width()*3;
     for ( int y=0; y<dst->height(); y++ ) {	// for each scan line...
-	register uchar *p = dst->scanLine(y);
-	uchar *b = src->scanLine(y);
-	uchar *end = p + bpl;
-	while ( p < end ) {
-	    *p++ = QRED	 ( src->color(*b) );
-	    *p++ = QGREEN( src->color(*b) );
-	    *p++ = QBLUE ( src->color(*b++) );
-	}
+	register uint *p = (uint *)dst->scanLine(y);
+	uchar  *b = src->scanLine(y);
+	uint *end = p + dst->width();
+	while ( p < end )
+	    *p++ = src->color(*b++);
     }
     return TRUE;
 }
 
 
-static bool convert_1_to_24( const QImage *src, QImage *dst )
+static bool convert_1_to_32( const QImage *src, QImage *dst )
 {
-    if ( !dst->create(src->width(), src->height(), 24) )
+    if ( !dst->create(src->width(), src->height(), 32) )
 	return FALSE;				// could not create
-    bool big = src->bitOrder() == QImage::BigEndian;
     for ( int y=0; y<dst->height(); y++ ) {	// for each scan line...
-	register uchar *p = dst->scanLine(y);
+	register uint *p = (uint *)dst->scanLine(y);
 	uchar *b = src->scanLine(y);
-	int v;
-	for ( int x=0; x<dst->width(); x++ ) {
-	    v = (big ? *b >> (7 - (x & 7)) : *b >> (x & 7)) & 1;
-	    *p++ = QRED	 ( src->color(v) );
-	    *p++ = QGREEN( src->color(v) );
-	    *p++ = QBLUE ( src->color(v) );
-	    if ( (x & 7) == 7 )
-		b++;
+	int x;
+	if ( src->bitOrder() == QImage::BigEndian ) {
+	    for ( x=0; x<dst->width(); x++ ) {
+		*p++ = src->color( (*b >> (7 - (x & 7))) & 1 );
+		if ( (x & 7) == 7 )
+		    b++;
+	    }
+	} else {
+	    for ( x=0; x<dst->width(); x++ ) {
+		*p++ = src->color( (*b >> (x & 7)) & 1 );
+		if ( (x & 7) == 7 )
+		    b++;
+	    }
 	}
     }
     return TRUE;
@@ -699,14 +713,22 @@ static bool convert_1_to_8( const QImage *src, QImage *dst )
 	return FALSE;				// something failed
     dst->setColor( 0, src->color(0) );		// copy color table
     dst->setColor( 1, src->color(1) );
-    bool big = src->bitOrder() == QImage::BigEndian;
     for ( int y=0; y<dst->height(); y++ ) {	// for each scan line...
 	register uchar *p = dst->scanLine(y);
 	uchar *b = src->scanLine(y);
-	for ( int x=0; x<dst->width(); x++ ) {
-	    *p++ = (big ? *b >> (7 - (x & 7)) : *b >> (x & 7)) & 1;
-	    if ( (x & 7) == 7 )
-		b++;
+	int x;
+	if ( src->bitOrder() == QImage::BigEndian ) {
+	    for ( x=0; x<dst->width(); x++ ) {
+		*p++ = (*b >> (7 - (x & 7))) & 1;
+		if ( (x & 7) == 7 )
+		    b++;
+	    }
+	} else {
+	    for ( x=0; x<dst->width(); x++ ) {
+		*p++ = (*b >> (x & 7)) & 1;
+		if ( (x & 7) == 7 )
+		    b++;
+	    }
 	}
     }
     return TRUE;
@@ -723,15 +745,15 @@ static bool dither_image( const QImage *src, QImage *dst )
 {
     if ( !dst->create(src->width(), src->height(), 1, 2, QImage::BigEndian) )
 	return FALSE;				// something failed
-    dst->setColor( 0, QRGB(255, 255, 255) );
-    dst->setColor( 1, QRGB(  0,	  0,   0) );
+    dst->setColor( 0, qRgb(255, 255, 255) );
+    dst->setColor( 1, qRgb(  0,	  0,   0) );
     int	  w = src->width();
     int	  h = src->height();
     uchar gray[256];				// gray map for 8 bit images
     bool  use_gray = src->depth() == 8;
     if ( use_gray ) {				// make gray map
 	for ( int i=0; i<src->numColors(); i++ )
-	    gray[i] = QGRAY( src->color(i) );
+	    gray[i] = qGray( src->color(i) );
     }
     int *line1 = new int[w];
     int *line2 = new int[w];
@@ -749,10 +771,10 @@ static bool dither_image( const QImage *src, QImage *dst )
 	while ( p < end )
 	    *b2++ = gray[*p++];
     }
-    else {					// 24 bit image
+    else {					// 32 bit image
 	while ( p < end ) {
-	    *b2++ = QGRAY(p[0],p[1],p[2]);
-	    p += 3;
+	    *b2++ = qGray(*p);
+	    p += 4;
 	}
     }
     int x, y;
@@ -769,8 +791,8 @@ static bool dither_image( const QImage *src, QImage *dst )
 	    }
 	    else {				// 24 bit image
 		while ( p < end ) {
-		    *b2++ = QGRAY(p[0],p[1],p[2]);
-		    p += 3;
+		    *b2++ = qGray(*p);
+		    p += 4;
 		}
 	    }
 	}
@@ -815,7 +837,7 @@ static bool dither_image( const QImage *src, QImage *dst )
   Converts the depth (bpp) of the image to \e depth and returns the
   converted image.
 
-  The \e depth argument can be 1, 8 or 24.
+  The \e depth argument must be 1, 8 or 32.
 
   Returns \c *this if \e depth is equal to the image depth, or a null
   image if this image cannot be converted.
@@ -826,16 +848,16 @@ static bool dither_image( const QImage *src, QImage *dst )
 QImage QImage::convertDepth( int depth ) const
 {
     QImage image;
-    if ( (data->d == 8 || data->d == 24) && depth == 1 ) // dither
+    if ( (data->d == 8 || data->d == 32) && depth == 1 ) // dither
 	dither_image( this, &image );
-    else if ( data->d == 24 && depth == 8 )	// 24 -> 8
-	convert_24_to_8( this, &image );
-    else if ( data->d == 8 && depth == 24 )	// 8 -> 24
-	convert_8_to_24( this, &image );
+    else if ( data->d == 32 && depth == 8 )	// 32 -> 8
+	convert_32_to_8( this, &image );
+    else if ( data->d == 8 && depth == 32 )	// 8 -> 32
+	convert_8_to_32( this, &image );
     else if ( data->d == 1 && depth == 8 )	// 1 -> 8
 	convert_1_to_8( this, &image );
-    else if ( data->d == 1 && depth == 24 )	// 1 -> 24
-	convert_1_to_24( this, &image );
+    else if ( data->d == 1 && depth == 32 )	// 1 -> 32
+	convert_1_to_32( this, &image );
     else if ( data->d == depth )
 	image = *this;				// no conversion
     else {
@@ -880,7 +902,7 @@ QImage QImage::convertBitOrder( QImage::Endian bitOrder ) const
     end = p + numBytes();
     while ( p < end )
 	*b++ = bitflip[*p++];
-    memcpy( image.colorTable(), colorTable(), numColors()*sizeof(ulong) );
+    memcpy( image.colorTable(), colorTable(), numColors()*sizeof(QRgb) );
     return image;
 }
 
@@ -930,7 +952,7 @@ static void swapPixel01( QImage *image )	// 1-bit: swap 0 and 1 pixels
 {
     int i;
     if ( image->depth() == 1 && image->numColors() == 2 ) {
-	register ulong *p = (ulong *)image->bits();
+	register uint *p = (uint *)image->bits();
 	int nbytes = image->numBytes();
 	for ( i=0; i<nbytes/4; i++ ) {
 	    *p = ~*p;
@@ -941,7 +963,7 @@ static void swapPixel01( QImage *image )	// 1-bit: swap 0 and 1 pixels
 	    *p2 = ~*p2;
 	    p2++;
 	}
-	ulong t = image->color(0);		// swap color 0 and 1
+	QRgb t = image->color(0);		// swap color 0 and 1
 	image->setColor( 0, image->color(1) );
 	image->setColor( 1, t );
     }
@@ -1306,7 +1328,7 @@ void QImageIO::setDescription( const char *description )
  ----------------------------------------------------------------------------*/
 
 const char *QImageIO::imageFormat( const char *fileName )
-{						// determine image format
+{
     QFile file( fileName );
     if ( !file.open(IO_ReadOnly) )
 	return 0;
@@ -1587,7 +1609,6 @@ static void read_bmp_image( QImageIO *iio )	// read BMP image data
     BMP_INFOHDR bi;
     int		startpos = d->at();
     QImage	image;
-    bool	native = qt_image_native_bmp();
 
     s.setByteOrder( QDataStream::LittleEndian );// Intel byte order
     s >> bf;					// read BMP file header
@@ -1621,12 +1642,24 @@ static void read_bmp_image( QImageIO *iio )	// read BMP image data
 	 return;				// weird compression type
 
     int ncols;
-    if ( nbits == 24 )				// there's no colormap
+    int depth;
+    switch ( nbits ) {
+	case 24:
+	    depth = 32;
+	    break;
+	case 8:
+	case 4:
+	    depth = 8;
+	    break;
+	default:
+	    depth = 1;
+    }
+    if ( depth == 32 )				// there's no colormap
 	ncols = 0;
     else					// # colors used
 	ncols = bi.biClrUsed ? bi.biClrUsed : 1 << nbits;
 
-    image.create( w, h, nbits == 4 ? 8 : nbits, ncols, nbits == 1 ?
+    image.create( w, h, depth, ncols, nbits == 1 ?
 		  QImage::BigEndian : QImage::IgnoreEndian );
     if ( image.isNull() )			// could not create image
 	return;
@@ -1638,7 +1671,7 @@ static void read_bmp_image( QImageIO *iio )	// read BMP image data
 	int   rgb_len = t == BMP_OLD ? 3 : 4;
 	for ( int i=0; i<ncols; i++ ) {
 	    d->readBlock( (char *)rgb, rgb_len );
-	    image.setColor( i, QRGB(rgb[2],rgb[1],rgb[0]) );
+	    image.setColor( i, qRgb(rgb[2],rgb[1],rgb[0]) );
 	    if ( d->atEnd() )			// truncated file
 		return;
 	}
@@ -1654,7 +1687,7 @@ static void read_bmp_image( QImageIO *iio )	// read BMP image data
 	    if ( d->readBlock((char*)line[h],bpl) != bpl )
 		break;
 	}
-	if ( ncols == 2 && QGRAY(image.color(0)) < QGRAY(image.color(1)) )
+	if ( ncols == 2 && qGray(image.color(0)) < qGray(image.color(1)) )
 	    swapPixel01( &image );		// pixel 0 is white!
     }
 
@@ -1775,20 +1808,23 @@ static void read_bmp_image( QImageIO *iio )	// read BMP image data
     }
 
     else if ( nbits == 24 ) {			// 24 bit BMP image
+	register QRgb *p;
+	QRgb  *end;
+	uchar *buf24 = new uchar[bpl];
+	int    bpl24 = ((w*24+31)/32)*4;
+	uchar *b;
 	while ( --h >= 0 ) {
-	    register uchar *p = line[h];
-	    if ( d->readBlock( (char *)p,bpl) != bpl )
+	    p = (QRgb *)line[h];
+	    end = p + w;
+	    if ( d->readBlock( (char *)buf24,bpl24) != bpl24 )
 		break;
-	    if ( !native ) {
-		uchar *end = p + w*3;
-		while ( p < end ) {		// swap r and b
-		    uchar t = p[0];
-		    p[0] = p[2];
-		    p[2] = t;
-		    p += 3;
-		}
+	    b = buf24;
+	    while ( p < end ) {
+		*p++ = (b[0] << 16) | (b[1] << 8) | b[2];
+		b += 3;
 	    }
 	}
+	delete[] buf24;
     }
 
     iio->setImage( image );
@@ -1804,8 +1840,19 @@ static void write_bmp_image( QImageIO *iio )	// write BMP image data
     BMP_FILEHDR bf;
     BMP_INFOHDR bi;
     int		bpl = image.bytesPerLine();
-    bool	depth4 = image.depth() == 8 && image.numColors() <= 16;
-    int		bpl_bmp = depth4 ? (((bpl+1)/2+3)/4)*4 : bpl;
+    int		bpl_bmp;
+    int		nbits;
+
+    if ( image.depth() == 8 && image.numColors() <= 16 ) {
+	bpl_bmp = (((bpl+1)/2+3)/4)*4;
+	nbits = 4;
+    } else if ( image.depth() == 32 ) {
+	bpl_bmp = ((image.width()*24+31)/32)*4;
+	nbits = 24;
+    } else {
+	bpl_bmp = bpl;
+	nbits = image.depth();
+    }
 
     iio->setStatus( 0 );
     s.setByteOrder( QDataStream::LittleEndian );// Intel byte order
@@ -1819,7 +1866,7 @@ static void write_bmp_image( QImageIO *iio )	// write BMP image data
     bi.biWidth	       = image.width();
     bi.biHeight	       = image.height();
     bi.biPlanes	       = 1;
-    bi.biBitCount      = depth4 ? 4 : image.depth();
+    bi.biBitCount      = nbits;
     bi.biCompression   = BMP_RGB;
     bi.biSizeImage     = bpl_bmp*image.height();
     bi.biXPelsPerMeter = 2834;			// 72 dpi
@@ -1828,14 +1875,14 @@ static void write_bmp_image( QImageIO *iio )	// write BMP image data
     bi.biClrImportant  = image.numColors();
     s << bi;					// write info header
 
-    if ( image.depth() != 24 ) {		// write color table
+    if ( image.depth() != 32 ) {		// write color table
 	uchar *color_table = new uchar[4*image.numColors()];
 	uchar *rgb = color_table;
-	ulong *c = image.colorTable();
+	QRgb *c = image.colorTable();
 	for ( int i=0; i<image.numColors(); i++ ) {
-	    *rgb++ = QBLUE ( c[i] );
-	    *rgb++ = QGREEN( c[i] );
-	    *rgb++ = QRED  ( c[i] );
+	    *rgb++ = qBlue ( c[i] );
+	    *rgb++ = qGreen( c[i] );
+	    *rgb++ = qRed  ( c[i] );
 	    *rgb++ = 0;
 	}
 	d->writeBlock( (char *)color_table, 4*image.numColors() );
@@ -1847,7 +1894,7 @@ static void write_bmp_image( QImageIO *iio )	// write BMP image data
 
     int	 y;
 
-    if ( !depth4 && image.depth() != 24 ) {	// 1 bit or 8 bit depth
+    if ( nbits == 1 || nbits == 8 ) {		// direct output
 	for ( y=image.height()-1; y>=0; y-- )
 	    d->writeBlock( (char*)image.scanLine(y), bpl );
 	return;
@@ -1859,7 +1906,7 @@ static void write_bmp_image( QImageIO *iio )	// write BMP image data
 
     memset( buf, 0, bpl_bmp );
     for ( y=image.height()-1; y>=0; y-- ) {	// write the image bits
-	if ( depth4 ) {				// convert 8 -> 4 bits
+	if ( nbits == 4 ) {			// convert 8 -> 4 bits
 	    p = image.scanLine(y);
 	    b = buf;
 	    end = b + image.width()/2;
@@ -1869,21 +1916,19 @@ static void write_bmp_image( QImageIO *iio )	// write BMP image data
 	    }
 	    if ( image.width() & 1 )
 		*b = *p << 4;
-	}
-	else {					// 24 bits: RGB -> BGR
-	    b = image.scanLine(y);
-	    p = buf;
-	    end = p + image.width()*3;
+	} else {				// 32 bits: RGB -> BGR
+	    QRgb *p   = (QRgb *)image.scanLine( y );
+	    QRgb *end = p + image.width();
+	    b = buf;
 	    while ( p < end ) {
-		*p++ = b[2];
-		*p++ = b[1];
-		*p++ = b[0];
-		b += 3;
+		*b++ = (uchar)(*p >> 16);
+		*b++ = (uchar)(*p >> 8);
+		*b++ = (uchar)*p++;
 	    }
 	}
 	d->writeBlock( (char*)buf, bpl_bmp );
     }
-    delete [] buf;
+    delete[] buf;
 }
 
 
@@ -1951,7 +1996,7 @@ static void read_pbm_image( QImageIO *iio )	// read PBM image data
 	    break;
 	case '3':				// ascii PPM
 	case '6':				// raw PPM
-	    nbits = 24;
+	    nbits = 32;
 	    break;
 	default:
 	    return;
@@ -1975,10 +2020,27 @@ static void read_pbm_image( QImageIO *iio )	// read PBM image data
     pbm_bpl = (nbits*w+7)/8;			// bytes per scanline in PBM
 
     if ( raw ) {				// read raw data
-	for ( y=0; y<h; y++ )
-	    d->readBlock( (char *)image.scanLine(y), pbm_bpl );
-    }
-    else {					// read ascii data
+	if ( nbits == 32 ) {			// type 6
+	    pbm_bpl = 3*w;
+	    uchar *buf24 = new uchar[pbm_bpl], *b;
+	    QRgb  *p;
+	    QRgb  *end;
+	    for ( y=0; y<h; y++ ) {
+		d->readBlock( (char *)buf24, pbm_bpl );
+		p = (QRgb *)image.scanLine( y );
+		end = p + w;
+		b = buf24;
+		while ( p < end ) {
+		    *p++ = qRgb(b[0],b[1],b[2]);
+		    b += 3;
+		}
+	    }
+	    delete[] buf24;
+	} else {				// type 4,5
+	    for ( y=0; y<h; y++ )
+		d->readBlock( (char *)image.scanLine(y), pbm_bpl );
+	}
+    } else {					// read ascii data
 	register uchar *p;
 	int n;
 	for ( y=0; y<h; y++ ) {
@@ -1992,10 +2054,19 @@ static void read_pbm_image( QImageIO *iio )	// read PBM image data
 			b = (b << 1) | (read_pbm_int(d) & 1);
 		    *p++ = b;
 		}
-	    }
-	    else {
+	    } else if ( nbits == 8 ) {
 		while ( n-- ) {
 		    *p++ = read_pbm_int( d );
+		}
+	    } else {				// 32 bits
+		n /= 4;
+		int r, g, b;
+		while ( n-- ) {
+		    r = read_pbm_int( d );
+		    g = read_pbm_int( d );
+		    b = read_pbm_int( d );
+		    *((QRgb*)p) = qRgb( r, g, b );
+		    p += 4;
 		}
 	    }
 	}
@@ -2003,13 +2074,12 @@ static void read_pbm_image( QImageIO *iio )	// read PBM image data
 
     if ( nbits == 1 ) {				// bitmap
 	image.setNumColors( 2 );
-	image.setColor( 0, QRGB(255,255,255) ); // white
-	image.setColor( 1, QRGB(0,0,0) );	// black
-    }
-    else if ( nbits == 8 ) {			// graymap
+	image.setColor( 0, qRgb(255,255,255) ); // white
+	image.setColor( 1, qRgb(0,0,0) );	// black
+    } else if ( nbits == 8 ) {			// graymap
 	image.setNumColors( mcc );
 	for ( int i=0; i<mcc; i++ )
-	    image.setColor( i, QRGB(i*255/mcc,i*255/mcc,i*255/mcc) );
+	    image.setColor( i, qRgb(i*255/mcc,i*255/mcc,i*255/mcc) );
     }
 
     iio->setImage( image );
@@ -2068,8 +2138,8 @@ static void read_xbm_image( QImageIO *iio )	// read X bitmap image data
     if ( image.isNull() )
 	return;
 
-    image.setColor( 0, QRGB(255,255,255) );	// white
-    image.setColor( 1, QRGB(0,0,0) );		// black
+    image.setColor( 0, qRgb(255,255,255) );	// white
+    image.setColor( 1, qRgb(0,0,0) );		// black
 
     int	   x = 0, y = 0;
     uchar *b = image.scanLine(0);
@@ -2122,7 +2192,7 @@ static void write_xbm_image( QImageIO *iio )	// write X bitmap image data
 	if ( image.bitOrder() != QImage::LittleEndian )
 	    image = image.convertBitOrder( QImage::LittleEndian );
     }
-    bool invert = QGRAY(image.color(0)) < QGRAY(image.color(1));
+    bool invert = qGray(image.color(0)) < qGray(image.color(1));
     char hexrep[16];
     for ( i=0; i<10; i++ )
 	hexrep[i] = '0' + i;
