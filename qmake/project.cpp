@@ -403,6 +403,18 @@ QMakeProject::read(QString project, QString pwd)
 	vars["TARGET"].append(tmp);
     }
 
+    QString test_version = getenv("QTESTVERSION");
+    if (!test_version.isNull() && test_version != "") {
+	QString s = vars["TARGET"].first();
+	if (s == "qt" || s == "qt-mt" || s == "qte" || s == "qte-mt") {
+	    QString &ver = vars["VERSION"].first();
+//	    fprintf(stderr,"Current QT version number: " + ver + "\n");
+	    if (ver != "" && ver != test_version) {
+		ver = test_version;
+		fprintf(stderr,"Changed QT version number to " + test_version + "!\n");
+	    }
+	}
+    }
     return TRUE;
 }
 
