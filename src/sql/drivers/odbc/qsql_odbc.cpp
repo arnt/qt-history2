@@ -1205,10 +1205,6 @@ bool QODBCDriver::open( const QString & db,
     }
 
     if ( !d->checkDriver() ) {
-#ifdef QT_CHECK_RANGE
-	qWarning ( "QODBCDriver::open: Warning - Driver doesn't support all needed functionality. "
-		   "Please look at the Qt SQL Module Driver documentation for more information." );
-#endif
 	setLastError( qMakeError( "Unable to connect - Driver doesn't support all needed functionality", QSqlError::Connection, d ) );
 	setOpenError( TRUE );
 	return FALSE;
@@ -1337,6 +1333,10 @@ bool QODBCPrivate::checkDriver() const
 	}
 #endif
 	if ( sup == SQL_FALSE ) {
+#ifdef QT_CHECK_RANGE
+	    qWarning ( "QODBCDriver::open: Warning - Driver doesn't support all needed functionality (%d). "
+		       "Please look at the Qt SQL Module Driver documentation for more information.", reqFunc[ i ] );
+#endif
 	    return FALSE;
 	}
     }
@@ -1354,7 +1354,7 @@ bool QODBCPrivate::checkDriver() const
 #endif
 	if ( sup == SQL_FALSE ) {
 #ifdef QT_CHECK_RANGE
-	    qWarning( "QODBCDriver::checkDriver: Warning - Driver doesn't support some non-critical functions" );
+	    qWarning( "QODBCDriver::checkDriver: Warning - Driver doesn't support some non-critical functions (%d)", optFunc[ i ] );
 #endif
 	    return TRUE;
 	}
