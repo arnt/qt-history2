@@ -630,12 +630,12 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 
     case PO_ScrollBarSubLine:
 	drawPrimitive(((flags & PStyle_Horizontal) ? PO_ArrowLeft : PO_ArrowUp),
-		      p, r, cg, flags);
+		      p, r, cg, PStyle_Enabled | flags);
 	break;
 
     case PO_ScrollBarAddLine:
 	drawPrimitive(((flags & PStyle_Horizontal) ? PO_ArrowRight : PO_ArrowDown),
-		      p, r, cg, flags);
+		      p, r, cg, PStyle_Enabled | flags);
 	break;
 
     case PO_ScrollBarSubPage:
