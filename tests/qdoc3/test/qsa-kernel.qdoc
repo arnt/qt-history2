@@ -1,5 +1,0 @@
-project		= QSA Kernel
-language	= QSA Kernel C++
-sourcedirs	+= $QUICK/src/engine \
-		   $QUICK/src/kernel
-outputformats	= ""
