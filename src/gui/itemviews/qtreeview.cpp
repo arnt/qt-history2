@@ -1299,7 +1299,7 @@ void QTreeViewPrivate::expand(int i)
     Q_Q(QTreeView);
     QModelIndex index = viewItems.at(i).index;
 
-    if (!model->hasChildren(index) || viewItems.at(i).expanded)
+    if (viewItems.at(i).expanded)
         return;
 
     expandedIndexes.append(index);
@@ -1308,7 +1308,8 @@ void QTreeViewPrivate::expand(int i)
     layout(i);
 
     // make sure we expand children that are already expanded
-    reexpandChildren(index);
+    if (model->hasChildren(index))
+        reexpandChildren(index);
 
     emit q->expanded(index);
 }
