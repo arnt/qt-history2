@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#42 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#43 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -203,6 +203,7 @@ public:
     ~QDomNamedNodeMapPrivate();
 
     QDomNodePrivate* namedItem( const QString& name ) const;
+    QDomNodePrivate* namedItemNS( const QString& nsURI, const QString& localName ) const;
     QDomNodePrivate* setNamedItem( QDomNodePrivate* arg );
     QDomNodePrivate* removeNamedItem( const QString& name );
     QDomNodePrivate* item( int index ) const;
@@ -2336,6 +2337,13 @@ QDomNodePrivate* QDomNamedNodeMapPrivate::namedItem( const QString& name ) const
     return p;
 }
 
+QDomNodePrivate* QDomNamedNodeMapPrivate::namedItemNS( const QString& /*nsURI*/, const QString& /*localName*/ ) const
+{
+    // #############################
+    QDomNodePrivate* p = 0;
+    return p;
+}
+
 QDomNodePrivate* QDomNamedNodeMapPrivate::setNamedItem( QDomNodePrivate* arg )
 {
     if ( readonly || !arg )
@@ -2500,7 +2508,7 @@ QDomNamedNodeMap::~QDomNamedNodeMap()
 
   If the map does not contain such a node, then a null node is returned.
 
-  \sa setNamedItem()
+  \sa setNamedItem() namedItemNS()
 */
 QDomNode QDomNamedNodeMap::namedItem( const QString& name ) const
 {
@@ -2510,8 +2518,8 @@ QDomNode QDomNamedNodeMap::namedItem( const QString& name ) const
 }
 
 /*!
-  Inserts the node \a newNode in the map. The kye for the map is the name of \a
-  newNode as returned by QDomNode::nodeName().
+  Inserts the node \a newNode in the map. The key for the map is the node name
+  of \a newNode as returned by QDomNode::nodeName().
 
   The function returns the newly inserted node.
 
@@ -2554,11 +2562,18 @@ QDomNode QDomNamedNodeMap::item( int index ) const
 }
 
 /*!
-  fnord
+  Returns the node associated with the local name \a localName and the
+  namespace URI \a nsURI.
+
+  If the map does not contain such a node, then a null node is returned.
+
+  \sa setNamedItemNS() namedItem()
 */
-QDomNode QDomNamedNodeMap::namedItemNS( const QString& /*nsURI*/, const QString& /*localName*/ ) const
+QDomNode QDomNamedNodeMap::namedItemNS( const QString& nsURI, const QString& localName ) const
 {
-    return QDomNode();
+    if ( !impl )
+	return QDomNode();
+    return QDomNode( IMPL->namedItemNS( nsURI, localName ) );
 }
 
 /*!
