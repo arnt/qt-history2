@@ -1766,7 +1766,7 @@ void QTextEdit::contentsMousePressEvent( QMouseEvent *e )
 	    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
 #endif
 	}
-    } else {
+    } else if ( e->button() == MidButton ) {
 	bool redraw = doc->removeSelection( QTextDocument::Standard );
 	if ( !redraw ) {
 	    drawCursor( TRUE );
