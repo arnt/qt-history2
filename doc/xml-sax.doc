@@ -169,7 +169,7 @@ and other features.
 
 As we have seen in the \link #features previous section \endlink
 we can configure the behavior of the reader when it comes to namespace
-processing by setting and unsetting the 
+processing. This is done by setting and unsetting the 
 \e http://xml.org/sax/features/namespaces and
 \e http://xml.org/sax/features/namespace-prefixes features.
  
@@ -184,62 +184,98 @@ QXmlContentHandler::endPrefixMapping()
 <li>Attributes that declare namespaces (i.e. the attribute \e xmlns and
     attributes starting with \e xmlns: ) are reported.
 </ol>
- 
-<a name="sax2namespaces"></a>
-SAX2 requires the following behavior:
-<table border="1">
-<tr>
-    <th>namespaces</th><th>namespace-prefixes</th>
-    <th>Namespace prefix and local part</th><th>Qualified names</th>
-    <th>Prefix mapping</th><th>xmlns attributes</th>
-</tr>
-<tr>
-    <td>TRUE</td><td>FALSE</td>
-    <td>Yes</td><td>Unknown</td>
-    <td>Yes</td><td>No</td>
-</tr>
-<tr>
-    <td>TRUE</td><td>TRUE</td>
-    <td>Yes</td><td>Yes</td>
-    <td>Yes</td><td>Yes</td>
-</tr>
-<tr>
-    <td>FALSE</td><td>TRUE</td>
-    <td>Unknown</td><td>Yes</td>
-    <td>Unknown</td><td>Yes</td>
-</tr>
-</table>
-The combination of both features (namespaces and namespace-prefixes) set to
+
+Consider the following element:
+
+\code
+<author xmlns:fnord = 'http://trolltech.com/fnord/'
+             title="Ms" 
+             fnord:title="Goddess" 
+             name="Eris Kallisti"/>
+\endcode
+
+With \e http://xml.org/sax/features/namespace-prefixes set to TRUE 
+the reader will report four attributes, with the \e namespace-prefixes
+feature set to FALSE only three: The \e xmlns:fnord attribute defining
+a namespace is then "unvisible" for the reader.
+
+The \e http://xml.org/sax/features/namespaces feature on the other hand 
+is responsible for reporting local names, namespace prefixes and -URIs.
+With \e http://xml.org/sax/features/namespaces set to TRUE
+the parser will report \e title as the local name of \e fnord:title
+attribute, \e fnord being the namespace prefix and \e http://trolltech.com/fnord/
+as the namespace URI.
+When \e http://xml.org/sax/features/namespaces is FALSE none of them are
+reported.
+
+In the current implementation the Qt XML classes follow the definition
+that the prefix \e xmlns itself isn't associated with any namespace at all
+(see \link http://www.w3.org/TR/1999/REC-xml-names-19990114/#ns-using 
+http://www.w3.org/TR/1999/REC-xml-names-19990114/#ns-using \endlink).
+Therefore even with \e http://xml.org/sax/features/namespaces and
+\e http://xml.org/sax/features/namespace-prefixes both set to TRUE
+the reader won't return either a local name, a namespace prefix or
+a namespace URI for \e  xmlns:fnord.
+
+This might be changed in the future following the W3C suggestion
+\link http://www.w3.org/2000/xmlns/ http://www.w3.org/2000/xmlns/ \endlink
+to associate \e xmlns with the namespace \e http://www.w3.org/2000/xmlns. 
+
+
+As the SAX2 standard suggests \l QXmlSimpleReader by default has
+\e http://xml.org/sax/features/namespaces set to TRUE and
+\e http://xml.org/sax/features/namespace-prefixes set to FALSE.
+When changing this behavior using \l QXmlSimpleReader::setFeature() 
+note that the combination of both features set to
 FALSE is illegal.
- 
-\l QXmlSimpleReader implements the following behavior:
+
+<a name="sax2namespaces"></a>
+<h3><a name="sax2namespaces">Summary</a></h3>
+
+\l QXmlSimpleReader implements the following behavior (the value in 
+parentheses denotes to the SAX2 requirements if they differ from the
+Qt implementation:
 <table border="1">
 <tr>
-    <th>namespaces</th><th>namespace-prefixes</th>
-    <th>Namespace prefix and local part</th><th>Qualified names</th>
-    <th>Prefix mapping</th><th>xmlns attributes</th>
+    <th>namespaces</th>
+    <th>namespace-prefixes</th>
+    <th>Namespace prefix and local part</th>
+    <th>Qualified names</th>
+    <th>Prefix mapping</th>
+    <th>xmlns attributes</th>
 </tr>
 <tr>
-    <td>TRUE</td><td>FALSE</td>
-    <td>Yes</td><td>Yes</td>
-    <td>Yes</td><td>No</td>
+    <td>TRUE</td>
+    <td>FALSE</td>
+    <td>Yes</td>
+    <td>Yes <font color="grey">(Unknown)</font></td>
+    <td>Yes</td>
+    <td>No</td>
 </tr>
 <tr>
-    <td>TRUE</td><td>TRUE</td>
-    <td>Yes</td><td>Yes</td>
-    <td>Yes</td><td>Yes</td>
+    <td>TRUE</td>
+    <td>TRUE</td>
+    <td>Yes</td>
+    <td>Yes</td>
+    <td>Yes</td>
+    <td>Yes</td>
 </tr>
 <tr>
-    <td>FALSE</td><td>TRUE</td>
-    <td>No</td><td>Yes</td>
-    <td>No</td><td>Yes</td>
+    <td>FALSE</td>
+    <td>TRUE</td>
+    <td>No <font color="grey">(Unknown)</font></td>
+    <td>Yes</td>
+    <td>No <font color="grey">(Unknown)</font></td>
+    <td>Yes</td>
 </tr>
+<tr>
+    <td>FALSE</td>
+    <td>FALSE</td>
+    <td colspan=4 align=center><font color="grey">(Illegal)</font></td>
 </table>
  
-By default 
-\c http://xml.org/sax/features/namespaces is set to \c TRUE and
-\c http://xml.org/sax/features/namespace-prefixes is \c FALSE.
- 
+
+
 <h2><a name="properties">Properties</a></h2>   
 
 Properties are a more general concept. They also have a unique name,
