@@ -108,7 +108,6 @@ protected:
     QSocketDevice *socketDevice();
     void        setSocketDevice( QSocketDevice *sd, bool sdConnected );
     void	timerEvent( QTimerEvent * );
-    void        genericConnect();
 
 private slots:
     void	tryConnecting();
