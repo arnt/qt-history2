@@ -48,8 +48,7 @@
 #include <limits.h>
 
 /*
-  WARNING!  Be sure to read qregexp.tex before modifying this file.  And send
-  email to Jasmin Blanchette (jasmin@trolltech.com).
+  WARNING!  Be sure to read qregexp.tex before modifying this file.
 */
 
 /*!
@@ -74,16 +73,16 @@
 
   Regular expressions are a generalization of character strings (\l QString).
   Indeed, the most basic regular expressions are just plain strings that avoid
-  certain special characters.  Thus, the regular expressions <b>begin</b> means
-  precisely <tt>begin</tt>.  (We will use bold to distinguish regular
-  expressions from ordinary strings.)
+  certain special characters.  Thus, the regular expression <b>begin</b> means
+  precisely the same as the string <tt>begin</tt>.  (We will use bold to
+  distinguish regular expressions from ordinary strings.)
 
   But regular expressions are much more general; they can specify a
   whole family of strings.  For example, <b>Bill|William</b> (read
   "Bill or William") denotes the family consisting of <tt>Bill</tt>
   and <tt>William</tt>, and <b>\w+tion</b> denotes the infinite family
   of all the words ending in <tt>tion</tt> (such as
-  <tt>information</tt> and <tt>xyzzyzwtion</tt>).  Idiomatically, we
+  <tt>information</tt> and <tt>fffgfgftion</tt>).  Idiomatically, we
   can say that <b>Bill|William</b> matches <tt>Bill</tt>.  It also
   matches <tt>William</tt>, but it doesn't match <tt>Frank</tt>.
 
@@ -126,7 +125,7 @@
   To count backslashes in a string:
 
   \code
-    QRegExp rx( "\\\\" );               // is really \\
+    QRegExp rx( "\\\\" );               // strlen( "\\\\" ) == 2
     int pos = 0;
     int count = 0;
     do {
@@ -139,7 +138,7 @@
   \endcode  
   
   \code
-    QRegExp rx( "[1-9][0-9][0-9]" );    // matches "100", "101", ..., "999"
+    QRegExp rx( "[1-9][0-9][0-9]" );    // matches "100" up to "999"
     rx.match( "476" );                  // returns TRUE
     rx.match( "1492" );                 // returns FALSE
   \endcode
