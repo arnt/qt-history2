@@ -10,17 +10,26 @@
   \brief The QComponentFactory class provides static functions to create components.
   \ingroup componentmodel
 
+  The createInstance() function is used to obtain a pointer to an
+  interface.
+
+  Use registerServer() to load a shared library which provides the
+  QComponentServerInterface and register its components. Use
+  unregisterServer() to unregister a shared library's components.
+
   \sa QComponentServerInterface, QComponentFactoryInterface
 */
 
 QCleanupHandler< QLibrary > qt_component_server_cleanup;
 
 /*!
-  Looks up the component identifier \a cid in the system registry, loads the corresponding
-  component server and queries for the interface \a iid. The parameter \a outer is a pointer
-  to the outer interface used for containment and aggregation and is propagated to the
-  \link QComponentFactoryInterface::createInstance createInstance \endlink implementation of
-  the QComponentFactoryInterface provided by the component server if provided.
+  Looks up the component identifier \a cid in the system registry, loads
+  the corresponding component server and queries for the interface \a
+  iid. The parameter \a outer is a pointer to the outer interface used
+  for containment and aggregation and is propagated to the \link
+  QComponentFactoryInterface::createInstance createInstance \endlink
+  implementation of the QComponentFactoryInterface provided by the
+  component server if provided.
   Returns the retrieved interface pointer, or NULL if there was an error.
 
   Example:
@@ -62,9 +71,13 @@ QRESULT QComponentFactory::createInstance( const QUuid &cid, const QUuid &iid, Q
 }
 
 /*!
-  Loads the shared library \a filename and queries for a QComponentServerInterface.
-  If the library implements this interface, the \link QComponentServerInterface::registerComponents registerComponents \endlink
-  function is called and the result of the call returned. Otherwise returns FALSE.
+  Loads the shared library \a filename and queries for a
+  QComponentServerInterface. If the library implements this interface,
+  the \link QComponentServerInterface::registerComponents
+  registerComponents \endlink function is called.
+  
+  Returns TRUE if the interface is found and successfully registered,
+  otherwise returns FALSE.
 */
 bool QComponentFactory::registerServer( const QString &filename )
 {
@@ -79,9 +92,13 @@ bool QComponentFactory::registerServer( const QString &filename )
 }
 
 /*!
-  Loads the shared library \a filename and queries for a QComponentServerInterface.
-  If the library implements this interface, the \link QComponentServerInterface::unregisterComponents unregisterComponents \endlink
-  function is called and the result of the call returned. Otherwise returns FALSE.
+  Loads the shared library \a filename and queries for a
+  QComponentServerInterface. If the library implements this interface,
+  the \link QComponentServerInterface::unregisterComponents
+  unregisterComponents \endlink function is called.
+  
+  Returns TRUE if the interface is found and successfully unregistered,
+  otherwise returns FALSE.
 */
 bool QComponentFactory::unregisterServer( const QString &filename )
 {
