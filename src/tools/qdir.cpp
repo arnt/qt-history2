@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#15 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#16 $
 **
 ** Implementation of QDir class
 **
@@ -16,7 +16,7 @@
 #include "qregexp.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#15 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#16 $")
 
 
 #if !defined(PATH_MAX)
@@ -140,37 +140,46 @@ QDir::QDir()
 }
 
 /*----------------------------------------------------------------------------
-  Constructs a QDir pointing to the given directory.
+  Constructs a QDir.
 
-  No check is made to ensure that the directory exists.
+  \arg \e path is the directory.
+  \arg \e filter is the file name filter.
+  \arg \e sortSpec is the sort specification, which describes how to
+  sort the files in the directory.
+  \arg \e filterSpec is the filter specification, which describes how
+  to filter the files in the directory.
 
-  \sa exists(), setPath(), operator=()
- ----------------------------------------------------------------------------*/
+  Most of these arguments (except \e path) have optional values.
 
-QDir::QDir( const char *path )
-{
-    dPath = cleanDirPath( path );
-    init();
-}
+  Example:
+  \code
+    // lists all files in /tmp
 
-/*----------------------------------------------------------------------------
-  Constructs a QDir pointing to the given directory, setting the name filter
+    QDir d( "/tmp" );
+    for ( int i=0; i<d.count(); i++ )
+	printf( "%s\n", d[i] );
+  \endcode
+
+pointing to the given directory, setting the name filter
   to \e nameF. No check is made to ensure that the directory exists.
 
+  If \e path is "" or null, it is set to "." (the current directory).
+  If \e filter is "
   \sa exists(), setPath(), setNameFilter(), setFilter(), setSorting()
  ----------------------------------------------------------------------------*/
 
-QDir::QDir( const char *path, const char *nameF, int sortSpec, int filterSpec )
+QDir::QDir( const char *path, const char *nameFilter, int sortSpec,
+	    int filterSpec )
 {
-    dPath    = cleanDirPath( path );
-    nameFilt = nameF;
-    filtS    = (FilterSpec)filterSpec;
-    sortS    = (SortSpec)sortSpec;
-
-    fList    = 0;
-    fiList   = 0;
-    dirty    = TRUE;
-    allDirs  = FALSE;
+    init();
+    dPath = cleanDirPath( path );
+    if ( dPath.isEmpty() )
+	dPath = ".";
+    nameFilt = nameFilter;
+    if ( nameFilt.isEmpty() )
+	nameFilt = "*";
+    filtS = (FilterSpec)filterSpec;
+    sortS = (SortSpec)sortSpec;
 }
 
 /*----------------------------------------------------------------------------
@@ -236,6 +245,8 @@ QDir::~QDir()
 void QDir::setPath( const char *path )
 {
     dPath = cleanDirPath( path );
+    if ( dPath.isEmpty() )
+	dPath = ".";
     dirty = TRUE;
 }
 
@@ -396,7 +407,7 @@ QString QDir::absFilePath( const char *fileName,
 	  return;
       } else {
 	  warning( "Creating directory \"%s\"",
-	  	   (const char *) d.absFilePath("c++") );
+		   (const char *) d.absFilePath("c++") );
 	  if ( !d.mkdir( "c++" ) ) {
 	      warning("Could not create directory \"%s\"",
 		      (const char *)d.absFilePath("c++") );
@@ -413,23 +424,21 @@ QString QDir::absFilePath( const char *fileName,
 
 bool QDir::cd( const char *dirName, bool acceptAbsPath )
 {
-    if ( strcmp( dirName, "." ) == 0 ) {
+    if ( !dirName || !*dirName || strcmp(dirName,".") == 0 )
 	return TRUE;
-    }
     QString old = dPath;
-    dPath.detach();		// dPath can be shared by several QDirs
+    dPath.detach();			// dPath can be shared by several QDirs
     if ( acceptAbsPath && !isRelativePath(dirName) ) {
 	dPath = cleanDirPath( dirName );
     } else {
 	if ( !isRoot() )
 	    dPath += '/';
 	dPath += dirName;
-	if ( strchr( dirName, '/' ) || old == "." ||
-	     strcmp( dirName, "..") == 0 )
+	if ( strchr(dirName,'/') || old == "." || strcmp(dirName,"..") == 0 )
 	    dPath = cleanDirPath( dPath.data() );
     }
     if ( !exists() ) {
-	dPath = old;
+	dPath = old;			// regret
 	return FALSE;
     }
     dirty = TRUE;
@@ -460,10 +469,10 @@ bool QDir::cdUp()
 
 /*----------------------------------------------------------------------------
   Sets the name filter used by entryList() and entryInfoList().
-  The name filter is
-  a wildcarding filter that understands "*" and "?" wildcards, if you want
-  entryList() and entryInfoList() to list all files ending with ".cpp", you
-  simply call dir.setNameFilter("*.cpp");
+
+  The name filter is a wildcarding filter that understands "*" and "?"
+  wildcards, if you want entryList() and entryInfoList() to list all files
+  ending with ".cpp", you simply call dir.setNameFilter("*.cpp");
 
   \sa nameFilter()
  ----------------------------------------------------------------------------*/
@@ -471,14 +480,14 @@ bool QDir::cdUp()
 void QDir::setNameFilter( const char *nameFilter )
 {
     nameFilt = nameFilter;
-    dirty    = TRUE;
+    if ( nameFilt.isEmpty() )
+	nameFilt = "*";
+    dirty = TRUE;
 }
 
 /*----------------------------------------------------------------------------
   \fn QDir::FilterSpec QDir::filter() const
-
   Returns the value set by setFilter()
-
   \sa setFilter()
  ----------------------------------------------------------------------------*/
 
@@ -490,21 +499,21 @@ void QDir::setNameFilter( const char *nameFilter )
 
 
   <dl compact>
-  <dt> Dirs <dd> List directories only.
-  <dt> Files <dd> List files only.
-  <dt> Drives <dd> List drives.
-  <dt> NoSymLinks <dd> Do not list symbolic links.
+  <dt>Dirs<dd> List directories only.
+  <dt>Files<dd> List files only.
+  <dt>Drives<dd> List drives.
+  <dt>NoSymLinks<dd> Do not list symbolic links.
 
-  <dt> Readable <dd> List files with read permission.
-  <dt> Writable <dd> List files with write permission.
-  <dt> Executable <dd> List files with execute permission.
+  <dt>Readable<dd> List files with read permission.
+  <dt>Writable<dd> List files with write permission.
+  <dt>Executable<dd> List files with execute permission.
 
   Setting none of the three flags above is equivalent to setting all of them.
 
-  <dt> Modified <dd> Only list files that have been modified (does nothing
+  <dt>Modified<dd> Only list files that have been modified (does nothing
 			  under UNIX).
-  <dt> Hidden <dd> List hidden files also (.* under UNIX).
-  <dt> System <dd> List system files (does nothing under UNIX).
+  <dt>Hidden<dd> List hidden files also (.* under UNIX).
+  <dt>System<dd> List system files (does nothing under UNIX).
 
   </dl>
 
@@ -535,17 +544,17 @@ void QDir::setFilter( int filterSpec )
 
   One of these:
   <dl compact>
-  <dt> Name <dd> Sort by name (alphabetical order).
-  <dt> Time <dd> Sort by time (most recent first).
-  <dt> Size <dd> Sort by size (largest first).
-  <dt> Unsorted <dd> Use the operating system order (UNIX does NOT sort
+  <dt>Name<dd> Sort by name (alphabetical order).
+  <dt>Time<dd> Sort by time (most recent first).
+  <dt>Size<dd> Sort by size (largest first).
+  <dt>Unsorted<dd> Use the operating system order (UNIX does NOT sort
   alphabetically).
 
   ORed with zero or more of these:
 
-  <dt> DirsFirst <dd> Always put directory names first.
-  <dt> Reversed <dd> Reverse sort order.
-  <dt>IgnoreCase  <dd> Ignore case when sorting by name.
+  <dt>DirsFirst<dd> Always put directory names first.
+  <dt>Reversed<dd> Reverse sort order.
+  <dt>IgnoreCase<dd> Ignore case when sorting by name.
   </dl>
  ----------------------------------------------------------------------------*/
 
@@ -581,6 +590,37 @@ void QDir::setMatchAllDirs( bool enable )
 	return;
     allDirs = enable;
     dirty = TRUE;
+}
+
+
+/*----------------------------------------------------------------------------
+  Returns the number of files that was found.
+  Equivalent to entryList()->count().
+  \sa operator[], entryList()
+ ----------------------------------------------------------------------------*/
+
+uint QDir::count() const
+{
+    entryList();
+    return fList->count();
+}
+
+/*----------------------------------------------------------------------------
+  Returns the file name at position \e index in the list of found file
+  names.
+  Equivalent to entryList()->at(index).
+
+  Returns null if the \e index is out of range or if the entryList()
+  function failed.
+
+  \sa count(), entryList()
+ ----------------------------------------------------------------------------*/
+
+const char *QDir::operator[]( int index ) const
+{
+    entryList();
+    return fList && index >= 0 && index < (int)fList->count() ?
+	fList->at(index) : 0;
 }
 
 
@@ -625,8 +665,8 @@ const QStrList *QDir::entryList( const char *nameFilter,
 	filterSpec = filtS;
     if ( sortSpec == (int)DefaultSort )
 	sortSpec = sortS;
-    QDir *This = (QDir*) this;		// Mutable function
-    if ( This->readDirEntries( nameFilter, filterSpec, sortSpec ) )
+    QDir *that = (QDir*)this;			// mutable function
+    if ( that->readDirEntries(nameFilter, filterSpec, sortSpec) )
 	return fList;
     else
 	return 0;
@@ -673,8 +713,8 @@ const QFileInfoList *QDir::entryInfoList( const char *nameFilter,
 	filterSpec = filtS;
     if ( sortSpec == (int)DefaultSort )
 	sortSpec = sortS;
-    QDir *This = (QDir*) this;		// Mutable function
-    if ( This->readDirEntries( nameFilter, filterSpec, sortSpec ) )
+    QDir *that = (QDir*)this;			// mutable function
+    if ( that->readDirEntries(nameFilter, filterSpec, sortSpec) )
 	return fiList;
     else
 	return 0;
@@ -926,7 +966,7 @@ bool QDir::exists( const char *name, bool acceptAbsPath )
 }
 
 /*----------------------------------------------------------------------------
-  Returns the native directory separator, e.g. "/" under UNIX and "\" under
+  Returns the native directory separator; '/' under UNIX and '\' under
   MS-DOS, Windows NT and OS/2.
 
   You do not need to use this function to build file paths. If you always
@@ -1168,7 +1208,7 @@ static void dirInSort( QStrList *fl, QFileInfoList *fil, const char *fileName,
     }
 
     char      *tmp1;
-    QFileInfo *tmp2;
+    QFileInfo *tmp2 = 0;
     tmp1 = ( sortSpec & QDir::Reversed ) ? fl->last() : fl->first();
     if ( sortBy != QDir::Name )
 	tmp2 = ( sortSpec & QDir::Reversed ) ? fil->last() : fil->first();
@@ -1177,10 +1217,10 @@ static void dirInSort( QStrList *fl, QFileInfoList *fil, const char *fileName,
 	switch( sortBy ) {
 	    case QDir::Name:
 		if ( sortSpec & QDir::IgnoreCase ) {
-		    if ( qstricmp( fileName , tmp1 ) < 0 )
+		    if ( stricmp(fileName,tmp1) < 0 )
 			stop = TRUE;
 		} else {
-		    if ( strcmp( fileName , tmp1 ) < 0 )
+		    if ( strcmp(fileName,tmp1) < 0 )
 			stop = TRUE;
 		}
 		break;
