@@ -73,9 +73,11 @@ UnixMakefileGenerator::init()
     project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
 
 
-    bool extern_libs = !project->isActiveConfig("dll")  || (project->first("TARGET") == "qt" ||
-							    project->first("TARGET") == "qte" ||
-							    project->first("TARGET") == "qt-mt");
+    bool extern_libs = !project->variables()["QMAKE_APP_FLAG"].isEmpty() ||
+		       (!project->variables()["QMAKE_LIB_FLAG"].isEmpty() && project->isActiveConfig("dll")) ||
+                       (project->first("TARGET") == "qt" ||
+			project->first("TARGET") == "qte" ||
+			project->first("TARGET") == "qt-mt");
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
     if ( (!project->variables()["QMAKE_LIB_FLAG"].isEmpty() && !project->isActiveConfig("staticlib") ) ||
 	 (project->isActiveConfig("qt") &&  project->isActiveConfig( "plugin" ) )) {
