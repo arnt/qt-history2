@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#5 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -23,7 +23,7 @@
 #include <X11/Xatom.h> // for XA_STRING and friends
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#4 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#5 $");
 
 // this stuff is copied from qapp_x11.cpp
 
@@ -176,16 +176,12 @@ static QWidget * find_child( QWidget * tlw, QPoint & p )
 	    QObject * o;
 	    while( (o=it.current()) ) {
 		--it;
-		debug( "considering %s/%s, %d,%d",
-		       o->name( "unnamed" ), o->className(),
-		       p.x(), p.y() );
 		if ( o->isWidgetType() &&
 		     ((QWidget*)o)->isVisible() &&
 		     ((QWidget*)o)->geometry().contains( p ) ) {
 		    w = (QWidget *)o;
 		    done = FALSE;
 		    p = w->mapFromParent( p );
-		    debug( "yep, set p to %d,%d", p.x(), p.y() );
 		    break;
 		}
 	    }
@@ -232,13 +228,8 @@ void qt_handle_xdnd_enter( QWidget *, const XEvent * xe ) {
     int i;
     int j = 0;
     for( i=2; i < 5; i++ ) {
-	if ( qt_xdnd_drag_types->find( l[i] ) ) {
+	if ( qt_xdnd_drag_types->find( l[i] ) )
 	    qt_xdnd_types[j++] = l[i];
-	    debug( "l[%d] = %s", i,
-		   qt_xdnd_drag_types->find( l[i] )->data() );
-	} else {
-	    debug( "l[%d] = unknown (%ld)", i, l[i] );
-	}
     }
     qt_xdnd_types[j] = 0;
 
@@ -358,12 +349,10 @@ void qt_handle_xdnd_drop( QWidget *, const XEvent * xe )
 
     const unsigned long *l = (const unsigned long *)xe->xclient.data.l;
 
-    debug( "xdnd drop %p %s/%s", qt_xdnd_current_widget,
-	   qt_xdnd_current_widget->name( "unnamed" ),
-	   qt_xdnd_current_widget->className() );
+    debug( "xdnd drop" );
 
     if ( l[0] != qt_xdnd_dragsource_xid ) {
-	debug( "xdnd drag leave from unexpected source (%08lx not %08lx",
+	debug( "xdnd drop from unexpected source (%08lx not %08lx",
 	       l[0], qt_xdnd_dragsource_xid );
 	return;
     }
@@ -386,7 +375,6 @@ void qt_handle_xdnd_finished( QWidget *, const XEvent * xe )
 
 void QDragManager::cancel()
 {
-    debug( "c " );
     if ( object ) {
 	beingCancelled = TRUE;
 	if ( object->autoDelete() )
@@ -409,7 +397,6 @@ void QDragManager::cancel()
 
 void QDragManager::move( const QPoint & globalPos )
 {
-    debug( "move" );
     if ( qt_xdnd_source_sameanswer.contains( globalPos ) )
 	return;
 
@@ -523,11 +510,10 @@ const char * QDragMoveEvent::format( int  )
 
 void qt_xdnd_handle_selection_request( const XSelectionRequestEvent * req )
 {
-    debug( "hsr" );
     if ( !req || !qt_xdnd_drag_types )
 	return;
     QString * format = qt_xdnd_drag_types->find( req->target );
-    debug ( "format %08lx string <%s> %p", req->target, format->data(),
+    debug ( "hsr format %08lx string <%s> %p", req->target, format->data(),
 	    qt_xdnd_source_object );
     if ( format && qt_xdnd_source_object ) {
 	XEvent evt;
@@ -547,7 +533,6 @@ void qt_xdnd_handle_selection_request( const XSelectionRequestEvent * req )
 			      PropModeReplace,
 			      (unsigned char *)(o->encodedData().data()),
 			      o->encodedData().size() );
-	    debug ("%d", o->encodedData().size() );
 	}
 	XSendEvent( qt_xdisplay(), req->requestor, False, 0, &evt );
     }
@@ -617,7 +602,6 @@ static QByteArray qt_xdnd_obtain_data( const char * format )
 	    }
 	}
 	qt_xdnd_target_data.insert( (int)a, new QByteArray( result ) );
-	debug( "data size is %d", result.size() );
     }
 	
     return result;
@@ -669,7 +653,6 @@ void QDragManager::startDrag( QDragObject * o )
     }
 
     qt_xdnd_source_object = o;
-    debug( "non-0 %p", o );
 
     object = o;
     dragSource = (QWidget *)(object->parent());
@@ -677,7 +660,6 @@ void QDragManager::startDrag( QDragObject * o )
     XSetSelectionOwner( qt_xdisplay(), qt_xdnd_selection,
 			dragSource->topLevelWidget()->winId(),
 			qt_x_clipboardtime );
-    debug( "started drag" );
 }
 
 
