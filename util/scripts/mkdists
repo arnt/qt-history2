@@ -801,6 +801,7 @@ for plat in mac win x11 qnx6 embedded; do
 	    if [ "$plat" = "embedded" ] || [ "$plat" = "qnx6" ]; then
 		rm -rf "$PLATDIR/examples/biff" "$PLATDIR/examples/desktop" "$PLATDIR/examples/overlay_x11"
 		rm -rf "$PLATDIR/extensions/xt" "$PLATDIR/include/qxt.h"
+		rm -rf "$PLATDIR/extensions/motif" "$PLATDIR/include/qmotif.h" "$PLATDIR/include/qmotifdialog.h" "$PLATDIR/include/qmotifeventloop.h" "$PLATDIR/include/qmotifwidget.h"
 	    elif [ "$plat" = "x11" ]; then
 		rm -rf "$PLATDIR/examples/winmanager" "$PLATDIR/examples/compact"
 		rm -rf "$PLATDIR/examples/notepad" "$PLATDIR/examples/launcher"
@@ -810,6 +811,7 @@ for plat in mac win x11 qnx6 embedded; do
 	    elif [ "$plat" = "mac" ]; then
 		rm -rf "$PLATDIR/examples/biff" "$PLATDIR/examples/desktop" "$PLATDIR/examples/overlay_x11"
 		rm -rf "$PLATDIR/extensions/xt" "$PLATDIR/include/qxt.h" "$PLATDIR/extensions/imageio"
+		rm -rf "$PLATDIR/extensions/motif" "$PLATDIR/include/qmotif.h" "$PLATDIR/include/qmotifdialog.h" "$PLATDIR/include/qmotifeventloop.h" "$PLATDIR/include/qmotifwidget.h"
 		rm -rf "$PLATDIR/examples/winmanager" "$PLATDIR/examples/compact"
 		rm -rf "$PLATDIR/examples/notepad" "$PLATDIR/examples/launcher"
 		rm -rf "$PLATDIR/src/3rdparty/freetype2" "$PLATDIR/src/3rdparty/freetype"
@@ -828,6 +830,7 @@ for plat in mac win x11 qnx6 embedded; do
 	    rm -rf "$PLATDIR/src/3rdparty/gsos"
 	    rm -rf "$PLATDIR/examples/biff" "$PLATDIR/examples/desktop" "$PLATDIR/examples/overlay_x11"
 	    rm -rf "$PLATDIR/extensions/xt" "$PLATDIR/include/qxt.h" "$PLATDIR/extensions/imageio"
+            rm -rf "$PLATDIR/extensions/motif" "$PLATDIR/include/qmotif.h" "$PLATDIR/include/qmotifdialog.h" "$PLATDIR/include/qmotifeventloop.h" "$PLATDIR/include/qmotifwidget.h"
 	    rm -rf "$PLATDIR/examples/winmanager" "$PLATDIR/examples/compact"
 	    rm -rf "$PLATDIR/examples/notepad" "$PLATDIR/examples/launcher"
 	    rm -rf "$PLATDIR/src/3rdparty/freetype2" "$PLATDIR/src/3rdparty/freetype"
