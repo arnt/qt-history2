@@ -23,7 +23,7 @@ if [ "$relpath" != `pwd` ]; then
            a_dir=`dirname $my_a`
 	   [ ! -d $a_dir ] && mkdir -p $a_dir
 	   case `basename $a` in
-	   *.xml|*.png|*.gif|*.html|*.doc|*.txt) ;;
+	   *.xml|*.png|*.gif|*.html|*.doc|*.txt|*.o|moc_*.cpp) ;;
 	   qconfig.h|qmodules.h|qfeatures.h) cp $a $a_dir ;;
 	   *) ln -sf $a $my_a ;;
 	   esac
