@@ -1,9 +1,11 @@
 #ifndef QDNS_H
 #define QDNS_H
-
-#include <qobject.h>
-#include <qhostaddress.h>
 #include <qlist.h>
+#include <qhostaddress.h>
+
+class QString;
+class QObject;
+class QDnsHostInfoPrivate;
 
 class Q_NETWORK_EXPORT QDns
 {
@@ -17,21 +19,22 @@ class Q_NETWORK_EXPORT QDnsHostInfo
 public:
     QDnsHostInfo();
     QDnsHostInfo(const QDnsHostInfo &d);
+    QDnsHostInfo &operator =(const QDnsHostInfo &d);
+    ~QDnsHostInfo();
 
-    inline QList<QHostAddress> addresses() const { return addrs; }
+    QString host() const;
+    QList<QHostAddress> addresses() const;
 
     enum Error { NoError, HostNotFound, UnknownError };
 
-    inline Error error() { return err; }
-    inline QString errorString() { return errorStr; }
+    Error error() const;
+    QString errorString() const;
 
     friend class QDnsAgent;
     friend void QDns::getHostByName(const QString &, QObject *, const char *);
 
 private:
-    Error err;
-    QString errorStr;
-    QList<QHostAddress> addrs;
+    QDnsHostInfoPrivate *d;
 };
 
 #endif // QDNS_H

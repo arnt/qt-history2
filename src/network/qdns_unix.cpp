@@ -7,12 +7,13 @@
 #include <qsignal.h>
 #include <qbytearray.h>
 
-// #define QDNS_DEBUG
+//#define QDNS_DEBUG
 
 /*
-    Performs a blocking call to gethostbyname or getaddrinfo, stores
-    the results in a QDnsHostInfo structure and emits the
-    resultsReady() signal.
+    Pops a query off the queries list, performs a blocking call to
+    gethostbyname or getaddrinfo, stores the results of the lookup in
+    a QDnsHostInfo structure and emits the resultsReady() signal. Then
+    starts over until the queries list is empty.
 */
 void QDnsAgent::run()
 {
@@ -35,6 +36,7 @@ void QDnsAgent::run()
 #endif
 
         QDnsHostInfo results;
+        results.d->hostName = hostName;
 
 #if !defined (QT_NO_GETADDRINFO)
         // Call getaddrinfo, and place all IPv4 addresses at the start and
@@ -46,15 +48,15 @@ void QDnsAgent::run()
             while (node) {
                 if (node->ai_family == AF_INET) {
                     QHostAddress addr(ntohl(((sockaddr_in *) node->ai_addr)->sin_addr.s_addr));
-                    if (!results.addrs.contains(addr))
-                        results.addrs.prepend(addr);
+                    if (!results.d->addrs.contains(addr))
+                        results.d->addrs.prepend(addr);
                 } else if (node->ai_family == AF_INET6) {
                     QHostAddress addr(((sockaddr_in6 *) node->ai_addr)->sin6_addr.s6_addr);
-                    if (!results.addrs.contains(addr))
-                        results.addrs.append(addr);
+                    if (!results.d->addrs.contains(addr))
+                        results.d->addrs.append(addr);
                 } else {
-                    results.err = QDnsHostInfo::UnknownError;
-                    results.errorStr = tr("Unknown address type");
+                    results.d->err = QDnsHostInfo::UnknownError;
+                    results.d->errorStr = tr("Unknown address type");
                     break;
                 }
                 node = node->ai_next;
@@ -62,11 +64,11 @@ void QDnsAgent::run()
 
             freeaddrinfo(res);
         } else if (result == EAI_NONAME) {
-            results.err = QDnsHostInfo::HostNotFound;
-            results.errorStr = tr("Host not found");
+            results.d->err = QDnsHostInfo::HostNotFound;
+            results.d->errorStr = tr("Host not found");
         } else {
-            results.err = QDnsHostInfo::UnknownError;
-            results.errorStr = QString::fromLocal8Bit(gai_strerror(result));
+            results.d->err = QDnsHostInfo::UnknownError;
+            results.d->errorStr = QString::fromLocal8Bit(gai_strerror(result));
         }
 
 #else
@@ -81,34 +83,34 @@ void QDnsAgent::run()
             if (ent.h_addrtype == AF_INET) {
                 for (char **p = ent.h_addr_list; *p != 0; p++) {
                     QHostAddress addr(ntohl(*((long *)*p)));
-                    if (!results.addresses.contains(addr))
-                        results.addresses.prepend(addr);
+                    if (!results.d->addresses.contains(addr))
+                        results.d->addresses.prepend(addr);
                 }
             } else {
-                results.error = QDnsHostInfo::UnknownError;
-                results.errorString = tr("Unknown address type");
+                results.d->error = QDnsHostInfo::UnknownError;
+                results.d->errorString = tr("Unknown address type");
             }
         } else if (h_errno == HOST_NOT_FOUND) {
-            results.error = QDnsHostInfo::HostNotFound;
-            results.errorString = tr("Host not found");
+            results.d->error = QDnsHostInfo::HostNotFound;
+            results.d->errorString = tr("Host not found");
         } else if (h_errno != NO_DATA) {
-            results.error = QDnsHostInfo::UnknownError;
-            results.errorString = QString::fromLocal8Bit(hstrerror(h_errno));
+            results.d->error = QDnsHostInfo::UnknownError;
+            results.d->errorString = QString::fromLocal8Bit(hstrerror(h_errno));
         }
 #endif //  !defined (QT_NO_GETADDRINFO)
 
 #if defined(QDNS_DEBUG)
-        if (results.err != QDnsHostInfo::NoError) {
+        if (results.d->err != QDnsHostInfo::NoError) {
             qDebug("QDnsAgent::run(%p): error #%d %s",
-                   this, h_errno, results.errorStr.latin1() );
+                   this, h_errno, results.d->errorStr.latin1() );
         } else {
             QString tmp;
-            for (int i = 0; i < results.addrs.count(); ++i) {
+            for (int i = 0; i < results.d->addrs.count(); ++i) {
                 if (i != 0) tmp += ", ";
-                tmp += results.addrs.at(i).toString();
+                tmp += results.d->addrs.at(i).toString();
             }
             qDebug("QDnsAgent::run(%p): found %i entries for \"%s\": {%s}",
-                   this, results.addrs.count(), hostName.latin1(), tmp.latin1());
+                   this, results.d->addrs.count(), hostName.latin1(), tmp.latin1());
         }
 #endif
 

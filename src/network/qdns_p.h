@@ -2,9 +2,8 @@
 #define QDNS_P_H
 
 #include "qdns.h"
-#include <qstringlist.h>
-#include <qobject.h>
 #include <qmutex.h>
+#include <qobject.h>
 #include <qpointer.h>
 
 #if !defined QT_NO_THREAD
@@ -20,7 +19,7 @@ struct QDnsQuery
 
     inline QDnsQuery(const QString &name, QObject *r, const char *m)
         : hostName(name), receiver(r), member(m) {}
-    
+
     QString hostName;
     QPointer<QObject> receiver;
     const char *member;
@@ -40,14 +39,28 @@ public:
         QMutexLocker locker(&mutex);
         queries << QDnsQuery(name, receiver, member);
     }
-    
+
 signals:
     void resultsReady(QDnsHostInfo);
 
 private:
     QList<QDnsQuery> queries;
     QMutex mutex;
+};
 
+class QDnsHostInfoPrivate
+{
+public:
+    inline QDnsHostInfoPrivate()
+        : err(QDnsHostInfo::NoError),
+          errorStr(QT_TRANSLATE_NOOP("QDnsHostInfo", "Unknown error"))
+    {
+    }
+
+    QDnsHostInfo::Error err;
+    QString errorStr;
+    QList<QHostAddress> addrs;
+    QString hostName;
 };
 
 #endif // QDNS_P_H

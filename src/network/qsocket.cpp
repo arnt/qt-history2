@@ -19,8 +19,8 @@
 #include "qsocketdevice.h"
 #include "private/qsocketdevice_p.h"
 #include "private/qinternal_p.h"
-#include "qlist.h"
 #include "qsignal.h"
+#include "qhostaddress.h"
 
 #include <string.h>
 #ifndef NO_ERRNO_H
