@@ -416,10 +416,13 @@ public:
 
     iterator insert( iterator pos, size_type n, const T& x )
     {
-	if ( n != 0 ) {
-	    detach();
-	    sh->insert( pos, n, x );
-	}
+		size_type offset = pos - begin();
+		if ( n != 0 ) {
+			detach();
+			offset = pos - begin();
+			sh->insert( pos, n, x );
+		}
+		return begin() + offset;
     }
 
     void reserve( size_type n )
