@@ -105,6 +105,7 @@
 #endif
 #include "../resource/qwidgetfactory.h"
 #include <qvbox.h>
+#include <qtimer.h>
 
 static int forms = 0;
 
@@ -165,6 +166,10 @@ MainWindow::MainWindow( bool asClient )
     pluginDir += "/plugins";
     libDir = getenv( "QTDIR" );
     libDir += "/lib";
+
+    updateSlotsTimer = new QTimer( this );
+    connect( updateSlotsTimer, SIGNAL( timeout() ),
+	     this, SLOT( doSlotsChanged() ) );
 
     setupPluginManagers();
 
@@ -4086,6 +4091,18 @@ void MainWindow::setModified( bool b, QWidget *window )
 void MainWindow::editorClosed( SourceEditor *e )
 {
     sourceEditors.take( sourceEditors.findRef( e ) );
+}
+
+void MainWindow::slotsChanged()
+{
+    updateSlotsTimer->start( 0, TRUE );
+}
+
+void MainWindow::doSlotsChanged()
+{
+    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() )
+	e->refresh();
+    hierarchyView->functionList()->refreshFunctions();
 }
 
 #include "mainwindow.moc"

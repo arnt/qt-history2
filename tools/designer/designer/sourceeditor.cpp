@@ -170,3 +170,8 @@ void SourceEditor::setModified( bool b )
 {
     iFace->setModified( b );
 }
+
+void SourceEditor::refresh()
+{
+    iFace->setText( sourceOfForm( formWindow, lang, iFace, lIface ) );
+}

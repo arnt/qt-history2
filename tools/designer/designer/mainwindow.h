@@ -56,6 +56,7 @@ class Help;
 class ActionEditor;
 class Project;
 class OutputWindow;
+class QTimer;
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
 #include <qtoolbar.h>
@@ -131,6 +132,7 @@ public:
     OutputWindow *outputWindow() const { return oWindow; }
     void addPreferencesTab( QWidget *tab, const QString &title, QObject *receiver, const char *init_slot, const char *accept_slot );
     void setModified( bool b, QWidget *window );
+    void slotsChanged();
 
 public slots:
     void showProperties( QObject *w );
@@ -264,6 +266,9 @@ private:
 
     void addRecentlyOpened( const QString &fn, QStringList &lst );
 
+private slots:
+    void doSlotsChanged();
+
 private:
     struct Tab
     {
@@ -342,6 +347,7 @@ private:
     OutputWindow *oWindow;
     QValueList<Tab> preferenceTabs;
     bool databaseAutoEdit;
+    QTimer *updateSlotsTimer;
 
 };
 

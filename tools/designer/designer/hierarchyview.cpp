@@ -536,6 +536,22 @@ void FunctionList::setup()
 	lIface->release();
     }
 
+    refreshFunctions( FALSE );
+}
+
+void FunctionList::refreshFunctions( bool doDelete )
+{
+    if ( doDelete ) {
+	QListViewItem *i = firstChild();
+	while ( i ) {
+	    if ( i->text( 0 ) == tr( "Functions" ) ) {
+		delete i;
+		break;
+	    }
+	    i = i->nextSibling();
+	}
+    }
+
     QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( hierarchyView->formWindow() );
     if ( slotList.isEmpty() )
 	return;
@@ -559,6 +575,7 @@ void FunctionList::setup()
     itemPublic->setOpen( TRUE );
     itemFunctions->setOpen( TRUE );
 }
+
 
 void FunctionList::setCurrent( QWidget * )
 {

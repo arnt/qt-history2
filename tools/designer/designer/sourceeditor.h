@@ -55,6 +55,7 @@ public:
     void editSelectAll();
 
     void configChanged();
+    void refresh();
 
 protected:
     void closeEvent( QCloseEvent *e );

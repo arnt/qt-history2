@@ -109,6 +109,7 @@ public:
     FunctionList( QWidget *parent, HierarchyView *view );
 
     void setup();
+    void refreshFunctions( bool doDelete = TRUE );
     void setCurrent( QWidget *w );
 
 private:
@@ -143,6 +144,8 @@ public:
     void rebuild();
     void closed( FormWindow *fw );
     void updateFunctionList();
+
+    FunctionList *functionList() const { return fList; }
 
 protected:
     void closeEvent( QCloseEvent *e );

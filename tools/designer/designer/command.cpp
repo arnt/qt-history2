@@ -938,11 +938,13 @@ AddSlotCommand::AddSlotCommand( const QString &name, FormWindow *fw, const QCStr
 void AddSlotCommand::execute()
 {
     MetaDataBase::addSlot( formWindow(), slot, access, language );
+    formWindow()->mainWindow()->slotsChanged();
 }
 
 void AddSlotCommand::unexecute()
 {
     MetaDataBase::removeSlot( formWindow(), slot, access, language );
+    formWindow()->mainWindow()->slotsChanged();
 }
 
 // ------------------------------------------------------------
@@ -955,11 +957,13 @@ RemoveSlotCommand::RemoveSlotCommand( const QString &name, FormWindow *fw, const
 void RemoveSlotCommand::execute()
 {
     MetaDataBase::removeSlot( formWindow(), slot, access, language );
+    formWindow()->mainWindow()->slotsChanged();
 }
 
 void RemoveSlotCommand::unexecute()
 {
     MetaDataBase::addSlot( formWindow(), slot, access, language );
+    formWindow()->mainWindow()->slotsChanged();
 }
 
 // ------------------------------------------------------------
