@@ -1011,6 +1011,7 @@ bool QApplication::x11_apply_settings()
     }
 #endif // QT_NO_XFTFREETYPE
 
+#ifndef QT_NO_XIM
     QString ximInputStyle =
 	settings.readEntry( "/qt/XIMInputStyle",
 			    QObject::trUtf8( "On The Spot" ) ).lower();
@@ -1022,6 +1023,7 @@ bool QApplication::x11_apply_settings()
 	xim_preferred_style = XIMPreeditArea | XIMStatusArea;
     else if ( ximInputStyle == "root" )
 	xim_preferred_style = XIMPreeditNothing | XIMStatusNothing;
+#endif
 
     if (update_timestamp) {
 	QBuffer stamp;
