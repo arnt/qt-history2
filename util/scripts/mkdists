@@ -19,9 +19,11 @@ DO_X11=yes
 DO_MAC=no
 DO_QWS=yes
 #other
-DO_ID=yes
-DO_GZIP=yes
-DO_DOC=yes
+DO_GZIP=auto
+DO_ID=auto
+DO_DOC=auto
+
+#internal variables
 CREATED_MANIFEST=no
 
 die()
@@ -49,7 +51,7 @@ showhelp()
     echo
 
     echo "Paths:"
-    echo "  -manifest <file>     : Specify path to manifest file (if not there, will be created)"
+    echo "  -manifest <file>     : Specify path to manifest file (will create)"
     echo "  -local <directory>   : Specify path to pre-p4'd depot"
     echo "  -outdir <directory>  : Where to put all things (default $OUT_TREE)"
     echo "  -qdoc <executable>   : Where qdoc lives (default $QDOC_PATH)"
@@ -57,8 +59,8 @@ showhelp()
 
     echo "Editions:"
     echo "  -no-professional / -do-professional  : Toggle professional build"
-    echo "  -no-enterprise / -do-enterprise      : Toggle enterprise build"
-    echo "  -no-free / -do-free                  : Toggle free build"
+    echo "  -no-enterprise   / -do-enterprise    : Toggle enterprise build"
+    echo "  -no-free         / -do-free          : Toggle free build"
     echo
 
     echo "Platforms:"
@@ -69,13 +71,13 @@ showhelp()
     echo
 
     echo "Various:"
-    echo "  -no-id / -do-id      : Toggle whether to generate \$Id tag"
-    echo "  -no-doc / -do-doc    : Toggle whether to generate documentation"
+    echo "  -no-id   / -do-id    : Toggle whether to generate \$Id tag"
+    echo "  -no-doc  / -do-doc   : Toggle whether to generate documentation"
     echo "  -no-gzip / -do-gzip  : Toggle whether to add a gzip package"
 
-    echo "___"
-    echo "All options can be in long form --option=value as well (where value is no for -no-* options,"
-    echo "and yes for -do-* options)"
+    echo "=-________________________________________________________________-="
+    echo "All options can be in long form --option=value as well (where value "
+    echo "is no for -no-* options and yes for -do-* options)"
     exit 666
 }
 
@@ -164,6 +166,29 @@ done
 [ "x$DO_DOC" = "xyes" ] && [ ! -x "$QDOC_PATH" ] && die "qdoc not found, failed (${QDOC_PATH})"
 rm -f "$TMP_FILE" && { [ -e "$TMP_FILE" ] && die "Could not remove tmp file, failed (${TMP_FILE})" ; }
 [ ! -d "$OUT_TREE" ] && { mkdir -p $OUT_TREE >/dev/null 2>&1 || die "Could not create outdir, failed (${OUT_TREE})" ; }
+
+#now decide some default value..
+if [ "$DO_DOC" = "auto" ]; then
+    if [ -z "$LOCAL_TREE" ]; then
+	DO_DOC=yes
+    else
+	DO_DOC=no
+    fi
+fi
+if [ "$DO_ID" = "auto" ]; then
+    if [ -z "$LOCAL_TREE" ]; then
+	DO_ID=yes
+    else
+	DO_ID=no
+    fi
+fi
+if [ "$DO_GZIP" = "auto" ]; then
+    if [ ! -z `which gzip` ]; then
+	DO_GZIP=yes
+    else
+	DO_GZIP=no
+    fi
+fi
 
 BRANCH="main"
 BRANCH_DIGITS=`echo $BRANCH | sed "s,\.,,g" | sed "s,\(\d\d\d\).*,\1,"`
@@ -551,13 +576,11 @@ for plat in mac win x11 qws; do
 	    done
 	    ;;
 	professional)
-	    #Remove sql
-	    for sql in src/sql examples/pingpong examples/sqltable; do
-		[ -d "$PLATDIR/$sql" ] && rm -rf "$PLATDIR/$sql"
+	    #Remove sql & table
+	    for f in src/sql examples/pingpong examples/sqltable src/table examples/table; do
+		[ -d "$PLATDIR/$f" ] && rm -rf "$PLATDIR/$f"
 	    done
 	    #move xml stuff into designer directory TBD
-	    #remove table
-	    [ -d "$PLATDIR/src/table" ] && rm -rf "$PLATDIR/src/table"
 	    ;;
 	esac
 	rm -rf "$PLATDIR/examples/kiosk"
