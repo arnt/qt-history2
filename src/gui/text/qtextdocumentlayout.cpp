@@ -514,6 +514,8 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPoint &offset, QPainter *pa
 
     r.moveBy(-fontMetrics.width(" "), 0);
 
+    painter->save();
+
     if (selection.type() == QTextLayout::Highlight
         && (selection.from() + selection.length() > 0)
         && (selection.from() < 1)) {
@@ -547,9 +549,12 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPoint &offset, QPainter *pa
             painter->setBrush(Qt::NoBrush);
             break;
         case QTextListFormat::ListStyleUndefined:
-            return;
-        default: return;
+            break;
+        default:
+            break;
     }
+
+    painter->restore();
 }
 
 
