@@ -443,7 +443,7 @@ bool QDateTimeEditor::event( QEvent *e )
     if ( e->type() == QEvent::FocusIn || e->type() == QEvent::FocusOut ) {
  	if ( e->type() == QEvent::FocusOut )
   	    qApp->sendEvent( cw, e );
-	repaint( rect(), FALSE);
+	update( rect() );
     } else if ( e->type() == QEvent::AccelOverride ) {
 	QKeyEvent* ke = (QKeyEvent*) e;
 	switch ( ke->key() ) {
