@@ -1173,7 +1173,7 @@ void Resource::saveItems( QObject *obj, QTextStream &ts, int indent )
 	}
 	saveItem( lv->firstChild(), ts, indent - 1 );
     }
-#ifndef QT_NO_TABLE
+#if !defined (QT_NO_TABLE) && !defined (QT_NO_SQL)
     else if ( ::qt_cast<QTable*>(obj) ) {
 	QTable *table = (QTable*)obj;
 	int i;

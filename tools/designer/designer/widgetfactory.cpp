@@ -1327,7 +1327,7 @@ void WidgetFactory::initChangedProperties( QObject *o )
 	MetaDataBase::setPropertyChanged( o, "itemIconSet", TRUE );
 	MetaDataBase::setPropertyChanged( o, "itemToolTip", TRUE );
 	MetaDataBase::setPropertyChanged( o, "itemBackgroundMode", TRUE );
-#ifndef QT_NO_TABLE
+#if !defined (QT_NO_TABLE) && !defined(QT_NO_SQL)
     } else if ( ::qt_cast<QTable*>(o) && !::qt_cast<QDataTable*>(o) ) {
 	MetaDataBase::setPropertyChanged( o, "numRows", TRUE );
 	MetaDataBase::setPropertyChanged( o, "numCols", TRUE );

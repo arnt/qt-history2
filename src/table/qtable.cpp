@@ -42,7 +42,10 @@
 
 static bool qt_update_cell_widget = TRUE;
 static bool qt_table_clipper_enabled = TRUE;
-QM_EXPORT_TABLE void qt_set_table_clipper_enabled( bool enabled )
+#ifndef QT_INTERNAL_TABLE
+QM_EXPORT_TABLE
+#endif
+void qt_set_table_clipper_enabled( bool enabled )
 {
     qt_table_clipper_enabled = enabled;
 }
@@ -6639,7 +6642,7 @@ bool QTableHeader::doSelection( QMouseEvent *e )
 	    table->blockSignals( b );
 	}
 	saveStates();
-	
+
 	if ( table->selectionMode() != QTable::NoSelection ) {
 	    startPos = p;
 	    QTableSelection *oldSelection = table->currentSel;
