@@ -1181,7 +1181,10 @@ void QWidget::showMinimized()
 	    clearWState( WState_Visible );
 	    sendHideEventsToChildren(TRUE);
 	}
+    } else {
+	show();
     }
+
     QEvent e( QEvent::ShowMinimized );
     QApplication::sendEvent( this, &e );
     clearWState( WState_Maximized );
@@ -1921,7 +1924,7 @@ CGContextRef QWidget::macCGContext(bool do_children) const
 */
 uint QWidget::clippedSerial(bool do_children)
 {
-    return do_children ? extra->child_serial : extra->clip_serial;
+    return do_children ? extra->clip_serial : extra->child_serial;
 }
 
 /*!

@@ -557,11 +557,12 @@ bool QRegion::operator==(const QRegion &r) const
 {
     if(data == r.data)
 	return TRUE;
-    if(data->is_rect || r.data->is_rect) {
-	if(data->is_rect && r.data->is_rect)
-	    return data->rect == r.data->rect;
-	return FALSE;
-    }
+    if(data->is_rect && r.data->is_rect)
+	return data->rect == r.data->rect;
+    if(data->is_rect)
+	((QRegion *)this)->rectifyRegion();
+    if(r.data->is_rect)
+	((QRegion *)&r)->rectifyRegion();
     return EqualRgn(data->rgn, r.data->rgn);
 }
 
