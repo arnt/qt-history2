@@ -589,22 +589,6 @@ static XTrapezoid QT_FASTCALL toXTrapezoid(XFixed y1, XFixed y2, const QEdge &le
     return trap;
 }
 
-static XTrapezoid QT_FASTCALL toXTrapezoidRound(XFixed y1, XFixed y2, const QEdge &left, const QEdge &right)
-{
-    XTrapezoid trap;
-    trap.top = y1;
-    trap.bottom = y2;
-    trap.left.p1.y = IntToXFixed(qRound(left.p1.y()));
-    trap.left.p2.y = IntToXFixed(qRound(left.p2.y()));
-    trap.right.p1.y = IntToXFixed(qRound(right.p1.y()));
-    trap.right.p2.y = IntToXFixed(qRound(right.p2.y()));
-    trap.left.p1.x = qrealToXFixed(left.p1.x());
-    trap.left.p2.x = qrealToXFixed(left.p2.x());
-    trap.right.p1.x = qrealToXFixed(right.p1.x());
-    trap.right.p2.x = qrealToXFixed(right.p2.x());
-    return trap;
-}
-
 #ifdef QT_DEBUG_TESSELATOR
 static void dump_edges(const QList<const QEdge *> &et)
 {
@@ -628,7 +612,7 @@ static void dump_trap(const XTrapezoid &t)
 
 
 static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, int pgSize,
-                                 bool winding, bool do_rounding)
+                                 bool winding)
 {
     QVector<QEdge> edges;
     edges.reserve(128);
@@ -759,13 +743,9 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, 
 	}
 
         XFixed yf, next_yf;
-        if (do_rounding) {
-            yf = qrealToXFixed(qRound(y));
-            next_yf = qrealToXFixed(qRound(next_y));
-        } else {
-            yf = qrealToXFixed(y);
-            next_yf = qrealToXFixed(next_y);
-        }
+        yf = qrealToXFixed(y);
+        next_yf = qrealToXFixed(next_y);
+
         if (yf == next_yf) {
             y = currentY = next_y;
             continue;
@@ -804,19 +784,12 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, 
                 }
                 if (!left || !right)
                     break;
-                if (do_rounding)
-                    traps->append(toXTrapezoidRound(yf, next_yf, *left, *right));
-                else
-                    traps->append(toXTrapezoid(yf, next_yf, *left, *right));
+                traps->append(toXTrapezoid(yf, next_yf, *left, *right));
             }
         } else {
             // odd-even fill rule
-            if (do_rounding)
-                for (int i = 0; i < isects.size()-2; i += 2)
-                    traps->append(toXTrapezoidRound(yf, next_yf, *isects[i].edge, *isects[i+1].edge));
-            else
-                for (int i = 0; i < isects.size()-2; i += 2)
-                    traps->append(toXTrapezoid(yf, next_yf, *isects[i].edge, *isects[i+1].edge));
+            for (int i = 0; i < isects.size()-2; i += 2)
+                traps->append(toXTrapezoid(yf, next_yf, *isects[i].edge, *isects[i+1].edge));
         }
 	y = currentY = next_y;
     }
@@ -1435,20 +1408,19 @@ void QX11PaintEngine::drawPolygon(const QPointF *polygonPoints, int pointCount, 
             src = d->xft_hd ? XftDrawSrcPicture(d->xft_hd, &xfc) : 0;
 
             if (src && dst) {
-                XRenderPictureAttributes attrs;
-                attrs.poly_edge = smooth_edges ? PolyEdgeSmooth : PolyEdgeSharp;
-                XRenderChangePicture(d->dpy, dst, CPPolyEdge, &attrs);
-
                 int cCount;
                 qt_float_point *cPoints;
                 d->floatClipper.clipPolygon((qt_float_point *)polygonPoints, pointCount, &cPoints, &cCount);
                 if (cCount > 0) {
                     QVector<XTrapezoid> traps;
                     traps.reserve(128);
-                    qt_tesselate_polygon(&traps, (QPointF *)cPoints, cCount, mode == WindingMode,
-                                         smooth_edges);
+                    qt_tesselate_polygon(&traps, (QPointF *)cPoints, cCount, mode == WindingMode);
 
-                    XRenderCompositeTrapezoids(d->dpy, PictOpOver, src, dst, 0,
+                    XRenderPictureAttributes attrs;
+                    attrs.poly_edge = smooth_edges ? PolyEdgeSmooth : PolyEdgeSharp;
+                    XRenderChangePicture(d->dpy, dst, CPPolyEdge, &attrs);
+                    XRenderCompositeTrapezoids(d->dpy, PictOpOver, src, dst,
+                                               XRenderFindStandardFormat(d->dpy, PictStandardA8),
                                                x_offset, 0, traps.constData(), traps.size());
                 }
             }
