@@ -31,6 +31,7 @@ tools {
 		  $$TOOLS_H/qintdict.h \
 		  $$TOOLS_H/qiodevice.h \
 		  $$TOOLS_H/qlibrary.h \
+		  $$TOOLS_H/qlibrary_p.h \
 		  $$TOOLS_H/qptrlist.h \
 		  $$TOOLS_H/qmap.h \
 		  $$TOOLS_H/qpluginmanager.h \
@@ -55,16 +56,19 @@ tools {
 	win32:SOURCES += $$TOOLS_CPP/qdir_win.cpp \
 	 	  $$TOOLS_CPP/qfile_win.cpp \
 		  $$TOOLS_CPP/qfileinfo_win.cpp \
+		  $$TOOLS_CPP/qlibrary_win.cpp \
 		  $$TOOLS_CPP/qsettings_win.cpp
 
         offmac:SOURCES += $$TOOLS_CPP/qdir_mac.cpp \
 		  $$TOOLS_CPP/qfile_mac.cpp \
 		  $$TOOLS_CPP/qfileinfo_mac.cpp \
+		  $$TOOLS_CPP/qlibrary_mac.cpp \
 		  $$TOOLS_CPP/qsettings_unix.cpp
 
 	!offmac:unix:SOURCES += $$TOOLS_CPP/qdir_unix.cpp \
 		  $$TOOLS_CPP/qfile_unix.cpp \
 		  $$TOOLS_CPP/qfileinfo_unix.cpp \
+		  $$TOOLS_CPP/qlibrary_unix.cpp \
 		  $$TOOLS_CPP/qsettings_unix.cpp
 
 	SOURCES += $$TOOLS_CPP/qbitarray.cpp \
