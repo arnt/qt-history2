@@ -713,19 +713,16 @@ void QListViewItem::startRename()
     r = QRect( lv->viewportToContents( r.topLeft() ), r.size() );
     r.setLeft( r.left() + lv->itemMargin() + ( depth() + ( lv->rootIsDecorated() ? 1 : 0 ) ) * lv->treeStepSize() - 1 );
     r.setRight( lv->header()->sectionSize( 0 ) - 1 );
-    QVBox *box = new QVBox( lv->viewport() );
-    box->setFrameStyle( QFrame::Box | QFrame::Plain );
-    box->setBackgroundMode( QWidget::PaletteBase );
-    renameBox = new QLineEdit( box );
-    renameBox->setFrame( FALSE );
+    renameBox = new QLineEdit( lv->viewport() );
+    renameBox->setFrameStyle( QFrame::Box | QFrame::Plain );
     renameBox->setText( text( col ) );
     renameBox->selectAll();
     renameBox->installEventFilter( lv );
-    lv->addChild( box, r.x(), r.y() - 2 );
-    box->resize( r.size() + QSize( 0, 4 ) );
+    lv->addChild( renameBox, r.x(), r.y() );
+    renameBox->resize( r.size() );
     lv->viewport()->setFocusProxy( renameBox );
     renameBox->setFocus();
-    box->show();
+    renameBox->show();
 }
 
 /*! This function is called after the user renamed this item in-place
@@ -752,7 +749,7 @@ void QListViewItem::cancelRename()
     if ( !lv || !renameBox )
 	return;
     bool resetFocus = lv->viewport()->focusProxy() == renameBox;
-    delete renameBox->parentWidget();
+    delete renameBox;
     renameBox = 0;
     if ( resetFocus ) {
 	lv->viewport()->setFocusProxy( lv );
