@@ -9,26 +9,18 @@
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
-** This file may be distributed under the terms of the Q Public License
-** as defined by Trolltech AS of Norway and appearing in the file
-** LICENSE.QPL included in the packaging of this file.
-**
-** This file may be distributed and/or modified under the terms of the
-** GNU General Public License version 2 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.
-**
 ** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
-** licenses for Unix/X11/FIXME may use this file in accordance with the Qt Commercial
+** licenses for Macintosh may use this file in accordance with the Qt Commercial
 ** License Agreement provided with the Software.
+**
+** This file is not available for use under any other license without
+** express written permission from the copyright holder.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
 **   information about Qt Commercial License Agreements.
-** See http://www.trolltech.com/qpl/ for QPL licensing information.
-** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
 ** Contact info@trolltech.com if any conditions of this licensing are
 ** not clear to you.
@@ -1195,7 +1187,6 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
     }
 }
 
-
 void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 {
     if ( !isActive() )
@@ -1230,7 +1221,6 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
     updatePen();
     FrameArc(&bounds,a/16,alen/16);
 }
-
 
 void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
 {
@@ -1301,14 +1291,11 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
     }
 }
 
-
 // FIXME: Implement this
 void QPainter::drawChord( int, int, int, int, int, int )
 {
 }
 
-
-// FIXME: Support dash lines?
 void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 {
     if ( nlines < 0 )
@@ -1453,7 +1440,6 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
     }
     drawPolyInternal(pa,true);
 }
-
 
 // FIXME: Implement this
 void QPainter::drawCubicBezier( const QPointArray &, int )
