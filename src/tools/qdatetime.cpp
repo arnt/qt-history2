@@ -42,13 +42,7 @@
 #include <time.h>
 #include <qregexp.h>
 #if defined(Q_OS_WIN32)
-#if defined(Q_CC_BOOLDEF)
-#undef	bool
 #include <windows.h>
-#define bool int
-#else
-#include <windows.h>
-#endif
 #elif defined(Q_OS_MSDOS)
 #include <dos.h>
 #elif defined(Q_OS_OS2)

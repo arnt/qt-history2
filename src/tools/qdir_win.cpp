@@ -45,13 +45,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#if defined(Q_CC_BOOLDEF)
-#undef	bool
 #include <windows.h>
-#define bool int
-#else
-#include <windows.h>
-#endif
 #include <direct.h>
 #include <tchar.h>
 

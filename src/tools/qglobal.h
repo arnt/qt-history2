@@ -317,19 +317,14 @@
 // Useful type definitions for Qt
 //
 
-#if defined(bool) // ### What's this???
+#if defined(bool)
 #  define Q_HAS_BOOL_TYPE
 #elif _MSC_VER >= 1100 || __BORLANDC__ >= 0x500
 #  define Q_HAS_BOOL_TYPE
 #endif
 
 #if !defined(Q_HAS_BOOL_TYPE)
-#  if defined(Q_CC_MSVC)
-#    define Q_CC_BOOLDEF
-#    define bool int
-#  else
 enum { false, true } bool;
-#  endif
 #endif
 
 typedef unsigned char	uchar;
