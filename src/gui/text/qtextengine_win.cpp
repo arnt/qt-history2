@@ -448,7 +448,7 @@ static inline QFont::Script scriptForWinLanguage(DWORD langid)
 
 static inline bool isAsian(unsigned short ch)
 {
-    return (ch > 0x2dff && ch < 0xfb00) || ((ch & 0xff00) == 0x1100);
+    return (ch > 0x2dff) || ((ch & 0xff00) == 0x1100);
 }
 
 
