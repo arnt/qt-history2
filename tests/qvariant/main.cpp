@@ -171,41 +171,41 @@ int main( int argc, char** argv )
 
     QVariant v;
     {
-    v.setBoolValue( TRUE );
+    v = QVariant( TRUE );
     ASSERT( v.canCast( QVariant::Double ) && v.canCast( QVariant::Int ) && v.canCast( QVariant::UInt ) && v.canCast( QVariant::Bool ) );
     ASSERT( v.toDouble() == 1.0 );
     ASSERT( v.toInt() == 1 );
     ASSERT( v.toUInt() == 1 );
-    v.setBoolValue( FALSE );
+    v = QVariant( FALSE );
     ASSERT( v.toDouble() == 0.0 );
     ASSERT( v.toInt() == 0 );
     ASSERT( v.toUInt() == 0 );
 	
-    v.setValue( 5.3 );
+    v = QVariant( 5.3 );
     ASSERT( v.canCast( QVariant::Double ) && v.canCast( QVariant::Int ) && v.canCast( QVariant::UInt ) && v.canCast( QVariant::Bool ) );
     ASSERT( v.toBool() == TRUE );
     ASSERT( v.toInt() == 5 );
     ASSERT( v.toUInt() == 5 );
-    v.setValue( 0.0 );
+    v = QVariant( 0.0 );
     ASSERT( v.toBool() == FALSE );
 
-    v.setValue( (int)5 );
+    v = QVariant( (int)5 );
     ASSERT( v.canCast( QVariant::Double ) && v.canCast( QVariant::Int ) && v.canCast( QVariant::UInt ) && v.canCast( QVariant::Bool ) );
     ASSERT( v.toBool() == TRUE );
     ASSERT( v.toDouble() == 5 );
     ASSERT( v.toUInt() == 5 );
-    v.setValue( (int)0 );
+    v = QVariant( (int)0 );
     ASSERT( v.toBool() == FALSE );
 
-    v.setValue( (uint)5 );
+    v = QVariant( (uint)5 );
     ASSERT( v.canCast( QVariant::Double ) && v.canCast( QVariant::Int ) && v.canCast( QVariant::UInt ) && v.canCast( QVariant::Bool ) );
     ASSERT( v.toBool() == TRUE );
     ASSERT( v.toDouble() == 5 );
     ASSERT( v.toInt() == 5 );
-    v.setValue( (uint)0 );
+    v = QVariant( (uint)0 );
     ASSERT( v.toBool() == FALSE );
 
-    v.setValue( "Hallo" );
+    v = QVariant( "Hallo" );
     ASSERT( v.canCast( QVariant::String ) && v.canCast( QVariant::CString ) );
     ASSERT( v.toString() == "Hallo" );
     ASSERT( v.toCString() == "Hallo" );
@@ -213,7 +213,7 @@ int main( int argc, char** argv )
     QValueList<QVariant> vl;
     vl.append( QVariant( "Torben" ) );
     vl.append( QVariant( "Weis" ) );
-    v.setValue( vl );
+    v = QVariant( vl );
     ASSERT( v.toList().count() == 2 );
     ASSERT( v.toList()[0].toString() == "Torben" );
     ASSERT( v.toList()[1].toString() == "Weis" );
@@ -224,14 +224,14 @@ int main( int argc, char** argv )
     qDebug("StringList count = %i", sl.count() );
     ASSERT( sl.count() == 2 && sl[0] == "Torben" && sl[1] == "Weis" );
     vl.append( QVariant( 5 ) );
-    v.setValue( vl );
+    v = QVariant( vl );
     ASSERT( v.canCast( QVariant::List ) );
     ASSERT( !v.canCast( QVariant::StringList ) );
 	
     sl.clear();
     sl.append( "Troll" );
     sl.append( "Tech" );
-    v.setValue( sl );
+    v = QVariant( sl );
     ASSERT( v.canCast( QVariant::StringList ) && v.canCast( QVariant::List ) );
     vl = v.toList();
     ASSERT( vl.count() == 2 && vl[0].toString() == "Troll" && vl[1].toString() == "Tech" );
@@ -242,7 +242,7 @@ int main( int argc, char** argv )
     {
     MyValue* p = new MyValue;
     ASSERT( count == 1 );
-    v.setValue( p, type );
+    v = QVariant( p, type );
     ASSERT( count == 2 );
     delete p;
     ASSERT( count == 1 );
@@ -254,7 +254,7 @@ int main( int argc, char** argv )
 	
     {
     MyValue* p = new MyValue;
-    v.setValue( p, type );
+    v = QVariant( p, type );
     delete p;
     p = (MyValue*)v.toCustom( type2 );
     ASSERT( p == 0 );
@@ -271,7 +271,7 @@ int main( int argc, char** argv )
     Complex c;
     c.r = 5.4;
     c.i = -3.2;
-    v.setValue( ComplexValue( c ) );
+    v = QVariant( ComplexValue( c ) );
     ComplexValue cv = v;
     ASSERT( cv->r == 5.4 && cv->i == -3.2 );
 
@@ -297,16 +297,16 @@ int main( int argc, char** argv )
     ASSERT( v.canCast( QVariant::Double ) );
     ASSERT( !v.canCast( QVariant::Int ) );
     ASSERT( v.toDouble() == 5.4 );
-    v.setValue( (int)5 );
+    v = QVariant( (int)5 );
     ComplexValue cv = v;
     ASSERT( !cv.isNull() && cv->r == 5.0 && cv->i == 0.0 );
-    v.setValue( (uint)6 );
+    v = QVariant( (uint)6 );
     cv = v;
     ASSERT( !cv.isNull() && cv->r == 6.0 && cv->i == 0.0 );
-    v.setValue( 7.8 );
+    v = QVariant( 7.8 );
     cv = v;
     ASSERT( !cv.isNull() && cv->r == 7.8 && cv->i == 0.0 );
-    v.setValue( "Hallo" );
+    v = QVariant( "Hallo" );
     cv = v;
     ASSERT( cv.isNull() );
     ASSERT( !v.canCast( ComplexType::type() ) );
@@ -321,7 +321,7 @@ int main( int argc, char** argv )
 	Complex c;
 	c.r = 5.4;
 	c.i = -3.2;
-	v.setValue( ComplexValue( c ) );
+	v = QVariant( ComplexValue( c ) );
 	ASSERT( v.canCast( vectype ) );
 	ASSERT( !v.canCast( type ) );
 	Vector* vec = (Vector*)v.toCustom( vectype );
@@ -337,7 +337,7 @@ int main( int argc, char** argv )
 	Vector vec;
 	vec.v1 = 123.4;
 	vec.v2 = 432.1;
-	v.setValue( &vec, vectype );
+	v = QVariant( &vec, vectype );
 	ASSERT( v.customType() == vectype );
 	ASSERT( ((Vector*)v.asCustom())->v1 == 123.4 && ((Vector*)v.asCustom())->v2 == 432.1 );
 	ComplexValue cv( v );
@@ -352,13 +352,20 @@ int main( int argc, char** argv )
 	ASSERT( v.asStringList().isEmpty() );
 	v.asStringList().append( "Hallo" );
 	v.asStringList().append( "Welt" );
+
+	QStringList::ConstIterator it = v.stringListBegin();
+	QStringList::ConstIterator end = v.stringListEnd();
+	ASSERT( *it == "Hallo" );
+	++it;
+	ASSERT( *it == "Welt" );
+	++it;
+	ASSERT( it == end );
+
 	ASSERT( v.asStringList().count() == 2 );
 	ASSERT( v.asList().count() == 2 && v.asList()[0].toString() == "Hallo" );
 	
-	const QVariant& con = v;
-	con.asStringList(); // This must print out a warning
 	
-	v.setValue( 6 );
+	v = QVariant( 6 );
 	v.asInt() += 4;
 	ASSERT( v.toInt() == 10 );
 	
