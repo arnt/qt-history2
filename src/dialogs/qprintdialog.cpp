@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#21 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#22 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -34,7 +34,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#21 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#22 $");
 
 
 struct QPrintDialogPrivate
@@ -561,8 +561,8 @@ QGroupBox * QPrintDialog::setupOptions()
 	     this, SLOT(setNumCopies(int)) );
 
     QSize s = d->firstPageLabel->sizeHint()
-	      .max( d->lastPageLabel->sizeHint() )
-	      .max( l->sizeHint() );
+	      .expandedTo( d->lastPageLabel->sizeHint() )
+	      .expandedTo( l->sizeHint() );
     d->firstPageLabel->setMinimumSize( s );
     d->lastPageLabel->setMinimumSize( s );
     l->setMinimumSize( s.width() + 19, s.height() );
