@@ -670,7 +670,7 @@ QDir QFileInfo::dir(bool absPath) const
 #endif //QT_NO_DIR
 
 /*!
-    Returns true if the user can write to the file; otherwise returns false.
+    Returns true if the user can read the file; otherwise returns false.
 
     \sa isWritable(), isExecutable(), permission()
 */
@@ -684,7 +684,7 @@ QFileInfo::isReadable() const
 }
 
 /*!
-    Returns true if the file is writable; otherwise returns false.
+    Returns true if the user can write to the file; otherwise returns false.
 
     \sa isReadable(), isExecutable(), permission()
 */
