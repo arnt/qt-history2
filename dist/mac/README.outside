@@ -6,7 +6,7 @@ Due to long filenames, the release requires you to
 should drop to a Terminal (in Applications) and run:
 
 cd Directory_You_Unpacked_To
-gnutar xvf %DISTNAME%.tar
+gnutar xzvf %DISTNAME%.tar.gz
 
 After this please see the INSTALL file for further 
 documentation on properly installing Qt/Mac.
