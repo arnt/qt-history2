@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#370 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#371 $
 **
 ** Implementation of QWidget class
 **
@@ -1117,6 +1117,10 @@ QRegion QWidget::childrenRegion() const
 
   The widget cannot be resized to a smaller size than the minimum widget
   size.
+
+  If the returned minimum size equals (0,0) then it means that there are
+  no constraints on the minimum size. However, Qt does nevertheless not
+  allow to shrink widgets smaller than 1.
 
   \sa maximumWidth(), maximumHeight(), setMinimumSize(),
   maximumSize(), sizeIncrement()

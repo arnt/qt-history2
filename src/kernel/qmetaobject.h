@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.h#17 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.h#18 $
 **
 ** Definition of QMetaObject class
 **
@@ -68,6 +68,8 @@ private:
     char	*classname;			// class name
     char	*superclassname;		// super class name
     QMetaObject *superclass;			// super class meta object
+    void        *reservedForPropData;		// todo
+    void        *reservedForPropDict;		// todo
     QMetaData	*slotData;			// slot meta data
     QMemberDict *slotDict;			// slot dictionary
     QMetaData	*signalData;			// signal meta data
