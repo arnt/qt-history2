@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#65 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#66 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#65 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#66 $");
 
 
 /*!
@@ -1343,7 +1343,7 @@ void QComboBox::setMaxCount( int count )
   \sa setPolicy()
 */
 
-QComboBox::Policy QComboBox::policy() const
+QComboBox::Policy QComboBox::insertionPolicy() const
 {
     return d->p;
 }
@@ -1365,7 +1365,7 @@ QComboBox::Policy QComboBox::policy() const
   \sa policy()
 */
 
-void QComboBox::setPolicy( QComboBox::Policy policy )
+void QComboBox::setInsertionPolicy( QComboBox::Policy policy )
 {
     d->p = policy;
 }
@@ -1380,10 +1380,11 @@ void QComboBox::returnPressed()
 {
     const char * s = d->ed->text();
     if ( s ) {
-	switch ( policy() ) {
+	switch ( insertionPolicy() ) {
 	case AtCurrent:
 	    if ( qstrcmp( s, text( currentItem() ) ) ) {
 		changeItem( s, currentItem() );
+		emit activated( currentItem() );
 		emit activated( s );
 	    }
 	    break;
@@ -1391,12 +1392,14 @@ void QComboBox::returnPressed()
 	    if ( count() == d->maxCount )
 		removeItem( count() - 1 );
 	    insertItem( s, 0 );
+	    emit activated( count()-1 );
 	    emit activated( s );
 	    break;
 	case AtEnd:
 	    if ( count() == d->maxCount )
 		removeItem( 0 );
 	    insertItem( s );
+	    emit activated( 0 );
 	    emit activated( s );
 	    break;
 	case NoInsertion:
