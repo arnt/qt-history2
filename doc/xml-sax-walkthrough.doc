@@ -136,7 +136,7 @@ Successively we deal with all files given as command line arguments.
 The next step is to create an instance of the \e StructureParser. 
 
 \printline xmlFile
-\printuntil xmlFile.close
+\printline QXmlInputSource
 
 Then we create a
 \l QXmlInputSource for the XML file to be parsed. 
