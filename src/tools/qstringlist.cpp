@@ -149,17 +149,21 @@ QStringList QStringList::split( const QChar &sep, const QString &str,
     return split( QString(sep), str, allowEmptyEntries );
 }
 
-/*!
-  Splits the string \a str using \a sep as separator. Returns the
-  list of strings. If \a allowEmptyEntries is TRUE, also empty
-  entries are inserted into the list, else not. So if you have
-  a string 'abc..d.e.', a list which contains 'abc', 'd', and 'e'
-  would be returned if \a allowEmptyEntries is FALSE, but
-  a list containing 'abc', '', 'd', 'e' and '' would be returned if
-  \a allowEmptyEntries is TRUE.
-  If \a str doesn't contain \a sep, a stringlist
-  with one item, which is the same as \a str, is returned.
+/*! Splits the string \a str into strings where \a sep occurs, and
+  returns the list of those strings.
 
+  If \a allowEmptyEntries is TRUE, an empty string is inserted in the
+  list wherever the separator matches twice without intervening
+  text.
+  
+  For example, if you split the string "a,,b,c" on commas, split()
+  returns the three-item list "a", "b", "c" if \a allowEmptyEntries is
+  FALSE, and the four-item list "a", "", "b", "c" if \a
+  allowEmptyEntries is TRUE.
+
+  If \a sep does not match anywhere in \a str, split() returns a list
+  consisting of the single string \a str.
+  
   \sa join()
 */
 
@@ -172,6 +176,8 @@ QStringList QStringList::split( const QString &sep, const QString &str,
     int i = str.find( sep, j );
 
     while ( i != -1 ) {
+	if ( i == j ) // for separators that match zero-length strings
+	    i = str.find( sep, j+1 );
 	if ( str.mid( j, i - j ).length() > 0 )
 	    lst << str.mid( j, i - j );
 	else if ( allowEmptyEntries )
