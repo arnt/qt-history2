@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>929</width>
-            <height>605</height>
+            <height>608</height>
         </rect>
     </property>
     <property name="caption">
@@ -230,6 +230,10 @@
     <item text="&amp;Options" name="PopupMenu_4">
         <action name="actionFreezeEvents"/>
         <action name="actionGroupLogging"/>
+        <item text="Log..." name="actionGroupLogging_2" accel="">
+            <action name="actionLogSignals"/>
+            <action name="actionLogProperties"/>
+        </item>
     </item>
 </menubar>
 <toolbars>
@@ -305,6 +309,9 @@
             <iconset>image1</iconset>
         </property>
         <property name="text">
+            <string>Change Properties</string>
+        </property>
+        <property name="menuText">
             <string>Change &amp;Properties</string>
         </property>
         <property name="accel">
@@ -491,6 +498,9 @@
             <bool>false</bool>
         </property>
         <property name="text">
+            <string>Render to Pixmap</string>
+        </property>
+        <property name="menuText">
             <string>Render to Pi&amp;xmap</string>
         </property>
         <property name="accel">
