@@ -73,6 +73,14 @@
       v.typeName());
   \endcode
 
+  You can even have a QValueList<QVariant> stored in the variant - giving
+  arbitrarily complex data values with lists of variants,
+  some of which are strings while others
+  are integers and other still are lists of lists of lists of variants.
+  Of course, you'll need to be careful with your encapsulations or else
+  the typelessness will make your code look like spam, spam, spam,
+  baked beans and spam.
+
   You can find the type of a variant with type(). There is a special type,
   Invalid, which can be used for special cases. The isValid() function
   tests for this type.
@@ -88,6 +96,7 @@
   contain.  The supported enum values and the associated types are: <ul>
 
   <li> \c Invalid - no type
+  <li> \c List - a QValueList<QVariant>
   <li> \c String - a QString
   <li> \c StringList - a QStringList
   <li> \c IntList - a QValueList<int>
@@ -333,6 +342,15 @@ QVariant::QVariant( double val )
 }
 
 /*!
+  Constructs a new variant with a list value.
+*/
+QVariant::QVariant( const QValueList<QVariant>& val )
+{
+    typ = Invalid;
+    setValue( val );
+}
+
+/*!
   Assigns the value of some \a other variant to this variant.
   This is a deep copy.
 */
@@ -391,6 +409,9 @@ QVariant& QVariant::operator= ( const QVariant& other )
 	    break;
 	case IconSet:
 	    value.ptr = new QIconSet( other.toIconSet() );
+	    break;
+	case List:
+	    value.ptr = new QValueList<QVariant>( other.toList() );
 	    break;
 	case Int:
 	    value.i = other.toInt();
@@ -479,7 +500,7 @@ void QVariant::setValue( const QValueList<int>& val )
 /*!
   Changes the value of this variant to \a val.
   This function creates a copy of the list. This is very fast since
-  QStringList is implicit shared.
+  QValueList is implicit shared.
 */
 void QVariant::setValue( const QValueList<double>& val )
 {
@@ -631,6 +652,17 @@ void QVariant::setValue( double val )
 }
 
 /*!
+  Changes the value of this variant to \a val.
+  This function creates a copy of the list.
+*/
+void QVariant::setValue( const QValueList<QVariant>& val )
+{
+    clear();
+    typ = List;
+    value.ptr = new QValueList<QVariant>( val );
+}
+
+/*!
   De-allocate any used memory,
   based on the type, producing an Invalid variant.
 */
@@ -686,6 +718,9 @@ void QVariant::clear()
 	case IconSet:
 	    delete (QIconSet*)value.ptr;
 	    break;
+	case List:
+	    delete (QValueList<QVariant>*)value.ptr;
+	    break;
 	case Invalid:
 	case Int:
 	case Bool:
@@ -702,6 +737,7 @@ static const int ntypes = 20;
 static const char* type_map[ntypes] =
 {
     0,
+    "QValueList<QVariant>",
     "QString",
     "QStringList",
     "QValueList<int>",
@@ -761,6 +797,9 @@ void QVariant::load( QDataStream& s )
 	{
 	case Invalid:
 	    typ = t;
+	    break;
+	case List:
+	    { QValueList<QVariant> x; s >> x; setValue( x ); }
 	    break;
 	case String:
 	    { QString x; s >> x; setValue( x ); }
@@ -1158,3 +1197,15 @@ double QVariant::toDouble() const
 	return 0.0;
     return value.d;
 }
+
+/*!
+  Returns the variant as a QValueList<QVariant> if the variant has type()
+  List, or an empty list otherwise.
+*/
+QValueList<QVariant> QVariant::toList() const
+{
+    if ( typ != List )
+	return QValueList<QVariant>();
+    return *((QValueList<QVariant>*)value.ptr);
+}
+

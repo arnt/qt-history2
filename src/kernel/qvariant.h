@@ -58,6 +58,7 @@ class Q_EXPORT QVariant : public QShared
 public:
     enum Type {
 	Invalid,
+	List,
 	String,
 	StringList,
 	IntList,
@@ -77,7 +78,7 @@ public:
 	Bool,
 	Double,
 	CString,
-	NTypes = CString,
+	NTypes=CString,
 	Custom = 0x1000
     };
 
@@ -103,6 +104,7 @@ public:
     QVariant( const QPalette& );
     QVariant( const QColorGroup& );
     QVariant( const QIconSet& );
+    QVariant( const QValueList<QVariant>& );
     QVariant( int );
     QVariant( bool );
     QVariant( double );
@@ -126,6 +128,7 @@ public:
     void setValue( const QPalette& );
     void setValue( const QColorGroup& );
     void setValue( const QIconSet& );
+    void setValue( const QValueList<QVariant>& );
     void setValue( int );
     void setBoolValue( bool );
     void setValue( double );
@@ -154,6 +157,7 @@ public:
     int toInt() const;
     bool toBool() const;
     double toDouble() const;
+    QValueList<QVariant> toList() const;
 
     virtual void load( QDataStream& );
     virtual void save( QDataStream& ) const;

@@ -2096,6 +2096,9 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     typedef void (QObject::*ProtoStringList)( QStringList );
     typedef void (QObject::*RProtoStringList)( const QStringList& );
 
+    typedef void (QObject::*ProtoList)( QValueList<QVariant> );
+    typedef void (QObject::*RProtoList)( const QValueList<QVariant>& );
+
     QMetaObject* meta = queryMetaObject();
     if ( !meta )
 	return FALSE;
@@ -2414,6 +2417,21 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	else
 	    ASSERT( 0 );
 	return TRUE;
+
+    case QVariant::List:
+	if ( p->sspec == QMetaProperty::Class ) {
+	    ProtoList m;
+	    m = *((ProtoList*)&p->set);
+	    (this->*m)( value.toList() );
+	}
+	else if ( p->sspec == QMetaProperty::Reference ) {
+	    RProtoList m;
+	    m = *((RProtoList*)&p->set);
+	    (this->*m)( value.toList() );
+	}
+	else
+	    ASSERT( 0 );
+	return TRUE;
     }
 
     return FALSE;
@@ -2505,6 +2523,10 @@ QVariant QObject::property( const char *name ) const
     typedef QStringList (QObject::*ProtoStringList)() const;
     typedef const QStringList* (QObject::*PProtoStringList)() const;
     typedef const QStringList& (QObject::*RProtoStringList)() const;
+
+    typedef QValueList<QVariant> (QObject::*ProtoList)() const;
+    typedef const QValueList<QVariant>* (QObject::*PProtoList)() const;
+    typedef const QValueList<QVariant>& (QObject::*RProtoList)() const;
 
     QMetaObject* meta = queryMetaObject();
     if ( !meta )
@@ -2651,6 +2673,30 @@ QVariant QObject::property( const char *name ) const
 		value.setValue( *p );
 	    else
 		value.setValue( QStringList() );
+	}
+	else
+	    ASSERT( 0 );
+	return value;
+
+    case QVariant::List:
+	if ( p->gspec == QMetaProperty::Class ) {
+	    ProtoList m;
+	    m = *((ProtoList*)&p->get);
+	    value.setValue( (this->*m)() );
+	}
+	else if ( p->gspec == QMetaProperty::Reference ) {
+	    RProtoList m;
+	    m = *((RProtoList*)&p->get);
+	    value.setValue( (this->*m)() );
+	}
+	else if ( p->gspec == QMetaProperty::Pointer ) {
+	    PProtoList m;
+	    m = *((PProtoList*)&p->get);
+	    const QValueList<QVariant>* p = (this->*m)();
+	    if ( p )
+		value.setValue( *p );
+	    else
+		value.setValue( QValueList<QVariant>() );
 	}
 	else
 	    ASSERT( 0 );
