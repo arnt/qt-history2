@@ -368,7 +368,7 @@ internal software development.
 \section2    Is Qt Free Edition really free software in the GNU meaning of the
 word?
 
-Yes - it is free software both as in "free beer" and as in
+Yes - it is free software both as in "no cost" and as in
 "free speech". Even more, it is actually available under the
 terms of the GNU GPL. This means you can link GPL'ed software
 to it, and you can take code from Qt and put it into other
