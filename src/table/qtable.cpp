@@ -4311,34 +4311,26 @@ void QTable::updateHeaderAndResizeContents( QTableHeader *header,
 }
 
 void QTable::restoreContents( QPtrVector<QTableItem> &tmp,
-			      QPtrVector<QTable::TableWidget> &tmp2,
-			      int oldNum )
+			      QPtrVector<QTable::TableWidget> &tmp2 )
 {
     int i;
     for ( i = 0; i < (int)tmp.size(); ++i ) {
-	QTableItem *it = tmp [ i ];
-	int idx;
-	if ( oldNum == -1 )
-	    idx = it ? indexOf( it->row(), it->col() ) : 0;
-	else
-	    idx = it ? it->row() * oldNum + it->col() : 0;
-	if ( it && (uint)idx < contents.size() &&
-	     ( oldNum == -1 &&( !it || it->col() < numCols() ) ) ) {
-	    contents.insert( idx, it );
-	    it->setSpan( it->rowSpan(), it->colSpan() );
-	} else {
-	    delete it;
+	QTableItem *it = tmp[ i ];
+	if ( it ) {
+	    int idx =indexOf( it->row(), it->col() );
+	    if ( (uint)idx < contents.size() && it->row() < numRows() && it->col() < numCols() ) {
+		contents.insert( idx, it );
+		it->setSpan( it->rowSpan(), it->colSpan() );
+	    } else {
+		delete it;
+	    }
 	}
     }
     for ( i = 0; i < (int)tmp2.size(); ++i ) {
 	TableWidget *w = tmp2[ i ];
 	if ( w ) {
-	    int idx;
-	    if ( oldNum == -1 )
-		idx = indexOf( w->row, w->col );
-	    else
-		idx = w->row * oldNum + w->col;
-	    if ( (uint)idx < widgets.size() )
+	    int idx = indexOf( w->row, w->col );
+	    if ( (uint)idx < widgets.size() && w->row < numRows() && w->col < numCols() )
 		widgets.insert( idx, w->wid );
 	    else
 		delete w->wid;
@@ -4384,7 +4376,7 @@ void QTable::setNumRows( int r )
     if ( VERTICALMARGIN > 0 && w > VERTICALMARGIN )
 	setLeftMargin( w );
 
-    restoreContents( tmp, tmp2, -1 );
+    restoreContents( tmp, tmp2 );
 
     finishContentsResze( updateBefore );
     leftHeader->setUpdatesEnabled( isUpdatesEnabled );
@@ -4405,10 +4397,9 @@ void QTable::setNumCols( int c )
     topHeader->setUpdatesEnabled( FALSE );
 
     bool updateBefore;
-    int nc = numCols();
     updateHeaderAndResizeContents( topHeader, numCols(), c, 100, updateBefore );
 
-    restoreContents( tmp, tmp2, nc );
+    restoreContents( tmp, tmp2 );
 
     finishContentsResze( updateBefore );
     topHeader->setUpdatesEnabled( isUpdatesEnabled );

@@ -484,8 +484,7 @@ private:
 					int num, int colRow,
 					int width, bool &updateBefore );
     void restoreContents( QPtrVector<QTableItem> &tmp,
-			  QPtrVector<TableWidget> &tmp2,
-			  int oldNum );
+			  QPtrVector<TableWidget> &tmp2 );
     void finishContentsResze( bool updateBefore );
 
 private:
