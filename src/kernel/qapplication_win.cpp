@@ -373,6 +373,7 @@ public:
     void	clearWFlags( WFlags f ) { QWidget::clearWFlags(f); }
     QWExtra    *xtra()			{ return QWidget::extraData(); }
     bool	winEvent( MSG *m )	{ return QWidget::winEvent(m); }
+    void	markFrameStrutDirty()	{ QWidget::fstrut_dirty = 1; }
     bool	translateMouseEvent( const MSG &msg );
     bool	translateKeyEvent( const MSG &msg, bool grab );
     bool	translateWheelEvent( const MSG &msg );
@@ -1546,8 +1547,15 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 
     case WM_SETTINGCHANGE:
 	// ignore spurious XP message when user logs in again after locking
-	if ( QApplication::desktopSettingsAware() && wParam != SPI_SETWORKAREA )
+	if ( QApplication::desktopSettingsAware() && wParam != SPI_SETWORKAREA ) {
+	    QWidgetList *twl = qApp->topLevelWidgets();
+	    QETWidget *w = (QETWidget *) twl->first();
+	    while ( w ) {
+		w->markFrameStrutDirty();
+		w = (QETWidget *) twl->next();
+	    }
 	    qt_set_windows_resources();
+	}
 	break;
     case WM_SYSCOLORCHANGE:
 	if ( QApplication::desktopSettingsAware() )
