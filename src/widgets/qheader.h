@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.h#16 $
+** $Id: //depot/qt/main/src/widgets/qheader.h#17 $
 **
 ** Definition of QHeader widget class (table header)
 **
@@ -57,7 +57,7 @@ public slots:
 
 signals:
     void	sectionClicked( int );
-    void	sizeChange( int section, int newSize );
+    void	sizeChange( int section, int oldSize, int newSize );
     void	moved( int from, int to );
 protected:
     //    void	timerEvent( QTimerEvent * );
@@ -87,9 +87,12 @@ private:
 
     int 	findLine( int );
 
+    void	handleColumnResize(int, int, bool);
+
     void	moveAround( int fromIdx, int toIdx );
 
     int		handleIdx;
+    int		oldHIdxSize;
     int		moveToIdx;
     enum State { Idle, Sliding, Pressed, Moving };
     State	state;

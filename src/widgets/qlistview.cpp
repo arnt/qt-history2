@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#77 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#78 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#77 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#78 $");
 
 
 const int Unsorted = 32767;
@@ -1056,13 +1056,14 @@ QListView::QListView( QWidget * parent, const char * name )
     d->ascending = TRUE;
     d->allColumnsShowFocus = FALSE;
     d->fontMetricsHeight = fontMetrics().height();
+    d->h->setTracking(TRUE);
 
     connect( d->timer, SIGNAL(timeout()),
 	     this, SLOT(updateContents()) );
     connect( d->dirtyItemTimer, SIGNAL(timeout()),
 	     this, SLOT(updateDirtyItems()) );
-    connect( d->h, SIGNAL(sizeChange( int, int )),
-	     this, SLOT(triggerUpdate()) );
+    connect( d->h, SIGNAL(sizeChange( int, int, int )),
+	     this, SLOT(handleSizeChange( int, int, int )) );
     connect( d->h, SIGNAL(moved( int, int )),
 	     this, SLOT(triggerUpdate()) );
     connect( d->h, SIGNAL(sectionClicked( int )),
@@ -1561,6 +1562,12 @@ void QListView::show()
 
 void QListView::updateContents()
 {
+    updateGeometries();
+    viewport()->repaint( FALSE );
+}
+
+void QListView::updateGeometries()
+{
     int w = 0;
     for( int i=0; i<d->h->count(); i++ )
 	w += d->h->cellSize( i );
@@ -1570,7 +1577,27 @@ void QListView::updateContents()
     contentsResize( w, d->r->totalHeight(), FALSE );
     d->h->setGeometry( viewport()->x(), viewport()->y()-h,
 		       viewport()->width(), h );
-    viewport()->repaint( FALSE );
+}
+
+void QListView::handleSizeChange( int section, int oldSize, int newSize )
+{
+    updateGeometries();
+    int left;
+    int asection = d->h->mapToActual( section );
+    if ( newSize < oldSize ) {
+	// Smaller - draw sections after this one
+	if ( asection+1 < d->h->count() ) {
+	    left = d->h->cellPos(asection+1);
+	} else {
+	    left = d->h->cellPos(asection) + d->h->cellSize(asection);
+	}
+    } else {
+	// Bigger - draw new bit and sections after this one
+	left = oldSize + d->h->cellPos(asection);
+    }
+    left -= itemMargin(); // Account for previous column's highlighting.
+    viewport()->repaint( left, 0, viewport()->width()-left,
+			 viewport()->height(), FALSE );
 }
 
 
@@ -1626,7 +1653,6 @@ void QListView::triggerUpdate()
     }
    d->timer->start( 0, TRUE );
 }
-
 
 /*!  Redirects events for the viewport to mousePressEvent(),
   keyPressEvent() and friends. */

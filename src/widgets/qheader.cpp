@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#34 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -143,11 +143,11 @@ QHeader::~QHeader()
 */
 
 /*!
-  \fn void QHeader::sizeChange( int section, int newSize )
+  \fn void QHeader::sizeChange( int section, int oldSize, int newSize )
 
   This signal is emitted when the user has changed the size of some
   of the parts of the header. This signal is typically connected to a slot
-  that repaints the table.
+  that repaints the table. \a section is the logical section resized.
 */
 
 /*!
@@ -476,6 +476,7 @@ void QHeader::mousePressEvent( QMouseEvent *m )
 	if ( i+1 <= count() &&  pPos(i+1) - MINSIZE/2 < c &&
 	     c < pPos(i+1) + MINSIZE/2 ) {
 	    handleIdx = i+1;
+	    oldHIdxSize = cellSize( i );
 	    state = Sliding;
 	    break;
 	} else if ( pPos(i)  < c && c < pPos( i+1 ) ) {
@@ -502,10 +503,11 @@ void QHeader::mouseReleaseEvent( QMouseEvent *m )
 	if ( sRect( handleIdx ).contains( m->pos() ) )
 	    emit sectionClicked( handleIdx );
 	break;
-    case Sliding:
+    case Sliding: {
+	int s = orient == Horizontal ? m->pos().x() : m->pos().y();
 	// setCursor( arrowCursor ); // We're probably still there...
-	emit sizeChange( 0, 0 ); //######################################
-	break;
+	handleColumnResize( handleIdx, s, TRUE );
+	} break;
     case Moving: {
 	setCursor( arrowCursor );
 	if ( handleIdx != moveToIdx && moveToIdx != -1 ) {
@@ -561,38 +563,7 @@ void QHeader::mouseMoveEvent( QMouseEvent *m )
 	    }
 	    break;
 	case Sliding:
-	    if ( s > pPos(handleIdx-1) + MINSIZE ) {
-
-		int oldPos = pPos( handleIdx );
-		int delta = s - oldPos;
-		sizes[mapToLogical(handleIdx - 1)] += delta;
-		int repaintPos = QMIN( oldPos, s );
-		repaint(repaintPos-2, 0, width(), height());
-		/*
-		int us, uw;
-		if ( oldPos < s ) {
-		    us = oldPos;
-		    uw = s - oldPos;
-		    uw += 3; //#######
-		    us -= 3; //#######
-		} else {
-		    int w = ( orient == Horizontal ) ? width() : height();
-		    uw = (oldPos - s);
-		    us = w - uw;
-		    uw += 3; //#######
-		    us -= 3; //#######
-		}
-		if ( orient == Horizontal ) {
-		    bitBlt( this, s, 0, this, oldPos, 0 );
-		    repaint( us, 0, uw, height() );
-		} else {
-		    bitBlt( this, 0, s, this, 0, oldPos );
-		    repaint( 0, us, width(), uw );
-		}
-		*/
-		if ( tracking() )
-		    emit sizeChange( handleIdx - 1, pSize( handleIdx - 1 ) );
-	    }
+	    handleColumnResize( handleIdx, s, FALSE );
 	    break;
 	case Moving: {
 	    int newPos = findLine( s );
@@ -615,6 +586,24 @@ void QHeader::mouseMoveEvent( QMouseEvent *m )
 	    break;
 	}
     }
+}
+
+void QHeader::handleColumnResize( int handleIdx, int s, bool final )
+{
+    int lim = pPos(handleIdx-1) + MINSIZE;
+    if ( s == lim ) return;
+    if ( s < lim ) s = lim;
+    int oldPos = pPos( handleIdx );
+    int delta = s - oldPos;
+    int lIdx = mapToLogical(handleIdx - 1);
+    int oldSize = sizes[lIdx];
+    int newSize = sizes[lIdx] = oldSize + delta;
+    int repaintPos = QMIN( oldPos, s );
+    repaint(repaintPos-2, 0, width(), height());
+    if ( tracking() && oldSize != newSize )
+	emit sizeChange( lIdx, oldSize, newSize );
+    else if ( final && oldHIdxSize != newSize )
+	emit sizeChange( lIdx, oldHIdxSize, newSize );
 }
 
 /*!
