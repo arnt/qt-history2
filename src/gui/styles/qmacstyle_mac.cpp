@@ -1752,11 +1752,11 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             int xpos = contentRect.x() + 18;
             int checkcol = maxpmw;
             if (!enabled)
-                p->setPen(mi->palette.text());
+                p->setPen(mi->palette.text().color());
             else if (active)
-                p->setPen(mi->palette.highlightedText());
+                p->setPen(mi->palette.highlightedText().color());
             else
-                p->setPen(mi->palette.buttonText());
+                p->setPen(mi->palette.buttonText().color());
 
             if (mi->checked) {
                 // Use the HIThemeTextInfo foo to draw the check mark correctly, if we do it,
@@ -1857,11 +1857,11 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                                 cg,
                                 kHIThemeOrientationNormal, 0);
             if (ce == QStyle::CE_MenuTearoff) {
-                p->setPen(QPen(mi->palette.dark(), 1, Qt::DashLine));
+                p->setPen(QPen(mi->palette.dark().color(), 1, Qt::DashLine));
                 p->drawLine(mi->rect.x() + 2, mi->rect.y() + mi->rect.height() / 2 - 1,
                             mi->rect.x() + mi->rect.width() - 4,
                             mi->rect.y() + mi->rect.height() / 2 - 1);
-                p->setPen(QPen(mi->palette.light(), 1, Qt::DashLine));
+                p->setPen(QPen(mi->palette.light().color(), 1, Qt::DashLine));
                 p->drawLine(mi->rect.x() + 2, mi->rect.y() + mi->rect.height() / 2,
                             mi->rect.x() + mi->rect.width() - 4,
                             mi->rect.y() + mi->rect.height() / 2);
@@ -3377,11 +3377,11 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                 xpos += w - checkcol;
 
             if (dis)
-                p->setPen(mi->palette.text());
+                p->setPen(mi->palette.text().color());
             else if (act)
-                p->setPen(mi->palette.highlightedText());
+                p->setPen(mi->palette.highlightedText().color());
             else
-                p->setPen(mi->palette.buttonText());
+                p->setPen(mi->palette.buttonText().color());
 
             if (mi->checkType != QStyleOptionMenuItem::NotCheckable && mi->checked) {
                 ThemeDrawState menuTDS = tds;
@@ -3472,11 +3472,11 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
             qt_mac_set_port(p);
             DrawThemeMenuItem(&mrect, &irect, mrect.top, mrect.bottom, tms, tmit, 0, 0);
             if (ce == QStyle::CE_MenuTearoff) {
-                p->setPen(QPen(mi->palette.dark(), 1, Qt::DashLine));
+                p->setPen(QPen(mi->palette.dark().color(), 1, Qt::DashLine));
                 p->drawLine(mi->rect.x() + 2, mi->rect.y() + mi->rect.height() / 2 - 1,
                             mi->rect.x() + mi->rect.width() - 4,
                             mi->rect.y() + mi->rect.height() / 2 - 1);
-                p->setPen(QPen(mi->palette.light(), 1, Qt::DashLine));
+                p->setPen(QPen(mi->palette.light().color(), 1, Qt::DashLine));
                 p->drawLine(mi->rect.x() + 2, mi->rect.y() + mi->rect.height() / 2,
                             mi->rect.x() + mi->rect.width() - 4,
                             mi->rect.y() + mi->rect.height() / 2);
