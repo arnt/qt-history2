@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#67 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#68 $
 **
 ** Implementation of layout classes
 **
@@ -343,9 +343,10 @@ void QLayoutArray::addData ( QLayoutBox *box, bool r, bool c )
 
 static void distributeMultiBox( QArray<QLayoutStruct> &chain,
 				int start, int end,
-				int minSize, int sizeHint )
+				int minSize, int /*sizeHint*/ )
 {
     //###distribute the sizes somehow.
+    //####we ignore sizeHint, for now
     int i;
     int w = 0;
     bool exp = FALSE;
@@ -807,7 +808,7 @@ void QGridLayout::addMultiCell( QLayoutItem *item, int fromRow, int toRow,
     QLayoutBox *b = new QLayoutBox( item );
     b->setAlignment( align );
     array->add( b, fromRow, toRow, fromCol, toCol );
-    
+
 }
 
 
