@@ -724,15 +724,13 @@ QDataStream &operator>>( QDataStream &s, QOffset &o )
 {
     Q_UINT64 value;
     s >> value;
-#if defined(QT_LARGEFILE_SUPPORT)
-    o = value;
-#else
-    if ( value > INT_MAX ) {
+#if !defined(QT_LARGEFILE_SUPPORT)
+    if ( value > LONG_MAX ) {
 	qWarning("Large file offsets are not supported on this platform.");
-	o = INT_MAX;
+	o = LONG_MAX;
     } else
-	o = (Q_UINT32)value;
 #endif
+	o = (Q_ULONG)value;
     return s;
 }
 
