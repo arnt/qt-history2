@@ -57,7 +57,7 @@ public:
         AltModifier          = 0x08000000,
         MetaModifier         = 0x10000000,
         KeypadModifier       = 0x20000000,
-        KeyModiferMask       = 0xff000000
+        KeyboardModifierMask = 0xff000000
     };
     Q_DECLARE_FLAGS(KeyboardModifiers, KeyboardModifier)
 
@@ -90,8 +90,7 @@ public:
         AltButton       = Qt::AltModifier,
         MetaButton      = Qt::MetaModifier,
         Keypad          = Qt::KeypadModifier,
-        KeyButtonMask   = Qt::KeyModiferMask,
-        MouseButtonMask = Qt::MouseButtonMask
+        KeyButtonMask   = Qt::KeyboardModifierMask,
     };
     typedef int ButtonState;
 #endif
