@@ -9,10 +9,7 @@
 #include <qdial.h>
 #include <qframe.h>
 #include <qgroupbox.h>
-#include <qhbox.h>
-#include <qhbuttongroup.h>
 #include <qheader.h>
-#include <qhgroupbox.h>
 #include <qlabel.h>
 #include <qlcdnumber.h>
 #include <qlineedit.h>
@@ -37,9 +34,6 @@
 #include <qtextview.h>
 #include <qtoolbar.h>
 #include <qtoolbutton.h>
-#include <qvbox.h>
-#include <qvbuttongroup.h>
-#include <qvgroupbox.h>
 #include <qwidgetstack.h>
 
 #ifdef _WS_WIN_
@@ -104,10 +98,7 @@ QStringList QWidgetsInterface::featureList()
     list << "QDial";
     list << "QFrame";
     list << "QGroupBox";
-    list << "QHBox";
-    list << "QHButtonGroup";
     list << "QHeader";
-    list << "QHGroupBox";
     list << "QLabel";
     list << "QLCDNumber";
     list << "QLineEdit";
@@ -132,9 +123,6 @@ QStringList QWidgetsInterface::featureList()
     list << "QTextView";
     list << "QToolBar";
     list << "QToolButton";
-    list << "QVBox";
-    list << "QVButtonGroup";
-    list << "QVGroupBox";
     list << "QWidgetStack";
     list << "QWidget";    
 
@@ -156,14 +144,8 @@ QWidget* QWidgetsInterface::create( const QString &description, QWidget* parent,
 	w = new QFrame( parent, name );
     } else if ( description == "QGroupBox" ) {
 	w = new QGroupBox( parent, name );
-    } else if ( description == "QHBox" ) {
-	w = new QHBox( parent, name );
-    } else if ( description == "QHButtonGroup" ) {
-	w = new QHButtonGroup( parent, name );
     } else if ( description == "QHeader" ) {
 	w = new QHeader( parent, name );
-    } else if ( description == "QHGroupBox" ) {
-	w = new QHGroupBox( parent, name );
     } else if ( description == "QLabel" ) {
 	w = new QLabel( parent, name );
     } else if ( description == "QLCDNumber" ) {
@@ -217,12 +199,6 @@ QWidget* QWidgetsInterface::create( const QString &description, QWidget* parent,
 #endif
     } else if ( description == "QToolButton" ) {
 	w = new QToolButton( parent, name );
-    } else if ( description == "QVBox" ) {
-	w = new QVBox( parent, name );
-    } else if ( description == "QVButtonGroup" ) {
-	w = new QVButtonGroup( parent, name );
-    } else if ( description == "QVGroupBox" ) {
-	w = new QVGroupBox( parent, name );
     } else if ( description == "QWidgetStack" ) {
 	w = new QWidgetStack( parent, name );
     } else if ( description == "QWidget" ) {
@@ -251,14 +227,8 @@ QString QWidgetsInterface::group( const QString& description )
 	return "Containers";
     else if ( description == "QGroupBox" )
 	return "Containers";
-    else if ( description == "QHBox" )
-	return "Containers";
-    else if ( description == "QHButtonGroup" )
-	return "Containers";
     else if ( description == "QHeader" )
 	return "Decoration";
-    else if ( description == "QHGroupBox" )
-	return "Containers";
     else if ( description == "QLabel" )
 	return "Display";
     else if ( description == "QLCDNumber" )
@@ -307,12 +277,6 @@ QString QWidgetsInterface::group( const QString& description )
 	return "Containers";
     else if ( description == "QToolButton" )
 	return "Buttons";
-    else if ( description == "QVBox" )
-	return "Containers";
-    else if ( description == "QVButtonGroup" )
-	return "Containers";
-    else if ( description == "QVGroupBox" )
-	return "Containers";
     else if ( description == "QWidgetStack" )
 	return "Containers";
     else if ( description == "QWidget" )
@@ -340,14 +304,8 @@ QString QWidgetsInterface::includeFile( const QString& description )
 	return "Containers";
     else if ( description == "QGroupBox" )
 	return "Containers";
-    else if ( description == "QHBox" )
-	return "Containers";
-    else if ( description == "QHButtonGroup" )
-	return "Containers";
     else if ( description == "QHeader" )
 	return "Decoration";
-    else if ( description == "QHGroupBox" )
-	return "Containers";
     else if ( description == "QLabel" )
 	return "Display";
     else if ( description == "QLCDNumber" )
@@ -396,12 +354,6 @@ QString QWidgetsInterface::includeFile( const QString& description )
 	return "Containers";
     else if ( description == "QToolButton" )
 	return "Buttons";
-    else if ( description == "QVBox" )
-	return "Containers";
-    else if ( description == "QVButtonGroup" )
-	return "Containers";
-    else if ( description == "QVGroupBox" )
-	return "Containers";
     else if ( description == "QWidgetStack" )
 	return "Containers";
     else if ( description == "QWidget" )
@@ -424,14 +376,8 @@ QString QWidgetsInterface::toolTip( const QString& description )
 	return "Frame";
     else if ( description == "QGroupBox" )
 	return "Group Box";
-    else if ( description == "QHBox" )
-	return "Horizontal Box";
-    else if ( description == "QHButtonGroup" )
-	return "Horizontal Button Group";
     else if ( description == "QHeader" )
 	return "Header";
-    else if ( description == "QHGroupBox" )
-	return "Horizontal Group Box";
     else if ( description == "QLabel" )
 	return "Label";
     else if ( description == "QLCDNumber" )
@@ -480,12 +426,6 @@ QString QWidgetsInterface::toolTip( const QString& description )
 	return "Tool Bar";
     else if ( description == "QToolButton" )
 	return "Tool Button";
-    else if ( description == "QVBox" )
-	return "Vertical Box";
-    else if ( description == "QVButtonGroup" )
-	return "Vertical Button Group";
-    else if ( description == "QVGroupBox" )
-	return "Vertical Group Box";
     else if ( description == "QWidgetStack" )
 	return "Widget Stack";
     else if ( description == "QWidget" )
@@ -504,17 +444,11 @@ bool QWidgetsInterface::isContainer( const QString& description)
     if ( ( description == "QButtonGroup" ) ||
     ( description == "QFrame" ) ||
     ( description == "QGroupBox" ) ||
-    ( description == "QHBox" ) ||
-    ( description == "QHButtonGroup" ) ||
-    ( description == "QHGroupBox" ) ||
     ( description == "QMainWindow" ) ||
     ( description == "QScrollView" ) ||
     ( description == "QSplitter" ) ||
     ( description == "QTabWidget" ) ||
     ( description == "QToolBar" ) ||
-    ( description == "QVBox" ) ||
-    ( description == "QVButtonGroup" ) ||
-    ( description == "QVGroupBox" ) ||
     ( description == "QWidgetStack" ) ||
     ( description == "QWidget" ) )
 	return TRUE;
@@ -535,5 +469,3 @@ LIBEXPORT WidgetInterface* loadInterface()
 #if defined(__cplusplus)
 }
 #endif // __cplusplus
-
-
