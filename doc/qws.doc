@@ -217,7 +217,10 @@ Qt/Embedded supports four font formats:
  <li><b>Bitmap Distribution Format fonts (BDF)</b> - a standard format
 	    for non-scalable fonts. A large number of BDF fonts are
 	    supplied as part of standard X11 distributions - most of
-	    these can be used with Qt/Embedded.
+	    these can be used with Qt/Embedded. You should <em>not</em>
+	    use these in a production system: they are very slow to
+	    load and take up a <em>lot</em> of storage space. Instead,
+	    render the BDF to a QPF.
  <li><b>Qt Prerendered Font (QPF)</b> - a light-weight non-scalable font
 	    format specific to Qt/Embedded.
 </ul>
@@ -231,6 +234,11 @@ There is support in
 Qt/Embedded for writing a QPF font file from any font, thus you can
 initially enable TTF and BDF formats, save QPF files for the fonts and
 sizes you need, then remove TTF and BDF support.
+
+<p>
+See the <tt>tools/makeqpf</tt> for a tool that assists producing QPF files
+from the TTF and BDF, or just run your application with the <tt>-savefonts</tt>
+option.
 
 <h2>Memory requirements</h2>
 
