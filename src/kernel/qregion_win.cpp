@@ -295,13 +295,17 @@ QRegion QRegion::winCombine( const QRegion &r, int op ) const
     }
 
     QRegion result( FALSE );
+    int allCombineRgnResults = NULLREGION;
     result.data->rgn = CreateRectRgn( 0, 0, 0, 0 );
     if ( data->rgn && r.data->rgn )
-	CombineRgn( result.data->rgn, data->rgn, r.data->rgn, both );
+	allCombineRgnResults = CombineRgn( result.data->rgn, data->rgn, r.data->rgn, both );
     else if ( data->rgn && left != RGN_NOP )
-	CombineRgn( result.data->rgn, data->rgn, data->rgn, left ); // 3rd param not used, but must be non-0
+	allCombineRgnResults = CombineRgn( result.data->rgn, data->rgn, data->rgn, left ); // 3rd param not used, but must be non-0
     else if ( r.data->rgn && right != RGN_NOP )
-	CombineRgn( result.data->rgn, r.data->rgn, r.data->rgn, right ); // 3rd param not used, but must be non-0
+	allCombineRgnResults = CombineRgn( result.data->rgn, r.data->rgn, r.data->rgn, right ); // 3rd param not used, but must be non-0
+    if ( allCombineRgnResults == NULLREGION || allCombineRgnResults == ERROR )
+	result.data->is_null = TRUE;
+
     //##### do not delete this. A null pointer is different from an empty region in SelectClipRgn in qpainter_win! (M)
 //     if ( allCombineRgnResults == NULLREGION ) {
 // 	if ( result.data->rgn )
