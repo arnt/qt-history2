@@ -1262,7 +1262,7 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 		    position[i] = form(uc[i]);
 		    if (position[i] == Consonant)
 			lastConsonant = i;
-		    else if (position[i] == Matra)
+		    else if (matra < 0 && position[i] == Matra)
 			matra = i;
 		}
 	    }
@@ -1555,6 +1555,8 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	openType->applyGSUBFeature(FT_MAKE_TAG( 'p', 'r', 'e', 's' ));
 	openType->applyGSUBFeature(FT_MAKE_TAG( 'b', 'l', 'w', 's' ));
 	openType->applyGSUBFeature(FT_MAKE_TAG( 'a', 'b', 'v', 's' ));
+	if (script == QFont::Tamil)
+	    where[base] = true;
 	openType->applyGSUBFeature(FT_MAKE_TAG( 'p', 's', 't', 's' ), where);
 
 	// halant forms
@@ -1572,8 +1574,9 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	if ((script == QFont::Malayalam || script == QFont::Tamil) && (form(reordered[0]) == Matra)) {
 	    // need to find the base in the shaped string and move the matra there
 	    int basePos = 0;
-	    while (basePos < newLen && char_map[basePos] < base)
+	    while (basePos < newLen && char_map[basePos] <= base)
 		basePos++;
+	    --basePos;
 	    if (basePos < newLen && basePos > 1) {
 		IDEBUG("moving prebase matra to position %d in syllable newlen=%d", basePos, newLen);
 		unsigned short *g = openType->glyphs();
