@@ -800,7 +800,9 @@ void QTextCursor::applyBlockFormatModifier(const QTextBlockFormat &modifier)
         pos2 = d->position;
     }
 
-    d->pieceTable->setBlockFormat(pos1, pos2-pos1, modifier, QTextPieceTable::MergeFormat);
+    QTextBlockIterator from = d->pieceTable->blocksFind(pos1);
+    QTextBlockIterator to = d->pieceTable->blocksFind(pos2-1);
+    d->pieceTable->setBlockFormat(from, to, modifier, QTextPieceTable::MergeFormat);
 }
 
 /*!

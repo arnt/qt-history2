@@ -113,7 +113,8 @@ public:
     enum FormatChangeMode { MergeFormat, SetFormat };
 
     void setCharFormat(int pos, int length, const QTextCharFormat &newFormat, FormatChangeMode mode = SetFormat);
-    void setBlockFormat(int pos, int length, const QTextBlockFormat &newFormat, FormatChangeMode mode = SetFormat);
+    void setBlockFormat(const QTextBlockIterator &from, const QTextBlockIterator &to,
+			const QTextBlockFormat &newFormat, FormatChangeMode mode = SetFormat);
 
     void undoRedo(bool undo);
     inline void undo() { undoRedo(true); }

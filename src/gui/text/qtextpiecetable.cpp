@@ -402,7 +402,8 @@ void QTextPieceTable::setCharFormat(int pos, int length, const QTextCharFormat &
     emit contentsChanged();
 }
 
-void QTextPieceTable::setBlockFormat(int pos, int length, const QTextBlockFormat &newFormat, FormatChangeMode mode)
+void QTextPieceTable::setBlockFormat(const QTextBlockIterator &from, const QTextBlockIterator &to,
+				     const QTextBlockFormat &newFormat, FormatChangeMode mode)
 {
     truncateUndoStack();
 
@@ -410,28 +411,21 @@ void QTextPieceTable::setBlockFormat(int pos, int length, const QTextBlockFormat
 
     Q_ASSERT(newFormat.isValid());
 
-    /* if we have only one block then QTextCursor calls us with
-     * pos == length(), which is okay as-is, but also means we have
-     * to pass pos - 1 to blocksFind
-     */
-    if (pos >= this->length()) {
-        pos = this->length() - 1;
-        length = 1;
-    }
-
     int newFormatIdx = -1;
     if (mode == SetFormat)
         newFormatIdx = formats->indexForFormat(newFormat);
     QTextFormatGroup *group = newFormat.group();
 
-    QTextBlockIterator blockIt = blocksFind(pos);
-    QTextBlockIterator endIt = blocksFind(pos + length);
+    QTextBlockIterator it = from;
+    QTextBlockIterator end = to;
+    if (!end.atEnd())
+	++end;
 
-    const int startPos = blockIt.position();
-    const int endPos = endIt.position() + endIt.length() - 1;
+    const int startPos = from.position();
+    const int endPos = to.position() + to.length();
 
-    for (; !blockIt.atEnd() && blockIt != endIt; ++blockIt) {
-        int oldFormat = block(blockIt)->format;
+    for (; it != end; ++it) {
+        int oldFormat = block(it)->format;
         QTextBlockFormat format = formats->blockFormat(oldFormat);
         QTextFormatGroup *oldGroup = format.group();
         if (mode == MergeFormat) {
@@ -439,29 +433,29 @@ void QTextPieceTable::setBlockFormat(int pos, int length, const QTextBlockFormat
             newFormatIdx = formats->indexForFormat(format);
             group = format.group();
         }
-        block(blockIt)->format = newFormatIdx;
+        block(it)->format = newFormatIdx;
 
-        block(blockIt)->invalidate();
+        block(it)->invalidate();
         if (undoEnabled) {
             UndoCommand c = { UndoCommand::BlockFormatChanged, true, UndoCommand::MoveCursor, oldFormat,
-                              0, blockIt.position(), { 1 } };
+                              0, it.position(), { 1 } };
 
             appendUndoItem(c);
             Q_ASSERT(undoPosition == undoStack.size());
         }
         if (group != oldGroup) {
             if (oldGroup)
-                oldGroup->removeBlock(blockIt);
+                oldGroup->removeBlock(it);
             if (group)
-                group->insertBlock(blockIt);
+                group->insertBlock(it);
         } else if (group) {
-	    group->blockFormatChanged(blockIt);
+	    group->blockFormatChanged(it);
 	}
     }
 
     endEditBlock();
 
-    emit formatChanged(startPos, endPos - startPos + 1);
+    emit formatChanged(startPos, endPos - startPos);
     emit contentsChanged();
 }
 

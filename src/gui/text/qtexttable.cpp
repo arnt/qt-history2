@@ -418,7 +418,8 @@ void QTextTable::setRowSpan(int row, int col, int rowspan)
 
     QTextBlockFormat modifier;
     modifier.setTableCellRowSpan(rowspan);
-    d->pieceTable()->setBlockFormat(d->cellAt(row, col).position(), 1, modifier, QTextPieceTable::MergeFormat);
+    QTextBlockIterator cell = d->cellAt(row, col);
+    d->pieceTable()->setBlockFormat(cell, cell, modifier, QTextPieceTable::MergeFormat);
 }
 
 /*!
@@ -430,7 +431,8 @@ void QTextTable::setColSpan(int row, int col, int colspan)
 
     QTextBlockFormat modifier;
     modifier.setTableCellColSpan(colspan);
-    d->pieceTable()->setBlockFormat(d->cellAt(row, col).position(), 1, modifier, QTextPieceTable::MergeFormat);
+    QTextBlockIterator cell = d->cellAt(row, col);
+    d->pieceTable()->setBlockFormat(cell, cell, modifier, QTextPieceTable::MergeFormat);
 }
 
 /*!
