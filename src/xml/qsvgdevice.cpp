@@ -301,7 +301,7 @@ bool QSvgDevice::save( const QString &fileName )
 
 /*!
   \fn QRect QSvgDevice::boundingRect() const
-  ###
+
   Returns the bounding rectangle of the vector graphic.
  */
 

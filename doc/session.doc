@@ -100,7 +100,7 @@ This saving is done by reimplementing \l
 QApplication::saveState(). All state data you are saving in this
 function, should be marked with the session identifier \l
 QApplication::sessionId(). This application specific identifier is
-globally unique, so no clashes will occur. (See \l QSession for
+globally unique, so no clashes will occur. (See \l QSessionManager for
 information on saving/restoring the state of a particular Qt
 application.)
 

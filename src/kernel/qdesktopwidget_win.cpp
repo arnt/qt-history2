@@ -148,17 +148,19 @@ QDesktopWidgetPrivate::~QDesktopWidgetPrivate()
     rects = 0;
 }
 
-/*
-  ###
-  \fn void *QDesktopWidget::handle( int screen ) const
+/*!
+    \omit Function is commented out in header
 
-  Returns the window system handle of the display device with the 
-  index \a screen, for low-level access.  Using this function is not 
+    \fn void *QDesktopWidget::handle( int screen ) const
+
+  Returns the window system handle of the display device with the
+  index \a screen, for low-level access.  Using this function is not
   portable.
 
   The return type varies with platform; see qwindowdefs.h for details.
 
   \sa x11Display(), QPaintDevice::handle()
+  \endomit
 */
 
 /*!

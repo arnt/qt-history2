@@ -883,7 +883,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
     and
 
-    \l{CE_TabBarTabLabel}(const \l QTabBar *)
+    \l{CE_TabBarLabel}(const \l QTabBar *)
 
        \i \l Style_Enabled \i Set if the tabbar and tab is enabled.
        \i12 \l QStyleOption ( \l QTab *t )
@@ -1163,7 +1163,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 	  \i Options
 	  \i Notes
 
-  \row \i12 \l{CC_SpinWidget}(const \l QSpinWidget *)
+  \row \i12 \l{CC_SpinWidget}(const QSpinWidget *)
        \i \l Style_Enabled \i Set if the spinwidget is enabled.
        \i12 Unused.
        \i12 &nbsp;

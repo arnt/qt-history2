@@ -57,8 +57,19 @@ void QGfx::setSource(unsigned char *,int,int,int,int,QRgb *,int)
 
 void QGfx::setScreen(QScreen *,QScreenCursor *,bool,int *,int *)
 {
-} 
+}
 
+/*!
+    \fn int * QScreen::opType()
+
+    Returns the screen's operation type.
+*/
+
+/*!
+    \fn int * QScreen::lastOp()
+
+    Returns the screens last operation.
+*/
 
 /*!
 \fn QScreen::setDirty( const QRect& )

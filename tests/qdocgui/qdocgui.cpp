@@ -93,6 +93,8 @@ void QDocMainWindow::activateEditor( QListViewItem * item )
     if ( !item )
 	return;
     QString subdir;
+    QString filename;
+    QString cppfilename;
     classList->update();
     qApp->processEvents();
     if ( item->text(0).startsWith( "Line" ) ) {
@@ -124,8 +126,8 @@ void QDocMainWindow::activateEditor( QListViewItem * item )
 		while ( i != lst.end() ) {
 		    f.setName(qtdirenv + "/src/" + (*i) + '/' + fileText);
 		    if ( f.exists() ) {
-			filename = qtdirenv + "/include/" + item->parent()->text(0) + " "; // Include file first
-			filename += qtdirenv + "/src/" + (*i) + '/' + fileText; // source or doc file second
+			filename = qtdirenv + "/include/" + item->parent()->text(0); // Include file first
+			cppfilename = qtdirenv + "/src/" + (*i) + '/' + fileText; // source or doc file second
 			break;
 		    }
 		    ++i;
@@ -155,6 +157,8 @@ void QDocMainWindow::activateEditor( QListViewItem * item )
 	    procedit->addArgument( editText );
 	    procedit->addArgument( QString("+" + linenumber) );
 	    procedit->addArgument( filename );
+	    if ( ! cppfilename.isNull() )
+		procedit->addArgument( cppfilename );
 	    connect( procedit, SIGNAL(processExited()), this, SLOT(editorFinished()));
 	    if ( !procedit->start() ) {
 		// Fix for crappy editors

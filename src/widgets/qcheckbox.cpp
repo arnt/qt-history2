@@ -97,6 +97,12 @@
     \brief whether the checkbox is checked
 */
 
+/*! \property QCheckBox::autoMask
+    \brief whether the checkbox is automatically masked
+
+    \sa QWidget::setAutoMask
+*/
+
 /*! \property QCheckBox::tristate
     \brief whether the checkbox is a tri-state checkbox
 */

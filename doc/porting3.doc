@@ -41,7 +41,7 @@ This document describes porting applications from Qt 2.x to Qt 3.x.
 
 If you haven't yet made the decision about porting, or are unsure
 about whether it is worth it, take a look at the \link
-keyfeatures.html key features\endlink offered by Qt 3.x.
+keyfeatures30.html key features\endlink offered by Qt 3.x.
 
 The Qt 3.x series is not binary compatible with the 2.x series. This
 means programs compiled for Qt 2.x must be recompiled to work with Qt
@@ -176,8 +176,10 @@ All these functions have been removed in Qt 3.x:
 \i QString::visual(), QString::basicDirection()
 \i QStyle::set...
 \i QWidget::setFontPropagation(), QWidget::setPalettePropagation()
-    ### keep in sync with dist/changes-3.0
 \endlist
+\omit
+    ### keep in sync with dist/changes-3.0
+\endomit
 
 Additionally, these preprocessor directives have been removed:
 

@@ -484,9 +484,13 @@ QString QLineEdit::displayText() const
 
   \sa selectedText()
 */
+/*!
+    \property QLineEdit::hasSelectedText
+    \brief whether there is any text selected
 
-/*! \property QLineEdit::hasSelectedText
-    \brief wether some text in the lineedit is selected
+    hasSelectedText() returns TRUE if some or all of the text has been
+    selected by the user (e.g. by clicking and dragging); otherwise
+    returns FALSE.
 
     \sa selectedText()
 */
@@ -511,8 +515,8 @@ bool QLineEdit::hasSelectedText() const
 */
 
 /*!
-  \property QLineEdit::selectedText
-  \brief the selected text, if there is one, else QString::null
+    \property QLineEdit::selectedText
+    \brief any text selected by the user or QString::null
 
   \sa hasSelectedText()
 */
@@ -1159,7 +1163,7 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent * )
 	QTextCursor c2 = *d->cursor;
 	c1.gotoWordLeft();
 	c2.gotoWordRight();
-	
+
 	d->parag->setSelection( QTextDocument::Standard, c1.index(), c2.index() );
 	*d->cursor = c2;
     }
@@ -2165,8 +2169,10 @@ int QLineEdit::characterAt( int xpos, QChar *chr ) const
     return c.index();
 }
 
-/*! \property QLineEdit::undoAvailable
-    \brief wether undo is available
+/*!
+    \property QLineEdit::undoAvailable
+    \brief whether undo is available
+
 */
 
 bool QLineEdit::isUndoAvailable() const
@@ -2174,8 +2180,10 @@ bool QLineEdit::isUndoAvailable() const
     return d->parag->commands()->isUndoAvailable();
 }
 
-/*! \property QLineEdit::redoAvailable
-    \brief wether redo is available
+/*!
+    \property QLineEdit::redoAvailable
+    \brief whether redo is available
+
 */
 
 bool QLineEdit::isRedoAvailable() const

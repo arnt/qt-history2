@@ -27,7 +27,6 @@ private:
     QProcess* procedit;
     QString outputText;
     QString qtdirenv;
-    QString filename;
     QLabel* waitText;
     QString editText;
     QPushButton* redo;

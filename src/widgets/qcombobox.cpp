@@ -222,6 +222,12 @@
   comboboxes it has no effect.
 */
 
+/*! \property QComboBox::autoMask
+    \brief whether the combobox is automatically masked
+
+    \sa QWidget::setAutoMask
+*/
+
 /*! \property QComboBox::autoResize
     \brief whether auto resize is enabled
     \obsolete

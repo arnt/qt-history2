@@ -13562,7 +13562,7 @@ int QString::findRev( const QString& str, int index, bool cs ) const
     This function returns a section of the string.
 
     This string is treated as a sequence of fields separated by the
-    string, \a in_sep. The returned string consists of the fields from
+    string, \a sep. The returned string consists of the fields from
     position \a start to position \a end inclusive. If \a end is not
     specified, all fields from position \a start to the end of the
     string are included.
@@ -13589,19 +13589,19 @@ int QString::findRev( const QString& str, int index, bool cs ) const
     \sa QStringList::split()
 */
 
-QString QString::section( const QString &in_sep, int start, int end, int flags ) const
+QString QString::section( const QString &sep, int start, int end, int flags ) const
 {
     const QChar *uc = unicode();
     if ( !uc )
 	return QString();
-    QString sep = (flags & SectionCaseInsensitiveSeps) ? in_sep.lower() : in_sep;
-    const QChar *uc_sep = sep.unicode();
+    QString _sep = (flags & SectionCaseInsensitiveSeps) ? sep.lower() : sep;
+    const QChar *uc_sep = _sep.unicode();
     if(!uc_sep)
 	return QString();
     bool match = FALSE, last_match = TRUE;
 
     //find start
-    int n = length(), sep_len = sep.length();
+    int n = length(), sep_len = _sep.length();
     const QChar *begin = start < 0 ? uc + n : uc;
     while(start) {
 	match = FALSE;
@@ -13830,7 +13830,7 @@ QString QString::section( const QRegExp &reg, int start, int end, int flags ) co
 */
 
 /*!
-    \overload QString QString::section( const char *in_sep, int start, int end = 0xffffffff, int flags = SectionDefault ) const
+    \overload QString QString::section( const char *sep, int start, int end = 0xffffffff, int flags = SectionDefault ) const
 */
 
 

@@ -2828,7 +2828,7 @@ void QFileDialog::setSelectedFilter( const QString& mask )
   It is more convenient to use selectedFile() if the mode is
   \c ExistingFile, \c Directory or \c DirectoryOnly.
 
-  \sa selectedFile, selectedFilter, QValueList::isEmpty()
+  \sa selectedFile, selectedFilter, QValueList::empty()
 */
 
 QStringList QFileDialog::selectedFiles() const
@@ -2903,7 +2903,7 @@ void QFileDialog::setSelection( const QString & filename )
 	trySetSelection( TRUE, d->url, FALSE );
 	rereadDir();
 	emit dirEntered( d->url.dirPath() );
-	nameEdit->setText( QString::fromLatin1("") );	
+	nameEdit->setText( QString::fromLatin1("") );
     }
     d->checkForFilter = FALSE;
 }
