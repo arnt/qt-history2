@@ -27,9 +27,9 @@
 #endif // QT_H
 
 #if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
-#define QM_EXPORT_SQL
+#define QM_COMPAT_EXPORT_SQL
 #else
-#define QM_EXPORT_SQL Q_SQL_EXPORT
+#define QM_COMPAT_EXPORT_SQL Q_COMPAT_EXPORT
 #endif
 
 #ifndef QT_NO_SQL_VIEW_WIDGETS
@@ -39,7 +39,7 @@ class QSqlField;
 class QSqlPropertyMap;
 class QDataTablePrivate;
 
-class QM_EXPORT_SQL QDataTable : public QTable
+class QM_COMPAT_EXPORT_SQL QDataTable : public QTable
 {
     Q_OBJECT
 
@@ -198,7 +198,7 @@ private slots:
     void 	 sliderReleased();
     void	 doInsertCurrent();
     void	 doUpdateCurrent();
-    
+
 private:
     QString 	 fieldToString( const QSqlField * field );
     void         init();

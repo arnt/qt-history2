@@ -30,7 +30,7 @@
 class QSqlForm;
 class QDataBrowserPrivate;
 
-class Q_SQL_EXPORT QDataBrowser : public QWidget
+class Q_COMPAT_EXPORT QDataBrowser : public QWidget
 {
     Q_OBJECT
     Q_PROPERTY( bool boundaryChecking READ boundaryChecking WRITE setBoundaryChecking )

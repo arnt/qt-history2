@@ -26,13 +26,13 @@
 #include "qsqlrecord.h"
 #include "qsqlfieldinfo.h"
 
-/* QSqlRecordInfo Class 
+/* QSqlRecordInfo Class
    This class is obsolete, use QSqlRecord instead.
 */
 
 typedef QList<QSqlFieldInfo> QSqlFieldInfoList;
 
-class QM_EXPORT_SQL QSqlRecordInfo: public QSqlFieldInfoList
+class QM_COMPAT_EXPORT_SQL QSqlRecordInfo: public QSqlFieldInfoList
 {
 public:
     QSqlRecordInfo(): QSqlFieldInfoList() {}

@@ -20,9 +20,9 @@
 #endif // QT_H
 
 #if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
-#define QM_EXPORT_SQL
+#define QM_COMPAT_EXPORT_SQL
 #else
-#define QM_EXPORT_SQL Q_SQL_EXPORT
+#define QM_COMPAT_EXPORT_SQL Q_COMPAT_EXPORT
 #endif
 
 #ifndef QT_NO_SQL_VIEW_WIDGETS
@@ -31,7 +31,7 @@ class QSqlForm;
 class QSqlRecord;
 class QDataViewPrivate;
 
-class QM_EXPORT_SQL QDataView : public QWidget
+class QM_COMPAT_EXPORT_SQL QDataView : public QWidget
 {
     Q_OBJECT
 
