@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#104 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#105 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#104 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#105 $");
 
 
 const int Unsorted = 16383;
@@ -856,7 +856,7 @@ int QListViewItem::width(const QFontMetrics& fm, const QListView* lv, int c) con
 }
 
 
-/*!  \fn void QListViewItem::paintFocus( QPainter *p, const QColorGroup & cg, const QRect & r ) const
+/*!  \fn void QListViewItem::paintFocus( QPainter *p, const QColorGroup & cg, const QRect & r )
 
   Paints a focus indication on the rectangle \a r using painter \a p
   and colors \a cg.
