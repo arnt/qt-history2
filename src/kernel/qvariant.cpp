@@ -2196,13 +2196,13 @@ bool QVariant::canCast( Type t ) const
 }
 
 /*!
-  Casts the variant to the requested type.  If the cast cannot be done, 
-  the variant is set to the default value of the requested type (e.g., an 
+  Casts the variant to the requested type.  If the cast cannot be done,
+  the variant is set to the default value of the requested type (e.g., an
   empty string if the requested type \a t is QVariant::String, an empty point array
-  if the requested type \a t is QVariant::PointArray, etc).  Returns TRUE 
-  if the current type of the variant was successfully casted, otherwise FALSE 
-  is returned.  
-  
+  if the requested type \a t is QVariant::PointArray, etc).  Returns TRUE
+  if the current type of the variant was successfully casted, otherwise FALSE
+  is returned.
+
   \sa canCast()
 */
 
@@ -2286,6 +2286,7 @@ bool QVariant::cast( Type t )
 	break;
     case QVariant::Date:
 	asDate();
+	break;
     case QVariant::Time:
 	asTime();
 	break;
