@@ -720,28 +720,28 @@ bool QPalette::operator==(const QPalette &p) const
     Returns TRUE (usually quickly) if this ColorGroup \a grp1 is equal to \a grp2;
     otherwise returns FALSE.
 */
-bool QPalette::isEqual(QPalette::ColorGroup grp1, QPalette::ColorGroup grp2) const
+bool QPalette::isEqual(QPalette::ColorGroup group1, QPalette::ColorGroup group2) const
 {
-    if(grp1 >= (int)NColorGroups) {
-	if(grp1 == Current) {
-	    grp1 = (ColorGroup)current_group;
+    if(group1 >= (int)NColorGroups) {
+	if(group1 == Current) {
+	    group1 = (ColorGroup)current_group;
 	} else {
-	    qWarning("QPalette::brush: Unknown ColorGroup(1): %d", (int)grp1);
-	    grp1 = Active;
+	    qWarning("QPalette::brush: Unknown ColorGroup(1): %d", (int)group1);
+	    group1 = Active;
 	}
     }
-    if(grp2 >= (int)NColorGroups) {
-	if(grp2 == Current) {
-	    grp2 = (ColorGroup)current_group;
+    if(group2 >= (int)NColorGroups) {
+	if(group2 == Current) {
+	    group2 = (ColorGroup)current_group;
 	} else {
-	    qWarning("QPalette::brush: Unknown ColorGroup(2): %d", (int)grp2);
-	    grp2 = Active;
+	    qWarning("QPalette::brush: Unknown ColorGroup(2): %d", (int)group2);
+	    group2 = Active;
 	}
     }
-    if(grp1 == grp2)
+    if(group1 == group2)
 	return TRUE;
     for(int role = 0; role < (int)NColorRoles; role++) {
-	if(d->br[grp1][role] != d->br[grp2][role])
+	if(d->br[group1][role] != d->br[group2][role])
 		return FALSE;
     }
     return TRUE;
