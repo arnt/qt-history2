@@ -43,6 +43,7 @@ public:
     Q26Dot6() : val(0) {}
     Q26Dot6(int f26d6, q26Dot6) : val(f26d6) {}
     Q26Dot6(int i) : val(i<<6) {}
+    Q26Dot6(unsigned int i) : val(i<<6) {}
     Q26Dot6(long i) : val(i<<6) {}
     Q26Dot6(double d) { val = (int)(d*64.); }
     Q26Dot6(const Q26Dot6 &other) : val(other.val) {}
@@ -117,6 +118,12 @@ private:
 
 inline Q26Dot6 operator*(int i, const Q26Dot6 &d) { return d*i; }
 inline Q26Dot6 operator*(double d, const Q26Dot6 &d2) { return d2*d; }
+
+
+struct Q26Dot6Offset {
+    Q26Dot6 x;
+    Q26Dot6 y;
+};
 
 // this uses the same coordinate system as Qt, but a different one to freetype and Xft.
 // * y is usually negative, and is equal to the ascent.
@@ -233,8 +240,8 @@ struct QGlyphLayout
 	unsigned short combiningClass  :8;
     };
     Attributes attributes;
-    struct { Q26Dot6 x; Q26Dot6 y; } advance;
-    struct { Q26Dot6 x; Q26Dot6 y; } offset;
+    Q26Dot6Offset advance;
+    Q26Dot6Offset offset;
 };
 Q_DECLARE_TYPEINFO(QGlyphLayout, Q_PRIMITIVE_TYPE);
 
