@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#84 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#85 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#84 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#85 $");
 
 
 // Motif style parameters
@@ -714,7 +714,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	int m = motifItemVMargin;
 	const int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
 	if ( t ) {				// draw text before tab
-	    if ( gs == WindowsStyle && dis ) {
+	    if ( gs == WindowsStyle && dis && !act ) {
 		p->setPen( white );
 		p->drawText( x+1, m+1, cellw, cellh-2*m, text_flags,
 			     s, (int)((long)t-(long)s) );
@@ -725,7 +725,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	    s = t + 1;
 	    x = tabMark;
 	}
-	if ( gs == WindowsStyle && dis ) {
+	if ( gs == WindowsStyle && dis && !act ) {
 	    p->setPen( white );
 	    p->drawText( x+1, m+1, cellw, cellh-2*m, text_flags, s );
 	    p->setPen( discol );
