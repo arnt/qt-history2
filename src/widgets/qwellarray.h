@@ -34,7 +34,12 @@ struct QWellArrayData;
 
 class Q_EXPORT QWellArray : public QTableView
 {
-	Q_OBJECT
+    Q_OBJECT
+    // #### Not const Q_PROPERTY( int, "numCols", numCols, 0 )
+    // #### Not const Q_PROPERTY( int, "numRows", numRows, 0 )
+    // #### Not const Q_PROPERTY( int, "selectedColumn", selectedColumn, 0 )
+    // #### Not const Q_PROPERTY( int, "selectedRow", selectedRow, 0 )
+	
 public:
     QWellArray( QWidget *parent=0, const char *name=0, bool popup = FALSE );
 
