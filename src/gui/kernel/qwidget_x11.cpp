@@ -2793,16 +2793,10 @@ void QWidgetPrivate::setWindowRole(const char *role)
                     (unsigned char *)role, qstrlen(role));
 }
 
-static QSingleCleanupHandler<QX11PaintEngine> qt_paintengine_cleanup_handler;
-static QX11PaintEngine *qt_widget_paintengine = 0;
-
+Q_GLOBAL_STATIC_WITH_ARGS(QX11PaintEngine, qt_widget_paintengine, (0))
 QPaintEngine *QWidget::paintEngine() const
 {
-    if (!qt_widget_paintengine) {
-        qt_widget_paintengine = new QX11PaintEngine(const_cast<QWidget *>(this));
-        qt_paintengine_cleanup_handler.set(&qt_widget_paintengine);
-    }
-    return qt_widget_paintengine;
+    return qt_widget_paintengine();
 }
 
 /*!
