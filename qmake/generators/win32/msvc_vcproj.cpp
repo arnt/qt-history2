@@ -491,7 +491,7 @@ void VcprojGenerator::initCompilerTool()
     // Common for both release and debug
     if ( project->isActiveConfig("warn_off") )
 	vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_WARN_OFF"] );
-    else
+    else if ( project->isActiveConfig("warn_on") )
 	vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_WARN_ON"] );
     if ( project->isActiveConfig("windows") )
 	vcProject.Configuration.compiler.PreprocessorDefinitions += project->variables()["MSVCPROJ_WINCONDEF"];
