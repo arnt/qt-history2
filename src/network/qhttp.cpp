@@ -1492,7 +1492,8 @@ void QHttp::abort()
 
     finishedWithError(tr("Request aborted"), Aborted);
     clearPendingRequests();
-    d->socket->abort();
+    if (d->socket)
+        d->socket->abort();
     closeConn();
 }
 
