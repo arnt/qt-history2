@@ -55,7 +55,7 @@ void QSqlPropertyMap::setProperty( QObject * object, const QVariant & value )
 {
     if( !object ) return;
 
-    qDebug("setting property for " + QString(object->name()) + " to value of type:" + QString(value.typeName()) + " of value:" + value.toString() );
+    //    qDebug("setting property for " + QString(object->name()) + " to value of type:" + QString(value.typeName()) + " of value:" + value.toString() );
     object->setProperty( propertyMap[ object->metaObject()->className() ],
 			 value );
 }

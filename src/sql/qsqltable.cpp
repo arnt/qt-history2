@@ -10,10 +10,10 @@
 
 void qt_debug_buffer( const QString& msg, QSqlView* view )
 {
-    //qDebug("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
-    //qDebug(msg);
+    //    qDebug("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
+    //    qDebug(msg);
     for ( uint j = 0; j < view->count(); ++j ) {
-	//qDebug(view->field(j)->name() + " value:" + view->field(j)->value().toString() );
+	//	qDebug(view->field(j)->name() + " type:" + QString(view->field(j)->value().typeName()) + " value:" + view->field(j)->value().toString() );
     }
 }
 
@@ -78,8 +78,8 @@ public:
   possible, with limited memory usage.
 
   QSqlTable also offers an API for sorting columns. See setSorting()
-  and sortColumn(). 
-  
+  and sortColumn().
+
   When displaying QSqlViews, cell editing can be enabled with
   setCellEditing().  QSqlTable creates editors.... ### The user can
   create their own special editors by ... ###
@@ -219,7 +219,7 @@ QWidget * QSqlTable::createEditor( int , int col, bool initFromCell ) const
     QWidget * w = 0;
     if( initFromCell ){
 	w = d->editorFactory->createEditor( viewport(), d->editBuffer.value( indexOf( col ) ) );
-	//qDebug("editor factory returned:" + QString::number((int)w));	
+	//qDebug("editor factory returned:" + QString::number((int)w));
 	d->propertyMap->setProperty( w, d->editBuffer.value( indexOf( col ) ) );
     }
     return w;
@@ -253,7 +253,7 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
 		d->continuousEdit = TRUE;
 	    else if ( ( ke->key() == Key_BackTab ) && ( c > 0 ) )
 		d->continuousEdit = TRUE;
-	    else 
+	    else
 		d->continuousEdit = FALSE;
 	}
 	break;
@@ -281,7 +281,7 @@ void QSqlTable::mousePressEvent( QMouseEvent *e )
 	id[ IdDelete ] = popup->insertItem( tr( "Delete" ) );
 	popup->setItemEnabled( id[ IdInsert ], !isReadOnly() && d->view->canInsert() );
 	popup->setItemEnabled( id[ IdUpdate ], !isReadOnly() && d->view->canUpdate() );
-	popup->setItemEnabled( id[ IdDelete ], !isReadOnly() && d->view->canDelete() );	
+	popup->setItemEnabled( id[ IdDelete ], !isReadOnly() && d->view->canDelete() );
 	int r = popup->exec( e->globalPos() );
 	delete popup;
 	if ( r == id[ IdInsert ] )
@@ -289,7 +289,7 @@ void QSqlTable::mousePressEvent( QMouseEvent *e )
 	else if ( r == id[ IdUpdate ] ) {
 	    if ( beginUpdate( currentRow(), currentColumn(), TRUE ) )
 		 setEditMode( Editing, currentRow(), currentColumn() );
-	}	
+	}
 	else if ( r == id[ IdDelete ] )
 	    deleteCurrent();
 	return;
@@ -305,7 +305,7 @@ QWidget* QSqlTable::beginEdit ( int row, int col, bool replace )
 {
     if ( !d->view )
 	return 0;
-    //qDebug("beginEdit row:" + QString::number(row) + " col:" + QString::number(col));    
+    //qDebug("beginEdit row:" + QString::number(row) + " col:" + QString::number(col));
     //qDebug("continuousEdit:" + QString::number(d->continuousEdit));
     if ( d->continuousEdit )
 	return QTable::beginEdit( row, col, replace );
@@ -353,12 +353,14 @@ bool QSqlTable::beginInsert()
     int row = currentRow();
     if ( row < 0 )
 	return FALSE;
-    ensureCellVisible( row, 0 );    
+    ensureCellVisible( row, 0 );
     setCurrentCell( row, 0 );
+    qt_debug_buffer("beginInsert: before creating edit buffer, VIEW", d->view);    
     d->editBuffer.clear();
     d->editBuffer = *vw;
     d->editBuffer.detach();
     d->editBuffer.clearValues();
+    qt_debug_buffer("beginInsert: after creating edit buffer", &d->editBuffer);
     if ( !primeInsert( &d->editBuffer ) )
 	return FALSE;
     d->editRow = row;
@@ -382,19 +384,19 @@ bool QSqlTable::beginInsert()
     //qDebug("QSqlTable::beginInsert(), about to begin edit");
     if ( QTable::beginEdit( row, 0, FALSE ) )
 	setEditMode( Editing, row, 0 );
-    //qDebug("QSqlTable::beginInsert(), DONE");    
+    //qDebug("QSqlTable::beginInsert(), DONE");
     return TRUE;
 }
 
 QWidget* QSqlTable::beginUpdate ( int row, int col, bool replace )
 {
-    ensureCellVisible( row, col );    
+    ensureCellVisible( row, col );
     setCurrentSelection( row, col );
     d->updateMode = TRUE;
     d->editRow = row;
     d->editBuffer.clear();
     d->editBuffer = *d->view;
-    d->editBuffer.detach();    
+    d->editBuffer.detach();
     return QTable::beginEdit( row, col, replace );
 }
 
@@ -561,11 +563,11 @@ bool QSqlTable::deleteCurrent()
 void QSqlTable::refresh( QSqlView* view, bool seekPrimary )
 {
     QSqlIndex pi;
-    if ( seekPrimary ) 
+    if ( seekPrimary )
 	pi = view->primaryIndex( TRUE );
     view->select( view->filter(), view->sort() );
     setSize( view );
-    //    viewport()->repaint();    
+    //    viewport()->repaint();
 }
 
 /*!
@@ -575,13 +577,14 @@ void QSqlTable::refresh( QSqlView* view, bool seekPrimary )
 
 void QSqlTable::setCellContentFromEditor( int row, int col )
 {
-    //qDebug("setCellContentFromEditor( int row, int col )");
+    //    qDebug("setCellContentFromEditor( int row, int col )");
     if ( !d->insertMode && !d->updateMode )
 	return;
     QWidget * editor = cellWidget( row, col );
     if ( !editor )
 	return;
-    //qDebug("setting edit buffer value to :" + d->propertyMap->property( editor ).toString() );
+    //    qDebug("setting edit buffer value to :" + d->propertyMap->property( editor ).toString() );
+    //    qDebug("propertyMap property type:" + QString(d->propertyMap->property( editor ).typeName()) + " val:" + d->propertyMap->property( editor ).toString() );
     d->editBuffer.setValue( indexOf( col ),  d->propertyMap->property( editor ) );
     qt_debug_buffer("setCellContentFromEditor: edit buffer", &d->editBuffer);
     if ( !d->continuousEdit ) {
@@ -935,7 +938,8 @@ void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 	return;
     if ( d->insertMode || d->updateMode ) {
 	if ( row == d->editRow ) {
-	    //    //qDebug("painting editRow:" + QString::number(row));
+	    //	    qDebug("painting editRow:" + QString::number(row));
+	    //	    qDebug("field name:" + d->editBuffer.field( indexOf( col ) )->name() + " type:" + QString(d->editBuffer.field( indexOf( col ) )->value().typeName()));
 	    paintField( p, d->editBuffer.field( indexOf( col ) ), cr, selected );
 	} else if ( row > d->editRow && d->insertMode ) {
 	    //	    //qDebug("trying to paint row:" + QString::number(row));
