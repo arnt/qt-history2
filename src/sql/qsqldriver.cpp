@@ -349,17 +349,10 @@ QString QSqlDriver::formatValue( const QSqlField* field, bool trimStrings ) cons
 		r = nullText();
 	    break;
 	case QVariant::DateTime:
-	    // Using an escape sequence for the datetime fields
-	    if ( field->value().toDateTime().isValid() ){
-		QDate dt = field->value().toDateTime().date();
-		QTime tm = field->value().toDateTime().time();
-		r = "'{ ts `" +
-		    QString::number(dt.year()) + "-" +
-		    QString::number(dt.month()) + "-" +
-		    QString::number(dt.day()) + " " +
-		    tm.toString() +
-		    "` }'";
-	    } else
+	    if ( field->value().toDateTime().isValid() )
+		r = "'" + 
+		    field->value().toDateTime().toString( Qt::ISODate ) + "'";
+	    else
 		r = nullText();
 	    break;
 	case QVariant::String:
