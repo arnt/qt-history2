@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtl.h#6 $
+** $Id: //depot/qt/main/src/tools/qtl.h#7 $
 **
 ** Definition of Qt template library classes
 **
@@ -206,7 +206,7 @@ inline void qHeapSort( InputIterator b, InputIterator e )
 }
 
 template <class Container>
-inline void qHeapSort( Container c )
+inline void qHeapSort( Container &c )
 {
   if ( c.isEmpty() )
     return;
