@@ -190,6 +190,7 @@ void QSocket::timerEvent( QTimerEvent *e )
 	    d->ready_read_timer = 0;
 	}
     }
+    // ### should call super here
 }
 
 
@@ -765,6 +766,8 @@ bool QSocket::at( int index )
 
 bool QSocket::atEnd() const
 {
+    if ( d->socket->bytesAvailable() ) // a little slow, perhaps...
+	sn_read();
     return d->rsize == 0;
 }
 
@@ -777,6 +780,8 @@ bool QSocket::atEnd() const
 
 int QSocket::bytesAvailable() const
 {
+    if ( d->socket->bytesAvailable() ) // a little slow, perhaps...
+	sn_read();
     return d->rsize;
 }
 
