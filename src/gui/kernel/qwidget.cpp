@@ -3643,7 +3643,7 @@ QSize qt_initial_size(QWidget *w) {
 #endif
     s.setWidth(qMin(s.width(), screen.width()*2/3));
     s.setHeight(qMin(s.height(), screen.height()*2/3));
-    return s;
+    return s + w->contentsMarginSize();    //account for the margins
 }
 
 /*!
