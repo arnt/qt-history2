@@ -585,6 +585,21 @@ void QPainterPrivate::updateInvMatrix()
 }
 
 /*!
+    \enum Qt::ClipOperation
+
+    \value NoClip This operation turns clipping off.
+
+    \value ReplaceClip Replaces the current clip path/rect/region with
+    the one supplied in the function call.
+
+    \value IntersectClip Intersects the current clip path/rect/region
+    with the one supplied in the function call.
+
+    \value UniteClip Unites the current clip path/rect/region with the
+    one supplied in the function call.
+*/
+
+/*!
     \enum Qt::PixmapDrawingMode
 
     \value ComposePixmap This mode will merge the source with the
@@ -1261,6 +1276,14 @@ QPoint QPainter::brushOrigin() const
 }
 
 /*!
+    \fn void QPainter::setBrushOrigin(const QPoint &p)
+
+    \overload
+
+    Sets the brush's origin to \a p.
+*/
+
+/*!
     \fn void QPainter::setBrushOrigin(int x, int y)
 
     \overload
@@ -1467,7 +1490,17 @@ QPainterPath QPainter::clipPath() const
 }
 
 /*!
-    \fn void QPainter::setClipRect(int x, int y, int w, int h)
+    \fn void QPainter::setClipRect(const QRect &rect, Qt::ClipOperation op)
+
+    Sets the clip region to the rectangle \a rect using the clip
+    operation \a op. The default operation is to replace the current
+    clip rectangle.
+
+    \sa setClipRegion(), clipRegion(), setClipping()
+*/
+
+/*!
+    \fn void QPainter::setClipRect(int x, int y, int w, int h, Qt::ClipOperation op)
 
     Sets the clip region to the rectangle \a x, \a y, \a w, \a h and
     enables clipping.
@@ -1488,7 +1521,8 @@ void QPainter::setClipRect(const QRectF &rect, Qt::ClipOperation op)
 }
 
 /*!
-    Sets the clip region to \a r and enables clipping.
+    Sets the clip region to \a r using the clip operation \a op. The
+    default clip operation is to replace the current clip region.
 
     Note that the clip region is given in logical coordinates
     and \e subject to \link coordsys.html coordinate
@@ -1760,6 +1794,14 @@ void QPainter::rotate(double a)
 
 
 /*!
+    \fn void QPainter::translate(const QPointF &offset)
+
+    \overload
+
+    Translates the coordinate system by the given \a offset.
+*/
+
+/*!
     \fn void QPainter::translate(const QPoint &offset)
 
     \overload
@@ -1806,11 +1848,11 @@ void QPainter::translate(double dx, double dy)
 }
 
 /*!
-    Sets the clippath for the painter to \a path.
+    Sets the clip path for the painter to \a path, with the clip
+    operation \a op.
 
     The clip path is specified in logical (painter) coordinates.
 
-    \warning This function is not yet implemented.
 */
 void QPainter::setClipPath(const QPainterPath &path, Qt::ClipOperation op)
 {
@@ -1970,6 +2012,15 @@ void QPainter::drawPath(const QPainterPath &path)
 
 
 /*!
+    \fn void QPainter::drawLines(const QList<QLineF> lines, int index = 0,
+                                 int nlines = -1)
+
+    Draws the set of lines defined by the list \a lines, starting with
+    the line at \a index, and drawing at the most \a nlines (unless \a
+    nlines is -1).
+*/
+
+/*!
     \fn void QPainter::drawLine(int x1, int y1, int x2, int y2)
     \overload
 
@@ -1978,7 +2029,21 @@ void QPainter::drawPath(const QPainterPath &path)
 */
 
 /*!
-    Draws a line from point \a p1 to point \a p2.
+    \fn void QPainter::drawLine(const QPoint &p1, const QPoint &p2)
+    \overload
+
+    Draws a line from \a p1 to \a p2.
+*/
+
+/*!
+    \fn void QPainter::drawLine(const QPointF &p1, const QPointF &p2)
+    \overload
+
+    Draws a line from \a p1 to \a p2.
+*/
+
+/*!
+    Draws a line defined by \a l.
 
     \sa pen()
 */
@@ -2029,7 +2094,15 @@ void QPainter::drawLine(const QLineF &l)
 */
 
 /*!
-  Draws the rectangle \r with the current pen and brush.
+    \fn void QPainter::drawRect(const QRect &rect)
+
+    \overload
+
+    Draws the rectangle \a rect with the current pen and brush.
+*/
+
+/*!
+  Draws the rectangle \a r with the current pen and brush.
 
   A filled rectangle has a size of r.size(). A stroked rectangle
   has a size of r.size() plus the pen width.
@@ -2102,6 +2175,13 @@ void QPainter::drawRects(const QList<QRectF> &rects)
     d->engine->drawRects(rectangles);
 }
 
+
+/*! \fn void QPainter::drawPoint(const QPoint &p)
+    Draws a single point at position \a p using the current pen's color.
+
+    \sa QPen
+*/
+
 /*!
     Draws a single point at position \a p using the current pen's color.
 
@@ -2141,6 +2221,13 @@ void QPainter::drawPoint(const QPointF &p)
     \overload
 
     Draws a single point at position (\a x, \a y).
+*/
+
+/*! \fn void QPainter::drawPoints(const QList<QPointF> &points)
+
+    \overload
+
+    Draws the points in the list \a points.
 */
 
 /*!
@@ -2463,10 +2550,19 @@ const QFont &QPainter::font() const
 }
 
 /*!
-    \fn QPainter::drawRoundRect(int x, int y, int w, int h, int
-    xround, int yround)
+    \fn QPainter::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)
 
     \overload
+
+    Draws the rectangle \a x, \a y, \a w, \a h with rounded corners.
+*/
+
+/*!
+    \fn void QPainter::drawRoundRect(const QRect &r, int xRnd = 25, int yRnd = 25)
+
+    \overload
+
+    Draws the rectangle \a r with rounded corners.
 */
 
 
@@ -2531,11 +2627,20 @@ void QPainter::drawRoundRect(const QRectF &r, int xRnd, int yRnd)
 }
 
 /*!
-    \fn QPainter::drawEllipse(int x, int y, int w, int h)
+    \fn QPainter::drawEllipse(const QRect &r)
 
     \overload
 
     Draws an ellipse that fits inside the rectangle \a r.
+*/
+
+/*!
+    \fn QPainter::drawEllipse(int x, int y, int w, int h)
+
+    \overload
+
+    Draws an ellipse that fits inside the rectangle (\a{x}, \a{y}, \a{w},
+    \a{h}).
 */
 
 /*!
@@ -2572,9 +2677,19 @@ void QPainter::drawEllipse(const QRectF &r)
     d->engine->drawEllipse(rect);
 }
 
+
+/*! \fn void QPainter::drawArc(const QRect &r, int startAngle,
+                               int spanAngle)
+
+    \overload
+
+    Draws the arc that fits inside the rectangle \a r, with the given
+    \a startAngle and \a spanAngle.
+*/
+
 /*!
-    \fn void QPainter::drawArc(int x, int y, int w, int h, int
-    startAngle, int spanAngle)
+    \fn void QPainter::drawArc(int x, int y, int w, int h,
+                               int startAngle, int spanAngle)
 
     \overload
 
@@ -2624,6 +2739,15 @@ void QPainter::drawArc(const QRectF &r, int a, int alen)
     strokePath(path, d->state->pen);
 }
 
+
+/*!
+    \fn void QPainter::drawPie(const QRect &rect, int startAngle, int spanAngle)
+
+    \overload
+
+    Draws a pie segment that fits inside the rectangle \a rect with
+    the given \a startAngle and \a spanAngle.
+*/
 
 /*!
     \fn void QPainter::drawPie(int x, int y, int w, int h, int
@@ -2677,6 +2801,15 @@ void QPainter::drawPie(const QRectF &r, int a, int alen)
     drawPath(path);
 
 }
+
+/*!
+    \fn void QPainter::drawChord(const QRect &r, int startAngle, int spanAngle)
+
+    \overload
+
+    Draws a chord that fits inside the rectangle \a r with the given
+    \a startAngle and \a spanAngle.
+*/
 
 /*!
     \fn void QPainter::drawChord(int x, int y, int w, int h, int
@@ -2840,19 +2973,38 @@ void QPainter::drawPolyline(const QPolygon &a, int index, int npoints)
     d->engine->drawPolygon(pa, QPaintEngine::PolylineMode);
 }
 
+/*! \overload
 
+    Draws the polyline defined by the points in the array \a a.
+ */
 void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
 {
     // ###
     drawPolyline(QPolygon::fromPointArray(a), index, npoints);
 }
 
+
+/*! \fn void QPainter::drawPolygon(const QPointArray &pa, bool winding,
+                                   int index = 0, int npoints = -1)
+
+    \compat
+    \overload
+
+    Draws the polygon defined by the points in the point array \a pa.
+*/
+
+/*! \fn void QPainter::drawPolygon(const QPolygon &polygon, bool winding, int index = 0,
+                                   int npoints = -1)
+    \compat
+    \overload
+*/
+
 /*!
-    Draws the polygon defined by the \a npoints points in \a a
-    starting at \a{a}\e{[index]}. (\a index defaults to 0.)
+    Draws the polygon defined by \a polygon, starting at
+    \a index. (\a index defaults to 0.)
 
     If \a npoints is -1 (the default) all points until the end of the
-    array are used (i.e. a.size()-index line segments define the
+    polygon are used (i.e. a.size()-index line segments define the
     polygon).
 
     The first point is always connected to the last point.
@@ -2866,7 +3018,8 @@ void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
     \sa drawLineSegments() drawPolyline() QPen
 */
 
-void QPainter::drawPolygon(const QPolygon &polygon, Qt::FillRule fillRule, int index, int npoints)
+void QPainter::drawPolygon(const QPolygon &polygon, Qt::FillRule fillRule,
+                           int index, int npoints)
 {
 #ifdef QT_DEBUG_DRAW
     QRect rect = polygon.boundingRect().toRect();
@@ -2922,6 +3075,10 @@ void QPainter::drawPolygon(const QPolygon &polygon, Qt::FillRule fillRule, int i
     d->engine->drawPolygon(pa, QPaintEngine::PolygonDrawMode(fillRule));
 }
 
+/*! \overload
+
+    Draws the polygon defined by the points in \a pa.
+*/
 void QPainter::drawPolygon(const QPointArray &pa, Qt::FillRule fillRule, int index, int npoints)
 {
     drawPolygon(QPolygon::fromPointArray(pa), fillRule, index, npoints);
@@ -2944,11 +3101,44 @@ void QPainter::drawConvexPolygon(const QPointArray &a, int index, int npoints)
     drawPolygon(a, Qt::WindingFill, index, npoints);
 }
 
+/*!
+    \overload
+
+    Draws the convex polygon defined by the points in \a p.
+*/
 void QPainter::drawConvexPolygon(const QPolygon &p, int index, int npoints)
 {
     // Fix when QPainter::drawPolygon(QPointArray, PolyDrawMode) is in place
     drawPolygon(p, Qt::WindingFill, index, npoints);
 }
+
+
+/*!
+    \fn void QPainter::drawPixmap(const QRect &targetRect, const QPixmap &pixmap,
+                                  const QRect &sourceRect, Qt::PixmapDrawingMode mode)
+    \overload
+
+    Draws the rectangular portion \a sourceRect of the pixmap \a pixmap
+    in the rectangle \a targetRect.
+*/
+
+/*!
+    \fn void QPainter::drawPixmap(const QPointF &p, const QPixmap &pixmap,
+                                  const QRectF &sourceRect, Qt::PixmapDrawingMode mode)
+    \overload
+
+    Draws the rectangular portion \a sourceRect of the pixmap \a
+    pixmap at the point \a p.
+*/
+
+/*!
+    \fn void QPainter::drawPixmap(const QPointF &p, const QPixmap &pixmap,
+                                  Qt::PixmapDrawingMode mode)
+    \overload
+
+    Draws the \a pixmap at the point \a p.
+*/
+
 /*!
     \fn void QPainter::drawPixmap(int x, int y, const QPixmap &pixmap, Qt::PixmapDrawingMode mode)
 
@@ -3167,8 +3357,8 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
     \a targetRect in the paint device.
 
     If the image needs to be modified to fit in a lower-resolution
-    result (e.g. converting from 32-bit to 8-bit), use the \a
-    conversionFlags to specify how you'd prefer this to happen.
+    result (e.g. converting from 32-bit to 8-bit), use the \a flags to
+    specify how you would prefer this to happen.
 
     \sa Qt::ImageConversionFlags
 */
@@ -3332,6 +3522,22 @@ void QPainter::drawText(const QRect &r, int flags, const QString &str, int len, 
         *br = bounds.toRect();
 }
 
+/*! \fn void QPainter::drawText(const QPoint &p, const QString &s, TextDirection dir = Auto)
+
+    \overload
+
+    Draws the string \a s at position \a p, in text direction \a dir.
+*/
+
+/*! \overload
+
+    Draws the string \a str within the rectangle \a r. If \a len is -1
+    (the default) all the text is drawn, otherwise only the first \a
+    len characters are drawn. The flags that are given in the \a flags
+    parameter are \l{Qt::AlignmentFlag}s and \l{Qt::TextFlag}s OR'd
+    together. \a br (if not null) is set to the actual bounding
+    rectangle of the output.
+*/
 void QPainter::drawText(const QRectF &r, int flags, const QString &str, int len, QRectF *br)
 {
 #ifdef QT_DEBUG_DRAW
@@ -3359,6 +3565,15 @@ void QPainter::drawText(const QRectF &r, int flags, const QString &str, int len,
 
     \internal
     \overload
+*/
+
+/*!
+    \fn void QPainter::drawTextItem(const QPoint &p, const QTextItem &ti)
+
+    \internal
+    \overload
+
+    Draws the text item \a ti at position \a p.
 */
 
 /*! \internal
@@ -3390,24 +3605,41 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &ti)
 }
 
 /*!
-    \fn QRect QPainter::boundingRect(const QRect &r, int flags,
+    \fn QRect QPainter::boundingRect(int x, int y, int w, int h, int flags,
+                                     const QString &str, int len = -1);
+
+    \overload
+
+    Returns the bounding rectangle constrained by the rectangle that
+    begins at point (\a{x}, \a{y}) with width \a w and height \a h.
+*/
+
+/*!
+    \fn QRect QPainter::boundingRect(const QRect &rect, int flags,
                                      const QString &str, int len)
 
     \overload
 
-    Returns the bounding rectangle constrained by rectangle \a r.
+    Returns the bounding rectangle constrained by rectangle \a rect.
 */
 
-/*!
-    \fn QRect QPainter::boundingRect(int x, int y, int w, int h, int flags,
-                                     const QString &str, int len = -1);
 
+QRect QPainter::boundingRect(const QRect &rect, int flags, const QString &str, int len)
+{
+    QRect brect;
+    if (str.isEmpty())
+        brect.setRect(rect.x(),rect.y(), 0,0);
+    else
+        drawText(rect, flags | Qt::TextDontPrint, str, len, &brect);
+    return brect;
+}
+
+/*!
     Returns the bounding rectangle of the aligned text that would be
     printed with the corresponding drawText() function using the first
     \a len characters of the string \a str, if \a len is > -1, or the
     whole of the string if \a len is -1. The drawing, and hence the
-    bounding rectangle, is constrained to the rectangle that begins at
-    point (\a{x}, \a{y}) with width \a w and height \a h, or to the
+    bounding rectangle, is constrained to the rectangle \a rect, or to the
     rectangle required to draw the text, whichever is the larger.
 
     The \a flags argument is
@@ -3437,26 +3669,13 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &ti)
     \sa Qt::TextFlags
 */
 
-QRect QPainter::boundingRect(const QRect &bounds, int flags, const QString &str, int len)
-{
-    QRect brect;
-    if (str.isEmpty())
-        brect.setRect(bounds.x(),bounds.y(), 0,0);
-    else
-        drawText(bounds, flags | Qt::TextDontPrint, str, len, &brect);
-    return brect;
-}
-
-/*!
-  \overload
-*/
-QRectF QPainter::boundingRect(const QRectF &bounds, int flags, const QString &str, int len)
+QRectF QPainter::boundingRect(const QRectF &rect, int flags, const QString &str, int len)
 {
     QRectF brect;
     if (str.isEmpty())
-        brect.setRect(bounds.x(),bounds.y(), 0,0);
+        brect.setRect(rect.x(),rect.y(), 0,0);
     else
-        drawText(bounds, flags | Qt::TextDontPrint, str, len, &brect);
+        drawText(rect, flags | Qt::TextDontPrint, str, len, &brect);
     return brect;
 }
 
@@ -3478,6 +3697,15 @@ QRectF QPainter::boundingRect(const QRectF &bounds, int flags, const QString &st
     system.
 
     \sa drawPixmap()
+*/
+
+/*! \fn QPainter::drawTiledPixmap(const QRect &rect, const QPixmap &pixmap,
+                                  const QPoint &sp = QPoint(),
+                                  Qt::PixmapDrawingMode mode = Qt::ComposePixmap)
+    \overload
+
+    Draws a tiled \a pixmap, inside rectangle \a rect with its origin
+    at point \a sp, using the given drawing \a mode.
 */
 
 /*!
@@ -3568,6 +3796,13 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
 */
 
 /*!
+    \fn void QPainter::drawPicture(const QPoint &p, const QPicture &picture)
+    \overload
+
+    Draws picture \a picture at point \a p.
+*/
+
+/*!
     Replays the picture \a picture at point \a p.
 
     This function does exactly the same as QPicture::play() when
@@ -3585,6 +3820,14 @@ void QPainter::drawPicture(const QPointF &p, const QPicture &picture)
     const_cast<QPicture *>(&picture)->play(this);
     restore();
 }
+
+/*! \fn void QPainter::eraseRect(const QRect &rect)
+
+    \overload
+
+    Erases the area inside the rectangle \a rect. Equivalent to
+    \c{fillRect(rect, backgroundColor())}.
+*/
 
 /*!
     Erases the area inside the rectangle \a r. Equivalent to
@@ -3634,6 +3877,20 @@ void QPainter::fillRect(const QRectF &r, const QBrush &brush)
     if (swap)
         setPen(oldPen);
 }
+
+/*!
+  \fn void QPainter::fillRect(const QRect &rect, const QBrush &brush)
+
+    \overload
+
+    Fills the rectangle \a rect with the \a brush.
+
+    You can specify a QColor as \a brush, since there is a QBrush
+    constructor that takes a QColor argument and creates a solid
+    pattern brush.
+
+    \sa drawRect()
+*/
 
 /*!
   \fn void QPainter::fillRect(int x, int y, int w, int h, const QBrush &brush)
@@ -3849,6 +4106,48 @@ QRect QPainter::viewport() const
     Q_D(const QPainter);
     return QRect(d->state->vx, d->state->vy, d->state->vw, d->state->vh);
 }
+
+/*! \fn bool QPainter::hasViewXForm() const
+    \compat
+
+    Use viewTransformEnabled() instead.
+*/
+
+/*! \fn bool QPainter::hasWorldXForm() const
+    \compat
+
+    Use matrixEnabled() instead.
+*/
+
+/*! \fn void QPainter::resetXForm()
+    \compat
+
+    Use resetMatrix() instead.
+*/
+
+/*! \fn void QPainter::setViewXForm(bool enabled)
+    \compat
+
+    Use setViewTransformEnabled() instead.
+*/
+
+/*! \fn void QPainter::setWorldMatrix(const QMatrix &wm, bool combine=false)
+    \compat
+
+    Use setMatrix() instead.
+*/
+
+/*! \fn void QPainter::setWorldXForm(bool enabled)
+    \compat
+
+    Use setMatrixEnabled() instead.
+*/
+
+/*! \fn const QMatrix &QPainter::worldMatrix() const
+    \compat
+
+    Use matrix() instead.
+*/
 
 /*!
     Enables view transformations if \a enable is true, or disables
@@ -4625,32 +4924,36 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
 /*!
     \fn void QPainter::drawImage(const QPoint &p, const QImage &image)
 
-    Draws the image \a i at point \a p.
+    Draws the image \a image at point \a p.
 */
 
 /*!
     \fn void QPainter::drawImage(const QPointF &p, const QImage &image)
 
     \overload
+
+    Draws the image \a image at point \a p.
 */
 
 /*!
     \fn void QPainter::drawImage(const QPointF &p, const QImage &image, const QRectF &sr,
-                                 Qt::ImageConversionFlags conversionFlags = 0)
+                                 Qt::ImageConversionFlags flags = 0)
 
     Draws the rectangle \a sr of image \a image with its origin at point \a p.
 
     If the image needs to be modified to fit in a lower-resolution
-    result (e.g. converting from 32-bit to 8-bit), use the \a
-    conversionFlags to specify how you'd prefer this to happen.
+    result (e.g. converting from 32-bit to 8-bit), use the \a flags to
+    specify how you would prefer this to happen.
 
     \sa Qt::ImageConversionFlags
 */
 
 /*!
     \fn void QPainter::drawImage(const QPoint &p, const QImage &image, const QRect &sr,
-                                 Qt::ImageConversionFlags conversionFlags = 0)
+                                 Qt::ImageConversionFlags flags = 0)
     \overload
+
+    Draws the rectangle \a sr of image \a image with its origin at point \a p.
 */
 
 /*!
@@ -4663,12 +4966,14 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
     \fn void QPainter::drawImage(const QRect &rectangle, const QImage &image)
 
     \overload
+
+    Draws \a image into \a rectangle.
 */
 
 /*!
     \fn void QPainter::drawImage(int x, int y, const QImage &image,
                                  int sx, int sy, int sw, int sh,
-                                 Qt::ImageConversionFlags conversionFlags)
+                                 Qt::ImageConversionFlags flags)
     \overload
 
     Draws an image at (\a{x}, \a{y}) by copying a part of \a image into
