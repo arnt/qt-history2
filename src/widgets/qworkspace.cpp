@@ -388,7 +388,7 @@ public:
   children of a QWorkspace have to be focus enabled. If your MDI
   window does not handle focus itself, use QWidget::setFocusProxy() to
   install a focus-enabled child widget as focus proxy.
-  
+
   By default, the workspace generates minimize and restore buttons for
   maximized child windows, and places them in the top-right corner of
   the toplevel widgets, usually inside a menubar. This behaviour can
@@ -499,7 +499,7 @@ void QWorkspace::activateClient( QWidget* w)
 	return;
     }
 
-    if ( d->active == w )
+    if ( d->active && d->active->clientWidget() == w )
 	return;
 
     for (QWorkspaceChild* c = d->windows.first(); c; c = d->windows.next() ) {
@@ -532,8 +532,6 @@ QWidget* QWorkspace::activeClient() const
 void QWorkspace::place( QWidget* w)
 {
     int tx,ty;
-    QWorkspaceChild* c = (QWorkspaceChild*) w;
-
     QRect maxRect = rect();
     if (d->px < maxRect.x())
 	d->px = maxRect.x();
@@ -549,19 +547,19 @@ void QWorkspace::place( QWidget* w)
 	d->py =  maxRect.y() + OFFSET;
     tx = d->px;
     ty = d->py;
-    if (tx + c->width() > maxRect.right()){
-	tx = maxRect.right() - c->width();
+    if (tx + w->width() > maxRect.right()){
+	tx = maxRect.right() - w->width();
 	if (tx < 0)
 	    tx = 0;
 	d->px =  maxRect.x();
     }
-    if (ty + c->height() > maxRect.bottom()){
-	ty = maxRect.bottom() - c->height();
+    if (ty + w->height() > maxRect.bottom()){
+	ty = maxRect.bottom() - w->height();
 	if (ty < 0)
 	    ty = 0;
 	d->py =  maxRect.y();
     }
-    c->move( tx, ty );
+    w->move( tx, ty );
 }
 
 void QWorkspace::insertIcon( QWidget* w )
@@ -716,7 +714,7 @@ void QWorkspace::showMaximizeControls()
 {
     if ( !d->wantsmaxcontrols )
 	return;
-    
+
     if ( !d->maxcontrols ) {
 	d->maxcontrols = new QHBox( topLevelWidget() );
 	if ( !win32 )
@@ -772,15 +770,15 @@ void QWorkspace::normalizeActiveClient()
 /*!
   Defines whether the workspace shows control buttons for windows in
   maximized state.
-  
+
   If \a enabled is TRUE, the workspace will generate buttons to
   iconify or restore maximized windows and place them in the top-right
   corner of the toplevel widget.
-  
+
   By default, maximize controls are enabled.
-  
+
   \sa maximizeControls();
-  
+
  */
 void QWorkspace::setMaximizeControls( bool enabled )
 {
@@ -795,9 +793,9 @@ void QWorkspace::setMaximizeControls( bool enabled )
 /*!
   Returns whether the workspace shows control buttons for
   windows in maximized state or not.
-  
+
   The default is TRUE.
-  
+
   \sa setMaximizeControls()
  */
 bool QWorkspace::maximizeControls() const
@@ -998,6 +996,7 @@ void QWorkspaceChildTitleBar::setActive( bool active )
 	    titleL->setPalette( QPalette( g, g, g), TRUE );
 	    iconL->setPalette( QPalette( g, g, g), TRUE );
 	} else {
+	    titleL->setFrameStyle( QFrame::Panel | QFrame::Sunken );
 	    titleL->setFrameStyle( QFrame::NoFrame );
 	    titleL->setPalette( QPalette( g, g, g), TRUE );
 	}
@@ -1061,7 +1060,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     int th = titlebar->sizeHint().height();
 
     bool hasBeenResize = clientw->testWState( WState_Resized );
-    clientw->reparent( this, QPoint( contentsRect().x()+BORDER, th + BORDER + contentsRect().y() ), TRUE  );
+    clientw->reparent( this, QPoint( contentsRect().x()+BORDER, th + BORDER + TITLEBAR_SEPARATION + contentsRect().y() ), TRUE  );
 
     if ( !hasBeenResize ) {
 	QSize cs = clientw->sizeHint();
@@ -1086,7 +1085,6 @@ QWorkspaceChild::~QWorkspaceChild()
 
 void QWorkspaceChild::resizeEvent( QResizeEvent * )
 {
-
     QRect r = contentsRect();
     int th = titlebar->sizeHint().height();
     titlebar->setGeometry( r.x() + BORDER, r.y() + BORDER, r.width() - 2*BORDER, th+1);
