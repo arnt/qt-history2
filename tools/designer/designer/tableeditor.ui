@@ -829,4 +829,7 @@
     <tabstop>buttonRowDown</tabstop>
     <tabstop>buttonHelp</tabstop>
 </tabstops>
+<includes>
+    <include location="global" impldecl="in implementation">qtable.h</include>
+</includes>
 </UI>
