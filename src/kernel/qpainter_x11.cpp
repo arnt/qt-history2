@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#193 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#194 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #define QXFontStruct XFontStruct
 #include "qfontdta.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#193 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#194 $");
 
 
 /*****************************************************************************
@@ -2350,7 +2350,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	    XFillRectangle( dpy, hd, gc, x, y, sw, sh );
 	    XSetTSOrigin( dpy, gc, 0, 0 );
 	    XSetFillStyle( dpy, gc, FillSolid );
-	    if ( selfmask ) {
+	    if ( !selfmask ) {
 		XSetClipOrigin( dpy, gc, 0, 0 );
 		XSetClipMask( dpy, gc, None );
 	    }
