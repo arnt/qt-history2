@@ -1337,6 +1337,11 @@ int QRegExpEngine::anchorAlternation( int a, int b )
 	return a & b;
 
     int n = aa.size();
+#ifndef QT_NO_REGEXP_OPTIM
+    if ( n > 0 && aa[n - 1].a == a && aa[n - 1].b == b )
+	return Anchor_Alternation | ( n - 1 );
+#endif
+
     aa.resize( n + 1 );
     aa[n].a = a;
     aa[n].b = b;
@@ -2375,7 +2380,13 @@ void QRegExpEngine::Box::orx( const Box& b )
     mergeInto( &lanchors, b.lanchors );
     mergeInto( &rs, b.rs );
     mergeInto( &ranchors, b.ranchors );
-    skipanchors = eng->anchorAlternation( skipanchors, b.skipanchors );
+
+    if ( b.minl == 0 ) {
+	if ( minl == 0 )
+	    skipanchors = eng->anchorAlternation( skipanchors, b.skipanchors );
+	else
+	    skipanchors = b.skipanchors;
+    }
 
 #ifndef QT_NO_REGEXP_OPTIM
     occ1.detach();
