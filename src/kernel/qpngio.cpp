@@ -85,6 +85,13 @@ void qpiw_write_fn(png_structp png_ptr, png_bytep data, png_size_t length)
     }
 }
 
+static
+void qpiw_flush_fn(png_structp /*png_ptr*/)
+{
+    // ### add something sensible here!
+    // ### if a file is used for output, flush the file
+}
+
 #if defined(Q_C_CALLBACKS)
 }
 #endif
@@ -397,7 +404,7 @@ bool QPNGImageWriter::writeImage(const QImage& image, int quality, int off_x, in
 	png_set_compression_level(png_ptr, quality);
     }
 
-    png_set_write_fn(png_ptr, (void*)this, qpiw_write_fn, 0);
+    png_set_write_fn(png_ptr, (void*)this, qpiw_write_fn, qpiw_flush_fn);
 
     info_ptr->channels =
 	(image.depth() == 32)
