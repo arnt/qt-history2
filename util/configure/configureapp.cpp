@@ -503,15 +503,18 @@ void Configure::parseCmdLine()
     }
 
     if( dictionary[ "QMAKESPEC" ].right( 5 ) == QString( "-msvc" ) ||
-	dictionary[ "QMAKESPEC" ].right( 4 ) == QString( ".net" ) ||
+    dictionary[ "QMAKESPEC" ].right( 4 ) == QString( ".net" ) ||
 	dictionary[ "QMAKESPEC" ].right( 4 ) == QString( "-icc" ) ) {
-	dictionary[ "MAKE" ] = "nmake";
-	dictionary[ "QMAKEMAKEFILE" ] = "Makefile";
+		dictionary[ "MAKE" ] = "nmake";
+ 		dictionary[ "QMAKEMAKEFILE" ] = "Makefile";	
+    } else if ( dictionary[ "QMAKESPEC" ] == QString( "win32-g++" ) ) {
+	    dictionary[ "MAKE" ] = "mingw32-make";
+    	dictionary[ "QMAKEMAKEFILE" ] = "Makefile.win32-g++";
     } else {
-	dictionary[ "MAKE" ] = "make";
-	dictionary[ "QMAKEMAKEFILE" ] = "Makefile";
+	    dictionary[ "MAKE" ] = "make";
+	    dictionary[ "QMAKEMAKEFILE" ] = "Makefile";
     }
-
+    
     for( QStringList::Iterator dis = disabledModules.begin(); dis != disabledModules.end(); ++dis ) {
 	modules.remove( (*dis) );
     }
