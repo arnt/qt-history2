@@ -69,7 +69,6 @@ public:
 
 signals:
     void contentsChanged();
-    // ########### make these two work
     void undoAvailable(bool);
     void redoAvailable(bool);
 

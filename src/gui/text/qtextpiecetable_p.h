@@ -165,6 +165,8 @@ public:
 
 signals:
     void contentsChanged();
+    void undoAvailable(bool avail);
+    bool redoAvailable(bool avail);
 
 private:
     bool split(int pos);

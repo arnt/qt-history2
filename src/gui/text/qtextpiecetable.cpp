@@ -624,6 +624,8 @@ void QTextPieceTable::undoRedo(bool undo)
     }
     endEditBlock();
     undoEnabled = true;
+    emit undoAvailable(isUndoAvailable());
+    emit redoAvailable(isRedoAvailable());
 }
 
 /*!
@@ -656,6 +658,8 @@ void QTextPieceTable::appendUndoItem(const UndoCommand &c)
     }
     undoStack.append(c);
     undoPosition++;
+    emit undoAvailable(true);
+    emit redoAvailable(false);
 }
 
 void QTextPieceTable::truncateUndoStack() {
