@@ -4292,12 +4292,14 @@ void QCanvasRectangle::drawShape(QPainter & p)
     <small><sup>1</sup>/<sub>16</sub></small>ths of a degree.
 
     <center><img src="qcanvasellipse.png" width="300" height="200" alt="Ellipse"></center>
-    If a start angle and angle length are set then an ellipse segment
-    will be drawn. The start angle is the angle from zero (shown in red
-    in the diagram). The length angle is the angle from the start angle
-    (shown in green on the diagram). The green segment is the segment of
-    the ellipse that would be drawn. If no start angle and length angle
-    are specified the entire ellipse is drawn.
+    If a start angle and length angle are set then an ellipse segment
+    will be drawn. The start angle is the angle that goes from zero in a
+    counter-clockwise direction (shown in green in the diagram). The
+    length angle is the angle from the start angle in a
+    counter-clockwise direction (shown in blue in the diagram). The blue
+    segment is the segment of the ellipse that would be drawn. If no
+    start angle and length angle are specified the entire ellipse is
+    drawn.
     
   The ellipse can be drawn on a painter with drawShape().
 
@@ -4307,42 +4309,37 @@ void QCanvasRectangle::drawShape(QPainter & p)
 */
 /*! \base64 qcanvasellipse.png
 
-iVBORw0KGgoAAAANSUhEUgAAASwAAADICAIAAADdvUsCAAAHx0lEQVR4nO3dW3LbOBBGYWgq+wh2
-GnmnyEo0Dz3m0BJF8QLg7wbPV1MFx5Eo1JSPG5Id+/Z4PBIAnX/UGwCujggBMSIExIgQECNCQIwI
-ATEiBMSIEBAjQkCMCAExIgTEiBAQI0JAjAgBMSIExIgQECNCQIwIATEiBMSIEBAjQkCMCAExIgTE
-iBAQI0L0c7vd1FvwiAivYlcA1NITEQJiRDim27fpj+nnfHu6wfw2rzdeufLrHZ9u+e5Sr9e5rF/q
-DaC+2+02/Z4fe/vxeLy+c+Xt+TvXr/zujvM3tl/nmpiEg1v8+H73Qf8xhgN3vHhgWzAJB2Rzb3p7
-8TaHz4G1DpAcRCdEOKb1w97TaXD7ZQ/fcWWH4Dg6oO15dJiHH2/JSGQShnS7faWUHo8/i3/77jg6
-zbHpBvNbvjzEwgjdcsctt9xyYL4OIhzTYj+Lf3x9Y/HuB+64vgfamxChzPlT2N/b18kr/H4zS8/j
-Cw/b8X+qlcbPdL5SSqXpI6SUXipdPwY/4cC5EZOwgoFfWTgzbGlvIyLcZ+Detrv9XSjz8bvVyXZ4
-RLiG5OayLWX5b1/LJMuNiPAZ4S3KtpQdd5lnSZAriDAlwmuPIFdcN0LC2y7bUupcjSCfXCtCwjsg
-21KaXJwg0xUiJLwzsi2lx2NdNshhI6S90KYgr1DjaBHSXkXZlqLcwxVqHCRC2qsu21KUe5gbuMbw
-EZJfC9mWotzDO1bjSClGjZD2Lm6kwRgsQtrrINtSlHvYboAaw0RIfn1kW4pyD8fEPaZ6j5D2esq2
-FOUeToo4GF3/oCcKxGGL/97KJ6eTkPz6y7YU5R7qinJAdRch+UlkW4pyD434T9FRhOSnkm0pyj20
-5jlFFxGSH/rwmaI4QvKTy7YU5R4685ai8tVRCpTLthTlHlT8vHyqmYTk50G2pSj3oOVkJPaOkPzg
-jTzFrsdRCvQj21KUe3BFeDrtFyEF+pFtKco9OKTqsMdxlPxcybYU5R7ckhxNm09CCkQ4nUdi2wgp
-0JtsS1HuIYSeHTaMkAK9ybYU5R4C6dZhqwgpEAPo02H9F2bIz6dsS1HuIaIOL9VUnoQU6FO2pSj3
-EFrTkVgzQgr0KdtSlHsYQLsOXf94C+AKqkXIGPQp21KUexhGo2FYJ0IK9CnbUpR7GEyLDitESIE+
-ZVuKcg9Dqt7h2QgpcBD5HuOaPa//Xt0OeWFmTNmW0v+B790fMrxTETIGfcq2FOUehldxGDIJR5Nt
-KWcucf/vv/l7pve/3nJ+g/QyDF/vVeWxPl4njuPftsYYHFO+p3Jfe3vxDVPuP+6yeONaj7XlOo3d
-/n5V+Xa2g5OQAn3KtpQGl175yD72Vyt/e/iC3VU5lLr44b+oIttSzl/ofvoS3R8r5kHUHImQMehQ
-tqXUuFa3afN0jDxDNyHPH0p5YQbvbQzj/BTafoWPtww4EjmOjiDbUmpcq9x/vNCy5Zbzu6Q9L428
-u8LeW27fs0u3x+Ox7w6cRV34St/RZXtHEW3EdHxNsutjbXbmRMpxNLZsS5E89n3Mx+qO4yiO6nkI
-DH7gXLfvOMpZ1IefX5sqmk3gyeETKcfR4Ip6AziNCCP6/oxblJtALUQY1J+UppdlEBsRxkWHgyBC
-QIwIQ2MYjoAIo6PD8IhwAHQYGxECYkQ4BoZhYEQ4DDqMighHQochESEgti/Cnf8AGP0xDDX4R72Y
-o8NgiBAQ2x0hJ9IIGIZd8SMPsYgOwyDCgdFhDEci5EQKTM7/Thgm4dgYhgEcjJBhGAcdNqT81WiJ
-DiOhwyaqFJg4jgJypyJkGMbBMKys1hhMTMIroUOnzkbIMMQFVRyDqcokpMM4GIYV1C0w1TqO0mEc
-dHhK9QJTxeeEdBgHHR7UosDECzOAXM0IGYZxMAx3azQGU/VJSIdx0OEO7QpMe39T747r8jt9Y/hK
-id9zuKZpfqbVc0JGIgbQocDU9IUZOoyAQ+lbfQpMrV8dpcMI6HBBtwJThy9R0GEEdPhDzwJTSr86
-PIZ1yEs18K9zfqbfF+sZib4xDDUFps7fMUOHvl26Q1WBqc9xdI6jKbwR5mdafbF+02OTokcX+vK9
-PD+j/AZuTqcuXeVQ6qTApJ2E/2+CkejOyPPQT36m93PCRTxRRB/e8jMuJuEcKbox1DD0mZ9xF6Eh
-RR9G6NBzfsZphIYUHQjcof/8jOsfb+H48wO8i1Jgcj4J55iKOpGGYaD2JmEiNKQoEqDDiPkZF1+i
-2G76jEGNMHHbmwSbhK+osRdfw3CA9ibhIzSk2IWLDkfKzwwS4YQaG5N1OF57k2DPCT/iSeNgBm5v
-MtokfEWNtfUYhldobzJ+hHMEWUmTDi8V3ty1IpwjyHPqdHjZ8OZGe0643fyTD0H2RHhPrjsJ3yHI
-zXYMQ8JbQYRrCPKTtQ4Jb6PrHke3eP0ERZbvkNxhTMIKrlYmHzJ1MQkrWPygHKNMeuuACFv5+OHr
-oVIa84AIZQgAxvWPtwCugAgBMSIExIgQECNCQIwIATEiBMSIEBAjQkCMCAExIgTEiBAQI0JAjAgB
-MSIExIgQECNCQIwIATEiBMSIEBAjQkCMCAExIgTEiBAQI0JAjAgBMSIExIgQECNCQIwIATEiBMSI
-EBAjQkCMCAExIgTEiBAQI0JAjAgBMSIExIgQECNCQOxfDpCdiUfl9tQAAAAASUVORK5CYII=
+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
 
 */
 
