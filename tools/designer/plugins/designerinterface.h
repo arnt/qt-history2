@@ -172,6 +172,18 @@ Q_GUID(IID_DesignerProjectInterface,
 
 interface DesignerProjectInterface : public QUnknownInterface
 {
+    virtual QString fileName() const = 0;
+    virtual QString projectName() const = 0;
+    virtual QString databaseFile() const = 0;
+    virtual QStringList uiFiles() const = 0;
+
+    virtual QStringList databaseConnectionList() = 0;
+    virtual QStringList databaseTableList( const QString &connection ) = 0;
+    virtual QStringList databaseFieldList( const QString &connection, const QString &table ) = 0;
+
+    virtual void openDatabase( const QString &connection ) = 0;
+    virtual void closeDatabase( const QString &connection ) = 0;
+
 };
 
 /*

@@ -240,4 +240,32 @@ private:
     unsigned long ref;
 };
 
+class DesignerProjectInterfaceImpl : public DesignerProjectInterface
+{
+public:
+    DesignerProjectInterfaceImpl( QUnknownInterface *i );
+
+    QUnknownInterface *queryInterface( const QGuid & );
+    unsigned long addRef();
+    unsigned long release();
+
+    QString fileName() const;
+    QString projectName() const;
+    QString databaseFile() const;
+    QStringList uiFiles() const;
+
+    QStringList databaseConnectionList();
+    QStringList databaseTableList( const QString &connection );
+    QStringList databaseFieldList( const QString &connection, const QString &table );
+
+    void openDatabase( const QString &connection );
+    void closeDatabase( const QString &connection );
+
+private:
+    MainWindow *mainWindow;
+    QUnknownInterface *appIface;
+    unsigned long ref;
+
+};
+
 #endif

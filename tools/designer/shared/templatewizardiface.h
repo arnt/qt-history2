@@ -15,16 +15,8 @@ Q_GUID( IID_TemplateWizardInterface, 0x983d3eab, 0xfea3, 0x49cc, 0x97, 0xad, 0xd
 class TemplateWizardInterface : public QUnknownInterface
 {
 public:
-    struct DatabaseConnection
-    {
-	QString connection;
-	QStringList tables;
-	QMap<QString, QStringList> fields;
-    };
-
     virtual QStringList featureList() const = 0;
-    virtual void setup( const QString &templ, QWidget *widget,
-			const QValueList<DatabaseConnection> &dbConnections, QComponentInterface *appIface ) = 0;
+    virtual void setup( const QString &templ, QWidget *widget, QComponentInterface *appIface ) = 0;
 
 };
 

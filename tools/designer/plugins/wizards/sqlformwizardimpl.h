@@ -9,8 +9,7 @@ class SqlFormWizard : public SqlFormWizardBase
     Q_OBJECT
 
 public:
-    SqlFormWizard( QComponentInterface *aIface, QWidget *w, const QValueList<TemplateWizardInterface::DatabaseConnection> &conns,
-		   QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0 );
+    SqlFormWizard( QComponentInterface *aIface, QWidget *w, QWidget* parent = 0, const char* name = 0, bool modal = FALSE, WFlags fl = 0 );
     ~SqlFormWizard();
 
 protected slots:
@@ -24,8 +23,10 @@ protected slots:
     void setupDatabaseConnections();
 
 private:
+    void setupPage1();
+
+private:
     QWidget *widget;
-    QValueList<TemplateWizardInterface::DatabaseConnection> dbConnections;
     QComponentInterface *appIface;
 
 };

@@ -16,7 +16,7 @@ public:
 
     QStringList featureList() const;
 
-    void setup( const QString &templ, QWidget *widget, const QValueList<DatabaseConnection> &dbConnections, QComponentInterface *aIface );
+    void setup( const QString &templ, QWidget *widget, QComponentInterface *aIface );
 
 private:
     unsigned long ref;
@@ -38,15 +38,14 @@ QStringList StandardTemplateWizardInterface::featureList() const
     return list;
 }
 
-void StandardTemplateWizardInterface::setup( const QString &templ, QWidget *widget,
-					     const QValueList<DatabaseConnection> &dbConnections, QComponentInterface *aIface )
+void StandardTemplateWizardInterface::setup( const QString &templ, QWidget *widget, QComponentInterface *aIface )
 {
     appIface = aIface;
     if ( templ == "QDesignerSqlWidget" ||
 	 templ == "QDesignerSqlDialog" ||
 	 templ == "QSqlWidget" ||
 	 templ == "QSqlDialog" ) {
-	SqlFormWizard *wizard = new SqlFormWizard( appIface, widget, dbConnections, 0, 0, TRUE );
+	SqlFormWizard *wizard = new SqlFormWizard( appIface, widget, 0, 0, TRUE );
 	wizard->exec();
     }
 }

@@ -13,18 +13,14 @@
 #include "../designerinterface.h"
 
 SqlFormWizard::SqlFormWizard( QComponentInterface *aIface, QWidget *w,
-			      const QValueList<TemplateWizardInterface::DatabaseConnection> &conns,
 			      QWidget* parent,  const char* name, bool modal, WFlags fl )
-    : SqlFormWizardBase( parent, name, modal, fl ), widget( w ), dbConnections( conns ), appIface( aIface )
+    : SqlFormWizardBase( parent, name, modal, fl ), widget( w ), appIface( aIface )
 {
-    for ( QValueList<TemplateWizardInterface::DatabaseConnection>::Iterator it = dbConnections.begin();
-	  it != dbConnections.end(); ++it )
-	listBoxConnection->insertItem( (*it).connection );
-    //setNextEnabled( databasePage, FALSE );
     setFinishEnabled( databasePage, FALSE );
     setFinishEnabled( populatePage, TRUE );
 
     connect( checkBoxAutoPopulate, SIGNAL( toggled(bool) ), this, SLOT( autoPopulate(bool) ) );
+    setupPage1();
 }
 
 SqlFormWizard::~SqlFormWizard()
@@ -34,14 +30,16 @@ SqlFormWizard::~SqlFormWizard()
 
 void SqlFormWizard::connectionSelected( const QString &c )
 {
-    for ( QValueList<TemplateWizardInterface::DatabaseConnection>::Iterator it = dbConnections.begin();
-	  it != dbConnections.end(); ++it ) {
-	if ( (*it).connection == c ) {
-	    listBoxTable->clear();
-	    editTable->clear();
-	    listBoxTable->insertStringList( (*it).tables );
-	}
-    }
+    if ( !appIface )
+	return;
+
+    DesignerProjectInterface *proIface = (DesignerProjectInterface*)appIface->queryInterface( IID_DesignerProjectInterface );
+    if ( !proIface )
+	return;
+
+    listBoxTable->clear();
+    editTable->clear();
+    listBoxTable->insertStringList( proIface->databaseTableList( c ) );
 }
 
 void SqlFormWizard::tableSelected( const QString &t )
@@ -112,4 +110,23 @@ void SqlFormWizard::setupDatabaseConnections()
     if ( !mwIface )
 	return;
     mwIface->editDatabaseConnections();
+    setupPage1();
+}
+
+void SqlFormWizard::setupPage1()
+{
+    if ( !appIface )
+	return;
+
+    DesignerProjectInterface *proIface = (DesignerProjectInterface*)appIface->queryInterface( IID_DesignerProjectInterface );
+    if ( !proIface )
+	return;
+
+    listBoxTable->clear();
+    listBoxConnection->clear();
+    editTable->clear();
+    editConnection->clear();
+
+    QStringList lst = proIface->databaseConnectionList();
+    listBoxConnection->insertStringList( lst );
 }

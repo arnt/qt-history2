@@ -9,6 +9,7 @@
 #include <qapplication.h>
 #include <qobjectlist.h>
 #include <qstatusbar.h>
+#include "project.h"
 
 /*
  * Application Interface
@@ -37,6 +38,8 @@ QUnknownInterface *DesignerApplicationInterfaceImpl::queryInterface( const QGuid
 	iface = new DesignerWidgetInterfaceImpl( 0, this );
     else if ( guid == IID_DesignerMainWindowInterface )
 	iface = new DesignerMainWindowInterfaceImpl( this );
+    else if ( guid == IID_DesignerProjectInterface )
+	iface = new DesignerProjectInterfaceImpl( this );
 
     if ( iface )
 	iface->addRef();
@@ -948,4 +951,105 @@ bool DesignerWidgetInterfaceImpl::selected() const
 void DesignerWidgetInterfaceImpl::remove()
 {
     qDebug( "TODO: DesignerWidgetInterfaceImpl::remove" );
+}
+
+
+
+
+
+
+DesignerProjectInterfaceImpl::DesignerProjectInterfaceImpl( QUnknownInterface *i )
+    : DesignerProjectInterface(), appIface( i ), ref( 0 )
+{
+    QWidget *mw = qApp ? qApp->mainWidget() : 0;
+    if ( mw && mw->inherits( "MainWindow" ) )
+	mainWindow = (MainWindow*)mw;
+    else
+	mainWindow = 0;
+
+    appIface->addRef();
+}
+
+QUnknownInterface *DesignerProjectInterfaceImpl::queryInterface( const QGuid &guid )
+{
+    return appIface->queryInterface( guid );
+}
+
+unsigned long DesignerProjectInterfaceImpl::addRef()
+{
+    return ref++;
+}
+
+unsigned long DesignerProjectInterfaceImpl::release()
+{
+    if ( !--ref ) {
+	appIface->release();
+	delete this;
+	return 0;
+    }
+
+    return ref;
+}
+
+QString DesignerProjectInterfaceImpl::fileName() const
+{
+    if ( !mainWindow || !mainWindow->currProject() )
+	return QString::null;
+    return mainWindow->currProject()->fileName();
+}
+
+QString DesignerProjectInterfaceImpl::projectName() const
+{
+    if ( !mainWindow || !mainWindow->currProject() )
+	return QString::null;
+    return mainWindow->currProject()->projectName();
+}
+
+QString DesignerProjectInterfaceImpl::databaseFile() const
+{
+    if ( !mainWindow || !mainWindow->currProject() )
+	return QString::null;
+    return mainWindow->currProject()->databaseDescription();
+}
+
+QStringList DesignerProjectInterfaceImpl::uiFiles() const
+{
+    if ( !mainWindow || !mainWindow->currProject() )
+	return QStringList();
+    return mainWindow->currProject()->uiFiles();
+}
+
+QStringList DesignerProjectInterfaceImpl::databaseConnectionList()
+{
+    if ( !mainWindow || !mainWindow->currProject() )
+	return QStringList();
+    return mainWindow->currProject()->databaseConnectionList();
+}
+
+QStringList DesignerProjectInterfaceImpl::databaseTableList( const QString &connection )
+{
+    if ( !mainWindow || !mainWindow->currProject() )
+	return QStringList();
+    return mainWindow->currProject()->databaseTableList( connection );
+}
+
+QStringList DesignerProjectInterfaceImpl::databaseFieldList( const QString &connection, const QString &table )
+{
+    if ( !mainWindow || !mainWindow->currProject() )
+	return QStringList();
+    return mainWindow->currProject()->databaseFieldList( connection, table );
+}
+
+void DesignerProjectInterfaceImpl::openDatabase( const QString &connection )
+{
+    if ( !mainWindow || !mainWindow->currProject() )
+	return;
+    return mainWindow->currProject()->openDatabase( connection );
+}
+
+void DesignerProjectInterfaceImpl::closeDatabase( const QString &connection )
+{
+    if ( !mainWindow || !mainWindow->currProject() )
+	return;
+    return mainWindow->currProject()->closeDatabase( connection );
 }

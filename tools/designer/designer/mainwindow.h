@@ -115,6 +115,8 @@ public:
 
     bool isPreviewing() const { return previewing; }
 
+    Project *currProject() const { return currentProject; }
+
 public slots:
     void showProperties( QObject *w );
     void updateProperties( QObject *w );
