@@ -21,7 +21,7 @@
 #endif
 
 
-#define QT_VERSION_STR   "4.0.0-tp1"
+#define QT_VERSION_STR   "4.0.0-tp2"
 /*
    QT_VERSION is (major << 16) + (minor << 8) + patch.
  */
