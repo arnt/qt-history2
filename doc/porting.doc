@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.19 1999/01/21 13:42:28 warwick Exp $
+** $Id: porting.doc,v 1.20 1999/01/21 14:30:26 warwick Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -19,8 +19,9 @@
 
 <ul>
  <li> Breifly read the notes below to get an idea of what to expect.
- <li> Recompile.  For each error, search below for related identifiers
-	(eg. function names, class names).  Changes in Qt 2.0 are
+ <li> Be sure your code compiles on all your target platforms with Qt 1.0.
+ <li> Recompile with Qt 2.0.  For each error, search below for related
+	identifiers (eg. function names, class names).  Changes in Qt 2.0 are
 	arranged so that almost all prolem code will cause compile-time
 	errors when compiled 
 	with Qt 2.0.
