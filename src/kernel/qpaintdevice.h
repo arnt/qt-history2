@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#23 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#24 $
 **
 ** Definition of QPaintDevice class
 **
@@ -87,6 +87,13 @@ protected:
     friend void bitBlt( QPaintDevice *, int, int, const QPaintDevice *,
 			int, int, int, int, RasterOp );
 };
+
+
+inline QFontMetrics QPaintDevice::fontMetrics() const
+{  return QFontMetrics((QPaintDevice*)this); }
+
+inline QFontInfo QPaintDevice::fontInfo() const
+{ return QFontInfo((QPaintDevice*)this); }
 
 
 void bitBlt( QPaintDevice *dst, int dx, int dy,
