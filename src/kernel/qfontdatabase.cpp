@@ -958,8 +958,8 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 			     , best_size, best_encoding, ( force_encoding_id >= 0 )
 #endif
 		);
-
-
+	}
+	if (fe) {
 	    fe->fontDef.family = best_family->name;
 	    if ( ! best_foundry->name.isEmpty() ) {
 		fe->fontDef.family += QString::fromLatin1( " [" );
