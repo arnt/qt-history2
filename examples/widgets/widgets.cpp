@@ -718,7 +718,6 @@ void WidgetView::showProperties()
 {
     if ( !qApp->focusWidget() )
 	return;
-#if QT_FEATURE_PROPERTIES
     QStrList properties = qApp->focusWidget()->metaObject()->propertyNames( TRUE );
     qDebug(" ");
     qDebug("Properties for class '%s'", qApp->focusWidget()->className() );
@@ -729,6 +728,5 @@ void WidgetView::showProperties()
 	    s = "read-only";
 	qDebug("%d: %s  ( %s, %s )", ++i, p->name(), s, p->type() );
     }
-#endif
 }
 

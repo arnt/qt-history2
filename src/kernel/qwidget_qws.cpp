@@ -143,7 +143,7 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
 
     setAllocatedRegionDirty();
 
-    if ( popup ) {				
+    if ( popup ) {
 	setWFlags(WStyle_Tool); // a popup is a tool window
 	setWFlags(WStyle_StaysOnTop); // a popup stays on top
     }
@@ -227,7 +227,7 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
 	while ( p && p->parentWidget()) {
 	    p = p->parentWidget()->topLevelWidget();
 	}
-	
+
 	// XXX ...
     }
 
@@ -530,11 +530,6 @@ void QWidget::setIcon( const QPixmap &pixmap )
 }
 
 
-/*!
-  Sets the text of the window's icon to \e iconText.
-  \sa iconText(), setIcon(), setCaption()
-*/
-
 void QWidget::setIconText( const QString &iconText )
 {
     createTLExtra();
@@ -834,7 +829,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	QGfx * mygfx=parentWidget()->graphicsContext();
 
 	QWidget * par=parentWidget();
-	
+
 	// Code from paintableRegion
 	QRegion r;
 	if (par->isVisible()) {

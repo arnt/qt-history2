@@ -476,13 +476,14 @@ filters.
 Finally, many applications want to create and send their own events.
 
 Creatint an event of a built-in type is very simple: Create an object
-of the relevant type, and then call \l QApplcation::sendEvent() or \l
+of the relevant type, and then call \l QApplication::sendEvent() or \l
 QApplication::postEvent().
 
 sendEvent() processes the event immediately - when sendEvent()
 returns, (the event filters and) the object have already processed the
-event.  \l QEvent::isAccepted() tells you whether the event was
-accepted or rejected by the last handler that was called.
+event.  For many event classes there is a function called isAccepted()
+tells you whether the event was accepted or rejected by the last
+handler that was called.
 
 postEvent() posts the event on a queue for later dispatch.  The next
 time Qt's main event loop runs, it dispatches all posted events, with
@@ -496,7 +497,7 @@ posted event will typically be dispatched very soon after the
 initialization of the object is complete.
 
 To create events of a custom type, you need to define an event number,
-which must be greater than \l QEvent::User, and probably you also need
+which must be greater than \c QEvent::User, and probably you also need
 to subclass \l QCustomEvent in order to pass characteristics about
 your custom event.  See the documentation to \l QCustomEvent for
 details.

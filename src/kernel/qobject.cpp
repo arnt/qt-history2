@@ -71,8 +71,8 @@
 
   \ingroup objectmodel
 
-  QObject is the heart of the \link object.html Qt Object Model
-  \endlink. The central feature in this model is a very powerful
+  QObject is the heart of the \link object.html Qt object model.
+  \endlink The central feature in this model is a very powerful
   mechnism for seamless object commuinication dubbed \link
   signalsandslots.html signals and slots \endlink. With connect(), you
   can connect a signal to a slot and destroy the connection again with
@@ -97,7 +97,7 @@
 
   When an object is deleted, it emits a destroyed() signal. You can
   catch this signal to avoid dangling references to QObjects. The
-  QGuardedPtr class provides an elegant way to utilize this feature.
+  QGuardedPtr class provides an elegant way to use this feature.
 
   QObjects can receive events through event() and filter events of
   other objects. See installEventFilter() and eventFilter() for
@@ -105,7 +105,7 @@
   catch child events.
 
   Last but not least, QObject provides the basic timer support in Qt,
-  see startTimer() and timerEvent() for details.
+  see QTimer for high-level support for timers.
 
   Notice that the \c Q_OBJECT macro is mandatory for any object that
   implement signals, slots or properties.  You also need to run the
@@ -116,7 +116,8 @@
   undefined behaviour.
 
   All Qt widgets inherit QObject. The convenience function
-  isWidgetType() returns whether an object is actually a widget.
+  isWidgetType() returns whether an object is actually a widget.  It
+  is much faster than inherits( "QWidget" ).
 */
 
 
@@ -2555,7 +2556,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    ASSERT( 0 );
 	}
 	return TRUE;
-	
+
     case QVariant::SizePolicy:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoSizePolicy m = (ProtoSizePolicy)p->set;
@@ -3173,7 +3174,7 @@ QVariant QObject::property( const char *name ) const
 	    ASSERT( 0 );
 	}
 	return value;
-	
+
     case QVariant::SizePolicy:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoSizePolicy m = (ProtoSizePolicy)p->get;

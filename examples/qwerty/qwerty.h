@@ -48,9 +48,7 @@ private:
     void rebuildCodecList();
     QMenuBar 	   *m;
     QMultiLineEdit *e;
-#if QT_FEATURE_PRINTER
     QPrinter        printer;
-#endif    
     QPopupMenu	   *save_as;
     QPopupMenu	   *open_as;
     bool changed;

@@ -410,7 +410,7 @@ bool QWSManager::event(QEvent *e)
 	case QEvent::Paint:
 	    paintEvent( (QPaintEvent*)e );
             break;
-	
+
 	default:
 	    return FALSE;
 	    break;
@@ -803,7 +803,7 @@ QWSDefaultDecorator::QWSDefaultDecorator()
 }
 
 /*!
-  \fn QWSDecorator::QWSDecorator()
+  \fn QWSDecorator::~QWSDecorator()
 
   Destructs a decorator.
 */

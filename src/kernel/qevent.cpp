@@ -224,18 +224,18 @@
 
   Constructs a mouse event object.
 
-  The \a type parameter must be \c QEvent::MouseButtonPress,
+  The \a type parameter must be one of \c QEvent::MouseButtonPress,
   \c QEvent::MouseButtonRelease,
   \c QEvent::MouseButtonDblClick or \c QEvent::MouseMove.
 
-  The \a pos parameter specifies the position relative to the receiving widget;
-  \a button specifies the ButtonState of the button that caused the event,
-  it should be 0 if \a type is \c MouseMove; and \a state is the ButtonState
-  at the time of the event.
+  The \a pos parameter specifies the position relative to the
+  receiving widget; \a button specifies the ButtonState of the button
+  that caused the event, which should be 0 if \a type is \c
+  MouseMove; \a state is the ButtonState at the time of the event.
 
   The globalPos() is initialized to QCursor::pos(), which may not be
   appropriate. Use the other constructor to specify the global position
-  explicitely.
+  explicitly.
 */
 
 QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
@@ -253,11 +253,11 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
   \c QEvent::MouseButtonRelease,
   \c QEvent::MouseButtonDblClick or \c QEvent::MouseMove.
 
-  The \a pos parameter specifies the position relative to the receiving widget;
-  \a globalPos gives the position in absolute coordinates;
-  \a button specifies the ButtonState of the button that caused the event,
-  it should be 0 if \a type is \c MouseMove; and \a state is the ButtonState
-  at the time of the event.
+  The \a pos parameter specifies the position relative to the
+  receiving widget; \a globalPos is the position in absolute
+  coordinates; \a button specifies the ButtonState of the button that
+  caused the event, which should be 0 if \a type is \c MouseMove; and
+  \a state is the ButtonState at the time of the event.
 */
 
 /*!
@@ -391,10 +391,9 @@ Qt::ButtonState QMouseEvent::stateAfter() const
 
   Constructs a wheel event object.
 
-  The globalPos() is initialized to QCursor::pos(), which may not be
-  appropriate. Use the other constructor to specify the global position
-  explicitely.
-
+  The globalPos() is initialized to QCursor::pos(), which usually is
+  right but not always. Use the other constructor if you need to
+  specify the global position explicitly.
 
   \sa pos(), delta(), state()
 */

@@ -23,7 +23,7 @@
 **
 *****************************************************************************/
 
-// NOT REVISED
+// REVISED: arnt
 
 #include "qwidget.h"
 #include "qpainter.h"
@@ -406,7 +406,7 @@ void qX11ClearFontNameCache()
 
 /*!
   Returns the window system handle to the font, for low-level
-  access.  <em>Using this function is not portable.</em>
+  access.  Using this function is \e not portable.
 */
 
 HANDLE QFont::handle() const
@@ -522,9 +522,9 @@ static bool fillFontDef( const QCString &xlfd, QFontDef *fd,
 /*!
   Returns the name of the font within the underlying window system.
   On Windows, this is usually just the family name of a true type
-  font. Under X, it is  a rather complex  XLFD (X Logical Font Description).
-  <em>Using the return value of this function is usually not
-  portable.</em>
+  font. Under X, it is a rather complex XLFD (X Logical Font
+  Description). Using the return value of this function is usually \e
+  not \e portable.
 
   \sa setRawName()
 */
@@ -541,18 +541,17 @@ QString QFont::rawName() const
   X resources) are usually available as XLFD (X Logical Font
   Description) only. You can pass an XLFD as \a name to this function.
 
-  The big advantage over Qt-1.x' concept of raw fonts is, that a font
-  after setRawName() is still a full-featured QFont. It can be queried
-  (for example with italic()) or modified (for example with
-  setItalic() ) and is therefore also suitable as a basis font for
-  rendering rich text.
-
+  In Qt 2.0 and later, a font set with setRawName() is still a
+  full-featured QFont. It can be queried (for example with italic())
+  or modified (for example with setItalic() ) and is therefore also
+  suitable as a basis font for rendering rich text.
+  
   If Qt's internal font database cannot resolve the raw name, the font
   becomes a raw font with \a name as family.
-
-  \bug Doesn't handle wildcards in XLFDs well, only complete
-  descriptions.  Aliases (file \c fonts.alias in the font directory on
-  X11) are not supported.
+  
+  Note that the present implementation does not handle handle
+  wildcards in XLFDs well, and that font aliases (file \c fonts.alias
+  in the font directory on X11) are not supported.
 
   \sa rawName(), setRawMode(), setFamily()
 */
@@ -603,9 +602,9 @@ QString QFont::defaultFamily() const
     }
 }
 
+
 /*!
-  Returns a last resort family name for the \link fontmatch.html font
-  matching algorithm. \endlink
+  Returns a last resort family name for the font matching algorithm.
 
   \sa lastResortFont()
 */
@@ -614,6 +613,7 @@ QString QFont::lastResortFamily() const
 {
     return QString::fromLatin1("helvetica");
 }
+
 
 static const char * const tryFonts[] = {
     "6x13",
@@ -636,10 +636,13 @@ static const char * const tryFonts[] = {
     0 };
 
 /*!
-  Returns a last resort raw font name for the \link fontmatch.html font
-  matching algorithm. \endlink
+  Returns a last resort raw font name for the font matching algorithm.
+  This is used if even the last resort family is not available.  It
+  returns \e something, almost no matter what.
 
-  This is used if not even the last resort family is available.
+  The current implementation tries a wide variety of common fonts,
+  returning the first one it finds.  The implementation may change at
+  any time.
 
   \sa lastResortFamily()
 */
@@ -880,7 +883,7 @@ int QFont_Private::fontMatchScore( char	 *fontName,	 QCString &buffer,
 	    *smoothScalable = TRUE;
     }
     if ( charSet() == AnyCharSet ) {
-	// this can happen at least two which do not deserve warnings:
+	// this can happen at least two cases which do not deserve warnings:
 	// 1. if the program is being used in the yoo-nited states
 	//    and without $LANG
 	// 2. if the program explicitly asks for AnyCharSet
@@ -1240,16 +1243,10 @@ QCString QFont_Private::findFont( bool *exact )
 	// Font sets do not use scoring.
 	*exact = TRUE;
 
-	const char* wt =
-	    weight() < 37
-		? "light"
-		: weight() < 57
-		    ? "medium"
-			: weight() < 69
-			? "demibold"
-			    : weight() < 81
-			    ? "bold"
-				: "black";
+	const char* wt = weight() < 37 ? "light" : 
+		 ( weight() < 57 ? "medium" : 
+		   ( weight() < 69 ? "demibold" :
+		     ( weight() < 81 ? "bold" : "black" ) ) );
 	const char* slant = italic() ? "i" : "r";
 	const char* slant2 = italic() ? "o" : "r";
 	int size = pointSize()*10;
@@ -1257,39 +1254,40 @@ QCString QFont_Private::findFont( bool *exact )
 	int xdpi = QPaintDevice::x11AppDpiX();
 	int ydpi = QPaintDevice::x11AppDpiY();
 	if ( foundry.isEmpty() ) {
-	    s.sprintf(
-		      "-*-%s-%s-%s-normal-*-*-%d-%d-%d-*-*-*-*,"
-		      "-*-%s-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
-		      "-*-%s-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
-		      "-*-helvetica-%s-%s-*-*-*-%d-%d-%d-*-*-*-*,"
-		      "-*-*-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
-		      "-*-*-*-*-*-*-*-%d-%d-%d-*-*-*-*",
-		      familyName.ascii(), wt, slant, size, xdpi, ydpi,
-		      familyName.ascii(), slant, size, xdpi, ydpi,
-		      familyName.ascii(), slant2, size, xdpi, ydpi,
-		      wt, slant, size, xdpi, ydpi,
-		      slant, size, xdpi, ydpi,
-		      size, xdpi, ydpi );
+	    s.sprintf( "-*-%s-%s-%s-normal-*-*-%d-%d-%d-*-*-*-*,"
+		       "-*-%s-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
+		       "-*-%s-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
+		       "-*-helvetica-%s-%s-*-*-*-%d-%d-%d-*-*-*-*,"
+		       "-*-*-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
+		       "-*-*-*-*-*-*-*-%d-%d-%d-*-*-*-*",
+		       familyName.ascii(), wt, slant, size, xdpi, ydpi,
+		       familyName.ascii(), slant, size, xdpi, ydpi,
+		       familyName.ascii(), slant2, size, xdpi, ydpi,
+		       wt, slant, size, xdpi, ydpi,
+		       slant, size, xdpi, ydpi,
+		       size, xdpi, ydpi );
 	} else {
-	    s.sprintf(
-		      "-%s-%s-%s-%s-normal-*-*-%d-%d-%d-*-*-*-*,"
-		      "-%s-%s-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
-		      "-%s-%s-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
-		      "-*-%s-%s-%s-normal-*-*-%d-%d-%d-*-*-*-*,"
-		      "-*-%s-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
-		      "-*-%s-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
-		      "-*-helvetica-%s-%s-*-*-*-%d-%d-%d-*-*-*-*,"
-		      "-*-*-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
-		      "-*-*-*-*-*-*-*-%d-%d-%d-*-*-*-*",
-		      foundry.ascii(), familyName.ascii(), wt, slant, size, xdpi, ydpi,
-		      foundry.ascii(), familyName.ascii(), slant, size, xdpi, ydpi,
-		      foundry.ascii(), familyName.ascii(), slant2, size, xdpi, ydpi,
-		      familyName.ascii(), wt, slant, size, xdpi, ydpi,
-		      familyName.ascii(), slant, size, xdpi, ydpi,
-		      familyName.ascii(), slant2, size, xdpi, ydpi,
-		      wt, slant, size, xdpi, ydpi,
-		      slant, size, xdpi, ydpi,
-		      size, xdpi, ydpi );
+	    s.sprintf( "-%s-%s-%s-%s-normal-*-*-%d-%d-%d-*-*-*-*,"
+		       "-%s-%s-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
+		       "-%s-%s-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
+		       "-*-%s-%s-%s-normal-*-*-%d-%d-%d-*-*-*-*,"
+		       "-*-%s-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
+		       "-*-%s-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
+		       "-*-helvetica-%s-%s-*-*-*-%d-%d-%d-*-*-*-*,"
+		       "-*-*-*-%s-*-*-*-%d-%d-%d-*-*-*-*,"
+		       "-*-*-*-*-*-*-*-%d-%d-%d-*-*-*-*",
+		       foundry.ascii(), familyName.ascii(), wt, slant, size,
+		       xdpi, ydpi,
+		       foundry.ascii(), familyName.ascii(), slant, size
+		       , xdpi, ydpi,
+		       foundry.ascii(), familyName.ascii(), slant2, size,
+		       xdpi, ydpi,
+		       familyName.ascii(), wt, slant, size, xdpi, ydpi,
+		       familyName.ascii(), slant, size, xdpi, ydpi,
+		       familyName.ascii(), slant2, size, xdpi, ydpi,
+		       wt, slant, size, xdpi, ydpi,
+		       slant, size, xdpi, ydpi,
+		       size, xdpi, ydpi );
 	}
 	return s;
     } else {
@@ -1317,12 +1315,12 @@ QCString QFont_Private::findFont( bool *exact )
 	    if ( score < CharSetScore ) {
 		f = lastResortFamily();
 		if ( familyName != f ) {
-		    familyName = f;			// try system default family
+		    familyName = f;		// try system default family
 		    bestName = bestFamilyMember( foundry, familyName, &score );
 		}
 	    }
 	}
-	if ( bestName.isNull() )			// no matching fonts found
+	if ( bestName.isNull() )		// no matching fonts found
 	    bestName = lastResortFont().ascii();
 	return bestName;
     }
@@ -1526,7 +1524,7 @@ static void getExt( QString str, int len, XRectangle& ink,
   This value is negative if the pixels of the character extend
   to the left of the logical origin.
 
-  <em>See width(QChar) for a graphical description of this metric.</em>
+  See width(QChar) for a graphical description of this metric.
 
   \sa rightBearing(QChar), minLeftBearing(), width()
 */
@@ -1549,7 +1547,7 @@ int QFontMetrics::leftBearing(QChar ch) const
   This value is negative if the pixels of the character extend
   to the right of the width() of the character.
 
-  <em>See width() for a graphical description of this metric.</em>
+  See width() for a graphical description of this metric.
 
   \sa leftBearing(char), minRightBearing(), width()
 */
@@ -1568,9 +1566,10 @@ int QFontMetrics::rightBearing(QChar ch) const
 /*!
   Returns the minimum left bearing of the font.
 
-  This is the smallest leftBearing(char)
-  of all characters in the font.
+  This is the smallest leftBearing(char) of all characters in the font.
 
+  Note that this function can be very slow if the font is big.
+  
   \sa minRightBearing(), leftBearing(char)
 */
 int QFontMetrics::minLeftBearing() const
@@ -1586,9 +1585,11 @@ int QFontMetrics::minLeftBearing() const
 /*!
   Returns the minimum right bearing of the font.
 
-  This is the smallest rightBearing(char)
-  of all characters in the font.
+  This is the smallest rightBearing(char) of all characters in the
+  font.
 
+  Note that this function can be very slow if the font is big.
+  
   \sa minLeftBearing(), rightBearing(char)
 */
 int QFontMetrics::minRightBearing() const
@@ -1681,22 +1682,20 @@ int QFontMetrics::lineSpacing() const
 
 /*! \overload int QFontMetrics::width( char c ) const
 
+  \obsolete
+
   Provided to aid porting from Qt 1.x.
 */
 
 /*!
-  Returns the logical width of a \e ch in pixels.  This is
-  a distance appropriate for drawing a subsequent character
-  after \e ch.
-
-  <img src=bearings.png align=right>
-  Some of the metrics are described in the image to the right.
-  The tall dark rectangle covers the logical width() of a character.
-  The shorter
-  pale rectangles cover the
-  \link QFontMetrics::leftBearing() left\endlink and
-  \link QFontMetrics::rightBearing() right\endlink bearings
-  of the characters.  Notice that the bearings of "f" in this particular
+  <img src="bearings.png" align=right> Returns the logical width of a
+  \e ch in pixels.  This is a distance appropriate for drawing a
+  subsequent character after \e ch.
+  
+  Some of the metrics are described in the image to the right.  The
+  tall dark rectangle covers the logical width() of a character.  The
+  shorter pale rectangles cover leftBearing() and rightBearing() of
+  the characters.  Notice that the bearings of "f" in this particular
   font are both negative, while the bearings of "o" are both positive.
 
   \sa boundingRect()
@@ -1717,7 +1716,7 @@ int QFontMetrics::width( QChar ch ) const
 /*!
   Returns the width in pixels of the first \e len characters of \e str.
 
-  If \e len is negative (default value), the whole string is used.
+  If \e len is negative (the default value is), the whole string is used.
 
   Note that this value is \e not equal to boundingRect().width();
   boundingRect() returns a rectangle describing the pixels this string
@@ -1735,11 +1734,12 @@ int QFontMetrics::width( const QString &str, int len ) const
     XFontStruct *f = FS;
     if ( f ) {
 	const QTextCodec* m = mapper();
-	if ( m ) {
-	    return printerAdjusted(XTextWidth( f, m->fromUnicode(str,len), len ));
-	} else {
-	    return printerAdjusted(XTextWidth16( f, (XChar2b*)str.unicode(), len ));
-	}
+	if ( m )
+	    return printerAdjusted(XTextWidth( f, m->fromUnicode(str,len),
+					       len ));
+	else
+	    return printerAdjusted(XTextWidth16( f, (XChar2b*)str.unicode(),
+						 len ));
     }
     XRectangle ink, log;
     getExt(str,len,ink,log,SET,mapper());
@@ -1761,9 +1761,10 @@ int QFontMetrics::width( const QString &str, int len ) const
   linebreaks.
 
   Due to the different actual character heights, the height of the
-  bounding rectangle of "Yes" and "yes" may be different.
+  bounding rectangle of e.g. "Yes" and "yes" may be different.
 
-  \sa width(), QPainter::boundingRect() */
+  \sa width(), QPainter::boundingRect()
+*/
 
 QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 {

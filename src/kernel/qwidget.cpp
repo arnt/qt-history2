@@ -482,11 +482,11 @@ inline bool QWidgetMapper::remove( WId id )
   <dt>WState_Created<dd> The widget has a valid winId().
   <dt>WState_Disabled<dd> The widget does not receive any mouse
        or keyboard events.
-  <dt>WState_ForceDisabled<dd> The widget is explicitely disabled, i.e. it will remain
+  <dt>WState_ForceDisabled<dd> The widget is explicitly disabled, i.e. it will remain
 	disabled even when all its ancestors are set to enabled
 	state. This implies WState_Disabled.
   <dt>WState_Visible<dd> The widget is currently visible.
-  <dt>WState_ForceHide<dd> The widget is explicitely hidden, i.e. it won't become
+  <dt>WState_ForceHide<dd> The widget is explicitly hidden, i.e. it won't become
   	visible unless you call show() on it.  ForceHide implies !WState_Visible
   <dt>WState_OwnCursor<dd> A cursor has been set for this widget.
   <dt>WState_MouseTracking<dd> Mouse tracking is enabled.
@@ -1172,7 +1172,7 @@ void QWidget::styleChange( QStyle& )
   enabled.
 
   This is the case if neither the widget itself nor every parent up to
-  but excluding \a ancestor has been explicitely disabled.
+  but excluding \a ancestor has been explicitly disabled.
 
   isEnabledTo(0) is equivalent to isEnabled().
 
@@ -1220,7 +1220,7 @@ bool QWidget::isEnabledToTLW() const
 
   Disabling a widget implicitely disables all its children.  Enabling
   respectively enables all child widgets unless they have been
-  explicitely disabled.
+  explicitly disabled.
 
   \sa isEnabled(), isEnabledTo(), QKeyEvent, QMouseEvent, enabledChange()
 */
@@ -3022,11 +3022,6 @@ void QWidget::setGeometry( int x, int y, int w, int h )
   instance, the QLineEdit constructor calls
   setFocusPolicy(\c QWidget::StrongFocus).
 
-  As a special case to support applications not utilizing focus,
-  \link isTopLevel() Top-level widgets \endlink that have
-  NoFocus policy will receive focus events and
-  gain keyboard events.
-
   \sa isFocusEnabled(), focusInEvent(), focusOutEvent(), keyPressEvent(),
   keyReleaseEvent(), isEnabled()
 */
@@ -3132,7 +3127,7 @@ void QWidget::show()
     if ( testWState(WState_Visible) )
 	return; // nothing to do
     if ( !isTopLevel() && !parentWidget()->isVisibleTo( 0 ) ){
-	// we should become visible, but our parents are explicitely
+	// we should become visible, but our parents are explicitly
 	// hidden. Don' worry, since we cleared the ForceHide flag,
 	// our immediate parent will call show() on us again during
 	// his own processing of show().
@@ -3222,7 +3217,7 @@ void QWidget::show()
 
      if ( !isTopLevel() && !parentWidget()->isVisible() ) {
 	// we should become visible, but somehow our parent is not
-	// visible, so we can't do that. Since it is not explicitely
+	// visible, so we can't do that. Since it is not explicitly
 	// hidden (that we checked above with isVisibleTo(0) ), our
 	// window is not withdrawn, but may for example be iconfied or
 	// on another virtual desktop. Therefore we have to prepare
@@ -3499,7 +3494,7 @@ bool QWidget::close( bool alsoDelete )
   shown.
 
   This is the case if neither the widget itself nor every parent up to
-  but excluding \a ancestor has been explicitely hidden.
+  but excluding \a ancestor has been explicitly hidden.
 
   This function returns TRUE if the widget it is obscured by other
   windows on the screen, but would be visible if moved.
@@ -3997,10 +3992,6 @@ void QWidget::wheelEvent( QWheelEvent *e )
 
   The default implementation closes popup widgets if you hit
   escape.  Otherwise the event is ignored.
-
-  As a special case to support applications not utilizing focus,
-  \link isTopLevel() Top-level widgets \endlink that have
-  NoFocus policy will receive keyboard events.
 
   \sa keyReleaseEvent(), QKeyEvent::ignore(), setFocusPolicy(),
   focusInEvent(), focusOutEvent(), event(), QKeyEvent

@@ -132,11 +132,6 @@ static void build_scale_table( uint **table, uint nBits )
   QPixmap member functions
  *****************************************************************************/
 
-/*!
-  \internal
-  Initializes the pixmap data.
-*/
-
 void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 {
     static int serial = 0;
@@ -201,7 +196,7 @@ void QPixmap::deref()
 	    delete data->mask;
 	if ( data->clut )
 	    delete[] data->clut;
-	
+
 	if ( hd && qApp ) {
 	    hd = 0;
 	}
@@ -426,11 +421,11 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    }
 	}
     }
-    
+
     if ( partialalpha ) {
     	dd=32;
     }
-    
+
     init( w, h, dd, FALSE, defOptim );
 
     QGfx * mygfx=graphicsContext();

@@ -59,13 +59,13 @@ public:
     void	resize( const QSize & );
     void	setGeometry( int x, int y, int w, int h );
     void	setGeometry( const QRect & );
-    	
+
     void	setOrientation( Orientation orientation );
     Orientation	orientation() const;
-    
+
     void	setExtension( QWidget* extension );
     QWidget* extension() const;
-    
+
     QSize	sizeHint() const;
     QSize	minimumSizeHint() const;
 
@@ -73,7 +73,7 @@ protected slots:
     virtual void done( int );
     virtual void accept();
     virtual void reject();
-    
+
     void	showExtension( bool );
 
 protected:

@@ -154,6 +154,9 @@ in the following stages:
 	</p>
  <li><b>Produce translation.</b>
 	<p>
+	<b>NOTE:</b> Qt 2.2 improves a lot on the somewhat cumbersome
+	method described below.
+	<p>
 	Once you are using tr() sufficiently, you can start producing
 	translations of the user-visible text in your program.
 	<p>
@@ -343,7 +346,7 @@ be too concerned with the actual limitations.
      <li>Locale-oriented fonts and input methods.  Qt hides these and
 	    provides Unicode input and output.
      <li>Filesystem conventions such as
-            <a href=http://www.ietf.org/rfc/rfc2279.txt>UTF-8</a>
+            <a href="http://www.ietf.org/rfc/rfc2279.txt">UTF-8</a>
             are under development
 	    in some Unix variants.  All Qt file functions allow Unicode,
 	    but convert all filenames to the local 8-bit encoding, as
@@ -369,21 +372,19 @@ be too concerned with the actual limitations.
 
 <h2>Supporting more Input Methods</h2>
 
-While Troll Tech doesn't have the resources or expertise in all
-the languages of the world to immediately include support in Qt,
-we are very keen to work with people who <em>do</em> have the
-expertise.  Over the next few minor version numbers, we hope to add support
-for <em>your</em> language of choice, until everyone can use Qt
-and all the programs developed with Qt, regardless of their
-language.
+While Troll Tech doesn't have the resources or expertise in all the
+languages of the world to immediately include support in Qt, we are
+very keen to work with people who <em>do</em> have the expertise.
+Over the next few minor version numbers, we hope to add support for
+<em>your</em> language of choice, until everyone can use Qt and all
+the programs developed with Qt, regardless of their language.
 
 Initially, languages with uni-directional single-byte encodings
-(European Latin1 and KOI8-R, etc.)
-and the uni-directional multi-byte encodings (East Asian
-EUC-JP, etc.) will be supported. Later, support for the "complex"
-encodings - those requiring right-to-left input or complex character
-composition (eg. Arabic, Hebrew, and Thai script) will be implemented.
-The current state of activity is:
+(European Latin1 and KOI8-R, etc.)  and the uni-directional multi-byte
+encodings (East Asian EUC-JP, etc.) will be supported. Later, support
+for the "complex" encodings - those requiring right-to-left input or
+complex character composition (eg. Arabic, Hebrew, and Thai script)
+will be implemented.  The current state of activity is:
 <dl compact>
  <dt><b>All encodings on Windows</b>
     <dd>On Windows, the local encoding is always supported.
@@ -406,12 +407,12 @@ The current state of activity is:
   <dd>Fully supported. Uses eucJP with the XIM protocol on X11,
 	and the IME Windows NT in Japanese Windows NT.
 	Serika Kurusugawa and other are assisting with this effort.
-	<a href=ftp://ftp.sra.co.jp/pub/x11/kinput2/>kinput2</a>
+	<a href="ftp://ftp.sra.co.jp/pub/x11/kinput2/">kinput2</a>
 	is the tested input method for X11.
  <dt><b>eucKR</b>
   <dd>Under external development,
 	Mizi Research are assisting with this effort.
-	<a href=http://www.mizi.com/>hanIM</a>
+	<a href="http://www.mizi.com">hanIM</a>
        	is the tested input method.
  <dt><b>Big5</b>
   <dd>Qt contains a Big5 codec developed by Ming Che-Chuang.
@@ -421,22 +422,21 @@ The current state of activity is:
 </dl>
 
 If you are interested in contributing to existing efforts, or
-supporting new encodings beyond the more standard ones above, your work
-can be considered for inclusion in the official Qt distribution, or
-just included with your application.
+supporting new encodings beyond the more standard ones above, your
+work can be considered for inclusion in the official Qt distribution,
+or just included with your application.
 
 Eventually, we hope to help Unix become as Unicode-oriented as
-Windows NT is becoming.
-This means better font support in the font servers,
+Windows NT is becoming. This means better font support in the font servers,
 with new developments like the True Type font servers
-<a href=http://www.dcs.ed.ac.uk/home/jec/programs/xfsft/>xfsft</a>,
-<a href=ftp://sunsite.unc.edu/pub/Linux/X11/fonts>xfstt</a>,
+<a href="http://www.dcs.ed.ac.uk/home/jec/programs/xfsft/">xfsft</a>,
+<a href="ftp://sunsite.unc.edu/pub/Linux/X11/fonts/">xfstt</a>,
 and
 x-tt,
 as well as
-<a href=http://www.ietf.org/rfc/rfc2279.txt>UTF-8</a>
+<a href="http://www.ietf.org/rfc/rfc2279.txt">UTF-8</a>
 (a Unicode encoding) filenames such as with the
-<a href=http://www.sun.com/software/white-papers/wp-unicode/>Unicode
+<a href="http://www.sun.com/software/white-papers/wp-unicode/">Unicode
 support in Solaris<sup class="tm"><font size="-1">TM</font></sup> 7</a>.
 
 
@@ -457,7 +457,7 @@ bug-fix patch below.  Without this patch, Kinput2 can produce bad
 XIM Protocol, causing application lock-up.
 <p>
 For a recent version of Kinput2 that includes all users need, see
-<a href=ftp://ftp.sra.co.jp/pub/x11/kinput2/>
+<a href="ftp://ftp.sra.co.jp/pub/x11/kinput2/">
 ftp://ftp.sra.co.jp/pub/x11/kinput2/</a>
 
 <p>Patch...

@@ -458,8 +458,7 @@ void QGroupBox::setColumnLayout(int columns, Orientation direction)
 }
 
 
-/*\reimp
- */
+/*! \reimp  */
 bool QGroupBox::event( QEvent * e )
 {
     if ( e->type() == QEvent::LayoutHint && layout() )
@@ -467,8 +466,7 @@ bool QGroupBox::event( QEvent * e )
     return QFrame::event( e );
 }
 
-/*!\reimp
-*/
+/*!\reimp */
 void QGroupBox::childEvent( QChildEvent *c )
 {
     // Similar to QGrid::childEvent()
@@ -600,7 +598,7 @@ QSize QGroupBox::sizeHint() const
 {
     if ( layout() )
 	return QFrame::sizeHint();
-    
+
     QRect r = childrenRect();
     if ( r.isNull() )
 	return QSize( 100, 50 );

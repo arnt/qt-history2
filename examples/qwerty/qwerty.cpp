@@ -235,7 +235,6 @@ bool Editor::saveAs( const QString& fileName, int code )
 
 void Editor::print()
 {
-#if QT_FEATURE_PRINTER
     if ( printer.setup(this) ) {		// opens printer dialog
 	printer.setFullPage(TRUE);		// we'll set our own margins
 	QPainter p;
@@ -249,7 +248,7 @@ void Editor::print()
 
 	for( int i = 0 ; i < e->numLines() ; i++ ) {
 	    if ( printer.aborted() )
-	        break; 
+	        break;
 	    if ( yPos + fm.lineSpacing() > metrics.height() - MARGIN ) {
 	        // no more room on this page
 		if ( !printer.newPage() )          // start new page
@@ -262,7 +261,6 @@ void Editor::print()
 	}
 	p.end();				// send job to printer
     }
-#endif //QT_FEATURE_PRINTER
 }
 
 void Editor::resizeEvent( QResizeEvent * )

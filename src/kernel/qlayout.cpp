@@ -489,7 +489,7 @@ static void distributeMultiBox( QArray<QLayoutStruct> &chain, int spacing,
 		chain[i].maximumSize = chain[i].minimumSize;
 	    pos = nextPos;
  	}
-	
+
     } else if ( w < minSize ) {
 	//debug( "Big multicell" );
 	qGeomCalc( chain, start, end-start+1, 0, minSize, spacing );

@@ -117,6 +117,8 @@ int main( int argc, char** argv )
 	    int y=25;
 	    for ( int i=0; qm[i]; i++ ) {
 		if ( r == 2 || qmb[i]->isChecked() ) {
+		    int asdf;
+		    for( asdf=0; asdf < 10 ; asdf++ ) {
 		    MyWidget* w = showLang(qm[i]);
 		    QObject::connect(w, SIGNAL(closed()), qApp, SLOT(quit()));
 		    w->setGeometry(x,y,197,356);
@@ -125,6 +127,7 @@ int main( int argc, char** argv )
 		    if ( x > 1000 ) {
 			x=5;
 			y+=384;
+		    }
 		    }
 		}
 	    }

@@ -11567,7 +11567,7 @@ void QString::compose()
 		// we exclude Arabic presentation forms A and a few
 		// other ligatures, which are undefined in most fonts
 		if(!(code > 0xfb50 && code < 0xfe80) &&
-		   !(code > 0xfb00 && code < 0xfb2a)) {		
+		   !(code > 0xfb00 && code < 0xfb2a)) {
 				// joining info is only needed for arabic
 		    if (format(ligature.tag(), *this, index, len)) {
 			//printf("using ligature 0x%x, len=%d\n",code,len);
@@ -14881,10 +14881,11 @@ QDataStream &operator>>( QDataStream &s, QString &str )
   \class QConstString qstring.h
   \brief A QString which uses constant Unicode data.
 
-  In order to minimize copying, highly optimized applications
-  can use QConstString to provide a QString-compatible object
-  from existing Unicode data.  The Unicode data must exist
-  for the entire lifetime of the QConstString object.
+  In order to minimize copying, highly optimized applications can use
+  QConstString to provide a QString-compatible object from existing
+  Unicode data.  It is then the user's responsibility to make sure
+  that the Unicode data must exist for the entire lifetime of the
+  QConstString object.
 */
 
 /*!
@@ -14892,6 +14893,12 @@ QDataStream &operator>>( QDataStream &s, QString &str )
   characters in the array \a unicode.  Any attempt to modify
   copies of the string will cause it to create a copy of the
   data, thus it remains forever unmodified.
+
+  Note that \a unicode is \e not \e copied.  The caller \e must be
+  able to guarantee that \a unicode will not be deleted or
+  modified. Since that is generally not the case with \c const strings
+  (they are references), this constructor demands a non-const pointer
+  even though it never modifies \a unicode.
 */
 QConstString::QConstString( QChar* unicode, uint length ) :
     QString(new QStringData(unicode, length, length),TRUE)

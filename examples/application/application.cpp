@@ -12,14 +12,12 @@
 
 #include <qimage.h>
 #include <qpixmap.h>
-#include <qwidget.h>
 #include <qtoolbar.h>
 #include <qtoolbutton.h>
 #include <qpopupmenu.h>
 #include <qmenubar.h>
 #include <qkeycode.h>
 #include <qmultilineedit.h>
-#include <qmovie.h>
 #include <qfile.h>
 #include <qfiledialog.h>
 #include <qstatusbar.h>
@@ -35,8 +33,6 @@
 #include "filesave.xpm"
 #include "fileopen.xpm"
 #include "fileprint.xpm"
-
-const int no_writing = FALSE;
 
 const char * fileOpenText = "<img source=\"fileopen\"> "
 "Click this button to open a <em>new file</em>. <br><br>"
@@ -54,7 +50,8 @@ ApplicationWindow::ApplicationWindow()
 {
     int id;
 
-    QPixmap openIcon, saveIcon;
+    printer = new QPrinter;
+    QPixmap openIcon, saveIcon, printIcon;
 
     fileTools = new QToolBar( this, "file operations" );
     fileTools->setLabel( tr( "File Operations" ) );
@@ -69,22 +66,17 @@ ApplicationWindow::ApplicationWindow()
 	= new QToolButton( saveIcon, "Save File", QString::null,
 			   this, SLOT(save()), fileTools, "save file" );
 
-#if QT_FEATURE_PRINTER
-    printer = new QPrinter;
-    QPixmap printIcon;
-
     printIcon = QPixmap( fileprint );
     QToolButton * filePrint
 	= new QToolButton( printIcon, "Print File", QString::null,
 			   this, SLOT(print()), fileTools, "print file" );
-    QWhatsThis::add( filePrint, filePrintText );
-#endif
 
     (void)QWhatsThis::whatsThisButton( fileTools );
 
     QWhatsThis::add( fileOpen, fileOpenText );
     QMimeSourceFactory::defaultFactory()->setPixmap( "fileopen", openIcon );
     QWhatsThis::add( fileSave, fileSaveText );
+    QWhatsThis::add( filePrint, filePrintText );
 
     QPopupMenu * file = new QPopupMenu( this );
     menuBar()->insertItem( "&File", file );
@@ -100,12 +92,10 @@ ApplicationWindow::ApplicationWindow()
     file->setWhatsThis( id, fileSaveText );
     id = file->insertItem( "Save &as...", this, SLOT(saveAs()) );
     file->setWhatsThis( id, fileSaveText );
-#if QT_FEATURE_PRINTER
     file->insertSeparator();
     id = file->insertItem( printIcon, "&Print",
 			   this, SLOT(print()), CTRL+Key_P );
     file->setWhatsThis( id, filePrintText );
-#endif
     file->insertSeparator();
     file->insertItem( "&Close", this, SLOT(close()), CTRL+Key_W );
     file->insertItem( "&Quit", qApp, SLOT( closeAllWindows() ), CTRL+Key_Q );
@@ -129,9 +119,7 @@ ApplicationWindow::ApplicationWindow()
 
 ApplicationWindow::~ApplicationWindow()
 {
-#if QT_FEATURE_PRINTER
     delete printer;
-#endif
 }
 
 
@@ -188,7 +176,7 @@ void ApplicationWindow::save()
 
     QString text = e->text();
     QFile f( filename );
-    if ( no_writing || !f.open( IO_WriteOnly ) ) {
+    if ( !f.open( IO_WriteOnly ) ) {
 	statusBar()->message( QString("Could not write to %1").arg(filename),
 			      2000 );
 	return;
@@ -221,7 +209,6 @@ void ApplicationWindow::saveAs()
 
 void ApplicationWindow::print()
 {
-#if QT_FEATURE_PRINTER
     const int Margin = 10;
     int pageNo = 1;
 
@@ -254,7 +241,6 @@ void ApplicationWindow::print()
     } else {
 	statusBar()->message( "Printing aborted", 2000 );
     }
-#endif
 }
 
 void ApplicationWindow::closeEvent( QCloseEvent* ce )

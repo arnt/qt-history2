@@ -49,7 +49,7 @@
   color0 sets the bitmap bits to 0, and painting with \c color1 sets the
   bits to 1.  For a bitmap, 0-bits indicate background (or white) and
   1-bits indicate foreground (or black).  Using the \c black and \c white
-  QColor objects make no sense, because the QColor::pixel() 
+  QColor objects make no sense, because the QColor::pixel()
   value is not necessarily 0 for black and 1 for white.
 
   Just like the QPixmap class, QBitmap is optimized by the use of \link
@@ -241,10 +241,9 @@ QBitmap &QBitmap::operator=( const QImage &image )
   \sa QPixmap::xForm()
 */
 
-#if QT_FEATURE_TRANSFORMATIONS
-
 QBitmap QBitmap::xForm( const QWMatrix &matrix ) const
 {
+#if QT_FEATURE_TRANSFORMATIONS
     QPixmap pm = QPixmap::xForm( matrix );
     QBitmap bm;
     // Here we fake the pixmap to think it's a QBitmap. With this trick,
@@ -253,7 +252,8 @@ QBitmap QBitmap::xForm( const QWMatrix &matrix ) const
     pm.data->bitmap = TRUE;
     bm = pm;
     return bm;
+#endif // QT_FEATURE_TRANSFORMATIONS
 }
 
-#endif // QT_FEATURE_TRANSFORMATIONS
+
 

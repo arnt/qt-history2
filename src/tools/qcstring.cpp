@@ -384,6 +384,13 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
   but for text the user sees, you should use QString (which provides
   implicit sharing, Unicode and other internationalization support).
 
+  Note that QCString is one of the weaker classes in Qt; its design is
+  flawed (it tries to behave like a more convenient const char *) and
+  as a result, algorithims that use QCString heavily all too often
+  perform badly.  For example, append() is O(length()) since it scans
+  for a null terminator, which makes many algorithms that use QCString
+  scale even worse.
+
   Note that for the QCString methods that take a <var>const char *</var>
   parameter the results are undefined if the QCString is not
   zero-terminated.  It is legal for the <var>const char *</var> parameter

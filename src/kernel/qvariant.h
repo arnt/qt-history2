@@ -62,11 +62,7 @@ template <class T> class QValueListNode;
 template <class Key, class T> class QMap;
 template <class Key, class T> class QMapConstIterator;
 
-/**
- * This class acts like a union. It can hold one value at the
- * time but it can hold the most common types.
- * For CORBA people: It is a poor mans CORBA::Any.
- */
+
 class Q_EXPORT QVariant
 {
 public:

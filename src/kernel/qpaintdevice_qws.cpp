@@ -40,9 +40,6 @@ QPaintDevice::QPaintDevice( uint devflags )
     painters = 0;
 }
 
-/*!
-  Destroys the paint device and frees window system resources.
-*/
 
 QPaintDevice::~QPaintDevice()
 {
@@ -244,7 +241,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
     if ( sw <= 0 || sh <= 0 )
 	return;
-    
+
     QGfx * mygfx = dst->graphicsContext();
     QBitmap * mymask=0;
     if(!ignoreMask) {

@@ -1277,21 +1277,18 @@ void QPainter::restoreWorldMatrix()
   \sa scale(), shear(), rotate(), resetXForm(), setWorldMatrix(), xForm()
 */
 
-#if QT_FEATURE_TRANSFORMATIONS
 void QPainter::translate( double dx, double dy )
 {
+#if QT_FEATURE_TRANSFORMATIONS
     QWMatrix m;
     m.translate( dx, dy );
     setWorldMatrix( m, TRUE );
-}
 #else
-void QPainter::translate( int dx, int dy )
-{
     xlatex += dx;
     xlatey += dy;
     setf( VxF );
-}
 #endif
+}
 
 #if QT_FEATURE_TRANSFORMATIONS
 /*!
@@ -1969,7 +1966,7 @@ void QPainter::drawImage( int x, int y, const QImage & image,
 	    sh=image.height();
 
 	QImage image2=image;
-	
+
 	// This is a bit dubious
 	if(image2.depth()==1) {
 	    image2.setNumColors( 2 );

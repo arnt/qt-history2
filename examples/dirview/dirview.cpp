@@ -317,7 +317,6 @@ void DirectoryView::openFolder()
 
 static const int autoopenTime = 750;
 
-#if QT_FEATURE_DRAGANDDROP
 
 void DirectoryView::contentsDragEnterEvent( QDragEnterEvent *e )
 {
@@ -432,7 +431,6 @@ void DirectoryView::contentsDropEvent( QDropEvent *e )
 
 }
 
-#endif
 
 QString DirectoryView::fullPath(QListViewItem* item)
 {
@@ -454,7 +452,7 @@ void DirectoryView::contentsMousePressEvent( QMouseEvent* e )
     if ( i ) {
 	// if the user clicked into the root decoration of the item, don't try to start a drag!
 	if ( p.x() > header()->cellPos( header()->mapToActual( 0 ) ) +
-	     treeStepSize() * ( i->depth() + ( rootIsDecorated() ? 1 : 0) ) + itemMargin() || 
+	     treeStepSize() * ( i->depth() + ( rootIsDecorated() ? 1 : 0) ) + itemMargin() ||
 	     p.x() < header()->cellPos( header()->mapToActual( 0 ) ) ) {
 	    presspos = e->pos();
 	    mousePressed = TRUE;
@@ -466,7 +464,6 @@ void DirectoryView::contentsMouseMoveEvent( QMouseEvent* e )
 {
     if ( mousePressed && ( presspos - e->pos() ).manhattanLength() > QApplication::startDragDistance() ) {
 	mousePressed = FALSE;
-#if QT_FEATURE_DRAGANDDROP
 	QListViewItem *item = itemAt( contentsToViewport(presspos) );
 	if ( item ) {
 	    QString source = fullPath(item);
@@ -478,7 +475,6 @@ void DirectoryView::contentsMouseMoveEvent( QMouseEvent* e )
 					      QString("Delete ")+source, "Not implemented" );
 	    }
 	}
-#endif
     }
 }
 

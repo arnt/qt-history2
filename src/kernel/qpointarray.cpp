@@ -30,10 +30,10 @@
 #include "qwmatrix.h"
 #include <stdarg.h>
 
-const double Q_PI   = 3.14159265358979323846;   // pi
+const double Q_PI = 3.14159265358979323846;   // pi // one more useful comment
 
 
-// NOT REVISED
+// REVISED: arnt
 /*!
   \class QPointArray qpointarray.h
   \brief The QPointArray class provides an array of points.
@@ -42,26 +42,25 @@ const double Q_PI   = 3.14159265358979323846;   // pi
 
   \inherit QArray
 
-  The QPointArray is an array of QPoint objects. In addition to the functions
-  provided by QArray, QPointArray provides some handy methods:
+  The QPointArray is an array of QPoint objects. In addition to the
+  functions provided by QArray, QPointArray provides some
+  point-specific functions.
 
   For convenient reading and writing of the point data: setPoints(),
   putPoints(), point(), and setPoint().
 
-  For geometry operations: boundingRect() and translate(). As for the latter,
-  note that QWMatrix provides a map() function for more general transformation
-  of QPointArrays.
+  For geometry operations: boundingRect() and translate(). There is
+  also a QWMatrix::map() function for more general transformation of
+  QPointArrays.
 
-  QPointArray is used by the QPainter to draw
-  \link QPainter::drawLineSegments() line segments\endlink,
-  \link QPainter::drawPolyline() polylines\endlink,
-  \link QPainter::drawPolygon() polygons\endlink and
-  \link QPainter::drawQuadBezier() Bezier curves\endlink.
+  QPointArray is used by QPainter::drawLineSegments(),
+  QPainter::drawPolyline(), QPainter::drawPolygon() and
+  QPainter::drawQuadBezier(), among other things.
 
+  Note that since this class is a QArray, it is explicitly shared and
+  works with shallow copies by default.
 
-  Note that since this class is a QArray, it is
-  \link shclass.html explicitly shared\endlink
-  and works with shallow copies by default.
+  \sa QPainter QWMatrix QArray
 */
 
 
@@ -72,39 +71,41 @@ const double Q_PI   = 3.14159265358979323846;   // pi
 /*!
   \fn QPointArray::QPointArray()
   Constructs a null point array.
+
   \sa isNull()
 */
 
 /*!
+  \fn QPointArray::~QPointArray()
+
+  Deallocates the point array and frees all resources used.
+*/
+
+/*!
   \fn QPointArray::QPointArray( int size )
-  Constructs a point array with room for \e size points.
-  Makes a null array if \e size == 0.
+
+  Constructs a point array with room for \a size points. Makes a null
+  array if \a size == 0.
 
   \sa resize(), isNull()
 */
 
 /*!
   \fn QPointArray::QPointArray( const QPointArray &a )
-  Constructs a
-  \link shclass.html shallow copy\endlink of the point array \e a.
+
+  Constructs a shallow copy of the point array \a a.
 
   \sa copy()
 */
 
 /*!
-  Constructs a point array from the rectangle \e r.
+  Constructs a point array from the rectangle \a r.
 
-  If \e closed is FALSE, then the point array will contain the
-  following four points (in the listed order):
-  <ol>
-  <li> r.topLeft()
-  <li> r.topRight()
-  <li> r.bottomRight()
-  <li> r.bottomLeft()
-  </ol>
-
-  If \e closed is TRUE, then a fifth point is set to r.topLeft() to
-  close the point array.
+  If \a closed is FALSE, then the point array just contains the
+  following four points in the listed order: r.topLeft(),
+  r.topRight(), r.bottomRight() and r.bottomLeft().
+  
+  If \a closed is TRUE, then a fifth point is set to r.topLeft().
 */
 
 QPointArray::QPointArray( const QRect &r, bool closed )
@@ -120,8 +121,8 @@ QPointArray::QPointArray( const QRect &r, bool closed )
 }
 
 /*!
-  Constructs a point array with \e nPoints points, taken from the
-  \e points array.
+  Constructs a point array with \a nPoints points, taken from the
+  \a points array.
 
   Equivalent to setPoints(nPoints,points).
 */
@@ -134,9 +135,9 @@ QPointArray::QPointArray( int nPoints, const QCOORD *points )
 
 /*!
   \fn QPointArray &QPointArray::operator=( const QPointArray &a )
-  Assigns a
-  \link shclass.html shallow copy\endlink of \e a to this point array
-  and returns a reference to this point array.
+
+  Assigns a shallow copy of \a a to this point array and returns a
+  reference to this point array.
 
   Equivalent to assign( a ).
 
@@ -146,14 +147,13 @@ QPointArray::QPointArray( int nPoints, const QCOORD *points )
 /*!
   \fn QPointArray QPointArray::copy() const
 
-  Creates a
-  \link shclass.html deep copy\endlink of the array.
+  Creates a deep copy of the array.
 */
 
 
 
 /*!
-  Translates all points in the array \e (dx,dy).
+  Translates all points in the array \a (dx,dy).
 */
 
 void QPointArray::translate( int dx, int dy )
@@ -169,7 +169,7 @@ void QPointArray::translate( int dx, int dy )
 
 
 /*!
-  Returns the point at position \e index in the array in \e *x and \e *y.
+  Returns the point at position \a index in the array in \a *x and \a *y.
 */
 
 void QPointArray::point( uint index, int *x, int *y ) const
@@ -180,7 +180,7 @@ void QPointArray::point( uint index, int *x, int *y ) const
 }
 
 /*!
-  Returns the point at position \e index in the array.
+  Returns the point at position \a index in the array.
 */
 
 QPoint QPointArray::point( uint index ) const
@@ -189,7 +189,7 @@ QPoint QPointArray::point( uint index ) const
 }
 
 /*!
-  Sets the point at position \e index in the array to \e (x,y).
+  Sets the point at position \a index in the array to \a (x,y).
 */
 
 void QPointArray::setPoint( uint index, int x, int y )
@@ -198,19 +198,18 @@ void QPointArray::setPoint( uint index, int x, int y )
 }
 
 /*!
-  Resizes the array to \e nPoints and sets the points in the array to
-  the values taken from \e points.
+  Resizes the array to \a nPoints and sets the points in the array to
+  the values taken from \a points.
 
-  Returns TRUE if successful, or FALSE if the array could not be resized.
+  Returns TRUE if successful, or FALSE if the array could not be
+  resized (normally due to lack of memory).
 
-  Example:
+  The example code creates an array with two points (1,2) and (3,4):
   \code
     static QCOORD points[] = { 1,2, 3,4 };
     QPointArray a;
     a.setPoints( 2, points );
   \endcode
-
-  The example code creates an array with two points (1,2) and (3,4).
 
   \sa resize(), putPoints()
 */
@@ -235,24 +234,23 @@ bool QPointArray::setPoints( int nPoints, const QCOORD *points )
 */
 
 /*!
-  Resizes the array to \e nPoints and sets the points in the array to
+  Resizes the array to \a nPoints and sets the points in the array to
   the values taken from the variable argument list.
 
-  Returns TRUE if successful, or FALSE if the array could not be resized.
+  Returns TRUE if successful, or FALSE if the array could not be
+  resized (typically due to lack of memory).
 
-  Example:
+  The example code creates an array with two points (1,2) and (3,4):
+
   \code
     QPointArray a;
     a.setPoints( 2, 1,2, 3,4 );
   \endcode
 
-  The example code creates an array with two points (1,2) and (3,4).
-
   \sa resize(), putPoints()
 */
 
-bool QPointArray::setPoints( int nPoints, int firstx, int firsty,
-			     ... )
+bool QPointArray::setPoints( int nPoints, int firstx, int firsty, ... )
 {
     va_list ap;
     if ( !resize(nPoints) )
@@ -271,22 +269,21 @@ bool QPointArray::setPoints( int nPoints, int firstx, int firsty,
 }
 
 /*!
-  Copies \e nPoints points from the \e points array into this point array.
+  Copies \a nPoints points from the \a points array into this point array.
   Will resize this point array if <code>index+nPoints</code> exceeds
   the size of the array.
 
-  Returns TRUE if successful, or FALSE if the array could not be resized.
+  Returns TRUE if successful, or FALSE if the array could not be
+  resized (typcailly due to lack of memory).
 
-  Example:
+  The example code creates an array with three points: (1,2), (3,4)
+  and (5,6):
   \code
     QPointArray a( 1 );
     a[0] = QPoint( 1, 2 );
     static QCOORD points[] = { 3,4, 5,6 };
     a.putPoints( 1, 2, points );
   \endcode
-
-  The example code creates an array with three points: (1,2), (3,4)
-  and (5,6).
 
   This function differs from setPoints() in that it does not resize the
   array unless the array size is exceeded.
@@ -310,22 +307,21 @@ bool QPointArray::putPoints( int index, int nPoints, const QCOORD *points )
 }
 
 /*!
-  Copies \e nPoints points from the variable argument list into this point
+  Copies \a nPoints points from the variable argument list into this point
   array. Will resize this point array if <code>index+nPoints</code> exceeds
   the size of the array.
 
-  Returns TRUE if successful, or FALSE if the array could not be resized.
+  Returns TRUE if successful, or FALSE if the array could not be
+  resized (typically due to lack of memory).
 
-  Example:
+  The example code creates an array with two points (1,2), (3,4) and (5,6):
   \code
     QPointArray a( 1 );
     a[0] = QPoint( 1, 2 );
     a.putPoints( 1, 2, 3,4, 5,6 );
   \endcode
 
-  The example code creates an array with two points (1,2), (3,4) and (5,6).
-
-  This function differs from setPoints() because it does not resize the
+  This function differs from setPoints() in that it does not resize the
   array unless the array size is exceeded.
 
   \sa resize(), setPoints()
@@ -400,10 +396,10 @@ static inline int fix_angle( int a )
   resolution for pixel accuracy (see the overloaded function which
   takes an additional QWMatrix parameter).
 
-  Angles are specified in 16ths of a degree,
-  i.e. a full circle equals 5760 (16*360). Positive values mean
-  counter-clockwise while negative values mean clockwise direction.
-  Zero degrees is at the 3 o'clock position.
+  Angles are specified in 16ths of a degree, i.e. a full circle equals
+  5760 (16*360).  Positive values mean counter-clockwise while
+  negative values mean clockwise direction.  Zero degrees is at the 3
+  o'clock position.
 */
 
 void QPointArray::makeArc( int x, int y, int w, int h, int a1, int a2 )
@@ -501,10 +497,10 @@ qtr_elips(QPointArray& a, int& offset, double dxP, double dyP, double dxQ, doubl
   from angle \a a1, spanning \a a2, transformed by the matrix \a xf.
   The resulting array has sufficient resolution for pixel accuracy.
 
-  Angles are specified in 16ths of a degree,
-  i.e. a full circle equals 5760 (16*360). Positive values mean
-  counter-clockwise while negative values mean clockwise direction.
-  Zero degrees is at the 3 o'clock position.
+  Angles are specified in 16ths of a degree, i.e. a full circle equals
+  5760 (16*360). Positive values mean counter-clockwise while negative
+  values mean clockwise direction.  Zero degrees is at the 3 o'clock
+  position.
 */
 void QPointArray::makeArc( int x, int y, int w, int h,
 			       int a1, int a2,
@@ -610,9 +606,7 @@ void QPointArray::makeArc( int x, int y, int w, int h,
   Sets the points of the array to those describing an ellipse with
   size \a w by \a h and position (\a x, \a y ).
 
-  The returned array has sufficient
-  resolution for use as pixels (see the overloaded function which
-  takes an additional QWMatrix parameter).
+  The returned array has sufficient resolution for use as pixels.
 */
 void QPointArray::makeEllipse( int xx, int yy, int w, int h )
 {						// midpoint, 1/4 ellipse

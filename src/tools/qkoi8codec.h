@@ -31,6 +31,9 @@
 #include "qtextcodec.h"
 #endif // QT_H
 
+// ignore this file. it only exists so that some old applications can
+// link. please do not use it.
+
 class Q_EXPORT QKoi8Codec : public QTextCodec {
 public:
     virtual int mibEnum() const;

@@ -182,7 +182,6 @@ DrawView::DrawView()
 
     maxwidth += 40;				// now size of bgroup
 
-#if QT_FEATURE_PRINTER
     printer = new QPrinter;
 
     // Create and setup the print button
@@ -192,7 +191,6 @@ DrawView::DrawView()
     connect( print, SIGNAL(clicked()), SLOT(printIt()) );
 
     bgroup->resize( maxwidth, print->y()+print->height()+10 );
-#endif
 
     resize( 640,300 );
 }

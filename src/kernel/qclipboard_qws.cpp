@@ -120,39 +120,21 @@ static QClipboardData *clipboardData()
   QClipboard member functions for FB.
  *****************************************************************************/
 
-/*!
-  Clears the clipboard contents.
-*/
-
 void QClipboard::clear()
 {
     setText( QString::null );
 }
 
 
-/*!
-  \internal
-  Internal cleanup for Windows.
-*/
-
 void QClipboard::ownerDestroyed()
 {
 }
 
 
-/*!
-  \internal
-  Internal optimization for Windows.
-*/
-
 void QClipboard::connectNotify( const char * )
 {
 }
 
-
-/*!
-  Handles clipboard events (very platform-specific).
-*/
 
 bool QClipboard::event( QEvent *e )
 {
@@ -160,29 +142,12 @@ bool QClipboard::event( QEvent *e )
 }
 
 
-
-/*!
-  Returns a reference to a QMimeSource representation
-  of the current clipboard data.
-*/
 QMimeSource* QClipboard::data() const
 {
     QClipboardData *d = clipboardData();
     return d->source();
 }
 
-/*!
-  Sets the clipboard data.  Ownership of the data is transferred
-  to the clipboard - the only way to remove this data is to set
-  something else, or to call clear().  The QDragObject subclasses
-  are reasonable things to put on the clipboard (but do not try
-  to \link QDragObject::drag() drag\endlink the same object).
-  Do not put QDragMoveEvent or QDropEvent subclasses on the clipboard,
-  as they do not belong to the event handler which receives them.
-
-  The setText() and setPixmap() functions are shorthand ways
-  of setting the data.
-*/
 void QClipboard::setData( QMimeSource* src )
 {
     QClipboardData *d = clipboardData();

@@ -876,7 +876,7 @@ QString QTranslator::find( const char* context, const char* sourceText ) const
 }
 
 
-/*!  Returns the \l QTranslatorMessage for the key
+/*!  Returns the QTranslatorMessage for the key
   ( \a context, \a sourceText, \a comment ).
 */
 
@@ -998,7 +998,7 @@ QString QTranslator::toUnicode( const char * str ) const
 /* NOT DOCUMENTED \class QTranslatorMessage qtranslator.h
 
   \brief The QTranslatorMessage class contains a translator message and its properties.
-  
+
   \ingroup environment
 
   This class is of no interest to most applications, just for
@@ -1143,14 +1143,14 @@ QTranslatorMessage::QTranslatorMessage( QDataStream & stream )
 
   Returns the source text of this message (e.g., "&Save").  The source text is
   used as is for lookup; it should be converted using
-  \l QTranslator::toUnicode() before it shows up properly.
+  QTranslator::toUnicode() before it shows up properly.
 */
 
 /*! \fn const char *QTranslatorMessage::comment() const
 
   Returns the comment for this message (e.g., "File > Save").  The comment is
   used as is for lookup; it should be converted using
-  \l QTranslator::toUnicode() before it shows up properly.
+  QTranslator::toUnicode() before it shows up properly.
 */
 
 /*! \fn void QTranslatorMessage::setTranslation( const QString & translation )
@@ -1262,7 +1262,7 @@ void QTranslatorMessage::write( QDataStream & stream,
 
   For example, if the extended key is for this message is ( 42, "FunnyDialog",
   "Yes", "Funny?" ) and that for \a m is ( 42, "FunnyDialog", "No", "Funny?" ),
-  returns \l HashContext.
+  returns HashContext.
 
   \sa write()
 */

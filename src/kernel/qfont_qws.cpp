@@ -148,11 +148,6 @@ void QFont::cacheStatistics()
 #define DIRTY_FONT (d->req.dirty || d->fin->dirty())
 
 
-/*!
-  Returns the window system handle to the font, for low-level
-  access.  <em>Using this function is not portable.</em>
-*/
-
 HANDLE QFont::handle() const
 {
     load(); // the REAL reason this is called
