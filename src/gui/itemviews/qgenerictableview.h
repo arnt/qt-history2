@@ -47,6 +47,7 @@ public:
 
     QRect itemViewportRect(const QModelIndex &item) const;
     void ensureItemVisible(const QModelIndex &item);
+    QModelIndex itemAt(int x, int y) const;
 
 public slots:
     void selectRow(int row, ButtonState state = Qt::NoButton);
@@ -74,7 +75,6 @@ protected:
     void paintEvent(QPaintEvent *e);
     bool event(QEvent *e);
 
-    QModelIndex itemAt(int x, int y) const;
     int horizontalOffset() const;
     int verticalOffset() const;
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state);

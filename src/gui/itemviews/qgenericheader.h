@@ -61,6 +61,10 @@ public:
     int sortIndicatorSection() const;
     SortOrder sortIndicatorOrder() const;
 
+    QRect itemViewportRect(const QModelIndex &item) const;
+    void ensureItemVisible(const QModelIndex &index);
+    QModelIndex itemAt(int x, int y) const;
+
 public slots:
     void setOffset(int offset);
 
@@ -80,7 +84,6 @@ protected:
 //    void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void contentsRemoved(const QModelIndex &parent, const QModelIndex &topLeft, const QModelIndex &bottomRight);
-    void ensureItemVisible(const QModelIndex &index);
     void initializeSections(int start, int end);
 
     void paintEvent(QPaintEvent *e);
@@ -92,11 +95,9 @@ protected:
 
     virtual void paintSection(QPainter *painter, QItemOptions *options, const QModelIndex &item);
 
-    QModelIndex itemAt(int x, int y) const;
     int horizontalOffset() const;
     int verticalOffset() const;
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state);
-    QRect itemViewportRect(const QModelIndex &item) const;
     QModelIndex item(int section) const;
     void setSelection(const QRect&, int) {}
     QRect selectionViewportRect(const QItemSelection &selection) const;

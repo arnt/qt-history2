@@ -55,14 +55,12 @@ public:
     void setVerticalFactor(int factor);
     int verticalFactor() const;
 
-    void clearSelections();
     void setSelectionModel(QItemSelectionModel *selectionModel);
     QItemSelectionModel *selectionModel() const;
     void setSelectionMode(int mode);
     int selectionMode() const;
     void setSelectionBehavior(int behavior);
     int selectionBehavior() const;
-    void setCurrentItem(const QModelIndex &data);
     QModelIndex currentItem() const;
     QModelIndex root() const;
 
@@ -80,13 +78,19 @@ public:
 
     virtual QRect itemViewportRect(const QModelIndex &item) const = 0;
     virtual void ensureItemVisible(const QModelIndex &item) = 0;
+    inline QModelIndex itemAt(const QPoint &p) const { return itemAt(p.x(), p.y()); }
+    virtual QModelIndex itemAt(int x, int y) const = 0;
+
+    QSize itemSizeHint(const QModelIndex &item) const;
 
     virtual void updateItem(const QModelIndex &item);
     virtual void updateRow(const QModelIndex &item);
-    
+
 public slots:
     void setRoot(const QModelIndex &index);
     void edit(const QModelIndex &index);
+    void clearSelections();
+    void setCurrentItem(const QModelIndex &data);
 
 protected slots:
     virtual void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
@@ -117,9 +121,6 @@ protected:
 
     enum CursorAction { MoveUp, MoveDown, MoveLeft, MoveRight, MoveHome, MoveEnd, MovePageUp, MovePageDown };
     virtual QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state) = 0;
-
-    inline QModelIndex itemAt(const QPoint &p) const { return itemAt(p.x(), p.y()); }
-    virtual QModelIndex itemAt(int x, int y) const = 0;
 
     virtual int horizontalOffset() const = 0;
     virtual int verticalOffset() const = 0;

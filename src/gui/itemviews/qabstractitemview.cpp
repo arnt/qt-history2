@@ -22,6 +22,7 @@
 #include <qscrollbar.h>
 #include <qwhatsthis.h>
 #include <qtooltip.h>
+#include <qrubberband.h>
 
 #include <private/qabstractitemview_p.h>
 #define d d_func()
@@ -205,7 +206,7 @@ int QAbstractItemView::selectionBehavior() const
 
 void QAbstractItemView::setCurrentItem(const QModelIndex &data)
 {
-    d->selectionModel->setCurrentItem(data, selectionCommand(NoButton));
+    d->selectionModel->setCurrentItem(data, selectionCommand(NoButton, data));
 }
 
 QModelIndex QAbstractItemView::currentItem() const
@@ -480,10 +481,10 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
     case Key_PageUp:
     case Key_PageDown:
     case Key_Escape:
-    case Key_Enter:
     case Key_Shift:
     case Key_Control:
         break;
+    case Key_Enter:
     case Key_Return:
         emit returnPressed(currentItem());
         e->accept();
@@ -652,20 +653,20 @@ void QAbstractItemView::keyboardSearch(const QString &search) {
                                start.type());
     }
 
-    // search from start, if that fails search from row 0
+    // search from start with wraparound
     QString searchString = sameKey ? QString(d->keyboardInput.at(0)) : d->keyboardInput;
     QModelIndexList match;
-    match = model()->match(start, QAbstractItemModel::Display, searchString, 1);
-    if (start.row() > 0 && (match.isEmpty() || !match.at(0).isValid()))
-        match = model()->match(model()->index(0,
-                                              start.column(),
-                                              model()->parent(start),
-                                              start.type()),
-                          QAbstractItemModel::Display, searchString, 1);
-
+    match = model()->match(start, QAbstractItemModel::Display, searchString, 1, true);
     if (!match.isEmpty() && match.at(0).isValid()) {
         setCurrentItem(match.at(0));
     }
+}
+
+QSize QAbstractItemView::itemSizeHint(const QModelIndex &item) const
+{
+    QItemOptions options;
+    getViewOptions(&options);
+    return d->delegate->sizeHint(fontMetrics(), options, item);
 }
 
 void QAbstractItemView::updateItem(const QModelIndex &item)

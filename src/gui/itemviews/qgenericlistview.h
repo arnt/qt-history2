@@ -61,6 +61,7 @@ public:
 
     QRect itemViewportRect(const QModelIndex &item) const;
     void ensureItemVisible(const QModelIndex &item);
+    QModelIndex itemAt(int x, int y) const;
 
 protected:
     QGenericListView(QGenericListViewPrivate &, QAbstractItemModel *model, QWidget *parent = 0);
@@ -87,7 +88,6 @@ protected:
     void getViewOptions(QItemOptions *options) const;
     void paintEvent(QPaintEvent *e);
 
-    QModelIndex itemAt(int x, int y) const;
     int horizontalOffset() const;
     int verticalOffset() const;
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state);

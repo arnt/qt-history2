@@ -50,6 +50,7 @@ public:
 
     QRect itemViewportRect(const QModelIndex &item) const;
     void ensureItemVisible(const QModelIndex &item);
+    QModelIndex itemAt(int x, int y) const;
 
  signals:
     void expanded(const QModelIndex &index);
@@ -75,7 +76,6 @@ protected:
     void startItemsLayout();
 
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state);
-    QModelIndex itemAt(int x, int y) const;
     int horizontalOffset() const;
     int verticalOffset() const;
 

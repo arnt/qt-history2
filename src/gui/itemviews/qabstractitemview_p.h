@@ -1,8 +1,9 @@
 #ifndef QABSTRACTITEMVIEW_P_H
 #define QABSTRACTITEMVIEW_P_H
 
+class QRubberBand;
+
 #include <private/qviewport_p.h>
-#include <qrubberband.h>
 
 class QAbstractItemViewPrivate : public QViewportPrivate
 {

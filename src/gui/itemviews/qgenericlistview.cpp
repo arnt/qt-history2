@@ -19,6 +19,7 @@
 #include <qstyle.h>
 #include <qevent.h>
 #include <qscrollbar.h>
+#include <qrubberband.h>
 #include <private/qgenericlistview_p.h>
 
 #define d d_func()
@@ -1173,6 +1174,9 @@ QGenericListViewItem QGenericListViewPrivate::indexToListViewItem(const QModelIn
             return QGenericListViewItem();
 
     // movement == Static
+    if ((flow == QGenericListView::LeftToRight && item.row() >= xposVector.count()) ||
+        (flow == QGenericListView::TopToBottom && item.row() >= yposVector.count()))
+        return QGenericListViewItem();
     QItemOptions options;
     q->getViewOptions(&options);
     QSize hint = q->itemDelegate()->sizeHint(q->fontMetrics(), options, item);
