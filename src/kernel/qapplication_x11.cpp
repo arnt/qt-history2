@@ -3437,8 +3437,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
     case XKeyPress:				// keyboard event
     case XKeyRelease:
 	{
-	    if ( keywidget && keywidget->isEnabled() ) // should always exist
-
+	    if ( keywidget && keywidget->isEnabled() ) { // should always exist
 		if ( event->xkey.keycode == 0 ) {
 		    // input method has sent us a commit string
 		    QInputContext *qic =
@@ -3453,6 +3452,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 			if ( count > 0 )
 			    text = input_mapper->toUnicode( data, count );
 
+			// qDebug( "sending IMEnd with %d chars", text.length() );
 			QIMEvent endevent( QEvent::IMEnd, text, -1 );
 			QApplication::sendEvent( qic->focusWidget, &endevent );
 
@@ -3461,10 +3461,9 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		    } else {
 			if ( qic ) qic->reset();
 		    }
-		    break;
-		}
-
-	    keywidget->translateKeyEvent( event, grabbed );
+		} else
+		    keywidget->translateKeyEvent( event, grabbed );
+	    }
 	    break;
 	}
 

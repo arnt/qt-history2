@@ -143,6 +143,7 @@ extern "C" {
 	    return 0;
 	}
 
+	bool send_imstart = FALSE;
 	if (qApp->focusWidget() != qic->focusWidget && qic->text.isEmpty()) {
 	    if (qic->focusWidget) {
 #ifdef QT_XIM_DEBUG
@@ -163,12 +164,7 @@ extern "C" {
 
 	    if (qic->focusWidget) {
 		qic->composing = TRUE;
-#ifdef QT_XIM_DEBUG
-		qDebug( "sending IMStart to %p", qic->focusWidget );
-#endif // QT_XIM_DEBUG
-
-		QIMEvent startevent(QEvent::IMStart, QString::null, -1);
-		QApplication::sendEvent(qic->focusWidget, &startevent);
+		send_imstart = TRUE;
 	    }
 	}
 
@@ -186,8 +182,8 @@ extern "C" {
 	XIMText *text = (XIMText *) drawstruct->text;
 	int cursor = drawstruct->caret, sellen = 0;
 
-	if ( ! drawstruct->caret &&
-	     ! drawstruct->chg_first && ! drawstruct->chg_length && ! text ) {
+	if ( ! drawstruct->caret && ! drawstruct->chg_first &&
+	     ! drawstruct->chg_length && ! text ) {
 	    // nothing to do
 	    return 0;
 	}
@@ -265,8 +261,18 @@ extern "C" {
 	    }
 	}
 
+	if ( send_imstart ) {
 #ifdef QT_XIM_DEBUG
-	qDebug( "sending IMCompose to %p", qic->focusWidget );
+            qDebug( "sending IMStart to %p", qic->focusWidget );
+#endif // QT_XIM_DEBUG
+
+	    QIMEvent startevent(QEvent::IMStart, QString::null, -1);
+	    QApplication::sendEvent(qic->focusWidget, &startevent);
+	}
+
+#ifdef QT_XIM_DEBUG
+	qDebug( "sending IMCompose to %p with %d chars",
+                qic->focusWidget, qic->text.length() );
 #endif // QT_XIM_DEBUG
 
 	QIMComposeEvent event( QEvent::IMCompose, qic->text, cursor, sellen );
