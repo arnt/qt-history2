@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#63 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#64 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -509,8 +509,11 @@ void QButtonGroup::moveFocus( int key )
 
     if ( candidate && f && f->inherits( "QRadioButton" ) &&
 	 ((QRadioButton*)f)->isChecked() &&
-	 candidate->inherits( "QRadioButton" ) )
+	 candidate->inherits( "QRadioButton" ) ) {
 	((QRadioButton*)candidate)->setChecked( TRUE );
+	((QButton*)candidate)->animateClick();
+	((QButton*)candidate)->animateTimeout(); // ### crude l&f hack
+    }
 
     if ( candidate )
 	candidate->setFocus();
