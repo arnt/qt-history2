@@ -1611,6 +1611,10 @@ QSize QMotifStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
     QSize sz(contentsSize);
 
     switch(ct) {
+    case CT_Splitter:
+        sz = QSize(10, 10);
+        break;
+
     case CT_PushButton:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             sz = QCommonStyle::sizeFromContents(ct, opt, contentsSize, widget);
