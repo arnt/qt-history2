@@ -3153,6 +3153,11 @@ void QFileDialog::updateFileNameEdit( QListViewItem * newItem )
 	detailViewSelectionChanged();
     } else if ( files->isSelected( newItem ) ) {
 	QFileDialogPrivate::File * i = (QFileDialogPrivate::File *)newItem;
+	if ( !i->i->selected() ) {
+	    d->moreFiles->blockSignals( TRUE );
+	    d->moreFiles->setSelected( i->i, TRUE );
+	    d->moreFiles->blockSignals( FALSE );
+	}
 	trySetSelection( i->info.isDir(), QUrlOperator( d->url, newItem->text( 0 ) ), TRUE );
     }
 }
@@ -4562,12 +4567,13 @@ void QFileDialog::resortDir()
 	item = new QFileDialogPrivate::File( d, i, files );
 	item2 = new QFileDialogPrivate::MCItem( d->moreFiles, item, item2 );
 	item->i = item2;
+	if ( d->mode != ExistingFiles )
+	    d->pendingItems.append( item );
 	if ( d->mode == ExistingFiles && item->info.isDir() ||
 	     d->mode == Directory ) {
 	    item->setSelectable( FALSE );
 	    item2->setSelectable( FALSE );
 	}
-	d->pendingItems.append( item );
     }
     d->mimeTypeTimer->start( 0 );
 }
@@ -4622,14 +4628,14 @@ void QFileDialog::doMimeTypeLookup()
     QFileDialogPrivate::File *item = d->pendingItems.first();
     if ( item ) {
 	QFileInfo fi;
-	if ( d->url.isLocalFile() )
+	if ( d->url.isLocalFile() ) {
 	    fi.setFile( QUrl( d->url.path(), item->info.name() ).path() );
-	else
+	} else
 	    fi.setFile( item->info.name() ); // #####
 	const QPixmap *p = iconProvider()->pixmap( fi );
 	if ( p && p != item->pixmap( 0 ) && p != fifteenTransparentPixels ) {
 	    item->hasMimePixmap = TRUE;
-	    
+	
 	    // evil hack to avoid much too much repaints!
 	    qApp->processEvents();
 	    files->viewport()->setUpdatesEnabled( FALSE );
@@ -4649,7 +4655,7 @@ void QFileDialog::doMimeTypeLookup()
 	}
 	d->pendingItems.removeFirst();
     }
-    
+
     if ( d->moreFiles->isVisible() )
 	d->moreFiles->viewport()->repaint( r, FALSE );
     else

@@ -3652,7 +3652,7 @@ void QListView::setSelected( QListViewItem * item, bool selected )
 
     if ( !isMultiSelection() )
 	emit selectionChanged( selected ? item : 0 );
-
+    
     emit selectionChanged();
 }
 
@@ -3762,10 +3762,8 @@ void QListView::setCurrentItem( QListViewItem * i )
 	if ( prev )
 	    repaintItem( prev );
 	emit currentChanged( i );
-#if 0
-	if ( d->selectionMode == Single )
+	if ( i && d->selectionMode == Single && prev )
 	    setSelected( i, TRUE );
-#endif
     }
 }
 

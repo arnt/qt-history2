@@ -2252,12 +2252,15 @@ void QIconView::takeItem( QIconViewItem *item )
     QRect r = item->rect();
 
     if ( d->currentItem == item ) {
-	if ( item->prev )
+	if ( item->prev ) {
+	    d->currentItem = 0;
 	    setCurrentItem( item->prev );
-	else if ( item->next )
+	} else if ( item->next ) {
+	    d->currentItem = 0;
 	    setCurrentItem( item->next );
-	else
+	} else {
 	    setCurrentItem( 0 );
+	}
     }
     if ( item->isSelected() )
 	item->setSelected( FALSE );
@@ -2372,10 +2375,8 @@ void QIconView::setCurrentItem( QIconViewItem *item )
     d->currentItem = item;
     emit currentChanged();
     emit currentChanged( d->currentItem );
-#if 0
-    if ( d->selectionMode == Single )
+    if ( item && d->selectionMode == Single && old )
 	item->setSelected( TRUE );
-#endif
 
     if ( old )
 	repaintItem( old );
@@ -3533,7 +3534,8 @@ void QIconView::contentsMouseMoveEvent( QMouseEvent *e )
 	d->highlightedItem = item;
     }
 
-    if ( d->mousePressed && d->currentItem && d->currentItem->dragEnabled() ) {
+    if ( d->mousePressed && d->currentItem && 
+	 d->currentItem->isSelected() && d->currentItem->dragEnabled() ) {
 	if ( !d->startDrag ) {
 	    d->currentItem->setSelected( TRUE, TRUE );
 	    d->startDrag = TRUE;

@@ -1415,14 +1415,12 @@ void QListBox::setCurrentItem( QListBoxItem * i )
     QListBoxItem * o = d->current;
     d->current = i;
 
-#if 0
-    if ( selectionMode() == Single ) {
+    if ( i && selectionMode() == Single && o ) {
 	if ( o )
 	    setSelected( o, FALSE );
 	if ( i )
 	    setSelected( i, TRUE );
     }
-#endif
 
     int ind = index( i );
     d->currentColumn = ind / numRows();
@@ -1579,10 +1577,10 @@ void QListBox::mousePressEvent( QMouseEvent *e )
 	break;
     }
     if ( i ) {
+	setCurrentItem( i );
 	if ( selectionMode() == Single && !i->s ) {
 	    setSelected( i, TRUE );
 	}
-	setCurrentItem( i );
     }
     // for sanity, in case people are event-filtering or whatnot
     delete d->scrollTimer;
@@ -2029,12 +2027,6 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 	    }
 	}
     }
-    if ( d->selectionMode == Single ) {
-	if ( old )
-	    setSelected( old, FALSE );
-	if ( d->current )
-	    setSelected( d->current, TRUE );
-    }
     emitChangedSignal( FALSE );
 }
 
@@ -2206,12 +2198,16 @@ void QListBox::setSelected( int index, bool select )
 
 void QListBox::setSelected( QListBoxItem * item, bool select )
 {
-    if ( !item )
+    if ( !item || item->s == select || d->selectionMode == NoSelection )
 	return;
 
-    if ( selectionMode() == Single && select &&
-	 d->current && d->current->s ) {
-	d->current->s = FALSE;
+    if ( selectionMode() == Single ) {
+	QListBoxItem *o = d->current;
+	if ( d->current && d->current->s )
+	    d->current->s = FALSE;
+	d->current = item;
+	if ( o )
+	    updateItem( o );
     }
 
     item->s = (uint)select;
