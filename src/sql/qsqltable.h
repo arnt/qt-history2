@@ -186,7 +186,7 @@ protected:
     void         repaintCell( int row, int col );
     void         paintCell ( QPainter * p, int row, int col, const QRect & cr,
 			     bool selected );
-    void         paintField( QPainter * p, const QSqlField* field, const QRect & cr,
+    virtual void paintField( QPainter * p, const QSqlField* field, const QRect & cr,
 			     bool selected );
     virtual int  fieldAlignment( const QSqlField* field );
     void         columnClicked ( int col );
