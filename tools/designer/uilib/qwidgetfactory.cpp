@@ -170,7 +170,8 @@ static void setupWidgetListAndMap()
 
   This class is not included in the Qt library itself. To use it you
   must link against \c libqui.so (Unix) or \c qui.lib (Windows), which is
-  built into \c $(QTDIR)/lib if you built \e{Qt Designer}.
+  built into \c INSTALL/lib if you built \e{Qt Designer} (\c INSTALL is
+  the directory where Qt is installed ).
 
   See the "Creating Dynamic Dialogs from .ui Files" section of the \link
   designer-manual.book Qt Designer manual\endlink for an example. See
@@ -1751,7 +1752,7 @@ void QWidgetFactory::loadExtraSource()
 	} else {
 	    sender = qwf_form_object;
 	}
-	
+
 	EventFunction ef = eventMap[ sender ];
 	ef.events.append( (*cit).signal );
 	ef.functions.append( QStringList::split( ',', (*cit).slot ) );
