@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#35 $
 **
 ** Implementation of QMetaObject class
 **
@@ -51,7 +51,9 @@ QObjectDictionary *objectDict = 0;		// global object dictionary
   Internal dictionary for fast access to class members
  *****************************************************************************/
 
+#ifdef Q_EXPORT
 template class Q_EXPORT QDict<QMetaData>;
+#endif
 
 class Q_EXPORT QMemberDict : public QDict<QMetaData>
 {
