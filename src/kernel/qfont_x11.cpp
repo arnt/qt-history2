@@ -839,7 +839,9 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 	if (chars->combiningClass() == 0 || pos + i == 0) {
 	    tmp = scriptForChar(*chars);
 
-	    if (tmp != current || w > pw + 30000 ) { // X11 doesn't draw strings wider than 32768px
+	    if (tmp != current || w > pw + 4096 ) { // X11 doesn't draw strings wider than 32768px
+		// we use a smaller value here, since no screen is wider than 4000 px, so we can
+		// optimise drawing
 		if (last && lastlen) {
 		    if (qfs && qfs != (QFontStruct *) -1 && qfs->codec)
 			cache->mapped =
@@ -1143,7 +1145,7 @@ void QFontPrivate::textExtents( const QString &str, int pos, int len,
 void QFontPrivate::drawText( Display *dpy, int screen, Qt::HANDLE hd, Qt::HANDLE rendhd,
 			     GC gc, const QColor &pen, Qt::BGMode bgmode,
 			     const QColor& bgcolor, int x, int y,
-			     const QFontPrivate::TextRun *cache )
+			     const QFontPrivate::TextRun *cache, int pdWidth )
 {
     Q_UNUSED(screen);
     Q_UNUSED(rendhd);
@@ -1170,6 +1172,8 @@ void QFontPrivate::drawText( Display *dpy, int screen, Qt::HANDLE hd, Qt::HANDLE
 #endif // QT_NO_XFTFREETYPE
 
 	}
+	// clip away invisible parts. Saves some drawing operations.
+	if ( x + cache->xoff < pdWidth && x + cache->xoff + cache->x2off > 0 ) {
 
 #ifndef QT_NO_XFTFREETYPE
 	if (xftfs) {
@@ -1257,7 +1261,8 @@ void QFontPrivate::drawText( Display *dpy, int screen, Qt::HANDLE hd, Qt::HANDLE
 		XDrawRectangles(dpy, hd, gc, rects, l);
 		delete [] rects;
 	    }
-
+	}
+	
 	cache = cache->next;
     }
 }

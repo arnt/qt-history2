@@ -403,7 +403,7 @@ public:
     void textExtents( const QString &str, int pos, int len, QCharStruct *overall );
     void drawText( Display *dpy, int screen, Qt::HANDLE hd, Qt::HANDLE rendhd,
 		   GC gc, const QColor &pen, Qt::BGMode, const QColor &bgcolor,
-		   int x, int y, const TextRun *cache );
+		   int x, int y, const TextRun *cache, int pdWidth );
     bool inFont( const QChar &ch );
 
     class QFontX11Data {

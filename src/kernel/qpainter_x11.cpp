@@ -3009,7 +3009,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     QFontPrivate::TextRun *cache = new QFontPrivate::TextRun();
     int width = cfont.d->textWidth( shaped, 0, len, cache );
     cfont.d->drawText( dpy, scrn, hd, rendhd, gc, cpen.color(), (Qt::BGMode) bg_mode,
-                       bg_col, x, y, cache );
+                       bg_col, x, y, cache, pdev->metric( QPaintDeviceMetrics::PdmWidth ) );
     delete cache;
 
     if ( cfont.underline() || cfont.strikeOut() ) {
