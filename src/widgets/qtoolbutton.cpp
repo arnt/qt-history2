@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#11 $
 **
 ** Implementation of something useful.
 **
@@ -21,7 +21,7 @@
 #include "qimage.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#10 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#11 $");
 
 
 static QToolButton * threeDeeButton = 0;
@@ -149,7 +149,7 @@ QSize QToolButton::sizeHint() const
 	if ( tw > w )
 	    w = tw;
     }
-    return QSize( w + 6, h + 6 );
+    return QSize( w + 7, h + 6 );
 }
 
 
