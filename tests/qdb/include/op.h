@@ -786,7 +786,7 @@ public:
 
    Where each 'field data' is a value list of the form:
 
-   name
+   nameOrNumber
    data
 
 */
