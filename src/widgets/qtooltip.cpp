@@ -366,13 +366,16 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 	label && label->isVisible() )
 	hideTipAndSleep();
 
-    if ( !qApp || !qApp->activeWindow() ||
-	 !obj || !obj->isWidgetType() || // isWidgetType() catches most stuff
-	 !e ||
-	 e->type() == QEvent::Paint ||
-	 e->type() == QEvent::Timer ||
-	 e->type() == QEvent::SockAct ||
-	 !tips )
+    if ( !qApp
+#ifndef Q_WS_X11
+	 || !qApp->activeWindow()
+#endif
+	 || !obj || !obj->isWidgetType() // isWidgetType() catches most stuff
+	 || !e
+	 || e->type() == QEvent::Paint
+	 || e->type() == QEvent::Timer
+	 || e->type() == QEvent::SockAct
+	 || !tips )
 	return FALSE;
     QWidget *w = (QWidget *)obj;
 
@@ -411,9 +414,8 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 	hideTipAndSleep();
 	break;
     case QEvent::MouseMove:
-	{ // a whole scope just for one variable
+	{
 	    QMouseEvent * m = (QMouseEvent *)e;
-
 	    QPoint mousePos = w->mapFromGlobal( m->globalPos() );
 
 	    if ( currentTip && !currentTip->rect.contains( mousePos ) ) {
@@ -466,7 +468,11 @@ bool QTipManager::eventFilter( QObject *obj, QEvent *e )
 
 void QTipManager::showTip()
 {
-    if ( !widget || !globally_enabled || !widget->isActiveWindow() )
+    if ( !widget || !globally_enabled
+#ifndef Q_WS_X11
+	 || !widget->isActiveWindow()
+#endif
+	)
 	return;
 
     QTipManager::Tip *t = (*tips)[ widget ];
@@ -522,7 +528,7 @@ void QTipManager::showTip()
 #endif
     QPoint p;
     if ( t->geometry == QRect( -1, -1, -1, -1 ) ) {
-	p = widget->mapToGlobal( pos ) + 
+	p = widget->mapToGlobal( pos ) +
 #ifdef Q_WS_WIN
 	    QPoint( 2, 24 );
 #else
