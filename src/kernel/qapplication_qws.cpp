@@ -534,6 +534,8 @@ void QWSDisplay::Data::init()
 
     QString pipe = qws_qtePipeFilename();
 
+    sharedRamSize = qwsSharedRamSize;
+
 #ifndef QT_NO_QWS_MULTIPROCESS
     if ( csocket )    {
 	// QWS client
@@ -572,8 +574,6 @@ void QWSDisplay::Data::init()
 	if ( !QWSDisplay::initLock( pipe, TRUE ) )
 	    qFatal( "Cannot get display lock" );
 
-	sharedRamSize = qwsSharedRamSize;
-
 #ifndef QT_NO_QWS_MULTIPROCESS
 	shm = QSharedMemory(sharedRamSize,pipe.latin1());
 	if (!shm.create())
@@ -599,8 +599,9 @@ void QWSDisplay::Data::init()
 #ifndef QT_NO_QWS_MULTIPROCESS
     if(!csocket)
 #endif	
-	qt_screen->initDevice();
-    
+
+    qt_screen->initDevice();
+
 #ifndef QT_NO_QWS_CURSOR
     mouseoffset=qt_screen->initCursor(sharedRam + sharedRamSize,
 #ifndef QT_NO_QWS_MULTIPROCESS
