@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.39 1999/04/14 12:50:03 warwick Exp $
+** $Id: porting.doc,v 1.40 1999/04/23 11:47:51 paul Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -239,7 +239,7 @@ See also the <a href=#QRgb>QRgb</a> section below.
 QRgb (a typedef of long) has changed the order of the RGB channels to
 be in the more efficient order (for typical hardware these days).  If your
 code made assumptions about the order, you will get blue where you expect
-red and vice-versus (you'll not notice the problem if you use shades of
+red and vice versa (you'll not notice the problem if you use shades of
 grey, green, or magenta).  You should port your code to use the
 creator function qRgb(int r,int g,int b) and the
 access functions qRed(QRgb), qBlue(QRgb), and qGreen(QRgb).
@@ -376,9 +376,9 @@ functionality in Qt 2.0, the following steps are required:
             If you find that you are mixing usage of QCString, QString,
             and QByteArray, this causes lots of unnecessary copying and
             might indicate that the true nature of the data you are
-            dealing with is uncertain.  If the data is NUL-terminates
+            dealing with is uncertain.  If the data is NUL-terminated
             8-bit data, use QCString; if it is unterminated (ie.
-            contains NULs) 8-bit daya, use QByteArray; if it is text,
+            contains NULs) 8-bit data, use QByteArray; if it is text,
             use QString.  
 
      <li> Put a breakpoint in \code QString::ascii()\endcode
@@ -422,7 +422,7 @@ Every conversion to and from ASCII is wasted time, so try to use QString
  as much as possible rather than const char*.  This also ensures you have
  full 16-bit support.
 
-<dt><b>Convestion to ASCII</b></dt>
+<dt><b>Convertion to ASCII</b></dt>
 <dd>
 The return value from operator const char*() is transient - don't expect
  it to remain valid while you make deep function calls.
