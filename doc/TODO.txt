@@ -275,6 +275,12 @@ QComboBox
   Be able to have right aligned text, on Windows, this means putting the arrow on the left
   hand side of the combobox.
 
+  Be able to set content in a QComboBox by content rather than index, e.g
+  void QComboBox::setCurrentItem( const QString & text) (info/arc-12/24994)
+
+  Be able to return the index of the item with the matching item text, e.g
+  int QComboBox::find( const QString & text )  (info/arc-12/24994)
+
 QLCDNumber
   Support leading zeros, so you can have a number like 0003.
 
