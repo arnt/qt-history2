@@ -52,10 +52,6 @@ template <class T> inline uint qHash(const T *key)
 	return static_cast<uint>(reinterpret_cast<ulong>(key));
 }
 
-template <class T> inline uint qHash(T *key)
-{
-    return qHash(const_cast<const T *>(key));
-}
 
 struct Q_CORE_EXPORT QHashData
 {
