@@ -40,7 +40,6 @@ typedef int Q_PIPE;
 #define INVALID_Q_PIPE -1
 #endif
 
-
 class QSocketNotifier;
 class QWindowsPipeWriter;
 class QWinEventNotifier;
@@ -87,12 +86,14 @@ public:
     Q_PIPE errorReadPipe[2];
     Q_PIPE writePipe[2];
     Q_PIPE childStartedPipe[2];
+    Q_PIPE deathPipe[2];
     void destroyPipe(Q_PIPE pipe[2]);
 
     QSocketNotifier *standardReadSocketNotifier;
     QSocketNotifier *errorReadSocketNotifier;
     QSocketNotifier *writeSocketNotifier;
     QSocketNotifier *startupSocketNotifier;
+    QSocketNotifier *deathNotifier;
 
     // the wonderful windows notifier
     QTimer *notifier;
@@ -123,6 +124,9 @@ public:
     qint64 writeToStdin(const char *data, qint64 maxlen);
 
     void cleanup();
+#ifdef Q_OS_UNIX
+    static void initializeProcessManager();
+#endif
 };
 
 #endif // QPROCESS_P_H

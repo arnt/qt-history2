@@ -313,6 +313,7 @@ QProcessPrivate::QProcessPrivate()
     errorReadSocketNotifier = 0;
     writeSocketNotifier = 0;
     startupSocketNotifier = 0;
+    deathNotifier = 0;
     notifier = 0;
     pipeWriter = 0;
     standardReadPipe[0] = INVALID_Q_PIPE;
@@ -323,6 +324,8 @@ QProcessPrivate::QProcessPrivate()
     writePipe[1] = INVALID_Q_PIPE;
     childStartedPipe[0] = INVALID_Q_PIPE;
     childStartedPipe[1] = INVALID_Q_PIPE;
+    deathPipe[0] = INVALID_Q_PIPE;
+    deathPipe[1] = INVALID_Q_PIPE;
     exitCode = 0;
     crashed = false;
     writeChannelClosing = false;
@@ -380,6 +383,11 @@ void QProcessPrivate::cleanup()
         delete startupSocketNotifier;
         startupSocketNotifier = 0;
     }
+    if (deathNotifier) {
+        deathNotifier->setEnabled(false);
+        delete deathNotifier;
+        deathNotifier = 0;
+    }
     if (notifier) {
         delete notifier;
         notifier = 0;
@@ -388,6 +396,7 @@ void QProcessPrivate::cleanup()
     destroyPipe(errorReadPipe);
     destroyPipe(writePipe);
     destroyPipe(childStartedPipe);
+    destroyPipe(deathPipe);
 }
 
 /*! \internal
@@ -396,13 +405,12 @@ bool QProcessPrivate::canReadStandardOutput()
 {
     Q_Q(QProcess);
     qint64 available = bytesAvailableFromStdout();
-#if defined QPROCESS_DEBUG
-    qDebug("QProcessPrivate::canReadStandardOutput(), %lld bytes available",
-           available);
-#endif
-
-    if (available == 0)
+    if (available == 0) {
+        if (standardReadSocketNotifier)
+            standardReadSocketNotifier->setEnabled(false);
+        destroyPipe(standardReadPipe);
         return false;
+    }
 
     char *ptr = outputReadBuffer.reserve(available);
     qint64 readBytes = readFromStdout(ptr, available);
@@ -437,13 +445,12 @@ bool QProcessPrivate::canReadStandardError()
 {
     Q_Q(QProcess);
     qint64 available = bytesAvailableFromStderr();
-#if defined QPROCESS_DEBUG
-    qDebug("QProcessPrivate::canReadStandardError(), %lld bytes available",
-           available);
-#endif
-
-    if (available == 0)
+    if (available == 0) {
+        if (errorReadSocketNotifier)
+            errorReadSocketNotifier->setEnabled(false);
+        destroyPipe(errorReadPipe);
         return false;
+    }
 
     char *ptr = errorReadBuffer.reserve(available);
     qint64 readBytes = readFromStderr(ptr, available);
@@ -490,6 +497,7 @@ bool QProcessPrivate::canWrite()
     qint64 written = writeToStdin(writeBuffer.readPointer(),
                                       writeBuffer.nextDataBlockSize());
     if (written < 0) {
+        destroyPipe(writePipe);
         processError = QProcess::WriteError;
         q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Error writing to process"));
         emit q->error(processError);
@@ -533,6 +541,9 @@ void QProcessPrivate::processDied()
     processState = QProcess::NotRunning;
     emit q->stateChanged(processState);
     emit q->finished(exitCode);
+#if defined QPROCESS_DEBUG
+    qDebug("QProcessPrivate::processDied() process is dead");
+#endif
 }
 
 /*! \internal
@@ -1104,7 +1115,7 @@ QByteArray QProcess::readAllStandardError()
     process starts successfully, QProcess will emit started();
     otherwise, error() will be emitted.
 
-    \sa pid(), started(), launch()
+    \sa pid(), started()
 */
 void QProcess::start(const QString &program, const QStringList &arguments, OpenMode mode)
 {

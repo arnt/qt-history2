@@ -23,6 +23,7 @@
 #include <qfile.h>
 #include <qfileinfo.h>
 #include <qhash.h>
+#include <private/qprocess_p.h>
 #include <qtextcodec.h>
 #include <qthread.h>
 #include <qthreadstorage.h>
@@ -329,6 +330,12 @@ void QCoreApplication::init()
 
     QThreadData *data = mainData();
     data->eventDispatcher = QCoreApplicationPrivate::eventDispatcher;
+
+#ifdef Q_OS_UNIX
+    // Make sure the process manager thread object is created in the main
+    // thread.
+    QProcessPrivate::initializeProcessManager();
+#endif
 
     if(d->argc) {
         int j = 1;
