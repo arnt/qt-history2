@@ -33,6 +33,23 @@
 **
 **********************************************************************/
 /*! \example sql/overview/connect1/main.cpp */
+/*! \example sql/overview/create_connections/main.cpp  */
+/*! \example sql/overview/basicbrowsing/main.cpp */
+/*! \example sql/overview/basicbrowsing2/main.cpp */
+/*! \example sql/overview/basicdatamanip/main.cpp */
+/*! \example sql/overview/navigating/main.cpp */
+/*! \example sql/overview/retrieve1/main.cpp */
+/*! \example sql/overview/retrieve2/main.cpp */
+/*! \example sql/overview/order1/main.cpp */
+/*! \example sql/overview/order2/main.cpp */
+/*! \example sql/overview/extract/main.cpp */
+/*! \example sql/overview/insert/main.cpp */
+/*! \example sql/overview/update/main.cpp */
+/*! \example sql/overview/del/main.cpp */
+/*! \example sql/overview/table1/main.cpp */
+/*! \example sql/overview/table2/main.cpp */
+/*! \example sql/overview/form1/main.cpp */
+/*! \example sql/overview/form2/main.h */
 
 /*! \page sql.html
 
@@ -192,8 +209,8 @@ identifier distinguishing the connection.
 \line include
 \until return true 
 \line
-<h5 align="center">\link sql/overview/create_connections/main-cpp.html
-From examples/sql/overview/create_connections/main.cpp\endlink</h5>
+<h5 align="center">From \l sql/overview/create_connections/main.cpp 
+</h5>
 
 In the example above we have moved the connections into their own
 function, create_connections(), and added some basic error handling. The
@@ -227,8 +244,8 @@ section and use the \l QSqlCursor class covered in
 \line include
 \until return 0 
 \line
-<h5 align="center">\link sql/overview/basicbrowsing/main-cpp.html
-From examples/sql/overview/basicbrowsing/main.cpp\endlink</h5>
+<h5 align="center">From \l sql/overview/basicbrowsing/main.cpp
+</h5>
 
 In the example above we've added an additional header file, 
 \c qsqlquery.h. The first query we create, \c target, uses the default
@@ -250,8 +267,8 @@ target QSqlQuery.
 \until numRows 
 \line
 \line
-<h5 align="center">\link sql/overview/basicbrowsing2/main-cpp.html
-From examples/sql/overview/basicbrowsing2/main.cpp\endlink</h5>
+<h5 align="center">From \l sql/overview/basicbrowsing2/main.cpp
+</h5>
 
 The above code introduces a count of how many records are successfully
 inserted. Note that \l isActive() returns FALSE if the query, e.g. the
@@ -265,8 +282,8 @@ cannot be determined, e.g. if the query fails.
 \line main
 \until return ( rows 
 \line
-<h5 align="center">\link sql/overview/basicdatamanip/main-cpp.html
-From examples/sql/overview/basicdatamanip/main.cpp\endlink</h5>
+<h5 align="center">From \l sql/overview/basicdatamanip/main.cpp
+</h5>
 
 This example demonstrates straightforward SQL DML (data manipulation
 language) commands. Since we did not specify a database in the \l
@@ -294,8 +311,8 @@ query and in such cases \l size() returns -1.
 \line if (
 \until i == 4 
 \line
-<h5 align="center">\link sql/overview/navigating/main-cpp.html
-From examples/sql/overview/navigating/main.cpp\endlink</h5>
+<h5 align="center">From \l sql/overview/navigating/main.cpp
+</h5>
 
 The example above shows some of the navigation functions in use. 
 
@@ -310,8 +327,8 @@ retrieve data from it.
 \line
 \line
 \line
-<h5 align="center">\link sql/overview/retrieve1/main-cpp.html
-From examples/sql/overview/retrieve1/main.cpp\endlink</h5>
+<h5 align="center">From \l sql/overview/retrieve1/main.cpp
+</h5>
 
 Note that if you wish to iterate through the record set in order the
 only navigation function you need is next().
@@ -352,8 +369,8 @@ The \l QSqlCursor class requires the \c qsqlcursor.h header file.
 \line include
 \until return 0 
 \line
-<h5 align="center">\link sql/overview/retrieve2/main-cpp.html
-From examples/sql/overview/retrieve2/main.cpp\endlink</h5>
+<h5 align="center">From \l sql/overview/retrieve2/main.cpp
+</h5>
 
 We create the \l QSqlCursor object, specifying the table or view to use.
 If we need to use a database other than the default we can specify that
@@ -420,8 +437,8 @@ that to the cursor object's index() function.
 \skip QSqlCursor
 \line QSqlCursor
 \until while 
-<h5 align="center">\link sql/overview/order1/main-cpp.html 
-From examples/sql/overview/order1/main.cpp\endlink</h5>
+<h5 align="center">From \l sql/overview/order1/main.cpp
+</h5>
 
 Here we create a string list containing the fields we wish to sort by,
 in the order they are to be used. Then we create a \l QSqlIndex object
@@ -438,8 +455,8 @@ can create a filter.
 \skip QSqlCursor
 \line QSqlCursor
 \until while 
-<h5 align="center">\link sql/overview/order2/main-cpp.html 
-From examples/sql/overview/order2/main.cpp\endlink</h5>
+<h5 align="center">From \l sql/overview/order2/main.cpp
+</h5>
 
 This executes
 \code
@@ -461,8 +478,8 @@ want.
 \line QSqlCursor
 \until debug
 \line
-<h5 align="center">\link sql/overview/extract/main-cpp.html 
-From examples/sql/overview/extract/main.cpp\endlink</h5>
+<h5 align="center">From \l sql/overview/extract/main.cpp
+</h5>
 
 In this example we begin by creating a cursor on the creditors table. We
 create two \l QSqlIndex objects. The first, "order", is created from the
@@ -500,8 +517,8 @@ make a fresh select() call.
 \skip QSqlCursor
 \line QSqlCursor
 \until } 
-<h5 align="center">\link sql/overview/insert/main-cpp.html 
-From examples/sql/overview/insert/main.cpp\endlink</h5>
+<h5 align="center">From \l sql/overview/insert/main.cpp
+</h5>
 
 In this example we create a cursor on the "prices" table. Next we create
 a list of product names which we iterate over. For each iteration we
@@ -524,8 +541,8 @@ calls as shown in this and the following example.
 \line QSqlCursor
 \until update
 \line
-<h5 align="center">\link sql/overview/update/main-cpp.html 
-From examples/sql/overview/update/main.cpp\endlink</h5>
+<h5 align="center">From \l sql/overview/update/main.cpp
+</h5>
 
 This example begins with the creation of a cursor over the prices table.
 We select the record we wish to update with the select() call and
@@ -551,8 +568,8 @@ with \l QSqlQuery is more efficient, e.g.
 \line QSqlCursor
 \until del
 \line
-<h5 align="center">\link sql/overview/del/main-cpp.html 
-From examples/sql/overview/del/main.cpp\endlink</h5>
+<h5 align="center">From \l sql/overview/del/main.cpp
+</h5>
 
 We create the cursor, select the record we want to delete, move to the
 record, and call del(). 
@@ -580,8 +597,8 @@ examples and explanations provide the introduction you need.
 \line include
 \until return 1
 \line
-<h5 align="center">\link sql/overview/table1/main-cpp.html 
-From examples/sql/overview/table1/main.cpp\endlink</h5>
+<h5 align="center">From \l sql/overview/table1/main.cpp
+</h5>
 
 Data-Aware tables require the \c qsqltable.h and \c qsqlcursor.h header
 files. We create our application object, call create_connections() and
@@ -604,8 +621,8 @@ each column is given.
 \skip staffCursor
 \line staffCursor
 \until show 
-<h5 align="center">\link sql/overview/table2/main-cpp.html 
-From examples/sql/overview/table2/main.cpp\endlink</h5>
+<h5 align="center">From \l sql/overview/table2/main.cpp
+</h5>
 
 Once we've created the cursor we set up the display labels for the
 fields we wish to show using \l setDisplayLabel(). Columns align left by
@@ -638,8 +655,8 @@ because we must take care of each field individually.
 \line include
 \until app.exec
 \line
-<h5 align="center">\link sql/overview/form1/main-cpp.html 
-From examples/sql/overview/form1/main.cpp\endlink</h5>
+<h5 align="center">From \l sql/overview/form1/main.cpp
+</h5>
 
 We include the header files for the widgets that we need. We also
 include \c qsqldatabase.h and \c qsqlcursor.h as usual, but we now add
@@ -668,8 +685,8 @@ differences.
 \skip class
 \line class
 \until };
-<h5 align="center">\link sql/overview/form2/main-h.html 
-From examples/sql/overview/form2/main.h\endlink</h5>
+<h5 align="center">From \l sql/overview/form2/main.h
+</h5>
 
 The save slot will be used for a button that the user can press to
 confirm their update. We also hold pointers to the \l QSqlCursor and \l
@@ -736,8 +753,7 @@ this point the cursor is no longer positioned at a valid record so we
 reissue the select() call using our \l QSqlIndex and move to the first
 record.
 
-<em>Listing of \link sql/overview/form2/main-cpp.html
-form2/main.cpp\endlink</em>.
+<em>Listing of \l form2/main.cpp </em>
 
 <h2><a name="Custom_Editor_Widgets">Custom Editor Widgets</a></h2> 
 
