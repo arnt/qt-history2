@@ -8,7 +8,7 @@
   \class QUnknownInterface qcomponentinterface.h
 */
 
-QUnknownInterface::QUnknownInterface( QUnknownInterface* parent )
+QUnknownInterface::QUnknownInterface()
 {
 }
 
@@ -139,7 +139,7 @@ QString QApplicationInterface::command() const
 /*!
   \class QApplicationComponentInterface qapplicationinterface.h
 
-  \brief This class provides an interface to give runtime access to application components.
+  \brief This class provides an interface to application components.
 
   \sa QPlugInInterface
 */
@@ -150,14 +150,38 @@ QString QApplicationInterface::command() const
   As the interface depends on the passed object it gets deleted when the object gets
   destroyed. It's not valid to pass null for the same reason.
 */
+class QInterfaceCleanUp : public QObject
+{
+public:
+    QInterfaceCleanUp( QObject *parent, QApplicationComponentInterface* iface );
+    ~QInterfaceCleanUp();
+
+private:
+    QApplicationComponentInterface* acInterface;
+};
+
+QInterfaceCleanUp::QInterfaceCleanUp( QObject *parent, QApplicationComponentInterface* iface )
+: QObject( parent ), acInterface( iface ) 
+{
+}
+
+QInterfaceCleanUp::~QInterfaceCleanUp()
+{
+    delete acInterface;
+    acInterface = 0;
+}
+
 QApplicationComponentInterface::QApplicationComponentInterface( QObject* o )
 : QUnknownInterface()
 {
+
 #ifdef CHECK_RANGE
     if ( !o )
 	qWarning( "Can't create interface with null-object!" );
 #endif CHECK_RANGE
     comp = o;
+
+    cleanUp = new QInterfaceCleanUp( comp, this );
 }
 
 QString QApplicationComponentInterface::interfaceID() const

@@ -10,11 +10,12 @@
 #ifndef QT_NO_PLUGIN
 
 class QApplicationInterface;
+class QInterfaceCleanUp;
 
 class Q_EXPORT QUnknownInterface
 {
 public:
-    QUnknownInterface( QUnknownInterface *parent = 0 );
+    QUnknownInterface();
     virtual ~QUnknownInterface();
 
     virtual QString interfaceID() const;
@@ -81,6 +82,7 @@ protected:
 
 private:
     QGuardedPtr<QObject> comp;
+    QInterfaceCleanUp *cleanUp;
 };
 
 #ifndef Q_EXPORT_INTERFACE
