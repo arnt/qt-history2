@@ -589,7 +589,7 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
             r &= paint->clipRegion();
         paint->save();
         oldClip = paint->clipRegion();
-        updateClipRegion(r, true);
+        updateClipRegion(r, Qt::ReplaceClip);
     }
 
     bits = new uchar[bmh->biSizeImage];
@@ -642,7 +642,7 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
     free( bmi );
 
     if ( paint && image.hasAlphaBuffer() ) {
-        updateClipRegion(oldClip, !oldClip.isEmpty());
+        updateClipRegion(oldClip, oldClip.isEmpty() ? Qt::NoClip : Qt::ReplaceClip);
         paint->restore();
     }
 }
