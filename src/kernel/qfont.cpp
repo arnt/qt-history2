@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#87 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#88 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -28,15 +28,15 @@
 
   \ingroup fonts
   \ingroup drawing
-  
+
   QFont, more precisely, is a collection of attributes of a font.
   When Qt needs to draw text, it will look up and load the \link
-  fontmatch.html closest matching installed font \endlink and use
-  that.
+  fontmatch.html closest matching installed font \endlink and draw
+  using that.
 
   The most important attributes of a QFont are \link setFamily()
-  family\endlink, \link setPointSize() point size\endlink, \link
-  setWeight() weight\endlink and \link setItalic() italic\endlink.
+  family, \endlink \link setPointSize() point size, \endlink \link
+  setWeight() weight \endlink and \link setItalic() italic. \endlink
   There are QFont constructors that take these attributes as
   arguments, as shown in this example:
 
@@ -62,45 +62,46 @@
 	p.drawText( 10, 320, "Text4" );
     }
   \endcode
-  
+
   The default QFont constructor makes a copy of the \link
   setDefaultFont() default font. \endlink
 
-  You can also change these attributes of an existsing QFont object
+  You can also change these attributes of an existing QFont object
   using functions such as setFamily(), setPointSize(), setWeight() and
   setItalic().
-  
+
   There are also some less-used attributes.  setUnderline() decides
-  whether the font is or not; setStrikeOut() can be used to get
-  overstrike (a horizontal line through the middle of the characters);
-  setFixedPitch() determines whether Qt should give preference to
-  fixed-pitch or variable-pitch fonts when it needs to choose an
-  installed font; setStyleHint() can be used to offer more general
-  help to the font matching algorithm, and on X11 setRawMode() can be
-  used to bypass the entire font matching and use an X11 XLFD.
+  whether the font is underlined or not; setStrikeOut() can be used to
+  get overstrike (a horizontal line through the middle of the
+  characters); setFixedPitch() determines whether Qt should give
+  preference to fixed-pitch or variable-pitch fonts when it needs to
+  choose an installed font; setStyleHint() can be used to offer more
+  general help to the font matching algorithm, and on X11 setRawMode()
+  can be used to bypass the entire font matching and use an X11 XLFD.
 
   Of course there is also a reader function for each of these set*()
   functions.  Note that the reader functions return the values
   previously set, \e not the attributes of the actual window system
   font that will be used for drawing.  You can get information about
   the font that will be used for drawing by using QFontInfo, but be
-  aware that QFontInfo may be slow, and that its results depend on
-  what fonts are installed.
+  aware that QFontInfo may be slow and that its results depend on what
+  fonts are installed.
 
-  In general font handling and loading are costly operations, this is
-  especially true for X11. The QFont class contains extensive
-  optimizations to make copying of QFont objects fast, and to cache
-  the results of the slow window system functions it uses.
+  In general font handling and loading are costly operations,
+  especially on X11.  The QFont class contains extensive optimizations
+  to make copying of QFont objects fast, and to cache the results of
+  the slow window system functions it uses.
 
   QFont also offers a few static functions, mostly to tune the \link
   fontmatch.html font matching algorithm: \endlink You can control
   what happens if a font's family isn't installed using
-  insertSubstitution() and removeSubstitution() and get a complete
-  list of the fallback families using listSubstitutions().
+  insertSubstitution() and removeSubstitution(), ask what happens for
+  a single family uing substitute() and you can get a complete list of
+  the fallback families using listSubstitutions().
 
-  cacheStatistics() offers cache effectiveness information; this can
-  be useful for debugging.
-  
+  cacheStatistics() offers cache effectiveness information; this is
+  useful mostly for debugging.
+
   Finally, setDefaultFont() allows you to set the default font.  The
   default default font is chosen at application startup from a set of
   common installed fonts that support the correct \link QFont::CharSet
@@ -149,7 +150,7 @@ void QFont::init()
 /*!
   \internal
   Constructs a font that gets a
-  \link shclass.html deep copy\endlink of \e data.
+  \link shclass.html deep copy \endlink of \e data.
 */
 
 QFont::QFont( QFontData *data )
@@ -204,8 +205,7 @@ QFont::QFont( const char *family, int pointSize, int weight, bool italic )
     d->req.weight    = weight;
     d->req.italic    = italic;
     if ( defFont )
-	d->req.charSet   = defFont->d->req.charSet;
-    //debug( "requested font %d", (int) d->req.charSet );
+	d->req.charSet = defFont->d->req.charSet;
 }
 
 
@@ -272,8 +272,8 @@ QFont &QFont::operator=( const QFont &font )
 /*!
   Returns the family name set by setFamily().
 
-  Use QFontInfo to find the family name of the window system font actually
-  used.
+  Use QFontInfo to find the family name of the window system font that
+  is actually used for drawing.
 
   Example:
   \code
@@ -295,7 +295,7 @@ const char *QFont::family() const
 
   The family name is case insensitive.
 
-  If the family is not available a default family will be used instead.
+  If the family is not available a default family is used.
 
   \sa family(), setStyleHint(), QFontInfo,
   \link fontmatch.html font matching\endlink
@@ -354,8 +354,6 @@ int QFont::pointSize() const
     font.setPointSize( 18 );
   \endcode
 
-  If the point size is not available the closest available will be used.
-
   \sa pointSize(), QFontInfo, \link fontmatch.html font matching\endlink
 */
 
@@ -392,8 +390,6 @@ bool QFont::italic() const
 
 /*!
   Sets italic on or off.
-
-  If the mode selected is not available the other will be used.
 
   \sa italic(), QFontInfo, \link fontmatch.html font matching\endlink
 */
@@ -489,7 +485,7 @@ void QFont::setWeight( int weight )
   Returns the value set by setUnderline().
 
   Use QFontInfo to find the underline value of the window system font
-  actually used.
+  actually used for drawing.
 
   \sa setUnderline(), QFontInfo::underline()
 */
@@ -501,8 +497,6 @@ bool QFont::underline() const
 
 /*!
   Sets underline on or off.
-
-  If the mode selected is not available the other will be used.
 
   \sa underline(), QFontInfo, \link fontmatch.html font matching.\endlink
 */
@@ -534,8 +528,6 @@ bool QFont::strikeOut() const
 /*!
   Sets strike out on or off.
 
-  If the mode selected is not available the other will be used.
-
   \sa strikeOut(), QFontInfo, \link fontmatch.html font matching\endlink
 */
 
@@ -566,8 +558,7 @@ bool QFont::fixedPitch() const
 /*!
   Sets fixed pitch on or off.
 
-  A fixed pitch font is a font that has constant character pixel width.
-  If the mode selected is not available the other will be used.
+  A fixed pitch font is a font where all characters have the same width.
 
   \sa fixedPitch(), QFontInfo, \link fontmatch.html font matching\endlink
 */
@@ -599,7 +590,7 @@ QFont::StyleHint QFont::styleHint() const
   \define QFont::StyleHint
 
   The style hint is used by the \link fontmatch.html font
-  matching\endlink algorithm when a selected font family cannot be
+  matching algorithm \endlink when a selected font family cannot be
   found and is used to find an appropriate default family.
 
   The style hint has a default value of \c AnyStyle which leaves the
@@ -627,7 +618,7 @@ QFont::StyleHint QFont::styleHint() const
 	return app.exec( &push );
     }
   \endcode
-  
+
   The other available style hints are \c QFont::SansSerif, \c
   QFont::TypeWriter, \c QFont::OldEnglish, \c QFont::System
 
@@ -661,12 +652,13 @@ QFont::CharSet QFont::charSet() const
   Sets the character set encoding (e.g. \c Latin1).
 
   \define QFont::CharSet
-  
-  If the character set encoding is not available another will be used,
-  for most non-trivial applications you will probably not want this to
-  happen since it can totally obscure the text shown to the user.
-  This is why the \link fontmatch.html font matching\endlink algorithm
-  gives high priority to finding the correct character set.
+
+  If the character set encoding is not available another will be used
+  for drawing.  for most non-trivial applications you will probably
+  not want this to happen since it can totally obscure the text shown
+  to the user.  This is why the \link fontmatch.html font
+  matching algorithm \endlink gives high priority to finding the
+  correct character set.
 
   You can test that the character set is correct using the QFontInfo
   class.
@@ -678,7 +670,7 @@ QFont::CharSet QFont::charSet() const
     if ( info.charSet() != Latin1 )	     // check actual font
 	fatal( "Cannot find a Latin 1 Times font" );
   \endcode
-  
+
   In Qt 1.40, the following character set encodings are available: <ul>
   <li> \c QFont::Latin1 - ISO 8859-1, common in much of Europe
   <li> \c QFont::Latin2 - ISO 8859-2, less common European character set
@@ -1806,17 +1798,16 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 
   Newline characters are processed as linebreaks.
 
-  Despite to the different actual character heights, the heights of the
-  bounding rectangles of "Yes" and "yes" will be the same.
+  Despite the different actual character heights, the heights of the
+  bounding rectangles of "Yes" and "yes" are the same.
 
-  The bounding rectangle given by this function is somewhat larger than
-  that calculated by the simpler boundingRect() function.  This function
-  uses the
-  \link minLeftBearing() maximum left\endlink and
-  \link minRightBearing() right\endlink font bearings as is necessary for
-  multi-line text to align correctly.  Also, font height() and lineSpacing()
-  are used to calculate the height, rather than individual
-  character heights.
+  The bounding rectangle given by this function is somewhat larger
+  than that calculated by the simpler boundingRect() function.  This
+  function uses the \link minLeftBearing() maximum left \endlink and
+  \link minRightBearing() right \endlink font bearings as is necessary
+  for multi-line text to align correctly.  Also, fontHeight() and
+  lineSpacing() are used to calculate the height, rather than
+  individual character heights.
 
   The \a internal argument is for internal purposes.
 
@@ -1863,8 +1854,8 @@ QRect QFontMetrics::boundingRect( int x, int y, int w, int h, int flags,
 
   Newline characters are processed as linebreaks.
 
-  Despite to the different actual character heights, the heights of the
-  bounding rectangles of "Yes" and "yes" will be the same.
+  Despite the different actual character heights, the heights of the
+  bounding rectangles of "Yes" and "yes" are the same.
 
   The \a internal argument is for internal purposes.
 
