@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#214 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#215 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#214 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#215 $");
 
 
 /*****************************************************************************
@@ -821,9 +821,8 @@ bool QPainter::begin( const QPaintDevice *pd )
 {
     if ( isActive() ) {				// already active painting
 #if defined(CHECK_STATE)
-	warning( "QPainter::begin: Painter is already active.\n"
-		 "                 You must end() the painter before\n"
-		 "                 a second begin().\n" );
+	warning( "QPainter::begin: Painter is already active."
+		 "\n\tYou must end() the painter before a second begin()" );
 #endif
 	return FALSE;
     }
