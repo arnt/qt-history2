@@ -1637,9 +1637,8 @@ ln -s "$relpath/arch/$ARCH/arch" "$outpath/include/arch"
 #-------------------------------------------------------------------------------
 
 # auto-detect precompiled header support
-if $unixtests/precomp.test $XQMAKESPEC $OPT_VERBOSE; then
-    QMAKE_CONFIG="$QMAKE_CONFIG precompile_header"
-fi
+$unixtests/precomp.test $XQMAKESPEC $OPT_VERBOSE || QMAKE_CONFIG="$QMAKE_CONFIG precompile_header"
+
 # auto-detect SQL-modules support
 if echo $MODULES | grep sql >/dev/null; then
     MYSQL_REQ="-lmysqlclient mysql.h"

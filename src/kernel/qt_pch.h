@@ -5,11 +5,28 @@
  * header is currently UNSUPPORTED.
  */
 
-#if defined __cplusplus
-#ifndef QT_NO_STL
-#include <ios>
-#undef _GLIBCPP_FULLY_COMPLIANT_HEADERS  // Makes qlocale.cpp compile
+#if (defined(__WIN32__) || defined(__WIN64__))
+
+#define _POSIX_ 	/* Make sure PATH_MAX et al. are defined    */
+#include <limits.h>
+#undef _POSIX_  	/* Don't polute                             */
+
+/* Make sure IP v6 is defined first of all, before windows.h        */
+#ifndef QT_NO_IPV6
+# include <winsock2.h>
 #endif
+#include <stdlib.h>
+
+#endif
+
+#if defined __cplusplus
+#  if defined(__GNUC__)
+#    ifndef QT_NO_STL
+#      include <ios>
+#      undef _GLIBCPP_FULLY_COMPLIANT_HEADERS  // Makes qlocale.cpp compile
+#    endif
+#  endif
+#include <private/qucomextra_p.h>  // All moc genereated code has this include
 #include <qapplication.h>
 #include <qbitmap.h>
 #include <qcursor.h>
@@ -30,7 +47,9 @@
 
 #include <limits.h>
 #include <stdlib.h>
-#ifndef QT_NO_STL
-#define _GLIBCPP_FULLY_COMPLIANT_HEADERS
+#if defined(__GNUC__)
+#  ifndef QT_NO_STL
+#    define _GLIBCPP_FULLY_COMPLIANT_HEADERS
+#  endif
 #endif
 #endif

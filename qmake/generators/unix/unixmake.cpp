@@ -56,11 +56,11 @@ UnixMakefileGenerator::init()
 	}
     }
     if( project->isEmpty("QMAKE_CFLAGS_PRECOMPILE"))
-	project->variables()["QMAKE_CFLAGS_PRECOMPILE"].append(project->first("-x c-header -c"));
+	project->variables()["QMAKE_CFLAGS_PRECOMPILE"].append("-x c-header -c");
     if( project->isEmpty("QMAKE_CXXFLAGS_PRECOMPILE"))
-	project->variables()["QMAKE_CXXFLAGS_PRECOMPILE"].append(project->first("-x c++-header -c"));
+	project->variables()["QMAKE_CXXFLAGS_PRECOMPILE"].append("-x c++-header -c");
     if( project->isEmpty("QMAKE_CFLAGS_USE_PRECOMPILE"))
-	project->variables()["QMAKE_CFLAGS_USE_PRECOMPILE"].append(project->first("-include"));
+	project->variables()["QMAKE_CFLAGS_USE_PRECOMPILE"].append("-include");
     if( project->isEmpty("QMAKE_EXTENSION_PLUGIN") )
 	project->variables()["QMAKE_EXTENSION_PLUGIN"].append(project->first("QMAKE_EXTENSION_SHLIB"));
     if( project->isEmpty("QMAKE_COPY_FILE") )
