@@ -78,7 +78,7 @@
   top-level widget. Usually, top-level widgets are windows with a
   frame and a title bar (though it is also possible to create top
   level widgets without such decoration by the use of \link
-  qt.html#WidgetFlags widget flags\endlink).  In Qt, QMainWindow and
+  qt.html#WidgetFlags-enum widget flags\endlink).  In Qt, QMainWindow and
   the various subclasses of QDialog are the most common top-level
   windows.
 
