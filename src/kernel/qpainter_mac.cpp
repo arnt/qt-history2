@@ -1771,22 +1771,13 @@ void QPainter::drawTiledPixmap(int x, int y, int w, int h,
     drawTile(this, x, y, w, h, pixmap, sx, sy);
 }
 
-#if 1
 void QPainter::drawText(int x, int y, const QString &str, int len, QPainter::TextDirection dir)
 {
     drawText(x, y, str, 0, len, dir);
 }
+
 void QPainter::drawText(int x, int y, const QString &str, int from, int len, QPainter::TextDirection dir)
 {
-#else
-void QPainter::drawText(int x, int y, const QString &str, int from, int len, QPainter::TextDirection dir)
-{
-    drawText(x, y, str.mid(from), len, dir);
-}
-void QPainter::drawText(int x, int y, const QString &str, int len, QPainter::TextDirection dir)
-{
-    int from = 0;
-#endif
     if(!isActive())
 	return;
     if(len < 0)
