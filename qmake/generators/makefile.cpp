@@ -890,12 +890,13 @@ MakefileGenerator::init()
 		    QString mc, moc_sources[] = { QString("HEADERS"), QString("SOURCES"), QString::null };
 		    for(int x = 0; moc_sources[x] != QString::null; x++) {
 			QStringList &l = v[moc_sources[x]];
-			for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
-			    if(!(*val_it).isEmpty()) {
-				mc = mocablesToMOC[(*val_it)];
-				if(mc.isEmpty())
-				    mc = "*qmake_ignore*";
-				cachet << (*val_it) << " = " << mc << endl;
+		        for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
+			    QString f = fileFixify((*val_it));
+			    if(!f.isEmpty()) {
+			        mc = mocablesToMOC[f];
+			        if(mc.isEmpty())
+			   	    mc = "*qmake_ignore*";
+			        cachet << f << " = " << mc << endl;
 			    }
 			}
 		    }
