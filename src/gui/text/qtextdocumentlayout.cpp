@@ -824,7 +824,10 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
                     if (cspan > 1 && i != cell.column())
                         continue;
 
-                    LayoutStruct layoutStruct = layoutCell(table, cell, sharedWidth - 2 * td->padding);
+                    // to figure out the min and the max width lay out the cell at
+                    // maximum width. otherwise the maxwidth calculation sometimes
+                    // returns wrong values
+                    LayoutStruct layoutStruct = layoutCell(table, cell, INT_MAX);
 
                     int widthToDistribute = layoutStruct.minimumWidth;
                     for (int n = 0; n < cspan; ++n) {
