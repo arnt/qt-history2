@@ -118,9 +118,9 @@ buttons.
 	Category combobox is used to select which set of actions you
 	wish to work on. The Actions list box lists the actions
 	available for the current category. The Toolbar listbox lists
-	the toolbar buttons you want to create. The blue left and right
+	the toolbar buttons you want to create. The red left and right
 	arrow buttons are used to move actions into or out of the
-	Toolbar list box. The blue up and down arrow buttons are used to
+	Toolbar list box. The red up and down arrow buttons are used to
 	move actions up and down within the Toolbar list box. Note that
 	the '&lt;Separator&gt;' item in the Actions list box may be moved to
 	the Toolbar list box as often as required and will cause a

@@ -151,10 +151,10 @@ bool createConnections()
     defaultDB-&gt;setPassword( &quot;bookpw&quot; );
     defaultDB-&gt;setHostName( &quot;bookhost&quot; );
     if ( ! defaultDB-&gt;open() ) {
-	qWarning( &quot;Failed to open books database: &quot; +
-		  defaultDB-&gt;lastError().driverText() );
-	qWarning( defaultDB-&gt;lastError().databaseText() );
-	return FALSE;
+        qWarning( &quot;Failed to open books database: &quot; +
+                  defaultDB-&gt;lastError().driverText() );
+        qWarning( defaultDB-&gt;lastError().databaseText() );
+        return FALSE;
     }
 
     return TRUE;
@@ -1288,16 +1288,16 @@ bool createConnections()
 	to make it larger and drag each set of buttons down to make some
 	room below the title and price QLineEdits. Click the
 	\button[Text Label] toolbar button and click on the form beneath
-	the Price label. Click the Text Label and change its text to
+	the Price label. Click the \x[Widgets|Text Label]Text Label and change its text to
 	'Author'. Click the \button[ComboBox] toolbar button and click
 	on the form beneath the price QLineEdit. In the Property Window
-	change the ComboBox's name to ComboBoxAuthor and change its
+	change the \x[Widgets|ComboBox]ComboBox's name to ComboBoxAuthor and change its
 	sizePolicy hSizeType to Expanding.
 	</para></listitem>
 
 	<listitem><para>
 	Now we'll lay out the dialog. Shift+Click the Author label and
-	the ComboBox then click the \button[Lay Out Horizontally]
+	the \x[Widgets|ComboBox]ComboBox then click the \button[Lay Out Horizontally]
 	toolbar button. Now click the BookDataBrowser and click the
 	\button[Lay Out in a Grid] toolbar button.
 	</para></listitem>
@@ -1305,7 +1305,7 @@ bool createConnections()
 	</para>
 
 	<para>
-	We need to write some code so that the ComboBox will be
+	We need to write some code so that the \x[Widgets|ComboBox]ComboBox will be
 	populated with author names and scroll to the current book's
 	author. We also need to ensure that we put the author's id into
 	the book table's authorid field when a book record is inserted
@@ -1324,7 +1324,7 @@ bool createConnections()
 	<listitem><para>
 	When the user navigates through the dialog, each time they move
 	to a new record, a \fn[primeUpdate()] signal is emitted. We connect
-	to this so that we can update the ComboBox's display. Just
+	to this so that we can update the \x[Widgets|ComboBox]ComboBox's display. Just
 	before a record is updated or inserted into the database a
 	\fn[beforeUpdate()] or \fn[beforeInsert()] signal is emitted. We
 	connect our \fn[beforeUpdateBook()] slot to both these signals so
@@ -1349,13 +1349,13 @@ bool createConnections()
 	    <listitem><para>
 	    We start with
 	    the \fn[init()] function; this is called after the dialog is
-	    constructed and we will use it to populate the ComboBox with
+	    constructed and we will use it to populate the \x[Widgets|ComboBox]ComboBox with
 	    author names.
 <programlisting>
 \scan eg/book/book7/editbook.cpp /EditBookForm::init/ /^}/
 </programlisting>
 	    Here we execute a query to get a list of author names and
-	    insert each one into the ComboBox.
+	    insert each one into the \x[Widgets|ComboBox]ComboBox.
 	    </para></listitem>
 
 	    <listitem><para>
@@ -1364,19 +1364,19 @@ bool createConnections()
 <programlisting>
 \scan eg/book/book7/editbook.cpp /EditBookForm::beforeUpdateBook/ /^}/
 </programlisting>
-	    We look up the id of the ComboBox's current author and place
+	    We look up the id of the \x[Widgets|ComboBox]ComboBox's current author and place
 	    it in the update (or insert) buffer's authorid field.
 	    </para></listitem>
 
 	    <listitem><para>
 	    As the user navigates through the records we ensure
-	    that the ComboBox reflects the current author.  
+	    that the \x[Widgets|ComboBox]ComboBox reflects the current author.  
 <programlisting>
 \scan eg/book/book7/editbook.cpp /EditBookForm::primeUpdateBook/ /^}/
 </programlisting>
 	    Firstly we look up the book's author and secondly we iterate
-	    through the ComboBox's items until we find the author and
-	    set the ComboBox's current item to the matching author.
+	    through the \x[Widgets|ComboBox]ComboBox's items until we find the author and
+	    set the \x[Widgets|ComboBox]ComboBox's current item to the matching author.
 	    </para></listitem>
 	    \List1
 	</para>
@@ -1387,7 +1387,7 @@ bool createConnections()
     If the author name has changed or been deleted the query will
     fail and no author id will be inserted into the buffer causing the \ins
     to fail.  An alternative is to record
-    the author id's as we populate the ComboBox and store them in a
+    the author id's as we populate the \x[Widgets|ComboBox]ComboBox and store them in a
     \class[QMap] which we can then look up as required. This approach
     requires changes to the \fn[init()], \fn[beforeUpdateBook()] and
     \fn[primeInsertBook()] functions and the addition of a new function,
@@ -1410,7 +1410,7 @@ bool createConnections()
 <programlisting>
 \scan eg/book/book8/editbook.cpp /EditBookForm::init/ /^}$/
 </programlisting>
-	    After inserting each author's name into the ComboBox we
+	    After inserting each author's name into the \x[Widgets|ComboBox]ComboBox we
 	    populate a \class[QMap] with the author's name and id.
 	    </para></listitem>
 

@@ -4,6 +4,7 @@
 <sect1 id="runningampexitingqtdesigner">
 <title>Starting and Exiting Qt Designer </title>
 <para>
+\x[Starting Qt Designer]
 \qd is controlled in the same way as any other modern
 desktop application.
 To start \qd under Windows click the <guimenuitem>Start</guimenuitem>
@@ -13,6 +14,8 @@ or Linux operating system you can either click the \qd icon or enter
 <literal>designer &amp;</literal> in an xterm.
 </para>
 <para>
+\x[Exiting Qt Designer]\x[Getting Help]
+\x[Keyboard Shortcuts (in Qt Designer)|F1 (Help)^Getting Help]
 When you've finished using \qd click
 <guimenuitem>File|Exit</guimenuitem>; you will be prompted to save any
 unsaved changes. Help is available by pressing <keycap>F1</keycap> or
@@ -26,13 +29,19 @@ small amounts of code to type in.
 </para>
 <para>
 When you start \qd you will see a menu bar and various toolbars at the
-top. On the left hand side are two windows, the
-first is the Files window and the one below is the Properties window.
-The Files window lists the files and images associated with the project;
-to open any form single click it in the Files list. The Properties
-window is used to view and change the properties of forms and widgets.
-We will cover the use of \qd's windows, dialogs, menu options and
-toolbar buttons as we create example applications.
+top. 
+\x[Widgets and Source window^Object Explorer]
+\x[Object Explorer]
+On the left hand side are three windows, the first is the Files
+window, the second is the Widgets and Source window (the Object
+Explorer) and the third is the
+Properties window. The Files window lists the files and images
+associated with the project; to open any form single click it in the
+Files list. The Widgets and Source window lists the current form's
+widgets and slots. The Properties window is used to view and change the
+properties of forms and widgets. We will cover the use of \qd's windows,
+dialogs, menu options and toolbar buttons as we create example
+applications.
 </para>
 <para>
 In this chapter we will build an application called multiclip which
@@ -47,6 +56,10 @@ clipboard.
 <sect1 id="creatinganewproject">
 <title>Creating a New Project </title>
 <para>
+\x[Projects]
+\x[File types|.ui]
+\x[File types|.pro]
+\x[Creating a new Project^Projects]
 Whenever you begin a new program we
 recommend that you create a project file and open the project rather
 than individual <filename>.ui</filename> files. Opening a project has
@@ -59,7 +72,8 @@ Start \qd if you haven't already. Click <guimenuitem>File|New
 Project</guimenuitem> to invoke the Project Settings dialog. Enter
 'multiclip' as the project's name and 'multiclip.pro' as the project's
 filename, then click \ok.  The name of the current project is shown in
-the Files toolbar which is the top left toolbar by default. 
+the \x[Toolbars|Files]\x[Toolbars^Toolbar Buttons]\x[Toolbar Buttons^Toolbars]
+Files toolbar which is the top left toolbar by default. 
 Once we have a project we can add forms and begin to build our
 application. (See <xref
 linkend="customizingqtdesigner"> "Customizing Qt Designer" for
@@ -71,6 +85,8 @@ preferences.)
 <sect1 id="creatinganewform">
 <title>Creating a New Form </title>
 <para>
+\x[Dialogs|New Form]
+\x[Creating a new Form^Dialogs]
 Click <guimenuitem>File|New</guimenuitem> to invoke the New Form dialog.
 Several default forms are supplied but we will use the default Dialog
 form, so just click \ok. A new form called 'Form1' will appear. Note
@@ -78,10 +94,12 @@ that the new form is listed in the Files list and the Properties window
 shows the form's default property settings.
 </para>
 <para>
+\x[Properties]
+\x[Properties|caption]
 Click the Value beside the name property and change the form's name to
 'MulticlipForm'.  Change the form's caption to 'Multiclip'. The
 properties are ordered in accordance with the inheritance hierarchy, and
-caption is the tenth property from the top in the property editor. Save
+caption is roughly in the middle of the property editor. Save
 the form: click <guimenuitem>File|Save</guimenuitem>, enter the name
 'multiclip.ui', then click the <guibutton>Save</guibutton> button. 
 </para>
@@ -89,24 +107,36 @@ the form: click <guimenuitem>File|Save</guimenuitem>, enter the name
 <sidebar id="usingthepropertyeditor">
 <title>Using the Property Editor </title>
 <para>
+\x[Using the Property Editor]\x[Properties]
 The Property Editor has two columns, the Property column which
 lists property names and the Value column which lists the values. Some
 property names have a plus sign '+' in a square to their left; this
 signifies that the property name is the collective name for a set of
 related properties. Click the form to make the Property Editor show the
-form's properties. Click the sizePolicy property's plus sign; you will
+form's properties. 
+\x[Properties|sizePolicy]
+\x[Properties|hSizeType]
+\x[Properties|vSizeType]
+Click the sizePolicy property's plus sign; you will
 see two properties appear indented below sizePolicy, hSizeType and
 vSizeType. These properties are edited in the same way as any
 other properties.
 </para>
 <para>
+\x[Properties|name]
+\x[Properties|minimumSize]
+\x[Properties|width]
+\x[Properties|mouseTracking]
+\x[Properties|cursor]
+\x[Properties|font]
+\x[Properties|text]
 Some properties have simple values, for example the name property has a
 text value, the width property (within minimumSize for example) has a
 numeric value. To change a text value click the existing text and
 type in your new text. To change a numeric value click the value and
 either type in a new number or use the spin buttons to increase or
 decrease the existing number until it reaches the value you want. Some
-properties have a fixed list of values, for example the the
+properties have a fixed list of values, for example the
 mouseTracking property is boolean and can take the values True or False.
 The cursor property also has a fixed list of values. If you click the
 cursor property or the mouseTracking property the value will be shown in
@@ -122,6 +152,8 @@ property you could click the ellipsis button to invoke the multi-line
 text editor dialog.
 </para>
 <para>
+\x[Properties|Reverting changes]
+\x[Properties|Initial values]
 The names of properties which have changed are shown in bold. If
 you've changed a property but want to revert it to its default value
 click the property's value and then click the red 'X' button 
@@ -132,11 +164,14 @@ value (by clicking the red 'X') the value will become empty unless the
 property, e.g. name, is not allowed to be empty.
 </para>
 <para>
+\x[Undo and Redo|Properties]
+\x[Properties|Undo and Redo^Undo and Redo]
+\x[Redo^Undo and Redo]
+\x[Keyboard Shortcuts (in Qt Designer)|Ctrl+Z (Undo)^Undo and Redo]
+\x[Keyboard Shortcuts (in Qt Designer)|Ctrl+Y (Redo)^Undo and Redo]
 The property editor fully supports Undo and Redo
 (<keycap>Ctrl+Z</keycap> and <keycap>Ctrl+Y</keycap>, also available
-from the <guimenuitem>Edit</guimenuitem> menu). If you click a property
-and then click <keycap>F1</keycap> context sensitive help will appear to
-explain the property.
+from the <guimenuitem>Edit</guimenuitem> menu). 
 </para>
 </sidebar>
 
@@ -146,6 +181,7 @@ explain the property.
 <sect1 id="addingwidgets">
 <title>Adding Widgets </title>
 <para>
+\x[Adding Widgets to a Form]
 The multiclip application consists of a text box to display the current
 clipboard text (if any), a list box showing the previous clippings, a
 length indicator, a checkbox and buttons. If you run the application and
@@ -159,52 +195,68 @@ correctly. We'll now add the multiclip form's widgets.
     <orderedlist numeration="arabic">
     <listitem>
 	<para>
+	\x[Tooltips]
 	We'll start with the current clipping text box.
-	Click the Text Label toolbar button and click towards the top left
-	of the form. (If you hover the mouse over a toolbar button its name
-	will appear in a tooltip.) We won't bother renaming the label since
-	we'll never refer to it in code; but we need to change its text, so
-	change its text property to 'Current Clipping'. (See the <xref
-	linkend="usingthepropertyeditor"> "Using the Property Editor" sidebar
-	for an explanation of the property editor.)
+	Click the \x[QLabel]\x[Widgets|Text Label]\x[Toolbar Buttons|Text Label]
+	Text Label toolbar button and
+	click towards the top left of the form. (If you hover the mouse
+	over a \x[Toolbar Buttons]toolbar button its name will appear in
+	a tooltip.) We won't bother renaming the label since we'll never
+	refer to it in code; but we need to change its text, so change
+	its text property to 'Current Clipping'. (See the <xref
+	linkend="usingthepropertyeditor"> "Using the Property Editor"
+	sidebar for an explanation of the property editor.)
 	</para>
 	<para>
-	Click the Line Edit toolbar button and click towards the top right of
-	the form. Use the Property Editor to rename the widget
-	'currentLineEdit'.
+	Click the \x[QLineEdit]\x[Widgets|Line Edit]\x[Toolbar Buttons|Line Edit]
+	Line Edit toolbar button and
+	click towards the top right of the form. Use the Property Editor
+	to rename the widget 'currentLineEdit'.
 	</para>
     </listitem>
     <listitem>
 	<para>
-	Now we'll add the list box. Click the Text Label toolbar button and
-	click below the Current Clipping label. Change the text property to
-	'Previous Clippings'. Don't worry about positioning the widgets
-	precisely, nor about the fact that they are the wrong size; the layout
-	tools (covered in the next section) will take care of this. 
+	Now we'll add the list box. Click the 
+	\x[QLabel]\x[Widgets|Text Label]\x[Toolbar Buttons|Text Label]
+	Text Label toolbar button and click below the Current Clipping label.
+	Change the text property to 'Previous Clippings'. Don't worry
+	about positioning the widgets precisely, nor about the fact that
+	they are the wrong size; the layout tools (covered in the next
+	section) will take care of this. 
 	</para>
 	<para>
-	Click the List Box toolbar button and click the form below the 'Previous
-	Clippings' label. Change the list box's name to 'clippingsListBox'. By
-	default \qd creates list boxes with a single default value of 'New
-	Item'. We don't want this value (we'll be populating our list box in
-	code later), so we need to remove the value. Right click the list box
-	then click the <guimenuitem>Edit</guimenuitem> menu item on the pop up
-	menu to invoke the listbox's value editor dialog. Click
-	<guibutton>Delete Item</guibutton> to delete the default item, then
-	click \ok. (See the <xref linkend="valueeditors"> "Value Editors"
-	sidebar.)
+	\x[Properties|Property Editors]
+	\x[Property Editors|Listbox]
+	Click the \x[QListBox]\x[Widgets|List Box]\x[Toolbar Buttons|List Box]
+	List Box toolbar button and click
+	the form below the 'Previous Clippings' label. Change the list
+	box's name to 'clippingsListBox'. By default \qd creates list
+	boxes with a single default value of 'New Item'. We don't want
+	this value (we'll be populating our list box in code later), so
+	we need to remove the value. Right click the list box then click
+	the <guimenuitem>Edit</guimenuitem> menu item on the pop up menu
+	to invoke the listbox's value editor dialog. Click
+	<guibutton>Delete Item</guibutton> to delete the default item,
+	then click \ok. (See the <xref linkend="valueeditors"> "Value
+	Editors" sidebar.)
 	</para>
     </listitem>
     <listitem>
 	<para>
 	We want to know the length of the current clipping so we'll add a label
-	and an LCD Number widget. 
+	and an \x[QLCDNumber]\x[Widgets|LCD Number]LCD Number widget. 
 	</para>
 	<para>
-	Click the Text Label toolbar button and click
-	below the Line Edit. Change its text property's value to 'Length'. Click
-	the LCD Number toolbar button and click below the length label. Change
-	the LCD Number's name to 'lengthLCDNumber'.
+	Click the \x[QLabel]\x[Widgets|Text Label]\x[Toolbar Buttons|Text Label]
+	Text Label toolbar button and
+	click below the \x[QLineEdit]
+	\x[Widgets|Line Edit]\x[Toolbar Buttons|Line Edit]
+	Line Edit. Change its text
+	property's value to 'Length'. Click the 
+	\x[Widgets|LCD Number]\x[Toolbar Buttons|LCD Number]
+	LCD Number toolbar button and click below
+	the length label. Change the LCD Number's
+	name to 'lengthLCDNumber'.
 	</para>
     </listitem>
     <listitem>
@@ -215,11 +267,15 @@ correctly. We'll now add the multiclip form's widgets.
 	to indicate their preference. 
 	</para>
 	<para>
-	Click the Check Box toolbar button
-	and click below the LCD Number. Change the checkbox's name to
-	'autoCheckBox' and its text to 'A&amp;uto Add Clippings'. Note
-	that the accel property automatically changes to
-	<keycap>Alt+U</keycap> because the ampersand in the text
+	\x[Keyboard Shortcuts]
+	Click the \x[QCheckBox]\x[Widgets|Check Box]\x[Toolbar Buttons|Check Box]
+	Check Box toolbar button and
+	click below the \x[QLCDNumber]
+	\x[Widgets|LCD Number]\x[Toolbar Buttons|LCD Number]
+	LCD Number. Change the
+	checkbox's name to 'autoCheckBox' and its text to 'A&amp;uto Add
+	Clippings'. Note that the accel property automatically changes
+	to <keycap>Alt+U</keycap> because the ampersand in the text
 	signifies a keyboard shortcut.
 	</para>
     </listitem>
@@ -230,10 +286,13 @@ correctly. We'll now add the multiclip form's widgets.
 	paste repeatedly. We will use another approach.
 	</para>
 	<para>
-	<emphasis>Double</emphasis> click the Push Button toolbar
+	<emphasis>Double</emphasis> click the \x[QPushButton]
+	\x[Widgets|Push Button]
+	\x[Toolbar Buttons|Push Button]Push Button toolbar
 	button; now click below the checkbox to place a button. Click
 	below the button we've just added to add a second button. Add a
-	third and fourth button. Now click the Pointer toolbar button to switch
+	third and fourth button. Now click the 
+	\x[Toolbar Buttons|Pointer]Pointer toolbar button to switch
 	off automatically adding the same widget. Change the first button's name
 	to 'addPushButton' and its text to '&amp;Add Clipping'. Change
 	the second button's name to 'copyPushButton' and its text to '&amp;Copy
@@ -254,10 +313,14 @@ properly.
 <sidebar id="valueeditors">
 <title>Value Editors</title>
 <para>
+\x[Value Editors]
 Whilst the Property Editor is used to customize the generic properties
 of widgets, value editors are used to edit values held within instances
-of particular widgets. For example a <classname>QLineEdit</classname>
+of particular widgets. For example a 
+\x[QLineEdit]\x[Value Editors|Line Edit]
+<classname>QLineEdit</classname>
 can only contain a single line of text, but a
+\x[QListBox]\x[Value Editors|List Box]
 <classname>QListBox</classname> can contain any number of items each of
 which may be a line of text, a pixmap, or both. To invoke a widget's
 value editor double click the widget. (Alternatively right click the
@@ -275,6 +338,7 @@ Different widgets have different value editors.
     <sect2 id="introductiontolayouts">
     <title>Introduction to Layouts </title>
     <para> 
+    \x[Layouts]\x[Splitters]
     Layouts work by grouping together widgets and groups of widgets,
     horizontally, vertically or in a grid. Widgets that are laid out
     together horizontally or vertically can be grouped either with a
@@ -282,8 +346,11 @@ Different widgets have different value editors.
     manipulate a Splitter themselves.
     </para>
     <para>
+    \x[Toolbar Buttons|Lay Out Horizontally]\x[Layouts|Horizontal]
+    \x[Toolbar Buttons|Lay Out Vertically]\x[Layouts|Vertical]
     If we want to lay out some widgets side by side we would select them
-    and then click the <guibutton>Lay Out Horizontally</guibutton>
+    and then click the 
+    <guibutton>Lay Out Horizontally</guibutton>
     toolbar button. If we want our widgets to be lined up one above
     the other we would use <guibutton>Lay Out Vertically</guibutton>.
     Once we've grouped some widgets together we can then lay out the
@@ -293,18 +360,23 @@ Different widgets have different value editors.
     using one of the layout buttons. 
     </para>
     <para>
+    \x[Layouts|Buttons]\x[Layouts|Line Edits]\x[Layouts|List Views]
     Some widgets will grow to fill the available space, vertically or
     horizontally or both ways. Buttons and line edits will fill
     horizontal space for example, whereas a ListView will fill space in
     both directions. The easiest way to achieve the layout you want is
     to use \qd's layout tools. When you apply a layout to some widgets
     in some situations the widgets may not lay out the way you want.
+    \x[Properties|sizePolicy]\x[Layouts|Spacers]\x[Spacers^Layouts]
     If a widget does not fill up enough space try changing its
     sizePolicy to Expanding. If a widget takes up too much space one
     approach is to change its sizePolicy, and another approach is to use
     a <emphasis>Spacer</emphasis> to consume excess space.
     </para>
     <para>
+    \x[Spacers^Layouts]
+    \x[Layouts|Spacers]
+    \x[Layouts|Break layout]
     Spacers have no visual appearance on the running form and are used
     purely to insert space between widgets or groups of widgets. Suppose
     you have a widget that takes up too much space. You could break the
@@ -315,10 +387,14 @@ Different widgets have different value editors.
     control. 
     </para>
     <para>
+    \x[Undo and Redo|Layouts]
+    \x[Layouts|Undo and Redo^Undo and Redo]
+    \x[Layouts|Spacers]
+    \x[Keyboard Shortcuts (in Qt Designer)|Ctrl+Z (Undo)^Undo and Redo]
     The best way to learn about layouts and spacers is to try
     them out. Experimenting with layouts is easy. If you make any
     changes that you aren't happy with you can easily undo them by
-    clicking <guimenuitem>Edit|Undo</guimenuitem> or pressing
+    clicking <guimenuitem>Edit|Undo</guimenuitem> or by pressing
     <keycap>Ctrl+Z</keycap>. In the next section we'll lay out our
     multiclip example step-by-step.
     </para>
@@ -327,6 +403,7 @@ Different widgets have different value editors.
     <sect2 id="layingoutwidgets">
     <title>Laying Out Widgets </title>
     <para>
+    \x[Layouts]
     Layouts provide a means of relating widgets and groups of widgets
     together in horizontal and vertical pairs and in grids. If you use
     layouts your forms and the widgets they contain will scale
@@ -345,10 +422,12 @@ Different widgets have different value editors.
     <sidebar id="selectingwidgets">
     <title>Selecting Widgets and Inserting Widgets</title>
     <para>
+    \x[Object Explorer]
+    \x[Selecting Widgets]
     To select an individual widget, either click it or click its Name in
-    the Object Hierarchy window. To select a group either click a tiny
+    the Object Explorer window. To select a group either click a tiny
     bit outside its red outline or click its Name in the Object
-    Hierarchy window. To select multiple widgets or groups, click the
+    Explorer window. To select multiple widgets or groups, click the
     form to deselecte any selected widgets, then Ctrl+Click
     one widget or group then drag the rubber band so that
     it touches the other widgets or groups that you want to select. This
@@ -359,6 +438,9 @@ Different widgets have different value editors.
     and drag the rubber band to touch the other radio buttons.
     </para>
     <para>
+    \x[Toolbar Buttons|Break Layout]
+    \x[Layouts|Break layout]
+    \x[Keyboard Shortcuts (in Qt Designer)|Ctrl+B (Break Layout)^Layouts]
     If we want to insert a widget into a gap between widgets
     which are in a layout we can click the toolbar button for the new
     widget and then click in the gap. \qd will ask us if we want to
@@ -372,6 +454,7 @@ Different widgets have different value editors.
  </sidebar>
 
     <para>
+    \x[Toolbars|Layout]
     The layout we want to achieve is to have the Current Clipping label
     and currentLineEdit side by side at the top of the form. We want the
     Previous Clippings label and the clippingsListBox to occupy the left
@@ -385,7 +468,9 @@ Different widgets have different value editors.
     <listitem>
     <para>
     Click the Current Clipping label and Shift+Click the currentLineEdit
-    Line Edit. (Shift+Click means hold down the shift key whilst
+    \x[QLineEdit]\x[Widgets|Line Edit]Line Edit. 
+    \x[Toolbar Buttons|Lay Out Horizontally]\x[Layouts|Horizontal]
+    (Shift+Click means hold down the shift key whilst
     clicking; this will ensure that \qd performs multiple selections.)
     Most of the layout toolbar buttons will now be available. Click the
     <guibutton>Lay Out Horizontally</guibutton> toolbar button. (If you hover
@@ -399,6 +484,7 @@ Different widgets have different value editors.
     </listitem>
     <listitem>
     <para>
+    \x[Toolbar Buttons|Lay Out Vertically]\x[Layouts|Vertical]
     Click the Previous Clippings label and Shift+Click the
     clippingsListBox. Click the <guibutton>Lay Out
     Vertically</guibutton> toolbar button.
@@ -406,9 +492,10 @@ Different widgets have different value editors.
     </listitem>
     <listitem>
     <para>
+    \x[Toolbar Buttons|Lay Out Vertically]\x[Layouts|Vertical]
     We want the remaining widgets to be grouped together vertically. We
-    could Shift+Click each one but instead click the form then Ctrl+Click 
-    the Length label and drag until the Length label, the
+    could Shift+Click each one but instead click the form then Click the
+    form above the Length label, then drag until the Length label, the
     LCD Number, the check box and all the buttons are all touching the
     rubber band (a black outline rectangle) that appears when you drag.
     Release the mouse, and all the remaining widgets should be selected.
@@ -425,17 +512,23 @@ Different widgets have different value editors.
     <orderedlist numeration="arabic">
     <listitem>
     <para>
+    \x[Layouts|Rubber band]
+    \x[Layouts|Splitters]
+    \x[Toolbar Buttons|Lay Out Horizontally (in Splitter)]
+    \x[Layouts|Horizontal]
     Shift+Clicking is used to select individual widgets. To select a
     group we must click the form to deselect any selected widgets, then
     Ctrl+Click the group and drag so that the rubber band touches the
-    groups we want to lay out and then release. Ctrl+Click the list box
-    drag the rubber band over the one of the buttons, then release. Both
+    groups we want to lay out and then release. With the buttons and
+    other widgets already laid out and selected, Ctrl+Click the list box
+    and drag the rubber band over the one of the buttons, then release. Both
     groups should now be selected. Click <guibutton>Lay Out Horizontally
     (in Splitter)</guibutton>. 
     </para>
     </listitem>
     <listitem>
     <para>
+    \x[Toolbar Buttons|Lay Out Vertically]\x[Layouts|Vertical]
     We now have two groups, the top one with the Current Clipping label
     and the line edit and the group we've just created with the list box,
     buttons and other widgets. We now want to lay these out in relation
@@ -448,6 +541,7 @@ Different widgets have different value editors.
     </para>
 
     <para>
+    \x[Layouts|Spacers]
     Unfortunately the Length label and the LCD Number take up far too
     much space, so we will have to revise the layout. With experience
     you will find that you do not need to rework layouts very often. We
@@ -455,6 +549,7 @@ Different widgets have different value editors.
     <orderedlist numeration="arabic">
     <listitem>
     <para>
+    \x[Layouts|Spacers]
     First we must make some room for the spacer. Click the LCD Number to
     select it. Now click the <guibutton>Break Layout</guibutton> toolbar
     button. Move the LCD Number up a little bit, there's no need to be
@@ -463,6 +558,7 @@ Different widgets have different value editors.
     </listitem>
     <listitem>
     <para>
+    \x[Layouts|Spacers]
     Now we'll add the spacer.
     Click the
     <guibutton>Spacer</guibutton> toolbar button, then click the form
@@ -474,6 +570,7 @@ Different widgets have different value editors.
     </listitem>
     <listitem>
    <para>
+    \x[Layouts|Spacers]
     We need to regroup the buttons and other widgets in a vertical
     group. Drag the mouse from near the bottom right of the form so that
     the rubber band includes or touches the buttons, the
@@ -485,6 +582,9 @@ Different widgets have different value editors.
     </listitem>
     <listitem>
     <para>
+    \x[Layouts|Splitters]
+    \x[Toolbar Buttons|Lay Out Horizontally (in Splitter)]
+    \x[Layouts|Horizontal]
     We now have three groups as we had before, only this time with the
     small addition of the spacer. Select the list box and the buttons by
     clicking the form, dragging and releasing once the rubber band
@@ -495,6 +595,7 @@ Different widgets have different value editors.
     </listitem>
     <listitem>
     <para>
+    \x[Toolbar Buttons|Lay Out Vertically]\x[Layouts|Vertical]
     The last step is to lay out the form itself. Click the form and
     click <guibutton>Lay Out Vertically</guibutton>. The form should now
     be laid out correctly.	
@@ -523,10 +624,14 @@ Different widgets have different value editors.
     chapter. 
     </para>
     <para>
+    \x[Layouts|Spacing]
+    \x[Object Explorer]
+    \x[Properties|layoutMargin]
     We will create some space around the splitter by changing the
     margins of the layout groups that it joins together. To click a
     layout either click a tiny bit above the layout's top red line or
-    click the layout's name in the Object Explorer. (See <xref
+    click the layout's name in the Object Explorer (the Widgets and
+    Source window). (See <xref
     linkend="theobjectexplorer"> "The Object Explorer" sidebar for an
     explanation of the Object Explorer window.) Click the layout that
     contains the list box, and change the layoutMargin property to 6,
@@ -538,7 +643,8 @@ Different widgets have different value editors.
     <sidebar id="theobjectexplorer">
     <title>The Object Explorer</title>
     <para>
-    View the Object Explorer window by clicking
+    \x[Object Explorer]
+    View the Object Explorer (Widgets and Source) window by clicking
     <guimenuitem>Window|Views|Object Explorer</guimenuitem>. The Object
     Explorer has two tabs, the Widgets tab which shows the object
     hierarchy, and the Source tab which shows the source code you have
@@ -549,6 +655,10 @@ Different widgets have different value editors.
     have many widgets or which use layouts. 
     </para>
     <para>
+    \x[Code Editing]\x[Subclassing]
+    \x[Functions|init()]\x[Functions|destroy()]
+    \x[Forward declarations]
+    \x[Class variables]
     In the original version of \qd if you wanted to provide code for a
     form you had to subclass the form and put your code in the
     subclass. This version of Designer fully supports the subclassing
@@ -569,6 +679,7 @@ Different widgets have different value editors.
     editing and creating slots are covered later.
     </para>
     <para>
+    \x[Subclassing]
     If you subclass the form you create your own 
     <function>.cpp</function> files which can contain your own
     constructor, destructor, functions, slots, declarations and
@@ -578,6 +689,9 @@ Different widgets have different value editors.
     </sidebar>
 
     <para>
+    \x[Properties|sizePolicy]
+    \x[Properties|hSizeType]
+    \x[Properties|vSizeType]
     In the example we've presented we've used \qd's layout tools to lay
     out our widgets. We will use the layout tools again in the examples
     presented in later chapters. If you want to use absolute
@@ -594,6 +708,8 @@ Different widgets have different value editors.
     <sect2 id="previewing">
     <title>Previewing </title>
     <para>
+    \x[Previewing]
+    \x[Preview Mode^Previewing]
     Although \qd presents an accurate view of our forms we often want to
     see what a form looks like when it is run. It is also useful to be
     able to test out some aspects of the form, for example how the form
@@ -602,6 +718,7 @@ Different widgets have different value editors.
     the form will look in different environments.
     </para>
     <para>
+    \x[Keyboard Shortcuts (in Qt Designer)|Ctrl+T (Preview)^Preview]
     To see a preview either click <guimenuitem>Preview|Preview
     Form</guimenuitem> or press <keycap>Ctrl+T</keycap>. Try this with
     multiclip; when the preview appears try resizing the form and try
@@ -621,6 +738,12 @@ Different widgets have different value editors.
     this straight away.
     </para>
     <para>
+    \x[Layouts|Break layout]
+    \x[Layouts|Splitters]
+    \x[Layouts|Rubber band]
+    \x[Toolbar Buttons|Lay Out Horizontally]
+    \x[Toolbar Buttons|Lay Out Vertically]
+    \x[Keyboard Shortcuts (in Qt Designer)|Ctrl+T (Preview)^Preview]
     Click the splitter then click the <guibutton>Break
     Layout</guibutton> toolbar button; the splitter will be removed. Now
     click the form itself, near the bottom, and drag the rubber band so
@@ -633,6 +756,8 @@ Different widgets have different value editors.
     resizing it.
     </para>
     <para>
+    \x[Layouts|Break layout]
+    \x[Undo and Redo|Layouts]
     It would be useful if you experimented further with layouts since
     they work visually and are best learnt through practice. 
     To remove a layout click the <guibutton>Break
@@ -642,6 +767,11 @@ Different widgets have different value editors.
     that you make. 
     </para>
     <para>
+    \x[Layouts|Grid]
+    \x[Layouts|Break layout]
+    \x[Keyboard Shortcuts (in Qt Designer)|Ctrl+B (Break Layout)^Layouts]
+    \x[Keyboard Shortcuts (in Qt Designer)|Ctrl+G (Layout in a Grid)^Layouts]
+    \x[Keyboard Shortcuts (in Qt Designer)|Ctrl+L (Layout Vertically)^Layouts]
     We'll try an experiment, to see how the grid layout works. Click
     the list box, then press <keycap>Ctrl+B</keycap> (break layout).
     Click one of the buttons and press <keycap>Ctrl+B</keycap>. Click
@@ -657,14 +787,19 @@ Different widgets have different value editors.
     <sect2 id="changingthetaborder">
     <title>Changing the Tab Order </title>
     <para>
+    \x[Tab Order]\x[Tab Order Mode^Tab Order]
+    \x[Keyboard Shortcuts (in Qt Designer)|Ctrl+T (Preview)^Preview]
     Keyboard users press the <keycap>Tab</keycap> key to move the focus
     from widget to widget as they use a form. The order in which the
     focus moves is called the tab order. Preview multiclip (press
-    <keycap>Ctrl+T</keycap>) and try tabbing through the widgets.
-    Because we laid out the widgets in the right order the tab order is
-    correct, but we'll experiment with it.
+    <keycap>Ctrl+T</keycap>) and try tabbing through the widgets. The
+    tab order may not be what we want so we'll go into tab order mode
+    and change it to the order we want.
     </para>
     <para>
+    \x[Tab Order]
+    \x[Toolbar Buttons|Tab Order]
+    \x[Keyboard Shortcuts (in Qt Designer)|Ctrl+Z (Undo)^Undo and Redo]
     When you click the <guibutton>Tab Order</guibutton> toolbar button a
     number in a blue circle will appear next to every widget that can
     accept keyboard focus. You change the tab order by clicking the widgets in
@@ -677,17 +812,20 @@ Different widgets have different value editors.
     <keycap>Esc</keycap> then <keycap>Ctrl+Z</keycap>). 
     </para>
     <para>
+    \x[Tab Order]
+    \x[Toolbar Buttons|Tab Order]
     Click the <guibutton>Tab Order</guibutton> toolbar button, then
-    click the Add Clipping button. Click the Copy Previous button, the
-    Delete Clipping button and the Quit button. Press
-    <keycap>Esc</keycap> to finish tab order mode, then preview the
-    form. The tab order now begins with the Add Clipping button. 
+    click the current clipping LineEdit -- even if it is already number
+    one in the tab order. Next click the previous clipping ListBox, then
+    the auto add clippings CheckBox. Click each button in turn from top
+    (add clipping) to bottom (quit). Press <keycap>Esc</keycap> to
+    finish tab order mode, then preview the form and try tabbing through
+    the widgets. 
     </para>
     <para>
-    The original tab order was better. We could restore it by undoing,
-    but for practice click the <guibutton>Tab Order</guibutton> toolbar
-    button and restore the original order manually. (Click the line
-    edit, the list box then the check box. Press <keycap>Esc</keycap>.)
+    Note that you can stop clicking if the tab order numbers for all the
+    widgets is correct; just press <keycap>Esc</keycap> to leave tab
+    order mode.
     </para>
     </sect2>
 </sect1>
@@ -819,7 +957,8 @@ documentation.)
     <para>
     We'll look at the <function>init()</function> function first. \qd
     creates an empty <function>init()</function> into which we can add
-    our own code.
+    our own code. To invoke the editor click a function, e.g. click
+    <function>init()</function>.
 <programlisting>
 \scan eg/multiclip/multiclip.cpp /::init/ /^}/
 </programlisting>
@@ -854,7 +993,7 @@ documentation.)
     <para>
     The <function>selectionChanged()</function> slot is only applicable
     under the X Window System. Users of MS Windows can still include the
-    code to ensure the application works cross-platform.
+    code to ensure that the application works cross-platform.
 <programlisting>
 \scan eg/multiclip/multiclip.cpp /::selectionChanged/ /^}/
 </programlisting>

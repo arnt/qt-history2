@@ -512,7 +512,7 @@ Plugin".
     class) has a unique uuid (\i[universal unique identifier]). When the
     application wants the functionality of a particular interface it
     calls \fn[queryInterface()] passing the uuid of the interface it is
-    interested in, for example, \c[IID_WidgetInterface]. If the
+    interested in, for example, \c[IID_Widget]. If the
     implementation provides the requested interface it returns a
     pointer to the interface's implementation. The application never
     uses (or knows) the name of the class that actually provides the

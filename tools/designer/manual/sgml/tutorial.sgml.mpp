@@ -1,6 +1,6 @@
 \set filter
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V3.1//EN"[
-<!ENTITY chapPF SYSTEM "chap-preface.sgml">
+<!ENTITY chapPF SYSTEM "chap-tutorial-preface.sgml">
 <!ENTITY chapON SYSTEM "chap-one.sgml">
 <!ENTITY chapMW SYSTEM "chap-main-windows.sgml">
 <!ENTITY chapAW SYSTEM "chap-advanced-widgets.sgml">
@@ -8,6 +8,7 @@
 <!ENTITY chapCC SYSTEM "chap-custom-controls.sgml">
 <!ENTITY chapDA SYSTEM "chap-creating-database-applications.sgml">
 <!ENTITY chapCU SYSTEM "chap-customizing.sgml">
+<!ENTITY chap08 SYSTEM "chap-08.sgml">
 ]>
 <book>
 &chapPF;
@@ -18,4 +19,5 @@
 &chapCC;
 &chapDA;
 &chapCU;
+&chap08;
 </book>

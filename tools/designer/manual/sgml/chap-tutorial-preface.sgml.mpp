@@ -19,7 +19,7 @@
     \p
     \qd helps you build user interfaces with layout tools that move and
     scale your widgets (\i[controls] in Windows terminology) automatically at
-    runtime. The resulting interfaces are both functional and attractive,
+    runtime. \x[Controls^Widgets]The resulting interfaces are both functional and attractive,
     comfortably suiting your users operating environments and preferences. \qd
     supports Qt's signals and slots mechanism for type-safe communication
     between widgets. \qd includes a code editor which you can use to embed
@@ -29,14 +29,12 @@
     \P
 
     \p
-    The manual is divided into two parts. The first part, chapters one
-    to seven, consists of tutorials which introduce you to \qd by
+    The tutorial introduces you to \qd by
     leading you through the development of example applications. The
-    second part, chapters eight to ten, provide a comprehensive
-    reference to \qd. The tutorial chapters are written to be as self-contained
-    as possible, but all of them assume that you are familiar with the
-    material in chapter one which covers the basics of building a Qt
-    application with Designer. Here's a brief overview of the chapters:
+    tutorial chapters are written to be as self-contained as possible,
+    but all of them assume that you are familiar with the material in
+    chapter one which covers the basics of building a Qt application
+    with Designer. Here's a brief overview of the chapters:
     <itemizedlist> 
     <listitem> 
     \p
@@ -104,13 +102,6 @@
     Chapter seven focuses on \qd itself, showing you how to customize
     Designer, how to integrate Designer with IDEs and how to create
     Makefiles. 
-    </para>
-    </listitem>
-
-    <listitem>
-    <para>
-    Chapter's eight to ten contain the reference material describing
-    \qd's menus, toolbars, dialogs and key bindings.
     </para>
     </listitem>
 
