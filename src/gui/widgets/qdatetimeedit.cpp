@@ -702,7 +702,7 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
     bool select = true;
 
     if ((e->key() == Qt::Key_Backspace || (e->key() == Qt::Key_H && e->key() & Qt::ControlModifier))
-	    && !d->edit->hasSelectedText()) {
+        && !d->edit->hasSelectedText()) {
 	const int pos = d->edit->cursorPosition();
 	if (pos <= d->separators.first().size()) {
 	    e->accept();
@@ -713,7 +713,7 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
 	const QDateTimeEditPrivate::Section closest = d->closestSection(pos - 1, false);
 	QDTEDEBUG << "found those two" << d->sectionName(s)<< d->sectionName(closest);
 	if (s == QDateTimeEditPrivate::LastSection
-	    || (s != QDateTimeEditPrivate::NoSection && pos == d->sectionPos(s))) {
+		|| (s != QDateTimeEditPrivate::NoSection && pos == d->sectionPos(s))) {
 	    QString copy = d->edit->displayText();
 	    int cursorCopy = pos;
 	    if (validate(copy, cursorCopy) != QValidator::Acceptable) {
@@ -726,44 +726,51 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
 	}
     }
 
+    bool forward = true;
     switch((Qt::Key)e->key()) {
-    case Qt::Key_Enter:
-    case Qt::Key_Return:
-        d->refresh(AlwaysEmit);
-        d->setSelected(d->currentsection);
-        return;
+	case Qt::Key_Enter:
+	case Qt::Key_Return:
+	    d->refresh(AlwaysEmit);
+	    d->setSelected(d->currentsection);
+	    return;
 
-    case Qt::Key_Left:
-    case Qt::Key_Right:
-        if (!(e->modifiers() & Qt::ControlModifier)) {
-            const int selsize = d->edit->selectedText().size();
-            if (selsize == 0 || selsize != d->sectionSize(d->currentsection))
-                break;
-            select = false;
-        }
-    case Qt::Key_Backtab:
-    case Qt::Key_Tab: {
-        const QDateTimeEditPrivate::SectionNode newSection =
-            d->nextPrevSection(d->currentsection,
-                               (e->key() == Qt::Key_Right ||
-                                (e->key() == Qt::Key_Tab && !(e->modifiers() & Qt::ShiftModifier))));
-        if (select) {
-            d->setSelected(newSection.section);
-        } else {
-            d->edit->setCursorPosition(e->key() == Qt::Key_Right ? newSection.pos : d->sectionPos(d->currentsection));
-        }
-        if (!select)
-            d->edit->deselect();
-        e->accept();
-        return; }
-    default:
-        select = !e->text().isEmpty() && e->text().at(0).isPrint();
-        break;
+	case Qt::Key_Left:
+	    forward = false;
+	case Qt::Key_Right:
+	    if (!(e->modifiers() & Qt::ControlModifier)) {
+		const int selsize = d->edit->selectedText().size();
+		if (selsize == 0 || selsize != d->sectionSize(d->currentsection))
+		    break;
+		select = false;
+	    }
+	case Qt::Key_Backtab:
+	case Qt::Key_Tab: {
+	    if (e->key() == Qt::Key_Backtab
+		|| (e->key() == Qt::Key_Tab && e->modifiers() & Qt::ShiftModifier)) {
+		forward = false;
+	    }
+
+	    if (QApplication::isRightToLeft())
+		forward = !forward;
+	    const QDateTimeEditPrivate::SectionNode newSection =
+		d->nextPrevSection(d->currentsection, forward);
+	    if (select) {
+		d->setSelected(newSection.section);
+	    } else {
+		d->edit->setCursorPosition(forward ? newSection.pos : d->sectionPos(d->currentsection));
+	    }
+	    if (!select)
+		d->edit->deselect();
+	    e->accept();
+	    return; }
+	default:
+	    select = !e->text().isEmpty() && e->text().at(0).isPrint();
+	    break;
     }
 
     QAbstractSpinBox::keyPressEvent(e);
     if (select && d->currentsection != oldCurrent)
-        d->setSelected(d->currentsection);
+	d->setSelected(d->currentsection);
 }
 
 /*!
@@ -1521,11 +1528,12 @@ QVariant QDateTimeEditPrivate::stepBy(Section s, int steps, bool test) const
 
 QVariant QDateTimeEditPrivate::valueForPosition(int pos) const
 {
-    QStyleOptionSpinBox sb = styleOption();
-    QRect r = q->style()->subControlRect(QStyle::CC_SpinBox, &sb, QStyle::SC_SpinBoxSlider, q);
+    QStyleOptionSpinBox opt = styleOption();
+    QRect r = QStyle::visualRect(opt.direction, opt.rect,
+                                 q->style()->subControlRect(QStyle::CC_SpinBox,
+                                                            &opt, QStyle::SC_SpinBoxSlider, q));
 
-    double percentage = (double)pos / r.width();
-
+    double percentage = (double)QStyle::visualPos(opt.direction, r, QPoint(pos, 0)).x() / r.width();
 
     double totalDays = (double)minimum.toDateTime().daysTo(maximum.toDateTime());
     totalDays += (double)minimum.toDateTime().time().msecsTo(maximum.toDateTime().time()) / (24 * 3600 * 1000);
@@ -1537,7 +1545,7 @@ QVariant QDateTimeEditPrivate::valueForPosition(int pos) const
     }
 
     double diff = (totalDays * percentage);
-    QDate date = minimum.toDate().addDays((qint64)diff); // ### hack. There must be a nicer way
+    QDate date = minimum.toDate().addDays((qint64)diff);
     QTime time = QTime().addMSecs((int)(24 * 3600 * 1000 * (diff - ((double)(qint64)diff))));
     return QVariant(QDateTime(date, time));
 }
@@ -2467,7 +2475,7 @@ void QDateTimeEditPrivate::calculateSizeHints() const
         w = qMax<int>(w, fm.width(s));
         w += 10; // cursor blinking space
 
-        QStyleOptionSpinBox opt = getStyleOption();
+        QStyleOptionSpinBox opt = styleOption();
         QSize hint(w, h);
         QSize extra(35, 6);
         opt.rect.setSize(hint + extra);
@@ -2540,7 +2548,7 @@ QValidator::State QDateTimeEditPrivate::checkIntermediate(const QDateTime &dt,
                     if (sn.section & TimeSectionMask) {
                         if (dt.daysTo(minimum.toDateTime()) != 0) {
 			    QDTEDEBUG << "if (dt.daysTo(minimum.toDateTime()) != 0)" << dt.daysTo(minimum.toDateTime());
-                            return QValidator::Invalid; // ### assert?
+                            return QValidator::Invalid;
 			}
                         toMin = dt.time().msecsTo(minimum.toDateTime().time());
                         if (dt.daysTo(maximum.toDateTime()) > 0) {

@@ -517,7 +517,7 @@ void QAbstractSpinBox::setLineEdit(QLineEdit *e)
         connect(d->edit, SIGNAL(cursorPositionChanged(int,int)),
                 this, SLOT(editorCursorPositionChanged(int,int)));
     }
-    QStyleOptionSpinBox opt = d->getStyleOption();
+    QStyleOptionSpinBox opt = d->styleOption();
     opt.subControls = QStyle::SC_SpinBoxEditField;
     d->edit->setGeometry(QStyle::visualRect(opt.direction, opt.rect,
                                             style()->subControlRect(QStyle::CC_SpinBox, &opt,
@@ -626,7 +626,7 @@ void QAbstractSpinBox::changeEvent(QEvent *e)
 
 void QAbstractSpinBox::resizeEvent(QResizeEvent *e)
 {
-    QStyleOptionSpinBox opt = d->getStyleOption();
+    QStyleOptionSpinBox opt = d->styleOption();
     opt.subControls = QStyle::SC_SpinBoxEditField;
     d->edit->setGeometry(QStyle::visualRect(opt.direction, opt.rect,
                                             style()->subControlRect(QStyle::CC_SpinBox, &opt,
@@ -659,7 +659,7 @@ QSize QAbstractSpinBox::minimumSizeHint() const
 
 void QAbstractSpinBox::paintEvent(QPaintEvent *)
 {
-    QStyleOptionSpinBox opt = d->getStyleOption();
+    QStyleOptionSpinBox opt = d->styleOption();
     QPainter p(this);
     style()->drawComplexControl(QStyle::CC_SpinBox, &opt, &p, this);
 }
@@ -901,7 +901,7 @@ void QAbstractSpinBox::mouseMoveEvent(QMouseEvent *e)
 {
     const QPoint p(e->pos());
     const StepEnabled se = stepEnabled();
-    QStyleOptionSpinBox opt = d->getStyleOption();
+    QStyleOptionSpinBox opt = d->styleOption();
     opt.subControls = QStyle::SC_All;
     if (e->buttons() & Qt::LeftButton) {
         d->dragging = true;
@@ -935,7 +935,7 @@ void QAbstractSpinBox::mousePressEvent(QMouseEvent *e)
 
     const QPoint p(e->pos());
     const StepEnabled se = stepEnabled();
-    QStyleOptionSpinBox opt = d->getStyleOption();
+    QStyleOptionSpinBox opt = d->styleOption();
     opt.subControls = QStyle::SC_All;
     if ((se & StepUpEnabled)
         && QStyle::visualRect(opt.direction, opt.rect,
@@ -1146,7 +1146,7 @@ void QAbstractSpinBoxPrivate::init()
 void QAbstractSpinBoxPrivate::updateSpinBox()
 {
     if (q) {
-        QStyleOptionSpinBox opt = getStyleOption();
+        QStyleOptionSpinBox opt = styleOption();
         q->update(QStyle::visualRect(opt.direction, opt.rect,
                                      q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
                                                                 QStyle::SC_SpinBoxButtonField, q)));
@@ -1162,7 +1162,7 @@ void QAbstractSpinBoxPrivate::updateSpinBox()
 void QAbstractSpinBoxPrivate::updateSlider()
 {
     if (q) {
-        QStyleOptionSpinBox opt = getStyleOption();
+        QStyleOptionSpinBox opt = styleOption();
         q->update(QStyle::visualRect(opt.direction, opt.rect,
                                      q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
                                                                 QStyle::SC_SpinBoxSlider, q)));
@@ -1232,7 +1232,7 @@ void QAbstractSpinBoxPrivate::calculateSizeHints() const
         }
         w += 2; // cursor blinking space
 
-        QStyleOptionSpinBox opt = getStyleOption();
+        QStyleOptionSpinBox opt = styleOption();
         QSize hint(w, h);
         QSize extra(35,6);
         opt.rect.setSize(hint + extra);
@@ -1258,7 +1258,7 @@ void QAbstractSpinBoxPrivate::calculateSizeHints() const
     Creates a QStyleOptionSpinBox with the right flags set.
 */
 
-QStyleOptionSpinBox QAbstractSpinBoxPrivate::getStyleOption() const
+QStyleOptionSpinBox QAbstractSpinBoxPrivate::styleOption() const
 {
     QStyleOptionSpinBox opt;
     opt.init(q);
@@ -1290,7 +1290,7 @@ QStyleOptionSpinBox QAbstractSpinBoxPrivate::getStyleOption() const
 
 QVariant QAbstractSpinBoxPrivate::valueForPosition(int pos) const
 {
-    QStyleOptionSpinBox opt = getStyleOption();
+    QStyleOptionSpinBox opt = styleOption();
     QRect r = QStyle::visualRect(opt.direction, opt.rect,
                                  q->style()->subControlRect(QStyle::CC_SpinBox,
                                                             &opt, QStyle::SC_SpinBoxSlider, q));
