@@ -1243,7 +1243,7 @@ int QListViewItem::width( const QFontMetrics& fm,
     int lb = 0, rb = 0;
     if ( t.length() >= 1 ) {
 	lb = fm.leftBearing( t[ 0 ] );
-	rb = fm.rightBearing( t[ t.length() - 1 ] );
+	rb = fm.rightBearing( t[ (int) t.length() - 1 ] );
     }
     int w = fm.width( t ) + lv->itemMargin() * 2 + lb + rb;
     const QPixmap * pm = pixmap( c );
