@@ -143,12 +143,13 @@ myexpr () {
 echo "Removing unnecesary stuff.."
 FILES=`find $DISTDIR/qt/`
 for file in $FILES; do
-    [ -d $file ] && continue
+    [ ! -e $file ] && continue
+    [ -d "$file" ] && file="${file}/"
 
-    file_DIR=`dirname $file`
     file_BASE=`basename $file`
     file_WHOLE=$file
     file=`echo $file | sed "s,^$DISTDIR/qt/,,"`
+    { [ -z $file ] || [ $file = "/" ] ; } && continue
     KEEP=
 
     if
@@ -162,8 +163,7 @@ for file in $FILES; do
 	 myexpr "$file" : '^dist\/' ||
 
 	 # no tests
-	 myexpr "$file" : '.*\/tests\/' ||
-	 myexpr "$file" : '^tests\/' ||
+	 myexpr "$file" : 'tests\/.*' ||
 
 	 # utils, except scripts
 	 { myexpr "$file" : '^util\/' && ! myexpr "$file" : '^util\/scripts\/' ; } ||
@@ -192,10 +192,14 @@ for file in $FILES; do
 
 	 # some bins
 	 myexpr "$file_BASE" : 'bin\/.*_make_.*$' ||
-	 myexpr "$file" : 'bin\/syncqt.*$'
+	 myexpr "$file" : 'bin\/syncqt.*$' ||
+	 myexpr "$file" : 'bin\/qmake$'
      then
 	    KEEP=no
      elif
+	 # for the love of god! keep qmake! all hail qmake!
+	 myexpr "$file" : "^qmake\/" || 
+
 	 # the scripts, for now
 	 myexpr "$file" : "^util\/scripts\/" ||
 
@@ -294,7 +298,6 @@ for file in $FILES; do
      [ "x$KEEP" = "xno" ] && rm -rf $file
 done
 
-
 # fixify qglobal's version number
 qglobal="$DISTDIR/qt/src/tools/qglobal.h"
 sed -e "s,\(\#define\s*QT_VERSION\s*\)[0-9]*,\1$BRANCH_DIGITS,g" \
@@ -305,15 +308,16 @@ if [ "$type" != "-snapshot" ] && ! myexpr "$type" : "^-beta[0-9]*$"; then
     die "The qt version is $BRANCH$type, which confuses me terribly";
 fi
 
-#fix $Id: //depot/qt/main/util/scripts/mkdists#54 $
+#fix $Id
 echo "Marking \$ID\$..."
-for a in `find $DISTDIR/qt`; do
-    if [ -f $a ] && [ ! -L $a ] && grep $a '\$Id.*\$' >/dev/null 2>&1; then
+for a in `find $DISTDIR/qt/`; do
+    if [ -f $a ] && [ ! -L $a ] && grep '\$Id.*\$' $a >/dev/null 2>&1; then
 	execut="no"
 	[ -x $a ] && execut="yes"
 
-	tag_ID="`echo $a | sed "s,^.*/,qt/,"`   ${version}${type}   edit FIXME"
-	sed "s,\$Id: //depot/qt/main/util/scripts/mkdists#54 $]*\$,$Id: //depot/qt/main/util/scripts/mkdists#54 ${tag_ID} $,g" $a >/tmp/tmpf
+	mtime=`ls -l $a | sed "s,.* \([A-Z][a-z][a-z] [0-9]* [0-9][0-9]:[0-9][0-9]\).*,\1,"`
+	tag_ID="`echo $a | sed "s,^.*/,qt/,"`   ${version}${type}   edited $mtime"
+	sed "s,\(\$Id[:] \)[^\\$]*\\$,\1 ${tag_ID} \$,g" $a >/tmp/tmpf
 	rm -f $a
 	mv /tmp/tmpf $a
 	if [ "$execut" = "yes" ]; then
@@ -326,10 +330,9 @@ done
 
 #get include files
 mkdir -p "$DISTDIR/qt/include"
-includefiles=`$DISTDIR/qt/bin/syncqt -show`
+includefiles=`QTDIR=$DISTDIR/qt $DISTDIR/qt/bin/syncqt -show`
 for fullname in $includefiles; do
-    fullname=`echo $fullname | sed "s,.*/,,"`
-    ln -sf "../$fullname" "$DISTDIR/qt/include/$fullname"
+    ln -sf "$DISTDIR/qt/$fullname" "$DISTDIR/qt/include/`basename $fullname`"
 done
 
 #Generate documentation
@@ -475,6 +478,8 @@ for plat in mac win x11 qws; do
 	[ ! -d $d ] && continue
 	for a in `find $d`; do
 	    a_file=`echo $a | sed "s,$d,,"`
+	    [ -z $a_file ] && continue
+
 	    if [ "$plat" = "qws" ]; then
 		case `basename $a` in
 		LICENSE|MAINIFEST|ANNOUNCE|README.QT|README|LICENSE.QPL) continue ;;
@@ -532,6 +537,8 @@ for plat in mac win x11 qws; do
 	#copy free licenses
 	for a in `find $DISTDIR/qt/dist/free`; do
 	    a_file=`echo $a | sed "s,$DISTDIR/qt/dist/free,,"`
+	    [ -z $a_file ] && continue
+
 	    if [ "$plat" = "qws" ]; then
 		case `basename $a` in
 		LICENSE|MAINIFEST|ANNOUNCE|README.QT|README|LICENSE.QPL) continue ;;
@@ -561,7 +568,7 @@ for plat in mac win x11 qws; do
 	cd "$DISTDIR"
 	tar cf $OUT_TREE/${PLATNAME}.tar ${PLATNAME}
 	[ "$DO_GZIP" = "yes" ] && gzip -c $OUT_TREE/${PLATNAME}.tar >$OUT_TREE/${PLATNAME}.tar.gz
-	echo "*** Done with free ****"
+	echo "** Done with free.. **"
     fi
     echo "(cleaning up after package..)"
     rm -rf $PLATDIR
