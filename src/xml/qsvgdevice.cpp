@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#39 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#40 $
 **
 ** Implementation of the QSvgDevice class
 **
@@ -908,7 +908,7 @@ void QSvgDevice::drawPath( const QString &data )
 {
     int x0 = 0, y0 = 0;			// starting point
     int x = 0, y = 0;			// current point
-    int controlX, controlY;		// last control point for curves
+    int controlX = 0, controlY = 0;	// last control point for curves
     QPointArray path( 500 );		// resulting path
     QValueList<int> subIndex;		// start indices for subpaths
     QPointArray quad( 4 ), bezier;	// for curve calculations
