@@ -22,6 +22,7 @@
 #include <qpainter.h>
 #include <qpaintdevicemetrics.h>
 #include <qsimplerichtext.h>
+#include <qtextstream.h>
 
 static const char *filesave[] = {
 "    14    14        4            1",
