@@ -593,8 +593,12 @@ void qObsolete(	 const char *obj, const char *oldfunc, const char *newfunc )
 	return;
     if ( !firstObsoleteWarning(obj, oldfunc) )
 	return;
-    qDebug( "%s::%s: This function is obsolete, use %s instead.",
-	   obj, oldfunc, newfunc );
+    if ( obj )
+	qDebug( "%s::%s: This function is obsolete, use %s instead.",
+	       obj, oldfunc, newfunc );
+    else
+	qDebug( "%s: This function is obsolete, use %s instead.",
+	       oldfunc, newfunc );
 }
 
 void qObsolete(	 const char *obj, const char *oldfunc )
@@ -603,7 +607,10 @@ void qObsolete(	 const char *obj, const char *oldfunc )
 	return;
     if ( !firstObsoleteWarning(obj, oldfunc) )
 	return;
-    qDebug( "%s::%s: This function is obsolete.", obj, oldfunc );
+    if ( obj )
+	qDebug( "%s::%s: This function is obsolete.", obj, oldfunc );
+    else
+	qDebug( "%s: This function is obsolete.", oldfunc );
 }
 
 void qObsolete(	 const char *message )
