@@ -503,7 +503,7 @@ bool QPainter::begin(QPaintDevice *pd, bool unclipped)
         return true;
     }
 
-    if (!d->engine->begin(pd, d->state, unclipped)) {
+    if (!d->engine->begin(pd, unclipped)) {
         qWarning("QPainter::begin(), QPaintEngine::begin() returned false\n");
         return false;
     }

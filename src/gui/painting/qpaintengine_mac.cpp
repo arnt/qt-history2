@@ -113,7 +113,7 @@ QQuickDrawPaintEngine::~QQuickDrawPaintEngine()
 }
 
 bool
-QQuickDrawPaintEngine::begin(QPaintDevice *pdev, QPainterState *ps, bool unclipped)
+QQuickDrawPaintEngine::begin(QPaintDevice *pdev, bool unclipped)
 {
     if(isActive()) {                         // already active painting
         qWarning("QQuickDrawPaintEngine::begin: Painter is already active."
@@ -169,10 +169,11 @@ QQuickDrawPaintEngine::begin(QPaintDevice *pdev, QPainterState *ps, bool unclipp
     d->unclipped = unclipped;
     if(type() != CoreGraphics)
         setupQDPort(true); //force setting paint device, this does unclipped fu
-    updateXForm(ps);
-    updateBrush(ps);
-    updatePen(ps);
-    updateClipRegion(ps);
+    // ### Should be handled by QPainter
+//     updateXForm(ps);
+//     updateBrush(ps);
+//     updatePen(ps);
+//     updateClipRegion(ps);
     return true;
 }
 
@@ -197,44 +198,44 @@ QQuickDrawPaintEngine::end()
 }
 
 void
-QQuickDrawPaintEngine::updatePen(QPainterState *ps)
+QQuickDrawPaintEngine::updatePen(const QPen &pen)
 {
-    d->current.pen = ps->pen;
+    d->current.pen = pen;
 }
 
 
 void
-QQuickDrawPaintEngine::updateBrush(QPainterState *ps)
+QQuickDrawPaintEngine::updateBrush(const QBrush &brush, const QPoint &origin)
 {
-    d->current.brush = ps->brush;
+    d->current.brush = brush;
+    d->current.bg.origin = origin;
 }
 
 void
-QQuickDrawPaintEngine::updateFont(QPainterState *ps)
+QQuickDrawPaintEngine::updateFont(const QFont &font)
 {
     clearf(DirtyFont);
-    updatePen(ps);
+    updatePen(d->current.pen);
 }
 
 
 void
-QQuickDrawPaintEngine::updateRasterOp(QPainterState *ps)
+QQuickDrawPaintEngine::updateRasterOp(Qt::RasterOp rop)
 {
     Q_ASSERT(isActive());
-    d->current.rop = ps->rasterOp;
+    d->current.rop = rop;
 }
 
 void
-QQuickDrawPaintEngine::updateBackground(QPainterState *ps)
+QQuickDrawPaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
 {
     Q_ASSERT(isActive());
-    d->current.bg.origin = ps->bgOrigin;
-    d->current.bg.mode = ps->bgMode;
-    d->current.bg.brush = ps->bgBrush;
+    d->current.bg.mode = bgMode;
+    d->current.bg.brush = bgBrush;
 }
 
 void
-QQuickDrawPaintEngine::updateXForm(QPainterState */*ps*/)
+QQuickDrawPaintEngine::updateXForm(const QWMatrix &matrix)
 {
 }
 
@@ -251,10 +252,10 @@ QQuickDrawPaintEngine::setClippedRegionInternal(QRegion *rgn)
 }
 
 void
-QQuickDrawPaintEngine::updateClipRegion(QPainterState *ps)
+QQuickDrawPaintEngine::updateClipRegion(const QRegion &region, bool enable)
 {
     Q_ASSERT(isActive());
-    setClippedRegionInternal(ps->clipEnabled ? &ps->clipRegion : 0);
+    setClippedRegionInternal(enable ? &region : 0);
 }
 
 void QQuickDrawPaintEngine::setRasterOp(RasterOp r)
@@ -1048,7 +1049,7 @@ QCoreGraphicsPaintEngine::~QCoreGraphicsPaintEngine()
 }
 
 bool
-QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev, QPainterState *state, bool unclipped)
+QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev, bool unclipped)
 {
     if(isActive()) {                         // already active painting
         qWarning("QCoreGraphicsPaintEngine::begin: Painter is already active."
@@ -1101,10 +1102,11 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev, QPainterState *state, bool u
         }
     }
 
-    updateXForm(state);
-    updateBrush(state);
-    updatePen(state);
-    updateClipRegion(state);
+    // ### Handled by QPainter...
+//     updateXForm(state);
+//     updateBrush(state);
+//     updatePen(state);
+//     updateClipRegion(state);
     return true;
 }
 
@@ -1128,27 +1130,27 @@ QCoreGraphicsPaintEngine::end()
 }
 
 void
-QCoreGraphicsPaintEngine::updatePen(QPainterState *ps)
+QCoreGraphicsPaintEngine::updatePen(const QPen &pen)
 {
     Q_ASSERT(isActive());
-    d->current.pen = ps->pen;
+    d->current.pen = pen;
 
     //pen style
     float *lengths = NULL;
     int count = 0;
-    if(ps->pen.style() == DashLine) {
+    if(pen.style() == DashLine) {
         static float inner_lengths[] = { 3, 1 };
         lengths = inner_lengths;
         count = sizeof(sizeof(inner_lengths) / sizeof(inner_lengths[0]));
-    } else if(ps->pen.style() == DotLine) {
+    } else if(pen.style() == DotLine) {
         static float inner_lengths[] = { 1, 1 };
         lengths = inner_lengths;
         count = sizeof(sizeof(inner_lengths) / sizeof(inner_lengths[0]));
-    } else if(ps->pen.style() == DashDotLine) {
+    } else if(pen.style() == DashDotLine) {
         static float inner_lengths[] = { 3, 1, 1, 1 };
         lengths = inner_lengths;
         count = sizeof(sizeof(inner_lengths) / sizeof(inner_lengths[0]));
-    } else if(ps->pen.style() == DashDotDotLine) {
+    } else if(pen.style() == DashDotDotLine) {
         static float inner_lengths[] = { 3, 1, 1, 1, 1, 1 };
         lengths = inner_lengths;
         count = sizeof(sizeof(inner_lengths) / sizeof(inner_lengths[0]));
@@ -1157,34 +1159,35 @@ QCoreGraphicsPaintEngine::updatePen(QPainterState *ps)
 
     //pencap
     CGLineCap cglinecap = kCGLineCapButt;
-    if(ps->pen.capStyle() == SquareCap)
+    if(pen.capStyle() == SquareCap)
         cglinecap = kCGLineCapSquare;
-    else if(ps->pen.capStyle() == RoundCap)
+    else if(pen.capStyle() == RoundCap)
         cglinecap = kCGLineCapRound;
     CGContextSetLineCap(d->hd, cglinecap);
 
     //penwidth
-    CGContextSetLineWidth(d->hd, ps->pen.width() < 1 ? 1 : ps->pen.width());
+    CGContextSetLineWidth(d->hd, pen.width() < 1 ? 1 : pen.width());
 
     //join
     CGLineJoin cglinejoin = kCGLineJoinMiter;
-    if(ps->pen.joinStyle() == BevelJoin)
+    if(pen.joinStyle() == BevelJoin)
         cglinejoin = kCGLineJoinBevel;
-    else if(ps->pen.joinStyle() == RoundJoin)
+    else if(pen.joinStyle() == RoundJoin)
         cglinejoin = kCGLineJoinRound;
     CGContextSetLineJoin(d->hd, cglinejoin);
 
     //color
-    const QColor &col = ps->pen.color();
+    const QColor &col = pen.color();
     CGContextSetRGBStrokeColor(d->hd, qt_mac_convert_color_to_cg(col.red()),
                                qt_mac_convert_color_to_cg(col.green()), qt_mac_convert_color_to_cg(col.blue()), 1.0);
 }
 
 void
-QCoreGraphicsPaintEngine::updateBrush(QPainterState *ps)
+QCoreGraphicsPaintEngine::updateBrush(const QBrush &brush, const QPoint &brushOrigin)
 {
     Q_ASSERT(isActive());
-    d->current.brush = ps->brush;
+    d->current.brush = brush;
+    d->current.bg.origin = brushOrigin;
 
     if(d->shading) {
         CGShadingRelease(d->shading);
@@ -1192,13 +1195,13 @@ QCoreGraphicsPaintEngine::updateBrush(QPainterState *ps)
     }
 
     //pattern
-    Qt::BrushStyle bs = ps->brush.style();
+    Qt::BrushStyle bs = brush.style();
     if(bs == LinearGradientPattern) {
         CGFunctionCallbacks callbacks = { 0, qt_mac_color_gradient_function, 0 };
-        CGFunctionRef fill_func = CGFunctionCreate(&ps->brush, 1, 0, 4, 0, &callbacks);
+        CGFunctionRef fill_func = CGFunctionCreate(&brush, 1, 0, 4, 0, &callbacks);
         CGColorSpaceRef grad_colorspace = CGColorSpaceCreateDeviceRGB();
-        const QPoint start = ps->painter->xForm(ps->brush.gradientStart()),
-                      stop =  ps->painter->xForm(ps->brush.gradientStop());
+        const QPoint start = ps->painter->xForm(brush.gradientStart()),
+                      stop =  ps->painter->xForm(brush.gradientStop());
         d->shading = CGShadingCreateAxial(grad_colorspace, CGPointMake(start.x(), start.y()),
                                           CGPointMake(stop.x(), stop.y()), fill_func, true, true);
         CGFunctionRelease(fill_func);
@@ -1209,9 +1212,9 @@ QCoreGraphicsPaintEngine::updateBrush(QPainterState *ps)
         float components[4] = { 1.0, 1.0, 1.0, 1.0 };
         CGColorSpaceRef base_colorspace = 0;
         if (bs == CustomPattern) {
-            qpattern->data.pixmap = ps->brush.pixmap();
+            qpattern->data.pixmap = brush.pixmap();
             if(qpattern->data.pixmap->isQBitmap()) {
-                const QColor &col = ps->brush.color();
+                const QColor &col = brush.color();
                 components[0] = qt_mac_convert_color_to_cg(col.red());
                 components[1] = qt_mac_convert_color_to_cg(col.green());
                 components[2] = qt_mac_convert_color_to_cg(col.blue());
@@ -1223,7 +1226,7 @@ QCoreGraphicsPaintEngine::updateBrush(QPainterState *ps)
             qpattern->as_mask = true;
             qpattern->data.bytes = qt_patternForBrush(bs, true);
             width = height = 8;
-            const QColor &col = ps->brush.color();
+            const QColor &col = brush.color();
             components[0] = qt_mac_convert_color_to_cg(col.red());
             components[1] = qt_mac_convert_color_to_cg(col.green());
             components[2] = qt_mac_convert_color_to_cg(col.blue());
@@ -1247,7 +1250,7 @@ QCoreGraphicsPaintEngine::updateBrush(QPainterState *ps)
         if(base_colorspace)
             CGColorSpaceRelease(base_colorspace);
     } else if(bs != NoBrush) {
-        const QColor &col = ps->brush.color();
+        const QColor &col = brush.color();
         CGContextSetRGBFillColor(d->hd, qt_mac_convert_color_to_cg(col.red()),
                                  qt_mac_convert_color_to_cg(col.green()),
                                  qt_mac_convert_color_to_cg(col.blue()), 1.0);
@@ -1255,57 +1258,56 @@ QCoreGraphicsPaintEngine::updateBrush(QPainterState *ps)
 }
 
 void
-QCoreGraphicsPaintEngine::updateFont(QPainterState *ps)
+QCoreGraphicsPaintEngine::updateFont(const QFont &font)
 {
     Q_ASSERT(isActive());
     clearf(DirtyFont);
-    updatePen(ps);
+    updatePen(d->current.pen);
 }
 
 void
-QCoreGraphicsPaintEngine::updateRasterOp(QPainterState *ps)
+QCoreGraphicsPaintEngine::updateRasterOp(Qt::RasterOp rop)
 {
     Q_ASSERT(isActive());
-    if(ps->rasterOp != CopyROP)
+    if(rop != CopyROP)
         qt_mac_cg_no_rasterop();
 }
 
 void
-QCoreGraphicsPaintEngine::updateBackground(QPainterState *ps)
+QCoreGraphicsPaintEngine::updateBackground(Qt::BGMode mode, const QBrush &brush)
 {
     Q_ASSERT(isActive());
-    d->current.bg.origin = ps->bgOrigin;
-    d->current.bg.mode = ps->bgMode;
-    d->current.bg.brush = ps->bgBrush;
+    d->current.bg.mode = mode;
+    d->current.bg.brush = brush;
 }
 
 void
-QCoreGraphicsPaintEngine::updateXForm(QPainterState *ps)
+QCoreGraphicsPaintEngine::updateXForm(const QWMatrix &matrix)
 {
     Q_ASSERT(isActive());
 #if 0
     CGAffineTransform xf = CGAffineTransformInvert(CGContextGetCTM(d->hd));
-    xf = CGAffineTransformConcat(xf, CGAffineTransformMake(ps->matrix.m11(), ps->matrix.m12(),
-                                                           ps->matrix.m21(), ps->matrix.m22(),
-                                                           ps->matrix.dx(),  ps->matrix.dy()));
+    xf = CGAffineTransformConcat(xf, CGAffineTransformMake(matrix.m11(), matrix.m12(),
+                                                           matrix.m21(), matrix.m22(),
+                                                           matrix.dx(),  matrix.dy()));
     CGContextConcatCTM(d->hd, xf);
 //    CGContextSetTextMatrix(d->hd, xf);
 #else
-    Q_UNUSED(ps);
+    Q_UNUSED(matrix);
 #endif
 }
 
 void
-QCoreGraphicsPaintEngine::updateClipRegion(QPainterState *ps)
+QCoreGraphicsPaintEngine::updateClipRegion(const QRegion &clipRegion, bool clipEnabled)
 {
     Q_ASSERT(isActive());
     bool old_clipEnabled = testf(ClipOn);
-    if(ps->clipEnabled)
+    if(clipEnabled)
         setf(ClipOn);
     else
         clearf(ClipOn);
-    if(ps->clipEnabled || old_clipEnabled)
-        setupCGClip(ps->clipEnabled ? &ps->clipRegion : 0);
+    if(clipEnabled || old_clipEnabled)
+        setupCGClip(clipEnabled ? &clipRegion : 0);
 }
 
 void

@@ -51,15 +51,15 @@ QPicturePaintEngine::~QPicturePaintEngine()
 }
 
 // ### serialize unclipped?
-bool QPicturePaintEngine::begin(QPaintDevice *pd, QPainterState *state, bool /* unclipped */)
+bool QPicturePaintEngine::begin(QPaintDevice *pd, bool /* unclipped */)
 {
     Q_ASSERT(pd);
     QPicture *pic = static_cast<QPicture *>(pd);
 
     pic_d = pic->d;
 
-    Q_ASSERT(state->painter);
-    d->pt = state->painter;
+    d->pt = painter();
+    Q_ASSERT(d->pt);
     d->s.setDevice(&pic_d->pictb);
     d->s.setVersion(pic_d->formatMajor);
 
@@ -110,54 +110,54 @@ bool QPicturePaintEngine::end()
     d->s << (Q_UINT8) 0; \
     pos = pic_d->pictb.at()
 
-void QPicturePaintEngine::updatePen(QPainterState *ps)
+void QPicturePaintEngine::updatePen(const QPen &pen)
 {
     int pos;
     SERIALIZE_CMD(PdcSetPen);
-    d->s << ps->pen;
+    d->s << pen;
     writeCmdLength(pos, QRect(), false);
 }
 
-void QPicturePaintEngine::updateBrush(QPainterState *ps)
+void QPicturePaintEngine::updateBrush(const QBrush &brush, const QPoint &)
 {
     int pos;
     SERIALIZE_CMD(PdcSetBrush);
-    d->s << ps->brush;
+    d->s << brush;
     writeCmdLength(pos, QRect(), false);
 }
 
-void QPicturePaintEngine::updateFont(QPainterState *ps)
+void QPicturePaintEngine::updateFont(const QFont &font)
 {
     int pos;
     SERIALIZE_CMD(PdcSetFont);
-    d->s << ps->font;
+    d->s << font;
     writeCmdLength(pos, QRect(), false);
 }
 
-void QPicturePaintEngine::updateRasterOp(QPainterState *ps)
+void QPicturePaintEngine::updateRasterOp(Qt::RasterOp rop)
 {
     pic_d->trecs++;
     d->s << (Q_UINT8) PdcSetROP;
     d->s << (Q_UINT8) 0;
     int pos = pic_d->pictb.at();
-    d->s << (Q_INT8) ps->rasterOp;
+    d->s << (Q_INT8) rop;
     writeCmdLength(pos, QRect(), false);
 }
 
-void QPicturePaintEngine::updateBackground(QPainterState *ps)
+void QPicturePaintEngine::updateBackground(Qt::BGMode bgMode, const QBrush &bgBrush)
 {
     int pos;
     SERIALIZE_CMD(PdcSetBkColor);
-    d->s << ps->bgBrush.color();
+    d->s << bgBrush.color();
     writeCmdLength(pos, QRect(), false);
 
     SERIALIZE_CMD(PdcSetBkMode);
-    d->s << (Q_INT8) ps->bgMode;
+    d->s << (Q_INT8) bgMode;
     writeCmdLength(pos, QRect(), false);
 }
 
 // ### Missing implementation?
-void QPicturePaintEngine::updateXForm(QPainterState * /* ps */)
+void QPicturePaintEngine::updateXForm(const QWMatrix & /* ps */)
 {
 //     int pos;
 //     SERIALIZE_CMD(PdcSetWMatrix);
@@ -173,15 +173,15 @@ void QPicturePaintEngine::updateXForm(QPainterState * /* ps */)
 //     writeCmdLength(pos, QRect(), false);
 }
 
-void QPicturePaintEngine::updateClipRegion(QPainterState *ps)
+void QPicturePaintEngine::updateClipRegion(const QRegion &region, bool clipEnabled)
 {
     int pos;
     SERIALIZE_CMD(PdcSetClipRegion);
-    d->s << ps->clipRegion << Q_INT8(0);
+    d->s << region << Q_INT8(0);
     writeCmdLength(pos, QRect(), false);
 
     SERIALIZE_CMD(PdcSetClip);
-    d->s << (Q_INT8) ps->clipEnabled;
+    d->s << (Q_INT8) clipEnabled;
     writeCmdLength(pos, QRect(), false);
 }
 

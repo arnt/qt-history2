@@ -382,7 +382,7 @@ QWin32PaintEngine::~QWin32PaintEngine()
 }
 
 
-bool QWin32PaintEngine::begin(QPaintDevice *pdev, QPainterState *state, bool unclipped)
+bool QWin32PaintEngine::begin(QPaintDevice *pdev, bool unclipped)
 {
     if (isActive()) {                                // already active painting
         qWarning("QWin32PaintEngine::begin: Painter is already active."
@@ -391,7 +391,8 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev, QPainterState *state, bool unc
     }
 
     d->antialiased = false;
-    d->alphaColor = false;
+    d->penAlphaColor = false;
+    d->brushAlphaColor = false;
 
     setActive(true);
     d->pdev = pdev;
@@ -435,10 +436,6 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev, QPainterState *state, bool unc
     }
 
     SetTextAlign(d->hdc, TA_BASELINE);
-    SetBkColor(d->hdc, COLOR_VALUE(state->bgBrush.color()));
-    SetBkMode(d->hdc, state->bgMode == TransparentMode ? TRANSPARENT : OPAQUE);
-    SetROP2(d->hdc, qt_rop_codes_pen[state->rasterOp]);
-    SetTextColor(d->hdc, COLOR_VALUE(state->pen.color()));
     return true;
 }
 
@@ -1066,7 +1063,7 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
         d->gdiplusEngine->drawPixmap(r, pixmap, sr, imask);
         return;
     } else if (pixmap.hasAlphaChannel()
-               || (pixmap.hasAlpha() && state->txop > QPainter::TxScale)
+               || (pixmap.hasAlpha() && d->txop > QPainter::TxScale)
                || stretch) {
         // Try to use GDI+ since we don't support alpha in GDI at the moment, and
         // rotated/sheared masked pixmaps looks bad.
@@ -1074,7 +1071,6 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
         d->beginGdiplus();
         d->forceGdiplus = false;
         if (d->usesGdiplus()) {
-            updateState(state);
             d->gdiplusEngine->drawPixmap(r, pixmap, sr, imask);
             return;
         }
@@ -1109,7 +1105,6 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
             bm = bm.xForm(xform);
             QRegion region(bm);
             region.translate(r.x(), r.y());
-
             if (state->painter->hasClipping())
                 region &= state->painter->clipRegion();
             state->painter->save();
@@ -1163,21 +1158,19 @@ HDC QWin32PaintEngine::handle() const
 }
 
 
-void QWin32PaintEngine::updatePen(QPainterState *state)
+void QWin32PaintEngine::updatePen(const QPen &pen)
 {
-    d->pStyle = state->pen.style();
-    int bs = state->brush.style();
-    d->alphaColor = ( bs != Qt::NoBrush && state->brush.color().alpha() != 255
-                      || d->pStyle != Qt::NoPen && state->pen.color().alpha() != 255);
+    d->pStyle = pen.style();
+    d->penAlphaColor = d->pStyle != Qt::NoPen && pen.color().alpha() != 255;
     if (d->tryGdiplus()) {
-        d->gdiplusEngine->updatePen(state);
+        d->gdiplusEngine->updatePen(pen);
         return;
     }
 
     int old_pix = d->pColor;
-    d->pColor = COLOR_VALUE(state->pen.color());
-    d->pWidth = state->pen.width();
-    bool cacheIt = (d->pStyle == PS_NULL || (d->pStyle == PS_SOLID && state->pen.width() == 0));
+    d->pColor = COLOR_VALUE(pen.color());
+    d->pWidth = pen.width();
+    bool cacheIt = (d->pStyle == PS_NULL || (d->pStyle == PS_SOLID && pen.width() == 0));
     HANDLE hpen_old;
 
     if (d->penRef) {
@@ -1213,14 +1206,14 @@ void QWin32PaintEngine::updatePen(QPainterState *state)
             qWarning("QPainter::updatePen: Invalid pen style");
     }
 #ifndef Q_OS_TEMP
-    if (((state->pen.width() != 0) || state->pen.width() > 1) &&
+    if (((pen.width() != 0) || pen.width() > 1) &&
          (qt_winver & QSysInfo::WV_NT_based || d->pStyle == SolidLine)) {
         LOGBRUSH lb;
         lb.lbStyle = 0;
         lb.lbColor = d->pColor;
         lb.lbHatch = 0;
         int pst = PS_GEOMETRIC | s;
-        switch (state->pen.capStyle()) {
+        switch (pen.capStyle()) {
             case SquareCap:
                 pst |= PS_ENDCAP_SQUARE;
                 break;
@@ -1231,7 +1224,7 @@ void QWin32PaintEngine::updatePen(QPainterState *state)
                 pst |= PS_ENDCAP_FLAT;
                 break;
         }
-        switch (state->pen.joinStyle()) {
+        switch (pen.joinStyle()) {
             case BevelJoin:
                 pst |= PS_JOIN_BEVEL;
                 break;
@@ -1247,7 +1240,7 @@ void QWin32PaintEngine::updatePen(QPainterState *state)
     else
 #endif
     {
-        d->hpen = CreatePen(s, state->pen.width(), d->pColor);
+        d->hpen = CreatePen(s, pen.width(), d->pColor);
     }
 
 set:
@@ -1260,14 +1253,12 @@ set:
 }
 
 
-void QWin32PaintEngine::updateBrush(QPainterState *state)
+void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPoint &bgOrigin)
 {
-    int bs = state->brush.style();
-    int ps = state->pen.style();
-    d->alphaColor = ( bs != Qt::NoBrush && state->brush.color().alpha() != 255
-                      || ps != Qt::NoPen && state->pen.color().alpha() != 255);
+    int bs = brush.style();
+    d->brushAlphaColor = bs != Qt::NoBrush && brush.color().alpha() != 255;
     if (d->tryGdiplus()) {
-        d->gdiplusEngine->updateBrush(state);
+        d->gdiplusEngine->updateBrush(brush, bgOrigin);
         return;
     }
 
@@ -1302,7 +1293,7 @@ void QWin32PaintEngine::updateBrush(QPainterState *state)
         = { hor_pat, ver_pat, cross_pat, bdiag_pat, fdiag_pat, dcross_pat };
 #endif
 
-    d->bColor           = COLOR_VALUE(state->brush.color());
+    d->bColor           = COLOR_VALUE(brush.color());
     bool   cacheIt = bs == NoBrush || bs == SolidPattern;
     HBRUSH hbrush_old;
 
@@ -1353,9 +1344,9 @@ void QWin32PaintEngine::updateBrush(QPainterState *state)
                 (bs == CustomPattern)) {
         if (bs == CustomPattern) {
             // The brush pixmap can never be a multi cell pixmap
-            d->hbrushbm = state->brush.pixmap()->hbm();
+            d->hbrushbm = brush.pixmap()->hbm();
             d->pixmapBrush = true;
-            d->nocolBrush = state->brush.pixmap()->depth() == 1;
+            d->nocolBrush = brush.pixmap()->depth() == 1;
         } else {
             short *bm = dense_patterns[bs - Dense1Pattern];
             d->hbrushbm = CreateBitmap(8, 8, 1, 1, bm);
@@ -1393,9 +1384,9 @@ void QWin32PaintEngine::updateBrush(QPainterState *state)
     } else {
         if (bs == CustomPattern) {
             // The brush pixmap can never be a multi cell pixmap
-            d->hbrushbm = state->brush.pixmap()->hbm();
+            d->hbrushbm = brush.pixmap()->hbm();
             d->pixmapBrush = true;
-            d->nocolBrush = state->brush.pixmap()->depth() == 1;
+            d->nocolBrush = brush.pixmap()->depth() == 1;
             d->hbrush = CreatePatternBrush(d->hbrushbm);
             DeleteObject(d->hbrushbm);
         } else {
@@ -1430,7 +1421,7 @@ void QWin32PaintEngine::updateBrush(QPainterState *state)
         }
     }
 #endif
-    SetBrushOrgEx(d->hdc, state->bgOrigin.x(), state->bgOrigin.y(), 0);
+    SetBrushOrgEx(d->hdc, bgOrigin.x(), bgOrigin.y(), 0);
     SelectObject(d->hdc, d->hbrush);
 
     if (hbrush_old) {
@@ -1438,40 +1429,37 @@ void QWin32PaintEngine::updateBrush(QPainterState *state)
         if (hbrushbm_old && !pixmapBrush_old)
             DeleteObject(hbrushbm_old);        // delete last brush pixmap
     }
-
-    SetBkColor(d->hdc, COLOR_VALUE(state->bgBrush.color()));
 }
 
-
-void QWin32PaintEngine::updateRasterOp(QPainterState *state)
+void QWin32PaintEngine::updateRasterOp(Qt::RasterOp rasterOp)
 {
     if (d->tryGdiplus()) {
-        d->gdiplusEngine->updateRasterOp(state);
+        d->gdiplusEngine->updateRasterOp(rasterOp);
         return;
     }
     Q_ASSERT(isActive());
-    SetROP2(d->hdc, qt_rop_codes_pen[state->rasterOp]);
-    d->rasterOp = state->rasterOp;
+    SetROP2(d->hdc, qt_rop_codes_pen[rasterOp]);
+    d->rasterOp = rasterOp;
 }
 
 
-void QWin32PaintEngine::updateBackground(QPainterState *state)
+void QWin32PaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
 {
     if (d->tryGdiplus()) {
-        d->gdiplusEngine->updateBackground(state);
+        d->gdiplusEngine->updateBackground(mode, bgBrush);
         return;
     }
     Q_ASSERT(isActive());
 
-    SetBkColor(d->hdc, COLOR_VALUE(state->bgBrush.color()));
-    SetBkMode(d->hdc, state->bgMode == TransparentMode ? TRANSPARENT : OPAQUE);
+    SetBkColor(d->hdc, COLOR_VALUE(bgBrush.color()));
+    SetBkMode(d->hdc, mode == TransparentMode ? TRANSPARENT : OPAQUE);
 }
 
 
-void QWin32PaintEngine::updateXForm(QPainterState *state)
+void QWin32PaintEngine::updateXForm(const QWMatrix &mtx)
 {
     if (d->tryGdiplus()) {
-        d->gdiplusEngine->updateXForm(state);
+        d->gdiplusEngine->updateXForm(mtx);
         return;
     }
 #ifdef NO_NATIVE_XFORM
@@ -1481,14 +1469,12 @@ void QWin32PaintEngine::updateXForm(QPainterState *state)
     XFORM m;
 
 //     if (state->WxF) {
-        QWMatrix mtx;
 //         if (state->VxF) {
 //             mtx.translate(state->vx, state->vy);
 //             mtx.scale(1.0*state->vw/state->ww, 1.0*state->vh/state->wh);
 //             mtx.translate(-state->wx, -state->wy);
 //             mtx = state->worldMatrix * mtx;
 //         } else {
-        mtx = state->matrix;
 //         }
         m.eM11 = mtx.m11();
         m.eM12 = mtx.m12();
@@ -1498,7 +1484,7 @@ void QWin32PaintEngine::updateXForm(QPainterState *state)
         m.eDy  = mtx.dy();
         SetGraphicsMode(d->hdc, GM_ADVANCED);
         if (!SetWorldTransform(d->hdc, &m)) {
-            printf("QWin32PaintEngine::updateXForm(), SetWorldTransformation() failed.. %d\n", GetLastError());
+            qSystemWarning("QWin32PaintEngine::updateXForm(), SetWorldTransformation() failed..");
         }
 //     } else {
 //         m.eM11 = m.eM22 = (float)1.0;
@@ -1510,14 +1496,14 @@ void QWin32PaintEngine::updateXForm(QPainterState *state)
 }
 
 
-void QWin32PaintEngine::updateClipRegion(QPainterState *state)
+void QWin32PaintEngine::updateClipRegion(const QRegion &region, bool clipEnabled)
 {
     if (d->tryGdiplus()) {
-        d->gdiplusEngine->updateClipRegion(state);
+        d->gdiplusEngine->updateClipRegion(region, clipEnabled);
         return;
     }
-    if (state->clipEnabled) {
-        QRegion rgn = state->clipRegion;
+    if (clipEnabled) {
+        QRegion rgn = region;
 
         // Setting an empty region as clip region on Win just dmainisables clipping completely.
         // To workaround this and get the same semantics on Win and Unix, we set a 1x1 pixel
@@ -1531,20 +1517,19 @@ void QWin32PaintEngine::updateClipRegion(QPainterState *state)
 
 }
 
-void QWin32PaintEngine::updateFont(QPainterState *state)
+void QWin32PaintEngine::updateFont(const QFont &font)
 {
     if (d->tryGdiplus()) {
-        d->gdiplusEngine->updateFont(state);
+        d->gdiplusEngine->updateFont(font);
         return;
     }
-    QFont &f = state->font;
-    d->hfont = f.handle();
+    d->hfont = font.handle();
     SelectObject(d->hdc, d->hfont);
 
     d->fontFlags = 0;
-    if (f.underline()) d->fontFlags |= Qt::Underline;
-    if (f.overline()) d->fontFlags |= Qt::Overline;
-    if (f.strikeOut()) d->fontFlags |= Qt::StrikeOut;
+    if (font.underline()) d->fontFlags |= Qt::Underline;
+    if (font.overline()) d->fontFlags |= Qt::Overline;
+    if (font.strikeOut()) d->fontFlags |= Qt::StrikeOut;
 }
 
 extern void qt_fill_tile(QPixmap *tile, const QPixmap &pixmap);
@@ -1552,7 +1537,6 @@ extern void qt_draw_tile(QPaintEngine *, int, int, int, int, const QPixmap &, in
 
 void QWin32PaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p, bool)
 {
-
     QBitmap *mask = (QBitmap *)pixmap.mask();
 
     int sw = pixmap.width();
@@ -1912,7 +1896,7 @@ QGdiplusPaintEngine::~QGdiplusPaintEngine()
 
 /* Start painting for this device.
  */
-bool QGdiplusPaintEngine::begin(QPaintDevice *pdev, QPainterState *, bool)
+bool QGdiplusPaintEngine::begin(QPaintDevice *pdev, bool)
 {
     d->pdev = pdev;
     // Verify the presence of an HDC
@@ -1967,17 +1951,17 @@ bool QGdiplusPaintEngine::end()
     return true;
 }
 
-void QGdiplusPaintEngine::updatePen(QPainterState *ps)
+void QGdiplusPaintEngine::updatePen(const QPen &pen)
 {
 //     d->pen->SetWidth(ps->pen.width());
 //     d->pen->SetColor(conv(ps->pen.color()));
     int status;
-    status = GdipSetPenWidth(d->pen, ps->pen.width());
+    status = GdipSetPenWidth(d->pen, pen.width());
     Q_ASSERT(status == 0);
-    status = GdipSetPenColor(d->pen, ps->pen.color().rgb());
+    status = GdipSetPenColor(d->pen, pen.color().rgb());
     Q_ASSERT(status == 0);
 
-    Qt::PenStyle style = ps->pen.style();
+    Qt::PenStyle style = pen.style();
     if (style == Qt::NoPen) {
         d->usePen = false;
     } else {
@@ -1988,39 +1972,39 @@ void QGdiplusPaintEngine::updatePen(QPainterState *ps)
     }
 }
 
-void QGdiplusPaintEngine::updateBrush(QPainterState *ps)
+void QGdiplusPaintEngine::updateBrush(const QBrush &brush, const QPoint &)
 {
-    QColor c = ps->brush.color();
+    QColor c = brush.color();
     if (d->temporaryBrush) {
         d->temporaryBrush = false;
 //         delete d->brush;
         GdipDeleteBrush(d->brush);
     }
 
-    switch (ps->brush.style()) {
+    switch (brush.style()) {
     case Qt::NoBrush:
         d->brush = 0;
         break;
     case Qt::SolidPattern:
         if (!d->cachedSolidBrush) {
-//             d->cachedSolidBrush = new SolidBrush(conv(ps->brush.color()));
-            GdipCreateSolidFill(ps->brush.color().rgb(), (QtGpBrush**)(&d->cachedSolidBrush));
+//             d->cachedSolidBrush = new SolidBrush(conv(brush.color()));
+            GdipCreateSolidFill(brush.color().rgb(), (QtGpBrush**)(&d->cachedSolidBrush));
             d->brush = d->cachedSolidBrush;
         } else {
-//             d->cachedSolidBrush->SetColor(conv(ps->brush.color()));
-            GdipSetSolidFillColor(d->cachedSolidBrush, ps->brush.color().rgb());
+//             d->cachedSolidBrush->SetColor(conv(brush.color()));
+            GdipSetSolidFillColor(d->cachedSolidBrush, brush.color().rgb());
             d->brush = d->cachedSolidBrush;
         }
         break;
     case Qt::LinearGradientPattern: {
-//         QBrush &b = ps->brush;
+//         QBrush &b = brush;
 //         d->brush = new LinearGradientBrush(conv(b.gradientStart()), conv(b.gradientStop()),
 //                                            conv(b.color()), conv(b.gradientColor()));
 //         d->temporaryBrush = true;
         break;
     }
     case Qt::CustomPattern: {
-//         QPixmap *pm = ps->brush.pixmap();
+//         QPixmap *pm = brush.pixmap();
 //         if (pm) {
 //             Bitmap *bm = new Bitmap(pm->hbm(), (HPALETTE)0);
 //             d->brush = new TextureBrush(bm, WrapModeTile);
@@ -2029,31 +2013,29 @@ void QGdiplusPaintEngine::updateBrush(QPainterState *ps)
         break;
     }
     default: // HatchBrush
-        Q_ASSERT(ps->brush.style() > Qt::SolidPattern && ps->brush.style() < Qt::CustomPattern);
-//         d->brush = new HatchBrush(qt_hatchstyle_map[ps->brush.style()],
-//                                   conv(ps->brush.color()),
-//                                   conv(ps->bgBrush.color()));
-//         d->graphics->SetRenderingOrigin(ps->bgOrigin.x(), ps->bgOrigin.y());
+        Q_ASSERT(brush.style() > Qt::SolidPattern && brush.style() < Qt::CustomPattern);
+//         d->brush = new HatchBrush(qt_hatchstyle_map[brush.style()],
+//                                   conv(brush.color()),
+//                                   conv(bgBrush.color()));
+//         d->graphics->SetRenderingOrigin(bgOrigin.x(), bgOrigin.y());
 //         d->temporaryBrush = true;
     }
 }
 
-void QGdiplusPaintEngine::updateFont(QPainterState *)
-{
-
-}
-
-void QGdiplusPaintEngine::updateRasterOp(QPainterState *)
+void QGdiplusPaintEngine::updateFont(const QFont &)
 {
 }
 
-void QGdiplusPaintEngine::updateBackground(QPainterState *)
+void QGdiplusPaintEngine::updateRasterOp(Qt::RasterOp)
 {
 }
 
-void QGdiplusPaintEngine::updateXForm(QPainterState *ps)
+void QGdiplusPaintEngine::updateBackground(Qt::BGMode, const QBrush &)
 {
-    QWMatrix &qm = ps->matrix;
+}
+
+void QGdiplusPaintEngine::updateXForm(const QWMatrix &qm)
+{
 //     Matrix m(qm.m11(), qm.m12(), qm.m21(), qm.m22(), qm.dx(), qm.dy());
 //     d->graphics->SetTransform(&m);
     QtGpMatrix *m = 0;
@@ -2062,13 +2044,13 @@ void QGdiplusPaintEngine::updateXForm(QPainterState *ps)
     GdipDeleteMatrix(m);
 }
 
-void QGdiplusPaintEngine::updateClipRegion(QPainterState *ps)
+void QGdiplusPaintEngine::updateClipRegion(const QRegion &qtClip, bool enabled)
 {
-    if (ps->clipEnabled) {
+    if (enabled) {
 //         Region r(ps->clipRegion.handle());
 //         d->graphics->SetClip(&r, CombineModeReplace);
         QtGpRegion *region = 0;
-        GdipCreateRegionHrgn(ps->clipRegion.handle(), &region);
+        GdipCreateRegionHrgn(qtClip.handle(), &region);
         GdipSetClipRegion(d->graphics, region, 0);
         GdipDeleteRegion(region);
     } else {

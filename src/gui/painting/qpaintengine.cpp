@@ -48,6 +48,11 @@ QPaintEngine::~QPaintEngine()
     delete d_ptr;
 }
 
+QPainter *QPaintEngine::painter() const
+{
+    return state->painter;
+}
+
 void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
 {
     if (!s || !updateGC) {
@@ -58,47 +63,47 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
     // Same state, do minimal update...
     if (s==state) {
         if (testDirty(DirtyPen))
-            updatePen(s);
+            updatePen(s->pen);
         if (testDirty(DirtyBrush))
-            updateBrush(s);
+            updateBrush(s->brush, s->bgOrigin);
         if (testDirty(DirtyFont))
-            updateFont(s);
+            updateFont(s->font);
         if (testDirty(DirtyRasterOp))
-            updateRasterOp(s);
+            updateRasterOp(s->rasterOp);
         if (testDirty(DirtyBackground))
-            updateBackground(s);
+            updateBackground(s->bgMode, s->bgBrush);
         if (testDirty(DirtyTransform))
-            updateXForm(s);
+            updateXForm(s->matrix);
         if (testDirty(DirtyClip)) {
-            updateClipRegion(s);
+            updateClipRegion(s->clipRegion, s->clipEnabled);
         }
         // Same painter, restoring old state.
     } else if (state && s->painter == state->painter) {
         if ((changeFlag&DirtyPen)!=0)
-            updatePen(s);
+            updatePen(s->pen);
         if ((changeFlag&DirtyBrush)!=0)
-            updateBrush(s);
+            updateBrush(s->brush, s->bgOrigin);
         if ((changeFlag&DirtyFont)!=0)
-            updateFont(s);
+            updateFont(s->font);
         if ((changeFlag&DirtyRasterOp)!=0)
-            updateRasterOp(s);
+            updateRasterOp(s->rasterOp);
         if ((changeFlag&DirtyBackground)!=0)
-            updateBackground(s);
+            updateBackground(s->bgMode, s->bgBrush);
         if ((changeFlag&DirtyTransform)!=0)
-            updateXForm(s);
+            updateXForm(s->matrix);
         if ((changeFlag&DirtyClip)!=0 || (changeFlag&DirtyClip) != 0)
-            updateClipRegion(s);
+            updateClipRegion(s->clipRegion, s->clipEnabled);
         changeFlag = 0;
         // Different painter or state == 0 which is true for first time call
     } else {
-        updatePen(s);
-        updateBrush(s);
-        updateFont(s);
-        updateRasterOp(s);
-        updateBackground(s);
-        updateXForm(s);
-        updateClipRegion(s);
         changeFlag = 0;
+        updatePen(s->pen);
+        updateBrush(s->brush, s->bgOrigin);
+        updateFont(s->font);
+        updateRasterOp(s->rasterOp);
+        updateBackground(s->bgMode, s->bgBrush);
+        updateXForm(s->matrix);
+        updateClipRegion(s->clipRegion, s->clipEnabled);
     }
     dirtyFlag = 0;
     state = s;
@@ -177,14 +182,16 @@ void QPaintEngine::setRenderHint(QPainter::RenderHint, bool)
 }
 
 
-void QWrapperPaintEngine::updatePen(QPainterState *ps) { wrap->updatePen(ps); }
-void QWrapperPaintEngine::updateBrush(QPainterState *ps) { wrap->updateBrush(ps); }
-void QWrapperPaintEngine::updateFont(QPainterState *ps) { wrap->updateFont(ps); }
-void QWrapperPaintEngine::updateRasterOp(QPainterState *ps) { wrap->updateRasterOp(ps); }
-void QWrapperPaintEngine::updateBackground(QPainterState *ps) { wrap->updateBackground(ps); }
-void QWrapperPaintEngine::updateXForm(QPainterState *ps) { wrap->updateXForm(ps); }
-void QWrapperPaintEngine::updateClipRegion(QPainterState *ps) { wrap->updateClipRegion(ps); }
-
+void QWrapperPaintEngine::updatePen(const QPen &pen) { wrap->updatePen(pen); }
+void QWrapperPaintEngine::updateBrush(const QBrush &brush, const QPoint &pt)
+{ wrap->updateBrush(brush, pt); }
+void QWrapperPaintEngine::updateFont(const QFont &font) { wrap->updateFont(font); }
+void QWrapperPaintEngine::updateRasterOp(Qt::RasterOp rop) { wrap->updateRasterOp(rop); }
+void QWrapperPaintEngine::updateBackground(Qt::BGMode bgMode, const QBrush &bgBrush)
+{ wrap->updateBackground(bgMode, bgBrush); }
+void QWrapperPaintEngine::updateXForm(const QWMatrix &matrix) { wrap->updateXForm(matrix); }
+void QWrapperPaintEngine::updateClipRegion(const QRegion &clipRegion, bool clipEnabled)
+{ wrap->updateClipRegion(clipRegion, clipEnabled); }
 void QWrapperPaintEngine::drawLine(const QPoint &p1, const QPoint &p2) { wrap->drawLine(p1, p2); }
 void QWrapperPaintEngine::drawRect(const QRect &r) { wrap->drawRect(r); }
 void QWrapperPaintEngine::drawPoint(const QPoint &p) { wrap->drawPoint(p); }

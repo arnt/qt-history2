@@ -78,16 +78,16 @@ public:
     bool isActive() const { return active; }
     void setActive(bool state) { active = state; }
 
-    virtual bool begin(QPaintDevice *pdev, QPainterState *state, bool unclipped = false) = 0;
+    virtual bool begin(QPaintDevice *pdev, bool unclipped = false) = 0;
     virtual bool end() = 0;
 
-    virtual void updatePen(QPainterState *ps) = 0;
-    virtual void updateBrush(QPainterState *ps) = 0;
-    virtual void updateFont(QPainterState *ps) = 0;
-    virtual void updateRasterOp(QPainterState *ps) = 0;
-    virtual void updateBackground(QPainterState *ps) = 0;
-    virtual void updateXForm(QPainterState *ps) = 0;
-    virtual void updateClipRegion(QPainterState *ps) = 0;
+    virtual void updatePen(const QPen &pen) = 0;
+    virtual void updateBrush(const QBrush &brush, const QPoint &origin) = 0;
+    virtual void updateFont(const QFont &font) = 0;
+    virtual void updateRasterOp(Qt::RasterOp rop) = 0;
+    virtual void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush) = 0;
+    virtual void updateXForm(const QWMatrix &matrix) = 0;
+    virtual void updateClipRegion(const QRegion &region, bool enabled) = 0;
 
     virtual void drawLine(const QPoint &p1, const QPoint &p2) = 0;
     virtual void drawRect(const QRect &r) = 0;
@@ -178,8 +178,7 @@ public:
 
     bool hasFeature(Features feature) const { return (gccaps & feature) != 0; }
 
-    inline void updateState(QPainterState *state, bool updateGC = true);
-    inline QPainterState *painterState() const { return state; }
+    QPainter *painter() const;
 
 protected:
     QPaintEngine(QPaintEnginePrivate &data, PaintEngineFeatures devcaps=0);
@@ -193,11 +192,16 @@ protected:
 
     QPaintEnginePrivate *d_ptr;
 
+private:
+    inline void updateState(QPainterState *state, bool updateGC = true);
+    inline QPainterState *painterState() const { return state; }
+    void updateInternal(QPainterState *state, bool updateGC = true);
+
     friend class QWrapperPaintEngine;
     friend class QPainter;
-
-private:
-    void updateInternal(QPainterState *state, bool updateGC = true);
+    friend class QFontEngineWin;
+    friend class QWin32PaintEngine;
+    friend class QWin32PaintEnginePrivate;
 };
 
 class QWrapperPaintEngine : public QPaintEngine
@@ -205,16 +209,16 @@ class QWrapperPaintEngine : public QPaintEngine
 public:
     QWrapperPaintEngine(QPaintEngine *w) : QPaintEngine(w->gccaps), wrap(w) { }
 
-    virtual bool begin(QPaintDevice *pdev, QPainterState *state, bool unclipped) { return wrap->begin(pdev, state, unclipped); }
+    virtual bool begin(QPaintDevice *pdev, bool unclipped) { return wrap->begin(pdev, unclipped); }
     virtual bool end() { return wrap->end(); }
 
-    virtual void updatePen(QPainterState *ps);
-    virtual void updateBrush(QPainterState *ps);
-    virtual void updateFont(QPainterState *ps);
-    virtual void updateRasterOp(QPainterState *ps);
-    virtual void updateBackground(QPainterState *ps);
-    virtual void updateXForm(QPainterState *ps);
-    virtual void updateClipRegion(QPainterState *ps);
+    void updatePen(const QPen &pen);
+    void updateBrush(const QBrush &brush, const QPoint &brushOrigin);
+    void updateFont(const QFont &font);
+    void updateRasterOp(Qt::RasterOp rop);
+    void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
+    void updateXForm(const QWMatrix &matrix);
+    void updateClipRegion(const QRegion &region, bool enabled);
 
     virtual void drawLine(const QPoint &p1, const QPoint &ps);
     virtual void drawRect(const QRect &r);

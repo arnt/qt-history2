@@ -283,6 +283,7 @@ private:
 #elif defined(Q_WS_WIN)
     friend class QFontEngineWin;
     friend class QWin32PaintEngine;
+    friend class QWin32PaintEnginePrivate;
 #elif defined(Q_WS_QWS)
     friend class QWSManager;
     friend class QFontEngineBox;

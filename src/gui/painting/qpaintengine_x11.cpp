@@ -446,7 +446,7 @@ void qt_erase_background(Qt::HANDLE hd, int screen,
 void qt_draw_transformed_rect(QPaintEngine *pe,  int x, int y, int w,  int h, bool fill)
 {
     QX11PaintEngine *p = static_cast<QX11PaintEngine *>(pe);
-    QPainter *pp = p->painterState()->painter;
+    QPainter *pp = painter();;
 
     XPoint points[5];
     int xp = x,  yp = y;
@@ -524,7 +524,7 @@ void QX11PaintEngine::cleanup()
     QPointArray::cleanBuffers();
 }
 
-bool QX11PaintEngine::begin(QPaintDevice *pdev, QPainterState *ps, bool unclipped)
+bool QX11PaintEngine::begin(QPaintDevice *pdev, bool unclipped)
 {
     d->pdev = pdev;
     if (d->pdev->devType() == QInternal::Widget)
@@ -573,8 +573,9 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev, QPainterState *ps, bool unclippe
     if (w && (unclipped || w->testWFlags(WPaintUnclipped))) {  // paint direct on device
         setf(NoCache);
         setf(UsePrivateCx);
-        updatePen(ps);
-        updateBrush(ps);
+        // ### These are called later by QPainter, right?
+//         updatePen(ps);
+//         updateBrush(ps);
         XSetSubwindowMode(d->dpy, d->gc, IncludeInferiors);
         XSetSubwindowMode(d->dpy, d->gc_brush, IncludeInferiors);
 #ifndef QT_NO_XFT
@@ -592,17 +593,17 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev, QPainterState *ps, bool unclippe
         bool mono = pm->depth() == 1;           // monochrome bitmap
         if (mono) {
             setf(MonoDev);
-//             d->bg_brush = color0;
-//             d->cpen.setColor(color1);
-            ps->bgBrush = color0; // ### superhack - remove when fixed
-            ps->pen.setColor(color1);
+            // ### Port me !!!
+//             ps->bgBrush = color0; // ### superhack - remove when fixed
+//             ps->pen.setColor(color1);
         }
     }
 
     d->clip_serial = gc_cache_clip_serial++;
-    updateBrush(ps);
-    updatePen(ps);
-    updateClipRegion(ps);
+    // ### Called by QPainter later, right?
+//     updateBrush(ps);
+//     updatePen(ps);
+//     updateClipRegion(ps);
 
     return true;
 }
@@ -722,15 +723,13 @@ void QX11PaintEngine::drawPoints(const QPointArray &a, int index, int npoints)
                     npoints, CoordModeOrigin);
 }
 
-void QX11PaintEngine::updatePen(QPainterState *state)
+void QX11PaintEngine::updatePen(const QPen &pen)
 {
-    if (state)
-        d->cpen = state->pen;
-
-    int ps = d->cpen.style();
+    d->cpen = pen;
+    int ps = pen.style();
     bool cacheIt = !testf(ClipOn|MonoDev|NoCache) &&
                    (ps == NoPen || ps == SolidLine) &&
-                   d->cpen.width() == 0 && d->rop == CopyROP;
+                   pen.width() == 0 && d->rop == CopyROP;
 
     bool obtained = false;
     bool internclipok = hasClipping();
@@ -741,7 +740,7 @@ void QX11PaintEngine::updatePen(QPainterState *state)
             else
                 free_gc(d->dpy, d->gc);
         }
-        obtained = obtain_gc(&d->penRef, &d->gc, d->cpen.color().pixel(d->scrn), d->dpy, d->scrn,
+        obtained = obtain_gc(&d->penRef, &d->gc, pen.color().pixel(d->scrn), d->dpy, d->scrn,
                              d->hd, d->clip_serial);
         if (!obtained && !d->penRef)
             d->gc = alloc_gc(d->dpy, d->scrn, d->hd, false);
@@ -787,7 +786,7 @@ void QX11PaintEngine::updatePen(QPainterState *state)
       (or 0) as a very special case.  The fudge variable unifies this
       case with the general case.
     */
-    int dot = d->cpen.width();                     // width of a dot
+    int dot = pen.width();                     // width of a dot
     int fudge = 1;
     bool allow_zero_lw = true;
     if (dot <= 1) {
@@ -832,7 +831,7 @@ void QX11PaintEngine::updatePen(QPainterState *state)
     }
     Q_ASSERT(dash_len <= (int) sizeof(dashes));
 
-    switch (d->cpen.capStyle()) {
+    switch (pen.capStyle()) {
         case SquareCap:
             cp = CapProjecting;
             break;
@@ -844,7 +843,7 @@ void QX11PaintEngine::updatePen(QPainterState *state)
             cp = CapButt;
             break;
     }
-    switch (d->cpen.joinStyle()) {
+    switch (pen.joinStyle()) {
         case BevelJoin:
             jn = JoinBevel;
             break;
@@ -857,7 +856,7 @@ void QX11PaintEngine::updatePen(QPainterState *state)
             break;
     }
 
-    XSetForeground(d->dpy, d->gc, d->cpen.color().pixel(d->scrn));
+    XSetForeground(d->dpy, d->gc, pen.color().pixel(d->scrn));
     XSetBackground(d->dpy, d->gc, d->bg_col.pixel(d->scrn));
 
     if (dash_len) {                           // make dash list
@@ -865,19 +864,15 @@ void QX11PaintEngine::updatePen(QPainterState *state)
         s = d->bg_mode == TransparentMode ? LineOnOffDash : LineDoubleDash;
     }
     XSetLineAttributes(d->dpy, d->gc,
-                       (! allow_zero_lw && d->cpen.width() == 0) ? 1 : d->cpen.width(),
+                       (! allow_zero_lw && pen.width() == 0) ? 1 : pen.width(),
                        s, cp, jn);
 }
 
 QPixmap qt_pixmapForBrush(int brushStyle, bool invert); //in qbrush.cpp
 
-void QX11PaintEngine::updateBrush(QPainterState *ps)
+void QX11PaintEngine::updateBrush(const QBrush &brush, const QPoint &origin)
 {
-    if (ps) {
-        d->cbrush = ps->brush;
-        d->bg_brush = ps->bgBrush;
-    }
-
+    d->cbrush = brush;
 
     int  bs = d->cbrush.style();
     int x = 0, y = 0;
@@ -967,9 +962,9 @@ void QX11PaintEngine::setRasterOp(RasterOp r)
     d->rop = r;
 
     if (d->penRef)
-        updatePen(0);                            // get non-cached pen GC
+        updatePen(d->cpen);                            // get non-cached pen GC
     if (d->brushRef)
-        updateBrush(0);                          // get non-cached brush GC
+        updateBrush(d->cbrush);                          // get non-cached brush GC
     XSetFunction(d->dpy, d->gc, ropCodes[d->rop]);
     XSetFunction(d->dpy, d->gc_brush, ropCodes[d->rop]);
 }
@@ -1374,48 +1369,49 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
     }
 }
 
-void QX11PaintEngine::updateRasterOp(QPainterState *ps)
+void QX11PaintEngine::updateRasterOp(Qt::RasterOp rop)
 {
     Q_ASSERT(isActive());
-    d->rop = ps->rasterOp;
+    d->rop = rop;
     if (d->penRef)
-        updatePen(ps);                            // get non-cached pen GC
+        updatePen(d->cpen);                            // get non-cached pen GC
     if (d->brushRef)
-        updateBrush(ps);                          // get non-cached brush GC
+        updateBrush(d->cbrush);                        // get non-cached brush GC
     XSetFunction(d->dpy, d->gc, ropCodes[d->rop]);
     XSetFunction(d->dpy, d->gc_brush, ropCodes[d->rop]);
 }
 
-void QX11PaintEngine::updateBackground(QPainterState *ps)
+void QX11PaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
 {
     Q_ASSERT(isActive());
-    d->bg_mode = ps->bgMode;
-    d->bg_col = ps->bgBrush.color();
+    d->bg_mode = mode;
+    d->bg_brush = bgBrush;
+    d->bg_col = bgBrush.color();
     if (!d->penRef)
-        updatePen(ps);                            // update pen setting
+        updatePen(d->cpen);                            // update pen setting
     if (!d->brushRef)
-        updateBrush(ps);                          // update brush setting
+        updateBrush(d->cbrush);                        // update brush setting
 }
 
-void QX11PaintEngine::updateXForm(QPainterState *)
+void QX11PaintEngine::updateXForm(const QWMatrix &)
 {
 }
 
-void QX11PaintEngine::updateClipRegion(QPainterState *ps)
+void QX11PaintEngine::updateClipRegion(const QRegion &clipRegion, bool clipEnabled)
 {
     Q_ASSERT(isActive());
 
     clearf(ClipOn);
-    d->crgn = ps->clipRegion;
+    d->crgn = clipRegion;
 
-    if (ps->clipEnabled) {
+    if (clipEnabled) {
         setf(ClipOn);
         if (d->pdev == paintEventDevice && paintEventClipRegion)
             d->crgn = d->crgn.intersect(*paintEventClipRegion);
         if (d->penRef)
-            updatePen(ps);
+            updatePen(d->cpen);
         if (d->brushRef)
-            updateBrush(ps);
+            updateBrush(d->cbrush);
         x11SetClipRegion(d->dpy, d->gc, d->gc_brush, d->rendhd, d->crgn);
     } else {
         if (d->pdev == paintEventDevice && paintEventClipRegion) {
@@ -1426,11 +1422,11 @@ void QX11PaintEngine::updateClipRegion(QPainterState *ps)
     }
 }
 
-void QX11PaintEngine::updateFont(QPainterState *ps)
+void QX11PaintEngine::updateFont(const QFont &font)
 {
     clearf(DirtyFont);
     if (d->penRef)
-        updatePen(ps);                            // force a non-cached GC
+        updatePen(d->cpen);                            // force a non-cached GC
 }
 
 Qt::HANDLE QX11PaintEngine::handle() const

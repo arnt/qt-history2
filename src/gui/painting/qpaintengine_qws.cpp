@@ -127,7 +127,7 @@ QGfx *QWSPaintEngine::gfx()
 }
 
 
-bool QWSPaintEngine::begin(QPaintDevice *pdev, QPainterState *ps, bool unclipped)
+bool QWSPaintEngine::begin(QPaintDevice *pdev, bool unclipped)
 {
     if (isActive()) {                         // already active painting
         qWarning("QWSC::begin: Painter is already active."
@@ -217,9 +217,10 @@ bool QWSPaintEngine::begin(QPaintDevice *pdev, QPainterState *ps, bool unclipped
 //    qDebug("QWSPaintEngine::begin %p gfx %p", this, d->gfx);
     setActive(true);
 
-    updatePen(ps);
-    updateBrush(ps);
-    updateClipRegion(ps);
+    // ### SHould be done by QPainter..
+//     updatePen(ps);
+//     updateBrush(ps);
+//     updateClipRegion(ps);
 
     return true;
 }
@@ -231,9 +232,9 @@ bool QWSPaintEngine::end(){
     return true;
 }
 
-void QWSPaintEngine::updatePen(QPainterState *ps)
+void QWSPaintEngine::updatePen(const QPen &pen)
 {
-    d->gfx->setPen(ps->pen);
+    d->gfx->setPen(pen);
 
 //    qDebug("QWSPaintEngine::updatePen");
 }
@@ -242,44 +243,44 @@ void QWSPaintEngine::updatePen(QPainterState *ps)
 QPixmap qt_pixmapForBrush(int brushStyle, bool invert); //in qbrush.cpp
 
 
-void QWSPaintEngine::updateBrush(QPainterState *ps)
+void QWSPaintEngine::updateBrush(const QBrush &brush, const QPoint &)
 {
     if (!d->gfx)
         return;
-    int bs=ps->brush.style();
+    int bs=brush.style();
     if (bs >= Dense1Pattern && bs <= DiagCrossPattern) {
             QPixmap *pm = new QPixmap(qt_pixmapForBrush(bs, false));
             d->gfx->setBrushPixmap(pm);
     } else {
-        d->gfx->setBrushPixmap(ps->brush.pixmap());
+        d->gfx->setBrushPixmap(brush.pixmap());
     }
-    d->gfx->setBrush(ps->brush);
+    d->gfx->setBrush(brush);
 }
 
-void QWSPaintEngine::updateFont(QPainterState *ps)
+void QWSPaintEngine::updateFont(const QFont &font)
 {
 //    qDebug("QWSPaintEngine::updateFont");
 }
-void QWSPaintEngine::updateRasterOp(QPainterState *ps)
+void QWSPaintEngine::updateRasterOp(Qt::RasterOp rop)
 {
 //    qDebug("QWSPaintEngine::updateRasterOp");
-        d->gfx->setRop(ps->rasterOp);
+        d->gfx->setRop(rasterOp);
 }
-void QWSPaintEngine::updateBackground(QPainterState *ps)
+void QWSPaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
 {
 //    qDebug("QWSPaintEngine::updateBackground");
 }
-void QWSPaintEngine::updateXForm(QPainterState */*ps*/)
+void QWSPaintEngine::updateXForm(const QWMatrix &)
 {
 //    qDebug("QWSPaintEngine::updateXForm");
 }
-void QWSPaintEngine::updateClipRegion(QPainterState *ps)
+void QWSPaintEngine::updateClipRegion(const QRegion &clipRegion, bool clipEnabled)
 {
 //    qDebug("QWSPaintEngine::updateClipRegion");
 
     Q_ASSERT(isActive());
 
-    bool painterClip = ps->clipEnabled;
+    bool painterClip = clipEnabled;
     bool eventClip = paintEventDevice == d->pdev && paintEventClipRegion;
 /*
   if (enable == testf(ClipOn)
@@ -291,7 +292,7 @@ void QWSPaintEngine::updateClipRegion(QPainterState *ps)
     if (painterClip || eventClip) {
         QRegion crgn;
         if (painterClip) {
-            crgn = ps->clipRegion;
+            crgn = clipRegion;
             if (eventClip)
                 crgn = crgn.intersect(*paintEventClipRegion);
         } else {

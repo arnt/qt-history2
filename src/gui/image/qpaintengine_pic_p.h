@@ -25,16 +25,16 @@ public:
     QPicturePaintEngine();
     ~QPicturePaintEngine();
 
-    bool begin(QPaintDevice *pdev, QPainterState *state, bool unclipped = false);
+    bool begin(QPaintDevice *pdev, bool unclipped = false);
     bool end();
 
-    void updatePen(QPainterState *ps);
-    void updateBrush(QPainterState *ps);
-    void updateFont(QPainterState *ps);
-    void updateRasterOp(QPainterState *ps);
-    void updateBackground(QPainterState *ps);
-    void updateXForm(QPainterState *ps);
-    void updateClipRegion(QPainterState *ps);
+    void updatePen(const QPen &pen);
+    void updateBrush(const QBrush &brush, const QPoint &origin);
+    void updateFont(const QFont &font);
+    void updateRasterOp(Qt::RasterOp rop);
+    void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
+    void updateXForm(const QWMatrix &matrix);
+    void updateClipRegion(const QRegion &region, bool clipEnbled);
 
     void drawLine(const QPoint &p1, const QPoint &p2);
     void drawRect(const QRect &r);

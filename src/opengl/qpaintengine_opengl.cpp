@@ -54,7 +54,7 @@ QOpenGLPaintEngine::~QOpenGLPaintEngine()
 {
 }
 
-bool QOpenGLPaintEngine::begin(QPaintDevice *pdev, QPainterState *state, bool /* unclipped */)
+bool QOpenGLPaintEngine::begin(QPaintDevice *pdev, bool /* unclipped */)
 {
     Q_ASSERT(static_cast<const QGLWidget *>(pdev));
     dgl = (QGLWidget *)(pdev);
@@ -62,7 +62,8 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev, QPainterState *state, bool /*
     setActive(true);
 
     dgl->makeCurrent();
-    dgl->qglClearColor(state->bgBrush.color());
+    // ### Shouldn't this be handled already by updateBackground...2
+//     dgl->qglClearColor(state->bgBrush.color());
     glShadeModel(GL_FLAT);
     glViewport(0, 0, dgl->width(), dgl->height());
     glMatrixMode(GL_PROJECTION);
@@ -80,19 +81,18 @@ bool QOpenGLPaintEngine::end()
     return true;
 }
 
-void QOpenGLPaintEngine::updatePen(QPainterState *ps)
+void QOpenGLPaintEngine::updatePen(const QPen &pen)
 {
     dgl->makeCurrent();
-    dgl->qglColor(ps->pen.color());
-    d->cpen = ps->pen;
-    d->cbrush = ps->brush;
-    if (ps->pen.width() == 0)
+    dgl->qglColor(pen.color());
+    d->cpen = pen;
+    if (pen.width() == 0)
         glLineWidth(1);
     else
-        glLineWidth(ps->pen.width());
+        glLineWidth(pen.width());
 }
 
-void QOpenGLPaintEngine::updateBrush(QPainterState *ps)
+void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPoint &)
 {
     // all GL polygon stipple patterns needs to be specified as a
     // 32x32 bit mask
@@ -336,7 +336,7 @@ void QOpenGLPaintEngine::updateBrush(QPainterState *ps)
         dense6_pat, dense7_pat, hor_pat, ver_pat, cross_pat, bdiag_pat,
         fdiag_pat, dcross_pat };
 
-    d->cbrush = ps->brush;
+    d->cbrush = brush;
     int bs = d->cbrush.style();
     if (bs >= Dense1Pattern && bs <= DiagCrossPattern) {
         glEnable(GL_POLYGON_STIPPLE);
@@ -346,28 +346,27 @@ void QOpenGLPaintEngine::updateBrush(QPainterState *ps)
     }
 }
 
-void QOpenGLPaintEngine::updateFont(QPainterState *)
+void QOpenGLPaintEngine::updateFont(const QFont &)
 {
 }
 
-void QOpenGLPaintEngine::updateRasterOp(QPainterState *ps)
+void QOpenGLPaintEngine::updateRasterOp(Qt::RasterOp rop)
 {
     Q_ASSERT(isActive());
-    d->rop = ps->rasterOp;
+    d->rop = rop;
 }
 
-void QOpenGLPaintEngine::updateBackground(QPainterState *ps)
+void QOpenGLPaintEngine::updateBackground(Qt::BGMode bgMode, const QBrush &bgBrush)
 {
     dgl->makeCurrent();
-    dgl->qglClearColor(ps->bgBrush.color());
-    d->bgmode = ps->bgMode;
-    d->bgbrush = ps->bgBrush;
+    dgl->qglClearColor(bgBrush.color());
+    d->bgmode = bgMode;
+    d->bgbrush = bgBrush;
 }
 
-void QOpenGLPaintEngine::updateXForm(QPainterState *ps)
+void QOpenGLPaintEngine::updateXForm(const QWMatrix &mtx)
 {
     GLfloat mat[4][4];
-    QWMatrix mtx = ps->matrix;
 
     mat[0][0] = mtx.m11();
     mat[0][1] = mtx.m12();
@@ -394,7 +393,7 @@ void QOpenGLPaintEngine::updateXForm(QPainterState *ps)
     glLoadMatrixf(&mat[0][0]);
 }
 
-void QOpenGLPaintEngine::updateClipRegion(QPainterState *)
+void QOpenGLPaintEngine::updateClipRegion(const QRegion &, bool )
 {
 
 }
