@@ -5387,8 +5387,8 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 	    case 14: // Korean, no mapping
 		break;
 	    case 0x20:
-		// special hack for the Euro
-		if ( key == 0x20ac ) {
+		// currency symbols
+		if ( key >= 0x20a0 && key <= 0x20ac ) {
 		    mib = -1; // manual conversion
 		    mapper = 0;
 		    converted = (uint)key;
