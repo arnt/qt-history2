@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpngio.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qpngio.cpp#27 $
 **
 ** Implementation of PNG QImage IOHandler
 **
@@ -998,7 +998,7 @@ void qCleanupPngIO()
 void qInitPngIO()
 {
     if ( !globalPngFormatTypeObject ) {
-	QImageIO::defineIOHandler("PNG", "^.PNG\r", 0, 0/*read_png_image*/,
+	QImageIO::defineIOHandler("PNG", "^.PNG\r", 0, read_png_image,
 	    write_png_image);
 	globalPngFormatTypeObject = new QPNGFormatType;
 	qAddPostRoutine( qCleanupPngIO );

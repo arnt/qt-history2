@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#232 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#233 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -4709,6 +4709,9 @@ QValueList<QImageTextKeyLang> QImage::textList() const
     the PNG specification</a>.  \a s can be any text.  \a lang should
     specify the language code (see
     <a href=ftp://ftp.isi.edu/in-notes/1766>RFC 1766</a>) or 0.
+
+    Note that no QImageIO handlers currently read or write this
+    data.  In an upcoming Qt version, PNG I/O will do so.
 */
 void QImage::setText(const char* key, const char* lang, const QString& s)
 {
