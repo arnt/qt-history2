@@ -104,8 +104,8 @@ public:
     QTextFrameLayoutData *layoutData() const;
     void setLayoutData(QTextFrameLayoutData *data);
 
-    QList<QTextFrame *> childFrames();
-    QTextFrame *parentFrame();
+    QList<QTextFrame *> childFrames() const;
+    QTextFrame *parentFrame() const;
 
     class Q_GUI_EXPORT iterator {
         QTextFrame *f;

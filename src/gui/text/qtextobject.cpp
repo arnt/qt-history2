@@ -20,9 +20,6 @@
 #include "qtextlist.h"
 #include "qdebug.h"
 
-#define d d_func()
-#define q q_func()
-
 // ### DOC: We ought to explain the CONCEPT of objectIndexes if
 // relevant to the public API
 /*!
@@ -94,11 +91,13 @@ QTextObject::~QTextObject()
 */
 QTextFormat QTextObject::format() const
 {
+    Q_D(const QTextObject);
     return d->pieceTable->formatCollection()->objectFormat(d->objectIndex);
 }
 
 int QTextObject::formatIndex() const
 {
+    Q_D(const QTextObject);
     return d->pieceTable->formatCollection()->objectFormatIndex(d->objectIndex);
 }
 
@@ -110,6 +109,7 @@ int QTextObject::formatIndex() const
 */
 void QTextObject::setFormat(const QTextFormat &format)
 {
+    Q_D(QTextObject);
     int idx = d->pieceTable->formatCollection()->indexForFormat(format);
     d->pieceTable->changeObjectFormat(this, idx);
 }
@@ -120,6 +120,7 @@ void QTextObject::setFormat(const QTextFormat &format)
 */
 int QTextObject::objectIndex() const
 {
+    Q_D(const QTextObject);
     return d->objectIndex;
 }
 
@@ -130,6 +131,7 @@ int QTextObject::objectIndex() const
 */
 QTextDocument *QTextObject::document() const
 {
+    Q_D(const QTextObject);
     return qobject_cast<QTextDocument *>(parent());
 }
 
@@ -138,6 +140,7 @@ QTextDocument *QTextObject::document() const
 */
 QTextDocumentPrivate *QTextObject::docHandle() const
 {
+    Q_D(const QTextObject);
     return qobject_cast<const QTextDocument *>(parent())->docHandle();
 }
 
@@ -203,6 +206,7 @@ QTextBlockGroup::~QTextBlockGroup()
 */
 void QTextBlockGroup::blockInserted(const QTextBlock &block)
 {
+    Q_D(QTextBlockGroup);
     QTextBlockGroupPrivate::BlockList::Iterator it = qLowerBound(d->blocks.begin(), d->blocks.end(), block);
     d->blocks.insert(it, block);
 }
@@ -214,6 +218,7 @@ void QTextBlockGroup::blockInserted(const QTextBlock &block)
 */
 void QTextBlockGroup::blockRemoved(const QTextBlock &block)
 {
+    Q_D(QTextBlockGroup);
     d->blocks.removeAll(block);
 }
 
@@ -233,6 +238,7 @@ void QTextBlockGroup::blockFormatChanged(const QTextBlock &)
 */
 QList<QTextBlock> QTextBlockGroup::blockList() const
 {
+    Q_D(const QTextBlockGroup);
     return d->blocks;
 }
 
@@ -354,6 +360,7 @@ QTextFrameLayoutData::~QTextFrameLayoutData()
 QTextFrame::QTextFrame(QTextDocument *doc)
     : QTextObject(*new QTextFramePrivate, doc)
 {
+    Q_D(QTextFrame);
     d->fragment_start = 0;
     d->fragment_end = 0;
     d->parentFrame = 0;
@@ -366,6 +373,7 @@ QTextFrame::QTextFrame(QTextDocument *doc)
 */
 QTextFrame::~QTextFrame()
 {
+    Q_D(QTextFrame);
     delete d->layoutData;
 }
 
@@ -375,6 +383,7 @@ QTextFrame::~QTextFrame()
 QTextFrame::QTextFrame(QTextFramePrivate &p, QTextDocument *doc)
     : QTextObject(p, doc)
 {
+    Q_D(QTextFrame);
     d->fragment_start = 0;
     d->fragment_end = 0;
     d->parentFrame = 0;
@@ -386,8 +395,9 @@ QTextFrame::QTextFrame(QTextFramePrivate &p, QTextDocument *doc)
 
     \sa parentFrame()
 */
-QList<QTextFrame *> QTextFrame::childFrames()
+QList<QTextFrame *> QTextFrame::childFrames() const
 {
+    Q_D(const QTextFrame);
     return d->childFrames;
 }
 
@@ -397,8 +407,9 @@ QList<QTextFrame *> QTextFrame::childFrames()
 
     \sa childFrames() QTextDocument::rootFrame()
 */
-QTextFrame *QTextFrame::parentFrame()
+QTextFrame *QTextFrame::parentFrame() const
 {
+    Q_D(const QTextFrame);
     return d->parentFrame;
 }
 
@@ -410,6 +421,7 @@ QTextFrame *QTextFrame::parentFrame()
 */
 QTextCursor QTextFrame::firstCursorPosition() const
 {
+    Q_D(const QTextFrame);
     return QTextCursor(d->pieceTable, firstPosition());
 }
 
@@ -420,6 +432,7 @@ QTextCursor QTextFrame::firstCursorPosition() const
 */
 QTextCursor QTextFrame::lastCursorPosition() const
 {
+    Q_D(const QTextFrame);
     return QTextCursor(d->pieceTable, lastPosition());
 }
 
@@ -430,6 +443,7 @@ QTextCursor QTextFrame::lastCursorPosition() const
 */
 int QTextFrame::firstPosition() const
 {
+    Q_D(const QTextFrame);
     if (!d->fragment_start)
         return 0;
     return d->pieceTable->fragmentMap().position(d->fragment_start) + 1;
@@ -442,6 +456,7 @@ int QTextFrame::firstPosition() const
 */
 int QTextFrame::lastPosition() const
 {
+    Q_D(const QTextFrame);
     if (!d->fragment_end)
         return d->pieceTable->length() - 1;
     return d->pieceTable->fragmentMap().position(d->fragment_end);
@@ -452,6 +467,7 @@ int QTextFrame::lastPosition() const
 */
 QTextFrameLayoutData *QTextFrame::layoutData() const
 {
+    Q_D(const QTextFrame);
     return d->layoutData;
 }
 
@@ -460,6 +476,7 @@ QTextFrameLayoutData *QTextFrame::layoutData() const
 */
 void QTextFrame::setLayoutData(QTextFrameLayoutData *data)
 {
+    Q_D(QTextFrame);
     delete d->layoutData;
     d->layoutData = data;
 }
@@ -507,6 +524,7 @@ void QTextFramePrivate::fragmentRemoved(const QChar &type, uint fragment)
 
 void QTextFramePrivate::remove_me()
 {
+    Q_Q(QTextFrame);
     if (fragment_start == 0 && fragment_end == 0
         && !parentFrame) {
         qobject_cast<QTextDocument *>(q->parent())->docHandle()->deleteObject(q);
@@ -516,17 +534,17 @@ void QTextFramePrivate::remove_me()
     if (!parentFrame)
         return;
 
-    int index = parentFrame->d->childFrames.indexOf(q);
+    int index = parentFrame->d_func()->childFrames.indexOf(q);
 
     // iterator over all children and move them to the parent
     for (int i = 0; i < childFrames.size(); ++i) {
         QTextFrame *c = childFrames.at(i);
-        parentFrame->d->childFrames.insert(index, c);
-        c->d->parentFrame = parentFrame;
+        parentFrame->d_func()->childFrames.insert(index, c);
+        c->d_func()->parentFrame = parentFrame;
         ++index;
     }
-    Q_ASSERT(parentFrame->d->childFrames.at(index) == q);
-    parentFrame->d->childFrames.removeAt(index);
+    Q_ASSERT(parentFrame->d_func()->childFrames.at(index) == q);
+    parentFrame->d_func()->childFrames.removeAt(index);
 
     childFrames.clear();
     parentFrame = 0;
