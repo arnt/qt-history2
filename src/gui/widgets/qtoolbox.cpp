@@ -54,8 +54,8 @@
 class QToolBoxButton : public QAbstractButton
 {
 public:
-    QToolBoxButton(QWidget *parent, const char *name)
-        : QAbstractButton(parent, name), selected(false)
+    QToolBoxButton(QWidget *parent)
+        : QAbstractButton(parent), selected(false)
     {
         setBackgroundRole(QPalette::Background);
         setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
@@ -299,12 +299,25 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
     current item.
 */
 
+#ifdef QT_COMPAT
 /*!
     Constructs a toolbox called \a name with parent \a parent and flags \a f.
 */
-
 QToolBox::QToolBox(QWidget *parent, const char *name, Qt::WFlags f)
-    :  QFrame(parent, name, f)
+    :  QFrame(parent, f)
+{
+    setObjectName(name);
+    d = new QToolBoxPrivate;
+    d->layout = new QVBoxLayout(this);
+    setBackgroundRole(QPalette::Button);
+}
+#endif
+
+/*!
+    Constructs a toolbox called \a name with parent \a parent and flags \a f.
+*/
+QToolBox::QToolBox(QWidget *parent, Qt::WFlags f)
+    :  QFrame(parent, f)
 {
     d = new QToolBoxPrivate;
     d->layout = new QVBoxLayout(this);
@@ -361,7 +374,7 @@ int QToolBox::insertItem(int index, QWidget *widget, const QIconSet &icon,
 
     QToolBoxPrivate::Page c;
     c.widget = widget;
-    c.button = new QToolBoxButton(this, text.latin1());
+    c.button = new QToolBoxButton(this);
     connect(c.button, SIGNAL(clicked()), this, SLOT(buttonClicked()));
 
     c.sv = new QWidgetView(this);

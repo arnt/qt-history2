@@ -31,21 +31,6 @@
 #include "qnc_win.h"
 #endif
 
-// Internal class - don't touch
-
-class QMessageBoxLabel : public QLabel
-{
-    Q_OBJECT
-public:
-    QMessageBoxLabel(QWidget* parent) : QLabel(parent, "messageBoxText")
-    {
-        setAlignment(Qt::AlignAuto|Qt::TextExpandTabs);
-    }
-};
-#include "qmessagebox.moc"
-
-
-
 // the Qt logo, for aboutQt
 /* XPM */
 static const char * const qtlogo_xpm[] = {
@@ -404,7 +389,7 @@ static const char * const qtlogo_xpm[] = {
 
 struct QMessageBoxData {
     QMessageBoxData(QMessageBox* parent) :
-        iconLabel(parent, "icon")
+        iconLabel(parent)
     {
     }
 
@@ -577,7 +562,8 @@ void QMessageBox::init(int button0, int button1, int button2)
 #endif
 
     }
-    label = new QMessageBoxLabel(this);
+    label = new QLabel(this);
+    label->setAlignment(Qt::AlignAuto|Qt::TextExpandTabs);
 
     if ((button2 && !button1) || (button1 && !button0)) {
         qWarning("QMessageBox: Inconsistent button parameters");
@@ -634,9 +620,9 @@ void QMessageBox::init(int button0, int button1, int button2)
         } else {
             QByteArray buttonName = QByteArray::number(i+1);
             buttonName.prepend("button");
-            mbd->pb[i] = new QPushButton(
-                tr(mb_texts[mbd->button[i]]),
-                this, buttonName);
+            mbd->pb[i] = new QPushButton(tr(mb_texts[mbd->button[i]]), this);
+            // ### do we need the object name at all?
+            setObjectName(buttonName);
             if (mbd->defButton == i) {
                 mbd->pb[i]->setDefault(true);
                 mbd->pb[i]->setFocus();
@@ -963,11 +949,11 @@ void QMessageBox::keyPressEvent(QKeyEvent *e)
     }
 #ifndef QT_NO_ACCEL
     if (!(e->state() & Qt::AltButton)) {
-        QObjectList list = queryList("QPushButton");
         int key = e->key() & ~(Qt::MODIFIER_MASK|Qt::UNICODE_ACCEL);
         if (key) {
+            QObjectList list = children();
             for (int i = 0; i < list.size(); ++i) {
-                QPushButton *pb = static_cast<QPushButton *>(list.at(i));
+                QPushButton *pb = qt_cast<QPushButton *>(list.at(i));
                 int acc = pb->shortcut() & ~(Qt::MODIFIER_MASK|Qt::UNICODE_ACCEL);
                 if (acc == key) {
                     emit pb->animateClick();

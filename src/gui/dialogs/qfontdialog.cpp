@@ -212,7 +212,8 @@ QFontDialog::QFontDialog(QWidget *parent, const char *name,
     d->familyList = new QFontListView(this);
     d->familyEdit->setFocusProxy(d->familyList);
 
-    d->familyAccel = new QLabel(d->familyList, tr("&Font"), this);
+    d->familyAccel = new QLabel(tr("&Font"), this);
+    d->familyAccel->setBuddy(d->familyList);
     d->familyAccel->setIndent(2);
 
     d->styleEdit = new QLineEdit(this);
@@ -220,7 +221,8 @@ QFontDialog::QFontDialog(QWidget *parent, const char *name,
     d->styleList = new QFontListView(this);
     d->styleEdit->setFocusProxy(d->styleList);
 
-    d->styleAccel = new QLabel(d->styleList, tr("Font st&yle"), this);
+    d->styleAccel = new QLabel(tr("Font st&yle"), this);
+    d->styleAccel->setBuddy(d->styleList);
     d->styleAccel->setIndent(2);
 
     d->sizeEdit = new QLineEdit(this);
@@ -229,8 +231,8 @@ QFontDialog::QFontDialog(QWidget *parent, const char *name,
     d->sizeEdit->setValidator(validator);
     d->sizeList = new QFontListView(this);
 
-    d->sizeAccel
-        = new QLabel (d->sizeEdit, tr("&Size"), this);
+    d->sizeAccel = new QLabel(tr("&Size"), this);
+    d->sizeAccel->setBuddy(d->sizeEdit);
     d->sizeAccel->setIndent(2);
 
     // effects box
@@ -255,7 +257,8 @@ QFontDialog::QFontDialog(QWidget *parent, const char *name,
 
     d->scriptCombo = new QComboBox(this);
 
-    d->scriptAccel = new QLabel(d->scriptCombo, tr("Scr&ipt"), this);
+    d->scriptAccel = new QLabel(tr("Scr&ipt"), this);
+    d->scriptAccel->setBuddy(d->scriptCombo);
     d->scriptAccel->setIndent(2);
 
     d->size = 0;
@@ -306,24 +309,24 @@ QFontDialog::QFontDialog(QWidget *parent, const char *name,
     mainGrid->setColStretch(2, 24);
     mainGrid->setColStretch(4, 10);
 
-    mainGrid->addColSpacing(1, 6);
-    mainGrid->addColSpacing(3, 6);
-    mainGrid->addColSpacing(5, 6);
+    mainGrid->setColSpacing(1, 6);
+    mainGrid->setColSpacing(3, 6);
+    mainGrid->setColSpacing(5, 6);
 
-    mainGrid->addRowSpacing(3, 12);
+    mainGrid->setRowSpacing(3, 12);
 
     mainGrid->addWidget(d->effects, 4, 0);
 
-    mainGrid->addMultiCellWidget(d->sample, 4, 7, 2, 4);
+    mainGrid->addWidget(d->sample, 4, 2, 4, 3);
 
     mainGrid->addWidget(d->scriptAccel, 5, 0);
-    mainGrid->addRowSpacing(6, 2);
+    mainGrid->setRowSpacing(6, 2);
     mainGrid->addWidget(d->scriptCombo, 7, 0);
 
-    mainGrid->addRowSpacing(8, 12);
+    mainGrid->setRowSpacing(8, 12);
 
     QHBoxLayout *buttonBox = new QHBoxLayout;
-    mainGrid->addMultiCell(buttonBox, 9, 9, 0, 4);
+    mainGrid->addItem(buttonBox, 9, 0, 1, 5);
 
     buttonBox->addStretch(1);
     QString okt = modal ? tr("OK") : tr("Apply");

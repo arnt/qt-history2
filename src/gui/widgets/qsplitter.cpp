@@ -574,7 +574,9 @@ void QSplitterPrivate::recalcId()
 
 void QSplitterPrivate::processChildEvents()
 {
+#ifdef QT_COMPAT
     QApplication::sendPostedEvents(q, QEvent::ChildInserted);
+#endif
 }
 
 QSplitterLayoutStruct *QSplitterPrivate::findWidget(QWidget *w)
@@ -878,6 +880,7 @@ void QSplitter::resizeEvent(QResizeEvent *)
 
 void QSplitter::childEvent(QChildEvent *c)
 {
+#ifdef QT_COMPAT
     if (c->type() == QEvent::ChildInserted) {
         if (!c->child()->isWidgetType())
             return;
@@ -893,7 +896,9 @@ void QSplitter::childEvent(QChildEvent *c)
         }
         d->addWidget(static_cast<QWidget *>(c->child()));
         d->recalc(isVisible());
-    } else if (c->type() == QEvent::ChildRemoved) {
+    } else
+#endif
+    if (c->type() == QEvent::ChildRemoved) {
         QSplitterLayoutStruct *prev = 0;
         if (d->list.count() > 1)
             prev = d->list.at(1);  // yes, this is correct
@@ -964,6 +969,7 @@ bool QSplitter::event(QEvent *e)
 #endif
         d->recalc(isVisible());
         break;
+#endif
     default:
         ;
     }

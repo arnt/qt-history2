@@ -154,20 +154,20 @@ QErrorMessage::QErrorMessage(QWidget * parent)
     : QDialog(*new QErrorMessagePrivate, parent)
 {
     QGridLayout * grid = new QGridLayout(this, 3, 2, 11, 6);
-    d->icon = new QLabel(this, "qt_icon_lbl");
+    d->icon = new QLabel(this);
 #ifndef QT_NO_MESSAGEBOX
     d->icon->setPixmap(QMessageBox::standardIcon(QMessageBox::Information));
 #endif
     grid->addWidget(d->icon, 0, 0, Qt::AlignTop);
     d->errors = new QErrorMessageTextView(this);
     grid->addWidget(d->errors, 0, 1);
-    d->again = new QCheckBox(tr("&Show this message again"), this, "again");
+    d->again = new QCheckBox(tr("&Show this message again"), this);
     d->again->setChecked(true);
     grid->addWidget(d->again, 1, 1, Qt::AlignTop | Qt::AlignAuto);
-    d->ok = new QPushButton(tr("&OK"), this, "ok");
+    d->ok = new QPushButton(tr("&OK"), this);
     connect(d->ok, SIGNAL(clicked()), this, SLOT(accept()));
     d->ok->setFocus();
-    grid->addMultiCellWidget(d->ok, 2, 2, 0, 1, Qt::AlignCenter);
+    grid->addWidget(d->ok, 2, 0, 1, 2, Qt::AlignCenter);
     grid->setColStretch(1, 42);
     grid->setRowStretch(0, 42);
 }

@@ -46,9 +46,9 @@ public:
                    const QString& labelText,
                    int totalSteps) :
         creator(parent),
-        label(new QLabel(labelText,that,"label")),
+        label(new QLabel(labelText,that)),
         cancel(0),
-        bar(new QProgressBar(totalSteps,that,"bar")),
+        bar(new QProgressBar(totalSteps,that)),
         shown_once(false),
         cancellation_flag(false),
         showTime(defaultShowTime)
@@ -397,7 +397,7 @@ void QProgressDialog::setCancelButtonText(const QString &cancelButtonText)
         if (d->cancel)
             d->cancel->setText(cancelButtonText);
         else
-            setCancelButton(new QPushButton(cancelButtonText, this, "cancel"));
+            setCancelButton(new QPushButton(cancelButtonText, this));
     } else {
         setCancelButton(0);
     }

@@ -25,7 +25,7 @@
 
 #include <math.h>
 
-QString buddyString(const QWidget *widget)
+static QString buddyString(const QWidget *widget)
 {
     if (!widget)
         return QString();
@@ -46,7 +46,7 @@ QString buddyString(const QWidget *widget)
     return QString();
 }
 
-QString Q_GUI_EXPORT qacc_stripAmp(const QString &text)
+static QString Q_GUI_EXPORT qacc_stripAmp(const QString &text)
 {
     if (text.isEmpty())
         return text;
@@ -68,7 +68,7 @@ QString Q_GUI_EXPORT qacc_stripAmp(const QString &text)
     return str;
 }
 
-QString Q_GUI_EXPORT qacc_hotKey(const QString &text)
+static QString Q_GUI_EXPORT qacc_hotKey(const QString &text)
 {
     if (text.isEmpty())
         return text;

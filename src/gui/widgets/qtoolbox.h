@@ -31,7 +31,10 @@ class Q_GUI_EXPORT QToolBox : public QFrame
     Q_PROPERTY(int count READ count)
 
 public:
-    QToolBox(QWidget *parent = 0, const char *name = 0, Qt::WFlags f = 0);
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QToolBox(QWidget *parent, const char *name, Qt::WFlags f = 0);
+#endif
+    QToolBox(QWidget *parent = 0, Qt::WFlags f = 0);
     ~QToolBox();
 
     int addItem(QWidget *widget, const QString &text);

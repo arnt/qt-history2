@@ -114,26 +114,23 @@ QInputDialog::QInputDialog(const QString &label, QWidget* parent,
     vbox->setMargin(6);
     vbox->setSpacing(6);
 
-    d->label = new QLabel(label, this, "qt_inputdlg_lbl");
+    d->label = new QLabel(label, this);
     vbox->addWidget(d->label);
 
     d->stack = new QStackedBox(this);
     vbox->addWidget(d->stack);
-    d->lineEdit = new QLineEdit(d->stack, "qt_inputdlg_le");
-    d->spinBox = new QSpinBox(d->stack, "qt_inputdlg_sb");
+    d->lineEdit = new QLineEdit(d->stack);
+    d->spinBox = new QSpinBox(d->stack);
     d->comboBox = new QComboBox(d->stack);
-    d->comboBox->setObjectName("qt_inputdlg_cb");
-    d->editComboBox = new QComboBox(d->stack);
-    d->editComboBox->setEditable(true);
-    d->editComboBox->setObjectName("qt_inputdlg_editcb");
+    d->editComboBox = new QComboBox(QComboBox::Editable, d->stack);
 
     QHBoxLayout *hbox = new QHBoxLayout;
     hbox->setSpacing(6);
     vbox->addLayout(hbox, Qt::AlignRight);
 
-    d->ok = new QPushButton(tr("OK"), this, "qt_ok_btn");
+    d->ok = new QPushButton(tr("OK"), this);
     d->ok->setDefault(true);
-    QPushButton *cancel = new QPushButton(tr("Cancel"), this, "qt_cancel_btn");
+    QPushButton *cancel = new QPushButton(tr("Cancel"), this);
 
     QSize bs = d->ok->sizeHint().expandedTo(cancel->sizeHint());
     d->ok->setFixedSize(bs);
