@@ -73,8 +73,8 @@ PaletteEditorAdvanced::PaletteEditorAdvanced( FormWindow *fw, QWidget * parent,
     buttonPixmap->setFormWindow( formWindow );
 
     // force toggle event
-    checkBuildEffect->setChecked(false);
-    checkBuildEffect->setChecked(true);
+    checkBuildEffect->setChecked(FALSE);
+    checkBuildEffect->setChecked(TRUE);
 }
 
 PaletteEditorAdvanced::~PaletteEditorAdvanced()
@@ -120,8 +120,8 @@ void PaletteEditorAdvanced::paletteSelected(int p)
 	groupEffect->setDisabled(checkBuildDisabled->isChecked());
     }
     else {
-	groupCentral->setEnabled(true);
-	groupEffect->setEnabled(true);
+	groupCentral->setEnabled(TRUE);
+	groupEffect->setEnabled(TRUE);
     }
     updateStyledButtons();
 }

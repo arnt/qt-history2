@@ -499,7 +499,7 @@ void HierarchyList::removeTabPage()
 	    DeleteWizardPageCommand *cmd = new DeleteWizardPageCommand( tr( "Remove Page %1 of %2" ).
 									arg( dw->pageTitle() ).arg( wiz->name() ),
 									formWindow, wiz,
-									wiz->indexOf( wiz->currentPage() ), true );
+									wiz->indexOf( wiz->currentPage() ), TRUE );
 	    formWindow->commandHistory()->addCommand( cmd );
 	    cmd->execute();
 	}

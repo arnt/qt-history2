@@ -109,7 +109,7 @@ void QLayoutWidget::paintEvent( QPaintEvent* )
 QDesignerTabWidget::QDesignerTabWidget( QWidget *parent, const char *name )
     : QTabWidget( parent, name ), dropIndicator( 0 ), dragPage( 0 ), mousePressed( FALSE )
 {
-    tabBar()->setAcceptDrops( true );
+    tabBar()->setAcceptDrops( TRUE );
     tabBar()->installEventFilter( this );
 }
 
@@ -158,7 +158,7 @@ bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
     switch ( e->type() ) {
     case QEvent::MouseButtonPress:
 	{
-	    mousePressed = true;
+	    mousePressed = TRUE;
 	    QMouseEvent *me = (QMouseEvent*)e;
 	    pressPoint = me->pos();
 	}
@@ -168,7 +168,7 @@ bool QDesignerTabWidget::eventFilter( QObject *o, QEvent *e )
 	    QMouseEvent *me = (QMouseEvent*)e;
 	    if ( mousePressed && ( pressPoint - me->pos()).manhattanLength() > QApplication::startDragDistance() ) {
 		QTextDrag *drg = new QTextDrag( QString::number( (long) this ) , this );
-		mousePressed = false;
+		mousePressed = FALSE;
 		dragPage = QTabWidget::currentPage();
 		dragLabel = QTabWidget::tabLabel( dragPage );
 

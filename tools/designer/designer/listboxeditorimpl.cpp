@@ -160,7 +160,7 @@ void ListBoxEditor::moveItemUp()
 	return;
 
     QListBoxItem *i = preview->item( preview->currentItem() );
-    bool hasPix = (bool)i->pixmap();
+    bool hasPix = (i->pixmap() != 0);
     QPixmap pix;
     if ( hasPix )
 	pix = *i->pixmap();
@@ -184,7 +184,7 @@ void ListBoxEditor::moveItemDown()
 	return;
 
     QListBoxItem *i = preview->item( preview->currentItem() );
-    bool hasPix = (bool)i->pixmap();
+    bool hasPix = (i->pixmap() != 0);
     QPixmap pix;
     if ( hasPix )
 	pix = *i->pixmap();

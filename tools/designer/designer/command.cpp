@@ -149,11 +149,11 @@ void CommandHistory::emitUndoRedo()
     if ( current + 1 >= 0 && current + 1 < (int)history.count() )
 	redoCmd = history.at( current + 1 );
 
-    bool ua = (bool)undoCmd;
+    bool ua = (undoCmd != 0);
     QString uc;
     if ( ua )
 	uc = undoCmd->name();
-    bool ra = (bool)redoCmd;
+    bool ra = (redoCmd != 0);
     QString rc;
     if ( ra )
 	rc = redoCmd->name();

@@ -152,7 +152,7 @@ public:
     void addPage( QWidget *p, const QString & );
     void removePage( QWidget *p );
     void insertPage( QWidget *p, const QString &t, int index );
-    bool isPageRemoved( QWidget *p ) { return (bool)removedPages.find( p ); }
+    bool isPageRemoved( QWidget *p ) { return (removedPages.find( p ) != 0); }
 
     void reject() {}
 

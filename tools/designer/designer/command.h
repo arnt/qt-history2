@@ -418,7 +418,7 @@ class AddWizardPageCommand : public Command
 {
 public:
     AddWizardPageCommand( const QString &n, FormWindow *fw,
-			  QWizard *w, const QString &label, int index = -1, bool show = true );
+			  QWizard *w, const QString &label, int index = -1, bool show = TRUE );
 
     void execute();
     void unexecute();
@@ -437,7 +437,7 @@ class DeleteWizardPageCommand : public Command
 {
 public:
     DeleteWizardPageCommand( const QString &n, FormWindow *fw,
-			     QWizard *w, int index, bool show = true );
+			     QWizard *w, int index, bool show = TRUE );
 
     void execute();
     void unexecute();

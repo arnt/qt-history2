@@ -108,7 +108,7 @@ void WizardEditor::addClicked()
 
     // schedule add command
     AddWizardPageCommand *cmd = new AddWizardPageCommand( tr( "Add Page to %1" ).arg( wizard->name() ),
-							  formwindow, wizard, "Page", index, false);
+							  formwindow, wizard, "Page", index, FALSE);
     commands.append( cmd );
 
     // update buttons
@@ -127,7 +127,7 @@ void WizardEditor::removeClicked()
     // schedule remove command
     DeleteWizardPageCommand *cmd = new DeleteWizardPageCommand( tr( "Remove Page %1 of %2" )
 								.arg( listBox->text( index ) ).arg( wizard->name() ),
-								formwindow, wizard, index, false );
+								formwindow, wizard, index, FALSE );
     commands.append( cmd );
 
     // update buttons

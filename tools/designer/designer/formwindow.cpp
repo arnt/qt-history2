@@ -174,7 +174,7 @@ void FormWindow::init()
     setMainContainer( w );
     propertyWidget = w;
     targetContainer = 0;
-    hadOwnPalette = false;
+    hadOwnPalette = FALSE;
 }
 
 void FormWindow::setMainWindow( MainWindow *w )

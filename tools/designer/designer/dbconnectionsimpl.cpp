@@ -136,7 +136,7 @@ void DatabaseConnectionsEditor::currentConnectionChanged( const QString &s )
 #ifndef QT_NO_SQL
     DatabaseConnection *conn = project->databaseConnection( s );
     blockChanges = TRUE;
-    enableAll( (bool)conn );
+    enableAll( conn != 0 );
     connectionWidget->editName->setEnabled( FALSE );
     blockChanges = FALSE;
     if ( !conn )

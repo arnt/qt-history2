@@ -319,7 +319,7 @@ void ConnectionEditor::slotsChanged()
 
 void ConnectionEditor::connectionsChanged()
 {
-    disconnectButton->setEnabled( (bool)connectionView->currentItem() );
+    disconnectButton->setEnabled( (connectionView->currentItem() != 0));
 }
 
 void ConnectionEditor::addSlotClicked()

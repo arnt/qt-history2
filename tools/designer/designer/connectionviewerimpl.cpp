@@ -32,8 +32,8 @@ ConnectionViewer::ConnectionViewer( QWidget *parent, FormWindow *fw )
     : ConnectionViewerBase( parent, 0, TRUE ), formWindow( fw )
 {
     readConnections();
-    editButton->setEnabled( (bool)connectionListView->currentItem() );	
-    disconnectButton->setEnabled( (bool)connectionListView->currentItem() );	
+    editButton->setEnabled( (connectionListView->currentItem() != 0));	
+    disconnectButton->setEnabled( (connectionListView->currentItem() != 0));	
     connect( helpButton, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
 }
 

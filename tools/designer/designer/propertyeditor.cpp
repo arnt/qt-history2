@@ -2236,7 +2236,7 @@ PropertyList::PropertyList( PropertyEditor *e )
     header()->setMovingEnabled( FALSE );
     header()->setStretchEnabled( TRUE );
     setResizePolicy( QScrollView::Manual );
-    viewport()->setAcceptDrops( true );
+    viewport()->setAcceptDrops( TRUE );
     viewport()->installEventFilter( this );
     addColumn( tr( "Property" ) );
     addColumn( tr( "Value" ) );
@@ -2251,7 +2251,7 @@ PropertyList::PropertyList( PropertyEditor *e )
     setSorting( -1 );
     setHScrollBarMode( AlwaysOff );
     setColumnWidthMode( 1, Manual );
-    mousePressed = false;
+    mousePressed = FALSE;
     pressItem = 0;
 }
 
@@ -2734,7 +2734,7 @@ bool PropertyList::eventFilter( QObject *o, QEvent *e )
 	    if( i  && ( i->inherits("PropertyColorItem") || i->inherits("PropertyPixmapItem") ) ) {
 		pressItem = i;
 		pressPos = me->pos();
-		mousePressed = true;
+		mousePressed = TRUE;
 	    }
 	    break;
 	case QEvent::MouseMove:
@@ -2754,7 +2754,7 @@ bool PropertyList::eventFilter( QObject *o, QEvent *e )
 			    p.drawRect( 0, 0, pix.width(), pix.height() );
 			    p.end();
 			    drg->setPixmap( pix );
-			    mousePressed = false;
+			    mousePressed = FALSE;
 			    drg->dragCopy();
 			}
 			else if ( i->inherits("PropertyPixmapItem") ) {
@@ -2763,7 +2763,7 @@ bool PropertyList::eventFilter( QObject *o, QEvent *e )
 				QImage img = pix.convertToImage();
 				QImageDrag *drg = new QImageDrag( img, this );
 				drg->setPixmap( pix );
-				mousePressed = false;
+				mousePressed = FALSE;
 				drg->dragCopy();
 			    }
 			}

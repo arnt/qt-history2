@@ -63,7 +63,7 @@ void ActionEditor::closeEvent( QCloseEvent *e )
 
 void ActionEditor::currentActionChanged( QListViewItem *i )
 {
-    buttonConnect->setEnabled( (bool)i );
+    buttonConnect->setEnabled( i != 0 );
     if ( !i )
 	return;
     currentAction = ( (ActionItem*)i )->action();
