@@ -388,7 +388,7 @@ QStringList parse_multiline_part( const QString &contents, const QString &key, i
 		}
 		if ( ( c.isLetter() || c.isDigit() || c == '.' || c == '/' || c == '_' || c == '\\' ||
 		       c == '\"' || c == '\'' || c == '=' ||
-		       c == '$' || c == '-' || c == '(' || c == ')' || c == ':'  || c == '+' || c == ',' ) &&
+		       c == '$' || c == '-' || c == '(' || c == ')' || c == ':'  || c == '+' || c == ',' || c == '~' ) &&
 		     c != ' ' && c != '\t' && c != '\n' ) {
 		    if ( !inName )
 			currName = QString::null;
