@@ -439,7 +439,7 @@ fi
 sed -e "s,^\(\#define  *QT_VERSION  *\)[0-9]*$,\1${BRANCH_DIGITS},g" \
     -e "s,^\(\#define  *QT_VERSION_STR  *\)\".*\"$,\1\"${VERSION_STR}\",g" $qglobal >${TMP_FILE}
 mv ${TMP_FILE} $qglobal
-if [ "$TYPE" != "-snapshot" ] && ! -z "$TYPE" && ! myexpr "$TYPE" : "^-beta[0-9]*$"; then
+if [ "$TYPE" != "-snapshot" ] && [ ! -z "$TYPE" ] && ! myexpr "$TYPE" : "^-beta[0-9]*$"; then
     die "The qt version is ${VERSION_STR}, which confuses me terribly";
 fi
 
