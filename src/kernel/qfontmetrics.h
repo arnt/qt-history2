@@ -25,7 +25,6 @@ class QFontEngine;
 #endif
 
 class QTextCodec;
-class QTextParag;
 
 class Q_GUI_EXPORT QFontMetrics
 {
@@ -62,10 +61,10 @@ public:
     QRect	boundingRect( QChar ) const;
     QRect	boundingRect( int x, int y, int w, int h, int flags,
 			      const QString& str, int len=-1, int tabstops=0,
-			      int *tabarray=0, QTextParag **intern=0 ) const;
+			      int *tabarray=0 ) const;
     QSize	size( int flags,
 		      const QString& str, int len=-1, int tabstops=0,
-		      int *tabarray=0, QTextParag **intern=0 ) const;
+		      int *tabarray=0 ) const;
 
     int		underlinePos()	const;
     int         overlinePos()   const;

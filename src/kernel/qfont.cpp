@@ -2416,7 +2416,7 @@ QRect QFontMetrics::boundingRect( QChar ch ) const
 */
 QRect QFontMetrics::boundingRect( int x, int y, int w, int h, int flgs,
 				  const QString& str, int len, int tabstops,
-				  int *tabarray, QTextParag **intern ) const
+				  int *tabarray ) const
 {
     if ( len < 0 )
 	len = str.length();
@@ -2429,7 +2429,7 @@ QRect QFontMetrics::boundingRect( int x, int y, int w, int h, int flgs,
     QRect rb;
     QRect r(x, y, w, h);
     qt_format_text( QFont( d, d->paintdevice ), r, flgs|Qt::DontPrint, str, len, &rb,
-		    tabstops, tabarray, tabarraylen, intern, 0 );
+		    tabstops, tabarray, tabarraylen, 0 );
 
     return rb;
 }
@@ -2465,9 +2465,9 @@ QRect QFontMetrics::boundingRect( int x, int y, int w, int h, int flgs,
     \sa boundingRect()
 */
 QSize QFontMetrics::size( int flgs, const QString &str, int len, int tabstops,
-			  int *tabarray, QTextParag **intern ) const
+			  int *tabarray ) const
 {
-    return boundingRect(0,0,0,0,flgs,str,len,tabstops,tabarray,intern).size();
+    return boundingRect(0,0,0,0,flgs,str,len,tabstops,tabarray).size();
 }
 
 /*!
