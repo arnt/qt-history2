@@ -780,8 +780,9 @@ QString QXmlAttributes::type( const QString&, const QString& ) const
 }
 
 /*!
-    Looks up an attribute's value for the attribute at position \a
-    index.
+    Returns an attribute's value for the attribute at position \a
+    index. The index must be a valid position
+    (i.e., 0 <= \a index < count()).
 */
 QString QXmlAttributes::value( int index ) const
 {
@@ -791,7 +792,8 @@ QString QXmlAttributes::value( int index ) const
 /*!
     \overload
 
-    Looks up an attribute's value for the qualified name \a qName.
+    Returns an attribute's value for the qualified name \a qName, or an
+    empty string if no attribute exists for the name given.
 
     See also the \link xml.html#sax2Namespaces namespace description\endlink.
 */
@@ -804,15 +806,15 @@ QString QXmlAttributes::value( const QString& qName ) const
 }
 
 /*!
-    \overload
+\overload
 
-    Looks up an attribute's value by namespace name.
+Returns an attribute's value by namespace name.
 
-    \a uri specifies the namespace URI, or an empty string if the name
-    has no namespace URI. \a localName specifies the attribute's local
-    name.
+\a uri specifies the namespace URI, or an empty string if the name
+has no namespace URI. \a localName specifies the attribute's local
+name.
 
-    See also the \link xml.html#sax2Namespaces namespace description\endlink.
+See also the \link xml.html#sax2Namespaces namespace description\endlink.
 */
 QString QXmlAttributes::value( const QString& uri, const QString& localName ) const
 {
@@ -973,15 +975,22 @@ QXmlInputSource::~QXmlInputSource()
 }
 
 /*!
-    Returns the next character of the input source. If this function
-    reaches the end of available data, it returns
-    QXmlInputSource::EndOfData. If you call next() after that, it
-    tries to fetch more data by calling fetchData(). If the
-    fetchData() call results in new data, this function returns the
-    first character of that data; otherwise it returns
-    QXmlInputSource::EndOfDocument.
+Returns the next character of the input source. If this function
+reaches the end of available data, it returns
+QXmlInputSource::EndOfData. If you call next() after that, it
+tries to fetch more data by calling fetchData(). If the
+fetchData() call results in new data, this function returns the
+first character of that data; otherwise it returns
+QXmlInputSource::EndOfDocument.
 
-    \sa reset() fetchData() QXmlSimpleReader::parse() QXmlSimpleReader::parseContinue()
+Readers, such as QXmlSimpleReader, will assume that the end of
+the XML document has been reached if the this function returns
+QXmlInputSource::EndOfDocument, and will check that the
+supplied input is well-formed. Therefore, when reimplementing
+this function, it is important to ensure that this behavior is
+duplicated.
+
+\sa reset() fetchData() QXmlSimpleReader::parse() QXmlSimpleReader::parseContinue()
 */
 QChar QXmlInputSource::next()
 {
@@ -1014,7 +1023,7 @@ void QXmlInputSource::reset()
 }
 
 /*!
-    Returns the data the input source contains or QString::null if the
+    Returns the data the input source contains or an empty string if the
     input source does not contain any data.
 
     \sa setData() QXmlInputSource() fetchData()
@@ -2537,7 +2546,7 @@ private:
 
 
 /*!
-    \class QXmlSimpleReader qxml.h
+    \class QXmlSimpleReader
     \reentrant
     \brief The QXmlSimpleReader class provides an implementation of a
     simple XML reader (parser).
@@ -2549,33 +2558,44 @@ private:
     \ingroup xml-tools
     \mainclass
 
-    This XML reader is sufficient for simple parsing tasks. The reader:
-    \list
-    \i provides a well-formed parser;
-    \i does not parse any external entities;
-    \i can do namespace processing.
-    \endlist
+    This XML reader is suitable for a wide range of simple applications.
+    It is able to parse well-formed XML, does not parse any external
+    entities, and can report the namespaces of elements to a content
+    handler.
 
-    Documents are parsed with a call to parse().
+    The parser can be set up to take input that can be read in a single
+    pass, using the parse() function with a single argument:
+
+    \code
+    QXmlSimpleReader reader;
+    QFile *file = new QFile("bookmarks.xml");
+    QXmlInputSource *source = new QXmlInputSource(file);
+
+    bool ok = reader.parse(source);
+    \endcode
+
+    Features of the reader can be set with setFeature(), and properties can
+    be set with setProperty(). For example, the following code could be
+    used to enable reporting of namespace prefixes to the content handler:
+
+    \code
+    QXmlSimpleReader reader;
+
+    reader.setFeature( "http://xml.org/sax/features/namespace-prefixes",
+                       TRUE );
+    \endcode
+
+    Alternatively, if not all the input is immediately available, data can be
+    fed to the parser in pieces by supplying a second argument to parse(),
+    and making subsequent calls to parseContinue() until all the
+    necessary data has been processed.
 
 */
 
 
 /*!
-    Constructs a simple XML reader with the following feature settings:
-    \table
-    \header \i Feature \i Setting
-    \row \i \e http://xml.org/sax/features/namespaces \i TRUE
-    \row \i \e http://xml.org/sax/features/namespace-prefixes \i FALSE
-    \row \i \e http://trolltech.com/xml/features/report-whitespace-only-CharData
-	 \i TRUE
-    \row \i \e http://trolltech.com/xml/features/report-start-end-entity \i FALSE
-    \endtable
+    Constructs a simple XML reader.
 
-    More information about features can be found in the \link
-    xml.html#sax2Features Qt SAX2 overview. \endlink
-
-    \sa setFeature()
 */
 QXmlSimpleReader::QXmlSimpleReader()
 {
@@ -2629,55 +2649,50 @@ bool QXmlSimpleReader::feature( const QString& name, bool *ok ) const
 }
 
 /*!
-    Sets the state of the feature \a name to \a value:
+    Turns on the feature \a name if \a enable is true; otherwise turns it off.
 
-    If the feature is not recognized, it is ignored.
-
-    The following features are supported:
+    The \a name parameter must be one of the following strings:
     \table
-    \header \i Feature \i Notes
+    \header \i Feature \i Default \i Notes
     \row \i \e http://xml.org/sax/features/namespaces
-	 \i If this feature is TRUE, namespace processing is
-	    performed.
+         \i true 
+	 \i If enabled, namespaces are reported to the content handler.
     \row \i \e http://xml.org/sax/features/namespace-prefixes
-	 \i If this feature is TRUE, the the original prefixed names
+         \i false
+	 \i If enabled, the original prefixed names
 	    and attributes used for namespace declarations are
 	    reported.
     \row \i \e http://trolltech.com/xml/features/report-whitespace-only-CharData
-	 \i If this feature is TRUE, CharData that consist of
-	    whitespace only (and no other characters) are not reported
+         \i true
+	 \i If enabled, CharData that consist of
+	    whitespace only (and no other characters) are reported
 	    via QXmlContentHandler::characters().
     \row \i \e http://trolltech.com/xml/features/report-start-end-entity
-	 \i If this feature is TRUE, the parser reports
+         \i false
+	 \i If enabled, the parser reports
 	    QXmlContentHandler::startEntity() and
-	    QXmlContentHandler::endEntity() events. So character data
-	    might be reported in chunks. If this feature is FALSE, the
-	    parser does not report those events, but rather silently
-	    substitutes the entities and reports the character data in
-	    one chunk.
+	    QXmlContentHandler::endEntity() events, so character data
+	    might be reported in chunks.
+	    If disabled, the parser does not report those events, but
+	    silently substitutes the entities, and reports the character
+	    data in one chunk.
     \endtable
 
-    \quotefile xml/tagreader-with-features/tagreader.cpp
-    \skipto reader
-    \printline reader
-    \skipto setFeature
-    \printline setFeature
-    \printline TRUE
-
-    (Code taken from xml/tagreader-with-features/tagreader.cpp)
+    More information about features can be found in the \link
+    xml.html#sax2Features Qt SAX2 overview. \endlink
 
     \sa feature() hasFeature()
 */
-void QXmlSimpleReader::setFeature( const QString& name, bool value )
+void QXmlSimpleReader::setFeature( const QString& name, bool enable )
 {
-    if        ( name == "http://xml.org/sax/features/namespaces" ) {
-	d->useNamespaces = value;
+    if ( name == "http://xml.org/sax/features/namespaces" ) {
+	d->useNamespaces = enable;
     } else if ( name == "http://xml.org/sax/features/namespace-prefixes" ) {
-	d->useNamespacePrefixes = value;
+	d->useNamespacePrefixes = enable;
     } else if ( name == "http://trolltech.com/xml/features/report-whitespace-only-CharData" ) {
-	d->reportWhitespaceCharData = value;
+	d->reportWhitespaceCharData = enable;
     } else if ( name == "http://trolltech.com/xml/features/report-start-end-entity" ) {
-	d->reportEntities = value;
+	d->reportEntities = enable;
     } else {
 	qWarning( "Unknown feature %s", name.latin1() );
     }
@@ -2811,28 +2826,29 @@ bool QXmlSimpleReader::parse( const QXmlInputSource* input )
 }
 
 /*!
-    Reads an XML document from \a input and parses it. Returns FALSE
-    if the parsing detects an error; otherwise returns TRUE.
+Reads an XML document from \a input and parses it. Returns true
+if the parsing is completed successfully; otherwise returns false,
+indicating that an error occurred.
 
-    If \a incremental is TRUE, the parser does not return FALSE when
-    it reaches the end of the \a input without reaching the end of the
-    XML file. Instead it stores the state of the parser so that
-    parsing can be continued at a later stage when more data is
-    available. You can use the function parseContinue() to continue
-    with parsing. This class stores a pointer to the input source \a
-    input and the parseContinue() function tries to read from that
-    input souce. This means that you should not delete the input
-    source \a input until you've finished your calls to
-    parseContinue(). If you call this function with \a incremental
-    TRUE whilst an incremental parse is in progress a new parsing
-    session will be started and the previous session lost.
+If \a incremental is false, this function will return false if the XML
+file is not read completely. The parsing cannot be continued in this
+case.
 
-    If \a incremental is FALSE, this function behaves like the normal
-    parse function, i.e. it returns FALSE when the end of input is
-    reached without reaching the end of the XML file and the parsing
-    cannot be continued.
+If \a incremental is true, the parser does not return false if
+it reaches the end of the \a input before reaching the end
+of the XML file. Instead, it stores the state of the parser so that
+parsing can be continued later when more data is available.
+In such a case, you can use the function parseContinue() to
+continue with parsing. This class stores a pointer to the input
+source \a input and the parseContinue() function tries to read from
+that input source. Therefore, you should not delete the input
+source \a input until you no longer need to call parseContinue().
 
-    \sa parseContinue() QSocket
+If this function is called with \a incremental set to true
+while an incremental parse is in progress, a new parsing
+session will be started, and the previous session will be lost.
+
+\sa parseContinue() QSocket
 */
 bool QXmlSimpleReader::parse( const QXmlInputSource *input, bool incremental )
 {
@@ -2856,30 +2872,29 @@ bool QXmlSimpleReader::parse( const QXmlInputSource *input, bool incremental )
 }
 
 /*!
-    Continues incremental parsing; this function reads the input from
-    the QXmlInputSource that was specified with the last parse()
-    command. To use this function, you \e must have called parse()
-    with the incremental argument set to TRUE.
+    Continues incremental parsing, taking input from the
+    QXmlInputSource that was specified with the most recent
+    call to parse(). To use this function, you \e must have called
+    parse() with the incremental argument set to true.
 
-    Returns FALSE if a parsing error occurs; otherwise returns TRUE.
-
-    If the input source returns an empty string for the function
-    QXmlInputSource::data(), then this means that the end of the XML
-    file has been reached; this is quite important, especially if you
-    want to use the reader to parse more than one XML file.
-
-    The case of the end of the XML file being reached without having
-    finished parsing is not considered to be an error: you can
+    Returns false if a parsing error occurs; otherwise returns true,
+    even if the end of the XML file has not been reached. You can
     continue parsing at a later stage by calling this function again
     when there is more data available to parse.
 
-    This function assumes that the end of the XML document is reached
-    if the QXmlInputSource::next() function returns
-    QXmlInputSource::EndOfDocument. If the parser has not finished
-    parsing when it encounters this symbol, it is an error and FALSE
-    is returned.
+    Calling this function when there is no data available in the input
+    source indicates to the reader that the end of the XML file has
+    been reached. If the input supplied up to this point was
+    not well-formed then a parsing error occurs, and false is returned.
+    If the input supplied was well-formed, true is returned.
+    It is important to end the input in this way because it allows you
+    to reuse the reader to parse other XML files.
 
-    \sa parse() QXmlInputSource::next()
+    Calling this function after the end of file has been reached, but
+    without available data will cause false to be returned whether the
+    previous input was well-formed or not.
+
+    \sa parse() QXmlInputSource::data() QXmlInputSource::next()
 */
 bool QXmlSimpleReader::parseContinue()
 {
