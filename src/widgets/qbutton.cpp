@@ -53,8 +53,8 @@
 #include "qaccessible.h"
 #endif
 
-static const int DefaultAutoRepeatDelay  = 300;
-static const int DefaultAutoRepeatPeriod = 100;
+static const int autoRepeatDelay  = 300;
+static const int autoRepeatPeriod = 100;
 
 class QButtonData
 {
@@ -66,15 +66,11 @@ public:
 #ifndef QT_NO_ACCEL
 	a = 0;
 #endif
-	repeatDelay = DefaultAutoRepeatDelay;
-	repeatPeriod = DefaultAutoRepeatDelay;
     }
 #ifndef QT_NO_BUTTONGROUP
     QButtonGroup *group;
 #endif
     QTimer timer;
-    int repeatDelay;
-    int repeatPeriod;
 #ifndef QT_NO_ACCEL
     QAccel *a;
 #endif
@@ -568,33 +564,7 @@ void QButton::setAutoRepeat( bool enable )
 {
     repeat = (uint)enable;
     if ( repeat && mlbDown )
-	timer()->start( autoRepeatDelay(), TRUE );
-}
-
-void QButton::setAutoRepeatDelay( int delay )
-{
-    ensureData();
-    d->repeatDelay = delay;
-}
-
-void QButton::setAutoRepeatPeriod( int period )
-{
-    ensureData();
-    d->repeatPeriod = period;
-}
-
-int QButton::autoRepeatDelay() const
-{
-    if ( d )
-	return d->repeatDelay;
-    return DefaultAutoRepeatDelay;
-}
-
-int QButton::autoRepeatPeriod() const
-{
-    if ( d )
-	return d->repeatPeriod;
-    return DefaultAutoRepeatPeriod;
+	timer()->start( autoRepeatDelay, TRUE );
 }
 
 /*!
@@ -815,7 +785,7 @@ void QButton::mousePressEvent( QMouseEvent *e )
 	QGuardedPtr<QTimer> t = timer();
 	emit pressed();
 	if ( repeat && t )
-	    t->start( autoRepeatDelay(), TRUE );
+	    t->start( autoRepeatDelay, TRUE );
     }
 }
 
@@ -917,7 +887,7 @@ void QButton::autoRepeatTimeout()
 	    emit pressed();
 	}
 	if ( t )
-	    t->start( autoRepeatPeriod(), TRUE );
+	    t->start( autoRepeatPeriod, TRUE );
     }
 }
 

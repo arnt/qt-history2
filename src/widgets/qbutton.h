@@ -64,8 +64,6 @@ class Q_EXPORT QButton : public QWidget
     Q_PROPERTY( ToggleState toggleState READ state )
     Q_PROPERTY( bool autoResize READ autoResize WRITE setAutoResize DESIGNABLE false )
     Q_PROPERTY( bool autoRepeat READ autoRepeat WRITE setAutoRepeat )
-    Q_PROPERTY( int autoRepeatDelay READ autoRepeatDelay WRITE setAutoRepeatDelay )
-    Q_PROPERTY( int autoRepeatPeriod READ autoRepeatPeriod WRITE setAutoRepeatPeriod )
     Q_PROPERTY( bool exclusiveToggle READ isExclusiveToggle )
 
 public:
@@ -101,11 +99,7 @@ public:
 #endif
 
     bool	autoRepeat() const;
-    int		autoRepeatDelay() const;
-    int		autoRepeatPeriod() const;
     virtual void setAutoRepeat( bool );
-    void 	setAutoRepeatDelay( int );
-    void 	setAutoRepeatPeriod( int );
     bool	isExclusiveToggle() const;
 
     QButtonGroup *group() const;
