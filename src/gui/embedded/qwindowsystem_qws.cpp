@@ -406,49 +406,6 @@ void QWSWindow::setCaption(const QString &c)
     rgnCaption = c;
 }
 
-/*!
-  \internal
-  Adds \a r to the window's allocated region.
-*/
-#if 0
-void QWSWindow::addAllocation(QWSRegionManager *rm, const QRegion &r)
-{
-    QRegion added = r & requested_region;
-    if (!added.isEmpty()) {
-        allocated_region |= added;
-        exposed |= added;
-        rm->set(alloc_region_idx, allocated_region);
-        modified = true;
-    }
-}
-
-/*!
-  \internal
-  Removes \a r from the window's allocated region
-*/
-void QWSWindow::removeAllocation(QWSRegionManager *rm, const QRegion &r)
-{
-    QRegion nr = allocated_region - r;
-    if (nr != allocated_region) {
-        allocated_region = nr;
-        rm->set(alloc_region_idx, allocated_region);
-        modified = true;
-    } else if (needAck) {
-        // set our region dirty anyway
-        rm->markUpdated(alloc_region_idx);
-    }
-}
-
-void QWSWindow::updateAllocation()
-{
-    if (modified || needAck) {
-        c->sendRegionModifyEvent(id, exposed, needAck);
-        exposed = QRegion();
-        modified = false;
-        needAck = false;
-    }
-}
-#endif
 
 static int global_focus_time_counter=100;
 
@@ -581,22 +538,6 @@ void QWSClient::sendMaxWindowRectEvent()
     sendEvent(&event);
 }
 
-void QWSClient::sendRegionModifyEvent(int winid, QRegion exposed, bool ack)
-{
-    qDebug("QWSClient::sendRegionModifyEvent");
-#if 0
-    QWSRegionModifiedEvent event;
-    event.simpleData.window = winid;
-    event.simpleData.nrectangles = exposed.rects().count();
-    event.simpleData.is_ack = ack;
-    QVector<QRect> rects = exposed.rects();
-    event.setData((char *)rects.constData(),
-                    rects.count() * sizeof(QRect), false);
-
-//    qDebug("Sending %d %d rects ack: %d", winid, event.simpleData.nrectangles, ack);
-    sendEvent(&event);
-#endif
-}
 
 #ifndef QT_NO_QWS_PROPERTIES
 void QWSClient::sendPropertyNotifyEvent(int property, int state)
@@ -1776,7 +1717,6 @@ void QWSServer::invokeRegion(QWSRegionCommand *cmd, QWSClient *client)
     QWSWindow* changingw = findWindow(cmd->simpleData.windowid, 0);
     if (!changingw) {
         qWarning("Invalid window handle %08x",cmd->simpleData.windowid);
-        client->sendRegionModifyEvent(cmd->simpleData.windowid, QRegion(), true);
         return;
     }
     if (!changingw->forClient(client)) {
@@ -1791,11 +1731,7 @@ void QWSServer::invokeRegion(QWSRegionCommand *cmd, QWSClient *client)
 
     changingw->backingStore->attach(cmd->simpleData.shmid, region.boundingRect().size());
 
-//     if (!region.isEmpty())
-//         changingw->setNeedAck(true);
     setWindowRegion(changingw, region);
-//    syncRegions(changingw);
-
 
     bool isShow = !changingw->isVisible() && !region.isEmpty();
     if (isShow)
@@ -1817,7 +1753,6 @@ void QWSServer::invokeRegionMove(const QWSRegionMoveCommand *cmd, QWSClient *cli
     QWSWindow* changingw = findWindow(cmd->simpleData.windowid, 0);
     if (!changingw) {
         qWarning("invokeRegionMove: Invalid window handle %d",cmd->simpleData.windowid);
-        client->sendRegionModifyEvent(cmd->simpleData.windowid, QRegion(), true);
         return;
     }
     if (!changingw->forClient(client)) {
@@ -1943,7 +1878,6 @@ void QWSServer::invokeSetOpacity(const QWSSetOpacityCommand *cmd,
 
     if (!changingw) {
         qWarning("invokeSetOpacity: Invalid window handle %d", winId);
-        client->sendRegionModifyEvent(winId, QRegion(), true);
         return;
     }
 
@@ -1970,11 +1904,8 @@ void QWSServer::invokeSetAltitude(const QWSChangeAltitudeCommand *cmd,
     QWSWindow* changingw = findWindow(winId, 0);
     if (!changingw) {
         qWarning("invokeSetAltitude: Invalid window handle %d", winId);
-        client->sendRegionModifyEvent(winId, QRegion(), true);
         return;
     }
-
-//    changingw->setNeedAck(true);
 
     if (fixed && alt >= 1) {
         changingw->onTop = true;
@@ -1984,10 +1915,9 @@ void QWSServer::invokeSetAltitude(const QWSChangeAltitudeCommand *cmd,
     else
         raiseWindow(changingw, alt);
 
-    if (!changingw->forClient(client)) {
-        refresh();
-    }
-
+//      if (!changingw->forClient(client)) {
+//         refresh();
+//     }
 }
 
 #ifndef QT_NO_QWS_PROPERTIES
@@ -2229,17 +2159,8 @@ QWSWindow* QWSServer::newWindow(int id, QWSClient* client)
 {
     // Make a new window, put it on top.
     QWSWindow* w = new QWSWindow(id,client);
-#if 0
-    int idx = rgnMan->add(id, QRegion());
-    if (idx < 0) {
-        qWarning("Exceeded maximum top-level windows");
-        disconnectClient(client);
-        return 0;
-    }
 
-    w->setAllocationIndex(idx);
     // insert after "stays on top" windows
-#endif
     bool added = false;
     for (int i = 0; i < windows.size(); ++i) {
         QWSWindow *win = windows.at(i);
@@ -2271,11 +2192,8 @@ QWSWindow* QWSServer::findWindow(int windowid, QWSClient* client)
 
 void QWSServer::raiseWindow(QWSWindow *changingw, int /*alt*/)
 {
-    if (changingw == windows.first()) {
-//        rgnMan->commit();
-//        changingw->updateAllocation(); // still need ack
+    if (changingw == windows.first())
         return;
-    }
 
     int windowPos = 0;
 
@@ -2312,7 +2230,7 @@ void QWSServer::raiseWindow(QWSWindow *changingw, int /*alt*/)
     }
 
     if (windowPos != newPos) {
-        exposeRegion(changingw->requestedRegion(), newPos);
+        exposeRegion(changingw->requestedRegion(), newPos); //### exposes too much, including what was already visible
     }
 //    syncRegions(changingw);
     emit windowEvent(changingw, Raise);
@@ -2320,106 +2238,22 @@ void QWSServer::raiseWindow(QWSWindow *changingw, int /*alt*/)
 
 void QWSServer::lowerWindow(QWSWindow *changingw, int /*alt*/)
 {
-    if (changingw == windows.last()) {
-//        rgnMan->commit();
-//        changingw->updateAllocation(); // still need ack
+    if (changingw == windows.last())
         return;
-    }
-#if 0
-    //lower: must remove region from window first.
-    QRegion visible;
-    visible = changingw->allocatedRegion();
-    for (int i=0; i<windows.size(); ++i) {
-        QWSWindow* w = windows.at(i);
-        if (w != changingw)
-            visible = visible - w->requested_region;
-        if (visible.isEmpty())
-            break; //widget will be totally hidden;
-    }
-    QRegion exposed = changingw->allocatedRegion() - visible;
-    //change position in list:
-    for (int i=0; i<windows.size(); ++i) {
-        QWSWindow* w = windows.at(i);
-        if (w == changingw) {
-            windows.takeAt(i);
-            windows.append(changingw);
-            break;
-        }
-    }
-#endif
 
     int i = windows.indexOf(changingw);
     windows.move(i,windows.size());
 
     QRegion exposed = changingw->requestedRegion(); //### exposes too much, including what was already visible
-//    changingw->removeAllocation(rgnMan, exposed);
     exposeRegion(exposed, i);
-//    syncRegions(changingw);
     emit windowEvent(changingw, Lower);
 }
 
 void QWSServer::moveWindowRegion(QWSWindow *changingw, int dx, int dy)
 {
     if (!changingw) return;
-#if 0
-    QRegion oldAlloc(changingw->allocatedRegion());
-    oldAlloc.translate(dx, dy);
-    QRegion newRegion(changingw->requested_region);
-    newRegion.translate(dx, dy);
-/*
-    for (int i = 0; i < oldAlloc.rects().count(); i++)
-        qDebug("oldAlloc %d, %d %dx%d",
-            oldAlloc.rects()[i].x(),
-            oldAlloc.rects()[i].y(),
-            oldAlloc.rects()[i].width(),
-            oldAlloc.rects()[i].height());
-*/
-    QWSDisplay::grab(true);
-    QRegion exposed = setWindowRegion(changingw, newRegion);
-/*
-    for (int i = 0; i < changingw->allocatedRegion().rects().count(); i++)
-        qDebug("newAlloc %d, %d %dx%d",
-            changingw->allocatedRegion().rects()[i].x(),
-            changingw->allocatedRegion().rects()[i].y(),
-            changingw->allocatedRegion().rects()[i].width(),
-            changingw->allocatedRegion().rects()[i].height());
-*/
-    // add exposed areas
-    changingw->exposed = changingw->allocatedRegion() - oldAlloc;
 
-//    rgnMan->commit();
-
-    // safe to blt now
-    QRegion cr(changingw->allocatedRegion());
-    cr &= oldAlloc;
-
-    QSize s = QSize(swidth, sheight);
-    QPoint p1 = qt_screen->mapFromDevice(QPoint(0, 0), s);
-    QPoint p2 = qt_screen->mapFromDevice(QPoint(dx, dy), s);
-
-    QRect br(cr.boundingRect());
-    br = qt_screen->mapFromDevice(br, s);
-    gfx->setClipDeviceRegion(cr);
-    gfx->scroll(br.x(), br.y(), br.width(), br.height(),
-                 br.x() - (p2.x() - p1.x()), br.y() - (p2.y() - p1.y()));
-    gfx->setClipDeviceRegion(screenRegion);
-#ifndef QT_NO_PALETTE
-    clearRegion(exposed, qApp->palette().color(QPalette::Active, QPalette::Background));
-#endif
-    QWSDisplay::ungrab();
-/*
-    for (int i = 0; i < changingw->exposed.rects().count(); i++)
-        qDebug("svr exposed: %d, %d %dx%d",
-            changingw->exposed.rects()[i].x(),
-            changingw->exposed.rects()[i].y(),
-            changingw->exposed.rects()[i].width(),
-            changingw->exposed.rects()[i].height());
-*/
-    notifyModified(changingw);
-    paintBackground(dirtyBackground);
-    dirtyBackground = QRegion();
-
-#endif
+    //### optimize with scroll
     QRegion oldRegion(changingw->requested_region);
     changingw->requested_region.translate(dx, dy);
 
@@ -2428,81 +2262,18 @@ void QWSServer::moveWindowRegion(QWSWindow *changingw, int dx, int dy)
 }
 
 /*!
-    Changes the requested region of window \a changingw to \a r, sends
-    appropriate region change events to all appropriate clients, and
-    waits for all required acknowledgements.
-
+    Changes the requested region of window \a changingw to \a r
     If \a changingw is 0, the server's reserved region is changed.
-
-    Returns the exposed region.
 */
-QRegion QWSServer::setWindowRegion(QWSWindow* changingw, QRegion r)
+void QWSServer::setWindowRegion(QWSWindow* changingw, QRegion r)
 {
     if (changingw->requested_region == r)
-        return QRegion();//###
+        return;
     QRegion oldRegion(changingw->requested_region);
     changingw->requested_region = r;
 
     int idx = windows.indexOf(changingw);
     exposeRegion(oldRegion + changingw->requested_region, idx);
-    return QRegion();//###
-#if 0
-#ifdef QWS_REGION_DEBUG
-    qDebug("setWindowRegion %d", changingw ? changingw->winId() : -1);
-#endif
-
-    QRegion exposed;
-    if (changingw) {
-        changingw->requested_region = r;
-        r = r - serverRegion;
-        exposed = changingw->allocatedRegion() - r;
-    } else {
-        exposed = serverRegion-r;
-        serverRegion = r;
-    }
-    QRegion extra_allocation;
-    int windex = -1;
-
-
-//     if (changingw)
-//        changingw->removeAllocation(rgnMan, exposed);
-
-    // Go through the higher windows and calculate the reqion that we will
-    // end up with.
-    // Then continue with the deeper windows, taking the requested region
-    bool deeper = changingw == 0;
-    for (int i=0; i<windows.size(); ++i) {
-        QWSWindow* w = windows.at(i);
-        if (w == changingw) {
-            windex = i;
-            extra_allocation = r - w->allocatedRegion();
-            deeper = true;
-        } else if (deeper) {
-//            w->removeAllocation(rgnMan, r);
-            r -= w->allocatedRegion();
-        } else {
-            //higher windows
-            r -= w->allocatedRegion();
-        }
-        if (r.isEmpty()) {
-            break; // Nothing left for deeper windows
-        }
-    }
-
-    if (r.isEmpty()) {
-        // Invisible! Release grabs.
-        releaseMouse(changingw);
-        releaseKeyboard(changingw);
-    }
-
-    if (changingw && !changingw->requested_region.isEmpty())
-        ;//changingw->addAllocation(rgnMan, extra_allocation & screenRegion);
-    else if (!disablePainting)
-        paintServerRegion();
-
-    exposeRegion(exposed, windex+1);
-    return exposed;
-#endif
 }
 
 void QWSServer::exposeRegion(QRegion r, int changing)
@@ -2522,42 +2293,7 @@ void QWSServer::exposeRegion(QRegion r, int changing)
         gfx->setAlphaType(QGfx::IgnoreAlpha);
         gfx->blt(topLeft.x(),topLeft.y(), blendBuffer.width(), blendBuffer.height(), 0, 0);
     }
-#if 0
-    r &= screenRegion;
-
-    for (int i=start; i<windows.size(); ++i) {
-        if (r.isEmpty())
-            break; // Nothing left for deeper windows
-        QWSWindow* w = windows.at(i);
-//        w->addAllocation(rgnMan, r);
-        r -= w->allocatedRegion();
-    }
-    dirtyBackground |= r;
-#endif
 }
-
-#if 0
-void QWSServer::notifyModified(QWSWindow *active)
-{
-    // notify active window first
-    if (active)
-        active->updateAllocation();
-
-    // now the rest
-    for (int i=0; i<windows.size(); ++i) {
-        QWSWindow* w = windows.at(i);
-        w->updateAllocation();
-    }
-}
-
-void QWSServer::syncRegions(QWSWindow *active)
-{
-//    rgnMan->commit();
-    notifyModified(active);
-    paintBackground(dirtyBackground);
-    dirtyBackground = QRegion();
-}
-#endif
 
 /*!
     Closes the pointer device(s).
@@ -2737,20 +2473,13 @@ void QWSServer::request_region(int wid, int shmid, QRegion region)
     QWSClient *serverClient = clientMap[-1];
     QWSWindow* changingw = findWindow(wid, 0);
     if (!changingw) {
-        if (!region.isEmpty())
-            serverClient->sendRegionModifyEvent(wid, QRegion(), true);
         return;
     }
-//     if (!region.isEmpty())
-//         changingw->setNeedAck(true);
     bool isShow = !changingw->isVisible() && !region.isEmpty();
 
     changingw->backingStore->attach(shmid, region.boundingRect().size());
 
     setWindowRegion(changingw, region);
-#if 0
-    syncRegions(changingw);
-#endif
     if (isShow)
         emit windowEvent(changingw, Show);
     if (!region.isEmpty())
@@ -2833,19 +2562,6 @@ void QWSServer::paintBackground(const QRegion &rr)
     }
 }
 
-void QWSServer::clearRegion(const QRegion &r, const QColor &c)
-{
-    if (!r.isEmpty()) {
-        Q_ASSERT (qt_fbdpy);
-        gfx->setBrush(QBrush(c));
-        QSize s(swidth, sheight);
-        QVector<QRect> a = r.rects();
-        for (int i = 0; i < (int)a.count(); i++) {
-            QRect r = qt_screen->mapFromDevice(a[i], s);
-            gfx->fillRect(r.x(), r.y(), r.width(), r.height());
-        }
-    }
-}
 
 void QWSServer::refreshBackground()
 {

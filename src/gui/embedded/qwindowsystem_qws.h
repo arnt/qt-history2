@@ -89,14 +89,6 @@ private:
     void setCaption(const QString &c);
 
     bool isOpaque() const {return opacity == 255;}
-//    void addAllocation(QWSRegionManager *, const QRegion &);
-//    void removeAllocation(QWSRegionManager *, const QRegion &);
-
-//    int  allocationIndex() const { return alloc_region_idx; }
-//    void setAllocationIndex(int i) { alloc_region_idx = i; modified = true; }
-//    void updateAllocation();
-
-//    void setNeedAck(bool n) { needAck = n; }
 
     void focus(bool get);
     int focusPriority() const { return last_focus_time; }
@@ -108,9 +100,7 @@ private:
     int id;
     QString rgnName;
     QString rgnCaption;
-//    int alloc_region_idx;
     bool modified;
-//    bool needAck;
     bool onTop;
     QWSClient* c;
     QRegion requested_region;
@@ -385,7 +375,7 @@ private:
     void initializeCursor();
     void paintServerRegion();
     void paintBackground(const QRegion &);
-    void clearRegion(const QRegion &r, const QColor &c);
+
     void refreshBackground();
     void resetEngine();
 
@@ -454,19 +444,16 @@ private:
 #endif
 
     QList<QWSCommandStruct*> commandQueue;
-//    QWSRegionManager *rgnMan;
 
     // Window management
     QList<QWSWindow*> windows; // first=topmost
     QWSWindow* newWindow(int id, QWSClient* client);
     QWSWindow* findWindow(int windowid, QWSClient* client);
     void moveWindowRegion(QWSWindow*, int dx, int dy);
-    QRegion setWindowRegion(QWSWindow*, QRegion r);
+    void setWindowRegion(QWSWindow*, QRegion r);
     void raiseWindow(QWSWindow *, int = 0);
     void lowerWindow(QWSWindow *, int = -1);
     void exposeRegion(QRegion , int index = 0);
-//    void notifyModified(QWSWindow *active = 0);
-//    void syncRegions(QWSWindow *active = 0);
 
     void compose(int index, QRegion exposed, QRegion &blend, QPixmap &blendbuffer, int changing);
 
@@ -549,7 +536,6 @@ public:
     void sendEvent(QWSEvent* event);
     void sendConnectedEvent(const char *display_spec);
     void sendMaxWindowRectEvent();
-    void sendRegionModifyEvent(int winid, QRegion exposed, bool ack);
     void sendFocusEvent(int winid, bool get);
     void sendPropertyNotifyEvent(int property, int state);
     void sendPropertyReplyEvent(int property, int len, char *data);
