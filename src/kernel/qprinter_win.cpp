@@ -150,7 +150,7 @@ QPrinter::QPrinter( PrinterMode m )
     }
 #endif
     switch ( m ) {
-	case ScreenResolution: 
+	case ScreenResolution:
 	{
 	    HDC dc = GetDC( 0 );
 	    res = GetDeviceCaps( dc, LOGPIXELSY );
@@ -378,8 +378,10 @@ static int mapPageSizeDevmode( QPrinter::PageSize s )
 }
 
 /*!
-    returns the Windows pageSize as defined in the DEVMODE structure.
-    \warning this method is only available on Windows.
+    Returns the Windows page size value as used by the DEVMODE struct
+    (Windows only). Using this function is not portable.
+
+    Use pageSize() to get the \l{PageSize}, e.g. 'A4', 'Letter', etc.
 */
 short QPrinter::winPageSize() const
 {
@@ -710,7 +712,7 @@ bool QPrinter::setup( QWidget *parent )
 	    // writePdlg {
 	    pd.Flags = PD_RETURNDC;
 #if 0
-	    if ( appcolcopies ) 	    
+	    if ( appcolcopies )
 		pd.Flags |= PD_NOPAGENUMS;
 	    else
 		pd.Flags |= PD_USEDEVMODECOPIESANDCOLLATE;
@@ -773,7 +775,7 @@ bool QPrinter::setup( QWidget *parent )
 	if ( result ) {
 	    pd.Flags = PD_RETURNDC;
 #if 0
-	    if ( appcolcopies ) 
+	    if ( appcolcopies )
 		pd.Flags |= PD_NOPAGENUMS;
 	    else
                 pd.Flags |= PD_USEDEVMODECOPIESANDCOLLATE;
