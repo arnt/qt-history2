@@ -340,6 +340,7 @@
 #  if __DECCXX_VER < 60060000
 #    define Q_TYPENAME
 #    define Q_BROKEN_TEMPLATE_SPECIALIZATION
+#    define Q_CANNOT_DELETE_CONSTANT
 #  endif
 
 /* Compilers with EDG front end are similar. To detect them we test:
