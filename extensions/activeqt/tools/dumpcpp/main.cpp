@@ -22,6 +22,8 @@
 
 #include "../../shared/types.h"
 
+void *qMalloc(size_t size) { return ::malloc(size); }
+
 enum ObjectCategory
 {
     DefaultObject   = 0x0,
@@ -257,7 +259,7 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
         out << "// meta object functions" << endl;
         out << "    static const QMetaObject staticMetaObject;" << endl;
         out << "    virtual const QMetaObject *metaObject() const { return &staticMetaObject; }" << endl;
-        out << "    virtual void *qt_metacast(const char *) const;" << endl;
+        out << "    virtual void *qt_metacast(const char *);" << endl;
     }
 
     out << "};" << endl;
@@ -444,7 +446,7 @@ void generateClassImpl(QTextStream &out, const QMetaObject *mo, const QByteArray
     out << "};" << endl;
     out << endl;
 
-    out << "void *" << className << "::qt_metacast(const char *_clname) const" << endl;
+    out << "void *" << className << "::qt_metacast(const char *_clname)" << endl;
     out << "{" << endl;
     out << "    if (!_clname) return 0;" << endl;
     out << "    if (!strcmp(_clname, qt_meta_stringdata_" << qualifiedClassName.replace(':','_') << "))" << endl;
