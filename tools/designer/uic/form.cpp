@@ -620,10 +620,14 @@ void Uic::writeFunctionsDecl( const QStringList &fuLst, const QStringList &typLs
 	QString type = *it2;
 	if ( type.isEmpty() )
 	    type = "void";
-	if ( *it3 != "non virtual" && *it3 != "nonVirtual" )
-	    specifier = "virtual ";
-	if ( *it3 == "pure virtual" || *it3 == "pureVirtual" )
-	    pure = " = 0";
+	if ( *it3 == "static" ) {
+	    specifier = "static ";
+	} else {
+	    if ( *it3 != "non virtual" && *it3 != "nonVirtual" )
+		specifier = "virtual ";
+	    if ( *it3 == "pure virtual" || *it3 == "pureVirtual" )
+		pure = " = 0";
+	}
 	type.replace( ">>", "> >" );
 	if ( !signature.contains("operator") )
 	    signature.replace( ">>", "> >" );

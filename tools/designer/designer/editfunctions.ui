@@ -396,6 +396,11 @@
                                             <string>pure virtual</string>
                                         </property>
                                     </item>
+				    <item>
+                                        <property name="text">
+                                            <string>static</string>
+                                        </property>
+                                    </item>
                                     <property name="name">
                                         <cstring>functionSpecifier</cstring>
                                     </property>

@@ -356,8 +356,10 @@ void EditFunctions::currentItemChanged( QListViewItem *i )
 	functionSpecifier->setCurrentItem( 2 );
     else if ( specifier == "non virtual" )
 	functionSpecifier->setCurrentItem( 0 );
-    else
+    else if ( specifier == "virtual" )
 	functionSpecifier->setCurrentItem( 1 );
+    else
+	functionSpecifier->setCurrentItem( 3 );
     if ( access == "private" )
 	functionAccess->setCurrentItem( 2 );
     else if ( access == "protected" )
