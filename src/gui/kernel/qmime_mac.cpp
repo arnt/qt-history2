@@ -36,6 +36,7 @@
 #include "qapplication_p.h"
 #include "qtextcodec.h"
 #include "qregexp.h"
+#include "qurl.h"
 #include "qmap.h"
 #include <private/qt_mac_p.h>
 
@@ -781,9 +782,10 @@ QByteArray QMacMimeHFSUri::convertToMime(QList<QByteArray> data, const QString &
         HFSFlavor *hfs = (HFSFlavor *)(*it).data();
         FSpMakeFSRef(&hfs->fileSpec, &fsref);
         FSRefMakePath(&fsref, (UInt8 *)buffer, 1024);
-        QByteArray s = QUriDrag::localFileToUri(QString::fromUtf8((const char *)buffer));
+        
+        QByteArray s = QCoreVariant(QUrl(QString::fromUtf8((const char *)buffer))).toByteArray();
+        const int l = s.size();
         //now encode them to be handled by quridrag
-        int l = qstrlen(s);
         ret.resize(ret.size()+(l+2));
         memcpy(ret.data()+done,s,l);
         memcpy(ret.data()+l+done,"\r\n",2);

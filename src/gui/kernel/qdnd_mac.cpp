@@ -322,7 +322,7 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
                       QDragManager::self()->dropData);
         de.accept();
         if(global_src)
-            QDragManager::self()->dragPrivate(global_src)->target = q;
+            QDragManager::self()->dragPrivate()->target = q;
         QApplication::sendEvent(q, &de);
         if(!de.isAccepted())
             ret = false;
