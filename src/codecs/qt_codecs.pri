@@ -1,5 +1,6 @@
 # Qt codecs module
 
+!bigcodecs:DEFINES += QT_NO_BIG_CODECS
 tools {
 	CODECS_P		= codecs
 	HEADERS += $$CODECS_H/qbig5codec.h \
