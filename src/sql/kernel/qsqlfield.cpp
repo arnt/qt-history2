@@ -147,7 +147,6 @@ QSqlField::QSqlField(const QString& fieldName,
               QCoreVariant::Type type)
 {
     d = new QSqlFieldPrivate(fieldName, type);
-    val = QCoreVariant(type);
 }
 
 /*!
@@ -305,11 +304,6 @@ void QSqlField::setValue(const QCoreVariant& value)
 {
     if (isReadOnly())
         return;
-    if (value.type() != d->type) {
-        if (!val.canCast(d->type))
-             qWarning("QSqlField::setValue: %s cannot cast from %s to %s",
-                      d->nm.local8Bit(), value.typeName(), QCoreVariant::typeToName(d->type));
-    }
     detach();
     val = value;
 }
