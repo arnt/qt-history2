@@ -35,12 +35,14 @@
 **
 **********************************************************************/
 
+#include "qfontdata_p.h"
+
 #include "qt_x11.h"
 
 #include <ctype.h>
 #include <stdlib.h>
 
-// #define QFONTDATABASE_DEBUG
+#define QFONTDATABASE_DEBUG
 #ifdef QFONTDATABASE_DEBUG
 #  include <qdatetime.h>
 #endif // QFONTDATABASE_DEBUG
@@ -671,7 +673,9 @@ void QFontDatabase::createDatabase()
 
 #ifdef QFONTDATABASE_DEBUG
     qDebug("QFontDatabase: loaded Xft: %d ms",  t.elapsed() );
+#endif // QFONTDATABASE_DEBUG
 
+#ifdef QFONTDATABASE_DEBUG
     // print the database
     for ( int i = 0; i < QFont::NScripts; i++ ) {
 	QtFontScript &script = db->scripts[i];
@@ -702,5 +706,4 @@ void QFontDatabase::createDatabase()
 	}
     }
 #endif // QFONTDATABASE_DEBUG
-
 }
