@@ -4092,6 +4092,7 @@ void QApplication::flush()
 static void initWinTabFunctions()
 {
     QLibrary library( "wintab32" );
+    library.setAutoUnload( FALSE );
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based ) {
 	ptrWTOpen = (PtrWTOpen)library.resolve( "WTOpenW" );

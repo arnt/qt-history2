@@ -113,7 +113,8 @@ QLibraryPrivate::QLibraryPrivate( QLibrary *lib )
 */
 
 /*!
-  Creates a QLibrary object for the shared library \a filename.
+  Creates a QLibrary object for the shared library \a filename. The library 
+  will be unloaded in the destructor.
 
   Note that \a filename does not need to include the (platform specific)
   file extension, so calling
@@ -130,7 +131,7 @@ QLibraryPrivate::QLibraryPrivate( QLibrary *lib )
   If \a filename does not include a path, the library loader will look for
   the file in the platform specific search paths.
 
-  \sa load() unload()
+  \sa load() unload(), setAutoUnload()
 */
 QLibrary::QLibrary( const QString& filename )
     : libfile( filename ), aunload( TRUE )
@@ -142,7 +143,7 @@ QLibrary::QLibrary( const QString& filename )
 /*!
   Deletes the QLibrary object.
 
-  The library will be unloaded if autoUnload() is TRUE, otherwise
+  The library will be unloaded if autoUnload() is TRUE (the default), otherwise
   it stays in memory until the application is exited.
 
   \sa unload(), setAutoUnload()
@@ -280,9 +281,9 @@ bool QLibrary::autoUnload() const
 }
 
 /*!
-    If \a enabled is TRUE, the wrapper object is set to automatically
-    unload the library upon destruction. If \a enabled is FALSE, the
-    wrapper object is not unloaded unless you explicitly call
+    If \a enabled is TRUE (the default), the wrapper object is set to 
+    automatically unload the library upon destruction. If \a enabled is 
+    FALSE, the wrapper object is not unloaded unless you explicitly call
     unload().
 
   \sa autoUnload()
