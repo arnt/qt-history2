@@ -898,6 +898,7 @@ QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f )
     widgetResizeHandler->setMovingEnabled( FALSE );
 
     hbox = new QVBoxLayout( this );
+    hbox->setResizeMode( QLayout::Minimum );
     hbox->setMargin( isResizeEnabled() || p == OutsideDock ? 2 : 0 );
     hbox->setSpacing( 1 );
     titleBar = new QDockWindowTitleBar( this );

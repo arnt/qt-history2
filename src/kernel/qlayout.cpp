@@ -144,6 +144,7 @@ public:
     bool isDirty() const { return needRecalc; }
     bool hasHeightForWidth( int space );
     int heightForWidth( int, int defB );
+    int minimumHeightForWidth( int, int defB );
 
     bool findWidget( QWidget* w, int *row, int *col );
 
@@ -175,6 +176,7 @@ private:
 
     int hfw_width;
     int hfw_height;
+    int hfw_minheight;
     int nextR;
     int nextC;
 
@@ -251,18 +253,22 @@ void QGridLayoutData::recalcHFW( int w, int spacing )
     QMemArray<QLayoutStruct> &rData = *hfwData;
 
     int h = 0;
+    int mh = 0;
     int n = 0;
     for ( int r = 0; r < rr; r++ ) {
-	h = h + rData[r].sizeHint;
+	h += rData[r].sizeHint;
+	mh += rData[r].minimumSize;
 	if ( !rData[r].empty )
 	    n++;
     }
-    if ( n )
+    if ( n ) {
 	h += ( n - 1 ) * spacing;
-    h = QMIN( QLAYOUTSIZE_MAX, h );
+	mh += ( n - 1 ) * spacing;
+    }
 
-    hfw_height = h;
     hfw_width = w;
+    hfw_height = QMIN( QLAYOUTSIZE_MAX, h );
+    hfw_minheight = QMIN( QLAYOUTSIZE_MAX, h );
 }
 
 int QGridLayoutData::heightForWidth( int w, int spacing )
@@ -273,6 +279,12 @@ int QGridLayoutData::heightForWidth( int w, int spacing )
 	recalcHFW( w, spacing );
     }
     return hfw_height;
+}
+
+int QGridLayoutData::minimumHeightForWidth( int w, int spacing )
+{
+    (void) heightForWidth( w, spacing );
+    return hfw_minheight;
 }
 
 bool QGridLayoutData::findWidget( QWidget* w, int *row, int *col )
@@ -657,7 +669,7 @@ void QGridLayoutData::setupLayoutData( int spacing )
     needRecalc = FALSE;
 }
 
-void QGridLayoutData::addHfwData ( QGridBox *box, int width )
+void QGridLayoutData::addHfwData( QGridBox *box, int width )
 {
     QMemArray<QLayoutStruct> &rData = *hfwData;
     if ( box->hasHeightForWidth() ) {
@@ -1068,9 +1080,17 @@ bool QGridLayout::hasHeightForWidth() const
 */
 int QGridLayout::heightForWidth( int w ) const
 {
-    QGridLayout *that = ((QGridLayout*)this);
-    return that->data->heightForWidth( w - 2*margin(), spacing() )
-	+ 2 * margin();
+    QGridLayout *that = (QGridLayout*)this;
+    return that->data->heightForWidth( w - 2 *margin(), spacing() )
+	   + 2 * margin();
+}
+
+/*! \internal */
+int QGridLayout::minimumHeightForWidth( int w ) const
+{
+    QGridLayout *that = (QGridLayout*)this;
+    return that->data->minimumHeightForWidth( w - 2 * margin(), spacing() )
+	   + 2 * margin();
 }
 
 /*!
@@ -1436,6 +1456,12 @@ struct QBoxLayoutItem
 	else
 	    return item->sizeHint().height();
     }
+    int mhfw( int w ) {
+	if ( item->hasHeightForWidth() )
+	    return item->heightForWidth( w );
+	else
+	    return item->minimumSize().height();
+    }
     QLayoutItem *item;
     int hStretch() { if (stretch == 0 && item->widget())
 	return item->widget()->sizePolicy().horStretch(); else return stretch;}
@@ -1454,8 +1480,9 @@ public:
     ~QBoxLayoutData() { delete geomArray; }
     void setDirty() {
 	delete geomArray;
-	geomArray=0;
-	hfwWidth=hfwHeight=-1;
+	geomArray = 0;
+	hfwWidth = -1;
+	hfwHeight = -1;
 	dirty = TRUE;
     }
 
@@ -1463,6 +1490,7 @@ public:
     QMemArray<QLayoutStruct> *geomArray;
     int hfwWidth;
     int hfwHeight;
+    int hfwMinHeight;
     QSize sizeHint;
     QSize minSize;
     QSize maxSize;
@@ -1734,9 +1762,16 @@ int QBoxLayout::heightForWidth( int w ) const
 	QBoxLayout *that = (QBoxLayout*)this;
 	if ( data->dirty )
 	    that->setupGeom();
-	return that->calcHfw( w ) + 2 * margin();
+	that->calcHfw( w );
     }
     return data->hfwHeight + 2 * margin();
+}
+
+/*! \internal */
+int QBoxLayout::minimumHeightForWidth( int w ) const
+{
+    (void) heightForWidth( w );
+    return data->hfwMinHeight + 2 * margin();
 }
 
 /*!
@@ -2143,10 +2178,10 @@ void QBoxLayout::setDirection( Direction direction )
 			//stretch
 			if ( horz(direction) )
 			    sp->changeSize( 0, 0, QSizePolicy::Expanding,
-			    QSizePolicy::Minimum );
+					    QSizePolicy::Minimum );
 			else
 			    sp->changeSize( 0, 0, QSizePolicy::Minimum,
-			    QSizePolicy::Expanding );
+					    QSizePolicy::Expanding );
 		    }
 		}
 	    }
@@ -2256,16 +2291,19 @@ void QBoxLayout::setupGeom()
 /*
   Calculates and stores the preferred height given the width \a w.
 */
-int QBoxLayout::calcHfw( int w )
+void QBoxLayout::calcHfw( int w )
 {
     int h = 0;
+    int mh = 0;
+
     if ( horz(dir) ) {
 	QMemArray<QLayoutStruct> &a = *data->geomArray;
 	int n = a.count();
 	qGeomCalc( a, 0, n, 0, w, spacing() );
 	for ( int i = 0; i < n; i++ ) {
 	    QBoxLayoutItem *box = data->list.at(i);
-	    h = QMAX( h, box->hfw( a[i].size ) );
+	    h = QMAX( h, box->hfw(a[i].size) );
+	    mh = QMAX( mh, box->mhfw(a[i].size) );
 	}
     } else {
 	QPtrListIterator<QBoxLayoutItem> it( data->list );
@@ -2275,14 +2313,17 @@ int QBoxLayout::calcHfw( int w )
 	    ++it;
 	    bool empty = box->item->isEmpty();
 	    h += box->hfw( w );
-	    if ( !first && !empty )
+	    mh += box->mhfw( w );
+	    if ( !first && !empty ) {
 		h += spacing();
+		mh += spacing();
+	    }
 	    first = first && empty;
 	}
     }
-    data->hfwHeight = h;
     data->hfwWidth = w;
-    return h;
+    data->hfwHeight = h;
+    data->hfwMinHeight = mh;
 }
 
 /*!

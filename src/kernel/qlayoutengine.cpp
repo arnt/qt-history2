@@ -48,16 +48,16 @@ static inline int fRound( int i ) {
   This is the main workhorse of the QGridLayout. It portions out
   available space to the chain's children.
 
-  The calculation is done in fixed point: "fixed" variables are scaled
-  by a factor of 256.
+  The calculation is done in fixed point: "fixed" variables are
+  scaled by a factor of 256.
 
   If the layout runs "backwards" (i.e. RightToLeft or Up) the layout
-  is computed mirror-reversed, and it is the callers responsibility do
-  reverse the values before use.
+  is computed mirror-reversed, and it's the caller's responsibility
+  do reverse the values before use.
 
   chain contains input and output parameters describing the geometry.
-  count is the count of items in the chain,
-  pos and space give the interval (relative to parentWidget topLeft).
+  count is the count of items in the chain; pos and space give the
+  interval (relative to parentWidget topLeft).
 */
 Q_EXPORT void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count,
 			 int pos, int space, int spacer )
