@@ -1115,11 +1115,7 @@ fi
 
 #detect accessibility
 if [ "$CFG_ACCESSIBILITY" = "auto" ]; then
-    if [ "$PLATFORM_MAC" = "yes" ]; then
-	CFG_ACCESSIBILITY=yes
-    else
-	CFG_ACCESSIBILITY=no
-    fi
+    CFG_ACCESSIBILITY=yes
 fi
 
 #detect single lib support

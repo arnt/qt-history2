@@ -18,6 +18,8 @@
 
 #include "qlibrary.h"
 
+#include <stdlib.h>
+
 typedef void(*QSetRootObject)(QAccessibleInterface *);
 static QSetRootObject qSetRootObject = 0;
 typedef void(*QNotifyAccessibilityUpdate)(QAccessible::Event, QAccessibleInterface*, int);
@@ -25,6 +27,9 @@ static QNotifyAccessibilityUpdate qNotifyAccessibilityUpdate = 0;
 
 void QAccessible::initialize()
 {
+    if (qstrcmp(getenv("QT_ACCESSIBILITY"), "1") != 0)
+        return;
+    
     if (!qSetRootObject)
 	qSetRootObject = (QSetRootObject)QLibrary::resolve("qaccclient", "qSetRootObject");
     if (!qNotifyAccessibilityUpdate)
