@@ -886,6 +886,11 @@ static inline void checkXftCoverage( QtFontFamily *family )
 
 static void load( const QString &family = QString::null, int script = -1 )
 {
+#ifdef QFONTDATABASE_DEBUG
+    QTime t;
+    t.start();
+#endif // QFONTDATABASE_DEBUG
+
     if ( family.isNull() ) {
 	if ( script == -1 )
 	    loadXlfds( 0, -1 );
@@ -897,28 +902,31 @@ static void load( const QString &family = QString::null, int script = -1 )
 	}
     } else {
 	QtFontFamily *f = db->family( family, TRUE );
-	if ( f->fullyLoaded )
-	    return;
+	if ( !f->fullyLoaded ) {
 
 #ifndef QT_NO_XFTFREETYPE
-	// need to check Xft coverage
-	if ( f->hasXft && !f->xftScriptCheck ) {
-	    checkXftCoverage( f );
-	}
+	    // need to check Xft coverage
+	    if ( f->hasXft && !f->xftScriptCheck ) {
+		checkXftCoverage( f );
+	    }
 #endif
-	// could reduce this further with some more magic:
-	// would need to remember the encodings loaded for the family.
-	if ( ( script == -1 && !f->xlfdLoaded ) ||
-	     ( !f->hasXft && !(f->scripts[script] & QtFontFamily::Supported) &&
-	       !(f->scripts[script] & QtFontFamily::UnSupported_Xlfd) ) ) {
-	    loadXlfds( family, -1 );
-	    f->fullyLoaded = TRUE;
-	}
+	    // could reduce this further with some more magic:
+	    // would need to remember the encodings loaded for the family.
+	    if ( ( script == -1 && !f->xlfdLoaded ) ||
+		 ( !f->hasXft && !(f->scripts[script] & QtFontFamily::Supported) &&
+		   !(f->scripts[script] & QtFontFamily::UnSupported_Xlfd) ) ) {
+		loadXlfds( family, -1 );
+		f->fullyLoaded = TRUE;
+	    }
 
-	// set Unknown script status to UnSupported
-	if ( script != -1 && !(f->scripts[script] & QtFontFamily::Supported) )
-	     f->scripts[script] = QtFontFamily::UnSupported;
+	    // set Unknown script status to UnSupported
+	    if ( script != -1 && !(f->scripts[script] & QtFontFamily::Supported) )
+		f->scripts[script] = QtFontFamily::UnSupported;
+	}
     }
+#ifdef QFONTDATABASE_DEBUG
+    qDebug("QFontDatabase: load( %s, %d) took %d ms", family.latin1(), script, t.elapsed() );
+#endif
 }
 
 
@@ -942,12 +950,6 @@ static void initializeDb()
     qDebug("QFontDatabase: loaded Xft: %d ms",  t.elapsed() );
     t.start();
 #endif // QFONTDATABASE_DEBUG
-//     /*
-//       when the time comes, we need to change the font database to do
-//       incremental loading, instead of fully creating the database all
-//       at once.
-//     */
-//      loadXlfds( 0, -1 ); // full load
 
 #ifndef QT_NO_XFTFREETYPE
     for ( int i = 0; i < db->count; i++ ) {
