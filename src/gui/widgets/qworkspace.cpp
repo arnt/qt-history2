@@ -722,9 +722,17 @@ void QWorkspace::showEvent(QShowEvent *e)
     if (d->becomeActive) {
         activateWindow(d->becomeActive);
         d->becomeActive = 0;
-    }
-    else if (d->windows.count() > 0 && !d->active)
+    } else if (d->windows.count() > 0 && !d->active) {
         activateWindow(d->windows.first()->windowWidget());
+    }
+
+    // force a frame repaint - this is a workaround for what seems to be a bug
+    // introduced when changing the QWidget::show() implementation. Might be
+    // a windows bug as well though.
+    for (int i = 0; i < d->windows.count(); ++i) {
+	QWorkspaceChild* c = d->windows.at(i);
+        QApplication::postEvent(c, new QPaintEvent(c->rect(), true));
+    }
 
     updateWorkspace();
 }
