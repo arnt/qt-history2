@@ -293,23 +293,23 @@ protected:
 	if ( e->button() == RightButton && pressedHandle != -1 ) {
 	    QMainWindowPrivate::ToolBar *tb = d->hidden->at( pressedHandle );
 	    QPopupMenu menu( this );
-	    int left = menu.insertItem( "&Left" );
-	    menu.setItemEnabled( left, win->isDockEnabled( QMainWindow::Left ) 
-				 && win->isDockEnabled( tb->t, QMainWindow::Left ) ); 
-	    int right = menu.insertItem( "&Right" );
-	    menu.setItemEnabled( left, win->isDockEnabled( QMainWindow::Right ) 
-				 && win->isDockEnabled( tb->t, QMainWindow::Right ) ); 
-	    int top = menu.insertItem( "&Top" );
-	    menu.setItemEnabled( left, win->isDockEnabled( QMainWindow::Top ) 
-				 && win->isDockEnabled( tb->t, QMainWindow::Top ) ); 
-	    int bottom = menu.insertItem( "&Bottom" );
-	    menu.setItemEnabled( left, win->isDockEnabled( QMainWindow::Bottom ) 
-				 && win->isDockEnabled( tb->t, QMainWindow::Bottom ) ); 
+	    int left = menu.insertItem( QMainWindow::tr( "&Left" ) );
+	    menu.setItemEnabled( left, win->isDockEnabled( QMainWindow::Left )
+				 && win->isDockEnabled( tb->t, QMainWindow::Left ) );
+	    int right = menu.insertItem( QMainWindow::tr( "&Right" ) );
+	    menu.setItemEnabled( left, win->isDockEnabled( QMainWindow::Right )
+				 && win->isDockEnabled( tb->t, QMainWindow::Right ) );
+	    int top = menu.insertItem( QMainWindow::tr( "&Top" ) );
+	    menu.setItemEnabled( left, win->isDockEnabled( QMainWindow::Top )
+				 && win->isDockEnabled( tb->t, QMainWindow::Top ) );
+	    int bottom = menu.insertItem( QMainWindow::tr( "&Bottom" ) );
+	    menu.setItemEnabled( left, win->isDockEnabled( QMainWindow::Bottom )
+				 && win->isDockEnabled( tb->t, QMainWindow::Bottom ) );
 	    menu.insertSeparator();
-	    int hide = menu.insertItem( "&Restore" );
+	    int hide = menu.insertItem( QMainWindow::tr( "R&estore" ) );
 	    QMainWindow::ToolBarDock dock = tb->oldDock;
-	    menu.setItemEnabled( left, win->isDockEnabled( dock ) 
-				 && win->isDockEnabled( tb->t, dock ) ); 
+	    menu.setItemEnabled( left, win->isDockEnabled( dock )
+				 && win->isDockEnabled( tb->t, dock ) );
 	    int res = menu.exec( e->globalPos() );
 	    pressed = FALSE;
 	    pressedHandle = -1;
@@ -318,7 +318,7 @@ protected:
 		win->moveToolBar( tb->t, QMainWindow::Left );
 	    else if ( res == right )
 		win->moveToolBar( tb->t, QMainWindow::Right );
-	    else if ( res == top ) 
+	    else if ( res == top )
 		win->moveToolBar( tb->t, QMainWindow::Top );
 	    else if ( res == bottom )
 		win->moveToolBar( tb->t, QMainWindow::Bottom );
@@ -1954,23 +1954,23 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	if ( ( e->button() & RightButton ) ) {
 	    emit startMovingToolbar( t );
 	    QPopupMenu menu( this );
-	    int left = menu.insertItem( "&Left" );
-	    menu.setItemEnabled( left, isDockEnabled( Left ) && isDockEnabled( t, Left ) ); 
-	    int right = menu.insertItem( "&Right" );
-	    menu.setItemEnabled( left, isDockEnabled( Right ) && isDockEnabled( t, Right ) ); 
-	    int top = menu.insertItem( "&Top" );
-	    menu.setItemEnabled( left, isDockEnabled( Top ) && isDockEnabled( t, Top ) ); 
-	    int bottom = menu.insertItem( "&Bottom" );
-	    menu.setItemEnabled( left, isDockEnabled( Bottom ) && isDockEnabled( t, Bottom ) ); 
+	    int left = menu.insertItem( tr( "&Left" ) );
+	    menu.setItemEnabled( left, isDockEnabled( Left ) && isDockEnabled( t, Left ) );
+	    int right = menu.insertItem( tr( "&Right" ) );
+	    menu.setItemEnabled( left, isDockEnabled( Right ) && isDockEnabled( t, Right ) );
+	    int top = menu.insertItem( tr( "&Top" ) );
+	    menu.setItemEnabled( left, isDockEnabled( Top ) && isDockEnabled( t, Top ) );
+	    int bottom = menu.insertItem( tr( "&Bottom" ) );
+	    menu.setItemEnabled( left, isDockEnabled( Bottom ) && isDockEnabled( t, Bottom ) );
 	    menu.insertSeparator();
-	    int hide = menu.insertItem( "&Hide" );
-	    menu.setItemEnabled( left, isDockEnabled( Hidden ) && isDockEnabled( t, Hidden ) ); 
+	    int hide = menu.insertItem( tr( "&Hide" ) );
+	    menu.setItemEnabled( left, isDockEnabled( Hidden ) && isDockEnabled( t, Hidden ) );
 	    int res = menu.exec( e->globalPos() );
 	    if ( res == left )
 		moveToolBar( t, Left );
 	    else if ( res == right )
 		moveToolBar( t, Right );
-	    else if ( res == top ) 
+	    else if ( res == top )
 		moveToolBar( t, Top );
 	    else if ( res == bottom )
 		moveToolBar( t, Bottom );
