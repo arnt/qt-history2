@@ -12,7 +12,7 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>149</height>
+    <height>161</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -39,15 +39,42 @@
      <property name="spacing" >
       <number>6</number>
      </property>
-     <item row="1" column="1" >
-      <widget class="QLineEdit" name="m_class_name_input" >
+     <item row="1" column="0" >
+      <widget class="QLabel" name="label" >
        <property name="objectName" >
-        <string notr="true" >m_class_name_input</string>
+        <string notr="true" >label</string>
+       </property>
+       <property name="geometry" >
+        <rect>
+         <x>1</x>
+         <y>21</y>
+         <width>114</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="frameShape" >
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="frameShadow" >
+        <enum>QFrame::Plain</enum>
+       </property>
+       <property name="text" >
+        <string>Custom cass name:</string>
+       </property>
+       <property name="textFormat" >
+        <enum>Qt::AutoText</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1" >
+      <widget class="QLineEdit" name="m_header_file_input" >
+       <property name="objectName" >
+        <string notr="true" >m_header_file_input</string>
        </property>
        <property name="geometry" >
         <rect>
          <x>121</x>
-         <y>21</y>
+         <y>48</y>
          <width>260</width>
          <height>19</height>
         </rect>
@@ -57,6 +84,32 @@
        </property>
        <property name="echoMode" >
         <enum>QLineEdit::Normal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1" >
+      <widget class="QComboBox" name="m_class_name_input" >
+       <property name="objectName" >
+        <string notr="true" >m_class_name_input</string>
+       </property>
+       <property name="geometry" >
+        <rect>
+         <x>121</x>
+         <y>21</y>
+         <width>260</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="sizePolicy" >
+        <sizepolicy>
+         <hsizetype>1</hsizetype>
+         <vsizetype>0</vsizetype>
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="editable" >
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -98,33 +151,6 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="0" >
-      <widget class="QLabel" name="label_2" >
-       <property name="objectName" >
-        <string notr="true" >label_2</string>
-       </property>
-       <property name="geometry" >
-        <rect>
-         <x>1</x>
-         <y>46</y>
-         <width>114</width>
-         <height>19</height>
-        </rect>
-       </property>
-       <property name="frameShape" >
-        <enum>QFrame::NoFrame</enum>
-       </property>
-       <property name="frameShadow" >
-        <enum>QFrame::Plain</enum>
-       </property>
-       <property name="text" >
-        <string>Header file:</string>
-       </property>
-       <property name="textFormat" >
-        <enum>Qt::AutoText</enum>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="0" >
       <widget class="QLabel" name="label_3" >
        <property name="objectName" >
@@ -152,15 +178,15 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="0" >
-      <widget class="QLabel" name="label" >
+     <item row="2" column="0" >
+      <widget class="QLabel" name="label_2" >
        <property name="objectName" >
-        <string notr="true" >label</string>
+        <string notr="true" >label_2</string>
        </property>
        <property name="geometry" >
         <rect>
          <x>1</x>
-         <y>21</y>
+         <y>48</y>
          <width>114</width>
          <height>19</height>
         </rect>
@@ -172,31 +198,10 @@
         <enum>QFrame::Plain</enum>
        </property>
        <property name="text" >
-        <string>Custom cass name:</string>
+        <string>Header file:</string>
        </property>
        <property name="textFormat" >
         <enum>Qt::AutoText</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1" >
-      <widget class="QLineEdit" name="m_header_file_input" >
-       <property name="objectName" >
-        <string notr="true" >m_header_file_input</string>
-       </property>
-       <property name="geometry" >
-        <rect>
-         <x>121</x>
-         <y>46</y>
-         <width>260</width>
-         <height>19</height>
-        </rect>
-       </property>
-       <property name="text" >
-        <string/>
-       </property>
-       <property name="echoMode" >
-        <enum>QLineEdit::Normal</enum>
        </property>
       </widget>
      </item>
@@ -210,9 +215,9 @@
      <property name="geometry" >
       <rect>
        <x>9</x>
-       <y>81</y>
+       <y>83</y>
        <width>382</width>
-       <height>17</height>
+       <height>27</height>
       </rect>
      </property>
      <property name="orientation" >
@@ -220,8 +225,8 @@
      </property>
      <property name="sizeHint" >
       <size>
-       <width>20</width>
-       <height>81</height>
+       <width>382</width>
+       <height>21</height>
       </size>
      </property>
     </spacer>
@@ -234,7 +239,7 @@
      <property name="geometry" >
       <rect>
        <x>9</x>
-       <y>104</y>
+       <y>116</y>
        <width>382</width>
        <height>3</height>
       </rect>

@@ -75,13 +75,13 @@ private:
     QString m_whatsThis;
     QString m_includeFile;
     QString m_pluginPath;
+    QString m_extends;
     QIcon m_icon;
     uint m_compat: 1;
     uint m_container: 1;
     uint m_form: 1;
     uint m_custom: 1;
     uint m_promoted: 1;
-    QString m_extends;
 };
 
 class QT_SHARED_EXPORT WidgetDataBase: public AbstractWidgetDataBase

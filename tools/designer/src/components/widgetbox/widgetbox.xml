@@ -148,7 +148,7 @@
                 <string notr="true">listView</string>
             </property>
         </widget>
-                            
+
         <widget class="QTreeView" name="Tree View" icon="listview.png">
             <property name="geometry">
                 <rect>
@@ -332,7 +332,7 @@
     </category>
 
     <category name="Input Widgets">
-                                        
+
         <widget class="QDateTimeEdit" name="Date/Time Edit" icon="datetimeedit.png">
             <property name="buttonSymbols" >
                 <enum>QAbstractSpinBox::UpDownArrows</enum>
@@ -368,9 +368,6 @@
         </widget>
 
         <widget class="QComboBox" name="Combo Box" icon="combobox.png">
-            <property name="insertPolicy" >
-                <enum>QComboBox::AtBottom</enum>
-            </property>
             <property name="geometry" >
                 <rect>
                     <x>119</x>
@@ -507,7 +504,7 @@
 
 
     <category name="Display Widgets">
-                        
+
         <widget class="QLabel" name="Label" icon="label.png">
             <property name="frameShadow" >
                 <enum>QFrame::Plain</enum>

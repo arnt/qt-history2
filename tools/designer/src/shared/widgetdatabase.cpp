@@ -29,7 +29,7 @@ WidgetDataBaseItem::WidgetDataBaseItem(const QString &name, const QString &group
       m_container(0),
       m_form(0),
       m_custom(0),
-      m_extends(0)
+      m_promoted(0)
 {
 }
 
