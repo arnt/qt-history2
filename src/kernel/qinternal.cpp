@@ -186,7 +186,7 @@ bool QSharedDoubleBuffer::begin( QWidget* widget, int x, int y, int w, int h )
     rw = w;
     rh = h;
 
-    if ( !dblbufr ||
+    if ( !dblbufr || !w || !h ||
          ( hardLimitWidth >= 0 && w > hardLimitWidth ) ||
          ( hardLimitHeight >= 0 && h > hardLimitHeight ) ||
          ( mustsh  && ( w > sharedLimitWidth || h > sharedLimitWidth )
