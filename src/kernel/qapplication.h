@@ -281,6 +281,7 @@ private:
     static QMAC_PASCAL OSStatus globalEventProcessor(EventHandlerCallRef,  EventRef, void *);
     static QMAC_PASCAL void qt_trap_context_mouse(EventLoopTimerRef, void *);
     static QMAC_PASCAL void qt_idle_timer_callbk(EventLoopTimerRef, void *);
+    static QMAC_PASCAL void qt_request_update_timer_callbk(EventLoopTimerRef, void *);
     friend void qt_mac_destroy_widget(QWidget *);
     friend void qt_init(int *, char **, QApplication::Type);
 #endif

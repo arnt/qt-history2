@@ -97,7 +97,7 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
 	
 	//size
 	// ### FIXME: I adjusted the value to fix the one in QWidget::metric(), but probably both places need fixing. Lars
-	int pointSize = d->request.pointSize != -1 ? d->request.pointSize / 10 : d->request.pixelSize *80 /72 
+	int pointSize = d->request.pointSize != -1 ? d->request.pointSize / 10 : d->request.pixelSize *80 /72; 
 	fi->setSize( pointSize );
 
 	//encoding

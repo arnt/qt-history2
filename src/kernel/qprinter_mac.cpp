@@ -88,7 +88,7 @@ QPrinter::QPrinter( PrinterMode m )
 	    res = 80; // ### FIXME
 	    break;
 	case Compatible:
-	    devFlags |= CompatibilityMode;
+	    devFlags |= QInternal::CompatibilityMode;
 	    // fall through
 	case PrinterResolution:
 	case HighResolution:

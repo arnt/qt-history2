@@ -117,7 +117,7 @@ EventRef qt_replay_event = NULL;
 
 #define QMAC_CAN_WAIT_FOREVER // idle handling
 #ifdef QMAC_CAN_WAIT_FOREVER 
-static EventLoopTimerRef mac_idle_timer = NULL;
+static EventLoopTimerRef mac_idle_timer = NULL, update_idle_timer = NULL;
 #endif
 
 void qt_mac_destroy_widget(QWidget *w)
@@ -258,9 +258,12 @@ void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
 			     GetEventTypeCount(events), events,
 			     (void *)qApp, NULL);
 #ifdef QMAC_CAN_WAIT_FOREVER
-	InstallEventLoopTimer(GetMainEventLoop(), 3.0, 3.0, 
+	InstallEventLoopTimer(GetMainEventLoop(), 0.005, 0.005, 
 			      NewEventLoopTimerUPP(QApplication::qt_idle_timer_callbk), 
 			      (void *)qApp, &mac_idle_timer);
+	InstallEventLoopTimer(GetMainEventLoop(), 0.5, 0.5, 
+			      NewEventLoopTimerUPP(QApplication::qt_request_update_timer_callbk), 
+			      (void *)qApp, &update_idle_timer);
 #endif
     }
 }
@@ -791,6 +794,20 @@ bool qt_set_socket_handler( int, int, QObject *, bool )
 //#warning "need to implement sockets on mac9"
 #endif
 
+QMAC_PASCAL void
+QApplication::qt_request_update_timer_callbk(EventLoopTimerRef, void *)
+{
+    if(!app_request_propagate)
+	return;
+    app_request_propagate = FALSE;
+    QWidgetList *list   = qApp->topLevelWidgets();
+    for ( QWidget     *widget = list->first(); widget; widget = list->next() ) {
+	if ( !widget->isHidden() && !widget->isDesktop())
+	    widget->propagateUpdates();
+    }
+    delete list;
+}
+
 QMAC_PASCAL void 
 QApplication::qt_idle_timer_callbk(EventLoopTimerRef, void *)
 {
@@ -883,15 +900,6 @@ bool QApplication::processNextEvent( bool canWait )
 		break;
 
 	    ret = SendEventToApplication(event);
-	    if(app_request_propagate) {
-		app_request_propagate = FALSE;
-		QWidgetList *list   = qApp->topLevelWidgets();
-		for ( QWidget     *widget = list->first(); widget; widget = list->next() ) {
-		    if ( !widget->isHidden() && !widget->isDesktop())
-			widget->propagateUpdates();
-		}
-		delete list;
-	    }
 	    ReleaseEvent(event);
 	    if(ret != noErr)
 		break;
