@@ -275,19 +275,20 @@ NewForm::NewForm( QWidget *parent, const QStringList& projects,
 	fi->setPixmap( PixmapChooser::loadPixmap( "newform.xpm" ) );
 	fi->setDragEnabled( FALSE );
 
-    QString templPath = templatePath;
-    if ( templPath.isEmpty() || !QFileInfo( templPath ).exists() ) {
-	QStringList templRoots;
-	if(getenv( "QTDIR" ))
-	    templRoots << getenv( "QTDIR" );
+	QString templPath = templatePath;
+	if ( templPath.isEmpty() || !QFileInfo( templPath ).exists() ) {
+	    QStringList templRoots;
+	    if(getenv( "QTDIR" ))
+		templRoots << getenv( "QTDIR" );
 #ifdef QT_INSTALL_PREFIX
-	templRoots << QT_INSTALL_PREFIX;
+	    templRoots << QT_INSTALL_PREFIX;
 #endif
-	for ( QStringList::Iterator it = templRoots.begin(); it != templRoots.end(); ++it ) {
-	    QString path = (*it) + "/tools/designer/templates";
-	    if ( QFile::exists( path )) {
-		templPath = path;
-		break;
+	    for ( QStringList::Iterator it = templRoots.begin(); it != templRoots.end(); ++it ) {
+		QString path = (*it) + "/tools/designer/templates";
+		if ( QFile::exists( path )) {
+		    templPath = path;
+		    break;
+		}
 	    }
 	}
 	if ( !templPath.isEmpty() ) {
