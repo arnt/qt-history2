@@ -37,162 +37,84 @@
 
 static void construct(QVariant::Private *x, const void *copy)
 {
-   x->is_shared = false;
+    x->is_shared = false;
 
-   if (copy) {
-        switch(x->type) {
-        case QVariant::String:
-            v_construct<QString>(x, copy);
-            break;
-        case QVariant::Char:
-            v_construct<QChar>(x, copy);
-            break;
-        case QVariant::StringList:
-            v_construct<QStringList>(x, copy);
-            break;
+    switch (x->type) {
+    case QVariant::String:
+        v_construct<QString>(x, copy);
+        break;
+    case QVariant::Char:
+        v_construct<QChar>(x, copy);
+        break;
+    case QVariant::StringList:
+        v_construct<QStringList>(x, copy);
+        break;
 #ifndef QT_NO_TEMPLATE_VARIANT
-        case QVariant::Map:
-            v_construct<QVariantMap>(x, copy);
-            break;
-        case QVariant::List:
-            v_construct<QVariantList>(x, copy);
-            break;
+    case QVariant::Map:
+        v_construct<QVariantMap>(x, copy);
+        break;
+    case QVariant::List:
+        v_construct<QVariantList>(x, copy);
+        break;
 #endif
-        case QVariant::Date:
-            v_construct<QDate>(x, copy);
-            break;
-        case QVariant::Time:
-            v_construct<QTime>(x, copy);
-            break;
-        case QVariant::DateTime:
-            v_construct<QDateTime>(x, copy);
-            break;
-        case QVariant::ByteArray:
-            v_construct<QByteArray>(x, copy);
-            break;
-        case QVariant::BitArray:
-            v_construct<QBitArray>(x, copy);
-            break;
-        case QVariant::Size:
-            v_construct<QSize>(x, copy);
-            break;
-        case QVariant::Url:
-            v_construct<QUrl>(x, copy);
-            break;
-        case QVariant::Locale:
-            v_construct<QLocale>(x, copy);
-            break;
-        case QVariant::Rect:
-            v_construct<QRect>(x, copy);
-            break;
-        case QVariant::Point:
-            v_construct<QPoint>(x, copy);
-            break;
-        case QVariant::Int:
-            x->data.i = *static_cast<const int *>(copy);
-            break;
-        case QVariant::UInt:
-            x->data.u = *static_cast<const uint *>(copy);
-            break;
-        case QVariant::Bool:
-            x->data.b = *static_cast<const bool *>(copy);
-            break;
-        case QVariant::Double:
-            x->data.d = *static_cast<const double*>(copy);
-            break;
-        case QVariant::LongLong:
-            x->data.ll = *static_cast<const qlonglong *>(copy);
-            break;
-        case QVariant::ULongLong:
-            x->data.ull = *static_cast<const qulonglong *>(copy);
-            break;
-        case QVariant::Invalid:
-        case QVariant::UserType:
-            break;
-        default:
-            x->is_shared = true;
-            x->data.shared = new QVariant::PrivateShared(QMetaType::construct(x->type, copy));
-            Q_ASSERT_X(x->data.shared->ptr, "QVariant::construct()", "Unknown datatype");
-            break;
-        }
-        x->is_null = false;
-    } else {
-        switch (x->type) {
-        case QVariant::Invalid:
-        case QVariant::UserType:
-            break;
-        case QVariant::String:
-            v_construct<QString>(x);
-            break;
-        case QVariant::Char:
-            v_construct<QChar>(x);
-            break;
-        case QVariant::StringList:
-            v_construct<QStringList>(x);
-            break;
-#ifndef QT_NO_TEMPLATE_VARIANT
-        case QVariant::Map:
-            v_construct<QVariantMap>(x);
-            break;
-        case QVariant::List:
-            v_construct<QVariantList>(x);
-            break;
-#endif
-        case QVariant::Date:
-            v_construct<QDate>(x);
-            break;
-        case QVariant::Time:
-            v_construct<QTime>(x);
-            break;
-        case QVariant::DateTime:
-            v_construct<QDateTime>(x);
-            break;
-        case QVariant::ByteArray:
-            v_construct<QByteArray>(x);
-            break;
-        case QVariant::BitArray:
-            v_construct<QBitArray>(x);
-            break;
-        case QVariant::Size:
-            v_construct<QSize>(x);
-            break;
-        case QVariant::Url:
-            v_construct<QUrl>(x);
-            break;
-        case QVariant::Locale:
-            v_construct<QLocale>(x);
-            break;
-        case QVariant::Point:
-            v_construct<QPoint>(x);
-            break;
-        case QVariant::Rect:
-            v_construct<QRect>(x);
-            break;
-        case QVariant::Int:
-            x->data.i = 0;
-            break;
-        case QVariant::UInt:
-            x->data.u = 0;
-            break;
-        case QVariant::Bool:
-            x->data.b = 0;
-            break;
-        case QVariant::Double:
-            x->data.d = 0.0;
-            break;
-        case QVariant::LongLong:
-            x->data.ll = Q_INT64_C(0);
-            break;
-        case QVariant::ULongLong:
-            x->data.ull = Q_UINT64_C(0);
-            break;
-        default:
-            x->is_shared = true;
-            x->data.shared = new QVariant::PrivateShared(QMetaType::construct(x->type, copy));
-            Q_ASSERT_X(x->data.shared->ptr, "QVariant::construct()", "Unknown datatype");
-            break;
-        }
+    case QVariant::Date:
+        v_construct<QDate>(x, copy);
+        break;
+    case QVariant::Time:
+        v_construct<QTime>(x, copy);
+        break;
+    case QVariant::DateTime:
+        v_construct<QDateTime>(x, copy);
+        break;
+    case QVariant::ByteArray:
+        v_construct<QByteArray>(x, copy);
+        break;
+    case QVariant::BitArray:
+        v_construct<QBitArray>(x, copy);
+        break;
+    case QVariant::Size:
+        v_construct<QSize>(x, copy);
+        break;
+    case QVariant::Url:
+        v_construct<QUrl>(x, copy);
+        break;
+    case QVariant::Locale:
+        v_construct<QLocale>(x, copy);
+        break;
+    case QVariant::Rect:
+        v_construct<QRect>(x, copy);
+        break;
+    case QVariant::Point:
+        v_construct<QPoint>(x, copy);
+        break;
+    case QVariant::Int:
+        x->data.i = copy ? *static_cast<const int *>(copy) : 0;
+        break;
+    case QVariant::UInt:
+        x->data.u = copy ? *static_cast<const uint *>(copy) : 0u;
+        break;
+    case QVariant::Bool:
+        x->data.b = copy ? *static_cast<const bool *>(copy) : false;
+        break;
+    case QVariant::Double:
+        x->data.d = copy ? *static_cast<const double*>(copy) : 0.0;
+        break;
+    case QVariant::LongLong:
+        x->data.ll = copy ? *static_cast<const qlonglong *>(copy) : Q_INT64_C(0);
+        break;
+    case QVariant::ULongLong:
+        x->data.ull = copy ? *static_cast<const qulonglong *>(copy) : Q_UINT64_C(0);
+        break;
+    case QVariant::Invalid:
+    case QVariant::UserType:
+        break;
+    default:
+        x->is_shared = true;
+        x->data.shared = new QVariant::PrivateShared(QMetaType::construct(x->type, copy));
+        Q_ASSERT_X(x->data.shared->ptr, "QVariant::construct()", "Unknown datatype");
+        break;
     }
+    x->is_null = !copy;
 }
 
 static void clear(QVariant::Private *d)

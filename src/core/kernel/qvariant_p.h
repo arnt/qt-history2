@@ -28,6 +28,21 @@
 
 // takes a type, returns the internal void* pointer casted
 // to a pointer of the input type
+
+#ifdef Q_CC_SUN // Sun CC piks the wrong overload, so introduce awful hack
+
+template <typename T>
+inline static T *v_cast(const QVariant::Private *nd, T * = 0)
+{
+    QVariant::Private *d = const_cast<QVariant::Private *>(nd);
+    return ((sizeof(T) > sizeof(QVariant::Private::Data))
+            // this is really a static_cast, but gcc 2.95 complains about it.
+            ? reinterpret_cast<T*>(d->data.shared->ptr)
+            : reinterpret_cast<T*>(&d->data.ptr));
+}
+
+#else // every other compiler in this world
+
 template <typename T>
 inline static const T *v_cast(const QVariant::Private *d, T * = 0)
 {
@@ -46,27 +61,21 @@ inline static T *v_cast(QVariant::Private *d, T * = 0)
             : reinterpret_cast<T*>(&d->data.ptr));
 }
 
-// constructs an empty variant
-template <class T>
-inline static void v_construct(QVariant::Private *x, T* = 0)
-{
-    if (sizeof(T) > sizeof(QVariant::Private::Data)) {
-        x->data.shared = new QVariant::PrivateShared(new T);
-        x->is_shared = true;
-    } else {
-        new (&x->data.ptr) T;
-    }
-}
+#endif
 
-// copy-constructs a new variant
+// constructs a new variant if copy is 0, otherwise copy-constructs
 template <class T>
 inline static void v_construct(QVariant::Private *x, const void *copy, T * = 0)
 {
     if (sizeof(T) > sizeof(QVariant::Private::Data)) {
-        x->data.shared = new QVariant::PrivateShared(new T(*static_cast<const T *>(copy)));
+        x->data.shared = copy ? new QVariant::PrivateShared(new T(*static_cast<const T *>(copy)))
+                              : new QVariant::PrivateShared(new T);
         x->is_shared = true;
     } else {
-        new (&x->data.ptr) T(*static_cast<const T *>(copy));
+        if (copy)
+            new (&x->data.ptr) T(*static_cast<const T *>(copy));
+        else
+            new (&x->data.ptr) T;
     }
 }
 

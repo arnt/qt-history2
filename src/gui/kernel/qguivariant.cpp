@@ -40,138 +40,71 @@ Q_CORE_EXPORT const QVariant::Handler *qcoreVariantHandler();
 
 static void construct(QVariant::Private *x, const void *copy)
 {
-    if (copy) {
-        switch(x->type) {
-        case QVariant::Bitmap:
-            v_construct<QBitmap>(x, copy);
-            break;
-        case QVariant::Region:
-            v_construct<QRegion>(x, copy);
-            break;
-        case QVariant::Polygon:
-            v_construct<QPolygon>(x, copy);
-            break;
-        case QVariant::Font:
-            v_construct<QFont>(x, copy);
-            break;
-        case QVariant::Pixmap:
-            v_construct<QPixmap>(x, copy);
-            break;
-        case QVariant::Image:
-            v_construct<QImage>(x, copy);
-            break;
-        case QVariant::Brush:
-            v_construct<QBrush>(x, copy);
-            break;
-        case QVariant::Color:
-            v_construct<QColor>(x, copy);
-            break;
+    switch (x->type) {
+    case QVariant::Bitmap:
+        v_construct<QBitmap>(x, copy);
+        break;
+    case QVariant::Region:
+        v_construct<QRegion>(x, copy);
+        break;
+    case QVariant::Polygon:
+        v_construct<QPolygon>(x, copy);
+        break;
+    case QVariant::Font:
+        v_construct<QFont>(x, copy);
+        break;
+    case QVariant::Pixmap:
+        v_construct<QPixmap>(x, copy);
+        break;
+    case QVariant::Image:
+        v_construct<QImage>(x, copy);
+        break;
+    case QVariant::Brush:
+        v_construct<QBrush>(x, copy);
+        break;
+    case QVariant::Color:
+        v_construct<QColor>(x, copy);
+        break;
 #ifndef QT_NO_PALETTE
-        case QVariant::Palette:
-            v_construct<QPalette>(x, copy);
-            break;
+    case QVariant::Palette:
+        v_construct<QPalette>(x, copy);
+        break;
 #ifdef QT3_SUPPORT
-        case QVariant::ColorGroup:
-            v_construct<QColorGroup>(x, copy);
-            break;
+    case QVariant::ColorGroup:
+        v_construct<QColorGroup>(x, copy);
+        break;
 #endif
 #endif
 #ifndef QT_NO_ICON
-        case QVariant::Icon:
-            v_construct<QIcon>(x, copy);
-            break;
+    case QVariant::Icon:
+        v_construct<QIcon>(x, copy);
+        break;
 #endif
-        case QVariant::TextFormat:
-            v_construct<QTextFormat>(x, copy);
-            break;
-        case QVariant::TextLength:
-            v_construct<QTextLength>(x, copy);
-            break;
+    case QVariant::TextFormat:
+        v_construct<QTextFormat>(x, copy);
+        break;
+    case QVariant::TextLength:
+        v_construct<QTextLength>(x, copy);
+        break;
 #ifndef QT_NO_ACCEL
-        case QVariant::KeySequence:
-            v_construct<QKeySequence>(x, copy);
-            break;
+    case QVariant::KeySequence:
+        v_construct<QKeySequence>(x, copy);
+        break;
 #endif
-        case QVariant::Pen:
-            v_construct<QPen>(x, copy);
-            break;
-        case QVariant::SizePolicy:
-            v_construct<QSizePolicy>(x, copy);
-            break;
-        case QVariant::Cursor:
-            v_construct<QCursor>(x, copy);
-            break;
-        default:
-            qcoreVariantHandler()->construct(x, copy);
-        }
-        x->is_null = false;
-    } else {
-        switch (x->type) {
-        case QVariant::Bitmap:
-            v_construct<QBitmap>(x);
-            break;
-        case QVariant::Region:
-            v_construct<QRegion>(x);
-            break;
-        case QVariant::Polygon:
-            v_construct<QPolygon>(x);
-            break;
-        case QVariant::Font:
-            v_construct<QFont>(x);
-            break;
-        case QVariant::Pixmap:
-            v_construct<QPixmap>(x);
-            break;
-        case QVariant::Image:
-            v_construct<QImage>(x);
-            break;
-        case QVariant::Brush:
-            v_construct<QBrush>(x);
-            break;
-        case QVariant::Color:
-            v_construct<QColor>(x);
-            break;
-#ifndef QT_NO_PALETTE
-        case QVariant::Palette:
-            v_construct<QPalette>(x);
-            break;
-#ifdef QT3_SUPPORT
-        case QVariant::ColorGroup:
-            v_construct<QColorGroup>(x);
-            break;
-#endif
-#endif
-#ifndef QT_NO_ICON
-        case QVariant::Icon:
-            v_construct<QIcon>(x);
-            break;
-#endif
-        case QVariant::TextFormat:
-            v_construct<QTextFormat>(x);
-            break;
-        case QVariant::TextLength:
-            v_construct<QTextLength>(x);
-            break;
-#ifndef QT_NO_ACCEL
-        case QVariant::KeySequence:
-            v_construct<QKeySequence>(x);
-            break;
-#endif
-        case QVariant::Pen:
-            v_construct<QPen>(x);
-            break;
-        case QVariant::SizePolicy:
-            v_construct<QSizePolicy>(x);
-            break;
-#ifndef QT_NO_CURSOR
-        case QVariant::Cursor:
-            v_construct<QCursor>(x);
-            break;
-#endif
-        default:
-            qcoreVariantHandler()->construct(x, copy);
-        }
+    case QVariant::Pen:
+        v_construct<QPen>(x, copy);
+        break;
+    case QVariant::SizePolicy:
+        v_construct<QSizePolicy>(x, copy);
+        break;
+    case QVariant::Cursor:
+        v_construct<QCursor>(x, copy);
+        break;
+    default:
+        qcoreVariantHandler()->construct(x, copy);
+        return;
     }
+    x->is_null = !copy;
 }
 
 static void clear(QVariant::Private *d)
