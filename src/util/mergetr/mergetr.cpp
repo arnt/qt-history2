@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/util/mergetr/mergetr.cpp#4 $
+** $Id: //depot/qt/main/src/util/mergetr/mergetr.cpp#5 $
 **
 ** This is a utility program for merging findtr msgfiles
 **
@@ -8,6 +8,7 @@
 **
 *****************************************************************************/
 #include <qfile.h>
+#include <qbuffer.h>
 #include <qtextstream.h>
 #include <stdlib.h>
 
@@ -230,14 +231,12 @@ void merge( const QString& newname, const QString& oldname,
     if ( !f2.open( IO_ReadOnly) )
 	return;
 
-    QFile fout(resname);
-    if ( !fout.open( IO_WriteOnly) )
-	return;
+    QBuffer fout;
+    fout.open(IO_WriteOnly);
 
     QTextStream in1( &f1 );
     QTextStream in2( &f2 );
     QTextStream out( &fout );
-
 
 
     Item i1 = getItem( in1 );
@@ -262,6 +261,11 @@ void merge( const QString& newname, const QString& oldname,
     f1.close();
     f2.close();
     fout.close();
+    QFile fileout(resname);
+    if ( !fileout.open( IO_WriteOnly) )
+	return;
+    fileout.writeBlock(fout.buffer());
+    fileout.close();
 }
 
 
@@ -277,6 +281,6 @@ int main( int argc, char* argv[] )
     }
 
     merge( argv[newfile], argv[orgfile],
-	   argc > newfile+1 ? argv[newfile+1] : "merge.tr" );
+	   argc > newfile+1 ? argv[newfile+1] : argv[orgfile] );
     return 0;
 }
