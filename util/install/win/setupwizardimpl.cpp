@@ -759,7 +759,8 @@ void SetupWizardImpl::installIcons( const QString& iconFolder, const QString& di
     QFileInfo* fi;
 
     while( ( fi = it.current() ) ) {
-	if( fi->fileName()[0] != '.' ) { // Exclude dot-dirs
+	if( fi->fileName()[0] != '.' && // Exclude dot-dirs
+	    fi->fileName() != "sql" ) { // Exclude SQL-dir
 	    if( fi->isDir() ) {
 		installIcons( iconFolder, fi->absFilePath(), common );
 	    } else if( fi->fileName().right( 4 ) == ".exe" ) {
