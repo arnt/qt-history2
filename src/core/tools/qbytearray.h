@@ -52,7 +52,7 @@ inline QT_COMPAT void *qmemmove(void *dst, const void *src, uint len)
 inline QT_COMPAT uint cstrlen(const char *str)
 { return uint(strlen(str)); }
 inline QT_COMPAT char *cstrcpy(char *dst, const char *src)
-{ return strcpy(dst,src); }
+{ return qstrcpy(dst,src); }
 inline QT_COMPAT int cstrcmp(const char *str1, const char *str2)
 { return strcmp(str1,str2); }
 inline QT_COMPAT int cstrncmp(const char *str1, const char *str2, uint len)
