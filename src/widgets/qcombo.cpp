@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#21 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombo.cpp#20 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombo.cpp#21 $";
 #endif
 
 /*!
@@ -114,14 +114,6 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
     connect( d->popup, SIGNAL(highlighted(int)),SLOT(internalHighlight(int)) );
 }
 
-//
-// To be removed
-//
-
-void QComboBox::init()
-{
-}
-
 /*!
   Destroys the combo box.
 */
@@ -192,12 +184,13 @@ void QComboBox::insertStrList( const QStrList *list, int index )
     const char *tmp;
     if ( index < 0 )
 	index = d->popup->count();
+    bool updcur = d->current == 0 && index == 0;
     while ( (tmp=it.current()) ) {
 	++it;
 	d->popup->insertItem( tmp, index++ );
     }
-    d->current = index;
-    currentChanged();
+    if ( updcur )
+	currentChanged();
 }
 
 /*!
@@ -224,13 +217,14 @@ void QComboBox::insertStrList( const char **strings, int numStrings, int index)
     }
     if ( index < 0 )
 	index = d->popup->count();
+    bool updcur = d->current == 0 && index == 0;
     int i = 0;
     while ( (numStrings<0 && strings[i]!=0) || i<numStrings ) {
 	d->popup->insertItem( strings[i], index++ );
 	i++;
     }
-    d->current = index;
-    currentChanged();
+    if ( updcur )
+	currentChanged();
 }
 
 
