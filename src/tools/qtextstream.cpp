@@ -1051,7 +1051,7 @@ QTextStream &QTextStream::writeBlock( const char* p, uint len )
     //All QCStrings and const char* are defined to be in Latin1
     if ( !mapper && latin1 ) {
 	dev->writeBlock( p, len );
-    } else if ( !mapper && littleEndian ) {
+    } else if ( !mapper && internalOrder ) {
 	QChar *u = new QChar[len];
 	for (uint i=0; i<len; i++)
 	    u[i] = p[i];
@@ -1080,7 +1080,7 @@ QTextStream &QTextStream::writeBlock( const QChar* p, uint len )
 	char *str = QString::unicodeToAscii( p, len );
 	dev->writeBlock( str, len );
 	delete [] str;
-    } else if ( littleEndian ) {
+    } else if ( internalOrder ) {
 	if ( doUnicodeHeader ) {
 	    doUnicodeHeader = FALSE;
 	    ts_putc( QChar::byteOrderMark );
@@ -2398,14 +2398,14 @@ void QTextStream::setEncoding( Encoding e )
 	mapper = 0;
 	latin1 = FALSE;
 	doUnicodeHeader = TRUE;
-	littleEndian = TRUE;
+	internalOrder = TRUE;
 	break;
     case UnicodeUTF8:
 #ifndef QT_NO_TEXTCODEC
 	mapper = QTextCodec::codecForMib( 106 );
 	latin1 = FALSE;
 	doUnicodeHeader = TRUE;
-	littleEndian = TRUE;
+	internalOrder = TRUE;
 #else
 	mapper = 0;
 	latin1 = TRUE;
@@ -2428,7 +2428,7 @@ void QTextStream::setEncoding( Encoding e )
 	mapper = 0;
 	latin1 = FALSE;
 	doUnicodeHeader = FALSE;
-	littleEndian = TRUE;
+	internalOrder = TRUE;
 	break;
     case Locale:
 	latin1 = TRUE; 				// fallback to Latin-1
