@@ -3516,11 +3516,6 @@ void QWidget::show()
 	QApplication::postEvent( parentWidget(),
 				 new QEvent( QEvent::LayoutHint) );
 
-    if( isTopLevel() ) 
-	QApplication::sendPostedEvents(0, QEvent::LayoutHint);
-    else if ( sendLayoutHint && parentWidget() && !parentWidget()->in_show )
-	QApplication::sendPostedEvents(parentWidget(), QEvent::LayoutHint);
-
     if ( !isTopLevel() && !parentWidget()->isVisible() ) {
 	// we should become visible, but somehow our parent is not
 	// visible, so we can't do that. Since it is not explicitly
@@ -3537,6 +3532,10 @@ void QWidget::show()
 	    QApplication::sendEvent( this, &e );
 	}
     } else {
+	if( isTopLevel() )
+	    QApplication::sendPostedEvents(0, QEvent::LayoutHint);
+ 	else if ( sendLayoutHint && parentWidget() && !parentWidget()->in_show )
+ 	    QApplication::sendPostedEvents(parentWidget(), QEvent::LayoutHint);
 
 	QShowEvent e;
 	QApplication::sendEvent( this, &e );
