@@ -690,7 +690,7 @@ QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *,  int len, QGlyph
     }
 
     for ( int i = 0; i < len; i++ )
-	(glyphs++)->glyph = 0;
+	glyphs[i].glyph = 0;
     *nglyphs = len;
 
     for ( int i = 0; i < len; i++ )

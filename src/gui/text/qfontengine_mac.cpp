@@ -325,7 +325,7 @@ QFontEngineMac::maxCharWidth() const
     QATSUStyle *st = getFontStyle();
     if(st->maxWidth != -1)
 	return st->maxWidth;
-    {   // I hate doing this, but I don't see a better way just yet - 
+    {   // I hate doing this, but I don't see a better way just yet -
         // so I'll just take the width of the captial m 'M'
 	QChar ch = 'M';
 	st->maxWidth = doTextTask(&ch, 0, 1, 1, WIDTH);
@@ -449,7 +449,7 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
 
     tags[arr] = kATSULineLayoutOptionsTag;
     ATSLineLayoutOptions layopts = kATSLineHasNoOpticalAlignment | kATSLineIgnoreFontLeading
-                                   | kATSLineFractDisable | kATSLineDisableAutoAdjustDisplayPos | 
+                                   | kATSLineFractDisable | kATSLineDisableAutoAdjustDisplayPos |
 				   kATSLineDisableAllLayoutOperations | kATSLineUseDeviceMetrics;
     if(fontDef.styleStrategy & QFont::NoAntialias)
 	layopts |= kATSLineNoAntiAliasing;
@@ -582,7 +582,7 @@ QFontEngine::Error QFontEngineBox::stringToCMap(const QChar *,  int len, QGlyphL
     }
 
     for(int i = 0; i < len; i++)
-	(glyphs++)->glyph = 0;
+	glyphs[i].glyph = 0;
     *nglyphs = len;
 
     for(int i = 0; i < len; i++)
