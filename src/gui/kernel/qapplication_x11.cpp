@@ -2065,7 +2065,7 @@ static GC create_gc(int scrn, bool monochrome)
 GC qt_xget_readonly_gc(int scrn, bool monochrome)        // get read-only GC
 {
     if (scrn < 0 || scrn >= X11->screenCount)
-        qFatal("invalid screen %d %d", scrn, X11->screenCount);
+        qFatal("Invalid screen %d %d", scrn, X11->screenCount);
 
     GC gc;
     if (monochrome) {
