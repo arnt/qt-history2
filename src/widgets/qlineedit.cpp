@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#216 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#217 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -1453,6 +1453,9 @@ void QLineEdit::cursorWordBackward( bool mark )
 
 void QLineEdit::updateOffset()
 {
+    if ( !isVisible() )
+        return;
+    
     makePixmap();
     const QFontMetrics & fm = fontMetrics();
     int textWidth = fm.width( displayText() )+4;
