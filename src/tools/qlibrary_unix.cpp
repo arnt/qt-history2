@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QLibraryPrivate class
 **
 ** Created : 2000-01-01
 **
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -47,6 +47,7 @@
 
   It's not too hard to guess what the functions do.
 */
+
 #if defined(Q_OS_HPUX)
 // for HP-UX < 11.x and 32 bit
 #include <dl.h>
@@ -61,7 +62,7 @@ bool QLibraryPrivate::loadLibrary()
     pHnd = (void*)shl_load( filename.latin1(), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0 );
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     if ( !pHnd )
-	qDebug( "Failed to load library %s!", filename.latin1() );
+	qWarning( "Failed to load library %s!", filename.latin1() );
 #endif
     return pHnd != 0;
 }
@@ -71,11 +72,14 @@ bool QLibraryPrivate::freeLibrary()
     if ( !pHnd )
 	return TRUE;
 
-    if ( !shl_unload( (shl_t)pHnd ) ) {
-	pHnd = 0;
-	return TRUE;
+    if ( shl_unload( (shl_t)pHnd ) ) {
+#if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
+	qWarning( "Failed to unload library!" );
+#endif
+	return FALSE;
     }
-    return FALSE;
+    pHnd = 0;
+    return TRUE;
 }
 
 void* QLibraryPrivate::resolveSymbol( const char* symbol )
@@ -86,9 +90,8 @@ void* QLibraryPrivate::resolveSymbol( const char* symbol )
     void* address = 0;
     if ( shl_findsym( (shl_t*)&pHnd, symbol, TYPE_UNDEFINED, &address ) < 0 ) {
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
-	qDebug( "Couldn't resolve symbol \"%s\"", symbol );
+	qWarning( "Couldn't resolve symbol \"%s\"", symbol );
 #endif
-	return 0;
     }
     return address;
 }
@@ -117,25 +120,23 @@ bool QLibraryPrivate::freeLibrary()
     if ( !pHnd )
 	return TRUE;
 
-    int ec = dlclose( pHnd );
+    if ( dlclose( pHnd ) ) {
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
-    if ( ec ) {
-	const char* error = dlerror();
-	if ( error )
-	    qWarning( "%s", error );
-    }
+	qWarning( "%s", dlerror() );
 #endif
+	return FALSE;
+    }
 
     pHnd = 0;
-    return ec == 0;
+    return TRUE;
 }
 
-void* QLibraryPrivate::resolveSymbol( const char* f )
+void* QLibraryPrivate::resolveSymbol( const char* symbol )
 {
     if ( !pHnd )
 	return 0;
 
-    void* address = dlsym( pHnd, f );
+    void* address = dlsym( pHnd, symbol );
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     const char* error = dlerror();
     if ( error )

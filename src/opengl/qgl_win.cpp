@@ -338,9 +338,18 @@ bool QGLFormat::hasOpenGL()
     return TRUE;
 }
 
+static bool opengl32dll = FALSE;
 
 bool QGLFormat::hasOpenGLOverlays()
 {
+    // workaround for matrox driver:
+    // make a cheap call to opengl to force loading of DLL
+    if ( !opengl32dll ) {
+	GLint params;
+	glGetIntegerv( GL_DEPTH_BITS, &params );
+	opengl32dll = TRUE;
+    }    
+
     static bool checkDone = FALSE;
     static bool hasOl = FALSE;
 
@@ -461,6 +470,14 @@ static QGLFormat pfdToQGLFormat( const PIXELFORMATDESCRIPTOR* pfd )
 
 bool QGLContext::chooseContext( const QGLContext* shareContext )
 {
+    // workaround for matrox driver:
+    // make a cheap call to opengl to force loading of DLL
+    if ( !opengl32dll ) {
+	GLint params;
+	glGetIntegerv( GL_DEPTH_BITS, &params );
+	opengl32dll = TRUE;
+    }    
+
     HDC myDc;
 
     if ( deviceIsPixmap() ) {
@@ -621,6 +638,14 @@ that matches the OpenGL \link setFormat() format\endlink. Reimplement this funct
 
 int QGLContext::choosePixelFormat( void* dummyPfd, HDC pdc )
 {
+    // workaround for matrox driver:
+    // make a cheap call to opengl to force loading of DLL
+    if ( !opengl32dll ) {
+	GLint params;
+	glGetIntegerv( GL_DEPTH_BITS, &params );
+	opengl32dll = TRUE;
+    }    
+
     int pmDepth = deviceIsPixmap() ? ((QPixmap*)d->paintDevice)->depth() : 0;
     PIXELFORMATDESCRIPTOR* p = (PIXELFORMATDESCRIPTOR*)dummyPfd;
     memset( p, 0, sizeof(PIXELFORMATDESCRIPTOR) );
@@ -737,6 +762,14 @@ int QGLContext::choosePixelFormat( void* dummyPfd, HDC pdc )
 
 void QGLContext::reset()
 {
+    // workaround for matrox driver:
+    // make a cheap call to opengl to force loading of DLL
+    if ( !opengl32dll ) {
+	GLint params;
+	glGetIntegerv( GL_DEPTH_BITS, &params );
+	opengl32dll = TRUE;
+    }    
+
     if ( !d->valid )
 	return;
     doneCurrent();

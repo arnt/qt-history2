@@ -1584,6 +1584,32 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
 	beingCancelled = FALSE;
     }
 
+    if ( qt_xdnd_source_object ) {
+	// the last drag and drop operation hasn't finished, so we are going to wait
+	// for one second to see if it does... if the finish message comes after this,
+	// then we could still have problems, but this is highly unlikely
+	QApplication::flushX();
+
+	QTime started = QTime::currentTime();
+	QTime now = started;
+	do {
+	    XEvent event;
+	    if ( XCheckTypedEvent( QPaintDevice::x11AppDisplay(),
+				   ClientMessage, &event ) )
+		qApp->x11ProcessEvent( &event );
+
+	    now = QTime::currentTime();
+	    if ( started > now ) // crossed midnight
+		started = now;
+
+	    // sleep 50ms, so we don't use up CPU cycles all the time.
+	    struct timeval usleep_tv;
+	    usleep_tv.tv_sec = 0;
+	    usleep_tv.tv_usec = 50000;
+	    select(0, 0, 0, 0, &usleep_tv);
+	} while ( qt_xdnd_source_object && started.msecsTo(now) < 1000 );
+    }
+
     qt_xdnd_source_object = o;
     qt_xdnd_deco = new QShapedPixmapWidget();
 
@@ -1633,7 +1659,7 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
 	    (global_accepted_action == QDropEvent::Copy &&
 	     global_requested_action == QDropEvent::Move));
 
-    // qt_xdnd_source_object persists for a while...
+    // qt_xdnd_source_object persists until we get an xdnd_finish message
 }
 
 void QDragManager::updatePixmap()
