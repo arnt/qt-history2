@@ -187,7 +187,8 @@ public:
 	    plugin->queryInterface( interfaceId, (QUnknownInterface**)iface );
     }
 
-#ifndef QT_QDOC
+#ifdef QT_QDOC
+#error "The Symbol QT_QDOC is reserved for documentation purposes."
     void addLibraryPath( const QString& path );
     void setDefaultPolicy( QLibrary::Policy pol );
     QLibrary::Policy defaultPolicy() const;
