@@ -606,7 +606,7 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
                 QIcon::Size sz = QIcon::Small;
                 if(bt->usesBigPixmap())
                     sz = QIcon::Large;
-                QSize iconSize = QIcon::iconSize(sz);
+                QSize iconSize = QIcon::pixmapSize(sz);
                 QPixmap pm = bt->icon().pixmap(sz, QIcon::Normal);
                 width = qMax(width, qMax(iconSize.width(), pm.width()));
                 height = qMax(height, qMax(iconSize.height(), pm.height()));
