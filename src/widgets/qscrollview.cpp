@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#120 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#121 $
 **
 ** Implementation of QScrollView class
 **
@@ -721,6 +721,15 @@ An override - ensures scrollbars are correct size upon resize.
 */
 void QScrollView::resize( int w, int h )
 {
+    QWidget::resize( w, h );
+    return;
+    
+    /*
+      ### This looks wrong to me, warwick. We shall discuss it. It makes
+      writing really nicely behaving widgets like QTextView impossible. I do not 
+      see any negative effects removing this code from a first glance.
+      
+      
     // Need both this and resize event, due to deferred resize event.
     bool u = isUpdatesEnabled();
     setUpdatesEnabled( FALSE );
@@ -728,6 +737,7 @@ void QScrollView::resize( int w, int h )
     updateScrollBars();
     d->hideOrShowAll(this);
     setUpdatesEnabled( u );
+    */
 }
 
 /*!
@@ -746,7 +756,13 @@ void QScrollView::resizeEvent( QResizeEvent* event )
     bool u = isUpdatesEnabled();
     setUpdatesEnabled( FALSE );
     QFrame::resizeEvent( event );
-    updateScrollBars();
+    
+    // do _not_ update the scrollbars when updates have been
+    // disabled. This makes it possible for subclasses to implement
+    // dynamic wrapping without a horizontal scrollbar showing up all
+    // the time when making a window smaller.
+    if ( u )
+	updateScrollBars();
     d->hideOrShowAll(this);
     setUpdatesEnabled( u );
 }
@@ -1472,9 +1488,9 @@ void QScrollView::setContentsPos( int x, int y )
     moveContents( -x, -y );
     d->vbar.setValue( y );
     d->hbar.setValue( x );
-    updateScrollBars();
+//     updateScrollBars(); // ### warwick, why should we need that???
     d->signal_choke=FALSE;
-    updateScrollBars();
+//     updateScrollBars(); // ### warwick, why should we need that???
 }
 
 /*!
