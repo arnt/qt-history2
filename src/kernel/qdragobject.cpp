@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#34 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -289,7 +289,8 @@ bool QTextDrag::decode( QDropEvent* e, QString& str )
     QByteArray payload = e->data( "text/plain" );
     if ( payload.size() ) {
 	e->accept();
-	str = QString( payload.data(), payload.size()+1 );
+	str = QString( payload.size()+1 );
+	memcpy( str.data(), payload.data(), payload.size() );
 	return TRUE;
     }
     return FALSE;
