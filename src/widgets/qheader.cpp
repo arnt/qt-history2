@@ -1405,6 +1405,11 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 	return;
 
     QStyle::SFlags flags = ( orient == Horizontal ? QStyle::Style_Horizontal : 0 );
+    //pass in some hint about the sort indicator if it is used
+    if(d->sortColumn != section)
+	flags |= QStyle::Style_Off; 
+    else if(!d->sortDirection)
+	flags |= QStyle::Style_Up; 
     if(isEnabled())
 	flags |= QStyle::Style_Enabled;
     if(isClickEnabled(section)) {
