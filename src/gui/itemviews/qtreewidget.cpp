@@ -620,7 +620,7 @@ void QTreeModel::emitRowsRemoved(QTreeWidgetItem *item)
   The main difference between top-level items and those in lower levels of
   the tree is that a top-level item has no parent(). This information
   can be used to tell the difference between items, and is useful to know
-  when inserting and removing items from the tree. 
+  when inserting and removing items from the tree.
   Children of an item can be removed with takeChild() and inserted at a
   given index in the list of children with the insertChild() function.
 
@@ -1043,13 +1043,16 @@ void QTreeWidgetItem::insertChild(int index, QTreeWidgetItem *child)
 }
 
 /*!
-  Removes the item at \a index and returns it.
+  Removes the item at \a index and returns it, otherwise return 0.
 */
 QTreeWidgetItem *QTreeWidgetItem::takeChild(int index)
 {
-    if (model)
-        model->emitRowsRemoved(children.at(index));
-    return children.takeAt(index);
+    if (index >= 0 && index < children.count()) {
+        if (model)
+            model->emitRowsRemoved(children.at(index));
+        return children.takeAt(index);
+    }
+    return 0;
 }
 
 /*!
@@ -1433,13 +1436,17 @@ void QTreeWidget::appendTopLevelItem(QTreeWidgetItem *item)
 }
 
 /*!
-    Removes the top-level item at the given \a index in the tree and returns it.
+  Removes the top-level item at the given \a index in the tree and
+  returns it, otherwise returns 0;
 */
 
 QTreeWidgetItem *QTreeWidget::takeTopLevelItem(int index)
 {
-    d->model()->emitRowsRemoved(topLevelItem(index));
-    return d->model()->tree.takeAt(index);
+    if (index >= 0 && index < d->model()->tree.count()) {
+        d->model()->emitRowsRemoved(topLevelItem(index));
+        return d->model()->tree.takeAt(index);
+    }
+    return 0;
 }
 
 /*!

@@ -849,7 +849,8 @@ void QListWidget::insertItems(int row, const QStringList &labels)
 }
 
 /*!
-    Removes and returns the item from the given \a row in the list widget.
+    Removes and returns the item from the given \a row in the list
+    widget, otherwise return 0;
 
     \sa insertItem() appendItem()
 */
