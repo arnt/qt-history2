@@ -967,7 +967,7 @@ bool QPixmap::hasAlphaChannel() const
 }
 
 Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
-		       QPixmap *src, int sx, int sy, int sw, int sh )
+		       const QPixmap *src, int sx, int sy, int sw, int sh )
 {
     if ( ! dst || ! src || sw == 0 || sh == 0 || dst->depth() != src->depth() ) {
 #ifdef QT_CHECK_NULL
