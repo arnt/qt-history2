@@ -35,6 +35,7 @@
 #ifndef QT_NO_TABLE
 #include "tableeditorimpl.h"
 #endif
+#include "project.h"
 
 #include <qfeatures.h>
 
@@ -290,7 +291,7 @@ void QDesignerWidgetStack::setCurrentPage( int i )
 	i += count();
     if ( i >= count() )
 	i -= count();
-    
+
     if ( i < 0 || i >= count() )
 	return;
     raiseWidget( pages.at( i ) );
@@ -794,8 +795,8 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	return new QComboBox( FALSE, parent, name );
     } else if ( className == "QWidget" ) {
 	if ( parent &&
-	     ( parent->inherits( "FormWindow" ) || parent->inherits( "QWizard" ) || 
-	       parent->inherits( "QTabWidget" ) || parent->inherits( "QWidgetStack" ) || 
+	     ( parent->inherits( "FormWindow" ) || parent->inherits( "QWizard" ) ||
+	       parent->inherits( "QTabWidget" ) || parent->inherits( "QWidgetStack" ) ||
 	       parent->inherits( "QMainWindow" ) ) ) {
 	    FormWindow *fw = find_formwindow( parent );
 	    if ( fw ) {
@@ -1131,6 +1132,8 @@ const char* WidgetFactory::classNameOf( QObject* o )
 
 void WidgetFactory::initChangedProperties( QObject *o )
 {
+    if ( MainWindow::self->currProject()->fakeFormFor( o ) )
+	return;
     MetaDataBase::setPropertyChanged( o, "name", TRUE );
     if ( !o->inherits( "QDesignerToolBar" ) && !o->inherits( "QDesignerMenuBar" ) )
 	MetaDataBase::setPropertyChanged( o, "geometry", TRUE );

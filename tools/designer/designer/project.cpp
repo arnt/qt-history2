@@ -1206,12 +1206,12 @@ void Project::addObject( QObject *o )
 {
     bool wasModified = modified;
     objs.append( o );
-    MetaDataBase::addEntry( o );
     FormFile *ff = new FormFile( "", FALSE, this, "qt_fakewindow" );
     ff->setFileName( "__APPOBJ" + QString( o->name() ) + ".ui" );
     FormWindow *fw = new FormWindow( ff, MainWindow::self,
 				     MainWindow::self->qWorkspace(), "qt_fakewindow" );
     fakeForms.insert( (void*)o, fw );
+    MetaDataBase::addEntry( o );
     if ( QFile::exists( ff->absFileName() ) )
 	Resource::loadExtraSource( fw, ff->absFileName(),
 				   MetaDataBase::languageInterface( language() ), FALSE );
