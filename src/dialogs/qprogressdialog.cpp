@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#1 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#2 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -14,7 +14,7 @@
 #include <qdrawutl.h>
 #include <qapp.h>
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#1 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogressdialog.cpp#2 $");
 
 // If the operation is expected to take this long (as predicted by
 // progress time), show the progress dialog.
@@ -26,6 +26,22 @@ static const int minWaitTime = 50;
 static const int margin_lr   = 10;
 static const int margin_tb   = 10;
 static const int spacing     = 4;
+
+struct QProgressData
+{
+    QProgressData( QProgressDialog* that ) :
+	cancel( "", that ),
+	cancellation_flag( TRUE ),
+	label( "", that )
+    {
+    }
+
+    QPushButton	cancel;
+    bool	cancellation_flag;
+    QLabel	label;
+    QTime	starttime;
+    QCursor	parentCursor;
+};
 
 
 /*!
@@ -86,16 +102,19 @@ QProgressDialog::QProgressDialog( const char* label_text, int total_steps,
 	QWidget *parent, const char *name, bool modal, WFlags f ) :
     QDialog( parent, name, modal, f),
     the_bar( 0 ),
-    cancel( "", this ),
-    cancellation_flag( TRUE ),
-    label( "", this ),
+    d(new QProgressData(this)),
     totalsteps( total_steps )
 {
-    cancel.hide();
-    connect( &cancel, SIGNAL(clicked()), this, SIGNAL(cancelled()) );
+    d->cancel.hide();
+    connect( &d->cancel, SIGNAL(clicked()), this, SIGNAL(cancelled()) );
     connect( this, SIGNAL(cancelled()), this, SLOT(reset()) );
-    label.setAlignment( AlignCenter );
+    d->label.setAlignment( AlignCenter );
     setLabel( label_text );
+}
+
+QProgressDialog::~QProgressDialog()
+{
+    delete d;
 }
 
 /*!
@@ -114,10 +133,10 @@ QProgressDialog::QProgressDialog( const char* label_text, int total_steps,
 void QProgressDialog::setCancelButton( const char* c )
 {
     if ( c ) {
-	cancel.setText( c );
-	cancel.show();
+	d->cancel.setText( c );
+	d->cancel.show();
     } else {
-	cancel.hide();
+	d->cancel.hide();
     }
     if (isVisible()) resize(sizeHint());
 }
@@ -140,17 +159,17 @@ void QProgressDialog::reset()
 {
     int progress = bar().progress();
 
+    if ( progress >= 0 ) {
+	QWidget* p = parentWidget();
+	if ( p ) p->setCursor( d->parentCursor );
+    }
     if (isVisible()) {
-	if ( progress >= 0 ) {
-	    QWidget* p = parentWidget();
-	    if ( p ) p->setCursor( parentCursor );
-	}
 	hideNoLoop();
     }
 
     bar().reset( totalsteps );
 
-    cancellation_flag = TRUE;
+    d->cancellation_flag = TRUE;
 }
 
 /*!
@@ -169,11 +188,11 @@ bool QProgressDialog::setProgress( int prog )
 {
     int progress = bar().progress();
 
-    cancellation_flag = FALSE;
+    d->cancellation_flag = FALSE;
 
-    if ( prog <= progress ) return cancellation_flag;
-    if ( prog==0 && progress > 0 ) return cancellation_flag;
-    if ( prog!=0 && progress < 0 ) return cancellation_flag;
+    if ( prog <= progress ) return d->cancellation_flag;
+    if ( prog==0 && progress > 0 ) return d->cancellation_flag;
+    if ( prog!=0 && progress < 0 ) return d->cancellation_flag;
 
     bar().setProgress(prog);
 
@@ -183,12 +202,12 @@ bool QProgressDialog::setProgress( int prog )
 	if ( prog == 0 ) {
 	    QWidget* p = parentWidget();
 	    if ( p ) {
-		parentCursor = p->cursor();
+		d->parentCursor = p->cursor();
 		p->setCursor( waitCursor );
 	    }
-	    starttime.start();
+	    d->starttime.start();
 	} else {
-	    int elapsed = starttime.elapsed();
+	    int elapsed = d->starttime.elapsed();
 	    if ( elapsed > minWaitTime ) {
 		int estimate = elapsed * ( totalsteps - prog ) / prog;
 		if ( estimate > showTime ) {
@@ -202,10 +221,9 @@ bool QProgressDialog::setProgress( int prog )
 
     if ( prog == totalsteps ) {
 	reset();
-	qApp->processEvents();
     }
 
-    return cancellation_flag;
+    return d->cancellation_flag;
 }
 
 /*!
@@ -214,7 +232,7 @@ bool QProgressDialog::setProgress( int prog )
 */
 void QProgressDialog::setLabel( const char* txt )
 {
-    label.setText( txt );
+    d->label.setText( txt );
     if (isVisible()) resize(sizeHint());
 }
 
@@ -226,11 +244,11 @@ void QProgressDialog::setLabel( const char* txt )
 
 QSize QProgressDialog::sizeHint() const
 {
-    QSize sh = label.sizeHint();
+    QSize sh = d->label.sizeHint();
     QSize bh = bar().sizeHint();
     int h = margin_tb*2 + bh.height() + sh.height() + spacing;
-    if ( cancel.isVisible() )
-	h += cancel.sizeHint().height() + spacing;
+    if ( d->cancel.isVisible() )
+	h += d->cancel.sizeHint().height() + spacing;
     return QSize( QMAX(200, sh.width()), h );
 }
 
@@ -244,7 +262,7 @@ void QProgressDialog::resizeEvent( QResizeEvent * )
     int mtb = margin_tb;
     int mlr = QMIN(width()/10, margin_lr);
 
-    QSize cs = cancel.sizeHint();
+    QSize cs = d->cancel.sizeHint();
     QSize bh = bar().sizeHint();
     int cspc;
     int lh;
@@ -252,14 +270,14 @@ void QProgressDialog::resizeEvent( QResizeEvent * )
     // Find spacing and sizes that fit.  It is important that a progress
     // dialog can be made very small if the user demands it so.
     for (int attempt=5; attempt--; ) {
-	cspc = cancel.isVisible() ? cs.height() + sp : 0;
+	cspc = d->cancel.isVisible() ? cs.height() + sp : 0;
 	lh = QMAX(0, height() - mtb - bh.height() - sp - cspc);
 
 	if ( lh < height()/4 ) {
 	    // Getting cramped
 	    sp /= 2;
 	    mtb /= 2;
-	    if (cancel.isVisible()) {
+	    if (d->cancel.isVisible()) {
 		cs.setHeight(QMAX(4,cs.height()-sp-2));
 	    }
 	    bh.setHeight(QMAX(4,bh.height()-sp-1));
@@ -268,13 +286,13 @@ void QProgressDialog::resizeEvent( QResizeEvent * )
 	}
     }
 
-    if ( cancel.isVisible() ) {
-	cancel.setGeometry( width()/2 - cs.width()/2,
+    if ( d->cancel.isVisible() ) {
+	d->cancel.setGeometry( width()/2 - cs.width()/2,
 	    height() - mtb - cs.height() + sp,
 	    cs.width(), cs.height() );
     }
 
-    label.setGeometry( 0, 0, width(), lh );
+    d->label.setGeometry( 0, 0, width(), lh );
     bar().setGeometry( mlr, lh+sp,
 	width()-mlr*2, bh.height() );
 }

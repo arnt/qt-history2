@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogressdialog.h#1 $
+** $Id: //depot/qt/main/src/dialogs/qprogressdialog.h#2 $
 **
 ** Definition of QProgressDialog class
 **
@@ -18,6 +18,7 @@
 #include <qlabel.h>
 #include <qprogbar.h>
 
+struct QProgressData;
 
 class QProgressDialog : public QDialog
 {
@@ -25,6 +26,7 @@ class QProgressDialog : public QDialog
 public:
     QProgressDialog( const char* label, int totalsteps, QWidget *parent=0,
 	const char *name=0, bool modal=TRUE, WFlags f=0 );
+    ~QProgressDialog();
 
     void	setCancelButton( const char* );
     void	reset( int totalsteps );
@@ -47,11 +49,8 @@ protected:
 
 private:
     QProgressBar*	the_bar;
-    QTime	starttime;
-    QPushButton	cancel;
-    bool	cancellation_flag;
-    QLabel	label;
-    QCursor	parentCursor;
+    QProgressData*	d;
+
     int		totalsteps;
 
 private:	// Disabled copy constructor and operator=
