@@ -40,7 +40,7 @@ class QTextDocumentFragmentPrivate
 public:
     enum MarkerValues { FragmentStart = 1, FragmentEnd = 2 };
 
-    QTextDocumentFragmentPrivate() : hasTitle(false), setMarkerForHtmlExport(false) {}
+    QTextDocumentFragmentPrivate() : hasTitle(false), containsCompleteDocument(false), setMarkerForHtmlExport(false) {}
     QTextDocumentFragmentPrivate(const QTextCursor &cursor);
 
     void insert(QTextCursor &cursor) const;
@@ -74,7 +74,8 @@ public:
     Q_INT8 hasTitle;
     QString title;
 
-    bool setMarkerForHtmlExport;
+    uint containsCompleteDocument : 1;
+    uint setMarkerForHtmlExport : 1;
 };
 
 // ###### Versioning!
@@ -103,23 +104,30 @@ inline QDataStream &operator<<(QDataStream &stream, const QTextDocumentFragmentP
                   << priv.fragments
                   << priv.localBuffer
                   << priv.hasTitle
-                  << priv.title;
+                  << priv.title
+                  << Q_INT32(priv.containsCompleteDocument);
 }
 
 inline QDataStream &operator>>(QDataStream &stream, QTextDocumentFragmentPrivate &priv)
 {
-    return stream >> priv.formatCollection
-                  >> priv.fragments
-                  >> priv.localBuffer
-                  >> priv.hasTitle
-                  >> priv.title;
+    Q_INT32 containsDoc = 0;
+    stream >> priv.formatCollection
+           >> priv.fragments
+           >> priv.localBuffer
+           >> priv.hasTitle
+           >> priv.title
+           >> containsDoc;
+
+    priv.containsCompleteDocument = containsDoc;
+
+    return stream;
 }
 
 class QTextHTMLImporter : public QTextHtmlParser
 {
     struct Table;
 public:
-    QTextHTMLImporter(QTextDocumentFragmentPrivate *d, QString html);
+    QTextHTMLImporter(QTextDocumentFragmentPrivate *d, const QString &html);
 
     void import();
 

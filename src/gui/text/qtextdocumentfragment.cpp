@@ -23,13 +23,16 @@
 #include <qdatastream.h>
 
 QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cursor)
-    : hasTitle(false), setMarkerForHtmlExport(false)
+    : hasTitle(false), containsCompleteDocument(false), setMarkerForHtmlExport(false)
 {
     if (!cursor.hasSelection())
         return;
 
     QTextDocumentPrivate *priv = cursor.d->priv;
     formatCollection = *priv->formatCollection();
+
+    if (cursor.selectionStart() == 0 && cursor.selectionEnd() == priv->length() - 1)
+        containsCompleteDocument = true;
 
     if (cursor.hasComplexSelection()) {
         QTextTable *table = cursor.currentTable();
@@ -360,7 +363,8 @@ QString QTextDocumentFragment::toHtml() const
 {
     QTextDocument doc;
     QTextCursor cursor(&doc);
-    d->setMarkerForHtmlExport = true;
+
+    d->setMarkerForHtmlExport = (d->containsCompleteDocument == false);
     cursor.insertFragment(*this);
     d->setMarkerForHtmlExport = false;
     return doc.toHtml();
@@ -437,18 +441,9 @@ QTextDocumentFragment QTextDocumentFragment::fromPlainText(const QString &plainT
     return res;
 }
 
-QTextHTMLImporter::QTextHTMLImporter(QTextDocumentFragmentPrivate *_d, QString html)
+QTextHTMLImporter::QTextHTMLImporter(QTextDocumentFragmentPrivate *_d, const QString &html)
     : d(_d), indent(0), setNamedAnchorInNextOutput(false)
 {
-    const int startFragmentPos = html.indexOf(QLatin1String("<!--StartFragment-->"));
-    if (startFragmentPos != -1) {
-        const int endFragmentPos = html.indexOf(QLatin1String("<!--EndFragment-->"));
-        if (startFragmentPos < endFragmentPos)
-            html = html.mid(startFragmentPos, endFragmentPos - startFragmentPos);
-        else
-            html = html.mid(startFragmentPos);
-    }
-
     parse(html);
 //    dumpHtml();
 }
@@ -820,10 +815,25 @@ void QTextHTMLImporter::appendText(QString text, QTextCharFormat format)
     possible; for example, "<b>bold</b>" will become a document
     fragment with the text "bold" with a bold character format.
 */
-QTextDocumentFragment QTextDocumentFragment::fromHtml(const QString &html)
+QTextDocumentFragment QTextDocumentFragment::fromHtml(const QString &_html)
 {
     QTextDocumentFragment res;
     res.d = new QTextDocumentFragmentPrivate;
+
+    QString html = _html;
+
+    const int startFragmentPos = html.indexOf(QLatin1String("<!--StartFragment-->"));
+    if (startFragmentPos != -1) {
+        const int endFragmentPos = html.indexOf(QLatin1String("<!--EndFragment-->"));
+        if (startFragmentPos < endFragmentPos)
+            html = html.mid(startFragmentPos, endFragmentPos - startFragmentPos);
+        else
+            html = html.mid(startFragmentPos);
+
+        res.d->containsCompleteDocument = false;
+    } else {
+        res.d->containsCompleteDocument = true;
+    }
 
     QTextHTMLImporter(res.d, html).import();
     return res;
