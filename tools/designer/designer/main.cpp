@@ -26,6 +26,7 @@
 #include <qtextstream.h>
 #include <qobjectlist.h>
 #include <qlabel.h>
+#include <qsettings.h>
 
 #include <stdlib.h>
 #include <signal.h>
@@ -214,7 +215,13 @@ int main( int argc, char *argv[] )
 #else
     mw->setCaption( "Qt Designer by Trolltech" );
 #endif
-    mw->show();
+    QSettings config;
+    config.insertSearchPath( QSettings::Windows, "/Trolltech" );
+
+    if ( config.readBoolEntry( DesignerApplication::settingsKey() + "Geometries/MainwindowMaximized", FALSE ) )
+	mw->showMaximized();
+    else
+	mw->show();
 #if defined(Q_WS_X11)
     qt_wait_for_window_manager( mw );
 #endif

@@ -1895,6 +1895,7 @@ void MainWindow::writeConfig()
     config.writeEntry( keybase + "Geometries/MainwindowY", y() );
     config.writeEntry( keybase + "Geometries/MainwindowWidth", width() );
     config.writeEntry( keybase + "Geometries/MainwindowHeight", height() );
+    config.writeEntry( keybase + "Geometries/MainwindowMaximized", isMaximized() );
     config.writeEntry( keybase + "Geometries/PropertyEditorX", propertyEditor->parentWidget()->x() );
     config.writeEntry( keybase + "Geometries/PropertyEditorY", propertyEditor->parentWidget()->y() );
     config.writeEntry( keybase + "Geometries/PropertyEditorWidth", propertyEditor->parentWidget()->width() );
@@ -1999,6 +2000,7 @@ void MainWindow::readConfig()
 	r.setY( config.readNumEntry( keybase + "Geometries/MainwindowY", r.y() ) );
 	r.setWidth( config.readNumEntry( keybase + "Geometries/MainwindowWidth", r.width() ) );
 	r.setHeight( config.readNumEntry( keybase + "Geometries/MainwindowHeight", r.height() ) );
+
 	QRect desk = QApplication::desktop()->geometry();
 	QRect inter = desk.intersect( r );
 	resize( r.size() );
