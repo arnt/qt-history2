@@ -995,8 +995,9 @@ QPrinter::PageRange QPrinter::pageRange() const
 /*!
   \fn void QPrinter::setOutputToFileEnabled( bool )
 
-  Enables or disables the print to file checkbox in the setup dialog.
-  This features is enabled by default.
+  If \a enabled is false, turns of the possibility to select
+  print to file in the printer setup dialog. This features
+  is enabled by default.
 */
 void QPrinter::setOutputToFileEnabled( bool enable )
 {

@@ -423,7 +423,8 @@ short QPrinter::winPageSize() const
 /*!
   Windows only, using this function is not portable!
   Sets the windows page size value that is used by the \c DEVMODE
-  struct
+  struct. The \a winPageSize value must be one of the DMPAPER_ defines
+  from wingdi.h.
 */
 void QPrinter::setWinPageSize( short winPageSize )
 {
