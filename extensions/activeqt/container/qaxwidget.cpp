@@ -251,20 +251,11 @@ protected:
 private:
     IOleObject *m_spOleObject;
     IOleControl *m_spOleControl;
-    IViewObjectEx *m_spViewObject;
-    IOleInPlaceObjectWindowless *m_spInPlaceObjectWindowless;
+    IOleInPlaceObject *m_spInPlaceObject;
 
-    DWORD m_dwMiscStatus;
-    DWORD m_dwViewObjectType;
     DWORD m_dwOleObject;
 
-    bool m_bWindowless	    :1;
-    bool m_bUIActive	    :1;
-    bool m_bInPlaceActive   :1;
-
-    SIZEL m_hmSize;
-    SIZEL m_pxSize;
-    RECT m_rcPos;
+    QSize sizehint;
 
     unsigned long ref;
     QAxWidget *widget;
@@ -275,24 +266,18 @@ QAxHostWindow::QAxHostWindow( QAxWidget *c, IUnknown **ppUnk )
 {
     m_spOleObject = 0;
     m_spOleControl = 0;
-    m_spViewObject = 0;
-    m_spInPlaceObjectWindowless = 0;
+    m_spInPlaceObject = 0;
 
-    m_dwMiscStatus = 0;
-    m_dwViewObjectType = 0;
     m_dwOleObject = 0;
 
-    m_bWindowless = FALSE;
-    m_bUIActive = FALSE;
-    m_bInPlaceActive = FALSE;
-
-    m_hmSize.cx = m_hmSize.cy = 0;
-    m_pxSize.cx = m_pxSize.cy = 250;
-    m_rcPos.left = m_rcPos.right = m_rcPos.top = m_rcPos.bottom = 0;
+    sizehint = QSize( 250, 250 );
     
     setBackgroundMode( NoBackground );
-    HRESULT hr;
-    
+
+    HRESULT hr = S_OK;
+    DWORD dwMiscStatus = 0;
+    DWORD dwViewObjectType = 0;
+
     hr = CoCreateInstance( QUuid(widget->control()), 0, CLSCTX_SERVER, IID_IUnknown, (void**)ppUnk );
     bool bInited = hr == S_FALSE;
     
@@ -304,8 +289,8 @@ QAxHostWindow::QAxHostWindow( QAxWidget *c, IUnknown **ppUnk )
     m_spOleObject = 0;
     widget->queryInterface( IID_IOleObject, (void**)&m_spOleObject );
     if (m_spOleObject) {
-	m_spOleObject->GetMiscStatus( DVASPECT_CONTENT, &m_dwMiscStatus );
-	if(m_dwMiscStatus & OLEMISC_SETCLIENTSITEFIRST)
+	m_spOleObject->GetMiscStatus( DVASPECT_CONTENT, &dwMiscStatus );
+	if( dwMiscStatus & OLEMISC_SETCLIENTSITEFIRST )
 	    m_spOleObject->SetClientSite( this );
 
 	if ( !bInited ) {
@@ -317,50 +302,52 @@ QAxHostWindow::QAxHostWindow( QAxWidget *c, IUnknown **ppUnk )
 	    }
 	}
 
-	if( !(m_dwMiscStatus & OLEMISC_SETCLIENTSITEFIRST) )
+	if( !(dwMiscStatus & OLEMISC_SETCLIENTSITEFIRST) )
 	    m_spOleObject->SetClientSite( this );
 	
-	m_dwViewObjectType = 0;
-	HRESULT hr;
-	hr = m_spOleObject->QueryInterface(IID_IViewObjectEx, (void**) &m_spViewObject);
+	IViewObject *spViewObject = 0;
+	hr = m_spOleObject->QueryInterface(IID_IViewObjectEx, (void**) &spViewObject);
 	if ( FAILED(hr) ) {
-	    hr = m_spOleObject->QueryInterface(IID_IViewObject2, (void**) &m_spViewObject);
-	    m_dwViewObjectType = 3;
+	    hr = m_spOleObject->QueryInterface(IID_IViewObject2, (void**) &spViewObject);
+	    dwViewObjectType = 3;
 	} else {
-	    m_dwViewObjectType = 7;
+	    dwViewObjectType = 7;
 	}
 	if ( FAILED(hr) ) {
-	    hr = m_spOleObject->QueryInterface(IID_IViewObject, (void**) &m_spViewObject);
-	    m_dwViewObjectType = 1;
+	    hr = m_spOleObject->QueryInterface(IID_IViewObject, (void**) &spViewObject);
+	    dwViewObjectType = 1;
 	}
 	
 	m_spOleObject->Advise( this, &m_dwOleObject );
 	IAdviseSink *spAdviseSink = 0;
 	QueryInterface( IID_IAdviseSink, (void**)&spAdviseSink );	
-	if ( spAdviseSink ) {
-	    if ( m_dwViewObjectType )
-		m_spViewObject->SetAdvise( DVASPECT_CONTENT, 0, spAdviseSink );
+	if ( spAdviseSink && spViewObject ) {
+	    if ( dwViewObjectType )
+		spViewObject->SetAdvise( DVASPECT_CONTENT, 0, spAdviseSink );
 	    spAdviseSink->Release();
 	}
+	if ( spViewObject )
+	    spViewObject->Release();
 
 	m_spOleObject->SetHostNames( OLESTR("AXWIN"), 0 );
 	QPaintDeviceMetrics pdm( widget );
 
 #define MAP_PIX_TO_LOGHIM(x,ppli)   ( (HIMETRIC_PER_INCH*(x) + ((ppli)>>1)) / (ppli) )
 
-	m_hmSize.cx = MAP_PIX_TO_LOGHIM( m_pxSize.cx, pdm.logicalDpiX() );
-	m_hmSize.cy = MAP_PIX_TO_LOGHIM( m_pxSize.cy, pdm.logicalDpiY() );
+	SIZEL hmSize;
+	hmSize.cx = MAP_PIX_TO_LOGHIM( sizehint.width(), pdm.logicalDpiX() );
+	hmSize.cy = MAP_PIX_TO_LOGHIM( sizehint.height(), pdm.logicalDpiY() );
 
-	m_spOleObject->SetExtent( DVASPECT_CONTENT, &m_hmSize );
-	m_spOleObject->GetExtent( DVASPECT_CONTENT, &m_hmSize );
+	m_spOleObject->SetExtent( DVASPECT_CONTENT, &hmSize );
+	m_spOleObject->GetExtent( DVASPECT_CONTENT, &hmSize );
 
 #define MAP_LOGHIM_TO_PIX(x,ppli)   ( ((ppli)*(x) + HIMETRIC_PER_INCH/2) / HIMETRIC_PER_INCH )
-	m_pxSize.cx = MAP_LOGHIM_TO_PIX( m_hmSize.cx, pdm.logicalDpiX() );
-	m_pxSize.cy = MAP_LOGHIM_TO_PIX( m_hmSize.cy, pdm.logicalDpiY() );
-	m_rcPos.right = m_rcPos.left + m_pxSize.cx;
-	m_rcPos.bottom = m_rcPos.top + m_pxSize.cy;
+	sizehint.setWidth( MAP_LOGHIM_TO_PIX( hmSize.cx, pdm.logicalDpiX() ) );
+	sizehint.setHeight( MAP_LOGHIM_TO_PIX( hmSize.cy, pdm.logicalDpiY() ) );
 
-	hr = m_spOleObject->DoVerb( OLEIVERB_INPLACEACTIVATE, 0, (IOleClientSite*)this, 0, winId(), &m_rcPos );
+	RECT rcPos = { x(), y(), x()+sizehint.width(), y()+sizehint.height() };
+
+	hr = m_spOleObject->DoVerb( OLEIVERB_INPLACEACTIVATE, 0, (IOleClientSite*)this, 0, winId(), &rcPos );
 
 	m_spOleObject->QueryInterface( IID_IOleControl, (void**)&m_spOleControl );
 	if ( m_spOleControl ) {
@@ -388,14 +375,15 @@ QAxHostWindow::~QAxHostWindow()
 
 void QAxHostWindow::releaseAll()
 {
-    if ( m_spOleObject ) m_spOleObject->Release();
+    if ( m_spOleObject ) {
+	m_spOleObject->Unadvise( m_dwOleObject );
+	m_spOleObject->Release();
+    }
     m_spOleObject = 0;
     if ( m_spOleControl ) m_spOleControl->Release();
     m_spOleControl = 0;
-    if ( m_spViewObject ) m_spViewObject->Release();
-    m_spViewObject = 0;
-    if ( m_spInPlaceObjectWindowless ) m_spInPlaceObjectWindowless->Release();
-    m_spInPlaceObjectWindowless = 0;
+    if ( m_spInPlaceObject ) m_spInPlaceObject->Release();
+    m_spInPlaceObject = 0;
 }
 
 //**** IUnknown
@@ -531,9 +519,9 @@ HRESULT QAxHostWindow::LockInPlaceActive(BOOL /*fLock*/)
 
 HRESULT QAxHostWindow::GetExtendedControl(IDispatch** ppDisp)
 {
-    if (ppDisp == NULL)
+    if ( !ppDisp )
 	return E_POINTER;
-    return m_spOleObject ? m_spOleObject->QueryInterface( IID_IDispatch, (void**)ppDisp ) : E_NOINTERFACE;
+    return E_NOTIMPL;
 }
 
 HRESULT QAxHostWindow::TransformCoords(POINTL* /*pPtlHimetric*/, POINTF* /*pPtfContainer*/, DWORD /*dwFlags*/)
@@ -591,18 +579,17 @@ HRESULT QAxHostWindow::CanInPlaceActivate()
 
 HRESULT QAxHostWindow::OnInPlaceActivate()
 {
-    m_bInPlaceActive = TRUE;
-    OleLockRunning(m_spOleObject, TRUE, FALSE);
-    m_bWindowless = FALSE;
-    m_spOleObject->QueryInterface(IID_IOleInPlaceObject, (void**) &m_spInPlaceObjectWindowless);
-    if ( m_spInPlaceObjectWindowless )
-	m_spInPlaceObjectWindowless->SetObjectRects( &m_rcPos, &m_rcPos );
+    OleLockRunning( m_spOleObject, TRUE, FALSE );
+    m_spOleObject->QueryInterface( IID_IOleInPlaceObject, (void**) &m_spInPlaceObject );
+    if ( m_spInPlaceObject ) {
+	RECT rcPos = { x(), y(), x()+width(), y()+height() };
+	m_spInPlaceObject->SetObjectRects( &rcPos, &rcPos );
+    }
     return S_OK;
 }
 
 HRESULT QAxHostWindow::OnUIActivate()
 {
-    m_bUIActive = TRUE;
     return S_OK;
 }
 
@@ -634,16 +621,14 @@ HRESULT QAxHostWindow::Scroll( SIZE scrollExtant )
 
 HRESULT QAxHostWindow::OnUIDeactivate( BOOL )
 {
-    m_bUIActive = FALSE;
     return S_OK;
 }
 
 HRESULT QAxHostWindow::OnInPlaceDeactivate()
 {
-    m_bInPlaceActive = FALSE;
-    if ( m_spInPlaceObjectWindowless )
-	m_spInPlaceObjectWindowless->Release();
-    m_spInPlaceObjectWindowless = 0;
+    if ( m_spInPlaceObject )
+	m_spInPlaceObject->Release();
+    m_spInPlaceObject = 0;
     return S_OK;
 }
 
@@ -673,7 +658,7 @@ HRESULT QAxHostWindow::OnPosRectChange( LPCRECT lprcPosRect )
 
 QSize QAxHostWindow::sizeHint() const
 {
-    return QSize( m_pxSize.cx, m_pxSize.cy );
+    return sizehint;
 }
 
 QSize QAxHostWindow::minimumSizeHint() const
@@ -697,19 +682,16 @@ void QAxHostWindow::resizeEvent( QResizeEvent *e )
 {
     QPaintDeviceMetrics pdm( this );
 
-    m_rcPos.right = m_rcPos.left + width();
-    m_rcPos.bottom = m_rcPos.top + height();
-    m_pxSize.cx = width();
-    m_pxSize.cy = height();
-    m_hmSize.cx = MAP_PIX_TO_LOGHIM( m_pxSize.cx, pdm.logicalDpiX() );
-    m_hmSize.cy = MAP_PIX_TO_LOGHIM( m_pxSize.cy, pdm.logicalDpiY() );
+    SIZEL hmSize;
+    hmSize.cx = MAP_PIX_TO_LOGHIM( width(), pdm.logicalDpiX() );
+    hmSize.cy = MAP_PIX_TO_LOGHIM( height(), pdm.logicalDpiY() );
 
-    if (m_spOleObject)
-	m_spOleObject->SetExtent( DVASPECT_CONTENT, &m_hmSize );
-    if (m_spInPlaceObjectWindowless)
-	m_spInPlaceObjectWindowless->SetObjectRects( &m_rcPos, &m_rcPos );
-    if (m_bWindowless)
-	repaint( TRUE );
+    if ( m_spOleObject )
+	m_spOleObject->SetExtent( DVASPECT_CONTENT, &hmSize );
+    if ( m_spInPlaceObject ) {
+	RECT rcPos = { x(), y(), x()+width(), y()+height() };
+	m_spInPlaceObject->SetObjectRects( &rcPos, &rcPos );
+    }
 }
 
 /*!
