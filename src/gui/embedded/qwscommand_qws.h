@@ -571,13 +571,13 @@ struct QWSSetIMFontCommand : public QWSCommand
         QWSCommand::setData(d, len, allocateMem);
 
         QByteArray tmp(d, len);
-        QDataStream s(tmp, IO_ReadOnly);
+        QDataStream s(tmp);
         s >> font;
     }
     void setFont(const QFont & f)
     {
         QByteArray tmp;
-        QDataStream s(tmp, IO_WriteOnly);
+        QDataStream s(&tmp, IO_WriteOnly);
         s << f;
         setData(tmp.data(), tmp.size(), true);
     }

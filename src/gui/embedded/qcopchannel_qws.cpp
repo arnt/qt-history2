@@ -127,7 +127,7 @@ QCopChannel::~QCopChannel()
     // still any clients connected locally ?
     if (it.value().isEmpty()) {
         QByteArray data;
-        QDataStream s(data, IO_WriteOnly);
+        QDataStream s(&data, IO_WriteOnly);
         s << d->channel;
         if (qt_fbdpy)
             send("", "detach()", data);
@@ -202,7 +202,7 @@ void QCopChannel::receive(const QByteArray &msg, const QByteArray &data)
 bool QCopChannel::isRegistered(const QByteArray& channel)
 {
     QByteArray data;
-    QDataStream s(data, IO_WriteOnly);
+    QDataStream s(&data, IO_WriteOnly);
     s << channel;
     if (!send("", "isRegistered()", data))
         return false;
@@ -354,7 +354,7 @@ void QCopChannel::answer(QWSClient *cl, const QByteArray &ch,
     if (ch.isEmpty()) {
         if (msg == "isRegistered()") {
             QByteArray c;
-            QDataStream s(data, IO_ReadOnly);
+            QDataStream s(data);
             s >> c;
             bool known = qcopServerMap && qcopServerMap->contains(c)
                         && !((*qcopServerMap)[c]).isEmpty();
@@ -363,7 +363,7 @@ void QCopChannel::answer(QWSClient *cl, const QByteArray &ch,
             return;
         } else if (msg == "detach()") {
             QByteArray c;
-            QDataStream s(data, IO_ReadOnly);
+            QDataStream s(data);
             s >> c;
             Q_ASSERT(qcopServerMap);
             QCopServerMap::Iterator it = qcopServerMap->find(c);

@@ -875,7 +875,7 @@ QTranslatorMessage QTranslator::findMessage(const char *context, const char *sou
     */
     if (!d->contextArray.isEmpty()) {
         Q_UINT16 hTableSize = 0;
-        QDataStream t(d->contextArray, IO_ReadOnly);
+        QDataStream t(d->contextArray);
         t >> hTableSize;
         uint g = elfHash(context) % hTableSize;
         t.device()->seek(2 + (g << 1));
@@ -914,13 +914,13 @@ QTranslatorMessage QTranslator::findMessage(const char *context, const char *sou
             while (r != d->offsetArray.constData() && cmp_uint32_big(r - 8, r) == 0)
                 r -= 8;
 
-            QDataStream s(d->offsetArray, IO_ReadOnly);
+            QDataStream s(d->offsetArray);
             s.device()->seek(r - d->offsetArray.constData());
 
             Q_UINT32 rh, ro;
             s >> rh >> ro;
 
-            QDataStream ms(d->messageArray, IO_ReadOnly);
+            QDataStream ms(d->messageArray);
             while (rh == h) {
                 ms.device()->seek(ro);
                 QTranslatorMessage m(ms);

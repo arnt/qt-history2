@@ -95,7 +95,7 @@ QByteArray QRichTextDrag::encodedData(const char *mime) const
 bool QRichTextDrag::decode(const QMimeSource *e, QTextDocumentFragment &fragment)
 {
     if (e->provides("application/x-qt-richtext")) {
-        QDataStream stream(e->encodedData("application/x-qt-richtext"), IO_ReadOnly);
+        QDataStream stream(e->encodedData("application/x-qt-richtext"));
         stream >> fragment;
         return true;
     } else if (e->provides("application/x-qrichtext")) {

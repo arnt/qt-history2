@@ -259,7 +259,7 @@ QDataStream::QDataStream(QIODevice *d)
 /*!
     Constructs a data stream that operates on a byte array, \a a. The
     \a mode is a QIODevice::mode(), usually either \c QIODevice::ReadOnly or
-    \c QIODevice::WriteOnly. Use QDataStream(const QByteArray&, int) if you
+    \c QIODevice::WriteOnly. Alternatively, you can use QDataStream(const QByteArray&) if you
     just want to read from a byte array.
 
     Since QByteArray is not a QIODevice subclass, internally a QBuffer
@@ -279,30 +279,24 @@ QDataStream::QDataStream(QByteArray *a, int mode)
 }
 
 /*!
-    Constructs a data stream that operates on byte array \a a. Since
-    the byte array is passed as a const it can only be read from; use
-    QDataStream(QByteArray*, int) if you want to write to a byte
-    array. The \a mode is a QIODevice::mode() and should normally be
-    \c QIODevice::ReadOnly.
+    Constructs a read-only data stream that operates on byte array \a a.
+    Use QDataStream(QByteArray*, int) if you want to write to a byte
+    array.
 
     Since QByteArray is not a QIODevice subclass, internally a QBuffer
     is created to wrap the byte array.
 */
-QDataStream::QDataStream(const QByteArray &a, int mode)
+QDataStream::QDataStream(const QByteArray &a)
 {
     QBuffer *buf = new QBuffer;
     buf->setData(a);
-    buf->open(mode);
+    buf->open(QIODevice::ReadOnly);
     dev = buf;
     owndev = true;
     byteorder = BigEndian;
     printable = false;
     ver = DefaultStreamVersion;
     noswap = QSysInfo::ByteOrder == QSysInfo::BigEndian;
-
-    if (buf->isWritable())
-        qWarning("QDataStream::QDataStream: Use the QDataStream(QByteArray *, int) constructor "
-                 "instead");
 }
 
 /*!

@@ -33,7 +33,7 @@ public:
         Qt_3_0 = 4,
         Qt_3_1 = 5,
         Qt_3_3 = 6,
-        Qt_4_0 = 7 
+        Qt_4_0 = 7
 #if QT_VERSION >= 0x040100
 #error "Add Qt_4_1 = Qt_4_0"
 #endif
@@ -42,7 +42,7 @@ public:
     QDataStream();
     QDataStream(QIODevice *);
     QDataStream(QByteArray *, int mode);
-    QDataStream(const QByteArray &, int mode);
+    QDataStream(const QByteArray &);
     virtual ~QDataStream();
 
     QIODevice *device() const;
