@@ -3,9 +3,7 @@
 
 int main(int argc, char **argv)
 {
-    if (!QAxFactory::isServer())
-	return -1;
-
+    QAxFactory::startServer();
     QApplication app(argc, argv);
 
     return app.exec();
