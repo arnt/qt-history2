@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#7 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#7 $";
 #endif
 
 
@@ -67,6 +67,8 @@ void QPaintDevice::bitBlt( int sx, int sy, int sw, int sh, QPaintDevice *dest,
     bool copy_plane = FALSE;
     if ( td == PDT_WIDGET )			// borrow dest widget's gc
 	gc = ((QWidget*)dest)->getGC();
+    else if ( ts == PDT_WIDGET )		// borrow source widget's gc
+	gc = ((QWidget*)this)->getGC();
     else {					// create dedicated GC
 	gc = XCreateGC( dpy, hd, 0, 0 );
 	new_gc = TRUE;
