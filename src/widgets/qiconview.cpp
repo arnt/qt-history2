@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#60 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#61 $
 **
 ** Definition of QIconView widget class
 **
@@ -155,7 +155,7 @@ protected:
 
 };
 
-QIconViewItemLineEdit::QIconViewItemLineEdit( const QString &text, QWidget *parent, 
+QIconViewItemLineEdit::QIconViewItemLineEdit( const QString &text, QWidget *parent,
 					      QIconViewItem *theItem, const char *name )
     : QMultiLineEdit( parent, name ), item( theItem ), startText( text )
 {
@@ -287,6 +287,23 @@ void QIconDragItem::setRect( const QRect &r )
  * Class QIconDrag
  *
  *****************************************************************************/
+
+/*!
+  \class QIconDrag qiconview.h
+  \brief The QIconDrag is the drag object which is used for moving items in the iconview
+  
+  The QIconDrag is the drag object which is used for moving items in the iconview. The QIconDrag stores
+  exact informations about the positions of the items, which are dragged, so that each iconview
+  is able to draw drag shades in correct psoitions.
+  
+  It's suggested that, if you write a drag object for own QIconViewItems, you derive the 
+  drag object class from QIconDrag and just implement the methodes which are needed for
+  encoding/decoding your data. Because if you do this, the position informations will be stored
+  in the drag object too.
+
+  An example, how to implement this, is in the QtFileIconView example.
+  
+*/
 
 /*!
  */
