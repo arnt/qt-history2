@@ -4855,15 +4855,6 @@ void QTextEdit::optimizedAppend( const QString &str )
 
     QFontMetrics fm( QScrollView::font() );
     int lWidth = 0;
-    // append first line in str to previous line in buffer
-    if ( od->numLines > 0 ) {
-	od->lines[ od->numLines - 1 ].append( *it );
-	lWidth = fm.width( od->lines[ od->numLines -1 ] );
-	if ( lWidth > od->maxLineWidth )
-	    od->maxLineWidth = lWidth;
-	++it;
-    }
-
     for ( ; it != strl.end(); ++it ) {
 	od->lines[ od->numLines++ ] = *it;
 	lWidth = fm.width( *it );
