@@ -100,6 +100,7 @@ public:
 
     enum Corner { TopLeft, TopRight, BottomLeft, BottomRight };
     void setOrigin( Corner );
+    Corner origin() const;
     QLayoutIterator iterator();
     void setGeometry( const QRect& );
 

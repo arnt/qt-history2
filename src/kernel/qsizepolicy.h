@@ -52,8 +52,12 @@ public:
 		    Minimum = MayGrow,
 		    Maximum = MayShrink,
 		    Preferred = MayGrow|MayShrink ,
-		    MinimumExpanding = Minimum|ExpMask,
-		    Expanding = MinimumExpanding|MayShrink };
+#ifndef QT_NO_COMPAT
+#ifndef Q_QDOC
+		    MinimumExpanding = MayShrink|ExpMask,
+#endif
+#endif
+		    Expanding = MayGrow|MayShrink|ExpMask };
 
     enum ExpandData { NoDirection = 0,
 		      Horizontal = 1,

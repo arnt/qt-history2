@@ -70,8 +70,6 @@
 */
 
 
-
-
 /*! \fn QLayoutItem::QLayoutItem (int alignment)
   Constructs a layout item with an \a alignment
   that is a bitwise OR of Qt::AlignmentFlags.
@@ -608,10 +606,10 @@ bool QWidgetItem::isEmpty() const
   This is an abstract base class. The concrete layout managers
   QBoxLayout and QGridLayout inherit from this one.
 
-  For users of Q*Layout or QMainWindow there is seldom need to use any of
-  the basic functions provided by QLayout, such as \l resizeMode or
-  setMenuBar(). See the \link layout.html layout overview page \endlink
-  for more information.
+  For users of QLayout subclasses or of QMainWindow there is seldom
+  need to use any of the basic functions provided by QLayout, such as
+  \l resizeMode or setMenuBar(). See the \link layout.html layout
+  overview page \endlink for more information.
 
   To make your own layout manager, make a subclass of QGLayoutIterator
   and implement the functions addItem(), sizeHint(), setGeometry(), and
@@ -1363,7 +1361,7 @@ bool QLayout::activate()
 The per-dimension sizing types used when constructing a QSizePolicy
 are
 
-\value Fixed  the sizeHint() is the only acceptable alternative, so
+\value Fixed  the QWidget::sizeHint() is the only acceptable alternative, so
 the widget can never grow or shrink (e.g., the vertical direction of a
 push button).
 
@@ -1380,14 +1378,13 @@ shrunk below that and still be useful. The widget can be expanded, but
 there is no advantage to it being larger than sizeHint() (the default
 QWidget policy).
 
-\value MinimumExpanding  the sizeHint() is a minimum.  The widget
-can make use of extra space, so it should get as much space as
-possible (not currently used by any standard Qt widgets).
-
 \value Expanding  the sizeHint() is a sensible size, but the
 widget can be shrunk below that and still be useful. The widget can
 make use of extra space, so it should get as much space as
-possible (e.g., the horizontal direction of a slider).
+possible (e.g., the horizontal direction of a slider). 
+
+In any case, QLayout never shrinks a widget below the
+QWidget::minimumSizeHint().
 */
 
 /*! \enum QSizePolicy::ExpandData
@@ -1582,12 +1579,9 @@ QGLayoutIterator::~QGLayoutIterator()
   \endcode
 
   All the functionality of QLayoutIterator is implemented by
-  subclasses of QGLayoutIterator. Note that there is not much
-  point in subclassing QLayoutIterator because none of the functions
-  is virtual.
-*/ // ### nancy put in 'is virtual', which sounds wrong...?
-
-
+  subclasses of \l QGLayoutIterator. QLayoutIterator itself is not
+  designed to be subclassed.
+*/
 
 
 /*! \fn QLayoutIterator::QLayoutIterator( QGLayoutIterator *gi )
@@ -1643,11 +1637,10 @@ QGLayoutIterator::~QGLayoutIterator()
     The possible values are:
 
     \value Fixed  The main widget's size is set to sizeHint(); it
-    cannot be resized at all.
+		  cannot be resized at all.
     \value Minimum  The main widget's minimum size is set to
-    minimumSize(); it cannot be smaller.
+		    minimumSize(); it cannot be smaller.
     \value FreeResize  The widget is not constrained.
-
 */
 
 

@@ -119,9 +119,9 @@ public:
     int rowStretch( int r ) const { return rowData[r].stretch; }
     int colStretch( int c ) const { return colData[c].stretch; }
 
-
-
     void setReversed( bool r, bool c ) { hReversed = c; vReversed = r; }
+    bool horReversed() const { return hReversed; }
+    bool verReversed() const { return vReversed; }
     void setDirty() { needRecalc = TRUE; hfw_width = -1; }
     bool isDirty() const { return needRecalc; }
     bool hasHeightForWidth( int space );
@@ -1102,7 +1102,7 @@ void QGridLayout::init( int nRows, int nCols )
 {
     setSupportsMargin( TRUE );
     array = new QLayoutArray( nRows, nCols );
-    if(QApplication::reverseLayout())
+    if ( QApplication::reverseLayout() )
 	array->setReversed( FALSE, TRUE );
 }
 
@@ -1365,7 +1365,7 @@ void QGridLayout::addColSpacing( int col, int minsize )
 
 
 /*!
-  Returns the expansiveness of this layout
+  Returns the expansiveness of this layout.
 */
 
 QSizePolicy::ExpandData QGridLayout::expanding() const
@@ -1374,7 +1374,7 @@ QSizePolicy::ExpandData QGridLayout::expanding() const
 }
 
 /*!
-  Sets which of the four corners of the grid corresponds to (0,0).
+  Sets which of the four corners of the grid corresponds to (0, 0).
 */
 
 void QGridLayout::setOrigin( Corner c )
@@ -1382,6 +1382,19 @@ void QGridLayout::setOrigin( Corner c )
     array->setReversed( c == BottomLeft || c == BottomRight,
 			c == TopRight || c == BottomRight );
 }
+
+/*!
+  Returns which of the four corners of the grid corresponds to (0, 0).
+*/
+QGridLayout::Corner QGridLayout::origin() const
+{
+    if ( array->horReversed() ) {
+	return array->verReversed() ? BottomRight : TopRight;
+    } else {
+	return array->verReversed() ? BottomLeft : TopLeft;
+    }
+}
+
 /*!
   Resets cached information.
 */
