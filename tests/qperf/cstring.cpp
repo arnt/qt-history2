@@ -2,6 +2,11 @@
 #include <qstring.h>
 
 
+#if QT_VERSION < 200
+#define QCString QString
+#endif
+
+
 static void cstring_init()
 {
 }

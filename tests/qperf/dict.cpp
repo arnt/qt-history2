@@ -1,15 +1,19 @@
 #include "qperf.h"
 #include <qdict.h>
-#include <qasciidict.h>
 #if QT_VERSION >= 200
+#include <qasciidict.h>
 #include <qmap.h>
 #endif
 #include "words.inc"
 
-QDict<int>      wordDict(601);
-QAsciiDict<int> wordDictAscii(601);
-#if QT_VERSION >= 200
-QMap<QString,int*> wordMap;
+QDict<int>  wordDict(601);
+
+#if QT_VERSION < 200
+#define wordDictAscii wordDict
+#define wordMap       wordDict
+#else
+QAsciiDict<int>       wordDictAscii(601);
+QMap<QString,int*>    wordMap;
 #endif
 
 
@@ -97,7 +101,6 @@ static int dict_lookup_string_ascii()
 
 static int dict_lookup_map()
 {
-#if QT_VERSION >= 200
     QString s1("Troll Tech");
     QString s2("sequences");
     QString s3("FSF");
@@ -110,7 +113,6 @@ static int dict_lookup_map()
 	wordMap.find(s4);
     }
     return i*4;
-#endif
 }
 
 static int dict_insdel_ascii()
@@ -137,7 +139,6 @@ static int dict_insdel_string()
 
 static int dict_insdel_map()
 {
-#if QT_VERSION >= 200
     QString s1 = "Troll Tech";
     int i;
     for ( i=0; i<1000; i++ ) {
@@ -145,7 +146,6 @@ static int dict_insdel_map()
 	wordMap.remove(s1);
     }
     return i*4;
-#endif
 }
 
 

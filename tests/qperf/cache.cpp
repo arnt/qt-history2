@@ -1,17 +1,23 @@
 #include "qperf.h"
 #include <qcache.h>
+#if QT_VERSION >= 200
 #include <qasciicache.h>
+#endif
 #include "words.inc"
 
-QCache<int>      wordCache(400,601);
-QAsciiCache<int> wordCacheAscii(400,601);
+QCache<int>  wordCache(400,601);
 
+#if QT_VERSION < 200
+#define wordCacheAscii wordCache
+#else
+QAsciiCache<int>       wordCacheAscii(400,601);
+#endif
 
 static void fill_wordCache()
 {
+    int i;
     wordCache.clear();
     wordCacheAscii.clear();
-    int i;
     for ( i=0; i<num_words; i++ ) {
 	wordCache.insert(words[i],(int*)i+1 );
 	wordCacheAscii.insert(words[i],(int*)i+1 );

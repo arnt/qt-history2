@@ -52,6 +52,10 @@ QString qperf_imageExt()
 }
 
 
+#if QT_VERSION < 200
+typedef GCI Item;
+#endif
+
 class QPerfList : public QList<QPerfEntry>
 {
 public:
@@ -77,7 +81,7 @@ QPerfTableInit::QPerfTableInit( QPerfEntry *t )
 	perf_list = new QPerfList;
     if ( !perf_dict )
 	perf_dict = new QPerfDict(211);
-    perf_list->append( t );
+    perf_list->inSort( t );
     while ( t->funcName ) {
 	perf_dict->insert( t->funcName, t );
 	t++;
@@ -118,7 +122,7 @@ void run_test( const char *funcName )
 	QTime time;
 	time.start();
 	int i = 0;
-	int t;
+	int t = 0;
 	while ( TRUE ) {
 	    i += (*e->funcPtr)();
 	    t = time.elapsed();
@@ -163,7 +167,6 @@ void usage()
     qDebug( "                                none, translate, scale, rotate" );
     qDebug( "Tests:" );
     QPerfEntry *t;
-    perf_list->sort();
     QPerfListIt it(*perf_list);
     while ( (t=it.current()) ) {
 	++it;
