@@ -127,7 +127,7 @@ public:
     void setValue( const QColorGroup& );
     void setValue( const QIconSet& );
     void setValue( int );
-    void setValue( bool );
+    void setBoolValue( bool );
     void setValue( double );
 
     Type type() const;

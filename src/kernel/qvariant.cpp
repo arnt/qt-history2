@@ -41,22 +41,53 @@
   \class QVariant qvariant.h
   \brief Acts like a union for the most common Qt data types.
 
-  Unfortunately one can not use C++ unions with classes that have
-  constructors and destructors since the compiler and the runtime
-  library could not determine which destructor to call.
+  C++ forbids unions from including classes that
+  have constructors and destructors since the compiler and the runtime
+  library cannot not determine which constructor or destructor to call
+  when an object goes in and out of scope.
 
-  To come around this QVariant can store the most common Qt and C++
-  data types. Like every union it can hold one value of a certain type
-  at a time.
+  To overcome this, a QVariant can be used to store the most common Qt
+  and C++ data types. Like a union it can hold only one value of one
+  type at any one time.
+
+  For each QVariant::Type that the variant can hold, there is a constructor
+  to create a QVariant from a value of the type, a setValue(T) function to
+  change a variant to a value of the type, and a toT() function to retrieve
+  the value. For example:
+
+  \code
+    QDataStream out(...);
+    QVariant v(123);          // The variant now contains an int
+    int x = v.toInt();        // x = 123
+    out << v;                 // Writes a type tag an int to out
+    v.setValue("hello");      // The variant now contains a QCString
+    v.setValue(tr("hello"));  // The variant now contains a QString
+    int y = v.toInt();        // x = 0, since v is not an int
+    QString s = v.toString(); // s = tr("hello")  (see QObject::tr())
+    out << v;                 // Writes a type tag and a QString to out
+    ...
+    QDataStream in(...);      // (opening the previously written stream)
+    in >> v;                  // Reads an Int variant
+    int z = v.toInt();        // z = 123
+    qDebug("Type is %s",      // prints "Type is int"
+      v.typeName());
+  \endcode
+
+  You can find the type of a variant with type(). There is a special type,
+  Invalid, which can be used for special cases. The isValid() function
+  tests for this type.
+
+  An exception to this pattern is setBoolValue(), which cannot be called
+  setValue(bool), since some compilers cannot distinguish between
+  bool and int.
 */
 
 /*! \enum QVariant::Type
 
   This enum type defines the types of variable that a QVariant can
-  contain.  Here is a lost of the supported types, and what they
-  indicate that the relevant QVariant object contains : <ul>
+  contain.  The supported enum values and the associated types are: <ul>
 
-  <li> \c Invalid - invalid
+  <li> \c Invalid - no type
   <li> \c String - a QString
   <li> \c StringList - a QStringList
   <li> \c IntList - a QValueList<int>
@@ -89,10 +120,11 @@ QVariant::QVariant()
     typ = Invalid;
 }
 
-/*!  Destroys the QVariant and the contained object.
+/*!
+  Destructs the QVariant and the contained object.
 
   Note that subclasses that re-implement clear() should reimplement
-  the destructor to call clear().  This constructor calls clear(), but
+  the destructor to call clear().  This destructor calls clear(), but
   since it is the destructor, QVariant::clear() is called rather than
   any subclass.
 */
@@ -301,86 +333,88 @@ QVariant::QVariant( double val )
 }
 
 /*!
-  Assigns the value of one variant to another. This creates a deep copy.
+  Assigns the value of some \a other variant to this variant.
+  This is a deep copy.
 */
-QVariant& QVariant::operator= ( const QVariant& p )
+QVariant& QVariant::operator= ( const QVariant& other )
 {
     clear();
 
-    switch( p.type() )
+    switch( other.type() )
 	{
 	case Invalid:
 	    break;
 	case String:
-	    value.ptr = new QString( p.toString() );
+	    value.ptr = new QString( other.toString() );
 	    break;
 	case CString:
-	    value.ptr = new QCString( p.toCString() );
+	    value.ptr = new QCString( other.toCString() );
 	    break;
 	case StringList:
-	    value.ptr = new QStringList( p.toStringList() );
+	    value.ptr = new QStringList( other.toStringList() );
 	    break;
 	case IntList:
-	    value.ptr = new QValueList<int>( p.toIntList() );
+	    value.ptr = new QValueList<int>( other.toIntList() );
 	    break;
 	case DoubleList:
-	    value.ptr = new QValueList<double>( p.toDoubleList() );
+	    value.ptr = new QValueList<double>( other.toDoubleList() );
 	    break;
 	case Font:
-	    value.ptr = new QFont( p.toFont() );
+	    value.ptr = new QFont( other.toFont() );
 	    break;
 	case Pixmap:
-	    value.ptr = new QPixmap( p.toPixmap() );
+	    value.ptr = new QPixmap( other.toPixmap() );
 	    break;
 	case Image:
-	    value.ptr = new QImage( p.toImage() );
+	    value.ptr = new QImage( other.toImage() );
 	    break;
 	case Brush:
-	    value.ptr = new QBrush( p.toBrush() );
+	    value.ptr = new QBrush( other.toBrush() );
 	    break;
 	case Point:
-	    value.ptr = new QPoint( p.toPoint() );
+	    value.ptr = new QPoint( other.toPoint() );
 	    break;
 	case Rect:
-	    value.ptr = new QRect( p.toRect() );
+	    value.ptr = new QRect( other.toRect() );
 	    break;
 	case Size:
-	    value.ptr = new QSize( p.toSize() );
+	    value.ptr = new QSize( other.toSize() );
 	    break;
 	case Color:
-	    value.ptr = new QColor( p.toColor() );
+	    value.ptr = new QColor( other.toColor() );
 	    break;
 	case Palette:
-	    value.ptr = new QPalette( p.toPalette() );
+	    value.ptr = new QPalette( other.toPalette() );
 	    break;
 	case ColorGroup:
-	    value.ptr = new QColorGroup( p.toColorGroup() );
+	    value.ptr = new QColorGroup( other.toColorGroup() );
 	    break;
 	case IconSet:
-	    value.ptr = new QIconSet( p.toIconSet() );
+	    value.ptr = new QIconSet( other.toIconSet() );
 	    break;
 	case Int:
-	    value.i = p.toInt();
+	    value.i = other.toInt();
 	    break;
 	case Bool:
-	    value.b = p.toBool();
+	    value.b = other.toBool();
 	    break;
 	case Double:
-	    value.d = p.toDouble();
+	    value.d = other.toDouble();
 	    break;
 	default:
 	    ASSERT( 0 );
 	}
 
-    typ = p.type();
+    typ = other.type();
 
     return *this;
 }
 
 /*!
-  Returns the type stored in the variant currently in ASCII format.
+  Returns the name of the type stored in the variant.
   The returned strings describe the C++ datatype used to store the
   data, for example "QFont", "QString" or "QValueList<int>".
+  An Invalid variant returns 0.
 */
 const char* QVariant::typeName() const
 {
@@ -388,7 +422,7 @@ const char* QVariant::typeName() const
 }
 
 /*!
-  Changes the value of this variant. The previous value is dropped.
+  Changes the value of this variant to \a val.
 */
 void QVariant::setValue( const QString& val )
 {
@@ -398,7 +432,7 @@ void QVariant::setValue( const QString& val )
 }
 
 /*!
-  Changes the value of this variant. The previous value is dropped.
+  Changes the value of this variant to \a val.
 */
 void QVariant::setValue( const QCString& val )
 {
@@ -408,7 +442,7 @@ void QVariant::setValue( const QCString& val )
 }
 
 /*!
-  Changes the value of this variant. The previous value is dropped.
+  Changes the value of this variant to \a val.
   The Variant creates a copy of the passed string.
 */
 void QVariant::setValue( const char* val )
@@ -419,7 +453,7 @@ void QVariant::setValue( const char* val )
 }
 
 /*!
-  Changes the value of this variant. The previous value is dropped.
+  Changes the value of this variant to \a val.
   This function creates a copy of the list. This is very fast since
   QStringList is implicit shared.
 */
@@ -431,7 +465,7 @@ void QVariant::setValue( const QStringList& val )
 }
 
 /*!
-  Changes the value of this variant. The previous value is dropped.
+  Changes the value of this variant to \a val.
   This function creates a copy of the list. This is very fast since
   QStringList is implicit shared.
 */
@@ -443,7 +477,7 @@ void QVariant::setValue( const QValueList<int>& val )
 }
 
 /*!
-  Changes the value of this variant. The previous value is dropped.
+  Changes the value of this variant to \a val.
   This function creates a copy of the list. This is very fast since
   QStringList is implicit shared.
 */
@@ -455,7 +489,7 @@ void QVariant::setValue( const QValueList<double>& val )
 }
 
 /*!
-  Changes the value of this variant. The previous value is dropped.
+  Changes the value of this variant to \a val.
 */
 void QVariant::setValue( const QFont& val )
 {
@@ -465,7 +499,7 @@ void QVariant::setValue( const QFont& val )
 }
 
 /*!
-  Changes the value of this variant. The previous value is dropped.
+  Changes the value of this variant to \a val.
 */
 void QVariant::setValue( const QPixmap& val )
 {
@@ -475,7 +509,7 @@ void QVariant::setValue( const QPixmap& val )
 }
 
 /*!
-  Changes the value of this variant. The previous value is dropped.
+  Changes the value of this variant to \a val.
 */
 void QVariant::setValue( const QImage& val )
 {
@@ -485,7 +519,7 @@ void QVariant::setValue( const QImage& val )
 }
 
 /*!
-  Changes the value of this variant. The previous value is dropped.
+  Changes the value of this variant to \a val.
 */
 void QVariant::setValue( const QBrush& val )
 {
@@ -495,7 +529,7 @@ void QVariant::setValue( const QBrush& val )
 }
 
 /*!
-  Changes the value of this variant. The previous value is dropped.
+  Changes the value of this variant to \a val.
 */
 void QVariant::setValue( const QRect& val )
 {
@@ -505,7 +539,7 @@ void QVariant::setValue( const QRect& val )
 }
 
 /*!
-  Changes the value of this variant. The previous value is dropped.
+  Changes the value of this variant to \a val.
 */
 void QVariant::setValue( const QPoint& val )
 {
@@ -515,7 +549,7 @@ void QVariant::setValue( const QPoint& val )
 }
 
 /*!
-  Changes the value of this variant. The previous value is dropped.
+  Changes the value of this variant to \a val.
 */
 void QVariant::setValue( const QSize& val )
 {
@@ -525,7 +559,7 @@ void QVariant::setValue( const QSize& val )
 }
 
 /*!
-  Changes the value of this variant. The previous value is dropped.
+  Changes the value of this variant to \a val.
 */
 void QVariant::setValue( const QColor& val )
 {
@@ -535,7 +569,7 @@ void QVariant::setValue( const QColor& val )
 }
 
 /*!
-  Changes the value of this variant. The previous value is dropped.
+  Changes the value of this variant to \a val.
 */
 void QVariant::setValue( const QPalette& val )
 {
@@ -545,7 +579,7 @@ void QVariant::setValue( const QPalette& val )
 }
 
 /*!
-  Changes the value of this variant. The previous value is dropped.
+  Changes the value of this variant to \a val.
 */
 void QVariant::setValue( const QColorGroup& val )
 {
@@ -555,7 +589,7 @@ void QVariant::setValue( const QColorGroup& val )
 }
 
 /*!
-  Changes the value of this variant. The previous value is dropped.
+  Changes the value of this variant to \a val.
 */
 void QVariant::setValue( const QIconSet& val )
 {
@@ -565,7 +599,7 @@ void QVariant::setValue( const QIconSet& val )
 }
 
 /*!
-  Changes the value of this variant. The previous value is dropped.
+  Changes the value of this variant to \a val.
 */
 void QVariant::setValue( int val )
 {
@@ -575,9 +609,11 @@ void QVariant::setValue( int val )
 }
 
 /*!
-  Changes the value of this variant. The previous value is dropped.
+  Changes the value of this variant to \a val.
+  This is not called setValue(bool), since some compilers
+  cannot distinguish between bool and int.
 */
-void QVariant::setValue( bool val )
+void QVariant::setBoolValue( bool val )
 {
     clear();
     typ = Bool;
@@ -585,7 +621,7 @@ void QVariant::setValue( bool val )
 }
 
 /*!
-  Changes the value of this variant. The previous value is dropped.
+  Changes the value of this variant to \a val.
 */
 void QVariant::setValue( double val )
 {
@@ -595,7 +631,8 @@ void QVariant::setValue( double val )
 }
 
 /*!
-  De-allocate, based on the type, producing an Invalid variant.
+  De-allocate any used memory,
+  based on the type, producing an Invalid variant.
 */
 void QVariant::clear()
 {
@@ -862,7 +899,7 @@ void QVariant::save( QDataStream& s ) const
 }
 
 /*!
-  Reads a variant from the stream.
+  Reads a variant \a p from the stream \a s.
 */
 QDataStream& operator>> ( QDataStream& s, QVariant& p )
 {
@@ -871,7 +908,7 @@ QDataStream& operator>> ( QDataStream& s, QVariant& p )
 }
 
 /*!
-  Writes a variant to the stream.
+  Writes a variant \a p to the stream \a s.
 */
 QDataStream& operator<< ( QDataStream& s, const QVariant& p )
 {
@@ -880,7 +917,7 @@ QDataStream& operator<< ( QDataStream& s, const QVariant& p )
 }
 
 /*!
-  Reads a variant type in enum representation from the stream
+  Reads a variant type \a p in enum representation from the stream \a s.
 */
 QDataStream& operator>> ( QDataStream& s, QVariant::Type& p )
 {
@@ -892,7 +929,7 @@ QDataStream& operator>> ( QDataStream& s, QVariant::Type& p )
 }
 
 /*!
-  Writes a variant type to the stream.
+  Writes a variant type \a p to the stream \a s.
 */
 QDataStream& operator<< ( QDataStream& s, const QVariant::Type p )
 {
@@ -907,10 +944,14 @@ QDataStream& operator<< ( QDataStream& s, const QVariant::Type p )
 */
 
 /*! \fn bool QVariant::isValid() const
-  Returns TRUE if the storage type of this variant is QVariant::Invalid.
+  Returns TRUE if the storage type of this variant is not QVariant::Invalid.
 */
 
 
+/*!
+  Returns the variant as a QString if the variant has type()
+  String or CString, or QString::null otherwise.
+*/
 QString QVariant::toString() const
 {
     if ( typ == CString )
@@ -920,15 +961,21 @@ QString QVariant::toString() const
     return *((QString*)value.ptr);
 }
 
+/*!
+  Returns the variant as a QCString if the variant has type()
+  CString, or a null QCString otherwise.
+*/
 QCString QVariant::toCString() const
 {
-    if ( typ == String )
-	return toString().latin1();
     if ( typ != CString )
 	return 0;
     return *((QCString*)value.ptr);
 }
 
+/*!
+  Returns the variant as a QStringList if the variant has type()
+  StringList, or an empty list otherwise.
+*/
 QStringList QVariant::toStringList() const
 {
     if ( typ != StringList )
@@ -936,6 +983,10 @@ QStringList QVariant::toStringList() const
     return *((QStringList*)value.ptr);
 }
 
+/*!
+  Returns the variant as a QValueList<int> if the variant has type()
+  IntList, or an empty list otherwise.
+*/
 QValueList<int> QVariant::toIntList() const
 {
     if ( typ != IntList )
@@ -943,13 +994,21 @@ QValueList<int> QVariant::toIntList() const
     return *((QValueList<int>*)value.ptr);
 }
 
+/*!
+  Returns the variant as a QValueList<double> if the variant has type()
+  DoubleList, or an empty list otherwise.
+*/
 QValueList<double> QVariant::toDoubleList() const
 {
-    if ( typ != IntList )
+    if ( typ != DoubleList )
 	return QValueList<double>();
     return *((QValueList<double>*)value.ptr);
 }
 
+/*!
+  Returns the variant as a QFont if the variant has type()
+  Font, or the default font otherwise.
+*/
 QFont QVariant::toFont() const
 {
     if ( typ != Font )
@@ -957,6 +1016,10 @@ QFont QVariant::toFont() const
     return *((QFont*)value.ptr);
 }
 
+/*!
+  Returns the variant as a QPixmap if the variant has type()
+  Pixmap, or a null pixmap otherwise.
+*/
 QPixmap QVariant::toPixmap() const
 {
     if ( typ != Pixmap )
@@ -964,6 +1027,10 @@ QPixmap QVariant::toPixmap() const
     return *((QPixmap*)value.ptr);
 }
 
+/*!
+  Returns the variant as a QImage if the variant has type()
+  Image, or a null image otherwise.
+*/
 QImage QVariant::toImage() const
 {
     if ( typ != Image )
@@ -971,6 +1038,10 @@ QImage QVariant::toImage() const
     return *((QImage*)value.ptr);
 }
 
+/*!
+  Returns the variant as a QBrush if the variant has type()
+  Brush, or a default brush otherwise.
+*/
 QBrush QVariant::toBrush() const
 {
     if( typ != Brush )
@@ -978,6 +1049,10 @@ QBrush QVariant::toBrush() const
     return *((QBrush*)value.ptr);
 }
 
+/*!
+  Returns the variant as a QPoint if the variant has type()
+  Point, or a the point (0,0) otherwise.
+*/
 QPoint QVariant::toPoint() const
 {
     if ( typ != Point )
@@ -985,6 +1060,10 @@ QPoint QVariant::toPoint() const
     return *((QPoint*)value.ptr);
 }
 
+/*!
+  Returns the variant as a QRect if the variant has type()
+  Rect, or an empty rectangle otherwise.
+*/
 QRect QVariant::toRect() const
 {
     if ( typ != Rect )
@@ -992,6 +1071,10 @@ QRect QVariant::toRect() const
     return *((QRect*)value.ptr);
 }
 
+/*!
+  Returns the variant as a QSize if the variant has type()
+  Size, or an invalid size otherwise.
+*/
 QSize QVariant::toSize() const
 {
     if ( typ != Size )
@@ -999,6 +1082,10 @@ QSize QVariant::toSize() const
     return *((QSize*)value.ptr);
 }
 
+/*!
+  Returns the variant as a QColor if the variant has type()
+  Color, or an invalid color otherwise.
+*/
 QColor QVariant::toColor() const
 {
     if ( typ != Color )
@@ -1006,6 +1093,10 @@ QColor QVariant::toColor() const
     return *((QColor*)value.ptr);
 }
 
+/*!
+  Returns the variant as a QPalette if the variant has type()
+  Palette, or a completely black palette otherwise.
+*/
 QPalette QVariant::toPalette() const
 {
     if ( typ != Palette )
@@ -1013,6 +1104,10 @@ QPalette QVariant::toPalette() const
     return *((QPalette*)value.ptr);
 }
 
+/*!
+  Returns the variant as a QColorGroup if the variant has type()
+  ColorGroup, or a completely black color group otherwise.
+*/
 QColorGroup QVariant::toColorGroup() const
 {
     if ( typ != ColorGroup )
@@ -1020,6 +1115,10 @@ QColorGroup QVariant::toColorGroup() const
     return *((QColorGroup*)value.ptr);
 }
 
+/*!
+  Returns the variant as a QIconSet if the variant has type()
+  IconSet, or an icon set of null pixmaps otherwise.
+*/
 QIconSet QVariant::toIconSet() const
 {
     if ( typ != IconSet )
@@ -1027,6 +1126,10 @@ QIconSet QVariant::toIconSet() const
     return *((QIconSet*)value.ptr);
 }
 
+/*!
+  Returns the variant as an int if the variant has type()
+  Int, or 0 otherwise.
+*/
 int QVariant::toInt() const
 {
     if( typ != Int )
@@ -1034,13 +1137,21 @@ int QVariant::toInt() const
     return value.i;
 }
 
+/*!
+  Returns the variant as a bool if the variant has type()
+  Bool, or FALSE otherwise.
+*/
 bool QVariant::toBool() const
 {
     if ( typ != Bool )
-	return false;
+	return FALSE;
     return value.b;
 }
 
+/*!
+  Returns the variant as a double if the variant has type()
+  Double, or 0.0 otherwise.
+*/
 double QVariant::toDouble() const
 {
     if ( typ != Double )
