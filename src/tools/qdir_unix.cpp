@@ -203,13 +203,8 @@ bool QDir::readDirEntries( const QString &nameFilter,
     dirent   *file;
 
     dir = opendir( QFile::encodeName(dPath) );
-    if ( !dir ) {
-#if defined(QT_CHECK_NULL)
-	qWarning( "QDir::readDirEntries: Cannot read the directory: %s",
-		  QFile::encodeName(dPath).data() );
-#endif
-	return FALSE;
-    }
+    if ( !dir )
+	return FALSE; // cannot read the directory
 
     while ( (file = readdir(dir)) ) {
 	QString fn = QFile::decodeName(file->d_name);
