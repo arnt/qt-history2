@@ -72,7 +72,7 @@ QWidget *QSqlRelationalDelegate::editor(QWidget *parent,
 
     QComboBox *combo = new QComboBox(parent);
 //    combo->setModel(sqlModel->relationModel(index.column()));
-    combo->installEventFilter(this);
+    combo->installEventFilter(const_cast<QSqlRelationalDelegate *>(this));
 
     return combo;
 }
