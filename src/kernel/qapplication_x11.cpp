@@ -1690,7 +1690,10 @@ void qt_init_internal( int *argcptr, char **argv,
 	qt_x11_intern_atom( "KWIN_RUNNING", &qt_kwin_running );
 	qt_x11_intern_atom( "KWM_RUNNING", &qt_kwm_running );
 	qt_x11_intern_atom( "GNOME_BACKGROUND_PROPERTIES", &qt_gbackground_properties );
-	qt_x11_intern_atom( "_QT_SETTINGS_TIMESTAMP", &qt_settings_timestamp );
+
+	QString atomname("_QT_SETTINGS_TIMESTAMP_");
+	atomname += XDisplayName(appDpyName);
+	qt_x11_intern_atom( atomname.latin1(), &qt_settings_timestamp );
 
 	qt_x11_intern_atom( "_NET_SUPPORTED", &qt_net_supported );
 	qt_x11_intern_atom( "_NET_VIRTUAL_ROOTS", &qt_net_virtual_roots );
