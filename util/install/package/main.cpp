@@ -46,8 +46,12 @@ static int usage(const char *argv0, const char *un=NULL) {
     fprintf(stderr, "                       QT_ARQ to the excutable file2\n");
     fprintf(stderr, " -getres file        : Get the binary resource QT_ARQ from the executable\n" );
     fprintf(stderr, "                       file and store it under qt.arq\n");
-    fprintf(stderr, " -license file1 file2: Add the license file1 as the binary resource\n");
+    fprintf(stderr, " -license LICENSE file2:\n");
+    fprintf(stderr, "                       Add the license LICENSE as the binary resource\n");
     fprintf(stderr, "                       LICENSE to the excutable file2\n");
+    fprintf(stderr, " -license-us LICENSE-US file2:\n");
+    fprintf(stderr, "                       Add the license LICENSE-US as the binary resource\n");
+    fprintf(stderr, "                       LICENSE-US to the excutable file2\n");
 #endif
     return 665;
 }
@@ -101,6 +105,7 @@ int main( int argc, char** argv )
     QString arq, exe;
     bool doRes = FALSE;
     bool doLicense = FALSE;
+    bool doLicenseUs = FALSE;
     bool getRes = FALSE;
 #endif
     QStringList files;
@@ -171,19 +176,26 @@ int main( int argc, char** argv )
 		arq = argv[i];
 	    if ( ++i < argc )
 		exe = argv[i];
+	//licenseUs (Windows only)
+	} else if(!strcmp(argv[i], "-license-us")) {
+	    doLicenseUs = TRUE;
+	    if ( ++i < argc )
+		arq = argv[i];
+	    if ( ++i < argc )
+		exe = argv[i];
 #endif
 	//files
 	} else if(*(argv[i]) != '-') {
-	    files.append(argv[i]); 
+	    files.append(argv[i]);
 	//unknown
 	} else {
-	    return usage(argv[0], argv[i]); 
+	    return usage(argv[0], argv[i]);
 	}
     }
 #if defined(Q_OS_WIN32)
-    if ( doRes || doLicense ) {
+    if ( doRes || doLicense || doLicenseUs ) {
 	if ( arq.isEmpty() || exe.isEmpty() )
-	    return usage(argv[0], argv[i]); 
+	    return usage(argv[0], argv[i]);
 	QFile fArq( arq );
 	if ( !fArq.open( IO_ReadOnly ) ) {
 	    if ( doRes ) {
@@ -204,8 +216,10 @@ int main( int argc, char** argv )
 	QString resName;
 	if ( doRes ) {
 	    resName = "QT_ARQ";
-	} else {
+	} else if ( doLicense ){
 	    resName = "LICENSE";
+	} else {
+	    resName = "LICENSE-US";
 	}
 	if ( !UpdateResourceA(hExe,RT_RCDATA,resName.latin1(),0,ba.data(),ba.count()) ) {
 	    EndUpdateResource( hExe, TRUE );
@@ -222,7 +236,7 @@ int main( int argc, char** argv )
     }
     if ( getRes ) {
 	if ( exe.isEmpty() )
-	    return usage(argv[0], argv[i]); 
+	    return usage(argv[0], argv[i]);
 	arq = "qt.arq";
 	QFile fArq( arq );
 	if ( !fArq.open( IO_WriteOnly ) ) {
@@ -264,7 +278,7 @@ int main( int argc, char** argv )
 	QArchive archive;
 	ConsoleOutput out;
 	if(output) {
-	    QObject::connect( &archive, SIGNAL( operationFeedback( const QString& ) ), 
+	    QObject::connect( &archive, SIGNAL( operationFeedback( const QString& ) ),
 		    &out, SLOT( updateProgress( const QString& ) ) );
 	    archive.setVerbosity( QArchive::Destination | QArchive::Verbose );
 	}
@@ -286,7 +300,7 @@ int main( int argc, char** argv )
 		qDebug("Failed to open %s", (*it).latin1());
 		continue;
 	    }
-	    if(f.isDir()) 
+	    if(f.isDir())
 		archive.writeDir( (*it), TRUE, (*it) );
 	    else
 		archive.writeFile( (*it), (*it) );
