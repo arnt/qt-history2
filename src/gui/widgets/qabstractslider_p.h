@@ -41,7 +41,7 @@ public:
     int repeatActionTime;
     QAbstractSlider::SliderAction repeatAction;
 
-    inline int bound(int val){ return qMax(minimum, qMin(maximum, val)); }
+    inline int bound(int val) const { return qMax(minimum, qMin(maximum, val)); }
 };
 
 #endif
