@@ -269,7 +269,7 @@ bool QMYSQLResult::reset ( const QString& query )
 
 int QMYSQLResult::size()
 {
-    return (int)mysql_num_rows( d->result );
+    return isSelect() ? (int)mysql_num_rows( d->result ) : -1;
 }
 
 int QMYSQLResult::numRowsAffected()
