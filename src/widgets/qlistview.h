@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#78 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#79 $
 **
 ** Definition of QListView widget class
 **
@@ -308,6 +308,8 @@ public:
 
     void paintCell( QPainter *,  const QColorGroup & cg,
 		    int column, int width, int alignment );
+    virtual void paintFocus( QPainter *, const QColorGroup & cg,
+			     const QRect & r );
     int width( const QFontMetrics&, const QListView*, int column) const;
     void setup();
 
@@ -347,13 +349,13 @@ public:
   QListViewItemIterator(QListView *lv);
 
   QListViewItemIterator &operator=(const QListViewItemIterator &it);
-  
+
   ~QListViewItemIterator();
 
   QListViewItemIterator& operator++();
   const QListViewItemIterator operator++(int);
   QListViewItemIterator &operator+=(int j);
-  
+
   QListViewItem *current() const;
 
 protected:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#225 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#226 $
 **
 ** Implementation of QListView widget class
 **
@@ -3763,13 +3763,26 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 }
 
 /*!
+  Draws the focus rectangle
+*/
+void QCheckListItem::paintFocus( QPainter *p, const QColorGroup & cg,
+				 const QRect & r )
+{
+    if ( myType != Controller ) {
+        QRect rect( r.x() + BoxSize + 5, r.y(), r.width() - BoxSize - 5,r.height() );
+	QListViewItem::paintFocus(p, cg, rect);
+    } else {
+      QListViewItem::paintFocus(p, cg, r);
+    }
+}
+
+/*!
   Fills the rectangle. No decoration is drawn.
  */
 void QCheckListItem::paintBranches( QPainter * p, const QColorGroup & cg,
 			    int w, int, int h, GUIStyle)
 {
     p->fillRect( 0, 0, w, h, cg.base() );
-
 }
 
 
@@ -4199,27 +4212,27 @@ void QListView::removeItem( QListViewItem * i )
   Often you want to get all items, which were selected by a user. Here is
   an example which does this and stores the pointers to all selected items
   in a QList.
-  
+
   \code
-  
+
   \/ Somewhere a listview is generated like this
   QListView *lv = new QListView(this);
   \/ Enable multiselection
   lv->setMultiSelection( TRUE );
-  
+
   \/ Insert the items here
-  
+
   * * * *
-  
+
   \/ This function is called to get a list of the selected items of a listview
   QList<QListViewItem> * getSelectedItems( QListView *lv ) {
     if ( !lv )
       return 0;
-      
+
     \/ Create the list
     QList<QListViewItem> *lst = new QList<QListViewItem>;
     lst->setAutoDelete( FALSE );
-      
+
     \/ Create an iterator and give the listview as argument
     QListViewItemIterator it( lv );
     \/ iterate through all items of the listview
@@ -4227,10 +4240,10 @@ void QListView::removeItem( QListViewItem * i )
       if ( it->current()->isSelected() )
         lst->append( it->current() );
     }
-    
+
     return lst;
   }
-  
+
   \endcode
 
   Using a QListViewItemIterator is a convinient way to traverse the tree
