@@ -1,4 +1,5 @@
 #include <qwidget.h>
+class QLineEdit;
 class QLabel;
 class Main : public QWidget {
     Q_OBJECT
@@ -10,6 +11,10 @@ public:
     void paintEvent(QPaintEvent* e);
 public slots:
     void bang();
+    void bop();
+    void ratatatat();
 private:
     QLabel *lab;
+    QLineEdit* initEd;
+    QLineEdit* filtEd;
 };
