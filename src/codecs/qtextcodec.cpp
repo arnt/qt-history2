@@ -806,8 +806,13 @@ QCString QTextCodec::fromUnicode(const QString& uc, int& lenInOut) const
 */
 QByteArray QTextCodec::fromUnicode( const QString &str, int pos, int len ) const
 {
-    QByteArray a = fromUnicode( str.mid(pos, len) );
-    a.resize( a.size() - 1 ); // remove '\0'
+    QByteArray a;
+    if( len < 0 )
+	len = str.length() - pos;
+    if( len > 0 ) {
+	a  = fromUnicode( str.mid(pos, len) );
+	a.resize( a.size() - 1 ); // remove '\0'
+    }
     return a;
 }
 

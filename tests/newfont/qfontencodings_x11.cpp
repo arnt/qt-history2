@@ -575,6 +575,11 @@ QCString QFontArabic68Codec::fromUnicode(const QString& , int&  ) const
 
 QByteArray QFontArabic68Codec::fromUnicode(const QString& uc, int from, int len ) const
 {
+    if( len < 0 ) 
+	len = uc.length() - from;
+    if( len == 0 )
+	return QByteArray();
+    
     QByteArray result( len );
     uchar *data = (uchar *)result.data();
     const QChar *ch = uc.unicode() + from;
@@ -1000,6 +1005,11 @@ QCString QFontArabicUnicodeCodec::fromUnicode(const QString&, int& ) const
 
 QByteArray QFontArabicUnicodeCodec::fromUnicode(const QString& uc, int from, int len ) const
 {
+    if( len < 0 ) 
+	len = uc.length() - from;
+    if( len == 0 )
+	return QByteArray();
+
     QByteArray result( len*2 );
     uchar *data = (uchar *)result.data();
     const QChar *ch = uc.unicode() + from;
