@@ -665,6 +665,7 @@ MakefileGenerator::processPrlFile(QString &file)
        project->variables()["QMAKE_PRL_INTERNAL_FILES"].findIndex(prl_file) == -1) {
 	project->variables()["QMAKE_PRL_INTERNAL_FILES"].append(prl_file);
 	QMakeProject proj;
+	debug_msg(1, "Processing PRL file: %s", prl_file.latin1());
 	if(!proj.read(prl_file, QDir::currentDirPath())) {
 	    fprintf(stderr, "Error processing prl file: %s\n", prl_file.latin1());
 	} else {

@@ -206,7 +206,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     /* rules */
     t << "first: all" << endl;
     t << "####### Implicit rules" << endl << endl;
-    t << ".SUFFIXES:";
+    t << ".SUFFIXES: .c";
     QStringList::Iterator cppit;
     for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit) 
 	t << " " << (*cppit);
@@ -214,6 +214,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit) 
 	t << (*cppit) << ".o:\n\t" << var("QMAKE_RUN_CXX_IMP") << endl << endl;
     t << ".c.o:\n\t" << var("QMAKE_RUN_CC_IMP") << endl << endl;
+
     if(include_deps) {
 	QString cmd=var("QMAKE_CFLAGS_DEPS") + " ";
 	cmd += varGlue("DEFINES","-D"," -D","") + varGlue("PRL_EXPORT_DEFINES"," -D"," -D","");
@@ -276,7 +277,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	QStringList &l = project->variables()["QMAKE_PRL_INTERNAL_FILES"];
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	    QMakeProject proj;
-	    if(proj.read((*it), QDir::currentDirPath()) && !proj.isEmpty("QMAKE_PRL_BUILD_DIRECTORY")) {
+	    if(proj.read((*it), QDir::currentDirPath()) && !proj.isEmpty("QMAKE_PRL_BUILD_DIR")) {
 		QString dir;
 		int slsh = (*it).findRev(Option::dir_sep);
 		if(slsh != -1)
