@@ -72,7 +72,7 @@
 
 #define QT_SIGNAL_RETTYPE	void
 #define QT_SIGNAL_ARGS		int
-#define QT_SIGNAL_IGNORE	(void (*)(int))1
+#define QT_SIGNAL_IGNORE	SIG_IGN
 
 #define QT_SOCKLEN_T		int
 
