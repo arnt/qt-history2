@@ -4,7 +4,7 @@
 **
 ** This header file efficiently includes all Qt GUI Toolkit functionality.
 **
-** Generated : Thu May 10 12:18:39 CEST 2001
+** Generated : Tue May 15 11:45:38 EST 2001
 
 **
 ** Copyright (C) 1995-2000 Trolltech AS.  All rights reserved.
@@ -31,16 +31,16 @@
 #include "qpoint.h"
 #include "qsize.h"
 #include "qgdict.h"
-#include "qrect.h"
-#include "qsizepolicy.h"
+#include <qrect.h>
+#include "qfont.h"
 #include "qregion.h"
 #include "qptrlist.h"
 #include "qiodevice.h"
 #include "qcolor.h"
-#include "qfont.h"
-#include "qpen.h"
 #include "qdatastream.h"
+#include "qpen.h"
 #include "qfontinfo.h"
+#include "qsizepolicy.h"
 #include "qpair.h"
 #include <quuid.h>
 #include <stdio.h>
@@ -56,28 +56,28 @@
 #include "qmime.h"
 #include "qevent.h"
 #include "qdict.h"
-#include <qdatetime.h>
+#include "qdatetime.h"
 #include "qhostaddress.h"
 #include "qobject.h"
 #include "qstyle.h"
 #include <qdom.h>
-#include <qwidget.h>
-#include <qdrawutil.h>
-#include "qbutton.h"
 #include "qstrlist.h"
+#include <qdrawutil.h>
+#include "qwidget.h"
+#include "qcommonstyle.h"
 #include "qdialog.h"
 #include "qjpunicode.h"
 #include "qtextcodec.h"
 #include "qframe.h"
 #include "qgroupbox.h"
-#include "qdockwindow.h"
+#include "qvaluelist.h"
 #include "qfile.h"
 #include "qfileinfo.h"
 #include <qwidgetlist.h>
-#include <qdataview.h>
-#include "qvaluelist.h"
+#include "qbutton.h"
+#include "qstringlist.h"
 #include <qfontdialog.h>
-#include <qcolordialog.h>
+#include <qdataview.h>
 #include "qpixmap.h"
 #include "qlineedit.h"
 #include "qurlinfo.h"
@@ -89,10 +89,10 @@
 #include <qglcolormap.h>
 #include <qcache.h>
 #include <qdropsite.h>
-#include "qstringlist.h"
+#include "qcom.h"
 #include <qgrid.h>
 #include "qbuttongroup.h"
-#include "qguardedptr.h"
+#include <qcolordialog.h>
 #include "qgvector.h"
 #include "qhbox.h"
 #include <qhbuttongroup.h>
@@ -106,7 +106,7 @@
 #include <qinputdialog.h>
 #include <qintcache.h>
 #include "qintdict.h"
-#include "qcommonstyle.h"
+#include "qmotifstyle.h"
 #include <qpicture.h>
 #include <qjiscodec.h>
 #include <qeucjpcodec.h>
@@ -114,19 +114,19 @@
 #include "qlabel.h"
 #include "qabstractlayout.h"
 #include <qlcdnumber.h>
-#include <qcom.h>
+#include "qlibrary.h"
 #include "qtimer.h"
 #include "qscrollbar.h"
 #include "qscrollview.h"
 #include "qdir.h"
-#include "qlibrary.h"
-#include "qmotifstyle.h"
+#include "qdockwindow.h"
+#include "qwindowsstyle.h"
 #include <qeuckrcodec.h>
 #include "qmenudata.h"
 #include "qpopupmenu.h"
 #include <qmessagebox.h>
 #include "qconnection.h"
-#include "qwindowsstyle.h"
+#include <qheader.h>
 #include <qmotifplusstyle.h>
 #include <qcdestyle.h>
 #include <qmovie.h>
@@ -135,11 +135,12 @@
 #include <qnetwork.h>
 #include <qftp.h>
 #include "qlayout.h"
+#include <qobjectcleanuphandler.h>
 #include <qaccel.h>
 #include "qmetaobject.h"
 #include <qobjectlist.h>
-#include <qheader.h>
 #include <qbitmap.h>
+#include <qpaintdevicemetrics.h>
 #include "qpointarray.h"
 #include "qvariant.h"
 #include <qerrormessage.h>
@@ -162,16 +163,16 @@
 #include "qsemimodal.h"
 #include <qasciicache.h>
 #include <qcanvas.h>
-#include <qclipboard.h>
+#include <qcleanuphandler.h>
 #include <qptrqueue.h>
 #include <qptrstack.h>
 #include "qvector.h"
 #include <qpushbutton.h>
 #include <qradiobutton.h>
 #include <qdial.h>
-#include "qwmatrix.h"
+#include <qobjectdict.h>
 #include "qregexp.h"
-#include <qcleanuphandler.h>
+#include <qclipboard.h>
 #include <qrtlcodec.h>
 #include <qlistview.h>
 #include <qlistbox.h>
@@ -179,13 +180,13 @@
 #include "qsocketdevice.h"
 #include <qsessionmanager.h>
 #include <qsettings.h>
-#include <qsgistyle.h>
+#include "qguardedptr.h"
 #include "qtranslator.h"
 #include "qsignal.h"
 #include <qsignalmapper.h>
 #include <qsignalslotimp.h>
 #include <qsimplerichtext.h>
-#include <qpaintdevicemetrics.h>
+#include "qwmatrix.h"
 #include <qsizegrip.h>
 #include <qdockarea.h>
 #include <qsjiscodec.h>
@@ -205,7 +206,7 @@
 #include "qsqlindex.h"
 #include "qsqlcursor.h"
 #include <qsqldriver.h>
-#include <qobjectdict.h>
+#include <qsgistyle.h>
 #include "qtable.h"
 #include <qsqlpropertymap.h>
 #include <qsqldatabase.h>
