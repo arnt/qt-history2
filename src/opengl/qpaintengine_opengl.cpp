@@ -37,6 +37,8 @@ public:
     Qt::BGMode bgmode;
 };
 
+static void qt_fill_linear_gradient(const QRect &rect, const QBrush &brush);
+
 #define d d_func()
 #define q q_func()
 
@@ -48,7 +50,8 @@ QOpenGLPaintEngine::QOpenGLPaintEngine(const QPaintDevice *)
 				       | PenWidthTransform
 				       | PixmapTransform
 				       | PixmapScale
-		                       | SolidAlphaFill ))
+		                       | SolidAlphaFill
+				       | LinearGradients))
 {
 }
 
@@ -426,6 +429,11 @@ void QOpenGLPaintEngine::drawRect(const QRect &r)
     dgl->makeCurrent();
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
+
+    if (d->cbrush.style() == Qt::LinearGradientPattern) {
+	qt_fill_linear_gradient(r, d->cbrush);
+	return;
+    }
 
     int x, y, w, h;
     r.rect(&x, &y, &w, &h);
@@ -813,4 +821,147 @@ Qt::HANDLE
 QOpenGLPaintEngine::handle() const
 {
     return 0;
+}
+
+template <class T> void qt_swap(T &a, T &b) { T tmp=a; a=b; b=tmp; }
+
+static void qt_fill_linear_gradient(const QRect &rect, const QBrush &brush)
+{
+    Q_ASSERT(brush.style() == Qt::LinearGradientPattern);
+
+    QPoint gstart = brush.gradientStart();
+    QPoint gstop  = brush.gradientStop();
+
+    // save GL state
+    glPushAttrib(GL_ALL_ATTRIB_BITS);
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glTranslatef(rect.x(), rect.y(), .0);
+    glShadeModel(GL_SMOOTH);
+    glDisable(GL_DEPTH_TEST);
+    glScissor(rect.x(), rect.y(), rect.width(), rect.height());
+
+    gstart -= rect.topLeft();
+    gstop -= rect.topLeft();
+
+    QColor gcol1 = brush.color();
+    QColor gcol2 = brush.gradientColor();
+
+    int dx = gstop.x() - gstart.x();
+    int dy = gstop.y() - gstart.y();
+
+    int rw = rect.width();
+    int rh = rect.height();
+
+    if (QABS(dx) > QABS(dy)) { // Fill horizontally
+        // Make sure we fill left to right.
+        if (gstop.x() < gstart.x()) {
+            qt_swap(gcol1, gcol2);
+            qt_swap(gstart, gstop);
+        }
+        // Find the location where the lines covering the gradient intersect
+        // the lines making up the top and bottom of the target rectangle.
+        // Note: This might be outside the target rect, but that is ok.
+        int xtop1, xtop2, xbot1, xbot2;
+        if (dy == 0) {
+            xtop1 = xbot1 = gstart.x();
+            xtop2 = xbot2 = gstop.x();
+        } else {
+            double gamma = double(dx) / double(-dy);
+            xtop1 = qRound((-gstart.y() + gamma * gstart.x() ) / gamma);
+            xtop2 = qRound((-gstop.y()  + gamma * gstop.x()  ) / gamma);
+            xbot1 = qRound((rh - gstart.y() + gamma * gstart.x() ) / gamma);
+            xbot2 = qRound((rh - gstop.y()  + gamma * gstop.x()  ) / gamma);
+            Q_ASSERT(xtop2 > xtop1);
+        }
+
+#ifndef QT_GRAD_NO_POLY
+        // Fill the area to the left of the gradient
+
+        QPointArray leftFill;
+	if (xtop1 > 0)
+	    leftFill << QPoint(0, 0);
+	leftFill << QPoint(xtop1+1, 0)
+		 << QPoint(xbot1+1, rh);
+        if (xbot1 > 0)
+            leftFill << QPoint(0, rh);
+	glColor4ub(gcol1.red(), gcol1.green(), gcol1.blue(), gcol1.alpha());
+	DRAW_GL_POLYGON(leftFill, 0, leftFill.size());
+
+        // Fill the area to the right of the gradient
+        QPointArray rightFill;
+	rightFill << QPoint(xtop2-1, 0);
+	if (xtop2 < rw)
+	    rightFill << QPoint(rw, 0);
+	if (xbot2 < rw)
+	    rightFill << QPoint(rw, rh);
+	rightFill << QPoint(xbot2-1, rh);
+	glColor4ub(gcol2.red(), gcol2.green(), gcol2.blue(), gcol2.alpha());
+	DRAW_GL_POLYGON(rightFill, 0, rightFill.size());
+#endif // QT_GRAD_NO_POLY
+
+	glBegin(GL_POLYGON);
+	{
+	    glColor4ub(gcol1.red(), gcol1.green(), gcol1.blue(), gcol1.alpha());
+	    glVertex2i(xbot1, rect.height()); glVertex2i(xtop1, 0);
+	    glColor4ub(gcol2.red(), gcol2.green(), gcol2.blue(), gcol2.alpha());
+	    glVertex2i(xtop2, 0); glVertex2i(xbot2, rect.height());
+	}
+	glEnd();
+    } else {
+        // Fill Vertically
+        // Code below is a conceptually equal to the one above except that all
+        // coords are swapped x <-> y.
+        // Make sure we fill top to bottom...
+        if (gstop.y() < gstart.y()) {
+            qt_swap(gstart, gstop);
+            qt_swap(gcol1, gcol2);
+        }
+        int yleft1, yleft2, yright1, yright2;
+        if (dx == 0) {
+            yleft1 = yright1 = gstart.y();
+            yleft2 = yright2 = gstop.y();
+        } else {
+            double gamma = double(dy) / double(-dx);
+            yleft1 = qRound((-gstart.x() + gamma * gstart.y()) / gamma);
+            yleft2 = qRound((-gstop.x() + gamma * gstop.y()) / gamma);
+            yright1 = qRound((rw - gstart.x() + gamma*gstart.y()) / gamma);
+            yright2 = qRound((rw - gstop.x() + gamma*gstop.y()) / gamma);
+            Q_ASSERT(yleft2 > yleft1);
+        }
+
+#ifndef QT_GRAD_NO_POLY
+        QPointArray topFill;
+        topFill << QPoint(0, yleft1+1);
+	if (yleft1 > 0)
+	    topFill << QPoint(0, 0);
+	if (yright1 > 0)
+	    topFill << QPoint(rw, 0);
+	topFill << QPoint(rw, yright1+1);
+	glColor4ub(gcol1.red(), gcol1.green(), gcol1.blue(), gcol1.alpha());
+	DRAW_GL_POLYGON(topFill, 0, topFill.size());
+
+        QPointArray bottomFill;
+	bottomFill << QPoint(0, yleft2-1);
+	if (yleft2 < rh)
+	    bottomFill << QPoint(0, rh);
+	if (yright2 < rh)
+	    bottomFill << QPoint(rw, rh);
+	bottomFill << QPoint(rw, yright2-1);
+	glColor4ub(gcol2.red(), gcol2.green(), gcol2.blue(), gcol2.alpha());
+	DRAW_GL_POLYGON(bottomFill, 0, bottomFill.size());
+#endif // QT_GRAD_NO_POLY
+
+	glBegin(GL_POLYGON);
+	{
+	    glColor4ub(gcol1.red(), gcol1.green(), gcol1.blue(), gcol1.alpha());
+	    glVertex2i(0, yleft1); glVertex2i(rect.width(), yright1);
+	    glColor4ub(gcol2.red(), gcol2.green(), gcol2.blue(), gcol2.alpha());
+	    glVertex2i(rect.width(), yright2); glVertex2i(0, yleft2);
+	}
+	glEnd();
+    }
+
+    glPopMatrix();
+    glPopAttrib();
 }

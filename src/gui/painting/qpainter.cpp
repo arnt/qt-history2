@@ -3377,9 +3377,10 @@ void qt_fill_linear_gradient(const QRect &rect, QPainter *p, const QBrush &brush
 #ifndef QT_GRAD_NO_POLY
         // Fill the area to the left of the gradient
         QPointArray leftFill;
-        leftFill << QPoint(0, 0)
-                 << QPoint(xtop1+1, 0)
-                 << QPoint(xbot1+1, rh);
+	if (xtop1 > 0)
+	    leftFill << QPoint(0, 0);
+	leftFill << QPoint(xtop1+1, 0)
+		 << QPoint(xbot1+1, rh);
         if (xbot1 > 0)
             leftFill << QPoint(0, rh);
         p->setBrush(gcol1);
@@ -3387,11 +3388,12 @@ void qt_fill_linear_gradient(const QRect &rect, QPainter *p, const QBrush &brush
 
         // Fill the area to the right of the gradient
         QPointArray rightFill;
-        rightFill << QPoint(rw, rh)
-                  << QPoint(xbot2-1, rh)
-                  << QPoint(xtop2-1, 0);
-        if (xtop2 < rw)
-            rightFill << QPoint(rw, 0);
+	rightFill << QPoint(xtop2-1, 0);
+	if (xtop2 < rw)
+	    rightFill << QPoint(rw, 0);
+	if (xbot2 < rw)
+	    rightFill << QPoint(rw, rh);
+	rightFill << QPoint(xbot2-1, rh);
         p->setBrush(gcol2);
         p->drawPolygon(rightFill);
 #endif // QT_GRAD_NO_POLY
@@ -3442,20 +3444,22 @@ void qt_fill_linear_gradient(const QRect &rect, QPainter *p, const QBrush &brush
 #ifndef QT_GRAD_NO_POLY
         p->setPen(Qt::NoPen);
         QPointArray topFill;
-        topFill << QPoint(0, 0)
-                << QPoint(0, yleft1 + 1)
-                << QPoint(rw, yright1 + 1);
-        if (yright1 > 0)
-            topFill << QPoint(rw, 0);
+        topFill << QPoint(0, yleft1+1);
+	if (yleft1 > 0)
+	    topFill << QPoint(0, 0);
+	if (yright1 > 0)
+	    topFill << QPoint(rw, 0);
+	topFill << QPoint(rw, yright1+1);
         p->setBrush(gcol1);
         p->drawPolygon(topFill);
 
         QPointArray bottomFill;
-        bottomFill << QPoint(rw, rh)
-                   << QPoint(rw, yright2-1)
-                   << QPoint(0, yleft2-1);
-        if (yleft2 < rh)
-            bottomFill << QPoint(0, rh);
+	bottomFill << QPoint(0, yleft2-1);
+	if (yleft2 < rh)
+	    bottomFill << QPoint(0, rh);
+	if (yright2 < rh)
+	    bottomFill << QPoint(rw, rh);
+	bottomFill << QPoint(rw, yright2-1);
         p->setBrush(gcol2);
         p->drawPolygon(bottomFill);
 #endif // QT_GRAD_NO_POLY
