@@ -749,12 +749,8 @@ HRESULT WINAPI QAxHostWindow::GetWindowContext( IOleInPlaceFrame **ppFrame, IOle
 
     lpFrameInfo->cb = sizeof(OLEINPLACEFRAMEINFO);
     lpFrameInfo->fMDIApp = FALSE;
-    ACCEL ac[] = {
-	{ 0,VK_TAB,12 },
-	{ 0, 0, 0 }
-    };
-    lpFrameInfo->haccel = CreateAcceleratorTable(ac, 2);
-    lpFrameInfo->cAccelEntries = 2;
+    lpFrameInfo->haccel = 0;
+    lpFrameInfo->cAccelEntries = 0;
     lpFrameInfo->hwndFrame = widget->topLevelWidget()->winId();
 
     return S_OK;
