@@ -1587,7 +1587,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		case kEventMouseMoved: desc = "MouseMove"; break;
 		case kEventMouseWheelMoved: desc = "MouseWheelMove"; break;
 		}
-		qDebug("Would send (%s) event to %s %s (%d %d %d)", desc,
+		qDebug("%d %d - Would send (%s) event to %s %s (%d %d %d)", p.x(), p.y(), desc,
 		       widget->name(), widget->className(), button|keys, state|keys,
 		       wheel_delta);
 #endif
