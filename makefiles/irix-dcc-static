@@ -28,13 +28,13 @@ diff -ur template/examples/xshape/Makefile irix-dcc-static/examples/xshape/Makef
  
 diff -ur template/library/Makefile irix-dcc-static/library/Makefile
 --- template/library/Makefile	Thu Sep  5 15:26:13 1996
-+++ irix-dcc-static/library/Makefile	Thu Sep  5 15:27:09 1996
++++ irix-dcc-static/library/Makefile	Thu Sep  5 15:52:55 1996
 @@ -76,7 +76,7 @@
  .SUFFIXES: .cpp
  
  .cpp.o:
 -	$(CC) -I$(INCDIR) -c $(CFLAGS) -fpic $<
-+	$(CC) -I$(INCDIR) -c $(CFLAGS) $<
++	$(CC) -I$(INCDIR) -c -O2 -fullwarn $<
  
  # VERSION - the version number of the shared library, where applicable
  
@@ -55,6 +55,7 @@ diff -ur template/library/Makefile irix-dcc-static/library/Makefile
  
  depend:
  	makedepend $(SOURCES) 2> /dev/null
+Only in irix-dcc-static/library: Makefile~
 diff -ur template/moc/Makefile irix-dcc-static/moc/Makefile
 --- template/moc/Makefile	Thu Sep  5 15:25:48 1996
 +++ irix-dcc-static/moc/Makefile	Thu Sep  5 15:26:16 1996
