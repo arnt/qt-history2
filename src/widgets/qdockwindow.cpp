@@ -1396,6 +1396,7 @@ void QDockWindow::updatePosition( const QPoint &globalPos )
 	QApplication::sendPostedEvents( this, QEvent::LayoutHint );
 	if ( qt_cast<QToolBar*>(this) )
 	    adjustSize();
+	setAttribute(WA_Resized, false); // Ensures size is recalculated (non-opaque).
 	show();
 	if ( parentWidget() && isTopLevel() )
 	    parentWidget()->setActiveWindow();
@@ -1842,7 +1843,7 @@ void QDockWindow::undock( QWidget *w )
 	adjustSize();
     if ( !w ) {
 	if ( !parentWidget() || parentWidget()->isVisible() ) {
-	    setAttribute(WA_Resized, false); // Ensures size is recalculated.
+	    setAttribute(WA_Resized, false);// Ensures size is recalculated (opaque).
 	    show();
 	}
     } else {
