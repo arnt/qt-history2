@@ -15,7 +15,8 @@ kernel {
 		  $$KERNEL_H/qcolor.h \
 		  $$KERNEL_P/qcolor_p.h \
 		  $$KERNEL_P/qcomplextext_p.h \
-		  $$KERNEL_H/qcomponentinterface.h \
+		  $$KERNEL_H/qcom.h \
+		  $$KERNEL_H/quuid.h \
 		  $$KERNEL_H/qconnection.h \
 		  $$KERNEL_H/qcursor.h \
 		  $$KERNEL_H/qdesktopwidget.h \
@@ -91,7 +92,7 @@ kernel {
 		  $$KERNEL_H/qwmatrix.h \
 		  $$KERNEL_H/qvariant.h \
 		  $$KERNEL_P/qrichtext_p.h \
-		  $$KERNEL_H/qsimplerichtext.h 
+		  $$KERNEL_H/qsimplerichtext.h
 
 
 	win32:SOURCES += $$KERNEL_CPP/qapplication_win.cpp \
@@ -148,7 +149,7 @@ kernel {
 			  $$KERNEL_CPP/qsound_mac.cpp \
 			  $$KERNEL_CPP/qwidget_mac.cpp \
 			  $$KERNEL_CPP/qnpsupport.cpp \
-			  $$KERNEL_CPP/qfont_mac.cpp 
+			  $$KERNEL_CPP/qfont_mac.cpp
              DEFINES += QMAC_QMENUBAR_NATIVE ONE_PIXEL_LOCK
              macx-g++ {
 	                  DEFINES += CARBON_ON_MACH_O=1 ALLOW_OLD_BLOCKING_APIS=0 ALLOW_OLD_EVENT_LOOP_APIS=0
@@ -174,7 +175,8 @@ kernel {
 		  $$KERNEL_CPP/qcolor.cpp \
 		  $$KERNEL_CPP/qcolor_p.cpp \
 		  $$KERNEL_CPP/qcomplextext.cpp \
-		  $$KERNEL_CPP/qcomponentinterface.cpp \
+		  $$KERNEL_CPP/qcom.cpp \
+		  $$KERNEL_CPP/quuid.cpp \
 		  $$KERNEL_CPP/qconnection.cpp \
 		  $$KERNEL_CPP/qcursor.cpp \
 		  $$KERNEL_CPP/qdialog.cpp \
@@ -227,7 +229,7 @@ kernel {
 		  $$KERNEL_CPP/qwmatrix.cpp \
 		  $$KERNEL_CPP/qvariant.cpp \
 		  $$KERNEL_CPP/qrichtext.cpp \
-		  $$KERNEL_CPP/qsimplerichtext.cpp 
+		  $$KERNEL_CPP/qsimplerichtext.cpp
 
 	unix:HEADERS   += $$KERNEL_P/qpsprinter_p.h \
 			  $$KERNEL_H/qfontdatabase.h
