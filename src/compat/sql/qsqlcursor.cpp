@@ -90,11 +90,11 @@ QString qWhereClause(QSqlRecord* rec, const QString& prefix, const QString& sep,
     QString filter;
     bool separator = false;
     for (int j = 0; j < rec->count(); ++j) {
-        QSqlField* f = rec->field(j);
+        QSqlField f = rec->field(j);
         if (rec->isGenerated(j)) {
             if (separator)
                 filter += sep + blank;
-            filter += qWhereClause(prefix, f, driver);
+            filter += qWhereClause(prefix, &f, driver);
             filter += blank;
             separator = true;
         }
@@ -555,12 +555,12 @@ QSqlIndex QSqlCursor::index(const QStringList& fieldNames) const
 {
     QSqlIndex idx;
     for (QStringList::ConstIterator it = fieldNames.begin(); it != fieldNames.end(); ++it) {
-        const QSqlField* f = field((*it));
-        if (!f) { /* all fields must exist */
+        QSqlField f = field((*it));
+        if (!f.isValid()) { /* all fields must exist */
             idx.clear();
             break;
         }
-        idx.append(*f);
+        idx.append(f);
     }
     return idx;
 }
@@ -906,11 +906,11 @@ QString QSqlCursor::toString(QSqlRecord* rec, const QString& prefix, const QStri
     QString filter;
     bool separator = false;
     for (int j = 0; j < count(); ++j) {
-        QSqlField* f = rec->field(j);
+        QSqlField f = rec->field(j);
         if (rec->isGenerated(j)) {
             if (separator)
                 filter += sep + blank;
-            filter += toString(prefix, f, fieldSep);
+            filter += toString(prefix, &f, fieldSep);
             filter += blank;
             separator = true;
         }
@@ -942,8 +942,8 @@ QString QSqlCursor::toString(const QSqlIndex& i, QSqlRecord* rec, const QString&
                 filter += " " + sep + " " ;
             }
             QString fn = i.fieldName(j);
-            QSqlField* f = rec->field(fn);
-            filter += toString(prefix, f, fieldSep);
+            QSqlField f = rec->field(fn);
+            filter += toString(prefix, &f, fieldSep);
             separator = true;
         }
     }
@@ -993,13 +993,13 @@ int QSqlCursor::insert(bool invalidate)
         int cnt = 0;
         bool oraStyle = driver()->hasFeature(QSqlDriver::NamedPlaceholders);
         for(int j = 0; j < k; ++j) {
-            QSqlField* f = d->editBuffer.field(j);
+            QSqlField f = d->editBuffer.field(j);
             if (d->editBuffer.isGenerated(j)) {
                 if (comma) {
                     fList += ",";
                     vList += ",";
                 }
-                fList += f->name();
+                fList += f.name();
                 vList += (oraStyle == true) ? ":f" + QString::number(cnt) : QString("?");
                 cnt++;
                 comma = true;
@@ -1013,14 +1013,14 @@ int QSqlCursor::insert(bool invalidate)
         return applyPrepared(str, invalidate);
     } else {
         for(int j = 0; j < k; ++j) {
-            QSqlField* f = d->editBuffer.field(j);
+            QSqlField f = d->editBuffer.field(j);
             if (d->editBuffer.isGenerated(j)) {
                 if (comma) {
                     fList += ",";
                     vList += ",";
                 }
-                fList += f->name();
-                vList += driver()->formatValue(f);
+                fList += f.name();
+                vList += driver()->formatValue(&f);
                 comma = true;
             }
         }
@@ -1192,12 +1192,12 @@ int QSqlCursor::update(const QString & filter, bool invalidate)
         int cnt = 0;
         bool oraStyle = driver()->hasFeature(QSqlDriver::NamedPlaceholders);
         for(int j = 0; j < k; ++j) {
-            QSqlField* f = d->editBuffer.field(j);
+            QSqlField f = d->editBuffer.field(j);
             if (d->editBuffer.isGenerated(j)) {
                 if (comma) {
                     fList += ",";
                 }
-                fList += f->name() + " = " + (oraStyle == true ? ":f" + QString::number(cnt) : QString("?"));
+                fList += f.name() + " = " + (oraStyle == true ? ":f" + QString::number(cnt) : QString("?"));
                 cnt++;
                 comma = true;
             }
@@ -1330,12 +1330,12 @@ int QSqlCursor::applyPrepared(const QString& q, bool invalidate)
     int cnt = 0;
     int fieldCount = (int)count();
     for (int j = 0; j < fieldCount; ++j) {
-        const QSqlField* f = d->editBuffer.field(j);
+        const QSqlField f = d->editBuffer.field(j);
         if (d->editBuffer.isGenerated(j)) {
-            if (f->type() == QCoreVariant::ByteArray)
-                sql->bindValue(cnt, f->value(), QSql::In | QSql::Binary);
+            if (f.type() == QCoreVariant::ByteArray)
+                sql->bindValue(cnt, f.value(), QSql::In | QSql::Binary);
             else
-                sql->bindValue(cnt, f->value());
+                sql->bindValue(cnt, f.value());
             cnt++;
         }
     }
@@ -1410,7 +1410,7 @@ void QSqlCursor::sync()
                 }
                 QSqlRecord::setValue(i, v);
                 if (QSqlQuery::isNull(j))
-                    QSqlRecord::field(i)->clear();
+                    QSqlRecord::field(i).clear();
                 j++;
             }
         }

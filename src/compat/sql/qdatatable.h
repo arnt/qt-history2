@@ -171,7 +171,7 @@ protected:
     void         repaintCell(int row, int col);
     void         paintCell (QPainter * p, int row, int col, const QRect & cr,
                              bool selected, const QPalette &pal);
-    virtual void paintField(QPainter * p, const QSqlField* field, const QRect & cr,
+    virtual void paintField(QPainter * p, const QSqlField &field, const QRect & cr,
                              bool selected);
     void         drawContents(QPainter * p, int cx, int cy, int cw, int ch);
     virtual int  fieldAlignment(const QSqlField* field);
@@ -194,7 +194,7 @@ private slots:
     void         doUpdateCurrent();
 
 private:
-    QString          fieldToString(const QSqlField * field);
+    QString          fieldToString(const QSqlField &field);
     void         init();
     QWidget*     beginEdit (int row, int col, bool replace);
     void         updateRow(int row);

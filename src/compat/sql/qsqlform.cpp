@@ -358,8 +358,10 @@ void QSqlForm::sync()
     if (d->dirty) {
         clearMap();
         if (d->buf) {
-            for (int i = 0; i < d->fld.count(); ++i)
-                insert(d->wgt.value(d->fld[i]), d->buf->field(d->fld[i]));
+            for (int i = 0; i < d->fld.count(); ++i) {
+                QSqlField field = d->buf->field(d->fld[i]);
+                insert(d->wgt.value(d->fld[i]), &field);
+            }
         }
     }
     d->dirty = false;

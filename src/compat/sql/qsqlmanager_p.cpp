@@ -56,9 +56,9 @@ QSqlIndex indexFromStringList(const QStringList& l, const QSqlCursor* cursor)
         int dot = f.lastIndexOf('.');
         if (dot != -1)
             f = f.mid(dot+1);
-        const QSqlField* field = cursor->field(f.trimmed());
-        if (field)
-            newSort.append(*field, desc);
+        const QSqlField field = cursor->field(f.trimmed());
+        if (field.isValid())
+            newSort.append(field, desc);
         else
             qWarning("QSqlIndex::indexFromStringList: unknown field: '%s'", f.latin1());
     }
@@ -258,7 +258,7 @@ static bool index_matches(const QSqlCursor* cur, const QSqlRecord* buf,
 {
     bool indexEquals = false;
     for (int i = 0; i < idx.count(); ++i) {
-        const QString fn(idx.field(i)->name());
+        const QString fn(idx.field(i).name());
         if (cur->value(fn) == buf->value(fn))
             indexEquals = true;
         else {
@@ -281,19 +281,19 @@ static int compare_recs(const QSqlRecord* buf1, const QSqlRecord* buf2,
     int cmp = 0;
 
     int i = 0;
-    const QString fn(idx.field(i)->name());
-    const QSqlField* f1 = buf1->field(fn);
+    const QString fn(idx.field(i).name());
+    const QSqlField f1 = buf1->field(fn);
 
-    if (f1) {
-        switch (f1->type()) { // ### more types?
+    if (f1.isValid()) {
+        switch (f1.type()) { // ### more types?
         case QCoreVariant::String:
-            cmp = f1->value().toString().trimmed().compare(
+            cmp = f1.value().toString().trimmed().compare(
                           buf2->value(fn).toString().trimmed());
             break;
         default:
-            if (f1->value().toDouble() < buf2->value(fn).toDouble())
+            if (f1.value().toDouble() < buf2->value(fn).toDouble())
                 cmp = -1;
-            else if (f1->value().toDouble() > buf2->value(fn).toDouble())
+            else if (f1.value().toDouble() > buf2->value(fn).toDouble())
                 cmp = 1;
         }
     }

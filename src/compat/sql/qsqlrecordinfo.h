@@ -40,7 +40,7 @@ public:
     QSqlRecordInfo(const QSqlRecord& other)
     {
         for (int i = 0; i < other.count(); ++i)
-            push_back(QSqlFieldInfo(*(other.field(i)), other.isGenerated(i)));
+            push_back(QSqlFieldInfo(other.field(i), other.isGenerated(i)));
     }
 
     size_type contains(const QString& fieldName) const;

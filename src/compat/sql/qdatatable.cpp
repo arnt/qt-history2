@@ -609,7 +609,8 @@ QWidget * QDataTable::createEditor(int , int col, bool initFromCell) const
 
     QWidget * w = 0;
     if(initFromCell && d->editBuffer){
-        w = f->createEditor(viewport(), d->editBuffer->field(indexOf(col)));
+        QSqlField field = d->editBuffer->field(indexOf(col));
+        w = f->createEditor(viewport(), &field);
         if (w)
             m->setProperty(w, d->editBuffer->value(indexOf(col)));
     }
@@ -1645,9 +1646,9 @@ void QDataTable::sortColumn (int col, bool ascending,
             return;
         QSqlIndex lastSort = sqlCursor()->sort();
         QSqlIndex newSort(lastSort.cursorName(), "newSort");
-        QSqlField *field = sqlCursor()->field(indexOf(col));
-        if (field)
-            newSort.append(*field);
+        QSqlField field = sqlCursor()->field(indexOf(col));
+        if (field.isValid())
+            newSort.append(field);
         newSort.setDescending(0, !ascending);
         horizontalHeader()->setSortIndicator(col, ascending);
         setSort(newSort);
@@ -1663,7 +1664,7 @@ void QDataTable::columnClicked (int col)
             return;
         QSqlIndex lastSort = sqlCursor()->sort();
         bool asc = true;
-        if (lastSort.count() && lastSort.field(0)->name() == sqlCursor()->field(indexOf(col))->name())
+        if (lastSort.count() && lastSort.field(0).name() == sqlCursor()->field(indexOf(col)).name())
             asc = lastSort.isDescending(0);
         sortColumn(col, asc);
         emit currentChanged(sqlCursor());
@@ -1741,12 +1742,12 @@ void QDataTable::paintCell(QPainter * p, int row, int col, const QRect & cr,
     trueText() or falseText() is displayed as appropriate.
 */
 
-void QDataTable::paintField(QPainter * p, const QSqlField* field,
+void QDataTable::paintField(QPainter * p, const QSqlField &field,
                             const QRect & cr, bool)
 {
-    if (!field)
+    if (!field.isValid())
         return;
-    p->drawText(2,2, cr.width()-4, cr.height()-4, fieldAlignment(field), fieldToString(field));
+    p->drawText(2,2, cr.width()-4, cr.height()-4, fieldAlignment(&field), fieldToString(field));
 }
 
 /*!
@@ -1819,8 +1820,8 @@ void QDataTable::setSqlCursor(QSqlCursor* cursor, bool autoPopulate, bool autoDe
             d->fldIcon.clear();
             d->fldHidden.clear();
             for (int i = 0; i < sqlCursor()->count(); ++i) {
-                addColumn(sqlCursor()->field(i)->name(), sqlCursor()->field(i)->name());
-                setColumnReadOnly(i, sqlCursor()->field(i)->isReadOnly());
+                addColumn(sqlCursor()->field(i).name(), sqlCursor()->field(i).name());
+                setColumnReadOnly(i, sqlCursor()->field(i).isReadOnly());
             }
         }
         setReadOnly(sqlCursor()->isReadOnly());
@@ -2046,24 +2047,23 @@ void QDataTable::refresh(QDataTable::Refresh mode)
         setNumCols(0);
         d->colIndex.clear();
         if (d->fld.count()) {
-            QSqlField* field = 0;
             int i;
             int fpos = -1;
             for (i = 0; i < (int)d->fld.count(); ++i) {
-                if (cur->field(i) && cur->field(i)->name() == d->fld[i])
+                if (cur->field(i).isValid() && cur->field(i).name() == d->fld[i])
                     // if there is a field with the desired name on the desired position
                     // then we take that
                     fpos = i;
                 else
                     // otherwise we take the first field that matches the desired name
                     fpos = cur->position(d->fld[i]);
-                field = cur->field(fpos);
-                if (field && (cur->isGenerated(fpos) ||
-                                cur->isCalculated(field->name())))
+                QSqlField field = cur->field(fpos);
+                if (field.isValid() && (cur->isGenerated(fpos) ||
+                                cur->isCalculated(field.name())))
                 {
                     setNumCols(numCols() + 1);
                     d->colIndex.append(fpos);
-                    setColumnReadOnly(numCols()-1, field->isReadOnly() || isColumnReadOnly(numCols()-1));
+                    setColumnReadOnly(numCols()-1, field.isReadOnly() || isColumnReadOnly(numCols()-1));
                     horizontalHeader()->setLabel(numCols()-1, d->fldIcon[i], d->fldLabel[i]);
                     if (d->fldHidden[i]) {
                         QTable::showColumn(i); // ugly but necessary
@@ -2125,13 +2125,13 @@ bool QDataTable::findBuffer(const QSqlIndex& idx, int atHint)
 /*! \internal
     Returns the string representation of a database field.
 */
-QString QDataTable::fieldToString(const QSqlField * field)
+QString QDataTable::fieldToString(const QSqlField &field)
 {
     QString text;
-    if (field->isNull()) {
+    if (field.isNull()) {
         text = nullText();
     } else {
-        QVariant val = field->value();
+        QVariant val = field.value();
         switch (val.type()) {
             case QVariant::Bool:
                 text = val.toBool() ? d->trueTxt : d->falseTxt;
