@@ -14,7 +14,8 @@ HEADERS		= frame.h \
 		  i18n/wrapper.h \
 		  qasteroids/toplevel.h \
 		  qasteroids/view.h \
-		  qasteroids/ledmeter.h
+		  qasteroids/ledmeter.h \
+		  ../aclock/aclock.h
 SOURCES		= frame.cpp \
 		  qthumbwheel.cpp \
 		  graph.cpp \
@@ -29,6 +30,7 @@ SOURCES		= frame.cpp \
 		  qasteroids/toplevel.cpp \
 		  qasteroids/view.cpp \
 		  qasteroids/ledmeter.cpp \
+		  ../aclock/aclock.cpp \
 		  main.cpp
 
 opengl {
