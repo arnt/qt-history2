@@ -146,7 +146,7 @@
 /*
    The compiler, must be one of: (Q_CC_x)
 
-     SYM	- Symantec C++ for both PC and Macintosh
+     SYM	- Digital Mars C/C++ (used to be Symantec C++)
      MPW	- MPW C++
      MWERKS	- Metrowerks CodeWarrior
      MSVC	- Microsoft Visual C/C++
