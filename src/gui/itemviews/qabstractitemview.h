@@ -145,6 +145,7 @@ class QItemViewDragObjectPrivate;
 
 class QItemViewDragObject : public QDragObject
 {
+    Q_DECLARE_PRIVATE(QItemViewDragObject);
 public:
     QItemViewDragObject(QAbstractItemView *dragSource);
     ~QItemViewDragObject();
@@ -156,9 +157,6 @@ public:
     bool canDecode(QMimeSource *src) const;
     QByteArray encodedData(const char *mime) const;
     bool decode(QMimeSource *src) const;
-
-private:
-    QItemViewDragObjectPrivate *d;
 };
 
 #endif /* QABSTRACTITEMVIEW_H */

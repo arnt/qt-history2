@@ -33,19 +33,7 @@
 #include "qregexp.h"
 #include "qdir.h"
 #include <ctype.h>
-
-// both a struct for storing stuff in and a wrapper to avoid polluting
-// the name space
-
-class QDragObjectData
-{
-public:
-    QDragObjectData(): hot(0,0) {}
-    QPixmap pixmap;
-    QPoint hot;
-    // store default cursors
-    QPixmap *pm_cursor;
-};
+#include <private/qdragobject_p.h>
 
 static QWidget* last_target;
 
@@ -70,14 +58,6 @@ void QDragObject::setTarget(QWidget* t)
 {
     last_target = t;
 }
-
-class QStoredDragData
-{
-public:
-    QStoredDragData() {}
-    const char* fmt;
-    QByteArray enc;
-};
 
 
 // These pixmaps approximate the images in the Windows User Interface Guidelines.
@@ -282,9 +262,9 @@ QDragManager::~QDragManager()
 */
 
 QDragObject::QDragObject( QWidget * dragSource, const char * name )
-    : QObject( dragSource, name )
+    : QObject(*(new QDragObjectPrivate), dragSource)
 {
-    d = new QDragObjectData();
+    setObjectNameConst(name);
     d->pm_cursor = 0;
 #ifndef QT_NO_DRAGANDDROP
     if ( !qt_dnd_manager && qApp )
@@ -292,6 +272,16 @@ QDragObject::QDragObject( QWidget * dragSource, const char * name )
 #endif
 }
 
+
+QDragObject::QDragObject(QDragObjectPrivate &dd, QWidget *dragSource)
+    : QObject(dd, dragSource)
+{
+    d->pm_cursor = 0;
+#ifndef QT_NO_DRAGANDDROP
+    if ( !qt_dnd_manager && qApp )
+	(void)new QDragManager();
+#endif
+}
 
 /*!
     Destroys the drag object, canceling any drag and drop operation in
@@ -303,13 +293,12 @@ QDragObject::~QDragObject()
 #ifndef QT_NO_DRAGANDDROP
     if ( qt_dnd_manager && qt_dnd_manager->object == this )
 	qt_dnd_manager->cancel( FALSE );
-    if ( d->pm_cursor ) {
-	for ( int i = 0; i < qt_dnd_manager->n_cursor; i++ )
-	    qt_dnd_manager->pm_cursor[i] = d->pm_cursor[i];
-	delete [] d->pm_cursor;
-    }
+     if ( d->pm_cursor ) {
+ 	for ( int i = 0; i < qt_dnd_manager->n_cursor; i++ )
+ 	    qt_dnd_manager->pm_cursor[i] = d->pm_cursor[i];
+ 	delete [] d->pm_cursor;
+     }
 #endif
-    delete d;
 }
 
 #ifndef QT_NO_DRAGANDDROP
@@ -609,35 +598,18 @@ const char * staticCharset(int i)
     return 0;
 }
 
-
-class QTextDragPrivate {
-public:
-    QTextDragPrivate();
-
-    enum { nfmt=4 };
-
-    QString txt;
-    QByteArray fmt[nfmt];
-    QString subtype;
-
-    void setSubType(const QString & st)
-    {
-	subtype = st.toLower();
-	for ( int i=0; i<nfmt; i++ ) {
-	    fmt[i] = "text/";
-	    fmt[i].append(subtype.latin1());
-	    QByteArray cs(staticCharset(i));
-	    if ( !cs.isEmpty() ) {
-		fmt[i].append(";charset=");
-		fmt[i].append(cs);
-	    }
+void QTextDragPrivate::setSubType(const QString & st)
+{
+    subtype = st.toLower();
+    for ( int i=0; i<nfmt; i++ ) {
+	fmt[i] = "text/";
+	fmt[i].append(subtype.latin1());
+	QByteArray cs(staticCharset(i));
+	if ( !cs.isEmpty() ) {
+	    fmt[i].append(";charset=");
+	    fmt[i].append(cs);
 	}
     }
-};
-
-inline QTextDragPrivate::QTextDragPrivate()
-{
-    setSubType("plain");
 }
 
 /*!
@@ -678,10 +650,10 @@ void QTextDrag::setSubtype( const QString & st)
 
 QTextDrag::QTextDrag( const QString &text,
 		      QWidget * dragSource, const char * name )
-    : QDragObject( dragSource, name )
+    : QDragObject(*new QTextDragPrivate, dragSource)
 {
-    d = new QTextDragPrivate;
-    setText( text );
+    setObjectNameConst(name);
+    setText(text);
 }
 
 
@@ -691,11 +663,17 @@ QTextDrag::QTextDrag( const QString &text,
 */
 
 QTextDrag::QTextDrag( QWidget * dragSource, const char * name )
-    : QDragObject( dragSource, name )
+    : QDragObject(*(new QTextDragPrivate), dragSource)
 {
-    d = new QTextDragPrivate;
+    setObjectNameConst(name);
 }
 
+
+QTextDrag::QTextDrag(QTextDragPrivate &dd, QWidget *dragSource)
+    : QDragObject(dd, dragSource)
+{
+    
+}
 
 /*!
     Destroys the text drag object and frees up all allocated
@@ -703,7 +681,7 @@ QTextDrag::QTextDrag( QWidget * dragSource, const char * name )
 */
 QTextDrag::~QTextDrag()
 {
-    delete d;
+
 }
 
 
@@ -951,13 +929,6 @@ bool QTextDrag::decode( const QMimeSource* e, QString& str )
   and QImages rather than always converting to raw data. This is available
   for that purpose and others. It is not currently used.
 */
-class QImageDragData
-{
-public:
-    QImage img;
-    QList<QByteArray> ofmts;
-};
-
 
 /*!
     \class QImageDrag qdragobject.h
@@ -982,9 +953,9 @@ public:
 
 QImageDrag::QImageDrag( QImage image,
 			QWidget * dragSource, const char * name )
-    : QDragObject( dragSource, name ),
-	d(0)
+    : QDragObject(*(new QImageDragPrivate), dragSource)
 {
+    setObjectNameConst(name);
     setImage( image );
 }
 
@@ -994,11 +965,15 @@ QImageDrag::QImageDrag( QImage image,
 */
 
 QImageDrag::QImageDrag( QWidget * dragSource, const char * name )
-    : QDragObject( dragSource, name ),
-	d(0)
+    : QDragObject(*(new QImageDragPrivate), dragSource)
 {
+    setObjectNameConst(name);
 }
 
+QImageDrag::QImageDrag(QImageDragPrivate &dd, QWidget *dragSource)
+    : QDragObject(dd, dragSource)
+{
+}
 
 /*!
     Destroys the image drag object and frees up all allocated
@@ -1017,8 +992,6 @@ QImageDrag::~QImageDrag()
 */
 void QImageDrag::setImage( QImage image )
 {
-    if (!d)
-	d = new QImageDragData;
     d->img = image; // ### detach?
     d->ofmts = QImage::outputFormats();
     d->ofmts.remove("PBM"); // remove non-raw PPM
@@ -1063,15 +1036,15 @@ QByteArray QImageDrag::encodedData(const char* fmt) const
 {
     if ( qstrnicmp( fmt, "image/", 6 )==0 ) {
 	QByteArray f(fmt+6);
-	QByteArray data;
-	QBuffer w( data );
+	QByteArray dat;
+	QBuffer w( dat );
 	w.open( IO_WriteOnly );
 	QImageIO io( &w, f.toUpper() );
 	io.setImage(d->img);
 	if  ( !io.write() )
 	    return QByteArray();
 	w.close();
-	return data;
+	return dat;
     } else {
 	return QByteArray();
     }
@@ -1199,9 +1172,15 @@ bool QImageDrag::decode( const QMimeSource* e, QPixmap& pm )
     The data will be unset. Use setEncodedData() to set it.
 */
 QStoredDrag::QStoredDrag( const char* mimeType, QWidget * dragSource, const char * name ) :
-    QDragObject(dragSource,name)
+    QDragObject(*new QStoredDragPrivate, dragSource)
 {
-    d = new QStoredDragData();
+    setObjectNameConst(name);
+    d->fmt = qstrdup(mimeType);
+}
+
+QStoredDrag::QStoredDrag(QStoredDragPrivate &dd,  const char* mimeType, QWidget * dragSource)
+    : QDragObject(dd, dragSource)
+{
     d->fmt = qstrdup(mimeType);
 }
 
@@ -1247,7 +1226,7 @@ void QStoredDrag::setEncodedData( const QByteArray & encodedData )
 */
 QByteArray QStoredDrag::encodedData(const char* m) const
 {
-    if ( !qstricmp(m,d->fmt) )
+    if ( !qstricmp(m, d->fmt) )
 	return d->enc;
     else
 	return QByteArray();
@@ -1355,19 +1334,19 @@ bool QUriDrag::decode( const QMimeSource* e, QList<QByteArray>& l )
     if ( payload.size() ) {
 	l.clear();
 	int c=0;
-	const char* d = payload;
-	while (c < payload.size() && d[c]) {
+	const char* data = payload;
+	while (c < payload.size() && data[c]) {
 	    uint f = c;
 	    // Find line end
-	    while (c < payload.size() && d[c] && d[c]!='\r'
-		    && d[c] != '\n')
+	    while (c < payload.size() && data[c] && data[c]!='\r'
+		    && data[c] != '\n')
 		c++;
-	    QByteArray s(d+f,c-f+1);
+	    QByteArray s(data+f,c-f+1);
 	    if ( s[0] != '#' ) // non-comment?
 		l.append( s );
 	    // Skip junk
-	    while (c < payload.size() && d[c] &&
-		    (d[c]=='\n' || d[c]=='\r'))
+	    while (c < payload.size() && data[c] &&
+		    (data[c]=='\n' || data[c]=='\r'))
 		c++;
 	}
 	return TRUE;

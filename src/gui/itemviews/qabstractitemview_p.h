@@ -50,4 +50,15 @@ public:
     int verticalFactor;
 };
 
+#include <private/qdragobject_p.h>
+
+class QItemViewDragObjectPrivate : public QDragObjectPrivate
+{
+    Q_DECLARE_PUBLIC(QItemViewDragObject);
+public:
+//    static bool decode(QMimeSource *src, QModelIndexList &items);
+    QModelIndexList items;
+    QGenericItemModel *model;
+};
+
 #endif

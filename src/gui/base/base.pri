@@ -15,6 +15,7 @@ HEADERS += \
 	base/qcursor.h \
 	base/qdesktopwidget.h \
 	base/qdragobject.h \
+	base/qdragobject_p.h \
 	base/qevent.h \
 	base/qguieventloop.h\
 	base/qguieventloop_p.h \

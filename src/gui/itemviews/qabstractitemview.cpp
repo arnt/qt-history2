@@ -8,20 +8,15 @@
 #include <qpair.h>
 #include <qevent.h>
 #include <qscrollbar.h>
-#include <private/qobject_p.h>
 
-class QItemViewDragObjectPrivate
-{
-public:
-//    static bool decode(QMimeSource *src, QModelIndexList &items);
-    QModelIndexList items;
-    QGenericItemModel *model;
-};
+#include <private/qabstractitemview_p.h>
+#define d d_func()
+#define q q_func()
+
 
 QItemViewDragObject::QItemViewDragObject(QAbstractItemView *dragSource)
-    : QDragObject(dragSource)
+    : QDragObject(*(new QItemViewDragObjectPrivate), dragSource)
 {
-    d = new QItemViewDragObjectPrivate;
     d->model = dragSource->model();
 }
 
@@ -59,10 +54,6 @@ bool QItemViewDragObject::decode(QMimeSource *src) const
 {
     return d->model->decode(src);
 }
-
-#include <private/qabstractitemview_p.h>
-#define d d_func()
-#define q q_func()
 
 QAbstractItemViewPrivate::QAbstractItemViewPrivate()
     :   model(0),

@@ -17,9 +17,9 @@
 
 class QWidget;
 class QTextDragPrivate;
-class QDragObjectData;
-class QStoredDragData;
-class QImageDragData;
+class QDragObjectPrivate;
+class QStoredDragPrivate;
+class QImageDragPrivate;
 
 #ifndef QT_H
 #include "qobject.h"
@@ -38,6 +38,7 @@ template <class T> class QList;
 
 class Q_GUI_EXPORT QDragObject: public QObject, public QMimeSource {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QDragObject);
 public:
     QDragObject( QWidget * dragSource = 0, const char * name = 0 );
     virtual ~QDragObject();
@@ -63,11 +64,11 @@ public:
     enum DragMode { DragDefault, DragCopy, DragMove, DragLink, DragCopyOrMove };
 
 protected:
+    QDragObject(QDragObjectPrivate &, QWidget *dragSource = 0);
     virtual bool drag(DragMode);
 #endif
 
 private:
-    QDragObjectData * d;
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
     QDragObject( const QDragObject & );
     QDragObject &operator=( const QDragObject & );
@@ -76,8 +77,7 @@ private:
 
 class Q_GUI_EXPORT QStoredDrag: public QDragObject {
     Q_OBJECT
-    QStoredDragData * d;
-
+    Q_DECLARE_PRIVATE(QStoredDrag);
 public:
     QStoredDrag( const char * mimeType,
 		 QWidget * dragSource = 0, const char * name = 0 );
@@ -88,6 +88,9 @@ public:
     const char * format(int i) const;
     virtual QByteArray encodedData(const char*) const;
 
+protected:
+    QStoredDrag(QStoredDragPrivate &, const char *mimeType, QWidget *dragSource = 0);
+
 private:
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
     QStoredDrag( const QStoredDrag & );
@@ -97,7 +100,7 @@ private:
 
 class Q_GUI_EXPORT QTextDrag: public QDragObject {
     Q_OBJECT
-    QTextDragPrivate* d;
+    Q_DECLARE_PRIVATE(QTextDrag);
 public:
     QTextDrag( const QString &,
 	       QWidget * dragSource = 0, const char * name = 0 );
@@ -114,6 +117,9 @@ public:
     static bool decode( const QMimeSource* e, QString& s );
     static bool decode( const QMimeSource* e, QString& s, QString& subtype );
 
+protected:
+    QTextDrag(QTextDragPrivate &, QWidget * dragSource = 0);
+
 private:
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
     QTextDrag( const QTextDrag & );
@@ -123,8 +129,7 @@ private:
 
 class Q_GUI_EXPORT QImageDrag: public QDragObject {
     Q_OBJECT
-    QImageDragData* d;
-
+    Q_DECLARE_PRIVATE(QImageDrag);
 public:
     QImageDrag( QImage image, QWidget * dragSource = 0, const char * name = 0 );
     QImageDrag( QWidget * dragSource = 0, const char * name = 0 );
@@ -138,6 +143,9 @@ public:
     static bool canDecode( const QMimeSource* e );
     static bool decode( const QMimeSource* e, QImage& i );
     static bool decode( const QMimeSource* e, QPixmap& i );
+
+protected:
+    QImageDrag(QImageDragPrivate &, QWidget * dragSource = 0);
 
 private:
 #if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
