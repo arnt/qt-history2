@@ -445,11 +445,11 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
             }
         } else {
             if (bytesAvailableFromStderr() != 0) {
-                canReadStandardOutput();
+                canReadStandardError();
                 return true;
             }
             if (bytesAvailableFromStdout() != 0) {
-                canReadStandardError();
+                canReadStandardOutput();
                 nextSleep = qMin(SLEEPMIN, msecs);
             } else {
                 nextSleep = qMin(qMin(nextSleep, SLEEPMAX), msecs - start.elapsed());
