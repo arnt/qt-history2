@@ -11805,7 +11805,7 @@ const QString &QChar::decomposition() const
     shared_decomp = s;
     return shared_decomp;
 #else
-    return null;
+    return QString::null;
 #endif
 }
 
