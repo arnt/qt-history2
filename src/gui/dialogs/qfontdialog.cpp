@@ -99,8 +99,9 @@ signals:
 };
 
 QFontListView::QFontListView(QWidget *parent)
-    : QGenericTreeView(new QFontListModel(parent), parent)
+    : QGenericTreeView(parent)
 {
+    setModel(new QFontListModel(parent));
     showRootDecoration(false);
     QGenericHeader *h = header();
     h->setResizeMode(QGenericHeader::Stretch, 0);

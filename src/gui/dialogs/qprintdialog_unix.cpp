@@ -1035,7 +1035,8 @@ QGroupBox *QPrintDialogUnix::setupDestination()
 
 
     d->model = new QPrinterModel(d->printers, this);
-    d->view = new QGenericTreeView(d->model, g);
+    d->view = new QGenericTreeView(g);
+    d->view->setModel(d->model);
     d->view->showRootDecoration(false);
     d->view->header()->setResizeMode(QGenericHeader::Stretch, 2);
 

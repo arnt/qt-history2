@@ -22,8 +22,10 @@ public:
         Custom // let somebody else do the resize
     };
 
-    QGenericHeader(QAbstractItemModel *model, Qt::Orientation orientation, QWidget *parent = 0);
+    QGenericHeader(Qt::Orientation orientation, QWidget *parent = 0);
     virtual ~QGenericHeader();
+
+    void setModel(QAbstractItemModel *model);
 
     Qt::Orientation orientation() const;
     int offset() const;

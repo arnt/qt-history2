@@ -996,7 +996,8 @@ void QFileDialogPrivate::setup()
     model = new QDirModel(dir, q);
 
     // views
-    lview = new QGenericListView(model, q);
+    lview = new QGenericListView(q);
+    lview->setModel(model);
     lview->viewport()->setAcceptDrops(true);
     lview->setSpacing(2);
     lview->setWrapping(true);
@@ -1006,7 +1007,8 @@ void QFileDialogPrivate::setup()
 
     QItemSelectionModel *selections = lview->selectionModel();
 
-    tview = new QGenericTreeView(model, q);
+    tview = new QGenericTreeView(q);
+    tview->setModel(model);
     tview->viewport()->setAcceptDrops(true);
     tview->setSelectionModel(selections);
     tview->showRootDecoration(false);

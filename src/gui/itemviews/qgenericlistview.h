@@ -40,7 +40,7 @@ public:
     enum ResizeMode { Fixed, Adjust };
     enum LayoutMode { Instant, Batched };
 
-    QGenericListView(QAbstractItemModel *model, QWidget *parent = 0);
+    QGenericListView(QWidget *parent = 0);
     ~QGenericListView();
 
     void setMovement(Movement movement);
@@ -74,7 +74,7 @@ public:
     void doItemsLayout();
 
 protected:
-    QGenericListView(QGenericListViewPrivate &, QAbstractItemModel *model, QWidget *parent = 0);
+    QGenericListView(QGenericListViewPrivate &, QWidget *parent = 0);
     void scrollContentsBy(int dx, int dy);
     void resizeContents(int width, int height);
 

@@ -303,8 +303,8 @@ void BinTree<T>::init(const QRect &area, int depth, typename BinTree::Node::Type
 /*!
   Creates a new QGenericListView to view the \a model, and with parent \a parent.
 */
-QGenericListView::QGenericListView(QAbstractItemModel *model, QWidget *parent)
-    : QAbstractItemView(*new QGenericListViewPrivate, model, parent)
+QGenericListView::QGenericListView(QWidget *parent)
+    : QAbstractItemView(*new QGenericListViewPrivate, parent)
 {
     d->init();
 }
@@ -312,9 +312,8 @@ QGenericListView::QGenericListView(QAbstractItemModel *model, QWidget *parent)
 /*!
   \internal
 */
-QGenericListView::QGenericListView(QGenericListViewPrivate &dd, QAbstractItemModel *model,
-                                   QWidget *parent)
-    : QAbstractItemView(dd, model, parent)
+QGenericListView::QGenericListView(QGenericListViewPrivate &dd, QWidget *parent)
+    : QAbstractItemView(dd, parent)
 {
     d->init();
 }

@@ -27,8 +27,11 @@ class Q_GUI_EXPORT QGenericTableView : public QAbstractItemView
     Q_PROPERTY(bool showGrid READ showGrid WRITE setShowGrid)
 
 public:
-    QGenericTableView(QAbstractItemModel *model, QWidget *parent = 0);
+    QGenericTableView(QWidget *parent = 0);
     ~QGenericTableView();
+
+    void setModel(QAbstractItemModel *model);
+    void setSelectionModel(QItemSelectionModel *selectionModel);
 
     QGenericHeader *topHeader() const;
     QGenericHeader *leftHeader() const;
@@ -70,7 +73,7 @@ protected slots:
     void columnCountChanged(int oldCount, int newCount);
 
 protected:
-    QGenericTableView(QGenericTableViewPrivate &, QAbstractItemModel *model, QWidget *parent = 0);
+    QGenericTableView(QGenericTableViewPrivate &, QWidget *parent = 0);
     void scrollContentsBy(int dx, int dy);
 
     void paintEvent(QPaintEvent *e);

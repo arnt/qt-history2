@@ -48,22 +48,26 @@ public:
         SelectColumns
     };
 
-    QAbstractItemView(QAbstractItemModel *model, QWidget *parent = 0);
+    QAbstractItemView(QWidget *parent = 0);
     ~QAbstractItemView();
 
+    virtual void setModel(QAbstractItemModel *model);
     QAbstractItemModel *model() const;
 
-    void setSelectionModel(QItemSelectionModel *selectionModel);
+    virtual void setSelectionModel(QItemSelectionModel *selectionModel);
     QItemSelectionModel *selectionModel() const;
-    void setSelectionMode(int mode);
-    int selectionMode() const;
-    void setSelectionBehavior(int behavior);
-    int selectionBehavior() const;
-    QModelIndex currentItem() const;
-    QModelIndex root() const;
 
     void setItemDelegate(QAbstractItemDelegate *delegate);
     QAbstractItemDelegate *itemDelegate() const;
+    
+    void setSelectionMode(int mode);
+    int selectionMode() const;
+
+    void setSelectionBehavior(int behavior);
+    int selectionBehavior() const;
+    
+    QModelIndex currentItem() const;
+    QModelIndex root() const;
 
     void setBeginEditActions(int actions);
     int beginEditActions() const;
@@ -104,6 +108,7 @@ protected slots:
     virtual void updateGeometries();
     virtual void verticalScrollbarAction(int action);
     virtual void horizontalScrollbarAction(int action);
+    virtual void selectionModelDestroyed();
 
 signals:
     void rootChanged(const QModelIndex &old, const QModelIndex &root);
@@ -117,7 +122,7 @@ signals:
     void aboutToShowContextMenu(QMenu *menu, const QModelIndex &index);
 
 protected:
-    QAbstractItemView(QAbstractItemViewPrivate &, QAbstractItemModel *model, QWidget *parent = 0);
+    QAbstractItemView(QAbstractItemViewPrivate &, QWidget *parent = 0);
 
     bool eventFilter(QObject *object, QEvent *event);
 

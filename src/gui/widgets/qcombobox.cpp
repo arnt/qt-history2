@@ -236,7 +236,8 @@ QComboBox::QComboBox(QComboBoxPrivate &dd,
 
 void QComboBoxPrivate::init()
 {
-    QGenericListView *l = new QGenericListView(model, 0);
+    QGenericListView *l = new QGenericListView(0);
+    l->setModel(model);
     container = new ListViewContainer(l, q);
     container->setParent(q, Qt::WType_Popup);
     q->setFocusPolicy(Qt::StrongFocus);

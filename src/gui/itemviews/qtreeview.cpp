@@ -474,9 +474,9 @@ public:
   Constructs a tree view with a \a parent widget.*/
 
 QTreeView::QTreeView(QWidget *parent)
-    : QGenericTreeView(*new QGenericTreeViewPrivate(), new QTreeModel(), parent)
+    : QGenericTreeView(*new QGenericTreeViewPrivate(), parent)
 {
-    model()->setParent(this); // make sure the model gets deleted
+    setModel(new QTreeModel(0, this));
 }
 
 /*!

@@ -161,19 +161,18 @@ public:
 
 #ifdef QT_COMPAT
 QListView::QListView(QWidget *parent, const char* name)
-    : QGenericListView(*new QListViewPrivate(), new QListModel(), parent)
+    : QGenericListView(*new QListViewPrivate(), parent)
 {
+    setModel(new QListModel(this));
     setObjectName(name);
-    model()->setParent(this);
-    setSpacing(0);
 }
 #endif
 
 QListView::QListView(QWidget *parent)
-    : QGenericListView(*new QListViewPrivate(), new QListModel(), parent)
+    : QGenericListView(*new QListViewPrivate(), parent)
 {
+    setModel(new QListModel(this));
     model()->setParent(this);
-    setSpacing(0);
 }
 
 QListView::~QListView()

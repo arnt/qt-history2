@@ -24,10 +24,9 @@ public:
     QWidget *persistentEditor(const QModelIndex &index) const;
     void setPersistentEditor(QWidget *editor, const QModelIndex &index);
 
-    QAbstractItemModel *model;
-
+    mutable QAbstractItemModel *model;
     mutable QAbstractItemDelegate *delegate;
-    QItemSelectionModel *selectionModel;
+    mutable QItemSelectionModel *selectionModel;
     int selectionMode;
     int selectionBehavior;
 

@@ -64,10 +64,12 @@
   \sa QAbstractItemModel
 */
 
-QGenericTreeView::QGenericTreeView(QAbstractItemModel *model, QWidget *parent)
-    : QAbstractItemView(*new QGenericTreeViewPrivate, model, parent)
+QGenericTreeView::QGenericTreeView(QWidget *parent)
+    : QAbstractItemView(*new QGenericTreeViewPrivate, parent)
 {
-    setHeader(new QGenericHeader(model, Qt::Horizontal, this));
+    setHeader(new QGenericHeader(Qt::Horizontal, this));
+    d->header->setModel(model());
+    d->header->setSelectionModel(selectionModel());
     d->header->setMovable(true);
     d->rootDecoration = true;
     setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -77,14 +79,17 @@ QGenericTreeView::QGenericTreeView(QAbstractItemModel *model, QWidget *parent)
   \internal
 */
 
-QGenericTreeView::QGenericTreeView(QGenericTreeViewPrivate &dd, QAbstractItemModel *model,
-                                   QWidget *parent)
-    : QAbstractItemView(dd, model, parent)
+QGenericTreeView::QGenericTreeView(QGenericTreeViewPrivate &dd, QWidget *parent)
+    : QAbstractItemView(dd, parent)
 {
-    setHeader(new QGenericHeader(model, Qt::Horizontal, this));
-    d->header->setMovable(true);
     d->rootDecoration = true;
     setSelectionBehavior(QAbstractItemView::SelectRows);
+    
+    QGenericHeader *header = new QGenericHeader(Qt::Horizontal, this);
+    header->setModel(model());
+    header->setSelectionModel(selectionModel());
+    header->setMovable(true);
+    setHeader(header);
 }
 
 /*!
@@ -93,6 +98,24 @@ QGenericTreeView::QGenericTreeView(QGenericTreeViewPrivate &dd, QAbstractItemMod
 
 QGenericTreeView::~QGenericTreeView()
 {
+}
+
+/*!
+  \reimp
+*/
+void QGenericTreeView::setModel(QAbstractItemModel *model)
+{
+    d->header->setModel(model);
+    QAbstractItemView::setModel(model);
+}
+
+/*!
+  \reimp
+*/
+void QGenericTreeView::setSelectionModel(QItemSelectionModel *selectionModel)
+{
+    d->header->setSelectionModel(selectionModel);
+    QAbstractItemView::setSelectionModel(selectionModel);
 }
 
 /*!
@@ -121,8 +144,11 @@ void QGenericTreeView::setHeader(QGenericHeader *header)
                             this, SLOT(resizeColumnToContents(int)));
         delete d->header;
     }
+    
     d->header = header;
-    setViewportMargins(0, d->header->sizeHint().height(), 0, 0);
+
+//    setViewportMargins(0, d->header->sizeHint().height(), 0, 0);
+
     QObject::connect(d->header, SIGNAL(sectionSizeChanged(int,int,int)),
                      this, SLOT(columnWidthChanged(int,int,int)));
     QObject::connect(d->header, SIGNAL(sectionIndexChanged(int,int,int)),
@@ -131,9 +157,8 @@ void QGenericTreeView::setHeader(QGenericHeader *header)
                      this, SLOT(columnCountChanged(int,int)));
     QObject::connect(d->header, SIGNAL(sectionHandleDoubleClicked(int,Qt::ButtonState)),
                      this, SLOT(resizeColumnToContents(int)));
-    d->header->setSelectionModel(selectionModel());
-
-    updateGeometries();
+    
+//    updateGeometries();
 }
 
 /*!
@@ -619,7 +644,7 @@ int QGenericTreeView::verticalOffset() const
 {
     // gives an estimate
     QStyleOptionViewItem option = viewOptions();
-    int iheight = d->delegate->sizeHint(fontMetrics(), option, model()->index(0, 0)).height();
+    int iheight = itemDelegate()->sizeHint(fontMetrics(), option, model()->index(0, 0)).height();
     int item = verticalScrollBar()->value() / d->verticalFactor;
     return item * iheight;
 }
@@ -908,16 +933,19 @@ void QGenericTreeView::updateGeometries()
         d->header->setOffset(vg.width() - hint.width());
     d->header->setGeometry(vg.left(), vg.top() - hint.height(), vg.width(), hint.height());
 
+    if (!d->model)
+        return;
+
     // update sliders
     QStyleOptionViewItem option = viewOptions();
 
     // vertical
-    int h = viewport()->height();
+    int h = d->viewport->height();
     int item = d->items.count();
     if (h <= 0 || item <= 0) // if we have no viewport or no rows, there is nothing to do
         return;
-    QModelIndex index = model()->index(0, 0);
-    QSize def = itemDelegate()->sizeHint(fontMetrics(), option, model()->index(0, 0));
+    QModelIndex index = d->model->index(0, 0);
+    QSize def = itemDelegate()->sizeHint(fontMetrics(), option, d->model->index(0, 0));
     verticalScrollBar()->setPageStep(h / def.height() * verticalFactor());
     while (h > 0 && item > 0)
         h -= itemDelegate()->sizeHint(fontMetrics(), option, d->modelIndex(--item)).height();
@@ -954,7 +982,7 @@ void QGenericTreeView::verticalScrollbarAction(int action)
     int factor = d->verticalFactor;
     int value = verticalScrollBar()->value();
     int item = value / factor;
-    int iheight = d->delegate->sizeHint(fontMetrics(), option, d->modelIndex(item)).height();
+    int iheight = itemDelegate()->sizeHint(fontMetrics(), option, d->modelIndex(item)).height();
     int above = (value % factor) * iheight;
     int y = -(above / factor); // above the page
 
@@ -963,11 +991,11 @@ void QGenericTreeView::verticalScrollbarAction(int action)
         // go down to the bottom of the page
         int h = d->viewport->height();
         while (y < h && item < d->items.count())
-            y += d->delegate->sizeHint(fontMetrics(), option, d->modelIndex(item++)).height();
+            y += itemDelegate()->sizeHint(fontMetrics(), option, d->modelIndex(item++)).height();
         value = item * factor; // i is now the last item on the page
         if (y > h && item)
-            value -= factor * (y - h) / d->delegate->sizeHint(fontMetrics(), option,
-                                                              d->modelIndex(item - 1)).height();
+            value -= factor * (y - h) / itemDelegate()->sizeHint(fontMetrics(), option,
+                                                                 d->modelIndex(item - 1)).height();
         verticalScrollBar()->setSliderPosition(value);
 
     } else if (action == QScrollBar::SliderPageStepSub) {
@@ -976,13 +1004,13 @@ void QGenericTreeView::verticalScrollbarAction(int action)
 
         // go up to the top of the page
         while (y > 0 && item > 0)
-            y -= d->delegate->sizeHint(fontMetrics(), option,
-                                       d->modelIndex(--item)).height();
+            y -= itemDelegate()->sizeHint(fontMetrics(), option,
+                                          d->modelIndex(--item)).height();
         value = item * factor; // i is now the first item in the page
 
         if (y < 0)
-            value += factor * -y / d->delegate->sizeHint(fontMetrics(),
-                                                         option, d->modelIndex(item)).height();
+            value += factor * -y / itemDelegate()->sizeHint(fontMetrics(),
+                                                            option, d->modelIndex(item)).height();
         verticalScrollBar()->setSliderPosition(value);
     }
 }

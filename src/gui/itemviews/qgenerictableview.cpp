@@ -44,26 +44,34 @@
   \sa QAbstractItemModel
 */
 
-QGenericTableView::QGenericTableView(QAbstractItemModel *model, QWidget *parent)
-    : QAbstractItemView(*new QGenericTableViewPrivate, model, parent)
+QGenericTableView::QGenericTableView(QWidget *parent)
+    : QAbstractItemView(*new QGenericTableViewPrivate, parent)
 {
     setBeginEditActions(beginEditActions()|QAbstractItemDelegate::AnyKeyPressed);
-    setLeftHeader(new QGenericHeader(model, Qt::Vertical, this));
-    d->leftHeader->setClickable(true);
-    setTopHeader(new QGenericHeader(model, Qt::Horizontal, this));
-    d->topHeader->setClickable(true);
+
+    QGenericHeader *left = new QGenericHeader(Qt::Vertical, this);
+    left->setModel(model());
+    left->setSelectionModel(selectionModel());
+    left->setClickable(true);
+    setLeftHeader(left);
+
+    QGenericHeader *top = new QGenericHeader(Qt::Horizontal, this);
+    top->setModel(model());
+    top->setSelectionModel(selectionModel());
+    top->setClickable(true);
+    setTopHeader(top);
 }
 
 /*!
   \internal
 */
-QGenericTableView::QGenericTableView(QGenericTableViewPrivate &dd, QAbstractItemModel *model, QWidget *parent)
-    : QAbstractItemView(dd, model, parent)
+QGenericTableView::QGenericTableView(QGenericTableViewPrivate &dd, QWidget *parent)
+    : QAbstractItemView(dd, parent)
 {
     setBeginEditActions(beginEditActions()|QAbstractItemDelegate::AnyKeyPressed);
-    setLeftHeader(new QGenericHeader(model, Qt::Vertical, this));
+    setLeftHeader(new QGenericHeader(Qt::Vertical, this));
     d->leftHeader->setClickable(true);
-    setTopHeader(new QGenericHeader(model, Qt::Horizontal, this));
+    setTopHeader(new QGenericHeader(Qt::Horizontal, this));
     d->topHeader->setClickable(true);
 }
 
@@ -72,6 +80,26 @@ QGenericTableView::QGenericTableView(QGenericTableViewPrivate &dd, QAbstractItem
 */
 QGenericTableView::~QGenericTableView()
 {
+}
+
+/*!
+  \reimp
+*/
+void QGenericTableView::setModel(QAbstractItemModel *model)
+{
+    d->leftHeader->setModel(model);
+    d->topHeader->setModel(model);
+    QAbstractItemView::setModel(model);
+}
+
+/*!
+  \reimp
+*/
+void QGenericTableView::setSelectionModel(QItemSelectionModel *selectionModel)
+{
+    d->leftHeader->setSelectionModel(selectionModel);
+    d->topHeader->setSelectionModel(selectionModel);
+    QAbstractItemView::setSelectionModel(selectionModel);
 }
 
 /*!
@@ -92,6 +120,7 @@ QGenericHeader *QGenericTableView::leftHeader() const
 }
 
 /*!
+  Set the top header widget.
 */
 void QGenericTableView::setTopHeader(QGenericHeader *header)
 {
@@ -120,11 +149,10 @@ void QGenericTableView::setTopHeader(QGenericHeader *header)
                      this, SLOT(columnCountChanged(int,int)));
     QObject::connect(d->topHeader, SIGNAL(sectionHandleDoubleClicked(int,Qt::ButtonState)),
                      this, SLOT(resizeColumnToContents(int)));
-
-    d->topHeader->setSelectionModel(selectionModel());
 }
 
 /*!
+    Set the left header widget.
 */
 void QGenericTableView::setLeftHeader(QGenericHeader *header)
 {
@@ -153,8 +181,6 @@ void QGenericTableView::setLeftHeader(QGenericHeader *header)
                      this, SLOT(rowCountChanged(int,int)));
     QObject::connect(d->leftHeader, SIGNAL(sectionHandleDoubleClicked(int,Qt::ButtonState)),
                      this, SLOT(resizeRowToContents(int)));
-
-    d->leftHeader->setSelectionModel(selectionModel());
 }
 
 /*!
@@ -475,14 +501,17 @@ void QGenericTableView::updateGeometries()
     d->topHeader->setGeometry(vg.left(), vg.top() - topHint.height(),
                               vg.width(), topHint.height());
 
-    // update sliders
+    if (!d->model)
+        return;
+
+    // update sliders    
     QStyleOptionViewItem option = viewOptions();
 
     int h = d->viewport->height();
-    int row = model()->rowCount();
+    int row = d->model->rowCount();
     if (h <= 0 || row <= 0) // if we have no viewport or no rows, there is nothing to do
         return;
-    QSize def = itemDelegate()->sizeHint(fontMetrics(), option, model()->index(0, 0));
+    QSize def = itemDelegate()->sizeHint(fontMetrics(), option, d->model->index(0, 0));
     verticalScrollBar()->setPageStep(h / def.height() * verticalFactor());
     while (h > 0 && row > 0)
         h -= d->leftHeader->sectionSize(--row);

@@ -367,9 +367,9 @@ public:
     uses a QTableModel to hold its data.
 */
 QTableView::QTableView(QWidget *parent)
-    : QGenericTableView(*new QTableViewPrivate, new QTableModel(), parent)
+    : QGenericTableView(*new QTableViewPrivate, parent)
 {
-    model()->setParent(this); // make sure the model gets deleted
+    setModel(new QTableModel(0, 0, this));
 }
 
 /*!

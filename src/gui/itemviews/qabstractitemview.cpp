@@ -30,6 +30,17 @@
 #define d d_func()
 #define q q_func()
 
+class QDefaultModel : public QAbstractItemModel
+{
+public:
+    QDefaultModel(QObject *parent) : QAbstractItemModel(parent) {}
+    ~QDefaultModel() {}
+
+    int rowCount(const QModelIndex&) const  { return 0; }
+    int columnCount(const QModelIndex&) const { return 0; }
+    QVariant data(const QModelIndex &, int role) const { return QVariant(); }
+};
+
 QAbstractItemViewPrivate::QAbstractItemViewPrivate()
     :   model(0),
         delegate(0),
@@ -55,19 +66,10 @@ QAbstractItemViewPrivate::~QAbstractItemViewPrivate()
 
 void QAbstractItemViewPrivate::init()
 {
-    q->setSelectionModel(new QItemSelectionModel(model, q));
-
-    QObject::connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-                     q, SLOT(dataChanged(QModelIndex,QModelIndex)));
-    QObject::connect(model, SIGNAL(rowsInserted(const QModelIndex&,int,int)),
-                     q, SLOT(rowsInserted(const QModelIndex&,int,int)));
-    QObject::connect(model, SIGNAL(rowsRemoved(const QModelIndex&,int,int)),
-                     q, SLOT(rowsInserted(const QModelIndex&,int,int)));
-
-    q->setHorizontalFactor(256);
-    q->setVerticalFactor(256);
-
     viewport->installEventFilter(q);
+
+    q->setModel(new QDefaultModel(q));
+    
     QObject::connect(q->verticalScrollBar(), SIGNAL(actionTriggered(int)),
                      q, SLOT(verticalScrollbarAction(int)));
     QObject::connect(q->horizontalScrollBar(), SIGNAL(actionTriggered(int)),
@@ -79,6 +81,9 @@ void QAbstractItemViewPrivate::init()
     viewport->setAttribute(Qt::WA_PaintOnScreen);
     viewport->setAttribute(Qt::WA_NoBackground);
     viewport->setAttribute(Qt::WA_NoSystemBackground);
+
+    q->setHorizontalFactor(256);
+    q->setVerticalFactor(256);
 }
 
 /*!
@@ -319,26 +324,20 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-    Creates a new QAbstractItemView to view the \a model, and with
-    parent \a parent.
+    Creates a new QAbstractItemView with parent \a parent.
 */
-QAbstractItemView::QAbstractItemView(QAbstractItemModel *model, QWidget *parent)
+QAbstractItemView::QAbstractItemView(QWidget *parent)
     : QViewport(*(new QAbstractItemViewPrivate), parent)
 {
-    Q_ASSERT(model);
-    d->model = model;
     d->init();
 }
 
 /*!
     \internal
 */
-QAbstractItemView::QAbstractItemView(QAbstractItemViewPrivate &dd, QAbstractItemModel *model,
-                                     QWidget *parent)
+QAbstractItemView::QAbstractItemView(QAbstractItemViewPrivate &dd, QWidget *parent)
     : QViewport(dd, parent)
 {
-    Q_ASSERT(model);
-    d->model = model;
     d->init();
 }
 
@@ -347,25 +346,56 @@ QAbstractItemView::QAbstractItemView(QAbstractItemViewPrivate &dd, QAbstractItem
 */
 QAbstractItemView::~QAbstractItemView()
 {
+    if (d->selectionModel)
+        disconnect(d->selectionModel, SIGNAL(destroyed(QObject *)),
+                   this, SLOT(selectionModelDestroyed()));
 }
 
 /*!
-    Returns the model that this view is presenting. The model is set
-    in the constructor.
+  Sets the model that the view is presenting.
+  This function will also create and set a new selection model.
+*/
+void QAbstractItemView::setModel(QAbstractItemModel *model)
+{
+     if (d->model) {
+        QObject::disconnect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+                            this, SLOT(dataChanged(QModelIndex,QModelIndex)));
+        QObject::disconnect(d->model, SIGNAL(rowsInserted(const QModelIndex&,int,int)),
+                            this, SLOT(rowsInserted(const QModelIndex&,int,int)));
+        QObject::disconnect(d->model, SIGNAL(rowsRemoved(const QModelIndex&,int,int)),
+                            this, SLOT(rowsInserted(const QModelIndex&,int,int)));
+
+        if (static_cast<QObject*>(d->model)->parent() == this)
+            delete d->model;
+     }
+
+     d->model = model;
+     
+    if (d->model) {
+        QObject::connect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+                         this, SLOT(dataChanged(QModelIndex,QModelIndex)));
+        QObject::connect(d->model, SIGNAL(rowsInserted(const QModelIndex&,int,int)),
+                         this, SLOT(rowsInserted(const QModelIndex&,int,int)));
+        QObject::connect(d->model, SIGNAL(rowsRemoved(const QModelIndex&,int,int)),
+                         this, SLOT(rowsInserted(const QModelIndex&,int,int)));
+    }
+
+    setRoot(QModelIndex());
+
+    // We always set a new selection model when we get a new data model
+    if (d->selectionModel && d->selectionModel->parent() == this) {
+        delete d->selectionModel;
+        d->selectionModel = 0;
+    }
+    setSelectionModel(new QItemSelectionModel(d->model, this));
+}
+
+/*!
+    Returns the model that this view is presenting.
 */
 QAbstractItemModel *QAbstractItemView::model() const
 {
     return d->model;
-}
-
-/*!
-    Clears the selection.
-
-    \sa setSelectionModel()
-*/
-void QAbstractItemView::clearSelections()
-{
-    d->selectionModel->clear();
 }
 
 /*!
@@ -375,38 +405,44 @@ void QAbstractItemView::clearSelections()
 */
 void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
 {
-    if (!selectionModel)
-        return;
-
-    if (selectionModel->model() != model()) {
+    if (selectionModel && selectionModel->model() != d->model) {
         qWarning("QAbstractItemView::setSelectionModel() failed: Trying to set a selection model,"
                   " which works on a different model than the view.");
         return;
     }
 
     if (d->selectionModel) {
-        disconnect(d->selectionModel,
-                   SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+        disconnect(d->selectionModel, SIGNAL(destroyed(QObject*)),
+                   this, SLOT(selectionModelDestroyed()));
+        disconnect(d->selectionModel, SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
                    this, SLOT(selectionChanged(QItemSelection,QItemSelection)));
         disconnect(d->selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
                    this, SLOT(currentChanged(QModelIndex,QModelIndex)));
+
+        if (d->selectionModel->parent() == this)
+            delete d->selectionModel;
     }
 
     d->selectionModel = selectionModel;
 
-    connect(d->selectionModel, SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
-            this, SLOT(selectionChanged(QItemSelection,QItemSelection)));
-    connect(d->selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-            this, SLOT(currentChanged(QModelIndex,QModelIndex)));
+    if (d->selectionModel) {
+        connect(d->selectionModel, SIGNAL(destroyed(QObject*)),
+                this, SLOT(selectionModelDestroyed()));
+        connect(d->selectionModel, SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+                this, SLOT(selectionChanged(QItemSelection,QItemSelection)));
+        connect(d->selectionModel, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+                this, SLOT(currentChanged(QModelIndex,QModelIndex)));
 
-    bool block = selectionModel->blockSignals(true);
-    if (!selectionModel->currentItem().isValid())
-        selectionModel->setCurrentItem(model()->index(0, 0, root()), QItemSelectionModel::NoUpdate);
-    selectionModel->blockSignals(block);
+        bool block = d->selectionModel->blockSignals(true);
+        if (!d->selectionModel->currentItem().isValid())
+            d->selectionModel->setCurrentItem(d->model->index(0, 0, root()),
+                                              QItemSelectionModel::NoUpdate);
+        d->selectionModel->blockSignals(block);
+    }
 }
 
 // ### DOC: Couldn't we call this selection() (and setSelection() and clearSelection()) ?
-// This may be confused with actually selecting items.
+// This can be confused with actually selecting items.
 /*!
     Returns the current selection.
 
@@ -414,7 +450,41 @@ void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
 */
 QItemSelectionModel* QAbstractItemView::selectionModel() const
 {
+//     if (!d->selectionModel)
+//         setSelectionModel(new QItemSelectionModel(model(), const_cast<QAbstractItemView*>(this));
     return d->selectionModel;
+}
+
+/*!
+    Sets the item delegate for this view and its model to \a delegate.
+    This is useful if you want complete control over the editing and
+    display of items.
+
+    \sa itemDelegate()
+*/
+void QAbstractItemView::setItemDelegate(QAbstractItemDelegate *delegate)
+{
+    if (delegate->model() != model()) {
+         qWarning("QAbstractItemView::setDelegate() failed: Trying to set a delegate, "
+                  "which works on a different model than the view.");
+         return;
+    }
+    if (d->delegate && d->delegate->parent() == this)
+        delete d->delegate;
+    d->delegate = delegate;
+}
+
+/*!
+    Returns the item delegate used by this view and model. This is
+    either one set with setItemDelegate(), or the default one.
+
+    \sa setItemDelegate()
+*/
+QAbstractItemDelegate *QAbstractItemView::itemDelegate() const
+{
+    if (!d->delegate)
+        d->delegate = new QItemDelegate(d->model, const_cast<QAbstractItemView*>(this));
+    return d->delegate;
 }
 
 /*!
@@ -464,7 +534,7 @@ int QAbstractItemView::selectionBehavior() const
 */
 void QAbstractItemView::setCurrentItem(const QModelIndex &index)
 {
-    d->selectionModel->setCurrentItem(index, selectionCommand(Qt::NoButton, index));
+    selectionModel()->setCurrentItem(index, selectionCommand(Qt::NoButton, index));
 }
 
 /*!
@@ -474,7 +544,7 @@ void QAbstractItemView::setCurrentItem(const QModelIndex &index)
 */
 QModelIndex QAbstractItemView::currentItem() const
 {
-    return d->selectionModel->currentItem();
+    return selectionModel()->currentItem();
 }
 
 /*!
@@ -510,6 +580,16 @@ void QAbstractItemView::edit(const QModelIndex &index)
         qWarning("edit: index was invalid");
     if (!beginEdit(index, QAbstractItemDelegate::AlwaysEdit, 0))
         qWarning("edit: editing failed");
+}
+
+/*!
+    Clears the selection.
+
+    \sa setSelectionModel()
+*/
+void QAbstractItemView::clearSelections()
+{
+    selectionModel()->clear();
 }
 
 /*!
@@ -623,7 +703,7 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
     d->pressedPosition = pos + QPoint(horizontalOffset(), verticalOffset());
 
     if (index.isValid())
-        d->selectionModel->setCurrentItem(index, QItemSelectionModel::NoUpdate);
+        selectionModel()->setCurrentItem(index, QItemSelectionModel::NoUpdate);
 
     QRect rect(pos, pos);
     setSelection(rect.normalize(), selectionCommand(e->state(), index, e->type()));
@@ -669,13 +749,13 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
     if (index.isValid()) {
         if (state() != Selecting) {
             bool dnd = model()->isDragEnabled(index) && isDragEnabled(index);
-            bool selected = d->selectionModel->isSelected(index);
+            bool selected = selectionModel()->isSelected(index);
             if (dnd && selected) {
                 setState(Dragging);
                 return;
             }
         }
-        d->selectionModel->setCurrentItem(index, QItemSelectionModel::NoUpdate);
+        selectionModel()->setCurrentItem(index, QItemSelectionModel::NoUpdate);
     }
     setState(Selecting);
     setSelection(QRect(topLeft, bottomRight).normalize(),
@@ -694,7 +774,7 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
 {
     QPoint pos = e->pos();
     QModelIndex index = itemAt(pos);
-    d->selectionModel->select(index, selectionCommand(e->state(), index, e->type()));
+    selectionModel()->select(index, selectionCommand(e->state(), index, e->type()));
     setState(NoState);
     if (index == d->pressedItem)
         emit clicked(index, e->button());
@@ -859,13 +939,13 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
                                                                            e->type(),
                                                                            (Qt::Key)e->key());
             if (e->state() & Qt::ShiftButton && d->selectionMode != SingleSelection) {
-                d->selectionModel->setCurrentItem(newCurrent, QItemSelectionModel::NoUpdate);
+                selectionModel()->setCurrentItem(newCurrent, QItemSelectionModel::NoUpdate);
                 QRect rect(d->pressedPosition - offset, itemViewportRect(newCurrent).center());
                 setSelection(rect.normalize(), command);
             } else if (e->state() & Qt::ControlButton && d->selectionMode != SingleSelection) {
-                d->selectionModel->setCurrentItem(newCurrent, QItemSelectionModel::NoUpdate);
+                selectionModel()->setCurrentItem(newCurrent, QItemSelectionModel::NoUpdate);
             } else {
-                d->selectionModel->setCurrentItem(newCurrent, command);
+                selectionModel()->setCurrentItem(newCurrent, command);
                 d->pressedPosition = itemViewportRect(newCurrent).center() + offset;
             }
             return;
@@ -891,11 +971,11 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
         emit returnPressed(currentItem());
         return;
     case Qt::Key_Space:
-        d->selectionModel->select(currentItem(),
-                                  selectionCommand(e->state(),
-                                                   currentItem(),
-                                                   e->type(),
-                                                   (Qt::Key)e->key()));
+        selectionModel()->select(currentItem(),
+                                 selectionCommand(e->state(),
+                                                  currentItem(),
+                                                  e->type(),
+                                                  (Qt::Key)e->key()));
         emit spacePressed(currentItem());
         return;
     case Qt::Key_Delete:
@@ -1067,6 +1147,14 @@ void QAbstractItemView::verticalScrollbarAction(int)
 void QAbstractItemView::horizontalScrollbarAction(int)
 {
     //do nothing
+}
+
+/*!
+  \internal
+*/
+void QAbstractItemView::selectionModelDestroyed()
+{
+    d->selectionModel = 0;
 }
 
 /*!
@@ -1308,38 +1396,6 @@ void QAbstractItemView::rowsRemoved(const QModelIndex &, int, int)
 }
 
 /*!
-    Returns the item delegate used by this view and model. This is
-    either one set with setItemDelegate(), or the default one.
-
-    \sa setItemDelegate()
-*/
-QAbstractItemDelegate *QAbstractItemView::itemDelegate() const
-{
-    if (!d->delegate)
-        d->delegate = new QItemDelegate(d->model, const_cast<QAbstractItemView*>(this));
-    return d->delegate;
-}
-
-/*!
-    Sets the item delegate for this view and its model to \a delegate.
-    This is useful if you want complete control over the editing and
-    display of items.
-
-    \sa itemDelegate()
-*/
-void QAbstractItemView::setItemDelegate(QAbstractItemDelegate *delegate)
-{
-    if (delegate->model() != model()) {
-         qWarning("QAbstractItemView::setDelegate() failed: Trying to set a delegate, "
-                  "which works on a different model than the view.");
-         return;
-    }
-    if (d->delegate && d->delegate->parent() == this)
-        delete d->delegate;
-    d->delegate = delegate;
-}
-
-/*!
     This slot  is called when the selection is changed. The previous
     selection (which may be empty), is given by \a deselected, and the
     new selection by \a selected.
@@ -1382,7 +1438,7 @@ void QAbstractItemView::currentChanged(const QModelIndex &old, const QModelIndex
 */
 QDragObject *QAbstractItemView::dragObject()
 {
-    QModelIndexList items = d->selectionModel->selectedItems();
+    QModelIndexList items = selectionModel()->selectedItems();
     return model()->dragObject(items, this);
 }
 
@@ -1543,21 +1599,21 @@ QItemSelectionModel::SelectionFlags QAbstractItemView::selectionCommand(Qt::Butt
 
         // Select/Deselect on Space
         if (type == QEvent::KeyPress && index.isValid() && key == Qt::Key_Space)
-            if (d->selectionModel->isSelected(index))
+            if (selectionModel()->isSelected(index))
                 return QItemSelectionModel::Deselect | behavior;
             else
                 return QItemSelectionModel::Select | behavior;
 
         // Select/Deselect on MouseButtonPress
         if (type == QEvent::MouseButtonPress && index.isValid())
-            if (d->selectionModel->isSelected(index))
+            if (selectionModel()->isSelected(index))
                 return QItemSelectionModel::Deselect | behavior;
             else
                 return QItemSelectionModel::Select | behavior;
 
         // Select/Deselect on MouseMove
         if (type == QEvent::MouseMove && index.isValid())
-            if (d->selectionModel->isSelected(index))
+            if (selectionModel()->isSelected(index))
                 return QItemSelectionModel::Deselect | behavior;
             else
                 return QItemSelectionModel::Select | behavior;
@@ -1574,7 +1630,7 @@ QItemSelectionModel::SelectionFlags QAbstractItemView::selectionCommand(Qt::Butt
         && !(d->pressedState & Qt::ShiftButton)
         && !(d->pressedState & Qt::ControlButton)
         && index.isValid()
-        && d->selectionModel->isSelected(index))
+        && selectionModel()->isSelected(index))
         return QItemSelectionModel::NoUpdate;
 
     // Clear on MouseButtonPress on non-valid item with no modifiers and not Qt::RightButton
@@ -1591,7 +1647,7 @@ QItemSelectionModel::SelectionFlags QAbstractItemView::selectionCommand(Qt::Butt
         && index == d->pressedItem
         && !(d->pressedState & Qt::ShiftButton)
         && !(d->pressedState & Qt::ControlButton)
-        && d->selectionModel->isSelected(index))
+        && selectionModel()->isSelected(index))
         return QItemSelectionModel::ClearAndSelect | behavior;
     else if (type == QEvent::MouseButtonRelease)
         return QItemSelectionModel::NoUpdate;

@@ -80,29 +80,14 @@ static const int default_height = 30;
   \sa \link model-view-programming.html Model/View Programming\endlink.
 */
 
-QGenericHeader::QGenericHeader(QAbstractItemModel *model, Qt::Orientation o, QWidget *parent)
-    : QAbstractItemView(*new QGenericHeaderPrivate, model, parent)
+QGenericHeader::QGenericHeader(Qt::Orientation o, QWidget *parent)
+    : QAbstractItemView(*new QGenericHeaderPrivate, parent)
 {
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     d->orientation = o;
     setFrameStyle(NoFrame);
-
     d->viewport->setMouseTracking(true);
-
-    if (d->orientation == Qt::Horizontal) {
-        initializeSections(0, model->columnCount(root()) - 1);
-        QObject::connect(model, SIGNAL(columnsInserted(const QModelIndex&, int, int)),
-                         this, SLOT(sectionsInserted(const QModelIndex&, int, int)));
-        QObject::connect(model, SIGNAL(columnsRemoved(const QModelIndex&, int, int)),
-                         this, SLOT(sectionsRemoved(const QModelIndex&, int, int)));
-    } else {
-        initializeSections(0, model->rowCount(root()) - 1);
-        QObject::connect(model, SIGNAL(rowsInserted(const QModelIndex&, int, int)),
-                         this, SLOT(sectionsInserted(const QModelIndex&, int, int)));
-        QObject::connect(model, SIGNAL(rowsRemoved(const QModelIndex&, int, int)),
-                         this, SLOT(sectionsRemoved(const QModelIndex&, int, int)));
-    }
 }
 
 /*!
@@ -111,6 +96,37 @@ QGenericHeader::QGenericHeader(QAbstractItemModel *model, Qt::Orientation o, QWi
 
 QGenericHeader::~QGenericHeader()
 {
+}
+
+/*!
+  \reimp
+*/
+void QGenericHeader::setModel(QAbstractItemModel *model)
+{
+    QAbstractItemView::setModel(model);
+    if (!model)
+        return;
+    if (d->orientation == Qt::Horizontal) {
+        QObject::disconnect(model, SIGNAL(columnsInserted(const QModelIndex&, int, int)),
+                            this, SLOT(sectionsInserted(const QModelIndex&, int, int)));
+        QObject::disconnect(model, SIGNAL(columnsRemoved(const QModelIndex&, int, int)),
+                            this, SLOT(sectionsRemoved(const QModelIndex&, int, int)));        
+        initializeSections(0, model->columnCount(root()) - 1);
+        QObject::connect(model, SIGNAL(columnsInserted(const QModelIndex&, int, int)),
+                         this, SLOT(sectionsInserted(const QModelIndex&, int, int)));
+        QObject::connect(model, SIGNAL(columnsRemoved(const QModelIndex&, int, int)),
+                         this, SLOT(sectionsRemoved(const QModelIndex&, int, int)));
+    } else {
+        QObject::disconnect(model, SIGNAL(rowsInserted(const QModelIndex&, int, int)),
+                            this, SLOT(sectionsInserted(const QModelIndex&, int, int)));
+        QObject::disconnect(model, SIGNAL(rowsRemoved(const QModelIndex&, int, int)),
+                            this, SLOT(sectionsRemoved(const QModelIndex&, int, int)));
+        initializeSections(0, model->rowCount(root()) - 1);
+        QObject::connect(model, SIGNAL(rowsInserted(const QModelIndex&, int, int)),
+                         this, SLOT(sectionsInserted(const QModelIndex&, int, int)));
+        QObject::connect(model, SIGNAL(rowsRemoved(const QModelIndex&, int, int)),
+                         this, SLOT(sectionsRemoved(const QModelIndex&, int, int)));
+    }
 }
 
 /*!

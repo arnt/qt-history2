@@ -28,8 +28,11 @@ class Q_GUI_EXPORT QGenericTreeView : public QAbstractItemView
     Q_PROPERTY(int indentation READ indentation WRITE setIndentation)
 
 public:
-    QGenericTreeView(QAbstractItemModel *model, QWidget *parent = 0);
+    QGenericTreeView(QWidget *parent = 0);
     ~QGenericTreeView();
+
+    void setModel(QAbstractItemModel *model);
+    void setSelectionModel(QItemSelectionModel *selectionModel);
 
     QGenericHeader *header() const;
     void setHeader(QGenericHeader *header);
@@ -72,7 +75,7 @@ protected slots:
     void dataChanged();
 
 protected:
-    QGenericTreeView(QGenericTreeViewPrivate &dd, QAbstractItemModel *model, QWidget *parent = 0);
+    QGenericTreeView(QGenericTreeViewPrivate &dd, QWidget *parent = 0);
     void scrollContentsBy(int dx, int dy);
     void rowsInserted(const QModelIndex &parent, int start, int end);
     void rowsRemoved(const QModelIndex &parent, int start, int end);
