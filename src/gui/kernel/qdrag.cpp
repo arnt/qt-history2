@@ -72,17 +72,6 @@
 */
 
 /*!
-    \enum Qt::DropAction
-
-    \value CopyAction       Copy the data to the target.
-    \value MoveAction       Move the date from the source to the target.
-    \value LinkAction       Create a link from the source to the target.
-    \value ActionMask       ###
-    \value TargetMoveAction ###
-    \value IgnoreAction     Ignore the action (do nothing with the data).
-*/
-
-/*!
     Constructs a new drag object for the widget specified by \a dragSource.
 */
 QDrag::QDrag(QWidget *dragSource)

@@ -141,17 +141,19 @@ public:
     int count(const QRegExp &) const;
 #endif
 
-    enum SectionFlags {
+    enum SectionFlag {
         SectionDefault             = 0x00,
         SectionSkipEmpty           = 0x01,
         SectionIncludeLeadingSep   = 0x02,
         SectionIncludeTrailingSep  = 0x04,
         SectionCaseInsensitiveSeps = 0x08
     };
-    QString section(QChar sep, int start, int end = -1, int flags = SectionDefault) const;
-    QString section(const QString &in_sep, int start, int end = -1, int flags = SectionDefault) const;
+    Q_DECLARE_FLAGS(SectionFlags, SectionFlag)
+
+    QString section(QChar sep, int start, int end = -1, SectionFlags flags = SectionDefault) const;
+    QString section(const QString &in_sep, int start, int end = -1, SectionFlags flags = SectionDefault) const;
 #ifndef QT_NO_REGEXP
-    QString section(const QRegExp &reg, int start, int end = -1, int flags = SectionDefault) const;
+    QString section(const QRegExp &reg, int start, int end = -1, SectionFlags flags = SectionDefault) const;
 #endif
 
     QString left(int len) const;
@@ -592,7 +594,7 @@ inline QString QString::arg(const QString &a1, const QString &a2, const QString 
 { return multiArg(3, a1, a2, a3); }
 inline QString QString::arg(const QString &a1, const QString &a2,  const QString &a3, const QString &a4) const
 { return multiArg(4, a1, a2, a3, a4); }
-inline QString QString::section(QChar sep, int start, int end, int flags) const
+inline QString QString::section(QChar sep, int start, int end, SectionFlags flags) const
 { return section(QString(sep), start, end, flags); }
 
 
@@ -819,6 +821,7 @@ public:
 
 Q_DECLARE_TYPEINFO(QString, Q_MOVABLE_TYPE);
 Q_DECLARE_SHARED(QString);
+Q_DECLARE_OPERATORS_FOR_FLAGS(QString::SectionFlags)
 
 #if defined(Q_OS_WIN32)
 extern Q_CORE_EXPORT QByteArray qt_winQString2MB(const QString& s, int len=-1);

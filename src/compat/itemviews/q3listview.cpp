@@ -5441,18 +5441,6 @@ void Q3ListView::setSorting(int column, bool ascending)
 }
 
 /*!
-    \enum Qt::SortOrder
-
-    This enum describes how the items in a widget are sorted.
-
-    \value AscendingOrder The items are sorted ascending e.g. starts with
-    'AAA' ends with 'ZZZ' in Latin-1 locales
-
-    \value DescendingOrder The items are sorted descending e.g. starts with
-    'ZZZ' ends with 'AAA' in Latin-1 locales
-*/
-
-/*!
     Sets the \a column the list view is sorted by.
 
     Sorting is triggered by choosing a header section.

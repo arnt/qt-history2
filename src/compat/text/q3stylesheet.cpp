@@ -1344,29 +1344,6 @@ QString Q3StyleSheet::escape(const QString& plain)
 // Must doc this enum somewhere, and it is logically related to Q3StyleSheet
 
 /*!
-    \enum Qt::TextFormat
-
-    This enum is used in widgets that can display both plain text and
-    rich text, e.g. QLabel. It is used for deciding whether a text
-    string should be interpreted as one or the other. This is normally
-    done by passing one of the enum values to a setTextFormat()
-    function.
-
-    \value PlainText  The text string is interpreted as a plain text
-        string.
-
-    \value RichText The text string is interpreted as a rich text
-        string using the current Q3StyleSheet::defaultSheet().
-
-    \value AutoText The text string is interpreted as for \c RichText
-        if Q3StyleSheet::mightBeRichText() returns true, otherwise as
-        \c PlainText.
-
-    \value LogText A special, limited text format which is only used
-    by QTextEdit in an optimized mode.
-*/
-
-/*!
     Returns true if the string \a text is likely to be rich text;
     otherwise returns false.
 

@@ -49,7 +49,6 @@ public:
         darkYellow
     };
 
-    // documented in qevent.cpp
     enum KeyboardModifier {
         NoModifier           = 0x00000000,
         ShiftModifier        = 0x02000000,
@@ -72,7 +71,6 @@ public:
         UNICODE_ACCEL = 0x00000000
     };
 
-    // documented in qevent.cpp
     enum MouseButton {
         NoButton         = 0x00000000,
         LeftButton       = 0x00000001,
@@ -96,14 +94,12 @@ public:
     typedef int ButtonState;
 #endif
 
-    // documented in qobject.cpp
     // ideally would start at 1, as in QSizePolicy, but that breaks other things
     enum Orientation {
         Horizontal = 0,
         Vertical
     };
 
-    // documented in qwidget.cpp
     enum FocusPolicy {
         NoFocus = 0,
         TabFocus = 0x1,
@@ -125,7 +121,6 @@ public:
     // the following four enums can be combined to one integer which
     // is passed as textflag to drawText and qt_format_text.
 
-    // documented in qpainter.cpp
     enum AlignmentFlag {
         AlignLeft = 0x0001,
         AlignLeading = AlignLeft,
@@ -143,14 +138,14 @@ public:
 
         AlignCenter = AlignVCenter | AlignHCenter
 //#if QT3_SUPPORT
-        ,AlignAuto = AlignLeft
+        , AlignAuto = AlignLeft
 //#endif
     };
 
     Q_DECLARE_FLAGS(Alignment, AlignmentFlag)
 
     enum TextFlag {
-        TextSingleLine = 0x0080,                // misc. flags
+        TextSingleLine = 0x0080,
         TextDontClip = 0x0100,
         TextExpandTabs = 0x0200,
         TextShowMnemonic = 0x0400,
@@ -265,7 +260,6 @@ public:
 
     Q_DECLARE_FLAGS(WindowStates, WindowState)
 
-    // documented in qwidget.cpp
     enum WidgetAttribute {
         WA_Disabled = 0,
         WA_UnderMouse = 1,
@@ -279,7 +273,7 @@ public:
         WA_NoSystemBackground = 9,
         WA_UpdatesDisabled = 10,
         WA_Mapped = 11,
-        WA_MacNoClickThrough = 12, //mac only
+        WA_MacNoClickThrough = 12, // Mac only
         WA_PaintOutsidePaintEvent = 13,
         WA_InputMethodEnabled = 14,
         WA_WState_Visible = 15,
@@ -299,7 +293,7 @@ public:
         WA_Moved = 43,
         WA_PendingUpdate = 44,
         WA_InvalidSize = 45,
-        WA_MacMetalStyle = 46, //mac only
+        WA_MacMetalStyle = 46, // Mac only
         WA_CustomWhatsThis = 47,
         WA_LayoutOnEntireRect = 48,
         WA_OutsideWSRange = 49,
@@ -330,7 +324,7 @@ public:
         WA_GroupLeader = 72, // ## for now, might go away.
         WA_NoMousePropagation = 73, // ## for now, might go away.
 
-        // Add new attributes above this!
+        // Add new attributes above this
         WA_AttributeCount
     };
 
@@ -363,20 +357,19 @@ public:
     };
     Q_DECLARE_FLAGS(ImageConversionFlags, ImageConversionFlag)
 
-    enum BGMode {                                   // background mode
+    enum BGMode {
         TransparentMode,
         OpaqueMode
     };
 
 #ifdef QT3_SUPPORT
-    // documented in qpainter.cpp
     enum PaintUnit {                                // paint unit
         PixelUnit,
-        LoMetricUnit, // OBSOLETE
-        HiMetricUnit, // OBSOLETE
-        LoEnglishUnit, // OBSOLETE
-        HiEnglishUnit, // OBSOLETE
-        TwipsUnit // OBSOLETE
+        LoMetricUnit, // obsolete
+        HiMetricUnit, // obsolete
+        LoEnglishUnit, // obsolete
+        HiEnglishUnit, // obsolete
+        TwipsUnit // obsolete
     };
 
     enum GUIStyle {
@@ -388,7 +381,6 @@ public:
     };
 #endif
 
-    // documented in qevent.cpp
     enum Key {
         Key_Escape = 0x01000000,                // misc keys
         Key_Tab = 0x01000001,
@@ -779,7 +771,6 @@ public:
         Key_unknown = 0x01ffffff
     };
 
-    // documented in qcommonstyle.cpp
     enum ArrowType {
         NoArrow,
         UpArrow,
@@ -839,9 +830,13 @@ public:
 
 #if defined(QT3_SUPPORT)
 #if defined(Q_OS_MAC)
+#ifndef qdoc
     typedef int MacintoshVersion;
 
     enum {
+#else
+    enum MacintoshVersion {
+#endif
         //Unknown
         MV_Unknown  = 0x0000,
 
@@ -863,9 +858,13 @@ public:
 #endif // Q_OS_MAC
 
 #if defined(Q_OS_WIN)
+#ifndef qdoc
     typedef int WindowsVersion;
 
     enum {
+#else
+    enum WindowsVersion {
+#endif
         WV_32s = QSysInfo::WV_32s,
         WV_95 = QSysInfo::WV_95,
         WV_98 = QSysInfo::WV_98,
@@ -895,7 +894,6 @@ public:
         UI_AnimateToolBox
     };
 
-    // documented in qcursor.cpp
     enum CursorShape {
         ArrowCursor,
         UpArrowCursor,
@@ -959,7 +957,6 @@ public:
     typedef AspectRatioMode ScaleMode;
 #endif
 
-    // Documented in qtextedit.cpp
     enum AnchorAttribute {
         AnchorName,
         AnchorHref
@@ -997,7 +994,6 @@ public:
     Q_DECLARE_FLAGS(ToolBarAreas, ToolBarArea)
 
 #ifdef QT3_SUPPORT
-    // Documented in q3mainwindow.cpp
     enum Dock {
         DockUnmanaged,
         DockTornOff,
@@ -1019,20 +1015,17 @@ public:
     typedef Dock ToolBarDock;
 #endif
 
-    // documented in qdatetime.cpp
     enum DateFormat {
         TextDate,      // default Qt
         ISODate,       // ISO 8601
         LocalDate      // locale dependent
     };
 
-    // documented in qdatetime.cpp
     enum TimeSpec {
         LocalTime,
         UTC
     };
 
-    // documented in qdatetime.cpp
     enum DayOfWeek {
         Monday = 1,
         Tuesday = 2,
@@ -1043,7 +1036,6 @@ public:
         Sunday = 7
     };
 
-    // documented in qviewport.cpp
     enum ScrollBarPolicy {
         ScrollBarAsNeeded,
         ScrollBarAlwaysOff,
@@ -1080,7 +1072,6 @@ public:
         CaseSensitive
     };
 
-    // Documented in qtabwidget.cpp
     enum Corner {
         TopLeftCorner = 0x00000,
         TopRightCorner = 0x00001,
@@ -1101,21 +1092,18 @@ public:
         DirectCompatConnection
     };
 
-    // Documented in qwidget.cpp
     enum ShortcutContext {
         WidgetShortcut,
         WindowShortcut,
         ApplicationShortcut
     };
 
-    // Documented in qpainter.cpp
     enum PixmapDrawingMode {
         ComposePixmap,
         CopyPixmap,
         CopyPixmapNoMask // compatibility
     };
 
-    // Documented in qpainter.cpp
     enum FillRule {
         OddEvenFill,
         WindingFill
@@ -1133,7 +1121,6 @@ public:
         SmoothTransformation
     };
 
-    // Documented in qwidget.cpp
     enum FocusReason {
         MouseFocusReason,
         TabFocusReason,
@@ -1145,7 +1132,6 @@ public:
         OtherFocusReason
     };
 
-    //documented in qwidget.cpp
     enum ContextMenuPolicy {
         NoContextMenu,
         DefaultContextMenu,

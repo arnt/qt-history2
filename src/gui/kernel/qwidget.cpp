@@ -479,30 +479,6 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
   QWidget member functions
  *****************************************************************************/
 
- /*!
-    \enum Qt::FocusReason
-
-    This enum specifies why the focus changed. It will be passed
-    through QWidget::setFocus and can be retrieved in the QFocusEvent
-    sent to the widget upon focus change.
-
-    \value MouseFocusReason        A mouse action occurred.
-    \value TabFocusREason          The Tab key was pressed.
-    \value BacktabFocusReason      A Backtab occurred. The input for this may
-                                      include the Shift or Control keys;
-                                      e.g. Shift+Tab.
-    \value ActiveWindowFocusReason The window system made this window either
-                                      active or inactive.
-    \value PopupFocusReason        The application opened/closed a popup that
-                                      grabbed/released the keyboard focus.
-    \value ShortcutFocusReason     The user typed a label's buddy shortcut
-    \value MenuBarFocusReason      The menu bar took focus.
-    \value OtherFocusReason        Another reason, usually application-specific.
-
-    See the \link focus.html keyboard focus overview \endlink for more
-    about the keyboard focus.
-*/
-
 /*
     Widget state flags:
   \list
@@ -519,199 +495,6 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
   \i Qt::WA_WState_AutoMask The widget has an automatic mask, see setAutoMask().
   \i Qt::WA_WState_DND The widget supports drag and drop, see setAcceptDrops().
   \endlist
-*/
-
-/*!
-    \enum Qt::WFlag
-
-    \keyword window flag
-
-    This enum type is used to specify various window-system properties
-    for the widget. They are fairly unusual but necessary in a few
-    cases. Some of these flags depend on whether the underlying window
-    manager supports them. (See the \link toplevel-example.html
-    top-level example\endlink for an explanation and example of their
-    use.)
-
-    The main types are
-
-    \value WType_TopLevel  indicates that this widget is a top-level
-    widget, usually with a window-system frame and so on.
-
-    \value WType_Dialog  indicates that this widget is a top-level
-    window that should be decorated as a dialog (i.e. typically no
-    maximize or minimize buttons in the title bar). If you want to use
-    it as a modal dialog it should be launched from another window, or
-    have a parent and this flag should be combined with \c WShowModal.
-    If you make it modal, the dialog will prevent other top-level
-    windows in the application from getting any input. \c WType_Dialog
-    implies \c WType_TopLevel. We refer to a top-level window that has
-    a parent as a \e secondary window. (See also \c WGroupLeader.)
-
-    \value WType_Popup  indicates that this widget is a popup
-    top-level window, i.e. that it is modal, but has a window system
-    frame appropriate for popup menus. \c WType_Popup implies
-    WType_TopLevel.
-
-    \value WType_Desktop  indicates that this widget is the desktop.
-    See also \c WPaintDesktop below. \c WType_Desktop implies \c
-    WType_TopLevel.
-
-    There are also a number of flags which you can use to customize
-    the appearance of top-level windows. These have no effect on other
-    windows:
-
-    \value WStyle_Customize  indicates that the \c WStyle_* flags
-    should be used to build the window instead of the default flags.
-
-    \value WStyle_NormalBorder  gives the window a normal border.
-    This cannot be combined with \c WStyle_DialogBorder or \c
-    WStyle_NoBorder.
-
-    \value WStyle_DialogBorder  gives the window a thin dialog border.
-    This cannot be combined with \c WStyle_NormalBorder or \c
-    WStyle_NoBorder.
-
-    \value WStyle_NoBorder  produces a borderless window. Note that
-    the user cannot move or resize a borderless window via the window
-    system. This cannot be combined with \c WStyle_NormalBorder or \c
-    WStyle_DialogBorder. On Windows, the flag works fine. On X11, the
-    result of the flag is dependent on the window manager and its
-    ability to understand MOTIF and/or NETWM hints: most existing
-    modern window managers can handle this. With \c WX11BypassWM, you
-    can bypass the window manager completely. This results in a
-    borderless window that is not managed at all (i.e. no keyboard
-    input unless you call activateWindow() manually).
-
-    \value WStyle_Title  gives the window a title bar.
-
-    \value WStyle_SysMenu  adds a window system menu.
-
-    \value WStyle_Minimize  adds a minimize button. Note that on
-    Windows this has to be combined with \c WStyle_SysMenu for it to
-    work.
-
-    \value WStyle_Maximize  adds a maximize button. Note that on
-    Windows this has to be combined with \c WStyle_SysMenu for it to work.
-
-    \value WStyle_MinMax  is equal to \c
-    WStyle_Minimize|WStyle_Maximize. Note that on Windows this has to
-    be combined with \c WStyle_SysMenu to work.
-
-    \value WStyle_ContextHelp  adds a context help button to dialogs.
-
-    \value WStyle_Tool  makes the window a tool window. A tool window
-    is often a small window with a smaller than usual title bar and
-    decoration, typically used for collections of tool buttons. It
-    there is a parent, the tool window will always be kept on top of
-    it. If there isn't a parent, you may consider passing \c
-    WStyle_StaysOnTop as well. If the window system supports it, a
-    tool window can be decorated with a somewhat lighter frame. It can
-    also be combined with \c WStyle_NoBorder.
-
-    \value WStyle_StaysOnTop  informs the window system that the
-    window should stay on top of all other windows. Note that on some
-    window managers on X11 you also have to pass \c WX11BypassWM for
-    this flag to work correctly.
-
-    \value WStyle_Splash  indicates that the window is a splash screen.
-    On X11, we try to follow NETWM standard for a splash screen window if the
-    window manager supports is otherwise it is equivalent to \c WX11BypassWM. On
-    other platforms, it is equivalent to \c WStyle_NoBorder \c | \c WMacSheet \c |
-    \c WStyle_Tool \c | \c WWinOwnDC
-
-    Modifier flags:
-
-    \value WPaintDesktop  gives this widget paint events for the
-    desktop.
-
-    \value WMouseNoMask  indicates that even if the widget has a mask,
-    it wants mouse events for its entire rectangle.
-
-    \value WGroupLeader  makes this window a group leader. A group
-    leader should \e not have a parent (i.e. it should be a top-level
-    window). Any decendant windows (direct or indirect) of a group
-    leader are in its group; other windows are not. If you show a
-    secondary window from the group (i.e. show a window whose top-most
-    parent is a group leader), that window will be modal with respect
-    to the other windows in the group, but modeless with respect to
-    windows in other groups.
-
-    Miscellaneous flags
-
-    \value WShowModal see WType_Dialog
-
-    \omitvalue WDestructiveClose
-    \omitvalue WMacDrawer
-    \omitvalue WMacNoSheet
-    \omitvalue WMacSheet
-    \omitvalue WNoAutoErase
-    \omitvalue WNoMousePropagation
-    \omitvalue WNorthWestGravity
-    \omitvalue WPaintClever
-    \omitvalue WRepaintNoErase
-    \omitvalue WResizeNoErase
-    \omitvalue WStaticContents
-    \omitvalue WStyle_Dialog
-    \omitvalue WStyle_Mask
-    \omitvalue WStyle_NoBorderEx
-    \omitvalue WStyle_Reserved
-    \omitvalue WSubWindow
-    \omitvalue WType_Mask
-    \omitvalue WType_Modal
-    \omitvalue WWinOwnDC
-    \omitvalue WX11BypassWM
-
-*/
-
-/*!
-    \enum Qt::WStateFlag
-
-    \internal
-
-    \value WState_AutoMask
-    \value WState_BlockUpdates
-    \value WState_CompressKeys
-    \value WState_ConfigPending
-    \value WState_Created
-    \value WState_DND
-    \value WState_ExplicitShowHide
-    \value WState_FullScreen
-    \value WState_Hidden
-    \value WState_InPaintEvent
-    \value WState_Maximized
-    \value WState_Minimized
-    \value WState_OwnSizePolicy
-    \value WState_Polished
-    \value WState_Reparented
-    \value WState_Visible
-
-    \omitvalue WState_Reserved0
-    \omitvalue WState_Reserved2
-    \omitvalue WState_Reserved3
-    \omitvalue WState_Reserved4
-    \omitvalue WState_Reserve5
-    \omitvalue WState_Reserve6
-    \omitvalue WState_Reserved7
-*/
-
-
-/*!
-    \enum Qt::WindowState
-
-    \keyword window state
-
-    This enum type is used to specify the current state of a top-level
-    window.
-
-    The states are
-
-    \value WindowNoState   The window has no state set (in normal state).
-    \value WindowMinimized The window is minimized (i.e. iconified).
-    \value WindowMaximized The window is maximized with a frame around it.
-    \value WindowFullScreen The window fills the entire screen without any frame around it.
-    \value WindowActive The window is the active window, i.e. it has keyboard focus.
-
 */
 
 /*!
@@ -3744,18 +3527,6 @@ QSize QWidget::contentsMarginSize() const
 }
 
 /*!
-    \enum Qt::ContextMenuPolicy
-
-    This enum type defines the various policies a widget can have with
-    respect to showing a context menu.
-
-    \value NoContextMenu  the widget does not feature a context menu.
-    \value DefaultContextMenu  the widget's QWidget::contextMenuEvent() handler is called.
-    \value ActionsContextMenu  the widget displays it's QWidget::actions() as context menu.
-    \value CustomContextMenu  the widget emits the QWidget::customContextMenuRequested() signal.
-*/
-
-/*!
   \fn void QWidget::customContextMenuRequested(const QPoint &pos)
 
   This signal is emitted when the widget's \l contextMenuPolicy is
@@ -3804,25 +3575,6 @@ void QWidget::setContextMenuPolicy(Qt::ContextMenuPolicy policy)
     \sa setFocusPolicy(), focusInEvent(), focusOutEvent(), keyPressEvent(),
       keyReleaseEvent(), isEnabled()
 */
-
-/*!
-    \enum Qt::FocusPolicy
-
-    This enum type defines the various policies a widget can have with
-    respect to acquiring keyboard focus.
-
-    \value TabFocus  the widget accepts focus by tabbing.
-    \value ClickFocus  the widget accepts focus by clicking.
-    \value StrongFocus  the widget accepts focus by both tabbing
-                    and clicking. On Mac OS X this will also
-                    be indicate that the widget accepts tab focus
-                    when in 'Text/List focus mode'.
-    \value WheelFocus  like Qt::StrongFocus plus the widget accepts
-                    focus by using the mouse wheel.
-    \value NoFocus  the widget does not accept focus.
-
-*/
-
 
 /*!
     \property QWidget::focusPolicy
@@ -6343,21 +6095,6 @@ QString QWidget::accessibleDescription() const
     return d->accessibleDescription;
 }
 #endif
-
-
-/*!
-    \enum Qt::ShortcutContext
-
-    For a QEvent::Shortcut event to occur, the shortcut's key sequence
-    must be entered by the user in a context where the shortcut is
-    active. The possible contexts are these:
-
-    \value WidgetShortcut The shortcut is only triggered when its
-    parent widget has focus.
-    \value WindowShortcut The shortcut is triggered when its
-    parent widget is a logical subwidget of the active top-level window.
-    \value ApplicationShortcut The shortcut is triggered when the application is active.
-*/
 
 /*!
     Adds a shortcut to Qt's shortcut system that watches for the given

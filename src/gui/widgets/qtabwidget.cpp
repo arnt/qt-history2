@@ -94,22 +94,6 @@
 */
 
 /*!
-  \enum Qt::Corner
-
-  This enum type specifies a corner in a rectangle:
-
-  \value TopLeftCorner     The top-left corner of the rectangle.
-  \value TopRightCorner    The top-right corner of the rectangle.
-  \value BottomLeftCorner  The bottom-left corner of the rectangle.
-  \value BottomRightCorner The bottom-right corner of the rectangle.
-
-    \omitvalue TopLeft
-    \omitvalue TopRight
-    \omitvalue BottomLeft
-    \omitvalue BottomRight
-*/
-
-/*!
     \enum QTabWidget::TabPosition
 
     This enum type defines where QTabWidget draws the tab row:

@@ -2145,7 +2145,7 @@ int QMenu::insertAny(const QIcon *icon, const QString *text, const QObject *rece
 
 /*!
     Use the insertSeparator() overload that takes a QAction *
-    parameter instead..
+    parameter instead.
 */
 int QMenu::insertSeparator(int index)
 {

@@ -2395,7 +2395,7 @@ int QString::count(const QRegExp& rx) const
 
 
 /*!
-    \enum QString::SectionFlags
+    \enum QString::SectionFlag
 
     \value SectionDefault Empty fields are counted, leading and
     trailing separators are not included, and the separator is
@@ -2414,14 +2414,11 @@ int QString::count(const QRegExp& rx) const
     \value SectionCaseInsensitiveSeps Compare the separator
     case-insensitively.
 
-    Any of the last four values can be OR-ed together to form a
-    composite flag.
-
     \sa section()
 */
 
 /*!
-    \fn QString QString::section(QChar sep, int start, int end = -1, int flags = SectionDefault) const
+    \fn QString QString::section(QChar sep, int start, int end = -1, SectionFlags flags) const
 
     This function returns a section of the string.
 
@@ -2477,7 +2474,7 @@ int QString::count(const QRegExp& rx) const
     \sa split()
 */
 
-QString QString::section(const QString &sep, int start, int end, int flags) const
+QString QString::section(const QString &sep, int start, int end, SectionFlags flags) const
 {
     QStringList sections = split(sep, KeepEmptyParts,
                                  (flags & SectionCaseInsensitiveSeps) ? Qt::CaseInsensitive : Qt::CaseSensitive);
@@ -2561,7 +2558,7 @@ public:
 
     \sa split() simplified()
 */
-QString QString::section(const QRegExp &reg, int start, int end, int flags) const
+QString QString::section(const QRegExp &reg, int start, int end, SectionFlags flags) const
 {
     const QChar *uc = unicode();
     if(!uc)

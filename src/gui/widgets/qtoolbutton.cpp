@@ -338,18 +338,6 @@ QSize QToolButton::minimumSizeHint() const
     return sizeHint();
 }
 
- /*!
-    \enum Qt::ToolButtonStyle
-
-    The style of the tool button, describing how the button's text and
-    icon should be displayed.
-
-    \value ToolButtonIconOnly Only display the icon.
-    \value ToolButtonTextOnly Only display the text.
-    \value ToolButtonTextBesideIcon The text appears beside the icon.
-    \value ToolButtonTextUnderIcon The text appears under the icon.
-*/
-
 /*!
     \enum QToolButton::TextPosition
     \compat

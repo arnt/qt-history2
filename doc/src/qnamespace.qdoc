@@ -206,10 +206,6 @@
     \value color0 0 pixel value (for bitmaps)
     \value color1 1 pixel value (for bitmaps)
 
-    \omit
-    \img qt-colors.png Qt Colors
-    \endomit
-
     \sa QColor
 
 */
@@ -235,7 +231,9 @@
 
     \omitvalue MPenStyle
 
-    \img pen-styles.png Pen Styles
+    Screenshot:
+
+    \image pen-styles.png Pen Styles
 
     \sa QPen
 */
@@ -253,7 +251,9 @@
     \value RoundCap  a rounded line end.
     \omitvalue MPenCapStyle
 
-    \img pen-cap-styles.png Pen Cap Styles
+    Screenshot:
+
+    \image pen-cap-styles.png Pen Cap Styles
 
     \sa QPen
 */
@@ -271,7 +271,9 @@
     \value RoundJoin  A circular arc between the two lines is filled.
     \omitvalue MPenJoinStyle
 
-    \img pen-join-styles.png Pen Join Styles
+    Screenshot:
+
+    \image pen-join-styles.png Pen Join Styles
 
     \sa QPen
 */
@@ -279,31 +281,35 @@
 /*!
     \enum Qt::BrushStyle
 
-    \value NoBrush
-    \value SolidPattern
-    \value Dense1Pattern
-    \value Dense2Pattern
-    \value Dense3Pattern
-    \value Dense4Pattern
-    \value Dense5Pattern
-    \value Dense6Pattern
-    \value Dense7Pattern
-    \value HorPattern
-    \value VerPattern
-    \value CrossPattern
-    \value BDiagPattern
-    \value FDiagPattern
-    \value DiagCrossPattern
-    \value LinearGradientPattern
-    \value CustomPattern
+    \value NoBrush  No brush pattern.
+    \value SolidPattern  Uniform color.
+    \value Dense1Pattern  Extremely dense brush pattern.
+    \value Dense2Pattern  Very dense brush pattern.
+    \value Dense3Pattern  Somewhat dense brush pattern.
+    \value Dense4Pattern  Half dense brush pattern.
+    \value Dense5Pattern  Somewhat sparse brush pattern.
+    \value Dense6Pattern  Very sparse brush pattern.
+    \value Dense7Pattern  Extremely sparse brush pattern.
+    \value HorPattern  Horizontal lines.
+    \value VerPattern  Vertical lines.
+    \value CrossPattern  Crossing horizontal and vertical lines.
+    \value BDiagPattern  Backward diagonal lines.
+    \value FDiagPattern  Forward diagonal lines.
+    \value DiagCrossPattern  Crossing diagonal lines.
+    \value LinearGradientPattern  Linear gradient (set using dedicated QBrush constructor).
+    \value TexturePattern  Custom pattern (see QBrush::setTexture()).
 
-    \img brush-styles.png Brush Styles
+    \omitvalue CustomPattern
+
+    Screenshot:
+
+    \image brush-styles.png Brush Styles
 
     \sa QBrush
 */
 
 /*!
-    \enum Qt::TextFlags
+    \enum Qt::TextFlag
 
     This enum type is used to define some modifier flags. Some of
     these flags only make sense in the context of printing:
@@ -351,7 +357,7 @@
 /*!
     \enum Qt::BGMode
 
-    Background mode
+    Background mode:
 
     \value TransparentMode
     \value OpaqueMode
@@ -532,7 +538,7 @@
     This enum type defines what happens to the aspect ratio when
     scaling an rectangle.
 
-    \img qimage-scaling.png
+    \image qimage-scaling.png
 
     \value IgnoreAspectRatio  The size is scaled freely. The aspect
                               ratio is not preserved.
@@ -1239,8 +1245,7 @@
     \value Tool 
     \value ToolTip 
     \value SplashScreen 
-    \value Desktop 
-
+    \value Desktop
     \value WindowType_Mask 
     \value MSWindowsFixedSizeDialogHint 
     \value X11BypassWindowManagerHint 
@@ -1252,5 +1257,572 @@
     \value WindowMinMaxButtonsHint 
     \value WindowContextHelpButtonHint 
     \value WindowStaysOnTopHint
+*/
 
+/*!
+    \enum Qt::ToolButtonStyle
+
+    The style of the tool button, describing how the button's text and
+    icon should be displayed.
+
+    \value ToolButtonIconOnly Only display the icon.
+    \value ToolButtonTextOnly Only display the text.
+    \value ToolButtonTextBesideIcon The text appears beside the icon.
+    \value ToolButtonTextUnderIcon The text appears under the icon.
+*/
+
+/*!
+    \enum Qt::Corner
+
+    This enum type specifies a corner in a rectangle:
+
+    \value TopLeftCorner     The top-left corner of the rectangle.
+    \value TopRightCorner    The top-right corner of the rectangle.
+    \value BottomLeftCorner  The bottom-left corner of the rectangle.
+    \value BottomRightCorner The bottom-right corner of the rectangle.
+
+    \omitvalue TopLeft
+    \omitvalue TopRight
+    \omitvalue BottomLeft
+    \omitvalue BottomRight
+*/
+
+/*!
+    \enum Qt::ScrollBarPolicy
+
+    This enum type describes the various modes of QAbstractScrollArea's scroll
+    bars.
+
+    \value ScrollBarAsNeeded QAbstractScrollArea shows a scroll bar when the
+    content is too large to fit and not otherwise. This is the
+    default.
+
+    \value ScrollBarAlwaysOff QAbstractScrollArea never shows a scroll bar.
+
+    \value ScrollBarAlwaysOn  QAbstractScrollArea always shows a scroll bar.
+
+    (The modes for the horizontal and vertical scroll bars are
+    independent.)
+*/
+
+/*!
+    \enum Qt::ArrowType
+
+    \value NoArrow
+    \value UpArrow
+    \value DownArrow
+    \value LeftArrow
+    \value RightArrow
+*/
+
+/*!
+    \enum Qt::FocusReason
+
+    This enum specifies why the focus changed. It will be passed
+    through QWidget::setFocus and can be retrieved in the QFocusEvent
+    sent to the widget upon focus change.
+
+    \value MouseFocusReason        A mouse action occurred.
+    \value TabFocusReason          The Tab key was pressed.
+    \value BacktabFocusReason      A Backtab occurred. The input for this may
+                                      include the Shift or Control keys;
+                                      e.g. Shift+Tab.
+    \value ActiveWindowFocusReason The window system made this window either
+                                      active or inactive.
+    \value PopupFocusReason        The application opened/closed a popup that
+                                      grabbed/released the keyboard focus.
+    \value ShortcutFocusReason     The user typed a label's buddy shortcut
+    \value MenuBarFocusReason      The menu bar took focus.
+    \value OtherFocusReason        Another reason, usually application-specific.
+
+    See the \link focus.html keyboard focus overview \endlink for more
+    about the keyboard focus.
+*/
+
+/*!
+    \enum Qt::WStateFlag
+
+    \internal
+
+    \value WState_AutoMask
+    \value WState_BlockUpdates
+    \value WState_CompressKeys
+    \value WState_ConfigPending
+    \value WState_Created
+    \value WState_DND
+    \value WState_ExplicitShowHide
+    \value WState_FullScreen
+    \value WState_Hidden
+    \value WState_InPaintEvent
+    \value WState_Maximized
+    \value WState_Minimized
+    \value WState_OwnSizePolicy
+    \value WState_Polished
+    \value WState_Reparented
+    \value WState_Visible
+
+    \omitvalue WState_Reserved0
+    \omitvalue WState_Reserved2
+    \omitvalue WState_Reserved3
+    \omitvalue WState_Reserved4
+    \omitvalue WState_Reserve5
+    \omitvalue WState_Reserve6
+    \omitvalue WState_Reserved7
+*/
+
+/*!
+    \enum Qt::WindowState
+
+    \keyword window state
+
+    This enum type is used to specify the current state of a top-level
+    window.
+
+    The states are
+
+    \value WindowNoState   The window has no state set (in normal state).
+    \value WindowMinimized The window is minimized (i.e. iconified).
+    \value WindowMaximized The window is maximized with a frame around it.
+    \value WindowFullScreen The window fills the entire screen without any frame around it.
+    \value WindowActive The window is the active window, i.e. it has keyboard focus.
+
+*/
+
+/*!
+    \enum Qt::ContextMenuPolicy
+
+    This enum type defines the various policies a widget can have with
+    respect to showing a context menu.
+
+    \value NoContextMenu  the widget does not feature a context menu.
+    \value DefaultContextMenu  the widget's QWidget::contextMenuEvent() handler is called.
+    \value ActionsContextMenu  the widget displays it's QWidget::actions() as context menu.
+    \value CustomContextMenu  the widget emits the QWidget::customContextMenuRequested() signal.
+*/
+
+/*!
+    \enum Qt::FocusPolicy
+
+    This enum type defines the various policies a widget can have with
+    respect to acquiring keyboard focus.
+
+    \value TabFocus  the widget accepts focus by tabbing.
+    \value ClickFocus  the widget accepts focus by clicking.
+    \value StrongFocus  the widget accepts focus by both tabbing
+                    and clicking. On Mac OS X this will also
+                    be indicate that the widget accepts tab focus
+                    when in 'Text/List focus mode'.
+    \value WheelFocus  like Qt::StrongFocus plus the widget accepts
+                    focus by using the mouse wheel.
+    \value NoFocus  the widget does not accept focus.
+
+*/
+
+/*!
+    \enum Qt::ShortcutContext
+
+    For a QEvent::Shortcut event to occur, the shortcut's key sequence
+    must be entered by the user in a context where the shortcut is
+    active. The possible contexts are these:
+
+    \value WidgetShortcut The shortcut is only triggered when its
+    parent widget has focus.
+    \value WindowShortcut The shortcut is triggered when its
+    parent widget is a logical subwidget of the active top-level window.
+    \value ApplicationShortcut The shortcut is triggered when the application is active.
+*/
+
+/*!
+    \enum Qt::WFlag
+
+    \keyword window flag
+
+    This enum type is used to specify various window-system properties
+    for the widget. They are fairly unusual but necessary in a few
+    cases. Some of these flags depend on whether the underlying window
+    manager supports them. (See the \link toplevel-example.html
+    top-level example\endlink for an explanation and example of their
+    use.)
+
+    The main types are
+
+    \value WType_TopLevel  indicates that this widget is a top-level
+    widget, usually with a window-system frame and so on.
+
+    \value WType_Dialog  indicates that this widget is a top-level
+    window that should be decorated as a dialog (i.e. typically no
+    maximize or minimize buttons in the title bar). If you want to use
+    it as a modal dialog it should be launched from another window, or
+    have a parent and this flag should be combined with \c WShowModal.
+    If you make it modal, the dialog will prevent other top-level
+    windows in the application from getting any input. \c WType_Dialog
+    implies \c WType_TopLevel. We refer to a top-level window that has
+    a parent as a \e secondary window. (See also \c WGroupLeader.)
+
+    \value WType_Popup  indicates that this widget is a popup
+    top-level window, i.e. that it is modal, but has a window system
+    frame appropriate for popup menus. \c WType_Popup implies
+    WType_TopLevel.
+
+    \value WType_Desktop  indicates that this widget is the desktop.
+    See also \c WPaintDesktop below. \c WType_Desktop implies \c
+    WType_TopLevel.
+
+    There are also a number of flags which you can use to customize
+    the appearance of top-level windows. These have no effect on other
+    windows:
+
+    \value WStyle_Customize  indicates that the \c WStyle_* flags
+    should be used to build the window instead of the default flags.
+
+    \value WStyle_NormalBorder  gives the window a normal border.
+    This cannot be combined with \c WStyle_DialogBorder or \c
+    WStyle_NoBorder.
+
+    \value WStyle_DialogBorder  gives the window a thin dialog border.
+    This cannot be combined with \c WStyle_NormalBorder or \c
+    WStyle_NoBorder.
+
+    \value WStyle_NoBorder  produces a borderless window. Note that
+    the user cannot move or resize a borderless window via the window
+    system. This cannot be combined with \c WStyle_NormalBorder or \c
+    WStyle_DialogBorder. On Windows, the flag works fine. On X11, the
+    result of the flag is dependent on the window manager and its
+    ability to understand MOTIF and/or NETWM hints: most existing
+    modern window managers can handle this. With \c WX11BypassWM, you
+    can bypass the window manager completely. This results in a
+    borderless window that is not managed at all (i.e. no keyboard
+    input unless you call activateWindow() manually).
+
+    \value WStyle_Title  gives the window a title bar.
+
+    \value WStyle_SysMenu  adds a window system menu.
+
+    \value WStyle_Minimize  adds a minimize button. Note that on
+    Windows this has to be combined with \c WStyle_SysMenu for it to
+    work.
+
+    \value WStyle_Maximize  adds a maximize button. Note that on
+    Windows this has to be combined with \c WStyle_SysMenu for it to work.
+
+    \value WStyle_MinMax  is equal to \c
+    WStyle_Minimize|WStyle_Maximize. Note that on Windows this has to
+    be combined with \c WStyle_SysMenu to work.
+
+    \value WStyle_ContextHelp  adds a context help button to dialogs.
+
+    \value WStyle_Tool  makes the window a tool window. A tool window
+    is often a small window with a smaller than usual title bar and
+    decoration, typically used for collections of tool buttons. It
+    there is a parent, the tool window will always be kept on top of
+    it. If there isn't a parent, you may consider passing \c
+    WStyle_StaysOnTop as well. If the window system supports it, a
+    tool window can be decorated with a somewhat lighter frame. It can
+    also be combined with \c WStyle_NoBorder.
+
+    \value WStyle_StaysOnTop  informs the window system that the
+    window should stay on top of all other windows. Note that on some
+    window managers on X11 you also have to pass \c WX11BypassWM for
+    this flag to work correctly.
+
+    \value WStyle_Splash  indicates that the window is a splash screen.
+    On X11, we try to follow NETWM standard for a splash screen window if the
+    window manager supports is otherwise it is equivalent to \c WX11BypassWM. On
+    other platforms, it is equivalent to \c WStyle_NoBorder \c | \c WMacSheet \c |
+    \c WStyle_Tool \c | \c WWinOwnDC
+
+    Modifier flags:
+
+    \value WPaintDesktop  gives this widget paint events for the
+    desktop.
+
+    \value WMouseNoMask  indicates that even if the widget has a mask,
+    it wants mouse events for its entire rectangle.
+
+    \value WGroupLeader  makes this window a group leader. A group
+    leader should \e not have a parent (i.e. it should be a top-level
+    window). Any decendant windows (direct or indirect) of a group
+    leader are in its group; other windows are not. If you show a
+    secondary window from the group (i.e. show a window whose top-most
+    parent is a group leader), that window will be modal with respect
+    to the other windows in the group, but modeless with respect to
+    windows in other groups.
+
+    Miscellaneous flags
+
+    \value WShowModal see WType_Dialog
+
+    \omitvalue WDestructiveClose
+    \omitvalue WMacDrawer
+    \omitvalue WMacNoSheet
+    \omitvalue WMacSheet
+    \omitvalue WNoAutoErase
+    \omitvalue WNoMousePropagation
+    \omitvalue WNorthWestGravity
+    \omitvalue WPaintClever
+    \omitvalue WRepaintNoErase
+    \omitvalue WResizeNoErase
+    \omitvalue WStaticContents
+    \omitvalue WStyle_Dialog
+    \omitvalue WStyle_Mask
+    \omitvalue WStyle_NoBorderEx
+    \omitvalue WStyle_Reserved
+    \omitvalue WSubWindow
+    \omitvalue WType_Mask
+    \omitvalue WType_Modal
+    \omitvalue WWinOwnDC
+    \omitvalue WX11BypassWM
+
+*/
+
+/*!
+    \enum Qt::DropAction
+
+    \value CopyAction       Copy the data to the target.
+    \value MoveAction       Move the date from the source to the target.
+    \value LinkAction       Create a link from the source to the target.
+    \value ActionMask
+    \value TargetMoveAction
+    \value IgnoreAction     Ignore the action (do nothing with the data).
+*/
+
+#if defined(Q_OS_WIN) && defined(QT3_SUPPORT)
+/*!
+    \enum Qt::WindowsVersion
+
+    \value WV_32s
+    \value WV_95
+    \value WV_98
+    \value WV_Me
+    \value WV_DOS_based
+    \value WV_NT
+    \value WV_2000
+    \value WV_XP
+    \value WV_2003
+    \value WV_NT_based
+    \value WV_CE
+    \value WV_CENET
+    \value WV_CE_based
+*/
+#endif
+
+#if defined(Q_OS_MAC) && defined(QT3_SUPPORT)
+/*!
+    \enum Qt::MacintoshVersion
+
+    \value MV_Unknown  Use QSysInfo::MV_Unknown instead.
+    \value MV_9        Use QSysInfo::MV_9 instead.
+    \value MV_10_DOT_0 Use QSysInfo::MV_10_0 instead.
+    \value MV_10_DOT_1 Use QSysInfo::MV_10_1 instead.
+    \value MV_10_DOT_2 Use QSysInfo::MV_10_2 instead.
+    \value MV_10_DOT_3 Use QSysInfo::MV_10_3 instead.
+    \value MV_10_DOT_4 Use QSysInfo::MV_10_4 instead.
+
+    \value MV_CHEETAH  Use QSysInfo::MV_10_0 instead.
+    \value MV_PUMA     Use QSysInfo::MV_10_1 instead.
+    \value MV_JAGUAR   Use QSysInfo::MV_10_2 instead.
+    \value MV_PANTHER  Use QSysInfo::MV_10_3 instead.
+    \value MV_TIGER    Use QSysInfo::MV_10_4 instead.
+
+    \sa QSysInfo::MacVersion
+*/
+#endif
+
+/*! \typedef Qt::ToolBarDock
+    \compat
+
+    Use Qt::Dock instead.
+*/
+
+/*!
+    \enum Qt::Dock
+
+    Each dock window can be in one of the following positions:
+
+    \value DockUnmanaged not managed by a Q3MainWindow.
+
+    \value DockTornOff the dock window floats as its own top level
+    window which always stays on top of the main window.
+
+    \value DockTop  above the central widget, below the menu bar.
+
+    \value DockBottom  below the central widget, above the status bar.
+
+    \value DockRight to the right of the central widget.
+
+    \value DockLeft  to the left of the central widget.
+
+    \value DockMinimized the dock window is not shown (this is
+    effectively a 'hidden' dock area); the handles of all minimized
+    dock windows are drawn in one row below the menu bar.
+
+    \omitvalue Bottom
+    \omitvalue Left
+    \omitvalue Minimized
+    \omitvalue Right
+    \omitvalue Top
+    \omitvalue TornOff
+    \omitvalue Unmanaged
+*/
+
+/*!
+  \enum Qt::AnchorAttribute
+
+  An anchor has one or more of the following attributes:
+
+  \value AnchorName the name attribute of the anchor. This attribute is
+  used when scrolling to an anchor in the document.
+
+  \value AnchorHref the href attribute of the anchor. This attribute is
+  used when a link is clicked to determine what content to load.
+*/
+
+/*!
+    \enum Qt::SortOrder
+
+    This enum describes how the items in a widget are sorted.
+
+    \value AscendingOrder The items are sorted ascending e.g. starts with
+    'AAA' ends with 'ZZZ' in Latin-1 locales
+
+    \value DescendingOrder The items are sorted descending e.g. starts with
+    'ZZZ' ends with 'AAA' in Latin-1 locales
+*/
+
+/*!
+    \enum Qt::ClipOperation
+
+    \value NoClip This operation turns clipping off.
+
+    \value ReplaceClip Replaces the current clip path/rect/region with
+    the one supplied in the function call.
+
+    \value IntersectClip Intersects the current clip path/rect/region
+    with the one supplied in the function call.
+
+    \value UniteClip Unites the current clip path/rect/region with the
+    one supplied in the function call.
+*/
+
+/*!
+    \enum Qt::PixmapDrawingMode
+
+    \value ComposePixmap This mode will merge the source with the
+    destination, including the alpha channels.
+
+    \value CopyPixmap Copies the source to the destination, including
+    the mask. If the destination is not a pixmap, this operation is
+    undefined.
+
+    \value CopyPixmapNoMask Draws the source onto the destination, ignoring
+    the source mask.
+*/
+
+/*!
+    \enum Qt::FillRule
+
+    Specifies which method should be used to fill the paths and polygons.
+
+    \value OddEvenFill Specifies that the region is filled using the
+    odd even fill rule. With this rule, we determine whether a point
+    is inside the shape by using the following method.
+    Draw a horizontal line from the point to a location outside the shape,
+    and count the number of intersections. If the number of intersections
+    is an odd number, the point is inside the shape. This mode is the
+    default.
+
+    \value WindingFill Specifies that the region is filled using the
+    non zero winding rule. With this rule, we determine whether a
+    point is inside the shape by using the following method.
+    Draw a horizontal line from the point to a location outside the shape.
+    Determine whether the direction of the line at each intersection point
+    is up or down. The winding number is determined by summing the
+    direction of each intersection. If the number is non zero, the point
+    is inside the shape. This fill mode can also in most cases be considered
+    as the intersection of closed shapes.
+*/
+
+/*!
+    \enum Qt::PaintUnit
+
+    \compat
+
+    \value PixelUnit
+    \value LoMetricUnit Obsolete
+    \value HiMetricUnit Obsolete
+    \value LoEnglishUnit Obsolete
+    \value HiEnglishUnit Obsolete
+    \value TwipsUnit Obsolete
+*/
+
+/*!
+    \enum Qt::TextFormat
+
+    This enum is used in widgets that can display both plain text and
+    rich text, e.g. QLabel. It is used for deciding whether a text
+    string should be interpreted as one or the other. This is normally
+    done by passing one of the enum values to a setTextFormat()
+    function.
+
+    \value PlainText  The text string is interpreted as a plain text
+        string.
+
+    \value RichText The text string is interpreted as a rich text
+        string using the current Q3StyleSheet::defaultSheet().
+
+    \value AutoText The text string is interpreted as for \c RichText
+        if Q3StyleSheet::mightBeRichText() returns true, otherwise as
+        \c PlainText.
+
+    \value LogText A special, limited text format which is only used
+    by QTextEdit in an optimized mode.
+*/
+
+/*!
+    \enum Qt::CursorShape
+
+    This enum type defines the various cursors that can be used.
+
+    \value ArrowCursor  standard arrow cursor
+    \value UpArrowCursor  upwards arrow
+    \value CrossCursor  crosshair
+    \value WaitCursor  hourglass/watch
+    \value IBeamCursor  ibeam/text entry
+    \value SizeVerCursor  vertical resize
+    \value SizeHorCursor  horizontal resize
+    \value SizeFDiagCursor  diagonal resize (\)
+    \value SizeBDiagCursor  diagonal resize (/)
+    \value SizeAllCursor  all directions resize
+    \value BlankCursor  blank/invisible cursor
+    \value SplitVCursor  vertical splitting
+    \value SplitHCursor  horizontal splitting
+    \value PointingHandCursor  a pointing hand
+    \value ForbiddenCursor  a slashed circle
+    \value WhatsThisCursor  an arrow with a question mark
+    \value BusyCursor  standard arrow with hourglass/watch
+    \value BitmapCursor
+    \omitvalue LastCursor
+
+    \omitvalue arrowCursor
+    \omitvalue upArrowCursor
+    \omitvalue crossCursor
+    \omitvalue waitCursor
+    \omitvalue ibeamCursor
+    \omitvalue sizeVerCursor
+    \omitvalue sizeHorCursor
+    \omitvalue sizeBDiagCursor
+    \omitvalue sizeFDiagCursor
+    \omitvalue sizeAllCursor
+    \omitvalue blankCursor
+    \omitvalue splitVCursor
+    \omitvalue splitHCursor
+    \omitvalue pointingHandCursor
+    \omitvalue forbiddenCursor
+    \omitvalue whatsThisCursor
+
+    ArrowCursor is the default for widgets in a normal state.
+
+    Screenshot:
+
+    \image cursors.png Cursor Shapes
 */

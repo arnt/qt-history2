@@ -3038,25 +3038,3 @@ bool QApplicationPrivate::qt_mac_apply_settings()
     settings.endGroup();
     return true;
 }
-
-#if defined(Q_OS_MAC) && defined(QT3_SUPPORT)
-/*!
-    \enum Qt::MacintoshVersion
-
-    \value MV_Unknown  Use QSysInfo::MV_Unknown instead.
-    \value MV_9        Use QSysInfo::MV_9 instead.
-    \value MV_10_DOT_0 Use QSysInfo::MV_10_0 instead.
-    \value MV_10_DOT_1 Use QSysInfo::MV_10_1 instead.
-    \value MV_10_DOT_2 Use QSysInfo::MV_10_2 instead.
-    \value MV_10_DOT_3 Use QSysInfo::MV_10_3 instead.
-    \value MV_10_DOT_4 Use QSysInfo::MV_10_4 instead.
-
-    \value MV_CHEETAH  Use QSysInfo::MV_10_0 instead.
-    \value MV_PUMA     Use QSysInfo::MV_10_1 instead.
-    \value MV_JAGUAR   Use QSysInfo::MV_10_2 instead.
-    \value MV_PANTHER  Use QSysInfo::MV_10_3 instead.
-    \value MV_TIGER    Use QSysInfo::MV_10_4 instead.
-
-    \sa QSysInfo::MacVersion
-*/
-#endif

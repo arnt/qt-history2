@@ -273,7 +273,7 @@
     ways) is unsafe unless you can guarantee that the object isn't
     processing events at the same moment. Use QObject::deleteLater()
     instead; it will post a
-    \l{QCoreEvent::DeferredDelete}{DeferredDelete} event, which the
+    \l{QEvent::DeferredDelete}{DeferredDelete} event, which the
     event loop of the object's thread will eventually pick up.
 
     If no event loop is running, events won't be delivered to the

@@ -3635,25 +3635,3 @@ void QSessionManager::cancel()
 {
     sm_cancel = true;
 }
-
-#if defined(Q_OS_WIN) && defined(QT3_SUPPORT)
-/*!
-    \enum Qt::WindowsVersion
-
-    \value WV_32s
-    \value WV_95
-    \value WV_98
-    \value WV_Me
-    \value WV_DOS_based
-
-    \value WV_NT
-    \value WV_2000
-    \value WV_XP
-    \value WV_2003
-    \value WV_NT_based
-
-    \value WV_CE
-    \value WV_CENET
-    \value WV_CE_based
-*/
-#endif

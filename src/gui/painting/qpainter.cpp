@@ -474,60 +474,7 @@ void QPainterPrivate::updateInvMatrix()
 }
 
 /*!
-    \enum Qt::ClipOperation
-
-    \value NoClip This operation turns clipping off.
-
-    \value ReplaceClip Replaces the current clip path/rect/region with
-    the one supplied in the function call.
-
-    \value IntersectClip Intersects the current clip path/rect/region
-    with the one supplied in the function call.
-
-    \value UniteClip Unites the current clip path/rect/region with the
-    one supplied in the function call.
-*/
-
-/*!
-    \enum Qt::PixmapDrawingMode
-
-    \value ComposePixmap This mode will merge the source with the
-    destination, including the alpha channels.
-
-    \value CopyPixmap Copies the source to the destination, including
-    the mask. If the destination is not a pixmap, this operation is
-    undefined.
-
-    \value CopyPixmapNoMask Draws the source onto the destination, ignoring
-    the source mask.
-*/
-
-/*!
-    \enum Qt::FillRule
-
-    Specifies which method should be used to fill the paths and polygons.
-
-    \value OddEvenFill Specifies that the region is filled using the
-    odd even fill rule. With this rule, we determine whether a point
-    is inside the shape by using the following method.
-    Draw a horizontal line from the point to a location outside the shape,
-    and count the number of intersections. If the number of intersections
-    is an odd number, the point is inside the shape. This mode is the
-    default.
-
-    \value WindingFill Specifies that the region is filled using the
-    non zero winding rule. With this rule, we determine whether a
-    point is inside the shape by using the following method.
-    Draw a horizontal line from the point to a location outside the shape.
-    Determine whether the direction of the line at each intersection point
-    is up or down. The winding number is determined by summing the
-    direction of each intersection. If the number is non zero, the point
-    is inside the shape. This fill mode can also in most cases be considered
-    as the intersection of closed shapes.
-*/
-
-/*!
-    \class QPainter qpainter.h
+    \class QPainter
     \brief The QPainter class does low-level painting e.g. on widgets.
 
     \ingroup multimedia
@@ -5048,19 +4995,6 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
 }
 
 #endif // QT3_SUPPORT
-
-/*!
-    \enum Qt::PaintUnit
-
-    \compat
-
-    \value PixelUnit
-    \value LoMetricUnit Obsolete
-    \value HiMetricUnit Obsolete
-    \value LoEnglishUnit Obsolete
-    \value HiEnglishUnit Obsolete
-    \value TwipsUnit Obsolete
-*/
 
 /*!
     \fn void QPainter::setBackgroundColor(const QColor &color)

@@ -65,7 +65,7 @@
     QHeaderView widget above or beside the scrolling area.
 
     For convience, QAbstractScrollArea makes all viewport events available in
-    the virtual viewportEvent()-handler.  QWidget's specialised
+    the virtual viewportEvent() handler.  QWidget's specialised
     handlers are remapped to viewport events in the cases where this
     makes sense. The remapped specialised handlers are: paintEvent(),
     mousePressEvent(), mouseReleaseEvent(), mouseDoubleClickEvent(),
@@ -75,27 +75,7 @@
 
 */
 
-
-/*!
-    \enum Qt::ScrollBarPolicy
-
-    This enum type describes the various modes of QAbstractScrollArea's scroll
-    bars.
-
-    \value ScrollBarAsNeeded QAbstractScrollArea shows a scroll bar when the
-    content is too large to fit and not otherwise. This is the
-    default.
-
-    \value ScrollBarAlwaysOff QAbstractScrollArea never shows a scroll bar.
-
-    \value ScrollBarAlwaysOn  QAbstractScrollArea always shows a scroll bar.
-
-    (The modes for the horizontal and vertical scroll bars are
-    independent.)
-*/
-
 inline  bool QAbstractScrollAreaPrivate::viewportEvent(QEvent *e) { return q->viewportEvent(e); }
-
 
 class QAbstractScrollAreaHelper : public QWidget
 {

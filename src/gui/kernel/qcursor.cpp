@@ -23,7 +23,7 @@
 #include <private/qcursor_p.h>
 
 /*!
-    \class QCursor qcursor.h
+    \class QCursor
 
     \brief The QCursor class provides a mouse cursor with an arbitrary
     shape.
@@ -88,53 +88,6 @@
     \row \i Qt::ForbiddenCursor         \i forbidden
     \row \i Qt::WhatsThisCursor         \i whats_this
     \endtable
-*/
-
-/*!
-    \enum Qt::CursorShape
-
-    This enum type defines the various cursors that can be used.
-
-    \value ArrowCursor  standard arrow cursor
-    \value UpArrowCursor  upwards arrow
-    \value CrossCursor  crosshair
-    \value WaitCursor  hourglass/watch
-    \value BusyCursor  standard arrow with hourglass/watch
-    \value IBeamCursor  ibeam/text entry
-    \value SizeVerCursor  vertical resize
-    \value SizeHorCursor  horizontal resize
-    \value SizeFDiagCursor  diagonal resize (\)
-    \value SizeBDiagCursor  diagonal resize (/)
-    \value SizeAllCursor  all directions resize
-    \value BlankCursor  blank/invisible cursor
-    \value SplitVCursor  vertical splitting
-    \value SplitHCursor  horizontal splitting
-    \value PointingHandCursor  a pointing hand
-    \value ForbiddenCursor  a slashed circle
-    \value WhatsThisCursor  an arrow with a question mark
-    \value BitmapCursor
-    \omitvalue LastCursor
-
-    \omitvalue arrowCursor
-    \omitvalue upArrowCursor
-    \omitvalue crossCursor
-    \omitvalue waitCursor
-    \omitvalue ibeamCursor
-    \omitvalue sizeVerCursor
-    \omitvalue sizeHorCursor
-    \omitvalue sizeBDiagCursor
-    \omitvalue sizeFDiagCursor
-    \omitvalue sizeAllCursor
-    \omitvalue blankCursor
-    \omitvalue splitVCursor
-    \omitvalue splitHCursor
-    \omitvalue pointingHandCursor
-    \omitvalue forbiddenCursor
-    \omitvalue whatsThisCursor
-
-    ArrowCursor is the default for widgets in a normal state.
-
-    \img cursors.png Cursor Shapes
 */
 
 /*!

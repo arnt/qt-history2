@@ -601,41 +601,6 @@ void QHideToolTip::maybeTip(const QPoint &pos)
     \sa Q3ToolBar Q3DockWindow QStatusBar QAction QMenuBar Q3PopupMenu QToolTipGroup QDialog
 */
 
-/*! \enum Qt::ToolBarDock
-    \internal
-*/
-
-/*!
-    \enum Qt::Dock
-
-    Each dock window can be in one of the following positions:
-
-    \value DockTop  above the central widget, below the menu bar.
-
-    \value DockBottom  below the central widget, above the status bar.
-
-    \value DockLeft  to the left of the central widget.
-
-    \value DockRight to the right of the central widget.
-
-    \value DockMinimized the dock window is not shown (this is
-    effectively a 'hidden' dock area); the handles of all minimized
-    dock windows are drawn in one row below the menu bar.
-
-    \value DockTornOff the dock window floats as its own top level
-    window which always stays on top of the main window.
-
-    \value DockUnmanaged not managed by a Q3MainWindow.
-
-    \omitvalue Bottom
-    \omitvalue Left
-    \omitvalue Minimized
-    \omitvalue Right
-    \omitvalue Top
-    \omitvalue TornOff
-    \omitvalue Unmanaged
-*/
-
 /*!
     \enum Q3MainWindow::DockWindows
 

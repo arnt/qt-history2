@@ -52,17 +52,6 @@
 */
 
 /*!
-    \enum Qt::ArrowType
-
-    \value NoArrow
-    \value UpArrow
-    \value DownArrow
-    \value LeftArrow
-    \value RightArrow
-
-*/
-
-/*!
     Constructs a QCommonStyle.
 */
 QCommonStyle::QCommonStyle()

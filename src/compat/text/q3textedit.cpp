@@ -691,18 +691,6 @@ static bool block_set_alignment = false;
 */
 
 /*!
-  \enum Qt::AnchorAttribute
-
-  An anchor has one or more of the following attributes:
-
-  \value AnchorName the name attribute of the anchor. This attribute is
-  used when scrolling to an anchor in the document.
-
-  \value AnchorHref the href attribute of the anchor. This attribute is
-  used when a link is clicked to determine what content to load.
-*/
-
-/*!
     \property Q3TextEdit::overwriteMode
     \brief the text edit's overwrite mode
 
