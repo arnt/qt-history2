@@ -6,11 +6,26 @@
 #include <qpixmap.h>
 #include <qbitmap.h>
 #include <qcursor.h>
+#include <qlibrary.h>
 
 #include <qt_windows.h>
 
 static uint MYWM_TASKBARCREATED = 0;
 #define MYWM_NOTIFYICON	(WM_APP+101)
+
+typedef BOOL (WINAPI *PtrShell_NotifyIcon)(DWORD,PNOTIFYICONDATA);
+static PtrShell_NotifyIcon ptrShell_NotifyIcon = 0;
+
+static void resolveLibs()
+{
+    QLibrary lib("shell32");
+    lib.setAutoUnload( FALSE );
+    static bool triedResolve = FALSE;
+    if ( !ptrShell_NotifyIcon && !triedResolve ) {
+	triedResolve = TRUE;
+	ptrShell_NotifyIcon = (PtrShell_NotifyIcon) lib.resolve( "Shell_NotifyIconW" );
+    }
+}
 
 class TrayIcon::TrayIconPrivate : public QWidget
 {
@@ -61,11 +76,14 @@ public:
 
 	return res;
     }
+
 #if defined(UNICODE)
     bool trayMessageW( DWORD msg ) 
     {
 	bool res;
-
+	resolveLibs();
+	if ( ! (ptrShell_NotifyIcon && qWinVersion() & Qt::WV_NT_based) )
+	    return trayMessageA( msg );
 	NOTIFYICONDATAW tnd;
 	memset( &tnd, 0, sizeof(NOTIFYICONDATAW) );
 	tnd.cbSize		= sizeof(NOTIFYICONDATAW);
@@ -81,9 +99,7 @@ public:
 		lstrcpynW(tnd.szTip, (TCHAR*)qt_winTchar( tip, FALSE ), QMIN( tip.length()+1, 64 ) );
 	    }
 	}
-
-	res = Shell_NotifyIconW(msg, &tnd);
-
+	res = ptrShell_NotifyIcon(msg, &tnd);
 	return res;
     }
 #endif
