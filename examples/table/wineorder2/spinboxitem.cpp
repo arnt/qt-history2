@@ -17,7 +17,7 @@ SpinBoxItem::SpinBoxItem( QTable * myTable, const int value,
 
 QWidget * SpinBoxItem::createEditor() const
 {
-    QSpinBox * quantities = new QSpinBox( table, "quantities" );
+    QSpinBox * quantities = new QSpinBox( table->viewport(), "quantities" );
     quantities->setSuffix( suffix );
     quantities->setMaxValue( 250 );
     quantities->setValue( getValue() );

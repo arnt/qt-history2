@@ -17,30 +17,30 @@ $Id$
 
   <hr>
 
-  The API of the SpinBoxItem class: 
+  The API of the SpinBoxItem class (spinboxitem.h): 
  
   \include table/wineorder2/spinboxitem.h
   <hr>
 
-  The Implementation of the SpinBoxItem class:
+  The Implementation of the SpinBoxItem class (spinboxitem.cpp):
 
   \include table/wineorder2/spinboxitem.cpp
 
   <hr>
 
-  The API of the ProductList class: 
+  The API of the ProductList class (productlist.h): 
  
   \include table/wineorder2/productlist.h
 
   <hr>
  
-  Its Implementation:
+  Its Implementation (productlist.cpp):
  
   \include table/wineorder2/productlist.cpp
 
   <hr>
  
-  The main program:
+  The main program (wineorder.cpp):
  
   \include table/wineorder2/wineorder.cpp
 */

@@ -276,19 +276,19 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
   In addition the QTableItem class provides the API
   needed for sorting table items.
 
-  To define another editor you have to reimplement createEditor() and
-  setContentFromEditor(). By reimplementing paint() and adding
-  the relevant set- and "get"-functions custom subclasses of QTableItem
-  may overcome the restriction of one text string and one pixmap per cell.
-  If sorting is required reimplementing the
-  key() function might be neccessary.
-
   QTableItems are added to a QTable using QTable::setItem(). As long
   as they haven't been attached to the table this way QTable cells are
   empty.
 
   To get rid of an item, simply delete it. By doing so, all required
   actions for removing it from the table are taken.
+
+  To define another editor you have to reimplement createEditor() and
+  setContentFromEditor(). By reimplementing paint() and adding
+  the relevant set- and "get"-functions custom subclasses of QTableItem
+  may overcome the restriction of one text string and one pixmap per cell.
+  If sorting is required reimplementing the
+  key() function might be neccessary.
 */
 
 /*! \fn QTable *QTableItem::table() const
@@ -298,7 +298,7 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
   Note that this is the parent table object of the item even if
   the item fills a cell of another table.
 
-  \sa QTable::setItem()
+  \sa QTable::setItem() QTableItem()
 */
 
 /*! \enum QTableItem::EditType
@@ -347,7 +347,15 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
 /*! Creates a table item for the table \a table that contains the text
   \a text. \a et determines its \l EditType.
 
-  To insert the item into a table use QTable::setItem().
+  To insert the item into a table use QTable::setItem():
+
+  \walkthrough table/wineorder2/productlist.cpp
+  \skipto QTableItem * discount 
+  \printline QTableItem * discount 
+  \printuntil setItem
+ 
+  (Code taken from \link wineorder2-example.html
+  table/wineorder2/productlist.cpp \endlink )  
 
   Whilst the parent of the item (i.e. \a table) and the QTable it has been
   inserted into might occasionally be different, a table item can't be inserted into
@@ -403,6 +411,8 @@ QTableItem::~QTableItem()
   each. It is advisable to use values
   greater than 1000, preferably large random numbers, to allow for
   extensions to this class.
+
+  \sa QCheckTableItem::rtti() QComboTableItem::rtti()
 */
 
 int QTableItem::rtti() const
@@ -456,12 +466,15 @@ void QTableItem::setPixmap( const QPixmap &p )
 /*! Changes the text of the item to \a str. Note that the cell is not
   repainted.
 
-  \walkthrough table/wineorder2/spinboxitem.cpp
+  \walkthrough table/wineorder2/productlist.cpp
   \skipto suffix
   \printline suffix
+  \walkthrough table/wineorder2/spinboxitem.cpp
+  \skipto setText(
   \printline setText
 
   (Code taken from \link wineorder2-example.html
+  table/wineorder2/productlist.cpp and 
   table/wineorder2/spinboxitem.cpp \endlink ) 
 
   \sa QTable::setText() text() setPixmap() QTable::updateCell()
@@ -511,13 +524,13 @@ void QTableItem::paint( QPainter *p, const QColorGroup &cg,
   edit the cell. The default implementation creates a QLineEdit that
   aligns everything to the left.
 
-  If the function returns 0, the relevant cell can not be edited.
+  If the function returns 0, the relevant cell cannot be edited.
 
   The returned widget should preferably be unvisible, and it should
   have QTable::viewport() as parent.
 
   If you reimplement this function, you probably also need to
-  reimplement setContentFromEditor():
+  reimplement setContentFromEditor().
 
   \walkthrough table/wineorder2/spinboxitem.cpp
   \skipto createEditor()
@@ -568,7 +581,12 @@ void QTableItem::setContentFromEditor( QWidget *w )
 /*! The alignment function returns how text contents of the cell are
   drawn. The default implementation aligns numbers to the right and
   other text to the left.
+
+  \sa Qt::AlignmentFlags
 */
+
+// ed: For consistency reasons a setAlignment() should be provided
+// as well.
 
 int QTableItem::alignment() const
 {
@@ -680,7 +698,7 @@ QString QTableItem::key() const
 /*! This virtual function returns the size a cell needs to show its
   entire content.
 
-  Many custom table items will need to reimplement this function.
+  Custom table items will often require reimplementation of this function.
 */
 
 QSize QTableItem::sizeHint() const
@@ -765,7 +783,7 @@ void QTableItem::setRow( int r )
     rw = r;
 }
 
-/*! Makes \a c to be the item's column. Usually you will not need to
+/*! Makes \a c the item's column. Usually you will not need to
   call this function.
 
   If the cell spans multiple columns, this function sets the leftmost
@@ -780,7 +798,7 @@ void QTableItem::setCol( int c )
 }
 
 /*! Returns the row where the item is located. If the cell spans
-  multiple rows, this function returns the top row.
+  multiple rows, this function returns the top most of them.
 
   \sa col() setRow()
 */
@@ -803,7 +821,7 @@ int QTableItem::col() const
 
 /*! If \a b is TRUE, the item is enabled, otherwise it is disabled.
 
-  A disabled item doesn't react on user input.
+  A disabled item doesn't react to user input.
 
   \sa isEnabled()
 */
@@ -966,26 +984,35 @@ int QComboTableItem::count() const
     return entries.count();
 }
 
-/*! Returns the text of the item \a i in the lits of entries */
+/*! Returns the text of the item \a i in the lits of entries. */
 
 QString QComboTableItem::text( int i ) const
 {
     return *entries.at( i );
 }
 
-/*! Sets the combobox of this item to be editable if \a b is TRUE */
+/*! Sets the combobox of this item to be editable if \a b is TRUE. */
 
 void QComboTableItem::setEditable( bool b )
 {
     edit = b;
 }
 
-/*! Returns whether the combobox of this item is editable */
+/*! Returns whether the combobox of this item is editable. */
 
 bool QComboTableItem::isEditable() const
 {
     return edit;
 }
+
+/*! \fn int QComboTableItem::rtti() const
+  \reimp
+
+  For QComboTableItems this function returns a Run Time Identification 
+  number of 1.
+
+  \sa QTableItem::rtti()
+*/
 
 /*!
   \class QCheckTableItem qtable.h
@@ -1084,6 +1111,15 @@ bool QCheckTableItem::isChecked() const
 {
     return checked;
 }
+
+/*! \fn int QCheckTableItem::rtti() const
+  \reimp
+
+  Returns the Run Time Identification number of \e this object
+  which is 2 for QCheckTableItems.
+
+  \sa QTableItem::rtti()
+*/
 
 
 /*! \class QTable qtable.h
