@@ -1037,6 +1037,7 @@ bool QPainter::begin(QPaintDevice *pd)
 
     d->device = pd;
     d->engine = pd->paintEngine();
+    d->engine->setDirty(QPaintEngine::AllDirty);
 
     if (!d->engine) {
         qWarning("QPainter::begin(), paintdevice returned engine == 0, type: %d\n", pd->devType());
