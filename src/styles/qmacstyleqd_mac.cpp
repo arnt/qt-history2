@@ -522,24 +522,9 @@ void QMacStyleQD::drawPrimitive(PrimitiveElement pe,
 #ifndef QT_NO_TABLE
 	if (p && p->device() && p->device()->devType() == QInternal::Widget) {
 	    if (::qt_cast<QTable*>(((QWidget*)p->device())->parentWidget())) {
-		QPointArray pa(3);
-		if (p->font().bold()) {
-		    p->setPen(pal.light());
-		    p->setBrush(pal.light());
-		} else {
-		    p->setPen(pal.dark());
-		    p->setBrush(pal.dark());
-		}
-		if (flags & Style_Up) {
-		    pa.setPoint(0, r.x(), 7 * r.height() / 8);
-		    pa.setPoint(1, r.x() + r.width(), 7 * r.height() / 8);
-		    pa.setPoint(2, r.x() + r.width() / 2, r.y());
-		} else {
-		    pa.setPoint(0, r.x() + r.width() / 2, 7 * r.height() / 8);
-		    pa.setPoint(1, r.x(), r.y());
-		    pa.setPoint(2, r.x() + r.width(), r.y());
-		}
-		p->drawPolygon(pa);
+		DrawThemePopupArrow(qt_glb_mac_rect(r, p),
+				    flags & Style_Up ? kThemeArrowDown : kThemeArrowUp,
+				    kThemeArrow9pt, tds, 0, 0);
 	    }
 	}
 #endif
