@@ -3202,7 +3202,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
     //TODO: if it is a pure shift/ctrl/alt keydown, invert state logic, like X
 
     /*
-    if ( msg.lParam & 0xc0000000 )
+    if ( msg.lParam & 0xc0000000 ) // multi media keys on MS keyboards
 	state |= Qt::Keypad;
     */
 
