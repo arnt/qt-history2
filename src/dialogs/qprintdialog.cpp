@@ -137,23 +137,27 @@ static void parsePrintcap( QListView * printers )
     if ( !printcap.open( IO_ReadOnly ) )
         return;
 
-    char * line = new char[1025];
-    line[1024] = '\0';
+    char * line_ascii = new char[1025];
+    line_ascii[1024] = '\0';
 
     QString printerDesc;
-    int lineLength = 0;
+    bool atEnd = FALSE;
 
-    while( !printcap.atEnd() &&
-           (lineLength=printcap.readLine( line, 1024 )) > 0 ) {
-        if ( *line == '#' ) {
-            *line = '\0';
-            lineLength = 0;
+    while( !atEnd ) {
+	if ( printcap.atEnd() || printcap.readLine( line_ascii, 1024 ) <= 0 ) 
+	    atEnd = TRUE;
+	QString line = line_ascii;
+	line = line.stripWhiteSpace();
+	if (line.length() >= 1 && line[line.length()-1] == '\\' )
+	    line.truncate(line.length()-1);
+	if ( line[0] == '#' ) {
+	    if ( !atEnd ) continue;
+        } else if ( line[0] == '|' || line[0] == ':' ) {
+	    printerDesc += line;
+	    if ( !atEnd ) continue;
         }
-        if ( lineLength >= 2 && line[lineLength-2] == '\\' ) {
-            line[lineLength-2] = '\0';
-            printerDesc += QString::fromLocal8Bit(line);
-        } else {
-            printerDesc += QString::fromLocal8Bit(line);
+	
+	if ( printerDesc.length() > 1 ) {
             printerDesc = printerDesc.simplifyWhiteSpace();
             int i = printerDesc.find( ':' );
             QString printerName, printerComment, printerHost;
@@ -172,14 +176,6 @@ static void parsePrintcap( QListView * printers )
                         if ( printerComment[j] == '|' )
                             printerComment[j] = ',';
                     }
-                }
-                // then look for a real comment
-                j = i+1;
-                while( printerDesc[j].isSpace() )
-                    j++;
-                if ( printerDesc[j] != ':' ) {
-                    printerComment = printerDesc.mid( i, j-i );
-                    printerComment = printerComment.simplifyWhiteSpace();
                 }
                 // look for lprng psuedo all printers entry
                 i = printerDesc.find(
@@ -206,11 +202,11 @@ static void parsePrintcap( QListView * printers )
             if ( printerName.length() )
                 perhapsAddPrinter( printers, printerName, printerHost,
                                    printerComment );
-            // chop away the line, for processing the next one
-            printerDesc = "";
         }
+	    // add the first line of the new printer definition
+	    printerDesc = line;
     }
-    delete[] line;
+    delete[] line_ascii;
 }
 
 
