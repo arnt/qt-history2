@@ -1,5 +1,5 @@
 #include "qsqldriverplugin.h"
-#include "qsqldriverinterface.h"
+#include "qsqldriverinterface_p.h"
 
 class QSqlDriverPluginPrivate : public QSqlDriverFactoryInterface
 {

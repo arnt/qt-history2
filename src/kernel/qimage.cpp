@@ -48,7 +48,7 @@
 #include "qjpegio.h"
 #include "qmap.h"
 #include <private/qpluginmanager_p.h>
-#include "qimageformatinterface.h"
+#include "qimageformatinterface_p.h"
 #include "qwmatrix.h"
 #include "qapplication.h"
 #include <stdlib.h>

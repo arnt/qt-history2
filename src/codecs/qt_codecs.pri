@@ -16,7 +16,7 @@ tools {
 		  $$CODECS_H/qtextcodec.h \
 		  $$CODECS_H/qtsciicodec.h \
 		  $$CODECS_H/qutfcodec.h \
-		  $$CODECS_H/qtextcodecinterface.h \
+		  $$CODECS_P/qtextcodecinterface_p.h \
 		  $$CODECS_H/qtextcodecfactory.h \
 		  $$CODECS_H/qtextcodecplugin.h
 

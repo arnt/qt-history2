@@ -18,7 +18,7 @@ sql {
 		    $$SQL_H/qeditorfactory.h \
 		    $$SQL_H/qsqleditorfactory.h \
 		    $$SQL_H/qsqldriver.h \
-		    $$SQL_H/qsqldriverinterface.h \
+		    $$SQL_P/qsqldriverinterface_p.h \
 		    $$SQL_H/qsqldriverplugin.h \
 		    $$SQL_H/qsqlerror.h \
 		    $$SQL_H/qsqlresult.h \

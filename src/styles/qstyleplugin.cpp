@@ -1,5 +1,5 @@
 #include "qstyleplugin.h"
-#include "qstyleinterface.h"
+#include "qstyleinterface_p.h"
 #include "qobjectcleanuphandler.h"
 #include "qstyle.h"
 

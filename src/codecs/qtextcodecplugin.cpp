@@ -1,5 +1,5 @@
 #include "qtextcodecplugin.h"
-#include "qtextcodecinterface.h"
+#include "qtextcodecinterface_p.h"
 
 class QTextCodecPluginPrivate : public QTextCodecFactoryInterface
 {

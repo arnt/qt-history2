@@ -34,7 +34,6 @@
 **
 **********************************************************************/
 
-#include "qtextcodecinterface.h"
 #include "qtextcodecfactory.h"
 
 #ifndef QT_NO_TEXTCODEC
@@ -42,7 +41,7 @@
 #ifndef QT_NO_COMPONENT
 #include "qapplication.h"
 #include <private/qpluginmanager_p.h>
-#include "qtextcodecinterface.h"
+#include "qtextcodecinterface_p.h"
 
 #include <stdlib.h>
 

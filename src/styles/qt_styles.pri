@@ -2,7 +2,7 @@
 
 styles {
 	HEADERS +=$$STYLES_H/qstylefactory.h \
-		  $$STYLES_H/qstyleinterface.h \
+		  $$STYLES_P/qstyleinterface_p.h \
 		  $$STYLES_H/qstyleplugin.h \
 		  $$STYLES_H/qcommonstyle.h
 	SOURCES +=$$STYLES_CPP/qstylefactory.cpp \
