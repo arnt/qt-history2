@@ -16,7 +16,6 @@
 #include <qsqlrecord.h>
 #include <qdatetime.h>
 #include <qvector.h>
-#include <qmap.h>
 #include <private/qinternal_p.h>
 
 #ifndef UNICODE
@@ -55,7 +54,7 @@ public:
 	for ( int i = 0; i < valueCache.count(); ++i )
 	    delete valueCache[ i ];
     }
-    
+
     const QDB2DriverPrivate* dp;
     SQLHANDLE hStmt;
     QSqlRecord recInf;
@@ -64,11 +63,11 @@ public:
 
 static QString qFromTChar( SQLTCHAR* str )
 {
-#ifdef UNICODE    
+#ifdef UNICODE
     return QString::fromUcs2( str );
 #else
     return QString::fromLocal8Bit( (const char*) str );
-#endif    
+#endif
 }
 
 // dangerous!! (but fast). Don't use in functions that
@@ -291,7 +290,7 @@ static QString qGetStringData( SQLHANDLE hStmt, int column, int colSize, bool& i
 
     if ( colSize <= 0 )
 	colSize = 255;
-    else if ( colSize > 65536 ) // limit buffer size to 64 KB 
+    else if ( colSize > 65536 ) // limit buffer size to 64 KB
 	colSize = 65536;
     else
 	colSize++; // make sure there is room for more than the 0 termination
@@ -453,10 +452,10 @@ static bool qMakeStatement( QDB2ResultPrivate* d, bool forwardOnly, bool setForw
 	    return FALSE;
 	}
     }
-    
+
     if ( !setForwardOnly )
 	return TRUE;
-    
+
     if ( forwardOnly ) {
 	r = SQLSetStmtAttr( d->hStmt,
 			    SQL_ATTR_CURSOR_TYPE,
@@ -489,7 +488,7 @@ QDB2Result::~QDB2Result()
 	SQLRETURN r = SQLFreeHandle( SQL_HANDLE_STMT, d->hStmt );
 	if ( r != SQL_SUCCESS )
 	    qSqlWarning( "QDB2Driver: Unable to free statement handle " + QString::number(r), d );
-    }    
+    }
     delete d;
 }
 
@@ -504,7 +503,7 @@ bool QDB2Result::reset ( const QString& query )
 
     if ( !qMakeStatement( d, isForwardOnly() ) )
 	return FALSE;
-        
+
     r = SQLExecDirect( d->hStmt,
 		       qToTChar( query ),
 		       (SQLINTEGER) query.length() );
@@ -535,10 +534,10 @@ bool QDB2Result::prepare( const QString& query )
 
     d->recInf.clear();
     d->valueCache.clear();
-    
+
     if ( !qMakeStatement( d, isForwardOnly() ) )
 	return FALSE;
-    
+
     r = SQLPrepare( d->hStmt,
 		    qToTChar( query ),
 		    (SQLINTEGER) query.length() );
@@ -546,7 +545,7 @@ bool QDB2Result::prepare( const QString& query )
     if ( r != SQL_SUCCESS ) {
 	qSqlWarning( "QDB2Result::prepare: Unable to prepare statement", d );
 	return FALSE;
-    }    
+    }
     return TRUE;
 }
 
@@ -558,12 +557,12 @@ bool QDB2Result::exec()
 
     d->recInf.clear();
     d->valueCache.clear();
-    
+
     if ( !qMakeStatement( d, isForwardOnly(), FALSE ) )
 	return FALSE;
-        
+
     QList<QVirtualDestructor*> tmpStorage; // holds temporary ptrs. which will be deleted on fu exit
-    
+
     QVector<QCoreVariant>& values = boundValues();
     int i;
     for ( i = 0; i < values.count(); ++i ) {
@@ -573,7 +572,7 @@ bool QDB2Result::exec()
 	tmpStorage.append( qAutoDeleter(ind) );
 	if ( val.isNull() )
 	    *ind = SQL_NULL_DATA;
-    
+
 	switch ( val.type() ) {
 	    case QCoreVariant::Date: {
 		DATE_STRUCT * dt = new DATE_STRUCT;
@@ -742,7 +741,7 @@ bool QDB2Result::exec()
 
     //get out parameters
     if ( hasOutValues() ) {
-	for ( i = 0; i < values.count(); ++i ) {    
+	for ( i = 0; i < values.count(); ++i ) {
 	    SQLINTEGER* indPtr = qAutoDeleterData( (QAutoDeleter<SQLINTEGER>*)tmpStorage.first() );
 	    if ( !indPtr )
 		return FALSE;
@@ -767,7 +766,7 @@ bool QDB2Result::exec()
 		    break; }
 		case QCoreVariant::DateTime: {
 		    TIMESTAMP_STRUCT * dt = qAutoDeleterData( (QAutoDeleter<TIMESTAMP_STRUCT>*)tmpStorage.first() );
-		    values[ i ] = QCoreVariant( QDateTime( QDate( dt->year, dt->month, dt->day ), 
+		    values[ i ] = QCoreVariant( QDateTime( QDate( dt->year, dt->month, dt->day ),
 								       QTime( dt->hour, dt->minute, dt->second ) ) );
 		    break; }
 	        case QCoreVariant::Int: {
@@ -803,7 +802,7 @@ bool QDB2Result::exec()
 }
 
 bool QDB2Result::fetch( int i )
-{ 
+{
     if ( isForwardOnly() && i < at() )
 	return FALSE;
     if ( i == at() )
@@ -868,9 +867,9 @@ bool QDB2Result::fetchFirst()
 }
 
 bool QDB2Result::fetchLast()
-{ 
+{
     d->valueCache.fill( 0 );
-    
+
     int i = at();
     if ( i == QSql::AfterLast ) {
 	if ( isForwardOnly() ) {
@@ -884,7 +883,7 @@ bool QDB2Result::fetchLast()
 
     while ( fetchNext() )
 	++i;
-    
+
     if ( i == QSql::BeforeFirst ) {
 	setAt( QSql::AfterLast );
 	return FALSE;
@@ -908,10 +907,10 @@ QCoreVariant QDB2Result::data( int field )
     SQLINTEGER lengthIndicator = 0;
     bool isNull = FALSE;
     const QSqlField* info = d->recInf.field(field);
-    
+
     if ( !info || field >= (int)d->valueCache.size() )
 	return QCoreVariant();
-    
+
     if ( d->valueCache[ field ] )
 	return *d->valueCache[ field ];
 
@@ -995,7 +994,7 @@ bool QDB2Result::isNull( int i )
 {
     if ( i >= (int)d->valueCache.size() )
 	return TRUE;
-    
+
     if ( d->valueCache[ i ] )
 	return d->valueCache[ i ]->isNull();
     return data( i ).isNull();
@@ -1013,12 +1012,12 @@ int QDB2Result::numRowsAffected()
 }
 
 int QDB2Result::size()
-{ 
+{
     return -1;
 }
 
 QSqlRecord QDB2Result::record() const
-{ 
+{
     if (isActive())
 	return d->recInf;
     return QSqlRecord();
@@ -1050,7 +1049,7 @@ QDB2Driver::~QDB2Driver()
     delete d;
 }
 
-bool QDB2Driver::open( const QString& db, const QString& user, const QString& password, const QString&, int, 
+bool QDB2Driver::open( const QString& db, const QString& user, const QString& password, const QString&, int,
 		       const QString& connOpts )
 {
     if ( isOpen() )
@@ -1064,7 +1063,7 @@ bool QDB2Driver::open( const QString& db, const QString& user, const QString& pa
 	setOpenError( TRUE );
 	return FALSE;
     }
-        
+
     r = SQLAllocHandle( SQL_HANDLE_DBC,
 			d->hEnv,
 			&d->hDbc );
@@ -1074,49 +1073,42 @@ bool QDB2Driver::open( const QString& db, const QString& user, const QString& pa
 	return FALSE;
     }
     // Set connection attributes
-    QStringList raw = connOpts.split(';');
-    QStringList opts;
-    QMap<QString, QString> connMap;
-    for ( QStringList::ConstIterator it = raw.begin(); it != raw.end(); ++it ) {
-	QString tmp( *it );
-	int idx;
-	if ( (idx = tmp.indexOf( '=' )) != -1 )
-	    connMap[ tmp.left( idx ) ] = tmp.mid( idx + 1 ).simplified();
-	else
-	    qWarning( "QDB2Driver::open: Illegal connect option value '%s'", tmp.latin1() );
+    const QStringList opts(connOpts.split(';'));
+    for (int i = 0; i < opts.count(); ++i) {
+        const QString tmp(opts.at(i));
+        int idx;
+        if ( (idx = tmp.indexOf( '=' )) == -1 ) {
+            qWarning("QDB2Driver::open: Illegal connect option value '%s'", tmp.latin1());
+            continue;
+        }
+
+        const QString opt(tmp.left(idx));
+        const QString val(tmp.mid(idx + 1).simplified());
+
+        SQLUINTEGER v = 0;
+        r = SQL_SUCCESS;
+        if ( opt == "SQL_ATTR_ACCESS_MODE" ) {
+            if ( val == "SQL_MODE_READ_ONLY" ) {
+                v = SQL_MODE_READ_ONLY;
+            } else if ( val == "SQL_MODE_READ_WRITE" ) {
+                v = SQL_MODE_READ_WRITE;
+            } else {
+                qWarning("QDB2Driver::open: Unknown option value '%s'", tmp.latin1());
+                continue;
+            }
+            r = SQLSetConnectAttr( d->hDbc, SQL_ATTR_ACCESS_MODE, (SQLPOINTER) v, 0 );
+        } else if ( opt == "SQL_ATTR_LOGIN_TIMEOUT" ) {
+            v = val.toUInt();
+            r = SQLSetConnectAttr( d->hDbc, SQL_ATTR_LOGIN_TIMEOUT, (SQLPOINTER) v, 0 );
+        } else {
+            qWarning( "QDB2Driver::open: Unknown connection attribute '%s'",
+                      tmp.latin1());
+        }
+        if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO )
+            qSqlWarning( QString("QDB2Driver::open: Unable to set connection attribute '%1'"
+                                ).arg( opt ), d );
     }
-    if ( connMap.size() ) {
-	QMap<QString, QString>::ConstIterator it;
-	QString opt, val;
-	SQLUINTEGER v = 0;
-	for ( it = connMap.constBegin(); it != connMap.constEnd(); ++it ) {
-	    opt = it.key().toUpper();
-	    val = it.value().toUpper();
-	    r = SQL_SUCCESS;
-	    if ( opt == "SQL_ATTR_ACCESS_MODE" ) {
-		if ( val == "SQL_MODE_READ_ONLY" ) {
-		    v = SQL_MODE_READ_ONLY;
-		} else if ( val == "SQL_MODE_READ_WRITE" ) {
-		    v = SQL_MODE_READ_WRITE;
-		} else {
-		    qWarning( "QDB2Driver::open: Unknown option value '%s'", (*it).latin1() );
-		    continue;
-		}
-		r = SQLSetConnectAttr( d->hDbc, SQL_ATTR_ACCESS_MODE, (SQLPOINTER) v, 0 );
-	    } else if ( opt == "SQL_ATTR_LOGIN_TIMEOUT" ) {
-		v = val.toUInt();
-		r = SQLSetConnectAttr( d->hDbc, SQL_ATTR_LOGIN_TIMEOUT, (SQLPOINTER) v, 0 );
-	    }
-	    else {
-		  qWarning( "QDB2Driver::open: Unknown connection attribute '%s'",
-			    it.key().latin1() );
-	    }
-	    if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO )
-		qSqlWarning( QString("QDB2Driver::open: Unable to set connection attribute '%1'"
-				    ).arg( opt ), d );
-	}
-    }
-        
+
     QString connQStr;
     connQStr = "DSN=" + db + ";UID=" + user + ";PWD=" + password;
     SQLTCHAR connOut[ SQL_MAX_OPTION_STRING_LENGTH ];
@@ -1165,11 +1157,11 @@ void QDB2Driver::close()
 	d->hEnv = 0;
     }
     setOpen( FALSE );
-    setOpenError( FALSE );    
+    setOpenError( FALSE );
 }
 
-QSqlQuery QDB2Driver::createQuery() const 
-{ 
+QSqlQuery QDB2Driver::createQuery() const
+{
     return QSqlQuery( new QDB2Result( this, d ) );
 }
 
@@ -1192,7 +1184,7 @@ QSqlRecord QDB2Driver::record( const QString& tableName ) const
 	qSqlWarning( "QDB2Driver::record: Unable to allocate handle", d );
 	return fil;
     }
-    
+
     r = SQLSetStmtAttr( hStmt,
 			SQL_ATTR_CURSOR_TYPE,
 			(SQLPOINTER) SQL_CURSOR_FORWARD_ONLY,
@@ -1233,7 +1225,7 @@ QStringList QDB2Driver::tables( const QString& typeName ) const
     if ( !isOpen() )
 	return tl;
 
-    int type = typeName.toInt();	
+    int type = typeName.toInt();
     SQLHANDLE hStmt;
 
     SQLRETURN r = SQLAllocHandle( SQL_HANDLE_STMT,
@@ -1436,7 +1428,7 @@ QString QDB2Driver::formatValue( const QSqlField* field, bool trimStrings ) cons
 	    // Use an escape sequence for the datetime fields
 	    if ( field->value().toDateTime().isValid() ) {
 		QDate dt = field->value().toDateTime().date();
-		QTime tm = field->value().toDateTime().time();	
+		QTime tm = field->value().toDateTime().time();
 		// Dateformat has to be "yyyy-MM-dd hh:mm:ss", with leading zeroes if month or day < 10
 		return "'" + QString::number( dt.year() ) + "-" +
 		       QString::number( dt.month() ) + "-" +
