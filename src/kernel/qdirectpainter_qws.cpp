@@ -68,60 +68,61 @@ public:
 };
 
 /*!
-  \class QDirectPainter qdirectpainter_qws.h
-  \brief The QDirectPainter class provides direct access to the video hardware.
+    \class QDirectPainter qdirectpainter_qws.h
+    \brief The QDirectPainter class provides direct access to the video hardware.
 
-  \ingroup graphics
+    \ingroup graphics
 
-  Only available in Qt/Embedded.
+    Only available in Qt/Embedded.
 
-  When the hardware is known and well defined, as is often the case
-  with software for embedded devices, it may be useful to manipulate
-  the underlying video hardware directly. In order to do that in a
-  way that is co-operative with other applications, you need to lock
-  the video hardware for exclusive use for a small time and you need
-  to know the clipping region which is allocated to a widget.
+    When the hardware is known and well defined, as is often the case
+    with software for embedded devices, it may be useful to manipulate
+    the underlying video hardware directly. In order to do this in a
+    way that is co-operative with other applications, you must lock
+    the video hardware for exclusive use for a small time while you
+    write to it, and you must know the clipping region which is
+    allocated to a widget.
 
-  QDirectPainter provides this functionality.
+    QDirectPainter provides this functionality.
 
-  In the simplest usage, you make a QDirectPainter on a widget and
-  then, observing the clip region, perform some platform-specific
-  operation. eg.
-
-  \code
-    void MyWidget::updatePlatformGraphics()
-    {
-	QDirectPainter dp( this );
-	for (int i=0; i<dp.numRects; i++) {
-	    const QRect& clip = dp.rect(i);
-	    ... // platform specific operation
+    In the simplest case, you make a QDirectPainter on a widget and
+    then, observing the clip region, perform some platform-specific
+    operation. For example:
+    \code
+	void MyWidget::updatePlatformGraphics()
+	{
+	    QDirectPainter dp( this );
+	    for ( int i = 0; i < dp.numRects; i++ ) {
+		const QRect& clip = dp.rect(i);
+		... // platform specific operation
+	    }
 	}
-    }
-  \endcode
+    \endcode
 
-  The platform-specific code has access to the display, but should
-  only modify graphics in the rectangles specified by numRects()
-  and rect(). Note that these rectangles
-  are relative to the entire display.
+    The platform-specific code has access to the display, but should
+    only modify graphics in the rectangles specified by numRects() and
+    rect(). Note that these rectangles are relative to the entire
+    display.
 
-  The offset() function returns the position of the widget relative to
-  the entire display, allowing you to offset platform-specific operations
-  appropriately. The xOffset() and yOffset() functions merely return the
-  component values of offset().
+    The offset() function returns the position of the widget relative
+    to the entire display, allowing you to offset platform-specific
+    operations appropriately. The xOffset() and yOffset() functions
+    merely return the component values of offset().
 
-  For simple frame-buffer hardware, the frameBuffer(), lineStep(), and
-  depth() functions give basic access, though some hardware configurations
-  are insufficiently specified by such simple parameters.
+    For simple frame-buffer hardware, the frameBuffer(), lineStep(),
+    and depth() functions provide basic access, though some hardware
+    configurations are insufficiently specified by such simple
+    parameters.
 
-  Note that while a QDirectPainter exists, the entire Qt/Embedded window
-  system is locked from use by other applications. Always construct the
-  QDirectPainter as an auto (stack) variable, and be very careful to write
-  robust and stable code in its scope.
+    Note that while a QDirectPainter exists, the entire Qt/Embedded
+    window system is locked from use by other applications. Always
+    construct the QDirectPainter as an auto (stack) variable, and be
+    very careful to write robust and stable code within its scope.
 */
 
 /*!
-  Construct a direct painter on \a w. The display is locked and the mouse
-  cursor hidden if it is above \a w.
+    Construct a direct painter on \a w. The display is locked and the
+    mouse cursor is hidden if it is above \a w.
 */
 QDirectPainter::QDirectPainter( const QWidget* w ) :
     QPainter(w,w)
@@ -136,8 +137,8 @@ QDirectPainter::QDirectPainter( const QWidget* w ) :
 }
 
 /*!
-  Destroys the direct painter. The mouse cursor is revealed is necessary
-  and the display is unlocked.
+    Destroys the direct painter. The mouse cursor is revealed if
+    necessary and the display is unlocked.
 */
 QDirectPainter::~QDirectPainter()
 {
@@ -148,19 +149,25 @@ QDirectPainter::~QDirectPainter()
 
 
 /*!
-  Returns a pointer to the framebuffer memory if available.
+    Returns a pointer to the framebuffer memory if available.
 */
 uchar* QDirectPainter::frameBuffer() { return d->gfx->memory(); }
 
 /*!
-  Returns the spacing in bytes from one framebuffer line to the next.
+    Returns the spacing in bytes from one framebuffer line to the
+    next.
 */
 int QDirectPainter::lineStep() { return d->gfx->linestep(); }
 
 /*!
-  Returns the orientation of the framebuffer. 0 means that
-  there is no rotation, values 1 to 3 mean 90 to 270 degree
-  rotation. Other values are undefined.
+    Returns a number that signifies the orientation of the
+    framebuffer.
+    \table
+    \row \i11 0 \i11 no rotation
+    \row \i11 1 \i11 90 degrees rotation
+    \row \i11 2 \i11 180 degrees rotation
+    \row \i11 3 \i11 270 degrees rotation
+    \endtable
 */
 int QDirectPainter::transformOrientation()
 {
@@ -168,62 +175,64 @@ int QDirectPainter::transformOrientation()
 }
 
 /*!
-  Returns the number of rectangles in the clip region.
+    Returns the number of rectangles in the clip region.
 
-  \sa rect(), clipRegion()
+    \sa rect(), clipRegion()
 */
 int QDirectPainter::numRects() const { return d->gfx->numRects(); }
 
 /*!
-  Returns a reference to the rectangle \a i of the clip region.
-  Valid values for \a i are 0 .. numRects()-1.
+    Returns a reference to rectangle \a i of the clip region.
+    Valid values for \a i are 0..numRects()-1.
 
-  \sa clipRegion()
+    \sa clipRegion()
 */
 const QRect& QDirectPainter::rect(int i) const { return d->gfx->rect(i); }
 
 /*!
-  Returns the bit-depth of the display.
+    Returns the bit-depth of the display.
 */
 int QDirectPainter::depth() const { return d->gfx->bitDepth(); }
 
 /*!
-  Returns the width of the widget drawn upon.
+    Returns the width of the widget drawn upon.
 */
 int QDirectPainter::width() const { return d->w; }
 
 /*!
-  Returns the height of the widget drawn upon.
+    Returns the height of the widget drawn upon.
 */
 int QDirectPainter::height() const { return d->h; }
 
 /*!
-  Returns the X-position of the widget relative to the entire display.
+    Returns the X-position of the widget relative to the entire
+    display.
 */
 int QDirectPainter::xOffset() const { return d->offset.x(); }
 
 /*!
-  Returns the Y-position of the widget relative to the entire display.
+    Returns the Y-position of the widget relative to the entire
+    display.
 */
 int QDirectPainter::yOffset() const { return d->offset.y(); }
 
 /*!
-  Returns the position of the widget relative to the entire display.
+    Returns the position of the widget relative to the entire display.
 */
 QPoint QDirectPainter::offset() const { return d->offset; }
 
 /*!
-  Returns the size of the widget drawn upon.
+    Returns the size of the widget drawn upon.
 
-  \sa width(), height()
+    \sa width(), height()
 */
 QSize QDirectPainter::size() const { return QSize(d->w,d->h); }
 
 /*!
-  Sets the area changed by the transaction to \a r. By default, the
-  entire widget is assumed to have changed. The area changed is only
-  used by some graphics drivers, so often calling this function for
-  a smaller area will make no difference.
+    Sets the area changed by the transaction to \a r. By default, the
+    entire widget is assumed to have changed. The area changed is only
+    used by some graphics drivers, so often calling this function for
+    a smaller area will make no difference.
 */
 void QDirectPainter::setAreaChanged( const QRect& r )
 {

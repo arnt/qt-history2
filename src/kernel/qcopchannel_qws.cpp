@@ -52,35 +52,35 @@ public:
     QCString channel;
 };
 
-/*! \class QCopChannel qcopchannel_qws.h
+/*!
+    \class QCopChannel qcopchannel_qws.h
 
-  \brief The QCopChannel class provides communication capabilities between
-  several clients.
+    \brief The QCopChannel class provides communication capabilities
+    between several clients.
 
-  The Qt Cop (QCOP) is a COmmunication Protocol, allowing clients to
-  communicate both within the same address space and between different
-  processes.
+    The Qt Cop (QCOP) is a COmmunication Protocol, allowing clients to
+    communicate both within the same address space and between
+    different processes.
 
-  Currently, this facility is only available on Qt/Embedded. On X11
-  and Windows we are exploring the use of existing standards such as
-  DCOP and COM.
+    Currently, this facility is only available on Qt/Embedded. On X11
+    and Windows we are exploring the use of existing standards such as
+    DCOP and COM.
 
-  QCopChannel provides send() and isRegistered() which are static
-  functions that are usable without an object. 
-  
-  The channel() function returns the name of the channel.
+    QCopChannel provides send() and isRegistered() which are static
+    functions usable without an object.
 
-  In order to \e listen to the traffic on a channel, you should either
-  subclass QCopChannel and reimplement receive(), or connect() to the
-  received() signal.
+    The channel() function returns the name of the channel.
 
+    In order to \e listen to the traffic on a channel, you should
+    either subclass QCopChannel and reimplement receive(), or
+    connect() to the received() signal.
 */
 
 /*!
-  Constructs a QCop channel and registers it with the server using the name
-  \a channel. The standard \a parent and \a name arguments are passed on
-  to the QObject constructor.
- */
+    Constructs a QCop channel and registers it with the server using
+    the name \a channel. The standard \a parent and \a name arguments
+    are passed on to the QObject constructor.
+*/
 
 QCopChannel::QCopChannel( const QCString& channel, QObject* parent, const char* name ) :
     QObject( parent, name )
@@ -112,9 +112,9 @@ QCopChannel::QCopChannel( const QCString& channel, QObject* parent, const char* 
 }
 
 /*!
-  Destroys the client's end of the channel and notifies the server
-  that the client has closed its connection. The server will keep the
-  channel open until the last registered client detaches.
+    Destroys the client's end of the channel and notifies the server
+    that the client has closed its connection. The server will keep
+    the channel open until the last registered client detaches.
 */
 
 QCopChannel::~QCopChannel()
@@ -136,8 +136,8 @@ QCopChannel::~QCopChannel()
 }
 
 /*!
-  Returns the name of the channel.
- */
+    Returns the name of the channel.
+*/
 
 QCString QCopChannel::channel() const
 {
@@ -145,13 +145,13 @@ QCString QCopChannel::channel() const
 }
 
 /*!
-  This virtual function allows subclasses of QCopChannel to
-  process data received from their channel.
+    This virtual function allows subclasses of QCopChannel to process
+    data received from their channel.
 
-  The default implementation emits the received() signal.
+    The default implementation emits the received() signal.
 
-  Note that the format of \a data has to be well defined in order to
-  extract the information it contains.
+    Note that the format of \a data has to be well defined in order to
+    extract the information it contains.
 
     Example:
     \code
@@ -176,8 +176,8 @@ QCString QCopChannel::channel() const
     Using the DCOP convention is a recommendation, but not a
     requirement. Whatever convention you use the sender and receiver
     \e must agree on the argument types.
-  
-  \sa send()
+
+    \sa send()
  */
 void QCopChannel::receive( const QCString &msg, const QByteArray &data )
 {
@@ -185,17 +185,17 @@ void QCopChannel::receive( const QCString &msg, const QByteArray &data )
 }
 
 /*!
-  \fn void QCopChannel::received( const QCString &msg, const QByteArray &data )
+    \fn void QCopChannel::received( const QCString &msg, const QByteArray &data )
 
-  This signal is emitted with the \a msg and \a data whenever the
-  receive() function gets incoming data.
+    This signal is emitted with the \a msg and \a data whenever the
+    receive() function gets incoming data.
 */
 
 /*!
-  Queries the server for the existence of \a channel.
+    Queries the server for the existence of \a channel.
 
-  Returns TRUE if \a channel is registered.
- */
+    Returns TRUE if \a channel is registered; otherwise returns FALSE.
+*/
 
 bool QCopChannel::isRegistered( const QCString& channel )
 {
@@ -213,11 +213,11 @@ bool QCopChannel::isRegistered( const QCString& channel )
 
 /*!
     \overload
-  Send the message \a msg on channel \a channel. The message will be
-  distributed to all clients subscribed to the channel.
+    Send the message \a msg on channel \a channel. The message will be
+    distributed to all clients subscribed to the \a channel.
 
-  \sa receive()
- */
+    \sa receive()
+*/
 
 bool QCopChannel::send(const QCString &channel, const QCString &msg )
 {
@@ -226,32 +226,32 @@ bool QCopChannel::send(const QCString &channel, const QCString &msg )
 }
 
 /*!
-  Send the message \a msg on channel \a channel with data \a data. The
-  message will be distributed to all clients subscribed to the
-  channel.
+    Send the message \a msg on channel \a channel with data \a data.
+    The message will be distributed to all clients subscribed to the
+    channel.
 
-  Note that QDataStream provides a convenient way to fill the byte array
-  with auxiliary data.
+    Note that QDataStream provides a convenient way to fill the byte
+    array with auxiliary data.
 
-  Example:
-  \code
+    Example:
+    \code
     QByteArray ba;
     QDataStream stream( ba, IO_WriteOnly );
     stream << QString("cat") << QString("file.txt");
     QCopChannel::send( "System/Shell", "execute(QString,QString)", ba );
-  \endcode
-  Here the channel is "System/Shell". The \a msg is an arbitrary
-  string, but in the example we've used the DCOP convention of passing
-  a function signature. Such a signature is formatted as
-  functionname(types) where types is a list of zero or more
-  comma-separated type names, with no whitespace, no consts and no
-  pointer or reference marks, i.e. no "*" or "&".
+    \endcode
+    Here the channel is "System/Shell". The \a msg is an arbitrary
+    string, but in the example we've used the DCOP convention of
+    passing a function signature. Such a signature is formatted as
+    functionname(types) where types is a list of zero or more
+    comma-separated type names, with no whitespace, no consts and no
+    pointer or reference marks, i.e. no "*" or "&".
 
     Using the DCOP convention is a recommendation, but not a
     requirement. Whatever convention you use the sender and receiver
     \e must agree on the argument types.
-  
-  \sa receive()
+
+    \sa receive()
 */
 
 bool QCopChannel::send(const QCString &channel, const QCString &msg,
@@ -269,9 +269,9 @@ bool QCopChannel::send(const QCString &channel, const QCString &msg,
 }
 
 /*!
-  \internal
-  Server side: subscribe client \a cl on channel \a ch.
- */
+    \internal
+    Server side: subscribe client \a cl on channel \a ch.
+*/
 
 void QCopChannel::registerChannel( const QString &ch, const QWSClient *cl )
 {
@@ -287,9 +287,9 @@ void QCopChannel::registerChannel( const QString &ch, const QWSClient *cl )
 }
 
 /*!
-  \internal
-  Server side: unsubscribe \a cl from all channels.
- */
+    \internal
+    Server side: unsubscribe \a cl from all channels.
+*/
 
 void QCopChannel::detach( const QWSClient *cl )
 {
@@ -302,10 +302,10 @@ void QCopChannel::detach( const QWSClient *cl )
 }
 
 /*!
-  \internal
-  Server side: transmit the message to all clients registered to the
-  specified channel.
- */
+    \internal
+    Server side: transmit the message to all clients registered to the
+    specified channel.
+*/
 
 void QCopChannel::answer( QWSClient *cl, const QCString &ch,
 			  const QCString &msg, const QByteArray &data )
@@ -353,10 +353,10 @@ void QCopChannel::answer( QWSClient *cl, const QCString &ch,
 }
 
 /*!
-  \internal
-  Client side: distribute received event to the QCop instance managing the
-  channel.
- */
+    \internal
+    Client side: distribute received event to the QCop instance managing the
+    channel.
+*/
 void QCopChannel::sendLocally( const QCString &ch, const QCString &msg,
 				const QByteArray &data )
 {

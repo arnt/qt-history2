@@ -271,6 +271,8 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
     \value DiagCrossPattern
     \value CustomPattern
 
+    \img brush-styles.png Brush Styles
+
 */
 
 /*! \enum Qt::RasterOp
@@ -369,25 +371,28 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
 
 */
 
-/*! \enum Qt::PenStyle
+/*!
+    \enum Qt::PenStyle
 
-  This enum type defines the pen styles that can be drawn using
-  QPainter. The styles are
+    This enum type defines the pen styles that can be drawn using
+    QPainter. The styles are
 
-  \value NoPen  no line at all.  For example, QPainter::drawRect()
-  fills but does not draw any boundary line.
+    \value NoPen  no line at all.  For example, QPainter::drawRect()
+    fills but does not draw any boundary line.
 
-  \value SolidLine  a simple line.
+    \value SolidLine  a simple line.
 
-  \value DashLine  dashes separated by a few pixels.
+    \value DashLine  dashes separated by a few pixels.
 
-  \value DotLine  dots separated by a few pixels.
+    \value DotLine  dots separated by a few pixels.
 
-  \value DashDotLine  alternate dots and dashes.
+    \value DashDotLine  alternate dots and dashes.
 
-  \value DashDotDotLine  one dash, two dots, one dash, two dots.
+    \value DashDotDotLine  one dash, two dots, one dash, two dots.
 
-  \value MPenStyle mask of the pen styles.
+    \value MPenStyle mask of the pen styles.
+
+    \img pen-styles.png Pen Styles
 */
 
 /*! \enum Qt::PenCapStyle

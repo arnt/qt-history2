@@ -31,7 +31,7 @@ by default in the standard plugin directory.
 \i \c{$QTDIR/plugins/codecs}
 \row
 \i \l QWidgetPlugin
-\i \c{$QTDIR/plugins/widgets}
+\i \c{$QTDIR/plugins/designer}
 \endtable
 
 Suppose that you have a new style class called 'MyStyle' that you want
@@ -82,7 +82,9 @@ Some plugin classes require additional functions to be implemented,
 see the \link designer-manual.book Qt Designer manual's\endlink,
 'Creating Custom Widgets' section in the 'Creating Custom Widgets'
 chapter, for a complete example of a QWidgetPlugin, which implements
-extra functions to integrate the plugin into \e{Qt Designer}.
+extra functions to integrate the plugin into \e{Qt Designer}. The
+\l QWidgetFactory class provides additional information on
+QWidgetPlugins.
 
 See the class documentation for details of the virtual functions that
 must be reimplemented for each type of plugin.
@@ -92,15 +94,15 @@ because plugins are stored in the standard plugin subdirectories.
 Because of this applications don't require any code to find and load
 plugins, since Qt handles them automatically.
 
-The default directory for plugins is \c{$QTDIR/plugins}, with each type of 
-plugin in a subdirectory for that type, e.g. \c styles. If you want your 
-applications to use plugins and you don't want to use the standard plugins 
-path, have your installation process determine the path you want to use for 
-the plugins, and save the path, e.g. using QSettings, for the application 
-to read when it runs. The application can then call QApplication::addLibraryPath() 
-with this path and your plugins will be available to the application. Note 
-that the final part of the path, i.e. \c styles, \c widgets, etc. cannot 
-be changed.
+The default directory for plugins is \c{$QTDIR/plugins}, with each
+type of plugin in a subdirectory for that type, e.g. \c styles. If you
+want your applications to use plugins and you don't want to use the
+standard plugins path, have your installation process determine the
+path you want to use for the plugins, and save the path, e.g. using
+QSettings, for the application to read when it runs. The application
+can then call QApplication::addLibraryPath() with this path and your
+plugins will be available to the application. Note that the final part
+of the path, i.e. \c styles, \c widgets, etc. cannot be changed.
 
 \section1 Plugins and Threaded Applications
 

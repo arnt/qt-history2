@@ -42,26 +42,30 @@
 #include "qobjectcleanuphandler.h"
 #include "qwidget.h"
 
-/*!   \class QWidgetPlugin qwidgetplugin.h
-  \brief The QWidgetPlugin class provides an abstract base for custom QWidget plugins.
-  \ingroup plugins
+/*!
+    \class QWidgetPlugin qwidgetplugin.h
+    \brief The QWidgetPlugin class provides an abstract base for custom QWidget plugins.
 
-  The widget plugin is a simple plugin interface that makes it easy to
-  create custom widgets that can be included in forms using \link
-  designer-manual.book Qt Designer\endlink and used by applications.
+    \ingroup plugins
 
-  Writing a widget plugin is achieved by subclassing this base class,
-  reimplementing the pure virtual functions keys(), create(), group(),
-  iconSet(), includeFile(), toolTip(), whatsThis() and isContainer(),
-  and exporting the class with the Q_EXPORT_PLUGIN macro.
+    The widget plugin is a simple plugin interface that makes it easy
+    to create custom widgets that can be included in forms using \link
+    designer-manual.book Qt Designer\endlink and used by applications.
 
-    See the \link designer-manual.book Qt Designer manual's\endlink,
-    'Creating Custom Widgets' section in the 'Creating Custom Widgets'
-    chapter, for a complete example of a QWidgetPlugin.
+    Writing a widget plugin is achieved by subclassing this base
+    class, reimplementing the pure virtual functions keys(), create(),
+    group(), iconSet(), includeFile(), toolTip(), whatsThis() and
+    isContainer(), and exporting the class with the Q_EXPORT_PLUGIN
+    macro.
 
-  See also the \link plugins-howto.html Plugins documentation\endlink
-  and the \l{QWidgetFactory} class that is supplied with \link
-  designer-manual.book Qt Designer\endlink.
+    See the \link designer-manual.book Qt
+    Designer manual's\endlink, 'Creating Custom Widgets' section in
+    the 'Creating Custom Widgets' chapter, for a complete example of a
+    QWidgetPlugin.
+
+    See also the \link plugins-howto.html Plugins
+    documentation\endlink and the \l{QWidgetFactory} class that is
+    supplied with \link designer-manual.book Qt Designer\endlink.
 */
 
 class QWidgetPluginPrivate : public QWidgetFactoryInterface, QLibraryInterface

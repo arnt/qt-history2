@@ -481,42 +481,41 @@ void QWidgetFactory::addWidgetFactory( QWidgetFactory *factory )
     widgetFactories.append( factory );
 }
 
-/*!  Creates a widget of the type \a className passing \a parent and
-  \a name to its constructor.
+/*!
+    Creates a widget of the type \a className passing \a parent and \a
+    name to its constructor.
 
-  If \a className is a widget in the Qt library, it is directly
-  created by this function. If the widget isn't in the Qt library,
-  each of the installed widget plugins is asked, in turn, to create
-  the widget. As soon as a plugin says it can create the widget it is
-  asked to do so. It may occur that none of the plugins can create the
-  widget, in which case each installed widget factory is asked to
-  create the widget (see addWidgetFactory()). If the widget cannot be
-  created by any of these means, 0 is returned.
+    If \a className is a widget in the Qt library, it is directly
+    created by this function. If the widget isn't in the Qt library,
+    each of the installed widget plugins is asked, in turn, to create
+    the widget. As soon as a plugin says it can create the widget it
+    is asked to do so. It may occur that none of the plugins can
+    create the widget, in which case each installed widget factory is
+    asked to create the widget (see addWidgetFactory()). If the widget
+    cannot be created by any of these means, 0 is returned.
 
-  If you have a custom widget, and want it to be created using the
-  widget factory, there are two approaches you can use:
+    If you have a custom widget, and want it to be created using the
+    widget factory, there are two approaches you can use:
 
-  \list 1
+    \list 1
 
-  \i Write a widget plugin. This allows you to use the
-  widget in \e{Qt Designer} and in this QWidgetFactory. See the widget
-  plugin documentation for further details. (See the \link
-  designer-manual-6.book#creatingplugins Creating Custom Widgets with
-  Plugins\endlink section of the \link designer-manual.book Qt
-  Designer manual\endlink for an example.
+    \i Write a widget plugin. This allows you to use the widget in
+    \e{Qt Designer} and in this QWidgetFactory. See the widget plugin
+    documentation for further details. (See the "Creating Custom
+    Widgets with Plugins" section of the \link designer-manual.book Qt
+    Designer manual\endlink for an example.
 
-  \i Subclass QWidgetFactory. Then reimplement this function to create
-  and return an instance of your custom widget if \a className equals
-  the name of your widget, otherwise return 0. Then at the beginning
-  of your program where you want to use the widget factory to create
-  widgets do a:
-  \code
-  QWidgetFactory::addWidgetFactory( new MyWidgetFactory );
-  \endcode
-  where MyWidgetFactory is your QWidgetFactory subclass.
+    \i Subclass QWidgetFactory. Then reimplement this function to
+    create and return an instance of your custom widget if \a
+    className equals the name of your widget, otherwise return 0. Then
+    at the beginning of your program where you want to use the widget
+    factory to create widgets do a:
+    \code
+    QWidgetFactory::addWidgetFactory( new MyWidgetFactory );
+    \endcode
+    where MyWidgetFactory is your QWidgetFactory subclass.
 
-  \endlist
-
+    \endlist
 */
 
 QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent, const char *name ) const

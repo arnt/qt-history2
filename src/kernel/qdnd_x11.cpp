@@ -112,8 +112,8 @@ int qt_xdnd_version = 4;
 
 // Actions
 //
-// The Xdnd spec allows for user-defined actions.  This could be implemented
-// with a registration process in Qt.  WE SHOULD do that later.
+// The Xdnd spec allows for user-defined actions. This could be implemented
+// with a registration process in Qt. WE SHOULD do that later.
 //
 Atom qt_xdnd_action_copy;
 Atom qt_xdnd_action_link;
@@ -167,7 +167,7 @@ Atom qt_xdnd_proxy;
 // xid of current drag source
 static Atom qt_xdnd_dragsource_xid = 0;
 
-// the types in this drop.  100 is no good, but at least it's big.
+// the types in this drop. 100 is no good, but at least it's big.
 const int qt_xdnd_max_type = 100;
 static Atom qt_xdnd_types[qt_xdnd_max_type];
 
@@ -303,7 +303,7 @@ static bool qt_xdnd_enable( QWidget* w, bool on )
 		proxy_id = *proxy_id_ptr;
 		XFree(proxy_id_ptr);
 		proxy_id_ptr = 0;
-		// Already exists.  Real?
+		// Already exists. Real?
 		qt_ignore_badwindow();
 		XGetWindowProperty( w->x11Display(), proxy_id,
 		    qt_xdnd_proxy, 0, 1, False,
@@ -1325,25 +1325,27 @@ bool qt_xdnd_handle_badwindow()
 
 
 /*!
-  \class QDragMoveEvent qevent.h
-  \ingroup events
-  \ingroup draganddrop
-  \brief The QDragMoveEvent class provides an event which is sent while a drag-and-drop is in progress.
+    \class QDragMoveEvent qevent.h
+    \ingroup events
+    \ingroup draganddrop
+    \brief The QDragMoveEvent class provides an event which is sent while a drag and drop is in progress.
 
-  When a widget \link QWidget::setAcceptDrops() accepts drop events\endlink,
-  it will receive this event repeatedly while the drag is within the
-  widget's boundaries.  The widget should examine the event to see what data
-  it \link QDragMoveEvent::provides() provides\endlink, and accept() the drop if
-  appropriate.
+    When a widget \link QWidget::setAcceptDrops() accepts drop
+    events\endlink, it will receive this event repeatedly while the
+    drag is within the widget's boundaries. The widget should examine
+    the event to see what data it \link QDragMoveEvent::provides()
+    provides\endlink, and accept() the drop if appropriate.
 
-  Note that this class inherits most of its functionality from QDropEvent.
+    Note that this class inherits most of its functionality from
+    QDropEvent.
 */
 
 
-/*!  Returns TRUE if this event provides format \a mimeType or
-  FALSE if it does not.
+/*!
+    Returns TRUE if this event provides format \a mimeType; otherwise
+    returns FALSE.
 
-  \sa data()
+    \sa data()
 */
 
 bool QDropEvent::provides( const char *mimeType ) const
@@ -1461,7 +1463,7 @@ static QByteArray qt_xdnd_obtain_data( const char *format )
 		}
 #if 0
 		// this needs to be matched by a qt_xdnd_target_data->clear()
-		// when each drag is finished.  for 2.0, we do the safe thing
+		// when each drag is finished. for 2.0, we do the safe thing
 		// and disable the entire caching.
 		if ( type != None )
 		    qt_xdnd_target_data->insert( (int)((long)a), new QByteArray(result) );
@@ -1497,39 +1499,40 @@ bool qt_dnd_enable( QWidget* w, bool on )
 
 
 /*!
-  \class QDropEvent qevent.h
-  \ingroup events
-  \ingroup draganddrop
+    \class QDropEvent qevent.h
+    \ingroup events
+    \ingroup draganddrop
 
-  \brief The QDropEvent class provides an event which is sent when a drag and drop is completed.
+    \brief The QDropEvent class provides an event which is sent when a drag and drop is completed.
 
-  When a widget \link QWidget::setAcceptDrops() accepts drop events\endlink,
-  it will receive this event if it has accepted the most recent
-  QDragEnterEvent or QDragMoveEvent sent to it.
+    When a widget \link QWidget::setAcceptDrops() accepts drop
+    events\endlink, it will receive this event if it has accepted the
+    most recent QDragEnterEvent or QDragMoveEvent sent to it.
 
-  The widget should use data() to extract data in an
-  appropriate format.
+    The widget should use data() to extract the data in an appropriate
+    format.
 */
 
 
-/*! \fn QDropEvent::QDropEvent (const QPoint & pos, Type typ)
+/*!
+    \fn QDropEvent::QDropEvent (const QPoint & pos, Type typ)
 
-  Constructs a drop event that drops a drop of type \a typ on point \a
-  pos.
+    Constructs a drop event that drops a drop of type \a typ on point
+    \a pos.
 */ // ### pos is in which coordinate system?
 
 
-/*!  Returns a byte array containing the payload data of this drag, in
-  \a format.
+/*!
+    Returns a byte array containing the drag's data, in \a format.
 
-  data() normally needs to get the data from the drag source, which is
-  potentially very slow, so it's advisable to call this function only
-  if you're sure that you will need the data in \a format.
+    data() normally needs to get the data from the drag source, which
+    is potentially very slow, so it's advisable to call this function
+    only if you're sure that you will need the data in \a format.
 
-  The resulting data will have a size of 0 if the format was not
-  available.
+    The resulting data will have a size of 0 if the format was not
+    available.
 
-  \sa format() QByteArray::size()
+    \sa format() QByteArray::size()
 */
 
 QByteArray QDropEvent::encodedData( const char *format ) const
@@ -1539,15 +1542,16 @@ QByteArray QDropEvent::encodedData( const char *format ) const
     return qt_xdnd_obtain_data( format );
 }
 
-/*!  Returns a string describing one of the available data types for
-  this drag.  Common examples are "text/plain" and "image/gif".  If \a
-  n is less than zero or greater than the number of available data
-  types, format() returns 0.
+/*!
+    Returns a string describing one of the available data types for
+    this drag. Common examples are "text/plain" and "image/gif". If \a
+    n is less than zero or greater than the number of available data
+    types, format() returns 0.
 
-  This function is provided mainly for debugging.  Most drop targets
-  will use provides().
+    This function is provided mainly for debugging. Most drop targets
+    will use provides().
 
-  \sa data() provides()
+    \sa data() provides()
 */
 
 const char* QDropEvent::format( int n ) const
