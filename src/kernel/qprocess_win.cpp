@@ -270,10 +270,8 @@ bool QProcess::start( QStringList *env )
     bool success;
     d->newPid();
 #ifdef UNICODE
-#ifndef Q_OS_TEMP
     if( qt_winunicode ) {
-#endif
-	STARTUPINFO startupInfo = {
+	STARTUPINFOW startupInfo = {
 	    sizeof( STARTUPINFO ), 0, 0, 0,
 	    (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
 	    0, 0, 0,
@@ -314,7 +312,7 @@ bool QProcess::start( QStringList *env )
 	    envlist[pos++] = 0;
 	    envlist[pos++] = 0;
 	}
-	success = CreateProcess( applicationName, commandLine,
+	success = CreateProcessW( applicationName, commandLine,
 		0, 0, TRUE, CREATE_NO_WINDOW
 #ifndef Q_OS_TEMP
 		| CREATE_UNICODE_ENVIRONMENT
@@ -324,15 +322,11 @@ bool QProcess::start( QStringList *env )
 		&startupInfo, d->pid );
 	free( applicationName );
 	free( commandLine );
-#ifndef Q_OS_TEMP
     } else
-#endif
+#endif // UNICODE
     {
 #ifndef Q_OS_TEMP
 	STARTUPINFOA startupInfo = { sizeof( STARTUPINFOA ), 0, 0, 0,
-#else
-	STARTUPINFOW startupInfo = { sizeof( STARTUPINFOW ), 0, 0, 0,
-#endif
 	    (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
 	    0, 0, 0,
 	    STARTF_USESTDHANDLES,
@@ -369,21 +363,13 @@ bool QProcess::start( QStringList *env )
 	    applicationName = 0;
 	else
 	    applicationName = appName.local8Bit().data();
-#ifndef Q_OS_TEMP
 	success = CreateProcessA( applicationName, args.local8Bit().data(),
 		0, 0, TRUE, DETACHED_PROCESS,
 		env==0 ? 0 : envlist.data(),
 		(const char*)workingDir.absPath().local8Bit(),
 		&startupInfo, d->pid );
-#else
-	success = CreateProcessW( appName.ucs2(), args.ucs2(),
-		0, 0, TRUE, DETACHED_PROCESS, 0,
-		(unsigned short*)workingDir.absPath().ucs2(),
-		&startupInfo, d->pid );
-#endif 
-	
-	}
-#endif
+#endif // Q_OS_TEMP
+    }
     if  ( !success ) {
 	d->deletePid();
 	return FALSE;
