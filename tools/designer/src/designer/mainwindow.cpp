@@ -526,6 +526,7 @@ void MainWindow::newForm()
         connect(m_newFormDialog, SIGNAL(itemPicked(const QString &)),
                 this, SLOT(newForm(const QString &)));
     }
+
     m_newFormDialog->show();
     m_newFormDialog->raise();
     m_newFormDialog->setFocus();
@@ -914,6 +915,11 @@ void MainWindow::setupFormWindow(AbstractFormWindow *fw)
 
     connect(fw, SIGNAL(selectionChanged()), this, SLOT(selectionChanged()));
     connect(fw, SIGNAL(activated(QWidget *)), this, SLOT(onActivated(QWidget *)));
+    QDesktopWidget *dw = QApplication::desktop();
+    QRect availG = dw->availableGeometry(this);
+    QRect r(0, 0, 400, 300);
+    fw->resize(r.size());
+    fw->move(availG.center() - r.center());
 }
 
 void MainWindow::openRecentForm()
