@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#240 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#241 $
 **
 ** Implementation of QListBox widget class
 **
@@ -2289,15 +2289,30 @@ are more than one of them, an arbitrary item is selected and returned.
 int QListBox::topItem() const
 {
     doLayout();
-    int col=0;
+
+    // move rightwards to the best column
+    int col = 0;
+    int item = 0;
     while ( col < numColumns() && d->columnPos[col] < contentsX() )
 	col++;
     if ( ( col < numColumns() &&
 	   d->columnPos[col+1] <= contentsX()+visibleWidth() ) ||
 	 col == 0 ||
 	 d->columnPos[col] < contentsX()+visibleWidth()/2 )
-	return col*numRows();
-    return (col-1)*numRows();
+	item = col*numRows();
+    else
+	item = (col-1)*numRows();
+
+    // move downwards to the top visible item
+    int y = contentsY();
+    int row = 0;
+    while ( row < numRows() &&
+	    y > d->rowPos[row] &&
+	    row + item < (int)count()-1 )
+	row++;
+
+    // return result
+    return row+item;
 }
 
 
