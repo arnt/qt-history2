@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#49 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -29,7 +29,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#48 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#49 $";
 #endif
 
 
@@ -267,6 +267,7 @@ int main( int argc, char **argv )
     CLEANUP_GC(app_gc_tmp_m);
 
     XCloseDisplay( appDpy );			// close X display
+    appDpy = 0;
 
 #if defined(DEBUG)
     if ( appMemChk )
