@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#42 $
 **
 ** Implementation of event classes
 **
@@ -11,7 +11,7 @@
 
 #include "qevent.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#41 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#42 $");
 
 
 void qRemovePostedEvent( QEvent * );		// defined in qapp_xxx.cpp
@@ -198,7 +198,8 @@ void QEvent::peErrMsg()				// posted event error message
   QWidget::mouseDoubleClickEvent() and QWidget::mouseMoveEvent() receive
   mouse events.
 
-  \sa QWidget::setMouseTracking(), QWidget::grabMouse() */
+  \sa QWidget::setMouseTracking(), QWidget::grabMouse()
+*/
 
 /*!
   \fn QMouseEvent::QMouseEvent( int type, const QPoint &pos, int button, int state )
@@ -212,8 +213,23 @@ void QEvent::peErrMsg()				// posted event error message
 
 /*!
   \fn const QPoint &QMouseEvent::pos() const
-  Returns the position of the mouse relative to the widget that received the
-  event.
+  Returns the position of the mouse pointer, relative to the widget that
+  received the event.
+  \sa x(), y()
+*/
+
+/*!
+  \fn int QMouseEvent::x() const
+  Returns the X position of the mouse pointer, relative to the widget that
+  received the event.
+  \sa y(), pos()
+*/
+
+/*!
+  \fn int QMouseEvent::y() const
+  Returns the Y position of the mouse pointer, relative to the widget that
+  received the event.
+  \sa x(), pos()
 */
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#37 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#38 $
 **
 ** Implementation of QTextStream class
 **
@@ -16,7 +16,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#37 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#38 $");
 
 
 /*!
@@ -32,8 +32,6 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#37 $");
 
   The QTextStream class reads and writes ASCII text and it is not
   appropriate for dealing with binary data (but QDataStream is).
-
-  This class is not fully documented yet.
 
   \sa QDataStream
 */
