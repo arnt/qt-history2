@@ -297,23 +297,22 @@ bool QSqlTable::confirmCancels() const
 QWidget * QSqlTable::createEditor( int , int col, bool initFromCell ) const
 {
     //    qDebug("QSqlTable::createEditor( int , int col, bool initFromCell ) const");
-    
-    QSqlEditorFactory * f = (d->editorFactory == 0) ? 
-		     QSqlEditorFactory::defaultFactory() : d->editorFactory;
 
-    QSqlPropertyMap * m = (d->propertyMap == 0) ? 
-			  QSqlPropertyMap::defaultMap() : d->propertyMap;
-    
     if ( d->mode == QSqlTable::None )
 	return 0;
+    
+    QSqlEditorFactory * f = (d->editorFactory == 0) ?
+		     QSqlEditorFactory::defaultFactory() : d->editorFactory;
+
+    QSqlPropertyMap * m = (d->propertyMap == 0) ?
+			  QSqlPropertyMap::defaultMap() : d->propertyMap;
+ 
     QWidget * w = 0;
     if( initFromCell && d->editBuffer ){
 	w = f->createEditor( viewport(), d->editBuffer->value( indexOf( col ) ) );
 	if ( w )
 	    m->setProperty( w, d->editBuffer->value( indexOf( col ) ) );
-    } else {
-	//	qDebug("not init from cell");
-    }
+    } 
     return w;
 }
 
@@ -420,7 +419,6 @@ void QSqlTable::resizeEvent ( QResizeEvent * e )
 
 void QSqlTable::contentsMousePressEvent( QMouseEvent* e )
 {
-    qDebug("QSqlTable::contentsMousePressEvent( QMouseEvent* e )");
     if ( d->mode != QSqlTable::None ) {
 	endEdit( d->editRow, d->editCol, TRUE, FALSE );
     }
@@ -507,8 +505,10 @@ void QSqlTable::endEdit( int row, int col, bool accept, bool )
 	return;
     }
     if ( d->mode != QSqlTable::None && d->editBuffer ) {
-	d->editBuffer->setValue( indexOf( col ),  d->propertyMap->property( editor ) );
-	qt_debug_buffer("endEdit: edit buffer", d->editBuffer);
+	qt_debug_buffer("endEdit: edit buffer", d->editBuffer);	
+	QSqlPropertyMap * m = (d->propertyMap == 0) ?
+			      QSqlPropertyMap::defaultMap() : d->propertyMap;
+	d->editBuffer->setValue( indexOf( col ),  m->property( editor ) );
 	clearCellWidget( row, col );
 	if ( !d->continuousEdit ) {
 	    switch ( d->mode ) {
@@ -575,7 +575,7 @@ void QSqlTable::endUpdate()
 
 bool QSqlTable::beginInsert()
 {
-    qt_debug_buffer("beginInsert: start, CURSOR", d->cursor);
+    qDebug("QSqlTable::beginInsert");    
     if ( !d->cursor || isReadOnly() || ! numCols() )
 	return FALSE;
     if ( !d->cursor->canInsert() )
@@ -588,8 +588,8 @@ bool QSqlTable::beginInsert()
     setNumRows( d->insertPreRows + 1 );
     ensureCellVisible( row, 0 );
     setCurrentCell( row, 0 );
-    qt_debug_buffer("beginInsert: before creating edit buffer, CURSOR", d->cursor);
     d->editBuffer = d->cursor->insertBuffer();
+    emit beginInsert( d->editBuffer );
     qt_debug_buffer("beginInsert: after creating edit buffer", d->editBuffer);
     d->mode = QSqlTable::Insert;
     int lastRow = row;
@@ -623,11 +623,11 @@ QWidget* QSqlTable::beginUpdate ( int row, int col, bool replace )
     qDebug("QSqlTable::beginUpdate");
     if ( !d->cursor || isReadOnly() )
 	return 0;
-    qDebug("entering update mode");
     ensureCellVisible( row, col );
     setCurrentSelection( row, col );
     d->mode = QSqlTable::Update;
     d->editBuffer = d->cursor->updateBuffer();
+    emit beginUpdate( d->editBuffer );
     qt_debug_buffer("calling QTable::beginEdit", d->editBuffer );
     return QTable::beginEdit( row, col, replace );
 }
@@ -1512,7 +1512,7 @@ void QSqlTable::installEditorFactory( QSqlEditorFactory * f )
 
 /*!
 
-  Installs a new SQL property map. This enables the user to create and
+  Installs a new property map. This enables the user to create and
   instantiate their own property maps for use in cell editing.  Note
   that QSqlTable takes ownership of this pointer, and will delete it
   when it is no longer needed or when installPropertMap() is called

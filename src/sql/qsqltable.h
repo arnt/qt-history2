@@ -63,6 +63,8 @@ public:
 
 signals:
     void         currentChanged( const QSqlRecord* record );
+    void         beginInsert( QSqlRecord* buf );
+    void         beginUpdate( QSqlRecord* buf );
 
 public slots:
     void 	 find( const QString & str, bool caseSensitive,
