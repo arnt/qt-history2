@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.h#14 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.h#15 $
 **
 ** Definition of print dialog.
 **
@@ -30,7 +30,7 @@ public:
     ~QPrintDialog();
 
     static bool getPrinterSetup( QPrinter * );
-    
+
     void setPrinter( QPrinter * );
     QPrinter * printer() const;
 
@@ -40,8 +40,7 @@ private slots:
 
     void printerOrFileSelected( int );
     void landscapeSelected( int );
-    void paperSizeSelectedCombo( int );
-    void paperSizeSelectedRadio( int );
+    void paperSizeSelected( int );
     void orientSelected( int );
     void pageOrderSelected( int );
     void setNumCopies( int );

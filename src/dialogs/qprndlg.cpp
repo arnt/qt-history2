@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprndlg.cpp#23 $
+** $Id: //depot/qt/main/src/dialogs/qprndlg.cpp#24 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -34,7 +34,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprndlg.cpp#23 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprndlg.cpp#24 $");
 
 
 struct QPrintDialogPrivate
@@ -57,7 +57,6 @@ struct QPrintDialogPrivate
     QRadioButton * printRangeButton;
 
     QButtonGroup * paperSize;
-    QComboBox * otherSizeCombo;
     QPrinter::PageSize pageSize;
 
     QButtonGroup * orient;
@@ -587,7 +586,7 @@ QGroupBox * QPrintDialog::setupPaper()
 
     d->paperSize = new QButtonGroup( (QWidget *)0 );
     connect( d->paperSize, SIGNAL(clicked(int)),
-	     this, SLOT(paperSizeSelectedRadio(int)) );
+	     this, SLOT(paperSizeSelected(int)) );
 
     // page orientation
     QRadioButton * rb = new QRadioButton( "Portrait", g, "portrait format" );
@@ -684,7 +683,7 @@ void QPrintDialog::landscapeSelected( int id )
 }
 
 
-void QPrintDialog::paperSizeSelectedCombo( int id )
+void QPrintDialog::paperSizeSelected( int id )
 {
     switch( id ) {
     case 0:
@@ -698,26 +697,10 @@ void QPrintDialog::paperSizeSelectedCombo( int id )
 	break;
     case 3:
 	d->pageSize = QPrinter::A4;
-	d->paperSize->setButton( 3 );
 	break;
     case 4:
 	d->pageSize = QPrinter::Letter;
-	d->paperSize->setButton( 4 );
 	break;
-    }
-}
-
-void QPrintDialog::paperSizeSelectedRadio( int id )
-{
-    if ( id == 9999 ) {
-	d->otherSizeCombo->setEnabled( TRUE );
-    } else if ( id != d->pageSize && ( id == 3 || id == 4 ) ) {
-	if ( id == 3 )
-	    d->pageSize = QPrinter::A4;
-	else
-	    d->pageSize = QPrinter::Letter;
-	d->otherSizeCombo->setCurrentItem( id );
-	d->otherSizeCombo->setEnabled( FALSE );
     }
 }
 
