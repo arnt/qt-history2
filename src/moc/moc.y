@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#62 $
+** $Id: //depot/qt/main/src/moc/moc.y#63 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -38,7 +38,7 @@ void yyerror( char *msg );
 #include <stdio.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#62 $")
+RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#63 $")
 
 QString rmWS( const char * );
 
@@ -1343,7 +1343,6 @@ void generateClass()		      // generate C++ source code for a class
 	fprintf( out, "\tobject = (QSenderObject*)c->object();\n" );
 	fprintf( out, "\tobject->setSender( this );\n" );
 	fprintf( out, "\t(object->*r)(%s);\n", (const char*)valstr );
-	fprintf( out, "\tobject->setSender( 0 );\n" );
 	fprintf( out, "    }\n}\n" );
 	f = signals.next();
     }
