@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: shclass.doc,v 2.11 1999/05/26 15:03:02 agulbra Exp $
+** $Id: shclass.doc,v 2.12 1999/07/21 16:39:36 paul Exp $
 **
 ** Qt Shared Classes Documentation
 **
@@ -186,7 +186,7 @@ The Qt classes that are implicitly shared are:
 <li>\link QPen QPen\endlink
 <li>\link QPalette QPalette\endlink
 <li>\link QPixmap QPixmap\endlink
-<li>\link QString QPixmap\endlink
+<li>\link QString QString\endlink
 <li>\link QRegion QRegion\endlink (not fully implemented) <!-- ##### -->
 </ul>
 
