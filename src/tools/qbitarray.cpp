@@ -416,8 +416,8 @@ QDataStream &operator>>( QDataStream &s, QBitArray &a )
 {
     Q_UINT32 len;
     s >> len;
-    a.d.resize( len ); // read size of array
-    if ( a.d.size() != (int)len ) {		// resize array
+    a.resize( len ); // read size of array
+    if ( a.size() != (int)len ) {		// resize array
 	qWarning( "QDataStream: Not enough memory to read QBitArray" );
 	len = 0;
     }
