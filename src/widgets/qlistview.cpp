@@ -358,9 +358,9 @@ static int indexOfItem( QListViewItem *item )
     \endcode
     Here we create a new list view item with two literal strings. The
     item becomes a child of \e parent. We've discarded the pointer to
-    the item since we can still access it via its \e parent. This
-    object will be deleted when \e parent is deleted, as usual for
-    \l{QObject}s.
+    the item since we can still access it via its \e parent. If you \c
+    delete a list view item, it will be deleted as expected, and as
+    usual for \l{QObject}s, all its items will be deleted too.
 
     The parent must be another QListViewItem or a QListView. If the
     parent is a QListView, the item becomes a top-level item within
