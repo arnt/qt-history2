@@ -1,5 +1,16 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>PixmapCollectionEditor</class>
+<include location="local" impldecl="in implementation">pixmapcollection.h</include>
+<include location="local" impldecl="in implementation">pixmapchooser.h</include>
+<include location="local" impldecl="in implementation">project.h</include>
+<include location="global" impldecl="in implementation">qfileinfo.h</include>
+<include location="global" impldecl="in implementation">qimage.h</include>
+<include location="global" impldecl="in declaration">qpixmap.h</include>
+<include location="local" implDecl="in declaration">pixmapcollectioneditor.ui.h</include>
+<forward>class Project;</forward>
+<variable>Project *project;</variable>
+<variable>bool chooser;</variable>
+<layoutdefaults spacing="6" margin="11"/>
 <widget class="QDialog">
     <property name="name">
         <cstring>PixmapCollectionEditor</cstring>
@@ -8,14 +19,14 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>455</width>
-            <height>260</height>
+            <width>346</width>
+            <height>265</height>
         </rect>
     </property>
     <property name="caption">
         <string>Edit Image Collection</string>
     </property>
-    <vbox>
+    <grid>
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
@@ -25,7 +36,7 @@
         <property name="spacing">
             <number>6</number>
         </property>
-        <widget class="QIconView">
+        <widget class="QIconView" row="0" column="0" rowspan="3" colspan="1">
             <property name="name">
                 <cstring>viewPixmaps</cstring>
             </property>
@@ -36,7 +47,40 @@
                 <bool>false</bool>
             </property>
         </widget>
-        <widget class="QLayoutWidget">
+        <widget class="QPushButton" row="0" column="1">
+            <property name="name">
+                <cstring>PushButton2</cstring>
+            </property>
+            <property name="text">
+                <string>&amp;Add...</string>
+            </property>
+        </widget>
+        <widget class="QPushButton" row="1" column="1">
+            <property name="name">
+                <cstring>PushButton3</cstring>
+            </property>
+            <property name="text">
+                <string>&amp;Delete</string>
+            </property>
+        </widget>
+        <spacer row="2" column="1">
+            <property name="name">
+                <cstring>Spacer1</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Vertical</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Expanding</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>20</width>
+                    <height>20</height>
+                </size>
+            </property>
+        </spacer>
+        <widget class="QLayoutWidget" row="3" column="0" rowspan="1" colspan="2">
             <property name="name">
                 <cstring>Layout2</cstring>
             </property>
@@ -50,22 +94,6 @@
                 <property name="spacing">
                     <number>6</number>
                 </property>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>PushButton2</cstring>
-                    </property>
-                    <property name="text">
-                        <string>&amp;Add...</string>
-                    </property>
-                </widget>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>PushButton3</cstring>
-                    </property>
-                    <property name="text">
-                        <string>&amp;Delete</string>
-                    </property>
-                </widget>
                 <spacer>
                     <property name="name">
                         <cstring>Spacer2</cstring>
@@ -115,45 +143,55 @@
                 </widget>
             </hbox>
         </widget>
-    </vbox>
+    </grid>
 </widget>
 <connections>
-    <connection>
+    <connection language="C++">
         <sender>PushButton2</sender>
         <signal>clicked()</signal>
         <receiver>PixmapCollectionEditor</receiver>
         <slot>addPixmap()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>PushButton3</sender>
         <signal>clicked()</signal>
         <receiver>PixmapCollectionEditor</receiver>
         <slot>removePixmap()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>viewPixmaps</sender>
         <signal>currentChanged(QIconViewItem*)</signal>
         <receiver>PixmapCollectionEditor</receiver>
         <slot>currentChanged(QIconViewItem*)</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>buttonOk</sender>
         <signal>clicked()</signal>
         <receiver>PixmapCollectionEditor</receiver>
         <slot>accept()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>buttonCancel</sender>
         <signal>clicked()</signal>
         <receiver>PixmapCollectionEditor</receiver>
         <slot>reject()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>buttonClose</sender>
         <signal>clicked()</signal>
         <receiver>PixmapCollectionEditor</receiver>
         <slot>accept()</slot>
     </connection>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">init()</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">destroy()</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">addPixmap()</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">removePixmap()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">updateView()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">currentChanged( QIconViewItem * i )</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">setChooserMode( bool c )</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">setCurrentItem( const QString &amp; name )</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">setProject( Project * pro )</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="QPixmap">scaledPixmap( const QPixmap &amp; p )</slot>
 </connections>
 <tabstops>
     <tabstop>PushButton2</tabstop>
@@ -161,33 +199,4 @@
     <tabstop>viewPixmaps</tabstop>
     <tabstop>buttonClose</tabstop>
 </tabstops>
-<includes>
-    <include location="local" impldecl="in implementation">pixmapcollection.h</include>
-    <include location="local" impldecl="in implementation">pixmapchooser.h</include>
-    <include location="local" impldecl="in implementation">project.h</include>
-    <include location="global" impldecl="in implementation">qfileinfo.h</include>
-    <include location="global" impldecl="in implementation">qimage.h</include>
-    <include location="global" impldecl="in declaration">qpixmap.h</include>
-    <include location="local" impldecl="in implementation">pixmapcollectioneditor.ui.h</include>
-</includes>
-<forwards>
-    <forward>class Project;</forward>
-</forwards>
-<variables>
-    <variable>Project *project;</variable>
-    <variable>bool chooser;</variable>
-</variables>
-<slots>
-    <slot>init()</slot>
-    <slot>destroy()</slot>
-    <slot>addPixmap()</slot>
-    <slot>removePixmap()</slot>
-    <slot>updateView()</slot>
-    <slot>currentChanged(QIconViewItem * i)</slot>
-    <slot>setChooserMode(bool c)</slot>
-    <slot>setCurrentItem(const QString &amp; name)</slot>
-    <slot>setProject(Project * pro)</slot>
-    <slot returnType="QPixmap">scaledPixmap(const QPixmap &amp; p)</slot>
-</slots>
-<layoutdefaults spacing="6" margin="11"/>
 </UI>

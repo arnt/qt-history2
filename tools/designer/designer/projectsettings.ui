@@ -4,15 +4,15 @@
     <include location="local" impldecl="in implementation">projectsettings.ui.h</include>
 </includes>
 <slots>
-    <slot access="protected">chooseDatabaseFile()</slot>
-    <slot access="protected">chooseProjectFile()</slot>
-    <slot access="protected">destroy()</slot>
-    <slot access="protected">helpClicked()</slot>
-    <slot access="protected">init()</slot>
-    <slot access="protected">languageChanged( const QString &amp; )</slot>
-    <slot>addProject()</slot>
-    <slot access="protected">okClicked()</slot>
-    <slot access="protected">removeProject()</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">chooseDatabaseFile()</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">chooseProjectFile()</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">destroy()</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">helpClicked()</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">init()</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">languageChanged( const QString &amp; )</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">addProject()</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">okClicked()</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">removeProject()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 <widget class="QDialog">
@@ -23,8 +23,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>451</width>
-            <height>309</height>
+            <width>466</width>
+            <height>331</height>
         </rect>
     </property>
     <property name="caption">
@@ -109,7 +109,7 @@
                             <cstring>TextLabel1_3</cstring>
                         </property>
                         <property name="text">
-                            <string>&amp;Language</string>
+                            <string>Default &amp;Language</string>
                         </property>
                         <property name="buddy" stdset="0">
                             <cstring>comboLanguage</cstring>
@@ -150,7 +150,7 @@
                             <cstring>TextLabel2</cstring>
                         </property>
                         <property name="text">
-                            <string>&amp;Description:</string>
+                            <string>Project &amp;Description:</string>
                         </property>
                         <property name="buddy" stdset="0">
                             <cstring>editProjectDescription</cstring>
@@ -175,18 +175,15 @@
                     <property name="spacing">
                         <number>6</number>
                     </property>
-                    <widget class="QLabel" row="1" column="0">
+                    <widget class="QPushButton" row="3" column="0">
                         <property name="name">
-                            <cstring>TextLabel3</cstring>
+                            <cstring>PushButton4</cstring>
                         </property>
                         <property name="text">
-                            <string>&amp;Forms and Sources:</string>
-                        </property>
-                        <property name="buddy" stdset="0">
-                            <cstring>listInterfaces</cstring>
+                            <string>&amp;Remove</string>
                         </property>
                     </widget>
-                    <widget class="QListView" row="1" column="1" rowspan="4" colspan="1">
+                    <widget class="QListView" row="0" column="1" rowspan="4" colspan="1">
                         <column>
                             <property name="text">
                                 <string>Filename</string>
@@ -222,40 +219,18 @@
                             <bool>true</bool>
                         </property>
                     </widget>
-                    <widget class="QPushButton" row="4" column="0">
+                    <widget class="QLabel" row="4" column="0">
                         <property name="name">
-                            <cstring>PushButton4</cstring>
+                            <cstring>TextLabel1_2_2</cstring>
                         </property>
                         <property name="text">
-                            <string>&amp;Remove</string>
+                            <string>&amp;Database File:</string>
+                        </property>
+                        <property name="buddy" stdset="0">
+                            <cstring>editDatabaseFile</cstring>
                         </property>
                     </widget>
-                    <spacer row="2" column="0">
-                        <property name="name">
-                            <cstring>Spacer2</cstring>
-                        </property>
-                        <property name="orientation">
-                            <enum>Vertical</enum>
-                        </property>
-                        <property name="sizeType">
-                            <enum>Expanding</enum>
-                        </property>
-                        <property name="sizeHint">
-                            <size>
-                                <width>20</width>
-                                <height>20</height>
-                            </size>
-                        </property>
-                    </spacer>
-                    <widget class="QPushButton" row="3" column="0">
-                        <property name="name">
-                            <cstring>PushButton5</cstring>
-                        </property>
-                        <property name="text">
-                            <string>Add...</string>
-                        </property>
-                    </widget>
-                    <widget class="QLayoutWidget" row="0" column="1">
+                    <widget class="QLayoutWidget" row="4" column="1">
                         <property name="name">
                             <cstring>Layout1_2</cstring>
                         </property>
@@ -284,15 +259,40 @@
                             </widget>
                         </hbox>
                     </widget>
-                    <widget class="QLabel" row="0" column="0">
+                    <spacer row="1" column="0">
                         <property name="name">
-                            <cstring>TextLabel1_2_2</cstring>
+                            <cstring>Spacer2</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <widget class="QPushButton" row="2" column="0">
+                        <property name="name">
+                            <cstring>PushButton5</cstring>
                         </property>
                         <property name="text">
-                            <string>&amp;Database File:</string>
+                            <string>Add...</string>
+                        </property>
+                    </widget>
+                    <widget class="QLabel" row="0" column="0">
+                        <property name="name">
+                            <cstring>TextLabel3</cstring>
+                        </property>
+                        <property name="text">
+                            <string>&amp;Forms and Sources:</string>
                         </property>
                         <property name="buddy" stdset="0">
-                            <cstring>editDatabaseFile</cstring>
+                            <cstring>listInterfaces</cstring>
                         </property>
                     </widget>
                 </grid>
@@ -376,49 +376,49 @@
     </vbox>
 </widget>
 <connections>
-    <connection>
+    <connection language="C++">
         <sender>buttonProject</sender>
         <signal>clicked()</signal>
         <receiver>ProjectSettingsBase</receiver>
         <slot>chooseProjectFile()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>buttonOk</sender>
         <signal>clicked()</signal>
         <receiver>ProjectSettingsBase</receiver>
         <slot>okClicked()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>buttonCancel</sender>
         <signal>clicked()</signal>
         <receiver>ProjectSettingsBase</receiver>
         <slot>reject()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>buttonHelp</sender>
         <signal>clicked()</signal>
         <receiver>ProjectSettingsBase</receiver>
         <slot>helpClicked()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>buttonDatabaseFile</sender>
         <signal>clicked()</signal>
         <receiver>ProjectSettingsBase</receiver>
         <slot>chooseDatabaseFile()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>PushButton4</sender>
         <signal>clicked()</signal>
         <receiver>ProjectSettingsBase</receiver>
         <slot>removeProject()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>comboLanguage</sender>
         <signal>activated(const QString&amp;)</signal>
         <receiver>ProjectSettingsBase</receiver>
         <slot>languageChanged(const QString&amp;)</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>PushButton5</sender>
         <signal>clicked()</signal>
         <receiver>ProjectSettingsBase</receiver>

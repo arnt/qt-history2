@@ -183,106 +183,102 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
     formwindow->setMainWindow( mainwindow );
     MetaDataBase::addEntry( formwindow );
 
-    QDomElement e = doc.firstChild().toElement().firstChild().toElement();
+    QDomElement firstWidget = doc.firstChild().toElement().firstChild().toElement();
 
     langIface = MetaDataBase::languageInterface( MainWindow::self->currProject()->language() );
     if ( langIface )
 	langIface->addRef();
 
-    QDomElement forwards = e;
+    QDomElement forwards = firstWidget;
     while ( forwards.tagName() != "forwards" && !forwards.isNull() )
 	forwards = forwards.nextSibling().toElement();
 
-    QDomElement includes = e;
+    QDomElement includes = firstWidget;
     while ( includes.tagName() != "includes" && !includes.isNull() )
 	includes = includes.nextSibling().toElement();
 
-    QDomElement variables = e;
+    QDomElement variables = firstWidget;
     while ( variables.tagName() != "variables" && !variables.isNull() )
 	variables = variables.nextSibling().toElement();
 
-    QDomElement slots = e;
+    QDomElement slots = firstWidget;
     while ( slots.tagName() != "slots" && !slots.isNull() )
 	slots = slots.nextSibling().toElement();
 
-    QDomElement connections = e;
+    QDomElement connections = firstWidget;
     while ( connections.tagName() != "connections" && !connections.isNull() )
 	connections = connections.nextSibling().toElement();
 
-    QDomElement imageCollection = e;
+    QDomElement imageCollection = firstWidget;
     images.clear();
     while ( imageCollection.tagName() != "images" && !imageCollection.isNull() )
 	imageCollection = imageCollection.nextSibling().toElement();
 
-    QDomElement customWidgets = e;
+    QDomElement customWidgets = firstWidget;
     while ( customWidgets.tagName() != "customwidgets" && !customWidgets.isNull() )
 	customWidgets = customWidgets.nextSibling().toElement();
 
-    QDomElement tabOrder = e;
+    QDomElement tabOrder = firstWidget;
     while ( tabOrder.tagName() != "tabstops" && !tabOrder.isNull() )
 	tabOrder = tabOrder.nextSibling().toElement();
 
-    QDomElement actions = e;
+    QDomElement actions = firstWidget;
     while ( actions.tagName() != "actions" && !actions.isNull() )
 	actions = actions.nextSibling().toElement();
 
-    QDomElement toolbars = e;
+    QDomElement toolbars = firstWidget;
     while ( toolbars.tagName() != "toolbars" && !toolbars.isNull() )
 	toolbars = toolbars.nextSibling().toElement();
 
-    QDomElement menubar = e;
+    QDomElement menubar = firstWidget;
     while ( menubar.tagName() != "menubar" && !menubar.isNull() )
 	menubar = menubar.nextSibling().toElement();
 
-    QDomElement functions = e;
+    QDomElement functions = firstWidget;
     while ( functions.tagName() != "functions" && !functions.isNull() )
 	functions = functions.nextSibling().toElement();
 
-    
-    QDomElement widget;
-    while ( !e.isNull() ) {
-	if ( e.tagName() == "widget" ) {
-	    widget = e;
-	} else if ( e.tagName() == "include" ) { // compatibility with 2.x
+    while ( firstWidget.tagName() != "widget" ) {
+	if ( firstWidget.tagName() == "include" ) { // compatibility with 2.x
 	    MetaDataBase::Include inc;
 	    inc.location = "global";
-	    if ( e.attribute( "location" ) == "local" )
+	    if ( firstWidget.attribute( "location" ) == "local" )
 		inc.location = "local";
 	    inc.implDecl = "in declaration";
-	    if ( e.attribute( "impldecl" ) == "in implementation" )
+	    if ( firstWidget.attribute( "impldecl" ) == "in implementation" )
 		inc.implDecl = "in implementation";
-	    inc.header = e.firstChild().toText().data();
+	    inc.header = firstWidget.firstChild().toText().data();
 	    if ( inc.header.right( 5 ) != ".ui.h" )
 		metaIncludes.append( inc );
-	} else if ( e.tagName() == "comment" ) {
-	    metaInfo.comment = e.firstChild().toText().data();
-	} else if ( e.tagName() == "forward" ) { // compatibility with old betas
-	    metaForwards << e.firstChild().toText().data();
-	} else if ( e.tagName() == "variable" ) { // compatibility with old betas
-	    metaVariables << e.firstChild().toText().data();
-	} else if ( e.tagName() == "author" ) {
-	    metaInfo.author = e.firstChild().toText().data();
-	} else if ( e.tagName() == "class" ) {
-	    metaInfo.className = e.firstChild().toText().data();
-	} else if ( e.tagName() == "pixmapfunction" ) {
+	} else if ( firstWidget.tagName() == "comment" ) {
+	    metaInfo.comment = firstWidget.firstChild().toText().data();
+	} else if ( firstWidget.tagName() == "forward" ) { // compatibility with old betas
+	    metaForwards << firstWidget.firstChild().toText().data();
+	} else if ( firstWidget.tagName() == "variable" ) { // compatibility with old betas
+	    metaVariables << firstWidget.firstChild().toText().data();
+	} else if ( firstWidget.tagName() == "author" ) {
+	    metaInfo.author = firstWidget.firstChild().toText().data();
+	} else if ( firstWidget.tagName() == "class" ) {
+	    metaInfo.className = firstWidget.firstChild().toText().data();
+	} else if ( firstWidget.tagName() == "pixmapfunction" ) {
 	    if ( formwindow ) {
 		formwindow->setSavePixmapInline( FALSE );
 		formwindow->setSavePixmapInProject( FALSE );
-		formwindow->setPixmapLoaderFunction( e.firstChild().toText().data() );
+		formwindow->setPixmapLoaderFunction( firstWidget.firstChild().toText().data() );
 	    }
-	} else if ( e.tagName() == "pixmapinproject" ) {
+	} else if ( firstWidget.tagName() == "pixmapinproject" ) {
 	    if ( formwindow ) {
 		formwindow->setSavePixmapInline( FALSE );
 		formwindow->setSavePixmapInProject( TRUE );
 	    }
-	} else if ( e.tagName() == "exportmacro" ) {
-	    exportMacro = e.firstChild().toText().data();
-	} else if ( e.tagName() == "layoutdefaults" ) {
-	    formwindow->setLayoutDefaultSpacing( e.attribute( "spacing", QString::number( formwindow->layoutDefaultSpacing() ) ).toInt() );
-	    formwindow->setLayoutDefaultMargin( e.attribute( "margin", QString::number( formwindow->layoutDefaultMargin() ) ).toInt() );
+	} else if ( firstWidget.tagName() == "exportmacro" ) {
+	    exportMacro = firstWidget.firstChild().toText().data();
+	} else if ( firstWidget.tagName() == "layoutdefaults" ) {
+	    formwindow->setLayoutDefaultSpacing( firstWidget.attribute( "spacing", QString::number( formwindow->layoutDefaultSpacing() ) ).toInt() );
+	    formwindow->setLayoutDefaultMargin( firstWidget.attribute( "margin", QString::number( formwindow->layoutDefaultMargin() ) ).toInt() );
 	}
 
-	e = e.nextSibling().toElement();
+	firstWidget = firstWidget.nextSibling().toElement();
     }
 
     if ( !imageCollection.isNull() )
@@ -291,13 +287,14 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
 	loadCustomWidgets( customWidgets, this );
 
 #if defined (QT_NON_COMMERCIAL)
-    QWidget *w = (QWidget*)createObject( widget, !previewMode ? (QWidget*)formwindow : MainWindow::self);
+    QWidget *w = (QWidget*)createObject( firstWidget, !previewMode ? (QWidget*)formwindow : MainWindow::self, 0);
     if ( !w )
 	return FALSE;
     if ( previewMode )
 	w->reparent( MainWindow::self, Qt::WType_TopLevel,  w->pos(), TRUE );	
 #else
-    if ( !createObject( widget, formwindow) )
+    if ( !createObject( firstWidget, formwindow, 0,
+			firstWidget.attribute("class", "QWidget") ) )
 	return FALSE;
 #endif
 
@@ -418,7 +415,7 @@ bool Resource::save( QIODevice* dev )
     ts.setCodec( QTextCodec::codecForName( "UTF-8" ) );
 
     ts << "<!DOCTYPE UI><UI version=\"3.0\" stdsetdef=\"1\">" << endl;
-    saveMetaInfoBefore( ts, 0 );
+    saveMetaInfo( ts, 0 );
     saveObject( formwindow->mainContainer(), 0, ts, 0 );
     if ( formwindow->mainContainer()->inherits( "QMainWindow" ) ) {
 	saveMenuBar( (QMainWindow*)formwindow->mainContainer(), ts, 0 );
@@ -433,7 +430,6 @@ bool Resource::save( QIODevice* dev )
     if ( !MetaDataBase::connections( formwindow ).isEmpty() || !MetaDataBase::slotList( formwindow ).isEmpty() )
 	saveConnections( ts, 0 );
     saveTabOrder( ts, 0 );
-    saveMetaInfoAfter( ts, 0 );
     ts << "</UI>" << endl;
     saveFormCode();
     images.clear();
@@ -514,7 +510,7 @@ void Resource::paste( const QString &cb, QWidget *parent )
     formwindow->clearSelection( FALSE );
     while ( !firstWidget.isNull() ) {
 	if ( firstWidget.tagName() == "widget" ) {
-	    QWidget *w = (QWidget*)createObject( firstWidget, parent, 0 );
+	    QWidget *w = (QWidget*)createObject( firstWidget, parent, 0, firstWidget.attribute( "class", "QWidget" ) );
 	    if ( !w )
 		continue;
 	    widgets.append( w );
@@ -1240,7 +1236,7 @@ void Resource::saveColor( QTextStream &ts, int indent, const QColor &c )
     ts << makeIndent( indent ) << "<blue>" << QString::number( c.blue() ) << "</blue>" << endl;
 }
 
-QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout* layout )
+QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout* layout, const QString& classNameArg )
 {
     lastItem = 0;
     QDomElement n = e.firstChild().toElement();
@@ -1256,7 +1252,7 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
     if ( colspan < 1 )
 	colspan = 1;
 
-    QString className = e.attribute( "class", "QWidget" );
+    QString className = classNameArg;
 
     if ( !className.isNull() ) {
 	obj = WidgetFactory::create( WidgetDatabase::idFromClassName( className ), parent, 0, FALSE );
@@ -1303,7 +1299,7 @@ QObject *Resource::createObject( const QDomElement &e, QWidget *parent, QLayout*
 	if ( n.tagName() == "spacer" ) {
 	    createSpacer( n, w, layout, Qt::Horizontal );
 	} else if ( n.tagName() == "widget" ) {
-	    createObject( n, w, layout );
+	    createObject( n, w, layout, n.attribute( "class", "QWidget" ) );
 	} else if ( n.tagName() == "hbox" ) {
 	    layout = WidgetFactory::createLayout( w, layout, WidgetFactory::HBox );
 	    obj = layout;
@@ -2154,7 +2150,7 @@ void Resource::loadTabOrder( const QDomElement &e )
 	MetaDataBase::setTabOrder( toplevel, widgets );
 }
 
-void Resource::saveMetaInfoBefore( QTextStream &ts, int indent )
+void Resource::saveMetaInfo( QTextStream &ts, int indent )
 {
     MetaDataBase::MetaInfo info = MetaDataBase::metaInfo( formwindow );
     QString cn;
@@ -2167,11 +2163,7 @@ void Resource::saveMetaInfoBefore( QTextStream &ts, int indent )
 	ts << makeIndent( indent ) << "<comment>" << entitize( info.comment ) << "</comment>" << endl;
     if ( !info.author.isEmpty() )
 	ts << makeIndent( indent ) << "<author>" << entitize( info.author ) << "</author>" << endl;
-}
 
-void Resource::saveMetaInfoAfter( QTextStream &ts, int indent )
-{
-    MetaDataBase::MetaInfo info = MetaDataBase::metaInfo( formwindow );
     if ( !langIface || formwindow->project()->language() == "C++" ) {
 	QValueList<MetaDataBase::Include> includes = MetaDataBase::includes( formwindow );
 	QString extensionInclude;
@@ -2486,7 +2478,7 @@ void Resource::loadToolBars( const QDomElement &e )
 		    a->addTo( tb );
 		    tb->addAction( a );
 		} else if ( n2.tagName() == "widget" ) {
-		    QWidget *w = (QWidget*)createObject( n2, tb );
+		    QWidget *w = (QWidget*)createObject( n2, tb, 0, n2.attribute( "class", "QWidget" ) );
 		    QDesignerAction *a = new QDesignerAction( w, tb );
 		    a->addTo( tb );
 		    tb->addAction( a );

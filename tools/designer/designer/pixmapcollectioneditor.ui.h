@@ -17,7 +17,7 @@ void PixmapCollectionEditor::addPixmap()
     QStringList pixmaps = qChoosePixmaps( this );
     if ( pixmaps.isEmpty() )
 	return;
-    
+
     QString lastName;
     for ( QStringList::ConstIterator it = pixmaps.begin(); it != pixmaps.end(); ++it ) {
 	QPixmap pm( *it );
@@ -31,14 +31,14 @@ void PixmapCollectionEditor::addPixmap()
 	project->pixmapCollection()->addPixmap( pixmap );
 	lastName = pixmap.name;
     }
-    
+
     updateView();
     QIconViewItem *item = viewPixmaps->findItem( lastName );
     if ( item ) {
 	viewPixmaps->setCurrentItem( item );
 	viewPixmaps->ensureItemVisible( item );
     }
-    
+
 }
 
 void PixmapCollectionEditor::removePixmap()

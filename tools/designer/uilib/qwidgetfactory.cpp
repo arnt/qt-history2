@@ -208,63 +208,61 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
     QWidgetFactory *widgetFactory = new QWidgetFactory;
     widgetFactory->toplevel = 0;
 
-    QDomElement e = doc.firstChild().toElement().firstChild().toElement();
+    QDomElement firstWidget = doc.firstChild().toElement().firstChild().toElement();
 
-    QDomElement variables = e;
+    QDomElement variables = firstWidget;
     while ( variables.tagName() != "variables" && !variables.isNull() )
 	variables = variables.nextSibling().toElement();
 
-    QDomElement slots = e;
+    QDomElement slots = firstWidget;
     while ( slots.tagName() != "slots" && !slots.isNull() )
 	slots = slots.nextSibling().toElement();
 
-    QDomElement connections = e;
+    QDomElement connections = firstWidget;
     while ( connections.tagName() != "connections" && !connections.isNull() )
 	connections = connections.nextSibling().toElement();
 
-    QDomElement imageCollection = e;
+    QDomElement imageCollection = firstWidget;
     while ( imageCollection.tagName() != "images" && !imageCollection.isNull() )
 	imageCollection = imageCollection.nextSibling().toElement();
 
-    QDomElement tabOrder = e;
+    QDomElement tabOrder = firstWidget;
     while ( tabOrder.tagName() != "tabstops" && !tabOrder.isNull() )
 	tabOrder = tabOrder.nextSibling().toElement();
 
-    QDomElement actions = e;
+    QDomElement actions = firstWidget;
     while ( actions.tagName() != "actions" && !actions.isNull() )
 	actions = actions.nextSibling().toElement();
 
-    QDomElement toolbars = e;
+    QDomElement toolbars = firstWidget;
     while ( toolbars.tagName() != "toolbars" && !toolbars.isNull() )
 	toolbars = toolbars.nextSibling().toElement();
 
-    QDomElement menubar = e;
+    QDomElement menubar = firstWidget;
     while ( menubar.tagName() != "menubar" && !menubar.isNull() )
 	menubar = menubar.nextSibling().toElement();
 
-    QDomElement functions = e;
+    QDomElement functions = firstWidget;
     while ( functions.tagName() != "functions" && !functions.isNull() )
 	functions = functions.nextSibling().toElement();
 
-    QDomElement widget;
-    while ( e.isNull() ) {
-	if ( e.tagName() == "widget" ) {
-	    widget = e;
-	} else if ( e.tagName() == "variable" ) { // compatibility with old betas
-	    widgetFactory->variables << e.firstChild().toText().data();
-	} else if ( e.tagName() == "pixmapinproject" ) {
+    while ( firstWidget.tagName() != "widget" ) {
+
+	if ( firstWidget.tagName() == "variable" ) { // compatibility with old betas
+	    widgetFactory->variables << firstWidget.firstChild().toText().data();
+	} else if ( firstWidget.tagName() == "pixmapinproject" ) {
 	    widgetFactory->usePixmapCollection = TRUE;
-	} else if ( e.tagName() == "layoutdefaults" ) {
-	    widgetFactory->defSpacing = e.attribute( "spacing", QString::number( widgetFactory->defSpacing ) ).toInt();
-	    widgetFactory->defMargin = e.attribute( "margin", QString::number( widgetFactory->defMargin ) ).toInt();
+	} else if ( firstWidget.tagName() == "layoutdefaults" ) {
+	    widgetFactory->defSpacing = firstWidget.attribute( "spacing", QString::number( widgetFactory->defSpacing ) ).toInt();
+	    widgetFactory->defMargin = firstWidget.attribute( "margin", QString::number( widgetFactory->defMargin ) ).toInt();
 	}
-	e = e.nextSibling().toElement();
+	firstWidget = firstWidget.nextSibling().toElement();
     }
 
     if ( !imageCollection.isNull() )
 	widgetFactory->loadImageCollection( imageCollection );
 
-    widgetFactory->createWidgetInternal( widget, parent, 0, widget.attribute("class", "QWidget") );
+    widgetFactory->createWidgetInternal( firstWidget, parent, 0, firstWidget.attribute("class", "QWidget") );
     QWidget *w = widgetFactory->toplevel;
     if ( !w ) {
 	delete widgetFactory;
