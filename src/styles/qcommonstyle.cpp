@@ -310,7 +310,7 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	if (data)
 	    lw = *((int *) data[0]);
 
-	qDrawShadeRect(p, r, cg, (flags & PStyle_Sunken), lw);
+	qDrawShadePanel(p, r, cg, (flags & PStyle_Sunken), lw);
 	break; }
 
     case PO_PanelDockWindow: {
