@@ -21,28 +21,41 @@
 #include <qregexp.h>
 #include <qwhatsthis.h>
 #include <qheader.h>
+#include <qevent.h>
 
-#if 0 /// ### fixme
-class WhatPhrase : public QWhatsThis
+class WhatPhrase : public QObject
 {
 public:
     WhatPhrase( PhraseLV *w );
 
-    virtual QString text( const QPoint& p );
+    QString text( const QPoint& p ) const;
+
+    virtual bool eventFilter(QObject *o, QEvent *e);
 
 private:
-    PhraseLV *parent;
+    PhraseLV *lv;
 };
 
 WhatPhrase::WhatPhrase( PhraseLV *w )
-    : QWhatsThis( w )
+    : QObject( w )
 {
-    parent = w;
+    lv = w;
+    lv->installEventFilter(this);
 }
 
-QString WhatPhrase::text( const QPoint& p )
+bool WhatPhrase::eventFilter(QObject *o, QEvent *e)
 {
-    QListViewItem *item = parent->itemAt( p );
+    if (e->type() != QEvent::WhatsThis || o != lv)
+        return false;
+
+    QPoint pt = static_cast<QHelpEvent*>(e)->pos();
+    QWhatsThis::showText(static_cast<QHelpEvent*>(e)->globalPos(), text(pt), lv);
+    return true;
+}
+
+QString WhatPhrase::text( const QPoint& p ) const
+{
+    QListViewItem *item = lv->itemAt( p );
     if ( item == 0 )
         return PhraseLV::tr( "This is a list of phrase entries relevant to the"
                   " source text.  Each phrase is supplemented with a suggested"
@@ -51,14 +64,13 @@ QString WhatPhrase::text( const QPoint& p )
         return QString( PhraseLV::tr("<p><u>%1:</u>&nbsp;&nbsp;%2</p>"
                                      "<p><u>%3:</u>&nbsp;&nbsp;%4</p>"
                                      "<p><u>%5:</u>&nbsp;&nbsp;%6</p>") )
-               .arg( parent->columnText(PhraseLVI::SourceTextShown) )
+               .arg( lv->columnText(PhraseLVI::SourceTextShown) )
                .arg( item->text(PhraseLVI::SourceTextShown) )
-               .arg( parent->columnText(PhraseLVI::TargetTextShown) )
+               .arg( lv->columnText(PhraseLVI::TargetTextShown) )
                .arg( item->text(PhraseLVI::TargetTextShown) )
-               .arg( parent->columnText(PhraseLVI::DefinitionText) )
+               .arg( lv->columnText(PhraseLVI::DefinitionText) )
                .arg( item->text(PhraseLVI::DefinitionText) );
 }
-#endif
 
 PhraseLVI::PhraseLVI( PhraseLV *parent, const Phrase& phrase, int accelKey )
     : QListViewItem( parent ),
@@ -138,13 +150,12 @@ PhraseLV::PhraseLV( QWidget *parent, const char *name )
     setColumnText( PhraseLVI::TargetTextShown, tr("Translation") );
     setColumnText( PhraseLVI::DefinitionText, tr("Definition") );
     header()->setStretchEnabled( TRUE, -1 );
-    //what = 0;
-    // ### fixme what = new WhatPhrase( this );
+
+    what = new WhatPhrase( this );
 }
 
 PhraseLV::~PhraseLV()
 {
-// delete what;
 }
 
 QSize PhraseLV::sizeHint() const

@@ -17,8 +17,6 @@
 
 #include <qlistview.h>
 
-class QWhatsThis;
-
 class PhraseLV;
 
 #define NewPhrase PhraseLV::tr( "(New Phrase)" )
@@ -56,7 +54,7 @@ public:
     virtual QSize sizeHint() const;
 
 private:
-    QWhatsThis *what;
+    QObject *what;
 };
 
 #endif

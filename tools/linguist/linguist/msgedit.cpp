@@ -505,15 +505,13 @@ MessageEditor::MessageEditor( MetaTranslator * t, QWidget * parent,
              this, SLOT(insertPhraseInTranslationAndLeave(QListViewItem *)) );
 
     // What's this
-    QWhatsThis::add( this, tr("This whole panel allows you to view and edit "
+    this->setWhatsThis(tr("This whole panel allows you to view and edit "
                               "the translation of some source text.") );
-    QWhatsThis::add( editorPage->srcText,
-                     tr("This area shows the source text.") );
-    QWhatsThis::add( editorPage->cmtText, tr("This area shows a comment that"
+    editorPage->srcText->setWhatsThis(tr("This area shows the source text.") );
+    editorPage->cmtText->setWhatsThis(tr("This area shows a comment that"
                         " may guide you, and the context in which the text"
                         " occurs.") );
-    QWhatsThis::add( editorPage->translationMed,
-                     tr("This is where you can enter or modify"
+    editorPage->translationMed->setWhatsThis(tr("This is where you can enter or modify"
                         " the translation of some source text.") );
 }
 

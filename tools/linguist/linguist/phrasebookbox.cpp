@@ -29,23 +29,23 @@
 #include <qwhatsthis.h>
 
 PhraseBookBox::PhraseBookBox( const QString& filename,
-			      const PhraseBook& phraseBook, QWidget *parent,
-			      const char *name, bool modal )
+                              const PhraseBook& phraseBook, QWidget *parent,
+                              const char *name, bool modal )
     : QDialog( parent, name, modal ), fn( filename ), pb( phraseBook )
 {
     QGridLayout *gl = new QGridLayout( this, 4, 3, 11, 11,
-				       "phrase book outer layout" );
+                                       "phrase book outer layout" );
     QVBoxLayout *bl = new QVBoxLayout( 6, "phrase book button layout" );
 
     sourceLed = new QLineEdit( this, "source line edit" );
     QLabel *source = new QLabel( sourceLed, tr("S&ource phrase:"), this,
-				 "source label" );
+                                 "source label" );
     targetLed = new QLineEdit( this, "target line edit" );
     QLabel *target = new QLabel( targetLed, tr("&Translation:"), this,
-				 "target label" );
+                                 "target label" );
     definitionLed = new QLineEdit( this, "definition line edit" );
     QLabel *definition = new QLabel( definitionLed, tr("&Definition:"), this,
-				     "target label" );
+                                     "target label" );
     lv = new PhraseLV( this, "phrase book list view" );
 
     newBut = new QPushButton( tr("&New Phrase"), this );
@@ -72,13 +72,13 @@ PhraseBookBox::PhraseBookBox( const QString& filename,
     bl->addStretch( 1 );
 
     connect( sourceLed, SIGNAL(textChanged(const QString&)),
-	     this, SLOT(sourceChanged(const QString&)) );
+             this, SLOT(sourceChanged(const QString&)) );
     connect( targetLed, SIGNAL(textChanged(const QString&)),
-	     this, SLOT(targetChanged(const QString&)) );
+             this, SLOT(targetChanged(const QString&)) );
     connect( definitionLed, SIGNAL(textChanged(const QString&)),
-	     this, SLOT(definitionChanged(const QString&)) );
+             this, SLOT(definitionChanged(const QString&)) );
     connect( lv, SIGNAL(selectionChanged(QListViewItem *)),
-	     this, SLOT(selectionChanged(QListViewItem *)) );
+             this, SLOT(selectionChanged(QListViewItem *)) );
     connect( newBut, SIGNAL(clicked()), this, SLOT(newPhrase()) );
     connect( removeBut, SIGNAL(clicked()), this, SLOT(removePhrase()) );
     connect( saveBut, SIGNAL(clicked()), this, SLOT(save()) );
@@ -86,34 +86,34 @@ PhraseBookBox::PhraseBookBox( const QString& filename,
 
     PhraseBook::ConstIterator it;
     for ( it = phraseBook.begin(); it != phraseBook.end(); ++it )
-	(void) new PhraseLVI( lv, (*it) );
+        (void) new PhraseLVI( lv, (*it) );
     enableDisable();
 
-    QWhatsThis::add( this, tr("This window allows you to add, modify, or delete"
-			      " phrases in a phrase book.") );
-    QWhatsThis::add( sourceLed, tr("This is the phrase in the source"
-				   " language.") );
-    QWhatsThis::add( targetLed, tr("This is the phrase in the target language"
-				   " corresponding to the source phrase.") );
-    QWhatsThis::add( definitionLed, tr("This is a definition for the source"
-				       " phrase.") );
-    QWhatsThis::add( newBut, tr("Click here to add the phrase to the phrase"
-				" book.") );
-    QWhatsThis::add( removeBut, tr("Click here to remove the phrase from the"
-				   " phrase book.") );
-    QWhatsThis::add( saveBut, tr("Click here to save the changes made.") );
-    QWhatsThis::add( closeBut, tr("Click here to close this window.") );
+    this->setWhatsThis(tr("This window allows you to add, modify, or delete"
+                              " phrases in a phrase book.") );
+    sourceLed->setWhatsThis(tr("This is the phrase in the source"
+                                   " language.") );
+    targetLed->setWhatsThis(tr("This is the phrase in the target language"
+                                   " corresponding to the source phrase.") );
+    definitionLed->setWhatsThis(tr("This is a definition for the source"
+                                       " phrase.") );
+    newBut->setWhatsThis(tr("Click here to add the phrase to the phrase"
+                                " book.") );
+    removeBut->setWhatsThis(tr("Click here to remove the phrase from the"
+                                   " phrase book.") );
+    saveBut->setWhatsThis(tr("Click here to save the changes made.") );
+    closeBut->setWhatsThis(tr("Click here to close this window.") );
 }
 
 void PhraseBookBox::keyPressEvent( QKeyEvent *ev )
 {
     if ( ev->key() == Key_Down || ev->key() == Key_Up ||
-	 ev->key() == Key_Next || ev->key() == Key_Prior )
-	QApplication::sendEvent( lv,
-		new QKeyEvent(ev->type(), ev->key(), ev->ascii(), ev->state(),
-			      ev->text(), ev->isAutoRepeat(), ev->count()) );
+         ev->key() == Key_Next || ev->key() == Key_Prior )
+        QApplication::sendEvent( lv,
+                new QKeyEvent(ev->type(), ev->key(), ev->ascii(), ev->state(),
+                              ev->text(), ev->isAutoRepeat(), ev->count()) );
     else
-	QDialog::keyPressEvent( ev );
+        QDialog::keyPressEvent( ev );
 }
 
 void PhraseBookBox::newPhrase()
@@ -128,10 +128,10 @@ void PhraseBookBox::removePhrase()
 {
     QListViewItem *item = lv->currentItem();
     QListViewItem *next = item->itemBelow() != 0 ? item->itemBelow()
-			  : item->itemAbove();
+                          : item->itemAbove();
     delete item;
     if ( next != 0 )
-	selectItem( next );
+        selectItem( next );
     enableDisable();
 }
 
@@ -140,44 +140,44 @@ void PhraseBookBox::save()
     pb.clear();
     QListViewItem *item = lv->firstChild();
     while ( item != 0 ) {
-	if ( !item->text(PhraseLVI::SourceTextShown).isEmpty() &&
-	     item->text(PhraseLVI::SourceTextShown) != NewPhrase )
-	    pb.append( Phrase(((PhraseLVI *) item)->phrase()) );
-	item = item->nextSibling();
+        if ( !item->text(PhraseLVI::SourceTextShown).isEmpty() &&
+             item->text(PhraseLVI::SourceTextShown) != NewPhrase )
+            pb.append( Phrase(((PhraseLVI *) item)->phrase()) );
+        item = item->nextSibling();
     }
     if ( !pb.save( fn ) )
-	QMessageBox::warning( this, tr("Qt Linguist"),
-			      tr("Cannot save phrase book '%1'.").arg(fn) );
+        QMessageBox::warning( this, tr("Qt Linguist"),
+                              tr("Cannot save phrase book '%1'.").arg(fn) );
 }
 
 void PhraseBookBox::sourceChanged( const QString& source )
 {
     if ( lv->currentItem() != 0 ) {
-	lv->currentItem()->setText( PhraseLVI::SourceTextShown,
-				    source.stripWhiteSpace() );
-	lv->currentItem()->setText( PhraseLVI::SourceTextOriginal, source );
-	lv->sort();
-	lv->ensureItemVisible( lv->currentItem() );
+        lv->currentItem()->setText( PhraseLVI::SourceTextShown,
+                                    source.trimmed() );
+        lv->currentItem()->setText( PhraseLVI::SourceTextOriginal, source );
+        lv->sort();
+        lv->ensureItemVisible( lv->currentItem() );
     }
 }
 
 void PhraseBookBox::targetChanged( const QString& target )
 {
     if ( lv->currentItem() != 0 ) {
-	lv->currentItem()->setText( PhraseLVI::TargetTextShown,
-				    target.stripWhiteSpace() );
-	lv->currentItem()->setText( PhraseLVI::TargetTextOriginal, target );
-	lv->sort();
-	lv->ensureItemVisible( lv->currentItem() );
+        lv->currentItem()->setText( PhraseLVI::TargetTextShown,
+                                    target.trimmed() );
+        lv->currentItem()->setText( PhraseLVI::TargetTextOriginal, target );
+        lv->sort();
+        lv->ensureItemVisible( lv->currentItem() );
     }
 }
 
 void PhraseBookBox::definitionChanged( const QString& definition )
 {
     if ( lv->currentItem() != 0 ) {
-	lv->currentItem()->setText( PhraseLVI::DefinitionText, definition );
-	lv->sort();
-	lv->ensureItemVisible( lv->currentItem() );
+        lv->currentItem()->setText( PhraseLVI::DefinitionText, definition );
+        lv->sort();
+        lv->ensureItemVisible( lv->currentItem() );
     }
 }
 
@@ -201,13 +201,13 @@ void PhraseBookBox::enableDisable()
     definitionLed->blockSignals( TRUE );
 
     if ( item == 0 ) {
-	sourceLed->setText( QString::null );
-	targetLed->setText( QString::null );
-	definitionLed->setText( QString::null );
+        sourceLed->setText( QString::null );
+        targetLed->setText( QString::null );
+        definitionLed->setText( QString::null );
     } else {
-	sourceLed->setText( item->text(0) );
-	targetLed->setText( item->text(1) );
-	definitionLed->setText( item->text(2) );
+        sourceLed->setText( item->text(0) );
+        targetLed->setText( item->text(1) );
+        definitionLed->setText( item->text(2) );
     }
     sourceLed->setEnabled( item != 0 );
     targetLed->setEnabled( item != 0 );

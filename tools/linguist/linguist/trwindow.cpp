@@ -245,11 +245,10 @@ TrWindow::TrWindow()
     connect( f, SIGNAL(findNext(const QString&, int, bool)),
              this, SLOT(findNext(const QString&, int, bool)) );
 
-    QWhatsThis::add( lv, tr("This panel lists the source contexts.") );
-
-    QWhatsThis::add( slv, tr("This panel lists the source texts. "
-                            "Items that violate validation rules "
-                            "are marked with a warning.") );
+    lv->setWhatsThis(tr("This panel lists the source contexts."));
+    slv->setWhatsThis(tr("This panel lists the source texts. "
+                         "Items that violate validation rules "
+                         "are marked with a warning."));
     showNewCurrent( 0 );
 
     QSize as( qApp->desktop()->size() );
@@ -1659,7 +1658,7 @@ void TrWindow::updatePhraseDict()
         foreach ( Phrase p, pb ) {
             QString f = friendlyString( p.source() );
             if ( f.length() > 0 ) {
-                f = QStringList::split( QChar(' '), f ).first();
+                f = f.split(QChar(' ')).first();
                 if (!phraseDict.contains(f)) {
                     PhraseBook pbe;
                     phraseDict.insert( f, pbe );
@@ -1675,7 +1674,7 @@ PhraseBook TrWindow::getPhrases( const QString& source )
 {
     PhraseBook phrases;
     QString f = friendlyString(source);
-    QStringList lookupWords = QStringList::split( QChar(' '), f );
+    QStringList lookupWords = f.split(QChar(' '));
 
     foreach (QString s, lookupWords) {
         if (phraseDict.contains(s)) {
@@ -1692,7 +1691,7 @@ PhraseBook TrWindow::getPhrases( const QString& source )
 bool TrWindow::danger( const QString& source, const QString& translation,
                        bool verbose )
 {
-    if ( acceleratorsAct->isOn() ) {
+    if ( acceleratorsAct->isChecked() ) {
         int sk = QAccel::shortcutKey( source );
         int tk = QAccel::shortcutKey( translation );
         if ( sk == 0 && tk != 0 ) {
@@ -1707,7 +1706,7 @@ bool TrWindow::danger( const QString& source, const QString& translation,
             return TRUE;
         }
     }
-    if ( endingPunctuationAct->isOn() ) {
+    if ( endingPunctuationAct->isChecked() ) {
         if ( ending(source) != ending(translation) ) {
             if ( verbose )
                 statusBar()->message( tr("Translation does not end with the"
@@ -1716,10 +1715,10 @@ bool TrWindow::danger( const QString& source, const QString& translation,
             return TRUE;
         }
     }
-    if ( phraseMatchesAct->isOn() ) {
+    if ( phraseMatchesAct->isChecked() ) {
         QString fsource = friendlyString( source );
         QString ftranslation = friendlyString( translation );
-        QStringList lookupWords = QStringList::split( QChar(' '), fsource );
+        QStringList lookupWords = fsource.split(QChar(' '));
 
         bool phraseFound;
         foreach (QString s, lookupWords) {
@@ -1913,7 +1912,7 @@ void TrWindow::updateClosePhraseBook()
 
 void TrWindow::toggleStatistics()
 {
-    if ( toggleStats->isOn() ) {
+    if ( toggleStats->isChecked() ) {
         if ( !stats ) {
             stats = new Statistics( this, "linguist_stats" );
             connect( this, SIGNAL(statsChanged(int,int,int,int,int,int)), stats,

@@ -47,38 +47,38 @@ LVI::LVI( QListViewItem * parent, QString text )
     it is needed to produce the effect we want on obsolete items
  */
 void LVI::drawObsoleteText( QPainter * p, const QColorGroup & cg, int column,
-			    int width, int align )
+                            int width, int align )
 {
     QListView * lv = listView();
     int marg = lv ? lv->itemMargin() : 1;
     int r = marg;
     p->fillRect( 0, 0, width, height(), cg.brush( QColorGroup::Base ) );
     if ( isSelected() && (column==0 || listView()->allColumnsShowFocus()) )
-	p->fillRect( r - marg, 0, width - r + marg, height(),
-		     cg.brush( QColorGroup::Highlight ) );
+        p->fillRect( r - marg, 0, width - r + marg, height(),
+                     cg.brush( QColorGroup::Highlight ) );
 
     // Do the ellipsis thingy
     QString t = text( column );
     QString tmp;
     int i  = 0;
     if ( p->fontMetrics().width( t ) > width ) {
-	tmp = "...";
-	while ( p->fontMetrics().width( tmp + t[i] ) < width )
-	    tmp += t[ i++ ];
-	tmp.remove( (uint)0, 3 );
-	if ( tmp.isEmpty() )
-	    tmp = t.left( 1 );
-	tmp += "...";
-	t = tmp;
+        tmp = "...";
+        while ( p->fontMetrics().width( tmp + t[i] ) < width )
+            tmp += t[ i++ ];
+        tmp.remove( (uint)0, 3 );
+        if ( tmp.isEmpty() )
+            tmp = t.left( 1 );
+        tmp += "...";
+        t = tmp;
     }
     if ( isSelected() )
-	p->setPen( lv->palette().disabled().highlightedText() );
+        p->setPen( lv->palette().disabled().highlightedText() );
     else
-	p->setPen( lv->palette().disabled().text() );
+        p->setPen( lv->palette().disabled().text() );
 
     if ( !t.isEmpty() ) {
-	p->drawText( r, 0, width-marg-r, height(),
-		     align | AlignVCenter | SingleLine, t );
+        p->drawText( r, 0, width-marg-r, height(),
+                     align | AlignVCenter | SingleLine, t );
     }
 
 }
@@ -89,26 +89,26 @@ int LVI::compare( QListViewItem *other, int column, bool ascending ) const
     QString otherKey = other->key( column, ascending );
 
     if ( thisKey.contains('&') || otherKey.contains('&') ) {
-	QString nicerThisKey = thisKey;
-	QString nicerOtherKey = otherKey;
+        QString nicerThisKey = thisKey;
+        QString nicerOtherKey = otherKey;
 
-	nicerThisKey.replace( "&", "" );
-	nicerOtherKey.replace( "&", "" );
+        nicerThisKey.replace( "&", "" );
+        nicerOtherKey.replace( "&", "" );
 
-	int delta = nicerThisKey.localeAwareCompare( nicerOtherKey );
-	if ( delta != 0 )
-	    return delta;
+        int delta = nicerThisKey.localeAwareCompare( nicerOtherKey );
+        if ( delta != 0 )
+            return delta;
     }
     return thisKey.localeAwareCompare( otherKey );
 }
 
 static QString fixEllipsis( const QString & str, int len )
 {
-    QString shortened = str.simplifyWhiteSpace();
+    QString shortened = str.simplified();
     if ( (int) shortened.length() > len ) {
-	QString dots = TrWindow::tr( "..." );
-	shortened.truncate( len - dots.length() );
-	shortened.append( dots );
+        QString dots = TrWindow::tr( "..." );
+        shortened.truncate( len - dots.length() );
+        shortened.append( dots );
     }
     return shortened;
 }
@@ -117,21 +117,21 @@ static QString fixEllipsis( const QString & str, int len )
    MessageLVI implementation
 */
 MessageLVI::MessageLVI( QListView *parent,
-			const MetaTranslatorMessage & message,
-			const QString& text, const QString& comment,
-			ContextLVI * c )
+                        const MetaTranslatorMessage & message,
+                        const QString& text, const QString& comment,
+                        ContextLVI * c )
     : LVI( parent ), m( message ), tx( text ), com( comment ), ctxt( c )
 {
     if ( m.translation().isEmpty() ) {
-	QString t = "";
-	m.setTranslation( t );
+        QString t = "";
+        m.setTranslation( t );
     }
     setText( 1, fixEllipsis( text, Text0MaxLen ) );
     fini = TRUE;
     d = FALSE;
 
     if( m.type() ==  MetaTranslatorMessage::Unfinished )
- 	setFinished( FALSE );
+         setFinished( FALSE );
 }
 
 void MessageLVI::updateTranslationText()
@@ -140,35 +140,35 @@ void MessageLVI::updateTranslationText()
 }
 
 void MessageLVI::paintCell( QPainter * p, const QPalette &cg, int column,
-			    int width, int align )
+                            int width, int align )
 {
     if ( column == 0 ) {
-	int x = (width/2) - TrWindow::pxOn->width()/2;
-	int y = (height()/2) - TrWindow::pxOn->height()/2;
+        int x = (width/2) - TrWindow::pxOn->width()/2;
+        int y = (height()/2) - TrWindow::pxOn->height()/2;
 
-	int marg = listView() ? listView()->itemMargin() : 1;
-	int r = marg;
+        int marg = listView() ? listView()->itemMargin() : 1;
+        int r = marg;
 
-	if ( isSelected() )
-	    p->fillRect( r - marg, 0, width - r + marg, height(),
-			 cg.brush( QColorGroup::Highlight ) );
-	else
-	    p->fillRect( 0, 0, width, height(),
-			 cg.brush( QColorGroup::Base ) );
+        if ( isSelected() )
+            p->fillRect( r - marg, 0, width - r + marg, height(),
+                         cg.brush( QColorGroup::Highlight ) );
+        else
+            p->fillRect( 0, 0, width, height(),
+                         cg.brush( QColorGroup::Base ) );
 
-  	if ( m.type() == MetaTranslatorMessage::Unfinished && danger() )
-  	    p->drawPixmap( x, y, *TrWindow::pxDanger );
-  	else if ( m.type() == MetaTranslatorMessage::Finished )
-  	    p->drawPixmap( x, y, *TrWindow::pxOn );
-  	else if ( m.type() == MetaTranslatorMessage::Unfinished )
-  	    p->drawPixmap( x, y, *TrWindow::pxOff );
-  	else if ( m.type() == MetaTranslatorMessage::Obsolete )
-  	    p->drawPixmap( x, y, *TrWindow::pxObsolete );
+          if ( m.type() == MetaTranslatorMessage::Unfinished && danger() )
+              p->drawPixmap( x, y, *TrWindow::pxDanger );
+          else if ( m.type() == MetaTranslatorMessage::Finished )
+              p->drawPixmap( x, y, *TrWindow::pxOn );
+          else if ( m.type() == MetaTranslatorMessage::Unfinished )
+              p->drawPixmap( x, y, *TrWindow::pxOff );
+          else if ( m.type() == MetaTranslatorMessage::Obsolete )
+              p->drawPixmap( x, y, *TrWindow::pxObsolete );
     } else {
-	if ( m.type() == MetaTranslatorMessage::Obsolete )
-	    drawObsoleteText( p, cg, column, width, align );
-	else
-	    QListViewItem::paintCell( p, cg, column, width, align );
+        if ( m.type() == MetaTranslatorMessage::Obsolete )
+            drawObsoleteText( p, cg, column, width, align );
+        else
+            QListViewItem::paintCell( p, cg, column, width, align );
     }
 }
 
@@ -181,13 +181,13 @@ void MessageLVI::setTranslation( const QString& translation )
 void MessageLVI::setFinished( bool finished )
 {
     if ( !fini && finished ) {
-	m.setType( MetaTranslatorMessage::Finished );
-	repaint();
-	ctxt->decrementUnfinishedCount();
+        m.setType( MetaTranslatorMessage::Finished );
+        repaint();
+        ctxt->decrementUnfinishedCount();
     } else if ( fini && !finished ) {
-	m.setType( MetaTranslatorMessage::Unfinished );
-	repaint();
-	ctxt->incrementUnfinishedCount();
+        m.setType( MetaTranslatorMessage::Unfinished );
+        repaint();
+        ctxt->incrementUnfinishedCount();
     }
     fini = finished;
 }
@@ -195,11 +195,11 @@ void MessageLVI::setFinished( bool finished )
 void MessageLVI::setDanger( bool danger )
 {
     if ( !d && danger ) {
-	ctxt->incrementDangerCount();
-	repaint();
+        ctxt->incrementDangerCount();
+        repaint();
     } else if ( d && !danger ) {
-	ctxt->decrementDangerCount();
-	repaint();
+        ctxt->decrementDangerCount();
+        repaint();
     }
     d = danger;
 }
@@ -243,77 +243,77 @@ void ContextLVI::updateStatus()
 {
     QString s;
     s.sprintf( "%d/%d", itemCount - unfinishedCount - obsoleteCount,
-	       itemCount - obsoleteCount );
+               itemCount - obsoleteCount );
     setText( 2, s );
 }
 
 void ContextLVI::paintCell( QPainter * p, const QPalette &cg, int column,
-		    int width, int align )
+                    int width, int align )
 {
     if ( column == 0 ) {
-	int x = (width/2) - TrWindow::pxOn->width()/2;
-	int y = (height()/2) - TrWindow::pxOn->height()/2;
+        int x = (width/2) - TrWindow::pxOn->width()/2;
+        int y = (height()/2) - TrWindow::pxOn->height()/2;
 
-	int marg = listView() ? listView()->itemMargin() : 1;
-	int r = marg;
+        int marg = listView() ? listView()->itemMargin() : 1;
+        int r = marg;
 
-	if ( isSelected() )
-	    p->fillRect( r - marg, 0, width - r + marg, height(),
-			 cg.brush( QColorGroup::Highlight ) );
-	else
-	    p->fillRect( 0, 0, width, height(),
-			 cg.brush( QColorGroup::Base ) );
+        if ( isSelected() )
+            p->fillRect( r - marg, 0, width - r + marg, height(),
+                         cg.brush( QColorGroup::Highlight ) );
+        else
+            p->fillRect( 0, 0, width, height(),
+                         cg.brush( QColorGroup::Base ) );
 
-	if ( isContextObsolete() )
-  	    p->drawPixmap( x, y, *TrWindow::pxObsolete );
-  	else if ( unfinishedCount == 0 )
-  	    p->drawPixmap( x, y, *TrWindow::pxOn );
-  	else
-  	    p->drawPixmap( x, y, *TrWindow::pxOff );
+        if ( isContextObsolete() )
+              p->drawPixmap( x, y, *TrWindow::pxObsolete );
+          else if ( unfinishedCount == 0 )
+              p->drawPixmap( x, y, *TrWindow::pxOn );
+          else
+              p->drawPixmap( x, y, *TrWindow::pxOff );
 
     } else {
-	if ( isContextObsolete() )
-	    drawObsoleteText( p, cg, column, width, align );
-	else
-	    QListViewItem::paintCell( p, cg, column, width, align );
+        if ( isContextObsolete() )
+            drawObsoleteText( p, cg, column, width, align );
+        else
+            QListViewItem::paintCell( p, cg, column, width, align );
     }
 }
 
 void ContextLVI::appendToComment( const QString& x )
 {
     if ( !com.isEmpty() )
-	com += QString( "\n\n" );
+        com += QString( "\n\n" );
     com += x;
 }
 
 void ContextLVI::incrementUnfinishedCount()
 {
     if ( unfinishedCount++ == 0 )
-	repaint();
+        repaint();
 }
 
 void ContextLVI::decrementUnfinishedCount()
 {
     if ( --unfinishedCount == 0 )
-	repaint();
+        repaint();
 }
 
 void ContextLVI::incrementDangerCount()
 {
     if ( dangerCount++ == 0 )
-	repaint();
+        repaint();
 }
 
 void ContextLVI::decrementDangerCount()
 {
     if ( --dangerCount == 0 )
-	repaint();
+        repaint();
 }
 
 void ContextLVI::incrementObsoleteCount()
 {
     if ( obsoleteCount++ == 0 )
-	repaint();
+        repaint();
 }
 
 bool ContextLVI::isContextObsolete()
@@ -323,5 +323,5 @@ bool ContextLVI::isContextObsolete()
 
 QString ContextLVI::fullContext() const
 {
-    return comment().stripWhiteSpace();
+    return comment().trimmed();
 }
