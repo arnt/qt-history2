@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 2.37 1999/03/23 06:30:26 agulbra Exp $
+** $Id: misc.doc,v 2.38 1999/03/26 16:29:19 aavit Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -22,128 +22,173 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 2.37 1999/03/23 06:30:26 agulbra Exp $";
+static char ident[] = "$Id: misc.doc,v 2.38 1999/03/26 16:29:19 aavit Exp $";
 #endif
 
 
 /*! \page license.html
 
-<title>Qt Free Edition License Statement</title>
+<title>Qt Free Edition License Agreement</title>
 </head><body bgcolor="#ffffff">
 \postheader
 
-<h1 align=center>Free Edition License</h1><br clear="all">
+<h1 align=center>Qt Free Edition License Agreement</h1><br clear="all">
+
+<p>Qt Free Edition version 2.0 is distributed under the Q Public
+License (QPL). It allows free use of Qt Free Edition for running
+software developed by others, and free use of Qt Free Edition for
+development of free/Open Source software. There is <a
+href="http://www.troll.no/qpl/">more information about the QPL</a> at
+the Troll Tech web site.
+
+<p>For development non-free/proprietary software, the Qt Professional
+Edition is available. It has a normal commercial library license, with
+none of the special restrictions of the QPL.
+
+<hr>
+
+<center>
+<h1>
+THE Q PUBLIC LICENSE
+version 1.0
+</h1>
+<b>
+Copyright (C) 1999 Troll Tech AS, Norway.<br>
+Everyone is permitted to copy and distribute this license document.
+</b>
+</center>
 
 <p>
-This is license for Qt Free Edition version 1.40; it mainly
-covers development of free software for the free software community.
-We believe that it does not constrain development of free software
-noticeably.  (<a href="mailto:info@troll.no">Write to us</a> if you
-feel hampered, and we may be able to do something about it.)
+The intent of this license is to establish freedom to share and change the
+software regulated by this license under the open source model.
+
 <p>
+This license applies to any software containing a notice placed by the
+copyright holder saying that it may be distributed under the terms of
+the Q Public License version 1.0.  Such software is herein referred to as
+the Software.  This license covers modification and distribution of the
+Software, use of third-party application programs based on the Software,
+and development of free software which uses the Software.
+
+
+<h2 align=center>
+				 Granted Rights
+</h2>
+
 <p>
-The <a href="http://www.troll.no/pricing.html">Professional
-Edition</a> license is much less restrictive than this one.
+1. You are granted the non-exclusive rights set forth in this license
+   provided you agree to and comply with any and all conditions in this
+   license.  Whole or partial distribution of the Software, or software
+   items that link with the Software, in any form signifies acceptance of
+   this license.
+
 <p>
-<hr>
+2. You may copy and distribute the Software in unmodified form provided
+   that the entire package, including - but not restricted to - copyright,
+   trademark notices and disclaimers, as released by the initial developer
+   of the Software, is distributed.
+
 <p>
-<h2 align=center>QT FREE EDITION LICENSE</h2>
-<p>
-Copyright &copy; 1992-1998 Troll Tech AS.  All rights reserved.
-<p>
-<p>
-This is the license for Qt Free Edition version 1.40; it covers
-private use, use of third-party application programs based on Qt, and
-development of free software for the free software community.
-<p>
-<h3 align=center>COPYRIGHT AND RESTRICTIONS</h3>
-<p>
-The Qt toolkit is a product of Troll Tech AS. The Qt Free Edition is limited to
-use with the X Window System.
-<p>
-<p>
-You may copy this version of the Qt Free Edition provided that the entire
-archive is distributed unchanged and as a whole, including this notice.
-<p>
-<p>
-You may use this version of the Qt Free Edition to compile, link and run
-application programs legally developed by third parties.
-<p>
-<p>
-You may use the Qt Free Edition to create application programs provided that:
-<ul>
-<li>You accept this license.
-<li>Your software does not require modifications to Qt Free Edition.
-<li>You satisfy ONE of the following three requirements
- <dl>
- <dt>EITHER
- <dd>Users of your software can freely obtain source code for the
- software, freely modify the source code (possibly with restrictions
- on copyright notices, attributions and legal responsibility), and
- freely redistribute original or modified versions of the software.
- <dt>OR
- <dd>Your software is distributed under the GNU GENERAL PUBLIC LICENSE,
- version 2 or later, as defined by the Free Software Foundation.
- <dt>OR
- <dd>Your software is distributed under the GNU LIBRARY GENERAL PUBLIC
- LICENSE, version 2 or later, as defined by the Free Software Foundation.
- </dl>
-</ul>
-<p>
-<p>
-If you are paid to develop something with Qt Free Edition or it is a
-part of your job the following conditions also apply:
-<ul>
-<li>Your software must not require libraries, programs, data or
-    documentation that are not available outside your organization in
-    order to compile or use.
-<li>If and when your organization starts using the software, you must
-    notify Troll Tech AS of the following:
-    <ul>
-    <li>Your organization's name and purpose.
-    <li>The software's name and purpose.
-    <li>The software's license.
-    <li>That your organization considers the software to be free software.
-    </ul>
-</ul>
-<p>
-<p>
-You may also use the Qt Free Edition to create reusable components (such as
-libraries) provided that you accept the terms above, and in addition that:
-<ul>
-<li>Your components' license includes the following text:
+3. You may make modifications to the Software and distribute your
+   modifications, in a form that is separate from the Software, such as
+   patches. The following restrictions apply to modifications:
+
 <blockquote>
-[Your package] requires the Qt library, which is copyright Troll Tech
-AS.  Freely distributable programs may generally use Qt Free Edition
-free of charge, see [README.QT] for details.
+<p>
+     a. Modifications must not alter or remove any copyright notices in
+        the Software.
+<p>
+     b. When modifications to the Software are released under this
+        license, a non-exclusive royalty-free right is granted to the
+        initial developer of the Software to distribute your modification
+        in future versions of the Software provided such versions remain
+        available under these terms in addition to any other license(s) of
+        the initial developer.
 </blockquote>
-<li>README.QT is distributed along with your components.
-<li>Qt Free Edition is not distributed <em>as an integral part</em> of
-your components.
-</ul>
+
 <p>
-<h3 align=center>LIMITATIONS OF LIABILITY</h3>
+4. You may distribute machine-executable forms of the Software or
+   machine-executable forms of modified versions of the Software, provided
+   that you meet these restrictions:
+<blockquote>
 <p>
-Troll Tech AS makes no obligation under this license to support or upgrade
-Qt Free Edition, or assist in the use of Qt Free Edition.
+
+     a. You must include this license document in the distribution.
+
 <p>
+     b. You must ensure that all recipients of the machine-executable forms
+        are also able to receive the complete machine-readable source code
+        to the distributed Software, including all modifications, without
+        any charge beyond the costs of data transfer, and place prominent
+        notices in the distribution explaining this.
+
 <p>
-In no event shall Troll Tech AS be liable for any lost revenue or profits
-or other direct, indirect, special, incidental or consequential damages,
-even if Troll Tech has been advised of the possibility of such damages.
+     c. You must ensure that all modifications included in the
+        machine-executable forms are available under the terms of this
+        license.
+
+</blockquote>
+
 <p>
+5. You may use the original or modified versions of the Software to
+   compile, link and run application programs legally developed by you
+   or by others.
+
 <p>
-<strong>
-QT FREE EDITION IS PROVIDED AS IS WITH NO WARRANTY OF ANY KIND,
-INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A
-PARTICULAR PURPOSE.
-</strong>
+6. You may develop application programs, reusable components and other
+   software items that link with the original or modified versions of the
+   Software.  These items, when distributed, are subject to the following
+   requirements:
+
+<blockquote>
 <p>
-<hr>
+     a. You must ensure that all recipients of machine-executable forms of
+        these items are also able to receive and use the complete
+        machine-readable source code to the items without any charge
+        beyond the costs of data transfer.
+
 <p>
-<p align=center>
-(The <a href="http://www.troll.no/faq/free.html">FAQ</a> contains a
-number of questions related to the license.)
+     b. You must explicitly license all recipients of your items to use
+        and re-distribute original and modified versions of the items in
+        both machine-executable and source code forms. The recipients must
+        be able to do so without any charges whatsoever, and they must be
+        able to re-distribute to anyone they choose.
+
+<p>
+     c. If the items are not available to the general public, and the
+        initial developer of the Software requests a copy of the items,
+        then you must supply one.
+
+</blockquote>
+
+
+<h2 align=center>
+			    Limitations of Liability
+</h2>
+
+<p>In no event shall the initial developers or copyright holders be liable
+for any damages whatsoever, including - but not restricted to - lost
+revenue or profits or other direct, indirect, special, incidental or
+consequential damages, even if they have been advised of the possibility
+of such damages, except to the extent invariable law, if any, provides
+otherwise.
+
+
+<h2 align=center>
+			          No Warranty
+</h2>
+
+<p>The Software and this license document are provided AS IS with NO WARRANTY
+OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS
+FOR A PARTICULAR PURPOSE.
+
+<h2 align=center>
+                                 Choice of Law
+</h2>
+
+<p>
+This license is governed by the Laws of Norway. Disputes shall be settled
+by Oslo City Court.
 
 */
 
@@ -192,33 +237,20 @@ Troll Tech can be reached via the following e-mail addresses:
 </dl>
 
 
-<h2>Sales Phone</h2>
+<h2>Other</h2>
 
-<center>
-<strong>+47 22 80 63 91</strong>
-</center>
+Telephone, general inquiries: <strong>+47 22 80 63 90</strong>
 
+<p>
 
-<h2>FAX</h2>
+Telefax, general inquiries: <strong>+47 22 80 63 80</strong>
 
-Our telefax number is:<br>
-<center>
-<strong>+47 22 80 63 80</strong>
-</center>
+<p>Street Address:<br>
 
-
-<h2>Regular Mail</h2>
-
-Our postal address is:<br>
-<center>
-<table>
-<tr><td align=left>
-Troll Tech AS<br>
+<p>Troll Tech AS<br>
 Waldemar Thranes gt. 98b<br>
 N-0175 Oslo<br>
-NORWAY<br></td></tr>
-</table>
-</center>
+NORWAY
 
 */
 

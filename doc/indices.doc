@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: indices.doc,v 2.28 1999/03/23 13:50:16 aavit Exp $
+** $Id: indices.doc,v 2.29 1999/03/26 16:29:18 aavit Exp $
 **
 ** Miscellaneous index pages
 **
@@ -22,7 +22,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: indices.doc,v 2.28 1999/03/23 13:50:16 aavit Exp $";
+static char ident[] = "$Id: indices.doc,v 2.29 1999/03/26 16:29:18 aavit Exp $";
 #endif
 
 /*! \page index.html
@@ -90,8 +90,8 @@ Tech</a>. It is supported on all major variants of Microsoft Windows
 and Unix/X Windows.
 
 <strong>Qt Professional Edition</strong> is provided for commercial
-software development. It is provided with upgrades and technical
-support. For the latest prices, please see the Troll Tech web site, <a
+software development. It includes free upgrades and Technical Support
+Service. For the latest prices, please see the Troll Tech web site, <a
 href="http://www.troll.no/pricing.html">Pricing and Availability</a>
 page, or contact <a href="mailto:sales@troll.no">sales@troll.no</a>.
 
