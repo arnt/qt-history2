@@ -1,8 +1,8 @@
 TEMPLATE	= app
 CONFIG		= warn_on console release qtinc dylib
 DEFINES		+= QT_NO_CODECS QT_LITE_UNICODE QT_NO_COMPONENT QT_NODLL QT_CLEAN_NAMESPACE
-INCLUDEPATH	= $$QT_SOURCE_TREE/include
-DEPENDPATH	= $$QT_SOURCE_TREE/include
+INCLUDEPATH	= $$QT_BUILD_TREE/include
+DEPENDPATH	= $$QT_BUILD_TREE/include
 OBJECTS_DIR	= .
 HEADERS		= binarywriter.h \
 		  bookparser.h \
