@@ -5398,6 +5398,18 @@ void QMacStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex 
                     arrowOpt.palette = tb->palette;
                     drawPrimitive(QStyle::PE_IndicatorArrowDown, &arrowOpt, p, w);
                 }
+                if (tb->state & QStyle::State_On) {
+                    QPen oldPen = p->pen();
+                    p->setPen(QColor(0, 0, 0, 0x3a));
+                    p->fillRect(tb->rect.adjusted(1, 1, -1, -1), QColor(0, 0, 0, 0x12));
+                    p->drawLine(tb->rect.left() + 1, tb->rect.top(),
+                                tb->rect.right() - 1, tb->rect.top());
+                    p->drawLine(tb->rect.left() + 1, tb->rect.bottom(),
+                                tb->rect.right() - 1, tb->rect.bottom());
+                    p->drawLine(tb->rect.topLeft(), tb->rect.bottomLeft());
+                    p->drawLine(tb->rect.topRight(), tb->rect.bottomRight());
+                    p->setPen(oldPen);
+                }
             }
         } else {
             if (d->useHITheme)
