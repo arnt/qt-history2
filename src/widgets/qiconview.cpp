@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#20 $
 **
 ** Definition of QIconView widget class
 **
@@ -711,7 +711,7 @@ QFont QIconViewItem::font()
 /*!
   Sets the viewmode of the item. This can be QIconSet::Automatic, QIconSet::Small, QIconSet::Large.
   QIconSet::Automatic is default. Use QIconView::setViewMode() instead to set the viewmode of all items.
-  
+
   \sa QIconView::setViewMode()
 */
 
@@ -727,7 +727,7 @@ void QIconViewItem::setViewMode( QIconSet::Size mode )
 
   The default implementation does nothing and returns always TRUE. A subclass should
   reimplement this to allow dropping something on an item.
-  
+
   \sa QFileIconViewItem::acceptDrop()
 */
 
@@ -739,8 +739,8 @@ bool QIconViewItem::acceptDrop( QMimeSource *mime )
 }
 
 /*!
-  Returns the QDragObject of this item, which should be use for dragging. 
-  
+  Returns the QDragObject of this item, which should be use for dragging.
+
   The default implementation returns NULL. Subclasses should implement this.
 
   \sa QFileIconViewItem::dragObject()
@@ -1043,24 +1043,24 @@ void QIconViewItem::dragLeft()
 
 /*!
   \class QIconView qiconview.h
-  \brief The QIconView class 
-  
+  \brief The QIconView class
+
   The QIconView provides a widget which can contain lots of iconview items which can
   be selected, dragged and so on.
-  
+
   Items can be inserted in a grid and can flow from top to bottom (South) or from
   left to right (East).
-  
+
   The QIconView is designed for Drag'n'Drop, as the icons are also moved inside
   the iconview itself using DnD. So the QIconView provides some methodes for DnD
-  too. 
-  
+  too.
+
   There can be specified different selection modes, which describe if more that one item
   can be selected and under which conditions.
-  
+
   Items can of course be selected. When multiple items may be selected, the iconview
-  provides a rubberband too. 
-  
+  provides a rubberband too.
+
 */
 
 QIconView::QIconView( QWidget *parent, const char *name )
@@ -1110,16 +1110,16 @@ QIconView::~QIconView()
 	delete item;
 	item = tmp;
     }
-    
+
     delete d;
 }
 
 /*!
   Inserts the iconview item \a item after \a after. If \a after is NULL,
-  \a item is appended. 
-  
+  \a item is appended.
+
   You should never need to call this methode yourself, you should rather do
-  
+
   \code
     (void) new QIconViewItem( iconview, "This is the text of the item", QIocnSet( pixmap ) );
   \endcode
@@ -1172,7 +1172,7 @@ void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
 
 /*!
   Removes the iconview item \a item from the iconview. You should never
-  need to call this methode yourself, just delete an item to get rid of it. The 
+  need to call this methode yourself, just delete an item to get rid of it. The
   destructor of QIconViewItem does everything, which is required for removing
   and item.
 */
@@ -1258,7 +1258,7 @@ QIconViewItem *QIconView::currentItem() const
 /*!
   Makes \a item the new current item of the iconview.
 */
-  
+
 void QIconView::setCurrentItem( QIconViewItem *item )
 {
     d->currentItem = item;
@@ -1421,7 +1421,7 @@ void QIconView::show()
 }
 
 /*!
-  Sets the selection mode of the iconview to \a m. This can be 
+  Sets the selection mode of the iconview to \a m. This can be
   <li>Single (only one item can be selected)
   <li>Multi (multiple items can be selected)
   <li>StrictMulti (multiple items can be selected, but only if the user pressed CTRL while selecting them)
@@ -1529,7 +1529,7 @@ void QIconView::clear()
 }
 
 /*!
-  Sets the horizontal raster to \a rx.  If \a rx is -1, there is no 
+  Sets the horizontal raster to \a rx.  If \a rx is -1, there is no
   horizontal raster used for laigning items.
 */
 
@@ -1539,7 +1539,7 @@ void QIconView::setRastX( int rx )
 }
 
 /*!
-  Sets the vertical raster to \a ry.  If \a ry is -1, there is no 
+  Sets the vertical raster to \a ry.  If \a ry is -1, there is no
   vertical raster used for laigning items.
 */
 
@@ -1575,7 +1575,7 @@ void QIconView::setSpacing( int sp )
     d->spacing = sp;
 }
 
-/*! 
+/*!
   Returns the spacing between iconview items.
 */
 
@@ -1585,7 +1585,7 @@ int QIconView::spacing()
 }
 
 /*!
-  Sets the alignment mode of the iconview to \a am. This can be 
+  Sets the alignment mode of the iconview to \a am. This can be
   <li> East (Items, which don't fit onto the view, go further down (you get a vertical scrollbar)
   <li> South (Items, which don't fit onto the view, go further right (you get a horizontal scrollbar)
 */
@@ -1799,7 +1799,7 @@ void QIconView::contentsDragMoveEvent( QDragMoveEvent *e )
 	}
 
 	if ( item->acceptDrop( e ) )
-	    e->accept();
+	    e->acceptAction();
 	else
 	    e->ignore();
 
@@ -1810,7 +1810,7 @@ void QIconView::contentsDragMoveEvent( QDragMoveEvent *e )
 	item->paintFocus( &p );
 	p.end();
     } else {
-	e->accept();
+	e->acceptAction();
 	if ( old )
 	    old->dragLeft();
     }
@@ -1895,7 +1895,7 @@ void QIconView::contentsDropEvent( QDropEvent *e )
 	    repaintContents( oldw, 0, contentsWidth() - oldw, contentsHeight() );
 	    repaintContents( 0, oldh, contentsWidth(), contentsHeight() - oldh );
 	}
-	e->accept();
+	e->acceptAction();
     } else if ( !i && e->source() != viewport() || d->cleared )
 	emit dropped( e );
     else if ( i )
@@ -2188,9 +2188,9 @@ void QIconView::drawRubber( QPainter *p )
 
 /*!
   Returns the QDragObject which should be used for DnD. In fact, this calls
-  QIconViewItem::dragObject() of the current item, or returns NULL, of the 
+  QIconViewItem::dragObject() of the current item, or returns NULL, of the
   is no current item.
-  
+
   Subclasses should reimplement this.
 
   \sa QIconViewItem::dragObject()
@@ -2426,7 +2426,7 @@ void QIconView::drawDragShape( const QPoint &pos )
 
 /*!
   Returns the number of the items, which the drag of \a e contains. This should
-  be reimplemented in subclasses, so that it works for all accepted drags. 
+  be reimplemented in subclasses, so that it works for all accepted drags.
 
   \sa QFileIconView::dragItems()
 */
@@ -2442,10 +2442,10 @@ int QIconView::dragItems( QDropEvent *e )
   This methode is called to draw the rectangle \a r of the background using
   the painter \a p. xOffset and yOffset are known using the methodes
   contentsX() and contentsY().
-  
+
   The default implementation only fills \a r with colorGroup().base(). Subclasses
   may reimplement this to draw fency backgrounds.
-  
+
   \sa QFileIconView::drawBackground()
 */
 
