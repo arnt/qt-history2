@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#53 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#54 $
 **
 ** Implementation of QFile class
 **
@@ -12,7 +12,7 @@
 #include "qfile.h"
 #include "qfiledef.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#53 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#54 $");
 
 
 /*!
@@ -396,8 +396,9 @@ bool QFile::open( int m )
   When a QFile is opened using this function, close() does not actually
   close the file, only flushes it.
 
-  \warning If \e f is one of \c stdin, \c stdout or \c stderr, you may not
-  be able to seek. size() is set to \c INT_MAX (in limits.h).
+  \warning If \e f is \c stdin, \c stdout, \c stderr, you may not
+  be able to seek.  See QIODevice::isSequentialAccess() for more
+  information.
 
   \sa close()
 */
@@ -415,13 +416,16 @@ bool QFile::open( int m, FILE *f )
     setState( IO_Open );
     fh = f;
     ext_f = TRUE;
-    if ( fh == stdin || fh == stdout || fh == stderr ) {
+    STATBUF st;
+    FSTAT( FILENO(fh), &st );
+    index = ftell( fh );
+    if ( S_ISCHR( st.st_mode ) || S_ISFIFO( st.st_mode ) || S_ISSOCK(st.st_mode) )
+    {
+	// non-seekable
+	setType( IO_Sequential );
 	length = INT_MAX;
     } else {
-	STATBUF st;
-	FSTAT( FILENO(fh), &st );
 	length = st.st_size;
-	index = ftell( fh );
     }
     return TRUE;
 }
@@ -586,13 +590,7 @@ bool QFile::atEnd() const
 #endif
 	return FALSE;
     }
-    bool end;
-    if ( isRaw() ) {				// raw file
-	end = (at() == (int)size());
-    } else {					// buffered file
-	end = feof( fh );
-    }
-    return end;
+    return QIODevice::atEnd();
 }
 
 
@@ -628,10 +626,19 @@ int QFile::readBlock( char *p, uint len )
     }
 #endif
     int nread;					// number of bytes read
-    if ( isRaw() )				// raw file
+    if ( isRaw() ) {				// raw file
 	nread = READ( fd, p, len );
-    else					// buffered file
+	if ( len && nread <= 0 ) {
+	    nread = 0;
+	    setStatus(IO_ReadError);
+	}
+    } else {					// buffered file
 	nread = fread( p, 1, len, fh );
+	if ( (uint)nread != len ) {
+	    if ( ferror( fh ) || nread==0 )
+		setStatus(IO_ReadError);
+	}
+    }
     index += nread;
     return nread;
 }
@@ -723,9 +730,13 @@ int QFile::readLine( char *p, uint maxlen )
 	nread = QIODevice::readLine( p, maxlen );
     } else {					// buffered file
 	p = fgets( p, maxlen, fh );
-	nread = p ? strlen( p ) : 0;
+	if ( p ) {
+	    nread = strlen( p );
+	    index += nread;
+	} else {
+	    setStatus(IO_ReadError);
+	}
     }
-    index += nread;
     return nread;
 }
 
@@ -758,6 +769,8 @@ int QFile::getch()
     } else {					// buffered file
 	if ( (ch = getc( fh )) != EOF )
 	    index++;
+	else
+	    setStatus(IO_ReadError);
     }
     return ch;
 }
@@ -791,6 +804,8 @@ int QFile::putch( int ch )
 	    index++;
 	    if ( index > length )		// update file length
 		length = index;
+	} else {
+	    setStatus(IO_WriteError);
 	}
     }
     return ch;
@@ -832,6 +847,8 @@ int QFile::ungetch( int ch )
     } else {					// buffered file
 	if ( (ch = ungetc(ch, fh)) != EOF )
 	    index--;
+	else
+	    setStatus( IO_ReadError );
     }
     return ch;
 }

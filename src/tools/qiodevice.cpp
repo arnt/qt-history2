@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.cpp#33 $
+** $Id: //depot/qt/main/src/tools/qiodevice.cpp#34 $
 **
 ** Implementation of QIODevice class
 **
@@ -11,7 +11,7 @@
 
 #include "qiodev.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qiodevice.cpp#33 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qiodevice.cpp#34 $");
 
 
 /*!
@@ -28,8 +28,10 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qiodevice.cpp#33 $");
   writing any data; it has virtual functions for doing so. These functions
   are implemented by the subclasses QFile and QBuffer.
 
-  There are two types of I/O devices; <em>direct access</em> and
-  <em>sequential access </em> devices.	Files can normally be accessed
+  There are two types of I/O devices;
+  \link isDirectAccess() <em>direct access</em>\endlink and
+  \link isSequentialAccess() <em>sequential access </em>\endlink devices.
+  Files can normally be accessed
   directly, except \c stdin etc., which must be processed sequentially.
   Buffers are always direct access devices.
 
@@ -141,7 +143,8 @@ QIODevice::~QIODevice()
 /*!
   \fn bool QIODevice::isSequentialAccess() const
   Returns TRUE if the I/O device is a sequential access (not direct) device,
-  otherwise FALSE.
+  otherwise FALSE.  Operations involving size() and at(int) are not valid
+  on sequential devices.
   \sa isDirectAccess()
 */
 
