@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#12 $
 **
 ** Implementation of QPointArray class
 **
@@ -22,7 +22,7 @@ double qsincos( double, bool calcCos );		// def. in qptr_x11.cpp
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpntarry.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpntarry.cpp#12 $";
 #endif
 
 
@@ -163,6 +163,30 @@ QPoint QPointArray::at( uint i ) const		// get i'th point in array
 {
     QPointData p = QArrayM(QPointData)::at( i );
     return QPoint( (QCOOT)p.x, (QCOOT)p.y );
+}
+
+
+QRect QPointArray::boundingRect() const		// get bounding rect
+{
+    if ( isEmpty() )
+	return QRect( 0, 0, 0, 0 );		// null rectangle
+    register QPointData *pd = data();
+    int minx, maxx, miny, maxy;
+    minx = maxx = pd->x;
+    miny = maxy = pd->y;
+    pd++;
+    for ( int i=1; i<size(); i++ ) {		// find min+max x and y
+	if ( pd->x < minx )
+	    minx = pd->x;
+	else if ( pd->x > maxx )
+	    maxx = pd->x;
+	if ( pd->y < miny )
+	    miny = pd->y;
+	else if ( pd->y > maxy )
+	    maxy = pd->y;
+	pd++;
+    }
+    return QRect( QPoint(minx,miny), QPoint(maxx,maxy) );
 }
 
 
@@ -392,7 +416,7 @@ static void init_bicot()			// initialize Pascal's triangle
 }
 
 
-QPointArray QPointArray::bezier()		// calculate Bezier curve
+QPointArray QPointArray::bezier() const		// calculate Bezier curve
 {
     if ( size() <= 2 || size() > max_bezcontrols ) {
 	QPointArray p;
