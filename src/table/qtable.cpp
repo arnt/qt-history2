@@ -2301,6 +2301,19 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
     drawActiveSelection = TRUE;
 }
 
+/*!
+  Returns the geometry of a cell in the cell's coordinate system. This
+  is a convenience function useful in paintCell(). It is equivalent to
+  QRect( QPoint(0,0), cellGeometry( row, col).size() );
+
+  \sa cellGeometry()
+*/
+
+QRect QTable::cellRect( int row, int col ) const
+{
+    return QRect( QPoint(0,0), cellGeometry( row, col ).size() );
+}
+
 /*! Paints the cell at \a row, \a col on the painter \a
   p. The painter has already been translated to the cell's origin. \a
   cr describes the cell coordinates in the content coordinate system.
@@ -2320,11 +2333,11 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
     \link #bigtables large tables\endlink.
 
     Note that the painter is not clipped by default in order to get maximum
-    efficiency. If you want clipping, use
+    efficiency. If you want clipping, use code like this:
 
     \code
-    p->setClipRect( QRect( QPoint(0,0), cr.size() ), QPainter::ClipPainter );
-    ... // your drawing code
+    p->setClipRect( cellRect(row, col), QPainter::ClipPainter );
+    //... your drawing code
     p->setClipping( FALSE );
     \endcode
 

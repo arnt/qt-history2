@@ -297,6 +297,8 @@ public:
     virtual QWidget *cellWidget( int row, int col ) const;
     virtual void clearCellWidget( int row, int col );
 
+    virtual QRect cellRect( int row, int col ) const;
+
     virtual void paintCell( QPainter *p, int row, int col,
                             const QRect &cr, bool selected );
     virtual void paintFocus( QPainter *p, const QRect &r );
