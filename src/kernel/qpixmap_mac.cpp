@@ -10,12 +10,14 @@ static QImage convertPixmapToImage(QPixmap::QPixmapData *, GWorldPtr);
 
 static inline void safely_dispose_gworld(GWorldPtr gw)
 {
+#ifdef Q_WS_MAC9
    GWorldPtr w;
    GDHandle h;
    GetGWorld(&w, &h);
    if(w == gw)
        QMacSavedPortInfo::setPaintDevice(qt_mac_safe_pdev);        
    QMacSavedPortInfo::removingGWorld(gw);
+#endif
    DisposeGWorld(gw);    
 }
 
