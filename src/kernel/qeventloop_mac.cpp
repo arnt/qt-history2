@@ -774,13 +774,6 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
 	    qt_mac_safe_pdev = tlw;
 	}
 
-	extern EventRef qt_replay_event;
-	if(qt_replay_event) {	//ick
-	    EventRef ev = qt_replay_event;
-	    qt_replay_event = NULL;
-	    qt_mac_send_event(flags, ev, (WindowPtr)qt_mac_safe_pdev->handle());
-	    ReleaseEvent(ev);
-	}
 	QApplication::sendPostedEvents();
 	qt_activate_timers(TimerInfo::TIMER_ZERO); //try to send null timers..
 
@@ -792,6 +785,13 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
 		if(qt_mac_send_event(flags, event))
 		    nevents++;
 		ReleaseEvent(event);
+		extern EventRef qt_replay_event;
+		if(qt_replay_event) {	//ick
+		    EventRef ev = qt_replay_event;
+		    qt_replay_event = NULL;
+		    qt_mac_send_event(flags, ev, (WindowPtr)qt_mac_safe_pdev->handle());
+		    ReleaseEvent(ev);
+		}
 	    } while(GetNumEventsInQueue(GetMainEventQueue()));
 	    QApplication::sendPostedEvents();
 	} while(GetNumEventsInQueue(GetMainEventQueue()));
