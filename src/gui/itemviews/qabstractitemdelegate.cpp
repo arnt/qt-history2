@@ -83,12 +83,12 @@ QWidget *QAbstractItemDelegate::editor(StartEditAction, QWidget *, const QItemOp
     return 0;
 }
 
-void QAbstractItemDelegate::setContentFromEditor(QWidget *, const QModelIndex &) const
+void QAbstractItemDelegate::setModelData(QWidget *, const QModelIndex &) const
 {
     // do nothing
 }
 
-void QAbstractItemDelegate::updateEditorContents(QWidget *, const QModelIndex &) const
+void QAbstractItemDelegate::setEditorData(QWidget *, const QModelIndex &) const
 {
     // do nothing
 }

@@ -565,7 +565,7 @@ void QAbstractItemView::endEdit(const QModelIndex &index, bool accept)
     }
 
     if (accept) {
-        itemDelegate()->setContentFromEditor(d->currentEditor, index);
+        itemDelegate()->setModelData(d->currentEditor, index);
         itemDelegate()->releaseEditor(QAbstractItemDelegate::Accepted,
                                       d->currentEditor, index);
     } else {
@@ -745,7 +745,7 @@ void QAbstractItemView::contentsChanged(const QModelIndex &topLeft, const QModel
     // Single item changed
     if (topLeft == bottomRight && topLeft.isValid()) {
         if (d->currentEditor && topLeft == currentItem())
-            itemDelegate()->updateEditorContents(d->currentEditor, topLeft);
+            itemDelegate()->setEditorData(d->currentEditor, topLeft);
         else
             updateItem(topLeft);
         return;

@@ -93,8 +93,8 @@ public:
     virtual EditType editType(const QModelIndex &index) const;
     virtual QWidget *editor(StartEditAction action, QWidget *parent,
                             const QItemOptions &options, const QModelIndex &index);
-    virtual void setContentFromEditor(QWidget *editor, const QModelIndex &index) const;
-    virtual void updateEditorContents(QWidget *editor, const QModelIndex &index) const;
+    virtual void setModelData(QWidget *editor, const QModelIndex &index) const;
+    virtual void setEditorData(QWidget *editor, const QModelIndex &index) const;
     virtual void updateEditorGeometry(QWidget *editor, const QItemOptions &options,
                                       const QModelIndex &index) const;
     virtual void releaseEditor(EndEditAction action, QWidget *editor, const QModelIndex &index);

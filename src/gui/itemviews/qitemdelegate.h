@@ -21,8 +21,10 @@ public:
     QAbstractItemDelegate::EditType editType(const QModelIndex &item) const;
     QWidget *editor(QAbstractItemDelegate::StartEditAction action, QWidget *parent,
                     const QItemOptions &options, const QModelIndex &item);
-    void setContentFromEditor(QWidget *editor, const QModelIndex &index) const;
-    void updateEditorContents(QWidget *editor, const QModelIndex &index) const;
+
+    void setModelData(QWidget *editor, const QModelIndex &index) const;
+    void setEditorData(QWidget *editor, const QModelIndex &index) const;
+    
     void updateEditorGeometry(QWidget *editor, const QItemOptions &options,
                               const QModelIndex &index) const;
     void releaseEditor(EndEditAction action, QWidget *editor, const QModelIndex &index);

@@ -136,14 +136,14 @@ void QItemDelegate::releaseEditor(EndEditAction, QWidget *editor, const QModelIn
     delete editor;
 }
 
-void QItemDelegate::setContentFromEditor(QWidget *editor, const QModelIndex &index) const
+void QItemDelegate::setModelData(QWidget *editor, const QModelIndex &index) const
 {
     QLineEdit *lineEdit = ::qt_cast<QLineEdit*>(editor);
     if (lineEdit)
         model()->setData(index, QAbstractItemModel::Edit, lineEdit->text());
 }
 
-void QItemDelegate::updateEditorContents(QWidget *editor, const QModelIndex &index) const
+void QItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
     QLineEdit *lineEdit = ::qt_cast<QLineEdit*>(editor);
     if (lineEdit)
