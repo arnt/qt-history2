@@ -563,10 +563,11 @@ static inline int runWidth( QFontPrivate *d, QFontStruct *qfs, const QString &st
 	int i = 0;
 	while ( i < len ) {
 	    if ( ch->combiningClass() ==0 || pos + i == 0 ) {
-		if ( *chars >= fs->min_char_or_byte2 && *chars <= fs->max_char_or_byte2 )
-		    width += fs->per_char[*chars].width;
-		else
+		if ( *chars >= fs->min_char_or_byte2 && *chars <= fs->max_char_or_byte2 ) {
+		    width += fs->per_char[*chars- fs->min_char_or_byte2].width;
+		} else {
 		    width += fs->per_char[fs->default_char].width;
+		}
 	    }
 	    chars++;
 	    ch++;
@@ -615,7 +616,6 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
 	}
 	currw += runWidth( this, qfs, str, lasts, i - lasts, mapped );
     }
-
     return currw;
 
 }
@@ -752,7 +752,7 @@ static inline void runExtents( QFontPrivate *d, QFontStruct *qfs, const QString 
 	    if ( !ch->isMark() ) {
 		XCharStruct *cs;
 		if ( *chars >= fs->min_char_or_byte2 && *chars <= fs->max_char_or_byte2 )
-		    cs = &fs->per_char[*chars];
+		    cs = &fs->per_char[*chars-fs->min_char_or_byte2];
 		else
 		    cs = &fs->per_char[fs->default_char];
 		overall->ascent = QMAX(overall->ascent, cs->ascent);
