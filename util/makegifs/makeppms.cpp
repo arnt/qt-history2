@@ -1,5 +1,12 @@
+#include <stdlib.h>
+#include <unistd.h> // for sleep()
+
 #include <qapplication.h>
 
+#include <qmainwindow.h> 
+#include <qtoolbutton.h> 
+#include <qtoolbar.h> 
+#include <qstatusbar.h> 
 #include <qcheckbox.h> 
 #include <qpushbutton.h>
 #include <qradiobutton.h>
@@ -8,7 +15,7 @@
 #include <qmessagebox.h>
 #include <qprogressdialog.h>
 #include <qtabdialog.h>
-#include <qgroupbox.h>
+#include <qgrpbox.h>
 #include <qbuttongroup.h>
 #include <qlcdnumber.h>
 #include <qlabel.h>
@@ -24,6 +31,7 @@
 #include <qslider.h>
 #include <qtabbar.h>
 #include <qscrollview.h>
+#include <qsplitter.h>
 
 #include <life.h>
 
@@ -208,6 +216,7 @@ public:
     EgQFileDialog() :
 	QFileDialog( "/", "*" )
     {
+	resize(300,300);
 	clearWFlags( WType_Modal );
     }
 };
@@ -322,18 +331,84 @@ public:
     }
 };
 
-class EgQMenuBar : public QWidget {
-    QMenuBar mb;
+class EgQMenuBar : public QMenuBar {
 public:
-    EgQMenuBar() :
+    EgQMenuBar(QWidget* parent) :
+	QMenuBar(parent)
+    {
+	insertItem("File");
+	insertItem("Edit");
+	insertItem("Options");
+	insertSeparator();
+	insertItem("Help");
+    }
+};
+
+class EgNestedQMenuBar : public QWidget {
+    EgQMenuBar mb;
+public:
+    EgNestedQMenuBar() :
 	mb(this)
     {
-	mb.insertItem("File");
-	mb.insertItem("Edit");
-	mb.insertItem("Options");
-	mb.insertSeparator();
-	mb.insertItem("Help");
-	resize(300,mb.height());
+        resize(300,mb.height());
+    }
+};
+
+class EgQStatusBar : public QStatusBar {
+public:
+    EgQStatusBar(QWidget* parent=0) :
+	QStatusBar(parent)
+    {
+	QLabel *l = new QLabel("R/W",this);
+	message("Ready");
+	addWidget(l,1);
+	//resize(sizeHint());
+    }
+};
+
+/* XPM */
+static const char *fileopen[] = {
+"    16    13        5            1",
+". c #040404",
+"# c #808304",
+"a c #bfc2bf",
+"b c #f3f704",
+"c c #f3f7f3",
+"aaaaaaaaa...aaaa",
+"aaaaaaaa.aaa.a.a",
+"aaaaaaaaaaaaa..a",
+"a...aaaaaaaa...a",
+".bcb.......aaaaa",
+".cbcbcbcbc.aaaaa",
+".bcbcbcbcb.aaaaa",
+".cbcb...........",
+".bcb.#########.a",
+".cb.#########.aa",
+".b.#########.aaa",
+"..#########.aaaa",
+"...........aaaaa"
+};
+static QPixmap fo()
+{
+    static QPixmap f(fileopen);
+    return f;
+}
+
+class EgQToolButton : public QToolButton {
+public:
+    EgQToolButton(QToolBar* parent=0) :
+	QToolButton(fo(),"Open","Open group", 0,0, parent)
+    {
+    }
+};
+
+class EgQToolBar : public QToolBar {
+public:
+    EgQToolBar(QMainWindow* mw=0) :
+	QToolBar("Toolbar", mw)
+    {
+	new EgQToolButton(this);
+	//resize(sizeHint());
     }
 };
 
@@ -438,6 +513,17 @@ public:
     }
 };
 
+class EgQSpinBox : public QSpinBox {
+public:
+    EgQSpinBox() :
+	QSpinBox()
+    {
+	setValue(42);
+	resize(sizeHint());
+    }
+};
+
+
 class EgQHeader : public QHeader {
 public:
     EgQHeader() :
@@ -447,6 +533,26 @@ public:
 	addLabel("Address");
 	addLabel("Birth date");
 	resize(400,sizeHint().height());
+    }
+};
+
+
+class EgQSplitter : public QSplitter {
+    QLabel a, b;
+public:
+    EgQSplitter() :
+	QSplitter(),
+	a("Some widget",this),
+	b("Another widget",this)
+    {
+	setFrameStyle(QFrame::Sunken|QFrame::Panel);
+	a.setAlignment(AlignCenter);
+	b.setAlignment(AlignCenter);
+	setFirstWidget(&a);
+	setSecondWidget(&b);
+	setOrientation(Vertical);
+	setRatio(0.33);
+	resize(100,100);
     }
 };
 
@@ -467,6 +573,22 @@ public:
 	QScrollBar( QScrollBar::Horizontal )
     {
 	resize(160,20);
+    }
+};
+
+class EgQMainWindow : public QMainWindow {
+public:
+    EgQMainWindow() :
+	QMainWindow()
+    {
+	new EgQMenuBar(this);
+	new EgQStatusBar(this);
+	new EgQToolBar(this);
+	QLabel *f = new QLabel("Central\nWidget",this);
+	f->setAlignment(AlignCenter);
+	f->setFrameStyle(QFrame::Sunken|QFrame::Panel);
+	setCentralWidget(f);
+	resize(200,150);
     }
 };
 
@@ -499,7 +621,7 @@ class EgQScrollView : public QScrollView {
 public:
     EgQScrollView()
     {
-	view(&life);
+	addChild(&life);
 
 	life.resize(400,400);
 	life.setBackgroundColor(QColor(170,180,170));
@@ -540,6 +662,8 @@ int main( int argc, char **argv )
 
 #define DEPICT(eg, ofile, wname) \
     wd.depict( new eg(), ofile, wname );
+#define DEPICTFRAMED(eg, ofile, wname) \
+    wd.depict( new eg(), ofile, wname, TRUE );
 
 	DEPICT( EgQButtonGroup, "qbttngrp", "QButtonGroup" );
 	DEPICT( EgQTabDialog, "qtabdlg", "QTabDialog" );
@@ -554,7 +678,7 @@ int main( int argc, char **argv )
 	DEPICT( EgQMessageBox, "qmsgbox", "QMessageBox" );
 	DEPICT( EgQLCDNumber, "qlcdnum", "QLCDNumber" );
 	DEPICT( EgQLabel, "qlabel", "QLabel" );
-	DEPICT( EgQMenuBar, "qmenubar", "QMenuBar" );
+	DEPICT( EgNestedQMenuBar, "qmenubar", "QMenuBar" );
 	DEPICT( EgQTableView, "qtablevw", "QTableView" );
 	DEPICT( EgQListBox, "qlistbox", "QListBox" );
 	DEPICT( EgQMultiLineEdit, "qmlined", "QMultiLineEdit" );
@@ -565,10 +689,15 @@ int main( int argc, char **argv )
 	DEPICT( EgQTabBar, "qtabbar", "QTabBar" );
 	DEPICT( EgQProgressBar, "qprogbar", "QProgressBar" );
 	DEPICT( EgQProgressDialog, "qprogdlg", "QProgressDialog" );
-	// Not-yet-released
-	//DEPICT( EgQScrollView, "qscrollview", "QScrollView" );
-	//DEPICT( EgQSpinBox, "qspinbox", "QSpinBox" );
-	//DEPICT( EgQHeader, "qheader", "QHeader" );
+	DEPICTFRAMED( EgQMainWindow, "qmainwindow", "QMainWindow" );
+	DEPICT( EgQScrollView, "qscrollview", "QScrollView" );
+	DEPICT( EgQSpinBox, "qspinbox", "QSpinBox" );
+	DEPICT( EgQHeader, "qheader", "QHeader" );
+	DEPICT( EgQSplitter, "qsplitter", "QSplitter" );
+	// These crash as top-level objects
+	//DEPICT( EgQToolBar, "qtoolbar", "QToolBar" );
+	//DEPICT( EgQToolButton, "qtoolbutton", "QToolButton" );
+	DEPICT( EgQStatusBar, "qstatusbar", "QStatusBar" );
 
 	if ( !first ) break;
 
