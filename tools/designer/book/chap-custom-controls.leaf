@@ -179,6 +179,7 @@ Incorporating custom widgets that have their own slots and properties is
 achieved in a similar way to adding signals. All the required
 information is in our custom widget's header file.
 
+\target creatingplugins
 \section1 Creating Custom Widgets with Plugins
 
 \index Custom Widgets!Plugins

@@ -693,8 +693,8 @@ void QObject::timerEvent( QTimerEvent * )
   posted (with \l{QApplication::postEvent()}) to make sure that the
   child's construction is completed before this function is called.
 
-  Note that if a child is removed immediately after it is inserted, the 
-  \c ChildInserted event may be suppressed, but the \c ChildRemoved 
+  Note that if a child is removed immediately after it is inserted, the
+  \c ChildInserted event may be suppressed, but the \c ChildRemoved
   event will always be sent. In this case there will be a \c ChildRemoved
   event without a corresponding \c ChildInserted event.
 
@@ -731,9 +731,9 @@ void QObject::customEvent( QCustomEvent * )
   Filters events if this object has been installed as an event filter for
   the \a watched object.
 
-  The reimplementation of this virtual function should return TRUE if the
-  event \a e should be stopped, or FALSE if the event should be dispatched
-  normally.
+    In your reimplementation of this function, if you want to filter
+    the event \a e, out, i.e. stop it being handled further, return TRUE;
+    otherwise return FALSE.
 
   \warning
   If you delete the receiver object in this function, be sure to return TRUE.
@@ -1149,7 +1149,7 @@ void QObject::removeChild( QObject *obj )
   this object.	The filter can either stop the event or forward it to this
   object.  The event filter \a obj receives events via its eventFilter()
   function.  The eventFilter() function must return TRUE if the event
-  should be stopped, or FALSE if the event should be dispatched normally.
+  should be filtered, (i.e. stopped); otherwise it must return FALSE.
 
   If multiple event filters are installed on a single object, the
   filter that was installed last is activated first.

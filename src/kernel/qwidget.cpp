@@ -1399,7 +1399,7 @@ void QWidget::setEnabled( bool enable )
 }
 
 /*!
-  Disables widget input events if \a disable is TRUE, otherwise enables
+  Disables widget input events if \a disable is TRUE; otherwise enables
   input events.
 
   See the \l enabled documentation for more information.
@@ -1438,7 +1438,7 @@ void QWidget::enabledChange( bool )
   \fn void QWidget::windowActivationChange( bool oldActive )
 
   This virtual function is called for a widget when its window is
-  activated or deactivated by the windows system. \a oldActive is the
+  activated or deactivated by the window system. \a oldActive is the
   previous state; you can get the new setting from isActiveWindow().
 
   Reimplement this function if your widget needs to know when its
@@ -1705,7 +1705,7 @@ QRegion QWidget::childrenRegion() const
 
   If you use a layout inside the widget, the minimum size will be set
   by the layout and not by setMinimumSize(), unless you set the
-  layouts resize mode to QLayout::FreeResize.
+  layout's resize mode to QLayout::FreeResize.
 
   \sa minimumWidth, minimumHeight, maximumSize, sizeIncrement
       QLayout::setResizeMode()
@@ -2738,7 +2738,7 @@ void QWidget::setMouseTracking( bool enable )
 /*!  Sets this widget's focus proxy to widget \a w. If \a w is 0, this
   function resets this widget to have no focus proxy.
 
-  Some widgets, such as QComboBox, can "have focus," but create a
+  Some widgets, such as QComboBox, can "have focus", but create a
   child widget to actually handle the focus.  QComboBox, for example,
   creates a QLineEdit which handles the focus.
 
@@ -3008,7 +3008,7 @@ QFocusData * QWidget::focusData()
 }
 
 /*!
-  Internal function which lets us ask for the focus data creating it
+  Internal function which lets us ask for the focus data, creating it
   (or not if \a create is FALSE), if it doesn't exist.
 */
 QFocusData * QWidget::focusData( bool create )
@@ -3089,7 +3089,7 @@ bool QWidget::isActiveWindow() const
   \e not like this:
 
   \code
-    setTabOrder( c, d ); // c to d
+    setTabOrder( c, d ); // c to d   WRONG
     setTabOrder( a, b ); // a to b AND c to d
     setTabOrder( b, c ); // a to b to c, but not c to d
   \endcode
@@ -3679,8 +3679,8 @@ void QWidget::sendHideEventsToChildren( bool spontaneous )
   This function will be called \e after a widget has been fully created
   and \e before it is shown the very first time.
 
-  Polishing is useful for final initialization depending on an
-  instantiated widget. This is something a constructor cannot
+  Polishing is useful for final initialization which depends on having
+  an instantiated widget. This is something a constructor cannot
   guarantee since the initialization of the subclasses might not be
   finished.
 
@@ -4424,11 +4424,11 @@ void QWidget::tabletEvent( QTabletEvent *e )
   have focus in order to receive a key press event.
 
   If you reimplement this handler, it is very important that you
-  ignore() the event if you do not understand it, so that the widget's
-  parent can interpret it.
+  \link QKeyEvent ignore()\link the event if you do not
+  understand it, so that the widget's parent can interpret it.
 
-  The default implementation closes popup widgets if you hit
-  escape.  Otherwise the event is ignored.
+  The default implementation closes popup widgets if the user presses
+  Esc.  Otherwise the event is ignored.
 
   \sa keyReleaseEvent(), QKeyEvent::ignore(), setFocusPolicy(),
   focusInEvent(), focusOutEvent(), event(), QKeyEvent
@@ -4574,7 +4574,7 @@ void QWidget::leaveEvent( QEvent * )
 
   Many widgets can simply repaint their entire surface when asked to,
   but some slow widgets need to optimize by painting only the
-  requested region - QPaintEvent::region(). This speed optimization
+  requested region: QPaintEvent::region(). This speed optimization
   does not change the result, as painting is clipped to that region
   during event processing.  QListView and QCanvas do this, for
   example.
@@ -4591,7 +4591,7 @@ void QWidget::leaveEvent( QEvent * )
   are a couple of exceptions, though, and QPaintEvent::erased() tells
   you whether the widget has been erased or not.
 
-  The background is settable using setBackgroundMode(),
+  The background can be set using setBackgroundMode(),
   setBackgroundColor() or setBackgroundPixmap(). The documentation for
   setBackgroundMode() elaborates on the background; we recommend
   reading it.
@@ -4626,7 +4626,7 @@ void QWidget::moveEvent( QMoveEvent * )
   accessible through QResizeEvent::oldSize(), though.
 
   The widget will be erased and receive a paint event immediately
-  after processing the resize event. No drawing has to (and should) be
+  after processing the resize event. No drawing need be (or should be)
   done inside this handler.
 
   Widgets that have been created with the \c WResizeNoErase flag will not
@@ -4792,9 +4792,9 @@ void QWidget::dropEvent( QDropEvent * )
   This event handler can be reimplemented in a
   subclass to receive widget show events.
 
-  Non-spontaneous show events are sent to widgets right before they are
-  shown. Spontaneous show events of top level widgets are delivered
-  afterwards, naturally.
+  Non-spontaneous show events are sent to widgets immediately before
+  they are shown. Spontaneous show events of top level widgets are
+  delivered afterwards.
 
   \sa event(), QShowEvent
   */
@@ -4812,7 +4812,7 @@ void QWidget::showEvent( QShowEvent * )
   This event handler can be reimplemented in a
   subclass to receive widget hide events.
 
-  Hide events are sent to widgets right after they have been hidden.
+  Hide events are sent to widgets immediately after they have been hidden.
 
   \sa event(), QHideEvent
   */
@@ -4826,9 +4826,10 @@ void QWidget::hideEvent( QHideEvent * )
   This special event handler can be reimplemented in a subclass to receive
   native Macintosh events.
 
-  If the event handler returns FALSE, this native event is passed back to
-  Qt, which translates the event into a Qt event and sends it to the
-  widget.  If the event handler returns TRUE, the event is stopped.
+    In your reimplementation of this function, if you want to stop the
+    event being handled by Qt, return TRUE. If you return FALSE, this
+    native event is passed back to Qt, which translates the event into
+    a Qt event and sends it to the widget.
 
   \warning This function is not portable.
 
@@ -4846,9 +4847,10 @@ bool QWidget::macEvent( MSG * )
   This special event handler can be reimplemented in a subclass to receive
   native Windows events.
 
-  If the event handler returns FALSE, this native event is passed back to
-  Qt, which translates the event into a Qt event and sends it to the
-  widget.  If the event handler returns TRUE, the event is stopped.
+    In your reimplementation of this function, if you want to stop the
+    event being handled by Qt, return TRUE. If you return FALSE, this
+    native event is passed back to Qt, which translates the event into
+    a Qt event and sends it to the widget.
 
   \warning This function is not portable.
 
@@ -4866,9 +4868,10 @@ bool QWidget::winEvent( MSG * )
   This special event handler can be reimplemented in a subclass to receive
   native X11 events.
 
-  If the event handler returns FALSE, this native event is passed back to
-  Qt, which translates the event into a Qt event and sends it to the
-  widget.  If the event handler returns TRUE, the event is stopped.
+    In your reimplementation of this function, if you want to stop the
+    event being handled by Qt, return TRUE. If you return FALSE, this
+    native event is passed back to Qt, which translates the event into
+    a Qt event and sends it to the widget.
 
   \warning This function is not portable.
 
@@ -4886,9 +4889,10 @@ bool QWidget::x11Event( XEvent * )
   This special event handler can be reimplemented in a subclass to receive
   native Qt/Embedded events.
 
-  If the event handler returns FALSE, this native event is passed back to
-  Qt, which translates the event into a Qt event and sends it to the
-  widget.  If the event handler returns TRUE, the event is stopped.
+    In your reimplementation of this function, if you want to stop the
+    event being handled by Qt, return TRUE. If you return FALSE, this
+    native event is passed back to Qt, which translates the event into
+    a Qt event and sends it to the widget.
 
   \warning This function is not portable.
 
@@ -4911,27 +4915,27 @@ bool QWidget::qwsEvent( QWSEvent * )
   be called whenever the widget is resized or changes its focus
   state.
 
-  Note: When you re-implement resizeEvent(), focusInEvent() or
+  Note: when you re-implement resizeEvent(), focusInEvent() or
   focusOutEvent() in your custom widgets and still want to ensure
-  that the auto mask calculation works, you will have to add
+  that the auto mask calculation works, you should add:
 
   \code
     if ( autoMask() )
 	updateMask();
   \endcode
 
-  at the end of your event handlers. The same holds for all member
-  functions that change the appearance of the widget in a way that a
-  recalculation of the mask is necessary.
+  at the end of your event handlers. This is true for all member
+  functions that change the appearance of the widget in a way that
+  requires a recalculation of the mask.
 
-  While being a technically appealing concept, masks have one big
+  While being a technically appealing concept, masks have a big
   drawback: when using complex masks that cannot be expressed easily
-  with relatively simple regions, they tend to be very slow on some
+  with relatively simple regions, they can be very slow on some
   window systems. The classic example is a transparent label. The
   complex shape of its contents makes it necessary to represent its
   mask by a bitmap, which consumes both memory and time.  If all you
   want is to blend the background of several neighboring widgets
-  together seamlessly, you may probably want to use
+  together seamlessly, you will probably want to use
   setBackgroundOrigin() rather than a mask.
 
   \sa autoMask() updateMask() setMask() clearMask() setBackgroundOrigin()
@@ -4961,9 +4965,10 @@ void QWidget::setAutoMask( bool enable )
   This enum defines the origin used to draw a widget's background
   pixmap.
 
-  \value WidgetOrigin  the pixmap is drawn in the widget's coordinate system.
-  \value ParentOrigin  the pixmap is drawn in the parent's coordinate system.
-  \value WindowOrigin  the pixmap is drawn in the toplevel window's coordinate system.
+    The pixmap is drawn using the:
+  \value WidgetOrigin  widget's coordinate system.
+  \value ParentOrigin  parent's coordinate system.
+  \value WindowOrigin  toplevel window's coordinate system.
 */
 
 /*! \property QWidget::backgroundOrigin
@@ -5016,10 +5021,10 @@ void QWidget::updateMask()
 */
 
 
-/*!  Sets this widget to use \a l to manage the geometry of its
+/*  Sets this widget to use layout \a l to manage the geometry of its
   children.
 
-  If there already was a layout for this widget, the old layout is
+  If the widget already had a layout, the old layout is
   forgotten.  (Note that it is not deleted.)
 
   \sa layout() QLayout sizePolicy()
@@ -5044,13 +5049,13 @@ void QWidget::setLayout( QLayout *l )
   they may stretch horizontally, but are fixed vertically. The same
   applies to lineedit controls (such as QLineEdit, QSpinBox or an
   editable QComboBox) and other horizontally orientated widgets (such
-  as QProgressBar).  A QToolButton on the other hand wants to be
-  squared, therefore it allows growth in both directions. Widgets that
-  support different directions (such as QSlider, QScrollBar or
-  QHeader) specify stretching in the respective direction
-  only. Widgets that can provide scrollbars (usually subclasses of
-  QScrollView) tend to specify that they can use additional space, and
-  that they can survive on less than sizeHint().
+  as QProgressBar).  QToolButton's are normally square, so they allow
+  growth in both directions. Widgets that support different directions
+  (such as QSlider, QScrollBar or QHeader) specify stretching in the
+  respective direction only. Widgets that can provide scrollbars
+  (usually subclasses of QScrollView) tend to specify that they can
+  use additional space, and that they can survive on less than
+  sizeHint().
 
   \sa sizeHint() QLayout QSizePolicy updateGeometry()
 */
@@ -5075,7 +5080,7 @@ void QWidget::setSizePolicy( QSizePolicy policy )
   The default implementation returns 0, indicating that the preferred
   height does not depend on the width.
 
-  \warning Does not look at the widget's layout
+  \warning Does not look at the widget's layout.
 */
 
 int QWidget::heightForWidth( int w ) const
@@ -5096,7 +5101,7 @@ int QWidget::heightForWidth( int w ) const
   QWhatsThis::leaveWhatsThisMode(), with or without actually
   displaying any help text.
 
-  You may also reimplement customWhatsThis() if your widget is a
+  You can also reimplement customWhatsThis() if your widget is a
   "passive interactor" supposed to work under all circumstances.
   Simply don't call QWhatsThis::leaveWhatsThisMode() in that case.
 
@@ -5107,11 +5112,11 @@ bool QWidget::customWhatsThis() const
     return FALSE;
 }
 
-/*!  Returns the visible child widget at pixel position \a (x,y) in
+/*!  Returns the visible child widget at pixel position \a (x, y) in
   the widget's own coordinate system.
 
   If \a includeThis is TRUE, and there is no child visible at \a
-  (x,y), the widget itself is returned.
+  (x, y), the widget itself is returned.
 */
 QWidget  *QWidget::childAt( int x, int y, bool includeThis ) const
 {
@@ -5184,8 +5189,9 @@ void QWidget::updateGeometry()
   If the new parent widget is in the same top-level widget as the old
   parent, reparent doesn't change the tab order or keyboard focus.
 
-  \warning The need for this function is extremely rare. Dynamic
-  masks can be created more easily with QWidgetStack or QWizard.
+  \warning It is extremely unlikely that you will ever need this
+  function. If you have a widget that changes its content dynamically,
+  it is far easier to use QWidgetStack or QWizard.
 
   \sa getWFlags()
 */
@@ -5226,15 +5232,14 @@ void  QWidget::reparent( QWidget *parent, const QPoint & p,
 /*!
   Shows the widget in full-screen mode.
 
-  Calling this function has no effect for other than top-level
-  widgets.
+  Calling this function only effects top-level widgets.
 
   To return from full-screen mode, call showNormal().
 
   Full-screen mode works fine under Windows, but has certain problems
   under X.  These problems are due to limitations of the ICCCM
   protocol that specifies the communication between X11 clients and
-  the window manager.  ICCCM simply does not know the concept of
+  the window manager.  ICCCM simply does not understand the concept of
   non-decorated full-screen windows. Therefore, the best we can do is
   to request a borderless window and place and resize it to fill the
   entire screen. Depending on the window manager, this may or may not
@@ -5242,14 +5247,14 @@ void  QWidget::reparent( QWidget *parent, const QPoint & p,
   are at least partially supported by virtually all modern window
   managers.
 
-  An alternative would be to bypass the window manager at all and to
+  An alternative would be to bypass the window manager entirely and
   create a window with the WX11BypassWM flag. This has other severe
-  problems, though, like totally broken keyboard focus and very
+  problems though, like totally broken keyboard focus and very
   strange effects on desktop changes or when the user raises other
   windows.
 
-  Future window managers that follow modern post-ICCCM specifications
-  may support full-screen mode properly.
+  Future X11 window managers that follow modern post-ICCCM
+  specifications may support full-screen mode properly.
 
   \sa showNormal(), showMaximized(), show(), hide(), isVisible()
 */
@@ -5284,14 +5289,14 @@ void QWidget::showFullScreen()
 /*!
   \fn bool QWidget::isMaximized() const
 
-  Returns TRUE if this widget is a top-level widget that is maximized,
-  or else FALSE.
+  Returns TRUE if this widget is a top-level widget that is
+  maximized; otherwise returns FALSE.
 
-  Note that due to limitations in some window-systems,
-  this does not always report expected results (eg. if the user on X11
-  maximizes the window via the window manager, Qt has no way of telling
-  this from any other resize). This will improve as window manager
-  protocols advance.
+  Note that due to limitations in some window-systems, this does not
+  always report the expected results (e.g. if the user on X11
+  maximizes the window via the window manager, Qt has no way of
+  distinguishing this from any other resize). This is expected to
+  improve as window manager protocols advance.
 
   \sa showMaximized()
 */
@@ -5299,7 +5304,7 @@ void QWidget::showFullScreen()
 /*! \property QWidget::ownCursor
     \brief whether the widget uses its own cursor
 
-  If FALSE, the widget uses its parent widget's cursor
+  If FALSE, the widget uses its parent widget's cursor.
 
   \sa setCursor(), unsetCursor()
 */
@@ -5307,7 +5312,7 @@ void QWidget::showFullScreen()
 /*! \property QWidget::ownFont
     \brief whether the widget uses its own font
 
-  If FALSE, the widget uses its parent widget's font
+  If FALSE, the widget uses its parent widget's font.
 
   \sa setFont(), unsetFont()
 */
@@ -5315,7 +5320,7 @@ void QWidget::showFullScreen()
 /*! \property QWidget::ownPalette
     \brief whether the widget uses its own palette
 
-  If FALSE, the widget uses its parent widget's palette
+  If FALSE, the widget uses its parent widget's palette.
 
   \sa setPalette(), unsetPalette()
 */

@@ -108,20 +108,20 @@ QString qwf_currFileName = "";
 /*!
   \class QWidgetFactory
 
-  \brief The QWidgetFactory class provides for the creation of dynamically
-  create widgets from Qt Designer user interface description files.
+  \brief The QWidgetFactory class provides for the dynamic creation of widgets
+  from Qt Designer .ui files.
 
   This class basically offers two things:
 
   \list
 
-  \i Dynamically creating widgets from Qt Designer user interface
-  description files. You can do that using the static function
+  \i Dynamically creating widgets from \e{Qt Designer} user interface
+  description files. You can do this using the static function
   QWidgetFactory::create(). This function also performs signal and
-  slot connections, tab ordering, etc. as defined in the ui file and
-  returns the toplevel widget of the ui file. After that you can use
-  QObject::child() and QObject::queryList() to access child widgets of
-  this returned widget.
+  slot connections, tab ordering, etc., as defined in the .ui file, and
+  returns the top-level widget in the .ui file. After creating the
+  widget you can use QObject::child() and QObject::queryList() to
+  access child widgets of this returned widget.
 
   \i Adding additional widget factories to be able to create custom
   widgets. See createWidget() for details.
@@ -129,10 +129,14 @@ QString qwf_currFileName = "";
   \endlist
 
   This class is not included in the Qt library itself. To use it you
-  have to link against libqui.so (Unix) or qui.lib (Windows), which is
-  build into \c $(QTDIR)/lib if you built the Qt Designer. Also to be
-  able to include qwidgetfactory.h you have to add
+  must link against \c libqui.so (Unix) or \c qui.lib (Windows), which is
+  built into \c $(QTDIR)/lib if you built \e{Qt Designer}. Also to be
+  able to include qwidgetfactory.h you must add
   \c $(QTDIR)/tools/designer/uilib to your project's include path.
+
+  See the \link designer-manual-5.book#dynamicdialogs Creating Dynamic
+  Dialogs from .ui Files\endlink section of the \link
+  designer-manual.book Qt Designer manual\endlink for an example.
 */
 
 /*! Constructs a QWidgetFactory. */
@@ -149,18 +153,20 @@ QWidgetFactory::QWidgetFactory()
     Destructor.
 */
 
-/*! Loads the Qt Designer user interface description file \a uiFile
-  and returns the toplevel widget of that description. \a parent and
-  \a name are passed to the constructor of the toplevel widget.
+/*!
+
+    Loads the \e{Qt Designer} user interface description file \a uiFile
+  and returns the top-level widget in that description. \a parent and
+  \a name are passed to the constructor of the top-level widget.
 
   This function also performs signal and slot connections, tab
-  ordering, etc. as described in the ui file. In the Qt Designer it is
-  possible to add custom slots to a form and connect to them. If you
-  want that these connections are performed as well, you have to
-  create a class derived from QObject, which implementes all these
-  slots. Then pass an instance of it as \a connector to this
-  function. This way these connections to custom slots will be done
-  using the \a connector as slot.
+  ordering, etc., as described in the .ui file. In \e{Qt Designer} it
+  is possible to add custom slots to a form and connect to them. If
+  you want these connections to be made, you must create a class
+  derived from QObject, which implements all these slots. Then pass an
+  instance of the object as \a connector to this function. If you do
+  this, the connections to the custom slots will be done using the \a
+  connector as slot.
 
   If something fails, 0 is returned.
 
@@ -184,7 +190,7 @@ QWidget *QWidgetFactory::create( const QString &uiFile, QObject *connector, QWid
 #undef slots
 
 /*!  \overload
-    Loads the user interface description from the \a dev device.
+    Loads the user interface description from device \a dev.
  */
 
 QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *parent, const char *name )
@@ -423,8 +429,8 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 }
 
 /*! Installs a widget factory \a factory, which normally contains
-  additional widgets that can be created using a QWidgetFactory
-  then. See createWidget() for further details.
+  additional widgets that can then be created using a QWidgetFactory.
+  See createWidget() for further details.
 */
 
 void QWidgetFactory::addWidgetFactory( QWidgetFactory *factory )
@@ -432,33 +438,39 @@ void QWidgetFactory::addWidgetFactory( QWidgetFactory *factory )
     widgetFactories.append( factory );
 }
 
-/*!  Creates the widget of the type \c className passing \a parent and
-  \a name to its constructor. If \a className is a widget of the Qt
-  library, it is directly created in this function. if this fails, all
-  installed widget plugins are asked to create that widget. If this
-  fails all installed widget factories are asked to create it (see
-  addWidgetFactory()). If this fails as well, 0 is returned.
+/*!  Creates a widget of the type \c className passing \a parent and
+  \a name to its constructor.
+
+  If \a className is a widget in the Qt library, it is directly
+  created by this function. If the widget isn't in the Qt library,
+  each of the installed widget plugins is asked, in turn, to create
+  the widget. As soon as a plugin says it can create the widget it is
+  asked to do so. It may occur that none of the plugins can create the
+  widget, in which case each installed widget factory is asked to
+  create the widget (see addWidgetFactory()). If the widget cannot be
+  created by any of these means, 0 is returned.
 
   If you have a custom widget, and want it to be created using the
-  widget factory, you have two possibilities to add it:
+  widget factory, there are two approaches you can use:
 
-  \list
+  \list 1
 
-  \i First you can write a widget plugin. This allows you to use that
-  widget in the Qt Designer and in this QWidgetFactory. See the widget
-  plugin documentation for further details .
+  \i Write a widget plugin. This allows you to use the
+  widget in \e{Qt Designer} and in this QWidgetFactory. See the widget
+  plugin documentation for further details. (See the \link
+  designer-manual-6.book#creatingplugins Creating Custom Widgets with
+  Plugins\endlink section of the \link designer-manual.book Qt
+  Designer manual\endlink for an example.
 
-  \i The other possibility is to subclass QWidgetFactory. Then
-  reimplement this function. There create and return an instance of
-  your custom widget, if \a className equals the name of your widget,
-  otherwise return 0. Then at the beginning of your program where you
-  want to use the widget factory to create widgets do a
-
+  \i Subclass QWidgetFactory. Then reimplement this function to create
+  and return an instance of your custom widget if \a className equals
+  the name of your widget, otherwise return 0. Then at the beginning
+  of your program where you want to use the widget factory to create
+  widgets do a:
   \code
   QWidgetFactory::addWidgetFactory( new MyWidgetFactory );
   \endcode
-
-  (where MyWidgetFactory is your QWidgetFactory subclass)
+  where MyWidgetFactory is your QWidgetFactory subclass.
 
   \endlist
 
@@ -1616,13 +1628,15 @@ QAction *QWidgetFactory::findAction( const QString &name )
     return 0;
 }
 
-/*! If the pixmaps of the form are not saved in the XML file, but you
-   used a project with a pixmap collection, you have to load this
+/*!
+    If you use a pixmap collection (which is the default for new
+    projects) rather than saving the pixmaps
+    within the .ui XML file, you must load the
    pixmap collection. QWidgetFactory looks in the default
-   QMimeSourceFactory for the pixmaps. Either you add it there
+   QMimeSourceFactory for the pixmaps. Either add it there
    manually, or call this function and specify the directory where
    the images can be found, as \a dir. This is normally the directory
-   \c images in the project directory.
+   called \c images in the project's directory.
 */
 
 void QWidgetFactory::loadImages( const QString &dir )

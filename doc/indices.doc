@@ -174,304 +174,137 @@ Appendix
 
 /*! \page groups.html
 
-\title API Structure Overview
+\title Grouped Classes
+
+This page provides a way of navigating Qt's classes by grouping
+related classes together. Some classes may appear in more than one group.
 
 \table
-\header \i Class Group
-	\i Description
-\row \i \link abstractwidgets.html   Abstract Widgets \endlink
-     \i Abstract widget classes available for subclassing.
+\header 
+\i Group
+\i Description
 
-\row \i \link advanced.html   Advanced Controls \endlink
-     \i Advanced user interface controls such as listviews and progress bars.
+\row 
+\i \link abstractwidgets.html   Abstract Widgets \endlink
+\i Abstract widget classes usable through subclassing.
 
-\row \i \link basic.html   Basic Controls \endlink
-     \i GUI primitives such as buttons, combo-boxes and scrollbars.
+\row 
+\i \link advanced.html   Advanced Widgets \endlink
+\i Advanced GUI widgets such as listviews and progress bars.
 
-\row \i \link componentmodel.html   Component Model \endlink
-     \i Interfaces and helper classes for the Qt Component Model.
+\row 
+\i \link basic.html   Basic Widgets \endlink
+\i Basic GUI widgets such as buttons, comboboxes and scrollbars.
 
-\row \i \link time.html   Date and Time \endlink
-     \i Classes for handling date and time.
+\row 
+\i \link componentmodel.html   Component Model \endlink
+\i Interfaces and helper classes for the Qt Component Model.
 
-\row \i \link draganddrop.html   Drag and Drop \endlink
-     \i Classes dealing with drag and drop and the necessary mime type
-	encoding and decoding.
+\row
+\i \link database.html Database\endlink
+\i Database related classes, e.g. for SQL databases.
 
-\row \i \link environment.html   Environment \endlink
-     \i Classes providing various global services to your application such as
-        event handling, access to system settings and internationalization.
+\row 
+\i \link time.html   Date and Time \endlink
+\i Classes for handling date and time.
 
-\row \i \link tools.html  General Tool Classes \endlink
-     \i Collection classes such as list, queue, stack and string.
+\row 
+\i \link draganddrop.html   Drag and Drop \endlink
+\i Classes dealing with drag and drop and mime type
+   encoding and decoding.
 
-\row \i \link geomanagement.html   Geometry Management \endlink
-     \i Classes handling automatic resizing and moving of widgets, for
+\row 
+\i \link environment.html   Environment \endlink
+\i Classes providing various global services such as
+   event handling, access to system settings and internationalization.
+
+\row
+\i \link events.html Events\endlink
+\i Classes used to create and handle events.
+
+\row 
+\i \link tools.html  Non-GUI Classes \endlink
+\i Collection classes such as list, queue, stack and string, along
+with other classes that can be used without needing QApplication.
+
+\row 
+\i \link geomanagement.html   Geometry (Layout) Management \endlink
+\i Classes handling automatic resizing and moving of widgets, for
         composing complex dialogs.
 
-\row \i \link graphics.html   Graphics and Printing \endlink
-     \i Classes providing drawing (and thus printing) primitives
+\row 
+\i \link graphics.html   Graphics and Printing \endlink
+\i Classes providing drawing (and printing) primitives, including
+OpenGL. (See also \link images.html Image Processing\endlink and \link
+multimedia.html Multimedia\endlink)
 
-\row \i \link helpsystem.html   Help System \endlink
-     \i Classes providing for all forms of online-help in your application.
+\row 
+\i \link helpsystem.html   Help System \endlink
+\i Classes used to provide online-help for applications.
 
-\row \i \link images.html   Image Processing \endlink
-     \i Digital image coding, decoding and manipulation
+\row 
+\i \link images.html   Image Processing \endlink
+\i Digital image encoding, decoding and manipulation.
+(See also \link graphics.html Graphics and Printing\endlink and \link
+multimedia.html Multimedia\endlink)
 
-\row \i \link io.html   I/O Handling \endlink
-     \i Classes providing Input/Output, file and directory handling.
+\row
+\i \link shared.html	Implicitly and Explicitly Shared
+Classes\endlink
+\i Classes that use reference counting for fast copying.
 
-\row \i \link application.html   Mainwindow and Friends \endlink
-     \i Everything you need for a typical modern main application window
-	(menus, toolbars, workspace, etc.).
+\row 
+\i \link io.html   Input/Output and Networking \endlink
+\i Classes providing file input and output along with directory and
+network handling.
 
-\row \i \link misc.html   Miscellaneous \endlink
-     \i Various other useful classes
+\row 
+\i \link application.html   MainWindow and Related Classes \endlink
+\i Everything you need for a typical modern main application window,
+including menus, toolbars, workspace, etc.
 
-\row \i \link objectmodel.html   Object Model \endlink
-     \i The framework's underlying object model.
+\row 
+\i \link misc.html   Miscellaneous \endlink
+\i Various other useful classes
 
-\row \i \link organizers.html   Organizers \endlink
-     \i User interface organizers like splitters, tab books, button groups, etc.
+\row
+\i \link multimedia.html Multimedia\endlink
+\i Classes that provide support for graphics, sound, animation, etc.
+(See also \link graphics.html Graphics and Printing\endlink and \link
+images.html Image Processings\endlink)
 
-\row \i \link dialogs.html   Standard Dialogs \endlink
-     \i Ready-made dialogs for file, font, color selection and more.
+\row 
+\i \link objectmodel.html   Object Model \endlink
+\i The Qt application framework's underlying object model.
 
-\row \i \link appearance.html   Widget Appearance \endlink
-     \i Appearance customization with styles, fonts, colors etc.
+\row 
+\i \link organizers.html   Organizers \endlink
+\i User interface organizers such as splitters, tab bars, button groups, etc.
+
+\row 
+\i \link dialogs.html   Standard Dialogs \endlink
+\i Ready-made dialogs for file, font, color selection and more.
+
+\row
+\i \link text.html Text Related Classes\endlink 
+\i Classes for text
+processing. (See also \link xml-tools.html XML Classes\endlink.)
+
+\row
+\i \link thread.html Threading Classes\endlink
+\i Classes that provide threading support.
+
+\row 
+\i \link appearance.html   Widget Appearance \endlink
+\i Appearance customization with styles, fonts, colors etc.
+
+\row
+\i \link xml-tools.html XML Classes\endlink
+\i Classes that support XML, via, for example DOM and SAX.
+
 \endtable
 
 */
-
-/*! \defgroup tools
-
-\title The Tool Classes
-
-The tool classes are general-purpose collection classes that may be used
-independently of the GUI classes.
-
-In particular, these classes do not depend on QApplication at all,
-and so can be used in non-GUI programs.
-
-See also the \link collection.html introduction to Qt collection
-classes. \endlink 
-
-*/
-
-/*! \defgroup io
-
-\title Input/Output and Networking 
-
-These classes are used to handle input and output to and from external
-devices, processes, files etc. as well as manipulating files and directories.
-
-*/
-
-/*! \defgroup basic
-
-\title Basic Controls
-
-These basic controls (widgets) are meant for direct use.  There are
-also some \link abstractwidgets.html abstract widget classes, \endlink
-meant for subclassing, and some \link advanced.html more complex
-widgets. \endlink
-
-*/
-
-/*! \defgroup advanced
-
-\title Advanced Controls
-
-These classes provide more complex user interface controls (widgets).
-
-*/
-
-/*! \defgroup abstractwidgets
-
-\title Abstract Widget Classes
-
-These classes are abstract widgets; they are generally not usable in
-themselves, but provide functionality that can be used by inheriting
-these classes.
-
-*/
-
-/*! \defgroup objectmodel
-
-\title Object Model
-
-These classes form the basis of the \link object.html Qt Object Model \endlink.
-
-*/
-
-/*! \defgroup componentmodel
-
-\title Component Model
-
-These classes and interfaces form the basis of the \link component.html Qt Component Model \endlink.
-
-*/
-
-/*! \defgroup organizers
-
-\title Organizers
-
-These classes are used to organize and group GUI primitives into more
-complex applications or dialogs.
-
-*/
-
-
-/*! \defgroup dialogs
-
-\title Dialog Classes
-
-These classes are complex widgets, composed of simpler widgets; dialog
-boxes, generally.
-
-*/
-
-/*! \defgroup images
-
-\title Image Processing Classes
-
-These classes are used for manipulating images.
-
-*/
-
-/*! \defgroup graphics
-
-\title Graphics Classes
-
-These classes provide powerful graphics drawing primitives for both 2D
-and (with OpenGL) 3D.
-
-<p>See also this introduction to the \link coordsys.html Qt
-coordinate system. \endlink
-
-*/
-
-/*! \defgroup draganddrop
-
-\title Drag And Drop Classes
-
-These classes deal with drag and drop and the necessary mime type
-encoding and decoding. See also \link dnd.html Drag and Drop with
-Qt. \endlink
-
-*/
-
-/*! \defgroup appearance
-
-\title Widget Appearance and Style
-
-These classes are used to customize an application's appearance and
-style.
-
-*/
-
-/*! \defgroup shared
-
-\title Implicitly and Explicitly Shared Classes
-
-These classes are normally-heavy classes which in Qt have been
-optimized by the use of reference counter and common data so they can
-be passed around.
-
-The only important effect is that the classes listed here \e can
-be passed around as arguments efficiently, even though they may
-seem heavyweight.
-
-*/
-
-/*! \defgroup time
-
-\title Time and Date
-
-These classes provide system-independent date and time abstractions.
-
-<p>Also available: \link y2k.html Qt Year 2000 Compliance Statement \endlink.
-*/
-
-
-/*! \defgroup application
-
-\title Main Window And Friends
-
-These classes provide everything you need for a typical modern main
-application window, like the main window itself, menu and tool bars,
-a statusbar, etc.
-
-*/
-
-
-/*! \defgroup geomanagement
-
-\title Geometry (Layout) Management
-
-These classes provide automatic geometry (layout) management of widgets.
-
-*/
-
-
-/*! \defgroup helpsystem
-
-\title Help System
-
-\keyword online help
-
-\keyword help system
-
-These classes provide for all forms of online-help in your application,
-with three levels of detail:
-
-\list 1
-    \i Tool Tips and Status Bar message - flyweight help, extremely brief,
-	entirely integrated in the user interface, requiring little
-	or no user interaction to invoke.
-    \i What's This? - lightweight, but can be
-	a three-paragraph explanation.
-    \i Online Help - can encompass any amount of information,
-	but is typically slower to call up, somewhat separated
-	from the user's work, and often users feel that using online
-	help is a digression from their real task.
-\endlist
-
-*/
-
-
-/*! \defgroup environment
-
-\title Environment Classes
-
-These classes providing various global services to your application such as
-event handling, access to system settings, internationalization, etc.
-
-*/
-
-/*! \defgroup misc
-
-\title Miscellaneous Classes
-
-These classes are useful classes not fitting into any other category.
-
-*/
-
-/*! \defgroup step-by-step-examples
-
-\title Step-by-step Examples
-
-Step-by-step examples provide a careful explanation of
-example code.
-
-The covered example programs usually show how to use certain classes
-or deal with programming techniques and Qt basics.
-
-These examples are especially aimed at Qt novices and less experienced
-programmers and try to make learning Qt as painless as possible.
-
-*/
-
 
 /*! \defgroup examples
 
@@ -600,6 +433,236 @@ to the more comfortable Qt toolkit.
 For more information see the \link xt.html Qt Xt/Motif Support
 Extension documentation. \endlink
 */
+
+/*! \defgroup step-by-step-examples
+
+\title Step-by-step Examples
+
+Step-by-step examples provide a careful explanation of
+example code.
+
+The covered example programs usually show how to use certain classes
+or deal with programming techniques and Qt basics.
+
+These examples are especially aimed at Qt novices and less experienced
+programmers and try to make learning Qt as painless as possible.
+
+*/
+
+/*! \defgroup tools
+
+\title Non-GUI Classes
+
+The non-GUI classes are general-purpose collection and string classes
+that may be used independently of the GUI classes.
+
+In particular, these classes do not depend on QApplication at all,
+and so can be used in non-GUI programs.
+
+See also the \link collection.html introduction to the Qt collection
+classes. \endlink 
+
+*/
+
+/*! \defgroup io
+
+\title Input/Output and Networking 
+
+These classes are used to handle input and output to and from external
+devices, processes, files etc. as well as manipulating files and directories.
+
+*/
+
+/*! \defgroup basic
+
+\title Basic Widgets
+
+These basic controls (widgets) are designed for direct use.  There are
+also some \link abstractwidgets.html abstract widget classes, \endlink
+designed for subclassing, and some \link advanced.html more complex
+widgets. \endlink
+
+*/
+
+/*! \defgroup advanced
+
+\title Advanced Widgets
+
+These classes provide more complex user interface controls (widgets).
+
+*/
+
+/*! \defgroup abstractwidgets
+
+\title Abstract Widget Classes
+
+These classes are abstract widgets; they are generally not usable in
+themselves, but provide functionality that can be used by inheriting
+these classes.
+
+*/
+
+/*! \defgroup objectmodel
+
+\title Object Model
+
+These classes form the basis of the \link object.html Qt Object Model \endlink.
+
+*/
+
+/*! \defgroup componentmodel
+
+\title Component Model
+
+These classes and interfaces form the basis of the \link component.html Qt Component Model \endlink.
+
+*/
+
+/*! \defgroup organizers
+
+\title Organizers
+
+These classes are used to organize and group GUI primitives into more
+complex applications or dialogs.
+
+*/
+
+
+/*! \defgroup dialogs
+
+\title Dialog Classes
+
+These classes are complex widgets, composed of simpler widgets; dialog
+boxes, generally.
+
+*/
+
+/*! \defgroup images
+
+\title Image Processing Classes
+
+These classes are used for manipulating images.
+
+*/
+
+/*! \defgroup graphics
+
+\title Graphics Classes
+
+These classes provide powerful graphics drawing primitives for both 2D
+and (with OpenGL) 3D.
+
+<p>See also this introduction to the \link coordsys.html Qt
+coordinate system. \endlink
+
+*/
+
+/*! \defgroup draganddrop
+
+\title Drag And Drop Classes
+
+These classes deal with drag and drop and the necessary mime type
+encoding and decoding. See also \link dnd.html Drag and Drop with
+Qt. \endlink
+
+*/
+
+/*! \defgroup appearance
+
+\title Widget Appearance and Style
+
+These classes are used to customize an application's appearance and
+style.
+
+*/
+
+/*! \defgroup shared
+
+\title Implicitly and Explicitly Shared Classes
+
+These classes are normally-heavy classes which in Qt have been
+optimized by the use of reference counter and common data so they can
+be passed around.
+
+The only important effect is that the classes listed here \e can
+be passed around as arguments efficiently, even though they may
+seem heavyweight.
+
+*/
+
+/*! \defgroup time
+
+\title Time and Date
+
+These classes provide system-independent date and time abstractions.
+
+<p>Also available: \link y2k.html Qt Year 2000 Compliance Statement \endlink.
+*/
+
+
+/*! \defgroup application
+
+\title Main Window and Related Classes
+
+These classes provide everything you need for a typical modern main
+application window, like the main window itself, menu and tool bars,
+a statusbar, etc.
+
+*/
+
+
+/*! \defgroup geomanagement
+
+\title Geometry (Layout) Management
+
+These classes provide automatic geometry (layout) management of widgets.
+
+*/
+
+
+/*! \defgroup helpsystem
+
+\title Help System
+
+\keyword online help
+
+\keyword help system
+
+These classes provide for all forms of online-help in your application,
+with three levels of detail:
+
+\list 1
+    \i Tool Tips and Status Bar message - flyweight help, extremely brief,
+	entirely integrated in the user interface, requiring little
+	or no user interaction to invoke.
+    \i What's This? - lightweight, but can be
+	a three-paragraph explanation.
+    \i Online Help - can encompass any amount of information,
+	but is typically slower to call up, somewhat separated
+	from the user's work, and often users feel that using online
+	help is a digression from their real task.
+\endlist
+
+*/
+
+
+/*! \defgroup environment
+
+\title Environment Classes
+
+These classes providing various global services to your application such as
+event handling, access to system settings, internationalization, etc.
+
+*/
+
+/*! \defgroup misc
+
+\title Miscellaneous Classes
+
+These classes are useful classes not fitting into any other category.
+
+*/
+
 
 /*! \defgroup events
 

@@ -372,6 +372,7 @@ and run.
 The subclassing example we've used is simple, but this reflects
 subclassing forms in Qt: it is easy to do.
 
+\target dynamicdialogs
 \section1 Creating Dynamic Dialogs from .ui Files
 
 \index Dynamic Dialogs
