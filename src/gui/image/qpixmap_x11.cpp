@@ -1153,7 +1153,6 @@ bool QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
         } else {                                        // keep ximage that we created
             data->ximage = xi;
         }
-        qDebug("detached: %d", cimage.isDetached());
 
         return true;
     }
