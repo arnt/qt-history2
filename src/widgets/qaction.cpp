@@ -174,6 +174,7 @@ QActionPrivate::QActionPrivate()
     toggleaction  = 0;
     on = 0;
     menuitems.setAutoDelete( TRUE );
+    comboitems.setAutoDelete( TRUE );
     tipGroup = new QToolTipGroup( 0 );
 }
 
