@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#16 $
 **
 ** Implementation of QBitmap class
 **
@@ -14,7 +14,7 @@
 #include "qimage.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qbitmap.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qbitmap.cpp#16 $";
 #endif
 
 
@@ -22,10 +22,14 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qbitmap.cpp#15 $";
   \class QBitmap qbitmap.h
   \brief The QBitmap class provides monochrome (1 bit depth) pixmaps.
 
-  The QBitmap class is normally used for creating custom mouse
-  \link QCursor cursors \endlink or creating a special
+  \ingroup drawing
+  \ingroup shared
+
+  The QBitmap class is a monochrome off-screen paint device, used
+  mainly for creating custom \link QCursor mouse cursors \endlink or
   \link QBrush brush\endlink.
-*/
+
+  \sa QPixmap QPainter::drawPixmap() bitBlt() */
 
 /*!
   Constructs a null bitmap.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#91 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#92 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -31,7 +31,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#91 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#92 $";
 #endif
 
 
@@ -565,11 +565,16 @@ QWidget *QApplication::widgetAt( int x, int y )
   \overload QWidget *QApplication::widgetAt( const QPoint &pos )
 */
 
+/*!  Flushes the X event queue in the X-Windows implementation.  Does
+  nothing on other platforms. \sa syncX() */
 
 void QApplication::flushX()			// flush X output buffer
 {
     XFlush( appDpy );
 }
+
+/*!  Synchronizes with the X server in the X-Windows implementation.
+  Does nothing on other platforms. \sa flushX() */
 
 void QApplication::syncX()			// synchronize with X server
 {
@@ -720,9 +725,9 @@ QETWidget *qPRFindWidget( Window oldwin )
 // Main event loop
 //
 
-/*!
-  This function is obsolete and will be removed in the next release
-  of the Qt library.  This is how your main() should look like:
+/*!  This function may be removed in the next release of the Qt
+  library.  This is what we currently think is a nice and pretty
+  main():
 
   \code
     #include <qapp.h>				// defines QApplication
@@ -738,8 +743,7 @@ QETWidget *qPRFindWidget( Window oldwin )
     }
   \endcode
 
-  Call setMainWidget(), then exec() with no parameters.
-*/
+  Ie. call setMainWidget(), then exec() with no parameters. */
 
 int QApplication::exec( QWidget *mainWidget )	// enter main event loop
 {

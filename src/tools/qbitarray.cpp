@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarray.cpp#17 $
+** $Id: //depot/qt/main/src/tools/qbitarray.cpp#18 $
 **
 ** Implementation of QBitArray class
 **
@@ -14,7 +14,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarray.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarray.cpp#18 $";
 #endif
 
 
@@ -23,10 +23,13 @@ static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarray.cpp#17 $";
 
 /*!
 \class QBitArray qbitarry.h
-\brief The QBitArray class provides an array of bits.
-\ingroup tools
 
-A bit array is a special byte array that can access individual bits and
+\brief The QBitArray class provides an array of bits.
+
+\ingroup tools
+\ingroup shared
+
+A QBitArray is a special byte array that can access individual bits and
 perform bit-operations (AND, OR, XOR and NOT) on entire arrays or bits.
 
 Bits can be manipulated by the setBit() and clearBit() functions, but
@@ -199,7 +202,8 @@ bool QBitArray::testBit( uint i ) const		// test if bit set
 
 /*!
 Sets the bit at position \e i (sets it to 1).
-\sa clearBit() and toggleBit().
+
+\sa clearBit() toggleBit() fill()
 */
 
 void QBitArray::setBit( uint i )		// set bit
@@ -258,7 +262,9 @@ bool QBitArray::toggleBit( uint i )		// toggle/invert bit
 Performs the AND operation between all bits in this bit array and \e a.
 Returns a reference to this bit array.
 
-The two bit arrays must have the same size.
+The two bit arrays must have the same size.  The debug library will
+warn you if they aren't, the production library blithely ignores the
+problem.
 
 Example of use:
 \code
@@ -268,8 +274,7 @@ Example of use:
   a &= b;				// a = [0 0 1]
 \endcode
 
-\sa operator|=() and operator^=().
-*/
+\sa operator|=() operator^=() operator~() */
 
 QBitArray &QBitArray::operator&=( const QBitArray &a )
 {						// AND bits
@@ -291,7 +296,9 @@ QBitArray &QBitArray::operator&=( const QBitArray &a )
 Performs the OR operation between all bits in this bit array and \e a.
 Returns a reference to this bit array.
 
-The two bit arrays must have the same size.
+The two bit arrays must have the same size.  The debug library will
+warn you if they aren't, the production library blithely ignores the
+problem.
 
 Example of use:
 \code
@@ -301,7 +308,7 @@ Example of use:
   a |= b;				// a = [1 0 1]
 \endcode
 
-\sa operator&=() and operator^=().
+\sa operator&=() operator^=() operator~()
 */
 
 QBitArray &QBitArray::operator|=( const QBitArray &a )
@@ -324,7 +331,9 @@ QBitArray &QBitArray::operator|=( const QBitArray &a )
 Performs the XOR operation between all bits in this bit array and \e a.
 Returns a reference to this bit array.
 
-The two bit arrays must have the same size.
+The two bit arrays must have the same size.  The debug library will
+warn you if they aren't, the production library blithely ignores the
+problem.
 
 Example of use:
 \code
@@ -380,7 +389,7 @@ QBitArray QBitArray::operator~() const		// NOT bits
 /*!
 \relates QBitArray
 Returns the AND result between the bit arrays \e a1 and \e a2.
-\sa QBitArray::operator&().
+\sa QBitArray::operator&=().
 */
 
 QBitArray operator&( const QBitArray &a1, const QBitArray &a2 )
@@ -393,7 +402,7 @@ QBitArray operator&( const QBitArray &a1, const QBitArray &a2 )
 /*!
 \relates QBitArray
 Returns the OR result between the bit arrays \e a1 and \e a2.
-\sa QBitArray::operator|().
+\sa QBitArray::operator|=().
 */
 
 QBitArray operator|( const QBitArray &a1, const QBitArray &a2 )
@@ -423,7 +432,7 @@ QBitArray operator^( const QBitArray &a1, const QBitArray &a2 )
 
 /*!
 \relates QBitArray
-Writes a bit array to the stream.
+Writes a bit array to a stream.
 */
 
 QDataStream &operator<<( QDataStream &s, const QBitArray &a )
@@ -437,7 +446,7 @@ QDataStream &operator<<( QDataStream &s, const QBitArray &a )
 
 /*!
 \relates QBitArray
-Reads a bit array from the stream.
+Reads a bit array from a stream.
 */
 
 QDataStream &operator>>( QDataStream &s, QBitArray &a )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#59 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#60 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#59 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#60 $";
 #endif
 
 
@@ -29,10 +29,11 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#59 $";
   the underlying window system and sends them to the destination widgets.
   An application object must be created before any widgets can be created!
 
-  Only one single QApplication object should be created, and this is
-  normally done in the main() function.	 When a QApplication object has
-  been created, \c qApp (defined as <code>extern QApplication
-  *qApp</code>) will refer to this object.
+  Only one single QApplication object should be created, in fact Qt
+  will complain if you create more than one, and this is normally done
+  in the main() function.  When a QApplication object has been
+  created, \c qApp (defined as <code>extern QApplication *qApp</code>)
+  will refer to this object.
 
   Here is a complete Qt application:
   \code
@@ -54,7 +55,9 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#59 $";
   defined!
 
   Note also that on X11, setMainWidget() may change the main widget
-  according to the \e -geometry option.
+  according to the \e -geometry option.  To preserve this
+  functionality, you must set your defaults before setMainWidget() and
+  any overrides after.
 
   \header qkeycode.h
   \header qwindefs.h
@@ -115,8 +118,9 @@ static void destroy_palettes()
   The global \c qApp pointer will refer to this application
   object. Only one application object should be created.
 
-  This application object must be constructed before any paint devices
-  (includes widgets, pixmaps, bitmaps etc.)
+  This application object must be constructed before any \link
+  QPaintDevice paint devices \endlink (includes widgets, pixmaps,
+  bitmaps etc.)
 
   Notice that the \e argc and \e argv parameters might be changed. Qt
   will remove command line options that it recognizes.
@@ -127,6 +131,7 @@ static void destroy_palettes()
   <li> -memchk, Performs memory leak detection.
   <li> -membuf n, Sets the memory checking buffer size.
   <li> -memlog file, Sets the memory checking output file name.
+  <li> -sync (only on X) Switches to synchronous mode for debugging.
   </ul>
   See <a href=#debuggingtechniques> Debugging Techniques</a> for
   a more detailed explanation.
@@ -141,8 +146,10 @@ static void destroy_palettes()
   <li> -fg or -foreground \e color, Sets the default foreground color.
   <li> -name \e name, Sets the application name.
   <li> -title \e title, Sets the application title (caption).
-  <li> -sync, Turns X into synchronous mode for debugging.
   </ul>
+
+  \sa QPaintDevice
+
  ----------------------------------------------------------------------------*/
 
 QApplication::QApplication( int &argc, char **argv )
@@ -211,11 +218,11 @@ QApplication::~QApplication()
 /*----------------------------------------------------------------------------
   Sets the application GUI style to \e style.
 
-  The style parameter can be \c MacStyle, \c WindowsStyle, \c PMStyle or
-  \c MotifStyle.
-  Only \c MotifStyle is supported in the current version of Qt.
+  The style parameter can be \c MacStyle, \c WindowsStyle, \c PMStyle
+  or \c MotifStyle.  Only \c MotifStyle and \c WindowsStyle is
+  supported in the current version of Qt.
 
-  \sa style()
+  \sa style() QWidget::setStyle()
  ----------------------------------------------------------------------------*/
 
 void QApplication::setStyle( GUIStyle style )	// set application GUI style
@@ -247,6 +254,8 @@ QPalette *QApplication::palette()
   all existing widgets.
   If \e updateAllWidgets is FALSE (default), then only widgets that
   are created after this call will have the palette.
+
+  \sa QWidget::setPalette()
  ----------------------------------------------------------------------------*/
 
 void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets )
@@ -275,10 +284,13 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets )
 
 /*----------------------------------------------------------------------------
   \fn void QApplication::setCursor( const QCursor &c )
+
   Sets the application cursor to \e c.
 
   This cursor will be displayed in all application widgets until
-  restoreCursor() is called.
+  restoreCursor() or another setCursor() is called.
+
+  QWidget::setCursor will override this.
 
   Example:
   \code
@@ -287,22 +299,23 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets )
     QApplication::restoreCursor();
   \endcode
 
-  \sa cursor(), restoreCursor()
+  \sa cursor() restoreCursor() QCursor QWidget::setCursor()
  ----------------------------------------------------------------------------*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QApplication::restoreCursor()
-  Restores after some application cursor was set.
 
-  \sa setCursor()
- ----------------------------------------------------------------------------*/
+  Undoes the effect of setCursor().  There is a just a single
+  variable, not a proper stack of application cursors.
+
+  \sa setCursor() QCursor */
 
 
 /*----------------------------------------------------------------------------
   \fn QFont *QApplication::font()
   Returns the default application font.	 There will always be an application
   font, i.e. the returned pointer will never be 0.
-  \sa setFont()
+  \sa setFont() fontMetrics()
  ----------------------------------------------------------------------------*/
 
 
@@ -313,6 +326,8 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets )
   all existing widgets.
   If \e updateAllWidgets is FALSE (default), then only widgets
   created after this call will have this font.
+
+  \sa font() fontMetrics() QWidget::setFont()
  ----------------------------------------------------------------------------*/
 
 void QApplication::setFont( const QFont &font,	bool updateAllWidgets )
@@ -354,8 +369,8 @@ QFontMetrics QApplication::fontMetrics()
 
   \code
     QWidget *d = QApplication::desktop();
-    d->width();				// returns screen width
-    d->height();			// returns screen height
+    int w=d->width();			// returns screen width
+    int h=d->height();			// returns screen height
     d->setBackgroundColor( red );	// makes desktop red
   \endcode
  ----------------------------------------------------------------------------*/
@@ -375,11 +390,14 @@ QFontMetrics QApplication::fontMetrics()
  ----------------------------------------------------------------------------*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QWidget *QApplication::mainWidget() const
-  Returns the main application widget.
-  \sa setMainWidget()
- ----------------------------------------------------------------------------*/
+
+  Returns the main application widget, or 0 if there isn't a defined
+  main widget.
+
+  \sa setMainWidget() exec()
+*/
 
 
 /*----------------------------------------------------------------------------
@@ -410,12 +428,12 @@ void QApplication::quit( int retcode )		// quit application
   Tells the application to quit with exit code 0 (success).
   Equivalent to calling QApplication::quit(0).
 
-  This function is a slot, i.e. you may connect any signal to
-  activate quitApp().
+  This function is a \link metaobjects.html slot \endlink, i.e. you
+  may connect any signal to activate quitApp().
 
   Example:
   \code
-    QPushButton *quitButton = new QPushButton;
+    QPushButton *quitButton = new QPushButton( "Quit" );
     connect( quitButton, SIGNAL(clicked()), qApp, SLOT(quitApp()) );
   \endcode  
 
@@ -428,19 +446,19 @@ void QApplication::quitApp()			// quit application
 }
 
 
-/*----------------------------------------------------------------------------
-  \fn bool QApplication::sendEvent( QObject *receiver, QEvent *event )
+/*! \fn bool QApplication::sendEvent( QObject *receiver, QEvent *event )
+
   Sends an event directly to a receiver, using the notify() function.
   Returns the value that was returned from the event handler.
-  \sa postEvent()
- ----------------------------------------------------------------------------*/
+
+  \sa postEvent() notify() */
 
 /*----------------------------------------------------------------------------
   \fn void QApplication::postEvent( QObject *receiver, QEvent *event )
   Stores the event in a queue and returns immediatly.
 
-  Back in the main event loop, all events that are stored in the queue
-  will be sent using the notify() function.
+  When control returns to the main event loop, all events that are
+  stored in the queue will be sent using the notify() function.
 
   \sa sendEvent()
  ----------------------------------------------------------------------------*/
@@ -482,7 +500,7 @@ bool QApplication::notify( QObject *receiver, QEvent *event )
 
 /*----------------------------------------------------------------------------
   Returns TRUE if an application object has not been created yet.
-  \sa closingDown()
+  \sa closingDown() exec()
  ----------------------------------------------------------------------------*/
 
 bool QApplication::startingUp()			// is application starting up?
@@ -491,8 +509,8 @@ bool QApplication::startingUp()			// is application starting up?
 }
 
 /*----------------------------------------------------------------------------
-  Returns TRUE if the application objects is being destroyed.
-  \sa startingUp()
+  Returns TRUE if the application objects are being destroyed.
+  \sa startingUp() exec()
  ----------------------------------------------------------------------------*/
 
 bool QApplication::closingDown()		// is application closing down?
@@ -501,22 +519,9 @@ bool QApplication::closingDown()		// is application closing down?
 }
 
 
-/*----------------------------------------------------------------------------
-  \fn void QApplication::flushX()
-  Flushes the X event queue in the X-Windows implementation.
-  Does nothing on other platforms.
- ----------------------------------------------------------------------------*/
-
-/*----------------------------------------------------------------------------
-  \fn void QApplication::syncX()
-  Synchronizes with the X server in the X-Windows implementation.
-  Does nothing on other platforms.
- ----------------------------------------------------------------------------*/
-
-
 #if !defined(_WS_X11_)
 
-// The X implementation of these functions is in qapp_x11.cpp
+// The doc and X implementation of these functions is in qapp_x11.cpp
 
 void QApplication::flushX()	{}		// do nothing
 
