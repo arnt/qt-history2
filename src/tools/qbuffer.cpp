@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.cpp#47 $
+** $Id: //depot/qt/main/src/tools/qbuffer.cpp#48 $
 **
 ** Implementation of QBuffer class
 **
@@ -35,21 +35,21 @@
 
   QBuffer allows reading and writing a memory buffer.
   It has an associated QByteArray which holds the buffer data. The
-  size() of the buffer is automatically adjusted if more data is written.
+  size() of the buffer is automatically adjusted as data is written.
 
-  The constructor \link QBuffer::QBuffer(QByteArray)
-  QBuffer(QByteArray) \endlink creates a QBuffer with an existing byte
-  array.  The byte array can be set with setBuffer() and retrieved
-  with buffer().
-
+  The constructor \c QBuffer(QByteArray) creates a QBuffer with an
+  existing byte array.  The byte array can also be set with setBuffer().
+  Writing to the QBuffer will modify the original byte array, since
+  QByteArray is \link shclass.html explicitly shared.\endlink
+    
   Use open() to open the buffer before use, and to set the mode
-  (read-only,write-only, etc.).  close() closes the buffer; this must
-  be done before open() with a new mode or setBuffer().
+  (read-only,write-only, etc.).  close() closes the buffer. The buffer
+  must be closed before reopening or calling setBuffer().
 
   The common way to use QBuffer is through QDataStream or QTextStream
   which have constructors that take a QBuffer parameter. For
   convenience, there are also QDataStream and QTextStream constructors
-  that take a QByteArray parameter.  These constuctors create and open
+  that take a QByteArray parameter.  These constructors create and open
   an internal QBuffer.
 
   Note that QTextStream can also operate on a QString (a Unicode
@@ -59,7 +59,7 @@
   functions readBlock(), writeBlock() readLine(), at(), getch(), putch() and
   ungetch().
 
-  \sa QFile, QDataStream, QTextStream,  \link shclass.html Shared Classes\endlink
+  \sa QFile, QDataStream, QTextStream, QByteArray, \link shclass.html Shared Classes\endlink
 */
 
 
@@ -155,6 +155,7 @@ bool QBuffer::setBuffer( QByteArray buf )
 */
 
 /*!
+  \reimp
   Opens the buffer in the mode \a m.  Returns TRUE if successful,
   otherwise FALSE. The buffer must be opened before use.
 
@@ -195,6 +196,7 @@ bool QBuffer::open( int m  )
 }
 
 /*!
+  \reimp
   Closes an open buffer.
   \sa open()
 */
@@ -209,7 +211,8 @@ void QBuffer::close()
 }
 
 /*!
-  The flush function does nothing.
+  \reimp
+  The flush function does nothing for a QBuffer.
 */
 
 void QBuffer::flush()
@@ -220,19 +223,16 @@ void QBuffer::flush()
 
 /*!
   \fn int QBuffer::at() const
-  Returns the buffer index; the offset in bytes from the start of the buffer.
-  \sa size()
+  \reimp
 */
 
 /*!
   \fn uint QBuffer::size() const
-  Returns the number of bytes in the buffer.
-  \sa at()
+  \reimp
 */
 
 /*!
-  Sets the buffer index to \a pos. Returns TRUE if successful, otherwise FALSE.
-  \sa size(), at()
+  \reimp
 */
 
 bool QBuffer::at( int pos )
@@ -255,12 +255,7 @@ bool QBuffer::at( int pos )
 
 
 /*!
-  Reads at most \a len bytes from the buffer into \a p and returns the
-  number of bytes actually read.
-
-  Returns -1 if a serious error occurred.
-
-  \sa writeBlock()
+  \reimp
 */
 
 int QBuffer::readBlock( char *p, uint len )
@@ -290,6 +285,8 @@ int QBuffer::readBlock( char *p, uint len )
 }
 
 /*!
+  \reimp
+  
   Writes \a len bytes from \a p into the buffer at the current index,
   overwriting any characters there and extending the buffer if necessary.
   Returns the number of bytes actually written.
@@ -337,12 +334,7 @@ int QBuffer::writeBlock( const char *p, uint len )
 
 
 /*!
-  Reads a line of text.
-
-  Reads bytes from the buffer until end-of-line or the end of the
-  buffer is reached, or up to \a maxlen bytes.
-
-  \sa readBlock()
+  \reimp
 */
 
 int QBuffer::readLine( char *p, uint maxlen )
@@ -376,12 +368,7 @@ int QBuffer::readLine( char *p, uint maxlen )
 
 
 /*!
-  Reads a single byte/character from the buffer.
-
-  Returns the byte/character read, or -1 if the end of the buffer has been
-  reached.
-
-  \sa putch(), ungetch()
+  \reimp
 */
 
 int QBuffer::getch()
@@ -404,6 +391,7 @@ int QBuffer::getch()
 }
 
 /*!
+  \reimp
   Writes the character \a ch into the buffer, overwriting
   the character at the current index, extending the buffer
   if necessary.
@@ -439,14 +427,7 @@ int QBuffer::putch( int ch )
 }
 
 /*!
-  Puts the character \a ch back into the buffer and decrements the index if
-  it is not zero.
-
-  This function is normally called to "undo" a getch() operation.
-
-  Returns \a ch, or -1 if some error occurred.
-
-  \sa getch(), putch()
+  \reimp
 */
 
 int QBuffer::ungetch( int ch )
