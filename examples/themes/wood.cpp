@@ -1022,7 +1022,7 @@ void NorwegianWoodStyle::drawControl( ControlElement element,
 	    else
 		fill = cg.brush( QColorGroup::Button );
 	    myCg.setBrush( QColorGroup::Mid, fill );
-	    
+	
 	    if ( btn->isDefault() ) {
 		x1 += 2;
 		y1 += 2;
@@ -1129,33 +1129,26 @@ void NorwegianWoodStyle::drawComplexControl( ComplexControl cc,
 	{
 	    const QComboBox *cmb;
 	    cmb = (const QComboBox*)widget;
-	    QBrush fill = cg.brush( QColorGroup::Button );
 	
 	    int awh, ax, ay, sh, sy, dh, ew;
 	    get_combo_parameters( subRect(SR_PushButtonContents, widget),
 				  ew, awh, ax, ay, sh, dh, sy );
-	
 	    drawPrimitive( PE_ButtonCommand, p, r, cg, Style_Default );
-
 	    QStyle *mstyle = QStyleFactory::create( "Motif" );
 	    if ( mstyle )
 		mstyle->drawPrimitive( PE_ArrowDown, p, QRect(ax, ay, awh, awh), cg, how );
 	    else
 		drawPrimitive( PE_ArrowDown, p, QRect(ax, ay, awh, awh), cg, how );
 
+	    QPen oldPen = p->pen();
 	    p->setPen( cg.light() );
 	    p->drawLine( ax, sy, ax + awh - 1, sy );
 	    p->drawLine( ax, sy, ax, sy + sh - 1 );
 	    p->setPen( cg.dark() );
 	    p->drawLine( ax + 1, sy + sh - 1, ax + awh - 1, sy + sh - 1 );
 	    p->drawLine( ax + awh - 1, sy + 1, ax + awh - 1, sy + sh - 1 );
-	
-	    if ( !cmb->editable() ) {
-		QRect rect = querySubControlMetrics( CC_ComboBox, widget,
-						     SC_ComboBoxEditField,
-						     data );
-		qDrawShadePanel( p, rect, cg, TRUE, 1, &fill );
-	    }
+	    p->setPen( oldPen );
+
 	    break;
 	}
     case CC_ScrollBar:
@@ -1293,7 +1286,7 @@ QRect NorwegianWoodStyle::querySubControlMetrics( ComplexControl control,
 	    bool horz = sb->orientation() == QScrollBar::Horizontal;
 	    int b = 2;
 	    int w = horz ? sb->height() : sb->width();
-	    
+	
 	    switch ( sc ) {
 	    case SC_ScrollBarAddLine:
 		rect.setRect( b, b, w - 2 * b, w - 2 * b );
@@ -1306,7 +1299,7 @@ QRect NorwegianWoodStyle::querySubControlMetrics( ComplexControl control,
 		rect.setRect( b, b, w - 2 * b, w - 2 * b );
 		break;
 	    default:
-		rect = QWindowsStyle::querySubControlMetrics( control, widget, 
+		rect = QWindowsStyle::querySubControlMetrics( control, widget,
 							      sc, data );
 		break;
 	    }
