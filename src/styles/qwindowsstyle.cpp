@@ -800,13 +800,15 @@ void QWindowsStyle::drawControl( ControlElement element,
 		    qDrawShadeRect( p, r.x(), r.y(), r.width(), r.height(),
 				    cg, active && down, 1, 0, &b );
 		if ( active && down ) {
-		    // ### fix me!
-		    // pr.addCoords( 2, 2, -2, -2 );
-		    pr.setRect( r.x()+2, r.y()+2, r.width()-2, r.height()-2 );
+		    pr.setRect( r.x() + 2 + pixelMetric(PM_ButtonShiftHorizontal,
+							widget),
+				r.y() + 2 + pixelMetric(PM_ButtonShiftVertical,
+							widget),
+				r.width()-4, r.height()-4 );
 		    p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
 		}
 	    }
-	    QCommonStyle::drawControl(element, p, widget, r, cg, how, data);
+	    QCommonStyle::drawControl(element, p, widget, pr, cg, how, data);
 	    break;
 	}
 
