@@ -10,8 +10,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>374</width>
-            <height>351</height>
+            <width>371</width>
+            <height>339</height>
         </rect>
     </property>
     <property name="caption">
@@ -189,17 +189,6 @@
                     <property name="spacing">
                         <number>6</number>
                     </property>
-                    <widget class="QLabel" row="0" column="0">
-                        <property name="name">
-                            <cstring>TextLabel3</cstring>
-                        </property>
-                        <property name="text">
-                            <string>&amp;Interfaces (ui):</string>
-                        </property>
-                        <property name="buddy" stdset="0">
-                            <cstring>listInterfaces</cstring>
-                        </property>
-                    </widget>
                     <widget class="QPushButton" row="3" column="0">
                         <property name="name">
                             <cstring>PushButton4</cstring>
@@ -211,7 +200,7 @@
                     <widget class="QListView" row="0" column="1" rowspan="4" colspan="1">
                         <column>
                             <property name="text">
-                                <string>Form</string>
+                                <string>Filename</string>
                             </property>
                             <property name="clickable">
                                 <bool>true</bool>
@@ -222,7 +211,7 @@
                         </column>
                         <column>
                             <property name="text">
-                                <string>Filename</string>
+                                <string>Form</string>
                             </property>
                             <property name="clickable">
                                 <bool>true</bool>
@@ -238,6 +227,9 @@
                             <enum>Extended</enum>
                         </property>
                         <property name="allColumnsShowFocus">
+                            <bool>true</bool>
+                        </property>
+                        <property name="rootIsDecorated">
                             <bool>true</bool>
                         </property>
                     </widget>
@@ -344,6 +336,17 @@
                         </property>
                         <property name="text">
                             <string>Add...</string>
+                        </property>
+                    </widget>
+                    <widget class="QLabel" row="0" column="0">
+                        <property name="name">
+                            <cstring>TextLabel3</cstring>
+                        </property>
+                        <property name="text">
+                            <string>&amp;Forms and Sources:</string>
+                        </property>
+                        <property name="buddy" stdset="0">
+                            <cstring>listInterfaces</cstring>
                         </property>
                     </widget>
                 </grid>

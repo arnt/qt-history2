@@ -1104,6 +1104,8 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
 	it++;
     }
 
+    QStringList additionalSources;
+
     {
 	QString filename;
 	QStringList filterlist;
@@ -1114,6 +1116,16 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
 	    QStringList list = manager.featureList();
 	    for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it )
 		filterlist << *it;
+	    LanguageInterface *iface = MetaDataBase::languageInterface( currentProject->language() );
+	    if ( iface && iface->supports( LanguageInterface::AdditionalFiles ) ) {
+		QMap<QString, QString> extensionFilterMap;
+		iface->fileFilters( extensionFilterMap );
+		for ( QMap<QString,QString>::Iterator it = extensionFilterMap.begin();
+		      it != extensionFilterMap.end(); ++it ) {
+		    filterlist << *it;
+		    additionalSources << it.key();
+		}
+	    }
 	    filterlist << tr( "All Files (*)" );
 	} else {
 	    filterlist << filter;
@@ -1128,24 +1140,21 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
 	if ( !filename.isEmpty() ) {
 	    QFileInfo fi( filename );
 
-	    if ( fi.extension() == "pro" && ( extension.isEmpty() || extension == "pro" ) ) {
+	    if ( fi.extension() == "pro" && ( extension.isEmpty() || extension.find( ";pro" ) != -1 ) ) {
 		addRecentlyOpened( filename, recentlyProjects );
 		openProject( filename );
-	    } else if ( fi.extension() == "ui" && ( extension.isEmpty() || extension == "ui" ) ) {
+	    } else if ( fi.extension() == "ui" && ( extension.isEmpty() || extension.find( ";ui" ) != -1 ) ) {
 		openFile( filename );
 		addRecentlyOpened( filename, recentlyFiles );
-	    } else if ( !extension.isEmpty() && fi.extension() == extension ) {
+	    } else if ( !extension.isEmpty() && extension.find( ";" + fi.extension() ) != -1 ||
+			additionalSources.find( fi.extension() ) != additionalSources.end() ) {
 		LanguageInterface *iface = MetaDataBase::languageInterface( currentProject->language() );
 		if ( iface && iface->supports( LanguageInterface::AdditionalFiles ) ) {
-		    QMap<QString, QString> extensionFilterMap;
-		    iface->fileFilters( extensionFilterMap );
-		    if ( extensionFilterMap.find( extension ) != extensionFilterMap.end() ) {
-			SourceFile *sf = new SourceFile( currentProject->makeRelative( filename ) );
-			MetaDataBase::addEntry( sf );
-			currentProject->addSourceFile( sf );
-			formList->setProject( currentProject );
-			// ### show source file
-		    }
+		    SourceFile *sf = new SourceFile( currentProject->makeRelative( filename ) );
+		    MetaDataBase::addEntry( sf );
+		    currentProject->addSourceFile( sf );
+		    formList->setProject( currentProject );
+		    editSource( sf );
 		}
 	    } else if ( extension.isEmpty() ) {
 		QString filter;

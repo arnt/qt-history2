@@ -27,6 +27,7 @@
 class Project;
 class QListViewItem;
 class FormWindow;
+class SourceFile;
 
 class ProjectSettings : public ProjectSettingsBase
 {
@@ -48,11 +49,12 @@ protected slots:
     void languageChanged( const QString &lang );
 
 private:
-    void fillFormList();
+    void fillFilesList();
 
 private:
     Project *project;
     QMap<QListViewItem*, FormWindow*> formMap;
+    QMap<QListViewItem*, SourceFile*> sourceMap;
     QString lastProjectName;
 
 };

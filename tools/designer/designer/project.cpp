@@ -528,12 +528,16 @@ void Project::setFormWindowFileName( FormWindow *fw, const QString &f )
 
 QString Project::makeAbsolute( const QString &f )
 {
+    if ( proName == "<No Project>" )
+	return f;
     QUrl u( QFileInfo( filename ).dirPath( TRUE ), f );
     return u.path();
 }
 
 QString Project::makeRelative( const QString &f )
 {
+    if ( proName == "<No Project>" )
+	return f;
     QString p = QFileInfo( filename ).dirPath( TRUE );
     QString f2 = f;
     if ( f2.left( p.length() ) == p )

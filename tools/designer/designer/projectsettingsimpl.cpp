@@ -25,6 +25,8 @@
 #include "mainwindow.h"
 #include "asciivalidator.h"
 #include "mainwindow.h"
+#include "sourcefile.h"
+#include "pixmapchooser.h"
 
 #include <qlineedit.h>
 #include <qtextedit.h>
@@ -36,6 +38,32 @@
 #include <qheader.h>
 #include <qcheckbox.h>
 
+static const char* file_xpm[]={
+    "16 16 5 1",
+    ". c #7f7f7f",
+    "# c None",
+    "c c #000000",
+    "b c #bfbfbf",
+    "a c #ffffff",
+    "################",
+    "..........######",
+    ".aaaaaaaab.#####",
+    ".aaaaaaaaba.####",
+    ".aaaaaaaacccc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".bbbbbbbbbbbc###",
+    "ccccccccccccc###"};
+
+static QPixmap *filePixmap = 0;
+
 /*
  *  Constructs a ProjectSettings which is a child of 'parent', with the
  *  name 'name' and widget flags set to 'f'
@@ -46,6 +74,8 @@
 ProjectSettings::ProjectSettings( Project *pro, QWidget* parent,  const char* name, bool modal, WFlags fl )
     : ProjectSettingsBase( parent, name, modal, fl ), project( pro )
 {
+    if ( !filePixmap )
+	filePixmap = new QPixmap( file_xpm );
     editProjectName->setValidator( new AsciiValidator( editProjectName ) );
     editProjectFile->setValidator( new AsciiValidator( QString( "." ), editProjectFile ) );
 
@@ -62,7 +92,7 @@ ProjectSettings::ProjectSettings( Project *pro, QWidget* parent,  const char* na
 	editProjectFile->setText( "" );
     }
 
-    fillFormList();
+    fillFilesList();
 
     listInterfaces->header()->setStretchEnabled( TRUE );
 
@@ -147,13 +177,19 @@ void ProjectSettings::removeProject()
     for ( QListViewItem *i = lst.first(); i; i = lst.next() ) {
 	QMap<QListViewItem*, FormWindow*>::Iterator fit = formMap.find( i );
 	FormWindow *fw = 0;
-	if ( fit != formMap.end() )
+	if ( fit != formMap.end() ) {
 	    fw = *fit;
-	project->removeUiFile( i->text( 1 ), fw );
-	if ( fw ) {
-	    fw->commandHistory()->setModified( FALSE );
-	    fw->close();
+	    project->removeUiFile( i->text( 0 ), fw );
+	    if ( fw ) {
+		fw->commandHistory()->setModified( FALSE );
+		fw->close();
+	    }
 	}
+	QMap<QListViewItem*, SourceFile*>::Iterator sit = sourceMap.find( i );
+	if ( sit != sourceMap.end() ) {
+	
+	}
+	
     }
 
     lst.setAutoDelete( TRUE );
@@ -174,19 +210,42 @@ void ProjectSettings::languageChanged( const QString &lang )
 
 void ProjectSettings::addProject()
 {
-    MainWindow::self->fileOpen( "Qt User-Interface Files (*.ui)", "ui" );
-    fillFormList();
+    QString filter = "Qt User-Interface Files (*.ui)";
+    QString extensions = ";ui";
+    LanguageInterface *iface = MetaDataBase::languageInterface( project->language() );
+    if ( iface ) {
+	QMap<QString, QString> extensionFilterMap;
+	iface->fileFilters( extensionFilterMap );
+	for ( QMap<QString,QString>::Iterator it = extensionFilterMap.begin();
+	      it != extensionFilterMap.end(); ++it ) {
+	    filter += ";;" + *it;
+	    extensions += ";" + it.key();
+	}
+    }
+    MainWindow::self->fileOpen( filter, extensions );
+    fillFilesList();
 }
 
-void ProjectSettings::fillFormList()
+void ProjectSettings::fillFilesList()
 {
     listInterfaces->clear();
+    formMap.clear();
+    sourceMap.clear();
+
+    QListViewItem *sources = new QListViewItem( listInterfaces, tr( "Sources" ) );
+    QListViewItem *forms = new QListViewItem( listInterfaces, tr( "Forms" ) );
+    forms->setOpen( TRUE );
+    forms->setSelectable( FALSE );
+    sources->setOpen( TRUE );
+    sources->setSelectable( FALSE );
+
     QStringList lst = project->uiFiles();
     for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
-	QListViewItem *item = new QListViewItem( listInterfaces, tr( "<unknown>" ), *it, 0 );
-	QString className = project->formName( item->text( 1 ) );
+	QListViewItem *item = new QListViewItem( forms, *it, tr( "<unknown>" ), 0 );
+	item->setPixmap( 0, PixmapChooser::loadPixmap( "form.xpm", PixmapChooser::Mini ) );
+	QString className = project->formName( item->text( 0 ) );
 	if ( !className.isEmpty() )
-	    item->setText( 0, className );
+	    item->setText( 1, className );
     }
 
     QObjectList *l = parent()->queryList( "FormWindow", 0, FALSE, TRUE );
@@ -195,12 +254,19 @@ void ProjectSettings::fillFormList()
 	    continue;
 	QListViewItemIterator it( listInterfaces );
 	while ( it.current() ) {
-	    if ( project->makeAbsolute( ( it.current() )->text( 1 ) ) ==
+	    if ( project->makeAbsolute( ( it.current() )->text( 0 ) ) ==
 		 project->makeAbsolute( ( (FormWindow*)o )->fileName() ) ) {
-		it.current()->setText( 0, o->name() );
+		it.current()->setText( 1, o->name() );
 		formMap.insert( it.current(), (FormWindow*)o );
 	    }
 	    ++it;
 	}
+    }
+
+    QPtrList<SourceFile> sourceList = project->sourceFiles();
+    for ( SourceFile *f = sourceList.first(); f; f = sourceList.next() ) {
+	QListViewItem *i = new QListViewItem( sources, project->makeRelative( f->fileName() ) );
+	i->setPixmap( 0, *filePixmap );
+	sourceMap.insert( i, f );
     }
 }

@@ -583,7 +583,7 @@ void FormList::rmbClicked( QListViewItem *i )
 	    if ( doDelete )
 		delete i;
 	} else if ( id == ADD_EXISTING_FORM ) {
-	    mainWindow->fileOpen( "Qt User-Interface Files (*.ui)", "ui" );
+	    mainWindow->fileOpen( "Qt User-Interface Files (*.ui)", ";ui" );
 	} else if ( id == ADD_NEW_FORM ) {
 	    mainWindow->fileNew();
 	}
@@ -608,19 +608,29 @@ void FormList::rmbClicked( QListViewItem *i )
 	    LanguageInterface *iface = MetaDataBase::languageInterface( mainWindow->currProject()->language() );
 	    QMap<QString, QString> extensionFilterMap;
 	    iface->fileFilters( extensionFilterMap );
-	    QMapConstIterator<QString,QString> it = extensionFilterMap.begin();
-	    mainWindow->fileOpen( *it, it.key() );
+	    QString filter;
+	    QString extensions;
+	    for ( QMap<QString,QString>::Iterator it = extensionFilterMap.begin();
+		  it != extensionFilterMap.end(); ++it ) {
+		filter += ";;" + *it;
+		extensions += ";" + it.key();
+	    }
+	    mainWindow->fileOpen( filter, extensions );
 	} else if ( id == ADD_NEW_SOURCE ) {
 	    QMap<QString, QString> extensionFilterMap;
 	    LanguageInterface *iface = MetaDataBase::languageInterface( mainWindow->currProject()->language() );
 	    iface->fileFilters( extensionFilterMap );
-	    QMapConstIterator<QString,QString> it = extensionFilterMap.begin();
-	    QString fn = QFileDialog::getSaveFileName( QString::null, *it, mainWindow );
+	    QString filter;
+	    for ( QMap<QString,QString>::Iterator it = extensionFilterMap.begin();
+		  it != extensionFilterMap.end(); ++it )
+		filter += ";;" + *it;
+	    QString fn = QFileDialog::getSaveFileName( QString::null, filter, mainWindow );
 	    if ( !fn.isEmpty() ) {
 		SourceFile *sf = new SourceFile( fn );
 		MetaDataBase::addEntry( sf );
 		mainWindow->currProject()->addSourceFile( sf );
 		setProject( mainWindow->currProject() );
+		MainWindow::self->editSource( sf );
 	    }
 	}
     } else if ( i->rtti() == FormListItem::Image || i->text( 0 ) == "Images" && mainWindow->currProject() != mainWindow->emptyProject() ) {
