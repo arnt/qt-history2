@@ -347,7 +347,7 @@ bool QSqlQuery::exec(const QString& query)
         return false;
     }
 #ifdef QT_DEBUG_SQL
-    qDebug("\n QSqlQuery: " + query);
+    qDebug("\n QSqlQuery: %s", query.ascii());
 #endif
     return d->sqlResult->reset(query);
 }
@@ -861,7 +861,7 @@ bool QSqlQuery::prepare(const QString& query)
         return false;
     }
 #ifdef QT_DEBUG_SQL
-    qDebug("\n QSqlQuery: " + query);
+    qDebug("\n QSqlQuery::prepare: %s", query.ascii());
 #endif
     return d->sqlResult->savePrepare(query);
 }
