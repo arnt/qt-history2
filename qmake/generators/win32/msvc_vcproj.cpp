@@ -169,7 +169,7 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
     for(vc = solution_depends.first(); vc; vc = solution_depends.next()) {
 	static int uuid = 666;
 	uuids.insert(vc->target, uuid);
-	if(libVersion.match(vc->target) != -1) 
+	if(libVersion.search(vc->target) != -1) 
 	    uuids.insert(vc->target.left(vc->target.length() - libVersion.matchedLength()) + ".lib", 
 			 uuid);
 	t << "\"" << vc->orig_target << "\" \"" << vc->vcprojFile << "\" { " << uuid << " }" << endl;
