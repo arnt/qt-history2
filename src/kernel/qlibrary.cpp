@@ -102,7 +102,7 @@
   \sa setPolicy(), load()
 */
 QLibrary::QLibrary( const QString& filename, QApplicationInterface* appIface, Policy pol )
-    : info( 0 ), pHnd( 0 ), libfile( filename ), libPol( pol ), appInterface( appIface )
+    : pHnd( 0 ), libfile( filename ), libPol( pol ), appInterface( appIface ), info( 0 )
 {
     if ( pol == OptimizeSpeed )
 	load();
@@ -242,7 +242,7 @@ QUnknownInterface* QLibrary::queryInterface( const QString &request, bool recurs
 	    return 0;
 	}
     }
-    
+
     QUnknownInterface *iface = info->queryInterface( request, recursive, regexp );
 
     return iface;

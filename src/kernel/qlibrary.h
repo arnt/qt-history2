@@ -53,7 +53,7 @@ class Q_EXPORT QLibrary
 {
 public:
     enum Policy
-    { 
+    {
 	Default,
 	OptimizeSpeed,
 	Manual
