@@ -148,7 +148,7 @@
                 </widget>
                 <widget class="QProgressBar">
                     <property name="name">
-                        <cstring>ProgressBar1</cstring>
+                        <cstring>progressbar</cstring>
                     </property>
                     <property name="frameShape">
                         <enum>MShape</enum>

@@ -8,6 +8,17 @@
 #include "interface/installationwizard.h"
 
 
+enum WizardPages {
+    WelcomePage = 0,
+    LicensePage,
+    DestinationPage,
+    ConfigurationPage,
+    CustomizePage,
+    ReviewPage,
+    InstallPage
+};
+
+
 class Welcome;
 class License;
 class Destination;
@@ -30,20 +41,36 @@ Q_OBJECT
 	void back();
 	void next();
 	void cancel();
+	void selectDestination();
+	bool destinationInstallable();
+
+    protected:
+	void timerEvent( QTimerEvent *te );
 	
     private:
 	void installFiles();
 	void advanceProgressBar();
-	void buildFileList( Component *parent, QString *componentList, QString *fileList, const QString& seperator, const QString& configType );
+	void buildFileList( Component *parent, QStringList& filelist, const QString& configType );
 	void buildTree( const QDomElement& parentElement, Component *parent );
-	void addWidgetToStack( QWidget *w, const QString& nextText = "Next >", const QString& backText = "< Back" );
+	void addWidgetToStack( QWidget *w, const QString& nextText = QString::null, const QString& backText = QString::null );
 	void setWidget( int id );
+	void installFile( const QString& file );
 	
 	QMap<int,QString> backTextMap;
 	QMap<int,QString> nextTextMap;
 	int lastId;
 
-//	QMap<QString,QString> attirbutes;
+	QString programCompany;
+	QString programName;
+	QString programVersion;
+	QString programDate;
+	QString destinationDefaultAbsPath;
+
+	QStringList fileList;
+	QStringList::Iterator fileListIterator;
+	int percentInstalled;
+	int installTimerId;
+
 	Component *features;
 
 	int progress;

@@ -148,7 +148,7 @@
                 </widget>
                 <widget class="QButtonGroup">
                     <property name="name">
-                        <cstring>ButtonGroup1</cstring>
+                        <cstring>configType</cstring>
                     </property>
                     <property name="lineWidth">
                         <number>0</number>

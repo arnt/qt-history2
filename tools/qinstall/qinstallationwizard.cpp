@@ -13,6 +13,7 @@
 #include <qlabel.h>
 #include <qlistview.h>
 #include <qwidgetstack.h>
+#include <qfiledialog.h>
 
 #include "qinstallationwizard.h"
 #include "data.h"
@@ -26,17 +27,17 @@
 #include "interface/review.h"
 #include "interface/install.h"
 
-#ifndef Q_OS_WIN32
-#include <sys/vfs.h> // needed to get free space
-#else
-// Need to find out how to do this on windows
+#if defined(Q_OS_WIN32)
+// ### Need to find out how to do this on windows
 #include <windows.h>
+#else
+#include <sys/vfs.h> // needed to get free space
 #endif
 
 
 QString fileSizeToString( unsigned long long size )
 {
-    QString suffix = "bytes";
+    QString suffix = "bytes"; // ### tr
     if ( size > 10*1024*1024*1024*1024ULL ) {
 	size /= 1024*1024*1024*1024ULL;
 	suffix = "GBytes";
@@ -55,15 +56,16 @@ QString fileSizeToString( unsigned long long size )
 
 unsigned long long freeSpace( const QString& path )
 {
-#ifndef Q_OS_WIN32
+#if defined(Q_OS_WIN32)
+    // ### Need to fill this in for Windows
+    // Perhaps a candidate for a new static function in QDir?
+    return GetFreeSpace( path );
+#else
     struct statfs buf;
     QDir d( path );
     d.cdUp();
     statfs( QDir::cleanDirPath( d.absPath() ).latin1(), &buf );
     return (unsigned long long)buf.f_bsize * buf.f_bavail;
-#else
-    // ### Need to fill this in for Windows
-    return GetFreeSpace();
 #endif
 }
 
@@ -81,7 +83,7 @@ class ComponentListItem : public QCheckListItem {
 	Component *component;
 };
 
-    
+ 
 class Component /* : public QCheckListItem */ {
     public:
 	Component();
@@ -237,6 +239,7 @@ QInstallationWizard::QInstallationWizard( QWidget *parent, QProgressBar *pb, con
     lastId = 0;
     progress = 10;
     progressBar = pb;
+    installTimerId = 0;
 
     connect( NextButton, SIGNAL( clicked() ), this, SLOT( next() ) );
     connect( BackButton, SIGNAL( clicked() ), this, SLOT( back() ) );
@@ -251,13 +254,20 @@ QInstallationWizard::QInstallationWizard( QWidget *parent, QProgressBar *pb, con
     
     QDomElement data;
 
+    // Load Program Data
+    data = setupData.elementsByTagName("Program").item(0).toElement();
+    programCompany = data.attribute( "company" );
+    programName = data.attribute( "name" );
+    programVersion = data.attribute( "version" );
+    programDate = data.attribute( "date" );
+
     // Create Welcome Page
     data = setupData.elementsByTagName("Welcome").item(0).toElement();
     welcome = new Welcome( stack );
     welcome->image->setPixmap( QPixmap( embeddedData( data.attribute( "image" ) ) ) );
     welcome->title->setText( data.attribute( "title" ) );
     welcome->instructions->setText( data.attribute( "instructions" ) );
-    addWidgetToStack( welcome );
+    addWidgetToStack( welcome, tr("Next >"), tr("< Back") );
     advanceProgressBar();
 
     // Create License Page
@@ -268,22 +278,31 @@ QInstallationWizard::QInstallationWizard( QWidget *parent, QProgressBar *pb, con
     license->instructions->setText( data.attribute( "instructions" ) );
     license->file->setText( embeddedData( data.attribute( "file" ) ) );
     license->question->setText( data.attribute( "question" ) );
-    addWidgetToStack( license, "Yes" );
+    addWidgetToStack( license, tr("Yes"), tr("< Back") );
     advanceProgressBar();
    
-    // Create Target Page
+    // Create Destination Page
     data = setupData.elementsByTagName("Destination").item(0).toElement();
     destination = new Destination( stack ); 
     destination->image->setPixmap( QPixmap( embeddedData( data.attribute( "image" ) ) ) );
     destination->title->setText( data.attribute( "title" ) );
     destination->instructions->setText( data.attribute( "instructions" ) );
-    // ### Could be platform specific, perhaps need a platform base path to use then add a path from the program name
-    // However this could be a plugin (eg a kicker plugin) or something special which needs to go to a specific path
-    // in which case a specific full path might be needed instead. Need a way to either make it automatic or if one
-    // is specified it is obviously needed.
-    destination->destination->setText( data.attribute( "destination" ) );
+    // defaultAbsPath is used for overriding any platform destination magic using the company name and program name
+    destinationDefaultAbsPath = data.attribute( "destinationDefaultAbsPath" );
+    // If a defaultAbsPath isn't set, create one
+    if ( destinationDefaultAbsPath.isEmpty() ) {
+#if defined(Q_OS_WIN32)
+	destinationDefaultAbsPath = "C:\\Program Files\\" + companyName + "\\" + programName;
+#else
+	// On UNIX convert "Program Name" to lower case and strip white space eg "Program Name" becomes "programname"
+	destinationDefaultAbsPath = "/usr/local/" + QStringList::split( ' ', programName.simplifyWhiteSpace() ).join("").lower();
+#endif
+    }
+    destination->destination->setText( destinationDefaultAbsPath );
+    connect( destination->destination, SIGNAL( returnPressed() ), this, SLOT( destinationInstallable() ) );
+    connect( destination->browseButton, SIGNAL( clicked() ), this, SLOT( selectDestination() ) );
     // ### Need to connect browse button to do something here
-    addWidgetToStack( destination );
+    addWidgetToStack( destination, tr("Next >"), tr("< Back") );
     advanceProgressBar();
     
     // Create Configuration Page
@@ -300,7 +319,7 @@ QInstallationWizard::QInstallationWizard( QWidget *parent, QProgressBar *pb, con
     configuration->description2->setText( data.attribute( "description2" ) );
     configuration->description3->setText( data.attribute( "description3" ) );
     configuration->description4->setText( data.attribute( "description4" ) );
-    addWidgetToStack( configuration );
+    addWidgetToStack( configuration, tr("Next >"), tr("< Back") );
     advanceProgressBar();
     
     // Create Customize Page
@@ -314,7 +333,7 @@ QInstallationWizard::QInstallationWizard( QWidget *parent, QProgressBar *pb, con
     features = new Component;
     buildTree( setupData.elementsByTagName("ComponentTree").item(0).toElement(), features );
     Component::updateRequiredSize( features, "Custom" );
-    addWidgetToStack( customize );
+    addWidgetToStack( customize, tr("Next >"), tr("< Back") );
     advanceProgressBar();
     
     // Create Review Page
@@ -323,7 +342,7 @@ QInstallationWizard::QInstallationWizard( QWidget *parent, QProgressBar *pb, con
     review->image->setPixmap( QPixmap( embeddedData( data.attribute( "image" ) ) ) );
     review->title->setText( data.attribute( "title" ) );
     review->instructions->setText( data.attribute( "instructions" ) );
-    addWidgetToStack( review, "Install" );
+    addWidgetToStack( review, tr("Install"), tr("< Back") );
     advanceProgressBar();
     
     // Create Install Page
@@ -332,40 +351,94 @@ QInstallationWizard::QInstallationWizard( QWidget *parent, QProgressBar *pb, con
     install->image->setPixmap( QPixmap( embeddedData( data.attribute( "image" ) ) ) );
     install->title->setText( data.attribute( "title" ) );
     install->instructions->setText( data.attribute( "instructions" ) );
-    addWidgetToStack( install, "HIDE", "HIDE" );
+    addWidgetToStack( install );
     advanceProgressBar();
    
     stack->raiseWidget( welcome );
 }
 
 
+bool QInstallationWizard::destinationInstallable()
+{
+    QString dest = destination->destination->text();
+    QString errorMessage;
+
+    QDir d;
+    const char *absPath = (const char *)d.absFilePath(dest);
+    bool needRemove = FALSE;
+
+    qDebug( "Checking directory \"%s\" is able to be installed to.", absPath );
+
+    if ( !d.cd( dest ) ) {
+	QFileInfo fi( d, dest );
+	if ( fi.exists() ) {
+	    if ( fi.isDir() )
+		errorMessage.sprintf( tr("You do not have permissions to install to the directory \"%s\"."), absPath );
+	    else
+		errorMessage.sprintf( tr("You can not create a directory named \"%s\" as a file already exists by that name."), absPath );
+	} else {
+	    if ( !d.mkdir( dest ) ) {
+		errorMessage.sprintf( tr("You do not have permissions to create a directory named \"%s\"."), absPath );
+	    } else {
+		qDebug( "Created directory \"%s\".", absPath );
+		needRemove = TRUE;
+	    }
+	}
+    }
+
+    if ( errorMessage.isEmpty() ) {
+	QString testWritable = dest + "/.tmp.test-writable";
+	if ( !d.mkdir( testWritable ) ) {
+	    errorMessage.sprintf( tr("You do not have permissions to write to the directory \"%s\"."), absPath );
+	} else {
+	    qDebug( "Created directory \"%s\".", testWritable.latin1() );
+	    qDebug( "Now removing \"%s\".", testWritable.latin1() );
+	    d.rmdir( testWritable );
+	    if ( needRemove ) {
+		qDebug( "Now removing \"%s\".", absPath );
+		d.rmdir( dest );
+	    }
+	}
+    }
+
+    if ( !errorMessage.isEmpty() ) {
+	QMessageBox mb( tr("Installation Wizard"), errorMessage, QMessageBox::Warning, QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton );
+	mb.exec();
+	return FALSE;
+    }
+
+    return TRUE;
+}
+
+
+void QInstallationWizard::selectDestination()
+{
+    // ### might have to subclass QFileDialog to get the name of a new directory to create
+    //destination->destination->setText( QFileDialog::getExistingDirectory( destination->destination->text(), 0, "findDestination", tr("Select Destination Directory") ) );
+    QFileDialog dest( destination->destination->text(), 0, 0, 0, TRUE );
+    dest.setCaption( tr("Select Destination Directory") );
+    dest.setMode( QFileDialog::Directory );
+    dest.exec();
+    destination->destination->setText( dest.selectedFile() );
+}
+
+
 void QInstallationWizard::back()
 {
-    if ( stack->id( stack->visibleWidget() ) == 5 && !configuration->option3->isChecked() )
-	setWidget( 3 );
+    if ( stack->id( stack->visibleWidget() ) == ReviewPage && !configuration->option3->isChecked() )
+	setWidget( ConfigurationPage );
     else
 	setWidget( stack->id( stack->visibleWidget() ) - 1 );
 }
 
 
-void QInstallationWizard::buildFileList( Component *parent, QString *components, QString *filelist, const QString& seperator, const QString& configType )
+void QInstallationWizard::buildFileList( Component *parent, QStringList& filelist, const QString& configType )
 {
     Component *comp = parent->children.first();
     while ( comp ) {
-	if ( comp->isComponentInstalled( configType ) ) {
-	    if ( comp->attribute != "feature" ) {
-		if ( !components->isNull() )
-		    *components += seperator; 
-		*components += comp->name;
-	    }
-	    QString files = comp->files.join( seperator );
-	    if ( !files.isNull() ) {
-		if ( !filelist->isNull() )
-		    *filelist += seperator;
-		*filelist += files;
-	    }
-	}	
-	buildFileList( comp, components, filelist, seperator, configType );
+	if ( comp->isComponentInstalled( configType ) ) 
+	    filelist += comp->files;
+	buildFileList( comp, filelist, configType );
 	comp = parent->children.next();
     }
 }
@@ -375,37 +448,40 @@ void QInstallationWizard::next()
 {
     int nextId;
 
-    if ( stack->id( stack->visibleWidget() ) == 3 && !configuration->option3->isChecked() )
-	nextId = 5;
+    if ( stack->id( stack->visibleWidget() ) == ConfigurationPage && !configuration->option3->isChecked() )
+	nextId = ReviewPage;
     else
 	nextId = stack->id( stack->visibleWidget() ) + 1;
 
-    if ( nextId == 5 ) {
+    if ( nextId == ConfigurationPage )
+	if ( !destinationInstallable() )
+	    return;
 
+    if ( nextId == ReviewPage ) {
 	// find top level component
 	Component *parent = features;
 	while ( parent->parent )
 	    parent = parent->parent;
 	unsigned long long freeSize = freeSpace( destination->destination->text() );
 	unsigned long long requiredSize = 0;
-	QButton *but = configuration->ButtonGroup1->selected();
+	QButton *but = configuration->configType->selected();
 	if ( but )
-	    Component::calcRequiredSize( parent, &requiredSize, but->text() );
+	    Component::calcRequiredSize( parent, &requiredSize, but->text() ); // ### Hackish, what if but->text() is translated
 
 	if ( requiredSize >= freeSize ) {
 	    QString message;
-	    message.sprintf( "<b><red>Warning</red></b>, the required disk space (%s) exceeds the calculated free disk space (%s)."
+	    message.sprintf( tr("<b><red>Warning</red></b>, the required disk space (%s) exceeds the calculated free disk space (%s)."
 		    "<br>Please free up some disk space or choose a different configuration option such as 'Compact'."
-		    "<br>If you still wish to proceed at your own risk anyway, click 'Yes', otherwise click 'No' to change the options.",
+		    "<br>If you still wish to proceed at your own risk anyway, click 'Yes', otherwise click 'No' to change the options."),
 		    fileSizeToString( requiredSize ).latin1(), fileSizeToString( freeSize ).latin1() );
-	    QMessageBox mb( "Installation Wizard", message, QMessageBox::Warning, QMessageBox::Yes, QMessageBox::No, QMessageBox::NoButton );
+	    QMessageBox mb( tr("Installation Wizard"), message, QMessageBox::Warning, QMessageBox::Yes, QMessageBox::No, QMessageBox::NoButton );
 	    if ( mb.exec() == QMessageBox::Yes )
 		setWidget( nextId );
 	    else
 		return;
 	}
 
-    }    
+    }
 
     setWidget( nextId );
 }
@@ -413,9 +489,17 @@ void QInstallationWizard::next()
 
 void QInstallationWizard::cancel()
 {
-    QMessageBox mb( "Installation Wizard", "This will quit the installation immediately. Are you sure you wish to quit?", QMessageBox::Warning, QMessageBox::Yes, QMessageBox::No, QMessageBox::NoButton );
+    bool resume = FALSE;
+    QMessageBox mb( tr("Installation Wizard"), tr("This will quit the installation immediately. Are you sure you wish to quit?"), QMessageBox::Warning, QMessageBox::Yes, QMessageBox::No, QMessageBox::NoButton );
+    if ( installTimerId ) {
+	resume = TRUE;
+	killTimer( installTimerId );
+    }
     if ( mb.exec() == QMessageBox::Yes )
-	exit(0);    
+	exit(0);
+    if ( resume ) {
+	installTimerId = startTimer( 1 );
+    }
 }
 
 
@@ -428,37 +512,101 @@ void QInstallationWizard::addWidgetToStack( QWidget *w, const QString& nextText,
 }
 
 
+#define DEBUG_SLEEP
+
+#ifdef DEBUG_SLEEP
+#include <unistd.h> // for usleep
+#endif
+void QInstallationWizard::installFile( const QString& file )
+{
+    QString destFile = destination->destination->text() + QDir::separator() + file;
+    install->instructions->setText( tr("Installing file: ") +  destFile );
+    qDebug( "Installing %s to %s", file.latin1(), destFile.latin1() );
+    qApp->processEvents();
+
+    QFile f( destFile );
+    f.open( IO_WriteOnly );
+    QDataStream ds( &f );
+    ds << embeddedData( file );
+    f.close();
+
+#ifdef DEBUG_SLEEP
+    // Simulate a mini delay that would happen when copying files
+    usleep( 100000 );
+#endif
+}
+
+
+void QInstallationWizard::timerEvent( QTimerEvent *te )
+{
+    if ( te->timerId() == installTimerId ) {
+	killTimer( installTimerId ); // Pause timer
+
+	install->progressbar->setProgress( percentInstalled );
+	installFile( *fileListIterator );
+	percentInstalled += 100 / fileList.count();
+	*fileListIterator++;
+	if ( fileListIterator == fileList.end() ) {
+	    install->progressbar->setProgress( 100 );
+	    QMessageBox mb( tr("Installation Wizard"), tr("Installation Complete"), QMessageBox::Information, QMessageBox::Ok, QMessageBox::NoButton, QMessageBox::NoButton );
+	    mb.exec();
+	    qApp->quit();
+	}
+	installTimerId = startTimer(0); // Resume timer
+    }
+}
+
+
 void QInstallationWizard::installFiles()
 {
-    // ### Need to add code here
+    fileListIterator = fileList.begin();
+    percentInstalled = 0;
+
+    QString dest = destination->destination->text();
+    if ( destinationInstallable() ) {
+	QDir d;
+        d.mkdir( dest );
+	installTimerId = startTimer( 1 );
+    } else {
+	qDebug( "No permissions to create directory \"%s\".", dest.latin1() );
+	setWidget( DestinationPage );
+    }
 }
 
 
 void QInstallationWizard::setWidget( int id )
 {
     // Customize Configuration Page
-    if ( id == 4 ) {
+    if ( id == CustomizePage ) {
 	// Set the available space text based on the set destination directory
 	customize->diskSpaceFree->setText( fileSizeToString( freeSpace( destination->destination->text() ) ) );
     }
 
     // Review Configuration Page
-    if ( id == 5 ) {
+    if ( id == ReviewPage ) {
 	QString destdir = destination->destination->text();
 	QString config;
-	QButton *but = configuration->ButtonGroup1->selected();
+	QButton *but = configuration->configType->selected();
 	if ( but )
 	    config = but->text();
 	else 
-	    config = "Error determining the configuration type";
-	QString filelist, complist;
-	QString seperator = "<br>";
-	buildFileList( features, &complist, &filelist, seperator, config );
-	QString settings = "<b>Destination directory</b><br>" + destdir + "<p>"
-	    + "<b>Configuration type</b><br>" + config + "<p>"
-//	    + "<b>Components which will be installed</b><br>" + complist + "<p>"
-	    + "<b>Files about to be installed</b><br>" + filelist;
+	    config = tr("Error determining the configuration type");
+	fileList.clear(); // Reset
+	buildFileList( features, fileList, config ); // ### Hackish, what if but->text() is translated
+	QString settings = "<b>" + tr("Destination directory") + "</b><br>" + destdir + "<p>"
+	    + "<b>" + tr("Configuration type") + "</b><br>" + config + "<p>"
+	    + "<b>" + tr("Files about to be installed") + "</b><br>" + fileList.join("<br>");
+
 	review->settings->setText( settings );
+    }
+
+    if ( id == InstallPage ) {
+	if ( !fileList.count() ) { // Somehow skipped step 5 above
+	    QButton *but = configuration->configType->selected();
+	    if ( but ) 
+		buildFileList( features, fileList, but->text() ); // ### Hackish, what if but->text() is translated
+	}
+	installFiles();
     }
     
     stack->raiseWidget( id );
@@ -466,11 +614,11 @@ void QInstallationWizard::setWidget( int id )
     BackButton->setText( backTextMap[ id ] );
     NextButton->setEnabled( id != lastId - 1 );
     BackButton->setEnabled( id != 0 );
-    if ( nextTextMap[ id ] == "HIDE" )
+    if ( nextTextMap[ id ].isNull() )
 	NextButton->hide();
     else
 	NextButton->show();
-    if ( backTextMap[ id ] == "HIDE" )
+    if ( backTextMap[ id ].isNull() )
 	BackButton->hide();
     else
 	BackButton->show();

@@ -27,13 +27,19 @@
     file="LICENSE"
 />
 
+
+<!--
+    destinationDefaultAbsPath can be specified to provide a complete prefered destination path.
+    An example use might be a platform specific set of plugins which must be installed to a specific directory.
+    Otherwise the company name and program name will be used to generate a path.
+    ie on Windows "C:/Program Files/Company/Program Name" will be used and on UNIX "/usr/local/programname".
+-->
+
 <Destination
     image="CornerImage.png"
     title="&lt;b&gt;Choose Destination Location&lt;/b&gt;&lt;br&gt;Select the folder where the files will be install."
     instructions="Setup will install to the following default folder.&lt;p&gt;To install to this folder, click Next, otherwise edit the location or click the Browse button to select a different folder."
-    destination="/usr/local/qtopiadesktop/"
-    unixDefaultDestination="/usr/local/qtopiadesktop/"
-    windowsDefaultDestination="C:\Program Files\Qtopia Desktop\"
+    destinationDefaultAbsPath=""
 />
 
 <Configuration

@@ -184,7 +184,7 @@
                         </widget>
                         <widget class="QPushButton">
                             <property name="name">
-                                <cstring>PushButton4</cstring>
+                                <cstring>browseButton</cstring>
                             </property>
                             <property name="text">
                                 <string>Browse ...</string>
