@@ -63,7 +63,7 @@ private:
         { clear(); }
         inline Data(const Data &copy)
             : ref(1), path(copy.path), nameFilters(copy.nameFilters), sort(copy.sort),
-              filters(copy.filters)
+              filters(copy.filters), fileEngine(0)
         { clear(); }
         inline ~Data()
         { delete fileEngine; }
@@ -86,7 +86,7 @@ private:
     } *data;
     inline void setPath(const QString &p)
     {
-        detach();
+        detach(false);
         QString path = p;
         if ((path.endsWith("/") || path.endsWith("\\")) && path.length() > 1) {
 #ifdef Q_OS_WIN
@@ -104,7 +104,7 @@ private:
         detach();
         data->clear();
     }
-    void detach();
+    void detach(bool createFileEngine = true);
 };
 
 QDirPrivate::QDirPrivate(QDir *qq, const QDir *copy) : q_ptr(qq)
@@ -239,15 +239,19 @@ inline void QDirPrivate::updateFileLists() const
 
 void QDirPrivate::initFileEngine(const QString &path)
 {
-    detach();
+    detach(false);
     delete data->fileEngine;
     data->fileEngine = 0;
     data->clear();
     data->fileEngine = QFileEngine::createFileEngine(path);
 }
 
-void QDirPrivate::detach()
-{ qAtomicDetach(data); }
+void QDirPrivate::detach(bool createFileEngine)
+{
+    qAtomicDetach(data);
+    if (createFileEngine)
+        data->fileEngine = QFileEngine::createFileEngine(data->path);
+}
 
 /*!
     \class QDir
