@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#512 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#513 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2260,6 +2260,12 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    w->setFocus();
 	else
 	    widget->focusNextPrevChild( TRUE );
+	if ( !focus_widget ) {
+	    if ( widget->focusWidget() )
+		widget->focusWidget()->setFocus();
+	    else
+		widget->topLevelWidget()->setFocus();
+	}
     }
     break;
 

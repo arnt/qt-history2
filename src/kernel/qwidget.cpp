@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#428 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#429 $
 **
 ** Implementation of QWidget class
 **
@@ -2355,8 +2355,6 @@ bool QWidget::focusNextPrevChild( bool next )
     }
 #endif
 
-
-
     if ( !candidate )
 	return FALSE;
 
@@ -3036,7 +3034,7 @@ void QWidget::polish()
 
   The QApplication::lastWindowClosed() signal is emitted when the last
   visible top level widget is closed.
-  
+
   Note that closing the \l QApplication::mainWidget() terminates the
   application.
 
@@ -3063,15 +3061,15 @@ bool QWidget::close( bool alsoDelete )
 		delete this;
 	}
     }
-    
+
     if ( isMain )
 	qApp->quit();
-    
+
     if ( accept && wasTopLevel ) {			// last TLW closed?
 	if ( qApp->receivers(SIGNAL(lastWindowClosed())) && noVisibleTLW() )
 	    emit qApp->lastWindowClosed();
     }
-    
+
     return accept;
 }
 
