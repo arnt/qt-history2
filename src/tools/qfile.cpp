@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#32 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#33 $
 **
 ** Implementation of QFile class
 **
@@ -13,7 +13,7 @@
 #include "qfile.h"
 #include "qfiledef.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#32 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#33 $")
 
 
 /*----------------------------------------------------------------------------
@@ -508,7 +508,7 @@ bool QFile::at( uint n )
 	index = n;
 #if defined(CHECK_RANGE)
     else
-	warning( "QFile::at: Cannot set file position %ld", n );
+	warning( "QFile::at: Cannot set file position %d", n );
 #endif
     return ok;
 }
@@ -528,9 +528,8 @@ bool QFile::atEnd() const
     }
     bool end;
     if ( isRaw() ) {				// raw file
-	end = at() == size();
-    }
-    else {					// buffered file
+	end = (at() == (int)size());
+    } else {					// buffered file
 	end = feof( fh );
     }
     return end;

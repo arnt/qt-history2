@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.cpp#20 $
+** $Id: //depot/qt/main/src/tools/qiodevice.cpp#21 $
 **
 ** Implementation of QIODevice class
 **
@@ -12,7 +12,7 @@
 
 #include "qiodev.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qiodevice.cpp#20 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qiodevice.cpp#21 $")
 
 
 /*----------------------------------------------------------------------------
@@ -358,7 +358,7 @@ bool QIODevice::at( uint n )
 {
 #if defined(CHECK_RANGE)
     if ( n > size() ) {
-	warning( "QIODevice::at: Index %lu out of range", n );
+	warning( "QIODevice::at: Index %d out of range", n );
 	return FALSE;
     }
 #endif
@@ -373,7 +373,7 @@ bool QIODevice::at( uint n )
 
 bool QIODevice::atEnd() const
 {
-    return at() == size();
+    return at() == (int)size();
 }
 
 /*----------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.cpp#17 $
+** $Id: //depot/qt/main/src/tools/qbuffer.cpp#18 $
 **
 ** Implementation of QBuffer class
 **
@@ -13,7 +13,7 @@
 #include "qbuffer.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#17 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#18 $")
 
 
 /*----------------------------------------------------------------------------
@@ -196,7 +196,7 @@ bool QBuffer::at( uint n )
 #endif
     if ( (uint)n > a_len ) {
 #if defined(CHECK_RANGE)
-	warning( "QBuffer::at: Index %lu out of range", n );
+	warning( "QBuffer::at: Index %d out of range", n );
 #endif
 	return FALSE;
     }
