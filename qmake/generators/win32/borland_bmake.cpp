@@ -83,7 +83,16 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
     t << "CXXFLAGS=	" << var("QMAKE_CXXFLAGS") << " " << varGlue("DEFINES","-D"," -D","") << endl;
     t << "LEXFLAGS=" << var("QMAKE_LEXFLAGS") << endl;
     t << "YACCFLAGS=" << var("QMAKE_YACCFLAGS") << endl;
-    t << "INCPATH	=	" << varGlue("INCLUDEPATH","-I\"","\" -I\"","\"") << endl;
+
+    t << "INCPATH	=	";
+    QStringList &incs = project->variables()["INCLUDEPATH"];
+    for(QStringList::Iterator incit = incs.begin(); incit != incs.end(); ++incit) {
+	QString inc = (*incit);
+	inc.replace(QRegExp("\\\\$"), "\\\\");
+	t << " -I\"" << inc << "\"";
+    }
+    t << endl;
+
     if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
 	t << "LINK	=	" << var("QMAKE_LINK") << endl;
 	t << "LFLAGS	=	" << var("QMAKE_LFLAGS") << endl;

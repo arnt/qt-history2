@@ -4,6 +4,7 @@
 # tmake configuration for aix-g++
 #
 
+MAKEFILE_GENERATOR      = UNIX
 TEMPLATE		= app
 CONFIG			+= qt warn_on release
 

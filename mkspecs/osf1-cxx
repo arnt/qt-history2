@@ -4,6 +4,7 @@
 # tmake configuration for osf1-cxx (a.k.a. Tru64)
 #
 
+MAKEFILE_GENERATOR      = UNIX
 TEMPLATE		= app
 CONFIG			+= qt warn_on release
 

@@ -73,6 +73,10 @@ UnixMakefileGenerator::writeMakefile(QTextStream &t)
 void
 UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 {
+    QString ofile = Option::output.name();
+    if(ofile.findRev(Option::dir_sep) != -1)
+	ofile = ofile.right(ofile.length() - ofile.findRev(Option::dir_sep) -1);
+
     t << "####### Compiler, tools and options" << endl << endl;
     t << "CC      = " << var("QMAKE_CC") << endl;
     t << "CXX     = " << var("QMAKE_CXX") << endl;
@@ -142,12 +146,12 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << endl << endl;
     }
     if(!project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
-	t << "all: Makefile " << varGlue("ALL_DEPS",""," "," ") <<  "$(TARGET)" << endl << endl;
+	t << "all: " << ofile <<  " " << varGlue("ALL_DEPS",""," "," ") <<  "$(TARGET)" << endl << endl;
 	t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t"
 	  << "$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)" << endl << endl;
     }
     else if(!project->isActiveConfig("staticlib")) {
-	t << "all: Makefile " << varGlue("ALL_DEPS",""," ","") << " " <<  var("DESTDIR_TARGET") << endl << endl;
+	t << "all: " << ofile << " " << varGlue("ALL_DEPS",""," ","") << " " <<  var("DESTDIR_TARGET") << endl << endl;
 	t << var("DESTDIR_TARGET") << ": $(OBJECTS) $(OBJMOC) $(SUBLIBS) " << var("TARGETDEPS");
 	if(project->variables()["QMAKE_HPUX_SHLIB"].isEmpty()) {
 	    t << "\n\t"
@@ -184,7 +188,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << varGlue("QMAKE_RANLIB","",""," $(TARGETA)") << endl << endl;
     }
     else {
-	t << "all: Makefile " << varGlue("ALL_DEPS",""," "," ") << "$(TARGET)" << endl << endl;
+	t << "all: " << ofile << " " << varGlue("ALL_DEPS",""," "," ") << "$(TARGET)" << endl << endl;
 	t << "staticlib: $(TARGET)" << "\n\t"
 	  << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t"
 	  << "-rm -f $(TARGET)" << "\n\t"
@@ -194,14 +198,16 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
     t << "mocables: $(SRCMOC)" << endl << endl;
 
-    t << "moc $(MOC): \n\t"
-      << "make -C $(QTDIR)/src/moc" << "\n\t"
-      << "cp $(QTDIR)/src/moc/moc $(MOC)" << endl << endl;
+    //this is an implicity depend on moc, so it will be built if necesary, however
+    //moc itself shouldn't have this dependancy - this is a little kludgy but it is 
+    //better than the alternative for now.
+    if(project->variables()["TARGET"] != project->variables()["QMAKE_MOC"]) {
+	t << "$(MOC): \n\t"
+	  << "make -C $(QTDIR)/src/moc" << "\n\t"
+	  << "cp $(QTDIR)/src/moc/moc $(MOC)" << endl << endl;
+    }
 
-    QString ofile = Option::output.name();
-    if(ofile.findRev(Option::dir_sep) != -1)
-	ofile = ofile.right(ofile.length() - ofile.findRev(Option::dir_sep) -1);
-    t << "Makefile qmake: " << project->projectFile() << "\n\t"
+    t << "qmake " << ofile << ": " << project->projectFile() << "\n\t"
       << "qmake " << project->projectFile();
     if (!ofile.isEmpty())
 	t << " -o " << ofile;
@@ -254,6 +260,10 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 void
 UnixMakefileGenerator::writeSubdirs(QTextStream &t)
 {
+    QString ofile = Option::output.name();
+    if(ofile.findRev(Option::dir_sep) != -1)
+	ofile = ofile.right(ofile.length() - ofile.findRev(Option::dir_sep) -1);
+
     t << "MAKEFILE=	" << var("MAKEFILE") << endl;
     t << "QMAKE =	" << var("QMAKE") << endl;
     t << "SUBDIRS	=" << varList("SUBDIRS") << endl;
@@ -263,10 +273,10 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t)
     t << "$(SUBDIRS): tmake_all FORCE" << "\n\t"
       << "cd $@ && $(MAKE)" << endl << endl;
 
-    t << "Makefile qmake: " << project->projectFile() << "\n\t"
+    t << "qmake " << ofile << ": " << project->projectFile() << "\n\t"
       << "qmake " << project->projectFile();
-    if (Option::output.name())
-	t << " -o " << Option::output.name();
+    if (ofile.isEmpty())
+	t << " -o " << ofile;
     t << endl << endl;
 
     t << "tmake_all:" << "\n\t"

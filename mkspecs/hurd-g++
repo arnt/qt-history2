@@ -7,6 +7,7 @@
 # because people were confusing gnu with linux.
 #
 
+MAKEFILE_GENERATOR      = UNIX
 TEMPLATE		= app
 CONFIG			+= qt warn_on release
 

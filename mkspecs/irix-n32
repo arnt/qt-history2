@@ -4,6 +4,7 @@
 # tmake configuration for irix-n32
 #
 
+MAKEFILE_GENERATOR      = UNIX
 TEMPLATE		= app
 CONFIG			+= qt warn_on release
 
