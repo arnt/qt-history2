@@ -2265,9 +2265,10 @@ void QPainter::drawImage( const QRect &r, const QImage &i )
     float scaleY = (float)rh/(float)ih;
     bool smooth = ( scaleX < 1.5 || scaleY < 1.5 );
 
-    QImage img = scale ? ( smooth ?
-			   i.xForm( QWMatrix( scaleX, 0, 0, scaleY, 0, 0 ) ) :
-			   i.smoothScale( rw, rh ) ) : i;
+    QImage img = scale ? 
+		 ( smooth ? i.smoothScale( rw, rh ) : i.scale( rw, rh ) ) : 
+	     i;
+			   
     drawImage( r.x(), r.y(), img );
 }
 
