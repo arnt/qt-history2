@@ -414,7 +414,7 @@ public:
     int ypos; // used for floating items
     int width;
     int height;
-    
+
     QRect geometry() const { return QRect( xpos, ypos, width, height ); }
 
     virtual bool enter( QTextCursor *, QTextDocument *&doc, QTextParag *&parag, int &idx, int &ox, int &oy, bool atEnd = FALSE );
@@ -551,7 +551,7 @@ public:
     bool isEmpty() const;
     void setGeometry( const QRect& ) ;
     QRect geometry() const;
-    
+
     bool hasHeightForWidth() const;
     int heightForWidth( int ) const;
 
@@ -634,6 +634,9 @@ public:
     int widthHint() const { return ( layout ? layout->sizeHint().width() : 0 ) + 2 * outerborder; }
 
     QPtrList<QTextTableCell> tableCells() const { return cells; }
+
+    QRect geometry() const { return layout ? layout->geometry() : QRect(); }
+    bool isStretching() const { return stretch; }
 
 private:
     void format( int &w );

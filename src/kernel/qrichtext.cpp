@@ -1581,8 +1581,9 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    NEWPAR;
 		} else if ( tagname == "table" ) {
 		    QTextFormat format = curtag.format.makeTextFormat(  nstyle, attr );
+		    curpar->setAlignment( curAlignment );
 		    custom = parseTable( attr, format, doc, pos, curpar );
-		    (void ) eatSpace( doc, pos );
+		    (void)eatSpace( doc, pos );
 		    emptyTag = TRUE;
 		} else {
 		    custom = sheet_->tag( tagname, attr, contxt, *factory_ , emptyTag, this );
@@ -1592,7 +1593,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    continue;
 
 		if ( custom ) {
-		    QTextFormat format = curtag.format.makeTextFormat(  nstyle, attr );
+		    QTextFormat format = curtag.format.makeTextFormat( nstyle, attr );
 		    int index = curpar->length() - 1;
 		    if ( index < 0 )
 			index = 0;
@@ -1719,6 +1720,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		
 		    curtag = tags.pop();
 		    curListStyle = listStyles.pop();
+		    curAlignment = alignments.pop();
 		    depth--;
 		}
 
@@ -5061,6 +5063,15 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	    c->customItem()->resize( parag->painter(), dw );
 	    if ( x != left || w != dw )
 		fullWidth = FALSE;
+	    if ( !fullWidth ||
+		 c->customItem()->isNested() &&
+		 !( (QTextTable*)c->customItem() )->isStretching() &&
+		 ( (QTextTable*)c->customItem() )->geometry().width() < w ) {
+		if ( align & Qt::AlignHCenter )
+		    x = c->x = ( w - ( (QTextTable*)c->customItem() )->geometry().width() ) / 2;
+		else if ( align & Qt::AlignRight )
+		    x = c->x = w - ( (QTextTable*)c->customItem() )->geometry().width();
+	    }
 	    curLeft = x;
 	    if ( i == 0 || !isBreakable( string, i - 1 ) || string->at( i - 1 ).lineStart == 0 ) {
 		y += QMAX( h, tmph );
