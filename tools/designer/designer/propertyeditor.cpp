@@ -3106,7 +3106,7 @@ void PropertyList::showCurrentWhatsThis()
 	return;
     QPoint p( 0, currentItem()->itemPos() );
     p = viewport()->mapToGlobal( contentsToViewport( p ) );
-    QWhatsThis::display( whatsThisText( currentItem() ), p );
+    QWhatsThis::display( whatsThisText( currentItem() ), p, viewport() );
 }
 
 QString PropertyList::whatsThisText( QListViewItem *i )

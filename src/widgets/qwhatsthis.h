@@ -66,10 +66,9 @@ public:
 
     static void enterWhatsThisMode();
     static bool inWhatsThisMode();
-    static void leaveWhatsThisMode( const QString& = QString::null, const QPoint& pos = QCursor::pos() );
+    static void leaveWhatsThisMode( const QString& = QString::null, const QPoint& pos = QCursor::pos(), QWidget* w = 0 );
 
-    static void display( const QString& text, const QPoint& pos = QCursor::pos() );
-
+    static void display( const QString& text, const QPoint& pos = QCursor::pos(), QWidget* w = 0 );
 };
 
 #endif // QT_NO_WHATSTHIS

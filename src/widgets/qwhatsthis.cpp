@@ -1014,32 +1014,42 @@ bool QWhatsThis::inWhatsThisMode()
   menu items instead.
 
   If \a text is not a null string, a What's This? help window is
-  displayed at the global screen position \a pos.
+  displayed at the global screen position \a pos.  If widget \a w is
+  not NULL and has its own dedicated QWhatsThis object, this object
+  will receive clicked() messages when the user clicks on hyperlinks
+  inside the help text.
 
-\sa inWhatsThisMode(), enterWhatsThisMode()
+\sa inWhatsThisMode(), enterWhatsThisMode(), QWhatsThis::clicked()
 */
-void QWhatsThis::leaveWhatsThisMode( const QString& text, const QPoint& pos )
+void QWhatsThis::leaveWhatsThisMode( const QString& text, const QPoint& pos, QWidget* w )
 {
     if ( !inWhatsThisMode() )
 	return;
 
     wt->leaveWhatsThisMode();
     if ( !text.isNull() )
-	wt->say( 0, text, pos );
+	wt->say( w, text, pos );
 }
 
 /*!
   Display \a text in a help window at the global screen position
-  \a  pos.
+  \a  pos. 
+  
+  If widget \a w is not NULL and has its own dedicated QWhatsThis
+  object, this object will receive clicked() messages when the user
+  clicks on hyperlinks inside the help text.
+  
+  \sa QWhatsThis::clicked()
+  
 */
-void QWhatsThis::display( const QString& text, const QPoint& pos )
+void QWhatsThis::display( const QString& text, const QPoint& pos, QWidget* w )
 {
     if ( inWhatsThisMode() ) {
-	leaveWhatsThisMode( text, pos );
+	leaveWhatsThisMode( text, pos, w );
 	return;
     }
     QWhatsThisPrivate::setUpWhatsThis();
-    wt->say( 0, text, pos );
+    wt->say( w, text, pos );
 }
 
 
