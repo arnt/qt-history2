@@ -1775,6 +1775,7 @@ void QRegExpEngine::CharClass::addRange( ushort from, ushort to )
     if ( from > to )
 	qSwap( from, to );
     int n = r.size();
+    r.detach();
     r.resize( n + 1 );
     r[n].from = from;
     r[n].to = to;
