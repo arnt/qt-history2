@@ -267,6 +267,7 @@ void ActionEditor::connectionsClicked()
 {
     ConnectionDialog dlg( formWindow->mainWindow() );
     dlg.setDefault( currentAction, formWindow );
+    dlg.addConnection();
     dlg.exec();
 }
 
