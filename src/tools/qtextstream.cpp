@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#94 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#95 $
 **
 ** Implementation of QTextStream class
 **
@@ -1794,8 +1794,9 @@ QTextStream &reset( QTextStream &s )
 
   This makes it easy for example, to write things like this:
 \code
-    QString result;
-    QTextOStream(result) << "pi = " << 3.14;
+    QString data = "123 456";
+    int a, b;
+    QTextIStream(data) >> a >> b;
 \endcode
 
   \sa QTextOStream
@@ -1828,9 +1829,8 @@ QTextStream &reset( QTextStream &s )
 
   This makes it easy for example, to write things like this:
 \code
-    QString data = "123 456";
-    int a, b;
-    QTextOStream(data) >> a >> b;
+    QString result;
+    QTextOStream(result) << "pi = " << 3.14;
 \endcode
 
   \sa QTextOStream
