@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.l#12 $
+** $Id: //depot/qt/main/src/moc/moc.l#13 $
 **
 ** Lexical analyzer for meta object compiler
 **
@@ -15,9 +15,6 @@
 
 %{
 #include "qstring.h"
-
-
-#define input yyinput				// yyinput in C++
 
 #define X if(lexDebug){fprintf(stderr,"LEX (%i) : %s\n",lineNo,yytext);};
 #define Y if(lexDebug){fprintf(stderr,"LEX (%i) : %s updates level to %i\n"\

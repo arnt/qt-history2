@@ -16,6 +16,9 @@ CC	=	gcc
 LEX	=	flex
 YACC	=	yacc -d
 
+# define this if you are using flex.  It is added to the cc command line
+FLEXTRA = 	-Dinput=yyinput
+
 ####### Files
 
 SOURCES =	moc.l		moc.y
@@ -83,6 +86,9 @@ $(LEXOUT): moc.l
 $(TMPCPP): moc.y $(LEXOUT)
 	$(YACC) moc.y
 	mv $(YACCOUT) $(TMPCPP)
+
+$(OBJ): $(TMPCPP)
+	$(CC) -c $(CFLAGS) $(FLEXFLAGS) -I$(INCDIR) $<
 
 ####### Tools needed for moc
 
