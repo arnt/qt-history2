@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice_unix.cpp#6 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice_unix.cpp#7 $
 **
 ** Implementation of Network Extension Library
 **
@@ -771,7 +771,7 @@ int QSocketDevice::waitForMore( int msecs )
     tv.tv_sec = msecs / 1000;
     tv.tv_usec = (msecs % 1000) * 1000;
 
-    int rv = select( fd+1, &fds, 0, 0, &tv );
+    int rv = select( fd+1, &fds, 0, 0, msecs < 0 ? 0 : &tv );
 
     if ( rv < 0 )
 	return -1;
