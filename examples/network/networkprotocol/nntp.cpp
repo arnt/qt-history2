@@ -50,7 +50,7 @@ void Nntp::operationListChildren( QNetworkOperation * )
     } else if ( url()->isDir() ) {
 	// if the path is a directory (in our case a news group)
 	// we want to list the articles of this group
-	path = path.replace( QRegExp( "/" ), "" );
+	path = path.replace( "/", "" );
 	cmd = "listgroup " + path + "\r\n";
     } else
 	return;
@@ -66,7 +66,7 @@ void Nntp::operationGet( QNetworkOperation *op )
     // and the filename (which is the article we want to read)
     QUrl u( op->arg( 0 ) );
     QString dirPath = u.dirPath(), file = u.fileName();
-    dirPath = dirPath.replace( QRegExp( "/" ), "" );
+    dirPath = dirPath.replace( "/", "" );
 
     // go to the group in which the article is
     QString cmd;
@@ -186,7 +186,7 @@ void Nntp::parseGroups()
 	    emit finished( operationInProgress() );
 	    return;
 	}
-	
+
 	// if the code of the server response is 215 or 211
 	// the next line will be the first group or article (depending on what we read).
 	// So let others know that we start reading now...
@@ -195,7 +195,7 @@ void Nntp::parseGroups()
 	    emit start( operationInProgress() );
 	    continue;
 	}
-	
+
 	// parse the line and create a QUrlInfo object
 	// which describes the child (group or article)
 	bool tab = s.find( '\t' ) != -1;
@@ -208,11 +208,11 @@ void Nntp::parseGroups()
 	inf.setFile( !inf.isDir() );
 	inf.setWritable( FALSE );
 	inf.setReadable( TRUE );
-	
+
 	// let others know about our new child
 	emit newChild( inf, operationInProgress() );
     }
-	
+
 }
 
 void Nntp::parseArticle()
@@ -234,7 +234,7 @@ void Nntp::parseArticle()
 
 	if ( s.right( 1 ) == "\n" )
 	    s.remove( s.length() - 1, 1 );
-	
+
 	// emit the new data of the article which we read
 	emit data( QCString( s.ascii() ), operationInProgress() );
     }

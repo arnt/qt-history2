@@ -246,8 +246,8 @@ void ListViews::slotMessageChanged()
 
     QString text;
     QString tmp = msg->header().sender();
-    tmp = tmp.replace( QRegExp( "<" ), "&lt;" );
-    tmp = tmp.replace( QRegExp( ">" ), "&gt;" );
+    tmp = tmp.replace( "<", "&lt;" );
+    tmp = tmp.replace( ">", "&gt;" );
     text = QString( "<b><i>From:</i></b> <a href=\"mailto:info@trolltech.com\">%1</a><br>"
 		    "<b><i>Subject:</i></b> <big><big><b>%2</b></big></big><br>"
 		    "<b><i>Date:</i></b> %3<br><br>"
