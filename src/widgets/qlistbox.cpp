@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#316 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#317 $
 **
 ** Implementation of QListBox widget class
 **
@@ -776,28 +776,28 @@ QListBox::~QListBox()
     d = 0;
 }
 
-/*! 
+/*!
   \fn void QListBox::clicked( QListBoxItem *item )
 
   This signal is emitted whenever the user clicks on an listbox item.
   \a item is the pointer to the clicked listbox item.
 */
 
-/*! 
+/*!
   \fn void QListBox::clicked( int index )
 
   This signal is emitted whenever the user clicks on an listbox item.
   \a index is the index of the clicked listbox item.
 */
 
-/*! 
+/*!
   \fn void QListBox::clicked( const QString &text )
 
   This signal is emitted whenever the user clicks on an listbox item.
   \a text is the text of to the clicked listbox item.
 */
 
-/*! 
+/*!
   \fn void QListBox::selectionChanged()
 
   This signal is emitted when the selection set of a multiple-choice
@@ -1492,7 +1492,8 @@ void QListBox::mousePressEvent( QMouseEvent *e )
 	if ( i ) {
 	    if ( !(e->state() & QMouseEvent::ShiftButton) &&
 		 !(e->state() & QMouseEvent::ControlButton) ) {
-		clearSelection();
+		if ( !i->selected() )
+		    clearSelection();
 		setSelected( i, TRUE );
 	    } else if ( e->state() & ControlButton ) {
 		setSelected( i, !i->selected() );

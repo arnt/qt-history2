@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#351 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#352 $
 **
 ** Implementation of QListView widget class
 **
@@ -2863,20 +2863,6 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 
     QPoint vp = contentsToViewport( e->pos() );
 
-    if ( e->button() == RightButton ) {
-	QListViewItem * i = 0;
-	if ( viewport()->rect().contains( vp ) )
-	    i = itemAt( vp );
-
-	if ( !i ) {
-	    clearSelection();
-	    emit rightButtonPressed( 0, viewport()->mapToGlobal( vp ), -1 );
-	}
-
-	int c = d->h->mapToLogical( d->h->cellAt( vp.x() ) );
-	emit rightButtonPressed( i, viewport()->mapToGlobal( vp ), c );
-    }
-
 // ##### Why???
 //     if ( e->button() != LeftButton )
 // 	return;
@@ -2885,12 +2871,12 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
     d->buttonDown = TRUE;
 
     QListViewItem * i = itemAt( vp );
-    if ( !i )
+    if ( !i ) {
+	emit pressed( i );
+	emit pressed( i, viewport()->mapToGlobal( vp ), d->h->mapToLogical( d->h->cellAt( vp.x() ) ) );
 	return;
-
-    emit pressed( i );
-    emit pressed( i, viewport()->mapToGlobal( vp ), d->h->mapToLogical( d->h->cellAt( vp.x() ) ) );
-
+    }
+    
     if ( (i->isExpandable() || i->childCount()) &&
 	 d->h->mapToLogical( d->h->cellAt( vp.x() ) ) == 0 ) {
 	int x1 = vp.x() +
@@ -2932,7 +2918,8 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 	else if ( selectionMode() == Extended ) {
 	    if ( !( ( e->state() & ControlButton ) ||
 		 ( e->state() & ShiftButton ) ) ) {
-		clearSelection();
+		if ( !i->isSelected() )
+		    clearSelection();
 		setSelected( i, TRUE );
 	    } else {
 		if ( e->state() & ControlButton || !oldCurrent || !i || oldCurrent == i ) {
@@ -2961,6 +2948,23 @@ void QListView::contentsMousePressEvent( QMouseEvent * e )
 	    }
 	    emit selectionChanged();
 	}
+    }
+
+    emit pressed( i );
+    emit pressed( i, viewport()->mapToGlobal( vp ), d->h->mapToLogical( d->h->cellAt( vp.x() ) ) );
+
+    if ( e->button() == RightButton ) {
+	QListViewItem * i = 0;
+	if ( viewport()->rect().contains( vp ) )
+	    i = itemAt( vp );
+
+	if ( !i ) {
+	    clearSelection();
+	    emit rightButtonPressed( 0, viewport()->mapToGlobal( vp ), -1 );
+	}
+
+	int c = d->h->mapToLogical( d->h->cellAt( vp.x() ) );
+	emit rightButtonPressed( i, viewport()->mapToGlobal( vp ), c );
     }
 
     return;
