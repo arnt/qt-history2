@@ -19,6 +19,7 @@
 #include <qsqlresult.h>
 #include <qsqlrecord.h>
 #include <qsqlindex.h>
+#include "../cache/qsqlcachedresult.h"
 
 #if (QT_VERSION-0 >= 0x030000)
 typedef QVariant QSqlVariant;
@@ -31,8 +32,9 @@ typedef QVariant QSqlVariant;
 class QSQLiteDriverPrivate;
 class QSQLiteResultPrivate;
 class QSQLiteDriver;
+struct sqlite;
 
-class QSQLiteResult : public QSqlResult
+class QSQLiteResult : public QtSqlCachedResult
 {
     friend class QSQLiteDriver;
     friend class QSQLiteResultPrivate;
@@ -41,13 +43,7 @@ public:
     ~QSQLiteResult();
 
 protected:
-    void cleanup();
-    bool fetch(int i);
-    bool fetchNext();
-    bool fetchFirst();
-    bool fetchLast();
-    QSqlVariant data(int field);
-    bool isNull(int field);
+    bool gotoNext(QtSqlCachedResult::RowCache* row);    
     bool reset (const QString& query);
     int size();
     int numRowsAffected();
@@ -60,7 +56,8 @@ class QSQLiteDriver : public QSqlDriver
 {
     friend class QSQLiteResult;
 public:
-    QSQLiteDriver(QObject * parent=0);
+    QSQLiteDriver(QObject *parent = 0);
+    QSQLiteDriver(sqlite *connection, QObject *parent = 0);
     ~QSQLiteDriver();
     bool hasFeature(DriverFeature f) const;
     bool open(const QString & db,
