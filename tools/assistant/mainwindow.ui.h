@@ -5,7 +5,7 @@ void MainWindow::init()
     browser->setFrameStyle( QFrame::Panel | QFrame::Sunken );
     setCentralWidget( browser );
 
-    connect( actionLinksUnderlined, SIGNAL( toggled(bool) ), browser, SLOT(setLinkUnderline(bool) ) );
+    settings = 0L;
 
     // #### hardcoded paths - probably should read the settings from somewhere
     browser->mimeSourceFactory()->addFilePath( QString( getenv( "QTDIR" ) ) + "/tools/designer/manual" );
@@ -40,17 +40,28 @@ void MainWindow::init()
     connect( actionZoomIn, SIGNAL( activated() ), browser, SLOT( zoomIn() ) );
     connect( actionZoomOut, SIGNAL( activated() ), browser, SLOT( zoomOut() ) );
 
-    QFontDatabase fonts;
-    fontComboBox->insertStringList( fonts.families() );
-    fontComboBox->lineEdit()->setText( browser->QWidget::font().family() );
-
     QString keybase("/Qt Assistant/3.0/");
     QSettings config;
     config.insertSearchPath( QSettings::Windows, "/Trolltech" );
+
     QFont fnt( browser->QWidget::font() );
     fnt.setFamily( config.readEntry( keybase + "Family", fnt.family() ) );
     fnt.setPointSize( config.readNumEntry( keybase + "Size", fnt.pointSize() ) );
     browser->setFont( fnt );
+    browser->setLinkUnderline( config.readBoolEntry( keybase + "LinkUnderline", TRUE ) );
+
+    QPalette pal = browser->palette();
+    pal.setColor( QPalette::Active, QColorGroup::Link,
+		  config.readEntry( keybase + "LinkColor", pal.color( QPalette::Active, QColorGroup::Link ).name() ) );
+    browser->setPalette( pal );
+
+    QString family = config.readEntry( keybase + "FixedFamily", browser->styleSheet()->item( "pre" )->fontFamily() );
+
+    QStyleSheet *sh = browser->styleSheet();
+    sh->item( "pre" )->setFontFamily( family );
+    sh->item( "code" )->setFontFamily( family );
+    sh->item( "tt" )->setFontFamily( family );
+    browser->setStyleSheet( sh );
 
     PopupMenu->insertItem( tr( "Vie&ws" ), createDockWindowMenu() );
 
@@ -71,6 +82,9 @@ void MainWindow::destroy()
     config.insertSearchPath( QSettings::Windows, "/Trolltech" );
     config.writeEntry( keybase + "Family",  browser->QWidget::font().family() );
     config.writeEntry( keybase + "Size",  browser->QWidget::font().pointSize() );
+    config.writeEntry( keybase + "FixedFamily", browser->styleSheet()->item( "pre" )->fontFamily() );
+    config.writeEntry( keybase + "LinkUnderline", browser->linkUnderline() );
+    config.writeEntry( keybase + "LinkColor", browser->palette().color( QPalette::Active, QColorGroup::Link ).name() );
 }
 
 void MainWindow::about()
@@ -210,4 +224,40 @@ void MainWindow::setFamily( const QString & f )
     QFont fnt( browser->QWidget::font() );
     fnt.setFamily( f );
     browser->setFont( fnt );
+}
+
+void MainWindow::showSettingsDialog()
+{
+    if ( !settings )
+	settings = new SettingsDialog( this );
+
+    QFontDatabase fonts;
+    settings->fontCombo->insertStringList( fonts.families() );
+    settings->fontCombo->lineEdit()->setText( browser->QWidget::font().family() );
+    settings->fixedfontCombo->insertStringList( fonts.families() );
+    settings->fixedfontCombo->lineEdit()->setText( browser->styleSheet()->item( "pre" )->fontFamily() );
+    settings->linkUnderlineCB->setChecked( browser->linkUnderline() );
+    settings->colorButton->setPaletteBackgroundColor( browser->palette().color( QPalette::Active, QColorGroup::Link ) );
+
+    int ret = settings->exec();
+
+    if ( ret != QDialog::Accepted )
+	return;
+
+    QFont fnt( browser->QWidget::font() );
+    fnt.setFamily( settings->fontCombo->currentText() );
+    browser->setFont( fnt );
+    browser->setLinkUnderline( settings->linkUnderlineCB->isChecked() );
+
+    QPalette pal = browser->palette();
+    pal.setColor( QPalette::Active, QColorGroup::Link, settings->colorButton->paletteBackgroundColor() );
+    browser->setPalette( pal );
+
+    QString family = settings->fixedfontCombo->currentText();
+
+    QStyleSheet *sh = browser->styleSheet();
+    sh->item( "pre" )->setFontFamily( family );
+    sh->item( "code" )->setFontFamily( family );
+    sh->item( "tt" )->setFontFamily( family );
+    browser->setStyleSheet( sh );
 }
