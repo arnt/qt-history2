@@ -932,7 +932,7 @@ void QTabBar::scrollTabs()
     for ( QTab* t = lstatic->first(); t; t = lstatic->next() ) {
 	if ( t->r.left() < 0 && t->r.right() > 0 )
 	    left = t;
-	if ( t->r.left() < d->leftB->x() )
+	if ( t->r.left() < d->leftB->x()+2 )
 	    right = t;
     }
 
