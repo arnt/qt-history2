@@ -66,7 +66,7 @@
 */
 
 /*!
-    \enum QUrl::FormattingOptions
+    \enum QUrl::FormattingOption
 
     The formatting options define how the URL is formatted when written out
     as text.
@@ -124,7 +124,7 @@ class QUrlPrivate
 {
 public:
     QUrlPrivate();
-    QUrlPrivate(const QUrlPrivate &copy);
+    QUrlPrivate(const QUrlPrivate &other);
 
     bool setUrl(const QString &url);
 
@@ -1403,14 +1403,17 @@ QUrl::QUrl(const QString &url) : d(new QUrlPrivate)
         setUrl(url);
 }
 
+/*!
+    Constructs an empty QUrl object.
+*/
 QUrl::QUrl() : d(new QUrlPrivate)
 {
 }
 
 /*!
-    Constructs a copy of \a copy.
+    Constructs a copy of \a other.
 */
-QUrl::QUrl(const QUrl &copy) : d(copy.d)
+QUrl::QUrl(const QUrl &other) : d(other.d)
 {
     d->ref.ref();
 }
@@ -2601,7 +2604,9 @@ QUrl &QUrl::operator =(const QUrl &url)
 void QUrl::detach()
 { qAtomicDetach(d); }
 
-
+/*!
+    \internal
+*/
 bool QUrl::isDetached() const
 {
     return d->ref == 1;

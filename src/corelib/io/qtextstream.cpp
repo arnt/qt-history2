@@ -1016,7 +1016,7 @@ QIODevice *QTextStream::device() const
 }
 
 /*!
-    Sets the current string to \a string, using the \l OpenMode \a
+    Sets the current string to \a string, using the given \a
     openMode. If a device has already been assigned, QTextStream will
     call flush() before replacing it.
 
@@ -2416,7 +2416,7 @@ QTextStream &ws(QTextStream &stream)
     Toggles insertion of the UTF-16 Byte Order Mark on \a stream when
     QTextStream is used with a UTF-16 codec.
 
-    \sa QTextStream::setGenerateByteOrderMark(), bom(), {QTextStream manipulators}
+    \sa QTextStream::setGenerateByteOrderMark(), {QTextStream manipulators}
 */
 QTextStream &bom(QTextStream &stream)
 {

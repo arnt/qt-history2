@@ -129,9 +129,6 @@ QTemporaryFilePrivate::~QTemporaryFilePrivate()
 */
 
 #ifdef QT_NO_QOBJECT
-/*!
-    Constructs a QTemporaryFile with no name.
-*/
 QTemporaryFile::QTemporaryFile()
     : QFile(*new QTemporaryFilePrivate)
 {
@@ -139,15 +136,6 @@ QTemporaryFile::QTemporaryFile()
     d->templateName = QDir::tempPath() + QLatin1String("qt_temp.XXXXXX");
 }
 
-/*!
-    Constructs a QTemporaryFile with a template filename of \a
-    templateName. Upon opening the temporary file this will be used to
-    create a unique filename. If the \a templateName does end in
-    XXXXXX it will automatically be appended and used as the dynamic
-    portion of the filename.
-
-    \sa QTemporaryFile::open(), QTemporaryFile::setTemplateName()
-*/
 QTemporaryFile::QTemporaryFile(const QString &templateName)
     : QFile(*new QTemporaryFilePrivate)
 {
@@ -158,6 +146,8 @@ QTemporaryFile::QTemporaryFile(const QString &templateName)
 #else
 /*!
     Constructs a QTemporaryFile with no name.
+
+    \sa setFileTemplate()
 */
 QTemporaryFile::QTemporaryFile()
     : QFile(*new QTemporaryFilePrivate, 0)
@@ -173,7 +163,7 @@ QTemporaryFile::QTemporaryFile()
     XXXXXX it will automatically be appended and used as the dynamic
     portion of the filename.
 
-    \sa QTemporaryFile::open(), QTemporaryFile::setTemplateName()
+    \sa open(), fileTemplate()
 */
 QTemporaryFile::QTemporaryFile(const QString &templateName)
     : QFile(*new QTemporaryFilePrivate, 0)
@@ -184,6 +174,8 @@ QTemporaryFile::QTemporaryFile(const QString &templateName)
 
 /*!
     Constructs a QTemporaryFile with the given \a parent, but with no name.
+
+    \sa setFileTemplate()
 */
 QTemporaryFile::QTemporaryFile(QObject *parent)
     : QFile(*new QTemporaryFilePrivate, parent)
@@ -200,7 +192,7 @@ QTemporaryFile::QTemporaryFile(QObject *parent)
     XXXXXX it will automatically be appended and used as the dynamic
     portion of the filename.
 
-    \sa QTemporaryFile::open(), QTemporaryFile::setTemplateName()
+    \sa open(), fileTemplate()
 */
 QTemporaryFile::QTemporaryFile(const QString &templateName, QObject *parent)
     : QFile(*new QTemporaryFilePrivate, parent)
@@ -215,7 +207,7 @@ QTemporaryFile::QTemporaryFile(const QString &templateName, QObject *parent)
     closed if necessary and if in auto remove mode it will
     automatically delete the file.
 
-    \sa QTemporaryFile::autoRemove()
+    \sa autoRemove()
 */
 QTemporaryFile::~QTemporaryFile()
 {
@@ -233,7 +225,7 @@ QTemporaryFile::~QTemporaryFile()
   return true upon success and will set the fileName() to the unique
   filename used.
 
-  \sa QTemporaryFile::fileName()
+  \sa fileName()
 */
 
 /*!
@@ -244,7 +236,7 @@ QTemporaryFile::~QTemporaryFile()
    it, and finally on function return it will automatically clean up
    after itself.
 
-   \sa QTemporaryFile::setAutoRemove(), QTemporaryFile::remove()
+   \sa setAutoRemove(), remove()
 */
 bool QTemporaryFile::autoRemove() const
 {
@@ -255,7 +247,7 @@ bool QTemporaryFile::autoRemove() const
 /*!
     Sets the QTemporaryFile into auto-remove mode if \a b is true.
 
-    \sa QTemporarFile::autoRemove(), QTemporaryFile::remove()
+    \sa autoRemove(), remove()
 */
 void QTemporaryFile::setAutoRemove(bool b)
 {
@@ -266,10 +258,10 @@ void QTemporaryFile::setAutoRemove(bool b)
 /*!
    Returns the complete unique filename backing the QTemporaryFile
    object. This string is null before the QTemporaryFile is opened,
-   afterwards it will contain the QTemporaryFile::fileTemplate() plus
+   afterwards it will contain the fileTemplate() plus
    additional characters to make it unique.
 
-   \sa QTemporary::fileTemplate()
+   \sa fileTemplate()
 */
 
 QString QTemporaryFile::fileName() const
@@ -283,7 +275,7 @@ QString QTemporaryFile::fileName() const
   Returns the set file template. The default file template will be
   called qt_temp and be placed in QDir::tempPath().
 
-  \sa QTemporaryFile::setFileTemplate()
+  \sa setFileTemplate()
 */
 QString QTemporaryFile::fileTemplate() const
 {
@@ -297,7 +289,7 @@ QString QTemporaryFile::fileTemplate() const
    the unique part of the filename, otherwise a filename will be
    determined automatically based on the static portion specified.
 
-   \sa QTemporaryFile::fileTemplate()
+   \sa fileTemplate()
 */
 void QTemporaryFile::setFileTemplate(const QString &name)
 {
