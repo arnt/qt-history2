@@ -4,7 +4,7 @@ CONFIG+= qt warn_off release plugin
 HEADERS		= ../../../../include/qgfxmach64_qws.h 
 
 SOURCES		= main.cpp \
-		  ../../../../src/kernel/qgfxmach64_qws.cpp 
+		  ../../../../src/embedded/qgfxmach64_qws.cpp 
 
 unix:OBJECTS_DIR	= .obj
 

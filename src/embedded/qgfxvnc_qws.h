@@ -44,10 +44,9 @@
 
 #ifndef QT_NO_QWS_VNC
 
-#include "qsharedmemory_p.h"
-
 class QVNCServer;
 class QVNCHeader;
+class QSharedMemory;
 
 class QVNCScreen : public VNCSCREEN_BASE {
 public:
@@ -68,7 +67,7 @@ public:
     bool success;
     QVNCServer *vncServer;
     unsigned char *shmrgn;
-    QSharedMemory shm;
+    QSharedMemory *shm;
     QVNCHeader *hdr;
     bool virtualBuffer;
 };

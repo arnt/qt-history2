@@ -5,7 +5,7 @@ HEADERS		= ../../../../include/qgfxmatrox_qws.h \
 		  ../../../../include/qgfxmatroxdefs_qws.h
 
 SOURCES		= main.cpp \
-		  ../../../../src/kernel/qgfxmatrox_qws.cpp 
+		  ../../../../src/embedded/qgfxmatrox_qws.cpp 
 
 unix:OBJECTS_DIR	= .obj
 

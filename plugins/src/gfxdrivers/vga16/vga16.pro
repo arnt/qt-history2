@@ -4,7 +4,7 @@ CONFIG+= qt warn_off release plugin
 HEADERS		= ../../../../include/qgfxvga16_qws.h 
 
 SOURCES		= main.cpp \
-		  ../../../../src/kernel/qgfxvga16_qws.cpp 
+		  ../../../../src/embedded/qgfxvga16_qws.cpp 
 
 unix:OBJECTS_DIR	= .obj
 

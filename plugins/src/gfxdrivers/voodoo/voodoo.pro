@@ -5,7 +5,7 @@ HEADERS		= ../../../../include/qgfxvoodoo_qws.h \
 		  ../../../../include/qgfxvoodoodefs_qws.h
 
 SOURCES		= main.cpp \
-		  ../../../../src/kernel/qgfxvoodoo_qws.cpp 
+		  ../../../../src/embedded/qgfxvoodoo_qws.cpp 
 
 unix:OBJECTS_DIR	= .obj
 

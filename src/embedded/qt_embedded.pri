@@ -5,10 +5,12 @@ embedded {
 
 	HEADERS += $$EMBEDDED_P/qgfxdriverinterface_p.h \
 		    $$EMBEDDED_H/qgfxdriverplugin_qws.h \
-		    $$EMBEDDED_H/qgfxdriverfactory_qws.h
+		    $$EMBEDDED_H/qgfxdriverfactory_qws.h \
+		    $$EMBEDDED_H/qgfxlinuxfb_qws.h
 
 	SOURCES += $$EMBEDDED_CPP/qgfxdriverplugin_qws.cpp \
-		    $$EMBEDDED_CPP/qgfxdriverfactory_qws.cpp
+		    $$EMBEDDED_CPP/qgfxdriverfactory_qws.cpp \
+		    $$EMBEDDED_CPP/qgfxlinuxfb_qws.cpp
 
 	contains( gfx-drivers, qvfb ) {
 		HEADERS += $$EMBEDDED_H/qgfxvfb_qws.h

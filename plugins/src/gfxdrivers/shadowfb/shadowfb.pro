@@ -4,7 +4,7 @@ CONFIG+= qt warn_off release plugin
 HEADERS		= ../../../../include/qgfxshadowfb_qws.h 
 
 SOURCES		= main.cpp \
-		  ../../../../src/kernel/qgfxshadowfb_qws.cpp 
+		  ../../../../src/embedded/qgfxshadowfb_qws.cpp 
 
 unix:OBJECTS_DIR	= .obj
 

@@ -42,6 +42,7 @@
 #include "qwindowsystem_qws.h"
 #include "qgfxvnc_qws.h"
 #include <qglobal.h>
+#include <private/qsharedmemory_p.h>
 
 extern QString qws_qtePipeFilename();
 
@@ -1192,11 +1193,13 @@ QVNCScreen::QVNCScreen( int display_id ) : VNCSCREEN_BASE( display_id )
 {
     virtualBuffer = FALSE;
     qvnc_screen = this;
+    shm = 0;
 }
 
 QVNCScreen::~QVNCScreen()
 {
-    shm.destroy();
+    shm->destroy();
+    delete shm;
 }
 
 void QVNCScreen::setDirty( const QRect& r )
@@ -1247,12 +1250,12 @@ bool QVNCScreen::connect( const QString &displaySpec )
 	tmpSpec.remove (0, next + 1); 
 	VNCSCREEN_BASE::connect( tmpSpec );
     }
-    shm = QSharedMemory(sizeof(QVNCHeader) + vsize + 8, qws_qtePipeFilename().append('a'));
-    if (!shm.create())
+    shm = new QSharedMemory(sizeof(QVNCHeader) + vsize + 8, qws_qtePipeFilename().append('a'));
+    if (!shm->create())
 	qDebug("create");
-    if (!shm.attach())
+    if (!shm->attach())
 	qDebug("attach");
-    shmrgn = (unsigned char*)shm.base();
+    shmrgn = (unsigned char*)shm->base();
 
     hdr = (QVNCHeader *) shmrgn;
 
@@ -1265,7 +1268,7 @@ void QVNCScreen::disconnect()
 {
     if ( !virtualBuffer )
 	VNCSCREEN_BASE::disconnect();
-    shm.detach();
+    shm->detach();
 }
 
 bool QVNCScreen::initDevice()
