@@ -64,6 +64,7 @@ public:
 #ifdef Q_OS_WIN32
     HANDLE handle;
     unsigned int id;
+    int waiters;
 
     static unsigned int __stdcall start( void * );
     static void finish( QThreadInstance * );

@@ -27,7 +27,7 @@
 
 
 static QThreadInstance main_instance = {
-    0, { 0, &main_instance }, 0, 0, 1, 0, 0, 0
+    0, { 0, &main_instance }, 0, 0, 1, 0, 0, 0, 0
 };
 
 
@@ -69,6 +69,7 @@ void QThreadInstance::init(unsigned int stackSize)
 
     handle = 0;
     id = 0;
+    waiters = 0;
 
     // threads have not been initialized yet, do it now
     if ( ! qt_thread_mutexpool ) QThread::initialize();
@@ -76,7 +77,7 @@ void QThreadInstance::init(unsigned int stackSize)
 
 void QThreadInstance::deinit()
 {
-    }
+}
 
 unsigned int __stdcall QThreadInstance::start( void *_arg )
 {
@@ -107,8 +108,11 @@ void QThreadInstance::finish( QThreadInstance *d )
     d->thread_storage = 0;
     d->id = 0;
 
-    CloseHandle(d->handle);
-    d->handle = 0;
+    if (!d->waiters) {
+	CloseHandle(d->handle);
+	d->handle = 0;
+    }
+
     if ( d->orphan ) {
         d->deinit();
 	delete d;
@@ -277,27 +281,40 @@ void QThread::start(Priority priority)
 
 bool QThread::wait( unsigned long time )
 {
-    {
-	QMutexLocker locker(d->mutex());
+    QMutexLocker locker(d->mutex());
 
-	if ( d->id == GetCurrentThreadId() ) {
-	    qWarning( "Thread tried to wait on itself" );
-	    return FALSE;
-	}
-	if ( d->finished || !d->running )
-	    return TRUE;
-    }
-    switch ( WaitForSingleObject( d->handle, time ) ) {
-    case WAIT_TIMEOUT:
+    if ( d->id == GetCurrentThreadId() ) {
+	qWarning( "Thread tried to wait on itself" );
 	return FALSE;
-    case WAIT_ABANDONED_0:
+    }
+    if ( d->finished || !d->running )
+	return TRUE;
+
+    ++d->waiters;
+    locker.mutex()->unlock();
+
+    bool ret = FALSE;
+    switch ( WaitForSingleObject( d->handle, time ) ) {
+    case WAIT_OBJECT_0:
+	ret = TRUE;
+	break;
+    case WAIT_ABANDONED:
     case WAIT_FAILED:
 	qSystemWarning( "Thread wait failure" );
-	return FALSE;
+    case WAIT_TIMEOUT:
     default:
 	break;
     }
-    return TRUE;
+
+    locker.mutex()->lock();
+    --d->waiters;
+
+    if (d->finished && !d->waiters) {
+	CloseHandle(d->handle);
+	d->handle = 0;
+    }
+
+    return ret;
 }
 
 void QThread::exit()

@@ -1,175 +1,171 @@
 /****************************************************************************
+** $Id$
 **
-** Implementation of QWaitCondition class for Win32.
+** Implementation of QWaitCondition class for Win32
 **
-** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
-** EDITIONS: PROFESSIONAL, ENTERPRISE
+**
+** Licensees holding valid Qt Enterprise Edition or Qt Professional Edition
+** licenses for Windows may use this file in accordance with the Qt Commercial
+** License Agreement provided with the Software.
+**
+** This file is not available for use under any other license without
+** express written permission from the copyright holder.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
-****************************************************************************/
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
+
+#if defined(QT_THREAD_SUPPORT)
 
 #include "qwaitcondition.h"
+#include "qnamespace.h"
 #include "qmutex.h"
+#include "qlist.h"
+#include "qt_windows.h"
 
-#include <windows.h>
-#include <qatomic.h>
+#define Q_MUTEX_T void*
+#include <private/qmutex_p.h>
+#include <private/qcriticalsection_p.h>
 
-#include "qmutex_p.h"
+//***********************************************************************
+// QWaitConditionPrivate
+// **********************************************************************
 
+class QWaitConditionEvent
+{
+public:
+    inline QWaitConditionEvent() : priority(0)
+    {
+	QT_WA ({
+	    event = CreateEvent(NULL, TRUE, FALSE, NULL);
+	}, {
+	    event = CreateEventA(NULL, TRUE, FALSE, NULL);
+	});
+    }
+    inline ~QWaitConditionEvent() { CloseHandle(event); }
+    int priority;
+    HANDLE event;
+};
 
-/*
-  QWaitConditionPrivate
-*/
+typedef QList<QWaitConditionEvent *> EventQueue;
 
 class QWaitConditionPrivate
 {
 public:
-    QWaitConditionPrivate();
-    ~QWaitConditionPrivate();
+    QCriticalSection cs;
+    EventQueue queue;
+    EventQueue freeQueue;
 
-    int wait( unsigned long time = ULONG_MAX , bool countWaiter = TRUE);
-    HANDLE manual;
-    HANDLE autoreset;
-    QMutex mutex;
-    int waitersCount;
+    bool wait(QMutex *mutex, unsigned long time);
 };
 
-QWaitConditionPrivate::QWaitConditionPrivate()
-: waitersCount(0)
+bool QWaitConditionPrivate::wait(QMutex *mutex, unsigned long time)
 {
-    QT_WA( {
-	manual = CreateEvent( NULL, TRUE, FALSE, NULL );
-	autoreset = CreateEvent( NULL, FALSE, FALSE, NULL );
-    } , {
-	manual = CreateEventA( NULL, TRUE, FALSE, NULL );
-	autoreset = CreateEventA( NULL, FALSE, FALSE, NULL );
-    } );
+    bool ret = FALSE;
 
-    if ( !manual || !autoreset )
-	qSystemWarning( "Condition init failure" );
-}
+    cs.enter();
+    QWaitConditionEvent *wce =
+	freeQueue.isEmpty() ? new QWaitConditionEvent : freeQueue.takeAt(0);
+    wce->priority = GetThreadPriority(GetCurrentThread());
 
-QWaitConditionPrivate::~QWaitConditionPrivate()
-{
-    if ( !CloseHandle( manual ) || !CloseHandle( autoreset ) ) {
-	qSystemWarning( "Condition destroy failure" );
+    // insert 'wce' into the queue (sorted by priority)
+    QWaitConditionEvent *current = queue.first();
+    int index;
+    for (index = 0; index < queue.size(); ++index) {
+	if (current->priority < wce->priority)
+	    break;
     }
-}
+    queue.insert(index, wce);
+    cs.leave();
 
-int QWaitConditionPrivate::wait( unsigned long time , bool countWaiter )
-{
-    mutex.lock();
-    if ( countWaiter )
-	waitersCount++;
-    HANDLE hnds[2] = { manual, autoreset };
-    mutex.unlock();
-    int ret = WaitForMultipleObjects( 2, hnds, FALSE, time );
-    mutex.lock();
-    waitersCount--;
-    mutex.unlock();
+    if (mutex) mutex->unlock();
+
+    // wait for the event
+    switch (WaitForSingleObject(wce->event, time)) {
+    default: break;
+
+    case WAIT_OBJECT_0:
+	ret = TRUE;
+	break;
+    }
+
+    if (mutex) mutex->lock();
+
+    cs.enter();
+    // remove 'wce' from the queue
+    queue.remove(wce);
+    ResetEvent(wce->event);
+    freeQueue.append(wce);
+    cs.leave();
+
     return ret;
 }
 
-/*
-  QWaitCondition implementation
-*/
+//***********************************************************************
+// QWaitCondition implementation
+//***********************************************************************
 
 QWaitCondition::QWaitCondition()
 {
-    d = new QWaitConditionPrivate();
+    d = new QWaitConditionPrivate;
+    d->freeQueue.setAutoDelete(TRUE);
 }
 
 QWaitCondition::~QWaitCondition()
 {
+    Q_ASSERT(d->queue.isEmpty());
     delete d;
 }
 
 bool QWaitCondition::wait( unsigned long time )
 {
-    switch ( d->wait(time) ) {
-    case WAIT_TIMEOUT:
-	return FALSE;
-    case WAIT_ABANDONED:
-    case WAIT_ABANDONED+1:
-    case WAIT_FAILED:
-    qSystemWarning( "Condition wait failure" );
-	break;
-    case WAIT_OBJECT_0:
-	d->mutex.lock();
-	if ( !d->waitersCount ) {
-	    if ( !ResetEvent ( d->manual ) ) {
-		qSystemWarning( "Condition could not be reset" );
-	    }
-	}
-	d->mutex.unlock();
-    default:
-	break;
-    }
-    return TRUE;
+    return d->wait(0, time);
 }
 
 bool QWaitCondition::wait( QMutex *mutex, unsigned long time)
 {
     if ( !mutex )
-       return FALSE;
+	return FALSE;
 
-    if ( mutex->d->recursive ) {
+    if ( mutex->d->type() == Q_MUTEX_RECURSIVE ) {
+#ifdef QT_CHECK_RANGE
 	qWarning("QWaitCondition::wait: Cannot wait on recursive mutexes.");
+#endif
 	return FALSE;
     }
-
-    d->mutex.lock();
-    d->waitersCount++;
-    d->mutex.unlock();
-    mutex->unlock();
-    int result = d->wait(time, FALSE);
-    mutex->lock();
-    d->mutex.lock();
-    bool lastWaiter = ( (result == WAIT_OBJECT_0 )  && d->waitersCount == 0 ); // last waiter on waitAll?
-    d->mutex.unlock();
-    if ( lastWaiter ) {
-	if ( !ResetEvent ( d->manual ) ) {
-	    qSystemWarning( "Condition could not be reset" );
-	}
-    }
-    switch ( result ) {
-    case WAIT_TIMEOUT:
-	return FALSE;
-    case WAIT_ABANDONED:
-    case WAIT_ABANDONED+1:
-    case WAIT_FAILED:
-	qSystemWarning( "Condition wait failure" );
-	break;
-    default:
-	break;
-    }
-    return TRUE;
+    return d->wait(mutex, time);
 }
 
 void QWaitCondition::wakeOne()
 {
-    d->mutex.lock();
-    bool haveWaiters = (d->waitersCount > 0);
-    if ( haveWaiters ) {
-	if ( !SetEvent( d->autoreset ) ) {
-	    qSystemWarning( "Condition could not be set" );
-	}
-    }
-    d->mutex.unlock();
+    // wake up the first thread in the queue
+    d->cs.enter();
+    QWaitConditionEvent *first = d->queue.first();
+    if (first)
+	SetEvent(first->event);
+    d->cs.leave();
 }
 
 void QWaitCondition::wakeAll()
 {
-    d->mutex.lock();
-    bool haveWaiters = (d->waitersCount > 0);
-    if ( haveWaiters ) {
-	if ( !SetEvent( d->manual ) ) {
-	    qSystemWarning( "Condition could not be set" );
-	}
+    // wake up the all threads in the queue
+    d->cs.enter();
+    QWaitConditionEvent *current = d->queue.first();
+    while (current) {
+	SetEvent(current->event);
+	current = d->queue.next();
     }
-    d->mutex.unlock();
+    d->cs.leave();
 }
+
+#endif // QT_THREAD_SUPPORT
