@@ -507,6 +507,12 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	// NOTE: this event came from the real focus widget, so we don't
 	// need to touch the event filters
 	waitforalt = 0;
+    // although the comment above said not to remove the event filter, it is
+    // incorrect. We need to remove our self fom the focused widget as normally 
+    // this happens in the key release but it does not happen in this case 
+    QWidget * f = ((QWidget *)object)->focusWidget();
+    if (f) 
+        f->removeEventFilter( this );
 	return FALSE;
     } else if ( !( event->type() == QEvent::Accel ||
 		event->type() == QEvent::AccelOverride ||
