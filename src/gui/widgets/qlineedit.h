@@ -128,6 +128,7 @@ public slots:
 public:
     void deselect();
     void insert(const QString &);
+    QMenu *createStandardContextMenu();
 
 signals:
     void textChanged(const QString &);
@@ -153,7 +154,6 @@ protected:
 #endif
     void changeEvent(QEvent *);
     void contextMenuEvent(QContextMenuEvent *);
-    QMenu *createStandardContextMenu();
 #ifdef QT_COMPAT
     inline QT_COMPAT void repaintArea(int, int) { update(); }
 #endif

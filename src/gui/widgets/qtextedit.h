@@ -145,6 +145,8 @@ public:
 
     virtual QVariant loadResource(int type, const QUrl &name);
 
+    QMenu *createStandardContextMenu();
+
 public slots:
     void setFontPointSize(float s);
     void setFontFamily(const QString &fontFamily);
@@ -204,8 +206,6 @@ protected:
 
     virtual void inputMethodEvent(QInputMethodEvent *);
     QVariant inputMethodQuery(Qt::InputMethodQuery property) const;
-
-    QMenu *createStandardContextMenu();
 
     QTextEdit(QTextEditPrivate &dd, QWidget *parent);
 
