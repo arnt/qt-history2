@@ -6,5 +6,32 @@
     it possible to turn any Qt binary into a full COM object server 
     with only a few lines of code.
 
-    ###
+    IDC understands the following command line parameters:
+
+    \table
+    \header
+    \i Option
+    \i Result
+    \row
+    \i dll -idl idl
+    \i Writes the IDL of the server \e dll to the file \e idl
+    \row
+    \i dll -tlb tlb
+    \i Replaces the type library in \e dll with \e tlb
+    \row
+    \i -v
+    \i Print version information
+    \row
+    \i -regserver dll
+    \i Register the COM server \e dll
+    \row
+    \i -unregserver
+    \i Unregister the COM server \e dll
+    \endtable
+
+    It is usually never necessary to invoke IDC manually, as the
+    \c qmake build system takes care of adding the required post 
+    processing steps to the build process. See the 
+    \link qaxserver.html#4 ActiveQt build system \endlink 
+    documentation for details.
 */
