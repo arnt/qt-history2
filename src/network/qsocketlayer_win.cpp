@@ -804,22 +804,25 @@ Q_LLONG QSocketLayerPrivate::nativeWrite(const char *data, Q_LLONG len)
         WS_ERROR_DEBUG
         switch (WSAGetLastError()) {
         case WSAECONNRESET:
-            bytesWritten = -1;
+        case WSAECONNABORTED:
+            ret = -1;
             setError(Qt::NetworkError, "Unable to write");
             q->close();
             break;
         default:
             break;
         }
+    } else {
+        ret = Q_LLONG(bytesWritten);
     }
 
 #if defined (QSOCKETLAYER_DEBUG)
     qDebug("QSocketLayerPrivate::nativeWrite(%p \"%s\", %lu) == %i",
            data, qt_prettyDebug(data, qMin((int) bytesWritten, 16),
-                                (int) bytesWritten).data(), len, (int) bytesWritten);
+                                (int) bytesWritten).data(), len, (int) ret);
 #endif
 
-    return (Q_LONG) bytesWritten;
+    return ret;
 }
 
 
