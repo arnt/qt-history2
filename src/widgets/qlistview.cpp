@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#190 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#191 $
 **
 ** Implementation of QListView widget class
 **
@@ -1290,7 +1290,7 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 		while( point < end ) {
 		    i = 128;
 		    if ( i+point > end )
-			i = end;
+			i = end-point;
 		    p->drawPixmap( point, other, *horizontalLine,
 				   0, 0, i, 1 );
 		    point += i;
