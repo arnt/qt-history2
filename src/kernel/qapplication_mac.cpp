@@ -191,10 +191,6 @@ const UInt32 kEventClassQt = 'cute';
 enum {
     kEventQtRequestPropagate = 1
 };
-enum {
-    // params
-    kEventParamQtAllWindows = 'awnd', /* typeBoolean */
-};
 static bool request_pending = FALSE;
 void requestUpdates() 
 {
@@ -205,8 +201,6 @@ void requestUpdates()
     EventRef upd = NULL;
     CreateEvent(NULL, kEventClassQt, kEventQtRequestPropagate, GetCurrentEventTime(), 
 		kEventAttributeUserEvent, &upd);
-    const Boolean allwind = true;
-    SetEventParameter(upd, kEventParamQtAllWindows, typeBoolean, sizeof(Boolean), &allwind);
     PostEventToQueue( GetCurrentEventQueue(), upd, kEventPriorityHigh );
 }
 
@@ -1349,18 +1343,13 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
     case kEventClassQt:
 	request_pending = FALSE;
 	if(ekind == kEventQtRequestPropagate) {
-	    Boolean all_windows = false;
-	    GetEventParameter(event, kEventParamQtAllWindows, typeBoolean, NULL,
-			      sizeof(all_windows), NULL, &all_windows);
-	    if(all_windows) {
-		if(QWidgetList *list   = qApp->topLevelWidgets()) {
-		    for ( QWidget     *widget = list->first(); widget; widget = list->next() ) {
-			if ( !widget->isHidden() && !widget->isDesktop())
-			    widget->propagateUpdates();
-		    }
-		    delete list;
+	    if(QWidgetList *list   = qApp->topLevelWidgets()) {
+		for ( QWidget     *widget = list->first(); widget; widget = list->next() ) {
+		    if ( !widget->isHidden() && !widget->isDesktop())
+			widget->propagateUpdates();
 		}
-	    } 
+		delete list;
+	    }
 	}
 	break;
     case kEventClassMouse:
