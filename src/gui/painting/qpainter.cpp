@@ -115,28 +115,27 @@ void QPainterPrivate::draw_helper(const void *data, bool winding, ShapeType shap
                 }
             } else {
                 QRectF bounds;
-                // set clip to match polygon to fill
-                if (shape != RectangleShape) {
-                    q->save();
-                    QPainterPath clip;
-                    switch (shape) {
-                    case EllipseShape:
-                        bounds = *reinterpret_cast<const QRectF*>(data);
-                        clip.addEllipse(bounds);
-                        break;
-                    case PathShape:
-                        clip = *reinterpret_cast<const QPainterPath*>(data);
-                        break;
-                    default:
-                        bounds = reinterpret_cast<const QPolygon*>(data)->boundingRect();
-                        clip.addPolygon(*reinterpret_cast<const QPolygon*>(data));
-                        break;
-                    }
-                    clip.setFillMode(winding ? QPainterPath::Winding : QPainterPath::OddEven);
-                    q->setClipPath(clip);
-                } else {
+                q->save();
+                QPainterPath clip;
+                switch (shape) {
+                case EllipseShape:
                     bounds = *reinterpret_cast<const QRectF*>(data);
+                    clip.addEllipse(bounds);
+                    break;
+                case PathShape:
+                    clip = *reinterpret_cast<const QPainterPath*>(data);
+                    break;
+                case RectangleShape:
+                    clip.addRect(*reinterpret_cast<const QRectF*>(data));
+                    bounds = *reinterpret_cast<const QRectF*>(data);
+                    break;
+                default:
+                    bounds = reinterpret_cast<const QPolygon*>(data)->boundingRect();
+                    clip.addPolygon(*reinterpret_cast<const QPolygon*>(data));
+                    break;
                 }
+                clip.setFillMode(winding ? QPainterPath::Winding : QPainterPath::OddEven);
+                q->setClipPath(clip);
                 if (emulationSpecifier & QPaintEngine::LinearGradients) {
                     qt_fill_linear_gradient(bounds.toRect(), q, state->brush);
                 } else { // AlphaFill
@@ -147,8 +146,7 @@ void QPainterPrivate::draw_helper(const void *data, bool winding, ShapeType shap
                     QPixmap pm(image);
                     q->drawTiledPixmap(bounds.toRect(), pm);
                 }
-                if (shape != RectangleShape)
-                    q->restore();
+                q->restore();
             }
         } else if (emulationSpecifier & QPaintEngine::CoordTransform) {
             outlineMode = None;
@@ -2889,6 +2887,13 @@ void QPainter::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoi
 
 void QPainter::drawPicture(const QPoint &p, const QPicture &picture)
 {
+    Q_UNUSED(p);
+    Q_UNUSED(picture);
+
+    qWarning("QPainter::drawPicture() is disabled");
+    return;
+
+#if 0
     if (!isActive())
         return;
     d->engine->updateState(d->state);
@@ -2896,6 +2901,7 @@ void QPainter::drawPicture(const QPoint &p, const QPicture &picture)
     translate(p);
     const_cast<QPicture *>(&picture)->play(this);
     restore();
+#endif
 }
 
 
@@ -3786,22 +3792,10 @@ void qt_fill_linear_gradient(const QRect &rect, QPainter *p, const QBrush &brush
 {
     Q_ASSERT(brush.style() == Qt::LinearGradientPattern);
 
-    QMatrix matrix = p->matrix();
-
-    QPoint gstart = brush.gradientStart() * matrix;
-    QPoint gstop  = brush.gradientStop() * matrix;;
+    QPoint gstart = brush.gradientStart();
+    QPoint gstop  = brush.gradientStop();
 
     QPen oldPen = p->pen();
-    p->translate(rect.topLeft());
-
-    // The redirection offset should not be taken into account when
-    // calculating the gradient start/stop pts. The reason for this is
-    // that gradient pts exist in logical coordinate space only -
-    // nothing to do with redirection offset whatsoever.
-    QPoint rdOffset;
-    p->redirected(p->device(), &rdOffset);
-    gstart = gstart - rect.topLeft() + rdOffset;
-    gstop = gstop - rect.topLeft() + rdOffset;
 
     QColor gcol1 = brush.color();
     QColor gcol2 = brush.gradientColor();
@@ -3951,7 +3945,6 @@ void qt_fill_linear_gradient(const QRect &rect, QPainter *p, const QBrush &brush
 
     p->translate(-rect.topLeft());
     p->setPen(oldPen);
-
 }
 
 // Declared in qpaintdevice.h
