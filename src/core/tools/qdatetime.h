@@ -159,7 +159,7 @@ class Q_CORE_EXPORT QDateTime
 {
 public:
     QDateTime();
-    QDateTime(const QDate &);
+    explicit QDateTime(const QDate &);
     QDateTime(const QDate &, const QTime &, Qt::TimeSpec spec = Qt::LocalTime);
     QDateTime(const QDateTime &other);
     ~QDateTime();
