@@ -5,7 +5,7 @@
 **
 ** Created : 970521
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -92,9 +92,9 @@ void QFontDatabase::createDatabase()
 
 	foundries = XftListFonts (QPaintDevice::x11AppDisplay(),
 				  QPaintDevice::x11AppScreen(),
-				  0,
+				  (const char *)0,
 				  XFT_FOUNDRY,
-				  0);
+				  (const char *)0);
 
 	for (int d = 0; d < foundries->nfont; d++) {
 	    if (XftPatternGetString(foundries->fonts[d],
@@ -114,14 +114,14 @@ void QFontDatabase::createDatabase()
 		families =
 		    XftListFonts(QPaintDevice::x11AppDisplay(),
 				 QPaintDevice::x11AppScreen(),
-				 XFT_FOUNDRY, XftTypeString, foundryName.data(), 0,
-				 XFT_FAMILY, 0);
+				 XFT_FOUNDRY, XftTypeString, foundryName.data(), (const char *)0,
+				 XFT_FAMILY, (const char *)0);
 	    else
 		families =
 		    XftListFonts(QPaintDevice::x11AppDisplay(),
 				 QPaintDevice::x11AppScreen(),
-				 0,
-				 XFT_FAMILY, 0);
+				 (const char *)0,
+				 XFT_FAMILY, (const char *)0);
 
 	    for (int f = 0; f < families->nfont; f++) {
 		if (XftPatternGetString(families->fonts[f],
@@ -138,17 +138,17 @@ void QFontDatabase::createDatabase()
 					  QPaintDevice::x11AppScreen(),
 					  XFT_FOUNDRY, XftTypeString, foundryName.data(),
 					  XFT_FAMILY, XftTypeString, familyName.data(),
-					  0,
+					  (const char *)0,
 					  XFT_STYLE, XFT_WEIGHT, XFT_SLANT, XFT_SPACING,
-					  0);
+					  (const char *)0);
 		    else
 			styles =
 			    XftListFonts (QPaintDevice::x11AppDisplay(),
 					  QPaintDevice::x11AppScreen(),
 					  XFT_FAMILY, XftTypeString, familyName.data(),
-					  0,
+					  (const char *)0,
 					  XFT_STYLE, XFT_WEIGHT, XFT_SLANT, XFT_SPACING,
-					  0);
+					  (const char *)0);
 
 		    for (int s = 0; s < styles->nfont; s++) {
 			if (XftPatternGetString (styles->fonts[s],
@@ -355,4 +355,3 @@ static QString getStyleName( char ** tokens, bool *italic, bool *lesserItalic )
 
     return nm;
 }
-
