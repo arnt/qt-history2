@@ -49,16 +49,17 @@ public:
 */
 
 /*!
-    Creates a QAccessibleWidget object for \a widget.
+    Creates a QAccessibleWidget object for \a w.
     \a role, \a name, \a description, \a value, \a help, \a defAction, \a defActionName,
     \a accelerator and \a state are optional parameters for static values
     of the object's property.
 */
-QAccessibleWidget::QAccessibleWidget(QWidget *widget, Role role, QString name,
+QAccessibleWidget::QAccessibleWidget(QWidget *w, Role role, QString name,
     QString description, QString value, QString help, int defAction, QString defActionName, 
     QString accelerator, State state)
-: QAccessibleObject(widget)
+: QAccessibleObject(w)
 {
+    Q_ASSERT(widget());
     d = new QAccessibleWidgetPrivate();
     d->role = role;
     d->state = state;
@@ -84,10 +85,7 @@ QAccessibleWidget::~QAccessibleWidget()
 */
 QWidget *QAccessibleWidget::widget() const
 {
-    Q_ASSERT(object()->isWidgetType());
-    if (!object()->isWidgetType())
-	return 0;
-    return (QWidget*)object();
+    return qt_cast<QWidget*>(object());
 }
 
 /*! \reimp */
@@ -261,8 +259,7 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 		return -1;
 	    QObjectList ol = parentWidget->queryList("QWidget", 0, 0, FALSE);
 
-	    QRect geom = start->geometry();
-	    QPoint center = geom.center();
+	    QRect startg = start->geometry();
 	    QWidget *candidate = 0;
 	    int mindist = 100000;
 	    for (int i = 0; i < ol.count(); ++i) {
@@ -270,19 +267,44 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 		if (sibling == start)
 		    continue;
 		QRect sibg = sibling->geometry();
-		QPoint sibc = sibg.center();
-		QPoint sc = sibc - center;
-		int dist = sc.manhattanLength();
+		QPoint sibp;
+		QPoint startp;
+		QPoint distp;
+		switch (relation) {
+		case QAccessible::Left:
+		    startp = QPoint(startg.left(), startg.bottom() - startg.top() / 2);
+		    sibp = QPoint(sibg.right(), sibg.bottom() - sibg.top() / 2);
+		    distp = sibp - startp;
+		    if (distp.x() >= 0)
+			continue;
+		    break;
+		case QAccessible::Right:
+		    startp = QPoint(startg.right(), startg.bottom() - startg.top() / 2);
+		    sibp = QPoint(sibg.left(), sibg.bottom() - sibg.top() / 2);
+		    distp = sibp - startp;
+		    if (distp.x() <= 0)
+			continue;
+		    break;
+		case QAccessible::Above:
+		    startp = QPoint(startg.right() - startg.left() / 2, startg.top());
+		    sibp = QPoint(sibg.right() - sibg.left() / 2, sibg.bottom());
+		    distp = sibp - startp;
+		    if (distp.y() >= 0)
+			continue;
+		    break;
+		case QAccessible::Below:
+		    startp = QPoint(startg.right() - startg.left() / 2, startg.bottom());
+		    sibp = QPoint(sibg.right() - sibg.left() / 2, sibg.top());
+		    distp = sibp - startp;
+		    if (distp.y() <= 0)
+			continue;
+		    break;
+		}
+
+		int dist = distp.manhattanLength();
 		if (dist < mindist ) {
 		    QWidget *oldcandidate = candidate;
-		    if (relation == QAccessible::Left && sc.x() < 0 && sibg.right() < geom.left())
-			candidate = sibling;
-		    else if (relation == QAccessible::Right && sc.x() > 0 && sibg.left() > geom.right())
-			candidate = sibling;
-		    else if (relation == QAccessible::Above && sc.y() < 0 && sibg.bottom() < geom.top())
-			candidate = sibling;
-		    else if (relation == QAccessible::Below && sc.y() > 0 && sibg.top() > geom.bottom())
-			candidate = sibling;
+		    candidate = sibling;
 		    if (candidate && candidate != oldcandidate)
 			mindist = dist;
 		}
