@@ -1,0 +1,25 @@
+Fram til 0.98:
+
+1. EE
+connect protected/public
+
+2. HN
+toppnivaa autodelete
+
+3. EE
+assign operator og copy constructor i alle klasser
+
+4. HN?
+size increment (max/min size force)
+
+5. POT?
+lage en distribusjon checkliste/huskeliste
+
+6. AG
+porte til flere plattformer
+
+7. HN?
+makesystem
+
+8. AG
+automatisk generere distribusjon

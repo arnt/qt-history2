@@ -1,0 +1,63 @@
+dokumentasjon
+
+    temasider (programmers guide)
+
+
+stoettefunksjoner:
+    make system
+    automatisk generere distribusjon
+    lage en distribusjon checkliste/huskeliste
+    lage en QA beskrivelse for Qt prosjektet
+    porte til flere plattformer
+
+
+PR
+    skrive artikler om qt
+    lage pressemeldinger
+    
+
+funksjonalitet:
+
+    Multi line editor
+
+    Designer/Resurser
+
+    Toolbar
+
+    Nettverksklasser
+
+    Hjelpesystem (HTML-view)
+
+    Geometry management
+
+    Dialoger:
+
+	font select
+	color select
+	
+
+    enkeltoppgaver:
+
+	- connect protected/public
+	- toppnivaa autodelete
+	- assign operator og copy constructor i alle klasser
+	- size increment (max/min size force)
+
+ferdigstilling
+
+    tastaturfokus/default knapp
+
+    postscript generering
+
+    windows look & feel
+
+    file selection
+
+    font selection i xForm
+
+    fargekube
+    
+    innebygget fontfamilie matching
+
+
+
