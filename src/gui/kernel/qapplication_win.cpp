@@ -1435,8 +1435,10 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             QWidget *g = QWidget::keyboardGrabber();
             if (g)
                 widget = (QETWidget*)g;
+            else if (QApplication::activePopupWidget())
+                widget = (QETWidget*)QApplication::activePopupWidget();
             else if (qApp->focusWidget())
-                widget = (QETWidget*)qApp->focusWidget();
+                widget = (QETWidget*)QApplication::focusWidget();
             else if (!widget || widget->winId() == GetFocus()) // We faked the message to go to exactly that widget.
                 widget = (QETWidget*)widget->window();
             if (widget->isEnabled())
@@ -1694,7 +1696,8 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
 
         case WM_ERASEBKGND:                        // erase window background
             if (!widget->testAttribute(Qt::WA_PendingUpdate)
-                && !widget->testAttribute(Qt::WA_NoBackground))
+                && !widget->testAttribute(Qt::WA_NoBackground)
+                && widget->windowType() != Qt::Popup)
                 widget->eraseWindowBackground((HDC)wParam);
             RETURN(true);
             break;
