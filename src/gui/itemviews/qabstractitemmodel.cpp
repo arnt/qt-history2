@@ -532,8 +532,12 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
 
     When subclassing QAbstractItemModel, at the very least you must
     implement index(), parent(), rowCount(), columnCount(), hasChildren(),
-    and data().  To enable editing in your model, you must also implement
-    flags() to return ItemIsEditable and setData().
+    and data().  To enable editing in your model, you must
+    also implement setData(), and reimplement flags() to ensure that
+    \c ItemIsEditable is returned.
+
+    You can also reimplement headerData() to control the way the headers
+    for your model are presented.
 
     \sa \link model-view-programming.html Model/View Programming\endlink QModelIndex QAbstractItemView
 

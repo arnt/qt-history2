@@ -276,7 +276,7 @@ void QtPrivate::QStringList_sort(QStringList *that)
     \code
         QStringList list;
         list << "Bill Murray" << "John Doe" << "Bill Clinton";
-        list = list.find("Bill");
+        list = list.filter("Bill");
         // list: ["Bill Murray", "Bill Clinton"]
     \endcode
 
