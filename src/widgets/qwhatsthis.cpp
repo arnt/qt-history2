@@ -309,7 +309,7 @@ QWhatsThisPrivate::QWhatsThisPrivate()
 QWhatsThisPrivate::~QWhatsThisPrivate()
 {
 #ifndef QT_NO_CURSOR
-    if ( state == Waiting )
+    if ( state == Waiting && qApp )
 	QApplication::restoreOverrideCursor();
 #endif
 
