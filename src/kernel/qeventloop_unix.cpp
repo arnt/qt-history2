@@ -104,6 +104,11 @@ static inline bool operator<( const timeval &t1, const timeval &t2 )
 	  (t1.tv_sec == t2.tv_sec && t1.tv_usec < t2.tv_usec);
 }
 
+static inline bool operator==( const timeval &t1, const timeval &t2 )
+{
+    return t1.tv_sec == t2.tv_sec && t1.tv_usec == t2.tv_usec;
+}
+
 static inline timeval &operator+=( timeval &t1, const timeval &t2 )
 {
     t1.tv_sec += t2.tv_sec;
@@ -527,14 +532,16 @@ int QEventLoop::activateTimers()
 	    watchtime = currentTime;
 	}
 	t = timerList->first();
+	if ( !t || currentTime < t->timeout )	// no timer has expired
+	    break;
 	if ( ! begin ) {
 	    begin = t;
 	} else if ( begin == t ) {
 	    // avoid sending the same timer multiple times
 	    break;
+	} else if ( t->interval <  begin->interval || t->interval == begin->interval ) {
+	    begin = t;
 	}
-	if ( !t || currentTime < t->timeout )	// no timer has expired
-	    break;
 	timerList->take();			// unlink from list
 	t->timeout += t->interval;
 	if ( t->timeout < currentTime )

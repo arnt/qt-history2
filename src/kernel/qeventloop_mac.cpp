@@ -137,6 +137,10 @@ static inline bool operator<(const timeval &t1, const timeval &t2)
     return t1.tv_sec < t2.tv_sec ||
 	  (t1.tv_sec == t2.tv_sec && t1.tv_usec < t2.tv_usec);
 }
+static inline bool operator==( const timeval &t1, const timeval &t2 )
+{
+    return t1.tv_sec == t2.tv_sec && t1.tv_usec == t2.tv_usec;
+}
 static inline timeval &operator+=(timeval &t1, const timeval &t2)
 {
     t1.tv_sec += t2.tv_sec;
@@ -354,14 +358,17 @@ static int qt_activate_timers(TimerInfo::TimerType types = TimerInfo::TIMER_ANY)
 	}
 	t = timerList->first();
 	if(t->type == TimerInfo::TIMER_QT) {
+	    if(!t || currentTime < t->u.qt_timer.timeout) // no timer has expired
+		break;
 	    if ( ! begin ) {
 		begin = t;
 	    } else if ( begin == t ) {
 		// avoid sending the same timer multiple times
 		break;
+	    } else if ( t->interval <  begin->interval ||
+			t->interval == begin->interval ) {
+		begin = t;
 	    }
-	    if(!t || currentTime < t->u.qt_timer.timeout) // no timer has expired
-		break;
 	    timerList->take();			// unlink from list
 	    t->u.qt_timer.timeout += t->u.qt_timer.interval;
 	    if(t->u.qt_timer.timeout < currentTime)
