@@ -21,6 +21,7 @@
 #include "qdesigner_settings.h"
 #include "qdesigner_session.h"
 #include "qdesigner_workbench.h"
+#include "qdesigner_toolwindow.h"
 
 extern int qInitResources_formeditor();
 extern int qInitResources_widgetbox();
@@ -85,8 +86,12 @@ bool QDesigner::event(QEvent *ev)
     case QEvent::Close: {
         QCloseEvent *closeEvent = static_cast<QCloseEvent *>(ev);
         closeEvent->setAccepted(m_workbench->handleClose());
-        if (closeEvent->isAccepted())
+        if (closeEvent->isAccepted()) {
+            // We're going down, make sure that we don't get our settings saved twice.
+            if (QDesignerToolWindow *tw = qobject_cast<QDesignerToolWindow *>(mainWidget()))
+                tw->setSaveSettingsOnClose(false);
             eaten = QApplication::event(ev);
+        }
         eaten = true;
         break;
     }

@@ -103,17 +103,35 @@ void QDesignerSettings::setGeometryHelper(QWidget *w, const QString &key,
 
 void QDesignerSettings::setHeaderSizesFor(QHeaderView *hv) const
 {
-    Q_ASSERT(hv && hv->window() && !hv->window()->objectName().isEmpty());
+    if (!hv)
+        return;
+
+    QString key;
+    QWidget *w = hv;
+    while (key.isEmpty() && w) {
+        key = w->objectName();
+        w = w->parentWidget();
+    }
+    Q_ASSERT(!key.isEmpty());
     QList<QVariant> sizeHints;
     for (int i = 0; i < hv->count(); ++i)
         sizeHints.append(hv->sectionSizeHint(i));
-    setHeaderSizesForHelper(hv, hv->window()->objectName(), sizeHints);
+    setHeaderSizesForHelper(hv, key, sizeHints);
 }
 
-void QDesignerSettings::saveHeaderSizesFor(QHeaderView *hv)
+void QDesignerSettings::saveHeaderSizesFor(const QHeaderView *hv)
 {
-    Q_ASSERT(hv && hv->window() && !hv->window()->objectName().isEmpty());
-    saveHeaderSizesForHelper(hv, hv->window()->objectName());
+    if (!hv)
+        return;
+
+    const QWidget *w = hv;
+    QString key;
+    while (key.isEmpty() && w) {
+        key = w->objectName();
+        w = w->parentWidget();
+    }
+    Q_ASSERT(!key.isEmpty());
+    saveHeaderSizesForHelper(hv, key);
 }
 
 void QDesignerSettings::setHeaderSizesForHelper(QHeaderView *hv, const QString &key,
@@ -131,7 +149,7 @@ void QDesignerSettings::setHeaderSizesForHelper(QHeaderView *hv, const QString &
         hv->resizeSection(i, sizes.at(i).toInt());
 }
 
-void QDesignerSettings::saveHeaderSizesForHelper(QHeaderView *hv, const QString &key)
+void QDesignerSettings::saveHeaderSizesForHelper(const QHeaderView *hv, const QString &key)
 {
     QList<QVariant> sizes;
     for (int i = 0; i < hv->count(); ++i)

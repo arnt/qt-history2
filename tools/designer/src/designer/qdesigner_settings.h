@@ -31,7 +31,7 @@ public:
     void saveGeometryFor(const QWidget *w);
 
     void setHeaderSizesFor(QHeaderView *hv) const;
-    void saveHeaderSizesFor(QHeaderView *hv);
+    void saveHeaderSizesFor(const QHeaderView *hv);
 
 private:
     QStringList defaultFormTemplatePaths() const;
@@ -41,7 +41,7 @@ private:
     
     void setHeaderSizesForHelper(QHeaderView *hv, const QString &key,
                            const QList<QVariant> &hints) const;
-    void saveHeaderSizesForHelper(QHeaderView *hv, const QString &key);
+    void saveHeaderSizesForHelper(const QHeaderView *hv, const QString &key);
 private:
     QString m_designerPath;
 };
