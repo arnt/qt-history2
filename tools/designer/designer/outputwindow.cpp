@@ -71,9 +71,9 @@ void debugMessageOutput( QtMsgType type, const char *msg )
 	if ( debugoutput && debugoutput->isVisibleTo( 0 ) )
 	    debugoutput->append( s );
 	else
-	    fprintf( stderr, s );
+	    fprintf( stderr, s.latin1() );
     } else {
-	fprintf( stderr, s );
+	fprintf( stderr, s.latin1() );
 	abort();
     }
 
