@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#21 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#22 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -141,8 +141,10 @@ public:
     QDomNodePrivate* first;
     QDomNodePrivate* last;
 
-    QString name;
+    QString name; // this is the local name if prefix != null
     QString value;
+    QString prefix; // set this only for ElementNode and AttributeNode
+    QString namespaceURI; // set this only for ElementNode and AttributeNode
 };
 
 class QDomNodeListPrivate : public QShared
@@ -914,6 +916,8 @@ QDomNodePrivate::QDomNodePrivate( QDomNodePrivate* n, bool deep )
 
     name = n->name;
     value = n->value;
+    prefix = n->prefix;
+    namespaceURI = n->namespaceURI;
 
     if ( !deep )
 	return;
@@ -1485,6 +1489,9 @@ QString QDomNode::nodeName() const
 {
     if ( !impl )
 	return QString::null;
+
+    if ( !IMPL->prefix.isNull() )
+	return IMPL->prefix + ":" + IMPL->name;
     return IMPL->name;
 }
 
@@ -1736,34 +1743,77 @@ bool QDomNode::isSupported( const QString& /*feature*/, const QString& /*version
 }
 
 /*!
-  fnord
+  Returns the namespace URI of this node; if the node has no namespace URI,
+  this function returns QString::null.
+
+  Only nodes of type ElmentNode or AttributeNode can have namespaces. A
+  namespace URI must be specified during creation time; it cannot be changed
+  afterwards.
+
+  \sa prefix() localName() QDomDocument::createElementNS()
+  QDomDocument::createAttributeNS()
 */
 QString QDomNode::namespaceURI() const
 {
-    return QString::null;
+    if ( !impl )
+	return QString::null;
+    return IMPL->namespaceURI;
 }
 
 /*!
-  fnord
+  Returns the namespace prefix of the node; if a node has no namespace prefix,
+  this function returns QString::null.
+
+  Only nodes of type ElmentNode or AttributeNode can have namespaces. A
+  namespace prefix must be specified during creation time; if a node was
+  created with a namespace prefix, you can change it with setPrefix()
+  afterwards.
+
+  \sa setPrefix() localName() namespaceURI() QDomDocument::createElementNS()
+  QDomDocument::createAttributeNS()
 */
 QString QDomNode::prefix() const
 {
-    return QString::null;
+    if ( !impl )
+	return QString::null;
+    return IMPL->prefix;
 }
 
 /*!
-  fnord
+  If the node has a namespace prefix, this function changes the namespace
+  prefix of the node to \a pre. Otherwise this function has no effect.
+
+  Only nodes of type ElmentNode or AttributeNode can have namespaces. A
+  namespace prefix must be specified during creation time; it is not possible
+  to add a namespace prefix afterwards.
+
+  \sa prefix() localName() namespaceURI() QDomDocument::createElementNS()
+  QDomDocument::createAttributeNS()
 */
-void QDomNode::setPrefix( const QString& /*pre*/ )
+void QDomNode::setPrefix( const QString& pre )
 {
+    if ( !impl || IMPL->prefix.isNull() )
+	return;
+    if ( isAttr() || isElement() )
+	IMPL->prefix = pre;
 }
 
 /*!
-  fnord
+  If the node uses namespaces, this function returns the local name of the
+  node. Otherwise it returns QString::null.
+
+  Only nodes of type ElmentNode or AttributeNode can have namespaces. A
+  namespace must be specified during creation time; it is not possible
+  to add a namespace afterwards.
+
+  \sa prefix() namespaceURI() QDomDocument::createElementNS()
+  QDomDocument::createAttributeNS()
 */
 QString QDomNode::localName() const
 {
-    return QString::null;
+    if ( !impl || IMPL->prefix.isNull() )
+	return QString::null;
+    return IMPL->name;
 }
 
 /*!
