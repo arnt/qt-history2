@@ -198,6 +198,7 @@ static bool qt_move_file(const QString &from, const QString &to)
 
 /*!
   Constructs a file icon provider.
+
 */
 
 QFileIconProvider::QFileIconProvider()
@@ -219,6 +220,7 @@ QFileIconProvider::QFileIconProvider()
 
 /*!
   Destroys the file icon provider.
+
 */
 
 QFileIconProvider::~QFileIconProvider()
@@ -230,6 +232,7 @@ QFileIconProvider::~QFileIconProvider()
   \fn QIconSet QFileIconProvider::icons(const QFileInfo &info) const
 
   Returns an icon set for the file described by \a fileInfo.
+
 */
 
 QIconSet QFileIconProvider::icons(const QFileInfo &fileInfo) const
@@ -240,7 +243,8 @@ QIconSet QFileIconProvider::icons(const QFileInfo &fileInfo) const
 }
 
 /*!
-  Returns the type of the file described by \a info.*/
+  Returns the type of the file described by \a info.
+*/
 
 QString QFileIconProvider::type(const QFileInfo &info) const
 {
@@ -299,11 +303,13 @@ public:
   \endomit
 
   \sa \link model-view-programming.html Model/View Programming\endlink.
+
 */
 
 /*!
   Constructs a directory model of the \a directory with a \a parent
-  object.*/
+  object.
+*/
 
 QDirModel::QDirModel(const QDir &directory, QObject *parent)
     : QAbstractItemModel(*new QDirModelPrivate, parent)
@@ -318,7 +324,8 @@ QDirModel::QDirModel(QDirModelPrivate &dd, const QDir &directory, QObject *paren
 }
 
 /*!
-  Destroys this directory model.*/
+  Destroys this directory model.
+*/
 
 QDirModel::~QDirModel()
 {
@@ -335,6 +342,7 @@ void QDirModel::init(const QDir &directory)
   given \a row, \a column, and \a type.
 
   The type is a value defined in \l QModelIndex::Type.
+
 */
 
 QModelIndex QDirModel::index(int row, int column, const QModelIndex &parent, QModelIndex::Type type) const
@@ -352,6 +360,7 @@ QModelIndex QDirModel::index(int row, int column, const QModelIndex &parent, QMo
 
 /*!
   Return the \a parent of the \a child model item.
+
 */
 
 QModelIndex QDirModel::parent(const QModelIndex &child) const
@@ -369,6 +378,7 @@ QModelIndex QDirModel::parent(const QModelIndex &child) const
 
 /*!
   Returns the number of rows in the \a parent model item.
+
 */
 
 int QDirModel::rowCount(const QModelIndex &parent) const
@@ -384,6 +394,7 @@ int QDirModel::rowCount(const QModelIndex &parent) const
 
 /*!
   Returns the number of columns in the \a parent model item.
+
 */
 
 int QDirModel::columnCount(const QModelIndex &parent) const
@@ -395,6 +406,7 @@ int QDirModel::columnCount(const QModelIndex &parent) const
 
 /*!
   Returns the data for the model item \a index with the given \a role.
+
 */
 
 QVariant QDirModel::data(const QModelIndex &index, int role) const
@@ -447,6 +459,7 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
   Sets the data for the model item \a index with the given \a role to
   the data referenced by the \a value. Returns true if successful;
   otherwise returns false.
+
 */
 
 bool QDirModel::setData(const QModelIndex &index, int role, const QVariant &value)
@@ -482,7 +495,8 @@ bool QDirModel::setData(const QModelIndex &index, int role, const QVariant &valu
 
 /*!
   Returns true if the \a parent model item has children; otherwise
-  returns false.*/
+  returns false.
+*/
 
 bool QDirModel::hasChildren(const QModelIndex &parent) const
 {
@@ -494,11 +508,13 @@ bool QDirModel::hasChildren(const QModelIndex &parent) const
 
   Returns true if the model item \a index in the directory model is
   selectable; otherwise returns false.
+
 */
 
 /*!
   Returns true if the model item \a index in the directory model is
   editable; otherwise returns false.
+
 */
 
 bool QDirModel::isEditable(const QModelIndex &index) const
@@ -515,7 +531,8 @@ bool QDirModel::isEditable(const QModelIndex &index) const
   \fn bool QDirModel::isDragEnabled(const QModelIndex &index) const
 
   Returns true if the model item \a index in the directory model can
-  be dragged; otherwise returns false.*/
+  be dragged; otherwise returns false.
+*/
 
 bool QDirModel::isDragEnabled(const QModelIndex &) const
 {
@@ -525,6 +542,7 @@ bool QDirModel::isDragEnabled(const QModelIndex &) const
 /*!
   Returns true if the model item \a index in the directory model can
   receive items dropped on it; otherwise returns false.
+
 */
 
 bool QDirModel::isDropEnabled(const QModelIndex &index) const
@@ -535,6 +553,7 @@ bool QDirModel::isDropEnabled(const QModelIndex &index) const
 /*!
   Returns true if the items in the directory model can be sorted;
   otherwise returns false.
+
 */
 
 bool QDirModel::isSortable() const
@@ -577,7 +596,8 @@ void QDirModel::sort(int column, Qt::SortOrder order)
   \fn bool QDirModel::equal(const QModelIndex &first, const QModelIndex &second) const
 
   Returns true if the \a first model index is equal to the \a second
-  index given.*/
+  index given.
+*/
 
 bool QDirModel::equal(const QModelIndex &left, const QModelIndex &right) const
 {
@@ -593,6 +613,7 @@ bool QDirModel::equal(const QModelIndex &left, const QModelIndex &right) const
 
   Returns true if the \a first model item is less than the \a second
   item given.
+
 */
 
 bool QDirModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
@@ -621,7 +642,8 @@ bool QDirModel::lessThan(const QModelIndex &left, const QModelIndex &right) cons
   \fn bool QDirModel::canDecode(QMimeSource *source) const
 
   Returns true if the directory model can decode the \a source
-  information; otherwise returns false.*/
+  information; otherwise returns false.
+*/
 
 bool QDirModel::canDecode(QMimeSource *src) const
 {
@@ -630,6 +652,7 @@ bool QDirModel::canDecode(QMimeSource *src) const
 
 /*!
   \fn bool QDirModel::decode(QDropEvent *event, const QModelIndex &parent)
+
 */
 
 bool QDirModel::decode(QDropEvent *e, const QModelIndex &parent)
@@ -670,6 +693,8 @@ bool QDirModel::decode(QDropEvent *e, const QModelIndex &parent)
 }
 
 /*!
+  Returns the drag object for the list of model item \a indices
+  originally dragged from the \a dragSource widget.
 */
 
 QDragObject *QDirModel::dragObject(const QModelIndexList &indices, QWidget *dragSource)
@@ -683,6 +708,7 @@ QDragObject *QDirModel::dragObject(const QModelIndexList &indices, QWidget *drag
 
 /*!
   Sets the \a provider of file icons for the directory model.
+
 */
 
 void QDirModel::setIconProvider(QFileIconProvider *provider)
@@ -691,6 +717,7 @@ void QDirModel::setIconProvider(QFileIconProvider *provider)
 }
 
 /*!
+  Returns the file icon provider for this directory model.
 */
 
 QFileIconProvider *QDirModel::iconProvider() const
@@ -700,6 +727,7 @@ QFileIconProvider *QDirModel::iconProvider() const
 
 /*!
   Sets the name \a filters for the directory model.
+
 */
 
 void QDirModel::setNameFilters(const QStringList &filters)
@@ -715,6 +743,7 @@ void QDirModel::setNameFilters(const QStringList &filters)
 
 /*!
   Returns a list of filters applied to the names in the model.
+
 */
 
 QStringList QDirModel::nameFilters() const
@@ -723,7 +752,8 @@ QStringList QDirModel::nameFilters() const
 }
 
 /*!
-  ### undocumented ###*/
+  ### undocumented ###
+*/
 
 void QDirModel::setFilter(int spec)
 {
@@ -734,6 +764,7 @@ void QDirModel::setFilter(int spec)
   Returns a filter specification for the directory model.
 
   \sa QDir::FilterSpec
+
 */
 
 QDir::FilterSpec QDirModel::filter() const
@@ -742,7 +773,10 @@ QDir::FilterSpec QDirModel::filter() const
 }
 
 /*!
-  ### undocumented ###*/
+  ### undocumented ###
+
+  \sa QDir::SortSpec
+*/
 
 void QDirModel::setSorting(int spec)
 {
@@ -755,7 +789,9 @@ void QDirModel::setSorting(int spec)
 }
 
 /*!
-  Returns */
+  Returns the sorting method used for the directory model.
+
+  \sa QDir::SortSpec */
 
 QDir::SortSpec QDirModel::sorting() const
 {
@@ -764,6 +800,7 @@ QDir::SortSpec QDirModel::sorting() const
 
 /*!
   Refreshes (updates) the \a parent model item.
+
 */
 
 void QDirModel::refresh(const QModelIndex &parent)
@@ -777,6 +814,7 @@ void QDirModel::refresh(const QModelIndex &parent)
 
 /*!
   Returns the model item index for the given \a path.
+
 */
 
 QModelIndex QDirModel::index(const QString &path) const
@@ -808,6 +846,7 @@ QModelIndex QDirModel::index(const QString &path) const
 /*!
   Returns the path of the item stored in the model under the
   \a index given.
+
 */
 
 QString QDirModel::path(const QModelIndex &index) const
@@ -824,6 +863,7 @@ QString QDirModel::path(const QModelIndex &index) const
 /*!
   Returns the name of the item stored in the model under the
   \a index given.
+
 */
 
 QString QDirModel::name(const QModelIndex &index) const
@@ -834,6 +874,8 @@ QString QDirModel::name(const QModelIndex &index) const
 }
 
 /*!
+  Returns the file information for the model item \a index.
+
 */
 
 QFileInfo QDirModel::fileInfo(const QModelIndex &index) const
@@ -850,7 +892,8 @@ QFileInfo QDirModel::fileInfo(const QModelIndex &index) const
 
 /*!
   Returns true if the model item \a index represents a directory;
-  otherwise returns false.*/
+  otherwise returns false.
+*/
 
 bool QDirModel::isDir(const QModelIndex &index) const
 {
@@ -866,6 +909,7 @@ bool QDirModel::isDir(const QModelIndex &index) const
 
 /*!
   Create a directory with the \a name in the \a parent model item.
+
 */
 
 QModelIndex QDirModel::mkdir(const QModelIndex &parent, const QString &name)
@@ -899,6 +943,7 @@ QModelIndex QDirModel::mkdir(const QModelIndex &parent, const QString &name)
   Removes the directory corresponding to the model item \a index in the
   directory model, returning true if successful. If the directory
   cannot be removed, false is returned.
+
 */
 
 bool QDirModel::rmdir(const QModelIndex &index)
@@ -932,6 +977,7 @@ bool QDirModel::rmdir(const QModelIndex &index)
 /*!
   Removes the model item \a index from the directory model, returning
   true if successful. If the item cannot be removed, false is returned.
+
  */
 
 bool QDirModel::remove(const QModelIndex &index)
