@@ -42,6 +42,7 @@
 #include "qmap.h"
 #include "qabstractitemmodel.h"
 #include "qgenerictreeview.h"
+#include "qgenericheader.h"
 
 #if !defined(QT_NO_CUPS) || !defined(QT_NO_NIS)
 #include "qlibrary.h"
@@ -1057,6 +1058,7 @@ QGroupBox *QPrintDialogUnix::setupDestination()
     d->model = new QPrinterModel(d->printers, this);
     d->view = new QGenericTreeView(d->model, g);
     d->view->setShowRootDecoration(false);
+    d->view->header()->setResizeMode(QGenericHeader::Stretch, 2);
 
     // bang the best default into the listview
     int quality = 0;

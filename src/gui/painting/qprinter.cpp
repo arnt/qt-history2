@@ -24,6 +24,8 @@
 #include "qprintengine_win.h"
 #elif defined (Q_WS_MAC)
 #include "qprintengine_mac.h"
+#elif defined (Q_OS_UNIX)
+#include "qprintengine_ps.h"
 #endif
 
 #define d d_func()
@@ -326,6 +328,8 @@ QPrinter::QPrinter(PrinterMode mode)
     d->printEngine = new QWin32PrintEngine(this, mode);
 #elif defined (Q_WS_MAC)
     d->printEngine = new QMacPrintEngine(this, mode);
+#elif defined (Q_OS_UNIX)
+    d->printEngine = new QPSPrintEngine(this, mode);
 #endif
 }
 

@@ -133,6 +133,8 @@ public:
 
     virtual bool updateState();
 
+    virtual Qt::HANDLE handle() const { return 0; };
+
 private:
     // Disabled copy constructor and operator=
     QPSPrintEngine(const QPSPrintEngine &);
