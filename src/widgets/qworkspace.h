@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.h#9 $
+** $Id: //depot/qt/main/src/widgets/qworkspace.h#10 $
 **
 ** Definition of the QWorkspace class
 **
@@ -43,6 +43,7 @@
 #include <qlist.h>
 
 #include "qworkspacechild.h"
+#include "qwidgetlist.h"
 
 class Q_EXPORT QWorkspace : public QWidget
 {
