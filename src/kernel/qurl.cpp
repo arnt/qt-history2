@@ -1247,7 +1247,11 @@ QString QUrl::toString( bool encodedPath, bool forcePrependProtocol ) const
 	res += d->host;
 	if ( d->port != -1 )
 	    res += ":" + QString( "%1" ).arg( d->port );
-	res += p;
+	if ( !p.isEmpty() ) {
+	    if ( !d->host.isEmpty() && p[0]!='/' )
+		res += "/";
+	    res += p;
+	}
     }
 
     if ( !d->refEncoded.isEmpty() )
