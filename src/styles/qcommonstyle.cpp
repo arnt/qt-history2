@@ -566,9 +566,9 @@ void QCommonStyle::drawControl( ControlElement element,
 		ir.moveBy(pixw + 4, 0);
 		ir.setWidth(ir.width() - (pixw + 4));
 	    }
-
 	    drawItem(p, ir, AlignCenter | ShowPrefix, cg,
-		     flags & Style_Enabled, button->pixmap(), button->text());
+		     flags & Style_Enabled, button->pixmap(), button->text(),
+		     button->text().length(), &(cg.buttonText()) );
 
 	    if (flags & Style_HasFocus)
 		drawPrimitive(PE_FocusRect, p, subRect(SR_PushButtonFocusRect, widget),
