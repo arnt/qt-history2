@@ -1,0 +1,404 @@
+<ui version="4.0" >
+ <comment></comment>
+ <class>Form</class>
+ <widget class="QDialog" >
+  <property name="windowTitle" >
+   <string>Create Image</string>
+  </property>
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>313</width>
+    <height>196</height>
+   </rect>
+  </property>
+  <property name="objectName" >
+   <string notr="true" >Form</string>
+  </property>
+  <layout class="QVBoxLayout" >
+   <property name="objectName" >
+    <string notr="true" />
+   </property>
+   <property name="spacing" >
+    <number>6</number>
+   </property>
+   <property name="margin" >
+    <number>9</number>
+   </property>
+   <item>
+    <layout class="QHBoxLayout" >
+     <property name="objectName" >
+      <string notr="true" />
+     </property>
+     <property name="spacing" >
+      <number>6</number>
+     </property>
+     <property name="margin" >
+      <number>1</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="nameLabel" >
+       <property name="frameShadow" >
+        <enum>QFrame::Plain</enum>
+       </property>
+       <property name="geometry" >
+        <rect>
+         <x>1</x>
+         <y>1</y>
+         <width>36</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="frameShape" >
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="objectName" >
+        <string notr="true" >nameLabel</string>
+       </property>
+       <property name="text" >
+        <string>Name:</string>
+       </property>
+       <property name="textFormat" >
+        <enum>Qt::AutoText</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="nameLineEdit" >
+       <property name="echoMode" >
+        <enum>QLineEdit::Normal</enum>
+       </property>
+       <property name="geometry" >
+        <rect>
+         <x>43</x>
+         <y>1</y>
+         <width>251</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="objectName" >
+        <string notr="true" >nameLineEdit</string>
+       </property>
+       <property name="text" >
+        <string>Untitled image</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" >
+     <property name="objectName" >
+      <string notr="true" />
+     </property>
+     <property name="spacing" >
+      <number>6</number>
+     </property>
+     <property name="margin" >
+      <number>1</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="widthLabel" >
+       <property name="frameShadow" >
+        <enum>QFrame::Plain</enum>
+       </property>
+       <property name="geometry" >
+        <rect>
+         <x>1</x>
+         <y>1</y>
+         <width>144</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="frameShape" >
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="objectName" >
+        <string notr="true" >widthLabel</string>
+       </property>
+       <property name="text" >
+        <string>Width:</string>
+       </property>
+       <property name="textFormat" >
+        <enum>Qt::AutoText</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="spinBox" >
+       <property name="buttonSymbols" >
+        <enum>QAbstractSpinBox::UpDownArrows</enum>
+       </property>
+       <property name="minimum" >
+        <number>1</number>
+       </property>
+       <property name="value" >
+        <number>32</number>
+       </property>
+       <property name="geometry" >
+        <rect>
+         <x>151</x>
+         <y>1</y>
+         <width>143</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="maximum" >
+        <number>1024</number>
+       </property>
+       <property name="objectName" >
+        <string notr="true" >spinBox</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" >
+     <property name="objectName" >
+      <string notr="true" />
+     </property>
+     <property name="spacing" >
+      <number>6</number>
+     </property>
+     <property name="margin" >
+      <number>1</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="heightLabel" >
+       <property name="frameShadow" >
+        <enum>QFrame::Plain</enum>
+       </property>
+       <property name="geometry" >
+        <rect>
+         <x>1</x>
+         <y>1</y>
+         <width>144</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="frameShape" >
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="objectName" >
+        <string notr="true" >heightLabel</string>
+       </property>
+       <property name="text" >
+        <string>Height:</string>
+       </property>
+       <property name="textFormat" >
+        <enum>Qt::AutoText</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QSpinBox" name="spinBox_2" >
+       <property name="buttonSymbols" >
+        <enum>QAbstractSpinBox::UpDownArrows</enum>
+       </property>
+       <property name="minimum" >
+        <number>1</number>
+       </property>
+       <property name="value" >
+        <number>32</number>
+       </property>
+       <property name="geometry" >
+        <rect>
+         <x>151</x>
+         <y>1</y>
+         <width>143</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="maximum" >
+        <number>1024</number>
+       </property>
+       <property name="objectName" >
+        <string notr="true" >spinBox_2</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" >
+     <property name="objectName" >
+      <string notr="true" />
+     </property>
+     <property name="spacing" >
+      <number>6</number>
+     </property>
+     <property name="margin" >
+      <number>1</number>
+     </property>
+     <item>
+      <widget class="QLabel" name="colorDepthLabel" >
+       <property name="frameShadow" >
+        <enum>QFrame::Plain</enum>
+       </property>
+       <property name="geometry" >
+        <rect>
+         <x>1</x>
+         <y>1</y>
+         <width>144</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="frameShape" >
+        <enum>QFrame::NoFrame</enum>
+       </property>
+       <property name="objectName" >
+        <string notr="true" >colorDepthLabel</string>
+       </property>
+       <property name="text" >
+        <string>Color depth:</string>
+       </property>
+       <property name="textFormat" >
+        <enum>Qt::AutoText</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="comboBox" >
+       <property name="insertionPolicy" >
+        <enum>QComboBox::AtBottom</enum>
+       </property>
+       <property name="geometry" >
+        <rect>
+         <x>151</x>
+         <y>1</y>
+         <width>143</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="objectName" >
+        <string notr="true" >comboBox</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="geometry" >
+      <rect>
+       <x>146</x>
+       <y>127</y>
+       <width>20</width>
+       <height>28</height>
+      </rect>
+     </property>
+     <property name="objectName" >
+      <string notr="true" >spacer</string>
+     </property>
+    </spacer>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" >
+     <property name="objectName" >
+      <string notr="true" />
+     </property>
+     <property name="spacing" >
+      <number>6</number>
+     </property>
+     <property name="margin" >
+      <number>1</number>
+     </property>
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="geometry" >
+        <rect>
+         <x>1</x>
+         <y>1</y>
+         <width>121</width>
+         <height>24</height>
+        </rect>
+       </property>
+       <property name="objectName" >
+        <string notr="true" />
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="okButton" >
+       <property name="geometry" >
+        <rect>
+         <x>128</x>
+         <y>1</y>
+         <width>80</width>
+         <height>24</height>
+        </rect>
+       </property>
+       <property name="objectName" >
+        <string notr="true" >okButton</string>
+       </property>
+       <property name="text" >
+        <string>OK</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="cancelButton" >
+       <property name="geometry" >
+        <rect>
+         <x>214</x>
+         <y>1</y>
+         <width>80</width>
+         <height>24</height>
+        </rect>
+       </property>
+       <property name="objectName" >
+        <string notr="true" >cancelButton</string>
+       </property>
+       <property name="text" >
+        <string>Cancel</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <pixmapfunction></pixmapfunction>
+ <connections>
+  <connection>
+   <sender>nameLineEdit</sender>
+   <signal>returnPressed()</signal>
+   <receiver>okButton</receiver>
+   <slot>animateClick()</slot>
+   <hints>
+    <hint type="endpoint" >
+     <x>139</x>
+     <y>33</y>
+    </hint>
+    <hint type="endpoint" >
+     <x>139</x>
+     <y>136</y>
+    </hint>
+    <hint type="endpoint" >
+     <x>179</x>
+     <y>136</y>
+    </hint>
+    <hint type="endpoint" >
+     <x>179</x>
+     <y>175</y>
+    </hint>
+    <hint type="sourcelabel" >
+     <x>151</x>
+     <y>18</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>187</x>
+     <y>149</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>
