@@ -1,44 +1,15 @@
 #ifndef QABSTRACTSOCKET_P_H
 #define QABSTRACTSOCKET_P_H
-#include "private/qiodevice_p.h"
 #include "qabstractsocket.h"
-#include "qbytearray.h"
-#include "qdns.h"
-#include "qlist.h"
-#include "qsocketlayer_p.h"
-#include "qsocketnotifier.h"
-#include "qtimer.h"
 
-class QRingBuffer
-{
-public:
-    QRingBuffer(int growth = 4096);
-
-    int nextDataBlockSize() const;
-    char *readPointer() const;
-    void free(int bytes);
-    char *reserve(int bytes);
-    void truncate(int bytes);
-
-    bool isEmpty() const;
-
-    int getChar();
-    void putChar(char c);
-    void ungetChar(char c);
-
-    int size() const;
-    void clear();
-    int indexOf(char c) const;
-    int readLine(char *data, int maxLength);
-    bool canReadLine() const;
-
-private:
-    QList<QByteArray> buffers;
-    int head, tail;
-    int tailBuffer;
-    int basicBlockSize;
-    int bufferSize;
-};
+#include <private/qinternal_p.h>
+#include <private/qiodevice_p.h>
+#include <qbytearray.h>
+#include <qdns.h>
+#include <qlist.h>
+#include <qsocketlayer_p.h>
+#include <qsocketnotifier.h>
+#include <qtimer.h>
 
 class QAbstractSocketPrivate : public QIODevicePrivate
 {

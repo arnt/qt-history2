@@ -156,6 +156,37 @@ inline void QCircularBuffer::push(char ch)
     buf[start_buff].insert(start_off, ch);
 }
 
+class QRingBuffer
+{
+public:
+    QRingBuffer(int growth = 4096);
+
+    int nextDataBlockSize() const;
+    char *readPointer() const;
+    void free(int bytes);
+    char *reserve(int bytes);
+    void truncate(int bytes);
+
+    bool isEmpty() const;
+
+    int getChar();
+    void putChar(char c);
+    void ungetChar(char c);
+
+    int size() const;
+    void clear();
+    int indexOf(char c) const;
+    int readLine(char *data, int maxLength);
+    bool canReadLine() const;
+
+private:
+    QList<QByteArray> buffers;
+    int head, tail;
+    int tailBuffer;
+    int basicBlockSize;
+    int bufferSize;
+};
+
 class QVirtualDestructor {
 public:
     virtual ~QVirtualDestructor() {}

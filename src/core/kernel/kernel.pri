@@ -12,7 +12,6 @@ HEADERS += \
 	kernel/qmetatype.h \
 	kernel/qobject.h \
 	kernel/qobjectdefs.h \
-	kernel/qprocess.h \
 	kernel/qsignal.h \
 	kernel/qsignalmapper.h \
 	kernel/qsocketnotifier.h \
@@ -35,21 +34,19 @@ SOURCES += \
 	kernel/qmetatype.cpp \
 	kernel/qobject.cpp \
 	kernel/qobjectcleanuphandler.cpp \
-	kernel/qprocess.cpp \
 	kernel/qsignal.cpp \
 	kernel/qsignalmapper.cpp \
 	kernel/qsocketnotifier.cpp \
 	kernel/qtimer.cpp \
-	kernel/qtranslator.cpp \
-	
+	kernel/qtranslator.cpp
+
 win32 {
 	SOURCES += \
 		kernel/qeventdispatcher_win.cpp \
-		kernel/qprocess_win.cpp \
 		kernel/qcoreapplication_win.cpp
 	HEADERS += \
 		kernel/qeventdispatcher_win.h
-} 
+}
 
 mac {
        SOURCES += \
@@ -60,8 +57,7 @@ mac {
 unix {
 	SOURCES += \
 		kernel/qcrashhandler.cpp \
-		kernel/qeventdispatcher_unix.cpp \
-		kernel/qprocess_unix.cpp 
+		kernel/qeventdispatcher_unix.cpp
 	HEADERS += \
 		kernel/qcrashhandler_p.h \
 		kernel/qeventdispatcher_unix.h
