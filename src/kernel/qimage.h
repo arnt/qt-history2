@@ -16,9 +16,12 @@
 #define QIMAGE_H
 
 #ifndef QT_H
-#include "qpixmap.h"
 #include "qlist.h"
 #include "qstringlist.h"
+#include "qiodevice.h"
+#include "qshared.h"
+#include "qcolor.h" //not part of kernel ###
+#include "qrect.h"
 #endif // QT_H
 
 class QImageDataMisc; // internal
@@ -65,8 +68,13 @@ public:
     QImage( const QImage & );
    ~QImage();
 
+#ifdef QPIXMAP_H //this is no good (but for symbol split) FIXME! ### (sam)
+    inline QImage &operator=( const QPixmap &pixmap ) {     
+	*this = pixmap.convertToImage();
+	return *this;
+    }
+#endif
     QImage     &operator=( const QImage & );
-    QImage     &operator=( const QPixmap & );
     bool	operator==( const QImage & ) const;
     bool	operator!=( const QImage & ) const;
     void	detach();
@@ -138,6 +146,7 @@ public:
     QImage scaleWidth( int w ) const;
     QImage scaleHeight( int h ) const;
     QImage xForm( const QWMatrix &matrix ) const;
+    static QWMatrix trueMatrix( const QWMatrix &, int w, int h );
 #endif
 
 #ifndef QT_NO_IMAGE_DITHER_TO_1
@@ -306,6 +315,15 @@ private:	// Disabled copy constructor and operator=
 };
 
 #endif //QT_NO_IMAGEIO
+
+#ifndef QT_NO_PIXMAP_TRANSFORMATION
+#  define QT_XFORM_TYPE_MSBFIRST 0
+#  define QT_XFORM_TYPE_LSBFIRST 1
+#  if defined(Q_WS_WIN)
+#    define QT_XFORM_TYPE_WINDOWSPIXMAP 2
+#  endif
+bool qt_xForm_helper( const QWMatrix&, int, int, int, uchar*, int, int, int, uchar*, int, int, int );
+#endif
 
 Q_EXPORT void bitBlt( QImage* dst, int dx, int dy, const QImage* src,
 		      int sx=0, int sy=0, int sw=-1, int sh=-1,

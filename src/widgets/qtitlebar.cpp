@@ -19,6 +19,7 @@
 #ifndef QT_NO_TITLEBAR
 
 #include <qcursor.h>
+#include "qpixmap.h"
 #include "qapplication.h"
 #include "qevent.h"
 #include "qstyle.h"

@@ -577,24 +577,6 @@ QImage &QImage::operator=( const QImage &image )
 }
 
 /*!
-    \overload
-
-    Sets the image bits to the \a pixmap contents and returns a
-    reference to the image.
-
-    If the image shares data with other images, it will first
-    dereference the shared data.
-
-    Makes a call to QPixmap::convertToImage().
-*/
-
-QImage &QImage::operator=( const QPixmap &pixmap )
-{
-    *this = pixmap.convertToImage();
-    return *this;
-}
-
-/*!
     Detaches from shared image data and makes sure that this image is
     the only one referring to the data.
 
@@ -2837,6 +2819,63 @@ QImage QImage::scaleHeight( int h ) const
 
 
 /*!
+    Returns the actual matrix used for transforming a image with \a w
+    width and \a h height and matrix \a matrix.
+
+    When transforming a image with xForm(), the transformation matrix
+    is internally adjusted to compensate for unwanted translation,
+    i.e. xForm() returns the smallest image containing all
+    transformed points of the original image.
+
+    This function returns the modified matrix, which maps points
+    correctly from the original image into the new image.
+
+    \sa xForm(), QWMatrix
+*/
+#ifndef QT_NO_PIXMAP_TRANSFORMATION
+QWMatrix QImage::trueMatrix( const QWMatrix &matrix, int w, int h )
+{
+    const double dt = (double)0.;
+    double x1,y1, x2,y2, x3,y3, x4,y4;		// get corners
+    double xx = (double)w;
+    double yy = (double)h;
+
+    QWMatrix mat( matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), 0., 0. );
+
+    mat.map( dt, dt, &x1, &y1 );
+    mat.map( xx, dt, &x2, &y2 );
+    mat.map( xx, yy, &x3, &y3 );
+    mat.map( dt, yy, &x4, &y4 );
+
+    double ymin = y1;				// lowest y value
+    if ( y2 < ymin ) ymin = y2;
+    if ( y3 < ymin ) ymin = y3;
+    if ( y4 < ymin ) ymin = y4;
+    double xmin = x1;				// lowest x value
+    if ( x2 < xmin ) xmin = x2;
+    if ( x3 < xmin ) xmin = x3;
+    if ( x4 < xmin ) xmin = x4;
+
+    double ymax = y1;				// lowest y value
+    if ( y2 > ymax ) ymax = y2;
+    if ( y3 > ymax ) ymax = y3;
+    if ( y4 > ymax ) ymax = y4;
+    double xmax = x1;				// lowest x value
+    if ( x2 > xmax ) xmax = x2;
+    if ( x3 > xmax ) xmax = x3;
+    if ( x4 > xmax ) xmax = x4;
+
+    if ( xmax-xmin > 1.0 )
+	xmin -= xmin/(xmax-xmin);
+    if ( ymax-ymin > 1.0 )
+	ymin -= ymin/(ymax-ymin);
+
+    mat.setMatrix( matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), -xmin, -ymin );
+    return mat;
+}
+#endif // QT_NO_WMATRIX
+
+/*!
     Returns a copy of the image that is transformed using the
     transformation matrix, \a matrix.
 
@@ -2873,7 +2912,7 @@ QImage QImage::xForm( const QWMatrix &matrix ) const
     int bpp = depth();
 
     // compute size of target image
-    QWMatrix mat = QPixmap::trueMatrix( matrix, ws, hs );
+    QWMatrix mat = trueMatrix( matrix, ws, hs );
     if ( mat.m12() == 0.0F && mat.m21() == 0.0F ) {
 	if ( mat.m11() == 1.0F && mat.m22() == 1.0F ) // identity matrix
 	    return copy();
@@ -6076,6 +6115,17 @@ void bitBlt( QImage* dst, int dx, int dy, const QImage* src,
     }
 }
 
+/*!
+    \fn QImage &QImage::operator=( QImage &image, const QPixmap &pixmap )
+
+    Sets the image bits to the \a pixmap contents and returns a
+    reference to the image.
+
+    If the image shares data with other images, it will first
+    dereference the shared data.
+
+    Makes a call to QPixmap::convertToImage().
+*/
 
 /*!
     Returns TRUE if this image and image \a i have the same contents;
@@ -6322,3 +6372,188 @@ QGfx * QImage::graphicsContext()
 }
 
 #endif
+
+/*****************************************************************************
+  QPixmap (and QImage) helper functions
+ *****************************************************************************/
+/*
+  This internal function contains the common (i.e. platform independent) code
+  to do a transformation of pixel data. It is used by QPixmap::xForm() and by
+  QImage::xForm().
+
+  \a trueMat is the true transformation matrix (see QPixmap::trueMatrix()) and
+  \a xoffset is an offset to the matrix.
+
+  \a msbfirst specifies for 1bpp images, if the MSB or LSB comes first and \a
+  depth specifies the colordepth of the data.
+
+  \a dptr is a pointer to the destination data, \a dbpl specifies the bits per
+  line for the destination data, \a p_inc is the offset that we advance for
+  every scanline and \a dHeight is the height of the destination image.
+
+  \a sprt is the pointer to the source data, \a sbpl specifies the bits per
+  line of the source data, \a sWidth and \a sHeight are the width and height of
+  the source data.
+*/
+#ifndef QT_NO_PIXMAP_TRANSFORMATION
+#undef IWX_MSB
+#define IWX_MSB(b)	if ( trigx < maxws && trigy < maxhs ) {			      \
+			    if ( *(sptr+sbpl*(trigy>>16)+(trigx>>19)) &		      \
+				 (1 << (7-((trigx>>16)&7))) )			      \
+				*dptr |= b;					      \
+			}							      \
+			trigx += m11;						      \
+			trigy += m12;
+	// END OF MACRO
+#undef IWX_LSB
+#define IWX_LSB(b)	if ( trigx < maxws && trigy < maxhs ) {			      \
+			    if ( *(sptr+sbpl*(trigy>>16)+(trigx>>19)) &		      \
+				 (1 << ((trigx>>16)&7)) )			      \
+				*dptr |= b;					      \
+			}							      \
+			trigx += m11;						      \
+			trigy += m12;
+	// END OF MACRO
+#undef IWX_PIX
+#define IWX_PIX(b)	if ( trigx < maxws && trigy < maxhs ) {			      \
+			    if ( (*(sptr+sbpl*(trigy>>16)+(trigx>>19)) &	      \
+				 (1 << (7-((trigx>>16)&7)))) == 0 )		      \
+				*dptr &= ~b;					      \
+			}							      \
+			trigx += m11;						      \
+			trigy += m12;
+	// END OF MACRO
+bool qt_xForm_helper( const QWMatrix &trueMat, int xoffset,
+	int type, int depth,
+	uchar *dptr, int dbpl, int p_inc, int dHeight,
+	uchar *sptr, int sbpl, int sWidth, int sHeight
+	)
+{
+    int m11 = (int)(trueMat.m11()*65536.0);
+    int m12 = (int)(trueMat.m12()*65536.0);
+    int m21 = (int)(trueMat.m21()*65536.0);
+    int m22 = (int)(trueMat.m22()*65536.0);
+    int dx  = (int)(trueMat.dx() *65536.0);
+    int dy  = (int)(trueMat.dy() *65536.0);
+
+    int m21ydx = dx + (xoffset<<16) + QABS(m11)/2;
+    int m22ydy = dy + QABS(m22)/2;
+    uint trigx;
+    uint trigy;
+    uint maxws = sWidth<<16;
+    uint maxhs = sHeight<<16;
+
+    for ( int y=0; y<dHeight; y++ ) {		// for each target scanline
+	trigx = m21ydx;
+	trigy = m22ydy;
+	uchar *maxp = dptr + dbpl;
+	if ( depth != 1 ) {
+	    switch ( depth ) {
+		case 8:				// 8 bpp transform
+		while ( dptr < maxp ) {
+		    if ( trigx < maxws && trigy < maxhs )
+			*dptr = *(sptr+sbpl*(trigy>>16)+(trigx>>16));
+		    trigx += m11;
+		    trigy += m12;
+		    dptr++;
+		}
+		break;
+
+		case 16:			// 16 bpp transform
+		while ( dptr < maxp ) {
+		    if ( trigx < maxws && trigy < maxhs )
+			*((ushort*)dptr) = *((ushort *)(sptr+sbpl*(trigy>>16) +
+						     ((trigx>>16)<<1)));
+		    trigx += m11;
+		    trigy += m12;
+		    dptr++;
+		    dptr++;
+		}
+		break;
+
+		case 24: {			// 24 bpp transform
+		uchar *p2;
+		while ( dptr < maxp ) {
+		    if ( trigx < maxws && trigy < maxhs ) {
+			p2 = sptr+sbpl*(trigy>>16) + ((trigx>>16)*3);
+			dptr[0] = p2[0];
+			dptr[1] = p2[1];
+			dptr[2] = p2[2];
+		    }
+		    trigx += m11;
+		    trigy += m12;
+		    dptr += 3;
+		}
+		}
+		break;
+
+		case 32:			// 32 bpp transform
+		while ( dptr < maxp ) {
+		    if ( trigx < maxws && trigy < maxhs )
+			*((uint*)dptr) = *((uint *)(sptr+sbpl*(trigy>>16) +
+						   ((trigx>>16)<<2)));
+		    trigx += m11;
+		    trigy += m12;
+		    dptr += 4;
+		}
+		break;
+
+		default: {
+		return FALSE;
+		}
+	    }
+	} else  {
+	    switch ( type ) {
+		case QT_XFORM_TYPE_MSBFIRST:
+		    while ( dptr < maxp ) {
+			IWX_MSB(128);
+			IWX_MSB(64);
+			IWX_MSB(32);
+			IWX_MSB(16);
+			IWX_MSB(8);
+			IWX_MSB(4);
+			IWX_MSB(2);
+			IWX_MSB(1);
+			dptr++;
+		    }
+		    break;
+		case QT_XFORM_TYPE_LSBFIRST:
+		    while ( dptr < maxp ) {
+			IWX_LSB(1);
+			IWX_LSB(2);
+			IWX_LSB(4);
+			IWX_LSB(8);
+			IWX_LSB(16);
+			IWX_LSB(32);
+			IWX_LSB(64);
+			IWX_LSB(128);
+			dptr++;
+		    }
+		    break;
+#  if defined(Q_WS_WIN)
+		case QT_XFORM_TYPE_WINDOWSPIXMAP:
+		    while ( dptr < maxp ) {
+			IWX_PIX(128);
+			IWX_PIX(64);
+			IWX_PIX(32);
+			IWX_PIX(16);
+			IWX_PIX(8);
+			IWX_PIX(4);
+			IWX_PIX(2);
+			IWX_PIX(1);
+			dptr++;
+		    }
+		    break;
+#  endif
+	    }
+	}
+	m21ydx += m21;
+	m22ydy += m22;
+	dptr += p_inc;
+    }
+    return TRUE;
+}
+#undef IWX_MSB
+#undef IWX_LSB
+#undef IWX_PIX
+#endif // QT_NO_PIXMAP_TRANSFORMATION

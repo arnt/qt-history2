@@ -82,7 +82,7 @@ QGrid::QGrid( int n, QWidget *parent, const char *name, WFlags f )
 */
 void QGrid::childEvent(QChildEvent *e)
 {
-    QWidget *child = e->childWidget();
+    QWidget *child = qt_cast<QWidget*>(e->child());
     if (!child || child->isTopLevel())
 	return;
     if (e->added()) {

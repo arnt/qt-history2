@@ -87,7 +87,7 @@ public:
 
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
     QPixmap	    xForm( const QWMatrix & ) const;
-    static QWMatrix trueMatrix( const QWMatrix &, int w, int h );
+    static QWMatrix trueMatrix( const QWMatrix &m, int w, int h );
 #endif
 
     QImage	convertToImage() const;
@@ -302,7 +302,6 @@ inline bool QPixmap::isMultiCellPixmap() const
 }
 #endif
 
-
 /*****************************************************************************
   QPixmap stream functions
  *****************************************************************************/
@@ -315,15 +314,6 @@ Q_EXPORT QDataStream &operator>>( QDataStream &, QPixmap & );
 /*****************************************************************************
   QPixmap (and QImage) helper functions
  *****************************************************************************/
-
-#ifndef QT_NO_PIXMAP_TRANSFORMATION
-#  define QT_XFORM_TYPE_MSBFIRST 0
-#  define QT_XFORM_TYPE_LSBFIRST 1
-#  if defined(Q_WS_WIN)
-#    define QT_XFORM_TYPE_WINDOWSPIXMAP 2
-#  endif
-bool qt_xForm_helper( const QWMatrix&, int, int, int, uchar*, int, int, int, uchar*, int, int, int );
-#endif
 
 Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
 		       const QPixmap *src, int sx = 0, int sy = 0,

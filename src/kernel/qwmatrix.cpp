@@ -569,39 +569,6 @@ QPointArray QWMatrix::operator *( const QPointArray &a ) const
 }
 
 /*!
-\internal
-*/
-QRegion QWMatrix::operator * (const QRect &rect ) const
-{
-    QRegion result;
-    if ( isIdentity() ) {
-	result = rect;
-    } else if ( _m12 == 0.0F && _m21 == 0.0F ) {
-	if( qt_old_transformations ) {
-	    result = QRect( map(rect.topLeft()), map(rect.bottomRight()) ).normalize();
-	} else {
-	    int x = qRound( _m11*rect.x() + _dx );
-	    int y = qRound( _m22*rect.y() + _dy );
-	    int w = qRound( _m11*rect.width() );
-	    int h = qRound( _m22*rect.height() );
-	    if ( w < 0 ) {
-		w = -w;
-		x -= w - 1;
-	    }
-	    if ( h < 0 ) {
-		h = -h;
-		y -= h - 1;
-	    }
-	    result = QRect( x, y, w, h );
-	}
-    } else {
-	result = QRegion(mapToPolygon(rect));
-    }
-    return result;
-
-}
-
-/*!
     Returns the transformed rectangle \a rect as a polygon.
 
     Polygons and rectangles behave slightly differently
@@ -694,68 +661,6 @@ QPointArray QWMatrix::mapToPolygon( const QRect &rect ) const
 		 qRound( x[2] ), qRound( y[2] ),
 		 qRound( x[3] ), qRound( y[3] ) );
     return a;
-}
-
-/*!
-\internal
-*/
-QRegion QWMatrix::operator * (const QRegion &r ) const
-{
-    if ( isIdentity() )
-	return r;
-    QVector<QRect> rects = r.rects();
-    QRegion result;
-    register QRect *rect = rects.data();
-    register int i = rects.size();
-    if ( qt_old_transformations ) {
-	if ( _m12 == 0.0F && _m21 == 0.0F ) {
-	    // simple case, no rotation
-	    while ( i ) {
-		*rect = QRect( map(rect->topLeft()), map(rect->bottomRight()) );
-		rect++;
-		i--;
-	    }
-	    result.setRects( rects.data(), rects.size() );
-	} else {
-	    while ( i ) {
-		QPointArray a( *rect );
-		a = map( a );
-		result |= QRegion( a );
-		rect++;
-		i--;
-	    }
-	}
-    } else {
-	if ( _m12 == 0.0F && _m21 == 0.0F ) {
-	    // simple case, no rotation
-	    while ( i ) {
-		int x = qRound( _m11*rect->x() + _dx );
-		int y = qRound( _m22*rect->y() + _dy );
-		int w = qRound( _m11*rect->width() );
-		int h = qRound( _m22*rect->height() );
-		if ( w < 0 ) {
-		    w = -w;
-		    x -= w-1;
-		}
-		if ( h < 0 ) {
-		    h = -h;
-		    y -= h-1;
-		}
-		*rect = QRect( x, y, w, h );
-		rect++;
-		i--;
-	    }
-	    result.setRects( rects.data(), rects.size() );
-	} else {
-	    while ( i ) {
-		result |= operator *( *rect );
-		rect++;
-		i--;
-	    }
-	}
-
-    }
-    return result;
 }
 
 /*!

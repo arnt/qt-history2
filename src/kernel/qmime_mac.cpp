@@ -18,6 +18,7 @@
 
 #include "qstrlist.h"
 #include "qimage.h"
+#include "qpixmap.h"
 #include "qdatastream.h"
 #include "qdragobject.h"
 #include "qbuffer.h"

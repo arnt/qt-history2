@@ -133,6 +133,10 @@ private:
 #define QRGN_XOR		9
 #define QRGN_RECTS	       10
 
+#ifndef QT_NO_WMATRIX
+QRegion operator*(const QWMatrix &, const QRect &);
+QRegion operator*(const QWMatrix &, const QRegion &);
+#endif
 
 /*****************************************************************************
   QRegion stream functions

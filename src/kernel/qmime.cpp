@@ -21,6 +21,7 @@
 #include "qfileinfo.h"
 #include "qdir.h"
 #include "qdragobject.h"
+#include "qpixmap.h"
 #include "qcleanuphandler.h"
 
 /*!

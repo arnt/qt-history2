@@ -76,7 +76,7 @@ QHBox::QHBox( bool horizontal, QWidget *parent , const char *name, WFlags f )
  */
 void QHBox::childEvent(QChildEvent *e)
 {
-    QWidget *child = e->childWidget();
+    QWidget *child = qt_cast<QWidget*>(e->child());
     if (!child || child->isTopLevel())
 	return;
     if (e->added()) {

@@ -530,6 +530,8 @@ static bool compare(const QVariant::Private *a, const QVariant::Private *b)
     case QVariant::Pen:
 	return *static_cast<QPen *>(a->value.ptr)
 	    == *static_cast<QPen *>(b->value.ptr);
+    default:
+	break;
     }
     return qt_kernel_variant_handler.compare(a, b);
 }
