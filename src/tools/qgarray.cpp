@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#38 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#39 $
 **
 ** Implementation of QGArray class
 **
@@ -26,7 +26,7 @@
 #include "qstring.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#38 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#39 $");
 
 
 #define USE_MALLOC				// comment to use new/delete
@@ -458,8 +458,7 @@ void QGArray::store( const char *d, uint len )
 
 QGArray &QGArray::setRawData( const char *d, uint len )
 {
-    if ( shd->data )
-	duplicate( 0, 0 );			// set null data
+    duplicate( 0, 0 );				// set null data
     shd->data = (char *)d;
     shd->len  = len;
     return *this;
