@@ -51,6 +51,14 @@ QMap<QString, QString> proFileTagMap( const QString& text )
     bool stillProcess = true; // If include() has a $$tag then we need to reprocess
     
     while(stillProcess) {
+
+	/* 
+	    Strip any commments before we try to include.  We
+	    still need to do it after we include to make sure the
+	    included file does not have comments
+	*/
+	t.replace( QRegExp(QString("#[^\n]*\n")), QString(" ") );
+
 	/*
 	    Process include() commands.
 	    $$PWD is a special case so we have to change it while 
