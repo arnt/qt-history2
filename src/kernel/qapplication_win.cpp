@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#55 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#54 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#55 $");
 
 
 /*****************************************************************************
@@ -138,8 +138,7 @@ int APIENTRY WinMain( HANDLE instance, HANDLE prevInstance,
 	    if ( *p == '\"' || *p == '\'' ) {	// " or ' quote
 		quote = *p;
 		start = ++p;
-	    }
-	    else {
+	    } else {
 		quote = 0;
 		start = p;
 	    }
@@ -162,8 +161,7 @@ int APIENTRY WinMain( HANDLE instance, HANDLE prevInstance,
 		    if ( *p == '\"' || *p == '\'' ) {	// " or ' quote
 			quote = *p++;
 			continue;
-		    }
-		    else if ( isspace(*p) )
+		    } else if ( isspace(*p) )
 			break;
 		}
 		*r++ = *p++;
@@ -452,6 +450,12 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 }
 
 
+void QApplication::beep()
+{
+    MessageBeep( MB_OK );
+}
+
+
 /*****************************************************************************
   QApplication management of posted events
  *****************************************************************************/
@@ -705,8 +709,7 @@ void QApplication::winFocus( QWidget *w, bool gotFocus )
 	    QFocusEvent in( Event_FocusIn );
 	    QApplication::sendEvent( w, &in );
 	}
-    }
-    else {
+    } else {
 	if ( focus_widget ) {
 	    QFocusEvent out( Event_FocusOut );
 	    QWidget *widget = focus_widget;
@@ -715,12 +718,6 @@ void QApplication::winFocus( QWidget *w, bool gotFocus )
 	}
     }
 }
-
-
-void QApplication::beep()
-{
-}
-
 
 
 //
