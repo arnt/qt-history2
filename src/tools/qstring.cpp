@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#101 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#102 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#101 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#102 $");
 
 
 /*****************************************************************************
@@ -1247,8 +1247,9 @@ QString &QString::insert( uint index, char c )	// insert char
   \e len is too large, the rest of the string is removed.
 
   \code
-    QString s = "neutrino";
-    s.remove( 1, 6 );				// s == "no"
+    QString s = "Montreal";
+    s.remove( 1, 4 );
+    // s == "Meal"
   \endcode
 
   \sa insert(), replace()
