@@ -440,6 +440,12 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    t << "@test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
 	t << "@rm -f " << info_plist_out << "\n\t"
 	  << "@cp \"" << info_plist << "\" \"" << info_plist_out << "\"" << endl;
+	if(!project->first("RC_FILE").isEmpty()) {
+	    QString dir = destdir + "../Resources/";
+	    t << dir << "application.icns:" << "\n\t"
+	      << "@test -d " << dir << " || mkdir -p " << dir << "\n\t"
+	      << "@cp " << var("RC_FILE") << " " << dir << "application.icns" << endl;
+	}
     }
 
     QString ddir = project->isEmpty("QMAKE_DISTDIR") ? project->first("QMAKE_ORIG_TARGET") :
