@@ -1430,7 +1430,9 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
 
     if ( mask ) {                               // restore clipping
         XSetClipOrigin( d->dpy, d->gc, 0, 0 );
-        XSetRegion( d->dpy, d->gc, rgn.handle() );
+	int num;
+	XRectangle *rects = (XRectangle *)qt_getClipRects( d->crgn, num );
+        XSetClipRectangles( d->dpy, d->gc, 0, 0, rects, num, Unsorted );
         delete mask;                            // delete comb, created above
     }
 }
