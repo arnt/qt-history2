@@ -556,10 +556,15 @@ void qScrollEffect( QWidget* w, QEffects::DirFlags orient, int time )
 
     qApp->sendPostedEvents( w, QEvent::Move );
     qApp->sendPostedEvents( w, QEvent::Resize );
+#ifdef Q_WS_X11
+    uint flags = Qt::WStyle_Customize | Qt::WNoAutoErase | Qt::WStyle_StaysOnTop
+	| (w->isPopup() ? Qt::WType_Popup : (Qt::WX11BypassWM | Qt::WStyle_Tool));
+#else
+    uint flags = Qt::WStyle_Customize | Qt::WType_Popup | Qt::WX11BypassWM | Qt::WNoAutoErase | Qt::WStyle_StaysOnTop;
+#endif
 
     // those can popups - they would steal the focus, but are disabled
-    q_roll = new QRollEffect( w, Qt::WStyle_Customize | Qt::WType_Popup | Qt::WX11BypassWM |
-			      Qt::WStyle_StaysOnTop, orient );
+    q_roll = new QRollEffect( w, flags, orient );
     q_roll->run( time );
 }
 
@@ -576,9 +581,15 @@ void qFadeEffect( QWidget* w, int time )
     qApp->sendPostedEvents( w, QEvent::Move );
     qApp->sendPostedEvents( w, QEvent::Resize );
 
+#ifdef Q_WS_X11
+    uint flags = Qt::WStyle_Customize | Qt::WNoAutoErase | Qt::WStyle_StaysOnTop
+	| (w->isPopup() ? Qt::WType_Popup : (Qt::WX11BypassWM | Qt::WStyle_Tool));
+#else
+    uint flags = Qt::WStyle_Customize | Qt::WType_Popup | Qt::WX11BypassWM | Qt::WNoAutoErase | Qt::WStyle_StaysOnTop;
+#endif
+
     // those can popups - they would steal the focus, but are disabled
-    q_blend = new QAlphaWidget( w, Qt::WStyle_Customize | Qt::WType_Popup | Qt::WX11BypassWM |
-			      Qt::WStyle_StaysOnTop);
+    q_blend = new QAlphaWidget( w, flags );
 
     q_blend->run( time );
 }
