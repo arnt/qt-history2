@@ -1821,7 +1821,7 @@ QDataStream &operator>>( QDataStream &s, QFont &font )
     updated.
 
     \i QPainter::fontMetrics() returns the font metrics for a
-    painter's current font. If the widget's font is changed later, the
+    painter's current font. If the painter's font is changed later, the
     font metrics object is \e not updated.
     \endlist
 
