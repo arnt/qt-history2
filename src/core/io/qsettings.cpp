@@ -38,6 +38,10 @@
 #define CSIDL_COMMON_APPDATA            0x0023        // All Users\Application Data
 #endif
 
+#ifndef CSIDL_APPDATA
+#define CSIDL_APPDATA 0x001a
+#endif
+
 #endif // Q_OS_WIN
 #endif // QT_NO_QOBJECT
 
