@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstrvec.h#5 $
+** $Id: //depot/qt/main/src/tools/qstrvec.h#6 $
 **
 ** Definition of QStrVec and QStrIVec classes
 **
@@ -20,14 +20,18 @@
 #include "qdstream.h"
 
 
-declare(QVectorM,char);
+#if defined(DEFAULT_TEMPLATECLASS)
+typedef QVectorT<char>			QStrVecBase;
+#else
+typedef declare(QVectorM,char)		QStrVecBase;
+#endif
 
 
-class QStrVec : public QVectorM(char)		// string vector
+class QStrVec : public QStrVecBase
 {
 public:
     QStrVec()  { dc = TRUE; }
-    QStrVec( uint size, bool deepc = TRUE ) : QVectorM(char)(size) {dc=deepc;}
+    QStrVec( uint size, bool deepc = TRUE ) : QStrVecBase(size) {dc=deepc;}
    ~QStrVec()  { clear(); }
 private:
     GCI	 newItem( GCI d )	{ return dc ? qstrdup( (const char*)d ) : d; }

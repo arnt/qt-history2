@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstrlist.h#7 $
+** $Id: //depot/qt/main/src/tools/qstrlist.h#8 $
 **
 ** Definition of QStrList, QStrIList and QStrListIterator classes
 **
@@ -20,11 +20,16 @@
 #include "qdstream.h"
 
 
-declare(QListM,char);
-declare(QListIteratorM,char);
+#if defined(DEFAULT_TEMPLATECLASS)
+typedef QListT<char>			QStrListBase;
+typedef QListIteratorT<char>		QStrListIt;
+#else
+typedef declare(QListM,char)		QStrListBase;
+typedef declare(QListIteratorM,char)	QStrListIt;
+#endif
 
 
-class QStrList : public QListM(char)		// string list
+class QStrList : public QStrListBase
 {
 public:
     QStrList( bool deepCopies=TRUE ) { dc = deepCopies; }
@@ -54,8 +59,5 @@ private:
 						 (const char*)s2); }
 };
 
-
-typedef QListIteratorM(char) QStrListIterator;	// iterator for QStrList
-						// and QStrIList
 
 #endif // QSTRLIST_H
