@@ -10,6 +10,7 @@
 #include "config.h"
 #include "decl.h"
 #include "english.h"
+#include "html.h"
 #include "htmlwriter.h"
 #include "messages.h"
 
@@ -62,10 +63,9 @@ static void printHtmlShortMembers( HtmlWriter& out,
     }
 }
 
-// ### move inside class?
 static QString htmlShortName( const Decl *decl )
 {
-    QString html = decl->name();
+    QString html = htmlProtect( decl->name() );
     if ( !decl->obsolete() )
 	html = QString( "<b>" ) + html + QString( "</b>" );
 

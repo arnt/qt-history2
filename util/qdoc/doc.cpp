@@ -15,6 +15,7 @@
 #include "config.h"
 #include "doc.h"
 #include "english.h"
+#include "html.h"
 #include "htmlwriter.h"
 #include "messages.h"
 #include "resolver.h"
@@ -78,21 +79,6 @@ static void sanitize( QString& str )
 {
     if ( str.isNull() )
 	str = QString( "" );
-}
-
-static QString htmlProtect( const QString& str )
-{
-    static QRegExp amp( QChar('&') ); // HTML metacharacters
-    static QRegExp lt( QChar('<') );
-    static QRegExp gt( QChar('>') );
-    static QRegExp backslash( QString("\\\\") ); // qdoc metacharacter
-
-    QString t = str;
-    t.replace( amp, QString("&amp;") );
-    t.replace( lt, QString("&lt;") );
-    t.replace( gt, QString("&gt;") );
-    t.replace( backslash, QString("&#92;") );
-    return t;
 }
 
 static QString getEscape( const QString& in, int& pos )
