@@ -90,7 +90,7 @@ Makefile: qimageio.pro
 moc: $(SRCMOC)
 
 include:
-	( D=`pwd`; cd ../../../include/ ; ln -s -f $$D/*.h . )
+	( cd $(QTDIR)/include ; ln -s -f ../extensions/imageio/src/*.h . )
 
 clean:
 	-rm -f $(OBJECTS) $(OBJMOC) $(SRCMOC)
