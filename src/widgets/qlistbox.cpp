@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#217 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#218 $
 **
 ** Implementation of QListBox widget class
 **
@@ -440,6 +440,8 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
 	     this, SLOT(refreshSlot()) );
     setFrameStyle( QFrame::WinPanel | QFrame::Sunken ); // ### win/motif
     setBackgroundMode( PaletteBase );
+//     setFocusProxy( viewport() );
+    viewport()->setFocusProxy( this );
     setFocusPolicy( StrongFocus );
     viewport()->setBackgroundMode( PaletteBase );
 }
@@ -2377,7 +2379,7 @@ void QListBox::paintCell( QPainter * p, int row, int col )
     i->paint( p );
     if ( d->current == i && hasFocus() )
 	style().drawFocusRect( p, QRect( 1, 1, cw-2, ch-2 ),
-			       g, &g.highlight(), TRUE );
+			       g, i->selected()?&g.highlight():&g.base(), TRUE );
 }
 
 
