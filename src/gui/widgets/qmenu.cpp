@@ -571,8 +571,8 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
 
     opt.font = action->font();
 
- //####    if (defaultAction == action)
-//         opt.state |= QStyle::Style_ButtonDefault; //probably should be something else
+    if (defaultAction == action)
+	opt.state |= QStyle::Style_Default; //probably should be something else
     if (currentAction && currentAction == action)
         opt.state |= QStyle::Style_Active;
     if (mouseDown)
