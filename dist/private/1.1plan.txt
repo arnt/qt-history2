@@ -1,0 +1,8 @@
+Funksjonalitet som skal inn i 1.1
+
+	- alle udokumenterte funksjoner dokumenteres
+	- QPrinter::drawText fikses for justert tekst
+	- flere widgets må støtte tastaturfokus
+	- bugen ved flere modale vinduer må fikses
+	- widget flaggene dokumenteres
+	- barnelista oppdateres ved raise() og lower()

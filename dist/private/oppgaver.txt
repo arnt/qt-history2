@@ -4,39 +4,24 @@ Dokumentasjon:
     qvector.doc
     event-driven.html
     which/that
-    brushe opp websidene
     dokumenter de siste noen-og-70-funksjonene
     dokumenter eksakt hva som tegnes av f.eks. drawLine (begge endepunkter)
     dok hvilke events som garanteres nå og da (f.eks. ved show()).
-
-Støttefunksjoner:
------------------
-    lage en distribusjon checkliste/huskeliste
-    lage en QA beskrivelse for Qt prosjektet
-    porte til flere plattformer
-
 
 PR:
 ---
     skrive artikler om qt
     lage pressemeldinger
 
-    Windows eksempler ftp
-
 Bugs
 ----
-
     Fikse fokus til å gå oppover på widget-treet rett måte.
 
     QListBox bugs:
        - Feil når variabel høyde (QTableView bug)
        - Feil når sletting/insetting utenfor synlig område (ikke oppdatering)
-       - Feil markering av fokus når horisontal scrolling
        - Blinkende scrollbar ved resize (cellWidth).
        - Fokus merking bruker widget bredde
-       - Ved windows stil i file dialog:
-             QListBox::pixmap: Index 0 out of range
-             QListBox::text: Index 0 out of range
 
    QMenuBar tastatur-bugs:
        - (Hogne har klaget)
@@ -51,11 +36,17 @@ Bugs
 Funksjonalitet:
 ---------------
 
-    Legg inn nye navn på *alt* som ikke begynner med Q, behold de
-    gamle, må bruke kompilatorbryter for å få dem med i 2.0, fjern dem
-    helt i 3.0!
+    ikonifiseringsevent?
 
-    Multi line editor
+    Progress bar
+
+    Auto-orientation i scroll bar, slider og progress bar.
+
+    Mulighet for meny dings lengst til høyre på menybaren, "Help" & gutta
+
+    Legg inn nye navn på *alt* som ikke begynner med Q, behold de
+    gamle (kompilatrbryter for å kutte ut de gamle), må bruke
+    kompilatorbryter for å få dem med i 2.0, fjern dem helt i 3.0!
 
     MessageBox-funksjonalitet (YesNoCancel osv.) 
 
@@ -66,8 +57,6 @@ Funksjonalitet:
     Nettverksklasser
 
     Hjelpesystem (HTML-view)
-
-    Geometry management
 
     Fontdatabase (liste av systemets fonter)
 
@@ -83,7 +72,6 @@ Funksjonalitet:
     vinduer osv.
 
     Dialoger:
-
 	font select
 	color select
 	input box
@@ -92,7 +80,6 @@ Funksjonalitet:
 
 	- connect protected/public
 	- toppnivaa autodelete
-	- assign operator og copy constructor i alle klasser
 	- size increment (max/min size force)
 
 	Vi slipper gjennom genererte events i X (send_event flagget er
@@ -112,8 +99,6 @@ Funksjonalitet:
 
 Bugs:
 -----
-    QComboBox resize
-
     Default plassering av barnewidgets
 
 
@@ -134,7 +119,7 @@ Ferdigstilling:
 	- Farge dithering
 	- Windows makefile
 
-    Clipboard
+    Clipboard - pixmap er dokumentert, men ikke implementert
 
     Tastaturfokus/default knapp
 	Doc: Hvem stjeler tastevents og i hvilken rekkefoelge
@@ -142,13 +127,10 @@ Ferdigstilling:
 	Sending av events oppover i hierarkiet, boer vaere i
 	treet og ikke direkte til toppnivaa som i dag.
 
-
     Postscript generering
 	- Font metrics
 	- Rydd opp i gammel transparent bitmap-kode
 	- Kan vi støtte drawPixmap med maske?
-
-    Windows look & feel (spes. meny og combobox)
 
     File selection (combobox med filtyper)
 
@@ -157,10 +139,6 @@ Ferdigstilling:
     Fargekube
     
     Innebygget fontfamilie matching
-
-    QWidget::raise() og QWidget::lower maa stokke om i lista
-
-    Debug utskrifter fjernes (evt. warning)
 
     Scrollbars/knapper og tastaturfokus
 
@@ -192,4 +170,26 @@ Gjort:
 
     riktig bruk av X windows, eller hva som naa var riktig...
 
+    Multi line editor
 
+    QComboBox resize
+
+    brushe opp websidene
+
+    porte til flere plattformer
+
+    Windows eksempler ftp
+
+       - Ved windows stil i file dialog:
+             QListBox::pixmap: Index 0 out of range
+             QListBox::text: Index 0 out of range
+
+    Slider
+
+    Geometry management
+
+    assign operator og copy constructor i alle klasser
+
+    Windows look & feel (spes. meny og combobox)
+
+    QWidget::raise() og QWidget::lower maa stokke om i lista
