@@ -1987,7 +1987,8 @@ QSize QCheckTableItem::sizeHint() const
 */
 
 QTable::QTable( QWidget *parent, const char *name )
-    : QScrollView( parent, name, WStaticContents ),
+    : QScrollView( parent, name, WNoAutoErase | WStaticContents ),
+      leftHeader( 0 ), topHeader( 0 ),
       currentSel( 0 ), lastSortCol( -1 ), sGrid( TRUE ), mRows( FALSE ), mCols( FALSE ),
       asc( TRUE ), doSort( TRUE ), readOnly( FALSE )
 {
