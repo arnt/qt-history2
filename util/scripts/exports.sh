@@ -32,7 +32,7 @@ for suff in cpp c h; do
   for file in $FILES; do
     for export in $EXPORT; do
         echo -n .
-        gcc -E $CXXFLAGS $file 2>/dev/null | grep $export | sed "s,$export ,,g" | grep -v '^#' >>$OUTPWD/tmp.out
+        gcc -E $CXXFLAGS $file 2>/dev/null | grep "$export " | sed "s,$export ,,g" | grep -v '^#' >>$OUTPWD/tmp.out
     done
     size=`wc -c $OUTPWD/tmp.out | awk '{print $1;}'`
     [ "$size" = "0" ] && continue;
