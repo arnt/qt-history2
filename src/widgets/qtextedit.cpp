@@ -5527,7 +5527,7 @@ void QTextEdit::sync()
     if ( d->optimMode ) {
 	QFontMetrics fm( QScrollView::font() );
 	resizeContents( d->od->maxLineWidth + 4, d->od->numLines * fm.lineSpacing() +
-			fm.descent() + 1 );
+			fm.descent() );
     } else
 #endif
     {
@@ -5957,7 +5957,7 @@ void QTextEdit::optimSetText( const QString &str )
 	}
     }
     resizeContents( d->od->maxLineWidth + 4, d->od->numLines * fm.lineSpacing() +
-		    fm.descent() + 1 );
+		    fm.descent() );
     repaintContents();
     emit textChanged();
 }
@@ -6185,7 +6185,7 @@ void QTextEdit::optimAppend( const QString &str )
 		       ( horizontalScrollBar()->isVisible() ?
 			 horizontalScrollBar()->height() : 0 ) );
     resizeContents( d->od->maxLineWidth + 4, d->od->numLines * fm.lineSpacing() +
- 		    fm.descent() + 1 );
+ 		    fm.descent() );
     if ( scrollToEnd ) {
 	updateScrollBars();
 	ensureVisible( 0, contentsHeight(), 1, 1 );
