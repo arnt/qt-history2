@@ -13,23 +13,6 @@
 
 #include "config.h"
 
-static const char * tab_widget_new_xpm[]={
-"10 11 3 1",
-". c None",
-"# c #000000",
-"a c #ffffff",
-".######...",
-".#aaaa##..",
-".#aaaa###.",
-".#aaaaaa#.",
-".#aaaaaa#.",
-".#aaaaaa#.",
-".#aaaaaa#.",
-".#aaaaaa#.",
-".#aaaaaa#.",
-".########.",
-".........."};
-
 static QString reduceLabelLength( const QString &s )
 {
     int maxLength = 16;
@@ -149,7 +132,7 @@ void TabbedBrowser::init()
     tab->setCornerWidget( newTabButton, Qt::TopLeft );
     newTabButton->setCursor( arrowCursor );
     newTabButton->setAutoRaise( TRUE );
-    newTabButton->setPixmap( QPixmap( tab_widget_new_xpm ) );
+    newTabButton->setPixmap( QPixmap::fromMimeSource( "newtab.png" ) );
     newTabButton->setFixedSize( s, s );
     QObject::connect( newTabButton, SIGNAL( clicked() ), this, SLOT( newTab() ) );
 
