@@ -143,7 +143,8 @@ QTimer::~QTimer()
 
 
 /*!
-    Starts the timer with a \a msec milliseconds timeout.
+    Starts the timer with a \a msec milliseconds timeout, and returns
+    the ID of the timer, or zero when starting the timer failed.
 
     If \a sshot is TRUE, the timer will be activated only once;
     otherwise it will continue until it is stopped.
