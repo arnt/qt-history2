@@ -14,6 +14,9 @@
 #include "qpen.h"
 #include "qdatastream.h"
 #include "qvariant.h"
+#include "qbrush.h"
+
+#include <qdebug.h>
 
 /*!
     \class QPen qpen.h
@@ -24,21 +27,14 @@
     \ingroup shared
     \mainclass
 
-    A pen has a style, width, color, cap style and join style.
+    A pen has a style, width, brush, cap style and join style.
 
     The pen style defines the line type. The default pen style is \c
     Qt::SolidLine. Setting the style to \c Qt::NoPen tells the painter to
     not draw lines or outlines.
 
-    When drawing 1 pixel wide diagonal lines you can either use a very
-    fast algorithm (specified by a line width of 0, which is the
-    default), or a slower but more accurate algorithm (specified by a
-    line width of 1). For horizontal and vertical lines a line width
-    of 0 is the same as a line width of 1. The cap and join style have
-    no effect on 0-width lines.
-
-    The pen color defines the color of lines and text. The default
-    line color is black. The QColor documentation lists predefined
+    The pen brush defines the fill of lines and text. The default pen
+    is a solid black brush. The QColor documentation lists predefined
     colors.
 
     The cap style defines how the end points of lines are drawn. The
@@ -73,15 +69,28 @@
     systems, however, the end point of at least all non-diagonal lines
     are drawn.
 
-    A pen's color(), width(), style(), capStyle() and joinStyle() can
-    be set in the constructor or later with setColor(), setWidth(),
-    setStyle(), setCapStyle() and setJoinStyle(). Pens may also be
-    compared and streamed.
+    A pen's color(), brush(), width(), style(), capStyle() and
+    joinStyle() can be set in the constructor or later with
+    setColor(), setWidth(), setStyle(), setCapStyle() and
+    setJoinStyle(). Pens may also be compared and streamed.
 
     \img pen-styles.png Pen styles
 
     \sa QPainter, QPainter::setPen()
 */
+
+class QPenData {
+public:
+    QAtomic ref;
+    qreal width;
+    QBrush brush;
+    Qt::PenStyle style;
+    Qt::PenCapStyle capStyle;
+    Qt::PenJoinStyle joinStyle;
+};
+
+static const Qt::PenCapStyle qpen_default_cap = Qt::SquareCap;
+static const Qt::PenJoinStyle qpen_default_join = Qt::BevelJoin;
 
 /*!
   \internal
@@ -89,14 +98,17 @@
 */
 
 
-void QPen::init(const QColor &color, float width, uint linestyle)
+void QPen::init(const QBrush &brush, qreal width, Qt::PenStyle penStyle, Qt::PenCapStyle capStyle,
+                Qt::PenJoinStyle joinStyle)
 {
     d = new QPenData;
     d->ref = 1;
-    d->style = (Qt::PenStyle)(linestyle & Qt::MPenStyle);
+    d->style = penStyle;
     d->width = width;
-    d->color = color;
-    d->linest = linestyle;
+    d->brush = brush;
+    d->style = penStyle;
+    d->capStyle = capStyle;
+    d->joinStyle = joinStyle;
 }
 
 /*!
@@ -106,51 +118,44 @@ void QPen::init(const QColor &color, float width, uint linestyle)
 
 QPen::QPen()
 {
-    init(Qt::black, 0, Qt::SolidLine | Qt::SquareCap);
+    init(Qt::black, 0, Qt::SolidLine, qpen_default_cap, qpen_default_join);
 }
 
 /*!
-    Constructs a black pen with 0 width (fast diagonals) and style \a
-    style.
+    Constructs a black pen with 0 width and style \a style.
 
     \sa setStyle()
 */
 
 QPen::QPen(Qt::PenStyle style)
 {
-    init(Qt::black, 0, style | Qt::SquareCap);
+    init(Qt::black, 0, style, qpen_default_cap, qpen_default_join);
 }
 
-/*!
-    Constructs a pen with the specified \a color, \a width and \a
-    style.
 
-    \sa setWidth(), setStyle(), setColor()
+/*!
+    Constructs a pen of color \a color with 0 width.
+
+    \sa setBrush(), setColor()
 */
 
-QPen::QPen(const QColor &color, float width, Qt::PenStyle style)
+QPen::QPen(const QColor &color)
 {
-    init(color, width, style | Qt::SquareCap);
+    init(color, 0, Qt::SolidLine, qpen_default_cap, qpen_default_join);
 }
 
+
 /*!
-    Constructs a pen with the specified color \a cl and width \a width.
-    The pen style is set to \a s, the pen cap style to \a c and the
-    pen join style to \a j.
+    Constructs a pen with the specified brush \a brush and width \a
+    width.  The pen style is set to \a s, the pen cap style to \a c
+    and the pen join style to \a j.
 
-    A line width of 0 will produce a 1 pixel wide line using a fast
-    algorithm for diagonals. A line width of 1 will also produce a 1
-    pixel wide line, but uses a slower more accurate algorithm for
-    diagonals. For horizontal and vertical lines a line width of 0 is
-    the same as a line width of 1. The cap and join style have no
-    effect on 0-width lines.
-
-    \sa setWidth(), setStyle(), setColor()
+    \sa setWidth(), setStyle(), setBrush()
 */
 
-QPen::QPen(const QColor &cl, float width, Qt::PenStyle s, Qt::PenCapStyle c, Qt::PenJoinStyle j)
+QPen::QPen(const QBrush &brush, qreal width, Qt::PenStyle s, Qt::PenCapStyle c, Qt::PenJoinStyle j)
 {
-    init(cl, width, s | c | j);
+    init(brush, width, s, c, j);
 }
 
 /*!
@@ -162,6 +167,7 @@ QPen::QPen(const QPen &p)
     d = p.d;
     ++d->ref;
 }
+
 
 /*!
     Destroys the pen.
@@ -189,8 +195,9 @@ void QPen::detach_helper()
     x->ref = 1;
     x->style = d->style;
     x->width = d->width;
-    x->color = d->color;
-    x->linest = d->linest;
+    x->brush = d->brush;
+    x->capStyle = d->capStyle;
+    x->joinStyle = d->joinStyle;
     x = qAtomicSetPtr(&d, x);
     if (!--x->ref)
         delete x;
@@ -226,6 +233,11 @@ QPen::operator QVariant() const
     \sa setStyle()
 */
 
+Qt::PenStyle QPen::style() const
+{
+    return d->style;
+}
+
 /*!
     Sets the pen style to \a s.
 
@@ -245,26 +257,33 @@ void QPen::setStyle(Qt::PenStyle s)
         return;
     detach();
     d->style = s;
-    d->linest = (d->linest & ~Qt::MPenStyle) | s;
 }
 
 
 /*!
-    \fn float QPen::width() const
+    \fn qreal QPen::width() const
 
     Returns the pen width with integer preceision.
 
     \sa setWidth()
 */
 
+int QPen::width() const
+{
+    return qRound(d->width);
+}
 
 /*!
-    \fn float QPen::widthF() const
+    \fn qreal QPen::widthF() const
 
     Returns the pen width with floating point precision.
 
     \sa setWidthF()
 */
+qreal QPen::widthF() const
+{
+    return d->width;
+}
 
 /*!
     \fn QPen::setWidth(int width)
@@ -273,6 +292,10 @@ void QPen::setStyle(Qt::PenStyle s)
 
     Sets the pen width to \a width
 */
+void QPen::setWidth(int width)
+{
+    d->width = width;
+}
 
 /*!
     Sets the pen width to \a width.
@@ -289,7 +312,7 @@ void QPen::setStyle(Qt::PenStyle s)
     \sa width()
 */
 
-void QPen::setWidthF(float width)
+void QPen::setWidthF(qreal width)
 {
     if (width < 0.f)
         qWarning("QPen::setWidthF(): Setting a pen width with a negative value is not defined.");
@@ -307,7 +330,7 @@ void QPen::setWidthF(float width)
 */
 Qt::PenCapStyle QPen::capStyle() const
 {
-    return (Qt::PenCapStyle)(d->linest & Qt::MPenCapStyle);
+    return d->capStyle;
 }
 
 /*!
@@ -327,10 +350,10 @@ Qt::PenCapStyle QPen::capStyle() const
 
 void QPen::setCapStyle(Qt::PenCapStyle c)
 {
-    if ((d->linest & Qt::MPenCapStyle) == c)
+    if (d->capStyle == c)
         return;
     detach();
-    d->linest = (d->linest & ~Qt::MPenCapStyle) | c;
+    d->capStyle = c;
 }
 
 /*!
@@ -340,7 +363,7 @@ void QPen::setCapStyle(Qt::PenCapStyle c)
 */
 Qt::PenJoinStyle QPen::joinStyle() const
 {
-    return (Qt::PenJoinStyle)(d->linest & Qt::MPenJoinStyle);
+    return d->joinStyle;
 }
 
 /*!
@@ -351,19 +374,15 @@ Qt::PenJoinStyle QPen::joinStyle() const
 
     \img pen-join-styles.png Pen Join Styles
 
-    \warning On Windows 95/98 and Macintosh, the join style setting
-    has no effect. Wide lines are rendered as if the join style was \c
-    Qt::BevelJoin.
-
     \sa joinStyle()
 */
 
 void QPen::setJoinStyle(Qt::PenJoinStyle j)
 {
-    if ((d->linest & Qt::MPenJoinStyle) == j)
+    if (d->joinStyle == j)
         return;
     detach();
-    d->linest = (d->linest & ~Qt::MPenJoinStyle) | j;
+    d->joinStyle = j;
 }
 
 /*!
@@ -373,6 +392,10 @@ void QPen::setJoinStyle(Qt::PenJoinStyle j)
 
     \sa setColor()
 */
+QColor QPen::color() const
+{
+    return d->brush.color();
+}
 
 /*!
     Sets the pen color to \a c.
@@ -383,7 +406,35 @@ void QPen::setJoinStyle(Qt::PenJoinStyle j)
 void QPen::setColor(const QColor &c)
 {
     detach();
-    d->color = c;
+    d->brush = QBrush(c);
+}
+
+
+/*!
+    Returns the brush used to fill strokes generated with this pen.
+*/
+QBrush QPen::brush() const
+{
+    return d->brush;
+}
+
+
+/*!
+    Sets the brush used to fill strokes generated with this pen.
+*/
+void QPen::setBrush(const QBrush &brush)
+{
+    detach();
+    d->brush = brush;
+}
+
+
+/*!
+    Returns true if the pen has a solid fill
+*/
+bool QPen::isSolid() const
+{
+    return d->brush.style() == Qt::SolidPattern;
 }
 
 
@@ -409,8 +460,11 @@ void QPen::setColor(const QColor &c)
 
 bool QPen::operator==(const QPen &p) const
 {
-    return (p.d == d) || (p.d->linest == d->linest && p.d->width == d->width
-                          && p.d->color == d->color);
+    return (p.d == d) || (p.d->style == d->style
+                          && p.d->capStyle == d->capStyle
+                          && p.d->joinStyle == d->joinStyle
+                          && p.d->width == d->width
+                          && p.d->brush == d->brush);
 }
 
 
@@ -419,6 +473,23 @@ bool QPen::operator==(const QPen &p) const
 
     \internal
 */
+
+bool QPen::isDetached()
+{
+    return d->ref == 1;
+}
+
+/*!
+    \fn void QPen::detach()
+
+    \internal
+*/
+void QPen::detach()
+{
+    if (d->ref != 1)
+        detach_helper();
+}
+
 
 /*****************************************************************************
   QPen stream functions
@@ -439,12 +510,16 @@ QDataStream &operator<<(QDataStream &s, const QPen &p)
         s << (quint8)p.style();
     else
         s << (quint8)(p.style() | p.capStyle() | p.joinStyle());
-    if (s.version() < 7)
+
+    if (s.version() < 7) {
         s << (quint8)p.width();
-    else {
-        s << p.widthF();
+        s << p.color();
+    } else {
+        s << (double) p.widthF();
+        s << p.brush();
+        qDebug() << "wrote out" << p.widthF() << p.brush();
     }
-    return s << p.color();
+    return s;
 }
 
 /*!
@@ -460,15 +535,27 @@ QDataStream &operator>>(QDataStream &s, QPen &p)
 {
     quint8 style;
     quint8 width8 = 0;
-    float width = 0;
+    double width = 0;
     QColor color;
+    QBrush brush;
     s >> style;
-    if (s.version() < 7)
+    if (s.version() < 7) {
         s >> width8;
-    else
+        s >> color;
+        brush = color;
+        width = width8;
+    } else {
         s >> width;
-    s >> color;
-    p = QPen(color, (s.version() < 7 ? width8 : width), (Qt::PenStyle)style);
+        s >> brush;
+        qDebug() << "wrote in" << width << brush;
+    }
+
+    Qt::PenStyle penStyle = Qt::PenStyle(style & Qt::MPenStyle);
+    Qt::PenCapStyle capStyle = Qt::PenCapStyle(style & Qt::MPenCapStyle);
+    Qt::PenJoinStyle joinStyle = Qt::PenJoinStyle(style & Qt::MPenJoinStyle);
+
+    p = QPen(brush, width, penStyle, capStyle, joinStyle);
+
     return s;
 }
 #endif //QT_NO_DATASTREAM

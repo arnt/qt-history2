@@ -661,6 +661,12 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
             emulationSpecifier |= LineAntialiasing;
         else
             emulationSpecifier &= ~LineAntialiasing;
+
+        // Emulate brushstrokes
+        if (!s->pen.isSolid() && !hasFeature(BrushStroke))
+            emulationSpecifier |= BrushStroke;
+        else
+            emulationSpecifier &= ~BrushStroke;
     }
 
 

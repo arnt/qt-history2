@@ -74,6 +74,7 @@ public:
         ClipTransform             = 0x2000,               // Can transform clip regions.
         LineAntialiasing          = 0x4000,               // Can antialias lines
         FillAntialiasing          = 0x8000,               // Can antialias fills
+        BrushStroke               = 0x10000,              // Can render brush based pens.
         UsesFontEngine            = 0x10000000,           // Internal use, QWidget and QPixmap
         PaintOutsidePaintEvent    = 0x20000000            // Engine is capable of painting outside paint events
     };

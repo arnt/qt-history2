@@ -256,7 +256,7 @@ void QPainterPrivate::draw_helper_stroke_pathbased(const QPainterPath &input)
     q->save();
     q->resetMatrix();
     // need to set brush with current pen bf changing pen
-    q->setBrush(state->pen.color());
+    q->setBrush(state->pen.brush());
     q->setPen(Qt::NoPen);
     engine->syncState();
     if (engine->hasFeature(QPaintEngine::PainterPaths)) {
@@ -298,6 +298,7 @@ void QPainterPrivate::draw_helper(const QPainterPath &path, DrawOperation op,
             {    0x1000, "PainterPaths "},
             {    0x2000, "ClipTransform "},
             {    0x4000, "LineAntialiasing "},
+            {    0x10000, "BrushStroke"},
             {0x10000000, "UsesFontEngine "},
             {0x20000000, "PaintOutsidePaintEvent "},
             {       0x0, 0x0},
@@ -320,7 +321,8 @@ void QPainterPrivate::draw_helper(const QPainterPath &path, DrawOperation op,
     if ((op & StrokeDraw)
         && (emulationSpecifier & QPaintEngine::PenWidthTransform
             || emulationSpecifier & QPaintEngine::AlphaStroke
-            || emulationSpecifier & QPaintEngine::LineAntialiasing))
+            || emulationSpecifier & QPaintEngine::LineAntialiasing
+            || emulationSpecifier & QPaintEngine::BrushStroke))
         outlineMode = PathBased;
 
     if (op & FillDraw) {
@@ -2235,16 +2237,14 @@ void QPainter::setPen(const QPen &pen)
 
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
-        printf("QPainter::setPen(), color=%04x, style=%d, cap=%d, join=%d\n",
-           pen.color().rgb(), pen.style(), pen.capStyle(), pen.joinStyle());
+        printf("QPainter::setPen(), color=%04x, (brushStyle=%d) style=%d, cap=%d, join=%d\n",
+           pen.color().rgb(), pen.brush().style(), pen.style(), pen.capStyle(), pen.joinStyle());
 #endif
 
     Q_D(QPainter);
     if (d->state->pen == pen)
         return;
     d->state->pen = pen;
-    if (!pen.color().isValid())
-        d->state->pen.setColor(Qt::black);
     if (d->engine)
         d->engine->setDirty(QPaintEngine::DirtyPen);
 }

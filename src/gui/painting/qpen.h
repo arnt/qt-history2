@@ -17,28 +17,43 @@
 #include "QtGui/qcolor.h"
 
 class QVariant;
+class QPenData;
+class QBrush;
 
 class Q_GUI_EXPORT QPen
 {
 public:
     QPen();
     QPen(Qt::PenStyle);
-    QPen(const QColor &color, float width = 0, Qt::PenStyle style = Qt::SolidLine);
-    QPen(const QColor &cl, float width, Qt::PenStyle s, Qt::PenCapStyle c, Qt::PenJoinStyle j);
+    QPen(const QColor &color);
+    QPen(const QBrush &brush, qreal width, Qt::PenStyle s = Qt::SolidLine,
+         Qt::PenCapStyle c = Qt::SquareCap, Qt::PenJoinStyle j = Qt::BevelJoin);
     QPen(const QPen &pen);
+
     ~QPen();
+
     QPen &operator=(const QPen &pen);
 
-    inline Qt::PenStyle style() const { return d->style; }
+    Qt::PenStyle style() const;
     void setStyle(Qt::PenStyle);
-    inline float widthF() const { return d->width; }
-    void setWidthF(float width);
-    inline int width() const { return qRound(widthF()); }
-    inline void setWidth(int width) { setWidthF(width); }
-    inline QColor color() const { return d->color; }
+
+    qreal widthF() const;
+    void setWidthF(qreal width);
+
+    int width() const;
+    void setWidth(int width);
+
+    QColor color() const;
     void setColor(const QColor &color);
+
+    QBrush brush() const;
+    void setBrush(const QBrush &brush);
+
+    bool isSolid() const;
+
     Qt::PenCapStyle        capStyle() const;
     void setCapStyle(Qt::PenCapStyle pcs);
+
     Qt::PenJoinStyle joinStyle() const;
     void setJoinStyle(Qt::PenJoinStyle pcs);
 
@@ -46,20 +61,13 @@ public:
     inline bool operator!=(const QPen &p) const { return !(operator==(p)); }
     operator QVariant() const;
 
-    bool isDetached() { return d->ref == 1; }
+    bool isDetached();
 private:
     friend class QPainter;
-    inline void detach() { if (d->ref != 1) detach_helper(); }
+    void detach();
     void detach_helper();
-    void init(const QColor &c, float width, uint linestyle);
-    struct QPenData {
-        QAtomic ref;
-        float width;
-        QColor color;
-        Qt::PenStyle style;
-        quint16 linest;
-    };
-    struct QPenData *d;
+    void init(const QBrush &brush, qreal width, Qt::PenStyle, Qt::PenCapStyle, Qt::PenJoinStyle);
+    class QPenData *d;
 };
 Q_DECLARE_TYPEINFO(QPen, Q_MOVABLE_TYPE);
 Q_DECLARE_SHARED(QPen);
