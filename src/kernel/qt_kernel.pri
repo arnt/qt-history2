@@ -15,7 +15,6 @@ kernel {
 		  $$KERNEL_H/qclipboard.h \
 		  $$KERNEL_H/qcolor.h \
 		  $$KERNEL_P/qcolor_p.h \
-		  $$KERNEL_P/qcomplextext_p.h \
 		  $$KERNEL_H/qcursor.h \
 		  $$KERNEL_H/qdesktopwidget.h \
 		  $$KERNEL_H/qdragobject.h \
@@ -181,7 +180,6 @@ kernel {
 		  $$KERNEL_CPP/qclipboard.cpp \
 		  $$KERNEL_CPP/qcolor.cpp \
 		  $$KERNEL_CPP/qcolor_p.cpp \
-		  $$KERNEL_CPP/qcomplextext.cpp \
 		  $$KERNEL_CPP/qcursor.cpp \
 		  $$KERNEL_CPP/qdragobject.cpp \
 		  $$KERNEL_CPP/qdrawutil.cpp \
