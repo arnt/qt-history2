@@ -1,10 +1,6 @@
 TEMPLATE	= app
 CONFIG		= qt warn_on release
-HEADERS		= application.h \
-		  qworkspace.h \
-		  qworkspacechild.h
+HEADERS		= application.h 
 SOURCES		= application.cpp \
-		  main.cpp \
-		  qworkspace.cpp \
-		  qworkspacechild.cpp
+		  main.cpp 
 TARGET		= mdi

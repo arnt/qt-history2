@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/mdi/application.cpp#4 $
+** $Id: //depot/qt/main/tests/mdi/application.cpp#5 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -153,10 +153,13 @@ ApplicationWindow::~ApplicationWindow()
 void ApplicationWindow::newDoc()
 {
     QWidget* w = new MDIWindow( ws, 0, WDestructiveClose );
+    qDebug("layout = %p", w->layout() );
+    qDebug("size hint = %d", w->sizeHint().height() );
     connect( w, SIGNAL( destroyed() ), this, SLOT( childDestroyed() ) );
     windows.append( w );
     w->setCaption("unnamed document");
     w->show();
+    qDebug("size  = %d", w->height() );
 }
 
 void ApplicationWindow::load()
