@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.h#23 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.h#24 $
 **
 ** Definition of QFileDialog class
 **
@@ -26,6 +26,16 @@ class QWidget;
 #endif // QT_H
 
 
+class QFileIconProvider: public QObject
+{
+    Q_OBJECT
+public:
+    QFileIconProvider( QObject * parent = 0, const char * name = 0 );
+
+    virtual const QPixmap * pixmap( const QFileInfo & );
+};
+
+
 class QFileDialog : public QDialog
 {
     Q_OBJECT
@@ -46,6 +56,11 @@ public:
     static QString getExistingDirectory( const char *dir = 0,
 					 QWidget *parent = 0,
 					 const char *name = 0 );
+    
+    // other static functions
+    
+    static void setIconProvider( QFileIconProvider * );
+    static QFileIconProvider * iconProvider();
 
     // non-static function for special needs
 
@@ -62,9 +77,12 @@ public:
     enum Mode { AnyFile, ExistingFile, Directory };
     void setMode( Mode );
     Mode mode() const;
+    
+    bool eventFilter( QObject *, QEvent * );
 
 public slots:
     void setDir( const char * );
+    void setFilter( const char * );
 
 signals:
     void fileHighlighted( const char * );
@@ -90,6 +108,7 @@ private slots:
 
 protected:
     void resizeEvent( QResizeEvent * );
+    void keyPressEvent( QKeyEvent * );
 
     void addWidgets( QLabel *, QWidget *, QPushButton * );
 
