@@ -15,7 +15,7 @@ goto endofperl
 @rem ';
 #!/usr/bin/perl
 ############################################################################
-# $Id: //depot/qt/main/bin/syncqt.bat#18 $
+# $Id: //depot/qt/main/bin/syncqt.bat#19 $
 #
 # Synchronizes Qt header files - internal Trolltech tool.
 #   - Creates symlinks on Unix.
@@ -27,6 +27,7 @@ goto endofperl
 
 die "syncqt: QTDIR not defined" if ! $ENV{"QTDIR"};
 $fast=0;
+$force_win=0;
 
 $basedir = $ENV{"QTDIR"};
 $includedir = $basedir . "/include";
@@ -40,6 +41,8 @@ while ( $#ARGV >= 0 ) {
 	if ( $includedir =~ /^\// ) {
 	    $includedir = `pwd` ."/". $includedir;
 	}
+    } elsif ( $ARGV[0] eq "-windows" ) {
+	$force_win=1;
     }
     shift;
 }
@@ -180,6 +183,9 @@ sub find_files {
 sub check_unix {
     my($r);
     $r = 0;
+    if ( $force_win != 0) {
+	return 0;
+    }
     if ( -f "/bin/uname" ) {
 	$r = 1;
 	(-f "\\bin\\uname") && ($r = 0);
