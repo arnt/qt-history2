@@ -137,7 +137,7 @@ void WriteInitialization::accept(DomWidget *node)
         initializeTable(node);
     } else if (className.mid(1) == QLatin1String("ComboBox")) {
         initializeListBox(node);
-    } else if (className.mid(1) == QLatin1String("ListView")) {
+    } else if (className == QLatin1String("Q3ListView")) {
         initializeListView(node);
     } else if (className == QLatin1String("QDataTable")) {
         initializeSqlDataTable(node);
