@@ -95,7 +95,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxLength)
         default:
             QString tmp;
             tmp.sprintf("\\%o", c);
-            out += tmp;
+            out += tmp.latin1();
         }
     }
 
