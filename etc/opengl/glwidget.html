@@ -1,0 +1,81 @@
+<!doctype HTML public "-//IETF//DTD HTML 2.0 Level 2//EN">
+<html><head>
+<title>Qt Toolkit - GLWidget Class</title>
+</head><body>
+<h1>GLWidget Class Reference</h1>
+<hr>
+<p>
+The GLWidget is an OpenGL wrapper class.
+<a href="#details">More...</a>
+<p>
+<code>#include &lt;<a href="glwidget-h.html">glwidget.h</a>&gt;</code>
+<p>
+Inherits QWidget.
+<p><a href="glwidget-members.html">List of all member functions.</a>
+<h2>Public Members</h2>
+<ul>
+<li><a href="glwidget.html#1"><strong>GLWidget</strong></a> (QWidget* parent=0, const char* name=0) 
+</ul>
+<h2>Public Slots</h2>
+<ul>
+<li>void <a href="glwidget.html#4"><strong>updateGL</strong></a> () 
+</ul>
+<h2>Static Public Members</h2>
+<ul>
+<li>bool <a href="glwidget.html#13"><strong>doubleBuffer</strong></a> () 
+<li>void <a href="glwidget.html#14"><strong>setDoubleBuffer</strong></a> (bool enable) 
+</ul>
+<h2>Protected Members</h2>
+<ul>
+<li>virtual void <a href="glwidget.html#5"><strong>paintGL</strong></a> () 
+<li>virtual void <a href="glwidget.html#6"><strong>resizeGL</strong></a> (int w, int h) 
+<li>void <a href="glwidget.html#7"><strong>swapBuffers</strong></a> () 
+<li>void <a href="glwidget.html#8"><strong>makeCurrentGL</strong></a> () 
+<li>void <a href="glwidget.html#9"><strong>paintEvent</strong></a> (QPaintEvent*) 
+<li>void <a href="glwidget.html#10"><strong>resizeEvent</strong></a> (QResizeEvent*) 
+</ul>
+<hr><h2><a name="details">Detailed Description</a></h2>
+The GLWidget is an OpenGL wrapper class.
+<p>
+To create your own OpenGL widget, make a subclass of GLWidget and
+reimplement the virtual functions <a href="glwidget.html#5">paintGL</a>() and <a href="glwidget.html#6">resizeGL</a>().
+Study the Nurb class for an example.
+<p>The GLWidget is a very thin wrapper and it probably lacks functionality.
+Please give feedback to hanord@troll.no.
+
+<hr><h2>Member Function Documentation</h2>
+<h3> <a name="1">GLWidget::GLWidget</a> ( QWidget *parent=0, const char *name=0)</h3>
+<p>Create an OpenGL widget with a <em>parent</em> widget and a <em>name.</em>
+<h3>bool <a name="13">GLWidget::doubleBuffer</a> () <code>[static]</code></h3>
+<p>Returns TRUE if double buffering is enabled, otherwise FALSE.
+<p>See also:  <a href="glwidget.html#14">setDoubleBuffer</a>().
+<h3>void <a name="8">GLWidget::makeCurrentGL</a> () <code>[protected]</code></h3>
+<p>Makes this widget the current GL object. GLWidget takes care of this
+before calling <a href="glwidget.html#5">paintGL</a>() or <a href="glwidget.html#6">resizeGL</a>().
+<h3>void <a name="9">GLWidget::paintEvent</a> ( QPaintEvent *) <code>[protected]</code></h3>
+<p>Handles paint events. Calls the virtual function <a href="glwidget.html#5">paintGL</a>().
+<h3>void <a name="5">GLWidget::paintGL</a> () <code>[virtual protected]</code></h3>
+<p>This virtual function is called whenever the widget needs to be painted.
+Reimplement it in a subclass.
+<h3>void <a name="10">GLWidget::resizeEvent</a> ( QResizeEvent *) <code>[protected]</code></h3>
+<p>Handles resize events. Calls the virtual function <a href="glwidget.html#6">resizeGL</a>().
+<h3>void <a name="6">GLWidget::resizeGL</a> ( int, int) <code>[virtual protected]</code></h3>
+<p>This virtual function is called whenever the widget has been resized.
+Reimplement it in a subclass.
+<h3>void <a name="14">GLWidget::setDoubleBuffer</a> ( bool enable) <code>[static]</code></h3>
+<p>Enables or disables double buffering. The default setting is TRUE.
+<p>Call this static function before you create any GLWidgets.
+<h3>void <a name="7">GLWidget::swapBuffers</a> () <code>[protected]</code></h3>
+<p>Handles paint events. Calls the virtual function <a href="glwidget.html#5">paintGL</a>().
+<h3>void <a name="4">GLWidget::updateGL</a> () <code>[slot]</code></h3>
+<p>Updates the widget. Does not clear the background first.
+
+<p>
+It was generated from the following files:
+<ul>
+<li>glwidget.h
+<li>glwidget.cpp</ul>
+<hr><address>
+Generated at 09:24, 1996/06/25 for Qt version 0.98 by the <a href="mailto:www@troll.no">webmaster</a> at <a href="http://www.troll.no/">Troll Tech</a>
+</address>
+</body></html>
