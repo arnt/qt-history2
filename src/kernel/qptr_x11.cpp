@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#169 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#170 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#169 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#170 $")
 
 
 /*****************************************************************************
@@ -2230,13 +2230,13 @@ void QPainter::drawBezier( const QPointArray &a, int index, int npoints )
 	npoints = a.size() - index;
     if ( !isActive() || npoints < 2 || index < 0 )
 	return;
-    QPointArray pa = a;
+    QPointArray pa;
     if ( npoints != (int)a.size() ) {
-	if ( npoints != (int)a.size() ) {
-	    pa.resize( npoints );
-	    for ( int i=0; i<npoints; i++ )
-		pa.setPoint( i, a.point(index+i) );
-	}
+	pa.resize( npoints );
+	for ( int i=0; i<npoints; i++ )
+	    pa.setPoint( i, a.point(index+i) );
+    } else {
+	pa = a;
     }
     if ( testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) ) {
