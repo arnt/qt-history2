@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#247 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#248 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -547,10 +547,23 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 }
 
 
+// Please do NOT remove the FAQ answer from this doc again.  It's a
+// FAQ, it remains a FAQ, and people apparently will not follow three
+// links to find the right answer.
+
 /*!
   This function is deprecated.  Use setBackgroundMode() or setPalette(),
   as they ensure the appropriate clearing color is used when the widget
   is in the Active, Normal, or Disabled state.
+
+  If you want to change the color scheme of a widget, the setPalette()
+  function is better suited.  Here is how to set \e thatWidget to use a
+  light green (RGB value 80, 255, 80) as background color, with shades
+  of green used for all the 3D effects:
+
+  \code
+    thatWidget->setPalette( QPalette( QColor(80, 255, 80) ) );
+  \endcode
 
   \sa setPalette(), QApplication::setPalette(), backgroundColor(),
       setBackgroundPixmap(), setBackgroundMode()
