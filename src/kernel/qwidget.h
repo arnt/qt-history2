@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#93 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#94 $
 **
 ** Definition of QWidget class
 **
@@ -182,9 +182,6 @@ public:
     bool	 testWFlags( WFlags n ) const;
     static QWidget	 *find( WId );
     static QWidgetMapper *wmapper();
-
-    void	increaseInternalMouseTracking();
-    void	decreaseInternalMouseTracking();
 
   // Event handlers
 

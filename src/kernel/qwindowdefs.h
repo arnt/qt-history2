@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#78 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#79 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -237,7 +237,6 @@ struct QWExtra {
     char    *iconText;				// widget icon text
     QPixmap *icon;				// widget icon
     QPixmap *bg_pix;				// background pixmap
-    short int extraMouseTracking;		// internal mouse tracking
 };
 
 
