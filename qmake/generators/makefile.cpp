@@ -948,7 +948,7 @@ QString MakefileGenerator::build_args()
 
 	//special variables
 	if(!project->variables()["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty())
-	    ret += "QMAKE_ABSOLUTE_SOURCE_PATH=\"" + project->first("QMAKE_ABSOLUTE_SOURCE_PATH") + "\"";
+	    ret += " QMAKE_ABSOLUTE_SOURCE_PATH=\"" + project->first("QMAKE_ABSOLUTE_SOURCE_PATH") + "\"";
 
 	//output
 	QString ofile = Option::output.name();
