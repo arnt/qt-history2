@@ -187,17 +187,17 @@ QPopupMenu
   One user requested the ability to show just the icons in a torn off menu, and asked
   if the torn off menu could get a WS_EX_TOOLWINDOW style.  I don't think that this
   will benefit anyone much as they might as well just use a toolbar.
-  
-Be able to traverse from one popup menu to another when you are within a popup menu 
+
+Be able to traverse from one popup menu to another when you are within a popup menu
   (see more on support/arc-09/18923)
 
-QMenuData  
-  bool isPopup( int id ) - check to see if a menu item is a QPopupMenu or just a plain QMenuItem.  
+QMenuData
+  bool isPopup( int id ) - check to see if a menu item is a QPopupMenu or just a plain QMenuItem.
 
 QWidget::setIcon() need second parameter
   QWidget::setIcon() needs an extra parameter to specify the size of the icon
   (large/small) at least for the Windows platform.  The small icon is for the
-  caption bar.  The large icon is for the task manager when you hit ALT + TAB. 
+  caption bar.  The large icon is for the task manager when you hit ALT + TAB.
   (qt-bugs/arc-08/17124)
 
 QIconView::mask()
@@ -317,10 +317,6 @@ QRichText
 
 QListBox/maybe QTable (Reggie)
     DnD API, like QIconView
-
-QListView/QHeader (Reggie)
-    Support for stretchable header in QListView, so that the header
-    always fits exactly into the width of the view
 
 QTableItem (Reggie):
     setEnabled( bool )
