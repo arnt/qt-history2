@@ -727,6 +727,7 @@ public:
 	WV_NT 		= 0x0010,
 	WV_2000 	= 0x0020,
 	WV_XP		= 0x0030,
+	WV_2003		= 0x0040,
 	WV_NT_based	= 0x00f0,
 
 	WV_CE           = 0x0100,
@@ -890,6 +891,24 @@ public:
 	TopRight    = 0x00001,
 	BottomLeft  = 0x00002,
 	BottomRight = 0x00003
+    };
+
+    // Documented in quuid.cpp
+    enum UuidVariant {
+	UV_Var_Unknown	=-1,
+	UV_NCS		= 0, // 0 - -
+	UV_Standard	= 2, // 1 0 -
+	UV_Microsoft	= 6, // 1 1 0
+	UV_Reserved	= 7  // 1 1 1
+    };
+
+    // Documented in quuid.cpp
+    enum UuidVersion {
+	UV_Ver_Unknown	=-1,
+	UV_Time		= 1, // 0 0 0 1
+	UV_EmbeddedPOSIX= 2, // 0 0 1 0
+	UV_Name		= 3, // 0 0 1 1
+	UV_Random	= 4  // 0 1 0 0
     };
 
     enum ConnectionType {

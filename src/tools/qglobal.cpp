@@ -21,7 +21,7 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#if defined(Q_CC_MSVC) && !defined(Q_OS_TEMP)
+#if defined(Q_CC_MSVC) && !defined(Q_CC_MSVC_NET) && !defined(Q_OS_TEMP)
 #include <crtdbg.h>
 #endif
 
@@ -202,7 +202,9 @@ int qWinVersion()
 	    break;
 	case VER_PLATFORM_WIN32_WINDOWS:
 	    // We treat Windows Me (minor 90) the same as Windows 98
-	    if ( ( osver.dwMinorVersion == 10 ) || ( osver.dwMinorVersion == 90 ) )
+	    if ( osver.dwMinorVersion == 90 )
+		winver = Qt::WV_Me;
+	    else if ( osver.dwMinorVersion == 10 )
 		winver = Qt::WV_98;
 	    else
 		winver = Qt::WV_95;
@@ -210,7 +212,6 @@ int qWinVersion()
 #ifdef Q_OS_TEMP
 	case VER_PLATFORM_WIN32_CE:
 #ifdef Q_OS_TEMP
-
 	    if ( qt_cever >= 400 )
 		winver = Qt::WV_CENET;
 	    else
@@ -223,8 +224,13 @@ int qWinVersion()
 		winver = Qt::WV_NT;
 	    } else if ( osver.dwMinorVersion == 0 ) {
 		winver = Qt::WV_2000;
-	    } else {
+	    } else if ( osver.dwMinorVersion == 1 ) {
 		winver = Qt::WV_XP;
+	    } else if ( osver.dwMinorVersion == 2 ) {
+		winver = Qt::WV_2003;
+	    } else {
+		qWarning("Untested Windows version detected!");
+		winver = Qt::WV_NT_based;
 	    }
 	}
     }
@@ -398,7 +404,6 @@ static void mac_default_handler( const char *msg )
 }
 
 #endif
-
 
 
 /*!

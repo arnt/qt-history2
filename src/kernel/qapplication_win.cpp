@@ -3388,7 +3388,7 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 	    api = SPI_SETMENUANIMATION;
 	    break;
 	case UI_FadeMenu:
-	    if ( qWinVersion() == WV_98 )
+	    if ( qWinVersion() == WV_98 || qWinVersion() == WM_Me )
 		return;
 	    api = SPI_SETMENUFADE;
 	    break;
@@ -3399,7 +3399,7 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 	    api = SPI_SETTOOLTIPANIMATION;
 	    break;
 	case UI_FadeTooltip:
-	    if ( qWinVersion() == WV_98 )
+	    if ( qWinVersion() == WV_98 || qWinVersion() == WM_Me )
 		return;
 	    api = SPI_SETTOOLTIPFADE;
 	    break;
@@ -3430,7 +3430,7 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 	    api = SPI_GETMENUANIMATION;
 	    break;
 	case UI_FadeMenu:
-	    if ( qWinVersion() == WV_98 )
+	    if ( qWinVersion() == WV_98 || qWinVersion() == WM_Me )
 		return FALSE;
 	    api = SPI_GETMENUFADE;
 	    break;
@@ -3438,13 +3438,13 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 	    api = SPI_GETCOMBOBOXANIMATION;
 	    break;
 	case UI_AnimateTooltip:
-	    if ( qWinVersion() == WV_98 )
+	    if ( qWinVersion() == WV_98 || qWinVersion() == WM_Me )
 		api = SPI_GETMENUANIMATION;
 	    else
 		api = SPI_GETTOOLTIPANIMATION;
 	    break;
 	case UI_FadeTooltip:
-	    if ( qWinVersion() == WV_98 )
+	    if ( qWinVersion() == WV_98 || qWinVersion() == WM_Me )
 		return FALSE;
 	    api = SPI_GETTOOLTIPFADE;
 	    break;
@@ -3512,6 +3512,7 @@ void QSessionManager::cancel()
     \value WV_NT
     \value WV_2000
     \value WV_XP
+    \value WV_2003
     \value WV_NT_based
 
     \value WV_CE

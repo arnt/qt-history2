@@ -1981,6 +1981,7 @@ void QApplication::syncX()	{}		// do nothing
   \i Qt::WV_NT - Windows NT 4.x
   \i Qt::WV_2000 - Windows 2000 (NT5)
   \i Qt::WV_XP - Windows XP
+  \i Qt::WV_2003 - Windows Server 2003 family
   \i Qt::WV_CE - Windows CE
   \i Qt::WV_CENET - Windows CE.NET
   \endlist
