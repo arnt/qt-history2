@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmotifstyle.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qmotifstyle.cpp#29 $
 **
 ** Implementation of Motif-like style class
 **
@@ -382,7 +382,7 @@ void QMotifStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
 
 void
 QMotifStyle::drawFocusRect( QPainter* p,
-			    const QRect& r, const QColorGroup &/*g */, const QColor* bg, bool atBorder)
+			    const QRect& r, const QColorGroup &g , const QColor* bg, bool atBorder)
 {
     if (bg ) {
 	int h,s,v;
@@ -393,7 +393,8 @@ QMotifStyle::drawFocusRect( QPainter* p,
 	    p->setPen( Qt::white );
     }
     else
-	p->setPen( Qt::black);
+	p->setPen( g.foreground() );
+    p->setBrush( NoBrush );
     if ( atBorder )
 	p->drawRect( QRect( r.x()+1, r.y()+1, r.width()-2, r.height()-2 ) );
     else
@@ -528,7 +529,7 @@ void QMotifStyle::drawTab( QPainter* p, const QTabBar* tb, QTab* t , bool select
 	    r.setRect( r.left() + 2, r.top(),
 		       r.width() - 4, r.height() - 2 );
 	}
-        
+
 	p->drawLine( r.right() - 1, r.top(),
                      r.right() - 1, r.bottom() - 2 );
 	p->drawPoint( r.right() - 2, r.bottom() - 2 );
