@@ -1,7 +1,7 @@
 /****************************************************************************
-** Form interface generated from reading ui file 'richedit.ui'
+** Form interface generated from reading ui file '/home/mark/p4/qt/tools/designer/manual/sgml/eg/richedit/richedit.ui'
 **
-** Created: Mon Feb 5 16:02:29 2001
+** Created: Thu Feb 8 13:07:55 2001
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!

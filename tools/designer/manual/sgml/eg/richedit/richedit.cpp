@@ -1,17 +1,19 @@
 /****************************************************************************
-** Form implementation generated from reading ui file 'richedit.ui'
+** Form implementation generated from reading ui file '/home/mark/p4/qt/tools/designer/manual/sgml/eg/richedit/richedit.ui'
 **
-** Created: Mon Feb 5 16:02:34 2001
+** Created: Thu Feb 8 13:07:58 2001
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!
 ****************************************************************************/
-#include "./richedit.h"
+#include "/home/mark/p4/qt/tools/designer/manual/sgml/eg/richedit/richedit.h"
 
 #include <qvariant.h>   // first for gcc 2.7.2
 #include <qcombobox.h>
 #include <qspinbox.h>
 #include <qtextedit.h>
+#include <qmime.h>
+#include <qdragobject.h>
 #include <qlayout.h>
 #include <qtooltip.h>
 #include <qwhatsthis.h>
@@ -22,409 +24,15 @@
 #include <qimage.h>
 #include <qpixmap.h>
 
-static const char* const image0_data[] = { 
-"22 22 7 1",
-". c None",
-"# c #000000",
-"b c #2e2e2e",
-"c c #5c5c5c",
-"d c #878787",
-"e c #c2c2c2",
-"a c #ffffff",
-"......................",
-"....##########........",
-"....#aaaaaaa#b#.......",
-"....#aaaaaaa#cb#......",
-"....#aaaaaaa#dcb#.....",
-"....#aaaaaaa#edcb#....",
-"....#aaaaaaa#aedcb#...",
-"....#aaaaaaa#######...",
-"....#aaaaaaaaaaaaa#...",
-"....#aaaaaaaaaaaaa#...",
-"....#aaaaaaaaaaaaa#...",
-"....#aaaaaaaaaaaaa#...",
-"....#aaaaaaaaaaaaa#...",
-"....#aaaaaaaaaaaaa#...",
-"....#aaaaaaaaaaaaa#...",
-"....#aaaaaaaaaaaaa#...",
-"....#aaaaaaaaaaaaa#...",
-"....#aaaaaaaaaaaaa#...",
-"....#aaaaaaaaaaaaa#...",
-"....###############...",
-"......................",
-"......................"};
-
-static const char* const image1_data[] = { 
-"22 22 5 1",
-". c None",
-"# c #000000",
-"c c #848200",
-"a c #ffff00",
-"b c #ffffff",
-"......................",
-"......................",
-"......................",
-"............####....#.",
-"...........#....##.##.",
-"..................###.",
-".................####.",
-".####...........#####.",
-"#abab##########.......",
-"#babababababab#.......",
-"#ababababababa#.......",
-"#babababababab#.......",
-"#ababab###############",
-"#babab##cccccccccccc##",
-"#abab##cccccccccccc##.",
-"#bab##cccccccccccc##..",
-"#ab##cccccccccccc##...",
-"#b##cccccccccccc##....",
-"###cccccccccccc##.....",
-"##cccccccccccc##......",
-"###############.......",
-"......................"};
-
-static const char* const image2_data[] = { 
-"22 22 5 1",
-". c None",
-"# c #000000",
-"a c #848200",
-"b c #c1c1c1",
-"c c #cab5d1",
-"......................",
-".####################.",
-".#aa#bbbbbbbbbbbb#bb#.",
-".#aa#bbbbbbbbbbbb#bb#.",
-".#aa#bbbbbbbbbcbb####.",
-".#aa#bbbccbbbbbbb#aa#.",
-".#aa#bbbccbbbbbbb#aa#.",
-".#aa#bbbbbbbbbbbb#aa#.",
-".#aa#bbbbbbbbbbbb#aa#.",
-".#aa#bbbbbbbbbbbb#aa#.",
-".#aa#bbbbbbbbbbbb#aa#.",
-".#aaa############aaa#.",
-".#aaaaaaaaaaaaaaaaaa#.",
-".#aaaaaaaaaaaaaaaaaa#.",
-".#aaa#############aa#.",
-".#aaa#########bbb#aa#.",
-".#aaa#########bbb#aa#.",
-".#aaa#########bbb#aa#.",
-".#aaa#########bbb#aa#.",
-".#aaa#########bbb#aa#.",
-"..##################..",
-"......................"};
-
-static const char* const image3_data[] = { 
-"22 22 3 1",
-". c None",
-"# c #000084",
-"a c #848284",
-"......................",
-"......................",
-"......................",
-"......................",
-"......................",
-"...........######a....",
-"..#......##########...",
-"..##...####......##a..",
-"..###.###.........##..",
-"..######..........##..",
-"..#####...........##..",
-"..######..........##..",
-"..#######.........##..",
-"..########.......##a..",
-"...............a###...",
-"...............###....",
-"......................",
-"......................",
-"......................",
-"......................",
-"......................",
-"......................"};
-
-static const char* const image4_data[] = { 
-"22 22 3 1",
-". c None",
-"a c #000084",
-"# c #848284",
-"......................",
-"......................",
-"......................",
-"......................",
-"......................",
-"....#aaaaaa...........",
-"...aaaaaaaaaa......a..",
-"..#aa......aaaa...aa..",
-"..aa.........aaa.aaa..",
-"..aa..........aaaaaa..",
-"..aa...........aaaaa..",
-"..aa..........aaaaaa..",
-"..aa.........aaaaaaa..",
-"..#aa.......aaaaaaaa..",
-"...aaa#...............",
-"....aaa...............",
-"......................",
-"......................",
-"......................",
-"......................",
-"......................",
-"......................"};
-
-static const char* const image5_data[] = { 
-"22 22 3 1",
-". c None",
-"# c #000000",
-"a c #000082",
-"......................",
-".......#.....#........",
-".......#.....#........",
-".......#.....#........",
-".......#....##........",
-".......##...#.........",
-"........#...#.........",
-"........##.##.........",
-".........###..........",
-".........###..........",
-"..........#...........",
-".........a#a..........",
-"........aa.aaa........",
-".......a.a.a..a.......",
-"......a..a.a...a......",
-".....a...a.a....a.....",
-"....a....a.a....a.....",
-"....a....a..a...a.....",
-"....a....a..a..a......",
-"....a...a....aa.......",
-".....aaa..............",
-"......................"};
-
-static const char* const image6_data[] = { 
-"22 22 6 1",
-". c None",
-"# c #000000",
-"b c #000082",
-"c c #3c3cfd",
-"d c #8b8bfd",
-"a c #ffffff",
-"......................",
-"......................",
-"########..............",
-"#aaaaaa##.............",
-"#a####a#a#............",
-"#aaaaaa#aa#...........",
-"#a####a#bbbbbbbb......",
-"#aaaaaa#baaaaaabb.....",
-"#a#####aba####abcb....",
-"#aaaaaaabaaaaaabdcb...",
-"#a#####aba####abadcb..",
-"#aaaaaaabaaaaaabbbbbb.",
-"#a#####aba####aaaaaab.",
-"#aaaaaaabaaaaaaaaaaab.",
-"#a#####aba#########ab.",
-"#aaaaaaabaaaaaaaaaaab.",
-"########ba#########ab.",
-"........baaaaaaaaaaab.",
-"........ba#########ab.",
-"........baaaaaaaaaaab.",
-"........bbbbbbbbbbbbb.",
-"......................"};
-
-static const char* const image7_data[] = { 
-"22 22 8 1",
-". c None",
-"# c #000000",
-"e c #000084",
-"c c #848200",
-"b c #848284",
-"d c #c6c3c6",
-"a c #ffff00",
-"f c #ffffff",
-"......................",
-".......#####..........",
-"..######aaa######.....",
-".######aaaaa######....",
-"##bcb##a###a##bcb##...",
-"#bcb#ddddddddd#bcb#...",
-"#cbc#ddddddddd#cbc#...",
-"#bcb###########bcb#...",
-"#cbcbcbcbcbcbcbcbc#...",
-"#bcbcbcbcbcbcbcbcb#...",
-"#cbcbcbceeeeeeeeee#...",
-"#bcbcbcbefffffffefe...",
-"#cbcbcbcefeeeeefeffe..",
-"#bcbcbcbefffffffefffe.",
-"#cbcbcbcefeeeeefeffffe",
-"#bcbcbcbefffffffeeeeee",
-"#cbcbcbcefeeeeeffffffe",
-"#bcbcbcbeffffffffffffe",
-"#cbcbcbcefeeeeeeeeeefe",
-".#######effffffffffffe",
-"........eeeeeeeeeeeeee",
-"......................"};
-
-static const char* const image8_data[] = { 
-"22 22 2 1",
-". c None",
-"# c #000000",
-"......................",
-"......................",
-"......................",
-"......................",
-".....#########........",
-"......###...###.......",
-"......###....###......",
-"......###....###......",
-"......###....###......",
-"......###...###.......",
-"......########........",
-"......###...####......",
-"......###....####.....",
-"......###.....###.....",
-"......###.....###.....",
-"......###.....###.....",
-"......###....###......",
-".....##########.......",
-"......................",
-"......................",
-"......................",
-"......................"};
-
-static const char* const image9_data[] = { 
-"22 22 2 1",
-". c None",
-"# c #000000",
-"......................",
-"......................",
-"......................",
-"......................",
-"..........#####.......",
-"...........###........",
-"...........###........",
-"...........###........",
-"...........###........",
-"..........###.........",
-"..........###.........",
-"..........###.........",
-"..........###.........",
-".........###..........",
-".........###..........",
-".........###..........",
-".........###..........",
-"........#####.........",
-"......................",
-"......................",
-"......................",
-"......................"};
-
-static const char* const image10_data[] = { 
-"22 22 2 1",
-". c None",
-"# c #000000",
-"......................",
-"......................",
-"......................",
-"......................",
-".....#####...####.....",
-"......###......#......",
-"......###......#......",
-"......###......#......",
-"......###......#......",
-"......###......#......",
-"......###......#......",
-"......###......#......",
-"......###......#......",
-"......###......#......",
-"......###.....##......",
-".......###...##.......",
-"........######........",
-"......................",
-".....############.....",
-"......................",
-"......................",
-"......................"};
-
-static const char* const image11_data[] = { 
-"22 22 2 1",
-". c None",
-"# c #000000",
-"......................",
-"......................",
-"..#################...",
-"......................",
-"..#############.......",
-"......................",
-"..#################...",
-"......................",
-"..#############.......",
-"......................",
-"..#################...",
-"......................",
-"..#############.......",
-"......................",
-"..#################...",
-"......................",
-"..#############.......",
-"......................",
-"..#################...",
-"......................",
-"......................",
-"......................"};
-
-static const char* const image12_data[] = { 
-"22 22 2 1",
-". c None",
-"# c #000000",
-"......................",
-"......................",
-"...#################..",
-"......................",
-".......#############..",
-"......................",
-"...#################..",
-"......................",
-".......#############..",
-"......................",
-"...#################..",
-"......................",
-".......#############..",
-"......................",
-"...#################..",
-"......................",
-".......#############..",
-"......................",
-"...#################..",
-"......................",
-"......................",
-"......................"};
-
-static const char* const image13_data[] = { 
-"22 22 2 1",
-". c None",
-"# c #000000",
-"......................",
-"......................",
-"...#################..",
-"......................",
-".....#############....",
-"......................",
-"...#################..",
-"......................",
-".....#############....",
-"......................",
-"...#################..",
-"......................",
-".....#############....",
-"......................",
-"...#################..",
-"......................",
-".....#############....",
-"......................",
-"...#################..",
-"......................",
-"......................",
-"......................"};
-
-
+static QPixmap uic_load_pixmap_EditorForm( const QString &name )
+{
+    const QMimeSource *m = QMimeSourceFactory::defaultFactory()->data( name );
+    if ( !m )
+	return QPixmap();
+    QPixmap pix;
+    QImageDrag::decode( m, pix );
+    return pix;
+}
 /* 
  *  Constructs a EditorForm which is a child of 'parent', with the 
  *  name 'name' and widget flags set to 'f'.
@@ -434,23 +42,9 @@ EditorForm::EditorForm( QWidget* parent,  const char* name, WFlags fl )
     : QMainWindow( parent, name, fl )
 {
     (void)statusBar();
-    QPixmap image0( ( const char** ) image0_data );
-    QPixmap image1( ( const char** ) image1_data );
-    QPixmap image2( ( const char** ) image2_data );
-    QPixmap image3( ( const char** ) image3_data );
-    QPixmap image4( ( const char** ) image4_data );
-    QPixmap image5( ( const char** ) image5_data );
-    QPixmap image6( ( const char** ) image6_data );
-    QPixmap image7( ( const char** ) image7_data );
-    QPixmap image8( ( const char** ) image8_data );
-    QPixmap image9( ( const char** ) image9_data );
-    QPixmap image10( ( const char** ) image10_data );
-    QPixmap image11( ( const char** ) image11_data );
-    QPixmap image12( ( const char** ) image12_data );
-    QPixmap image13( ( const char** ) image13_data );
     if ( !name )
 	setName( "EditorForm" );
-    resize( 678, 480 ); 
+    resize( 674, 478 ); 
     setCaption( tr( "Rich Edit" ) );
     setCentralWidget( new QWidget( this, "qt_central_widget" ) );
     EditorFormLayout = new QHBoxLayout( centralWidget() ); 
@@ -462,17 +56,17 @@ EditorForm::EditorForm( QWidget* parent,  const char* name, WFlags fl )
     EditorFormLayout->addWidget( textEdit );
 
     fileNewAction = new QAction( this, "fileNewAction" );
-    fileNewAction->setIconSet( QIconSet( image0 ) );
+    fileNewAction->setIconSet( QIconSet( uic_load_pixmap_EditorForm( "filenew" ) ) );
     fileNewAction->setText( tr( "New" ) );
     fileNewAction->setMenuText( tr( "&New" ) );
     fileNewAction->setAccel( 4194382 );
     fileOpenAction = new QAction( this, "fileOpenAction" );
-    fileOpenAction->setIconSet( QIconSet( image1 ) );
+    fileOpenAction->setIconSet( QIconSet( uic_load_pixmap_EditorForm( "fileopen" ) ) );
     fileOpenAction->setText( tr( "Open" ) );
     fileOpenAction->setMenuText( tr( "&Open..." ) );
     fileOpenAction->setAccel( 4194383 );
     fileSaveAction = new QAction( this, "fileSaveAction" );
-    fileSaveAction->setIconSet( QIconSet( image2 ) );
+    fileSaveAction->setIconSet( QIconSet( uic_load_pixmap_EditorForm( "filesave" ) ) );
     fileSaveAction->setText( tr( "Save" ) );
     fileSaveAction->setMenuText( tr( "&Save" ) );
     fileSaveAction->setAccel( 4194387 );
@@ -485,27 +79,27 @@ EditorForm::EditorForm( QWidget* parent,  const char* name, WFlags fl )
     fileExitAction->setMenuText( tr( "E&xit" ) );
     fileExitAction->setAccel( 0 );
     editUndoAction = new QAction( this, "editUndoAction" );
-    editUndoAction->setIconSet( QIconSet( image3 ) );
+    editUndoAction->setIconSet( QIconSet( uic_load_pixmap_EditorForm( "undo" ) ) );
     editUndoAction->setText( tr( "Undo" ) );
     editUndoAction->setMenuText( tr( "&Undo" ) );
     editUndoAction->setAccel( 4194394 );
     editRedoAction = new QAction( this, "editRedoAction" );
-    editRedoAction->setIconSet( QIconSet( image4 ) );
+    editRedoAction->setIconSet( QIconSet( uic_load_pixmap_EditorForm( "redo" ) ) );
     editRedoAction->setText( tr( "Redo" ) );
     editRedoAction->setMenuText( tr( "&Redo" ) );
     editRedoAction->setAccel( 4194393 );
     editCutAction = new QAction( this, "editCutAction" );
-    editCutAction->setIconSet( QIconSet( image5 ) );
+    editCutAction->setIconSet( QIconSet( uic_load_pixmap_EditorForm( "editcut" ) ) );
     editCutAction->setText( tr( "Cut" ) );
     editCutAction->setMenuText( tr( "&Cut" ) );
     editCutAction->setAccel( 4194392 );
     editCopyAction = new QAction( this, "editCopyAction" );
-    editCopyAction->setIconSet( QIconSet( image6 ) );
+    editCopyAction->setIconSet( QIconSet( uic_load_pixmap_EditorForm( "editcopy" ) ) );
     editCopyAction->setText( tr( "Copy" ) );
     editCopyAction->setMenuText( tr( "C&opy" ) );
     editCopyAction->setAccel( 4194371 );
     editPasteAction = new QAction( this, "editPasteAction" );
-    editPasteAction->setIconSet( QIconSet( image7 ) );
+    editPasteAction->setIconSet( QIconSet( uic_load_pixmap_EditorForm( "editpaste" ) ) );
     editPasteAction->setText( tr( "Paste" ) );
     editPasteAction->setMenuText( tr( "&Paste" ) );
     editPasteAction->setAccel( 4194390 );
@@ -523,18 +117,18 @@ EditorForm::EditorForm( QWidget* parent,  const char* name, WFlags fl )
     helpAboutAction->setAccel( 0 );
     boldAction = new QAction( this, "boldAction" );
     boldAction->setToggleAction( TRUE );
-    boldAction->setIconSet( QIconSet( image8 ) );
+    boldAction->setIconSet( QIconSet( uic_load_pixmap_EditorForm( "textbold" ) ) );
     boldAction->setText( tr( "bold" ) );
     boldAction->setMenuText( tr( "&Bold" ) );
     italicAction = new QAction( this, "italicAction" );
     italicAction->setToggleAction( TRUE );
-    italicAction->setIconSet( QIconSet( image9 ) );
+    italicAction->setIconSet( QIconSet( uic_load_pixmap_EditorForm( "textitalic" ) ) );
     italicAction->setText( tr( "italic" ) );
     italicAction->setMenuText( tr( "&Italic" ) );
     italicAction->setAccel( 272629833 );
     underlineAction = new QAction( this, "underlineAction" );
     underlineAction->setToggleAction( TRUE );
-    underlineAction->setIconSet( QIconSet( image10 ) );
+    underlineAction->setIconSet( QIconSet( uic_load_pixmap_EditorForm( "textunder" ) ) );
     underlineAction->setText( tr( "underline" ) );
     underlineAction->setMenuText( tr( "&Underline" ) );
     underlineAction->setAccel( 272629845 );
@@ -543,19 +137,19 @@ EditorForm::EditorForm( QWidget* parent,  const char* name, WFlags fl )
     alignActionGroup->setUsesDropDown( FALSE );
     leftAlignAction = new QAction( alignActionGroup, "leftAlignAction" );
     leftAlignAction->setToggleAction( TRUE );
-    leftAlignAction->setIconSet( QIconSet( image11 ) );
+    leftAlignAction->setIconSet( QIconSet( uic_load_pixmap_EditorForm( "textleft" ) ) );
     leftAlignAction->setText( tr( "left" ) );
     leftAlignAction->setMenuText( tr( "&Left" ) );
     leftAlignAction->setAccel( 272629836 );
     rightAlignAction = new QAction( alignActionGroup, "rightAlignAction" );
     rightAlignAction->setToggleAction( TRUE );
-    rightAlignAction->setIconSet( QIconSet( image12 ) );
+    rightAlignAction->setIconSet( QIconSet( uic_load_pixmap_EditorForm( "textright" ) ) );
     rightAlignAction->setText( tr( "right" ) );
     rightAlignAction->setMenuText( tr( "&Right" ) );
     rightAlignAction->setAccel( 272629842 );
     centerAlignAction = new QAction( alignActionGroup, "centerAlignAction" );
     centerAlignAction->setToggleAction( TRUE );
-    centerAlignAction->setIconSet( QIconSet( image13 ) );
+    centerAlignAction->setIconSet( QIconSet( uic_load_pixmap_EditorForm( "textcenter" ) ) );
     centerAlignAction->setText( tr( "center" ) );
     centerAlignAction->setMenuText( tr( "&Center" ) );
 
