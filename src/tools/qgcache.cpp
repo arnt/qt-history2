@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#21 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#22 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
@@ -15,7 +15,7 @@
 #include "qdict.h"
 #include "qstring.h"				/* used for statistics */
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgcache.cpp#21 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qgcache.cpp#22 $")
 
 
 // --------------------------------------------------------------------------
@@ -38,6 +38,7 @@ declare(QListM,QCacheItem);
 
 class QCList : private QListM(QCacheItem)	// internal cache list
 {
+friend class QGCacheIterator;
 public:
     QCList()	{}
    ~QCList();
