@@ -265,7 +265,7 @@ void QPainter::updatePen()
 	case DotLine:
 	case DashDotLine:
 	case DashDotDotLine:
-	    qDebug( "Penstyle not implemented %s - %d", __FILE__, __LINE__ );
+//	    qDebug( "Penstyle not implemented %s - %d", __FILE__, __LINE__ );
 	case DashLine:
 	    GetQDGlobalsGray( &pat );
 	    break;
