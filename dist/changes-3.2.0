@@ -86,8 +86,9 @@ ActiveQt Extension
 
 Type handling has been extended on both the container and the server
 side. The new supported types are byte arrays and 64bit integers. The
-QAxServer module supports QObject subclasses as return and parameter
-types of slots, and allows error reporting through COM exceptions.
+QAxServer module supports aggregation, as well as QObject subclasses as 
+return and parameter types of slots, and allows error reporting through 
+COM exceptions.
 The Designer integration has been extended to support property dialogs
 implemented by the control server.
 
