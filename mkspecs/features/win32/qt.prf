@@ -13,9 +13,8 @@ plugin {
      target_qt:!isEmpty(QMAKE_LIB_FLAG):CONFIG += dll;
   }
 }
-INCLUDEPATH += $$QMAKE_INCDIR_QT
 contains( QT_PRODUCT, qt-(enterprise|internal) ) {
-  INCLUDEPATH += $$QMAKE_INCDIR_QT/activeqt
+  INCLUDEPATH += $$QMAKE_INCDIR_QT/ActiveQt
 }
 QMAKE_LIBDIR += $$QMAKE_LIBDIR_QT
 !debug:DEFINES += QT_NO_DEBUG
