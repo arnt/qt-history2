@@ -85,8 +85,7 @@ qt_mac_get_global_setting(QString key, QString ret=QString::null, QString file=Q
                                                                kCFPreferencesAnyHost)) {
         CFTypeID typeID = CFGetTypeID(r);
         if(typeID == CFStringGetTypeID()) {
-            ret = QCFString::cfstring2qstring(static_cast<CFStringRef>(
-                                                                static_cast<CFPropertyListRef>(r)));
+            ret = QCFString::toQString(static_cast<CFStringRef>(static_cast<CFPropertyListRef>(r)));
         } else if(typeID == CFBooleanGetTypeID()) {
             ret = CFEqual(static_cast<CFBooleanRef>(static_cast<CFPropertyListRef>(r)),
                           kCFBooleanTrue) ? "TRUE" : "FALSE";
@@ -164,8 +163,8 @@ search_keys::search_keys(QString path, QString key, const char *where)
     qDebug("search_key [%s] %s::%s -> %s::%s", where ? where : "*Unknown*",
            oldpath.latin1(), oldkey.latin1(), qi.latin1(), qk.latin1());
 #endif
-    i = QCFString::qstring2cfstring(qi);
-    k = QCFString::qstring2cfstring(qk);
+    i = QCFString::toCFStringRef(qi);
+    k = QCFString::toCFStringRef(qk);
 }
 search_keys::~search_keys()
 {
@@ -413,8 +412,7 @@ QString QSettingsPrivate::sysReadEntry(const QString &key, const QString &def, b
         if(CFGetTypeID(r) == CFStringGetTypeID()) {
             if(ok)
                 *ok = true;
-            return QCFString::cfstring2qstring(static_cast<CFStringRef>(
-                                                                static_cast<CFPropertyListRef>(r)));
+            return QCFString::toQString(static_cast<CFStringRef>(static_cast<CFPropertyListRef>(r)));
         }
     }
     if(ok)

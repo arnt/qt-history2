@@ -15,7 +15,7 @@
 #include "qcore_mac.h"
 #include "qvarlengtharray.h"
 
-QString QCFString::cfstring2qstring(CFStringRef str)
+QString QCFString::toQString(CFStringRef str)
 {
     CFIndex length = CFStringGetLength(str);
     const UniChar *chars = CFStringGetCharactersPtr(str);
@@ -30,11 +30,11 @@ QString QCFString::cfstring2qstring(CFStringRef str)
 QCFString::operator QString() const
 {
     if (string.isEmpty() && type)
-        const_cast<QCFString*>(this)->string = cfstring2qstring(type);
+        const_cast<QCFString*>(this)->string = toQString(type);
     return string;
 }
 
-CFStringRef QCFString::qstring2cfstring(const QString &string)
+CFStringRef QCFString::toCFStringRef(const QString &string)
 {
     return CFStringCreateWithCharacters(0, reinterpret_cast<const UniChar *>(string.unicode()),
                                         string.length());
@@ -43,6 +43,6 @@ CFStringRef QCFString::qstring2cfstring(const QString &string)
 QCFString::operator CFStringRef() const
 {
     if (!type)
-        const_cast<QCFString*>(this)->type = qstring2cfstring(string);
+        const_cast<QCFString*>(this)->type = toCFStringRef(string);
     return type;
 }

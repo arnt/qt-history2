@@ -336,9 +336,9 @@ void QPrinter::interpret(PMPrintSettings *s)
         qWarning("Qt: QPrinter::interpret problem creating printer list %ld", err);
 
     if (printerArray) {
-	setPrinterName(QCFString::cfstring2qstring(
-		    static_cast<CFStringRef>(CFArrayGetValueAtIndex(printerArray,
-			    currPrinterIndex))));
+	setPrinterName(QCFString::toQString(
+                       static_cast<CFStringRef>(CFArrayGetValueAtIndex(printerArray,
+			                        currPrinterIndex))));
     }
 }
 

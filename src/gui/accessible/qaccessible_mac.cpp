@@ -740,7 +740,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
                     CFStringRef *arr = (CFStringRef *)malloc(sizeof(AXUIElementRef) * actCount);
                     for(int i = 0; i < actCount; i++) {
                         QString actName = iface->actionText(i, Name, 0);
-                        arr[i] = QCFString::qstring2cfstring(actName);
+                        arr[i] = QCFString::toCFStringRef(actName);
                     }
                     QCFType<CFArrayRef> cfList
                                         = CFArrayCreate(NULL, (const void **)arr, actCount, NULL);

@@ -75,10 +75,11 @@ class Q_CORE_EXPORT QCFString : public QCFType<CFStringRef>
 public:
     inline QCFString(const QString &str) : QCFType<CFStringRef>(0), string(str) {}
     inline QCFString(const CFStringRef cfstr = 0) : QCFType<CFStringRef>(cfstr) {}
+    inline QCFString(const QCFType<CFStringRef> &other) : QCFType<CFStringRef>(other) {}
     operator QString() const;
     operator CFStringRef() const;
-    static QString cfstring2qstring(CFStringRef cfstr);
-    static CFStringRef qstring2cfstring(const QString &str);
+    static QString toQString(CFStringRef cfstr);
+    static CFStringRef toCFStringRef(const QString &str);
 private:
     QString string;
 };
