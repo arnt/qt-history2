@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#171 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#172 $
 **
 ** Implementation of QObject class
 **
@@ -1839,5 +1839,8 @@ void QObject::dumpObjectInfo()
 
 QString QObject::tr( const char *text ) const
 {
-    return text;
+    if ( qApp )
+	return qApp->translate( className(), text );
+    else
+	return text;
 }
