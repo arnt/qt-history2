@@ -1748,7 +1748,6 @@ for (QForeachMemory<sizeof(qForeachSizeofContainerHelper(container))> _container
 Q_CORE_EXPORT char *qgetenv(const char *varName);
 
 #if defined(Q_OS_WIN32)
-struct PROCESS_INFORMATION;
 typedef PROCESS_INFORMATION* Q_PID;
 #else
 typedef Q_LONG Q_PID;
