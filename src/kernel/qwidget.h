@@ -481,14 +481,17 @@ protected:
     virtual void hideEvent( QHideEvent * );
 
 #if defined(Q_WS_MAC)
-    virtual bool macEvent( MSG * );		// Macintosh event
-#elif defined(Q_WS_WIN)
-    virtual bool winEvent( MSG * );		// Windows event
-#elif defined(Q_WS_X11)
-    virtual bool x11Event( XEvent * );		// X11 event
-#elif defined(Q_WS_QWS)
+    virtual bool macEvent( MSG * );
+#endif
+#if defined(Q_WS_WIN)
+    virtual bool winEvent( MSG * );
+#endif
+#if defined(Q_WS_X11)
+    virtual bool x11Event( XEvent * );
+#endif
+#if defined(Q_WS_QWS)
     virtual bool qwsEvent( QWSEvent * );
-    virtual unsigned char * scanLine(int) const;
+    virtual unsigned char *scanLine( int ) const;
     virtual int bytesPerLine() const;
 #endif
 
