@@ -112,11 +112,6 @@ embedded {
     	SOURCES += embedded/qdecorationkde2_qws.cpp
     }
 
-    contains( decorations, kde ) {
-    	HEADERS += embedded/qdecorationkde_qws.h
-    	SOURCES += embedded/qdecorationkde_qws.cpp
-    }
-
     contains( decorations, windows ) {
     	HEADERS += embedded/qdecorationwindows_qws.h
     	SOURCES += embedded/qdecorationwindows_qws.cpp
