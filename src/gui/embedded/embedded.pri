@@ -1,11 +1,11 @@
-# Qt/Embedded 
+# Qt/Embedded
 
 embedded {
 	CONFIG -= opengl x11
 	LIBS -= -dl
 	KERNEL_P        = kernel
 
-	!mac:HEADERS += embedded/qsoundqss_qws.h 
+	!mac:HEADERS += embedded/qsoundqss_qws.h
 	HEADERS += \
 		    embedded/qcopchannel_qws.h \
 		    embedded/qdecoration_qws.h \
@@ -13,6 +13,7 @@ embedded {
 		    embedded/qdecorationplugin_qws.h \
 		    embedded/qdirectpainter_qws.h \
 		    embedded/qgfx_qws.h \
+		    embedded/qgfxrasterbase_qws.h \
 		    embedded/qgfxraster_qws.h \
 		    embedded/qlock_p.h \
 		    embedded/qmemorymanager_qws.h \
@@ -26,7 +27,7 @@ embedded {
 		    embedded/qwsproperty_qws.h \
 		    embedded/qwsregionmanager_qws.h \
 		    embedded/qwssocket_qws.h \
-		    embedded/qwsutils_qws.h 
+		    embedded/qwsutils_qws.h
 
 	 !mac:SOURCES += embedded/qsoundqss_qws.cpp
          SOURCES +=  \
@@ -36,6 +37,7 @@ embedded {
 		    embedded/qdecorationplugin_qws.cpp \
 		    embedded/qdirectpainter_qws.cpp \
 		    embedded/qgfx_qws.cpp \
+		    embedded/qgfxrasterbase_qws.cpp \
 		    embedded/qgfxraster_qws.cpp \
 		    embedded/qlock.cpp \
 		    embedded/qmemorymanager_qws.cpp \
@@ -91,32 +93,32 @@ embedded {
 # Decorations
 #
     contains( decorations, beos ) {
-    	HEADERS += embedded/qdecorationbeos_qws.h  
+    	HEADERS += embedded/qdecorationbeos_qws.h
     	SOURCES += embedded/qdecorationbeos_qws.cpp
     }
-    
+
     contains( decorations, default ) {
-    	HEADERS += embedded/qdecorationdefault_qws.h  
+    	HEADERS += embedded/qdecorationdefault_qws.h
     	SOURCES += embedded/qdecorationdefault_qws.cpp
     }
-    
+
     contains( decorations, hydro ) {
-    	HEADERS += embedded/qdecorationhydro_qws.h  
+    	HEADERS += embedded/qdecorationhydro_qws.h
     	SOURCES += embedded/qdecorationhydro_qws.cpp
     }
-    
+
     contains( decorations, kde2 ) {
-    	HEADERS += embedded/qdecorationkde2_qws.h  
+    	HEADERS += embedded/qdecorationkde2_qws.h
     	SOURCES += embedded/qdecorationkde2_qws.cpp
     }
-    
+
     contains( decorations, kde ) {
-    	HEADERS += embedded/qdecorationkde_qws.h  
+    	HEADERS += embedded/qdecorationkde_qws.h
     	SOURCES += embedded/qdecorationkde_qws.cpp
     }
-    
+
     contains( decorations, windows ) {
-    	HEADERS += embedded/qdecorationwindows_qws.h  
+    	HEADERS += embedded/qdecorationwindows_qws.h
     	SOURCES += embedded/qdecorationwindows_qws.cpp
     }
 
@@ -145,9 +147,9 @@ embedded {
 # Graphics drivers
 #
         linux-* {
-	        HEADERS += embedded/qgfxlinuxfb_qws.h 
-		SOURCES += embedded/qgfxlinuxfb_qws.cpp 
-	} 
+	        HEADERS += embedded/qgfxlinuxfb_qws.h
+		SOURCES += embedded/qgfxlinuxfb_qws.cpp
+	}
 
 	contains( gfx-drivers, qvfb ) {
 		HEADERS += embedded/qgfxvfb_qws.h
