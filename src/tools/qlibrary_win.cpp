@@ -37,6 +37,9 @@
 #ifndef QT_H
 #include "qfile.h"
 #endif // QT_H
+
+#ifndef QT_NO_LIBRARY
+
 struct LibInstance {
     LibInstance() { instance = 0; refCount = 0; }
     HINSTANCE instance;
@@ -150,3 +153,5 @@ void* QLibraryPrivate::resolveSymbol( const char* f )
 
     return address;
 }
+
+#endif //QT_NO_LIBRARY
