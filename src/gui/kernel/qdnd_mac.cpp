@@ -242,11 +242,9 @@ QVariant QDropData::retrieveData(const QString &mime, QVariant::Type type) const
             }
             if(!arrs.isEmpty()) {
                 QByteArray mime_data = c->convertToMime(arrs, mime, flav);
-#if 0
                 if(type == QVariant::String) 
                     ret = QString::fromUtf8(mime_data);
                 else 
-#endif
                     ret = mime_data;
                 break;
             }
