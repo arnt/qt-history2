@@ -46,12 +46,9 @@ QVariant DomTool::readProperty( const QDomElement& e, const QString& name, const
     QDomElement n;
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName() == "property" ) {
-	    QDomElement n2 = n.firstChild().toElement();
-	    if ( n2.tagName() == "name" ) {
-		QString prop = n2.firstChild().toText().data();
-		if ( prop == name )
-		    return elementToVariant( n2.nextSibling().toElement(), defValue );
-	    }
+	    if ( n.attribute( "name" ) != name )
+		continue;
+	    return elementToVariant( n.firstChild().toElement(), defValue );
 	}
     }
     return defValue;
@@ -67,12 +64,9 @@ bool DomTool::hasProperty( const QDomElement& e, const QString& name )
     QDomElement n;
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName() == "property" ) {
-	    QDomElement n2 = n.firstChild().toElement();
-	    if ( n2.tagName() == "name" ) {
-		QString prop = n2.firstChild().toText().data();
-		if ( prop == name )
-		    return TRUE;
-	    }
+	    if ( n.attribute( "name" ) != name )
+		continue;
+	    return TRUE;
 	}
     }
     return FALSE;
