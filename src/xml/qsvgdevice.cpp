@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#43 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#44 $
 **
 ** Implementation of the QSvgDevice class
 **
@@ -174,6 +174,7 @@ bool QSvgDevice::play( QPainter *painter )
     int h = lenToInt( attr, "height" );
     brect.setWidth( w );
     brect.setHeight( h );
+    painter->setClipRect( 0, 0, h, w );
 
     const struct ElementTable {
 	const char *name;
@@ -206,7 +207,6 @@ bool QSvgDevice::play( QPainter *painter )
 
     // 'play' all elements recursively starting with 'svg' as root
     pt = painter;
-    pt->setPen( QPen( Qt::black, 1, Qt::NoPen ));
     return play( svg );
 }
 
@@ -802,7 +802,7 @@ QColor QSvgDevice::parseColor( const QString &col )
 
 double QSvgDevice::parseLen( const QString &str, bool *ok ) const
 {
-    QRegExp reg( "([+-]?\\d*\\.*\\d*[Ee]?[+-]?\\d*)(em|ex|px|pt|pc|cm|mm|)" );
+    QRegExp reg( "([+-]?\\d*\\.*\\d*[Ee]?[+-]?\\d*)(em|ex|px|\%|pt|pc|cm|mm|in|)$" );
     if ( reg.search( str ) == -1 ) {
 	qWarning( "QSvgDevice::parseLen: couldn't parse " + str );
 	if ( ok )
@@ -811,7 +811,31 @@ double QSvgDevice::parseLen( const QString &str, bool *ok ) const
     }
 
     double d = reg.cap( 1 ).toDouble();
-    // ### respect unit identifier
+    QString u = reg.cap( 2 );
+    if ( !u.isEmpty() && u != "px" ) {
+	QPaintDeviceMetrics m( pt->device() );
+	if ( u == "em" )
+	    d *= pt->font().pointSizeFloat(); // ### pixel size
+	else if ( u == "ex" )
+	    d *= 0.5 * pt->font().pointSizeFloat(); // ### not precise
+	else if ( u == "%" ) {
+	    qDebug( "BRW: %d", boundingRect().width() );
+	    d *= boundingRect().width() / 100.0;
+	}
+	else if ( u == "cm" )
+	    d *= m.logicalDpiX() / 2.54;
+	else if ( u == "mm" )
+	    d *= m.logicalDpiX() / 25.4;
+	else if ( u == "in" )
+	    d *= m.logicalDpiX();
+	else if ( u == "pt" )
+	    d *= m.logicalDpiX() / 72.0;
+	else if ( u == "pc" )
+	    d *= m.logicalDpiX() / 6.0;
+	else
+	    qWarning( "QSvgDevice::parseLen: Unknown unit " + u );
+	qDebug( "parseLen returning %f", d );
+    }
     if ( ok )
 	*ok = TRUE;
     return d;
