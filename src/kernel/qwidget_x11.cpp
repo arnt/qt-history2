@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#294 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#295 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -121,7 +121,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     if ( testWFlags(WState_Created) && window == 0 )
 	return;
     setWFlags( WState_Created );		// set created flag
-    
+
     usposition = 0;
 
     if ( !parentWidget() )
@@ -834,7 +834,9 @@ QWidget *QWidget::keyboardGrabber()
 
 bool QWidget::isActiveWindow() const
 {
-    return topLevelWidget() == qApp->activeWindow();
+    QWidget* tlw = topLevelWidget();
+    return tlw == qApp->activeWindow()
+		|| (tlw->extra && tlw->extra->topextra && tlw->extra->topextra->swallowed); //#### 
 
 //    Window win;
 //     int revert;

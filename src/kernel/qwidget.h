@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#191 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#192 $
 **
 ** Definition of QWidget class
 **
@@ -592,6 +592,8 @@ struct QTLWExtra {
     uint     iconic: 1;				// iconified [cur. win32 only]
 #if defined(_WS_X11_)
     QRect    normalGeometry;			// used by showMin/maximized
+    uint swallowed : 1;
+    WId parentWinId;
 #endif
 };
 

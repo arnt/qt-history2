@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#160 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#161 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -310,6 +310,8 @@ struct QPState {				// painter state
     int		ts;
     int	       *ta;
 };
+
+//TODO Matthias store worldmatrix stack in QPState!
 
 typedef QStack<QPState> QPStateStack;
 
@@ -956,7 +958,7 @@ const QWMatrix &QPainter::worldMatrix() const
 	setWorldMatrix( wxmat );
     }
   \endcode
-  
+
   Furthermore, you can easily save and restore the current world
   transformation matrix with the convenient functions
   saveWorldMatrix() and restoreWorldMatrix(), respectively. If you
@@ -985,6 +987,7 @@ const QWMatrix &QPainter::worldMatrix() const
   setViewXForm(), xForm()
 */
 
+// TODO Matthias: docu: ALWAYS use combine if you want your QPicture to be encapsulated
 void QPainter::setWorldMatrix( const QWMatrix &m, bool combine )
 {
 #if defined(CHECK_STATE)
@@ -1000,7 +1003,7 @@ void QPainter::setWorldMatrix( const QWMatrix &m, bool combine )
 		    wxmat.dx()	== 0.0F && wxmat.dy()  == 0.0F;
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[2];
-	param[0].matrix = &wxmat;
+	param[0].matrix = &m; //#####
 	param[1].ival = combine;
 	pdev->cmd( PDC_SETWMATRIX, this, param );
     }
@@ -1029,7 +1032,7 @@ void QPainter::saveWorldMatrix()
 	stack->setAutoDelete( TRUE );
 	wm_stack = stack;
     }
-    
+
     stack->push( new QWMatrix( wxmat ) );
 
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#390 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#391 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -171,6 +171,13 @@ static QWidget *desktopWidget	= 0;		// root window widget
 static Atom	qt_wm_protocols;		// window manager protocols
 Atom		qt_wm_delete_window;		// delete window protocol
 static Atom	qt_qt_scrolldone;		// scroll synchronization
+
+static Atom	qt_swallowed_window;
+static Atom	qt_focus_in;
+static Atom	qt_focus_out;
+static Atom	qt_unicode_key_press;
+static Atom	qt_unicode_key_release;
+
 static Atom	qt_xsetroot_id;
 Atom		qt_selection_property;
 Atom		qt_wm_state;
@@ -776,6 +783,13 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
     qt_x11_intern_atom( "WM_STATE", &qt_wm_state );
     qt_x11_intern_atom( "RESOURCE_MANAGER", &qt_resource_manager );
     qt_x11_intern_atom( "QT_SIZEGRIP", &qt_sizegrip );
+    
+    qt_x11_intern_atom( "QT_SWALLOWED_WINDOW", &qt_swallowed_window );
+    qt_x11_intern_atom( "QT_FOCUS_IN", &qt_focus_in );
+    qt_x11_intern_atom( "QT_FOCUS_OUT", &qt_focus_out );
+    qt_x11_intern_atom( "QT_UNICODE_KEY_PRESS", &qt_unicode_key_press );
+    qt_x11_intern_atom( "QT_UNICODE_KEY_RELEASE", &qt_unicode_key_release );
+
 
     qt_xdnd_setup();
 
@@ -2269,6 +2283,45 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		qt_handle_xdnd_finished( widget, event );
 	    }
 	}
+	else if ( event->xclient.format == 16 ) {
+	    if ( event->xclient.message_type == qt_unicode_key_press 
+		 || event->xclient.message_type == qt_unicode_key_release ) {
+		
+		QWidget *g = QWidget::keyboardGrabber();
+		if ( g )
+		    widget = (QETWidget*)g;
+		else if ( focus_widget )
+		    widget = (QETWidget*)focus_widget;
+		else
+		    widget = (QETWidget*)widget->topLevelWidget();
+		
+		if ( !widget || !widget->isEnabled() )
+		    return FALSE;
+		bool grab = g != 0;
+		
+		QEvent::Type type = event->xclient.message_type == qt_unicode_key_press?
+			       QEvent::KeyPress:QEvent::KeyRelease;
+		
+		short *s = event->xclient.data.s;
+		QChar c;
+		c.row = s[5];
+		c.cell = s[6];
+		QString text;
+		if (c != QChar::null)
+		    text = c;
+		if (!grab && type == QEvent::KeyPress) {
+		    // test accelerators first
+		    QKeyEvent a (QEvent::Accel, s[0], s[1], s[2], text, s[3], s[4]);
+		    a.ignore();
+		    QApplication::sendEvent( widget->topLevelWidget(), &a );
+		    if ( a.isAccepted() )
+			return TRUE;
+		}
+		QKeyEvent kev(type, s[0], s[1], s[2], text, s[3], s[4]);
+		QApplication::sendEvent( widget, &kev );
+		return TRUE;
+	    }
+	}
 	break;
 
     case ReparentNotify:			// window manager reparents
@@ -2300,13 +2353,33 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		a->x += a2.border_width;
 		a->y += a2.border_width;
 		
-	        QRect frect(QPoint(r.left()	- a->x,
-				     r.top()	- a->y),
-			      QPoint(r.right()	+ a->x,
-				     r.bottom() + a->x) );
+		QRect frect(QPoint(r.left()	- a->x,
+				   r.top()	- a->y),
+			    QPoint(r.right()	+ a->x,
+				   r.bottom() + a->x) );
 		widget->createTLExtra();
 		widget->fpos = frect.topLeft();
 		widget->extra->topextra->fsize = frect.size();
+		widget->extra->topextra->parentWinId = parent;
+		
+		{
+		    Atom type;
+		    int format;
+		    unsigned long length, after;
+		    unsigned char *data;
+		    if ( XGetWindowProperty( appDpy, widget->winId(), qt_swallowed_window, 0, 1,
+						 TRUE, qt_swallowed_window, &type, &format,
+						 &length, &after, &data ) == Success ) {
+			if (data && data[0] ) {
+			    // extra/topextra was created above
+			    widget->extra->topextra->swallowed = 1;
+			    debug("ooops, I'm swallowed!");
+			}
+			if (data)
+			    XFree( data );
+		    }
+		}
+
 	    }
 	break;
 
@@ -3448,6 +3521,14 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     int	   state;
     char       ascii = 0;
 
+     QWidget* tlw = topLevelWidget();
+    if (!grab && tlw && tlw->extra && tlw->extra->topextra && tlw->extra->topextra->swallowed) {
+	((XEvent*)event)->xkey.window = tlw->extra->topextra->parentWinId;
+	XSendEvent(appDpy, tlw->extra->topextra->parentWinId, NoEventMask, FALSE, (XEvent*)event);
+	return TRUE;
+    }
+    
+    
     bool   autor = FALSE;
 
     QEvent::Type type = (event->type == XKeyPress) ? QEvent::KeyPress : QEvent::KeyRelease;
