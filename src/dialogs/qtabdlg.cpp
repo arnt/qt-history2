@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#23 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#24 $
 **
 ** Implementation of QTabDialog class
 **
@@ -11,7 +11,8 @@
 #include "qpainter.h"
 #include "qpixmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#23 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdlg.cpp#24 $");
+
 
 /*!
   \class QTabDialog qtabdlg.h

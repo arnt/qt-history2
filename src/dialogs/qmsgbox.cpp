@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#21 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#22 $
 **
 ** Implementation of QMessageBox class
 **
@@ -12,15 +12,14 @@
 #include "qmsgbox.h"
 #include "qlabel.h"
 #include "qpushbt.h"
+#include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#21 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#22 $");
 
 
 /*!
   \class QMessageBox qmsgbox.h
-
   \brief The QMessageBox widget provides a message box.
-
   \ingroup dialogs
 
   A message box is a dialog that displays a text and a push button.
@@ -31,14 +30,37 @@ RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#21 $");
   Enabling auto-resizing will make a message box resize itself whenever
   the contents change.
 
-  Example of use:
+  Example:
   \code
-    QMessageBox mb;
+    QMessageBox mb( QMessageBox::Yes );
     mb.setText( "This program may crash your hardware!!!\nLet's start..." );
-    mb.setButtonText( "Yes!" );
     mb.show();
   \endcode
 */
+
+
+struct QMBData {
+    int		 buttonSpec;
+    int          numButtons;			// number of buttons
+    int		 type[3];			// button types
+    QPushButton *button[3];			// buttons
+    QSize	 buttonSize;
+};
+
+static int mb_buttons[] = {
+    QMessageBox::Ok,
+    QMessageBox::Yes,
+    QMessageBox::No,
+    QMessageBox::Abort,
+    QMessageBox::Retry,
+    QMessageBox::Ignore,
+    QMessageBox::Cancel,
+    0
+};
+
+static const char *mb_texts[] = {
+    "Ok", "Yes", "No", "Abort", "Retry", "Ignore", "Cancel", 0
+};
 
 
 /*!
@@ -54,20 +76,99 @@ RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#21 $");
 QMessageBox::QMessageBox( QWidget *parent, const char *name )
     : QDialog( parent, name, TRUE )
 {
-    initMetaObject();
-    label = new QLabel( this, "text" );
-    CHECK_PTR( label );
-    label->setAlignment( AlignCenter );
-    button = new QPushButton( "Ok", this, "button" );
-    CHECK_PTR( button );
-    connect( button, SIGNAL(clicked()), SLOT(accept()) );
-    QFont font( "Helvetica", 12 );
-    label->setFont( font );
-    font.setWeight( QFont::Bold );
-    button->setFont( font );
-    reserved1 = 0;
+    init( Ok, 0 );
 }
 
+
+/*!
+  Constructs a message box with a button specification \a buttons and a
+  \a text.
+
+  The \a buttons argument consists of several buttons OR'ed together:
+  <ul>
+  <li>\c QMessageBox::Ok
+  <li>\c QMessageBox::Cancel
+  <li>\c QMessageBox::Yes
+  <li>\c QMessageBox::No
+  <li>\c QMessageBox::Abort
+  <li>\c QMessageBox::Retry
+  <li>\c QMessageBox::Ignore
+  </ul>
+
+  You may create any combination of buttons, but max three buttons.
+
+  Example:
+  \code
+    QMessageBox mb( QMessageBox::Ok | QMessageBox::Ignore,
+		    "Disk error detected\n"
+		    "Do you want to stop?" );
+    mb.setCaption( "Hardware failure" );
+    if ( mb.exec() == QMessageBox::Ignore )
+        // try again
+  \endcode
+
+  If \e parent is 0, then the message box becomes an application-global
+  modal dialog box.  If \e parent is a widget, the message
+  box becomes modal relative to \e parent.
+
+  The \e parent and \e name arguments are passed to the QDialog constructor.
+*/
+
+QMessageBox::QMessageBox( int buttons, const char *text,
+			  QWidget *parent, const char *name )
+    : QDialog( parent, name, TRUE )
+{
+    init( buttons, text );
+}
+
+
+void QMessageBox::init( int buttons, const char *text )
+{
+    QFont font( "Helvetica", 12 );
+
+    initMetaObject();
+    label = new QLabel( text, this, "text" );
+    CHECK_PTR( label );
+    label->setAlignment( AlignCenter );
+    label->setFont( font );
+    font.setWeight( QFont::Bold );
+
+    d = new QMBData;
+    CHECK_PTR( d );
+    int n=0, i=0;
+    d->buttonSpec = buttons;
+    d->buttonSize = QSize(0,0);
+    while ( mb_buttons[i] ) {
+	if ( (buttons & mb_buttons[i]) ) {
+	    if ( n == 3 ) {
+#if defined(CHECK_RANGE)
+		warning( "QMessageBox: Invalid buttons parameter" );
+#endif
+		break;
+	    }
+	    QString bn;
+	    bn.sprintf( "button_%d", mb_buttons[i] );	// button name
+	    QPushButton *b = new QPushButton( mb_texts[i], this, bn );
+	    b->setFont( font );
+	    QSize s = b->sizeHint();
+	    d->buttonSize.setWidth(  QMAX(d->buttonSize.width(), s.width()) );
+	    d->buttonSize.setHeight( QMAX(d->buttonSize.height(),s.height()) );
+	    connect( b, SIGNAL(clicked()), SLOT(buttonClicked()) );
+	    d->type[n] = mb_buttons[i];
+	    d->button[n] = b;
+	    b->setAutoDefault( TRUE );
+	    b->setFocusPolicy( QWidget::StrongFocus );
+	    n++;
+	}
+	i++;
+    }
+    if ( n ) {
+	d->button[0]->setDefault( TRUE );
+	d->button[0]->setFocus();
+    }
+    d->numButtons = n;
+    reserved1 = reserved2 = 0;
+}
 
 /*!
   Returns the message box text currently set, or null if no text has been set.
@@ -96,7 +197,7 @@ void QMessageBox::setText( const char *text )
 
 const char *QMessageBox::buttonText() const
 {
-    return button->text();
+    return buttonText( Ok );
 }
 
 /*!
@@ -109,7 +210,55 @@ const char *QMessageBox::buttonText() const
 
 void QMessageBox::setButtonText( const char *text )
 {
-    button->setText( text ? text : "Ok" );
+    setButtonText( Ok, text ? text : "Ok" );
+}
+
+
+/*!
+  Returns the text of one of the push buttons, or null if there is no such
+  button or text.
+  \sa setButtonText()
+*/
+
+const char *QMessageBox::buttonText( int button ) const
+{
+    QPushButton *b = 0;
+    for ( int i=0; i<d->numButtons; i++ ) {
+	if ( d->type[i] == button )
+	    b = d->button[i];
+    }
+    return b ? b->text() : 0;
+}
+
+void QMessageBox::setButtonText( int button, const char *text )
+{
+    QPushButton *b = 0;
+    for ( int i=0; i<d->numButtons; i++ ) {
+	if ( d->type[i] == button )
+	    b = d->button[i];
+    }
+    if ( b ) {
+	b->setText( text );
+	QSize s = b->sizeHint();
+	d->buttonSize.setWidth(  QMAX(d->buttonSize.width(), s.width()) );
+	d->buttonSize.setHeight( QMAX(d->buttonSize.height(),s.height()) );
+    }
+}
+
+
+/*!
+  Internal slot.
+*/
+
+void QMessageBox::buttonClicked()
+{
+    int type = 0;
+    const QObject *s = sender();
+    for ( int i=0; i<d->numButtons; i++ ) {
+	if ( d->button[i] == s )
+	    type = d->type[i];
+    }
+    done( type );
 }
 
 
@@ -123,25 +272,24 @@ void QMessageBox::setButtonText( const char *text )
 
 void QMessageBox::adjustSize()
 {
-    QSize bSize = button->sizeHint();
-    if ( button2() ) {
-	QSize s2 = button2()->sizeHint();
-	bSize = QSize( QMAX( s2.width(), bSize.width() ), 
-		       QMAX( s2.height(), bSize.height() ));
-	button2()->resize( bSize );
-    }
-    button->resize( bSize );
+    int i;
+    QSize smax = d->buttonSize;
+    int border = smax.height()/2;
+    if ( border == 0 )
+	border = 10;
+    else if ( style() == MotifStyle )
+	border += 6;
+    for ( i=0; i<d->numButtons; i++ )
+	d->button[i]->resize( smax );
     label->adjustSize();
-    QString labelStr = label->text();
-    int nlines = labelStr.contains( '\n' );
-    QFontMetrics fm = label->fontMetrics();
-    nlines += 2;
-    int bw = button->width();
-    if ( button2() )
-	bw += button2()->width() + 5;
-    int w = QMAX( bw, label->width() );
-    int h = button->height() + fm.lineSpacing()*nlines;
-    resize( w + w/3, h + h/3 );
+    int bw = d->numButtons * smax.width() + (d->numButtons-1)*border;
+    int w = QMAX( bw, label->width() ) + 2*border;
+    int h = smax.height();
+    if ( label->height() )
+	h += label->height() + 3*border;
+    else
+	h += 2*border;
+    resize( w, h );	
 }
 
 
@@ -151,26 +299,39 @@ void QMessageBox::adjustSize()
 
 void QMessageBox::resizeEvent( QResizeEvent * )
 {
-    QSize bSize = button->sizeHint();
-    if ( button2() ) {
-	QSize s2 = button2()->sizeHint();
-	bSize = QSize( QMAX( s2.width(), bSize.width() ), 
-		       QMAX( s2.height(), bSize.height() ));
-	button2()->resize( bSize );
+    int i;
+    int n  = d->numButtons;
+    int bw = d->buttonSize.width();
+    int bh = d->buttonSize.height();
+    int border = bh/2;
+    if ( border == 0 )
+	border = 10;
+    label->move( width()/2 - label->width()/2,
+		 (height() - border - bh - label->height()) / 2 );
+    int space = (width() - bw*n)/(n+1);
+    for ( i=0; i<n; i++ ) {
+	d->button[i]->move( space*(i+1)+bw*i,
+			    height() - border - bh );
     }
-    button->resize( bSize );
-    label->adjustSize();
-    int h = (height() - button->height() - label->height())/3;
-    label->move( width()/2 - label->width()/2, h );
-    if ( button2() ) {
-	int bw = button->width() + button2()->width();
-	int w = width() - bw;
-	button->move( w/3, height() - h - button->height() );
-	button2()->move( width() - w/3 - button2()->width() ,
-			 height() - h - button->height() );
-    } else
-	button->move( width()/2 - button->width()/2,
-		      height() - h - button->height() );
+}
+
+
+void QMessageBox::keyPressEvent( QKeyEvent *e )
+{
+    if ( e->key() == Key_Escape ) {
+	int r = 0;
+	if ( d->buttonSpec & Ignore )
+	    r = Ignore;
+	else if ( d->buttonSpec & Retry )
+	    r = Retry;
+	else if ( d->buttonSpec & Cancel )
+	    r = Cancel;
+	else if ( d->buttonSpec & No )
+	    r = No;
+	done( r );
+    } else {
+	QDialog::keyPressEvent( e );
+    }
 }
 
 
@@ -193,15 +354,14 @@ int QMessageBox::message( const char *caption,
 			  QWidget    *parent,
 			  const char *name )
 {
-    QMessageBox *mb = new QMessageBox( parent, name );
+    QMessageBox *mb = new QMessageBox( Ok, text, parent, name );
     CHECK_PTR( mb );
     mb->setCaption( caption );
-    mb->setText( text );
     if ( buttonText )
-	mb->setButtonText( buttonText );
+	mb->setButtonText( Ok, buttonText );
     int retcode = mb->exec();
     delete mb;
-    return retcode;
+    return retcode == Ok;
 }
 
 
@@ -215,37 +375,116 @@ int QMessageBox::message( const char *caption,
   Example:
   \code
     bool ok = QMessageBox::query( "Consider this carefully", 
-                             "Should I delete all your files?", 
-                             "Go ahead!", "Wait a minute" );
+				  "Should I delete all your files?", 
+				  "Go ahead!", "Wait a minute" );
     if ( ok )
         deleteAllFiles();
   \endcode
-
 */
 
 bool QMessageBox::query( const char *caption,
-			       const char *text,
-			       const char *yesButtonText,
-			       const char *noButtonText,
-			       QWidget *parent, const char *name )
+			 const char *text,
+			 const char *yesButtonText,
+			 const char *noButtonText,
+			 QWidget *parent, const char *name )
 {
-    QMessageBox *mb = new QMessageBox( parent, name );
+    QMessageBox *mb = new QMessageBox( Yes|No, text, parent, name );
     CHECK_PTR( mb );
     mb->setCaption( caption );
-    mb->setText( text );
     if ( yesButtonText )
-	mb->setButtonText( yesButtonText );
-    else
-	mb->setButtonText( "Yes" );
-    mb->button->setDefault( TRUE );
-    mb->reserved1 = (void*)new QPushButton( mb );
-    connect( mb->button2(), SIGNAL(clicked()), mb, SLOT(reject()) );
+	mb->setButtonText( Yes, yesButtonText );
     if ( noButtonText )
-	mb->button2()->setText( noButtonText );
-    else
-	mb->button2()->setText( "No" );
-    mb->button2()->setFont( mb->button->font() );
-    mb->button2()->setAutoDefault( TRUE );
+	mb->setButtonText( No, noButtonText );
+    int retcode = mb->exec();
+    delete mb;
+    return retcode == Yes;
+}
+
+
+/*!
+  Opens a message box with an "Ok" and a "Cancel" button.
+  Returns the button that was pressed.
+
+  Note that \a caption is not always shown, it depends on the window
+  manager.
+
+  Example:
+  \code
+    if ( QMessageBox::okCancel(title,text) == QMessageBox::Ok )
+	... // Ok was pressed
+  \endcode
+*/
+
+int QMessageBox::okCancel( const char *caption,
+			   const char *text,
+			   QWidget *parent, const char *name )
+{
+    QMessageBox *mb = new QMessageBox( Ok|Cancel, text, parent, name );
+    CHECK_PTR( mb );
+    mb->setCaption( caption );
+    int retcode = mb->exec();
+    delete mb;
+    return retcode ? retcode : Cancel;
+}
+
+
+/*!
+  Opens a message box with a "Yes" and a "No" button.
+  Returns the button that was pressed.
+
+  Note that \a caption is not always shown, it depends on the window
+  manager.
+
+  Example:
+  \code
+    if ( QMessageBox::yesNo(title,text) == QMessageBox::Yes )
+	... // Yes was pressed
+  \endcode
+*/
+
+int QMessageBox::yesNo( const char *caption,
+			const char *text,
+			QWidget *parent, const char *name )
+{
+    QMessageBox *mb = new QMessageBox( Yes|No, text, parent, name );
+    CHECK_PTR( mb );
+    mb->setCaption( caption );
+    int retcode = mb->exec();
+    delete mb;
+    return retcode;
+}
+
+
+/*!
+  Opens a message box with "Yes", "No" and "Cancel" buttons.
+  Returns the button that was pressed.
+
+  Note that \a caption is not always shown, it depends on the window
+  manager.
+
+  Example:
+  \code
+    int r = QMessageBox::yesNoCancel(title,text);
+    switch ( r ) {
+	case QMessageBox::Yes:
+	    // "Yes" was pressed
+	    break;
+	case QMessageBox::No:
+	    // "No" was pressed
+	    break;
+	default:
+	    // "Cancel"
+   }
+  \endcode
+*/
+
+int QMessageBox::yesNoCancel( const char *caption,
+			      const char *text,
+			      QWidget *parent, const char *name )
+{
+    QMessageBox *mb = new QMessageBox( Yes|No|Cancel, text, parent, name );
+    CHECK_PTR( mb );
+    mb->setCaption( caption );
     int retcode = mb->exec();
     delete mb;
     return retcode;
