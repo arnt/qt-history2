@@ -304,8 +304,8 @@ static const char * const minimize_xpm[] = {
 "     ..     ",
 "            ",
 "            ",
-"            "};              
-    
+"            "};
+
 static const char * const normalize_xpm[] = {
 "12 12 2 1",
 "       s None  c None",
@@ -321,7 +321,7 @@ static const char * const normalize_xpm[] = {
 "  ......    ",
 "  ......    ",
 "            ",
-"            "};   
+"            "};
 
 static const char * const normalizeup_xpm[] = {
 "12 12 2 1",
@@ -1060,7 +1060,7 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
     case QEvent::Hide:
     case QEvent::HideToParent:
 	if ( !o->isA( "QWorkspaceChild" ) || !isVisible() )
-	    break; 
+	    break;
 	d->focus.removeRef( (QWorkspaceChild*)o );
 	if ( d->focus.isEmpty() )
 	    d->active = 0;
@@ -1130,7 +1130,7 @@ void QWorkspace::showMaximizeControls()
 {
 #ifndef QT_NO_MENUBAR
     QMenuBar* b = 0;
-    
+
     QObjectList * l = topLevelWidget()->queryList( "QMenuBar", 0,
 						   FALSE, FALSE );
     if ( l && l->count() )
@@ -1392,7 +1392,7 @@ void QWorkspace::activatePreviousWindow()
 /*!
   \fn void QWorkspace::windowActivated( QWidget* w )
 
-  This signal is emitted when the window widget \a w becomes active. Note that 
+  This signal is emitted when the window widget \a w becomes active. Note that
   \a w can be null, and that more than one signal may be fired for one activation
   event.
 
@@ -1669,10 +1669,10 @@ void QWorkspaceChildTitleBar::mouseMoveEvent( QMouseEvent * e)
 {
     if ( !buttonDown )
 	return;
-    
+
     if ( (moveOffset - mapToParent( e->pos() ) ).manhattanLength() < 4 )
 	return;
-    
+
     QPoint p = workspace->mapFromGlobal( e->globalPos() );
     if ( !workspace->rect().contains(p) ) {
 	if ( p.x() < 0 )
@@ -1894,7 +1894,7 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 		     th + TITLEBAR_SEPARATION +
 		     contentsRect().y() );
 	s = QSize( cs.width() + 2*frameWidth(),
-		   cs.height() + 3*frameWidth() + th +TITLEBAR_SEPARATION );
+		   cs.height() + 2*frameWidth() + th +TITLEBAR_SEPARATION );
     } else {
 	p = QPoint( contentsRect().x(), contentsRect().y() );
 	s = QSize( cs.width() + 2*frameWidth(),
@@ -2627,18 +2627,18 @@ QWorkspaceChildTitleLabel::QWorkspaceChildTitleLabel( QWorkspaceChildTitleBar* p
 
 void QWorkspaceChildTitleLabel::getColors()
 {
-#ifdef _WS_WIN    
+#ifdef _WS_WIN
     aleftc = arightc = palette().active().highlight();
     ileftc = irightc = palette().inactive().dark();
     atextc = palette().active().highlightedText();
     itextc = palette().inactive().background();
-#else    
+#else
     aleftc = arightc = palette().active().highlight();
     ileftc = irightc = palette().inactive().background();
     atextc = palette().active().highlightedText();
     itextc = palette().inactive().foreground();
 #endif
-    
+
 #ifdef _WS_WIN_ // ask system properties on windows
 #ifndef SPI_GETGRADIENTCAPTIONS
 #define SPI_GETGRADIENTCAPTIONS 0x1008
