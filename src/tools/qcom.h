@@ -204,14 +204,27 @@ struct Q_EXPORT QComponentRegistrationInterface : public QUnknownInterface
 	return iface;
 #endif
 
+// internal class that wraps an initialized ulong
+struct Q_EXPORT QtULong
+{
+    QtULong() : ref( 0 ) { }
+    operator unsigned long () const { return ref; }
+    unsigned long& operator++() { return ++ref; }
+    unsigned long operator++( int ) { return ref++; }
+    unsigned long& operator--() { return --ref; }
+    unsigned long operator--( int ) { return ref--; }
+
+    unsigned long ref;
+};
 // default implementation of ref counting. A variable "ulong ref" has to be a member
-#if defined(QT_DEBUG)
-#define Q_REFCOUNT  ulong addRef() {static bool first=TRUE;if(first){first = FALSE;if (ref) qWarning("RefCounter not initialized: %s", __FILE__);}return ref++;} \
-		    ulong release() {if(!--ref){delete this;return 0;}return ref;}
-#else
-#define Q_REFCOUNT  ulong addRef() {return ref++;} \
-		    ulong release() {if(!--ref){delete this;return 0;}return ref;}
-#endif
+
+
+#define Q_REFCOUNT \
+private:	   \
+    QtULong qtrefcount;   \
+public:		   \
+    ulong addRef() {return qtrefcount++;} \
+    ulong release() {if(!--qtrefcount){delete this;return 0;}return qtrefcount;}
 
 #if defined(QT_THREAD_SUPPORT)
 #define QT_THREADED_BUILD 1

@@ -15,8 +15,7 @@ public:
 
     // unknown interface
     QRESULT queryInterface(const QUuid &, QUnknownInterface **);
-    unsigned long addRef();
-    unsigned long release();
+    Q_REFCOUNT
 
     // feature list interface
     QStringList featureList() const;
@@ -28,13 +27,10 @@ public:
 
 private:
     QPtrList<QTextCodec> codecs;
-
-    unsigned long ref;
 };
 
 
 KRTextCodecs::KRTextCodecs()
-    : ref(0)
 {
 }
 
@@ -61,24 +57,6 @@ QRESULT KRTextCodecs::queryInterface(const QUuid &uuid, QUnknownInterface **ifac
     return QS_OK;
 }
 
-
-unsigned long KRTextCodecs::addRef()
-{
-    return ref++;
-}
-
-
-unsigned long KRTextCodecs::release()
-{
-    if (! --ref) {
-	delete this;
-	return 0;
-    }
-
-    return ref;
-}
-
-
 QStringList KRTextCodecs::featureList() const
 {
     QStringList list;
@@ -86,7 +64,6 @@ QStringList KRTextCodecs::featureList() const
     list << "MIB-38" << "MIB-36";
     return list;
 }
-
 
 QTextCodec *KRTextCodecs::createForMib( int mib )
 {
@@ -148,9 +125,7 @@ QTextCodec *KRTextCodecs::createForName( const QString &name )
 }
 
 
-Q_EXPORT_INTERFACE()
+Q_EXPORT_COMPONENT()
 {
-    QUnknownInterface *iface = (QUnknownInterface *) new KRTextCodecs;
-    iface->addRef();
-    return iface;
+    Q_CREATE_INSTANCE( KRTextCodecs );
 }

@@ -19,13 +19,9 @@ public:
     bool init();
     void cleanup();
     bool canUnload() const;
-
-private:
-    ulong ref;
 };
 
 AccessibleFactory::AccessibleFactory()
-: ref( 0 )
 {
 }
 
@@ -221,7 +217,7 @@ bool AccessibleFactory::canUnload() const
     return (QAccessibleWidget::objects == 0);
 }
 
-Q_EXPORT_INTERFACE()
+Q_EXPORT_COMPONENT()
 {
     Q_CREATE_INSTANCE( AccessibleFactory )
 }

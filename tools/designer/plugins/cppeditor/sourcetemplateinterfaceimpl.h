@@ -35,10 +35,6 @@ public:
     QString language( const QString &templ ) const;
 
     Q_REFCOUNT
-
-private:
-    ulong ref;
-
 };
 
 

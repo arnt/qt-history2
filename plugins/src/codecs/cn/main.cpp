@@ -15,8 +15,7 @@ public:
 
     // unknown interface
     QRESULT queryInterface(const QUuid &, QUnknownInterface **);
-    unsigned long addRef();
-    unsigned long release();
+    Q_REFCOUNT;
 
     // feature list interface
     QStringList featureList() const;
@@ -28,13 +27,10 @@ public:
 
 private:
     QPtrList<QTextCodec> codecs;
-
-    unsigned long ref;
 };
 
 
 CNTextCodecs::CNTextCodecs()
-    : ref(0)
 {
 }
 
@@ -59,23 +55,6 @@ QRESULT CNTextCodecs::queryInterface(const QUuid &uuid, QUnknownInterface **ifac
 
     (*iface)->addRef();
     return QS_OK;
-}
-
-
-unsigned long CNTextCodecs::addRef()
-{
-    return ref++;
-}
-
-
-unsigned long CNTextCodecs::release()
-{
-    if (! --ref) {
-	delete this;
-	return 0;
-    }
-
-    return ref;
 }
 
 
@@ -148,9 +127,7 @@ QTextCodec *CNTextCodecs::createForName( const QString &name )
 }
 
 
-Q_EXPORT_INTERFACE()
+Q_EXPORT_COMPONENT()
 {
-    QUnknownInterface *iface = (QUnknownInterface *) new CNTextCodecs;
-    iface->addRef();
-    return iface;
+    Q_CREATE_INSTANCE( CNTextCodecs );
 }

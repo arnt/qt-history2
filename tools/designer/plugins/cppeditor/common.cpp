@@ -32,8 +32,7 @@ public:
     virtual ~CommonInterface();
 
     QRESULT queryInterface( const QUuid&, QUnknownInterface** );
-    unsigned long addRef();
-    unsigned long release();
+    Q_REFCOUNT;
 
     QString name() const { return "C++"; }
     QString description() const { return "C++ Integration"; }
@@ -41,7 +40,6 @@ public:
     QString author() const { return "Trolltech AS"; }
 
 private:
-    unsigned long ref;
     LanguageInterfaceImpl *langIface;
     PreferenceInterfaceImpl *prefIface;
     ProjectSettingsInterfaceImpl *proIface;
@@ -50,7 +48,6 @@ private:
 };
 
 CommonInterface::CommonInterface()
-    : ref( 0 )
 {
     langIface = new LanguageInterfaceImpl;
     langIface->addRef();
@@ -94,21 +91,8 @@ QRESULT CommonInterface::queryInterface( const QUuid &uuid, QUnknownInterface** 
     return QS_OK;
 }
 
-unsigned long CommonInterface::addRef()
-{
-    return ref++;
-}
 
-unsigned long CommonInterface::release()
-{
-    if ( !--ref ) {
-	delete this;
-	return 0;
-    }
-    return ref;
-}
-
-Q_EXPORT_INTERFACE()
+Q_EXPORT_COMPONENT()
 {
      Q_CREATE_INSTANCE( CommonInterface )
 }

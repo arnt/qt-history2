@@ -3,7 +3,6 @@
 #include <qcom.h>
 
 ProjectSettingsInterfaceImpl::ProjectSettingsInterfaceImpl()
-    : ref( 0 )
 {
     settingsTab = 0;
 }

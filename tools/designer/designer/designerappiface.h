@@ -49,11 +49,9 @@ public:
     void onFormChange( QObject *receiver, const char *slot );
 
     QRESULT queryInterface( const QUuid &uuid, QUnknownInterface** iface );
-    ulong addRef();
-    ulong release();
+    Q_REFCOUNT
 
 private:
-    ulong ref;
     MainWindow *mainWindow;
 
 };

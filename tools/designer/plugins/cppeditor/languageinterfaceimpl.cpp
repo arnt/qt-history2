@@ -26,7 +26,6 @@
 #include "yyreg.h"
 
 LanguageInterfaceImpl::LanguageInterfaceImpl()
-    : ref( 0 )
 {
 }
 
@@ -44,19 +43,6 @@ QRESULT LanguageInterfaceImpl::queryInterface( const QUuid &uuid, QUnknownInterf
     return QS_OK;
 }
 
-unsigned long LanguageInterfaceImpl::addRef()
-{
-    return ref++;
-}
-
-unsigned long LanguageInterfaceImpl::release()
-{
-    if ( !--ref ) {
-	delete this;
-	return 0;
-    }
-    return ref;
-}
 
 class NormalizeObject : public QObject
 {

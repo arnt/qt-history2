@@ -32,15 +32,13 @@ public:
     virtual ~PreferenceInterfaceImpl();
 
     QRESULT queryInterface( const QUuid&, QUnknownInterface** );
-    unsigned long addRef();
-    unsigned long release();
+    Q_REFCOUNT
 
     Preference *preference();
     void connectTo( QUnknownInterface * ) {}
     void deletePreferenceObject( Preference * );
 
 private:
-    ulong ref;
     QWidget *cppEditorSyntax;
 
 };

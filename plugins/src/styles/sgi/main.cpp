@@ -8,8 +8,7 @@ public:
     SGIStyle();
 
     QRESULT queryInterface( const QUuid&, QUnknownInterface ** );
-    unsigned long addRef();
-    unsigned long release();
+    Q_REFCOUNT;
 
     QStringList featureList() const;
     QStyle *create( const QString& );
@@ -20,12 +19,9 @@ public:
 
 private:
     QObjectCleanupHandler styles;
-
-    unsigned long ref;
 };
 
 SGIStyle::SGIStyle()
-: ref( 0 )
 {
 }
 
@@ -46,21 +42,6 @@ QRESULT SGIStyle::queryInterface( const QUuid &uuid, QUnknownInterface **iface )
 
     (*iface)->addRef();
     return QS_OK;
-}
-
-unsigned long SGIStyle::addRef()
-{
-    return ref++;
-}
-
-unsigned long SGIStyle::release()
-{
-    if ( !--ref ) {
-	delete this;
-	return 0;
-    }
-
-    return ref;
 }
 
 QStringList SGIStyle::featureList() const
@@ -95,7 +76,7 @@ bool SGIStyle::canUnload() const
     return styles.isEmpty();
 }
 
-Q_EXPORT_INTERFACE()
+Q_EXPORT_COMPONENT()
 {
     Q_CREATE_INSTANCE( SGIStyle )
 }

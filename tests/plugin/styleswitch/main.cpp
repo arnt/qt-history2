@@ -22,8 +22,7 @@ public:
     ~TestComponent();
 
     QRESULT queryInterface( const QUuid&, QUnknownInterface ** );
-    unsigned long addRef();
-    unsigned long release();
+    Q_REFCOUNT;
 
     QStringList featureList() const;
     QAction* create( const QString &actionname, QObject* parent = 0 );
@@ -56,13 +55,12 @@ private:
     QString selected;
     QSignalMapper *styleMapper;
 
-    unsigned long ref;
 };
 
 QUuid TestComponent::cid( 0xDD19964B, 0xA2C8, 0x42AE, 0xAA, 0xF9, 0x8A, 0xDC, 0x50, 0x9B, 0xCA, 0x03 );
 
 TestComponent::TestComponent()
-: styleMapper( 0 ), ref( 0 )
+: styleMapper( 0 )
 {
 }
 
@@ -95,21 +93,6 @@ QRESULT TestComponent::queryInterface( const QUuid &uuid, QUnknownInterface **if
     
     (*iface)->addRef();
     return QS_OK;
-}
-
-unsigned long TestComponent::addRef()
-{
-    return ref++;
-}
-
-unsigned long TestComponent::release()
-{
-    if ( !--ref ) {
-	delete this;
-	return 0;
-    }
-
-    return ref;
 }
 
 QStringList TestComponent::featureList() const
@@ -232,7 +215,7 @@ QRESULT TestComponent::createInstance( const QUuid &cid, const QUuid &iid, QUnkn
 
 #include "main.moc"
 
-Q_EXPORT_INTERFACE()
+Q_EXPORT_COMPONENT()
 {
     Q_CREATE_INSTANCE( TestComponent )
 }

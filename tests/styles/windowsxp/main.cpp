@@ -9,8 +9,7 @@ public:
     WindowsXPStyle();
 
     QRESULT queryInterface( const QUuid&, QUnknownInterface ** );
-    unsigned long addRef();
-    unsigned long release();
+    Q_REFCOUNT;
 
     QStringList featureList() const;
     QStyle *create( const QString& );
@@ -21,12 +20,9 @@ public:
 
 private:
     QObjectCleanupHandler styles;
-
-    unsigned long ref;
 };
 
 WindowsXPStyle::WindowsXPStyle()
-: ref( 0 )
 {
 }
 
@@ -46,21 +42,6 @@ QRESULT WindowsXPStyle::queryInterface( const QUuid &uuid, QUnknownInterface **i
     (*iface)->addRef();
 
     return QS_OK;
-}
-
-unsigned long WindowsXPStyle::addRef()
-{
-    return ref++;
-}
-
-unsigned long WindowsXPStyle::release()
-{
-    if ( !--ref ) {
-	delete this;
-	return 0;
-    }
-
-    return ref;
 }
 
 QStringList WindowsXPStyle::featureList() const
@@ -95,7 +76,7 @@ bool WindowsXPStyle::canUnload() const
     return styles.isEmpty();
 }
 
-Q_EXPORT_INTERFACE()
+Q_EXPORT_COMPONENT()
 {
     Q_CREATE_INSTANCE( WindowsXPStyle )
 }

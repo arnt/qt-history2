@@ -39,8 +39,7 @@ public:
     virtual ~EditorInterfaceImpl();
 
     QRESULT queryInterface( const QUuid&, QUnknownInterface** );
-    unsigned long addRef();
-    unsigned long release();
+    Q_REFCOUNT;
 
     QWidget *editor( QWidget *parent, QUnknownInterface *designerIface );
 
@@ -85,7 +84,6 @@ private slots:
 
 private:
     QGuardedPtr<ViewManager> viewManager;
-    unsigned long ref;
     DesignerInterface *dIface;
     QTimer *updateTimer;
 

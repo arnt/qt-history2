@@ -23,13 +23,9 @@ public:
     QRESULT saveImage( const QString &format, const QString &filename, const QImage &image );
 
     QRESULT installIOHandler( const QString & );
-
-private:
-    ulong ref;
 };
 
 MNGFormat::MNGFormat()
-: ref( 0 )
 {
 }
 
@@ -76,7 +72,7 @@ QRESULT MNGFormat::installIOHandler( const QString &name )
     return QS_OK;
 }
 
-Q_EXPORT_INTERFACE()
+Q_EXPORT_COMPONENT()
 {
     Q_CREATE_INSTANCE( MNGFormat )
 }

@@ -30,8 +30,7 @@ public:
     LanguageInterfaceImpl();
 
     QRESULT queryInterface( const QUuid&, QUnknownInterface** );
-    unsigned long addRef();
-    unsigned long release();
+    Q_REFCOUNT;
 
     void functions( const QString &code, QValueList<Function> *funcs ) const;
     void initEventFunctions( QMap<QString, QString> & ) {}
@@ -64,10 +63,6 @@ public:
 		       QValueList<Connection> & );
     QString formCodeExtension() const { return ".h"; }
     bool canConnect( const QString &signal, const QString &slot );
-
-private:
-    ulong ref;
-
 };
 
 #endif

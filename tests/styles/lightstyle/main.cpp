@@ -9,8 +9,7 @@ public:
     virtual ~LightStyleIface();
 
     QRESULT queryInterface( const QUuid&, QUnknownInterface **);
-    unsigned long addRef();
-    unsigned long release();
+    Q_REFCOUNT;
 
     QStringList featureList() const;
     QStyle *create( const QString& );
@@ -21,12 +20,9 @@ public:
 
 private:
     QObjectCleanupHandler styles;
-
-    unsigned long ref;
 };
 
 LightStyleIface::LightStyleIface()
-: ref( 0 )
 {
 }
 
@@ -50,21 +46,6 @@ QRESULT LightStyleIface::queryInterface( const QUuid &uuid, QUnknownInterface **
     if ( *iface )
 	(*iface)->addRef();
     return QS_OK;
-}
-
-unsigned long LightStyleIface::addRef()
-{
-    return ref++;
-}
-
-unsigned long LightStyleIface::release()
-{
-    if ( !--ref ) {
-	delete this;
-	return 0;
-    }
-
-    return ref;
 }
 
 QStringList LightStyleIface::featureList() const
@@ -99,7 +80,7 @@ bool LightStyleIface::canUnload() const
     return styles.isEmpty();
 }
 
-Q_EXPORT_INTERFACE()
+Q_EXPORT_COMPONENT()
 {
     Q_CREATE_INSTANCE( LightStyleIface )
 }

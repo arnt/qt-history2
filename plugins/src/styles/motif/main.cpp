@@ -8,8 +8,7 @@ public:
     MotifStyle();
 
     QRESULT queryInterface( const QUuid&, QUnknownInterface ** );
-    unsigned long addRef();
-    unsigned long release();
+    Q_REFCOUNT;
 
     QStringList featureList() const;
     QStyle *create( const QString& );
@@ -20,8 +19,6 @@ public:
 
 private:
     QObjectCleanupHandler styles;
-
-    unsigned long ref;
 };
 
 MotifStyle::MotifStyle()
@@ -46,21 +43,6 @@ QRESULT MotifStyle::queryInterface( const QUuid &uuid, QUnknownInterface **iface
 
     (*iface)->addRef();
     return QS_OK;
-}
-
-unsigned long MotifStyle::addRef()
-{
-    return ref++;
-}
-
-unsigned long MotifStyle::release()
-{
-    if ( !--ref ) {
-	delete this;
-	return 0;
-    }
-
-    return ref;
 }
 
 QStringList MotifStyle::featureList() const
@@ -95,7 +77,7 @@ bool MotifStyle::canUnload() const
     return styles.isEmpty();
 }
 
-Q_EXPORT_INTERFACE()
+Q_EXPORT_COMPONENT()
 {
     Q_CREATE_INSTANCE( MotifStyle )
 }

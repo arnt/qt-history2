@@ -29,7 +29,7 @@
 #include <qtimer.h>
 
 EditorInterfaceImpl::EditorInterfaceImpl()
-    : EditorInterface(), viewManager( 0 ), ref( 0 ), dIface( 0 )
+    : EditorInterface(), viewManager( 0 ), dIface( 0 )
 {
     updateTimer = new QTimer( this );
     connect( updateTimer, SIGNAL( timeout() ),
@@ -56,20 +56,6 @@ QRESULT EditorInterfaceImpl::queryInterface( const QUuid &uuid, QUnknownInterfac
 
     (*iface)->addRef();
     return QS_OK;
-}
-
-unsigned long EditorInterfaceImpl::addRef()
-{
-    return ref++;
-}
-
-unsigned long EditorInterfaceImpl::release()
-{
-    if ( !--ref ) {
-	delete this;
-	return 0;
-    }
-    return ref;
 }
 
 QWidget *EditorInterfaceImpl::editor( QWidget *parent, QUnknownInterface *iface )

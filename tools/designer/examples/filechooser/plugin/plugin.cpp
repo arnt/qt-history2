@@ -36,7 +36,6 @@ static const char *filechooser_pixmap[] = {
 };
 
 CustomWidgetInterface::CustomWidgetInterface()
-    : ref( 0 )
 {
 }
 
@@ -110,7 +109,7 @@ QRESULT CustomWidgetInterface::queryInterface( const QUuid& uuid, QUnknownInterf
     return QS_OK;
 }
 
-Q_EXPORT_INTERFACE()
+Q_EXPORT_COMPONENT()
 {
     Q_CREATE_INSTANCE( CustomWidgetInterface );
 }

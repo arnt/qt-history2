@@ -35,8 +35,7 @@ public:
     virtual ~StandardTemplateWizardInterface();
 
     QRESULT queryInterface( const QUuid&, QUnknownInterface** );
-    unsigned long addRef();
-    unsigned long release();
+    Q_REFCOUNT;
 
     QStringList featureList() const;
 
@@ -47,7 +46,6 @@ public:
     bool canUnload() const;
 
 private:
-    unsigned long ref;
     bool inUse;
 };
 
@@ -55,7 +53,7 @@ extern void qInitImages();
 extern void qCleanupImages();
 
 StandardTemplateWizardInterface::StandardTemplateWizardInterface()
-    : ref( 0 ), inUse( FALSE )
+    : inUse( FALSE )
 {
 }
 
@@ -131,21 +129,7 @@ QRESULT StandardTemplateWizardInterface::queryInterface( const QUuid& uuid, QUnk
     return QS_OK;
 }
 
-unsigned long StandardTemplateWizardInterface::addRef()
-{
-    return ref++;
-}
-
-unsigned long StandardTemplateWizardInterface::release()
-{
-    if ( !--ref ) {
-	delete this;
-	return 0;
-    }
-    return ref;
-}
-
-Q_EXPORT_INTERFACE()
+Q_EXPORT_COMPONENT()
 {
     Q_CREATE_INSTANCE( StandardTemplateWizardInterface )
 }

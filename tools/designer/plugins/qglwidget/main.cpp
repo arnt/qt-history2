@@ -10,8 +10,7 @@ public:
     OpenGLWidgetInterface();
 
     QRESULT queryInterface( const QUuid&, QUnknownInterface ** );
-    unsigned long addRef();
-    unsigned long release();
+    Q_REFCOUNT;
 
     QStringList featureList() const;
 
@@ -25,12 +24,9 @@ public:
 
 private:
     QObjectCleanupHandler objects;
-
-    unsigned long ref;
 };
 
 OpenGLWidgetInterface::OpenGLWidgetInterface()
-: ref( 0 )
 {
 }
 
@@ -109,21 +105,7 @@ QRESULT OpenGLWidgetInterface::queryInterface( const QUuid& uuid, QUnknownInterf
     return QS_OK;
 }
 
-unsigned long OpenGLWidgetInterface::addRef()
-{
-    return ref++;
-}
-
-unsigned long OpenGLWidgetInterface::release()
-{
-    if ( !--ref ) {
-	delete this;
-	return 0;
-    }
-    return ref;
-}
-
-Q_EXPORT_INTERFACE()
+Q_EXPORT_COMPONENT()
 {
     Q_CREATE_INSTANCE( OpenGLWidgetInterface );
 }

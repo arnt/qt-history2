@@ -15,7 +15,6 @@ public:
     Q_REFCOUNT
     
 private:
-    ulong ref;
     CppProjectSettings *settingsTab;
     
 };

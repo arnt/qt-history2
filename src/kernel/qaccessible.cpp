@@ -522,7 +522,7 @@ QRESULT QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInter
   Creates a QAccessibleObject for \a object.
 */
 QAccessibleObject::QAccessibleObject( QObject *object )
-: ref( 0 ), object_(object)
+: object_(object)
 {
     if ( !qAccessibleInterface ) {
 	qAccessibleInterface = new QPtrDict<QAccessibleInterface>( 73 );
@@ -566,24 +566,12 @@ QRESULT QAccessibleObject::queryInterface( const QUuid &uuid, QUnknownInterface 
 }
 
 /*!
-  \reimp
+  \reimp ulong QAccessibleObject::addRef()
 */
-ulong QAccessibleObject::addRef()
-{
-    return ++ref;
-}
 
 /*!
-  \reimp
+  \reimp ulong QAccessibleObject::release()
 */
-ulong QAccessibleObject::release()
-{
-    if ( !--ref ) {
-	delete this;
-	return 0;
-    }
-    return ref;
-}
 
 /*!
   Returns the QObject for which this QAccessibleInterface implementation provides information.

@@ -8,8 +8,7 @@ public:
     AquaStyle();
 
     QRESULT queryInterface( const QUuid&, QUnknownInterface ** );
-    unsigned long addRef();
-    unsigned long release();
+    Q_REFCOUNT;
 
     QStringList featureList() const;
     QStyle *create( const QString& );
@@ -20,12 +19,9 @@ public:
 
 private:
     QObjectCleanupHandler styles;
-
-    unsigned long ref;
 };
 
 AquaStyle::AquaStyle()
-: ref( 0 )
 {
 }
 
@@ -46,21 +42,6 @@ QRESULT AquaStyle::queryInterface( const QUuid &uuid, QUnknownInterface **iface 
 
     (*iface)->addRef();
     return QS_OK;
-}
-
-unsigned long AquaStyle::addRef()
-{
-    return ref++;
-}
-
-unsigned long AquaStyle::release()
-{
-    if ( !--ref ) {
-	delete this;
-	return 0;
-    }
-
-    return ref;
 }
 
 QStringList AquaStyle::featureList() const
@@ -95,7 +76,7 @@ bool AquaStyle::canUnload() const
     return styles.isEmpty();
 }
 
-Q_EXPORT_INTERFACE()
+Q_EXPORT_COMPONENT()
 {
     Q_CREATE_INSTANCE( AquaStyle )
 }

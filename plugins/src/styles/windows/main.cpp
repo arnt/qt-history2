@@ -8,8 +8,7 @@ public:
     WindowsStyle();
 
     QRESULT queryInterface( const QUuid&, QUnknownInterface ** );
-    unsigned long addRef();
-    unsigned long release();
+    Q_REFCOUNT;
 
     QStringList featureList() const;
     QStyle *create( const QString& );
@@ -20,8 +19,6 @@ public:
 
 private:
     QObjectCleanupHandler styles;
-
-    unsigned long ref;
 };
 
 WindowsStyle::WindowsStyle()
@@ -46,21 +43,6 @@ QRESULT WindowsStyle::queryInterface( const QUuid &uuid, QUnknownInterface **ifa
 
     (*iface)->addRef();
     return QS_OK;
-}
-
-unsigned long WindowsStyle::addRef()
-{
-    return ref++;
-}
-
-unsigned long WindowsStyle::release()
-{
-    if ( !--ref ) {
-	delete this;
-	return 0;
-    }
-
-    return ref;
 }
 
 QStringList WindowsStyle::featureList() const
@@ -95,7 +77,7 @@ bool WindowsStyle::canUnload() const
     return styles.isEmpty();
 }
 
-Q_EXPORT_INTERFACE()
+Q_EXPORT_COMPONENT()
 {
     Q_CREATE_INSTANCE( WindowsStyle )
 }

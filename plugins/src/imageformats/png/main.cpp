@@ -12,8 +12,9 @@ class PNGFormat : public QImageFormatInterface
 {
 public:
     PNGFormat();
-    Q_REFCOUNT;
+
     QRESULT queryInterface( const QUuid &, QUnknownInterface ** );
+    Q_REFCOUNT;
 
     QStringList featureList() const;
 
@@ -21,13 +22,9 @@ public:
     QRESULT saveImage( const QString &format, const QString &filename, const QImage& );
 
     QRESULT installIOHandler( const QString & );
-
-private:
-    ulong ref;
 };
 
 PNGFormat::PNGFormat()
-: ref( 0 )
 {
 }
 
@@ -92,7 +89,7 @@ QRESULT PNGFormat::installIOHandler( const QString &name )
     return QS_OK;
 }
 
-Q_EXPORT_INTERFACE()
+Q_EXPORT_COMPONENT()
 {
     Q_CREATE_INSTANCE( PNGFormat )
 }

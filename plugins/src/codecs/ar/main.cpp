@@ -14,8 +14,7 @@ public:
 
     // unknown interface
     QRESULT queryInterface(const QUuid &, QUnknownInterface **);
-    unsigned long addRef();
-    unsigned long release();
+    Q_REFCOUNT
 
     // feature list interface
     QStringList featureList() const;
@@ -24,16 +23,12 @@ public:
     QTextCodec *createForMib( int );
     QTextCodec *createForName( const QString & );
 
-
 private:
     QPtrList<QTextCodec> codecs;
-
-    unsigned long ref;
 };
 
 
 ARTextCodecs::ARTextCodecs()
-    : ref(0)
 {
 }
 
@@ -59,24 +54,6 @@ QRESULT ARTextCodecs::queryInterface(const QUuid &uuid, QUnknownInterface **ifac
     (*iface)->addRef();
     return QS_OK;
 }
-
-
-unsigned long ARTextCodecs::addRef()
-{
-    return ref++;
-}
-
-
-unsigned long ARTextCodecs::release()
-{
-    if (! --ref) {
-	delete this;
-	return 0;
-    }
-
-    return ref;
-}
-
 
 QStringList ARTextCodecs::featureList() const
 {
@@ -116,9 +93,7 @@ QTextCodec *ARTextCodecs::createForName( const QString &name )
 }
 
 
-Q_EXPORT_INTERFACE()
+Q_EXPORT_COMPONENT()
 {
-    QUnknownInterface *iface = (QUnknownInterface *) new ARTextCodecs;
-    iface->addRef();
-    return iface;
+    Q_CREATE_INSTANCE( ARTextCodecs );
 }

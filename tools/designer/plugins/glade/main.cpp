@@ -30,8 +30,7 @@ public:
     GladeFilter();
 
     QRESULT queryInterface( const QUuid&, QUnknownInterface **iface );
-    unsigned long addRef();
-    unsigned long release();
+    Q_REFCOUNT;
 
     QStringList featureList() const;
     QStringList import( const QString& filter, const QString& filename );
@@ -40,12 +39,9 @@ public:
     void cleanup();
     bool canUnload() const;
 
-private:
-    unsigned long ref;
 };
 
 GladeFilter::GladeFilter()
-: ref( 0 )
 {
 }
 
@@ -65,20 +61,6 @@ QRESULT GladeFilter::queryInterface( const QUuid &uuid, QUnknownInterface **ifac
 
     (*iface)->addRef();
     return QS_OK;
-}
-
-unsigned long GladeFilter::addRef()
-{
-    return ref++;
-}
-
-unsigned long GladeFilter::release()
-{
-    if ( !--ref ) {
-	delete this;
-	return 0;
-    }
-    return ref;
 }
 
 QStringList GladeFilter::featureList() const
@@ -108,7 +90,7 @@ bool GladeFilter::canUnload() const
     return TRUE;
 }
 
-Q_EXPORT_INTERFACE()
+Q_EXPORT_COMPONENT()
 {
     Q_CREATE_INSTANCE( GladeFilter )
 }

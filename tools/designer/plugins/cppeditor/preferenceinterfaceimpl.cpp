@@ -23,7 +23,6 @@
 #include <preferences.h>
 
 PreferenceInterfaceImpl::PreferenceInterfaceImpl()
-    : ref( 0 )
 {
     cppEditorSyntax = 0;
 }
@@ -44,20 +43,6 @@ QRESULT PreferenceInterfaceImpl::queryInterface( const QUuid &uuid, QUnknownInte
 
     (*iface)->addRef();
     return QS_OK;
-}
-
-unsigned long PreferenceInterfaceImpl::addRef()
-{
-    return ref++;
-}
-
-unsigned long PreferenceInterfaceImpl::release()
-{
-    if ( !--ref ) {
-	delete this;
-	return 0;
-    }
-    return ref;
 }
 
 PreferenceInterface::Preference *PreferenceInterfaceImpl::preference()

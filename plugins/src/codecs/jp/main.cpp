@@ -17,8 +17,7 @@ public:
 
     // unknown interface
     QRESULT queryInterface(const QUuid &, QUnknownInterface **);
-    unsigned long addRef();
-    unsigned long release();
+    Q_REFCOUNT;
 
     // feature list interface
     QStringList featureList() const;
@@ -30,13 +29,10 @@ public:
 
 private:
     QPtrList<QTextCodec> codecs;
-
-    unsigned long ref;
 };
 
 
 JPTextCodecs::JPTextCodecs()
-    : ref(0)
 {
 }
 
@@ -61,23 +57,6 @@ QRESULT JPTextCodecs::queryInterface(const QUuid &uuid, QUnknownInterface **ifac
 
     (*iface)->addRef();
     return QS_OK;
-}
-
-
-unsigned long JPTextCodecs::addRef()
-{
-    return ref++;
-}
-
-
-unsigned long JPTextCodecs::release()
-{
-    if (! --ref) {
-	delete this;
-	return 0;
-    }
-
-    return ref;
 }
 
 
@@ -162,9 +141,7 @@ QTextCodec *JPTextCodecs::createForName( const QString &name )
 }
 
 
-Q_EXPORT_INTERFACE()
+Q_EXPORT_COMPONENT()
 {
-    QUnknownInterface *iface = (QUnknownInterface *) new JPTextCodecs;
-    iface->addRef();
-    return iface;
+    Q_CREATE_INSTANCE( JPTextCodecs );
 }

@@ -15,8 +15,7 @@ public:
 
     // unknown interface
     QRESULT queryInterface(const QUuid &, QUnknownInterface **);
-    unsigned long addRef();
-    unsigned long release();
+    Q_REFCOUNT;
 
     // feature list interface
     QStringList featureList() const;
@@ -28,13 +27,10 @@ public:
 
 private:
     QPtrList<QTextCodec> codecs;
-
-    unsigned long ref;
 };
 
 
 TWTextCodecs::TWTextCodecs()
-    : ref(0)
 {
 }
 
@@ -42,7 +38,6 @@ TWTextCodecs::TWTextCodecs()
 TWTextCodecs::~TWTextCodecs()
 {
 }
-
 
 QRESULT TWTextCodecs::queryInterface(const QUuid &uuid, QUnknownInterface **iface)
 {
@@ -60,24 +55,6 @@ QRESULT TWTextCodecs::queryInterface(const QUuid &uuid, QUnknownInterface **ifac
     (*iface)->addRef();
     return QS_OK;
 }
-
-
-unsigned long TWTextCodecs::addRef()
-{
-    return ref++;
-}
-
-
-unsigned long TWTextCodecs::release()
-{
-    if (! --ref) {
-	delete this;
-	return 0;
-    }
-
-    return ref;
-}
-
 
 QStringList TWTextCodecs::featureList() const
 {
@@ -148,9 +125,7 @@ QTextCodec *TWTextCodecs::createForName( const QString &name )
 }
 
 
-Q_EXPORT_INTERFACE()
+Q_EXPORT_COMPONENT()
 {
-    QUnknownInterface *iface = (QUnknownInterface *) new TWTextCodecs;
-    iface->addRef();
-    return iface;
+    Q_CREATE_INSTANCE( TWTextCodecs );
 }

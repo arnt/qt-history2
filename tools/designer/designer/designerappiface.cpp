@@ -37,7 +37,7 @@
 #include "hierarchyview.h"
 
 DesignerInterfaceImpl::DesignerInterfaceImpl( MainWindow *mw )
-    : ref( 0 ), mainWindow( mw )
+    : mainWindow( mw )
 {
 }
 
@@ -58,20 +58,6 @@ QRESULT DesignerInterfaceImpl::queryInterface( const QUuid &uuid, QUnknownInterf
     return QS_OK;
 }
 
-unsigned long DesignerInterfaceImpl::addRef()
-{
-    return ref++;
-}
-
-unsigned long DesignerInterfaceImpl::release()
-{
-    if ( !--ref ) {
-	delete this;
-	return 0;
-    }
-
-    return ref;
-}
 
 DesignerProject *DesignerInterfaceImpl::currentProject() const
 {

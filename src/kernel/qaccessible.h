@@ -271,8 +271,7 @@ public:
     virtual ~QAccessibleObject();
 
     QRESULT	queryInterface( const QUuid &, QUnknownInterface** );
-    ulong	addRef();
-    ulong	release();
+    Q_REFCOUNT
 
     bool	isValid() const;
 
@@ -280,7 +279,6 @@ protected:
     QObject *object() const;
 
 private:
-    ulong ref;
     QGuardedPtr<QObject> object_;
 };
 

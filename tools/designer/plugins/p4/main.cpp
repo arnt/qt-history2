@@ -284,8 +284,7 @@ public:
     ~P4Interface();
 
     QRESULT queryInterface( const QUuid&, QUnknownInterface ** );
-    unsigned long addRef();
-    unsigned long release();
+    Q_REFCOUNT;
 
     QStringList featureList() const;
     QAction *create( const QString &actionname, QObject* parent = 0 );
@@ -330,11 +329,10 @@ private:
     QObjectCleanupHandler actions;
     DesignerInterface *appInterface;
 
-    unsigned long ref;
 };
 
 P4Interface::P4Interface()
-    : p4Actions( 0 ), outputPage( 0 ), outputView( 0 ), appInterface( 0 ), ref( 0 )
+    : p4Actions( 0 ), outputPage( 0 ), outputView( 0 ), appInterface( 0 )
 {
     aware = TRUE;
 }
@@ -837,20 +835,6 @@ QRESULT P4Interface::queryInterface( const QUuid &uuid, QUnknownInterface **ifac
     return QS_OK;
 }
 
-unsigned long P4Interface::addRef()
-{
-    return ref++;
-}
-
-unsigned long P4Interface::release()
-{
-    if ( !--ref ) {
-	delete this;
-	return 0;
-    }
-    return ref;
-}
-
 bool P4Interface::init()
 {
     return TRUE;
@@ -869,7 +853,7 @@ bool P4Interface::canUnload() const
     return actions.isEmpty() && outputPage.isNull();
 }
 
-Q_EXPORT_INTERFACE()
+Q_EXPORT_COMPONENT()
 {
     Q_CREATE_INSTANCE( P4Interface )
 }
