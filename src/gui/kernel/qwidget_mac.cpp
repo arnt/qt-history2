@@ -281,12 +281,12 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
         {
             WindowPartCode wpc;
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-            if (QSysInfo::MacintoshVersion >= Qt::MV_10_3) {
+            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
                 if (GetEventParameter(event, kEventParamWindowPartCode, typeWindowPartCode, 0,
                                       sizeof(wpc), 0, &wpc) == noErr && wpc != inContent)
                     send_to_app = true;
             } else
-#else
+#endif
             {
                 HIPoint hipt;
                 WindowRef wref;
@@ -300,7 +300,6 @@ OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, EventRef event,
                         send_to_app = true;
                 }
             }
-#endif
         }
         if(!send_to_app) {
             WindowRef window;
