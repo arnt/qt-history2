@@ -306,6 +306,10 @@ MakefileGenerator::init()
         if(tmp_out.isEmpty())
             continue;
         if(project->variables()[(*it) + ".CONFIG"].indexOf("combine") != -1) {
+            // Don't generate compiler output if it doesn't have input.
+            QStringList &compilerInputs = project->variables()[(*it) + ".input"];
+            if (compilerInputs.isEmpty() || project->variables()[compilerInputs.first()].isEmpty())
+                continue;
             if(tmp_out.indexOf("$") == -1) {
                 if(project->variables().contains((*it) + ".variable_out"))
                     project->variables()[project->variables().value((*it) + ".variable_out").first()] += tmp_out;
@@ -1308,6 +1312,8 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                 for(QStringList::ConstIterator input = tmp.begin(); input != tmp.end(); ++input)
                     inputs += " " + Option::fixPathToTargetOS((*input), false);
             }
+            if (inputs.isEmpty())
+                continue;
             QString cmd = replaceExtraCompilerVariables(tmp_cmd, QString::null, tmp_out), deps;
             if(!tmp_dep.isEmpty())
                 deps = " " + tmp_dep;
@@ -1594,10 +1600,10 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
     t << endl << endl;
 
     QStringList targs;
-    targs << "make_first" << "all" << "clean" << "distclean" << "mocables" << "uicables"
+    targs << "make_first" << "all" << "clean" << "distclean" << "mocables"
           << QString(installs ? "install_subtargets" : "install")
           << QString(installs ? "uninstall_subtargets" : "uninstall")
-          << "uiclean" << "mocclean";
+          << "mocclean";
 
     // generate target rules
     for(QList<SubTarget*>::Iterator it = targets.begin(); it != targets.end(); ++it) {

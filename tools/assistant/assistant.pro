@@ -2,13 +2,13 @@ TEMPLATE = app
 LANGUAGE = C++
 TARGET         = assistant
 
-CONFIG        += qt warn_on uic uic3
+CONFIG        += qt warn_on
 QT += compat xml network
 
 PROJECTNAME        = Assistant
 DESTDIR            = ../../bin
 
-UI_SOURCES += finddialog.ui \
+FORMS += finddialog.ui \
         helpdialog.ui \
         mainwindow.ui \
         settingsdialog.ui \

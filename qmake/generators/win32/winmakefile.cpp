@@ -330,7 +330,7 @@ void Win32MakefileGenerator::writeCleanParts(QTextStream &t)
                        varGlue("OBJMOC" ,"\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","");
     t << "mocclean:" << mocclean << endl;
 
-    t << "clean: compiler_clean uiclean mocclean"
+    t << "clean: compiler_clean mocclean"
         << varGlue("OBJECTS","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","")
         << varGlue("QMAKE_CLEAN","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n")
         << varGlue("CLEAN_FILES","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n");

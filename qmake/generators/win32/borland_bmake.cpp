@@ -119,7 +119,7 @@ void BorlandMakefileGenerator::writeCleanParts(QTextStream &t)
         mocclean = "@cd .";
     t << "mocclean:" << mocclean << endl;
 
-    t << "clean: uiclean mocclean"
+    t << "clean: mocclean"
         << varGlue("OBJECTS","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","")
         << varGlue("QMAKE_CLEAN","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n")
         << varGlue("CLEAN_FILES","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n");
