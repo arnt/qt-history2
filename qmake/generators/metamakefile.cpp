@@ -47,7 +47,7 @@ MetaMakefileGenerator::init()
         for(int i = 0; i < builds.count(); i++) {
             QString build = builds[i];
             MakefileGenerator *makefile = processBuild(build);
-            if(!makefile) 
+            if(!makefile)
                 return false;
             if(!makefile->supportsMetaBuild()) {
                 warn_msg(WarnLogic, "QMAKESPEC does not support multiple BUILDS.");
@@ -74,7 +74,7 @@ MetaMakefileGenerator::init()
 #include "metamakefile.h"
 
 bool
-MetaMakefileGenerator::write(const QString &oldpwd) 
+MetaMakefileGenerator::write(const QString &oldpwd)
 {
     Build *glue = 0;
     if(!makefiles.first()->name.isNull()) {
@@ -96,7 +96,7 @@ MetaMakefileGenerator::write(const QString &oldpwd)
            && (!build->makefile->supportsMergedBuilds()
             || (build->makefile->supportsMergedBuilds() && (!glue || build == glue)))) {
             //open output
-            if(!(Option::output.state() & IO_Open)) {
+            if(!(Option::output.isOpen())) {
                 if(Option::output.fileName() == "-") {
                     Option::output.setFileName("");
                     Option::output_dir = QDir::currentPath();
@@ -156,7 +156,7 @@ MakefileGenerator
         Option::user_configs.prepend("build_pass");
         QMakeProject *build_proj = new QMakeProject(project->properities());
         build_proj->read(project->projectFile());
-        Option::user_configs = old_user_config; 
+        Option::user_configs = old_user_config;
         build_proj->variables()["CONFIG"] += "no_autoqmake";
         return createMakefileGenerator(build_proj);
     }
