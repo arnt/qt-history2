@@ -11,7 +11,7 @@ SOURCES += \
         global/qlibraryinfo.cpp 
 
 # qlibraryinfo.cpp includes qconfig.cpp
-INCLUDEPATH += $$QT_BUILD_TREE/src/core/global
+INCLUDEPATH += $$QT_BUILD_TREE/src/corelib/global
 
 # Only used on platforms with CONFIG += precompile_header
 PRECOMPILED_HEADER = global/qt_pch.h
