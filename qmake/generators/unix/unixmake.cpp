@@ -148,6 +148,8 @@ UnixMakefileGenerator::init()
     if(project->isActiveConfig("compile_libtool"))
         Option::obj_ext = ".lo"; //override the .o
 
+    MakefileGenerator::init();
+
     if(project->isActiveConfig("macx") &&
        !project->isEmpty("TARGET") && !project->isActiveConfig("compile_libtool") &&
        ((project->first("TEMPLATE") == "app" && project->isActiveConfig("app_bundle")) ||
@@ -173,8 +175,6 @@ UnixMakefileGenerator::init()
     } else { //no bundling here
         project->variables()["QMAKE_BUNDLE_NAME"].clear();
     }
-
-    MakefileGenerator::init();
 
     if(!project->isEmpty("QMAKE_INTERNAL_INCLUDED_FILES"))
         project->variables()["DISTFILES"] += project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"];
@@ -268,6 +268,9 @@ UnixMakefileGenerator::combineSetLFlags(const QStringList &list1, const QStringL
                 } else if((*it).startsWith("-l")) {
                     ret.removeAll(*it);
                     ret.append(*it);
+                } else if(project->isActiveConfig("macx") && (*it).startsWith("-F")) {
+                    if(ret.indexOf((*it)) == -1)
+                        ret.append((*it));
                 } else if(project->isActiveConfig("macx") && (*it).startsWith("-framework")) {
                     int as_one = true;
                     QString framework_in;
@@ -281,23 +284,18 @@ UnixMakefileGenerator::combineSetLFlags(const QStringList &list1, const QStringL
                         }
                     }
                     if(!framework_in.isEmpty()) {
-                        for(QStringList::Iterator outit = ret.begin(); outit != ret.end(); ++outit) {
-                            if((*outit).startsWith("-framework")) {
+                        for(int outit = 0; outit < ret.size(); ++outit) {
+                            if(ret.at(outit).startsWith("-framework")) {
                                 int found = 0;
-                                if((*outit).length() > 11) {
-                                    if(framework_in == (*outit).mid(11))
+                                if(ret.at(outit).length() > 11) {
+                                    if(framework_in == ret.at(outit).mid(11))
                                         found = 1;
-                                } else {
-                                    if(it != lst->end()) {
-                                        ++outit;
-                                        if(framework_in == (*outit)) {
-                                            --outit;
-                                            found = 2;
-                                        }
-                                    }
+                                } else if(outit < ret.size()-1) {
+                                    if(framework_in == ret.at(outit+1))
+                                        found = 2;
                                 }
                                 for(int i = 0; i < found; i++)
-                                    outit = ret.erase(outit);
+                                    ret.removeAt(outit);
                             }
                         }
                         if(as_one) {
@@ -363,7 +361,9 @@ QStringList
 bool
 UnixMakefileGenerator::findLibraries()
 {
-    QList<QMakeLocalFileName> libdirs;
+    QList<QMakeLocalFileName> libdirs, frameworkdirs;
+    frameworkdirs.append(QMakeLocalFileName("/System/Library/Frameworks"));
+    frameworkdirs.append(QMakeLocalFileName("/Library/Frameworks"));
     const QString lflags[] = { "QMAKE_LIBDIR_FLAGS", "QMAKE_LIBS", QString::null };
     for(int i = 0; !lflags[i].isNull(); i++) {
         QStringList &l = project->variables()[lflags[i]];
@@ -372,6 +372,8 @@ UnixMakefileGenerator::findLibraries()
             if(opt.startsWith("-")) {
                 if(opt.startsWith("-L")) {
                     libdirs.append(QMakeLocalFileName(opt.right(opt.length()-2)));
+                } else if(Option::target_mode == Option::TARG_MACX_MODE && opt.startsWith("-F")) {
+                    frameworkdirs.append(QMakeLocalFileName(opt.right(opt.length()-2)));
                 } else if(Option::target_mode == Option::TARG_MACX_MODE && opt.startsWith("-framework")) {
                     if(opt.length() > 11) {
                         opt = opt.mid(11);
@@ -436,8 +438,6 @@ UnixMakefileGenerator::findLibraries()
                         }
                     }
                 }
-                if(found)
-                    break;
             }
         }
     }
@@ -456,7 +456,9 @@ void
 UnixMakefileGenerator::processPrlFiles()
 {
     QHash<QString, void*> processed;
-    QList<QMakeLocalFileName> libdirs;
+    QList<QMakeLocalFileName> libdirs, frameworkdirs;
+    frameworkdirs.append(QMakeLocalFileName("/System/Library/Frameworks"));
+    frameworkdirs.append(QMakeLocalFileName("/Library/Frameworks"));
     const QString lflags[] = { "QMAKE_LIBDIR_FLAGS", "QMAKE_LIBS", QString::null };
     for(int i = 0; !lflags[i].isNull(); i++) {
         for(bool ret = false; true; ret = false) {
@@ -491,6 +493,8 @@ UnixMakefileGenerator::processPrlFiles()
                                 break;
                             }
                         }
+                    } else if(Option::target_mode == Option::TARG_MACX_MODE && opt.startsWith("-F")) {
+                        frameworkdirs.append(QMakeLocalFileName(opt.right(opt.length()-2)));
                     } else if(Option::target_mode == Option::TARG_MACX_MODE && opt.startsWith("-framework")) {
                         if(opt.length() > 11) {
                             opt = opt.mid(11);
@@ -498,10 +502,16 @@ UnixMakefileGenerator::processPrlFiles()
                             ++it;
                             opt = (*it);
                         }
-                        QString prl = "/System/Library/Frameworks/" + opt +
-                                      ".framework/" + opt;
-                        if(processPrlFile(prl))
-                            ret = true;
+                        for(QList<QMakeLocalFileName>::Iterator dep_it = frameworkdirs.begin();
+                            dep_it != frameworkdirs.end(); ++dep_it) {
+                            QString prl = (*dep_it).local() + "/" + opt + ".framework/" + opt + Option::prl_ext;
+                            if(!processed[prl] && processPrlFile(prl)) {
+                                processed.insertMulti(prl, (void*)1);
+                                ret = true;
+                                break;
+                            }
+
+                        }
                         l_out.append("-framework");
                     }
                     if(!opt.isEmpty())

@@ -628,7 +628,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
               << "\"" << info_plist << "\" >\"" << info_plist_out << "\"" << endl;
             //copy the icon
             if(!project->isEmpty("ICON")) {
-                QString dir = destdir + "/Contents/Resources/";
+                QString dir = project->first("DESTDIR") + project->first("QMAKE_BUNDLE_NAME") + "/Contents/Resources/";
                 t << dir << icon.section(Option::dir_sep, -1) << ": " << icon << "\n\t"
                   << mkdir_p_asstring(dir) << "\n\t"
                   << "@$(DEL_FILE) " << dir << icon.section(Option::dir_sep, -1) << "\n\t"
