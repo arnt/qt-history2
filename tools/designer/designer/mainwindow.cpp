@@ -2107,7 +2107,7 @@ void MainWindow::readConfig()
        things the designer does ###Sam */
     QApplication::sendPostedEvents();
 #endif
-    QString fn = QDir: :homeDirPath() + "/.designerrc" + "tb2";
+    QString fn = QDir::homeDirPath() + "/.designerrc" + "tb2";
     QFile f( fn );
     if ( f.open( IO_ReadOnly ) ) {
 /*###	tbSettingsRead = TRUE;*/
