@@ -158,7 +158,7 @@ void QSplashScreen::repaint()
     Draws the \a message text onto the splash screen with color \a
     color and aligns the text according to the flags in \a alignment.
 
-    \sa Qt::AlignmentFlags clear()
+    \sa Qt::Alignment, clear()
 */
 void QSplashScreen::message(const QString &message, int alignment,
                              const QColor &color)

@@ -4830,14 +4830,14 @@ void QCanvasText::setRect()
 
     Returns the currently set alignment flags.
 
-    \sa setTextFlags() Qt::AlignmentFlags
+    \sa setTextFlags(), Qt::Alignment
 */
 
 
 /*!
     Sets the alignment flags to \a f. These are a bitwise OR of the
-    flags available to QPainter::drawText() -- see the
-    \l{Qt::AlignmentFlags}.
+    flags available to QPainter::drawText() -- see
+    \l{Qt::Alignment}.
 
     \sa setFont() setColor()
 */

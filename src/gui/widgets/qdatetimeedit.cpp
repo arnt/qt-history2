@@ -9,7 +9,7 @@ class QDateTimeEditPrivate : public QAbstractSpinBoxPrivate
 {
     Q_DECLARE_PUBLIC(QDateTimeEdit);
 public:
-    enum SectionFlags {
+    enum Section {
 	NoSection = 0x0000,
 	AMPMSection = 0x0001,
 	MSecsSection = 0x0002,
@@ -30,7 +30,7 @@ public:
     }; // duplicated from qdatetimeedit.h
 
     struct SectionNode {
-	SectionFlags section;
+	Section section;
 	int pos;
     };
 
@@ -44,26 +44,26 @@ public:
 
 //    QStyleOptionSpinBox styleOption() const;
 
-    void clearSection(SectionFlags s);
+    void clearSection(Section s);
 
-    int sectionLength(SectionFlags s) const;
-    int sectionPos(SectionFlags s) const;
-    SectionNode sectionNode(SectionFlags t) const;
-    QCoreVariant stepBy(SectionFlags s, int steps, bool test = false) const;
-    QString sectionText(const QString &text, SectionFlags s) const;
-    int getDigit(const QCoreVariant &dt, SectionFlags s) const;
-    void setDigit(QCoreVariant *t, SectionFlags s, int newval) const;
+    int sectionLength(Section s) const;
+    int sectionPos(Section s) const;
+    SectionNode sectionNode(Section t) const;
+    QCoreVariant stepBy(Section s, int steps, bool test = false) const;
+    QString sectionText(const QString &text, Section s) const;
+    int getDigit(const QCoreVariant &dt, Section s) const;
+    void setDigit(QCoreVariant *t, Section s, int newval) const;
     QString toString(const QCoreVariant &var) const;
     QCoreVariant fromString(QString *var, QValidator::State *state) const;
-    int sectionValue(SectionFlags s, QString *txt, QValidator::State *state) const;
-    int absoluteMax(SectionFlags s) const;
-    int absoluteMin(SectionFlags s) const;
-    SectionFlags sectionAt(int index) const;
-    SectionFlags closestSection(int index, bool forward) const;
-    SectionNode nextPrevSection(SectionFlags current, bool forward) const;
-    SectionFlags addSection(QList<SectionNode> *list, SectionFlags ds, int pos);
+    int sectionValue(Section s, QString *txt, QValidator::State *state) const;
+    int absoluteMax(Section s) const;
+    int absoluteMin(Section s) const;
+    Section sectionAt(int index) const;
+    Section closestSection(int index, bool forward) const;
+    SectionNode nextPrevSection(Section current, bool forward) const;
+    Section addSection(QList<SectionNode> *list, Section ds, int pos);
     bool parseFormat(const QString &format);
-    void setSelected(SectionFlags s, bool forward = false);
+    void setSelected(Section s, bool forward = false);
 
     static QString sectionName(int s);
     static QString stateName(int s);
@@ -72,10 +72,10 @@ public:
     QList<SectionNode> sections;
     SectionNode first, last;
     QStringList separators;
-    QDateTimeEdit::Section display;
+    QDateTimeEdit::Sections display;
     mutable int cachedday;
-    mutable SectionFlags currentsection;
-    SectionFlags oldsection;
+    mutable Section currentsection;
+    Section oldsection;
 };
 
 #define d d_func()
@@ -425,9 +425,9 @@ void QDateTimeEdit::setTimeRange(const QTime &min, const QTime &max)
     \a setFormat(), format()
 */
 
-QDateTimeEdit::Section QDateTimeEdit::display() const
+QDateTimeEdit::Sections QDateTimeEdit::display() const
 {
-    return (Section)d->display;
+    return d->display;
 }
 
 /*!
@@ -437,33 +437,33 @@ QDateTimeEdit::Section QDateTimeEdit::display() const
     \a setCurrentSection()
 */
 
-QDateTimeEdit::SectionFlags QDateTimeEdit::currentSection() const
+QDateTimeEdit::Section QDateTimeEdit::currentSection() const
 {
-    return (SectionFlags)(d->currentsection & (~QDateTimeEditPrivate::Internal));
+    return (Section)(d->currentsection & (~QDateTimeEditPrivate::Internal));
 }
 
-void QDateTimeEdit::setCurrentSection(SectionFlags section)
+void QDateTimeEdit::setCurrentSection(Section section)
 {
-    const QDateTimeEditPrivate::SectionFlags s = (QDateTimeEditPrivate::SectionFlags)section;
+    const QDateTimeEditPrivate::Section s = (QDateTimeEditPrivate::Section)section;
     switch (s) {
     case QDateTimeEditPrivate::FirstSection: d->edit->setCursorPosition(0); break;
     case QDateTimeEditPrivate::LastSection: d->edit->setCursorPosition(d->edit->text().size()); break;
     case QDateTimeEditPrivate::NoSection: break;
-    default: d->edit->setCursorPosition(d->sectionNode((QDateTimeEditPrivate::SectionFlags)section).pos);
+    default: d->edit->setCursorPosition(d->sectionNode((QDateTimeEditPrivate::Section)section).pos);
     }
 }
 
 /*!
-    \fn QString QDateTimeEdit::sectionText(SectionFlags section) const
+    \fn QString QDateTimeEdit::sectionText(Section section) const
 
     Returns the text from the given \a section.
 
     \a text(), cleanText(), currentSection()
 */
 
-QString QDateTimeEdit::sectionText(SectionFlags s) const
+QString QDateTimeEdit::sectionText(Section s) const
 {
-    return d->sectionText(d->edit->displayText(), (QDateTimeEditPrivate::SectionFlags)s);
+    return d->sectionText(d->edit->displayText(), (QDateTimeEditPrivate::Section)s);
 }
 
 /*!
@@ -573,7 +573,7 @@ QDateTime QDateTimeEdit::mapTextToDateTime(QString *txt, QValidator::State *stat
 
 void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
 {
-//    const QDateTimeEditPrivate::SectionFlags s = d->currentsection;
+//    const QDateTimeEditPrivate::Section s = d->currentsection;
     bool select = true;
     bool fixcursor = !e->text().isEmpty();
     if ((e->key() == Qt::Key_Backspace || (e->key() == Qt::Key_H && e->key() & Qt::ControlButton)) && !d->edit->hasSelectedText()) {
@@ -628,7 +628,7 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
         fixcursor = true;
     default:
         if (fixcursor && d->currentsection == QDateTimeEditPrivate::FirstSection) {
-            setCurrentSection((SectionFlags)d->sections.front().section);
+            setCurrentSection((Section)d->sections.front().section);
         }
         break;
     }
@@ -642,7 +642,7 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
 
 void QDateTimeEdit::wheelEvent(QWheelEvent *e)
 {
-    const QDateTimeEditPrivate::SectionFlags s = d->sectionAt(qMax(0, d->edit->cursorPositionAt(e->pos()) - 1));
+    const QDateTimeEditPrivate::Section s = d->sectionAt(qMax(0, d->edit->cursorPositionAt(e->pos()) - 1));
     // ### cursorPositionAt seems to give me one to many characters
     if (s != d->currentsection)
         d->edit->setCursorPosition(d->sectionNode(s).pos);
@@ -664,7 +664,7 @@ void QDateTimeEdit::wheelEvent(QWheelEvent *e)
 void QDateTimeEdit::focusInEvent(QFocusEvent *e)
 {
     QAbstractSpinBox::focusInEvent(e);
-    QDateTimeEditPrivate::SectionFlags s;
+    QDateTimeEditPrivate::Section s;
     switch(QFocusEvent::reason()) {
     case QFocusEvent::Shortcut:
     case QFocusEvent::Tab: s = d->sections.front().section; break;
@@ -681,7 +681,7 @@ void QDateTimeEdit::focusInEvent(QFocusEvent *e)
 
 bool QDateTimeEdit::focusNextPrevChild(bool next)
 {
-    const QDateTimeEditPrivate::SectionFlags newSection = d->nextPrevSection(d->currentsection, next).section;
+    const QDateTimeEditPrivate::Section newSection = d->nextPrevSection(d->currentsection, next).section;
     switch (newSection) {
     case QDateTimeEditPrivate::NoSection:
     case QDateTimeEditPrivate::FirstSection:
@@ -702,7 +702,7 @@ bool QDateTimeEdit::focusNextPrevChild(bool next)
 
 void QDateTimeEdit::stepBy(int steps)
 {
-    const QDateTimeEditPrivate::SectionFlags s = d->currentsection;
+    const QDateTimeEditPrivate::Section s = d->currentsection;
     d->setValue(d->stepBy(s, steps, false), EmitIfChanged);
     d->setSelected(s);
 }
@@ -744,7 +744,7 @@ QDateTimeEdit::StepEnabled QDateTimeEdit::stepEnabled() const
 QDateTimeEditPrivate::QDateTimeEditPrivate()
 {
     type = QCoreVariant::DateTime;
-    display = (QDateTimeEdit::Section)0;
+    display = (QDateTimeEdit::Sections)0;
     cachedday = -1;
     currentsection = oldsection = NoSection;
     first.section = FirstSection;
@@ -802,14 +802,14 @@ void QDateTimeEditPrivate::editorCursorPositionChanged(int oldpos, int newpos)
     if (ignorecursorpositionchanged)
         return;
     ignorecursorpositionchanged = true;
-    SectionFlags s = sectionAt(newpos);
-//    SectionFlags old = oldsection;
+    Section s = sectionAt(newpos);
+//    Section old = oldsection;
     oldsection = sectionAt(oldpos);
     int c = newpos;
 
     if (!d->dragging) {
         const int selstart = d->edit->selectionStart();
-        const SectionFlags selSection = sectionAt(selstart);
+        const Section selSection = sectionAt(selstart);
         const int l = sectionLength(selSection);
 
         if (s == NoSection) {
@@ -857,7 +857,7 @@ void QDateTimeEditPrivate::editorCursorPositionChanged(int oldpos, int newpos)
     // digit = 2004
 */
 
-int QDateTimeEditPrivate::getDigit(const QCoreVariant &t, SectionFlags s) const
+int QDateTimeEditPrivate::getDigit(const QCoreVariant &t, Section s) const
 {
     switch(s) {
     case HoursSection: {
@@ -894,7 +894,7 @@ int QDateTimeEditPrivate::getDigit(const QCoreVariant &t, SectionFlags s) const
     // digit = 2005
 */
 
-void QDateTimeEditPrivate::setDigit(QCoreVariant *v, SectionFlags section, int newVal) const
+void QDateTimeEditPrivate::setDigit(QCoreVariant *v, Section section, int newVal) const
 {
     int year, month, day, hour, minute, second, msec;
     const QDateTime &dt = v->toDateTime();
@@ -945,13 +945,13 @@ void QDateTimeEditPrivate::setDigit(QCoreVariant *v, SectionFlags section, int n
     \internal
 
     Internal function called by QDateTimeEdit::stepBy(). Also takes a
-    SectionFlags for which section to step on and a bool \a test for
+    Section for which section to step on and a bool \a test for
     whether or not to modify the internal cachedday variable. This is
     necessary because the function is called from the const function
     QDateTimeEdit::stepEnabled() as well as QDateTimeEdit::stepBy().
 */
 
-QCoreVariant QDateTimeEditPrivate::stepBy(SectionFlags s, int steps, bool test) const
+QCoreVariant QDateTimeEditPrivate::stepBy(Section s, int steps, bool test) const
 {
     QCoreVariant v = value;
     QString str = edit->displayText();
@@ -1009,7 +1009,7 @@ QCoreVariant QDateTimeEditPrivate::stepBy(SectionFlags s, int steps, bool test) 
     Returns the absolute maximum for a section
 */
 
-inline int QDateTimeEditPrivate::absoluteMax(SectionFlags s) const
+inline int QDateTimeEditPrivate::absoluteMax(Section s) const
 {
     switch(s) {
     case HoursSection: return (display & AMPMSection ? 12 : 23);
@@ -1036,7 +1036,7 @@ inline int QDateTimeEditPrivate::absoluteMax(SectionFlags s) const
     Returns the absolute minimum for a section
 */
 
-inline int QDateTimeEditPrivate::absoluteMin(SectionFlags s) const
+inline int QDateTimeEditPrivate::absoluteMin(Section s) const
 {
     switch(s) {
     case HoursSection: return (display & AMPMSection ? 1 : 0);
@@ -1059,10 +1059,10 @@ inline int QDateTimeEditPrivate::absoluteMin(SectionFlags s) const
 /*!
     \internal
 
-    Returns a copy of the sectionNode for the SectionFlags \a s.
+    Returns a copy of the sectionNode for the Section \a s.
 */
 
-QDateTimeEditPrivate::SectionNode QDateTimeEditPrivate::sectionNode(SectionFlags s) const
+QDateTimeEditPrivate::SectionNode QDateTimeEditPrivate::sectionNode(Section s) const
 {
     if (s == FirstSection) {
         return first;
@@ -1085,7 +1085,7 @@ QDateTimeEditPrivate::SectionNode QDateTimeEditPrivate::sectionNode(SectionFlags
     Returns the starting position for section \a s.
 */
 
-int QDateTimeEditPrivate::sectionPos(SectionFlags s) const
+int QDateTimeEditPrivate::sectionPos(Section s) const
 {
     if (s == FirstSection) {
         return first.pos;
@@ -1105,7 +1105,7 @@ int QDateTimeEditPrivate::sectionPos(SectionFlags s) const
     Adds a section to \a list. If this section already exists returns an error. Used by parseFormat()
 */
 
-QDateTimeEditPrivate::SectionFlags QDateTimeEditPrivate::addSection(QList<SectionNode> *list, SectionFlags ds, int pos)
+QDateTimeEditPrivate::Section QDateTimeEditPrivate::addSection(QList<SectionNode> *list, Section ds, int pos)
 {
     for (int i=0; i<list->size(); ++i) {
 	if (list->at(i).section == ds)
@@ -1125,7 +1125,7 @@ QDateTimeEditPrivate::SectionFlags QDateTimeEditPrivate::addSection(QList<Sectio
     Selects the section \a s. If \a forward is false selects backwards.
 */
 
-void QDateTimeEditPrivate::setSelected(SectionFlags s, bool forward)
+void QDateTimeEditPrivate::setSelected(Section s, bool forward)
 {
     switch (s) {
     case NoSection:
@@ -1150,9 +1150,9 @@ void QDateTimeEditPrivate::setSelected(SectionFlags s, bool forward)
 
 bool QDateTimeEditPrivate::parseFormat(const QString &newFormat) // ### I do not escape yet
 {
-    SectionFlags error = NoSection;
+    Section error = NoSection;
     QList<SectionNode> list;
-    QDateTimeEdit::Section newDisplay = 0;
+    QDateTimeEdit::Sections newDisplay = 0;
     QStringList newSeparators;
     int i, index = 0;
     for (i = 0; error == NoSection && i<(int)newFormat.length(); ++i) {
@@ -1268,7 +1268,7 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat) // ### I do not
     Returns the section at index \a index or NoSection if there are no sections there.
 */
 
-QDateTimeEditPrivate::SectionFlags QDateTimeEditPrivate::sectionAt(int index) const
+QDateTimeEditPrivate::Section QDateTimeEditPrivate::sectionAt(int index) const
 {
     if (index < separators.front().size()) {
         return (index == 0 ? FirstSection : NoSection);
@@ -1292,7 +1292,7 @@ QDateTimeEditPrivate::SectionFlags QDateTimeEditPrivate::sectionAt(int index) co
     for a section if \a forward is true. Otherwise searches backwards.
 */
 
-QDateTimeEditPrivate::SectionFlags QDateTimeEditPrivate::closestSection(int index, bool forward) const
+QDateTimeEditPrivate::Section QDateTimeEditPrivate::closestSection(int index, bool forward) const
 {
     if (index < separators.front().size()) {
         return forward ? sections.front().section : FirstSection;
@@ -1319,7 +1319,7 @@ QDateTimeEditPrivate::SectionFlags QDateTimeEditPrivate::closestSection(int inde
     Returns a copy of the section that is before or after \a current, depending on \a forward.
 */
 
-QDateTimeEditPrivate::SectionNode QDateTimeEditPrivate::nextPrevSection(SectionFlags current, bool forward) const
+QDateTimeEditPrivate::SectionNode QDateTimeEditPrivate::nextPrevSection(Section current, bool forward) const
 {
     if (current == FirstSection) {
         return (forward ? sections.front() : first);
@@ -1373,7 +1373,7 @@ QDateTimeEditPrivate::SectionNode QDateTimeEditPrivate::nextPrevSection(SectionF
     Clears the text of section \a s.
 */
 
-void QDateTimeEditPrivate::clearSection(SectionFlags s)
+void QDateTimeEditPrivate::clearSection(Section s)
 {
     int cursorPos = d->edit->cursorPosition();
     bool blocked = d->edit->blockSignals(true);
@@ -1390,7 +1390,7 @@ void QDateTimeEditPrivate::clearSection(SectionFlags s)
     Returns the length of section \a s.
 */
 
-inline int QDateTimeEditPrivate::sectionLength(SectionFlags s) const
+inline int QDateTimeEditPrivate::sectionLength(Section s) const
 {
     switch(s) {
     case FirstSection:
@@ -1426,7 +1426,7 @@ inline int QDateTimeEditPrivate::sectionLength(SectionFlags s) const
 */
 
 
-QString QDateTimeEditPrivate::sectionText(const QString &text, SectionFlags s) const
+QString QDateTimeEditPrivate::sectionText(const QString &text, Section s) const
 {
     const SectionNode sn = sectionNode(s);
     return sn.section == NoSection ? QString() : text.mid(sn.pos, sectionLength(s));
@@ -1470,7 +1470,7 @@ QCoreVariant QDateTimeEditPrivate::fromString(QString *text, QValidator::State *
     int year, month, day, hour, min, sec, msec;
     year = month = day = hour = min = sec = msec = 0;
     for (int i=0; state != QValidator::Invalid && i<sections.size(); ++i) {
-	const SectionFlags s = sections.at(i).section;
+	const Section s = sections.at(i).section;
 	QValidator::State tmpstate;
         int num = sectionValue(s, text, &tmpstate);
 	state = qMin(state, tmpstate);
@@ -1510,7 +1510,7 @@ QCoreVariant QDateTimeEditPrivate::fromString(QString *text, QValidator::State *
     stateptr != 0.
 */
 
-inline int QDateTimeEditPrivate::sectionValue(SectionFlags s, QString *text, QValidator::State *stateptr) const
+inline int QDateTimeEditPrivate::sectionValue(Section s, QString *text, QValidator::State *stateptr) const
 {
     QValidator::State state = QValidator::Invalid;
     int num = 0;
@@ -1600,7 +1600,7 @@ QValidator::State QDateTimeEditPrivate::validate(QString *input, int *pos, QCore
     SectionNode sn;
     int diff = input->size() - format.size();
     if (diff > 0) {
-        const SectionFlags s = (pos ? closestSection(*pos - 1, false) : currentsection);
+        const Section s = (pos ? closestSection(*pos - 1, false) : currentsection);
         if (s == FirstSection && s == LastSection) {
 //            qDebug("invalid because s == %s", sectionName(s).latin1());
             return QValidator::Invalid;
@@ -1618,7 +1618,7 @@ QValidator::State QDateTimeEditPrivate::validate(QString *input, int *pos, QCore
         sub.remove(' ');
         input->replace(sectionstart, sectionlength + diff, sub.leftJustified(sectionlength, ' '));
     } else if (diff < 0) {
-        const SectionFlags s = (pos ? closestSection(*pos, false) : currentsection);
+        const Section s = (pos ? closestSection(*pos, false) : currentsection);
         if (s == FirstSection && s == LastSection) {
 //            qDebug(".invalid because s == %s", sectionName(s).latin1());
             return QValidator::Invalid;

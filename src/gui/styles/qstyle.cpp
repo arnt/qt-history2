@@ -484,7 +484,7 @@ void QStyle::polish(QPalette&)
     -1 (the default) all the \a text is drawn; otherwise only the
     first \a len characters of \a text are drawn. The text is aligned
     in accordance with the alignment \a flags (see
-    \l{Qt::AlignmentFlags}). The \a enabled bool indicates whether or
+    \l{Qt::Alignment}). The \a enabled bool indicates whether or
     not the item is enabled.
 
     If \a r is larger than the area needed to render the \a text the
@@ -568,7 +568,7 @@ QRect QStyle::itemRect(QPainter *p, const QRect &r,
     drawn. If \a len is -1 (the default) all the \a text is drawn;
     otherwise only the first \a len characters of \a text are
     drawn. The text is aligned and wrapped according to the alignment
-    \a flags (see \l{Qt::AlignmentFlags}).
+    \a flags (see \l{Qt::Alignment}).
 */
 void QStyle::drawItem(QPainter *p, const QRect &r,
                        int flags, const QPalette &pal, bool enabled,
@@ -1483,7 +1483,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     \value SH_ProgressDialog_CenterCancelButton  center button on
         progress dialogs, like Motif, otherwise right aligned.
 
-    \value SH_ProgressDialog_TextLabelAlignment Qt::AlignmentFlags --
+    \value SH_ProgressDialog_TextLabelAlignment Qt::Alignment --
         text label alignment in progress dialogs; Center on windows,
         Auto|VCenter otherwise.
 

@@ -535,7 +535,7 @@ bool QLineEdit::validateAndSet(const QString &newText, int newPos,
     Attempting to set the alignment to an illegal flag combination
     does nothing.
 
-    \sa Qt::AlignmentFlags
+    \sa Qt::Alignment
 */
 
 int QLineEdit::alignment() const

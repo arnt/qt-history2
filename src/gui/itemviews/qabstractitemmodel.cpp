@@ -857,7 +857,7 @@ QModelIndex QAbstractItemModel::buddy(const QModelIndex &) const
 */
 QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
                                           const QVariant &value, int hits,
-                                          QAbstractItemModel::MatchFlags flags) const
+                                          MatchFlags flags) const
 {
     QString val = value.toString();
 

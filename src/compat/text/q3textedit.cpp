@@ -550,7 +550,7 @@ static bool block_set_alignment = false;
 */
 
 /*!
-    \enum Q3TextEdit::AutoFormattingFlags
+    \enum Q3TextEdit::AutoFormattingFlag
 
     \value AutoNone Do not perform any automatic formatting
     \value AutoBulletList Only automatically format bulletted lists
@@ -7128,7 +7128,7 @@ void Q3TextEdit::optimCheckLimit(const QString& str)
     \brief the enabled set of auto formatting features
 
     The value can be any combination of the values in the \c
-    AutoFormattingFlags enum.  The default is \c AutoAll. Choose \c AutoNone
+    AutoFormattingFlag enum.  The default is \c AutoAll. Choose \c AutoNone
     to disable all automatic formatting.
 
     Currently, the only automatic formatting feature provided is \c

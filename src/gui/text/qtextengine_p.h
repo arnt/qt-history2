@@ -334,13 +334,12 @@ public:
         WidthOnly = 0x07
     };
 
-    enum ShaperFlagsEnum {
+    enum ShaperFlag {
         RightToLeft = 0x0001,
         Mirrored = 0x0001,
         DesignMetrics = 0x0002
     };
-    Q_DECLARE_FLAGS(ShaperFlags, ShaperFlagsEnum);
-
+    Q_DECLARE_FLAGS(ShaperFlags, ShaperFlag);
 
     void itemize(int mode = Full);
 

@@ -102,7 +102,7 @@ public:
         Role_User = 32
     };
 
-    enum Match {
+    enum MatchFlag {
         Match_Contains = 0,
         Match_FromStart = 1,
         Match_FromEnd = 2,
@@ -112,7 +112,7 @@ public:
         Match_Default = Match_FromStart | Match_Wrap
     };
 
-    Q_DECLARE_FLAGS(MatchFlags, Match);
+    Q_DECLARE_FLAGS(MatchFlags, MatchFlag);
 
     QAbstractItemModel(QObject *parent = 0);
     virtual ~QAbstractItemModel();

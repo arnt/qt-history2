@@ -266,7 +266,7 @@ void QStyleSheetItem::setDisplayMode(DisplayMode m)
     Qt::AlignAuto, \c Qt::AlignLeft, \c Qt::AlignRight, \c Qt::AlignCenter or \c
     Qt::AlignJustify.
 
-    \sa setAlignment(), Qt::AlignmentFlags
+    \sa setAlignment(), Qt::Alignment
 */
 int QStyleSheetItem::alignment() const
 {
@@ -279,7 +279,7 @@ int QStyleSheetItem::alignment() const
     DisplayBlock. Possible values are \c Qt::AlignAuto, \c Qt::AlignLeft,
     \c Qt::AlignRight, \c Qt::AlignCenter or \c Qt::AlignJustify.
 
-    \sa alignment(), displayMode(), Qt::AlignmentFlags
+    \sa alignment(), displayMode(), Qt::Alignment
 */
 void QStyleSheetItem::setAlignment(int f)
 {

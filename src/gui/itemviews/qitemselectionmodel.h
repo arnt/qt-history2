@@ -81,11 +81,11 @@ class Q_GUI_EXPORT QItemSelectionModel : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QItemSelectionModel)
-    Q_FLAGS(SelectionCommand)
+    Q_FLAGS(SelectionFlag)
 
 public:
 
-    enum SelectionCommand {
+    enum SelectionFlag {
         NoUpdate       = 0x0000,
         Clear          = 0x0001,
         Select         = 0x0002,
@@ -99,7 +99,7 @@ public:
         ClearAndSelect = Clear | Select
     };
 
-    Q_DECLARE_FLAGS(SelectionFlags, SelectionCommand);
+    Q_DECLARE_FLAGS(SelectionFlags, SelectionFlag);
 
     QItemSelectionModel(QAbstractItemModel *model, QObject *parent = 0);
     virtual ~QItemSelectionModel();

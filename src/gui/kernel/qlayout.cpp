@@ -1121,9 +1121,8 @@ static bool checkWidget(QLayout *l, QWidget *w)
     Adds the widget \a w to the cell grid at \a row, \a col. The
     top-left position is (0, 0) by default.
 
-    Qt::Alignment is specified by \a alignment, which is a bitwise OR of
-    \l Qt::AlignmentFlags values. The default alignment is 0, which
-    means that the widget fills the entire cell.
+    The alignment is specified by \a alignment. The default
+    alignment is 0, which means that the widget fills the entire cell.
 
 */
 void QGridLayout::addWidget(QWidget *w, int row, int col, Qt::Alignment alignment)
@@ -1171,9 +1170,8 @@ void QGridLayout::addWidget(QWidget *w, int fromRow, int fromCol,
     Places the \a layout at position (\a row, \a col) in the grid. The
     top-left position is (0, 0).
 
-    Qt::Alignment is specified by \a alignment, which is a bitwise OR of
-    \l Qt::AlignmentFlags values. The default alignment is 0, which
-    means that the widget fills the entire cell.
+    The alignment is specified by \a alignment. The default
+    alignment is 0, which means that the widget fills the entire cell.
 
     A non-zero alignment indicates that the layout should not grow to
     fill the available space but should be sized according to
@@ -2057,9 +2055,8 @@ void QBoxLayout::insertLayout(int index, QLayout *layout, int stretch)
     according to the QWidget:sizePolicy() of each widget that's
     involved.
 
-    Qt::Alignment is specified by \a alignment, which is a bitwise OR of
-    \l Qt::AlignmentFlags values. The default alignment is 0, which
-    means that the widget fills the entire cell.
+    The alignment is specified by \a alignment. The default alignment
+    is 0, which means that the widget fills the entire cell.
 
     From Qt 3.0, the \a alignment parameter is interpreted more
     aggressively than in previous versions of Qt. A non-default
@@ -2120,9 +2117,8 @@ void QBoxLayout::addStretch(int stretch)
     according to the QWidget:sizePolicy() of each widget that's
     involved.
 
-    Qt::Alignment is specified by \a alignment which is a bitwise OR of \l
-    Qt::AlignmentFlags values. The default alignment is 0, which means
-    that the widget fills the entire cell.
+    The alignment is specified by \a alignment. The default
+    alignment is 0, which means that the widget fills the entire cell.
 
     From Qt 3.0, the \a alignment parameter is interpreted more
     aggressively than in previous versions of Qt. A non-default
@@ -2131,8 +2127,7 @@ void QBoxLayout::addStretch(int stretch)
 
     \sa insertWidget(), addLayout(), addSpacing()
 */
-void QBoxLayout::addWidget(QWidget *widget, int stretch,
-                            Qt::Alignment alignment)
+void QBoxLayout::addWidget(QWidget *widget, int stretch, Qt::Alignment alignment)
 {
     insertWidget(-1, widget, stretch, alignment);
 }

@@ -424,7 +424,7 @@ public:
     bool movable;
     bool floatable;
     Qt::DockWindowArea area;
-    Qt::DockWindowAreaFlags allowedAreas;
+    Qt::DockWindowAreas allowedAreas;
 
     QBoxLayout *top, *box;
     QDockWindowTitle *title;
@@ -587,10 +587,10 @@ bool QDockWindow::isFloated() const
     \sa QDockWindow::area
 */
 
-void QDockWindow::setAllowedAreas(Qt::DockWindowAreaFlags areas)
+void QDockWindow::setAllowedAreas(Qt::DockWindowAreas areas)
 { d->allowedAreas = (areas & Qt::DockWindowAreaMask); }
 
-Qt::DockWindowAreaFlags QDockWindow::allowedAreas() const
+Qt::DockWindowAreas QDockWindow::allowedAreas() const
 { return d->allowedAreas; }
 
 /*! \property QDockWindow::area

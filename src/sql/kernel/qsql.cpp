@@ -59,7 +59,7 @@
 */
 
 /*!
-    \enum QSql::ParamTypeFlags
+    \enum QSql::ParamTypeFlag
 
     This enum is used to set the type of a bind parameter
 

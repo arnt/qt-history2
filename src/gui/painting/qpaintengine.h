@@ -49,7 +49,7 @@ class Q_GUI_EXPORT QPaintEngine
 {
     Q_DECLARE_PRIVATE(QPaintEngine)
 public:
-    enum Features {
+    enum PaintEngineFeature {
         CoordTransform          = 0x0001,               // Points are transformed
         PenWidthTransform       = 0x0002,               // Pen width is transformed
         PatternTransform        = 0x0004,               // Brush patterns
@@ -62,7 +62,7 @@ public:
         ClipTransform           = 0x0200,               // Can trasform clip regions.
         UsesFontEngine          = 0x10000000            // Internal use, QWidget and QPixmap
     };
-    Q_DECLARE_FLAGS(PaintEngineFeatures, Features);
+    Q_DECLARE_FLAGS(PaintEngineFeatures, PaintEngineFeature);
 
     enum DirtyFlags {
         DirtyPen                = 0x0001,
@@ -177,7 +177,7 @@ public:
     inline void setDirty(DirtyFlags df) { dirtyFlag |= df; }
     inline void clearDirty(DirtyFlags df) { dirtyFlag &= (uint)(~df); }
 
-    bool hasFeature(Features feature) const { return (gccaps & feature) != 0; }
+    bool hasFeature(PaintEngineFeatures feature) const { return (gccaps & feature) != 0; }
 
     QPainter *painter() const;
 

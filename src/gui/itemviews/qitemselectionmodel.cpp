@@ -204,7 +204,7 @@ QItemSelection QItemSelectionModelPrivate::expandSelection(const QItemSelection 
   The selected items are stored using ranges. Whenever you want to
   modify the selected items use select() and provide either a
   QItemSelection or a QModelIndex and a
-  QItemSelectionModel::SelectionCommand.
+  QItemSelectionModel::SelectionFlag.
 
   The QItemSelectionModel has a two layer approach internally, the
   commited selected items, and the current selected items. The current
@@ -212,7 +212,7 @@ QItemSelection QItemSelectionModelPrivate::expandSelection(const QItemSelection 
   selection (for example with rubber-band selection or keyboard-shift
   selections). To update the current selected items use the
   QItemSelectionModel::Current command or'ed with any of the
-  other SelectionCommands. If you omit the
+  other SelectionFlags. If you omit the
   QItemSelectionModel::Current command, a new current selection will
   be started and the previous one added to the commited selected
   items. All functions operate on both layers, so for instance
@@ -252,7 +252,7 @@ QItemSelectionModel::~QItemSelectionModel()
 /*!
   Selects the index \a item using \a command and emits selectionChanged().
 
-  \sa QItemSelectionModel::SelectionCommand
+  \sa QItemSelectionModel::SelectionFlags
 */
 void QItemSelectionModel::select(const QModelIndex &index, SelectionFlags command)
 {
@@ -277,7 +277,7 @@ void QItemSelectionModel::select(const QModelIndex &index, SelectionFlags comman
 */
 
 /*!
-  \enum QItemSelectionModel::SelectionCommand
+  \enum QItemSelectionModel::SelectionFlag
 
   This enum describes the way the selection model will be updated.
 

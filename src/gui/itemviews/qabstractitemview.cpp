@@ -525,7 +525,7 @@ void QAbstractItemView::doItemsLayout()
   \property QAbstractItemView::beginEditActions
   \brief which actions will start the editing of an item
 
-  This property is an or'ed flag of QAbstractItemDelegate::BeginEditFlags.
+  This property is an or'ed flag of \l{QAbstractItemDelegate::BeginEditAction}s.
   The view will only start the editing of an item if the action perfomed is set
   in this property.
 */

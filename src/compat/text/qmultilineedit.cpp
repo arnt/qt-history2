@@ -357,9 +357,7 @@ QPoint QMultiLineEdit::cursorPoint() const
   Sets the alignment to flag, which must be \c Qt::AlignLeft, \c
   Qt::AlignHCenter or \c Qt::AlignRight.
 
-  If flag is an illegal flag nothing happens.
-
-  \sa Qt::AlignmentFlags
+  If flag is an illegal flag, nothing happens.
 */
 void QMultiLineEdit::setAlignment(Qt::Alignment flag)
 {

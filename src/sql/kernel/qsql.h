@@ -49,13 +49,13 @@ public:
         Yes = 1
     };
 
-    enum ParamTypeFlags {
+    enum ParamTypeFlag {
         In = 0x00000001,
         Out = 0x00000002,
         InOut = 0x00000003, // In | Out
         Binary = 0x00000004
     };
-    Q_DECLARE_FLAGS(ParamType, ParamTypeFlags);
+    Q_DECLARE_FLAGS(ParamType, ParamTypeFlag);
 
     enum TableType {
         Tables = 0x01,

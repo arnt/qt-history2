@@ -27,7 +27,7 @@ namespace Qt {
 class Q_CORE_EXPORT Qt {
     Q_OBJECT
     Q_ENUMS(Orientation TextFormat BackgroundMode DateFormat ScrollBarPolicy FocusPolicy CaseSensitivity)
-    Q_FLAGS(AlignmentFlags)
+    Q_FLAGS(AlignmentFlag)
 public:
 #endif
     // documented in qnamespace.doc
@@ -99,7 +99,7 @@ public:
     // is passed as textflag to drawText and qt_format_text.
 
     // documented in qpainter.cpp
-    enum AlignmentFlags {
+    enum AlignmentFlag {
         AlignAuto                = 0x0000,         // text alignment
         AlignLeft                = 0x0001,
         AlignRight                = 0x0002,
@@ -113,7 +113,7 @@ public:
         AlignCenter                = AlignVCenter | AlignHCenter
     };
 
-    Q_DECLARE_FLAGS(Alignment, AlignmentFlags);
+    Q_DECLARE_FLAGS(Alignment, AlignmentFlag);
 
     // documented in qnamespace.doc
     enum TextFlags {
@@ -154,7 +154,7 @@ public:
     // Widget flags; documented in qwidget.cpp
 
     // QWidget state flags (internal, barely documented in qwidget.cpp)
-    enum WidgetState {
+    enum WStateFlag {
         WState_Created                = 0x00000001,
         WState_Reserved3        = 0x00000002, // was Disabled
         WState_Visible                = 0x00000004,
@@ -182,12 +182,12 @@ public:
         WState_Reserved2        = 0x00800000 // was HasMouse
     };
 
-    Q_DECLARE_FLAGS(WState, WidgetState);
+    Q_DECLARE_FLAGS(WState, WStateFlag);
 
     // Widget flags2; documented in qwidget.cpp
 
     // documented in qwidget.cpp
-    enum WindowFlags {
+    enum WFlag {
         WType_TopLevel                = 0x00000001,        // widget type flags
         WType_Dialog                = 0x00000002,
         WType_Popup                = 0x00000004,
@@ -259,7 +259,7 @@ public:
 #endif
     };
 
-    Q_DECLARE_FLAGS(WFlags, WindowFlags);
+    Q_DECLARE_FLAGS(WFlags, WFlag);
 
     enum WindowState {
         WindowNoState   = 0x00000000,
@@ -873,7 +873,7 @@ public:
         NDockWindowAreas     = 4
     };
 
-    Q_DECLARE_FLAGS(DockWindowAreaFlags, DockWindowArea);
+    Q_DECLARE_FLAGS(DockWindowAreas, DockWindowArea);
 
     // Documented in qmainwindow.cpp
     enum ToolBarArea {
@@ -1033,7 +1033,7 @@ public:
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WState);
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WFlags);
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::Alignment)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::DockWindowAreaFlags);
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::DockWindowAreas);
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ToolBarAreaFlags);
 
 class Q_CORE_EXPORT QInternal {

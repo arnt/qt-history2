@@ -11,7 +11,7 @@ class Q_GUI_EXPORT QAbstractSpinBox : public QWidget
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QAbstractSpinBox);
-    Q_FLAGS(StepEnabledFlags)
+    Q_FLAGS(StepEnabledFlag)
     Q_ENUMS(ButtonSymbols)
     Q_PROPERTY(bool wrapping READ wrapping WRITE setWrapping)
     Q_PROPERTY(bool tracking READ tracking WRITE setTracking)
@@ -25,8 +25,8 @@ public:
     QAbstractSpinBox(QWidget *parent = 0, Qt::WFlags f = 0);
     ~QAbstractSpinBox();
 
-    enum StepEnabledFlags { StepNone = 0x00, StepUpEnabled = 0x01, StepDownEnabled = 0x02 };
-    Q_DECLARE_FLAGS(StepEnabled, StepEnabledFlags);
+    enum StepEnabledFlag { StepNone = 0x00, StepUpEnabled = 0x01, StepDownEnabled = 0x02 };
+    Q_DECLARE_FLAGS(StepEnabled, StepEnabledFlag);
 
     enum ButtonSymbols { UpDownArrows, PlusMinus };
 

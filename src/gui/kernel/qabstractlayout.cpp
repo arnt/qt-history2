@@ -93,9 +93,8 @@ static int menuBarHeightForWidth(QMenuBar *menubar, int w)
 /*!
     \fn QLayoutItem::QLayoutItem(Qt::Alignment alignment)
 
-    Constructs a layout item with an \a alignment that is a bitwise OR
-    of the \l{Qt::AlignmentFlags}. Not all subclasses support
-    alignment.
+    Constructs a layout item with an \a alignment.
+    Not all subclasses support alignment.
 */
 
 /*!
@@ -105,8 +104,8 @@ static int menuBarHeightForWidth(QMenuBar *menubar, int w)
 */
 
 /*!
-    Sets the alignment of this item to \a alignment, which is a bitwise OR of
-    the \l{Qt::AlignmentFlags}. Not all subclasses support alignment.
+    Sets the alignment of this item to \a alignment.
+    Not all subclasses support alignment.
 */
 void QLayoutItem::setAlignment(Qt::Alignment alignment)
 {
@@ -1362,7 +1361,7 @@ bool QLayout::activate()
 */
 
 /*!
-    \enum QSizePolicy::SizeTypeFlags
+    \enum QSizePolicy::SizeTypeFlag
 
     The per-dimension sizing types used when constructing a
     QSizePolicy are:

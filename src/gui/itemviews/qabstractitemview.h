@@ -32,11 +32,10 @@ class Q_GUI_EXPORT QAbstractItemView : public QViewport
     Q_DECLARE_PRIVATE(QAbstractItemView)
     Q_PROPERTY(bool autoScroll READ autoScroll WRITE setAutoScroll)
     Q_PROPERTY(int keyboardInputInterval READ keyboardInputInterval WRITE setKeyboardInputInterval)
-    Q_PROPERTY(QAbstractItemDelegate::BeginEditFlags beginEditActions READ beginEditActions WRITE setBeginEditActions)
+    Q_PROPERTY(QAbstractItemDelegate::BeginEditActions beginEditActions READ beginEditActions WRITE setBeginEditActions)
     Q_ENUMS(SelectionMode SelectionBehaviour)
 
 public:
-
     enum SelectionMode {
         SingleSelection,
         MultiSelection,

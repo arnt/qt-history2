@@ -49,7 +49,7 @@
 */
 
 /*!
-  \enum QPaintEngine::Features
+  \enum QPaintEngine::PaintEngineFeature
 
   This enum is used to describe the features or capabilities that the
   paint engine has. If a feature is not supported by the engine,

@@ -312,7 +312,7 @@ QString Q3GroupBox::title() const
 
     The default alignment is \c Qt::AlignAuto.
 
-    \sa Qt::AlignmentFlags
+    \sa Qt::Alignment
 */
 int Q3GroupBox::alignment() const
 {

@@ -27,7 +27,7 @@ private:
     enum { HSize = 6, HMask = 0x3f, VMask = HMask << HSize,
            MayGrow = 1, ExpMask = 2, MayShrink = 4 };
 public:
-    enum SizeTypeFlags { Fixed = 0,
+    enum SizeTypeFlag { Fixed = 0,
                     Minimum = MayGrow,
                     Maximum = MayShrink,
                     Preferred = MayGrow | MayShrink,
@@ -35,7 +35,7 @@ public:
                     Expanding = MayGrow | MayShrink | ExpMask,
                     Ignored = ExpMask /* magic value */ };
 
-    Q_DECLARE_FLAGS(SizeType, SizeTypeFlags);
+    Q_DECLARE_FLAGS(SizeType, SizeTypeFlag);
 
     enum ExpandData { NoDirection = 0,
                       Horizontally = 1,

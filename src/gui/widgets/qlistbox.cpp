@@ -771,7 +771,7 @@ int QListBoxPixmap::rtti() const
     classes, in which case \c Qt::WA_StaticContents and \c Qt::WA_NoBackground
     should be cleared on the viewport() after construction.
 
-    \sa QWidget::clearWFlags() Qt::WindowFlags
+    \sa QWidget::clearWFlags()
 */
 
 QListBox::QListBox(QWidget *parent, const char *name, Qt::WFlags f)

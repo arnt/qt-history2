@@ -2364,7 +2364,7 @@ QRect QFontMetrics::boundingRect(QChar ch) const
     fontHeight() and lineSpacing() are used to calculate the height,
     rather than individual character heights.
 
-    \sa width(), QPainter::boundingRect(), Qt::AlignmentFlags
+    \sa width(), QPainter::boundingRect(), Qt::Alignment
 */
 QRect QFontMetrics::boundingRect(int x, int y, int w, int h, int flgs,
                                   const QString& str, int len, int tabstops,

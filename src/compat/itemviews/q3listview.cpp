@@ -3417,7 +3417,7 @@ Q3ListView::WidthMode Q3ListView::columnWidthMode(int c) const
     Qt::AlignHCenter the ellipsis (...) will be to the right, for
     Qt::AlignRight the ellipsis will be to the left.
 
-    \sa Qt::AlignmentFlags
+    \sa Qt::Alignment
 */
 
 void Q3ListView::setColumnAlignment(int column, int align)
@@ -3444,7 +3444,7 @@ void Q3ListView::setColumnAlignment(int column, int align)
     Returns the alignment of column \a column. The default is \c
     Qt::AlignAuto.
 
-    \sa Qt::AlignmentFlags
+    \sa Qt::Alignment
 */
 
 int Q3ListView::columnAlignment(int column) const
@@ -6504,7 +6504,7 @@ int QCheckListItem::width(const QFontMetrics& fm, const Q3ListView* lv, int colu
 /*!
     Paints the item using the painter \a p and the color group \a pal.
     The item is in column \a column, has width \a width and has
-    alignment \a align. (See Qt::AlignmentFlags for valid alignments.)
+    alignment \a align. (See \l Qt::Alignment for valid alignments.)
 */
 void QCheckListItem::paintCell(QPainter * p, const QPalette & pal,
                                int column, int width, int align)

@@ -204,8 +204,7 @@
   of the dialog, pass Qt::WStyle_Customize | Qt::WStyle_NormalBorder |
   Qt::WStyle_Title | Qt::WStyle_SysMenu in \a f.
 
-
-  \sa QWidget::setWFlags() Qt::WindowFlags
+  \sa QWidget::setWFlags()
 */
 
 QDialog::QDialog(QWidget *parent, Qt::WFlags f)

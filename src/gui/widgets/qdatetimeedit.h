@@ -9,7 +9,7 @@ class Q_GUI_EXPORT QDateTimeEdit : public QAbstractSpinBox
 {
     Q_OBJECT
 
-    Q_ENUMS(Section)
+    Q_ENUMS(Sections)
     Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime)
     Q_PROPERTY(QDate date READ date WRITE setDate)
     Q_PROPERTY(QTime time READ time WRITE setTime)
@@ -17,12 +17,12 @@ class Q_GUI_EXPORT QDateTimeEdit : public QAbstractSpinBox
     Q_PROPERTY(QDate minimumDate READ minimumDate WRITE setMinimumDate RESET clearMinimumDate)
     Q_PROPERTY(QTime maximumTime READ maximumTime WRITE setMaximumTime RESET clearMaximumTime)
     Q_PROPERTY(QTime minimumTime READ minimumTime WRITE setMinimumTime RESET clearMinimumTime)
-    Q_PROPERTY(SectionFlags currentSection READ currentSection WRITE setCurrentSection)
-    Q_PROPERTY(Section display READ display)
+    Q_PROPERTY(Section currentSection READ currentSection WRITE setCurrentSection)
+    Q_PROPERTY(Sections display READ display)
     Q_PROPERTY(QString format READ format WRITE setFormat)
 
 public:
-    enum SectionFlags {
+    enum Section {
 	NoSection = 0x0000,
 	AMPMSection = 0x0001,
 	MSecsSection = 0x0002,
@@ -34,7 +34,7 @@ public:
 	YearsSection = 0x0400
     };
 
-    Q_DECLARE_FLAGS(Section, SectionFlags);
+    Q_DECLARE_FLAGS(Sections, Section);
 
     QDateTimeEdit(QWidget *parent = 0, Qt::WFlags f = 0);
     QDateTimeEdit(const QDateTime &t, QWidget *parent = 0, Qt::WFlags f = 0);
@@ -64,11 +64,11 @@ public:
 
     void setTimeRange(const QTime &min, const QTime &max);
 
-    Section display() const;
-    SectionFlags currentSection() const;
-    void setCurrentSection(SectionFlags section);
+    Sections display() const;
+    Section currentSection() const;
+    void setCurrentSection(Section section);
 
-    QString sectionText(SectionFlags s) const;
+    QString sectionText(Section s) const;
 
     QString format() const;
     bool setFormat(const QString &format);

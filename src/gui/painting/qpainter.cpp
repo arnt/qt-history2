@@ -2464,7 +2464,7 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt
     width \a w and height \a h. If \a len is -1 (the default) all the
     text is drawn, otherwise only the first \a len characters are
     drawn. The flags that are given in the \a flags parameter are
-    \l{Qt::AlignmentFlags} and \l{Qt::TextFlags} OR'd together. \a br
+    \l{Qt::AlignmentFlag}s and \l{Qt::TextFlag}s OR'd together. \a br
     (if not null) is set to the actual bounding rectangle of the
     output.
 */
@@ -2533,7 +2533,7 @@ void QPainter::drawText(int x, int y, const QString &str, TextDirection dir)
     Draws the string \a str within the rectangle \a r. If \a len is -1
     (the default) all the text is drawn, otherwise only the first \a
     len characters are drawn. The flags that are given in the \a flags
-    parameter are \l{Qt::AlignmentFlags} and \l{Qt::TextFlags} OR'd
+    parameter are \l{Qt::AlignmentFlag}s and \l{Qt::TextFlag}s OR'd
     together. \a br (if not null) is set to the actual bounding
     rectangle of the output.
 */

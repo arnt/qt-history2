@@ -260,7 +260,7 @@ void QAbstractSpinBox::setSlider(bool s)
     Attempting to set the alignment to an illegal flag combination
     does nothing.
 
-    \sa Qt::AlignmentFlags
+    \sa Qt::Alignment
 */
 
 Qt::Alignment QAbstractSpinBox::alignment() const

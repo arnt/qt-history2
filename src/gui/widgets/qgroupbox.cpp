@@ -189,7 +189,7 @@ QString QGroupBox::title() const
 
     The default alignment is \c Qt::AlignAuto.
 
-    \sa Qt::AlignmentFlags
+    \sa Qt::Alignment
 */
 int QGroupBox::alignment() const
 {

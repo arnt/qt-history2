@@ -456,8 +456,8 @@ void QLabel::setNum(double num)
     \property QLabel::alignment
     \brief the alignment of the label's contents
 
-    The alignment is a bitwise OR of \c Qt::AlignmentFlags and \c
-    Qt::TextFlags values. The \c Qt::ExpandTabs, \c Qt::SingleLine and \c
+    The alignment is a bitwise OR of \c Qt::AlignmentFlag and \c
+    Qt::TextFlag values. The \c Qt::ExpandTabs, \c Qt::SingleLine and \c
     Qt::ShowPrefix flags apply only if the label contains plain text;
     otherwise they are ignored. The \c Qt::DontClip flag is always
     ignored. \c Qt::WordBreak applies to both rich text and plain text
@@ -471,7 +471,7 @@ void QLabel::setNum(double num)
     | Qt::ExpandTabs | Qt::ShowPrefix} if the label has a buddy. If the label
     contains rich text, additionally \c Qt::WordBreak is turned on.
 
-    \sa Qt::AlignmentFlags, alignment, setBuddy(), text
+    \sa Qt::Alignment, alignment, setBuddy(), text
 */
 
 void QLabel::setAlignment(int alignment)

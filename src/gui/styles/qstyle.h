@@ -11,6 +11,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef QSTYLE_H
 #define QSTYLE_H
 
@@ -566,8 +567,8 @@ public:
         // perhaps this should be a Qt::Alignment value
         SH_ProgressDialog_CenterCancelButton,
 
-        // Qt::AlignmentFlags - text label alignment in progress dialogs
-        // Center on windows, Auto|VCenter otherwize
+        // Qt::Alignment - text label alignment in progress dialogs
+        // Center on windows, Auto|VCenter otherwise
         SH_ProgressDialog_TextLabelAlignment,
 
         // bool - right align buttons on print dialog, ala Windows
@@ -635,8 +636,8 @@ public:
         //bool - popupmenu supports scrolling instead of multicolumn mode
         SH_Menu_Scrollable,
 
-        // Qt::AlignmentFlags - text label vertical alignment in groupboxes
-        // Center on windows, Auto|VCenter otherwize
+        // Qt::Alignment - text label vertical alignment in groupboxes
+        // Center on windows, Auto|VCenter otherwise
         SH_GroupBox_TextLabelVerticalAlignment,
 
         // Qt::QRgb - text label color in groupboxes

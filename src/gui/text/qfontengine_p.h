@@ -58,7 +58,7 @@ public:
 #endif
     };
 
-    enum Capabilities {
+    enum FECap {
         NoTransformations = 0x00,
         Scale = 0x01,
         Rotate = 0x02,
@@ -66,7 +66,7 @@ public:
         Shear = 0x04,
         FullTransformations = 0x0f
     };
-    Q_DECLARE_FLAGS(FECaps, Capabilities);
+    Q_DECLARE_FLAGS(FECaps, FECap);
 
     inline QFontEngine() {
         ref = 0;

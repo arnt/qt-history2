@@ -51,7 +51,7 @@ public:
         AlwaysEdit = 32
     };
 
-    Q_DECLARE_FLAGS(BeginEditFlags, BeginEditAction);
+    Q_DECLARE_FLAGS(BeginEditActions, BeginEditAction);
 
     enum EndEditAction {
         Accepted = 1,
@@ -84,6 +84,6 @@ protected:
                          const QString &org) const;
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemDelegate::BeginEditFlags);
+Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemDelegate::BeginEditActions);
 
 #endif

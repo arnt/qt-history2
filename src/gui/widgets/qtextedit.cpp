@@ -1343,7 +1343,7 @@ QTextEdit::AutoFormatting QTextEdit::autoFormatting() const
     \brief the enabled set of auto formatting features
 
     The value can be any combination of the values in the \c
-    AutoFormattingFlags enum.  The default is \c AutoAll. Choose \c AutoNone
+    AutoFormattingFlag enum.  The default is \c AutoAll. Choose \c AutoNone
     to disable all automatic formatting.
 
     Currently, the only automatic formatting feature provided is \c

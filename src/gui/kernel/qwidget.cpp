@@ -506,7 +506,7 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
 */
 
 /*!
-    \enum Qt::WindowFlags
+    \enum Qt::WFlag
 
     \keyword window flag
 
@@ -645,7 +645,7 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
 */
 
 /*!
-    \enum Qt::WidgetState
+    \enum Qt::WStateFlag
 
     Internal flags.
 
@@ -669,8 +669,8 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
     \value WState_Reserved2 \e internal
     \value WState_Reserved3 \e internal
     \value WState_Reserved4 \e internal
-    \value WState_Reserve5 \e internal
-    \value WState_Reserve6 \e internal
+    \value WState_Reserved5 \e internal
+    \value WState_Reserved6 \e internal
     \value WState_Reserved7 \e internal
     \value WState_Visible
 */
@@ -706,7 +706,7 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
     The widget flags argument, \a f, is normally 0, but it can be set
     to customize the window frame of a top-level widget (i.e. \a
     parent must be 0). To customize the frame, set the \c
-    Qt::WStyle_Customize flag OR'ed with any of the \l Qt::WindowFlags.
+    Qt::WStyle_Customize flag OR'ed with any of the \l{Qt::WFlag}s.
 
     If you add a child widget to an already visible widget you must
     explicitly show the child to make it visible.
@@ -1278,7 +1278,7 @@ QWidget *QWidget::find(WId id)
 
     Returns the widget flags for this this widget.
 
-    Widget flags are a combination of \l{Qt::WindowFlags}.
+    Widget flags are a combination of \l{Qt::WindowFlag}s.
 
     \sa testWFlags(), setWFlags(), clearWFlags()
 */
@@ -1288,7 +1288,7 @@ QWidget *QWidget::find(WId id)
 
     Sets the widget flags \a f.
 
-    Widget flags are a combination of \l{Qt::WindowFlags}.
+    Widget flags are a combination of \l{Qt::WindowFlag}s.
 
     \sa testWFlags(), getWFlags(), clearWFlags()
 */
@@ -1298,7 +1298,7 @@ QWidget *QWidget::find(WId id)
 
     Clears the widget flags \a f.
 
-    Widget flags are a combination of \l{Qt::WindowFlags}.
+    Widget flags are a combination of \l{Qt::WindowFlag}s.
 
     \sa testWFlags(), getWFlags(), setWFlags()
 */
@@ -4401,7 +4401,7 @@ QSize QWidget::minimumSizeHint() const
 
     Returns the bitwise AND of the widget flags and \a f.
 
-    Widget flags are a combination of \l{Qt::WindowFlags}.
+    Widget flags are a combination of \l{Qt::WindowFlag}s.
 
     If you want to test for the presence of multiple flags (or
     composite flags such as \c Qt::WStyle_Splash), test the

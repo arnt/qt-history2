@@ -46,7 +46,7 @@ class QListViewItem;
 //#define DEBUG_SIZE_CONSTRAINT
 
 QAquaFocusWidget::QAquaFocusWidget(bool noerase, QWidget *w)
-    : QWidget(w, "magicFocusWidget", (noerase ? (Qt::WResizeNoErase | Qt::WRepaintNoErase) : (Qt::WindowFlags)0)), d(0)
+    : QWidget(w, "magicFocusWidget", (noerase ? (Qt::WResizeNoErase | Qt::WRepaintNoErase) : (Qt::WFlag)0)), d(0)
 {
     setFocusPolicy(Qt::NoFocus);
     if(noerase)
