@@ -12,13 +12,10 @@
 **
 ****************************************************************************/
 
-#include "qcursor.h"
-#include "qbitmap.h"
-#include "qimage.h"
-#include "qapplication.h"
-#include "qdatastream.h"
-#include "qnamespace.h"
-#include "qt_x11_p.h"
+#include <private/qcursor_p.h>
+#include <private/qt_x11_p.h>
+#include <qbitmap.h>
+#include <qcursor.h>
 #include <X11/cursorfont.h>
 
 #ifndef QT_NO_XCURSOR
@@ -30,29 +27,16 @@
 // Define QT_USE_APPROXIMATE_CURSORS when compiling if you REALLY want to
 // use the ugly X11 cursors.
 
+extern QCursor cursorTable[Qt::LastCursor + 1]; // qcursor.cpp
+
 /*****************************************************************************
   Internal QCursorData class
  *****************************************************************************/
 
-struct QCursorData : public QShared
+QCursorData::QCursorData(int s)
+    : cshape(s), hcurs(0), bm(0), bmm(0), hx(0), hy(0), pm(0), pmm(0)
 {
-    QCursorData( int s = 0 );
-   ~QCursorData();
-    int	      cshape;
-    QBitmap  *bm, *bmm;
-    short     hx, hy;
-    XColor    fg,bg;
-    Cursor    hcurs;
-    Pixmap    pm, pmm;
-};
-
-QCursorData::QCursorData( int s )
-{
-    cshape = s;
-    hcurs = 0;
-    bm = bmm = 0;
-    hx = hy  = 0;
-    pm = pmm = 0;
+    ref = 1;
 }
 
 QCursorData::~QCursorData()
@@ -62,106 +46,16 @@ QCursorData::~QCursorData()
     // Add in checking for the display too as on HP-UX
     // we seem to get a core dump as the cursor data is
     // deleted again from main() on exit...
-    if ( hcurs && dpy )
-	XFreeCursor( dpy, hcurs );
-    if ( pm && dpy )
-	XFreePixmap( dpy, pm );
-    if ( pmm && dpy )
-	XFreePixmap( dpy, pmm );
+    if (hcurs && dpy)
+	XFreeCursor(dpy, hcurs);
+    if (pm && dpy)
+	XFreePixmap(dpy, pm);
+    if (pmm && dpy)
+	XFreePixmap(dpy, pmm);
     delete bm;
     delete bmm;
 }
 
-
-/*****************************************************************************
-  Global cursors
- *****************************************************************************/
-
-static QCursor cursorTable[Qt::LastCursor+1];
-
-QCursor *QCursor::find_cur( int shape )		// find predefined cursor
-{
-    return (uint)shape <= LastCursor ? &cursorTable[shape] : 0;
-}
-
-
-static bool initialized = FALSE;
-
-/*!
-    Internal function that deinitializes the predefined cursors.
-    This function is called from the QApplication destructor.
-
-    \sa initialize()
-*/
-void QCursor::cleanup()
-{
-    if ( !initialized )
-	return;
-
-    int shape;
-    for( shape = 0; shape <= LastCursor; shape++ ) {
-	if ( cursorTable[shape].data && cursorTable[shape].data->deref() )
-	    delete cursorTable[shape].data;
-	cursorTable[shape].data = 0;
-    }
-    initialized = FALSE;
-}
-
-
-/*!
-    Internal function that initializes the predefined cursors.
-    This function is called from the QApplication constructor.
-
-    \sa cleanup()
-*/
-
-void QCursor::initialize()
-{
-    int shape;
-    for( shape = 0; shape <= LastCursor; shape++ )
-	cursorTable[shape].data = new QCursorData( shape );
-    initialized = TRUE;
-    qAddPostRoutine( cleanup );
-}
-
-
-/*!
-    Constructs a cursor with the default arrow shape.
-*/
-QCursor::QCursor()
-{
-    if ( !initialized ) {
-	if ( qApp->startingUp() ) {
-	    data = 0;
-	    return;
-	}
-	initialize();
-    }
-    QCursor* c = &cursorTable[0];
-    c->data->ref();
-    data = c->data;
-}
-
-
-
-/*!
-    Constructs a cursor with the specified \a shape.
-
-    See \l CursorShape for a list of shapes.
-
-    \sa setShape()
-*/
-
-QCursor::QCursor( int shape )
-{
-    if ( !initialized )
-	initialize();
-    QCursor *c = find_cur( shape );
-    if ( !c )					// not found
-	c = &cursorTable[0];	//   then use ArrowCursor
-    c->data->ref();
-    data = c->data;
-}
 
 /*!
     Constructs a cursor from the window system cursor \a cursor.
@@ -169,157 +63,43 @@ QCursor::QCursor( int shape )
     \warning Using this function is not portable. This function is only
     available on X11 and Windows.
 */
-QCursor::QCursor( HANDLE cursor )
+QCursor::QCursor(HANDLE cursor)
 {
-    if ( !initialized )
+    if (!initialized)
 	initialize();
-
-    data = new QCursorData;
-    Q_CHECK_PTR( data );
-    data->hcurs = cursor;
+    d = new QCursorData;
+    d->hcurs = cursor;
 }
 
 
 
-void QCursor::setBitmap( const QBitmap &bitmap, const QBitmap &mask,
-			 int hotX, int hotY )
+void QCursor::setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, int hotY)
 {
-    if ( !initialized )
+    if (!initialized)
 	initialize();
-    if ( bitmap.depth() != 1 || mask.depth() != 1 ||
-	 bitmap.size() != mask.size() ) {
-	qWarning( "QCursor: Cannot create bitmap cursor; invalid bitmap(s)" );
+    if (bitmap.depth() != 1 || mask.depth() != 1 || bitmap.size() != mask.size()) {
+	qWarning("QCursor: Cannot create bitmap cursor; invalid bitmap(s)");
 	QCursor *c = &cursorTable[0];
-	c->data->ref();
-	data = c->data;
+	d = c->d;
+	++d->ref;
 	return;
     }
-    data = new QCursorData;
-    data->bm  = new QBitmap( bitmap );
-    data->bmm = new QBitmap( mask );
-    data->hcurs = 0;
-    data->cshape = BitmapCursor;
-    data->hx = hotX >= 0 ? hotX : bitmap.width()/2;
-    data->hy = hotY >= 0 ? hotY : bitmap.height()/2;
-    data->fg.red   = 0x0000;
-    data->fg.green = 0x0000;
-    data->fg.blue  = 0x0000;
-    data->bg.red   = 0xffff;
-    data->bg.green = 0xffff;
-    data->bg.blue  = 0xffff;
+    d = new QCursorData;
+    d->ref = 1;
+    d->bm  = new QBitmap(bitmap);
+    d->bmm = new QBitmap(mask);
+    d->hcurs = 0;
+    d->cshape = BitmapCursor;
+    d->hx = hotX >= 0 ? hotX : bitmap.width() / 2;
+    d->hy = hotY >= 0 ? hotY : bitmap.height() / 2;
+    d->fg.red   = 0x0000;
+    d->fg.green = 0x0000;
+    d->fg.blue  = 0x0000;
+    d->bg.red   = 0xffff;
+    d->bg.green = 0xffff;
+    d->bg.blue  = 0xffff;
 }
 
-
-/*!
-    Constructs a copy of the cursor \a c.
-*/
-
-QCursor::QCursor( const QCursor &c )
-{
-    if ( !initialized )
-	initialize();
-    data = c.data;				// shallow copy
-    data->ref();
-}
-
-/*!
-    Destroys the cursor.
-*/
-
-QCursor::~QCursor()
-{
-    if ( data && data->deref() )
-	delete data;
-}
-
-
-/*!
-    Assigns \a c to this cursor and returns a reference to this
-    cursor.
-*/
-
-QCursor &QCursor::operator=( const QCursor &c )
-{
-    if ( !initialized )
-	initialize();
-    c.data->ref();				// avoid c = c
-    if ( data->deref() )
-	delete data;
-    data = c.data;
-    return *this;
-}
-
-
-/*!
-    Returns the cursor shape identifier. The return value is one of
-    the \l CursorShape enum values (cast to an int).
-
-    \sa setShape()
-*/
-
-int QCursor::shape() const
-{
-    if ( !initialized )
-	initialize();
-    return data->cshape;
-}
-
-/*!
-    Sets the cursor to the shape identified by \a shape.
-
-    See \l CursorShape for the list of cursor shapes.
-
-    \sa shape()
-*/
-
-void QCursor::setShape( int shape )
-{
-    if ( !initialized )
-	initialize();
-    QCursor *c = find_cur( shape );		// find one of the global ones
-    if ( !c )					// not found
-	c = &cursorTable[0];	//   then use ArrowCursor
-    c->data->ref();
-    if ( data->deref() )			// make shallow copy
-	delete data;
-    data = c->data;
-}
-
-
-/*!
-    Returns the cursor bitmap, or 0 if it is one of the standard
-    cursors.
-*/
-const QBitmap *QCursor::bitmap() const
-{
-    if ( !initialized )
-	initialize();
-    return data->bm;
-}
-
-/*!
-    Returns the cursor bitmap mask, or 0 if it is one of the standard
-    cursors.
-*/
-
-const QBitmap *QCursor::mask() const
-{
-    if ( !initialized )
-	initialize();
-    return data->bmm;
-}
-
-/*!
-    Returns the cursor hot spot, or (0, 0) if it is one of the
-    standard cursors.
-*/
-
-QPoint QCursor::hotSpot() const
-{
-    if ( !initialized )
-	initialize();
-    return QPoint( data->hx, data->hy );
-}
 
 
 /*!
@@ -332,11 +112,11 @@ QPoint QCursor::hotSpot() const
 
 Qt::HANDLE QCursor::handle() const
 {
-    if ( !initialized )
+    if (!initialized)
 	initialize();
-    if ( !data->hcurs )
+    if (!d->hcurs)
 	update();
-    return data->hcurs;
+    return d->hcurs;
 }
 
 /*!
@@ -366,11 +146,11 @@ QPoint QCursor::pos()
     int root_x, root_y, win_x, win_y;
     uint buttons;
     Display* dpy = QX11Info::appDisplay();
-    for ( int i = 0; i < ScreenCount( dpy ); i++ ) {
-	if ( XQueryPointer( dpy, QX11Info::appRootWindow( i ), &root, &child,
-			    &root_x, &root_y, &win_x, &win_y, &buttons ) )
+    for (int i = 0; i < ScreenCount( dpy ); ++i) {
+	if (XQueryPointer(dpy, QX11Info::appRootWindow(i), &root, &child, &root_x, &root_y,
+			  &win_x, &win_y, &buttons))
 
-	    return QPoint( root_x, root_y );
+	    return QPoint(root_x, root_y);
     }
     return QPoint();
 }
@@ -384,9 +164,9 @@ int QCursor::x11Screen()
     int root_x, root_y, win_x, win_y;
     uint buttons;
     Display* dpy = QX11Info::appDisplay();
-    for ( int i = 0; i < ScreenCount( dpy ); i++ ) {
-	if ( XQueryPointer( dpy, QX11Info::appRootWindow( i ), &root, &child,
-			    &root_x, &root_y, &win_x, &win_y, &buttons ) )
+    for (int i = 0; i < ScreenCount( dpy ); ++i) {
+	if (XQueryPointer(dpy, QX11Info::appRootWindow( i ), &root, &child, &root_x, &root_y,
+			  &win_x, &win_y, &buttons))
 	    return i;
     }
     return -1;
@@ -402,7 +182,7 @@ int QCursor::x11Screen()
     \sa pos(), QWidget::mapFromGlobal(), QWidget::mapToGlobal()
 */
 
-void QCursor::setPos( int x, int y )
+void QCursor::setPos(int x, int y)
 {
     QPoint current, target(x, y);
 
@@ -414,27 +194,25 @@ void QCursor::setPos( int x, int y )
     uint buttons;
     Display* dpy = QX11Info::appDisplay();
     int screen;
-    for ( screen = 0; screen < ScreenCount( dpy ); screen++ ) {
-	if ( XQueryPointer( dpy, QX11Info::appRootWindow( screen ), &root, &child,
-			    &root_x, &root_y, &win_x, &win_y, &buttons ) ) {
-	    current = QPoint( root_x, root_y );
+    for (screen = 0; screen < ScreenCount(dpy); ++screen) {
+	if (XQueryPointer(dpy, QX11Info::appRootWindow(screen), &root, &child, &root_x, &root_y,
+			  &win_x, &win_y, &buttons)) {
+	    current = QPoint(root_x, root_y);
 	    break;
 	}
     }
 
-    if ( screen >= ScreenCount( dpy ) )
+    if (screen >= ScreenCount(dpy))
 	return;
 
     // Need to check, since some X servers generate null mouse move
     // events, causing looping in applications which call setPos() on
     // every mouse move event.
     //
-    if ( current == target )
+    if (current == target)
 	return;
 
-    XWarpPointer( QX11Info::appDisplay(), None,
-		  QX11Info::appRootWindow( screen ),
-		  0, 0, 0, 0, x, y );
+    XWarpPointer(QX11Info::appDisplay(), None, QX11Info::appRootWindow(screen), 0, 0, 0, 0, x, y);
 }
 
 /*!
@@ -450,18 +228,17 @@ void QCursor::setPos( int x, int y )
 
 void QCursor::update() const
 {
-    if ( !initialized )
+    if (!initialized)
 	initialize();
-    register QCursorData *d = data;		// cheat const!
-    if ( d->hcurs )				// already loaded
+    if (d->hcurs)
 	return;
 
     Display *dpy = QX11Info::appDisplay();
     Window rootwin = QX11Info::appRootWindow();
 
-    if ( d->cshape == BitmapCursor ) {
-	d->hcurs = XCreatePixmapCursor( dpy, d->bm->handle(), d->bmm->handle(),
-					&d->fg, &d->bg, d->hx, d->hy );
+    if (d->cshape == BitmapCursor) {
+	d->hcurs = XCreatePixmapCursor(dpy, d->bm->handle(), d->bmm->handle(), &d->fg, &d->bg,
+					   d->hx, d->hy);
 	return;
     }
 
@@ -486,12 +263,12 @@ void QCursor::update() const
 	"left_ptr_watch"
     };
 
-    d->hcurs = XcursorLibraryLoadCursor( dpy, cursorNames[d->cshape] );
-    if ( d->hcurs )
+    d->hcurs = XcursorLibraryLoadCursor(dpy, cursorNames[d->cshape]);
+    if (d->hcurs)
 	return;
 #endif // QT_NO_XCURSOR
 
-    static uchar cur_blank_bits[] = {
+    static const char cur_blank_bits[] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -499,44 +276,44 @@ void QCursor::update() const
     // Non-standard X11 cursors are created from bitmaps
 
 #ifndef QT_USE_APPROXIMATE_CURSORS
-    static const uchar cur_ver_bits[] = {
+    static const char cur_ver_bits[] = {
 	0x00, 0x00, 0x00, 0x00, 0x80, 0x01, 0xc0, 0x03, 0xe0, 0x07, 0xf0, 0x0f,
 	0x80, 0x01, 0x80, 0x01, 0x80, 0x01, 0x80, 0x01, 0x80, 0x01, 0xf0, 0x0f,
 	0xe0, 0x07, 0xc0, 0x03, 0x80, 0x01, 0x00, 0x00 };
-    static const uchar mcur_ver_bits[] = {
+    static const char mcur_ver_bits[] = {
 	0x00, 0x00, 0x80, 0x03, 0xc0, 0x07, 0xe0, 0x0f, 0xf0, 0x1f, 0xf8, 0x3f,
 	0xfc, 0x7f, 0xc0, 0x07, 0xc0, 0x07, 0xc0, 0x07, 0xfc, 0x7f, 0xf8, 0x3f,
 	0xf0, 0x1f, 0xe0, 0x0f, 0xc0, 0x07, 0x80, 0x03 };
-    static const uchar cur_hor_bits[] = {
+    static const char cur_hor_bits[] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x20, 0x08, 0x30, 0x18,
 	0x38, 0x38, 0xfc, 0x7f, 0xfc, 0x7f, 0x38, 0x38, 0x30, 0x18, 0x20, 0x08,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-    static const uchar mcur_hor_bits[] = {
+    static const char mcur_hor_bits[] = {
 	0x00, 0x00, 0x00, 0x00, 0x40, 0x04, 0x60, 0x0c, 0x70, 0x1c, 0x78, 0x3c,
 	0xfc, 0x7f, 0xfe, 0xff, 0xfe, 0xff, 0xfe, 0xff, 0xfc, 0x7f, 0x78, 0x3c,
 	0x70, 0x1c, 0x60, 0x0c, 0x40, 0x04, 0x00, 0x00 };
-    static const uchar cur_bdiag_bits[] = {
+    static const char cur_bdiag_bits[] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x3f, 0x00, 0x3e, 0x00, 0x3c, 0x00, 0x3e,
 	0x00, 0x37, 0x88, 0x23, 0xd8, 0x01, 0xf8, 0x00, 0x78, 0x00, 0xf8, 0x00,
 	0xf8, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-    static const uchar mcur_bdiag_bits[] = {
+    static const char mcur_bdiag_bits[] = {
 	0x00, 0x00, 0xc0, 0x7f, 0x80, 0x7f, 0x00, 0x7f, 0x00, 0x7e, 0x04, 0x7f,
 	0x8c, 0x7f, 0xdc, 0x77, 0xfc, 0x63, 0xfc, 0x41, 0xfc, 0x00, 0xfc, 0x01,
 	0xfc, 0x03, 0xfc, 0x07, 0x00, 0x00, 0x00, 0x00 };
-    static const uchar cur_fdiag_bits[] = {
+    static const char cur_fdiag_bits[] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf8, 0x01, 0xf8, 0x00, 0x78, 0x00,
 	0xf8, 0x00, 0xd8, 0x01, 0x88, 0x23, 0x00, 0x37, 0x00, 0x3e, 0x00, 0x3c,
 	0x00, 0x3e, 0x00, 0x3f, 0x00, 0x00, 0x00, 0x00 };
-    static const uchar mcur_fdiag_bits[] = {
+    static const char mcur_fdiag_bits[] = {
 	0x00, 0x00, 0x00, 0x00, 0xfc, 0x07, 0xfc, 0x03, 0xfc, 0x01, 0xfc, 0x00,
 	0xfc, 0x41, 0xfc, 0x63, 0xdc, 0x77, 0x8c, 0x7f, 0x04, 0x7f, 0x00, 0x7e,
 	0x00, 0x7f, 0x80, 0x7f, 0xc0, 0x7f, 0x00, 0x00 };
-    static const uchar *cursor_bits16[] = {
+    static const char *cursor_bits16[] = {
 	cur_ver_bits, mcur_ver_bits, cur_hor_bits, mcur_hor_bits,
 	cur_bdiag_bits, mcur_bdiag_bits, cur_fdiag_bits, mcur_fdiag_bits,
 	0, 0, cur_blank_bits, cur_blank_bits };
 
-    static const uchar vsplit_bits[] = {
+    static const char vsplit_bits[] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x80, 0x00, 0x00, 0x00, 0xc0, 0x01, 0x00, 0x00, 0xe0, 0x03, 0x00,
@@ -548,7 +325,7 @@ void QCursor::update() const
 	0x00, 0xc0, 0x01, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-    static const uchar vsplitm_bits[] = {
+    static const char vsplitm_bits[] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00,
 	0x00, 0xc0, 0x01, 0x00, 0x00, 0xe0, 0x03, 0x00, 0x00, 0xf0, 0x07, 0x00,
@@ -560,7 +337,7 @@ void QCursor::update() const
 	0x00, 0xe0, 0x03, 0x00, 0x00, 0xc0, 0x01, 0x00, 0x00, 0x80, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-    static const uchar hsplit_bits[] = {
+    static const char hsplit_bits[] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x02, 0x00, 0x00, 0x40, 0x02, 0x00,
@@ -572,7 +349,7 @@ void QCursor::update() const
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-    static const uchar hsplitm_bits[] = {
+    static const char hsplitm_bits[] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0xe0, 0x07, 0x00, 0x00, 0xe0, 0x07, 0x00, 0x00, 0xe0, 0x07, 0x00,
@@ -584,7 +361,7 @@ void QCursor::update() const
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-    static const uchar whatsthis_bits[] = {
+    static const char whatsthis_bits[] = {
         0x01, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x05, 0xf0, 0x07, 0x00,
         0x09, 0x18, 0x0e, 0x00, 0x11, 0x1c, 0x0e, 0x00, 0x21, 0x1c, 0x0e, 0x00,
         0x41, 0x1c, 0x0e, 0x00, 0x81, 0x1c, 0x0e, 0x00, 0x01, 0x01, 0x07, 0x00,
@@ -596,7 +373,7 @@ void QCursor::update() const
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, };
-    static const uchar whatsthism_bits[] = {
+    static const char whatsthism_bits[] = {
         0x01, 0x00, 0x00, 0x00, 0x03, 0xf0, 0x07, 0x00, 0x07, 0xf8, 0x0f, 0x00,
         0x0f, 0xfc, 0x1f, 0x00, 0x1f, 0x3e, 0x1f, 0x00, 0x3f, 0x3e, 0x1f, 0x00,
         0x7f, 0x3e, 0x1f, 0x00, 0xff, 0x3e, 0x1f, 0x00, 0xff, 0x9d, 0x0f, 0x00,
@@ -608,7 +385,7 @@ void QCursor::update() const
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
         0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, };
-    static const uchar busy_bits[] = {
+    static const char busy_bits[] = {
 	0x01, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00,
 	0x09, 0x00, 0x00, 0x00, 0x11, 0x00, 0x00, 0x00, 0x21, 0x00, 0x00, 0x00,
 	0x41, 0xe0, 0xff, 0x00, 0x81, 0x20, 0x80, 0x00, 0x01, 0xe1, 0xff, 0x00,
@@ -620,7 +397,7 @@ void QCursor::update() const
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
-    static const uchar busym_bits[] = {
+    static const char busym_bits[] = {
 	0x01, 0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00,
 	0x0f, 0x00, 0x00, 0x00, 0x1f, 0x00, 0x00, 0x00, 0x3f, 0x00, 0x00, 0x00,
 	0x7f, 0xe0, 0xff, 0x00, 0xff, 0xe0, 0xff, 0x00, 0xff, 0xe1, 0xff, 0x00,
@@ -633,29 +410,29 @@ void QCursor::update() const
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
-    static const uchar * const cursor_bits32[] = {
+    static const char * const cursor_bits32[] = {
 	vsplit_bits, vsplitm_bits, hsplit_bits, hsplitm_bits,
 	0, 0, 0, 0, whatsthis_bits, whatsthism_bits, busy_bits, busym_bits
     };
 
-    static const uchar forbidden_bits[] = {
+    static const char forbidden_bits[] = {
 	0x00,0x00,0x00,0x80,0x1f,0x00,0xe0,0x7f,0x00,0xf0,0xf0,0x00,0x38,0xc0,0x01,
 	0x7c,0x80,0x03,0xec,0x00,0x03,0xce,0x01,0x07,0x86,0x03,0x06,0x06,0x07,0x06,
 	0x06,0x0e,0x06,0x06,0x1c,0x06,0x0e,0x38,0x07,0x0c,0x70,0x03,0x1c,0xe0,0x03,
 	0x38,0xc0,0x01,0xf0,0xe0,0x00,0xe0,0x7f,0x00,0x80,0x1f,0x00,0x00,0x00,0x00 };
 
-    static const unsigned char forbiddenm_bits[] = {
+    static const char forbiddenm_bits[] = {
 	0x80,0x1f,0x00,0xe0,0x7f,0x00,0xf0,0xff,0x00,0xf8,0xff,0x01,0xfc,0xf0,0x03,
 	0xfe,0xc0,0x07,0xfe,0x81,0x07,0xff,0x83,0x0f,0xcf,0x07,0x0f,0x8f,0x0f,0x0f,
 	0x0f,0x1f,0x0f,0x0f,0x3e,0x0f,0x1f,0xfc,0x0f,0x1e,0xf8,0x07,0x3e,0xf0,0x07,
 	0xfc,0xe0,0x03,0xf8,0xff,0x01,0xf0,0xff,0x00,0xe0,0x7f,0x00,0x80,0x1f,0x00};
 
-    static const uchar * const cursor_bits20[] = {
+    static const char * const cursor_bits20[] = {
 	forbidden_bits, forbiddenm_bits
     };
 
-    if ( d->cshape >= SizeVerCursor && d->cshape < SizeAllCursor ||
-	 d->cshape == BlankCursor ) {
+    if (d->cshape >= SizeVerCursor && d->cshape < SizeAllCursor
+	    || d->cshape == BlankCursor) {
 	XColor bg, fg;
 	bg.red   = 255 << 8;
 	bg.green = 255 << 8;
@@ -663,16 +440,14 @@ void QCursor::update() const
 	fg.red   = 0;
 	fg.green = 0;
 	fg.blue  = 0;
-	int i = (d->cshape - SizeVerCursor)*2;
-	d->pm  = XCreateBitmapFromData( dpy, rootwin, (char *)cursor_bits16[i],
-					16, 16 );
-	d->pmm = XCreateBitmapFromData( dpy, rootwin, (char *)cursor_bits16[i+1],
-					16,16);
-	d->hcurs = XCreatePixmapCursor( dpy, d->pm, d->pmm, &fg, &bg, 8, 8 );
+	int i = (d->cshape - SizeVerCursor) * 2;
+	d->pm  = XCreateBitmapFromData(dpy, rootwin, cursor_bits16[i], 16, 16);
+	d->pmm = XCreateBitmapFromData(dpy, rootwin, cursor_bits16[i + 1], 16, 16);
+	d->hcurs = XCreatePixmapCursor(dpy, d->pm, d->pmm, &fg, &bg, 8, 8);
 	return;
     }
-    if ( ( d->cshape >= SplitVCursor && d->cshape <= SplitHCursor ) ||
-         d->cshape == WhatsThisCursor || d->cshape == BusyCursor ) {
+    if ((d->cshape >= SplitVCursor && d->cshape <= SplitHCursor)
+	    || d->cshape == WhatsThisCursor || d->cshape == BusyCursor) {
 	XColor bg, fg;
 	bg.red   = 255 << 8;
 	bg.green = 255 << 8;
@@ -680,18 +455,15 @@ void QCursor::update() const
 	fg.red   = 0;
 	fg.green = 0;
 	fg.blue  = 0;
-	int i = (d->cshape - SplitVCursor)*2;
-	d->pm  = XCreateBitmapFromData( dpy, rootwin, (char *)cursor_bits32[i],
-					32, 32 );
-	d->pmm = XCreateBitmapFromData( dpy, rootwin, (char *)cursor_bits32[i+1],
-					32, 32);
-	int hs = ( d->cshape == PointingHandCursor ||
-		   d->cshape == WhatsThisCursor ||
-		   d->cshape == BusyCursor ) ? 0 : 16;
-	d->hcurs = XCreatePixmapCursor( dpy, d->pm, d->pmm, &fg, &bg, hs, hs );
+	int i = (d->cshape - SplitVCursor) * 2;
+	d->pm  = XCreateBitmapFromData(dpy, rootwin, cursor_bits32[i], 32, 32 );
+	d->pmm = XCreateBitmapFromData(dpy, rootwin, cursor_bits32[i + 1], 32, 32);
+	int hs = (d->cshape == PointingHandCursor || d->cshape == WhatsThisCursor
+		  || d->cshape == BusyCursor) ? 0 : 16;
+	d->hcurs = XCreatePixmapCursor(dpy, d->pm, d->pmm, &fg, &bg, hs, hs);
 	return;
     }
-    if ( d->cshape == ForbiddenCursor ) {
+    if (d->cshape == ForbiddenCursor) {
 	XColor bg, fg;
 	bg.red   = 255 << 8;
 	bg.green = 255 << 8;
@@ -699,18 +471,16 @@ void QCursor::update() const
 	fg.red   = 0;
 	fg.green = 0;
 	fg.blue  = 0;
-	int i = (d->cshape - ForbiddenCursor)*2;
-	d->pm  = XCreateBitmapFromData( dpy, rootwin, (char *)cursor_bits20[i],
-					20, 20 );
-	d->pmm = XCreateBitmapFromData( dpy, rootwin, (char *)cursor_bits20[i+1],
-					20, 20);
-	d->hcurs = XCreatePixmapCursor( dpy, d->pm, d->pmm, &fg, &bg, 10, 10 );
+	int i = (d->cshape - ForbiddenCursor) * 2;
+	d->pm  = XCreateBitmapFromData(dpy, rootwin, cursor_bits20[i], 20, 20);
+	d->pmm = XCreateBitmapFromData(dpy, rootwin, cursor_bits20[i + 1], 20, 20);
+	d->hcurs = XCreatePixmapCursor(dpy, d->pm, d->pmm, &fg, &bg, 10, 10);
 	return;
     }
 #endif /* ! QT_USE_APPROXIMATE_CURSORS */
 
     uint sh;
-    switch ( d->cshape ) {			// map Q cursor to X cursor
+    switch (d->cshape) {			// map Q cursor to X cursor
     case ArrowCursor:
 	sh = XC_left_ptr;
 	break;
@@ -747,12 +517,9 @@ void QCursor::update() const
 	fg.red   = 0;
 	fg.green = 0;
 	fg.blue  = 0;
-	d->pm  = XCreateBitmapFromData( dpy, rootwin,
-					(char *)cur_blank_bits, 16, 16 );
-	d->pmm = XCreateBitmapFromData( dpy, rootwin,
-					(char *)cur_blank_bits, 16,16);
-	d->hcurs = XCreatePixmapCursor( dpy, d->pm, d->pmm, &fg,
-					&bg, 8, 8 );
+	d->pm  = XCreateBitmapFromData(dpy, rootwin, cur_blank_bits, 16, 16);
+	d->pmm = XCreateBitmapFromData(dpy, rootwin, cur_blank_bits, 16, 16);
+	d->hcurs = XCreatePixmapCursor(dpy, d->pm, d->pmm, &fg, &bg, 8, 8);
 	return;
 	break;
     case SizeVerCursor:
@@ -774,8 +541,8 @@ void QCursor::update() const
 	break;
 #endif /* QT_USE_APPROXIMATE_CURSORS */
     default:
-	qWarning( "QCursor::update: Invalid cursor shape %d", d->cshape );
+	qWarning("QCursor::update: Invalid cursor shape %d", d->cshape);
 	return;
     }
-    d->hcurs = XCreateFontCursor( dpy, sh );
+    d->hcurs = XCreateFontCursor(dpy, sh);
 }

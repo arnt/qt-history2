@@ -16,7 +16,8 @@
 #define QCURSOR_H
 
 #ifndef QT_H
-#include "qpoint.h"
+#include <qpoint.h>
+#include <qatomic.h>
 #endif // QT_H
 
 /*
@@ -44,56 +45,48 @@ struct QCursorData;
 class Q_GUI_EXPORT QCursor : public Qt
 {
 public:
-    QCursor();				// create default arrow cursor
-    QCursor( int shape );
-    QCursor( const QBitmap &bitmap, const QBitmap &mask,
-	     int hotX=-1, int hotY=-1 );
-    QCursor( const QPixmap &pixmap,
-	     int hotX=-1, int hotY=-1 );
-    QCursor( const QCursor & );
-   ~QCursor();
-    QCursor &operator=( const QCursor & );
+    QCursor();
+    QCursor(int shape);
+    QCursor(const QBitmap &bitmap, const QBitmap &mask, int hotX=-1, int hotY=-1);
+    QCursor(const QPixmap &pixmap, int hotX=-1, int hotY=-1);
+    QCursor(const QCursor &cursor);
+    ~QCursor();
+    QCursor &operator=(const QCursor &cursor);
 
-    int		  shape()   const;
-    void	  setShape( int );
+    int shape() const;
+    void setShape(int newShape);
 
     const QBitmap *bitmap() const;
-    const QBitmap *mask()   const;
-    QPoint	  hotSpot() const;
-
+    const QBitmap *mask() const;
+    QPoint hotSpot() const;
 #if defined(Q_WS_WIN)
-    HCURSOR	  handle()  const;
-    QCursor( HCURSOR );
+    HCURSOR handle()  const;
+    QCursor(HCURSOR cursor);
 #elif defined(Q_WS_X11)
-    HANDLE	  handle()  const;
-    QCursor( HANDLE );
+    HANDLE handle() const;
+    QCursor(HANDLE cursor);
+    static int x11Screen();
 #elif defined(Q_WS_MAC)
     HANDLE handle() const;
 #elif defined(Q_WS_QWS)
-    HANDLE	  handle()  const;
+    HANDLE handle() const;
 #endif
-
     static QPoint pos();
-    static void	  setPos( int x, int y );
-    static void	  setPos( const QPoint & );
-
-    static void	  initialize();
-    static void	  cleanup();
-
-#if defined(Q_WS_X11)
-    static int 	  x11Screen();
-#endif
+    static void	setPos(int x, int y);
+    inline static void setPos(const QPoint &p) { setPos(p.x(), p.y()); }
+    static void	initialize();
+    static void	cleanup();
 private:
-    void	  setBitmap( const QBitmap &bitmap, const QBitmap &mask,
-				 int hotX, int hotY );
-    void	  update() const;
-    QCursorData	 *data;
-    QCursor	 *find_cur(int);
+    void setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, int hotY);
+    void update() const;
+    QCursor *find_cur(int);
+
+    QCursorData *d;
+    static bool initialized;
 #if defined(Q_WS_MAC)
     friend void qt_mac_set_cursor(const QCursor *c, const Point *p);
 #endif
 };
-
 
 #ifdef QT_COMPAT
 // CursorShape is defined in X11/X.h
@@ -107,20 +100,13 @@ typedef Qt::CursorShape QCursorShape;
 #endif
 #endif
 
-
 /*****************************************************************************
   QCursor stream functions
  *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
-Q_GUI_EXPORT QDataStream &operator<<( QDataStream &, const QCursor & );
-Q_GUI_EXPORT QDataStream &operator>>( QDataStream &, QCursor & );
+Q_GUI_EXPORT QDataStream &operator<<(QDataStream &outS, const QCursor &cursor);
+Q_GUI_EXPORT QDataStream &operator>>(QDataStream &inS, QCursor &cursor);
 #endif
 #endif // QT_NO_CURSOR
-
-
-inline void QCursor::setPos( const QPoint &p )
-{
-    setPos( p.x(), p.y() );
-}
 
 #endif // QCURSOR_H

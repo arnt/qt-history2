@@ -16,10 +16,11 @@
 
 #ifndef QT_NO_CURSOR
 
-#include "qbitmap.h"
-#include "qimage.h"
-#include "qdatastream.h"
-
+#include <qapplication.h>
+#include <qbitmap.h>
+#include <qimage.h>
+#include <qdatastream.h>
+#include <private/qcursor_p.h>
 
 /*!
     \class QCursor qcursor.h
@@ -194,6 +195,7 @@ QDataStream &operator>>( QDataStream &s, QCursor &c )
 */
 
 QCursor::QCursor( const QPixmap &pixmap, int hotX, int hotY )
+    : d(0)
 {
     QImage img = pixmap.convertToImage().
 		    convertDepth( 8, Qt::ThresholdDither|Qt::AvoidDither );
@@ -215,7 +217,7 @@ QCursor::QCursor( const QPixmap &pixmap, int hotX, int hotY )
 	bmm.fill( Qt::color1 );
     }
 
-    setBitmap(bm,bmm,hotX,hotY);
+    setBitmap(bm, bmm, hotX, hotY);
 }
 
 
@@ -250,10 +252,186 @@ QCursor::QCursor( const QPixmap &pixmap, int hotX, int hotY )
     \sa QBitmap::QBitmap(), QBitmap::setMask()
 */
 
-QCursor::QCursor( const QBitmap &bitmap, const QBitmap &mask,
-		  int hotX, int hotY )
+QCursor::QCursor(const QBitmap &bitmap, const QBitmap &mask, int hotX, int hotY)
+    : d(0)
 {
-    setBitmap(bitmap,mask,hotX,hotY);
+    setBitmap(bitmap, mask, hotX, hotY);
+}
+
+QCursor cursorTable[Qt::LastCursor + 1];
+bool QCursor::initialized = false;
+void QCursor::cleanup()
+{
+    if(!initialized)
+	return;
+
+    for (int shape = 0; shape <= LastCursor; ++shape) {
+	delete cursorTable[shape].d;
+	cursorTable[shape].d = 0;
+    }
+    initialized = false;
+}
+
+void QCursor::initialize()
+{
+#ifdef Q_WS_MAC
+    InitCursor();
+#endif
+    for (int shape = 0; shape <= LastCursor; ++shape)
+	cursorTable[shape].d = new QCursorData(shape);
+    initialized = true;
+    qAddPostRoutine(cleanup);
+}
+
+QCursor *QCursor::find_cur(int shape)
+{
+    return (uint)shape <= LastCursor ? &cursorTable[shape] : 0;
+}
+
+/*!
+    Constructs a cursor with the default arrow shape.
+*/
+QCursor::QCursor()
+{
+    if (!initialized) {
+	if (qApp->startingUp()) {
+	    d = 0;
+	    return;
+	}
+	initialize();
+    }
+    QCursor *c = &cursorTable[0];
+    d = c->d;
+    ++d->ref;
+}
+
+/*!
+    Constructs a cursor with the specified \a shape.
+
+    See \l CursorShape for a list of shapes.
+
+    \sa setShape()
+*/
+QCursor::QCursor(int shape)
+    : d(0)
+{
+    if (!initialized)
+	initialize();
+    setShape(shape);
+}
+
+
+/*!
+    Returns the cursor shape identifier. The return value is one of
+    the \l CursorShape enum values (cast to an int).
+
+    \sa setShape()
+*/
+int QCursor::shape() const
+{
+    if (!initialized)
+	initialize();
+    return d->cshape;
+}
+
+/*!
+    Sets the cursor to the shape identified by \a shape.
+
+    See \l CursorShape for the list of cursor shapes.
+
+    \sa shape()
+*/
+void QCursor::setShape(int shape)
+{
+    if ( !initialized )
+	initialize();
+    QCursor *c = find_cur(shape);
+    if (!c)
+	c = &cursorTable[0];
+    QCursorData *x = c->d;
+    ++x->ref;
+    if (!d) {
+	d = x;
+    } else {
+	x = qAtomicSetPtr(&d, x);
+	if (!--x->ref)
+	    delete x;
+    }
+}
+
+/*!
+    Returns the cursor bitmap, or 0 if it is one of the standard
+    cursors.
+*/
+const QBitmap *QCursor::bitmap() const
+{
+    if (!initialized)
+	initialize();
+    return d->bm;
+}
+
+/*!
+    Returns the cursor bitmap mask, or 0 if it is one of the standard
+    cursors.
+*/
+
+const QBitmap *QCursor::mask() const
+{
+    if (!initialized)
+	initialize();
+    return d->bmm;
+}
+
+/*!
+    Returns the cursor hot spot, or (0, 0) if it is one of the
+    standard cursors.
+*/
+
+QPoint QCursor::hotSpot() const
+{
+    if (!initialized)
+	initialize();
+    return QPoint(d->hx, d->hy);
+}
+
+/*!
+    Constructs a copy of the cursor \a c.
+*/
+
+QCursor::QCursor(const QCursor &c)
+{
+    if (!initialized)
+	initialize();
+    d = c.d;
+    ++d->ref;
+}
+
+/*!
+    Destroys the cursor.
+*/
+
+QCursor::~QCursor()
+{
+    if (d && !--d->ref)
+	delete d;
+}
+
+
+/*!
+    Assigns \a c to this cursor and returns a reference to this
+    cursor.
+*/
+
+QCursor &QCursor::operator=(const QCursor &c)
+{
+    if (!initialized)
+	initialize();
+    QCursorData *x = c.d;
+    ++x->ref;
+    x = qAtomicSetPtr(&d, x);
+    if (!--x->ref)
+	delete x;
+    return *this;
 }
 
 #endif // QT_NO_CURSOR

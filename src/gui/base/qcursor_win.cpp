@@ -12,235 +12,88 @@
 **
 ****************************************************************************/
 
-#include "qcursor.h"
-#include "qbitmap.h"
-#include "qapplication.h"
-#include "qapplication_p.h"
-#include "qimage.h"
-#include "qdatastream.h"
-#include "qt_windows.h"
+#include <private/qcursor_p.h>
+#include <qbitmap.h>
+#include <qcursor.h>
+#include <qimage.h>
+#include <qt_windows.h>
 
-static QCursor cursorTable[Qt::LastCursor+1];
+extern QCursor cursorTable[Qt::LastCursor + 1]; // qcursor.cpp
 
 /*****************************************************************************
   Internal QCursorData class
  *****************************************************************************/
 
-struct QCursorData : public QShared {
-    QCursorData( int s = 0 );
-   ~QCursorData();
-    int	      cshape;
-    QBitmap  *bm, *bmm;
-    short     hx, hy;
-    HCURSOR   hcurs;
-};
-
-QCursorData::QCursorData( int s )
+QCursorData::QCursorData(int s)
+    : cshape(s), hcurs(0), bm(0), bmm(0), hx(0), hy(0)
 {
-    cshape = s;
-    hcurs = 0;
-    bm = bmm = 0;
-    hx = hy  = 0;
+    ref = 1;
 }
 
 QCursorData::~QCursorData()
 {
-    if ( bm || bmm ) {
-	delete bm;
-	delete bmm;
+    delete bm;
+    delete bmm;
 #ifndef Q_OS_TEMP
-	if ( hcurs )
-	    DestroyCursor( hcurs );
+    if (hcurs)
+	DestroyCursor(hcurs);
 #endif
-    }
 }
 
 
-/*****************************************************************************
-  QCursor member functions
- *****************************************************************************/
-
-QCursor *QCursor::find_cur( int shape )	// find predefined cursor
+void QCursor::setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, int hotY)
 {
-    return (uint)shape <= LastCursor ? &cursorTable[shape] : 0;
-}
-
-
-static bool initialized = FALSE;
-
-void QCursor::initialize()
-{
-    int shape;
-    for( shape = 0; shape <= LastCursor; shape++ )
-	cursorTable[shape].data = new QCursorData( shape );
-    initialized = TRUE;
-    qAddPostRoutine( cleanup );
-}
-
-void QCursor::cleanup()
-{
-    int shape;
-    for( shape = 0; shape <= LastCursor; shape++ ) {
-	if ( cursorTable[shape].data && cursorTable[shape].data->deref() )
-	    delete cursorTable[shape].data;
-	cursorTable[shape].data = 0;
-    }
-    initialized = FALSE;
-}
-
-QCursor::QCursor()
-{
-    if ( !initialized ) {
-	if ( qApp->startingUp() ) {
-	    data = 0;
-	    return;
-	}
+    if (!initialized)
 	initialize();
-    }
-    QCursor* c = &cursorTable[0];
-    c->data->ref();
-    data = c->data;
-}
-
-QCursor::QCursor( int shape )
-{
-    if ( !initialized )
-	initialize();
-    QCursor *c = find_cur( shape );
-    if ( !c )					// not found
-	c = &cursorTable[0];	//   then use ArrowCursor
-    c->data->ref();
-    data = c->data;
-}
-
-
-void QCursor::setBitmap( const QBitmap &bitmap, const QBitmap &mask,
-			 int hotX, int hotY )
-{
-    if ( !initialized )
-	initialize();
-    if ( bitmap.depth() != 1 || mask.depth() != 1 ||
-	 bitmap.size() != mask.size() ) {
-	qWarning( "QCursor: Cannot create bitmap cursor; invalid bitmap(s)" );
+    if (bitmap.depth() != 1 || mask.depth() != 1 || bitmap.size() != mask.size()) {
+	qWarning("QCursor: Cannot create bitmap cursor; invalid bitmap(s)");
 	QCursor *c = &cursorTable[0];
-	c->data->ref();
-	data = c->data;
+	d = c->d;
+	++d->ref;
 	return;
     }
-    data = new QCursorData;
-    data->bm  = new QBitmap( bitmap );
-    data->bmm = new QBitmap( mask );
-    data->hcurs = 0;
-    data->cshape = BitmapCursor;
-    data->hx = hotX >= 0 ? hotX : bitmap.width()/2;
-    data->hy = hotY >= 0 ? hotY : bitmap.height()/2;
+    d = new QCursorData;
+    d->bm  = new QBitmap(bitmap);
+    d->bmm = new QBitmap(mask);
+    d->hcurs = 0;
+    d->cshape = BitmapCursor;
+    d->hx = hotX >= 0 ? hotX : bitmap.width()/2;
+    d->hy = hotY >= 0 ? hotY : bitmap.height()/2;
 }
-
-QCursor::QCursor( const QCursor &c )
-{
-    if ( !initialized )
-	initialize();
-    data = c.data;
-    data->ref();
-}
-
-QCursor::~QCursor()
-{
-    if ( data && data->deref() )
-	delete data;
-}
-
-
-QCursor &QCursor::operator=( const QCursor &c )
-{
-    if ( !initialized )
-	initialize();
-    if ( !initialized )
-	initialize();
-    c.data->ref();				// avoid c = c
-    if ( data && data->deref() )
-	delete data;
-    data = c.data;
-    return *this;
-}
-
-
-int QCursor::shape() const
-{
-    if ( !initialized )
-	initialize();
-    return data->cshape;
-}
-
-void QCursor::setShape( int shape )
-{
-    if ( !initialized )
-	initialize();
-    QCursor *c = find_cur( shape );		// find one of the global ones
-    if ( !c )					// not found
-	c = &cursorTable[0];	//   then use ArrowCursor
-    c->data->ref();
-    if ( data->deref() )			// make shallow copy
-	delete data;
-    data = c->data;
-}
-
-
-const QBitmap *QCursor::bitmap() const
-{
-    if ( !initialized )
-	initialize();
-    return data->bm;
-}
-
-const QBitmap *QCursor::mask() const
-{
-    if ( !initialized )
-	initialize();
-    return data->bmm;
-}
-
-QPoint QCursor::hotSpot() const
-{
-    if ( !initialized )
-	initialize();
-    return QPoint( data->hx, data->hy );
-}
-
 
 HCURSOR QCursor::handle() const
 {
-    if ( !initialized )
+    if (!initialized)
 	initialize();
-    if ( !data->hcurs )
+    if (!d->hcurs)
 	update();
-    return data->hcurs;
+    return d->hcurs;
 }
 
-QCursor::QCursor( HCURSOR handle )
+QCursor::QCursor(HCURSOR handle)
 {
-    data = new QCursorData;
-    data->hcurs = handle;
+    d = new QCursorData;
+    d->hcurs = handle;
 }
 
 QPoint QCursor::pos()
 {
     POINT p;
-    GetCursorPos( &p );
-    return QPoint( p.x, p.y );
+    GetCursorPos(&p);
+    return QPoint(p.x, p.y);
 }
 
-void QCursor::setPos( int x, int y )
+void QCursor::setPos(int x, int y)
 {
-    SetCursorPos( x, y );
+    SetCursorPos(x, y);
 }
 
 
 void QCursor::update() const
 {
-    if ( !initialized )
+    if (!initialized)
 	initialize();
-    if ( data->hcurs )				// already loaded
+    if (d->hcurs)
 	return;
 
     // Non-standard Windows cursors are created from bitmaps
@@ -325,7 +178,7 @@ void QCursor::update() const
     };
 
     unsigned short *sh;
-    switch ( data->cshape ) {			// map to windows cursor
+    switch (d->cshape) {			// map to windows cursor
     case ArrowCursor:
 	sh = (unsigned short*)IDC_ARROW;
 	break;
@@ -366,8 +219,8 @@ void QCursor::update() const
 	sh = (unsigned short*)IDC_APPSTARTING;
 	break;
     case PointingHandCursor:
-	if ( (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) > QSysInfo::WV_95 ||
-	     (QSysInfo::WindowsVersion & QSysInfo::WV_NT_based) > QSysInfo::WV_NT ) {
+	if ((QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) > QSysInfo::WV_95 ||
+	    (QSysInfo::WindowsVersion & QSysInfo::WV_NT_based) > QSysInfo::WV_NT) {
 	    sh = (unsigned short*)IDC_HAND;
 	    break;
 	}
@@ -378,41 +231,39 @@ void QCursor::update() const
     case BitmapCursor: {
 	QImage bbits, mbits;
 	bool invb, invm;
-	if ( data->cshape == BlankCursor ) {
-	    bbits.create( 32, 32, 1, 2, QImage::BigEndian );
-	    bbits.fill( 0 );		// ignore color table
+	if (d->cshape == BlankCursor) {
+	    bbits.create(32, 32, 1, 2, QImage::BigEndian);
+	    bbits.fill(0);		// ignore color table
 	    mbits = bbits.copy();
-	    data->hx = data->hy = 16;
-	    invb = invm = FALSE;
-	} else if ( data->cshape != BitmapCursor ) {
-	    int i = data->cshape - SplitVCursor;
-	    QBitmap cb( 32, 32, cursor_bits32[i*2], TRUE );
-	    QBitmap cm( 32, 32, cursor_bits32[i*2+1], TRUE );
+	    d->hx = d->hy = 16;
+	    invb = invm = false;
+	} else if (d->cshape != BitmapCursor) {
+	    int i = d->cshape - SplitVCursor;
+	    QBitmap cb(32, 32, cursor_bits32[i * 2], true);
+	    QBitmap cm(32, 32, cursor_bits32[i * 2 + 1], true);
 	    bbits = cb;
 	    mbits = cm;
-	    if ( data->cshape == PointingHandCursor ) {
-		data->hx = 7;
-		data->hy = 0;
+	    if (d->cshape == PointingHandCursor) {
+		d->hx = 7;
+		d->hy = 0;
 	    } else
-		data->hx = data->hy = 16;
-	    invb = invm = FALSE;
+		d->hx = d->hy = 16;
+	    invb = invm = false;
 	} else {
-	    bbits = *data->bm;
-	    mbits = *data->bmm;
-	    invb = bbits.numColors() > 1 &&
-		   qGray(bbits.color(0)) < qGray(bbits.color(1));
-	    invm = mbits.numColors() > 1 &&
-		   qGray(mbits.color(0)) < qGray(mbits.color(1));
+	    bbits = *d->bm;
+	    mbits = *d->bmm;
+	    invb = bbits.numColors() > 1 && qGray(bbits.color(0)) < qGray(bbits.color(1));
+	    invm = mbits.numColors() > 1 && qGray(mbits.color(0)) < qGray(mbits.color(1));
 	}
-	int n = qMax( 1, bbits.width() / 8 );
+	int n = qMax(1, bbits.width() / 8);
 	int h = bbits.height();
-	uchar* xBits = new uchar[h*n];
-	uchar* xMask = new uchar[h*n];
+	uchar* xBits = new uchar[h * n];
+	uchar* xMask = new uchar[h * n];
 	int x = 0;
-	for ( int i = 0; i < h; i++ ) {
-	    uchar *bits = bbits.scanLine( i );
-	    uchar *mask = mbits.scanLine( i );
-	    for ( int j = 0; j < n; j++ ) {
+	for (int i = 0; i < h; ++i) {
+	    uchar *bits = bbits.scanLine(i);
+	    uchar *mask = mbits.scanLine(i);
+	    for (int j = 0; j < n; ++j) {
 		uchar b = bits[j];
 		uchar m = mask[j];
 		if ( invb )
@@ -421,28 +272,26 @@ void QCursor::update() const
 		    m ^= 0xff;
 		xBits[x] = ~m;
 		xMask[x] = b ^ m;
-		x++;
+		++x;
 	    }
 	}
 #ifndef Q_OS_TEMP
-	data->hcurs = CreateCursor( qWinAppInst(), data->hx, data->hy,
-				    bbits.width(), bbits.height(),
-				    xBits, xMask );
+	d->hcurs = CreateCursor(qWinAppInst(), d->hx, d->hy, bbits.width(), bbits.height(),
+				   xBits, xMask );
 #endif
 	delete xBits;
 	delete xMask;
 	return;
     }
     default:
-	qWarning( "QCursor::update: Invalid cursor shape %d",
-		  data->cshape );
+	qWarning("QCursor::update: Invalid cursor shape %d", d->cshape);
 	return;
     }
     // ### From MSDN:
     // ### LoadCursor has been superseded by the LoadImage function.
     QT_WA( {
-	data->hcurs = LoadCursorW( 0, (const TCHAR *)sh );
+	d->hcurs = LoadCursorW(0, reinterpret_cast<const TCHAR *>(sh));
     } , {
-	data->hcurs = LoadCursorA( 0, (const char*)sh );
+	d->hcurs = LoadCursorA( 0, reinterpret_cast<const char*>(sh));
     } );
 }
