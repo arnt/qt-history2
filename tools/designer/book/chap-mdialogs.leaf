@@ -186,52 +186,61 @@ similar forms, or where you want to 'brand' your forms.
 \section1 The Edit Dialogs
 
 \img qd-editslots1.png
-\caption Edit Slots
+\caption Edit Functions
 
 \target dialog-edit-slots
-\section2 Edit Slots Dialog
+\section2 Edit Functions Dialog
 
-Click \Menu{Edit|Slots} to invoke the \Dialog{Edit Slots} dialog. Use this
-dialog to edit or create slots which are used in conjunction with
+Click \Menu{Edit|Slots} to invoke the \Dialog{Edit Functions} dialog. Use this
+dialog to edit or create slots and functions which are used in conjunction with
 signals to provide communication between objects.
 
-When this dialog is invoked, all existing slots are shown in the
-'Slot' listbox. The column headers Slot, Type, Specifier, Access, and
-In-Use provide details about each slot that is listed. Click on any of
-the column headers to sort the slots. To create a new slot, click the
-\Button{New Slot} button. The new slot has a default name that you
-should replace by typing the new name in the 'Slot' line edit. The
+When this dialog is invoked, all existing slots and functions are shown in the
+listview. The column headers Function, Return Type, Specifier, Access, Type, and
+In Use provide details about each function that is listed. Click on any of
+the column headers to sort the functions. To create a new function, click the
+\Button{New Function} button. The new function has a default name that you
+should replace by typing the new name in the 'Function' line edit. The
 'Return Type' is also a default that can be changed by typing in the
 line edit. To change the 'Specifier' or 'Access', click the combobox
-and choose the required specifier or access. To remove a slot, click
-the slot you want to delete, and then click the \Button{Delete Slot}
+and choose the required specifier or access. To change the type of a
+function (function or slot), click the Type combobox. To remove a function, click the function you want to delete, and then click the \Button{Delete Function}
 button.
 
-Click \OK to save all changes made to slots. Click \CANCEL to leave
-the dialog without making any changes to slots.   
+Click \OK to save all changes made to the functions. Click \CANCEL to leave
+the dialog without making any changes to the functions.   
 
-\img qd-viewconnections.png
+###\img qd-viewconnections.png###
+\caption View Connections
+
+\target dialog-view-connections
+\section2 View and Edit Connections Dialog 
+
+Click \Menu{Edit|Connections} to invoke the \Dialog{View and Edit Connections}
+dialog. Use this dialog to view and edit signal and slot connections.
+
+When this dialog is invoked, all existing connections are shown in the
+listbox. The column headers Sender, Signal, Receiver, and Slot provide
+details about each connection. Click the column headers to sort the
+connections. To add a new connection, click the \Button New button. To
+specify the Sender, Signal, Receiver, and Slot of the connection,
+click the appropriate fields in the connection and select from the
+combobox. To delete connections, select the connection(s) and then click the
+\Button Delete button. To edit custom slots for the current form,
+choose the form as the Receiver in the currently selected connection
+and then click the \Button {Edit Slots} button. This will invoke the
+\Dialog {Edit Functions} dialog. 
+
+Click \OK to save all changes made to the connections. Click \CANCEL to leave
+the dialog without making any changes to the connections.   
+
+###\img qd-viewconnections.png###
 \caption View Connections
 
 \target dialog-view-connections
 \section2 View Connections Dialog 
 
-Click \Menu{Edit|Connections} to invoke the \Dialog{View Connections}
-dialog. This dialog displays the current signals and slots
-connections.
-
-When this dialog is invoked, all existing connections are shown in the
-listbox. The column headers Sender, Signal, Receiver, and Slot provide
-details about each connection. Click the column headers to sort the
-connections. To remove a connection from the listbox, click the
-connection you want to disconnect and then click \Button {Disconnect}.
-To edit a connection, click the \Button {Edit...} button to invoke the
-\Dialog{Edit Connections Dialog}. 
-
-Changes made in this dialog take immediate effect. Click the \Button
-Close button to leave the dialog.
-
-\img qd-editformsettings.png
+###\img qd-editformsettings.png###
 \caption Form Settings
 
 \target dialog-edit-form-settings
@@ -272,7 +281,14 @@ required.
 \section3 Layouts
 
 Click the 'Default Margin' spinbox or the 'Default Spacing' spinbox to
-change the default layout of the current form. 
+change the default layout settings of the current form. 
+
+###If you don't want to specify hardcoded values for the layout's default
+margin and spacing, but want to use functions in the generated code to
+retrieve these values dynamically, check the use functions checkbox
+ans specify the function names (only the function name, no signature
+or parantheses) which should be used to retrieve the
+margin and spacing in the margin and spacing line edits.#######
 
 Click \OK to accept changes to the form settings. Click \CANCEL to leave the
 dialog without making any changes.
@@ -438,21 +454,12 @@ Settings Dialog}. Use this dialog to make changes to the project settings.
 \section3 Settings Tab
 
 The 'Settings' tab shows information about the project. The Project
-File line edit defaults the project name. To change the name, type a new
-name in the line edit. To save the project, click the \Button
-{(ellipsis)} button located next to Project File to invoke the
-\Dialog{Save As Dialog}. The 'Language' combobox is disabled. Click
-the 'Description' line edit if you want to add additional information
-about the project.
-
-\img qd-projectsettingsfilestabdialog.png
-\caption Project Settings- Files Tab
-
-\section3 Files Tab
-
-Click the 'Files' tab to enter a name in the 'Database File' line edit.
-Click the \Button {(ellipsis)} button to invoke the \Dialog{Save As
-Dialog}.
+File line edit defaults the project name. To change the name, type the
+new name in the line edit or click the \Button {(ellipsis)} button
+located next to Project File to invoke the \Dialog{Save As Dialog}.
+The 'Language' combobox is disabled. To change the name in the
+'Database File' line edit type the new name in the line edit or click
+the \Button {(ellipsis)} button to invoke the \Dialog{Save As Dialog}.
 
 \img qd-projectsettingsc++tabdialog.png
 \caption Project Settings- C++ Tab
@@ -661,33 +668,6 @@ Attributes column headers to sort the folders or files.
 Click \Button Save to save the selected form. Click \CANCEL to leave
 the dialog without saving the form. 
 
-\img qd-editeditconnections.png
-\caption Edit Connections
-
-\target dialog-edit-connections
-\section1 Edit Connections Dialog
-
-Invoke the \Dialog {Edit Connections} dialog to modify connections
-between signals and slots. 
-
-The top left hand listbox displays the Signals that the widget can emit.
-The top right combobox lists the form and its widgets. Beneath the
-combobox is the 'Slots' listbox which shows the slots available in the
-form or widget displayed in the 'Slots' combobox which are compatible
-with the highlighted signal. To connect a signal to a slot, choose a
-signal from the 'Signals' listbox by clicking on it. Then choose a
-form or widget from the 'Slots' combobox. Choose a slot for the widget
-or form you select from the listbox. The \Button Connect button will
-flash and the new connection will appear in the 'Connections' listbox,
-along with any existing connections. Click the column headers Sender,
-Signal, Receiver, or Slot to sort the connections. To disconnect an
-existing connection, choose the connection from the 'Connections'
-listbox and click the \Button Disconnect button. Click \Button {Edit
-Slots} to invoke the \Dialog{Edit Slots Dialog}. 
-
-Click \OK to accept changes to the connections. Click \CANCEL to leave
-the dialog without making changes to the connections.   
-
 \img qd-finddirectorydialog.png
 \caption Find Directory
 
@@ -853,6 +833,8 @@ Date, or Attributes column headers to sort the folders or files.
 Click \Button Open to open the selected file. Click \CANCEL to leave
 the dialog without opening a file.
 
+\section3 ####Tools|Configure Toolbox###
+
 \img qd-chooseanimage.png
 \caption Choose an Image
 
@@ -980,8 +962,11 @@ dialog without making any changes to the font.
 
 The \Dialog Text dialog is used to type text. 
 
-Click \OK to accept the text. Click \CANCEL to leave the dialog
-without saving any text.
+Use this dialog to apply HTML formatting to your text using the format
+toolbars and menus.
+
+Click \OK to accept the text and formatting. Click \CANCEL to leave the dialog
+without saving any text or formatting.
 
 \img qd-title.png
 \caption Title Dialog

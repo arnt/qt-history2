@@ -126,14 +126,14 @@ accelerator, or click \CANCEL to exit the message box without taking
 any action. 
 
     \index Signals and Slots!Edit Slots Dialog
-    \index Edit Slots Dialog
+    \index Edit Functions Dialog
 \i \Menu Edit|Slots\BR Click this menu option to edit and create
-slots. This option invokes the \l{Edit Slots Dialog}.
+slots and functions. This option invokes the \l{Edit Functions Dialog}.
 
     \index Signals and Slots!View Connections Dialog
     \index View Connections Dialog
 \i \Menu Edit|Connections\BR Click this menu option to invoke the \l{View
-Connections Dialog}. 
+and Edit Connections Dialog}. 
 
     \index Form Settings Dialog
 \i \Menu {Edit|Form Settings}\BR Click this menu option to invoke the \l{Form
@@ -396,7 +396,10 @@ to invoke the \l{Edit Custom Widgets Dialog}.
 \i \Menu {Tools|Custom|<My Custom Widget>}\BR Click this menu option and
 then click the form to place the Custom Widget on the form. Note that
 this menu option only appears if you have created a widget using
-\Menu{Tools|Custom|Edit Custom Widgets}. 
+\Menu{Tools|Custom|Edit Custom Widgets}.
+
+\i \Menu {Tools|Configure Toolbox}\BR Click this menu option to invoke
+the \l{Configure Toolbox Dialog}.
 
 \endlist
 
