@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#90 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#91 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -2061,7 +2061,8 @@ void QMultiLineEdit::setAutoUpdate( bool enable )
  */
 void QMultiLineEdit::setFixedVisibleLines( int lines )
 {
-    int ls = fontMetrics().lineSpacing() + 1;
+    // #### What about auto-scrollbars?
+    int ls = fontMetrics().lineSpacing() + 1; // #### explain +1
     setFixedHeight( frameWidth()*2 + ls*lines );
     return;
 }
