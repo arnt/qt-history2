@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#111 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#112 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -40,12 +40,12 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#111 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#112 $")
 
 
-// --------------------------------------------------------------------------
-// Internal variables and functions
-//
+/*****************************************************************************
+  Internal variables and functions
+ *****************************************************************************/
 
 static char    *appName;			// application name
 static char    *appFont		= 0;		// application font
@@ -72,8 +72,9 @@ static bool	app_do_modal	= FALSE;	// modal mode
 static int	app_loop_level	= 1;		// event loop level
 static bool	app_exit_loop	= FALSE;	// flag to exit local loop
 static int	app_Xfd;			// X network socket
-static int	app_Xfd_width;
-static fd_set	app_fdset;
+static fd_set   app_readfds;			// fd set for reading
+static fd_set   app_writefds;			// fd set for writing
+static fd_set   app_exceptfds;			// fd set for exceptions
 
 static GC	app_gc_ro	= 0;		// read-only GC
 static GC	app_gc_tmp	= 0;		// temporary GC
@@ -131,7 +132,7 @@ typedef void (*SIG_HANDLER)(int);
 #endif
 
 
-// --------------------------------------------------------------------------
+//
 // qt_init() - initializes Qt for X-Windows
 //
 
@@ -282,7 +283,6 @@ void qt_init( int *argcptr, char **argv )
 	       XDisplayName(appDpyName) );
     }
     app_Xfd = XConnectionNumber( appDpy );	// set X network socket
-    app_Xfd_width = app_Xfd + 1;
 
     if ( appSync )				// if "-sync" argument
 	XSynchronize( appDpy, TRUE );
@@ -332,7 +332,7 @@ void qt_init( int *argcptr, char **argv )
 }
 
 
-// --------------------------------------------------------------------------
+//
 // qt_cleanup() - cleans up when the application is finished
 //
 
@@ -374,9 +374,9 @@ void qt_cleanup()
 }
 
 
-// --------------------------------------------------------------------------
-// Platform specific global and internal functions
-//
+/*****************************************************************************
+  Platform specific global and internal functions
+ *****************************************************************************/
 
 void qt_save_rootinfo()				// save new root info
 {
@@ -426,7 +426,7 @@ static int trapIOErrors( Display * )		// default X11 IO error handler
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   \relates QApplication
   Adds a global routine that will be called from the QApplication destructor.
   This function is normally used to add cleanup routines.
@@ -446,7 +446,7 @@ static int trapIOErrors( Display * )		// default X11 IO error handler
 	qAddPostRoutine( cleanup_ptr );		// delete later
     }
   \endcode
-*/
+ ----------------------------------------------------------------------------*/
 
 void qAddPostRoutine( void (*p)() )		// add post routine
 {
@@ -530,7 +530,14 @@ GC qt_xget_temp_gc( bool monochrome )		// get use'n throw GC
 // Platform specific QApplication members
 //
 
-/*!
+/*----------------------------------------------------------------------------
+  \fn QWidget *QApplication::mainWidget() const
+  Returns the main application widget, or 0 if there is not a defined
+  main widget.
+  \sa setMainWidget()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
   Sets the main widget of the application.
 
   The special thing about the main widget is that destroying the main
@@ -543,9 +550,8 @@ GC qt_xget_temp_gc( bool monochrome )		// get use'n throw GC
   \link QWidget::setGeometry() set the default geometry\endlink before
   calling setMainWidget().
 
-
   \sa mainWidget(), exec(), quit()
-*/
+ ----------------------------------------------------------------------------*/
 
 void QApplication::setMainWidget( QWidget *mainWidget )
 {
@@ -569,6 +575,21 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 }
 
 
+/*----------------------------------------------------------------------------
+  \fn QWidget *QApplication::desktop()
+  Returns the desktop widget (also called root window).
+
+  The desktop widget is useful for obtaining the size of the screen.
+  It can also be used to draw on the desktop.
+
+  \code
+    QWidget *d = QApplication::desktop();
+    int w=d->width();			// returns screen width
+    int h=d->height();			// returns screen height
+    d->setBackgroundColor( red );	// makes desktop red
+  \endcode
+ ----------------------------------------------------------------------------*/
+
 QWidget *QApplication::desktop()
 {
     if ( !desktopWidget ) {			// not created yet
@@ -579,7 +600,32 @@ QWidget *QApplication::desktop()
 }
 
 
-void QApplication::setCursor( const QCursor &c )// set application cursor
+/*----------------------------------------------------------------------------
+  \fn QCursor *QApplication::cursor()
+  Returns the application cursor.
+  This function returns 0 if no application cursor has been defined.
+  \sa setCursor(), restoreCursor()
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  Sets the application cursor to \e c.
+
+  This cursor will be displayed in all application widgets until
+  restoreCursor() or another setCursor() is called.
+
+  QWidget::setCursor() will override this.
+
+  Example:
+  \code
+    QApplication::setCursor( waitCursor );
+    calculate_mandelbrot();			// lunch time...
+    QApplication::restoreCursor();
+  \endcode
+
+  \sa cursor(), restoreCursor(), QWidget::setCursor()
+ ----------------------------------------------------------------------------*/
+
+void QApplication::setCursor( const QCursor &c )
 {
     if ( app_cursor )
 	delete app_cursor;
@@ -595,7 +641,13 @@ void QApplication::setCursor( const QCursor &c )// set application cursor
     XFlush( appDpy );				// make X execute it NOW
 }
 
-void QApplication::restoreCursor()		// restore application cursor
+/*----------------------------------------------------------------------------
+  Undoes the effect of setCursor() and gives the widgets their original
+  cursors.
+  \sa setCursor()
+ ----------------------------------------------------------------------------*/
+
+void QApplication::restoreCursor()
 {
     if ( !app_cursor )				// there is no app cursor
 	return;
@@ -612,54 +664,7 @@ void QApplication::restoreCursor()		// restore application cursor
 }
 
 
-#if 0
-
-static bool isLeafWidget( Window win )
-{
-    QWidget *w = QWidget::find( win );
-    if ( !w || !w->children() )
-	return FALSE;
-    QObjectListIt it( *w->children() );
-    while ( it.current() ) {
-	if ( it.current()->isWidgetType() )
-	    return FALSE;
-	++it;
-    }
-    return TRUE;
-}
-
-static Window findChild( Window win, Atom WM_STATE, bool leaf )
-{
-    Window root, parent, target=0, *children;
-    uint   nchildren;
-    Atom   type = None;
-    int	   format, i;
-    ulong  nitems, after;
-    uchar *data;
-    QWidget *w;
-
-    if ( !XQueryTree(appDpy, win, &root, &parent, &children, &nchildren) )
-	return 0;
-    for ( i=nchildren-1; !target && i>=0; i++ ) {
-	w = QWidget::find( children[i] );
-	if ( w )
-	    type = 1;
-	else
-	    XGetWindowProperty( appDpy, children[i], WM_STATE, 0, 0, False,
-				AnyPropertyType, &type, &format, &nitems,
-				&after, &data );
-	if ( type && isLeafWidget(children[i]) )
-	    target = children[i];
-    }
-    for ( i=0; !target && i<(int)nchildren; i++ )
-	target = findChild( children[i], WM_STATE, leaf );
-    if ( children )
-	XFree( (char *)children );
-    return target;
-}
-#endif
-
-static QWidget *findChildWidget( QWidget *p, QPoint pos )
+static QWidget *findChildWidget( const QWidget *p, const QPoint &pos )
 {
     if ( p->children() ) {
 	QWidget *w;
@@ -706,7 +711,7 @@ static Window findClientWindow( Window win, Atom WM_STATE, bool leaf )
 }
 
 
-/*!
+/*----------------------------------------------------------------------------
   Returns a pointer to the widget at global screen position \e (x,y), or a
   null pointer if there is no Qt widget there.
 
@@ -714,7 +719,7 @@ static Window findClientWindow( Window win, Atom WM_STATE, bool leaf )
   \e child is FALSE.
 
   \sa QCursor::pos(), QWidget::grabMouse(), QWidget::grabKeyboard()
-*/
+ ----------------------------------------------------------------------------*/
 
 QWidget *QApplication::widgetAt( int x, int y, bool child )
 {
@@ -740,72 +745,37 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
     return w;
 }
 
-/*!
+/*----------------------------------------------------------------------------
   \overload QWidget *QApplication::widgetAt( const QPoint &pos, bool child )
-*/
+ ----------------------------------------------------------------------------*/
 
 
-#if 0
+/*----------------------------------------------------------------------------
+  Flushes the X event queue in the X-Windows implementation.
+  Does nothing on other platforms.
+  \sa syncX()
+ ----------------------------------------------------------------------------*/
 
-/*!
-  Returns the handle pointer to the window at global screen position \e
-  (x,y) or 0 if this function fails.
-
-  Returns a child window if \e child is TRUE or a top level widget if
-  \e child is FALSE.
-
-  \sa QCursor::pos(), QWidget::grabMouse(), QWidget::grabKeyboard(),
-  QPixmap::grabWindow()
-*/
-
-HANDLE QApplication::windowAt( int x, int y, bool child )
-{
-    Window target;
-    if ( !XTranslateCoordinates(appDpy, appRootWin, appRootWin,
-				x, y, &x, &y, &target) )
-	return 0;
-    if ( !target || target == appRootWin )
-	return appRootWin;
-    static Atom WM_STATE = 0;
-    if ( WM_STATE == 0 )
-	WM_STATE = XInternAtom( appDpy, "WM_STATE", TRUE );
-    if ( !WM_STATE )
-	return 0;
-    target = findClientWindow( target, WM_STATE, TRUE );
-    if ( child ) {
-	Window c = findChildWindow( target, w->mapFromParent(QPoint(x,y)) );
-	target = c ? c : target;
-    }
-    return target;
-}
-
-/*!
-  \overload HANDLE QApplication::windowAt( const QPoint &pos, bool child )
-*/
-
-#endif
-
-
-/*!  Flushes the X event queue in the X-Windows implementation.	 Does
-  nothing on other platforms. \sa syncX() */
-
-void QApplication::flushX()			// flush X output buffer
+void QApplication::flushX()
 {
     XFlush( appDpy );
 }
 
-/*!  Synchronizes with the X server in the X-Windows implementation.
-  Does nothing on other platforms. \sa flushX() */
+/*----------------------------------------------------------------------------
+  Synchronizes with the X server in the X-Windows implementation.
+  Does nothing on other platforms.
+  \sa flushX()
+ ----------------------------------------------------------------------------*/
 
-void QApplication::syncX()			// synchronize with X server
+void QApplication::syncX()
 {
     XSync( appDpy, FALSE );			// don't discard events
 }
 
 
-// --------------------------------------------------------------------------
-// QApplication management of posted events
-//
+/*****************************************************************************
+  QApplication management of posted events
+ *****************************************************************************/
 
 class QPEObject : public QObject		// trick to set/clear pendEvent
 {
@@ -832,6 +802,14 @@ struct QPostEvent {
 declare(QListM,QPostEvent);
 static QListM(QPostEvent) *postedEvents = 0;	// list of posted events
 
+/*----------------------------------------------------------------------------
+  Stores the event in a queue and returns immediatly.
+
+  When control returns to the main event loop, all events that are
+  stored in the queue will be sent using the notify() function.
+
+  \sa sendEvent()
+ ----------------------------------------------------------------------------*/
 
 void QApplication::postEvent( QObject *receiver, QEvent *event )
 {
@@ -840,10 +818,12 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 	CHECK_PTR( postedEvents );
 	postedEvents->setAutoDelete( TRUE );
     }
+    if ( receiver == 0 ) {
 #if defined(CHECK_NULL)
-    if ( receiver == 0 )
-	warning( "QApplication::postEvent: Unexpeced NULL receiver" );
+	warning( "QApplication::postEvent: Unexpeced null receiver" );
 #endif
+	return;
+    }
     ((QPEObject*)receiver)->setPendEventFlag();
     ((QPEvent*)event)->setPostedFlag();
     postedEvents->append( new QPostEvent(receiver,event) );
@@ -899,9 +879,9 @@ static void cleanupPostedEvents()		// cleanup list
 }
 
 
-// --------------------------------------------------------------------------
-// Special lookup functions for windows that have been recreated recently
-//
+/*****************************************************************************
+  Special lookup functions for windows that have been recreated recently
+ *****************************************************************************/
 
 static QWidgetIntDict *wPRmapper = 0;		// alternative widget mapper
 
@@ -942,62 +922,192 @@ QETWidget *qPRFindWidget( Window oldwin )
 }
 
 
-// --------------------------------------------------------------------------
-// Main event loop
-//
+/*****************************************************************************
+  Socket notifier (type: 0=read, 1=write, 2=exception)
 
-/*!  This function may be removed in the next release of the Qt
-  library.  This is what we currently think is a nice and pretty
-  main():
+  The QSocketNotifier class (qsocknot.h) provides installable callbacks
+  for select() throught the internal function qt_set_socket_handler().
+ *****************************************************************************/
 
-  \code
-    #include <qapp.h>				// defines QApplication
-    #include <qpushbt.h>			// defines QPushButton
+struct QSockNot {
+    QObject *obj;
+    int	     fd;
+};
 
-    int main( int argc, char **argv )
-    {
-	QApplication app( argc, argv );		// create app object
-	QPushButton  hi( "Hello, world" );	// create a push button
-	app.setMainWidget( &hi );		// define as main widget
-	hi.show();				// show button
-	return a.exec();			// run main event loop
-    }
-  \endcode
+typedef declare(QListM,QSockNot)	 QSNList;
+typedef declare(QListIteratorM,QSockNot) QSNListIt;
 
-  Ie. call setMainWidget(), then exec() with no parameters. */
+static int	sn_highest = -1;
+static QSNList *sn_read   = 0;
+static QSNList *sn_write  = 0;
+static QSNList *sn_except = 0;
 
-int QApplication::exec( QWidget *mainWidget )	// enter main event loop
+static fd_set   sn_readfds;			// fd set for reading
+static fd_set   sn_writefds;			// fd set for writing
+static fd_set   sn_exceptfds;			// fd set for exceptions
+
+static struct SN_Type {
+    QSNList **list;
+    fd_set   *fdspec;
+    fd_set   *fdres;
+} sn_vec[3] = {
+    { &sn_read,   &sn_readfds,	 &app_readfds },
+    { &sn_write,  &sn_writefds,  &app_writefds },
+    { &sn_except, &sn_exceptfds, &app_exceptfds } };
+
+
+bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 {
-    debug( "QApplication: exec( QWidget * ) IS OBSOLETE"
-	   "  Use setMainWidget to set the main widget" );
-    setMainWidget( mainWidget );
-    return exec();
+    if ( sockfd < 0 || type < 0 || type > 2 || obj == 0 ) {
+#if defined(CHECK_RANGE)
+	warning( "QSocketNotifier: Internal error" );
+#endif
+	return FALSE;
+    }
+
+    QSNList  *list = *sn_vec[type].list;
+    fd_set   *fds  =  sn_vec[type].fdspec;
+    QSockNot *sn;
+
+    if ( enable ) {				// enable notifier
+	if ( !list ) {
+	    list = new QSNList;			// create new list
+	    CHECK_PTR( list );
+	    list->setAutoDelete( TRUE );
+	    *sn_vec[type].list = list;
+	    FD_ZERO( fds );
+	}
+	sn = new QSockNot;
+	CHECK_PTR( sn );
+	sn->obj = obj;
+	sn->fd  = sockfd;
+	if ( list->isEmpty() )
+	    list->insert( 0, sn );
+	else {					// sort list by fd, decreasing
+	    QSockNot *p = list->first();
+	    while ( p && p->fd > sockfd )
+		p = list->next();
+#if defined(DEBUG)
+	    if ( p && p->fd == sockfd )
+		warning( "QSocketNotifier: Multiple registrations "
+			 "for socket %d", sockfd );
+#endif
+	    list->insert( list->at(), sn );
+	}
+	FD_SET( sockfd, fds );
+	sn_highest = QMAX(sn_highest,sockfd);
+    }
+    else {					// disable notifier
+	if ( list == 0 )
+	    return FALSE;			// no such fd set
+	QSockNot *sn = list->first();
+	while ( sn && !(sn->obj == obj && sn->fd == sockfd) )
+	    sn = list->next();
+	if ( !sn )				// not found
+	    return FALSE;
+	list->remove();				// remove this notifier
+	FD_CLR( sockfd, fds );			// clear fd bit
+	if ( list->isEmpty() ) {		// no more notifiers
+	    delete list;			// delete list
+	    *sn_vec[type].list = 0;
+	}
+	if ( sn_highest == sockfd ) {		// find highest fd
+	    sn_highest = -1;
+	    for ( int i=0; i<3; i++ ) {
+		if ( *sn_vec[i].list )		// list is fd-sorted
+		    sn_highest = QMAX(sn_highest,
+				      (*(sn_vec[i].list))->getFirst()->fd);
+	    }
+	}
+    }
+    return TRUE;
 }
 
 
-/*!
+typedef declare(QIntDictM,QObject)	   QObjRndDict;
+typedef declare(QIntDictIteratorM,QObject) QObjRndDictIt;
+
+static QObjRndDict *sn_rnd_dict = 0;
+
+static void sn_cleanup()
+{
+    delete sn_rnd_dict;
+}
+
+//
+// We choose a random activation order to be more fair under high load.
+// If a constant order is used and a peer early in the list can
+// saturate the IO, it might grab our attention completely.
+// Also, if we're using a straight list, the callback routines may
+// delete other entries from the list before those other entries are 
+// processed.
+//
+
+static void sn_activate()
+{
+    if ( !sn_rnd_dict ) {
+	sn_rnd_dict = new QObjRndDict( 53 );
+	CHECK_PTR( sn_rnd_dict );
+	qAddPostRoutine( sn_cleanup );
+    }
+    for ( int i=0; i<3; i++ ) {			// for each list...
+	if ( *sn_vec[i].list ) {		// any entries?
+	    QSNList  *list = *sn_vec[i].list;
+	    fd_set   *fds = sn_vec[i].fdres;
+	    QSockNot *sn = list->first();
+	    while ( sn ) {
+		if ( FD_ISSET(sn->fd,fds) )	// store away for activation
+		    sn_rnd_dict->insert( random(), sn->obj );
+		sn = list->next();
+	    }
+	}
+    }
+    if ( sn_rnd_dict->count() > 0 ) {		// activate entries
+	QEvent event( Event_SockAct );
+	QObjRndDictIt it( *sn_rnd_dict );
+	while ( it.current() ) {
+	    QApplication::sendEvent( it.current(), &event );
+	    ++it;
+	}
+	sn_rnd_dict->clear();
+    }
+}
+
+
+/*****************************************************************************
+  Main event loop
+ *****************************************************************************/
+
+/*----------------------------------------------------------------------------
   Enters the main event loop and waits until quit() is called or
   the \link setMainWidget() main widget\endlink is destroyed.
   Returns the value that was specified to quit().
 
   It is necessary to call this function to start event handling.
   The main event loop receives \link QWidget::event() events\endlink from
-  the window system and dispatches these to the application widgets.  No
-  user interaction can take place before calling exec().
+  the window system and dispatches these to the application widgets.
 
+  Generally, no user interaction can take place before calling exec().
   As a special case, modal widgets like QMessageBox can be used before
   calling exec(), because modal widget have a local event loop.
-  \sa quit(), setMainWidget()
-*/
 
-int QApplication::exec()			// enter main event loop
+  \sa quit(), setMainWidget()
+ ----------------------------------------------------------------------------*/
+
+int QApplication::exec()
 {
     enter_loop();
     return quit_code;
 }
 
 
-int QApplication::enter_loop()			// local event loop
+/*----------------------------------------------------------------------------
+  This function enters the main event loop (recursively).
+  Do not call it unless you are an expert.
+  \sa exit_loop()
+ ----------------------------------------------------------------------------*/
+
+int QApplication::enter_loop()
 {
     app_loop_level++;				// increment loop level count
 
@@ -1145,8 +1255,8 @@ int QApplication::enter_loop()			// local event loop
 			a->x += a2.border_width;// a->x = parent frame width
 			a->y += a2.border_width;// a->y = parent caption height
 			widget->frect = QRect(QPoint(r->left() - a->x,
-						     r->top() - a->y),
-					      QPoint(r->right() + a->x,
+						     r->top()  - a->y),
+					      QPoint(r->right()  + a->x,
 						     r->bottom() + a->x) );
 		    }
 		    break;
@@ -1160,16 +1270,48 @@ int QApplication::enter_loop()			// local event loop
 	if ( quit_now || app_exit_loop )	// break immediatly
 	    break;
 
-	FD_ZERO( &app_fdset );
-	FD_SET( app_Xfd, &app_fdset );
 	timeval *tm = waitTimer();		// wait for timer or X event
+
+	if ( sn_highest >= 0 ) {
+	    if ( sn_read )
+		app_readfds = sn_readfds;
+	    else
+		FD_ZERO( &app_readfds );
+	    if ( sn_write )
+		app_writefds = sn_writefds;
+	    if ( sn_except )
+		app_exceptfds = sn_exceptfds;
+	}
+	else {
+	    FD_ZERO( &app_readfds );
+	}
+	FD_SET( app_Xfd, &app_readfds );
+
 #if defined(_OS_HPUX_)
 #define FDCAST (int*)
 #else
 #define FDCAST
 #endif
-	select( app_Xfd_width, FDCAST &app_fdset, 0, 0, tm );
+	
+	int nsel;
+	nsel = select( QMAX(app_Xfd,sn_highest)+1,
+		       FDCAST (&app_readfds),
+		       FDCAST (sn_write  ? &app_writefds  : 0),
+		       FDCAST (sn_except ? &app_exceptfds : 0),
+		       tm );
 #undef FDCAST
+
+	if ( nsel == -1 ) {
+	    if ( errno == EINTR || errno == EAGAIN ) {
+		errno = 0;
+		continue;
+	    }
+	    else
+		// select error
+	}
+	else if ( nsel > 0 && sn_highest >= 0 ) {
+	    sn_activate();
+	}
 	qt_reset_color_avail();			// color approx. optimization
 	activateTimer();			// activate timer(s)
     }
@@ -1177,34 +1319,52 @@ int QApplication::enter_loop()			// local event loop
     return 0;
 }
 
+
+/*----------------------------------------------------------------------------
+  This function leaves from a recursive call to the main event loop.
+  Do not call it unless you are an expert.
+  \sa enter_loop()
+ ----------------------------------------------------------------------------*/
+
 void QApplication::exit_loop()
 {
     app_exit_loop = TRUE;
 }
 
 
-bool QApplication::x11EventFilter( XEvent * )	// X11 event filter
+/*----------------------------------------------------------------------------
+  This virtual function is only implemented under X-Windows.
+
+  If you create an application that inherits QApplication and reimplement this
+  function, you get direct access to all X events that the are received
+  from the X server.
+
+  Return TRUE if you want to stop the event from being dispatched, or return
+  FALSE for normal event dispatching.
+ ----------------------------------------------------------------------------*/
+
+bool QApplication::x11EventFilter( XEvent * )
 {
     return FALSE;
 }
 
 
-// --------------------------------------------------------------------------
-// Modal widgets; Since Xlib has little support for this we roll our own
-// modal widget mechanism.
-// A modal widget without a parent becomes application-modal.
-// A modal widget with a parent becomes modal to its parent and grandparents..
-//
-// qt_enter_modal()
-//	Enters modal state and returns when the widget is hidden/closed
-//	Arguments:
-//	    QWidget *widget	A modal widget
-//
-// qt_leave_modal()
-//	Leaves modal state for a widget
-//	Arguments:
-//	    QWidget *widget	A modal widget
-//
+/*****************************************************************************
+  Modal widgets; Since Xlib has little support for this we roll our own
+  modal widget mechanism.
+  A modal widget without a parent becomes application-modal.
+  A modal widget with a parent becomes modal to its parent and grandparents..
+ 
+  qt_enter_modal()
+ 	Enters modal state and returns when the widget is hidden/closed
+ 	Arguments:
+ 	    QWidget *widget	A modal widget
+ 
+  qt_leave_modal()
+ 	Leaves modal state for a widget
+ 	Arguments:
+ 	    QWidget *widget	A modal widget
+ *****************************************************************************/
 
 static QWidgetList *modal_stack = 0;		// stack of modal widgets
 
@@ -1288,19 +1448,19 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
 }
 
 
-// --------------------------------------------------------------------------
-// Popup widget mechanism
-//
-// qt_open_popup()
-//	Adds a widget to the list of popup widgets
-//	Arguments:
-//	    QWidget *widget	The popup widget to be added
-//
-// qt_close_popup()
-//	Removes a widget from the list of popup widgets
-//	Arguments:
-//	    QWidget *widget	The popup widget to be removed
-//
+/*****************************************************************************
+  Popup widget mechanism
+ 
+  qt_open_popup()
+ 	Adds a widget to the list of popup widgets
+ 	Arguments:
+ 	    QWidget *widget	The popup widget to be added
+ 
+  qt_close_popup()
+ 	Removes a widget from the list of popup widgets
+ 	Arguments:
+ 	    QWidget *widget	The popup widget to be removed
+ *****************************************************************************/
 
 QWidgetList *popupWidgets = 0;			// list of popup widgets
 bool popupCloseDownMode = FALSE;
@@ -1349,39 +1509,39 @@ void qt_close_popup( QWidget *popup )		// remove popup widget
 }
 
 
-// --------------------------------------------------------------------------
-// Timer handling; Xlib has no application timer support so we'll have to
-// make our own from scratch.
-//
-// NOTE: These functions are for internal use. QObject::startTimer() and
-//	 QObject::killTimer() are for public use.
-//	 The QTimer class provides a high-level interface which translates
-//	 timer events into signals.
-//
-// qStartTimer( interval, obj )
-//	Starts a timer which will run until it is killed with qKillTimer()
-//	Arguments:
-//	    long interval	timer interval in milliseconds
-//	    QObject *obj	where to send the timer event
-//	Returns:
-//	    int			timer identifier, or zero if not successful
-//
-// qKillTimer( timerId )
-//	Stops a timer specified by a timer identifier.
-//	Arguments:
-//	    int timerId		timer identifier
-//	Returns:
-//	    bool		TRUE if successful
-//
-// qKillTimer( obj )
-//	Stops all timers that are sent to the specified object.
-//	Arguments:
-//	    QObject *obj	object receiving timer events
-//	Returns:
-//	    bool		TRUE if successful
-//
+/*****************************************************************************
+  Timer handling; Xlib has no application timer support so we'll have to
+  make our own from scratch.
+ 
+  NOTE: These functions are for internal use. QObject::startTimer() and
+ 	 QObject::killTimer() are for public use.
+ 	 The QTimer class provides a high-level interface which translates
+ 	 timer events into signals.
+ 
+  qStartTimer( interval, obj )
+ 	Starts a timer which will run until it is killed with qKillTimer()
+ 	Arguments:
+ 	    long interval	timer interval in milliseconds
+ 	    QObject *obj	where to send the timer event
+ 	Returns:
+ 	    int			timer identifier, or zero if not successful
+ 
+  qKillTimer( timerId )
+ 	Stops a timer specified by a timer identifier.
+ 	Arguments:
+ 	    int timerId		timer identifier
+ 	Returns:
+ 	    bool		TRUE if successful
+ 
+  qKillTimer( obj )
+ 	Stops all timers that are sent to the specified object.
+ 	Arguments:
+ 	    QObject *obj	object receiving timer events
+ 	Returns:
+ 	    bool		TRUE if successful
+ *****************************************************************************/
 
-// --------------------------------------------------------------------------
+//
 // Internal data structure for timers
 //
 
@@ -1399,7 +1559,7 @@ static uchar *timerBitVec = 0;			// timer bit vector
 static TimerList *timerList = 0;		// timer list
 
 
-// --------------------------------------------------------------------------
+//
 // Internal operator functions for timevals
 //
 
@@ -1432,7 +1592,7 @@ static inline timeval operator-( const timeval &t1, const timeval &t2 )
 }
 
 
-// --------------------------------------------------------------------------
+//
 // Internal functions for manipulating timer data structures.
 // The timerBitVec array is used for keeping track of timer identifiers.
 //
@@ -1513,7 +1673,7 @@ static void repairTimer( const timeval &time )	// repair broken timer
 }
 
 
-// --------------------------------------------------------------------------
+//
 // Timer activation functions (called from the event loop)
 //
 
@@ -1571,7 +1731,7 @@ static bool activateTimer()			// activate timer(s)
 }
 
 
-// --------------------------------------------------------------------------
+//
 // Timer initialization and cleanup routines
 //
 
@@ -1594,7 +1754,7 @@ static void cleanupTimers()			// cleanup timer data structure
 }
 
 
-// --------------------------------------------------------------------------
+//
 // Main timer functions for starting and killing timers
 //
 
@@ -1654,7 +1814,11 @@ bool qKillTimer( QObject *obj )			// kill timers for obj
 }
 
 
-// --------------------------------------------------------------------------
+/*****************************************************************************
+  Event translation; translates X events to Qt events
+ *****************************************************************************/
+
+//
 // Mouse event translation
 //
 // Xlib doesn't give mouse double click events, so we generate them by
@@ -1787,7 +1951,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 }
 
 
-// --------------------------------------------------------------------------
+//
 // Keyboard event translation
 //
 
@@ -1906,7 +2070,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event )
 }
 
 
-// --------------------------------------------------------------------------
+//
 // Paint event translation
 //
 // When receiving many expose events, we compress them (union of all expose
@@ -1943,7 +2107,7 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
 }
 
 
-// --------------------------------------------------------------------------
+//
 // ConfigureNotify (window move and resize) event translation
 //
 // The problem with ConfigureNotify is that one cannot trust x and y values
@@ -1981,7 +2145,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 }
 
 
-// --------------------------------------------------------------------------
+//
 // Close window event translation
 //
 
