@@ -334,16 +334,10 @@ void QDesignerToolBar::mousePressEvent( QMouseEvent *e )
     widgetInserting = FALSE;
     if ( e->button() == LeftButton &&
 	 MainWindow::self->currentTool() != POINTER_TOOL &&
-	 MainWindow::self->currentTool() != ORDER_TOOL ) {
-
-	if ( MainWindow::self->currentTool() == CONNECT_TOOL ) {
-
-	} else {
-	    widgetInserting = TRUE;
-	}
-
-	return;
-    }
+	 MainWindow::self->currentTool() != ORDER_TOOL &&
+	 MainWindow::self->currentTool() != CONNECT_TOOL &&
+	 MainWindow::self->currentTool() != BUDDY_TOOL )
+	widgetInserting = TRUE;
 }
 
 void QDesignerToolBar::mouseReleaseEvent( QMouseEvent *e )
@@ -424,17 +418,12 @@ void QDesignerToolBar::buttonMousePressEvent( QMouseEvent *e, QObject * )
 
     if ( e->button() == LeftButton &&
 	 MainWindow::self->currentTool() != POINTER_TOOL &&
-	 MainWindow::self->currentTool() != ORDER_TOOL ) {
-
-	if ( MainWindow::self->currentTool() == CONNECT_TOOL ) {
-
-	} else {
+	 MainWindow::self->currentTool() != ORDER_TOOL &&
+	 MainWindow::self->currentTool() != CONNECT_TOOL &&
+	 MainWindow::self->currentTool() != BUDDY_TOOL ) {
 	    widgetInserting = TRUE;
-	}
-
-	return;
+	    return;
     }
-
 
     dragStartPos = e->pos();
 }
