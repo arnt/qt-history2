@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#19 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#18 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#19 $";
 #endif
 
 
@@ -1093,14 +1093,15 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix ) const
     ws = width();
     hs = height();
 
+    const float dt = 0.0001;
     float x1,y1, x2,y2, x3,y3, x4,y4;		// get corners
-    float xx = (float)ws - 0.5;
-    float yy = (float)hs - 0.5;
-    
-    matrix.map( 0.0, 0.0, &x1, &y1 );
-    matrix.map(  xx, 0.0, &x2, &y2 );
-    matrix.map(  xx,  yy, &x3, &y3 );
-    matrix.map( 0.0,  yy, &x4, &y4 );
+    float xx = (float)ws - 1;
+    float yy = (float)hs - 1;
+
+    matrix.map( dt, dt, &x1, &y1 );
+    matrix.map( xx, dt, &x2, &y2 );
+    matrix.map( xx, yy, &x3, &y3 );
+    matrix.map( dt, yy, &x4, &y4 );
 
     float ymin = y1;				// lowest y value
     if ( y2 < ymin ) ymin = y2;
@@ -1114,13 +1115,17 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix ) const
     Q2DMatrix mat( 1, 0, 0, 1, -xmin, -ymin );	// true matrix
     mat = matrix * mat;
 
-    int h13 = d2i_round( QABS(y3-y1) );
-    int w13 = d2i_round( QABS(x3-x1) );
-    int h24 = d2i_round( QABS(y4-y2) );
-    int w24 = d2i_round( QABS(x4-x2) );
-     h = QMAX(h13,h24);                         // size of target pixmap
-     w = QMAX(w13,w24);
-
+    if ( mat.m12() != 0.0 || mat.m21() != 0.0 ) {
+	QPointArray a( QRect(0,0,ws,hs) );
+	a = mat.map( a );
+	QRect r = a.boundingRect();
+	h = r.height();
+	w = r.width();
+    }
+    else {					// no rotation/shearing
+	h = d2i_round( mat.m22()*hs );
+	w = d2i_round( mat.m11()*ws );
+    }
     bool invertible;
     mat = mat.invert( &invertible );		// invert matrix
 
@@ -1175,12 +1180,12 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix ) const
     debug( "bits per pixel.... %d", xi->bits_per_pixel );
 #endif
 
-    int	  m11 = d2i_round((double)mat.m11()*65536.0);
-    int	  m12 = d2i_round((double)mat.m12()*65536.0);
-    int	  m21 = d2i_round((double)mat.m21()*65536.0);
-    int	  m22 = d2i_round((double)mat.m22()*65536.0);
-    int	  dx  = d2i_round((double)mat.dx() *65536.0);
-    int	  dy  = d2i_round((double)mat.dy() *65536.0);
+    int	m11 = d2i_round((double)mat.m11()*65536.0);
+    int	m12 = d2i_round((double)mat.m12()*65536.0);
+    int	m21 = d2i_round((double)mat.m21()*65536.0);
+    int	m22 = d2i_round((double)mat.m22()*65536.0);
+    int	dx  = d2i_round((double)mat.dx() *65536.0);
+    int	dy  = d2i_round((double)mat.dy() *65536.0);
 #if 0
     dx += (dx > 0) ? 32767 : -32768;		// gives error when scaling
     dy += (dy > 0) ? 32767 : -32768;
@@ -1362,22 +1367,26 @@ from the original pixmap into the new pixmap.
 
 Q2DMatrix QPixmap::trueMatrix( const Q2DMatrix &matrix, int w, int h )
 {						// get true wxform matrix
-    int x1,y1, x2,y2, x3,y3, x4,y4;		// get corners
-    matrix.map( 0, 0, &x1, &y1 );
-    matrix.map( w, 0, &x2, &y2 );
-    matrix.map( w, h, &x3, &y3 );
-    matrix.map( 0, h, &x4, &y4 );
+    const float dt = 0.0001;
+    float x1,y1, x2,y2, x3,y3, x4,y4;		// get corners
+    float xx = (float)w - 1;
+    float yy = (float)h - 1;
 
-    int ymin = y1;				// lowest y value
+    matrix.map( dt, dt, &x1, &y1 );
+    matrix.map( xx, dt, &x2, &y2 );
+    matrix.map( xx, yy, &x3, &y3 );
+    matrix.map( dt, yy, &x4, &y4 );
+
+    float ymin = y1;				// lowest y value
     if ( y2 < ymin ) ymin = y2;
     if ( y3 < ymin ) ymin = y3;
     if ( y4 < ymin ) ymin = y4;
-    int xmin = x1;				// lowest x value
+    float xmin = x1;				// lowest x value
     if ( x2 < xmin ) xmin = x2;
     if ( x3 < xmin ) xmin = x3;
     if ( x4 < xmin ) xmin = x4;
 
-    Q2DMatrix result( 1, 0, 0, 1, -xmin, -ymin );
-    result = matrix * result;
-    return result;
+    Q2DMatrix mat( 1, 0, 0, 1, -xmin, -ymin );	// true matrix
+    mat = matrix * mat;
+    return mat;
 }
