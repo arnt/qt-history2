@@ -211,11 +211,6 @@ QTextFormat::QTextFormat(int type, int inheritedType)
 {
 }
 
-QTextFormat::QTextFormat(const QSharedPointer<QTextFormatPrivate> &priv)
-    : d(priv)
-{
-}
-
 QTextFormat::QTextFormat(const QTextFormat &rhs)
 {
     (*this) = rhs;
@@ -268,37 +263,49 @@ int QTextFormat::inheritedType() const
 
 QTextBlockFormat QTextFormat::toBlockFormat() const
 {
+    QTextBlockFormat f;
     if (!isBlockFormat())
-	return QTextBlockFormat();
-    return QTextBlockFormat(d);
+	return f;
+
+    f.d = d;
+    return f;
 }
 
 QTextCharFormat QTextFormat::toCharFormat() const
 {
+    QTextCharFormat f;
     if (!isCharFormat())
-	return QTextCharFormat();
-    return QTextCharFormat(d);
+	return f;
+
+    f.d = d;
+    return f;
 }
 
 QTextListFormat QTextFormat::toListFormat() const
 {
+    QTextListFormat f;
     if (!isListFormat())
-	return QTextListFormat();
-    return QTextListFormat(d);
+	return f;
+    f.d = d;
+    return f;
 }
 
 QTextTableFormat QTextFormat::toTableFormat() const
 {
+    QTextTableFormat f;
     if (!isTableFormat())
-	return QTextTableFormat();
-    return QTextTableFormat(d);
+	return f;
+    f.d = d;
+    return f;
 }
 
 QTextImageFormat QTextFormat::toImageFormat() const
 {
+    QTextImageFormat f;
     if (!isImageFormat())
-	return QTextImageFormat();
-    return QTextImageFormat(d);
+	return f;
+    f.d = d;
+    return f;
 }
 
 bool QTextFormat::boolProperty(int propertyId, bool defaultValue) const

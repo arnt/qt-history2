@@ -101,8 +101,6 @@ public:
 
     Q_EXPLICIT QTextFormat(int type, int inheritedType = -1);
 
-    Q_EXPLICIT QTextFormat(const QSharedPointer<QTextFormatPrivate> &priv);
-
     QTextFormat(const QTextFormat &rhs);
     QTextFormat &operator=(const QTextFormat &rhs);
     ~QTextFormat();
@@ -158,8 +156,6 @@ class QTextCharFormat : public QTextFormat
 {
 public:
     QTextCharFormat() : QTextFormat(CharFormat) {}
-
-    Q_EXPLICIT QTextCharFormat(const QSharedPointer<QTextFormatPrivate> &priv) : QTextFormat(priv) {}
 
     void setFont(const QFont &font);
     QFont font() const;
@@ -240,8 +236,6 @@ public:
 
     QTextBlockFormat() : QTextCharFormat(BlockFormat) {}
 
-    Q_EXPLICIT QTextBlockFormat(const QSharedPointer<QTextFormatPrivate> &priv) : QTextCharFormat(priv) {}
-
     void setDirection(Direction dir)
     { setProperty(BlockDirection, dir); }
     Direction direction() const
@@ -314,8 +308,6 @@ class QTextListFormat : public QTextFormat
 public:
     QTextListFormat() : QTextFormat(ListFormat) {}
 
-    Q_EXPLICIT QTextListFormat(const QSharedPointer<QTextFormatPrivate> &priv) : QTextFormat(priv) {}
-
     void setStyle(QStyleSheetItem::ListStyle style)
     { setProperty(ListStyle, int(style)); }
     QStyleSheetItem::ListStyle style() const
@@ -333,8 +325,6 @@ class QTextTableFormat : public QTextFormat
 public:
     QTextTableFormat() : QTextFormat(TableFormat) {}
 
-    Q_EXPLICIT QTextTableFormat(const QSharedPointer<QTextFormatPrivate> &priv) : QTextFormat(priv) {}
-
     void setBorder(int border)
     { setProperty(TableBorder, border); }
     int border() const
@@ -345,8 +335,6 @@ class QTextImageFormat : public QTextCharFormat
 {
 public:
     QTextImageFormat() : QTextCharFormat(ImageFormat) {}
-
-    Q_EXPLICIT QTextImageFormat(const QSharedPointer<QTextFormatPrivate> &priv) : QTextCharFormat(priv) {}
 
     void setName(const QString &name)
     { setProperty(ImageName, name); }
