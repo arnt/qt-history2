@@ -43,8 +43,8 @@ FtpWindow::FtpWindow(QWidget *parent)
             this, SLOT(ftpCommandFinished(int, bool)));
     connect(ftp, SIGNAL(listInfo(const QUrlInfo &)),
             this, SLOT(addToList(const QUrlInfo &)));
-    connect(ftp, SIGNAL(dataTransferProgress(Q_LONGLONG, Q_LONGLONG)),
-            this, SLOT(updateDataTransferProgress(Q_LONGLONG, Q_LONGLONG)));
+    connect(ftp, SIGNAL(dataTransferProgress(qint64, qint64)),
+            this, SLOT(updateDataTransferProgress(qint64, qint64)));
     connect(progressDialog, SIGNAL(canceled()), this, SLOT(cancelDownload()));
     connect(connectButton, SIGNAL(clicked()), this, SLOT(connectToFtpServer()));
     connect(cdToParentButton, SIGNAL(clicked()), this, SLOT(cdToParent()));
@@ -200,8 +200,8 @@ void FtpWindow::cdToParent()
         cdToParentButton->setEnabled(false);
 }
 
-void FtpWindow::updateDataTransferProgress(qlonglong readBytes,
-                                           qlonglong totalBytes)
+void FtpWindow::updateDataTransferProgress(qint64 readBytes,
+                                           qint64 totalBytes)
 {
     progressDialog->setMaximum(totalBytes);
     progressDialog->setValue(readBytes);
