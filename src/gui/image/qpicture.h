@@ -27,33 +27,35 @@ class Q_GUI_EXPORT QPicture : public QPaintDevice, public QPaintCommands // pict
 {
     Q_DECLARE_PRIVATE(QPicture);
 public:
-    QPicture( int formatVersion = -1 );
-    QPicture( const QPicture & );
-   ~QPicture();
+    QPicture(int formatVersion = -1);
+    QPicture(const QPicture &);
+    ~QPicture();
 
-    bool	isNull() const;
+    inline bool isNull() const;
 
-    uint	size() const;
-    const char* data() const;
-    virtual void setData( const char* data, uint size );
+    inline uint size() const;
+    inline const char* data() const;
+    virtual void setData(const char* data, uint size);
 
-    bool	play( QPainter * );
+    bool play(QPainter *p);
 
-    bool	load( QIODevice *dev, const char *format = 0 );
-    bool	load( const QString &fileName, const char *format = 0 );
-    bool	save( QIODevice *dev, const char *format = 0 );
-    bool	save( const QString &fileName, const char *format = 0 );
+    bool load(QIODevice *dev, const char *format = 0);
+    bool load(const QString &fileName, const char *format = 0);
+    bool save(QIODevice *dev, const char *format = 0);
+    bool save(const QString &fileName, const char *format = 0);
 
     QRect boundingRect() const;
-    void setBoundingRect( const QRect &r );
+    void setBoundingRect(const QRect &r);
 
-    QPicture& operator= (const QPicture&);
+    QPicture& operator=(const QPicture &p);
+    inline void	detach() { if (d_ptr->ref != 1) detach_helper(); }
+    bool isDetached() const { return d_ptr->ref == 1; }
 
-    friend Q_GUI_EXPORT QDataStream &operator<<( QDataStream &, const QPicture & );
-    friend Q_GUI_EXPORT QDataStream &operator>>( QDataStream &, QPicture & );
+    friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &in, const QPicture &p);
+    friend Q_GUI_EXPORT QDataStream &operator>>(QDataStream &in, QPicture &p);
 
 #ifndef QT_NO_IMAGEIO
-    static const char* pictureFormat( const QString &fileName );
+    static const char* pictureFormat(const QString &fileName);
     static QList<QByteArray> inputFormats();
     static QList<QByteArray> outputFormats();
     static QStringList inputFormatList();
@@ -65,12 +67,14 @@ public:
 protected:
     QPicture(QPicturePrivate &data);
 
-    int		metric( int ) const;
-    void	detach();
-    QPicture	copy() const;
+    int metric(int m) const;
+#ifdef QT_COMPAT
+    inline QT_COMPAT QPicture copy() const { QPicture p(*this); p.detach(); return p; }
+#endif
 
 private:
-    bool	exec( QPainter *, QDataStream &, int );
+    bool exec(QPainter *p, QDataStream &ds, int i);
+    void detach_helper();
 
     QPicturePrivate *d_ptr;
     friend class QPicturePaintEngine;

@@ -15,11 +15,11 @@
 #ifndef QPICTURE_P_H
 #define QPICTURE_P_H
 
-#include "private/qobject_p.h"
-#include "qbuffer.h"
-#include "qobjectdefs.h"
-#include "qrect.h"
-#include "qshared.h"
+#include <qatomic.h>
+#include <qbuffer.h>
+#include <qobjectdefs.h>
+#include <qrect.h>
+#include <private/qobject_p.h>
 
 class QPaintEngine;
 
@@ -91,7 +91,7 @@ public:
     };
 };
 
-class QPicturePrivate : public QShared, public QPaintCommands
+class QPicturePrivate : public QPaintCommands
 {
     Q_DECLARE_PUBLIC(QPicture);
     friend class QPicturePaintEngine;
@@ -99,12 +99,13 @@ class QPicturePrivate : public QShared, public QPaintCommands
     friend Q_GUI_EXPORT QDataStream &operator>>(QDataStream &s, QPicture &r);
 
 public:
-    QPicturePrivate() : q_ptr(0) {}
+    inline QPicturePrivate() : q_ptr(0) { ref = 1; }
 
 protected:
     bool checkFormat();
     void resetFormat();
 
+    QAtomic ref;
     QBuffer pictb;
     int	trecs;
     bool formatOk;

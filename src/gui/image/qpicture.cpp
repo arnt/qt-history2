@@ -117,7 +117,7 @@ QPicture::QPicture( int formatVersion )
     if ( formatVersion > 0 && formatVersion != (int)mfhdr_maj ) {
 	d->formatMajor = formatVersion;
 	d->formatMinor = 0;
-	d->formatOk = FALSE;
+	d->formatOk = false;
     }
     else {
 	d->resetFormat();
@@ -129,10 +129,9 @@ QPicture::QPicture( int formatVersion )
 */
 
 QPicture::QPicture( const QPicture &pic )
-    : QPaintDevice( QInternal::Picture | QInternal::ExternalDevice )
+    : QPaintDevice( QInternal::Picture | QInternal::ExternalDevice ), d_ptr(pic.d_ptr)
 {
-    d_ptr = pic.d_ptr;
-    d->ref();
+    ++d->ref;
 }
 
 /*! \internal */
@@ -148,7 +147,7 @@ QPicture::QPicture(QPicturePrivate &dptr)
 */
 QPicture::~QPicture()
 {
-    if ( d->deref() )
+    if (!--d->ref)
 	delete d;
 }
 
@@ -156,8 +155,8 @@ QPicture::~QPicture()
 /*!
     \fn bool QPicture::isNull() const
 
-    Returns TRUE if the picture contains no data; otherwise returns
-    FALSE.
+    Returns true if the picture contains no data; otherwise returns
+    false.
 */
 
 /*!
@@ -196,7 +195,7 @@ void QPicture::setData( const char* data, uint size )
 
 /*!
     Loads a picture from the file specified by \a fileName and returns
-    TRUE if successful; otherwise returns FALSE.
+    true if successful; otherwise returns false.
 
     By default, the file will be interpreted as being in the native
     QPicture format. Specifying the \a format string is optional and
@@ -215,7 +214,7 @@ bool QPicture::load( const QString &fileName, const char *format )
 {
     QFile f( fileName );
     if ( !f.open(IO_ReadOnly) )
-	return FALSE;
+	return false;
     return load( &f, format );
 }
 
@@ -234,7 +233,7 @@ bool QPicture::load( QIODevice *dev, const char *format )
 	if ( qstrcmp( format, "svg" ) == 0 ) {
 	    QSVGPaintEngine svg;
 	    if ( !svg.load( dev ) )
-		return FALSE;
+		return false;
 	    QPainter p( this );
 	    bool b = svg.play( &p );
 	    d->brect = svg.boundingRect();
@@ -250,7 +249,7 @@ bool QPicture::load( QIODevice *dev, const char *format )
 
 	} else if ( format )
 #else
-	    bool result = FALSE;
+	    bool result = false;
 #endif
 	{
 	    qWarning( "QPicture::load: No such picture format: %s", format );
@@ -279,7 +278,7 @@ bool QPicture::load( QIODevice *dev, const char *format )
 
 /*!
     Saves a picture to the file specified by \a fileName and returns
-    TRUE if successful; otherwise returns FALSE.
+    true if successful; otherwise returns false.
 
     Specifying the file \a format string is optional. It's not
     recommended unless you intend to export the picture data for
@@ -299,7 +298,7 @@ bool QPicture::save( const QString &fileName, const char *format )
     if ( paintingActive() ) {
 	qWarning( "QPicture::save: still being painted on. "
 		  "Call QPainter::end() first" );
-	return FALSE;
+	return false;
     }
 
 
@@ -311,7 +310,7 @@ bool QPicture::save( const QString &fileName, const char *format )
 	    operator=( io.picture() );
 	} else if ( format )
 #else
-	bool result = FALSE;
+	bool result = false;
 #endif
 	{
 	    qWarning( "QPicture::save: No such picture format: %s", format );
@@ -321,7 +320,7 @@ bool QPicture::save( const QString &fileName, const char *format )
 
     QFile f( fileName );
     if ( !f.open(IO_WriteOnly) )
-	return FALSE;
+	return false;
     return save( &f, format );
 }
 
@@ -336,7 +335,7 @@ bool QPicture::save( QIODevice *dev, const char *format )
     if ( paintingActive() ) {
 	qWarning( "QPicture::save: still being painted on. "
 		  "Call QPainter::end() first" );
-	return FALSE;
+	return false;
     }
 
     if(format) {
@@ -347,7 +346,7 @@ bool QPicture::save( QIODevice *dev, const char *format )
 	    operator=( io.picture() );
 	} else if ( format )
 #else
-	bool result = FALSE;
+	bool result = false;
 #endif
 	{
 	    qWarning( "QPicture::save: No such picture format: %s", format );
@@ -356,7 +355,7 @@ bool QPicture::save( QIODevice *dev, const char *format )
     }
 
     dev->writeBlock( d->pictb.buffer(), d->pictb.buffer().size() );
-    return TRUE;
+    return true;
 }
 
 /*!
@@ -384,8 +383,8 @@ void QPicture::setBoundingRect( const QRect &r )
 }
 
 /*!
-    Replays the picture using \a painter, and returns TRUE if
-    successful; otherwise returns FALSE.
+    Replays the picture using \a painter, and returns true if
+    successful; otherwise returns false.
 
     This function does exactly the same as QPainter::drawPicture()
     with (x, y) = (0, 0).
@@ -421,7 +420,7 @@ bool QPicture::play( QPainter *painter )
 	return false;
     }
     d->pictb.close();
-    return TRUE;				// no end-command
+    return true;				// no end-command
 }
 
 
@@ -574,11 +573,11 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 	    case PdcBegin:
 		s >> ul;			// number of records
 		if ( !exec( painter, s, ul ) )
-		    return FALSE;
+		    return false;
 		break;
 	    case PdcEnd:
 		if ( nrecords == 0 )
-		    return TRUE;
+		    return true;
 		break;
 	    case PdcSave:
 		painter->save();
@@ -721,8 +720,8 @@ bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 	}
 	trecs = 0;
 	s << (Q_UINT32)trecs;			// total number of records
-	formatOk = FALSE;
-	return TRUE;
+	formatOk = false;
+	return true;
     } else if ( c == PdcEnd ) {		// end; calc checksum and close
 	trecs++;
 	s << (Q_UINT8)c << (Q_UINT8)0;
@@ -741,14 +740,14 @@ bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 	Q_UINT16 cs = (Q_UINT16)qChecksum( buf.constData()+data_start, pos-data_start );
 	s << cs;				// write checksum
 	pictb.close();
-	return TRUE;
+	return true;
     }
     trecs++;
     s << (Q_UINT8)c;				// write cmd to stream
     s << (Q_UINT8)0;				// write dummy length info
     int pos = (int)pictb.at();			// save position
     QRect br;					// bounding rect addition
-    bool corr = FALSE;				// correction for pen width
+    bool corr = false;				// correction for pen width
 
     switch ( c ) {
 	case PdcDrawPoint:
@@ -757,18 +756,18 @@ bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 	case PdcSetBrushOrigin:
 	    s << *p[0].point;
 	    br = QRect( *p[0].point, QSize( 1, 1 ) );
-	    corr = TRUE;
+	    corr = true;
 	    break;
 	case PdcDrawLine:
 	    s << *p[0].point << *p[1].point;
 	    br = QRect( *p[0].point, *p[1].point ).normalize();
-	    corr = TRUE;
+	    corr = true;
 	    break;
 	case PdcDrawRect:
 	case PdcDrawEllipse:
 	    s << *p[0].rect;
 	    br = *p[0].rect;
-	    corr = TRUE;
+	    corr = true;
 	    break;
 	case PdcDrawRoundRect:
 	case PdcDrawArc:
@@ -776,25 +775,25 @@ bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 	case PdcDrawChord:
 	    s << *p[0].rect << (Q_INT16)p[1].ival << (Q_INT16)p[2].ival;
 	    br = *p[0].rect;
-	    corr = TRUE;
+	    corr = true;
 	    break;
 	case PdcDrawLineSegments:
 	case PdcDrawPolyline:
 	    s << *p[0].ptarr;
 	    br = p[0].ptarr->boundingRect();
-	    corr = TRUE;
+	    corr = true;
 	    break;
 #ifndef QT_NO_BEZIER
 	case PdcDrawCubicBezier:
 	    s << *p[0].ptarr;
 	    br = p[0].ptarr->cubicBezier().boundingRect();
-	    corr = TRUE;
+	    corr = true;
 	    break;
 #endif
 	case PdcDrawPolygon:
 	    s << *p[0].ptarr << (Q_INT8)p[1].ival;
 	    br = p[0].ptarr->boundingRect();
-	    corr = TRUE;
+	    corr = true;
 	    break;
 	case PdcDrawText2:
 	    if ( formatMajor == 1 ) {
@@ -927,7 +926,7 @@ bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 	    brect |= br;		     	// merge with existing rect
     }
 
-    return TRUE;
+    return true;
 }
 #endif // 0
 
@@ -982,6 +981,8 @@ int QPicture::metric( int m ) const
 }
 
 /*!
+    \internal
+    \fn void QPicture::detach()
     Detaches from shared picture data and makes sure that this picture
     is the only one referring to the data.
 
@@ -990,33 +991,30 @@ int QPicture::metric( int m ) const
     Nothing is done if there is just a single reference.
 */
 
-void QPicture::detach()
+void QPicture::detach_helper()
 {
-    if ( d->count != 1 )
-	*this = copy();
+    QPicturePrivate *x = new QPicturePrivate;
+    int pictsize = size();
+    QByteArray a(pictsize);
+    memcpy(a.data(), data(), pictsize);
+    x->pictb.setBuffer(a);
+    if (d->pictb.isOpen()) {
+	x->pictb.open(d->pictb.mode());
+	x->pictb.at(d->pictb.at());
+    }
+    x->trecs = d->trecs;
+    x->formatOk = d->formatOk;
+    x->formatMinor = d->formatMinor;
+    x->brect = boundingRect();
+    x = qAtomicSetPtr(&d_ptr, x);
+    if (!--x->ref)
+	delete x;
 }
 
 /*!
+    \fn QPicture QPicture::copy() const
     Returns a \link shclass.html deep copy\endlink of the picture.
 */
-
-QPicture QPicture::copy() const
-{
-    QPicture p;
-    QByteArray a;
-    a.resize(size());
-    memcpy( a.data(), data(), size() );
-    p.d->pictb.setBuffer( a );			// set byte array in buffer
-    if ( d->pictb.isOpen() ) {			// copy buffer state
-	p.d->pictb.open( d->pictb.mode() );
-	p.d->pictb.at( d->pictb.at() );
-    }
-    p.d->trecs = d->trecs;
-    p.d->formatOk = d->formatOk;
-    p.d->formatMinor = d->formatMajor;
-    p.d->brect = boundingRect();
-    return p;
-}
 
 /*****************************************************************************
   QPainter member functions
@@ -1066,12 +1064,13 @@ QPicture QPicture::copy() const
     picture and returns a reference to this picture.
 */
 
-QPicture& QPicture::operator= (const QPicture& p)
+QPicture& QPicture::operator=(const QPicture &p)
 {
-    p.d_ptr->ref(); // avoid 'x = x'
-    if (d_ptr->deref())
-	delete d_ptr;
-    d_ptr = p.d_ptr;
+    QPicturePrivate *x = p.d_ptr;
+    ++x->ref;
+    x = qAtomicSetPtr(&d_ptr, x);
+    if (!--x->ref)
+	delete x;
     return *this;
 }
 
@@ -1889,8 +1888,8 @@ QList<QByteArray> QPictureIO::outputFormats()
 
 
 /*!
-    Reads an picture into memory and returns TRUE if the picture was
-    successfully read; otherwise returns FALSE.
+    Reads an picture into memory and returns true if the picture was
+    successfully read; otherwise returns false.
 
     Before reading an picture you must set an IO device or a file name.
     If both an IO device and a file name have been set, the IO device
@@ -1925,10 +1924,10 @@ bool QPictureIO::read()
     } else if ( !d->fname.isEmpty() ) {		// read from file
 	file.setName( d->fname );
 	if ( !file.open(IO_ReadOnly) )
-	    return FALSE;			// cannot open file
+	    return false;			// cannot open file
 	d->iodev = &file;
     } else {					// no file name or io device
-	return FALSE;
+	return false;
     }
     if (d->frmt.isEmpty()) {
 	// Try to guess format
@@ -1938,7 +1937,7 @@ bool QPictureIO::read()
 		file.close();
 		d->iodev = 0;
 	    }
-	    return FALSE;
+	    return false;
 	}
     } else {
 	picture_format = d->frmt;
@@ -1969,8 +1968,8 @@ bool QPictureIO::read()
 
 
 /*!
-    Writes an picture to an IO device and returns TRUE if the picture was
-    successfully written; otherwise returns FALSE.
+    Writes an picture to an IO device and returns true if the picture was
+    successfully written; otherwise returns false.
 
     Before writing an picture you must set an IO device or a file name.
     If both an IO device and a file name have been set, the IO device
@@ -1987,7 +1986,7 @@ bool QPictureIO::read()
 	iio.setFileName( "vegeburger.bmp" );
 	iio.setFormat( "BMP" );
 	if ( iio.write() )
-	    // returned TRUE if written successfully
+	    // returned true if written successfully
     \endcode
 
     \sa setIODevice() setFileName() setFormat() read() QPixmap::save()
@@ -1995,7 +1994,7 @@ bool QPictureIO::read()
 bool QPictureIO::write()
 {
     if ( d->frmt.isEmpty() )
-	return FALSE;
+	return false;
     QPictureHandler *h = get_picture_handler( d->frmt );
     if ( !h && !plugin_manager) {
 	qt_init_picture_plugins();
@@ -2004,7 +2003,7 @@ bool QPictureIO::write()
     if ( !h || !h->write_picture ) {
 	qWarning( "QPictureIO::write: No such picture format handler: %s",
 		 format() );
-	return FALSE;
+	return false;
     }
     QFile file;
     if ( !d->iodev && !d->fname.isEmpty() ) {
@@ -2012,7 +2011,7 @@ bool QPictureIO::write()
 	bool translate = h->text_mode==QPictureHandler::TranslateInOut;
 	int fmode = translate ? IO_WriteOnly|IO_Translate : IO_WriteOnly;
 	if ( !file.open(fmode) )		// couldn't create file
-	    return FALSE;
+	    return false;
 	d->iodev = &file;
     }
     d->iostat = 1;
