@@ -3035,7 +3035,7 @@ void Resource::loadPopupMenu( PopupMenuEditor *p, const QDomElement &e )
     }
 }
 
-bool Resource::saveFormCode( FormFile *formfile, LanguageInterface */*langIface*/ )
+bool Resource::saveFormCode( FormFile *formfile, LanguageInterface * /*langIface*/ )
 {
     QString lang = formfile->project()->language();
     if ( formfile->hasTempFileName() ||
