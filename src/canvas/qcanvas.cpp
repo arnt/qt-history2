@@ -269,7 +269,7 @@ const QRect& QCanvasClusterizer::operator[](int i)
 
 
 
-class QCanvasItemPtr {
+class Q_EXPORT QCanvasItemPtr {
 public:
     QCanvasItemPtr() : ptr(0) { }
     QCanvasItemPtr( QCanvasItem* p ) : ptr(p) { }
@@ -2818,7 +2818,7 @@ QCanvasPixmapArray::QCanvasPixmapArray(QPtrList<QPixmap> list, QPtrList<QPoint> 
   If an error occurs, isValid() will return FALSE.
 */
 QCanvasPixmapArray::QCanvasPixmapArray(QValueList<QPixmap> list, QPointArray hotspots) :
-    framecount(list.size()),
+    framecount((int)list.size()),
     img(new QCanvasPixmap*[list.size()])
 {
     bool have_hotspots = ( hotspots.size() != 0 );

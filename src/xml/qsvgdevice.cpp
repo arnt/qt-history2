@@ -56,12 +56,12 @@ const char piData[] = "version=\"1.0\" standalone=\"no\"";
 const char publicId[] = "-//W3C//DTD SVG 20001102//EN";
 const char systemId[] = "http://www.w3.org/TR/2000/CR-SVG-20001102/DTD/svg-20001102.dtd";
 
-struct ImgElement {
+struct Q_EXPORT ImgElement {
     QDomElement element;
     QImage image;
 };
 
-struct PixElement {
+struct Q_EXPORT PixElement {
     QDomElement element;
     QPixmap pixmap;
 };
@@ -674,7 +674,7 @@ bool QSvgDevice::play( const QDomNode &node )
 		QString pts = attr.namedItem( "points" ).nodeValue();
 		pts = pts.simplifyWhiteSpace();
 		QStringList sl = QStringList::split( QRegExp( "[ ,]" ), pts );
-		QPointArray ptarr( sl.count() / 2);
+		QPointArray ptarr( (uint)sl.count() / 2);
 		for ( int i = 0; i < (int)sl.count() / 2; i++ ) {
 		    double dx = sl[2*i].toDouble();
 		    double dy = sl[2*i+1].toDouble();

@@ -729,9 +729,9 @@ static int rgb_cmp( const void *d1, const void *d2 )
 
 uint qt_get_rgb_val( const char *name )
 {
-    int len = strlen(name)+1;
+    Q_LONG len = strlen(name)+1;
     char *name_no_space = (char *)malloc(len);
-    for(int o=0,i=0; i < len; i++) {
+    for(Q_LONG o=0,i=0; i < len; i++) {
 	if(name[i] != '\t' && name[i] != ' ')
 	    name_no_space[o++] = name[i];
     }

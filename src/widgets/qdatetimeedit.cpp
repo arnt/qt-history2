@@ -52,7 +52,7 @@
 
 #define QDATETIMEEDIT_HIDDEN_CHAR '0'
 
-class QNumberSection
+class Q_EXPORT QNumberSection
 {
 public:
     QNumberSection( int selStart = 0, int selEnd = 0 )

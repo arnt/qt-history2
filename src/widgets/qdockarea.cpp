@@ -695,7 +695,7 @@ void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r,
 	    if ( point_pos( pos, orientation(), TRUE ) < 0 ) // insert as first line
 		dockLine = 0;
 	    else
-		dockLine = lines.count(); // insert after the last line
+		dockLine = (int)lines.count(); // insert after the last line ### size_t/int cast
 	} else { // inside the dock (we have found a dockLine)
 	    if ( point_pos( pos, orientation(), TRUE ) <
 		 point_pos( lineRect.topLeft(), orientation(), TRUE ) + 4 ) {	// mouse was at the very beginning of the line

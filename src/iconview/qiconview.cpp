@@ -168,7 +168,7 @@ static QPixmap *get_qiv_buffer_pixmap( const QSize &s )
 
 #ifndef QT_NO_DRAGANDDROP
 
-class QIconDragData
+class Q_EXPORT QIconDragData
 {
 public:
     QIconDragData();
@@ -186,7 +186,7 @@ public:
     bool operator==( const QIconDragData &i ) const;
 };
 
-class QIconDragDataItem
+class Q_EXPORT QIconDragDataItem
 {
 public:
     QIconDragDataItem() {}
@@ -447,7 +447,7 @@ void QIconViewItemLineEdit::focusOutEvent( QFocusEvent *e )
 */
 
 QIconDragItem::QIconDragItem()
-    : ba( strlen( "no data" ) )
+    : ba( (int)strlen( "no data" ) )
 {
     memcpy( ba.data(), "no data", strlen( "no data" ) );
 }

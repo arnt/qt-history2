@@ -307,7 +307,7 @@ public:
     int x() const;
     int y() const;
 
-    int nestedDepth() const { return indices.count(); }
+    int nestedDepth() const { return (int)indices.count(); } //### size_t/int cast
 
 private:
     enum Operation { EnterBegin, EnterEnd, Next, Prev, Up, Down };

@@ -215,7 +215,7 @@ static QCString qt_rmWS( const char *s )
     result.truncate( (int)(d - result.data()) );
     int void_pos = result.find("(void)");
     if ( void_pos >= 0 )
-	result.remove( void_pos+1, strlen("void") );
+	result.remove( void_pos+1, (uint)strlen("void") );
     return result;
 }
 
