@@ -410,7 +410,7 @@ public:
     inline QT_COMPAT QString simplifyWhiteSpace() const { return simplified(); }
     inline QT_COMPAT QString &setUnicodeCodes(const ushort *unicode_as_ushorts, int size)
     { return setUtf16(unicode_as_ushorts, size); }
-    inline const QT_COMPAT ushort *ucs2() const { return utf16(); }
+    inline QT_COMPAT const ushort *ucs2() const { return utf16(); }
     inline static QT_COMPAT QString fromUcs2(const ushort *unicode, int size = -1)
     { return fromUtf16(unicode, size); }
     inline QT_COMPAT QString &setAscii(const char *str, int len = -1)
