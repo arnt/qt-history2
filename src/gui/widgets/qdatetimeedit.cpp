@@ -169,6 +169,8 @@ public:
     \value DaySection
     \value MonthSection
     \value YearSection
+    \omitvalue DateSections_Mask
+    \omitvalue TimeSections_Mask
 */
 
 /*!
