@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#125 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#126 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -997,8 +997,8 @@ void QMultiLineEdit::pageUp( bool mark )
 }
 
 /*
-  Scans txt, returning one line in s, returns the address of the next
-  line, 0 if end of text.
+  Scans txt, starting at offset, returning one, setting offset to the
+  start of the next line, 0 if end of text.
 
  */
 static QString getOneLine( const QString &txt, uint& offset )
@@ -1058,7 +1058,10 @@ void QMultiLineEdit::insertAt( const QString &txt, int line, int col )
 	w = QMAX( textWidth( *oldLine ), w );
 	line++;
 	cursorY++;
-	while ( i && ( textLine = getOneLine( txt, i ) )) {
+	while ( TRUE ) {
+	    textLine = getOneLine( txt, i );
+	    if (  i == 0 )
+		break;
 	    contents->insert( line++, new QString(textLine) );
 	    w = QMAX( textWidth( textLine ), w );
 	    if ( cursorAfter )
