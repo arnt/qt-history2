@@ -315,8 +315,6 @@
    it separately anyway. */
 #elif defined(__DECCXX)
 #  define Q_CC_DEC
-/* Spurious (?) error messages observed on Compaq C++ V6.5-014. */
-#  define Q_NO_USING_KEYWORD
 /* Compaq C++ V6 compilers are EDG-based but I'm not sure about older
    DEC C++ V5 compilers. */
 #  if defined(__EDG__)
@@ -328,17 +326,14 @@
 #  if !defined(_BOOL_EXISTS)
 #    define Q_NO_BOOL_TYPE
 #  endif
+/* Spurious (?) error messages observed on Compaq C++ V6.5-014. */
+#  define Q_NO_USING_KEYWORD
 /* Apply to all versions prior to Compaq C++ V6.0-000 - observed on
    DEC C++ V5.5-004. */
 #  if __DECCXX_VER < 60060000
 #    define Q_TYPENAME
 #    define Q_BROKEN_TEMPLATE_SPECIALIZATION
 #    define Q_CANNOT_DELETE_CONSTANT
-#  endif
-/* Apply to all versions prior to Compaq C++ V6.4-000 - observed on
-   DEC C++ V6.3-012. */
-#  if __DECCXX_VER < 64060000
-#    define Q_NO_USING_KEYWORD
 #  endif
 /* avoid undefined symbol problems with out-of-line template members */
 #  define Q_INLINE_TEMPLATES inline
