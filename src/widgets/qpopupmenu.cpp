@@ -2130,7 +2130,7 @@ void QPopupMenu::toggleTearOff()
 	delete (QWidget*) QMenuData::d->aWidget; // delete the old one
     } else {
 	// create a tear off menu
-	QPopupMenu* p = new QPopupMenu( 0, "tear off menu" );
+	QPopupMenu* p = new QPopupMenu( parentWidget(), "tear off menu" );
 	connect( p, SIGNAL( activated(int) ), this, SIGNAL( activated(int) ) );
 	p->setCaption( caption() );
 	p->setCheckable( isCheckable() );
