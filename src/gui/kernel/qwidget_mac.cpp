@@ -247,9 +247,10 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_window_event(EventHandlerCallRef er, Eve
             handled_event = false;
         }
         break;
-    case kEventClassMouse:
+    case kEventClassMouse: {
+        QMacMouseEvent macmouse(event);
         handled_event = (SendEventToApplication(event) == noErr);
-        break;
+        break; }
     default:
         handled_event = false;
     }

@@ -80,10 +80,7 @@
 
 //for qt_mac.h
 QPaintDevice *qt_mac_safe_pdev = 0;
-#ifdef QT_THREAD_SUPPORT
-QMutex *qt_mac_port_mutex = 0;
-#endif
-
+QStack<EventRef> QMacMouseEvent::events;
 
 /*****************************************************************************
   Internal variables and functions
@@ -1025,7 +1022,7 @@ QWidget *QApplication::topLevelAt(int x, int y)
     return widget;
 }
 
-static QWidget *qt_mac_widgetAt(int x, int y, EventRef event)
+QWidget *QApplication::widgetAt_sys(int x, int y)
 {
     QWidget *widget = QApplication::topLevelAt(x, y);
     if(!widget)
@@ -1034,16 +1031,14 @@ static QWidget *qt_mac_widgetAt(int x, int y, EventRef event)
     HIViewRef child;
     const QPoint qpt = widget->mapFromGlobal(QPoint(x, y));
     const HIPoint pt = CGPointMake(qpt.x(), qpt.y());
-    if(event && HIViewGetViewForMouseEvent((HIViewRef)widget->winId(), event, &child) == noErr && child) 
-        return QWidget::find((WId)child);
-    if(HIViewGetSubviewHit((HIViewRef)widget->winId(), &pt, true, &child) == noErr && child) 
-        return QWidget::find((WId)child);;
-    return 0;
-}
-
-QWidget *QApplication::widgetAt_sys(int x, int y)
-{
-    return qt_mac_widgetAt(x, y, 0);
+    if(!QMacMouseEvent::events.isEmpty() && 
+       HIViewGetViewForMouseEvent((HIViewRef)widget->winId(), QMacMouseEvent::events.top(), &child) == noErr && child) 
+        widget = QWidget::find((WId)child);
+    else if(HIViewGetSubviewHit((HIViewRef)widget->winId(), &pt, true, &child) == noErr && child) 
+        widget = QWidget::find((WId)child);;
+    qDebug("%p: %d %d - %s", QMacMouseEvent::events.isEmpty() ? 0 : QMacMouseEvent::events.top(), x, y, 
+           widget ? widget->className() : "unknown");
+    return widget;
 }
 
 void QApplication::beep()
@@ -1601,7 +1596,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
                     if(qt_button_down)
                         widget = qt_button_down;
                     else
-                        widget = qt_mac_widgetAt(where.x(), where.y(), event);
+                        widget = QApplication::widgetAt(where.x(), where.y());
                 }
                 if(widget) {
                     QPoint plocal(widget->mapFromGlobal(where));
@@ -1641,6 +1636,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
         break;
     case kEventClassMouse:
     {
+        QMacMouseEvent macmouse(event);
         Point where;
         GetEventParameter(event, kEventParamMouseLocation, typeQDPoint, 0,
                           sizeof(where), 0, &where);
@@ -1722,7 +1718,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
         }
         //figure out which widget to send it to
         if(app->inPopupMode()) {
-            if(QWidget *clt = qt_mac_widgetAt(where.h, where.v, event)) {
+            if(QWidget *clt = QApplication::widgetAt(where.h, where.v)) {
                 if(clt && clt->topLevelWidget()->isPopup())
                     widget = clt;
             }
@@ -1734,7 +1730,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
             } else if(mac_mouse_grabber) {
                 widget = mac_mouse_grabber;
             } else {
-                widget = qt_mac_widgetAt(where.h, where.v, event);
+                widget = QApplication::widgetAt(where.h, where.v);
                 if(ekind == kEventMouseUp) {
                     short part = qt_mac_window_at(where.h, where.v);
                     if(part == inDrag) {
@@ -1761,7 +1757,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
             QCursor cursor(Qt::ArrowCursor);
             QWidget *cursor_widget = widget;
             if(cursor_widget && cursor_widget == qt_button_down && ekind == kEventMouseUp)
-                cursor_widget = qt_mac_widgetAt(where.h, where.v, event);
+                cursor_widget = QApplication::widgetAt(where.h, where.v);
             if(cursor_widget) { //only over the app, do we set a cursor..
                 if(!qApp->d->cursor_list.isEmpty()) {
                     cursor = qApp->d->cursor_list.first();

@@ -25,11 +25,6 @@
 #include "qpainter.h"
 #include "qwidget.h"
 #include "private/qwidget_p.h"
-#ifdef QT_THREAD_SUPPORT
-#include "qmutex.h"
-#include "qthread.h"
-extern QMutex *qt_mac_port_mutex; //qapplication_mac.cpp
-#endif
 
 class QMacBlockingFunction //implemented in qeventloop_mac.cpp
 {
@@ -40,6 +35,18 @@ public:
     QMacBlockingFunction();
     ~QMacBlockingFunction();
     static bool blocking() { return block != 0; }
+};
+
+#include "qstack.h"
+class QMacMouseEvent
+{
+private:
+    friend class QApplication;
+    EventRef event;
+    static QStack<EventRef> events;
+public:
+    QMacMouseEvent(EventRef e) { RetainEvent(e); event = e; events.push(e); }
+    ~QMacMouseEvent() { Q_ASSERT(events.top() == event); events.pop(); ReleaseEvent(event); event = 0; }
 };
 
 #include "qpaintdevice.h"
@@ -93,15 +100,7 @@ QMacSavedPortInfo::setClipRegion(const QRect &rect)
 {
     Rect r;
     SetRect(&r, rect.x(), rect.y(), rect.right()+1, rect.bottom()+1);
-#if defined(QT_THREAD_SUPPORT)
-    if(qt_mac_port_mutex)
-        qt_mac_port_mutex->lock();
-#endif
     ClipRect(&r);
-#if defined(QT_THREAD_SUPPORT)
-    if(qt_mac_port_mutex)
-        qt_mac_port_mutex->unlock();
-#endif
     return true;
 }
 
@@ -113,15 +112,7 @@ QMacSavedPortInfo::setClipRegion(const QRegion &r)
     RgnHandle rgn = r.handle();
     if(!rgn)
         return setClipRegion(r.boundingRect());
-#if defined(QT_THREAD_SUPPORT)
-    if(qt_mac_port_mutex)
-        qt_mac_port_mutex->lock();
-#endif
     SetClip(rgn);
-#if defined(QT_THREAD_SUPPORT)
-    if(qt_mac_port_mutex)
-        qt_mac_port_mutex->unlock();
-#endif
     return true;
 }
 
@@ -143,19 +134,11 @@ QMacSavedPortInfo::setPaintDevice(QPaintDevice *pd)
     if(!pd)
         return false;
     bool ret = true;
-#if defined(QT_THREAD_SUPPORT)
-    if(qt_mac_port_mutex)
-        qt_mac_port_mutex->lock();
-#endif
     extern GrafPtr qt_macQDHandle(const QPaintDevice *); // qpaintdevice_mac.cpp
     if(pd->devType() == QInternal::Widget)
         SetPortWindowPort(qt_mac_window_for(static_cast<QWidget*>(pd)));
     else if(pd->devType() == QInternal::Pixmap || pd->devType() == QInternal::Printer)
         SetGWorld((GrafPtr)qt_macQDHandle(pd), 0); //set the gworld
-#if defined(QT_THREAD_SUPPORT)
-    if(qt_mac_port_mutex)
-        qt_mac_port_mutex->unlock();
-#endif
     return ret;
 }
 
@@ -163,10 +146,6 @@ QMacSavedPortInfo::setPaintDevice(QPaintDevice *pd)
 inline void
 QMacSavedPortInfo::init()
 {
-#if defined(QT_THREAD_SUPPORT)
-    if(qt_mac_port_mutex)
-        qt_mac_port_mutex->lock();
-#endif
     GetBackColor(&back);
     GetForeColor(&fore);
     GetGWorld(&world, &handle);
@@ -193,10 +172,6 @@ inline QMacSavedPortInfo::~QMacSavedPortInfo()
         RGBBackColor(&back);
     }
     DisposeRgn(clip);
-#if defined(QT_THREAD_SUPPORT)
-    if(qt_mac_port_mutex)
-        qt_mac_port_mutex->unlock();
-#endif
 }
 
 #endif // QT_MAC_P_H
