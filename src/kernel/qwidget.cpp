@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#204 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#205 $
 **
 ** Implementation of QWidget class
 **
@@ -28,7 +28,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#204 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#205 $");
 
 
 /*!
@@ -2663,9 +2663,9 @@ bool QWidget::event( QEvent *e )
 	    bool res = FALSE;
 	    if ( k->key() == Key_Backtab || 
 		 (k->key() == Key_Tab && (k->state() & ShiftButton)) )
-		res = topLevelWidget()->focusNextPrevChild( FALSE );
+		res = focusNextPrevChild( FALSE );
 	    else if ( k->key() == Key_Tab )
-		res = topLevelWidget()->focusNextPrevChild( TRUE );
+		res = focusNextPrevChild( TRUE );
 	    if ( res )
 		break;
 	    QWidget *w = this;
@@ -2703,7 +2703,7 @@ bool QWidget::event( QEvent *e )
 	    break;
 
 	case Event_Leave:
-	    leaveEvent( e );
+	     leaveEvent( e );
 	    break;
 
 	case Event_Paint:
