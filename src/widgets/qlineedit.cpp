@@ -161,7 +161,7 @@ struct QLineEditPrivate {
     bool mousePressed 		: 1;
     bool dnd_primed 			: 1;
     bool ed 			: 1;
-    QLineEdit::EchoMode mode 	: 2;
+    QLineEdit::EchoMode mode;
     int maxLen;
     int offset;
     int selectionStart;
