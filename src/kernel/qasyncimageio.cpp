@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#35 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -120,7 +120,7 @@ QList<QImageFormatType> * QImageDecoderPrivate::factories = 0;
 QGIFFormatType * QImageDecoderPrivate::gif_decoder_factory = 0;
 
 
-void cleanup()
+static void cleanup()
 {
     delete QImageDecoderPrivate::factories;
     QImageDecoderPrivate::factories = 0;
