@@ -103,9 +103,17 @@ QGfxDriverFactoryPrivate::~QGfxDriverFactoryPrivate()
 QScreen *QGfxDriverFactory::create( const QString& key, int displayId )
 {
     QString driver = key.lower();
+#ifndef QT_NO_QWS_VFB
+    if ( driver == "qvfb" || driver.isEmpty() )
+	return new QVFbScreen( displayId );
+#endif
 #ifndef QT_NO_QWS_LINUXFB
-    if ( driver == "linuxfb" || driver.isEmpty() ) // also default driver
+    if ( driver == "linuxfb" || driver.isEmpty() )
         return new QLinuxFbScreen( displayId );
+#endif
+#ifndef QT_NO_QWS_VGA16
+    if ( driver == "vga16" || driver.isEmpty() )
+	return new QVga16Screen( displayId );
 #endif
 #ifndef QT_NO_QWS_TRANSFORMED
     if ( driver == "transformed" )
@@ -119,17 +127,9 @@ QScreen *QGfxDriverFactory::create( const QString& key, int displayId )
     if ( driver == "voodoo3" )
         return new QVoodooScreen( displayId );
 #endif
-#ifndef QT_NO_QWS_VFB
-    if ( driver == "qvfb" )
-	return new QVFbScreen( displayId );
-#endif
 #ifndef QT_NO_QWS_VNC
     if ( driver == "vnc" )
 	return new QVNCScreen( displayId );
-#endif
-#ifndef QT_NO_QWS_VGA16
-    if ( driver == "vga16" )
-	return new QVga16Screen( displayId );
 #endif
 #ifndef QT_NO_QWS_SHADOWFB
     if ( driver == "shadowfb" )
@@ -162,9 +162,17 @@ QStringList QGfxDriverFactory::keys()
 {
     QStringList list;
 
+#ifndef QT_NO_QWS_VFB
+    if ( !list.contains( "QVFb" ) )
+	list << "QVFb";
+#endif
 #ifndef QT_NO_QWS_LINUXFB
     if ( !list.contains( "LinuxFb" ) )
 	list << "LinuxFb";
+#endif
+#ifndef QT_NO_QWS_VGA16
+    if ( !list.contains( "VGA16" ) )
+	list << "VGA16";
 #endif
 #ifndef QT_NO_QWS_TRANSFORMED
     if ( !list.contains( "Transformed" ) )
@@ -178,17 +186,9 @@ QStringList QGfxDriverFactory::keys()
     if ( !list.contains( "Voodoo3" ) )
 	list << "Voodoo3";
 #endif
-#ifndef QT_NO_QWS_VFB
-    if ( !list.contains( "QVFb" ) )
-	list << "QVFb";
-#endif
 #ifndef QT_NO_QWS_VNC
     if ( !list.contains( "VNC" ) )
 	list << "VNC";
-#endif
-#ifndef QT_NO_QWS_VGA16
-    if ( !list.contains( "VGA16" ) )
-	list << "VGA16";
 #endif
 #ifndef QT_NO_QWS_SHADOWFB
     if ( !list.contains( "ShadowFb" ) )
