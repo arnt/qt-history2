@@ -46,62 +46,8 @@ public:
     void updateClipRegion(const QRegion &clip, bool clipEnabled);
 
     void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, Qt::PixmapDrawingMode mode);
-
-    // Printer functions...
-    void setPrinterName(const QString &);
-    QString printerName() const;
-
-    void setOutputToFile(bool);
-    bool outputToFile() const;
-
-    void setOutputFileName(const QString &);
-    QString outputFileName()const;
-
-    void setPrintProgram(const QString &);
-    QString printProgram() const;
-
-    void setDocName(const QString &);
-    QString docName() const;
-
-    void setCreator(const QString &);
-    QString creator() const;
-
-    void setOrientation(QPrinter::Orientation);
-    QPrinter::Orientation orientation() const;
-
-    void setPageSize(QPrinter::PageSize);
-    QPrinter::PageSize pageSize() const;
-
-    void setPageOrder(QPrinter::PageOrder);
-    QPrinter::PageOrder pageOrder() const;
-
-    void setResolution(int);
-    int resolution() const;
-
-    void setColorMode(QPrinter::ColorMode);
-    QPrinter::ColorMode colorMode() const;
-
-    void setFullPage(bool);
-    bool fullPage() const;
-
-    void setNumCopies(int);
-    int numCopies() const;
-
-    void setCollateCopies(bool);
-    bool collateCopies() const;
-    void setPaperSource(QPrinter::PaperSource);
-    QPrinter::PaperSource paperSource() const;
-
-    QList<int> supportedResolutions() const;
-
-    void setWinPageSize(short winPageSize);
-    short winPageSize() const;
-
-    QRect paperRect() const;
-    QRect pageRect() const;
-
-    QString printerSelectionOption() const;
-    void setPrinterSelectionOption(const QString &);
+    void setProperty(PrintEnginePropertyKey key, const QVariant &value);
+    QVariant property(PrintEnginePropertyKey key) const;
 
     bool isActive() const;
 
@@ -161,7 +107,7 @@ public:
 
     /* Queries the resolutions for the current printer, and returns them
        in a list. */
-    QList<int> queryResolutions() const;
+    QList<QVariant> queryResolutions() const;
 
     /* Resets the DC with changes in devmode. If the printer is active
        this funciton only sets the reinit variable to true so it

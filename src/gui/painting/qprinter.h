@@ -74,9 +74,6 @@ public:
     void setPrinterName(const QString &);
     QString printerName() const;
 
-    void setOutputToFile(bool);
-    bool outputToFile() const;
-
     void setOutputFileName(const QString &);
     QString outputFileName()const;
 
@@ -119,8 +116,8 @@ public:
     QList<int> supportedResolutions() const;
 
 #ifdef Q_WS_WIN
-    void setWinPageSize(short winPageSize);
-    short winPageSize() const;
+    void setWinPageSize(int winPageSize);
+    int winPageSize() const;
 #endif
 
     QRect paperRect() const;
@@ -172,6 +169,9 @@ public:
     inline QT3_SUPPORT void margins(uint *top, uint *left, uint *bottom, uint *right) const;
 
     inline QT3_SUPPORT bool aborted() { return printerState() == Aborted; }
+
+    QT3_SUPPORT void setOutputToFile(bool);
+    inline QT3_SUPPORT bool outputToFile() const { return !outputFileName().isEmpty(); }
 #endif
 
 protected:
@@ -206,6 +206,7 @@ Q_GUI_EXPORT void QPrinter::margins(uint *top, uint *left, uint *bottom, uint *r
     if (right)
         *right = paper.right() - page.right();
 }
+
 #endif // QT3_SUPPORT
 
 #endif // QT_NO_PRINTER

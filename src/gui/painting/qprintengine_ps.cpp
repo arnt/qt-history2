@@ -781,6 +781,8 @@ public:
     void setFont(QFontEngine *fe);
     void drawImage(qreal x, qreal y, qreal w, qreal h, const QImage &img, const QImage &mask);
     void flushPage(bool last = false);
+    QRect paperRect() const;
+    QRect pageRect() const;
 
     QPrinter   *printer;
     int         pageCount;
@@ -3215,8 +3217,8 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
     outStream << "%!PS-Adobe-1.0";
     QPSPrintEngine *q = static_cast<QPSPrintEngine *>(q_ptr);
     scale = 72. / ((qreal) q->metric(QPaintDevice::PdmDpiY));
-    QRect pageRect = q->pageRect();
-    QRect paperRect = q->paperRect();
+    QRect pageRect = this->pageRect();
+    QRect paperRect = this->paperRect();
     uint mtop = pageRect.top() - paperRect.top();
     uint mleft = pageRect.left() - paperRect.left();
     uint mbottom = paperRect.bottom() - pageRect.bottom();
@@ -3919,185 +3921,30 @@ bool QPSPrintEngine::abort()
     return false;
 }
 
-void QPSPrintEngine::setPrinterName(const QString &pName)
+QRect QPSPrintEnginePrivate::paperRect() const
 {
-    d->printerName = pName;
-}
-
-QString QPSPrintEngine::printerName() const
-{
-    return d->printerName;
-}
-
-void QPSPrintEngine::setOutputToFile(bool toFile)
-{
-    d->outputToFile = toFile;
-}
-
-bool QPSPrintEngine::outputToFile() const
-{
-    return d->outputToFile;
-}
-
-void QPSPrintEngine::setOutputFileName(const QString &outputFile)
-{
-    d->outputFileName = outputFile;
-}
-
-QString QPSPrintEngine::outputFileName() const
-{
-    return d->outputFileName;
-}
-
-void QPSPrintEngine::setPrintProgram(const QString &printProgram)
-{
-    d->printProgram = printProgram;
-}
-
-QString QPSPrintEngine::printProgram() const
-{
-    return d->printProgram;
-}
-
-void QPSPrintEngine::setDocName(const QString &doc)
-{
-    d->docName = doc;
-}
-
-QString QPSPrintEngine::docName() const
-{
-    return d->docName;
-}
-
-void QPSPrintEngine::setCreator(const QString &creator)
-{
-    d->creator = creator;
-}
-
-QString QPSPrintEngine::creator() const
-{
-    return d->creator;
-}
-
-void QPSPrintEngine::setOrientation(QPrinter::Orientation orientation)
-{
-    d->orientation = orientation;
-}
-
-QPrinter::Orientation QPSPrintEngine::orientation() const
-{
-    return d->orientation;
-}
-
-void QPSPrintEngine::setPageSize(QPrinter::PageSize ps)
-{
-    d->pageSize = ps;
-}
-
-QPrinter::PageSize QPSPrintEngine::pageSize() const
-{
-    return d->pageSize;
-}
-
-void QPSPrintEngine::setPageOrder(QPrinter::PageOrder po)
-{
-    d->pageOrder = po;
-}
-
-QPrinter::PageOrder QPSPrintEngine::pageOrder() const
-{
-    return d->pageOrder;
-}
-
-void QPSPrintEngine::setResolution(int res)
-{
-    d->resolution = res;
-}
-
-int QPSPrintEngine::resolution() const
-{
-    return d->resolution;
-}
-
-void QPSPrintEngine::setColorMode(QPrinter::ColorMode cm)
-{
-    d->colorMode = cm;
-}
-
-QPrinter::ColorMode QPSPrintEngine::colorMode() const
-{
-    return d->colorMode;
-}
-
-void QPSPrintEngine::setFullPage(bool fp)
-{
-    d->fullPage = fp;
-}
-
-bool QPSPrintEngine::fullPage() const
-{
-    return d->fullPage;
-}
-
-void QPSPrintEngine::setCollateCopies(bool collate)
-{
-    d->collate = collate;
-}
-
-bool QPSPrintEngine::collateCopies() const
-{
-    return d->collate;
-}
-
-void QPSPrintEngine::setPaperSource(QPrinter::PaperSource ps)
-{
-    d->paperSource = ps;
-}
-
-QPrinter::PaperSource QPSPrintEngine::paperSource() const
-{
-    return d->paperSource;
-}
-
-QList<int> QPSPrintEngine::supportedResolutions() const
-{
-    return QList<int>() << 72 << 1200;
-}
-
-QRect QPSPrintEngine::paperRect() const
-{
-    PaperSize s = paperSizes[d->pageSize];
-    int w = qRound(s.width*d->resolution/72.);
-    int h = qRound(s.height*d->resolution/72.);
-    if (d->orientation == QPrinter::Portrait)
+    PaperSize s = paperSizes[pageSize];
+    int w = qRound(s.width*resolution/72.);
+    int h = qRound(s.height*resolution/72.);
+    if (orientation == QPrinter::Portrait)
         return QRect(0, 0, w, h);
     else
         return QRect(0, 0, h, w);
 }
 
-QRect QPSPrintEngine::pageRect() const
+QRect QPSPrintEnginePrivate::pageRect() const
 {
     QRect r = paperRect();
-    if (d->fullPage)
+    if (fullPage)
         return r;
     // would be nice to get better margins than this.
-    return QRect(d->resolution/3, d->resolution/3, r.width()-2*d->resolution/3, r.height()-2*d->resolution/3);
-}
-
-void QPSPrintEngine::setNumCopies(int numCopies)
-{
-    d->copies = numCopies;
-}
-
-int QPSPrintEngine::numCopies() const
-{
-    return d->copies;
+    return QRect(resolution/3, resolution/3, r.width()-2*resolution/3, r.height()-2*resolution/3);
 }
 
 int  QPSPrintEngine::metric(QPaintDevice::PaintDeviceMetric metricType) const
 {
     int val;
-    QRect r = paperRect();
+    QRect r = d->paperRect();
     switch (metricType) {
     case QPaintDevice::PdmWidth:
         val = r.width();
@@ -4137,6 +3984,116 @@ int  QPSPrintEngine::metric(QPaintDevice::PaintDeviceMetric metricType) const
 QPrinter::PrinterState QPSPrintEngine::printerState() const
 {
     return d->printerState;
+}
+
+void QPSPrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &value)
+{
+    switch (key) {
+    case PPK_CollateCopies:
+        d->collate = value.toBool();
+        break;
+    case PPK_ColorMode:
+        d->colorMode = QPrinter::ColorMode(value.toInt());
+        break;
+    case PPK_Creator:
+        d->creator = value.toString();
+        break;
+    case PPK_DocumentName:
+        d->docName = value.toString();
+        break;
+    case PPK_FullPage:
+        d->fullPage = value.toBool();
+        break;
+    case PPK_NumberOfCopies:
+        d->copies = value.toInt();
+        break;
+    case PPK_Orientation:
+        d->orientation = QPrinter::Orientation(value.toInt());
+        break;
+    case PPK_OutputFileName:
+        d->outputFileName = value.toString();
+        break;
+    case PPK_PageOrder:
+        d->pageOrder = QPrinter::PageOrder(value.toInt());
+        break;
+    case PPK_PageSize:
+        d->pageSize = QPrinter::PageSize(value.toInt());
+        break;
+    case PPK_PaperSource:
+        d->paperSource = QPrinter::PaperSource(value.toInt());
+        break;
+    case PPK_PrinterName:
+        d->printerName = value.toString();
+        break;
+    case PPK_PrinterProgram:
+        d->printProgram = value.toString();
+        break;
+    case PPK_Resolution:
+        d->resolution = value.toInt();
+        break;
+    default:
+        break;
+    }
+}
+
+QVariant QPSPrintEngine::property(PrintEnginePropertyKey key) const
+{
+    QVariant ret;
+    switch (key) {
+    case PPK_CollateCopies:
+        ret = d->collate;
+        break;
+    case PPK_ColorMode:
+        ret = d->colorMode;
+        break;
+    case PPK_Creator:
+        ret = d->creator;
+        break;
+    case PPK_DocumentName:
+        ret = d->docName;
+        break;
+    case PPK_FullPage:
+        ret = d->fullPage;
+        break;
+    case PPK_NumberOfCopies:
+        ret = d->copies;
+        break;
+    case PPK_Orientation:
+        ret = d->orientation;
+        break;
+    case PPK_OutputFileName:
+        ret = d->outputFileName;
+        break;
+    case PPK_PageOrder:
+        ret = d->pageOrder;
+        break;
+    case PPK_PageSize:
+        ret = d->pageSize;
+        break;
+    case PPK_PaperSource:
+        ret = d->paperSource;
+        break;
+    case PPK_PrinterName:
+        ret = d->printerName;
+        break;
+    case PPK_PrinterProgram:
+        ret = d->printProgram;
+        break;
+    case PPK_Resolution:
+        ret = d->resolution;
+        break;
+    case PPK_SupportedResolutions:
+        ret = QList<QVariant>() << 72;
+        break;
+    case PPK_PaperRect:
+        ret = d->paperRect();
+    case PPK_PageRect:
+        ret = d->pageRect();
+        break;
+    default:
+        break;
+    }
+    return ret;
 }
 
 #endif // QT_NO_PRINTER

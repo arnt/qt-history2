@@ -48,58 +48,8 @@ public:
 
     QPaintEngine *paintEngine() const;
 
-    void setPrinterName(const QString &);
-    QString printerName() const;
-
-    void setOutputToFile(bool);
-    bool outputToFile() const;
-
-    void setOutputFileName(const QString &);
-    QString outputFileName()const;
-
-    void setPrintProgram(const QString &);
-    QString printProgram() const;
-
-    void setDocName(const QString &);
-    QString docName() const;
-
-    void setCreator(const QString &);
-    QString creator() const;
-
-    void setOrientation(QPrinter::Orientation);
-    QPrinter::Orientation orientation() const;
-
-    void setPageSize(QPrinter::PageSize);
-    QPrinter::PageSize pageSize() const;
-
-    void setPageOrder(QPrinter::PageOrder);
-    QPrinter::PageOrder pageOrder() const;
-
-    void setResolution(int);
-    int resolution() const;
-
-    void setColorMode(QPrinter::ColorMode);
-    QPrinter::ColorMode colorMode() const;
-
-    void setFullPage(bool);
-    bool fullPage() const;
-
-    void setNumCopies(int);
-    int numCopies() const;
-
-    void setCollateCopies(bool);
-    bool collateCopies() const;
-
-    void setPaperSource(QPrinter::PaperSource);
-    QPrinter::PaperSource paperSource() const;
-
-    QList<int> supportedResolutions() const;
-
-    QRect paperRect() const;
-    QRect pageRect() const;
-
-    QString printerSelectionOption() const;
-    void setPrinterSelectionOption(const QString &);
+    void setProperty(PrintEnginePropertyKey key, const QVariant &value);
+    QVariant property(PrintEnginePropertyKey key) const;
 
     QPrinter::PrinterState printerState() const;
 
@@ -158,6 +108,10 @@ public:
                                qdHandle(0), paintEngine(0) {}
     void initialize();
     bool newPage_helper();
+    void setPageSize(QPrinter::PageSize ps);
+    QPrinter::PageSize pageSize() const;
+    QList<QVariant> supportedResolutions() const;
+
 };
 
 #endif // QT_NO_PRINTER

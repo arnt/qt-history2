@@ -362,7 +362,7 @@ QPrinter::~QPrinter()
 */
 QString QPrinter::printerName() const
 {
-    return d->printEngine->printerName();
+    return d->printEngine->property(QPrintEngine::PPK_PrinterName).toString();
 }
 
 /*!
@@ -372,7 +372,7 @@ QString QPrinter::printerName() const
 */
 void QPrinter::setPrinterName(const QString &name)
 {
-    d->printEngine->setPrinterName(name);
+    d->printEngine->setProperty(QPrintEngine::PPK_PrinterName, name);
 }
 
 
@@ -385,13 +385,11 @@ void QPrinter::setPrinterName(const QString &name)
 
   \sa setOutputToFile(), setOutputFileName()
 */
-bool QPrinter::outputToFile() const
-{
-    return d->printEngine->outputToFile();
-}
 
 
 /*!
+  \fn void QPrinter::setOutputToFile(bool enable)
+
   Specifies whether the output should be written to a file or sent
   directly to the printer.
 
@@ -400,24 +398,21 @@ bool QPrinter::outputToFile() const
 
   \sa outputToFile(), setOutputFileName()
 */
-void QPrinter::setOutputToFile(bool enable)
-{
-    Q_ASSERT(d->printEngine->printerState() != QPrinter::Active);
-    d->printEngine->setOutputToFile(enable);
-}
 
 
 /*!
+  \fn QString QPrinter::outputFileName() const
+
   Returns the name of the output file. There is no default file
   name.
 
   \sa setOutputFileName(), setOutputToFile()
 */
+
 QString QPrinter::outputFileName() const
 {
-    return d->printEngine->outputFileName();
+    return d->printEngine->property(QPrintEngine::PPK_OutputFileName).toString();
 }
-
 
 /*!
   Sets the name of the output file to \a fileName.
@@ -432,7 +427,7 @@ QString QPrinter::outputFileName() const
 void QPrinter::setOutputFileName(const QString &fileName)
 {
     Q_ASSERT(d->printEngine->printerState() != QPrinter::Active);
-    d->printEngine->setOutputFileName(fileName);
+    d->printEngine->setProperty(QPrintEngine::PPK_OutputFileName, fileName);
 }
 
 
@@ -450,7 +445,7 @@ void QPrinter::setOutputFileName(const QString &fileName)
 */
 QString QPrinter::printProgram() const
 {
-    return d->printEngine->printProgram();
+    return d->printEngine->property(QPrintEngine::PPK_PrinterProgram).toString();
 }
 
 
@@ -466,7 +461,7 @@ QString QPrinter::printProgram() const
 void QPrinter::setPrintProgram(const QString &printProg)
 {
     Q_ASSERT(d->printEngine->printerState() != QPrinter::Active);
-    d->printEngine->setPrintProgram(printProg);
+    d->printEngine->setProperty(QPrintEngine::PPK_PrinterProgram, printProg);
 }
 
 
@@ -477,7 +472,7 @@ void QPrinter::setPrintProgram(const QString &printProg)
 */
 QString QPrinter::docName() const
 {
-    return d->printEngine->docName();
+    return d->printEngine->property(QPrintEngine::PPK_DocumentName).toString();
 }
 
 
@@ -487,7 +482,7 @@ QString QPrinter::docName() const
 void QPrinter::setDocName(const QString &name)
 {
     Q_ASSERT(d->printEngine->printerState() != QPrinter::Active);
-    d->printEngine->setDocName(name);
+    d->printEngine->setProperty(QPrintEngine::PPK_DocumentName, name);
 }
 
 
@@ -498,7 +493,7 @@ void QPrinter::setDocName(const QString &name)
 */
 QString QPrinter::creator() const
 {
-    return d->printEngine->creator();
+    return d->printEngine->property(QPrintEngine::PPK_Creator).toString();
 }
 
 
@@ -515,7 +510,7 @@ QString QPrinter::creator() const
 void QPrinter::setCreator(const QString &creator)
 {
     Q_ASSERT(d->printEngine->printerState() != QPrinter::Active);
-    d->printEngine->setCreator(creator);
+    d->printEngine->setProperty(QPrintEngine::PPK_Creator, creator);
 }
 
 
@@ -527,7 +522,7 @@ void QPrinter::setCreator(const QString &creator)
 */
 QPrinter::Orientation QPrinter::orientation() const
 {
-    return d->printEngine->orientation();
+    return QPrinter::Orientation(d->printEngine->property(QPrintEngine::PPK_Orientation).toInt());
 }
 
 
@@ -549,7 +544,7 @@ QPrinter::Orientation QPrinter::orientation() const
 
 void QPrinter::setOrientation(Orientation orientation)
 {
-    d->printEngine->setOrientation(orientation);
+    d->printEngine->setProperty(QPrintEngine::PPK_Orientation, orientation);
 }
 
 
@@ -560,7 +555,7 @@ void QPrinter::setOrientation(Orientation orientation)
 */
 QPrinter::PageSize QPrinter::pageSize() const
 {
-    return d->printEngine->pageSize();
+    return QPrinter::PageSize(d->printEngine->property(QPrintEngine::PPK_PageSize).toInt());
 }
 
 
@@ -584,7 +579,7 @@ void QPrinter::setPageSize(PageSize newPageSize)
         qWarning("QPrinter::SetPageSize: illegal page size %d", newPageSize);
         return;
     }
-    d->printEngine->setPageSize(newPageSize);
+    d->printEngine->setProperty(QPrintEngine::PPK_PageSize, newPageSize);
     // #if defined(Q_WS_WIN)
     //     reinit();
     // #endif
@@ -604,7 +599,7 @@ void QPrinter::setPageSize(PageSize newPageSize)
 void QPrinter::setPageOrder(PageOrder pageOrder)
 {
     Q_ASSERT(d->printEngine->printerState() != QPrinter::Active);
-    d->printEngine->setPageOrder(pageOrder);
+    d->printEngine->setProperty(QPrintEngine::PPK_PageOrder, pageOrder);
     // #if defined(Q_WS_WIN)
     //     reinit();
     // #endif
@@ -619,7 +614,7 @@ void QPrinter::setPageOrder(PageOrder pageOrder)
 
 QPrinter::PageOrder QPrinter::pageOrder() const
 {
-    return d->printEngine->pageOrder();
+    return QPrinter::PageOrder(d->printEngine->property(QPrintEngine::PPK_PageOrder).toInt());
 }
 
 
@@ -633,7 +628,7 @@ QPrinter::PageOrder QPrinter::pageOrder() const
 void QPrinter::setColorMode(ColorMode newColorMode)
 {
     Q_ASSERT(d->printEngine->printerState() != QPrinter::Active);
-    d->printEngine->setColorMode(newColorMode);
+    d->printEngine->setProperty(QPrintEngine::PPK_ColorMode, newColorMode);
 }
 
 
@@ -645,8 +640,9 @@ void QPrinter::setColorMode(ColorMode newColorMode)
 */
 QPrinter::ColorMode QPrinter::colorMode() const
 {
-    return d->printEngine->colorMode();
+    return QPrinter::ColorMode(d->printEngine->property(QPrintEngine::PPK_ColorMode).toInt());
 }
+
 
 /*!
   Returns the number of copies to be printed. The default value is 1.
@@ -660,10 +656,27 @@ QPrinter::ColorMode QPrinter::colorMode() const
 
   \sa setNumCopies()
 */
+
 int QPrinter::numCopies() const
 {
-   return d->printEngine->numCopies();
+   return d->printEngine->property(QPrintEngine::PPK_NumberOfCopies).toInt();
 }
+
+
+/*!
+  Sets the number of copies to be printed to \a numCopies.
+
+  The printer driver reads this setting and prints the specified
+  number of copies.
+
+  \sa numCopies()
+*/
+
+void QPrinter::setNumCopies(int numCopies)
+{
+   d->printEngine->setProperty(QPrintEngine::PPK_NumberOfCopies, numCopies);
+}
+
 
 /*!
   \internal
@@ -675,7 +688,7 @@ int QPrinter::numCopies() const
 */
 bool QPrinter::collateCopies() const
 {
-    return d->printEngine->collateCopies();
+    return d->printEngine->property(QPrintEngine::PPK_CollateCopies).toBool();
 }
 
 
@@ -691,22 +704,9 @@ bool QPrinter::collateCopies() const
 */
 void QPrinter::setCollateCopies(bool collate)
 {
-    d->printEngine->setCollateCopies(collate);
+    d->printEngine->setProperty(QPrintEngine::PPK_CollateCopies, collate);
 }
 
-
-/*!
-  Sets the number of copies to be printed to \a numCopies.
-
-  The printer driver reads this setting and prints the specified
-  number of copies.
-
-  \sa numCopies()
-*/
-void QPrinter::setNumCopies(int numCopies)
-{
-   d->printEngine->setNumCopies(numCopies);
-}
 
 
 /*!
@@ -730,7 +730,7 @@ void QPrinter::setNumCopies(int numCopies)
 
 void QPrinter::setFullPage(bool fp)
 {
-    d->printEngine->setFullPage(fp);
+    d->printEngine->setProperty(QPrintEngine::PPK_FullPage, fp);
 }
 
 
@@ -746,7 +746,7 @@ void QPrinter::setFullPage(bool fp)
 
 bool QPrinter::fullPage() const
 {
-    return d->printEngine->fullPage();
+    return d->printEngine->property(QPrintEngine::PPK_FullPage).toBool();
 }
 
 
@@ -769,7 +769,7 @@ bool QPrinter::fullPage() const
 void QPrinter::setResolution(int dpi)
 {
     Q_ASSERT(d->printEngine->printerState() != Active);
-    d->printEngine->setResolution(dpi);
+    d->printEngine->setProperty(QPrintEngine::PPK_Resolution, dpi);
 }
 
 
@@ -782,7 +782,7 @@ void QPrinter::setResolution(int dpi)
 
 int QPrinter::resolution() const
 {
-    return d->printEngine->resolution();
+    return d->printEngine->property(QPrintEngine::PPK_Resolution).toInt();
 }
 
 /*!
@@ -796,7 +796,7 @@ int QPrinter::resolution() const
 
 void QPrinter::setPaperSource(PaperSource source)
 {
-    d->printEngine->setPaperSource(source);
+    d->printEngine->setProperty(QPrintEngine::PPK_PaperSource, source);
 }
 
 /*!
@@ -805,7 +805,7 @@ void QPrinter::setPaperSource(PaperSource source)
 */
 QPrinter::PaperSource QPrinter::paperSource() const
 {
-    return d->printEngine->paperSource();
+    return QPrinter::PaperSource(d->printEngine->property(QPrintEngine::PPK_PaperSource).toInt());
 }
 
 /*!
@@ -817,7 +817,7 @@ QPrinter::PaperSource QPrinter::paperSource() const
 */
 QRect QPrinter::pageRect() const
 {
-    return d->printEngine->pageRect();
+    return d->printEngine->property(QPrintEngine::PPK_PageRect).toRect();
 }
 
 /*!
@@ -828,7 +828,7 @@ QRect QPrinter::pageRect() const
 */
 QRect QPrinter::paperRect() const
 {
-    return d->printEngine->paperRect();
+    return d->printEngine->property(QPrintEngine::PPK_PaperRect).toRect();
 }
 
 /*!
@@ -870,9 +870,9 @@ QPaintEngine *QPrinter::paintEngine() const
 
     \sa winPageSize()
 */
-void QPrinter::setWinPageSize(short pageSize)
+void QPrinter::setWinPageSize(int pageSize)
 {
-    static_cast<QWin32PrintEngine *>(d->printEngine)->setWinPageSize(pageSize);
+    d->printEngine->setProperty(QPrintEngine::PPK_WindowsPageSize, pageSize);
 }
 
 /*!
@@ -883,9 +883,9 @@ void QPrinter::setWinPageSize(short pageSize)
 
     \sa setWinPageSize()
 */
-short QPrinter::winPageSize() const
+int QPrinter::winPageSize() const
 {
-   return static_cast<QWin32PrintEngine *>(d->printEngine)->winPageSize();
+    return d->printEngine->property(QPrintEngine::PPK_WindowsPageSize).toInt();
 }
 #endif // Q_WS_WIN
 
@@ -899,7 +899,12 @@ short QPrinter::winPageSize() const
 */
 QList<int> QPrinter::supportedResolutions() const
 {
-    return d->printEngine->supportedResolutions();
+    QList<QVariant> varlist
+        = d->printEngine->property(QPrintEngine::PPK_SupportedResolution).toList();
+    QList<int> intlist;
+    for (int i=0; i<varlist.size(); ++i)
+        intlist << varlist.at(i).toInt();
+    return intlist;
 }
 
 /*!
@@ -1093,7 +1098,6 @@ void QPrinter::releaseDC(HDC hdc)
 
 
 #ifndef Q_WS_WIN
-
 /*!
     Returns the printer options selection string. This is useful only
     if the print command has been explicitly set.
@@ -1108,8 +1112,7 @@ void QPrinter::releaseDC(HDC hdc)
 
 QString QPrinter::printerSelectionOption() const
 {
-    // ###
-    return QString();
+    return d->printEngine->property(QPrintEngine::PPK_SelectionOption).toString();
 }
 
 /*!
@@ -1126,13 +1129,23 @@ QString QPrinter::printerSelectionOption() const
 
 void QPrinter::setPrinterSelectionOption(const QString &option)
 {
-    Q_UNUSED(option);
+    d->printEngine->setProperty(QPrintEngine::PPK_SelectionOption, option);
 }
 
 #endif
 
 
 #ifdef QT3_SUPPORT
+
+void QPrinter::setOutputToFile(bool f)
+{
+    if (f) {
+        if (outputFileName().isEmpty())
+            setOutputFileName("untitled_printer_document");
+    } else {
+        setOutputFileName(QString());
+    }
+}
 
 bool qt_compat_QPrinter_printSetup(QPrinter *p, QPrinterPrivate *pd, QWidget *parent)
 {
@@ -1495,3 +1508,75 @@ bool QPrinter::isOptionEnabled( PrinterOption option ) const
 }
 
 #endif // QT3_SUPPORT
+
+// QPrintEngine documentation
+
+/*!
+    \class QPrintEngine qprintengine.h
+
+    \brief The QPrintEngine class defines an interface for how QPrinter
+    interacts with a given printing subsystem.
+
+    The common use is to derive from both QPaintEngine and QPrintEngine
+    when implementing a new printer.
+
+    \sa QPaintEngine
+*/
+
+/*!
+    \enum QPrintEngine::PrintEnginePropertyKey
+
+    This enum is used to communicate properties between the print
+    engine and QPrinter. A property may or may not be supported by a
+    given print engine.
+
+    \item PPK_CollateCopies A bool value describing wether the
+    printout should be collated or not.
+
+    \item PPK_ColorMode Refers to QPrinter::ColorMode, either color or
+    monochrome.
+
+    \item PPK_Creator
+
+    \item PPK_DocumentName A string describing the document name in
+    the spooler.
+
+    \item PPK_FullPage A boolean describing if the printer should be
+    full page or not.
+
+    \item PPK_NumberOfCopies An integer specifying the number of
+    copies
+
+    \item PPK_Orientation Specifies a QPrinter::Orientation value.
+
+    \item PPK_OutputFileName The output file name as a string. An
+    empty file name indicates that we do not print to file.
+
+    \item PPK_PageOrder Specifies a QPrinter::PageOrder value.
+
+    \item PPK_PageRect A QRect specifying the page rectangle
+
+    \item PPK_PageSize Specifies a QPrinter::PageSize value.
+
+    \item PPK_PaperRect A QRect specifying the paper rectangle.
+
+    \item PPK_PaperSource Specifies a QPrinter::PaperSource value.
+
+    \item PPK_PrinterName A string specifying the name of the printer.
+
+    \item PPK_PrinterProgram A string specifying the name of the
+    printer program used for printing,
+
+    \item PPK_Resolution An integer describing the dots per inch for
+    this printer.
+
+    \item PPK_SelectionOption
+
+    \item PPK_SupportedResolution A list of integer QVariants
+    describing the set of supported resolutions that the printer has.
+
+    \item PPK_WindowsPageSize An integer specifying a DM_PAPER entry
+    on Windows(tm).
+
+    \item PPK_CustomBase Basis for extension.
+*/
