@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#161 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#162 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -24,7 +24,6 @@
 #define gettimeofday	__hide_gettimeofday
 #endif
 #include <stdlib.h>
-#include <signal.h>
 #include <ctype.h>
 #include <locale.h>
 #include <errno.h>
@@ -45,7 +44,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#161 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#162 $")
 
 
 /*****************************************************************************
@@ -98,7 +97,6 @@ typedef void  (*VFPTR)();
 typedef declare(QListM,void) QVFuncList;
 static QVFuncList *postRList = 0;		// list of post routines
 
-static void	qt_sighandler( int signo );	// default signal handler
 static int	qt_x_errhandler( Display *, XErrorEvent * );
 static int	qt_xio_errhandler( Display * );
 
@@ -131,18 +129,6 @@ public:
 };
 
 
-#if defined(_OS_IRIX_)
-// Tested on Irix 5.2
-typedef void (*SIG_HANDLER)(...);
-#elif defined(_OS_SUN_) || defined(_OS_FREEBSD_) || defined(_OS_ULTRIX_) || \
-      defined(_OS_SCO_) || defined(_OS_HPUX_) || \
-      defined(_OS_LINUX_) || defined(_OS_OSF_) || defined(_OS_SOLARIS_)
-typedef void (*SIG_HANDLER)(int);
-#else
-#error "Qt has not been ported to this OS - talk to qt-bugs@troll.no"
-#endif
-
-
 /*****************************************************************************
   qt_init() - initializes Qt for X-Windows
  *****************************************************************************/
@@ -153,11 +139,6 @@ void qt_init( int *argcptr, char **argv )
     int i, j;
 
   // Install default error handlers
-
-#if !defined(_OS_WIN32_)
-    signal( SIGQUIT, (SIG_HANDLER)qt_sighandler );
-#endif
-    signal( SIGINT, (SIG_HANDLER)qt_sighandler );
 
     XSetErrorHandler( qt_x_errhandler );
     XSetIOErrorHandler( qt_xio_errhandler );
@@ -372,13 +353,6 @@ void qt_save_rootinfo()				// save new root info
 void qt_updated_rootinfo()
 {
     app_save_rootinfo = TRUE;
-}
-
-
-static void qt_sighandler( int signo )		// default signal handler
-{
-    warning( "%s: Signal %d received", appName, signo );
-    exit( 0 );
 }
 
 
