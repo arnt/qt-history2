@@ -1149,7 +1149,7 @@ void QTextEdit::resizeEvent(QResizeEvent *)
 
     d->doc->documentLayout()->setPageSize(QSize(width, INT_MAX));
 
-    d->hbar->setRange(0, layout->widthUsed() - width);
+    d->hbar->setRange(0, layout->widthUsed() - d->viewport->width());
     d->hbar->setPageStep(width);
 
     d->vbar->setRange(0, layout->totalHeight() - d->viewport->height());
