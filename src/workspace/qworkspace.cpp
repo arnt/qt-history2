@@ -2589,12 +2589,14 @@ void QWorkspaceChild::adjustToFullscreen()
     qApp->sendPostedEvents( this, QEvent::Resize );
     qApp->sendPostedEvents( childWidget, QEvent::Resize );
     qApp->sendPostedEvents( childWidget, QEvent::Move );
-    if(style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this)) {
+    if( style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this) ) {
 	setGeometry( 0, 0, parentWidget()->width(), parentWidget()->height());
     } else {
-	setGeometry( -childWidget->x(), -childWidget->y(),
-		     parentWidget()->width() + width() - childWidget->width(),
-		     parentWidget()->height() + height() - childWidget->height() );
+	int w = parentWidget()->width() + width() - childWidget->width();
+	int h = parentWidget()->height() + height() - childWidget->height();
+	w = QMAX( w, childWidget->minimumWidth() );
+	h = QMAX( h, childWidget->minimumHeight() );
+	setGeometry( -childWidget->x(), -childWidget->y(), w, h );
     }
     setWState( WState_Maximized );
     ((QWorkspaceChild*)childWidget)->setWState( WState_Maximized );
