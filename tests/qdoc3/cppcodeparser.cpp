@@ -159,9 +159,6 @@ Set<QString> CppCodeParser::topicCommands()
 {
     return Set<QString>() << COMMAND_CLASS << COMMAND_ENUM << COMMAND_FILE << COMMAND_FN
 			  << COMMAND_GROUP << COMMAND_HEADERFILE << COMMAND_MODULE
-#ifdef QDOC2_COMPAT
-			  << COMMAND_OVERLOAD
-#endif
 			  << COMMAND_PAGE << COMMAND_PROPERTY << COMMAND_TYPEDEF;
 }
 
@@ -169,20 +166,13 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
 					  const QString& command,
 					  const QString& arg )
 {
-#ifdef QDOC2_COMPAT
-    if ( command == COMMAND_FN || command == COMMAND_OVERLOAD ) {
-#else
     if ( command == COMMAND_FN ) {
-#endif
 	QStringList parentPath;
 	FunctionNode *func = 0;
 	FunctionNode *clone;
 
 	if ( !makeFunctionNode(arg, &parentPath, &clone) &&
 	     !makeFunctionNode("void " + arg, &parentPath, &clone) ) {
-#ifdef QDOC2_COMPAT
-	    if ( command != COMMAND_OVERLOAD )
-#endif
 	    doc.location().warning( tr("Invalid syntax in '\\%1'")
 				    .arg(COMMAND_FN) );
 	} else {
@@ -204,13 +194,8 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
 		lastPath = parentPath;
 	    }
 
-	    if ( func != 0 ) {
-#ifdef QDOC2_COMPAT
-		if ( command == COMMAND_OVERLOAD )
-		    func->setOverload( TRUE );
-#endif
+	    if (func)
 		func->borrowParameterNames( clone );
-	    }
 	    delete clone;
 	}
 	return func;
@@ -245,8 +230,8 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
 
 Set<QString> CppCodeParser::otherMetaCommands()
 {
-    return commonMetaCommands() << COMMAND_INHEADERFILE << COMMAND_OVERLOAD
-				<< COMMAND_REIMP << COMMAND_RELATES;
+    return commonMetaCommands() << COMMAND_INHEADERFILE << COMMAND_OVERLOAD << COMMAND_REIMP
+				<< COMMAND_RELATES;
 }
 
 void CppCodeParser::processOtherMetaCommand( const Doc& doc,
@@ -543,7 +528,7 @@ bool CppCodeParser::matchFunctionDecl(InnerNode *parent, QStringList *parentPath
 	 (returnType.toString().isEmpty() || returnType.toString().endsWith("::"))) {
 	// 'QString::operator const char *()'
 	parentPath = returnType.toString().split(sep);
-        parentPath.remove(QString());
+        parentPath.removeAll(QString());
 	returnType = CodeChunk();
 	readToken();
 

@@ -1,5 +1,5 @@
 alias.also			= sa
-alias.group			= ingroup
+alias.group			= defgroup
 alias.i				= e
 alias.image			= img
 alias.include			= input

@@ -114,13 +114,16 @@ void InnerNode::setOverload( const FunctionNode *func, bool overlode )
 	if ( overlode ) {
 	    if ( primary == node ) {
 		primary = secs.first();
-		secs.remove( secs.begin() );
-		secs.prepend( node );
-	    }
+		secs.erase(secs.begin());
+		secs.append(node);
+	    } else {
+		secs.removeAll(node);
+                secs.append(node);
+            }
 	} else {
-	    if ( primary != node ) {
-		secs.remove( node );
-		secs.prepend( primary );
+	    if (primary != node) {
+		secs.removeAll(node);
+		secs.prepend(primary);
 		primary = node;
 	    }
 	}
@@ -266,7 +269,7 @@ void InnerNode::addChild( Node *child )
 
 void InnerNode::removeChild( Node *child )
 {
-    children.remove( child );
+    children.removeAll( child );
     if ( child->type() == Function ) {
 	QMap<QString, Node *>::Iterator prim =
 		primaryFunctionMap.find( child->name() );
@@ -276,21 +279,21 @@ void InnerNode::removeChild( Node *child )
 		primaryFunctionMap.remove( child->name() );
 	    } else {
 		primaryFunctionMap.replace( child->name(), secs.first() );
-		secs.remove( secs.begin() );
+		secs.erase( secs.begin() );
 	    }
 	} else {
-	    secs.remove( child );
+	    secs.removeAll( child );
 	}
     } else {
 	QMap<QString, Node *>::Iterator ent = childMap.find( child->name() );
 	if ( *ent == child )
-	    childMap.remove( ent );
+	    childMap.erase( ent );
     }
 }
 
 void InnerNode::removeRelated(Node *pseudoChild)
 {
-    related.remove(pseudoChild);
+    related.removeAll(pseudoChild);
 }
 
 bool LeafNode::isInnerNode() const
@@ -327,10 +330,14 @@ FakeNode::FakeNode( InnerNode *parent, const QString& name, SubType subType )
 
 QString FakeNode::fullTitle() const
 {
-    if (sub == HeaderFile)
-	return name() + " - " + title();
-    else
+    if (sub == HeaderFile) {
+	if (title().isEmpty())
+	    return name();
+	else
+	    return name() + " - " + title();
+    } else {
 	return title();
+    }
 }
 
 EnumNode::EnumNode( InnerNode *parent, const QString& name )

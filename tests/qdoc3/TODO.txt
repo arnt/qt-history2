@@ -1,13 +1,18 @@
 MISC:
-  * avoid "Undocumented parameter" warning for overloads (e.g. qvarlengtharray.doc:187)
+  * omit \overload in operator<< and operator>>
+  * fix bug in enum documentation (QChar)
+  * replace QBool with bool
   * support <qglobal.h>'s typedefs with \typedef
   * make \macro work
   * remove warning for undocumented enum item like QLocale::LastLanguage
+  * make QStringListIterator and QStringListMutableIterator docs work
+  * improve the \a warnings for overloads; if one overload documents a para, fine
+
+  * fix \sa \link in QByteArray's operator>>().
 
   * remove getter/setter functions from list for properties
   * get rid of spurious 'global' functions
   * make \enum work also for typedefs (?)
-
 
   * implement \sidebar
 
@@ -15,7 +20,6 @@ MISC:
   * implement \inmodule
   * implement qbook
   * implement \stl
-  * implement Q_DECLARE_ITERATOR() hack
 
   * implement \legalesefile
 

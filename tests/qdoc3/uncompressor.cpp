@@ -14,7 +14,7 @@ Uncompressor::Uncompressor( const QStringList& extensions )
 
 Uncompressor::~Uncompressor()
 {
-    uncompressors.remove( this );
+    uncompressors.removeAll( this );
 }
 
 Uncompressor *Uncompressor::uncompressorForFileName( const QString& fileName )

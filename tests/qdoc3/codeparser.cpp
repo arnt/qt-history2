@@ -26,7 +26,7 @@ CodeParser::CodeParser()
 
 CodeParser::~CodeParser()
 {
-    parsers.remove( this );
+    parsers.removeAll( this );
 }
 
 void CodeParser::initializeParser(const Config & /* config */)

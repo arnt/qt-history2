@@ -19,7 +19,7 @@ CodeMarker::CodeMarker()
 
 CodeMarker::~CodeMarker()
 {
-    markers.remove( this );
+    markers.removeAll( this );
 }
 
 void CodeMarker::initializeMarker( const Config& /* config */ )

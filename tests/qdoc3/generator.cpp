@@ -35,7 +35,7 @@ Generator::Generator()
 
 Generator::~Generator()
 {
-    generators.remove(this);
+    generators.removeAll(this);
 }
 
 void Generator::initializeGenerator(const Config & /* config */)

@@ -14,7 +14,7 @@ ArchiveExtractor::ArchiveExtractor( const QStringList& extensions )
 
 ArchiveExtractor::~ArchiveExtractor()
 {
-    extractors.remove( this );
+    extractors.removeAll( this );
 }
 
 ArchiveExtractor *ArchiveExtractor::extractorForFileName(

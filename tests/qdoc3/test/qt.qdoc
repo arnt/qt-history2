@@ -7,7 +7,8 @@ headerdirs		= $QTDIR/include \
 sourcedirs		= $QTDIR/src \
 			  $QTDIR/doc
 sources.fileextensions	= "*.cpp *.doc"
-exampledirs		= $QTDIR/examples/advanced \
+exampledirs		= $QTDIR/doc/snippets \
+			  $QTDIR/examples/advanced \
 			  $QTDIR/examples/simple \
 			  $QTDIR/examples \
 			  $QTDIR/tutorial

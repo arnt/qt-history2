@@ -648,8 +648,7 @@ void Config::load( Location location, const QString& fileName )
     }
 }
 
-QStringList Config::getFilesHere( const QString& dir,
-				  const QString& nameFilter )
+QStringList Config::getFilesHere(const QString& dir, const QString& nameFilter)
 {
     QStringList result;
 
