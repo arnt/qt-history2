@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdial.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qdial.cpp#21 $
 **
 ** Implementation of something useful.
 **
@@ -232,7 +232,7 @@ void QDial::resizeEvent( QResizeEvent * e )
 
 
 /*!
-
+  \reimp
 */
 
 void QDial::paintEvent( QPaintEvent * e )
@@ -242,9 +242,13 @@ void QDial::paintEvent( QPaintEvent * e )
     p.setPen( colorGroup().foreground() );
 
     paint( p );
-    
+
     p.end();
 }
+
+/*!
+  Paints the dial.
+*/
 
 void QDial::paint( QPainter &p )
 {
@@ -712,6 +716,10 @@ void QDial::subtractPage()
   \sa dialPressed()
 */
 
+/*!
+  Repaints the dial flickerfree.
+*/
+  
 void QDial::repaintScreen()
 {
     int rad = QMIN( width(), height() ) / 2;
