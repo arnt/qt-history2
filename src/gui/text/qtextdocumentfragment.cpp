@@ -436,7 +436,7 @@ QTextDocumentFragment QTextDocumentFragment::loadFromXML(const QString &xml)
 {
     QTextDocumentFragment res;
 
-    QTextHtmlParser parser(0);
+    QTextHtmlParser parser;
     parser.parse(xml);
 
     int root = 0;
@@ -489,7 +489,7 @@ QTextDocumentFragment QTextDocumentFragment::loadFromHTML(const QString &html)
     res.d = new QTextDocumentFragmentPrivate;
     QTextDocumentFragmentPrivate *d = res.d;
 
-    QTextHtmlParser parser(&d->localFormatCollection);
+    QTextHtmlParser parser;
     parser.parse(html);
 //    parser.dumpHtml();
 

@@ -87,9 +87,6 @@ Q_DECLARE_TYPEINFO(QTextHtmlParserNode, Q_MOVABLE_TYPE);
 struct QTextHtmlParser
 {
 public:
-    QTextHtmlParser(QTextFormatCollection *formatCollection)
-	: formats(formatCollection) {}
-
     inline const QTextHtmlParserNode &at(int i) const { return nodes.at(i); }
     inline QTextHtmlParserNode &operator[](int i) { return nodes[i]; }
     inline int count() const { return nodes.count(); }
@@ -127,8 +124,6 @@ protected:
     inline bool hasPrefix(QChar c, int lookahead = 0)
 	{return pos + lookahead < len && txt.at(pos) == c; }
     int margin(int i, int mar) const;
-
-    QTextFormatCollection *formats;
 };
 
 #endif // QTEXTHTMLPARSER_P_H
