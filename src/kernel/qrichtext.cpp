@@ -3621,7 +3621,9 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     int curx = -1, cury = 0, curh = 0;
     bool lastDirection = chr->rightToLeft;
     QTextStringChar::Type lastType = chr->type;
+#if 0 // seems we don't need that anymore
     int tw = 0;
+#endif
 
     QString qstr = str->toString();
 
@@ -3671,7 +3673,9 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 
 	// init a new line
 	if ( chr->lineStart ) {
+#if 0 // seems we don't need that anymore
 	    tw = 0;
+#endif
 	    ++line;
 	    lineInfo( line, cy, h, baseLine );
 	    lasth = h;
