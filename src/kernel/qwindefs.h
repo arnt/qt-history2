@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindefs.h#35 $
+** $Id: //depot/qt/main/src/kernel/qwindefs.h#36 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -35,10 +35,12 @@ class QPainter;
 class QRegion;
 class QFont;
 class QFontMetrics;
+class QFontInfo;
 class QPen;
 class QBrush;
 class QWorldMatrix;
 class QPixMap;
+class QImage;
 class QBitMap;
 class QPicture;
 class QPrinter;
