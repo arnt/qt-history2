@@ -139,11 +139,11 @@ New in version 3.0, Qt supports Mac OS X using the Carbon API. Qt/Mac
 creates a new market for customers who sell Qt applications.
 
 Qt introduces layouts and straightforward internationalization support
-to the Macintosh. Qt handles files, and asynchronous socket
-input/output, in the event loop. Qt provides solid database support.
-Developers can create Macintosh applications using a modern object
-oriented API that includes comprehensive documentation and full source
-code.
+to the Macintosh. Qt handles files and asynchronous socket
+input/output in the event loop. Qt provides solid database support.
+Developers can create Macintosh applications using a modern
+object-oriented API that includes comprehensive documentation and full
+source code.
 
 Macintosh developers can create applications on their favorite
 platform and broaden their market hugely simply by recompiling on, for
