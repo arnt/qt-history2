@@ -12,6 +12,6 @@ SOURCES     	= resultwindow.cpp \
 unix:OBJECTS_DIR		= .obj
 win32:OBJECTS_DIR		= obj
 
-#unix:LIBS	+= -lpthread
+unix:LIBS	+= -lpthread
 
 TARGET      	= sqlbrowse
