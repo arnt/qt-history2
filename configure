@@ -907,8 +907,13 @@ then
 	sed -e "s,@REL_QTDIR@,$relpath,g" -e "s,@OUT_QTDIR@,$outpath,g" \
 	    -e "s,@QMAKE_LIBRARIES@,$DYLIB_LINK,g" -e "s,@QMAKESPEC@,$QMAKESPEC,g" $in_mkfile >>$mkfile
     done
-    (cd $outpath/qmake; /bin/sh -c $MAKE >/dev/null 2>&1|| \
-    (echo "QMake failed to build. Aborting." && exit 2)) || exit 2
+    if [ "$VERBOSE" = "yes" ]; then
+	(cd $outpath/qmake; /bin/sh -c $MAKE || \
+	(echo "QMake failed to build. Aborting." && exit 2)) || exit 2
+    else
+	(cd $outpath/qmake; /bin/sh -c $MAKE >/dev/null 2>&1|| \
+	(echo "QMake failed to build. Aborting." && exit 2)) || exit 2
+    fi
 fi
 
 #now look at the configs and figure out what platform we are config'd for
