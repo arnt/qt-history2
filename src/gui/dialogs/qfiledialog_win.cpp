@@ -162,7 +162,7 @@ static OPENFILENAMEA *qt_win_make_OFNA(QWidget *parent,
     }
     int maxLen = mode == QFileDialog::ExistingFiles ? maxMultiLen : maxNameLen;
     aInitSel.resize(maxLen + 1);                // make room for return value
-    aFilter = filters.local8Bit();
+    aFilter = filters.toLocal8Bit();
 
     OPENFILENAMEA* ofn = new OPENFILENAMEA;
     memset(ofn, 0, sizeof(OPENFILENAMEA));
