@@ -1364,6 +1364,7 @@ bool QAxWidget::initialize( IUnknown **ptr )
 /*!
     Creates the client site for the ActiveX control, and returns TRUE if
     the control could be embedded successfully, otherwise returns FALSE.
+    If \a initialized is TRUE the control has already been initialized.
 
     This function is called by initialize(). If you reimplement initialize
     to customize the actual control instantiation, call this function in your
