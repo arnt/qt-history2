@@ -102,8 +102,11 @@ static const char *qt_x11encodings[][QFont::NScripts + 1] = {
 
     { "iso8859-8"        , 0 }, // Hebrew
     { 0                      }, // HebrewPresentation
-    { "iso8859-6.8x",
-      "iso8859-6"        , 0 }, // Arabic
+
+    { "iso8859-6.8x"     , 0 }, // // Arabic
+    // "iso8859-6" - uncommented for now since arabic doesn't work at all
+    // for iso8859-6
+
     { 0                      }, // ArabicPresentationA
     { 0                      }, // ArabicPresentationB
     { 0                      }, // Syriac
@@ -119,7 +122,7 @@ static const char *qt_x11encodings[][QFont::NScripts + 1] = {
     { 0                      }, // Kannada
     { 0                      }, // Malayalam
     { 0                      }, // Sinhala
-    { "tis620-0",
+    { "tis620*-0",
       "iso8859-11"       , 0 }, // Thai
     { 0                      }, // Lao
     { 0                      }, // Tibetan
@@ -127,12 +130,18 @@ static const char *qt_x11encodings[][QFont::NScripts + 1] = {
     { 0                      }, // Khmer
 
     { "jisx0208.1983-0",
+      "jisx0212.1990-0",
       "gb2312.1980-0",
       "big5*-0",
-      "ksc5601.1987-0"   , 0 }, // UnifiedHan
-    { "jisx0208.1983-0"  , 0 }, // Hiragana
-    { "jisx0208.1983-0"  , 0 }, // Katakana
-    { "ksc5601.1987-0"   , 0 }, // Hangul
+      "big5-1",
+      "ksc5601.1987-0",
+      "ksc5601.1992-*",    0 }, // UnifiedHan
+    { "jisx0208.1983-0",
+      "jisx0212.1990-0",   0 }, // Hiragana
+    { "jisx0208.1983-0",
+      "jisx0212.1990-0"  , 0 }, // Katakana
+    { "ksc5601.1987-0",
+      "ksc5601.1992-*"   , 0 }, // Hangul
     { "gb2312.1980-0"    , 0 }, // Bopomofo
     { 0                      }, // Yi
 
@@ -141,7 +150,8 @@ static const char *qt_x11encodings[][QFont::NScripts + 1] = {
     { 0                      }, // CanadianAboriginal
     { 0                      }, // Mongolian
 
-    { "big5*-0"	         , 0 }, // UnifiedHanX11
+    { "big5*-0",
+      "big5-1"           , 0 }, // UnifiedHanX11
 
     { "iso8859-3"        , 0 }, // LatinExtendedA_3
     { "iso8859-4"        , 0 }, // LatinExtendedA_4
@@ -1389,7 +1399,7 @@ QCString QFontPrivate::findFont(QFont::Script script, bool *exact) const
     }
 
     // no matching fonts found
-    if (bestName.isNull()) {
+    if (bestName.isNull() && script == defaultScript) {
 	bestName = lastResortFont().latin1();
     }
 
@@ -2055,9 +2065,10 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	    name = QFont::substitute(request.family);
 	    match = fontExists(name);
 
-	    if (! match) {
+	    if (! match && script == QFontPrivate::defaultScript)
 		name = lastResortFont();
-	    }
+	    else
+		name = QString::null;
 	} else {
 	    name = findFont(script, &match);
 	}

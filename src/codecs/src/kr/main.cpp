@@ -79,7 +79,7 @@ unsigned long KRTextCodecs::release()
 QStringList KRTextCodecs::featureList() const
 {
     QStringList list;
-    list << "eucKR" << "ksc5601.1987-0";
+    list << "eucKR" << "ksc5601.1987-0" << "ksc5601.1992-*";
     list << "MIB-38" << "MIB-36";
     return list;
 }
@@ -134,7 +134,8 @@ QTextCodec *KRTextCodecs::createForName( const QString &name )
     if (! codec) {
 	if (name == "eucKR")
 	    codec = new QEucKrCodec;
-	else if (name == "ksc5601.1987-0")
+	else if (name == "ksc5601.1987-0" ||
+		 name == "ksc5601.1992-*")
 	    codec = new QFontKsc5601Codec;
 
 	if (codec)

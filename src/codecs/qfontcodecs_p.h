@@ -94,6 +94,39 @@ private:
 
 
 
+class QFontJis0212Codec : public QTextCodec
+{
+public:
+    QFontJis0212Codec();
+    ~QFontJis0212Codec();
+
+    // Return the official name for the encoding.
+    const char* name() const ;
+
+    // Return the MIB enum for the encoding if it is listed in the
+    // IANA character-sets encoding file.
+    int mibEnum() const ;
+
+    // Converts len characters from chars to Unicode.
+    QString toUnicode(const char* chars, int len) const ;
+
+    // Converts lenInOut characters (of type QChar) from the start of
+    // the string uc, returning a QCString result, and also returning
+    // the length of the result in lenInOut.
+    QCString fromUnicode(const QString& uc, int& lenInOut ) const;
+
+    int heuristicContentMatch(const char *, int) const;
+    bool canEncode( QChar ) const;
+
+
+private:
+    const QJpUnicodeConv *convJP;
+};
+
+
+
+
+
 class QFontKsc5601Codec : public QTextCodec
 {
 public:

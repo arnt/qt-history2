@@ -81,8 +81,8 @@ unsigned long JPTextCodecs::release()
 QStringList JPTextCodecs::featureList() const
 {
     QStringList list;
-    list << "eucJP" << "JIS7" << "SJIS" << "jisx0208.1983-0";
-    list << "MIB-16" << "MIB-17" << "MIB-18" << "MIB-63";
+    list << "eucJP" << "JIS7" << "SJIS" << "jisx0208.1983-0" << "jisx0212.1990-0";
+    list << "MIB-16" << "MIB-17" << "MIB-18" << "MIB-63" << "MIB-98";
     return list;
 }
 
@@ -115,6 +115,10 @@ QTextCodec *JPTextCodecs::createForMib( int mib )
 
 	case 63:
 	    codec = new QFontJis0208Codec;
+	    break;
+
+	case 98:
+	    codec = new QFontJis0212Codec;
 	    break;
 
 	default:
@@ -150,6 +154,8 @@ QTextCodec *JPTextCodecs::createForName( const QString &name )
 	    codec = new QEucJpCodec;
 	else if (name == "jisx0208.1983-0")
 	    codec = new QFontJis0208Codec;
+	else if (name == "jisx0212.1990-0")
+	    codec = new QFontJis0212Codec;
 
 	if (codec)
 	    codecs.append(codec);

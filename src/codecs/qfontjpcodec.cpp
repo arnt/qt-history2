@@ -86,25 +86,6 @@ QCString QFontJis0208Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 
     for ( int i = 0; i < lenInOut; i++ ) {
 	QChar ch(*ucp++);
-
-#if 0
-	// ### these fonts usually don't seem to have 0x3000 and the other ones
-	if ( ch.row() == 0) {
-	    if ( ch.cell() == ' ' )
-		ch = QChar( 0x3000 );
-	    else if ( ch.cell() == '"' )
-		ch = QChar( 0x2033 );
-	    else if ( ch.cell() == '\'' )
-		ch = QChar( 0x2032 );
-	    else if ( ch.cell() == '-' )
-		ch = QChar( 0x2212 );
-	    else if ( ch.cell() == '~' )
-		ch = QChar( 0x301c );
-	    else if ( ch.cell() > ' ' && ch.cell() < 127 )
-		ch = QChar( ch.cell()-' ', 255 );
-	}
-#endif
-
 	ch = convJP->unicodeToJisx0208(ch.unicode());
 
 	if ( ! ch.isNull() ) {
@@ -126,6 +107,79 @@ QCString QFontJis0208Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 bool QFontJis0208Codec::canEncode( QChar ch ) const
 {
     return ( convJP->unicodeToJisx0208(ch.unicode()) != 0 );
+}
+
+
+
+
+
+
+int QFontJis0212Codec::heuristicContentMatch(const char *, int) const
+{
+    return 0;
+}
+
+
+QFontJis0212Codec::QFontJis0212Codec()
+{
+    convJP = QJpUnicodeConv::newConverter(QJpUnicodeConv::Default);
+}
+
+
+QFontJis0212Codec::~QFontJis0212Codec()
+{
+    delete convJP;
+    convJP = 0;
+}
+
+
+const char* QFontJis0212Codec::name() const
+{
+    return "jisx0212.1990-0";
+}
+
+
+int QFontJis0212Codec::mibEnum() const
+{
+    return 98;
+}
+
+
+QString QFontJis0212Codec::toUnicode(const char* /*chars*/, int /*len*/) const
+{
+    return QString::null;
+}
+
+
+QCString QFontJis0212Codec::fromUnicode(const QString& uc, int& lenInOut ) const
+{
+    QCString result(lenInOut * 2 + 1);
+    uchar *rdata = (uchar *) result.data();
+    const QChar *ucp = uc.unicode();
+
+    for ( int i = 0; i < lenInOut; i++ ) {
+	QChar ch(*ucp++);
+	ch = convJP->unicodeToJisx0212(ch.unicode());
+
+	if ( ! ch.isNull() ) {
+	    *rdata++ = ch.row();
+	    *rdata++ = ch.cell();
+	} else {
+	    //white square
+	    *rdata++ = 0x22;
+	    *rdata++ = 0x22;
+	}
+    }
+
+    lenInOut *= 2;
+
+    return result;
+}
+
+
+bool QFontJis0212Codec::canEncode( QChar ch ) const
+{
+    return ( convJP->unicodeToJisx0212(ch.unicode()) != 0 );
 }
 
 

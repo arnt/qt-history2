@@ -80,16 +80,6 @@ QCString QFontKsc5601Codec::fromUnicode(const QString& uc, int& lenInOut ) const
 
     for ( int i = 0; i < lenInOut; i++ ) {
 	QChar ch(*ucp++);
-
-#if 0
-	if ( ch.row() == 0) {
-	    if ( ch.cell() == ' ' )
-		ch = QChar( 0x3000 );
-	    else if ( ch.cell() > ' ' && ch.cell() < 127 )
-		ch = QChar( ch.cell()-' ', 255 );
-	}
-#endif
-
 	ch = qt_UnicodeToKsc5601(ch.unicode());
 
 	if ( ! ch.isNull() ) {
