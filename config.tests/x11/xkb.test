@@ -24,7 +24,7 @@ done
 # some platforms are known to be broken
 #   Solaris 7 + Xsun
 #   	Patches 107648-01 and 107649-01 upgrade the Xsun package
-#   	of Solaris 7 to X Xindows 6.4 on SPARC and Intel platforms
+#   	of Solaris 7 to X Window 6.4 on SPARC and Intel platforms
 #   	respectively, introducing XKB support. However most headers
 #   	are missing and there's no patch to fix that. Our solution
 #   	is to disable XKB support on Solaris 7.
