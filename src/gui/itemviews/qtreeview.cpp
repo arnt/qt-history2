@@ -745,7 +745,7 @@ void QTreeView::doItemsLayout()
     QStyleOptionViewItem option = viewOptions();
     QModelIndex parent = root();
     if (model() && model()->rowCount(parent) > 0 && model()->columnCount(parent) > 0) {
-        QModelIndex index = model()->index(0, 0, root());
+        QModelIndex index = model()->index(0, 0, parent);
         d->itemHeight = itemDelegate()->sizeHint(option, index).height();
         d->layout(-1);
         d->reopenChildren(parent);
