@@ -31,8 +31,8 @@ protected slots:
     void about();
     void aboutQt();
 
+private:
     QFont appFont;
-
 };
 
 
