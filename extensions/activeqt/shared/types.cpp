@@ -31,6 +31,9 @@
 #include <qpixmap.h>
 #include <qpaintdevicemetrics.h>
 #include <qpainter.h>
+#include <qmetaobject.h>
+
+extern IDispatch *create_object_wrapper( QObject *o );
 
 IFontDisp *QFontToIFont( const QFont &font )
 {
@@ -1190,6 +1193,9 @@ bool QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 	    } else if ( !qstrcmp( vartype, "IUnknown*" ) || !qstrcmp( vartype, "IUnknown" ) ) {
 		var.vt = VT_UNKNOWN;
 		var.punkVal = (IUnknown*)ptrvalue;
+	    } else if ( QMetaObject::metaObject( vartype ) ) {
+		var.vt = VT_DISPATCH;
+		var.pdispVal = create_object_wrapper( (QObject*)ptrvalue );
 	    }
 	} else {
 	    vartype = param->type->desc();
