@@ -841,6 +841,7 @@ static void shapedString(const QString& uc, int from, int len, QChar *shapeBuffe
     *shapedLength = data - shapeBuffer;
 }
 
+#ifndef QT_NO_XFTFREETYPE
 static void openTypeShape( int script, const QOpenType *openType, const QString &string, int from,
 			   int len, QScriptItem *item )
 {
@@ -873,7 +874,7 @@ static void openTypeShape( int script, const QOpenType *openType, const QString 
     if ( allocated )
 	free( featuresToApply );
 }
-
+#endif
 
 static void arabic_attributes( int /*script*/, const QString &text, int from, int len, QCharAttributes *attributes )
 {
@@ -894,12 +895,14 @@ static void arabic_attributes( int /*script*/, const QString &text, int from, in
 
 static void arabic_shape( int /*script*/, const QString &string, int from, int len, QScriptItem *si )
 {
+#ifndef QT_NO_XFTFREETYPE
     QOpenType *openType = si->fontEngine->openType();
 
     if ( openType && openType->supportsScript( QFont::Arabic ) ) {
 	openTypeShape( QFont::Arabic, openType, string,  from,  len, si );
 	return;
     }
+#endif
 
     const QString &text = string;
     QShapedItem *shaped = si->shaped;
@@ -925,12 +928,14 @@ static void arabic_shape( int /*script*/, const QString &string, int from, int l
 
 static void syriac_shape( int script, const QString &string, int from, int len, QScriptItem *item )
 {
+#ifndef QT_NO_XFTFREETYPE
     QOpenType *openType = item->fontEngine->openType();
 
     if ( openType && openType->supportsScript( QFont::Syriac ) ) {
 	openTypeShape( QFont::Syriac, openType, string, from, len, item );
 	return;
     }
+#endif
     basic_shape( script, string, from, len, item );
 }
 
@@ -2270,11 +2275,14 @@ static void indic_shape( int script, const QString &string, int from, int len, Q
 	item->fontEngine->stringToCMap( reordered.unicode(), shaped->num_glyphs, shaped->glyphs, &shaped->num_glyphs );
     }
 
+#ifndef QT_NO_XFTFREETYPE
     QOpenType *openType = item->fontEngine->openType();
 
     if ( openType && openType->supportsScript( script ) ) {
 	((QOpenType *) openType)->apply( script, featuresToApply, item, len );
-    } else {
+    } else
+#endif
+    {
 	q_calculateAdvances( item );
     }
 
@@ -2468,6 +2476,9 @@ static void tibetan_analyzeSyllables( const QString &string, int from, int lengt
 
 static void tibetan_shape( int script, const QString &string, int from, int len, QScriptItem *item )
 {
+#ifdef QT_NO_XFTFREETYPE
+    Q_UNUSED( script );
+#endif
 //     qDebug("tibetan_shape()");
     QShapedItem *shaped = item->shaped;
 
@@ -2496,11 +2507,14 @@ static void tibetan_shape( int script, const QString &string, int from, int len,
 	item->fontEngine->stringToCMap( string.unicode() + from, shaped->num_glyphs, shaped->glyphs, &shaped->num_glyphs );
     }
 
+#ifndef QT_NO_XFTFREETYPE
     QOpenType *openType = item->fontEngine->openType();
 
     if ( openType && openType->supportsScript( script ) ) {
 	((QOpenType *) openType)->apply( script, featuresToApply, item, len );
-    } else {
+    } else
+#endif
+    {
 	q_calculateAdvances( item );
     }
 

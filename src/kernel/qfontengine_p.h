@@ -121,7 +121,6 @@ private:
     int _cmap;
 };
 
-#ifndef QT_NO_XFTFREETYPE
 class QScriptItem;
 
 enum IndicFeatures {
@@ -140,6 +139,7 @@ enum IndicFeatures {
     HalantFeature = 0x1000
 };
 
+#ifndef QT_NO_XFTFREETYPE
 class QOpenType
 {
 public:
