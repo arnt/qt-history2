@@ -562,7 +562,8 @@ int QEventLoopPrivate::eventloopSelect(uint flags, timeval *t)
 
 	    for (int type = 0; type < 3; ++type) {
 		QList<QSockNot *> &list = sn_vec[type].list;
-		if (!list) continue;
+		if (list.size() == 0)
+		    continue;
 
 		for (int i = 0; i < list.size(); ++i) {
 		    QSockNot *sn = list.at(i);
