@@ -1259,7 +1259,7 @@ void QPopupMenu::drawContents( QPainter* p )
 	y += itemh;
 	++row;
     }
-    if ( y < contentsRect().bottom() ) {
+    if ( y < contentsRect().bottom() && count() ) {
 	flags = QStyle::Style_Default;
 	if ( isEnabled() )
 	    flags |= QStyle::Style_Enabled;
