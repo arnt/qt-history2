@@ -195,9 +195,10 @@ Boolean qmotif_event_dispatcher( XEvent *event )
     QWidgetMapper::Iterator it = mapper->find(event->xany.window);
     QWidget *widget = it == mapper->end() ? 0 : *it;
     if ( !widget && QWidget::find( event->xany.window) == 0 ) {
-	if (!xt_grab && (event->type == XFocusIn
-			 && (event->xfocus.mode == NotifyGrab
-			     || event->xfocus.mode == NotifyWhileGrabbed))) {
+	if (!xt_grab && event->xany.display == QMotif::x11Display()
+            && (event->type == XFocusIn
+                && (event->xfocus.mode == NotifyGrab
+                    || event->xfocus.mode == NotifyWhileGrabbed))) {
             GDEBUG("Xt: grab started for 0x%lx (detail %d)",
                    event->xany.window, event->xfocus.detail);
 	    xt_grab = TRUE;
