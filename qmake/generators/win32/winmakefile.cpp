@@ -58,8 +58,7 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
     if(!project->isEmpty("MAKEFILE"))
 	t << "MAKEFILE=	" << var("MAKEFILE") << endl;
     t << "QMAKE =	" << (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") : var("QMAKE_QMAKE")) << endl;
-    QStringList &sdirs = project->variables()["SUBDIRS"];
-    fileFixify(sdirs);
+    QStringList sdirs = fileFixify(project->variables()["SUBDIRS"]);
     t << "SUBDIRS	= " << valList(sdirs) << endl;
     t << "all: qmake_all $(SUBDIRS)" << endl << endl;
 

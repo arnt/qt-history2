@@ -431,12 +431,8 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 
     bool resource = FALSE;
     QStringList &uninst = project->variables()[t + ".uninstall"];
-    QString ret, destdir=project->first("DESTDIR");
-    QString targetdir = Option::fixPathToTargetOS(project->first("target.path"), FALSE);
-
-    fileFixify( destdir );
-    fileFixify( targetdir );
-
+    QString ret, destdir=fileFixify(project->first("DESTDIR"));
+    QString targetdir = fileFixify(Option::fixPathToTargetOS(project->first("target.path"), FALSE));
     if(!destdir.isEmpty() && destdir.right(1) != Option::dir_sep)
 	destdir += Option::dir_sep;
     targetdir = "$(INSTALL_ROOT)" + Option::fixPathToTargetOS(targetdir, FALSE);
@@ -478,7 +474,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     QString src_targ = target;
     if(!destdir.isEmpty())
 	src_targ = Option::fixPathToTargetOS(destdir + target, FALSE);
-    QString dst_targ = targetdir + target;
+    QString dst_targ = fileFixify(targetdir + target);
     if(!ret.isEmpty())
 	ret += "\n\t";
     ret += QString(resource ? "-$(COPY_DIR)" : "-$(COPY)") + " \"" +
@@ -506,9 +502,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 		int lslash = link.findRev(Option::dir_sep);
 		if(lslash != -1)
 		    link = link.right(link.length() - (lslash + 1));
-		QString dst_link = targetdir + link;
-		fileFixify(dst_link);
-		fileFixify(dst_targ);
+		QString dst_link = fileFixify(targetdir + link);
 		ret += "\n\t-$(SYMLINK) \"$(TARGET)\" \"" + dst_link + "\"";
 		if(!uninst.isEmpty())
 		    uninst.append("\n\t");

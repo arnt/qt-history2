@@ -106,7 +106,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    mkf.close();
 	}
 	QString phase_key = keyFor("QMAKE_PBX_MAKEQMAKE_BUILDPHASE");
-	fileFixify(mkfile, QDir::currentDirPath());
+	mkfile = fileFixify(mkfile, QDir::currentDirPath());
 	project->variables()["QMAKE_PBX_BUILDPHASES"].append(phase_key);
 	t << "\t\t" << phase_key << " = {" << "\n"
 	  << "\t\t\t" << "buildActionMask = 2147483647;" << "\n"
@@ -130,15 +130,13 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     for(i = 0; !srcs[i].isNull(); i++) {
 	tmp = project->variables()[srcs[i]];
 	for(QStringList::Iterator it = tmp.begin(); it != tmp.end(); ++it) {
-	    QString file = (*it);
+	    QString file = fileFixify((*it));
 	    if(file.right(Option::moc_ext.length()) == Option::moc_ext) 
 		continue;
-	    fileFixify(file);
 	    bool in_root = TRUE;
 	    QString src_key = keyFor(file);
 	    if(!project->isActiveConfig("flat")) {
-		QString flat_file(file);
-		fileFixify(flat_file, QDir::currentDirPath(), TRUE);
+		QString flat_file = fileFixify(file, QDir::currentDirPath(), QDir::currentDirPath(), TRUE);
 		if(QDir::isRelativePath(flat_file) && flat_file.find(Option::dir_sep) != -1) {
 		    QString last_grp("QMAKE_PBX_" + srcs[i] + "_HEIR_GROUP");
 		    QStringList dirs = QStringList::split(Option::dir_sep, flat_file);
@@ -270,7 +268,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    mkf.close();
 	}
 	QString phase_key = keyFor("QMAKE_PBX_PREPROCESST_BUILDPHASE");
-	fileFixify(mkfile, QDir::currentDirPath());
+	mkfile = fileFixify(mkfile, QDir::currentDirPath());
 	project->variables()["QMAKE_PBX_BUILDPHASES"].append(phase_key);
 	t << "\t\t" << phase_key << " = {" << "\n"
 	  << "\t\t\t" << "buildActionMask = 2147483647;" << "\n"
@@ -380,7 +378,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 			if(slsh != -1)
 			    name = library.right(library.length() - slsh - 1);
 		    }
-		    fileFixify(library);
+		    library = fileFixify(library);
 		    QString key = keyFor(library);
 		    bool is_frmwrk = (library.right(10) == ".framework");
 		    t << "\t\t" << key << " = {" << "\n"
@@ -430,7 +428,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    mkf.close();
 	}
 	QString phase_key = keyFor("QMAKE_PBX_SUBLIBS_BUILDPHASE");
-	fileFixify(mkfile, QDir::currentDirPath());
+	mkfile = fileFixify(mkfile, QDir::currentDirPath());
 	project->variables()["QMAKE_PBX_BUILDPHASES"].append(phase_key);
 	t << "\t\t" << phase_key << " = {" << "\n"
 	  << "\t\t\t" << "buildActionMask = 2147483647;" << "\n"
@@ -574,7 +572,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    chmod(script.latin1(), S_IRWXU | S_IRWXG);
 #endif
 	    QString phase_key = keyFor("QMAKE_PBX_INSTALL_BUILDPHASE");
-	    fileFixify(script, QDir::currentDirPath());
+	    script = fileFixify(script, QDir::currentDirPath());
 	    project->variables()["QMAKE_PBX_BUILDPHASES"].append(phase_key);
 	    t << "\t\t" << phase_key << " = {" << "\n"
 	      << "\t\t\t" << "buildActionMask = 8;" << "\n" //only on install!
@@ -780,8 +778,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t" << "rootObject = " << keyFor("QMAKE_PBX_ROOT") << ";" << "\n"
       << "}" << endl;
 
-    QString mkwrap = Option::output_dir + Option::dir_sep + ".." + Option::dir_sep + project->first("MAKEFILE");
-    fileFixify(mkwrap, QDir::currentDirPath());
+    QString mkwrap = fileFixify(Option::output_dir + Option::dir_sep + ".." + Option::dir_sep + project->first("MAKEFILE"), 
+				QDir::currentDirPath());
     QFile mkwrapf(mkwrap);
     if(mkwrapf.open(IO_WriteOnly | IO_Translate)) {
 	debug_msg(1, "pbuilder: Creating file: %s", mkwrap.latin1());

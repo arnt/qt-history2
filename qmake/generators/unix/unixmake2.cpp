@@ -75,8 +75,7 @@ UnixMakefileGenerator::writeMakefile(QTextStream &t)
 void
 UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 {
-    QString deps = Option::output.name(), prl;
-    fileFixify(deps, QDir::currentDirPath());
+    QString deps = fileFixify(Option::output.name(), QDir::currentDirPath()), prl;
     bool do_incremental = (project->isActiveConfig("incremental") &&
 			   !project->variables()["QMAKE_INCREMENTAL"].isEmpty() &&
 			   (!project->variables()["QMAKE_APP_FLAG"].isEmpty() ||
@@ -625,9 +624,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
     QString ddir = project->isEmpty("QMAKE_DISTDIR") ? project->first("QMAKE_ORIG_TARGET") :
 		   project->first("QMAKE_DISTDIR");
-    QString ddir_c = (project->isEmpty("OBJECTS_DIR") ? QString(".tmp/") :
-		    project->first("OBJECTS_DIR")) + ddir;
-    fileFixify(ddir_c);
+    QString ddir_c = fileFixify((project->isEmpty("OBJECTS_DIR") ? QString(".tmp/") :
+				 project->first("OBJECTS_DIR")) + ddir);
     t << "dist: " << "\n\t"
       << "@mkdir -p " << ddir_c << " && "
       << "$(COPY_FILE) --parents $(SOURCES) $(HEADERS) $(FORMS) $(DIST) " << ddir_c << Option::dir_sep << " && ";
@@ -636,8 +634,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     if(!project->isEmpty("FORMS")) {
 	QStringList &forms = project->variables()["FORMS"], ui_headers;
 	for(QStringList::Iterator formit = forms.begin(); formit != forms.end(); ++formit) {
-	    QString ui_h = (*formit) + Option::h_ext.first();
-	    fileFixify(ui_h);
+	    QString ui_h = fileFixify((*formit) + Option::h_ext.first());
 	    if(QFile::exists(ui_h) ) 
 	       ui_headers << ui_h;
 	}

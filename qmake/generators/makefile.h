@@ -114,8 +114,10 @@ protected:
     QString valList(const QStringList &varList);
 
 
-    bool fileFixify(QString &file, const QString &dir=QString::null, bool force_relative=FALSE) const;
-    bool fileFixify(QStringList &files, const QString &dir=QString::null, bool force_relative=FALSE) const;
+    QString fileFixify(QString file, const QString &out_dir=QString::null, 
+		    const QString &in_dir=QString::null, bool force_fix=FALSE) const;
+    QStringList fileFixify(QStringList files, const QString &out_dir=QString::null, 
+		    const QString &in_dir=QString::null, bool force_fix=FALSE) const;
 public:
     MakefileGenerator(QMakeProject *p);
     virtual ~MakefileGenerator();
