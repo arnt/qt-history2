@@ -36,6 +36,9 @@ struct Q_EXPORT QUuid
 	return uuid;
     }
 
+    QString toString() const;
+    static QUuid fromString( const QString & );
+
     bool operator==( const QUuid &uuid ) const
     {
 	return !memcmp( this, &uuid, sizeof( QUuid ) );

@@ -51,6 +51,68 @@
 */
 
 /*!
+  Tries to convert \a text to a valid QUuid and returns this when successfull. Otherwise returns
+  the null-QUuid.
+  Right now, the function can only convert the format {00000000-0000-0000-0000-000000000000}.
+*/
+QUuid QUuid::fromString( const QString &text )
+{
+    QUuid result;
+    bool ok;
+    QString tmp;
+    
+    tmp = text.mid( 1, 8 );
+    result.data1 = tmp.toLong( &ok, 16 );
+    if ( !ok )
+	return QUuid();
+    
+    tmp = text.mid( 10, 4 );
+    result.data2 = tmp.toInt( &ok, 16 );
+    if ( !ok )
+	return QUuid();
+    tmp = text.mid( 15, 4 );
+    result.data3 = tmp.toInt( &ok, 16 );
+    if ( !ok )
+	return QUuid();
+    tmp = text.mid( 20, 2 );
+    result.data4[0] = tmp.toInt( &ok, 16 );
+    if ( !ok )
+	return QUuid();
+    tmp = text.mid( 22, 2 );
+    result.data4[1] = tmp.toInt( &ok, 16 );
+    if ( !ok )
+	return QUuid();
+    for ( int i = 2; i<8; i++ ) {
+	tmp = text.mid( 25 + (i-2)*2, 2 );
+	result.data4[i] = tmp.toShort( &ok, 16 );
+	if ( !ok )
+	    return QUuid();
+    }
+
+    return result;
+}
+
+/*!
+  QString QUuid::toString() const
+
+  Returns a string in {00000000-0000-0000-0000-000000000000} format.
+*/
+QString QUuid::toString() const
+{
+    QString result;
+
+    result = QString::number( data1, 16 ) + "-";
+    result += QString::number( data2, 16 ) + "-";
+    result += QString::number( data3, 16 ) + "-";
+    result += QString::number( data4[0], 16 );
+    result += QString::number( data4[1], 16 ) + "-";
+    for ( int i = 2; i < 8; i++ )
+	result += QString::number( data4[i], 16 );
+
+    return result;
+}
+
+/*!
   \fn bool QUuid::operator==( const QUuid &uuid ) const
 
   Returns TRUE if the value of \a uuid is the value if this QUuid object, otherwise returns FALSE.
