@@ -71,13 +71,15 @@ QDnsHostInfo QDnsAgent::getHostByName(const QString &hostName)
             for (qt_addrinfo *p = res; p != 0; p = p->ai_next) {
                 switch (p->ai_family) {
                 case AF_INET: {
-                    QHostAddress addr(ntohl(((sockaddr_in *) p->ai_addr)->sin_addr.s_addr));
+                    QHostAddress addr;
+		    addr.setAddress(ntohl(((sockaddr_in *) p->ai_addr)->sin_addr.s_addr));
                     if (!results.d->addrs.contains(addr))
                         results.d->addrs.prepend(addr);
                 }
                     break;
                 case AF_INET6: {
-                    QHostAddress addr(((sockaddr_in6 *) p->ai_addr)->sin6_addr.s6_addr);
+                    QHostAddress addr;
+		    addr.setAddress(((sockaddr_in6 *) p->ai_addr)->sin6_addr.s6_addr);
                     if (!results.d->addrs.contains(addr))
                         results.d->addrs.append(addr);
                 }
@@ -119,7 +121,9 @@ QDnsHostInfo QDnsAgent::getHostByName(const QString &hostName)
             case AF_INET:
                 for (p = ent->h_addr_list; *p != 0; p++) {
                     long *ip4Addr = (long *) *p;
-                    results.d->addrs << QHostAddress(ntohl(*ip4Addr));
+		    QHostAddress temp;
+		    temp.setAddress(ntohl(*ip4Addr));
+                    results.d->addrs << temp;
                 }
                 break;
             default:
