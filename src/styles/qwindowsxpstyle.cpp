@@ -1422,7 +1422,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 	    }
 	    p->setClipRegion( tickreg );
 	    if ( sub & SC_SliderTickmarks ) {
-		QWindowsStyle::drawComplexControl( control, p, w, r, cg, flags, sub, subActive, opt );
+		QWindowsStyle::drawComplexControl( control, p, w, r, cg, flags, SC_SliderTickmarks, subActive, opt );
 		// Reenable XP style tickmarks when the
 		// styles actually have usable pixmaps!
 		/*
@@ -1495,10 +1495,10 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		}
 		*/
 	    }
+	    p->setClipping( FALSE );
 	    if ( sub & SC_SliderHandle ) {
 		theme.rec = querySubControlMetrics( CC_Slider, w, SC_SliderHandle, opt );
 		p->fillRect( theme.rec, cg.brush( QColorGroup::Background ) );
-		p->setClipping( FALSE );
 		if ( sl->orientation() == Horizontal ) {
 		    if ( sl->tickmarks() == QSlider::Above )
 			partId = TKP_THUMBTOP;
@@ -1537,6 +1537,10 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 			stateId = TUVS_NORMAL;
 		}
 		theme.drawBackground( partId, stateId );
+	    }
+	    if ( flags & Style_HasFocus ) {
+		QRect re = subRect( SR_SliderFocusRect, sl );
+		drawPrimitive( PE_FocusRect, p, re, cg );
 	    }
 	}
 	break;
@@ -2239,7 +2243,7 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 	if ( !widget->isActiveWindow() )
 	    break;
         d->hotWidget = widget;
-        widget->repaint( FALSE );
+	widget->repaint( ::qt_cast<QSlider*>(widget) != 0 );
         break;
 
     case QEvent::Leave:
@@ -2251,7 +2255,7 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
             d->hotWidget = 0;
 	    d->hotHeader = QRect();
 	    d->hotTab = 0;
-            widget->repaint( FALSE );
+	    widget->repaint( ::qt_cast<QSlider*>(widget) != 0 );
         }
         break;
 
