@@ -616,7 +616,7 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe, bool passive )
 	QDropEvent::Action accepted_action = xdndaction_to_qtaction(l[4]);
 	me.setAction(accepted_action);
 
-	if ( qt_xdnd_current_widget != c ) {
+	if ( c != qt_xdnd_current_widget ) {
 	    qt_xdnd_target_answerwas = FALSE;
 	    if ( qt_xdnd_current_widget ) {
 		QDragLeaveEvent e;
