@@ -782,4 +782,18 @@ bool QTabWidget::eventFilter( QObject *o, QEvent * e)
     return FALSE;
 }
 
+/* Returns the tab page at the index \a num */
+
+QWidget *QTabWidget::page( int num ) const
+{
+    return d->stack->widget( num );
+}
+
+/* Returns the label of the tab page at index \a num */
+
+QString QTabWidget::label( int num ) const
+{
+    return d->tabs->tabAt( num )->label;
+}
+
 #endif
