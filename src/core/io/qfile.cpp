@@ -785,12 +785,13 @@ QFile::readLine(char *data, Q_LONGLONG maxSize)
         char *buffer = d->buffer.alloc(read_cache_size);
         Q_LONGLONG got = fileEngine()->read(buffer, read_cache_size);
         if(got == -1) {
+            d->buffer.truncate(read_cache_size); //we read nothing!
             if(ret == 0)
                 ret = -1;
             break;
-        }
-        if(got < read_cache_size)
+        } else if(got < read_cache_size) {
             d->buffer.truncate(read_cache_size - got);
+        }
         uint len = 0;
         for( ; len < got && len < maxSize-ret; len++) {
             if(*(buffer+len) == '\n') {
