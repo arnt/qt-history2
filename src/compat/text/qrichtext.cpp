@@ -4558,6 +4558,7 @@ void Q3TextParagraph::paint(QPainter &painter, const QPalette &pal, Q3TextCursor
         fullSelectionWidth = (hasdoc ? document()->width() : r.width());
 
     QString qstr = str->toString();
+    qstr.detach();
     // ### workaround so that \n are not drawn, actually this should
     // be fixed in QFont somewhere (under Windows you get ugly boxes
     // otherwise)
