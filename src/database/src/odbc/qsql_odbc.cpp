@@ -467,7 +467,7 @@ QVariant QODBCResult::data( int field )
     return fieldCache[ --current ];
 }
 
-bool QODBCResult::isNull( int field ) const
+bool QODBCResult::isNull( int field )
 {
     return nullCache[ field ];
 }
@@ -493,7 +493,7 @@ QSqlFieldList QODBCResult::fields()
     return fil;
 }
 
-int QODBCResult::size() const
+int QODBCResult::size()
 {
     int size(-1);
     int at(0);
@@ -524,7 +524,7 @@ int QODBCResult::size() const
     return size;
 }
 
-int QODBCResult::affectedRows() const
+int QODBCResult::affectedRows()
 {
     SQLINTEGER affectedRowCount(0);
     SQLRETURN r = SQLRowCount( d->hStmt, &affectedRowCount);

@@ -19,11 +19,11 @@ protected:
     bool 		fetchFirst();
     bool 		fetchLast();
     QVariant            data( int i );
-    bool		isNull( int field ) const;
+    bool		isNull( int field );
     bool 		reset ( const QString& query );
     QSqlFieldList       fields();
-    int                 size() const;
-    int                 affectedRows() const;
+    int                 size();
+    int                 affectedRows();
 private:
     int			currentSize;
     QPSQLPrivate* 	d;

@@ -21,11 +21,11 @@ protected:
     bool 		fetchLast();
     bool 		fetchFirst();
     QVariant 		data( int field );
-    bool		isNull( int field ) const;
+    bool		isNull( int field );
     bool 		reset ( const QString& query );
     QSqlFieldList       fields();
-    int                 size() const;
-    int                 affectedRows() const;
+    int                 size();
+    int                 affectedRows();
 private:
     QMySQLPrivate* 	d;
 };

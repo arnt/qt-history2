@@ -101,7 +101,7 @@ bool qIsPrimaryIndex( const QSqlDriver* driver, const QString& tablename, const 
     if ( t.next() && (t[0].toInt() == 1) )
 	return TRUE;
     return FALSE;
-}		     
+}
 
 QSqlField qMakeField( const QOCIPrivate* p, ub4 i )
 {
@@ -179,7 +179,6 @@ QSqlField qMakeField( const QOCIPrivate* p, ub4 i )
 	    colLength = 0;
 	QString field((char*)colName);
 	field.truncate(colNameLen);
-	qDebug("creating field:" + field);
 	QSqlField f( field, i, type );
 	return f;
     }
@@ -199,7 +198,7 @@ public:
 	for ( int i=1; i <= size; ++i ) {
 	    QSqlField f = qMakeField( d, i );
 	    //	    dataSize = f.length; // ### must fix this!
-	    dataSize = 255; // temporary hack
+	    dataSize = 51; // temporary hack
 	    if ( f.type() == QVariant::DateTime ) {
 	    	r = OCIDefineByPos( d->sql,
 	 			&dfn,
@@ -272,7 +271,8 @@ private:
 
 QOCIResult::QOCIResult( const QOCIDriver * db, QOCIPrivate* p )
 : QSqlResult(db),
-  cols(0)
+  cols(0),
+  cached(FALSE)
 {
     d = new QOCIPrivate();
     (*d) = (*p);
@@ -286,7 +286,7 @@ QOCIResult::~QOCIResult()
 	if ( r != 0 )
 	    qWarning( "QOCIResult::reset: Unable to free statement handle: " + qOraWarn( d ) );
 #endif
-    }    
+    }
     delete d;
     if ( cols )
 	delete cols;
@@ -307,7 +307,8 @@ bool QOCIResult::reset ( const QString& query )
 	if ( r != 0 )
 	    qWarning( "QOCIResult::reset: Unable to free statement handle: " + qOraWarn( d ) );
 #endif
-    }    
+    }
+    cached = FALSE;
     if ( query.isNull() )
 	return FALSE;
     r = OCIHandleAlloc( (dvoid *) d->env,
@@ -362,123 +363,112 @@ bool QOCIResult::reset ( const QString& query )
 	    setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
 	    return FALSE;
 	}
-    	ub4 parmCount;
-    	r = OCIAttrGet( d->sql,
-    			OCI_HTYPE_STMT,
-			(dvoid*)&parmCount,
-			NULL,
-			OCI_ATTR_PARAM_COUNT,
-			d->err );
-    	if ( r == 0 )
-	    cols = new QOCIResultPrivate( parmCount, d );
-    } else {
-    	r = OCIStmtExecute( d->svc,
-				d->sql,
-				d->err,
-				1,
-				0,
+    } else { // non-SELECT
+    	r = OCIStmtExecute( d->svc, d->sql, d->err, 1,0,
 				(CONST OCISnapshot *) NULL,
 				(OCISnapshot *) NULL,
 				OCI_COMMIT_ON_SUCCESS  );
     }
-    if ( r != 0 ) {
-#ifdef CHECK_RANGE
-	qWarning( query + "QOCIResult::reset: " + qOraWarn( d ) );
-#endif
-	setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
-	return FALSE;
-    }
-    while ( fetchNext() )
-	; // cache it all
-    setAt( -1 );
+    setAt( BeforeFirst );
     setActive( TRUE);
-    currentSize = rowCache.count();
     return TRUE;
+}
+
+void QOCIResult::checkCacheResult()
+{
+    if ( !cached ) {
+	ub4 parmCount;
+	int r = OCIAttrGet( d->sql, OCI_HTYPE_STMT, (dvoid*)&parmCount, NULL, OCI_ATTR_PARAM_COUNT, d->err );
+	if ( r == 0 )
+	    cols = new QOCIResultPrivate( parmCount, d );
+	QSqlFieldList fl;
+	for ( int i = 0; i < cols->size(); ++i ) 
+	    fl.append( qMakeField( d, i+1 ) );
+	int currentRecord = 0;
+	while ( r != OCI_ERROR ) {
+	    r = OCIStmtFetch (  d->sql, d->err, 1, OCI_FETCH_NEXT, OCI_DEFAULT );
+	    //     if( r==OCI_ERROR)
+	    // 	qDebug("next error" + qOraWarn(d));
+	    //     if ( r==OCI_SUCCESS_WITH_INFO)
+	    // 	qDebug("next success with info" + qOraWarn(d));
+	    //     qDebug("next:" + qOraWarn(d));
+	    if ( r != 0 )
+		break;
+	    for ( int i = 0; i < cols->size(); ++i ) {
+		if ( fl.field(i).type() == QVariant::DateTime ) {
+		    int century = cols->at(i)[0];
+		    int year = (unsigned char)cols->at(i)[1];
+		    if ( year > 100 && century > 100 ) {
+			year = ((century-100)*100) + (year-100);
+			int month = cols->at(i)[2];
+			int day = cols->at(i)[3];
+			int hour = cols->at(i)[5];
+			int min = cols->at(i)[6];
+			int sec = cols->at(i)[7];
+			rowCache[currentRecord][i] = QVariant( QDateTime( QDate(year,month,day), QTime(hour,min,sec)));
+		    } else {
+			rowCache[currentRecord][i] = QVariant( QDateTime() );
+		    }
+		} else {
+		    rowCache[currentRecord][i] = QVariant(cols->at(i));
+		}
+	    }
+	    currentRecord++;
+	} // while
+	currentSize = rowCache.count();	
+    }
+    cached = TRUE;
 }
 
 bool QOCIResult::fetchNext()
 {
+    checkCacheResult();
     if ( rowCache.contains( at() + 1 ) ) {
     	setAt( at() + 1 );
     	return TRUE;
     }
-    int r = OCIStmtFetch (  d->sql,
-			    d->err,
-			    1,
-			    OCI_FETCH_NEXT,
-			    OCI_DEFAULT );
-//     if( r==OCI_ERROR)
-// 	qDebug("next error" + qOraWarn(d));
-//     if ( r==OCI_SUCCESS_WITH_INFO)
-// 	qDebug("next success with info" + qOraWarn(d));
-//     qDebug("next:" + qOraWarn(d));
-    if ( r != 0 ) {
-	setAt( BeforeFirst );
-	return FALSE;
-    }
-    setAt( at() + 1 );
-    for ( int i = 0; i < cols->size(); ++i ) {
-	QSqlField f = qMakeField( d, i+1 );
-	if ( f.type() == QVariant::DateTime ) {
-	    int century = cols->at(i)[0];
-	    int year = (unsigned char)cols->at(i)[1];
-	    if ( year > 100 && century > 100 ) {
-		 year = ((century-100)*100) + (year-100);
-	    	int month = cols->at(i)[2];
-	    	int day = cols->at(i)[3];
-	    	int hour = cols->at(i)[5];
-	    	int min = cols->at(i)[6];
-	    	int sec = cols->at(i)[7];
-	    	rowCache[at()][i] = QVariant( QDateTime( QDate(year,month,day), QTime(hour,min,sec)));
-	    } else {
-		rowCache[at()][i] = QVariant( QDateTime() );
-	    }
-	} else {
-	    rowCache[at()][i] = QVariant(cols->at(i));
-	}
-    }
-    return TRUE;
+    return FALSE;
 }
 
 bool QOCIResult::fetch( int i )
 {
+    checkCacheResult();
     if ( rowCache.contains( i ) ) {
     	setAt( i );
     	return TRUE;
     }
-    while ( i > at() ) {
-	if ( !fetchNext() )
-	    return FALSE;
-    }
-    setAt( i );
-    return TRUE;
+    return FALSE;
 }
 
 bool QOCIResult::fetchFirst()
 {
+    checkCacheResult();
     if ( rowCache.contains( 0 ) ) {
     	setAt( 0 );
 	return TRUE;
     }
-    if ( at() == BeforeFirst )
-	return fetchNext();
-    setAt( AfterLast );
     return FALSE;
 }
 
 bool QOCIResult::fetchLast()
 {
-    setAt( size()-1 );
-    return TRUE;
+    checkCacheResult();
+    if ( currentSize > 0 ) {
+	setAt( size()-1 );
+	return TRUE;
+    }
+    return FALSE;
 }
 
 QVariant QOCIResult::data( int field )
 {
+    checkCacheResult();
     return rowCache[at()][field];
 }
 
-bool QOCIResult::isNull( int field ) const
+bool QOCIResult::isNull( int field )
 {
+    checkCacheResult();
     return cols->isNull( field );
 }
 
@@ -487,6 +477,7 @@ QSqlFieldList QOCIResult::fields()
     QSqlFieldList fil;
     if ( !isActive() )
 	return fil;
+    checkCacheResult();
     ub4 numCols = 0;
     int r  = OCIAttrGet( (dvoid*)d->sql,
     				OCI_HTYPE_STMT,
@@ -507,12 +498,13 @@ QSqlFieldList QOCIResult::fields()
     return fil;
 }
 
-int QOCIResult::size() const
+int QOCIResult::size()
 {
+    checkCacheResult();
     return currentSize;
 }
 
-int QOCIResult::affectedRows() const
+int QOCIResult::affectedRows()
 {
     int rowCount;
     OCIAttrGet( d->sql,

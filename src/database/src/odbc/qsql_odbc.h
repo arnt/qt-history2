@@ -21,10 +21,10 @@ protected:
     bool 	fetch(int i);
     bool 	reset ( const QString& query );
     QVariant 	data( int field );
-    bool	isNull( int field ) const;
+    bool	isNull( int field );
     QSqlFieldList       fields();
-    int                 size() const;
-    int                 affectedRows() const;
+    int                 size();
+    int                 affectedRows();
 private:
     QODBCPrivate* 	d;
     typedef QMap<int,QVariant> FieldCache;

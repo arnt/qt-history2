@@ -161,7 +161,7 @@ QVariant QMySQLResult::data( int field )
 //     return b;
 // }
 
-bool QMySQLResult::isNull( int field ) const
+bool QMySQLResult::isNull( int field )
 {
     if ( d->row[field] == NULL )
 	return TRUE;
@@ -210,12 +210,12 @@ QSqlFieldList QMySQLResult::fields()
     return fil;
 }
 
-int QMySQLResult::size() const
+int QMySQLResult::size()
 {
     return (int)mysql_num_rows( d->result );
 }
 
-int QMySQLResult::affectedRows() const
+int QMySQLResult::affectedRows()
 {
     return (int)mysql_affected_rows( d->mysql );
 }

@@ -21,10 +21,10 @@ protected:
     bool 	fetch(int i);
     bool 	reset ( const QString& query );
     QVariant 	data( int field );
-    bool	isNull( int field ) const;
+    bool	isNull( int field );
     QSqlFieldList       fields();
-    int                 size() const;
-    int                 affectedRows() const;
+    int                 size();
+    int                 affectedRows();
 private:
     typedef QMap< uint, QVariant > RowCache;
     typedef QMap< uint, RowCache > RowsetCache;
@@ -33,6 +33,8 @@ private:
     QOCIResultPrivate*  cols;
     RowsetCache     	rowCache;
     uint                currentSize;
+    bool                cached;
+    void                checkCacheResult();
 };
 
 class QOCIDriver : public QSqlDriver

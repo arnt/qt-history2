@@ -147,12 +147,14 @@ QPSQLResult::QPSQLResult( const QPSQLDriver* db, const QPSQLPrivate* p )
 {
     d =   new QPSQLPrivate();
     (*d) = (*p);
+    qDebug("QPSQLResult::QPSQLResult");
 }
 
 QPSQLResult::~QPSQLResult()
 {
     cleanup();
     delete d;
+    qDebug("QPSQLResult::~QPSQLResult()");
 }
 
 void QPSQLResult::cleanup()
@@ -349,7 +351,7 @@ QVariant QPSQLResult::data( int i )
     return QVariant();
 }
 
-bool QPSQLResult::isNull( int field ) const
+bool QPSQLResult::isNull( int field )
 {
     PQgetvalue( d->result, at(), field );
     return PQgetisnull( d->result, at(), field );
@@ -393,12 +395,12 @@ QSqlFieldList QPSQLResult::fields()
     return fil;
 }
 
-int QPSQLResult::size() const
+int QPSQLResult::size()
 {
     return currentSize;
 }
 
-int QPSQLResult::affectedRows() const
+int QPSQLResult::affectedRows()
 {
     return QString( PQcmdTuples( d->result ) ).toInt();
 }
@@ -453,6 +455,7 @@ bool QPSQLDriver::open( const QString & db,
 	qWarning( PQerrorMessage( d->connection ) );
 #endif
     setOpen( TRUE );
+    qDebug("QPSQLDriver::opened");
     return TRUE;
 }
 
