@@ -251,17 +251,6 @@ static short qt_mac_window_at(int x, int y, QWidget **w=0)
             (*w) = 0;
         return wpc;
     }
-#if !defined(QMAC_NO_FAKECURSOR) && QT_MACOSX_VERSION < 0x1020
-    if(wp && !unhandled_dialogs.contains(wp)) {
-        QWidget *tmp_w = qt_mac_find_window(wp);
-        if(tmp_w && !strcmp(tmp_w->className(),"QMacCursorWidget")) {
-            tmp_w->hide();
-            wpc = qt_mac_window_at(x, y, w);
-            tmp_w->show();
-            return wpc;
-        }
-    }
-#endif
     if(w) {
         if(wp && !unhandled_dialogs.contains(wp)) {
             *w = qt_mac_find_window(wp);
@@ -280,7 +269,7 @@ void qt_mac_set_press_and_hold_context(bool b) { qt_mac_press_and_hold_context =
 
 void qt_mac_secure_keyboard(bool b)
 {
-#if QT_MACOSX_VERSION >= 0x1030
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     if(b)
         EnableSecureEventInput();
     else

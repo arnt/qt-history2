@@ -65,7 +65,7 @@ typedef QList<QWidget *> QWidgetList;
 // Window system dependent definitions
 
 #if defined(Q_WS_MAC)
-#if QT_MACOSX_VERSION < 0x1020
+#if (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_2)
 typedef struct OpaqueEventLoopTimerRef* EventLoopTimerRef;
 typedef struct OpaqueMenuHandle *MenuRef;
 #else

@@ -2613,7 +2613,7 @@ QObjectUserData* QObject::userData(uint id) const
 #endif // QT_NO_USERDATA
 
 
-#if !defined(Q_OS_MAC) || QT_MACOSX_VERSION >= 0x1030
+#if !defined(Q_OS_DARWIN) || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QObject *o) {
     if (!o)

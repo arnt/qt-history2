@@ -1088,7 +1088,6 @@ QPixmap QVariant::toPixmap() const
     return *static_cast<QPixmap *>(d->value.ptr);
 }
 
-#if !defined(Q_OS_MAC) || QT_MACOSX_VERSION >= 0x1030
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QVariant &v)
 {
@@ -1158,5 +1157,4 @@ QDebug operator<<(QDebug dbg, const QVariant &v)
     }
     return dbg.space();
 }
-#endif
 #endif

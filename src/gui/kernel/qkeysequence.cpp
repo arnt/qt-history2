@@ -726,14 +726,12 @@ QDataStream &operator>>(QDataStream &s, QKeySequence &keysequence)
 
 #endif //QT_NO_DATASTREAM
 
-#if !defined(Q_OS_MAC) || QT_MACOSX_VERSION >= 0x1030
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QKeySequence &p)
 {
     dbg.nospace() << "QKeySequence(" << QString(p) << ')';
     return dbg.space();
 }
-#endif
 #endif
 
 #endif //QT_NO_ACCEL

@@ -5,7 +5,7 @@
 #include "qwindowsstyle.h"
 #endif // QT_H
 
-#if QT_MACOSX_VERSION >= 0x1030
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
 
 #if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
 

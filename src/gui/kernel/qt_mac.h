@@ -17,14 +17,9 @@
 
 #include <qcore_mac.h>
 #include "qglobal.h"
-#include <qconfig.h> //We need this to get QT_MACOSX_VERSION
 
-#if QT_MACOSX_VERSION < 0x1030 //for now don't use CG on Jaguar..
+#if (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_3)
 # define QMAC_NO_COREGRAPHICS
-#endif
-
-#if QT_MACOSX_VERSION < 0x1020 || QT_MACOSX_VERSION >= 0x1030
-# define QMAC_NO_FAKECURSOR
 #endif
 
 #include "qpainter.h"

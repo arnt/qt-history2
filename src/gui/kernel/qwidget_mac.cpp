@@ -135,7 +135,7 @@ inline static void qt_mac_set_fullscreen_mode(bool b)
 //find a WindowPtr from a QWidget/HIView
 WindowPtr qt_mac_window_for(HIViewRef hiview)
 {
-#if QT_MACOSX_VERSION >= 0x1030
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     if(QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER)
         return HIViewGetWindow(hiview);
 #endif
@@ -306,7 +306,7 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
             HIViewRef view;
             if(GetEventParameter(event, kEventParamHIObjectInstance, typeHIObjectRef,
                                  NULL, sizeof(view), NULL, &view) == noErr) {
-#if QT_MACOSX_VERSION >= 0x1030
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
                 if(QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER)
                     HIViewChangeFeatures(view, kHIViewAllowsSubviews, 0);
 #endif
@@ -436,7 +436,7 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
                 GetEventParameter(event, kEventParamDragRef, typeDragRef, NULL, sizeof(drag), NULL, &drag);
                 if(widget->d->qt_mac_dnd_event(ekind, drag))
                     handled_event = true;
-#if QT_MACOSX_VERSION >= 0x1030
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
                 if(QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
                     if(ekind == kEventControlDragEnter)
                         SetEventParameter(event, kEventParamControlWouldAcceptDrop, typeBoolean, sizeof(handled_event), &handled_event);
@@ -1374,10 +1374,7 @@ void QWidget::show_sys()
         }
         if(windowState() & WindowMinimized) //show in collapsed state
             CollapseWindow(window, true);
-#ifndef QMAC_NO_FAKECURSOR
-        if(qstrcmp(name(), "fake_cursor") != 0)
-#endif
-            qt_event_request_activate(this);
+        qt_event_request_activate(this);
     } else if(!parentWidget() || parentWidget()->isVisible()) {
         HIViewSetVisible((HIViewRef)winId(), true);
     }

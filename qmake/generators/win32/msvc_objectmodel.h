@@ -722,7 +722,6 @@ struct VCFilterFile
     QString                 additionalFile; // For tools like MOC
 };
 
-#if !defined(Q_OS_MAC) || QT_MACOSX_VERSION >= 0x1030
 #ifndef QT_NO_DEBUG
 inline QDebug operator<<(QDebug dbg, const VCFilterFile &p)
 {
@@ -731,7 +730,6 @@ inline QDebug operator<<(QDebug dbg, const VCFilterFile &p)
                   << ") excludeFromBuild(" << p.excludeFromBuild << "))" << endl;
     return dbg.space();
 }
-#endif
 #endif
 
 class VCFilterFileList : public QList<VCFilterFile>

@@ -1656,10 +1656,7 @@ if [ "$CFG_CUPS" != "no" ]; then
 fi
 
 #mac
-QT_MAC_VERSION=
 if [ "$PLATFORM_MAC" = "yes" ]; then
-    mactests=$relpath/config.tests/mac
-    QT_MAC_VERSION=`$mactests/mac_version.test "$OPT_VERBOSE" "$relpath" "$outpath"`
     if [ "$CFG_TABLET" = "auto" ]; then
 	CFG_TABLET=yes
     fi
@@ -2496,7 +2493,7 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 	if [ "$PLATFORM_MAC" = "yes" ]; then
 	    echo "CARBON_LFLAGS +=-framework CoreServices" >>$mkfile
 	    EXTRA_LFLAGS="$EXTRA_LFLAGS \$(CARBON_LFLAGS)"
-	    EXTRA_CFLAGS="$EXTRA_CFLAGS \$(CARBON_CFLAGS) -DQT_MACOSX_VERSION=`printf "0x%x" $QT_MAC_VERSION`"
+	    EXTRA_CFLAGS="$EXTRA_CFLAGS \$(CARBON_CFLAGS)"
 	    EXTRA_SOURCES="qurl.o qsettings_mac.o qcore_mac.o"
         elif [ "$PLATFORM_QNX" = "yes" ]; then
 	  echo "QNX_LFLAGS += -fhonor-std -fno-builtins -pipe" >>$mkfile
@@ -3064,12 +3061,6 @@ fi
 
 $unixtests/ptrsize.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath
 echo "#define QT_POINTER_SIZE $?" >>$outpath/include/qconfig.h.new
-
-if [ '!' -z "$QT_MAC_VERSION" ]; then
-    echo "#ifndef QT_MACOSX_VERSION" >>$outpath/include/qconfig.h.new
-    echo "# define QT_MACOSX_VERSION  `printf 0x%x ${QT_MAC_VERSION}`  /*from config.tests*/" >>$outpath/include/qconfig.h.new
-    echo "#endif QT_MACOSX_VERSION" >>$outpath/include/qconfig.h.new
-fi
 
 ## find excluded styles and add this to $QCONFIG_FLAGS
 

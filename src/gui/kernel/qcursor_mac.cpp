@@ -26,6 +26,10 @@ extern QCursor cursorTable[Qt::LastCursor + 1];
 extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
 
 
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+# define QMAC_NO_FAKECURSOR
+#endif
+
 /*****************************************************************************
   Internal QCursorData class
  *****************************************************************************/
@@ -38,10 +42,11 @@ public:
     QMacCursorWidget(const QBitmap *b, const QBitmap *m) :
         QWidget(0, "fake_cursor", WType_Dialog | WStyle_Customize | WStyle_NoBorder | WStyle_StaysOnTop)
         {
+            setAttribute(WA_TransparentForMouseEvents);
             setAcceptDrops(true);
             hide();
             int attribs = kWindowNoShadowAttribute;
-#if QT_MACOSX_VERSION >= 0x1020 && QT_MACOSX_VERSION < 0x1030
+#if (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_3)
             attribs |= kWindowIgnoreClicksAttribute;
 #endif
             ChangeWindowAttributes(qt_mac_window_for((HIViewRef)winId()), attribs, 0);
@@ -365,7 +370,7 @@ void QCursor::update() const
         d->curs.tc.curs = kThemeSpinningCursor;
         break; }
     case SplitVCursor: {
-#if QT_MACOSX_VERSION >= 0x1030
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
         if(qMacVersion() >= Qt::MV_PANTHER) {
             d->type = QCursorData::TYPE_ThemeCursor;
             d->curs.tc.curs = kThemeResizeUpDownCursor;
@@ -417,7 +422,7 @@ void QCursor::update() const
 #endif
         break; }
     case SplitHCursor: {
-#if QT_MACOSX_VERSION >= 0x1030
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
         if(qMacVersion() >= Qt::MV_PANTHER) {
             d->type = QCursorData::TYPE_ThemeCursor;
             d->curs.tc.curs = kThemeResizeLeftRightCursor;

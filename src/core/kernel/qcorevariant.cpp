@@ -2000,7 +2000,7 @@ bool QCoreVariant::isNull() const
     return handler->isNull(d);
 }
 
-#if !defined(Q_OS_MAC) || QT_MACOSX_VERSION >= 0x1030
+#if !defined(Q_OS_DARWIN) || (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QCoreVariant &v)
 {

@@ -327,7 +327,7 @@ struct {
       { QAccessible::Help, kAXHelpAttribute, false },
       { -1, NULL, false }
     },
-#if QT_MACOSX_VERSION >= 0x1030
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     { { QAccessible::Column, kAXColumnRole, false },
       { QAccessible::Value, kAXValueAttribute, true },
       { QAccessible::Description, kAXRoleDescriptionAttribute, false },

@@ -1946,7 +1946,6 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
 */
 
 
-#if !defined(Q_OS_MAC) || QT_MACOSX_VERSION >= 0x1030
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QEvent *e) {
 
@@ -2034,5 +2033,4 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
     dbg.nospace() << 'Q' << n << "Event(" << (const void *)e << ')';
     return dbg.space();
 }
-#endif
 #endif

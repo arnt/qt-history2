@@ -500,7 +500,7 @@ static Q_INT64 read_int_ascii(QDataStream *s)
     return _atoi64(buf);
 #  elif defined(Q_OS_HPUX)
     return __strtoll(buf, (char**)0, 10);
-#  elif defined(Q_OS_DARWIN) && defined(QT_MACOSX_VERSION) && QT_MACOSX_VERSION < 0x1020
+#  elif defined(Q_OS_DARWIN) && (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_2)
     return strtoq(buf, (char**)0, 10);
 #  else
     return strtoll(buf, (char**)0, 10);        // C99 function

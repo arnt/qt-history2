@@ -828,6 +828,15 @@ class QDataStream;
 #endif
 #endif
 
+#ifdef Q_OS_DARWIN
+#  ifndef MACOSX_VERSION_MIN_REQUIRED
+#    define MAC_OS_X_VERSION_MIN_REQUIRED MAC_OS_X_VERSION_10_2
+#  endif
+#  include <AvailabilityMacros.h>
+#  if (MAC_OS_X_VERSION_MAX_ALLOWED > MAC_OS_X_VERSION_10_3)
+#    error "This version is unsupported."
+#  endif
+#endif
 
 #ifndef QT_BUILD_KEY
 #define QT_BUILD_KEY "unspecified"

@@ -233,7 +233,6 @@ QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role, co
     return result;
 }
 
-#if !defined(Q_OS_MAC) || QT_MACOSX_VERSION >= 0x1030
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug dbg, const QModelIndex &idx)
 {
@@ -252,6 +251,5 @@ QDebug operator<<(QDebug dbg, const QModelIndex &idx)
     dbg.nospace() << ")";
     return dbg.space();
 }
-#endif
 #endif
 
