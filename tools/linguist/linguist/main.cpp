@@ -27,10 +27,7 @@
 #include <qtextcodec.h>
 #include <qtranslator.h>
 #include <qsettings.h>
-
-#if defined(Q_WS_X11)
-extern void qt_wait_for_window_manager( QWidget * );
-#endif
+#include <qsplashscreen.h>
 
 int main( int argc, char **argv )
 {
@@ -46,7 +43,7 @@ int main( int argc, char **argv )
     bool showSplash = TRUE;
 
      if ( showSplash )
- 	timer.start( 1000, TRUE );
+	timer.start( 1000, TRUE );
 
     QString keybase("/Qt Linguist/3.1/");
     QSettings config;
@@ -58,25 +55,10 @@ int main( int argc, char **argv )
     r.setWidth( config.readNumEntry( keybase + "Geometry/MainwindowWidth", r.width() ) );
     r.setHeight( config.readNumEntry( keybase + "Geometry/MainwindowHeight", r.height() ) );
 
-    QLabel *splash = 0;
-    int nscreen = QApplication::desktop()->screenNumber( r.center() );
-    QRect screen = QApplication::desktop()->screenGeometry( nscreen );
-    if ( showSplash ) {
-	splash = new QLabel( 0, "splash", Qt::WDestructiveClose |
-			     Qt::WStyle_Customize | Qt::WStyle_NoBorder |
-			     Qt::WX11BypassWM );
-	splash->setFrameStyle( QFrame::WinPanel | QFrame::Raised );
-	splash->setPixmap( QPixmap::fromMimeSource( "splash.png" ) );
-	splash->adjustSize();
-	splash->setFixedSize(splash->sizeHint());
-	splash->setCaption( "Qt Linguist" );
-	splash->move( screen.center() - QPoint( splash->width() / 2,
-						splash->height() / 2 ) );
-	splash->show();
-	splash->repaint( FALSE );
-	QApplication::flushX();
-
-    }
+    QSplashScreen *splash = 0;
+    if ( showSplash )
+	splash = new QSplashScreen( QPixmap::fromMimeSource("splash.png"),
+				    Qt::WDestructiveClose );
 
     TrWindow *tw = new TrWindow;
     app.setMainWidget( tw );
@@ -88,12 +70,10 @@ int main( int argc, char **argv )
 	tw->showMaximized();
     else
 	tw->show();
-#if defined(_WS_X11_)
-    qt_wait_for_window_manager( tw );
-#endif
+    if ( splash )
+	splash->finish( tw );
     while ( timer.isActive() ) // evil loop
- 	app.processEvents();
-    delete splash;
+	app.processEvents();
     QApplication::restoreOverrideCursor();
 
     return app.exec();
