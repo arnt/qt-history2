@@ -12,6 +12,12 @@ struct Document {
     bool operator<( const Document &doc ) const {
 	return frequency > doc.frequency;
     }
+    bool operator<=( const Document doc ) const {
+	return frequency >= doc.frequency;
+    }
+    bool operator>( const Document doc ) const {
+	return frequency < doc.frequency;
+    }
     Q_INT16 docNumber;
     Q_INT16 frequency;
 };
