@@ -479,12 +479,12 @@ private:
 	int row, col;
     };
     void saveContents( QPtrVector<QTableItem> &tmp,
-		       QPtrVector<QTable::TableWidget> &tmp2 );
+		       QPtrVector<TableWidget> &tmp2 );
     void updateHeaderAndResizeContents( QTableHeader *header,
 					int num, int colRow,
 					int width, bool &updateBefore );
     void restoreContents( QPtrVector<QTableItem> &tmp,
-			  QPtrVector<QTable::TableWidget> &tmp2,
+			  QPtrVector<TableWidget> &tmp2,
 			  int oldNum );
     void finishContentsResze( bool updateBefore );
 
