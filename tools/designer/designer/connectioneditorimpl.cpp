@@ -119,7 +119,8 @@ ConnectionEditor::ConnectionEditor( QWidget *parent, QObject* sndr, QObject* rcv
 	    continue;
 	}
 	lst << it.current()->name();
-	if ( qstrcmp( it.current()->name(), "central widget" ) != 0 &&
+	if ( it.current()->isVisibleTo( this ) &&
+	    qstrcmp( it.current()->name(), "central widget" ) != 0 &&
 	     ( includeMainContainer || !formWindow->isMainContainer( it.current() ) ) )
 	    comboReceiver->insertItem( it.current()->name() );
 	if ( qstrcmp( it.current()->name(), receiver->name() ) == 0 )
