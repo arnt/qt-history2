@@ -2771,7 +2771,7 @@ void QTable::paintCell( QPainter* p, int row, int col,
 #else
     const QColorGroup &cg = colorGroup();
 #endif
-    
+
     QTableItem *itm = item( row, col );
     QColorGroup cg2( cg );
     if ( itm && !itm->isEnabled() )
@@ -5821,6 +5821,10 @@ bool QTable::dragEnabled() const
 
 void QTable::insertRows( int row, int count )
 {
+    // special case, so a call like insertRow( currentRow(), 1 ) also
+    // works, when we have 0 rows and currentRow() is -1
+    if ( row == -1 && curRow == -1 )
+	row = 0;
     if ( row < 0 || count <= 0 )
 	return;
 
@@ -5832,6 +5836,10 @@ void QTable::insertRows( int row, int count )
 	return;
 
     setNumRows( numRows() + count );
+
+    int cr = QMAX( 0, currentRow() );
+    int cc = QMAX( 0, currentColumn() );
+    setCurrentCell( cr, cc );
 
     for ( int i = numRows() - count - 1; i > row; --i )
 	( (QTableHeader*)verticalHeader() )->swapSections( i, i + count );
@@ -5847,6 +5855,9 @@ void QTable::insertRows( int row, int count )
 
 void QTable::insertColumns( int col, int count )
 {
+    // see comment in insertRows()
+    if ( col == -1 && curCol == -1 )
+	col = 0;
     if ( col < 0 || count <= 0 )
 	return;
 
@@ -5858,6 +5869,10 @@ void QTable::insertColumns( int col, int count )
 	return;
 
     setNumCols( numCols() + count );
+
+    int cr = QMAX( 0, currentRow() );
+    int cc = QMAX( 0, currentColumn() );
+    setCurrentCell( cr, cc );
 
     for ( int i = numCols() - count - 1; i > col; --i )
 	( (QTableHeader*)horizontalHeader() )->swapSections( i, i + count );
