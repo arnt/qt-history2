@@ -298,6 +298,20 @@ If you used the CharSet enum anywhere or any functions as QFont::charSet(), QFon
 just remove them from your code to get things working again. There are a few other functions that 
 took a QFont::CharSet as parameter. Just remove the charset from the parameterlist.
 
+<h3><a name="QPrinter">QPrinter</a></h3>
+
+QPrinter has undergone some changes, to make it more flexible and
+force the same runtime behaviour on Unix and on Windows. In 2.x,
+QPrinter behaved differently on Windows and Unix, when using view
+transformations on the QPainter. This has changed now, and QPrinter
+behaves consistent across all platforms. A compatibilty mode has been
+added that behaves exactly as in Qt-2.x, to ease porting from Qt-2.x
+to Qt-3. This compatibilty mode can be enabled by passing a
+QPrinter::Compatible flag to the QPrinter constructor.
+
+On X11, QPrinter used to generate encapsulated postscript when
+fullPage() was TRUE and only one page was printed. This does not
+happen by default anymore, giving a more consistent printing output.
 
 <h3><a name="QTranslator">QTranslator</a></h3>
 
