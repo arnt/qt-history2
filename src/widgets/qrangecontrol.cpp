@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangecontrol.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qrangecontrol.cpp#29 $
 **
 ** Implementation of QRangeControl class
 **
@@ -25,6 +25,7 @@
 
 #include "qrangecontrol.h"
 #include "qglobal.h"
+#include <limits.h>
 
 /*!
   \class QRangeControl qrangecontrol.h
@@ -176,7 +177,7 @@ void QRangeControl::directSetValue(int value)
 /*!
   Equivalent to \code setValue( value()+pageStep() )\endcode plus a
   test for numerical overflow.
-  
+
   \sa subtractPage()
 */
 
@@ -373,4 +374,49 @@ int QRangeControl::bound( int v ) const
     if ( v > maxVal )
 	return maxVal;
     return v;
+}
+
+
+/*!
+  Converts \a val to a pixel position. minValue() maps to 0, maxValue()
+  maps to \a space, and other values are distributed evenly in between.
+  
+  This function can handle the entire integer range without overflow.
+*/
+
+int QRangeControl::positionFromValue( int val, int space ) const
+{
+    if ( maxValue() > minValue() ) {
+	uint range = maxValue() - minValue();
+	uint d = val - minValue();
+	int scale = 1;
+	if ( range > uint(INT_MAX/4096) )
+	     scale = 4096*2;
+	return ( (d/scale) * space ) / (range/scale);
+    } else {
+	return 0;
+    }
+}
+
+
+/*!
+  Converts the pixel position \a pos to a value. 0 maps to minValue(),
+  \a space maps to maxValue(), and other values are distributed evenly
+  in between.
+
+  This function can handle the entire integer range without overflow.
+*/
+
+int QRangeControl::valueFromPosition( int pos, int space ) const
+{
+    if ( space <= 0 || pos <= 0 )
+	return minValue();
+    if ( pos >= space )
+	return maxValue();
+
+    uint range = maxValue() - minValue();
+    return  minValue() +  pos*(range/space) 
+	+ (2 * pos * (range%space) + space) / (2*space) ;
+    //equiv. to minValue() + ( p * r) / space + 0.5;
+
 }

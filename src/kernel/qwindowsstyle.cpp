@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowsstyle.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qwindowsstyle.cpp#23 $
 **
 ** Implementation of Windows-like style class
 **
@@ -481,7 +481,8 @@ void QWindowsStyle::scrollBarMetrics( const QScrollBar* sb, int &sliderMin, int 
     } else {
 	sliderLength = (sb->pageStep()*maxLength)/
 			(sb->maxValue()-sb->minValue()+sb->pageStep());
-	if ( sliderLength < SLIDER_MIN )
+	uint range = sb->maxValue()-sb->minValue();
+ 	if ( sliderLength < SLIDER_MIN || range > INT_MAX/2 )
 	    sliderLength = SLIDER_MIN;
 	if ( sliderLength > maxLength )
 	    sliderLength = maxLength;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmotifstyle.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qmotifstyle.cpp#24 $
 **
 ** Implementation of Motif-like style class
 **
@@ -473,9 +473,10 @@ void QMotifStyle::scrollBarMetrics( const QScrollBar* sb, int &sliderMin, int &s
     if ( sb->maxValue() == sb->minValue() ) {
 	sliderLength = maxLength;
     } else {
+	uint range = sb->maxValue()-sb->minValue();
 	sliderLength = (sb->pageStep()*maxLength)/
-			(sb->maxValue()-sb->minValue()+sb->pageStep());
-	if ( sliderLength < SLIDER_MIN )
+			(range + sb->pageStep());
+	if ( sliderLength < SLIDER_MIN || range > INT_MAX/2 )
 	    sliderLength = SLIDER_MIN;
 	if ( sliderLength > maxLength )
 	    sliderLength = maxLength;

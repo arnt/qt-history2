@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#78 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#79 $
 **
 ** Implementation of QSlider class
 **
@@ -29,7 +29,6 @@
 #include "qtimer.h"
 #include "qbitmap.h"
 
-#include <limits.h>
 
 static const int motifBorder = 2;
 static const int thresholdTime = 500;
@@ -205,23 +204,13 @@ void QSlider::setTracking( bool enable )
 */
 
 /*!
-  Calculates slider position corresponding to value \a v. Does not perform
-  rounding.
+  Calculates slider position corresponding to value \a v.
 */
 
 int QSlider::positionFromValue( int v ) const
 {
     int  a = available();
-    if ( maxValue() > minValue() ) {
-	uint range = maxValue() - minValue();
-	uint d = v - minValue();
-	int scale = 1;
-	if ( range > uint(INT_MAX/2048) )
-	     scale = 4096;
-	return ( (d/scale) * a ) / (range/scale);
-    } else {
-	return 0;
-    }
+    return QRangeControl::positionFromValue( v, a );
 }
 
 /*!
@@ -246,17 +235,14 @@ int QSlider::available() const
 }
 
 /*!
-  Calculates value corresponding to slider position \a p. Performs rounding.
+  Calculates value corresponding to slider position \a p.
 */
 
 int QSlider::valueFromPosition( int p ) const
 {
     int a = available();
-    if ( a <= 0 )
-	return 0;
-    uint r = maxValue() - minValue();
-    return  minValue() +  p*(r/a) + (2 * p * (r%a) + a) / (2*a) ;
-    //equiv. to minValue() + ( p * r) / a + 0.5;
+    return QRangeControl::valueFromPosition( p, a );
+
 }
 
 /*!

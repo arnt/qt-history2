@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#123 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#124 $
 **
 ** Implementation of QScrollBar class
 **
@@ -62,7 +62,7 @@
   lineStep(); and last but NOT least setRange() to set the minValue()
   and maxValue() of the scrollbar.  (QScrollBar has a convenience
   constructor with which you can set most of that.)
-  
+
   Some GUI styles, for example the provided Windows and Motif styles,
   also use the pageStep() value to calculate the size of the sliding
   thumb (scroll indicator).
@@ -417,27 +417,25 @@ void QScrollBar::keyPressEvent( QKeyEvent *e )
     switch ( e->key() ) {
     case Key_Left:
 	if ( orient == Horizontal )
-	    setValue( value() - lineStep() );
+	    subtractLine();
 	break;
     case Key_Right:
 	if ( orient == Horizontal )
-	    setValue( value() + lineStep() );
+	    addLine();
 	break;
     case Key_Up:
 	if ( orient == Vertical )
-	    setValue( value() - lineStep() );
+	    subtractLine();
 	break;
     case Key_Down:
 	if ( orient == Vertical )
-	    setValue( value() + lineStep() );
+	    addLine();
 	break;
     case Key_PageUp:
-	if ( orient == Vertical )
-	    setValue( value() - pageStep() );
+	subtractPage();
 	break;
     case Key_PageDown:
-	if ( orient == Vertical )
-	    setValue( value() + pageStep() );
+	addPage();
 	break;
     case Key_Home:
 	setValue( minValue() );
@@ -692,38 +690,16 @@ QStyle::ScrollControl QScrollBar::pointOver(const QPoint &p) const
 
 int QScrollBar::rangeValueToSliderPos( int v ) const
 {
-    int smin, smax;
-    sliderMinMax( smin, smax );
-    if ( maxValue() == minValue() )
-	return smin;
-    int sliderMin=smin, sliderMax=smax;
-
-    int r;
-    if ( 16.0 * sliderMax * maxValue() > INT_MAX )
-	r = (int) (((sliderMax-sliderMin)*2*(v-minValue())+1.0)/
-		   ((maxValue()-minValue())*2)) + sliderMin;
-    else
-	r = ((sliderMax-sliderMin)*2*(v-minValue())+1)/
-	    ((maxValue()-minValue())*2) + sliderMin;
-    return r;
+    int sliderMin, sliderMax;
+    sliderMinMax( sliderMin, sliderMax );
+    return positionFromValue( v, sliderMax-sliderMin ) + sliderMin;
 }
 
 int QScrollBar::sliderPosToRangeValue( int pos ) const
 {
     int sliderMin, sliderMax;
     sliderMinMax( sliderMin, sliderMax );
-    if ( pos <= sliderMin || sliderMax == sliderMin )
-	return minValue();
-    if ( pos >= sliderMax )
-	return maxValue();
-    int r;
-    if ( 16.0 * sliderMax * maxValue() > INT_MAX )
-        r = (int) ((maxValue() - minValue() + 1.0)*(pos - sliderMin)/
-		   (sliderMax - sliderMin)) + minValue();
-    else
-	r = (maxValue() - minValue() + 1)*(pos - sliderMin)/
-	    (sliderMax - sliderMin) + minValue();
-    return r;
+    return  valueFromPosition( pos - sliderMin, sliderMax - sliderMin );
 }
 
 

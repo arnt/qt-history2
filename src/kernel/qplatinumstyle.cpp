@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qplatinumstyle.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qplatinumstyle.cpp#21 $
 **
 ** Implementation of Platinum-like style class
 **
@@ -90,7 +90,7 @@ void QPlatinumStyle::drawButton( QPainter *p, int x, int y, int w, int h,
     QPen oldPen = p->pen();
 
      if (!sunken) {
-	 p->fillRect(x+3, y+3, w-6, h-6,fill ? *fill : 
+	 p->fillRect(x+3, y+3, w-6, h-6,fill ? *fill :
                                          g.brush( QColorGroup::Button ));
 	 // the bright side
 	 p->setPen(g.shadow());
@@ -158,7 +158,7 @@ void QPlatinumStyle::drawButton( QPainter *p, int x, int y, int w, int h,
 
      }
      else {
-	 p->fillRect(x+2, y+2, w-4, h-4,fill ? *fill : 
+	 p->fillRect(x+2, y+2, w-4, h-4,fill ? *fill :
                                            g.brush( QColorGroup::Dark ));
 
 	 // the dark side
@@ -257,7 +257,7 @@ void QPlatinumStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
 	// small buttons
 	
 	if (!sunken) {
-	    p->fillRect(x+2, y+2, w-4, h-4,fill ? *fill : 
+	    p->fillRect(x+2, y+2, w-4, h-4,fill ? *fill :
                                              g.brush( QColorGroup::Button ));
 	    // the bright side
 	    p->setPen(g.dark());
@@ -281,7 +281,7 @@ void QPlatinumStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
 
 	}
 	else {
-	    p->fillRect(x+2, y+2, w-4, h-4,fill ? *fill : 
+	    p->fillRect(x+2, y+2, w-4, h-4,fill ? *fill :
 			                       g.brush( QColorGroup::Mid ));
 
 	    // the dark side
@@ -309,7 +309,7 @@ void QPlatinumStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
 	// big ones
 	
 	if (!sunken) {
-	    p->fillRect(x+3, y+3, w-6, h-6,fill ? * fill : 
+	    p->fillRect(x+3, y+3, w-6, h-6,fill ? * fill :
 			                    g.brush( QColorGroup::Button ));
 	    // the bright side
 	    p->setPen(g.button().dark());
@@ -342,7 +342,7 @@ void QPlatinumStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
 
 	}
 	else {
-	    p->fillRect(x+3, y+3, w-6, h-6,fill ? *fill : 
+	    p->fillRect(x+3, y+3, w-6, h-6,fill ? *fill :
 			                          g.brush( QColorGroup::Mid ));
 
 	    // the dark side
@@ -427,7 +427,7 @@ QPlatinumStyle::drawPushButton( QPushButton* btn, QPainter *p)
 //     }
 	
     // small or square buttons as well as toggle buttons are bevel buttons (what a heuristic....)
-    if ( btn->isDefault() && 
+    if ( btn->isDefault() &&
 	 (btn->isToggleButton()
 	  || btn->width() * btn->height() < 1600 || QABS( btn->width() - btn->height()) < 10 ))
 	drawBevelButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn() || btn->isDown(),
@@ -526,7 +526,8 @@ void QPlatinumStyle::scrollBarMetrics( const QScrollBar* sb, int &sliderMin, int
      } else {
  	sliderLength = (sb->pageStep()*maxLength)/
  			(sb->maxValue()-sb->minValue()+sb->pageStep());
- 	if ( sliderLength < SLIDER_MIN )
+	uint range = sb->maxValue()-sb->minValue();
+ 	if ( sliderLength < SLIDER_MIN || range > INT_MAX/2 )
  	    sliderLength = SLIDER_MIN;
  	if ( sliderLength > maxLength )
  	    sliderLength = maxLength;
@@ -720,7 +721,7 @@ void QPlatinumStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, i
 	drawArrow( p, VERTICAL ? DownArrow : RightArrow,
 		   FALSE, addB.x()+2, addB.y()+2,
 		   addB.width()-4, addB.height()-4, g, !maxedOut,
-		   ADD_LINE_ACTIVE ? &g.brush( QColorGroup::Mid )    : 
+		   ADD_LINE_ACTIVE ? &g.brush( QColorGroup::Mid )    :
            		             &g.brush( QColorGroup::Button ));
     }
     if ( controls & SUB_LINE ) {
@@ -932,7 +933,7 @@ void QPlatinumStyle::drawExclusiveIndicator( QPainter* p,
     static QCOORD pts6[] = {		// check mark extras
 	4,5, 5,4,  9,4, 10,5,  10,9, 9,10,	5,10, 4,9 };
     p->eraseRect(x,y,w,h);
-    p->setBrush((down||on) ? g.brush( QColorGroup::Dark )   : 
+    p->setBrush((down||on) ? g.brush( QColorGroup::Dark )   :
 		             g.brush( QColorGroup::Button ));
     p->setPen(NoPen);
     p->drawEllipse( x, y, 15, 15);

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangecontrol.h#23 $
+** $Id: //depot/qt/main/src/widgets/qrangecontrol.h#24 $
 **
 ** Definition of QRangeControl class
 **
@@ -59,6 +59,8 @@ public:
     int		bound( int ) const;
 
 protected:
+    int		positionFromValue( int val, int space ) const;
+    int		valueFromPosition( int pos, int space ) const;
     void	directSetValue( int val );
     int		prevValue()	const;
 
