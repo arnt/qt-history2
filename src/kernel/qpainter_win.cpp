@@ -1970,7 +1970,7 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding, int index,
 #endif
 }
 
-
+#ifndef QT_NO_BEZIER
 void QPainter::drawCubicBezier( const QPointArray &a, int index )
 {
     if ( !isActive() )
@@ -2004,7 +2004,7 @@ void QPainter::drawCubicBezier( const QPointArray &a, int index )
     PolyBezier( hdc, (POINT*)(pa.data()+index), 4 );
 #endif
 }
-
+#endif // QT_NO_BEZIER
 
 extern uint qt_bitblt_foreground;		// in qpaintdevice_win.cpp
 
