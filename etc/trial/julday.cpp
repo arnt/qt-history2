@@ -15,7 +15,7 @@ int main()
 {
     QTextStream cout(stdout,IO_WriteOnly);
     QTextStream cin(stdin,IO_ReadOnly);
-    cout << "Enter date (yy/mm/dd): ";
+    cout << "Enter date (yy/mm/dd): " << flush;
     int  y, m, d;
     char c;
     cin >> y >> c >> m >> c >> d;
