@@ -90,8 +90,9 @@ public:
     bool isDetached() const;
 
     QImage copy() const;
-    inline QImage copy(int x, int y, int w, int h, Qt::ImageConversionFlags flags = Qt::AutoColor) const;
-    QImage copy(const QRect&, Qt::ImageConversionFlags flags = Qt::AutoColor) const;
+    QImage copy(const QRect &rect) const;
+    inline QImage copy(int x, int y, int w, int h) const
+        { return copy(QRect(x, y, w, h)); }
 
     Format format() const;
 
@@ -130,18 +131,15 @@ public:
     int numBytes() const;
     int bytesPerLine() const;
 
-#ifdef Q_WS_QWS
-    virtual const uchar * qwsScanLine(int) const;
-    virtual int qwsBytesPerLine() const;
-#endif
-    QPaintEngine *paintEngine() const;
-
     void fill(uint pixel);
     void invertPixels(InvertMode = InvertRgb);
 
-#ifndef QT_NO_IMAGE_TRUECOLOR
+    bool valid(int x, int y) const;
+    int pixelIndex(int x, int y) const;
+    QRgb pixel(int x, int y) const;
+    void setPixel(int x, int y, uint index_or_rgb);
+
     QImage convertDepthWithPalette(int, QRgb* p, int pc, Qt::ImageConversionFlags flags = Qt::AutoColor) const;
-#endif
     QImage convertDepth(int, Qt::ImageConversionFlags flags = Qt::AutoColor) const;
     QImage convertBitOrder(Endian) const;
 
@@ -173,22 +171,24 @@ public:
 #ifndef QT_NO_IMAGEIO
     bool load(const QString &fileName, const char* format=0);
     bool loadFromData(const uchar *buf, int len, const char *format = 0);
-    bool loadFromData(const QByteArray &data, const char* format=0);
+    inline bool loadFromData(const QByteArray &data, const char* format=0)
+        { return loadFromData(reinterpret_cast<const uchar *>(data.constData()), data.size(), format); }
+
     bool save(const QString &fileName, const char* format, int quality=-1) const;
     bool save(QIODevice * device, const char* format, int quality=-1) const;
 
-    inline static QImage fromData(const uchar *data, int size, const char *format = 0)
-    { QImage image; image.loadFromData(data, size, format); return image; }
+    static QImage fromData(const uchar *data, int size, const char *format = 0);
     inline static QImage fromData(const QByteArray &data, const char *format = 0)
-    { QImage image; image.loadFromData(data, format); return image; }
+        { return fromData(reinterpret_cast<const uchar *>(data.constData()), data.size(), format); }
 #endif //QT_NO_IMAGEIO
 
     int serialNumber() const;
 
-    bool valid(int x, int y) const;
-    int pixelIndex(int x, int y) const;
-    QRgb pixel(int x, int y) const;
-    void setPixel(int x, int y, uint index_or_rgb);
+#ifdef Q_WS_QWS
+    virtual const uchar * qwsScanLine(int) const;
+    virtual int qwsBytesPerLine() const;
+#endif
+    QPaintEngine *paintEngine() const;
 
     // Auxiliary data
     int dotsPerMeterX() const;
@@ -225,6 +225,10 @@ public:
     inline QT3_SUPPORT QImage scaleWidth(int w) const { return scaledToWidth(w); }
     inline QT3_SUPPORT QImage scaleHeight(int h) const { return scaledToHeight(h); }
     inline QT3_SUPPORT void invertPixels(bool invertAlpha) { invertAlpha ? invertPixels(InvertRgba) : invertPixels(InvertRgb); }
+    inline QT3_SUPPORT QImage copy(int x, int y, int w, int h, Qt::ImageConversionFlags) const
+        { return copy(QRect(x, y, w, h)); }
+    inline QT3_SUPPORT QImage copy(const QRect &rect, Qt::ImageConversionFlags) const
+        { return copy(rect); }
 #ifndef QT_NO_IMAGEIO
     inline QT3_SUPPORT_CONSTRUCTOR QImage(const QByteArray &data)
         : QPaintDevice(QInternal::Image)
@@ -239,9 +243,6 @@ private:
     QImageData *d;
 
     friend class QPixmap;
-    friend Q_GUI_EXPORT void bitBlt(QImage* dst, int dx, int dy,
-                                    const QImage* src, int sx, int sy,
-                                    int sw, int sh, Qt::ImageConversionFlags flags);
 };
 
 Q_DECLARE_SHARED(QImage);
@@ -254,28 +255,14 @@ Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QImage &);
 Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QImage &);
 #endif
 
-
-#ifndef QT_NO_PIXMAP_TRANSFORMATION
-#  define QT_XFORM_TYPE_MSBFIRST 0
-#  define QT_XFORM_TYPE_LSBFIRST 1
-#  if defined(Q_WS_WIN)
-#    define QT_XFORM_TYPE_WINDOWSPIXMAP 2
-#  endif
-Q_GUI_EXPORT bool qt_xForm_helper(const QMatrix&, int, int, int, uchar*, int, int, int, const uchar*, int, int, int);
+#ifdef QT3_SUPPORT
+Q_GUI_EXPORT QT3_SUPPORT void bitBlt(QImage* dst, int dx, int dy, const QImage* src,
+                                     int sx=0, int sy=0, int sw=-1, int sh=-1, Qt::ImageConversionFlags flags = Qt::AutoColor);
 #endif
-
-Q_GUI_EXPORT void bitBlt(QImage* dst, int dx, int dy, const QImage* src,
-                         int sx=0, int sy=0, int sw=-1, int sh=-1, Qt::ImageConversionFlags flags = Qt::AutoColor);
-
 
 /*****************************************************************************
   QImage member functions
  *****************************************************************************/
-
-inline QImage QImage::copy(int x, int y, int w, int h, Qt::ImageConversionFlags flags) const
-{
-    return copy(QRect(x, y, w, h), flags);
-}
 
 inline QImage::Endian QImage::systemBitOrder()
 {
