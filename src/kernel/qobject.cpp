@@ -454,10 +454,9 @@ QObject::~QObject()
 
     d->eventFilters.clear();
 
-    if ( !d->children.isEmpty() ) {			// delete children objects
-	d->children.setAutoDelete(TRUE);
-	d->children.clear();
-    }
+    while ( !d->children.isEmpty() )			// delete children objects
+	delete d->children.takeFirst();
+
     QCoreApplication::removePostedEvents( this );
 
     if (d->objectName && d->ownObjectName) {
@@ -2481,7 +2480,7 @@ QObjectUserData::~QObjectUserData()
 
 /*!\internal
  */
-void QObject::setUserData( uint id, QObjectUserData* data)
+void QObject::setUserData(uint id, QObjectUserData* data)
 {
     d->userData.insert(id, data);
 }

@@ -26,11 +26,12 @@
 
 QMembuf::QMembuf() : _size(0), _index(0)
 {
-    buf.setAutoDelete( TRUE );
 }
 
 QMembuf::~QMembuf()
 {
+    while (!buf.isEmpty())
+	delete buf.takeFirst();
 }
 
 /*! \internal
@@ -53,7 +54,7 @@ bool QMembuf::consumeBytes( Q_ULONG nbytes, char *sink )
 		sink += len;
 	    }
 	    nbytes -= len;
-	    buf.takeAt(0);
+	    buf.removeFirst();
 	    _index = 0;
 	    if ( nbytes == 0 )
 		break;
@@ -125,7 +126,7 @@ int QMembuf::ungetch( int ch )
 	// we need a new QByteArray
 	QByteArray *ba = new QByteArray;
 	ba->resize(1);
-	buf.insert( 0, ba );
+	buf.prepend(ba);
 	_size++;
 	(*ba)[0] = ch;
     } else {
