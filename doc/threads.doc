@@ -92,6 +92,9 @@ woken up by another thread.
 
 \section1 Important Information
 
+\target reentrant
+\target threadsafe
+
 When using Qt in a multithreaded program, it is important to
 understand the definition of the terms \e reentrant and \e
 thread-safe:
