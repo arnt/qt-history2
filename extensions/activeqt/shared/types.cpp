@@ -337,6 +337,51 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
     return var;
 }
 
+static inline bool enumValue( const QString &string, const QUEnum *uEnum, int &value )
+{
+    bool isInt = FALSE;
+    value = string.toInt( &isInt );
+    if ( isInt )
+	return TRUE;
+    else for ( uint eItem = 0; eItem<uEnum->count; ++eItem ) {
+	if ( uEnum->items[eItem].key == string ) {
+	    value = uEnum->items[eItem].value;
+	    return TRUE;
+	}
+    }
+    return FALSE;
+}
+
+VARIANT QVariantToVARIANT( const QVariant &var, const QUParameter *param )
+{
+    QUObject obj;
+    obj.type = &static_QUType_Null;
+
+    QUType *preset = param->type;
+    if ( !QUType::isEqual( &static_QUType_QVariant, preset ) ) {
+	if ( !preset->canConvertFrom( &obj, &static_QUType_QVariant ) ) {
+	    if ( param->typeExtra && ( var.type() == QVariant::String || var.type() == QVariant::CString )
+		&& QUType::isEqual( preset, &static_QUType_enum ) ) {
+		int value;
+		if ( enumValue( var.toString(), (const QUEnum *)param->typeExtra, value ) )
+		    static_QUType_enum.set( &obj, value );
+	    }
+	} else {
+	    preset->convertFrom( &obj, &static_QUType_QVariant );
+	}
+    }
+    
+    if ( obj.type == &static_QUType_Null )
+	static_QUType_QVariant.set( &obj, var );
+
+    VARIANT res;
+    QUObjectToVARIANT( &obj, res, param );
+
+    obj.type->clear( &obj );
+
+    return res;
+}
+
 void QVariantToQUObject( const QVariant &var, QUObject &obj, const void *typeExtra )
 {
     QUType *preset = obj.type;
@@ -406,15 +451,11 @@ void QVariantToQUObject( const QVariant &var, QUObject &obj, const void *typeExt
     }
     if ( !QUType::isEqual(preset, &static_QUType_Null ) && !QUType::isEqual( preset, obj.type ) ) {
 	if ( !preset->canConvertFrom( &obj, obj.type ) ) {
-	    if ( typeExtra && ( var.type() == QVariant::String || var.type() == QVariant::CString ) 
+	    if ( typeExtra && ( var.type() == QVariant::String || var.type() == QVariant::CString )
 		&& QUType::isEqual( preset, &static_QUType_enum ) ) {
-		const QUEnum *uEnum = (const QUEnum *)typeExtra;
-		for ( uint eItem = 0; eItem<uEnum->count; ++eItem ) {
-		    if ( uEnum->items[eItem].key == var.toString() ) {
-			static_QUType_enum.set( &obj, uEnum->items[eItem].value );
-			break;
-		    }
-		}
+		int value;
+		if ( enumValue( var.toString(), (const QUEnum *)typeExtra, value ) )
+		    static_QUType_enum.set( &obj, value );
 	    }
 #ifndef QT_NO_DEBUG
 	    else if ( QUType::isEqual( preset, &static_QUType_ptr ) )

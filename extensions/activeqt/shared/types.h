@@ -82,6 +82,7 @@ static QColor OLEColorToQColor( uint col )
 }
 
 extern VARIANT QVariantToVARIANT( const QVariant &var, const char *type = 0 );
+extern VARIANT QVariantToVARIANT( const QVariant &var, const QUParameter *param );
 extern QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint = 0 );
 extern void QVariantToQUObject( const QVariant &var, QUObject &obj, const void *typeExtra = 0 );
 extern void QUObjectToVARIANT( QUObject *obj, VARIANT &var, const QUParameter *param );

@@ -2007,28 +2007,64 @@ static inline bool checkHRESULT( HRESULT hres )
     case S_OK:
 	return TRUE;
     case DISP_E_BADPARAMCOUNT:
+#if defined(QT_CHECK_STATE)
+	qWarning( "QAxBase: Error calling IDipatch member: Bad parameter count." );
+#endif
 	return FALSE;
     case DISP_E_BADVARTYPE:
+#if defined(QT_CHECK_STATE)
+	qWarning( "QAxBase: Error calling IDipatch member: Bad variant type." );
+#endif
 	return FALSE;
     case DISP_E_EXCEPTION:
+#if defined(QT_CHECK_STATE)
+	qWarning( "QAxBase: Error calling IDipatch member: Exception thrown by server." );
+#endif
 	return FALSE;
     case DISP_E_MEMBERNOTFOUND:
+#if defined(QT_CHECK_STATE)
+	qWarning( "QAxBase: Error calling IDipatch member: Member not found." );
+#endif
 	return FALSE;
     case DISP_E_NONAMEDARGS:
+#if defined(QT_CHECK_STATE)
+	qWarning( "QAxBase: Error calling IDipatch member: No named arguments." );
+#endif
 	return FALSE;
     case DISP_E_OVERFLOW:
+#if defined(QT_CHECK_STATE)
+	qWarning( "QAxBase: Error calling IDipatch member: Overflow." );
+#endif
 	return FALSE;
     case DISP_E_PARAMNOTFOUND:
+#if defined(QT_CHECK_STATE)
+	qWarning( "QAxBase: Error calling IDipatch member: Parameter not found." );
+#endif
 	return FALSE;
     case DISP_E_TYPEMISMATCH:
+#if defined(QT_CHECK_STATE)
+	qWarning( "QAxBase: Error calling IDipatch member: Type mismatch." );
+#endif
 	return FALSE;
     case DISP_E_UNKNOWNINTERFACE:
+#if defined(QT_CHECK_STATE)
+	qWarning( "QAxBase: Error calling IDipatch member: Unknown interface." );
+#endif
 	return FALSE;
     case DISP_E_UNKNOWNLCID:
+#if defined(QT_CHECK_STATE)
+	qWarning( "QAxBase: Error calling IDipatch member: Unknown locale ID." );
+#endif
 	return FALSE;
     case DISP_E_PARAMNOTOPTIONAL:
+#if defined(QT_CHECK_STATE)
+	qWarning( "QAxBase: Error calling IDipatch member: Non-optional parameter missing." );
+#endif
 	return FALSE;
     default:
+#if defined(QT_CHECK_STATE)
+	qWarning( "QAxBase: Error calling IDipatch member: Unknown error." );
+#endif
 	return FALSE;
     }
 }
@@ -2288,7 +2324,7 @@ static inline QCString qt_rmWS( const char *s )
 bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[] )
 {
     IDispatch *disp = d->dispatch();
-    if ( !disp || !inout )
+    if ( !disp )
 	return FALSE;
 
     int varc = 0;
@@ -2296,23 +2332,46 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
 	varc++;
 
     QCString function = name;
-    int id = metaObject()->findSlot( qt_rmWS(function), TRUE );
-    if ( id >= 0 ) {	
-	const QMetaData *slot = metaObject()->slot( id, TRUE );
-	function = slot->method->name;
-	for ( int i = 0; i < varc; ++i ) {
-	    QVariant &var = vars[i];
-	    if ( ( var.type() == QVariant::String || var.type() == QVariant::CString )
-		&& QUType::isEqual( slot->method->parameters[1].type, &static_QUType_enum ) ) {
-		QUEnum *uEnum = (QUEnum *)slot->method->parameters[1].typeExtra;
-		QString varString = var.toString();
-		for ( uint eItem = 0; eItem < uEnum->count; eItem++ ) {
-		    if ( uEnum->items[eItem].key == varString ) {
-			var = uEnum->items[eItem].value;
-			break;
-		    }
-		}
+    VARIANT *arg = varc ? new VARIANT[varc] : 0;
+    VARIANTARG *res = (VARIANTARG*)inout;
+    unsigned short disptype;
+
+    int id = -1;
+    if ( function.contains( '(' ) ) {
+	id = metaObject()->findSlot( qt_rmWS(function), TRUE );
+	if ( id >= 0 ) {
+	    const QMetaData *slot = metaObject()->slot( id, TRUE );
+	    function = slot->method->name;
+	    for ( int i = 0; i < varc; ++i ) {
+		arg[i] = QVariantToVARIANT( vars[i], slot->method->parameters + i + 1 );
 	    }
+	    disptype = DISPATCH_METHOD;
+	} else {
+#ifdef QT_CHECK_STATE
+	    const char *coclass = metaObject()->classInfo( "CoClass" );
+	    qWarning( "QAxBase::internalInvoke: %s: No such method in %s [%s].", (const char*)name, control().latin1(), 
+		coclass ? coclass: "unknown" );
+#endif
+	    return FALSE;
+	}
+    } else {
+	id = metaObject()->findProperty( name, TRUE );
+	if ( id >= 0 ) {
+	    if ( varc ) {
+		const QMetaProperty *prop = metaObject()->property( id, TRUE );
+		arg[0] = QVariantToVARIANT( vars[0], prop ? prop->type() : 0 );
+		res = 0;
+		disptype = DISPATCH_PROPERTYPUT;
+	    } else {
+		disptype = DISPATCH_PROPERTYGET;
+	    }
+	} else {
+#ifdef QT_CHECK_STATE
+	    const char *coclass = metaObject()->classInfo( "CoClass" );
+	    qWarning( "QAxBase::internalInvoke: %s: No such property in %s [%s]", (const char*)name, control().latin1(), 
+		coclass ? coclass: "unknown" );
+#endif
+	    return FALSE;
 	}
     }
 
@@ -2328,19 +2387,21 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
 	return FALSE;
     }
 
-    VARIANTARG *res = (VARIANTARG*)inout;
     DISPPARAMS params;
-    VARIANT *arg = varc ? new VARIANT[varc] : 0;
-    for ( int i = 0; i < varc; ++i ) {
-	arg[i] = QVariantToVARIANT( vars[i] );
-    }
 
     params.cArgs = varc;
     params.cNamedArgs = 0;
     params.rgdispidNamedArgs = 0;
     params.rgvarg = arg;
 
-    HRESULT hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, res, 0, 0 );
+    HRESULT hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, disptype, &params, res, 0, 0 );
+
+    // clean up
+    for ( int i = 0; i < varc; ++i ) {
+	if ( params.rgvarg[i].vt == VT_BSTR )
+	    SysFreeString( params.rgvarg[i].bstrVal );
+    }
+    delete[] arg;
 
     return checkHRESULT( hres );
 }
@@ -2394,95 +2455,27 @@ QVariant QAxBase::dynamicCall( const QCString &function, const QVariant &var1,
 							 const QVariant &var7,
 							 const QVariant &var8 )
 {
-    bool ok = FALSE;
-    QVariant result;
+    VARIANTARG res;
 
-    int id = metaObject()->findSlot( qt_rmWS(function), TRUE );
-    if ( id < 0 ) {
-	// it's not a slot; try a property
-	if ( var1.isValid() ) {
-	    ok = qObject()->setProperty( function, var1 );
-	} else {
-	    result = qObject()->property( function );
-	    ok = result.isValid();
-	}
-	if ( ok )
-	    return result;
-    } else {
-	ok = TRUE;
-    }
-    if ( !ok ) {
-#if defined(QT_CHECK_RANGE)
-	const char *coclass = metaObject()->classInfo( "CoClass" );
-	qWarning( "QAxBase::dynamicCall: %s: No such method or property in %s [%s]"
-	    , (const char*)function, control().latin1(), coclass ? coclass: "unknown" );
-#endif
+    int varc = 0;
+    QVariant vars[9];
+    vars[varc++] = var1;
+    vars[varc++] = var2;
+    vars[varc++] = var3;
+    vars[varc++] = var4;
+    vars[varc++] = var5;
+    vars[varc++] = var6;
+    vars[varc++] = var7;
+    vars[varc++] = var8;
+    vars[varc++] = QVariant();
+
+    if ( !internalInvoke( function, &res, vars ) )
 	return QVariant();
-    }
-    const QMetaData *slot_data = 0;
-    slot_data = metaObject()->slot( id, TRUE );
 
-    if ( slot_data ) {
-	const QUMethod *slot = 0;
-	slot = slot_data->method;
+    if ( res.vt == VT_BSTR )
+	SysFreeString( res.bstrVal );
 
-	QUObject obj[9];
-	const void *typeExtra[9];
-	// obj[0] is the result
-	int o;
-	int ret = slot->count && slot->parameters[0].inOut == QUParameter::Out;
-	for ( o = 0; o < slot->count-ret; ++o ) {
-	    obj[o+1].type = slot->parameters[o+ret].type;
-	    typeExtra[o+1] = slot->parameters[o+ret].typeExtra;
-	}
-	QVariantToQUObject( var1, obj[1], typeExtra[1] );
-	QVariantToQUObject( var2, obj[2], typeExtra[2] );
-	QVariantToQUObject( var3, obj[3], typeExtra[3] );
-	QVariantToQUObject( var4, obj[4], typeExtra[4] );
-	QVariantToQUObject( var5, obj[5], typeExtra[5] );
-	QVariantToQUObject( var6, obj[6], typeExtra[6] );
-	QVariantToQUObject( var7, obj[7], typeExtra[7] );
-	QVariantToQUObject( var8, obj[8], typeExtra[8] );
-
-	qt_invoke( id, obj );
-
-	if ( !QUType::isEqual( obj->type, &static_QUType_Null ) ) {
-	    if ( QUType::isEqual( obj->type, &static_QUType_int ) ) {
-		result = static_QUType_int.get( obj );
-	    } else if ( QUType::isEqual( obj->type, &static_QUType_QString ) ) {
-		result = static_QUType_QString.get( obj );
-	    } else if ( QUType::isEqual( obj->type, &static_QUType_charstar ) ) {
-		result = static_QUType_charstar.get( obj );
-	    } else if ( QUType::isEqual( obj->type, &static_QUType_bool ) ) {
-		result = QVariant( static_QUType_bool.get( obj ), 0 );
-	    } else if ( QUType::isEqual( obj->type, &static_QUType_double ) ) {
-		result = static_QUType_double.get( obj );
-	    } else if ( QUType::isEqual( obj->type, &static_QUType_enum ) ) {
-		result = static_QUType_enum.get( obj );
-	    } else if ( QUType::isEqual( obj->type, &static_QUType_QVariant ) ) {
-		result = static_QUType_QVariant.get( obj );
-	    } else if ( QUType::isEqual( obj->type, &static_QUType_idisp ) ) {
-		//###
-	    } else if ( QUType::isEqual( obj->type, &static_QUType_iface ) ) {
-		//###
-	    } else if ( QUType::isEqual( obj->type, &static_QUType_ptr ) && slot->parameters ) {
-		const QUParameter *param = slot->parameters;
-		const char *type = (const char*)param->typeExtra;
-		if ( !qstrcmp( type, "int" ) ) {
-		    result = *(int*)static_QUType_ptr.get( obj );
-		} else if ( !qstrcmp( type, "QString" ) || !qstrcmp( type, "const QString&" ) ) {
-		    result = *(QString*)static_QUType_ptr.get( obj );
-		} else if ( !qstrcmp( type, "QDateTime" ) || !qstrcmp( type, "const QDateTime&" ) ) {
-		    result = *(QDateTime*)static_QUType_ptr.get( obj );
-		}
-		//###
-	    }
-	}
-
-	for ( o = 0; o < 9; ++o )
-	    obj[o].type->clear( obj+o );
-    }
-    return result;
+    return VARIANTToQVariant( res );
 }
 
 /*!
@@ -2536,7 +2529,9 @@ QAxObject *QAxBase::querySubObject( const QCString &name, const QVariant &var1,
     vars[varc++] = var8;
     vars[varc++] = QVariant();
 
-    internalInvoke( name, &res, vars );
+    if ( !internalInvoke( name, &res, vars ) )
+	return 0;
+
     switch ( res.vt ) {
     case VT_DISPATCH:
 	if ( res.pdispVal )
@@ -2561,6 +2556,8 @@ QAxObject *QAxBase::querySubObject( const QCString &name, const QVariant &var1,
 	    const char *coclass = metaObject()->classInfo( "CoClass" );
 	    qWarning( "QAxBase::querySubObject: %s: method or property is not of interface type in %s (%s)"
 		, (const char*)name, control().latin1(), coclass ? coclass: "unknown" );
+	    if ( res.vt == VT_BSTR )
+		SysFreeString( res.bstrVal );
 	}
 #endif
 	break;
