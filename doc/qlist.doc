@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 2.11 1998/03/26 22:21:18 aavit Exp $
+** $Id: qlist.doc,v 2.12 1998/08/20 21:27:10 agulbra Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -215,7 +215,7 @@
   All list iterators that refer to the removed item will be set to point
   to the new current item.
 
-  \sa take(), clear(), setAutoDelete(), current()
+  \sa take(), clear(), setAutoDelete(), current() removeRef()
 */
 
 /*!
@@ -235,7 +235,7 @@
   All list iterators that refer to the removed item will be set to point
   to the new current item.
 
-  \sa take(), clear(), setAutoDelete(), current()
+  \sa take(), clear(), setAutoDelete(), current() removeRef()
 */
 
 /*!
@@ -311,7 +311,7 @@
 
   \warning Do not call this function unless you are an expert.
 
-  \sa takeNode(), currentNode()
+  \sa takeNode(), currentNode() remove() removeRef()
 */
 
 /*!
@@ -328,7 +328,7 @@
   All list iterators that refer to the removed item will be set to point
   to the new current item.
 
-  \sa removeLast(), setAutoDelete(), current()
+  \sa removeLast(), setAutoDelete(), current() remove()
 */
 
 /*!
