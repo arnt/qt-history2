@@ -123,5 +123,5 @@ clean:
 depend:
 	@for d in $(DIRS); \
 	do (cd $$d; echo "[--- $$d ---]"; \
-	    make clean \
+	    make depend \
 	) done
