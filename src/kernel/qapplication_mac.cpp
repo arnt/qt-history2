@@ -1276,7 +1276,8 @@ QApplication::qt_trap_context_mouse(EventLoopTimerRef r, void *)
 
     //finally send the event to the widget if its not the popup
     if ( widget ) {
-	QContextMenuEvent qme( QContextMenuEvent::Mouse );
+	QPoint plocal(widget->mapFromGlobal( where ));
+	QContextMenuEvent qme( QContextMenuEvent::Mouse, plocal, where );
 	QApplication::sendEvent( widget, &qme );
 	if(qme.isAccepted()) { //once this happens the events before are pitched
 	    qt_button_down = NULL;
@@ -1384,17 +1385,17 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    GlobalToLocal( &gp ); //now map it to the window
 	    popupwidget = recursive_match(popupwidget, gp.h, gp.v);
 
+	    QPoint p( where.h, where.v );
+	    QPoint plocal(popupwidget->mapFromGlobal( p ));
 	    bool not_context = TRUE;
 	    if(etype == QEvent::MouseButtonPress && 	
 	       ((button == QMouseEvent::RightButton) ||
 		(button == QMouseEvent::LeftButton && (keys & Qt::ControlButton)))) {
-		QContextMenuEvent cme(QContextMenuEvent::Mouse );
+		QContextMenuEvent cme(QContextMenuEvent::Mouse, plocal, p );
 		QApplication::sendEvent( popupwidget, &cme );
 		not_context = cme.isAccepted();
 	    }
 	    if(not_context) {
-		QPoint p( where.h, where.v );
-		QPoint plocal(popupwidget->mapFromGlobal( p ));
 		if(wheel_delta) {
 		    QWheelEvent qwe( plocal, p, wheel_delta, state | keys);
 		    QApplication::sendEvent( popupwidget, &qwe);
@@ -1493,11 +1494,13 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		}
 	    }
 
+	    QPoint p( where.h, where.v );
+	    QPoint plocal(widget->mapFromGlobal( p ));
 	    bool not_context = TRUE;
 	    if(etype == QEvent::MouseButtonPress && 	
 	       ((button == QMouseEvent::RightButton) ||
 		(button == QMouseEvent::LeftButton && (keys & Qt::ControlButton)))) {
-		QContextMenuEvent cme(QContextMenuEvent::Mouse );
+		QContextMenuEvent cme(QContextMenuEvent::Mouse, plocal, p );
 		QApplication::sendEvent( widget, &cme );
 		not_context = cme.isAccepted();
 	    }
@@ -1515,8 +1518,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		       widget->name(), widget->className(), button|keys, state|keys,
 		       wheel_delta);
 #endif
-		QPoint p( where.h, where.v );
-		QPoint plocal(widget->mapFromGlobal( p ));
 		if(wheel_delta) {
 		    QWheelEvent qwe( plocal, p, wheel_delta, state | keys);
 		    QApplication::sendEvent( widget, &qwe);
@@ -1625,10 +1626,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 
 	    RgnHandle r = NewRgn();
 	    GetWindowRegion((WindowPtr)widget->handle(), kWindowUpdateRgn, r);
-//	    ValidWindowRgn((WindowPtr)widget->handle(), r); 
-	    OffsetRgn( r, -widget->x(), -widget->y());
-	    QRegion rgn(0, 0, 1, 1);
-	    CopyRgn(r, (RgnHandle)rgn.handle());
+	    ValidWindowRgn((WindowPtr)widget->handle(), r); 
+	    QRegion rgn(r);
+	    rgn.translate(-widget->x(), -widget->y());
 	    DisposeRgn(r);
 
 //	    BeginUpdate((WindowPtr)widget->handle());

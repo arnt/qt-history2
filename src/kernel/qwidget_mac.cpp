@@ -70,6 +70,14 @@ QPoint posInWindow(QWidget *w)
     return QPoint(x, y);
 }
 
+static inline const Rect *mac_rect(const QRect &qr) 
+{
+    static Rect r;
+    SetRect(&r, qr.left(), qr.top(), qr.right(), qr.bottom());
+    return &r;
+}
+static inline const Rect *mac_rect(const QPoint &qp, const QSize &qs) { return mac_rect(QRect(qp, qs)); }
+
 static void paint_children(QWidget * p,QRegion r, bool now=FALSE, bool force_erase=TRUE)
 {
     if(!p || r.isEmpty() || !p->isVisible() || qApp->closingDown() || qApp->startingUp())
@@ -156,11 +164,10 @@ QMAC_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef window, RgnHan
     if ( widget ) {
         QRegion reg(rgn);
         {
-                Point px = { 0, 0 };
-                QMacSavedPortInfo si;
-		QMacSavedPortInfo::setPaintDevice(widget);
-                LocalToGlobal(&px);
-                reg.translate(-px.h, -px.v);
+	    Point px = { 0, 0 };
+	    QMacSavedPortInfo si(widget);
+	    LocalToGlobal(&px);
+	    reg.translate(-px.h, -px.v);
         }
 	widget->erase(reg);
 	InvalWindowRgn((WindowPtr)widget->handle(), (RgnHandle)reg.handle());
@@ -306,14 +313,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
     }
 
     bg_col = pal.normal().background();
-
-#if 0
-    const char *c = name();
-    if( c && isTopLevel()) {
-	setCaption( QString( c ));
-    }
-#endif
-
     setWState( WState_MouseTracking );
     setMouseTracking( FALSE );                  // also sets event mask
     clearWState(WState_Visible);
@@ -390,7 +389,8 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	QObject *oldp = parentObj;
 	parentObj->removeChild( this );
 	if(!isTopLevel() && oldp->isWidgetType()) 
-	    paint_children( ((QWidget *)oldp),geometry() );
+	    InvalWindowRect((WindowPtr)((QWidget *)oldp)->hd, 
+			    mac_rect(posInWindow(this), geometry().size()));
     }
 
     if ( old_winid && own_id && isTopLevel() ) {
@@ -450,7 +450,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     }
 
     if(isVisible()) //finally paint my new area
-	paint_children( isTopLevel() ? this : parentWidget(), geometry());
+	InvalWindowRect((WindowPtr)hd, mac_rect(posInWindow(this), geometry().size()));
 
     QEvent e( QEvent::Reparent );
     QApplication::sendEvent( this, &e );
@@ -674,8 +674,10 @@ void QWidget::update( int x, int y, int w, int h )
 	    w = crect.width()  - x;
 	if ( h < 0 )
 	    h = crect.height() - y;
-	if ( w && h )
-	    QApplication::postEvent( this, new QPaintEvent( QRect(x, y, w, h), !testWFlags( WRepaintNoErase ) ) );
+	if ( w && h ) {
+	    QPoint p(posInWindow(this));
+	    InvalWindowRect((WindowPtr)hd, mac_rect(QRect(p.x() + x, p.y() + y, w, h)));
+	}
     }
 }
 
@@ -713,17 +715,6 @@ void QWidget::showWindow()
 {
     dirtyClippedRegion(TRUE);
     if ( isTopLevel() ) {
-	//I'm not sure I should be doing this here, but it fixes some problems
-	//I need to make sure all events have been processed before painting
-	//the newly shown dialog. This fixes problems like weirdnesses when showing
-	//a dialog with a child that has been reparented (ala qdockareas) FIXME?
-	qApp->sendPostedEvents(this, 0);
-	if(QObjectList *lst = queryList()) {
-	    QObjectListIt it(*lst);
-	    for(QObject *obj; (obj = it.current()); ++it )
-		qApp->sendPostedEvents(obj, 0);
-	}
-
 #ifdef Q_WS_MACX
 	//handle transition
 	if(qApp->style().inherits("QAquaStyle") &&
@@ -753,7 +744,7 @@ void QWidget::hideWindow()
     } else {
 	bool v = testWState(WState_Visible);
 	clearWState(WState_Visible);
-	paint_children( parentWidget(),geometry() );
+	InvalWindowRect((WindowPtr)hd, mac_rect(posInWindow(this), geometry().size()));
 	if ( v )
 	    setWState(WState_Visible);
     }
@@ -877,7 +868,7 @@ void QWidget::raise()
 	if ( p && p->childObjects && p->childObjects->findRef(this) >= 0 )
 	    p->childObjects->append( p->childObjects->take() );
 	dirtyClippedRegion(TRUE);
-	paint_children( parentWidget(), geometry());
+	InvalWindowRect((WindowPtr)hd, mac_rect(posInWindow(this), geometry().size()));
     }
 }
 
@@ -890,7 +881,7 @@ void QWidget::lower()
 	SendBehind((WindowPtr)handle(), NULL);
     else if(p) {
 	dirtyClippedRegion(TRUE);
-	paint_children( parentWidget(), geometry());
+	InvalWindowRect((WindowPtr)hd, mac_rect(posInWindow(this), geometry().size()));
     }
 }
 
@@ -904,7 +895,7 @@ void QWidget::stackUnder( QWidget *w )
     if ( loc >= 0 && p->childObjects && p->childObjects->findRef(this) >= 0 )
 	p->childObjects->insert( loc, p->childObjects->take() );
     dirtyClippedRegion(TRUE);
-    paint_children( p, geometry());
+    InvalWindowRect((WindowPtr)hd, mac_rect(posInWindow(this), geometry().size()));
 }
 
 
@@ -1299,8 +1290,8 @@ void QWidget::setAcceptDrops( bool on )
 void QWidget::setMask( const QRegion &region )
 {
     dirtyClippedRegion(TRUE);
-    if ( isVisible() && parentWidget() && !isTopLevel() )
-	paint_children( parentWidget(),geometry() );
+    if ( isVisible() && parentWidget() && !isTopLevel() ) 
+	InvalWindowRect((WindowPtr)hd, mac_rect(posInWindow(this), geometry().size()));
 
     createExtra();
     if ( region.isNull() && extra->mask.isNull() )
