@@ -176,6 +176,11 @@ QWidget *QDesktopWidget::screen( int screen )
     return d->screens[screen];
 }
 
+const QRect& QDesktopWidget::availableGeometry( int screen ) const
+{
+    return screenGeometry(screen);
+}
+
 const QRect& QDesktopWidget::screenGeometry( int screen ) const
 {
     if ( screen < 0 || screen >= d->screenCount )

@@ -100,6 +100,17 @@ QWidget *QDesktopWidget::screen( int )
     return this;
 }
 
+const QRect& QDesktopWidget::availableGeometry( int screen ) const
+{
+    Rect bounds;
+    GDHandle hdl = d->devs.first();
+    for(int i = 0; i < screen; i++)	
+	hdl = d->devs.next();
+    GetAvailableWindowPositioningBounds(hdl, &bounds);
+    return QRect(bounds.left, bounds.top, bounds.right - bounds.left, 
+		 bounds.bottom - bounds.top);
+}
+
 const QRect& QDesktopWidget::screenGeometry( int screen ) const
 {
     if ( screen < 0 || screen >= d->screenCount )
@@ -135,14 +146,4 @@ int QDesktopWidget::screenNumber( const QPoint &point ) const
 	    return i;
     }
     return -1;
-}
-
-GDHandle QDesktopWidget::handle( int screen ) const 
-{
-    if(screen > (int)d->devs.count())
-	return NULL;
-    GDHandle ret = d->devs.first();
-    for(int i = 0; i < screen; i++)	
-	ret = d->devs.next();
-    return ret;
 }

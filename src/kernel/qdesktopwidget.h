@@ -62,14 +62,7 @@ public:
     QWidget *screen( int screen = -1 );
 
     const QRect& screenGeometry( int screen = -1 ) const;
-
-    // ### use Qt::HANDLE ?
-    // ### if related, reimplement QPaintDevice::handle() to avoid warnings
-#ifdef Q_WS_MAC
-    GDHandle handle( int screen ) const;
-#else
-    // void *handle( int ) const { return 0; }
-#endif
+    const QRect& availableGeometry( int screen = -1 ) const;
 
 private:
     QDesktopWidgetPrivate *d;

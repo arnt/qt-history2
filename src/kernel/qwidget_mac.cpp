@@ -1186,7 +1186,8 @@ void QWidget::showMaximized()
     if ( testWFlags(WType_TopLevel) ) {
 	Rect bounds;
 	QDesktopWidget *dsk = QApplication::desktop();
-	GetAvailableWindowPositioningBounds(dsk->handle(dsk->screenNumber(this)), &bounds);
+	QRect avail = dsk->availableGeometry(dsk->screenNumber(this));
+	SetRect(&bounds, avail.x(), avail.y(), avail.x() + avail.width(), avail.y() + avail.height());
 	if(QTLWExtra *tlextra = topData()) {
 	    if ( tlextra->normalGeometry.width() < 0 )
 		tlextra->normalGeometry = geometry();

@@ -694,7 +694,7 @@ void QWorkspace::handleUndock(QDockWindow *w)
     QRect r1(0, 0, 0, 0);
     QRect r2(0, 0, 0, 0);
     QDesktopWidget *dw = qApp->desktop();
-    QRect maxRect = dw->screenGeometry(dw->screenNumber(d->mainwindow));
+    QRect maxRect = dw->availableGeometry(dw->screenNumber(d->mainwindow));
     int x = maxRect.left(), y = maxRect.top();
     QPoint wpos(maxRect.left(), maxRect.top());
 
@@ -817,7 +817,8 @@ void QWorkspace::showEvent( QShowEvent *e )
        QWorkspace be used as an MDI. */
     if(d->toplevel == Default) {
 	d->toplevel = No;
-#if defined( Q_WS_MACX ) && !defined( QMAC_QMENUBAR_NO_NATIVE )
+//#if defined( Q_WS_MACX ) && !defined( QMAC_QMENUBAR_NO_NATIVE )
+#if 1
 	QWidget *o = topLevelWidget();
 	if(o->inherits("QMainWindow")) {
 	    d->mainwindow = (QMainWindow*)o;

@@ -88,6 +88,11 @@ QWidget *QDesktopWidget::screen( int )
     return this;
 }
 
+const QRect& QDesktopWidget::availableGeometry( int screen ) const
+{
+    return screenGeometry(screen);
+}
+
 const QRect& QDesktopWidget::screenGeometry( int ) const
 {
     // use max window rect?

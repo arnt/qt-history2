@@ -276,6 +276,20 @@ QWidget *QDesktopWidget::screen( int /*screen*/ )
 }
 
 /*!
+  Returns the available geometry of the screen with index \a screen. What
+  is available will be subrect of screenGeometry() based on what the
+  platform decides is available (for example excludes the Dock and Menubar
+  on Mac OS X).
+
+  \sa screenNumber(), screenGeometry()
+*/
+const QRect& QDesktopWidget::availableGeometry( int screen ) const
+{
+    return screenGeometry(screen);
+#warning "Implement me so the taskbar is excluded.."
+}
+
+/*!
   Returns the geometry of the screen with index \a screen.
 
   \sa screenNumber()
