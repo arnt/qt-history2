@@ -28,7 +28,7 @@ public:
 
     int addWidget(QWidget *w);
     int insertWidget(int index, QWidget *w);
-    void removeWidget(int index);
+    void removeWidget(QWidget *w);
 
     QWidget *currentWidget() const;
     int currentIndex() const;

@@ -69,37 +69,23 @@ QStackedLayout::~QStackedLayout()
 */
 int QStackedLayout::addWidget(QWidget *w)
 {
-    addChildWidget(w);
-    int previous = indexOf(w);
-    if (previous != -1)
-        return previous;
-    QWidgetItem *wi = new QWidgetItem(w);
-    d->list.append(wi);
-    int index = d->list.count() - 1;
-    if (d->index < 0) {
-        setCurrentIndex(index);
-    } else {
-        w->hide();
-        w->lower();
-    }
-    return index;
+    return insertWidget(d->list.count(), w);
 }
 
 /*!  Inserts \a w to this layout at position \a index. If \a index is
-  out of range, the widget gets added. The first widget added becomes
-  the initial current widget.  Returns the index of \a w in this
-  layout.
+  out of range, the widget gets appended. The first widget added
+  becomes the initial current widget.  Returns the index of \a w in
+  this layout.
 */
 int QStackedLayout::insertWidget(int index, QWidget *w)
 {
-    if (index <= 0 || index >= d->list.count())
-        return addWidget(w);
     addChildWidget(w);
-    int previous = indexOf(w);
-    if (previous != -1)
-        return previous;
+    index = qMin(index, d->list.count());
+    if (index < 0)
+        index = d->list.count();
     QWidgetItem *wi = new QWidgetItem(w);
     d->list.insert(index, wi);
+    invalidate();
     if (d->index < 0) {
         setCurrentIndex(index);
     } else {
@@ -107,14 +93,6 @@ int QStackedLayout::insertWidget(int index, QWidget *w)
         w->lower();
     }
     return index;
-}
-
-/*!
-  Removes the widget at position \a index from this layout.
- */
-void QStackedLayout::removeWidget(int index)
-{
-    takeAt(index);
 }
 
 /*!\reimp*/

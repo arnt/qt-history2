@@ -11,14 +11,19 @@ class QStackedBoxPrivate : public QFramePrivate
 {
     Q_DECLARE_PUBLIC(QStackedBox)
 public:
-    QStackedBoxPrivate();
+    QStackedBoxPrivate():layout(0), blockChildAdd(false){}
     QStackedLayout *layout;
-    bool blockAutoAdd;
+    bool blockChildAdd;
 };
 
-QStackedBoxPrivate::QStackedBoxPrivate()
-    :blockAutoAdd(false)
-{}
+class QBoolBlocker
+{
+    bool &block;
+    bool reset;
+public:
+    inline QBoolBlocker(bool &b):block(b), reset(b){block = true;}
+    inline ~QBoolBlocker(){block = reset; }
+};
 
 /*!
     \class QStackedBox qstackedbox.h
@@ -61,31 +66,26 @@ QStackedBox::~QStackedBox()
 */
 int QStackedBox::addWidget(QWidget *w)
 {
-    d->blockAutoAdd = true;
-    int index = d->layout->addWidget(w);
-    d->blockAutoAdd = false;
-    return index;
+    QBoolBlocker block(d->blockChildAdd);
+    return d->layout->addWidget(w);
 }
 
-/*!  Inserts \a w to this box at position \a index. If \a index is
-  out of range, the widget gets added. The first widget added becomes
-  the initial current widget.  Returns the index of \a w in this
-  box.
+/*!  Inserts \a w to this box at position \a index. If \a index is out
+  of range, the widget gets appened. The first widget added becomes
+  the initial current widget.  Returns the index of \a w in this box.
 */
 int QStackedBox::insertWidget(int index, QWidget *w)
 {
-    d->blockAutoAdd = true;
-    index = d->layout->insertWidget(index, w);
-    d->blockAutoAdd = false;
-    return index;
+    QBoolBlocker block(d->blockChildAdd);
+    return d->layout->insertWidget(index, w);
 }
 
-/*!
-  Removes the widget at position \a index from this box.
+
+/*\! Removes \a w from this box. Does not delete \a w.
  */
-void QStackedBox::removeWidget(int index)
+void QStackedBox::removeWidget(QWidget *w)
 {
-    d->layout->removeWidget(index);
+    d->layout->removeWidget(w);
 }
 
 
@@ -149,9 +149,8 @@ void QStackedBox::childEvent(QChildEvent *e)
         return;
     QWidget *w = static_cast<QWidget*>(e->child());
 
-    if (e->added() && !d->blockAutoAdd
-        && !w->isTopLevel() && d->layout->indexOf(w) != -1)
+    if (e->added() && !d->blockChildAdd && !w->isTopLevel() && d->layout->indexOf(w) < 0)
         d->layout->addWidget(w);
     else if (e->removed())
-        d->layout->QLayout::removeWidget(w);
+        d->layout->removeWidget(w);
 }

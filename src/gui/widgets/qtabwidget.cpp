@@ -17,6 +17,7 @@
 #include "qdesktopwidget.h"
 #include "qevent.h"
 #include "qtabbar.h"
+#include "qlayout.h"
 #include "qapplication.h"
 #include "qstackedbox.h"
 #include "qbitmap.h"
@@ -276,8 +277,6 @@ void QTabWidget::insertTab(QWidget *child, const QString &label, int index)
 void QTabWidget::insertTab(QWidget *child, const QIconSet& iconset, const QString &label, int index)
 {
     index = d->tabs->insertTab(index, iconset, label);
-    if (child->parentWidget() && child->parentWidget() != d->stack)
-        child->setParent(d->stack); // layout would do that for us, but might spit out a warning
     d->stack->insertWidget(index, child);
     setUpLayout();
 }
@@ -386,7 +385,7 @@ void QTabWidget::removePage(QWidget * w)
 {
     int index = d->stack->indexOf(w);
     if (index >= 0) {
-        d->stack->removeWidget(index);
+        d->stack->layout()->removeWidget(w);
         d->tabs->removeTab(index);
     }
     setUpLayout();
