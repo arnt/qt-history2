@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#208 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#209 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#208 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#209 $");
 
 
 /*****************************************************************************
@@ -202,10 +202,8 @@ static void free_gc( Display *dpy, GC gc )
   The GC cache makes a significant contribution to speeding up drawing.
   Setting new pen and brush colors will make the painter look for another
   GC with the same color instead of changing the color value of the GC
-  currently in use.
-
-  The cache structure is not ideal, but lookup speed is essential here.
-  Experiments show that the GC cache is very effective under normal use.
+  currently in use. The cache structure is optimized for fast lookup.
+  Only solid line pens with line width 0 and solid brushes are cached.
  *****************************************************************************/
 
 struct QGCC					// cached GC
@@ -280,28 +278,28 @@ static bool obtain_gc( void **ref, GC *gc, uint pix, Display *dpy, HANDLE hd )
 	init_gc_cache();
 
     int	  k = (pix % gc_cache_size) * 4;
-    QGCC *g = gc_cache[k++];
+    QGCC *g = gc_cache[k];
     QGCC *prev = 0;
 
 #define NOMATCH (g->gc && g->pix != pix)
 
     if ( NOMATCH ) {
 	prev = g;
-	g = gc_cache[k++];
+	g = gc_cache[++k];
 	if ( NOMATCH ) {
 	    prev = g;
-	    g = gc_cache[k++];
+	    g = gc_cache[++k];
 	    if ( NOMATCH ) {
 		prev = g;
-		g = gc_cache[k++];
+		g = gc_cache[++k];
 		if ( NOMATCH ) {
 		    if ( g->count == 0 ) {	// steal this GC
 			g->pix	 = pix;
 			g->count = 1;
 			g->hits	 = 1;
 			XSetForeground( dpy, g->gc, pix );
-			gc_cache[k-1] = prev;
-			gc_cache[k-2] = g;
+			gc_cache[k]   = prev;
+			gc_cache[k-1] = g;
 			*ref = (void *)g;
 			*gc = g->gc;
 			return TRUE;
@@ -329,8 +327,8 @@ static bool obtain_gc( void **ref, GC *gc, uint pix, Display *dpy, HANDLE hd )
 	g->count++;
 	g->hits++;
 	if ( prev && g->hits > prev->hits ) {	// maintain LRU order
-	    gc_cache[k-1] = prev;
-	    gc_cache[k-2] = g;
+	    gc_cache[k]   = prev;
+	    gc_cache[k-1] = g;
 	}
 	return TRUE;
     } else {					// create new GC
@@ -348,9 +346,6 @@ static bool obtain_gc( void **ref, GC *gc, uint pix, Display *dpy, HANDLE hd )
 
 static inline void release_gc( void *ref )
 {
-#if defined(DEBUG)
-    ASSERT( gc_cache_init && ref );
-#endif
     ((QGCC*)ref)->count--;
 }
 
@@ -837,10 +832,15 @@ bool QPainter::begin( const QPaintDevice *pd )
 	return FALSE;
     }
 
+    QWidget *copyFrom = 0;
     if ( pdev_dict ) {				// redirected paint device?
 	pdev = pdev_dict->find( (long)pd );
-	if ( !pdev )				// no
+	if ( pdev ) {
+	    if ( pd->devType() == PDT_WIDGET )
+		copyFrom = (QWidget *)pd;	// copy widget settings
+	} else {
 	    pdev = (QPaintDevice *)pd;
+	}
     } else {
 	pdev = (QPaintDevice *)pd;
     }
@@ -937,7 +937,11 @@ bool QPainter::begin( const QPaintDevice *pd )
     }
     if ( ww == 0 )
 	ww = wh = vw = vh = 1024;
-
+    if ( copyFrom ) {				// copy redirected widget
+	cfont = copyFrom->font();
+	cpen = QPen( copyFrom->foregroundColor() );
+	bg_col = copyFrom->backgroundColor();
+    }
     if ( testf(ExtDev) ) {			// external device
 	setBackgroundColor( bg_col );		// default background color
 	setBackgroundMode( TransparentMode );	// default background mode

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#65 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#66 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -29,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#65 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#66 $");
 
 
 /*
@@ -53,12 +53,8 @@ struct QWinFont
   The cache makes a significant contribution to speeding up drawing.
   Setting a new pen or brush specification will make the painter look for
   an existing pen or brush with the same attributes instead of creating
-  a new pen or brush.
-
-  Only solid line pens with line width 0 and solid brushes will be cached.
-
-  The cache structure is not ideal, but lookup speed is essential here.
-  Experiments show that the cache is very effective under normal use.
+  a new pen or brush. The cache structure is optimized for fast lookup.
+  Only solid line pens with line width 0 and solid brushes are cached.
  *****************************************************************************/
 
 struct QHDCObj					// cached pen or brush
@@ -171,20 +167,20 @@ static bool obtain_obj( void **ref, HANDLE *obj, uint pix, QHDCObj **cache,
 	init_cache();
 
     int	     k = (pix % cache_size) * 4;
-    QHDCObj *h = cache[k++];
+    QHDCObj *h = cache[k];
     QHDCObj *prev = 0;
 
 #define NOMATCH (h->obj && h->pix != pix)
 
     if ( NOMATCH ) {
 	prev = h;
-	h = cache[k++];
+	h = cache[++k];
 	if ( NOMATCH ) {
 	    prev = h;
-	    h = cache[k++];
+	    h = cache[++k];
 	    if ( NOMATCH ) {
 		prev = h;
-		h = cache[k++];
+		h = cache[++k];
 		if ( NOMATCH ) {
 		    if ( h->count == 0 ) {	// steal this pen/brush
 #if defined(CACHE_STAT)
@@ -198,8 +194,8 @@ static bool obtain_obj( void **ref, HANDLE *obj, uint pix, QHDCObj **cache,
 			    h->obj = CreatePen( PS_SOLID, 0, pix );
 			else
 			    h->obj = CreateSolidBrush( pix );
-			cache[k-1] = prev;
-			cache[k-2] = h;
+			cache[k]   = prev;
+			cache[k-1] = h;
 			*ref = (void *)h;
 			*obj = h->obj;
 			return TRUE;
@@ -227,8 +223,8 @@ static bool obtain_obj( void **ref, HANDLE *obj, uint pix, QHDCObj **cache,
 	h->count++;
 	h->hits++;
 	if ( prev && h->hits > prev->hits ) {	// maintain LRU order
-	    cache[k-1] = prev;
-	    cache[k-2] = h;
+	    cache[k]   = prev;
+	    cache[k-1] = h;
 	}
     } else {					// create new pen/brush
 #if defined(CACHE_STAT)
@@ -248,9 +244,6 @@ static bool obtain_obj( void **ref, HANDLE *obj, uint pix, QHDCObj **cache,
 
 static inline void release_obj( void *ref )
 {
-#if defined(DEBUG)
-    ASSERT( cache_init && ref );
-#endif
     ((QHDCObj*)ref)->count--;
 }
 
@@ -565,9 +558,9 @@ void QPainter::updateBrush()
     pixmapBrush = nocolBrush = FALSE;
     hbrushbm = 0;
 
-    if ( bs == SolidPattern )			// create solid brush
+    if ( bs == SolidPattern ) {			// create solid brush
 	hbrush = CreateSolidBrush( pix );
-    else if ( (bs >= Dense1Pattern && bs <= Dense7Pattern ) ||
+    } else if ( (bs >= Dense1Pattern && bs <= Dense7Pattern ) ||
 	      (bs == CustomPattern) ) {
 	if ( bs == CustomPattern ) {
 	    hbrushbm = cbrush.pixmap()->hbm();
@@ -631,10 +624,15 @@ bool QPainter::begin( const QPaintDevice *pd )
 	return FALSE;
     }
 
+    QWidget *copyFrom = 0;
     if ( pdev_dict ) {				// redirected paint device?
 	pdev = pdev_dict->find( (long)pd );
-	if ( !pdev )				// no
+	if ( pdev ) {
+	    if ( pd->devType() == PDT_WIDGET )
+		copyFrom = (QWidget *)pd;	// copy widget settings
+	} else {
 	    pdev = (QPaintDevice *)pd;
+	}
     } else {
 	pdev = (QPaintDevice *)pd;
     }
@@ -693,7 +691,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 
     if ( dt == PDT_WIDGET ) {			// device is a widget
 	QWidget *w = (QWidget*)pdev;
-	cfont	= w->font();			// use widget font
+	cfont = w->font();			// use widget font
 	cpen = QPen( w->foregroundColor() );	// use widget fg color
 	if ( reinit ) {
 	    QBrush defaultBrush;
@@ -742,7 +740,11 @@ bool QPainter::begin( const QPaintDevice *pd )
     }
     if ( ww == 0 )
 	ww = wh = vw = vh = 1024;
-
+    if ( copyFrom ) {				// copy redirected widget
+	cfont = copyFrom->font();
+	cpen = QPen( copyFrom->foregroundColor() );
+	bg_col = copyFrom->backgroundColor();
+    }
     if ( testf(ExtDev) && hdc == 0 ) {		// external device
 	setBackgroundColor( bg_col );		// default background color
 	setBackgroundMode( TransparentMode );	// default background mode
@@ -762,7 +764,6 @@ bool QPainter::begin( const QPaintDevice *pd )
     updatePen();
     updateBrush();
     setf(DirtyFont);
-    /* updateFont(); */
     return TRUE;
 }
 
@@ -1933,7 +1934,12 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
     if ( mask ) {
 	if ( qt_winver == WV_NT ) {
 	    MaskBlt( hdc, x, y, sw, sh, pm->handle(), sx, sy, mask->hbm(),
-		     sx, sy, MAKEROP4(SRCCOPY,0x00aa0029) );
+		     sx, sy,
+#if 1
+		     0xCCAA0020 );
+#else
+		     MAKEROP4(SRCCOPY,0x00aa0020) );
+#endif
 	} else {
 	    if ( pm->data->selfmask ) {
 		HBRUSH b = CreateSolidBrush( COLOR_VALUE(cpen.data->color) );
