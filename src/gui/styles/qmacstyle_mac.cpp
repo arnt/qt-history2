@@ -2950,7 +2950,7 @@ QRect QMacStylePrivate::HIThemeSubControlRect(QStyle::ComplexControl cc,
         break;
     case QStyle::CC_ComboBox:
         if (const QStyleOptionComboBox *combo = qt_cast<const QStyleOptionComboBox *>(opt)) {
-            if (sc == QStyle::SC_ComboBoxEditField && !combo->editable) {
+            if (sc == QStyle::SC_ComboBoxEditField) {
                 HIRect hirect, outrect;
                 HIThemeButtonDrawInfo bdi;
                 bdi.version = qt_mac_hitheme_version;
@@ -2961,6 +2961,9 @@ QRect QMacStylePrivate::HIThemeSubControlRect(QStyle::ComplexControl cc,
                 hirect = qt_hirectForQRect(combo->rect);
                 HIThemeGetButtonContentBounds(&hirect, &bdi, &outrect);
                 ret = qt_qrectForHIRect(outrect);
+		if (combo->editable) {
+		    ret.setRect(ret.x() - 5, ret.y() + 2, ret.width() + 13, ret.height() - 3);
+		}
             } else {
                 ret = q->QWindowsStyle::subControlRect(cc, opt, sc, widget);
             }
@@ -4491,14 +4494,19 @@ QRect QMacStylePrivate::AppManSubControlRect(QStyle::ComplexControl cc,
         break;
     case QStyle::CC_ComboBox:
         if (const QStyleOptionComboBox *combo = qt_cast<const QStyleOptionComboBox *>(opt)) {
-            if (sc == QStyle::SC_ComboBoxEditField && !combo->editable) {
+            if (sc == QStyle::SC_ComboBoxEditField) {
                 Rect macRect, outRect;
                 SetRect(&macRect, 0, 0, combo->rect.width(), combo->rect.height());
                 ThemeButtonDrawInfo bdi = { kThemeStateActive, kThemeButtonOff,
                                             kThemeAdornmentNone };
                 GetThemeButtonContentBounds(&macRect, kThemePopupButton, &bdi, &outRect);
-                ret.setRect(outRect.left, outRect.top - 1, outRect.right - outRect.left,
-                            outRect.bottom - outRect.top);
+		if (combo->editable) {
+		    ret.setRect(outRect.left - 6, outRect.top + 2, (outRect.right - outRect.left) + 12,
+				(outRect.bottom - outRect.top) - 3);
+		} else {
+		    ret.setRect(outRect.left, outRect.top - 1, outRect.right - outRect.left,
+				outRect.bottom - outRect.top);
+		}
             } else {
                 ret = q->QWindowsStyle::subControlRect(cc, opt, sc, widget);
             }
@@ -5493,8 +5501,10 @@ QSize QMacStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt,
     // Adjust size to within Aqua guidelines
     if (ct == QStyle::CT_PushButton || ct == QStyle::CT_ToolButton || ct == QStyle::CT_ComboBox) {
         if (const QStyleOptionComboBox *combo = qt_cast<const QStyleOptionComboBox *>(opt)) {
-            if (combo->editable)
+            if (combo->editable) {
+		sz.rheight() += 1;
                 return sz;
+	    }
         }
         if (d->useHITheme)
             d->HIThemeAdjustButtonSize(ct, sz, widget);
