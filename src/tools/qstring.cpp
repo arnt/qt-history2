@@ -13879,10 +13879,10 @@ QString &QString::insert( uint index, QChar c ) // insert char
 QString &QString::remove( uint index, uint len )
 {
     uint olen = length();
-    if ( index + len >= olen ) {                // range problems
-        if ( index < olen ) {                   // index ok
-            setLength( index );
-        }
+    if ( index >= olen  ) {		
+        // range problems
+    } else if ( index + len >= olen ) {  // index ok
+        setLength( index );
     } else if ( len != 0 ) {
         real_detach();
         memmove( d->unicode+index, d->unicode+index+len,
