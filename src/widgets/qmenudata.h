@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#65 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#66 $
 **
 ** Definition of QMenuData class
 **
@@ -28,14 +28,14 @@
 
 #ifndef QT_H
 #include "qglobal.h"
+
+// if we did not include QIconSet, we would break code due to the missing
+// conversion QPixmap->QIconset
+#include "qiconset.h"
+
 #endif // QT_H
 
-
 class QPopupMenu;
-class QIconSet;
-
-#include "qiconset.h" // if we did not include it, we would break code due to the missing conversion QPixmap->QIconset
-
 
 #if defined(INCLUDE_MENUITEM_DEF)
 
