@@ -5208,7 +5208,7 @@ void QCanvasSprite::setFrameAnimation(FrameAnimationType type, int step, int sta
     Extends the default QCanvasItem implementation to provide the
     functionality of setFrameAnimation().
 
-    The \a phase is 0 or 1: see QCanvas::animate() for details.
+    The \a phase is 0 or 1: see QCanvasItem::advance() for details.
 
     \sa QCanvasItem::advance() setVelocity()
 */
