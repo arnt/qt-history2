@@ -1177,7 +1177,6 @@ QString QFont::substitute( const QString &familyName )
 
     QStringList *list = fontSubst->find(familyName);
     if (list && list->count() > 0) {
-        qDebug("QFont::substitute: returning substitute for %s", familyName.latin1());
         return *(list->at(0));
     }
 
@@ -1215,17 +1214,15 @@ void QFont::insertSubstitution(const QString &familyName,
                                 const QString &substituteName)
 {
     initFontSubst();
-
+    
     QStringList *list = fontSubst->find(familyName);
     if (list) {
-	qDebug("QFont::insertSubstitution: found list %p", list);
 	list->remove(substituteName);
     } else {
 	list = new QStringList;
 	fontSubst->insert(familyName, list);
-	qDebug("QFont::insertSubstitution: new list %p", list);
     }
-
+    
     list->prepend(substituteName);
 }
 
@@ -2140,7 +2137,7 @@ bool QFontInfo::exactMatch() const
 QFontPrivate::Script QFontPrivate::scriptForChar( const QChar &c )
 {
     uchar row = c.row();
-    
+
     // Thankfully BASICLATIN is more or less == ISO 8859-1
     if (! row) return QFontPrivate::BASICLATIN;
 
@@ -2296,39 +2293,39 @@ QFontPrivate::Script QFontPrivate::scriptForChar( const QChar &c )
     case 0x0e:
 	// if (c.cell() >= 0x80) return QFontPrivate::LAO; // no support for Lao
 	return QFontPrivate::THAI;
-	
+
 	// case 0x10:
 	// GEORGIAN
 	// break;
-	
+
     case 0x11:
 	return QFontPrivate::HANGUL;
 
     case 0x30:
 	if (c.cell() >= 0xa0) return QFontPrivate::KATAKANA;
 	if (c.cell() >= 0x40) return QFontPrivate::HIRAGANA;
-	
+
 	// Unified Han Symbols and Punctuation
 	return QFontPrivate::HAN;
 
     case 0x31:
 	if (c.cell() <= 0x2f) return QFontPrivate::BOPOMOFO;
-	
+
 	// Hangul Compatibility Jamo
 	if (c.cell() <= 0x8f) return QFontPrivate::HANGUL;
 	break;
-	
+
     case 0xff:
 	// Hiragana half/full width forms block
 	if (c.cell() <= 0xef) return QFontPrivate::HIRAGANA;
 	break;
     }
-    
+
     // Hangul Syllables
     if (row >= 0xac && (row <  0xd7 || (row == 0xd7 && c.cell() <= 0xa3))) {
 	return QFontPrivate::HANGUL;
     }
-    
+
     if (// Unified Han + Extension-A
 	(row >= 0x34 && row <= 0x9f) ||
 	// Unified Han Compatibility

@@ -831,8 +831,9 @@ unsigned short QTextCodec::characterFromUnicode(const QChar &character) const
 {
     QCString result = QTextCodec::fromUnicode(QString(character));
     if (result.length() == 2)
-	return ((unsigned short) result[0] << 8) | (unsigned short) result[1];
-    return (unsigned short) result[0];
+	return (((unsigned short)(unsigned char) result[0] << 8) |
+		((unsigned short)(unsigned char) result[1]));
+    return (unsigned short)(unsigned char) result[0];
 }
 
 /*!
@@ -1325,10 +1326,10 @@ class QSimpleTextCodec: public QTextCodec
 public:
     QSimpleTextCodec( int );
     ~QSimpleTextCodec();
-
+    
     QString toUnicode(const char* chars, int len) const;
     QCString fromUnicode(const QString& uc, int& lenInOut ) const;
-    // unsigned short characterFromUnicode(const QChar &character) const;
+    unsigned short characterFromUnicode(const QChar &character) const;
 
     const char* name() const;
     int mibEnum() const;
@@ -1892,6 +1893,14 @@ QCString QSimpleTextCodec::fromUnicode(const QString& uc, int& len ) const
 }
 
 
+unsigned short QSimpleTextCodec::characterFromUnicode(const QChar &character) const
+{
+    int len = 1;
+    QCString result = fromUnicode(QString(character), len);
+    return (unsigned short)(unsigned char) result[0];
+}
+
+
 const char* QSimpleTextCodec::name() const
 {
     return unicodevalues[forwardIndex].cs;
@@ -2008,7 +2017,8 @@ QCString QLatin1Codec::fromUnicode(const QString& uc, int& len ) const
 
 unsigned short QLatin1Codec::characterFromUnicode(const QChar &character) const
 {
-    if (character.row()) return (unsigned short) '?';
+    if (character.row())
+	return (unsigned short) '?';
     return (unsigned short) character.cell();
 }
 

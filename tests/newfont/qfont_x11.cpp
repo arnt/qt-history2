@@ -1278,7 +1278,7 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
 
     // qDebug("QFontPrivate::load: %p loading font for %d %s\n\t%s", this,
     // script, qt_x11encodings[script], (const char *) n);
-    // qDebug("QFP::load: %s", (const char *) n);
+    qDebug("QFP::load: %s", (const char *) n);
 
     if (! (f = XLoadQueryFont(QPaintDevice::x11AppDisplay(),
 			      (const char *) n))) {
@@ -1328,11 +1328,11 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
 	    QTextCodec::codecForName((qt_x11encodings[script])[(qt_x11indices[script])]);
     }
 
-    // if (qfs->codec) {
-    // qDebug("QFP::load: got codec %s for script %d %s",
-    // qfs->codec->name(), script,
-    // qt_x11encodings[script][(qt_x11indices[script])]);
-    // }
+    if (qfs->codec) {
+	qDebug("QFP::load: got codec %s for script %d %s",
+	       qfs->codec->name(), script,
+	       qt_x11encodings[script][(qt_x11indices[script])]);
+    }
 
     request.dirty = FALSE;
     initFontInfo(script);
@@ -1376,7 +1376,7 @@ void QFont::initialize()
 	qFatal("The QFontPrivate::Script enum has changed, but the x11data.fontstruct\n"
 	       "member array size wasn't updated");
     }
-    
+
     QCString oldlctime = setlocale(LC_TIME, 0);
     QCString lctime = setlocale(LC_TIME, "");
 
@@ -1784,20 +1784,12 @@ XCharStruct* charStr(const QTextCodec* codec, XFontStruct *f, QChar ch)
 {
     // Optimized - inFont() is merged in here.
 
-    if ( !f->per_char ) {
+    if (! f->per_char) {
 	// qDebug("charStr: returning max bounds");
 	return &f->max_bounds;
     }
 
     if (codec) {
-	/*
-	  int l = 1;
-	  QCString c = mapper->fromUnicode(ch,l);
-	  // #### What if c.length()>1 ?
-	  if (c.length() > 1)
-	  ch = QChar((unsigned
-	*/
-
 	// qDebug("charStr: using codec before: 0x%04x", ch.unicode());
 	ch = QChar(codec->characterFromUnicode(ch));
 	// qDebug("charStr: using codec after: 0x%04x", ch.unicode());
@@ -1806,14 +1798,15 @@ XCharStruct* charStr(const QTextCodec* codec, XFontStruct *f, QChar ch)
     if ( f->max_byte1 ) {
 	// qDebug("charStr: multi row font");
 
-	if ( !(ch.cell() >= f->min_char_or_byte2
-	       && ch.cell() <= f->max_char_or_byte2
-	       && ch.row() >= f->min_byte1
-	       && ch.row() <= f->max_byte1) ) {
+	if (! (ch.cell() >= f->min_char_or_byte2 &&
+	       ch.cell() <= f->max_char_or_byte2 &&
+	       ch.row() >= f->min_byte1 &&
+	       ch.row() <= f->max_byte1)) {
 	    // qDebug("charStr: char not in font, using default");
 	    ch = QChar((ushort)f->default_char);
 	    // qDebug("charStr: after: 0x%04x", ch.unicode());
 	}
+	
 	return f->per_char +
 	    ((ch.row() - f->min_byte1)
 	     * (f->max_char_or_byte2 - f->min_char_or_byte2 + 1)
@@ -1822,17 +1815,25 @@ XCharStruct* charStr(const QTextCodec* codec, XFontStruct *f, QChar ch)
 	// qDebug("charStr: single row and char has row range");
 
 	uint ch16 = ch.unicode();
-	if ( !(ch16 >= f->min_char_or_byte2
-	       && ch16 <= f->max_char_or_byte2) )
+	if (! (ch16 >= f->min_char_or_byte2 &&
+	       ch16 <= f->max_char_or_byte2)) {
+	    // qDebug("charStr: char not in font, using default");
 	    ch16 = f->default_char;
+	    // qDebug("charStr: after 0x%04x", ch16);
+	}
+	
 	return f->per_char + ch16;
     }
 
     // qDebug("charStr: single row font, single row char");
 
-    if ( !( ch.cell() >= f->min_char_or_byte2
-	    && ch.cell() <= f->max_char_or_byte2) )
+    if (! (ch.cell() >= f->min_char_or_byte2 &&
+	   ch.cell() <= f->max_char_or_byte2)) {
+	// qDebug("charStr: char not in font, using default");
 	ch = QChar((uchar)f->default_char);
+	// qDebug("charStr: char not in font, using default");
+    }
+    
     return f->per_char + ch.cell() - f->min_char_or_byte2;
 }
 
