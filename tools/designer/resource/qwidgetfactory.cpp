@@ -93,6 +93,7 @@ static QInterfaceManager<WidgetInterface> *widgetInterfaceManager = 0;
 QMap<QWidget*, QString> *qwf_functions = 0;
 QMap<QWidget*, QString> *qwf_forms = 0;
 QString *qwf_language = 0;
+bool qwf_execute_code = TRUE;
 
 /*!
   \class QWidgetFactory
@@ -292,9 +293,10 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 			for ( QStringList::Iterator vit = widgetFactory->variables.begin(); vit != widgetFactory->variables.end(); ++vit )
 			    funcs += *vit + "\n";
 			funcs += "init();\n";
-			interpreterInterface->exec( widgetFactory->toplevel, funcs );
+			if ( qwf_execute_code )
+			    interpreterInterface->exec( widgetFactory->toplevel, funcs );
 		    }
-		    if ( widgetFactory->languageFunctions.isEmpty() )
+		    if ( widgetFactory->languageFunctions.isEmpty() && qwf_execute_code )
 			interpreterInterface->exec( widgetFactory->toplevel, "dummy=0;" );
 		    for ( QMap<QObject *, EventFunction>::Iterator it = widgetFactory->eventMap.begin();
 			  it != widgetFactory->eventMap.end(); ++it ) {

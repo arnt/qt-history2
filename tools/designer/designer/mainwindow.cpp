@@ -113,6 +113,7 @@ static bool mblockNewForms = FALSE;
 extern QMap<QWidget*, QString> *qwf_functions;
 extern QMap<QWidget*, QString> *qwf_forms;
 extern QString *qwf_language;
+extern bool qwf_execute_code;
 
 static const char * whatsthis_image[] = {
     "16 16 3 1",
@@ -2202,6 +2203,7 @@ QObjectList *MainWindow::previewProject()
     qwf_forms = 0;
     delete qwf_language;
     qwf_language = new QString( currentProject->language() );
+    qwf_execute_code = FALSE;
 
     QStringList forms = currentProject->uiFiles();
     for ( QStringList::Iterator it = forms.begin(); it != forms.end(); ++it ) {
@@ -2239,6 +2241,7 @@ QObjectList *MainWindow::previewProject()
     qwf_forms = 0;
     delete qwf_language;
     qwf_language = new QString( currentProject->language() );
+    qwf_execute_code = TRUE;
 
     InterpreterInterface *iiface = 0;
     if ( interpreterPluginManager ) {
