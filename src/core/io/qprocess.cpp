@@ -967,12 +967,12 @@ void QProcess::setProcessState(ProcessState state)
 }
 
 /*!
-    This is a platform specific virtual function called by QProcess on
-    Unix only. On Windows, it is not called.
-
-    setupChildProcess() is called in the child process context, at the
-    very moment before the program is executed. Reimplement this
+    This function is called in the child process context just before
+    the program is executed on Unix or Mac OS X. Reimplement this
     function to do last minute initialization of the child process.
+
+    \warning This function is called by QProcess on Unix and Mac OS X
+    only. On Windows, it is not called.
 */
 void QProcess::setupChildProcess()
 {
