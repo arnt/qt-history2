@@ -91,6 +91,21 @@ static bool block_set_alignment = FALSE;
   setPaper(). QTextView supports both plain color and complex pixmap
   backgrounds.
 
+  The API also offers functions to set different word-wrapping modes,
+  using setWordWrap(), setWrapPolicy() and setWrapColumnOrWidth().
+
+  To get information about the length of the text, use paragraphs(),
+  lines() and length().
+
+  It is also possible to get the currently selected text by
+  selectedText(). hasSelection() tells you, if there is currently a
+  selection at all. Using getSelection() it is possible to get the
+  exact position of the selection.
+
+  To find an expression in the text and select this one, use
+  find(). Other functions like documentTitle(), context() and
+  fileName() give you more information about the displayed document.
+
   Note that we do not intend to add a full-featured web browser widget
   to Qt (because that would easily double Qt's size and only few
   applications would benefit from it). In particular, the rich text
