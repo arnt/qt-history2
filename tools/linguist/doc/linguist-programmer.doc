@@ -215,7 +215,7 @@ when they occur in the same context. This tutorial also discusses how
 the translation tools help minimize the translator's work when an
 application is upgraded.
 
-<h3><a name="Tutorial_1:_Loading_Translations">
+<h3><a name="Loading_Translations">
 Tutorial 1: Loading and Using Translations</a></h3>
 
 <center><img src="../images/tt1_en.png"
@@ -410,7 +410,7 @@ alt="Screenshot of the Latin version of tutorial 1">
 <h5>Tutorial 1 Screenshot, Latin version</h5></center>
 
 
-<h3><a name="Tutorial_2:_Making_User-Visible_Strings_Translate">
+<h3><a name="Making_User-Visible_Strings_Translate">
 Tutorial 2: Using Two or More Languages</a></h3>
 
 <center><img src="../images/tt2_en.png"
@@ -658,7 +658,7 @@ Change one of the accelerators in the Dutch translation to eliminate the
 conflict between \e &Bestand and \e &Boven.
 
 
-<h3><a name="Tutorial_3:_Distinguishing_Identical_Strings_That_Require_Different_Translations">
+<h3><a name="Distinguishing_Identical_Strings_That_Require_Different_Translations">
 Tutorial 3: Disambiguating Identical Strings</a></h3>
 
 <center><img src="../images/tt3_10_en.png"

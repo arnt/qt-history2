@@ -99,11 +99,11 @@
 	</ul>
     <li><a href="linguist-programmer.html#Tutorials">Tutorials</a>
 	<ul>
-	<li><a href="linguist-programmer.html#Tutorial_1:_Loading_Translations">
+	<li><a href="linguist-programmer.html#Loading_Translations">
 	Tutorial 1: Loading and Using Translations</a>
-	<li><a href="linguist-programmer.html#Tutorial_2:_Making_User-Visible_Strings_Translate">
+	<li><a href="linguist-programmer.html#Making_User-Visible_Strings_Translate">
 	Tutorial 2: Using Two or More Languages</a>
-	<li><a href="linguist-programmer.html#Tutorial_3:_Distinguishing_Identical_Strings_That_Require_Different_Translations">
+	<li><a href="linguist-programmer.html#Distinguishing_Identical_Strings_That_Require_Different_Translations">
 	Tutorial 3: Disambiguating Identical Strings</a>
 	</ul>
     <li><a href="linguist-programmer.html#Conclusion">Summary</a>
