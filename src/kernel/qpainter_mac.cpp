@@ -220,7 +220,7 @@ void QPainter::setFont(const QFont &font)
 {
 #if defined(QT_CHECK_STATE)
     if(!isActive())
-	warning("QPainter::setFont: Will be reset by begin()");
+	qWarning("QPainter::setFont: Will be reset by begin()");
 #endif
     if(cfont.d != font.d) {
 	cfont = font;
@@ -395,14 +395,14 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipp)
 {
     if(isActive()) {                         // already active painting
 #if defined(QT_CHECK_STATE)
-	warning("QPainter::begin: Painter is already active."
+	qWarning("QPainter::begin: Painter is already active."
 		 "\n\tYou must end() the painter before a second begin()");
 #endif
 	return FALSE;
     }
     if(!pd) {
 #if defined(QT_CHECK_NULL)
-	warning("QPainter::begin: Paint device cannot be null");
+	qWarning("QPainter::begin: Paint device cannot be null");
 #endif
 	return FALSE;
     }
@@ -422,7 +422,7 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipp)
     if(pdev->isExtDev() && pdev->paintingActive()) {
 	// somebody else is already painting
 #if defined(QT_CHECK_STATE)
-	warning("QPainter::begin: Another QPainter is already painting "
+	qWarning("QPainter::begin: Another QPainter is already painting "
 		 "this device;\n\tAn extended paint device can only be painted "
 		 "by one QPainter at a time.");
 #endif
@@ -503,7 +503,7 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipp)
 #ifdef Q_WS_MACX
 	if(w->isDesktop()) {
 	    if(!d->unclipped)
-		warning("QPainter::begin: Does not support clipped desktop on MacOSX");
+		qWarning("QPainter::begin: Does not support clipped desktop on MacOSX");
 	    ShowWindow((WindowPtr)w->handle());
 	}
 #endif
@@ -511,7 +511,7 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipp)
 	QPixmap *pm = (QPixmap*)pdev;
 	if(pm->isNull()) {
 #if defined(QT_CHECK_NULL)
-	    warning("QPainter::begin: Cannot paint null pixmap");
+	    qWarning("QPainter::begin: Cannot paint null pixmap");
 #endif
 	    end();
 	    return FALSE;
@@ -557,7 +557,7 @@ bool QPainter::end()				// end painting
 {
     if(!isActive()) {
 #if defined(QT_CHECK_STATE)
-	warning("QPainter::end: Missing begin() or begin() failed");
+	qWarning("QPainter::end: Missing begin() or begin() failed");
 #endif
 	return FALSE;
     }
