@@ -322,6 +322,7 @@ while ( @filesToResolve ) {
 	close( P4 );
     } else {
 	for my $file ( @filesToResolve ) {
+            $linecount++;
 	    push(@skippedFiles, $file);
 	}
     }
