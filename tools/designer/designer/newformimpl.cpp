@@ -276,8 +276,8 @@ NewForm::NewForm( QWidget *parent, const QStringList& projects,
 	fi->setDragEnabled( FALSE );
 
 	QString templPath = templatePath;
+	QStringList templRoots;
 	if ( templPath.isEmpty() || !QFileInfo( templPath ).exists() ) {
-	    QStringList templRoots;
 	    if(getenv( "QTDIR" ))
 		templRoots << getenv( "QTDIR" );
 #ifdef QT_INSTALL_PREFIX
@@ -286,6 +286,7 @@ NewForm::NewForm( QWidget *parent, const QStringList& projects,
 #ifdef QT_INSTALL_DATA
 	    templRoots << QT_INSTALL_DATA;
 #endif
+	}
 	for ( QStringList::Iterator it = templRoots.begin(); it != templRoots.end(); ++it ) {
 	    QString path = (*it) + "/tools/designer/templates";
 	    if ( QFile::exists( path )) {
