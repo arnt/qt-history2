@@ -92,7 +92,7 @@ public:
     void	 killTimer( int id );
     void	 killTimers();
 
-    QObject           *child( const char *objName, const char *inheritsClass = 0, bool recursiveSearch = TRUE );
+    QObject           *child( const char *objName, const char *inheritsClass = 0, bool recursiveSearch = TRUE ); //### const in 4.0
     const QObjectList *children() const { return childObjects; }
 
     static const QObjectList *objectTrees();

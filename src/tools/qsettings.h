@@ -73,13 +73,13 @@ public:
     QStringList entryList(const QString &) const;
     QStringList subkeyList(const QString &) const;
 
-    QStringList readListEntry( const QString &, bool * = 0 );
-    QStringList readListEntry( const QString &, const QChar& sep, bool * = 0 );
-    QString	readEntry( const QString &, const QString &def = QString::null,
-			   bool * = 0 );
-    int		readNumEntry( const QString &, int def = 0, bool * = 0 );
-    double	readDoubleEntry( const QString &, double def = 0, bool * = 0 );
-    bool	readBoolEntry( const QString &, bool def = 0, bool * = 0 );
+    QStringList readListEntry( const QString &, bool * = 0 ); //### const in 4.0
+    QStringList readListEntry( const QString &, const QChar& sep, bool * = 0 ); //### const in 4.0
+    QString	readEntry( const QString &, const QString &def = QString::null, 
+			   bool * = 0 );//### const in 4.0
+    int		readNumEntry( const QString &, int def = 0, bool * = 0 ); //### const in 4.0
+    double	readDoubleEntry( const QString &, double def = 0, bool * = 0 ); //### const in 4.0
+    bool	readBoolEntry( const QString &, bool def = 0, bool * = 0 ); //### const in 4.0
 
     bool	removeEntry( const QString & );
 
