@@ -69,7 +69,7 @@ void ConnectionModel::refresh()
 {
     QStringList list = QSqlDatabase::connectionNames();
     if (!connections.isEmpty()) {
-        emit rowsRemoved(QModelIndex(), 0, connections.count());
+        emit rowsRemoved(QModelIndex(), 0, connections.count() - 1);
         connections.clear();
         tableNames.clear();
     }
@@ -85,7 +85,7 @@ void ConnectionModel::refresh()
     }
 
     if (!connections.isEmpty())
-        emit rowsInserted(QModelIndex(), 0, connections.count());
+        emit rowsInserted(QModelIndex(), 0, connections.count() - 1);
 }
 
 QModelIndex ConnectionModel::parent(const QModelIndex &child) const

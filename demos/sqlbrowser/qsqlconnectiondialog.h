@@ -4,16 +4,14 @@
 #include <qdialog.h>
 #include <qmessagebox.h>
 
-namespace Ui
-{
-    class QSqlConnectionDialogUi;
-}
+#include "ui_qsqlconnectiondialog.h"
 
 class QSqlConnectionDialog: public QDialog
 {
     Q_OBJECT
 public:
     QSqlConnectionDialog(QWidget *parent = 0);
+    ~QSqlConnectionDialog();
 
     QString driverName() const;
     QString databaseName() const;
@@ -27,7 +25,7 @@ private slots:
     void on_cancelButton_clicked() { reject(); }
 
 private:
-    Ui::QSqlConnectionDialogUi *ui;
+    Ui::QSqlConnectionDialogUi ui;
 };
 
 #endif
