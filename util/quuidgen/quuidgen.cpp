@@ -31,13 +31,13 @@ void QUuidGen::newUuid()
     HRESULT h = CoCreateGuid( &guid );
     if ( h != S_OK )
 	resultLabel->setText( tr("Failed to create Uuid") );
-    result = temp.setNum( guid.Data1, 16 ) + "-";
-    result += temp.setNum( guid.Data2, 16 ) + "-";
-    result += temp.setNum( guid.Data3, 16 ) + "-";
-    result += temp.setNum( guid.Data4[0], 16 );
-    result += temp.setNum( guid.Data4[1], 16 ) + "-";
+    result = QString::number( guid.Data1, 16 ).rightJustify( 8, '0' ) + "-";
+    result += QString::number( guid.Data2, 16 ).rightJustify( 4, '0' ) + "-";
+    result += QString::number( guid.Data3, 16 ).rightJustify( 4, '0' ) + "-";
+    result += QString::number( guid.Data4[0], 16 ).rightJustify( 2, '0' );
+    result += QString::number( guid.Data4[1], 16 ).rightJustify( 2, '0' ) + "-";
     for ( int i = 2; i < 8; i++ )
-	result += temp.setNum( guid.Data4[i], 16 );
+	result += QString::number( guid.Data4[i], 16 ).rightJustify( 2, '0' );
 #else
     uuid_t uuid;
     uuid_generate( uuid );
