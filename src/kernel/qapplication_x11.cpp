@@ -5828,7 +5828,7 @@ static void sm_performSaveYourself( QSessionManagerData* smd )
     }
 
     if ( sm_phase2 && !sm_in_phase2 ) {
-	SmcRequestSaveYourselfPhase2( smcConnection, sm_saveYourselfPhase2Callback, (SmPointer*) sm );
+	SmcRequestSaveYourselfPhase2( smcConnection, sm_saveYourselfPhase2Callback, (SmPointer*) smd );
 	sm_blockUserInput = FALSE;
     }
     else {
