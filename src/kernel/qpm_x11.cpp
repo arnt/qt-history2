@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#33 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#32 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#33 $";
 #endif
 
 
@@ -997,9 +997,9 @@ static inline int d2i_round( double d )		// double -> int, rounded
 	    &rp, 0, 0, -1, -1 );
   \endcode
 
-  \sa trueMatrix(), QWMatrix, QPainter::setWorldMatrix()
-
   \bug 2 and 4 bits pixmaps not supported.
+
+  \sa trueMatrix(), QWMatrix, QPainter::setWorldMatrix()
 */
 
 QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
