@@ -1004,7 +1004,16 @@ for plat in mac win x11 qnx6 embedded; do
                status "Stuffit.."
 	       create_dir="QtMac-${VERSION_STR}"
 	       mkdir -p "$create_dir"
+
+	       pack_cmd="gnutar xfv"
+	       pack_name="$OUT_TREE/${PLATNAME}.tar
+	       if [ "$DO_GZIP" = "yes" ]; then
+		   pack_name="${pack_name}.gz"
+		   pack_cmd="${pack_cmd}z"
+	       fi
+
 	       sed -e "s/%YEAR%/$YEAR/g" -e "s/%VERSION%/${VERSION_STR}/g" \
+	           -e "s,%UNPACK_NAME%,$pack_name,g" -e "s/%UNPACK_CMD%/$pack_cmd/g" \
 		   -e "s,%DISTNAME%,$PLATNAME,g" -e "s/%VERSIONWIN%/${BRANCH_DIGITS}/g" \
 		   "$DISTDIR/qt/dist/mac/README.outside" >${TMP_FILE}
 	       if [ "$TYPE" = "snapshot" ]; then
@@ -1013,8 +1022,7 @@ for plat in mac win x11 qnx6 embedded; do
 	       else
 		  sed -e "s/%SNAPSHOTONLY[^%]*%//g" -e "s/%STABLEONLY\([^%]\)*%/\1/g" \
 		      ${TMP_FILE} >${create_dir}/README
-	       fi
-	       cp "$OUT_TREE/${PLATNAME}.tar" "$create_dir"
+	       cp "$pack_name" "$create_dir"
                stuff -q "-n=${OUT_TREE}/${PLATNAME}.sit" "$create_dir"
 	       rm -rf "$create_dir"
             fi

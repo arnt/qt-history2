@@ -2,11 +2,11 @@ Qt/Mac %VERSION% Release
 --------------------
 
 Due to long filenames, the release requires you to 
-'untar' %DISTNAME%.tar. To do this you 
+'untar' %UNPACK_NAME%. To do this you 
 should drop to a Terminal (in Applications) and run:
 
 cd Directory_You_Unpacked_To
-gnutar xzvf %DISTNAME%.tar.gz
+%UNPACK_CMD% %UNPACK_NAME%
 
 After this please see the INSTALL file for further 
 documentation on properly installing Qt/Mac.
