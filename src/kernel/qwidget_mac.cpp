@@ -2188,6 +2188,8 @@ void QWidget::setRegionDirty(bool child)
     if(!extra)
 	return;
     if(cg_hd) { //just release it and another will be created later..
+	if(CFGetRetainCount(cg_hd) == 1)
+	    CGContextFlush((CGContextRef)cg_hd);
 	CGContextRelease((CGContextRef)cg_hd);
 	cg_hd = 0;
     }
@@ -2305,6 +2307,7 @@ Qt::HANDLE QWidget::macCGHandle(bool do_children) const
 {
     if(!cg_hd) 
 	CreateCGContextForPort(GetWindowPort((WindowPtr)handle()), (CGContextRef*)&cg_hd);
+#if 1
     QRegion rgn = ((QWidget*)this)->clippedRegion(do_children);
     QRect qr = rgn.boundingRect();
     if(!rgn.handle()) {
@@ -2314,6 +2317,7 @@ Qt::HANDLE QWidget::macCGHandle(bool do_children) const
 	SetRect(&r, qr.left(), qr.top(), qr.right(), qr.bottom());
 	ClipCGContextToRegion((CGContextRef)cg_hd, &r, rgn.handle());
     }
+#endif
     return cg_hd;
 }
 
