@@ -1015,7 +1015,7 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 	    knownNames << w->property( "name" ).toString();
 	ts << makeIndent( indent ) << "<property";
 	ts << " name=\"" << it.current() << "\"";
-	if ( !p->testFlags( QMetaProperty::StdSet ) )
+	if ( !p->stdSet() )
 	    ts << " stdset=\"0\"";
 	ts << ">" << endl;
 	indent++;
