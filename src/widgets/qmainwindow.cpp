@@ -66,10 +66,6 @@
 class QHideDock;
 class QMainWindowLayout;
 
-/*
- QMainWindowPrivate - private variables of QMainWindow
-*/
-
 class QMainWindowPrivate
 {
 public:
@@ -164,10 +160,9 @@ private:
 
 QSize QMainWindowLayout::sizeHint() const
 {
-    if ( !left && !right && !central )
-	return QSize( 0, 0 );
+    int w = 0;
+    int h = 0;
 
-    int w = 0, h = 0;
     if ( left ) {
 	w += left->sizeHint().width();
 	h = QMAX( h, left->sizeHint().height() );
@@ -186,17 +181,18 @@ QSize QMainWindowLayout::sizeHint() const
 
 QSize QMainWindowLayout::minimumSize() const
 {
-    if ( !left && !right && !central )
-	return QSize( 0, 0 );
+    int w = 0;
+    int h = 0;
 
-    int w = 0, h = 0;
     if ( left ) {
-	w += left->minimumSize().width();
-	h = QMAX( h, left->minimumSize().height() );
+	QSize ms = left->minimumSizeHint().expandedTo( left->minimumSize() );
+	w += ms.width();
+	h = QMAX( h, ms.height() );
     }
     if ( right ) {
-	w += right->minimumSize().width();
-	h = QMAX( h, right->minimumSize().height() );
+	QSize ms = right->minimumSizeHint().expandedTo( right->minimumSize() );
+	w += ms.width();
+	h = QMAX( h, ms.height() );
     }
     if ( central ) {
 	QSize min = central->minimumSize().isNull() ?
