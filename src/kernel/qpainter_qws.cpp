@@ -1761,13 +1761,6 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len,
 	    }
 	    return;
 	}
-	if ( txop == TxTranslate )
-	    map( x, y, &x, &y );
-
-#else
-
-	map( x, y, &x, &y );
-
 #endif
     }
 
