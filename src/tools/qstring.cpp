@@ -13352,6 +13352,15 @@ void QStringData::deleteSelf()
 */
 
 /*!
+    \fn QString& QString::operator=( const std::string& s )
+
+    \overload
+
+    Makes a deep copy of \a s and returns a reference to the deep
+    copy.
+*/
+
+/*!
     \fn QString& QString::operator=( char c )
 
     \overload
@@ -16728,7 +16737,7 @@ QString QString::fromUtf8( const char* utf8, int len )
     characters of \a ascii, ignoring the rest of \a ascii. If \a len
     is -1 then the length of \a ascii is used. If \a len is bigger
     than the length of \a ascii then it will use the length of \a
-    chars.
+    ascii.
 
     If a codec has been set using QTextCodec::codecForCStrings(),
     it is used to convert Unicode to 8-bit char. Otherwise, this function
@@ -16883,6 +16892,12 @@ QString QString::fromLocal8Bit( const char* local8Bit, int len )
     QT_NO_ASCII_CAST when compiling your code to hide this function so
     that automatic casts are not done. This has the added advantage
     that you catch the programming error described in operator!().
+*/
+
+/*!
+    \fn QString::operator std::string() const
+
+    Returns ascii().
 */
 
 
