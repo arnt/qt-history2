@@ -1,0 +1,153 @@
+/*!
+\example widgets/charactermap
+\title Character Map Example
+
+The Character Map example shows how to create a custom widget that can
+respond to user input as well as display its own content.
+
+The example displays an array of characters which the user can click on
+to enter text in a line edit. The contents of the line edit can then be
+copied into the clipboard and pasted into other applications. The purpose
+behind this sort of tool is to enable users to enter characters that are
+either not available or difficult to locate on their keyboards.
+
+\image charactermap-example.png Screenshot of the Character Map example
+
+The example consists of the following classes:
+
+\list
+\i \c CharacterWidget displays the available characters in the current
+   font and style.
+\i \c CharacterView provides a scrolling view onto the \c CharacterWidget.
+\i \c MainWindow provides a standard main window with menu that contains
+   font and style information, a view onto the characters, and a line edit.
+\endlist
+
+\section1 CharacterWidget Class Definition
+
+The \c CharacterWidget class is used to display an array of characters in
+a user-specified font and style. For flexibility, we subclass QWidget and
+reimplement only the functions that we need to provide basic rendering
+and interaction features.
+
+The class definition looks like this:
+
+\quotefromfile widgets/charactermap/characterwidget.h
+\skipto class CharacterWidget :
+\printuntil /^\};/
+
+The widget does not contain any other widgets, so it must provide its own
+size hint to allow its contents to be displayed correctly.
+We reimplement \l{QWidget::paintEvent()} to draw custom content. We also
+reimplement \l{QWidget::mousePressEvent()} to allow the user to interact
+with the widget.
+
+The updateFont() and updateStyle() slots are used to update the font and
+style of the characters in the widget whenever the user changes the
+settings in the application.
+The class defines the \c characterSelected() signal so that other parts
+of the application are informed whenever the user selects a character in
+the widget.
+As a courtesy, the widget provides a tooltip that shows the current
+character value. This is provided by showToolTip().
+
+The \c displayFont and \c currentKey private members are used to record
+the current font and the currently highlighted character in the widget.
+
+\section1 CharacterWidget Class Implementation
+
+
+
+\section1 CharacterView Class Definition
+
+The \c CharacterView class provides a viewport onto a \c CharacterWidget
+by sublassing QWidgetView. It provides some extra features for the user's
+convenience, but these could have been left out by using a QWidgetView
+instead.
+
+The class definition looks like this:
+
+\quotefromfile widgets/charactermap/characterview.h
+\skipto class CharacterView :
+\printuntil /^\};/
+
+We reimplement \l{QWidget::mouseMoveEvent()} to enable the application to
+show dynamic tooltips over characters in the \c CharacterWidget, and
+to scroll the widget when the user drags it around.
+\l{QWidget::mousePressEvent()} and \l{QWidget::mouseReleaseEvent()} are
+also reimplemented to support widget dragging.
+
+\section1 MainWindow Class Definition
+
+The \c MainWindow class provides a minimal user interface for the example,
+with only a constructor, slots that respond to signals emitted by standard
+widgets, and some convenience functions that are used to set up the user
+interface.
+
+The class definition looks like this:
+
+\quotefromfile widgets/charactermap/mainwindow.h
+\skipto class MainWindow :
+\printuntil /^\}/
+
+The main window contains various widgets that are used to control how
+the characters will be displayed, and defines the findFonts() function
+for clarity and convenience. The findStyles() slot is used by the widgets
+to determine the styles that are available; insertCharacter() inserts
+a user-selected character into the window's line edit, and
+updateClipboard() synchronizes the clipboard with the contents of the
+line edit.
+
+\section1 MainWindow Class Implementation
+
+The constructor sets up a simple menu to allow the user to exit the
+application:
+
+\quotefromfile widgets/charactermap/mainwindow.cpp
+\skipto MainWindow::MainWindow
+\printuntil menuBar()
+
+We construct the window's central widget and fill it with some standard
+widgets (two comboboxes, a line edit, and a push button), but we also
+construct a \c CharacterWidget custom widget, and add a \c CharacterView
+so that we can view its contents.
+
+\skipto QWidget *centralWidget
+\printuntil clipboardButton
+
+\c CharacterView is a subclass of \l QWidgetView that provides some
+extra features. The view works as a viewport onto the \c CharacterWidget
+when we set its widget.
+
+We list the available fonts and styles in the comboboxes using the
+following functions:
+
+\skipto findFonts
+\printuntil clipboard
+
+We also obtain a clipboard object so that we can send text entered by the
+user to other applications.
+
+Most of the signal emitted in the example come from standard widgets, and
+are either connected to slots in this widget, or are connected to other
+widgets.
+
+\skipto connect(clipboardButton
+\printuntil updateStyle
+
+The font combobox's \c activated() signal is connected to
+the \c findStyles() function so that the list of available styles can
+be shown for each font that is used. Since both the font and the style
+can be changed by the user, the \c activated() signals from both the
+font and style comboboxes are connected directly to the character
+widget.
+
+\printuntil updateClipboard
+
+The character widget emits the \c characterSelected() custom signal when
+the user clicks on a character, so the 
+The clipboard is changed when the push button emits the \c clicked()
+signal. 
+for finding information about the
+fonts installed on the user's system.
+*/
