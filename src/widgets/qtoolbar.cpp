@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#15 $
 **
 ** Implementation of QToolBar class
 **
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#14 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#15 $");
 
 
 
@@ -38,7 +38,7 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#14 $");
 */
 
 
-/*!  Constructs an empty tool bar and 
+/*!  Constructs an empty tool bar and
 
 */
 
@@ -49,19 +49,24 @@ QToolBar::QToolBar( const char * label,
 {
     d = 0;
     b = 0;
+    mw = parent;
     o = (dock == QMainWindow::Left || dock == QMainWindow::Right )
 	? Vertical : Horizontal;
     parent->addToolBar( this, label, dock, newLine );
 }
 
-/*!  Constructs an empty tool bar. */
+/*!  Constructs an empty tool bar in the top dock of its parent,
+  without any label and without requiring a newline.  This is mostly
+  useless. */
 
-QToolBar::QToolBar( QWidget * parent, const char * name )
+QToolBar::QToolBar( QMainWindow * parent, const char * name )
     : QWidget( parent, name )
 {
     d = 0;
     b = 0;
     o = Horizontal;
+    mw = parent;
+    parent->addToolBar( this, 0, QMainWindow::Top );
 }
 
 
@@ -195,3 +200,13 @@ void QToolBar::paintEvent( QPaintEvent * )
     }
 }
 
+
+
+/*!  Returns a pointer to the QMainWindow within which this tool bar
+  was constructed.
+*/
+
+QMainWindow * QToolBar::parentWidget()
+{
+    return mw;
+}

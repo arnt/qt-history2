@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.h#6 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.h#7 $
 **
 ** Definition of QToolBar class
 **
@@ -29,7 +29,7 @@ public:
     QToolBar( const char * label,
 	      QMainWindow *, QMainWindow::ToolBarDock = QMainWindow::Top,
 	      bool newLine = FALSE, const char * name = 0 );
-    QToolBar( QWidget * parent = 0, const char * name = 0 );
+    QToolBar( QMainWindow * parent = 0, const char * name = 0 );
     ~QToolBar();
 
     void addSeparator();
@@ -39,6 +39,8 @@ public:
     Orientation orientation() const { return o; }
 
     void show();
+    
+    QMainWindow * parentWidget();
 
 protected:
     void paintEvent( QPaintEvent * );
@@ -49,6 +51,7 @@ private:
     QBoxLayout * b;
     QToolBarPrivate * d;
     Orientation o;
+    QMainWindow * mw;
 };
 
 

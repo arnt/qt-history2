@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.h#8 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.h#9 $
 **
 ** Definition of QMainWindow class
 **
@@ -54,15 +54,20 @@ public:
 
     void show();
 
+    bool usesBigPixmaps() const;
+    
+public slots:
+    void setUsesBigPixmaps( bool );
+
+signals:
+    void pixmapSizeChanged( bool );
+    
 protected slots:
     void setUpLayout();
 
 protected:
     void paintEvent( QPaintEvent * );
     bool event( QEvent * );
-
-signals:
-    void internalUseBigPixmaps( bool );
 
 private:
     QMainWindowPrivate * d;

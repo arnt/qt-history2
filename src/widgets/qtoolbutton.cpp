@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#20 $
 **
 ** Implementation of QToolButton class
 **
@@ -22,7 +22,7 @@
 #include "qiconset.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#19 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#20 $");
 
 
 static QToolButton * threeDeeButton = 0;
@@ -90,8 +90,14 @@ QToolButton::QToolButton( const QPixmap & pm, const char * textLabel,
     init();
     setPixmap( pm );
     setTextLabel( textLabel );
-    setUsesBigPixmap( FALSE );
     connect( this, SIGNAL(clicked()), receiver, slot );
+    if ( parent->parentWidget() ) {
+	connect( parent->parentWidget(), SIGNAL(pixmapSizeChanged(bool)),
+		 this, SLOT(setUsesBigPixmap(bool)) );
+	setUsesBigPixmap( parent->parentWidget()->usesBigPixmaps() );
+    } else {
+	setUsesBigPixmap( FALSE );
+    }
     if ( grouptext && *grouptext )
 	warning( "QToolButton::QToolButton: (%s) Not using grouptext \"%s\"",
 		 name, grouptext );
@@ -118,12 +124,18 @@ QToolButton::QToolButton( QIconSet s, const char * textLabel,
     init();
     setIconSet( s );
     setTextLabel( textLabel );
-    setUsesBigPixmap( FALSE );
     connect( this, SIGNAL(clicked()), receiver, slot );
+    if ( parent->parentWidget() ) {
+	connect( parent->parentWidget(), SIGNAL(pixmapSizeChanged(bool)),
+		 this, SLOT(setUsesBigPixmap(bool)) );
+	setUsesBigPixmap( parent->parentWidget()->usesBigPixmaps() );
+    } else {
+	setUsesBigPixmap( FALSE );
+    }
     if ( grouptext && *grouptext )
 	warning( "QToolButton::QToolButton: (%s) Not using grouptext \"%s\"",
 		 name, grouptext );
-    
+
 }
 
 
@@ -332,12 +344,6 @@ void QToolButton::drawButtonLabel( QPainter * p )
 		   colorGroup(), isEnabled(),
 		   0, text() );
     } else {
-	int x, y, fh;
-	fh = fontMetrics().height();
-	x = width()/2 - (usesBigPixmap() ? 12 : 8);
-	y = height()/2 - (usesBigPixmap() ? 12 : 8);
-	if ( usesTextLabel() )
-	    y = y - fh/2 - 2;
 
 	QPixmap pm;
 	if ( usesBigPixmap() ) {
@@ -356,17 +362,19 @@ void QToolButton::drawButtonLabel( QPainter * p )
 		pm = iconSet().pixmap( QIconSet::Small, QIconSet::Normal );
 	}
 
-	qDrawItem( p, style(), x, y,
-		   usesBigPixmap() ? 24 : 16, usesBigPixmap() ? 24 : 16,
-		   AlignCenter, colorGroup(), TRUE, &pm, 0 );
-
 	if ( usesTextLabel() ) {
-	    y += (usesBigPixmap() ? 32 : 16) + 4;
+	    int fh = fontMetrics().height();
+	    qDrawItem( p, style(), 1, 1, width()-2, height() - 2 - fh - 6,
+		       AlignCenter, colorGroup(), TRUE, &pm, 0 );
 	    p->setFont( font() );
-	    qDrawItem( p, style(), 3, y, width()-6, fh,
+	    qDrawItem( p, style(), 1, height() - 4 - fh, width()-2, fh,
 		       AlignCenter + ShowPrefix,
 		       colorGroup(), isEnabled(),
 		       0, textLabel() );
+	} else {
+	    qDrawItem( p, style(), 1, 1, width()-2, height() - 2,
+		       AlignCenter, colorGroup(), TRUE, &pm, 0 );
+
 	}
     }
 }

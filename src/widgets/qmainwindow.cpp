@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#13 $
 **
 ** Implementation of QMainWindow class
 **
@@ -25,7 +25,7 @@
 
 #include "qtooltip.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#12 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#13 $");
 
 /*notready
   \class QMainWindow
@@ -51,7 +51,7 @@ public:
 
     QMainWindowPrivate()
 	: top(0), left(0), right(0), bottom(0),
-	  mb(0), sb(0), ttg(0), mc(0), timer(0), tll(0)
+	  mb(0), sb(0), ttg(0), mc(0), timer(0), tll(0), ubp( FALSE )
     {
 	// nothing
     }
@@ -87,6 +87,8 @@ public:
     QTimer * timer;
 
     QBoxLayout * tll;
+
+    bool ubp;
 };
 
 
@@ -546,3 +548,44 @@ bool QMainWindow::event( QEvent * e )
     }
     return QWidget::event( e );
 }
+
+
+/*!  Returns the state last set by setUsesBigPixmaps().  The initial
+  state is FALSE.
+  \sa setUsesBigPixmaps();
+*/
+
+bool QMainWindow::usesBigPixmaps() const
+{
+    return d->ubp;
+}
+
+
+/*!  Sets tool buttons in this main windows to use big pixmaps if \a
+  enable is TRUE, and small pixmaps if \a enable is FALSE.
+
+  The default is FALSE.
+
+  Tool buttons and other interested widgets are responsible for
+  reading the correct state on startup, and for connecting to this
+  widget's pixmapSizeChanged() signal.
+
+  \sa QToolButton::setUsesBigPixmap()
+*/
+
+void QMainWindow::setUsesBigPixmaps( bool enable )
+{
+    if ( d->ubp == enable )
+	return;
+
+    d->ubp = enable;
+    emit pixmapSizeChanged( enable );
+}
+
+
+/*! \fn void QMainWindow::pixmapSizeChanged( bool )
+
+  This signal is called whenever the setUsesBigPixmaps() is called
+  with a value which is different from the current setting.  All
+  relevant widgets must connect to this signal.
+*/
