@@ -302,7 +302,9 @@ QTimer *QButton::timer()
     This property will return a QString::null if the button has no
     text. If the text has an ampersand (\&) in it, then an
     accelerator is automatically created for it using the character
-    that follows the '\&' as the accelerator key.
+    that follows the '\&' as the accelerator key. Any previous
+    accelerator will be overwritten, or cleared if no accelerator is
+    defined by the text.
 
     There is no default text.
 */
