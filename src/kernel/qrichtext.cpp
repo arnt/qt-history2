@@ -2678,9 +2678,19 @@ QString QTextDocument::selectedText( int id, bool asRichText ) const
 
 	QString sel = richText();
 	int from = sel.find( "<!--StartFragment-->" );
-	int to = sel.findRev( "<!--EndFragment-->" );
-	if ( from >= 0 && from <= to )
-	    sel = sel.mid( from, to - from );
+	if ( from >= 0 ) {
+	    from += 20;
+	    // find the previous span and move it into the start fragment before we clip it
+	    QString prevspan;
+	    int pspan = sel.findRev( "<span", from-21 );
+	    if ( pspan > sel.findRev( "</span", from-21 ) ) {
+		int spanend = sel.find( '>', pspan );
+		prevspan = sel.mid( pspan, spanend - pspan + 1 );
+	    }
+	    int to = sel.findRev( "<!--EndFragment-->" );
+	    if ( from <= to )
+		sel = "<!--StartFragment-->" + prevspan + sel.mid( from, to - from );
+	}
 	richTextExportStart = richTextExportEnd = 0;
 	return sel;
     }
