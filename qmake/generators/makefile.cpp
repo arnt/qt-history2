@@ -1993,9 +1993,15 @@ MakefileGenerator::fileFixify(const QStringList& files, const QString &out_dir, 
 QString
 MakefileGenerator::fileFixify(const QString& file0, const QString &out_d, const QString &in_d, bool force_fix) const
 {
+    if(file0.isEmpty()) 
+	return file0;
+    QString key = file0;
+    if(!in_d.isEmpty() || !out_d.isEmpty() || force_fix)
+	key.prepend(in_d + "--" + out_d + "--" + QString::number(force_fix) + "-");
+    if(fileFixed.contains(key)) 
+	return fileFixed[key];
+
     QString file = file0;
-    if(file.isEmpty())
-	return file;
     int depth = 4;
     if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE ||
        Option::qmake_mode == Option::QMAKE_GENERATE_PRL) {
@@ -2092,6 +2098,7 @@ MakefileGenerator::fileFixify(const QString& file0, const QString &out_d, const 
     if(!quote.isNull())
 	file = quote + file + quote;
     debug_msg(3, "Fixed %s :: to :: %s (%d)", orig_file.latin1(), file.latin1(), depth);
+    ((MakefileGenerator*)this)->fileFixed.insert(key, file);
     return file;
 }
 

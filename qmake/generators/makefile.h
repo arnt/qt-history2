@@ -47,7 +47,7 @@ class MakefileGenerator
     bool init_opath_already, init_already, moc_aware, no_io;
     QStringList createObjectList(const QString &var);
     QString build_args();
-    QMap<QString, QString> depHeuristics, depKeyMap;
+    QMap<QString, QString> depHeuristics, depKeyMap, fileFixed;
     QMap<QString, QString> mocablesToMOC, mocablesFromMOC;
     QMap<QString, QStringList> depends;
 
