@@ -25,10 +25,12 @@
 #include <qstyleoption.h>
 #include <qtoolbutton.h>
 
-#include <private/qframe_p.h>
 #include <private/qwidgetresizehandler_p.h>
+
+#include "qdockwindow_p.h"
 #include "qmainwindowlayout_p.h"
 #include "qdockwindowlayout_p.h"
+
 #define d d_func()
 #define q q_func()
 
@@ -450,36 +452,6 @@ void QDockWindowTitle::toggleTopLevel()
   Private class
 */
 
-class QDockWindowPrivate : public QFramePrivate
-{
-    Q_DECLARE_PUBLIC(QDockWindow);
-
-public:
-    inline QDockWindowPrivate(QMainWindow *parent)
-	: QFramePrivate(), mainWindow(parent), widget(0),
-          features(QDockWindow::DockWindowClosable
-                   | QDockWindow::DockWindowMovable
-                   | QDockWindow::DockWindowFloatable),
-          area(Qt::DockWindowAreaLeft), allowedAreas(~0u & Qt::DockWindowAreaMask),
-          top(0), box(0), title(0), resizer(0)
-    { }
-
-    void init();
-    void place(Qt::DockWindowArea area, Qt::Orientation direction, bool extend);
-
-    QMainWindow *mainWindow;
-    QWidget *widget;
-
-    QDockWindow::DockWindowFeatures features;
-    Qt::DockWindowArea area;
-    Qt::DockWindowAreas allowedAreas;
-
-    QBoxLayout *top, *box;
-    QDockWindowTitle *title;
-
-    QWidgetResizeHandler *resizer;
-};
-
 void QDockWindowPrivate::init() {
     q->setFrameStyle(QFrame::Panel | QFrame::Raised);
 
@@ -733,7 +705,7 @@ void QDockWindow::setTopLevel(bool floated, const QPoint &pos)
         show();
 }
 
-/*! 
+/*!
     \property QDockWindow::allowedAreas
     \brief areas where the dock window may be placed
 
@@ -748,7 +720,7 @@ void QDockWindow::setAllowedAreas(Qt::DockWindowAreas areas)
 Qt::DockWindowAreas QDockWindow::allowedAreas() const
 { return d->allowedAreas; }
 
-/*! 
+/*!
     \fn bool QDockWindow::isDockable(Qt::DockWindowArea area)
 
     Returns true if this dock window can be placed in the given \a area;

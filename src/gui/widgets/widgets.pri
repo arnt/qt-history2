@@ -16,6 +16,7 @@ HEADERS += \
         widgets/qdial.h \
         widgets/qdialogbuttons_p.h \
         widgets/qdockwindow.h \
+	widgets/qdockwindow_p.h \
         widgets/qdockwindowlayout_p.h \
         widgets/qdockwindowseparator_p.h \
         widgets/qframe.h \
