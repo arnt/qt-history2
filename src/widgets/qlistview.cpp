@@ -5798,9 +5798,10 @@ QSize QListView::sizeHint() const
 	d->was_visible = isVisibleTo( 0 );
     }
 
-    // This is as wide as QHeader::sizeHint() recommends and tall
-    // enough for perhaps 10 items.
-
+    /*
+      This is as wide as QHeader::sizeHint() recommends and tall
+      enough for perhaps 10 items.
+    */
     constPolish();
     if ( !isVisible() &&
 	 (!d->drawables || d->drawables->isEmpty()) )
