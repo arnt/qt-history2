@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#130 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#131 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -752,11 +752,20 @@ void QWidget::internalMove( int x, int y )
     clearWFlags( WConfigPending );
 }
 
-
+#ifndef QT_NO_LAYOUT_COMPAT
+#include "qlayout.h"
+#endif
 void QWidget::resize( int w, int h )
 {
     if ( w == width() && h == height() )
 	return;
+#ifndef QT_NO_LAYOUT_COMPAT
+    if ( w <= 1 && h <= 1 && layout() ) {
+	QSize s = layout()->minSize();
+	w = s.width();
+	h = s.height();
+    }
+#endif    
     if ( extra ) {				// any size restrictions?
 	w = QMIN(w,extra->maxw);
 	h = QMIN(h,extra->maxh);

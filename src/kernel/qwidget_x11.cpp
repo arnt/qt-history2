@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#270 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#271 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1209,7 +1209,9 @@ void QWidget::internalMove( int x, int y )
   \sa size(), move(), setGeometry(), resizeEvent(),
   minimumSize(),  maximumSize()
 */
-
+#ifndef QT_NO_LAYOUT_COMPAT
+#include "qlayout.h"
+#endif
 void QWidget::resize( int w, int h )
 {
     if ( w == width() && h == height() )
@@ -1220,6 +1222,13 @@ void QWidget::resize( int w, int h )
 	w = 1;
     if ( h < 1 )
 	h = 1;
+#ifndef QT_NO_LAYOUT_COMPAT
+    if ( w <= 1 && h <= 1 && layout() ) {
+	QSize s = layout()->minSize();
+	w = s.width();
+	h = s.height();
+    }
+#endif    
     if ( extra ) {				// any size restrictions?
 	w = QMIN(w,extra->maxw);
 	h = QMIN(h,extra->maxh);

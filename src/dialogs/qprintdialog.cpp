@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#52 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#53 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -527,7 +527,7 @@ QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
     connect( ok, SIGNAL(clicked()), SLOT(okClicked()) );
     connect( cancel, SIGNAL(clicked()), SLOT(reject()) );
 
-    QSize ms( minimumSize() );
+    QSize ms( sizeHint() );
     QSize ss( QApplication::desktop()->size() );
     if ( ms.height() < 512 && ss.height() >= 600 )
 	ms.setHeight( 512 );
