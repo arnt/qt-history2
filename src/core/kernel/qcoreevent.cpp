@@ -227,11 +227,12 @@ QEvent::~QEvent()
 */
 
 /*!
-    \fn void QEvent::accept()
+    \fn void QEvent::accept(bool y  = true)
 
-    Setting the accept parameter indicates that the event receiver
-    wants the event. Unwanted events might be propagated to the parent
-    widget.
+    Sets the accept parameter if \a y is true, otherwise clears the
+    accept parameter.  Setting the accept parameter indicates that the
+    event receiver wants the event. Unwanted events might be
+    propagated to the parent widget.
 
     \sa ignore()
 */

@@ -346,13 +346,11 @@ class Q_GUI_EXPORT QDropEvent : public QEvent, public QMimeSource
 public:
     QDropEvent(const QPoint& pos, const QMimeData *data, Type typ = Drop);
     inline const QPoint &pos() const { return p; }
-    inline bool isAccepted() const { return m_accept || m_acceptact; }
-    inline void accept(bool y = true) { m_accept = y; }
-    inline void ignore() { m_accept = false; }
 
     enum Action { Ask, Copy, Link, Move, Private, UserAction = Private };
+    inline void accept(bool y = true) { QEvent::accept(y); }
     inline bool isActionAccepted() const { return m_acceptact; }
-    inline void acceptAction(bool y = true)  { m_acceptact = y; }
+    inline void acceptAction(bool y = true)  { m_acceptact = y; if (y) accept(); }
 
     inline void setAction(Action a) { act = uint(a); }
     inline Action action() const { return Action(act); }
@@ -372,7 +370,6 @@ public:
 protected:
     QPoint p;
     uint act : 8;
-    uint m_accept : 1;
     uint m_acceptact : 1;
     uint resv : 5;
     const QMimeData *mdata;
@@ -387,8 +384,8 @@ public:
     inline void accept(bool y = true) { QDropEvent::accept(y); }
     inline void ignore() { QDropEvent::ignore(); }
 
-    inline void accept(const QRect & r) { m_accept = true; rect = r; }
-    inline void ignore(const QRect & r) { m_accept = false; rect = r; }
+    inline void accept(const QRect & r) { accept(); rect = r; }
+    inline void ignore(const QRect & r) { accept(); rect = r; }
 
 protected:
     QRect rect;

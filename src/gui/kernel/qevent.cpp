@@ -1792,8 +1792,8 @@ QDragMoveEvent::QDragMoveEvent(const QPoint& pos, const QMimeData *data, Type ty
     a drop at the given \a point in a widget.
 */ // ### pos is in which coordinate system?
 QDropEvent::QDropEvent(const QPoint& pos, const QMimeData *data, Type typ)
-    : QEvent(typ), p(pos), act(0), m_accept(0), m_acceptact(0), resv(0), mdata(data)
-{}
+    : QEvent(typ), p(pos), act(0), m_acceptact(0), resv(0), mdata(data)
+{ ignore(); }
 
 
 /*!

@@ -167,7 +167,7 @@ public:
     inline bool spontaneous() const { return spont; }
 
     inline bool isAccepted() const { return m_accept; }
-    inline void accept() { m_accept = true; }
+    inline void accept(bool y = true) { m_accept = y; }
     inline void ignore() { m_accept = false; }
 
 protected:
