@@ -4830,8 +4830,8 @@ void QDomCDATASectionPrivate::save(QTextStream& s, int, int) const
     QDomNode::normalize() function.
 
     For further information about the Document Object Model see
-    \link http://www.w3.org/TR/REC-DOM-Level-1/ \endlink and
-    \link http://www.w3.org/TR/DOM-Level-2-Core/ \endlink.
+    \l{http://www.w3.org/TR/REC-DOM-Level-1/} and
+    \l{http://www.w3.org/TR/DOM-Level-2-Core/}.
     For a more general introduction of the DOM implementation see the
     QDomDocument documentation.
 */
@@ -5792,6 +5792,7 @@ void QDomDocumentPrivate::save(QTextStream& s, int, int indent) const
     \brief The QDomDocument class represents an XML document.
 
     \module XML
+    \mainclass
     \ingroup xml-tools
 
     The QDomDocument class represents the entire XML document.
