@@ -2946,7 +2946,7 @@ void MainWindow::setModified( bool b, QWidget *window )
 	    return;
 	} else if ( w->inherits( "SourceEditor" ) ) {
 	    FormWindow *fw = ( (SourceEditor*)w )->formWindow();
-	    if ( fw ) {
+	    if ( fw && !fw->isFake() ) {
 		//fw->commandHistory()->setModified( b );
 		//fw->modificationChanged( b );
 		fw->formFile()->setModified( b, FormFile::WFormCode );
