@@ -438,7 +438,6 @@ QWSPcMouseHandlerPrivate::QWSPcMouseHandlerPrivate( QWSPcMouseHandler *h,
 
 QWSPcMouseHandlerPrivate::~QWSPcMouseHandlerPrivate()
 {
-    qDeleteAll(notifiers);
     closeDevices();
 }
 
