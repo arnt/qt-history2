@@ -125,6 +125,18 @@ public:
 */
 
 /*!
+    \enum Qt::UIEffect
+
+    \value UI_General
+    \value UI_AnimateMenu
+    \value UI_FadeMenu
+    \value UI_AnimateCombo
+    \value UI_AnimateTooltip
+    \value UI_FadeTooltip
+
+*/
+
+/*!
   Constructs a QStyle that provides the style \a s.  This determines
   the default behavior of the virtual functions.
 */

@@ -53,8 +53,8 @@
   a pair of values that contains two values of type T1 and T2. Please
   note that QPair does not store pointers to the two elements; it
   holds a copy of every member. This is why these
-  kinds of classes are called \e {value based}; QPtrList and QDict are
-  \e {pointer based}.
+  kinds of classes are called \e {value based}. If you're interested
+  in \e {pointer based} classes see, for example, QPtrList and QDict.
 
   QPair holds one copy of type T1 and one copy of type T2, but does
   not provide iterators to access these elements.  Rather, the two
@@ -63,7 +63,7 @@
   semantics, see QPtrCollection and friends which are pointer-based
   containers.
 
-  Some classes cannot be used within a QPair - for example, all classes
+  Some classes cannot be used within a QPair: for example, all classes
   derived from QObject and thus all classes that implement widgets.
   Only "values" can be used in a QPair. To qualify as a value the class
   must provide:
@@ -83,8 +83,8 @@
   more information.
 
   Functions that need to return two values can use a QPair.  The
-  \link qtl.html#qMakePair qMakePair()\endlink convenience function can
-  be used to easily create QPair objects.
+  \link qtl.html#qMakePair qMakePair()\endlink convenience function
+  makes it easy to create QPair objects.
 */
 
 /*! \enum QPair::first_type
@@ -117,4 +117,8 @@
 	y.second and x.first is the same as y.first.
 
 	For example, (0, 1) < (0, 4) and (0, 4) < (1, 0).
+*/
+
+/*! \fn inline QPair<T1, T2> qMakePair( const T1& x, const T2& y )
+    Convenience wrapper for the QPair constructor.
 */

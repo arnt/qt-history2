@@ -847,13 +847,13 @@ private:
 
   Columns 0, 2 and 4 in this dialog fragment are made up of a QLabel,
   a QLineEdit, and a QListBox.  Columns 1 and 3 are placeholders made
-  with setColSpacing(). Row 0 consists of three QLabel objects, row 1
+  with addColSpacing(). Row 0 consists of three QLabel objects, row 1
   of three QLineEdit objects and row 2 of three QListBox objects.
   We used placeholder columns (1 and 3) to get the right amount of space
   between the columns.
 
   Note that the columns and rows are not equally wide or tall: if you
-  want two columns to have the same width, you must set their 
+  want two columns to have the same width, you must set their
   minimum widths and stretch factors to be the same yourself.  You do
   this using addColSpacing() and setColStretch(). The addRowSpacing()
   and setRowStretch() are the row equivalents.
@@ -866,7 +866,7 @@ private:
 
   Once you have added your layout you can start putting widgets and other
   layouts into the cells of your grid layout using addWidget(),
-  addLayout() and addMultiCellWidget(). 
+  addLayout() and addMultiCellWidget().
 
   QGridLayout also includes two margin widths: the border width and
   the inter-box width. The border width is the width of the reserved
@@ -874,7 +874,7 @@ private:
   width is the width of the automatically allocated spacing between
   neighboring boxes.
 
-  Both the border width and the intra-widget width defaults to 0. 
+  Both the border width and the intra-widget width defaults to 0.
   Both are set using arguments to the constructor.
 
   See also the \link layout.html Layout Overview \endlink documentation.
@@ -923,10 +923,10 @@ RwbV+8hNqf4Hob4MkPD3BvwAAAAASUVORK5CYII=
 
     This enum identifies which corner is the origin (0, 0) of the layout.
 
-    \value TopLeft  
-    \value TopRight  
-    \value BottomLeft  
-    \value BottomRight  
+    \value TopLeft
+    \value TopRight
+    \value BottomLeft
+    \value BottomRight
 */
 
 
@@ -1251,7 +1251,7 @@ void QGridLayout::addWidget( QWidget *w, int row, int col, int alignment )
 /*!
   Adds the widget \a w to the cell grid, spanning multiple
   rows/columns. The cell will span from \a fromRow, \a fromCol to \a
-  toRow, \a toCol.  
+  toRow, \a toCol.
 
   Alignment is specified by \a alignment, which is a bitwise OR of
   Qt::AlignmentFlags values. The default alignment is 0, which means
@@ -2456,7 +2456,7 @@ QHBoxLayout::~QHBoxLayout()
 */
 
 /*!
-  Constructs a new top-level vertical box with parent \a parent and 
+  Constructs a new top-level vertical box with parent \a parent and
   name \a name.
 
   The \a border is the number of pixels between the edge of the widget and

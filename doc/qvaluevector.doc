@@ -47,8 +47,8 @@
   
   QValueVector is a Qt implementation of an STL-like vector container.  It
   can be used in your application if the standard vector<> is not
-  available.  QValueVector is part of the <a href="qtl.html"> Qt Template
-  Library</a>.
+  available.  QValueVector is part of the \link qtl.html  Qt Template
+  Library\endlink.
 
   QValueVector<T> defines a template instance to create
   a vector of values that all have the class T. Please note that
@@ -74,18 +74,18 @@
   Only values can be used in a QValueVector. To qualify as a value the class
   must provide:
 
-  <ul>
-  <li>A copy constructor
-  <li>An assignment operator
-  <li>A default constructor, i.e., a constructor that does not take any arguments.
-  </ul>
+  \list
+  \i A copy constructor
+  \i An assignment operator
+  \i A default constructor, i.e., a constructor that does not take any arguments.
+  \endlist
 
   Note that C++ defaults to field-by-field assignment operators and
   copy constructors if no explicit version is supplied. In many cases
   this is sufficient.
 
   QValueVector uses an STL-like syntax to manipulate and address the
-  objects it contains. See <a href="qtl.html">this document</a> for
+  objects it contains. See \link qtl.html this document\endlink for
   more information.
 
   Example:
@@ -186,10 +186,10 @@
   The iterators provided by vector are random access iterators,
   therefore you can use them with many generic algorithms, for
   example, algorithms provided by the STL or the <a
-  href="qtl.h">QTL</a>.  
+  href="qtl.h">QTL\endlink.  
 
   Another way to find an element in the vector is by using the
-  std::find() or <a href="qtl.h#qFind">qFind()</a>
+  std::find() or \link qtl.h#qFind qFind()\endlink
   algorithms.  For example:
 
 \code
@@ -233,10 +233,10 @@
   to contruct a vector with an initial size.  Inserting and removing
   elements happens fastest when:
 
-<ul>
-	<li>Inserting or removing elements happens at the end() of the vector
-	<li>The vector does not need to allocate additional memory
-</ul>
+\list
+	\i Inserting or removing elements happens at the end() of the vector
+	\i The vector does not need to allocate additional memory
+\endlist
 
   By creating a QValueVector with a sufficiently large initial size,
   there will be less memory allocations.  Do not use an initial size
@@ -269,7 +269,7 @@
   specific element, or range of elements, from the vector.
 
   Vectors can be also sorted with various STL algorithms , or it can
-  be sorted using the <a href="qtl.html">Qt Template Library</a>.  For
+  be sorted using the \link qtl.html Qt Template Library\endlink.  For
   example with qBubbleSort():
 
   Example:
@@ -322,6 +322,15 @@
   The first modification to the vector does however take O(n) time.
 */
 
+/*! \fn QValueVector::QValueVector( std::vector<T>& v )
+  Constructs a copy of \a v.
+
+  This operation costs O(1) time because QValueVector is shared
+  implicitly.
+
+  The first modification to the vector does however take O(n) time.
+*/
+
 /*! \fn QValueVector::QValueVector( size_type n, const T& val )
   Constructs a vector with an initial size of \a n elements.  Each
   element is initialized with the value of \a val.
@@ -335,7 +344,15 @@
   tuned for performance, not error checking.
 */
 
-/*! \fn QValueVector<T>& QValueVector::operator= ( const QValueVector<T>& v )
+/*! \fn QValueVector<T>& QValueVector::operator=( const QValueVector<T>& v )
+  Assigns \a v to this vector and returns a reference to this vector.
+
+  All iterators of the current vector become invalidated by this operation.
+  The cost of such an assignment is O(1) since QValueVector is implicitly
+  shared.
+*/
+
+/*! \fn QValueVector<T>& QValueVector::operator=( const std::vector<T>& v )
   Assigns \a v to this vector and returns a reference to this vector.
 
   All iterators of the current vector become invalidated by this operation.

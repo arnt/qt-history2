@@ -12444,7 +12444,7 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
   \sa QChar QCString QByteArray QConstString
 */
 
-/* \enum Qt::ComparisonFlags
+/*! \enum Qt::ComparisonFlags
 \internal
 */
 /*!

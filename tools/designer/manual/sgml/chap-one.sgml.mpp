@@ -698,7 +698,7 @@ Different widgets have different value editors.
 
     <para id="alto">
     \x[Absolute positioning]
-    In the example we've presented we've used \qd's layout tools to lay
+    In the example we used \qd's layout tools to lay
     out our widgets. We will use the layout tools again in the examples
     presented in later chapters. If you want to use absolute
     positioning, i.e. to place and size your widgets with exact pixel
@@ -884,7 +884,7 @@ documentation.)
     the Connections list box. Click \ok.
     </para>
     <para id="ambb">
-    We will make a great many signal/slot connections as we work through
+    We will make lots of signal/slot connections as we work through
     the examples, including connections to our own custom slots.
     Signal/slot connections (using pre-defined signals and slots) work
     in preview mode. Press \key[Ctrl+T] to preview the form;

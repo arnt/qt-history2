@@ -2712,8 +2712,8 @@ QRect QPainter::boundingRect( const QRect &r, int tf,
 
   Returns the bounding rectangle of the aligned text that would be
   printed with the corresponding drawText() function using the first \a len
-  characters from \a str if \a len is > -1, or the whole of
-  \a str if \a len is -1.  The drawing, and hence the bounding
+  characters of the string if \a len is > -1, or the whole of
+  the string if \a len is -1.  The drawing, and hence the bounding
   rectangle, is constrained to the rectangle that begins at point \a
   (x, y) with width \a w and hight \a h.
 
@@ -2736,16 +2736,18 @@ QRect QPainter::boundingRect( const QRect &r, int tf,
   \ingroup graphics images
   \ingroup shared
 
-  A pen has a style, a width, a color, a cap style and a join style.
+  A pen has a style, width, color, cap style and join style.
 
   The pen style defines the line type. The default pen style is \c
   Qt::SolidLine. Setting the style to \c NoPen tells the painter to
   not draw lines or outlines.
 
-  The pen width defines the line width. The default line width is 0,
-  which draws a 1-pixel line very fast, but with lower precision than
-  with a line width of 1. Setting the line width to 1 or more draws
-  lines that are precise, but drawing is slower.
+    When drawing 1 pixel wide diagonal lines you can either use a very
+    fast algorithm (specified by a line width of 0, which is the
+    default), or a slower but more accurate algorithm (specified by a
+    line width of 1). For horizontal and vertical lines a line width
+    of 0 is the same as a line width of 1. The cap and join style have
+    no effect on 0-width lines.
 
   The pen color defines the color of lines and text. The default line
   color is black.  The QColor documentation lists predefined colors.
@@ -2753,7 +2755,7 @@ QRect QPainter::boundingRect( const QRect &r, int tf,
   The cap style defines how the end points of lines are drawn. The
   join style defines how the joins between two lines are drawn when
   multiple connected lines are drawn (QPainter::drawPolyLine() etc.).
-  The cap and join styles apply only to wide lines, i.e., when the
+  The cap and join styles only apply to wide lines, i.e. when the
   width is 1 or greater.
 
   Use the QBrush class to specify fill styles.
@@ -2761,23 +2763,31 @@ QRect QPainter::boundingRect( const QRect &r, int tf,
   Example:
   \code
     QPainter painter;
-    QPen     pen( red, 2 );		// red solid line, 2 pixel width
-    painter.begin( &anyPaintDevice );	// paint something
-    painter.setPen( pen );		// set the red, fat pen
-    painter.drawRect( 40,30, 200,100 ); // draw rectangle
-    painter.setPen( blue );		// set blue pen, 0 pixel width
-    painter.drawLine( 40,30, 240,130 ); // draw diagonal in rectangle
-    painter.end();			// painting done
+    QPen     pen( red, 2 );             // red solid line, 2 pixels wide
+    painter.begin( &anyPaintDevice );   // paint something
+    painter.setPen( pen );              // set the red, wide pen
+    painter.drawRect( 40,30, 200,100 ); // draw a rectangle
+    painter.setPen( blue );             // set blue pen, 0 pixel width
+    painter.drawLine( 40,30, 240,130 ); // draw a diagonal in rectangle
+    painter.end();                      // painting done
   \endcode
 
   See the setStyle() function for a complete list of pen styles.
 
-  With reference to end point of lines, for wide (non-0-width) pens it
-  depends on the cap style whether the end point is drawn or not. QPainter will try to make sure that the end point
-  is drawn for 0-width pens, but this cannot be absolutely guaranteed because the underlying
-  drawing engine is free to use any (typically accelerated) algorithm
-  for drawing 0-width lines. On all tested systems, however, the
-  end point of at least all non-diagonal lines are drawn.
+  With reference to the end points of lines, for wide (non-0-width)
+  pens it depends on the cap style whether the end point is drawn or
+  not. QPainter will try to make sure that the end point is drawn for
+  0-width pens, but this cannot be absolutely guaranteed because the
+  underlying drawing engine is free to use any (typically accelerated)
+  algorithm for drawing 0-width lines. On all tested systems, however,
+  the end point of at least all non-diagonal lines are drawn.
+
+  A pen's color(), width(), style(), capStyle() and joinStyle() can be
+  set in the constructor or later with setColor(), setWidth(),
+  setStyle(), setCapStyle() and setJoinStyle(). Pens may also be
+  compared and streamed.
+
+  <img src="penstyles.png" alt="Pen styles">
 
   \sa QPainter, QPainter::setPen()
 */
@@ -2799,7 +2809,8 @@ void QPen::init( const QColor &color, uint width, uint linestyle )
 }
 
 /*!
-  Constructs a default black solid line pen with 0 width.
+  Constructs a default black solid line pen with 0 width, which
+  renders lines 1 pixel wide (fast diagonals).
 */
 
 QPen::QPen()
@@ -2808,7 +2819,7 @@ QPen::QPen()
 }
 
 /*!
-  Constructs a black pen with 0 width and style \a style.
+  Constructs a black pen with 0 width (fast diagonals) and style \a style.
   \sa setStyle()
 */
 
@@ -2831,6 +2842,13 @@ QPen::QPen( const QColor &color, uint width, PenStyle style )
   Constructs a pen with the specified color \a cl and width \a w. The pen
   style is set to \a s, the pen cap style to \a c and the pen join
   style to \a j.
+
+  A line width of 0 will produce a 1 pixel wide line using a fast
+  algorithm for diagonals. A line width of 1 will also produce a 1
+  pixel wide line, but uses a slower more accurate algorithm for
+  diagonals. For horizontal and vertical lines a line width of 0 is
+  the same as a line width of 1. The cap and join style have no effect
+  on 0-width lines.
 
   \sa setWidth(), setStyle(), setColor()
 */
@@ -2863,7 +2881,7 @@ QPen::~QPen()
 
 
 /*!
-  Detaches from shared pen data to makes sure that this pen is the only
+  Detaches from shared pen data to make sure that this pen is the only
   one referring the data.
 
   If multiple pens share common data, this pen dereferences the data
@@ -2937,6 +2955,14 @@ void QPen::setStyle( PenStyle s )
 
 /*!
   Sets the pen width to \a w.
+
+  A line width of 0 will produce a 1 pixel wide line using a fast
+  algorithm for diagonals. A line width of 1 will also produce a 1
+  pixel wide line, but uses a slower more accurate algorithm for
+  diagonals. For horizontal and vertical lines a line width of 0 is
+  the same as a line width of 1. The cap and join style have no effect
+  on 0-width lines.
+
   \sa width()
 */
 
@@ -3028,8 +3054,7 @@ void QPen::setColor( const QColor &c )
 /*!
   \fn bool QPen::operator!=( const QPen &p ) const
 
-  Returns TRUE if the pen is different from \a p, or FALSE if the pens
-  are equal.
+  Returns TRUE if the pen is different from \a p; otherwise returns FALSE
 
   Two pens are different if they have different styles, widths or colors.
 
@@ -3037,8 +3062,7 @@ void QPen::setColor( const QColor &c )
 */
 
 /*!
-  Returns TRUE if the pen is equal to \a p, or FALSE if the pens are
-  different.
+  Returns TRUE if the pen is equal to \a p; otherwise returns FALSE
 
   Two pens are equal if they have equal styles, widths and colors.
 

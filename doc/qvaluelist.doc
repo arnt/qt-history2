@@ -48,8 +48,8 @@
   
   QValueList is a Qt implementation of an STL-like list container.  It
   can be used in your application if the standard list<> is not
-  available.  QValueList is part of the <a href="qtl.html"> Qt Template
-  Library</a>.
+  available.  QValueList is part of the \link qtl.html  Qt Template
+  Library\endlink.
 
   QValueList<T> defines a template instance to create
   a list of values that all have the class T. Please note that
@@ -69,11 +69,11 @@
   Only values can be used in a QValueList. To qualify as a value the class
   must provide:
 
-  <ul>
-  <li>A copy constructor
-  <li>An assignment operator
-  <li>A default constructor, i.e. a constructor that does not take any arguments.
-  </ul>
+  \list
+  \i A copy constructor
+  \i An assignment operator
+  \i A default constructor, i.e. a constructor that does not take any arguments.
+  \endlist
 
   Note that C++ defaults to field-by-field assignment operators and
   copy constructors if no explicit version is supplied. In many cases
@@ -83,7 +83,7 @@
   objects it contains.  For historical reasons, QValueList contains
   additional functions which essentially perform the same task.  It is
   recommended that the STL-like functions be used in application code.
-  See <a href="qtl.html">this document</a> for more information.
+  See \link qtl.html this document\endlink for more information.
 
   Example:
   \code
@@ -153,7 +153,7 @@
   is equal to end() - begin().
 
   Another way to find an element in the list is by using the <a
-  href="qtl.h#qFind">qFind()</a> algorithm.  For example:
+  href="qtl.h#qFind">qFind()\endlink algorithm.  For example:
 
 \code
   QValueList<int> list;
@@ -214,7 +214,7 @@
   remove elements according to a specific element value.
 
   Lists can be also sorted with the sort() function, or it can be
-  sorted using the <a href="qtl.html">Qt Template Library</a>.  For
+  sorted using the \link qtl.html Qt Template Library\endlink.  For
   example with qHeapSort():
 
   Example:
@@ -252,6 +252,9 @@
 /*! \enum QValueList::difference_type
     \internal
 */
+/*! \enum QValueList::ValueType
+    \internal
+*/
 /*!
   \fn QValueList::QValueList()
   Constructs an empty list.
@@ -280,8 +283,16 @@
   QValueList is highly tuned for performance, not error checking.
 */
 
+/*! \enum  QValueListIterator::NodePtr
+	\internal */
+/*! \enum  QValueListIterator::iterator_category
+	\internal */
+/*! \enum  QValueListIterator::size_type
+	\internal */
+/*! \enum  QValueListIterator::difference_type
+	\internal */
 /*!
-    \fn QValueListIterator( NodePtr p ) : node( p )
+    \fn QValueListIterator::QValueListIterator( NodePtr p )
     \internal
 */
 
@@ -782,7 +793,7 @@
   things very fast, but if you're not careful, you can get spectacular
   bugs.  Always make sure iterators are valid before dereferencing
   them or using them as parameters to generic algorithms in the STL or
-  the <a href="qtl.html">QTL</a>.
+  the \link qtl.html QTL\endlink.
 
   Using an invalid iterator is undefined (your application will
   probably crash).
@@ -920,16 +931,24 @@
 	Pointer to value_type. */
 /*! \enum  QValueListConstIterator::reference
 	Reference to value_type. */
+/*! \enum  QValueListConstIterator::NodePtr
+	\internal */
+/*! \enum  QValueListConstIterator::iterator_category
+	\internal */
+/*! \enum  QValueListConstIterator::size_type
+	\internal */
+/*! \enum  QValueListConstIterator::difference_type
+	\internal */
 
-/*
+/*!
   \fn QValueListConstIterator::QValueListConstIterator()
   Creates un uninitialized iterator.
 */
 
 /*!
-    \internal
   \overload QValueListConstIterator::QValueListConstIterator( NodePtr p )
 
+    \internal
   Internal function.
 */
 
@@ -980,8 +999,9 @@
 */
 
 /*!
-  \fn QValueListConstIterator<T>&
-  QValueListConstIterator::operator--() Prefix -- makes the previous
+  \fn QValueListConstIterator<T>& QValueListConstIterator::operator--() 
+  
+  Prefix -- makes the previous
   item current and returns an iterator pointing to the new current
   item. The iterator cannot check whether it reached the beginning of
   the list. Decrementing the iterator as returned by begin() causes
@@ -989,8 +1009,9 @@
 */
 
 /*!
-  \fn QValueListConstIterator<T>
-  QValueListConstIterator::operator--(int) Postfix -- makes the
+  \fn QValueListConstIterator<T> QValueListConstIterator::operator--(int) 
+  
+  Postfix -- makes the
   previous item current and returns an iterator pointing to the new
   current item. The iterator cannot check whether it reached the
   beginning of the list. Decrementing the iterator as returned by
@@ -998,17 +1019,17 @@
 */
 
 /*!
-  \fn bool QValueListConstIterator::operator==( const
-  QValueListConstIterator<T>& it ) const Compares this iterator with
-  \a it and returns TRUE if they point to the same item; otherwise
-  returns FALSE.
+  \fn bool QValueListConstIterator::operator==( const QValueListConstIterator<T>& it ) const 
+
+  Compares this iterator with \a it and returns TRUE if they point to
+  the same item; otherwise returns FALSE.
 */
 
 /*!
-  \fn bool QValueListConstIterator::operator!=( const
-  QValueListConstIterator<T>& it ) const Compares this iterator with
-  \a it and returns TRUE if they point to different items; otherwise
-  returns FALSE.
+  \fn bool QValueListConstIterator::operator!=( const QValueListConstIterator<T>& it ) const 
+
+  Compares this iterator with \a it and returns TRUE if they point to
+  different items; otherwise returns FALSE.
 */
 
 

@@ -526,6 +526,15 @@ static bool block_set_alignment = FALSE;
   \sa setCursorPosition()
 */
 
+/*! \overload void QTextEdit::cursorPositionChanged( int para, int pos )
+
+  This signal is emitted if the position of the cursor changed. \a
+  para contains the paragraph index and \a pos contains the character
+  position within the paragraph.
+
+  \sa setCursorPosition()
+*/
+
 /*! \fn void QTextEdit::returnPressed()
 
   This signal is emitted if the user pressed the Return or the Enter key.

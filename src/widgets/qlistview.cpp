@@ -1450,8 +1450,8 @@ void QListViewItem::setExpandable( bool enable )
 
 /*!  Makes sure that this object's children are sorted appropriately.
 
-  This works only if every item in the chain from the root item to
-  this item is sorted appropriately.
+  This works only if every item from the root item down to
+  this item is already sorted.
 
   \sa sortChildItems()
 */

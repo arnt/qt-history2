@@ -102,6 +102,10 @@ bool	 QPaintDevice::x_appdefcolormap;
 void	*QPaintDevice::x_appvisual;
 bool	 QPaintDevice::x_appdefvisual;
 
+/*!
+    \enum QPaintDevice::PDevCmd
+    \internal
+*/
 
 /*!
   Constructs a paint device with internal flags \a devflags.

@@ -1394,6 +1394,19 @@ void QNPWidget::unsetWindow()
   \value Background - corresponds to NP_BACKGROUND
 
 */
+/*! \enum QNPInstance::Reason
+
+    \value ReasonDone
+    \value ReasonBreak
+    \value ReasonError
+    \value ReasonUnknown
+*/
+/*! \enum QNPInstance::StreamMode
+    \value Normal
+    \value Seek
+    \value AsFile
+    \value AsFileOnly
+*/
 
 /*!
   Creates a QNPInstance.

@@ -603,11 +603,11 @@ QString QTipManager::find( QWidget *w, const QPoint& pos )
   outside \e all tip-equipped regions for at least a second.
 
   The QToolTip class can be used in three different ways:
-  <ol>
-  <li> Adding a tip to an entire widget.
-  <li> Adding a tip to a fixed rectangle within a widget.
-  <li> Adding a tip to a dynamic rectangle within a widget.
-  </ol>
+  \list 1
+  \i Adding a tip to an entire widget.
+  \i Adding a tip to a fixed rectangle within a widget.
+  \i Adding a tip to a dynamic rectangle within a widget.
+  \endlist
 
   To add a tip to a widget, call the \e static function QToolTip::add()
   with the widget and tip as arguments:
@@ -794,7 +794,7 @@ void QToolTip::add( QWidget * widget, const QRect & rect, const QString &text )
 /*!
     \overload
   Adds a tool tip to an entire \a widget and to tool tip group \a
-  group.
+  group. The tooltip will disappear when the mouse leaves the \a rect.
 
   \a text is the text shown in the tool tip and \a groupText is the
   text emitted from \a group.  QToolTip makes deep copies of both

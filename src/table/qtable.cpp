@@ -485,7 +485,7 @@ QPixmap QTableItem::pixmap() const
 }
 
 
-/*! Provides the text of the table item or an empty string if there's no text.
+/*! Provides the text of the table item or a null string if there's no text.
 
   \sa setText() pixmap()
 */
@@ -2541,7 +2541,7 @@ void QTable::setPixmap( int row, int col, const QPixmap &pix )
     }
 }
 
-/*! Returns the text in cell at \a row, \a col, or an empty string if
+/*! Returns the text in cell at \a row, \a col, or a null string if
   the relevant item does not exist or has no text.
 
   \sa setText() setPixmap()

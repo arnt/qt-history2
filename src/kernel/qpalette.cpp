@@ -435,14 +435,13 @@ void QColorGroup::setBrush( ColorRole r, const QBrush &b )
 
 /*!
   \fn bool QColorGroup::operator!=( const QColorGroup &g ) const
-  Returns TRUE if this color group is different from \a g, or FALSE if
-  it is equal to \a g.
+  Returns TRUE if this color group is different from \a g; otherwise
+  returns  FALSE.
   \sa operator!=()
 */
 
 /*!
-  Returns TRUE if this color group is equal to \a g, or FALSE if
-  it is different from \a g.
+  Returns TRUE if this color group is equal to \a g; otherwise returns FALSE.
   \sa operator==()
 */
 
@@ -469,19 +468,22 @@ bool QColorGroup::operator==( const QColorGroup &g ) const
   \ingroup graphics images
 
   A palette consists of three color groups: \e active, \e disabled,
-  and \e inactive.  All widgets contain a palette, and
-  all widgets in Qt use their palette to draw themselves.  This
-  makes the user interface consistent and easily configurable.
+  and \e inactive.  All widgets contain a palette, and all widgets in
+  Qt use their palette to draw themselves.  This makes the user
+  interface easily configurable and easier to keep consistent.
 
-  If you make a new widget you are strongly advised to use the colors in
-  the palette rather than hard-coding specific colors.
+  If you create a new widget we strongly recommend that you use the
+  colors in the palette rather than hard-coding specific colors.
 
-  The color groups are: <ul> <li> The active() group is used for the
-  window that has keyboard focus. <li> The inactive() group is used
-  for other windows. <li> The disabled() group is used for widgets
-  (not windows) that are disabled for some reason. </ul>
+  The color groups:
+  \list
+  \i The active() group is used for the window that has keyboard focus.
+  \i The inactive() group is used for other windows.
+  \i The disabled() group is used for widgets (not windows) that are
+  disabled for some reason.
+  \endlist
 
-  Of course, both active and inactive windows can contain disabled
+  Both active and inactive windows can contain disabled
   widgets.  (Disabled widgets are often called \e inaccessible or \e
   grayed \e out.)
 
@@ -490,11 +492,17 @@ bool QColorGroup::operator==( const QColorGroup &g ) const
   slightly different.
 
   There are setActive(), setInactive(), and setDisabled() functions to
-  modify the palette.  Qt also supports a normal() group; this is an
-  obsolete alias for active(), supported for backward compatibility.
+  modify the palette.  (Qt also supports a normal() group; this is an
+  obsolete alias for active(), supported for backwards compatibility.)
+
+  Colors and brushes can be set for particular roles in any of a
+  palette's color groups with setColor() and setBrush().
+
+  You can copy a palette using the copy constructor and test to see if
+  two palettes are \e identical using isCopyOf().
 
   \sa QApplication::setPalette(), QWidget::setPalette(), QColorGroup, QColor
-*/ // ### should mention the constructors, copy stuff and isCopyOf()
+*/
 
 /*! \enum QPalette::ColorGroup
     \value Disabled
@@ -658,7 +666,7 @@ QPalette &QPalette::operator=( const QPalette &p )
 
 
 /*!
-  Returns the color in \a gr used for color role \a r.
+  Returns the color in color group \a gr, used for color role \a r.
 
   \sa brush() setColor() QColorGroup::ColorRole
 */
@@ -668,7 +676,7 @@ const QColor &QPalette::color( ColorGroup gr, QColorGroup::ColorRole r ) const
 }
 
 /*!
-  Returns the brush in \a gr used for color role \a r.
+  Returns the brush in color group \a gr, used for color role \a r.
 
   \sa color() setBrush() QColorGroup::ColorRole
 */
@@ -678,7 +686,8 @@ const QBrush &QPalette::brush( ColorGroup gr, QColorGroup::ColorRole r ) const
 }
 
 /*!
-  Sets the brush in \a gr used for color role \a r to the solid color \a c.
+  Sets the brush in color group \a gr, used for color role \a r, to the
+  solid color \a c.
 
   \sa setBrush() color() QColorGroup::ColorRole
 */
@@ -689,7 +698,7 @@ void QPalette::setColor( ColorGroup gr, QColorGroup::ColorRole r,
 }
 
 /*!
-  Sets the brush in \a gr used for color role \a r to \a b.
+  Sets the brush in color group \a gr, used for color role \a r, to \a b.
 
   \sa brush() setColor() QColorGroup::ColorRole
 */
@@ -703,8 +712,8 @@ void QPalette::setBrush( ColorGroup gr, QColorGroup::ColorRole r,
 
 /*!
     \overload
-  Sets the brush color used for color role \a r to \a c in all three color
-  groups.
+  Sets the brush color used for color role \a r to color \a c in all
+  three color groups.
 
   \sa color() setBrush() QColorGroup::ColorRole
 */
@@ -743,7 +752,7 @@ QPalette QPalette::copy() const
 /*!
   Detaches this palette from any other QPalette objects with which it
   might implicitly share QColorGroup objects.  In essence, does the
-  copy bit of copy-on-write.
+  copying part of copy-on-write.
 
   Calling this should generally not be necessary; QPalette calls it
   itself when necessary.
@@ -815,12 +824,12 @@ void QPalette::setInactive( const QColorGroup &g )
 /*!
   \fn bool QPalette::operator!=( const QPalette &p ) const
 
-  Returns TRUE (slowly) if this palette is different from \a p, or
-  FALSE (usually quickly) if they are equal.
+  Returns TRUE (slowly) if this palette is different from \a p;
+  otherwise returns FALSE (usually quickly).
 */
 
-/*!  Returns TRUE (usually quickly) if this palette is equal to \a p,
-or FALSE (slowly) if they are different.
+/*!  Returns TRUE (usually quickly) if this palette is equal to \a p;
+otherwise returns FALSE (slowly).
 */
 
 bool QPalette::operator==( const QPalette &p ) const
