@@ -33,42 +33,31 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QMessageBox>
 
-QDesignerFormWindow::QDesignerFormWindow(QDesignerWorkbench *workbench, QWidget *parent, Qt::WFlags flags)
-    : QMainWindow(parent, flags),
-      m_workbench(workbench)
-{
-    Q_ASSERT(workbench);
-
-    m_editor = workbench->core()->formWindowManager()->createFormWindow(this);
-    setCentralWidget(m_editor);
-
-    connect(m_editor, SIGNAL(fileNameChanged(const QString&)),
-            this, SLOT(updateWindowTitle(const QString&)));
-
-    m_action = new QAction(this);
-    m_action->setCheckable(true);
-    connect(m_action, SIGNAL(checked(bool)), this, SLOT(activated(bool)));
-
-    updateWindowTitle(m_editor->fileName());
-    connect(m_editor->commandHistory(), SIGNAL(commandExecuted()), this, SLOT(updateChanged()));
-}
-
 QDesignerFormWindow::QDesignerFormWindow(AbstractFormWindow *editor, QDesignerWorkbench *workbench, QWidget *parent, Qt::WFlags flags)
     : QMainWindow(parent, flags),
       m_editor(editor),
       m_workbench(workbench)
 {
-    Q_ASSERT(editor);
     Q_ASSERT(workbench);
 
-    m_editor->setParent(this);
+    if (m_editor) {
+        m_editor->setParent(this);
+    } else {
+        m_editor = workbench->core()->formWindowManager()->createFormWindow(this);
+    }
+
     setCentralWidget(m_editor);
 
     m_action = new QAction(this);
-    m_action->setText(windowTitle());
     m_action->setCheckable(true);
+
+    updateWindowTitle(m_editor->fileName());
+
+    setWindowIcon(QIcon(":/trolltech/designer/images/designer.png"));
+
     connect(m_action, SIGNAL(checked(bool)), this, SLOT(activated(bool)));
     connect(m_editor->commandHistory(), SIGNAL(commandExecuted()), this, SLOT(updateChanged()));
+    connect(m_editor, SIGNAL(fileNameChanged(const QString&)), this, SLOT(updateWindowTitle(const QString&)));
 }
 
 QDesignerFormWindow::~QDesignerFormWindow()
@@ -136,7 +125,7 @@ void QDesignerFormWindow::closeEvent(QCloseEvent *ev)
         raise();
         QMessageBox box(tr("Save Form?"),
                 tr("Do you want to save the changes you made to \"%1\" before closing?")
-                .arg(m_editor->fileName().isEmpty() ? m_editor->windowTitle() : m_editor->fileName()),
+                .arg(m_editor->fileName().isEmpty() ? windowTitle() : m_editor->fileName()),
                 QMessageBox::Information,
                 QMessageBox::Yes | QMessageBox::Default, QMessageBox::No,
                 QMessageBox::Cancel | QMessageBox::Escape, m_editor, Qt::Sheet);

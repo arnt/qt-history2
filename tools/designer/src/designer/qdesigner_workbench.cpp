@@ -423,7 +423,7 @@ void QDesignerWorkbench::switchToTopLevelMode()
 
 QDesignerFormWindow *QDesignerWorkbench::createFormWindow()
 {
-    QDesignerFormWindow *formWindow = new QDesignerFormWindow(this);
+    QDesignerFormWindow *formWindow = new QDesignerFormWindow(/*formWindow=*/ 0, this);
 
     Qt::WFlags flags = 0;
 

@@ -24,9 +24,6 @@ class QDesignerFormWindow: public QMainWindow
 {
     Q_OBJECT
 public:
-    QDesignerFormWindow(QDesignerWorkbench *workbench,
-                        QWidget *parent = 0, Qt::WFlags flags = 0);
-
     QDesignerFormWindow(AbstractFormWindow *formWindow, QDesignerWorkbench *workbench,
                         QWidget *parent = 0, Qt::WFlags flags = 0);
 
