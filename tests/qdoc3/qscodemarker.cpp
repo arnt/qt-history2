@@ -163,41 +163,61 @@ QValueList<ClassSection> QsCodeMarker::classSections( const ClassNode *classe,
 						      SynopsisStyle style )
 {
     QValueList<ClassSection> sections;
-    QString suffix;
-    if ( style == Detailed )
-	suffix += "' Documentation";
-    FastClassSection enums( "Enums" + suffix );
-    FastClassSection functions( "Functions" + suffix );
-    FastClassSection readOnlyProperties( "Read-only Properties" + suffix );
-    FastClassSection readWriteProperties( "Read-write Properties" + suffix );
-    FastClassSection signalz( "Signals" + suffix );
+    if ( style == Summary ) {
+	FastClassSection enums( "Enums" );
+	FastClassSection functions( "Functions" );
+	FastClassSection properties( "Properties" );
+	FastClassSection readOnlyProperties( "Read-only Properties" );
+	FastClassSection signalz( "Signals" );
+	FastClassSection writableProperties( "Writable Properties" );
 
-    NodeList::ConstIterator c = classe->childNodes().begin();
-    while ( c != classe->childNodes().end() ) {
-	if ( (*c)->type() == Node::Enum ) {
-	    insert( enums, *c );
-	} else if ( (*c)->type() == Node::Function ) {
-	    const FunctionNode *func = (const FunctionNode *) *c;
-	    if ( func->metaness() == FunctionNode::Signal ) {
-		insert( signalz, *c );
-	    } else {
-		insert( functions, *c );
+	NodeList::ConstIterator c = classe->childNodes().begin();
+	while ( c != classe->childNodes().end() ) {
+	    if ( (*c)->type() == Node::Enum ) {
+		insert( enums, *c );
+	    } else if ( (*c)->type() == Node::Function ) {
+		const FunctionNode *func = (const FunctionNode *) *c;
+		if ( func->metaness() == FunctionNode::Signal ) {
+		    insert( signalz, *c );
+		} else {
+		    insert( functions, *c );
+		}
+	    } else if ( (*c)->type() == Node::Property ) {
+		const PropertyNode *property = (const PropertyNode *) *c;
+		if ( property->setter().isEmpty() ) {
+		    insert( readOnlyProperties, *c );
+		} else {
+		    insert( readWriteProperties, *c );
+		}
 	    }
-	} else if ( (*c)->type() == Node::Property ) {
-	    const PropertyNode *property = (const PropertyNode *) *c;
-	    if ( property->setter().isEmpty() ) {
-		insert( readOnlyProperties, *c );
-	    } else {
-		insert( readWriteProperties, *c );
-	    }
+	    ++c;
 	}
-	++c;
+	append( sections, enums );
+	append( sections, writableProperties );
+	append( sections, readOnlyProperties );
+	append( sections, functions );
+	append( sections, signalz );
+    } else {
+	FastClassSection enums( "Enum Documentation" );
+	FastClassSection functionsAndSignals(
+		"Function and Signal Documentation" );
+	FastClassSection properties( "Property Documentation" );
+
+	NodeList::ConstIterator c = classe->childNodes().begin();
+	while ( c != classe->childNodes().end() ) {
+	    if ( (*c)->type() == Node::Enum ) {
+		insert( enums, *c );
+	    } else if ( (*c)->type() == Node::Function ) {
+		insert( functionsAndSignals, *c );
+	    } else if ( (*c)->type() == Node::Property ) {
+		insert( properties, *c );
+	    }
+	    ++c;
+	}
+	append( sections, enums );
+	append( sections, properties );
+	append( sections, functionsAndSignals );
     }
-    append( sections, enums );
-    append( sections, readOnlyProperties );
-    append( sections, readWriteProperties );
-    append( sections, functions );
-    append( sections, signalz );
     return sections;
 }
 
