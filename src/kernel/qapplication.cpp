@@ -60,6 +60,7 @@
 #ifdef Q_WS_WIN
 #include "qinputcontext_p.h"
 #endif
+#include <private/qapplication_p.h>
 
 #if defined(QT_THREAD_SUPPORT)
 #  include "qmutex.h"
@@ -2736,7 +2737,7 @@ void QApplication::syncX()	{}		// do nothing
   of Qt only.
 */
 
-#if defined(Q_OS_CYGWIN)
+#if defined (Q_OS_WIN32) || defined (Q_OS_CYGWIN)
 Qt::WindowsVersion QApplication::winVersion()
 {
     return qt_winver;
