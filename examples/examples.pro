@@ -57,6 +57,7 @@ SUBDIRS	=	aclock \
 		themes \
 		tictac \
 		tooltip \
+		toplevel \
 		tux \
 		widgets \
 		wizard \
