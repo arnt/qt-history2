@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/examples/texture/gltexobj.cpp#1 $
+** $Id: //depot/qt/main/extensions/opengl/examples/texture/gltexobj.cpp#2 $
 **
 ** Implementation of GLTexobj
 ** This is a simple QGLWidget demonstrating the use of QImages for textures.
@@ -99,19 +99,20 @@ void GLTexobj::initializeGL()
 
     // Set up the textures
 
-    QImage img1( "qtlogo.gif" );	// Load first image from file
+    QImage img1( "qtlogo.bmp" );	// Load first image from file
     if ( img1.isNull() ) {		// File not found handling
 	warning( "Could not read image file, using single-color instead." );
 	QImage dummy( 128, 128, 32 );
-	dummy.fill( Qt::red.rgb() );	
+	dummy.fill( Qt::red.rgb() );
 	img1 = dummy;
     }
     else {
 	img1 = img1.convertDepth( 32 );	// Make sure it has the right depth
 	img1 = img1.mirror();		// OpenGL wants it upside down
+	img1 = img1.swapRGB();		// OpenGL wants BGR
     }
 
-    QImage img2( "gllogo.gif" );	// Load second image from file
+    QImage img2( "gllogo.bmp" );	// Load second image from file
     if ( img2.isNull() ) {		// File not found handling
 	warning( "Could not read image file, using single-color instead." );
 	QImage dummy( 128, 128, 32 );
@@ -119,8 +120,7 @@ void GLTexobj::initializeGL()
 	img2 = dummy;
     }
     else {
-	img2 = img2.convertDepth( 32 );	// Make sure it has the right depth
-	img2 = img2.mirror();		// OpenGL wants it upside down
+	img2 = img2.convertDepth( 32 ).mirror().swapRGB();	// as above
     }
 
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );

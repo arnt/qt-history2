@@ -1,6 +1,16 @@
 
-Changes from version 3.00 (Qt 1.42) to version 4.00 (Qt 1.43 and 2.00)
-----------------------------------------------------------------------
+Changes from version 4.00 to version 4.10 (Qt 2.0)
+--------------------------------------------------
+
+General Qt 2.0 namespace updates.
+
+Added 'texture' example program to demonstrate how to import QImages
+into GL for use as textures etc.
+
+
+
+Changes from version 3.00 to version 4.00 (Qt 1.42) 
+---------------------------------------------------
 
 Added support for rendering to pixmaps. QGLContext now accepts a
 QPixmap as the paint device. Added QGLWidget::renderPixmap() method
@@ -40,5 +50,3 @@ Added QGLContext state variables 'initialized' and 'windowCreated',
 with access methods, to support more intelligent context switching of
 QGLWidgets.
 
-Added 'texture' example program to demonstrate how to import QImages
-into GL for use as textures etc.
