@@ -83,9 +83,11 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
     while(*d && *d != '=') {
 	if((*d == '+' || *d == '-') && *(d+1) == '=')
 	    break;
-
-	if(*d == ':' || *d == '{') {
+	
+	if(*d == ':' || *d == '{' || *d == ')' ) {
 	    scope = var.stripWhiteSpace();
+	    if ( *d == ')' )
+		scope += *d; /* need this */
 	    var = "";
 
 	    bool test = FALSE, invert_test = (scope.left(1) == "!");
@@ -107,6 +109,8 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 		    for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit)
 			(*arit) = (*arit).stripWhiteSpace(); /* blah, get rid of space */
 		    test = doProjectTest(func, args, place);
+		    if ( *d == ')' && !*(d+1) ) 
+			return TRUE;  /* assume we are done */
 		}
 	    }
 	    else test = isActiveConfig(scope.stripWhiteSpace());
@@ -292,7 +296,7 @@ QMakeProject::read(const char *project)
 
     if(!read(pfile, vars))
 	return FALSE;
-    
+
     /* now let the user override the template from an option.. */
     if(!Option::user_template.isEmpty()) {
 	if(Option::debug_level)
@@ -300,7 +304,7 @@ QMakeProject::read(const char *project)
 	    Option::user_template.latin1());
 	vars["TEMPLATE"].first() = Option::user_template;
     }
-    
+
     return TRUE;
 }
 

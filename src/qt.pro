@@ -84,20 +84,20 @@ cups {
 	LIBS += -lcups
 }
 
-include($$KERNEL_CPP/qt_compat.pri):
-include($$KERNEL_CPP/qt_embedded.pri):
-include($$KERNEL_CPP/qt_kernel.pri):
-include($$WIDGETS_CPP/qt_widgets.pri):
-include($$DIALOGS_CPP/qt_dialogs.pri):
-include($$ICONVIEW_CPP/qt_iconview.pri):
-include($$WORKSPACE_CPP/qt_workspace.pri):
-include($$NETWORK_CPP/qt_network.pri):
-include($$CANVAS_CPP/qt_canvas.pri):
-include($$TABLE_CPP/qt_table.pri):
-include($$XML_CPP/qt_xml.pri):
-include($$OPENGL_CPP/qt_opengl.pri):
-include($$SQL_CPP/qt_sql.pri):
-include($$KERNEL_CPP/qt_gfx.pri):
-include($$TOOLS_CPP/qt_tools.pri):
+include($$KERNEL_CPP/qt_compat.pri)
+include($$KERNEL_CPP/qt_embedded.pri)
+include($$KERNEL_CPP/qt_kernel.pri)
+include($$WIDGETS_CPP/qt_widgets.pri)
+include($$DIALOGS_CPP/qt_dialogs.pri)
+include($$ICONVIEW_CPP/qt_iconview.pri)
+include($$WORKSPACE_CPP/qt_workspace.pri)
+include($$NETWORK_CPP/qt_network.pri)
+include($$CANVAS_CPP/qt_canvas.pri)
+include($$TABLE_CPP/qt_table.pri)
+include($$XML_CPP/qt_xml.pri)
+include($$OPENGL_CPP/qt_opengl.pri)
+include($$SQL_CPP/qt_sql.pri)
+include($$KERNEL_CPP/qt_gfx.pri)
+include($$TOOLS_CPP/qt_tools.pri)
 
 
