@@ -19,6 +19,7 @@
 #include <fcntl.h>
 #include <netdb.h>
 #include <errno.h>
+#include <stdio.h>
 #include <sys/file.h>
 #include <sys/time.h>
 #include <sys/un.h>
