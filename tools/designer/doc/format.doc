@@ -3,7 +3,7 @@
 
 \title Qt UI XML Format
 
-This document describes the XML format which is used by the Qt
+This document describes the XML format used by the Qt
 Designer to describe dialogs and other widgets.  The XML document has
 to start with <i>&lt;!DOCTYPE UI&gt;&lt;UI&gt;</i>. After that some
 tags (<a href="#header">header-tags</a>) are following which store
@@ -22,7 +22,7 @@ document has to be closed with <i>&lt;/UI&gt;</i> then.
 <a name="header"></a>
 <h2>Header tags</h2>
 
-This tags describe some general information, all of them are optional.
+These tags describe some general information, all of them are optional.
 
 <ul>
 
