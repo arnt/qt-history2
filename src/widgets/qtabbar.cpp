@@ -631,7 +631,7 @@ void QTabBar::paintEvent( QPaintEvent * e )
     t = l->first();
     do {
 	QTab * n = l->next();
-	if ( t && t->r.intersects( e->rect() ) ) 
+	if ( t && t->r.intersects( e->rect() ) )
 	    paint( buffer.painter(), t, n == 0 );
 	t = n;
     } while ( t != 0 );
@@ -702,7 +702,7 @@ void QTabBar::mousePressEvent( QMouseEvent * e )
     QTab *t = selectTab( e->pos() );
     if ( t && t->enabled ) {
 	d->pressed = t;
-	if(e->type() == style().styleHint( QStyle::SH_TabBar_SelectMouseType, this )) 
+	if(e->type() == style().styleHint( QStyle::SH_TabBar_SelectMouseType, this ))
 	    setCurrentTab( t );
 	else
 	    repaint(t->rect(), FALSE);
@@ -722,11 +722,11 @@ void QTabBar::mouseMoveEvent ( QMouseEvent *e )
     if(style().styleHint( QStyle::SH_TabBar_SelectMouseType, this ) == QEvent::MouseButtonRelease) {
 	QTab *t = selectTab( e->pos() );
 	if(t != d->pressed) {
-	    if(d->pressed) 
+	    if(d->pressed)
 		repaint(d->pressed->rect(), FALSE);
 	    if((d->pressed = t))
 		repaint(t->rect(), FALSE);
-	} 
+	}
     }
 }
 
@@ -1248,6 +1248,9 @@ void QTab::setTabBar( QTabBar *newTb )
     tb = newTb;
 }
 
+/*!
+    \internal
+*/
 void QTabBar::fontChange( const QFont & oldFont )
 {
     layoutTabs();

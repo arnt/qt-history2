@@ -837,6 +837,8 @@ int QMetaProperty::id() const
     return _id < 0 ? (*meta)->indexOfProperty( this, TRUE ) : _id;
 }
 
+/*! \internal
+*/
 void QMetaProperty::clear()
 {
     t = n = 0;
@@ -987,6 +989,10 @@ QMetaObjectCleanUp::QMetaObjectCleanUp()
 : metaObject( 0 )
 {
 }
+
+/*!    \fn bool QMetaProperty::testFlags( uint f ) const
+    \internal
+*/
 
 QMetaObjectCleanUp::~QMetaObjectCleanUp()
 {

@@ -308,10 +308,10 @@ cleanups that you normally would do within the constructor and
 destructor functions of a C++ class.
 
 To work around this limitation, we created the init/destroy
-convention. If you add a slot \Function Form::init() to your
+convention. If you add a slot \Func Form::init() to your
 form, this slot will be called automatically at the end of the
 generated form constructor. Similarly, if you add a slot
-\Function Form::destroy() to your form, the slot will
+\Func Form::destroy() to your form, the slot will
 automatically be invoked by the destructor before any form controls
 get deleted. (These slots should return void.) If you prefer to use
 your own editor you must still create these functions in \QD; once

@@ -164,6 +164,9 @@ const char* QGbkCodec::name() const
     return "GBK";
 }
 
+/*!
+    Returns the codec's mime name.
+*/
 const char* QGbkCodec::mimeName() const
 {
     return "GB2312";

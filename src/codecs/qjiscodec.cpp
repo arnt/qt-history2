@@ -372,6 +372,9 @@ const char* QJisCodec::name() const
     return "JIS7";
 }
 
+/*!
+    Returns the codec's mime name.
+*/
 const char* QJisCodec::mimeName() const
 {
     return "ISO-2022-JP-2";

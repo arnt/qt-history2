@@ -3481,7 +3481,7 @@ QIconViewItem *QIconView::findItem( const QPoint &pos ) const
   Returns a pointer to the first item whose text begins with \a text, or
   0 if no such item could be found.
   Use the \a compare flag to control the comparison behaviour. (See \l
-  Qt::ComparisonFlags.)
+  {Qt::StringComparisonMode}.)
 */
 
 QIconViewItem *QIconView::findItem( const QString &text, ComparisonFlags compare ) const

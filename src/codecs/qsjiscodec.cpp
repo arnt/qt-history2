@@ -215,6 +215,9 @@ const char* QSjisCodec::name() const
     return "SJIS";
 }
 
+/*!
+    Returns the codec's mime name.
+*/
 const char* QSjisCodec::mimeName() const
 {
     return "Shift_JIS";

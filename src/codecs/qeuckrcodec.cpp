@@ -192,6 +192,9 @@ const char* QEucKrCodec::name() const
   return "eucKR";
 }
 
+/*!
+    Returns the codec's mime name.
+*/
 const char* QEucKrCodec::mimeName() const
 {
   return "EUC-KR";

@@ -301,6 +301,8 @@ bool QSvgDevice::save( const QString &fileName )
 
 /*!
   \overload
+
+  \a dev is the device to use for saving.
 */
 
 bool QSvgDevice::save( QIODevice *dev )

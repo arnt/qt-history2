@@ -567,8 +567,8 @@ QApplication::QApplication( int &argc, char **argv )
 
 /*!
   Constructs an application object with the command line arguments \a
-  argc and \a argv. If \a GUIenabled is TRUE, a normal application is
-  constructed, otherwise a non-GUI application is created.
+  argc and \a argv. If \a GUIenabled is TRUE, a GUI application is
+  constructed, otherwise a non-GUI (console) application is created.
 
   Set \a GUIenabled to FALSE for programs without a graphical user
   interface that should be able to run without a window system.
@@ -582,8 +582,8 @@ QApplication::QApplication( int &argc, char **argv )
 
   For threaded configurations (i.e. when Qt has been built as a threaded
   library), the application global mutex will be locked in the constructor
-  and unlocked when entering the event loop with exec(). You have to unlock
-  the mutex explicitely if you don't call this function, otherwise you might
+  and unlocked when entering the event loop with exec(). You must unlock
+  the mutex explicitly if you don't call exec(), otherwise you might
   get warnings on application exit.
 
   The following example shows how to create an application that
@@ -821,11 +821,12 @@ void QApplication::initialize( int argc, char **argv )
 #ifndef QT_NO_REMOTE
 /*!
     Enables remote access to the application if \a enable is set to TRUE.
-    You can use the \a appId to give your application a unique identification that can be used
-    by the remote control.
+    You can use the \a appId to give your application a unique
+    identification that can be used by the remote control.
     If \a enable is set to FALSE a currently remote access is terminated.
     Remote control access is disabled by default.
-    You can call this function any time after having created the app.
+    You can call this function any time after having created the
+    application.
 */
 void QApplication::setEnableRemoteControl(bool enable, const QUuid appId)
 {
@@ -901,7 +902,7 @@ bool QApplication::remoteControlEnabled() const
 }
 
 /*!
-    Returns the application id that was set by using setEnableRemoteControl.
+    Returns the application id that was set with setEnableRemoteControl.
 */
 QUuid QApplication::applicationId() const
 {
@@ -1153,7 +1154,7 @@ void QApplication::setStyle( QStyle *style )
 /*!
   \overload
 
-  Uses the QStyleFactory to create a QStyle object for \a style.
+  Uses QStyleFactory to create a QStyle object for \a style.
 */
 QStyle* QApplication::setStyle( const QString& style )
 {
@@ -1350,7 +1351,7 @@ void QApplication::setLibraryPaths(const QStringList &paths)
 
 /*!
   Append \a path to the end of the library path list.  If \a path is
-  empty or already in the path list, the path list is unchanged.
+  empty or already in the path list, the path list is not changed.
 
   \sa removeLibraryPath(), libraryPaths(), setLibraryPaths()
  */
@@ -1368,7 +1369,7 @@ void QApplication::addLibraryPath(const QString &path)
 
 /*!
   Removes \a path from the library path list.  If \a path is empty or not
-  in the path list, the list is unchanged.
+  in the path list, the list is not changed.
 
   \sa addLibraryPath(), libraryPaths(), setLibraryPaths()
 */
@@ -1640,22 +1641,21 @@ QWidgetList *QApplication::topLevelWidgets()
 
   Note that some of the widgets may be hidden.
 
-  Example:
+  Example that updates all widgets:
   \code
-    // Update all widgets.
     QWidgetList	 *list = QApplication::allWidgets();
-    QWidgetListIt it( *list );		// iterate over the widgets
+    QWidgetListIt it( *list );         // iterate over the widgets
     QWidget * w;
-    while ( (w=it.current()) != 0 ) {	// for each widget...
+    while ( (w=it.current()) != 0 ) {  // for each widget...
 	++it;
 	w->update();
     }
-    delete list;			// delete the list, not the widgets
+    delete list;                      // delete the list, not the widgets
   \endcode
 
   The QWidgetList class is defined in the qwidgetlist.h header file.
 
-  \warning Delete the list as soon you have finished using it.
+  \warning Delete the list as soon as you have finished using it.
   The widgets in the list may be deleted by someone else at any time.
 
   \sa topLevelWidgets(), QWidget::isVisible(), QPtrList::isEmpty(),
@@ -2234,9 +2234,10 @@ void QApplication::syncX()	{}		// do nothing
   Adds the message file \a mf to the list of message files to be used
   for translations.
 
-  Multiple messages files can be installed. Translations are searched
-  for in the last message file installed back to the first message file
-  installed. The search stops as soon as a matching translation is found.
+  Multiple message files can be installed. Translations are searched
+  for in the last installed message file, then the one from last, and
+  so on, back to the first installed message file. The search stops as
+  soon as a matching translation is found.
 
   \sa removeTranslator() translate() QTranslator::load()
 */
@@ -2283,11 +2284,11 @@ void QApplication::removeTranslator( QTranslator * mf )
   If the literal quoted text in the program is not in the Latin1
   encoding, this function can be used to set the appropriate encoding.
   For example, software developed by Korean programmers might use
-  eucKR for all the text in the program, in which case main() would
-  be:
+  eucKR for all the text in the program, in which case the main()
+  function might look like this:
 
   \code
-    main(int argc, char** argv)
+    int main(int argc, char** argv)
     {
 	QApplication app(argc, argv);
 	... install any additional codecs ...
@@ -2304,7 +2305,7 @@ void QApplication::removeTranslator( QTranslator * mf )
   i18n.html Qt internationalization documentation\endlink.
 
   Note also that some Qt built-in classes call tr() with various
-  strings.  These strings are in English, so for a full translation, a
+  strings. These strings are in English, so for a full translation, a
   codec would be required for these strings.
 */
 
@@ -2914,8 +2915,8 @@ QClipboard *QApplication::clipboard()
 #endif // QT_NO_CLIPBOARD
 
 /*!
-  By default, Qt will try to get the current standard colors, fonts
-  etc. from the underlying window system's desktop settings (resources),
+  By default, Qt will try to use the current standard colors, fonts
+  etc. from the underlying window system's desktop settings,
   and use them for all relevant widgets. This behavior can be switched off
   by calling this function with \a on set to FALSE.
 

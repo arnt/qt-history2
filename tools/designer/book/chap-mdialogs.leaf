@@ -424,7 +424,7 @@ side of the dialog.
 To remove a connection, click the connection in the listbox and then
 click the \Button {Delete Connection} button. 
 
-Click \Button Close to leave the \Edit {Database Connections} dialog.
+Click \Button Close to leave the \Dialog{Database Connections} dialog.
 
 \target dialog-project-settings
 \section2 Project Settings Dialog

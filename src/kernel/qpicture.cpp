@@ -226,6 +226,8 @@ bool QPicture::load( const QString &fileName, const char *format )
 
 /*!
   \overload
+
+  \a dev is the device to use for loading.
  */
 
 bool QPicture::load( QIODevice *dev, const char *format )
@@ -290,6 +292,8 @@ bool QPicture::save( const QString &fileName, const char *format )
 
 /*!
   \overload
+
+  \a dev is the device to use for loading.
  */
 
 bool QPicture::save( QIODevice *dev, const char *format )

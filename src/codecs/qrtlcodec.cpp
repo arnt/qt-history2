@@ -375,6 +375,9 @@ const char* QHebrewCodec::name() const
     return "ISO 8859-8";
 }
 
+/*!
+    Returns the codec's mime name.
+*/
 const char* QHebrewCodec::mimeName() const
 {
     return "ISO-8859-8";

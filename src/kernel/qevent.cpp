@@ -999,6 +999,9 @@ Qt::ButtonState QKeyEvent::stateAfter() const
 
     \value Key_unknown
 
+    \value Key_Direction_L internal use only
+    \value Key_Direction_R internal use only
+
 */
 
 
@@ -1664,7 +1667,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 */
 
 /*!
-  \fn QTabletEvent::QTabletEvent( const QPoint &pos, int device, int pressure, int xTilt, int yTilt, const QTabletDeviceId &uId )
+  \fn QTabletEvent::QTabletEvent( const QPoint &pos, int device, int pressure, int xTilt, int yTilt, const QPair<int,int> &uId )
 
   Constructs a tablet event object.
 
@@ -1673,19 +1676,21 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
   to specify the global position explicitly.  \a device contains the
   \link TabletDevice device type\endlink, \a pressure contains the
   pressure exerted on the \a device, \a xTilt and \a yTilt contain the
-  \a device's degrees of tilt from the X and Y axis respectively.
+  \a device's degrees of tilt from the X and Y axis respectively. The
+  \a uId contains an event id.
 
   \sa pos(), device(), pressure(), xTilt(), yTilt()
 */
 
 /*!
-  \fn QTabletEvent::QTabletEvent( const QPoint &pos, const QPoint &globalPos, int device, int pressure, int xTilt, int yTilt, const QTabletDeviceId &uId )
+  \fn QTabletEvent::QTabletEvent( const QPoint &pos, const QPoint &globalPos, int device, int pressure, int xTilt, int yTilt, const QPair<int,int> &uId )
 
   Constructs a tablet event object.  The position when the event
   occurred is is given in \a pos and \a globalPos.  \a device contains
   the \link TabletDevice device type\endlink, \a pressure contains the
   pressure exerted on the \a device, \a xTilt and \a yTilt contain the
-  \a device's degrees of tilt from the X and Y axis respectively.
+  \a device's degrees of tilt from the X and Y axis respectively. The
+  \a uId contains an event id.
 
   On Irix, \a globalPos will contain the high-resolution coordinates
   received from the tablet device driver, instead of from the
@@ -1812,10 +1817,11 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 
 /*!
  \fn QPair<int, int> QTabletEvent::uniqueId()
+
  Returns a unique id for the current device.  It is possible to generate
  a unique id for any Wacom device.  This is helpful to differentiate multiple devices being
  used at the same time on the tablet.  The \c first member contains a value for the type,
- the \c second member contains a physical id obtained from the device. 
+ the \c second member contains a physical id obtained from the device.
  Together these values are unique.  Note: for different platforms, the \c first value
  is different due to different driver implementations.
 */

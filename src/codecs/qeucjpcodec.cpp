@@ -285,6 +285,9 @@ const char* QEucJpCodec::name() const
     return "eucJP";
 }
 
+/*!
+    Returns the codec's mime name.
+*/
 const char* QEucJpCodec::mimeName() const
 {
     return "EUC-JP";

@@ -80,14 +80,14 @@ QRemoteFactoryPrivate::~QRemoteFactoryPrivate()
   QRemoteFactory::create(key).
 
   The Remote-controls are either built-in or dynamically loaded from a RC
-  plugin (see \l QRemotePlugin).
+  plugin.
 
   QRemoteFactory::keys() returns a list of valid keys. Qt currently
   ships with "rc1".
 
 */
 
-/*!  Creates a QRemoteInterface object that matches \a key. Currently this is 
+/*!  Creates a QRemoteInterface object that matches \a key. Currently this is
   always a remote control from a plugin.
 
   \sa keys()
