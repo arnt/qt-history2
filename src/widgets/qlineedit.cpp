@@ -732,8 +732,12 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    }
 	    break;
 	case Key_Z:
-	    if ( !d->readonly )
-		undo();
+	    if ( !d->readonly ) {
+		if(e->state() & ShiftButton)
+		    redo();
+		else
+		    undo();
+	    }
 	    break;
 	case Key_Y:
 	    if ( !d->readonly )
