@@ -157,6 +157,10 @@ public:
     int numCols() const;
 #endif
 
+#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
+    bool operator==( const QPixmap& ) const { return FALSE; }
+#endif
+
 protected:
     QPixmap( int w, int h, const uchar *data, bool isXbitmap );
     int metric( int ) const;
