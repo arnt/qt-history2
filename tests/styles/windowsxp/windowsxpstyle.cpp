@@ -775,33 +775,47 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 	}
 	break;
 	
-	/*    case CC_ToolButton:
+    case CC_ToolButton:
 	{
-	XPThemeData theme;
-	theme.name = L"TOOLBAR";
-	QToolButton *tb = (QToolButton*)w;
+	    XPThemeData theme( w, L"TOOLBAR" );
+	    QToolButton *tb = (QToolButton*)w;
 	
-	  PFlags flags = Style_Default;
-	  if ( tb->isEnabled() )
-	  flags |= Style_Enabled;
-	  if ( tb->isDown() )
-	  flags |= Style_Down;
-	  if ( tb->isOn() )
-	  flags |= Style_On;
-	  if ( d->hotWidget == tb )
-	  flags |= Style_MouseOver;
+	    SFlags bflags = flags,
+		   mflags = flags;
+
+	    if (subActive == SC_ToolButton)
+		bflags |= Style_Down;
+	    else if (subActive == SC_ToolButtonMenu)
+		mflags |= Style_Down;
 	  
 	    if ( sub & SC_ToolButton ) {
-	    theme.rec = querySubControlMetrics( CC_ToolButton, w, SC_ToolButton, data );
-	    drawPrimitive( PE_ButtonTool, p, theme.rec, cg, flags, data );
+		theme.rec = querySubControlMetrics( CC_ToolButton, w, SC_ToolButton, data );
+		if (bflags & (Style_Down | Style_On | Style_Raised)) {		    
+		    drawPrimitive( PE_ButtonTool, p, theme.rec, cg, bflags, data );
+		} else if ( tb->parentWidget() &&
+			  tb->parentWidget()->backgroundPixmap() &&
+			  !tb->parentWidget()->backgroundPixmap()->isNull() ) {
+		    QPixmap pixmap = *(tb->parentWidget()->backgroundPixmap());
+
+		    p->drawTiledPixmap( r, pixmap, tb->pos() );
+		}
 	    }
 	    if ( sub & SC_ToolButtonMenu ) {
-	    theme.rec = querySubControlMetrics( CC_ToolButton, w, SC_ToolButtonMenu, data );
-	    drawPrimitive( PE_ButtonDropDown, p, theme.rec, cg, flags, data );
+		theme.rec = querySubControlMetrics( CC_ToolButton, w, SC_ToolButtonMenu, data );
+		if (mflags & (Style_Down | Style_On | Style_Raised))
+		    drawPrimitive(PE_ButtonDropDown, p, theme.rec, cg, mflags, data);
+		else
+		    drawPrimitive( PE_ArrowDown, p, theme.rec, cg, mflags, data );
 	    }
+
+	    if ( tb->hasFocus() && !tb->focusProxy() ) {
+		QRect fr = tb->rect();
+		fr.addCoords(3, 3, -3, -3);
+		drawPrimitive( PE_FocusRect, p, fr, cg );
 	    }
-	    break;
-	*/
+	}
+	break;
+
     case CC_TitleBar:
 	{
 	    const QTitleBar *titlebar = (const QTitleBar *) w;
