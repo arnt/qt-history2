@@ -205,6 +205,7 @@ public:
 #elif defined(_WS_QWS_)
     virtual bool     qwsEventFilter( QWSEvent * );
     int              qwsProcessEvent( QWSEvent* );
+    void             qwsSetCustomColors( QRgb *colortable, int start, int numColors );
 #ifndef QT_NO_QWS_MANAGER
     static QWSDecoration &qwsDecoration();
     static void      qwsSetDecoration( QWSDecoration *);
