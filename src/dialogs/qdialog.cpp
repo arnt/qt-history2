@@ -383,12 +383,15 @@ int QDialog::exec()
 }
 
 
-/*! Hides the modal dialog and sets its result code to \a r. This
-  uses the local event loop to finish, and exec() to return \a r.
+/*! Closes the dialog and sets its result code to \a r. If this dialog
+  is shown with exec(), done() causes the local event loop to finish,
+  and exec() to return \a r.
 
-  If the dialog has the \c WDestructiveClose flag set, done() also
-  deletes the dialog. If the dialog is the applications's main widget,
-  the application terminates.
+  As with QWidget::close(), done() deletes the dialog if the \c
+  WDestructiveClose flag is set. If the dialog is the application's
+  main widget, the application terminates. If the dialog is the
+  last window closed, the QApplication::lastWindowClosed() signal is
+  emitted.
 
   \sa accept(), reject(), QApplication::mainWidget(), QApplication::quit()
 */
@@ -397,7 +400,35 @@ void QDialog::done( int r )
 {
     hide();
     setResult( r );
-    close();
+
+    // emulate QWidget::close()
+    bool isMain = qApp->mainWidget() == this;
+    bool checkLastWindowClosed = isTopLevel() && !isPopup();
+    if ( checkLastWindowClosed
+	 && qApp->receivers(SIGNAL(lastWindowClosed())) ) {
+	/* if there is no non-withdrawn top level window left (except
+	   the desktop, popups, or dialogs with parents), we emit the
+	   lastWindowClosed signal */
+	QWidgetList *list   = qApp->topLevelWidgets();
+	QWidget     *widget = list->first();
+	while ( widget ) {
+	    if ( !widget->isHidden()
+		 && !widget->isDesktop()
+		 && !widget->isPopup()
+		 && (!widget->isDialog() || !widget->parentWidget()))
+		break;
+	    widget = list->next();
+	}
+	delete list;
+	if ( widget == 0 )
+	    emit qApp->lastWindowClosed();
+    }
+    if ( isMain )
+	qApp->quit();
+    else if ( testWFlags(WDestructiveClose) ) {
+	clearWFlags(WDestructiveClose);
+	deleteLater();
+    }
 }
 
 /*!

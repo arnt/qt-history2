@@ -3988,7 +3988,8 @@ void QWidget::polish()
     If \a alsoDelete is TRUE or the widget has the \c
     WDestructiveClose widget flag, the widget is also deleted. The
     widget can prevent itself from being closed by rejecting the
-    \l QCloseEvent it gets.
+    \l QCloseEvent it gets. A close events is delivered to the widget
+    no matter if the widget is visible or not.
 
     The QApplication::lastWindowClosed() signal is emitted when the
     last visible top level widget is closed.
@@ -4009,13 +4010,10 @@ bool QWidget::close( bool alsoDelete )
     bool isMain = qApp->mainWidget() == this;
     bool checkLastWindowClosed = isTopLevel() && !isPopup();
     bool deleted = FALSE;
-    bool rejectable = isShown();
     QCloseEvent e;
-    if ( !rejectable )
-	e.accept();
     QApplication::sendEvent( this, &e );
     deleted = !QWidget::find(id);
-    if ( rejectable && !deleted && !e.isAccepted() ) {
+    if ( !deleted && !e.isAccepted() ) {
 	is_closing = 0;
 	return FALSE;
     }

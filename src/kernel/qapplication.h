@@ -393,6 +393,7 @@ private:
 
     friend class QWidget;
     friend class QETWidget;
+    friend class QDialog;
     friend class QAccelManager;
     friend class QEvent;
     friend class QTranslator;
