@@ -67,7 +67,6 @@ clean:
 	cd tools && $(MAKE) clean
 	cd src/moc && $(MAKE) clean
 	cd src && $(MAKE) clean
-	cd src/codecs/src && $(MAKE) clean
 	cd tutorial && $(MAKE) clean
 	cd examples && $(MAKE) clean
 
