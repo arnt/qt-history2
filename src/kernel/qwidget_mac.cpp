@@ -867,6 +867,7 @@ void QWidget::showWindow()
 #endif
 	    //now actually show it
 	    ShowHide((WindowPtr)hd, 1);
+	    setActiveWindow();
 	}
     } else { 
 	dirty_wndw_rgn("showwindow",this, mac_rect(posInWindow(this), geometry().size()));
