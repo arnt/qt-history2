@@ -21,12 +21,13 @@ bool CppCodeMarker::recognizeCode( const QString& /* code */ )
 bool CppCodeMarker::recognizeExtension( const QString& ext )
 {
     return ext == "c" || ext == "c++" || ext == "cc" || ext == "cpp" ||
-	   ext == "cxx" || ext == "h" || ext == "hpp" || ext == "hxx";
+	   ext == "cxx" || ext == "h" || ext == "h++" || ext == "hh" ||
+	   ext == "hpp" || ext == "hxx";
 }
 
 bool CppCodeMarker::recognizeLanguage( const QString& lang )
 {
-    return lang == "C" || lang == "C++";
+    return lang == "C++";
 }
 
 QString CppCodeMarker::markedUpCode( const QString& code,

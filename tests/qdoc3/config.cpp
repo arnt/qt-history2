@@ -8,12 +8,12 @@
 
 #include "config.h"
 
-struct MetaKeyState
+struct MetaStackEntry
 {
     QStringList accum;
     QStringList next;
 
-    MetaKeyState() { begin(); }
+    MetaStackEntry() { begin(); }
 
     void end() {
 	accum += next;
@@ -243,12 +243,12 @@ void Config::load( Location location, const QString& fileName )
 	    bool prevWordQuoted = TRUE;
 	    bool metWord = FALSE;
 
-	    QValueStack<MetaKeyState> stack;
-	    stack.push( MetaKeyState() );
+	    QValueStack<MetaStackEntry> stack;
+	    stack.push( MetaStackEntry() );
 
 	    do {
 		if ( text[i] == '{' ) {
-		    stack.push( MetaKeyState() );
+		    stack.push( MetaStackEntry() );
 		} else if ( text[i] == '}' ) {
 		    if ( stack.count() == 1 )
 			location.fatal( tr("Unexpected '}' in key") );

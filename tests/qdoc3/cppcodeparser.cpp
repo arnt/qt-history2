@@ -63,6 +63,16 @@ QString CppCodeParser::language()
     return "C++";
 }
 
+QString CppCodeParser::headerFileNameFilter()
+{
+    return "*.h *.h++ *.hh *.hpp *.hxx";
+}
+
+QString CppCodeParser::sourceFileNameFilter()
+{
+    return "*.c *.c++ *.cc *.cpp *.cxx";
+}
+
 void CppCodeParser::parseHeaderFile( const Location& location,
 				     const QString& filePath, Tree *tree )
 {

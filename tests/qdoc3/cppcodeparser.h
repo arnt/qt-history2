@@ -24,6 +24,8 @@ public:
     virtual void initializeParser( const Config& config );
     virtual void terminateParser();
     virtual QString language();
+    virtual QString headerFileNameFilter();
+    virtual QString sourceFileNameFilter();
     virtual void parseHeaderFile( const Location& location,
 				  const QString& filePath, Tree *tree );
     virtual void parseSourceFile( const Location& location,

@@ -47,6 +47,16 @@ QString QsCodeParser::language()
     return "Qt Script";
 }
 
+QString QsCodeParser::headerFileNameFilter()
+{
+    return "*";
+}
+
+QString QsCodeParser::sourceFileNameFilter()
+{
+    return "*.qs *.qsd";
+}
+
 void QsCodeParser::parseHeaderFile( const Location& location,
 				    const QString& filePath, Tree *tree )
 {
@@ -423,7 +433,8 @@ QString QsCodeParser::quickifiedCode( const QString& code )
 	    if ( newLine && funcRegExp.search(code.mid(i)) != -1 ) {
 		QString indent = funcRegExp.cap( 1 );
 		QString name = funcRegExp.cap( 2 );
-		name.replace( "::", "." );
+		// ### remove QRegExp cast once Mark has Qt 3.1 up and running
+		name.replace( QRegExp("::"), "." );
 		QStringList params =
 			QStringList::split( ",", funcRegExp.cap(3) );
 		QStringList::Iterator p = params.begin();
@@ -568,13 +579,12 @@ void QsCodeParser::setQtDoc( Node *quickNode, const Doc& doc )
 
 void QsCodeParser::setQuickDoc( Node *quickNode, const Doc& doc )
 {
-    QRegExp quickifiedCommand(
-	    "\\\\" + QRegExp::escape(COMMAND_QUICKIFIED) + "([^\n]*)(?:\n|$)" );
+    QRegExp quickifiedCommand( "\\\\" + COMMAND_QUICKIFIED +
+			       "([^\n]*)(?:\n|$)" );
 
     if ( doc.metaCommandsUsed() != 0 &&
 	 doc.metaCommandsUsed()->contains(COMMAND_QUICKIFIED) ) {
 	QString source = doc.source();
-
 	int pos = source.find( quickifiedCommand );
 	if ( pos != -1 ) {
 	    QString quickifiedSource = quickNode->doc().source();
@@ -594,8 +604,7 @@ void QsCodeParser::setQuickDoc( Node *quickNode, const Doc& doc )
 
 	Doc quickDoc( doc.location(), source,
 		      (CppCodeParser::topicCommands() + topicCommands() +
-		       CppCodeParser::otherMetaCommands()) <<
-		      COMMAND_REPLACE );
+		       CppCodeParser::otherMetaCommands()) << COMMAND_REPLACE );
 	quickNode->setDoc( quickDoc, TRUE );
     } else {
 	quickNode->setDoc( doc, TRUE );

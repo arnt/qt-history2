@@ -27,8 +27,8 @@ static const struct {
     const char *value;
 } defaults[] = {
     { CONFIG_FALSEHOODS, "0" },
-    { CONFIG_FORMATS, "HTML" },
     { CONFIG_LANGUAGE, "C++" },
+    { CONFIG_OUTPUTFORMATS, "HTML" },
     { CONFIG_TABSIZE, "8" },
     { 0, 0 }
 };
@@ -119,8 +119,9 @@ qDebug( "processQdocFile %s", fileName.latin1() );
 					" language '%1'")
 				     .arg(lang) );
 
-    QStringList headers = config.getAllFiles( CONFIG_HEADERS, CONFIG_HEADERDIRS,
-					      "*.h" );
+    QStringList headers =
+	    config.getAllFiles( CONFIG_HEADERS, CONFIG_HEADERDIRS,
+				codeParser->headerFileNameFilter() );
     QStringList::ConstIterator h = headers.begin();
     while ( h != headers.end() ) {
 qDebug( "Parsing header file '%s'", (*h).latin1() );
@@ -129,8 +130,9 @@ qDebug( "Parsing header file '%s'", (*h).latin1() );
     }
 qDebug( "Done parsing header files" );
 
-    QStringList sources = config.getAllFiles( CONFIG_SOURCES, CONFIG_SOURCEDIRS,
-					      "*.cpp" );
+    QStringList sources =
+	    config.getAllFiles( CONFIG_SOURCES, CONFIG_SOURCEDIRS,
+				codeParser->sourceFileNameFilter() );
     QStringList::ConstIterator s = sources.begin();
     while ( s != sources.end() ) {
 qDebug( "Parsing source file '%s'", (*s).latin1() );
@@ -139,16 +141,16 @@ qDebug( "Parsing source file '%s'", (*s).latin1() );
     }
 qDebug( "Done parsing source files" );
     
-    Set<QString> formats = config.getStringSet( CONFIG_FORMATS );
-    Set<QString>::ConstIterator f = formats.begin();
-    while ( f != formats.end() ) {
-qDebug( "Generating output '%s'", (*f).latin1() );
-	Generator *generator = Generator::generatorForFormat( *f );
+    Set<QString> outputFormats = config.getStringSet( CONFIG_OUTPUTFORMATS );
+    Set<QString>::ConstIterator of = outputFormats.begin();
+    while ( of != outputFormats.end() ) {
+qDebug( "Generating output '%s'", (*of).latin1() );
+	Generator *generator = Generator::generatorForFormat( *of );
 	if ( generator == 0 )
 	    config.lastLocation().fatal( tr("Unknown output format '%1'")
-					 .arg(*f) );
+					 .arg(*of) );
 	generator->generateTree( tree, marker );
-	++f;
+	++of;
     }
 qDebug( "Done generating output" );
 
