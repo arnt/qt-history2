@@ -39,9 +39,7 @@
 #include "qstringlist.h"
 #include "qt_mac.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
+#include <string.h>
 
 static QString qt_cwd = "";
 const unsigned char * p_str(const char * c, int len=-1); //qglobal_mac.cpp
@@ -52,7 +50,7 @@ FSSpec *QDir::make_spec(const QString &f)
     const unsigned char *p = p_str(QFile::encodeName(QDir::convertSeparators(f)) + ":");
     if(FSMakeFSSpec(0, 0, p, &ret) != noErr) {
 	free(p);
-	return NULL;
+	return 0;
     }
     free(p);
     return &ret;
@@ -210,7 +208,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 
 	ItemCount specn = 512;
 	FSSpec *specs = (FSSpec *)calloc(specn, sizeof(FSSpec));
-	FSGetCatalogInfoBulk( dir, specn, &specn, NULL, kFSCatInfoNone, NULL, NULL, specs, NULL );
+	FSGetCatalogInfoBulk( dir, specn, &specn, 0, kFSCatInfoNone, 0, 0, specs, 0 );
 	Str255 tmp_n;
  for(ItemCount specx = 0; specx < specn; specx++) {
 		memcpy(tmp_n, &(specs[specx].name[1]), specs[specx].name[0]);

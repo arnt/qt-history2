@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QTab and QTabBar classes
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
@@ -45,8 +45,6 @@
 #include "qiconset.h"
 #include "qcursor.h"
 #include "../kernel/qinternal_p.h"
-
-#include <ctype.h>
 
 
 /*!
@@ -442,7 +440,7 @@ void QTabBar::removeTab( QTab * t )
 #endif
     // remove the TabBar Reference
     if(d->pressed == t)
-	d->pressed = NULL;
+	d->pressed = 0;
     t->setTabBar( 0 );
     l->remove( t );
     lstatic->remove( t );
@@ -767,8 +765,8 @@ void QTabBar::mouseReleaseEvent( QMouseEvent *e )
     if ( e->button() != LeftButton )
 	e->ignore();
     if(d->pressed) {
-	QTab *t = selectTab( e->pos() ) == d->pressed ? d->pressed : NULL;
-	d->pressed = NULL;
+	QTab *t = selectTab( e->pos() ) == d->pressed ? d->pressed : 0;
+	d->pressed = 0;
 	if(t && t->enabled && e->type() == style().styleHint( QStyle::SH_TabBar_SelectMouseType, this ))
 	    setCurrentTab( t );
     }

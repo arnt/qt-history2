@@ -100,7 +100,6 @@
 #if !defined(Q_OS_TEMP)
 #include <time.h>
 #endif
-#include <ctype.h>
 #include <stdlib.h>
 #include <limits.h>
 
@@ -5043,7 +5042,7 @@ QWindowsIconProvider::QWindowsIconProvider( QObject *parent, const char *name )
 	    defaultFolder.resize( pixw, pixh );
 	    initPixmap( defaultFolder );
 	    QPainter p( &defaultFolder );
-	    DrawIconEx( p.handle(), 0, 0, si, pixw, pixh, 0, NULL,  DI_NORMAL );
+	    DrawIconEx( p.handle(), 0, 0, si, pixw, pixh, 0, 0,  DI_NORMAL );
 	    p.end();
 	    defaultFolder.setMask( defaultFolder.createHeuristicMask() );
 	    *closedFolderIcon = defaultFolder;
@@ -5068,7 +5067,7 @@ QWindowsIconProvider::QWindowsIconProvider( QObject *parent, const char *name )
 	defaultFile.resize( pixw, pixh );
 	initPixmap( defaultFile );
 	QPainter p( &defaultFile );
-	DrawIconEx( p.handle(), 0, 0, si, pixw, pixh, 0, NULL,  DI_NORMAL );
+	DrawIconEx( p.handle(), 0, 0, si, pixw, pixh, 0, 0,  DI_NORMAL );
 	p.end();
 	defaultFile.setMask( defaultFile.createHeuristicMask() );
 	*fileIcon = defaultFile;
@@ -5090,7 +5089,7 @@ QWindowsIconProvider::QWindowsIconProvider( QObject *parent, const char *name )
 	defaultExe.resize( pixw, pixh );
 	initPixmap( defaultExe );
 	QPainter p( &defaultExe );
-	DrawIconEx( p.handle(), 0, 0, si, pixw, pixh, 0, NULL,  DI_NORMAL );
+	DrawIconEx( p.handle(), 0, 0, si, pixw, pixh, 0, 0,  DI_NORMAL );
 	p.end();
 	defaultExe.setMask( defaultExe.createHeuristicMask() );
 	DestroyIcon( si );
@@ -5172,17 +5171,17 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	resolveLibs();
 	QT_WA( {
 	    res = ptrExtractIconEx( (TCHAR*)filepath.ucs2(), lst[ 1 ].stripWhiteSpace().toInt(),
-				  NULL, &si, 1 );
+				  0, &si, 1 );
 	} , {
 	    res = ExtractIconExA( filepath.local8Bit(), lst[ 1 ].stripWhiteSpace().toInt(),
-				  NULL, &si, 1 );
+				  0, &si, 1 );
 	} );
 
 	if ( res ) {
 	    pix.resize( pixw, pixh );
 	    initPixmap( pix );
 	    QPainter p( &pix );
-	    DrawIconEx( p.handle(), 0, 0, si, pixw, pixh, 0, NULL,  DI_NORMAL );
+	    DrawIconEx( p.handle(), 0, 0, si, pixw, pixh, 0, 0,  DI_NORMAL );
 	    p.end();
 	    pix.setMask( pix.createHeuristicMask() );
 	    DestroyIcon( si );
@@ -5219,7 +5218,7 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	    pix.resize( pixw, pixh );
 	    initPixmap( pix );
 	    QPainter p( &pix );
-	    DrawIconEx( p.handle(), 0, 0, si, pixw, pixh, 0, NULL,  DI_NORMAL );
+	    DrawIconEx( p.handle(), 0, 0, si, pixw, pixh, 0, 0,  DI_NORMAL );
 	    p.end();
 	    pix.setMask( pix.createHeuristicMask() );
 	    DestroyIcon( si );

@@ -39,22 +39,6 @@
 
 #ifndef QT_NO_PRINTDIALOG
 
-#ifndef QT_NO_NIS
-
-#ifndef BOOL_DEFINED
-#define BOOL_DEFINED
-#endif
-
-#include <rpcsvc/ypclnt.h>
-#include <rpcsvc/yp_prot.h>
-
-#endif // QT_NO_NIS
-
-// UNIX Large File Support redefines open -> open64
-#if defined(open)
-# undef open
-#endif
-
 #include "qfiledialog.h"
 #include "qfile.h"
 #include "qtextstream.h"
@@ -76,6 +60,22 @@
 #include "qregexp.h"
 #if !defined(QT_NO_CUPS) || !defined(QT_NO_NIS)
 #include "qlibrary.h"
+#endif
+
+#ifndef QT_NO_NIS
+
+#ifndef BOOL_DEFINED
+#define BOOL_DEFINED
+#endif
+
+#include <rpcsvc/ypclnt.h>
+#include <rpcsvc/yp_prot.h>
+
+#endif // QT_NO_NIS
+
+// UNIX Large File Support redefines open -> open64
+#if defined(open)
+# undef open
 #endif
 
 #include <ctype.h>

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QPopupMenu class
 **
 ** Created : 941128
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
@@ -56,7 +56,6 @@
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
-#include <ctype.h>
 
 //#define ANIMATED_POPUP
 //#define BLEND_POPUP
@@ -511,7 +510,7 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
     if ( indexAtPoint >= 0 ) {			// don't subtract when < 0
 	QRect r = itemGeometry( indexAtPoint );		// (would subtract 2 pixels!)
 	if(d->scroll.scrollable && (r.isNull() || r.height() < itemHeight(indexAtPoint) )) { //scroll to it!
-	    register QMenuItem *mi = NULL;
+	    register QMenuItem *mi = 0;
 	    QMenuItemListIt it(*mitems);
 	    int half = 0;
 	    for(int y = 0; y >= contentsRect().height() && (mi=it.current()); half++) {
@@ -1390,7 +1389,7 @@ void QPopupMenu::drawItem( QPainter* p, int tab_, QMenuItem* mi,
 void QPopupMenu::drawContents( QPainter* p )
 {
     QMenuItemListIt it(*mitems);
-    QMenuItem *mi = NULL;
+    QMenuItem *mi = 0;
     int row = 0;
     int x = contentsRect().x();
     int y = contentsRect().y();

@@ -54,25 +54,35 @@
 #include "qclipboard.h"
 #include "qpaintdevicemetrics.h"
 #include "qcursor.h"
-#include <qsettings.h>
-#include <qstylefactory.h>
-#include <qstyle.h>
-#include <qeventloop.h>
+#include "qsettings.h"
+#include "qstylefactory.h"
+#include "qstyle.h"
+#include "qeventloop.h"
 #include "qmessagebox.h"
 
 //#define QMAC_LAME_TIME_LIMITED
 #ifdef QMAC_LAME_TIME_LIMITED
-#  include <qtimer.h>
+#  include "qtimer.h"
 #endif
 
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 #  include "qmenubar.h"
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <errno.h>
+#if defined(QT_THREAD_SUPPORT)
+#  include "qthread.h"
+#endif
+
+#ifdef Q_WS_MACX
+#  include "qdir.h"
+#  include <unistd.h>
+#  include <sys/time.h>
+#  include <sys/select.h>
+#elif defined(Q_WS_MAC9)
+typedef int timeval;
+#endif
+
+#include <string.h>
 
 
 /*****************************************************************************
@@ -87,20 +97,6 @@
 #ifdef QMAC_SPEAK_TO_ME
 #include "qvariant.h"
 #include "qregexp.h"
-#endif
-
-#ifdef Q_WS_MACX
-#  include <sys/time.h>
-#  include <sys/select.h>
-#  include <unistd.h>
-#  include <qdir.h>
-#elif defined(Q_WS_MAC9)
-typedef int timeval;
-#  include <ctype.h>
-#endif
-
-#if defined(QT_THREAD_SUPPORT)
-#  include "qthread.h"
 #endif
 
 //for qt_mac.h

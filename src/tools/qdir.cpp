@@ -43,9 +43,6 @@
 #include "qfileinfo.h"
 #include "qregexp.h"
 #include "qstringlist.h"
-#include <stdlib.h>
-#include <ctype.h>
-
 
 
 /*!

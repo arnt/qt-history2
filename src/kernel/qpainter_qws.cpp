@@ -41,11 +41,9 @@
 #include "qtextcodec.h"
 #include "qmemorymanager_qws.h"
 #include "qwsdisplay_qws.h"
-#include <ctype.h>
-#include <stdlib.h>
 #include "qpaintdevicemetrics.h"
-//#include "qimagepaintdevice.h"
 #include "qgfx_qws.h"
+#include <string.h>
 
 /* paintevent magic to provide Windows semantics on Qt/E
  */

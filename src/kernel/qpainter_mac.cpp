@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QPainter class for Mac
 **
 ** Created : 001018
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -44,8 +44,6 @@
 #ifndef QMAC_NO_QUARTZ
 # include <ApplicationServices/ApplicationServices.h>
 #endif
-#include <ctype.h>
-#include <stdlib.h>
 #include <string.h>
 
 static const int TxNone      = 0;		// transformation codes
@@ -80,7 +78,7 @@ public:
 /*****************************************************************************
   Current "active" QPainter
  *****************************************************************************/
-QPainter *qt_mac_current_painter = NULL;
+QPainter *qt_mac_current_painter = 0;
 
 /*****************************************************************************
   QPainter member functions
@@ -232,12 +230,12 @@ void QPainter::init()
 
     d = new QPainterPrivate;
     d->saved = 0;
-    d->cache.paintevent = NULL;
+    d->cache.paintevent = 0;
     d->cache.clip_serial = 0;
     d->brush_style_pix = 0;
     d->cache.crgn_dirty = d->locked = d->unclipped = FALSE;
 #ifndef QMAC_NO_QUARTZ
-    d->cg.context = NULL;
+    d->cg.context = 0;
     d->cg.off_w = d->cg.off_h = 0;
 #endif
     d->cache.clippedreg = d->cache.paintreg = QRegion();
@@ -509,7 +507,7 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipp )
 	}
     }
     d->cache.clip_serial = 0;
-    d->cache.paintevent = NULL;
+    d->cache.paintevent = 0;
     d->cache.crgn_dirty = FALSE;
 #ifndef QMAC_NO_QUARTZ
     d->cg.off_w = d->cg.off_h = 0;
@@ -618,9 +616,9 @@ bool QPainter::end()				// end painting
 
     //reset the value we got in begin()
     delete d->saved;
-    d->saved = NULL;
+    d->saved = 0;
     if(qt_mac_current_painter == this)
-	qt_mac_current_painter = NULL;
+	qt_mac_current_painter = 0;
 #ifdef Q_WS_MACX
     if(pdev->painters == 1 &&
        pdev->devType() == QInternal::Widget && ((QWidget*)pdev)->isDesktop())
@@ -632,12 +630,12 @@ bool QPainter::end()				// end painting
 #endif
     if(pfont) {
 	delete pfont;
-	pfont = NULL;
+	pfont = 0;
     }
 
     flags = 0;
     pdev->painters--;
-    hd = NULL;
+    hd = 0;
     pdev = 0;
     return TRUE;
 }
@@ -828,7 +826,7 @@ void QPainter::drawPolyInternal( const QPointArray &a, bool close )
 	if( this->brush().style() == SolidPattern ) {
 	    PaintRgn( polyRegion );
 	} else {
-	    QPixmap *pm = NULL;
+	    QPixmap *pm = 0;
 	    if(cbrush.style() == QBrush::CustomPattern)
 		pm = cbrush.data->pixmap;
 	    else {
@@ -1071,7 +1069,7 @@ void QPainter::drawRect( int x, int y, int w, int h )
 	if( this->brush().style() == SolidPattern ) {
 	    PaintRect( &rect );
 	} else {
-	    QPixmap *pm = NULL;
+	    QPixmap *pm = 0;
 	    if(cbrush.style() == QBrush::CustomPattern)
 		pm = cbrush.data->pixmap;
 	    else {
@@ -1307,7 +1305,7 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 	if( this->brush().style() == SolidPattern ) {
 	    PaintOval( &r );
 	} else {
-	    QPixmap *pm = NULL;
+	    QPixmap *pm = 0;
 	    if(cbrush.style() == QBrush::CustomPattern) {
 		pm = cbrush.data->pixmap;
 	    } else {
@@ -1825,7 +1823,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 	    QString bm_key = gen_text_bitmap_key( mat2, dfont, str, len );
 	    QBitmap *wx_bm = get_text_bitmap( bm_key );
 #else
-	    QBitmap *wx_bm = NULL;
+	    QBitmap *wx_bm = 0;
 #endif
 	    bool create_new_bm = wx_bm == 0;
 	    if ( create_new_bm && !empty ) {    // no such cached bitmap
@@ -1932,7 +1930,7 @@ void QPainter::initPaintDevice(bool force) {
 	QWidget *w = (QWidget*)pdev;
 	paintevent_item *pevent = paintevents.current();
 	if(pevent && !((*pevent) == pdev))
-	    pevent = NULL;
+	    pevent = 0;
 	if(!(remade_clip = force)) {
 	    if(pevent != d->cache.paintevent)
 		remade_clip = TRUE;

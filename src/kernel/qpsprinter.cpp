@@ -70,7 +70,6 @@
 #include "qfontdatabase.h"
 #include "qregexp.h"
 
-#include <ctype.h>
 #if defined(Q_OS_WIN32)
 #include <io.h>
 #ifdef Q_PRINTER_USE_TYPE42

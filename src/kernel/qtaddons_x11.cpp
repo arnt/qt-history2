@@ -24,10 +24,8 @@
 
 #include "qt_x11.h"
 
-#include <ctype.h>
-#include <stdlib.h>
-#include <string.h>
 #include <stdio.h>
+#include <string.h>
 
 #ifndef QT_NO_XFTFREETYPE
 #ifdef QT_NO_XFTNAMEUNPARSE

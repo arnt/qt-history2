@@ -5,7 +5,7 @@
 **
 ** Created : 941011
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
@@ -51,7 +51,6 @@
 #include "qguardedptr.h"
 #include "qstyle.h"
 #include "qwhatsthis.h"
-#include <ctype.h>
 #include "../kernel/qinternal_p.h"
 #include "../kernel/qrichtext_p.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)

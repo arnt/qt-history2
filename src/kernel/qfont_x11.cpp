@@ -62,8 +62,6 @@
 
 #include "qt_x11.h"
 
-#include <ctype.h>
-#include <stdlib.h>
 #include <time.h>
 
 
@@ -674,7 +672,7 @@ static inline XCharStruct *getCharStruct1d(XFontStruct *xfs, uint c)
     XCharStruct *xcs = (XCharStruct *) -1;
     if (c >= xfs->min_char_or_byte2 &&
 	c <= xfs->max_char_or_byte2) {
-	if (xfs->per_char != NULL) {
+	if (xfs->per_char != 0) {
 	    xcs = xfs->per_char + (c - xfs->min_char_or_byte2);
 	    if (charNonExistent(xcs))
 		xcs = (XCharStruct *) -1;
@@ -695,7 +693,7 @@ static inline XCharStruct *getCharStruct2d(XFontStruct *xfs, uint r, uint c)
 	r <= xfs->max_byte1 &&
 	c >= xfs->min_char_or_byte2 &&
 	c <= xfs->max_char_or_byte2) {
-	if (xfs->per_char != NULL) {
+	if (xfs->per_char != 0) {
 	    xcs = xfs->per_char + ((r - xfs->min_byte1) *
 				   (xfs->max_char_or_byte2 -
 				    xfs->min_char_or_byte2 + 1)) +
@@ -2947,7 +2945,7 @@ void QFont::initialize()
     QCString oldlctime = setlocale(LC_TIME, 0);
     QCString lctime = setlocale(LC_TIME, "");
 
-    time_t ttmp = time(NULL);
+    time_t ttmp = time(0);
     struct tm *tt = 0;
     char samp[64];
     QString sample;

@@ -5,7 +5,7 @@
 **
 ** Created : 960416
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -39,10 +39,10 @@
 #define QLAYOUT_H
 
 #ifndef QT_H
-#include <limits.h>
 #include "qobject.h"
 #include "qsizepolicy.h"
 #include "qwidget.h"
+#include <limits.h>
 #endif // QT_H
 
 #ifndef QT_NO_LAYOUT
@@ -196,7 +196,6 @@ public:
     virtual void setMargin( int );
     virtual void setSpacing( int );
 
-    enum { unlimited = QLAYOUTSIZE_MAX };
     int defaultBorder() const { return insideSpacing; }
     void freeze( int w, int h );
     void freeze() { setResizeMode( Fixed ); }

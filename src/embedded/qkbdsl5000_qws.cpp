@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of Qt/Embedded SL500 keyboard driver
 **
@@ -42,10 +42,6 @@
 #include "qnamespace.h"
 #include "qtimer.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <ctype.h>
-
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
@@ -55,6 +51,8 @@
 #include <signal.h>
 
 #include <asm/sharp_char.h>
+
+#include <string.h>
 
 
 static const QWSKeyMap sl5000KeyMap[] = {

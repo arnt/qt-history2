@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
 ** Created : 940112
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -50,7 +50,7 @@
 #ifdef Q_WS_QWS
 #include "qgfx_qws.h"
 #endif
-#include <stdlib.h>
+#include <string.h>
 
 #ifndef QT_NO_TRANSFORMATIONS
 typedef QPtrStack<QWMatrix> QWMatrixStack;

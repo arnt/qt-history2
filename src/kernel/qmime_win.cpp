@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of Win32 MIME <-> clipboard converters
 **
 ** Created : 990101
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -41,10 +41,6 @@
 #include "qtextcodec.h"
 #include "qregexp.h"
 #include <shlobj.h>
-
-#if defined(__MINGW32__)
-#include <ctype.h>
-#endif
 
 extern bool qt_read_dib( QDataStream&, QImage& ); // qimage.cpp
 extern bool qt_write_dib( QDataStream&, QImage );   // qimage.cpp

@@ -54,8 +54,6 @@
 #include "qfontdatabase.h"
 #include "qstyle.h"
 
-#include <ctype.h>
-
 /*!
   \class QFontDialog qfontdialog.h
   \ingroup dialogs

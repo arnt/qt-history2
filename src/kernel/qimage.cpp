@@ -53,7 +53,6 @@
 #include "qapplication.h"
 #include "qmime.h"
 #include "qdragobject.h"
-#include <stdlib.h>
 #include <ctype.h>
 
 #ifdef Q_WS_QWS
@@ -646,7 +645,7 @@ QImage QImage::copy() const
 {
     if ( isNull() ) {
 	// maintain the fields of invalid QImages when copied
-	return QImage( NULL, width(), height(), depth(), colorTable(), numColors(), bitOrder() );
+	return QImage( 0, width(), height(), depth(), colorTable(), numColors(), bitOrder() );
     } else {
 	QImage image;
 	image.create( width(), height(), depth(), numColors(), bitOrder() );

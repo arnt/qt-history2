@@ -56,7 +56,6 @@
 #endif
 
 #include <stdlib.h>
-#include <ctype.h>
 
 
 #define	USE_JISX0212

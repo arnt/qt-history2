@@ -75,15 +75,19 @@
 #include "qnetwork.h"
 #include "qcursor.h"
 #include "qinputcontext_p.h"
+#include "qfile.h"
+
+#if defined(QT_THREAD_SUPPORT)
+#include "qthread.h"
+#endif
 
 //### convert interlace style
 //#include "qinterlacestyle.h"
 
+#include <unistd.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <unistd.h>
 #include <stdio.h>
-#include <limits.h>
 #include <sys/types.h>
 #ifndef QT_NO_QWS_MULTIPROCESS
 #ifdef QT_NO_QSHM
@@ -98,24 +102,13 @@
 #endif
 #endif
 
-#include <stdlib.h>
-#ifndef QT_NO_SM_SUPPORT
-#include <pwd.h>
-#endif
-#include <ctype.h>
+#include <string.h>
 #include <locale.h>
 #include <errno.h>
-
-#include "qfile.h"
-
 #include <sys/time.h>
 
 #if defined(Q_OS_QNX)
 #include <sys/select.h>
-#endif
-
-#if defined(QT_THREAD_SUPPORT)
-#include "qthread.h"
 #endif
 
 const int qwsSharedRamSize = 100 * 1024;

@@ -49,9 +49,6 @@
 #include "private/qapplication_p.h"
 #include "private/qfontdata_p.h"
 
-#include <stdlib.h>
-#include <ctype.h>
-
 class QtFontFamily;
 class QtFontFoundry;
 

@@ -5,7 +5,7 @@
 **
 ** Created : 941201
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -37,7 +37,6 @@
 
 #include "qsignal.h"
 #include "qmetaobject.h"
-#include <ctype.h>
 
 /*!
     \class QSignal qsignal.h

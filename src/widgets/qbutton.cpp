@@ -48,7 +48,6 @@
 #include "qpushbutton.h"
 #include "qguardedptr.h"
 #include "../kernel/qinternal_p.h"
-#include <ctype.h>
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"

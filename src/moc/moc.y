@@ -81,7 +81,6 @@ void yyerror( const char *msg );
 #endif
 
 #include <ctype.h>
-#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 

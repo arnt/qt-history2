@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of Qt/Embedded keyboard drivers
 **
@@ -38,10 +38,6 @@
 #include "qwindowsystem_qws.h"
 #include "qnamespace.h"
 #include "qapplication.h"
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <ctype.h>
 
 #include <unistd.h>
 #include <sys/ioctl.h>

@@ -62,7 +62,6 @@
 #include "qjpunicode.h"
 #include "qsjiscodec.h"
 #endif // QT_NO_BIG_CODECS
-
 #include "qfile.h"
 #include "qstrlist.h"
 #include "qstring.h"

@@ -53,7 +53,6 @@
 #include "qstyle.h"
 #include "qstylefactory.h"
 #include "qfile.h"
-#include <stdlib.h>
 
 #if defined(QT_THREAD_SUPPORT)
 #  include "qmutex.h"

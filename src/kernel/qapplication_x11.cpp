@@ -106,10 +106,9 @@
 #include <GL/glx.h>
 #endif
 
-#include <stdlib.h>
+#include <string.h>
 #include <ctype.h>
 #include <locale.h>
-#include <errno.h>
 
 //#define X_NOT_BROKEN
 #ifdef X_NOT_BROKEN

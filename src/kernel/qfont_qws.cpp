@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for FB
 **
 ** Created : 991026
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -43,11 +43,7 @@
 #include "qfile.h"
 #include "qtextstream.h"
 #include "qmap.h"
-#include <ctype.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <limits.h>
-#include <qshared.h>
+#include "qshared.h"
 #include "qfontmanager_qws.h"
 #include "qmemorymanager_qws.h"
 #include "qgfx_qws.h"

@@ -5,7 +5,7 @@
 **
 ** Created : 920722
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -47,11 +47,11 @@
 #ifndef QT_NO_TEXTCODEC
 #include "qtextcodec.h"
 #endif
-#include <ctype.h>
 #include <limits.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #if defined(Q_WS_WIN)
 #include "qt_windows.h"
 #endif

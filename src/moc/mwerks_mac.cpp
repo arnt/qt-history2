@@ -45,7 +45,6 @@ using namespace std;
 #include "CWPluginErrors.h"
 
 /* standard headers */
-#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
 

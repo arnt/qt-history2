@@ -41,8 +41,6 @@
 #include <qdockwindow.h>
 #include <qdockarea.h>
 
-#include <ctype.h>
-
 /*****************************************************************************
   QMenubar debug facilities
  *****************************************************************************/
@@ -54,8 +52,8 @@ void qt_event_request_menubarupdate(); //qapplication_mac.cpp
 //internal class
 class QMenuBar::MacPrivate {
 public:
-    MacPrivate() : commands(NULL), popups(NULL), mac_menubar(NULL),
-	apple_menu(NULL), in_apple(0), dirty(1) { }
+    MacPrivate() : commands(0), popups(0), mac_menubar(0),
+	apple_menu(0), in_apple(0), dirty(1) { }
     ~MacPrivate() { clear(); delete popups; delete commands; }
 
     class CommandBinding {
@@ -92,7 +90,7 @@ public:
 	    commands->clear();
 	if(mac_menubar) {
 	    DisposeMenuBar(mac_menubar);
-	    mac_menubar = NULL;
+	    mac_menubar = 0;
 	}
     }	
 };
@@ -110,13 +108,13 @@ QMenuBar::qt_mac_menubar_event(EventHandlerCallRef er, EventRef event, void *)
     case kEventClassMenu: {
 	qDebug("happened %d", ekind);
 	MenuRef menu;
-	GetEventParameter(event, kEventParamDirectObject, typeMenuRef, NULL,
-			  sizeof(menu), NULL, &menu);
+	GetEventParameter(event, kEventParamDirectObject, typeMenuRef, 0,
+			  sizeof(menu), 0, &menu);
 	int mid = GetMenuID(menu);
 	if(MacPrivate::PopupBinding *mpb = activeMenuBar->mac_d->popups->find(mid)) {
 	    short idx;
-	    GetEventParameter(event, kEventParamMenuItemIndex, typeMenuItemIndex, NULL,
-			      sizeof(idx), NULL, &idx);
+	    GetEventParameter(event, kEventParamMenuItemIndex, typeMenuItemIndex, 0,
+			      sizeof(idx), 0, &idx);
 	    MenuCommand cmd;
 	    GetMenuItemCommandID(mpb->macpopup, idx, &cmd);
 	    QMenuItem *it = mpb->qpopup->findItem(cmd);
@@ -139,8 +137,8 @@ QMenuBar::qt_mac_menubar_event(EventHandlerCallRef er, EventRef event, void *)
 	    } else {
 		CallNextEventHandler(er, event);
 		Rect r;
-		GetEventParameter(event, kEventParamMenuTextBounds, typeQDRectangle, NULL,
-				  sizeof(r), NULL, &r);
+		GetEventParameter(event, kEventParamMenuTextBounds, typeQDRectangle, 0,
+				  sizeof(r), 0, &r);
 		QMacSavedPortInfo fi;
 		::RGBColor f;
 		f.red = 256*256;
@@ -161,17 +159,17 @@ QMenuBar::qt_mac_menubar_event(EventHandlerCallRef er, EventRef event, void *)
 	return CallNextEventHandler(er, event);
     return noErr; //we eat the event
 }
-static EventHandlerRef mac_menubarEventHandler = NULL;
-static EventHandlerUPP mac_menubarEventUPP = NULL;
+static EventHandlerRef mac_menubarEventHandler = 0;
+static EventHandlerUPP mac_menubarEventUPP = 0;
 static void qt_mac_clean_menubar_event()
 {
     if(mac_menubarEventHandler) {
 	RemoveEventHandler(mac_menubarEventHandler);
-	mac_menubarEventHandler = NULL;
+	mac_menubarEventHandler = 0;
     }
     if(mac_menubarEventUPP) {
 	DisposeEventHandlerUPP(mac_menubarEventUPP);
-	mac_menubarEventUPP = NULL;
+	mac_menubarEventUPP = 0;
     }
 }
 void QMenuBar::qt_mac_install_menubar_event(MenuRef ref)
@@ -186,7 +184,7 @@ void QMenuBar::qt_mac_install_menubar_event(MenuRef ref)
     if(!mac_menubarEventUPP)
 	mac_menubarEventUPP = NewEventHandlerUPP(qt_mac_menubar_event);
     InstallMenuEventHandler(ref, mac_menubarEventUPP,
-			    GetEventTypeCount(menu_events), menu_events, NULL,
+			    GetEventTypeCount(menu_events), menu_events, 0,
 			    &mac_menubarEventHandler);
     qAddPostRoutine( qt_mac_clean_menubar_event );
 }
@@ -196,7 +194,7 @@ void QMenuBar::qt_mac_install_menubar_event(MenuRef ref)
 void no_ampersands(QString i, CFStringRef *ret) {
     for(int w = 0; (w=i.find('&', w)) != -1; )
 	i.remove(w, 1);
-    *ret = CFStringCreateWithCharacters(NULL, (UniChar *)i.unicode(), i.length());
+    *ret = CFStringCreateWithCharacters(0, (UniChar *)i.unicode(), i.length());
 }
 
 #if !defined(QMAC_QMENUBAR_NO_MERGE)
@@ -253,7 +251,7 @@ uint QMenuBar::isCommand(QMenuItem *it, bool just_check)
 					       kMenuItemAttrAutoRepeat, ret);
 	    }
 	}
-	EnableMenuCommand(NULL, ret);
+	EnableMenuCommand(0, ret);
     } else {
 	ret = 0;
     }
@@ -423,7 +421,7 @@ MenuRef QMenuBar::createMacPopup(QPopupMenu *d, bool do_sync, bool top_level)
 #endif
     MenuRef ret;
     if(CreateNewMenu(0, attr, &ret) != noErr)
-	return NULL;
+	return 0;
 
     if(!activeMenuBar->mac_d->popups) {
 	activeMenuBar->mac_d->popups = new QIntDict<QMenuBar::MacPrivate::PopupBinding>();
@@ -534,7 +532,7 @@ bool QMenuBar::activate(MenuRef menu, short idx, bool highlight, bool by_accel)
 }
 
 
-static QIntDict<QMenuBar> *menubars = NULL;
+static QIntDict<QMenuBar> *menubars = 0;
 /*!
   \internal
   Internal function that cleans up the menubar.
@@ -571,13 +569,13 @@ void QMenuBar::macRemoveNativeMenubar()
     }
     mac_eaten_menubar = FALSE;
     if(this == activeMenuBar) {
-	activeMenuBar = NULL;
+	activeMenuBar = 0;
 	ClearMenuBar();
 	InvalMenuBar();
     }
     if(mac_d) {
 	delete mac_d;
-	mac_d = NULL;
+	mac_d = 0;
     }
 }
 void QMenuBar::macDirtyNativeMenubar()
@@ -601,7 +599,7 @@ void QMenuBar::initialize()
 void QMenuBar::cleanup()
 {
     delete menubars;
-    menubars = NULL;
+    menubars = 0;
 }
 
 bool QMenuBar::macUpdateMenuBar()
@@ -660,7 +658,7 @@ bool QMenuBar::macUpdateMenuBar()
 	    if(first || !w || 
 		(!w->testWFlags(WStyle_Tool) && !w->testWFlags(WType_Popup))) {
 	    	first = FALSE;
-		activeMenuBar = NULL;
+		activeMenuBar = 0;
 		ClearMenuBar();
 		InvalMenuBar();
 	    }

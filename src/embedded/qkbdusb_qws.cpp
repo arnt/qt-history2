@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of Qt/Embedded USB keyboard drivers
 **
@@ -41,10 +41,6 @@
 #include "qsocketnotifier.h"
 #include "qnamespace.h"
 #include "qtimer.h"
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <ctype.h>
 
 #include <unistd.h>
 #include <sys/ioctl.h>

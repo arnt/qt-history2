@@ -50,8 +50,6 @@
 #include "qdict.h"
 #include "../kernel/qrichtext_p.h"
 
-#include <ctype.h>
-
 
 /*!
   \class QMultiLineEdit qmultilineedit.h

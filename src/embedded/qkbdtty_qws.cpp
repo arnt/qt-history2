@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of Qt/Embedded keyboard drivers
 **
 ** Created : 991025
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -42,10 +42,6 @@
 #include "qnamespace.h"
 #include "qtimer.h"
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <ctype.h>
-
 #include <unistd.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
@@ -54,7 +50,6 @@
 #include <errno.h>
 #include <signal.h>
 #include <termios.h>
-
 
 #ifdef Q_OS_QNX6
 #include "qwskeyboard_qnx.cpp"
@@ -236,4 +231,3 @@ void QWSTtyKbPrivate::readKeyboardData()
 #include "qkbdtty_qws.moc"
 
 #endif // QT_NO_QWS_KEYBOARD
-

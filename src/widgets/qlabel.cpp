@@ -1,11 +1,11 @@
 /**********************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QLabel widget class
 **
 ** Created : 941215
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
@@ -41,7 +41,6 @@
 #include "qdrawutil.h"
 #include "qaccel.h"
 #include "qmovie.h"
-#include <ctype.h>
 #include "qimage.h"
 #include "qbitmap.h"
 #include "qpicture.h"

@@ -55,7 +55,6 @@
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
-#include <ctype.h>
 
 class QMenuDataData {
     // attention: also defined in qmenudata.cpp
@@ -256,7 +255,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 {
 #if defined( Q_WS_MAC ) && !defined(QMAC_QMENUBAR_NO_NATIVE)
     mac_eaten_menubar = FALSE;
-    mac_d = NULL;
+    mac_d = 0;
     macCreateNativeMenubar();
 #endif
     isMenuBar = TRUE;

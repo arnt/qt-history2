@@ -1,11 +1,11 @@
 /**********************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QtMultiLineEdit widget class
 **
 ** Created : 961005
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file contains a class moved out of the Qt GUI Toolkit API. It
 ** may be used, distributed and modified without limitation.
@@ -28,7 +28,6 @@
 #ifndef QT_NO_COMPAT
 #include "qstyle.h"
 #endif
-#include <ctype.h>
 
 
 class QtMultiLineEditCommand
@@ -4238,4 +4237,3 @@ bool QtMultiLineEdit::focusNextPrevChild( bool )
 }
 
 #endif
-
