@@ -322,10 +322,10 @@ QString QSqlDriver::nullText() const
 
   <li> If \a field is character data, the value is returned enclosed
   in single quotation marks, which is appropriate for many SQL
-  databases.  If \a trimStrings is TRUE (the default is FALSE), all
-  trailing whitespace is trimmed from the field.  Any embedded
-  single-quote characters are escaped (replaced with two single-quote
-  characters).
+  databases. Any embedded single-quote characters are escaped
+  (replaced with two single-quote characters). If \a trimStrings is
+  TRUE (the default is FALSE), all trailing whitespace is trimmed from
+  the field.
 
   <li> If \a field is date/time data, the value is formatted in ISO
   format and enclosed in single quotation marks.  If the date/time
