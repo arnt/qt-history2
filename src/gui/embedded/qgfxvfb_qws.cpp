@@ -85,7 +85,8 @@ void QVFbMouseHandler::readMouseData()
     } while (n > 0);
 
     int idx = 0;
-    while (mouseIdx-idx >= int(sizeof(QPoint) + 2*sizeof(int))) {
+    static const int packetsize = sizeof(QPoint) + 2*sizeof(int);
+    while (mouseIdx-idx >= packetsize) {
         uchar *mb = mouseBuf+idx;
         QPoint mousePos = *reinterpret_cast<QPoint *>(mb);
         mb += sizeof(QPoint);
@@ -94,7 +95,7 @@ void QVFbMouseHandler::readMouseData()
         int wheel = *reinterpret_cast<int *>(mb);
 //        limitToScreen(mousePos);
         QWSServer::sendMouseEvent(mousePos, bstate, wheel);
-        idx += sizeof(QPoint) + sizeof(int) * 2;
+        idx += packetsize;
     }
 
     int surplus = mouseIdx - idx;
