@@ -1,5 +1,5 @@
-TEMPLATE	= app
-SOURCES	+= command.cpp formwindow.cpp defs.cpp layout.cpp main.cpp mainwindow.cpp mainwindowactions.cpp metadatabase.cpp pixmapchooser.cpp propertyeditor.cpp resource.cpp sizehandle.cpp orderindicator.cpp widgetfactory.cpp hierarchyview.cpp listboxeditorimpl.cpp connectioneditorimpl.cpp newformimpl.cpp workspace.cpp editslotsimpl.cpp listvieweditorimpl.cpp connectionviewerimpl.cpp customwidgeteditorimpl.cpp paletteeditorimpl.cpp styledbutton.cpp iconvieweditorimpl.cpp multilineeditorimpl.cpp formsettingsimpl.cpp asciivalidator.cpp splashloader.cpp designerapp.cpp designerappiface.cpp actioneditorimpl.cpp actionlistview.cpp actiondnd.cpp project.cpp projectsettingsimpl.cpp sourceeditor.cpp outputwindow.cpp ../shared/widgetdatabase.cpp ../shared/parser.cpp config.cpp pixmapcollection.cpp previewframe.cpp previewwidgetimpl.cpp paletteeditoradvancedimpl.cpp sourcefile.cpp filechooser.cpp wizardeditorimpl.cpp qcompletionedit.cpp timestamp.cpp formfile.cpp
+TEMPLATE	= lib
+SOURCES	+= command.cpp formwindow.cpp defs.cpp layout.cpp mainwindow.cpp mainwindowactions.cpp metadatabase.cpp pixmapchooser.cpp propertyeditor.cpp resource.cpp sizehandle.cpp orderindicator.cpp widgetfactory.cpp hierarchyview.cpp listboxeditorimpl.cpp connectioneditorimpl.cpp newformimpl.cpp workspace.cpp editslotsimpl.cpp listvieweditorimpl.cpp connectionviewerimpl.cpp customwidgeteditorimpl.cpp paletteeditorimpl.cpp styledbutton.cpp iconvieweditorimpl.cpp multilineeditorimpl.cpp formsettingsimpl.cpp asciivalidator.cpp splashloader.cpp designerapp.cpp designerappiface.cpp actioneditorimpl.cpp actionlistview.cpp actiondnd.cpp project.cpp projectsettingsimpl.cpp sourceeditor.cpp outputwindow.cpp ../shared/widgetdatabase.cpp ../shared/parser.cpp config.cpp pixmapcollection.cpp previewframe.cpp previewwidgetimpl.cpp paletteeditoradvancedimpl.cpp sourcefile.cpp filechooser.cpp wizardeditorimpl.cpp qcompletionedit.cpp timestamp.cpp formfile.cpp
 HEADERS	+= command.h defs.h formwindow.h layout.h mainwindow.h metadatabase.h pixmapchooser.h propertyeditor.h resource.h sizehandle.h orderindicator.h widgetfactory.h hierarchyview.h listboxeditorimpl.h connectioneditorimpl.h newformimpl.h workspace.h editslotsimpl.h listvieweditorimpl.h connectionviewerimpl.h customwidgeteditorimpl.h paletteeditorimpl.h styledbutton.h iconvieweditorimpl.h multilineeditorimpl.h formsettingsimpl.h asciivalidator.h splashloader.h ../interfaces/widgetinterface.h ../interfaces/actioninterface.h ../interfaces/filterinterface.h ../interfaces/designerinterface.h designerapp.h designerappiface.h actioneditorimpl.h actionlistview.h actiondnd.h project.h projectsettingsimpl.h sourceeditor.h outputwindow.h ../shared/widgetdatabase.h ../shared/parser.h config.h previewframe.h previewwidgetimpl.h paletteeditoradvancedimpl.h pixmapcollection.h sourcefile.h filechooser.h wizardeditorimpl.h qcompletionedit.h timestamp.h formfile.h
 OBJECTS_DIR	= .
 
@@ -10,7 +10,9 @@ include( ../../../src/qt_professional.pri )
 
 TARGET	= designer
 DEPENDPATH	+= $(QTDIR)/include
-DESTDIR	= ../../../bin
+VERSION  	= 1.0.0
+DESTDIR		= $(QTDIR)/lib
+DLLDESTDIR	= $(QTDIR)/bin
 win32:RC_FILE = designer.rc
 mac:RC_FILE = designer.icns
 
