@@ -890,6 +890,8 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 case Qt::DownArrow:
                     pe = PE_ArrowDown;
                     break;
+                default:
+                    return;
                 }
                 rect.moveBy(shiftX, shiftY);
                 QStyleOption arrowOpt(0);
