@@ -99,7 +99,7 @@ protected:
 private:	// Disabled copy constructor and operator=
 #if defined(Q_WS_X11)
     void clobber();
-#elif defined(Q_WS_MACX) || defined( Q_WS_MAC9 )
+#elif defined(Q_WS_MAC)
     void loadScrap(bool convert);
     void saveScrap();
 #endif

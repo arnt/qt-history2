@@ -214,7 +214,7 @@ public:
     static bool	    isEffectEnabled( Qt::UIEffect );
     static void	    setEffectEnabled( Qt::UIEffect, bool enable = TRUE );
 
-#if defined(Q_WS_MACX) || defined(Q_WS_MAC9)
+#if defined(Q_WS_MAC)
     bool	     do_mouse_down(Point *);
     virtual bool     macEventFilter( EventRef );
     static QMAC_PASCAL OSStatus globalEventProcessor(EventHandlerCallRef,  EventRef, void *);

@@ -94,7 +94,7 @@ public:
     HRGN    handle() const { return data->rgn; }
 #elif defined(Q_WS_X11)
     Region  handle() const { return data->rgn; }
-#elif defined(Q_WS_MACX) || defined(Q_WS_MAC9)
+#elif defined(Q_WS_MAC)
     void *  handle() const { return data->rgn; }
 #elif defined(Q_WS_QWS)
     // QGfx_QWS needs this for region drawing
@@ -118,7 +118,7 @@ private:
 	HRGN   rgn;
 #elif defined(Q_WS_X11)
 	Region rgn;
-#elif defined(Q_WS_MACX) || defined(Q_WS_MAC9)
+#elif defined(Q_WS_MAC)
         RgnHandle rgn;
 #elif defined(Q_WS_QWS)
         void * rgn;

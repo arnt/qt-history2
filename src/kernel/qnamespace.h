@@ -668,7 +668,7 @@ public:
 
 
     // "handle" type for system objects.
-#if defined(Q_WS_MACX) || defined(Q_WS_MAC9)
+#if defined(Q_WS_MAC)
     typedef void * HANDLE;
 #endif
 #if defined(Q_WS_WIN)

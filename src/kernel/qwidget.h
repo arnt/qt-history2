@@ -417,7 +417,7 @@ public:
 #if defined(Q_WS_QWS)
     virtual QGfx * graphicsContext(bool clip_children=TRUE) const;
 #endif
-#if defined(Q_WS_MACX) || defined(Q_WS_MAC9)
+#if defined(Q_WS_MAC)
     QRegion clippedRegion(bool do_children=TRUE);
     bool macDropEnabled;
 #endif
@@ -452,7 +452,7 @@ protected:
     virtual void hideEvent( QHideEvent * );
     virtual void customEvent( QCustomEvent * );
 
-#if defined(Q_WS_MACX) || defined(Q_WS_MAC9)
+#if defined(Q_WS_MAC)
     virtual bool macEvent( MSG * );		// Macintosh event
     uint    own_id : 1; //owns the winid
     int back_type;                              // Type of background
@@ -509,7 +509,7 @@ protected:
     virtual void setKeyCompression(bool);
     virtual void setMicroFocusHint(int x, int y, int w, int h, bool text=TRUE);
 
-#if defined(Q_WS_MACX) || defined(Q_WS_MAC9)
+#if defined(Q_WS_MAC)
     void dirtyClippedRegion(bool);
     bool isClippedRegionDirty();
 #endif
@@ -825,7 +825,7 @@ class QWSManager;
 #if defined(Q_WS_WIN)
 class QOleDropTarget;
 #endif
-#if defined(Q_WS_MACX) || defined(Q_WS_MAC9)
+#if defined(Q_WS_MAC)
 class QMacDndExtra;
 #endif
 
@@ -880,10 +880,10 @@ struct Q_EXPORT QWExtra {
 #if defined(Q_WS_X11)
     WId xDndProxy;			// XDND forwarding to embedded windows
 #endif
-#if defined(Q_WS_MACX) || defined(Q_WS_MAC9)
+#if defined(Q_WS_MAC)
     QMacDndExtra *macDndExtra;
 #endif
-#if defined(Q_WS_QWS) || defined(Q_WS_MACX) || defined(Q_WS_MAC9)
+#if defined(Q_WS_QWS) || defined(Q_WS_MAC)
     QRegion mask;				// widget mask
     bool clip_dirty, child_dirty;
     QRegion clip_saved, clip_sibs, clip_children;

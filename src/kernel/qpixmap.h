@@ -199,7 +199,7 @@ protected:
 	void   *ximage;
 	void   *maskgc;
 	int scrn;
-#elif defined(Q_WS_MACX) || defined(Q_WS_MAC9)
+#elif defined(Q_WS_MAC)
 	ColorTable *clut;
 #elif defined(Q_WS_QWS)
 	int id; // ### should use QPaintDevice::hd, since it is there
