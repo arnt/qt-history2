@@ -242,6 +242,8 @@ void QAlphaWidget::render()
 	widget->removeEventFilter( this );
 	qApp->removeEventFilter( this );
 	BackgroundMode bgm = widget->backgroundMode();
+	QColor erc = widget->eraseColor();
+	const QPixmap *erp = widget->erasePixmap();
 
 	if ( showWidget ) {
 	    widget->clearWState( WState_Visible );
@@ -254,9 +256,16 @@ void QAlphaWidget::render()
 	hide();
 
 	if ( showWidget ) {
-	    widget->clearWState( WState_Visible ); // prevent update in setBackgroundMode
-	    widget->setBackgroundMode( bgm );
-	    widget->setWState( WState_Visible );
+	    if ( bgm != FixedColor && bgm != FixedPixmap ) {
+		widget->clearWState( WState_Visible ); // prevent update in setBackgroundMode
+		widget->setBackgroundMode( bgm );
+		widget->setWState( WState_Visible );
+	    } 
+	    if ( erc.isValid() ) {
+		widget->setEraseColor( erc );
+	    } else if ( erp ) {
+		widget->setErasePixmap( *erp );
+	    }
 	}
 	q_blend = 0;
 	QTimer::singleShot( 0, this, SLOT(goodBye()) );
@@ -548,6 +557,8 @@ void QRollEffect::scroll()
 	widget->removeEventFilter( this );
 	qApp->removeEventFilter( this );
 	BackgroundMode bgm = widget->backgroundMode();
+	QColor erc = widget->eraseColor();
+	const QPixmap *erp = widget->erasePixmap();
 
 	if ( showWidget ) {
 	    widget->clearWState( WState_Visible );
@@ -560,9 +571,16 @@ void QRollEffect::scroll()
 	hide();
 
 	if ( showWidget ) {
-	    widget->clearWState( WState_Visible ); // prevent update in setBackgroundMode
-	    widget->setBackgroundMode( bgm );
-	    widget->setWState( WState_Visible );
+	    if ( bgm != FixedColor && bgm != FixedPixmap ) {
+		widget->clearWState( WState_Visible ); // prevent update in setBackgroundMode
+		widget->setBackgroundMode( bgm );
+		widget->setWState( WState_Visible );
+	    } 
+	    if ( erc.isValid() ) {
+		widget->setEraseColor( erc );
+	    } else if ( erp ) {
+		widget->setErasePixmap( *erp );
+	    }
 	}
 	q_roll = 0;
 	QTimer::singleShot( 0, this, SLOT(goodBye()) );
