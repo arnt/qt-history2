@@ -317,6 +317,9 @@ static bool            popupGrabOk;
 
 static bool sm_blockUserInput = false;                // session management
 
+// optimize repaints for a hardware accelerated Xrender extension
+bool qt_has_accelerated_xrender = false;
+
 Q_GUI_EXPORT int qt_xfocusout_grab_counter = 0;
 
 #if defined (QT_TABLET_SUPPORT)
@@ -710,7 +713,7 @@ bool QApplication::x11_apply_settings()
     QSettings settings;
     settingsstamp = settings.lastModificationTime("/qt/font");
     if (! settingsstamp.isValid())
-        return false;
+	return false;
 
     if (appliedstamp && appliedstamp == settingsstamp.toTime_t())
         return true;
@@ -876,6 +879,9 @@ bool QApplication::x11_apply_settings()
 
     qt_use_rtl_extensions =
         settings.readBoolEntry("/qt/useRtlExtensions", false);
+
+    qt_has_accelerated_xrender =
+        settings.readBoolEntry("/qt/hasAcceleratedXrender", false);
 
 #ifndef QT_NO_XIM
     if (xim_preferred_style == 0) {

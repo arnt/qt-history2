@@ -32,6 +32,8 @@
 extern void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region);
 extern void qt_clear_paintevent_clipping();
 
+extern bool qt_has_accelerated_xrender; // declared in qapplication_x11.cpp
+
 #include "qpaintengine_x11.h"
 #include "qt_x11_p.h"
 #include "qx11info_x11.h"
@@ -1423,7 +1425,7 @@ static void qt_x11_release_double_buffer(QX11DoubleBuffer **db)
     if (*db != qt_x11_global_double_buffer)
         qt_discard_double_buffer(db);
     else
-      qt_x11_global_double_buffer_active = false;
+	qt_x11_global_double_buffer_active = false;
 }
 
 static QX11DoubleBuffer *qt_x11_create_double_buffer(Qt::HANDLE hd, int screen, int depth, int width, int height)
@@ -1450,16 +1452,20 @@ static QX11DoubleBuffer *qt_x11_create_double_buffer(Qt::HANDLE hd, int screen, 
 static
 void qt_x11_get_double_buffer(QX11DoubleBuffer **db, Qt::HANDLE hd, int screen, int depth, int width, int height)
 {
-    qt_x11_global_double_buffer_active = true;
+    if (!qt_has_accelerated_xrender)
+	qt_x11_global_double_buffer_active = true;
+
     if (qt_x11_global_double_buffer_active) {
         *db = qt_x11_create_double_buffer(hd, screen, depth, width, height);
 	return;
     }
 
+    if (qt_has_accelerated_xrender)
+	qt_x11_global_double_buffer_active = true;
+
     // the db should consist of 128x128 chunks
     width  = qMin(((width / 128) + 1) * 128, (int)QX11DoubleBuffer::MaxWidth);
     height = qMin(((height / 128) + 1) * 128, (int)QX11DoubleBuffer::MaxHeight);
-
 
     if (qt_x11_global_double_buffer) {
         if (qt_x11_global_double_buffer->screen == screen
@@ -1470,8 +1476,8 @@ void qt_x11_get_double_buffer(QX11DoubleBuffer **db, Qt::HANDLE hd, int screen, 
             return;
         }
 
-        width  = qMax(qt_x11_global_double_buffer->width,  width);
-        height = qMax(qt_x11_global_double_buffer->height, height);
+ 	width  = qMax(qt_x11_global_double_buffer->width,  width);
+ 	height = qMax(qt_x11_global_double_buffer->height, height);
 
         qt_discard_double_buffer();
     }
