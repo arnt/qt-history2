@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.h#31 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.h#32 $
 **
 ** Definition of QGroupBox widget class
 **
@@ -35,7 +35,7 @@ class QAccel;
 class QGroupBoxPrivate;
 class QVBoxLayout;
 class QGridLayout;
-
+class QDomElement;
 
 class Q_EXPORT QGroupBox : public QFrame
 {
@@ -53,6 +53,10 @@ public:
 
     int alignment() const { return align; }
     virtual void setAlignment( int );
+
+#ifdef QT_BUILDER
+    bool setConfiguration( const QDomElement& element );
+#endif // QT_BUILDER
 
 protected:
     void childEvent( QChildEvent * );

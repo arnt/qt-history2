@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#67 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#68 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -32,6 +32,10 @@
 #include "qfocusdata.h"
 #include "qobjectlist.h"
 #include "qdrawutil.h"
+
+#ifdef QT_BUILDER
+#include "qdom.h"
+#endif
 
 /*!
   \class QGroupBox qgroupbox.h
@@ -220,7 +224,7 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 	    x = frameRect().width() - tw - 8;
 	else				// left alignment
 	    x = 8;
-	qDrawItem( &paint, style(), x, 0, tw, h, AlignCenter + ShowPrefix, 
+	qDrawItem( &paint, style(), x, 0, tw, h, AlignCenter + ShowPrefix,
 		   colorGroup(), isEnabled(), 0, str, lenvisible, 0 );
  	QRect r( x, 0, tw, h );
 	paint.setClipRegion( event->region().subtract( r ) );	// clip everything but title
@@ -291,6 +295,17 @@ void QGroupBox::setColumnLayout(int columns, Orientation direction)
 
     vbox = new QVBoxLayout( this, 8, 0 );
 
+    // Torbens hack for the builder. I dont want to
+    // have this QGridLayout. I want to make it on
+    // my own.
+    if ( columns == -1 )
+    {
+	dir = direction;
+	nCols = -1;
+	nRows = -1;
+	return;
+    }
+    
     if ( !str.isEmpty() ) {
 	//### we should have a changeable spacer item
 	QFontMetrics fm = fontMetrics();
@@ -331,6 +346,11 @@ void QGroupBox::childEvent( QChildEvent *c )
 
 void QGroupBox::insertWid( QWidget* _w )
 {
+    // Torbens hack for the builder. The builder does
+    // not like the QGridLayout and associated magic.
+    if ( nCols == -1 && nRows == -1 )
+	return;
+    
     if ( row >= nRows || col >= nCols )
         grid->expand( row+1, col+1 );
     grid->addWidget( _w, row, col );
@@ -423,3 +443,44 @@ void QGroupBox::calculateFrame()
     // no visible label
     setFrameRect( QRect(0,0,0,0) );		//  then use client rect
 }
+
+#ifdef QT_BUILDER
+bool QGroupBox::setConfiguration( const QDomElement& element )
+{
+    // Use the -1 one here to tell the group box:
+    // Dont use your QGridLayout. We will use ours.
+    setColumnLayout( -1, Qt::Vertical );
+
+    // Handle our children. QWidget knows about this and wont
+    // create them again.
+    QDomElement l = element.namedItem( "Layout" ).toElement();
+    if ( !l.isNull() )
+    {
+	if ( !( l.firstChild().toElement().toLayout( vbox ) ) )
+	    return FALSE;
+    }
+    else
+    {
+	// The "Widget" tag only appears because people want to have
+	// absolute positioning. We have to create a placeholder widget here
+	// in order of not overwriting the title. This will break some Styles, but
+	// when people ue absolute positioning I cant help them anyways.
+	QWidget* w = new QWidget( this );
+	vbox->addWidget( w );
+	QDomElement e = element.firstChild().toElement();
+	for( ; !e.isNull(); e = e.nextSibling().toElement() )
+        {
+	    if ( e.tagName() == "Widget" )
+	    {
+		if ( !e.firstChild().toElement().toWidget( w ) )
+		    return FALSE;
+	    }
+	}
+    }
+    
+    if ( !QFrame::setConfiguration( element ) )
+	return FALSE;
+
+    return TRUE;
+}
+#endif // QT_BUILDER
