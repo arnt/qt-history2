@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.cpp#5 $
+** $Id: //depot/qt/main/src/tools/qgvector.cpp#6 $
 **
 ** Implementation of QGVector class
 **
@@ -31,7 +31,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgvector.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgvector.cpp#6 $";
 #endif
 
 
@@ -264,7 +264,7 @@ static int cmp_vec( GCI *n1, GCI *n2 )
     return sort_vec->compareItems( *n1, *n2 );
 }
 
-typedef int (*cmp_func)(...);
+typedef int (*cmp_func)( const void *, const void * );
 
 void QGVector::sort()				// sort vector
 {
