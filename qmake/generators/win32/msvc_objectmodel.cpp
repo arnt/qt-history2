@@ -1843,7 +1843,7 @@ void VCFilter::generateMOC( QTextStream &strm, QString filename ) const
     tool.Description += filename + "...";
     
     // Output custom build for all configurations
-    for ( uint i = 0; i < Config->count(); i++ ) {
+    for ( int i = 0; i < Config->count(); i++ ) {
 	strm << _begFileConfiguration;
 	strm << _Name5;
 	strm << (*Config)[i].Name;
@@ -1893,7 +1893,7 @@ void VCFilter::generateUIC( QTextStream &strm, const QString& str ) const
     QString pchOption;
     if (Project->usePCH)
 	pchOption = " -pch " + Project->precomph;
-    for ( uint i = 0; i < Config->count(); i++ ) {
+    for ( int i = 0; i < Config->count(); i++ ) {
 	strm << _begFileConfiguration;
 	strm << _Name5;
 	strm << (*Config)[i].Name;
@@ -1939,7 +1939,7 @@ void VCFilter::addPCHstage( QTextStream &strm, const QString& str ) const
     tool.PrecompiledHeaderFile = Project->pch;
 
     // Output custom build for all configurations
-    for ( uint i = 0; i < Config->count(); i++ ) {
+    for ( int i = 0; i < Config->count(); i++ ) {
 	strm << _begFileConfiguration;
 	strm << _Name5;
 	strm << (*Config)[i].Name;
