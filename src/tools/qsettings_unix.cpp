@@ -381,8 +381,16 @@ void QSettingsPrivate::removeGroup(const QString &key) {
 
     if (found) {
 	grp.remove(key);
-	hd.replace(group, grp);
-	headings.replace(heading, hd);
+
+	if (grp.count() > 0)
+	    hd.replace(group, grp);
+	else
+	    hd.remove(group);
+
+	if (hd.count() > 0)
+	    headings.replace(heading, hd);
+	else
+	    headings.remove(heading);
 
 	modified = TRUE;
     }
@@ -648,17 +656,19 @@ bool QSettings::sync()
 	stream.setEncoding(QTextStream::UnicodeUTF8);
 
 	while (hdit != hd.end()) {
-	    stream << "[" << hdit.key() << "]" << endl;
+	    if ((*hdit).count() > 0) {
+		stream << "[" << hdit.key() << "]" << endl;
 
-	    QSettingsGroup grp(*hdit);
-	    QSettingsGroup::Iterator grpit = grp.begin();
+		QSettingsGroup grp(*hdit);
+		QSettingsGroup::Iterator grpit = grp.begin();
 
-	    while (grpit != grp.end()) {
-		stream << grpit.key() << "=" << grpit.data() << endl;
-		grpit++;
+		while (grpit != grp.end()) {
+		    stream << grpit.key() << "=" << grpit.data() << endl;
+		    grpit++;
+		}
+
+		stream << endl;
 	    }
-
-	    stream << endl;
 
 	    hdit++;
 	}
