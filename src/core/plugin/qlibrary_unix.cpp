@@ -87,14 +87,14 @@ bool QLibraryPrivate::load_sys()
     }
 # endif
     if (!pHnd)
-        qWarning("QLibrary: Cannot load %s", QFile::encodeName(fileName).constData());
+        qWarning("QLibrary: error message '%s' for '%s'", dlerror(), QFile::encodeName(fileName).constData());
     return (pHnd != 0);
 }
 
 bool QLibraryPrivate::unload_sys()
 {
     if (dlclose(pHnd)) {
-        qWarning("QLibrary: Cannot unload %s", QFile::encodeName(fileName).constData());
+        qWarning("QLibrary: error message '%s' for '%s'", dlerror(), QFile::encodeName(fileName).constData());
         return false;
     }
     return true;
