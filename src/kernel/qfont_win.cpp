@@ -564,12 +564,12 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
 
 // we don't use qt_winTchar here for performance reasons
 // pay attention when using the function. You'll have to delete the
-// returned TCHAR when !(defined(UNICODE) && !defined(Q_OS_WIN32BYTESWAP_))
+// returned TCHAR when !(defined(UNICODE) && !defined(QT_WIN32BYTESWAP))
 static inline TCHAR* tchar(const QChar *uc, int len)
 {
 #ifdef UNICODE
 
-#if defined(Q_OS_WIN32BYTESWAP_)
+#if defined(QT_WIN32BYTESWAP)
     TCHAR *buf = new TCHAR[len];
     for ( int i = 0; i < len; i++ ) {
         buf[i] = uc->row() << 8 | uc->cell();
