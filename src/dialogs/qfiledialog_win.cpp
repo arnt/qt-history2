@@ -690,6 +690,8 @@ QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
     if ( parent )
 	qt_leave_modal( parent );
 
+    if ( !result.isEmpty() )
+	result.replace( "\\", "/" );
     return result;
 #else
     return QString::null;
