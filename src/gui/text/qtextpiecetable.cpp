@@ -161,8 +161,8 @@ void QTextPieceTable::insert_block(int pos, uint strPos, int format, int blockFo
 
 void QTextPieceTable::insertBlock(int pos, int blockFormat, int charFormat)
 {
-    Q_ASSERT(blockFormat == -1 || formats->format(blockFormat).isBlockFormat());
-    Q_ASSERT(charFormat == -1 || formats->format(charFormat).isCharFormat());
+    Q_ASSERT(formats->format(blockFormat).isBlockFormat());
+    Q_ASSERT(formats->format(charFormat).isCharFormat());
     Q_ASSERT(pos >= 0 && (pos < fragments.length() || (pos == 0 && fragments.length() == 0)));
 
     beginEditBlock();
@@ -190,7 +190,7 @@ void QTextPieceTable::insert(int pos, int strPos, int strLength, int format)
         return;
 
     Q_ASSERT(pos >= 0 && pos < fragments.length());
-    Q_ASSERT(format == -1 || formats->format(format).isCharFormat());
+    Q_ASSERT(formats->format(format).isCharFormat());
 
     insert_string(pos, strPos, strLength, format, UndoCommand::MoveCursor);
 

@@ -105,8 +105,8 @@ public:
     QTextPieceTable(QAbstractTextDocumentLayout *layout);
     ~QTextPieceTable();
 
-    void insert(int pos, const QString &text, int format = -1);
-    void insert(int pos, int strPos, int strLength, int format = -1);
+    void insert(int pos, const QString &text, int format);
+    void insert(int pos, int strPos, int strLength, int format);
     void insertBlock(int pos, int blockFormat, int charFormat);
     void remove(int pos, int length, UndoCommand::Operation = UndoCommand::MoveCursor);
 
