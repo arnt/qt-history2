@@ -214,9 +214,9 @@ uint QFileInfo::groupId() const
     \code
 	QFileInfo fi( "/tmp/archive.tar.gz" );
 	if ( fi.permission( QFileInfo::WriteUser | QFileInfo::ReadGroup ) )
-	    qWarning( "I can change the file; my group can read the file.");
+	    qWarning( "I can change the file; my group can read the file" );
 	if ( fi.permission( QFileInfo::WriteGroup | QFileInfo::WriteOther ) )
-	    qWarning( "The group or others can change the file!" );
+	    qWarning( "The group or others can change the file" );
     \endcode
 
     \sa isReadable(), isWritable(), isExecutable()

@@ -202,7 +202,7 @@ bool QDir::isReadable() const
     QDir d( "/tmp/root_link" );
     d = d.canonicalPath();
     if ( d.isRoot() )
-	qWarning( "It is a root link!" );
+	qWarning( "It is a root link" );
     \endcode
 
     \sa root(), rootDirPath()
