@@ -994,7 +994,7 @@ QModelIndex QDirModel::mkdir(const QModelIndex &parent, const QString &name)
 
     d->savePersistentIndexes();
 
-    QDir dir = p->info.dir();
+    QDir dir(p->info.absoluteFilePath());
     if (!dir.mkdir(name)) {
         d->restorePersistentIndexes();
         return QModelIndex();
@@ -1044,7 +1044,7 @@ bool QDirModel::rmdir(const QModelIndex &index)
     emit rowsRemoved(parent(index), index.row(), 1);
     d->savePersistentIndexes();
 
-    QDir dir = p->info.dir();
+    QDir dir = p->info.dir(); // parent dir
     QString path = n->info.absoluteFilePath();
     if (!dir.rmdir(path)) {
         d->restorePersistentIndexes();
@@ -1091,7 +1091,7 @@ bool QDirModel::remove(const QModelIndex &index)
     emit rowsRemoved(parent(index), index.row(), 1);
     d->savePersistentIndexes();
 
-    QDir dir = p->info.dir();
+    QDir dir = p->info.dir(); // parent dir
     QString path = n->info.absoluteFilePath();
     if (!dir.remove(path)) {
         d->restorePersistentIndexes();
