@@ -20,13 +20,13 @@ HEADERS =	qbttngrp.h	qbutton.h	qchkbox.h	qcombo.h      \
 		qlined.h	qlistbox.h	qmenubar.h	qmenudta.h    \
 		qpopmenu.h	qpushbt.h	qradiobt.h	qrangect.h    \
 		qslider.h	qscrbar.h	qtablevw.h	qtooltip.h    \
-		qmlined.h       qheader.h	qtabbar.h
+		qmlined.h       qheader.h	qtabbar.h	qspinbox.h
 SOURCES =	qbttngrp.cpp	qbutton.cpp	qchkbox.cpp	qcombo.cpp    \
 		qframe.cpp	qgrpbox.cpp	qlabel.cpp	qlcdnum.cpp   \
 		qlined.cpp	qlistbox.cpp	qmenubar.cpp	qmenudta.cpp  \
 		qpopmenu.cpp	qpushbt.cpp	qradiobt.cpp	qrangect.cpp  \
 		qslider.cpp	qscrbar.cpp	qtablevw.cpp	qtooltip.cpp  \
-		qmlined.cpp     qheader.cpp	qtabbar.cpp
+		qmlined.cpp     qheader.cpp	qtabbar.cpp	qspinbox.cpp
 BETA	=	qslider.cpp 	qslider.h	qheader.h 	qheader.cpp\
 		mslider.cpp 	mheader.h
 OBJECTS =	qbttngrp.o	qbutton.o	qchkbox.o	qcombo.o      \
@@ -34,19 +34,19 @@ OBJECTS =	qbttngrp.o	qbutton.o	qchkbox.o	qcombo.o      \
 		qlined.o	qlistbox.o	qmenubar.o	qmenudta.o    \
 		qpopmenu.o	qpushbt.o	qradiobt.o	qrangect.o    \
 		qslider.o	qscrbar.o	qtablevw.o	qtooltip.o    \
-		qmlined.o       qheader.o	qtabbar.o
+		qmlined.o       qheader.o	qtabbar.o	qspinbox.o
 SRCMETA =	mbttngrp.cpp	mbutton.cpp	mchkbox.cpp	mcombo.cpp    \
 		mframe.cpp	mgrpbox.cpp	mlabel.cpp	mlcdnum.cpp   \
 		mlined.cpp	mlistbox.cpp	mmenubar.cpp	mpopmenu.cpp  \
 		mpushbt.cpp	mradiobt.cpp	mscrbar.cpp	mtablevw.cpp  \
 		mmlined.cpp	mtooltip.cpp	mslider.cpp	mheader.cpp   \
-		mtabbar.cpp
+		mtabbar.cpp	mspinbox.cpp
 OBJMETA =	mbttngrp.o	mbutton.o	mchkbox.o	mcombo.o      \
 		mframe.o	mgrpbox.o	mlabel.o	mlcdnum.o     \
 		mlined.o	mlistbox.o	mmenubar.o	mpopmenu.o    \
 		mpushbt.o	mradiobt.o	mscrbar.o	mtablevw.o    \
 		mmlined.o	mtooltip.o	mslider.o	mheader.o     \
-		mtabbar.o
+		mtabbar.o	mspinbox.o
 
 TARGET = $(LIBDIR)/libqwidgets.a
 
@@ -156,6 +156,9 @@ mtooltip.cpp: qtooltip.h
 
 mtabbar.cpp: qtabbar.h
 	moc qtabbar.h -o mtabbar.cpp
+
+mspinbox.cpp: qspinbox.h
+	moc qspinbox.h -o mspinbox.cpp
 
 
 -include .depend
