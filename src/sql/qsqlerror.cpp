@@ -35,6 +35,7 @@
 **********************************************************************/
 
 #include "qsqlerror.h"
+#include <qmessagebox.h>
 
 #ifndef QT_NO_SQL
 
@@ -188,4 +189,32 @@ void QSqlError::setNumber( int number )
     errorNumber = number;
 }
 
+/*!
+    This is a convenience function that returns databaseText() and
+    driverText() concatenated into a single string.
+    
+    \sa driverText(), databaseText()
+*/
+
+QString QSqlError::text() const
+{
+    if ( databaseError.endsWith("\n") )
+	return databaseError + driverError;
+    else
+	return databaseError + " " + driverError;
+}
+
+/*!
+    This is a convenience function that pops up a QMessageBox
+    containing the message returned by text(). An additional string
+    can be passed in through the {\a msg} parameter, which will be
+    concatenated with the text() message.
+    
+    \sa text(), driverText(), databaseText()
+*/
+void QSqlError::display( const QString& msg ) const
+{
+    QMessageBox::warning( NULL, "SQL Error", msg + text(), 
+			  QMessageBox::Ok, QMessageBox::NoButton ); 
+}
 #endif // QT_NO_SQL
