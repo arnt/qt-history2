@@ -7,7 +7,14 @@
 #include <qsignalmapper.h>
 #include <qstylefactory.h>
 
-class TestComponent : public QObject, public ActionInterface, public QLibraryInterface
+#include <qsettings.h>
+
+class TestComponent : public QObject, 
+		      public ActionInterface, 
+		      public QLibraryInterface, 
+		      public QComponentServerInterface,
+		      public QComponentInterface,
+		      public QComponentFactoryInterface
 {
     Q_OBJECT
 
@@ -28,6 +35,19 @@ public:
     void cleanup();
     bool canUnload() const;
 
+    bool registerComponents( const QString & ) const;
+    bool unregisterComponents() const;
+
+    QString name() const { return "Test Component"; }
+    QString description() const { return "Guess what..."; }
+    QString version() const { return "beta"; }
+    QString author() const { return "vohi@trolltech.com"; }
+
+    QUnknownInterface *createInstance( const QUuid &, const QUuid & );
+
+    static QUuid cid;
+
+
 private slots:
     void setStyle( const QString& );
 
@@ -38,6 +58,8 @@ private:
 
     unsigned long ref;
 };
+
+QUuid TestComponent::cid( 0xDD19964B, 0xA2C8, 0x42AE, 0xAA, 0xF9, 0x8A, 0xDC, 0x50, 0x9B, 0xCA, 0x03 );
 
 TestComponent::TestComponent()
 : styleMapper( 0 ), ref( 0 )
@@ -59,7 +81,11 @@ QUnknownInterface *TestComponent::queryInterface( const QUuid &uuid )
 	iface = (ActionInterface*)this;
     else if ( uuid == IID_QLibraryInterface )
 	iface = (QLibraryInterface*)this;
-
+    else if ( uuid == IID_QComponentServerInterface )
+	iface = (QComponentServerInterface*)this;
+    else if ( uuid == IID_QComponentFactoryInterface )
+	iface = (QComponentFactoryInterface*)this;
+    
     if ( iface )
 	iface->addRef();
     return iface;
@@ -165,11 +191,48 @@ bool TestComponent::canUnload() const
     return actions.isEmpty();
 }
 
+bool TestComponent::registerComponents( const QString &filepath ) const
+{
+    QString cidStr = TestComponent::cid.toString();
+    QSettings settings;
+    bool ok;
+
+    settings.insertSearchPath( QSettings::Windows, "/Classes" );
+    ok = settings.writeEntry( "/CLSID/" + cidStr + "/Default", "Test Component" );
+    ok = ok && settings.writeEntry( "/CLSID/" + cidStr + "/InprocServer32/Default", filepath );
+
+    return ok;
+}
+
+bool TestComponent::unregisterComponents() const
+{
+    QString cidStr = TestComponent::cid.toString();
+    QSettings settings;
+    bool ok;
+
+    settings.insertSearchPath( QSettings::Windows, "/Classes" );
+    ok = settings.removeEntry( "/CLSID/" + cidStr + "/InprocServer32/Default" );
+    ok = ok && settings.removeEntry( "/CLSID/" + cidStr + "/Default" );
+
+    return ok;
+}
+
+QUnknownInterface *TestComponent::createInstance( const QUuid &iid, const QUuid &cid )
+{
+    if ( cid == TestComponent::cid ) {
+	TestComponent *comp = new TestComponent();
+	QUnknownInterface *iface = comp->queryInterface( iid );
+	if ( iface )
+	    return iface;
+
+	delete comp;
+    }
+    return 0;
+}
+
 #include "main.moc"
 
 Q_EXPORT_INTERFACE()
 {
-    QUnknownInterface *iface = (QUnknownInterface*)(ActionInterface*)new TestComponent;
-    iface->addRef();
-    return iface;
+    Q_CREATE_INSTANCE( TestComponent )
 }
