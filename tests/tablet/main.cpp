@@ -17,15 +17,14 @@
 int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
-	QTabWidget tab;
+    QTabWidget tab;
     Scribble scribble(&tab, "scribble");
-	TabletStats tabStats( &tab, "tablet stats" );
-	
-
+    TabletStats tabStats( &tab, "tablet stats" );
+    
     scribble.setMinimumSize( 500, 350 );
-	tabStats.setMinimumSize( 500, 350 );
-	tab.addTab(&scribble, "Scribble" );
-	tab.addTab(&tabStats, "Tablet Stats" );
+    tabStats.setMinimumSize( 500, 350 );
+    tab.addTab(&scribble, "Scribble" );
+    tab.addTab(&tabStats, "Tablet Stats" );
     
     a.setMainWidget( &tab );
     if ( QApplication::desktop()->width() > 550
