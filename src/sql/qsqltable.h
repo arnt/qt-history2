@@ -12,6 +12,7 @@
 #include "qsqlfield.h"
 #include "qsqlindex.h"
 #include "qsqleditorfactory.h"
+#include "qsqlform.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
@@ -38,6 +39,9 @@ public:
 
     void         setView( QSqlView* view = 0, bool autoPopulate = TRUE );
     QSqlView*    view() const;
+    
+    void         setReadOnly( bool b );
+    bool         isReadOnly() const;
 
     void         sortColumn ( int col, bool ascending = TRUE,
 			      bool wholeRows = FALSE );
@@ -45,7 +49,8 @@ public:
     QVariant     value ( int row, int col ) const;
     QSqlFieldList currentFieldSelection() const;
 
-    void         setEditorFactory( QSqlEditorFactory * f );
+    void         installEditorFactory( QSqlEditorFactory * f );
+    void         installPropertyMap( QSqlPropertyMap* m );
 
 signals:
     void         currentChanged( const QSqlFieldList* fields );
@@ -54,7 +59,17 @@ public slots:
     void 	 find( const QString & str, bool caseSensitive,
 			     bool backwards );
 
+protected slots:
+    virtual bool insertCurrent();
+    virtual bool updateCurrent();    
+    virtual bool deleteCurrent();
+ 
 protected:
+    virtual bool primeInsert( QSqlView* view );
+    virtual bool primeUpdate( QSqlView* view );
+    virtual bool primeDelete( QSqlView* view );    
+    
+    bool         eventFilter( QObject *o, QEvent *e );
     QWidget *    createEditor( int row, int col, bool initFromCell ) const;
     int          indexOf( uint i ) const;
     void         reset();
@@ -77,6 +92,7 @@ private slots:
     void         setCurrentSelection( int row, int col );
 
 private:
+    void refresh( QSqlView* view );    
     void         setNumCols ( int r );
     QSqlTablePrivate* d;
 };

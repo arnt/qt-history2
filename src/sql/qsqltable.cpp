@@ -9,14 +9,18 @@
 class QSqlTablePrivate
 {
 public:
-    QSqlTablePrivate() : view(0) {}
+    QSqlTablePrivate() : ro(TRUE), editorFactory(0), propertyMap(0), view(0) {}
+    ~QSqlTablePrivate() { if ( propertyMap ) delete propertyMap; }
 
     QString      nullTxt;
     typedef      QValueList< uint > ColIndex;
     ColIndex     colIndex;
     bool         haveAllRows;
+    bool         continuousEdit;
 
+    bool         ro;
     QSqlEditorFactory* editorFactory;
+    QSqlPropertyMap* propertyMap;
     QString trueTxt;
     QString falseTxt;
     QSqlView* view;
@@ -59,7 +63,8 @@ QSqlTable::QSqlTable ( QWidget * parent, const char * name )
 {
     d = new QSqlTablePrivate();
     setSelectionMode( NoSelection );
-    d->editorFactory = new QSqlEditorFactory( this, "Default QSqlEditorFactory");
+    d->editorFactory = new QSqlEditorFactory( this, "qt_default_qsqleditorfactory");
+    d->propertyMap = new QSqlPropertyMap();
     d->trueTxt = tr( "True" );
     d->falseTxt = tr( "False" );
     connect( this, SIGNAL( currentChanged( int, int ) ),
@@ -142,30 +147,209 @@ void QSqlTable::setColumn( uint col, const QSqlField* field )
     }
 }
 
+void QSqlTable::setReadOnly( bool b )
+{
+    d->ro = b;
+}
+
+bool QSqlTable::isReadOnly() const
+{
+    return d->ro;    
+}
+
+
 /*!
 
   \reimpl
+  
+  For an editable table, creates an editor suitable for the data type
+  in \a row and \a col.
+  
+  \sa QSqlEditorFactory QSqlPropertyMap
 
 */
 
 QWidget * QSqlTable::createEditor( int row, int col, bool initFromCell ) const
 {
     QSqlView* vw = d->view;
-    if ( !vw )
+    if ( !vw || isReadOnly() )
 	return 0;
-    QSqlPropertyMap m;
     QWidget * w = 0;
-
-    m.addClass( "QSqlCustomEd", "state" );
     if( initFromCell && vw->seek( row ) ){
 	w = d->editorFactory->createEditor( viewport(), vw->value( indexOf( col ) ) );
-	m.setProperty( w, vw->value( indexOf( col ) ) );
+	d->propertyMap->setProperty( w, vw->value( indexOf( col ) ) );
     }
     return w;
 }
 
-/*!
+bool QSqlTable::eventFilter( QObject *o, QEvent *e )
+{
+    if ( !o || !e )
+	return QTable::eventFilter( o, e );
 
+    int r = currentRow();
+    int c = currentColumn();
+    QWidget *editorWidget = cellWidget( r, c );
+    d->continuousEdit = FALSE;	        
+    switch ( e->type() ) {
+    case QEvent::KeyPress: {
+	QKeyEvent *ke = (QKeyEvent*)e;	
+	if ( ke->key() == Key_Delete ) {
+	    deleteCurrent();
+	    return TRUE;
+	}
+	if ( editorWidget && o == editorWidget ) {
+	    if ( ( ke->key() == Key_Tab ) && ( c < numCols() - 1 ) )
+		d->continuousEdit = TRUE;
+	    if ( ( ke->key() == Key_BackTab ) && ( c > 0 ) )
+		d->continuousEdit = TRUE;
+	}
+	break;
+    }
+    default:
+	break;
+    }
+    return QTable::eventFilter( o, e );    
+}
+
+/*!  Protected virtual method which is called to "prime" the fields of
+  a view before an insert is performed.  This can be used, for
+  example, to prime any auto-numbering fields or unique index fields.
+  This method should return TRUE if the "prime" was successful and the
+  insert should continue.  Returning FALSE will prevent the insert from
+  proceeding.  The default implementation returns TRUE.
+  
+  \sa insertCurrent()
+*/
+
+bool QSqlTable::primeInsert( QSqlView* )
+{
+    return TRUE;
+}
+
+/*!  For an editable table, issues an insert on the current view using
+  the values of the currently edited "insert" row.  If there is no
+  current view or there is no current "insert" row, nothing happens.
+  Returns TRUE if the insert succeeded, otherwise FALSE.
+  
+  \sa primeFields
+*/
+    
+bool QSqlTable::insertCurrent()
+{
+    // ###
+    if ( isReadOnly() )
+	return FALSE;
+    return FALSE;
+}
+
+/*!  Protected virtual method which is called to "prime" the fields of
+  a view before an update is performed.  This method should return
+  TRUE if the "prime" was successful and the update should continue.
+  Returning FALSE will prevent the update from proceeding.  The
+  default implementation returns TRUE.
+  
+  \sa updateCurrent()
+*/
+
+bool QSqlTable::primeUpdate( QSqlView* )
+{
+    return TRUE;
+}
+
+
+/*!  For an editable table, issues an update on the current view's
+  primary index using the values of the currently selected row.  If
+  there is no current view or there is no current selection, nothing
+  happens.  Returns TRUE if the update succeeded, otherwise FALSE.
+  
+  For this method to succeed, the underlying view must have a valid
+  primary index to ensure that a unique record is updated within the
+  database.
+
+*/
+    
+bool QSqlTable::updateCurrent()
+{
+    QSqlView* vw = d->view;
+    if ( !vw || isReadOnly() )
+	return FALSE;
+#ifdef CHECK_RANGE
+    if ( vw->primaryIndex().count() == 0 ) {
+	qWarning("QSqlTable::updateCurrent: no primary index");
+	return FALSE;
+    }
+#endif    
+    if ( !vw->canUpdate() )
+	return FALSE;
+    if ( !primeUpdate( vw ) )
+	return FALSE;
+    bool b = vw->update( vw->primaryIndex() );
+    refresh( vw );
+    setCurrentSelection( currentRow(), currentColumn() );
+    return b;
+}
+
+/*!  Protected virtual method which is called to "prime" the fields of
+  a view before a delete is performed.  This method should return
+  TRUE if the "prime" was successful and the delete should continue.
+  Returning FALSE will prevent the delete from proceeding.  The
+  default implementation returns TRUE.
+  
+  \sa deleteCurrent()
+*/
+
+bool QSqlTable::primeDelete( QSqlView* )
+{
+    return TRUE;
+}
+
+/*!  For an editable table, issues a delete on the current view's
+  primary index using the values of the currently selected row.  If
+  there is no current view or there is no current selection, nothing
+  happens.  Returns TRUE if the delete succeeded, otherwise FALSE.
+  
+  For this method to succeed, the underlying view must have a valid
+  primary index to ensure that a unique record is deleted within the
+  database.
+
+*/
+bool QSqlTable::deleteCurrent()
+{
+    QSqlView* vw = d->view;
+    if ( !vw || isReadOnly() )
+	return FALSE;
+#ifdef CHECK_RANGE
+    if ( vw->primaryIndex().count() == 0 ) {
+	qWarning("QSqlTable::deleteCurrent: no primary index");
+	return FALSE;
+    }
+#endif    
+    if ( !vw->canDelete() )
+	return FALSE;
+    if ( !primeDelete( vw ) )
+	return FALSE;
+    bool b = vw->del( vw->primaryIndex() );
+    refresh( vw );
+    setCurrentSelection( currentRow(), currentColumn() );    
+    return b;
+}
+
+/*!  Refreshes the \a view.  A "select" is issued on the \a view using
+  the view's current filter and current sort.  The table is resized to accomodate the view size, if possible.
+
+  \sa QSqlView
+*/
+
+
+void QSqlTable::refresh( QSqlView* view )
+{
+    view->select( view->filter(), view->sort() );    
+    viewport()->repaint();
+    setSize( view );
+}
+
+/*!
   \reimpl
 
 */
@@ -175,13 +359,14 @@ void QSqlTable::setCellContentFromEditor( int row, int col )
     QSqlView* vw = d->view;
     if ( !vw )
 	return;
-    QSqlPropertyMap m;
     QWidget * editor = cellWidget( row, col );
-
     if ( !editor )
 	return;
-    vw->seek( row );
-    (*vw)[ indexOf( col )] = m.property( editor );
+    if ( vw->seek( row ) ) {
+	vw->setValue( indexOf( col ),  d->propertyMap->property( editor ) );
+	if ( !d->continuousEdit )
+	    updateCurrent();
+    }
 }
 
 /*!
@@ -259,11 +444,10 @@ void QSqlTable::reset()
     setNumCols(0);
     d->view = 0;
     d->haveAllRows = FALSE;
+    d->continuousEdit = FALSE;
     d->colIndex.clear();
-    if ( sorting() ) {
+    if ( sorting() ) 
 	horizontalHeader()->setSortIndicator( -1 );
-	setSorting( FALSE );
-    }
 }
 
 /*!
@@ -475,7 +659,7 @@ void QSqlTable::sortColumn ( int col, bool ascending,
 	newSort.append( rset->field( indexOf( col ) ) );
 	newSort.setDescending( 0, !ascending );
 	horizontalHeader()->setSortIndicator( col, ascending );
-	rset->select( newSort );
+	rset->select( rset->filter(), newSort );
 	viewport()->repaint( FALSE );
     }
 }
@@ -572,12 +756,12 @@ void QSqlTable::setSize( const QSql* sql )
 void QSqlTable::setView( QSqlView* view, bool autoPopulate )
 {
     setUpdatesEnabled( FALSE );
-    setSorting( FALSE );
     reset();
     d->view = view;
     if ( autoPopulate )
 	addColumns( *d->view );
     setSize( d->view );
+    setReadOnly( d->view->isReadOnly() );
     setUpdatesEnabled( TRUE );
 }
 
@@ -662,18 +846,36 @@ void QSqlTable::takeItem ( QTableItem * )
 /*!
 
   Installs a new SQL editor factory. This enables the user to create
-  and instantiate their own editors for the different cells in a
-  table.  Note that QSqlTable takes ownership of this pointer, and
-  will delete it when it is no longer needed or when
-  setEditorFactory() is called again.
+  and instantiate their own editors for use in cell editing.  Note that
+  QSqlTable takes ownership of this pointer, and will delete it when
+  it is no longer needed or when installEditorFactory() is called again.
 
+  \sa QSqlEditorFactory
 */
 
-void QSqlTable::setEditorFactory( QSqlEditorFactory * f )
+void QSqlTable::installEditorFactory( QSqlEditorFactory * f )
 {
     if( f ) {
 	delete d->editorFactory;
 	d->editorFactory = f;
+    }
+}
+
+/*!
+
+  Installs a new SQL property map. This enables the user to create and
+  instantiate their own property maps for use in cell editing.  Note
+  that QSqlTable takes ownership of this pointer, and will delete it
+  when it is no longer needed or when installPropertMap() is called
+  again.
+
+*/
+
+void QSqlTable::installPropertyMap( QSqlPropertyMap* m )
+{
+    if ( m ) {
+	delete d->propertyMap;
+	d->propertyMap = m;
     }
 }
 
