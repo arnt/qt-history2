@@ -3901,12 +3901,10 @@ void QFileDialog::done( int i )
 	    QString file = selection[f];
 	    if ( file.isNull() )
 		continue;
-#if 0 // #### we can't do that - people use getOpenFileName() instead of getSaveFileName() often, so this stuff below makes lots of apps useless
 	    if ( d->url.isLocalFile() && !QFile::exists( file ) ) {
 		QMessageBox::information( this, tr("Error"), tr("%1\nFile not found.\nCheck path and filename.").arg( file ) );
 		return;
 	    }
-#endif
 	}
     }
     QDialog::done( i );
