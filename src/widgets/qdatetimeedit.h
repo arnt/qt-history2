@@ -143,17 +143,19 @@ class QTimeEditPrivate;
 class Q_EXPORT QTimeEdit : public QDateTimeEditBase
 {
     Q_OBJECT
+    Q_SETS( Display )
     Q_PROPERTY( QTime time READ time WRITE setTime )
     Q_PROPERTY( bool autoAdvance READ autoAdvance WRITE setAutoAdvance )
     Q_PROPERTY( QTime maxValue READ maxValue WRITE setMaxValue )
     Q_PROPERTY( QTime minValue READ minValue WRITE setMinValue )
+    Q_PROPERTY( Display display READ display WRITE setDisplay )
 
 public:
     enum Display {
 	Hours	= 0x01,
 	Minutes	= 0x02,
 	Seconds	= 0x04,
-	Reserved = 0x08,
+	/*Reserved = 0x08,*/
 	AMPM	= 0x10
     };
 
@@ -180,8 +182,8 @@ public:
     QString separator() const;
     virtual void setSeparator( const QString& s );
 
-    int display() const;
-    void setDisplay( int );
+    uint display() const;
+    void setDisplay( uint disp );
 
 signals:
     void valueChanged( const QTime& time );
@@ -210,6 +212,7 @@ private:
     QString sectionText( int sec );
     QTimeEditPrivate* d;
 };
+
 
 class QDateTimeEditPrivate;
 

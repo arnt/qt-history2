@@ -876,11 +876,9 @@ public:
     \value Minutes The minutes section
     \value Seconds The seconds section
     \value AMPM The AM/PM section
-    \value Reserved For internal use only
 
     The values can be or'ed together to show any combination.
 */
-
 
 /*!
     Constructs an empty date editor which is a child of \a parent and
@@ -1703,7 +1701,7 @@ public:
     int h;
     int m;
     int s;
-    int display;
+    uint display;
     bool adv;
     bool overwrite;
     int timerId;
@@ -1880,12 +1878,13 @@ void QTimeEdit::setRange( const QTime& min, const QTime& max )
 }
 
 /*!
-  Sets the sections that are available in the time edit to \a display.
+  \property QTimeEdit::display
+  \brief the sections that are displayed in the time edit
 
   The value can be any combination of the values in the Display enum.
   By default, the widget displays hours, minutes and seconds.
 */
-void QTimeEdit::setDisplay( int display )
+void QTimeEdit::setDisplay( uint display )
 {
     if ( d->display == display )
 	return;
@@ -1905,12 +1904,7 @@ void QTimeEdit::setDisplay( int display )
     d->ed->update();
 }
 
-/*!
-  Returns the sections that are available in the time edit display.
-
-  The returned value is an or'ed combination of the values in the Display enum.
-*/
-int QTimeEdit::display() const
+uint QTimeEdit::display() const
 {
     return d->display;
 }
