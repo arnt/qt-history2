@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#60 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#61 $
 **
 ** Global type declarations and definitions
 **
@@ -29,6 +29,7 @@
 //   FREEBSD-	FreeBSD
 //   IRIX   -	SGI Irix
 //   OSF    -	OSF Unix
+//   BSDI   -	BSDI Unix
 //   UNIX   -	Any UNIX bsd/sysv system
 //
 
@@ -80,10 +81,11 @@
 //   MSVC    -	Microsoft Visual C/C++
 //   BOR    -	Borland/Turbo C++
 //   GNU    -	GNU C++
+//   EDG    -	Edison Design Group C++
 //   OC	    -	CenterLine ObjectCenter C++
 //   SUN    -	Sun C++
-//   HP     -	HPUX C++
 //   DEC    -	DEC C++
+//   HP     -	HPUX C++
 //
 
 #if defined(__SC__)
@@ -96,16 +98,16 @@
 #define _CC_BOR_
 #elif defined(__GNUC__)
 #define _CC_GNU_
+#elif defined(__EDG)
+#define _CC_EDG_
 #elif defined(OBJECTCENTER) || defined(CENTERLINE_CLPP)
 #define _CC_OC_
 #elif defined(__SUNPRO_CC)
 #define _CC_SUN_
-#elif defined(_OS_HPUX_)
-#define _CC_HP_
 #elif defined(__DECCXX)
 #define _CC_DEC_
-#elif defined(__EDG)
-#define _CC_EDG_
+#elif defined(_OS_HPUX_)
+#define _CC_HP_
 #else
 #error "Qt has not been tested with this compiler - talk to qt-bugs@troll.no"
 #endif
