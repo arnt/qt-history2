@@ -224,7 +224,7 @@ sub sync_classnames {
 		} else {
 		    my $header = "$includedir/$library/$symbol";
 		    unless(-e "$header") {
-			print "SYMBOL: $symbol ($header)\n";
+			print "SYMBOL: $symbol ($iheader)\n";
 			my $header_dir = dirname($header);
 			mkdir $header_dir, 0777;
 
