@@ -624,7 +624,9 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
 
     QRect rect(pos, pos);
     setSelection(rect.normalize(), selectionCommand(e->state(), index, e->type()));
+
     emit pressed(index, e->button());
+    beginEdit(index, QAbstractItemDelegate::SelectedClicked, e);
 }
 
 /*!
@@ -706,11 +708,11 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
 */
 void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *e)
 {
-    QModelIndex item = itemAt(e->pos());
-    if (!item.isValid())
+    QModelIndex index = itemAt(e->pos());
+    if (!index.isValid())
         return;
-    emit doubleClicked(item, e->button());
-    beginEdit(item, QAbstractItemDelegate::DoubleClicked, e);
+    emit doubleClicked(index, e->button());
+    beginEdit(index, QAbstractItemDelegate::DoubleClicked, e);
 }
 
 /*!
@@ -957,7 +959,6 @@ bool QAbstractItemView::beginEdit(const QModelIndex &index,
                                   QEvent *event)
 {
     QModelIndex edit;
-
     if (index.isValid() && d->shouldEdit(action, index)) {
         edit = index;
     } else {
@@ -965,13 +966,12 @@ bool QAbstractItemView::beginEdit(const QModelIndex &index,
         if (buddy.isValid() && d->shouldEdit(action, buddy))
             edit = buddy;
     }
-
     if (edit.isValid()) {
         itemDelegate()->event(event, edit);
-        if (d->requestEditor(action, event, edit))
+        if (d->requestEditor(action, event, edit)) {
             d->state = Editing;
+        }
     }
-
     return d->state == Editing;
 }
 
@@ -1632,6 +1632,8 @@ bool QAbstractItemViewPrivate::shouldEdit(QAbstractItemDelegate::BeginEditAction
     if (action == QAbstractItemDelegate::AlwaysEdit)
         return true;
     if (action & beginEditActions)
+        return true;
+    if (delegate->editorType(index) == QAbstractItemDelegate::Events)
         return true;
     return persistentEditor(index) != 0;
 }

@@ -169,15 +169,17 @@ QWidget *QAbstractItemDelegate::editor(BeginEditAction, QWidget *,
 }
 
 /*!
-    Sets the data for the item at the given \a index to the contents
-    of the given \a editor.
+    Notifies the delegate that the given \a editor is no longer in use
+    for the item at the given \a index. The way the edit was completed
+    is given by \a action; see \c EndEditAction. Typically the
+    delegate should destroy the editor at this point.
 
     The base implementation does nothing. If you want custom editing
-    you will need to reimplement this function.
+    you will probably need to reimplement this function.
 
-    \sa editorType() editor() setEditorData() releaseEditor()
+    \sa editorType() editor() setEditorData() setModelData()
 */
-void QAbstractItemDelegate::setModelData(QWidget *, const QModelIndex &) const
+void QAbstractItemDelegate::releaseEditor(EndEditAction, QWidget *, const QModelIndex &)
 {
     // do nothing
 }
@@ -196,26 +198,32 @@ void QAbstractItemDelegate::setEditorData(QWidget *, const QModelIndex &) const
     // do nothing
 }
 
+/*!
+    Sets the data for the item at the given \a index to the contents
+    of the given \a editor.
 
-// ### DOC: can't guess!
-void QAbstractItemDelegate::updateEditorGeometry(QWidget *, const QStyleOptionViewItem &,
-                                                 const QModelIndex &) const
+    The base implementation does nothing. If you want custom editing
+    you will need to reimplement this function.
+
+    \sa editorType() editor() setEditorData() releaseEditor()
+*/
+void QAbstractItemDelegate::setModelData(QWidget *, const QModelIndex &) const
 {
     // do nothing
 }
 
 /*!
-    Notifies the delegate that the given \a editor is no longer in use
-    for the item at the given \a index. The way the edit was completed
-    is given by \a action; see \c EndEditAction. Typically the
-    delegate should destroy the editor at this point.
+  Updates the editor geometry of the ginen \a editor for the item at the
+  given \a index according to the rectangle specified in the \a option.
+  If the item has an internal layout, the editor will be layed out accordingly.
 
-    The base implementation does nothing. If you want custom editing
-    you will probably need to reimplement this function.
-
-    \sa editorType() editor() setEditorData() setModelData()
-*/
-void QAbstractItemDelegate::releaseEditor(EndEditAction, QWidget *, const QModelIndex &)
+  The base implementation dowes nothing. If you want custom editing
+    you will need to reimplement this function.
+  
+  \sa editorType() editor() releaseEditor()
+ */
+void QAbstractItemDelegate::updateEditorGeometry(QWidget *, const QStyleOptionViewItem &,
+                                                 const QModelIndex &) const
 {
     // do nothing
 }

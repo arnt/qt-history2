@@ -22,13 +22,13 @@ public:
     QAbstractItemDelegate::EditorType editorType(const QModelIndex &index) const;
     QWidget *editor(QAbstractItemDelegate::BeginEditAction action, QWidget *parent,
                     const QStyleOptionViewItem &option, const QModelIndex &index);
+    void releaseEditor(EndEditAction action, QWidget *editor, const QModelIndex &index);
 
-    void setModelData(QWidget *editor, const QModelIndex &index) const;
     void setEditorData(QWidget *editor, const QModelIndex &index) const;
+    void setModelData(QWidget *editor, const QModelIndex &index) const;
 
     void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
                               const QModelIndex &index) const;
-    void releaseEditor(EndEditAction action, QWidget *editor, const QModelIndex &index);
 
 protected:
     void drawDisplay(QPainter *painter, const QStyleOptionViewItem &option, const QRect &rect,

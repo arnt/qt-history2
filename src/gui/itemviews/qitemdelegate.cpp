@@ -125,18 +125,18 @@ void QItemDelegate::releaseEditor(EndEditAction, QWidget *editor, const QModelIn
     delete editor;
 }
 
-void QItemDelegate::setModelData(QWidget *editor, const QModelIndex &index) const
-{
-    QLineEdit *lineEdit = ::qt_cast<QLineEdit*>(editor);
-    if (lineEdit)
-        model()->setData(index, QAbstractItemModel::Role_Edit, lineEdit->text());
-}
-
 void QItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
     QLineEdit *lineEdit = ::qt_cast<QLineEdit*>(editor);
     if (lineEdit)
         lineEdit->setText(model()->data(index, QAbstractItemModel::Role_Edit).toString());
+}
+
+void QItemDelegate::setModelData(QWidget *editor, const QModelIndex &index) const
+{
+    QLineEdit *lineEdit = ::qt_cast<QLineEdit*>(editor);
+    if (lineEdit)
+        model()->setData(index, QAbstractItemModel::Role_Edit, lineEdit->text());
 }
 
 void QItemDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,

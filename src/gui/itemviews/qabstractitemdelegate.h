@@ -37,8 +37,8 @@ public:
     QAbstractItemModel *model() const;
 
     enum EditorType {
-        Widget,
-        Events
+        Events,
+        Widget
     };
 
     enum BeginEditAction {
@@ -68,11 +68,13 @@ public:
     virtual EditorType editorType(const QModelIndex &index) const;
     virtual QWidget *editor(BeginEditAction action, QWidget *parent,
                             const QStyleOptionViewItem &option, const QModelIndex &index);
-    virtual void setModelData(QWidget *editor, const QModelIndex &index) const;
+    virtual void releaseEditor(EndEditAction action, QWidget *editor, const QModelIndex &index);
+
     virtual void setEditorData(QWidget *editor, const QModelIndex &index) const;
+    virtual void setModelData(QWidget *editor, const QModelIndex &index) const;
+
     virtual void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
                                       const QModelIndex &index) const;
-    virtual void releaseEditor(EndEditAction action, QWidget *editor, const QModelIndex &index);
 
     // events for non-widget editors
     virtual bool event(QEvent *e, const QModelIndex &index);
