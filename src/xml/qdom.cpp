@@ -5860,10 +5860,10 @@ void QDomDocumentPrivate::save(QTextStream& s, int, int indent) const
     \endcode
 
     For further information about the Document Object Model see
-    \link http://www.w3.org/TR/REC-DOM-Level-1/ \endlink and
-    \link http://www.w3.org/TR/DOM-Level-2-Core/ \endlink.
-    For a more general introduction of the DOM implementation see the
-    QDomDocument documentation.
+    the Document Object Model (DOM)
+    \l{http://www.w3.org/TR/REC-DOM-Level-1/}{Level 1} and
+    \l{http://www.w3.org/TR/DOM-Level-2-Core/}{Level 2 Core}
+    Specifications.
 */
 
 
