@@ -45,7 +45,7 @@ static QStyleOptionFrame getStyleOption(QToolBar *tb)
     opt.init(tb);
     if (tb->orientation() == Qt::Horizontal)
         opt.state |= QStyle::Style_Horizontal;
-    opt.lineWidth = tb->style().pixelMetric(QStyle::PM_ToolBarFrameWidth);
+    opt.lineWidth = tb->style()->pixelMetric(QStyle::PM_ToolBarFrameWidth);
     return opt;
 }
 
@@ -61,8 +61,8 @@ void QToolBarPrivate::init()
 
     QBoxLayout *layout = new QBoxLayout(QBoxLayout::LeftToRight, q);
     layout->setAlignment(Qt::AlignLeft);
-    layout->setMargin(q->style().pixelMetric(QStyle::PM_ToolBarFrameWidth, &opt, q));
-    layout->setSpacing(q->style().pixelMetric(QStyle::PM_ToolBarItemSpacing, &opt, q));
+    layout->setMargin(q->style()->pixelMetric(QStyle::PM_ToolBarFrameWidth, &opt, q));
+    layout->setSpacing(q->style()->pixelMetric(QStyle::PM_ToolBarItemSpacing, &opt, q));
 
     handle = new QToolBarHandle(q);
     layout->addWidget(handle);
@@ -612,8 +612,8 @@ void QToolBar::changeEvent(QEvent *event)
     case QEvent::StyleChange:
         {
             QStyleOptionFrame opt = getStyleOption(q);
-            d->layout->setMargin(q->style().pixelMetric(QStyle::PM_ToolBarFrameWidth, &opt, q));
-            d->layout->setSpacing(q->style().pixelMetric(QStyle::PM_ToolBarItemSpacing, &opt, q));
+            d->layout->setMargin(q->style()->pixelMetric(QStyle::PM_ToolBarFrameWidth, &opt, q));
+            d->layout->setSpacing(q->style()->pixelMetric(QStyle::PM_ToolBarItemSpacing, &opt, q));
             break;
         }
     default:
@@ -661,7 +661,7 @@ void QToolBar::paintEvent(QPaintEvent *event)
     Q_UNUSED(event);
     QPainter p(this);
     QStyleOptionFrame opt = getStyleOption(this);
-    style().drawPrimitive(QStyle::PE_PanelToolBar, &opt, &p, this);
+    style()->drawPrimitive(QStyle::PE_PanelToolBar, &opt, &p, this);
 }
 
 /*! \reimp */

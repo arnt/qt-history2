@@ -1071,7 +1071,7 @@ void QListView::doItemsLayout()
     d->translate = 0;
 
     d->layoutBounds = viewport()->rect();
-    int sbx = style().pixelMetric(QStyle::PM_ScrollBarExtent);
+    int sbx = style()->pixelMetric(QStyle::PM_ScrollBarExtent);
     d->layoutBounds.setWidth(d->layoutBounds.width() - sbx);
     d->layoutBounds.setHeight(d->layoutBounds.height() - sbx);
     d->contentsSize = QSize(0, 0);

@@ -516,7 +516,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 
     int tb_fill = 0;
     if (tb_layout_info.size() != 0) {
-	tb_fill = QApplication::style().pixelMetric(QStyle::PM_DockWindowHandleExtent)
+	tb_fill = QApplication::style()->pixelMetric(QStyle::PM_DockWindowHandleExtent)
 		  + 16 // ## size of extension - get this from somewhere else
 		  + qt_cast<QBoxLayout *>(tb_layout_info.at(0).at(0).item->widget()->layout())->margin() * 2
 		  + qt_cast<QBoxLayout *>(tb_layout_info.at(0).at(0).item->widget()->layout())->spacing() * 3;
@@ -679,7 +679,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
     }
 
     // layout dockwindows and center widget
-    const int ext = QApplication::style().pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
+    const int ext = QApplication::style()->pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
 
     if (relayout_type == QInternal::RelayoutNormal) {
         // hide separators for empty layouts
@@ -978,7 +978,7 @@ QSize QMainWindowLayout::sizeHint() const
          + szR.height()
          + (corners[Qt::BottomRightCorner] == Qt::DockWindowAreaBottom ? szB.height() : 0);
 
-    const int ext = QApplication::style().pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
+    const int ext = QApplication::style()->pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
     if (layout_info[LEFT].item && !szL.isEmpty())
         left += ext;
     if (layout_info[RIGHT].item && !szR.isEmpty())
@@ -1069,7 +1069,7 @@ QSize QMainWindowLayout::minimumSize() const
          + szR.height()
          + (corners[Qt::BottomRightCorner] == Qt::DockWindowAreaBottom ? szB.height() : 0);
 
-    const int ext = QApplication::style().pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
+    const int ext = QApplication::style()->pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
     if (layout_info[LEFT].item && !szL.isEmpty())
         left += ext;
     if (layout_info[RIGHT].item && !szR.isEmpty())
@@ -1198,7 +1198,7 @@ int QMainWindowLayout::constrain(QDockWindowLayout *dock, int delta)
                   + pick(pos, info[CENTER].size)
                   + pick(pos, info[order[pos]].size);
 
-    const int _ext = QApplication::style().pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
+    const int _ext = QApplication::style()->pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
     const QSize ext(_ext, _ext);
     const QSize dmin = info[pos].item->minimumSize() + ext,
                 dmax = info[pos].item->maximumSize() + ext;

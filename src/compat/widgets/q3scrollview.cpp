@@ -581,7 +581,7 @@ Q3ScrollView::Q3ScrollView(QWidget *parent, const char *name, WFlags f) :
              this, SLOT(updateScrollBars()));
 
     setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
-    setLineWidth(style().pixelMetric(QStyle::PM_DefaultFrameWidth));
+    setLineWidth(style()->pixelMetric(QStyle::PM_DefaultFrameWidth));
     setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 }
 
@@ -950,7 +950,7 @@ void Q3ScrollView::updateScrollBars()
     int xoffset = (reverse && (showv || cornerWidget())) ? vsbExt : 0;
     int xpos = reverse ? 0 : w - vsbExt;
     bool frameContentsOnly =
-        style().styleHint(QStyle::SH_ScrollView_FrameOnlyAroundContents);
+        style()->styleHint(QStyle::SH_ScrollView_FrameOnlyAroundContents);
 
     if(! frameContentsOnly) {
         if (reverse)

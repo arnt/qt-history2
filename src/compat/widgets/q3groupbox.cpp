@@ -342,13 +342,13 @@ void Q3GroupBox::paintEvent(QPaintEvent *event)
                 x = marg;
         }
         QRect r(x, 0, tw, h);
-        int va = style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, &opt, this);
+        int va = style()->styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, &opt, this);
         if(va & Qt::AlignTop)
             r.moveBy(0, fm.descent());
-        QColor pen((QRgb) style().styleHint(QStyle::SH_GroupBox_TextLabelColor, &opt, this));
-        if (!style().styleHint(QStyle::SH_UnderlineAccelerator, &opt, this))
+        QColor pen((QRgb) style()->styleHint(QStyle::SH_GroupBox_TextLabelColor, &opt, this));
+        if (!style()->styleHint(QStyle::SH_UnderlineAccelerator, &opt, this))
             va |= Qt::NoAccel;
-        style().drawItem(&paint, r, Qt::ShowPrefix | Qt::AlignHCenter | va, palette(),
+        style()->drawItem(&paint, r, Qt::ShowPrefix | Qt::AlignHCenter | va, palette(),
                           isEnabled(), QPixmap(), str, -1,
                           testAttribute(Qt::WA_SetPalette) ? 0 : &pen);
         paint.setClipRegion(event->region().subtract(r)); // clip everything but title
@@ -366,7 +366,7 @@ void Q3GroupBox::paintEvent(QPaintEvent *event)
         // ### This should probably be a style primitive.
         qDrawShadeLine(&paint, p1, p2, palette(), true, 1, 0);
     } else {
-        style().drawPrimitive(QStyle::PE_PanelGroupBox, &opt, &paint, this);
+        style()->drawPrimitive(QStyle::PE_PanelGroupBox, &opt, &paint, this);
     }
 }
 
@@ -684,7 +684,7 @@ void Q3GroupBox::calculateFrame()
         }
         if (lenvisible) { // but do we also have a visible label?
             QRect r = rect();
-            int va = style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, 0, this);
+            int va = style()->styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, 0, this);
             if(va & Qt::AlignVCenter)
                 r.setTop(fm.height()/2);                                // frame rect should be
             else if(va & Qt::AlignTop)
@@ -695,7 +695,7 @@ void Q3GroupBox::calculateFrame()
     } else if (isCheckable()) {
 #ifndef QT_NO_CHECKBOX
         QRect r = rect();
-        int va = style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, 0, this);
+        int va = style()->styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, 0, this);
         if(va & Qt::AlignVCenter)
             r.setTop(d->checkbox->rect().height()/2);
         else if(va & Qt::AlignTop)

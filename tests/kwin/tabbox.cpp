@@ -125,8 +125,8 @@ void TabBox::paintEvent( QPaintEvent* )
 {
     {
 	QPainter p( this );
-	style().drawPanel( &p, 0, 0, width(), height(), colorGroup(), FALSE );
-	style().drawPanel( &p, 4, 4, width()-8, height()-8, colorGroup(), TRUE );
+	style()->drawPanel( &p, 0, 0, width(), height(), colorGroup(), FALSE );
+	style()->drawPanel( &p, 4, 4, width()-8, height()-8, colorGroup(), TRUE );
     }
     paintContents();
 }

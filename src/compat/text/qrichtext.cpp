@@ -4539,7 +4539,7 @@ void Q3TextParagraph::paint(QPainter &painter, const QPalette &pal, Q3TextCursor
     QRect cursorRect;
     drawSelections &= (mSelections != 0);
     // macintosh full-width selection style
-    bool fullWidthStyle = QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection);
+    bool fullWidthStyle = QApplication::style()->styleHint(QStyle::SH_RichText_FullWidthSelection);
     int fullSelectionWidth = 0;
     if (drawSelections && fullWidthStyle)
         fullSelectionWidth = (hasdoc ? document()->width() : r.width());
@@ -4885,7 +4885,7 @@ void Q3TextParagraph::drawString(QPainter &painter, const QString &str, int star
         opt.rect.setRect(xstart, y, w, h);
         opt.state = QStyle::Style_None;
         opt.palette = pal;
-        QApplication::style().drawPrimitive(QStyle::PE_FocusRect, &opt, &painter);
+        QApplication::style()->drawPrimitive(QStyle::PE_FocusRect, &opt, &painter);
     }
 }
 

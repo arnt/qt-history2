@@ -1275,16 +1275,16 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
                                                                         QAbstractItemModel::TextAlignmentRole).toInt());
     opt.iconAlignment = Qt::AlignVCenter;
 
-    style().drawPrimitive(QStyle::PE_HeaderSection, &opt, painter, this);
-    opt.rect = style().subRect(QStyle::SR_HeaderLabel, &opt, fontMetrics(), this);
-    style().drawControl(QStyle::CE_HeaderLabel, &opt, painter, this);
+    style()->drawPrimitive(QStyle::PE_HeaderSection, &opt, painter, this);
+    opt.rect = style()->subRect(QStyle::SR_HeaderLabel, &opt, fontMetrics(), this);
+    style()->drawControl(QStyle::CE_HeaderLabel, &opt, painter, this);
 
     if (isSortIndicatorShown() && sortIndicatorSection() == logicalIndex) {
         opt.rect = rect;
-        opt.rect = style().subRect(QStyle::SR_HeaderArrow, &opt, fontMetrics(), this);
+        opt.rect = style()->subRect(QStyle::SR_HeaderArrow, &opt, fontMetrics(), this);
         opt.state = (sortIndicatorOrder() == Qt::AscendingOrder
                      ? QStyle::Style_Down : QStyle::Style_Up) | QStyle::Style_Off;
-        style().drawPrimitive(QStyle::PE_HeaderArrow, &opt, painter, this);
+        style()->drawPrimitive(QStyle::PE_HeaderArrow, &opt, painter, this);
     }
 }
 
@@ -1300,10 +1300,10 @@ QSize QHeaderView::sectionSizeFromContents(int logicalIndex) const
                                     QAbstractItemModel::DisplayRole).toString();
     opt.icon = d->model->headerData(logicalIndex, orientation(),
                                     QAbstractItemModel::DecorationRole).toIconSet();
-    size = style().sizeFromContents(QStyle::CT_HeaderSection, &opt, size, fontMetrics(), this);
+    size = style()->sizeFromContents(QStyle::CT_HeaderSection, &opt, size, fontMetrics(), this);
 
     if (isSortIndicatorShown() && sortIndicatorSection() == logicalIndex) {
-        int margin = style().pixelMetric(QStyle::PM_HeaderMargin);
+        int margin = style()->pixelMetric(QStyle::PM_HeaderMargin);
         if (orientation() == Qt::Horizontal)
             size.rwidth() += size.height() + margin;
         else
@@ -1508,7 +1508,7 @@ int QHeaderViewPrivate::sectionHandleAt(int position)
         return -1;
     int log = sections.at(visual).logical;
     int pos = q->sectionViewportPosition(log);
-    int grip = q->style().pixelMetric(QStyle::PM_HeaderGripMargin);
+    int grip = q->style()->pixelMetric(QStyle::PM_HeaderGripMargin);
     if (d->reverse()) { // FIXME:
         if (position < pos + grip)
             return log;

@@ -180,7 +180,7 @@ public:
 #ifndef QT_NO_STYLE
     // GUI style setting
 
-    QStyle &style() const;
+    QStyle *style() const;
     void setStyle(QStyle *);
     QStyle *setStyle(const QString&);
 #endif
@@ -737,15 +737,15 @@ private:
 
 protected:
 #ifndef QT_NO_STYLE
-    virtual void styleChange(QStyle&) { }
+    virtual void styleChange(QStyle&) { } // compat
 #endif
-    virtual void enabledChange(bool) { }
+    virtual void enabledChange(bool) { }  // compat
 #ifndef QT_NO_PALETTE
-    virtual void paletteChange(const QPalette &) { }
+    virtual void paletteChange(const QPalette &) { }  // compat
 #endif
-    virtual void fontChange(const QFont &) { }
-    virtual void windowActivationChange(bool) { }
-    virtual void languageChange() { }
+    virtual void fontChange(const QFont &) { }  // compat
+    virtual void windowActivationChange(bool) { }  // compat
+    virtual void languageChange() { }  // compat
 };
 
 #if defined Q_CC_MSVC && _MSC_VER < 1300

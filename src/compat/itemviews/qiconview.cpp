@@ -2042,13 +2042,13 @@ void QIconViewItem::paintFocus(QPainter *p, const QPalette &cg)
         opt.state = QStyle::Style_None;
         opt.backgroundColor = cg.base().color();
     }
-    view->style().drawPrimitive(QStyle::PE_FocusRect, &opt, p);
+    view->style()->drawPrimitive(QStyle::PE_FocusRect, &opt, p);
 
     if (this != view->d->currentItem) {
         opt.rect = pixmapRect(false);
         opt.backgroundColor = cg.base().color();
         opt.state = QStyle::Style_None;
-        view->style().drawPrimitive(QStyle::PE_FocusRect, &opt, p);
+        view->style()->drawPrimitive(QStyle::PE_FocusRect, &opt, p);
     }
 }
 
@@ -3361,7 +3361,7 @@ void QIconView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 
             QPalette pal = palette();
             d->drawActiveSelection = hasFocus() || d->inMenuMode
-                || !style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this);
+                || !style()->styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this);
             if (!d->drawActiveSelection)
                 pal.setCurrentColorGroup(QPalette::Inactive);
 
@@ -5228,7 +5228,7 @@ void QIconView::focusInEvent(QFocusEvent*)
         repaintItem(d->currentItem);
     }
 
-    if (style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this))
+    if (style()->styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this))
         repaintSelectedItems();
 
     if (d->currentItem)
@@ -5241,7 +5241,7 @@ void QIconView::focusInEvent(QFocusEvent*)
 
 void QIconView::focusOutEvent(QFocusEvent*)
 {
-    if (style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this)) {
+    if (style()->styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this)) {
         d->inMenuMode =
             QFocusEvent::reason() == QFocusEvent::Popup ||
             (qApp->focusWidget() && qApp->focusWidget()->inherits("QMenuBar"));
@@ -5268,7 +5268,7 @@ void QIconView::drawRubber(QPainter *p)
     opt.rect.setRect(pnt.x(), pnt.y(), d->rubber->width(), d->rubber->height());
     opt.palette = palette();
     opt.state = QStyle::Style_None;
-    style().drawPrimitive(QStyle::PE_RubberBand, &opt, p, this);
+    style()->drawPrimitive(QStyle::PE_RubberBand, &opt, p, this);
 }
 
 /*!
@@ -5481,14 +5481,14 @@ void QIconView::drawDragShapes(const QPoint &pos)
                 continue;
 
             opt.rect = ir;
-            style().drawPrimitive(QStyle::PE_FocusRect, &opt, &p, this);
+            style()->drawPrimitive(QStyle::PE_FocusRect, &opt, &p, this);
             opt.rect = tr;
-            style().drawPrimitive(QStyle::PE_FocusRect, &opt, &p, this);
+            style()->drawPrimitive(QStyle::PE_FocusRect, &opt, &p, this);
         }
     } else if (d->numDragItems > 0) {
         for (int i = 0; i < d->numDragItems; ++i) {
             opt.rect.setRect(pos.x() + i * 40, pos.y(), 35, 35);
-            style().drawPrimitive(QStyle::PE_FocusRect, &opt, &p, this);
+            style()->drawPrimitive(QStyle::PE_FocusRect, &opt, &p, this);
         }
 
     }
@@ -5929,7 +5929,7 @@ QSize QIconView::sizeHint() const
     QStyleOptionSlider opt;
     opt.init(sb);
     opt.orientation = sb->orientation();
-    int extra = style().pixelMetric(QStyle::PM_ScrollBarExtent, &opt, sb) + 2 * frameWidth();
+    int extra = style()->pixelMetric(QStyle::PM_ScrollBarExtent, &opt, sb) + 2 * frameWidth();
     QSize s(qMin(400, contentsWidth() + extra),
              qMin(400, contentsHeight() + extra));
     return s;

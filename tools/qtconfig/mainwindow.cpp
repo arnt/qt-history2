@@ -200,7 +200,7 @@ MainWindow::MainWindow()
 
     QString currentstyle = settings.value("style").toString();
     if (currentstyle.isNull())
-        currentstyle = QApplication::style().className();
+        currentstyle = QApplication::style()->className();
     {
         int s = 0;
         QStringList::Iterator git = gstyles.begin();

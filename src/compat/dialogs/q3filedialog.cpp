@@ -2551,7 +2551,7 @@ void Q3FileDialog::init()
 #if defined(Q_WS_WIN) && !defined(Q_OS_TEMP)
     if ((qWinVersion() & Qt::WV_NT_based) > Qt::WV_NT)
 #else
-    if (!qstrcmp(style().className(), "QWindowsStyle"))
+    if (!qstrcmp(style()->className(), "QWindowsStyle"))
 #endif
     {
         d->goBack->setAutoRaise(true);

@@ -285,8 +285,8 @@ QSize QProgressBar::sizeHint() const
     ensurePolished();
     QFontMetrics fm = fontMetrics();
     QStyleOptionProgressBar opt = getStyleOption(this);
-    int cw = style().pixelMetric(QStyle::PM_ProgressBarChunkWidth, &opt, this);
-    return style().sizeFromContents(QStyle::CT_ProgressBar, &opt,
+    int cw = style()->pixelMetric(QStyle::PM_ProgressBarChunkWidth, &opt, this);
+    return style()->sizeFromContents(QStyle::CT_ProgressBar, &opt,
                                     QSize(cw * 7 + fm.width('0') * 4, fm.height() + 8), fm, this);
 }
 
@@ -428,20 +428,20 @@ void QProgressBar::paintEvent(QPaintEvent *)
 
     QStyleOptionProgressBar opt = getStyleOption(this);
     const QFontMetrics &fm = fontMetrics();
-    opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarGroove, &opt, fm, this),
+    opt.rect = QStyle::visualRect(style()->subRect(QStyle::SR_ProgressBarGroove, &opt, fm, this),
                                   this);
 
-    style().drawControl(QStyle::CE_ProgressBarGroove, &opt, p, this);
+    style()->drawControl(QStyle::CE_ProgressBarGroove, &opt, p, this);
     opt.rect = rect();
-    opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarContents, &opt, fm, this),
+    opt.rect = QStyle::visualRect(style()->subRect(QStyle::SR_ProgressBarContents, &opt, fm, this),
                                   this);
-    style().drawControl(QStyle::CE_ProgressBarContents, &opt, p, this);
+    style()->drawControl(QStyle::CE_ProgressBarContents, &opt, p, this);
 
     if (percentageVisible()) {
         opt.rect = rect();
-        opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarLabel, &opt, fm, this),
+        opt.rect = QStyle::visualRect(style()->subRect(QStyle::SR_ProgressBarLabel, &opt, fm, this),
                                       this);
-        style().drawControl(QStyle::CE_ProgressBarLabel, &opt, p, this);
+        style()->drawControl(QStyle::CE_ProgressBarLabel, &opt, p, this);
     }
 }
 

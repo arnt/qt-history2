@@ -119,7 +119,7 @@ QAccessible::State QAccessibleMenu::state(int child) const
     if (!action)
         return s;
 
-    if (menu()->style().styleHint(QStyle::SH_Menu_MouseTracking))
+    if (menu()->style()->styleHint(QStyle::SH_Menu_MouseTracking))
         s |= HotTracked;
     if (action->isSeparator() || !action->isEnabled())
         s |= Unavailable;
@@ -258,7 +258,7 @@ QAccessible::State QAccessibleMenuBar::state(int child) const
     if (!action)
         return s;
 
-    if (menuBar()->style().styleHint(QStyle::SH_Menu_MouseTracking))
+    if (menuBar()->style()->styleHint(QStyle::SH_Menu_MouseTracking))
         s |= HotTracked;
     if (action->isSeparator() || !action->isEnabled())
         s |= Unavailable;

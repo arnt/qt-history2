@@ -51,10 +51,10 @@ ListViewContainer::ListViewContainer(QListView *listView, QWidget *parent)
     if (QComboBox *cmb = qt_cast<QComboBox *>(parent))
         opt.editable = cmb->isEditable();
     list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    if (style().styleHint(QStyle::SH_ComboBox_Popup, &opt, parent))
+    if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, parent))
         list->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    if (style().styleHint(QStyle::SH_ComboBox_ListMouseTracking, &opt, parent) ||
-        style().styleHint(QStyle::SH_ComboBox_Popup, &opt, parent)) {
+    if (style()->styleHint(QStyle::SH_ComboBox_ListMouseTracking, &opt, parent) ||
+        style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, parent)) {
         list->setMouseTracking(true);
     }
     list->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -74,7 +74,7 @@ ListViewContainer::ListViewContainer(QListView *listView, QWidget *parent)
     QBoxLayout *layout =  new QBoxLayout(QBoxLayout::TopToBottom, this);
     layout->setSpacing(0);
     layout->setMargin(0);
-    if (style().styleHint(QStyle::SH_ComboBox_Popup, &opt, this)) {
+    if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this)) {
         top = new Scroller(QAbstractSlider::SliderSingleStepSub, this);
         bottom = new Scroller(QAbstractSlider::SliderSingleStepAdd, this);
     }
@@ -223,7 +223,7 @@ void ListViewContainer::mousePressEvent(QMouseEvent *e)
             opt.init(comboBox);
             opt.subControls = QStyle::SC_All;
             opt.activeSubControls = QStyle::SC_ComboBoxArrow;
-            ignoreRect = QStyle::visualRect(style().querySubControlMetrics(
+            ignoreRect = QStyle::visualRect(style()->querySubControlMetrics(
                                                 QStyle::CC_ComboBox, &opt,
                                                 QStyle::SC_ComboBoxArrow, comboBox), comboBox);
         }
@@ -468,7 +468,7 @@ void QComboBoxPrivate::init()
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     q->setCurrentItem(0);
     QStyleOptionComboBox opt = getStyleOption();
-    if (q->style().styleHint(QStyle::SH_ComboBox_Popup, &opt, q))
+    if (q->style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, q))
         l->setItemDelegate(new MenuDelegate(l, q));
     QObject::connect(container, SIGNAL(itemSelected(QModelIndex)),
                      q, SLOT(itemSelected(QModelIndex)));
@@ -507,7 +507,7 @@ void QComboBoxPrivate::updateLineEditGeometry()
         return;
 
     QStyleOptionComboBox opt = d->getStyleOption();
-    QRect editorRect = QStyle::visualRect(q->style().querySubControlMetrics(
+    QRect editorRect = QStyle::visualRect(q->style()->querySubControlMetrics(
                                               QStyle::CC_ComboBox, &opt,
                                               QStyle::SC_ComboBoxEditField, q), q);
     const QPixmap &pix = q->pixmap(q->currentItem());
@@ -1175,7 +1175,7 @@ QSize QComboBox::sizeHint() const
 
     // add style and strut values
     QStyleOptionComboBox opt = d->getStyleOption();
-    d->sizeHint = (style().sizeFromContents(QStyle::CT_ComboBox, &opt, d->sizeHint, fm, this)
+    d->sizeHint = (style()->sizeFromContents(QStyle::CT_ComboBox, &opt, d->sizeHint, fm, this)
                    .expandedTo(QApplication::globalStrut()));
     return d->sizeHint;
 }
@@ -1376,13 +1376,13 @@ void QComboBox::paintEvent(QPaintEvent *)
 
     // draw the combobox frame, focusrect and selected etc.
     QStyleOptionComboBox opt = d->getStyleOption();
-    style().drawComplexControl(QStyle::CC_ComboBox, &opt, &painter, this);
+    style()->drawComplexControl(QStyle::CC_ComboBox, &opt, &painter, this);
 
     // draw the icon and text
     if (d->currentIndex.isValid()) {
         QString txt = model()->data(d->currentIndex, QAbstractItemModel::DisplayRole).toString();
         const QPixmap &pix = pixmap(currentItem());
-        QRect editField = QStyle::visualRect(q->style().querySubControlMetrics(
+        QRect editField = QStyle::visualRect(q->style()->querySubControlMetrics(
                                                  QStyle::CC_ComboBox, &opt,
                                                  QStyle::SC_ComboBoxEditField, this), q);
         QRect textRect(editField);
@@ -1411,7 +1411,7 @@ void QComboBox::paintEvent(QPaintEvent *)
 void QComboBox::mousePressEvent(QMouseEvent *e)
 {
     QStyleOptionComboBox opt = d->getStyleOption();
-    QStyle::SubControl sc = style().querySubControl(QStyle::CC_ComboBox, &opt, e->pos(), this);
+    QStyle::SubControl sc = style()->querySubControl(QStyle::CC_ComboBox, &opt, e->pos(), this);
     if ((sc == QStyle::SC_ComboBoxArrow || (sc == QStyle::SC_ComboBoxEditField && !isEditable()))
         && !d->container->isVisible()) {
         if (sc == QStyle::SC_ComboBoxArrow)
@@ -1428,7 +1428,7 @@ void QComboBox::mouseReleaseEvent(QMouseEvent *e)
     Q_UNUSED(e);
     d->arrowDown = false;
     QStyleOptionComboBox opt = d->getStyleOption();
-    update(QStyle::visualRect(style().querySubControlMetrics(
+    update(QStyle::visualRect(style()->querySubControlMetrics(
                                   QStyle::CC_ComboBox, &opt, QStyle::SC_ComboBoxArrow), this));
 }
 

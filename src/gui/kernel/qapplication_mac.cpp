@@ -305,7 +305,7 @@ void qt_mac_update_os_settings()
     if(!QApplication::startingUp()) {
         static bool needToPolish = true;
         if (needToPolish) {
-            qApp->style().polish(qApp);
+            qApp->style()->polish(qApp);
             needToPolish = false;
         }
     }

@@ -287,7 +287,7 @@ void PropertyItem::paintBranches( QPainter * p, const QPalette &pal,
 void PropertyItem::paintFocus( QPainter *p, const QPalette &pal, const QRect &r )
 {
     p->save();
-    QApplication::style().drawPrimitive(QStyle::PE_Panel, p, r, pal,
+    QApplication::style()->drawPrimitive(QStyle::PE_Panel, p, r, pal,
 					QStyle::Style_Sunken, QStyleOption(1,1) );
     p->restore();
 }
@@ -2659,10 +2659,10 @@ void EnumBox::paintEvent( QPaintEvent * )
 			 FALSE, 2, &pal.brush( QPalette::Button ) );
 	return;
     }
-    style().drawComplexControl( QStyle::CC_ComboBox, &p, this, rect(), pal, flags, QStyle::SC_All,
+    style()->drawComplexControl( QStyle::CC_ComboBox, &p, this, rect(), pal, flags, QStyle::SC_All,
 				    (arrowDown ? QStyle::SC_ComboBoxArrow : QStyle::SC_None ));
 
-    QRect re = style().querySubControlMetrics( QStyle::CC_ComboBox, this,
+    QRect re = style()->querySubControlMetrics( QStyle::CC_ComboBox, this,
 					       QStyle::SC_ComboBoxEditField );
     re = QStyle::visualRect(re, this);
     p.setClipRect( re );
@@ -2706,7 +2706,7 @@ void EnumBox::mousePressEvent( QMouseEvent *e )
     if ( e->button() != LeftButton )
 	return;
 
-    QRect arrowRect = style().querySubControlMetrics( QStyle::CC_ComboBox, this,
+    QRect arrowRect = style()->querySubControlMetrics( QStyle::CC_ComboBox, this,
 						      QStyle::SC_ComboBoxArrow);
     arrowRect = QStyle::visualRect(arrowRect, this);
 

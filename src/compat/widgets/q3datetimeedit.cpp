@@ -273,11 +273,11 @@ public:
     }
 
     void paint(const QString& txt, bool focus, QPainter& p,
-                const QPalette&pal, const QRect& rect, QStyle& style)
+                const QPalette&pal, const QRect& rect, QStyle *style)
     {
         int fw = 0;
         if (frm)
-            fw = style.pixelMetric(QStyle::PM_DefaultFrameWidth);
+            fw = style->pixelMetric(QStyle::PM_DefaultFrameWidth);
 
         parag->truncate(0);
         parag->append(txt);
@@ -1047,7 +1047,7 @@ QSize Q3DateEdit::sizeHint() const
 {
     ensurePolished();
     QFontMetrics fm(font());
-    int fw = style().pixelMetric(QStyle::PM_DefaultFrameWidth, 0, this);
+    int fw = style()->pixelMetric(QStyle::PM_DefaultFrameWidth, 0, this);
     int h = qMax(fm.lineSpacing(), 14) + 2;
     int w = 2 + fm.width('9') * 8 + fm.width(d->ed->separator()) * 2 + d->controls->upRect().width() + fw * 4;
 
@@ -2494,7 +2494,7 @@ QSize Q3TimeEdit::sizeHint() const
 {
     ensurePolished();
     QFontMetrics fm(font());
-    int fw = style().pixelMetric(QStyle::PM_DefaultFrameWidth, 0, this);
+    int fw = style()->pixelMetric(QStyle::PM_DefaultFrameWidth, 0, this);
     int h = fm.lineSpacing() + 2;
     int w = 2 + fm.width('9') * 6 + fm.width(d->ed->separator()) * 2 +
         d->controls->upRect().width() + fw * 4;

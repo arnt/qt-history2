@@ -90,7 +90,7 @@
             option.init(this);
             option.backgroundColor = palette().color(QPalette::Background);
 
-            style().drawPrimitive(QStyle::PE_FocusRect, &option, &painter, this);
+            style()->drawPrimitive(QStyle::PE_FocusRect, &option, &painter, this);
         }
     \endcode
 

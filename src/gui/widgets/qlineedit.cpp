@@ -68,7 +68,7 @@ QStyleOptionFrame QLineEditPrivate::getStyleOption() const
     QStyleOptionFrame opt;
     opt.rect = q->rect();
     opt.palette = q->palette();
-    opt.lineWidth = q->style().pixelMetric(QStyle::PM_DefaultFrameWidth);
+    opt.lineWidth = q->style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
     opt.midLineWidth = 0;
     opt.state = QStyle::Style_None | QStyle::Style_Sunken;
     return opt;
@@ -342,7 +342,7 @@ QString QLineEdit::displayText() const
     QString res = d->text;
     if (d->echoMode == Password) {
         QStyleOptionFrame opt = d->getStyleOption();
-        res.fill(style().styleHint(QStyle::SH_LineEdit_PasswordCharacter, &opt, this));
+        res.fill(style()->styleHint(QStyle::SH_LineEdit_PasswordCharacter, &opt, this));
     }
     return (res.isNull() ? QString::fromLatin1("") : res);
 }
@@ -496,12 +496,12 @@ QSize QLineEdit::sizeHint() const
     QFontMetrics fm(font());
     int h = qMax(fm.lineSpacing(), 14) + 2*innerMargin;
     int w = fm.width('x') * 17; // "some"
-    int m = d->frame ? style().pixelMetric(QStyle::PM_DefaultFrameWidth) : 0;
+    int m = d->frame ? style()->pixelMetric(QStyle::PM_DefaultFrameWidth) : 0;
     QStyleOptionFrame opt;
     opt.rect = rect();
     opt.palette = palette();
     opt.state = QStyle::Style_None;
-    return (style().sizeFromContents(QStyle::CT_LineEdit, &opt, QSize(w + m, h + m).
+    return (style()->sizeFromContents(QStyle::CT_LineEdit, &opt, QSize(w + m, h + m).
                                      expandedTo(QApplication::globalStrut()), fontMetrics(), this));
 }
 
@@ -518,7 +518,7 @@ QSize QLineEdit::minimumSizeHint() const
     QFontMetrics fm = fontMetrics();
     int h = fm.height() + qMax(2*innerMargin, fm.leading());
     int w = fm.maxWidth();
-    int m = d->frame ? style().pixelMetric(QStyle::PM_DefaultFrameWidth) : 0;
+    int m = d->frame ? style()->pixelMetric(QStyle::PM_DefaultFrameWidth) : 0;
     return QSize(w + m, h + m);
 }
 
@@ -1223,7 +1223,7 @@ bool QLineEdit::event(QEvent * e)
         if (timerId == d->cursorTimer) {
             QStyleOptionFrame opt = d->getStyleOption();
             if(!hasSelectedText()
-               || style().styleHint(QStyle::SH_BlinkCursorWhenTextSelected, &opt, this))
+               || style()->styleHint(QStyle::SH_BlinkCursorWhenTextSelected, &opt, this))
                 d->setCursorVisible(!d->cursorVisible);
 #ifndef QT_NO_DRAGANDDROP
         } else if (timerId == d->dndTimer.timerId()) {
@@ -1716,7 +1716,7 @@ void QLineEdit::focusInEvent(QFocusEvent*)
         d->cursorTimer = cft ? startTimer(cft/2) : -1;
     }
     QStyleOptionFrame opt = d->getStyleOption();
-    if(!hasSelectedText() || style().styleHint(QStyle::SH_BlinkCursorWhenTextSelected, &opt, this))
+    if(!hasSelectedText() || style()->styleHint(QStyle::SH_BlinkCursorWhenTextSelected, &opt, this))
         d->setCursorVisible(true);
     if ( d->hasIMSelection() )
 	d->cursor = d->imselstart;
@@ -1756,7 +1756,7 @@ void QLineEdit::paintEvent(QPaintEvent *)
     const QPalette &pal = palette();
 
     if (d->frame) {
-        int frameWidth = style().pixelMetric(QStyle::PM_DefaultFrameWidth);
+        int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
         QStyleOptionFrame opt;
         opt.rect = r;
         opt.palette = pal;
@@ -1767,7 +1767,7 @@ void QLineEdit::paintEvent(QPaintEvent *)
             opt.state |= QStyle::Style_HasFocus;
         if (testAttribute(Qt::WA_UnderMouse))
             opt.state |= QStyle::Style_MouseOver;
-        style().drawPrimitive(QStyle::PE_PanelLineEdit, &opt, &p, this);
+        style()->drawPrimitive(QStyle::PE_PanelLineEdit, &opt, &p, this);
 
         r.addCoords(frameWidth, frameWidth, -frameWidth, -frameWidth);
     }
@@ -2176,7 +2176,7 @@ void QLineEditPrivate::moveCursor(int pos, bool mark)
     }
     updateMicroFocusHint();
     QStyleOptionFrame opt = getStyleOption();
-    if (mark && !q->style().styleHint(QStyle::SH_BlinkCursorWhenTextSelected, &opt, q))
+    if (mark && !q->style()->styleHint(QStyle::SH_BlinkCursorWhenTextSelected, &opt, q))
         setCursorVisible(false);
     if (mark || selDirty) {
         selDirty = false;

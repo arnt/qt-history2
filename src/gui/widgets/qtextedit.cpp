@@ -1232,7 +1232,7 @@ void QTextEdit::timerEvent(QTimerEvent *ev)
         d->cursorOn = !d->cursorOn;
 
         if (d->cursor.hasSelection())
-            d->cursorOn &= (style().styleHint(QStyle::SH_BlinkCursorWhenTextSelected, 0, this)
+            d->cursorOn &= (style()->styleHint(QStyle::SH_BlinkCursorWhenTextSelected, 0, this)
                             != 0);
 
         d->update(d->cursorRect());

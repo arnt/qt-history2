@@ -91,7 +91,7 @@ QSize QSplitterHandle::sizeHint() const
     opt.rect = s->rect();
     opt.palette = s->palette();
     opt.state = QStyle::Style_None;
-    return parentWidget()->style().sizeFromContents(QStyle::CT_Splitter, &opt, QSize(hw, hw),
+    return parentWidget()->style()->sizeFromContents(QStyle::CT_Splitter, &opt, QSize(hw, hw),
                                                     s->fontMetrics(), s)
                                                     .expandedTo(QApplication::globalStrut());
 }
@@ -143,7 +143,7 @@ void QSplitterHandle::paintEvent(QPaintEvent *)
         opt.state = QStyle::Style_Horizontal;
     else
         opt.state = QStyle::Style_None;
-    parentWidget()->style().drawPrimitive(QStyle::PE_Splitter, &opt, &p, s);
+    parentWidget()->style()->drawPrimitive(QStyle::PE_Splitter, &opt, &p, s);
 }
 
 class QSplitterLayoutStruct
@@ -1260,7 +1260,7 @@ int QSplitter::handleWidth() const
     if (d->handleWidth > 0) {
         return d->handleWidth;
     } else {
-        return style().pixelMetric(QStyle::PM_SplitterWidth, 0, this);
+        return style()->pixelMetric(QStyle::PM_SplitterWidth, 0, this);
     }
 }
 

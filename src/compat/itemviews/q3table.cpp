@@ -1288,10 +1288,10 @@ void Q3ComboTableItem::paint(QPainter *p, const QColorGroup &cg,
     opt.subControls = QStyle::SC_All;
     opt.activeSubControls = QStyle::SC_None;
     opt.editable = fakeCombo->editable();
-    table()->style().drawComplexControl(QStyle::CC_ComboBox, &opt, p, fakeCombo);
+    table()->style()->drawComplexControl(QStyle::CC_ComboBox, &opt, p, fakeCombo);
 
     p->save();
-    QRect textR = table()->style().querySubControlMetrics(QStyle::CC_ComboBox, &opt,
+    QRect textR = table()->style()->querySubControlMetrics(QStyle::CC_ComboBox, &opt,
                                                           QStyle::SC_ComboBoxEditField, fakeCombo);
     int align = alignment(); // alignment() changes entries
     p->drawText(textR, wordWrap() ? (align | Qt::WordBreak) : align, entries.at(current));
@@ -1546,8 +1546,8 @@ void Q3CheckTableItem::paint(QPainter *p, const QColorGroup &cg,
 
     int w = cr.width();
     int h = cr.height();
-    QSize sz = QSize(table()->style().pixelMetric(QStyle::PM_IndicatorWidth),
-                      table()->style().pixelMetric(QStyle::PM_IndicatorHeight));
+    QSize sz = QSize(table()->style()->pixelMetric(QStyle::PM_IndicatorWidth),
+                      table()->style()->pixelMetric(QStyle::PM_IndicatorHeight));
     QPalette pal2(pal);
     pal2.setBrush(QPalette::Background, pal.brush(QPalette::Base));
     QStyleOptionButton opt;
@@ -1562,7 +1562,7 @@ void Q3CheckTableItem::paint(QPainter *p, const QColorGroup &cg,
         opt.state |= QStyle::Style_Off;
     if (isEnabled() && table()->isEnabled())
         opt.state |= QStyle::Style_Enabled;
-    table()->style().drawPrimitive(QStyle::PE_Indicator, &opt, p, table());
+    table()->style()->drawPrimitive(QStyle::PE_Indicator, &opt, p, table());
     int x = sz.width() + 6;
     w = w - x;
     if (selected)
@@ -1633,8 +1633,8 @@ int Q3CheckTableItem::rtti() const
 
 QSize Q3CheckTableItem::sizeHint() const
 {
-    QSize sz = QSize(table()->style().pixelMetric(QStyle::PM_IndicatorWidth),
-		      table()->style().pixelMetric(QStyle::PM_IndicatorHeight));
+    QSize sz = QSize(table()->style()->pixelMetric(QStyle::PM_IndicatorWidth),
+		      table()->style()->pixelMetric(QStyle::PM_IndicatorHeight));
     sz.setWidth(sz.width() + 6);
     QSize sh(Q3TableItem::sizeHint());
     return QSize(sh.width() + sz.width(), QMAX(sh.height(), sz.height())).
@@ -2750,7 +2750,7 @@ void Q3Table::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 
     drawActiveSelection = hasFocus() || viewport()->hasFocus() || d->inMenuMode
                         || is_child_of(qApp->focusWidget(), viewport())
-                        || !style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this);
+                        || !style()->styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this);
     if (rowlast == -1)
         rowlast = numRows() - 1;
     if (collast == -1)
@@ -2880,7 +2880,7 @@ void Q3Table::paintCell(QPainter* p, int row, int col,
     if (cr.width() == 0 || cr.height() == 0)
 	return;
 #if defined(Q_WS_WIN)
-    const QColorGroup &cg = (!drawActiveSelection && style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus) ? palette().inactive() : colorGroup());
+    const QColorGroup &cg = (!drawActiveSelection && style()->styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus) ? palette().inactive() : colorGroup());
 #else
     const QColorGroup &cg = colorGroup();
 #endif
@@ -2953,7 +2953,7 @@ void Q3Table::paintCell(QPainter *p, int row, int col,
     if (sGrid) {
         // Draw our lines
         QPen pen(p->pen());
-        int gridColor =	style().styleHint(QStyle::SH_Table_GridLineColor, 0, this);
+        int gridColor =	style()->styleHint(QStyle::SH_Table_GridLineColor, 0, this);
         if (gridColor != -1) {
             if (palette() != pal)
                 p->setPen(pal.mid().color());
@@ -2997,7 +2997,7 @@ void Q3Table::paintFocus(QPainter *p, const QRect &cr)
             opt.state = QStyle::Style_None;
             opt.backgroundColor = palette().base().color();
         }
-        style().drawPrimitive(QStyle::PE_FocusRect, &opt, p, this);
+        style()->drawPrimitive(QStyle::PE_FocusRect, &opt, p, this);
     }
 }
 
@@ -4257,7 +4257,7 @@ void Q3Table::focusInEvent(QFocusEvent*)
     d->inMenuMode = false;
     QWidget *editorWidget = cellWidget(editRow, editCol);
     updateCell(curRow, curCol);
-    if (style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this))
+    if (style()->styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this))
         repaintSelections();
     if (isEditing() && editorWidget)
 	editorWidget->setFocus();
@@ -4274,7 +4274,7 @@ void Q3Table::focusInEvent(QFocusEvent*)
 void Q3Table::focusOutEvent(QFocusEvent*)
 {
     updateCell(curRow, curCol);
-    if (style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this)) {
+    if (style()->styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this)) {
 	d->inMenuMode =
 	    QFocusEvent::reason() == QFocusEvent::Popup ||
 	    (qApp->focusWidget() && qApp->focusWidget()->inherits("QMenuBar"));
@@ -6671,7 +6671,7 @@ void Q3TableHeader::paintSection(QPainter *p, int index, const QRect& fr)
        }
        if (!(opt.state & QStyle::Style_Down))
            opt.state |= QStyle::Style_Raised;
-       style().drawPrimitive(QStyle::PE_HeaderSection, &opt, p, this);
+       style()->drawPrimitive(QStyle::PE_HeaderSection, &opt, p, this);
        paintSectionLabel(p, index, fr);
    }
 }

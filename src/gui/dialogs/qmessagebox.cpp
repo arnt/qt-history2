@@ -783,16 +783,16 @@ QPixmap QMessageBox::standardIcon(Icon icon)
     QPixmap pm;
     switch (icon) {
     case Information:
-        pm = QApplication::style().standardPixmap(QStyle::SP_MessageBoxInformation);
+        pm = QApplication::style()->standardPixmap(QStyle::SP_MessageBoxInformation);
         break;
     case Warning:
-        pm = QApplication::style().standardPixmap(QStyle::SP_MessageBoxWarning);
+        pm = QApplication::style()->standardPixmap(QStyle::SP_MessageBoxWarning);
         break;
     case Critical:
-        pm = QApplication::style().standardPixmap(QStyle::SP_MessageBoxCritical);
+        pm = QApplication::style()->standardPixmap(QStyle::SP_MessageBoxCritical);
         break;
     case Question:
-        pm = QApplication::style().standardPixmap(QStyle::SP_MessageBoxQuestion);
+        pm = QApplication::style()->standardPixmap(QStyle::SP_MessageBoxQuestion);
     default:
         break;
     }
@@ -885,10 +885,10 @@ QSize QMessageBox::sizeHint() const
     int n  = mbd->numButtons;
     int bw = mbd->buttonSize.width();
     int bh = mbd->buttonSize.height();
-    int border = bh / 2 - style().pixelMetric(QStyle::PM_ButtonDefaultIndicator);
+    int border = bh / 2 - style()->pixelMetric(QStyle::PM_ButtonDefaultIndicator);
     if (border <= 0)
         border = 10;
-    int btn_spacing = style().styleHint(QStyle::SH_MessageBox_UseBorderForButtonSpacing)
+    int btn_spacing = style()->styleHint(QStyle::SH_MessageBox_UseBorderForButtonSpacing)
                       ? border : 7;
 #ifndef Q_OS_TEMP
     int buttons = mbd->numButtons * bw + (n-1) * btn_spacing;
@@ -936,10 +936,10 @@ void QMessageBox::resizeEvent(QResizeEvent *)
     bw = visibleButtons == 0 ? 0 : bw;
     bh = visibleButtons == 0 ? 0 : bh;
 #endif
-    int border = bh / 2 - style().pixelMetric(QStyle::PM_ButtonDefaultIndicator);
+    int border = bh / 2 - style()->pixelMetric(QStyle::PM_ButtonDefaultIndicator);
     if (border <= 0)
         border = 10;
-    bool useBorder = style().styleHint(QStyle::SH_MessageBox_UseBorderForButtonSpacing);
+    bool useBorder = style()->styleHint(QStyle::SH_MessageBox_UseBorderForButtonSpacing);
     int btn_spacing = useBorder ? border : 7;
     int lmargin = 0;
     mbd->iconLabel.adjustSize();

@@ -100,5 +100,5 @@ void QDockSeparator::paintEvent(QPaintEvent *)
     opt.rect = rect();
     opt.palette = palette();
 
-    style().drawPrimitive(QStyle::PE_DockWindowResizeHandle, &opt, &p, this);
+    style()->drawPrimitive(QStyle::PE_DockWindowResizeHandle, &opt, &p, this);
 }

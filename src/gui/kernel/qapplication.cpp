@@ -1059,11 +1059,11 @@ static QString *qt_style_override = 0;
 
   \sa setStyle(), QStyle
 */
-QStyle& QApplication::style()
+QStyle *QApplication::style()
 {
 #ifndef QT_NO_STYLE
     if (QApplicationPrivate::app_style)
-        return *QApplicationPrivate::app_style;
+        return QApplicationPrivate::app_style;
     if (!qt_is_gui_used)
         qFatal("No style available in non-gui applications!");
 
@@ -1128,7 +1128,7 @@ QStyle& QApplication::style()
 
     QApplicationPrivate::app_style->polish(qApp);
 #endif
-    return *QApplicationPrivate::app_style;
+    return QApplicationPrivate::app_style;
 }
 
 /*!
@@ -1467,7 +1467,7 @@ void QApplication::setPalette(const QPalette &palette, const char* className)
 
 #ifndef QT_NO_STYLE
     if (!startingUp()) // on startup this has been done already
-        qApp->style().polish(pal);        // NB: non-const reference
+        qApp->style()->polish(pal);        // NB: non-const reference
 #endif
     bool all = false;
     PaletteHash *hash = app_palettes();
@@ -1621,7 +1621,7 @@ void QApplication::setWindowIcon(const QPixmap &pixmap)
 void QApplication::polish(QWidget *w)
 {
 #ifndef QT_NO_STYLE
-    w->style().polish(w);
+    w->style()->polish(w);
 #endif
     w->setWState(Qt::WState_Polished);
 }
@@ -1956,7 +1956,7 @@ void QApplication::setActiveWindow(QWidget* act)
     if (QApplicationPrivate::active_window) {
         QWidgetList deacts;
 #ifndef QT_NO_STYLE
-        if (style().styleHint(QStyle::SH_Widget_ShareActivation, 0, QApplicationPrivate::active_window)) {
+        if (style()->styleHint(QStyle::SH_Widget_ShareActivation, 0, QApplicationPrivate::active_window)) {
             QWidgetList list = topLevelWidgets();
             for (int i = 0; i < list.size(); ++i) {
                 QWidget *w = list.at(i);
@@ -1980,7 +1980,7 @@ void QApplication::setActiveWindow(QWidget* act)
         QEvent e(QEvent::WindowActivate);
         QWidgetList acts;
 #ifndef QT_NO_STYLE
-        if (style().styleHint(QStyle::SH_Widget_ShareActivation, 0, QApplicationPrivate::active_window)) {
+        if (style()->styleHint(QStyle::SH_Widget_ShareActivation, 0, QApplicationPrivate::active_window)) {
             QWidgetList list = topLevelWidgets();
             for (int i = 0; i < list.size(); ++i) {
                 QWidget *w = list.at(i);

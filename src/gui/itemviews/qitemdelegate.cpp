@@ -346,7 +346,7 @@ void QItemDelegate::drawFocus(QPainter *painter, const QStyleOptionViewItem &opt
             o.backgroundColor = option.palette.color(cg, QPalette::Highlight);
         else
             o.backgroundColor = option.palette.color(cg, QPalette::Background);
-        QApplication::style().drawPrimitive(QStyle::PE_FocusRect, &o, painter);
+        QApplication::style()->drawPrimitive(QStyle::PE_FocusRect, &o, painter);
     }
 }
 
@@ -485,9 +485,9 @@ QPixmap QItemDelegate::decoration(const QStyleOptionViewItem &option, const QVar
                                           option.state & QStyle::Style_Open
                                           ? QIcon::On : QIcon::Off);
     case QVariant::Bool: {
-        static QPixmap checked(QApplication::style().standardPixmap(QStyle::SP_ItemChecked,
+        static QPixmap checked(QApplication::style()->standardPixmap(QStyle::SP_ItemChecked,
                                                                     &option));
-        static QPixmap unchecked(QApplication::style().standardPixmap(QStyle::SP_ItemUnchecked,
+        static QPixmap unchecked(QApplication::style()->standardPixmap(QStyle::SP_ItemUnchecked,
                                                                       &option));
         return variant.toBool() ? checked : unchecked; }
     case QVariant::Color: {

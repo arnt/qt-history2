@@ -183,8 +183,8 @@ void TabbedBrowser::init()
         opt.shape = tabBar->shape();
     }
 
-    int m = (tabBar ? style().pixelMetric(QStyle::PM_TabBarTabVSpace, &opt)
-              + style().pixelMetric(QStyle::PM_TabBarBaseHeight, &opt) : 0);
+    int m = (tabBar ? style()->pixelMetric(QStyle::PM_TabBarTabVSpace, &opt)
+              + style()->pixelMetric(QStyle::PM_TabBarBaseHeight, &opt) : 0);
     int s = ui.tab->height() - m;
 
     // workaround for sgi style

@@ -74,15 +74,15 @@ QRect QAccessibleSpinBox::rect(int child) const
     so.rect = widget()->rect();
     switch(child) {
     case Editor:
-        rect = widget()->style().querySubControlMetrics(QStyle::CC_SpinBox, &so,
+        rect = widget()->style()->querySubControlMetrics(QStyle::CC_SpinBox, &so,
                                                         QStyle::SC_SpinBoxEditField, widget());
         break;
     case ValueUp:
-        rect = widget()->style().querySubControlMetrics(QStyle::CC_SpinBox, &so,
+        rect = widget()->style()->querySubControlMetrics(QStyle::CC_SpinBox, &so,
                                                         QStyle::SC_SpinBoxUp, widget());
         break;
     case ValueDown:
-        rect = widget()->style().querySubControlMetrics(QStyle::CC_SpinBox, &so,
+        rect = widget()->style()->querySubControlMetrics(QStyle::CC_SpinBox, &so,
                                                         QStyle::SC_SpinBoxDown, widget());
         break;
     default:
@@ -238,11 +238,11 @@ QRect QAccessibleScrollBar::rect(int child) const
 {
     QRect rect;
     QStyleOptionSlider option;
-    QRect srect = scrollBar()->style().querySubControlMetrics(QStyle::CC_Slider,
+    QRect srect = scrollBar()->style()->querySubControlMetrics(QStyle::CC_Slider,
                                                               &option,
                                                               QStyle::SC_SliderHandle,
                                                               scrollBar());
-    int sz = scrollBar()->style().pixelMetric(QStyle::PM_ScrollBarExtent, &option, scrollBar());
+    int sz = scrollBar()->style()->pixelMetric(QStyle::PM_ScrollBarExtent, &option, scrollBar());
     switch (child) {
     case LineUp:
         rect = QRect(0, 0, sz, sz);
@@ -394,7 +394,7 @@ QRect QAccessibleSlider::rect(int child) const
 {
     QRect rect;
     QStyleOptionSlider option;
-    QRect srect = slider()->style().querySubControlMetrics(QStyle::CC_Slider,
+    QRect srect = slider()->style()->querySubControlMetrics(QStyle::CC_Slider,
                                                            &option,
                                                            QStyle::SC_SliderHandle,
                                                            slider());

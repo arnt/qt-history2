@@ -302,22 +302,22 @@ Q3WorkspacePrivate::init()
     d->popup->setObjectName("qt_internal_mdi_popup");
     d->toolPopup->setObjectName("qt_internal_mdi_tool_popup");
 
-    d->actions[Q3WorkspacePrivate::RestoreAct] = new QAction(QIcon(q->style().standardPixmap(QStyle::SP_TitleBarNormalButton)),
+    d->actions[Q3WorkspacePrivate::RestoreAct] = new QAction(QIcon(q->style()->standardPixmap(QStyle::SP_TitleBarNormalButton)),
                                                             q->tr("&Restore"), q);
     d->actions[Q3WorkspacePrivate::MoveAct] = new QAction(q->tr("&Move"), q);
     d->actions[Q3WorkspacePrivate::ResizeAct] = new QAction(q->tr("&Size"), q);
-    d->actions[Q3WorkspacePrivate::MinimizeAct] = new QAction(QIcon(q->style().standardPixmap(QStyle::SP_TitleBarMinButton)),
+    d->actions[Q3WorkspacePrivate::MinimizeAct] = new QAction(QIcon(q->style()->standardPixmap(QStyle::SP_TitleBarMinButton)),
                                                              q->tr("Mi&nimize"), q);
-    d->actions[Q3WorkspacePrivate::MaximizeAct] = new QAction(QIcon(q->style().standardPixmap(QStyle::SP_TitleBarMaxButton)),
+    d->actions[Q3WorkspacePrivate::MaximizeAct] = new QAction(QIcon(q->style()->standardPixmap(QStyle::SP_TitleBarMaxButton)),
                                                              q->tr("Ma&ximize"), q);
-    d->actions[Q3WorkspacePrivate::CloseAct] = new QAction(QIcon(q->style().standardPixmap(QStyle::SP_TitleBarCloseButton)),
+    d->actions[Q3WorkspacePrivate::CloseAct] = new QAction(QIcon(q->style()->standardPixmap(QStyle::SP_TitleBarCloseButton)),
                                                           q->tr("&Close")
                                                           +"\t"+(QString)QKeySequence(Qt::CTRL+Qt::Key_F4)
                                                           ,q);
     QObject::connect(d->actions[Q3WorkspacePrivate::CloseAct], SIGNAL(triggered()), q, SLOT(closeActiveWindow()));
     d->actions[Q3WorkspacePrivate::StaysOnTopAct] = new QAction(q->tr("Stay on &Top"), q);
     d->actions[Q3WorkspacePrivate::StaysOnTopAct]->setChecked(true);
-    d->actions[Q3WorkspacePrivate::ShadeAct] = new QAction(QIcon(q->style().standardPixmap(QStyle::SP_TitleBarShadeButton)),
+    d->actions[Q3WorkspacePrivate::ShadeAct] = new QAction(QIcon(q->style()->standardPixmap(QStyle::SP_TitleBarShadeButton)),
                                                           q->tr("Sh&ade"), q);
 
     QObject::connect(d->popup, SIGNAL(aboutToShow()), q, SLOT(updateActions()));
@@ -790,7 +790,7 @@ void Q3Workspace::resizeEvent(QResizeEvent *)
 /*! \reimp */
 void Q3Workspace::showEvent(QShowEvent *e)
 {
-    if (d->maxWindow && !style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, this))
+    if (d->maxWindow && !style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, this))
         d->showMaximizeControls();
     QWidget::showEvent(e);
     if (d->becomeActive) {
@@ -814,7 +814,7 @@ void Q3Workspace::showEvent(QShowEvent *e)
 /*! \reimp */
 void Q3Workspace::hideEvent(QHideEvent *)
 {
-    if (!isVisibleTo(0) && !style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, this))
+    if (!isVisibleTo(0) && !style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, this))
         d->hideMaximizeControls();
 }
 
@@ -844,7 +844,7 @@ void Q3WorkspacePrivate::minimizeWindow(QWidget* w)
             if (d->topTitle.size())
                 q->topLevelWidget()->setWindowTitle(d->topTitle);
             inTitleChange = false;
-            if (!q->style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q))
+            if (!q->style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q))
                 hideMaximizeControls();
             for (QList<Q3WorkspaceChild *>::Iterator it(d->windows.begin()); it != d->windows.end(); ++it) {
                 Q3WorkspaceChild* c = *it;
@@ -880,7 +880,7 @@ void Q3WorkspacePrivate::normalizeWindow(QWidget* w)
     if (c) {
         Q3Workspace *fake = (Q3Workspace*)w;
         fake->clearWState(Qt::WState_Minimized | Qt::WState_Maximized);
-        if (!q->style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q)
+        if (!q->style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q)
             && d->maxWindow) {
             hideMaximizeControls();
         } else {
@@ -905,7 +905,7 @@ void Q3WorkspacePrivate::normalizeWindow(QWidget* w)
             c->show();
         }
 
-        if (!q->style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q))
+        if (!q->style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q))
             hideMaximizeControls();
         for (QList<Q3WorkspaceChild *>::Iterator it(d->windows.begin()); it != d->windows.end(); ++it) {
             Q3WorkspaceChild* c = *it;
@@ -947,7 +947,7 @@ void Q3WorkspacePrivate::maximizeWindow(QWidget* w)
         }
 
         activateWindow(w);
-        if(!q->style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q)) {
+        if(!q->style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q)) {
             showMaximizeControls();
         } else {
             c->widgetResizeHandler->setActive(false);
@@ -1100,7 +1100,7 @@ bool Q3Workspace::eventFilter(QObject *o, QEvent * e)
 
             if (!d->maxWindow) {
 
-                if (style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, this)) {
+                if (style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, this)) {
                     Q3WorkspaceChild *wc = static_cast<Q3WorkspaceChild *>(o);
                     wc->widgetResizeHandler->setActive(true);
                     if (wc->titlebar)
@@ -1208,7 +1208,7 @@ void Q3WorkspacePrivate::showMaximizeControls()
 #endif
             l->addWidget(iconB);
             iconB->setFocusPolicy(Qt::NoFocus);
-            iconB->setIcon(q->style().standardPixmap(QStyle::SP_TitleBarMinButton));
+            iconB->setIcon(q->style()->standardPixmap(QStyle::SP_TitleBarMinButton));
             iconB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
             QObject::connect(iconB, SIGNAL(clicked()),
                              q, SLOT(minimizeActiveWindow()));
@@ -1221,7 +1221,7 @@ void Q3WorkspacePrivate::showMaximizeControls()
 #endif
         l->addWidget(restoreB);
         restoreB->setFocusPolicy(Qt::NoFocus);
-        restoreB->setIcon(q->style().standardPixmap(QStyle::SP_TitleBarNormalButton));
+        restoreB->setIcon(q->style()->standardPixmap(QStyle::SP_TitleBarNormalButton));
         restoreB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
         QObject::connect(restoreB, SIGNAL(clicked()),
                          q, SLOT(normalizeActiveWindow()));
@@ -1234,7 +1234,7 @@ void Q3WorkspacePrivate::showMaximizeControls()
 #endif
         l->addWidget(closeB);
         closeB->setFocusPolicy(Qt::NoFocus);
-        closeB->setIcon(q->style().standardPixmap(QStyle::SP_TitleBarCloseButton));
+        closeB->setIcon(q->style()->standardPixmap(QStyle::SP_TitleBarCloseButton));
         closeB->setFixedSize(BUTTON_WIDTH, BUTTON_HEIGHT);
         QObject::connect(closeB, SIGNAL(clicked()),
                          q, SLOT(closeActiveWindow()));
@@ -1399,11 +1399,11 @@ void Q3WorkspacePrivate::updateActions()
     }
     if (d->active->shademode) {
         d->actions[Q3WorkspacePrivate::ShadeAct]->setIcon(
-            QIcon(q->style().standardPixmap(QStyle::SP_TitleBarUnshadeButton)));
+            QIcon(q->style()->standardPixmap(QStyle::SP_TitleBarUnshadeButton)));
         d->actions[Q3WorkspacePrivate::ShadeAct]->setText(q->tr("&Unshade"));
     } else {
         d->actions[Q3WorkspacePrivate::ShadeAct]->setIcon(
-            QIcon(q->style().standardPixmap(QStyle::SP_TitleBarShadeButton)));
+            QIcon(q->style()->standardPixmap(QStyle::SP_TitleBarShadeButton)));
         d->actions[Q3WorkspacePrivate::ShadeAct]->setText(q->tr("Sh&ade"));
     }
     d->actions[Q3WorkspacePrivate::StaysOnTopAct]->setEnabled(!d->active->shademode && canResize);
@@ -1745,7 +1745,7 @@ Q3WorkspaceChild::Q3WorkspaceChild(QWidget* window, Q3Workspace *parent, Qt::WFl
     }
 
     setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
-    setLineWidth(style().pixelMetric(QStyle::PM_MDIFrameWidth, 0, this));
+    setLineWidth(style()->pixelMetric(QStyle::PM_MDIFrameWidth, 0, this));
     setMinimumSize(128, 0);
 
     childWidget = window;
@@ -1777,7 +1777,7 @@ Q3WorkspaceChild::Q3WorkspaceChild(QWidget* window, Q3Workspace *parent, Qt::WFl
             }
             titlebar->setWindowIcon(pm);
         }
-        if (!style().styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar))
+        if (!style()->styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar))
             th += frameWidth();
         else
             th -= contentsRect().y();
@@ -1801,7 +1801,7 @@ Q3WorkspaceChild::Q3WorkspaceChild(QWidget* window, Q3Workspace *parent, Qt::WFl
     widgetResizeHandler->setSizeProtection(!parent->scrollBarsEnabled());
     connect(widgetResizeHandler, SIGNAL(activate()),
              this, SLOT(activate()));
-    if (!style().styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar))
+    if (!style()->styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar))
         widgetResizeHandler->setExtraHeight(th + contentsRect().y() - 2*frameWidth());
     else
         widgetResizeHandler->setExtraHeight(th + contentsRect().y() - frameWidth());
@@ -1843,11 +1843,11 @@ void Q3WorkspaceChild::resizeEvent(QResizeEvent *)
     if (titlebar) {
         int th = titlebar->sizeHint().height();
         QRect tbrect(0, 0, width(), th);
-        if (!style().styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar))
+        if (!style()->styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar))
             tbrect = QRect(r.x(), r.y(), r.width(), th);
         titlebar->setGeometry(tbrect);
 
-        if (style().styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar))
+        if (style()->styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar))
             th -= frameWidth();
         cr = QRect(r.x(), r.y() + th + (shademode ? (frameWidth() * 3) : 0),
                     r.width(), r.height() - th);
@@ -1871,7 +1871,7 @@ void Q3WorkspaceChild::resizeEvent(QResizeEvent *)
 QSize Q3WorkspaceChild::baseSize() const
 {
     int th = titlebar ? titlebar->sizeHint().height() : 0;
-    if (style().styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar))
+    if (style()->styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar))
         th -= frameWidth();
     return QSize(2*frameWidth(), 2*frameWidth() + th);
 }
@@ -2106,7 +2106,7 @@ void Q3WorkspaceChild::paintEvent(QPaintEvent *)
     if (titlebar && titlebar->isActive())
         opt.state |= QStyle::Style_Active;
 
-    style().drawPrimitive(QStyle::PE_WindowFrame, &opt, &p, this);
+    style()->drawPrimitive(QStyle::PE_WindowFrame, &opt, &p, this);
 }
 
 void Q3WorkspaceChild::changeEvent(QEvent *ev)
@@ -2116,7 +2116,7 @@ void Q3WorkspaceChild::changeEvent(QEvent *ev)
         if (iconw) {
             QVBoxWidget *vbox = qt_cast<QVBoxWidget*>(iconw->parentWidget());
             Q_ASSERT(vbox);
-            if (!style().styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar)) {
+            if (!style()->styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar)) {
                 vbox->setFrameStyle(QFrame::WinPanel | QFrame::Raised);
                 vbox->resize(196+2*vbox->frameWidth(), 20 + 2*vbox->frameWidth());
             } else {
@@ -2203,9 +2203,9 @@ QWidget* Q3WorkspaceChild::iconWidget() const
         Q3TitleBar *tb = new Q3TitleBar(windowWidget(), vbox);
         tb->setObjectName("_workspacechild_icon_");
         QStyleOptionTitleBar opt = tb->getStyleOption();
-        int th = style().pixelMetric(QStyle::PM_TitleBarHeight, &opt, tb);
-        int iconSize = style().pixelMetric(QStyle::PM_MDIMinimizedWidth, 0, this);
-        if (!style().styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar)) {
+        int th = style()->pixelMetric(QStyle::PM_TitleBarHeight, &opt, tb);
+        int iconSize = style()->pixelMetric(QStyle::PM_MDIMinimizedWidth, 0, this);
+        if (!style()->styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar)) {
             vbox->setFrameStyle(QFrame::WinPanel | QFrame::Raised);
             vbox->resize(iconSize+2*vbox->frameWidth(), th+2*vbox->frameWidth());
         } else {
@@ -2275,7 +2275,7 @@ void Q3WorkspaceChild::showShaded()
         shademode = false;
         resize(shadeRestore.expandedTo(minimumSizeHint()));
         setMinimumSize(shadeRestoreMin);
-        style().polish(this);
+        style()->polish(this);
     } else {
         shadeRestore = size();
         shadeRestoreMin = minimumSize();
@@ -2285,11 +2285,11 @@ void Q3WorkspaceChild::showShaded()
         fake->setWState(Qt::WState_Minimized);
         setWState(Qt::WState_Minimized);
 
-        if (style().styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar))
+        if (style()->styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar))
             resize(width(), titlebar->height());
         else
             resize(width(), titlebar->height() + 2*lineWidth() + 1);
-        style().polish(this);
+        style()->polish(this);
     }
     titlebar->update();
 }
@@ -2316,7 +2316,7 @@ void Q3WorkspaceChild::adjustToFullscreen()
     qApp->sendPostedEvents(this, QEvent::Resize);
     qApp->sendPostedEvents(childWidget, QEvent::Resize);
     qApp->sendPostedEvents(childWidget, QEvent::Move);
-    if(style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, this)) {
+    if(style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, this)) {
         setGeometry(0, 0, parentWidget()->width(), parentWidget()->height());
     } else {
         int w = parentWidget()->width() + width() - childWidget->width();
@@ -2577,7 +2577,7 @@ void Q3Workspace::changeEvent(QEvent *ev)
 {
     if(ev->type() == QEvent::StyleChange) {
         if (isVisibleTo(0) && d->maxWindow) {
-            if(style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, this))
+            if(style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, this))
                 d->hideMaximizeControls();
             else
                 d->showMaximizeControls();

@@ -43,7 +43,7 @@ Qt::Orientation QToolBarSeparator::orientation() const
 QSize QToolBarSeparator::sizeHint() const
 {
     QStyleOption opt = getStyleOption(this);
-    const int extent = style().pixelMetric(QStyle::PM_ToolBarSeparatorExtent, &opt, this);
+    const int extent = style()->pixelMetric(QStyle::PM_ToolBarSeparatorExtent, &opt, this);
     return QSize(extent, extent);
 }
 
@@ -51,5 +51,5 @@ void QToolBarSeparator::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     QStyleOption opt = getStyleOption(this);
-    style().drawPrimitive(QStyle::PE_ToolBarSeparator, &opt, &p, this);
+    style()->drawPrimitive(QStyle::PE_ToolBarSeparator, &opt, &p, this);
 }

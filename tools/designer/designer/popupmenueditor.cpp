@@ -723,7 +723,7 @@ void PopupMenuEditor::paintEvent( QPaintEvent * )
 		 rect().width() - borderSize * 2, rect().height() - borderSize * 2 );
     reg -= mid;
     p.setClipRegion( reg );
-    style().drawPrimitive( QStyle::PE_PanelPopup, &p, rect(), palette() );
+    style()->drawPrimitive( QStyle::PE_PanelPopup, &p, rect(), palette() );
     p.restore();
     drawItems( &p );
 }
@@ -1025,7 +1025,7 @@ void PopupMenuEditor::drawItem( QPainter * p, PopupMenuEditorItem * i,
     p->fillRect( r, colorGroup().brush( QColorGroup::Background ) );
 
     if ( i->isSeparator() ) {
-	style().drawPrimitive( QStyle::PE_Separator, p,
+	style()->drawPrimitive( QStyle::PE_Separator, p,
 			       QRect( r.x(), r.y() + 2, r.width(), 1 ),
 			       palette(), QStyle::Style_Sunken | f );
 	return;
@@ -1033,7 +1033,7 @@ void PopupMenuEditor::drawItem( QPainter * p, PopupMenuEditorItem * i,
 
     const QAction * a = i->action();
     if ( a->isToggleAction() && a->isOn() ) {
-	style().drawPrimitive( QStyle::PE_CheckMark, p,
+	style()->drawPrimitive( QStyle::PE_CheckMark, p,
 			       QRect( x , y, iconWidth, h ),
 			       palette(), f );
     } else {
@@ -1055,7 +1055,7 @@ void PopupMenuEditor::drawItem( QPainter * p, PopupMenuEditorItem * i,
 		 QPainter::AlignLeft | QPainter::AlignVCenter,
 		 a->accel() );
     if ( i->count() ) // Item has submenu
-	style().drawPrimitive( QStyle::PE_ArrowRight, p,
+	style()->drawPrimitive( QStyle::PE_ArrowRight, p,
 			       QRect( r.width() - arrowWidth, r.y(), arrowWidth, r.height() ),
 			       palette(), f );
 }

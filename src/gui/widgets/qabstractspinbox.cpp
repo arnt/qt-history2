@@ -463,7 +463,7 @@ void QAbstractSpinBox::resizeEvent(QResizeEvent *e)
 {
     QStyleOptionSpinBox sb = d->styleOption();
     sb.subControls = QStyle::SC_SpinBoxEditField;
-    d->edit->setGeometry(style().querySubControlMetrics(QStyle::CC_SpinBox, &sb,
+    d->edit->setGeometry(style()->querySubControlMetrics(QStyle::CC_SpinBox, &sb,
                                                         QStyle::SC_SpinBoxEditField, this));
     QWidget::resizeEvent(e);
 }
@@ -494,7 +494,7 @@ void QAbstractSpinBox::paintEvent(QPaintEvent *)
 {
     QStyleOptionSpinBox opt = d->styleOption();
     QPainter p(this);
-    style().drawComplexControl(QStyle::CC_SpinBox, &opt, &p, this);
+    style()->drawComplexControl(QStyle::CC_SpinBox, &opt, &p, this);
 }
 
 /*!
@@ -535,7 +535,7 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
 	    return;
 	if (!up)
 	    steps *= -1;
-	if (style().styleHint(QStyle::SH_SpinBox_AnimateButton, 0, this)) {
+	if (style()->styleHint(QStyle::SH_SpinBox_AnimateButton, 0, this)) {
 	    d->buttonstate = (Keyboard | (up ? Up : Down));
 	}
 	stepBy(steps);
@@ -563,7 +563,7 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
 
 void QAbstractSpinBox::keyReleaseEvent(QKeyEvent *e)
 {
-    if (style().styleHint(QStyle::SH_SpinBox_AnimateButton, 0, this)
+    if (style()->styleHint(QStyle::SH_SpinBox_AnimateButton, 0, this)
 	&& d->buttonstate & Keyboard && !e->isAutoRepeat()) {
 	d->resetState();
     } else {
@@ -699,7 +699,7 @@ void QAbstractSpinBox::mousePressEvent(QMouseEvent *e)
     const StepEnabled se = stepEnabled();
     QStyleOptionSpinBox sb = d->styleOption();
     sb.subControls = QStyle::SC_All;
-    if (style().querySubControlMetrics(QStyle::CC_SpinBox, &sb,
+    if (style()->querySubControlMetrics(QStyle::CC_SpinBox, &sb,
                                        QStyle::SC_SpinBoxUp, this).contains(p)) {
 	if (e->button() != Qt::LeftButton || !(se & StepUpEnabled) || d->buttonstate != None) {
 	    e->accept();
@@ -708,7 +708,7 @@ void QAbstractSpinBox::mousePressEvent(QMouseEvent *e)
 	    d->buttonstate = (Mouse | Up);
 	    stepBy(1);
 	}
-    } else if (style().querySubControlMetrics(QStyle::CC_SpinBox, &sb,
+    } else if (style()->querySubControlMetrics(QStyle::CC_SpinBox, &sb,
 					      QStyle::SC_SpinBoxDown, this).contains(p)) {
 	if (e->button() != Qt::LeftButton || !(se & StepDownEnabled) || d->buttonstate != None) {
 	    e->accept();
@@ -717,7 +717,7 @@ void QAbstractSpinBox::mousePressEvent(QMouseEvent *e)
 	    d->buttonstate = (Mouse | Down);
 	    stepBy(-1);
 	}
-    } else if (d->slider && style().querySubControlMetrics(QStyle::CC_SpinBox, &sb,
+    } else if (d->slider && style()->querySubControlMetrics(QStyle::CC_SpinBox, &sb,
 							   QStyle::SC_SpinBoxSlider, this).contains(p)) {
         if (e->button() != Qt::LeftButton || d->buttonstate != None) {
 	    e->accept();
@@ -893,8 +893,8 @@ void QAbstractSpinBoxPrivate::editorCursorPositionChanged(int oldpos, int newpos
 
 void QAbstractSpinBoxPrivate::init()
 {
-    spinclicktimerinterval = q->style().styleHint(QStyle::SH_SpinBox_ClickAutoRepeatRate, 0, q);
-    spinkeytimerinterval = q->style().styleHint(QStyle::SH_SpinBox_KeyPressAutoRepeatRate, 0, q);
+    spinclicktimerinterval = q->style()->styleHint(QStyle::SH_SpinBox_ClickAutoRepeatRate, 0, q);
+    spinkeytimerinterval = q->style()->styleHint(QStyle::SH_SpinBox_KeyPressAutoRepeatRate, 0, q);
     lineEdit()->setAttribute(Qt::WA_CompositeChild);
     edit->setFrame(false);
     q->setAttribute(Qt::WA_CompositeParent);
@@ -932,7 +932,7 @@ void QAbstractSpinBoxPrivate::updateSpinBox()
 {
     if (q) {
         QStyleOptionSpinBox sb = styleOption();
-	q->update(q->style().querySubControlMetrics(QStyle::CC_SpinBox, &sb,
+	q->update(q->style()->querySubControlMetrics(QStyle::CC_SpinBox, &sb,
                                                     QStyle::SC_SpinBoxButtonField, q));
     }
 }
@@ -947,7 +947,7 @@ void QAbstractSpinBoxPrivate::updateSlider()
 {
     if (q) {
         QStyleOptionSpinBox sb = styleOption();
-	q->update(q->style().querySubControlMetrics(QStyle::CC_SpinBox, &sb,
+	q->update(q->style()->querySubControlMetrics(QStyle::CC_SpinBox, &sb,
                                                     QStyle::SC_SpinBoxSlider, q));
     }
 }
@@ -1002,14 +1002,14 @@ void QAbstractSpinBoxPrivate::calculateSizeHints() const
         QSize hint(w, h);
         QSize extra(35,6);
         sb.rect.setSize(hint + extra);
-        extra += hint - q->style().querySubControlMetrics(QStyle::CC_SpinBox, &sb, QStyle::SC_SpinBoxEditField, q).size();
+        extra += hint - q->style()->querySubControlMetrics(QStyle::CC_SpinBox, &sb, QStyle::SC_SpinBoxEditField, q).size();
         // get closer to final result by repeating the calculation
         sb.rect.setSize(hint + extra);
-        extra += hint - q->style().querySubControlMetrics(QStyle::CC_SpinBox, &sb, QStyle::SC_SpinBoxEditField, q).size();
+        extra += hint - q->style()->querySubControlMetrics(QStyle::CC_SpinBox, &sb, QStyle::SC_SpinBoxEditField, q).size();
         hint += extra;
 
         if (slider)
-            hint.rheight() += q->style().pixelMetric(QStyle::PM_SpinBoxSliderHeight, &sb, q);
+            hint.rheight() += q->style()->pixelMetric(QStyle::PM_SpinBoxSliderHeight, &sb, q);
         cachedsizehint = hint.expandedTo(QApplication::globalStrut());
         cachedminimumsizehint = hint.expandedTo(QApplication::globalStrut());
         const_cast<QAbstractSpinBoxPrivate *>(this)->sizehintdirty = false;
@@ -1050,7 +1050,7 @@ QStyleOptionSpinBox QAbstractSpinBoxPrivate::styleOption() const
 QCoreVariant QAbstractSpinBoxPrivate::valueForPosition(int pos) const
 {
     QStyleOptionSpinBox sb = styleOption();
-    QRect r = q->style().querySubControlMetrics(QStyle::CC_SpinBox, &sb,
+    QRect r = q->style()->querySubControlMetrics(QStyle::CC_SpinBox, &sb,
                                                 QStyle::SC_SpinBoxSlider, q);
 
     double percentage = (double)pos / r.width();

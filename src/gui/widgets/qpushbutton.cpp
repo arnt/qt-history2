@@ -345,7 +345,7 @@ QSize QPushButton::sizeHint() const
 #endif
     QStyleOptionButton opt = d->getStyleOption();
     if (menu())
-        w += style().pixelMetric(QStyle::PM_MenuButtonIndicator, &opt, this);
+        w += style()->pixelMetric(QStyle::PM_MenuButtonIndicator, &opt, this);
     QString s(text());
     bool empty = s.isEmpty();
     if (empty)
@@ -356,7 +356,7 @@ QSize QPushButton::sizeHint() const
         w += sz.width();
     if(!empty || !h)
         h = qMax(h, sz.height());
-    return (style().sizeFromContents(QStyle::CT_PushButton, &opt, QSize(w, h), fm, this).
+    return (style()->sizeFromContents(QStyle::CT_PushButton, &opt, QSize(w, h), fm, this).
             expandedTo(QApplication::globalStrut()));
 }
 
@@ -370,7 +370,7 @@ QSize QPushButton::sizeHint() const
 void QPushButton::drawBevel(QPainter *paint)
 {
     QStyleOptionButton opt = d->getStyleOption();
-    style().drawControl(QStyle::CE_PushButton, &opt, paint, this);
+    style()->drawControl(QStyle::CE_PushButton, &opt, paint, this);
 }
 
 
@@ -383,8 +383,8 @@ void QPushButton::drawBevel(QPainter *paint)
 void QPushButton::drawLabel(QPainter *paint)
 {
     QStyleOptionButton opt = d->getStyleOption();
-    opt.rect = style().subRect(QStyle::SR_PushButtonContents, &opt, fontMetrics(), this);
-    style().drawControl(QStyle::CE_PushButtonLabel, &opt, paint, this);
+    opt.rect = style()->subRect(QStyle::SR_PushButtonContents, &opt, fontMetrics(), this);
+    style()->drawControl(QStyle::CE_PushButtonLabel, &opt, paint, this);
 }
 
 
@@ -398,7 +398,7 @@ void QPushButton::updateMask()
 
     QPainter p(&bm);
     QStyleOptionButton opt = d->getStyleOption();
-    style().drawControlMask(QStyle::CE_PushButton, &opt, &p, this);
+    style()->drawControlMask(QStyle::CE_PushButton, &opt, &p, this);
     p.end();
 
     setMask(bm);

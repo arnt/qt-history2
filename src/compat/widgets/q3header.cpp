@@ -434,7 +434,7 @@ void Q3Header::markLine(int idx)
 {
     QPainter paint(this);
     paint.setPen(QPen(Qt::black, 1, Qt::DotLine));
-    int MARKSIZE = style().pixelMetric(QStyle::PM_HeaderMarkSize);
+    int MARKSIZE = style()->pixelMetric(QStyle::PM_HeaderMarkSize);
     int p = pPos(idx);
     int x = p - MARKSIZE/2;
     int y = 2;
@@ -465,7 +465,7 @@ void Q3Header::unMarkLine(int idx)
 {
     if (idx < 0)
         return;
-    int MARKSIZE = style().pixelMetric(QStyle::PM_HeaderMarkSize);
+    int MARKSIZE = style()->pixelMetric(QStyle::PM_HeaderMarkSize);
     int p = pPos(idx);
     int x = p - MARKSIZE/2;
     int y = 2;
@@ -501,7 +501,7 @@ int Q3Header::findLine(int c)
             return handleIdx;
         i = d->s2i[section];
     }
-    int MARKSIZE = style().pixelMetric(QStyle::PM_HeaderMarkSize);
+    int MARKSIZE = style()->pixelMetric(QStyle::PM_HeaderMarkSize);
     if (i == handleIdx)
         return i;
     if (i == handleIdx - 1 &&  pPos(handleIdx) - c > MARKSIZE/2)
@@ -522,7 +522,7 @@ int Q3Header::handleAt(int p)
     int section = d->sectionAt(p);
     if (section >= 0) {
         int GripMargin = (bool)d->resize[section] ?
-            style().pixelMetric(QStyle::PM_HeaderGripMargin) : 0;
+            style()->pixelMetric(QStyle::PM_HeaderGripMargin) : 0;
         int index = d->s2i[section];
         if ((index > 0 && p < d->positions[index] + GripMargin) ||
             (p > d->positions[index] + d->sizes[section] - GripMargin)) {
@@ -653,7 +653,7 @@ void Q3Header::mousePressEvent(QMouseEvent *e)
     if (section < 0)
         return;
     int GripMargin = (bool)d->resize[section] ?
-        style().pixelMetric(QStyle::PM_HeaderGripMargin) : 0;
+        style()->pixelMetric(QStyle::PM_HeaderGripMargin) : 0;
     int index = d->s2i[section];
 
     if ((index > 0 && c < d->positions[index] + GripMargin) ||
@@ -835,7 +835,7 @@ void Q3Header::handleColumnResize(int index, int c, bool final, bool recalcAll)
 {
     int section = d->i2s[index];
     int GripMargin = (bool)d->resize[section] ?
-        style().pixelMetric(QStyle::PM_HeaderGripMargin) : 0;
+        style()->pixelMetric(QStyle::PM_HeaderGripMargin) : 0;
     int lim = d->positions[index] + 2*GripMargin;
     if (c == lim)
         return;
@@ -1102,7 +1102,7 @@ QSize Q3Header::sectionSizeHint(int section, const QFontMetrics& fm) const
     if (d->sortSection == section)
         arrowWidth = ((orient == Qt::Horizontal ? height() : width()) / 2) + 8;
     int height = qMax(bound.height() + 2, ih) + 4;
-    int width = bound.width() + style().pixelMetric(QStyle::PM_HeaderMargin) * 4
+    int width = bound.width() + style()->pixelMetric(QStyle::PM_HeaderMargin) * 4
         + iw + arrowWidth;
     return QSize(width, height);
 }
@@ -1235,7 +1235,7 @@ QSize Q3Header::sizeHint() const
             height += d->sizes[i];
     }
     QStyleOptionHeader opt = getStyleOption(this, 0);
-    return style().sizeFromContents(QStyle::CT_Header, &opt, QSize(width, height), fm,
+    return style()->sizeFromContents(QStyle::CT_Header, &opt, QSize(width, height), fm,
                                     this).expandedTo(QApplication::globalStrut());
 }
 
@@ -1433,7 +1433,7 @@ void Q3Header::paintSection(QPainter *p, int index, const QRect& fr)
     opt.rect = fr;
 
     if (section < 0) {
-        style().drawPrimitive(QStyle::PE_HeaderSection, &opt, p, this);
+        style()->drawPrimitive(QStyle::PE_HeaderSection, &opt, p, this);
         return;
     }
 
@@ -1458,12 +1458,12 @@ void Q3Header::paintSection(QPainter *p, int index, const QRect& fr)
         opt.state |= QStyle::Style_Raised;
     p->setBrushOrigin(fr.topLeft());
     if (d->clicks[section]) {
-        style().drawPrimitive(QStyle::PE_HeaderSection, &opt, p, this);
+        style()->drawPrimitive(QStyle::PE_HeaderSection, &opt, p, this);
     } else {
         p->save();
         p->setClipRect(fr); // hack to keep styles working
         opt.rect.setRect(fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4);
-        style().drawPrimitive(QStyle::PE_HeaderSection, &opt, p, this);
+        style()->drawPrimitive(QStyle::PE_HeaderSection, &opt, p, this);
         if (orient == Qt::Horizontal) {
             p->setPen(palette().color(QPalette::Mid));
             p->drawLine(fr.x(), fr.y() + fr.height() - 1,
@@ -1519,18 +1519,18 @@ void Q3Header::paintSectionLabel(QPainter *p, int index, const QRect& fr)
     int dx = 0, dy = 0;
     QStyleOptionHeader opt = getStyleOption(this, section);
     if (index == handleIdx && (state == Pressed || state == Moving)) {
-        dx = style().pixelMetric(QStyle::PM_ButtonShiftHorizontal, &opt, this);
-        dy = style().pixelMetric(QStyle::PM_ButtonShiftVertical, &opt, this);
+        dx = style()->pixelMetric(QStyle::PM_ButtonShiftHorizontal, &opt, this);
+        dy = style()->pixelMetric(QStyle::PM_ButtonShiftVertical, &opt, this);
         opt.state |= QStyle::Style_Sunken;
     }
     if (isEnabled())
         opt.state |= QStyle::Style_Enabled;
 
 
-    opt.rect.setRect(fr.x() + style().pixelMetric(QStyle::PM_HeaderMargin) + dx, fr.y() + 2 + dy,
+    opt.rect.setRect(fr.x() + style()->pixelMetric(QStyle::PM_HeaderMargin) + dx, fr.y() + 2 + dy,
                      fr.width() - 6, fr.height() - 4);
 
-    style().drawControl(QStyle::CE_HeaderLabel, &opt, p, this);
+    style()->drawControl(QStyle::CE_HeaderLabel, &opt, p, this);
 
     int arrowWidth = (orient == Qt::Horizontal ? height() : width()) / 2;
     int arrowHeight = fr.height() - 6;
@@ -1538,7 +1538,7 @@ void Q3Header::paintSectionLabel(QPainter *p, int index, const QRect& fr)
     int tw = (orient == Qt::Horizontal ? ssh.width() : ssh.height());
     int ew = 0;
 
-    if (style().styleHint(QStyle::SH_Header_ArrowAlignment, 0, this) & Qt::AlignRight)
+    if (style()->styleHint(QStyle::SH_Header_ArrowAlignment, 0, this) & Qt::AlignRight)
         ew = fr.width() - tw - 8;
     if (d->sortSection == section && tw <= fr.width()) {
         if (reverse()) {
@@ -1556,7 +1556,7 @@ void Q3Header::paintSectionLabel(QPainter *p, int index, const QRect& fr)
         if (label(section).isRightToLeft())
             ar.moveBy( 2*(fr.right() - ar.right()) + ar.width() - fr.width(), 0 );
         opt.rect = ar;
-        style().drawPrimitive(QStyle::PE_HeaderArrow, &opt, p, this);
+        style()->drawPrimitive(QStyle::PE_HeaderArrow, &opt, p, this);
     }
 }
 
@@ -1599,7 +1599,7 @@ void Q3Header::paintEvent(QPaintEvent *e)
                     opt.rect.setRect(r.x()+2, r.y()+2, r.width()-4, r.height()-4);
                     opt.palette = palette();
                     opt.state = QStyle::Style_None;
-                    style().drawPrimitive(QStyle::PE_FocusRect, &opt, &p, this);
+                    style()->drawPrimitive(QStyle::PE_FocusRect, &opt, &p, this);
                 }
                 if (orient == Qt::Horizontal && r. right() >= e->rect().right() ||
                      orient == Qt::Vertical && r. bottom() >= e->rect().bottom())

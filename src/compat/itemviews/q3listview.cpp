@@ -2141,7 +2141,7 @@ void Q3ListViewItem::paintCell(QPainter * p, const QPalette & pal,
             opt.palette = pal;
             opt.subControls = QStyle::SC_ListViewExpand;
             opt.activeSubControls = QStyle::SC_All;
-            lv->style().drawComplexControl(QStyle::CC_ListView, &opt, p, lv);
+            lv->style()->drawComplexControl(QStyle::CC_ListView, &opt, p, lv);
         }
     }
 }
@@ -2198,7 +2198,7 @@ void Q3ListViewItem::paintFocus(QPainter *p, const QPalette &pal, const QRect &r
             opt.state = QStyle::Style_None;
             opt.backgroundColor = pal.base().color();
         }
-        lv->style().drawPrimitive(QStyle::PE_FocusRect, &opt, p, lv);
+        lv->style()->drawPrimitive(QStyle::PE_FocusRect, &opt, p, lv);
     }
 }
 
@@ -2232,7 +2232,7 @@ void Q3ListViewItem::paintBranches(QPainter * p, const QPalette & pal,
     opt.palette = pal;
     opt.subControls = QStyle::SC_ListViewBranch | QStyle::SC_ListViewExpand;
     opt.activeSubControls = QStyle::SC_None;
-    lv->style().drawComplexControl(QStyle::CC_ListView, &opt, p, lv);
+    lv->style()->drawComplexControl(QStyle::CC_ListView, &opt, p, lv);
 }
 
 
@@ -2843,7 +2843,7 @@ void Q3ListView::drawContentsOffset(QPainter * p, int ox, int oy,
             // draw to last interesting column
 
             bool drawActiveSelection = hasFocus() || d->inMenuMode ||
-                            !style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this)
+                            !style()->styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this)
                             || (currentItem() && currentItem()->renameBox
                                 && currentItem()->renameBox->hasFocus());
             QPalette pal = palette();
@@ -2978,7 +2978,7 @@ void Q3ListView::paintEmptyArea(QPainter * p, const QRect & rect)
     QStyleOptionListView opt = getStyleOption(this, 0);
     opt.rect = rect;
     opt.sortColumn = d->sortcolumn;
-    style().drawComplexControl(QStyle::CC_ListView, &opt, p, this);
+    style()->drawComplexControl(QStyle::CC_ListView, &opt, p, this);
 }
 
 
@@ -4157,10 +4157,10 @@ void Q3ListView::contentsMousePressEventEx(QMouseEvent * e)
             Q3ListViewPrivate::DrawableItem it = d->drawables.at(draw);
             QStyleOptionListView opt = getStyleOption(this, i);
             x1 -= treeStepSize() * (it.l - 1);
-            QStyle::SubControl ctrl = style().querySubControl(QStyle::CC_ListView, &opt,
+            QStyle::SubControl ctrl = style()->querySubControl(QStyle::CC_ListView, &opt,
                                                               QPoint(x1, e->pos().y()), this);
             if (ctrl == QStyle::SC_ListViewExpand &&
-                e->type() == style().styleHint(QStyle::SH_ListViewExpand_SelectMouseType, 0,
+                e->type() == style()->styleHint(QStyle::SH_ListViewExpand_SelectMouseType, 0,
                                                this)) {
                 d->buttonDown = false;
                 if (e->button() == Qt::LeftButton) {
@@ -4360,7 +4360,7 @@ void Q3ListView::contentsMouseReleaseEventEx(QMouseEvent * e)
 
     if (i && i == d->pressedItem && (i->isExpandable() || i->childCount()) &&
          !d->h->mapToLogical(d->h->cellAt(vp.x())) && e->button() == Qt::LeftButton &&
-         e->type() == style().styleHint(QStyle::SH_ListViewExpand_SelectMouseType, 0, this)) {
+         e->type() == style()->styleHint(QStyle::SH_ListViewExpand_SelectMouseType, 0, this)) {
         int draw = 0;
         for (; draw < d->drawables.size(); ++draw)
             if (d->drawables.at(draw).i == i)
@@ -4369,7 +4369,7 @@ void Q3ListView::contentsMouseReleaseEventEx(QMouseEvent * e)
             int x1 = vp.x() + d->h->offset() - d->h->cellPos(d->h->mapToActual(0)) -
                      (treeStepSize() * (d->drawables.at(draw).l - 1));
             QStyleOptionListView opt = getStyleOption(this, i);
-            QStyle::SubControl ctrl = style().querySubControl(QStyle::CC_ListView, &opt,
+            QStyle::SubControl ctrl = style()->querySubControl(QStyle::CC_ListView, &opt,
                                                               QPoint(x1, e->pos().y()), this);
             if (ctrl == QStyle::SC_ListViewExpand) {
                 bool close = i->isOpen();
@@ -4668,7 +4668,7 @@ void Q3ListView::focusInEvent(QFocusEvent*)
         d->ignoreEditAfterFocus = true;
         d->startEdit = false;
     }
-    if (style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this)) {
+    if (style()->styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this)) {
         viewport()->repaint();
     }
 
@@ -4690,7 +4690,7 @@ void Q3ListView::focusOutEvent(QFocusEvent*)
 {
     if (QFocusEvent::reason() == QFocusEvent::Popup && d->buttonDown)
         d->buttonDown = false;
-    if (style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this)) {
+    if (style()->styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this)) {
         d->inMenuMode =
             QFocusEvent::reason() == QFocusEvent::Popup
             || (qApp->focusWidget() && qApp->focusWidget()->inherits("QMenuBar"));
@@ -6264,7 +6264,7 @@ void QCheckListItem::activate()
         return;
 
     QPoint pos;
-    int boxsize = lv->style().pixelMetric(QStyle::PM_CheckListButtonSize, 0, lv);
+    int boxsize = lv->style()->pixelMetric(QStyle::PM_CheckListButtonSize, 0, lv);
     if (activatedPos(pos)) {
         bool parentControl = false;
         if (parent() && parent()->rtti() == 1  &&
@@ -6473,7 +6473,7 @@ void QCheckListItem::setup()
     int h = height();
     Q3ListView *lv = listView();
     if (lv)
-        h = qMax(lv->style().pixelMetric(QStyle::PM_CheckListButtonSize, 0, lv),
+        h = qMax(lv->style()->pixelMetric(QStyle::PM_CheckListButtonSize, 0, lv),
                   h);
     h = qMax(h, QApplication::globalStrut().height());
     setHeight(h);
@@ -6491,7 +6491,7 @@ int QCheckListItem::width(const QFontMetrics& fm, const Q3ListView* lv, int colu
         if (myType == RadioButtonController && pixmap(0)) {
             //             r += 0;
         } else {
-            r +=  lv->style().pixelMetric(QStyle::PM_CheckListButtonSize, 0, lv) + 4;
+            r +=  lv->style()->pixelMetric(QStyle::PM_CheckListButtonSize, 0, lv) + 4;
         }
     }
     return qMax(r, QApplication::globalStrut().width());
@@ -6530,7 +6530,7 @@ void QCheckListItem::paintCell(QPainter * p, const QPalette & pal,
         parentControl = true;
 
     QFontMetrics fm(lv->fontMetrics());
-    int boxsize = lv->style().pixelMetric(myType == RadioButtonController ? QStyle::PM_CheckListControllerSize :
+    int boxsize = lv->style()->pixelMetric(myType == RadioButtonController ? QStyle::PM_CheckListControllerSize :
                                            QStyle::PM_CheckListButtonSize, 0, lv);
     int marg = lv->itemMargin();
     int r = marg;
@@ -6561,7 +6561,7 @@ void QCheckListItem::paintCell(QPainter * p, const QPalette & pal,
             opt.rect.setRect(x, 0, boxsize, fm.height() + 2 + marg);
             opt.palette = pal;
             opt.state = styleflags;
-            lv->style().drawPrimitive(QStyle::PE_CheckListController, &opt, p, lv);
+            lv->style()->drawPrimitive(QStyle::PE_CheckListController, &opt, p, lv);
             r += boxsize + 4;
         }
     } else {
@@ -6579,7 +6579,7 @@ void QCheckListItem::paintCell(QPainter * p, const QPalette & pal,
         opt.rect.setRect(x, y, boxsize, fm.height() + 2 + marg);
         opt.palette = pal;
         opt.state = styleflags;
-        lv->style().drawPrimitive((myType == CheckBox || myType == CheckBoxController)
+        lv->style()->drawPrimitive((myType == CheckBox || myType == CheckBoxController)
                                     ? QStyle::PE_CheckListIndicator
                                     : QStyle::PE_CheckListExclusiveIndicator, &opt, p, lv);
         r += boxsize + 4;
@@ -6614,7 +6614,7 @@ void QCheckListItem::paintFocus(QPainter *p, const QPalette & pal,
          (lv->rootIsDecorated() || myType == RadioButton ||
           (myType == CheckBox && parentControl))) {
         QRect rect;
-        int boxsize = lv->style().pixelMetric(QStyle::PM_CheckListButtonSize, 0, lv);
+        int boxsize = lv->style()->pixelMetric(QStyle::PM_CheckListButtonSize, 0, lv);
         if (lv->columnAlignment(0) == Qt::AlignCenter) {
             QFontMetrics fm(lv->font());
             int bx = (lv->columnWidth(0) - (boxsize + fm.width(text())))/2 + boxsize;
@@ -6646,7 +6646,7 @@ QSize Q3ListView::sizeHint() const
 
     QSize s(d->h->sizeHint());
     if (verticalScrollBar()->isVisible())
-        s.setWidth(s.width() + style().pixelMetric(QStyle::PM_ScrollBarExtent));
+        s.setWidth(s.width() + style()->pixelMetric(QStyle::PM_ScrollBarExtent));
     s += QSize(frameWidth()*2,frameWidth()*2);
     Q3ListViewItem * l = d->r;
     while(l && !l->height())

@@ -559,7 +559,7 @@ void MenuBarEditor::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
     QRect r = rect();
-    style().drawPrimitive( QStyle::PE_PanelMenuBar, &p, r, palette() );
+    style()->drawPrimitive( QStyle::PE_PanelMenuBar, &p, r, palette() );
     drawItems( p );
 }
 

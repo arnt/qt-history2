@@ -787,7 +787,7 @@ int QLayout::margin() const
         return 0;
     QWidget *pw = parentWidget();
     if (pw)
-        return pw->style().pixelMetric(
+        return pw->style()->pixelMetric(
             (pw->isTopLevel() || pw->testWFlags(Qt::WSubWindow))
             ? QStyle::PM_DefaultToplevelMargin
             : QStyle::PM_DefaultChildMargin
@@ -803,9 +803,9 @@ int QLayout::spacing() const
     } else if (d->topLevel) {
         QWidget *pw = parentWidget();
         if (pw)
-            return pw->style().pixelMetric(QStyle::PM_DefaultLayoutSpacing);
+            return pw->style()->pixelMetric(QStyle::PM_DefaultLayoutSpacing);
         else
-            return QApplication::style().pixelMetric(QStyle::PM_DefaultLayoutSpacing);
+            return QApplication::style()->pixelMetric(QStyle::PM_DefaultLayoutSpacing);
     } else if (parent()) {
         return static_cast<QLayout*>(parent())->spacing();
     } else {

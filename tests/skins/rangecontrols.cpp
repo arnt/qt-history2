@@ -81,7 +81,7 @@ RangeControls::RangeControls( QWidget *parent, const char *name )
     lcd3->setFrameStyle(QFrame::NoFrame);
     connect( vslider, SIGNAL( valueChanged( int ) ), lcd3, SLOT( display( int ) ) );
 
-    if (style().inherits("QSkinStyle")) {
+    if (style()->inherits("QSkinStyle")) {
 	QSkinLayout *s = new QSkinLayout(wid, "rangelayout");
 	s->add(dial);
 	s->add(lcd4);

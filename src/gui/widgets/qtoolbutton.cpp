@@ -352,9 +352,9 @@ QSize QToolButton::sizeHint() const
 
     QStyleOptionToolButton opt = d->getStyleOption();
     if ((d->menu || !actions().isEmpty()) && ! popupDelay())
-        w += style().pixelMetric(QStyle::PM_MenuButtonIndicator, &opt, this);
+        w += style()->pixelMetric(QStyle::PM_MenuButtonIndicator, &opt, this);
 
-    return style().sizeFromContents(QStyle::CT_ToolButton, &opt, QSize(w, h), fm, this).
+    return style()->sizeFromContents(QStyle::CT_ToolButton, &opt, QSize(w, h), fm, this).
             expandedTo(QApplication::globalStrut());
 }
 
@@ -435,7 +435,7 @@ void QToolButton::setUsesTextLabel(bool enable)
 void QToolButton::drawBevel(QPainter *p)
 {
     QStyleOptionToolButton opt = d->getStyleOption();
-    style().drawComplexControl(QStyle::CC_ToolButton, &opt, p, this);
+    style()->drawComplexControl(QStyle::CC_ToolButton, &opt, p, this);
 }
 
 
@@ -447,9 +447,9 @@ void QToolButton::drawBevel(QPainter *p)
 void QToolButton::drawLabel(QPainter *p)
 {
     QStyleOptionToolButton opt = d->getStyleOption();
-    opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_ToolButtonContents, &opt,
+    opt.rect = QStyle::visualRect(style()->subRect(QStyle::SR_ToolButtonContents, &opt,
                                                   fontMetrics(), this), this);
-    style().drawControl(QStyle::CE_ToolButtonLabel, &opt, p, this);
+    style()->drawControl(QStyle::CE_ToolButtonLabel, &opt, p, this);
 }
 
 /*!
@@ -523,7 +523,7 @@ void QToolButton::mousePressEvent(QMouseEvent *e)
 {
     QStyleOptionToolButton opt = d->getStyleOption();
     QRect popupr =
-        QStyle::visualRect(style().querySubControlMetrics(QStyle::CC_ToolButton, &opt,
+        QStyle::visualRect(style()->querySubControlMetrics(QStyle::CC_ToolButton, &opt,
                                                           QStyle::SC_ToolButtonMenu, this), this);
     d->instantPopup = (popupr.isValid() && popupr.contains(e->pos()));
 
@@ -551,7 +551,7 @@ void QToolButton::mousePressEvent(QMouseEvent *e)
 */
 bool QToolButton::uses3D() const
 {
-    return style().styleHint(QStyle::SH_ToolButton_Uses3D, 0, this)
+    return style()->styleHint(QStyle::SH_ToolButton_Uses3D, 0, this)
         && (!d->autoRaise || (underMouse() && isEnabled())
             || (d->menu && d->delay <= 0) || d->instantPopup);
 }

@@ -178,7 +178,7 @@ static QStyleOption getStyleOption(const Q3ToolBarSeparator *tbs)
 QSize Q3ToolBarSeparator::sizeHint() const
 {
     QStyleOption opt = getStyleOption(this);
-    int extent = style().pixelMetric(QStyle::PM_DockWindowSeparatorExtent, &opt, this);
+    int extent = style()->pixelMetric(QStyle::PM_DockWindowSeparatorExtent, &opt, this);
     if (orient == Qt::Horizontal)
         return QSize(extent, 0);
     else
@@ -189,7 +189,7 @@ void Q3ToolBarSeparator::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     QStyleOption opt = getStyleOption(this);
-    style().drawPrimitive(QStyle::PE_DockWindowSeparator, &opt, &p, this);
+    style()->drawPrimitive(QStyle::PE_DockWindowSeparator, &opt, &p, this);
 }
 
 #include "q3toolbar.moc"
@@ -351,7 +351,7 @@ void Q3ToolBar::init()
     setBackgroundRole(QPalette::Button);
     setFocusPolicy(Qt::NoFocus);
     setFrameStyle(QFrame::ToolBarPanel | QFrame::Raised);
-    boxLayout()->setSpacing(style().pixelMetric(QStyle::PM_ToolBarItemSpacing));
+    boxLayout()->setSpacing(style()->pixelMetric(QStyle::PM_ToolBarItemSpacing));
 }
 
 /*!
@@ -395,7 +395,7 @@ void Q3ToolBar::addSeparator()
 
 void Q3ToolBar::styleChange(QStyle &oldStyle)
 {
-    boxLayout()->setSpacing(style().pixelMetric(QStyle::PM_ToolBarItemSpacing));
+    boxLayout()->setSpacing(style()->pixelMetric(QStyle::PM_ToolBarItemSpacing));
     Q3DockWindow::styleChange(oldStyle);
 }
 

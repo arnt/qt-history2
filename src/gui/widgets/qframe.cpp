@@ -348,7 +348,7 @@ void QFramePrivate::updateFrameWidth()
         break;
 
     case QFrame::StyledPanel:
-        frameWidth = q->style().pixelMetric(QStyle::PM_DefaultFrameWidth, 0, q);
+        frameWidth = q->style()->pixelMetric(QStyle::PM_DefaultFrameWidth, 0, q);
         break;
 
     case QFrame::WinPanel:
@@ -502,7 +502,7 @@ void QFrame::drawFrame(QPainter *p)
         if (frameShadow == Plain)
             qDrawPlainRect(p, opt.rect, opt.palette.foreground().color(), lw);
         else
-            style().drawPrimitive(QStyle::PE_Panel, &opt, p, this);
+            style()->drawPrimitive(QStyle::PE_Panel, &opt, p, this);
         break;
 
     case Panel:

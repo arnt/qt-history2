@@ -159,11 +159,11 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
         opt.state |= QStyle::Style_Down;
     opt.text = text;
     opt.icon = icon();
-    style().drawControl(QStyle::CE_ToolBoxTab, &opt, p, parentWidget());
+    style()->drawControl(QStyle::CE_ToolBoxTab, &opt, p, parentWidget());
 
     QPixmap pm = icon().pixmap(QIcon::Small, isEnabled() ? QIcon::Normal : QIcon::Disabled);
 
-    QRect cr = style().subRect(QStyle::SR_ToolBoxTabContents, &opt, fontMetrics(), this);
+    QRect cr = style()->subRect(QStyle::SR_ToolBoxTabContents, &opt, fontMetrics(), this);
     QRect tr, ir;
     int ih = 0;
     if (pm.isNull()) {
@@ -176,7 +176,7 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
         tr = QRect(ir.right(), cr.top(), cr.width() - ir.right() - 4, cr.height());
     }
 
-    if (selected && style().styleHint(QStyle::SH_ToolBox_SelectedPageTitleBold, &opt, this)) {
+    if (selected && style()->styleHint(QStyle::SH_ToolBox_SelectedPageTitleBold, &opt, this)) {
         QFont f(p->font());
         f.setBold(true);
         p->setFont(f);
@@ -202,14 +202,14 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
 
     const QColor* fill = 0;
     if (selected &&
-         style().styleHint(QStyle::SH_ToolBox_SelectedPageTitleBold, &opt, this) &&
+         style()->styleHint(QStyle::SH_ToolBox_SelectedPageTitleBold, &opt, this) &&
          !tb->testAttribute(Qt::WA_NoSystemBackground))
         fill = &pal.color(foregroundRole());
 
     int alignment = Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic;
-    if (!style().styleHint(QStyle::SH_UnderlineShortcut, 0, this))
+    if (!style()->styleHint(QStyle::SH_UnderlineShortcut, 0, this))
         alignment |= Qt::TextHideMnemonic;
-    style().drawItem(p, tr, alignment, pal,
+    style()->drawItem(p, tr, alignment, pal,
                       isEnabled(), QPixmap(), txt, -1, fill);
 
     if (!txt.isEmpty() && hasFocus()) {
@@ -217,7 +217,7 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
         opt.rect = tr;
         opt.palette = pal;
         opt.state = QStyle::Style_None;
-        style().drawPrimitive(QStyle::PE_FocusRect, &opt, p, this);
+        style()->drawPrimitive(QStyle::PE_FocusRect, &opt, p, this);
     }
 }
 

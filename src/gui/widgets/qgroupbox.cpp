@@ -250,13 +250,13 @@ void QGroupBox::paintEvent(QPaintEvent *event)
                 x = marg;
         }
         QRect r(x, 0, tw, h);
-        int va = style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, &opt, this);
+        int va = style()->styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, &opt, this);
         if(va & Qt::AlignTop)
             r.translate(0, -fm.descent());
-        QColor pen((QRgb) style().styleHint(QStyle::SH_GroupBox_TextLabelColor, &opt, this));
-        if (!style().styleHint(QStyle::SH_UnderlineShortcut, &opt, this))
+        QColor pen((QRgb) style()->styleHint(QStyle::SH_GroupBox_TextLabelColor, &opt, this));
+        if (!style()->styleHint(QStyle::SH_UnderlineShortcut, &opt, this))
             va |= Qt::TextHideMnemonic;
-        style().drawItem(&paint, r, Qt::TextShowMnemonic | Qt::AlignHCenter | va, palette(),
+        style()->drawItem(&paint, r, Qt::TextShowMnemonic | Qt::AlignHCenter | va, palette(),
                           isEnabled(), d->title, -1, testAttribute(Qt::WA_SetPalette) ? 0 : &pen);
         paint.setClipRegion(event->region().subtract(r)); // clip everything but title
     } else if (d->checkbox) {
@@ -272,7 +272,7 @@ void QGroupBox::paintEvent(QPaintEvent *event)
             // ### This should probably be a style primitive.
             qDrawShadeLine(&paint, p1, p2, palette(), true, 1, 0);
     } else {
-        style().drawPrimitive(QStyle::PE_PanelGroupBox, &opt, &paint, this);
+        style()->drawPrimitive(QStyle::PE_PanelGroupBox, &opt, &paint, this);
     }
 }
 
@@ -363,7 +363,7 @@ void QGroupBoxPrivate::fixFocus()
 */
 void QGroupBoxPrivate::calculateFrame()
 {
-    int va = q->style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, 0, q);
+    int va = q->style()->styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, 0, q);
 
     d->topMargin = 0;
     QFontMetrics fm = q->fontMetrics();

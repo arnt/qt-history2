@@ -34,7 +34,7 @@ void MyListBoxItem::paint( QPainter *p )
 	p->eraseRect( r );
     QListBoxPixmap::paint( p );
     if ( in_list_box && current() )
-	listBox()->style().drawFocusRect( p, r, listBox()->colorGroup(), &p->backgroundColor(), TRUE );
+	listBox()->style()->drawFocusRect( p, r, listBox()->colorGroup(), &p->backgroundColor(), TRUE );
 
     p->translate( -indentation, 0 );
 }

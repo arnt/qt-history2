@@ -556,8 +556,8 @@ void QTabWidget::setUpLayout(bool onlyCheck)
     bool reverse = QApplication::reverseLayout();
     int tabx, taby, stacky, exty, exth, overlap;
 
-    exth = style().pixelMetric(QStyle::PM_TabBarBaseHeight, 0, this);
-    overlap = style().pixelMetric(QStyle::PM_TabBarBaseOverlap, 0, this);
+    exth = style()->pixelMetric(QStyle::PM_TabBarBaseHeight, 0, this);
+    overlap = style()->pixelMetric(QStyle::PM_TabBarBaseOverlap, 0, this);
 
     if (reverse)
         tabx = qMin(width() - t.width(), width() - t.width() - lw + 2) - lcw;
@@ -574,7 +574,7 @@ void QTabWidget::setUpLayout(bool onlyCheck)
     }
 
     // do alignment
-    int alignment = style().styleHint(QStyle::SH_TabBar_Alignment, 0, this);
+    int alignment = style()->styleHint(QStyle::SH_TabBar_Alignment, 0, this);
     if (alignment != Qt::AlignLeft && t.width() < width()) {
         if (alignment == Qt::AlignHCenter)
             tabx += (width()-lcw-rcw)/2 - t.width()/2;
@@ -628,13 +628,13 @@ QSize QTabWidget::sizeHint() const
     }
     QSize s(d->stack->sizeHint());
     QSize t(d->tabs->sizeHint());
-    if(!style().styleHint(QStyle::SH_TabBar_PreferNoArrows, &opt, d->tabs))
+    if(!style()->styleHint(QStyle::SH_TabBar_PreferNoArrows, &opt, d->tabs))
         t = t.boundedTo(QSize(200,200));
     else
         t = t.boundedTo(QApplication::desktop()->size());
     QSize sz(qMax(s.width(), t.width() + rc.width() + lc.width()),
               s.height() + (qMax(rc.height(), qMax(lc.height(), t.height()))));
-    return style().sizeFromContents(QStyle::CT_TabWidget, &opt, sz, fontMetrics(), this)
+    return style()->sizeFromContents(QStyle::CT_TabWidget, &opt, sz, fontMetrics(), this)
                     .expandedTo(QApplication::globalStrut());
 }
 
@@ -665,7 +665,7 @@ QSize QTabWidget::minimumSizeHint() const
     opt.rect = rect();
     opt.palette = palette();
     opt.state = QStyle::Style_None;
-    return style().sizeFromContents(QStyle::CT_TabWidget, &opt, sz, fontMetrics(), this)
+    return style()->sizeFromContents(QStyle::CT_TabWidget, &opt, sz, fontMetrics(), this)
                     .expandedTo(QApplication::globalStrut());
 }
 
@@ -882,8 +882,8 @@ void QTabWidget::paintEvent(QPaintEvent *)
         opt.state |= QStyle::Style_Top;
     else if (tabPosition() == QTabWidget::Bottom)
         opt.state |= QStyle::Style_Bottom;
-    opt.rect = style().subRect(QStyle::SR_PanelTab, &opt, d->tabs->fontMetrics(), this);
-    style().drawPrimitive(QStyle::PE_PanelTabWidget, &opt, &p, this);
+    opt.rect = style()->subRect(QStyle::SR_PanelTab, &opt, d->tabs->fontMetrics(), this);
+    style()->drawPrimitive(QStyle::PE_PanelTabWidget, &opt, &p, this);
 }
 
 /*!

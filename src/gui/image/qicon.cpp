@@ -318,7 +318,7 @@ QPixmap *QIconPrivate::createIcon(const QIcon *icon, QIcon::Size size, QIcon::Mo
 
     QStyleOption opt(0);
     opt.palette = QApplication::palette();
-    QPixmap pix = QApplication::style().generatedIconPixmap(mode == QIcon::Disabled
+    QPixmap pix = QApplication::style()->generatedIconPixmap(mode == QIcon::Disabled
                                                             ? QStyle::IM_Disabled
                                                             : QStyle::IM_Active, normalPix, &opt);
     return new QPixmap(pix);

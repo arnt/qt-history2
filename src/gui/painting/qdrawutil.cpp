@@ -48,7 +48,7 @@
     QFrame::HLine | QFrame::Sunken)}.
 
     \warning This function does not look at QWidget::style() or
-    QApplication::style(). Use the drawing functions in QStyle to make
+    QApplication::style()-> Use the drawing functions in QStyle to make
     widgets that follow the current GUI style.
 
     \sa qDrawShadeRect(), qDrawShadePanel(), QStyle::drawPrimitive()
@@ -163,7 +163,7 @@ void qDrawShadeLine(QPainter *p, int x1, int y1, int x2, int y2,
     QFrame::Box | QFrame::Raised)}.
 
     \warning This function does not look at QWidget::style() or
-    QApplication::style(). Use the drawing functions in QStyle to make
+    QApplication::style()-> Use the drawing functions in QStyle to make
     widgets that follow the current GUI style.
 
     \sa qDrawShadeLine(), qDrawShadePanel(), qDrawPlainRect(),
@@ -263,7 +263,7 @@ void qDrawShadeRect(QPainter *p, int x, int y, int w, int h,
     QFrame::Panel | QFrame::Sunken)}.
 
     \warning This function does not look at QWidget::style() or
-    QApplication::style(). Use the drawing functions in QStyle to make
+    QApplication::style()-> Use the drawing functions in QStyle to make
     widgets that follow the current GUI style.
 
     \sa qDrawWinPanel(), qDrawShadeLine(), qDrawShadeRect(),
@@ -412,7 +412,7 @@ static void qDrawWinShades(QPainter *p,
     unless \a fill is 0.
 
     \warning This function does not look at QWidget::style() or
-    QApplication::style(). Use the drawing functions in QStyle to make
+    QApplication::style()-> Use the drawing functions in QStyle to make
     widgets that follow the current GUI style.
 
     \sa qDrawWinPanel(), QStyle::drawControl()
@@ -455,7 +455,7 @@ void qDrawWinButton(QPainter *p, int x, int y, int w, int h,
     QFrame::WinPanel | QFrame::Raised)}.
 
     \warning This function does not look at QWidget::style() or
-    QApplication::style(). Use the drawing functions in QStyle to make
+    QApplication::style()-> Use the drawing functions in QStyle to make
     widgets that follow the current GUI style.
 
     \sa qDrawShadePanel(), qDrawWinButton(), QStyle::drawPrimitive()
@@ -495,7 +495,7 @@ void qDrawWinPanel(QPainter *p, int x, int y, int w, int h,
     QFrame::Box | QFrame::Plain)}.
 
     \warning This function does not look at QWidget::style() or
-    QApplication::style(). Use the drawing functions in QStyle to make
+    QApplication::style()-> Use the drawing functions in QStyle to make
     widgets that follow the current GUI style.
 
     \sa qDrawShadeRect(), QStyle::drawPrimitive()

@@ -763,7 +763,7 @@ void QLabel::paintEvent(QPaintEvent *)
 #ifndef QT_NO_MOVIE
     if (mov) {
         // ### should add movie to qDrawItem
-        QRect r = style().itemRect(&paint, cr, d->align, isEnabled(), mov->framePixmap(),
+        QRect r = style()->itemRect(&paint, cr, d->align, isEnabled(), mov->framePixmap(),
                                     QString::null);
         // ### could resize movie frame at this point
         paint.drawPixmap(r.x(), r.y(), mov->framePixmap());
@@ -785,7 +785,7 @@ void QLabel::paintEvent(QPaintEvent *)
         context.textColorFromPalette = true;
         QStyleOption opt(0);
         opt.init(this);
-        if (!isEnabled() && style().styleHint(QStyle::SH_EtchDisabledText, &opt, this)) {
+        if (!isEnabled() && style()->styleHint(QStyle::SH_EtchDisabledText, &opt, this)) {
             context.palette = palette();
             context.palette.setColor(QPalette::Text, context.palette.light().color());
             QRect r = cr;
@@ -858,10 +858,10 @@ void QLabel::paintEvent(QPaintEvent *)
         QStyleOption opt(0);
         opt.init(this);
         if ((alignment & Qt::TextShowMnemonic)
-                && !style().styleHint(QStyle::SH_UnderlineShortcut, &opt, this))
+                && !style()->styleHint(QStyle::SH_UnderlineShortcut, &opt, this))
             alignment |= Qt::TextHideMnemonic;
         // ordinary text or pixmap label
-        style().drawItem(&paint, cr, alignment, palette(), isEnabled(), pix, d->ltext);
+        style()->drawItem(&paint, cr, alignment, palette(), isEnabled(), pix, d->ltext);
     }
 }
 
@@ -960,7 +960,7 @@ void QLabel::movieUpdated(const QRect& rect)
     QMovie *mov = movie();
     if (mov && !mov->isNull()) {
         QRect r = contentsRect();
-        r = style().itemRect(0, r, d->align, isEnabled(), mov->framePixmap(),
+        r = style()->itemRect(0, r, d->align, isEnabled(), mov->framePixmap(),
                               QString::null);
         r.translate(rect.x(), rect.y());
         r.setWidth(qMin(r.width(), rect.width()));

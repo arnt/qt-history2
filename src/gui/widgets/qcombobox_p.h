@@ -37,7 +37,7 @@ public:
         setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     }
     QSize sizeHint() const {
-        return QSize(20, style().pixelMetric(QStyle::PM_MenuScrollerHeight));
+        return QSize(20, style()->pixelMetric(QStyle::PM_MenuScrollerHeight));
     }
 
 protected:
@@ -68,7 +68,7 @@ protected:
         if (sliderAction == QAbstractSlider::SliderSingleStepAdd)
             menuOpt.state = QStyle::Style_Down;
         p.eraseRect(rect());
-        style().drawControl(QStyle::CE_MenuScroller, &menuOpt, &p);
+        style()->drawControl(QStyle::CE_MenuScroller, &menuOpt, &p);
     }
 
 signals:
@@ -118,14 +118,14 @@ protected:
                        const QAbstractItemModel *model, const QModelIndex &index) const {
         QStyleOptionMenuItem opt = getStyleOption(option, model, index);
         painter->eraseRect(option.rect);
-        QApplication::style().drawControl(QStyle::CE_MenuItem, &opt, painter, 0);
+        QApplication::style()->drawControl(QStyle::CE_MenuItem, &opt, painter, 0);
     }
     QSize sizeHint(const QStyleOptionViewItem &option,
                            const QAbstractItemModel *model, const QModelIndex &index) const {
         QStyleOptionMenuItem opt = getStyleOption(option, model, index);
         QVariant value = model->data(index, QAbstractItemModel::FontRole);
         QFont fnt = value.isValid() ? value.toFont() : option.font;
-        return QApplication::style().sizeFromContents(
+        return QApplication::style()->sizeFromContents(
             QStyle::CT_MenuItem, &opt, option.rect.size(), QFontMetrics(fnt), 0);
     }
 

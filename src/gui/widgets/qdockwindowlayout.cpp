@@ -227,7 +227,7 @@ void QDockWindowLayout::setGeometry(const QRect &rect)
     QVector<QLayoutStruct> a(layout_info.count());
     int x;
     const int separator_extent =
-	qApp->style().pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
+	qApp->style()->pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
 
     for (int pass = 0; pass < 2; ++pass) {
 	bool need_second_pass = true;
@@ -346,7 +346,7 @@ QSize QDockWindowLayout::minimumSize() const
 
     int size = 0, perp = 0;
     const int sep_extent =
-	QApplication::style().pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
+	QApplication::style()->pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
 
     for (int it = 0; it < layout_info.count(); ++it) {
 	const QDockWindowLayoutInfo &info = layout_info.at(it);
@@ -376,7 +376,7 @@ QSize QDockWindowLayout::sizeHint() const
 
     int size = 0, perp = 0;
     const int sep_extent =
-	QApplication::style().pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
+	QApplication::style()->pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
 
     for (int it = 0; it < layout_info.count(); ++it) {
 	const QDockWindowLayoutInfo &info = layout_info.at(it);
@@ -478,7 +478,7 @@ QDockWindowLayoutInfo &QDockWindowLayout::insert(int index, QLayoutItem *layouti
 		sep_item = new QWidgetItem(sep);
 	    } else {
 		const int sep_extent =
-		    QApplication::style().pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
+		    QApplication::style()->pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
 		sep_item = new QSpacerItem(sep_extent, sep_extent,
 					   QSizePolicy::Fixed, QSizePolicy::Fixed);
 	    }
@@ -506,7 +506,7 @@ QDockWindowLayoutInfo &QDockWindowLayout::insert(int index, QLayoutItem *layouti
 	    sep_item = new QWidgetItem(sep);
 	} else {
 	    const int sep_extent =
-		QApplication::style().pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
+		QApplication::style()->pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
 	    sep_item = new QSpacerItem(sep_extent, sep_extent,
 				       QSizePolicy::Fixed, QSizePolicy::Fixed);
 	}

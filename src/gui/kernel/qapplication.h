@@ -66,7 +66,7 @@ public:
     Type type() const;
 
 #ifndef QT_NO_STYLE
-    static QStyle &style();
+    static QStyle *style();
     static void setStyle(QStyle*);
     static QStyle *setStyle(const QString&);
 #endif

@@ -175,12 +175,12 @@ void QDockWindowTitleButton::paintEvent(QPaintEvent *)
         opt.state |= QStyle::Style_On;
     if (isDown())
         opt.state |= QStyle::Style_Down;
-    style().drawPrimitive(QStyle::PE_ButtonTool, &opt, &p, this);
+    style()->drawPrimitive(QStyle::PE_ButtonTool, &opt, &p, this);
 
     r.addCoords(2, 2, -2, -2);
     const QPixmap pm =
         icon().pixmap(QIcon::Automatic, isEnabled() ? QIcon::Normal : QIcon::Disabled);
-    style().drawItem(&p, r, Qt::AlignCenter, palette(), isEnabled(), pm);
+    style()->drawItem(&p, r, Qt::AlignCenter, palette(), isEnabled(), pm);
 }
 
 QDockWindowTitle::QDockWindowTitle(QDockWindow *tw)
@@ -191,7 +191,7 @@ QDockWindowTitle::QDockWindowTitle(QDockWindow *tw)
     spacer = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Fixed);
 
     box = new QBoxLayout(QBoxLayout::LeftToRight, this);
-    box->setMargin(style().pixelMetric(QStyle::PM_DockWindowFrameWidth));
+    box->setMargin(style()->pixelMetric(QStyle::PM_DockWindowFrameWidth));
     box->setSpacing(0);
     box->addItem(spacer);
 
@@ -201,15 +201,15 @@ QDockWindowTitle::QDockWindowTitle(QDockWindow *tw)
 
 void QDockWindowTitle::styleChange(QStyle &)
 {
-    box->setMargin(style().pixelMetric(QStyle::PM_DockWindowFrameWidth));
+    box->setMargin(style()->pixelMetric(QStyle::PM_DockWindowFrameWidth));
 
     updateWindowTitle();
 
     if (floatButton)
-        floatButton->setIcon(style().standardPixmap(QStyle::SP_TitleBarMaxButton));
+        floatButton->setIcon(style()->standardPixmap(QStyle::SP_TitleBarMaxButton));
 
     if (closeButton)
-        closeButton->setIcon(style().standardPixmap(QStyle::SP_TitleBarCloseButton));
+        closeButton->setIcon(style()->standardPixmap(QStyle::SP_TitleBarCloseButton));
 }
 
 void QDockWindowTitle::mousePressEvent(QMouseEvent *event)
@@ -390,7 +390,7 @@ void QDockWindowTitle::paintEvent(QPaintEvent *)
         const int indent = p.fontMetrics().descent();
         r.addCoords(indent, 0, -indent, 0);
 
-	style().drawItem(&p, r, Qt::AlignLeft, pal,
+	style()->drawItem(&p, r, Qt::AlignLeft, pal,
                          isEnabled(), dockwindow->windowTitle());
     }
 }
@@ -400,7 +400,7 @@ void QDockWindowTitle::updateButtons()
     if (dockwindow->hasFeature(QDockWindow::DockWindowFloatable)) {
         if (!floatButton) {
             floatButton = new QDockWindowTitleButton(this);
-            floatButton->setIcon(style().standardPixmap(QStyle::SP_TitleBarMaxButton));
+            floatButton->setIcon(style()->standardPixmap(QStyle::SP_TitleBarMaxButton));
             connect(floatButton, SIGNAL(clicked()), SLOT(toggleTopLevel()));
 
             box->insertWidget(1, floatButton);
@@ -416,7 +416,7 @@ void QDockWindowTitle::updateButtons()
     if (dockwindow->hasFeature(QDockWindow::DockWindowClosable)) {
         if (!closeButton) {
             closeButton = new QDockWindowTitleButton(this);
-            closeButton->setIcon(style().standardPixmap(QStyle::SP_TitleBarCloseButton));
+            closeButton->setIcon(style()->standardPixmap(QStyle::SP_TitleBarCloseButton));
             connect(closeButton, SIGNAL(clicked()), dockwindow, SLOT(close()));
 
             box->insertWidget(2, closeButton);

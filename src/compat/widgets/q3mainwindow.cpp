@@ -219,7 +219,7 @@ class QHideDock : public QWidget
 public:
     QHideDock(Q3MainWindow *parent) : QWidget(parent, "qt_hide_dock") {
         hide();
-        setFixedHeight(style().pixelMetric(QStyle::PM_DockWindowHandleExtent, 0, this) + 3);
+        setFixedHeight(style()->pixelMetric(QStyle::PM_DockWindowHandleExtent, 0, this) + 3);
         pressedHandle = -1;
         pressed = false;
         setMouseTracking(true);
@@ -258,7 +258,7 @@ protected:
             if (i == pressedHandle)
                 opt.state |= QStyle::Style_On;
 
-            style().drawPrimitive(QStyle::PE_DockWindowHandle, &opt, &p, this);
+            style()->drawPrimitive(QStyle::PE_DockWindowHandle, &opt, &p, this);
             x += 30;
         }
     }
@@ -1290,7 +1290,7 @@ void Q3MainWindow::setUpLayout()
 #ifndef QT_NO_MENUBAR
     if (d->mb && d->mb->isVisibleTo(this)) {
         d->tll->setMenuBar(d->mb);
-        if (style().styleHint(QStyle::SH_MainWindow_SpaceBelowMenuBar, 0, this))
+        if (style()->styleHint(QStyle::SH_MainWindow_SpaceBelowMenuBar, 0, this))
             d->tll->addSpacing(d->movable ? 1 : 2);
     }
 #endif
@@ -1423,14 +1423,14 @@ QWidget * Q3MainWindow::centralWidget() const
 void Q3MainWindow::paintEvent(QPaintEvent *)
 {
     if (d->mb &&
-        style().styleHint(QStyle::SH_MainWindow_SpaceBelowMenuBar, 0, this)) {
+        style()->styleHint(QStyle::SH_MainWindow_SpaceBelowMenuBar, 0, this)) {
         QPainter p(this);
         int y = d->mb->height() + 1;
         QStyleOption opt(0, QStyleOption::SO_Default);
         opt.rect.setRect(0, y, width(), 1);
         opt.palette = palette();
         opt.state = QStyle::Style_Sunken;
-        style().drawPrimitive(QStyle::PE_Separator, &opt, &p, this);
+        style()->drawPrimitive(QStyle::PE_Separator, &opt, &p, this);
     }
 }
 

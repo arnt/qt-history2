@@ -2475,7 +2475,7 @@ void QListBox::focusInEvent(QFocusEvent*)
         emit highlighted(tmp2);
         emit currentChanged(i);
     }
-    if (style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this))
+    if (style()->styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this))
         repaintSelection();
 
     if (d->current) {
@@ -2491,7 +2491,7 @@ void QListBox::focusInEvent(QFocusEvent*)
 */
 void QListBox::focusOutEvent(QFocusEvent*)
 {
-    if (style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this)) {
+    if (style()->styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this)) {
         d->inMenuMode =
             QFocusEvent::reason() == QFocusEvent::Popup ||
             (qApp->focusWidget() && qApp->focusWidget()->inherits("QMenuBar"));
@@ -2838,7 +2838,7 @@ QSize QListBox::sizeHint() const
         i++;
     int x;
     x = qMin(200, d->columnPos[i] +
-              2 * style().pixelMetric(QStyle::PM_DefaultFrameWidth));
+              2 * style()->pixelMetric(QStyle::PM_DefaultFrameWidth));
     x = qMax(40, x);
 
     i = 0;
@@ -2848,7 +2848,7 @@ QSize QListBox::sizeHint() const
         i++;
     int y;
     y = qMin(200, d->rowPos[i] +
-              2 * style().pixelMetric(QStyle::PM_DefaultFrameWidth));
+              2 * style()->pixelMetric(QStyle::PM_DefaultFrameWidth));
     y = qMax(40, y);
 
     QSize s(x, y);
@@ -3834,7 +3834,7 @@ void QListBox::adjustItems()
 void QListBox::paintCell(QPainter * p, int row, int col)
 {
     bool drawActiveSelection = hasFocus() || d->inMenuMode ||
-        !style().styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this);
+        !style()->styleHint(QStyle::SH_ItemView_ChangeHighlightOnFocus, 0, this);
     QPalette pal = palette();
     if(!drawActiveSelection)
         pal.setCurrentColorGroup(QPalette::Inactive);
@@ -3876,7 +3876,7 @@ void QListBox::paintCell(QPainter * p, int row, int col)
             opt.backgroundColor = pal.highlight().color();
         else
             opt.backgroundColor = pal.base().color();
-        style().drawPrimitive(QStyle::PE_FocusRect, &opt, p, this);
+        style()->drawPrimitive(QStyle::PE_FocusRect, &opt, p, this);
     }
 
     p->restore();
@@ -4127,7 +4127,7 @@ void QListBox::drawRubber()
     opt.rect = d->rubber->normalize();
     opt.palette = palette();
     opt.state = QStyle::Style_Rectangle;
-    style().drawPrimitive(QStyle::PE_RubberBand, &opt, &p, this);
+    style()->drawPrimitive(QStyle::PE_RubberBand, &opt, &p, this);
     p.end();
 }
 

@@ -90,8 +90,8 @@ QSize Q3DockWindowResizeHandle::sizeHint() const
     opt.rect = rect();
     opt.docked = dockWindow->area();
     opt.closeEnabled = dockWindow->isCloseEnabled();
-    int sw = 2 * style().pixelMetric(QStyle::PM_SplitterWidth, &opt, this) / 3;
-    return (style().sizeFromContents(QStyle::CT_DockWindow, &opt, QSize(sw, sw), fontMetrics(),
+    int sw = 2 * style()->pixelMetric(QStyle::PM_SplitterWidth, &opt, this) / 3;
+    return (style()->sizeFromContents(QStyle::CT_DockWindow, &opt, QSize(sw, sw), fontMetrics(),
             this).expandedTo(QApplication::globalStrut()));
 }
 
@@ -231,7 +231,7 @@ void Q3DockWindowResizeHandle::paintEvent(QPaintEvent *)
         opt.state |= QStyle::Style_Enabled;
     if (orientation() == Qt::Horizontal)
         opt.state |= QStyle::Style_Horizontal;
-    style().drawPrimitive(QStyle::PE_DockWindowResizeHandle, &opt, &p, this);
+    style()->drawPrimitive(QStyle::PE_DockWindowResizeHandle, &opt, &p, this);
 }
 
 void Q3DockWindowResizeHandle::startLineDraw()
@@ -392,9 +392,9 @@ void Q3DockWindowHandle::paintEvent(QPaintEvent *e)
     opt.rect = rect();
     opt.docked = dockWindow->area();
     opt.closeEnabled = dockWindow->isCloseEnabled();
-    opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_DockWindowHandleRect, &opt,
+    opt.rect = QStyle::visualRect(style()->subRect(QStyle::SR_DockWindowHandleRect, &opt,
                                                   fontMetrics(), this), this);
-    style().drawPrimitive(QStyle::PE_DockWindowHandle, &opt, &p, this);
+    style()->drawPrimitive(QStyle::PE_DockWindowHandle, &opt, &p, this);
     QWidget::paintEvent(e);
 }
 
@@ -493,7 +493,7 @@ void Q3DockWindowHandle::updateGui()
 #endif
         QStyleOption opt(0);
         opt.init(closeButton);
-        closeButton->setIcon(style().standardPixmap(QStyle::SP_DockWindowCloseButton, &opt,
+        closeButton->setIcon(style()->standardPixmap(QStyle::SP_DockWindowCloseButton, &opt,
                                                     closeButton));
         closeButton->setFixedSize(12, 12);
         connect(closeButton, SIGNAL(clicked()),
@@ -524,7 +524,7 @@ void Q3DockWindowHandle::changeEvent(QEvent *ev)
         if (closeButton) {
             QStyleOption opt(0);
             opt.init(closeButton);
-            closeButton->setIcon(style().standardPixmap(QStyle::SP_DockWindowCloseButton,
+            closeButton->setIcon(style()->standardPixmap(QStyle::SP_DockWindowCloseButton,
                                                         &opt, closeButton));
         }
     }
@@ -535,7 +535,7 @@ QSize Q3DockWindowHandle::minimumSizeHint() const
 {
     if (!dockWindow->dockArea)
         return QSize(0, 0);
-    int wh = dockWindow->isCloseEnabled() ? 17 : style().pixelMetric(QStyle::PM_DockWindowHandleExtent, 0, this);
+    int wh = dockWindow->isCloseEnabled() ? 17 : style()->pixelMetric(QStyle::PM_DockWindowHandleExtent, 0, this);
     if (dockWindow->orientation() == Qt::Horizontal)
         return QSize(wh, 0);
     return QSize(0, wh);
@@ -568,7 +568,7 @@ Q3DockWindowTitleBar::Q3DockWindowTitleBar(Q3DockWindow *dw)
     ctrlDown = false;
     setMouseTracking(true);
     QStyleOptionTitleBar opt = getStyleOption();
-    setFixedHeight(style().pixelMetric(QStyle::PM_TitleBarHeight, &opt, this));
+    setFixedHeight(style()->pixelMetric(QStyle::PM_TitleBarHeight, &opt, this));
     connect(this, SIGNAL(doClose()), dockWindow, SLOT(hide()));
 }
 
@@ -602,7 +602,7 @@ void Q3DockWindowTitleBar::mousePressEvent(QMouseEvent *e)
     opt.icon = windowIcon();
     opt.titleBarState = window() ? window()->windowState() : 0;
     opt.titleBarFlags = getWFlags();
-    QStyle::SubControl tbctrl = style().querySubControl(QStyle::CC_TitleBar, &opt, e->pos(), this);
+    QStyle::SubControl tbctrl = style()->querySubControl(QStyle::CC_TitleBar, &opt, e->pos(), this);
     if (tbctrl > QStyle::SC_TitleBarLabel) {
         Q3TitleBar::mousePressEvent(e);
         return;
@@ -1521,7 +1521,7 @@ void Q3DockWindow::drawFrame(QPainter *p)
     opt.lineWidth = lineWidth();
     opt.midLineWidth = midLineWidth();
 
-    style().drawPrimitive(QStyle::PE_WindowFrame, &opt, p, this);
+    style()->drawPrimitive(QStyle::PE_WindowFrame, &opt, p, this);
 }
 
 /*!
@@ -1534,7 +1534,7 @@ void Q3DockWindow::drawContents(QPainter *p)
     opt.init(this);
     if (titleBar->isActive())
         opt.state |= QStyle::Style_Active;
-    style().drawControl(QStyle::CE_DockWindowEmptyArea, &opt, p, this);
+    style()->drawControl(QStyle::CE_DockWindowEmptyArea, &opt, p, this);
 }
 
 /*!
@@ -1813,9 +1813,9 @@ QSize Q3DockWindow::sizeHint() const
     sh = sh.expandedTo(QSize(16, 16));
     if (area()) {
         if (area()->orientation() == Qt::Horizontal && !vHandleRight->isVisible())
-            sh.setWidth(sh.width() + 2 * style().pixelMetric(QStyle::PM_SplitterWidth, 0, this) / 3);
+            sh.setWidth(sh.width() + 2 * style()->pixelMetric(QStyle::PM_SplitterWidth, 0, this) / 3);
         else if (area()->orientation() == Qt::Vertical && !hHandleBottom->isVisible())
-            sh.setHeight(sh.height() + 2 * style().pixelMetric(QStyle::PM_SplitterWidth, 0, this) / 3);
+            sh.setHeight(sh.height() + 2 * style()->pixelMetric(QStyle::PM_SplitterWidth, 0, this) / 3);
     }
     return sh;
 }
@@ -1831,9 +1831,9 @@ QSize Q3DockWindow::minimumSize() const
     ms = ms.expandedTo(QSize(16, 16));
     if (area()) {
         if (area()->orientation() == Qt::Horizontal && !vHandleRight->isVisible())
-            ms.setWidth(ms.width() + 2 * style().pixelMetric(QStyle::PM_SplitterWidth, 0, this) / 3);
+            ms.setWidth(ms.width() + 2 * style()->pixelMetric(QStyle::PM_SplitterWidth, 0, this) / 3);
         else if (area()->orientation() == Qt::Vertical && !hHandleBottom->isVisible())
-            ms.setHeight(ms.height() + 2 * style().pixelMetric(QStyle::PM_SplitterWidth, 0, this) / 3);
+            ms.setHeight(ms.height() + 2 * style()->pixelMetric(QStyle::PM_SplitterWidth, 0, this) / 3);
     }
     return ms;
 }
@@ -1849,9 +1849,9 @@ QSize Q3DockWindow::minimumSizeHint() const
     msh = msh.expandedTo(QSize(16, 16));
     if (area()) {
         if (area()->orientation() == Qt::Horizontal && !vHandleRight->isVisible())
-            msh.setWidth(msh.width() + 2 * style().pixelMetric(QStyle::PM_SplitterWidth, 0, this) / 3);
+            msh.setWidth(msh.width() + 2 * style()->pixelMetric(QStyle::PM_SplitterWidth, 0, this) / 3);
         else if (area()->orientation() == Qt::Vertical && !hHandleBottom->isVisible())
-            msh.setHeight(msh.height() + 2 * style().pixelMetric(QStyle::PM_SplitterWidth, 0, this) / 3);
+            msh.setHeight(msh.height() + 2 * style()->pixelMetric(QStyle::PM_SplitterWidth, 0, this) / 3);
     }
     return msh;
 }

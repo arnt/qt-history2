@@ -68,7 +68,7 @@ QDialogButtons::init(Q_UINT32 buttons, Qt::Orientation orient)
     d->orient = orient;
     QStyleOption opt(0);
     opt.init(this);
-    d->def = (Button)style().styleHint(QStyle::SH_DialogButtons_DefaultButton, &opt, this);
+    d->def = (Button)style()->styleHint(QStyle::SH_DialogButtons_DefaultButton, &opt, this);
     d->enabled = d->visible = buttons;
 }
 
@@ -401,7 +401,7 @@ QDialogButtons::layoutButtons()
             w->show();
             QStyleOption opt(0);
             opt.init(this);
-            w->setGeometry(style().subRect(rects[i], &opt, fontMetrics(), this));
+            w->setGeometry(style()->subRect(rects[i], &opt, fontMetrics(), this));
         }
     }
 }
@@ -414,7 +414,7 @@ QDialogButtons::sizeHint() const
     if(d->custom)
         s = d->custom->sizeHint();
     QStyleOption opt(0);
-    return style().sizeFromContents(QStyle::CT_DialogButtons, &opt, s, fontMetrics(), this).
+    return style()->sizeFromContents(QStyle::CT_DialogButtons, &opt, s, fontMetrics(), this).
                                      expandedTo(QApplication::globalStrut());
 }
 

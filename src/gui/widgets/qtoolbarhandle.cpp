@@ -54,7 +54,7 @@ Qt::Orientation QToolBarHandle::orientation() const
 QSize QToolBarHandle::sizeHint() const
 {
     QStyleOption opt = getStyleOption(this);
-    const int extent = style().pixelMetric(QStyle::PM_ToolBarHandleExtent, &opt, this);
+    const int extent = style()->pixelMetric(QStyle::PM_ToolBarHandleExtent, &opt, this);
     return QSize(extent, extent);
 }
 
@@ -62,7 +62,7 @@ void QToolBarHandle::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
     QStyleOption opt = getStyleOption(this);
-    style().drawPrimitive(QStyle::PE_ToolBarHandle, &opt, &p, this);
+    style()->drawPrimitive(QStyle::PE_ToolBarHandle, &opt, &p, this);
 }
 
 void QToolBarHandle::mousePressEvent(QMouseEvent *event)

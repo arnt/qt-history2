@@ -103,7 +103,7 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
             for (int pos=0; pos<l.size(); ++pos) {
                 QWidget *w = l.at(pos);
                 if (w->isTopLevel() || !w->isVisible() ||
-                    w->style().styleHint(SH_UnderlineShortcut, 0, w))
+                    w->style()->styleHint(SH_UnderlineShortcut, 0, w))
                     l.removeAt(pos);
             }
             // Update states before repainting

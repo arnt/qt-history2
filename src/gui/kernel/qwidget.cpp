@@ -1311,12 +1311,11 @@ QWidget *QWidget::find(WId id)
     \sa QWidget::setStyle(), QApplication::setStyle(), QApplication::style()
 */
 
-QStyle& QWidget::style() const
+QStyle *QWidget::style() const
 {
     if (d->extra && d->extra->style)
-        return *d->extra->style;
-    QStyle &ret = qApp->style();
-    return ret;
+        return d->extra->style;
+    return qApp->style();
 }
 
 /*!
@@ -1339,18 +1338,18 @@ QStyle& QWidget::style() const
 
 void QWidget::setStyle(QStyle *style)
 {
-    QStyle& old  = QWidget::style();
+    QStyle *old  = QWidget::style();
     d->createExtra();
     d->extra->style = style;
     if (!testWFlags(Qt::WType_Desktop) // (except desktop)
          && d->polished) { // (and have been polished)
-        old.unPolish(this);
-        QWidget::style().polish(this);
+        old->unPolish(this);
+        QWidget::style()->polish(this);
     }
     QEvent e(QEvent::StyleChange);
     QApplication::sendEvent(this, &e);
 #ifdef QT_COMPAT
-    styleChange(old);
+    styleChange(*old);
 #endif
 }
 
@@ -1829,36 +1828,42 @@ void QWidget::setEnabled_helper(bool enable)
     \fn void QWidget::enabledChange(bool)
 
     \internal
+    \obsolete
 */
 
 /*!
     \fn void QWidget::paletteChange(const QPalette &)
 
     \internal
+    \obsolete
 */
 
 /*!
     \fn void QWidget::fontChange(const QFont &)
 
     \internal
+    \obsolete
 */
 
 /*!
     \fn void QWidget::windowActivationChange(bool)
 
     \internal
+    \obsolete
 */
 
 /*!
     \fn void QWidget::languageChange()
 
     \internal
+    \obsolete
 */
 
 /*!
     \fn void QWidget::styleChange(QStyle& style)
 
     \internal
+    \obsolete
 */
 
 /*!
@@ -3272,7 +3277,7 @@ bool QWidget::isActiveWindow() const
         return true;
 #endif
 #ifndef QT_NO_STYLE
-    if(style().styleHint(QStyle::SH_Widget_ShareActivation, 0, this)) {
+    if(style()->styleHint(QStyle::SH_Widget_ShareActivation, 0, this)) {
         if(tlw->isDialog() && !tlw->testWFlags(Qt::WShowModal) &&
            tlw->parentWidget() && tlw->parentWidget()->isActiveWindow())
            return true;
