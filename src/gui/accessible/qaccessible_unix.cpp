@@ -42,10 +42,8 @@ void QAccessible::initialize()
 #ifndef QT_NO_COMPONENT
     const QStringList l = loader()->keys();
     for (int i = 0; i < l.count(); ++i) {
-        qDebug("GOT: %s, %p", l.at(i).ascii(), loader()->instance(l.at(i)));
         if (QAccessibleBridgeFactoryInterface *factory =
                 qt_cast<QAccessibleBridgeFactoryInterface*>(loader()->instance(l.at(i)))) {
-            qDebug("JO");
             QAccessibleBridge * bridge = factory->create(l.at(i));
             if (bridge)
                 bridges()->append(bridge);
