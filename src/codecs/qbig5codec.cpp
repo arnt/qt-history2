@@ -35,32 +35,35 @@
 **
 **********************************************************************/
 
-/*! \class QBig5Codec qbig5codec.h
+/*!
+    \class QBig5Codec qbig5codec.h
     \ingroup i18n
 
-  \brief The QBig5Codec class provides conversion to and from the Big5 encoding.
+    \brief The QBig5Codec class provides conversion to and from the Big5 encoding.
 
-  QBig5Codec was originally contributed by Ming-Che Chuang
-  \<mingche@cobra.ee.ntu.edu.tw\> for the Big-5+ encoding,
-  and was included in Qt with the author's permission, and the
-  grateful thanks of the Trolltech team.
-  (Note: Ming-Che's code is QPL'd, ref mail to into@trolltech.com)
+    QBig5Codec was originally contributed by Ming-Che Chuang
+    \<mingche@cobra.ee.ntu.edu.tw\> for the Big-5+ encoding, and was
+    included in Qt with the author's permission, and the grateful
+    thanks of the Trolltech team. (Note: Ming-Che's code is QPL'd, as
+    per an mail to info@trolltech.com.)
 
-  However, since Big-5+ was never formally approved, and was never used
-  by anyone, the Taiwan Free Software community and the Li18nux Big5
-  Standard Subgroup agree that the de-facto standard Big5-ETen
-  (zh_TW.Big5 or zh_TW.TW-Big5) be used instead.
+    However, since Big-5+ was never formally approved, and was never
+    used by anyone, the Taiwan Free Software community and the Li18nux
+    Big5 Standard Subgroup agree that the de-facto standard Big5-ETen
+    (zh_TW.Big5 or zh_TW.TW-Big5) be used instead.
 
-  QBig5Codec is currently implemented as a pure subset of
-  QBig5hkscsCodec, so more fine-tuning is needed to make it identical
-  to the standard Big5 mapping as determined by Li18nux-Big5.  See
-  \l{http://www.autrijus.org/xml/} for the draft Big5 (2002) standard.
+    QBig5Codec is currently implemented as a pure subset of
+    QBig5hkscsCodec, so more fine-tuning is needed to make it
+    identical to the standard Big5 mapping as determined by
+    Li18nux-Big5.  See \l{http://www.autrijus.org/xml/} for the draft
+    Big5 (2002) standard.
 
-  James Su \<suzhe@turbolinux.com.cn\> \<suzhe@gnuchina.org\> generated
-  the Big5-HKSCS<->Unicode tables with a very space-efficient algorithm.
-  He generously donated his code to glibc in May 2002.  Subsequently,
-  James has generously allowed Anthony Fok \<anthony@thizlinux.com\>
-  \<foka@debian.org\> to adapt the code for Qt.
+    James Su \<suzhe@turbolinux.com.cn\> \<suzhe@gnuchina.org\>
+    generated the Big5-HKSCS\<-\>Unicode tables with a very
+    space-efficient algorithm. He generously donated his code to glibc
+    in May 2002.  Subsequently, James has kindly allowed Anthony Fok
+    \<anthony@thizlinux.com\> \<foka@debian.org\> to adapt the code
+    for Qt.
 
   \legalese
 

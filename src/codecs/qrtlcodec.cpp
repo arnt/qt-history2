@@ -89,7 +89,7 @@ static bool to8bit(const QChar ch, QCString *rstr)
 		converted = TRUE;
 	    // 0x0591 - 0x05cf: Hebrew punctuation... dropped
 	    if ( ch.cell() >= 0xD0 )
-		*rstr += unicode_to_heb_05[ch.cell()- 0xD0];
+		*rstr += (char)unicode_to_heb_05[ch.cell()- 0xD0];
 	} else if ( ch.row() == 0x20 ) {
 	    if ( ch.cell() == 0x3E ) {
 		*rstr += (char)0xAF;
@@ -103,10 +103,10 @@ static bool to8bit(const QChar ch, QCString *rstr)
 	}
     } else {
 	if ( ch.cell() < 0x80 ) {
-	    *rstr += ch.cell();
+	    *rstr += (char)ch.cell();
 	    converted = TRUE;
 	} else if( ch.cell() < 0xA0 ) {
-	    *rstr += unicode_to_heb_00[ch.cell() - 0xA0];
+	    *rstr += (char)unicode_to_heb_00[ch.cell() - 0xA0];
 	    converted = TRUE;
 	}
     }
@@ -355,43 +355,45 @@ static QChar::Direction findBasicDirection(QString str)
 }
 
 
-/*! \class QHebrewCodec qrtlcodec.h
+/*!
+    \class QHebrewCodec qrtlcodec.h
     \reentrant
     \ingroup i18n
 
-  \brief The QHebrewCodec class provides conversion to and from visually ordered Hebrew.
+    \brief The QHebrewCodec class provides conversion to and from
+    visually ordered Hebrew.
 
-  Hebrew as a semitic language is written from right to left. Because
-  older computer systems couldn't handle reordering a string so that
-  the first letter appears on the right, many older documents were
-  encoded in visual order, so that the first letter of a line is the
-  rightmost one in the string.
+    Hebrew as a semitic language is written from right to left.
+    Because older computer systems couldn't handle reordering a string
+    so that the first letter appears on the right, many older
+    documents were encoded in visual order, so that the first letter
+    of a line is the rightmost one in the string.
 
-  In contrast to this, Unicode defines characters to be in logical
-  order (the order you would read the string). This codec tries to
-  convert visually ordered Hebrew (8859-8) to Unicode. This might not
-  always work perfectly, because reversing the bidi (bi-directional)
-  algorithm that transforms from logical to visual order is
-  non-trivial.
+    In contrast to this, Unicode defines characters to be in logical
+    order (the order you would read the string). This codec tries to
+    convert visually ordered Hebrew (8859-8) to Unicode. This might
+    not always work perfectly, because reversing the \e bidi
+    (bi-directional) algorithm that transforms from logical to visual
+    order is non-trivial.
 
-  Transformation from Unicode to visual Hebrew (8859-8) is done using
-  the bidi algorithm in Qt, and will produce correct results, so long
-  as the codec is given the text one whole paragraph at a time. Places
-  where newlines are supposed to start can be indicated by a newline
-  character ('\n'). Please be aware, that these newline characters
-  change the reordering behaviour of the algorithm, as the BiDi
-  reordering only takes place within one line of text, whereas
-  linebreaks are determined in visual order.
+    Transformation from Unicode to visual Hebrew (8859-8) is done
+    using the bidi algorithm in Qt, and will produce correct results,
+    so long as the codec is given the text a whole paragraph at a
+    time. Places where newlines are supposed to go can be indicated by
+    a newline character ('\n'). Note that these newline characters
+    change the reordering behaviour of the algorithm, since the bidi
+    reordering only takes place within one line of text, whereas
+    line breaks are determined in visual order.
 
-  Visually ordered Hebrew is still used quite often in some places,
-  mainly in email communication (as most email programs still don't
-  understand logically ordered Hebrew) and on web pages. The use on
-  web pages is strongly decreasing however, as there are now a few
-  browsers that correctly support logically ordered Hebrew.
+    Visually ordered Hebrew is still used quite often in some places,
+    mainly in email communication (since most email programs still
+    don't understand logically ordered Hebrew) and on web pages. The
+    use on web pages is rapidly decreasing, due to the availability of
+    browsers that correctly support logically ordered Hebrew.
 
-  This codec has the name "iso8859-8". If you don't want any bidi
-  reordering to happen during conversion, use the "iso8859-8-i" codec,
-  which assumes logical order for the 8-bit string.
+    This codec has the name "iso8859-8". If you don't want any bidi
+    reordering to happen during conversion, use the "iso8859-8-i"
+    codec, which assumes logical order for the 8-bit string.
 */
 
 /*! \reimp */
@@ -415,32 +417,36 @@ const char* QHebrewCodec::mimeName() const
 }
 
 
-/*! \reimp
-  Since Hebrew (as well as Arabic) are written from left to right,
-  but iso8859-8 assumes visual ordering (as opposed to the
-  logical ordering of Unicode), we must reverse the order of the
-  input string (the first \a len characters of \a chars) to put it
-  into logical order.
+/*!
+    \reimp
 
-  One problem is that the basic text direction is unknown. So this
-  function uses some heuristics to guess it, and if it can't guess the
-  right one, it assumes, the basic text direction is right to left.
+    Since Hebrew (and Arabic) is written from left to right, but
+    iso8859-8 assumes visual ordering (as opposed to the logical
+    ordering of Unicode), we must reverse the order of the input
+    string (the first \a len characters of \a chars) to put it into
+    logical order.
 
-  This behaviour can be overridden, by putting a control character at
-  the beginning of the text to indicate which basic text direction to
-  use. If the basic text direction is left-to-right, the control
-  character should be (uchar) 0xFE. For right-to-left it should be
-  0xFF. Both characters are undefined in the iso 8859-8 charset.
+    One problem is that the basic text direction is unknown. So this
+    function uses some heuristics to guess it, and if it can't guess
+    the right one, it assumes, the basic text direction is right to
+    left.
 
-  Example: A visually ordered string "english WERBEH american" would
-  be recognized as having a basic left to right direction. So the
-  logically ordered QString would be "english HEBREW american".
+    This behaviour can be overridden, by putting a control character
+    at the beginning of the text to indicate which basic text
+    direction to use. If the basic text direction is left-to-right,
+    the control character should be (uchar) 0xFE. For right-to-left it
+    should be 0xFF. Both characters are undefined in the iso 8859-8
+    charset.
 
-  By prepending a (uchar)0xFF at the start of the string,
-  QHebrewCodec::toUnicode() would use a basic text direction of
-  right to left, and the string would thus become "american HEBREW
-  english".
-  */
+    Example: A visually ordered string "english WERBEH american" would
+    be recognized as having a basic left to right direction. So the
+    logically ordered QString would be "english HEBREW american".
+
+    By prepending a (uchar)0xFF at the start of the string,
+    QHebrewCodec::toUnicode() would use a basic text direction of
+    right to left, and the string would thus become "american HEBREW
+    english".
+*/
 QString QHebrewCodec::toUnicode(const char* chars, int len ) const
 {
     QString r;
@@ -493,21 +499,21 @@ QString QHebrewCodec::toUnicode(const char* chars, int len ) const
 }
 
 /*!
-  Transforms the logically ordered QString, \a uc, into a visually
-  ordered string in the 8859-8 encoding. Qt's bidi algorithm is used to
-  perform this task. Note that newline characters affect the
-  reordering, as reordering is done on a line by line basis.
+    Transforms the logically ordered QString, \a uc, into a visually
+    ordered string in the 8859-8 encoding. Qt's bidi algorithm is used
+    to perform this task. Note that newline characters affect the
+    reordering, since reordering is done on a line by line basis.
 
-  The algorithm is designed to work on whole paragraphs of text, so
-  processing a line at a time may produce incorrect results. This
-  approach is taken because the reordering of the contents of a
-  particular line in a paragraph may depend on the previous line in
-  the same paragraph.
+    The algorithm is designed to work on whole paragraphs of text, so
+    processing a line at a time may produce incorrect results. This
+    approach is taken because the reordering of the contents of a
+    particular line in a paragraph may depend on the previous line in
+    the same paragraph.
 
-  Some encodings (for example Japanese or utf8) are multibye (so one
-  input character is mapped to two output characters). The \a lenInOut
-  argument specifies the number of QChars that should be converted and
-  is set to the number of characters returned.
+    Some encodings (for example Japanese or UTF-8) are multibyte (so
+    one input character is mapped to two output characters). The \a
+    lenInOut argument specifies the number of QChars that should be
+    converted and is set to the number of characters returned.
 */
 QCString QHebrewCodec::fromUnicode(const QString& uc, int& lenInOut) const
 {
@@ -521,7 +527,7 @@ QCString QHebrewCodec::fromUnicode(const QString& uc, int& lenInOut) const
     QCString rstr;
     if( l == 1 ) {
 	if( !to8bit( uc[0], &rstr ) )
-	    rstr += unkn;
+	    rstr += (char)unkn;
     } else {
 	QString tmp = uc;
 	tmp.truncate(l);
@@ -536,7 +542,7 @@ QCString QHebrewCodec::fromUnicode(const QString& uc, int& lenInOut) const
 	// lenInOut = cursor - result;
     }
     if( l > 0 && !rstr.length() )
-	rstr += unkn;
+	rstr += (char)unkn;
 
     return rstr;
 }
