@@ -236,7 +236,6 @@ private slots:
     void okClicked();
     void filterClicked(); // not used
     void cancelClicked();
-    void finish();
 
     void cdUpClicked();
     void newFolderClicked();
@@ -318,7 +317,7 @@ private:
     static QString resolveLinkFile( const QString& linkfile );
 #endif
 #if defined(Q_WS_MACX) || defined(Q_WS_MAC9)
-    static QString macGetSaveFileName( const QString &, const QString &, 
+    static QString macGetSaveFileName( const QString &, const QString &,
 				       QString *, QWidget *, const char*,
 				       const QString& );
     static QStringList macGetOpenFileNames( const QString &, QString*,
