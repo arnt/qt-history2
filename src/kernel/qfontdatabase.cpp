@@ -24,6 +24,9 @@
 
 #include <qcleanuphandler.h>
 
+#ifdef Q_WS_X11
+#include <locale.h>
+#endif
 #include <stdlib.h>
 #include <limits.h>
 // #define QFONTDATABASE_DEBUG
@@ -830,6 +833,25 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 
     parseFontName( request.family, foundry_name, family_name );
 
+#ifdef Q_WS_X11
+    if (family_name.isEmpty() && script == QFont::Han) {
+	// modify script according to locale
+	static QFont::Script defaultHan = QFont::UnknownScript;
+	if (defaultHan == QFont::UnknownScript) {
+	    QCString locale = setlocale(LC_ALL, NULL);
+	    if (locale.contains("ko"))
+		defaultHan = QFont::Han_Korean;
+	    else if (locale.contains("zh_TW"))
+		defaultHan = QFont::Han_TraditionalChinese;
+	    else if (locale.contains("zh"))
+		defaultHan = QFont::Han_SimplifiedChinese;
+	    else
+		defaultHan = QFont::Han_Japanese;
+	}
+	script = defaultHan;
+    }
+#endif
+
     FM_DEBUG( "QFontDatabase::findFont\n"
 	      "  request:\n"
 	      "    family: %s [%s], script: %d (%s)\n"
@@ -870,12 +892,31 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	    if ( family_name.isEmpty() )
 		load( try_family->name, script );
 
+	    uint score_adjust = 0;
 	    QFont::Script override_script = script;
 	    if (!(try_family->scripts[script] & QtFontFamily::Supported) && script != QFont::Unicode) {
 		// family not supported in the script we want
-		if (family_name.isEmpty()) continue;
-
-		if (try_family->scripts[QFont::UnknownScript] & QtFontFamily::Supported) {
+#ifdef Q_WS_X11
+		if (script >= QFont::Han_Japanese && script <= QFont::Han_Korean
+		    && try_family->scripts[QFont::Han] == QtFontFamily::Supported) {
+		    // try with the han script instead, give it a penalty
+		    if (override_script == QFont::Han_TraditionalChinese
+			&& (try_family->scripts[QFont::Han_SimplifiedChinese] & QtFontFamily::Supported)) {
+			override_script = QFont::Han_SimplifiedChinese;
+			score_adjust = 200;
+		    } else if (override_script == QFont::Han_SimplifiedChinese
+			&& (try_family->scripts[QFont::Han_TraditionalChinese] & QtFontFamily::Supported)) {
+			override_script = QFont::Han_TraditionalChinese;
+			score_adjust = 200;
+		    } else {
+			override_script = QFont::Han;
+			score_adjust = 400;
+		    }
+		} else
+#endif
+		if (family_name.isEmpty()) {
+		    continue;
+		} else if (try_family->scripts[QFont::UnknownScript] & QtFontFamily::Supported) {
 		    // try with the unknown script (for a symbol font)
 		    override_script = QFont::UnknownScript;
 		} else if (try_family->scripts[QFont::Unicode] & QtFontFamily::Supported) {
@@ -915,6 +956,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 #endif
 		    );
 	    }
+	    newscore += score_adjust;
 
 	    if ( newscore < score ) {
 		score = newscore;
