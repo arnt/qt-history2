@@ -218,7 +218,7 @@ static QString fmtDateTime(const QString& f, const QTime* dt = 0, const QDate* d
     September 1752 (hence this is the earliest valid QDate), and
     subsequently by most other Western countries, by 1923.
 
-    The latest date within this scheme is the year 8000.
+    The latest valid year within this scheme is the year 8000.
 
     \sa QTime QDateTime QDateEdit QDateTimeEdit
 */
@@ -235,11 +235,11 @@ static QString fmtDateTime(const QString& f, const QTime* dt = 0, const QDate* d
 /*!
     Constructs a date with year \a y, month \a m and day \a d.
 
-    \a y must be in the range 1752..8000, \a m must be in the range
-    1..12, and \a d must be in the range 1..31.
+    \a y must be in the range 1752 to 8000, \a m must be in the range
+    1 to 12, and \a d must be in the range 1 to 31.
 
-    \warning If \a y is in the range 0..99, it is interpreted as
-    1900..1999.
+    \warning If \a y is in the range 0 to 99, it is interpreted as
+     a year in the range 1900 to 1999.
 
     \sa isValid()
 */
@@ -274,7 +274,7 @@ bool QDate::isValid() const
 
 
 /*!
-    Returns the year (1752..8000) of this date.
+    Returns the year (1752 to 8000) of this date.
 
     \sa month(), day()
 */
@@ -287,7 +287,23 @@ int QDate::year() const
 }
 
 /*!
-    Returns the month (January=1..December=12) of this date.
+    Returns the number corresponding to the month of this date, using
+    the following convention:
+
+    \list
+    \i 1 = "January"
+    \i 2 = "February"
+    \i 3 = "March"
+    \i 4 = "April"
+    \i 5 = "May"
+    \i 6 = "June"
+    \i 7 = "July"
+    \i 8 = "August"
+    \i 9 = "September"
+    \i 10 = "October"
+    \i 11 = "November"
+    \i 12 = "December"
+    \endlist
 
     \sa year(), day()
 */
@@ -300,7 +316,7 @@ int QDate::month() const
 }
 
 /*!
-    Returns the day of the month (1..31) of this date.
+    Returns the day of the month (1 to 31) of this date.
 
     \sa year(), month(), dayOfWeek()
 */
@@ -313,9 +329,9 @@ int QDate::day() const
 }
 
 /*!
-    Returns the weekday (Qt::Monday=1..Qt::Sunday=7) for this date.
+    Returns the weekday for this date.
 
-    \sa day(), dayOfYear()
+    \sa day(), dayOfYear(), Qt::DayOfWeek
 */
 
 int QDate::dayOfWeek() const
@@ -324,7 +340,7 @@ int QDate::dayOfWeek() const
 }
 
 /*!
-    Returns the day of the year (1..365) for this date.
+    Returns the day of the year (1 to 365) for this date.
 
     \sa day(), dayOfWeek()
 */
@@ -335,7 +351,7 @@ int QDate::dayOfYear() const
 }
 
 /*!
-    Returns the number of days in the month (28..31) for this date.
+    Returns the number of days in the month (28 to 31) for this date.
 
     \sa day(), daysInYear()
 */
@@ -447,9 +463,23 @@ int QDate::weekNumber(int *yearNumber) const
 
 #ifndef QT_NO_TEXTDATE
 /*!
-    Returns the name of the \a month.
+    Returns the name of the \a month using the following
+    convention:
 
-    1 = "Jan", 2 = "Feb", ... 12 = "Dec"
+    \list
+    \i 1 = "Jan"
+    \i 2 = "Feb"
+    \i 3 = "Mar"
+    \i 4 = "Apr"
+    \i 5 = "May"
+    \i 6 = "Jun"
+    \i 7 = "Jul"
+    \i 8 = "Aug"
+    \i 9 = "Sep"
+    \i 10 = "Oct"
+    \i 11 = "Nov"
+    \i 12 = "Dec"
+    \endlist
 
     The month names will be localized according to the system's locale
     settings.
@@ -491,9 +521,23 @@ QString QDate::shortMonthName(int month)
 }
 
 /*!
-    Returns the long name of the \a month.
+    Returns the long name of the \a month using the following
+    convention:
 
-    1 = "January", 2 = "February", ..., 12 = "December".
+    \list
+    \i 1 = "January"
+    \i 2 = "February"
+    \i 3 = "March"
+    \i 4 = "April"
+    \i 5 = "May"
+    \i 6 = "June"
+    \i 7 = "July"
+    \i 8 = "August"
+    \i 9 = "September"
+    \i 10 = "October"
+    \i 11 = "November"
+    \i 12 = "December"
+    \endlist
 
     The month names will be localized according to the system's locale
     settings.
@@ -535,9 +579,18 @@ QString QDate::longMonthName(int month)
 }
 
 /*!
-    Returns the name of the \a weekday.
+    Returns the name of the \a weekday using the following
+    convention:
 
-    1 = "Mon", 2 = "Tue", ... 7 = "Sun"
+    \list
+    \i 1 = "Mon"
+    \i 2 = "Tue"
+    \i 3 = "Wed"
+    \i 4 = "Thu"
+    \i 5 = "Fri"
+    \i 6 = "Sat"
+    \i 7 = "Sun"
+    \endlist
 
     The day names will be localized according to the system's locale
     settings.
@@ -580,9 +633,18 @@ QString QDate::shortDayName(int weekday)
 }
 
 /*!
-    Returns the long name of the \a weekday.
+    Returns the long name of the \a weekday using the following
+    convention:
 
-    1 = "Monday", 2 = "Tuesday", ... 7 = "Sunday"
+    \list
+    \i 1 = "Monday"
+    \i 2 = "Tuesday"
+    \i 3 = "Wednesday"
+    \i 4 = "Thursday"
+    \i 5 = "Friday"
+    \i 6 = "Saturday"
+    \i 7 = "Sunday"
+    \endlist
 
     The day names will be localized according to the system's locale
     settings.
@@ -629,24 +691,27 @@ QString QDate::longDayName(int weekday)
 
 #if !defined(QT_NO_SPRINTF)
 /*!
+    \fn QString QDate::toString(Qt::DateFormat format) const
+
     \overload
 
-    Returns the date as a string. The \a f parameter determines the
-    format of the string.
+    Returns the date as a string. The \a format parameter determines
+    the format of the string.
 
-    If \a f is \c Qt::TextDate, the string format is "Sat May 20 1995"
-    (using the shortDayName() and shortMonthName() functions to
-    generate the string, so the day and month names are locale
-    specific).
+    If the \a format is \c Qt::TextDate, the string is formatted in
+    the default way. QDate::shortDayName() and QDate::shortMonthName()
+    are used to generate the string, so the day and month names will
+    be localized names. An example of this formatting is
+    "Sat May 20 1995".
 
-    If \a f is \c Qt::ISODate, the string format corresponds to the
-    ISO 8601 specification for representations of dates, which is
-    YYYY-MM-DD where YYYY is the year, MM is the month of the year
-    (between 01 and 12), and DD is the day of the month between 01 and
-    31.
+    If the \a format is \c Qt::ISODate, the string format corresponds
+    to the ISO 8601 extended specification for representations of
+    dates and times, taking the form YYYY-MM-DD, where YYYY is the
+    year, MM is the month of the year (between 01 and 12), and DD is
+    the day of the month between 01 and 31.
 
-    If \a f is \c Qt::LocalDate, the string format depends on the
-    locale settings of the system.
+    If the \a format is \c Qt::LocalDate, the string format depends
+    on the locale settings of the system.
 
     If the datetime is invalid, an empty string will be returned.
 
@@ -721,24 +786,24 @@ QString QDate::toString(Qt::DateFormat f) const
 
     \table
     \header \i Expression \i Output
-    \row \i d \i the day as number without a leading zero (1-31)
-    \row \i dd \i the day as number with a leading zero (01-31)
+    \row \i d \i the day as number without a leading zero (1 to31)
+    \row \i dd \i the day as number with a leading zero (01 to 31)
     \row \i ddd
-         \i the abbreviated localized day name (e.g. 'Mon'..'Sun').
+         \i the abbreviated localized day name (e.g. 'Mon' to 'Sun').
             Uses QDate::shortDayName().
     \row \i dddd
-         \i the long localized day name (e.g. 'Qt::Monday'..'Qt::Sunday').
+         \i the long localized day name (e.g. 'Qt::Monday' to 'Qt::Sunday').
             Uses QDate::longDayName().
     \row \i M \i the month as number without a leading zero (1-12)
     \row \i MM \i the month as number with a leading zero (01-12)
     \row \i MMM
-         \i the abbreviated localized month name (e.g. 'Jan'..'Dec').
+         \i the abbreviated localized month name (e.g. 'Jan' to 'Dec').
             Uses QDate::shortMonthName().
     \row \i MMMM
-         \i the long localized month name (e.g. 'January'..'December').
+         \i the long localized month name (e.g. 'January' to 'December').
             Uses QDate::longMonthName().
-    \row \i yy \i the year as two digit number (00-99)
-    \row \i yyyy \i the year as four digit number (1752-8000)
+    \row \i yy \i the year as two digit number (00 to 99)
+    \row \i yyyy \i the year as four digit number (1752 to 8000)
     \endtable
 
     All other input characters will be ignored.
@@ -763,13 +828,13 @@ QString QDate::toString(const QString& format) const
 #endif //QT_NO_DATESTRING
 
 /*!
-    Sets the date's year \a y, month \a m and day \a d.
+    Sets the date's year \a y, month \a m, and day \a d.
 
-    \a y must be in the range 1752..8000, \a m must be in the range
-    1..12, and \a d must be in the range 1..31.
+    \a y must be in the range 1752 to 8000, \a m must be in the range
+    1 to 12, and \a d must be in the range 1 to 31.
 
-    \warning If \a y is in the range 0..99, it is interpreted as
-    1900..1999.
+    \warning If \a y is in the range 0 to 99, it is interpreted as
+    1900 to 1999.
 
     Returns true if the date is valid; otherwise returns false.
 */
@@ -894,38 +959,42 @@ int QDate::daysTo(const QDate &d) const
 /*!
     \fn bool QDate::operator==(const QDate &d) const
 
-    Returns true if this date is equal to \a d; otherwise returns false.
+    Returns true if this date is equal to \a d; otherwise returns
+    false.
 */
 
 /*!
     \fn bool QDate::operator!=(const QDate &d) const
 
-    Returns true if this date is different from \a d; otherwise returns false.
+    Returns true if this date is different from \a d; otherwise
+    returns false.
 */
 
 /*!
     \fn bool QDate::operator<(const QDate &d) const
 
-    Returns true if this date is earlier than \a d, otherwise returns false.
+    Returns true if this date is earlier than \a d; otherwise returns
+    false.
 */
 
 /*!
     \fn bool QDate::operator<=(const QDate &d) const
 
-    Returns true if this date is earlier than or equal to \a d,
+    Returns true if this date is earlier than or equal to \a d;
     otherwise returns false.
 */
 
 /*!
     \fn bool QDate::operator>(const QDate &d) const
 
-    Returns true if this date is later than \a d, otherwise returns false.
+    Returns true if this date is later than \a d; otherwise returns
+    false.
 */
 
 /*!
     \fn bool QDate::operator>=(const QDate &d) const
 
-    Returns true if this date is later than or equal to \a d,
+    Returns true if this date is later than or equal to \a d;
     otherwise returns false.
 */
 
@@ -965,8 +1034,11 @@ QDate QDate::currentDate()
 
 #ifndef QT_NO_DATESTRING
 /*!
-    Returns the QDate represented by the string \a s, using the format
-    \a f, or an invalid date if the string cannot be parsed.
+    \fn QDate QDate::fromString(const QString &string, Qt::DateFormat format)
+
+    Returns the QDate represented by the \a string, using the
+    \a format given, or an invalid date if the string cannot be
+    parsed.
 
     Note for \c Qt::TextDate: It is recommended that you use the
     English short month names (e.g. "Jan"). Although localized month
@@ -1044,7 +1116,7 @@ QDate QDate::fromString(const QString& s, Qt::DateFormat f)
 /*!
     \overload
 
-    Returns true if the specified date (year \a y, month \a m and day
+    Returns true if the specified date (year \a y, month \a m, and day
     \a d) is valid; otherwise returns false.
 
     Example:
@@ -1055,8 +1127,8 @@ QDate QDate::fromString(const QString& s, Qt::DateFormat f)
     QDate::isValid(1202, 6, 6);   // false  1202 is pre-Gregorian
     \endcode
 
-    \warning A \a y value in the range 00..99 is interpreted as
-    1900..1999.
+    \warning A \a y value in the range 00 to 99 is interpreted as
+    1900 to 1999.
 
     \sa isNull(), setYMD()
 */
@@ -1072,7 +1144,9 @@ bool QDate::isValid(int y, int m, int d)
 }
 
 /*!
-    Returns true if the specified year \a y is a leap year; otherwise
+    \fn bool QDate::isLeapYear(int year)
+
+    Returns true if the specified \a year is a leap year; otherwise
     returns false.
 */
 
@@ -2085,18 +2159,18 @@ void QDateTime::setTime_t(uint secsSince1Jan1970UTC)
 
     Returns the datetime as a string in the \a format given.
 
-    If \a f is \c Qt::TextDate, the string is formatted in the
-    default way. QDate::shortDayName(), QDate::shortMonthName(),
+    If the \a format is \c Qt::TextDate, the string is formatted in
+    the default way. QDate::shortDayName(), QDate::shortMonthName(),
     and QTime::toString() are used to generate the string, so the
     day and month names will be localized names. An example of this
     formatting is "Wed May 20 03:40:13 1998".
 
-    If \a f is \c Qt::ISODate, the string format corresponds to the
-    ISO 8601 extended specification for representations of dates and
-    times of the form YYYY-MM-DDTHH:MM:SS.
+    If the \a format is \c Qt::ISODate, the string format corresponds
+    to the ISO 8601 extended specification for representations of
+    dates and times, taking the form YYYY-MM-DDTHH:MM:SS.
 
-    If \a f is \c Qt::LocalDate, the string format depends on the
-    locale settings of the system.
+    If the \a format is \c Qt::LocalDate, the string format depends
+    on the locale settings of the system.
 
     If the datetime is invalid, an empty string will be returned.
 
@@ -2558,9 +2632,11 @@ QDateTime QDateTime::fromString(const QString& s, Qt::DateFormat f)
 
 #ifndef QT_NO_DATASTREAM
 /*!
+    \fn QDataStream &operator<<(QDataStream &stream, const QDate &date)
+
     \relates QDate
 
-    Writes the date, \a d, to the data stream, \a s.
+    Writes the \a date to the given \a stream.
 
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
@@ -2571,9 +2647,11 @@ QDataStream &operator<<(QDataStream &s, const QDate &d)
 }
 
 /*!
+    \fn QDataStream &operator>>(QDataStream &stream, QDate &date)
+
     \relates QDate
 
-    Reads a date from the stream \a s into \a d.
+    Reads a date from the \a stream into the \a date.
 
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
@@ -2587,9 +2665,11 @@ QDataStream &operator>>(QDataStream &s, QDate &d)
 }
 
 /*!
+    \fn QDataStream &operator<<(QDataStream &stream, const QTime &time)
+
     \relates QTime
 
-    Writes time \a t to the stream \a s.
+    Writes the \a time to the given \a stream.
 
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
@@ -2600,9 +2680,11 @@ QDataStream &operator<<(QDataStream &s, const QTime &t)
 }
 
 /*!
+    \fn QDataStream &operator>>(QDataStream &stream, QTime &time)
+
     \relates QTime
 
-    Reads a time from the stream \a s into \a t.
+    Reads a time from the \a stream into the given \a time.
 
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
@@ -2616,9 +2698,11 @@ QDataStream &operator>>(QDataStream &s, QTime &t)
 }
 
 /*!
+    \fn QDataStream &operator<<(QDataStream &stream, const QDateTime &datetime)
+
     \relates QDateTime
 
-    Writes the datetime \a dt to the stream \a out.
+    Writes the \a datetime to the given \a stream.
 
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
@@ -2632,9 +2716,11 @@ QDataStream &operator<<(QDataStream &out, const QDateTime &dt)
 }
 
 /*!
+    \fn QDataStream &operator>>(QDataStream &stream, QDateTime &datetime)
+
     \relates QDateTime
 
-    Reads a datetime from the stream \a in into \a dt.
+    Reads a datetime from the \a stream into the given \a datetime.
 
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
