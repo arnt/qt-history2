@@ -43,7 +43,7 @@ TARGET	=	libqgl.so.0.9
 
 ####### Build rules
 
-all: $(TARGET) 
+all: $(TARGET) include
 
 $(TARGET): $(OBJECTS) $(OBJMOC)
 	-rm -f $(TARGET)
