@@ -1051,7 +1051,7 @@ void QMLCursor::insert(QPainter* p, const QString& s)
 {
     if (s.isEmpty())
 	return;
-    
+
     QMLNode* n = new QMLNode;
     n->c = s[0];
 
@@ -1061,7 +1061,7 @@ void QMLCursor::insert(QPainter* p, const QString& s)
 	last = last->next;
 	last->c = s[int(i)];
     }
-    
+
     if (nodeParent->child == node) {
 	last->next = node;
 	nodeParent->child = n;
@@ -1100,11 +1100,11 @@ void QMLCursor::del(QPainter* p)
     QMLNode* curNode = node;
     QMLContainer* curParent = nodeParent;
     QMLRow* curRow = row;
-    
+
     right( p );
     if ( node == curNode )
 	return;
-    
+
     QMLBox* nodeBox = node->box();
     QMLBox* curBox = curNode->box();
 
@@ -1129,7 +1129,7 @@ void QMLCursor::del(QPainter* p)
 	    curLast->next = nodeBox->child;
 	    curLast->isLastSibling = 0;
 	}
-	else 
+	else
 	    curBox->child = nodeBox->child;
 	curBox->reparentSubtree();
 	if (nodeParent == nodeBox) // correct the cursor position, if necessary
@@ -1137,9 +1137,9 @@ void QMLCursor::del(QPainter* p)
 	nodeBox->child = 0;
 	delete nodeBox;
     }
-    
+
     curBox->update(p, (curRow->start!=curNode && curRow->end != curNode)?curRow:0);
-    
+
     if (nodeBox != curBox) {
 	QMLBox* b = curBox->parentBox();
 	if (b){
@@ -1484,6 +1484,7 @@ const QMLStyleSheet& QMLDocument::styleSheet() const
 QMLView::QMLView()
     : QScrollView(0,0)
 {
+    setKeyCompression( TRUE );
     setVScrollBarMode( AlwaysOn );
     cursor_hidden = FALSE;
     cursorTimer = new QTimer( this );
@@ -1631,7 +1632,7 @@ void QMLView::keyPressEvent( QKeyEvent * e)
 	if (e->key() == Key_Return || e->key() == Key_Enter ) {
 	    {
 		QPainter p( viewport() );
-		for (int i = 0; i < QMIN(4, e->count()); i++) 
+		for (int i = 0; i < QMIN(4, e->count()); i++)
 		    doc->cursor->enter( &p ); // can be optimized
 	    }
 	    updateScreen();
@@ -1656,7 +1657,8 @@ void QMLView::keyPressEvent( QKeyEvent * e)
 	else if (!e->text().isEmpty() ){
 	    {
 		QPainter p( viewport() );
-		doc->cursor->insert( &p, e->text());
+		debug("length()=%d", e->text().length());
+		doc->cursor->insert( &p, e->text() );
 	    }
 	    updateScreen();
 	}
@@ -1673,7 +1675,7 @@ void QMLView::updateSelection(int oldY, int newY)
 	oldY = newY;
 	newY = tmp;
     }
-    
+
     QPainter p(viewport());
     int minY = oldY>=0?QMAX(QMIN(oldY, newY), contentsY()):contentsY();
     int maxY = newY>=0?QMIN(QMAX(oldY, newY), contentsY()+viewport()->height()):contentsY()+viewport()->height();
