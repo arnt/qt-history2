@@ -51,6 +51,9 @@ typedef QObject *(*QtPluginInstanceFunction)();
             Q_DECL_EXPORT QObject *qt_plugin_instance_##PLUGIN() \
             Q_PLUGIN_INSTANCE(PLUGIN)
 
+#  define Q_EXPORT_STATIC_PLUGIN(PLUGIN) \
+            Q_EXPORT_PLUGIN(PLUGIN)
+
 #else
 // NOTE: if you change pattern, you MUST change the pattern in
 // qlibrary.cpp as well.  changing the pattern will break all
