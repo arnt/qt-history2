@@ -108,8 +108,8 @@ public:
         MoveCursor = 1
     };
     Q_UINT16 command;
-    Q_UINT16 block;
-    Q_UINT16 operation;
+    Q_UINT8 block;
+    Q_UINT8 operation;
     int format;
     Q_UINT32 strPos;
     Q_UINT32 pos;
