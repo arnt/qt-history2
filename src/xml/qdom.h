@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.h#18 $
+** $Id: //depot/qt/main/src/xml/qdom.h#19 $
 **
 ** Definition of QDomDocument and related classes.
 **
@@ -344,11 +344,11 @@ public:
 
     // DOM functions
     QDomNode namedItem( const QString& name ) const;
-    QDomNode setNamedItem( const QDomNode& arg );
+    QDomNode setNamedItem( const QDomNode& newNode );
     QDomNode removeNamedItem( const QString& name );
     QDomNode item( int index ) const;
     QDomNode namedItemNS( const QString& nsURI, const QString& localName ) const;
-    QDomNode setNamedItemNS( const QDomNode& arg );
+    QDomNode setNamedItemNS( const QDomNode& newNode );
     QDomNode removeNamedItemNS( const QString& nsURI, const QString& localName );
 
     // DOM read only attributes

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#51 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#52 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -207,6 +207,7 @@ public:
     QDomNodePrivate* namedItem( const QString& name ) const;
     QDomNodePrivate* namedItemNS( const QString& nsURI, const QString& localName ) const;
     QDomNodePrivate* setNamedItem( QDomNodePrivate* arg );
+    QDomNodePrivate* setNamedItemNS( QDomNodePrivate* arg );
     QDomNodePrivate* removeNamedItem( const QString& name );
     QDomNodePrivate* item( int index ) const;
     uint length() const;
@@ -2395,11 +2396,21 @@ QDomNodePrivate* QDomNamedNodeMapPrivate::namedItem( const QString& name ) const
     return p;
 }
 
-QDomNodePrivate* QDomNamedNodeMapPrivate::namedItemNS( const QString& /*nsURI*/, const QString& /*localName*/ ) const
+QDomNodePrivate* QDomNamedNodeMapPrivate::namedItemNS( const QString& nsURI, const QString& localName ) const
 {
-    // #############################
-    QDomNodePrivate* p = 0;
-    return p;
+    QDictIterator<QDomNodePrivate> it( map );
+    QDomNodePrivate *n = it.current();
+    while ( n ) {
+	if ( !n->prefix.isNull() ) {
+	    // node has a namespace
+	    if ( n->namespaceURI==nsURI && n->name==localName ) {
+		return n;
+	    }
+	}
+	++it;
+	n = it.current();
+    }
+    return 0;
 }
 
 QDomNodePrivate* QDomNamedNodeMapPrivate::setNamedItem( QDomNodePrivate* arg )
@@ -2410,10 +2421,32 @@ QDomNodePrivate* QDomNamedNodeMapPrivate::setNamedItem( QDomNodePrivate* arg )
     if ( appendToParent )
 	return parent->appendChild( arg );
 
+    QDomNodePrivate *n = map[ arg->nodeName() ];
     // We take a reference
     arg->ref();
     map.insert( arg->nodeName(), arg );
-    return arg;
+    return n;
+}
+
+QDomNodePrivate* QDomNamedNodeMapPrivate::setNamedItemNS( QDomNodePrivate* arg )
+{
+    if ( readonly || !arg )
+	return 0;
+
+    if ( appendToParent )
+	return parent->appendChild( arg );
+
+    if ( !arg->prefix.isNull() ) {
+	// node has a namespace
+	QDomNodePrivate *n = namedItemNS( arg->namespaceURI, arg->name );
+	// We take a reference
+	arg->ref();
+	map.insert( arg->nodeName(), arg );
+	return n;
+    } else {
+	// ### check the following code if it is ok
+	return setNamedItem( arg );
+    }
 }
 
 QDomNodePrivate* QDomNamedNodeMapPrivate::removeNamedItem( const QString& name )
@@ -2581,9 +2614,9 @@ QDomNode QDomNamedNodeMap::namedItem( const QString& name ) const
   Inserts the node \a newNode in the map. The key for the map is the node name
   of \a newNode as returned by QDomNode::nodeName().
 
-  The function returns the newly inserted node.
+  If the new node replaces an existing node, the replaced node is returned.
 
-  \sa removeNamedItem()
+  \sa namedItem() removeNamedItem() setNamedItemNS()
 */
 QDomNode QDomNamedNodeMap::setNamedItem( const QDomNode& newNode )
 {
@@ -2598,7 +2631,7 @@ QDomNode QDomNamedNodeMap::setNamedItem( const QDomNode& newNode )
   The function returns the removed node or a null node
   if the map did not contain a node with the name \a name.
 
-  \sa setNamedItem()
+  \sa setNamedItem() namedItem() removeNamedItemNS()
 */
 QDomNode QDomNamedNodeMap::removeNamedItem( const QString& name )
 {
@@ -2637,19 +2670,39 @@ QDomNode QDomNamedNodeMap::namedItemNS( const QString& nsURI, const QString& loc
 }
 
 /*!
-  fnord
+  Inserts the node \a newNode in the map. If a node with the same namespace URI
+  and the same local name already exists in the map, it is replaced by \a
+  newNode.
+
+  If the new node replaces an existing node, the replaced node is returned.
+
+  \sa namedItemNS() removeNamedItemNS() setNamedItem()
 */
-QDomNode QDomNamedNodeMap::setNamedItemNS( const QDomNode& /*arg*/ )
+QDomNode QDomNamedNodeMap::setNamedItemNS( const QDomNode& newNode )
 {
-    return QDomNode();
+    if ( !impl )
+	return QDomNode();
+    return QDomNode( IMPL->setNamedItemNS( (QDomNodePrivate*)newNode.impl ) );
 }
 
 /*!
-  fnord
+  Removes the node with the local name \a localName and the namespace URI \a
+  nsURI from the map.
+
+  The function returns the removed node or a null node if the map did not
+  contain a node with the local name \a localName and the namespace URI \a
+  nsURI.
+
+  \sa setNamedItemNS() namedItemNS() removeNamedItem()
 */
-QDomNode QDomNamedNodeMap::removeNamedItemNS( const QString& /*nsURI*/, const QString& /*localName*/ )
+QDomNode QDomNamedNodeMap::removeNamedItemNS( const QString& nsURI, const QString& localName )
 {
-    return QDomNode();
+    if ( !impl )
+	return QDomNode();
+    QDomNodePrivate *n = IMPL->namedItemNS( nsURI, localName );
+    if ( !n )
+	return QDomNode();
+    return QDomNode( IMPL->removeNamedItem( n->name ) );
 }
 
 /*!
