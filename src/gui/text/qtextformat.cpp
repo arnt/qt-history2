@@ -583,8 +583,8 @@ void QTextFormatGroup::setCommonFormat(const QTextFormat &format)
 
 void QTextFormatGroup::insertBlock(const QTextBlockIterator &block)
 {
-    d->blocks.append(block);
-    qBubbleSort(d->blocks);
+    QTextFormatGroupPrivate::BlockList::Iterator it = qLowerBound(d->blocks.begin(), d->blocks.end(), block);
+    d->blocks.insert(it, block);
 }
 
 void QTextFormatGroup::removeBlock(const QTextBlockIterator &block)
