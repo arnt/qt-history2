@@ -111,7 +111,7 @@ QPtrDict<void> unhandled_dialogs;             //all unhandled dialogs (ie mac fi
 static bool qt_closed_popup = FALSE;
 EventRef qt_replay_event = NULL;
 
-//#define QMAC_CAN_WAIT_FOREVER // idle handling
+#define QMAC_CAN_WAIT_FOREVER // idle handling
 #ifdef QMAC_CAN_WAIT_FOREVER 
 static EventLoopTimerRef mac_idle_timer = NULL;
 #endif
@@ -891,8 +891,7 @@ bool QApplication::processNextEvent( bool canWait )
 	    }
 
 #ifdef QMAC_CAN_WAIT_FOREVER
-	    ret = ReceiveNextEvent( GetEventTypeCount(events), events, 
-				    canWait ? kEventDurationForever : QMAC_EVENT_NOWAIT,  TRUE, &event );
+	    ret = ReceiveNextEvent( 0, 0, canWait ? kEventDurationForever : QMAC_EVENT_NOWAIT,  TRUE, &event );
 #else
 	    ret = ReceiveNextEvent( GetEventTypeCount(events), events, QMAC_EVENT_NOWAIT, TRUE, &event );
 #endif
