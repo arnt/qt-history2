@@ -34,7 +34,7 @@ its operation, and also allows very large data sources to be read.
 
 
 /*!
-    Construct an RSSListing widget with a simple user interface, and set
+    Constructs an RSSListing widget with a simple user interface, and sets
     up the XML reader to use a custom handler class.
 
     The user interface consists of a line edit, two push buttons, and a
@@ -163,7 +163,7 @@ void RSSListing::readData(const QHttpResponseHeader &resp)
 }
 
 /*!
-    Finish processing an HTTP request.
+    Finishes processing an HTTP request.
 
     The default behavior is to keep the text edit read only.
 
@@ -198,7 +198,7 @@ void RSSListing::finished(int id, bool error)
 }
 
 /*!
-    Add an item to the list view as it is reported by the handler.
+    Adds an item to the list view as it is reported by the handler.
 
     We keep a record of the last item created to ensure that the
     items are created in sequence.
