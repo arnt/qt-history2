@@ -39,17 +39,17 @@ public:
             int i;
         };
     };
-
-    typedef void callback(QVector<int> &leaf, const QRect &area, uint visited, QBinTree::Data data);
+    typedef typename QBinTree::Data QBinTreeData;
+    typedef void callback(QVector<int> &leaf, const QRect &area, uint visited, QBinTreeData data);
 
     inline QBinTree() : depth_(6), visited(0) {}
 
     void create(int n);
     void destroy();
-    static void insert(QVector<int> &leaf, const QRect &area, uint visited, QBinTree::Data data);
-    static void remove(QVector<int> &leaf, const QRect &area, uint visited, QBinTree::Data data);
+    static void insert(QVector<int> &leaf, const QRect &area, uint visited, QBinTreeData data);
+    static void remove(QVector<int> &leaf, const QRect &area, uint visited, QBinTreeData data);
 
-    inline void climbTree(const QRect &rect, callback *function, QBinTree::Data data);
+    inline void climbTree(const QRect &rect, callback *function, QBinTreeData data);
 
     inline void init(const QRect &area, NodeType type);
     inline void reserve(int size);
@@ -78,7 +78,7 @@ public:
     inline int firstChildIndex(int idx) const;
 
 private:
-    void climbTree(const QRect &rect, callback *function, QBinTree<T>::Data data, int index);
+    void climbTree(const QRect &rect, callback *function, QBinTreeData data, int index);
     void init(const QRect &area, int depth, NodeType type, int index);
 
     uint depth_ : 8;
@@ -89,7 +89,7 @@ private:
 };
 
 template <class T>
-void QBinTree<T>::climbTree(const QRect &rect, callback *function, QBinTree<T>::Data data)
+void QBinTree<T>::climbTree(const QRect &rect, callback *function, QBinTreeData data)
 {
     ++visited;
     climbTree(rect, function, data, 0);

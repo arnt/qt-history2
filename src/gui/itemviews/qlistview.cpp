@@ -48,13 +48,13 @@ void QBinTree<T>::destroy()
 }
 
 template <class T>
-void QBinTree<T>::insert(QVector<int> &leaf, const QRect &, uint, QBinTree::Data data)
+void QBinTree<T>::insert(QVector<int> &leaf, const QRect &, uint, QBinTreeData data)
 {
     leaf.push_back(data.i);
 }
 
 template <class T>
-void QBinTree<T>::remove(QVector<int> &leaf, const QRect &, uint, QBinTree::Data data)
+void QBinTree<T>::remove(QVector<int> &leaf, const QRect &, uint, QBinTreeData data)
 {
     int idx = data.i;
     for (int i = 0; i < leaf.count(); ++i) {
@@ -68,7 +68,7 @@ void QBinTree<T>::remove(QVector<int> &leaf, const QRect &, uint, QBinTree::Data
 }
 
 template <class T>
-void QBinTree<T>::climbTree(const QRect &area, callback *function, QBinTree::Data data, int index)
+void QBinTree<T>::climbTree(const QRect &area, callback *function, QBinTreeData data, int index)
 {
     int tvs = nodeCount();
     if (index >= tvs) { // leaf
