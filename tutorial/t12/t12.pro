@@ -7,3 +7,4 @@ SOURCES		= cannon.cpp \
 		  main.cpp
 TARGET		= t12
 REQUIRES=full-config
+unix:LIBS += -lm
