@@ -2181,8 +2181,8 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                             const int qFixedLength = fixed_length / sizeof(UniChar);
                             QList<QInputMethodEvent::Attribute> attrs;
                             attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat,
-                                                                  qFixedLength, text.length()-qFixedLength,
-                                                                  doc->editingFormat());
+                                           qFixedLength, text.length()-qFixedLength,
+                                           qVariant(doc->editingFormat()));
                             QInputMethodEvent e(text, attrs);
                             e.setCommitString(text.left(qFixedLength), 0, qFixedLength);
                             QApplication::sendSpontaneousEvent(doc->inputWidget(), &e);
@@ -2190,7 +2190,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                         } else {
                             QList<QInputMethodEvent::Attribute> attrs;
                             attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat,
-                                                                  0, text.length(), doc->editingFormat());
+                                           0, text.length(), qVariant(doc->editingFormat()));
                             QInputMethodEvent e(text, attrs);
                             QApplication::sendSpontaneousEvent(doc->inputWidget(), &e);
                             handled_event = true;
@@ -2199,7 +2199,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 } else {
                     QList<QInputMethodEvent::Attribute> attrs;
                     attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat,
-                                                          0, text.length(), doc->editingFormat());
+                                           0, text.length(), qVariant(doc->editingFormat()));
                     QInputMethodEvent e(text, attrs);
                     QApplication::sendSpontaneousEvent(widget, &e);
                     handled_event = true;
