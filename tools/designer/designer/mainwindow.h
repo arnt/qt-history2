@@ -111,7 +111,7 @@ public:
 
     QString templatePath() const { return templPath; }
 
-    void editFunction( const QString &func, const QString &l = QString::null, bool rereadSource = FALSE );
+    void editFunction( const QString &func, bool rereadSource = FALSE );
 
     bool isPreviewing() const { return previewing; }
 
@@ -241,7 +241,11 @@ public slots:
     void editConnections();
     SourceEditor *editSource();
     SourceEditor *editSource( SourceFile *f );
-    SourceEditor *openSourceEdior();
+    SourceEditor *openSourceEditor();
+    SourceEditor *createSourceEditor( QObject *object, Project *project,
+				      const QString &lang = QString::null,
+				      const QString &func = QString::null,
+				      bool rereadSource = FALSE );
     void editFormSettings();
     void editProjectSettings();
     void editPixmapCollection();

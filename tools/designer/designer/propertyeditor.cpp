@@ -3964,8 +3964,7 @@ void EventList::renamed( QListViewItem *i )
 	MetaDataBase::addFunction( formWindow, funcname.latin1(), "virtual", "public",
 				   "slot", formWindow->project()->language(), "void" );
 	editor->formWindow()->mainWindow()->
-	    editFunction( i->text( 0 ).left( i->text( 0 ).find( "(" ) ),
-			  editor->formWindow()->project()->language(), TRUE );
+	    editFunction( i->text( 0 ).left( i->text( 0 ).find( "(" ) ), TRUE );
 	cmd->execute();
 	editor->formWindow()->mainWindow()->objectHierarchy()->updateFormDefinitionView();
 	editor->formWindow()->formFile()->setModified( TRUE );

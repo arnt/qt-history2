@@ -2533,7 +2533,7 @@ bool MainWindow::openEditor( QWidget *w, FormWindow *f )
 		    }
 		}
 	    }
-	    editFunction( s, f->project()->language(), TRUE );
+	    editFunction( s, TRUE );
 	}
 	return TRUE;
     }
@@ -2882,49 +2882,23 @@ void MainWindow::setupActionManager()
     }
 }
 
-void MainWindow::editFunction( const QString &func, const QString &l, bool rereadSource )
+void MainWindow::editFunction( const QString &func, bool rereadSource )
 {
     if ( !formWindow() )
 	return;
+
     if ( formWindow()->formFile()->codeFileState() != FormFile::Ok )
-	if ( !formWindow()->formFile()->setupUihFile() )
+	if ( !formWindow()->formFile()->setupUihFile(FALSE) )
 	    return;
-
-    SourceEditor *editor = 0;
-    QString lang = l;
-    if ( lang.isEmpty() )
-	lang = MetaDataBase::languageOfFunction( formWindow(), func.latin1() );
-    if ( !MetaDataBase::hasEditor( lang ) )
+    
+    QString lang = currentProject->language();
+    if ( !MetaDataBase::hasEditor( lang ) ) {
+	QMessageBox::information( this, tr( "Edit Source" ),
+				  tr( "There is no plugin for editing " + lang + " code installed" ) );
 	return;
-    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
-	if ( e->language() == lang && e->object() == formWindow() ) {
-	    editor = e;
-	    break;
-	}
     }
-    if ( !editor ) {
-	EditorInterface *eIface = 0;
-	editorPluginManager->queryInterface( lang, &eIface );
-	if ( !eIface )
-	    return;
-	LanguageInterface *lIface = MetaDataBase::languageInterface( lang );
-	if ( !lIface )
-	    return;
-	editor = new SourceEditor( qWorkspace(), eIface, lIface );
-	eIface->release();
-	lIface->release();
-
-	editor->setLanguage( lang );
-	sourceEditors.append( editor );
-    }
-    if ( editor->object() != formWindow() )
-	editor->setObject( formWindow(), formWindow()->project() );
-    else if ( rereadSource )
-	editor->refresh( FALSE );
-    editor->show();
-    editor->setFocus();
-    editor->setFunction( func );
-    emit editorChanged();
+ 
+    createSourceEditor( formWindow(), formWindow()->project(), lang, func, rereadSource );
 }
 
 void MainWindow::setupRecentlyFilesMenu()

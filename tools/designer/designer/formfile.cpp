@@ -49,11 +49,11 @@ static QString make_func_pretty( const QString &s )
 FormFile::FormFile( const QString &fn, bool temp, Project *p, const char *name )
     : filename( fn ), fileNameTemp( temp ), pro( p ), fw( 0 ), ed( 0 ),
       timeStamp( 0, fn + codeExtension() ), codeEdited( FALSE ), pkg( FALSE ),
-      cm( FALSE )
+      cm( FALSE ), codeFileStat( None )
 {
     MetaDataBase::addEntry( this );
     fake = qstrcmp( name, "qt_fakewindow" ) == 0;
-    codeFileStat = FormFile::None;
+    //codeFileStat = FormFile::None;
     pro->addFormFile( this );
     loadCode();
     if ( !temp )
@@ -448,8 +448,7 @@ SourceEditor *FormFile::showEditor( bool askForUih )
     showFormWindow();
     if ( !setupUihFile( askForUih ) )
 	return 0;
-    SourceEditor *e = MainWindow::self->openSourceEdior();
-    return e;
+    return MainWindow::self->openSourceEditor();
 }
 
 static int ui_counter = 0;
@@ -485,7 +484,7 @@ bool FormFile::hasFormCode() const
 
 int FormFile::codeFileState() const
 {
-    return codeFileStat;
+    return hasFormCode() ? codeFileStat : None;
 }
 
 void FormFile::setCodeFileState( UihState s )
@@ -532,7 +531,7 @@ bool FormFile::loadCode()
     cod = ts.read();
     parseCode( cod, FALSE );
     if ( hasFormCode() && codeFileStat != FormFile::Ok )
-	    setCodeFileState( FormFile::Deleted );
+	setCodeFileState( FormFile::Deleted );
     timeStamp.update();
     return TRUE;
 }

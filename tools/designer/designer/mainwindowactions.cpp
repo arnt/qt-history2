@@ -1722,82 +1722,80 @@ SourceEditor *MainWindow::editSource()
     return formWindow()->formFile()->showEditor();
 }
 
-SourceEditor *MainWindow::openSourceEdior()
+SourceEditor *MainWindow::openSourceEditor()
 {
     if ( !formWindow() )
 	return 0;
-    SourceEditor *editor = 0;
+    
     QString lang = currentProject->language();
     if ( !MetaDataBase::hasEditor( lang ) ) {
-	QMessageBox::information( this, tr( "Edit Source" ),
+	QMessageBox::information( this, tr( "Open Source Editor" ),
 				  tr( "There is no plugin for editing " + lang + " code installed" ) );
 	return 0;
     }
+
+    SourceEditor *editor = 0;
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
 	if ( e->language() == lang && e->object() == formWindow() ) {
 	    editor = e;
 	    break;
 	}
     }
-    if ( !editor ) {
-	EditorInterface *eIface = 0;
-	editorPluginManager->queryInterface( lang, &eIface );
-	if ( !eIface )
-	    return 0;
-	LanguageInterface *lIface = MetaDataBase::languageInterface( lang );
-	if ( !lIface )
-	    return 0;
-	QApplication::setOverrideCursor( WaitCursor );
-	editor = new SourceEditor( qWorkspace(), eIface, lIface );
-	eIface->release();
-	lIface->release();
 
-	editor->setLanguage( lang );
-	sourceEditors.append( editor );
-	QApplication::restoreOverrideCursor();
-    }
-    if ( editor->object() != formWindow() )
-	editor->setObject( formWindow(), formWindow()->project() );
-    editor->show();
-    editor->setFocus();
-    emit editorChanged();
+    if ( !editor )
+	editor = createSourceEditor( formWindow(), formWindow()->project(), lang );
     return editor;
 }
 
 SourceEditor *MainWindow::editSource( SourceFile *f )
 {
-    SourceEditor *editor = 0;
-    QString lang = currentProject->language();
+    QString lang = currentProject->language(); 
     if ( !MetaDataBase::hasEditor( lang ) ) {
 	QMessageBox::information( this, tr( "Edit Source" ),
 				  tr( "There is no plugin for edit " + lang + " code installed" ) );
 	return 0;
     }
+
+    SourceEditor *editor = 0;
     if ( f )
 	editor = f->editor();
+    if ( !editor )
+	editor = createSourceEditor( f, currentProject, lang );
+    return editor;
+}
 
-    if ( !editor ) {
-	EditorInterface *eIface = 0;
-	editorPluginManager->queryInterface( lang, &eIface );
-	if ( !eIface )
-	    return 0;
-	LanguageInterface *lIface = MetaDataBase::languageInterface( lang );
-	if ( !lIface )
-	    return 0;
-	QApplication::setOverrideCursor( WaitCursor );
-	editor = new SourceEditor( qWorkspace(), eIface, lIface );
-	eIface->release();
-	lIface->release();
+SourceEditor *MainWindow::createSourceEditor( QObject *object, Project *project,
+					      const QString &lang, const QString &func,
+					      bool rereadSource )
+{
+    SourceEditor *editor = 0;
+    EditorInterface *eIface = 0;
+    editorPluginManager->queryInterface( lang, &eIface );
+    if ( !eIface )
+	return 0;
+    LanguageInterface *lIface = MetaDataBase::languageInterface( lang );
+    if ( !lIface )
+	return 0;
+    QApplication::setOverrideCursor( WaitCursor );
+    editor = new SourceEditor( qWorkspace(), eIface, lIface );
+    eIface->release();
+    lIface->release();
+    
+    editor->setLanguage( lang );
+    sourceEditors.append( editor );
+    QApplication::restoreOverrideCursor();
 
-	editor->setLanguage( lang );
-	sourceEditors.append( editor );
-	QApplication::restoreOverrideCursor();
-    }
-    if ( editor->object() != f )
-	editor->setObject( f, currentProject );
+    if ( editor->object() != object )
+	editor->setObject( object, project );
+    else if ( rereadSource )
+	editor->refresh( FALSE );
+    
     editor->show();
     editor->setFocus();
+    if ( !func.isEmpty() )
+	editor->setFunction( func );
     emit editorChanged();
+    
     return editor;
 }
 
