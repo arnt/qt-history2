@@ -38,7 +38,7 @@ QFixedPoint sqrt(QFixedPoint  x)
     return QFixedPoint(root, QFixedPoint::FixedPoint);
 }
 
-#ifdef __i386__
+#if defined (__i386__) && !defined (Q_CC_BOR)
 inline double qCos(double a)
 {
     double r;
@@ -99,7 +99,7 @@ QFixedPoint cos(QFixedPoint f)
     return qCos(f.toDouble());
 }
 
-#ifdef __i386__
+#if defined (__i386__) && !defined (Q_CC_BOR)
 inline double qACos(double x)
 {
     // #####
@@ -196,7 +196,7 @@ QFixedPointLong cos(QFixedPointLong f)
     return qCos(f.toDouble());
 }
 
-#ifdef __i386__
+#if defined (__i386__) && !defined (Q_CC_BOR)
 QFixedPointLong acos(QFixedPointLong f)
 {
     return QFixedPointLong(qACos(f.toDouble()));
