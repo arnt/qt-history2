@@ -39,7 +39,6 @@ public:
             QFont fnt("times", 75);
             QRect r = QFontMetrics(fnt).boundingRect("Trolltech");
             path->addText(-r.center()+QPoint(50,140), fnt, "Trolltech");
-
         }
     }
 
@@ -57,10 +56,10 @@ public:
             p->setBrush(color);
         switch (shape) {
         case Circle:
-            p->drawEllipse(trans.x(), trans.y(), 100, 100);
+            p->drawEllipse(trans.x(), trans.y(), 99, 99);
             break;
         case Rectangle:
-            p->drawRect(trans.x(), trans.y(), 100, 100);
+            p->drawRect(trans.x(), trans.y(), 99, 99);
             break;
         case Path:
             p->drawPath(*path * QMatrix(1, 0, 0, 1, trans.x(), trans.y()));
@@ -77,6 +76,7 @@ public:
             break;
         case Path:
             r = path->boundingRect().toRect();
+            r.addCoords(-1, -1, 1, 1);
             r.translate(trans);
             break;
         }
@@ -162,7 +162,12 @@ void Items::mousePressEvent(QMouseEvent *event)
     if (!itemBrOrig.isEmpty())
         drawItems(itemBrOrig);
     itemBrOrig = itemBr;
-    drawItems(itemBr);
+
+
+    QPainter px(&buffer);
+    items.last()->draw(&px);
+    px.end();
+
     update();
 }
 
@@ -202,12 +207,9 @@ void Items::drawItems(const QRect &rect)
 
     QRect clip = rect;
     if (!clip.isEmpty()) {
-        clip.addCoords(-1,-1,1,1);
-        px.setClipRect(rect);
+        px.setClipRect(clip);
     }
     fillBackground(&px);
-//     if (attribs()->antialias)
-//         px.setRenderHint(QPainter::LineAntialiasing);
     for (int i = 0; i < items.size(); ++i) {
         if (clip.isEmpty() || items[i]->boundingRect().intersects(clip))
             items[i]->draw(&px);
