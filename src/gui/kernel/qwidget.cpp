@@ -1636,6 +1636,13 @@ bool QWidget::isEnabledTo(QWidget* ancestor) const
 
 /*!
     Appends the action \a action to this widget's list of actions.
+
+    All QWidgets have list of QActions, however they can be
+    represented graphically in many different ways. The default use of
+    the QAction list (as returned by actions()) is to create a context
+    QMenu. 
+
+    \sa removeAction() QMenu
 */
 void
 QWidget::addAction(QAction *action)
@@ -1654,6 +1661,8 @@ QWidget::addAction(QAction *action)
 /*!
     Inserts the action \a action to this widget's list of actions,
     before the action \a before.
+
+    \sa addAction()
 */
 void
 QWidget::insertAction(QAction *before, QAction *action)
