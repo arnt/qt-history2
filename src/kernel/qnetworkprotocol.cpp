@@ -1017,3 +1017,12 @@ int QNetworkOperation::errorCode() const
 {
     return d->errorCode;
 }
+
+/*!
+  \internal
+*/
+
+QByteArray& QNetworkOperation::raw( int num ) const
+{
+    return d->rawArgs[ num ];
+}

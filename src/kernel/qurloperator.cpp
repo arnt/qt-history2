@@ -981,11 +981,10 @@ void QUrlOperator::copyGotData( const QByteArray &data_, QNetworkOperation *op )
 {
     QNetworkOperation *put = d->getOpPutOpMap[ (void*)op ];
     if ( put ) {
-	QByteArray s;
-	s.resize( put->rawArg( 1 ).size() + data_.size() );
-	memcpy( s.data(), put->rawArg( 1 ).data(), put->rawArg( 1 ).size() );
-	memcpy( s.data() + put->rawArg( 1 ).size(), data_.data(), data_.size() );
- 	put->setRawArg( 1, s );
+	QByteArray &s = put->raw( 1 );
+	int size = s.size();
+	s.resize( size + data_.size() );
+	memcpy( s.data() + size, data_.data(), data_.size() );
     }
     emit data( data_, op );
 }

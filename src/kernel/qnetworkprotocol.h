@@ -131,7 +131,7 @@ public:
     QNetworkOperation *operationInProgress() const;
     virtual void clearOperationQueue();
     virtual void stop();
-    
+
 signals:
     void data( const QByteArray &, QNetworkOperation *res );
     void connectionStateChanged( int state, const QString &data );
@@ -167,6 +167,8 @@ private slots:
 struct QNetworkOperationPrivate;
 class Q_EXPORT QNetworkOperation
 {
+    friend class QUrlOperator;
+    
 public:
     QNetworkOperation( QNetworkProtocol::Operation operation,
 		    const QString &arg0, const QString &arg1,
@@ -190,6 +192,8 @@ public:
     int errorCode() const;
 
 private:
+    QByteArray &raw( int num ) const;
+    
     QNetworkOperationPrivate *d;
 
 };

@@ -259,6 +259,7 @@ void QLocalFs::operationPut( QNetworkOperation *op )
 	    if ( operationInProgress() != op )
 		return;
 	    f.writeBlock( &ba.data()[ i ], QLOCALFS_MAX_BYTES );
+	    f.flush();
 	    emit dataTransferProgress( i + QLOCALFS_MAX_BYTES, ba.size(), op );
 	    i += QLOCALFS_MAX_BYTES;
 	    qApp->processEvents();
