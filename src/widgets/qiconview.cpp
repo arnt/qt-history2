@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#161 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#162 $
 **
 ** Definition of QIconView widget class
 **
@@ -1856,6 +1856,11 @@ void QIconViewItem::calcTmpText()
   This signal is emitted, if the user doubleclicked on the item \a item.
 */
 
+/*! \fn void  QIconView::returnPressed (QIconViewItem * item)
+  This signal is emitted, if the user pressed the return or enter button.
+  \a item is the item which was current while return or enter was pressed.
+*/
+
 /*! \fn void  QIconView::itemRightPressed (QIconViewItem * item)
   This signal is emitted, if the user pressed on the item \a item using the right mouse button.
 */
@@ -1876,12 +1881,20 @@ void QIconViewItem::calcTmpText()
 */
 
 /*! \fn void  QIconView::selectionChanged ()
-  This signal is emitted when the selection has been changed.
+  This signal is emitted when the selection has been changed. It's emitted
+  in each selection mode.
 */
 
 /*! \fn void  QIconView::selectionChanged (int numItems)
   This signal is emitted when the selection has been changed.
-  \a numItems specifies the number of selected items.
+  \a numItems specifies the number of selected items. This
+  signals is only emitted in mult- and extended selection mode.
+*/
+
+/*! \fn void  QIconView::selectionChanged( QIconViewItem *item )
+  This signal is emitted when the selection has been changed. \a item
+  is the new selected item. This signal is only emitted in single
+  selection mode.  
 */
 
 /*! \fn void QIconView::currentChanged ()
@@ -1943,6 +1956,34 @@ void QIconViewItem::calcTmpText()
   either and item (then \a item is the item under the mouse cursor) or
   somewhere else (then \a item is NULL). \a button is the number of the mouse button which
   the user clicked, and \a pos the position of the mouse cursor.
+*/
+
+/*!
+  \fn void QIconView::clicked ( QIconViewItem * item, const QPoint & pos)
+  This signal is emitted when the user clicked (pressed + released) with any mouse button on
+  either and item (then \a item is the item under the mouse cursor) or
+  somewhere else (then \a item is NULL). \a pos the position of the mouse cursor.
+*/
+
+/*!
+  \fn void QIconView::pressed ( QIconViewItem * item, const QPoint & pos)
+  This signal is emitted when the user pressed with any mouse button on
+  either and item (then \a item is the item under the mouse cursor) or
+  somewhere else (then \a item is NULL). \a pos the position of the mouse cursor.
+*/
+
+/*!
+  \fn void QIconView::clicked ( QIconViewItem * item )
+  This signal is emitted when the user clicked (pressed + released) with any mouse button on
+  either and item (then \a item is the item under the mouse cursor) or
+  somewhere else (then \a item is NULL).
+*/
+
+/*!
+  \fn void QIconView::pressed ( QIconViewItem * item )
+  This signal is emitted when the user pressed with any mouse button on
+  either and item (then \a item is the item under the mouse cursor) or
+  somewhere else (then \a item is NULL).
 */
 
 /*!
@@ -4070,14 +4111,17 @@ void QIconView::emitSelectionChanged()
 
 void QIconView::emitNewSelectionNumber()
 {
-    int num = 0;
-    QIconViewItem *item = d->firstItem;
-    for ( ; item; item = item->next )
-	if ( item->isSelected() )
-	    ++num;
+    if ( d->selectionMode != Single ) {
+	int num = 0;
+	QIconViewItem *item = d->firstItem;
+	for ( ; item; item = item->next )
+	    if ( item->isSelected() )
+		++num;
 
-    emit selectionChanged( num );
-    d->numSelectedItems = num;
+	emit selectionChanged( num );
+	d->numSelectedItems = num;
+    } else
+	d->numSelectedItems = 1;
 }
 
 /*!
