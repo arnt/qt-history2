@@ -340,7 +340,7 @@ void QScrollBar::valueChange()
 {
     int tmp = sliderPos;
     positionSliderFromValue();
-    if ( tmp != sliderPos )
+    if ( tmp != sliderPos && isVisibleTo( 0 ) )
 	drawControls(QStyle::SC_ScrollBarAddPage |
 		     QStyle::SC_ScrollBarSubPage |
 		     QStyle::SC_ScrollBarSlider,
@@ -369,14 +369,16 @@ void QScrollBar::stepChange()
 void QScrollBar::rangeChange()
 {
     positionSliderFromValue();
-    drawControls(QStyle::SC_ScrollBarAddLine |
-		 QStyle::SC_ScrollBarSubLine |
-		 QStyle::SC_ScrollBarAddPage |
-		 QStyle::SC_ScrollBarSubPage |
-		 QStyle::SC_ScrollBarFirst   |
-		 QStyle::SC_ScrollBarLast    |
-		 QStyle::SC_ScrollBarSlider,
-		 pressedControl );
+
+    if ( isVisibleTo( 0 ) )
+	drawControls(QStyle::SC_ScrollBarAddLine |
+		     QStyle::SC_ScrollBarSubLine |
+		     QStyle::SC_ScrollBarAddPage |
+		     QStyle::SC_ScrollBarSubPage |
+		     QStyle::SC_ScrollBarFirst   |
+		     QStyle::SC_ScrollBarLast    |
+		     QStyle::SC_ScrollBarSlider,
+		     pressedControl );
 }
 
 
