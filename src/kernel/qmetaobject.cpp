@@ -917,6 +917,8 @@ bool QMetaProperty::stored( QObject* o ) const
   \internal
 */
 
+#endif // QT_NO_PROPERTIES
+
 /*!
   \class QMetaObjectCleanUp
 */
@@ -950,4 +952,3 @@ void QMetaObjectCleanUp::setMetaObject( QMetaObject *mo )
     metaObject = mo;
 }
 
-#endif // QT_NO_PROPERTIES
