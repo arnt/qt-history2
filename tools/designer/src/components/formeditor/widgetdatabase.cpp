@@ -204,7 +204,7 @@ void WidgetDataBase::loadPlugins()
     
     QStringList plugins = pluginManager.registeredPlugins();
     
-    QListMutableIterator<AbstractWidgetDataBaseItem *> it(m_items);
+    QMutableListIterator<AbstractWidgetDataBaseItem *> it(m_items);
     while (it.hasNext()) {
         AbstractWidgetDataBaseItem *item = it.next();
         

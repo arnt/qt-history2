@@ -307,7 +307,7 @@ QString Ui3Reader::fixActionProperties(QList<DomProperty*> &properties,
     QString objectName;
     bool hasMenuText = false;
 
-    QListMutableIterator<DomProperty*> it(properties);
+    QMutableListIterator<DomProperty*> it(properties);
     while (it.hasNext()) {
         DomProperty *prop = it.next();
         QString name = prop->attributeName();

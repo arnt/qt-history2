@@ -251,7 +251,7 @@ void QMapData::dump()
 
     If you want to navigate through all the (key, value) pairs stored
     in a QMap, you can use an iterator. QMap provides both
-    \l{Java-style iterators} (QMapIterator and QMapMutableIterator)
+    \l{Java-style iterators} (QMapIterator and QMutableMapIterator)
     and \l{STL-style iterators} (QMap::const_iterator and
     QMap::iterator). Here's how to iterate over a QMap<QString, int>
     using a Java-style iterator:
@@ -302,7 +302,7 @@ void QMapData::dump()
     recently to least recently inserted.
 
     A more efficient approach is to use QMapIterator::findNextKey() or
-    QMapMutableIterator::findNextKey():
+    QMutableMapIterator::findNextKey():
 
     \code
         QMapIterator<QString, int> i(map);
@@ -334,7 +334,7 @@ void QMapData::dump()
 
     Items can be removed from the map in several ways. One way is to
     call remove(); this will remove any item with the given key.
-    Another way is to use QMapMutableIterator::remove(). In addition,
+    Another way is to use QMutableMapIterator::remove(). In addition,
     you can clear the entire map using clear().
 
     QMap's key and value data types must be \l{assignable data
@@ -375,7 +375,7 @@ void QMapData::dump()
     In the example, we start by comparing the employees' names. If
     they're equal, we compare their dates of birth to break the tie.
 
-    \sa QMapIterator, QMapMutableIterator, QHash
+    \sa QMapIterator, QMutableMapIterator, QHash
 */
 
 /*! \fn QMap::QMap()
@@ -952,7 +952,7 @@ void QMapData::dump()
     items from the map, iterators that point to the removed items
     will become dangling iterators.
 
-    \sa QMap::const_iterator, QMapMutableIterator
+    \sa QMap::const_iterator, QMutableMapIterator
 */
 
 /*! \fn QMap::iterator::operator QMapData::Node *() const
@@ -1441,7 +1441,7 @@ void QMapData::dump()
     recently to least recently inserted.
 
     A more efficient approach is to use QMapIterator::findNextKey() or
-    QMapMutableIterator::findNextKey():
+    QMutableMapIterator::findNextKey():
 
     \code
         QMapIterator<QString, int> i(map);
@@ -1467,7 +1467,7 @@ void QMapData::dump()
     value; instead, store a QWidget *. In addition, QMultiMap's key type
     must provide operator<(). See the QMap documentation for details.
 
-    \sa QMap, QMapIterator, QMapMutableIterator, QMultiMap
+    \sa QMap, QMapIterator, QMutableMapIterator, QMultiMap
 */
 
 /*! \fn QMultiMap::QMultiMap()

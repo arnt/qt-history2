@@ -1083,7 +1083,7 @@ QIODevice::Status QIODevice::status() const
     const QFile *f = qt_cast<const QFile *>(this);
     if (f) return (int) f->error();
 #endif
-    return isOpen() ? IO_Ok : IO_UnspecifiedError;
+    return isOpen() ? 0 /* IO_Ok */ : 8 /* IO_UnspecifiedError */;
 }
 
 void QIODevice::resetStatus()

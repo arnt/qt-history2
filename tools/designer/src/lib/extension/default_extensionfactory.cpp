@@ -44,7 +44,7 @@ QObject *DefaultExtensionFactory::extension(QObject *object, const QString &iid)
 
 void DefaultExtensionFactory::objectDestroyed(QObject *object)
 {
-    QMapMutableIterator< QPair<QString,QObject*>, QObject*> it(m_extensions);
+    QMutableMapIterator< QPair<QString,QObject*>, QObject*> it(m_extensions);
     while (it.hasNext()) {
         it.next();
 

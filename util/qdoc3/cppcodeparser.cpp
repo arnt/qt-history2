@@ -1207,7 +1207,7 @@ void CppCodeParser::createExampleFileNodes(FakeNode *fake)
     if (!exampleFiles.isEmpty()) {
         // move main.cpp and to the end, if it exists
         QString mainCpp;
-        QStringListMutableIterator i(exampleFiles);
+        QMutableStringListIterator i(exampleFiles);
         i.toBack();
         while (i.hasPrevious()) {
             QString fileName = i.previous();

@@ -419,6 +419,6 @@ QLinkedList<T> QLinkedList<T>::operator+(const QLinkedList<T> &l) const
     return n;
 }
 
-Q_DECLARE_ITERATOR(QLinkedList)
+Q_DECLARE_ITERATOR(LinkedList)
 
 #endif // QLINKEDLIST_H

@@ -117,7 +117,7 @@
         <ul>
         <li><a href="threads.html">Multithreaded Programming</a></li>
         <li><a href="qt4-mainwindow.html">Main Window Architecture</a></li>
-        <li><a href="richtext.html">Rich Text Rendering</a></li>
+        <li><a href="richtext.html">Rich Text Processing</a></li>
         <li><a href="model-view-programming.html">Model/View Programming</a></li>
         <li><a href="sql.html">SQL Module</a></li>
         <li><a href="networking.html">Network Module</a></li>

@@ -20,6 +20,7 @@
     more complete in Qt 4.0 beta 2 and in the final release.
 
 \omit
+    ### QFileInfo::PermissionSpec -> QFile::Permission(s?)
     ### refer to porting4-renamedfunctions.qdoc
     ### QApplication library mutex is gone
     ### no integral conversion for containers? strings?
@@ -1327,7 +1328,7 @@
     Finally, \c QDictIterator<T> (renamed Q3DictIterator<T>) must
     also be ported. There are no fewer than four iterator classes
     that can be used as a replacement: QHash::const_iterator,
-    QHash::iterator, QHashIterator, and QHashMutableIterator. The
+    QHash::iterator, QHashIterator, and QMutableHashIterator. The
     most straightforward class to use when porting is
     QHashIterator<QString, T *>. The following table summarizes the
     API differences:
@@ -1867,7 +1868,13 @@
 
     \section1 QLabel
 
-    See \l{#virtual.functions}{Virtual Functions} for a list of
+    QLabel doesn't enable word-wrap automatically anymore when the
+    text is richtext. You can enable it by calling
+    QLabel::setWordWrap() or by setting the
+    \l{QLabel::wordWrap}{wordWrap} property. The reason for this
+    change is that the old behavior was confusing to many users.
+
+    See also \l{#virtual.functions}{Virtual Functions} for a list of
     QLabel virtual member functions in Qt 3 that are no longer
     virtual in Qt 4.
 
@@ -2374,7 +2381,7 @@
 
         \o
         \code
-        QListMutableIterator<T *> i;
+        QMutableListIterator<T *> i;
         ...
         delete i.value();
         i.remove();
@@ -2414,7 +2421,7 @@
     QPtrList had the concept of a "current item", which could be used
     for traversing the list without using an iterator. When porting
     to Qt 4, you can use the Java-style QListIterator<T *> (or
-    QListMutableIterator<T *>) class instead. The following table
+    QMutableListIterator<T *>) class instead. The following table
     summarizes the API differences:
 
     \table
@@ -2428,8 +2435,8 @@
     \row \o QPtrList::last() \o QPtrList::toBack()
     \row \o QPtrList::next() \o QPtrList::next()
     \row \o QPtrList::prev() \o QPtrList::previous()
-    \row \o QPtrList::remove() \o QListMutableIterator::remove()
-    \row \o QPtrList::take() \o QListMutableIterator::remove()
+    \row \o QPtrList::remove() \o QMutableListIterator::remove()
+    \row \o QPtrList::take() \o QMutableListIterator::remove()
     \endtable
 
     Be aware that QListIterator has a different way of iterating than
@@ -2457,8 +2464,8 @@
     Finally, QPtrListIterator<T> must also be ported. There are no
     fewer than four iterator classes that can be used as a
     replacement: QList::const_iterator, QList::iterator,
-    QListIterator, and QListMutableIterator. The most straightforward
-    class to use when porting is QListMutableIterator<T *> (if you
+    QListIterator, and QMutableListIterator. The most straightforward
+    class to use when porting is QMutableListIterator<T *> (if you
     modify the list through the iterator) or QListIterator<T *> (if
     you don't). The following table summarizes the API differences:
 

@@ -660,7 +660,7 @@ DomWidget *Resource::createDom(QWidget *widget, DomWidget *ui_parentWidget, bool
 
         // layouts
         QList<DomLayout*> ui_layouts;
-        QListMutableIterator<QObject*> lay_it(children);
+        QMutableListIterator<QObject*> lay_it(children);
         while (lay_it.hasNext()) {
             QObject *obj = lay_it.next();
             if (!qt_cast<QLayout*>(obj))

@@ -206,9 +206,9 @@ sub classNames {
 		push @symbols, $2;
             } elsif($definition =~ m/^ *(template *<.*> *)?(class|struct) +([^ ]* +)?([^<\s]+) ?(<[^>]*> ?)? *((,|:) *(public|private) *.*)? *\{\}$/) {
 		push @symbols, $4;
-            } elsif($definition =~ m/^Q_DECLARE_ITERATOR\((.*)\);$/) {
-		push @symbols, $1 . "Iterator";
-		push @symbols, $1 . "MutableIterator";
+            } elsif($definition =~ m/^Q_DECLARE_.*ITERATOR\((.*)\);$/) {
+		push @symbols, "Q" . $1 . "Iterator";
+		push @symbols, "QMutable" . $1 . "Iterator";
 	    }
 	    
 	    foreach (@symbols) {

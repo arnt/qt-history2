@@ -1503,7 +1503,7 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtCore</Library>
-        <Name>QStringListMutableIterator</Name>
+        <Name>QMutableStringListIterator</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtCore</Library>
@@ -4552,7 +4552,7 @@
     <item Type="qt4Header" >QString</item>
     <item Type="qt4Header" >QStringList</item>
     <item Type="qt4Header" >QStringListIterator</item>
-    <item Type="qt4Header" >QStringListMutableIterator</item>
+    <item Type="qt4Header" >QMutableStringListIterator</item>
     <item Type="qt4Header" >QStringMatcher</item>
     <item Type="qt4Header" >QStyle</item>
     <item Type="qt4Header" >QStyleFactory</item>

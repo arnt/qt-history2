@@ -324,7 +324,7 @@ void QLayoutSupport::removeRow(int row)
     QHash<QLayoutItem*, QRect> infos;
     computeGridLayout(&infos);
 
-    QHashMutableIterator<QLayoutItem*, QRect> it(infos);
+    QMutableHashIterator<QLayoutItem*, QRect> it(infos);
     while (it.hasNext()) {
         it.next();
 
@@ -350,7 +350,7 @@ void QLayoutSupport::removeColumn(int column)
     QHash<QLayoutItem*, QRect> infos;
     computeGridLayout(&infos);
 
-    QHashMutableIterator<QLayoutItem*, QRect> it(infos);
+    QMutableHashIterator<QLayoutItem*, QRect> it(infos);
     while (it.hasNext()) {
         it.next();
 
@@ -754,7 +754,7 @@ void QLayoutSupport::insertRow(int row)
     QHash<QLayoutItem*, QRect> infos;
     computeGridLayout(&infos);
 
-    QHashMutableIterator<QLayoutItem*, QRect> it(infos);
+    QMutableHashIterator<QLayoutItem*, QRect> it(infos);
     while (it.hasNext()) {
         it.next();
 
@@ -787,7 +787,7 @@ void QLayoutSupport::insertColumn(int column)
     QHash<QLayoutItem*, QRect> infos;
     computeGridLayout(&infos);
 
-    QHashMutableIterator<QLayoutItem*, QRect> it(infos);
+    QMutableHashIterator<QLayoutItem*, QRect> it(infos);
     while (it.hasNext()) {
         it.next();
 

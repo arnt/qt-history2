@@ -759,8 +759,6 @@ static QObject *qChildHelper(const char *objName, const char *inheritsClass,
 
 
 /*!
-    \internal
-
     Searches the children and optionally grandchildren of this object,
     and returns a child that is called \a objName that inherits \a
     inheritsClass. If \a inheritsClass is 0 (the default), any class

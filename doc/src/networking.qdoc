@@ -100,7 +100,7 @@
 
     The QTcpSocket class provides an interface for TCP. You can use
     QTcpSocket to implement standard network protocols such as POP3,
-    SMTP, and NNTP, as well as proprietary protocols.
+    SMTP, and NNTP, as well as custom protocols.
 
     A TCP connection must be established to a remote host and port
     before any data transfer can begin. Once the connection has been

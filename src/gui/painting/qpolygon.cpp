@@ -25,7 +25,7 @@
 const qReal Q_PI = qReal(3.14159265358979323846);
 
 /*!
-    \class QPolygon qpolygon.h
+    \class QPolygon
     \brief The QPolygon class provides a vector of points.
     \reentrant
 

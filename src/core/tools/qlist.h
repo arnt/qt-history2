@@ -549,6 +549,6 @@ Q_OUTOFLINE_TEMPLATE QList<T>::QList(const QVector<T> &vector)
         append(vector.at(i));
 }
 
-Q_DECLARE_ITERATOR(QList)
+Q_DECLARE_ITERATOR(List)
 
 #endif // QLIST_H

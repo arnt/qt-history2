@@ -624,7 +624,7 @@ void QApplication::process_cmdline()
   \i -fg or \c -foreground \e color, sets the default foreground color.
   \i -btn or \c -button \e color, sets the default button color.
   \i -name \e name, sets the application name.
-  \i -title \e title, sets the application title (caption).
+  \i -title \e title, sets the application title.
   \i -visual \c TrueColor, forces the application to use a TrueColor visual
        on an 8-bit display.
   \i -ncols \e count, limits the number of colors allocated in the

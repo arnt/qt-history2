@@ -229,15 +229,15 @@
     \header \i Containers                             \i Read-only iterator
                                                       \i Read-write iterator
     \row    \i QList\<T\>, QQueue\<T\>                \i QListIterator\<T\>
-                                                      \i QListMutableIterator\<T\>
+                                                      \i QMutableListIterator\<T\>
     \row    \i QLinkedList\<T\>                       \i QLinkedListIterator\<T\>
-                                                      \i QLinkedListMutableIterator\<T\>
+                                                      \i QMutableLinkedListIterator\<T\>
     \row    \i QVector\<T\>, QStack\<T\>              \i QVectorIterator\<T\>
-                                                      \i QVectorMutableIterator\<T\>
+                                                      \i QMutableVectorIterator\<T\>
     \row    \i QMap\<Key, T\>, QMultiMap\<Key, T\>    \i QMapIterator\<Key, T\>
-                                                      \i QMapMutableIterator\<Key, T\>
+                                                      \i QMutableMapIterator\<Key, T\>
     \row    \i QHash\<Key, T\>, QMultiHash\<Key, T\>  \i QHashIterator\<Key, T\>
-                                                      \i QHashMutableIterator\<Key, T\>
+                                                      \i QMutableHashIterator\<Key, T\>
     \endtable
 
     In this discussion, we will concentrate on QList and QMap. The
@@ -319,11 +319,11 @@
 
     QListIterator provides no functions to insert or remove items
     from the list as we iterate. To accomplish this, you must use
-    QListMutableIterator. Here's an example where we remove all
-    odd numbers from a QList\<int\> using QListMutableIterator:
+    QMutableListIterator. Here's an example where we remove all
+    odd numbers from a QList\<int\> using QMutableListIterator:
 
     \code
-        QListMutableIterator<int> i(list);
+        QMutableListIterator<int> i(list);
         while (i.hasNext()) {
             if (i.next() % 2 != 0)
                 i.remove();
@@ -339,7 +339,7 @@
     backward:
 
     \code
-        QListMutableIterator<int> i(list);
+        QMutableListIterator<int> i(list);
         i.toBack();
         while (i.hasPrevious()) {
             if (i.previous() % 2 != 0)
@@ -352,7 +352,7 @@
     code below, we replace any value larger than 128 with 128:
 
     \code
-        QListMutableIterator<int> i(list);
+        QMutableListIterator<int> i(list);
         while (i.hasNext()) {
             if (i.next() > 128)
                 i.setValue(128);
@@ -370,7 +370,7 @@
     we don't even need \link QListIterator::setValue() setValue() \endlink:
 
     \code
-        QListMutableIterator<int> i(list);
+        QMutableListIterator<int> i(list);
         while (i.hasNext())
             i.next() *= 2;
     \endcode
@@ -404,7 +404,7 @@
         map.insert("Moscow", "Russia");
         ...
 
-        QMapMutableIterator<QString, QString> i(map);
+        QMutableMapIterator<QString, QString> i(map);
         while (i.hasNext()) {
             if (i.next().key().endsWith("City"))
                 i.remove();
@@ -435,7 +435,7 @@
     value:
 
     \code
-        QMapMutableIterator<int, QWidget *> i(map);
+        QMutableMapIterator<int, QWidget *> i(map);
         while (i.findNext(widget))
             i.remove();
     \endcode
@@ -446,7 +446,7 @@
     the same key (for example, in a multi-map):
 
     \code
-        QMapMutableIterator<int, QWidget *> i(multimap);
+        QMutableMapIterator<int, QWidget *> i(multimap);
         while (i.findNextKey(-1))
             i.remove();
     \endcode

@@ -122,7 +122,7 @@
 
     \code
         // forward                                  // backward
-        QListMutableIterator<int> i(list);          QListMutableIterator<int> i(list);  
+        QMutableListIterator<int> i(list);          QMutableListIterator<int> i(list);  
         while (i.hasNext())                         i.toBack();                         
             if (i.next() > 128)                     while (i.hasPrev())                 
                 i.setValue(128);                        if (i.prev() > 128)             
@@ -133,7 +133,7 @@
 
     \code
         // forward                                  // backward
-        QListMutableIterator<int> i(list);          QListMutableIterator<int> i(list);                 
+        QMutableListIterator<int> i(list);          QMutableListIterator<int> i(list);                 
         while (i.hasNext())                         i.toBack();                         
             if (i.next() % 2 != 0)                  while (i.hasPrev())                        
                 i.remove();                             if (i.prev() % 2 != 0)          
@@ -158,7 +158,7 @@
 
     \code
         // STL-style                                // Java-style
-        QList<int>::iterator i = list.begin();      QListMutableIterator<int> i(list);
+        QList<int>::iterator i = list.begin();      QMutableListIterator<int> i(list);
         while (i != list.end()) {                   while (i.hasNext()) {
             if (*i == 0) {                              int val = i.next();
                 i = list.erase(i);                      if (val < 0)

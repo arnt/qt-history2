@@ -23,10 +23,10 @@
     \l{STL-style iterators}. The Java-style const iterator is simply
     a typedef for QListIterator<QString>.
 
-    \sa QStringListMutableIterator, QStringList::const_iterator
+    \sa QMutableStringListIterator, QStringList::const_iterator
 */
 
-/*! \typedef QStringListMutableIterator
+/*! \typedef QMutableStringListIterator
     \relates QStringList
 
     The QStringListIterator typedef provides a Java-style non-const
@@ -34,7 +34,7 @@
 
     QStringList provides both \l{Java-style iterators} and
     \l{STL-style iterators}. The Java-style non-const iterator is
-    simply a typedef for QListMutableIterator<QString>.
+    simply a typedef for QMutableListIterator<QString>.
 
     \sa QStringListIterator, QStringList::iterator
 */
@@ -93,9 +93,9 @@
             cout << (*i).ascii() << endl;
     \endcode
 
-    QStringListIterator and QStringListMutableIterator are simply
+    QStringListIterator and QMutableStringListIterator are simply
     typedefs for QListIterator<QString> and
-    QListMutableIterator<QString>.
+    QMutableListIterator<QString>.
 
     You can concatenate all the strings in a string list into a single
     string (with an optional separator) using join(). For example:
@@ -139,7 +139,7 @@
         files.replace("$QTDIR", "/usr/lib/qt");
     \endcode
 
-    \sa QString, QStringListIterator, QStringListMutableIterator
+    \sa QString, QStringListIterator, QMutableStringListIterator
 */
 
 /*!

@@ -826,7 +826,8 @@ static QString systemIniPath()
 
 static QString userIniPath()
 {
-    return QDir::homePath() + QDir::separator() + QLatin1String(".settings") + QDir::separator();
+    QLatin1String dirName(".settings"); // update the class documentation whenever you change this
+    return QDir::homePath() + QDir::separator() + dirName + QDir::separator();
 }
 
 QConfFileSettingsPrivate::QConfFileSettingsPrivate(Qt::SettingsFormat format,
@@ -1598,10 +1599,10 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     following files:
 
     \list 1
-    \o \c{$HOME/.qt4/software.org/DataMill.conf}
-    \o \c{$HOME/.qt4/software.org.conf}
-    \o \c{$QTDIR/.qt4/software.org/DataMill.conf}
-    \o \c{$QTDIR/.qt4/software.org.conf}
+    \o \c{$HOME/.settings/software.org/DataMill.conf}
+    \o \c{$HOME/.settings/software.org.conf}
+    \o \c{$QTDIR/.settings/software.org/DataMill.conf}
+    \o \c{$QTDIR/.settings/software.org.conf}
     \endlist
 
     ($QTDIR is the location where Qt is installed.)

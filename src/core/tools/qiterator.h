@@ -21,15 +21,15 @@ namespace std { struct bidirectional_iterator_tag; struct random_access_iterator
 #define Q_DECLARE_ITERATOR(C) \
 \
 template <class T> \
-class C##Iterator \
+class Q##C##Iterator \
 { \
-    typedef typename C<T>::const_iterator const_iterator; \
-    C<T> c; \
+    typedef typename Q##C<T>::const_iterator const_iterator; \
+    Q##C<T> c; \
     const_iterator i; \
 public: \
-    inline C##Iterator(const C<T> &container) \
+    inline Q##C##Iterator(const Q##C<T> &container) \
         : c(container), i(c.constBegin()) {} \
-    inline void operator=(const C<T> &container) \
+    inline void operator=(const Q##C<T> &container) \
     { c = container.c; i = c.constBegin(); } \
     inline void toFront() { i = c.constBegin(); } \
     inline void toBack() { i = c.constEnd(); } \
@@ -47,19 +47,19 @@ public: \
 }; \
 \
 template <class T> \
-class C##MutableIterator \
+class QMutable##C##Iterator \
 { \
-    typedef typename C<T>::iterator iterator; \
-    C<T> *c; \
+    typedef typename Q##C<T>::iterator iterator; \
+    Q##C<T> *c; \
     iterator i, n; \
     inline bool item_exists() const { return n != c->constEnd(); } \
 public: \
-    inline C##MutableIterator(C<T> &container) \
+    inline QMutable##C##Iterator(Q##C<T> &container) \
         : c(&container) \
     { c->setSharable(false); i = c->begin(); n = c->end(); } \
-    inline ~C##MutableIterator() \
+    inline ~QMutable##C##Iterator() \
     { c->setSharable(true); } \
-    inline void operator=(C<T> &container) \
+    inline void operator=(Q##C<T> &container) \
     { c->setSharable(true); c = &container; c->setSharable(false); \
       i = c->begin(); n = c->end(); } \
     inline void toFront() { i = c->begin(); n = c->end(); } \
@@ -85,17 +85,17 @@ public: \
 #define Q_DECLARE_ASSOCIATIVE_ITERATOR(C) \
 \
 template <class Key, class T> \
-class C##Iterator \
+class Q##C##Iterator \
 { \
-    typedef typename C<Key,T>::const_iterator const_iterator; \
+    typedef typename Q##C<Key,T>::const_iterator const_iterator; \
     typedef const_iterator Item; \
-    C<Key,T> c; \
+    Q##C<Key,T> c; \
     const_iterator i, n; \
     inline bool item_exists() const { return n != c.constEnd(); } \
 public: \
-    inline C##Iterator(const C<Key,T> &container) \
+    inline Q##C##Iterator(const Q##C<Key,T> &container) \
         : c(container), i(c.constBegin()), n(c.constEnd()) {} \
-    inline void operator=(const C<Key,T> &container) \
+    inline void operator=(const Q##C<Key,T> &container) \
     { c = container; i = c.constBegin(); n = c.constEnd(); } \
     inline void toFront() { i = c.constBegin(); n = c.constEnd(); } \
     inline void toBack() { i = c.constEnd(); n = c.constEnd(); } \
@@ -115,20 +115,20 @@ public: \
 }; \
 \
 template <class Key, class T> \
-class C##MutableIterator \
+class QMutable##C##Iterator \
 { \
-    typedef typename C<Key,T>::iterator iterator; \
+    typedef typename Q##C<Key,T>::iterator iterator; \
     typedef iterator Item; \
-    C<Key,T> *c; \
+    Q##C<Key,T> *c; \
     iterator i, n; \
     inline bool item_exists() const { return n != c->constEnd(); } \
 public: \
-    inline C##MutableIterator(C<Key,T> &container) \
+    inline QMutable##C##Iterator(Q##C<Key,T> &container) \
         : c(&container) \
     { c->setSharable(false); i = c->begin(); n = c->end(); } \
-    inline ~C##MutableIterator() \
+    inline ~QMutable##C##Iterator() \
     { c->setSharable(true); } \
-    inline void operator=(C<Key,T> &container) \
+    inline void operator=(Q##C<Key,T> &container) \
     { c->setSharable(true); c = &container; c->setSharable(false); i = c->begin(); n = c->end(); } \
     inline void toFront() { i = c->begin(); n = c->end(); } \
     inline void toBack() { i = c->end(); n = c->end(); } \

@@ -972,7 +972,7 @@ QString HtmlGenerator::generateLowStatusMemberFile(const InnerNode *inner, CodeM
                                                    CodeMarker::Status status)
 {
     QList<Section> sections = marker->sections(inner, CodeMarker::Summary, status);
-    QListMutableIterator<Section> j(sections);
+    QMutableListIterator<Section> j(sections);
     while (j.hasNext()) {
         if (j.next().members.size() == 0)
             j.remove();

@@ -340,14 +340,14 @@ void **QListData::erase(void **xi)
     per-function basis.
 
     Like the other container classes, QList provides \l{Java-style
-    iterators} (QListIterator and QListMutableIterator) and
+    iterators} (QListIterator and QMutableListIterator) and
     \l{STL-style iterators} (QList::const_iterator and
     QList::iterator). In practice, these are rarely used, because
     you can use indexes into the QList. QList is implemented in such
     a way that direct index-based access is just as fast as using
     iterators.
 
-    \sa QListIterator, QListMutableIterator, QLinkedList, QVector
+    \sa QListIterator, QMutableListIterator, QLinkedList, QVector
 */
 
 /*!
@@ -1035,7 +1035,7 @@ void **QListData::erase(void **xi)
     iterators over a long period of time, we recommend that you use
     QLinkedList rather than QList.
 
-    \sa QList::const_iterator, QListMutableIterator
+    \sa QList::const_iterator, QMutableListIterator
 */
 
 /*! \typedef QList::iterator::iterator_category

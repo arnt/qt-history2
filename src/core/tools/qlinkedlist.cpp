@@ -92,11 +92,11 @@ QLinkedListData QLinkedListData::shared_null = {
     If you want to insert, modify, or remove items in the middle of
     the list, you must use an iterator. QLinkedList provides both
     \l{Java-style iterators} (QLinkedListIterator and
-    QLinkedListMutableIterator) and \l{STL-style iterators}
+    QMutableLinkedListIterator) and \l{STL-style iterators}
     (QLinkedList::const_iterator and QLinkedList::iterator). See the
     documentation for these classes for details.
 
-    \sa QListIterator, QListMutableIterator, QList, QVector
+    \sa QListIterator, QMutableListIterator, QList, QVector
 */
 
 /*! \fn QLinkedList::QLinkedList()
@@ -605,7 +605,7 @@ QLinkedListData QLinkedListData::shared_null = {
     items from the list, iterators that point to the removed items
     will become dangling iterators.
 
-    \sa QLinkedList::const_iterator, QLinkedListMutableIterator
+    \sa QLinkedList::const_iterator, QMutableLinkedListIterator
 */
 
 /*! \fn QLinkedList::iterator::iterator()

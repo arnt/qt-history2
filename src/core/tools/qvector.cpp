@@ -166,7 +166,7 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
     per-function basis.
 
     Like the other container classes, QVector provides \l{Java-style
-    iterators} (QVectorIterator and QVectorMutableIterator) and
+    iterators} (QVectorIterator and QMutableVectorIterator) and
     \l{STL-style iterators} (QVector::const_iterator and
     QVector::iterator). In practice, these are rarely used, because
     you can use indexes into the QVector.
@@ -175,7 +175,7 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
     low-level class with little functionality that is optimized for
     speed.
 
-    \sa QVectorIterator, QVectorMutableIterator, QList, QLinkedList
+    \sa QVectorIterator, QMutableVectorIterator, QList, QLinkedList
 */
 
 /*!
@@ -835,7 +835,7 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
     iterators}. The STL-style non-const iterator is simply a typedef
     for "T *" (pointer to T).
 
-    \sa QVector::begin(), QVector::end(), QVector::const_iterator, QVectorMutableIterator
+    \sa QVector::begin(), QVector::end(), QVector::const_iterator, QMutableVectorIterator
 */
 
 /*! \typedef QVector::const_iterator

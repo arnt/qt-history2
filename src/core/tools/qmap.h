@@ -819,6 +819,6 @@ private:
     const T operator[](const Key &key) const;
 };
 
-Q_DECLARE_ASSOCIATIVE_ITERATOR(QMap)
+Q_DECLARE_ASSOCIATIVE_ITERATOR(Map)
 
 #endif // QMAP_H

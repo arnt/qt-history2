@@ -57,10 +57,10 @@
     For example, the path \c :/image/cut.png would give access to the
     \c cut.png file, whose location in the application's source tree
     is \c images/cut.png. This can be changed using the \c file tag's
-    \c name attribute:
+    \c alias attribute:
 
     \code
-        <file name="cut-img.png">images/cut.png</file>
+        <file alias="cut-img.png">images/cut.png</file>
     \endcode
 
     The file is then accessible as \c :/cut-img.png from the
@@ -70,7 +70,7 @@
 
     \code
         <qresource prefix="/myresources">
-            <file name="cut-img.png">images/cut.png</file>
+            <file alias="cut-img.png">images/cut.png</file>
         </qresource>
     \endcode
 
@@ -86,7 +86,7 @@
             <file>cut.jpg</file>
         </qresource>
         <qresource lang="fr">
-            <file name="cut.jpg">cut_fr.jpg</file>
+            <file alias="cut.jpg">cut_fr.jpg</file>
         </qresource>
     \endcode
 

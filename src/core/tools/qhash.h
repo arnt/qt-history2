@@ -707,6 +707,6 @@ private:
     const T operator[](const Key &key) const;
 };
 
-Q_DECLARE_ASSOCIATIVE_ITERATOR(QHash)
+Q_DECLARE_ASSOCIATIVE_ITERATOR(Hash)
 
 #endif // QHASH_H

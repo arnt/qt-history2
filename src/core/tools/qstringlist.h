@@ -28,7 +28,7 @@
 class QRegExp;
 
 typedef QListIterator<QString> QStringListIterator;
-typedef QListMutableIterator<QString> QStringListMutableIterator;
+typedef QMutableListIterator<QString> QMutableStringListIterator;
 
 class QStringList : public QList<QString>
 {

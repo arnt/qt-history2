@@ -731,7 +731,7 @@ QPoint QDockWindowLayout::constrain(QDockWindowSeparator *sep, int delta)
 
 	// find 'sep'
 	local_list = save_layout_info ? *save_layout_info : layout_info;
-	QListMutableIterator<QDockWindowLayoutInfo> f_it(local_list), b_it(local_list);
+	QMutableListIterator<QDockWindowLayoutInfo> f_it(local_list), b_it(local_list);
 	while (f_it.hasNext()) {
 	    const QDockWindowLayoutInfo &info = f_it.peekNext();
 	    if (info.is_sep && qt_cast<QDockWindowSeparator*>(info.item->widget()) == sep) break;

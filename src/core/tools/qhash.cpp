@@ -350,7 +350,7 @@ void QHashData::free()
 
     If you want to navigate through all the (key, value) pairs stored
     in a QHash, you can use an iterator. QHash provides both
-    \l{Java-style iterators} (QHashIterator and QHashMutableIterator)
+    \l{Java-style iterators} (QHashIterator and QMutableHashIterator)
     and \l{STL-style iterators} (QHash::const_iterator and
     QHash::iterator). Here's how to iterate over a QHash<QString,
     int> using a Java-style iterator:
@@ -402,7 +402,7 @@ void QHashData::free()
     recently to least recently inserted.
 
     A more efficient approach is to use QHashIterator::findNextKey() or
-    QHashMutableIterator::findNextKey():
+    QMutableHashIterator::findNextKey():
 
     \code
         QHashIterator<QString, int> i(hash);
@@ -434,7 +434,7 @@ void QHashData::free()
 
     Items can be removed from the hash in several ways. One way is to
     call remove(); this will remove any item with the given key.
-    Another way is to use QHashMutableIterator::remove(). In addition,
+    Another way is to use QMutableHashIterator::remove(). In addition,
     you can clear the entire hash using clear().
 
     QHash's key and value data types must be \l{assignable data
@@ -504,7 +504,7 @@ void QHashData::free()
     necessary to obtain good performance. You can also call capacity()
     to retrieve the hash table's size.
 
-    \sa QHashIterator, QHashMutableIterator, QMap
+    \sa QHashIterator, QMutableHashIterator, QMap
 */
 
 /*! \fn QHash::QHash()
@@ -1089,7 +1089,7 @@ void QHashData::free()
     need to keep iterators over a long period of time, we recommend
     that you use QMap rather than QHash.
 
-    \sa QHash::const_iterator, QHashMutableIterator
+    \sa QHash::const_iterator, QMutableHashIterator
 */
 
 /*! \fn QHash::iterator::operator Node *() const
@@ -1624,7 +1624,7 @@ void QHashData::free()
     recently to least recently inserted.
 
     A more efficient approach is to use QHashIterator::findNextKey() or
-    QHashMutableIterator::findNextKey():
+    QMutableHashIterator::findNextKey():
 
     \code
         QHashIterator<QString, int> i(hash);
@@ -1651,7 +1651,7 @@ void QHashData::free()
     qHash() function that returns a hash value for an argument of the
     key's type. See the QHash documentation for details.
 
-    \sa QHash, QHashIterator, QHashMutableIterator, QMultiMap
+    \sa QHash, QHashIterator, QMutableHashIterator, QMultiMap
 */
 
 /*! \fn QMultiHash::QMultiHash()

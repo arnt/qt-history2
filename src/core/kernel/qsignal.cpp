@@ -20,7 +20,7 @@
 #include "private/qobject_p.h"
 
 /*!
-    \class QSignal qsignal.h
+    \class QSignal
     \brief The QSignal class can be used to send signals for classes
     that do not inherit QObject.
 
@@ -38,8 +38,6 @@
 
     Example:
     \code
-        #include <qsignal.h>
-
         class MyClass
         {
         public:
