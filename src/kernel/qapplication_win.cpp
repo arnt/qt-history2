@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#260 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#261 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1234,6 +1234,10 @@ extern "C"
 LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			    LPARAM lParam )
 {
+    bool result = TRUE;
+    QEvent::Type evt_type = QEvent::None;
+    QETWidget *widget = 0;
+
     if ( !qApp )				// unstable app state
 	goto do_default;
 
@@ -1246,7 +1250,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     if ( qApp->winEventFilter(&msg) )		// send through app filter
 	return 0;
 
-    QETWidget *widget = (QETWidget*)QWidget::find( hwnd );
+    widget = (QETWidget*)QWidget::find( hwnd );
     if ( !widget )				// don't know this widget
 	goto do_default;
 
@@ -1256,9 +1260,6 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 
     if ( widget->winEvent(&msg) )		// send through widget filter
 	return 0;
-
-    QEvent::Type evt_type = QEvent::None;
-    bool result = TRUE;
 
     if ( sn_msg && message == sn_msg ) {	// socket notifier message
 	int type = -1;
