@@ -67,6 +67,7 @@
 #include "widgetaction.h"
 #include "qcategorywidget.h"
 #include "startdialogimpl.h"
+#include "designerappiface.h"
 
 static const char * whatsthis_image[] = {
     "16 16 3 1",
@@ -1449,6 +1450,31 @@ void MainWindow::fileCreateTemplate()
 
 void MainWindow::fileImport()
 {
+    QStringList filterlist;
+    filterlist << tr( "Packages (*.ui *.qs)" );
+    filterlist << tr( "All Files (*)" );
+    QString filters = filterlist.join( ";;" );
+
+    QString filename =
+	QFileDialog::getOpenFileName( QStringList::split( ':', currentProject->iFace()->
+							  customSetting( "QTSCRIPT_PACKAGES" ) ).first(),
+				      filters, this, 0, tr("Open Package"), &lastOpenFilter );
+	
+    QFileInfo fi( filename );
+
+    if ( fi.extension( FALSE ) == "ui" ) {
+	openFormWindow( filename );
+	addRecentlyOpened( filename, recentlyFiles );
+	if ( formWindow() )
+	    formWindow()->formFile()->setPackage( TRUE );
+    } else {
+	SourceFile *sf = currentProject->findSourceFile( currentProject->makeRelative( filename ) );
+	if ( !sf )
+	    sf = new SourceFile( currentProject->makeRelative( filename ), FALSE, currentProject );
+	sf->setPackage( TRUE );
+	editSource( sf );
+    }
+    currentProject->setModified( FALSE );
 }
 
 void MainWindow::fileExport()
