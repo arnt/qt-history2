@@ -13,7 +13,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-#include "cannon.h"
+#include "cannonfield.h"
 #include "gameboard.h"
 #include "lcdrange.h"
 

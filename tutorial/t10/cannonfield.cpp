@@ -8,7 +8,7 @@
 #include <QPainter>
 #include <QPixmap>
 
-#include "cannon.h"
+#include "cannonfield.h"
 
 CannonField::CannonField(QWidget *parent)
     : QWidget(parent)

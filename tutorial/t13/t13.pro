@@ -1,9 +1,9 @@
 TEMPLATE	= app
 CONFIG		+= qt warn_on release
-HEADERS		= cannon.h \
+HEADERS		= cannonfield.h \
 		  gameboard.h \
 		  lcdrange.h
-SOURCES		= cannon.cpp \
+SOURCES		= cannonfield.cpp \
 		  gameboard.cpp \
 		  lcdrange.cpp \
 		  main.cpp

@@ -11,7 +11,7 @@
 
 #include <cmath>
 
-#include "cannon.h"
+#include "cannonfield.h"
 
 using namespace std;
 

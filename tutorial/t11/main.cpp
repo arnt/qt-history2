@@ -12,7 +12,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-#include "cannon.h"
+#include "cannonfield.h"
 #include "lcdrange.h"
 
 class MyWidget : public QWidget

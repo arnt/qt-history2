@@ -1,8 +1,8 @@
 TEMPLATE	= app
 CONFIG		+= qt warn_on release
-HEADERS		= cannon.h \
+HEADERS		= cannonfield.h \
 		  lcdrange.h
-SOURCES		= cannon.cpp \
+SOURCES		= cannonfield.cpp \
 		  lcdrange.cpp \
 		  main.cpp
 TARGET		= t9

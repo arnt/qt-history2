@@ -6,7 +6,7 @@
 
 #include <QPainter>
 
-#include "cannon.h"
+#include "cannonfield.h"
 
 CannonField::CannonField(QWidget *parent)
     : QWidget(parent)
