@@ -14,6 +14,7 @@ TextOutline::TextOutline(QWidget *parent)
     QFont f("babelfish");
 #endif
     f.setStyleHint(QFont::Serif);
+    f.setStyleStrategy(QFont::ForceOutline);
     f.setPointSize(100);
     basePath.addText(0, 100, f, "Trolltech");
     basePathBounds = basePath.boundingRect();
