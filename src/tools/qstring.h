@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#104 $
+** $Id: //depot/qt/main/src/tools/qstring.h#105 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -110,7 +110,7 @@ public:
     QString decomposition() const;
     Decomposition decompositionTag() const;                                    
 
-    operator char() const { return row?0:cell; }
+    operator char() const { return row ? 0 : cell; }
 
     ushort unicode() const { return (row << 8) | cell; }
 

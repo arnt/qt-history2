@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.h#34 $
+** $Id: //depot/qt/main/src/tools/qglist.h#35 $
 **
 ** Definition of QGList and QGListIterator classes
 **
@@ -70,30 +70,30 @@ protected:
 
     QGList &operator=( const QGList & );	// assign from other list
 
-    void  inSort( Item );			// add item sorted in list
-    void  append( Item );			// add item at end of list
-    bool  insertAt( uint index, Item );		// add item at i'th position
-    void  relinkNode( QLNode * );		// relink as first item
-    bool  removeNode( QLNode * );		// remove node
-    bool  remove( Item = 0 );			// remove item (0=current)
-    bool  removeRef( Item = 0 );			// remove item (0=current)
-    bool  removeFirst();			// remove first item
-    bool  removeLast();				// remove last item
-    bool  removeAt( uint index );		// remove item at i'th position
-    Item	  takeNode( QLNode * );			// take out node
-    Item	  take();				// take out current item
-    Item	  takeAt( uint index );			// take out item at i'th pos
-    Item	  takeFirst();				// take out first item
-    Item	  takeLast();				// take out last item
+    void inSort( Item );			// add item sorted in list
+    void append( Item );			// add item at end of list
+    bool insertAt( uint index, Item );		// add item at i'th position
+    void relinkNode( QLNode * );		// relink as first item
+    bool removeNode( QLNode * );		// remove node
+    bool remove( Item = 0 );			// remove item (0=current)
+    bool removeRef( Item = 0 );			// remove item (0=current)
+    bool removeFirst();				// remove first item
+    bool removeLast();				// remove last item
+    bool removeAt( uint index );		// remove item at i'th position
+    Item takeNode( QLNode * );			// take out node
+    Item take();				// take out current item
+    Item takeAt( uint index );			// take out item at i'th pos
+    Item takeFirst();				// take out first item
+    Item takeLast();				// take out last item
 
-    void  sort();                               // sort all items;
-    void  clear();				// remove all items
+    void sort();                               // sort all items;
+    void clear();				// remove all items
 
-    int	  findRef( Item, bool = TRUE );		// find exact item in list
-    int	  find( Item, bool = TRUE );		// find equal item in list
+    int	 findRef( Item, bool = TRUE );		// find exact item in list
+    int	 find( Item, bool = TRUE );		// find equal item in list
 
-    uint  containsRef( Item )	const;		// get number of exact matches
-    uint  contains( Item )	const;		// get number of equal matches
+    uint containsRef( Item )	const;		// get number of exact matches
+    uint contains( Item )	const;		// get number of equal matches
 
     Item	  at( uint index );			// access item at i'th pos
     int	  at() const;				// get current index
