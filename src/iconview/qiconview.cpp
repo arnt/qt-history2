@@ -2457,7 +2457,6 @@ void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
 
 void QIconView::slotUpdate()
 {
-    qDebug("slotupdate");
     d->updateTimer->stop();
     d->fullRedrawTimer->stop();
 
@@ -2477,7 +2476,7 @@ void QIconView::slotUpdate()
 	    if ( !next || !next->next )
 		break;
 
-	    if( !QApplication::reverseLayout() ) 
+	    if( !QApplication::reverseLayout() )
 		item = next;
 	    w = QMAX( w, item->x() + item->width() );
 	    h = QMAX( h, item->y() + item->height() );
@@ -2927,7 +2926,6 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 
 void QIconView::arrangeItemsInGrid( bool update )
 {
-    qDebug("arrangeIconsInGrid");
     if ( !d->firstItem || !d->lastItem )
 	return;
 
@@ -2971,7 +2969,6 @@ void QIconView::arrangeItemsInGrid( bool update )
     else
 	h += d->spacing;
 
-    qDebug("new width=%d, visible=%d", w, visibleWidth());
     viewport()->setUpdatesEnabled( FALSE );
     int vw = visibleWidth();
     int vh = visibleHeight();
@@ -4865,7 +4862,7 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
     QIconViewItem *end = 0;
 
     bool reverse = QApplication::reverseLayout();
-    
+
     if ( d->arrangement == LeftToRight ) {
 
 	if ( d->rastX == -1 ) {
@@ -4907,7 +4904,7 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 		    else
 			x = d->spacing;
 		} else {
-		    if ( reverse ) 
+		    if ( reverse )
 			x = item->prev->x() - item->width() - d->spacing;
 		    else
 			x = item->prev->x() + item->prev->width() + d->spacing;
