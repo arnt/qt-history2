@@ -687,6 +687,11 @@ void QAction::activate(ActionEvent event)
     }
 }
 
+void QAction::sendShortcutActivated()
+{
+    
+}
+
 /*!
     \fn void QAction::triggered()
 
