@@ -259,10 +259,10 @@ public:
     QMetaObjectCleanUp();
     ~QMetaObjectCleanUp();
 
-    void setMetaObject( QMetaObject *mo );
+    void setMetaObject( QMetaObject *&mo );
 
 private:
-    QMetaObject *metaObject;
+    QMetaObject **metaObject;
 };
 
 #endif // QMETAOBJECT_H

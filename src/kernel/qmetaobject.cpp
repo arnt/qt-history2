@@ -919,18 +919,21 @@ QMetaObjectCleanUp::QMetaObjectCleanUp()
 */
 QMetaObjectCleanUp::~QMetaObjectCleanUp()
 {
-    delete metaObject;
-    metaObject = 0;
+    if ( metaObject ) {
+	delete *metaObject;
+	*metaObject = 0;
+	metaObject = 0;
+    }
 }
 
 /*!
   \internal
 */
-void QMetaObjectCleanUp::setMetaObject( QMetaObject *mo )
+void QMetaObjectCleanUp::setMetaObject( QMetaObject *&mo )
 {
 #if defined(QT_CHECK_RANGE)
     if ( metaObject )
 	qWarning( "QMetaObjectCleanUp::setMetaObject: Double use of QMetaObjectCleanUp!" );
 #endif
-    metaObject = mo;
+    metaObject = &mo;
 }
