@@ -701,10 +701,8 @@ void QWorkspace::childEvent( QChildEvent * e)
 	    child->show();
 
 	place( child );
-	if ( hasSize ) {
-	    QSize childSize = child->minimumSizeHint() + QSize( 0, child->baseSize().height() );
-	    child->resize( wrect.width() + childSize.width(), wrect.height() + childSize.height() );
-	}
+	if ( hasSize )
+	    child->resize( wrect.width(), wrect.height() + child->baseSize().height() );
 	if ( hasPos )
 	    child->move( wrect.x(), wrect.y() );
 
@@ -2028,7 +2026,10 @@ QSize QWorkspaceChild::minimumSizeHint() const
 {
     if ( !childWidget )
 	return QFrame::minimumSizeHint() + baseSize();
-    return childWidget->minimumSize() + baseSize();
+    QSize s = childWidget->minimumSize();
+    if ( s.isEmpty() )
+	s = childWidget->minimumSizeHint();
+    return s + baseSize();
 }
 
 void QWorkspaceChild::activate()
