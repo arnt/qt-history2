@@ -317,8 +317,10 @@ bool MetaTranslator::save( const QString& filename ) const
 	    }
 	} while ( ++m != mm.end() && QCString(m.key().context()) == context );
 
-	t << "<context utf8=\"" << ( contextIsUtf8 ? "true" : "false" )
-	  << "\">\n";
+	t << "<context";
+	if ( contextIsUtf8 )
+	    t << " utf8=\"true\"";
+	t << ">\n";
 	t << "    <name>" << evilBytes( context, contextIsUtf8 )
 	  << "</name>\n";
 	if ( !comment.isEmpty() )
@@ -326,8 +328,10 @@ bool MetaTranslator::save( const QString& filename ) const
 	      << "</comment>\n";
 
 	for ( i = inv.begin(); i != inv.end(); ++i ) {
-	    t << "    <message utf8=\"" << ( (*i).utf8() ? "true" : "false" )
-	      << "\">\n"
+	    t << "    <message";
+	    if ( (*i).utf8() )
+		t << " utf8=\"true\"";
+	    t << ">\n"
 	      << "        <source>" << evilBytes( (*i).sourceText(),
 						  (*i).utf8() )
 	      << "</source>\n";
