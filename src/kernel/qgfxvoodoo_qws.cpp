@@ -1,4 +1,4 @@
- /****************************************************************************
+/****************************************************************************
 ** $Id: $
 **
 ** Implementation of QGfxVoodoo (graphics context) class for Voodoo 3 cards
@@ -319,9 +319,12 @@ void QGfxVoodoo<depth,type>::fillRect(int rx,int ry,int w,int h)
     qt_screen=tmp;
 #endif
 
-    wait_for_fifo(1);
-    regw(COLORFORE,srccol);
-
+    if(((QLinuxFb_Shared *)shared_data)->forecol!=srccol) {
+	wait_for_fifo(1);
+	regw(COLORFORE,srccol);
+	((QLinuxFb_Shared *)shared_data)->forecol=srccol;
+    }
+    
     // We clip in software here because rectangle-rectangle intersections
     // are very fast, probably much more so than writing graphics card
     // registers to set up the clip
@@ -417,9 +420,6 @@ inline void QGfxVoodoo<depth,type>::blt(int rx,int ry,int w,int h, int sx, int s
 	// important for getting the right results with an overlapping
 	// blt
 
-	wait_for_fifo(1);
-	regw(COMMANDEXTRA,0x4);
-
 	int mx = QMIN(xp,xp2);
 	if ( mx < 0 ) {
 	    xp -= mx;
@@ -495,9 +495,6 @@ inline void QGfxVoodoo<depth,type>::blt(int rx,int ry,int w,int h, int sx, int s
 		loopc++;
 	    }
 	}
-
-	wait_for_fifo(1);
-	regw(COMMANDEXTRA,0x0);
 
 	QRect r(0,0,width,height);
 	do_scissors(r);
@@ -642,8 +639,13 @@ void QGfxVoodoo<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 
 	int loopc;
 
-	wait_for_fifo(2);
-	regw(COLORFORE,tmp2);
+	if(((QLinuxFb_Shared *)shared_data)->forecol!=srccol) {
+	    wait_for_fifo(1);
+	    regw(COLORFORE,srccol);
+	    ((QLinuxFb_Shared *)shared_data)->forecol=srccol;
+	}
+    
+	wait_for_fifo(1);
 	regw(COMMAND,0x6 | (0xcc << 24));
 
 	for(loopc=0;loopc<ncliprect;loopc++) {
@@ -879,6 +881,7 @@ bool QVoodooScreen::initDevice()
 
     shared->fifomax=32;
     shared->fifocount=0;
+    shared->forecol=0;
 
     /*
     wait_for_fifo(3);
@@ -955,10 +958,11 @@ void QVoodooCursor::init(SWCursorData *,bool)
     qDebug("Cursor init");
     shared_data=((QVoodooScreen *)qt_screen)->shared;
     voodoo_regbase=((QVoodooScreen *)qt_screen)->voodoo_regbase;
-    wait_for_fifo(3);
+    wait_for_fifo(4);
     regw(COMMANDEXTRA,0);
     regw(LINESTIPPLE,0xffffffff);
     regw(LINESTYLE,0);
+    regw(COLORFORE,0);
 }
 
 // Encode RGB values into 2-bit cursor encoding - similar to

@@ -43,6 +43,7 @@ public:
     volatile int optype;
     volatile int fifocount;   // Accel drivers only
     volatile int fifomax;
+    unsigned int forecol;     // Foreground colour cacheing
 
 };
 
