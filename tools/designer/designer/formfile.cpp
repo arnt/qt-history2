@@ -70,12 +70,15 @@ FormFile::~FormFile()
 
 void FormFile::setFormWindow( FormWindow *f )
 {
+    if ( f == fw )
+	return;
     if ( fw )
 	fw->setFormFile( 0 );
     fw = f;
     if ( fw )
 	fw->setFormFile( this );
-    parseCode( cod );
+    if ( seperateSource )
+	parseCode( cod );
 }
 
 void FormFile::setEditor( SourceEditor *e )
@@ -132,7 +135,6 @@ QString FormFile::codeFile() const
 QString FormFile::code()
 {
     bool createSource = TRUE;
-    bool setSource = FALSE;
     QString txt;
     LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
     if ( iface && iface->supports( LanguageInterface::StoreFormCodeSeperate ) ) {
@@ -159,8 +161,6 @@ QString FormFile::code()
 	    else
 		txt += "\n" + iface->createEmptyFunction() + "\n\n";
 	}
-	if ( setSource )
-	    cod = txt;
     }
     return txt;
 }
@@ -495,7 +495,7 @@ void FormFile::syncCode()
 
 void FormFile::checkTimeStamp()
 {
-    if ( timeStamp.isUpToDate() )
+    if ( timeStamp.isUpToDate() || !seperateSource )
 	return;
     timeStamp.update();
     if ( codeEdited ) {
@@ -535,9 +535,12 @@ void FormFile::addSlotCode( MetaDataBase::Slot slot )
 							    slot.returnType ) +
 		       "\n" + iface->createEmptyFunction();
 	cod += body;
-	parseCode( cod );
 	functionBodies.insert( MetaDataBase::normalizeSlot( slot.slot ), iface->createEmptyFunction() );
 	MetaDataBase::setFunctionBodies( formWindow(), functionBodies, pro->language(), slot.returnType );
+	if ( codeEdited ) {
+	    setModified( TRUE );
+	    emit somethingChanged( this );
+	}
     }
 }
 
