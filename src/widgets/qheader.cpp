@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#40 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#41 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -713,6 +713,11 @@ int QHeader::addLabel( const char *s, int size )
     data->l2a.resize( n + 1 );
     data->a2l[n-1] = n-1;
     data->l2a[n-1] = n-1;
+    data->clicks.resize(n+1);
+    data->resize.resize(n+1);
+    data->clicks.setBit(n-1);
+    data->resize.setBit(n-1);
+
     //    recalc();
     if ( orient == Horizontal )
 	setNumCols( n );
