@@ -5,8 +5,8 @@
 //
 
 #include <qapplication.h>
-#include <qwidget.h>
-#include <qmultilinedit.h>
+#include <qfile.h>
+#include <qmultilineedit.h>
 
 class Main : public QWidget {
 public:
@@ -15,7 +15,7 @@ public:
 	log(this)
     {
 	log.setReadOnly(TRUE);
-	log.setFont(QFont("courier",10));
+	//log.setFont(QFont("courier",10));
 	dump(0,(QKeyEvent*)0);
     }
 
@@ -55,10 +55,13 @@ public:
     {
 	QString line;
 	if (!type)
-	    line.sprintf("%2s %6s %3s    %3s", "", "key", "asc", "sta");
-	else
-	    line.sprintf("%2s %6x %3x(%c) %3x", type, e->key(), e->ascii(),
-		e->ascii() ? e->ascii() : ' ', e->state());
+	    line.sprintf("%2s %6s %3s    %3s %4s", "", "key", "asc", "sta", "uni");
+	else {
+	    line.sprintf("%2s %6x %3x(%c) %3x %02x%02x%s ", type, e->key(), e->ascii(),
+	    e->ascii() ? e->ascii() : ' ', e->state(), e->text()[0].row, e->text()[0].cell,
+	    e->isAutoRepeat() ? " AUTO" : "");
+	    line += e->text();
+	}
 	log.insertLine( line );
 	log.setCursorPosition(999999,0);
     }
@@ -72,20 +75,53 @@ public:
 	log.setCursorPosition(999999,0);
     }
 
+    void text(const char* t)
+    {
+	log.insertLine( t );
+	log.setCursorPosition(999999,0);
+    }
+
 private:
     QMultiLineEdit log;
 };
 
+Main *m;
+
+void myout( QtMsgType type, const char *msg )
+{
+    static QFile* f = 0;
+    if ( !f ) {
+	f = new QFile("out.log");
+	f->open(IO_WriteOnly);
+    }
+    f->writeBlock(msg,strlen(msg));
+}
+
+
 int main( int argc, char **argv )
 {
+#define T(x) debug(#x " = %d",sizeof(x));
+T(QObject)
+T(QWidget)
+T(QFont)
+T(QPalette)
+T(QCursor)
+T(QRect)
+T(QColor)
+T(WId)
+T(WFlags)
+T(QPaintDevice)
+T(QWExtra)
     QApplication::setColorSpec( QApplication::CustomColor );
     QApplication a( argc, argv );
-    QApplication::setFont( QFont("Helvetica") );
+    //QApplication::setFont( QFont("Helvetica") );
+    QFont f("Times New Roman (Cyrillic)");
+    QApplication::setFont(f);
 
-    Main m;
-    Main mm(&m);
-    mm.setGeometry(m.width()*3/4,0,80,80);
-    a.setMainWidget( &m );
-    m.show();
+    m = new Main;
+    //qInstallMsgHandler(myout);
+    m->setCaption("Test");
+    a.setMainWidget( m );
+    m->show();
     return a.exec();
 }
