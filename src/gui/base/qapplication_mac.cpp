@@ -1758,16 +1758,17 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		if(widget) {
 		    QPoint plocal(widget->mapFromGlobal(where));
 		    QContextMenuEvent qme(QContextMenuEvent::Mouse, plocal, where, 0);
-		    qme.ignore();
 		    QApplication::sendEvent(widget, &qme);
 		    if(qme.isAccepted()) { //once this happens the events before are pitched
+#if 0
 			if(qt_button_down && mouse_button_state) {
 			    QMouseEvent qme(QEvent::MouseButtonRelease, plocal, where,
 					     mouse_button_state, mouse_button_state);
 			    QApplication::sendSpontaneousEvent(qt_button_down, &qme);
 			}
-			qt_button_down = 0;
 			mouse_button_state = 0;
+#endif
+			qt_button_down = 0;
 			qt_mac_dblclick.active = false;
 #ifdef DEBUG_MOUSE_MAPS
 			qDebug("%s:%d Mouse_button_state = %d", __FILE__, __LINE__,
