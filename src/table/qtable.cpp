@@ -4056,11 +4056,16 @@ QSize QTable::sizeHint() const
 
     QSize s = tableSize();
     QSize sh;
-    if ( s.width() < 500 && s.height() < 500 )
+    if ( s.width() < 500 && s.height() < 500 ) {
 	sh = QSize( tableSize().width() + VERTICALMARGIN + 5,
 		    tableSize().height() + topMargin() + 5 );
-    else
-	sh = QScrollView::sizeHint();
+    } else {
+    	sh = QScrollView::sizeHint();
+    	if ( !topHeader->isHidden() )
+		sh.setHeight( sh.height() + topHeader->height() );
+    	if ( !leftHeader->isHidden() )
+		sh.setWidth( sh.width() + leftHeader->width() );
+    }
     setCachedSizeHint( sh );
     return sh;
 }
