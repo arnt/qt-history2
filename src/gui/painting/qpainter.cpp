@@ -249,7 +249,7 @@ void QPainterPrivate::draw_helper_stroke_pathbased(const QPainterPath &input)
 
     QPainterPathStroker stroker;
     stroker.setWidth(width);
-    stroker.setStyle(state->pen.style());
+    stroker.setDashPattern(state->pen.style());
     stroker.setCapStyle(state->pen.capStyle());
     stroker.setJoinStyle(state->pen.joinStyle());
 

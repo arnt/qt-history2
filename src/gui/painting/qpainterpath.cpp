@@ -56,6 +56,8 @@
 #define d d_func()
 #define q q_func()
 
+QPainterPath qt_stroke_dash(const QPainterPath &path, qreal *dashes, int dashCount);
+
 void qt_find_ellipse_coords(const QRectF &r, qreal angle, qreal length,
                             QPointF* startPoint, QPointF *endPoint)
 {
@@ -1513,6 +1515,7 @@ public:
 
     void joinPoints(const QLineF &nextLine, QPainterPath *stroke, LineJoinMode join) const;
 
+    QPainterPathStroker *q_ptr;
     qreal width;
     qreal offset;
     qreal miterLimit;
@@ -1521,7 +1524,7 @@ public:
     Qt::PenStyle style;
     LineJoinMode joinStyle;
     LineJoinMode capStyle;
-    QPainterPathStroker *q_ptr;
+    QVector<qreal> dashPattern;
 };
 
 void QPainterPathStrokerPrivate::joinPoints(const QLineF &nextLine, QPainterPath *stroke,
@@ -1710,23 +1713,34 @@ template <class Iterator> bool qt_stroke_subpath_side(Iterator *it, QPainterPath
 /*!
   Creates a new stroke from the path \a input.
 */
-QPainterPath QPainterPathStroker::createStroke(const QPainterPath &input) const
+QPainterPath QPainterPathStroker::createStroke(const QPainterPath &path) const
 {
 #ifdef QPP_STROKE_DEBUG
     printf("QPainterPathPrivate::createStroke()\n");
 #endif
 
-    QPainterPath stroke;
 
 #ifdef QPP_STROKE_DEBUG
-    printf(" -> path size: %d\n", input.elementCount());
-    qt_debug_path(input);
+    printf(" -> path size: %d\n", path.elementCount());
+    qt_debug_path(path);
 #endif
+
+    QPainterPath input = path;
+
+    // Create the dashed version to use.
+    if (!d->dashPattern.isEmpty()) {
+        QVarLengthArray<qreal, 16> pattern(d->dashPattern.size());
+        for (int i=0; i<d->dashPattern.size(); ++i)
+            pattern[i] = d->dashPattern.at(i) * d->width;
+        input = qt_stroke_dash(path, pattern.data(), pattern.size());
+    }
+
     QSubpathIterator fwit(&input);
     QSubpathReverseIterator bwit(&input);
 
     QPointF start, prev;
 
+    QPainterPath stroke;
     while (fwit.hasSubpath()) {
         Q_ASSERT(bwit.hasSubpath());
 
@@ -1764,16 +1778,6 @@ void QPainterPathStroker::setWidth(qreal width)
 qreal QPainterPathStroker::width() const
 {
     return d->width;
-}
-
-void QPainterPathStroker::setStyle(Qt::PenStyle style)
-{
-    d->style = style;
-}
-
-Qt::PenStyle QPainterPathStroker::style() const
-{
-    return d->style;
 }
 
 void QPainterPathStroker::setCapStyle(Qt::PenCapStyle style)
@@ -1836,4 +1840,118 @@ void QPainterPathStroker::setCurveThreshold(qreal threshold)
 qreal QPainterPathStroker::curveThreshold() const
 {
     return d->curveThreshold;
+}
+
+void QPainterPathStroker::setDashPattern(Qt::PenStyle style)
+{
+    d->dashPattern = QVector<qreal>();
+
+    const qreal space = 2;
+    const qreal dot = 1;
+    const qreal dash = 4;
+
+    switch (style) {
+    case Qt::DashLine:
+        d->dashPattern << dash << space;
+        break;
+    case Qt::DotLine:
+        d->dashPattern << dot << space;
+        break;
+    case Qt::DashDotLine:
+        d->dashPattern << dash << space << dot << space;
+        break;
+    case Qt::DashDotDotLine:
+        d->dashPattern << dash << space << dot << space << dot << space;
+        break;
+    default:
+        break;
+    }
+}
+
+void QPainterPathStroker::setDashPattern(const QVector<qreal> &dashPattern)
+{
+    d->dashPattern = dashPattern;
+}
+
+QVector<qreal> QPainterPathStroker::dashPattern() const
+{
+    return d->dashPattern;
+}
+
+
+QPainterPath qt_stroke_dash(const QPainterPath &path,
+                            qreal *dashes, int dashCount)
+{
+    Q_ASSERT(dashes);
+    Q_ASSERT(dashCount > 0);
+
+    dashCount = (dashCount / 2) * 2; // Round down to even number
+
+    int idash = 0; // Index to current dash
+    qreal pos = 0; // The position on the curve, 0 <= pos <= path.length
+    qreal elen = 0; // element length
+    qreal doffset = 0;
+
+    qreal estart = 0; // The elements starting position
+    qreal estop = 0; // The element stop position
+
+    QLineF cline;
+
+    QPainterPath dashPath;
+
+    QSubpathFlatIterator it(&path);
+    QPointF prev;
+    while (it.hasSubpath()) {
+        prev = it.nextSubpath();
+        dashPath.moveTo(prev);
+
+        pos = 0;
+        idash = 0;
+        doffset = 0;
+        estart = 0;
+
+        while (it.hasNext()) {
+            QPainterPath::Element e = it.next();
+
+            Q_ASSERT(e.isLineTo());
+            cline = QLineF(prev, e);
+            elen = cline.length();
+
+            estop = estart + elen;
+
+            // Dash away...
+            while (pos < estop) {
+                QPointF p2;
+
+                int idash_incr = 0;
+                qreal dpos = pos + dashes[idash] - doffset - estart;
+
+                Q_ASSERT(dpos >= 0);
+
+                if (dpos > elen) { // dash extends this line
+                    doffset = dashes[idash] - (dpos - elen); // subtract the part already used
+                    pos = estop; // move pos to next path element
+                    p2 = cline.end();
+                } else { // Dash is on this line
+                    p2 = cline.pointAt(dpos/elen);
+                    pos = dpos + estart;
+                    idash_incr = 1;
+                    doffset = 0; // full segment so no offset on next.
+                }
+
+                if (idash % 2 == 0) {
+                    dashPath.lineTo(p2);
+                } else {
+                    dashPath.moveTo(p2);
+                }
+
+                idash = (idash + idash_incr) % dashCount;
+            }
+
+            // Shuffle to the next cycle...
+            estart = estop;
+            prev = e;
+        }
+    }
+    return dashPath;
 }
