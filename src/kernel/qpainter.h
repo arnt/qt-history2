@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#22 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#23 $
 **
 ** Definition of QPainter class
 **
@@ -138,6 +138,8 @@ public:
 			      int index=0, int npoints=-1 );
     void	drawPolygon( const QPointArray &, bool winding=FALSE,
 			     int index=0, int npoints=-1 );
+    void	drawBezier( const QPointArray &,
+			    int index=0, int npoints=-1 );
     void	drawPixMap( int x, int y, const QPixMap & );
     void	drawPixMap( const QPoint &, const QPixMap & );
     void	drawPicture( const QPicture & );
