@@ -632,13 +632,17 @@ void QPopupMenu::subHighlighted( int id )
     emit highlightedRedirect( id );
 }
 
+static bool fromAccel = FALSE;
+
 #ifndef QT_NO_ACCEL
 void QPopupMenu::accelActivated( int id )
 {
     QMenuItem *mi = findItem( id );
     if ( mi && mi->isEnabled() ) {
 	QGuardedPtr<QSignal> signal = mi->signal();
+	fromAccel = TRUE;
 	actSig( mi->id() );
+	fromAccel = FALSE;
 	if ( signal )
 	    signal->activate();
     }
@@ -660,7 +664,8 @@ void QPopupMenu::actSig( int id, bool inwhatsthis )
     if ( !inwhatsthis ) {
 	emit activated( id );
 #if defined(QT_ACCESSIBILITY_SUPPORT)
-	QAccessible::updateAccessibility( this, id, QAccessible::MenuCommand );
+	if ( !fromAccel )
+	    QAccessible::updateAccessibility( this, id, QAccessible::MenuCommand );
 #endif
     } else {
 #ifndef QT_NO_WHATSTHIS
