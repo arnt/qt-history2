@@ -987,6 +987,8 @@ bool QMenuBar::eventFilter(QObject *object, QEvent *event)
         case QEvent::HideToParent:
             d->updateLayout();
             break;
+        default:
+            break;
         }
     }
 
