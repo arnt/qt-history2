@@ -41,6 +41,8 @@ class Q_EXPORT QDialog : public QWidget			// dialog widget
 {
 friend class QPushButton;
     Q_OBJECT
+    Q_PROPERTY( bool sizeGripEnabled READ isSizeGripEnabled WRITE setSizeGripEnabled )
+    
 public:
     QDialog( QWidget *parent=0, const char *name=0, bool modal=FALSE,
 	     WFlags f=0 );
@@ -69,6 +71,9 @@ public:
     QSize	sizeHint() const;
     QSize	minimumSizeHint() const;
 
+    void setSizeGripEnabled(bool);
+    bool isSizeGripEnabled() const;
+    
 protected slots:
     virtual void done( int );
     virtual void accept();
@@ -80,6 +85,7 @@ protected:
     void	setResult( int r )	{ rescode = r; }
     void	keyPressEvent( QKeyEvent * );
     void	closeEvent( QCloseEvent * );
+    void 	resizeEvent( QResizeEvent * );
 private:
     virtual void	setDefault( QPushButton * ); // ## remove virtual 3.0
     void		hideDefault();

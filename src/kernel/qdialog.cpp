@@ -30,6 +30,7 @@
 #include "qobjectdict.h"
 #include "qwidgetlist.h"
 #include "qlayout.h"
+#include "qsizegrip.h"
 
 
 // NOT REVISED
@@ -89,6 +90,10 @@
     }
   \endcode
 
+  A dialog can also provide a QSizeGrip in the lower-right corner.  By
+  default, this is disabled. You can enable it with
+  setSizeGripEnabled(TRUE);
+  
   \sa QTabDialog QWidget QSemiModal
   <a href="guibooks.html#fowler">GUI Design Handbook: Dialogs, Standard.</a>
 */
@@ -98,18 +103,17 @@
 class QDialogPrivate : public Qt
 {
 public:
-    
+
     QDialogPrivate()
-{
-    mainDef = 0;
-    orientation = Horizontal;
-    extension = 0;
-}
-    
+	: mainDef(0), orientation(Horizontal),extension(0),resizer(0) {
+    }
+
     QPushButton* mainDef;
     Orientation orientation;
     QWidget* extension;
     QSize size, min, max;
+    
+    QSizeGrip* resizer;
 };
 
 
@@ -444,11 +448,11 @@ void QDialog::show()
 	move( p );
     }
     QWidget::show();
-    
-    
-    /*########### 3.0: 
-      
-      This 'feature' is nonsense and will be removed in 3.0. 
+
+
+    /*########### 3.0:
+
+      This 'feature' is nonsense and will be removed in 3.0.
       show()
       should do show() and nothing more.  If these lines are removed,
       we can finally kill QSemiModal and let QProgressBar inherit
@@ -534,7 +538,7 @@ void QDialog::setGeometry( const QRect &r )
 }
 
 
-/*!  
+/*!
   Sets whether the dialog should extend horizontally or vertically,
   depending on \a orientation.
 
@@ -545,7 +549,7 @@ void QDialog::setOrientation( Orientation orientation )
     d->orientation = orientation;
 }
 
-/*!  
+/*!
   Returns the extension direction of the dialog.
 
   \sa setOrientation()
@@ -554,13 +558,13 @@ Qt::Orientation QDialog::orientation() const
 {
     return d->orientation;
 }
-    
+
 /*!
-  Sets \a extension to be the dialog's extension. 
-  
+  Sets \a extension to be the dialog's extension.
+
   The dialogs takes over ownership of the extension. Any previously
   defined extension is deleted.
-  
+
   \sa showExtension(), setOrientation(), extension()
  */
 void QDialog::setExtension( QWidget* extension )
@@ -575,10 +579,10 @@ void QDialog::setExtension( QWidget* extension )
 	extension->hide();
 }
 
-/*!  
+/*!
   Returns the dialog's extension or 0 if no extension has been
   defined yet.
-  
+
   \sa setExtension()
  */
 QWidget* QDialog::extension() const
@@ -587,16 +591,16 @@ QWidget* QDialog::extension() const
 }
 
 
-/*!  
+/*!
   Extends the dialog to show its extension if \a showIt is TRUE,
   otherwise hides the extension.
-  
+
   This slot is usually connected to the toggled-signal of a toggle
   button (see QPushButton::toggled() ). Per default, the dialog
   extends horizontally. Adjust this behaviour with setOrientation().
-  
+
   Nothing happens if the dialog is not visible yet.
-  
+
   \sa show(), setExtension(), setOrientation()
  */
 void QDialog::showExtension( bool showIt )
@@ -605,12 +609,12 @@ void QDialog::showExtension( bool showIt )
 	return;
     if ( !testWState(WState_Visible) )
 	return;
-    
+
     if ( showIt ) {
 	d->size = size();
 	d->min = minimumSize();
 	d->max = maximumSize();
-    
+
 	if ( layout() )
 	    layout()->setEnabled( FALSE );
 
@@ -640,7 +644,7 @@ QSize QDialog::sizeHint() const
 {
     if ( d->extension )
 	if ( d->orientation == Horizontal )
-	    return QSize( QWidget::sizeHint().width(), 
+	    return QSize( QWidget::sizeHint().width(),
 			QMAX( QWidget::sizeHint().height(),d->extension->sizeHint().height() ) );
 	else
 	    return QSize( QMAX( QWidget::sizeHint().width(), d->extension->sizeHint().width() ),
@@ -656,7 +660,7 @@ QSize QDialog::minimumSizeHint() const
 {
     if ( d->extension )
 	if (d->orientation == Horizontal )
-	    return QSize( QWidget::minimumSizeHint().width(), 
+	    return QSize( QWidget::minimumSizeHint().width(),
 			QMAX( QWidget::minimumSizeHint().height(), d->extension->minimumSizeHint().height() ) );
 	else
 	    return QSize( QMAX( QWidget::minimumSizeHint().width(), d->extension->minimumSizeHint().width() ),
@@ -665,3 +669,49 @@ QSize QDialog::minimumSizeHint() const
     return QWidget::minimumSizeHint();
 }
 
+
+/*!
+  \fn bool QStatusBar::isSizeGripEnabled() const
+
+  Returns whether the QSizeGrip in the bottom right of the dialog
+  is enabled.
+
+  \sa setSizeGripEnabled()
+*/
+
+bool QDialog::isSizeGripEnabled() const
+{
+    return (bool)d->resizer;
+}
+
+/*!
+  Enables or disables the QSizeGrip in the bottom right of the dialog.
+  By default, the size grip is disabled.
+
+  \sa isSizeGripEnabled()
+*/
+void QDialog::setSizeGripEnabled(bool enabled)
+{
+    if ( !enabled != !d->resizer ) {
+	if ( enabled ) {
+	    d->resizer = new QSizeGrip( this, "QDialog::resizer" );
+	    d->resizer->adjustSize();
+	    d->resizer->move( rect().bottomRight() -d->resizer->rect().bottomRight() ); 
+	    d->resizer->raise();
+	    d->resizer->show();
+	} else {
+	    delete d->resizer;
+	    d->resizer = 0;
+	}
+    }
+}
+
+
+
+/*!\reimp
+ */
+void QDialog::resizeEvent( QResizeEvent * )
+{
+    if ( d->resizer )
+	d->resizer->move( rect().bottomRight() -d->resizer->rect().bottomRight() ); 
+}
