@@ -1122,6 +1122,7 @@ static const unsigned short split_matras[]  = {
 static inline void splitMatra(unsigned short *reordered, int matra, int &len, int &base)
 {
     unsigned short matra_uc = reordered[matra];
+    //qDebug("matra=%d, reordered[matra]=%x", matra, reordered[matra]);
 
     const unsigned short *split = split_matras;
     while ( split[0] < matra_uc )
@@ -1320,11 +1321,11 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 		    toPos += 2;
 		if (script == QFont::Devanagari || script == QFont::Gujarati || script == QFont::Bengali) {
 		    if (matra_position == Post || matra_position == Split) {
-			toPos = matra;
+			toPos = matra+1;
 			matra -= 2;
 		    }
 		} else if (script == QFont::Kannada) {
-		    toPos = len - 1;
+		    toPos = len;
 		    matra -= 2;
 		}
 
@@ -1375,6 +1376,10 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 		position[i] = Inherit;
 	}
 	if (reph > 0) {
+	    // recalculate reph, it might have changed.
+	    for (i = base+1; i < len; ++i)
+		if (uc[i] == ra)
+		    reph = i;
 	    position[reph] = Reph;
 	    position[reph+1] = Inherit;
 	}
@@ -1442,6 +1447,12 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	glyphAttributes[i].zeroWidth = FALSE;
 	IDEBUG("    %d: %4x", i, reordered[i]);
     }
+    if (reph > 0) {
+	// recalculate reph, it might have changed.
+	for (i = base+1; i < len; ++i)
+	    if (reordered[i] == ra)
+		reph = i;
+    }
     IDEBUG("  base=%d, reph=%d", base, reph);
     glyphAttributes[0].clusterStart = TRUE;
 
@@ -1480,7 +1491,7 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 
 	openType->applyGSUBFeature(FT_MAKE_TAG( 'c', 'c', 'm', 'p' ));
 
-	where[0] = TRUE;
+	where[0] = (from == 0 || !string.unicode()[from-1].isLetter());
 	openType->applyGSUBFeature(FT_MAKE_TAG( 'i', 'n', 'i', 't' ), where);
 	openType->applyGSUBFeature(FT_MAKE_TAG( 'n', 'u', 'k', 't' ));
 
@@ -1523,17 +1534,21 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	    }
 	}
 	openType->applyGSUBFeature(FT_MAKE_TAG( 'h', 'a', 'l', 'f' ), where);
-	openType->applyGSUBFeature(FT_MAKE_TAG( 'p', 's', 't', 'f' ));
+	memset(where, 0, len*sizeof(bool));
+	for (i = base+1; i < len; ++i)
+	    where[i] = TRUE;
+	openType->applyGSUBFeature(FT_MAKE_TAG( 'p', 's', 't', 'f' ), where);
 	openType->applyGSUBFeature(FT_MAKE_TAG( 'v', 'a', 't', 'u' ));
 
 	// Conjunkts and typographical forms
 	openType->applyGSUBFeature(FT_MAKE_TAG( 'p', 'r', 'e', 's' ));
 	openType->applyGSUBFeature(FT_MAKE_TAG( 'b', 'l', 'w', 's' ));
 	openType->applyGSUBFeature(FT_MAKE_TAG( 'a', 'b', 'v', 's' ));
-	openType->applyGSUBFeature(FT_MAKE_TAG( 'p', 's', 't', 's' ));
+	openType->applyGSUBFeature(FT_MAKE_TAG( 'p', 's', 't', 's' ), where);
 
 	// halant forms
 	if (reordered[len-1] == halant) {
+	    memset(where, 0, len*sizeof(bool));
 	    where[len-1] = where[len-2] = TRUE;
 	    openType->applyGSUBFeature(FT_MAKE_TAG( 'h', 'a', 'l', 'n' ));
 	}
@@ -1996,7 +2011,7 @@ static int tibetan_nextSyllableBoundary( const QString &s, int start, int end, b
     }
 
 finish:
-    *invalid = false;
+    *invalid = FALSE;
     return start+pos;
 }
 
@@ -2245,7 +2260,7 @@ finish:
     if (state == Khmer_Coeng && pos > 1)
 	--pos;
 
-    *invalid = false;
+    *invalid = FALSE;
     return start+pos;
 }
 
