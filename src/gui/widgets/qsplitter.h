@@ -94,7 +94,7 @@ public:
     enum ResizeMode { Stretch, KeepSize, FollowSizeHint, Auto };
     QT_COMPAT void setResizeMode(QWidget *w, ResizeMode mode);
     inline QT_COMPAT void moveToFirst(QWidget *w) { insertWidget(0,w); }
-    inline QT_COMPAT void moveToLast(QWidget *) { addWidget(w); }
+    inline QT_COMPAT void moveToLast(QWidget *w) { addWidget(w); }
 #endif
 
 private:
