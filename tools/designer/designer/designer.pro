@@ -16,6 +16,11 @@ DEFINES += QT_INTERNAL_ICONVIEW
 DEFINES += QT_INTERNAL_TABLE
 table:win32-msvc:DEFINES+=QM_TEMPLATE_EXTERN_TABLE=extern
 
+unix {
+	QMAKE_CFLAGS += $$QMAKE_CFLAGS_SHLIB
+	QMAKE_CXXFLAGS += $$QMAKE_CXXFLAGS_SHLIB
+}
+
 include( ../../../src/qt_professional.pri )
 
 SOURCES	+= command.cpp \
