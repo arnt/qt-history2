@@ -3784,7 +3784,8 @@ QVariant QAxBase::dynamicCall(const char *function, QList<QVariant> &vars)
         return QVariant();
 
     QVariant qvar = VARIANTToQVariant(res, rettype);
-    clearVARIANT(&res);
+    if (res.vt != VT_DISPATCH && res.vt != VT_UNKNOWN)
+        clearVARIANT(&res);
 
     return qvar;
 }
