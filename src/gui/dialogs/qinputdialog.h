@@ -26,9 +26,6 @@ class QInputDialogPrivate;
 
 class Q_GUI_EXPORT QInputDialog : public QDialog
 {
-#if defined(Q_CC_MSVC)
-    friend class QInputDialog;
-#endif
     Q_OBJECT
     Q_DECLARE_PRIVATE(QInputDialog)
 
