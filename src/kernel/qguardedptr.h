@@ -59,8 +59,8 @@ private:
     QObject* obj;
 };
 
-
-template <class T> class Q_EXPORT QGuardedPtr
+template <class T>
+class QGuardedPtr
 {
 public:
     QGuardedPtr() : priv( new QGuardedPtrPrivate( 0 ) ) {}

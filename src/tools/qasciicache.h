@@ -43,7 +43,8 @@
 #endif // QT_H
 
 
-template<class type> class Q_EXPORT QAsciiCache : public QGCache
+template<class type> 
+class QAsciiCache : public QGCache
 {
 public:
     QAsciiCache( const QAsciiCache<type> &c ) : QGCache(c) {}
@@ -87,7 +88,8 @@ template<class type> inline void QAsciiCache<type>::deleteItem( QPtrCollection::
 }
 
 
-template<class type> class Q_EXPORT QAsciiCacheIterator : public QGCacheIterator
+template<class type> 
+class QAsciiCacheIterator : public QGCacheIterator
 {
 public:
     QAsciiCacheIterator( const QAsciiCache<type> &c ):QGCacheIterator((QGCache &)c) {}

@@ -43,7 +43,8 @@
 #endif // QT_H
 
 
-template<class type> class Q_EXPORT QPtrList
+template<class type> 
+class QPtrList
 #ifdef Q_QDOC
 	: public QPtrCollection
 #else
@@ -117,7 +118,8 @@ template<class type> inline void QPtrList<type>::deleteItem( QPtrCollection::Ite
     if ( del_item ) delete (type *)d;
 }
 
-template<class type> class Q_EXPORT QPtrListIterator : public QGListIterator
+template<class type> 
+class QPtrListIterator : public QGListIterator
 {
 public:
     QPtrListIterator(const QPtrList<type> &l) :QGListIterator((QGList &)l) {}

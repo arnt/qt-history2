@@ -43,7 +43,7 @@
 #endif // QT_H
 
 template<class type>
-class Q_EXPORT QPtrDict
+class QPtrDict
 #ifdef Q_QDOC
 	: public QPtrCollection
 #else
@@ -96,7 +96,7 @@ inline void QPtrDict<type>::deleteItem( QPtrCollection::Item d )
 }
 
 template<class type>
-class Q_EXPORT QPtrDictIterator : public QGDictIterator
+class QPtrDictIterator : public QGDictIterator
 {
 public:
     QPtrDictIterator(const QPtrDict<type> &d) :QGDictIterator((QGDict &)d) {}

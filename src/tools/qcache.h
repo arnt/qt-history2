@@ -43,7 +43,7 @@
 #endif // QT_H
 
 template<class type>
-class Q_EXPORT QCache
+class QCache
 #ifdef Q_QDOC
 	: public QPtrCollection
 #else
@@ -91,7 +91,7 @@ template<class type> inline void QCache<type>::deleteItem( QPtrCollection::Item 
 }
 
 template<class type>
-class Q_EXPORT QCacheIterator : public QGCacheIterator
+class QCacheIterator : public QGCacheIterator
 {
 public:
     QCacheIterator( const QCache<type> &c ):QGCacheIterator((QGCache &)c) {}
