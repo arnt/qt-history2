@@ -2,7 +2,7 @@
     \page qt4-network.html
     \title Qt 4: The Network Module
 
-    The newtork module in Qt 4 provides some new features, such as
+    The network module in Qt 4 provides some new features, such as
     support for internationalized domain names, better IPv6 support,
     and better performance. And since Qt 4 allows us to break binary
     compatibility with previous releases, we took this opportunity to
