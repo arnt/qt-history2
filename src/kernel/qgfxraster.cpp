@@ -2034,7 +2034,7 @@ inline unsigned int QGfxRaster<depth,type>::get_value(int destdepth,
 		ret=val;
 	    } else {
 		ret=transclut[val];
-	    }	    
+	    }	
 #else
 	    ret=transclut[val];
 #endif
@@ -2781,7 +2781,7 @@ inline void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 #elif defined(QWS_DEPTH_8DIRECT)
 	    alphabuf[loopc]=(r >> 5) << 5 |
 			    (g >> 6) << 3 |
-			    (b >> 5);	    
+			    (b >> 5);	
 #else
 	    alphabuf[loopc]=closestMatch(r,g,b);
 #endif
@@ -3628,9 +3628,16 @@ bool QScreen::initCard()
 	    cmap.transp[loopc]=0;
 	    screenclut[loopc]=qRgb(loopc,loopc,loopc);
 #else
-	    cmap.red[loopc]=((loopc & 0xe0) >> 5) << (5+8);
-	    cmap.green[loopc]=((loopc & 0x18) >> 3) << (6+8);
-	    cmap.blue[loopc]=(loopc & 0x07) << (5+8);
+	    int a,b,c;
+	    a=((loopc & 0xe0) >> 5) << 5;
+	    b=((loopc & 0x18) >> 3) << 6;
+	    c=(loopc & 0x07) << 5;
+	    a=a | 0x3f;
+	    b=b | 0x3f;
+	    c=c | 0x3f;
+	    cmap.red[loopc]=a << 8;
+	    cmap.green[loopc]=b << 8;
+	    cmap.blue[loopc]=c << 8;
 	    cmap.transp[loopc]=0;
 	    screenclut[loopc]=qRgb(cmap.red[loopc] >> 8,
 				   cmap.green[loopc] >> 8,
