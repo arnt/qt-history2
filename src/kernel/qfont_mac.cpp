@@ -148,49 +148,56 @@ static int do_text_task( const QFontPrivate *d, QString s, int pos, int len, tex
     ItemCount run_len = 20; //runs
     ScriptCodeRun runs[run_len];
     ByteCount read, converted; //returns
+    int read_so_far = 0;
     const int flags = kUnicodeUseFallbacksMask | kUnicodeTextRunMask;
-    err = ConvertFromUnicodeToScriptCodeRun( runi, unilen * 2, unibuf, flags,
-					     0, NULL, NULL, NULL, buf_len, &read, 
-					     &converted, buf, run_len, &run_len, runs);
-    if(err != noErr && err != kTECUsedFallbacksStatus) {
-	qDebug("unlikely error %d %s:%d", (int)err, __FILE__, __LINE__);
-	DisposeUnicodeToTextRunInfo(&runi);
-	delete unibuf;
-	free(buf);
-	return 0;
-    }
-
     int ret = 0, sz = fi.size();
     ScriptCode sc = FontToScript(fi.font());
-    for(ItemCount i = 0; i < run_len; i++) {
-	//set the font
-	short fn = runs[i].script == sc ? fi.font() : GetScriptVariable(runs[i].script, smScriptSysFond);
-	TextFont(fn);
+    while(1) {
+	err = ConvertFromUnicodeToScriptCodeRun( runi, (unilen * 2)-read_so_far, unibuf+read_so_far, flags,
+						 0, NULL, NULL, NULL, buf_len, &read, 
+						 &converted, buf, run_len, &run_len, runs);
+	if(err != noErr && err != kTECUsedFallbacksStatus && err != kTECArrayFullErr) {
+	    qDebug("unlikely error %d %s:%d", (int)err, __FILE__, __LINE__);
+	    DisposeUnicodeToTextRunInfo(&runi);
+	    delete unibuf;
+	    free(buf);
+	    return 0;
+	}
+	read_so_far += read;
 
-	//crap font scaling
-	FontInfo info;
-	GetFontInfo(&info);
-	int msz = sz;
-	while( (info.ascent + info.descent) > (setfi.ascent + setfi.descent)) {
-	    TextSize(msz--);
+	for(ItemCount i = 0; i < run_len; i++) {
+	    //set the font
+	    short fn = runs[i].script == sc ? fi.font() : GetScriptVariable(runs[i].script, smScriptSysFond);
+	    TextFont(fn);
+
+	    //crap font scaling
+	    FontInfo info;
 	    GetFontInfo(&info);
+	    int msz = sz;
+	    while( (info.ascent + info.descent) > (setfi.ascent + setfi.descent)) {
+		TextSize(msz--);
+		GetFontInfo(&info);
+	    }
+
+	    //calculate string offsets
+	    ByteOffset off = runs[i].offset;
+	    int rlen = ((i == run_len - 1) ? converted : runs[i+1].offset) - off;
+
+	    //do the requested task
+	    if(task == GIMME_WIDTH) 
+		ret += TextWidth(buf, off, rlen);
+	    else if(task == GIMME_DRAW)
+		DrawText(buf, off, rlen);
+	    else 
+		qDebug("that can't be!");
+
+	    //restore the scale
+	    if(msz != sz)
+		TextSize(sz);
 	}
 
-	//calculate string offsets
-	ByteOffset off = runs[i].offset;
-	int rlen = ((i == run_len - 1) ? converted : runs[i+1].offset) - off;
-
-	//do the requested task
-	if(task == GIMME_WIDTH) 
-	    ret += TextWidth(buf, off, rlen);
-	else if(task == GIMME_DRAW)
-	    DrawText(buf, off, rlen);
-	else 
-	    qDebug("that can't be!");
-
-	//restore the scale
-	if(msz != sz)
-	    TextSize(sz);
+	if( err != kTECArrayFullErr )
+	    break;
     }
     DisposeUnicodeToTextRunInfo(&runi);
     delete unibuf;
