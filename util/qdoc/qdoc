@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#50 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#51 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1367,6 +1367,34 @@ problem, and we'll fix it before 1.0.
     }
     close O;
 }
+
+
+
+sub makepsindex {
+    local($f, $c);
+
+    foreach ( sort keys %anchor ) {
+	if ( $type{$anchor{$_}} eq "class" ) {
+	    $f = join("\n", $f, 
+		      ("\nhttp://www.troll.no/qt/" . $anchor{$_}),
+		      "[1]",
+		      "[1]",
+		      ("[Qt Toolkit - " . $_ . " Class Reference]"),
+		      ("[" . $outputdir . "/" . $anchor{$_} . "]"));
+	    $c++;
+	}
+    }
+
+    open(O, "> /tmp/htps.ndx");
+    print O "\# No of image URLs\n",
+    0,
+    "\n\#\n\#\n\# [End of image list]\n\#\n\# No of URLs\n",
+    $c, 
+    "\n\# If the filename tag is missing url will be discarded",
+    $f, "\n\#\n\# [EOF]\n";
+    close(O);
+}
+
 
 
 
