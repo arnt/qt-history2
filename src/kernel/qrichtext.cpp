@@ -2286,8 +2286,10 @@ QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool u
 {
     newLinesAllowed = FALSE;
     defFormat = formatCollection()->defaultFormat();
-    if ( !doc )
+    if ( !doc ) {
 	tabStopWidth = defFormat->width( 'x' ) * 8;
+	commandHistory = new QTextCommandHistory( 100 );
+    }
 #if defined(PARSER_DEBUG)
     qDebug( debug_indent + "new QTextParag" );
 #endif
@@ -3131,6 +3133,28 @@ QString QTextParag::richText() const
 	}
     }
     return s;
+}
+
+void QTextParag::addCommand( QTextCommand *cmd )
+{
+    if ( !doc )
+	commandHistory->addCommand( cmd );
+    else
+	doc->commands()->addCommand( cmd );
+}
+
+QTextCursor *QTextParag::undo( QTextCursor *c )
+{
+    if ( !doc )
+	return commandHistory->undo( c );
+    return doc->commands()->undo( c );
+}
+
+QTextCursor *QTextParag::redo( QTextCursor *c )
+{
+    if ( !doc )
+	return commandHistory->redo( c );
+    return doc->commands()->redo( c );
 }
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -4431,7 +4455,7 @@ QString QTextFormat::makeFormatChangeTags( QTextFormat *f ) const
 					     QApplication::palette().color( QPalette::Active, QColorGroup::Text ) );
 
     QString tag;
-    
+
     if ( f ) {
 	if ( f->font() != defaultFormat->font() ||
 	     f->color().rgb() != defaultFormat->color().rgb() )
@@ -4454,7 +4478,7 @@ QString QTextFormat::makeFormatChangeTags( QTextFormat *f ) const
 	else
 	    tag += "<a name=\"" + anchor_name + "\"></a>";
     }
-    
+
     if ( font() != defaultFormat->font() ) {
 	if ( font().bold() && font().bold() != defaultFormat->font().bold() )
 	    tag += "<b>";

@@ -369,6 +369,7 @@ public:
     void addCommand( QTextCommand *cmd );
     QTextCursor *undo( QTextCursor *c = 0 );
     QTextCursor *redo( QTextCursor *c  = 0 );
+    QTextCommandHistory *commands() const { return commandHistory; }
 
     QTextFormatCollection *formatCollection() const;
 
@@ -438,7 +439,6 @@ public:
     int undoDepth() const { return commandHistory->undoDepth(); }
 
     int length() const;
-    QTextCommandHistory *commands() const { return commandHistory; }
     void clear( bool createEmptyParag = FALSE );
 
 signals:
@@ -758,6 +758,11 @@ public:
 
     QString richText() const;
 
+    void addCommand( QTextCommand *cmd );
+    QTextCursor *undo( QTextCursor *c = 0 );
+    QTextCursor *redo( QTextCursor *c  = 0 );
+    QTextCommandHistory *commands() const { return commandHistory; }
+
 private:
     void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg );
     void drawParagBuffer( QPainter &painter, const QString &buffer, int startX,
@@ -799,7 +804,8 @@ private:
     int tabStopWidth;
     void *eData;
     QPainter *pntr;
-
+    QTextCommandHistory *commandHistory;
+    
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
