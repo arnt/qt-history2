@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#109 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#110 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#109 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#110 $");
 
 
 /*!
@@ -1483,7 +1483,7 @@ QComboBox::Policy QComboBox::insertionPolicy() const
   \sa policy()
 */
 
-void QComboBox::setInsertionPolicy( QComboBox::Policy policy )
+void QComboBox::setInsertionPolicy( Policy policy )
 {
     d->p = policy;
 }

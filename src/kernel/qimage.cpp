@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#132 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#133 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#132 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#133 $");
 
 
 /*!
@@ -655,7 +655,7 @@ void QImage::setAlphaBuffer( bool enable )
 */
 
 bool QImage::create( int width, int height, int depth, int numColors,
-		     QImage::Endian bitOrder )
+		    Endian bitOrder )
 {
     reset();					// reset old data
     if ( width <= 0 || height <= 0 || depth <= 0 || numColors < 0 )
@@ -714,8 +714,7 @@ bool QImage::create( int width, int height, int depth, int numColors,
 }
 
 /*!
- \overload bool QImage::create( const QSize&, int depth, int numColors,
-                     QImage::Endian bitOrder )
+ \overload bool QImage::create( const QSize&, int depth, int numColors, Endian bitOrder )
 */
 bool QImage::create( const QSize& size, int depth, int numColors,
 		     QImage::Endian bitOrder )
@@ -1563,7 +1562,7 @@ void QImage::setPixel( int x, int y, uint index_or_rgb )
   \sa bitOrder(), setBitOrder()
 */
 
-QImage QImage::convertBitOrder( QImage::Endian bitOrder ) const
+QImage QImage::convertBitOrder( Endian bitOrder ) const
 {
     if ( isNull() || data->d != 1 ||		// invalid argument(s)
 	 !(bitOrder == BigEndian || bitOrder == LittleEndian) ) {
