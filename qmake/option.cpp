@@ -47,6 +47,8 @@ QString Option::h_ext;
 QString Option::moc_ext;
 QString Option::cpp_ext;
 QString Option::obj_ext;
+QString Option::lex_ext;
+QString Option::yacc_ext;
 QString Option::dir_sep;
 QString Option::moc_mod;
 QString Option::yacc_mod;
@@ -238,6 +240,8 @@ Option::parseCommandLine(int argc, char **argv)
     Option::h_ext = ".h";
     Option::moc_ext = ".moc";
     Option::cpp_ext = ".cpp";
+    Option::lex_ext = ".l";
+    Option::yacc_ext = ".y";
     if(Option::target_mode == Option::TARG_WIN_MODE) {
 	Option::dir_sep = "\\";
 	Option::obj_ext =  ".obj";
@@ -248,6 +252,29 @@ Option::parseCommandLine(int argc, char **argv)
 	    Option::dir_sep = "/";
 	Option::obj_ext = ".o";
     }
+    return TRUE;
+}
+
+bool Option::postProcessProject(QMakeProject *project)
+{
+    if(!project->isEmpty("QMAKE_EXT_UI"))
+	Option::ui_ext = project->first("QMAKE_EXT_UI");
+    if(!project->isEmpty("QMAKE_EXT_H"))
+	Option::h_ext = project->first("QMAKE_EXT_H");
+    if(!project->isEmpty("QMAKE_EXT_MOC"))
+	Option::moc_ext = project->first("QMAKE_EXT_MOC");
+    if(!project->isEmpty("QMAKE_EXT_CPP"))
+	Option::cpp_ext = project->first("QMAKE_EXT_CPP");
+    if(!project->isEmpty("QMAKE_EXT_OBJ"))
+	Option::obj_ext = project->first("QMAKE_EXT_OBJ");
+    if(!project->isEmpty("QMAKE_MOD_MOC"))
+	Option::moc_mod = project->first("QMAKE_MOD_MOC");
+    if(!project->isEmpty("QMAKE_MOD_LEX"))
+	Option::lex_mod = project->first("QMAKE_MOD_LEX");
+    if(!project->isEmpty("QMAKE_MOD_YACC"))
+	Option::yacc_mod = project->first("QMAKE_MOD_YACC");
+    if(!project->isEmpty("QMAKE_DIR_SEP_"))
+	Option::dir_sep = project->first("QMAKE_DIR_SEP");
     return TRUE;
 }
 

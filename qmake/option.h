@@ -37,6 +37,7 @@
 #ifndef __OPTION_H__
 #define __OPTION_H__
 
+#include "project.h"
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qfile.h>
@@ -53,12 +54,17 @@ struct Option
     static QString moc_ext;
     static QString cpp_ext;
     static QString obj_ext;
+    static QString lex_ext;
+    static QString yacc_ext;
     static QString moc_mod;
     static QString lex_mod;
     static QString yacc_mod;
     static QString dir_sep;
-    //and convenience functions
-    static bool parseCommandLine(int argc, char **argv);
+    //both of these must be called..
+    static bool parseCommandLine(int argc, char **argv); //parse cmdline
+    static bool postProcessProject(QMakeProject *); //parse project
+
+    //and convenience functions    
     static QString fixPathToLocalOS(const QString& in);
     static QString fixPathToTargetOS(const QString& in, bool fix_env=TRUE);
 

@@ -126,7 +126,7 @@ ProjectGenerator::init()
 				if(!v["SOURCES"].contains(src))
 				    v["SOURCES"].append(src);
 			    }
-			} else if((*dep_it).right(2) == ".l" &&
+			} else if((*dep_it).right(2) == Option::lex_ext &&
 				  file_no_path.left(Option::lex_mod.length()) == Option::lex_mod) {
 			    addConfig("lex_included");
 			}
@@ -229,9 +229,9 @@ ProjectGenerator::addFile(const QString &file)
 	where = "INTERFACES";
     } else if(file.right(2) == ".c") {
 	where = "SOURCES";
-    } else if(file.right(2) == ".l") {
+    } else if(file.right(2) == Option::lex_ext) {
 	where = "LEXSOURCES";
-    } else if(file.right(2) == ".y") {
+    } else if(file.right(2) == Option::yacc_ext) {
 	where = "YACCSOURCES";
     }
     if(!where.isEmpty() && !project->variables()[where].contains(file)) {

@@ -94,6 +94,13 @@ int main(int argc, char **argv)
 		continue;
 	    }
 
+	    /* let Option post process */
+	    if(!Option::postProcessProject(&proj)) {
+		fprintf(stderr, "Error post-processing project file: %s", fn == "-" ? "(stdin)" : (*pfile).latin1());
+		exit_val = 8;
+		continue;
+	    }
+
 	    /* figure out generator */
 	    MakefileGenerator *mkfile = NULL;
 	    QString gen = proj.first("MAKEFILE_GENERATOR"), def_mkfile;
@@ -229,7 +236,7 @@ int main(int argc, char **argv)
 	    fprintf(stderr, "Unable to generate project file\n");
 	    if(!using_stdout)
 		QFile::remove(Option::output.name());
-	    exit_val = 6;
+	    exit_val = 7;
 	}
 
 	/* debugging */
