@@ -585,6 +585,10 @@ void VcprojGenerator::initPreBuildEventTools()
 
 void VcprojGenerator::initPostBuildEventTools()
 {
+    if ( !project->variables()["QMAKE_POST_LINK"].isEmpty() ) {
+	vcProject.Configuration.postBuild.Description = var("QMAKE_POST_LINK");
+	vcProject.Configuration.postBuild.CommandLine = var("QMAKE_POST_LINK");
+    }
     if( project->isActiveConfig( "activeqt" ) ) {
 	QString name = project->first( "QMAKE_ORIG_TARGET" );
 	QString nameext = project->first( "TARGET" );
@@ -592,9 +596,11 @@ void VcprojGenerator::initPostBuildEventTools()
 	QString idc = project->first( "QMAKE_IDC" );
 
 	vcProject.Configuration.postBuild.Description = "Finalizing ActiveQt server...";
+	if ( !vcProject.Configuration.postBuild.CommandLine.isEmpty() )
+	    vcProject.Configuration.postBuild.CommandLine += " &amp;&amp; ";
 
 	if( project->isActiveConfig( "dll" ) ) { // In process
-	    vcProject.Configuration.postBuild.CommandLine =
+	    vcProject.Configuration.postBuild.CommandLine +=
 		// call idc to generate .idl file from .dll
 		idc + " " + vcProject.Configuration.OutputDirectory + "\\" + nameext + " -idl " + objdir + name + ".idl -version 1.0 &amp;&amp; " +
 		// call midl to create implementations of the .idl file

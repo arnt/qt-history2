@@ -67,8 +67,10 @@ static QString varMap(const QString &x)
 {
     QString ret(x);
     ret.replace(QRegExp("^TMAKE"), "QMAKE");
-    if(ret == "INTERFACES")
+    if ( ret == "INTERFACES" )
 	ret = "FORMS";
+    if ( ret == "QMAKE_POST_BUILD" )
+	ret = "QMAKE_POST_LINK";
     return ret;
 }
 

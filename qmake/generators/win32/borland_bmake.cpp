@@ -174,6 +174,10 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
 	  << project->variables()["OBJMOC"].join(" \\\n+");
     }
     t << endl << "|" << endl;
+
+    if ( !project->variables()["QMAKE_POST_LINK"].isEmpty() )
+	t << "\t" <<var("QMAKE_POST_LINK") << endl;
+
     if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty()) {
 	QStringList dlldirs = project->variables()["DLLDESTDIR"];
 	for ( QStringList::Iterator dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ++dlldir ) {

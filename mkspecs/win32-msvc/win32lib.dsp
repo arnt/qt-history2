@@ -46,6 +46,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
 # ADD LIB32 /nologo $$MSVCDSP_TARGET
+$$MSVCDSP_POST_LINK_REL
 
 !ELSEIF  "$(CFG)" == "$$MSVCDSP_PROJECT - Win32 Debug"
 
@@ -65,6 +66,7 @@ BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LIB32=link.exe -lib
 # ADD LIB32 /nologo $$MSVCDSP_TARGET
+$$MSVCDSP_POST_LINK_DBG
 
 !ENDIF 
 

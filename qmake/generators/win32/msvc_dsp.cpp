@@ -777,6 +777,18 @@ DspMakefileGenerator::init()
     }
 
     QString dest;
+    QString postLinkStep;
+    QString copyDllStep;
+    QString activeQtStepPreCopyDll;
+    QString activeQtStepPostCopyDll;
+    QString activeQtStepPreCopyDllDebug;
+    QString activeQtStepPostCopyDllDebug;
+    QString activeQtStepPreCopyDllRelease;
+    QString activeQtStepPostCopyDllRelease;
+
+    if ( !project->variables()["QMAKE_POST_LINK"].isEmpty() )
+	postLinkStep += var("QMAKE_POST_LINK");
+   
     if ( !project->variables()["DESTDIR"].isEmpty() ) {
 	project->variables()["TARGET"].first().prepend(project->first("DESTDIR"));
 	Option::fixPathToTargetOS(project->first("TARGET"));
@@ -793,20 +805,13 @@ DspMakefileGenerator::init()
     }
     if ( project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty() ) {
 	QStringList dlldirs = project->variables()["DLLDESTDIR"];
-	QString copydll = "# Begin Special Build Tool\n"
-	     "TargetPath=" + dest + "\n"
-		 "SOURCE=$(InputPath)\n"
-	 "PostBuild_Desc=Copy DLL to " + project->first("DLLDESTDIR") + "\n"
-	 "PostBuild_Cmds=";
-
+	if ( dlldirs.count() )
+	    copyDllStep += "\t";
 	for ( QStringList::Iterator dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ++dlldir ) {
-	    copydll += "copy \"" + dest + "\" \"" + *dlldir + "\"\t";
+	    copyDllStep += "copy \"" + dest + "\" \"" + *dlldir + "\"\t";
 	}
-
-	copydll += "\n# End Special Build Tool";
-	project->variables()["MSVCDSP_COPY_DLL_REL"].append( copydll );
-	project->variables()["MSVCDSP_COPY_DLL_DBG"].append( copydll );
     }
+
     if ( project->isActiveConfig("activeqt") ) {
 	QString idl = project->variables()["QMAKE_IDL"].first();
 	QString idc = project->variables()["QMAKE_IDC"].first();
@@ -818,42 +823,54 @@ DspMakefileGenerator::init()
 	project->variables()["MSVCDSP_IDLSOURCES"].append( "tmp\\" + targetfilename + ".tlb" );
 	project->variables()["MSVCDSP_IDLSOURCES"].append( "tmp\\" + targetfilename + ".midl" );
 	if ( project->isActiveConfig( "dll" ) ) {
-	    QString regcmd = "# Begin Special Build Tool\n"
-		"TargetPath=" + targetfilename + "\n"
-		    "SOURCE=$(InputPath)\n"
-	    "PostBuild_Desc=Finalizing ActiveQt server...\n"
-	    "PostBuild_Cmds=" +
-			     idc + " %1 -idl tmp\\" + targetfilename + ".idl -version " + version +
+	    activeQtStepPreCopyDll += 
+			     "\t" + idc + " %1 -idl tmp\\" + targetfilename + ".idl -version " + version +
 			     "\t" + idl + " tmp\\" + targetfilename + ".idl /nologo /o tmp\\" + targetfilename + ".midl /tlb tmp\\" + targetfilename + ".tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl"
-			     "\t" + idc + " %1 /tlb tmp\\" + targetfilename + ".tlb"
-			     "\t" + idc + " %1 /regserver\n"
-			     "# End Special Build Tool";
+			     "\t" + idc + " %1 /tlb tmp\\" + targetfilename + ".tlb";
+	    activeQtStepPostCopyDll +=
+			     "\t" + idc + " %1 /regserver\n";
 
 	    QString executable = project->variables()["MSVCDSP_TARGETDIRREL"].first() + "\\" + project->variables()["TARGET"].first();
-	    project->variables()["MSVCDSP_COPY_DLL_REL"].append( regcmd.arg(executable).arg(executable).arg(executable) );
+	    activeQtStepPreCopyDllRelease = activeQtStepPreCopyDll.arg(executable).arg(executable);
+	    activeQtStepPostCopyDllRelease = activeQtStepPostCopyDll.arg(executable);
 
 	    executable = project->variables()["MSVCDSP_TARGETDIRDEB"].first() + "\\" + project->variables()["TARGET"].first();
-	    project->variables()["MSVCDSP_COPY_DLL_DBG"].append( regcmd.arg(executable).arg(executable).arg(executable) );
+	    activeQtStepPreCopyDllDebug = activeQtStepPreCopyDll.arg(executable).arg(executable);
+	    activeQtStepPostCopyDllDebug = activeQtStepPostCopyDll.arg(executable);
 	} else {
-	    QString regcmd = "# Begin Special Build Tool\n"
-		"TargetPath=" + targetfilename + "\n"
-		    "SOURCE=$(InputPath)\n"
-	    "PostBuild_Desc=Finalizing ActiveQt server...\n"
-	    "PostBuild_Cmds="
-			     "%1 -dumpidl tmp\\" + targetfilename + ".idl -version " + version +
+	    activeQtStepPreCopyDll += 
+			     "\t%1 -dumpidl tmp\\" + targetfilename + ".idl -version " + version +
 			     "\t" + idl + " tmp\\" + targetfilename + ".idl /nologo /o tmp\\" + targetfilename + ".midl /tlb tmp\\" + targetfilename + ".tlb /iid tmp\\dump.midl /dlldata tmp\\dump.midl /cstub tmp\\dump.midl /header tmp\\dump.midl /proxy tmp\\dump.midl /sstub tmp\\dump.midl"
-			     "\t" + idc + " %1 /tlb tmp\\" + targetfilename + ".tlb"
-			     "\t%1 -regserver\n"
-			     "# End Special Build Tool";
-
+			     "\t" + idc + " %1 /tlb tmp\\" + targetfilename + ".tlb";
+	    activeQtStepPostCopyDll +=
+			     "\t%1 -regserver\n";
 	    QString executable = project->variables()["MSVCDSP_TARGETDIRREL"].first() + "\\" + project->variables()["TARGET"].first();
-	    project->variables()["MSVCDSP_REGSVR_REL"].append( regcmd.arg(executable).arg(executable).arg(executable) );
+	    activeQtStepPreCopyDllRelease = activeQtStepPreCopyDll.arg(executable).arg(executable);
+	    activeQtStepPostCopyDllRelease = activeQtStepPostCopyDll.arg(executable);
 
 	    executable = project->variables()["MSVCDSP_TARGETDIRDEB"].first() + "\\" + project->variables()["TARGET"].first();
-	    project->variables()["MSVCDSP_REGSVR_DBG"].append( regcmd.arg(executable).arg(executable).arg(executable) );
+	    activeQtStepPreCopyDllDebug = activeQtStepPreCopyDll.arg(executable).arg(executable);
+	    activeQtStepPostCopyDllDebug = activeQtStepPostCopyDll.arg(executable);
 	}
 
     }
+
+    
+    if ( !postLinkStep.isEmpty() || !copyDllStep.isEmpty() || !activeQtStepPreCopyDllDebug.isEmpty() || !activeQtStepPreCopyDllRelease.isEmpty() ) {
+	project->variables()["MSVCDSP_POST_LINK_DBG"].append(
+	    "# Begin Special Build Tool\n"
+	    "SOURCE=$(InputPath)\n"
+	    "PostBuild_Desc=Post Build Step\n"
+	    "PostBuild_Cmds=" + postLinkStep + activeQtStepPreCopyDllDebug + copyDllStep + activeQtStepPostCopyDllDebug + "\n"
+	    "# End Special Build Tool\n" );
+	project->variables()["MSVCDSP_POST_LINK_REL"].append(
+	    "# Begin Special Build Tool\n"
+	    "SOURCE=$(InputPath)\n"
+	    "PostBuild_Desc=Post Build Step\n"
+	    "PostBuild_Cmds=" + postLinkStep + activeQtStepPreCopyDllRelease + copyDllStep + activeQtStepPostCopyDllRelease + "\n"
+	    "# End Special Build Tool\n" );
+    }
+
     if ( !project->variables()["SOURCES"].isEmpty() || !project->variables()["RC_FILE"].isEmpty() ) {
 	project->variables()["SOURCES"] += project->variables()["RC_FILE"];
     }
