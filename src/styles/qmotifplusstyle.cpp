@@ -1282,8 +1282,8 @@ QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl control,
 	    int fw = pixelMetric( PM_SpinBoxFrameWidth, 0 );
 	    QSize bs;
 	    bs.setHeight( (widget->height() + 1)/2 );
-	    if ( bs.height() < 11 )
-		bs.setHeight( 11 );
+	    if ( bs.height() < 10 )
+		bs.setHeight( 10 );
 	    bs.setWidth( bs.height() ); // 1.6 -approximate golden mean
 	    bs = bs.expandedTo( QApplication::globalStrut() );
 	    int y = 0;

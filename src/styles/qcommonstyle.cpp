@@ -2036,9 +2036,9 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
     case CT_CheckBox:
 	{
 	    const QCheckBox *checkbox = (const QCheckBox *) widget;
-	    QSize isz = subRect(SR_CheckBoxIndicator, widget).size();
+	    QRect irect = subRect(SR_CheckBoxIndicator, widget);
 	    int h = pixelMetric( PM_IndicatorHeight, widget );
-	    sz += QSize(isz.width() + (checkbox->text().isEmpty() ? 0 : 10), 4 );
+	    sz += QSize(irect.right() + (checkbox->text().isEmpty() ? 0 : 10), 4 );
 	    sz.setHeight( QMAX( sz.height(), h ) );
 	    break;
 	}
@@ -2046,9 +2046,9 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
     case CT_RadioButton:
 	{
 	    const QRadioButton *radiobutton = (const QRadioButton *) widget;
-	    QSize isz = subRect(SR_RadioButtonIndicator, widget).size();
+	    QRect irect = subRect(SR_RadioButtonIndicator, widget);
 	    int h = pixelMetric( PM_ExclusiveIndicatorHeight, widget );
-	    sz += QSize(isz.width() + (radiobutton->text().isEmpty() ? 0 : 10), 4 );
+	    sz += QSize(irect.right() + (radiobutton->text().isEmpty() ? 0 : 10), 4 );
 	    sz.setHeight( QMAX( sz.height(), h ) );
 	    break;
 	}
