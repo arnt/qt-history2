@@ -49,7 +49,7 @@ QActionPlugInManager::QActionPlugInManager( const QString& path, QPlugIn::Librar
 */
 QAction* QActionPlugInManager::newAction( const QString& classname, QObject* parent )
 {
-    QActionPlugIn* plugin = (QActionPlugIn*)plugDict[ classname ];
+    QActionPlugIn* plugin = (QActionPlugIn*)plugIn( classname );
     if ( plugin )
 	return plugin->create( classname, parent );
     return 0;
@@ -60,15 +60,5 @@ QAction* QActionPlugInManager::newAction( const QString& classname, QObject* par
 */
 QStringList QActionPlugInManager::actions()
 {
-    QStringList list;
-    QDictIterator<QPlugIn> it (libDict);
-
-    while( it.current() ) {
-	QStringList actions = it.current()->featureList();
-	for ( QStringList::Iterator a = actions.begin(); a != actions.end(); a++ )
-	    list << *a;
-	++it;
-    }
-
-    return list;
+    return features();
 }

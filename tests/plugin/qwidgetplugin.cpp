@@ -49,7 +49,7 @@ QWidgetPlugInManager::QWidgetPlugInManager( const QString& path, QPlugIn::Librar
 */
 QWidget* QWidgetPlugInManager::newWidget( const QString& classname, QWidget* parent, const char* name )
 {
-    QWidgetPlugIn* plugin = (QWidgetPlugIn*)plugDict[ classname ];
+    QWidgetPlugIn* plugin = (QWidgetPlugIn*)plugIn( classname );
     if ( plugin )
 	return plugin->create( classname, parent, name );
     return 0;
@@ -60,15 +60,5 @@ QWidget* QWidgetPlugInManager::newWidget( const QString& classname, QWidget* par
 */
 QStringList QWidgetPlugInManager::widgets()
 {
-    QStringList list;
-    QDictIterator<QPlugIn> it (libDict);
-
-    while( it.current() ) {
-	QStringList widgets = it.current()->featureList();
-	for ( QStringList::Iterator w = widgets.begin(); w != widgets.end(); w++ )
-	    list << *w;
-	++it;
-    }
-
-    return list;
+    return features();
 }

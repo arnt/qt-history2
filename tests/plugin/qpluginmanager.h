@@ -37,11 +37,11 @@ public:
 
     bool removeLibrary( const QString& file )
     {
-	Type* plugin = (Type*)(libDict[ file ]);
+	QPlugIn* plugin = libDict[ file ];
 	if ( !plugin )
 	    return FALSE;
 
-	QStringList al = ((QPlugIn*)plugin)->featureList();
+	QStringList al = plugin->featureList();
 	for ( QStringList::Iterator a = al.begin(); a != al.end(); a++ )
 	    plugDict.remove( *a );
 
@@ -134,11 +134,25 @@ public:
 	return list;
     }
 
-protected:
+    QStringList features()
+    {
+	QStringList list;
+	QDictIterator<QPlugIn> it (libDict);
+
+	while( it.current() ) {
+	    QStringList widgets = it.current()->featureList();
+	    for ( QStringList::Iterator w = widgets.begin(); w != widgets.end(); w++ )
+		list << *w;
+	    ++it;
+	}
+
+	return list;
+    }
+
+private:
     QPlugInDict plugDict;	    // Dict to match requested interface with plugin
     QPlugInDict libDict;	    // Dict to match library file with plugin
 
-private:
     QPlugIn::LibraryPolicy defPol;
 };
 
