@@ -1690,17 +1690,17 @@ void QCanvas::setDoubleBuffering(bool y)
 void QCanvas::setTiles( QPixmap p,
 			int h, int v, int tilewidth, int tileheight )
 {
-    if ( !tilewidth || !tileheight ||
-	 p.width() % tilewidth != 0 || p.height() % tileheight != 0 )
+    if ( !p.isNull() && (!tilewidth || !tileheight ||
+	 p.width() % tilewidth != 0 || p.height() % tileheight != 0 ) )
     	return;
 
     htiles = h;
     vtiles = v;
     delete[] grid;
-    if ( h && v ) {
+    pm = p;
+    if ( h && v && !p.isNull() ) {
 	grid = new ushort[h*v];
 	memset( grid, 0, h*v*sizeof(ushort) );
-	pm = p;
 	tilew = tilewidth;
 	tileh = tileheight;
     } else {
