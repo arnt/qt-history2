@@ -147,6 +147,15 @@ tar: dist
 checkout: 
 	set -e ; for d in $(DIRS); do make -C $$d checkout ; done
 
+showfiles:
+	set -e ; for d in $(DIRS); do make -C $$d showfiles ; done
+
+showsources:
+	set -e ; for d in $(DIRS); do make -C $$d showsources ; done
+
+showheaders:
+	set -e ; for d in $(DIRS); do make -C $$d showheaders" ; done
+
 clean:
 	set -e ; for d in $(DIRS); do make -C $$d clean ; done
 
