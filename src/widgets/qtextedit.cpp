@@ -1019,6 +1019,12 @@ void QTextEdit::init()
 
 void QTextEdit::paintDocument( bool drawAll, QPainter *p, int cx, int cy, int cw, int ch )
 {
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+    Q_ASSERT( !d->optimMode );
+    if ( d->optimMode )
+	return;
+#endif
+
     bool drawCur = hasFocus() || viewport()->hasFocus();
     if (( hasSelectedText() && !style().styleHint( QStyle::SH_BlinkCursorWhenTextSelected ) ) ||
 	isReadOnly() || !cursorVisible )
@@ -3187,7 +3193,14 @@ void QTextEdit::repaintChanged()
 {
     if ( !isUpdatesEnabled() || !viewport()->isUpdatesEnabled() )
 	return;
+
     QPainter p( viewport() );
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+    if ( d->optimMode ) {
+	optimDrawContents( &p, contentsX(), contentsY(), visibleWidth(), visibleHeight() );
+	return;
+    }
+#endif
     p.translate( -contentsX(), -contentsY() );
     paintDocument( FALSE, &p, contentsX(), contentsY(), visibleWidth(), visibleHeight() );
 }
