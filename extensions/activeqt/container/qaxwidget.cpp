@@ -1426,7 +1426,8 @@ QAxHostWidget::QAxHostWidget(QWidget *parent, QAxClientSite *ax)
 
 QAxHostWidget::~QAxHostWidget()
 {
-    axhost->reset(this);
+    if (axhost)
+        axhost->reset(this);
 }
 
 
