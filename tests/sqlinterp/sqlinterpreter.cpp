@@ -598,6 +598,9 @@ bool ResultSet::sort( const QSqlIndex* index )
 		reverse( sortKey, data.count() );
 	}
     }
+    if ( index->count() == 1 && index->isDescending( 0 ) )
+	reverse( sortKey, data.count() );
+
     ColumnKey::Iterator it;
     if ( index->count() > 1 ) {
 	/* sort rest of fields */

@@ -175,7 +175,6 @@ int main( int /*argc*/, char** /*argv*/ )
     env.program().append( new Close( 0 ) );
 #endif
 
-#if 0
     /* select some records using a range scan */
     env.program().append( new Open( 0, FILENAME ) );
     env.program().append( new PushFieldDesc( 0, "id" ) );
@@ -193,12 +192,13 @@ int main( int /*argc*/, char** /*argv*/ )
     env.program().append( new PushList( 2 ) );
     env.program().append( new SaveResult( 0 ) );
     env.program().append( new Goto( 10 ) );
-    env.program().append( new PushFieldDesc( 0, "name" ) );
-    env.program().append( new PushList( 1 ) );
+    env.program().append( new PushFieldDesc( 0, "id" ) );
+    env.program().append( new Push( QVariant( TRUE, 0 )  ) );
+    env.program().append( new PushList( 2 ) );
     env.program().append( new Sort( 0 ) );
     env.program().append( new Close( 0 ) );
-#endif
 
+#if 0
     /* select all records and sort */
     env.program().append( new Open( 0, FILENAME ) );
     env.program().append( new PushFieldDesc( 0, "id" ) );
@@ -218,6 +218,7 @@ int main( int /*argc*/, char** /*argv*/ )
     env.program().append( new PushList( 4 ) );
     env.program().append( new Sort( 0 ) );
     env.program().append( new Close( 0 ) );
+#endif
 
 #if 0
     /* drop a table */
