@@ -47,6 +47,7 @@ public:
     void updateMatrix(const QMatrix &matrix);
     void updateClipRegion(const QRegion &region, Qt::ClipOperation op);
 
+    void drawPath(const QPainterPath &path);
     void drawLine(const QLineF &line);
     void drawRect(const QRectF &r);
     void drawPoint(const QPointF &p);

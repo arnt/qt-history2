@@ -54,6 +54,7 @@ QPicturePaintEngine::QPicturePaintEngine()
                    | AlphaFillPolygon
                    | AlphaStroke
                    | AlphaPixmap
+                   | PainterPaths
                    | ClipTransform
                    | LineAntialiasing
                    | FillAntialiasing
@@ -75,6 +76,7 @@ QPicturePaintEngine::QPicturePaintEngine(QPaintEnginePrivate &dptr)
                    | AlphaFillPolygon
                    | AlphaStroke
                    | AlphaPixmap
+                   | PainterPaths
                    | ClipTransform
                    | LineAntialiasing
                    | FillAntialiasing
@@ -270,6 +272,17 @@ void QPicturePaintEngine::writeCmdLength(int pos, const QRectF &r, bool corr)
         if (br.isValid())
             pic_d->brect |= br;                 // merge with existing rect
     }
+}
+
+void QPicturePaintEngine::drawPath(const QPainterPath &path)
+{
+#ifdef QT_PICTURE_DEBUG
+    qDebug() << " -> drawPath():" << path.boundingRect();
+#endif
+    int pos;
+    SERIALIZE_CMD(QPicturePrivate::PdcDrawPath);
+    d->s << path;
+    writeCmdLength(pos, path.boundingRect(), true);
 }
 
 void QPicturePaintEngine::drawLine(const QLineF &line)
