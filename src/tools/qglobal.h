@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#91 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#92 $
 **
 ** Global type declarations and definitions
 **
@@ -199,6 +199,8 @@
 #elif __BORLANDC__ >= 0x500
 #define HAS_BOOL_TYPE
 #elif defined(_CC_COMEAU_)
+#define HAS_BOOL_TYPE
+#elif defined(sgi) && (_COMPILER_VERSION >= 710)
 #define HAS_BOOL_TYPE
 #endif
 
