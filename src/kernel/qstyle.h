@@ -407,7 +407,7 @@ public:
 				     const QRect &r,
 				     const QColorGroup &cg,
 				     SFlags how = Style_Default,
-				     SCFlags sub = (SCFlags)SC_All,
+				     SCFlags sub = SC_All,
 				     SCFlags subActive = SC_None,
 				     const QStyleOption& = QStyleOption::Default ) const = 0;
     virtual void drawComplexControlMask( ComplexControl control,
