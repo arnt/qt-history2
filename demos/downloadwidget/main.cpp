@@ -18,6 +18,7 @@
 #include <qabstractitemmodel.h>
 #include <qitemdelegate.h>
 #include <qpainter.h>
+#include <qevent.h>
 
 class DownloadDelegate : public QItemDelegate
 {
