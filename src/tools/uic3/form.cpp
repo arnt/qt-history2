@@ -13,7 +13,11 @@
 #include "ui3reader.h"
 #include "parser.h"
 #include "domtool.h"
-#include "blockingprocess.h"
+
+// uic4
+#include "ui4.h"
+#include "driver.h"
+#include "option.h"
 
 #include <qstringlist.h>
 #include <qfile.h>
@@ -272,16 +276,11 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     out << endl;
 
     if (uiHeaderFile.isEmpty()) {
-        BlockingProcess p;
-        p.addArgument("uic4");
-        p.addArgument("--no-protection");
-        p.addArgument(fileName);
-        p.start();
-        if (p.err.size())
-            fprintf(stderr, "%s\n", p.err.data());
-
-        if (p.out.size())
-            out << p.out;
+        Driver d;
+        d.option().headerProtection = false;
+        DomUI *ui = generateUi4(e);
+        d.uic(fileName, ui, &out);
+        delete ui;
     }
 
     QStringList::ConstIterator ns = namespaces.begin();
@@ -923,30 +922,6 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
         }
         if (needFontEventHandler && needSqlTableEventHandler && needSqlDataBrowserEventHandler)
             break;
-    }
-    if (needFontEventHandler && FALSE) {
-        //        indent = "\t"; // increase indentation for if-clause below
-        out << "/*" << endl;
-        out << " *  Main event handler. Reimplemented to handle" << endl;
-        out << " *  application font changes";
-        out << " */" << endl;
-        out << "bool " << nameOfClass  << "::event(QEvent* ev)" << endl;
-        out << "{" << endl;
-        out << "    bool ret = " << objClass << "::event(ev); " << endl;
-        if (needFontEventHandler) {
-            indent += "\t";
-            out << "    if (ev->type() == QEvent::ApplicationFontChange) {" << endl;
-            for (i = 0; i < (int) nl.length(); i++) {
-                n = nl.item(i).toElement();
-                QStringList list = DomTool::propertiesOfType(n, "font");
-                for (it = list.begin(); it != list.end(); ++it)
-                    createExclusiveProperty(n, *it);
-            }
-            out << "    }" << endl;
-            indent = "    ";
-        }
-        out << "}" << endl;
-        out << endl;
     }
 
     if (needSqlTableEventHandler || needSqlDataBrowserEventHandler) {

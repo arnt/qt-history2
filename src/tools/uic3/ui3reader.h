@@ -57,7 +57,6 @@ public:
     void createSubDecl(const QDomElement &e, const QString& subclname);
     void createSubImpl(const QDomElement &e, const QString& subclname);
 
-    void createExclusiveProperty(const QDomElement & e, const QString& exclusiveProp);
     void createColorGroupImpl(const QString& cg, const QDomElement& e);
     ColorGroup loadColorGroup(const QDomElement &e);
 
@@ -68,8 +67,6 @@ public:
     QString getObjectName(const QDomElement& e);
     QString getLayoutName(const QDomElement& e);
     QString getInclude(const QString& className);
-
-    QString setObjectProperty(const QString& objClass, const QString& obj, const QString &prop, const QDomElement &e, bool stdset);
 
     QString registerObject(const QString& name);
     QString registeredName(const QString& name);

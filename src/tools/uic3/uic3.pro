@@ -1,10 +1,20 @@
+
+TEMPLATE = app
+CONFIG += console
+QT += xml compat
+
+DESTDIR = ../../../bin
+
+include(../uic/uic.pri)
+
+INCLUDEPATH += .
+
 HEADERS += ui3reader.h \
            parser.h \
            domtool.h \
            globaldefs.h \
-           widgetinfo.h \
-           ../uic/ui4.h \
-           ../uic/blockingprocess.h
+           widgetinfo.h
+
 SOURCES += main.cpp \
            ui3reader.cpp \
            parser.cpp \
@@ -14,13 +24,5 @@ SOURCES += main.cpp \
            form.cpp \
            converter.cpp \
            widgetinfo.cpp \
-           embed.cpp \
-           ../uic/blockingprocess.cpp
+           embed.cpp
 
-CONFIG += console
-CONFIG -= resource_fork
-QT += xml network sql compat
-TEMPLATE = app
-INCLUDEPATH += . ../uic
-
-DESTDIR = ../../../bin
