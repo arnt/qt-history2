@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#42 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#43 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#42 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#43 $");
 
 
 /*!
@@ -48,13 +48,13 @@ Q_DECLARE(QListM,QGDictIterator);			// list of iterators: QGDItList
 
 int QGDict::hashKey( const char *key )
 {
-    register int index = 0;
-    register const char *k = key;
 #if defined(CHECK_NULL)
     if ( key == 0 )
 	warning( "QGDict::hash: Invalid null key" );
 #endif
-    uint h=0, g;
+    register const char *k = key;
+    register uint h=0;
+    uint g;
     if ( cases ) {				// case sensitive
 	while ( *k ) {
 	    h = (h<<4) + *k++;
@@ -71,7 +71,7 @@ int QGDict::hashKey( const char *key )
 	    k++;
 	}
     }
-    index = h;
+    int index = h;
     if ( index < 0 )				// adjust index to table size
 	index = -index;
     return index;

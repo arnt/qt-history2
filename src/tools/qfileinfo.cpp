@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#26 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#27 $
 **
 ** Implementation of QFileInfo class
 **
@@ -14,11 +14,11 @@
 #include "qdatetm.h"
 #include "qdir.h"
 #if defined(UNIX)
-# include <pwd.h>
-# include <grp.h>
+#include <pwd.h>
+#include <grp.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfileinfo.cpp#26 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qfileinfo.cpp#27 $");
 
 
 #if defined(_OS_FATFS_)
@@ -700,6 +700,8 @@ uint QFileInfo::groupId() const
 
 
 /*!
+  \fn bool QFileInfo::permission( int permissionSpec ) const
+
   Tests for file permissions.  The \e permissionSpec argument can be several
   flags of type PermissionSpec or'ed together to check for permission
   combinations.
@@ -719,9 +721,9 @@ uint QFileInfo::groupId() const
   \sa isReadable(), isWritable(), isExecutable()
 */
 
+#if defined(UNIX)
 bool QFileInfo::permission( int permissionSpec ) const
 {
-#if defined(UNIX)
     if ( !fic || !cache )
 	doStat();
     if ( fic ) {
@@ -755,11 +757,15 @@ bool QFileInfo::permission( int permissionSpec ) const
     } else {
 	return FALSE;
     }
-#else
-    return TRUE;
-#endif
 }
 
+#else	/* not UNIX */
+
+bool QFileInfo::permission( int ) const
+{
+    return TRUE;
+}
+#endif
 
 /*!
   Returns the file size in bytes, or 0 if the file does not exist if the size
