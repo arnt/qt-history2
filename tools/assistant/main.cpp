@@ -53,7 +53,7 @@ Socket::Socket( QObject *parent )
 {
     connect( this, SIGNAL( error( int ) ), this, SLOT( startOwnWindow() ) );
     connect( this, SIGNAL( connected() ), this, SLOT( sendFile() ) );
-    connect( this, SIGNAL( bytesWritten( int ) ), qApp, SLOT( quit() ) );
+    connect( this, SIGNAL( delayedCloseFinished() ), qApp, SLOT( quit() ) );
 }
 
 Socket::~Socket()
@@ -96,6 +96,9 @@ void Socket::sendFile()
 	s += "\n";
 	writeBlock( s.latin1(), s.length() );
     }
+    close();
+    if ( state() == Idle )
+        qApp->quit();
 }
 
 
