@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#57 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#58 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -2093,7 +2093,6 @@ int QMultiLineEdit::mapToView( int xIndex, int line )
 
 void QMultiLineEdit::updateCellWidth()
 {
-    qDebug("updateCellWidth");
     QMultiLineEditRow* r = contents->first();
     int maxW = 0;
     int w;
