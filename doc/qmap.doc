@@ -179,13 +179,13 @@ TJ001: Jones, Tom earns 60000
 
   \code
 	QMap<QString,QString> map;
-	map["Weis"] = "Torben";
-	str << map["Weis"] << map["Ettrich"] << endl;
+	map["Clinton"] = "Bill";
+	str << map["Clinton"] << map["Bush"] << endl;
 
   \endcode
 
-  The code fragment will print out "Torben", "".  Since the value
-  associated with the "Ettrich" key did not exist, the map inserted a
+  The code fragment will print out "Clinton", "".  Since the value
+  associated with the "Bush" key did not exist, the map inserted a
   default value (in this case, an empty string).  If you are not
   sure whether a certain element is in the map, you should use find()
   and iterators instead.
@@ -218,8 +218,8 @@ TJ001: Jones, Tom earns 60000
 
   \code
   	QMap<QString,QString> map;
-	map["Weis"] = "Torben";
-	map.insert( qMakePair( "Berton","Dave" ) );
+	map["Clinton"] = "Bill";
+	map.insert( qMakePair("Bush", "George") );
   \endcode
 
   Items can also be removed from the map in several ways. The first is
@@ -320,9 +320,9 @@ TJ001: Jones, Tom earns 60000
   You can use this operator both for reading and writing:
 
   \code
-  	QMap<QString,QString> map;
-	map[ "Weis" ] = "Torben";
-	stream << map[ "Weis" ];
+    QMap<QString, QString> map;
+    map["Clinton"] = "Bill";
+    stream << map["Clinton"];
   \endcode
 */
 
@@ -357,8 +357,12 @@ TJ001: Jones, Tom earns 60000
 
 /*!
   \fn Iterator QMap::begin()
+
   Returns an iterator pointing to the first element in the map. This
   iterator equals end() if the map is empty.
+
+  The items in the map are traversed in the order defined by
+  operator\<(Key, Key).
 
   \sa end() QMapIterator
 */
@@ -367,9 +371,6 @@ TJ001: Jones, Tom earns 60000
   \fn ConstIterator QMap::begin() const
 
   \overload
-
-  Returns an iterator pointing to the first element in the map. This
-  iterator equals end() if the map is empty.
 
   \sa end() QMapConstIterator
 */
@@ -382,6 +383,7 @@ TJ001: Jones, Tom earns 60000
     is still associated with the map it belongs to, however it is \e
     not dereferenceable; operator*() will not return a well-defined
     value. 
+
   This iterator equals begin() if the map is empty.
     
     \sa begin() QMapIterator
@@ -397,6 +399,7 @@ TJ001: Jones, Tom earns 60000
     is still associated with the map it belongs to, however it is \e
     not dereferenceable; operator*() will not return a well-defined
     value. 
+
   This iterator equals begin() if the map is empty.
     
   \sa begin() QMapConstIterator
