@@ -800,7 +800,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     }
     if(doPrecompiledHeaders() && !project->isEmpty("PRECOMPH") &&
        project->isActiveConfig("native_precompiled_headers")) {
-	QString precomph_out_dir = project->first("PRECOMPH") + ".gch" + Option::dir_sep;
+	QString precomph_out_dir = fileFixify(project->first("PRECOMPH") + ".gch") + Option::dir_sep;
 	t << "-$(DEL_FILE) " << precomph_out_dir << "ppc_c " << precomph_out_dir << "ppc_c++" << "\n\t";
     }
     if(!project->isEmpty("IMAGES"))
@@ -841,7 +841,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     if ( doPrecompiledHeaders() && !project->isEmpty("PRECOMPH") ) {
 	QString precomph = fileFixify(project->first("PRECOMPH"));
 	if(project->isActiveConfig("native_precompiled_headers")) {
-	    QString precomph_out_dir = project->first("PRECOMPH") + ".gch" + Option::dir_sep;
+	    QString precomph_out_dir = fileFixify(project->first("PRECOMPH") + ".gch") + Option::dir_sep;
 	    t << "###### Prefix headers" << endl;
 	    QString comps[] = { "C", "CXX", QString::null };
 	    for(int i = 0; !comps[i].isNull(); i++) {
