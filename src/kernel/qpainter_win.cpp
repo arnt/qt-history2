@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#137 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#138 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -395,12 +395,15 @@ void QPainter::updateFont()
     }
     winFont->killFont = killFont;
     winFont->hfont = hfont;
+#ifdef UNICODE
     if ( qt_winver == WV_NT ) {
 	if ( ownFont )
 	    GetTextMetricsW( hdc, &winFont->tm.w );
 	else
 	    memcpy( &winFont->tm.w, cfont.textMetric(), sizeof(TEXTMETRICW) );
-    } else {
+    } else
+#endif
+    {
 	if ( ownFont )
 	    GetTextMetricsA( hdc, &winFont->tm.a );
 	else
