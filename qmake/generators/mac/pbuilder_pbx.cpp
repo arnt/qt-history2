@@ -701,7 +701,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << "\t\t\t" << "name = \"" << grp << "\";" << "\n"
 	  << "\t\t" << "};" << "\n";
     }
-    if(ideType() == MAC_XCODE && did_preprocess) {
+    if(ideType() == MAC_XCODE && !project->isEmpty("QMAKE_PBX_SCRIPT_BUILDPHASES")) {
 	// build reference
 	t << "\t\t" << keyFor("QMAKE_PBX_PREPROCESS_BUILDREFERENCE") << " = {" << "\n"
 	  << "\t\t\t" << "includeInIndex = 0;" << "\n"
