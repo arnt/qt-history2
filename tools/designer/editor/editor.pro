@@ -32,3 +32,7 @@ VERSION		= 1.0.0
 isEmpty(QT_SOURCE_TREE):QT_SOURCE_TREE=$(QTDIR)
 
 INCLUDEPATH	+= $$QT_SOURCE_TREE/src/kernel $$QT_SOURCE_TREE/tools/designer/interfaces
+
+target.path=$$QT_INSTALL_LIBPATH
+isEmpty(target.path):target.path=$$QT_PREFIX/lib
+INSTALLS += target
