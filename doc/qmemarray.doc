@@ -488,9 +488,10 @@
 /*!
     \fn int QMemArray::bsearch( const type &v ) const
 
-    In a sorted array, finds the first occurrence of \a v by using
-    a binary search. For a sorted array this is generally much faster
-    than find(), which does a linear search.
+    In a sorted array (as sorted by sort()), finds the first
+    occurrence of \a v by using a binary search. For a sorted
+    array this is generally much faster than find(), which does
+    a linear search.
 
     Returns the position of \a v, or -1 if \a v could not be found.
 
