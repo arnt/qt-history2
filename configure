@@ -1358,9 +1358,17 @@ PIPE=""
 EXEC=""
 
 # Work around a segfaulting uniq(1)
-echo $QMAKE_PROJECTS | sort > .sorted.projects
+rm -f .sorted.projects
+for p in `echo $QMAKE_PROJECTS`
+do
+    echo $p >> .sorted.projects
+done
 
-for a in `uniq .sorted.projects`; do
+sort .sorted.projects  > .sorted.projects.new
+mv -f .sorted.projects.new .sorted.projects
+uniq .sorted.projects > .sorted.projects.new
+mv -f .sorted.projects.new .sorted.projects
+for a in `cat .sorted.projects`; do
     case $a in
     *-kde.pro|*qtmain.pro) continue ;;
     *-pro.pro)
@@ -1424,7 +1432,6 @@ then
 	fi
     fi
 fi
-
 rm -f .sorted.projects
 
 #finally put the executed command to another script..
