@@ -5,6 +5,7 @@ HEADERS += \
 	painting/qcolor.h \
 	painting/qcolor_p.h \
 	painting/qdrawutil.h \
+	painting/qlinefloat.h \
 	painting/qpaintdevice.h \
 	painting/qpaintdevicedefs.h \
 	painting/qpaintdevicemetrics.h \
@@ -15,6 +16,7 @@ HEADERS += \
 	painting/qpainterpath_p.h \
 	painting/qpen.h \
 	painting/qpoint.h \
+	painting/qpointfloat.h \
 	painting/qpointarray.h \
 	painting/qpolygonscanner.h \
 	painting/qprinter.h \
@@ -30,12 +32,14 @@ SOURCES += \
 	painting/qcolor.cpp \
 	painting/qcolor_p.cpp \
 	painting/qdrawutil.cpp \
+	painting/qlinefloat.cpp \
 	painting/qpaintdevicemetrics.cpp \
 	painting/qpaintengine.cpp \
 	painting/qpainter.cpp \
 	painting/qpainterpath.cpp \
 	painting/qpen.cpp \
 	painting/qpoint.cpp \
+	painting/qpointfloat.cpp \
 	painting/qpointarray.cpp \
 	painting/qpolygonscanner.cpp \
 	painting/qprinter.cpp \
