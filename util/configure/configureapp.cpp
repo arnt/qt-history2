@@ -42,6 +42,7 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
     dictionary[ "LEAN" ] = "no";
     dictionary[ "STL" ] = "no";
     dictionary[ "ACCESSIBILITY" ] = "no";
+    dictionary[ "VERSION" ] = "300";
 
     QString tmp = QEnvironment::getEnv( "QMAKESPEC" );
     tmp = tmp.mid( tmp.findRev( "\\" ) + 1 );
@@ -175,6 +176,10 @@ void ConfigureApp::parseCmdLine()
 	    dictionary[ "ACCESSIBILITY" ] = "yes";
 	else if( (*args) == "-no-accessibility" )
 	    dictionary[ "ACCESSIBILITY" ] = "no";
+	else if( ( (*args) == "-override-version" ) || ( (*args) == "-version-override" ) ){
+	    ++args;
+	    dictionary[ "VERSION" ] = (*args);
+	}
 	else if( (*args).find( QRegExp( "^-(en|dis)able-" ) ) != -1 ) {
 	    // Scan to see if any specific modules and drivers are enabled or disabled
 	    for( QStringList::Iterator module = modules.begin(); module != modules.end(); ++module ) {
@@ -309,6 +314,8 @@ void ConfigureApp::generateOutputVars()
     if( dictionary[ "STL" ] == "no" ) {
 	qmakeDefines += "QT_NO_STL";
     }
+
+    qmakeDefines += "QMAKE_QT_VERSION_OVERRIDE_" + dictionary[ "VERSION" ];
 
     qmakeVars += QString( "QMAKE_LIBDIR_QT=" ) + QDir::convertSeparators( qtDir + "/lib" );
     qmakeVars += QString( "OBJECTS_DIR=" ) + QDir::convertSeparators( "tmp/obj/" + dictionary[ "QMAKE_OUTDIR" ] );
