@@ -414,10 +414,11 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option, QRect *pixmapRe
             break;
         }
 
-        *pixmapRect = decoration;
-        *textRect = display;
         if (!hint) // we only need to do the internal layout if we are going to paint
             doAlignment(option.direction, decoration, option.decorationAlignment, pixmapRect);
+        else
+            *pixmapRect = decoration;
+        *textRect = display;
     }
 }
 
