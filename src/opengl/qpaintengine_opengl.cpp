@@ -503,7 +503,6 @@ void QOpenGLPaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
     int ryy2 = 2*ryy;
     int xx, yy;
 
-    // ###### WWA: this should use the new makeArc (with xmat)
     a.makeEllipse(x, y, rxx2, ryy2);
     int s = a.size()/4;
     int i = 0;
@@ -672,8 +671,8 @@ void QOpenGLPaintEngine::drawCubicBezier(const QPointArray &a, int index)
     }
 }
 
-// ### NB! assumes 32 bit ints
 // returns the highest number closest to v, which is a power of 2
+// NB! assumes 32 bit ints
 static int nearest_gl_texture_size(int v)
 {
     int n = 0, last = 0;
@@ -731,7 +730,6 @@ static void bind_texture_from_cache(const QPixmap &pm)
         GLuint tx_id;
         glGenTextures(1, &tx_id);
         glBindTexture(GL_TEXTURE_2D, tx_id);
-        // ### fix: better error handling - what if there's no more room for textures
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tx.width(), tx.height(), 0, GL_RGBA,
                      GL_UNSIGNED_BYTE, tx.bits());
         tx_cache.insert(pm.serialNumber(), tx_id);
