@@ -230,7 +230,8 @@ QSqlQuery::QSqlQuery( const QSqlQuery& other )
 /*!
     Creates a QSqlQuery object using the SQL \a query and the database
     \a db. If \a db is 0, (the default), the application's default
-    database is used.
+    database is used. If \a query is not a null string, it will be
+    executed.
 
     \sa QSqlDatabase
 */
