@@ -68,6 +68,8 @@ protected:
     int dataoffset;
     int cacheStart;
 
+    static void clearCache( QScreen *instance, int );
+
 private:
 
     void delete_entry(int);

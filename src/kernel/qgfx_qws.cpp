@@ -29,6 +29,8 @@ QScreen * qt_screen=0;
 
 extern bool qws_screen_is_interlaced; //### hack, from qapplication_qws.cpp
 
+ClearCacheFunc QScreen::clearCacheFunc = 0;
+
 QGfx *QGfx::createGfx( int depth, unsigned char *buffer, int w, int h,
 			     int offs )
 {

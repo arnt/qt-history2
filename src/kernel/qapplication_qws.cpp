@@ -115,6 +115,7 @@ bool qws_sw_cursor = TRUE;
 bool qws_accel = TRUE;	    // ### never set
 const char *qws_display_spec = ":0";
 int qws_display_id = 0;
+int qws_client_id = 0;
 QWidget *qt_pressGrab = 0;
 QWidget *qt_mouseGrb = 0;
 int *qt_last_x = 0;
@@ -317,8 +318,6 @@ public:
     ~Data()
     {
 	delete rgnMan; rgnMan = 0;
-	extern void qws_freePixmapData();
-	qws_freePixmapData();
 	delete memorymanager; memorymanager = 0;
 	qt_screen->disconnect();
 	delete qt_screen; qt_screen = 0;
@@ -493,6 +492,8 @@ void QWSDisplay::Data::init()
 
 	// wait for connect confirmation
 	waitForConnection();
+
+	qws_client_id = connected_event->simpleData.clientId;
 
 	// now we want to get the exact display spec to use if we haven't
 	// specified anything.

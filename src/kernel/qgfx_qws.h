@@ -159,14 +159,16 @@ struct fb_cmap;
 
 // A (used) chunk of offscreen memory
 
-class QPoolEntry {
-
+class QPoolEntry
+{
 public:
-
     unsigned int start;
     unsigned int end;
-
+    int clientId;
 };
+
+class QScreen;
+typedef void(*ClearCacheFunc)(QScreen *obj, int);
 
 class QScreen {
 
@@ -285,6 +287,9 @@ protected:
     int mapsize;       // Total mapped memory
 
     int displayId;
+
+    friend class QWSServer;
+    static ClearCacheFunc clearCacheFunc;
 };
 
 extern QScreen * qt_screen;

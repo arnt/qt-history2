@@ -368,8 +368,8 @@ QWSWindow::~QWSWindow()
  *
  *********************************************************************/
 //always use frame buffer
-QWSClient::QWSClient( QObject* parent, int socket )
-    : QObject( parent), s(socket), command(0)
+QWSClient::QWSClient( QObject* parent, int socket, int id )
+    : QObject( parent), s(socket), command(0), cid(id)
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
     if ( socket == -1 ) {
@@ -460,6 +460,7 @@ void QWSClient::sendConnectedEvent( const char *display_spec )
     QWSConnectedEvent event;
     event.simpleData.window = 0;
     event.simpleData.len = strlen( display_spec ) + 1;
+    event.simpleData.clientId = cid;
     char * tmp=(char *)display_spec;
     event.setData( tmp, event.simpleData.len );
     sendEvent( &event );
@@ -688,7 +689,7 @@ QWSServer::QWSServer( int flags, QObject *parent, const char *name ) :
     connect( d->screensavertimer, SIGNAL(timeout()), this, SLOT(screenSaverTimeout()) );
     screenSaverWake();
 
-    client[-1] = new QWSClient( this, -1 );
+    client[-1] = new QWSClient( this, -1, 0 );
 
     // input devices
     if ( !(flags&DisableMouse) ) {
@@ -772,7 +773,7 @@ void QWSServer::releaseKeyboard(QWSWindow* w)
 */
 void QWSServer::newConnection( int socket )
 {
-    client[socket] = new QWSClient(this,socket);
+    client[socket] = new QWSClient(this,socket, get_object_id());
     connect( client[socket], SIGNAL(readyRead()),
 	     this, SLOT(doClient()) );
     connect( client[socket], SIGNAL(connectionClosed()),
@@ -849,6 +850,8 @@ void QWSServer::clientClosed()
     client.remove( cl->socket() );
     if ( cl == d->cursorClient )
 	d->cursorClient = 0;
+    if ( qt_screen->clearCacheFunc )
+	(qt_screen->clearCacheFunc)( qt_screen, cl->clientId() );  // remove any remaining cache entries.
     cl->deleteLater();
     exposeRegion( exposed );
     syncRegions();
@@ -1246,7 +1249,7 @@ QList<QWSInternalWindowInfo*> * QWSServer::windowList()
         QWSWindow *window = qwsServer->windows.at(i);
 	QWSInternalWindowInfo * qwi=new QWSInternalWindowInfo();
 	qwi->winid=window->winId();
-	qwi->clientid=(unsigned int)window->client();
+	qwi->clientid=window->client()->clientId();
 #ifndef QT_NO_QWS_PROPERTIES
 	char * name;
 	int len;

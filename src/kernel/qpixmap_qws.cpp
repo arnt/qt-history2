@@ -133,7 +133,6 @@ class QwsPixmap : public QPixmap
 public:
     QwsPixmap() : QPixmap() {}
     static void mapPixmaps( bool from );
-    static void freeSharedData();
     static QPtrDict<QImage> *images;
 };
 
@@ -184,31 +183,9 @@ void QwsPixmap::mapPixmaps( bool from )
     qws_trackPixmapData = TRUE;
 }
 
-// On exit it is possible that pixmap data is stored in the vram cache.
-// We need to free this memory to ensure the cache doesn't fill up
-// with unused data.
-void QwsPixmap::freeSharedData()
-{
-    if ( !qws_pixmapData || !memorymanager )
-	return;
-    for ( int i = 0; i < qws_pixmapData->size(); ++i ) {
-	QPixmapData *d = (QPixmapData*)qws_pixmapData->at(i);
-	if ( d->w && d->h && memorymanager->inVRAM(d->id) ) {
-	    memorymanager->deletePixmap(d->id);
-	    d->w = d->h = 0;
-	    d->id = 0;
-	}
-    }
-}
-
 void qws_mapPixmaps( bool from )
 {
     QwsPixmap::mapPixmaps( from );
-}
-
-void qws_freePixmapData()
-{
-    QwsPixmap::freeSharedData();
 }
 
 /*****************************************************************************

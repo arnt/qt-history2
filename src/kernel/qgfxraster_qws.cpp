@@ -5592,6 +5592,7 @@ QScreen::QScreen( int display_id )
     displayId = display_id;
     initted=FALSE;
     entryp=0;
+    clearCacheFunc = 0;
     grayscale = FALSE;
 }
 

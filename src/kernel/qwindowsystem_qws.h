@@ -505,7 +505,7 @@ class QWSClient : public QObject
 {
     Q_OBJECT
 public:
-    QWSClient( QObject* parent, int socket );
+    QWSClient( QObject* parent, int socket, int id );
     ~QWSClient();
 
     int socket() const;
@@ -524,6 +524,8 @@ public:
     void sendSelectionRequestEvent( QWSConvertSelectionCommand *cmd, int windowid );
     QWSCommand* readMoreCommand();
 
+    int clientId() const { return cid; }
+
     QWSCursorMap cursors;	// cursors defined by this client
 signals:
     void connectionClosed();
@@ -539,6 +541,7 @@ private:
     QWSCommand* command;
     uint isClosed : 1;
     QString id;
+    int cid;
 };
 
 #endif // QWINDOWSYSTEM_QWS_H

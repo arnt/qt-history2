@@ -39,6 +39,8 @@
 #endif
 #endif
 
+extern int qws_client_id;
+
 //#define DEBUG_CACHE
 
 extern volatile int * optype;
@@ -73,6 +75,7 @@ extern volatile int * lastop;
 QLinuxFbScreen::QLinuxFbScreen( int display_id ) : QScreen( display_id )
 {
     canaccel=false;
+    clearCacheFunc = &clearCache;
 }
 
 /*!
@@ -534,6 +537,7 @@ void QLinuxFbScreen::insert_entry(int pos,int start,int end)
     if (pos==*entryp) {
 	entries[pos].start=start;
 	entries[pos].end=end;
+	entries[pos].clientId=qws_client_id;
 	(*entryp)++;
 	return;
     }
@@ -542,6 +546,7 @@ void QLinuxFbScreen::insert_entry(int pos,int start,int end)
     memmove(&entries[pos+1],&entries[pos],size*sizeof(QPoolEntry));
     entries[pos].start=start;
     entries[pos].end=end;
+    entries[pos].clientId=qws_client_id;
     (*entryp)++;
 }
 
@@ -652,7 +657,10 @@ void QLinuxFbScreen::deleteEntry(uchar * c)
     unsigned int hold=(*entryp);
     for(unsigned int loopc=1;loopc<hold;loopc++) {
 	if(entries[loopc].start==pos) {
-	    delete_entry(loopc);
+	    if (entries[loopc].clientId == qws_client_id)
+		delete_entry(loopc);
+	    else
+		qDebug("Attempt to delete client id %d cache entry", entries[loopc].clientId );
 	    qt_fbdpy->ungrab();
 	    return;
 	}
@@ -660,6 +668,26 @@ void QLinuxFbScreen::deleteEntry(uchar * c)
     qt_fbdpy->ungrab();
     qDebug("Attempt to delete unknown offset %ld",pos);
 }
+
+/*
+  Remove all entries from the cache for clientId.
+  Should only be necessary if a client exits abnormally.
+*/
+void QLinuxFbScreen::clearCache( QScreen *instance, int clientId )
+{
+    QLinuxFbScreen *screen = (QLinuxFbScreen *)instance;
+    if ( !screen->canaccel || !screen->entryp )
+	return;
+    qt_fbdpy->grab();
+    for (int loopc = 0; loopc < *(screen->entryp); loopc++) {
+ 	if (screen->entries[loopc].clientId == clientId) {
+ 	    screen->delete_entry(loopc);
+ 	    loopc--;
+ 	}
+    }
+    qt_fbdpy->ungrab();
+}
+
 
 void QLinuxFbScreen::setupOffScreen()
 {
