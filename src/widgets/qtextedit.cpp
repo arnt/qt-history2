@@ -108,31 +108,80 @@ static bool block_set_alignment = FALSE;
 
 /*!
     \class QTextEdit qtextedit.h
-    \brief The QTextEdit widget provides a sophisticated single-page rich text editor.
+    \brief The QTextEdit widget provides a powerful single-page rich text editor.
 
     \ingroup basic
     \ingroup text
     \mainclass
 
-    QTextEdit is an advanced WYSIWYG editor supporting rich text
-    formatting. It is optimized to handle large documents and to
-    respond quickly to user input.
+    QTextEdit is an advanced WYSIWYG viewer/editor supporting rich
+    text formatting using HTML-style tags. It is optimized to handle
+    large documents and to respond quickly to user input.
+
+    QTextEdit has four modes of operation:
+    \table
+    \header \i Mode \i Command \i Notes
+    \row \i Plain Text Editor \i setTextFormat(PlainText)
+	 \i Set text with setText(); text() returns plain text. Text
+	 attributes (e.g. colors) can be set, but plain text is always
+	 returned.<sup>1.</sup>
+    \row \i Rich Text Editor \i setTextFormat(RichText)
+	 \i Set text with setText(); text() returns rich text. Rich
+	 text editing is fairly limited. You can't set margins or
+	 insert images for example (although you can read and
+	 correctly display files that have margins set and that
+	 include images). This mode is mostly useful for editing small
+	 amounts of rich text. <sup>2.</sup>
+    \row \i Text Viewer \i setReadOnly(TRUE)
+         \i Set text with setText() or append() (which has no undo
+	 history so is faster and uses less memory); text() returns
+	 plain or rich text depending on the textFormat(). This mode
+	 can correctly display a large subset of HTML tags.
+    \row \i Log Viewer<sup>3.</sup> \i setReadOnly(TRUE), setTextFormat(LogText)
+         \i Set text with append() (which has no undo
+	 history so is fast and uses less memory); text() returns
+	 plain text. It is possible to set text attributes (e.g.
+	 colors, italic, bold, etc.)
+    \endtable
+
+    <sup>1.</sup><small>We do \e not recommend using QTextEdit to
+    create syntax highlighting editors because the current API is
+    insufficient for this purpose. We hope to release a more complete
+    API that will support syntax highlighting in a later
+    release.</small>
+
+    <sup>2.</sup><small>A more complete API that supports setting
+    margins, images, etc., is planned for a later Qt release.</small>
+
+    <sup>3.</sup><small>LogText format is highly optimized for showing
+    large amounts of text and for quickly appending text.
+    Qt \>= 3.1 only.</small>
+
+    We recommend that you always call setTextFormat() to set the mode
+    you want to use. If you use \c AutoText then setText() and
+    append() will try to determine whether the text they are given is
+    plain text or rich text. If you use \c RichText then setText() and
+    append() will assume that the text they are given is rich text.
+    insert() simply inserts the text it is given.
 
     QTextEdit works on paragraphs and characters. A paragraph is a
     formatted string which is word-wrapped to fit into the width of
-    the widget. A document consists of zero or more paragraphs,
-    indexed from 0. Characters are indexed on a per-paragraph basis,
-    also indexed from 0. The words in the paragraph are aligned in
-    accordance with the paragraph's alignment(). Paragraphs are
-    separated by hard line breaks. Each character within a paragraph
-    has its own attributes, for example, font and color.
+    the widget. By default when reading plain text, two newlines
+    signify a paragraph. A document consists of zero or more
+    paragraphs, indexed from 0. Characters are indexed on a
+    per-paragraph basis, also indexed from 0. The words in the
+    paragraph are aligned in accordance with the paragraph's
+    alignment(). Paragraphs are separated by hard line breaks. Each
+    character within a paragraph has its own attributes, for example,
+    font and color.
 
     QTextEdit can display images (using QMimeSourceFactory), lists and
     tables. If the text is too large to view within the text edit's
     viewport, scrollbars will appear. The text edit can load both
     plain text and HTML files (a subset of HTML 3.2 and 4).  The
     rendering style and the set of valid tags are defined by a
-    styleSheet(). Change the style sheet with \l{setStyleSheet()}; see
+    styleSheet(). Custom tags can be created and placed in a custom
+    style sheet. Change the style sheet with \l{setStyleSheet()}; see
     QStyleSheet for details. The images identified by image tags are
     displayed if they can be interpreted using the text edit's
     \l{QMimeSourceFactory}; see setMimeSourceFactory().
@@ -163,12 +212,16 @@ static bool block_set_alignment = FALSE;
 
     The text is set or replaced using setText() which deletes any
     existing text and replaces it with the text passed in the
-    setText() call. Text can be inserted with insert(), paste() and
-    pasteSubType(). Text can also be cut(). The entire text is deleted
-    with clear() and the selected text is deleted with
-    removeSelectedText(). Selected (marked) text can also be deleted
-    with del() (which will delete the character to the right of the
-    cursor if no text is selected).
+    setText() call. If you call setText() with legacy HTML (with
+    setTextFormat(RichText) in force), and then call text(), the text
+    that is returned may have different markup, but will render the
+    same. Text can be inserted with insert(), paste(), pasteSubType()
+    and append(). Text that is appended does not go into the undo
+    history; this makes append() faster and consumes less memory. Text
+    can also be cut(). The entire text is deleted with clear() and the
+    selected text is deleted with removeSelectedText(). Selected
+    (marked) text can also be deleted with del() (which will delete
+    the character to the right of the cursor if no text is selected).
 
     The current format's attributes are set with setItalic(),
     setBold(), setUnderline(), setFamily() (font family),
