@@ -1584,7 +1584,7 @@ bool QTreeWidget::isSelected(const QTreeWidgetItem *item) const
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item), 0);
     if (selectionModel()->isSelected(index)) {
         while (index.isValid() && !isIndexHidden(index))
-            index = model()->parent(index);
+            index = index.parent();
         if (!index.isValid())
             return true;
     }
@@ -1643,7 +1643,7 @@ bool QTreeWidget::isItemHidden(const QTreeWidgetItem *item) const
     if (item == headerItem())
         return header()->isHidden();
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item), 0);
-    QModelIndex parent = d->model()->parent(index);
+    QModelIndex parent = index.parent();
     return isRowHidden(index.row(), parent);
 }
 
@@ -1656,7 +1656,7 @@ void QTreeWidget::setItemHidden(const QTreeWidgetItem *item, bool hide)
         header()->setHidden(hide);
     } else {
         QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item), 0);
-        QModelIndex parent = d->model()->parent(index);
+        QModelIndex parent = index.parent();
         setRowHidden(index.row(), parent, hide);
     }
 }

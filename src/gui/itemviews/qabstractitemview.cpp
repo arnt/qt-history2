@@ -1508,10 +1508,9 @@ void QAbstractItemView::keyboardSearch(const QString &search)
 
     // skip if we are searching for the same key or a new search started
     if (skipRow) {
-        QModelIndex parent = model()->parent(start);
-        int newRow = (start.row() < model()->rowCount(parent) - 1)
-                     ? start.row() + 1 : 0;
-        start = model()->index(newRow, start.column(), model()->parent(start));
+        QModelIndex parent = start.parent();
+        int newRow = (start.row() < model()->rowCount(parent) - 1) ? start.row() + 1 : 0;
+        start = model()->index(newRow, start.column(), parent);
     }
 
     // search from start with wraparound

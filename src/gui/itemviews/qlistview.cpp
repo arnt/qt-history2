@@ -543,7 +543,7 @@ void QListView::ensureItemVisible(const QModelIndex &index)
     QRect area = d->viewport->rect();
     QRect rect = itemViewportRect(index);
 
-    if (model()->parent(index) != root() || index.column() != d->column)
+    if (index.parent() != root() || index.column() != d->column)
         return;
 
     if (area.contains(rect)) {
@@ -1004,7 +1004,7 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction,
 */
 QRect QListView::itemRect(const QModelIndex &index) const
 {
-    if (!index.isValid() || model()->parent(index) != root() || index.column() != d->column)
+    if (!index.isValid() || index.parent() != root() || index.column() != d->column)
         return QRect();
     QListViewItem item = d->indexToListViewItem(index);
     return item.rect();
@@ -1068,7 +1068,7 @@ QModelIndexList QListView::selectedIndexes() const
     QModelIndexList modelSelected = selectionModel()->selectedIndexes();
     for (int i=0; i<modelSelected.count(); ++i) {
         QModelIndex index = modelSelected.at(i);
-        if (!isIndexHidden(index) && model()->parent(index) == root()
+        if (!isIndexHidden(index) && index.parent() == root()
             && index.column() == d->column)
             viewSelected.append(index);
     }
@@ -1388,8 +1388,9 @@ void QListView::updateGeometries()
 */
 bool QListView::isIndexHidden(const QModelIndex &index) const
 {
-    return d->hiddenRows.contains(index.row()) && (model()->parent(index) == root())
-           && index.column() == d->column;
+    return d->hiddenRows.contains(index.row())
+        && (index.parent() == root())
+        && index.column() == d->column;
 }
 
 /*!

@@ -378,7 +378,7 @@ void *QPersistentModelIndex::data() const
 
   \internal
 
-  Returns the model the index belogs to.
+  Returns the model the index belongs to.
 */
 const QAbstractItemModel *QPersistentModelIndex::model() const
 {
@@ -537,6 +537,14 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
     location as the \a other model index; otherwise returns false.
 */
 
+
+/*!
+  Return the parent of the model index or QModelIndex::Null if it has no parent.
+*/
+QModelIndex QModelIndex::parent() const
+{
+    return m ? m->parent(*this) : QModelIndex::Null;
+}
 
 /*!
     \class QAbstractItemModel qabstractitemmodel.h
@@ -1283,7 +1291,7 @@ void QAbstractItemModel::invalidatePersistentIndexes(const QModelIndex &parent)
 {
     bool all = !parent.isValid();
     for (int i = 0; i < d->persistentIndexes.count(); ++i) {
-        if (all || this->parent(d->persistentIndexes.at(i)->index) == parent) {
+        if (all || d->persistentIndexes.at(i)->index.parent() == parent) {
             Q_ASSERT(d->persistentIndexes.at(i) != &QPersistentModelIndexData::shared_null);
             d->persistentIndexes.at(i)->index = QModelIndex::Null;
 //            d->persistentIndexes.at(i)->model = 0;

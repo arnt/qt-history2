@@ -289,14 +289,11 @@ QItemSelection::QItemSelection(const QModelIndex &topLeft, const QModelIndex &bo
 void QItemSelection::select(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
     if (!topLeft.isValid() || !bottomRight.isValid()
-        || (topLeft.model() != bottomRight.model())) {
-        qWarning("can't select invalid indexes");
+        || (topLeft.model() != bottomRight.model())
+        || topLeft.parent() != bottomRight.parent()) {
+        qWarning("Can't select invalid indexes, or indexes with different parents");
         return;
     }
-    const QAbstractItemModel *model = topLeft.model();
-    if (model->parent(topLeft) != model->parent(bottomRight) ||
-        !topLeft.isValid() || !bottomRight.isValid())
-        return;
     if (topLeft.row() > bottomRight.row() || topLeft.column() > bottomRight.column())
         qWarning("topLeft and bottomRight are swapped!");
     append(QItemSelectionRange(topLeft, bottomRight));

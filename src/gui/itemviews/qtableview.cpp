@@ -650,7 +650,7 @@ QModelIndexList QTableView::selectedIndexes() const
     QModelIndexList modelSelected = selectionModel()->selectedIndexes();
     for (int i=0; i<modelSelected.count(); ++i) {
         QModelIndex index = modelSelected.at(i);
-        if (!isIndexHidden(index) && model()->parent(index) == root())
+        if (!isIndexHidden(index) && index.parent() == root())
             viewSelected.append(index);
     }
     return viewSelected;
@@ -883,7 +883,7 @@ void QTableView::setGridStyle(Qt::PenStyle style)
 */
 QRect QTableView::itemViewportRect(const QModelIndex &index) const
 {
-    if (!index.isValid() || model()->parent(index) != root())
+    if (!index.isValid() || index.parent() != root())
         return QRect();
     return QRect(columnViewportPosition(index.column()), rowViewportPosition(index.row()),
                  columnWidth(index.column()), rowHeight(index.row()));
@@ -898,7 +898,7 @@ QRect QTableView::itemViewportRect(const QModelIndex &index) const
 void QTableView::ensureItemVisible(const QModelIndex &index)
 {
     // check if we really need to do anything
-    if (model()->parent(index) != root())
+    if (index.parent() != root())
         return;
     if (isIndexHidden(index))
         return;

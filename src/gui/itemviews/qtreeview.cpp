@@ -133,7 +133,7 @@ void QTreeView::setModel(QAbstractItemModel *model)
     if (d->selectionModel) // support row editing
         disconnect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
                    d->model, SLOT(submit()));
-    
+
     d->viewItems.clear();
     d->openedIndexes.clear();
     d->hiddenIndexes.clear();
@@ -150,7 +150,7 @@ void QTreeView::setSelectionModel(QItemSelectionModel *selectionModel)
     if (d->model && d->selectionModel) // support row editing
         disconnect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
                    d->model, SLOT(submit()));
-    
+
     d->header->setSelectionModel(selectionModel);
     QAbstractItemView::setSelectionModel(selectionModel);
 
@@ -590,7 +590,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
     int y = option.rect.y();
     int width, height = option.rect.height();
 
-    QModelIndex parent = model()->parent(index);
+    QModelIndex parent = index.parent();
     QHeaderView *header = d->header;
     QModelIndex current = selectionModel()->currentIndex();
     bool focus = hasFocus() && current.isValid();
@@ -637,9 +637,9 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
 void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
                              const QModelIndex &index) const
 {
-    QModelIndex parent = d->model->parent(index);
+    QModelIndex parent = index.parent();
     QModelIndex current = parent;
-    QModelIndex ancestor = d->model->parent(current);
+    QModelIndex ancestor = current.parent();
     bool reverse = QApplication::reverseLayout();
     int indent = d->indent;
     int level = d->viewItems.at(d->current).level;
@@ -667,7 +667,7 @@ void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
                     ? QStyle::Style_Sibling : QStyle::Style_None;
         style()->drawPrimitive(QStyle::PE_TreeBranch, &opt, painter, this);
         current = ancestor;
-        ancestor = d->model->parent(current);
+        ancestor = current.parent();
     }
 }
 
@@ -879,7 +879,7 @@ QModelIndexList QTreeView::selectedIndexes() const
         // check that neither the parents nor the index is hidden before we add
         QModelIndex index = modelSelected.at(i);
         while (index.isValid() && !isIndexHidden(index))
-            index = model()->parent(index);
+            index = index.parent();
         if (index.isValid())
             continue;
         viewSelected.append(modelSelected.at(i));
@@ -1132,7 +1132,7 @@ int QTreeView::rowSizeHint(const QModelIndex &left) const
     start = qMin(start, end);
     end = qMax(tmp, end);
 
-    QModelIndex parent = d->model->parent(left);
+    QModelIndex parent = left.parent();
     const QVector<QTreeViewItem> viewItems = d->viewItems;
     for (int column = start; column <= end; ++column) {
         QModelIndex index = d->model->index(left.row(), column, parent);
@@ -1148,7 +1148,7 @@ int QTreeView::rowSizeHint(const QModelIndex &left) const
 bool QTreeView::isIndexHidden(const QModelIndex &index) const
 {
     return (isColumnHidden(index.column())
-            ||isRowHidden(index.row(), model()->parent(index)));
+            ||isRowHidden(index.row(), index.parent()));
 }
 
 /*
@@ -1194,7 +1194,7 @@ void QTreeViewPrivate::close(int i, bool update)
     QModelIndex tmp = index;
     while (tmp.isValid() && tmp != d->root) {
         viewItems[idx].total -= total;
-        tmp = model->parent(tmp);
+        tmp = tmp.parent();
         idx = viewIndex(tmp);
     }
     qCollapse<QTreeViewItem>(viewItems, i, total);
@@ -1241,7 +1241,7 @@ void QTreeViewPrivate::layout(int i)
     QModelIndex root = q->root();
     while (parent != root) {
         viewItems[k].total += count;
-        parent = model->parent(parent);
+        parent = parent.parent();
         k = viewIndex(parent);
     }
 }
@@ -1385,7 +1385,7 @@ void QTreeViewPrivate::reopenChildren(const QModelIndex &parent, bool update)
     QVector<QModelIndex> o = openedIndexes;
     for (int j = 0; j < o.count(); ++j) {
         QModelIndex index = o.at(j);
-        if (model->parent(index) == parent) {
+        if (index.parent() == parent) {
             int v = viewIndex(index);
             if (v < 0)
                 continue;
@@ -1483,9 +1483,8 @@ void QTreeViewPrivate::select(int start, int stop, QItemSelectionModel::Selectio
     QItemSelection selection;
     for (int i = start; i <= stop; ++i) {
         QModelIndex index = d->modelIndex(i);
-        QModelIndex parent = q->model()->parent(index);
-        if (previous.isValid() &&
-            parent == q->model()->parent(previous)) {
+        QModelIndex parent = index.parent();
+        if (previous.isValid() && parent == previous.parent()) {
             // same parent
             QModelIndex tl = q->model()->index(currentRange.top(),
                                                currentRange.left(),

@@ -31,6 +31,7 @@ public:
     inline int row() const { return r; }
     inline int column() const { return c; }
     inline void *data() const { return d; }
+    QModelIndex parent() const;
     inline const QAbstractItemModel *model() const { return m; }
     inline bool isValid() const { return (r >= 0) && (c >= 0) && (m != 0); }
     inline bool operator==(const QModelIndex &other) const
