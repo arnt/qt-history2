@@ -37,8 +37,6 @@ ListViewContainer::ListViewContainer(QGenericListView *listView, QWidget *parent
     if (style().styleHint(QStyle::SH_ComboBox_ListMouseTracking) ||
         style().styleHint(QStyle::SH_ComboBox_Popup)) {
         list->setMouseTracking(true);
-        if(list->viewport())
-            list->viewport()->setMouseTracking(true);
     }
     list->setSelectionMode(QAbstractItemView::SingleSelection);
     list->setFrameStyle(QFrame::NoFrame);

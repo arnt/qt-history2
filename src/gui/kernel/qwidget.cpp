@@ -4695,6 +4695,7 @@ bool QWidget::event(QEvent *e)
     case QEvent::WindowTitleChange:
     case QEvent::IconTextChange:
     case QEvent::ModifiedChange:
+    case QEvent::MouseTrackingChange:
         changeEvent(e);
         break;
 
@@ -6273,6 +6274,10 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
         qt_mac_update_metal_style(this);
 #endif
         break;
+    case Qt::WA_MouseTracking: {
+        QEvent e(QEvent::MouseTrackingChange);
+        QApplication::sendEvent(this, &e);
+        break; }
     case Qt::WA_NoSystemBackground:
         d->updateSystemBackground();
         break;

@@ -331,6 +331,9 @@ void QViewport::setViewportMargins(int left, int top, int right, int bottom)
 bool QViewport::event(QEvent *e)
 {
     switch (e->type()) {
+    case QEvent::MouseTrackingChange:
+        d->viewport->setMouseTracking(hasMouseTracking());
+        break;
     case QEvent::Resize:
             d->layoutChildren();
             break;
