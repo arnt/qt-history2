@@ -333,7 +333,7 @@ void QPixmap::deref()
 
 
 /*!
-  Constructs a monochrome pixmap that is initialized with the data in \e bits.
+  Constructs a monochrome pixmap that is initialized with the data in \a bits.
   This constructor is protected and used by the QBitmap class.
 */
 
@@ -461,7 +461,7 @@ void QPixmap::setOptimization( Optimization optimization )
 
 
 /*!
-  Fills the pixmap with the color \e fillColor.
+  Fills the pixmap with the color \a fillColor.
 */
 
 void QPixmap::fill( const QColor &fillColor )
@@ -1401,8 +1401,8 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
   The arguments \e (x,y) specify the offset in the window, whereas
   \e (w,h) specify the width and height of the area to be copied.
 
-  If \e w is negative, the function copies everything to the right
-  border of the window.	 If \e h is negative, the function copies
+  If \a w is negative, the function copies everything to the right
+  border of the window.	 If \a h is negative, the function copies
   everything to the bottom of the window.
 
   Note that grabWindows() grabs pixels from the screen, not from the
@@ -1448,7 +1448,7 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 
 
 /*!
-  Returns a copy of the pixmap that is transformed using \e matrix.
+  Returns a copy of the pixmap that is transformed using \a matrix.
 
   Qt uses this function to implement rotated text on window systems
   that do not support such complex features.
@@ -1822,8 +1822,8 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 
 
 /*!
-  Returns the actual matrix used for transforming a pixmap with \e w
-  width and \e h height.
+  Returns the actual matrix used for transforming a pixmap with \a w
+  width and \a h height.
 
   When transforming a pixmap with xForm(), the transformation matrix
   is internally adjusted to compensate for unwanted translation,
