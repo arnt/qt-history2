@@ -1071,6 +1071,7 @@ void QX11PaintEngine::drawRects(const QList<QRectF> &rects)
     if (d->cbrush.style() != Qt::NoBrush && d->cpen.style() != Qt::NoPen) {
 	for (int i = 0; i < rects.size(); ++i)
 	    drawRect(rects.at(i));
+        return;
     }
 
     QVarLengthArray<XRectangle> xrects(rects.size());
@@ -1085,14 +1086,8 @@ void QX11PaintEngine::drawRects(const QList<QRectF> &rects)
 	XFillRectangles(d->dpy, d->hd, d->gc_brush, xrects.data(), rects.size());
 	return;
     }
-    if (d->cpen.style() != Qt::NoPen && d->cbrush.style() == Qt::NoBrush) {
-	// some of the speed gain is lost by this conversion
-	for (int i = 0; i < rects.size(); ++i) {
-	    xrects[i].width -= 1;
-	    xrects[i].height -= 1;
-	}
+    if (d->cpen.style() != Qt::NoPen && d->cbrush.style() == Qt::NoBrush)
         XDrawRectangles(d->dpy, d->hd, d->gc, xrects.data(), rects.size());
-    }
 }
 
 void QX11PaintEngine::drawPoint(const QPointF &p)
