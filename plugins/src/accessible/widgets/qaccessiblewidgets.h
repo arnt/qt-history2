@@ -47,7 +47,7 @@ public:
     QString	text( Text t, int control ) const;
     State	state( int control ) const;
 
-    bool	doDefaultAction( int control );
+    bool	doAction(int action, int control);
 
 protected:
     QButton *button() const;
@@ -78,7 +78,7 @@ public:
     Role	role( int control ) const;
     State	state( int control ) const;
 
-    bool	doDefaultAction( int control );
+    bool	doAction(int action, int control);
 };
 
 class QAccessibleScrollBar : public QAccessibleRangeControl
@@ -97,7 +97,7 @@ public:
     QString	text( Text t, int control ) const;
     Role	role( int control ) const;
 
-    bool	doDefaultAction( int control );
+    bool	doAction(int action, int control);
 
 protected:
     QScrollBar *scrollBar() const;
@@ -119,7 +119,7 @@ public:
     QString	text( Text t, int control ) const;
     Role	role( int control ) const;
 
-    bool	doDefaultAction( int control );
+    bool	doAction(int action, int control);
 
 protected:
     QSlider *slider() const;
@@ -187,10 +187,10 @@ public:
     Role	role( int control ) const;
     State	state( int control ) const;
 
-    bool	doDefaultAction( int control );
+    bool	doAction(int action, int control);
     bool	setSelected( int control, bool on, bool extend );
     void	clearSelection();
-    QMemArray<int> selection() const;    
+    QVector<int> selection() const;    
 
 protected:
     QTabBar *tabBar() const;
@@ -212,7 +212,7 @@ public:
     Role	role( int control ) const;
     State	state( int control ) const;
 
-    bool	doDefaultAction( int control );
+    bool	doAction(int action, int control);
 
 protected:
     QComboBox *comboBox() const;
@@ -233,7 +233,7 @@ public:
     Role	role( int control ) const;
     State	state( int control ) const;
 
-    bool	doDefaultAction( int control );
+    bool	doAction(int action, int control);
 
 protected:
     QTitleBar *titleBar() const;
@@ -268,11 +268,11 @@ public:
     Role	role( int control ) const;
     State	state( int control ) const;
 
-    bool	doDefaultAction( int control );
+    bool	doAction(int action, int control);
     bool	setFocus( int control );
     bool	setSelected( int control, bool on, bool extend );
     void	clearSelection();
-    QMemArray<int> selection() const;
+    QVector<int> selection() const;
 
 protected:
     QAccessibleScrollView *scrollView() const;
@@ -295,7 +295,7 @@ public:
     bool	setFocus( int control );
     bool	setSelected( int control, bool on, bool extend );
     void	clearSelection();
-    QMemArray<int> selection() const;
+    QVector<int> selection() const;
 
 protected:
     QListBox *listBox() const;
@@ -317,7 +317,7 @@ public:
     bool	setFocus( int control );
     bool	setSelected( int control, bool on, bool extend );
     void	clearSelection();
-    QMemArray<int> selection() const;
+    QVector<int> selection() const;
 
 protected:
     QListView *listView() const;
@@ -340,7 +340,7 @@ public:
     bool	setFocus( int control );
     bool	setSelected( int control, bool on, bool extend );
     void	clearSelection();
-    QMemArray<int> selection() const;
+    QVector<int> selection() const;
 
 protected:
     QIconView *iconView() const;

@@ -150,7 +150,7 @@ QAccessibleButton::QAccessibleButton( QObject *o, Role role, QString description
 }
 
 /*! \reimp */
-bool	QAccessibleButton::doDefaultAction( int control )
+bool	QAccessibleButton::doAction(int action, int control)
 {
     if ( !widget()->isEnabled() )
 	return FALSE;
@@ -436,7 +436,7 @@ QAccessible::State QAccessibleSpinWidget::state( int control ) const
 }
 
 /*! \reimp */
-bool QAccessibleSpinWidget::doDefaultAction( int control )
+bool QAccessibleSpinWidget::doAction(int action, int control)
 {
     switch( control ) {
     case 1:
@@ -452,7 +452,7 @@ bool QAccessibleSpinWidget::doDefaultAction( int control )
     default:
 	break;
     }
-    return QAccessibleRangeControl::doDefaultAction( control );
+    return QAccessibleRangeControl::doAction(action, control);
 }
 
 /*!
@@ -632,7 +632,7 @@ QAccessible::Role QAccessibleScrollBar::role( int control ) const
 }
 
 /*! \reimp */
-bool QAccessibleScrollBar::doDefaultAction( int control )
+bool QAccessibleScrollBar::doAction(int action, int control)
 {
     switch ( control ) {
     case 1:
@@ -809,7 +809,7 @@ QAccessible::Role QAccessibleSlider::role( int control ) const
 }
 
 /*! \reimp */
-bool QAccessibleSlider::doDefaultAction( int control )
+bool QAccessibleSlider::doAction(int action, int control)
 {
     switch ( control ) {
     case 1:
@@ -1242,7 +1242,7 @@ QAccessible::State QAccessibleTabBar::state( int control ) const
 }
 
 /*! \reimp */
-bool QAccessibleTabBar::doDefaultAction( int control )
+bool QAccessibleTabBar::doAction(int action, int control)
 {
     if ( !control )
 	return FALSE;
@@ -1251,7 +1251,7 @@ bool QAccessibleTabBar::doDefaultAction( int control )
 	QAccessibleWidget::queryChild( control - tabBar()->count(), &iface );
 	if ( !iface )
 	    return FALSE;
-	return iface->doDefaultAction( 0 );
+	return iface->doAction(action, 0);
     }
 
     QTab *tab = tabBar()->tabAt( control - 1 );
@@ -1280,10 +1280,10 @@ void QAccessibleTabBar::clearSelection()
 }
 
 /*! \reimp */
-QMemArray<int> QAccessibleTabBar::selection() const
+QVector<int> QAccessibleTabBar::selection() const
 {
-    QMemArray<int> array( 1 );
-    array.at(0) = tabBar()->indexOf( tabBar()->currentTab() ) + 1;
+    QVector<int> array(1);
+    array[0] = tabBar()->indexOf(tabBar()->currentTab()) + 1;
 
     return array;
 }
@@ -1445,7 +1445,7 @@ QAccessible::State QAccessibleComboBox::state( int /*control*/ ) const
 }
 
 /*! \reimp */
-bool QAccessibleComboBox::doDefaultAction( int control )
+bool QAccessibleComboBox::doAction(int action, int control)
 {
     if ( control != 2 )
 	return FALSE;
@@ -1646,7 +1646,7 @@ QAccessible::State QAccessibleTitleBar::state( int control ) const
 }
 
 /*! \reimp */
-bool QAccessibleTitleBar::doDefaultAction( int control )
+bool QAccessibleTitleBar::doAction(int action, int control)
 {
     switch ( control ) {
     case 3:
@@ -1747,9 +1747,9 @@ QString QAccessibleViewport::text( Text t, int control ) const
     return scrollView()->text( t, control );
 }
 
-bool QAccessibleViewport::doDefaultAction( int control )
+bool QAccessibleViewport::doAction(int action, int control)
 {
-    return scrollView()->doDefaultAction( control );
+    return scrollView()->doAction(action, control);
 }
 
 QAccessible::Role QAccessibleViewport::role( int control ) const
@@ -1777,7 +1777,7 @@ void QAccessibleViewport::clearSelection()
     scrollView()->clearSelection();
 }
 
-QMemArray<int> QAccessibleViewport::selection() const
+QVector<int> QAccessibleViewport::selection() const
 {
     return scrollView()->selection();
 }
@@ -1972,9 +1972,9 @@ void QAccessibleListBox::clearSelection()
 }
 
 /*! \reimp */
-QMemArray<int> QAccessibleListBox::selection() const
+QVector<int> QAccessibleListBox::selection() const
 {
-    QMemArray<int> array;
+    QVector<int> array;
     uint size = 0;
     const uint c = listBox()->count();
     array.resize( c );
@@ -2193,9 +2193,9 @@ void QAccessibleListView::clearSelection()
 }
 
 /*! \reimp */
-QMemArray<int> QAccessibleListView::selection() const
+QVector<int> QAccessibleListView::selection() const
 {
-    QMemArray<int> array;
+    QVector<int> array;
     uint size = 0;
     int id = 1;
     array.resize( size );
@@ -2392,9 +2392,9 @@ void QAccessibleIconView::clearSelection()
 }
 
 /*! \reimp */
-QMemArray<int> QAccessibleIconView::selection() const
+QVector<int> QAccessibleIconView::selection() const
 {
-    QMemArray<int> array;
+    QVector<int> array;
     uint size = 0;
     int id = 1;
     array.resize( iconView()->count() );
