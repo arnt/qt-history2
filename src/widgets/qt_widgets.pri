@@ -47,6 +47,7 @@ widgets {
 		  $$WIDGETS_H/qtabbar.h \
 		  $$WIDGETS_H/qtabwidget.h \
 		  $$WIDGETS_H/qtableview.h \
+		  $$WIDGETS_H/qtitlebar.h \
 		  $$WIDGETS_H/qtoolbar.h \
 		  $$WIDGETS_H/qtoolbutton.h \
 		  $$WIDGETS_H/qtooltip.h \
