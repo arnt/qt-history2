@@ -57,6 +57,7 @@
 #include "qpngio.h"
 #include "qsessionmanager.h"
 #include "qcursor.h"
+#include "qstylefactory.h"
 
 #if defined(QT_THREAD_SUPPORT)
 #include "qthread.h"
@@ -1000,6 +1001,17 @@ void QApplication::setStyle( QStyle *style )
 	delete old;
     }
 }
+
+bool QApplication::setStyle( const QString& style )
+{
+    QStyle *s = QStyleFactory::create( style );
+    if ( !s )
+	return FALSE;
+
+    setStyle( s );
+    return TRUE;
+}
+
 #endif
 
 
