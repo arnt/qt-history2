@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#398 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#399 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -830,7 +830,8 @@ void QWidget::setCaption( const QString &caption )
 
 /*!
   Sets the window icon pixmap.
-  \sa icon(), setIconText(), setCaption()
+  \sa icon(), setIconText(), setCaption(), 
+      \link appicon.html Setting the Application Icon\endlink
 */
 
 void QWidget::setIcon( const QPixmap &pixmap )
