@@ -256,31 +256,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 
 	WindowClass wclass = kSheetWindowClass;
 
-#if 0
-	if(testWFlags(WShowModal))
-	    wclass = kMovableModalWindowClass;
-	else if(testWFlags(WType_Dialog) )
+	if(testWFlags(WType_Dialog) || testWFlags(WType_Popup) )
 	    wclass = kToolbarWindowClass;
-	else if(testWFlags( WType_Popup ))
-	    wclass = kAlertWindowClass;
-	else if(testWFlags( WStyle_Tool ) )
-	    wclass = kSheetWindowClass;
-	else if(testWFlags(WType_TopLevel) )
-	    wclass = kDocumentWindowClass;
-	else if(testWFlags(WType_Desktop))
-	    wclass = kDesktopWindowClass;
-#else
-	if(testWFlags(WType_Dialog) )
-	    wclass = kToolbarWindowClass;
-	else if(testWFlags( WType_Popup ))
-#ifdef Q_WS_MACX	
-	    wclass = kAlertWindowClass;
-#else
-            wclass = kToolbarWindowClass;
-#endif
 	else
 	    wclass = kDocumentWindowClass;
-#endif
 
 	WindowAttributes wattr = kWindowNoAttributes;
 	if( testWFlags(WStyle_Customize) ) {
