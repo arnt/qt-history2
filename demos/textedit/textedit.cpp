@@ -175,7 +175,7 @@ void TextEdit::setupTextActions()
     comboFont->insertStringList(db.families());
     connect(comboFont, SIGNAL(activated(const QString &)),
             this, SLOT(textFamily(const QString &)));
-    comboFont->lineEdit()->setText(QApplication::font().family());
+    comboFont->setCurrentText(QApplication::font().family());
 
     comboSize = new QComboBox(tb);
     tb->addWidget(comboSize);
@@ -186,7 +186,7 @@ void TextEdit::setupTextActions()
 
     connect(comboSize, SIGNAL(activated(const QString &)),
             this, SLOT(textSize(const QString &)));
-    comboSize->lineEdit()->setText(QString::number(QApplication::font().pointSize()));
+    comboSize->setCurrentText(QString::number(QApplication::font().pointSize()));
 
     actionTextBold = new QAction(QPixmap(":/images/textbold.png"), tr("&Bold"), this);
     actionTextBold->setShortcut(Qt::CTRL + Qt::Key_B);
@@ -504,8 +504,8 @@ void TextEdit::clipboardDataChanged()
 
 void TextEdit::fontChanged(const QFont &f)
 {
-    comboFont->lineEdit()->setText(f.family());
-    comboSize->lineEdit()->setText(QString::number(f.pointSize()));
+    comboFont->setCurrentText(f.family());
+    comboSize->setCurrentText(QString::number(f.pointSize()));
     actionTextBold->setChecked(f.bold());
     actionTextItalic->setChecked(f.italic());
     actionTextUnderline->setChecked(f.underline());
