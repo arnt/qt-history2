@@ -1091,10 +1091,11 @@ bool QAbstractItemView::beginEdit(const QModelIndex &index,
 }
 
 /*!
-    If \a accept is true the edit of the item at \a index is accepted
-    and the model is updated with the editor's value. If \a accept is
-    false, the edited value is ignored. In both cases, if there was an
-    editor widget it is released.
+    If the end \a action is \c Accepted the edit of the item at \a
+    index is accepted and the model is updated with the editor's
+    value. If the \a action is \c Cancelled, the edited value is
+    ignored. In both cases, if there was an editor widget it is
+    released.
 
     \sa beginEdit() QAbstractItemDelegate::releaseEditor()
 */

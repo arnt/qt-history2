@@ -3445,3 +3445,107 @@ void QSessionManager::requestPhase2()
 
 #endif // QT_NO_SM_SUPPORT
 #endif //QT_NO_SESSIONMANAGER
+
+/*!
+    \enum QApplication::ColorMode
+
+    \compat
+
+    \value NormalColors
+    \value CustomColors
+*/
+
+/*!
+    \fn Qt::MacintoshVersion QApplication::macVersion()
+
+    Use QSysInfo::MacintoshVersion instead.
+*/
+
+/*!
+    \fn ColorMode QApplication::colorMode()
+
+    Use ColorMode(colorSpec()) instead.
+*/
+
+/*!
+    \fn void QApplication::setColorMode(ColorMode mode)
+
+    Use setColorSpec(ColorSpec(mode)) instead.
+*/
+
+/*!
+    \fn bool QApplication::hasGlobalMouseTracking()
+
+    Always returns true.
+###
+*/
+
+/*!
+    \fn void QApplication::setGlobalMouseTracking(bool b)
+
+###
+*/
+
+/*!
+    \fn void QApplication::flushX()
+
+    Use flush() instead.
+*/
+
+/*!
+    \fn void QApplication::setWinStyleHighlightColor(const QColor &c)
+
+    Use the palette instead.
+
+    \oldcode
+    app.setWinStyleHighlightColor(color);
+    \newcode
+    QPalette palette(qApp->palette());
+    palette.setColor(QPalette::Highlight, color);
+    qApp->setPalette(palette);
+    \endcode
+*/
+
+/*!
+    \fn void QApplication::setPalette(const QPalette &pal, bool b, const char* className = 0)
+
+    Use the two-argument overload instead.
+*/
+
+/*!
+    \fn void QApplication::setFont(const QFont &font, bool b, const char* className = 0)
+
+    Use the two-argument overload instead.
+*/
+
+/*!
+    \fn const QColor &QApplication::winStyleHighlightColor()
+
+    Use qApp->palette().color(QPalette::Active, QPalette::Highlight)
+    instead.
+*/
+
+/*!
+    \fn QWidget *QApplication::widgetAt(int x, int y, bool child)
+
+    Use the two-argument widgetAt() overload to get the child widget.
+    To get the top-level widget do this:
+    \code
+    QWidget *widget = qApp->widgetAt(x, y);
+    if (widget)
+        widget = widget->topLevelWidget();
+    \endcode
+*/
+
+/*!
+    \fn QWidget *QApplication::widgetAt(const QPoint &point, bool child)
+
+    Use the single-argument widgetAt() overload to get the child widget.
+    To get the top-level widget do this:
+    \code
+    QWidget *widget = qApp->widgetAt(point);
+    if (widget)
+        widget = widget->topLevelWidget();
+    \endcode
+*/
+

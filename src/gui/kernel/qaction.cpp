@@ -266,6 +266,10 @@ QFont QAction::font() const
 }
 
 #ifdef QT_COMPAT
+/*!
+    Use one of the QAction constructors that doesn't take a \a name
+    argument and call setObjectName() instead.
+*/
 QAction::QAction(QObject* parent, const char* name)
  : QObject(*(new QActionPrivate), parent)
 {
@@ -276,6 +280,10 @@ QAction::QAction(QObject* parent, const char* name)
 }
 
 
+/*!
+    Use one of the QAction constructors that doesn't take a \a name
+    argument and call setObjectName() instead.
+*/
 QAction::QAction(const QString &text, const QKeySequence &shortcut, QObject* parent, const char* name)
  : QObject(*(new QActionPrivate), parent)
 {
@@ -287,6 +295,10 @@ QAction::QAction(const QString &text, const QKeySequence &shortcut, QObject* par
         d->group->addAction(this);
 }
 
+/*!
+    Use one of the QAction constructors that doesn't take a \a name
+    argument and call setObjectName() instead.
+*/
 QAction::QAction(const QIconSet &icon, const QString &text, const QKeySequence &shortcut,
                  QObject* parent, const char* name)
  : QObject(*(new QActionPrivate), parent)
@@ -803,15 +815,6 @@ void QAction::activate(ActionEvent event)
 */
 
 /*!
-    \fn void QAction::deleted()
-    \internal
-
-    This signal is emitted when an action has been deleted.
-
-    \sa QWidget::actionEvent()
-*/
-
-/*!
     \enum QAction::ActionEvent
 
     This enum type is used when calling QAction::activate()
@@ -820,6 +823,91 @@ void QAction::activate(ActionEvent event)
 
     \value Hover this will cause the QAction::hovered() signal to be emitted.
 */
+
+/*!
+    \fn void QAction::setMenuText(const QString &text)
+
+    Use setText() instead.
+*/
+
+/*!
+    \fn QString QAction::menuText() const
+
+    Use text() instead.
+*/
+
+/*!
+    \fn bool QAction::isOn() const
+
+    Use isChecked() instead.
+*/
+
+/*!
+    \fn void QAction::setOn(bool b)
+
+    Use setChecked() instead.
+*/
+
+/*!
+    \fn bool QAction::isToggleAction() const
+
+    Use isCheckable() instead.
+*/
+
+/*!
+    \fn void QAction::setToggleAction(bool b)
+
+    Use setCheckable() instead.
+*/
+
+/*!
+    \fn void QAction::setIconSet(const QIconSet &i)
+
+    Use setIcon() instead.
+*/
+
+/*!
+    \fn bool QAction::addTo(QWidget *w)
+
+    Use QWidget::addAction() instead.
+
+    \oldcode
+    action->addTo(widget);
+    \newcode
+    widget->addAction(action);
+    \endcode
+*/
+
+/*!
+    \fn bool QAction::removeFrom(QWidget *w)
+
+    Use QWidget::removeAction() instead.
+
+    \oldcode
+    action->removeFrom(widget);
+    \newcode
+    widget->removeAction(action);
+    \endcode
+*/
+
+/*!
+    \fn void QAction::setAccel(const QKeySequence &shortcut)
+
+    Use setShortcut() instead.
+*/
+
+/*!
+    \fn QIconSet QAction::iconSet() const
+
+    Use icon() instead.
+*/
+
+/*!
+    \fn QKeySequence QAction::accel() const
+
+    Use shortcut() instead.
+*/
+
 
 #include "moc_qaction.cpp"
 

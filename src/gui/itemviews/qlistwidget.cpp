@@ -182,7 +182,7 @@ void QListModel::append(const QListWidgetItem &item)
 */
 
 /*!
-    \fn void QListWidgetItem::setIconSet(const QIconSet &icon)
+    \fn void QListWidgetItem::setIcon(const QIconSet &icon)
 
     Sets this list widget item's \a icon.
 
@@ -281,6 +281,9 @@ public:
 #define q q_func()
 
 #ifdef QT_COMPAT
+/*!
+    Use the single-argument overload and call setObjectName() instead.
+*/
 QListWidget::QListWidget(QWidget *parent, const char* name)
     : QListView(*new QListWidgetPrivate(), parent)
 {

@@ -608,7 +608,7 @@ QTreeWidgetItem::~QTreeWidgetItem()
 }
 
 /*!
-    Sets the number of \a columns in the tree widget item.
+    Sets the number of columns in the tree widget item to \a count.
 */
 
 void QTreeWidgetItem::setColumnCount(int count)

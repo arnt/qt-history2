@@ -73,6 +73,10 @@ QCopChannel::QCopChannel(const QByteArray &channel, QObject *parent) :
 }
 
 #ifdef QT_COMPAT
+/*!
+    Use the two argument overload, and call setObjectName() to \a name
+    the instance, instead.
+*/
 QCopChannel::QCopChannel(const QByteArray &channel, QObject *parent, const char *name) :
     QObject(parent)
 {

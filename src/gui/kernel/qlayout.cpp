@@ -2648,4 +2648,104 @@ QVBoxLayout::~QVBoxLayout()
 {
 }
 
+/*!
+    \fn QWidget *QLayout::mainWidget() const
+
+    Use parentWidget() instead.
+*/
+
+/*!
+    \fn void QLayout::remove(QWidget *w)
+
+    Use removeWidget() instead.
+*/
+
+/*!
+    \fn void QLayout::add(QWidget *w)
+
+    Use addWidget() instead.
+*/
+
+/*!
+    \fn QLayoutIterator QLayout::iterator()
+
+    Use a QLayoutIterator() constructor instead.
+*/
+
+/*!
+    \fn int QLayout::defaultBorder() const
+
+    Use spacing() instead.
+*/
+
+/*!
+    \fn void QGridLayout::addRowSpacing(int row, int minsize)
+
+    Use addItem(new QSpacerItem(0, minsize), row, 0) instead.
+*/
+
+/*!
+    \fn void QGridLayout::addColSpacing(int col, int minsize)
+
+    Use addItem(new QSpacerItem(minsize, 0), 0, col) instead.
+*/
+
+/*!
+    \fn void QGridLayout::addMultiCellWidget(QWidget *w, int fromRow, int toRow, int fromCol, int toCol, Qt::Alignment align = 0)
+
+    Use an addWidget() overload that allows you to specify row and
+    column spans instead.
+*/
+
+/*!
+    \fn void QGridLayout::addMultiCell(QLayoutItem *l, int fromRow, int toRow, int fromCol, int toCol, Qt::Alignment align = 0)
+
+    Use an addItem() overload that allows you to specify row and
+    column spans instead.
+*/
+
+/*!
+    \fn void QGridLayout::addMultiCellLayout(QLayout *layout, int fromRow, int toRow, int fromCol, int toCol, Qt::Alignment align = 0)
+
+    Use an addLayout() overload that allows you to specify row and
+    column spans instead.
+*/
+
+/*!
+    \fn int QGridLayout::numRows() const
+
+    Use rowCount() instead.
+*/
+
+/*!
+    \fn int QGridLayout::numCols() const
+
+    Use columnCount() instead.
+*/
+
+/*!
+    \fn void QGridLayout::setColStretch(int col, int stretch)
+
+    Use setColumnStretch() instead.
+*/
+
+/*!
+    \fn int QGridLayout::colStretch(int col) const
+
+    Use columnStretch() instead.
+*/
+
+/*!
+    \fn void QGridLayout::setColSpacing(int col, int minSize)
+
+    Use setColumnSpacing() instead.
+*/
+
+/*!
+    \fn int QGridLayout::colSpacing(int col) const
+
+    Use columnSpacing() instead.
+*/
+
+
 #endif // QT_NO_LAYOUT

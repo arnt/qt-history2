@@ -114,6 +114,23 @@
     \value BitmapCursor
     \omitvalue LastCursor
 
+    \omitvalue arrowCursor
+    \omitvalue upArrowCursor
+    \omitvalue crossCursor
+    \omitvalue waitCursor
+    \omitvalue ibeamCursor
+    \omitvalue sizeVerCursor
+    \omitvalue sizeHorCursor
+    \omitvalue sizeBDiagCursor
+    \omitvalue sizeFDiagCursor
+    \omitvalue sizeAllCursor
+    \omitvalue blankCursor
+    \omitvalue splitVCursor
+    \omitvalue splitHCursor
+    \omitvalue pointingHandCursor
+    \omitvalue forbiddenCursor
+    \omitvalue whatsThisCursor
+
     ArrowCursor is the default for widgets in a normal state.
 
     \img cursors.png Cursor Shapes

@@ -343,4 +343,36 @@ void QActionGroup::childEvent(QChildEvent* e)
     \sa QAction::activate()
 */
 
+/*!
+    \fn void QActionGroup::add(QAction* a)
+
+    Use addAction() instead.
+*/
+
+/*!
+    \fn void QActionGroup::addSeparator()
+
+    Normally you add a separator to the menus or widgets to which
+    actions are added, so this function is very rarely needed.
+
+    \oldcode
+    actionGroup->addSeparator();
+    \newcode
+    QAction *separator = new QAction(this);
+    separator->setSeparator(true);
+    actionGroup->addAction(separator);
+    \endcode
+*/
+
+/*!
+    \fn bool QActionGroup::addTo(QWidget *widget)
+
+    \oldcode
+    actionGroup->addTo(widget);
+    \newcode
+    widget->addActions(actionGroup->actions());
+    \endcode
+*/
+
+
 #include "moc_qactiongroup.cpp"

@@ -2389,7 +2389,7 @@ void QApplication::qwsSetDecoration(QDecoration *dec)
   requested style when a "-style" option is passed in as a commandline
   parameter.
 
-  Returns 0 if an unknown \a style is passed, otherwise the QStyle object
+  Returns 0 if an unknown \a decoration is passed, otherwise the QStyle object
   returned is set as the application's GUI style.
 */
 QDecoration* QApplication::qwsSetDecoration(const QString &decoration)

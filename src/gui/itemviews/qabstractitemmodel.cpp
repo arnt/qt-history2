@@ -229,7 +229,7 @@ QPersistentModelIndex::~QPersistentModelIndex()
 }
 
 /*!
-  \fn bool QPersistentModelIndex::operator(const QPersistentModelIndex &other) const
+  \fn bool QPersistentModelIndex::operator==(const QPersistentModelIndex &other) const
 
   Returns true if this persistent model index is equal to the \a other
   persistent model index, otherwist returns false.
@@ -433,12 +433,16 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
     \value View             The item belongs in a view.
     \value HorizontalHeader The item belongs in a horizontal header.
     \value VerticalHeader   The item belongs in a vertical header.
+    \value Null             There is no item; this is the case when
+    the model index is the parent of a top-level item.
 */
 
 /*!
-    \fn QModelIndex::QModelIndex()
+    \fn QModelIndex::QModelIndex(Type type = Null)
 
-    Creates a new invalid model index.
+    Creates a new empty model index. This is typically used to create
+    a parent model index for top-level items, i.e., for items which
+    have no parent, so the default \a type of \c Null is usually right.
 */
 
 /*!
@@ -638,6 +642,11 @@ QAbstractItemModel::~QAbstractItemModel()
     Returns the number of columns for the given \a parent.
 */
 
+/*!
+    \fn void QAbstractItemModel::reset()
+
+    \internal
+*/
 
 /*!
     \fn void QAbstractItemModel::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)

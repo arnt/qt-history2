@@ -112,6 +112,7 @@
     \value Sizeable         The object can be resized, e.g. top-level windows.
     \value Traversed        The object is linked and has been visited.
     \value Unavailable      The object is unavailable to the user, e.g. a disabled widget.
+    \omitvalue Moveable
 
     Implementations of QAccessibleInterface::state() return a combination
     of these flags.

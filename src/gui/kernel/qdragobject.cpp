@@ -273,9 +273,10 @@ QDragObject::QDragObject(QWidget * dragSource)
 /*!
   \obsolete
 
-    Constructs a drag object called \a name with a parent \a source.
+    Constructs a drag object called \a name with a parent \a
+    dragSource.
 
-    Note that the drag object will be deleted when the \a source is
+    Note that the drag object will be deleted when the \a dragSource is
     deleted.
 */
 
@@ -701,7 +702,7 @@ QTextDrag::QTextDrag(QWidget * dragSource)
   \obsolete
 
     Constructs a text drag object with the given \a name, and sets its data
-    to \a text. The \a source is the widget that the drag operation started
+    to \a text. The \a dragSource is the widget that the drag operation started
     from.
 */
 
@@ -717,7 +718,7 @@ QTextDrag::QTextDrag(const QString &text, QWidget * dragSource, const char * nam
   \obsolete
 
     Constructs a default text drag object with the given \a name.
-    The \a source is the widget that the drag operation started from.
+    The \a dragSource is the widget that the drag operation started from.
 */
 
 QTextDrag::QTextDrag(QWidget * dragSource, const char * name)
@@ -1039,7 +1040,7 @@ QImageDrag::QImageDrag(QWidget * dragSource)
   \obsolete
 
     Constructs an image drag object with the given \a name, and sets its
-    data to \a image. The \a source is the widget that the drag operation
+    data to \a image. The \a dragSource is the widget that the drag operation
     started from.
 */
 
@@ -1055,7 +1056,7 @@ QImageDrag::QImageDrag(QImage image,
   \obsolete
 
     Constructs a default image drag object with the given \a name.
-    The \a source is the widget that the drag operation started from.
+    The \a dragSource is the widget that the drag operation started from.
 */
 
 QImageDrag::QImageDrag(QWidget * dragSource, const char * name)
@@ -1279,7 +1280,7 @@ QStoredDrag::QStoredDrag(const char* mimeType, QWidget * dragSource) :
 /*!
   \obsolete
 
-    Constructs a QStoredDrag. The drag \a source and \a name are passed
+    Constructs a QStoredDrag. The \a dragSource and \a name are passed
     to the QDragObject constructor, and the format is set to \a
     mimeType.
 
@@ -1405,8 +1406,8 @@ QUriDrag::QUriDrag(QWidget * dragSource)
 /*!
   \obsolete
 
-    Constructs an object to drag the \a list of URIs given.
-    The \a source and \a name are passed to the QStoredDrag constructor.
+    Constructs an object to drag the list of \a uris.
+    The \a dragSource and \a name are passed to the QStoredDrag constructor.
 
     Note that URIs are always in escaped UTF8 encoding.
 */
@@ -1422,7 +1423,7 @@ QUriDrag::QUriDrag(const QList<QByteArray> &uris, QWidget * dragSource, const ch
 
     Constructs an object to drag with the given \a name.
     You must call setUris() before you start the drag().
-    Both the \a source and the \a name are passed to the QStoredDrag
+    Both the \a dragSource and the \a name are passed to the QStoredDrag
     constructor.
 */
 QUriDrag::QUriDrag(QWidget * dragSource, const char * name) :
@@ -1872,7 +1873,7 @@ QColorDrag::QColorDrag(QWidget *dragsource)
 /*!
   \obsolete
 
-    Constructs a color drag object with the given \a color. Passes \a
+    Constructs a color drag object with the given \a col. Passes \a
     dragsource and \a name to the QStoredDrag constructor.
 */
 

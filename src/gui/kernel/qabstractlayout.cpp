@@ -721,7 +721,16 @@ QLayout::QLayout(int spacing, const char *name)
     d->insideSpacing = spacing;
 }
 
+/*!
+    Automatically adding widgets is deprecated. Use addWidget() or
+    addLayout() instead.
+*/
 void QLayout::setAutoAdd(bool a) { d->autoNewChild = a; }
+
+/*!
+    Automatically adding widgets is deprecated. Use addWidget() or
+    addLayout() instead.
+*/
 bool QLayout::autoAdd() const { return d->autoNewChild; }
 #endif
 
@@ -1415,6 +1424,9 @@ bool QLayout::activate()
 
     \value BothDirections  the widget can usefully be both wider and
     taller than the sizeHint().
+
+    \omitvalue Horizontal
+    \omitvalue Vertical
 */
 
 /*!

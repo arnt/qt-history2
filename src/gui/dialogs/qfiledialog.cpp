@@ -569,6 +569,13 @@ public:
 */
 
 /*!
+    \fn void QFileDialog::filesSelected(const QStringList &selected)
+
+    When the selection changes this signal is emitted with the
+    (possibly empty) list of \a selected files.
+*/
+
+/*!
     \fn QFileDialog::QFileDialog(QWidget *parent, Qt::WFlags flags)
 
     Constructs a file dialog with the given \a parent and widget \a flags.
@@ -2125,9 +2132,46 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
 
 
 #ifdef QT_COMPAT
+/*!
+    Use selectedFiles() instead.
+
+    \oldcode
+    QString selected = dialog->selectedFile();
+    \newcode
+    QStringList files = dialog->selectedFiles();
+    QString selected;
+    if (files.count())
+        selected = files[0];
+    \endcode
+*/
 QString QFileDialog::selectedFile() const
 {
     QStringList files = selectedFiles();
     return files.size() ? files.at(0) : QString();
 }
 #endif
+
+/*!
+    \fn void QFileDialog::setMode(FileMode m)
+
+    Use setFileMode() instead.
+*/
+
+/*!
+    \fn FileMode QFileDialog::mode() const
+
+    Use fileMode() instead.
+*/
+
+/*!
+    \fn void QFileDialog::setDir(const QString &directory)
+
+    Use setDirectory() instead.
+*/
+
+/*!
+    \fn void QFileDialog::setDir( const QDir &directory )
+
+    Use setDirectory() instead.
+*/
+

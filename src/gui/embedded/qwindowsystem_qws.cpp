@@ -674,6 +674,9 @@ QWSServer::QWSServer(int flags, QObject *parent) :
 }
 
 #ifdef QT_COMPAT
+/*!
+    Use the two-argument overload and call setObjectName() instead.
+*/
 QWSServer::QWSServer(int flags, QObject *parent, const char *name) :
 #ifndef QT_NO_QWS_MULTIPROCESS
     QWSServerSocket(qws_qtePipeFilename(),16,parent),

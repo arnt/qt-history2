@@ -668,7 +668,7 @@ void QTreeView::doItemsLayout()
 }
 
 /*!
-  \reimpl
+  \reimp
 */
 
 void QTreeView::reset()

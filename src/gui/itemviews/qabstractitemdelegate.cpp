@@ -83,6 +83,15 @@
 */
 
 /*!
+    \fn void QAbstractItemDelegate::doneEditing(QWidget *editor, QAbstractItemDelegate::EndEditAction action)
+
+    This signal is emitted when the user has finished editing an item.
+    The arguments are the \a editor that was used and an \a action
+    which indicates how the editing came to end, i.e., whether the
+    user \c Accepted or \c Cancelled their edit.
+*/
+
+/*!
     Creates a new abstract item delegate with the given \a parent.
 */
 QAbstractItemDelegate::QAbstractItemDelegate(QObject *parent)
