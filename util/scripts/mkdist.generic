@@ -180,8 +180,8 @@ rm -rf network qfd rot13 sheet
 cd ${DISTDIR}/qt/bin
 rm -f syncqt*
 
-echo "Removing kernel .cpp files for other platforms..." >&2
-cd ${DISTDIR}/qt/src/kernel
+echo "Removing src .cpp files for other platforms..." >&2
+cd ${DISTDIR}/qt/src
 find . -name '*_x11.c*' -o -name '*_win.c*' -o -name '*_os2.c*' \
 	| grep -v "_${platform}" | xargs rm -f
 
