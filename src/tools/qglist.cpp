@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#24 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#25 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -14,7 +14,7 @@
 #include "qgvector.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#24 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#25 $")
 
 
 /*----------------------------------------------------------------------------
@@ -895,7 +895,7 @@ QDataStream &QGList::write( QDataStream &s ) const
  *****************************************************************************/
 
 /*----------------------------------------------------------------------------
-  \class QGListItertor qglist.h
+  \class QGListIterator qglist.h
   \brief The QGListIterator is an internal class for implementing QListIterator.
 
   QGListIterator is a strictly internal class that does the heavy work for
