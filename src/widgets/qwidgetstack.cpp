@@ -171,7 +171,7 @@ int QWidgetStack::addWidget( QWidget * w, int id )
 
     w->hide();
     if ( w->parent() != this )
-	w->reparent( this, 0, contentsRect().topLeft(), FALSE );
+	w->reparent( this, contentsRect().topLeft(), FALSE );
     w->setGeometry( contentsRect() );
     updateGeometry();
     return id;
