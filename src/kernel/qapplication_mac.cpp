@@ -1465,10 +1465,10 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    QWidget *widget = NULL;
 	    GetEventParameter(event, kEventParamQWidget, typeQWidget, NULL,
 			      sizeof(widget), NULL, &widget);
-	    if(widget && widget->extra && widget->extra->has_dirty_area && 
-	       !widget->extra->dirty_area.isEmpty()) {
+	    if(widget && widget->extra && widget->extra->has_dirty_area) {
 		widget->extra->has_dirty_area = FALSE;
-		widget->repaint(widget->extra->dirty_area);
+		if(!widget->extra->dirty_area.isEmpty())
+		    widget->repaint(widget->extra->dirty_area);
 	    } else {
 		request_updates_pending = FALSE;
 		QApplication::sendPostedEvents();
