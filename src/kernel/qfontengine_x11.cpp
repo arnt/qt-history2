@@ -2386,7 +2386,7 @@ void QOpenType::applyGPOSFeatures()
 	    TTO_FeatureRecord *r = featurelist.FeatureRecord + i;
 	    FT_UShort feature_index;
 	    FT_Error error = TT_GPOS_Select_Feature( gpos, r->FeatureTag, script_index, 0xffff, &feature_index );
-	    if (error != TT_Err_Ok)
+	    if (error != FT_Err_Ok)
 		continue;
 
 	    // ### is FT_LOAD_DEFAULT the right thing to do?
