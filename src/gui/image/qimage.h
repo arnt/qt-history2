@@ -53,6 +53,7 @@ public:
     QImage();
     QImage(int width, int height, int depth, int numColors=0, Endian bitOrder=IgnoreEndian);
     QImage(const QSize&, int depth, int numColors=0, Endian bitOrder=IgnoreEndian);
+    QImage(const char * const xpm[]);
 #ifndef QT_NO_IMAGEIO
     QImage(const QString &fileName, const char* format=0);
     QImage(const QByteArray &data);
@@ -182,7 +183,6 @@ public:
 #endif
 
 #ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QImage(const char * const xpm[]);
     inline QT_COMPAT QImage xForm(const QMatrix &matrix) const { return transform(matrix); }
     inline QT_COMPAT QImage smoothScale(int w, int h, Qt::AspectRatioMode mode = Qt::IgnoreAspectRatio) const
         { return scale(QSize(w, h), mode, Qt::SmoothTransformation); }

@@ -371,7 +371,6 @@ QImage::QImage(const QString &fileName, const char* format)
     load(fileName, format);
 }
 
-#ifdef QT_COMPAT
 #ifndef QT_NO_IMAGEIO_XPM
 // helper
 extern void qt_read_xpm_image_or_array(QImageIO *, const char * const *, QImage &);
@@ -409,7 +408,6 @@ QImage::QImage(const char * const xpm[])
     qFatal("XPM not supported");
 #endif
 }
-#endif
 
 /*!
     Constructs an image from the binary data \a array. It tries to
