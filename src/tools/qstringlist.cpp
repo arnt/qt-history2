@@ -88,7 +88,7 @@
   \endcode
 */
 
-/*! \fn QStringList::QStringList( const QValueList<QString>& l ) 
+/*! \fn QStringList::QStringList( const QValueList<QString>& l )
 
   Constructs a new string list that is a copy of \a l.
 */
@@ -105,22 +105,34 @@ void QStringList::sort()
 
 /*!
   Splits the string \a str using \a sep as separator. Returns the
-  list of strings. If \a str doesn't contain \a sep, a stringlist
+  list of strings. If \a allowEmptyEntries is TRUE, also empty
+  entries are inserted into the list, else not. So if you have
+  a string 'abc..d.e.', a list which contains 'abc', 'd', and 'e'
+  would be returned if \a allowEmptyEntries is FALSE, but
+  a list containing 'abc', '', 'd', 'e' and '' would be returned if
+  \a allowEmptyEntries is TRUE.
+  If \a str doesn't contain \a sep, a stringlist
   with one item, which is the same as \a str, is returned.
 */
 
-QStringList QStringList::split( const QChar &sep, const QString &str )
+QStringList QStringList::split( const QChar &sep, const QString &str, bool allowEmptyEntries )
 {
-    return split( QString( sep ), str );
+    return split( QString( sep ), str, allowEmptyEntries );
 }
 
 /*!
   Splits the string \a str using \a sep as separator. Returns the
-  list of strings. If \a str doesn't contain \a sep, a stringlist
+  list of strings. If \a allowEmptyEntries is TRUE, also empty
+  entries are inserted into the list, else not. So if you have
+  a string 'abc..d.e.', a list which contains 'abc', 'd', and 'e'
+  would be returned if \a allowEmptyEntries is FALSE, but
+  a list containing 'abc', '', 'd', 'e' and '' would be returned if
+  \a allowEmptyEntries is TRUE.
+  If \a str doesn't contain \a sep, a stringlist
   with one item, which is the same as \a str, is returned.
 */
 
-QStringList QStringList::split( const QString &sep, const QString &str )
+QStringList QStringList::split( const QString &sep, const QString &str, bool allowEmptyEntries )
 {
     QStringList lst;
 
@@ -129,25 +141,35 @@ QStringList QStringList::split( const QString &sep, const QString &str )
 
     while ( i != -1 ) {
 	if ( str.mid( j, i - j ).length() > 0 )
-	    lst.append( str.mid( j, i - j ) );
+	    lst << str.mid( j, i - j );
+	else if ( allowEmptyEntries )
+	    lst << QString::null;
 	j = i + sep.length();
 	i = str.find( sep, j );
     }
 
     int l = str.length() - 1;
-    if ( !str.mid( j, l - j + 1 ).isEmpty() )
-	lst.append( str.mid( j, l - j + 1 ) );
+    if ( str.mid( j, l - j + 1 ).length() > 0 )
+	lst << str.mid( j, l - j + 1 );
+    else if ( allowEmptyEntries )
+	lst << QString::null;
 
     return lst;
 }
 
 /*!
-  Splits the string \a str using the regular expression\a sep as separator. Returns the
-  list of strings. If \a str doesn't contain \a sep, a stringlist
+  Splits the string \a str using the regular expression \a sep as separator. Returns the
+  list of strings. If \a allowEmptyEntries is TRUE, also empty
+  entries are inserted into the list, else not. So if you have
+  a string 'abc..d.e.', a list which contains 'abc', 'd', and 'e'
+  would be returned if \a allowEmptyEntries is FALSE, but
+  a list containing 'abc', '', 'd', 'e' and '' would be returned if
+  \a allowEmptyEntries is TRUE.
+  If \a str doesn't contain \a sep, a stringlist
   with one item, which is the same as \a str, is returned.
 */
 
-QStringList QStringList::split( const QRegExp &sep, const QString &str )
+QStringList QStringList::split( const QRegExp &sep, const QString &str, bool allowEmptyEntries )
 {
     QStringList lst;
 
@@ -157,14 +179,18 @@ QStringList QStringList::split( const QRegExp &sep, const QString &str )
 
     while ( i != -1 ) {
 	if ( str.mid( j, i - j ).length() > 0 )
-	    lst.append( str.mid( j, i - j ) );
+	    lst << str.mid( j, i - j );
+	else if ( allowEmptyEntries )
+	    lst << QString::null;
 	j = i + len;
 	i = sep.match( str, j, &len );
     }
 
     int l = str.length() - 1;
-    if ( !str.mid( j, l - j + 1 ).isEmpty() )
-	lst.append( str.mid( j, l - j + 1 ) );
+    if ( str.mid( j, l - j + 1 ).length() > 0 )
+	lst << str.mid( j, l - j + 1 );
+    else if ( allowEmptyEntries )
+	lst << QString::null;
 
     return lst;
 }

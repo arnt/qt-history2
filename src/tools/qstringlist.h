@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.h#16 $
+** $Id: //depot/qt/main/src/tools/qstringlist.h#17 $
 **
 ** Definition of QStringList class
 **
@@ -46,9 +46,9 @@ public:
     void sort();
     // ... stringlist-specific convenience functions go here.
 
-    static QStringList split( const QString &sep, const QString &str );
-    static QStringList split(  const QChar &sep, const QString &str );
-    static QStringList split(  const QRegExp &sep, const QString &str );
+    static QStringList split( const QString &sep, const QString &str, bool allowEmptyEntries = FALSE );
+    static QStringList split(  const QChar &sep, const QString &str, bool allowEmptyEntries = FALSE );
+    static QStringList split(  const QRegExp &sep, const QString &str, bool allowEmptyEntries = FALSE );
 
     QStringList grep( const QString &expr, bool cs = TRUE ) const;
     QStringList grep( const QRegExp &expr ) const;
