@@ -756,7 +756,7 @@ QODBCDriver::~QODBCDriver()
 bool QODBCDriver::open( const QString & db,
     			const QString & user,
 			const QString & password,
-			const QString & host)
+			const QString & )
 {
     if ( isOpen() )
 	close();
@@ -838,7 +838,6 @@ bool QODBCDriver::open( const QString & db,
 	setTransactionSupport( TRUE );
     setOpen( TRUE );
     return TRUE;
-    Q_CONST_UNUSED(host);
 }
 
 void QODBCDriver::close()

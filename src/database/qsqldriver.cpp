@@ -181,7 +181,7 @@ void QSqlDriver::setTransactionSupport( bool t )
 
 void QSqlDriver::setQuerySizeSupport( bool s )
 {
-    hasQuerySize = s;    
+    hasQuerySize = s;
 }
 
 
@@ -248,10 +248,9 @@ QSqlError QSqlDriver::lastError() const
   implementation returns an empty list.
 */
 
-QStringList QSqlDriver::tables( const QString& user ) const
+QStringList QSqlDriver::tables( const QString&  ) const
 {
     return QStringList();
-    Q_CONST_UNUSED( user );
 }
 
 /*!
@@ -261,10 +260,9 @@ QStringList QSqlDriver::tables( const QString& user ) const
 
 */
 
-QSqlIndex QSqlDriver::primaryIndex( const QString& tablename ) const
+QSqlIndex QSqlDriver::primaryIndex( const QString&  ) const
 {
     return QSqlIndex();
-    Q_CONST_UNUSED( tablename );
 }
 
 
@@ -275,10 +273,9 @@ QSqlIndex QSqlDriver::primaryIndex( const QString& tablename ) const
 
 */
 
-QSqlFieldList QSqlDriver::fields( const QString& tablename ) const
+QSqlFieldList QSqlDriver::fields( const QString&  ) const
 {
     return QSqlFieldList();
-    Q_CONST_UNUSED( tablename );
 }
 
 

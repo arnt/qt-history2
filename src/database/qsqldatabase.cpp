@@ -12,12 +12,12 @@ public:
     QNullResult(const QSqlDriver* d): QSqlResult(d){}
     ~QNullResult(){}
 protected:
-    QVariant    data( int i ) { return QVariant();Q_UNUSED(i) }
+    QVariant    data( int ) { return QVariant(); }
     bool	reset ( const QString& sqlquery ) { QString s(sqlquery); return FALSE; }
     bool	fetch( int i ) { i = i; return FALSE; }
     bool	fetchFirst() { return FALSE; }
     bool	fetchLast() { return FALSE; }
-    bool	isNull( int i ) {return FALSE;Q_UNUSED(i);}
+    bool	isNull( int ) {return FALSE; }
     QSqlFieldList   fields() {return QSqlFieldList();}
     int             size()  {return 0;}
     int             affectedRows() {return 0;}
@@ -28,14 +28,10 @@ class QNullDriver : public QSqlDriver
 public:
     QNullDriver(): QSqlDriver(){}
     ~QNullDriver(){}
-    bool    open( const QString & db,
-    			const QString & user,
-			const QString & password,
-			const QString & host ) {
-				Q_CONST_UNUSED(db);
-				Q_CONST_UNUSED(user);
-				Q_CONST_UNUSED(password);
-				Q_CONST_UNUSED(host);
+    bool    open( const QString & ,
+    			const QString & ,
+			const QString & ,
+			const QString &  ) {
 				return FALSE;
 			}
     void    close() {}

@@ -286,7 +286,7 @@ QSql QMySQLDriver::createResult() const
     return QSql(new QMySQLResult( this ) );
 }
 
-QStringList QMySQLDriver::tables( const QString& user ) const
+QStringList QMySQLDriver::tables( const QString& ) const
 {
     MYSQL_RES* tableRes = mysql_list_tables( d->mysql, NULL );
     MYSQL_ROW 	row;
@@ -302,7 +302,6 @@ QStringList QMySQLDriver::tables( const QString& user ) const
     }
     mysql_free_result( tableRes );
     return tl;
-    Q_CONST_UNUSED( user );
 }
 
 QSqlIndex QMySQLDriver::primaryIndex( const QString& tablename ) const

@@ -588,7 +588,7 @@ QOCIDriver::~QOCIDriver()
 bool QOCIDriver::open( const QString & db,
     			const QString & user,
 			const QString & password,
-			const QString & host)
+			const QString & )
 {
     if ( isOpen() )
 	close();
@@ -607,7 +607,6 @@ bool QOCIDriver::open( const QString & db,
     }
     setOpen( TRUE );
     return TRUE;
-    Q_CONST_UNUSED( host );
 }
 
 void QOCIDriver::close()
@@ -634,11 +633,11 @@ QSql QOCIDriver::createResult() const
 
 bool QOCIDriver::beginTransaction()
 {
-    int r = OCITransStart ( d->svc, 
-			    d->err, 
+    int r = OCITransStart ( d->svc,
+			    d->err,
 			    60,
 			    OCI_TRANS_NEW );
-    if ( r == OCI_ERROR ) {    
+    if ( r == OCI_ERROR ) {
 #ifdef CHECK_RANGE
 	qWarning( "QOCIDriver::beginTransaction: " + QString::number(r) + qOraWarn( d ) );
 #endif
@@ -652,7 +651,7 @@ bool QOCIDriver::commitTransaction()
     int r = OCITransCommit ( d->svc,
 			     d->err,
 			     OCI_DEFAULT );
-    if ( r == OCI_ERROR ) {    
+    if ( r == OCI_ERROR ) {
 #ifdef CHECK_RANGE
 	qWarning( "QOCIDriver::commitTransaction: " + qOraWarn( d ) );
 #endif
@@ -666,7 +665,7 @@ bool QOCIDriver::rollbackTransaction()
     int r = OCITransRollback ( d->svc,
 			       d->err,
 			       OCI_DEFAULT );
-    if ( r == OCI_ERROR ) {    
+    if ( r == OCI_ERROR ) {
 #ifdef CHECK_RANGE
 	qWarning( "QOCIDriver::commitTransaction: " + qOraWarn( d ) );
 #endif
@@ -675,7 +674,7 @@ bool QOCIDriver::rollbackTransaction()
     return TRUE;
 }
 
-QStringList QOCIDriver::tables( const QString& user ) const
+QStringList QOCIDriver::tables( const QString& ) const
 {
     QSql t = createResult();
     t.setQuery( "select table_name from user_tables;" );
@@ -683,7 +682,6 @@ QStringList QOCIDriver::tables( const QString& user ) const
     while ( t.next() )
 	tl.append( t.value(0).toString() );
     return tl;
-    Q_CONST_UNUSED( user );
 }
 
 QSqlFieldList QOCIDriver::fields( const QString& tablename ) const
