@@ -24,6 +24,7 @@
 *****************************************************************************/
 
 #ifndef QACTION_H
+#define QACTION_H
 
 #ifndef QT_H
 #include <qobject.h>
