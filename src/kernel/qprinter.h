@@ -128,6 +128,9 @@ public:
     bool        aborted()       const;
 
     bool        setup( QWidget *parent = 0 );
+#ifdef Q_WS_WIN
+    bool	pageSetup( QWidget *parent = 0 );
+#endif
 
     PaperSource paperSource()   const;
     virtual void setPaperSource( PaperSource );
@@ -162,6 +165,10 @@ private:
 #if defined(Q_WS_WIN)
     void        readPdlg( void* );
     void        readPdlgA( void* );
+    void 	readDevmode( void*, bool );
+    void 	readDevmodeA( void*, bool );
+    void 	readDevnames( void* );
+    void 	readDevnamesA( void* );
     void	writeDevmode( Qt::HANDLE );
     void	writeDevmodeA( Qt::HANDLE );
     void	reinit();

@@ -439,7 +439,7 @@ void QPrinter::readPdlg( void* pdv )
     PRINTDLG* pd = (PRINTDLG*)pdv;
     output_file = (pd->Flags & PD_PRINTTOFILE) != 0;
 
-    if( pd->Flags & PD_PAGENUMS ) {
+    if (pd->Flags & PD_PAGENUMS) {
 	from_pg = pd->nFromPage;
 	to_pg = pd->nToPage;
     } else {
@@ -447,56 +447,92 @@ void QPrinter::readPdlg( void* pdv )
 	to_pg = 0;
     }
 
-    ncopies = pd->nCopies;
-    if ( pd->Flags & PD_COLLATE )
-        usercolcopies = TRUE;
-    else
-        usercolcopies = FALSE;
+    bool useDevmodeCopies = (pd->Flags & PD_USEDEVMODECOPIESANDCOLLATE) != 0;
+    if (!useDevmodeCopies) {
+	if (pd->Flags & PD_COLLATE)
+	    usercolcopies = TRUE;
+	else
+	    usercolcopies = FALSE;
+	ncopies = pd->nCopies;
+    }
 
-    if ( pd->Flags & PD_PAGENUMS )
+    if (pd->Flags & PD_PAGENUMS)
 	d->printRange = PageRange;
-    else if ( pd->Flags & PD_SELECTION )
+    else if (pd->Flags & PD_SELECTION)
 	d->printRange = Selection;
     else
 	d->printRange = AllPages;
 
-    if ( hdc ) {
-	DeleteDC( hdc );
+    if (hdc) {
+	DeleteDC(hdc);
 	viewOffsetDone = FALSE;
     }
     hdc = pd->hDC;
-    if ( pd->hDevMode ) {
-        DEVMODE* dm = (DEVMODE*)GlobalLock( pd->hDevMode );
-        if ( dm ) {
-            if ( dm->dmOrientation == DMORIENT_PORTRAIT )
+
+    readDevmode( pd->hDevMode, useDevmodeCopies );
+    readDevnames( pd->hDevNames );
+
+    if (D->printerMode != ScreenResolution && !res_set)
+	res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
+
+    if (pd->hDevMode) {
+        if (hdevmode)
+            GlobalFree(hdevmode);
+        hdevmode = pd->hDevMode;
+        pd->hDevMode = 0;
+    }
+    if (pd->hDevNames) {
+        if (hdevnames)
+            GlobalFree(hdevnames);
+        hdevnames = pd->hDevNames;
+        pd->hDevNames = 0;
+    }
+
+    must_not_reinit = FALSE;
+}
+
+void QPrinter::readDevmode( void *hdm, bool useDevmodeCopies )
+{
+    if (hdm) {
+        DEVMODE* dm = (DEVMODE*)GlobalLock(hdm);
+        if (dm) {
+            if (dm->dmOrientation == DMORIENT_PORTRAIT)
                 orient = Portrait;
             else
                 orient = Landscape;
 	    D->winPageSize = dm->dmPaperSize;
 	    page_size = mapDevmodePageSize( dm->dmPaperSize );
             paper_source = mapDevmodePaperSource( dm->dmDefaultSource );
-	    if (pd->Flags & PD_USEDEVMODECOPIESANDCOLLATE)
+
+	    if (useDevmodeCopies) {
 		ncopies = dm->dmCopies;
-            if ( dm->dmFields & DM_COLLATE ) {
-		if ( dm->dmCollate == DMCOLLATE_TRUE )
+		usercolcopies = dm->dmCollate == DMCOLLATE_TRUE;
+		printf( "QPrinter::readDevmode collate: %d\n", usercolcopies );
+	    }
+
+            if (dm->dmFields & DM_COLLATE) {
+		if (dm->dmCollate == DMCOLLATE_TRUE)
 		    usercolcopies = TRUE;
 		else
 		    usercolcopies = FALSE;
 	    }
-	    if ( dm->dmColor == DMCOLOR_COLOR )
+	    if (dm->dmColor == DMCOLOR_COLOR)
 		color_mode = Color;
 	    else
 		color_mode = GrayScale;
-	    GlobalUnlock( pd->hDevMode );
+	    GlobalUnlock(hdm);
         }
 #ifndef QT_NO_DEBUG
 	else
 	    qSystemWarning( "QPrinter::readPdlg: GlobalLock returns zero" );
 #endif
     }
+}
 
-    if ( pd->hDevNames ) {
-        DEVNAMES* dn = (DEVNAMES*)GlobalLock( pd->hDevNames );
+void QPrinter::readDevnames( void *hdn )
+{
+    if ( hdn ) {
+        DEVNAMES* dn = (DEVNAMES*)GlobalLock( hdn );
         if ( dn ) {
 	    // order is important here since
 	    // setDefaultPrinter() modifies the DEVNAMES structure
@@ -505,43 +541,25 @@ void QPrinter::readPdlg( void* pdv )
             TCHAR* prName = ((TCHAR*)dn) + dn->wDeviceOffset;
 	    printer_name = QString::fromUcs2( (ushort*)prName );
 	    setDefaultPrinter( printer_name, &hdevmode, &hdevnames );
-	    GlobalUnlock( pd->hDevNames );
+	    GlobalUnlock( hdn );
         }
 #ifndef QT_NO_DEBUG
 	else
 	    qSystemWarning( "QPrinter::readPdlg: GlobalLock returns zero" );
 #endif
     }
-
-    if ( D->printerMode != ScreenResolution && !res_set )
-	res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
-
-    if ( pd->hDevMode ) {
-        if ( hdevmode )
-            GlobalFree( hdevmode );
-        hdevmode = pd->hDevMode;
-        pd->hDevMode = 0;
-    }
-    if ( pd->hDevNames ) {
-        if ( hdevnames )
-            GlobalFree( hdevnames );
-        hdevnames = pd->hDevNames;
-        pd->hDevNames = 0;
-    }
-
-    must_not_reinit = FALSE;
 }
 
 
 void QPrinter::readPdlgA( void* pdv )
 {
-    // Note: Remember to reflect any changes here in readPdlg above!
+    // Note: Remember to reflect any changes here in readPdlgA below!
     must_not_reinit = TRUE;
 
     PRINTDLGA* pd = (PRINTDLGA*)pdv;
     output_file = (pd->Flags & PD_PRINTTOFILE) != 0;
 
-    if( pd->Flags & PD_PAGENUMS ) {
+    if (pd->Flags & PD_PAGENUMS) {
 	from_pg = pd->nFromPage;
 	to_pg = pd->nToPage;
     } else {
@@ -549,90 +567,107 @@ void QPrinter::readPdlgA( void* pdv )
 	to_pg = 0;
     }
 
-    ncopies = pd->nCopies;
-    if ( pd->Flags & PD_COLLATE )
-        usercolcopies = TRUE;
-    else
-	usercolcopies = FALSE;
-    if ( hdc ) {
-	DeleteDC( hdc );
-	viewOffsetDone = FALSE;
+    bool useDevmodeCopies = (pd->Flags & PD_USEDEVMODECOPIESANDCOLLATE) != 0;
+    if (!useDevmodeCopies) {
+	if (pd->Flags & PD_COLLATE)
+	    usercolcopies = TRUE;
+	else
+	    usercolcopies = FALSE;
+	ncopies = pd->nCopies;
     }
 
-    if ( pd->Flags & PD_PAGENUMS )
+    if (pd->Flags & PD_PAGENUMS)
 	d->printRange = PageRange;
-    else if ( pd->Flags & PD_SELECTION )
+    else if (pd->Flags & PD_SELECTION)
 	d->printRange = Selection;
     else
 	d->printRange = AllPages;
 
-    hdc	= pd->hDC;
-    if ( pd->hDevMode ) {
-	DEVMODEA* dm = (DEVMODEA*)GlobalLock( pd->hDevMode );
-	if ( dm ) {
-	    if ( dm->dmOrientation == DMORIENT_PORTRAIT )
-		orient = Portrait;
-	    else
-		orient = Landscape;
-	    D->winPageSize = dm->dmPaperSize;
-	    page_size = mapDevmodePageSize( dm->dmPaperSize );
-            paper_source = mapDevmodePaperSource( dm->dmDefaultSource );
-            if (pd->Flags & PD_USEDEVMODECOPIESANDCOLLATE)
-		ncopies = dm->dmCopies;
-	    if ( dm->dmFields & DM_COLLATE ) {
-		if ( dm->dmCollate == DMCOLLATE_TRUE )
-		    usercolcopies = TRUE;
-		else
-		    usercolcopies = FALSE;
-	    }
-	    if ( dm->dmColor == DMCOLOR_COLOR )
-		color_mode = Color;
-	    else
-		color_mode = GrayScale;
-	    GlobalUnlock( pd->hDevMode );
-        }
-#ifndef QT_NO_DEBUG
-	else
-	    qSystemWarning( "QPrinter::readPdlgA: GlobalLock returns zero" );
-#endif
+    if (hdc) {
+	DeleteDC(hdc);
+	viewOffsetDone = FALSE;
     }
+    hdc = pd->hDC;
 
-    if ( pd->hDevNames ) {
-        DEVNAMES* dn = (DEVNAMES*)GlobalLock( pd->hDevNames );
-        // (There is no DEVNAMESA)
-        if ( dn ) {
-	    // order is important here since
-	    // setDefaultPrinter() modifies the DEVNAMES structure
-            char* drName = ((char*)dn) + dn->wDriverOffset;
-            setPrintProgram( QString::fromLocal8Bit( drName ) );
-            char* prName = ((char*)dn) + dn->wDeviceOffset;
-	    printer_name = QString::fromLocal8Bit( prName );
-	    setDefaultPrinter( printer_name, &hdevmode, &hdevnames );
-	    GlobalUnlock( pd->hDevNames );
-        }
-#ifndef QT_NO_DEBUG
-	else
-	    qSystemWarning( "QPrinter::readPdlgA: GlobalLock returns zero" );
-#endif
-    }
+    readDevmode( pd->hDevMode, useDevmodeCopies );
+    readDevnames( pd->hDevNames );
 
-    if ( D->printerMode != ScreenResolution && !res_set )
+    if (D->printerMode != ScreenResolution && !res_set)
 	res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
 
-    if ( pd->hDevMode ) {
-        if ( hdevmode )
-            GlobalFree( hdevmode );
+    if (pd->hDevMode) {
+        if (hdevmode)
+            GlobalFree(hdevmode);
         hdevmode = pd->hDevMode;
         pd->hDevMode = 0;
     }
-    if ( pd->hDevNames ) {
-        if ( hdevnames )
-            GlobalFree( hdevnames );
+    if (pd->hDevNames) {
+        if (hdevnames)
+            GlobalFree(hdevnames);
         hdevnames = pd->hDevNames;
         pd->hDevNames = 0;
     }
 
     must_not_reinit = FALSE;
+}
+
+void QPrinter::readDevmodeA( void *hdm, bool useDevmodeCopies )
+{
+    if (hdm) {
+        DEVMODEA* dm = (DEVMODEA*)GlobalLock(hdm);
+        if (dm) {
+            if (dm->dmOrientation == DMORIENT_PORTRAIT)
+                orient = Portrait;
+            else
+                orient = Landscape;
+	    D->winPageSize = dm->dmPaperSize;
+	    page_size = mapDevmodePageSize( dm->dmPaperSize );
+            paper_source = mapDevmodePaperSource( dm->dmDefaultSource );
+
+	    if (useDevmodeCopies) {
+		ncopies = dm->dmCopies;
+		usercolcopies = dm->dmCollate == DMCOLLATE_TRUE;
+		printf( "QPrinter::readDevmode collate: %d\n", usercolcopies );
+	    }
+
+            if (dm->dmFields & DM_COLLATE) {
+		if (dm->dmCollate == DMCOLLATE_TRUE)
+		    usercolcopies = TRUE;
+		else
+		    usercolcopies = FALSE;
+	    }
+	    if (dm->dmColor == DMCOLOR_COLOR)
+		color_mode = Color;
+	    else
+		color_mode = GrayScale;
+	    GlobalUnlock(hdm);
+        }
+#ifndef QT_NO_DEBUG
+	else
+	    qSystemWarning( "QPrinter::readPdlg: GlobalLock returns zero" );
+#endif
+    }
+}
+
+void QPrinter::readDevnamesA( void *hdn )
+{
+    if ( hdn ) {
+        DEVNAMES* dn = (DEVNAMES*)GlobalLock( hdn );
+        if ( dn ) {
+	    // order is important here since
+	    // setDefaultPrinter() modifies the DEVNAMES structure
+            char* drName = ((char*)dn) + dn->wDriverOffset;
+            setPrintProgram( QString::fromUcs2( (ushort*)drName ) );
+            char* prName = ((char*)dn) + dn->wDeviceOffset;
+	    printer_name = QString::fromUcs2( (ushort*)prName );
+	    setDefaultPrinter( printer_name, &hdevmode, &hdevnames );
+	    GlobalUnlock( hdn );
+        }
+#ifndef QT_NO_DEBUG
+	else
+	    qSystemWarning( "QPrinter::readPdlg: GlobalLock returns zero" );
+#endif
+    }
 }
 
 #ifdef UNICODE
@@ -946,7 +981,11 @@ void QPrinter::writeDevmode( HANDLE hdm )
 	    WRITE_DM_VAR( dm->dmColor, DMCOLOR_COLOR )
 	else
 	    WRITE_DM_VAR( dm->dmColor, DMCOLOR_MONOCHROME )
-	WRITE_DM_VAR( dm->dmPaperSize, D->winPageSize )
+
+	if (page_size == QPrinter::Custom)
+	    WRITE_DM_VAR(dm->dmPaperSize, D->winPageSize)
+	else
+	    WRITE_DM_VAR(dm->dmPaperSize, mapPageSizeDevmode(page_size));
 	WRITE_DM_VAR( dm->dmCopies, ncopies )
 
 	/* Use some extra gunpowder to avoid some problems on 98 and ME.
@@ -991,7 +1030,10 @@ void QPrinter::writeDevmodeA( HANDLE hdm )
 	    WRITE_DM_VAR( dm->dmColor, DMCOLOR_COLOR )
 	else
 	    WRITE_DM_VAR( dm->dmColor, DMCOLOR_MONOCHROME )
-	WRITE_DM_VAR( dm->dmPaperSize, D->winPageSize )
+	if (page_size == QPrinter::Custom)
+	    WRITE_DM_VAR(dm->dmPaperSize, D->winPageSize)
+	else
+	    WRITE_DM_VAR(dm->dmPaperSize, mapPageSizeDevmode(page_size));
 	WRITE_DM_VAR( dm->dmCopies, ncopies )
 
 	DWORD caps = DeviceCapabilitiesA( printer_name.latin1(), 0, DC_BINS, 0, 0 );
@@ -1167,6 +1209,48 @@ bool QPrinter::setup( QWidget *parent )
 }
 
 
+bool QPrinter::pageSetup( QWidget *parent )
+{
+    PAGESETUPDLG psd;
+    memset( &psd, 0, sizeof( PAGESETUPDLG ) );
+    psd.lStructSize = sizeof( PAGESETUPDLG );
+    psd.hDevMode = hdevmode;
+    psd.hDevNames = hdevnames;
+    psd.hwndOwner = parent ? parent->winId() : 0;
+    hdevmode = 0;
+    hdevnames = 0;
+    bool result;
+    if (psd.hDevMode) {
+	result = TRUE;
+    } else {
+	psd.Flags  = PSD_RETURNDEFAULT;
+	result = PageSetupDlg( &psd );
+    }
+
+    if (result) {
+	psd.Flags = PSD_DISABLEMARGINS | PSD_MARGINS;
+
+	uint top, left, right, bottom;
+	margins( &top, &left, &right, &bottom );
+
+	psd.rtMargin.top = 10 * top;
+	psd.rtMargin.left = 10 * left;
+	psd.rtMargin.right = 10 * right;
+	psd.rtMargin.bottom = 10 * bottom;
+
+	DEVMODE *dm = (DEVMODE*) GlobalLock( psd.hDevMode );
+	writeDevmode( dm );
+	GlobalUnlock( psd.hDevMode );
+	if (!PageSetupDlg(&psd)) {
+	    return FALSE;
+	}
+
+	readDevmode( psd.hDevMode, FALSE );
+	readDevnames( psd.hDevNames );
+
+    }
+    return TRUE;
+}
 
 
 static BITMAPINFO *getWindowsBITMAPINFO( const QImage &image )
