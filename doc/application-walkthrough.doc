@@ -206,11 +206,11 @@ letter N as marked by the ampersand) or uses the
 
 \printuntil &Open
 \printuntil &Save
-\printuntil Save &as
+\printuntil Save &As
 \printuntil fileSaveText
 
 We populate the \e File menu with three more commands (\e Open, \e Save and
-\e Save as), and set "What's This?" help for them.  Note in particular
+\e Save As), and set "What's This?" help for them.  Note in particular
 that "What's This?" help and pixmaps are used in both the toolbar (above)
 and the menu bar (here).
 
