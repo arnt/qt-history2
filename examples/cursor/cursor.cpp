@@ -90,7 +90,7 @@ CursorView::CursorView()			// construct view
 	{ WhatsThisCursor,	"whatsThisCursor" }
     };
 
-    setCaption( "CursorView" );			// set window caption
+    setWindowTitle( "CursorView" );			// set window caption
 
     QGridLayout* grid = new QGridLayout( this, 5, 4, 20 );
     QLabel *label;
@@ -119,7 +119,7 @@ CursorView::CursorView()			// construct view
     label->setAlignment( AlignCenter );
     label->setMargin( 10 );
     label->setFrameStyle( QFrame::Box | QFrame::Sunken );
-    grid->addMultiCellWidget( label, 4, 4, 0, 3 );
+    grid->addWidget( label, 0, 3, 3, 1 );
 
 }
 
@@ -133,7 +133,7 @@ int main( int argc, char **argv )
     QApplication a( argc, argv );		// application object
     CursorView   v;				// cursor view
     a.setMainWidget( &v );
-    v.setCaption("Qt Example - Cursors");
+    v.setWindowTitle("Qt Example - Cursors");
     v.show();
     return a.exec();
 }
