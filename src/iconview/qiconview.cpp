@@ -1583,6 +1583,8 @@ void QIconViewItem::rename()
 {
     if ( !view )
 	return;
+    if ( renameBox )
+	removeRenameBox();
     oldRect = rect();
     renameBox = new QIconViewItemLineEdit( itemText, view->viewport(), this );
     QRect tr( textRect( FALSE ) );
