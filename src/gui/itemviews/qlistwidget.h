@@ -81,15 +81,15 @@ public:
     inline void setChecked(const bool checked)
         { setData(QAbstractItemModel::CheckStateRole, checked); }
 
+    virtual QVariant data(int role) const;
+    virtual void setData(int role, const QVariant &value);
+    virtual bool operator<(const QListWidgetItem &other) const;
+
     inline void hide() { setHidden(true); }
     inline void show() { setHidden(false); }
 
     bool isHidden() const;
     void setHidden(bool hide);
-
-    virtual QVariant data(int role) const;
-    virtual void setData(int role, const QVariant &value);
-    virtual bool operator<(const QListWidgetItem &other) const;
 
 protected:
     struct Data {

@@ -874,6 +874,8 @@ QTreeWidgetItem *QTreeWidgetItem::takeChild(int index)
 bool QTreeWidgetItem::isHidden() const
 {
     if (view && model) {
+        if (this == model->header)
+            return view->header()->isHidden();
         QModelIndex index = model->index(const_cast<QTreeWidgetItem*>(this));
         QModelIndex parent = model->parent(index);
         return view->isRowHidden(index.row(), parent);
@@ -884,9 +886,13 @@ bool QTreeWidgetItem::isHidden() const
 void QTreeWidgetItem::setHidden(bool hide)
 {
     if (view && model) {
-        QModelIndex index = model->index(this);
-        QModelIndex parent = model->parent(index);
-        view->setRowHidden(index.row(), parent, hide);
+        if (this == model->header) {
+            view->header()->setHidden(hide);
+        } else {
+            QModelIndex index = model->index(this);
+            QModelIndex parent = model->parent(index);
+            view->setRowHidden(index.row(), parent, hide);
+        }
     }
 }
 

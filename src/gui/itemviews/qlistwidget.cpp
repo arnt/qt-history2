@@ -260,29 +260,6 @@ QListWidgetItem::~QListWidgetItem()
 }
 
 /*!
-  If \a hide is true the item will be hidden, otherwise it will be shown.
-*/
-void QListWidgetItem::setHidden(bool hide)
-{
-    if (view) {
-        int r = view->row(this);
-        view->setRowHidden(r, hide);
-    }
-}
-
-/*!
-  Returns true if the item is explicitly hidden, otherwise returns false.
-*/
-bool QListWidgetItem::isHidden() const
-{
-    if (view) {
-        int r = view->row(this);
-        return view->isRowHidden(r);
-    }
-    return false;
-}
-
-/*!
   This function sets \a value for a given \a role (see
   {QAbstractItemModel::Role}). Reimplemnt this function if you need
   extra roles or special behavior for certain roles.
@@ -323,6 +300,28 @@ bool QListWidgetItem::operator<(const QListWidgetItem &other) const
     return text() < other.text();
 }
 
+/*!
+  If \a hide is true the item will be hidden, otherwise it will be shown.
+*/
+void QListWidgetItem::setHidden(bool hide)
+{
+    if (view) {
+        int r = view->row(this);
+        view->setRowHidden(r, hide);
+    }
+}
+
+/*!
+  Returns true if the item is explicitly hidden, otherwise returns false.
+*/
+bool QListWidgetItem::isHidden() const
+{
+    if (view) {
+        int r = view->row(this);
+        return view->isRowHidden(r);
+    }
+    return false;
+}
 
 /*!
   \fn QAbstractItemModel::ItemFlags QListWidgetItem::flags() const
