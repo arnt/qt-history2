@@ -19,12 +19,12 @@
 #include <qevent.h>
 #include <string.h>
 
-extern QCursor cursorTable[Qt::LastCursor + 1];
 /*****************************************************************************
-  External functions
+  Externals
  *****************************************************************************/
-extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
-
+extern QCursor cursorTable[Qt::LastCursor + 1];
+extern WindowPtr qt_mac_window_for(const QWidget *); //qwidget_mac.cpp
+extern GrafPtr qt_macQDHandle(const QPaintDevice *); //qpaintdevice_mac.cpp
 
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
 # define QMAC_NO_FAKECURSOR
@@ -49,7 +49,7 @@ public:
 #if (MAC_OS_X_VERSION_MAX_ALLOWED < MAC_OS_X_VERSION_10_3)
             attribs |= kWindowIgnoreClicksAttribute;
 #endif
-            ChangeWindowAttributes(qt_mac_window_for((HIViewRef)winId()), attribs, 0);
+            ChangeWindowAttributes(qt_mac_window_for(this), attribs, 0);
             int w = b->width(), h = b->height();
             resize(w, h);
 
@@ -302,8 +302,8 @@ void QCursor::update() const
                 hotspot.h = 0;
             if((hotspot.v = d->hy) < 0)
                 hotspot.v = 0;
-            OSStatus ret = QDRegisterNamedPixMapCursor(GetGWorldPixMap((GWorldPtr)d->bm->handle()),
-                                                       GetGWorldPixMap((GWorldPtr)d->bmm->handle()),
+            OSStatus ret = QDRegisterNamedPixMapCursor(GetGWorldPixMap(qt_macQDHandle(d->bm)),
+                                                       GetGWorldPixMap(qt_macQDHandle(d->bmm)),
                                                        hotspot, d->curs.big_cursor_name);
             if(ret == noErr)
                 d->type = QCursorData::TYPE_BigCursor;
@@ -335,8 +335,8 @@ void QCursor::update() const
             d->curs.ci = (CursorImageRec*)malloc(sizeof(CursorImageRec));
             d->curs.ci->majorVersion = kCursorImageMajorVersion;
             d->curs.ci->minorVersion = kCursorImageMinorVersion;
-            d->curs.ci->cursorPixMap = GetGWorldPixMap((GWorldPtr)d->bm->handle());
-            d->curs.ci->cursorBitMask = (BitMap **)GetGWorldPixMap((GWorldPtr)d->bmm->handle());
+            d->curs.ci->cursorPixMap = GetGWorldPixMap(qt_macQDHandle(d->bm));
+            d->curs.ci->cursorBitMask = (BitMap **)GetGWorldPixMap(qt_macQDHandle(d->bmm));
 #endif
         }
         break; }

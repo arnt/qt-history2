@@ -790,7 +790,7 @@ void QWidgetPrivate::init(Qt::WFlags f)
         updateSystemBackground();
     if (q->isTopLevel()) {
 #ifdef Q_WS_MAC
-        extern bool qt_mac_is_macdrawer(QWidget *); //qwidget_mac.cpp
+        extern bool qt_mac_is_macdrawer(const QWidget *); //qwidget_mac.cpp
         if(!qt_mac_is_macdrawer(q)) //special case
             q->setWState(Qt::WState_Hidden);
 #else
@@ -3233,7 +3233,7 @@ bool QWidget::isActiveWindow() const
     if(tlw == qApp->activeWindow() || (isVisible() && tlw->isPopup()))
         return true;
 #ifdef Q_WS_MAC
-    extern bool qt_mac_is_macdrawer(QWidget *); //qwidget_mac.cpp
+    extern bool qt_mac_is_macdrawer(const QWidget *); //qwidget_mac.cpp
     if(qt_mac_is_macdrawer(tlw) &&
        tlw->parentWidget() && tlw->parentWidget()->isActiveWindow())
         return true;

@@ -89,8 +89,8 @@ QRubberBand::QRubberBand(QRubberBand::Shape s, QWidget *p) :
     setAttribute(Qt::WA_TransparentForMouseEvents);
     setAutoMask(true);
 #ifdef Q_WS_MAC
-    extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
-    ChangeWindowAttributes(qt_mac_window_for((HIViewRef)winId()), kWindowNoShadowAttribute, 0);
+    extern WindowPtr qt_mac_window_for(const QWidget *); //qwidget_mac.cpp
+    ChangeWindowAttributes(qt_mac_window_for(this), kWindowNoShadowAttribute, 0);
 #endif
 }
 

@@ -147,11 +147,9 @@ QMacSavedPortInfo::setPaintDevice(QPaintDevice *pd)
     if(qt_mac_port_mutex)
         qt_mac_port_mutex->lock();
 #endif
-    extern Qt::HANDLE qt_mac_handle(const QPaintDevice *); // qpaintdevice_mac.cpp
-    if(pd->devType() == QInternal::Widget)
-        SetPortWindowPort(qt_mac_window_for((HIViewRef)(static_cast<QWidget*>(pd)->winId())));
-    else if(pd->devType() == QInternal::Pixmap || pd->devType() == QInternal::Printer)
-        SetGWorld((GrafPtr)qt_mac_handle(pd), 0); //set the gworld
+    extern GrafPtr qt_macQDHandle(const QPaintDevice *); // qpaintdevice_mac.cpp
+    if(GrafPtr graf = qt_macQDHandle(pd)) //set the gworld
+        SetGWorld(graf, 0);
     else
         ret = false;
 #if defined(QT_THREAD_SUPPORT)

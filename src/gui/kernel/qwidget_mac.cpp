@@ -142,6 +142,10 @@ WindowPtr qt_mac_window_for(HIViewRef hiview)
     return GetControlOwner(hiview);
 
 }
+WindowPtr qt_mac_window_for(const QWidget *w)
+{
+    return qt_mac_window_for((HIViewRef)w->winId());
+}
 
 /* Use this function instead of ReleaseWindowGroup, this will be sure to release the
    stays on top window group (created with qt_mac_get_stays_on_top_group below) */
@@ -173,9 +177,9 @@ void qt_mac_update_metal_style(QWidget *w)
 {
     if(w->isTopLevel()) {
         if(w->testAttribute(Qt::WA_MacMetalStyle))
-            ChangeWindowAttributes((WindowRef)w->handle(), kWindowMetalAttribute, 0);
+            ChangeWindowAttributes(qt_mac_window_for(w), kWindowMetalAttribute, 0);
         else
-            ChangeWindowAttributes((WindowRef)w->handle(), 0, kWindowMetalAttribute);
+            ChangeWindowAttributes(qt_mac_window_for(w), 0, kWindowMetalAttribute);
     }
 }
 
@@ -345,7 +349,7 @@ QMAC_PASCAL OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventR
                 if(GetEventParameter(event, kEventParamGrafPort, typeGrafPtr, NULL, sizeof(qdref), NULL, &qdref) != noErr)
                     GetGWorld(&qdref, 0); //just use the global port..
                 if(qdref)
-                    widget->d->hd = GetWindowFromPort(qdref);
+                    widget->d->hd = qdref;
 
 #if 0
                 qDebug("asked to draw %p [%s::%s] %p (%p/%p)", hiview, widget->metaObject()->className(), widget->objectName().local8Bit(),
@@ -469,7 +473,7 @@ static HIViewRef qt_mac_create_widget(HIViewRef parent)
     return ret;
 }
 
-bool qt_mac_is_macdrawer(QWidget *w)
+bool qt_mac_is_macdrawer(const QWidget *w)
 {
 #if 1
     if(w && w->parentWidget() && w->testWFlags(Qt::WMacDrawer) == Qt::WMacDrawer)
@@ -495,11 +499,11 @@ bool qt_mac_set_drawer_preferred_edge(QWidget *w, Qt::Dock where) //users of Qt/
         bits = kWindowEdgeBottom;
     else
         return false;
-    SetDrawerPreferredEdge(qt_mac_window_for((HIViewRef)w->winId()), bits);
+    SetDrawerPreferredEdge(qt_mac_window_for(w), bits);
     return true;
 }
 
-bool qt_mac_is_macsheet(QWidget *w)
+bool qt_mac_is_macsheet(const QWidget *w)
 {
 #if 1
     if(w && w->testWFlags(Qt::WMacSheet) == Qt::WMacSheet
@@ -526,7 +530,7 @@ bool QWidgetPrivate::qt_mac_update_sizer(QWidget *w, int up=0)
     w->d->extraData()->topextra->resizer += up;
     {
         WindowClass wclass;
-        GetWindowClass(qt_mac_window_for((HIViewRef)w->winId()), &wclass);
+        GetWindowClass(qt_mac_window_for(w), &wclass);
         if(!(GetAvailableWindowAttributes(wclass) & kWindowResizableAttribute))
             return true;
     }
@@ -535,17 +539,17 @@ bool QWidgetPrivate::qt_mac_update_sizer(QWidget *w, int up=0)
                          w->d->extraData()->maxw == w->d->extraData()->minw && w->d->extraData()->maxh == w->d->extraData()->minh));
 
     WindowAttributes attr;
-    GetWindowAttributes((WindowRef)w->handle(), &attr);
+    GetWindowAttributes(qt_mac_window_for(w), &attr);
     if(remove_grip) {
         if(attr & kWindowResizableAttribute) {
-            ChangeWindowAttributes((WindowRef)w->handle(), kWindowNoAttributes,
+            ChangeWindowAttributes(qt_mac_window_for(w), kWindowNoAttributes,
                                    kWindowResizableAttribute);
-            ReshapeCustomWindow(qt_mac_window_for((HIViewRef)w->winId()));
+            ReshapeCustomWindow(qt_mac_window_for(w));
         }
     } else if(!(attr & kWindowResizableAttribute)) {
-        ChangeWindowAttributes((WindowRef)w->handle(), kWindowResizableAttribute,
+        ChangeWindowAttributes(qt_mac_window_for(w), kWindowResizableAttribute,
                                kWindowNoAttributes);
-        ReshapeCustomWindow(qt_mac_window_for((HIViewRef)w->winId()));
+        ReshapeCustomWindow(qt_mac_window_for(w));
     }
     return true;
 }
@@ -623,7 +627,7 @@ bool QWidgetPrivate::qt_widget_rgn(QWidget *widget, short wcode, RgnHandle rgn, 
                         QRegion title;
                         {
                             RgnHandle rgn = qt_mac_get_rgn();
-                            GetWindowRegion(qt_mac_window_for((HIViewRef)widget->winId()), kWindowTitleBarRgn, rgn);
+                            GetWindowRegion(qt_mac_window_for(widget), kWindowTitleBarRgn, rgn);
                             title = qt_mac_convert_mac_region(rgn);
                             qt_mac_dispose_rgn(rgn);
                         }
@@ -892,7 +896,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	if(testWFlags(Qt::WStyle_StaysOnTop))
 	    ChangeWindowAttributes(window, kWindowNoAttributes, kWindowHideOnSuspendAttribute);
         if(qt_mac_is_macdrawer(this) && parentWidget())
-            SetDrawerParent(window, qt_mac_window_for((HIViewRef)parentWidget()->winId()));
+            SetDrawerParent(window, qt_mac_window_for(parentWidget()));
         if(dialog && !parentWidget() && !testWFlags(Qt::WShowModal))
             grp = GetWindowGroupOfClass(kDocumentWindowClass);
         if(testWFlags(Qt::WStyle_StaysOnTop)) {
@@ -992,8 +996,8 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
             if(d->window_event)
                 RemoveEventHandler(d->window_event);
             if(isTopLevel()) {
-                RemoveWindowProperty(qt_mac_window_for((HIViewRef)winId()), kWidgetCreatorQt, kWidgetPropertyQWidget);
-                DisposeWindow(qt_mac_window_for((HIViewRef)winId()));
+                RemoveWindowProperty(qt_mac_window_for(this), kWidgetCreatorQt, kWidgetPropertyQWidget);
+                DisposeWindow(qt_mac_window_for(this));
             } else if(HIViewRef hiview = (HIViewRef)winId()) {
                 CFRelease(hiview);
             }
@@ -1081,14 +1085,14 @@ QPoint QWidget::mapToGlobal(const QPoint &pos) const
     HIPoint hi_pos = CGPointMake(tmp.x(), tmp.y());
     HIViewConvertPoint(&hi_pos, (HIViewRef)winId(), 0);
     Rect win_rect;
-    GetWindowBounds(qt_mac_window_for((HIViewRef)winId()), kWindowStructureRgn, &win_rect);
+    GetWindowBounds(qt_mac_window_for(this), kWindowStructureRgn, &win_rect);
     return QPoint((int)hi_pos.x+win_rect.left, (int)hi_pos.y+win_rect.top);
 }
 
 QPoint QWidget::mapFromGlobal(const QPoint &pos) const
 {
     Rect win_rect;
-    GetWindowBounds(qt_mac_window_for((HIViewRef)winId()), kWindowStructureRgn, &win_rect);
+    GetWindowBounds(qt_mac_window_for(this), kWindowStructureRgn, &win_rect);
     HIPoint hi_pos = CGPointMake(pos.x()-win_rect.left, pos.y()-win_rect.top);
     HIViewConvertPoint(&hi_pos, 0, (HIViewRef)winId());
     return d->mapFromWS(QPoint((int)hi_pos.x, (int)hi_pos.y));
@@ -1173,7 +1177,7 @@ void QWidget::setWindowModified(bool mod)
 {
     setAttribute(Qt::WA_WindowModified, mod);
     if(isTopLevel())
-        SetWindowModified(qt_mac_window_for((HIViewRef)winId()), mod);
+        SetWindowModified(qt_mac_window_for(this), mod);
     QEvent e(QEvent::ModifiedChange);
     QApplication::sendEvent(this, &e);
 }
@@ -1190,7 +1194,7 @@ void QWidget::setWindowTitle(const QString &cap)
     d->createTLExtra();
     d->topData()->caption = cap;
     if(isTopLevel())
-        SetWindowTitleWithCFString(qt_mac_window_for((HIViewRef)winId()), QCFString(cap));
+        SetWindowTitleWithCFString(qt_mac_window_for(this), QCFString(cap));
     QEvent e(QEvent::WindowTitleChange);
     QApplication::sendEvent(this, &e);
 }
@@ -1217,9 +1221,9 @@ void QWidget::setWindowIcon(const QPixmap &pixmap)
             }
         }
         if(pixmap.isNull())
-            RemoveWindowProxy(qt_mac_window_for((HIViewRef)winId()));
+            RemoveWindowProxy(qt_mac_window_for(this));
         else
-            SetWindowProxyIcon(qt_mac_window_for((HIViewRef)winId()), qt_mac_create_iconref(pixmap));
+            SetWindowProxyIcon(qt_mac_window_for(this), qt_mac_create_iconref(pixmap));
     }
     QEvent e(QEvent::WindowIconChange);
     QApplication::sendEvent(this, &e);
@@ -1230,7 +1234,7 @@ void QWidget::setWindowIconText(const QString &iconText)
     d->createTLExtra();
     d->topData()->iconText = iconText;
     if(isTopLevel() && !iconText.isEmpty())
-        SetWindowAlternateTitle(qt_mac_window_for((HIViewRef)winId()), QCFString(iconText));
+        SetWindowAlternateTitle(qt_mac_window_for(this), QCFString(iconText));
     QEvent e(QEvent::IconTextChange);
     QApplication::sendEvent(this, &e);
 }
@@ -1291,7 +1295,7 @@ void QWidget::setActiveWindow()
         return;
     qt_event_remove_activate();
     qt_mac_set_fullscreen_mode(tlw->windowState() & Qt::WindowFullScreen);
-    WindowPtr window = qt_mac_window_for((HIViewRef)winId());
+    WindowPtr window = qt_mac_window_for(this);
     if(tlw->isPopup() || tlw->testWFlags(Qt::WStyle_Tool) || qt_mac_is_macdrawer(tlw)) {
         ActivateWindow(window, true);
     } else {
@@ -1360,7 +1364,7 @@ void QWidget::show_sys()
     }
     data->fstrut_dirty = true;
     if(isTopLevel()) {
-        WindowPtr window = qt_mac_window_for((HIViewRef)winId());
+        WindowPtr window = qt_mac_window_for(this);
         SizeWindow(window, width(), height(), true);
         if(qt_mac_is_macsheet(this)) {
             qt_event_request_showsheet(this);
@@ -1391,7 +1395,7 @@ void QWidget::hide_sys()
         return;
 
     if(isTopLevel()) {
-        WindowPtr window = qt_mac_window_for((HIViewRef)winId());
+        WindowPtr window = qt_mac_window_for(this);
         if(qt_mac_is_macsheet(this)) {
             WindowPtr parent = 0;
             if(GetSheetWindowParent(window, &parent) != noErr || !parent)
@@ -1430,7 +1434,7 @@ void QWidget::setWindowState(uint newstate)
 
     bool needShow = false;
     if(isTopLevel()) {
-        WindowPtr window = qt_mac_window_for((HIViewRef)winId());
+        WindowPtr window = qt_mac_window_for(this);
         if((oldstate & Qt::WindowMinimized) != (newstate & Qt::WindowMinimized))
             CollapseWindow(window, (newstate & Qt::WindowMinimized) ? true : false);
 
@@ -1543,7 +1547,7 @@ void QWidget::raise()
         return;
     if(isTopLevel()) {
         //raise this window
-        BringToFront(qt_mac_window_for((HIViewRef)winId()));
+        BringToFront(qt_mac_window_for(this));
         //we get to be the active process now
         ProcessSerialNumber psn;
         GetCurrentProcess(&psn);
@@ -1562,7 +1566,7 @@ void QWidget::lower()
         return;
 
     if(isTopLevel()) {
-        SendBehind(qt_mac_window_for((HIViewRef)winId()), 0);
+        SendBehind(qt_mac_window_for(this), 0);
     } else if(QWidget *p = parentWidget()) {
         int from = p->d->children.indexOf(this);
         if (from >= 0)
@@ -1726,7 +1730,7 @@ void QWidget::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         return;
     if(QWExtra *extra = d->extraData()) {        // any size restrictions?
         if(isTopLevel()) {
-            WindowPtr window = qt_mac_window_for((HIViewRef)winId());
+            WindowPtr window = qt_mac_window_for(this);
             QWidgetPrivate::qt_mac_update_sizer(this);
             if(testWFlags(Qt::WStyle_Maximize)) {
                 if(extra->maxw && extra->maxh && extra->maxw == extra->minw
@@ -1774,7 +1778,7 @@ void QWidget::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         HIRect bounds = CGRectMake(0, 0, w, h);
         HIViewSetFrame((HIViewRef)winId(), &bounds);
 
-        WindowPtr window = qt_mac_window_for((HIViewRef)winId());
+        WindowPtr window = qt_mac_window_for(this);
         if(isMove)
             MoveWindow(window, x, y, false);
         if(isResize)
@@ -1968,7 +1972,7 @@ void QWidget::updateFrameStrut() const
     QTLWExtra *top = that->d->topData();
     top->fleft = top->fright = top->ftop = top->fbottom = 0;
     if(!isDesktop() && isTopLevel()) {
-        WindowPtr window = qt_mac_window_for((HIViewRef)winId());
+        WindowPtr window = qt_mac_window_for(this);
         Rect window_r, content_r;
         //get bounding rects
         RgnHandle rgn = qt_mac_get_rgn();
@@ -2001,7 +2005,7 @@ void QWidget::setMask(const QRegion &region)
 
     d->extra->mask = region;
     if(isTopLevel())
-        ReshapeCustomWindow(qt_mac_window_for((HIViewRef)winId()));
+        ReshapeCustomWindow(qt_mac_window_for(this));
     else
         HIViewReshapeStructure((HIViewRef)winId());
 }

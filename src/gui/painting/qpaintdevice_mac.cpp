@@ -29,7 +29,6 @@ QPaintDevice *g_cur_paintdev = 0;
 /*****************************************************************************
   External functions
  *****************************************************************************/
-extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
 
 
 /*****************************************************************************
@@ -106,22 +105,36 @@ void qt_mac_clip_cg(CGContextRef hd, const QRegion &rgn, const QPoint *pt)
     CGContextClip(hd);
 }
 
-Qt::HANDLE qt_mac_quartz_handle(const QPaintDevice *pd)
+/*! \internal
+
+    Returns the CoreGraphics CGContextRef of the paint device. 0 is returned if it
+    can't be obtained.
+*/
+
+CGContextRef qt_macCGHandle(const QPaintDevice *pd)
 {
     if (pd->devType() == QInternal::Widget)
-        return static_cast<const QWidget *>(pd)->macCGHandle();
+        return (CGContextRef)static_cast<const QWidget *>(pd)->macCGHandle();
     else if (pd->devType() == QInternal::Pixmap);
-        return static_cast<const QPixmap *>(pd)->macCGHandle();
+        return (CGContextRef)static_cast<const QPixmap *>(pd)->macCGHandle();
     Q_ASSERT(false);
     return 0;
 }
 
-Qt::HANDLE qt_mac_handle(const QPaintDevice *pd)
+
+
+/*! \internal
+
+    Returns the QuickDraw CGrafPtr of the paint device. 0 is returned if it
+    can't be obtained.
+*/
+
+GrafPtr qt_macQDHandle(const QPaintDevice *pd)
 {
     if (pd->devType() == QInternal::Widget)
-        return static_cast<const QWidget *>(pd)->handle();
+        return (GrafPtr)static_cast<const QWidget *>(pd)->handle();
     else if (pd->devType() == QInternal::Pixmap)
-        return static_cast<const QPixmap *>(pd)->handle();
+        return (GrafPtr)static_cast<const QPixmap *>(pd)->handle();
     Q_ASSERT(false);
     return 0;
 }

@@ -29,14 +29,17 @@
 #define d d_func()
 #define q q_func()
 
-//Externals
-void qt_event_request_timer(MacTimerInfo *); //qapplication_mac.cpp
-MacTimerInfo *qt_event_get_timer(EventRef); //qapplication_mac.cpp
-void qt_event_request_select(QGuiEventLoop *); //qapplication_mac.cpp
-void qt_event_request_sockact(QGuiEventLoop *); //qapplication_mac.cpp
-void qt_event_request_updates(); //qapplication_mac.cpp
-void qt_event_request_wakeup(); //qapplication_mac.cpp
-bool qt_mac_send_event(QEventLoop::ProcessEventsFlags, EventRef, WindowPtr =0); //qapplication_mac.cpp
+/*****************************************************************************
+  Externals
+ *****************************************************************************/
+extern void qt_event_request_timer(MacTimerInfo *); //qapplication_mac.cpp
+extern MacTimerInfo *qt_event_get_timer(EventRef); //qapplication_mac.cpp
+extern void qt_event_request_select(QGuiEventLoop *); //qapplication_mac.cpp
+extern void qt_event_request_sockact(QGuiEventLoop *); //qapplication_mac.cpp
+extern void qt_event_request_updates(); //qapplication_mac.cpp
+extern void qt_event_request_wakeup(); //qapplication_mac.cpp
+extern bool qt_mac_send_event(QEventLoop::ProcessEventsFlags, EventRef, WindowPtr =0); //qapplication_mac.cpp
+extern WindowPtr qt_mac_window_for(const QWidget *); //qwidget_mac.cpp
 extern bool qt_is_gui_used; //qapplication.cpp
 
 static EventLoopTimerUPP timerUPP = 0;       //UPP
@@ -409,9 +412,9 @@ void QGuiEventLoop::flush()
             QWidget *tlw = tlws.at(i);
             if(tlw->isVisible()) {
 #if defined(QMAC_NO_COREGRAPHICS) || 1
-                QDFlushPortBuffer(GetWindowPort(qt_mac_window_for((HIViewRef)tlw->winId())), NULL);
+                QDFlushPortBuffer(GetWindowPort(qt_mac_window_for(tlw)), NULL);
 #else
-                HIWindowFlush(qt_mac_window_for((HIViewRef)tlw->winId()));
+                HIWindowFlush(qt_mac_window_for(tlw));
 #endif
             }
         }

@@ -136,11 +136,11 @@ inline QTLWExtra* QETWidget::topData() { return d->topData(); }
 /*****************************************************************************
   External functions
  *****************************************************************************/
-extern bool qt_mac_is_macdrawer(QWidget *); //qwidget_mac.cpp
-extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
+extern bool qt_mac_is_macdrawer(const QWidget *); //qwidget_mac.cpp
+extern WindowPtr qt_mac_window_for(const QWidget*); //qwidget_mac.cpp
 extern QWidget *qt_mac_find_window(WindowPtr); //qwidget_mac.cpp
 extern void qt_mac_set_cursor(const QCursor *, const Point *); //qcursor_mac.cpp
-extern bool qt_mac_is_macsheet(QWidget *); //qwidget_mac.cpp
+extern bool qt_mac_is_macsheet(const QWidget *); //qwidget_mac.cpp
 extern QString qt_mac_get_global_setting(QString key, QString val, QString file=QString::null); //qsettings_mac.cpp
 extern QString pstring2qstring(const unsigned char *); //qglobal.cpp
 extern void qt_mac_command_set_enabled(MenuRef, UInt32, bool); //qmenu_mac.cpp
@@ -171,7 +171,7 @@ Q_GLOBAL_STATIC(TsmHash, qt_mac_tsm_hash)
 
 void qt_mac_unicode_init(QWidget *w)
 {
-    WindowPtr window = qt_mac_window_for((HIViewRef)w->winId());
+    WindowPtr window = qt_mac_window_for(w);
     TsmHash *hash = qt_mac_tsm_hash();
     if(!hash->contains(window))
         hash->insert(window, new QTSMDocumentWrapper());
@@ -179,14 +179,14 @@ void qt_mac_unicode_init(QWidget *w)
 void qt_mac_unicode_cleanup(QWidget *w)
 {
     if(w && w->isTopLevel()) {
-        delete qt_mac_tsm_hash()->take(qt_mac_window_for((HIViewRef)w->winId()));
+        delete qt_mac_tsm_hash()->take(qt_mac_window_for(w));
     }
 }
 static QTSMDocumentWrapper *qt_mac_get_document_id(QWidget *w)
 {
     if(!w)
         return 0;
-    return qt_mac_tsm_hash()->value(qt_mac_window_for((HIViewRef)w->winId()));
+    return qt_mac_tsm_hash()->value(qt_mac_window_for(w));
 }
 void qt_mac_unicode_reset_input(QWidget *w)
 {
@@ -1274,7 +1274,7 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
     if(windowPart == inContent)
         return !popup_close_count; //just return and let the event loop process
 
-    WindowPtr window = qt_mac_window_for((HIViewRef)widget->winId());
+    WindowPtr window = qt_mac_window_for(widget);
     if(windowPart == inGoAway || windowPart == inCollapseBox ||
        windowPart == inZoomIn || windowPart == inZoomOut) {
         QMacBlockingFunction block;
@@ -1448,7 +1448,7 @@ void qt_leave_modal(QWidget *widget)
 }
 
 QWidget *qt_tryModalHelperMac(QWidget * top) {
-    if(top && qt_mac_is_macsheet(top) && !IsWindowVisible(qt_mac_window_for((HIViewRef)top->winId()))) {
+    if(top && qt_mac_is_macsheet(top) && !IsWindowVisible(qt_mac_window_for(top))) {
         if(WindowPtr wp = GetFrontWindowOfClass(kSheetWindowClass, true)) {
             if(QWidget *sheet = qt_mac_find_window(wp))
                 top = sheet;
@@ -1559,11 +1559,12 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
             GetEventParameter(event, kEventParamQWidget, typeQWidget, 0,
                               sizeof(widget), 0, &widget);
             if(widget) {
-                WindowPtr window = qt_mac_window_for((HIViewRef)widget->winId());
+                WindowPtr window = qt_mac_window_for(widget);
                 bool just_show = false;
                 if(!qt_mac_is_macsheet(widget)
-                   || ShowSheetWindow(window, qt_mac_window_for((HIViewRef)widget->parentWidget()->winId())) != noErr) {
-                    qWarning("Qt: QWidget: Unable to show as sheet %s::%s", widget->metaObject()->className(), widget->objectName().local8Bit());
+                   || ShowSheetWindow(window, qt_mac_window_for(widget->parentWidget())) != noErr) {
+                    qWarning("Qt: QWidget: Unable to show as sheet %s::%s", widget->metaObject()->className(), 
+                             widget->objectName().local8Bit());
                     just_show = true;
                 }
                 if(just_show) //at least the window will be visible, but the sheet flag doesn't work sadly (probalby too many sheets)

@@ -24,9 +24,17 @@
 #include <limits.h>
 #include <string.h>
 
+/*****************************************************************************
+  Externals
+ *****************************************************************************/
 extern const uchar *qt_get_bitflip_array();                // defined in qimage.cpp
+extern GrafPtr qt_macQDHandle(const QPaintDevice *); //qpaintdevice_mac.cpp
+
 #define QMAC_PIXMAP_ALPHA
 
+/*****************************************************************************
+  QPixmap member functions
+ *****************************************************************************/
 QPixmap::QPixmap(int w, int h, const uchar *bits, bool isXbitmap)
     : QPaintDevice(QInternal::Pixmap)
 {
@@ -547,8 +555,8 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
     hs=height();
 
     QPixmap pm(w, h, depth(), optimization());
-    dptr = (uchar *)GetPixBaseAddr(GetGWorldPixMap(static_cast<GWorldPtr>(pm.handle())));
-    dbpl = GetPixRowBytes(GetGWorldPixMap(static_cast<GWorldPtr>(pm.handle())));
+    dptr = (uchar *)GetPixBaseAddr(GetGWorldPixMap(qt_macQDHandle(&pm)));
+    dbpl = GetPixRowBytes(GetGWorldPixMap(qt_macQDHandle(&pm)));
     bpp = 32;
     dbytes = dbpl*h;
 
@@ -864,9 +872,9 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, bool imask)
         if(!imask) {
             if(const QPixmap *alpha = px.data->alphapm) {
                 char *drow;
-                long *aptr = reinterpret_cast<long *>(GetPixBaseAddr(GetGWorldPixMap(static_cast<GWorldPtr>(alpha->handle())))),
+                long *aptr = reinterpret_cast<long *>(GetPixBaseAddr(GetGWorldPixMap(qt_macQDHandle(alpha)))),
                      *arow;
-                unsigned short abpr = GetPixRowBytes(GetGWorldPixMap(static_cast<GWorldPtr>(alpha->handle())));
+                unsigned short abpr = GetPixRowBytes(GetGWorldPixMap(qt_macQDHandle(alpha)));
                 const int h = alpha->height(), w = alpha->width();
                 for(int yy=0; yy<h; yy++) {
                     arow = reinterpret_cast<long *>(reinterpret_cast<char *>(aptr) + (yy * abpr));
@@ -876,9 +884,9 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, bool imask)
                 }
             } else if(const QBitmap *mask = px.mask()) {
                 char *drow;
-                long *mptr = reinterpret_cast<long *>(GetPixBaseAddr(GetGWorldPixMap(static_cast<GWorldPtr>(mask->handle())))),
+                long *mptr = reinterpret_cast<long *>(GetPixBaseAddr(GetGWorldPixMap(qt_macQDHandle(mask)))),
                 *mrow;
-                unsigned short mbpr = GetPixRowBytes(GetGWorldPixMap(static_cast<GWorldPtr>(mask->handle())));
+                unsigned short mbpr = GetPixRowBytes(GetGWorldPixMap(qt_macQDHandle(mask)));
                 const int h = mask->height(), w = mask->width();
                 for(int yy=0; yy<h; yy++) {
                     mrow = reinterpret_cast<long *>(reinterpret_cast<char *>(mptr) + (yy * mbpr));

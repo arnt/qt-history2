@@ -44,11 +44,11 @@
  *****************************************************************************/
 extern QPoint posInWindow(QWidget *w); //qwidget_mac.cpp
 extern QRegion make_region(RgnHandle handle);
-extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
+extern WindowPtr qt_mac_window_for(const QWidget *); //qwidget_mac.cpp
 extern void qt_mac_clip_cg(CGContextRef, const QRegion &, const QPoint *); //qpaintdevice_mac.cpp
 extern void qt_mac_clip_cg_reset(CGContextRef); //qpaintdevice_mac.cpp
-extern Qt::HANDLE qt_mac_handle(const QPaintDevice *); //qpaintdevice_mac.cpp
-extern Qt::HANDLE qt_mac_quartz_handle(const QPaintDevice *); //qpaintdevice_mac.cpp
+extern GrafPtr qt_macQDHandle(const QPaintDevice *); //qpaintdevice_mac.cpp
+extern CGContextRef qt_macCGHandle(const QPaintDevice *); //qpaintdevice_mac.cpp
 extern RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
 CGImageRef qt_mac_create_cgimage(const QPixmap &, bool); //qpixmap_mac.cpp
 extern void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
@@ -146,14 +146,14 @@ QQuickDrawPaintEngine::begin(QPaintDevice *pdev)
         bool unclipped = w->testAttribute(Qt::WA_PaintUnclipped);
 
         if(!d->locked) {
-            LockPortBits(GetWindowPort(qt_mac_window_for((HIViewRef)w->winId())));
+            LockPortBits(GetWindowPort(qt_mac_window_for(w)));
             d->locked = true;
         }
 
         if(w->isDesktop()) {
             if(!unclipped)
                 qWarning("QQuickDrawPaintEngine::begin: Does not support clipped desktop on MacOSX");
-            ShowWindow(qt_mac_window_for((HIViewRef)w->winId()));
+            ShowWindow(qt_mac_window_for(w));
         } else if(unclipped) {
             qWarning("QQuickDrawPaintEngine::begin: Does not support unclipped painting");
         }
@@ -178,14 +178,14 @@ QQuickDrawPaintEngine::end()
 
     if(d->locked) {
         if(d->pdev->devType() == QInternal::Widget)
-            UnlockPortBits(GetWindowPort(qt_mac_window_for((HIViewRef)static_cast<QWidget*>(d->pdev)->winId())));
+            UnlockPortBits(GetWindowPort(qt_mac_window_for(static_cast<QWidget*>(d->pdev))));
         d->locked = false;
     }
 
     delete d->saved;
     d->saved = 0;
     if(d->pdev->devType() == QInternal::Widget && ((QWidget*)d->pdev)->isDesktop())
-        HideWindow(qt_mac_window_for((HIViewRef)static_cast<QWidget*>(d->pdev)->winId()));
+        HideWindow(qt_mac_window_for(static_cast<QWidget*>(d->pdev)));
 
     d->pdev = 0;
     return true;
@@ -674,25 +674,12 @@ QQuickDrawPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const Q
     RGBBackColor(&f);
 
     //get pixmap bits
-    const BitMap *srcbitmap = GetPortBitMapForCopyBits(static_cast<GWorldPtr>(pixmap.handle()));
+    const BitMap *srcbitmap = GetPortBitMapForCopyBits(qt_macQDHandle(&pixmap));
     const QPixmap *srcmask=NULL;
     if(pixmap.data->alphapm)
         srcmask = pixmap.data->alphapm;
     else
         srcmask = pixmap.mask();
-
-    //get pdev bits
-    const BitMap *dstbitmap=NULL;
-    switch(d->pdev->devType()) {
-    case QInternal::Widget: {
-        QWidget *w = (QWidget *)d->pdev;
-        dstbitmap = GetPortBitMapForCopyBits(GetWindowPort(qt_mac_window_for((HIViewRef)w->winId())));
-        break; }
-    case QInternal::Printer:
-    case QInternal::Pixmap: {
-        dstbitmap = GetPortBitMapForCopyBits((GWorldPtr)qt_mac_handle(d->pdev));
-        break; }
-    }
 
     short copymode = srcCopy;
 
@@ -700,8 +687,9 @@ QQuickDrawPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const Q
     SetRect(&srcr, sr.x(), sr.y(), sr.x()+sr.width()+1, sr.y()+sr.height()+1);
     Rect dstr;
     SetRect(&dstr, d->offx+r.x(), d->offy+r.y(), d->offx+r.x()+r.width()+1, d->offy+r.y()+r.height()+1);
+    const BitMap *dstbitmap=GetPortBitMapForCopyBits(qt_macQDHandle(d->pdev));
     if(mode == Qt::AlphaBlend && srcmask) {
-        const BitMap *maskbits = GetPortBitMapForCopyBits((GWorldPtr)srcmask->handle());
+        const BitMap *maskbits = GetPortBitMapForCopyBits(qt_macQDHandle(srcmask));
         if(copymode == srcCopy && srcmask->depth() > 1)
             copymode = ditherCopy;
         if(d->pdev->devType() == QInternal::Printer) { //can't use CopyDeepMask on a printer
@@ -827,7 +815,7 @@ void QQuickDrawPaintEngine::setupQDPort(bool force, QPoint *off, QRegion *rgn)
 {
     bool remade_clip = false;
     if(d->pdev->devType() == QInternal::Printer) {
-        if(force && qt_mac_handle(d->pdev)) {
+        if(force) {
             remade_clip = true;
             d->clip.pdev = QRegion(0, 0, d->pdev->metric(QPaintDeviceMetrics::PdmWidth),
                                           d->pdev->metric(QPaintDeviceMetrics::PdmHeight));
@@ -879,11 +867,7 @@ void QQuickDrawPaintEngine::setupQDPort(bool force, QPoint *off, QRegion *rgn)
             d->clip.paintable = d->clip.pdev;
         }
 
-        CGrafPtr ptr;
-        if(d->pdev->devType() == QInternal::Widget)
-            ptr = GetWindowPort(qt_mac_window_for((HIViewRef)static_cast<QWidget*>(d->pdev)->winId()));
-        else
-            ptr = (GWorldPtr)qt_mac_handle(d->pdev);
+        CGrafPtr ptr = qt_macQDHandle(d->pdev);
         if(RgnHandle rgn = d->clip.paintable.handle()) {
             QDAddRegionToDirtyRegion(ptr, rgn);
         } else {
@@ -992,7 +976,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
     }
 
     d->pdev = pdev;
-    d->hd = static_cast<CGContextRef>(qt_mac_quartz_handle(d->pdev));
+    d->hd = qt_macCGHandle(d->pdev);
     if(d->shading) {
         CGShadingRelease(d->shading);
         d->shading = 0;
@@ -1018,7 +1002,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
         if(w->isDesktop()) {
             if(!unclipped)
                 qWarning("QCoreGraphicsPaintEngine::begin: Does not support clipped desktop on MacOSX");
-            ShowWindow(qt_mac_window_for((HIViewRef)w->winId()));
+            ShowWindow(qt_mac_window_for(w));
         } else if(unclipped) {
             qWarning("QCoreGraphicsPaintEngine::begin: Does not support unclipped painting");
         }
@@ -1046,7 +1030,7 @@ QCoreGraphicsPaintEngine::end()
         d->hd = 0;
     }
     if(d->pdev->devType() == QInternal::Widget && ((QWidget*)d->pdev)->isDesktop())
-        HideWindow(qt_mac_window_for((HIViewRef)static_cast<QWidget*>(d->pdev)->winId()));
+        HideWindow(qt_mac_window_for(static_cast<QWidget*>(d->pdev)));
     if(d->shading) {
         CGShadingRelease(d->shading);
         d->shading = 0;

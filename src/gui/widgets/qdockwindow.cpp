@@ -606,7 +606,7 @@ void QDockWindow::setArea(Qt::DockWindowArea area)
                "QDockWindow::setArea", "specified 'area' is not an allowed area");
 
 #ifdef Q_WS_MAC
-    extern bool qt_mac_is_macdrawer(QWidget *); //qwidget_mac.cpp
+    extern bool qt_mac_is_macdrawer(const QWidget *); //qwidget_mac.cpp
     if (qt_mac_is_macdrawer(this)) {
         Qt::Dock x;
         switch (area) {

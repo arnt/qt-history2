@@ -833,7 +833,7 @@ void QScrollView::updateScrollBars()
             showv = needv;
 
 #ifdef Q_WS_MAC
-        extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
+        extern WindowPtr qt_mac_window_for(const QWidget *); //qwidget_mac.cpp
         bool mac_need_scroll = false;
         if(!parentWidget()) {
             mac_need_scroll = true;
@@ -846,7 +846,7 @@ void QScrollView::updateScrollBars()
         }
         if(mac_need_scroll) {
             WindowAttributes attr;
-            GetWindowAttributes(qt_mac_window_for((HIViewRef)winId()), &attr);
+            GetWindowAttributes(qt_mac_window_for(this), &attr);
             mac_need_scroll = (attr & kWindowResizableAttribute);
         }
         if(mac_need_scroll) {

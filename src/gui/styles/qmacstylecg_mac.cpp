@@ -26,10 +26,15 @@
 
 #include <private/qtitlebar_p.h>
 
+/*****************************************************************************
+  External functions
+ *****************************************************************************/
 QPixmap qt_mac_convert_iconref(IconRef, int, int); //qpixmap_mac.cpp
-extern Qt::HANDLE qt_mac_handle(const QPaintDevice *pd); // qpaintdevice_mac.pp
-extern Qt::HANDLE qt_mac_quartz_handle(const QPaintDevice *pd); // qpaintdevice_mac.pp
+extern CGContextRef qt_macCGHandle(const QPaintDevice *pd); // qpaintdevice_mac.pp
 
+/*****************************************************************************
+  QMacCGStyle globals
+ *****************************************************************************/
 const int qt_mac_hitheme_version = 0; //the HITheme version we speak
 const int macSpinBoxSep        = 5;    // distance between spinwidget and the lineedit
 const int macItemFrame         = 2;    // menu item frame width
@@ -37,6 +42,10 @@ const int macItemHMargin       = 3;    // menu item hor text margin
 const int macItemVMargin       = 2;    // menu item ver text margin
 const int macRightBorder       = 12;   // right border on mac
 const ThemeWindowType QtWinType = kThemeUtilityWindow; // Window type we use for QTitleBar.
+
+/*****************************************************************************
+  QMacCGStyle utility functions
+ *****************************************************************************/
 // Utility to generate correct rectangles for AppManager internals
 static inline const HIRect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice * =0,
                                             bool off=true, const QRect &rect=QRect())
@@ -162,6 +171,11 @@ static void getSliderInfo(QStyle::ComplexControl cc, const Q4StyleOptionSlider *
             tdi->trackInfo.slider.thumbDir = kThemeThumbDownward;
     }
 }
+
+/*****************************************************************************
+  QMacCGStyle member functions
+ *****************************************************************************/
+
 class QMacStyleCGFocusWidget : public QAquaFocusWidget
 {
 public:
@@ -346,7 +360,7 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
                               const QRect &r, const QPalette &pal, SFlags how,
                               const QStyleOption &opt) const
 {
-    CGContextRef cg = static_cast<CGContextRef>(qt_mac_quartz_handle(p->device()));
+    CGContextRef cg = qt_macCGHandle(p->device());
     ThemeDrawState tds = d->getDrawState(how, pal);
     switch(element) {
     case CE_PushButton: {
@@ -480,7 +494,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
                                      const QRect &r, const QPalette& pal, SFlags flags, SCFlags sub,
                                      SCFlags subActive, const QStyleOption &opt) const
 {
-    CGContextRef cg = static_cast<CGContextRef>(qt_mac_quartz_handle(p->device()));
+    CGContextRef cg = qt_macCGHandle(p->device());
     ThemeDrawState tds = d->getDrawState(flags, pal);
     switch (control) {
     case CC_ComboBox: {
@@ -1019,7 +1033,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
                                 const QWidget *w) const
 {
     ThemeDrawState tds = d->getDrawState(opt->state, opt->palette);
-    CGContextRef cg = static_cast<CGContextRef>(qt_mac_quartz_handle(p->device()));
+    CGContextRef cg = qt_macCGHandle(p->device());
     switch (pe) {
     case PE_CheckListExclusiveIndicator:
     case PE_ExclusiveIndicatorMask:
@@ -1266,7 +1280,7 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
                               const QWidget *w) const
 {
     ThemeDrawState tds = d->getDrawState(opt->state, opt->palette);
-    CGContextRef cg = static_cast<CGContextRef>(qt_mac_quartz_handle(p->device()));
+    CGContextRef cg = qt_macCGHandle(p->device());
     switch (ce) {
     case CE_PushButton:
         if (const Q4StyleOptionButton *btn = ::qt_cast<const Q4StyleOptionButton *>(opt)) {
@@ -1597,7 +1611,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl cc, const Q4StyleOptionCompl
                                      QPainter *p, const QWidget *widget) const
 {
     ThemeDrawState tds = d->getDrawState(opt->state, opt->palette);
-    CGContextRef cg = static_cast<CGContextRef>(qt_mac_quartz_handle(p->device()));
+    CGContextRef cg = qt_macCGHandle(p->device());
     switch (cc) {
     case CC_Slider:
     case CC_ScrollBar:

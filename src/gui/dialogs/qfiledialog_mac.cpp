@@ -31,6 +31,16 @@
 #include <qdesktopwidget.h>
 #include <stdlib.h>
 
+/*****************************************************************************
+  Externals
+ *****************************************************************************/
+extern WindowPtr qt_mac_window_for(const QWidget*); //qwidget_mac.cpp
+extern QStringList qt_make_filter_list(const QString &filter); //qfiledialog.cpp
+extern const char *qt_file_dialog_filter_reg_exp; //qfiledialog.cpp
+
+/*****************************************************************************
+  QFileDialog utility functions
+ *****************************************************************************/
 static UInt8 *str_buffer = NULL;
 static void cleanup_str_buffer()
 {
@@ -39,9 +49,6 @@ static void cleanup_str_buffer()
         str_buffer = NULL;
     }
 }
-
-extern QStringList qt_make_filter_list(const QString &filter); //qfiledialog.cpp
-extern const char *qt_file_dialog_filter_reg_exp; //qfiledialog.cpp
 
 // Returns the wildcard part of a filter.
 struct qt_mac_filter_name {
@@ -233,7 +240,7 @@ QStringList qt_mac_get_open_file_names(const QString &filter, QString *pwd,
     if(parent && parent->isVisible()) {
         if(!parent->topLevelWidget()->isDesktop()) {
             options.modality = kWindowModalityWindowModal;
-            options.parentWindow = (WindowRef)parent->handle();
+            options.parentWindow = qt_mac_window_for(parent);
         } else {
             parent = parent->topLevelWidget();
             QString s = parent->windowTitle();
@@ -363,7 +370,7 @@ QString qt_mac_get_save_file_name(const QString &start, const QString &filter,
     if(parent && parent->isVisible()) {
         if(!parent->topLevelWidget()->isDesktop()) {
             options.modality = kWindowModalityWindowModal;
-            options.parentWindow = (WindowRef)parent->handle();
+            options.parentWindow = qt_mac_window_for(parent);
         } else {
             parent = parent->topLevelWidget();
             QString s = parent->windowTitle();
