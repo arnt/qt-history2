@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of Platinum-like style class
 **
 ** Created : 981231
 **
-** Copyright (C) 1998-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1998-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
@@ -1386,7 +1386,6 @@ QRect QPlatinumStyle::querySubControlMetrics( ComplexControl control,
 	    if ( sb->orientation() == Qt::Horizontal )
 		return QRect( 1, 0, sb->width() - sbextent * 2, sb->height() );
 	    return QRect( 0, 1, sb->width(), sb->height() - sbextent * 2 );
-	    break;
 	default:
 	    break;
 	}
