@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.h#6 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.h#7 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -109,6 +109,7 @@ protected slots:
 protected:
     void readDir( const QDir &dir );
     virtual QDragObject *dragObject();
+    virtual int dragItems( QDropEvent *e );
 
     virtual void keyPressEvent( QKeyEvent *e );
 
