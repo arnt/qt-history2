@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#205 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#206 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1371,7 +1371,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 	if ( type >= 0 )
 	    sn_activate_fd( wParam, type );
     } else if ( message >= WM_MOUSEFIRST && message <= WM_MOUSELAST ) {
-	if ( qApp->activePopupWidget() != 0 ) {			// in popup mode
+	if ( message == WM_MOUSEMOVE && qApp->activePopupWidget() != 0) { // in popup mode
 	    POINT curPos;
 	    GetCursorPos( &curPos );
 	    QWidget* w = QApplication::widgetAt(curPos.x, curPos.y);
