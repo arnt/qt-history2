@@ -42,10 +42,12 @@ public:
 	brushRef(0),
 	nocolBrush(false),
 	pixmapBrush(false),
+	usesWidgetDC(false),
 	pStyle(Qt::SolidLine),
 	pWidth(0),
 	pColor(0),
-	bColor(0)
+	bColor(0),
+	device(0)
     {
     }
 
@@ -63,6 +65,7 @@ public:
 
     uint 		nocolBrush:1;
     uint		pixmapBrush:1;
+    uint                usesWidgetDC:1;
 
     Qt::RasterOp        rasterOp;
     Qt::PenStyle 	pStyle;
@@ -72,7 +75,7 @@ public:
 
     uint 		fontFlags;
 
-    QPaintDevice        *device;
+    const QPaintDevice        *device;
 };
 
 #endif

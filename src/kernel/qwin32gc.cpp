@@ -270,9 +270,8 @@ QWin32GC::~QWin32GC()
 }
 
 
-bool QWin32GC::begin(const QPaintDevice *pdev, QPainterState *state, bool clipEnabled)
+bool QWin32GC::begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped)
 {
-    Q_ASSERT(pdev->devType()==QInternal::Widget);
     if (isActive()) {				// already active painting
 	qWarning("QWin32GC::begin: Painter is already active."
 	       "\n\tYou must end() the painter before a second begin()\n");
@@ -280,8 +279,34 @@ bool QWin32GC::begin(const QPaintDevice *pdev, QPainterState *state, bool clipEn
     }
 
     setActive(true);
-    d->hdc = GetDC(((QWidget*)pdev)->winId());
-    d->device = const_cast<QPaintDevice *>(pdev);
+    d->device = pdev;
+
+    if (pdev->devType() == QInternal::Widget) {
+	QWidget *w = (QWidget*)pdev;
+	d->usesWidgetDC = (w->hdc != 0);
+	if (d->usesWidgetDC) {
+	    d->hdc = w->hdc;			// during paint event
+	} else {
+	    if ( unclipped || w->testWFlags( WPaintUnclipped ) ) {
+		d->hdc = GetWindowDC( w->winId() );
+		if ( w->isTopLevel() ) {
+		    int dx = w->geometry().x() - w->frameGeometry().x();
+		    int dy = w->geometry().y() - w->frameGeometry().y();
+#ifndef Q_OS_TEMP
+		    SetWindowOrgEx( d->hdc, -dx, -dy, 0 );
+#else
+//		    MoveWindow( w->winId(), w->frameGeometry().x(), w->frameGeometry().y(), w->frameGeometry().width(), w->frameGeometry().height(), FALSE );
+//		    MoveWindow( w->winId(), w->frameGeometry().x() - 50, w->frameGeometry().y() - 50, w->frameGeometry().width(), w->frameGeometry().height(), FALSE );
+#endif
+		}
+	    } else {
+		d->hdc = GetDC( w->isDesktop() ? 0 : w->winId() );
+	    }
+	    w->hdc = d->hdc;
+	}
+    } else if (pdev->devType() == QInternal::Pixmap) {
+	d->hdc = static_cast<const QPixmap *>(pdev)->handle();
+    }
     Q_ASSERT(d->hdc);
 
     QRegion *region = paintEventClipRegion;
@@ -334,38 +359,27 @@ bool QWin32GC::end()
 	d->hbrushbm = 0;
 	d->pixmapBrush = d->nocolBrush = false;
     }
-//     if ( d->hfont ) {
-// 	SelectObject( d->hdc, d->stock_sysfont );
-// 	d->hfont = 0;
-//     }
+    if ( d->hfont ) {
+	SelectObject( d->hdc, stock_sysfont );
+	d->hfont = 0;
+    }
     if ( d->holdpal ) {
 	SelectPalette( d->hdc, d->holdpal, true );
 	RealizePalette( d->hdc );
     }
 
-    // ### use stuff below...
     if (d->device->devType() == QInternal::Widget) {
-	ReleaseDC(static_cast<QWidget*>(d->device)->winId(), d->hdc);
+	if (!d->usesWidgetDC) {
+	    QWidget *w = (QWidget*)d->device;
+  	    ReleaseDC( w->isDesktop() ? 0 : w->winId(), d->hdc );
+	    w->hdc = 0;
+	}
+    } else if (d->device->devType() == QInternal::Pixmap) {
+	QPixmap *pm = (QPixmap *)d->device;
+	if (pm->optimization() == QPixmap::MemoryOptim &&
+	     (qt_winver & WV_DOS_based))
+	    pm->allocCell();
     }
-
-//     if ( pdev->devType() == QInternal::Widget ) {
-// 	if (!usesWidgetDC) {
-// 	    QWidget *w = (QWidget*)pdev;
-// 	    ReleaseDC( w->isDesktop() ? 0 : w->winId(), hdc );
-// 	    w->hdc = 0;
-// 	}
-//     }
-//     else if ( pdev->devType() == QInternal::Pixmap ) {
-// 	QPixmap *pm = (QPixmap*)pdev;
-// 	if ( pm->optimization() == QPixmap::MemoryOptim &&
-// 	     ( qt_winver & WV_DOS_based ) )
-// 	    pm->allocCell();
-//     }
-
-//     if ( d->pfont ) {
-// 	delete d->pfont;
-// 	d->pfont = 0;
-//     }
 
     if (GetGraphicsMode(d->hdc)==GM_ADVANCED) {
 	if (!ModifyWorldTransform(d->hdc, 0, MWT_IDENTITY))

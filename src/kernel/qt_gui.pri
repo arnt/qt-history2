@@ -222,12 +222,10 @@ newpainter {
     win32 { 
 	SOURCES -= $$KERNEL_CPP/qpainter_win.cpp
 
-	SOURCES += $$KERNEL_CPP/qwin32gc.cpp \
-		   $$KERNEL_CPP/qwin32pixmapgc.cpp
+	SOURCES += $$KERNEL_CPP/qwin32gc.cpp
 
 	HEADERS += $$KERNEL_P/qwin32gc_p.h \
-		   $$KERNEL_H/qwin32gc.h \
-		   $$KERNEL_H/qwin32pixmapgc.h
+		   $$KERNEL_H/qwin32gc.h
     }
 
     x11 { 

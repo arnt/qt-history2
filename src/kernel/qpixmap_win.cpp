@@ -22,7 +22,7 @@
 #include <limits.h>
 
 #ifdef Q_Q4PAINTER
-#include "qwin32pixmapgc.h"
+#include "qwin32gc.h"
 #endif
 
 Q_KERNEL_EXPORT const uchar *qt_get_bitflip_array();		// defined in qimage.cpp
@@ -116,8 +116,8 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     }
 
 #ifdef Q_Q4PAINTER
-	Q_ASSERT(!deviceGC);
-	deviceGC = new QWin32PixmapGC(this);
+    Q_ASSERT(!deviceGC);
+    deviceGC = new QWin32GC(this);
 #endif
 
     static int serial = 0;
@@ -261,6 +261,7 @@ void QPixmap::deref()
 	}
 	delete data;
 	delete deviceGC;
+	deviceGC = 0;
     }
 }
 
