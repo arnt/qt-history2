@@ -4181,14 +4181,12 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
 	else if ( selectionMode() == Extended ) {
 	    bool changed = FALSE;
 	    if ( !(e->state() & (ControlButton | ShiftButton)) ) {
-		if ( !i->isSelected() ) {
 		    bool blocked = signalsBlocked();
 		    blockSignals( TRUE );
 		    clearSelection();
 		    blockSignals( blocked );
 		    i->setSelected( TRUE );
 		    changed = TRUE;
-		}
 	    } else {
 		if ( e->state() & ShiftButton )
 		    d->pressedSelected = FALSE;
@@ -4203,40 +4201,7 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
 		    }
 		// Shift pressed in Extended mode ---
 		} else {
-		    int  anchorPos = d ? d->selectAnchor->itemPos() : 0,
-			 oldPos    = oldCurrent ? oldCurrent->itemPos() : 0,
-			 newPos    = i->itemPos();
-		    QListViewItem *top=0, *bottom=0;
-		    if ( anchorPos > newPos ) {
-			top = i;
-			bottom = d->selectAnchor;
-		    } else {
-			top = d->selectAnchor;
-			bottom = i;
-		    }
-
-		    // Remove old selections if not in new selection (Shift)
-		    if ( e->state() & ShiftButton ) {
-			int topPos    = top ? top->itemPos() : 0,
-			    bottomPos = bottom ? bottom->itemPos() : 0;
-			if ( !(oldPos > topPos && oldPos < bottomPos) ) {
-			    if ( oldPos < topPos )
-				changed = clearRange( oldCurrent, top );
-			    else
-				changed = clearRange( bottom, oldCurrent );
-			}
-
-		    }
-		    QListViewItemIterator lit( top );
-		    for ( ; lit.current(); ++lit ) {
-			if ( (bool)lit.current()->selected != d->select ) {
-			    lit.current()->setSelected( d->select );
-			    changed = TRUE;
-			}
-			// Include bottom, then break
-			if ( lit.current() == bottom )
-			    break;
-		    }
+		    changed = selectRange( i, oldCurrent, d->selectAnchor );
 		}
 	    }
 	    if ( changed ) {
@@ -4534,6 +4499,7 @@ void QListView::doAutoScroll( const QPoint &cursorPos )
 	g = contentsY();
 
     QListViewItem *c = d->focusItem, *old = 0;
+    QListViewItem *oldCurrent = c;
     if ( down ) {
 	int y = itemRect( d->focusItem ).y() + contentsY();
 	while( c && y + c->height() <= g ) {
@@ -4571,25 +4537,10 @@ void QListView::doAutoScroll( const QPoint &cursorPos )
 	    if ( c->isSelectable() )
 		setSelected( c, d->select );
 	} else if ( d->selectionMode == Extended ) {
-	    if ( d->focusItem == d->pressedItem && d->pressedSelected ) {
-		d->pressedItem = 0;
-		bool block = signalsBlocked();
-		blockSignals( TRUE );
-		clearSelection();
-		blockSignals( block );
-		c->setSelected( TRUE );
+	    if ( selectRange( c, oldCurrent, d->selectAnchor ) ) {
+		d->useDoubleBuffer = TRUE;
+		triggerUpdate();
 		emit selectionChanged();
-	    } else {
-		// also (de)select the ones in between
-		QListViewItem * b = d->focusItem;
-		bool down = ( itemPos( c ) > itemPos( b ) );
-		while( b && b != c ) {
-		    if ( b->isSelectable() )
-			setSelected( b, d->select );
-		    b = down ? b->itemBelow() : b->itemAbove();
-		}
-		if ( c->isSelectable() )
-		    setSelected( c, d->select );
 	    }
 	}
     }
@@ -7611,6 +7562,51 @@ void QListView::selectRange( QListViewItem *from, QListViewItem *to, bool invert
 	emit selectionChanged();
     }
 }
+
+/* clears selection from anchor to old, selects from anchor to new, does not emit selectionChanged on change */
+bool QListView::selectRange( QListViewItem *newItem, QListViewItem *oldItem, QListViewItem *anchorItem )
+{
+    if ( !newItem || !oldItem || !anchorItem )
+	return FALSE;
+
+    int  anchorPos = anchorItem ? anchorItem->itemPos() : 0,
+	 oldPos    = oldItem ? oldItem->itemPos() : 0,
+	 newPos    = newItem->itemPos();
+    QListViewItem *top=0, *bottom=0;
+    if ( anchorPos > newPos ) {
+	top = newItem;
+	bottom = anchorItem;
+    } else {
+	top = anchorItem;
+	bottom = newItem;
+    }
+
+    // removes the parts of the old selection that will no longer be selected
+    bool changed = FALSE;
+    int topPos    = top ? top->itemPos() : 0,
+	bottomPos = bottom ? bottom->itemPos() : 0;
+    if ( !(oldPos > topPos && oldPos < bottomPos) ) {
+	if ( oldPos < topPos )
+	    changed = clearRange( oldItem, top );
+	else
+	    changed = clearRange( bottom, oldItem );
+    }
+
+    // selects the new (not already selected) items
+    QListViewItemIterator lit( top );
+    for ( ; lit.current(); ++lit ) {
+	if ( (bool)lit.current()->selected != d->select ) {
+	    lit.current()->setSelected( d->select );
+	    changed = TRUE;
+	}
+	// Include bottom, then break
+	if ( lit.current() == bottom )
+	    break;
+    }
+
+    return changed;
+}
+
 
 /*!
     Finds the first list view item in column \a column, that matches
