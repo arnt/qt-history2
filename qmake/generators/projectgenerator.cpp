@@ -121,8 +121,11 @@ ProjectGenerator::init()
 		}
 	    }
 	    if(add_depend && !dir.isEmpty() && !v["DEPENDPATH"].contains(dir)) {
-		fileFixify(dir);
-		v["DEPENDPATH"] += dir;
+		QFileInfo fi(dir);
+		if(fi.absFilePath() != QDir::currentDirPath()) {
+		    fileFixify(dir);
+		    v["DEPENDPATH"] += dir;
+		}
 	    }
 	}
     }
@@ -284,25 +287,23 @@ ProjectGenerator::writeMakefile(QTextStream &t)
     QStringList::Iterator it;
     for(it = Option::before_user_vars.begin(); it != Option::before_user_vars.end(); ++it)
 	t << (*it) << endl;
-#define WRITE_VAR(x) t << getWritableVar(x)
-    WRITE_VAR("TEMPLATE_ASSIGN"); //= rule
+    t << getWritableVar("TEMPLATE_ASSIGN", FALSE);
     if(project->first("TEMPLATE_ASSIGN") == "subdirs") {
-	t << endl << "# Directories" << endl;
-	WRITE_VAR("SUBDIRS");
+	t << endl << "# Directories" << "\n"
+	  << getWritableVar("SUBDIRS");
     } else {
-	WRITE_VAR("TARGET");
-	WRITE_VAR("CONFIG");
-	WRITE_VAR("CONFIG_REMOVE"); //-= rule
-	WRITE_VAR("DEPENDPATH");
+	t << getWritableVar("TARGET")
+	  << getWritableVar("CONFIG", FALSE)
+	  << getWritableVar("CONFIG_REMOVE", FALSE)
+	  << getWritableVar("DEPENDPATH") << endl;
 
-	t << endl << "# Input" << endl;
-	WRITE_VAR("HEADERS");
-	WRITE_VAR("INTERFACES");
-	WRITE_VAR("LEXSOURCES");
-	WRITE_VAR("YACCSOURCES");
-	WRITE_VAR("SOURCES");
+	t << "# Input" << "\n";
+	t << getWritableVar("HEADERS") 
+	  << getWritableVar("INTERFACES") 
+	  << getWritableVar("LEXSOURCES") 
+	  << getWritableVar("YACCSOURCES") 
+	  << getWritableVar("SOURCES");
     }
-#undef WRITE_VAR
     for(it = Option::after_user_vars.begin(); it != Option::after_user_vars.end(); ++it)
 	t << (*it) << endl;
     return TRUE;
@@ -374,7 +375,7 @@ ProjectGenerator::addFile(QString file)
 
 
 QString
-ProjectGenerator::getWritableVar(const QString &v)
+ProjectGenerator::getWritableVar(const QString &v, bool fixPath)
 {
     QStringList &vals = project->variables()[v];
     if(vals.isEmpty())
@@ -394,5 +395,7 @@ ProjectGenerator::getWritableVar(const QString &v)
 	    spaces += " ";
 	join = vals.join(" \\\n" + spaces);
     } 
+    if(fixPath)
+	join = join.replace(QRegExp("\\"), "/");
     return ret + join + "\n";
 }
