@@ -458,8 +458,6 @@ void QPopupMenu::frameChanged()
   Displays the popup menu so that the item number \a indexAtPoint will be
   at the specified \e global position \a pos.  To translate a widget's
   local coordinates into global coordinates, use QWidget::mapToGlobal().
-  If \a indexAtPoint is negative, the topleft corner of the menu will be
-  at the specified position.
 
   When positioning a popup with exec() or popup(), bear in mind that
   you cannot rely on the popup menu's current size(). For performance
@@ -1182,10 +1180,9 @@ void QPopupMenu::updateAccel( QWidget *parent )
     }
     while ( (mi=it.current()) ) {
 	++it;
-	int k = mi->key();
-	if ( k ) {
+	QKeySequence k = mi->key();
+	if ( (int)k ) {
 	    int id = autoaccel->insertItem( k, mi->id() );
-	    autoaccel->insertItem( k + Key_Shift, mi->id() );
 #ifndef QT_NO_WHATSTHIS
 	    autoaccel->setWhatsThis( id, mi->whatsThis() );
 #endif
@@ -1193,8 +1190,10 @@ void QPopupMenu::updateAccel( QWidget *parent )
 	if ( !mi->text().isNull() || mi->custom() ) {
 	    QString s = mi->text();
 	    int i = s.find('\t');
-	    if ( k && k != Key_unknown ) {
-		QString t = QAccel::keyToString( k );
+
+	    // Note: Only looking at the first key in the sequence!
+	    if ( (int)k && (int)k != Key_unknown ) {
+		QString t = (QString)mi->key();
 		if ( i >= 0 )
 		    s.replace( i+1, s.length()-i, t );
 		else {
@@ -2197,8 +2196,6 @@ void QPopupMenu::updateRow( int row )
   Opens the popup menu so that the item number \a indexAtPoint will be
   at the specified \e global position \a pos.  To translate a widget's
   local coordinates into global coordinates, use QWidget::mapToGlobal().
-  If \a indexAtPoint is negative, the topleft corner of the menu will be
-  at the specified position.
 
   The return code is the id of the selected item in either the popup
   menu or one of its submenus, or -1 if no item is selected (normally
