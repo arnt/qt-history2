@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#69 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#70 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#69 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#70 $")
 
 
 /*****************************************************************************
@@ -281,7 +281,6 @@ UINT16 qchecksum( const char *data, uint len )
 	crc_tbl_init = TRUE;
     }
     register UINT16 crc = 0xffff;
-    register int index;
     uchar c;
     uchar *p = (uchar *)data;
     while ( len-- ) {
