@@ -45,10 +45,10 @@ int main()
     }
 
     std::map<int, double> m1;
-    m1.insert( std::make_pair( 1, 2 ) );
-    m1.insert( std::make_pair( 3, 2 ) );
-    m1.insert( std::make_pair( 5, 2 ) );
-    m1.insert( std::make_pair( 7, 2 ) );
+    m1.insert( std::make_pair( 1, 2.0 ) );
+    m1.insert( std::make_pair( 3, 2.0 ) );
+    m1.insert( std::make_pair( 5, 2.0 ) );
+    m1.insert( std::make_pair( 7, 2.0 ) );
     if ( m1.size() != 4 ) {
 	std::cout << "stltest: map failed size check, expected 4, got " << m1.size();
 	rval = 0;
