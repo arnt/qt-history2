@@ -45,6 +45,7 @@
 #include "qucomextra_p.h"
 #include "qptrvector.h"
 #include "qobjectlist.h"
+#include "qguardedptr.h"
 
 #ifdef QT_THREAD_SUPPORT
 #include <qmutex.h>
@@ -52,6 +53,9 @@
 #endif
 
 #include <ctype.h>
+#include <limits.h>
+
+#define GUARDED_SIGNAL INT_MIN
 
 struct QObjectPrivate
 {
@@ -72,7 +76,10 @@ struct QObjectPrivate
 	int count;
 	struct Connection{
 	    int signal;
-	    QObject *receiver;
+	    union {
+		QObject *receiver;
+		QObject **guarded;
+	    };
 	    int member;
 	} connections[1];
     };
@@ -103,6 +110,27 @@ struct QObjectPrivate
     static void resetCurrentSender(Senders *senders, QObject *sender);
     static void derefSenders(Senders *senders);
 };
+
+void QGuardedPtrData::add(QObject **ptr)
+{
+    if (!*ptr)
+	return;
+    (*ptr)->d->addConnection(GUARDED_SIGNAL, reinterpret_cast<QObject*>(ptr), 0);
+}
+
+void QGuardedPtrData::remove(QObject **ptr)
+{
+    if (!*ptr)
+	return;
+    (*ptr)->d->removeReceiver(reinterpret_cast<QObject*>(ptr));
+}
+
+void QGuardedPtrData::replace(QObject **ptr, QObject *o)
+{
+    remove(ptr);
+    *ptr = o;
+    add(ptr);
+}
 
 /*!
     \class Qt qnamespace.h
@@ -382,8 +410,18 @@ QObject::~QObject()
 	return;
     }
     wasDeleted = 1;
-    blockSig = 0; // unblock signals to keep QGuardedPtr happy
+
+    blockSig = 0; // unblock signals so we always emit destroyed()
     emit destroyed( this );
+
+    // reset all guarded pointers
+    int i = 0;
+    QObjectPrivate::Connections::Connection *c;
+    while ((c = d->findConnection(GUARDED_SIGNAL, i))) {
+	*c->guarded = 0;
+	c->guarded = 0;
+    }
+
     if ( objname )
 	delete [] (char*)objname;
     objname = 0;
@@ -2063,7 +2101,7 @@ bool QMetaObject::disconnect(const QObject *sender, int signal_index,
     bool success = false;
     for (int i = 0; i < s->d->connections->count; ++i) {
 	QObjectPrivate::Connections::Connection &c = s->d->connections->connections[i];
-	if (c.receiver && (signal_index < 0 || signal_index == c.signal)
+	if (c.receiver && c.signal != GUARDED_SIGNAL && (signal_index < 0 || signal_index == c.signal)
 	    && (r == 0 || (c.receiver == r
 			   && (member_index < 0
 			       || (member_index<<1)+membcode-1

@@ -192,7 +192,6 @@ kernel {
 		  $$KERNEL_CPP/qfocusdata.cpp \
 		  $$KERNEL_CPP/qfont.cpp \
 		  $$KERNEL_CPP/qfontdatabase.cpp \
-		  $$KERNEL_CPP/qguardedptr.cpp \
 		  $$KERNEL_CPP/qiconset.cpp \
 		  $$KERNEL_CPP/qimage.cpp \
 		  $$KERNEL_CPP/qimageformatplugin.cpp \

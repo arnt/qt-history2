@@ -56,6 +56,7 @@ struct QObjectPrivate;
 class QObjectUserData;
 #endif
 class QObjectList;
+class QGuardedPtrData;
 
 class Q_EXPORT QObject: public Qt
 {
@@ -196,6 +197,7 @@ private:
     friend class QBaseApplication;
     friend class QWidget;
     friend class QSignal;
+    friend class QGuardedPtrData;
 
 private: // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
