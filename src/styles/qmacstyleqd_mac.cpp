@@ -1867,10 +1867,10 @@ QRect QMacStyleQD::subRect(SubRect r, const QWidget *w) const
     case SR_PushButtonContents: {
 	Rect macRect, myRect;
 	SetRect(&myRect, 0, 0, w->width(), w->height());
-	myRect.bottom--; //unclear why we need to remove 1
 	ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
 	GetThemeButtonContentBounds(&myRect, kThemePushButton, &info, &macRect);
-	ret.setCoords(macRect.left, macRect.top, macRect.right, macRect.bottom);
+	ret = QRect(macRect.left, macRect.top, qMin(w->width()-(macRect.left*2), macRect.right-macRect.left), 
+		    qMin(w->height()-(2*macRect.top), macRect.bottom-macRect.top));
 	break; }
     case SR_ProgressBarLabel:
     case SR_ProgressBarGroove:
