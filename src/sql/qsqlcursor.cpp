@@ -985,7 +985,7 @@ int QSqlCursor::insert( bool invalidate )
 	    return 0;
 	}
 	QString str;
-	str.append( "insert into " ).append( name() ).append( "(" ).append( fList ).append( ") values (" ).append( vList ). append ( ")" );
+	str.append( "insert into " ).append( name() ).append( " (" ).append( fList ).append( ") values (" ).append( vList ). append ( ")" );
 	return applyPrepared( str, invalidate );
     } else {
 	for( int j = 0; j < k; ++j ) {
@@ -1006,7 +1006,7 @@ int QSqlCursor::insert( bool invalidate )
 	    return 0;
 	}
 	QString str;
-	str.append( "insert into " ).append( name() ).append( "(" ).append( fList ).append( ") values (" ).append( vList ). append ( ")" );
+	str.append( "insert into " ).append( name() ).append( " (" ).append( fList ).append( ") values (" ).append( vList ). append ( ")" );
 	return apply( str, invalidate );
     }
 }
