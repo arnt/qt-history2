@@ -1022,6 +1022,10 @@ then
     esac
 
     # Auto-detect XKB support
+    #   Patch 107649-01 upgrades Solaris 7 to X Xindows 6.4 and introduces
+    #   XKB support. Most headers are missing though and there's no patch
+    #   to fix that. So let's disable XKB extension on Solaris 7...
+    [ `uname -s` = "SunOS" -a `uname -r` = "5.7" ] && XKB=no
     if [ $XKB != no ]
     then
         XKB=yes
