@@ -92,7 +92,7 @@ void QClipboard::setSelectionMode(bool)
 }
 
 
-bool QClipboard::selectionModeEnabled()
+bool QClipboard::selectionModeEnabled() const
 {
     return FALSE;
 }
