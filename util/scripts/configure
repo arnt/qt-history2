@@ -259,7 +259,7 @@ then
 	PLATFORM=qnx-g++
 	;;
      GNU:*)
-	PLATFORM=gnu-g++
+	PLATFORM=hurd-g++
 	;;
      BSD/386:*)
 	PLATFORM=bsdi-g++
