@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#58 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#59 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -15,7 +15,7 @@
 #include "qwidget.h"
 #include "qwidcoll.h"
 #include "qpainter.h"
-#include "qpixmap.h"
+#include "qpmcache.h"
 #include <stdlib.h>
 #include <signal.h>
 #define	 GC GC_QQQ
@@ -29,7 +29,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#58 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#59 $";
 #endif
 
 
@@ -220,7 +220,6 @@ void qt_init( int argc, char **argv )
 	fatal( "%s: cannot connect to X server %s", appName,
 	       XDisplayName(appDpyName) );
     }
-
     app_Xfd = XConnectionNumber( appDpy );	// set X network socket
     app_Xfd_width = app_Xfd + 1;
 
@@ -229,7 +228,7 @@ void qt_init( int argc, char **argv )
 
   // Get X parameters
 
-    appScreen = DefaultScreen(appDpy);
+    appScreen  = DefaultScreen(appDpy);
     appRootWin = RootWindow(appDpy,appScreen);
 
   // Support protocols
@@ -275,7 +274,7 @@ void qt_cleanup()
     }
     delete preRList;
 
-    QPixmap::cleanup();
+    QPixmapCache::clear();
     QCursor::cleanup();
     QFont::cleanup();
     QColor::cleanup();
