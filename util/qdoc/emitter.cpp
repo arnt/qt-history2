@@ -481,55 +481,64 @@ void DocEmitter::emitHtml() const
       Write the four special files: index, propertyindex, titleindex, and
       whatsthis.
     */
-    BinaryWriter index( QString("index") );
-    QMap<QString, StringSet>::ConstIterator x = lmap.begin();
-    while ( x != lmap.end() ) {
-	StringSet::ConstIterator s = (*x).begin();
-	while ( s != (*x).end() ) {
-	    index.puts( QString("\"%1\" %2\n")
-				.arg(protect(x.key(), QChar('"')))
-				.arg(*s)
-				.latin1() );
-	    ++s;
-	}
-	++x;
-    }
-
-    BinaryWriter propertyindex( QString("propertyindex") );
-    QMap<QString, QString>::ConstIterator p = pmap.begin();
-    while ( p != pmap.end() ) {
-	propertyindex.puts( QString("\"%1\" %2\n")
-				    .arg(p.key()).arg(*p)
-				    .latin1() );
-	++p;
-    }
-
-    BinaryWriter titleindex( QString("titleindex") );
-    QMap<QString, StringSet>::ConstIterator t = HtmlWriter::titleMap().begin();
-    while ( t != HtmlWriter::titleMap().end() ) {
-	StringSet::ConstIterator s = (*t).begin();
-	while ( s != (*t).end() ) {
-	    titleindex.puts( QString("%1 | %2\n")
-				     .arg(protect(t.key(), QChar('|')))
-				     .arg(*s)
-				     .latin1() );
-	    ++s;
-	}
-	++t;
-    }
-
-    BinaryWriter whatsthis( QString("whatsthis") );
-    QMap<QString, StringSet>::ConstIterator w = wmap.begin();
-    while ( w != wmap.end() ) {
-	StringSet::ConstIterator s = (*w).begin();
-	while ( s != (*w).end() ) {
-	    whatsthis.puts( QString("%1. | %2\n")
-				    .arg(protect(w.key(), QChar('|')))
+    if ( lmap.count() > 1 ) {
+	BinaryWriter index( QString("index") );
+	QMap<QString, StringSet>::ConstIterator x = lmap.begin();
+	while ( x != lmap.end() ) {
+	    StringSet::ConstIterator s = (*x).begin();
+	    while ( s != (*x).end() ) {
+		index.puts( QString("\"%1\" %2\n")
+				    .arg(protect(x.key(), QChar('"')))
 				    .arg(*s)
 				    .latin1() );
-	    ++s;
+		++s;
+	    }
+	    ++x;
 	}
-	++w;
+    }
+
+    if ( pmap.count() > 1 ) {
+	BinaryWriter propertyindex( QString("propertyindex") );
+	QMap<QString, QString>::ConstIterator p = pmap.begin();
+	while ( p != pmap.end() ) {
+	    propertyindex.puts( QString("\"%1\" %2\n")
+					.arg(p.key()).arg(*p)
+					.latin1() );
+	    ++p;
+	}
+    }
+
+    if ( HtmlWriter::titleMap().count() > 1 ) {
+	BinaryWriter titleindex( QString("titleindex") );
+	QMap<QString, StringSet>::ConstIterator t =
+		HtmlWriter::titleMap().begin();
+	while ( t != HtmlWriter::titleMap().end() ) {
+	    StringSet::ConstIterator s = (*t).begin();
+	    while ( s != (*t).end() ) {
+		titleindex.puts( QString("%1 | %2\n")
+					 .arg(protect(t.key(), QChar('|')))
+					 .arg(*s)
+					 .latin1() );
+		++s;
+	    }
+	    ++t;
+	}
+    }
+
+    if ( wmap.count() > 1 ) {
+	BinaryWriter whatsthis( QString("whatsthis") );
+	QMap<QString, StringSet>::ConstIterator w = wmap.begin();
+	while ( w != wmap.end() ) {
+	    StringSet::ConstIterator s = (*w).begin();
+	    while ( s != (*w).end() ) {
+		whatsthis.puts( QString("%1. | %2\n")
+					.arg(protect(w.key(), QChar('|')))
+					.arg(*s)
+					.latin1() );
+		++s;
+	    }
+	    ++w;
+	}
     }
 }
 
