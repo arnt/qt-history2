@@ -1990,15 +1990,56 @@ void QComboBox::setUpListBox()
 
 void QComboBox::setUpLineEdit()
 {
-    d->ed = new QLineEdit( this, "combo edit" );
-    connect (d->ed, SIGNAL( textChanged( const QString& ) ),
-	     this, SIGNAL( textChanged( const QString& ) ) );
-    d->ed->setFrame( FALSE );
-    d->updateLinedGeometry();
-    d->ed->installEventFilter( this );
-    setFocusProxy( d->ed );
+    setLineEdit( new QLineEdit( this, "combo edit" ) );
+}
 
-    connect( d->ed, SIGNAL(returnPressed()), SLOT(returnPressed()) );
+/*!  Sets the lineedit to use \a edit instead of the current lineedit.
+*/
+
+void QComboBox::setLineEdit( QLineEdit *edit )
+{
+    if ( !edit ) {
+#if defined(QT_CHECK_NULL)
+	Q_ASSERT( edit != 0 );
+#endif
+	return;
+    }
+
+    edit->setText( currentText() );
+    if ( d->ed ) {
+	int start = 0, end = 0;
+	d->ed->getSelection( &start, &end );
+	edit->setSelection( start, end );
+	edit->setCursorPosition( d->ed->cursorPosition() );
+	edit->setEdited( d->ed->edited() );
+	delete d->ed;
+    }
+
+    d->ed = edit;
+
+    if ( edit->parent() != this ) {
+	edit->reparent( this, QPoint(0,0), FALSE );
+	edit->setFont( font() );
+    }
+
+    connect (edit, SIGNAL( textChanged( const QString& ) ),
+	     this, SIGNAL( textChanged( const QString& ) ) );
+    connect( edit, SIGNAL(returnPressed()), SLOT(returnPressed()) );
+
+    edit->setFrame( FALSE );
+    d->updateLinedGeometry();
+    edit->installEventFilter( this );
+    setFocusProxy( edit );
+    setFocusPolicy( StrongFocus );
+	
+    if ( !d->usingListBox() )
+	setUpListBox();
+
+    if ( isVisible() )
+	edit->show();
+
+    updateGeometry();
+    update();
 }
 
 #endif // QT_NO_COMBOBOX
