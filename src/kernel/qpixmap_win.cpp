@@ -110,7 +110,8 @@ void QPixmap::initAlphaPixmap( uchar *bytes, int length, BITMAPINFO *bmi )
     HDC dc = handle();
 
     HBITMAP hBitmap = CreateDIBSection( dc, bmi, DIB_RGB_COLORS, (void**)&data->realAlphaBits, NULL, 0 );
-    memcpy( data->realAlphaBits, bytes, length );
+    if ( bytes )
+	memcpy( data->realAlphaBits, bytes, length );
 
     DeleteObject( DATA_HBM );
     DATA_HBM = (HBITMAP)SelectObject( dc, hBitmap );
@@ -1294,7 +1295,7 @@ bool QPixmap::hasAlphaChannel() const
 }
 
 Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
-		       QPixmap *src, int sx, int sy, int sw, int sh )
+		       const QPixmap *src, int sx, int sy, int sw, int sh )
 {
     if ( ! dst || ! src || sw == 0 || sh == 0 || dst->depth() != src->depth() ) {
 #ifdef QT_CHECK_NULL
@@ -1303,9 +1304,6 @@ Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
 #endif
 	return;
     }
-
-    // copy pixel data
-    bitBlt( dst, dx, dy, src, sx, sy, sw, sh, Qt::CopyROP, TRUE );
 
     // copy mask data
     if ( src->data->mask ) {
@@ -1320,5 +1318,60 @@ Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
 		src->data->mask, sx, sy, sw, sh, Qt::CopyROP, TRUE );
     }
 
-    qDebug( "TODO: copy the alpha bits from \a src to \a dst" );
+    if ( src->data->realAlphaBits ) {
+	if ( sw < 0 )
+	    sw = src->width() - sx;
+	else
+	    sw = QMIN( src->width()-sx, sw );
+	sw = QMIN( dst->width()-dx, sw );
+
+	if ( sh < 0 )
+	    sh = src->height() - sy ;
+	else
+	    sh = QMIN( src->height()-sy, sh );
+	sh = QMIN( dst->height()-dy, sh );
+
+	if ( sw <= 0 || sh <= 0 )
+	    return;
+
+	if ( !dst->data->realAlphaBits ) {
+	    int	  bmi_data_len = sizeof(BITMAPINFO);
+	    char *bmi_data = new char[bmi_data_len];
+	    memset( bmi_data, 0, bmi_data_len );
+	    BITMAPINFO	     *bmi = (BITMAPINFO*)bmi_data;
+	    BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
+	    bmh->biSize		  = sizeof(BITMAPINFOHEADER);
+	    bmh->biWidth	  = dst->width();
+	    bmh->biHeight	  = -dst->height();			// top-down bitmap
+	    bmh->biPlanes	  = 1;
+	    bmh->biBitCount	  = dst->depth();
+	    bmh->biCompression	  = BI_RGB;
+	    bmh->biSizeImage	  = dst->width() * dst->height() * 4;
+	    bmh->biClrUsed	  = 0;
+	    bmh->biClrImportant	  = 0;
+	    QRgb *coltbl = (QRgb*)(bmi_data + sizeof(BITMAPINFOHEADER));
+
+	    QPixmap pm( dst->width(), dst->height(), 32 );
+	    pm.initAlphaPixmap( 0, 0, bmi );
+
+#ifndef Q_OS_TEMP
+	    GetDIBits( qt_display_dc(), dst->DATA_HBM, 0, dst->height(), pm.data->realAlphaBits, bmi, DIB_RGB_COLORS );
+#endif
+	    *dst = pm;
+	}
+
+	uchar *sBits = src->data->realAlphaBits + ( sy * src->width() + sx ) * 4;
+	uchar *dBits = dst->data->realAlphaBits + ( dy * dst->width() + dx ) * 4;
+	int sw4 = sw * 4;
+	int src4 = src->width() * 4;
+	int dst4 = dst->width() * 4;
+	for ( int i=0; i<sh; i++ ) {
+	    memcpy( dBits, sBits, sw4 );
+	    sBits += src4;
+	    dBits += dst4;
+	}
+    } else {
+	// copy pixel data
+	bitBlt( dst, dx, dy, src, sx, sy, sw, sh, Qt::CopyROP, TRUE );
+    }
 }
