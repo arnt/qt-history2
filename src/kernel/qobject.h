@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#13 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#14 $
 **
 ** Definition of QObject class
 **
@@ -79,7 +79,8 @@ protected:
 
     uint	isSignal   : 1;			// is signal object
     uint	isWidget   : 1;			// is widget object
-    uint	hasTimer   : 1;			// receives timer events
+    uint	pendTimer  : 1;			// pending timer(s)
+    uint	pendEvent  : 1;			// pending event(s)
     uint	blockSig   : 1;			// blocking signals
 
 private:
