@@ -3512,6 +3512,7 @@ void QWidget::show()
     }
 
 
+    bool sendShowWindowRequest = FALSE;
     if ( sendLayoutHint )
 	QApplication::postEvent( parentWidget(),
 				 new QEvent( QEvent::LayoutHint) );
@@ -3532,10 +3533,9 @@ void QWidget::show()
 	    QApplication::sendEvent( this, &e );
 	}
     } else {
+	// Required for Mac, not sure whether we should always do that
 	if( isTopLevel() )
 	    QApplication::sendPostedEvents(0, QEvent::LayoutHint);
- 	else if ( sendLayoutHint && parentWidget() && !parentWidget()->in_show )
- 	    QApplication::sendPostedEvents(parentWidget(), QEvent::LayoutHint);
 
 	QShowEvent e;
 	QApplication::sendEvent( this, &e );
@@ -3546,11 +3546,25 @@ void QWidget::show()
 	    qt_enter_modal( this );
 	}
 
-	showWindow();
+	bool winQNPChildWidget = FALSE;
+#if defined(_WS_WIN_)
+	if (parentWidget())
+	    winQNPChildWidget = parentWidget()->inherits("QNPWidget");
+#endif
+	// do not show the window directly, but post a showWindow
+	// request to reduce flicker with laid out widgets
+	if ( !isTopLevel() && sendLayoutHint
+	    && !winQNPChildWidget)   // ### Not sure why showWindow is needed for QNPWidget children, but is nessary
+	    sendShowWindowRequest = TRUE;
+	else
+	    showWindow();
+
 	if ( testWFlags(WType_Popup) )
 	    qApp->openPopup( this );
     }
 
+    if ( sendShowWindowRequest )
+	QApplication::postEvent( this, new QEvent( QEvent::ShowWindowRequest ) );
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     QAccessible::updateAccessibility( this, 0, QAccessible::ObjectShow );
@@ -4242,6 +4256,8 @@ bool QWidget::event( QEvent *e )
 	    break;
 
 	case QEvent::ShowWindowRequest:
+	    if ( !isHidden() )
+		showWindow();
 	    break;
 
 	case QEvent::ParentFontChange:
