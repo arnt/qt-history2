@@ -95,6 +95,8 @@ public:
 
     virtual QVariant data(const QModelIndex &index, int role = Display) const = 0;
     virtual bool setData(const QModelIndex &index, int role, const QVariant &value);
+    inline bool setData(const QModelIndex &index, const QVariant &value)
+        { return setData(index, Edit, value); }
 
     virtual QMap<int, QVariant> itemData(const QModelIndex &index) const;
     bool setItemData(const QModelIndex &index, const QMap<int, QVariant> &roles);

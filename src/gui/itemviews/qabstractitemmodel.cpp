@@ -284,6 +284,13 @@ QMap<int, QVariant> QAbstractItemModel::itemData(const QModelIndex &index) const
     return roles;
 }
 
+/*! \fn bool setData(const QModelIndex &index, const QVariant &value)
+    \overload
+    Sets the data in \a index to \a value.
+
+    \sa data
+ */
+
 /*!
   Sets the data in \a index, \a role to \a value.
   Returns true if successfull; otherwise returns false.
