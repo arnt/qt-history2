@@ -257,8 +257,6 @@ void QFontPrivate::macSetFont(QPaintDevice *v)
 
 void QFontPrivate::drawText( QString s, int len )
 {
-    macSetFont(NULL);
-
     Str255 str;
     qstring_to_pstring( s, len, str, QFontStruct::currentEncoding );
     DrawString( str  );
@@ -287,9 +285,18 @@ void QFontPrivate::load()
 	fin->deref();
     fin=qfs;
 
+    short fstyle = QFontStruct::currentFStyle, fnum = QFontStruct::currentFnum; 
+    int fsize = QFontStruct::currentFsize;
+    TextEncoding fenc = QFontStruct::currentEncoding;
+
     macSetFont(NULL);
     fin->info = (FontInfo *)malloc(sizeof(FontInfo));
     GetFontInfo(fin->info);
+
+    QFontStruct::currentEncoding = fenc;
+    TextFont( QFontStruct::currentFnum = fnum );
+    TextSize( QFontStruct::currentFsize = fsize );
+    TextFace( QFontStruct::currentFStyle = fstyle );
 
     // Our 'handle' is actually a structure with the information needed to load
     // the font into the current grafport
