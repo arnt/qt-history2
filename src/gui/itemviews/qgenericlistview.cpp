@@ -617,23 +617,19 @@ QModelIndex QGenericListView::moveCursor(QAbstractItemView::CursorAction cursorA
 {
     QModelIndex current = currentItem();
     QRect rect = itemRect(current);
-    QSize step = d->staticStepSize(current, rect);
-    int iw = rect.width();
-    int ih = rect.height();
-    int cw = d->contentsSize.width();
-    int ch = d->contentsSize.height();
-    int sp = d->spacing;
+    QSize contents = d->contentsSize;
+    int spacing = d->spacing;
     QPoint pos = rect.topLeft();
     d->intersectVector.clear();
     
     switch (cursorAction) {
     case MoveLeft:
         while (d->intersectVector.count() == 0) {
-            if (rect.left() > sp)
-                rect.moveLeft(qMax(rect.left() - iw, 0));
+            if (rect.left() > spacing)
+                rect.moveLeft(qMax(rect.left() - rect.width() - spacing, 0));
             else // move down
-                rect.setRect(cw - 1, rect.top() - ih - sp - 1, iw, ih);
-            if (rect.top() > ch || rect.bottom() < 0)
+                rect.moveTopLeft(QPoint(contents.width() - 1, rect.top() - rect.height()));
+            if (rect.top() > contents.height() || rect.bottom() < 0)
                 break;
             if (d->movement == Static)
                 d->intersectingStaticSet(rect);
@@ -643,11 +639,11 @@ QModelIndex QGenericListView::moveCursor(QAbstractItemView::CursorAction cursorA
         break;
     case MoveRight:
         while (d->intersectVector.count() == 0) {
-            if (rect.right() < cw)
-                rect.moveLeft(rect.left() + ih + sp);
+            if (rect.right() < contents.width())
+                rect.moveLeft(rect.left() + rect.width() + spacing);
             else // move down
-                rect.setRect(0, rect.top() + step.height() + sp, iw, ih);
-            if (rect.top() > ch || rect.bottom() < sp)
+                rect.moveTopLeft(QPoint(0, rect.top() + rect.height() + spacing));
+            if (rect.top() > contents.height() || rect.bottom() < spacing)
                 break;
             if (d->movement == Static)
                 d->intersectingStaticSet(rect);
@@ -659,16 +655,18 @@ QModelIndex QGenericListView::moveCursor(QAbstractItemView::CursorAction cursorA
         }
         break;
     case MovePageUp:
-        rect.moveTop(rect.top() - viewport()->height() + (ih << 1));
-        if (rect.top() < 0)
-            rect.moveTop(ch + (ih << 1));
+        rect.moveTop(rect.top() - d->viewport->height());
+        if (rect.top() < spacing)
+            rect.moveTop(contents.height() - rect.height());
     case MoveUp:
+        if (d->movement == Static && cursorAction != MovePageUp)
+            return model()->index(current.row() - 1, 0, root());
         while (d->intersectVector.count() == 0) {
-            if (rect.top() > sp)
-                rect.moveTop(rect.top() - ih - sp - 1);
+            if (rect.top() > spacing)
+                rect.moveTop(rect.top() - rect.height() - spacing);
             else // move right
-                rect.setRect(rect.left() - iw - sp - 1, ch - ih, iw, ih);
-            if (rect.left() > cw || rect.right() < 0)
+                rect.moveTopLeft(QPoint(rect.left() - rect.width(), contents.height() - rect.height()));
+            if (rect.left() > contents.width() || rect.right() < 0)
                 break;
             if (d->movement == Static)
                 d->intersectingStaticSet(rect);
@@ -677,16 +675,18 @@ QModelIndex QGenericListView::moveCursor(QAbstractItemView::CursorAction cursorA
         }
         break;
     case MovePageDown:
-        rect.moveTop(rect.top() + d->viewport->height() - (ih << 1));
-        if (rect.top() > ch)
-            rect.moveTop(ch - (ih << 1));
+        rect.moveTop(rect.top() + d->viewport->height());
+        if (rect.top() > contents.height())
+            rect.moveTop(0);
     case MoveDown:
+        if (d->movement == Static && cursorAction != MovePageDown)
+            return model()->index(current.row() + 1, 0, root());
         while (d->intersectVector.count() == 0) {
-            if (rect.bottom() < ch - sp)
-                rect.moveTop(rect.top() + ih + sp + 1);
-            else // move left
-                rect.setRect(rect.left() + step.width() + sp, 0, iw, ih);
-            if (rect.left() > cw || rect.right() < 0)
+            if (rect.bottom() < contents.height() - spacing)
+                rect.moveTop(rect.top() + rect.height() + spacing);
+            else // move right
+                rect.moveTopLeft(QPoint(rect.left() + rect.width(), 0));
+            if (rect.left() > contents.width() || rect.right() < 0)
                 break;
             if (d->movement == Static)
                 d->intersectingStaticSet(rect);
@@ -1376,15 +1376,4 @@ QRect QGenericListViewPrivate::mapToViewport(const QRect &rect) const
         else
             result.setHeight(viewport->height());
     return result;
-}
-
-QSize QGenericListViewPrivate::staticStepSize(const QModelIndex &index, const QRect &rect) const
-{
-    QSize size = rect.size();
-    int i = qBinarySearch<int>(wrapVector, index.row(), 0, layoutWraps);
-    if (flow == QGenericListView::TopToBottom && (i < xposVector.count() - 2))
-        size.setWidth(xposVector.at(i + 1) - rect.x());
-    else if (i < yposVector.count() - 2)
-        size.setHeight(yposVector.at(i + 1) - rect.y());
-    return size;
 }
