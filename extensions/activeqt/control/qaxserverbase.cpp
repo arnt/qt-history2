@@ -755,7 +755,7 @@ LRESULT CALLBACK axs_FilterProc(int nCode, WPARAM wParam, LPARAM lParam)
 
 // filter for executable case to hook into Qt eventloop
 // for DLLs the client calls TranslateAccelerator
-bool qax_winEventFilter(MSG *pMsg, long &res)
+bool qax_winEventFilter(MSG *pMsg, long *res)
 {
     if (!ax_ServerMapper || pMsg->message < WM_KEYFIRST || pMsg->message > WM_KEYLAST)
 	return false;
