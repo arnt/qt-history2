@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#118 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#119 $
 **
 ** Implementation of QObject class
 **
@@ -14,7 +14,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#118 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#119 $");
 
 
 /*!
@@ -839,6 +839,8 @@ QConnectionList *QObject::receivers( const char *signal ) const
   \warning This function cannot be used to make a widget a child
   widget of another.  Child widgets can be created only by setting the
   parent widget in the constructor or by calling QWidget::recreate().
+
+  \sa removeChild(), QWidget::recreate()
 */
 
 void QObject::insertChild( QObject *obj )
@@ -873,6 +875,8 @@ void QObject::insertChild( QObject *obj )
   \warning
   This function will not remove a child widget from the screen.
   It will only remove it from the parent widget's list of children.
+
+  \sa insertChild(), QWidget::recreate()
 */
 
 void QObject::removeChild( QObject *obj )
