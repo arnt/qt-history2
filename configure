@@ -2156,8 +2156,8 @@ Qt/Mac only:
     -no-tablet ......... Do not compile Tablet support.
  *  -tablet ............ Compile Tablet support.
 
-    -no-accessibility  .. Do not compile Accessibility support.
- *  -accessibility ...... Compile Accessibility support.
+    -no-accessibility .. Do not compile Accessibility support.
+ *  -accessibility ..... Compile Accessibility support.
 EOF
 fi
 
