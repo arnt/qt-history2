@@ -420,7 +420,7 @@ QComboBox::~QComboBox()
   gets the new current item.
 
   This setting only applies when the user want's to insert a text
-  with pressing the return key. It does \em not affect methods like
+  with pressing the return key. It does \e not affect methods like
   insertItem() and similar.
 */
 

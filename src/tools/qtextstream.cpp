@@ -952,7 +952,7 @@ QTextStream &QTextStream::operator>>( char &c )
 
 /*!
   Reads a \c char from the stream and returns a reference to the stream.
-  Note that whitespace is \em not skipped.
+  Note that whitespace is \e not skipped.
 */
 
 QTextStream &QTextStream::operator>>( QChar &c )
