@@ -75,6 +75,9 @@ extern const char* qt_xdnd_atom_to_str( Atom );
 
 static QWidget * owner = 0;
 static bool inSelectionMode = FALSE;
+static bool timer_event_clear = FALSE;
+static int selection_id = 0;
+static int clipboard_id = 0;
 
 static void cleanup()
 {
@@ -545,6 +548,36 @@ void QClipboard::connectNotify( const char * )
 
 bool QClipboard::event( QEvent *e )
 {
+    if (e->type() == QEvent::Timer) {
+	QTimerEvent *te = (QTimerEvent *) e;
+	QClipboardData *d;
+	bool ret = FALSE;
+	int *kill_id = 0;
+
+	if (te->timerId() == selection_id) {
+	    d = selectionData();
+	    ret = TRUE;
+	    kill_id = &selection_id;
+	} else if (te->timerId() == clipboard_id) {
+	    d = clipboardData();
+	    ret = TRUE;
+	    kill_id = &clipboard_id;
+	}
+
+	if (ret && kill_id) {
+	    killTimer(*kill_id);
+	    *kill_id = 0;
+
+	    timer_event_clear = TRUE;
+	    d->clear();
+	    timer_event_clear = FALSE;
+
+	    return TRUE;
+	}
+
+	return QObject::event( e );
+    }
+
     if ( e->type() != QEvent::Clipboard )
 	return QObject::event( e );
 
@@ -917,12 +950,50 @@ QByteArray QClipboardWatcher::getDataInFormat(Atom fmtatom) const
 */
 QMimeSource* QClipboard::data() const
 {
-    QClipboardData *d = (inSelectionMode) ? selectionData() : clipboardData();
+    QClipboardData *timer_d, *zero_d;
+    int *timer_id, *zero_id;
 
-    if ( !d->source() )
-	d->setSource(new QClipboardWatcher());
+    if (inSelectionMode) {
+	timer_d = selectionData();
+	timer_id = &selection_id;
 
-    return d->source();
+	zero_d = clipboardData();
+	zero_id = &clipboard_id;
+    } else {
+	timer_d = clipboardData();
+       	timer_id = &clipboard_id;
+
+	zero_d = selectionData();
+	zero_id = &selection_id;
+    }
+
+    if ( ! timer_d->source() && ! timer_event_clear ) {
+	QClipboard *that = ((QClipboard *) this);
+
+	if (*timer_id) {
+	    timer_d->clear();
+	    that->killTimer(*timer_id);
+	}
+	*timer_id = 0;
+
+	if (*zero_id) {
+	    zero_d->clear();
+	    that->killTimer(*zero_id);
+	}
+	*zero_id = 0;
+
+	timer_d->setSource(new QClipboardWatcher());
+
+	// start a zero timer - we will clear cached data when the timer
+	// times out, which will be the next time we hit the event loop...
+	// that way, the data is cached long enough for calls within a single
+	// loop/function, but the data doesn't linger around in case the selection
+	// changes
+	int id = that->startTimer(0);
+	*timer_id = id;
+    }
+
+    return timer_d->source();
 }
 
 /*!
