@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 ############################################################################
-# $Id: //depot/qt/main/bin/syncqt#2 $
+# $Id: //depot/qt/main/bin/syncqt#3 $
 #
 # Synchronizes Qt header files - internal Troll Tech tool.
 #   - Creates symlinks on Unix.
@@ -21,6 +21,7 @@ $includedir = $basedir . "/include";
 	  "src/widgets",
 	  "src/dialogs",
 	  "src/compat",
+	  "extensions/xt/src",
 	  "extensions/opengl/src",
 	  "extensions/nsplugin/src",
 	  "extensions/imageio/src" );

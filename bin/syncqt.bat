@@ -15,7 +15,7 @@ goto endofperl
 @rem ';
 #!/usr/bin/perl
 ############################################################################
-# $Id: //depot/qt/main/bin/syncqt.bat#2 $
+# $Id: //depot/qt/main/bin/syncqt.bat#3 $
 #
 # Synchronizes Qt header files - internal Troll Tech tool.
 #   - Creates symlinks on Unix.
@@ -26,16 +26,32 @@ goto endofperl
 ############################################################################
 
 die "syncqt: QTDIR not defined" if ! $ENV{"QTDIR"};
-
-undef $/;
+$fast=0;
 
 $basedir = $ENV{"QTDIR"};
 $includedir = $basedir . "/include";
+
+while ( $#ARGV >= 0 ) {
+    if ( $ARGV[0] eq "-fast" ) {
+	$fast=1;
+    } elsif ( $ARGV[0] eq "-inc" ) {
+	shift;
+	$includedir = $ARGV[0];
+	if ( $includedir =~ /^\// ) {
+	    $includedir = `pwd` ."/". $includedir;
+	}
+    }
+    shift;
+}
+
+undef $/;
+
 @dirs = ( "src/tools",
 	  "src/kernel",
 	  "src/widgets",
 	  "src/dialogs",
 	  "src/compat",
+	  "extensions/xt/src",
 	  "extensions/opengl/src",
 	  "extensions/nsplugin/src",
 	  "extensions/imageio/src" );
@@ -61,7 +77,7 @@ if ( check_unix() ) {
     foreach $f ( @files ) {
 	$h = $f;
 	$h =~ s-.*/--g;
-	sync_files("$basedir/$f", "$includedir/$h");
+	sync_files("$basedir/$f", "$includedir/$h", $fast);
     }
 }
 
@@ -77,19 +93,33 @@ exit 0;
 
 sub sync_files()
 {
-    my ($file,$ifile) = @_;
-    open( I, "< " . $file ) || die "Could not open $file for reading";
-    $filecontents = <I>;
-    close I;
-    if ( open(I, "< " . $ifile) ) {
-	$ifilecontents = <I>;
-	close I;
-	$copy = (stat($ifile))[9] <=> (stat($file))[9];
-	$knowdiff = 0,
+    my ($file,$ifile,$fast,$copy,$knowdiff,$filecontents,$ifilecontents) = @_;
+
+    if ( $fast ) {
+	# Uni-directional synchronization
+	if ( (stat($ifile))[9] < (stat($file))[9] ) {
+	    open( I, "< " . $file ) || die "Could not open $file for reading";
+	    $filecontents = <I>;
+	    close I;
+	    $copy = -1;
+	    $knowdiff = 1;
+	}
     } else {
-	$copy = -1;
-	$knowdiff = 1;
+	# Bi-directional synchronization
+	open( I, "< " . $file ) || die "Could not open $file for reading";
+	$filecontents = <I>;
+	close I;
+	if ( open(I, "< " . $ifile) ) {
+	    $ifilecontents = <I>;
+	    close I;
+	    $copy = (stat($ifile))[9] <=> (stat($file))[9];
+	    $knowdiff = 0,
+	} else {
+	    $copy = -1;
+	    $knowdiff = 1;
+	}
     }
+
     if ( $knowdiff || ($filecontents ne $ifilecontents) ) {
 	if ( $copy > 0 ) {
 	    open(O, "> " . $file) || die "Could not open $file for writing";
