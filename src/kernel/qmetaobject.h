@@ -199,6 +199,7 @@ public:
 					const QClassInfo *const  class_info, int n_info );
 #ifndef QT_NO_PROPERTIES
     QStrList		enumeratorNames( bool super = FALSE ) const;
+    int numEnumerators( bool super = FALSE ) const;
     const QMetaEnum		*enumerator( const char* name, bool super = FALSE ) const;
 #endif
 

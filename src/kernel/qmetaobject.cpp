@@ -628,7 +628,19 @@ QStrList QMetaObject::slotNames( bool super ) const
 }
 
 /*!\internal
-  
+
+ */
+
+int QMetaObject::numEnumerators( bool super ) const
+{
+    int n = 0;
+    if ( superclass && super )
+	n += superclass->numEnumerators( super );
+    return n + d->numEnumData;
+}
+
+/*!\internal
+
  */
 QStrList QMetaObject::enumeratorNames( bool super ) const
 {
