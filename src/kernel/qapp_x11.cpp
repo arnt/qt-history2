@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#65 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#66 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -30,7 +30,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#65 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#66 $";
 #endif
 
 
@@ -731,9 +731,11 @@ int QApplication::enter_loop()			// local event loop
 			w = w->parentWidget();
 		    while ( w->focusChild )	// go down focus chain
 			w = w->focusChild;
-		    focus_widget = w;
-		    QFocusEvent in( Event_FocusIn );
-		    QApplication::sendEvent( w, &in );
+		    if ( w->acceptFocus() ) {
+		        focus_widget = w;
+		        QFocusEvent in( Event_FocusIn );
+			QApplication::sendEvent( w, &in );
+		    }
 		    }
 		    break;
 
