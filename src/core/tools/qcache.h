@@ -2,7 +2,7 @@
 #define QCACHE_H
 
 #ifndef QT_H
-#include "qmap.h"
+#include "qhash.h"
 #endif // QT_H
 
 template <class Key, class T>
@@ -15,7 +15,7 @@ class QCache
 	Key k; T *t; int c; Node *p,*n;
     };
     Node *f, *l;
-    QMap<Key, Node> map;
+    QHash<Key, Node> hash;
     int mx, total;
     inline void unlink(Node &n) {
 	if (n.p) n.p->n = n.n;
@@ -24,10 +24,10 @@ class QCache
 	if (f == &n) f = n.n;
 	total -= n.c;
 	delete n.t;
-	map.remove(Key(n.k));
+	hash.remove(Key(n.k));
     }
     inline T *&relink(const Key &key) {
-	Node &n = map[key];
+	Node &n = hash[key];
 	if (f != &n) {
 	    if (n.p) n.p->n = n.n;
 	    if (n.n) n.n->p = n.p;
@@ -49,28 +49,28 @@ class QCache
     void setMaxCost(int m);
     inline int totalCost() const { return total; }
 
-    inline int size() const { return map.size(); }
-    inline int count() const { return map.size(); }
-    inline bool isEmpty() const { return map.isEmpty(); }
+    inline int size() const { return hash.size(); }
+    inline int count() const { return hash.size(); }
+    inline bool isEmpty() const { return hash.isEmpty(); }
     void clear();
 
     void insert(const Key &key, T *data, int cost = 1);
     T *find(const Key &key) const;
 
-    inline bool contains(const Key &key) const { return map.contains(key); }
+    inline bool contains(const Key &key) const { return hash.contains(key); }
     T *operator[](const Key &key) const;
 
     bool remove(const Key &key);
     T *take(const Key &key);
 
     inline bool ensure_constructed()
-    { if (!map.ensure_constructed()) { mx = 100; return false; } return true; }
+    { if (!hash.ensure_constructed()) { mx = 100; return false; } return true; }
 };
 
 template <class Key, class T>
 inline void QCache<Key,T>::clear()
 { while (f) { delete f->t; f = f->n; }
- map.clear(); }
+ hash.clear(); }
 
 template <class Key, class T>
 inline void QCache<Key,T>::setMaxCost(int m)
@@ -78,7 +78,7 @@ inline void QCache<Key,T>::setMaxCost(int m)
 
 template <class Key, class T>
 inline T *QCache<Key,T>::find(const Key &key) const
-{ if (!map.contains(key)) return 0;
+{ if (!hash.contains(key)) return 0;
  return ((QCache<Key,T>*)this)->relink(key); }
 
 template <class Key, class T>
@@ -87,12 +87,12 @@ inline T *QCache<Key,T>::operator[](const Key &key) const
 
 template <class Key, class T>
 inline bool QCache<Key,T>::remove(const Key &key)
-{ if (map.contains(key)) { unlink(map[key]); return true; } return false; }
+{ if (hash.contains(key)) { unlink(hash[key]); return true; } return false; }
 
 template <class Key, class T>
 inline T *QCache<Key,T>::take(const Key &key)
-{ if (!map.contains(key)) return 0;
- Node &n = map[key]; T *t = n.t; n.t = 0; unlink(n); return t; }
+{ if (!hash.contains(key)) return 0;
+ Node &n = hash[key]; T *t = n.t; n.t = 0; unlink(n); return t; }
 
 template <class Key, class T>
 void QCache<Key,T>::insert(const Key &key, T *data, int cost)
@@ -106,9 +106,9 @@ void QCache<Key,T>::insert(const Key &key, T *data, int cost)
 	    unlink(*u);
     }
     Node sn(key, data, cost);
-    map.insert(key, sn);
+    hash.insert(key, sn);
     total += cost;
-    n = &map[key];
+    n = &hash[key];
     if (f) f->p = n;
     n->n = f;
     f = n;
