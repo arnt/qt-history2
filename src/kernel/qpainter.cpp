@@ -257,48 +257,45 @@ typedef QStack<QWMatrix> QWMatrixStack;
 
 /*! \enum Qt::AlignmentFlags
 
-  This enum type is used to describe alignment.  It contains horizontal, vertical, and modifying flags.  The horizontal
-  flags are: <ul>
+  This enum type is used to describe alignment.  It contains
+  horizontal, vertical, and modifying flags.  The horizontal flags
+  are:
 
-  <li> \c AlignAuto - Aligns according to the language. Left for most, right for hebrew and arabic.
-  <li> \c AlignLeft - Aligns with the left edge.
-  <li> \c AlignRight - Aligns with the right edge.
-  <li> \c AlignHCenter - Centers horizontally in the available space.
-  <li> \c AlignJustify - Justifies the text in the available space. Does not work for
-  everything and may be interpreted as AlignAuto in some cases.
+  \value AlignAuto Aligns according to the language. Left for most,
+    right for Hebrew and Arabic.
+  \value AlignLeft Aligns with the left edge.
+  \value AlignRight Aligns with the right edge.
+  \value AlignHCenter Centers horizontally in the available space.
+  \value AlignJustify Justifies the text in the available space.
+    Does not work for everything and may be interpreted as AlignAuto
+    in some cases.
 
-  </ul> The vertical flags are: <ul>
+  The vertical flags are:
 
-  <li> \c AlignTop - Aligns with the top.
-  <li> \c AlignBottom - Aligns with the bottom.
-  <li> \c AlignVCenter - Centers vertically in the available space.
+  \value AlignTop Aligns with the top.
+  \value AlignBottom Aligns with the bottom.
+  \value AlignVCenter Centers vertically in the available space.
 
-  </ul> You can use only one of the horizontal flags at a time.  There
-  is one two-dimensional flag: <ul>
+  You can use only one of the horizontal flags at a time. There is
+  one two-dimensional flag:
 
-  <li> \c AlignCenter - Centers in both dimensions.
+  \value AlignCenter Centers in both dimensions.
 
-  </ul> This counts both as a horizontal and a vertical flag; it cannot
-  be combined with any other horizontal or vertical flags.
+  This counts both as a horizontal and a vertical flag; it cannot be
+  combined with any other horizontal or vertical flags.
 
   There are also some modifier flags.  All of them apply only to
-  printing: <ul>
+  printing:
 
-  <li> \c SingleLine - Treats all whitespace as space and prints just
-  one line.
-
-  <li> \c DontClip - If it's impossible to stay within the given
-  bounds, it prints outside.
-
-  <li> \c ExpandTabs - Makes the U+0009 (ASCII tab) character move to
-  the next tab stop.
-
-  <li> \c ShowPrefix - Displays the string "\&P" as an underlined P
-  (see QButton for an example).  For an ampersand, use "\&\&".
-
-  <li> \c WordBreak - Breaks lines at appropriate points.
-
-  </ul>
+  \value SingleLine Treats all whitespace as space and prints just
+    one line.
+  \value DontClip If it's impossible to stay within the given bounds,
+    it prints outside.
+  \value ExpandTabs Makes the U+0009 (ASCII tab) character move to
+    the next tab stop.
+  \value ShowPrefix Displays the string "\&P" as an underlined P
+    (see QButton for an example).  For an ampersand, use "\&\&".
+  \value WordBreak Breaks lines at appropriate points.
 
   You can use at most one horizontal and one vertical flags at a time.  \c
   AlignCenter counts as both horizontal and vertical.  You can use as many
