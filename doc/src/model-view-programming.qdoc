@@ -133,7 +133,7 @@ This section describes some basic concepts that
 are central to the way models are accessed by other components. More
 advanced concepts are discussed later.
 
-\section2 Model indices
+\section2 Model indexes
 
 To ensure that representation of the data in the model
 is kept separate from the way it is accessed, the concept of a
@@ -142,14 +142,14 @@ model index that is provided by the model when required.
 As a result, only the model needs to know how items are stored, and the
 type of data managed by the model can be defined fairly generally.
 
-Model indices provide \e temporary references to items, and can be used
+Model indexes provide \e temporary references to items, and can be used
 to retrieve or modify their data. Since models may reorganize their
-internal structures from time to time, model indices may become invalid,
+internal structures from time to time, model indexes may become invalid,
 and should not be stored. If a long-term reference to a model item is
 required, a \e{persistent model index} must be created. This provides a
 reference to the item that the model keeps up-to-date.
-Temporary model indices are provided by the \l QModelIndex class, and
-persistent model indices are provided by the \l QPersistentModelIndex
+Temporary model indexes are provided by the \l QModelIndex class, and
+persistent model indexes are provided by the \l QPersistentModelIndex
 class.
 
 To obtain a model index for an item in a model, four properties must
@@ -204,7 +204,7 @@ QModelIndex index = model->index(row, column, parent, ...);
 \endcode
 
 The following diagram shows the row numbers, column numbers, and parent
-indices for two items in the model: a top-level item, and one of its
+indexes for two items in the model: a top-level item, and one of its
 children.
 
 \img modelindex-parent.png
@@ -216,7 +216,7 @@ Top-level items in a model do not have a parent model index
 to refer to, so we ensure that the model knows that we are referring to
 a top-level item by specifying a default (and invalid) model index.
 This is a convention used by the model/view classes.
-We can obtain the model indices for both items shown in the diagram:
+We can obtain the model indexes for both items shown in the diagram:
 
 \code
 QModelIndex topLevelIndex = model->index(2, 1, QModelIndex(), ...); // 'X'
@@ -225,58 +225,23 @@ QModelIndex childIndex = model->index(3, 4, topLevelIndex, ...);
 
 Note that we used QModelIndex() to construct an invalid model index.
 
-\section2 Item types and roles
-
-There are three types of model indices: some indices refer to items
-used as horizontal headers, some refer to items used as vertical
-headers, and the rest refer to items shown in a view. By specifying
-the type we want, we only retrieve the right type of information.
-Usually, we want to refer to the data that will be displayed in
-a view, so we specify the \l{QModelIndex::Type}{View} type when
-obtaining the index. If we specify the
-\l{QModelIndex::Type}{HorizontalHeader} or
-\l{QModelIndex::Type}{VerticalHeader} types, the model can return an
-index corresponding to a horizontal or vertical header.
-
-\img modelindex-types.png
-
-When we obtain a model index, we tell the model which type of item
-we are interested in. The above diagram shows how different types of
-model indices correspond to items in the model. The model indices
-corresponding to the highlighted item and headers in the above diagram
-can be obtained by specifying the appropriate index types:
-
-\code
-QModelIndex itemIndex = model->index(1, 2, parent);
-QModelIndex horizHeaderIndex = model->index(1, 2, parent, QModelIndex::HorizontalHeader);
-QModelIndex vertHeaderIndex = model->index(1, 2, parent, QModelIndex::VerticalHeader);
-\endcode
-
-The first line above is equivalent to
-\code
-QModelIndex itemIndex = model->index(1, 2, parent, QModelIndex::View);
-\endcode
-since \l{QModelIndex::Type}{View} is the default fourth argument.
-
-Note that, for most models, the horizontal header is the
-same for all items in a column, and the vertical header is the same
-for all items in a row. The model/view architecture is flexible
-enough to allow individual headers for each combination of row, column,
-and parent supplied. However, many views do not automatically take
-advantage of this capability.
+\section2 Item roles
 
 Items in a model can perform various \e roles for other components,
 allowing different kinds of data to be supplied for different situations.
 For example, the \l{QAbstractItemModel::Role}{DisplayRole} role is used
 to access a string that can be displayed as text in a view.
-Typically, items contain data for a number of different roles. The role
-indicates to the model which type of data is being referred to.
+Typically, items contain data for a number of different roles.
+
+\img modelview-roles.png
+
+The role indicates to the model which type of data is being referred to.
 We will examine roles in more detail when we
 \l{model-view-subclassing-model.html}{create an example model}.
 
 \section2 Summary of concepts
 
-Model indices contain information about the location of items within a
+Model indexes contain information about the location of items within a
 model; they are constructed by models at the request of other components,
 such as views and delegates.
 Each model index refers to an item at a given row and column, and
@@ -298,7 +263,7 @@ maintains information about the contents of a directory. This provides a
 ready-to-use model to experiment with, and can be easily set up using
 existing data. Using this model, we can show how to set up a model for
 use with ready-made views, and explore how to manipulate data using
-model indices.
+model indexes.
 
 \section2 Using views with a model
 
@@ -341,14 +306,14 @@ In the above example, we neglected to mention how to handle selections
 of items. This subject is covered in more detail in the
 \l{model-view-selection.html}{handling selections} section.
 
-\section2 Using model indices
+\section2 Using model indexes
 
 To demonstrate how data can be retrieved from a model, using model
-indices, we set up a QDirModel without a view and print out the
+indexes, we set up a QDirModel without a view and print out the
 names of files and directories to a terminal. We will use the
 qDebug() function for this purpose.
 Although this does not show a normal way of using a model, it demonstrates
-the conventions used by models when dealing with model indices.
+the conventions used by models when dealing with model indexes.
 
 We construct a directory model in the same way as before:
 
@@ -395,7 +360,7 @@ data from a model:
    \l{QAbstractItemModel::columnCount()}{columnCount()}.
    These functions generally require a parent model index to be
    specified.
-\i Model indices are used to access items in the model. The row, column,
+\i Model indexes are used to access items in the model. The row, column,
    parent model index, and item type are needed to specify the item.
 \i To access top-level items in a model, specify an invalid model index
    as the parent index with QModelIndex().
@@ -432,7 +397,7 @@ different from the model's own representation of the data. This
 separation of content and presentation is achieved by the use of a
 \l{QAbstractItemModel}{standard interface} for the model classes,
 an interface provided by the \l QAbstractItemView class, and
-the use of model indices that represent model items in a general way.
+the use of model indexes that represent model items in a general way.
 Views typically manage the overall layout of the model's representation.
 They may render individual items themselves, or use
 \l{model-view-delegate.html}{delegates} to handle both input and output
@@ -799,7 +764,7 @@ the selection model allows you to create specialized selection models
 to suit the requirements for your own item models and views.
 
 Information about the items selected in a view is stored in an instance
-of the \l QItemSelectionModel class. This maintains model indices for
+of the \l QItemSelectionModel class. This maintains model indexes for
 items in a single model, and is independent of any views. Since there
 can be many views onto a model, it is possible to share selections
 between views, allowing applications to show multiple views in a
@@ -807,11 +772,11 @@ consistent way.
 
 Selections are made up of \e{selection ranges}. These efficiently
 maintain information about large selections of items by recording
-only the starting and ending model indices for each range of selected
+only the starting and ending model indexes for each range of selected
 items. Non-contiguous selections of items are constructed by using
 more than one selection range to describe the selection.
 
-Selections are applied to a collection of model indices held by
+Selections are applied to a collection of model indexes held by
 a selection model. The most recent selection of items applied is
 known as the \e{current selection}. The effects of this selection can
 be modified even after its application through the use of certain
@@ -823,7 +788,7 @@ When manipulating selections, it is often helpful to think of
 items in an item model. Once a selection model is set up, collections
 of items can be selected, deselected, or their selection states can
 be toggled without the need to know which items are already selected.
-The indices of all selected items can be retrieved at any time, and
+The indexes of all selected items can be retrieved at any time, and
 other components can be informed of changes to the selection model
 via the signals and slots mechanism.
 
@@ -839,7 +804,7 @@ and shared between many views with
 so the construction of new selection models is generally not required.
 
 A selection is created by specifying a model, and a pair of model
-indices to a \l QItemSelection. This uses the indices to refer to items
+indexes to a \l QItemSelection. This uses the indexes to refer to items
 in the given model, and interprets them as the top-left and bottom-right
 items in a block of selected items.
 To apply the selection to items in a model requires the selection to be
@@ -861,7 +826,7 @@ table view onto its data:
 The table view's default selection model is retrieved for later use.
 We do not modify any items in the model, but instead select a few
 items that the view will display at the top-left of the table. To do
-this, we need to retrieve the model indices corresponding to the
+this, we need to retrieve the model indexes corresponding to the
 top-left and bottom-right items in the region to be selected:
 
 \skipto QModelIndex topLeft
@@ -870,7 +835,7 @@ top-left and bottom-right items in the region to be selected:
 To select these items in the model, and see the corresponding change
 in the table view, we need to construct a selection object then apply
 it to the selection model. We must also specify the model that the
-indices belong to because the model indices do not contain this
+indexes belong to because the model indexes do not contain this
 information:
 
 \skipto QItemSelection
@@ -894,18 +859,18 @@ how to update a selection.
 
 \section2 Reading the selection state
 
-The model indices stored in the selection model can be read using
+The model indexes stored in the selection model can be read using
 the \l{QItemSelectionModel::selectedItems()}{selectedItems()}
-function. This returns an unsorted list of model indices that we can
+function. This returns an unsorted list of model indexes that we can
 iterate over as long as we know which model they are for:
 
 \quotefile reading-selections/window.cpp
-\skipto QModelIndexList indices
+\skipto QModelIndexList indexes
 \printuntil }
 
 The above code uses Qt's convenient \l{containers.html}{foreach
 keyword} to iterate over, and modify, the items corresponding to the
-indices returned by the selection model.
+indexes returned by the selection model.
 
 The selection model emits signals to indicate changes in the
 selection. These notify other components about changes to both the
@@ -914,8 +879,8 @@ model. We can connect the
 \l{QItemSelectionModel::selectionChanged()}{selectionChanged()}
 signal to a slot, and examine the items in the model that are selected or
 deselected when the selection changes. The slot is called with two
-\l{QItemSelection}s: one contains a list of indices that correspond
-to newly selected items; the other contains indices that correspond
+\l{QItemSelection}s: one contains a list of indexes that correspond
+to newly selected items; the other contains indexes that correspond
 to newly deselected items.
 
 In the following code, we provide a slot that receives the
@@ -930,7 +895,7 @@ a string, and clears the contents of the deselected items.
 
 We can keep track of the currently focused item by connecting the
 \l{QItemSelectionModel::currentChanged()}{currentChanged()} signal
-to a slot that is called with two model indices. These correspond to
+to a slot that is called with two model indexes. These correspond to
 the previously focused item, and the currently focused item.
 
 In the following code, we provide a slot that receives the
@@ -978,7 +943,7 @@ providing a convenient way of visualizing what we have achieved:
 \img selected-items2.png
 
 By default, the selection commands only operate on the individual
-items specified by the model indices. However, the flag used to
+items specified by the model indexes. However, the flag used to
 describe the selection command can be combined with additional flags
 to change entire rows and columns. For example if you call
 \l{QItemSelectionModel::select()}{select()} with only one index, but
@@ -993,7 +958,7 @@ The following code demonstrates the use of the
 \skipto QItemSelection columnSelection
 \printuntil QItemSelectionModel::Select | QItemSelectionModel::Rows
 
-Although only four indices are supplied to the selection model, the
+Although only four indexes are supplied to the selection model, the
 use of the 
 \l{QItemSelectionModel::SelectionFlag}{Columns} and
 \l{QItemSelectionModel::SelectionFlag}{Rows} selection flags means
@@ -1011,19 +976,19 @@ To replace the current selection with a new selection, combine
 the other selection flags with the
 \l{QItemSelectionModel::SelectionFlag}{Current} flag. A command using
 this flag instructs the selection model to replace its current collection
-of model indices with those specified in a call to
+of model indexes with those specified in a call to
 \l{QItemSelectionModel::select()}{select()}.
 To clear all selections before you start adding new ones,
 combine the other selection flags with the
 \l{QItemSelectionModel::SelectionFlag}{Clear} flag. This
 has the effect of resetting the selection model's collection of model
-indices.
+indexes.
 
 \section2 Selecting all items in a model
 
 To select all items in a model, it is necessary to create a
 selection for each level of the model that covers all items in that
-level. We do this by retrieving the indices corresponding to the
+level. We do this by retrieving the indexes corresponding to the
 top-left and bottom-right items with a given parent index:
 
 \quotefile reading-selections/window.cpp
@@ -1031,7 +996,7 @@ top-left and bottom-right items with a given parent index:
 \skipto QModelIndex topLeft
 \printuntil model->columnCount
 
-A selection is constructed with these indices and the model. The
+A selection is constructed with these indexes and the model. The
 corresponding items are then selected in the selection model:
 
 \skipto QItemSelection selection
@@ -1134,7 +1099,7 @@ items.
 
     The \l{QAbstractItemModel::data()}{data()} function is responsible for
     returning the data that corresponds to the index argument. There are
-    three types of indices: \l{QModelIndex::Type}{View},
+    three types of indexes: \l{QModelIndex::Type}{View},
     \l{QModelIndex::Type}{HorizontalHeader}, and
     \l{QModelIndex::Type}{VerticalHeader}. If our model
     is displayed in a view with headers, we want the headers to show the

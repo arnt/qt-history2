@@ -281,7 +281,7 @@
     \endcode
 
     In the \c isEditable() function, we ensure that the model is always
-    editable by returning true for all indices. The \c setData() function
+    editable by returning true for all indexes. The \c setData() function
     updates the data in the string list, but only if the specified index
     refers to an item that is valid, can be shown, and is editable. The
     \c dataChanged() signal ensures that the view is kept up-to-date.

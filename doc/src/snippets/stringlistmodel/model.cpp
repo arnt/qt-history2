@@ -37,12 +37,15 @@ int StringListModel::rowCount() const
     string to be returned.
 */
 
-QVariant StringListModel::data(const QModelIndex &index, int /* role */) const
+QVariant StringListModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
         return QVariant();
 
-    return stringList.at(index.row());
+    if (role == DisplayRole)
+        return stringList.at(index.row());
+    else
+        return QVariant();
 }
 
 /*!

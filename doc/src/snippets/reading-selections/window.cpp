@@ -55,7 +55,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::fillSelection()
 {
-    QModelIndexList indices = selectionModel->selectedItems();
+    QModelIndexList indices = selectionModel->selectedIndexes();
     QModelIndex index;
 
     foreach(index, indices) {
@@ -66,7 +66,7 @@ void MainWindow::fillSelection()
 
 void MainWindow::clearSelection()
 {
-    QModelIndexList indices = selectionModel->selectedItems();
+    QModelIndexList indices = selectionModel->selectedIndexes();
     QModelIndex index;
 
     foreach(index, indices)

@@ -122,7 +122,10 @@ void LinearView::horizontalScrollbarAction(int action)
 */
 
 /*!
-    Find the indices corresponding to the horizontal extent of the selection.
+    \fn void LinearView::setSelection(const QRect &rectangle, QItemSelectionModel::SelectionFlags command)
+
+    Select the items in the model that lie within the given \a rectangle, using
+    the specified selection \a command.
 */
 
 void LinearView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
@@ -137,7 +140,7 @@ void LinearView::setSelection(const QRect &rect, QItemSelectionModel::SelectionF
 
 QModelIndex LinearView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState)
 {
-    QModelIndex current = currentItem();
+    QModelIndex current = currentIndex();
 
     switch (cursorAction) {
     case MoveLeft:{
