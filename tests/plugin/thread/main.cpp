@@ -7,7 +7,7 @@
 #include <qsignalmapper.h>
 #include <qstylefactory.h>
 
-class TestComponent : public QObject, public ActionInterface
+class TestComponent : public QObject, public ActionInterface, public QLibraryInterface
 {
     Q_OBJECT
 
@@ -23,6 +23,10 @@ public:
     QAction* create( const QString &actionname, QObject* parent = 0 );
     QString group( const QString &actionname ) const;
     void connectTo( QUnknownInterface *ai );
+
+    bool init();
+    void cleanup();
+    bool canUnload() const;
 
 private slots:
     void setStyle( const QString& );
@@ -48,9 +52,11 @@ QUnknownInterface *TestComponent::queryInterface( const QUuid &uuid )
 {
     QUnknownInterface *iface = 0;
     if ( uuid == IID_QUnknownInterface )
-	iface = (QUnknownInterface*)this;
+	iface = (QUnknownInterface*)(ActionInterface*)this;
     else if ( uuid == IID_ActionInterface )
 	iface = (ActionInterface*)this;
+    else if ( uuid == IID_QLibraryInterface )
+	iface = (QLibraryInterface*)this;
 
     if ( iface )
 	iface->addRef();
@@ -117,7 +123,7 @@ QAction* TestComponent::create( const QString& actionname, QObject* parent )
 	    connect( styleMapper, SIGNAL( mapped( const QString& ) ), this, SLOT( setStyle( const QString& ) ) );
 	}
 
-	QAction *a;
+	QAction *a = 0;
 	for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it ) {
 	    QString style = *it;
 	    a = new QAction( style, QIconSet(), "&"+style, 0, ag, 0, ag->isExclusive() );
@@ -126,7 +132,7 @@ QAction* TestComponent::create( const QString& actionname, QObject* parent )
 	}
 
 	actions.add( ag );
-	return ag;	
+	return ag;
     }
 
     return 0;
@@ -142,9 +148,26 @@ QString TestComponent::group( const QString & ) const
     return "Test";
 }
 
+bool TestComponent::init()
+{
+    return TRUE;
+}
+
+void TestComponent::cleanup()
+{
+    actions.clear();
+}
+
+bool TestComponent::canUnload() const
+{
+    return actions.isEmpty();
+}
+
 #include "main.moc"
 
 Q_EXPORT_INTERFACE()
 {
-    Q_CREATE_INSTANCE( TestComponent )
+    QUnknownInterface *iface = (QUnknownInterface*)(ActionInterface*)new TestComponent;
+    iface->addRef();
+    return iface;
 }
