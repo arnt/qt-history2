@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#56 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#57 $
 #
 # this is a massive hack, written very quickly
 #
@@ -1228,7 +1228,7 @@ sub printout {
 			}
 		    }
 		    if ($reimp ne "") {
-			$reimp =~ s/^\,\s*/ Reimplemented in /;
+			$reimp =~ s/^\,\s*/<p>Reimplemented in /;
 			$reimp =~ s/\,([^,]+)$/ and$1/;
 			print O $reimp, ".\n";
 		    }
