@@ -730,7 +730,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             bool isRadio = (ce == CE_RadioButtonLabel);
             uint alignment = QApplication::reverseLayout() ? Qt::AlignRight : Qt::AlignLeft;
-            if (styleHint(SH_UnderlineShortcut, widget, Q3StyleOption::Default, 0))
+            if (!styleHint(SH_UnderlineShortcut, widget, Q3StyleOption::Default, 0))
                 alignment |= Qt::TextHideMnemonic;
             QPixmap pix;
             if (btn->icon.isNull())
