@@ -617,7 +617,6 @@ bool QIconDrag::Private::decode( QMimeSource* e, QValueList<QIconDragDataItem> &
 	QString s = ba.data();
 	QIconDragDataItem item;
 	QRect ir, tr;
-	QByteArray d;
 	QStringList l = QStringList::split( "$@@$", s );
 
 	int i = 0;
@@ -640,7 +639,7 @@ bool QIconDrag::Private::decode( QMimeSource* e, QValueList<QIconDragDataItem> &
 	    } else if ( i == 7 ) {
 		tr.setHeight( ( *it ).toInt() );
 	    } else if ( i == 8 ) {
-		d.resize( ( *it ).length() );
+		QByteArray d( ( *it ).length() );
 		memcpy( d.data(), ( *it ).latin1(), ( *it ).length() );
 		item.item.setPixmapRect( ir );
 		item.item.setTextRect( tr );
@@ -2706,6 +2705,10 @@ void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
 	    d->updateTimer->start( 0, TRUE );
 	} else {
 	    insertInGrid( item );
+
+	    viewport()->update(item->x() - contentsX(),
+			       item->y() - contentsY(),
+			       item->width(), item->height());
 	}
     }
 
@@ -3444,7 +3447,7 @@ QIconViewItem *QIconView::findItem( const QString &text, ComparisonFlags compare
                 itmtxt = item->text().lower();
 	    else
 		itmtxt = item->text();
-	
+
             if ( compare & ExactMatch ) {
                 if ( itmtxt == comtxt )
                     return item;
