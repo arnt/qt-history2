@@ -450,7 +450,6 @@ void QStatusBar::paintEvent( QPaintEvent * )
 */
 void QStatusBar::resizeEvent( QResizeEvent * e )
 {
-#if 0
     QStatusBarPrivate::SBItem* item;
     for ( item = d->items.first(); item; item = d->items.next() )
 	item->w->setMinimumWidth( 30 );
@@ -458,7 +457,6 @@ void QStatusBar::resizeEvent( QResizeEvent * e )
     int mw = d->box->totalMinimumSize().width() - 30;
     for ( item = d->items.first(); item; item = d->items.next() )
 	item->w->setMaximumWidth( width() - mw );
-#endif
     QWidget::resizeEvent( e );
 }
 
