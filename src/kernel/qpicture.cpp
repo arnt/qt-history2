@@ -66,6 +66,8 @@
   also be stored in a picture (fonts, pixmaps, regions, transformed
   graphics, etc.).
 
+  QPicture is an \link shclass.html implicitely shared\endlink class.
+
   Example of how to record a picture:
   \code
     QPicture  pic;
@@ -112,14 +114,28 @@ QPicture::QPicture( int formatVer )
     : QPaintDevice( QInternal::Picture | QInternal::ExternalDevice )
     // set device type
 {
+    d = new QPicturePrivate;
+
     if ( formatVer != (int)mfhdr_maj ) {
-	formatMajor = formatVer;
-	formatMinor = 0;
-	formatOk = FALSE;
+	d->formatMajor = formatVer;
+	d->formatMinor = 0;
+	d->formatOk = FALSE;
     }
     else {
-	resetFormat();
+	d->resetFormat();
     }
+}
+
+/*!
+  Constructs a
+  \link shclass.html shallow copy\endlink of \a pic.
+*/
+
+QPicture::QPicture( const QPicture &pic )
+    : QPaintDevice( QInternal::Picture | QInternal::ExternalDevice )
+{
+    d = pic.d;
+    d->ref();
 }
 
 /*!
@@ -127,6 +143,8 @@ QPicture::QPicture( int formatVer )
 */
 QPicture::~QPicture()
 {
+    if ( d->deref() )
+	delete d;
 }
 
 
@@ -143,7 +161,8 @@ QPicture::~QPicture()
 
 /*!
   \fn const char* QPicture::data() const
-  Returns a pointer to the picture data.  The returned pointer is null
+  Returns a pointer to the picture data. It is only valid until the next
+  non const function is called on this picture. The returned pointer is null
   if the picture contains no data.
   \sa size(), isNull()
 */
@@ -162,10 +181,11 @@ QPicture::~QPicture()
 
 void QPicture::setData( const char* data, uint size )
 {
+    detach();
     QByteArray a( size );
     memcpy( a.data(), data, size );
-    pictb.setBuffer( a );			// set byte array in buffer
-    resetFormat();				// we'll have to check
+    d->pictb.setBuffer( a );			// set byte array in buffer
+    d->resetFormat();				// we'll have to check
 }
 
 
@@ -178,6 +198,7 @@ void QPicture::setData( const char* data, uint size )
 
 bool QPicture::load( const QString &fileName )
 {
+    detach();
     QByteArray a;
     QFile f( fileName );
     if ( !f.open(IO_ReadOnly) )
@@ -185,8 +206,8 @@ bool QPicture::load( const QString &fileName )
     a.resize( (uint)f.size() );
     f.readBlock( a.data(), (uint)f.size() );	// read file into byte array
     f.close();
-    pictb.setBuffer( a );			// set byte array in buffer
-    return checkFormat();
+    d->pictb.setBuffer( a );			// set byte array in buffer
+    return d->checkFormat();
 }
 
 /*!
@@ -201,7 +222,7 @@ bool QPicture::save( const QString &fileName )
     QFile f( fileName );
     if ( !f.open( IO_WriteOnly ) )
 	return FALSE;
-    f.writeBlock( pictb.buffer().data(), pictb.buffer().size() );
+    f.writeBlock( d->pictb.buffer().data(), d->pictb.buffer().size() );
     f.close();
     return TRUE;
 }
@@ -216,23 +237,23 @@ bool QPicture::save( const QString &fileName )
 
 bool QPicture::play( QPainter *painter )
 {
-    if ( pictb.size() == 0 )			// nothing recorded
+    if ( d->pictb.size() == 0 )			// nothing recorded
 	return TRUE;
 
-    if ( !formatOk && !checkFormat() )
+    if ( !d->formatOk && !d->checkFormat() )
 	return FALSE;
 
-    pictb.open( IO_ReadOnly );			// open buffer device
+    d->pictb.open( IO_ReadOnly );		// open buffer device
     QDataStream s;
-    s.setDevice( &pictb );			// attach data stream to buffer
+    s.setDevice( &d->pictb );			// attach data stream to buffer
     s.device()->at( 10 );			// go directly to the data
-    s.setVersion( formatMajor );
+    s.setVersion( d->formatMajor );
 
     Q_UINT8  c, clen;
     Q_UINT32 nrecords;
     s >> c >> clen;
     Q_ASSERT( c == PdcBegin );
-    if ( !( formatMajor >= 1 && formatMajor <= 3 )) {
+    if ( !( d->formatMajor >= 1 && d->formatMajor <= 3 )) {
 	Q_INT32 dummy;
 	s >> dummy >> dummy >> dummy >> dummy;
     }
@@ -241,10 +262,10 @@ bool QPicture::play( QPainter *painter )
 #if defined(QT_CHECK_RANGE)
 	qWarning( "QPicture::play: Format error" );
 #endif
-	pictb.close();
+	d->pictb.close();
 	return FALSE;
     }
-    pictb.close();
+    d->pictb.close();
     return TRUE;				// no end-command
 }
 
@@ -508,6 +529,17 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 
 bool QPicture::cmd( int c, QPainter *pt, QPDevCmdParam *p )
 {
+    detach();
+    return d->cmd( c, pt, p );
+}
+
+/*!
+  \internal
+  Implementation of the function forwarded above to the internal data struct.
+*/
+
+bool QPicture::QPicturePrivate::cmd( int c, QPainter *pt, QPDevCmdParam *p )
+{
     QDataStream s;
     s.setDevice( &pictb );
     s.setVersion( formatMajor );
@@ -736,16 +768,16 @@ int QPicture::metric( int m ) const
     switch ( m ) {
 	// ### hard coded dpi and color depth values !
 	case QPaintDeviceMetrics::PdmWidth:
-	    val = brect.width();
+	    val = d->brect.width();
 	    break;
 	case QPaintDeviceMetrics::PdmHeight:
-	    val = brect.height();
+	    val = d->brect.height();
 	    break;
 	case QPaintDeviceMetrics::PdmWidthMM:
-	    val = int(25.4/72.0*brect.width());
+	    val = int(25.4/72.0*d->brect.width());
 	    break;
 	case QPaintDeviceMetrics::PdmHeightMM:
-	    val = int(25.4/72.0*brect.height());
+	    val = int(25.4/72.0*d->brect.height());
 	    break;
 	case QPaintDeviceMetrics::PdmDpiX:
 	    val = 72;
@@ -768,6 +800,42 @@ int QPicture::metric( int m ) const
     return val;
 }
 
+/*!
+  Detaches from shared picture data and makes sure that this picture is the
+  only one referring the data.
+
+  If multiple pictures share common data, this picture makes a copy of the
+  data and detaches itself from the sharing mechanism.	Nothing is
+  done if there is just a single reference.
+*/
+
+void QPicture::detach()
+{
+    if ( d->count != 1 )
+	*this = copy();
+}
+
+/*!
+  Returns a
+  \link shclass.html deep copy\endlink of the picture.
+*/
+
+QPicture QPicture::copy() const
+{
+    QPicture p;
+    QByteArray a( size() );
+    memcpy( a.data(), data(), size() );
+    p.d->pictb.setBuffer( a );			// set byte array in buffer
+    if ( d->pictb.isOpen() ) {			// copy buffer state
+	p.d->pictb.open( d->pictb.mode() );
+	p.d->pictb.at( d->pictb.at() );
+    }
+    p.d->trecs = d->trecs;
+    p.d->formatOk = d->formatOk;
+    p.d->formatMinor = d->formatMajor;
+    p.d->brect = boundingRect();
+    return p;
+}
 
 /*****************************************************************************
   QPainter member functions
@@ -785,11 +853,17 @@ void QPainter::drawPicture( const QPicture &pic )
 }
 
 /*!
-  Makes this picture be a deep copy of \a p.
+  Assigns a
+  \link shclass.html shallow copy\endlink
+  of \e p to this picture and returns a reference to this picture.
 */
+
 QPicture& QPicture::operator= (const QPicture& p)
 {
-    setData(p.data(),p.size());
+    p.d->ref();				// avoid 'x = x'
+    if ( d->deref() )
+	delete d;
+    d = p.d;
     return *this;
 }
 
@@ -800,7 +874,7 @@ QPicture& QPicture::operator= (const QPicture& p)
   Sets formatOk to FALSE and resets the format version numbers to default
 */
 
-void QPicture::resetFormat()
+void QPicture::QPicturePrivate::resetFormat()
 {
     formatOk = FALSE;
     formatMajor = mfhdr_maj;
@@ -814,7 +888,7 @@ void QPicture::resetFormat()
   on success, to FALSE otherwise. Returns the resulting formatOk value.
 */
 
-bool QPicture::checkFormat()
+bool QPicture::QPicturePrivate::checkFormat()
 {
     resetFormat();
 
@@ -894,9 +968,10 @@ bool QPicture::checkFormat()
 
 QDataStream &operator<<( QDataStream &s, const QPicture &r )
 {
-    s << (Q_UINT32)r.pictb.buffer().size();
+    s << (Q_UINT32)r.d->pictb.buffer().size();
     // just write the whole buffer to the stream
-    return s.writeRawBytes ( r.pictb.buffer().data(), r.pictb.buffer().size() );
+    return s.writeRawBytes ( r.d->pictb.buffer().data(),
+			     r.d->pictb.buffer().size() );
 }
 
 /*!
@@ -910,16 +985,16 @@ QDataStream &operator>>( QDataStream &s, QPicture &r )
     QDataStream sr;
 
     // "init"; this code is similar to the beginning of QPicture::cmd()
-    sr.setDevice( &r.pictb );
-    sr.setVersion( r.formatMajor );
+    sr.setDevice( &r.d->pictb );
+    sr.setVersion( r.d->formatMajor );
     QByteArray empty( 0 );
     Q_UINT32 len;
     s >> len;
     QByteArray data( len );
     s.readRawBytes( data.data(), len );
 
-    r.pictb.setBuffer( data );
-    r.resetFormat();
+    r.d->pictb.setBuffer( data );
+    r.d->resetFormat();
 
     return s;
 }

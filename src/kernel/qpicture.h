@@ -49,6 +49,7 @@ class Q_EXPORT QPicture : public QPaintDevice		// picture class
 {
 public:
     QPicture( int formatVersion = 0 );
+    QPicture( const QPicture & );
    ~QPicture();
 
     bool	isNull() const;
@@ -72,43 +73,45 @@ public:
 protected:
     bool	cmd( int, QPainter *, QPDevCmdParam * );
     int		metric( int ) const;
+    void	detach();
+    QPicture	copy() const;
 
 private:
     bool	exec( QPainter *, QDataStream &, int );
-    void	resetFormat();
-    bool	checkFormat();
-    QBuffer	pictb;
-    int		trecs;
-    bool	formatOk;
-    int		formatMajor;
-    int		formatMinor;
-    QRect	brect;
 
-private:       // Disabled copy constructor
-#if defined(Q_DISABLE_COPY)
-    QPicture( const QPicture & );
-#endif
+    struct QPicturePrivate : public QShared {
+	bool	cmd( int, QPainter *, QPDevCmdParam * );
+	bool	checkFormat();
+	void	resetFormat();
+
+	QBuffer	pictb;
+	int	trecs;
+	bool	formatOk;
+	int	formatMajor;
+	int	formatMinor;
+	QRect	brect;
+    } *d;
 };
 
 
 inline bool QPicture::isNull() const
 {
-    return pictb.buffer().isNull();
+    return d->pictb.buffer().isNull();
 }
 
 inline uint QPicture::size() const
 {
-    return pictb.buffer().size();
+    return d->pictb.buffer().size();
 }
 
 inline const char* QPicture::data() const
 {
-    return pictb.buffer().data();
+    return d->pictb.buffer().data();
 }
 
 inline QRect QPicture::boundingRect() const
 {
-    return brect;
+    return d->brect;
 }
 
 /*****************************************************************************

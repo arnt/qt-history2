@@ -197,6 +197,7 @@ The Qt classes that are implicitly shared are:
 <li>\l QMap
 <li>\l QPalette
 <li>\l QPen
+<li>\l QPicture
 <li>\l QPixmap
 <li>\l QRegion
 <li>\l QString
