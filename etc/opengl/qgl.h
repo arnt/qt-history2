@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/etc/opengl/qgl.h#3 $
+** $Id: //depot/qt/main/etc/opengl/qgl.h#4 $
 **
 ** Definition of OpenGL classes for Qt
 **
 ** Created : 970112
 **
-** Copyright (C) 1997 by Troll Tech AS.
+** Copyright (C) 1997 by Troll Tech AS.  All right reserved.
 **
 *****************************************************************************/
 
@@ -13,7 +13,14 @@
 #define QGL_H
 
 #include <qwidget.h>
+#if !(defined(Q_WGL) || defined(Q_GLX))
 #if defined(_OS_WIN32_)
+#define Q_WGL
+#else
+#define Q_GLX
+#endif
+#endif
+#if defined(Q_WGL)
 #include <windows.h>
 #endif
 #include <GL/gl.h>
@@ -23,25 +30,20 @@
 class QGLFormat
 {
 public:
-    enum ColorMode { Rgba, ColorIndex };
-
     QGLFormat();
-    QGLFormat( bool doubleBuffer, ColorMode colorMode, int colorBits,
-	       int depthBits );
+    QGLFormat( bool doubleBuffer, bool rgba=TRUE,
+	       int colorBits=24, int depthBits=16 );
     QGLFormat( const QGLFormat & );
     virtual ~QGLFormat();
 
     QGLFormat &operator=( const QGLFormat & );
 
     bool    doubleBuffer() const;
-    void    setDoubleBuffer( bool enable );
-
-    ColorMode colorMode() const;
-    void    setColorMode( ColorMode );
-
+    void    setDoubleBuffer( bool );
+    bool    rgba() const;
+    void    setRgba( bool );
     int	    colorBits() const;
     void    setColorBits( int );
-
     int	    depthBits() const;
     void    setDepthBits( int );
 
@@ -52,15 +54,14 @@ public:
 
 public:
     struct Internal : /* public */ QShared {
-	bool        double_buffer;
-	ColorMode   color_mode;
-	int	    color_bits;
-	int	    depth_bits;
+	bool        doubleBuffer;
+	bool	    rgba;
+	int	    colorBits;
+	int	    depthBits;
     };
 
 private:
     void    detach();
-
     Internal *data;
 };
 
@@ -74,20 +75,35 @@ public:
     const QGLFormat &format() const;
     QPaintDevice    *device() const;
 
-    void	makeCurrent();
-    void	swapBuffers();
+    void	  makeCurrent();
+    void	  swapBuffers();
+
+    bool	  create();
+
+protected:
+    virtual bool  chooseContext();
+#if defined(Q_GLX)
+    virtual bool  chooseVisual();
+#endif
+    virtual void  cleanup();
 
 private:
-    void	init();
-    void	cleanup();
-    void	doneCurrent();
+    void	  doneCurrent();
 
-    QGLFormat	glFormat;
+    QGLFormat	  glFormat;
     QPaintDevice *paintDevice;
-#if defined(_OS_WIN32_)
-    bool	current, tmpdc;
-    HANDLE	rc, win, dc;
+#if defined(Q_WGL)
+    bool	  tmpdc;
+    HANDLE	  rc, win, dc;
 #endif
+#if defined(Q_GLX)
+    void	 *vi;
+    void	 *cx;
+#endif
+
+private:
+    bool	  current;
+    bool	  init;
 
 private:	// Disabled copy constructor and operator=
     QGLContext() {}
@@ -106,6 +122,7 @@ public:
     QGLWidget( const QGLFormat &format, QWidget *parent=0, const char *name=0 );
 
     void	makeCurrent();
+    bool	doubleBuffer() const;
     void	swapBuffers();
 
     QGLContext *context();
@@ -135,22 +152,22 @@ private:	// Disabled copy constructor and operator=
 
 inline bool QGLFormat::doubleBuffer() const
 {
-    return data->double_buffer;
+    return data->doubleBuffer;
 }
 
-inline QGLFormat::ColorMode QGLFormat::colorMode() const
+inline bool QGLFormat::rgba() const
 {
-    return data->color_mode;
+    return data->rgba;
 }
 
 inline int QGLFormat::colorBits() const
 {
-    return data->color_bits;
+    return data->colorBits;
 }
 
 inline int QGLFormat::depthBits() const
 {
-    return data->depth_bits;
+    return data->depthBits;
 }
 
 //
@@ -174,6 +191,11 @@ inline QPaintDevice *QGLContext::device() const
 inline void QGLWidget::makeCurrent()
 {
     glContext.makeCurrent();
+}
+
+inline bool QGLWidget::doubleBuffer() const
+{
+    return glContext.format().doubleBuffer();
 }
 
 inline void QGLWidget::swapBuffers()
