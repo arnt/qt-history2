@@ -391,7 +391,7 @@ MessageEditor::MessageEditor( MetaTranslator * t, QMainWindow *parent,
     topDockWnd->setFloatable(true);
     topDockWnd->setWindowTitle(tr("Source text"));
 
-    srcTextList = new Q3ListView();
+    srcTextList = new Q3ListView(topDockWnd);
     srcTextList->setShowSortIndicator( TRUE );
     srcTextList->setAllColumnsShowFocus( TRUE );
     srcTextList->setSorting( 0 );
@@ -405,7 +405,7 @@ MessageEditor::MessageEditor( MetaTranslator * t, QMainWindow *parent,
     srcTextList->setMinimumSize( QSize( 50, 50 ) );
     srcTextList->setHScrollBarMode( QScrollView::AlwaysOff );
     srcTextList->installEventFilter( this );
-    srcTextList->setParent(topDockWnd);
+    topDockWnd->setWidget(srcTextList);
 
     sv = new QScrollView( this, "scroll view" );
     sv->setHScrollBarMode( QScrollView::AlwaysOff );
@@ -430,7 +430,7 @@ MessageEditor::MessageEditor( MetaTranslator * t, QMainWindow *parent,
     bottomDockWnd->setFloatable(true);
     bottomDockWnd->setWindowTitle(tr("Phrases"));
 
-    QWidget * w = new QWidget();
+    QWidget *w = new QWidget(bottomDockWnd);
     w->setSizePolicy( QSizePolicy( QSizePolicy::Minimum,
                                    QSizePolicy::Minimum ) );
     QHBoxLayout *hl = new QHBoxLayout( w, 6 );
@@ -449,7 +449,7 @@ MessageEditor::MessageEditor( MetaTranslator * t, QMainWindow *parent,
     for ( int i = 0; i < 9; i++ )
         accel->insertItem( Qt::CTRL + (Qt::Key_1 + i), i + 1 );
 
-    w->setParent(bottomDockWnd);
+    bottomDockWnd->setWidget(w);
 
     v->addWidget( sv );
 

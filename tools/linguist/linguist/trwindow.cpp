@@ -173,7 +173,7 @@ TrWindow::TrWindow()
     setCorner(Qt::BottomRight, Qt::DockWindowAreaRight);
 
     // Set up the Scope dock window
-    QDockWindow * dwScope = new QDockWindow(this, Qt::DockWindowAreaLeft);
+    QDockWindow *dwScope = new QDockWindow(this, Qt::DockWindowAreaLeft);
 
     dwScope->setAllowedAreas(Qt::AllDockWindowAreas);
     dwScope->setClosable(true);
@@ -181,7 +181,7 @@ TrWindow::TrWindow()
     dwScope->setFloatable(true);
     dwScope->setWindowTitle(tr("Context"));
 
-    lv = new Q3ListView();
+    lv = new Q3ListView(dwScope);
     lv->setShowSortIndicator( TRUE );
     lv->setAllColumnsShowFocus( TRUE );
     lv->header()->setStretchEnabled( TRUE, 1 );
@@ -193,7 +193,7 @@ TrWindow::TrWindow()
     lv->setColumnAlignment( 2, Qt::AlignRight );
     lv->setSorting( 0 );
     lv->setHScrollBarMode( QScrollView::AlwaysOff );
-    lv->setParent(dwScope);
+    dwScope->setWidget(lv);
 
     messageIsShown = FALSE;
     me = new MessageEditor( &tor, this, "message editor" );
