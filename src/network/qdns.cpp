@@ -20,7 +20,7 @@
 #include <qmetaobject.h>
 #include <qregexp.h>
 #include <qsignal.h>
-#include <qsocketdevice.h>
+#include <qsocketlayer.h>
 #include <qstringlist.h>
 #include <qtimer.h>
 #include <qurl.h>
@@ -140,7 +140,7 @@ void QDns::getHostByName(const QString &name, QObject *receiver,
     }
 
 #if defined Q_OS_WIN32
-    QSocketDevice bust; // makes sure WSAStartup was callled
+    QSocketLayer bust; // makes sure WSAStartup was callled
 #endif
 
     // Support for IDNA by first splitting the name into labels, then
