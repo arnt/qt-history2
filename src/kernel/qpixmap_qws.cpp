@@ -41,6 +41,7 @@
 #include "qwsdisplay_qws.h"
 #include "qgfx_qws.h"
 #include <stdlib.h>
+#include <limits.h>
 
 #include "qmemorymanager_qws.h"
 
