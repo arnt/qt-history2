@@ -392,6 +392,7 @@ void HelpDialog::buildKeywordDB()
 	    QMessageBox::warning( this, tr( "Warning" ),
 		tr( "Documentation file %1 does not exist!\n"
 		    "Skipping file." ).arg( QFileInfo( file ).absFilePath() ) );
+	    removeNotFoundFile( *i );
 	    continue;
         }
 	fileAges += QFileInfo( file ).lastModified().toTime_t();
@@ -485,6 +486,7 @@ void HelpDialog::buildTitlemapDB()
 	    QMessageBox::warning( this, tr( "Warning" ),
 	    tr( "Documentation file %1 does not exist!\n"
 	        "Skipping file." ).arg( QFileInfo( file ).absFilePath() ) );
+	    removeNotFoundFile( *it );
 	    continue;
         }
 	fileAges += QFileInfo( file ).lastModified().toTime_t();
@@ -752,6 +754,7 @@ void HelpDialog::insertContents()
 	    QMessageBox::warning( this, tr( "Warning" ),
 	    tr( "Documentation file %1 does not exist!\n"
 	        "Skipping file." ).arg( fi.absFilePath() ) );
+	    removeNotFoundFile( *i );
 	    continue;
         }
 	mime->addFilePath( fi.dirPath( TRUE ) );
@@ -881,6 +884,25 @@ void HelpDialog::toggleSearch()
     }
     else
 	parentWidget()->hide();
+}
+
+void HelpDialog::removeNotFoundFile( const QString &fileName )
+{
+    QSettings settings;
+    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
+    QStringList lst = settings.readListEntry( "/Qt Assistant/3.1/AdditionalDocFiles" );
+    QStringList titleLst = settings.readListEntry( "/Qt Assistant/3.1/AdditionalDocTitles" );
+    QStringList::iterator it = titleLst.begin();
+    QStringList::iterator i = lst.begin();
+    for ( ; i != lst.end() && it != titleLst.end(); ++i, ++it ) {
+	if ( *i == fileName ) {
+	    titleLst.remove( it );
+	    lst.remove( i );
+	    break;
+	}
+    }
+    settings.writeEntry( "/Qt Assistant/3.1/AdditionalDocFiles", lst );
+    settings.writeEntry( "/Qt Assistant/3.1/AdditionalDocTitles" , titleLst );
 }
 
 void HelpDialog::setupFullTextIndex()

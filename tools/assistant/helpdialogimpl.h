@@ -126,8 +126,8 @@ private:
 			 HelpNavigationContentsItem *newEntry );
     bool isValidCategory( QString category );
     void showInitDoneMessage();
+    void removeNotFoundFile( const QString &fileName );
 
-private:
     QMap<QString, QString> titleMap;
     QMap<QString, uint> categoryMap;
     bool indexDone, bookmarksInserted, contentsDone, contentsInserted;
