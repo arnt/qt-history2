@@ -1968,6 +1968,8 @@ QString QFontDatabase::writingSystemSample(WritingSystem writingSystem)
         break;
     case Vietnamese:
         break;
+    default:
+        break;
     }
     return sample;
 }

@@ -478,7 +478,7 @@ void QAbstractScrollArea::wheelEvent(QWheelEvent *e)
 
     \sa QWidget::contextMenuEvent()
 */
-void QAbstractScrollArea::contextMenuEvent(QContextMenuEvent *e)
+void QAbstractScrollArea::contextMenuEvent(QContextMenuEvent *)
 {
 }
 

@@ -767,7 +767,7 @@ QMenuBarPrivate::macCreateMenuBar(QWidget *parent)
                   || ::qobject_cast<QMainWindow *>(parent)
 #endif
                      ) && parent == tlw) ||
-                ::qobject_cast<QToolBar *>(parent) || tlw == qApp->mainWidget() || !qApp->mainWidget())) {
+                ::qobject_cast<QToolBar *>(parent))) {
                 QMacMenuBarPrivate::menubars.insert(tlw, q);
                 mac_menubar = new QMacMenuBarPrivate;
             }
@@ -840,8 +840,6 @@ bool QMenuBar::macUpdateMenuBar()
             break;
         }
     }
-    if(!w) //last ditch effort
-        w = qApp->mainWidget();
     if(w) {
         mb = QMenuBarPrivate::QMacMenuBarPrivate::menubars.value(w);
 #ifndef QT_NO_MAINWINDOW

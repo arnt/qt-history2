@@ -1898,7 +1898,7 @@ void QTextEdit::dragEnterEvent(QDragEnterEvent *e)
 
 /*! \reimp
 */
-void QTextEdit::dragLeaveEvent(QDragLeaveEvent *e)
+void QTextEdit::dragLeaveEvent(QDragLeaveEvent *)
 {
     Q_D(QTextEdit);
 

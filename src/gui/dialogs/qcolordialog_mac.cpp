@@ -35,6 +35,7 @@ QRgb macGetRgba(QRgb initial, bool *ok, QWidget *parent)
             p.h -= (p.h + sw) - r.right() + 10;
         if(p.v + sh > r.bottom())
             p.v -= (p.v + sh) - r.bottom() + 10;
+#if 0
     } else if(QWidget *w = qApp->mainWidget()) {
         static int last_screen = -1;
         int scr = QApplication::desktop()->screenNumber(w);
@@ -43,6 +44,7 @@ QRgb macGetRgba(QRgb initial, bool *ok, QWidget *parent)
             p.h = (r.x() + (r.width() / 2)) - (sw / 2);
             p.v = (r.y() + (r.height() / 2)) - (sh / 2);
         }
+#endif
     }
     RGBColor rgb, rgbout;
     rgb.red = qRed(initial) * 256;

@@ -253,6 +253,7 @@ QStringList qt_mac_get_open_file_names(const QFileDialogArgs &args, QString *pwd
             if (options.location.v + h > r.bottom())
                 options.location.v -= (options.location.v + h) - r.bottom() + 10;
         }
+#if 0
     } else if (QWidget *p = qApp->mainWidget()) {
         static int last_screen = -1;
         int scr = QApplication::desktop()->screenNumber(p);
@@ -261,6 +262,7 @@ QStringList qt_mac_get_open_file_names(const QFileDialogArgs &args, QString *pwd
             options.location.h = (r.x() + (r.width() / 2)) - (w / 2);
             options.location.v = (r.y() + (r.height() / 2)) - (h / 2);
         }
+#endif
     }
 
     QList<qt_mac_filter_name*> filts = qt_mac_make_filters_list(args.filter);
@@ -380,6 +382,7 @@ QString qt_mac_get_save_file_name(const QFileDialogArgs &args, QString *pwd,
             if (options.location.v + h > r.bottom())
                 options.location.v -= (options.location.v + h) - r.bottom() + 10;
         }
+#if 0
     } else if (QWidget *p = qApp->mainWidget()) {
         static int last_screen = -1;
         int scr = QApplication::desktop()->screenNumber(p);
@@ -388,6 +391,7 @@ QString qt_mac_get_save_file_name(const QFileDialogArgs &args, QString *pwd,
             options.location.h = (r.x() + (r.width() / 2)) - (w / 2);
             options.location.v = (r.y() + (r.height() / 2)) - (h / 2);
         }
+#endif
     }
 
     QList<qt_mac_filter_name*> filts = qt_mac_make_filters_list(args.filter);
