@@ -233,7 +233,7 @@
                     <class>GLLandscape</class>
                     <property stdset="1">
                         <name>name</name>
-                        <cstring>view3D</cstring>
+                        <cstring>landscape</cstring>
                     </property>
                 </widget>
             </grid>
@@ -440,7 +440,7 @@
 <customwidgets>
     <customwidget>
         <class>GLLandscape</class>
-        <header location="local">GLLandscape.h</header>
+        <header location="local">gllandscape.h</header>
         <sizehint>
             <width>100</width>
             <height>100</height>
@@ -473,61 +473,61 @@
     <connection>
         <sender>fractalize_btn</sender>
         <signal>clicked()</signal>
-        <receiver>view3D</receiver>
+        <receiver>landscape</receiver>
         <slot>fractalize()</slot>
     </connection>
     <connection>
         <sender>Slider1</sender>
         <signal>valueChanged(int)</signal>
-        <receiver>view3D</receiver>
+        <receiver>landscape</receiver>
         <slot>rotateX(int)</slot>
     </connection>
     <connection>
         <sender>Slider2</sender>
         <signal>valueChanged(int)</signal>
-        <receiver>view3D</receiver>
+        <receiver>landscape</receiver>
         <slot>rotateY(int)</slot>
     </connection>
     <connection>
         <sender>Slider3</sender>
         <signal>valueChanged(int)</signal>
-        <receiver>view3D</receiver>
+        <receiver>landscape</receiver>
         <slot>rotateZ(int)</slot>
     </connection>
     <connection>
         <sender>Slider16</sender>
         <signal>valueChanged(int)</signal>
-        <receiver>view3D</receiver>
+        <receiver>landscape</receiver>
         <slot>zoom(int)</slot>
     </connection>
     <connection>
         <sender>RadioButton1</sender>
         <signal>stateChanged(int)</signal>
-        <receiver>view3D</receiver>
+        <receiver>landscape</receiver>
         <slot>setWireframe(int)</slot>
     </connection>
     <connection>
         <sender>RadioButton1_2</sender>
         <signal>stateChanged(int)</signal>
-        <receiver>view3D</receiver>
+        <receiver>landscape</receiver>
         <slot>setFilled(int)</slot>
     </connection>
     <connection>
         <sender>RadioButton1_3</sender>
         <signal>stateChanged(int)</signal>
-        <receiver>view3D</receiver>
+        <receiver>landscape</receiver>
         <slot>setShaded(int)</slot>
     </connection>
     <connection>
         <sender>Slider16_2</sender>
         <signal>valueChanged(int)</signal>
-        <receiver>view3D</receiver>
+        <receiver>landscape</receiver>
         <slot>setGridSize(int)</slot>
     </connection>
     <connection>
         <sender>animate_btn</sender>
         <signal>toggled(bool)</signal>
-        <receiver>view3D</receiver>
+        <receiver>landscape</receiver>
         <slot>toggleWaveAnimation(bool)</slot>
     </connection>
 </connections>

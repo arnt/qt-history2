@@ -566,6 +566,7 @@ void GLLandscape::setShaded( int state )
 {
     if ( state != 1 ) {
 	mode = Shaded;
+	calculateVertexNormals();
 	updateGL();
     }
 }
