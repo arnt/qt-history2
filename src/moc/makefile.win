@@ -74,7 +74,10 @@ $(TMPCPP): moc.y $(LEXOUT)
 	del $(TMPCPP)
 	ren $(YACCOUT) $(TMPCPP)
 
-####### External files used by the moc
+####### Compile the .cpp files
+
+moc_gen.o: moc_gen.cpp
+	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
 
 qbuffer.obj: ..\win\qbuffer.cpp
 	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
