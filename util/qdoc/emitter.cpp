@@ -193,10 +193,10 @@ void DocEmitter::start()
     nailDownDocs();
     emitHtml();
 
-    warnAboutOmitted();
-
     if ( config->lint() )
 	lint();
+
+    warnAboutOmitted();
 }
 
 void DocEmitter::addGroup( DefgroupDoc *doc )
@@ -207,10 +207,12 @@ void DocEmitter::addGroup( DefgroupDoc *doc )
 
 void DocEmitter::addGroupie( Doc *groupie )
 {
-    StringSet::ConstIterator group = groupie->groups().begin();
-    while ( group != groupie->groups().end() ) {
-	groupiemap[*group].insert( groupie->name(), groupie );
-	++group;
+    if ( config->isInternal() || !groupie->internal() ) {
+	StringSet::ConstIterator group = groupie->groups().begin();
+	while ( group != groupie->groups().end() ) {
+	    groupiemap[*group].insert( groupie->name(), groupie );
+	    ++group;
+	}
     }
 }
 
@@ -412,7 +414,7 @@ void DocEmitter::emitHtml() const
     QMap<QString, DefgroupDoc *>::ConstIterator def = groupdefs.begin();
     QMap<QString, QMap<QString, Doc *> >::ConstIterator groupies =
 	    groupiemap.begin();
-    QMap<QString, Doc *>::ConstIterator c; // ### rename
+    QMap<QString, Doc *>::ConstIterator c;
 
     /*
       A COBOL programmer wrote this clever loop. If it weren't for C, he would

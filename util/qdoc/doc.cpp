@@ -559,10 +559,10 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		CONSUME( "img" );
 		x = getWord( yyIn, yyPos );
 		alt = fixBackslashes( getRestOfLine(yyIn, yyPos) );
-		yyOut += QString( "<img align=center src=\"%1\"" ).arg( x );
+		yyOut += QString( "<center><img src=\"%1\"" ).arg( x );
 		if ( !alt.isEmpty() )
 		    yyOut += QString( " alt=\"%1\"" ).arg( alt );
-		yyOut += QString( "> " );
+		yyOut += QString( "></center> " );
 		break;
 	    case HASH( 'i', 5 ):
 		CONSUME( "index" );
@@ -710,10 +710,12 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    metNL = TRUE;
 
 		    // see also \fn
-		    if ( prototype.isEmpty() )
+		    if ( prototype.isEmpty() ) {
 			prototype = getPrototype( yyIn, yyPos );
-		    if ( kindIs != Doc::Fn )
-			setKind( Doc::Fn, command );
+			if ( !prototype.isEmpty() )
+			    setKind( Doc::Fn, command );
+		    }
+		    setKindHasToBe( Doc::Fn, command );
 		}
 		break;
 	    case HASH( 'p', 4 ):
@@ -2465,15 +2467,14 @@ void PropertyDoc::setFunctions( const QString& read, const QString& readRef,
     }
     if ( !reset.isEmpty() ) {
 	funcs.append( reset );
-	funcs.append( resetRef );
+	refs.append( resetRef );
 	roles.append( QString("reset") );
     }
 
     QStringList::ConstIterator f = funcs.begin();
     QStringList::ConstIterator g = refs.begin();
     QStringList::ConstIterator r = roles.begin();
-    QValueStack<QString> seps = separators( funcs.count(),
-					    QString(".\n") );
+    QValueStack<QString> seps = separators( funcs.count(), QString(".\n") );
 
     QString t;
     t = QString( "<p>" );

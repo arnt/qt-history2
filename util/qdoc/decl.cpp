@@ -125,28 +125,29 @@ static void printHtmlLongMembers( HtmlWriter& out,
 	out.putsMeta( "</h3>" );
 	(*m)->doc()->printHtml( out );
 
-	if ( (*m)->reimplements() != 0 ) {
+	if ( (*m)->reimplements() != 0 && (*m)->reimplements()->doc() != 0 &&
+	     !(*m)->reimplements()->doc()->internal() &&
+	     !(*m)->reimplements()->context()->internal() ) {
 	    QString className = (*m)->reimplements()->context()->name();
-	    out.printfMeta( "<p>Reimplemented from <a href=\"%s",
-			    config->classRefHref(className).latin1() );
-	    if ( (*m)->reimplements()->doc() != 0 )
-		out.printfMeta( "#%s",
-				(*m)->reimplements()->ref().latin1() );
-	    out.printfMeta( "\">%s</a>.\n", className.latin1() );
+	    out.printfMeta( "<p>Reimplemented from <a href=\"%s#%s\">%s</a>.\n",
+			    config->classRefHref(className).latin1(),
+			    (*m)->reimplements()->ref().latin1(),
+			    className.latin1() );
 	}
 
 	QValueList<Decl *> by = (*m)->reimplementedBy();
 	if ( !by.isEmpty() ) {
 	    /*
-	      We don't want totally uninteresting
-	      reimplementations in this list.
+	      We don't want totally uninteresting reimplementations
+	      in this list.
 	    */
 	    QValueList<Decl *>::ConstIterator r;
 	    r = by.begin();
 	    while ( r != by.end() ) {
 		Decl *d = *r;
 		++r;
-		if ( d->doc() == 0 || d->internal() )
+		if ( d->doc() == 0 || d->internal() ||
+		     d->context()->internal() )
 		    by.remove( d );
 	    }
 	}
@@ -987,9 +988,11 @@ void ClassDecl::fillInDocsForThis()
 
 		if ( !html.isEmpty() ) {
 		    html.prepend( QString("<p>") );
-		    html += QString( ".\nSee the <a href=\"#%1\">\"%2\"</a>"
+		    html += QString( ".\nSee the <a href=\"%1#%2\">\"%3\"</a>"
 				     " property for details.\n" );
-		    html = html.arg( (*q)->ref() ).arg( (*q)->name() );
+		    html = html.arg( config->classRefHref(name()) )
+			       .arg( (*q)->ref() )
+			       .arg( (*q)->name() );
 
 		    Doc *doc = new FnDoc( (*q)->location(), html, QString::null,
 					  QString::null, documentedParams,
