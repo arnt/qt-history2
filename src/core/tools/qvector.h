@@ -20,7 +20,7 @@
 
 struct Q_CORE_EXPORT QVectorData
 {
-    QAtomic ref;
+    QBasicAtomic ref;
     int alloc;
     int size;
     uint sharable : 1;
@@ -231,7 +231,7 @@ template <typename T>
 QVector<T>::QVector(int size)
 {
     p = malloc(size);
-    d->ref = 1;
+    d->ref.init(1);
     d->alloc = d->size = size;
     d->sharable = true;
     if (QTypeInfo<T>::isComplex) {
@@ -248,7 +248,7 @@ template <typename T>
 QVector<T>::QVector(int size, const T &t)
 {
     p = malloc(size);
-    d->ref = 1;
+    d->ref.init(1);
     d->alloc = d->size = size;
     d->sharable = true;
     T* i = d->array + d->size;
@@ -311,7 +311,7 @@ void QVector<T>::realloc(int size, int alloc)
             x.p = p =
                   static_cast<QVectorData *>(qRealloc(p, sizeof(Data) + (alloc - 1) * sizeof(T)));
         }
-        x.d->ref = 1;
+        x.d->ref.init(1);
         x.d->sharable = true;
     }
     if (QTypeInfo<T>::isComplex) {

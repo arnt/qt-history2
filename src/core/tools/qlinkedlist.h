@@ -20,7 +20,7 @@
 struct Q_CORE_EXPORT QLinkedListData
 {
     QLinkedListData *n, *p;
-    QAtomic ref;
+    QBasicAtomic ref;
     int size;
     uint sharable : 1;
 
@@ -198,7 +198,7 @@ void QLinkedList<T>::detach_helper()
 {
     union { QLinkedListData *d; Node *e; } x;
     x.d = new QLinkedListData;
-    x.d->ref = 1;
+    x.d->ref.init(1);
     x.d->size = d->size;
     x.d->sharable = true;
     Node *i = e->n, *j = x.e;

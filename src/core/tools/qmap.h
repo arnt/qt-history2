@@ -35,7 +35,7 @@ struct Q_CORE_EXPORT QMapData
 
     Node *backward;
     Node *forward[QMapData::LastLevel + 1];
-    QAtomic ref;
+    QBasicAtomic ref;
     int topLevel;
     int size;
     uint randomBits;
@@ -281,7 +281,7 @@ private:
 #if defined Q_CC_MSVC && _MSC_VER < 1300
     friend QDataStream &operator>> (QDataStream &in, QMap &map);
 #else
-    template <class aKey, class aT> 
+    template <class aKey, class aT>
     friend QDataStream &operator>> (QDataStream &in, QMap<aKey, aT> &map);
 #endif
 #endif

@@ -2188,7 +2188,7 @@ QRegion::QRegion(const QRect &r, RegionType t)
         ++d->ref;
     } else {
         d = new QRegionData;
-        d->ref = 1;
+        d->ref.init(1);
 #if defined(Q_WS_X11)
         d->rgn = 0;
         d->xrectangles = 0;
@@ -2221,7 +2221,7 @@ QRegion::QRegion(const QPointArray &a, Qt::FillRule fillRule)
 {
     if (a.count() > 2) {
         d =  new QRegionData;
-        d->ref = 1;
+        d->ref.init(1);
 #if defined(Q_WS_X11)
         d->rgn = 0;
         d->xrectangles = 0;
@@ -2265,7 +2265,7 @@ QRegion::QRegion(const QBitmap &bm)
         ++d->ref;
     } else {
         d = new QRegionData;
-        d->ref = 1;
+        d->ref.init(1);
 #if defined(Q_WS_X11)
         d->rgn = 0;
         d->xrectangles = 0;
@@ -2327,7 +2327,7 @@ QRegion QRegion::copy() const
 {
     QRegion r;
     QRegionData *x = new QRegionData;
-    x->ref = 1;
+    x->ref.init(1);
 #if defined(Q_WS_X11)
     x->rgn = 0;
     x->xrectangles = 0;

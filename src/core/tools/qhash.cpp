@@ -116,7 +116,7 @@ QHashData *QHashData::detach_helper(Node *(*node_duplicate)(Node *))
     d = new QHashData;
     d->fakeNext = 0;
     d->buckets = 0;
-    d->ref = 1;
+    d->ref.init(1);
     d->size = size;
     d->userNumBits = userNumBits;
     d->numBits = numBits;
@@ -1167,7 +1167,7 @@ void QHashData::free()
     \sa operator==()
 */
 
-/*! 
+/*!
     \fn QHash::iterator QHash::iterator::operator++()
 
     The prefix ++ operator (\c{++i}) advances the iterator to the
@@ -1188,7 +1188,7 @@ void QHashData::free()
     current item.
 */
 
-/*! 
+/*!
     \fn QHash::iterator QHash::iterator::operator--()
 
     The prefix -- operator (\c{--i}) makes the preceding item
@@ -1200,7 +1200,7 @@ void QHashData::free()
     \sa operator++()
 */
 
-/*! 
+/*!
     \fn QHash::iterator QHash::iterator::operator--(int)
 
     \overload
@@ -1370,7 +1370,7 @@ void QHashData::free()
     \sa operator==()
 */
 
-/*! 
+/*!
     \fn QHash::const_iterator QHash::const_iterator::operator++()
 
     The prefix ++ operator (\c{++i}) advances the iterator to the

@@ -438,7 +438,7 @@ private:
 #endif
 
     struct Data {
-        QAtomic ref;
+        QBasicAtomic ref;
         int alloc, size;
         void *c;
         ushort *data;

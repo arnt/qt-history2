@@ -18,64 +18,32 @@
 
 #ifndef Q_SPECIALIZED_QATOMIC
 
-#ifndef Q_HAVE_ATOMIC_INCDEC
+/*
+    We assume that the following 6 functions have been declared by the
+    platform specific qatomic.h:
 
-extern "C" {
+    int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval);
+    int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval);
+    int q_atomic_increment(volatile int *ptr);
+    int q_atomic_decrement(volatile int *ptr);
+    int q_atomic_set_int(volatile int *ptr, int newval);
+    void *q_atomic_set_ptr(volatile void *ptr, void *newval);
 
-    inline int q_atomic_increment(volatile int * const ptr)
-    {
-        register int expected;
-        for (;;) {
-            expected = *ptr;
-            if (q_atomic_test_and_set_int(ptr, expected, expected + 1)) break;
-        }
-        return expected != -1;
-    }
+    If you cannot implement these functions efficiently on your
+    platform without great difficulty, consider defining
+    Q_SPECIALIZED_QATOMIC.  By doing this, you need to implement:
 
-    inline int q_atomic_decrement(volatile int * const ptr)
-    {
-        register int expected;
-        for (;;) {
-            expected = *ptr;
-            if (q_atomic_test_and_set_int(ptr, expected, expected - 1)) break;
-        }
-        return expected != 1;
-    }
+    struct QBasicAtomic;
+    template <typename T> struct QBasicAtomicPointer<T>;
+    int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval);
+    void *q_atomic_set_ptr(volatile void *ptr, void *newval);
+*/
 
-} // extern "C"
+struct QBasicAtomic {
+    volatile int atomic;
 
-#endif // Q_HAVE_ATOMIC_INCDEC
-
-#ifndef Q_HAVE_ATOMIC_SET
-
-extern "C" {
-
-    inline int q_atomic_set_int(volatile int *ptr, int newval)
-    {
-        register int expected;
-        for (;;) {
-            expected = *ptr;
-            if (q_atomic_test_and_set_int(ptr, expected, newval)) break;
-        }
-        return expected;
-    }
-
-    inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
-    {
-        register void *expected;
-        for (;;) {
-            expected = *reinterpret_cast<void * volatile *>(ptr);
-            if (q_atomic_test_and_set_ptr(ptr, expected, newval)) break;
-        }
-        return expected;
-    }
-
-} // extern "C"
-
-#endif // Q_HAVE_ATOMIC_SET
-
-struct QAtomic {
-    int atomic;
+    void init(int x = 0)
+    { atomic = x; }
 
     inline bool operator++()
     { return q_atomic_increment(&atomic) != 0; }
@@ -84,99 +52,189 @@ struct QAtomic {
     { return q_atomic_decrement(&atomic) != 0; }
 
     inline bool operator==(int x) const
-    {
-        const volatile int * const ptr = &atomic;
-        return *ptr == x;
-    }
+    { return atomic == x; }
 
     inline bool operator!=(int x) const
-    {
-        const volatile int * const ptr = &atomic;
-        return *ptr != x;
-    }
+    { return atomic != x; }
 
-    inline void operator=(int x)
-    { atomic = x; }
+    inline bool operator!() const
+    { return atomic == 0; }
+
+    inline operator int() const
+    { return atomic; }
+
+    inline QBasicAtomic &operator=(int x)
+    {
+        (void) q_atomic_set_int(&atomic, x);
+        return *this;
+    }
 
     inline bool testAndSet(int expected, int newval)
     { return q_atomic_test_and_set_int(&atomic, expected, newval) != 0; }
 
     inline int exchange(int newval)
     { return q_atomic_set_int(&atomic, newval); }
-
-    inline operator int() const
-    { return atomic; }
 };
 
 template <typename T>
-struct QAtomicPointer
+struct QBasicAtomicPointer
 {
-    T *atomic;
+    volatile T *pointer;
 
-    inline bool operator==(T *x) const
+    void init(T *t = 0)
+    { pointer = t; }
+
+    inline bool operator==(T *t) const
+    { return pointer == t; }
+
+    inline bool operator!=(T *t) const
+    { return !operator==(t); }
+
+    inline bool operator!() const
+    { return operator==(0); }
+
+    inline operator T *() const
+    { return const_cast<T *>(pointer); }
+
+    inline T *operator->() const
+    { return const_cast<T *>(pointer); }
+
+    inline QBasicAtomicPointer &operator=(T *t)
     {
-        const T * const volatile * const ptr = &atomic;
-        return *ptr == x;
+        (void) q_atomic_set_ptr(&pointer, t);
+        return *this;
     }
-
-    inline bool operator!=(T *x) const
-    {
-        const T * const volatile * const ptr = &atomic;
-        return *ptr != x;
-    }
-
-    inline void operator=(T *x)
-    { atomic = x; }
-
-    inline T *operator->()
-    { return atomic; }
-    inline const T *operator->() const
-    { return atomic; }
 
     inline bool testAndSet(T *expected, T *newval)
-    { return q_atomic_test_and_set_ptr(&atomic, expected, newval); }
+    { return q_atomic_test_and_set_ptr(&pointer, expected, newval); }
 
     inline T *exchange(T * newval)
-    { return static_cast<T *>(q_atomic_set_ptr(&atomic, newval)); }
+    { return static_cast<T *>(q_atomic_set_ptr(&pointer, newval)); }
 };
 
 #define Q_ATOMIC_INIT(a) { (a) }
 
-#endif
+#endif // Q_SPECIALIZED_QATOMIC
 
 template <typename T>
 inline T qAtomicSetPtr(volatile T *ptr, T newval)
 { return static_cast<T>(q_atomic_set_ptr(ptr, newval)); }
 
+// High-level atomic integer operations
+class QAtomic : public QBasicAtomic
+{
+public:
+    inline QAtomic(int x = 0)
+    { init(x); }
+    inline QAtomic(const QAtomic &copy)
+    { init(copy); }
+
+    inline QAtomic &operator=(int x)
+    {
+        (void) QBasicAtomic::operator=(x);
+        return *this;
+    }
+
+    inline QAtomic &operator=(const QAtomic &copy)
+    {
+        (void) QBasicAtomic::operator=(copy);
+        return *this;
+    }
+};
+
+// High-level atomic pointer operations
+template <typename T>
+class QAtomicPointer : public QBasicAtomicPointer<T>
+{
+public:
+    inline QAtomicPointer(T *t = 0)
+    { init(t); }
+    inline QAtomicPointer(const QAtomicPointer<T> &copy)
+    { init(copy); }
+
+    inline QAtomicPointer<T> &operator=(T *t)
+    {
+        (void) QBasicAtomicPointer<T>::operator=(t);
+        return *this;
+    }
+
+    inline QAtomicPointer<T> &operator=(const QAtomicPointer<T> &copy)
+    {
+        (void) QBasicAtomicPointer<T>::operator=(copy);
+        return *this;
+    }
+};
+
 /*! \internal
-  This is a helper for the assignment operators of implicitely shared classes.
-  Your assignment operator should look like this:
-  { qAtomicAssign(d, other.d); return *this; }
- */
+    This is a helper for the assignment operators of implicitely
+    shared classes.  Your assignment operator should look like this:
+
+    \code
+        MyClass &MyClass:operator=(const MyClass &other)
+        { qAtomicAssign(d, other.d); return *this; }
+    \endcode
+*/
 template <typename T>
 inline void qAtomicAssign(T *&d, T *x)
 {
     ++x->ref;
-    x = static_cast<T*>(q_atomic_set_ptr(&d, x));
+    x = qAtomicSetPtr(&d, x);
     if (!--x->ref)
         delete x;
 }
 
 /*! \internal
-  This is a helper for the detach function. Your d class needs a copy constructor
-  which copies the members and sets the refcount to 1. After that, your detach
-  function should look like this:
-  { qAtomicDetach(d); }
- */
+    \overload
+*/
+template <typename T>
+inline void qAtomicAssign(QBasicAtomicPointer<T> &d, T *x)
+{
+    ++x->ref;
+    x = d.exchange(x);
+    if (!--x->ref)
+        delete x;
+}
+
+/*! \internal
+    \overload
+*/
+template <typename T>
+inline void qAtomicAssign(QBasicAtomicPointer<T> &d, const QBasicAtomicPointer<T> &x)
+{ qAtomicAssign<T>(d, x); }
+
+/*! \internal
+    This is a helper for the detach function. Your private class needs
+    a copy constructor which copies the members and sets the refcount
+    to 1. After that, your detach function should look like this:
+
+    \code
+        void MyClass::detach()
+        { qAtomicDetach(d); }
+    \endcode
+*/
 template <typename T>
 inline void qAtomicDetach(T *&d)
 {
     if (d->ref == 1)
         return;
     T *x = new T(*d);
-    x = static_cast<T*>(q_atomic_set_ptr(&d, x));
+    x = qAtomicSetPtr(&d, x);
     if (!--x->ref)
         delete x;
 }
 
-#endif
+/*! \internal
+    \overload
+*/
+template <typename T>
+inline void qAtomicDetach(QBasicAtomicPointer<T> &d)
+{
+    if (d->ref == 1)
+        return;
+    T *x = new T(*d);
+    x = d.exchange(x);
+    if (!--x->ref)
+        delete x;
+}
+
+#endif // QATOMIC_H

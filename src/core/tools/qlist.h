@@ -20,7 +20,7 @@
 
 struct Q_CORE_EXPORT QListData {
     struct Data {
-        QAtomic ref;
+        QBasicAtomic ref;
         int alloc, begin, end;
         uint sharable : 1;
         void *array[1];

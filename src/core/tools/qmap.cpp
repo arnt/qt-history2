@@ -27,7 +27,7 @@ QMapData *QMapData::createData()
     Node *e = reinterpret_cast<Node *>(d);
     d->backward = e;
     d->forward[0] = e;
-    d->ref = 1;
+    d->ref.init(1);
     d->topLevel = 0;
     d->size = 0;
     d->randomBits = 0;

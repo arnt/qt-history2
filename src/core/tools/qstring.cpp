@@ -575,7 +575,7 @@ QString::QString(const QChar *unicode, int size)
         ++d->ref;
     } else {
         d = (Data*) qMalloc(sizeof(Data)+size*sizeof(QChar));
-        d->ref = 1;
+        d->ref.init(1);
         d->alloc = d->size = size;
         d->c = 0;
         d->clean = d->encoding = d->cache = d->simpletext = d->righttoleft = 0;
@@ -599,7 +599,7 @@ QString::QString(int size, QChar ch)
         ++d->ref;
     } else {
         d = (Data*) qMalloc(sizeof(Data)+size*sizeof(QChar));
-        d->ref = 1;
+        d->ref.init(1);
         d->alloc = d->size = size;
         d->c = 0;
         d->clean = d->encoding = d->cache = d->simpletext = d->righttoleft = 0;
@@ -625,7 +625,7 @@ QString::QString(int size, QChar ch)
 QString::QString(QChar ch)
 {
     d = (Data *)qMalloc(sizeof(Data) + sizeof(QChar));
-    d->ref = 1;
+    d->ref.init(1);
     d->alloc = d->size = 1;
     d->c = 0;
     d->clean = d->encoding = d->cache = d->simpletext = d->righttoleft = 0;
@@ -808,7 +808,7 @@ void QString::realloc(int alloc)
         x->array[x->size] = 0;
         x->c = 0;
         x->cache = 0;
-        x->ref = 1;
+        x->ref.init(1);
         x->alloc = alloc;
         x->clean = d->clean;
         x->encoding = d->encoding;
@@ -2984,7 +2984,7 @@ QString QString::fromLatin1(const char *str, int size)
         if (size < 0)
             size = qstrlen(str);
         d = static_cast<Data *>(qMalloc(sizeof(Data) + size * sizeof(QChar)));
-        d->ref = 1;
+        d->ref.init(1);
         d->alloc = d->size = size;
         d->c = 0;
         d->clean = d->encoding = d->cache = d->simpletext = d->righttoleft = 0;
@@ -5995,7 +5995,7 @@ QString QString::fromRawData(const QChar *unicode, int size)
         x->data = x->array;
         size = 0;
     }
-    x->ref = 1;
+    x->ref.init(1);
     x->alloc = x->size = size;
     x->c = 0;
     *x->array = '\0';

@@ -213,11 +213,11 @@ public:
     } data;
     bool is_ba;
 
-    static QAtomic idCounter;
+    static QBasicAtomic idCounter;
     static int nextId();
 };
 
-QAtomic QFtpCommand::idCounter = Q_ATOMIC_INIT(1);
+QBasicAtomic QFtpCommand::idCounter = Q_ATOMIC_INIT(1);
 int QFtpCommand::nextId()
 {
     register int id;

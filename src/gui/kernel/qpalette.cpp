@@ -17,7 +17,7 @@
 #include "qdatastream.h"
 #include "qcleanuphandler.h"
 
-static QAtomic qt_palette_count = Q_ATOMIC_INIT(1);
+static QBasicAtomic qt_palette_count = Q_ATOMIC_INIT(1);
 class QPalettePrivate {
 public:
     QPalettePrivate():ser_no(++qt_palette_count) { ref = 1; }

@@ -1141,7 +1141,7 @@ QByteArray::QByteArray(const char *str)
         if (!d) {
             d = &shared_null;
         } else {
-            d->ref = 0;
+            d->ref.init(0);
             d->alloc = d->size = len;
             d->data = d->array;
             memcpy(d->array, str, len+1); // include null terminator
@@ -1172,7 +1172,7 @@ QByteArray::QByteArray(const char *data, int size)
         if (!d) {
             d = &shared_null;
         } else {
-            d->ref = 0;
+            d->ref.init(0);
             d->alloc = d->size = size;
             d->data = d->array;
             memcpy(d->array, data, size);
@@ -1198,7 +1198,7 @@ QByteArray::QByteArray(int size, char ch)
         if (!d) {
             d = &shared_null;
         } else {
-            d->ref = 0;
+            d->ref.init(0);
             d->alloc = d->size = size;
             d->data = d->array;
             d->array[size] = '\0';
@@ -1275,7 +1275,7 @@ void QByteArray::realloc(int alloc)
         x->size = qMin(alloc, d->size);
         ::memcpy(x->array, d->data, x->size);
         x->array[x->size] = '\0';
-        x->ref = 1;
+        x->ref.init(1);
         x->alloc = alloc;
         x->data = x->array;
         x = qAtomicSetPtr(&d, x);
@@ -3551,7 +3551,7 @@ QByteArray QByteArray::fromRawData(const char *data, int size)
         x->data = x->array;
         size = 0;
     }
-    x->ref = 1;
+    x->ref.init(1);
     x->alloc = x->size = size;
     *x->array = '\0';
     return QByteArray(x, 0, 0);
