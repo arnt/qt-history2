@@ -3034,18 +3034,10 @@ void QTextDocument::doLayout( QPainter *p, int w )
 
 QPixmap *QTextDocument::bufferPixmap( const QSize &s )
 {
-    if ( !buf_pixmap ) {
-	int w = QABS( s.width() );
-	int h = QABS( s.height() );
-	buf_pixmap = new QPixmap( w, h );
-    } else {
-	if ( buf_pixmap->width() < s.width() ||
-	     buf_pixmap->height() < s.height() ) {
-	    buf_pixmap->resize( QMAX( s.width(), buf_pixmap->width() ),
-				QMAX( s.height(), buf_pixmap->height() ) );
-	}
-    }
-
+    if ( !buf_pixmap )
+	buf_pixmap = new QPixmap( s.expandedTo( QSize(1,1) ) );
+    else if ( buf_pixmap->size() != s )
+	buf_pixmap->resize( s.expandedTo( buf_pixmap->size() ) );
     return buf_pixmap;
 }
 
@@ -6430,7 +6422,7 @@ QString QTextFormat::makeFormatChangeTags( QTextFormat* defaultFormat, QTextForm
 	tag += "<a href=\"" + anchorHref + "\">";
 
     if ( font() != defaultFormat->font()
-	 || vAlign() != defaultFormat->vAlign() 
+	 || vAlign() != defaultFormat->vAlign()
 	 || color().rgb() != defaultFormat->color().rgb() ) {
 	QString s;
 	if ( font().family() != defaultFormat->font().family() )
