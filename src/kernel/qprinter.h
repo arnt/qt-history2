@@ -61,9 +61,6 @@ class Q_EXPORT QPrinterPageSize
 {
     friend class QPrinter;
     friend class QPrinterPageSizePrivate;
-#ifdef Q_WS_WIN
-    friend static QPrinterPageSize pageSizeForId( int dmid );
-#endif
 public:
     QPrinterPageSize();
     QPrinterPageSize( const QString &name, const QSize &size );

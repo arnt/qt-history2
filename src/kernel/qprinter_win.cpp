@@ -98,7 +98,7 @@ static inline QPrinterWinPrivate* castToWin( QPrinterPrivate *ptr )
 // Used for mapping between mm and windows form resolution
 #define FORMFACTOR 100
 
-static QPrinterPageSize pageSizeForId( int dmid );
+static QPrinterPageSize pageSizeForId( int dmid, int *id );
 
 typedef struct {
     int winSizeName;
@@ -496,7 +496,9 @@ void QPrinter::readPdlg( void* pdv )
                 orient = Portrait;
             else
                 orient = Landscape;
-	    D->pageSize = pageSizeForId( dm->dmPaperSize );
+	    int id;
+	    D->pageSize = pageSizeForId( dm->dmPaperSize, &id );
+	    castToWin( D->pageSize.d )->id = id;
 	    page_size = mapDevmodePageSize( castToWin(d->pageSize.d)->id );
             paper_source = mapDevmodePaperSource( dm->dmDefaultSource );
 	    if (pd->Flags & PD_USEDEVMODECOPIESANDCOLLATE)
@@ -591,7 +593,9 @@ void QPrinter::readPdlgA( void* pdv )
 		orient = Portrait;
 	    else
 		orient = Landscape;
-	    D->pageSize = pageSizeForId( dm->dmPaperSize );
+	    int id;
+	    D->pageSize = pageSizeForId( dm->dmPaperSize, &id );
+	    castToWin( D->pageSize.d )->id = id;
 	    page_size = mapDevmodePageSize( castToWin(d->pageSize.d)->id );
             paper_source = mapDevmodePaperSource( dm->dmDefaultSource );
             if (pd->Flags & PD_USEDEVMODECOPIESANDCOLLATE)
@@ -1574,11 +1578,11 @@ bool QPrinterPageSize::isValid() const
 static QPrinterPageSize pageSizeForForm( const FORM_INFO_1 &form )
 {
     QSize sz( form.Size.cx / FORMFACTOR, form.Size.cy / FORMFACTOR );
-    return QPrinterPageSize( QString::fromUcs2( form.pName ),
+    return QPrinterPageSize( QString::fromUcs2( ( const ushort * ) form.pName ),
 			     QSize( form.Size.cx / FORMFACTOR, form.Size.cy / FORMFACTOR ) );
 }
 
-static QPrinterPageSize pageSizeForId( int dmid )
+static QPrinterPageSize pageSizeForId( int dmid, int *id )
 {
     int size = 500;
     FORM_INFO_1 *forms;
@@ -1591,7 +1595,7 @@ static QPrinterPageSize pageSizeForId( int dmid )
 	if( EnumForms( hPrinter, 1, (LPBYTE) forms,
 		    sizeof( FORM_INFO_1 ) * size, &needed, &returned ) ) {
 	    ps = pageSizeForForm( forms[dmid-1] );
-	    castToWin(ps.d)->id = dmid;
+	    *id = dmid;
 	} else qSystemWarning( "pageSizeForId(), failed to enumerate forms" );
 	if( !ClosePrinter( hPrinter ) )
 	    qSystemWarning( "pageSizeForId(), failed to close printer" );
@@ -1614,7 +1618,7 @@ QPrinterPageSize QPrinterPageSize::pageSize( const QString &name )
 		    sizeof( FORM_INFO_1 ) * size, &needed, &returned ) ) {
 	    QString cmpName = name.lower();
 	    for( uint i=0; i<returned; i++ ) {
-		QString formName = QString::fromUcs2( forms[i].pName );
+		QString formName = QString::fromUcs2( ( const ushort * ) forms[i].pName );
 		if( formName.lower() == cmpName ) {
 		    ps = pageSizeForForm( forms[i] );
 		    castToWin(ps.d)->id = i+1;
@@ -1643,7 +1647,7 @@ QStringList QPrinterPageSize::pageSizeNames()
 	if( EnumForms( hPrinter, 1, (LPBYTE) forms,
 		       sizeof( FORM_INFO_1 ) * size, &needed, &returned ) ) {
 	    for( uint i=0; i<returned; i++ )
-		lst << QString::fromUcs2( forms[i].pName );
+		lst << QString::fromUcs2( ( const ushort * ) forms[i].pName );
 	} else qSystemWarning( "Failed to enumerate forms" );
     } else qSystemWarning( "Failed to open printer" );
     free( forms );
