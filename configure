@@ -900,8 +900,8 @@ then
 	grep "QMAKE_CFLAGS_QMAKE[^_A-Z0-9]" $QMAKESPEC/qmake.conf >> $mkfile
 	[  "$DEBUG" = "yes" ] && grep "QMAKE_CFLAGS_DEBUG[^_A-Z0-9]" $QMAKESPEC/qmake.conf >> $mkfile
 	if [ "$MAC_PLATFORM" = "yes" ]; then
-	    echo "CFLAGS+=-I/System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Headers/" >>$mkfile
-	    echo "LFLAGS+=-framework Carbon" >> $mkfile
+	    echo "QMAKE_CFLAGS_EXTRA+=-I/System/Library/Frameworks/CoreServices.framework/Frameworks/CarbonCore.framework/Headers/" >>$mkfile
+	    echo "QMAKE_LFLAGS_EXTRA+=-framework Carbon" >> $mkfile
        fi
        echo >>$mkfile
 	sed -e "s,@REL_QTDIR@,$relpath,g" -e "s,@OUT_QTDIR@,$outpath,g" \
