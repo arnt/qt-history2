@@ -128,8 +128,7 @@ class Q_EXPORT QImageDrag: public QDragObject {
     QImageDragData* d;
 
 public:
-    QImageDrag( QImage image,
-		QWidget * dragSource = 0, const char * name = 0 );
+    QImageDrag( QImage image, QWidget * dragSource = 0, const char * name = 0 );
     QImageDrag( QWidget * dragSource = 0, const char * name = 0 );
     ~QImageDrag();
 
@@ -148,13 +147,13 @@ class Q_EXPORT QUriDrag: public QStoredDrag {
     Q_OBJECT
 
 public:
-    QUriDrag( QStrList uris,
-		QWidget * dragSource = 0, const char * name = 0 );
+    QUriDrag( QStrList uris, QWidget * dragSource = 0, const char * name = 0 );
     QUriDrag( QWidget * dragSource = 0, const char * name = 0 );
     ~QUriDrag();
 
-    void setFilenames( QStringList fnames );
-    void setUnicodeUris( QStringList uuris );
+    void setFilenames( const QStringList & fnames ) { setFileNames( fnames ); }
+    void setFileNames( const QStringList & fnames );
+    void setUnicodeUris( const QStringList & uuris );
     virtual void setUris( QStrList uris );
 
     static QString uriToLocalFile(const char*);
