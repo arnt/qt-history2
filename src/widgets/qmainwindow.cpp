@@ -3064,7 +3064,6 @@ bool QMainWindow::getLocation( QToolBar *tb, ToolBarDock &dock, int &index, bool
   Returns a list of all toolbars which are placed in \a dock.
 */
 
-#ifndef Q_TEMPLATE_NEEDS_CLASS_DECLARATION
 QList<QToolBar> QMainWindow::toolBars( ToolBarDock dock ) const
 {
     QList<QToolBar> lst;
@@ -3101,7 +3100,6 @@ QList<QToolBar> QMainWindow::toolBars( ToolBarDock dock ) const
 
     return lst;
 }
-#endif
 
 /*!
   Sets the toolbars to be movable if \a enable is TRUE, or static

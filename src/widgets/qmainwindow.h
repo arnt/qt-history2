@@ -40,7 +40,8 @@
 
 #ifndef QT_H
 #include "qwidget.h"
-#include "qtoolbar.h" // ### remove or keep for users' convenience?
+#include "qtoolbar.h"
+#include "qlist.h"
 #endif // QT_H
 
 #ifndef QT_NO_COMPLEXWIDGETS
@@ -48,8 +49,6 @@
 class QMenuBar;
 class QStatusBar;
 class QToolTipGroup;
-class QToolBar;
-template <class type> class QList;
 
 class QMainWindowPrivate;
 
@@ -103,9 +102,7 @@ public:
 
     bool getLocation( QToolBar *tb, ToolBarDock &dock, int &index, bool &nl, int &extraOffset ) const;
 
-#ifndef Q_TEMPLATE_NEEDS_CLASS_DECLARATION
     QList<QToolBar> toolBars( ToolBarDock dock ) const;
-#endif
     void lineUpToolBars( bool keepNewLines = FALSE );
 
     bool isDockMenuEnabled() const;
