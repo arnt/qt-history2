@@ -1194,8 +1194,9 @@ void QWidget::erase( const QRegion& reg )
   \sa bitBlt() QScrollView
 */
 
-void QWidget::scroll( int, int )
+void QWidget::scroll( int dx, int dy)
 {
+    scroll( dx, dy, QRect() );
 }
 
 /*! Scrolls \a r \a dx pixels to the right and \a dy downwards.  Both
@@ -1212,8 +1213,57 @@ void QWidget::scroll( int, int )
 
   \sa QScrollView erase() bitBlt()
 */
-void QWidget::scroll( int, int, const QRect& )
+void QWidget::scroll( int dx, int dy, const QRect& r )
 {
+    if ( testWState( WState_BlockUpdates ) )
+	return;
+    bool valid_rect = r.isValid();
+    QRect sr = valid_rect?r:rect();
+    int x1, y1, x2, y2, w=sr.width(), h=sr.height();
+    if ( dx > 0 ) {
+	x1 = sr.x();
+	x2 = x1+dx;
+	w -= dx;
+    } else {
+	x2 = sr.x();
+	x1 = x2-dx;
+	w += dx;
+    }
+    if ( dy > 0 ) {
+	y1 = sr.y();
+	y2 = y1+dy;
+	h -= dy;
+    } else {
+	y2 = sr.y();
+	y1 = y2-dy;
+	h += dy;
+    }
+
+    if ( dx == 0 && dy == 0 )
+	return;
+    if ( w > 0 && h > 0 ) 
+	bitBlt(this,x2,y2,this,x1,y1,w,h);
+
+    if ( !valid_rect && children() ) {	// scroll children
+	QPoint pd( dx, dy );
+	QObjectListIt it(*children());
+	register QObject *object;
+	while ( it ) {				// move all children
+	    object = it.current();
+	    if ( object->isWidgetType() ) {
+		QWidget *w = (QWidget *)object;
+		w->move( w->pos() + pd );
+	    }
+	    ++it;
+	}
+    }
+    QRegion copied = clippedRegion();
+    QPoint p = mapToGlobal( QPoint() );
+    copied.translate( -p.x(), -p.y() );
+    copied &= QRegion(sr);
+    copied.translate(dx,dy);
+    QRegion exposed = QRegion(sr) - copied;
+    repaint( exposed, !testWFlags(WRepaintNoErase) );
 }
 
 
@@ -1234,8 +1284,14 @@ void QWidget::scroll( int, int, const QRect& )
   \sa setFont(), foregroundColor(), QPainter::drawText()
 */
 
-void QWidget::drawText( int, int, const QString & )
+void QWidget::drawText( int x, int y, const QString &str )
 {
+    if ( testWState(WState_Visible) ) {
+	QPainter paint;
+	paint.begin( this );
+	paint.drawText( x, y, str );
+	paint.end();
+    }
 }
 
 
