@@ -38,8 +38,7 @@ int main(int argc, char *argv[])
     QModelIndex bottomRight;
 
     topLeft = model->index(0, 0, QModelIndex(), QModelIndex::View);
-    bottomRight = model->index(5, 2, QModelIndex(),
-        QModelIndex::View);
+    bottomRight = model->index(5, 2, QModelIndex(), QModelIndex::View);
 
     QItemSelection selection(topLeft, bottomRight, model);
     selectionModel->select(selection, QItemSelectionModel::Select);
