@@ -5,5 +5,5 @@ INCLUDEPATH += ../archive
 INTERFACES = generatordlg.ui
 TARGET  = package
 CONFIG += qt
-unix:LIBS += -L../archive -larq
+unix:LIBS += -L$(QTDIR)/util/install/archive -larq
 

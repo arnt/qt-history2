@@ -5,6 +5,21 @@
 #include <qapplication.h>
 #include <zlib/zlib.h>
 
+static bool createDir( const QString& fullPath )
+{
+    QStringList hierarchy = QStringList::split( QString( "\\" ), fullPath );
+    QString pathComponent, tmpPath;
+    QDir dirTmp;
+    bool success;
+
+    for( QStringList::Iterator it = hierarchy.begin(); it != hierarchy.end(); ++it ) {
+	pathComponent = *it + "\\";
+	tmpPath += pathComponent;
+	success = dirTmp.mkdir( tmpPath );
+    }
+    return success;
+}
+
 QArchive::QArchive( const QString& archivePath )
 {
     setPath( archivePath );
@@ -112,8 +127,8 @@ bool QArchive::setDirectory( const QString& dirName )
 	QString fullName = dirName;
 	QDataStream outStream( &arcFile );
 
-	if( fullName.right( 1 ) != "\\" )
-	    fullName += "\\";
+	if( fullName.right( 1 ) != "/" )
+	    fullName += "/";
 
 	outStream << fullName.latin1();
 
@@ -174,4 +189,97 @@ bool QArchive::writeDirList( const QStringList dirList, bool includeLastComponen
 void QArchive::setVerbosity( int verbosity )
 {
     verbosityMode = verbosity;
+}
+
+bool QArchive::readArchive( QString outpath ) 
+{
+    QDataStream inStream, outStream;
+    QFile outFile;
+    QDir outDir;
+    QByteArray inBuffer;
+    QByteArray outBuffer( bufferSize );
+    z_stream ztream;
+    int totalOut, totalRead;
+    bool continueDeCompressing;
+    QString entryName, dirName;
+    int entryLength;
+
+    // Set up the initial directory.
+    // If the dir does not exist, try to create it
+    dirName = QDir::convertSeparators( outpath );
+    outDir.setPath( dirName );
+    if( !outDir.exists( dirName ) && !createDir( dirName ) )
+	return FALSE;
+    outDir.cd( dirName );
+    
+    for( QDataStream inStream( &arcFile ); !inStream.atEnd();  ) {
+	inStream >> entryLength;
+	totalRead += sizeof( entryLength );
+	inBuffer.resize( entryLength );
+	inStream.readRawBytes( inBuffer.data(), entryLength );
+	totalRead += entryLength;
+	entryName = inBuffer.data();
+	if( verbosityMode & Progress ) 
+	    emit operationFeedback( QString("Read %1").arg(totalRead) );
+	if( entryName.right( 1 ) == "/" ) {
+	    if( verbosityMode & Source )
+		emit operationFeedback( "Directory " + entryName + "... " );
+	    if( entryName == "../" ) {
+		outDir.cdUp();
+	    } else {
+		dirName = QDir::convertSeparators( outDir.absPath() + 
+						   QString( "/" ) + entryName.left( entryName.length() - 1 ) );
+		if( verbosityMode & Destination )
+		    emit operationFeedback( "Directory " + dirName + "... " );
+
+		if( outDir.exists( dirName ) )
+		    outDir.cd( dirName );
+		else {
+		    if( createDir( dirName ) )
+			outDir.cd( dirName );
+		    else
+			return FALSE;
+		}
+	    }
+	} else {
+	    QDateTime timeStamp;
+	    QString fileName = QDir::convertSeparators( outDir.absPath() + QString( "/" ) + entryName );
+	    totalOut = 0;
+	    outFile.setName( fileName );
+	    if( outFile.open( IO_WriteOnly ) ) {
+		// Get timestamp from the archive
+		inStream >> timeStamp;
+		outStream.setDevice( &outFile );
+		inStream >> entryLength;
+		if( verbosityMode & Source )
+		    emit operationFeedback( "Deflating " + entryName + "... " );
+		else if( verbosityMode & Destination )
+		    emit operationFeedback( "Deflating " + fileName + "... " );
+		totalRead += sizeof( entryLength ) + 8; // Use size 8 bytes for timeStamp
+		inBuffer.resize( entryLength );
+		inStream.readRawBytes( inBuffer.data(), entryLength );
+		totalRead += entryLength;
+		ztream.next_in = (unsigned char*)inBuffer.data();
+		ztream.avail_in = entryLength;
+		ztream.total_in = 0;
+		ztream.msg = NULL;
+		ztream.zalloc = (alloc_func)0;
+		ztream.zfree = (free_func)0;
+		ztream.opaque = (voidpf)0;
+		ztream.data_type = Z_BINARY;
+		inflateInit( &ztream );
+		continueDeCompressing = true;
+		while( continueDeCompressing ) {
+		    ztream.next_out = (unsigned char*)outBuffer.data();
+		    ztream.avail_out = outBuffer.size();
+		    ztream.total_out = 0;
+		    continueDeCompressing = ( inflate( &ztream, Z_NO_FLUSH ) == Z_OK );
+		    outStream.writeRawBytes( outBuffer.data(), ztream.total_out );
+		    totalOut += ztream.total_out;
+		}
+		inflateEnd( &ztream );
+		outFile.close();
+	    }
+	}
+    }
 }
