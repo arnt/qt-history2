@@ -1017,7 +1017,7 @@ public:
 
 };
 
-class QWidgetContainerInterfacePrivate;
+struct QWidgetContainerInterfacePrivate;
 
 class AddContainerPageCommand : public Command
 {
