@@ -815,14 +815,14 @@ void QTabBar::resizeEvent(QResizeEvent *)
  */
 void QTabBar::paintEvent(QPaintEvent *)
 {
-    QStyleOptionTab tab;
-    tab.shape = d->shape;
-    int overlap = style()->pixelMetric(QStyle::PM_TabBarBaseOverlap, &tab, this);
+    QStyleOptionTab tabOverlap;
+    tabOverlap.shape = d->shape;
+    int overlap = style()->pixelMetric(QStyle::PM_TabBarBaseOverlap, &tabOverlap, this);
     QWidget *theParent = parentWidget();
     if (theParent && overlap > 0) {
         QPainter::setRedirected(theParent, this, mapToParent(QPoint(0,0)));
         QRect rect;
-        switch (tab.shape) {
+        switch (tabOverlap.shape) {
         case QTabBar::RoundedNorth:
         case QTabBar::TriangularNorth:
             rect.setRect(0, height()-overlap, width(), overlap);
@@ -845,7 +845,6 @@ void QTabBar::paintEvent(QPaintEvent *)
         QApplication::sendEvent(theParent, &e);
         QPainter::restoreRedirected(theParent);
     }
-
     QStylePainter p(this);
     int selected = -1;
     for (int i = 0; i < d->tabList.count(); ++i) {

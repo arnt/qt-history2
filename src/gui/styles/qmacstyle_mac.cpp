@@ -1658,7 +1658,7 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
         if (const QStyleOptionTabWidgetFrame *twf
                 = qt_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
             QRect paneRect = twf->rect;
-            ThemeTabDirection ttd = getTabDirection(twf->shape);
+            /*
             switch (ttd) {
             case kThemeTabSouth:
                 paneRect.setHeight(paneRect.height() + 7);
@@ -1675,13 +1675,14 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
                 paneRect.setWidth(paneRect.width() + 4);
                 break;
             }
+             */
             HIRect hirect = qt_hirectForQRect(paneRect, p);
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
             if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
                 HIThemeTabPaneDrawInfo tpdi;
                 tpdi.version = qt_mac_hitheme_tab_version();
                 tpdi.state = tds;
-                tpdi.direction = ttd;
+                tpdi.direction = getTabDirection(twf->shape);
                 tpdi.size = kHIThemeTabSizeNormal;
                 if (tpdi.version == 1) {
                     tpdi.kind = kHIThemeTabKindNormal;
@@ -4808,10 +4809,13 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
         if (QSysInfo::MacintoshVersion < QSysInfo::MV_10_3)
             GetThemeMetric(kThemeMetricTabOverlap, &ret);
         else
-            ret = 9;
+            ret = 0;
         break;
     case PM_TabBarBaseOverlap:
-        GetThemeMetric(kThemeMetricTabFrameOverlap, &ret);
+        if (QSysInfo::MacintoshVersion < QSysInfo::MV_10_3)
+            GetThemeMetric(kThemeMetricTabFrameOverlap, &ret);
+        else
+            ret = 11;
         break;
     case PM_ScrollBarExtent: {
         switch (qt_aqua_size_constrain(widget)) {
@@ -4998,7 +5002,7 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
         ret = Qt::AlignRight;
         break;
     case SH_TabBar_Alignment:
-        ret = Qt::AlignHCenter;
+        ret = Qt::AlignCenter;
         break;
     case SH_UnderlineShortcut:
         ret = false;
@@ -5376,9 +5380,36 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
 /*! \reimp */
 QRect QMacStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *w) const
 {
-    if (d->useHITheme)
-        return d->HIThemeSubRect(sr, opt, w);
-    return d->AppManSubRect(sr, opt, w);
+    QRect rect;
+    switch (sr) {
+    default:
+        if (d->useHITheme)
+            rect = d->HIThemeSubRect(sr, opt, w);
+        else
+            rect = d->AppManSubRect(sr, opt, w);
+        break;
+    case SR_TabWidgetTabContents:
+        rect = QWindowsStyle::subRect(sr, opt, w);
+        if (const QStyleOptionTabWidgetFrame *twf 
+            = qt_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
+            switch (getTabDirection(twf->shape)) {
+            case kThemeTabNorth:
+                rect.addCoords(0, 8, 0, 0);
+                break;
+            case kThemeTabSouth:
+                rect.addCoords(0, 0, 0, -8);
+                break;
+            case kThemeTabWest:
+                rect.addCoords(8, 0, 0, 0);
+                break;
+            case kThemeTabEast:
+                rect.addCoords(0, 0, -8, 0);
+                break;
+            }
+        }
+        break;
+    }
+    return rect;
 }
 
 /*! \reimp */
