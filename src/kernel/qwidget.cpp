@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#405 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#406 $
 **
 ** Implementation of QWidget class
 **
@@ -1542,7 +1542,7 @@ QWidget::BackgroundMode QWidget::backgroundMode() const
   </ul>
 
   \sa setBackgroundMode() backgroundMode()
-*/  
+*/
 
 /*!
   Tells the window system which color to clear this widget to when
@@ -3342,7 +3342,8 @@ bool QWidget::event( QEvent *e )
 	    break;
 
 	case QEvent::Paint:
-	    paintEvent( (QPaintEvent*)e );
+	    if ( isVisibleToTLW() )
+		paintEvent( (QPaintEvent*)e );
 	    break;
 
 	case QEvent::Move:
