@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#228 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#229 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -116,12 +116,12 @@
 
 
 /*! \enum QImage::Endian
-  
+
   This enum type is used to describe the endianness of the CPU and
   graphics hardware.
 
   The current values are: <ul>
-  
+
   <li> \c IgnoreEndian - does not matter.  Useful for some operations
   that are independent of endianness
 
@@ -1133,15 +1133,15 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 	}
 
 	if ( ( conversion_flags & Qt::Dither_Mask ) == Qt::DiffuseDither ) {
-	    delete line1[0];
-	    delete line2[0];
-	    delete line1[1];
-	    delete line2[1];
-	    delete line1[2];
-	    delete line2[2];
-	    delete pv[0];
-	    delete pv[1];
-	    delete pv[2];
+	    delete [] line1[0];
+	    delete [] line2[0];
+	    delete [] line1[1];
+	    delete [] line2[1];
+	    delete [] line1[2];
+	    delete [] line2[2];
+	    delete [] pv[0];
+	    delete [] pv[1];
+	    delete [] pv[2];
 	}
 
 #undef MAX_R

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpngio.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qpngio.cpp#21 $
 **
 ** Implementation of PNG QImage IOHandler
 **
@@ -263,7 +263,7 @@ void read_png_image(QImageIO* iio)
     }
 #endif
 
-    delete row_pointers;
+    delete [] row_pointers;
 
     iio->setImage(image);
 

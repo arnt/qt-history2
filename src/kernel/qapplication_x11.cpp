@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#527 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#528 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -454,7 +454,7 @@ static void qt_x11_process_intern_atoms()
 	XInternAtoms( appDpy, names, i, FALSE, res );
 	while( i ) {
 	    i--;
-	    free( names[i] );
+	    delete [] names[i];
 	    if ( res[i] && resp[i] )
 		*(resp[i]) = res[i];
 	}
@@ -3274,12 +3274,12 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 bool QETWidget::translateWheelEvent( int global_x, int global_y, int delta, int state )
 {
     QWidget* w = this;
-    
+
     while ( w->focusProxy() )
 	w = w->focusProxy();
-    if ( w->focusPolicy() == QWidget::WheelFocus ) 
+    if ( w->focusPolicy() == QWidget::WheelFocus )
 	w->setFocus();
-    
+
     // send the event to the widget that has the focus or its ancestors
     w = qApp->focusWidget();
     if (w){
@@ -3412,7 +3412,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 	ascii = chars[0];
 
 #else
-    QEvent::Type type = (event->type == XKeyPress) 
+    QEvent::Type type = (event->type == XKeyPress)
 			? QEvent::KeyPress : QEvent::KeyRelease;
     // Implementation for X11R5 and newer, using XIM
 
