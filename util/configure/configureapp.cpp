@@ -80,8 +80,8 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "SQL_PSQL" ]	    = "no";
     dictionary[ "SQL_TDS" ]	    = "no";
 
-    dictionary[ "QT_SOURCE_TREE" ]  = QDir::currentDirPath();
-    dictionary[ "QT_INSTALL_PREFIX" ] = dictionary[ "QT_SOURCE_TREE" ];
+    dictionary[ "QT_SOURCE_TREE" ]  = QDir::convertSeparators( QDir::currentDirPath() );
+    dictionary[ "QT_INSTALL_PREFIX" ] = QDir::convertSeparators( dictionary[ "QT_SOURCE_TREE" ] );
 
     QString tmp = dictionary[ "QMAKESPEC" ];
     tmp = tmp.mid( tmp.findRev( "\\" ) + 1 );
@@ -791,22 +791,22 @@ void Configure::generateOutputVars()
     qmakeVars += "QMAKE_QT_VERSION_OVERRIDE=" + dictionary[ "VERSION" ];
 
     if( !dictionary[ "QT_INSTALL_HEADERS" ] )
-	dictionary[ "QT_INSTALL_HEADERS" ] = dictionary[ "QT_INSTALL_PREFIX" ] + "/include";
+	dictionary[ "QT_INSTALL_HEADERS" ] = QDir::convertSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/include" );
 
     if( !dictionary[ "QT_INSTALL_DOCS" ] )
-	dictionary[ "QT_INSTALL_DOCS" ] = dictionary[ "QT_INSTALL_PREFIX" ] + "/doc";
+	dictionary[ "QT_INSTALL_DOCS" ] = QDir::convertSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/doc" );
 
     if( !dictionary[ "QT_INSTALL_PLUGINS" ] )
-	dictionary[ "QT_INSTALL_PLUGINS" ] = dictionary[ "QT_INSTALL_PREFIX" ] + "/plugins";
+	dictionary[ "QT_INSTALL_PLUGINS" ] = QDir::convertSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/plugins" );
 
     if( !dictionary[ "QT_INSTALL_LIBS" ] )
-	dictionary[ "QT_INSTALL_LIBS" ] = dictionary[ "QT_INSTALL_PREFIX" ] + "/lib";
+	dictionary[ "QT_INSTALL_LIBS" ] = QDir::convertSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/lib" );
 
     if( !dictionary[ "QT_INSTALL_BINS" ] )
-	dictionary[ "QT_INSTALL_BINS" ] = dictionary[ "QT_INSTALL_PREFIX" ] + "/bin";
+	dictionary[ "QT_INSTALL_BINS" ] = QDir::convertSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/bin" );
 
     if( !dictionary[ "QT_INSTALL_DATA" ] )
-	dictionary[ "QT_INSTALL_DATA" ] = dictionary[ "QT_INSTALL_PREFIX" ];
+	dictionary[ "QT_INSTALL_DATA" ] = QDir::convertSeparators( dictionary[ "QT_INSTALL_PREFIX" ] );
 
     qmakeVars += QString( "OBJECTS_DIR=" ) + QDir::convertSeparators( "tmp/obj/" + dictionary[ "QMAKE_OUTDIR" ] );
     qmakeVars += QString( "MOC_DIR=" ) + QDir::convertSeparators( "tmp/moc/" + dictionary[ "QMAKE_OUTDIR" ] );
@@ -975,13 +975,21 @@ void Configure::generateConfigfiles()
 
 	outStream << "/* Install paths from configure */" << endl;
 
-	outStream << "static const char QT_INSTALL_PREFIX [256] = \"" << dictionary["QT_INSTALL_PREFIX"] << "\";" << endl;
-	outStream << "static const char QT_INSTALL_BINS   [256] = \"" << dictionary["QT_INSTALL_BINS"] << "\";" << endl;
-	outStream << "static const char QT_INSTALL_DOCS   [256] = \"" << dictionary["QT_INSTALL_DOCS"] << "\";" << endl;
-	outStream << "static const char QT_INSTALL_HEADERS[256] = \"" << dictionary["QT_INSTALL_HEADERS"] << "\";" << endl;
-	outStream << "static const char QT_INSTALL_LIBS   [256] = \"" << dictionary["QT_INSTALL_LIBS"] << "\";" << endl;
-	outStream << "static const char QT_INSTALL_PLUGINS[256] = \"" << dictionary["QT_INSTALL_PLUGINS"] << "\";" << endl;
-	outStream << "static const char QT_INSTALL_DATA   [256] = \"" << dictionary["QT_INSTALL_DATA"] << "\";" << endl;
+	outStream << "static const char QT_INSTALL_PREFIX [256] = \""
+		  << QString(dictionary["QT_INSTALL_PREFIX"]).replace( "\\", "\\\\" ) << "\";" << endl;
+	outStream << "static const char QT_INSTALL_BINS   [256] = \""
+		  << QString(dictionary["QT_INSTALL_BINS"]).replace( "\\", "\\\\" )  << "\";" << endl;
+	outStream << "static const char QT_INSTALL_DOCS   [256] = \""
+		  << QString(dictionary["QT_INSTALL_DOCS"]).replace( "\\", "\\\\" )  << "\";" << endl;
+	outStream << "static const char QT_INSTALL_HEADERS[256] = \""
+		  << QString(dictionary["QT_INSTALL_HEADERS"]).replace( "\\", "\\\\" )  << "\";" << endl;
+	outStream << "static const char QT_INSTALL_LIBS   [256] = \""
+		  << QString(dictionary["QT_INSTALL_LIBS"]).replace( "\\", "\\\\" )  << "\";" << endl;
+	outStream << "static const char QT_INSTALL_PLUGINS[256] = \""
+		  << QString(dictionary["QT_INSTALL_PLUGINS"]).replace( "\\", "\\\\" )  << "\";" << endl;
+	outStream << "static const char QT_INSTALL_DATA   [256] = \""
+		  << QString(dictionary["QT_INSTALL_DATA"]).replace( "\\", "\\\\" )  << "\";" << endl;
+
 	outStream << endl;
 	outStream << "const char *qInstallPath()        { return QT_INSTALL_PREFIX;  }" << endl;
 	outStream << "const char *qInstallPathDocs()    { return QT_INSTALL_DOCS;    }" << endl;
