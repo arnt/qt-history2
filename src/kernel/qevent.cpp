@@ -15,7 +15,7 @@
 #include "qevent.h"
 #include "qcursor.h"
 #include "qapplication.h"
-
+#include "qwidget.h"
 
 /*!
     \class QEvent qevent.h
@@ -2039,17 +2039,13 @@ QTabletEvent::QTabletEvent( Type t, const QPoint &pos, const QPoint &globalPos, 
 
     \ingroup events
 
-    Child events are sent to objects when children are inserted or
-    removed.
+    Child events are sent immediately to objects when children are
+    added or removed.
 
-    A \c ChildRemoved event is sent immediately, but a \c
-    ChildInserted event is \e posted (with QApplication::postEvent()).
-
-    Note that if a child is removed immediately after it is inserted,
-    the \c ChildInserted event may be suppressed, but the \c
-    ChildRemoved event will always be sent. In this case there will be
-    a \c ChildRemoved event without a corresponding \c ChildInserted
-    event.
+    In both cases you can only rely on the child being a QObject, or
+    if isWidgetType() returns true, a QWidget (Reason: in the \c
+    ChildAdded case the child is not yet fully constructed, in the \c
+    ChildRemoved case it might have been destructed already ).
 
     The handler for these events is QObject::childEvent().
 */
@@ -2057,18 +2053,27 @@ QTabletEvent::QTabletEvent( Type t, const QPoint &pos, const QPoint &globalPos, 
 /*!
     \fn QChildEvent::QChildEvent( Type type, QObject *child )
 
-    Constructs a child event object. The \a child is the object that
-    is to be removed or inserted.
-
-    The \a type parameter must be either \c QEvent::ChildInserted or
-    \c QEvent::ChildRemoved.
+    Constructs a child event object for child \a child with type \a type.
 */
 
 /*!
     \fn QObject *QChildEvent::child() const
 
-    Returns the child widget that was inserted or removed.
+    Returns the child object that was added or removed.
+    \sa childWidget()
 */
+
+/*!
+    Returns the child widget that was added or removed. If the object added
+    was not a widget, this function returns 0.
+
+    \sa child(), QObject::isWidgetType()
+*/
+
+QWidget *QChildEvent::childWidget() const
+{
+    return (c && c->isWidgetType()) ?  static_cast<QWidget*>(child()) : 0;
+}
 
 /*!
     \fn bool QChildEvent::inserted() const

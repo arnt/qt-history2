@@ -440,6 +440,9 @@ void QKernelApplication::postEvent( QObject *receiver, QEvent *event )
 	    || event->type() == QEvent::LayoutRequest
 	    || event->type() == QEvent::Resize
 	    || event->type() == QEvent::Move
+#ifdef Q_WS_QWS
+	    || event->type() == QEvent::QWSUpdate
+#endif
 	    || event->type() == QEvent::LanguageChange) ) {
 	for (int i = 0; i < postedEvents.size(); ++i) {
 	    const QPostEvent &cur = postedEvents.at(i);
@@ -447,14 +450,20 @@ void QKernelApplication::postEvent( QObject *receiver, QEvent *event )
 		continue;
 	    if ( cur.event->type() == QEvent::LayoutRequest
 #ifndef QT_NO_COMPAT
-			|| cur.event->type() == QEvent::LayoutHint
+		 || cur.event->type() == QEvent::LayoutHint
 #endif
-			|| cur.event->type() == QEvent::UpdateRequest ) {
+		 || cur.event->type() == QEvent::UpdateRequest ) {
 		;
 	    } else if ( cur.event->type() == QEvent::Resize ) {
 		((QResizeEvent *)(cur.event))->s = ((QResizeEvent *)event)->s;
 	    } else if ( cur.event->type() == QEvent::Move ) {
 		((QMoveEvent *)(cur.event))->p = ((QMoveEvent *)event)->p;
+#ifdef Q_WS_QWS
+	    } else if ( cur.event->type() == QEvent::QWSUpdate ) {
+		QPaintEvent * p = (QPaintEvent*)(cur.event);
+		p->reg = p->reg.unite( ((QPaintEvent *)event)->reg );
+		p->rec = p->rec.unite( ((QPaintEvent *)event)->rec );
+#endif
 	    } else if ( cur.event->type() == QEvent::LanguageChange ) {
 		;
 	    } else {

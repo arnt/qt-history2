@@ -2718,7 +2718,7 @@ void QETWidget::repaintHierarchy(QRegion r, bool post)
     r.translate(-crect.x(),-crect.y());
 
     if (post)
-	QApplication::postEvent(this,new QPaintEvent(r));
+	QApplication::postEvent(this,new QWSUpdateEvent(r));
     else
 	repaint(r);
 

@@ -222,6 +222,18 @@ protected:
     QRegion reg;
 };
 
+#ifdef Q_WS_QWS
+class QWSUpdateEvent : public QPaintEvent
+{
+public:
+    QWSUpdateEvent( const QRegion& paintRegion )
+	: QPaintEvent( paintRegion)
+	{ t = QWSUpdate; }
+    QWSUpdateEvent( const QRect &paintRect )
+	: QPaintEvent( paintRect)
+	{ t = QWSUpdate; }
+};
+#endif
 
 class Q_EXPORT QMoveEvent : public QEvent
 {
@@ -430,7 +442,8 @@ class Q_EXPORT QChildEvent : public QEvent
 public:
     QChildEvent( Type type, QObject *child )
 	: QEvent(type), c(child) {}
-    QObject *child() const	{ return c; }
+    QObject *child() const { return c; }
+    QWidget *childWidget() const;
     bool added() const { return type() == ChildAdded; }
 #ifndef QT_NO_COMPAT
     bool inserted() const { return type() == ChildInserted; }

@@ -425,7 +425,7 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 }
 
 void QWidget::setMicroFocusHint( int x, int y, int width, int height,
-				 bool text, QFont *)
+				 bool /*text*/, QFont *)
 {
     if ( QRect( x, y, width, height ) != microFocusHint() )
 	d->createExtra();
@@ -592,13 +592,13 @@ void QWidget::setActiveWindow()
 void QWidget::update()
 {
     if ((widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible )
-	QApplication::postEvent(this, new QPaintEvent(clipRegion()));
+	QApplication::postEvent(this, new QWSUpdateEvent(clipRegion()));
 }
 
 void QWidget::update(const QRegion &rgn)
 {
      if ((widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible)
-	 QApplication::postEvent(this, new QPaintEvent(rgn&clipRegion()));
+	 QApplication::postEvent(this, new QWSUpdateEvent(rgn&clipRegion()));
 }
 
 void QWidget::update(int x, int y, int w, int h)
@@ -610,7 +610,7 @@ void QWidget::update(int x, int y, int w, int h)
 	    h = crect.height() - y;
 	if ( w != 0 && h != 0 )
 	    QApplication::postEvent(this,
-		    new QPaintEvent( clipRegion().intersect(QRect(x,y,w,h))));
+		    new QWSUpdateEvent( clipRegion().intersect(QRect(x,y,w,h))));
     }
 }
 
@@ -1031,7 +1031,7 @@ void QWidget::setGeometry_helper( int x, int y, int w, int h, bool isMove )
 		} else {
 		    setChildrenAllocatedDirty( dirtyChildren );
 		    qwsUpdateActivePainters();
-		    QApplication::postEvent( this, new QPaintEvent(rect()));
+		    QApplication::postEvent( this, new QWSUpdateEvent(rect()));
 		    paint_children( this, dirtyChildren, TRUE );
 		}
 	    }

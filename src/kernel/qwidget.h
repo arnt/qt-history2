@@ -364,10 +364,6 @@ public:
     void		scroll( int dx, int dy );
     void		scroll( int dx, int dy, const QRect& );
 
-    void drawText( const QPoint &, const QString &);
-    inline void drawText(int x, int y, const QString &s)
-	{ drawText(QPoint(x, y), s); }
-
     // Misc. functions
 
     QWidget *		focusWidget() const;
@@ -634,8 +630,8 @@ private:	// Disabled copy constructor and operator=
 
 #ifndef QT_NO_COMPAT
 public:
-    bool isVisibleToTLW() const; // obsolete
-    QRect visibleRect() const; // obsolete
+    bool isVisibleToTLW() const;
+    QRect visibleRect() const;
     void iconify() { showMinimized(); }
     void constPolish() const { ensurePolished(); }
     void reparent( QWidget *parent, WFlags f, const QPoint &p, bool showIt=false )
@@ -686,6 +682,9 @@ public:
     void erase(int x, int y, int w, int h);
     void erase(const QRect &);
     void erase(const QRegion &);
+    void drawText( const QPoint &, const QString &);
+    inline void drawText(int x, int y, const QString &s)
+	{ drawText(QPoint(x, y), s); }
 #endif
 };
 

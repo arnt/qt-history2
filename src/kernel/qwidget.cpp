@@ -4183,6 +4183,11 @@ bool QWidget::event( QEvent *e )
 	    }
 	    break;
 #endif
+#if defined(Q_WS_QWS)
+	case QEvent::QWSUpdate:
+	    repaint(static_cast<QWSUpdateEvent*>(e)->region());
+	    break;
+#endif
 	default:
 	    return FALSE;
     }
@@ -5284,33 +5289,6 @@ void QWidget::repaint(const QRect &r)
 */
 
 #ifndef QT_NO_COMPAT
-/*! \obsolete
-    \fn void QWidget::erase()
-
-    Erases the widget without generating a \link paintEvent() paint
-    event\endlink.
-
-    Child widgets are not affected.
-*/
-
-/*! \obsolete
-    \overload
-    \fn void QWidget::erase( const QRect &r )
-
-    Erases the specified area \a r in the widget.
-*/
-
-/*! \obsolete
-    \overload
-
-    Erases the specified area \a (x, y, w, h) in the widget.
-
-    If \a w is negative, it is replaced with \c{width() - x}. If \a h
-    is negative, it is replaced width \c{height() - y}.
-
-    \sa repaint()
-*/
-
 void QWidget::erase( int x, int y, int w, int h )
 {
     if (testAttribute(WA_NoSystemBackground))
@@ -5325,17 +5303,6 @@ void QWidget::erase( int x, int y, int w, int h )
     }
 }
 
-/*! \obsolete
-    \overload
-
-    Erases the area defined by \a rgn in the widget. Use this code
-    instead:
-    \code
-	QPainter p(this);
-	p.setClipRegion(rgn);
-	p.eraseRect(rgn.boundingRect());
-    /endcode
-*/
 void QWidget::erase( const QRegion& rgn )
 {
     if (testAttribute(WA_NoSystemBackground))
@@ -5345,26 +5312,6 @@ void QWidget::erase( const QRegion& rgn )
     p.setClipRegion(rgn);
     p.eraseRect(rgn.boundingRect());
 }
-#endif // QT_NO_COMPAT
-
-/*!
-    \overload void QWidget::drawText( int x, int y, const QString& str )
-
-    Draws the string \a str at position \a pos.
-*/
-
-/*!
-    Draws the string \a str at position \a(x, y).
-
-    The \a y position is the base line position of the text. The text
-    is drawn using the default font and the default foreground color.
-
-    This function is provided for convenience. You will generally get
-    more flexible results and often higher speed by using a a \link
-    QPainter painter\endlink instead.
-
-    \sa setFont(), foregroundColor(), QPainter::drawText()
-*/
 
 void QWidget::drawText(const QPoint &p, const QString &str)
 {
@@ -5373,6 +5320,7 @@ void QWidget::drawText(const QPoint &p, const QString &str)
     QPainter paint(this);
     paint.drawText(p.x(), p.y(), str);
 }
+#endif // QT_NO_COMPAT
 
 /*!
     \enum QWidget::WidgetAttribute
