@@ -238,7 +238,7 @@
     \input porting4-renamedenumvalues.qdocinc
     \endtable
 
-    In addition, the following \l{Qt::WindowFlag}{window flags} have
+    In addition, the following \l{Qt::WindowFlags}{window flags} have
     been either replaced with \l{Qt::WidgetAttribute}{widget
     attributes} or have been deprecated:
 
