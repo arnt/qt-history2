@@ -3648,5 +3648,5 @@ void PropertyEditor::setPropertyEditorEnabled( bool b )
     if ( !b )
 	removePage( listview );
     else
-	insertPage( listview, tr( "Property Editor" ), 0 );
+	insertTab( listview, tr( "Property Editor" ), 0 );
 }
