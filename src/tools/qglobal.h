@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#110 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#111 $
 **
 ** Global type declarations and definitions
 **
@@ -143,10 +143,10 @@
 // this test from from aCC online help
 #if __cplusplus >= 199707L
 // this is the aCC
-#define CC_HP_ACC_
+#define _CC_HP_ACC_
 #else
 // this is the CC
-#define CC_HP_
+#define _CC_HP_
 #endif // __cplusplus >= 199707L
 #else
 #error "Qt has not been tested with this compiler - talk to qt-bugs@troll.no"
@@ -265,7 +265,7 @@ inline int qRound( double d )
 // Size-dependent types (architechture-dependent byte order)
 //
 
-#if !defined(QT_CLEAN_NAMESPACE) 
+#if !defined(QT_CLEAN_NAMESPACE)
 typedef char		INT8;			// 8 bit signed
 typedef unsigned char	UINT8;			// 8 bit unsigned
 typedef short		INT16;			// 16 bit signed
