@@ -521,6 +521,7 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
     }
 
     bool cancelInsert = FALSE;
+    bool cancelUpdate = FALSE;
     QWidget *editorWidget = cellWidget( r, c );
     switch ( e->type() ) {
     case QEvent::KeyPress: {
@@ -547,7 +548,7 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
 		d->cancelMode = FALSE;
 	    }
 	    if ( conf == QSql::Yes ){
-		endUpdate();
+		cancelUpdate = TRUE;
 	    } else {
 		editorWidget->setActiveWindow();
 		editorWidget->setFocus();
@@ -590,6 +591,8 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
     bool b = QTable::eventFilter( o, e );
     if ( cancelInsert )
 	endInsert();
+    if ( cancelUpdate )
+	endUpdate();
     return b;
 }
 
