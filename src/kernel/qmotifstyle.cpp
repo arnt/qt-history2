@@ -38,12 +38,24 @@ void QMotifStyle::polish( QApplication* app)
     QColorGroup normal = app->palette()->normal();
     QColorGroup disabled = app->palette()->disabled();
     QColorGroup active = app->palette()->active();
-    normal.setHighlight( Qt::black );
-    normal.setHighlightedText( normal.base() );
-    disabled.setHighlight( Qt::black );
-    disabled.setHighlightedText( disabled.base() );
-    active.setHighlight( Qt::black );
-    active.setHighlightedText( active.base() );
+    
+    int h,s,v;
+    normal.text().hsv(&h,&s,&v);
+    if (v >= 255-50) {
+	normal.setHighlight( Qt::white );
+	normal.setHighlightedText( normal.base() );
+	disabled.setHighlight( Qt::white );
+	disabled.setHighlightedText( disabled.base() );
+	active.setHighlight( Qt::white );
+	active.setHighlightedText( active.base() );
+    } else {
+	normal.setHighlight( Qt::black );
+	normal.setHighlightedText( normal.base() );
+	disabled.setHighlight( Qt::black );
+	disabled.setHighlightedText( disabled.base() );
+	active.setHighlight( Qt::black );
+	active.setHighlightedText( active.base() );
+    }
     app->setPalette(QPalette(normal, disabled, active), TRUE); // TODO
     // really TRUE? when is this called?Ideally, before the first widget
     // is constructed.... #####
