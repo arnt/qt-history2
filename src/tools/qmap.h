@@ -237,24 +237,12 @@ public:
 
 private:
     void detach_helper();
-    void freeData(QMapData* d);
+    void freeData(QMapData *d);
     QMapData::Node *findNode(const Key &key) const;
     QMapData::Node *mutableFindNode(QMapData::Node *update[], const Key &key);
     QMapData::Node *node_create(QMapData *d, QMapData::Node *update[], const Key &key,
 				const T &value);
 };
-
-template <class Key, class T>
-Q_OUTOFLINE_TEMPLATE void QMap<Key, T>::freeData(QMapData* d)
-{
-    QMapData::Node *cur = e->forward[0];
-    while (cur != e) {
-	concrete(cur)->key.~Key();
-	concrete(cur)->value.~T();
-	cur = cur->forward[0];
-    }
-    d->freeData(offset());
-}
 
 template <class Key, class T>
 Q_INLINE_TEMPLATE QMap<Key, T> &QMap<Key, T>::operator=(const QMap<Key, T> &other)
@@ -419,6 +407,19 @@ Q_INLINE_TEMPLATE typename QMap<Key, T>::Iterator QMap<Key, T>::insertMulti(cons
     QMapData::Node *update[QMapData::LastLevel + 1];
     mutableFindNode(update, key);
     return Iterator(node_create(d, update, key, value));
+}
+
+template <class Key, class T>
+Q_OUTOFLINE_TEMPLATE void QMap<Key, T>::freeData(QMapData *d)
+{
+    QMapData::Node *e = (QMapData::Node *)d;
+    QMapData::Node *cur = e->forward[0];
+    while (cur != e) {
+	concrete(cur)->key.~Key();
+	concrete(cur)->value.~T();
+	cur = cur->forward[0];
+    }
+    d->freeData(offset());
 }
 
 template <class Key, class T>
