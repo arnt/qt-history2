@@ -418,7 +418,8 @@ void QMenuBar::performDelayedStateChanged()
     pendingDelayedStateChanges = 0;
     // here the part that can be delayed
 #ifndef QT_NO_ACCEL
-    setupAccelerators(); // ### when we have a good solution for the accel vs. focus widget problem, remove that. That is only a workaround
+    setupAccelerators(); // ### when we have a good solution for the accel vs. focus
+			 // widget problem, remove that. That is only a workaround
                          // if you remove this, see performDelayedContentsChanged()
 #endif
     update();
@@ -491,7 +492,7 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	return FALSE;
     } else if ( event->type() == QEvent::MouseButtonPress ||
 	event->type() == QEvent::MouseButtonRelease ) {
-	waitforalt = FALSE;
+	waitforalt = 0;
 	return FALSE;
     } else if ( waitforalt && event->type() == QEvent::FocusOut ) {
 	// some window systems/managers use alt/meta as accelerator keys
@@ -515,23 +516,31 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 	QKeyEvent * ke = (QKeyEvent *) event;
 	// ### this thinks alt and meta are the same
 	if ( ke->key() == Key_Alt || ke->key() == Key_Meta ) {
+	    // A new Alt press and we wait for release, eat 
+	    // this key and don't wait for Alt on this widget
 	    if ( waitforalt ) {
 		waitforalt = 0;
 		if ( object->parent() )
 		    object->removeEventFilter( this );
 		ke->accept();
 		return TRUE;
+	    // Menu has focus, send focus back
 	    } else if ( hasFocus() ) {
 		setAltMode( FALSE );
 		ke->accept();
+		waitforalt = 0;
 		return TRUE;
+	    // Start waiting for Alt release on focus widget
 	    } else {
 		waitforalt = 1;
 		if ( f && f != object )
 		    f->installEventFilter( this );
 	    }
+	// Other modifiers kills focus on menubar
 	} else if ( ke->key() == Key_Control || ke->key() == Key_Shift) {
 	    setAltMode( FALSE );
+	    waitforalt = 0;
+	// Got other key, no need to wait for Alt release
 	} else {
 	    waitforalt = 0;
 	}
@@ -562,12 +571,13 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 		tlw->installEventFilter( this );
 	    }
 	    return TRUE;
-	} else if ( (event->type() == QEvent::KeyPress ) &&
-		    !(((QKeyEvent *)event)->key() == Key_Alt ||
-		      ((QKeyEvent *)event)->key() == Key_Meta) ) {
+	// Cancel if next keypress/keyrelease is NOT Alt/Meta, 
+	} else if ( (((event->type() == QEvent::KeyPress)   || (event->type() == QEvent::KeyRelease)) &&
+		   !(((QKeyEvent *)event)->key() == Key_Alt || ((QKeyEvent *)event)->key() == Key_Meta)) ) {
 	    if ( object->parent() )
 		object->removeEventFilter( this );
 	    setAltMode( FALSE );
+	    waitforalt = 0;
 	}
     }
 
