@@ -693,7 +693,6 @@ function. In this example, an integer value is read from the spin box,
 and written to the model using the index specified:
 
 \skipto void SpinBoxDelegate::setModelData
-\skipto int value
 \printuntil int value
 \skipto model->setData
 \printuntil }
@@ -878,7 +877,7 @@ operations that are defined by the selection flags. The selection that
 results from these operations may have a complex structure, but will be
 represented efficiently by the selection model. The use of different
 selection flags to manipulate the selected items is described in the
-section \l{model-view-selection-commands.html}{selection commands}
+section on \l{model-view-selection-commands.html}{selection commands}.
 
 \section2 Reading the selection state
 
