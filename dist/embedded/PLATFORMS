@@ -1,17 +1,17 @@
 Before you build the Qt/Embedded library and example programs, you must
 run the "configure" script to set the platform information and other build
-settings.  You can use the -xplatform option to specify the operating
-system and compiler you are compiling FOR. The host machine is required
-to be running Linux and gcc.
+settings.  Use the -embedded option to specify the operating system
+and compiler you are compiling FOR. The host machine is required to be running
+Linux and gcc.
 
 Supported platforms and compilers:
 
-  linux-generic-g++       - Use g++ of host machine.
-  linux-x86-g++           - Use g++ of host machine, add x86 options.
-  linux-arm-g++           - Use arm-linux-g++ as compiler.
-  linux-mips-g++          - Use mipsel-linux-g++ as compiler.
-  linux-ipaq-g++          - Use arm config, add iPAQ options (eg. touchpanel).
-  linux-cassiopeia-g++    - Use mips config, add Cassiopeia options.
+  generic       - Use g++ of host machine.
+  x86           - Use g++ of host machine, add x86 options.
+  arm           - Use arm-linux-g++ as compiler.
+  mips          - Use mipsel-linux-g++ as compiler.
+  ipaq          - Use arm config, add iPAQ options (eg. touchpanel).
+  cassiopeia    - Use mips config, add Cassiopeia options.
 
 Compilation problems:
 
@@ -20,7 +20,7 @@ Compilation problems:
 
 Example:
 
-  ./configure -xplatform linux-arm-g++ -shared -debug
+  ./configure -embedded arm -shared -debug
 
 Customization:
 
