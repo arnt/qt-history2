@@ -111,11 +111,9 @@ void QScrollViewPrivate::init()
     vx = vy = 0;
     vwidth = vheight = 1;
 #ifndef QT_NO_DRAGANDDROP
-    autoscroll_timer.setParent(q);
     autoscroll_timer.setObjectNameConst("scrollview autoscroll timer");
     drag_autoscroll = TRUE;
 #endif
-    scrollbar_timer.setParent(q);
     scrollbar_timer.setObjectNameConst("scrollview scrollbar timer");
     inresize = false;
     use_cached_size_hint = true;
