@@ -7,10 +7,9 @@
 
 #include <qstring.h>
 
-/*
-  The Location class represents a point in a file.  It contains the file path,
-  line line number, and column number.  Numbering starts at 1, even for columns,
-  to follow COBOL and GNU conventions (http://www.gnu.org/prep/standards.html).
+/* The Location class represents a point in a file.  It contains the
+  file path, line line number, and column number.  Numbering starts at
+  1, even for columns.
 
   Incidentally, the column number is unused so far in qdoc.
 */
