@@ -45,6 +45,7 @@ class Q_EXPORT QTabWidget : public QWidget
     Q_ENUMS( TabPosition )
     Q_PROPERTY( TabPosition tabPosition READ tabPosition WRITE setTabPosition )
     Q_PROPERTY( int margin READ margin WRITE setMargin )
+    Q_PROPERTY( int currentPage READ currentPageIndex WRITE setCurrentPage )
 
 public:
     QTabWidget( QWidget *parent, const char *name, WFlags f);
@@ -70,6 +71,8 @@ public:
     QString tabLabel( QWidget * ); //### const in 3.0
 
     QWidget * currentPage() const;
+    int currentPageIndex() const;
+    void setCurrentPage( int );
 
     QSize sizeHint() const;
     QSize minimumSizeHint() const;

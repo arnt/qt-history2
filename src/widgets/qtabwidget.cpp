@@ -440,6 +440,23 @@ QWidget * QTabWidget::currentPage() const
     return d->stack->visibleWidget();
 }
 
+/*! Returns the ID of the current page.
+*/
+
+int QTabWidget::currentPageIndex() const
+{
+    return d->tabs->currentTab();
+}
+
+/*! Sets the page with index \a id as current page.
+*/
+
+void QTabWidget::setCurrentPage( int id )
+{
+    d->tabs->setCurrentTab( id );
+    showTab( id );
+}
+
 /*!
   \reimp
  */
