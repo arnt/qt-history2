@@ -254,7 +254,7 @@ static const char * const ps_header[] = {
 "} D",
 "",
 "/sl D0", // slow implementation, but strippable by stripHeader
-"/QCIF D0 /Bcomp D0 /Bycomp D0 /QCIstr1 D0 /QCIstr1 D0 /QCIindex D0",
+"/QCIgray D0 /QCIcolor D0 /QCIindex D0",
 "/QCI {", // as colorimage but without the last two arguments
 "  /colorimage where {",
 "    pop",
