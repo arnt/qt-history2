@@ -267,7 +267,7 @@ static const char* const type_map[ntypes] =
     "uint",
     "bool",
     "double",
-    "QCString",
+    "QByteArray",
     "QPointArray",
     "QRegion",
     "QBitmap",
@@ -2479,8 +2479,8 @@ int generateProps()
 		    continue;
 		QCString tmp = f->type;
 		Property::Specification spec = Property::Unspecified;
-		if ( p->type == "QCString" && (tmp == "const char*" || tmp == "const char *" ) ) {
-		    tmp = "QCString";
+		if ( p->type == "QByteArray" && (tmp == "const char*" || tmp == "const char *" ) ) {
+		    tmp = "QByteArray";
 		    spec = Property::ConstCharStar;
 		} else if ( tmp.right(1) == "&" ) {
 		    tmp = tmp.left( tmp.length() - 1 );
@@ -2553,7 +2553,7 @@ int generateProps()
 			     (const char*) p->get,
 			     (const char*) p->get );
 		    }
-		    if ( p->type == "QCString" )
+		    if ( p->type == "QByteArray" )
 			fprintf( stderr, "      const char* %s() const\n",
 				 (const char*)p->get );
 
@@ -2599,8 +2599,8 @@ int generateProps()
 		else {
 		    spec = Property::Class;
 		}
-		if ( p->type == "QCString" && (tmp == "const char*" || tmp == "const char *" ) ) {
-		    tmp = "QCString";
+		if ( p->type == "QByteArray" && (tmp == "const char*" || tmp == "const char *" ) ) {
+		    tmp = "QByteArray";
 		    spec = Property::ConstCharStar;
 		}
 		if ( tmp.left(6) == "const " )
@@ -2668,7 +2668,7 @@ int generateProps()
 			     (const char*) p->set );
 		    }
 
-		    if ( p->type == "QCString" )
+		    if ( p->type == "QByteArray" )
 			fprintf( stderr, "      void %s( const char* ) const\n",
 				 (const char*) p->set );
 
