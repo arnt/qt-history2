@@ -126,10 +126,10 @@ void Text::dump() const
     const Atom *atom = firstAtom();
     while ( atom != 0 ) {
 	QString str = atom->string();
-	str.replace( QRegExp("\\\\"), "\\\\" );
-	str.replace( QRegExp("\""), "\\\"" );
-	str.replace( QRegExp("\n"), "\\n" );
-	str.replace( QRegExp("[\\x00-\\x1f\\x7f-\\xffff]"), "?" );
+	str.replace( "\\", "\\\\" );
+	str.replace( "\"", "\\\"" );
+	str.replace( "\n", "\\n" );
+	str.replace( QRegExp("[^\x20-\x7e]"), "?" );
 	if ( !str.isEmpty() )
 	    str = " \"" + str + "\"";
 	qDebug( "    %-15s%s", atom->typeString().latin1(), str.latin1() );
