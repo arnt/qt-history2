@@ -184,10 +184,62 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		t << "# Prop Default_Filter \"ts\"\n";
 
 		QStringList &list = project->variables()["TRANSLATIONS"];
-		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it)
-		    t << "# Begin Source File\n\nSOURCE=.\\" << *it << "\n# End Source File" << endl;
+		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
+		    QString base = (*it);
+		    base.replace(QRegExp("\\..*$"), "").upper();
+		    base.replace(QRegExp("[^a-zA-Z]"), "_");
+
+		    QString userdep = "USERDEP_" + base + "=";
+		    QStringList forms = project->variables()["FORMS"];
+		    for ( QStringList::Iterator form = forms.begin(); form != forms.end();++form )
+			userdep += "\"" + (*form) + "\"\t";
+		    QStringList sources = project->variables()["SOURCES"];
+		    for ( QStringList::Iterator source = sources.begin(); source != sources.end();++source )
+			userdep += "\"" + (*source) + "\"\t";
+		    userdep += "\n\n";
+
+		    QString build = userdep + 
+				    "# Begin Custom Build - lupdate'ing " + (*it) + "...\n"
+				    "InputPath=.\\" + (*it) + "\n\n"
+				    "\"" + (*it) + "\" : $(SOURCE) \"$(INTDIR)\" \"$(QUTDIR)\"\n"
+				    "\t$(QTDIR)\\bin\\lupdate " + project->projectFile() + "\n\n"
+				    "# End Custom Build\n\n";
+
+		    t << "# Begin Source File\n\nSOURCE=.\\" << *it << endl;
+		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"\n" << build
+		      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\"\n" << build 
+		      << "!ENDIF " << endl << endl;
+
+		    t << "\n# End Source File" << endl;
+		}
 
 		t << "\n# End Group\n";
+	    }
+	    else if(variable == "MSVCDSP_STRIPPEDTRANSLATIONS" ) {
+		if(project->variables()["TRANSLATIONS"].isEmpty())
+		    continue;
+
+		QStringList &list = project->variables()["TRANSLATIONS"];
+		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
+		    QString qmfile = *it;
+		    qmfile.replace( QRegExp("\\..*$"), ".qm" );
+		    QString base = (*it);
+		    base.replace(QRegExp("\\..*$"), "").upper();
+		    base.replace(QRegExp("[^a-zA-Z]"), "_");
+
+		    QString build = "USERDEP_" + base + "=\"" + (*it) + "\"\n\n" 
+				    "# Begin Custom Build - lrelease'ing " + (*it) + "...\n"
+				    "InputPath=.\\" + qmfile + "\n\n"
+				    "\"" + qmfile + "\" : $(SOURCE) \"$(INTDIR)\" \"$(QUTDIR)\"\n"
+				    "\t$(QTDIR)\\bin\\lrelease " + project->projectFile() + "\n\n"
+				    "# End Custom Build\n\n";
+		    
+		    t << "# Begin Source File\n\nSOURCE=.\\" << qmfile << endl;
+		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"\n" << build
+		      << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\"\n" << build 
+		      << "!ENDIF " << endl << endl;
+		    t << "\n# End Source File" << endl;
+		}
 	    }
 	    else if (variable == "MSVCDSP_MOCSOURCES" && project->isActiveConfig("moc")) {
 		if ( project->variables()["SRCMOC"].isEmpty())

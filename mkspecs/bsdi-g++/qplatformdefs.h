@@ -72,7 +72,7 @@
 #define QT_SIGNAL_ARGS		int
 #define QT_SIGNAL_IGNORE	SIG_IGN
 
-#define QT_SOCKLEN_T		socklen_t
+#define QT_SOCKLEN_T		size_t
 
 #define QT_SNPRINTF		::snprintf
 #define QT_VSNPRINTF		::vsnprintf
