@@ -79,7 +79,7 @@ staticlib: $(TARGETA) include
 $(TARGETA): $(OBJECTS) $(OBJMOC)
 	-rm -f $(TARGETA)
 	$(AR) $(TARGETA) $(OBJECTS) $(OBJMOC)
-	ranlib $(TARGETA)
+	$(RANLIB) $(TARGETA)
 	-mv $(TARGETA) ../../../lib
 
 moc: $(SRCMOC)
