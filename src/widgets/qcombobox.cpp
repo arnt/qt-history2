@@ -1803,11 +1803,8 @@ void QComboBox::returnPressed()
 {
     QString s( d->ed->text() );
 
-    if ( s.isEmpty() ) {
-	d->ed->setText( text( currentItem() ) );
-	d->ed->selectAll();
+    if ( s.isEmpty() )
 	return;
-    }
 
     int c = 0;
     bool doInsert = TRUE;
