@@ -192,7 +192,7 @@ public:
     static bool hasEditor();
 
     static QValueList<EventDescription> events( QObject *o );
-    static void setEventFunction( QObject *o, QObject *form, const QString &event, const QString &function );
+    static bool setEventFunction( QObject *o, QObject *form, const QString &event, const QString &function );
     static QString eventFunction( QObject *o, const QString &event );
 
 };

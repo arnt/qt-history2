@@ -955,25 +955,25 @@ public:
     static QCString normalizeSignalSlot( const char *signalSlot ) { return QObject::normalizeSignalSlot( signalSlot ); }
 };
 
-void MetaDataBase::setEventFunction( QObject *o, QObject *form, const QString &event, const QString &function )
+bool MetaDataBase::setEventFunction( QObject *o, QObject *form, const QString &event, const QString &function )
 {
     if ( !o )
-	return;
+	return FALSE;
     setupDataBase();
     MetaDataBaseRecord *r = db->find( (void*)o );
     if ( !r ) {
 	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
 		  o, o->name(), o->className() );
-	return;
+	return FALSE;
     }
 
     if ( !form )
-	return;
+	return FALSE;
     MetaDataBaseRecord *r2 = db->find( (void*)form );
     if ( !r2 ) {
 	qWarning( "No entry for %p (%s, %s) found in MetaDataBase",
 		  form, form->name(), form->className() );
-	return;
+	return FALSE;
     }
 
     r->eventFunctions.remove( event );
@@ -1012,6 +1012,7 @@ void MetaDataBase::setEventFunction( QObject *o, QObject *form, const QString &e
 	addSlot( form, fName.latin1(), "public" );
 
     r->eventFunctions.insert( event, function );
+    return !slotExists;
 }
 
 QString MetaDataBase::eventFunction( QObject *o, const QString &event )

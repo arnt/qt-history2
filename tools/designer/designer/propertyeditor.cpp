@@ -34,6 +34,7 @@
 #include "multilineeditorimpl.h"
 #include "mainwindow.h"
 #include "project.h"
+#include "hierarchyview.h"
 
 #include <limits.h>
 
@@ -2764,8 +2765,10 @@ void EventTable::setCurrentItem( QListViewItem *i )
 
 void EventTable::valueChanged( PropertyItem *i )
 {
-    MetaDataBase::setEventFunction( editor->widget(), editor->formWindow(),
-				    i->text( 0 ), ( (PropertyListItem*)i )->currentItem() );
+    if ( MetaDataBase::setEventFunction( editor->widget(), editor->formWindow(),
+					 i->text( 0 ), ( (PropertyListItem*)i )->currentItem() ) ) {
+	editor->formWindow()->mainWindow()->objectHierarchy()->updateFunctionList();
+    }
 }
 
 void EventTable::refetchData()

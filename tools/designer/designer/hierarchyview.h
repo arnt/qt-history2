@@ -128,6 +128,7 @@ public:
     void pagesChanged( QWizard *w );
     void rebuild();
     void closed( FormWindow *fw );
+    void updateFunctionList();
 
 protected:
     void closeEvent( QCloseEvent *e );

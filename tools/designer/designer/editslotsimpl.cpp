@@ -23,6 +23,7 @@
 #include "metadatabase.h"
 #include "asciivalidator.h"
 #include "mainwindow.h"
+#include "hierarchyview.h"
 
 #include <qlistview.h>
 #include <qpushbutton.h>
@@ -118,6 +119,7 @@ void EditSlots::okClicked()
 		slotListView->setSelected( slotListView->firstChild(), TRUE );
 	    }
 	}
+	formWindow->mainWindow()->objectHierarchy()->updateFunctionList();
 	return;
     }
 
@@ -132,6 +134,7 @@ void EditSlots::okClicked()
 	cmd->execute();
     }
 
+    formWindow->mainWindow()->objectHierarchy()->updateFunctionList();
     accept();
 }
 

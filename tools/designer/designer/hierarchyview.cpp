@@ -631,6 +631,13 @@ void HierarchyView::rebuild()
 
 void HierarchyView::closed( FormWindow *fw )
 {
-    if ( fw == formwindow )
+    if ( fw == formwindow ) {
 	listview->clear();
+	fList->clear();
+    }
+}
+
+void HierarchyView::updateFunctionList()
+{
+    fList->setup();
 }
