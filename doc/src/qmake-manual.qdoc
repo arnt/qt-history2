@@ -36,70 +36,6 @@
 */
 
 /*!
-    \internal
-    \page qmake-installing.html
-    \title Installing qmake
-
-    \c qmake is built by default when Qt is built, so manual installation
-    should be unnecessary. However, it is possible to manually build and
-    install \c qmake on Windows.
-
-    \section1 Installing qmake Manually
-
-    Before building \c qmake manually the following environment variables must
-    be set:
-
-    \list
-    \i \c QTDIR must be set to where Qt is (or will be) installed; for example,
-       \c {c:\\qt}.
-    \i \c QMAKESPEC must be set to the platform and compiler combination that
-       you are using on your system.
-    \endlist
-
-    \section2 Configuring qmake
-
-    Before \c qmake can be used to build Makefiles, the QMAKESPEC
-    environment variable must be set to the platform-compiler combination
-    that is being used on your system. The \c QMAKESPEC environment
-    variable tells \c qmake where to look to find platform and compiler
-    specific information, ensuring that the right libraries are used, and
-    that the generated Makefile uses the correct syntax.  A list of the
-    currently supported platform-compiler combinations can be found in
-    the \e mkspecs directory in the top level of the Qt distribution.
-    Set the \c QMAKESPEC environment variable to the name of the
-    directory that reflects the platform and compiler that you are using.
-
-    The following is a list of environment variables to choose from when
-    setting QMAKESPEC:
-
-    \code
-        win32-borland   win32-g++   win32-msvc  win32-watc  win32-visa    
-    \endcode
-
-    For example, if you are using Microsoft Visual Studio on Windows, then
-    you would set the \c QMAKESPEC environment variable to \c win32-msvc.
-
-    Inside each of the directories inside the \e mkspecs directory is a
-    \c qmake.conf file that contains information specific to that platform
-    and compiler. These settings are applied to any project that is built
-    using \c qmake and, for most users, they should not be modified.
-    However, if all your applications had to link against a particular
-    library, you might add this information to the relevant \c qmake.conf
-    file.
-
-    \section2 Building qmake
-
-    Once the environment variables are set, go into the \e qmake directory
-    in the top level of the Qt distribution (this should be \c $QTDIR/qmake)
-    and run \c make or \c nmake, depending on your compiler.
-
-    When the build has completed, \c qmake is ready for use.
-    \omit
-    location of qmake
-    \endomit
-*/
-
-/*!
     \page qmake-using.html
     \title Using qmake
 
@@ -150,612 +86,392 @@
 */
 
 /*!
-    \page qmake-advanced-usage.html
-    \title Advanced Usage
+    \page qmake-project-files.html
 
-    The \c qmake project files we've seen up to now have been very simple,
-    just a list of \c{name = value} and \c{name += value} lines. \c qmake
-    provides a lot more power, for example you can use a single project
-    file to produce Makefiles for multiple platforms.
+    \title Project Files
 
-    \section1 Operators
+    Project files contain all the information required by \c qmake to build
+    your application, library, or plugin. The resources used by your project
+    are generally specified using a series of declarations, but support for
+    simple programming constructs allow you to describe different build
+    processes for different platforms and environments.
 
-    So far, you have seen the \c = operator and \c += operator being used
-    in a project file.  There are more operators available for use; but
-    some of these should be used carefully as they may change more than
-    you expect them to.
+    \tableofcontents
 
-    \section2 The \c = Operator
+    \section1 Project File Elements
 
-    This operator simply assigns a value to a variable, it is used like
-    this:
+    The project file format used by \c qmake can be used to support both
+    simple and fairly complex build systems. Simple project files will
+    use a straightforward declarative style, defining standard variables
+    to indicate the source and header files that are used in the project.
 
-    \code
-        TARGET = myapp
-    \endcode
+    The following sections describe the types of elements found in project
+    files.
 
-    This sets the TARGET variable to \c myapp.  This will remove any
-    previously set TARGET.
+    \section2 Variables
 
-    \section2 The \c += Operator
+    In a project file, variables are used to hold lists of string values.
+    In the simplest projects, these variables inform \c qmake about the
+    configuration options to use, or paths to supply to the Makefile that
+    it creates.
 
-    This operator appends a value to the list of values in a variable.  It
-    is used like this:
+    \c qmake looks for certain variables in each project file, and it
+    uses the contents of these to determine what it should write to a
+    Makefile. For example, the list of values in the \c HEADERS and
+    \c SOURCES variables are used to tell \c qmake about header and
+    source files in the same directory as the project file.
 
-    \code
-        DEFINES += QT_DLL
-    \endcode
+    Variables can also be used internally to store temporary lists of values,
+    and existing lists of values can be overwritten or extended with new
+    values.
 
-    This appends QT_DLL to the list of pre-processor defines to be put in the
-    Makefile.
+    The following lines show how lists of values are assigned to variables:
 
-    \section2 The \c -= Operator
+    \quotefromfile snippets/qmake/variables.pro
+    \printto SOURCES
 
-    This operator removes a value from the list of values in a variable.
-    It is used like this:
+    Note that the first assignment only includes values that are specified on
+    the same line as the \c SOURCES variable. The second assignment splits
+    the items across lines by using the \\ character.
 
-    \code
-        DEFINES -= QT_DLL
-    \endcode
+    The list of values in a variable is extended in the following way:
 
-    This removes QT_DLL from the list of pre-processor defines to be put
-    in the Makefile.
+    \printuntil CONFIG
 
-    \section2 The \c *= Operator
+    The \c CONFIG variable is another special variable that \c qmake
+    uses when generating a Makefile. It is discussed in the section on
+    configuration later in this chapter. In the above line, \c QT is
+    added to the list of existing values contained in \c CONFIG.
 
-    This operator only adds a value to the list of values in a variable if
-    it doesn't already exist.  It is used like this:
+    The following table lists the variables that \c qmake recognizes, and
+    describes what they should contain.
 
-    \code
-        DEFINES *= QT_DLL
-    \endcode
+    \table
+    \header \i Variable \i Contents
+    \row \i CONFIG    \i General project configuration options.
+    \row \i DESTDIR   \i The directory in which the executable will be placed.
+    \row \i FORMS     \i A list of .ui files to be processed by \c uic.
+    \row \i HEADERS   \i A list of filenames of header (.h) files used when
+                      building the project.
+    \row \i QT        \i Qt-specific configuration options.
+    \row \i RESOURCES \i A list of resource (.rc) files to be included in the
+                      final project. See the \l{resources.html}{The Qt Resource
+                      System} for more information about these files.
+    \row \i SOURCES   \i A list of source code files to be used when building
+                      the project.
+    \row \i TEMPLATE  \i The template to use for the project. This determines
+                      whether the output of the build process will be an
+                      application, a library, or a plugin.
+    \endtable
 
-    QT_DLL will only be added to the list of pre-processor defines if it
-    is not already defined.
+    \section2 Comments
 
-    \section2 The \c ~= Operator
+    You can add comments to project files. Comments begin with the \c
+    # symbol and continue to the end of the same line. For example:
 
-    This operator replaces any values that match the regexp with the
-    specified value.  It is used like this:
+    \quotefromfile snippets/qmake/comments.pro
+    \printuntil .
 
-    \code
-        DEFINES ~= s/QT_[DT].+/QT
-    \endcode
+    \section2 Built-in Functions
 
-    This removes any values in the list that start with QT_D or QT_T with
-    QT.
+    \c qmake provides a number of built-in functions to allow the contents
+    of variables to be processed. The most commonly used function in simple
+    project files is the \c include function which takes a filename as an
+    argument. The contents of the given file are included in the project
+    file at the place where the \c include function is used.
 
-    \section1 Scopes
+    \quotefromfile snippets/qmake/include.pro
+    \printuntil include
 
-    A scope are similar to \c if statements, if a certain condition is
-    true, the settings inside the scope are processed.  A scope is written
-    like this:
+    Various other built-in functions are provided to manipulate strings
+    and paths, support user input, and call external tools. A list of
+    the functions available can be found in the
+    \l{qmake-advanced-usage.html}{Advanced Usage} chapter of this manual.
 
-    \code
-        win32 {
-        DEFINES += QT_DLL
-        }
-    \endcode
+    \section2 Control Structures
 
-    The above code will add the QT_DLL define to the Makefile if \c qmake
-    is used on a Windows platform.  If \c qmake is used on a different
-    platform than Windows, the define will be ignored. You may also perform
-    single line conditionals/assignments with qmake like this:
+    Support for conditional structures is made available via \e scopes that
+    behave like \c if statements in programming languages:
 
-    \code
-        win32:DEFINES += QT_DLL
-    \endcode
+    \quotefromfile snippets/qmake/scopes.pro
+    \printuntil }
 
-    For example, suppose we want to process something on all platforms
-    \e except for Windows. We can achieve this by negating the scope like
-    this:
+    The assignments inside the scope are only made if the condition is
+    true; in this case, the \c win32 variable must be set
 
-    \code
-        !win32 {
-        DEFINES += QT_DLL
-        }
-    \endcode
+    Simple loops are constructed by iterating over lists of values using
+    the built-in \c for function. More complex operations on variables that
+    would usually require loops are provided by built-in functions such as
+    \c find, \c unique, and \c count.
 
-    Any entry on the CONFIG line is also a scope. For example, if you
-    write this:
-    \code
-        CONFIG += warn_on
-    \endcode
-    you will have a scope called 'warn_on'. This makes it easy to change
-    the configuration for a project without losing all the custom settings
-    that might be needed for a specific configuration.  Since it is
-    possible to put your own values on the CONFIG line, this provides you
-    with a very powerful configuration tool for your Makefiles. For
-    example:
+    \section1 Project Templates
 
-    \code
-        CONFIG += qt warn_on debug
-        debug {
-        TARGET = myappdebug
-        }
-        release {
-        TARGET = myapp
-        }
-    \endcode
+    The \c TEMPLATE variable is used to define the type of project that will
+    be built. If this is not declared in the project file, \c qmake assumes
+    that an application should be built, and will generate an appropriate
+    Makefile (or equivalent file) for the purpose.
 
-    In the above code, two scopes are created which depend on what
-    is put on the CONFIG line.  In the example, \c debug is on the config
-    line, so the TARGET variable is set to \c myappdebug.  If \c release
-    was on the config line, then the TARGET variable would be set to \c
-    myapp.
+    The types of project available are listed in the following table with
+    information about the files that \c qmake will generate for each of them:
 
-    It is also possible to check for two things before processing some
-    settings.  For instance, if you want to check if the platform is
-    Windows and that the thread configuration is set, you would write
-    this:
+    \table
+    \header \i Template      \i Description of \c qmake output
+    \row    \i app (default) \i Creates a Makefile to build an application.
+    \row    \i lib           \i Creates a Makefile to build a library.
+    \row    \i vcapp         \i Creates a Visual Studio Project file to build
+                             an application.
+    \row    \i vclib         \i Creates a Visual Studio Project file to build a library.
+    \row    \i subdirs       \i Creates a Makefile that will go into the specified
+                             directories and run \c qmake on any project files found.
+    \endtable
 
-    \code
-        win32 {
-        thread {
-            DEFINES += QT_THREAD_SUPPORT
-        }
-        }
-    \endcode
+    See the \l{qmake-tutorials.html}{qmake Tutorials} for advice on
+    writing project files for common types of project.
 
-    To save writing many nested scopes, you can nest scopes using a colon
-    like this:
+    \section1 General Configuration
 
-    \code
-        win32:thread {
-        DEFINES += QT_THREAD_SUPPORT
-        }
-    \endcode
+    The \c CONFIG variable specifies the options that the compiler should use
+    and the libraries that should be linked against.  Anything can be
+    added to the \c CONFIG variable, but the options covered below are
+    recognized by \c qmake internally.
 
-    Once a test has been performed you may also do else/elseif operations. With
-    this you may easily write complicated tests. This can be done with the
-    special \c else scope, it can be combined with other scopes (separated by
-    colons as above) for example:
+    The following options control the compiler flags that are used to build the
+    project:
 
-    \code
-        win32:thread {
-        DEFINES += QT_THREAD_SUPPORT
-        } else:debug {
-        DEFINES += QT_NOTHREAD_DEBUG
-        } else {
-        message("Unknown configuration")
-        }
-    \endcode
+    \table
+    \header \i Option   \i Description
+    \row    \i release  \i The project is to be built in release mode.
+                        This is ignored if \c debug is also specified.
+    \row    \i debug    \i The project is to be built in debug mode.
+    \row    \i warn_on  \i The compiler should output as many warnings as possible.
+                        This is ignored if \c warn_off is specified.
+    \row    \i warn_off \i The compiler should output as few warnings as possible.
+    \endtable
 
-    \section1 Variables
+    The following options define the type of project to be built. Note that some
+    of these options only take effect when used on the relevant platform. On other
+    platforms, they have no effect.
 
-    The variables that we have encountered so far are system variables,
-    such as \c DEFINES, \c SOURCES, and \c HEADERS.  It is possible for you
-    to create your own variables so that you use them in scopes.  It's
-    easy to create your own variable; just name it and assign something to
-    it. For example:
+    \table
+    \header \i Option \i Description
+    \row    \i qt     \i The project is a Qt application and should link against the Qt
+                      library. You can use the \c QT variable to control any additional
+                      Qt modules that are required by your application.
+    \row    \i thread \i The project is a multi-threaded application.
+    \row    \i x11    \i The project is an X11 application or library.
+    \endtable
 
-    \code
-        MY_VARIABLE = value
-    \endcode
+    When using the \c app or \c lib templates, more specialized configuration
+    options can be used to fine tune the build process. These are explained in
+    details in the \l{qmake-common-projects.html}{Common Projects} chapter of
+    this manual.
 
-    There are no restricitions on what you do to your own variables, as \c
-    qmake will just ignore them unless it needs to look at them for a
-    scope.  
-
-    You can also assign the value of a current variable to another
-    variable by prefixing $$ to the variable name. For example:
+    For example, if your application uses the Qt library and you want to
+    build it as a multi-threaded application in \c debug mode, your project
+    file will contain the following line:
 
     \code
-        MY_DEFINES = $$DEFINES
+        CONFIG += qt thread debug
     \endcode
 
-    Now the MY_DEFINES variable contains what is in the DEFINES variable at
-    this point in the project file.  This is also equivalent to:
+    Note, that you must use "+=", not "=", or \c qmake will not be able to
+    use Qt's configuration to determine the settings needed for your project.
 
-    \code 
-        MY_DEFINES = $${DEFINES}
-    \endcode
+    \section1 Declaring Qt Libraries
 
-    The second notation allows you to adjoin the variable expansion to another
-    value without separating by space. \c qmake will allow a variable to
-    contain anything (including $(VALUE), which will be placed directly into
-    the Makefile, and allow it to expand as appropriate, usually an environment
-    variable). However, if you require an environment variable to be replaced
-    immediately then you may use the $$() notation. For example:
+    If you enable qmake's support for Qt with the \c CONFIG variable, it is
+    possible to further specify which of the Qt libraries you will link with
+    your application. This is achieved with the \c QT variable which can be
+    used to declare the required extension modules. For example, we can enable
+    the XML and network modules in the following way:
 
     \code
-        MY_DEFINES = $$(ENV_DEFINES)
+        CONFIG += qt
+        QT += network xml
     \endcode
 
-    This will set MY_DEFINES to the value of the evironment variable
-    ENV_DEFINES as it parses the .pro file. Additionally you may call built-in
-    functions in variable replacing. These functions (not to be confused with
-    Conditional Functions as enumerated in the next section) are listed below:
-
-    \section2 join(variablename, glue, before, after)
-
-    This will join the value of \e variablename with glue. If this value is
-    non-empty it will prefix the value with \e before and suffix it with \e
-    after. \e variablename is the only required field, the others will default
-    to empty strings. If you need to encode spaces in \e glue, \e before, or \e
-    after you must quote them.
-
-    \section2 prompt(question)
-
-    This will display \e question, and read from stdin as a return value.
-
-    \section2 member(variablename, position)
-
-    This will place the value in \e variablename in position \e position of the
-    list. If the value of \e variablename is not long this will return an empty
-    string. \e variablename is the only required field, if not specified
-    position will default to the first value in the list (0).
-
-    \section2 find(variablename, substr)
-
-    This will place all the values in \e variablename that match \e substr. \e
-    substr may be a regular expression as well, and will be matched
-    accordingly.
+    Note that \c QT includes the core and GUI modules by default, so the above
+    declaration \e adds the network and XML modules to this default list. The
+    following assignment \e omits the default modules, and will lead to errors
+    when the application's source code is being compiled:
 
     \code
-        MY_VAR = one two three four
-        MY_VAR2 = $$join(MY_VAR, " -L", -L) -Lfive
-        MY_VAR3 = $$member(MY_VAR, 2) $$find(MY_VAR, t.*)
+        QT = network xml # This will omit the core and GUI modules.
     \endcode
 
-    MY_VAR2 will contain '-Lone -Ltwo -Lthree -Lfour -Lfive', and MYVAR3 will
-    contains 'three two three'.
+    The table below shows the options that can be used with the \c QT variable
+    and the features that are associated with each of them:
 
-    \section2 basename(file)
+    \table
+    \header \i Option                     \i Features
+    \row    \i core (included by default) \i Classes that provide fundamental Qt
+                                             features
+    \row    \i gui  (included by default) \i Widgets and other GUI classes
+    \row    \i network   \i \l{networking.html}{Network Module} classes
+    \row    \i opengl    \i \l{opengl.html}{OpenGL Module} classes
+    \row    \i sql       \i \l{sql.html}{SQL Module} classes
+    \row    \i xml       \i \l{xml.html}{XML Module} classes
+    \row    \i compat    \i Enables the use of compatibility classes (see the
+                         \l{porting4.html}{Porting to Qt 4} guide)
+    \endtable
 
-    This will return the basename of the file specified. For example:
-
-    \code
-       FILE = /etc/passd
-       FILENAME = $$basename($$FILE) #passwd
-    \endcode
-
-    \section2 dirname(file)
-
-    This will return the directory name part of the file specified. For
-    example:
-
-    \code
-       FILE = /etc/X11R6/XF86Config
-       DIRNAME = dirname($$FILE) #/etc/X11R6
-    \endcode
-
-    \section2 sprintf(string, ...)
-
-    This will replace %1-%9 with the arguments passed into the
-    ... arguments. The resulting string will be returned.
-
-    \section2 unique(variablename)
-
-    This will return a list of values in variable that are unique (that is
-    with repetitive entries removed). For example:
-
-    \code
-       ARGS = 1 2 3 2 5 1
-       ARGS = $$unique(ARGS) #1 2 3 5
-    \endcode
-
-    \section2 quote(string)
-
-    This will place a whole value into a single entity, \\n \\r and \\t can
-    be used to generate literal carriage returns, line feeds and tabs
-    (respectively). The return value will not be quoted (double or single)
-    but will be placed into a single entry (for literal expansion).
-
-    \section2 system(program_and_args)
-
-    This will return the stdout/stderr of the program executed, and parse it as
-    normally expected. You can use this to interrogate information about the
-    platform for example.
-
-    \code
-        UNAME = $$system(uname -s)
-        contains( UNAME, [lL]inux ):message( This looks like Linux ($$UNAME) to me )
-    \endcode
-
-    \section1 Conditional Functions
-
-    \c qmake provides built-in functions that perform simple, yet powerful
-    tests. These tests may be used in place of scopes (as described above), in
-    some cases it is more usefull to use the test function by itself ignoring
-    its test value.
-
-    \section2 contains(variablename, value)
-
-    If \e value is in the list of values stored in the variable called \e
-    variablename, then the settings inside the scope will be processed.
-    For example:
-
-    \code
-        contains(CONFIG, thread) {
-        DEFINES += QT_THREAD_SUPPORT
-        }
-    \endcode
-
-    If \c thread is in the list of values for the \c CONFIG variable, then
-    QT_THREAD_SUPPORT will be added to the list of values in the \c
-    DEFINES variable.
-
-    \section2 count(variablename, number)
-
-    If \e number matches the number of values stored in the variable
-    called \e variablename, then the settings inside the scope will be
-    processed.  For example:
-
-    \code
-        count( DEFINES, 5 ) {
-        CONFIG += debug
-        }
-    \endcode
-
-    \section2 error(string)
-
-    This function outputs the string given and then makes \c qmake exit.
-    For example:
-
-    \code
-        error( "An error has occurred" )
-    \endcode
-
-    The text "An error has occurred" will be displayed on the console and
-    \c qmake will exit.
-
-    \section2 exists(filename)
-
-    If the specified file exists, then the settings inside the scope will
-    be processed.  For example:
-
-    \code
-        exists( /local/qt/qmake/main.cpp ) {
-        SOURCES += main.cpp
-        }
-    \endcode
-
-    If \c /local/qt/qmake/main.cpp exists then main.cpp is added to the
-    list of source files.
-
-    Note that "/" can be used as a directory separator regardless of the
-    platform.
-
-    \section2 include(filename)
-
-    The contents of filename are included at this point in the project
-    file, so any settings in the specified file will be processed.  An
-    example of this is:
-
-    \code 
-        include( myotherapp.pro )
-    \endcode
-
-    Any settings in the \c myotherapp.pro project file are now processed.
-
-    \section2 isEmpty(variablename)
-
-    This is the equivalent of using count( variablename, 0 ).  If the
-    variable called \e variablename has no elements, then the settings
-    inside the scope will be processed.  An example of this is:
-
-    \code
-        isEmpty( CONFIG ) {
-        CONFIG += qt warn_on debug
-        }
-    \endcode
-
-    \section2 message(string) 
-
-    This function simply outputs a message on the console.
-
-    \code
-        message( "This is a message" )
-    \endcode
-
-    The text "This is a message" is output to the console and
-    processing of the project file carries on.
-
-    \section2 system(command)
-
-    The specified command is performed and if it returns an exit code of
-    1, the settings inside the scope are processed.  For example:
-
-    \code
-        system( ls /bin ) {
-        SOURCES += bin/main.cpp
-        HEADERS += bin/main.h
-        }
-    \endcode
-
-    So if the command \c {ls /bin} returns 1 then \c bin/main.cpp is added
-    to the list of sources and \c bin/main.h is added to the list of
-    headers.
-
-    \section2 CONFIG(config)
-
-    This function can be used to test for variables placed into the CONFIG
-    variable. This is the same as regular old style (tmake) scopes, but
-    has the added advantage a second paramter can be passed to test for
-    the active config. As CONFIG's are order dependent (ie the last one
-    set will be considered the active config for mutual exclusive sets
-    like debug and release) a second paramter can be used to specify a set
-    of values to consider for example:
-
-    \code
-      CONFIG = debug
-      CONFIG += release
-      CONFIG(release, debug|release):message(Release build!) #will print
-      CONFIG(debug, debug|release):message(Debug build!) #no print
-    \endcode
-
-    Because release is considered the active setting (for feature parsing)
-    it will be the CONFIG used to generate the build file. In the common
-    case a second paramter is not needed, but for specific mutual
-    exclusive tests it is invaluable.
-
-    \section2 infile(filename, var, val)
-
-    This function will succeed if the file \e filename (when parsed
-    by qmake itself) contains the variable \e var with a value of 
-    \e val. You may also not pass in a third argument (\e val) and the
-    function will only test if \e var has been assigned to in the file.
-
-    \section2 for(iterate, list)
-
-    This special test function will cause a loop to be started that
-    iterates over all values in \e list setting \e iterate to each
-    value. As a convience if \e list is 1..10 then iterate will iterate
-    over the values 1 through 10.
-
-    The use of an else scope afer a condition line with a for() loop is
-    disallowed. 
-
-    For example:
-
-    \code
-        LIST = 1 2 3
-        for(a, LIST):exists(file.$${a}):message(I see a file.$${a}!)
-    \endcode
 */
 
 /*!
-    \page qmake-precompiledheaders.html
-    \title Using Precompiled Headers
+    \page qmake-running-qmake.html
 
-    \target About
+    \title Command Line Usage
 
-    Precompiled headers are a performance feature supported by some
-    compilers to compile a stable body of code, and store the compiled
-    state of the code in a binary file. During subsequent compilations,
-    the compiler will load the stored state, and continue compiling the
-    specified file. Each subsequent compilation is faster because the
-    stable code does not need to be recompiled.
+    The behavior of \c qmake can be customized when it is run by
+    specifying various options on the command line. These allow the
+    build process to be fine-tuned, provide useful diagnostic
+    information, and can be used to specify the target platform for
+    your project.
 
-    \c qmake supports the use of precompiled headers (PCH) on some
-    platforms and build environments, including:
+    \target Commands
+    \section1 Command-Line Options
+
+    \section2 Syntax
+
+    \code
+        qmake [options] files
+    \endcode
+
+    \section2 Options
+
+    The following options can be specified on the command line to \c qmake:
+
     \list
-    \i Windows
-        \list
-        \i nmake
-        \i Dsp projects (VC 6.0)
-        \i Vcproj projects (VC 7.0 \& 7.1)
-        \endlist
-    \i Mac OS X
-        \list
-        \i Makefile
-        \i Xcode
-        \endlist
-    \i Unix
-        \list
-        \i GCC 3.3 and up
-        \endlist
+    \i \c -o file \BR
+        \c qmake output will be directed to \e file. if this argument
+        is not specified, then \c qmake will try to guess a suitable name.  If '-' is
+        specified, output is directed to stdout.
+    \i \c -d \BR
+        \c qmake will output debugging information.
     \endlist
 
+    For projects that need to be built differently on each target
+    platform, with many subdirectories, \c qmake
+    can be 
+    You can set variables in the before running \c qmake to pass
+    in default values for the variables in the project file.
 
-    \target ADD_PCH
-    \section1 Adding Precompiled Headers to Your Project
+    \list
+    \i \c -unix \BR
+        \c qmake will run in unix mode.  In this mode, Unix file
+        naming and path conventions will be used, additionally testing for unix 
+        (as a scope) will succeed. This is the default mode on all Unices. 
+    \i \c -macx \BR
+        \c qmake will run in Mac OS X mode.  In this mode, Unix file
+        naming and path conventions will be used, additionally testing for macx
+        (as a scope) will succeed. This is the default mode on Mac OS X. 
+    \i \c -win32 \BR
+        \c qmake will run in win32 mode.  In this mode, Windows file naming and path
+        conventions will be used, additionally testing for win32 (as a scope) will succeed. 
+        This is the default mode on Windows.
+    \i \c -t tmpl \BR
+        \c qmake will override any set TEMPLATE variables with tmpl, but only
+        \e after the .pro file has been processed.
+    \i \c -tp prefix \BR
+        \c qmake will add the prefix to the TEMPLATE variable.
+    \i \c -help \BR
+        \c qmake will go over these features and give some useful help.
+    \endlist
 
-    \target PCH_CONTENTS
-    \section2 Contents of the Precompiled Header File
+    There are also warning options that can help to find problems in your
+    project file:
 
-    The precompiled header must contain code which is \c stable
-    and \c static throughout your project. A typical PCH might look
-    like this:
+    \list
+    \i \c -Wall \BR
+          With this \c qmake will turn on all known warnings.
+    \i \c -Wnone \BR
+          No warning information will be generated by \c qmake.
+    \i \c -Wparser \BR
+          \c qmake will only generate parser warnings, this will alert
+          you to common pitfalls, and potential problems in the parsing of your .pro
+          files.
+    \i \c -Wlogic \BR
+          Again \c qmake will warn of common pitfalls, and potential problems. This can
+          include (but not limited to) checking if a file is placed into a list of files
+          multiple times, if a file cannot be found, etc.
+    \endlist
 
-    \section3 Example: \c stable.h
+    \c qmake supports two different modes of operation: In the default mode,
+    \c qmake will use the description in a .pro file to generate a Makefile.  Creating Makefiles
+    is covered by this reference guide, there is another mode which
+    generates .pro files.
 
-    \code
-    // Add C includes here
+    To toggle between these modes you must specify in the first argument
+    what mode you want to use.  If no mode is specified, \c qmake will
+    assume you want Makefile mode.  The available modes are:
 
-    #if defined __cplusplus
-    // Add C++ includes here
-    #include <stdlib>
-    #include <iostream>
-    #include <vector>
-    #include <qapplication.h> // Qt includes
-    #include <qpushbutton.h>
-    #include <qlabel.h>
-    #include "thirdparty/include/libmain.h"
-    #include "my_stable_class.h"
-    ...
-    #endif
-    \endcode
+    \list
+    \i \c -makefile \BR
+        \c qmake output will be a Makefile (\link #MakefileMode Makefile mode \endlink).
+    \i \c -project \BR
+        \c qmake output will be a project file (\link #ProjectfileMode Project file mode \endlink).
+    \endlist
 
-    Note that a precompiled header file needs to separate C includes from
-    CPP includes, since the precompiled header file for C files may not
-    contain C++ code.
+    \target MakefileMode
+    \section3 Makefile Mode
+
+    In Makefile mode \c qmake will generate a Makefile. Additionally you may
+    supply the following arguments in this mode:
+
+    \list
+    \i \c -after \BR
+            \c qmake will process assignments given on the commandline after
+            the specified files.
+    \i \c -nocache \BR
+        \c qmake will ignore the .qmake.cache file.
+    \i \c -nodepend \BR
+        \c qmake will not generate any dependency information.
+    \i \c -cache file \BR
+        \c qmake will use \e file as the cache file, ignoring any other .qmake.cache file found
+    \i \c -spec spec \BR
+        \c qmake will use \e spec as a path to platform-compiler information and QMAKESPEC will be ignored.
+    \endlist
+
+    The \c files argument can be a list of one or more project files, separated
+    by spaces. You may also pass qmake assignments on the command line here and
+    they will be processed before all files specified, for example:
+
+    qmake -makefile -unix -o Makefile "CONFIG+=test" test.pro 
+
+    If however you are certain you want your variables processed after the
+    the files specified, then you may pass the -after argument. When this
+    is specified all assignments on the commandline after the -after
+    option will be postponed until after the specified files are parsed.
+
+    This will generate a Makefile, from test.pro with Unix pathnames.  However
+    many of these arguments aren't necessary as they are the default.  Therefore
+    the line can be simplified on Unix to:
+
+    qmake "CONFIG+=test" test.pro 
 
 
-    \target PROJECT_OPTIONS
-    \section2 Project Options
+    \target ProjectfileMode
+    \section3 Projectfile Mode
 
-    To make your project use PCH, the only thing you need to change in
-    your project settings (.pro), is to include the PRECOMPILED_HEADER option:
+    In Projectfile mode \c qmake will generate a project file. Additionally, you may
+    supply the following arguments in this mode:
 
-    \code
-        PRECOMPILED_HEADER = stable.h
-    \endcode
+    \list
+    \i \c -r \BR
+            \c qmake will look through supplied directories recursively
+    \i \c -nopwd \BR
+        \c qmake will not look in your current working directory for
+        source code and only use the specified \c files
+    \endlist
 
-    \c qmake will handle the rest, to ensure the creation and use of the
-    precompiled header file. You do not need to include the precompiled
-    header file in HEADERS, as qmake will do this if the configuration
-    supports PCH.
-
-    All platforms that support precompiled headers have the configuration
-    option \bold precompile_header set. Using this option, you may trigger
-    conditional blocks in your .pro file, to add settings when using PCH.
-    For example:
-
-    \code
-        precompile_header:!isEmpty(PRECOMPILED_HEADER) {
-        DEFINES += USING_PCH
-        }
-    \endcode
-
-    \target EXAMPLE_PROJECT
-    \section1 Example Project
-
-    You can find the following source code in the
-    \c{qt/qmake/examples/precompile} directory:
-
-    \section2 \c mydialog.ui
-
-    \quotefile precompile/mydialog.ui
-    \skipto <!
-    \printuntil </UI>
-
-    \section2 \c stable.h
-
-    \quotefile precompile/stable.h
-    \skipto /*
-    \printuntil #endif
-
-    \section2 \c myobject.h
-
-    \quotefile precompile/myobject.h
-    \skipto #include
-    \printuntil }
-
-    \section2 \c myobject.cpp
-
-    \quotefile precompile/myobject.cpp
-    \skipto #include
-    \printuntil }
-
-    \section2 \c util.cpp
-
-    \quotefile precompile/util.cpp
-    \skipto void
-    \printuntil }
-
-    \section2 \c main.cpp
-
-    \quotefile precompile/main.cpp
-    \skipto #include
-    \printuntil }
-
-    \section2 \c precompile.pro
-
-    \quotefile precompile/precompile.pro
-    \skipto #
-    \printuntil .ui
+    The \c files argument can be a list of files or directories.  If a
+    directory is specified, then it will be included in the \link
+    #DEPENDPATH DEPENDPATH \endlink variable and relevant code from there
+    will be included in the generated project file, if a file is given it
+    will go into the correct variable depending on extension (i.e. .ui
+    files go into FORMS, .cpp files go into SOURCES, etc). Here too you
+    may pass assignments on the commandline, when doing so these
+    assignments will be placed last in the generated .pro file.
 */
 
 /*!
@@ -2768,392 +2484,612 @@
 */
 
 /*!
-    \page qmake-project-files.html
+    \page qmake-advanced-usage.html
+    \title Advanced Usage
 
-    \title Project Files
+    The \c qmake project files we've seen up to now have been very simple,
+    just a list of \c{name = value} and \c{name += value} lines. \c qmake
+    provides a lot more power, for example you can use a single project
+    file to produce Makefiles for multiple platforms.
 
-    Project files contain all the information required by \c qmake to build
-    your application, library, or plugin. The resources used by your project
-    are generally specified using a series of declarations, but support for
-    simple programming constructs allow you to describe different build
-    processes for different platforms and environments.
+    \section1 Operators
 
-    \tableofcontents
+    So far, you have seen the \c = operator and \c += operator being used
+    in a project file.  There are more operators available for use; but
+    some of these should be used carefully as they may change more than
+    you expect them to.
 
-    \section1 Project File Elements
+    \section2 The \c = Operator
 
-    The project file format used by \c qmake can be used to support both
-    simple and fairly complex build systems. Simple project files will
-    use a straightforward declarative style, defining standard variables
-    to indicate the source and header files that are used in the project.
-
-    The following sections describe the types of elements found in project
-    files.
-
-    \section2 Variables
-
-    In a project file, variables are used to hold lists of string values.
-    In the simplest projects, these variables inform \c qmake about the
-    configuration options to use, or paths to supply to the Makefile that
-    it creates.
-
-    \c qmake looks for certain variables in each project file, and it
-    uses the contents of these to determine what it should write to a
-    Makefile. For example, the list of values in the \c HEADERS and
-    \c SOURCES variables are used to tell \c qmake about header and
-    source files in the same directory as the project file.
-
-    Variables can also be used internally to store temporary lists of values,
-    and existing lists of values can be overwritten or extended with new
-    values.
-
-    The following lines show how lists of values are assigned to variables:
-
-    \quotefromfile snippets/qmake/variables.pro
-    \printto SOURCES
-
-    Note that the first assignment only includes values that are specified on
-    the same line as the \c SOURCES variable. The second assignment splits
-    the items across lines by using the \\ character.
-
-    The list of values in a variable is extended in the following way:
-
-    \printuntil CONFIG
-
-    The \c CONFIG variable is another special variable that \c qmake
-    uses when generating a Makefile. It is discussed in the section on
-    configuration later in this chapter. In the above line, \c QT is
-    added to the list of existing values contained in \c CONFIG.
-
-    The following table lists the variables that \c qmake recognizes, and
-    describes what they should contain.
-
-    \table
-    \header \i Variable \i Contents
-    \row \i CONFIG    \i General project configuration options.
-    \row \i DESTDIR   \i The directory in which the executable will be placed.
-    \row \i FORMS     \i A list of .ui files to be processed by \c uic.
-    \row \i HEADERS   \i A list of filenames of header (.h) files used when
-                      building the project.
-    \row \i QT        \i Qt-specific configuration options.
-    \row \i RESOURCES \i A list of resource (.rc) files to be included in the
-                      final project. See the \l{resources.html}{The Qt Resource
-                      System} for more information about these files.
-    \row \i SOURCES   \i A list of source code files to be used when building
-                      the project.
-    \row \i TEMPLATE  \i The template to use for the project. This determines
-                      whether the output of the build process will be an
-                      application, a library, or a plugin.
-    \endtable
-
-    \section2 Comments
-
-    You can add comments to project files. Comments begin with the \c
-    # symbol and continue to the end of the same line. For example:
-
-    \quotefromfile snippets/qmake/comments.pro
-    \printuntil .
-
-    \section2 Built-in Functions
-
-    \c qmake provides a number of built-in functions to allow the contents
-    of variables to be processed. The most commonly used function in simple
-    project files is the \c include function which takes a filename as an
-    argument. The contents of the given file are included in the project
-    file at the place where the \c include function is used.
-
-    \quotefromfile snippets/qmake/include.pro
-    \printuntil include
-
-    Various other built-in functions are provided to manipulate strings
-    and paths, support user input, and call external tools. A list of
-    the functions available can be found in the
-    \l{qmake-advanced-use.html}{Advanced Use} chapter of this manual.
-
-    \section2 Control Structures
-
-    Support for conditional structures is made available via \e scopes that
-    behave like \c if statements in programming languages:
-
-    \quotefromfile snippets/qmake/scopes.pro
-    \printuntil }
-
-    The assignments inside the scope are only made if the condition is
-    true; in this case, the \c win32 variable must be set
-
-    Simple loops are constructed by iterating over lists of values using
-    the built-in \c for function. More complex operations on variables that
-    would usually require loops are provided by built-in functions such as
-    \c find, \c unique, and \c count.
-
-    \section1 Project Templates
-
-    The \c TEMPLATE variable is used to define the type of project that will
-    be built. If this is not declared in the project file, \c qmake assumes
-    that an application should be built, and will generate an appropriate
-    Makefile (or equivalent file) for the purpose.
-
-    The types of project available are listed in the following table with
-    information about the files that \c qmake will generate for each of them:
-
-    \table
-    \header \i Template      \i Description of \c qmake output
-    \row    \i app (default) \i Creates a Makefile to build an application.
-    \row    \i lib           \i Creates a Makefile to build a library.
-    \row    \i vcapp         \i Creates a Visual Studio Project file to build
-                             an application.
-    \row    \i vclib         \i Creates a Visual Studio Project file to build a library.
-    \row    \i subdirs       \i Creates a Makefile that will go into the specified
-                             directories and run \c qmake on any project files found.
-    \endtable
-
-    See the \l{qmake-tutorials.html}{qmake Tutorials} for advice on
-    writing project files for common types of project.
-
-    \section1 General Configuration
-
-    The \c CONFIG variable specifies the options that the compiler should use
-    and the libraries that should be linked against.  Anything can be
-    added to the \c CONFIG variable, but the options covered below are
-    recognized by \c qmake internally.
-
-    The following options control the compiler flags that are used to build the
-    project:
-
-    \table
-    \header \i Option   \i Description
-    \row    \i release  \i The project is to be built in release mode.
-                        This is ignored if \c debug is also specified.
-    \row    \i debug    \i The project is to be built in debug mode.
-    \row    \i warn_on  \i The compiler should output as many warnings as possible.
-                        This is ignored if \c warn_off is specified.
-    \row    \i warn_off \i The compiler should output as few warnings as possible.
-    \endtable
-
-    The following options define the type of project to be built. Note that some
-    of these options only take effect when used on the relevant platform. On other
-    platforms, they have no effect.
-
-    \table
-    \header \i Option \i Description
-    \row    \i qt     \i The project is a Qt application and should link against the Qt
-                      library. You can use the \c QT variable to control any additional
-                      Qt modules that are required by your application.
-    \row    \i thread \i The project is a multi-threaded application.
-    \row    \i x11    \i The project is an X11 application or library.
-    \endtable
-
-    When using the \c app or \c lib templates, more specialized configuration
-    options can be used to fine tune the build process. These are explained in
-    details in the \l{qmake-common-projects.html}{Common Projects} chapter of
-    this manual.
-
-    For example, if your application uses the Qt library and you want to
-    build it as a multi-threaded application in \c debug mode, your project
-    file will contain the following line:
+    This operator simply assigns a value to a variable, it is used like
+    this:
 
     \code
-        CONFIG += qt thread debug
+        TARGET = myapp
     \endcode
 
-    Note, that you must use "+=", not "=", or \c qmake will not be able to
-    use Qt's configuration to determine the settings needed for your project.
+    This sets the TARGET variable to \c myapp.  This will remove any
+    previously set TARGET.
 
-    \section1 Declaring Qt Libraries
+    \section2 The \c += Operator
 
-    If you enable qmake's support for Qt with the \c CONFIG variable, it is
-    possible to further specify which of the Qt libraries you will link with
-    your application. This is achieved with the \c QT variable which can be
-    used to declare the required extension modules. For example, we can enable
-    the XML and network modules in the following way:
+    This operator appends a value to the list of values in a variable.  It
+    is used like this:
 
     \code
-        CONFIG += qt
-        QT += network xml
+        DEFINES += QT_DLL
     \endcode
 
-    Note that \c QT includes the core and GUI modules by default, so the above
-    declaration \e adds the network and XML modules to this default list. The
-    following assignment \e omits the default modules, and will lead to errors
-    when the application's source code is being compiled:
+    This appends QT_DLL to the list of pre-processor defines to be put in the
+    Makefile.
+
+    \section2 The \c -= Operator
+
+    This operator removes a value from the list of values in a variable.
+    It is used like this:
 
     \code
-        QT = network xml # This will omit the core and GUI modules.
+        DEFINES -= QT_DLL
     \endcode
 
-    The table below shows the options that can be used with the \c QT variable
-    and the features that are associated with each of them:
+    This removes QT_DLL from the list of pre-processor defines to be put
+    in the Makefile.
 
-    \table
-    \header \i Option                     \i Features
-    \row    \i core (included by default) \i Classes that provide fundamental Qt
-                                             features
-    \row    \i gui  (included by default) \i Widgets and other GUI classes
-    \row    \i network   \i \l{networking.html}{Network Module} classes
-    \row    \i opengl    \i \l{opengl.html}{OpenGL Module} classes
-    \row    \i sql       \i \l{sql.html}{SQL Module} classes
-    \row    \i xml       \i \l{xml.html}{XML Module} classes
-    \row    \i compat    \i Enables the use of compatibility classes (see the
-                         \l{porting4.html}{Porting to Qt 4} guide)
-    \endtable
+    \section2 The \c *= Operator
 
+    This operator only adds a value to the list of values in a variable if
+    it doesn't already exist.  It is used like this:
+
+    \code
+        DEFINES *= QT_DLL
+    \endcode
+
+    QT_DLL will only be added to the list of pre-processor defines if it
+    is not already defined.
+
+    \section2 The \c ~= Operator
+
+    This operator replaces any values that match the regexp with the
+    specified value.  It is used like this:
+
+    \code
+        DEFINES ~= s/QT_[DT].+/QT
+    \endcode
+
+    This removes any values in the list that start with QT_D or QT_T with
+    QT.
+
+    \section1 Scopes
+
+    A scope are similar to \c if statements, if a certain condition is
+    true, the settings inside the scope are processed.  A scope is written
+    like this:
+
+    \code
+        win32 {
+        DEFINES += QT_DLL
+        }
+    \endcode
+
+    The above code will add the QT_DLL define to the Makefile if \c qmake
+    is used on a Windows platform.  If \c qmake is used on a different
+    platform than Windows, the define will be ignored. You may also perform
+    single line conditionals/assignments with qmake like this:
+
+    \code
+        win32:DEFINES += QT_DLL
+    \endcode
+
+    For example, suppose we want to process something on all platforms
+    \e except for Windows. We can achieve this by negating the scope like
+    this:
+
+    \code
+        !win32 {
+        DEFINES += QT_DLL
+        }
+    \endcode
+
+    Any entry on the CONFIG line is also a scope. For example, if you
+    write this:
+    \code
+        CONFIG += warn_on
+    \endcode
+    you will have a scope called 'warn_on'. This makes it easy to change
+    the configuration for a project without losing all the custom settings
+    that might be needed for a specific configuration.  Since it is
+    possible to put your own values on the CONFIG line, this provides you
+    with a very powerful configuration tool for your Makefiles. For
+    example:
+
+    \code
+        CONFIG += qt warn_on debug
+        debug {
+        TARGET = myappdebug
+        }
+        release {
+        TARGET = myapp
+        }
+    \endcode
+
+    In the above code, two scopes are created which depend on what
+    is put on the CONFIG line.  In the example, \c debug is on the config
+    line, so the TARGET variable is set to \c myappdebug.  If \c release
+    was on the config line, then the TARGET variable would be set to \c
+    myapp.
+
+    It is also possible to check for two things before processing some
+    settings.  For instance, if you want to check if the platform is
+    Windows and that the thread configuration is set, you would write
+    this:
+
+    \code
+        win32 {
+        thread {
+            DEFINES += QT_THREAD_SUPPORT
+        }
+        }
+    \endcode
+
+    To save writing many nested scopes, you can nest scopes using a colon
+    like this:
+
+    \code
+        win32:thread {
+        DEFINES += QT_THREAD_SUPPORT
+        }
+    \endcode
+
+    Once a test has been performed you may also do else/elseif operations. With
+    this you may easily write complicated tests. This can be done with the
+    special \c else scope, it can be combined with other scopes (separated by
+    colons as above) for example:
+
+    \code
+        win32:thread {
+        DEFINES += QT_THREAD_SUPPORT
+        } else:debug {
+        DEFINES += QT_NOTHREAD_DEBUG
+        } else {
+        message("Unknown configuration")
+        }
+    \endcode
+
+    \section1 Variables
+
+    The variables that we have encountered so far are system variables,
+    such as \c DEFINES, \c SOURCES, and \c HEADERS.  It is possible for you
+    to create your own variables so that you use them in scopes.  It's
+    easy to create your own variable; just name it and assign something to
+    it. For example:
+
+    \code
+        MY_VARIABLE = value
+    \endcode
+
+    There are no restricitions on what you do to your own variables, as \c
+    qmake will just ignore them unless it needs to look at them for a
+    scope.  
+
+    You can also assign the value of a current variable to another
+    variable by prefixing $$ to the variable name. For example:
+
+    \code
+        MY_DEFINES = $$DEFINES
+    \endcode
+
+    Now the MY_DEFINES variable contains what is in the DEFINES variable at
+    this point in the project file.  This is also equivalent to:
+
+    \code 
+        MY_DEFINES = $${DEFINES}
+    \endcode
+
+    The second notation allows you to adjoin the variable expansion to another
+    value without separating by space. \c qmake will allow a variable to
+    contain anything (including $(VALUE), which will be placed directly into
+    the Makefile, and allow it to expand as appropriate, usually an environment
+    variable). However, if you require an environment variable to be replaced
+    immediately then you may use the $$() notation. For example:
+
+    \code
+        MY_DEFINES = $$(ENV_DEFINES)
+    \endcode
+
+    This will set MY_DEFINES to the value of the evironment variable
+    ENV_DEFINES as it parses the .pro file. Additionally you may call built-in
+    functions in variable replacing. These functions (not to be confused with
+    Conditional Functions as enumerated in the next section) are listed below:
+
+    \section2 join(variablename, glue, before, after)
+
+    This will join the value of \e variablename with glue. If this value is
+    non-empty it will prefix the value with \e before and suffix it with \e
+    after. \e variablename is the only required field, the others will default
+    to empty strings. If you need to encode spaces in \e glue, \e before, or \e
+    after you must quote them.
+
+    \section2 prompt(question)
+
+    This will display \e question, and read from stdin as a return value.
+
+    \section2 member(variablename, position)
+
+    This will place the value in \e variablename in position \e position of the
+    list. If the value of \e variablename is not long this will return an empty
+    string. \e variablename is the only required field, if not specified
+    position will default to the first value in the list (0).
+
+    \section2 find(variablename, substr)
+
+    This will place all the values in \e variablename that match \e substr. \e
+    substr may be a regular expression as well, and will be matched
+    accordingly.
+
+    \code
+        MY_VAR = one two three four
+        MY_VAR2 = $$join(MY_VAR, " -L", -L) -Lfive
+        MY_VAR3 = $$member(MY_VAR, 2) $$find(MY_VAR, t.*)
+    \endcode
+
+    MY_VAR2 will contain '-Lone -Ltwo -Lthree -Lfour -Lfive', and MYVAR3 will
+    contains 'three two three'.
+
+    \section2 basename(file)
+
+    This will return the basename of the file specified. For example:
+
+    \code
+       FILE = /etc/passd
+       FILENAME = $$basename($$FILE) #passwd
+    \endcode
+
+    \section2 dirname(file)
+
+    This will return the directory name part of the file specified. For
+    example:
+
+    \code
+       FILE = /etc/X11R6/XF86Config
+       DIRNAME = dirname($$FILE) #/etc/X11R6
+    \endcode
+
+    \section2 sprintf(string, ...)
+
+    This will replace %1-%9 with the arguments passed into the
+    ... arguments. The resulting string will be returned.
+
+    \section2 unique(variablename)
+
+    This will return a list of values in variable that are unique (that is
+    with repetitive entries removed). For example:
+
+    \code
+       ARGS = 1 2 3 2 5 1
+       ARGS = $$unique(ARGS) #1 2 3 5
+    \endcode
+
+    \section2 quote(string)
+
+    This will place a whole value into a single entity, \\n \\r and \\t can
+    be used to generate literal carriage returns, line feeds and tabs
+    (respectively). The return value will not be quoted (double or single)
+    but will be placed into a single entry (for literal expansion).
+
+    \section2 system(program_and_args)
+
+    This will return the stdout/stderr of the program executed, and parse it as
+    normally expected. You can use this to interrogate information about the
+    platform for example.
+
+    \code
+        UNAME = $$system(uname -s)
+        contains( UNAME, [lL]inux ):message( This looks like Linux ($$UNAME) to me )
+    \endcode
+
+    \section1 Conditional Functions
+
+    \c qmake provides built-in functions that perform simple, yet powerful
+    tests. These tests may be used in place of scopes (as described above), in
+    some cases it is more usefull to use the test function by itself ignoring
+    its test value.
+
+    \section2 contains(variablename, value)
+
+    If \e value is in the list of values stored in the variable called \e
+    variablename, then the settings inside the scope will be processed.
+    For example:
+
+    \code
+        contains(CONFIG, thread) {
+        DEFINES += QT_THREAD_SUPPORT
+        }
+    \endcode
+
+    If \c thread is in the list of values for the \c CONFIG variable, then
+    QT_THREAD_SUPPORT will be added to the list of values in the \c
+    DEFINES variable.
+
+    \section2 count(variablename, number)
+
+    If \e number matches the number of values stored in the variable
+    called \e variablename, then the settings inside the scope will be
+    processed.  For example:
+
+    \code
+        count( DEFINES, 5 ) {
+        CONFIG += debug
+        }
+    \endcode
+
+    \section2 error(string)
+
+    This function outputs the string given and then makes \c qmake exit.
+    For example:
+
+    \code
+        error( "An error has occurred" )
+    \endcode
+
+    The text "An error has occurred" will be displayed on the console and
+    \c qmake will exit.
+
+    \section2 exists(filename)
+
+    If the specified file exists, then the settings inside the scope will
+    be processed.  For example:
+
+    \code
+        exists( /local/qt/qmake/main.cpp ) {
+        SOURCES += main.cpp
+        }
+    \endcode
+
+    If \c /local/qt/qmake/main.cpp exists then main.cpp is added to the
+    list of source files.
+
+    Note that "/" can be used as a directory separator regardless of the
+    platform.
+
+    \section2 include(filename)
+
+    The contents of filename are included at this point in the project
+    file, so any settings in the specified file will be processed.  An
+    example of this is:
+
+    \code 
+        include( myotherapp.pro )
+    \endcode
+
+    Any settings in the \c myotherapp.pro project file are now processed.
+
+    \section2 isEmpty(variablename)
+
+    This is the equivalent of using count( variablename, 0 ).  If the
+    variable called \e variablename has no elements, then the settings
+    inside the scope will be processed.  An example of this is:
+
+    \code
+        isEmpty( CONFIG ) {
+        CONFIG += qt warn_on debug
+        }
+    \endcode
+
+    \section2 message(string) 
+
+    This function simply outputs a message on the console.
+
+    \code
+        message( "This is a message" )
+    \endcode
+
+    The text "This is a message" is output to the console and
+    processing of the project file carries on.
+
+    \section2 system(command)
+
+    The specified command is performed and if it returns an exit code of
+    1, the settings inside the scope are processed.  For example:
+
+    \code
+        system( ls /bin ) {
+        SOURCES += bin/main.cpp
+        HEADERS += bin/main.h
+        }
+    \endcode
+
+    So if the command \c {ls /bin} returns 1 then \c bin/main.cpp is added
+    to the list of sources and \c bin/main.h is added to the list of
+    headers.
+
+    \section2 CONFIG(config)
+
+    This function can be used to test for variables placed into the CONFIG
+    variable. This is the same as regular old style (tmake) scopes, but
+    has the added advantage a second paramter can be passed to test for
+    the active config. As CONFIG's are order dependent (ie the last one
+    set will be considered the active config for mutual exclusive sets
+    like debug and release) a second paramter can be used to specify a set
+    of values to consider for example:
+
+    \code
+      CONFIG = debug
+      CONFIG += release
+      CONFIG(release, debug|release):message(Release build!) #will print
+      CONFIG(debug, debug|release):message(Debug build!) #no print
+    \endcode
+
+    Because release is considered the active setting (for feature parsing)
+    it will be the CONFIG used to generate the build file. In the common
+    case a second paramter is not needed, but for specific mutual
+    exclusive tests it is invaluable.
+
+    \section2 infile(filename, var, val)
+
+    This function will succeed if the file \e filename (when parsed
+    by qmake itself) contains the variable \e var with a value of 
+    \e val. You may also not pass in a third argument (\e val) and the
+    function will only test if \e var has been assigned to in the file.
+
+    \section2 for(iterate, list)
+
+    This special test function will cause a loop to be started that
+    iterates over all values in \e list setting \e iterate to each
+    value. As a convience if \e list is 1..10 then iterate will iterate
+    over the values 1 through 10.
+
+    The use of an else scope afer a condition line with a for() loop is
+    disallowed. 
+
+    For example:
+
+    \code
+        LIST = 1 2 3
+        for(a, LIST):exists(file.$${a}):message(I see a file.$${a}!)
+    \endcode
 */
 
 /*!
-    \page qmake-running-qmake.html
+    \page qmake-precompiledheaders.html
+    \title Using Precompiled Headers
 
-    \title Command Line Usage
+    \target About
 
-    The behavior of \c qmake can be customized when it is run by
-    specifying various options on the command line. These allow the
-    build process to be fine-tuned, provide useful diagnostic
-    information, and can be used to specify the target platform for
-    your project.
+    Precompiled headers are a performance feature supported by some
+    compilers to compile a stable body of code, and store the compiled
+    state of the code in a binary file. During subsequent compilations,
+    the compiler will load the stored state, and continue compiling the
+    specified file. Each subsequent compilation is faster because the
+    stable code does not need to be recompiled.
 
-    \target Commands
-    \section1 Command-Line Options
+    \c qmake supports the use of precompiled headers (PCH) on some
+    platforms and build environments, including:
+    \list
+    \i Windows
+        \list
+        \i nmake
+        \i Dsp projects (VC 6.0)
+        \i Vcproj projects (VC 7.0 \& 7.1)
+        \endlist
+    \i Mac OS X
+        \list
+        \i Makefile
+        \i Xcode
+        \endlist
+    \i Unix
+        \list
+        \i GCC 3.3 and up
+        \endlist
+    \endlist
 
-    \section2 Syntax
+
+    \target ADD_PCH
+    \section1 Adding Precompiled Headers to Your Project
+
+    \target PCH_CONTENTS
+    \section2 Contents of the Precompiled Header File
+
+    The precompiled header must contain code which is \c stable
+    and \c static throughout your project. A typical PCH might look
+    like this:
+
+    \section3 Example: \c stable.h
 
     \code
-        qmake [options] files
+    // Add C includes here
+
+    #if defined __cplusplus
+    // Add C++ includes here
+    #include <stdlib>
+    #include <iostream>
+    #include <vector>
+    #include <qapplication.h> // Qt includes
+    #include <qpushbutton.h>
+    #include <qlabel.h>
+    #include "thirdparty/include/libmain.h"
+    #include "my_stable_class.h"
+    ...
+    #endif
     \endcode
 
-    \section2 Options
-
-    The following options can be specified on the command line to \c qmake:
-
-    \list
-    \i \c -o file \BR
-        \c qmake output will be directed to \e file. if this argument
-        is not specified, then \c qmake will try to guess a suitable name.  If '-' is
-        specified, output is directed to stdout.
-    \i \c -d \BR
-        \c qmake will output debugging information.
-    \endlist
-
-    For projects that need to be built differently on each target
-    platform, with many subdirectories, \c qmake
-    can be 
-    You can set variables in the before running \c qmake to pass
-    in default values for the variables in the project file.
-
-    \list
-    \i \c -unix \BR
-        \c qmake will run in unix mode.  In this mode, Unix file
-        naming and path conventions will be used, additionally testing for unix 
-        (as a scope) will succeed. This is the default mode on all Unices. 
-    \i \c -macx \BR
-        \c qmake will run in Mac OS X mode.  In this mode, Unix file
-        naming and path conventions will be used, additionally testing for macx
-        (as a scope) will succeed. This is the default mode on Mac OS X. 
-    \i \c -win32 \BR
-        \c qmake will run in win32 mode.  In this mode, Windows file naming and path
-        conventions will be used, additionally testing for win32 (as a scope) will succeed. 
-        This is the default mode on Windows.
-    \i \c -t tmpl \BR
-        \c qmake will override any set TEMPLATE variables with tmpl, but only
-        \e after the .pro file has been processed.
-    \i \c -tp prefix \BR
-        \c qmake will add the prefix to the TEMPLATE variable.
-    \i \c -help \BR
-        \c qmake will go over these features and give some useful help.
-    \endlist
-
-    There are also warning options that can help to find problems in your
-    project file:
-
-    \list
-    \i \c -Wall \BR
-          With this \c qmake will turn on all known warnings.
-    \i \c -Wnone \BR
-          No warning information will be generated by \c qmake.
-    \i \c -Wparser \BR
-          \c qmake will only generate parser warnings, this will alert
-          you to common pitfalls, and potential problems in the parsing of your .pro
-          files.
-    \i \c -Wlogic \BR
-          Again \c qmake will warn of common pitfalls, and potential problems. This can
-          include (but not limited to) checking if a file is placed into a list of files
-          multiple times, if a file cannot be found, etc.
-    \endlist
-
-    \c qmake supports two different modes of operation: In the default mode,
-    \c qmake will use the description in a .pro file to generate a Makefile.  Creating Makefiles
-    is covered by this reference guide, there is another mode which
-    generates .pro files.
-
-    To toggle between these modes you must specify in the first argument
-    what mode you want to use.  If no mode is specified, \c qmake will
-    assume you want Makefile mode.  The available modes are:
-
-    \list
-    \i \c -makefile \BR
-        \c qmake output will be a Makefile (\link #MakefileMode Makefile mode \endlink).
-    \i \c -project \BR
-        \c qmake output will be a project file (\link #ProjectfileMode Project file mode \endlink).
-    \endlist
-
-    \target MakefileMode
-    \section3 Makefile Mode
-
-    In Makefile mode \c qmake will generate a Makefile. Additionally you may
-    supply the following arguments in this mode:
-
-    \list
-    \i \c -after \BR
-            \c qmake will process assignments given on the commandline after
-            the specified files.
-    \i \c -nocache \BR
-        \c qmake will ignore the .qmake.cache file.
-    \i \c -nodepend \BR
-        \c qmake will not generate any dependency information.
-    \i \c -cache file \BR
-        \c qmake will use \e file as the cache file, ignoring any other .qmake.cache file found
-    \i \c -spec spec \BR
-        \c qmake will use \e spec as a path to platform-compiler information and QMAKESPEC will be ignored.
-    \endlist
-
-    The \c files argument can be a list of one or more project files, separated
-    by spaces. You may also pass qmake assignments on the command line here and
-    they will be processed before all files specified, for example:
-
-    qmake -makefile -unix -o Makefile "CONFIG+=test" test.pro 
-
-    If however you are certain you want your variables processed after the
-    the files specified, then you may pass the -after argument. When this
-    is specified all assignments on the commandline after the -after
-    option will be postponed until after the specified files are parsed.
-
-    This will generate a Makefile, from test.pro with Unix pathnames.  However
-    many of these arguments aren't necessary as they are the default.  Therefore
-    the line can be simplified on Unix to:
-
-    qmake "CONFIG+=test" test.pro 
+    Note that a precompiled header file needs to separate C includes from
+    CPP includes, since the precompiled header file for C files may not
+    contain C++ code.
 
 
-    \target ProjectfileMode
-    \section3 Projectfile Mode
+    \target PROJECT_OPTIONS
+    \section2 Project Options
 
-    In Projectfile mode \c qmake will generate a project file. Additionally, you may
-    supply the following arguments in this mode:
+    To make your project use PCH, the only thing you need to change in
+    your project settings (.pro), is to include the PRECOMPILED_HEADER option:
 
-    \list
-    \i \c -r \BR
-            \c qmake will look through supplied directories recursively
-    \i \c -nopwd \BR
-        \c qmake will not look in your current working directory for
-        source code and only use the specified \c files
-    \endlist
+    \code
+        PRECOMPILED_HEADER = stable.h
+    \endcode
 
-    The \c files argument can be a list of files or directories.  If a
-    directory is specified, then it will be included in the \link
-    #DEPENDPATH DEPENDPATH \endlink variable and relevant code from there
-    will be included in the generated project file, if a file is given it
-    will go into the correct variable depending on extension (i.e. .ui
-    files go into FORMS, .cpp files go into SOURCES, etc). Here too you
-    may pass assignments on the commandline, when doing so these
-    assignments will be placed last in the generated .pro file.
+    \c qmake will handle the rest, to ensure the creation and use of the
+    precompiled header file. You do not need to include the precompiled
+    header file in HEADERS, as qmake will do this if the configuration
+    supports PCH.
+
+    All platforms that support precompiled headers have the configuration
+    option \bold precompile_header set. Using this option, you may trigger
+    conditional blocks in your .pro file, to add settings when using PCH.
+    For example:
+
+    \code
+        precompile_header:!isEmpty(PRECOMPILED_HEADER) {
+        DEFINES += USING_PCH
+        }
+    \endcode
+
+    \target EXAMPLE_PROJECT
+    \section1 Example Project
+
+    You can find the following source code in the
+    \c{qt/qmake/examples/precompile} directory:
+
+    \section2 \c mydialog.ui
+
+    \quotefile precompile/mydialog.ui
+    \skipto <!
+    \printuntil </UI>
+
+    \section2 \c stable.h
+
+    \quotefile precompile/stable.h
+    \skipto /*
+    \printuntil #endif
+
+    \section2 \c myobject.h
+
+    \quotefile precompile/myobject.h
+    \skipto #include
+    \printuntil }
+
+    \section2 \c myobject.cpp
+
+    \quotefile precompile/myobject.cpp
+    \skipto #include
+    \printuntil }
+
+    \section2 \c util.cpp
+
+    \quotefile precompile/util.cpp
+    \skipto void
+    \printuntil }
+
+    \section2 \c main.cpp
+
+    \quotefile precompile/main.cpp
+    \skipto #include
+    \printuntil }
+
+    \section2 \c precompile.pro
+
+    \quotefile precompile/precompile.pro
+    \skipto #
+    \printuntil .ui
 */
 
 /*!
