@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#70 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#71 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -697,11 +697,18 @@ void QLCDNumber::drawString( const QString &s, QPainter &p,
 
 void QLCDNumber::internalSetString( const QString& s, const QBitArray* newPoints )
 {
-    digitStr = s;
-    if ( (int)digitStr.length() > ndigits )
-	digitStr.truncate( ndigits );
+    QString t = s;
+
+    t = s;
+    if ( (int)t.length() > ndigits )
+	t.truncate( ndigits );
     if ( newPoints )
 	points = *newPoints;
+
+    if ( t == s )
+	return;
+
+    digitStr = t;
 }
 
 
