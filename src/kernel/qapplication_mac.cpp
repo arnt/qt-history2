@@ -191,12 +191,15 @@ const UInt32 kEventClassQt = 'cute';
 enum {
     //types
     typeQWidget = 1,  /* QWidget * */
+    typeTimerInfo = 2, /* TimerInfo * */
     //params
+    kEventParamTimer = 'qtim',     /* typeTimerInfo */
     kEventParamQWidget = 'qwid',   /* typeQWidget */
     //events
     kEventQtRequestPropagate = 10,
     kEventQtRequestSelect = 11,
-    kEventQtRequestContext = 12
+    kEventQtRequestContext = 12,
+    kEventQtRequestTimer = 13
 };
 static bool request_updates_pending = FALSE;
 void qt_event_request_updates() 
@@ -221,6 +224,7 @@ static EventTypeSpec events[] = {
     { kEventClassQt, kEventQtRequestPropagate },
     { kEventClassQt, kEventQtRequestSelect },
     { kEventClassQt, kEventQtRequestContext },
+    { kEventClassQt, kEventQtRequestTimer },
 
     { kEventClassMouse, kEventMouseWheelMoved },
     { kEventClassMouse, kEventMouseDown },
@@ -522,9 +526,12 @@ static EventLoopTimerUPP timerUPP = NULL;       //UPP
 /* timer call back */
 QMAC_PASCAL static void qt_activate_timers(EventLoopTimerRef, void *data)
 {
+    EventRef tmr = NULL;
     TimerInfo *t = (TimerInfo *)data;
-    QTimerEvent e( t->id );
-    QApplication::sendEvent( t->obj, &e );	// send event
+    CreateEvent(NULL, kEventClassQt, kEventQtRequestTimer, GetCurrentEventTime(), 
+		kEventAttributeUserEvent, &tmr );
+    SetEventParameter(tmr, kEventParamTimer, typeTimerInfo, sizeof(t), &t);
+    PostEventToQueue( GetCurrentEventQueue(), tmr, kEventPriorityHigh );
 }
 
 //
@@ -1351,6 +1358,14 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		    qt_button_down = NULL;
 		    mouse_button_state = 0;
 		}
+	    }
+	} else if(ekind == kEventQtRequestTimer) {
+	    TimerInfo *tinfo = NULL;
+	    GetEventParameter(event, kEventParamTimer, typeTimerInfo, NULL,
+			      sizeof(tinfo), NULL, &tinfo);
+	    if(tinfo) {
+		QTimerEvent e( tinfo->id );
+		QApplication::sendEvent( tinfo->obj, &e );	// send event
 	    }
 	}
 	break;
