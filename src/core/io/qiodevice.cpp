@@ -220,8 +220,9 @@ QIODevicePrivate::~QIODevicePrivate()
                      terminators are translated to the local encoding.
     \value Unbuffered Any buffer in the device is bypassed.
 
-    Certain modes, such as Unbuffered and Truncate, depend on support for
-    these features in specific subclasses of QIODevice.
+    Certain flags, such as QIODevice::Unbuffered and
+    QIODevice::Truncate, might be meaningless for some subclasses.
+    (For example, access to a QBuffer is always "unbuffered".)
 */
 
 /*!     \fn QIODevice::bytesWritten(Q_LONGLONG bytes)
