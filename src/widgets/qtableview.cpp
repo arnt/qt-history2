@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#88 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#89 $
 **
 ** Implementation of QTableView class
 **
@@ -285,13 +285,12 @@ void QTableView::setNumRows( int rows )
     }
     if ( nRows == rows )
 	return;
-    int oldRows = nRows;
+    int oldLastVisible = lastRowVisible();
+    int oldTopCell = topCell();
     nRows = rows;
-    if ( autoUpdate() && isVisible() ) {
-	int maxRow  = lastRowVisible();
-	if ( maxRow >= oldRows || maxRow >= nRows )
-	    repaint();
-    }
+    if ( autoUpdate() && isVisible() &&
+	 ( oldLastVisible != lastRowVisible() || oldTopCell != topCell() ) )
+	repaint();
     updateScrollBars( verRange );
 }
 
