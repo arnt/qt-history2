@@ -443,24 +443,24 @@ QImage QVFbView::getBuffer( const QRect &r, int &leading ) const
         return img;
       }
       case 24: {
-        leading = 0;
         static unsigned char *imgData = 0;
-        if ( !imgData ) {
-            int bpl = 4 * hdr->width;
-            imgData = new unsigned char [ bpl * hdr->height ];
+        if (!imgData) {
+            int bpl = hdr->width *4;
+            imgData = new unsigned char[bpl * hdr->height];
         }
-        QImage img( imgData, r.width(), r.height(), 32, 0, 0, QImage::IgnoreEndian );
-        for ( int row = 0; row < r.height(); row++ ) {
-            unsigned char *dptr = img.scanLine( row );
-            unsigned char *sptr = data + hdr->dataoffset + (r.y() + row) * hdr->linestep;
-//            sptr += r.x() * 3;
-            for (int col = 0 ; col < r.width()-1; ++col ) {
+        QImage img(imgData, r.width(), r.height(), 32, 0, 0, QImage::IgnoreEndian);
+        for (int row = 0; row < r.height(); ++row) {
+            uchar *dptr = img.scanLine(row);
+            uchar *sptr = data + hdr->dataoffset + (r.y() + row) * hdr->linestep;
+            sptr += r.x() * 3;
+            for (int col = 0; col < r.width(); ++col) {
                 *dptr++ = *sptr++;
                 *dptr++ = *sptr++;
                 *dptr++ = *sptr++;
                 dptr++;
             }
         }
+        leading = 0;
         return img;
       }
       case 32:{
