@@ -359,8 +359,9 @@ void QWMatrix::map( int x, int y, int *tx, int *ty ) const
 }
 
 /*!
-  \fn QPoint QWMatrix::map( const QPoint &p ) const
-\overload
+    \fn QPoint QWMatrix::map( const QPoint &p ) const
+
+    \overload
 
     Transforms \a p to using the formulae:
 
@@ -382,15 +383,17 @@ void QWMatrix::map( int x, int y, int *tx, int *ty ) const
 */
 
 /*!
-  \fn QPointArray QWMatrix::map( const QPointArray &a ) const
-  \overload
+    \fn QPointArray QWMatrix::map( const QPointArray &a ) const
+
+    \overload
 
     Returns the point array \a a transformed by calling map for each point.
 */
 
 
 /*!
-  \fn QRegion QWMatrix::map( const QRegion &r ) const
+    \fn QRegion QWMatrix::map( const QRegion &r ) const
+
     \overload
 
     Transforms the region \a r.
@@ -400,18 +403,17 @@ void QWMatrix::map( int x, int y, int *tx, int *ty ) const
 */
 
 /*!
-  \fn QRegion QWMatrix::mapToRegion( const QRect &rect ) const
-    \overload
+    \fn QRegion QWMatrix::mapToRegion( const QRect &rect ) const
 
-    Transforms the rectangle \a rect.
+    Returns the transformed rectangle \a rect.
 
     Rotation and shearing a rectangle results in a more general
     region, which is returned here.
 
-    Calling this method can be rather expensive, if rotations or
-    shearing are used. If you just need to know the bounding rectangle
-    of the returned region, use mapRect() which is a lot faster than
-    this function.
+    Calling this method can be expensive, if rotations or shearing are
+    used. If you just need to know the bounding rectangle of the
+    returned region, use mapRect() which is a lot faster than this
+    function.
 
     \sa QWMatrix::mapRect()
 */
@@ -618,7 +620,7 @@ QRegion QWMatrix::operator * (const QRect &rect ) const
 /*!
     Returns the transformed rectangle \a rect as a polygon.
 
-    Polygons and rectangles behave a slightly differently
+    Polygons and rectangles behave slightly differently
     when transformed (due to integer rounding), so
     \c{matrix.map( QPointArray( rect ) )} is not always the same as
     \c{matrix.mapToPolygon( rect )}.
@@ -891,9 +893,10 @@ QWMatrix &QWMatrix::rotate( double a )
     \sa invert()
 */
 
-/*! \fn double QWMatrix::det() const
+/*!
+    \fn double QWMatrix::det() const
 
-  Returns the determinant of the matrix.
+    Returns the matrix's determinant.
 */
 
 
@@ -903,9 +906,9 @@ QWMatrix &QWMatrix::rotate( double a )
     If the matrix is singular (not invertible), the identity matrix is
     returned.
 
-    If \a invertible is not null: the value of \a *invertible is set
+    If \a invertible is not 0: the value of \a *invertible is set
     to TRUE if the matrix is invertible; otherwise \a *invertible is
-    set to  FALSE.
+    set to FALSE.
 
     \sa isInvertible()
 */
@@ -961,7 +964,7 @@ bool QWMatrix::operator!=( const QWMatrix &m ) const
 }
 
 /*!
-    Returns the result of multiplying this matrix with matrix \a m.
+    Returns the result of multiplying this matrix by matrix \a m.
 */
 
 QWMatrix &QWMatrix::operator*=( const QWMatrix &m )
@@ -1001,11 +1004,12 @@ QWMatrix operator*( const QWMatrix &m1, const QWMatrix &m2 )
  *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
 /*!
-  \relates QWMatrix
+    \relates QWMatrix
 
-  Writes the matrix \a m to the stream \a s and returns a reference to the stream.
+    Writes the matrix \a m to the stream \a s and returns a reference
+    to the stream.
 
-  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator<<( QDataStream &s, const QWMatrix &m )
@@ -1020,11 +1024,12 @@ QDataStream &operator<<( QDataStream &s, const QWMatrix &m )
 }
 
 /*!
-  \relates QWMatrix
+    \relates QWMatrix
 
-  Reads the matrix \a m from the stream \a s and returns a reference to the stream.
+    Reads the matrix \a m from the stream \a s and returns a reference
+    to the stream.
 
-  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator>>( QDataStream &s, QWMatrix &m )
