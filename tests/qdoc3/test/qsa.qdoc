@@ -6,5 +6,6 @@ project		= QSA
 language	= Qt Script
 headers		= qsa/quickclasslist
 sourcedirs	= qsa
+exampledirs	= $QUICK/examples
 outputdir	= output/qsa
 outputformats	= HTML

@@ -1,6 +1,12 @@
 /*!
-
     \quickclass QAccel
+
+    \quickify
+
+    \include scribblescripter/scribblescript.qsa?scribblescript.pro
+*/
+
+/*
 
     \replace /qApp/Application/
 
