@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocket.cpp#39 $
+** $Id: //depot/qt/main/src/network/qsocket.cpp#40 $
 **
 ** Implementation of QSocket class.
 **
@@ -280,7 +280,7 @@ void QSocket::connectToHost( const QString &host, Q_UINT16 port )
     qDebug( "QSocket (%s)::connectToHost: host %s, port %d",
 	    name(), host.ascii(), port );
 #endif
-    setSocketIntern( d->socket->createNewSocket() );
+    setSocketIntern( -1 );
 
     d->state = HostLookup;
     d->host = host;
@@ -1214,34 +1214,43 @@ void QSocket::setSocket( int socket )
 
 void QSocket::setSocketIntern( int socket )
 {
+    QSocketDevice *sd;
+    if ( socket >= 0 )
+        sd = new QSocketDevice( socket, QSocketDevice::Stream );
+    else
+        sd = new QSocketDevice( QSocketDevice::Stream );
+ 
     if ( state() != Idle )
-	close();
+        close();
+    // close may not have actually deleted the thing.  so, we brutally
+    // Act.
+    delete d;
+ 
+    d = new QSocketPrivate( this );
+    d->socket = sd;
+    d->socket->setBlocking( FALSE );
+    d->socket->setAddressReusable( TRUE );
     d->state = Idle;
-
-    d->socket->setSocket(socket, QSocketDevice::Stream );
-    delete d->rsn;
     d->rsn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Read,
-				  this, "read" );
-    delete d->wsn;
+                                  this, "read" );
     d->wsn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Write,
-				  this, "write" );
+                                  this, "write" );
     connect( d->rsn, SIGNAL(activated(int)), SLOT(sn_read()) );
     d->rsn->setEnabled( FALSE );
     connect( d->wsn, SIGNAL(activated(int)), SLOT(sn_write()) );
     d->wsn->setEnabled( FALSE );
-
     // Initialize the IO device flags
     setFlags( IO_Direct );
     setStatus( IO_Ok );
     open( IO_ReadWrite );
-
+ 
     // hm... this is not very nice.
     d->host = QString::null;
     d->port = 0;
 #ifndef QT_NO_DNS
     delete d->dns;
     d->dns = 0;
-#endif
+#endif                                                                                                                                                                                
 }
 
 

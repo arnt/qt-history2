@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice.h#8 $
+** $Id: //depot/qt/main/src/network/qsocketdevice.h#9 $
 **
 ** Definition of QSocketDevice class.
 **
@@ -60,7 +60,6 @@ public:
     Type	 type() const;
 
     int		 socket() const;
-	int createNewSocket ();
     virtual void setSocket( int socket, Type type );
 
     bool	 open( int mode );
@@ -131,7 +130,8 @@ private:
 
     void	 fetchConnectionParameters();
 
-    static void init();
+    static void  init();
+    int		 createNewSocket();
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

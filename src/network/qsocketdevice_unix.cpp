@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#47 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#48 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -45,6 +45,7 @@
 #include "qsocketdevice.h"
 #include "qwindowdefs.h"
 
+//#define QSOCKETDEVICE_DEBUG
 
 // internal
 void QSocketDevice::init()
@@ -291,8 +292,9 @@ void QSocketDevice::setOption( Option opt, int v )
 */
 bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
 {
-    if ( !isValid() )
+    if ( !isValid() ) {
 	return FALSE;
+    }
 
     if ( !addr.isIp4Addr() ) {
 	qWarning( "QSocketDevice: IPv6 is not supported by this version" );
@@ -313,8 +315,9 @@ bool QSocketDevice::connect( const QHostAddress &addr, Q_UINT16 port )
     }
     if ( errno == EISCONN || errno == EALREADY || errno == EINPROGRESS )
 	return TRUE;
-    if ( e != NoError || errno == EAGAIN || errno == EWOULDBLOCK )
+    if ( e != NoError || errno == EAGAIN || errno == EWOULDBLOCK ) {
 	return FALSE;
+    }
     switch( errno ) {
     case EBADF:
     case ENOTSOCK:
