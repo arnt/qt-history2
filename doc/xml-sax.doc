@@ -37,109 +37,141 @@
 
 \title How to use the Qt SAX2 classes
 
-For a general discussion of the XML topics in Qt and an introduction to
-SAX2 see the document "<a href="xml.html">Qt XML Module</a>".
+For a general discussion of the XML topics in Qt please refer to
+the document "<a href="xml.html">Qt XML Module</a>".
+Among others it gives you an 
+"<a href="xml.html#introSAX2">Introduction to SAX2</a>" covering
+essentials that you should be familiar with before reading on.
 
+<a name="quickStart"></a>
+<h2>A tiny parser</h2>
 
+In this section we will present a small example reader that outputs
+the names of all elements in an XML document on the command line. 
+The element names are indented corresponding to their nesting level.
 
-
-
-
-<h2><a name="quickStart">Quick start</h2>
-
-Before reading this section you should have read the
-"<a href="xml.html#introSAX2">Introduction to SAX2</a>".
-
-In this section we will present a small example for a reader that outputs
-the names of all start tags of an XML document. The start tags are indented
-corresponding to their nesting level.
-
-At first you have to implement the functions of the handler classes you are
-intrested in. In our case we are only interested in three:
+As mentioned in "<a href="xml.html#introSAX2">Introduction to SAX2</a>" 
+we have to implement the functions of the handler classes that we are
+interested in. In our case these are only three:
 \l QXmlContentHandler::startDocument(),
 \l QXmlContentHandler::startElement() and
 \l QXmlContentHandler::endElement().
+
 For this purpose we use a subclass of the \l QXmlDefaultHandler (remember
-that the handler classes are abstract classes and the default handler class
-is a default implementation that does not change the parsing behavior):
-\code
-#include <iostream.h>
-#include <qstring.h>
-#include <qfile.h>
-#include <qxml.h>
+that the special handler classes are all abstract and the default handler class
+provides an implementation that does not change the parsing behavior):
 
-class StructureParser : public QXmlDefaultHandler
-{
-public:
-    bool startDocument()
-    {
-	indent = "";
-	return TRUE;
-    }
-    bool startElement( const QString&, const QString&, const QString& qName, const QXmlAttributes& )
-    {
-	cout << indent << qName << endl;
-	indent += " ";
-	return TRUE;
-    }
-    bool endElement( const QString&, const QString&, const QString& )
-    {
-	indent.remove( 0, 1 );
-	return TRUE;
-    }
-private:
-    QString indent;
-};
-\endcode
+\include xml/tagreader/structureparser.h
 
-The next step is to make an instance of the handler. Then you create a
-\l QXmlInputSource for the XML that should be parsed. After that set up the
-reader (in our case we simply have to set the content handler) and start
-the parsing:
-\code
-int main( int argc, char **argv )
-{
-    for ( int i=1; i<argc; i++ ) {
-	StructureParser handler;
-	QFile xmlFile( argv[i] );
-	QXmlInputSource source( xmlFile );
-	QXmlSimpleReader reader;
-	reader.setContentHandler( &handler );
-	reader.parse( source );
-    }
-    return 0;
-}
-\endcode
+Apart from the private helper variable \e indent that we will use to
+get indentation right, there is nothing special about our new 
+\e StructureParser class.
 
-Consider the following XML file:
-\code
-<animals>
-<mammals>
-  <monkeys> <gorilla/> <orang-utan/> </monkeys>
-</mammals>
-<birds> <pigeon/> <penguin/> </birds>
-</animals>
-\endcode
+\dontinclude xml/tagreader/structureparser.cpp
 
-The program will produce the following output:
+Even the implementation is straight-forward: 
+
+\skipto include
+\printuntil qstring.h
+
+First we overload \l QXmlContentHandler::startElement() with a non-empty version.
+
+\printline startDocument
+\printuntil }
+
+At the beginning of the document we simply 
+set \e indent to an empty string because we
+want to print out the root element without any indentation.
+Also we return TRUE so that the parser continues without 
+reporting an error.
+
+Because we want to be informed when the parser comes
+accross a start tag of an element and subsequently print it out, we
+have to overload \l QXmlContentHandler::startElement(). 
+
+\printline startElement
+\printuntil } 
+
+This is what the implementation does: The name of the element with
+preceding indentation is printed out followed by a linebreak.
+Strictly speaking \e qName contains the local element name 
+without an eventual prefix denoting the namespace.
+
+If another element follows before the current element's end tag
+it should be indented. Therefore we add four spaces to the
+\e indent string.
+
+Finally we return TRUE in order to let the parser continue without
+errors.
+
+The last functionality we need to add is the parser's behaviour when an 
+end tag occurs. This means overloading \l QXmlContentHandler::endElement().
+
+\printline endElement
+\printuntil }  
+
+Obviously we then should shorten the \e indent string by the four
+whitespaces added in startElement().
+
+With this we're done with our parser and can start writing the main() 
+program.
+
+\dontinclude xml/tagreader/tagreader.cpp
+
+\skipto include
+\printuntil qxml.h 
+
+\printuntil for
+
+Successively we deal with all files given as command line arguments.
+
+\printline handler
+
+The next step is to create an instance of the \e StructureParser. 
+
+\printline xmlFile
+\printline QXmlInputSource
+
+Then we create a
+\l QXmlInputSource for the XML file to be parsed. 
+
+\printline reader
+\printline setContentHandler
+
+After that we set up the reader. As our \e StructureParser
+class deals with \l QXmlContentHandler functionality only 
+we simply register it as the content handler of our choice.
+
+\printline parse
+
+Now we take our input source and start parsing.
+
+\printline }
+\printuntil }
+
+
+Running the program on the following XML file...
+
+\include xml/tagreader/animals.xml
+
+... produces the following output:
 \code
 animals
- mammals
-  monkeys
-   gorilla
-   orang-utan
- birds
-  pigeon
-  penguin
+    mammals
+        monkeys
+            gorilla
+            orang-utan
+    birds
+        pigeon
+        penguin 
 \endcode
 
-This small example is in so far incomplete since no error handling is done.
-You should always install an error handler (with \l
-QXmlReader::setErrorHandler()). This allows you to report
+It will however refuse to produce the correct result if you e.g. insert
+a whitespace between a &lt; and the element name in your test-XML file.
+To prevent such annoyances
+you should always install an error handler with \l
+QXmlReader::setErrorHandler(). This allows you to report
 parsing errors to the user.
-
-
-
 
 
 

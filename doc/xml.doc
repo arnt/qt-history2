@@ -62,9 +62,6 @@ Support for SAX2 filters and the reader factory are missing at the moment.
 The Qt implementation furthermore omits all SAX1 compatibility classes 
 present in the Java interface. 
 
-Refer to the "<a href="xml-sax.html">How to use the Qt SAX2 classes</a>" document
-for further information on how to use SAX2 with Qt.
-
 DOM Level 1 is a W3C Recommendation for XML interfaces that maps the
 constituents of a XML document in a tree structure. Details and the
 specification of DOM Level 1 can be found at
@@ -85,12 +82,12 @@ To make it less abstract consider the following example:
 <quote>To make it less abstract consider the following example:</quote>
 \endcode
 
-Whilst reading (the parser in SAX2 is usually referred to as "reader") 
+Whilst reading (a SAX2 parser is usually referred to as "reader") 
 the above document three events would be triggered:
 <OL>
-<LI> A start tag occurs (\code <quote> \endcode).
-<LI> Character data (i.e. text) occur.
-<LI> An end tag is parsed (\code </quote> \endcode).
+<LI> A start tag occurs (<tt>&lt;quote&gt;</tt>).
+<LI> Character data (i.e. text) is found.
+<LI> An end tag is parsed (<tt>&lt;/quote&gt;</tt>).
 </OL>
 
 Each time such an event occurs the parser reports it so that 
@@ -106,9 +103,8 @@ SAX2 readers.
 At the moment Qt ships with one reader implementation, \l
 QXmlSimpleReader.
 
-The reader reports parsing events through special handler classes. If the user
-wants to be informed about events, he or she has to install appropriate 
-ones. The following handler classes are available:
+The reader reports parsing events through special handler classes. In Qt
+the following ones are available:
 <ul>
 <li>\l QXmlContentHandler
     reports events related to the content of a document (e.g. the start tag,
@@ -130,14 +126,14 @@ ones. The following handler classes are available:
     might be useful.
 </ul>
 
-All of these are abstract classes describing the interface. With
-\l QXmlDefaultHandler "do nothing" default implementations are provided 
-so that a user needs to implement only functions he or she is
-interested in. 
+These classes are abstract classes describing the interface. The
+\l QXmlDefaultHandler class provides a "do nothing" default implementation for
+all of them. Therefore users need to overload only the
+QXmlDefaultHandler functions they are interested in. 
 
 To read input XML data a special class \l QXmlInputSource is used.
 
-Apart from the already mentioned classes the following SAX2 support classes 
+Apart from the already mentioned ones the following SAX2 support classes 
 provide the user with useful functionality:
 <ul>
 <li> \l QXmlAttributes
