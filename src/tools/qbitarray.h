@@ -79,6 +79,7 @@ public:
 
     bool    at( uint index ) const;
     QBitVal operator[]( int index );
+    bool operator[]( int index ) const;
 
     QBitArray &operator&=( const QBitArray & );
     QBitArray &operator|=( const QBitArray & );
@@ -110,6 +111,9 @@ inline bool QBitArray::at( uint index ) const
 
 inline QBitVal QBitArray::operator[]( int index )
 { return QBitVal( (QBitArray*)this, index ); }
+
+inline bool QBitArray::operator[]( int index ) const
+{ return testBit( index ); }
 
 
 /*****************************************************************************

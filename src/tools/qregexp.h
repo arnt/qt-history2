@@ -55,6 +55,9 @@ public:
     void	setWildcard( bool );
 
     QString	pattern()	const	{ return rxstring; }
+    // ### in Qt 3.0, provide a real implementation
+    void	setPattern( const QString& pattern )
+					{ operator=( pattern ); }
 
     int		match( const QString &str, int index=0, int *len=0,
 		       bool indexIsStart = TRUE ) const;

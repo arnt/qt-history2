@@ -13540,6 +13540,8 @@ QString &QString::replace( uint index, uint len, const QChar* s, uint slen )
   position \a index.
 
   Returns the position of the next match, or -1 if \a rx was not found.
+
+  \sa findRev() replace() contains()
 */
 
 int QString::find( const QRegExp &rx, int index ) const
@@ -13555,6 +13557,8 @@ int QString::find( const QRegExp &rx, int index ) const
 
   Returns the position of the next match (backwards), or -1 if \a rx was not
   found.
+
+  \sa find()
 */
 
 int QString::findRev( const QRegExp &rx, int index ) const
@@ -13583,7 +13587,7 @@ int QString::findRev( const QRegExp &rx, int index ) const
     s.contains( r );				// 4 matches
   \endcode
 
-  \sa find(), findRev()
+  \sa find() findRev()
 */
 
 int QString::contains( const QRegExp &rx ) const
@@ -13619,6 +13623,7 @@ int QString::contains( const QRegExp &rx ) const
     s.replace( QRegExp("^[bn]a"), "" );		// NOTE! becomes ""
   \endcode
 
+  \sa find() findRev()
 */
 
 QString &QString::replace( const QRegExp &rx, const QString &str )

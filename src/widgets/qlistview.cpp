@@ -4322,7 +4322,7 @@ bool QListView::allColumnsShowFocus() const
 
   Returns 0 if there is no first item.
 
-  \sa itemAt() itemBelow() itemAbove()
+  \sa itemAt() QListViewItem::itemBelow() QListViewItem::itemAbove()
 */
 
 QListViewItem * QListView::firstChild() const

@@ -128,7 +128,7 @@ serialization.
 </td>
 <td valign=top>
   <ul>
-  <li> RGB value serialized as an Q_UINT32.
+  <li> RGB value serialized as a Q_UINT32
   </ul>
 </td>
 </tr>

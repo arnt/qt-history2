@@ -226,6 +226,9 @@ QRegExp &QRegExp::operator=( const QRegExp &r )
 }
 
 /*!
+  \obsolete
+  Consider using setPattern() instead of this method.
+
   Sets the pattern string to \e pattern and returns a reference to this regexp.
   The case sensitivity or wildcard options do not change.
 */
@@ -329,6 +332,12 @@ void QRegExp::setCaseSensitive( bool enable )
   Returns the pattern string of the regexp.
 */
 
+
+/*!
+  \fn void QRegExp::setPattern()
+  Sets the pattern string to \e pattern and returns a reference to this regexp.
+  The case sensitivity or wildcard options do not change.
+*/
 
 static inline bool iswordchar( int x )
 {
