@@ -29,3 +29,5 @@ include(itemviews/itemviews.pri)
 
 # ##### this should go away eventually
 include(compat.pri)
+
+QMAKE_LIBS += $$QMAKE_LIBS_GUI

@@ -18,3 +18,4 @@ include(widgets/widgets.pri)
 
 mac:LIBS += -framework Carbon
 
+QMAKE_LIBS += $$QMAKE_LIBS_COMPAT

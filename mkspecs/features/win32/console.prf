@@ -1,3 +1,4 @@
+!contains(TEMPLATE, app):warning("Using CONFIG feature 'console' for non-app template")
 CONFIG -= windows
 dll {
    QMAKE_CFLAGS += $$QMAKE_CFLAGS_CONSOLE_DLL
@@ -8,4 +9,3 @@ dll {
    QMAKE_CXXFLAGS += $$QMAKE_CXXFLAGS_CONSOLE
    QMAKE_LFLAGS += $$QMAKE_LFLAGS_CONSOLE
 }
-QMAKE_LIBS += $$QMAKE_LIBS_CONSOLE

@@ -2,7 +2,6 @@ REQUIRES = !qt_one_lib
 TARGET		= qcore
 QCONFIG         =
 
-CONFIG += console
 CONFIG -= opengl x11sm
 
 DEFINES += QT_BUILD_CORE_LIB
@@ -22,3 +21,5 @@ include(codecs/codecs.pri)
 mac:LIBS += -framework CoreServices -framework CoreFoundation -framework ApplicationServices
 
 win32:DEFINES-=QT_NO_CAST_TO_ASCII
+
+QMAKE_LIBS += $$QMAKE_LIBS_CORE

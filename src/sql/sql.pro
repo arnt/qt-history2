@@ -4,7 +4,6 @@ REQUIRES = !qt_one_lib
 TARGET		= qsql
 QCONFIG = core
 
-CONFIG += console
 CONFIG -= opengl x11sm
 
 DEFINES += QT_BUILD_SQL_LIB

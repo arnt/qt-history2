@@ -1,9 +1,7 @@
+!contains(TEMPLATE, app):warning("Using CONFIG feature 'windows' for non-app template")
 CONFIG -= console
-!console {
-   dll {
-     QMAKE_LFLAGS += $$QMAKE_LFLAGS_WINDOWS_DLL
-   } else {
-     QMAKE_LFLAGS += $$QMAKE_LFLAGS_WINDOWS
-   }
+dll {
+    QMAKE_LFLAGS += $$QMAKE_LFLAGS_WINDOWS_DLL
+} else {
+    QMAKE_LFLAGS += $$QMAKE_LFLAGS_WINDOWS
 }
-QMAKE_LIBS += $$QMAKE_LIBS_WINDOWS
