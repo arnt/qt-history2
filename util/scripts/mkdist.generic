@@ -21,52 +21,58 @@ if [ "${platform}" = "x11" -o "${platform}" = "win" ]; then
 fi
 
 if [ "${goodparam1}" = "" -o "${goodparam2}" = "" -o "${DISTDIR}" = "" ]; then
-  echo 'Usage: mkdist.generic commercial|free x11|win dist-dir'
+  echo 'Usage: mkdist.generic commercial|free x11|win dist-dir' >&2
   exit
 fi
 
 if [ "${freecomm}" = "free" -a "${platform}" != "x11" ]; then
-  echo 'Impossible. Only X11 versions have a free license'
+  echo 'Impossible. Only X11 versions have a free license' >&2
 fi
 
-echo "Removing and creating new ${DISTDIR}"
+echo "Removing and creating new ${DISTDIR}" >&2
 rm -rf ${DISTDIR}
 mkdir -p ${DISTDIR}
 cd ${DISTDIR}
 
-echo "Exporting the entire Qt archive"
+echo "Exporting the entire Qt archive" >&2
 cvs -Q checkout qt
 
-echo "Removing references to CVS and other local files.."
+echo "Removing references to CVS and other local files.." >&2
 find qt -name CVS | xargs rm -rf
 rm -rf qt/util qt/doc qt/gif qt/qdoc
 rm -f qt/TODO
 
 QTVER=`grep "#define.*QT_VERSION" qt/src/tools/qglobal.cpp | fmt -1 | grep '"' | sed -e 's/"//g'`
 QTVERMAJOR=`echo $QTVER | sed -e 's/\..*$//'`
-echo "Auto-detect the Qt version number -- " $QTVER
+echo "Auto-detect the Qt version number -- " $QTVER >&2
 
-echo "Removing kernel .cpp files for other platforms..."
+echo "Removing kernel .cpp files for other platforms..." >&2
 cd qt/src/kernel
 find . -name '*_x11.cpp' -o -name '*_win.cpp' -o -name '*_os2.cpp' \
 	| grep -v "_${platform}" | xargs rm -f
 
+if [ "${platform}" = "win" ]; then
+  echo "Removing X11-only files" >&2
+  cd ${DISTDIR}/qt
+  rm -rf makefiles
+fi
+
 if [ "${freecomm}" = "free" ]; then
-  echo "Adding non-commercial banner in .h and .cpp files"
+  echo "Adding non-commercial banner in .h and .cpp files" >&2
   cd ${DISTDIR}/qt/src
   ${curdir}/fixcopyright tools/*.h tools/*.cpp kernel/*.h kernel/*.cpp widgets/*.h widgets/*.cpp dialogs/*.h dialogs/*.cpp
 fi
 
-echo "Generate lex and yacc files for moc"
+echo "Generate lex and yacc files for moc" >&2
 cd ${DISTDIR}/qt/src/moc
 make moc.cpp
 
 if [ "${platform}" = "win" ]; then
   cd ${DISTDIR}/qt/src/moc
   mv -f makefile.win Makefile
-  echo "Moving include files"
+  echo "Moving include files" >&2
   cd ${DISTDIR}/qt/src
-  echo "Generating moc output"
+  echo "Generating moc output" >&2
   cd kernel
   make moc
   cd ../widgets
@@ -74,34 +80,54 @@ if [ "${platform}" = "win" ]; then
   cd ../dialogs
   make moc
   cd ..
-  echo "Moving source and include files"
+  echo "Moving source and include files" >&2
   mv tools/q*.h kernel/q*.h widgets/q*.h dialogs/q*.h ../include
   mkdir win
   mv tools/*.cpp kernel/*.cpp widgets/*.cpp dialogs/*.cpp win
   rm -rf tools kernel widgets dialogs Makefile*
-else
+  echo "Converting Unix text files to DOS" >&2
+  cd ${DISTDIR}
+  find qt -type f | xargs ${curdir}/unix_to_dos
+fi
+
+if [ "${platform}" = "x11" ]; then
   cd ${DISTDIR}/qt/src/moc
   rm makefile.win
-  echo "Make include symlinks"
+  echo "Make include symlinks" >&2
   cd ${DISTDIR}/qt/include
   ln -s ../src/tools/q*.h ../src/kernel/q*.h ../src/widgets/q*.h ../src/dialogs/q*.h .
   cd ${DISTDIR}/qt/src
   rm -f Makefile* tools/Makefile kernel/Makefile widgets/Makefile dialogs/Makefile
   cd ${DISTDIR}/qt/lib
-  ln -s libqt.so.$QTVER libqt.so
-  ln -s libqt.so.$QTVER libqt.so.$QTVERMAJOR
+  ln -s libqt.so.${QTVER} libqt.so
+  ln -s libqt.so.${QTVER} libqt.so.${QTVERMAJOR}
 fi
 
 if [ "${platform}" = "x11" ]; then
-  echo "Creating arch directory"
+  echo "Creating arch directory" >&2
   cd ${DISTDIR}/qt/src
   ${curdir}/makearch.sh
 fi
 
-echo "Finally copy the README, LICENSE etc. files"
+echo "Copy the README, LICENSE etc. files" >&2
 cd ${DISTDIR}/qt/dist
 cp [A-Z]* .. 2> /dev/null
 cp -f ${freecomm}/* ..
 cp -f ${platform}/* ..
 cd ${DISTDIR}
 rm -rf qt/dist
+
+echo "Finally packing the distribution, see ${DISTDIR}" >&2
+
+if [ "${platform}" = "win" ]; then
+  cd ${DISTDIR}
+  zip -r qtwin.zip qt
+fi
+
+if [ "${platform}" = "x11" ]; then
+  cd ${DISTDIR}
+  tar cf qt-${QTVER}.tar qt
+  gzip -9 qt-${QTVER}.tar
+fi
+
+echo "Done" >&2
