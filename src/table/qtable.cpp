@@ -1015,7 +1015,7 @@ void QComboTableItem::setContentFromEditor( QWidget *w )
 	for ( int i = 0; i < cb->count(); ++i )
 	    entries << cb->text( i );
 	current = cb->currentItem();
-	setText( currentText() );
+	setText( *entries.at( current ) );
     }
 }
 
@@ -1037,7 +1037,7 @@ void QComboTableItem::paint( QPainter *p, const QColorGroup &cg,
     p->save();
     QRect textR = table()->style().querySubControlMetrics(QStyle::CC_ComboBox, fakeCombo,
 							 QStyle::SC_ComboBoxEditField);
-    p->drawText( textR, wordWrap() ? ( alignment() | WordBreak ) : alignment(), currentText() );
+    p->drawText( textR, wordWrap() ? ( alignment() | WordBreak ) : alignment(), *entries.at( current ) );
     p->restore();
 }
 
@@ -1050,12 +1050,16 @@ void QComboTableItem::paint( QPainter *p, const QColorGroup &cg,
 
 void QComboTableItem::setCurrentItem( int i )
 {
-    current = i;
-    setText( currentText() );
-    table()->updateCell( row(), col() );
     QWidget *w = table()->cellWidget( row(), col() );
-    if ( w && w->inherits( "QComboBox" ) )
+    if ( w && w->inherits( "QComboBox" ) ) {
 	( (QComboBox*)w )->setCurrentItem( i );
+	current = i;
+	setText( ( (QComboBox*)w )->currentText() );
+    } else {
+	current = i;
+	setText( *entries.at( i ) );
+	table()->updateCell( row(), col() );
+    }
 }
 
 /*! \overload
@@ -1082,6 +1086,9 @@ void QComboTableItem::setCurrentItem( const QString &s )
 
 int QComboTableItem::currentItem() const
 {
+    QWidget *w = table()->cellWidget( row(), col() );
+    if ( w && w->inherits( "QComboBox" ) )
+	return ( (QComboBox*)w )->currentItem();
     return current;
 }
 
@@ -1093,6 +1100,9 @@ int QComboTableItem::currentItem() const
 
 QString QComboTableItem::currentText() const
 {
+    QWidget *w = table()->cellWidget( row(), col() );
+    if ( w && w->inherits( "QComboBox" ) )
+	return ( (QComboBox*)w )->currentText();
     return *entries.at( current );
 }
 
@@ -1101,6 +1111,9 @@ QString QComboTableItem::currentText() const
 
 int QComboTableItem::count() const
 {
+    QWidget *w = table()->cellWidget( row(), col() );
+    if ( w && w->inherits( "QComboBox" ) )
+	return ( (QComboBox*)w )->count();
     return (int)entries.count();    //### size_t/int cast
 }
 
@@ -1112,6 +1125,9 @@ int QComboTableItem::count() const
 
 QString QComboTableItem::text( int i ) const
 {
+    QWidget *w = table()->cellWidget( row(), col() );
+    if ( w && w->inherits( "QComboBox" ) )
+	return ( (QComboBox*)w )->text( i );
     return *entries.at( i );
 }
 
@@ -1237,7 +1253,7 @@ void QCheckTableItem::paint( QPainter *p, const QColorGroup &cg,
     QColorGroup c( cg );
     c.setBrush( QColorGroup::Background, c.brush( QColorGroup::Base ) );
     QStyle::SFlags flags = QStyle::Style_Default;
-    if ( isChecked() )
+    if ( checked )
 	flags |= QStyle::Style_On;
     else
 	flags |= QStyle::Style_Off;
@@ -1279,6 +1295,10 @@ void QCheckTableItem::setChecked( bool b )
 
 bool QCheckTableItem::isChecked() const
 {
+    table()->updateCell( row(), col() );
+    QWidget *w = table()->cellWidget( row(), col() );
+    if ( w && w->inherits( "QCheckBox" ) )
+	return ( (QCheckBox*)w )->isChecked();
     return checked;
 }
 
