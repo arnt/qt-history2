@@ -766,7 +766,7 @@ QTextCodec* QTextCodec::codecForLocale()
     localeMapper = codecForName( "System" );
 #else
 
-#if defined (_XOPEN_UNIX) && !defined(Q_OS_QNX6)
+#if defined (_XOPEN_UNIX) && !defined(Q_OS_QNX6) && !defined(Q_OS_OSF)
     char *charset = nl_langinfo (CODESET);
     if ( charset )
       localeMapper = codecForName( charset );
