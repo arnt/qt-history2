@@ -329,47 +329,46 @@ UnixMakefileGenerator::processPrlFiles()
 QString
 UnixMakefileGenerator::defaultInstall(const QString &t)
 {
-    if(t != "target")
+    if(t != "target" || project->first("TEMPLATE") == "subdirs")
 	return QString();
 
-    bool resource = project->first("TEMPLATE") == "app" &&
-		    project->isActiveConfig("resource_fork") && 
-		    !project->isActiveConfig("console");
+    bool resource = FALSE;
     QStringList &uninst = project->variables()[t + ".uninstall"];
     QString ret, destdir=project->first("DESTDIR");
-    if(resource)
-	destdir += "../../../";
     if(!destdir.isEmpty() && destdir.right(1) != Option::dir_sep)
 	destdir += Option::dir_sep;
     QString targetdir = Option::fixPathToTargetOS(project->first("target.path"), FALSE);
     if(targetdir.right(1) != Option::dir_sep)
 	targetdir += Option::dir_sep;
-    if(project->isActiveConfig("create_prl") && project->first("TEMPLATE") == "lib" && 
-	!project->isEmpty("QMAKE_INTERNAL_PRL_FILE")) {
-	QString dst_prl = project->first("QMAKE_INTERNAL_PRL_FILE");
-	int slsh = dst_prl.findRev('/');
-	if(slsh != -1)
-	    dst_prl = dst_prl.right(dst_prl.length() - slsh - 1);
-	dst_prl = Option::fixPathToTargetOS(targetdir + dst_prl, FALSE);
-	ret += "-$(COPY) " + project->first("QMAKE_INTERNAL_PRL_FILE") + " " + dst_prl;
-	if(!uninst.isEmpty())
-	    uninst.append("\n\t");
-	uninst.append("-$(DEL_FILE) \"" + dst_prl + "\"");
-    }
 
     QStringList links;
     QString target="$(TARGET)";
     if(project->first("TEMPLATE") == "app") {
-	if(resource) 
+	target = "$(QMAKE_TARGET)";
+	if(project->isActiveConfig("resource_fork") && !project->isActiveConfig("console")) {
+	    destdir += "../../../";	    
 	    target += ".app";
-    } else if(!project->isActiveConfig("staticlib")) {
-	if(project->isActiveConfig("plugin")) {
-	} else if ( !project->isEmpty("QMAKE_HPUX_SHLIB") ) {
-	    links << "$(TARGET0)";
-	}else
-	    links << "$(TARGET0)" << "$(TARGET1)" << "$(TARGET2)";
-    } else {
-	target = "$(TARGET)";
+	    resource = TRUE;
+	}
+    } else if(project->first("TEMPLATE") == "lib") {
+	if(project->isActiveConfig("create_prl") && !project->isEmpty("QMAKE_INTERNAL_PRL_FILE")) {
+	    QString dst_prl = project->first("QMAKE_INTERNAL_PRL_FILE");
+	    int slsh = dst_prl.findRev('/');
+	    if(slsh != -1)
+		dst_prl = dst_prl.right(dst_prl.length() - slsh - 1);
+	    dst_prl = Option::fixPathToTargetOS(targetdir + dst_prl, FALSE);
+	    ret += "-$(COPY) " + project->first("QMAKE_INTERNAL_PRL_FILE") + " " + dst_prl;
+	    if(!uninst.isEmpty())
+		uninst.append("\n\t");
+	    uninst.append("-$(DEL_FILE) \"" + dst_prl + "\"");
+	}
+	if(!project->isActiveConfig("staticlib")) {
+	    if(project->isActiveConfig("plugin")) {
+	    } else if ( !project->isEmpty("QMAKE_HPUX_SHLIB") ) {
+		links << "$(TARGET0)";
+	    }else
+		links << "$(TARGET0)" << "$(TARGET1)" << "$(TARGET2)";
+	}
     }
     QString src_targ = target;
     if(!destdir.isEmpty())
@@ -379,7 +378,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     fileFixify(dst_targ);
     if(!ret.isEmpty())
 	ret += "\n\t";
-    ret += QString(resource ? "-$(COPY)" : "$(COPY_DIR)") + " \"" + 
+    ret += QString(resource ? "-$(COPY_DIR)" : "-$(COPY)") + " \"" + 
 	   src_targ + "\" \"" + dst_targ + "\"";
     if(!project->isEmpty("QMAKE_STRIP")) {
 	ret += "\n\t-" + var("QMAKE_STRIP");
