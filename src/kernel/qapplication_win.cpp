@@ -205,7 +205,6 @@ static int translateButtonState( int s, int type, int button );
   Internal functions.
 */
 
-Q_EXPORT
 void qt_draw_tiled_pixmap( HDC, int, int, int, int,
 			   const QPixmap *, int, int );
 
@@ -1023,7 +1022,6 @@ static void drawTile( HDC hdc, int x, int y, int w, int h,
     }
 }
 
-Q_EXPORT
 void qt_fill_tile( QPixmap *tile, const QPixmap &pixmap )
 {
     copyBlt( tile, 0, 0, &pixmap, 0, 0, -1, -1);
@@ -1039,7 +1037,6 @@ void qt_fill_tile( QPixmap *tile, const QPixmap &pixmap )
     }
 }
 
-Q_EXPORT
 void qt_draw_tiled_pixmap( HDC hdc, int x, int y, int w, int h,
 			   const QPixmap *bg_pixmap,
 			   int off_x, int off_y )

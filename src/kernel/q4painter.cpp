@@ -1199,14 +1199,78 @@ QRect QPainter::boundingRect(int x, int y, int w, int h, int flags, const QStrin
     return brect;
 }
 
+/* Internal, used by drawTiledPixmap */
 
-void QPainter::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &, int sx, int sy)
+static void drawTile( QPainter *p, int x, int y, int w, int h,
+		      const QPixmap &pixmap, int xOffset, int yOffset )
+{
+    int yPos, xPos, drawH, drawW, yOff, xOff;
+    yPos = y;
+    yOff = yOffset;
+    while( yPos < y + h ) {
+	drawH = pixmap.height() - yOff;    // Cropping first row
+	if ( yPos + drawH > y + h )	   // Cropping last row
+	    drawH = y + h - yPos;
+	xPos = x;
+	xOff = xOffset;
+	while( xPos < x + w ) {
+	    drawW = pixmap.width() - xOff; // Cropping first column
+	    if ( xPos + drawW > x + w )	   // Cropping last column
+		drawW = x + w - xPos;
+	    p->drawPixmap( xPos, yPos, pixmap, xOff, yOff, drawW, drawH );
+	    xPos += drawW;
+	    xOff = 0;
+	}
+	yPos += drawH;
+	yOff = 0;
+    }
+}
+
+extern void qt_fill_tile( QPixmap *tile, const QPixmap &pixmap );
+
+void QPainter::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap, int sx, int sy)
 {
     if (!isActive())
 	return;
     dgc->updateState(ds);
 
-    qWarning("QPainter::drawTiledPixmap:: not implemented yet\n");
+    int sw = pixmap.width();
+    int sh = pixmap.height();
+    if (!sw || !sh )
+	return;
+    if ( sx < 0 )
+	sx = sw - -sx % sw;
+    else
+	sx = sx % sw;
+    if ( sy < 0 )
+	sy = sh - -sy % sh;
+    else
+	sy = sy % sh;
+    /*
+      Requirements for optimizing tiled pixmaps:
+       - not an external device
+       - not scale or rotshear
+       - no mask
+    */
+    QBitmap *mask = (QBitmap *)pixmap.mask();
+    if ( sw*sh < 8192 && sw*sh < 16*w*h ) {
+	int tw = sw, th = sh;
+	while ( tw*th < 32678 && tw < w/2 )
+	    tw *= 2;
+	while ( tw*th < 32678 && th < h/2 )
+	    th *= 2;
+	QPixmap tile( tw, th, pixmap.depth(), QPixmap::BestOptim );
+	qt_fill_tile( &tile, pixmap );
+	if ( mask ) {
+	    QBitmap tilemask( tw, th, FALSE, QPixmap::NormalOptim );
+	    qt_fill_tile( &tilemask, *mask );
+	    tile.setMask( tilemask );
+	}
+	drawTile( this, x, y, w, h, tile, sx, sy );
+    } else {
+	drawTile( this, x, y, w, h, pixmap, sx, sy );
+    }
+
 }
 
 void QPainter::drawPicture(int x, int y, const QPicture &p)
