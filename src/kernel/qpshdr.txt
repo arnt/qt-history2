@@ -1,5 +1,5 @@
 %
-% $Id: //depot/qt/main/src/kernel/qpshdr.txt#3 $
+% $Id: //depot/qt/main/src/kernel/qpshdr.txt#4 $
 %
 % Postscript routines for QPSPrinter class
 %
@@ -21,7 +21,8 @@
 /CM {currentmatrix} D
 /SM {setmatrix} D
 /TR {translate} D
-/SC {aload pop setrgbcolor} D
+/SRGB {setrgbcolor} D
+/SC {aload pop SRGB} D
 /GS {gsave} D
 /GR {grestore} D
 

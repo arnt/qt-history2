@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#4 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -13,13 +13,14 @@
 #include "qpsprn.h"
 #include "qpainter.h"
 #include "qpaintdc.h"
+#include "qimage.h"
 #include "qdatetm.h"
 
 #include "qfile.h"
 #include "qbuffer.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpsprinter.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpsprinter.cpp#4 $";
 #endif
 
 
@@ -47,7 +48,6 @@ QPSPrinter::~QPSPrinter()
 {
 }
 
-
 //
 // Sets a new font for PostScript
 //
@@ -69,7 +69,7 @@ static void ps_setFont( QTextStream *s, const QFont *f )
     else
 	ps = "/Helvetica";
     QString extra;
-    if ( weight > 60 )
+    if ( weight >= QFont::Bold )
 	extra = "Bold";
     if ( italic ) {
 	if ( times )
@@ -90,6 +90,82 @@ static void ps_setFont( QTextStream *s, const QFont *f )
     *s << ps << " findfont " << fontMatrix << " makefont setfont\n";
 }
 
+static void hexOut( QTextStream &stream, int i )
+{
+    if ( i < 0x10 )
+        stream << '0';
+    stream << i;
+}
+
+static void ps_dumpTransparentBitmapData( QTextStream &stream, QImage &img )
+{
+    stream.setf( QTextStream::hex );
+
+    int width  = img.width();
+    int height = img.height();
+    int numBytes = (width + 7)/8;
+    uchar *scanLine;
+    int x,y;
+    int count = -1;
+    for( y = 0 ; y < height ; y++ ) {
+        scanLine = img.scanLine(y);
+        for( x = 0 ; x < numBytes ; x++ ) {
+            hexOut( stream, scanLine[x] );
+            if ( !(count++ % 66) )
+                stream << '\n';
+	}
+    }
+    if ( --count % 66 )
+        stream << '\n';
+
+    stream.setf( QTextStream::dec );
+}
+
+static void ps_dumpPixmapData( QTextStream &stream, QImage img, 
+                               QColor fgCol, QColor bgCol )
+{
+    stream.setf( QTextStream::hex );
+
+    if ( img.depth() == 1 ) {
+        img.convertDepth( 8 );
+        if ( img.color(0) == 0 ) {			// black
+            img.setColor( 0, fgCol.rgb() );
+            img.setColor( 1, bgCol.rgb() );
+	} else {
+            img.setColor( 0, bgCol.rgb() );
+            img.setColor( 1, fgCol.rgb() );
+	}
+    }
+    
+    int width  = img.width();
+    int height = img.height();
+    int pixWidth = img.depth() == 8 ? 1 : 3;
+    uchar *scanLine;
+    ulong cval;
+    int x,y;
+    int count = -1;
+    for( y = 0 ; y < height ; y++ ) {
+        scanLine = img.scanLine(y);
+        for( x = 0 ; x < width ; x++ ) {
+            if ( pixWidth == 1 ) {
+                cval = img.color( scanLine[x] );
+                hexOut( stream, QRED(cval) );
+                hexOut( stream, QGREEN(cval) );
+                hexOut( stream, QBLUE(cval) );
+	    } else {
+                hexOut( stream, scanLine[3*x] );
+                hexOut( stream, scanLine[3*x + 1] );
+                hexOut( stream, scanLine[3*x + 2] );
+	    }
+            if ( !(count++ % 11) )
+                stream << '\n';
+	}
+    }
+    if ( --count % 11 )
+        stream << '\n';
+
+    stream.setf( QTextStream::dec );
+}
 
 #undef XCOORD
 #undef YCOORD
@@ -99,7 +175,6 @@ static void ps_setFont( QTextStream *s, const QFont *f )
 #undef RECT
 #undef INT_ARG
 #undef COLOR
-#undef PA
 
 #define XCOORD(x)	(float)(x)
 #define YCOORD(y)	(float)(y)
@@ -116,7 +191,6 @@ static void ps_setFont( QTextStream *s, const QFont *f )
 #define COLOR(x)	(x).red()   << ' ' <<	\
 			(x).green() << ' ' <<	\
 			(x).blue()  << ' '
-#define PA(index) (p[index].ptarr)
 
 
 bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
@@ -166,7 +240,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
     if ( c >= PDC_DRAW_FIRST && c <= PDC_DRAW_LAST ) {
 	if ( dirtyMatrix ) {
 	    QWMatrix tmp;
-	    if ( paint->hasViewXForm ) {
+	    if ( paint->hasViewXForm() ) {
 		QRect viewport = paint->viewport();
 		QRect window   = paint->window();
 		tmp.translate( viewport.x(), viewport.y() );
@@ -174,7 +248,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 			   1.0 * viewport.height() / window.height() );
 		tmp.translate( -window.x(), -window.y() );
 	    }
-	    if ( paint->hasWorldXForm )
+	    if ( paint->hasWorldXForm() )
 		tmp = paint->worldMatrix() * tmp;
 	    stream << "[ "
 		   << tmp.m11() << ' ' << tmp.m12() << ' '
@@ -216,8 +290,8 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    stream << RECT(0) << INT_ARG(1) << INT_ARG(2) << "CH\n";
 	    break;
 	case PDC_DRAWLINESEGS:
-	    if ( PA(0)->size() > 0 ) {
-		QPointArray a = *PA(0);
+	    if ( p[0].ptarr->size() > 0 ) {
+		QPointArray a = *p[0].ptarr;
 		QPoint pt;
 		for ( int i=0; i<a.size(); i+=2 ) {
 		    pt = a.point( i );
@@ -231,8 +305,8 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    }
 	    break;
 	case PDC_DRAWPOLYLINE:
-	    if ( PA(0)->size() > 0 ) {
-		QPointArray a = *PA(0);
+	    if ( p[0].ptarr->size() > 0 ) {
+		QPointArray a = *p[0].ptarr;
 		QPoint pt = a.point( 0 );
 		stream << XCOORD(pt.x()) << ' ' << YCOORD(pt.y()) << " MT\n";
 		for ( int i=1; i<a.size(); i++ ) {
@@ -244,8 +318,8 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    }
 	    break;
 	case PDC_DRAWPOLYGON:
-	    if ( PA(0)->size() > 0 ) {
-		QPointArray a = *PA(0);
+	    if ( p[0].ptarr->size() > 0 ) {
+		QPointArray a = *p[0].ptarr;
 		QPoint pt = a.point(0);
 		stream << "NP\n";
 		stream << XCOORD(pt.x()) << ' '
@@ -261,6 +335,12 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    }
 	    break;
 	case PDC_DRAWBEZIER:
+	    if ( p[0].ptarr->size() > 0 ) {
+		QPointArray a = p[0].ptarr->bezier();
+                QPDevCmdParam param;
+                param.ptarr = &a;
+                cmd( PDC_DRAWPOLYLINE, paint, &param );
+	    }                     
 	    break;
 	case PDC_DRAWTEXT:
 	    stream << POINT(0) << "(" << p[1].str << ") T\n";
@@ -269,8 +349,48 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    QPoint pt = p[0].rect->topLeft();
 	    stream << XCOORD(pt.x()) << ' ' << YCOORD(pt.y())
 		   << " (" << p[3].str << ") T\n";
-	    }
 	    break;
+        }
+        case PDC_DRAWPIXMAP: {
+            if ( p[1].pixmap->isNull() )
+                break;
+            int depth = p[1].pixmap->depth();
+            if ( depth != 1 && depth != 8 && depth != 32 ) {
+                warning("QPSPrinter::cmd: unsupported image depth"
+                        " (1, 8 or 24 supported)");
+                break;
+	    }
+            
+            QPoint pnt = *(p[0].point);
+            stream << pnt.x() << " " << pnt.y() << " TR\n";
+            QImage img;
+            img = *(p[1].pixmap);
+            bool mask = ( paint->backgroundMode() == TransparentMode && 
+                          depth == 1 );
+            int width  = img.width();
+            int height = img.height();
+
+            QColor fgCol = paint->pen().color();
+            QColor bgCol = paint->backgroundColor();
+            if ( mask )
+                stream << COLOR(fgCol) << "CRGB SRGB\n";
+            stream << "/sl " << (mask ? (width + 7)/8 : width*3)
+                   << " string def\n";
+            stream << width << " " << height;
+            if ( !mask )
+                stream << " 8 ";
+            stream << "[1 0 0 1 0 0] { currentfile sl readhexstring pop }\n";
+	    if ( mask ) {
+                stream << "imagemask\n";
+                QColor fgCol = paint->pen().color();
+                ps_dumpTransparentBitmapData( stream, img ); 
+            } else {
+                stream << "false 3 colorimage\n";
+                ps_dumpPixmapData( stream, img, fgCol, bgCol ); 
+	    }
+            stream << -pnt.x() << " " << -pnt.y() << " TR\n";
+            break;
+	}
 	case PDC_SAVE:
 	    stream << "SV\n";
 	    break;
