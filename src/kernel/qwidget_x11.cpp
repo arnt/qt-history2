@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#404 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#405 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -511,19 +511,15 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	setCursor(oldcurs);
     }
 
-    QObjectList	*accelerators = queryList( "QAccel" );
-    QObjectListIt it( *accelerators );
-    QObject *obj;
-    while ( (obj=it.current()) != 0 ) {
-	++it;
-	((QAccel*)obj)->repairEventFilter();
-    }
-    delete accelerators;
     if ( !parent ) {
 	QFocusData *fd = focusData( TRUE );
 	if ( fd->focusWidgets.findRef(this) < 0 )
  	    fd->focusWidgets.append( this );
     }
+    
+    QCustomEvent e( QEvent::Reparent, 0 );
+    QApplication::sendEvent( this, &e );
+    
 }
 
 

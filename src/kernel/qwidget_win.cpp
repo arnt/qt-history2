@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#233 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#234 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -371,14 +371,6 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     if ( old_winid )
 	DestroyWindow( old_winid );
 
-    QObjectList	*accelerators = queryList( "QAccel" );
-    QObjectListIt it( *accelerators );
-    QObject *obj;
-    while ( (obj=it.current()) != 0 ) {
-	++it;
-	((QAccel*)obj)->repairEventFilter();
-    }
-    delete accelerators;
     if ( !parent ) {
 	QFocusData *fd = focusData( TRUE );
 	if ( fd->focusWidgets.findRef(this) < 0 )
@@ -386,6 +378,10 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     }
     if ( accept_drops )
 	setAcceptDrops( TRUE );
+    
+    QCustomEvent e( QEvent::Reparent, 0 );
+    QApplication::sendEvent( this, &e );
+    
 }
 
 

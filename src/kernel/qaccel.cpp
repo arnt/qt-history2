@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#85 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#86 $
 **
 ** Implementation of QAccel class
 **
@@ -29,6 +29,7 @@
 #include "qlist.h"
 #include "qsignal.h"
 #include "qwhatsthis.h"
+#include "qguardedptr.h"
 
 // NOT REVISED
 /*!
@@ -90,9 +91,9 @@ public:
     ~QAccelPrivate() {}
     QAccelList aitems;
     bool enabled;
-    QWidget *tlw;
+    QGuardedPtr<QWidget> tlw;
+    QGuardedPtr<QWidget> watch;
     bool ignorewhatsthis;
-    bool haswatch;
 };
 
 
@@ -147,41 +148,37 @@ QAccel::QAccel( QWidget *parent, const char *name )
 {
     d = new QAccelPrivate;
     d->enabled = TRUE;
-    if ( parent ) {				// install event filter
-	d->tlw = parent->topLevelWidget();
+    d->watch = parent;
+    if ( d->watch ) {				// install event filter
+	d->tlw = d->watch->topLevelWidget();
 	d->tlw->installEventFilter( this );
-	connect( d->tlw, SIGNAL(destroyed()), SLOT(tlwDestroyed()) );
     } else {
-	d->tlw = 0;
 #if defined(CHECK_NULL)
-	qWarning( "QAccel: An accelerator must have a parent widget" );
+	qWarning( "QAccel: An accelerator must have a parent or a watch widget" );
 #endif
     }
-    d->haswatch = FALSE;
 }
 
 /*!
   Creates a QAccel object with a watch widget, a parent object and a
   name.
-  
-  The accelerator operates on the toplevel widget of the watch widget.
+
+  The accelerator operates on the the watch widget.
 */
 QAccel::QAccel( QWidget* watch, QObject *parent, const char *name )
     : QObject( parent, name )
 {
     d = new QAccelPrivate;
     d->enabled = TRUE;
+    d->watch = watch;
     if ( watch ) {				// install event filter
-	d->tlw = watch->topLevelWidget();
+	d->tlw = d->watch->topLevelWidget();
 	d->tlw->installEventFilter( this );
-	connect( d->tlw, SIGNAL(destroyed()), SLOT(tlwDestroyed()) );
     } else {
-	d->tlw = 0;
 #if defined(CHECK_NULL)
-	qWarning( "QAccel: An accelerator must have a parent widget" );
+	qWarning( "QAccel: An accelerator must have a parent or a watch widget" );
 #endif
     }
-    d->haswatch = TRUE;
 }
 
 /*!
@@ -190,8 +187,6 @@ QAccel::QAccel( QWidget* watch, QObject *parent, const char *name )
 
 QAccel::~QAccel()
 {
-    if ( d->tlw )
-	d->tlw->removeEventFilter( this );
     delete d;
 }
 
@@ -390,32 +385,23 @@ bool QAccel::disconnectItem( int id, const QObject *receiver,
 
 /*!
   Make sure that the accelerator is watching the correct event
-  filter.  Used by QWidget::reparent().
+  filter.
 */
 
 void QAccel::repairEventFilter()
 {
-    if ( d->haswatch )
-	return;
     QWidget *ntlw;
-    if ( parent() ) {
-#if defined(CHECK_RANGE)
-	ASSERT( parent()->isWidgetType() );
-#endif
-	ntlw = ((QWidget*)parent())->topLevelWidget();
-    } else {
+    if ( d->watch )
+	ntlw = d->watch->topLevelWidget();
+    else
 	ntlw = 0;
-    }
-    if ( d->tlw != ntlw ) {
-	if ( d->tlw ) {
+    
+    if ( (QWidget*) d->tlw != ntlw ) {
+	if ( d->tlw )
 	    d->tlw->removeEventFilter( this );
-	    disconnect( d->tlw, SIGNAL(destroyed()), this, SLOT(tlwDestroyed()) );
-	}
 	d->tlw = ntlw;
-	if ( d->tlw ) {
+	if ( d->tlw )
 	    d->tlw->installEventFilter( this );
-	    connect( d->tlw, SIGNAL(destroyed()), this, SLOT(tlwDestroyed()) );
-	}
     }
 }
 
@@ -424,12 +410,13 @@ void QAccel::repairEventFilter()
   Processes accelerator events intended for the top level widget.
 */
 
-bool QAccel::eventFilter( QObject *, QEvent *e )
+bool QAccel::eventFilter( QObject *o, QEvent *e )
 {
-    if ( d->enabled &&
+    if ( e->type() == QEvent::Reparent && d->watch == o ) {
+	repairEventFilter();
+    } else  if ( d->enabled &&
 	 ( e->type() == QEvent::Accel || e->type() == QEvent::AccelAvailable) &&
-	 parent() && parent()->isWidgetType() &&
-	 ((QWidget *)parent())->isVisible() ) {
+	 d->watch && d->watch->isVisible() ) {
 	QKeyEvent *k = (QKeyEvent *)e;
 	int key = k->key();
 	if ( k->state() & ShiftButton )
@@ -459,17 +446,6 @@ bool QAccel::eventFilter( QObject *, QEvent *e )
     return FALSE;
 }
 
-
-/*!
-  \internal
-  This slot is called when the top level widget that owns the accelerator
-  is destroyed.
-*/
-
-void QAccel::tlwDestroyed()
-{
-    d->tlw = 0;
-}
 
 
 /*!
