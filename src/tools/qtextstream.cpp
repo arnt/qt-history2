@@ -2453,7 +2453,7 @@ void QTextStream::setCodec( QTextCodec *codec )
     if ( d->sourceType == QTextStreamPrivate::String )
 	return; // QString does not need any codec
     mapper = codec;
-    latin1 = ( codec->mibEnum() != 4 );
+    latin1 = ( codec->mibEnum() == 4 );
     doUnicodeHeader = FALSE;
 }
 #endif
