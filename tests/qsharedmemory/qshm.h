@@ -28,6 +28,7 @@ private:
 #else
 	bool idInitted;
 	key_t key;
+	int shmId;
 #endif
 };
 

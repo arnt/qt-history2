@@ -83,15 +83,15 @@ bool QWSSharedMemory::attach() {
 	return TRUE;
 }
 
-bool QWSSharedMemory::detach() {
+void QWSSharedMemory::detach() {
 	shmdt( shmBase );
 }
 
 void QWSSharedMemory::setPermissions(mode_t mode) {
 	struct shmid_ds shm;
-	shmctl (shmId, IPC_STAT, shm);
-	shm.mode = mode;
-	shmctl (shmId, IPC_SET, shm);
+	shmctl (shmId, IPC_STAT, &shm);
+	shm.shm_perm.mode = mode;
+	shmctl (shmId, IPC_SET, &shm);
 }
 
 #endif
