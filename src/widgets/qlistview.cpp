@@ -4160,7 +4160,7 @@ void QListView::contentsMouseMoveEvent( QMouseEvent * e )
 	   ( e->state() & RightButton ) != RightButton ) )
 	return;
 
-    if ( i && i == d->focusItem &&
+    if ( i && i == d->pressedItem &&
 	 ( i->isSelected() || d->selectionMode == NoSelection ) &&
 	 i->dragEnabled() ) {
 	if ( !d->startDragItem ) {
@@ -5471,7 +5471,7 @@ void QCheckListItem::turnOffChild()
 void QCheckListItem::activate()
 {
     QListView * lv = listView();
-    
+
     if ( lv && !lv->isEnabled() || !isEnabled() )
 	return;
 
@@ -5725,7 +5725,7 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 	QFontMetrics fm( lv->font() );
 	r += (width - BoxSize - fm.width(text()))/2;
         // the text should not be centered when we have a centered checkbox
-	align &= ~AlignCenter; 
+	align &= ~AlignCenter;
     }
 
     p->translate( r, 0 );
