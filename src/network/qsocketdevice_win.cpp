@@ -30,6 +30,7 @@
 #include "qsocketdevice.h"
 #include "qwindowdefs.h"
 #include "qdatetime.h"
+
 #include <string.h>
 #include <windows.h>
 #include <winsock.h>
@@ -466,29 +467,24 @@ int QSocketDevice::bytesAvailable() const
 
 int QSocketDevice::waitForMore( int msecs ) const
 {
-    int rv = -1;
-
     if ( !isValid() )
-	return rv;
+	return -1;
 
-    // ### this code is not nice... think about it later!
+    fd_set fds;
+    struct timeval tv;
 
-    // determine the interval for waking up
-    int sleepStep = 100;
-    if ( msecs >= 0 ) {
-	sleepStep = msecs / 10;
-	if ( sleepStep > 100 )
-	    sleepStep = 100;
-    }
-    QTime waitingTime;
-    waitingTime.start();
-    while ( waitingTime.elapsed() < msecs ) {
-	rv = bytesAvailable();
-	if ( rv > 0 )
-	    break;
-	Sleep( sleepStep );
-    }
-    return rv;
+    FD_ZERO( &fds );
+    FD_SET( fd, &fds );
+
+    tv.tv_sec = msecs / 1000;
+    tv.tv_usec = (msecs % 1000) * 1000;
+
+    int rv = select( fd+1, &fds, 0, 0, msecs < 0 ? 0 : &tv );
+
+    if ( rv < 0 )
+	return -1;
+
+    return bytesAvailable();
 }
 
 
