@@ -34,8 +34,8 @@
 #include <qstringlist.h>
 #include <qregexp.h>
 #include <private/qsqlextension_p.h>
-#include <stdlib.h>
 #include <private/qinternal_p.h>
+#include <stdlib.h>
 
 #define QOCI_DYNAMIC_CHUNK_SIZE  255
 static const ub2 CSID_UTF8 = 871; // UTF8 not defined in Oracle 8 libraries
