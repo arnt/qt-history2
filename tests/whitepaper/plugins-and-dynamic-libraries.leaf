@@ -26,12 +26,13 @@ build-time linking.
 
 Below is an example of the most basic way to dynamically load and use
 a library. The example attempts to obtain a pointer to the \c
-print_str symbol from the \c mylib library.
+print_str symbol from the \c mylib library (\c mylib.dll on Windows,
+\c mylib.so on Unix).
 \code
-    typedef void (Prototype)( const char *str );
+    typedef void (StrFunc)( const char *str );
 
     QLibrary lib( "mylib" );
-    Prototype *func = (Protoype *) lib.resolve( "print_str" );
+    StrFunc *func = (StrFunc *) lib.resolve( "print_str" );
     if ( func )
 	func( "Hello world!" );
 \endcode
@@ -47,39 +48,39 @@ appropriate plugin base class, implementing a few simple functions,
 and adding a macro.
 
 For example, if a developer has created a \Class QStyle subclass
-called 'HeavenlyStyle' that they want to make available as a plugin,
+called 'CopperStyle' that they want to make available as a plugin,
 they would create a subclass like this: 
 \code
-    class HeavenlyStylePlugin : public QStylePlugin
+    class CopperStylePlugin : public QStylePlugin
     {
     public:
-	HeavenlyStylePlugin() { }
-	~HeavenlyStylePlugin() { }
+	CopperStylePlugin() { }
+	~CopperStylePlugin() { }
 
 	QStringList keys() const {
-	    return QStringList() << "HeavenlyStyle"; 
+	    return QStringList() << "CopperStyle"; 
 	}
 
-	QStyle* create( const QString& key ) { 
-	    if ( key == "HeavenlyStyle" ) 
-		return new HeavenlyStyle;
+	QStyle *create( const QString& key ) { 
+	    if ( key == "CopperStyle" ) 
+		return new CopperStyle;
 	    return 0;
 	}
     };
 
-    Q_EXPORT_PLUGIN( HeavenlyStylePlugin )
+    Q_EXPORT_PLUGIN( CopperStylePlugin )
 \endcode
 
 The new style can be set like this:
 \code
-    QApplication::setStyle( QStyleFactory::create("MyStyle") );
+    QApplication::setStyle( QStyleFactory::create("CopperStyle") );
 \endcode
 Database drivers, codecs, custom widgets and image formats that are
 supplied as plugins are detected and used by the application
 automatically.
 
 Companies already provide Qt components in source form, as
-precompiled dynamic libraries and as plugins.
+precompiled dynamic libraries or as plugins.
 
   \img klaralvdalen.png Calendar widget
   \caption One of \KALLE's many commercial components

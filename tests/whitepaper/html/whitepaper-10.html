@@ -14,9 +14,9 @@
 <!-- index automatic layouts --><!-- index child widget --><!-- index default widget size --><!-- index font changes --><!-- index layouts --><!-- index parent widget --><!-- index positioning of widgets --><!-- index repositioning of widgets --><!-- index resizing widgets --><!-- index size of widgets --><p>Qt provides layout managers for organizing child widgets within the parent widget's area. They feature automatic positioning of child widgets, automatic resizing, sensible minimum and default sizes for top-level widgets and automatic repositioning when the contents or the font changes. <a href="whitepaper-5.html">Qt Designer</a> is optimized for laying out widgets using layout managers.</p>
 <h3><a name="1"></a>Built-in Layout Managers</h3>
 <!-- index QGridLayout --><!-- index QHBoxLayout --><!-- index QPackerLayout --><!-- index QVBoxLayout --><p>Qt's built-in layout managers are <font color=darkblue><b>QHBoxLayout</b></font>, <font color=darkblue><b>QVBoxLayout</b></font> and <font color=darkblue><b>QGridLayout</b></font>.</p>
-<p><img align="middle" src="qhbox.png" alt="QHBox with five child widgets" width="176" height="24">
-<img align="middle" src="qvbox.png" alt="QVBox with five child widgets" width="41" height="115">
-<img align="middle" src="qgrid.png" alt="QGrid with five child widgets" width="93" height="89">
+<p><img align="middle" src="qhbox.png" alt="QHBox with five child widgets">
+<img align="middle" src="qvbox.png" alt="QVBox with five child widgets">
+<img align="middle" src="qgrid.png" alt="QGrid with five child widgets">
 </p>
 <!-- index grid layout --><!-- index hbox --><!-- index horizontal box layout --><!-- index vbox --><!-- index vertical box layout --><p><font color=darkblue><b>QHBoxLayout</b></font> organizes the managed widgets in a single horizontal row from left to right. <font color=darkblue><b>QVBoxLayout</b></font> organizes the managed widgets in a single vertical column, from top to bottom. <font color=darkblue><b>QGridLayout</b></font> organizes the managed widgets in a grid of cells; widgets may span multiple cells.</p>
 <p>In most cases, Qt's layout managers pick optimal sizes for managed widgets so that windows resize smoothly. If the defaults are insufficient, developers can refine the layout using the following mechanisms:</p>
@@ -28,10 +28,10 @@
 </ol><!-- index Designer --><!-- index Qt Designer --><!-- index margin (in layouts) --><!-- index spacing (in layouts) --><p>The 'spacing' between managed widgets and the 'margin' around the whole layout can also be set by the programmer. By default, <a href="whitepaper-5.html">Qt Designer</a> sets industry-standard values based on the context.</p>
 <!-- index Arabic --><!-- index Hebrew --><!-- index right-to-left languages --><p>Layouts can also run right-to-left and bottom-to-top. Right-to-left layouts are convenient for internationalized applications supporting right-to-left languages (e.g. Arabic and Hebrew).</p>
 <h3><a name="2"></a>Nested Layouts</h3>
-<p>Layouts can be nested to arbitrary levels. Here's an example dialog box, shown at two different sizes:</p>
-<p align="center"><img align="middle" src="countries-small.gif" width="0" height="0">
+<p>Layouts can be nested to arbitrary levels. Here's an example of a dialog box, shown at two different sizes:</p>
+<p align="center"><img align="middle" src="countries-small.gif">
 </p>
-<p align="center"><img align="middle" src="countries-large.gif" width="0" height="0">
+<p align="center"><img align="middle" src="countries-large.gif">
 </p>
 <p>The dialog uses three layouts: a <font color=darkblue><b>QVBoxLayout</b></font> that groups the push buttons, a <font color=darkblue><b>QHBoxLayout</b></font> that groups the country listbox with the push buttons and a <font color=darkblue><b>QVBoxLayout</b></font> that groups the "Select a country" label with the rest of the widget. A stretch item maintains the gap between the <font color=darkgreen><em>Cancel</em></font> and <font color=darkgreen><em>Help</em></font> buttons.</p>
 <p>The dialog's widgets and layouts are created with the following code:</p>

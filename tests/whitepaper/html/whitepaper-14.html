@@ -13,45 +13,45 @@
 </blockquote>
 <h3><a name="1"></a>Dynamic Libraries</h3>
 <!-- index DLL --><!-- index dynamic libraries --><!-- index libraries --><!-- index linking --><!-- index shared libraries --><p>The <font color=darkblue><b>QLibrary</b></font> class provides cross-platform dynamic library loading, a more powerful mechanism than the more restrictive build-time linking.</p>
-<p>Below is an example of the most basic way to dynamically load and use a library. The example attempts to obtain a pointer to the <tt>print_str</tt> symbol from the <tt>mylib</tt> library.</p>
+<p>Below is an example of the most basic way to dynamically load and use a library. The example attempts to obtain a pointer to the <tt>print_str</tt> symbol from the <tt>mylib</tt> library (<tt>mylib.dll</tt> on Windows, <tt>mylib.so</tt> on Unix).</p>
 <pre>
-    typedef void (Prototype)( const char *str );
+    typedef void (StrFunc)( const char *str );
 
     QLibrary lib( "mylib" );
-    Prototype *func = (Protoype *) lib.resolve( "print_str" );
+    StrFunc *func = (StrFunc *) lib.resolve( "print_str" );
     if ( func )
 	func( "Hello world!" );
 </pre>
 <p>Calling a function this way is not type safe, and only symbols with C linkage are supported (due to C++ name mangling). These limitations do not apply to Qt plugins.</p>
 <h3><a name="2"></a>Plugins</h3>
 <p>Converting a Qt codec, database driver, image format converter, style or custom widget into a plugin is achieved by subclassing the appropriate plugin base class, implementing a few simple functions, and adding a macro.</p>
-<p>For example, if a developer has created a <font color=darkblue><b>QStyle</b></font> subclass called 'HeavenlyStyle' that they want to make available as a plugin, they would create a subclass like this:</p>
+<p>For example, if a developer has created a <font color=darkblue><b>QStyle</b></font> subclass called 'CopperStyle' that they want to make available as a plugin, they would create a subclass like this:</p>
 <pre>
-    class HeavenlyStylePlugin : public QStylePlugin
+    class CopperStylePlugin : public QStylePlugin
     {
     public:
-	HeavenlyStylePlugin() { }
-	~HeavenlyStylePlugin() { }
+	CopperStylePlugin() { }
+	~CopperStylePlugin() { }
 
 	QStringList keys() const {
-	    return QStringList() &lt;&lt; "HeavenlyStyle"; 
+	    return QStringList() &lt;&lt; "CopperStyle"; 
 	}
 
-	QStyle* create( const QString&amp; key ) { 
-	    if ( key == "HeavenlyStyle" ) 
-		return new HeavenlyStyle;
+	QStyle *create( const QString&amp; key ) { 
+	    if ( key == "CopperStyle" ) 
+		return new CopperStyle;
 	    return 0;
 	}
     };
 
-    Q_EXPORT_PLUGIN( HeavenlyStylePlugin )
+    Q_EXPORT_PLUGIN( CopperStylePlugin )
 </pre>
 <p>The new style can be set like this:</p>
 <pre>
-    QApplication::setStyle( QStyleFactory::create("MyStyle") );
+    QApplication::setStyle( QStyleFactory::create("CopperStyle") );
 </pre>
 <p>Database drivers, codecs, custom widgets and image formats that are supplied as plugins are detected and used by the application automatically.</p>
-<p>Companies already provide Qt components in source form, as precompiled dynamic libraries and as plugins.</p>
+<p>Companies already provide Qt components in source form, as precompiled dynamic libraries or as plugins.</p>
 <p align="center"><img align="middle" src="klaralvdalen.png" alt="Calendar widget" width="261" height="182">
 </p>
 <blockquote><p align="center"><em>One of <a href= http://www.klaralvdalens-datakonsult.se/ >Klar&auml;lvdalens Datakonsult</a>'s many commercial components</em></p></blockquote>

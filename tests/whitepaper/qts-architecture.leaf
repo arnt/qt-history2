@@ -38,8 +38,7 @@ to obscure bugs in applications.
   \index X Window System
   \index platforms
 
-Qt's API is implemented on a variety of platforms. Qt is
-professionally supported, and takes advantage of the available
+Qt is professionally supported, and takes advantage of the available
 platforms: Windows, X11, Mac OS X and Embedded Linux. Using a single
 source tree, a Qt application can be converted into an executable
 simply by recompiling on the target platforms. Although Qt is a
@@ -59,17 +58,17 @@ Qt/Windows uses the Win32 API and GDI for events and drawing
 primitives. Qt does not use MFC or any other toolkit. In particular,
 Qt does not use the inflexible 'common controls', but rather provides
 its own more powerful, customizable widgets. (For non-specialized
-uses, the native Windows file and print dialogs are used by Qt.)
+uses, Qt uses the native Windows file and print dialogs.)
 
   \index transformations
 
 With Qt, the same executable works on Windows 95/98/NT4/ME/2000. Qt
 performs a run-time check for the Windows version, and uses the most
 advanced capabalities available. For example, only Windows NT4 and
-2000 support rotated text natively; Qt can render rotated text on all
-Windows versions, using the native support where available. As this
-example demonstrates, Qt developers are insulated from changes in the
-Windows API.
+2000 support rotated text natively; Qt renders rotated text on all
+Windows versions, and uses the native support where available. As
+this example demonstrates, Qt developers are insulated from changes
+in the Windows API.
 
   \index accessibility
 
@@ -80,7 +79,7 @@ provide accessibility.
 
   \index multiple screens
 
-Qt supports multiple screens on Windows.
+Qt also supports multiple screens on Windows.
 
 \section1 X11
 
@@ -94,19 +93,19 @@ not use Xt (X Toolkit), Motif, Athena or any other toolkit.
   \index look and feel
 
 Qt applications automatically adapt to the user's window manager or
-desktop environment, and have a native look and feel for Motif, SGI,
-CDE, GNOME and KDE. This contrasts with other Unix toolkits, which
-lock users into their own look and feel.
+desktop environment, and have a native look and feel under Motif,
+SGI, CDE, GNOME and KDE. This contrasts with other Unix toolkits,
+which lock users into their own look and feel.
 
   \index Unicode
   \index codecs
   \index fonts
 
-Qt provides full \l Unicode support. Qt applications can use Unicode
-fonts as well as non-Unicode fonts using codecs. Qt automatically
-combines multiple X fonts to render multi-lingual texts. Qt's font
-handling is intelligent enough to search all the installed fonts for
-a character, if that character is not available in the current font.
+Qt provides full \l Unicode support. Qt applications automatically
+support both Unicode and non-Unicode fonts. Qt combines multiple X
+fonts to render multi-lingual text. Qt's font handling is intelligent
+enough to search all the installed fonts for characters unavailable
+in the current font.
 
   \index RENDER
   \index X extensions
@@ -118,8 +117,8 @@ a character, if that character is not available in the current font.
 
 Qt takes advantage of X extensions where they are available. Qt
 supports the RENDER extension for anti-aliased fonts and
-alpha-blending. Qt supports on-the-spot editing for X Input Methods. 
-Qt supports multiple screens with both traditional multi-head and
+alpha-blending. Qt provides on-the-spot editing for X Input Methods. 
+Qt supports multiple screens both with traditional multi-head and
 with Xinerama.
 
 \section1 Mac OS X
@@ -132,26 +131,23 @@ creates a new market for customers who sell Qt applications.
 For Macintosh developers, the availability of Qt/Mac opens up a new
 world of possibilities. Macintosh developers can create applications
 on their favorite platform, using a fully object-oriented toolkit,
-and broaden their marked hugely simply by recompiling on, for
+and broaden their market hugely simply by recompiling on, for
 example, Windows.
 
   \index OpenGL
 
-Qt/Mac also brings some technical to Macintosh development, for
-example, easy to use OpenGL, ### bloody hell, do our Mac competitors
-have such a nice tool as Designer? we'll ask Don \& Sam
+Qt/Mac also brings some technical benefits to Macintosh development,
+for example, standard OpenGL, straightforward internationalization
+and powerful visual design with \l {Qt Designer}.
 
 \section1 Embedded Linux
 
   \index frame buffer
 
-Qt/Embedded provides its own windowing environment and writes to the
-Linux frame buffer directly. Qt/Embedded eliminates the need for an X
-server, and runs faster and with a lower memory footprint than
-X11-based Linux devices.
-
-See the Qt/Embedded whitepaper for a complete technical overview.
-The key features are presented below.
+Qt/Embedded provides its own windowing environment and writes
+directly to the Linux frame buffer. Qt/Embedded eliminates the need
+for an X server, and runs faster and with a lower memory footprint
+than X11-based embedded Linux devices.
 
   \index alpha-blending
   \index anti-aliased fonts
@@ -164,7 +160,9 @@ scalable TrueType and Type1 fonts. Qt/Embedded has flexible input
 handling, including hand-writing recognition, a pickboard and a
 virtual keyboard; it is easy to write new input methods. By
 selectively choosing features, the memory demands of Qt/Embedded can
-be tuned to between 800 KB and 3 MB in ROM (Intel x86).
+be tuned to between 800 KB and 3 MB in ROM.
+
+See the Qt/Embedded whitepaper for a complete technical overview.
 
 \section1 Qt's Development World
 
@@ -175,8 +173,9 @@ Companies and developers from around the world are joining the Qt
 development community every day. They have recognized that Qt's
 architecture lends itself to rapid application development. These
 developers, whether they are targeting one or many platforms, are
-benefiting from Qt's consistent and straightforward API, and its
-powerful supporting tools such as \Cmd qmake and \e {Qt Designer}.
+benefiting from Qt's consistent and straightforward API, and from
+Qt's powerful supporting tools such as \Cmd qmake and \e {Qt
+Designer}.
 
   \index mailing list
 
@@ -189,8 +188,8 @@ to subscribe or browse the archive.
   \index manual
   \index reference documentation
 
-Qt is supplied with extensive documentation, which is also available
-on-line from \l http://doc.trolltech.com.
+Qt is supplied with extensive documentation, also available on-line
+at \l http://doc.trolltech.com.
 
   \index evaluation
   \index support

@@ -221,7 +221,7 @@ QPainter.
 Qt's OpenGL module is available on Windows, X11 and Macintosh, and
 uses the system's OpenGL library (including Mesa).
 
-  \img brain-innovation.jpg
+  \img brain-innovation.png
   \caption Brain Innovation's BrainVoyager Qt application
 
   \index alpha channel
