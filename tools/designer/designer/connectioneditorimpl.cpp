@@ -352,4 +352,6 @@ void ConnectionEditor::receiverChanged( const QString &s )
 	++it;
     }
     signalChanged();
+    buttonAddSlot->setEnabled( receiver == formWindow->mainContainer() );
+    connectButton->setEnabled( slotBox->currentItem() != -1 );
 }
