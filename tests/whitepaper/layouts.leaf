@@ -63,8 +63,8 @@ column, from top to bottom.
   \img qgrid.png
   \caption \Class QGridLayout
 
-\Class QGridLayout organizes the managed widgets in a grid of cells;
-widgets may span multiple cells.
+\Class QGridLayout organizes the managed widgets in a grid of cells.
+Widgets may span multiple cells.
 
 In most cases, Qt's layout managers pick optimal sizes for managed
 widgets so that windows resize smoothly. If the defaults are

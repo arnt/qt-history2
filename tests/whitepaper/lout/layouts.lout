@@ -62,8 +62,8 @@ managed widgets in a single vertical column, from top to bottom.
     @Caption { @Class QGridLayout }
 0.5 @Scale @IncludeGraphic { "images/qgrid.eps" }
 @PP
-@Class QGridLayout organizes the managed widgets in a grid of cells;
-widgets may span multiple cells.
+@Class QGridLayout organizes the managed widgets in a grid of cells.
+Widgets may span multiple cells.
   boxlayout @Index { Box layout }
   gridlayout @Index { Grid layout }
 @PP
