@@ -4433,10 +4433,10 @@ void QCanvasLine::moveBy(double dx, double dy)
 {
     if (dx || dy) {
 	removeFromChunks();
-	x1 += dx;
-	y1 += dy;
-	x2 += dx;
-	y2 += dy;
+	x1 += (int)dx;
+	y1 += (int)dy;
+	x2 += (int)dx;
+	y2 += (int)dy;
 	addToChunks();
     }
 }
