@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.h#5 $
+** $Id: //depot/qt/main/src/kernel/qurl.h#6 $
 **
 ** Implementation of QFileDialog class
 **
@@ -41,15 +41,22 @@ class QUrl : public QObject
 
 public:
     enum Error {
-	DeleteFile = -1,
-	RenameFile = -2,
-	CopyFile = -3,
-	ReadDir = -4,
-	CreateDir = -5,
-	UnknownProtocol = -6,
-	ParseError = -7
+	ErrDeleteFile = -1,
+	ErrRenameFile = -2,
+	ErrCopyFile = -3,
+	ErrReadDir = -4,
+	ErrCreateDir = -5,
+	ErrUnknownProtocol = -6,
+	ErrParse = -7
     };
 
+    enum Action {
+	ActListDirectory = 0,
+	ActCopyFile,
+	ActGet,
+	ActPut
+    };
+    
     QUrl();
     QUrl( const QString& url );
     QUrl( const QUrl& url );
@@ -138,8 +145,8 @@ public:
     virtual bool cdUp();
 
     void emitEntry( const QUrlInfo & );
-    void emitFinished();
-    void emitStart();
+    void emitFinished( int action );
+    void emitStart( int action );
     void emitCreatedDirectory( const QUrlInfo & );
     void emitRemoved( const QString & );
     void emitItemChanged( const QString &oldname, const QString &newname );
@@ -148,11 +155,12 @@ public:
     void emitUrlIsDir();
     void emitUrlIsFile();
     void emitPutSuccessful( const QString &d );
+    void emitCopyProgress( int step, int total );
 
 signals:
     void entry( const QUrlInfo & );
-    void finished();
-    void start();
+    void finished( int );
+    void start( int );
     void createdDirectory( const QUrlInfo & );
     void removed( const QString & );
     void itemChanged( const QString &oldname, const QString &newname );
@@ -161,7 +169,8 @@ signals:
     void putSuccessful( const QString & );
     void urlIsDir();
     void urlIsFile();
-
+    void copyProgress( int step, int total );
+    
 protected:
     virtual void reset();
     virtual void parse( const QString& url );
@@ -182,14 +191,14 @@ inline void QUrl::emitEntry( const QUrlInfo &i )
     emit entry( i );
 }
 
-inline void QUrl::emitFinished()
+inline void QUrl::emitFinished( int action )
 {
-    emit finished();
+    emit finished( action );
 }
 
-inline void QUrl::emitStart()
+inline void QUrl::emitStart( int action )
 {
-    emit start();
+    emit start( action );
 }
 
 inline void QUrl::emitCreatedDirectory( const QUrlInfo &i )
@@ -230,6 +239,11 @@ inline void QUrl::emitUrlIsFile()
 inline void QUrl::emitPutSuccessful( const QString &d )
 {
     emit putSuccessful( d );
+}
+
+inline void QUrl::emitCopyProgress( int step, int total )
+{
+    emit copyProgress( step, total );
 }
 
 #endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#13 $
 **
 ** Implementation of QFileDialog class
 **
@@ -88,15 +88,25 @@ struct QUrlPrivate
 */
 
 /*!
-  \fn void QUrl::finished()
+  \fn void QUrl::finished( int action )
 
   This signal is emitted when a data transfer of some sort finished.
+  \a action gives more information about it, this can be one of
+	ActListDirectory
+	ActCopyFile
+	ActGet
+	ActPut
 */
 
 /*!
-  \fn void QUrl::start()
+  \fn void QUrl::start( int action )
 
   This signal is emitted when a data transfer of some sort started.
+  \a action gives more information about it, this can be one of
+	ActListDirectory
+	ActCopyFile
+	ActGet
+	ActPut
 */
 
 /*!
@@ -132,13 +142,13 @@ struct QUrlPrivate
   e.g. displayed to the user.
 
   \a ecode is one of
-	DeleteFile
-	RenameFile
-	CopyFile
-	ReadDir
-	CreateDir
-	UnknownProtocol
-	ParseError
+	ErrDeleteFile
+	ErrRenameFile
+	ErrCopyFile
+	ErrReadDir
+	ErrCreateDir
+	ErrUnknownProtocol
+	ErrParseError
 */
 
 /*!
@@ -777,7 +787,7 @@ NodeErr:
     if ( d->path.isEmpty() )
 	d->path = "/";
     qWarning( "Error in parsing \"%s\"", url.ascii() );
-    emit error( ParseError, QUrl::tr( "Error in parsing `%1'" ).arg( url ) );
+    emit error( ErrParse, QUrl::tr( "Error in parsing `%1'" ).arg( url ) );
     delete []orig;
     d->isMalformed = true;
 
@@ -1271,11 +1281,11 @@ void QUrl::decode( QString& url )
 }
 
 /*!
-  Starts listing a directory. The signal start() is emitted, before the 
-  first entry is listed, and after the last one finished() is emitted. 
-  If an error occures, the signal error() with an error code and an error 
+  Starts listing a directory. The signal start() is emitted, before the
+  first entry is listed, and after the last one finished() is emitted.
+  If an error occures, the signal error() with an error code and an error
   message is emitted.
-  
+
   You can rely on the parameters \a filterSpec and \a sortSpec only when
   working on the local filesystem, this may not be supported when using
   a newtwork protocol.
@@ -1288,13 +1298,13 @@ void QUrl::listEntries( int filterSpec = QDir::DefaultFilter,
 }
 
 /*!
-  Starts listing a directory. The signal start() is emitted, before the 
-  first entry is listed, and after the last one finished() is emitted. 
-  If an error occures, the signal error() with an error code and an error 
+  Starts listing a directory. The signal start() is emitted, before the
+  first entry is listed, and after the last one finished() is emitted.
+  If an error occures, the signal error() with an error code and an error
   message is emitted.
-  
-  You can rely on the parameters \nameFilter \a filterSpec and \a sortSpec 
-  only when working on the local filesystem, this may not be supported when 
+
+  You can rely on the parameters \nameFilter \a filterSpec and \a sortSpec
+  only when working on the local filesystem, this may not be supported when
   using a newtwork protocol.
 */
 
@@ -1308,18 +1318,18 @@ void QUrl::listEntries( const QString &nameFilter, int filterSpec = QDir::Defaul
 	d->dir.setMatchAllDirs( TRUE );
 	if ( !d->dir.isReadable() ) {
 	    QString msg = QUrl::tr( "Could not read directory\n" + d->path );
-	    emit error( ReadDir, msg );
+	    emit error( ErrReadDir, msg );
 	    return;
 	}
 	
 	const QFileInfoList *filist = d->dir.entryInfoList( filterSpec, sortSpec );
 	if ( !filist ) {
 	    QString msg = QUrl::tr( "Could not read directory\n" + d->path );
-	    emit error( ReadDir, msg );
+	    emit error( ErrReadDir, msg );
 	    return;
 	}
 	
-	emit start();
+	emit start( ActListDirectory );
 	QFileInfoListIterator it( *filist );
 	QFileInfo *fi;
 	while ( ( fi = it.current()) != 0 ) {
@@ -1330,13 +1340,13 @@ void QUrl::listEntries( const QString &nameFilter, int filterSpec = QDir::Defaul
 	    emit entry( inf );
 	    addEntry( inf );
 	}
-	emit finished();
+	emit finished( ActListDirectory );
     } else if ( d->networkProtocol ) {
-	emit start();
+	emit start( ActListDirectory );
 	setNameFilter( nameFilter );
 	d->networkProtocol->listEntries( nameFilter, filterSpec, sortSpec );
     } else
-	emit error( UnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
+	emit error( ErrUnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
 }
 
 /*!
@@ -1360,12 +1370,12 @@ void QUrl::mkdir( const QString &dirname )
 	    emit createdDirectory( inf );
 	} else {
 	    QString msg = QUrl::tr( "Could not create directory\n" + dirname );
-	    emit error( CreateDir, msg );
+	    emit error( ErrCreateDir, msg );
 	}
     } else if ( d->networkProtocol ) {
 	d->networkProtocol->mkdir( dirname );
     } else
-	emit error( UnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
+	emit error( ErrUnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
 }
 
 /*!
@@ -1383,12 +1393,12 @@ void QUrl::remove( const QString &filename )
 	    emit removed( filename );
 	else {
 	    QString msg = QUrl::tr( "Could not delete file\n" + filename );
-	    emit error( DeleteFile, msg );
+	    emit error( ErrDeleteFile, msg );
 	}
     } else if ( d->networkProtocol ) {
 	d->networkProtocol->remove( filename );
     } else
-	emit error( UnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
+	emit error( ErrUnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
 }
 
 /*!
@@ -1407,7 +1417,7 @@ void QUrl::rename( const QString &oldname, const QString &newname )
     } else if ( d->networkProtocol ) {
 	d->networkProtocol->rename( oldname, newname );
     } else
-	emit error( UnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
+	emit error( ErrUnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
 }
 
 /*!
@@ -1435,18 +1445,24 @@ void QUrl::copy( const QString &from, const QString &to )
 	return;
     }
 
+    emit start( ActCopyFile );
+    
     char *block = new char[ 1024 ];
     bool error = FALSE;
+    int sum = 0;
     while ( !f.atEnd() ) {
 	int len = f.readBlock( block, 1024 );
 	if ( len == -1 ) {
 	    error = TRUE;
 	    break;
 	}
+	sum += len;
+	emit copyProgress( sum / 1024, f.size() ); 
 	f2.writeBlock( block, len );
 	qApp->processEvents();
     }
-
+    emit finished( ActCopyFile );
+    
     delete[] block;
 
     f.close();
@@ -1468,7 +1484,7 @@ void QUrl::copy( const QStringList &files, const QString &dest, bool move )
 	    de.remove( 0, QString( "file:" ).length() );
 	QStringList::ConstIterator it = files.begin();
 	for ( ; it != files.end(); ++it ) {
-	    if ( QFileInfo( *it ) ) {
+	    if ( QFileInfo( *it ).isFile() ) {
 		copy( *it, de + "/" + QFileInfo( *it ).fileName() );
 		if ( move )
 		    QFile::remove( *it );
@@ -1477,7 +1493,7 @@ void QUrl::copy( const QStringList &files, const QString &dest, bool move )
     } else if ( d->networkProtocol ) {
 	d->networkProtocol->copy( files, dest, move );
     } else
-	emit error( UnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
+	emit error( ErrUnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
 }
 
 /*!
@@ -1494,7 +1510,7 @@ bool QUrl::isDir()
     } else if ( d->networkProtocol ) {
 	d->networkProtocol->isDir();
     } else {
-	emit error( UnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
+	emit error( ErrUnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
 	return FALSE;
     }
 
@@ -1515,7 +1531,7 @@ bool QUrl::isFile()
     } else if ( d->networkProtocol ) {
 	d->networkProtocol->isFile();
     } else {
-	emit error( UnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
+	emit error( ErrUnknownProtocol, QUrl::tr( "The protocol `%1' is not supported" ).arg( d->protocol ) );
 	return FALSE;
     }
 
