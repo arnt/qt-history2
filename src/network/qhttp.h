@@ -1,7 +1,7 @@
 /****************************************************************************
 ** $Id$
 **
-** Definition of QHtpp and related classes.
+** Definition of QHttp and related classes.
 **
 ** Created : 970521
 **
@@ -160,19 +160,18 @@ class QM_EXPORT_HTTP QHttpClient : public QObject
 public:
     enum State { Closed, Connecting, Sending, Reading, Alive, Idle };
     enum Error {
-	ErrUnknown,
-	ErrConnectionRefused,
-	ErrHostNotFound,
-	ErrSocketRead,
-	ErrUnexpectedClose,
-	ErrInvalidResponseHeader,
-	ErrWrongContentLength
+	UnknownError,
+	ConnectionRefused,
+	HostNotFound,
+	UnexpectedClose,
+	InvalidResponseHeader,
+	WrongContentLength
     };
 
     QHttpClient( QObject* parent = 0, const char* name = 0 );
     ~QHttpClient();
 
-    virtual bool request( const QString& hostname, int port, const QHttpRequestHeader& header, const char* data, uint size );
+    bool request( const QString& hostname, int port, const QHttpRequestHeader& header, const char* data, uint size );
     bool request( const QString& hostname, int port, const QHttpRequestHeader& header, const QByteArray& data );
     bool request( const QString& hostname, int port, const QHttpRequestHeader& header, const QCString& data );
     bool request( const QString& hostname, int port, const QHttpRequestHeader& header, QIODevice* device );
@@ -189,8 +188,9 @@ signals:
     void response( const QHttpResponseHeader& repl, const QIODevice* device );
     void responseChunk( const QHttpResponseHeader& repl, const QByteArray& data );
     void responseHeader( const QHttpResponseHeader& repl );
-    void requestFailed( int error );
-    void finished();
+
+    void finishedError( const QString& detail, int error );
+    void finishedSuccess();
 
     // informational
     void connected();
@@ -240,8 +240,8 @@ protected:
 
 private slots:
     void reply( const QHttpResponseHeader & rep, const QByteArray & dataA );
-    void requestFinished();
-    void requestFailed( int );
+    void finishedSuccess();
+    void finishedError( const QString &detail, int );
     void connected();
     void closed();
     void hostFound();
