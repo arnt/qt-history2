@@ -53,7 +53,7 @@ template<class Type>
 class Q_EXPORT QInterfaceManager
 {
 public:
-    QInterfaceManager( const QUuid& id, const QString& path = QString::null, const QString& filter = "*.dll; *.so", QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE )
+    QInterfaceManager( const QUuid& id, const QString& path = QString::null, const QString& filter = "*.dll; *.so; *.dylib", QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE )
 	: interfaceId( id ), plugDict( 17, cs ), defPol( pol ), casesens( cs )
     {
 	// Every library is unloaded on destruction of the manager
@@ -62,7 +62,7 @@ public:
 	    addLibraryPath( path, filter );
     }
 
-    void addLibraryPath( const QString& path, const QString& filter = "*.dll; *.so" )
+    void addLibraryPath( const QString& path, const QString& filter = "*.dll; *.so; *.dylib" )
     {
 	if ( !QDir( path ).exists( ".", TRUE ) )
 	    return;

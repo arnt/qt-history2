@@ -1348,7 +1348,7 @@ void MainWindow::fileOpen()
 {
     statusBar()->message( tr( "Select a file...") );
 
-    QInterfaceManager<ImportFilterInterface> manager( IID_ImportFilterInterface, pluginDir );
+    QInterfaceManager<ImportFilterInterface> manager( IID_ImportFilterInterface, pluginDir, "*.dylib"  );
     {
 	QString filename;
 	QStringList filterlist;
@@ -3727,7 +3727,7 @@ void MainWindow::showDialogHelp()
 
 void MainWindow::setupActionManager()
 {
-    actionPluginManager = new QInterfaceManager<ActionInterface>( IID_ActionInterface, pluginDir, "*.dll; *.so" );
+    actionPluginManager = new QInterfaceManager<ActionInterface>( IID_ActionInterface, pluginDir, "*.dll; *.so; *.dylib" );
 
     QStringList lst = actionPluginManager->featureList();
     for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
@@ -3842,9 +3842,9 @@ TemplateWizardInterface * MainWindow::templateWizardInterface( const QString& cl
 
 void MainWindow::setupPluginManagers()
 {
-    editorPluginManager = new QInterfaceManager<EditorInterface>( IID_EditorInterface, pluginDir, "*.dll; *.so" );
+    editorPluginManager = new QInterfaceManager<EditorInterface>( IID_EditorInterface, pluginDir, "*.dll; *.so; *.dylib" );
     MetaDataBase::setEditor( !editorPluginManager->libraryList().isEmpty() );
     templateWizardPluginManager = new QInterfaceManager<TemplateWizardInterface>( IID_TemplateWizardInterface, pluginDir, "*.dll; *.so" );
     MetaDataBase::setupInterfaceManagers();
-    programPluginManager = new QInterfaceManager<ProgramInterface>( IID_ProgramInterface, pluginDir, "*.dll; *.so" );
+    programPluginManager = new QInterfaceManager<ProgramInterface>( IID_ProgramInterface, pluginDir, "*.dll; *.so; *.dylib" );
 }

@@ -1150,11 +1150,11 @@ void MetaDataBase::setupInterfaceManagers()
     QString dir = getenv( "QTDIR" );
     dir += "/plugins";
     if ( !eventInterfaceManager ) {
-	eventInterfaceManager = new QInterfaceManager<EventInterface>( IID_EventInterface, dir, "*.dll; *.so" );
+	eventInterfaceManager = new QInterfaceManager<EventInterface>( IID_EventInterface, dir, "*.dll; *.so; *.dylib" );
 	MetaDataBase::setEventsEnabled( !eventInterfaceManager->libraryList().isEmpty() );
     }
     if ( !languageInterfaceManager ) {
-	languageInterfaceManager = new QInterfaceManager<LanguageInterface>( IID_LanguageInterface, dir, "*.dll; *.so" );
+	languageInterfaceManager = new QInterfaceManager<LanguageInterface>( IID_LanguageInterface, dir, "*.dll; *.so; *.dylib" );
 	langList = languageInterfaceManager->featureList();
 	langList.remove( "C++" );
 	langList << "C++";
