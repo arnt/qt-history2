@@ -187,12 +187,18 @@ public:
 	WMouseNoMask		= 0x00200000,
 	WStaticContents		= 0x00400000,
 	WRepaintNoErase		= 0x00800000,
-#ifdef Q_WS_X11
+#if defined(Q_WS_X11)
 	WX11BypassWM		= 0x01000000,
 	WWinOwnDC		= 0x00000000,
+	WMacSheet               = 0x00000000,
+#elif defined(Q_WS_MAC)
+	WX11BypassWM		= 0x00000000,
+	WWinOwnDC		= 0x00000000,
+	WMacNotSheet            = 0x10000000,
 #else
 	WX11BypassWM		= 0x00000000,
 	WWinOwnDC		= 0x01000000,
+	WMacSheet               = 0x00000000,
 #endif
 	WGroupLeader 		= 0x02000000,
 	WShowModal 	       	= 0x04000000,

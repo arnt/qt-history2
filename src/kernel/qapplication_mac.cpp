@@ -146,7 +146,7 @@ static bool	    popupCloseDownMode = FALSE;
 extern void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region);
 extern void qt_clear_paintevent_clipping(QPaintDevice *dev);
 extern void qt_mac_set_cursor(const QCursor *, const Point *); //Cursor switching - qcursor_mac.cpp
-extern bool qt_mac_is_macsheet(QWidget *); //qwidget_mac.cpp
+extern bool qt_mac_is_macsheet(QWidget *, bool =FALSE); //qwidget_mac.cpp
 QCString p2qstring(const unsigned char *); //qglobal.cpp
 
 //special case popup handlers - look where these are used, they are very hacky,

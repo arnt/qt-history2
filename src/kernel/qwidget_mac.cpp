@@ -550,10 +550,11 @@ QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn
     return 0;
 }
 
-bool qt_mac_is_macsheet(QWidget *w)
+bool qt_mac_is_macsheet(QWidget *w, bool ignore_exclusion=FALSE)
 {
 #if defined(Q_WS_MACX)
     if(w && w->isTopLevel() && w->testWFlags(Qt::WStyle_DialogBorder) &&
+       (ignore_exclusion || !w->testWFlags(Qt::WMacNotSheet)) && 
        w->parentWidget() && !w->parentWidget()->topLevelWidget()->isDesktop() &&
        w->parentWidget()->topLevelWidget()->isVisible() && 
        (w->style().inherits("QAquaStyle") || w->style().inherits("QMacStyle")))
