@@ -19,3 +19,11 @@ Limitations:
 Example:
 
   ./configure -platform irix-n32 -shared -debug
+
+Customization:
+
+  You can create your own custom configuration by adding new files to
+  the configs directory. The configuration solaris-cc-gcc is included
+  as an example. It uses SunPRO CC as a C++ compiler and GNU gcc as a
+  C compiler.
+
