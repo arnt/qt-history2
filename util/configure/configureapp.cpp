@@ -50,6 +50,11 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "PNG" ]		    = "yes";
     dictionary[ "JPEG" ]	    = "yes";
     dictionary[ "MNG" ]		    = "no";
+
+    dictionary[ "LIBPNG" ]	    = "qt";
+    dictionary[ "LIBJPEG" ]	    = "qt";
+    dictionary[ "LIBMNG" ]	    = "qt";
+
     dictionary[ "ACCESSIBILITY" ]   = "yes";
     dictionary[ "BIG_CODECS" ]	    = "yes";
     dictionary[ "TABLET" ]	    = "no";
@@ -75,7 +80,7 @@ Configure::Configure( int& argc, char** argv )
     qmakeConfig += "nocrosscompiler";
 
     readLicense();
-    
+
     buildModulesList();
 }
 
@@ -90,7 +95,7 @@ void Configure::buildModulesList()
     QFileInfo* fi;
 
     licensedModules = QStringList::split( ' ', "styles tools kernel widgets dialogs iconview workspace" );
-    
+
     if( ( licenseInfo[ "PRODUCTS" ] == "qt-enterprise" ) && ( dictionary[ "FORCE_PROFESSIONAL" ] != "yes" ) )
 	licensedModules += QStringList::split( ' ', "network canvas table xml opengl sql" );
 
@@ -174,26 +179,39 @@ void Configure::parseCmdLine()
 	    dictionary[ "ZLIB" ] = "system";
 	}
 
-	else if( (*args) == "-no-png" )
+	// ### remove -no-<format> options in Qt 4.0
+	else if( (*args) == "-plugin-imgfmt-png" )
+	    dictionary[ "PNG" ] = "plugin";
+	else if( (*args) == "-qt-imgfmt-png" )
+	    dictionary[ "PNG" ] = "qt";
+	else if( (*args) == "-no-imgfmt-png" || (*args) == "-no-png" )
 	    dictionary[ "PNG" ] = "no";
 	else if( (*args) == "-qt-png" )
-	    dictionary[ "PNG" ] = "yes";
+	    dictionary[ "LIBPNG" ] = "qt";
 	else if( (*args) == "-system-png" )
-	    dictionary[ "PNG" ] = "system";
+	    dictionary[ "LIBPNG" ] = "system";
 
-	else if( (*args) == "-no-mng" )
+	else if( (*args) == "-plugin-imgfmt-mng" )
+	    dictionary[ "MNG" ] = "plugin";
+	else if( (*args) == "-qt-imgfmt-mng" )
+	    dictionary[ "MNG" ] = "qt";
+	else if( (*args) == "-no-imgfmt-mng" )
 	    dictionary[ "MNG" ] = "no";
 	else if( (*args) == "-qt-mng" )
-	    dictionary[ "MNG" ] = "yes";
+	    dictionary[ "LIBMNG" ] = "qt";
 	else if( (*args) == "-system-mng" )
-	    dictionary[ "MNG" ] = "system";
+	    dictionary[ "LIBMNG" ] = "system";
 
-	else if( (*args) == "-no-jpeg" )
+	else if( (*args) == "-plugin-imgfmt-jpeg" )
+	    dictionary[ "JPEG" ] = "plugin";
+	else if( (*args) == "-qt-imgfmt-jpeg" )
+	    dictionary[ "JPEG" ] = "qt";
+	else if( (*args) == "-no-imgfmt-jpeg" || (*args) == "-no-jpeg" )
 	    dictionary[ "JPEG" ] = "no";
 	else if( (*args) == "-qt-jpeg" )
-	    dictionary[ "JPEG" ] = "yes";
+	    dictionary[ "LIBJPEG" ] = "qt";
 	else if( (*args) == "-system-jpeg" )
-	    dictionary[ "JPEG" ] = "system";
+	    dictionary[ "LIBJPEG" ] = "system";
 
 	else if( (*args) == "-qt-style-windows" )
 	    dictionary[ "STYLE_WINDOWS" ] = "yes";
@@ -446,18 +464,20 @@ bool Configure::displayHelp()
 	cout << "-qt-zlib           * Compile in zlib." << endl;
 	cout << "-system-zlib         Use existing zlib in system." << endl << endl;
 
-	cout << "-no-png              PNG support through plugin." << endl;
+	cout << "-plugin-imgfmt-<format> Enable format (png, jpeg, or mng) to" << endl;
+	cout << "                        be linked to at runtime." << endl;
+	cout << "-qt-imgfmt-<format>     Enable fomrat (png, jpeg, or mng) to" << endl;
+	cout << "-no-imgfmt-<format>     Fully disable format (png, jpeg, or mng)" << endl << endl;
+
 	cout << "-qt-png            * Compile in PNG support." << endl;
 	cout << "-system-png          Use existing libPNG in system." << endl  << endl;
 
-	cout << "-no-mng            * MNG support through plugin." << endl;
-	cout << "-qt-mng              Compile in MNG support." << endl;
+	cout << "-qt-mng            * Compile in MNG support." << endl;
 	cout << "-system-mng          Use existing libMNG in system." << endl << endl;
 
-	cout << "-no-jpeg           * JPEG support through plugin." << endl;
-	cout << "-qt-jpeg             Compile in JPEG support" << endl;
+	cout << "-qt-jpeg           * Compile in JPEG support" << endl;
 	cout << "-system-jpeg         Use existing libJPEG in system" << endl << endl;
-	
+
 	cout << "-stl                 Enable STL support." << endl;
 	cout << "-no-stl            * Disable STL support." << endl  << endl;
 
@@ -566,22 +586,30 @@ void Configure::generateOutputVars()
 
     if( dictionary[ "JPEG" ] == "no" )
 	qmakeConfig += "no-jpeg";
-    else if( dictionary[ "JPEG" ] == "yes" )
+    else if( dictionary[ "JPEG" ] == "qt" )
 	qmakeConfig += "jpeg";
-    else if( dictionary[ "JPEG" ] == "system" )
+    else if( dictionary[ "JPEG" ] == "plugin" )
+	qmakeFormatPlugins += "jpeg";
+    else if( dictionary[ "LIBJPEG" ] == "system" )
 	qmakeConfig += "system-jpeg";
 
     if( dictionary[ "MNG" ] == "no" )
 	qmakeConfig += "no-mng";
-    else if( dictionary[ "MNG" ] == "yes" )
+    else if( dictionary[ "MNG" ] == "qt" )
 	qmakeConfig += "mng";
-    else if( dictionary[ "MNG" ] == "system" )
+    else if( dictionary[ "MNG" ] == "plugin" )
+	qmakeFormatPlugins += "mng";
+    else if( dictionary[ "LIBMNG" ] == "system" )
 	qmakeConfig += "system-mng";
 
-    if( dictionary[ "PNG" ] == "yes" )
-	qmakeConfig += "png";
     else if( dictionary[ "PNG" ] == "no" )
 	qmakeConfig += "no-png";
+    if( dictionary[ "PNG" ] == "qt" )
+	qmakeConfig += "png";
+    else if( dictionary[ "PNG" ] == "plugin" )
+	qmakeFormatPlugins += "png";
+    else if( dictionary[ "LIBPNG" ] == "system" )
+	qmakeConfig += "system-png";
 
     if( dictionary[ "BIG_CODECS" ] == "yes" )
 	qmakeConfig += "bigcodecs";
@@ -659,6 +687,7 @@ void Configure::generateOutputVars()
     qmakeVars += QString( "sql-plugins+=" ) + qmakeSqlPlugins.join( " " );
     qmakeVars += QString( "styles+=" ) + qmakeStyles.join( " " );
     qmakeVars += QString( "style-plugins+=" ) + qmakeStylePlugins.join( " " );
+    qmakeVars += QString( "imageformat-plugins+=" ) + qmakeFormatPlugins.join( " " );
 
     if( licenseInfo[ "PRODUCTS" ].length() )
 	qmakeVars += QString( "QT_PRODUCT=" ) + licenseInfo[ "PRODUCTS" ];
@@ -685,7 +714,7 @@ void Configure::generateOutputVars()
 }
 
 void Configure::generateCachefile()
-{    
+{
     // Generate .qmake.cache
     QFile cacheFile( qtDir + "\\.qmake.cache" );
     if( cacheFile.open( IO_WriteOnly | IO_Translate ) ) { // Truncates any existing file.
@@ -709,7 +738,7 @@ void Configure::generateCachefile()
 	configStream << "CONFIG+=";
 	if( dictionary[ "SHARED" ] == "yes" )
 	    configStream << " shared";
-	if ( dictionary[ "THREAD" ] == "yes" ) 
+	if ( dictionary[ "THREAD" ] == "yes" )
 	    configStream << " thread";
 	if ( dictionary[ "DEBUG" ] == "yes" )
 	    configStream << " debug";
@@ -717,7 +746,7 @@ void Configure::generateCachefile()
 	    configStream << " release";
 	configStream << endl;
 	if( dictionary[ "STL" ] == "no" )
-	    configStream << "DEFINES+= QT_NO_STL"; 
+	    configStream << "DEFINES+= QT_NO_STL";
 	configFile.close();
     }
 }
@@ -747,7 +776,7 @@ void Configure::generateConfigfiles()
 	} else {
 	    QString configName( "qconfig-" + dictionary[ "QCONFIG" ] + ".h" );
 	    outStream << "// Copied from " << configName << endl;
-	    
+
 	    QFile inFile( qtDir + "/src/tools/" + configName );
 	    if( inFile.open( IO_ReadOnly ) ) {
 		QByteArray buffer = inFile.readAll();
@@ -763,7 +792,7 @@ void Configure::generateConfigfiles()
 	if( dictionary[ "QMAKE_INTERNAL" ] == "yes" ) {
 	    if ( !CopyFileA( outName, qtDir + "/include/qconfig.h", FALSE ) )
 		qDebug("Couldn't copy %s to include", outName.latin1() );
-	    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_READONLY );	    
+	    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_READONLY );
 	}
     }
     outName = outDir + "/qmodules.h";
@@ -790,7 +819,7 @@ void Configure::generateConfigfiles()
 	if( dictionary[ "QMAKE_INTERNAL" ] == "yes" ) {
 	    if ( !CopyFileA( outName, qtDir + "/include/qmodules.h", FALSE ) )
 		qDebug("Couldn't copy %s to include", outName.latin1() );
-	    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_READONLY );	    
+	    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_READONLY );
 	}
     }
 }

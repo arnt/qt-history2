@@ -49,6 +49,8 @@ private:
     QStringList qmakeStyles;
     QStringList qmakeStylePlugins;
 
+    QStringList qmakeFormatPlugins;
+
     QStringList qmakeVars;
     QStringList qmakeDefines;
     QStringList makeList;
