@@ -606,7 +606,7 @@ void Uic::createFormImpl( const QDomElement &e )
     }
     if ( dbAware ) {
 	registerDatabases( e );
-    	if ( dbConnections.count() )
+	if ( dbConnections.count() )
 	    globalIncludes += "qsqldatabase.h";
 	if ( dbCursors.count() )
 	    globalIncludes += "qsqlcursor.h";
@@ -903,24 +903,20 @@ void Uic::createFormImpl( const QDomElement &e )
 		    out << indent << "defaultConnection = QSqlDatabase::database();" << endl;
 		else
 		    out << indent << (*it) << "Connection = QSqlDatabase::database( \"" <<(*it) << "\" );" << endl;
- 		QStringList::Iterator it2;
- 		dbCursors[ (*it) ] = unique( dbCursors[ (*it) ] );
- 		for( it2 = dbCursors[ (*it) ].begin();
- 		      it2 != dbCursors[ (*it) ].end();
- 		      ++it2 ) {
-		    if ( (*it2) == defaultTable )
-			out << indent << " // default cursor" << endl;
- 		    out << indent << (*it2) << "Cursor = 0;" << endl;
- 		}
- 		dbForms[ (*it) ] = unique( dbForms[ (*it) ] );
- 		for ( it2 = dbForms[ (*it) ].begin();
- 		      it2 != dbForms[ (*it) ].end();
- 		      ++it2 ) {
+		QStringList::Iterator it2;
+		dbCursors[ (*it) ] = unique( dbCursors[ (*it) ] );
+		for( it2 = dbCursors[ (*it) ].begin();
+		      it2 != dbCursors[ (*it) ].end();
+		      ++it2 ) {
+		    out << indent << (*it2) << "Cursor = 0;" << endl;
+		}
+		dbForms[ (*it) ] = unique( dbForms[ (*it) ] );
+		for ( it2 = dbForms[ (*it) ].begin();
+		      it2 != dbForms[ (*it) ].end();
+		      ++it2 ) {
 		    dbFormCount++;
-		    if ( (*it2) == defaultTable )
-			out << indent << " // default form" << endl;
- 		    out << indent << (*it2) << "Form = new QSqlForm( this, \"" << (*it2) << "\" );" << endl;
- 		}
+		    out << indent << (*it2) << "Form = new QSqlForm( this, \"" << (*it2) << "\" );" << endl;
+		}
 	    }
 	}
 	out << indent << "autoDeleteCursors.resize( " << dbFormCount << " );" << endl;
@@ -981,7 +977,7 @@ void Uic::createFormImpl( const QDomElement &e )
     // buddies
     bool firstBuddy = TRUE;
     for ( QValueList<Buddy>::Iterator buddy = buddies.begin(); buddy != buddies.end(); ++buddy ) {
- 	if ( isObjectRegistered( (*buddy).buddy ) ) {
+	if ( isObjectRegistered( (*buddy).buddy ) ) {
 	    if ( firstBuddy ) {
 		out << endl << indent << "// buddies" << endl;
 	    }
@@ -2518,7 +2514,7 @@ int main( int argc, char * argv[] )
 		 "\t<classname>	name of the subclass to generate\n"
 		 "\t<headerfile>	declaration file of the subclass\n"
 		 "Options:\n"
-		 "\t-o file 	Write output to file rather than stdout\n"
+		 "\t-o file	Write output to file rather than stdout\n"
 		 "\t-tr func	Use func(...) rather than tr(...) for i18n\n"
 		 , argv[0], argv[0], argv[0], argv[0], argv[0]);
 	exit( 1 );
@@ -2570,7 +2566,7 @@ int main( int argc, char * argv[] )
     }
 
     if ( headerFile ) {
-        out << "#include \"" << headerFile << "\"" << endl << endl;
+	out << "#include \"" << headerFile << "\"" << endl << endl;
     }
 
     Uic( out, doc, !impl, subcl, trmacro ? trmacro : "tr", className );
