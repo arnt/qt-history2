@@ -514,10 +514,10 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 		}
 	    } else {
 		ToolBarLayoutInfo &prev = tb_layout_info[k][i-1];
-		QSize min(0, 0);
+		QSize minSize(0, 0);
                 if(info.item->widget()->layout()->itemAt(1)) 
-                    min = info.item->widget()->layout()->itemAt(1)->widget()->minimumSizeHint();
-		set_perp(where, min, pick_perp(where, min) + tb_fill);
+                    minSize = info.item->widget()->layout()->itemAt(1)->widget()->minimumSizeHint();
+		set_perp(where, minSize, pick_perp(where, minSize) + tb_fill);
  		const int cur_pt = pick_perp(where, prev.pos) + pick_perp(where, prev.size);
 		const int prev_min = pick_perp(where, get_min_item_sz(prev.item->widget()->layout())) + tb_fill;
 
@@ -565,7 +565,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 		    }
 
 		} else if (pick_perp(where, info.offset) > 0) { // right/down motion
-		    if (pick_perp(where, info.size) - pick_perp(where, info.offset) > pick_perp(where, min)) {
+		    if (pick_perp(where, info.size) - pick_perp(where, info.offset) > pick_perp(where, minSize)) {
 			QSize sz(0, 0);
 			set_perp(where, sz, pick_perp(where, info.offset));
 			info.size -= sz;
@@ -584,7 +584,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 			    }
 			}
 			if (!can_push) {
-			    int can_remove = pick_perp(where, info.size) - pick_perp(where, min);
+			    int can_remove = pick_perp(where, info.size) - pick_perp(where, minSize);
 			    set_perp(where, info.pos, cur_pt + can_remove);
 			    QSize sz(0, 0);
 			    set_perp(where, sz, can_remove);
