@@ -610,6 +610,8 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
   called bits per pixel (bpp) or bit planes of an image.
 
   The supported depths are 1, 8, 16 and 32.
+
+  \sa convertDepth()
 */
 
 /*!
@@ -1836,7 +1838,7 @@ static bool convert_32_to_16( const QImage *src, QImage *dst )
 
   The \a depth argument must be 1, 8, 16 or 32.
 
-  See QPixmap::convertFromImage for a description of the \a
+  See QPixmap::convertFromImage() for a description of the \a
   conversion_flags argument.
 
   Returns \c *this if \a depth is equal to the image depth, or a null
@@ -2579,8 +2581,16 @@ QSize QImage::scaleSize( const QSize &size, ScaleMode mode ) const
 */
 QImage QImage::xForm( const QWMatrix &matrix ) const
 {
+    // This function uses the same algorithm (and quite some code) as
+    // QPixmap::xForm().
+
     if ( isNull() )
 	return copy();
+
+    if ( depth() == 16 ) {
+	// inefficient
+	return convertDepth(32).xForm( matrix );
+    }
 
     // source image data
     int ws = width();
@@ -2652,11 +2662,9 @@ QImage QImage::xForm( const QWMatrix &matrix ) const
     switch ( bpp ) {
 	// initizialize the data
 	case 1:
-//qDebug( "bpp == 1" );
 	    memset( dImage.bits(), 0, dImage.numBytes() );
 	    break;
 	case 8:
-//qDebug( "bpp == 8" );
 	    if ( dImage.data->ncols < 256 ) {
 		// colors are left in the color table, so pick that one as transparent
 		dImage.data->ncols++;
@@ -2669,11 +2677,9 @@ QImage QImage::xForm( const QWMatrix &matrix ) const
 	    }
 	    break;
 	case 16:
-//qDebug( "bpp == 16" );
 	    memset( dImage.bits(), 0xff, dImage.numBytes() );
 	    break;
 	case 32:
-//qDebug( "bpp == 32" );
 	    memset( dImage.bits(), 0x00, dImage.numBytes() );
 	    break;
     }
@@ -2708,18 +2714,6 @@ QImage QImage::xForm( const QWMatrix &matrix ) const
 			*p = *(sptr+sbpl*(trigy>>16)+(trigx>>16));
 		    trigx += m11;
 		    trigy += m12;
-		    p++;
-		}
-		break;
-
-		case 16:			// 16 bpp transform
-		while ( p < maxp ) {
-		    if ( trigx < maxws && trigy < maxhs )
-			*((ushort*)p) = *((ushort *)(sptr+sbpl*(trigy>>16) +
-						     ((trigx>>16)<<1)));
-		    trigx += m11;
-		    trigy += m12;
-		    p++;
 		    p++;
 		}
 		break;
