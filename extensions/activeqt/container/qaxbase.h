@@ -180,7 +180,12 @@ inline QDataStream &operator <<(QDataStream &s, const QAxBase &c)
 }
 #endif // QT_NO_DATASTREAM
 
+#ifndef Q_COM_METATYPE_DECLARED
+#define Q_COM_METATYPE_DECLARED
+
 Q_DECLARE_METATYPE(IUnknown*)
 Q_DECLARE_METATYPE(IDispatch*)
+
+#endif
 
 #endif // QAXBASE_H
