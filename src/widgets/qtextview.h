@@ -170,7 +170,7 @@ public slots:
     virtual void selectAll( bool select = TRUE );
     virtual void setTabStops( int ts );
     virtual void clear();
-
+    virtual void del();
     virtual void zoomIn();
     virtual void zoomOut();
 

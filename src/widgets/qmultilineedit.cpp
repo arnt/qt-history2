@@ -509,24 +509,6 @@ void QMultiLineEdit::killLine()
     doKeyboardAction( ActionKill );
 }
 
-/*!  Deletes the character on the right side of the text cursor. If a
-  text has been marked by the user (e.g. by clicking and dragging) the
-  cursor is put at the beginning of the marked text and the marked
-  text is removed.
-
-  \sa backspace()
-*/
-
-void QMultiLineEdit::del()
-{
-    if ( document()->hasSelection( QTextDocument::Standard ) ) {
-	removeSelectedText();
-	return;
-    }
-
-    doKeyboardAction( ActionDelete );
-}
-
 /*!  Moves the cursor one character to the left. If \a mark is TRUE,
   the text is marked.
 

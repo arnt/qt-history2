@@ -80,6 +80,7 @@ public slots:
     virtual void paste();
     virtual void pasteSubType( const QCString &subtype );
     virtual void clear();
+    virtual void del();
     virtual void indent();
     virtual void setItalic( bool b );
     virtual void setBold( bool b );
@@ -251,6 +252,11 @@ inline void QTextEdit::pasteSubType( const QCString &subtype )
 inline void QTextEdit::clear()
 {
     QTextView::clear();
+}
+
+inline void QTextEdit::del()
+{
+    QTextView::del();
 }
 
 inline void QTextEdit::indent()
