@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qt_x11.h#32 $
+** $Id: //depot/qt/main/src/kernel/qt_x11.h#33 $
 **
 ** Includes X11 system header files.
 **
@@ -79,7 +79,8 @@
 #define XShapeCombineMask(a,b,c,d,e,f,g)
 #else
 #include <X11/extensions/shape.h>
-#endif
+#endif // QT_NO_SHAPE
+
 
 // #define QT_NO_XINERAMA
 #ifndef QT_NO_XINERAMA
@@ -88,6 +89,7 @@ extern "C" {
 #  include <X11/extensions/Xinerama.h>
 }
 #endif // QT_NO_XINERAMA
+
 
 // #define QT_NO_XRENDER
 #ifndef QT_NO_XRENDER
@@ -103,6 +105,7 @@ extern "C" {
 #  endif
 #endif // QT_NO_XRENDER
 
+
 #if !defined(XlibSpecificationRelease)
 #define X11R4
 typedef char *XPointer;
@@ -111,29 +114,29 @@ typedef char *XPointer;
 #endif
 
 
+// #define QT_NO_XIM
 #if defined(X11R4)
 // X11R4 does not have XIM
-#define NO_XIM
+#define QT_NO_XIM
 #elif defined(Q_OS_OSF) && (XlibSpecificationRelease < 6)
 // broken in Xlib up to OSF/1 3.2
-#define NO_XIM
+#define QT_NO_XIM
 #elif defined(Q_OS_AIX)
 // broken in Xlib up to what version of AIX?
-#define NO_XIM
+#define QT_NO_XIM
 #elif defined(Q_OS_SOLARIS)
 // XRegisterIMInstantiateCallback broken under "C" locale on Solaris
-#define NO_XIM
+#define QT_NO_XIM
 #elif defined(QT_NO_DEBUG) && defined(Q_OS_IRIX) && defined(Q_CC_EDG)
 // XCreateIC broken when compiling -64 on IRIX 6.5.2
-#define NO_XIM
+#define QT_NO_XIM
 #elif defined(Q_OS_HPUX) && defined(__LP64__)
 // XCreateIC broken when compiling 64-bit ELF on HP-UX 11.0
-#define NO_XIM
-#endif
+#define QT_NO_XIM
+#endif // QT_NO_XIM
 
 
-
-#if !defined(NO_XIM) && (XlibSpecificationRelease >= 6 )
+#if !defined(QT_NO_XIM) && (XlibSpecificationRelease >= 6)
 #define USE_X11R6_XIM
 
 //######### XFree86 has wrong declarations for XRegisterIMInstantiateCallback
@@ -161,15 +164,17 @@ extern "C" Bool XUnregisterIMInstantiateCallback(
 
 extern "C" char *XSetIMValues( XIM /* im */, ... );
 
-
 #endif
+
 
 #ifndef X11R4
 #  include <X11/Xlocale.h>
 #endif // X11R4
 
+
 #ifdef QT_MITSHM
 #  include <X11/extensions/XShm.h>
 #endif // QT_MITSHM
+
 
 #endif // QT_X11_H

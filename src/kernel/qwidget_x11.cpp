@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#531 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#532 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -55,7 +55,7 @@ int  qt_sip_count( QWidget* );
 bool qt_wstate_iconified( WId );
 void qt_updated_rootinfo();
 
-#ifndef NO_XIM
+#ifndef QT_NO_XIM
 #include "qinputcontext_p.h"
 
 extern XIM qt_xim;
@@ -748,7 +748,7 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 */
 void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text, QFont * )
 {
-#ifndef NO_XIM
+#ifndef QT_NO_XIM
     if ( text ) {
 	QWidget* tlw = topLevelWidget();
 	QTLWExtra *topdata = tlw->topData();
@@ -1214,7 +1214,7 @@ void QWidget::setActiveWindow()
     if ( tlw->isVisible() && !tlw->topData()->embedded ) {
 	XSetInputFocus( x11Display(), tlw->winId(), RevertToNone, qt_x_time);
 
-#ifndef NO_XIM
+#ifndef QT_NO_XIM
 	// trigger input context creation if it hasn't happened already
 	createInputContext();
 
@@ -2305,14 +2305,14 @@ void QWidget::createInputContext()
     QWidget *tlw = topLevelWidget();
     QTLWExtra *topdata = tlw->topData();
 
-#ifndef NO_XIM
+#ifndef QT_NO_XIM
     if (qt_xim) {
 	if (! topdata->xic) {
 	    QInputContext *qic = new QInputContext(tlw);
 	    topdata->xic = (void *) qic;
 	}
     } else
-#endif // NO_XIM
+#endif // QT_NO_XIM
 	{
 	    // qDebug("QWidget::createInputContext: no xim");
 	    topdata->xic = 0;
@@ -2322,17 +2322,17 @@ void QWidget::createInputContext()
 
 void QWidget::destroyInputContext()
 {
-#ifndef NO_XIM
+#ifndef QT_NO_XIM
     QInputContext *qic = (QInputContext *) extra->topextra->xic;
     delete qic;
-#endif // NO_XIM
+#endif // QT_NO_XIM
     extra->topextra->xic = 0;
 }
 
 
 void QWidget::resetInputContext()
 {
-#ifndef NO_XIM
+#ifndef QT_NO_XIM
     if (qt_xim_style & XIMPreeditCallbacks) {
 	QWidget *tlw = topLevelWidget();
 	QTLWExtra *topdata = tlw->topData();
@@ -2345,13 +2345,13 @@ void QWidget::resetInputContext()
 	    qic->reset();
 	}
     }
-#endif // NO_XIM
+#endif // QT_NO_XIM
 }
 
 
 void QWidget::focusInputContext()
 {
-#ifndef NO_XIM
+#ifndef QT_NO_XIM
     QWidget *tlw = topLevelWidget();
     QTLWExtra *topdata = tlw->topData();
 
@@ -2362,5 +2362,5 @@ void QWidget::focusInputContext()
 	QInputContext *qic = (QInputContext *) topdata->xic;
 	qic->setFocus();
     }
-#endif // NO_XIM
+#endif // QT_NO_XIM
 }

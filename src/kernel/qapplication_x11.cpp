@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#817 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#818 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -324,7 +324,7 @@ timeval		*qt_wait_timer();
 timeval	*qt_wait_timer_max = 0;
 int		qt_activate_timers();
 
-#if !defined(NO_XIM)
+#if !defined(QT_NO_XIM)
 XIM		qt_xim			= 0;
 XIMStyle	qt_xim_style		= 0;
 // static XIMStyle	xim_preferred_style	= XIMPreeditPosition | XIMStatusNothing;
@@ -453,7 +453,7 @@ public:
 // X Input Method support
 // ************************************************************************
 
-#if !defined(NO_XIM)
+#if !defined(QT_NO_XIM)
 
 #if defined(Q_C_CALLBACKS)
 extern "C" {
@@ -484,7 +484,7 @@ extern "C" {
 }
 #endif // Q_C_CALLBACKS
 
-#endif // NO_XIM
+#endif // QT_NO_XIM
 
 
 /*! \internal
@@ -492,7 +492,7 @@ extern "C" {
  */
 void QApplication::create_xim()
 {
-#ifndef NO_XIM
+#ifndef QT_NO_XIM
     qt_xim = XOpenIM( appDpy, 0, 0, 0 );
     if ( qt_xim ) {
 
@@ -558,7 +558,7 @@ void QApplication::create_xim()
 	    close_xim();
 	}
     }
-#endif // NO_XIM
+#endif // QT_NO_XIM
 }
 
 
@@ -567,7 +567,7 @@ void QApplication::create_xim()
 */
 void QApplication::close_xim()
 {
-#ifndef NO_XIM
+#ifndef QT_NO_XIM
     // Calling XCloseIM gives a Purify FMR error
     // XCloseIM( qt_xim );
     // We prefer a less serious memory leak
@@ -580,7 +580,7 @@ void QApplication::close_xim()
 	++it;
     }
     delete list;
-#endif // NO_XIM
+#endif // QT_NO_XIM
 }
 
 
@@ -1481,7 +1481,7 @@ void qt_init_internal( int *argcptr, char **argv,
 			// ### Should we honor any others?
 		    }
 		}
-#ifndef NO_XIM
+#ifndef QT_NO_XIM
 	    } else if ( arg == "-inputstyle" ) {
 		if ( ++i < argc ) {
 		    QCString s = QCString(argv[i]).lower();
@@ -1725,8 +1725,8 @@ void qt_init_internal( int *argcptr, char **argv,
     // with a "C" locale and could be used as a fallback instead of "C". This
     // is not the case.
     // We'll have to take a XIM / no XIM decision at run-time.
-    // Taking a decision at compile-time using NO_XIM is not enough.
-#if defined (Q_OS_SOLARIS) && !defined(NO_XIM)
+    // Taking a decision at compile-time using QT_NO_XIM is not enough.
+#if defined (Q_OS_SOLARIS) && !defined(QT_NO_XIM)
     const char* locale = ::setlocale( LC_ALL, "" );
     if ( !locale || qstrcmp( locale, "C" ) == 0 ) {
 	locale = ::setlocale( LC_ALL, "en_US" );
@@ -1740,7 +1740,7 @@ void qt_init_internal( int *argcptr, char **argv,
 
     if ( qt_is_gui_used ) {
 
-#ifndef NO_XIM
+#ifndef QT_NO_XIM
 	qt_xim = 0;
 	QString ximServerName(ximServer);
 	if (ximServer)
@@ -1764,7 +1764,7 @@ void qt_init_internal( int *argcptr, char **argv,
 	else if (! noxim)
 	    QApplication::create_xim();
 #endif // USE_X11R6_XIM
-#endif // NO_XIM
+#endif // QT_NO_XIM
 
 	qt_set_input_encoding();
 
@@ -1869,7 +1869,7 @@ void qt_cleanup()
 	QColor::cleanup();
     }
 
-#if !defined(NO_XIM)
+#if !defined(QT_NO_XIM)
     if ( qt_xim )
 	QApplication::close_xim();
 #endif
@@ -4637,7 +4637,7 @@ static const unsigned short greekKeysymsToUnicode[] = {
 };
 #endif
 
-#if !defined(NO_XIM)
+#if !defined(QT_NO_XIM)
 // ### add keysym conversion for the missing ranges.
 static QChar keysymToUnicode(unsigned char byte3, unsigned char byte4)
 {
@@ -4678,7 +4678,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 
     XKeyEvent xkeyevent = event->xkey;
 
-#if defined(NO_XIM)
+#if defined(QT_NO_XIM)
 
     count = XLookupString( &xkeyevent, chars.data(), chars.size(), &key, 0 );
 
@@ -4771,7 +4771,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 	    ascii = (char)(s-256);
 	}
     }
-#endif // !NO_XIM
+#endif // !QT_NO_XIM
 
     state = translateButtonState( event->xkey.state );
 
@@ -5023,7 +5023,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	}
     }
 
-#ifndef NO_XIM
+#ifndef QT_NO_XIM
     if (qt_xim_style & XIMPreeditCallbacks) {
 	QWidget *tlw = topLevelWidget();
 	QInputContext *qic = (QInputContext *) tlw->topData()->xic;
@@ -5034,7 +5034,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	    return TRUE;
 	}
     }
-#endif // NO_XIM
+#endif // QT_NO_XIM
 
     return QApplication::sendSpontaneousEvent( this, &e );
 }

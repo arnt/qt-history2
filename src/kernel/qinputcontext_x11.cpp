@@ -7,7 +7,7 @@
 #include "qinputcontext_p.h"
 
 
-#if !defined(NO_XIM)
+#if !defined(QT_NO_XIM)
 
 // from qapplication_x11.cpp
 extern XIM	qt_xim;
@@ -152,14 +152,14 @@ extern "C" {
 }
 #endif // Q_C_CALLBACKS
 
-#endif // !NO_XIM
+#endif // !QT_NO_XIM
 
 
 
 QInputContext::QInputContext(QWidget *widget)
     : ic(0), focusWidget(0), composing(FALSE)
 {
-#if !defined(NO_XIM)
+#if !defined(QT_NO_XIM)
     if (! qt_xim) {
 	qWarning("QInputContext: no input method context available");
 	return;
@@ -220,16 +220,16 @@ QInputContext::QInputContext(QWidget *widget)
 		       XNInputStyle, qt_xim_style,
 		       XNClientWindow, widget->winId(),
 		       (char *) 0);
-#endif // !NO_XIM
+#endif // !QT_NO_XIM
 }
 
 
 QInputContext::~QInputContext()
 {
-#if !defined(NO_XIM)
+#if !defined(QT_NO_XIM)
     if (ic)
 	XDestroyIC((XIC) ic);
-#endif // !NO_XIM
+#endif // !QT_NO_XIM
     ic = 0;
     focusWidget = 0;
     composing = FALSE;
@@ -238,7 +238,7 @@ QInputContext::~QInputContext()
 
 void QInputContext::reset()
 {
-#if !defined(NO_XIM)
+#if !defined(QT_NO_XIM)
     if (focusWidget && composing) {
 	// qDebug("QInputContext::reset: composing - sending IMEnd");
 
@@ -250,13 +250,13 @@ void QInputContext::reset()
     }
 
     (void) XmbResetIC((XIC) ic);
-#endif // !NO_XIM
+#endif // !QT_NO_XIM
 }
 
 
 void QInputContext::setComposePosition(int x, int y)
 {
-#if !defined(NO_XIM)
+#if !defined(QT_NO_XIM)
     if (qt_xim && ic) {
 	XPoint point;
 	point.x = x;
@@ -267,13 +267,13 @@ void QInputContext::setComposePosition(int x, int y)
 	XSetICValues((XIC) ic, XNPreeditAttributes, preedit_attr, (char *) 0);
 	XFree(preedit_attr);
     }
-#endif // !NO_XIM
+#endif // !QT_NO_XIM
 }
 
 
 void QInputContext::setComposeArea(int x, int y, int w, int h)
 {
-#if !defined(NO_XIM)
+#if !defined(QT_NO_XIM)
     if (qt_xim && ic) {
 	XRectangle rect;
 	rect.x = x;
@@ -294,7 +294,7 @@ int QInputContext::lookupString(XKeyEvent *event, QCString &chars,
 {
     int count = 0;
 
-#if !defined(NO_XIM)
+#if !defined(QT_NO_XIM)
     if (qt_xim && ic) {
 	count = XmbLookupString((XIC) ic, event, chars.data(),
 				chars.size(), key, status);
@@ -306,7 +306,7 @@ int QInputContext::lookupString(XKeyEvent *event, QCString &chars,
 	}
     }
 
-#endif // NO_XIM
+#endif // QT_NO_XIM
 
     return count;
 }
@@ -314,8 +314,8 @@ int QInputContext::lookupString(XKeyEvent *event, QCString &chars,
 
 void QInputContext::setFocus()
 {
-#if !defined(NO_XIM)
+#if !defined(QT_NO_XIM)
     if (qt_xim && ic)
 	XSetICFocus((XIC) ic);
-#endif // !NO_XIM
+#endif // !QT_NO_XIM
 }
