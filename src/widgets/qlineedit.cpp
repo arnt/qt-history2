@@ -1520,7 +1520,7 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 
     QString old = d->parag->string()->toString();
     old.remove( old.length() - 1, 1 );
-    
+
     const QValidator * v = validator();
 
     int pos = d->cursor->index();
@@ -1536,7 +1536,7 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
     d->cursor->setIndex( newPos );
     d->selectionStart = newMarkAnchor;
     d->parag->setSelection( QTextDocument::Standard, newMarkAnchor, newMarkDrag );
-    update();
+    repaint( FALSE );
     d->selectionStart = d->cursor->index();
     return TRUE;
 }
