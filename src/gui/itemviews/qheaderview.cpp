@@ -84,15 +84,6 @@
 */
 
 /*!
-    \fn void QHeaderView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags flags)
-
-    Selects the items in the given \a rect in accordance with the \a
-    flags.
-
-    The base class implementation does nothing.
-*/
-
-/*!
     \fn void QHeaderView::sectionMoved(int logicalIndex, int oldVisualIndex, int newVisualIndex)
 
     This signal is emitted when a section is moved. The section's logical
@@ -312,7 +303,7 @@ QSize QHeaderView::sizeHint() const
 }
 
 /*!
-    Returns a suitable size hint for the given \a section.
+    Returns a suitable size hint for the section specified by \a logicalIndex.
 
     \sa sizeHint()
 */
@@ -410,7 +401,7 @@ int QHeaderView::sectionViewportPosition(int logicalIndex) const
 }
 
 /*!
-  \fn QHeaderView::logicalIndexAt(int x, int y) const
+  \fn int QHeaderView::logicalIndexAt(int x, int y) const
 
   Returns the logical index of the section at the given coordinate.
   If the header is horizontal \a x will be used, otherwise \a y
@@ -418,11 +409,11 @@ int QHeaderView::sectionViewportPosition(int logicalIndex) const
 */
 
 /*!
-  \fn QHeaderView::logicalIndexAt(const QPoint &pos) const
+  \fn int QHeaderView::logicalIndexAt(const QPoint &pos) const
 
   Returns the logical index of the section at the position given in \a pos.
-  If the header is horizontal \a x will be used, otherwise \a y
-  will be used to find the logical index.
+  If the header is horizontal the x-coordinate will be used to find the
+  logical index; otherwise the y-coordinate will be used.
 */
 
 /*!
@@ -811,6 +802,9 @@ Qt::SortOrder QHeaderView::sortIndicatorOrder() const
     return d->sortIndicatorOrder;
 }
 
+/*!
+    \internal
+*/
 void QHeaderView::doItemsLayout()
 {
     initializeSections();
@@ -911,9 +905,11 @@ void QHeaderView::resizeSections()
 
 /*!
     This slot is called when sections are inserted into the \a parent,
-    \a first and \a last signify where the new sections are
-    inserted. (\a first and \a last will be the same if just one
-    section is inserted.)
+    \a logicalFirst and \a logicalLast indexes signify where the new
+    sections are inserted.
+
+    \a logicalFirst and \a logicalLast will be the same if just one
+    section is inserted.
 */
 
 void QHeaderView::sectionsInserted(const QModelIndex &parent, int logicalFirst, int)
@@ -1458,10 +1454,12 @@ QModelIndex QHeaderView::moveCursor(QAbstractItemView::CursorAction, Qt::Keyboar
 }
 
 /*!
-  \reimp
-  \internal
+    \reimp
 
-  Empty implementation because the header doesn't have selections.
+    Selects the items in the given \a rect according to the specified
+    \a flags.
+
+    The base class implementation does nothing.
 */
 
 void QHeaderView::setSelection(const QRect&, QItemSelectionModel::SelectionFlags)
