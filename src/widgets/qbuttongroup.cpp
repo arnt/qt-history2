@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#39 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#40 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -43,6 +43,10 @@
   have some other parent widget.  A button must then be manually inserted
   using the insert() function with an identifer.
   </ol>
+  
+  By default, the button group's setFont() and setPalette() functions
+  do not change the appearance of the buttons, but you can use
+  setFontPropagation() and setPalettePropagation() to change that.
 
   <img src=qbttngrp-m.gif> <img src=qbttngrp-w.gif>
 
