@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#51 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#52 $
 **
 ** Implementation of QButton widget class
 **
@@ -13,8 +13,10 @@
 #include "qbttngrp.h"
 #include "qpixmap.h"
 #include "qpainter.h"
+#include "qkeycode.h"
+#include "qtimer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#51 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#52 $");
 
 
 /*!
@@ -67,6 +69,7 @@ QButton::QButton( QWidget *parent, const char *name )
     buttonDown = FALSE;			// button is up
     buttonOn   = FALSE;			// button is off
     mlbDown    = FALSE;			// mouse left button up
+    isTiming   = FALSE;			// not in keyboard mode
     autoresize = FALSE;
     if ( parent && parent->inherits("QButtonGroup") ) {
 	group = (QButtonGroup*)parent;
@@ -443,4 +446,48 @@ void QButton::focusInEvent( QFocusEvent * )
 void QButton::focusOutEvent( QFocusEvent * )
 {
     repaint( FALSE );
+}
+/*!
+  Handles keyboard events for the button. Space is the only key that has 
+  any effect: it emulates a mousePressEvent() followed by a 
+  mouseReleaseEvent().
+  */ 
+void QButton::keyPressEvent( QKeyEvent *e ) 
+{
+    switch ( e->key() ) {			  
+    case Key_Space:
+	if ( isTiming )
+	    timerSlot(); //release button 
+	else {
+	    isTiming = TRUE;
+	    QTimer::singleShot( 100, this, SLOT(timerSlot()) );
+	}
+	buttonDown = TRUE;
+	repaint( FALSE );
+	emit pressed();
+	break;
+    default:
+	e->ignore();
+	break;
+    }
+}
+
+
+/*!
+  Acts like a mouseReleaseEvent during keyboard interaction.
+*/
+
+void QButton::timerSlot()
+{
+    if ( !isTiming )
+	return;
+    isTiming = FALSE;
+    buttonDown = FALSE;
+    if ( toggleBt )
+	buttonOn = !buttonOn;
+    repaint( FALSE );
+    if ( toggleBt )
+	emit toggled( buttonOn );
+    emit released();
+    emit clicked();
 }

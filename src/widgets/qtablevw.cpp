@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#35 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#36 $
 **
 ** Implementation of QTableView class
 **
@@ -19,7 +19,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#35 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#36 $");
 
 
 const int sbDim = 16;
@@ -1392,6 +1392,7 @@ const QScrollBar *QTableView::verticalScrollBar() const
 	QScrollBar *sb = new QScrollBar( QScrollBar::Vertical, that );
 	CHECK_PTR(sb);
 	sb->setTracking( FALSE );
+	sb->setFocusEnabled( FALSE );
 	connect( sb, SIGNAL(valueChanged(int)),
 		 SLOT(verSbValue(int)));
 	connect( sb, SIGNAL(sliderMoved(int)),
@@ -1416,6 +1417,7 @@ const QScrollBar *QTableView::horizontalScrollBar() const
     QTableView *that = (QTableView*)this; // semantic const
     if ( !hScrollBar ) {
 	QScrollBar *sb = new QScrollBar( QScrollBar::Horizontal, that );
+	sb->setFocusEnabled( FALSE );
 	CHECK_PTR(sb);
 	sb->setTracking( FALSE );
 	connect( sb, SIGNAL(valueChanged(int)),
@@ -1442,6 +1444,7 @@ void QTableView::setHorScrollBar( bool on, bool update )
 	tFlags |= Tbl_hScrollBar;
 	if ( !hScrollBar ) {
 	    hScrollBar = new QScrollBar( QScrollBar::Horizontal, this );
+	    hScrollBar->setFocusEnabled( FALSE );
 	    hScrollBar->setTracking( FALSE );
 	    connect( hScrollBar, SIGNAL(valueChanged(int)),
 		     SLOT(horSbValue(int)));
@@ -1494,6 +1497,7 @@ void QTableView::setVerScrollBar( bool on, bool update )
 	if ( !vScrollBar ) {
 	    vScrollBar = new QScrollBar( QScrollBar::Vertical, this );
 	    vScrollBar->setTracking( FALSE );
+	    vScrollBar->setFocusEnabled( FALSE );
 	    connect( vScrollBar, SIGNAL(valueChanged(int)),
 		     SLOT(verSbValue(int)));
 	    connect( vScrollBar, SIGNAL(sliderMoved(int)),

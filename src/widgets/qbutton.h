@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#42 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#43 $
 **
 ** Definition of QButton widget class
 **
@@ -53,6 +53,7 @@ protected:
     virtual void drawButton( QPainter * );
     virtual void drawButtonLabel( QPainter * );
 
+    void	keyPressEvent( QKeyEvent *);
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
     void	mouseMoveEvent( QMouseEvent * );
@@ -60,6 +61,8 @@ protected:
     void	focusInEvent( QFocusEvent * );
     void	focusOutEvent( QFocusEvent * );
 
+private slots:
+    void	timerSlot();
 private:
     QString	btext;
     QPixmap    *bpixmap;
@@ -68,6 +71,7 @@ private:
     uint	buttonOn	: 1;
     uint	mlbDown		: 1;
     uint	autoresize	: 1;
+    uint	isTiming	: 1;
     QButtonGroup *group;
 
     friend class QButtonGroup;

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#18 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -165,10 +165,8 @@ void QMultiLineEdit::setReadOnly( bool on )
     readOnly = on; 
     if ( on ) {
 	setCursor( arrowCursor );
-	setBackgroundColor( colorGroup().background() );
     } else {
 	setCursor( ibeamCursor );
-	setBackgroundColor( colorGroup().base() );
     }
 }
 
@@ -689,6 +687,10 @@ void QMultiLineEdit::pageDown()
     int delta = cursorY - topCell();
     int pageSize = viewHeight() / cellHeight();
     int newTopCell = QMIN( topCell() + pageSize, numLines() - 1 - pageSize );
+
+    if ( pageSize > numLines() ) { // quick hack to handle small texts
+	newTopCell = topCell();
+    }
     if ( !curXPos )
 	curXPos = mapToView( cursorX, cursorY );
     int oldY = cursorY;
@@ -713,6 +715,11 @@ void QMultiLineEdit::pageUp()
     int pageSize = viewHeight() / cellHeight();
     bool partial = delta == pageSize && viewHeight() != pageSize * cellHeight();
     int newTopCell = QMAX( topCell() - pageSize, 0 );
+    if ( pageSize > numLines() ) { // quick hack to handle small texts
+	newTopCell = 0;
+	delta = 0;
+    }
+	
     if ( !curXPos )
 	curXPos = mapToView( cursorX, cursorY );
     int oldY = cursorY;
@@ -1403,8 +1410,8 @@ void QMultiLineEdit::setBottomCell( int row )
 }
 
 /*!
-  Copies text from the clipboard onto the current cursor position
-  replacing marked text, if any.
+  Copies text from the clipboard onto the current cursor position.
+  Any marked text is unmarked;
 */
 void QMultiLineEdit::paste()
 {
@@ -1412,7 +1419,7 @@ void QMultiLineEdit::paste()
     QString t = QApplication::clipboard()->text();
     if ( !t.isEmpty() ) {
 	if ( hasMarkedText() )
-	    del();
+	    turnMarkOff();
 	QString *s = getString( cursorY );
 	ASSERT( s );
 	uchar *p = (uchar *) t.data();
@@ -1437,7 +1444,7 @@ void QMultiLineEdit::paste()
 	    *s += t.left( to );
 	    cursorY++;
 	    if ( cursorY >= numLines() ) {
-		insert( "", numLines() - 1 );
+		insert( "", numLines() );
 	    }
 	    from = to + 1;
 	    while ( (to = t.find( '\n', from )) > 0 ) {
