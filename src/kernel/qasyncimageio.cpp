@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#8 $
 **
 ** Implementation of movie classes
 **
@@ -47,7 +47,9 @@
   \fn bool QImageConsumer::frameDone()
 
   Called when a frame of an animated image has ended and been revealed
-  as changed().
+  as changed().  If the consumer returns TRUE, the decoder will not make
+  any further changes to the image until the next call to
+  QImageFormatDecoder::decode().
 */
 
 /*!
@@ -324,6 +326,7 @@ QImageFormatDecoderFactory::~QImageFormatDecoderFactory()
 QGIFDecoder::QGIFDecoder()
 {
     globalcmap_hold = 0;
+    disposal = NoDisposal;
     frame = -1;
     state = Header;
     count = 0;
@@ -455,6 +458,36 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 	  case ImageDescriptor:
 	    hold[count++]=ch;
 	    if (count==10) {
+		// Handle disposal of pervious image before processing this one
+		switch (disposal) {
+		  case NoDisposal:
+		    break;
+		  case DoNotChange:
+		    break;
+		  case RestoreBackground:
+		    preserve_trans = FALSE;
+		    if (trans>=0) {
+			// Easy:  we use the transparent colour
+			fillRect(img, left, top, right-left+1, bottom-top+1, trans);
+		    } else if (bgcol>=0) {
+			// Easy:  we use the bgcol given
+			fillRect(img, left, top, right-left+1, bottom-top+1, bgcol);
+		    } else {
+			// Impossible:  We don't know of a bgcol - use pixel 0
+			fillRect(img, left, top, right-left+1, bottom-top+1, line[0][0]);
+		    }
+		    if (consumer) digress |= !consumer->changed(QRect(left, top, right-left+1, bottom-top+1));
+		    break;
+		  case RestoreImage:
+		    preserve_trans = FALSE;
+		    for (int y=top; y<=bottom; y++) {
+			memcpy(line[y]+left,
+			    backingstore.scanLine(y-top),
+			    right-left+1);
+		    }
+		    if (consumer) digress |= !consumer->changed(QRect(left, top, right-left+1, bottom-top+1));
+		}
+
 		left=LM(hold[1], hold[2]);
 		top=LM(hold[3], hold[4]);
 		int width=LM(hold[5], hold[6]);
@@ -477,6 +510,7 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 			if (consumer) digress = !consumer->changed(QRect(0,0,swidth,sheight));
 		    }
 		}
+
 		switch (disposal) {
 		  case NoDisposal:
 		    break;
@@ -498,6 +532,7 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 			    line[top+y]+left, width);
 		    }
 		}
+		disposal = NoDisposal; // Unless extension says otherwise.
 
 		count=0;
 		if (lcmap) {
@@ -546,35 +581,6 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 		state=ImageDataBlock;
 	    } else {
 		if (consumer) digress = !consumer->frameDone();
-
-		switch (disposal) {
-		  case NoDisposal:
-		    break;
-		  case DoNotChange:
-		    break;
-		  case RestoreBackground:
-		    preserve_trans = FALSE;
-		    if (trans>=0) {
-			// Easy:  we use the transparent colour
-			fillRect(img, left, top, right-left+1, bottom-top+1, trans);
-		    } else if (bgcol>=0) {
-			// Easy:  we use the bgcol given
-			fillRect(img, left, top, right-left+1, bottom-top+1, bgcol);
-		    } else {
-			// Impossible:  We don't know of a bgcol - use pixel 0
-			fillRect(img, left, top, right-left+1, bottom-top+1, line[0][0]);
-		    }
-		    if (consumer) digress |= !consumer->changed(QRect(left, top, right-left+1, bottom-top+1));
-		    break;
-		  case RestoreImage:
-		    preserve_trans = FALSE;
-		    for (int y=top; y<=bottom; y++) {
-			memcpy(line[y]+left,
-			    backingstore.scanLine(y-top),
-			    right-left+1);
-		    }
-		    if (consumer) digress |= !consumer->changed(QRect(left, top, right-left+1, bottom-top+1));
-		}
 
 		state=Introducer;
 	    }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#116 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#117 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#116 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#117 $");
 
 
 /*!
@@ -288,6 +288,7 @@ QImage QImage::copy() const
 	image.create( width(), height(), depth(), numColors(), bitOrder() );
 	memcpy( image.bits(), bits(), numBytes() );
 	memcpy( image.colorTable(), colorTable(), numColors()*sizeof(QRgb) );
+	image.setAlphaBuffer(hasAlphaBuffer());
     }
     return image;
 }
@@ -3064,19 +3065,17 @@ static void write_pbm_image( QImageIO *iio )
 
 class QImageIOFrameGrabber : public QImageConsumer {
 public:
-    QImageIOFrameGrabber(QImageIO *iio) : framecount(0), grabto(iio) { }
+    QImageIOFrameGrabber() : framecount(0) { }
 
     QImageDecoder *decoder;
     int framecount;
-    QImageIO *grabto;
 
     bool changed(const QRect&) { return TRUE; }
     bool end() { return FALSE; }
     bool frameDone()
     {
 	framecount++;
-	grabto->setImage(decoder->image().copy());
-	return FALSE;
+	return FALSE; // STOP!
     }
     bool setLooping(int) { return TRUE; }
     bool setFramePeriod(int) { return TRUE; }
@@ -3088,7 +3087,7 @@ static void read_async_image( QImageIO *iio )
     const int buf_len = 512;
     uchar buffer[buf_len];
     QIODevice  *d = iio->ioDevice();
-    QImageIOFrameGrabber* consumer = new QImageIOFrameGrabber(iio);
+    QImageIOFrameGrabber* consumer = new QImageIOFrameGrabber();
     QImageDecoder decoder(consumer);
     consumer->decoder = &decoder;
 
@@ -3107,7 +3106,8 @@ static void read_async_image( QImageIO *iio )
 	    length -= r;
 	}
 	if ( consumer->framecount ) {
-	    // Stop after first frame
+	    // Stopped after first frame
+	    iio->setImage(decoder.image());
 	    iio->setStatus(0);
 	    break;
 	}
