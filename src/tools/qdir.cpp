@@ -141,32 +141,27 @@ QDir::QDir()
     init();
 }
 
-/*!
-  Constructs a QDir.
+/*!  Constructs a QDir object for \a path that filters content display
+  by name using \a nameFilter and by type using \a filterSpec, and
+  that that sorts its returned contents using \a sortSpec.
 
-  \arg \e path is the directory.
-  \arg \e nameFilter is the file name filter.
-  \arg \e sortSpec is the sort specification, which describes how to
-  sort the files in the directory.
-  \arg \e filterSpec is the filter specification, which describes how
-  to filter the files in the directory.
+  Most of these arguments (except \a path) have defaults values.  The
+  default \a nameFilter is an empty string, which means to exclude
+  nothing; the default \a filterSpec is \c All, which also means to
+  exclude nothing; the default \a sortSpec is \c Name|IgnoreCase,
+  which means to sort case-insensitively by name.
 
-  Most of these arguments (except \e path) have optional values.
-
-  Example:
+  This, for example, lists everything in /tmp:
   \code
-    // lists all files in /tmp
-
     QDir d( "/tmp" );
     for ( int i=0; i<d.count(); i++ )
 	printf( "%s\n", d[i] );
   \endcode
 
-  If \e path is "" or null, the directory is set to "." (the current
-  directory).  If \e nameFilter is "" or null, it is set to "*" (all
-  files).
-
-  No check is made to ensure that the directory exists.
+  If \a path is "" or null, QDir uses "." (the current directory).  If
+  \e nameFilter is "" or null, QDir uses "*" (all files).
+  
+  Note that \a path need not exist.
 
   \sa exists(), setPath(), setNameFilter(), setFilter(), setSorting()
 */
@@ -613,13 +608,8 @@ void QDir::setSorting( int sortSpec )
   \sa setMatchAllDirs()
 */
 
-/*!
-  If \e enable is TRUE, all directories will be listed (even if they do not
-  match the filter or the name filter), otherwise only matched directories
-  will be listed.
-
-  \bug Currently, directories that do not match the filter will not be
-  included (the name filter will be ignored as expected).
+/*! Sets the QDir to list all directories if \a enable is TRUE, and to
+  list just the ones that match nameFilter() if \a enable IS FALSE.
 
   \sa matchAllDirs()
 */
