@@ -442,15 +442,27 @@ int QDesktopWidget::screenNumber( const QPoint &point ) const
 void QDesktopWidget::resizeEvent( QResizeEvent * )
 {
     QMemArray<QRect> oldrects = *d->rects;
+    QMemArray<QRect> oldworkrects = *d->workrects;
+    int oldscreencount = d->screenCount;
+
     delete d;
     d = new QDesktopWidgetPrivate( this );
 
-    for ( int i = 0; i < d->screenCount; ++i ) {
+    for ( int i = 0; i < QMIN(oldscreencount, d->screenCount); ++i ) {
 	QRect oldrect = oldrects[i];
 	QRect newrect = d->rects->at(i);
 	if ( oldrect != newrect )
 	    emit resized( i );
     }
+
+#ifdef Q_OS_TEMP
+    for ( int j = 0; j < QMIN(oldscreencount, d->screenCount); ++j ) {
+	QRect oldrect = oldworkrects[j];
+	QRect newrect = d->workrects->at(j);
+	if ( oldrect != newrect )
+	    emit workAreaResized( j );
+    }
+#endif
 }
 
 /*! \fn void QDesktopWidget::insertChild( QObject *child )

@@ -46,6 +46,10 @@
 #include <ctype.h>
 #include <stdio.h>
 
+#ifdef Q_OS_TEMP
+#include <sipapi.h>
+#endif
+
 #if defined(QT_TABLET_SUPPORT)
 #define PACKETDATA  ( PK_X | PK_Y | PK_BUTTONS | PK_NORMAL_PRESSURE | \
 		      PK_ORIENTATION | PK_CURSOR )
@@ -1481,6 +1485,14 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 #endif
 
     case WM_SETTINGCHANGE:
+#ifdef Q_OS_TEMP
+	// CE SIP hide/show
+	if ( wParam == SPI_SETSIPINFO ) {
+	    QResizeEvent re( QSize(0, 0), QSize(0, 0) ); // Calculated by QDesktopWidget
+	    QApplication::sendEvent( qt_desktopWidget, &re );
+	    break;
+	}
+#endif
 	// ignore spurious XP message when user logs in again after locking
 	if ( qApp->type() == QApplication::Tty )
 	    break;
