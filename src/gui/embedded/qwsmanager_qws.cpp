@@ -418,6 +418,7 @@ void QWSManager::paintEvent(QPaintEvent *)
     painter.setClipRegion(dec.region(d->managed, d->managed->rect()));
     dec.paint(&painter, d->managed);
     painter.setClipRegion(dec.region(d->managed, d->managed->rect()));
+    dec.paintButton(&painter, d->managed, QDecoration::Help, d->menuBtn->state());
     dec.paintButton(&painter, d->managed, QDecoration::Menu, d->menuBtn->state());
     dec.paintButton(&painter, d->managed, QDecoration::Close, d->closeBtn->state());
     dec.paintButton(&painter, d->managed, QDecoration::Minimize, d->minimizeBtn->state());

@@ -72,6 +72,7 @@
     \value Normalize returns a maximized window to its previous size.
     \value Menu clicking in this region opens the window operations
             (system) menu.
+    \value Help clicking in this region provides context-sensitive help.
     \omitvalue None
     \omitvalue LastRegion
 */

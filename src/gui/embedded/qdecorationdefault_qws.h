@@ -43,6 +43,7 @@ protected:
     virtual int getTitleHeight(const QWidget *);
 
 #ifndef QT_NO_IMAGEIO_XPM
+    virtual const char **helpPixmap();
     virtual const char **menuPixmap();
     virtual const char **closePixmap();
     virtual const char **minimizePixmap();
@@ -52,6 +53,7 @@ protected:
 
 private:
 
+    static QPixmap * staticHelpPixmap;
     static QPixmap * staticMenuPixmap;
     static QPixmap * staticClosePixmap;
     static QPixmap * staticMinimizePixmap;

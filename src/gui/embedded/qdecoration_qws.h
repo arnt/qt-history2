@@ -27,10 +27,10 @@ public:
     QDecoration() {}
     virtual ~QDecoration() {}
 
-    enum Region { None=0, All=1, Title=2, Top=3, Bottom=4, Left=5, Right=6,
-                TopLeft=7, TopRight=8, BottomLeft=9, BottomRight=10,
-                Close=11, Minimize=12, Maximize=13, Normalize=14,
-                Menu=15, LastRegion=Menu };
+    enum Region { None = 0, All = 1, Title = 2, Top = 3, Bottom = 4, Left = 5, Right = 6,
+                  TopLeft = 7, TopRight = 8, BottomLeft = 9, BottomRight = 10,
+                  Close = 11, Minimize = 12, Maximize = 13, Normalize = 14, Menu = 15, Help = 16,
+                  LastRegion = Help };
 
     virtual QRegion region(const QWidget *, const QRect &rect, Region r=All) = 0;
     virtual void close(QWidget *);

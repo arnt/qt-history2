@@ -19,6 +19,7 @@
 #ifndef QT_NO_QWS_MANAGER
 #if !defined(QT_NO_QWS_DECORATION_DEFAULT) || defined(QT_PLUGIN)
 
+QPixmap * QDecorationDefault::staticHelpPixmap=0;
 QPixmap * QDecorationDefault::staticMenuPixmap=0;
 QPixmap * QDecorationDefault::staticClosePixmap=0;
 QPixmap * QDecorationDefault::staticMinimizePixmap=0;
@@ -61,6 +62,28 @@ static const char * const default_menu_xpm[] = {
 "oooooooooooooooo",
 "oooooooooooooooo"
 };
+
+static const char * const default_help_xpm[] = {
+"16 16 3 1",
+"       s None  c None",
+".      c #ffffff",
+"X      c #707070",
+"                ",
+"     ......     ",
+"    .XXXXXXX    ",
+"   .XX    .XX   ",
+"  .XX      .XX  ",
+"           .XX  ",
+"          .XX   ",
+"         .XX    ",
+"       .XX      ",
+"      .XX       ",
+"      .XX       ",
+"      ..        ",
+"      .XX       ",
+"      .XX       ",
+"                ",
+"                "};
 
 static const char * const default_close_xpm[] = {
 "16 16 3 1",
@@ -174,6 +197,11 @@ QDecorationDefault::~QDecorationDefault()
 }
 
 #ifndef QT_NO_IMAGEIO_XPM
+const char **QDecorationDefault::helpPixmap()
+{
+    return (const char **)default_help_xpm;
+}
+
 const char **QDecorationDefault::menuPixmap()
 {
     return (const char **)default_menu_xpm;
@@ -204,6 +232,7 @@ const char **QDecorationDefault::normalizePixmap()
 QPixmap QDecorationDefault::pixmapFor(const QWidget* w, QDecoration::Region type, bool on, int& xoff, int& /*yoff*/)
 {
 #ifndef QT_NO_IMAGEIO_XPM
+    static const char** staticHelpPixmapXPM=0;
     static const char** staticMenuPixmapXPM=0;
     static const char** staticClosePixmapXPM=0;
     static const char** staticMinimizePixmapXPM=0;
@@ -213,6 +242,10 @@ QPixmap QDecorationDefault::pixmapFor(const QWidget* w, QDecoration::Region type
 
     // Why don't we just use/extend the enum type...
 
+    if (staticHelpPixmapXPM != (xpm=helpPixmap()) || !staticHelpPixmap) {
+        staticHelpPixmapXPM = xpm;
+        staticHelpPixmap = new QPixmap(xpm);
+    }
     if (staticMenuPixmapXPM != (xpm=menuPixmap()) || !staticMenuPixmap) {
         staticMenuPixmapXPM = xpm;
         staticMenuPixmap = new QPixmap(xpm);
@@ -237,6 +270,9 @@ QPixmap QDecorationDefault::pixmapFor(const QWidget* w, QDecoration::Region type
     const QPixmap *pm = 0;
 
     switch (type) {
+        case Help:
+            pm = staticHelpPixmap;
+            break;
         case Menu:
 #ifndef QT_NO_WIDGET_TOPEXTRA
             if (!w->windowIcon().isNull())
@@ -403,6 +439,14 @@ QRegion QDecorationDefault::region(const QWidget *widget, const QRect &rect, QDe
                         bw,
                         CORNER_GRAB + bw);
                 region = QRegion(r1) + r2;
+            }
+            break;
+
+        case Help: {
+                QRect r(rect.right() - 4*titleHeight, rect.top() - titleHeight,
+                        titleHeight, titleHeight);
+                if (r.left() > rect.left() + titleHeight)
+                    region = r;
             }
             break;
 
