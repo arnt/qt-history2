@@ -1668,17 +1668,15 @@ bool QOCIDriver::hasFeature(DriverFeature f) const
 {
     switch (f) {
     case Transactions:
+    case LastInsertId:
+    case BLOB:
+    case PreparedQueries:
+    case NamedPlaceholders:
         return true;
     case QuerySize:
         return false;
-    case BLOB:
-        return true;
     case Unicode:
         return d->serverVersion >= 9;
-    case PreparedQueries:
-        return true;
-    case NamedPlaceholders:
-        return true;
     default:
         return false;
     }
