@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#35 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#36 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#35 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#36 $")
 
 
 /*----------------------------------------------------------------------------
@@ -71,7 +71,6 @@ int QGDict::hashKey( const char *key )
 	    h &= ~g;
 	    k++;
 	}
-	index = h;
     }
     index = h;
     if ( index < 0 )				// adjust index to table size
