@@ -317,11 +317,9 @@ QObject::QObject( QObject *parent, const char *name )
     eventFilters  = 0;				// no filters installed
 #if QT_VERSION >= 300
 #error "Remove sigSender - it's a massive waste."
-//	Define sender() to only be valid in a slot before any functions
-//	are called (which is all you could reliably document anyway, since
-//	slots that are reentered would be incorrect).  Saves 4 bytes per
-//      object simply by making sigSender a global variable.
-//	QObject::sender() is inline, so this had to wait until 3.0.
+    // there was a comment here saying "change 3.0 incompatibly but
+    // don't give people any warning of the upcoming change" or words
+    // to that effect.
 #endif
     sigSender     = 0;				// no sender yet
     isSignal   = FALSE;				// assume not a signal object
@@ -330,8 +328,8 @@ QObject::QObject( QObject *parent, const char *name )
     pendEvent  = FALSE;				// no events yet
     blockSig   = FALSE;				// not blocking signals
     wasDeleted = FALSE;				// double-delete catcher
-    isTree = FALSE;					// no tree yet
-    parentObj  = parent;				// to avoid root checking in insertChild()
+    isTree = FALSE;				// no tree yet
+    parentObj  = parent;			// to avoid root checking in insertChild()
     if ( parent ) {				// add object to parent
 	parent->insertChild( this );
     } else {
@@ -1287,9 +1285,16 @@ static void err_info_about_candidates( int code,
 
 /*!
   \fn const QObject *QObject::sender()
-  Returns a pointer to the object that sent the last signal received by
-  this object.
 
+  Returns a pointer to the object that sent the signal, if called in a
+  slot before any function calls or signal emissions.  Returns an
+  undefined value in all other cases.
+
+  \warning This function will return something apparently correct in
+  other cases as well.  However, its value may change during any function
+  call, depending on what signal-slot connections are activated during
+  that call.  In Qt 3.0 the value will change more often than in 2.x.
+  
   \warning
   This function violates the object-oriented principle of modularity,
   However, getting access to the sender might be practical when many
@@ -2268,7 +2273,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     QVariant::Type type = QVariant::nameToType( p->type() );
     if ( !value.canCast( type ) )
 	return FALSE;
-    
+
     // Some stupid casts in this switch... for #@$!&@ SunPro C++ 5.0 compiler
     switch ( type ) {
 
