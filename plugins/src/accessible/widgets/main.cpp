@@ -1,4 +1,4 @@
-#include "qaccessiblewidget.h"
+#include "qaccessiblewidgets.h"
 #include "qaccessiblemenu.h"
 
 #include <qtoolbutton.h>

@@ -1,4 +1,4 @@
-#include "qaccessiblewidget.h"
+#include "qaccessiblewidgets.h"
 
 #include <qapplication.h>
 #include <qstyle.h>
