@@ -315,6 +315,11 @@ static const int QT_BUFFER_LENGTH = 8196;	// internal buffer length
 
 
 #ifdef Q_OS_MAC
+CFStringRef qstring2cfstring(const QString &str)
+{
+    return CFStringCreateWithCharacters(0, (UniChar *)str.unicode(), str.length());
+}
+
 QString cfstring2qstring(CFStringRef str)
 {
     if(!str)

@@ -36,6 +36,7 @@
 
 IconRef qt_mac_create_iconref(const QPixmap &px); //qpixmap_mac.cpp
 extern QString cfstring2qstring(CFStringRef); //qglobal.cpp
+extern CFStringRef qstring2cfstring(const QString &); //qglobal.cpp
 QByteArray p2qstring(const unsigned char *); //qglobal.cpp
 void qt_event_request_menubarupdate(); //qapplication_mac.cpp
 bool qt_modal_state(); //qapplication_mac.cpp
@@ -254,10 +255,17 @@ void QMenuBar::qt_mac_install_menubar_event(MenuRef ref)
 #endif
 
 /* utility functions */
-static void qt_mac_no_ampersands(QString i, CFStringRef *ret) {
-    for(int w = 0; (w=i.find('&', w)) != -1; )
-	i.remove(w, 1);
-    *ret = CFStringCreateWithCharacters(0, (UniChar *)i.unicode(), i.length());
+static QString qt_mac_no_ampersands(QString str, CFStringRef *cf=NULL) {
+    for(int w = 0; (w=str.find('&', w)) != -1; ) {
+	if(w < (int)str.length()-1) {
+	    str.remove(w, 1);
+	    if(str[w] == '&')
+		w++;
+	}
+    }
+    if(cf)
+	*cf = qstring2cfstring(str);
+    return str;
 }
 
 /*!
@@ -297,9 +305,7 @@ uint QMenuBar::isCommand(QMenuItem *it, bool just_check)
     if(qt_mac_no_menubar_merge || it->popup() || it->custom() || it->isSeparator())
 	return 0;
 
-    QString t = it->text().lower();
-    for(int w = 0; (w=t.find('&', w)) != -1; )
-	t.remove(w, 1);
+    QString t = qt_mac_no_ampersands(it->text().lower());
     int st = t.findRev('\t');
     if(st != -1)
 	t.remove(st, t.length()-st);
@@ -325,9 +331,7 @@ uint QMenuBar::isCommand(QMenuItem *it, bool just_check)
 	      (!activeMenuBar->mac_d->commands || !activeMenuBar->mac_d->commands->value(ret))) {
 	if(ret == kHICommandAbout || ret == 'CUTE') {
 	    if(activeMenuBar->mac_d->apple_menu) {
-		QString text = it->text();
-		for(int w = 0; (w=text.find('&', w)) != -1; )
-		    text.remove(w, 1);
+		QString text = qt_mac_no_ampersands(it->text());
 		int st = text.findRev('\t');
 		if(st != -1)
 		    text.remove(st, text.length()-st);
