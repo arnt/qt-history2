@@ -34,9 +34,6 @@
     <property name="caption">
         <string>Qt Assistant - Find Text</string>
     </property>
-    <property name="icon">
-        <pixmap>icon.png</pixmap>
-    </property>
     <vbox>
         <property name="name">
             <cstring>unnamed</cstring>
@@ -260,6 +257,5 @@
     <slot>doFind()</slot>
     <slot>setBrowser( QTextBrowser * b )</slot>
 </slots>
-<pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

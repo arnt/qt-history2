@@ -34,9 +34,6 @@
     <property name="caption">
         <string>Help</string>
     </property>
-    <property name="icon">
-	<pixmap>icon.png</pixmap>
-    </property>
     <property name="whatsThis" stdset="0">
         <string>&lt;b&gt;Help&lt;/b&gt;&lt;p&gt;Choose the topic you want help on from the contents list, or search the index for keywords.&lt;/p&gt;</string>
     </property>
@@ -492,6 +489,5 @@
     <slot access="protected">startSearch()</slot>
     <slot access="protected">showResultPage( int )</slot>
 </slots>
-<pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

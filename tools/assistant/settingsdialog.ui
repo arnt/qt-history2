@@ -34,9 +34,6 @@
     <property name="caption">
         <string>Qt Assistant - Settings</string>
     </property>
-    <property name="icon">
-        <pixmap>icon.png</pixmap>
-    </property>
     <property name="sizeGripEnabled">
         <bool>true</bool>
     </property>
@@ -650,6 +647,5 @@
     <slot>deleteCategory()</slot>
     <slot>browseWebApp()</slot>
 </slots>
-<pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
