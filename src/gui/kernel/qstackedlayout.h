@@ -19,10 +19,11 @@ class QStackedLayoutPrivate;
 class QStackedLayout : public QLayout
 {
     Q_OBJECT
+    Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex)
+    QDOC_PROPERTY(int count READ count)
 public:
     QStackedLayout(QWidget *parent);
     QStackedLayout(QLayout *parentLayout);
-//    QStackedLayout();
     ~QStackedLayout();
 
     int addWidget(QWidget *w);
@@ -49,7 +50,7 @@ private:
     QStackedLayout(const QStackedLayout &);
     QStackedLayout &operator=(const QStackedLayout &);
 #endif
-   
+
 };
 
 

@@ -24,10 +24,11 @@ public:
     \ingroup appearance
 
     All the horizontal box's child widgets will be placed on top of
-    each other, and only the top one will be visible to the user.
-
-
-    The top widget is set with setCurrentWidget() or setCurrentIndex().
+    each other, and only the top one will be visible to the user. This
+    top widget is the currentWidget().  It can be changed by setting
+    the \l currentIndex property, using setCurrentIndex(). The index
+    of a given widget inside the stacked box is retrieved with
+    index(), widget() returns the widget at a given index position.
 */
 
 
@@ -50,12 +51,22 @@ QStackedBox::~QStackedBox()
 {
 }
 
-/*!
-  Sets the widget with index \a idx to be the current widget. Does nothing if there is no such widget.
- */
+/*\property QStackedBox::currentIndex
+\brief The index of the current widget
+
+The current index is -1 if there is no current widget.
+
+\sa currentWidget() indexOf()
+*/
+
 void QStackedBox::setCurrentIndex(int idx)
 {
     d->layout->setCurrentIndex(idx);
+}
+
+int QStackedBox::currentIndex() const
+{
+    return d->layout->currentIndex();
 }
 
 /*!
@@ -66,13 +77,6 @@ QWidget *QStackedBox::currentWidget() const
     return d->layout->currentWidget();
 }
 
-/*!
-  Returns the index of the current widget, or 0 if there are no child widgets.
-*/
-int QStackedBox::currentIndex() const
-{
-    return d->layout->currentIndex();
-}
 
 /*!
   Returns the index of \a w, or -1 if \a w is not a child.
@@ -90,8 +94,8 @@ QWidget *QStackedBox::widget(int index) const
     return d->layout->widget(index);
 }
 
-/*!
-  Returns the number of child widgets in this stack.
+/*!\property QStackedLayout::count
+  \brief the number of widgets in this layout.
 */
 int QStackedBox::count() const
 {

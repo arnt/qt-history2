@@ -19,7 +19,11 @@ public:
     \ingroup appearance
 
     QStackedLayout places all its maintained widgets on top of each
-    other. Only one widget is visible to the user at a time:
+    other. Only one widget is visible to the user at a time. This top
+    widget is the currentWidget().  It can be changed by setting the
+    \l currentIndex property, using setCurrentIndex(). The index of a
+    given widget inside the stacked box is retrieved with index(),
+    widget() returns the widget at a given index position.  :
     currentWidget(). The current widget is set with
     setCurrentWidget().
 
@@ -70,7 +74,7 @@ int QStackedLayout::addWidget(QWidget *w)
     addChildWidget(w);
     QWidgetItem *wi = new QWidgetItem(w);
     d->list.append(wi);
-    int idx = d->list.count() - 1; 
+    int idx = d->list.count() - 1;
     if (idx == 0) {
         setCurrentIndex(idx);
     } else {
@@ -102,11 +106,13 @@ QLayoutItem *QStackedLayout::takeAt(int idx)
     return item;
 }
 
-//    QStackedLayout();
+/*\property QStackedBox::currentIndex
+\brief The index of the current widget
 
-/*!
-  Sets the widget with index \a idx to be the current widget. Does nothing if there is no such widget.
- */
+The current index is -1 if there is no current widget.
+
+\sa currentWidget() indexOf()
+*/
 void QStackedLayout::setCurrentIndex(int idx)
 {
     QWidget *prev = currentWidget();
@@ -121,7 +127,7 @@ void QStackedLayout::setCurrentIndex(int idx)
     // was somewhere on the outgoing widget.
 
     Q_ASSERT(parentWidget());
-    
+
     QWidget * fw = parentWidget()->topLevelWidget()->focusWidget();
     if (prev->isAncestorOf(fw)) { // focus was on old page
         // look for the best focus widget we can find
@@ -143,10 +149,16 @@ void QStackedLayout::setCurrentIndex(int idx)
                 next->setFocus();
         }
     }
-    
+
     if (prev)
         prev->hide();
 }
+
+int QStackedLayout::currentIndex() const
+{
+    return d->idx;
+}
+
 
 
 /*!
@@ -155,14 +167,6 @@ void QStackedLayout::setCurrentIndex(int idx)
 QWidget *QStackedLayout::currentWidget() const
 {
     return d->idx >= 0 ? d->list.at(d->idx)->widget() : 0;
-}
-
-/*!
-  Returns the index of the current widget, or -1 if there are no widgets in this layout.
- */
-int QStackedLayout::currentIndex() const
-{
-    return d->idx;
 }
 
 /*!
@@ -189,16 +193,13 @@ QWidget *QStackedLayout::widget(int idx) const
     return d->list.at(idx)->widget();
 }
 
-/*!
-  Returns the number of widgets in this layout.
+/*!\property QStackedLayout::count
+  \brief the number of widgets in this layout.
 */
 int QStackedLayout::count() const
 {
     return d->list.size();
 }
-
-
-
 
 
 /*!
@@ -239,7 +240,7 @@ QSize QStackedLayout::minimumSize() const
     QSize s( 0, 0 );
     int n = d->list.count();
 
-    for (int i = 0; i < n; ++i) 
+    for (int i = 0; i < n; ++i)
         if (QWidget *w=d->list.at(i)->widget())
             s = s.expandedTo( w->minimumSizeHint() );
 
