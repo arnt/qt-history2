@@ -31,8 +31,8 @@ private:
 
     RenderThread thread;
     QPixmap pixmap;
+    QPointF pixmapOffset;
     QPoint lastDragPos;
-    QPoint pixmapDrawPoint;
     double centerX;
     double centerY;
     double pixmapScale;

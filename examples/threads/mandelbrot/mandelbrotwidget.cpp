@@ -42,13 +42,13 @@ void MandelbrotWidget::paintEvent(QPaintEvent * /* event */)
     }
 
     if (curScale == pixmapScale) {
-        painter.drawPixmap(pixmapDrawPoint, pixmap);
+        painter.drawPixmap(pixmapOffset, pixmap);
     } else {
         double scaleFactor = curScale / pixmapScale;
         int newWidth = int(pixmap.width() * scaleFactor);
         int newHeight = int(pixmap.height() * scaleFactor);
-        int newStartX = (pixmap.width() / 2) - newWidth / 2;
-        int newStartY = (pixmap.height() / 2) - newHeight / 2;
+        int newStartX = (width() - newWidth) / 2;
+        int newStartY = (height() - newHeight) / 2;
 
         QPixmap newPixmap(newWidth, newHeight);
         newPixmap.fill(Qt::black);
@@ -58,7 +58,7 @@ void MandelbrotWidget::paintEvent(QPaintEvent * /* event */)
                               newWidth, newHeight);
         newPainter.end();
 
-        painter.drawPixmap(pixmapDrawPoint, newPixmap.scale(pixmap.size()));
+        painter.drawPixmap(pixmapOffset, newPixmap.scale(pixmap.size()));
     }
 
     QString text = tr("Use mouse wheel to zoom. "
@@ -75,21 +75,10 @@ void MandelbrotWidget::paintEvent(QPaintEvent * /* event */)
                      metrics.leading() + metrics.ascent(), text);
 }
 
-void MandelbrotWidget::resizeEvent(QResizeEvent * /* event */)
+void MandelbrotWidget::resizeEvent(QResizeEvent *event)
 {
-    if (!pixmap.isNull()) {
-        QPixmap newPixmap(width(), height());
-        newPixmap.fill(Qt::black);
-
-        QPainter painter(&newPixmap);
-        painter.drawPixmap(pixmapDrawPoint, pixmap);
-        painter.end();
-
-        pixmapDrawPoint = QPoint();
-        lastDragPos = QPoint();
-        pixmap = newPixmap;
-        update();
-    }
+    QSize diff = size() - event->oldSize();
+    pixmapOffset += QPointF(0.5 * diff.width(), 0.5 * diff.height());
     thread.render(centerX, centerY, curScale, size());
 }
 
@@ -128,24 +117,29 @@ void MandelbrotWidget::wheelEvent(QWheelEvent *event)
 
 void MandelbrotWidget::mousePressEvent(QMouseEvent *event)
 {
-    lastDragPos = event->pos();
+    if (event->button() == Qt::LeftButton)
+        lastDragPos = event->pos();
 }
 
 void MandelbrotWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    pixmapDrawPoint += event->pos() - lastDragPos;
-    lastDragPos = event->pos();
-    update();
+    if (event->buttons() & Qt::LeftButton) {
+        pixmapOffset += event->pos() - lastDragPos;
+        lastDragPos = event->pos();
+        update();
+    }
 }
 
 void MandelbrotWidget::mouseReleaseEvent(QMouseEvent *event)
 {
-    pixmapDrawPoint += event->pos() - lastDragPos;
-    lastDragPos = QPoint();
+    if (event->button() == Qt::LeftButton) {
+        pixmapOffset += event->pos() - lastDragPos;
+        lastDragPos = QPoint();
 
-    int deltaX = width() / 2 - (pixmapDrawPoint.x() + pixmap.width() / 2);
-    int deltaY = height() / 2 - (pixmapDrawPoint.y() + pixmap.height() / 2);
-    scroll(deltaX, deltaY);
+        int deltaX = (width() - pixmap.width()) / 2 - int(pixmapOffset.x());
+        int deltaY = (height() - pixmap.height()) / 2 - int(pixmapOffset.y());
+        scroll(deltaX, deltaY);
+    }
 }
 
 void MandelbrotWidget::drawRenderedImage(const QImage &image)
@@ -154,8 +148,8 @@ void MandelbrotWidget::drawRenderedImage(const QImage &image)
         return;
 
     pixmap = image;
+    pixmapOffset = QPointF();
     lastDragPos = QPoint();
-    pixmapDrawPoint = QPoint();
     pixmapScale = curScale;
     update();
 }
@@ -163,8 +157,8 @@ void MandelbrotWidget::drawRenderedImage(const QImage &image)
 void MandelbrotWidget::zoom(double zoomFactor)
 {
     curScale *= zoomFactor;
-    thread.render(centerX, centerY, curScale, size());
     update();
+    thread.render(centerX, centerY, curScale, size());
 }
 
 void MandelbrotWidget::scroll(int deltaX, int deltaY)
@@ -172,5 +166,5 @@ void MandelbrotWidget::scroll(int deltaX, int deltaY)
     centerX += deltaX * curScale;
     centerY += deltaY * curScale;
     update();
-    thread.render(centerX, centerY, curScale, size()); // ### necessary?
+    thread.render(centerX, centerY, curScale, size());
 }
