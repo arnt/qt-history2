@@ -63,7 +63,7 @@ struct QTableHeaderPrivate
 
 /*! \class QTableSelection qtable.h
 
-  \brief The QTableSelection provides access to the selected area in a
+  \brief The QTableSelection class provides access to the selected area in a
   QTable.
 
   \module table
@@ -230,7 +230,7 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
 */
 
 /*!  Creates a table item for the table \a table that contains the text
-     \a text.
+  \a text. \a et determines its \l EditType.
 */
 
 QTableItem::QTableItem( QTable *table, EditType et, const QString &text )
@@ -241,7 +241,7 @@ QTableItem::QTableItem( QTable *table, EditType et, const QString &text )
 }
 
 /*!  Creates an item for the table \a table with the text \a text and the
-  pixmap \a p.
+  pixmap \a p. The item has the \l EditType \a et.
 */
 
 QTableItem::QTableItem( QTable *table, EditType et,
@@ -279,8 +279,9 @@ QString QTableItem::text() const
     return txt;
 }
 
-/*!  Sets the item pixmap to \a pix. QTableItem::setPixmap(), however,
-     does not repaint the cell.
+/*!  Sets the item pixmap to \a p. 
+
+  QTableItem::setPixmap(), however, does not repaint the cell.
 */
 
 void QTableItem::setPixmap( const QPixmap &p )
@@ -297,8 +298,9 @@ void QTableItem::setText( const QString &str )
     txt = str;
 }
 
-/*! In order to paint the contents of an item call \a QTableItem::paint().
-  \internal
+/*! \internal
+
+  In order to paint the contents of an item call \l QTableItem::paint().
 */
 
 void QTableItem::paint( QPainter *p, const QColorGroup &cg,
@@ -515,7 +517,7 @@ int QTableItem::rowSpan() const
     return rowspan;
 }
 
-/*! Returns teh column span of the item, normally 1.
+/*! Returns the column span of the item, normally 1.
 
   \sa setSpan()
 */
@@ -525,7 +527,7 @@ int QTableItem::colSpan() const
     return colspan;
 }
 
-/*! Sets the item's row to be \a row.  Normally you will not need to
+/*! This function determines \a r as the item's row.  Normally you will not need to
   call this function.
 
   If the cell spans multiple rows, this function sets the top row and
@@ -593,7 +595,7 @@ bool QTableItem::isEnabled() const
   \class QComboTableItem qtable.h
 
   \brief The QComboTableItem class implements a convenient class to
-  put combobox items in a QTable
+  put combobox items in a QTable.
 
   \module table
 
@@ -606,6 +608,9 @@ bool QTableItem::isEnabled() const
   This has the advantage, that this item is always visible as a
   combobox without the need of always showing a real QComboBox widget,
   which would waste resources.
+*/
+
+/*! Creates a combo box table item for the \a table spreadsheet.
 
   The \a list arguments specifies the initial value of the item, \a
   editable specifies if the combobox should be editable or not.
@@ -616,6 +621,11 @@ QComboTableItem::QComboTableItem( QTable *table, const QStringList &list, bool e
 {
     setReplaceable( FALSE );
 }
+
+/*! Sets the entries of this QComboTableItem to the strings
+  of the string list \a l.
+
+*/
 
 void QComboTableItem::setStringList( const QStringList &l )
 {
@@ -677,8 +687,10 @@ void QComboTableItem::setCurrentItem( int i )
     table()->updateCell( row(), col() );
 }
 
-/*! Sets the string \a s to be the current one, of the list of entries
-  contains this. */
+/*! \overload 
+  Sets the string \a s to be the current one, of the list of entries
+  contains this. 
+*/
 
 void QComboTableItem::setCurrentItem( const QString &s )
 {
@@ -732,8 +744,8 @@ bool QComboTableItem::isEditable() const
 /*!
   \class QCheckTableItem qtable.h
 
-  \brief The QTableCheckoBoxItem class implements a convenient class to
-  put checkbox items in a QTable
+  \brief The QCheckTableItem class implements a convenient class to
+  put checkbox items in a QTable.
 
   \module table
 
@@ -747,6 +759,10 @@ bool QComboTableItem::isEditable() const
   chexkbox without the need of always showing a real QCheckBox widget,
   which would waste resources.
 
+*/
+
+/*! Creates a QCheckTableItem as a child of \a table. The check box
+  text is set to the text \a txt.
 */
 
 QCheckTableItem::QCheckTableItem( QTable *table, const QString &txt )
@@ -819,7 +835,7 @@ bool QCheckTableItem::isChecked() const
   \class QTable qtable.h
   \module table
 
-  \brief A flexible and editable table widget.
+  \brief The QTable class provides a flexible and editable table widget.
 
   QTable has been designed to use no more memory than strictly
   needed. Thus, for an empty cell, no memory at all is allocated.  In
@@ -902,7 +918,7 @@ bool QCheckTableItem::isChecked() const
 
 /*! \fn void QTable::valueChanged( int row, int col )
 
-  This signal is emitted if the user edited the cell row, \a col.
+  This signal is emitted if the user edited the cell \a row, \a col.
 */
 
 /*! \fn int QTable::currentRow() const
@@ -955,7 +971,8 @@ bool QCheckTableItem::isChecked() const
 */
 
 /*!
-  Constructs an empty table.
+  Constructs an empty table with the name \a name as a child widget of \a parent.
+
   Call \l setNumRows() and \l setNumCols() before populating the table.
 
   Performance is boosted by modifying the widget flags so that only part
@@ -975,7 +992,8 @@ QTable::QTable( QWidget *parent, const char *name )
 }
 
 /*!
-  Constructs a table with a range of \a numRows * \a numCols cells.
+  Constructs a table named \a name with a range of \a numRows * \a numCols cells.
+  The new table object is a child of \a parent. 
 
   Performance is boosted by modifying the widget flags so that only part of
   the QTableItem children is redrawn.  This may be unsuitable for custom
@@ -1224,7 +1242,8 @@ bool QTable::rowMovingEnabled() const
     return mRows;
 }
 
-/*!  This is called when QTable's internal array needs to be resized.
+/*!  This is called when QTable's internal array needs to be resized
+  to \a len elements.
 
   If you don't use QTableItems you should reimplement this as an empty
   method, thus no memory is wasted. In addition, you will have to
@@ -1519,7 +1538,9 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 
 /*!  Paints the cell at the position \a row, \a col on the painter \a
   p. The painter has already been translated to the cell's origin. \a
-  cr describes the cell coordinates in the content coordinate system..
+  cr describes the cell coordinates in the content coordinate system.
+
+  If \a selected is TRUE the cell is highlighted, otherwise not.
 
   If you want to draw custom cell content you have to reimplement
   paintCell() to do the custom drawing, or else subclass QTableItem
@@ -1598,7 +1619,9 @@ void QTable::paintFocus( QPainter *p, const QRect &cr )
 }
 
 /*!  This function fills the rectangular \a cx, \a cy, \a cw, \a ch with the
-  background color. paintEmptyArea() is invoked by drawContents() to erase
+  background color using the painter \a p. 
+
+  paintEmptyArea() is invoked by drawContents() to erase
   or fill unused areas.
 */
 
@@ -1630,7 +1653,8 @@ QTableItem *QTable::item( int row, int col ) const
     return contents[ indexOf( row, col ) ];	// contents array lookup
 }
 
-/*!  Sets the content for the cell \a row, \a col. If cell item
+/*!  Sets the content for the cell \a row, \a col to \a item. 
+  If a cell item
   already exists in that position, the old one is deleted.
 
   setItem() also repaints the cell.
@@ -1942,7 +1966,9 @@ void QTable::removeSelection( const QTableSelection &s )
     }
 }
 
-/*!  Removes selection number \a num.
+/*! \overload
+
+  Removes selection number \a num.
 */
 
 void QTable::removeSelection( int num )
@@ -2553,6 +2579,8 @@ void QTable::rowHeightChanged( int row )
     }
 }
 
+/*! \internal */
+
 void QTable::updateRowWidgets( int row )
 {
     for ( int i = 0; i < numCols(); ++i ) {
@@ -2563,6 +2591,8 @@ void QTable::updateRowWidgets( int row )
 	w->resize( columnWidth( i ) - 1, rowHeight( row ) - 1 );
     }
 }
+
+/*! \internal */
 
 void QTable::updateColWidgets( int col )
 {
@@ -2576,10 +2606,15 @@ void QTable::updateColWidgets( int col )
 }
 //ed: the end...
 
-/*!  This function is called if the order of the columns has been
-  changed. If you want to change the order programmatically, call
-  QHeader::moveSection() on the horizontalHeader() or
+/*!  This function is called when the column order is to be changed, i.e.
+  the user moved the column header \a section 
+  from \a fromIndex to \a toIndex.
+
+  If you want to change it programmatically, call
+  QHeader::moveSection() on horizontalHeader() or
   verticalHeader().
+
+  \sa QHeader::indexChange() rowIndexChanged()
 */
 
 void QTable::columnIndexChanged( int, int, int )
@@ -2588,10 +2623,15 @@ void QTable::columnIndexChanged( int, int, int )
 		     visibleWidth(), visibleHeight(), FALSE );
 }
 
-/*!  This function is called if the order of the rows has been
-  changed. If you want to change the order programmatically, call
+/*!  This function is called when the order of the rows is to be
+  changed, i.e. the user moved the row header \a section
+  from \a fromIndex to \a toIndex. 
+
+  If you want to change the order programmatically, call
   QHeader::moveSection() on the horizontalHeader() or
   verticalHeader().
+
+  \sa QHeader::indexChange() columnIndexChanged()
 */
 
 void QTable::rowIndexChanged( int, int, int )
@@ -2600,7 +2640,7 @@ void QTable::rowIndexChanged( int, int, int )
 		     visibleWidth(), visibleHeight(), FALSE );
 }
 
-/*!  This function is called when the column \c col has been
+/*!  This function is called when the column \a col has been
   clicked. The default implementation sorts this column if
   sorting() is TRUE
 */
@@ -3057,7 +3097,8 @@ bool QTable::isEditing() const
     return edMode != NotEditing;
 }
 
-/*!  Maps 2D table to 1D array index.
+/*!  Maps 2D table to 1D array and returns the index of the cell
+  in column \a col at row \a row.
 */
 
 int QTable::indexOf( int row, int col ) const
@@ -3150,7 +3191,11 @@ void QTable::repaintSelections( QTableSelection *oldSelection,
     leftHeader->repaint( FALSE );
 }
 
-/*!  Clears all selections.
+/*!  Clears all selections and repaints the appropriate
+  regions if \a repaint is TRUE.
+
+  Repainting is the default. If this is not desired set
+  \a repaint to FALSE.
 */
 
 void QTable::clearSelection( bool repaint )
@@ -3418,7 +3463,7 @@ void QTable::showColumn( int col )
     columnWidthChanged( col );
 }
 
-/*! Resizes the column to \a w pixel wide.
+/*! Resizes the column \a col to \a w pixel width.
 */
 
 void QTable::setColumnWidth( int col, int w )
@@ -3427,7 +3472,7 @@ void QTable::setColumnWidth( int col, int w )
     columnWidthChanged( col );
 }
 
-/*! Resizes the row to be \a h pixel height.
+/*! Resizes the row no. \a row to a height of \a h pixel.
 */
 
 void QTable::setRowHeight( int row, int h )
@@ -3569,7 +3614,8 @@ void QTable::setCellWidget( int row, int col, QWidget *e )
     viewport()->setFocus();
 }
 
-/*!  Inserts the widget \a w into the internal datastructure. See the
+/*!  Inserts the widget \a w at the table coordinates \a row, \a col 
+  into the internal datastructure. See the
   documentation of setCellWidget() for further details.
 */
 
@@ -3625,7 +3671,7 @@ void QTable::clearCellWidget( int row, int col )
   \a e gives you all information about the drop.
 */
 
-/*!  If \a allow is TRUE, the table starts a drag (see dragObject())
+/*!  If \a b is TRUE, the table starts a drag (see dragObject())
   when user presses and moves the mouse on a selected cell.
 */
 
@@ -3634,7 +3680,7 @@ void QTable::setDragEnabled( bool b )
     dEnabled = b;
 }
 
-/*! If \a allow is TRUE, the table supports dragging.
+/*! If this function returns TRUE, the table supports dragging.
 
   \sa setDragEnabled();
  */
@@ -3646,7 +3692,14 @@ bool QTable::dragEnabled() const
 
 #ifndef QT_NO_DRAGANDDROP
 
-/*! reimp */
+/*! \reimp 
+
+  This event handler is called whenever a QTable object receives a 
+  \l QDragEnterEvent \a e, i.e. when the user pressed the mouse
+  button to drag something. 
+
+  The focus is moved to the cell where the QDragEnterEvent occured.
+*/
 
 void QTable::contentsDragEnterEvent( QDragEnterEvent *e )
 {
@@ -3660,7 +3713,13 @@ void QTable::contentsDragEnterEvent( QDragEnterEvent *e )
     e->accept();
 }
 
-/*! reimp */
+/*! \reimp 
+
+  This event handler is called whenever a QTable object receives a
+  \l QDragMoveEvent \a e, i.e. when the user actually drags the mouse.
+
+  The focus is moved to the cell where the QDragMoveEvent occured.
+*/
 
 void QTable::contentsDragMoveEvent( QDragMoveEvent *e )
 {
@@ -3672,14 +3731,24 @@ void QTable::contentsDragMoveEvent( QDragMoveEvent *e )
     e->accept();
 }
 
-/*! reimp */
+/*! \reimp 
+
+ This event handler is called when a drag activity leaves \e this
+ QTable object.
+
+*/
 
 void QTable::contentsDragLeaveEvent( QDragLeaveEvent * )
 {
     setCurrentCell( oldCurrentRow, oldCurrentCol );
 }
 
-/*! reimp */
+/*! \reimp 
+
+  This event handler is called when the user ends a drag-and-drop
+  activity by dropping something onto \e this QTable.
+
+*/
 
 void QTable::contentsDropEvent( QDropEvent *e )
 {
