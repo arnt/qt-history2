@@ -411,7 +411,8 @@ void WriteInitialization::writeProperties(const QString &varName, const QString 
                    << fixString(p->elementString()) << ");\n";
             continue;
         } else if (propertyName == QLatin1String("database")
-                    && className == QLatin1String("QDataTable")) {
+                    && p->elementStringList()) {
+            // Sql support
             continue;
         }
 
@@ -875,6 +876,10 @@ void WriteInitialization::initializeSqlDataTable(DomWidget *w)
 {
     QHash<QString, DomProperty*> properties = propertyMap(w->elementProperty());
 
+    DomProperty *frameworkCode = properties.value("frameworkCode", 0);
+    if (frameworkCode && toBool(frameworkCode->elementBool()) == false)
+        return;
+
     QString connection;
     QString table;
     QString field;
@@ -909,5 +914,9 @@ void WriteInitialization::initializeSqlDataTable(DomWidget *w)
 
 void WriteInitialization::initializeSqlDataBrowser(DomWidget *w)
 {
-    Q_UNUSED(w);
+    QHash<QString, DomProperty*> properties = propertyMap(w->elementProperty());
+
+    DomProperty *frameworkCode = properties.value("frameworkCode", 0);
+    if (frameworkCode && toBool(frameworkCode->elementBool()) == false)
+        return;
 }
