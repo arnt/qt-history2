@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignalmapper.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qsignalmapper.cpp#12 $
 **
 ** Implementation of QSignalMapper class
 **
@@ -58,7 +58,7 @@ public:
 */
 
 /*!
-  Constructs a QSignalMapper.  Like all QObjects, it will be deleted when the 
+  Constructs a QSignalMapper.  Like all QObjects, it will be deleted when the
   parent is deleted.
 */
 QSignalMapper::QSignalMapper( QObject* parent, const char* name ) :
@@ -77,7 +77,7 @@ QSignalMapper::~QSignalMapper()
 
 /*!
   Adds a mapping such that when map() is signalled from the given
-  sender, the signal mapper(identifier) is emitted.
+  sender, the signal mapped(identifier) is emitted.
 
   There may be at most one integer identifier for each object.
 */
