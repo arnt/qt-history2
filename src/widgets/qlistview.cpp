@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#198 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#199 $
 **
 ** Implementation of QListView widget class
 **
@@ -1075,7 +1075,8 @@ const QPixmap * QListViewItem::pixmap( int column ) const
   width().
 
   The rectangle to be painted is in an undefined state when this
-  function is called, so you \e must draw on all the pixels.
+  function is called, so you \e must draw on all the pixels.  The
+  painter \a p has the right font on entry.
 
   \sa paintBranches(), QListView::drawContentsOffset()
 */
