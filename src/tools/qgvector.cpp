@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.cpp#10 $
+** $Id: //depot/qt/main/src/tools/qgvector.cpp#11 $
 **
 ** Implementation of QGVector class
 **
@@ -30,7 +30,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgvector.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgvector.cpp#11 $";
 #endif
 
 
@@ -399,26 +399,14 @@ bool QGVector::insertExpand( uint index, GCI d )// insert and grow if necessary
 }
 
 
-void QGVector::toList( QGList &list ) const	// store items in list
+void QGVector::toList( QGList *list ) const	// store items in list
 {
-    list.clear();
+    list->clear();
     for ( uint i=0; i<len; i++ ) {
 	if ( vec[i] )
-	    list.append( vec[i] );
+	    list->append( vec[i] );
     }
 }
-
-
-int QGVector::apply( GCF f, void *x ) const	// apply function to all items
-{
-    int res;
-    for ( uint i=0; i<len; i++ ) {
-	if ( (res = (f)(vec[i],x)) )
-	    return res;				// exit if f returns FALSE
-    }
-    return 0;
-}
-
 
 // --------------------------------------------------------------------------
 // QGVector stream functions

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#12 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#13 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qglist.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qglist.cpp#13 $";
 #endif
 
 
@@ -458,31 +458,18 @@ GCI QGList::prev()				// get previous item in list
 }
 
 
-void QGList::toVector( QGVector &vector ) const // store items in vector
+void QGList::toVector( QGVector *vector ) const // store items in vector
 {
-    vector.clear();
-    if ( !vector.resize( count() ) )
+    vector->clear();
+    if ( !vector->resize( count() ) )
 	return;
     register Qdnode *n = firstNode;
     uint i = 0;
     while ( n ) {
-	vector.insert( i, n->getData() );
+	vector->insert( i, n->getData() );
 	n = n->next;
 	i++;
     }
-}
-
-
-int QGList::apply( GCF f, void *x ) const	// apply function to all items
-{
-    int res;
-    register Qdnode *n = firstNode;
-    while ( n ) {
-	if ( (res = (f)( n->getData(), x )) )
-	    return res;				// exit if f returns FALSE
-	n = n->next;
-    }
-    return 0;
 }
 
 

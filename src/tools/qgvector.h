@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.h#7 $
+** $Id: //depot/qt/main/src/tools/qgvector.h#8 $
 **
 ** Definition of QGVector class
 **
@@ -62,9 +62,7 @@ protected:
 #endif
     bool insertExpand( uint index, GCI );	// insert, expand if necessary
 
-    void toList( QGList & ) const;		// put items in list
-
-    int	 apply( GCF, void * ) const;		// apply function to all items
+    void toList( QGList * ) const;		// put items in list
 
     virtual QDataStream &read( QDataStream &, GCI & );
     virtual QDataStream &write( QDataStream &, GCI ) const;

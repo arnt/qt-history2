@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.h#11 $
+** $Id: //depot/qt/main/src/tools/qglist.h#12 $
 **
 ** Definition of QGList and QGListIterator classes
 **
@@ -90,9 +90,7 @@ protected:
     GCI	  next();				// set next item in list curr
     GCI	  prev();				// set prev item in list curr
 
-    void  toVector( QGVector & ) const;		// put items in vector
-
-    int	  apply( GCF, void * ) const;		// apply function to all items
+    void  toVector( QGVector * ) const;		// put items in vector
 
     virtual int compareItems( GCI, GCI );
 

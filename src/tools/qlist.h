@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlist.h#7 $
+** $Id: //depot/qt/main/src/tools/qlist.h#8 $
 **
 ** Definition of QList template/macro class
 **
@@ -70,9 +70,7 @@ public:									      \
     type *last()			{ return (type *)QGList::last(); }    \
     type *next()			{ return (type *)QGList::next(); }    \
     type *prev()			{ return (type *)QGList::prev(); }    \
-    void  toVector( QGVector &vec )const{ QGList::toVector(vec); }	      \
-    int	  apply( int (*applyFunc)(type*,void*), void *x ) const		      \
-				{ return QGList::apply( (GCF)applyFunc, x ); }\
+    void  toVector( QGVector *vec )const{ QGList::toVector(vec); }	      \
 private:								      \
     void  deleteItem( GCI d ) { if ( del_item ) delete (type *)d; }	      \
 }
@@ -153,9 +151,7 @@ public:
     type *last()			{ return (type *)QGList::last(); }
     type *next()			{ return (type *)QGList::next(); }
     type *prev()			{ return (type *)QGList::prev(); }
-    void  toVector( QGVector &vec )const{ QGList::toVector(vec); }
-    int	  apply( int (*applyFunc)(type*,void*), void *x ) const
-				{ return QGList::apply( (GCF)applyFunc, x ); }
+    void  toVector( QGVector *vec )const{ QGList::toVector(vec); }
 private:
     void  deleteItem( GCI d ) { if ( del_item ) delete (type *)d; }
 };
