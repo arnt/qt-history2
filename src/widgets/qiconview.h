@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#30 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#31 $
 **
 ** Definition of QIconView widget class
 **
@@ -184,7 +184,7 @@ public:
 
     virtual void setViewMode( QIconSet::Size mode );
     QIconSet::Size viewMode() const;
-    
+
     virtual bool acceptDrop( const QMimeSource *mime ) const;
 
     void rename();
@@ -212,7 +212,7 @@ protected:
     void setItemRect( const QRect &r );
     void setTextRect( const QRect &r );
     void setIconRect( const QRect &r );
-    
+
 private:
     QIconView *view;
     QString itemText;
@@ -293,10 +293,10 @@ public:
 
     virtual void clear();
 
-    virtual void setRastX( int rx );
-    virtual void setRastY( int ry );
-    int rastX() const;
-    int rastY() const;
+    virtual void setGridX( int rx );
+    virtual void setGridY( int ry );
+    int gridX() const;
+    int gridY() const;
     virtual void setSpacing( int sp );
     int spacing() const;
 
@@ -313,7 +313,7 @@ public:
 
     virtual void setRearrangeEnabled( bool b );
     bool rearrangeEnabled() const;
-    
+
     bool eventFilter( QObject * o, QEvent * );
 
 signals:

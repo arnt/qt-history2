@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#70 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#71 $
 **
 ** Definition of QIconView widget class
 **
@@ -1916,39 +1916,43 @@ void QIconView::clear()
 }
 
 /*!
-  Sets the horizontal raster to \a rx.  If \a rx is -1, there is no
-  horizontal raster used for laigning items.
+  Sets the horizontal grid to \a rx.  If \a rx is -1, there is no
+  horizontal grid used for aligning items.
 */
 
-void QIconView::setRastX( int rx )
+void QIconView::setGridX( int rx )
 {
     d->rastX = rx;
 }
 
 /*!
-  Sets the vertical raster to \a ry.  If \a ry is -1, there is no
-  vertical raster used for laigning items.
+  Sets the vertical grid to \a ry.  If \a ry is -1, there is no
+  vertical grid used for aligning items.
 */
 
-void QIconView::setRastY( int ry )
+void QIconView::setGridY( int ry )
 {
     d->rastY = ry;
 }
 
 /*!
-  Returns the horizonal raster.
+  Returns the horizonal grid.
+
+  \sa setGridX
 */
 
-int QIconView::rastX() const
+int QIconView::gridX() const
 {
     return d->rastX;
 }
 
 /*!
-  Returns the vertical raster.
+  Returns the vertica grid.
+  
+  \sa setGridY
 */
 
-int QIconView::rastY() const
+int QIconView::gridY() const
 {
     return d->rastY;
 }
