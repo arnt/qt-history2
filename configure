@@ -2677,7 +2677,7 @@ irix-cc*)
     ;;
 aix-*)
     AIX_VERSION=`uname -v`
-    if ["$AIX_VERSION" -lt "5" ]; then
+    if [ "$AIX_VERSION" -lt "5" ]; then
         QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_X11+=-lbind\""
     fi
     ;;
