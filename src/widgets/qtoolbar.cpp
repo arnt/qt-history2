@@ -358,6 +358,7 @@ configuration dialog.
 void QToolBar::setLabel( const QString & label )
 {
     l = label;
+    setCaption( l );
 }
 
 

@@ -366,6 +366,10 @@ void QDockWidgetTitleBar::paintEvent( QPaintEvent *e )
     QWidget::paintEvent( e );
     QPainter p( this );
     p.fillRect( rect(), colorGroup().highlight() );
+    QFont f = p.font();
+    f.setPointSize( 10 );
+    p.setFont( f );
+    p.drawText( 5, height() - p.fontMetrics().descent(), dockWidget->caption() );
 }
 
 void QDockWidgetTitleBar::resizeEvent( QResizeEvent * )
