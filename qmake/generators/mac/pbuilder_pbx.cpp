@@ -162,7 +162,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    t << "\t\t" << src_key << " = {" << "\n"
 	      << "\t\t\t" << "isa = PBXFileReference;" << "\n"
 	      << "\t\t\t" << "path = \"" << file << "\";" << "\n"
-	      << "\t\t\t" << "refType = 4;" << "\n"
+	      << "\t\t\t" << "refType = " << reftypeForFile(file) << ";" << "\n"
 	      << "\t\t" << "};" << "\n";
 	    //build reference
 	    QString obj_key = file + ".o";
@@ -385,7 +385,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 		      << "\t\t\t" << "isa = " << (is_frmwrk ? "PBXFrameworkReference" : "PBXFileReference") << ";" << "\n"
 		      << "\t\t\t" << "name = \"" << name << "\";" << "\n"
 		      << "\t\t\t" << "path = \"" << library << "\";" << "\n"
-		      << "\t\t\t" << "refType = 0;" << "\n"
+		      << "\t\t\t" << "refType = " << reftypeForFile(library) << ";" << "\n"
 		      << "\t\t" << "};" << "\n";
 		    project->variables()["QMAKE_PBX_LIBRARIES"].append(key);
 		    QString obj_key = library + ".o";
@@ -600,8 +600,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t\t\t" << "refType = 4;" << "\n"
       << "\t\t" << "};" << "\n";
     //REFERENCE
-    t << "\t\t" << keyFor("QMAKE_PBX_REFERENCE") << " = {" << "\n"
-      << "\t\t\t" << "refType = 3;" << "\n";
+    t << "\t\t" << keyFor("QMAKE_PBX_REFERENCE") << " = {" << "\n";
     if(project->first("TEMPLATE") == "app") {
 	QString targ = project->first("QMAKE_ORIG_TARGET");
 	if(project->isActiveConfig("resource_fork") && !project->isActiveConfig("console")) {
@@ -610,10 +609,11 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	} else {
 	    t << "\t\t\t" << "isa = PBXExecutableFileReference;" << "\n";
 	}
+	QString app = (!project->isEmpty("DESTDIR") ? project->first("DESTDIR") + project->first("QMAKE_ORIG_TARGET") : 
+		       QDir::currentDirPath()) + Option::dir_sep + targ;
 	t << "\t\t\t" << "name = " <<  targ << ";" << "\n"
-	  << "\t\t\t" << "path = \"" 
-	  << (!project->isEmpty("DESTDIR") ? project->first("DESTDIR") + project->first("QMAKE_ORIG_TARGET") : 
-	      QDir::currentDirPath()) << Option::dir_sep << targ << "\";" << "\n";
+	  << "\t\t\t" << "path = \"" << app << "\";" << "\n"
+	  << "\t\t\t" << "refType = " << reftypeForFile(app) << ";" << "\n";
     } else {
 	QString lib = project->first("QMAKE_ORIG_TARGET");
 	if(project->isActiveConfig("staticlib")) {
@@ -628,7 +628,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	if(slsh != -1)
 	    lib = lib.right(lib.length() - slsh - 1);
 	t << "\t\t\t" << "isa = PBXLibraryReference;" << "\n"
-	  << "\t\t\t" << "path = " << lib << ";\n";
+	  << "\t\t\t" << "path = " << lib << ";\n"
+	  << "\t\t\t" << "refType = " << reftypeForFile(lib) << ";" << "\n";
     }
     t << "\t\t" << "};" << "\n";
     //TARGET
@@ -945,4 +946,12 @@ ProjectBuilderMakefileGenerator::pbuilderVersion() const
     }
     debug_msg(1, "pbuilder: version.plist: Fallback to default version");
     return 34; //my fallback
+}
+
+QString
+ProjectBuilderMakefileGenerator::reftypeForFile(QString where)
+{
+    if(QDir::isRelativePath(where))
+	return "4"; //relative
+    return "0"; //absolute
 }
