@@ -2011,7 +2011,7 @@ void generateClass()		      // generate C++ source code for a class
 //
     fprintf( out, "QMetaObject* %s::staticMetaObject()\n{\n", (const char*)qualifiedClassName() );
     fprintf( out, "    if ( metaObj )\n\treturn metaObj;\n" );
-    fprintf( out, "    %s::initMetaObject();\n", (const char*)qualifiedSuperclassName() );
+    fprintf( out, "    (void)%s::staticMetaObject();\n", (const char*)qualifiedSuperclassName() );
 
 //
 // Build the enums array in staticMetaObject()
