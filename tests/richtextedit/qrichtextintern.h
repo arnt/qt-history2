@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#11 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#12 $
 **
 ** Internal rich text classes
 **
@@ -155,7 +155,7 @@ public:
     int height[MAXVIEWS];
     bool dirty[MAXVIEWS];
     QtTextFlow* flows[MAXVIEWS];
-    
+
     QtTextFlow* flow( int view );
 
     inline int margin(QStyleSheetItem::Margin m) const
@@ -182,8 +182,8 @@ public:
     }
 
     void invalidateLayout( int view );
-    
-    
+
+
 private:
     void init();
 };
@@ -269,8 +269,8 @@ class QtTextCursor {
  public:
     QtTextCursor(QtRichText& document, int view);
     ~QtTextCursor();
-    
-    
+
+
     int viewId;
 
     QtTextParagraph* paragraph;
@@ -314,9 +314,9 @@ class QtTextCursor {
     int base;
     int fill;
 
-    
+
     bool adjustFlowMode;
-    
+
     void draw(QPainter* p,  int ox, int oy, int cx, int cy, int cw, int ch);
     QRect caretGeometry() const;
     QRect lineGeometry() const;
@@ -331,19 +331,22 @@ class QtTextCursor {
     int xline;
     QtTextParagraph* xline_paragraph;
     int xline_current;
+    
+    int referenceTop();
+    int referenceBottom();
 };
 
 class QtTextFlow {
 public:
-    
+
     QtTextFlow( QtTextFlow* parentFlow = 0, int ncolumns  = 1 );
     ~QtTextFlow();
 
     void initialize( int w );
-    
+
     void mapToView( int yp, int& gx, int& gy );
     int availableWidth( int yp );
-    
+
     void countFlow( int yp, int h, bool pages = TRUE  );
     void adjustFlow( int  &yp, int h, bool pages = TRUE );
     
@@ -351,7 +354,7 @@ public:
     int y;
     int width;
     int height;
-    
+
     int ncols;
     int colheight;
     int totalheight;

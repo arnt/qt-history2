@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#9 $
+** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#10 $
 **
 ** Implementation of the QtTextView class
 **
@@ -512,50 +512,49 @@ void QtTextView::drawContentsOffset(QPainter* p, int ox, int oy,
 	qDebug("ooops");
 	return;
     }
-    int y = 0;
     QRegion r(cx-ox, cy-oy, cw, ch);
     QtTextParagraph* b = &richText();
     while ( b->child )
-	b = b->child;
+ 	b = b->child;
+    d->fc->gotoParagraph( p, b );
 
-    //###TODO make optimization work again
-//     while ( b && !b->dirty[d->viewId] && b->y[d->viewId] + b->height[d->viewId] < cy ) {
-// 	y = b->y[d->viewId] + b->height[d->viewId];
-// 	b = b->nextInDocument();
-//     }
+//     while ( b && !b->dirty[d->viewId] && 
+// 	    b->y[d->viewId] + b->height[d->viewId] < cy ) {
+//  	y = b->y[d->viewId] + b->height[d->viewId];
+//  	b = b->nextInDocument();
+//      }
 
-    
+
     // TODO merge with update, this is only draw. Everything needs to be clean!
     QFontMetrics fm( p->fontMetrics() );
-    while ( b && (TRUE || y <= cy + ch )) {
-	d->fc->gotoParagraph( p, b );
-	do {
-	    d->fc->makeLineLayout( p, fm );
-	    QRect geom( d->fc->lineGeometry() );
-	    if ( FALSE || ( geom.bottom() > cy && geom.top() < cy+ch ))
-		d->fc->drawLine( p, ox, oy, r, paperColorGroup(), QtTextOptions(&paper() ) );
-	}
-	while ( d->fc->gotoNextLine( p, fm ) );
-	y = d->fc->y();
-// 	b->dirty[ d->viewId] = FALSE;
-	b = b->nextInDocument();
-	
+    while ( b && d->fc->referenceTop() <= cy + ch ) {
 	// this doesn't belong here...
 	if ( b && b->dirty[ d->viewId ] ) {
-	    //qDebug("shall draw something that is dirty!" );
 	    d->fc->initParagraph( p, b );
-	    d->fc->doLayout( p, -1); // TODOmake optimization work again: viewport()->height() + contentsY() );
-	    resizeContents( viewport()->width(), d->fc->y() );
+	    d->fc->doLayout( p, d->fc->referenceBottom() );
+	    // hier kommt er manchmal durcheinander (probe.html)
 	}
-	
+
+	d->fc->gotoParagraph( p, b );
+
+	if ( d->fc->referenceBottom() > cy ) {
+	    do {
+		d->fc->makeLineLayout( p, fm );
+		QRect geom( d->fc->lineGeometry() );
+		if ( geom.bottom() > cy && geom.top() < cy+ch )
+		    d->fc->drawLine( p, ox, oy, r, paperColorGroup(), QtTextOptions(&paper() ) );
+	    }
+	    while ( d->fc->gotoNextLine( p, fm ) );
+	}
+	b = b->nextInDocument();
     };
 
 
-//     if ( y >= contentsHeight() ) {
-// 	bool u = viewport()->isUpdatesEnabled();
-// 	viewport()->setUpdatesEnabled( FALSE );
-// 	resizeContents( viewport()->width(), y + (b ? 500:0) );
-// 	viewport()->setUpdatesEnabled( u );
+//     if ( d->fc->lineGeometry().top() >= contentsHeight() ) {
+//  	bool u = viewport()->isUpdatesEnabled();
+//  	viewport()->setUpdatesEnabled( FALSE );
+//  	resizeContents( viewport()->width(), d->fc->lineGeometry().top() );
+//  	viewport()->setUpdatesEnabled( u );
 //     }
 
     p->setClipRegion(r);
@@ -567,14 +566,14 @@ void QtTextView::drawContentsOffset(QPainter* p, int ox, int oy,
 	p->fillRect(0, 0, viewport()->width(), viewport()->height(), paper() );
 
     p->setClipping( FALSE );
-    
-    
+
+
      int pagesize = 500;
- 
+
      for (int page = cy / pagesize; page <= (cy+ch) / pagesize; ++page ) {
-	 
+	
 	 p->setPen( DotLine );
-	 
+	
 	 p->drawLine( cx-ox, page * pagesize - oy, cx-ox+cw, page*
 		      pagesize - oy );
      }
@@ -596,9 +595,9 @@ void QtTextView::doResize()
 	
     {
 	QPainter p( viewport() );
-	if ( !d->fcresize->doLayout( &p, d->fcresize->y() + 1000 ) )
+	if ( !d->fcresize->doLayout( &p, d->fcresize->referenceBottom() + 1000 ) )
 	    d->resizeTimer->start( 0, TRUE );
-	resizeContents( viewport()->width(), d->fcresize->y() );
+	resizeContents( viewport()->width(), richText().flow( d->viewId)->height );
     }
 }
 
@@ -631,11 +630,11 @@ void QtTextView::resizeEvent( QResizeEvent* e )
     {
 	QPainter p( viewport() );
 	d->fc->initParagraph( &p, &richText() );
-	d->fc->doLayout( &p, -1); // TODOmake optimization work again: viewport()->height() + contentsY() );
+	d->fc->doLayout( &p, viewport()->height() + contentsY() );
 	resizeContents( viewport()->width(), richText().flow( d->viewId)->height );
 	delete d->fcresize;
 	d->fcresize = new QtTextCursor( *d->fc );
-	//d->resizeTimer->start( 0, TRUE );
+ 	d->resizeTimer->start( 0, TRUE );
     }
     viewport()->repaint( FALSE );
 }
