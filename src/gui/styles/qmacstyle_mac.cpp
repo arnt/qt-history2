@@ -376,7 +376,7 @@ public:
     QPointer<QWidget> animationFocusWidget; //the focus widget
     QPointer<QPushButton> defaultButton; //default pushbuttons
     int timerID;
-    QList<QPointer<QProgressBar> > progressBars; //progress bar information
+    QList<QPointer<QWidget> > progressBars; //It's really only progress bar information
 
     struct ButtonState {
         int frame;
@@ -981,7 +981,7 @@ bool QMacStylePrivate::animatable(QMacStylePrivate::Animates as, const QWidget *
             return true;
         }
     } else if (as == AquaProgressBar) {
-        if (progressBars.contains(static_cast<QProgressBar *>(const_cast<QWidget *>(w))))
+        if (progressBars.contains((const_cast<QWidget *>(w))))
             return true;
     }
     return false;
@@ -995,7 +995,7 @@ void QMacStylePrivate::stopAnimate(QMacStylePrivate::Animates as, QWidget *w)
         if (tmp->isVisible())
             tmp->update();
     } else if (as == AquaProgressBar) {
-        progressBars.removeAll(static_cast<QProgressBar *>(w));
+        progressBars.removeAll(w);
     }
 }
 
@@ -1004,7 +1004,7 @@ void QMacStylePrivate::startAnimate(QMacStylePrivate::Animates as, QWidget *w)
     if (as == AquaPushButton)
         defaultButton = static_cast<QPushButton *>(w);
     else if (as == AquaProgressBar)
-        progressBars.append(static_cast<QProgressBar *>(w));
+        progressBars.append(w);
     startAnimationTimer();
 }
 
@@ -1094,10 +1094,17 @@ bool QMacStylePrivate::addWidget(QWidget *w)
         if (btn->isDefault() || (btn->autoDefault() && btn->hasFocus()))
             startAnimate(AquaPushButton, btn);
         return true;
-    } else if (QProgressBar *pb = qt_cast<QProgressBar *>(w)) {
-        pb->installEventFilter(this);
-        startAnimate(AquaProgressBar, pb);
-        return true;
+    } else {
+        bool isProgressBar = (qt_cast<QProgressBar *>(w)
+#ifdef QT_COMPAT
+                || w->inherits("Q3ProgressBar")
+#endif
+            );
+        if (isProgressBar) {
+            w->installEventFilter(this);
+            startAnimate(AquaProgressBar, w);
+            return true;
+        }
     }
     return false;
 }
@@ -1109,8 +1116,12 @@ void QMacStylePrivate::removeWidget(QWidget *w)
     QPushButton *btn = qt_cast<QPushButton *>(w);
     if (btn && btn == defaultButton) {
         stopAnimate(AquaPushButton, btn);
-    } else if (qt_cast<QProgressBar *>(w)) {
-        stopAnimate(AquaProgressBar, static_cast<QProgressBar *>(w));
+    } else if (qt_cast<QProgressBar *>(w)
+#ifdef QT_COMPAT
+            || w->inherits("Q3ProgressBar")
+#endif
+            ) {
+        stopAnimate(AquaProgressBar, w);
     }
 }
 
@@ -1158,16 +1169,32 @@ void QMacStylePrivate::timerEvent(QTimerEvent *)
     if (!progressBars.isEmpty()) {
         int i = 0;
         while (i < progressBars.size()) {
-#warning "Need to handle Q3ProgressBar"
-            QProgressBar *pb = progressBars.at(i);
-            if (!pb) {
+            QWidget *maybeProgress = progressBars.at(i);
+            if (!maybeProgress) {
                 progressBars.removeAt(i);
             } else {
-                if (pb->maximum() == 0 || pb->value() > 0
-                   && pb->value() < pb->maximum()) {
-                    if (doAnimate(AquaProgressBar))
-                        pb->update();
+                if (QProgressBar *pb = qt_cast<QProgressBar *>(maybeProgress)) {
+                    if (pb->maximum() == 0 || pb->value() > 0
+                        && pb->value() < pb->maximum()) {
+                        if (doAnimate(AquaProgressBar))
+                            pb->update();
+                    }
                 }
+#ifdef QT_COMPAT
+                else {
+                    // Watch me now...
+                    QVariant progress = maybeProgress->property("progress");
+                    QVariant totalSteps = maybeProgress->property("totalSteps");
+                    if (progress.isValid() && totalSteps.isValid()) {
+                        int intProgress = progress.toInt();
+                        int intTotalSteps = totalSteps.toInt();
+                        if (intTotalSteps == 0 || intProgress > 0 && intProgress < intTotalSteps) {
+                            if (doAnimate(AquaProgressBar))
+                                maybeProgress->update();
+                        }
+                    }
+                }
+#endif
                 ++i;
             }
         }
