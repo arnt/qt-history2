@@ -3057,7 +3057,8 @@ bool QImage::loadFromData(const uchar *data, int len, const char *format)
 */
 bool QImage::loadFromData(const QByteArray &data, const char *format)
 {
-    QBuffer b(data);
+    QBuffer b;
+    b.setData(data);
     b.open(QIODevice::ReadOnly);
     QImageIO io(&b, format);
     bool result = io.load();
