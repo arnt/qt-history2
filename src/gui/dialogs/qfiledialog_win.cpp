@@ -279,6 +279,7 @@ static void qt_win_clean_up_OFN(OPENFILENAME **ofn)
 
 extern Q_GUI_EXPORT void qt_enter_modal(QWidget*);
 extern Q_GUI_EXPORT void qt_leave_modal(QWidget*);
+extern void qt_win_eatMouseMove();
 
 QString qt_win_get_open_file_name(const QString &initialSelection,
                                   const QString &filter,
@@ -354,15 +355,15 @@ QString qt_win_get_open_file_name(const QString &initialSelection,
         QApplication::sendEvent(parent, &e);
     }
 
-    if (result.isEmpty()) {
+    qt_win_eatMouseMove();
+
+    if (result.isEmpty())
         return result;
-    }
-    else {
-        QFileInfo fi(result);
-        *initialDirectory = fi.path();
-        *selectedFilter = qt_win_selected_filter(filter, selFilIdx);
-        return fi.absolutePath();
-    }
+
+    fi = result;
+    *initialDirectory = fi.path();
+    *selectedFilter = qt_win_selected_filter(filter, selFilIdx);
+    return fi.absolutePath();
 }
 
 QString qt_win_get_save_file_name(const QString &initialSelection,
@@ -438,15 +439,15 @@ QString qt_win_get_save_file_name(const QString &initialSelection,
         QApplication::sendEvent(parent, &e);
     }
 
-    if (result.isEmpty()) {
+    qt_win_eatMouseMove();
+
+    if (result.isEmpty())
         return result;
-    }
-    else {
-        QFileInfo fi(result);
-        *initialDirectory = fi.path();
-        *selectedFilter = qt_win_selected_filter(filter, selFilIdx);
-        return fi.absolutePath();
-    }
+
+    fi = result;
+    *initialDirectory = fi.path();
+    *selectedFilter = qt_win_selected_filter(filter, selFilIdx);
+    return fi.absolutePath();
 }
 
 QStringList qt_win_get_open_file_names(const QString &filter,
@@ -559,6 +560,9 @@ QStringList qt_win_get_open_file_names(const QString &filter,
         QEvent e(QEvent::WindowUnblocked);
         QApplication::sendEvent(parent, &e);
     }
+
+    qt_win_eatMouseMove();
+
     if (!result.isEmpty()) {
         *initialDirectory = fi.path();    // only save the path if there is a result
         *selectedFilter = qt_win_selected_filter(filter, selFilIdx);
@@ -699,6 +703,8 @@ QString qt_win_get_existing_directory(const QString &initialDirectory,
         QEvent e(QEvent::WindowUnblocked);
         QApplication::sendEvent(parent, &e);
     }
+
+    qt_win_eatMouseMove();
 
     // Due to a bug on Windows Me, we need to reset the current
     // directory

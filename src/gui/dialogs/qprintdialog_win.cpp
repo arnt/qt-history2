@@ -22,6 +22,7 @@
 
 extern Q_GUI_EXPORT void qt_leave_modal(QWidget *);
 extern Q_GUI_EXPORT void qt_enter_modal(QWidget *);
+extern void qt_win_eatMouseMove();
 
 class QPrintDialogWinPrivate : public QAbstractPrintDialogPrivate
 {
@@ -110,6 +111,8 @@ int QPrintDialogWin::exec()
         QEvent e(QEvent::WindowUnblocked);
         QApplication::sendEvent(parent, &e);
     }
+
+    qt_win_eatMouseMove();
 
     // write values back...
     if (result) {

@@ -2203,6 +2203,30 @@ static int translateButtonState(int s, int type, int button)
     return bst;
 }
 
+void qt_win_eatMouseMove()
+{
+    // after closing a windows dialog with a double click (i.e. open a file)
+    // the message queue still contains a dubious WM_MOUSEMOVE message where
+    // the left button is reported to be down (wParam != 0).
+    // remove all those messages (usually 1) and post the last one with a
+    // reset button state
+
+    MSG msg = {0, 0, 0, 0, 0, 0, 0};
+    QT_WA( {
+        while (PeekMessage(&msg, 0, WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE))
+            ;
+        if (msg.message == WM_MOUSEMOVE)
+            PostMessage(msg.hwnd, msg.message, 0, msg.lParam);
+    }, {
+        MSG msg;
+        msg.message = 0;
+        while (PeekMessageA(&msg, 0, WM_MOUSEMOVE, WM_MOUSEMOVE, PM_REMOVE))
+            ;
+        if (msg.message == WM_MOUSEMOVE)
+            PostMessageA(msg.hwnd, msg.message, 0, msg.lParam);
+    } );
+}
+
 // In DnD, the mouse release event never appears, so the
 // mouse button state machine must be manually reset
 /*! \internal */
