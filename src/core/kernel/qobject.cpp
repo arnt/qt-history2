@@ -323,7 +323,7 @@ QObject::~QObject()
 {
     if (d->wasDeleted) {
 #if defined(QT_DEBUG)
-        qWarning("Double QObject deletion detected.");
+        qWarning("Double QObject deletion detected");
 #endif
         return;
     }

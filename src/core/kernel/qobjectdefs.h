@@ -220,11 +220,4 @@ inline const char *QMetaObject::superClassName() const
 { return d.superdata ? d.superdata->className() : 0; }
 #endif
 
-#define Q_DECLARE_PRIVATE(Class) \
-    inline Class##Private* d_func() { return (Class##Private *)d_ptr; } \
-    inline const Class##Private* d_func() const { return (const Class##Private *)d_ptr; } \
-    inline Class* q_func() { return this; } \
-    inline const Class* q_func() const { return this; } \
-    friend class Class##Private
-
 #endif // QOBJECTDEFS_H

@@ -20,15 +20,18 @@
 #include "qbytearray.h"
 #endif // QT_H
 
+class QBufferPrivate;
+
 class Q_CORE_EXPORT QBuffer : public QIODevice
 {
+    Q_DECLARE_PRIVATE(QBuffer);
 public:
     QBuffer();
     QBuffer(QByteArray *buf);
     ~QBuffer();
 
-    inline QByteArray &buffer() { return *buf; }
-    inline const QByteArray &buffer() const { return *buf; }
+    QByteArray &buffer();
+    const QByteArray &buffer() const;
     void setBuffer(QByteArray *a);
     void setData(const QByteArray &data);
     inline void setData(const char *data, int len) { setData(QByteArray(data, len)); }
@@ -51,20 +54,10 @@ public:
     int ungetch(int);
 
 private:
-    QByteArray defaultBuf;
-    QByteArray *buf;
-
-private:
 #if defined(Q_DISABLE_COPY)
     QBuffer(const QBuffer &);
     QBuffer &operator=(const QBuffer &);
 #endif
 };
-
-inline QIODevice::Offset QBuffer::size() const
-{ return (Offset)buf->size(); }
-
-inline QIODevice::Offset QBuffer::at() const
-{ return ioIndex; }
 
 #endif // QBUFFER_H

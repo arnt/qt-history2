@@ -13,27 +13,23 @@
 ****************************************************************************/
 
 #include "qsocketdevice.h"
+
 #ifndef QT_NO_NETWORK
+#include "qsocketdevice_p.h"
 
 #include <string.h>
 
+#define d d_func()
+#define q q_func()
 
 //#define QSOCKETDEVICE_DEBUG
 
-
-class QSocketDevicePrivate
+QSocketDevicePrivate::~QSocketDevicePrivate()
 {
-public:
-    QSocketDevicePrivate(QSocketDevice::Protocol p)
-        : protocol(p)
-    { }
-
-    QSocketDevice::Protocol protocol;
-};
-
+}
 
 /*!
-    \class QSocketDevice qsocketdevice.h
+    \class QSocketDevice
     \brief The QSocketDevice class provides a platform-independent low-level socket API.
 \if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
@@ -132,14 +128,16 @@ public:
     connectionless UDP socket.
 */
 QSocketDevice::QSocketDevice(int socket, Type type)
-    : fd(socket), t(type), p(0), pp(0), e(NoError),
-      d(new QSocketDevicePrivate(Unknown))
+    : QIODevice(*new QSocketDevicePrivate)
 {
+    d->fd = socket;
+    d->t = type;
+    d->protocol = QSocketDevice::Unknown;
 #if defined(QSOCKETDEVICE_DEBUG)
     qDebug("QSocketDevice: Created QSocketDevice %p (socket %x, type %d)",
            this, socket, type);
 #endif
-    init();
+    d->init();
     setSocket(socket, type);
 }
 
@@ -155,15 +153,17 @@ QSocketDevice::QSocketDevice(int socket, Type type)
     \sa blocking() protocol()
 */
 QSocketDevice::QSocketDevice(Type type)
-    : fd(-1), t(type), p(0), pp(0), e(NoError),
-      d(new QSocketDevicePrivate(IPv4))
+    : QIODevice(*new QSocketDevicePrivate)
 {
+    d->t = type;
 #if defined(QSOCKETDEVICE_DEBUG)
     qDebug("QSocketDevice: Created QSocketDevice object %p, type %d",
             this, type);
 #endif
-    init();
-    setSocket(createNewSocket(), type);
+#if defined(Q_OS_WIN32)
+    d->init();
+#endif
+    setSocket(d->createNewSocket(), type);
 }
 
 /*!
@@ -184,15 +184,16 @@ QSocketDevice::QSocketDevice(Type type)
     \sa blocking() protocol()
 */
 QSocketDevice::QSocketDevice(Type type, Protocol protocol, int)
-    : fd(-1), t(type), p(0), pp(0), e(NoError),
-      d(new QSocketDevicePrivate(protocol))
+    : QIODevice(*new QSocketDevicePrivate)
 {
+    d->t = type;
+    d->protocol = protocol;
 #if defined(QSOCKETDEVICE_DEBUG)
     qDebug("QSocketDevice: Created QSocketDevice object %p, type %d",
             this, type);
 #endif
-    init();
-    setSocket(createNewSocket(), type);
+    d->init();
+    setSocket(d->createNewSocket(), type);
 }
 
 /*!
@@ -201,8 +202,6 @@ QSocketDevice::QSocketDevice(Type type, Protocol protocol, int)
 QSocketDevice::~QSocketDevice()
 {
     close();
-    delete d;
-    d = 0;
 #if defined(QSOCKETDEVICE_DEBUG)
     qDebug("QSocketDevice: Destroyed QSocketDevice %p", this);
 #endif
@@ -216,7 +215,7 @@ QSocketDevice::~QSocketDevice()
 */
 bool QSocketDevice::isValid() const
 {
-    return fd != -1;
+    return d->fd != -1;
 }
 
 
@@ -230,7 +229,7 @@ bool QSocketDevice::isValid() const
 */
 QSocketDevice::Type QSocketDevice::type() const
 {
-    return t;
+    return d->t;
 }
 
 /*!
@@ -248,7 +247,7 @@ QSocketDevice::Type QSocketDevice::type() const
 QSocketDevice::Protocol QSocketDevice::protocol() const
 {
     if (d->protocol == Unknown)
-        d->protocol = getProtocol();
+        d->protocol = d->getProtocol();
     return d->protocol;
 }
 
@@ -259,7 +258,7 @@ QSocketDevice::Protocol QSocketDevice::protocol() const
 */
 int QSocketDevice::socket() const
 {
-    return fd;
+    return d->fd;
 }
 
 
@@ -278,19 +277,19 @@ int QSocketDevice::socket() const
 */
 void QSocketDevice::setSocket(int socket, Type type)
 {
-    if (fd != -1)                        // close any open socket
+    if (d->fd != -1)                        // close any open socket
         close();
 #if defined(QSOCKETDEVICE_DEBUG)
     qDebug("QSocketDevice::setSocket: socket %x, type %d", socket, type);
 #endif
-    t = type;
-    fd = socket;
+    d->t = type;
+    d->fd = socket;
     d->protocol = Unknown;
-    e = NoError;
+    d->e = NoError;
     setFlags(IO_Sequential);
     resetStatus();
     open(IO_ReadWrite);
-    fetchConnectionParameters();
+    d->fetchConnectionParameters();
 }
 
 
@@ -426,7 +425,7 @@ int QSocketDevice::ungetch(int)
 */
 bool QSocketDevice::addressReusable() const
 {
-    return option(ReuseAddress);
+    return d->option(QSocketDevicePrivate::ReuseAddress);
 }
 
 
@@ -445,7 +444,7 @@ bool QSocketDevice::addressReusable() const
 */
 void QSocketDevice::setAddressReusable(bool enable)
 {
-    setOption(ReuseAddress, enable);
+    d->setOption(QSocketDevicePrivate::ReuseAddress, enable);
 }
 
 
@@ -456,7 +455,7 @@ void QSocketDevice::setAddressReusable(bool enable)
 */
 int QSocketDevice::receiveBufferSize() const
 {
-    return option(ReceiveBuffer);
+    return d->option(QSocketDevicePrivate::ReceiveBuffer);
 }
 
 
@@ -473,7 +472,7 @@ int QSocketDevice::receiveBufferSize() const
 */
 void QSocketDevice::setReceiveBufferSize(uint size)
 {
-    setOption(ReceiveBuffer, size);
+    d->setOption(QSocketDevicePrivate::ReceiveBuffer, size);
 }
 
 
@@ -484,7 +483,7 @@ void QSocketDevice::setReceiveBufferSize(uint size)
 */
 int QSocketDevice::sendBufferSize() const
 {
-    return option(SendBuffer);
+    return d->option(QSocketDevicePrivate::SendBuffer);
 }
 
 
@@ -500,7 +499,7 @@ int QSocketDevice::sendBufferSize() const
 */
 void QSocketDevice::setSendBufferSize(uint size)
 {
-    setOption(SendBuffer, size);
+    d->setOption(QSocketDevicePrivate::SendBuffer, size);
 }
 
 
@@ -514,7 +513,7 @@ void QSocketDevice::setSendBufferSize(uint size)
 */
 Q_UINT16 QSocketDevice::port() const
 {
-    return p;
+    return d->p;
 }
 
 
@@ -525,7 +524,7 @@ Q_UINT16 QSocketDevice::port() const
 */
 QHostAddress QSocketDevice::address() const
 {
-    return a;
+    return d->a;
 }
 
 
@@ -534,7 +533,7 @@ QHostAddress QSocketDevice::address() const
 */
 QSocketDevice::Error QSocketDevice::error() const
 {
-    return e;
+    return d->e;
 }
 
 
@@ -543,7 +542,7 @@ QSocketDevice::Error QSocketDevice::error() const
 */
 void QSocketDevice::setError(Error err)
 {
-    e = err;
+    d->e = err;
 }
 #endif //QT_NO_NETWORK
 

@@ -35,7 +35,10 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #define LLONG_MAX Q_INT64_C(9223372036854775807)
 #endif
 
-extern const char* qt_fileerr_read;
+#define d d_func()
+#define q q_func()
+
+extern const char *qt_fileerr_read;
 
 bool QFileInfoPrivate::access(const QString &fn, int t)
 {
@@ -151,7 +154,7 @@ bool QFile::open(int m)
         qWarning("QFile::open: No file name specified");
         return false;
     }
-    init();                                        // reset params
+    d->init();                                    // reset params
     setMode(m);
     if (!(isReadable() || isWritable())) {
         qWarning("QFile::open: File access not specified");
@@ -264,7 +267,7 @@ bool QFile::open(int m)
             }
         }
     } else {
-        init();
+        d->init();
         setStatus(errno == EMFILE ? IO_ResourceError : IO_OpenError, errno);
     }
     return ok;
@@ -304,7 +307,7 @@ bool QFile::open(int m, FILE *f)
         qWarning("QFile::open: File already open");
         return false;
     }
-    init();
+    d->init();
     setMode(m &~IO_Raw);
     setState(IO_Open);
     d->fh = f;
@@ -365,7 +368,7 @@ bool QFile::open(int m, int f)
         qWarning("QFile::open: File already open");
         return false;
     }
-    init();
+    d->init();
     setMode(m |IO_Raw);
     setState(IO_Open);
     d->fd = f;
@@ -635,7 +638,7 @@ void QFile::close()
             else
                 ok = ::close(d->fd) != -1;
         }
-        init();                                    // restore internal state
+        d->init();                                 // restore internal state
     }
     if (!ok)
         setStatus(IO_UnspecifiedError, errno);

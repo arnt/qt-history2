@@ -19,26 +19,22 @@
 class QHostAddressPrivate
 {
 public:
-    QHostAddressPrivate(Q_UINT32 a_=0) : a(a_), isIp4(true)
-    {
-    }
+    QHostAddressPrivate(Q_UINT32 a_ = 0) : a(a_), isIp4(true) { }
     QHostAddressPrivate(Q_UINT8 *a_);
     QHostAddressPrivate(const Q_IPV6ADDR &a_);
-    ~QHostAddressPrivate()
-    {
-    }
+    QHostAddressPrivate(const QHostAddressPrivate &other) { *this = other; }
 
-    QHostAddressPrivate & operator=(const QHostAddressPrivate &from)
+    QHostAddressPrivate &operator=(const QHostAddressPrivate &other)
     {
-        a = from.a;
-        isIp4 = from.isIp4;
-        a6 = from.a6;
+        a = other.a;
+        isIp4 = other.isIp4;
+        a6 = other.a6;
         return *this;
     }
 
 private:
-    Q_UINT32 a;     // ip 4 address
-    Q_IPV6ADDR a6; // ip 6 address
+    Q_UINT32 a;    // IPv4 address
+    Q_IPV6ADDR a6; // IPv6 address
     bool isIp4;
 
     friend class QHostAddress;
@@ -46,9 +42,8 @@ private:
 
 QHostAddressPrivate::QHostAddressPrivate(Q_UINT8 *a_) : a(0), isIp4(false)
 {
-    for (int i=0; i<16; i++) {
+    for (int i = 0; i < 16; i++)
         a6.c[i] = a_[i];
-    }
 }
 
 QHostAddressPrivate::QHostAddressPrivate(const Q_IPV6ADDR &a_) : a(0), isIp4(false)
@@ -83,6 +78,8 @@ QHostAddressPrivate::QHostAddressPrivate(const Q_IPV6ADDR &a_) : a(0), isIp4(fal
 
 /*!
     Creates a host address object with the IP address 0.0.0.0.
+
+    \sa clear()
 */
 QHostAddress::QHostAddress()
     : d(new QHostAddressPrivate)
@@ -133,9 +130,8 @@ QHostAddress::QHostAddress(const QString &address)
     Creates a copy of \a address.
 */
 QHostAddress::QHostAddress(const QHostAddress &address)
-    : d(new QHostAddressPrivate)
+    : d(new QHostAddressPrivate(*address.d))
 {
-    *d = *(address.d);
 }
 
 
@@ -147,27 +143,31 @@ QHostAddress::~QHostAddress()
     delete d;
 }
 
-
 /*!
     Assigns another host address object \a address to this object and
     returns a reference to this object.
 */
-QHostAddress & QHostAddress::operator=(const QHostAddress & address)
+QHostAddress &QHostAddress::operator=(const QHostAddress & address)
 {
-    *d = *(address.d);
+    *d = *address.d;
     return *this;
 }
 
+/*!
+    Sets the host address to 0.0.0.0.
+*/
+void QHostAddress::clear()
+{
+    *d = QHostAddressPrivate();
+}
 
 /*!
     Set the IPv4 address specified by \a ip4Addr.
 */
 void QHostAddress::setAddress(Q_UINT32 ip4Addr)
 {
-    delete d;
-    d = new QHostAddressPrivate(ip4Addr);
+    *d = QHostAddressPrivate(ip4Addr);
 }
-
 
 /*!
     \overload
@@ -179,8 +179,7 @@ void QHostAddress::setAddress(Q_UINT32 ip4Addr)
 */
 void QHostAddress::setAddress(Q_UINT8 *ip6Addr)
 {
-    delete d;
-    d = new QHostAddressPrivate(ip6Addr);
+    *d = QHostAddressPrivate(ip6Addr);
 }
 
 static bool parseIp4(const QString& address, Q_UINT32 *addr)
@@ -289,32 +288,12 @@ bool QHostAddress::setAddress(const QString& address)
 }
 
 /*!
-    \obsolete
-
-    Use isIPv4Address() instead.
-*/
-bool QHostAddress::isIp4Addr() const
-{
-    return isIPv4Address();
-}
-
-/*!
     Returns true if the host address represents an IPv4 address;
     otherwise returns false.
 */
 bool QHostAddress::isIPv4Address() const
 {
     return d->isIp4;
-}
-
-/*!
-    \obsolete
-
-    Use toIPv4Address() instead.
-*/
-Q_UINT32 QHostAddress::ip4Addr() const
-{
-    return toIPv4Address();
 }
 
 /*!

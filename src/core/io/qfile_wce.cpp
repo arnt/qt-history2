@@ -21,6 +21,9 @@
 #define LLONG_MAX Q_INT64_C(9223372036854775807)
 #endif
 
+#define d d_func()
+#define q q_func()
+
 bool QFileInfoPrivate::access(const QString &fn, int t)
 {
     if (fn.isEmpty())
@@ -28,7 +31,7 @@ bool QFileInfoPrivate::access(const QString &fn, int t)
     return ::_waccess((TCHAR*)fn.ucs2(), t) == 0;
 }
 
-bool isValidFile(const QString& fileName)
+static bool isValidFile(const QString& fileName)
 {
     // Only : needs to be checked for, other invalid characters
     // are currently checked by fopen()
@@ -62,7 +65,7 @@ bool QFile::open(int m)
         qWarning("QFile::open: No file name specified");
         return false;
     }
-    init();                                        // reset params
+    d->init();                                    // reset params
     setMode(m);
     if (!(isReadable() || isWritable())) {
         qWarning("QFile::open: File access not specified");
@@ -166,11 +169,8 @@ bool QFile::open(int m)
     if (ok) {
         setState(IO_Open);
     } else {
-        init();
-        if (errno == EMFILE)                        // no more file handles/descrs
-            setStatus(IO_ResourceError);
-        else
-            setStatus(IO_OpenError);
+        d->init();
+	setStatus(errno == EMFILE ? ResourceError : OpenError, errno);
     }
     return ok;
 }
@@ -183,7 +183,7 @@ bool QFile::open(int m, FILE *f)
         qWarning("QFile::open: File already open");
         return false;
     }
-    init();
+    d->init();
     setMode(m &~IO_Raw);
     setState(IO_Open);
     d->fh = f;
@@ -213,7 +213,7 @@ bool QFile::open(int m, int f)
         qWarning("QFile::open: File already open");
         return false;
     }
-    init();
+    d->init();
     setMode(m |IO_Raw);
     setState(IO_Open);
     d->fd = f;
@@ -360,18 +360,18 @@ void QFile::close()
 {
     bool ok = false;
     if (isOpen()) {                                // file is not open
-        if (d->fh) {                                // buffered file
+        if (d->fh) {                               // buffered file
             if (d->ext_f)
-                ok = fflush(d->fh) != -1;        // flush instead of closing
+                ok = fflush(d->fh) != -1;          // flush instead of closing
             else
                 ok = fclose(d->fh) != -1;
-        } else {                                // raw file
+        } else {                                   // raw file
             if (d->ext_f)
-                ok = true;                        // cannot close
+                ok = true;                         // cannot close
             else
                 ok = QT_CLOSE(d->fd) != -1;
         }
-        init();                                        // restore internal state
+        d->init();                                 // restore internal state
     }
     if (!ok)
         setStatus (IO_UnspecifiedError);

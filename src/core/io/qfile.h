@@ -25,6 +25,8 @@ class QFilePrivate;
 
 class Q_CORE_EXPORT QFile : public QIODevice                        // file I/O device class
 {
+    Q_DECLARE_PRIVATE(QFile);
+
 public:
     QFile();
     QFile(const QString &name);
@@ -75,10 +77,6 @@ private:
     QFile(const QFile &);
     QFile &operator=(const QFile &);
 #endif
-
-    void init();
-
-    QFilePrivate *d;
 };
 
 inline QIODevice::Offset QFile::at() const

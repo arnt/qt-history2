@@ -10,6 +10,7 @@ HEADERS +=  \
 	io/qfiledefs_p.h \
 	io/qfileinfo.h \
 	io/qiodevice.h \
+	io/qiodevice_p.h \
 	io/qtextstream.h \
 	io/qsettings.h \
 	io/qsettings_p.h \

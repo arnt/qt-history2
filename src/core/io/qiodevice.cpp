@@ -14,12 +14,20 @@
 
 #include "qplatformdefs.h"
 
-#include "qiodevice.h"
 #include "qbytearray.h"
+#include "qiodevice.h"
+#include "qiodevice_p.h"
 
 #ifndef NO_ERRNO_H
 #include <errno.h>
 #endif
+
+#define d d_func()
+#define q q_func()
+
+QIODevicePrivate::~QIODevicePrivate()
+{
+}
 
 /*!
     \class QIODevice
@@ -237,10 +245,19 @@
 */
 
 QIODevice::QIODevice()
+    : d_ptr(new QIODevicePrivate)
 {
+    d_ptr->q_ptr = this;
     ioIndex = 0;
-    ioMode = 0;
-    ioSt = IO_Ok;
+}
+
+/*! \internal
+*/
+QIODevice::QIODevice(QIODevicePrivate &dd)
+    : d_ptr(&dd)
+{
+    d_ptr->q_ptr = this;
+    ioIndex = 0;
 }
 
 /*!
@@ -249,18 +266,22 @@ QIODevice::QIODevice()
 
 QIODevice::~QIODevice()
 {
+    delete d;
 }
 
 
 /*!
-    \fn int QIODevice::flags() const
-
     Returns the current I/O device flags setting.
 
     Flags consists of mode flags and state flags.
 
     \sa mode(), state()
 */
+
+int QIODevice::flags() const
+{
+    return d->ioMode;
+}
 
 /*!
     \fn int QIODevice::mode() const
@@ -411,8 +432,6 @@ QIODevice::~QIODevice()
 
 
 /*!
-    \fn int QIODevice::status() const
-
     Returns the I/O device status.
 
     The I/O device status returns an error code. If open() returns
@@ -446,6 +465,11 @@ QIODevice::~QIODevice()
     \sa resetStatus()
 */
 
+int QIODevice::status() const
+{
+    return d->ioSt;
+}
+
 /*!
     Sets the I/O device status to \c IO_Ok.
 
@@ -453,15 +477,17 @@ QIODevice::~QIODevice()
 */
 void QIODevice::resetStatus()
 {
-    ioSt = Ok;
-    errStr.clear();
+    d->ioSt = Ok;
+    d->errStr.clear();
 }
 
 /*!
-  \fn void QIODevice::setFlags(int f)
-  \internal
-  Used by subclasses to set the device flags.
+    Used by subclasses to set the device flags.
 */
+void QIODevice::setFlags(int f)
+{
+    d->ioMode = f;
+}
 
 /*!
   \internal
@@ -472,8 +498,8 @@ void QIODevice::setType(int t)
 {
     if ((t & IO_TypeMask) != t)
         qWarning("QIODevice::setType: Specified type out of range");
-    ioMode &= ~IO_TypeMask;                        // reset type bits
-    ioMode |= t;
+    d->ioMode &= ~IO_TypeMask;                        // reset type bits
+    d->ioMode |= t;
 }
 
 /*!
@@ -485,8 +511,8 @@ void QIODevice::setMode(int m)
 {
     if ((m & IO_ModeMask) != m)
         qWarning("QIODevice::setMode: Specified mode out of range");
-    ioMode &= ~IO_ModeMask;                        // reset mode bits
-    ioMode |= m;
+    d->ioMode &= ~IO_ModeMask;                        // reset mode bits
+    d->ioMode |= m;
 }
 
 /*!
@@ -498,8 +524,8 @@ void QIODevice::setState(int s)
 {
     if (((uint)s & IO_StateMask) != (uint)s)
         qWarning("QIODevice::setState: Specified state out of range");
-    ioMode &= ~IO_StateMask;                        // reset state bits
-    ioMode |= (uint)s;
+    d->ioMode &= ~IO_StateMask;                        // reset state bits
+    d->ioMode |= (uint)s;
 }
 
 /*!
@@ -510,8 +536,8 @@ void QIODevice::setState(int s)
 
 void QIODevice::setStatus(int status)
 {
-    ioSt = status;
-    errStr.clear();
+    d->ioSt = status;
+    d->errStr.clear();
 }
 
 /*!
@@ -519,8 +545,8 @@ void QIODevice::setStatus(int status)
 */
 void QIODevice::setStatus(int status, const QString &errorString)
 {
-    ioSt = status;
-    errStr = errorString;
+    d->ioSt = status;
+    d->errStr = errorString;
 }
 
 /*!
@@ -528,13 +554,13 @@ void QIODevice::setStatus(int status, const QString &errorString)
 */
 void QIODevice::setStatus(int status, int errNum)
 {
-    ioSt = status;
+    d->ioSt = status;
 
     const char *stockStr = 0;
 
     switch (errNum) {
     case 0:
-        errStr.clear();
+        d->errStr.clear();
         break;
     case EACCES:
         stockStr = QT_TR_NOOP("Permission denied");
@@ -550,7 +576,7 @@ void QIODevice::setStatus(int status, int errNum)
         break;
     default:
 #ifndef Q_OS_TEMP
-        errStr = QString::fromLocal8Bit(strerror(errNum));
+        d->errStr = QString::fromLocal8Bit(strerror(errNum));
 #else
         {
             unsigned short *string;
@@ -561,14 +587,14 @@ void QIODevice::setStatus(int status, int errNum)
                           (LPTSTR)&string,
                           0,
                           NULL);
-            errStr = QString::fromUcs2(string);
+            d->errStr = QString::fromUcs2(string);
             LocalFree((HLOCAL)string);
         }
 #endif
     }
 
     if (stockStr)
-        errStr = QT_TRANSLATE_NOOP("QIODevice", stockStr);
+        d->errStr = QT_TRANSLATE_NOOP("QIODevice", stockStr);
 }
 
 /*!
@@ -866,13 +892,10 @@ Q_LONG QIODevice::readLine(char *data, Q_ULONG maxlen)
 
 QString QIODevice::errorString() const
 {
-    // if this assert fails, uncomment the code below
-    Q_ASSERT(OpenError == ConnectError);
-
-    if (errStr.isEmpty()) {
+    if (d->errStr.isEmpty()) {
         const char *str;
 
-        switch (ioSt) {
+        switch (d->ioSt) {
         case Ok:
         case UnspecifiedError:
             str = QT_TR_NOOP("Unknown error");
@@ -892,11 +915,9 @@ QString QIODevice::errorString() const
         case OpenError:
             str = QT_TR_NOOP("Could not open the device");
             break;
-/*
         case ConnectError:
             str = QT_TR_NOOP("Could not connect to host");
             break;
-*/
         case AbortError:
             str = QT_TR_NOOP("Aborted");
             break;
@@ -905,5 +926,5 @@ QString QIODevice::errorString() const
         }
         return QT_TRANSLATE_NOOP("QIODevice", str);
     }
-    return errStr;
+    return d->errStr;
 }

@@ -29,6 +29,24 @@
 #include "qdatastream.h"
 #include <limits.h>
 
+#define d d_func()
+#define q q_func()
+
+QFilePrivate::~QFilePrivate()
+{
+}
+
+void QFilePrivate::init()
+{
+    q->setFlags(IO_Direct);
+    q->resetStatus();
+    q->ioIndex = 0;
+    fh = 0;
+    fd = 0;
+    length = 0;
+    ext_f = false; // not an external file handle
+}
+
 /*!
     \class QFile
     \reentrant
@@ -113,9 +131,9 @@
 */
 
 QFile::QFile()
-: d(0)
+    : QIODevice(*new QFilePrivate)
 {
-    init();
+    d->init();
 }
 
 /*!
@@ -125,9 +143,9 @@ QFile::QFile()
 */
 
 QFile::QFile(const QString &name)
-    : d(0)
+    : QIODevice(*new QFilePrivate)
 {
-    init();
+    d->init();
     d->fn = name;
 }
 
@@ -139,28 +157,7 @@ QFile::QFile(const QString &name)
 QFile::~QFile()
 {
     close();
-    delete d;
 }
-
-
-/*!
-  \internal
-  Initialize internal data.
-*/
-
-void QFile::init()
-{
-    if (!d)
-        d = new QFilePrivate;
-    setFlags(IO_Direct);
-    setStatus(IO_Ok);
-    d->fh = 0;
-    d->fd = 0;
-    d->length = 0;
-    ioIndex = 0;
-    d->ext_f = false; // not an external file handle
-}
-
 
 /*!
     Returns the name set by setName().

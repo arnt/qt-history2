@@ -13,6 +13,26 @@
 ****************************************************************************/
 
 #include "qbuffer.h"
+#include "qobjectdefs.h"
+#include "private/qiodevice_p.h"
+
+#define d d_func()
+#define q q_func()
+
+class QBufferPrivate : public QIODevicePrivate
+{
+    Q_DECLARE_PUBLIC(QBuffer);
+
+public:
+    ~QBufferPrivate();
+
+    QByteArray defaultBuf;
+    QByteArray *buf;
+};
+
+QBufferPrivate::~QBufferPrivate()
+{
+}
 
 /*!
     \class QBuffer
@@ -58,8 +78,9 @@
 */
 
 QBuffer::QBuffer()
+    : QIODevice(*new QBufferPrivate)
 {
-    buf = &defaultBuf;
+    d->buf = &d->defaultBuf;
     setFlags(IO_Direct);
     ioIndex = 0;
 }
@@ -87,8 +108,9 @@ QBuffer::QBuffer()
 */
 
 QBuffer::QBuffer(QByteArray *a)
+    : QIODevice(*new QBufferPrivate)
 {
-    buf = a;
+    d->buf = a;
     setFlags(IO_Direct);
     ioIndex = 0;
 }
@@ -99,7 +121,6 @@ QBuffer::QBuffer(QByteArray *a)
 
 QBuffer::~QBuffer()
 {
-    buf = 0;
 }
 
 /*!
@@ -124,11 +145,11 @@ void QBuffer::setBuffer(QByteArray *a)
         return;
     }
     if (a) {
-        buf = a;
+        d->buf = a;
     } else {
-        buf = &defaultBuf;
+        d->buf = &d->defaultBuf;
     }
-    defaultBuf.clear();
+    d->defaultBuf.clear();
     ioIndex = 0;
 }
 
@@ -141,16 +162,27 @@ void QBuffer::setData(const QByteArray &data)
         qWarning("QBuffer::setData: Buffer is open");
         return;
     }
-    *buf = data;
+    *d->buf = data;
 }
 
 /*!
-    \fn QByteArray QBuffer::buffer() const
-
     Returns this buffer's byte array.
 
     \sa setBuffer()
 */
+
+QByteArray &QBuffer::buffer()
+{
+    return *d->buf;
+}
+
+/*!
+    \overload
+*/
+const QByteArray &QBuffer::buffer() const
+{
+    return *d->buf;
+}
 
 /*!
     \reimp
@@ -178,9 +210,9 @@ bool QBuffer::open(int m)
     }
     setMode(m);
     if (m & IO_Truncate)
-        buf->resize(0);
+        d->buf->resize(0);
     if (m & IO_Append)                       // append to end of buffer
-        ioIndex = buf->size();
+        ioIndex = d->buf->size();
     else
         ioIndex = 0;
 
@@ -218,16 +250,20 @@ void QBuffer::flush()
 
 
 /*!
-    \fn QIODevice::Offset QBuffer::at() const
-
     \reimp
 */
+inline QIODevice::Offset QBuffer::at() const
+{
+    return ioIndex;
+}
 
 /*!
-    \fn QIODevice::Offset QBuffer::size() const
-
     \reimp
 */
+QIODevice::Offset QBuffer::size() const
+{
+    return (Offset)d->buf->size();
+}
 
 /*!
   \reimp
@@ -240,7 +276,7 @@ bool QBuffer::at(Offset pos)
         return false;
     }
     // #### maybe resize if not readonly?
-    if (pos > (Offset)buf->size()) {
+    if (pos > (Offset)d->buf->size()) {
         qWarning("QBuffer::at: Index %lld out of range", pos);
         return false;
     }
@@ -267,14 +303,14 @@ Q_LONG QBuffer::readBlock(char *p, Q_ULONG len)
         qWarning("QBuffer::readBlock: Read operation not permitted");
         return -1;
     }
-    if (ioIndex + len > buf->size()) {   // overflow
-        if ((int)ioIndex >= buf->size()) {
+    if (ioIndex + len > d->buf->size()) {   // overflow
+        if ((int)ioIndex >= d->buf->size()) {
             return 0;
         } else {
-            len = buf->size() - ioIndex;
+            len = d->buf->size() - ioIndex;
         }
     }
-    memcpy(p, buf->constData() + ioIndex, len);
+    memcpy(p, d->buf->constData() + ioIndex, len);
     ioIndex += len;
     return len;
 }
@@ -314,15 +350,15 @@ Q_LONG QBuffer::writeBlock(const char *ptr, Q_ULONG len)
         qWarning("QBuffer::writeBlock: Write operation not permitted");
         return -1;
     }
-    if (ioIndex + len > buf->size()) {             // overflow
-        buf->resize(ioIndex + len);
-        if (buf->size() != (int)(ioIndex + len)) {           // could not resize
+    if (ioIndex + len > d->buf->size()) {             // overflow
+        d->buf->resize(ioIndex + len);
+        if (d->buf->size() != (int)(ioIndex + len)) {           // could not resize
             qWarning("QBuffer::writeBlock: Memory allocation error");
             setStatus(IO_ResourceError);
             return -1;
         }
     }
-    memcpy(buf->data() + ioIndex, ptr, len);
+    memcpy(d->buf->data() + ioIndex, ptr, len);
     ioIndex += len;
     return len;
 }
@@ -349,16 +385,16 @@ Q_LONG QBuffer::readLine(char *p, Q_ULONG maxlen)
     if (maxlen == 0)
         return 0;
     Q_ULONG start = ioIndex;
-    const char *d = buf->constData() + ioIndex;
+    const char *dat = d->buf->constData() + ioIndex;
     maxlen--;                                   // make room for 0-terminator
-    if (buf->size() - ioIndex < maxlen)
-        maxlen = buf->size() - ioIndex;
+    if (d->buf->size() - ioIndex < maxlen)
+        maxlen = d->buf->size() - ioIndex;
     while (maxlen--) {
-        if ((*p++ = *d++) == '\n')
+        if ((*p++ = *dat++) == '\n')
             break;
     }
     *p = '\0';
-    ioIndex = d - buf->constData();
+    ioIndex = dat - d->buf->constData();
     return ioIndex - start;
 }
 
@@ -377,11 +413,11 @@ int QBuffer::getch()
         qWarning("QBuffer::getch: Read operation not permitted");
         return -1;
     }
-    if (ioIndex >= buf->size()) {               // overflow
+    if (ioIndex >= d->buf->size()) {               // overflow
         setStatus(IO_ReadError);
         return -1;
     }
-    return uchar(buf->constData()[ioIndex++]);
+    return uchar(d->buf->constData()[ioIndex++]);
 }
 
 /*!
@@ -406,14 +442,13 @@ int QBuffer::putch(int ch)
         qWarning("QBuffer::putch: Write operation not permitted");
         return -1;
     }
-    if (ioIndex >= buf->size()) {               // overflow
-        char buf[1];
-        buf[0] = (char)ch;
-        if (writeBlock(buf, 1) != 1) {
+    if (ioIndex >= d->buf->size()) {               // overflow
+        char tinyBuf;
+        tinyBuf = (char)ch;
+        if (writeBlock(&tinyBuf, 1) != 1)
             return -1;                          // write error
-        }
     } else {
-        buf->data()[ioIndex++] = (char)ch;
+        d->buf->data()[ioIndex++] = (char)ch;
     }
     return ch;
 }

@@ -19,6 +19,7 @@ network {
 		    qserversocket.h \
 		    qsocket.h \
 		    qsocketdevice.h \
+		    qsocketdevice_p.h \
 		    qresolver.h \
 		    qresolver_p.h \
 		    qurlinfo.h

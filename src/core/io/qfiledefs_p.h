@@ -29,6 +29,7 @@
 #include <qglobal.h>
 #include <qatomic.h>
 #include <qcoreapplication.h>
+#include <private/qiodevice_p.h>
 #endif
 
 // Be sure to include qplatformdefs.h first!
@@ -74,9 +75,16 @@ public:
 #endif
 };
 
-class QFilePrivate
+class QFilePrivate : public QIODevicePrivate
 {
-public:
+    Q_DECLARE_PUBLIC(QFile);
+
+protected:
+    ~QFilePrivate();
+
+private:
+    void init();
+
     QString errorString;
     QByteArray ungetchBuffer;
     QString fn;

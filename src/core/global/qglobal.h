@@ -12,7 +12,9 @@
 
 #ifndef QGLOBAL_H
 #define QGLOBAL_H
+
 #include <stddef.h>
+
 #if defined(__cplusplus)
 #include <new>
 #endif
@@ -1574,16 +1576,30 @@ for (QForeachMemory<sizeof(qForeachSizeofContainerHelper(container))> _container
 #endif
 
 #if 0
-// tell gcc to use it's built-in methods for some common functions.
+// tell gcc to use its built-in methods for some common functions
 #if defined(QT_NO_DEBUG) && defined(Q_CC_GNU)
 #  define qMemCopy __builtin_memcpy
 #  define qMemSet __builtin_memset
 #endif
 #endif
 
-#endif /* __cplusplus */
+#define Q_DECLARE_PRIVATE(Class) \
+    inline Class##Private* d_func() { return (Class##Private *)d_ptr; } \
+    inline const Class##Private* d_func() const { return (const Class##Private *)d_ptr; } \
+    inline Class* q_func() { return this; } \
+    inline const Class* q_func() const { return this; } \
+    friend class Class##Private
+
+#define Q_DECLARE_PUBLIC(Class) \
+    inline Class##Private* d_func() { return this; } \
+    inline const Class##Private* d_func() const { return this; } \
+    inline Class* q_func() { return static_cast<Class *>(q_ptr); } \
+    inline const Class* q_func() const { return static_cast<const Class *>(q_ptr); } \
+    friend class Class
 
 #define QT_TR_NOOP(x) (x)
 #define QT_TRANSLATE_NOOP(scope, x) (x)
+
+#endif /* __cplusplus */
 
 #endif /* QGLOBAL_H */

@@ -18,12 +18,16 @@
 #ifndef QT_H
 #include "qglobal.h"
 #include "qstring.h"
+#include "qobjectdefs.h"
 #endif // QT_H
 
 class QByteArray;
+class QIODevicePrivate;
 
 class Q_CORE_EXPORT QIODevice
 {
+    Q_DECLARE_PRIVATE(QIODevice);
+
 public:
     typedef Q_LLONG Offset;
 
@@ -60,37 +64,35 @@ public:
         WriteError = 2,
         FatalError = 3,
         ResourceError = 4,
-        // #### Qt4: should these two be still the same?
         OpenError = 5,
-        ConnectError = 5,
-
-        AbortError = 6,
-        TimeOutError = 7,
-        UnspecifiedError = 8
+        ConnectError = 6,
+        AbortError = 7,
+        TimeOutError = 8,
+        UnspecifiedError = 9
     };
 
     QIODevice();
     virtual ~QIODevice();
 
-    int flags() const { return ioMode; }
-    int mode() const { return ioMode & ModeMask; }
-    int state() const { return ioMode & StateMask; }
+    int flags() const;
+    inline int mode() const { return flags() & ModeMask; }
+    inline int state() const { return flags() & StateMask; }
 
-    bool isDirectAccess() const { return ((ioMode & Direct) == Direct); }
-    bool isSequentialAccess() const { return ((ioMode & Sequential) == Sequential); }
-    bool isCombinedAccess() const { return ((ioMode & Combined) == Combined); }
-    bool isBuffered() const { return ((ioMode & Raw) != Raw); }
-    bool isRaw() const { return ((ioMode & Raw) == Raw); }
-    bool isSynchronous() const { return ((ioMode & Async) != Async); }
-    bool isAsynchronous() const { return ((ioMode & Async) == Async); }
-    bool isTranslated() const { return ((ioMode & Translate) == Translate); }
-    bool isReadable() const { return ((ioMode & ReadOnly) == ReadOnly); }
-    bool isWritable() const { return ((ioMode & WriteOnly) == WriteOnly); }
-    bool isReadWrite() const { return ((ioMode & ReadWrite) == ReadWrite); }
-    bool isInactive() const { return state() == 0; }
-    bool isOpen() const { return state() == Open; }
+    inline bool isDirectAccess() const { return (flags() & Direct) == Direct; }
+    inline bool isSequentialAccess() const { return (flags() & Sequential) == Sequential; }
+    inline bool isCombinedAccess() const { return (flags() & Combined) == Combined; }
+    inline bool isBuffered() const { return (flags() & Raw) != Raw; }
+    inline bool isRaw() const { return (flags() & Raw) == Raw; }
+    inline bool isSynchronous() const { return (flags() & Async) != Async; }
+    inline bool isAsynchronous() const { return (flags() & Async) == Async; }
+    inline bool isTranslated() const { return (flags() & Translate) == Translate; }
+    inline bool isReadable() const { return (flags() & ReadOnly) == ReadOnly; }
+    inline bool isWritable() const { return (flags() & WriteOnly) == WriteOnly; }
+    inline bool isReadWrite() const { return (flags() & ReadWrite) == ReadWrite; }
+    inline bool isInactive() const { return state() == 0; }
+    inline bool isOpen() const { return state() == Open; }
 
-    int status() const { return ioSt; }
+    int status() const;
     void resetStatus();
     QString errorString() const;
 
@@ -102,7 +104,7 @@ public:
     virtual Offset at() const;
     virtual bool at(Offset);
     virtual bool atEnd() const;
-    bool reset() { return at(0); }
+    inline bool reset() { return at(0); }
 
     virtual Q_LONG readBlock(char *data, Q_ULONG maxlen) = 0;
     virtual Q_LONG writeBlock(const char *data, Q_ULONG len) = 0;
@@ -115,7 +117,9 @@ public:
     virtual int ungetch(int) = 0;
 
 protected:
-    void setFlags(int f) { ioMode = f; }
+    QIODevice(QIODevicePrivate &d);
+
+    void setFlags(int f);
     void setType(int);
     void setMode(int);
     void setState(int);
@@ -124,16 +128,13 @@ protected:
     void setStatus(int, int);
 
     Offset ioIndex;
+    QIODevicePrivate *d_ptr;
 
 private:
 #if defined(Q_DISABLE_COPY)
     QIODevice(const QIODevice &);
     QIODevice &operator=(const QIODevice &);
 #endif
-
-    int ioMode;
-    int ioSt;
-    QString errStr;
 };
 
 // Compatibility defines
