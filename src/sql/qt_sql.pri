@@ -28,7 +28,8 @@ sql {
 		    $$SQL_P/qsqlmanager_p.h \
 		    $$SQL_H/qdatatable.h \
 		    $$SQL_H/qdataview.h \
-		    $$SQL_H/qdatabrowser.h 
+		    $$SQL_H/qdatabrowser.h \ 
+		    $$SQL_H/qsqlselectcursor.h 
 
 	SOURCES     += $$SQL_CPP/qsqlquery.cpp \
 		    $$SQL_CPP/qsqldatabase.cpp \
@@ -48,7 +49,8 @@ sql {
 		    $$SQL_CPP/qsqlmanager_p.cpp \
 		    $$SQL_CPP/qdatatable.cpp \
 		    $$SQL_CPP/qdataview.cpp \
-		    $$SQL_CPP/qdatabrowser.cpp 
+		    $$SQL_CPP/qdatabrowser.cpp \
+		    $$SQL_CPP/qsqlselectcursor.cpp
 
 	contains(sql-drivers, all ) {
 		sql-driver += psql mysql odbc oci tds
