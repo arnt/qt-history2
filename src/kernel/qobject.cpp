@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#187 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#188 $
 **
 ** Implementation of QObject class
 **
@@ -973,10 +973,9 @@ void QObject::removeChild( QObject *obj )
 	    childObjects = 0;			// reset children list
 	}
 
-	// post a ChildRemoved trusting that the QApplication event
-	// optimization code will clean up
-	QApplication::postEvent( this, new QChildEvent( QEvent::ChildRemoved,
-							obj ) );
+	// remove events must be sent, not posted!!!
+	QChildEvent ce( QEvent::ChildRemoved, obj );
+	QApplication::sendEvent( this, &ce ); 
     }
 }
 

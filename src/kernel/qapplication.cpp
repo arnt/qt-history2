@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#208 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#209 $
 **
 ** Implementation of QApplication class
 **
@@ -120,6 +120,21 @@ QWidgetList *QApplication::popupWidgets= 0;	// has keyboard input focus
 static bool makeqdevel = FALSE;		// developer tool needed?
 static QDeveloper* qdevel = 0;		// developer tool
 static QWidget *desktopWidget	= 0;		// root window widget
+
+
+//Definitions for posted events.
+struct QPostEvent {
+    QPostEvent( QObject *r, QEvent *e ) { receiver=r; event=e; }
+   ~QPostEvent()			{ delete event; }
+    QObject  *receiver;
+    QEvent   *event;
+};
+
+typedef QList<QPostEvent> QPostEventList;
+typedef QListIterator<QPostEvent> QPostEventListIt;
+static QPostEventList *postedEvents = 0;	// list of posted events
+
+static void cleanupPostedEvents();
 
 
 int	 QApplication::app_cspec = QApplication::NormalColor;
@@ -1017,6 +1032,28 @@ bool QApplication::notify( QObject *receiver, QEvent *event )
 	return FALSE;
     }
 
+    
+    if ( receiver->pendEvent && event->type() == QEvent::ChildRemoved ) {
+	// if this is a child remove event an the child insert hasn't been
+	// dispatched yet, kill that insert and return.
+	QObject * c = ((QChildEvent*)event)->child();
+	QPostEventListIt it( *postedEvents );
+	QPostEvent * pe;
+	while( ( pe = it.current()) != 0 ) {
+	    ++it;
+	    if ( pe->event && pe->receiver == receiver &&
+		 pe->event->type() == QEvent::ChildInserted &&
+		 ((QChildEvent*)pe->event)->child() == c ) {
+		postedEvents->take( postedEvents->findRef( pe ) );
+		pe->event->posted = FALSE;
+		delete pe;
+		delete event;
+		return TRUE;
+	    }
+	}
+    }
+
+    
     if ( eventFilters ) {
 	QObjectListIt it( *eventFilters );
 	register QObject *obj;
@@ -1032,7 +1069,7 @@ bool QApplication::notify( QObject *receiver, QEvent *event )
 	 event->type() >= QEvent::MouseButtonPress &&
 	 ( receiver->isWidgetType() &&
 	   !((QWidget *)receiver)->isEnabled() ) )
-	 return FALSE;
+	return FALSE;
 
     // throw away any mouse-tracking-only mouse events
     if ( event->type() == QEvent::MouseMove &&
@@ -1268,18 +1305,7 @@ QString QApplication::translate( const char * scope, const char * key ) const
   QApplication management of posted events
  *****************************************************************************/
 
-struct QPostEvent {
-    QPostEvent( QObject *r, QEvent *e ) { receiver=r; event=e; }
-   ~QPostEvent()			{ delete event; }
-    QObject  *receiver;
-    QEvent   *event;
-};
-
-typedef QList<QPostEvent> QPostEventList;
-typedef QListIterator<QPostEvent> QPostEventListIt;
-static QPostEventList *postedEvents = 0;	// list of posted events
-
-static void cleanupPostedEvents();
+//see also notify(), which does the removal of ChildInserted when ChildRemoved.
 
 /*!
   Stores the event in a queue and returns immediately.
@@ -1306,26 +1332,6 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 	warning( "QApplication::postEvent: Unexpected null receiver" );
 #endif
 	return;
-    }
-
-    if ( receiver->pendEvent && event->type() == QEvent::ChildRemoved ) {
-	// if this is a child remove event an the child insert hasn't been
-	// dispatched yet, kill that insert and return.
-	QObject * c = ((QChildEvent*)event)->child();
-	QPostEventListIt it( *postedEvents );
-	QPostEvent * pe;
-	while( ( pe = it.current()) != 0 ) {
-	    ++it;
-	    if ( pe->event && pe->receiver == receiver &&
-		 pe->event->type() == QEvent::ChildInserted &&
-		 ((QChildEvent*)pe->event)->child() == c ) {
-		postedEvents->take( postedEvents->findRef( pe ) );
-		pe->event->posted = FALSE;
-		delete pe;
-		delete event;
-		return;
-	    }
-	}
     }
 
     receiver->pendEvent = TRUE;
