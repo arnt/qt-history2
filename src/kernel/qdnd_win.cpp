@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#20 $
 **
-** WM_FILES implementation for Qt.
+** Implementation of OLE drag and drop for Qt.
 **
 ** Created : 980320
 **
@@ -753,14 +753,14 @@ QOleDropSource::QueryInterface(REFIID iid, void FAR* FAR* ppv)
 }
 
 
-ULONG
+STDMETHODIMP_(ULONG)
 QOleDropSource::AddRef(void)
 {
     return ++m_refs;
 }
 
 
-ULONG
+STDMETHODIMP_(ULONG)
 QOleDropSource::Release(void)
 {
     if(--m_refs == 0)
@@ -822,14 +822,14 @@ QOleDataObject::QueryInterface(REFIID iid, void FAR* FAR* ppv)
 }
 
 
-ULONG
+STDMETHODIMP_(ULONG)
 QOleDataObject::AddRef(void)
 {
     return ++m_refs;
 }
 
 
-ULONG
+STDMETHODIMP_(ULONG)
 QOleDataObject::Release(void)
 {
     if(--m_refs == 0)
