@@ -22,10 +22,10 @@
 #include "qstringlist.h"
 #endif // QT_H
 
-#if !defined(QT_MODULE_NETWORK) || defined(QT_LICENSE_PROFESSIONAL) || defined(QT_INTERNAL_NETWORK)
+#if defined(QT_LICENSE_PROFESSIONAL) || defined(QT_INTERNAL_NETWORK)
 #define QM_EXPORT_DNS
 #else
-#define QM_EXPORT_DNS Q_NETWORK_EXPORT
+#define QM_EXPORT_DNS Q_COMPAT_EXPORT
 #endif
 
 #ifndef QT_NO_DNS
