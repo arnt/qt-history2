@@ -1037,12 +1037,16 @@ QString& QString::insert(int i, QChar ch)
 QString &QString::append(const QString &str)
 {
     if (str.d != &shared_null) {
-        d->cache = 0;
-        if (d->ref != 1 || d->size + str.d->size > d->alloc)
-            realloc(grow(d->size + str.d->size));
-        // include null terminator
-        memcpy(d->data + d->size, str.d->data, (str.d->size + 1) * sizeof(QChar));
-        d->size += str.d->size;
+        if (d == &shared_null) {
+            operator=(str);
+        } else {
+            d->cache = 0;
+            if (d->ref != 1 || d->size + str.d->size > d->alloc)
+                realloc(grow(d->size + str.d->size));
+            // include null terminator
+            memcpy(d->data + d->size, str.d->data, (str.d->size + 1) * sizeof(QChar));
+            d->size += str.d->size;
+        }
     }
     return *this;
 }
@@ -3616,7 +3620,7 @@ QString& QString::fill(QChar ch, int size)
     Appends the character \a ch to the string.
 */
 
-/*! \fn QString &QString::operator+=(QChar::SpecialChar c)
+/*! \fn QString &QString::operator+=(QChar::SpecialCharacter c)
 
     \overload
 
@@ -3859,7 +3863,7 @@ int QString::localeAwareCompare(const QString &other) const
     }
 #elif defined(Q_OS_UNIX)
     // declared in <string.h>
-    int delta = strcoll(local8Bit(), other.local8Bit());
+    int delta = strcoll(toLocal8Bit(), other.toLocal8Bit());
     if (delta == 0)
         delta = ucstrcmp(*this, other);
     return delta;
@@ -3996,7 +4000,13 @@ QString QString::toLower() const
         QChar *p = (QChar*)d->data;
         if (p) {
             while (l) {
-                if (*p != ::lower(*p)) {
+                bool different;
+                if (p->unicode() & 0xFF80)
+                    different = (*p != ::lower(*p));
+                else
+                    different = ((uint)p->cell() - 'A' < 26);
+
+                if (different) {
                     QString s(*this);
                     p = (QChar*)s.data() + (p - (QChar*)d->data);
                     while (l) {
@@ -4032,7 +4042,13 @@ QString QString::toUpper() const
         QChar *p = (QChar*)d->data;
         if (p) {
             while (l) {
-                if (*p != ::upper(*p)) {
+                bool different;
+                if (p->unicode() & 0xFF80)
+                    different = (*p != ::upper(*p));
+                else
+                    different = ((uint)p->cell() - 'a' < 26);
+
+                if (different) {
                     QString s(*this);
                     p = s.data() + (p - (QChar*)d->data);
                     while (l) {
@@ -5256,7 +5272,6 @@ static ArgEscapeData findArgEscapes(const QString &s)
                 d.escape_len += 2;
         }
     }
-
     return d;
 }
 
