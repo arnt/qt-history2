@@ -15,14 +15,14 @@
 #include <qlayout.h>
 #include <qframe.h>
 #include <qmenubar.h>
-#include <qpopupmenu.h>
+#include <qmenu.h>
 #include <qapplication.h>
 #include "globjwin.h"
 #include "glbox.h"
 
 
-GLObjectWindow::GLObjectWindow( QWidget* parent, const char* name )
-    : QWidget( parent, name )
+GLObjectWindow::GLObjectWindow(QWidget* parent)
+    : QWidget(parent)
 {
 
     // Create a menu
@@ -42,39 +42,40 @@ GLObjectWindow::GLObjectWindow( QWidget* parent, const char* name )
     GLBox* c = new GLBox( f, "glbox");
 
     // Create the three sliders; one for each rotation axis
-    QSlider* x = new QSlider(QSlider::Vertical, this);
+    QSlider* x = new QSlider(Qt::Vertical, this);
     x->setMaximum(360);
     x->setPageStep(60);
     x->setTickmarks( QSlider::Left );
     QObject::connect( x, SIGNAL(valueChanged(int)),c,SLOT(setXRotation(int)) );
 
-    QSlider* y = new QSlider(QSlider::Vertical, this);
+    QSlider* y = new QSlider(Qt::Vertical, this);
     y->setMaximum(360);
     y->setPageStep(60);
     y->setTickmarks( QSlider::Left );
     QObject::connect( y, SIGNAL(valueChanged(int)),c,SLOT(setYRotation(int)) );
 
-    QSlider* z = new QSlider(QSlider::Vertical, this);
+    QSlider* z = new QSlider(Qt::Vertical, this);
     z->setMaximum(360);
     z->setPageStep(60);
     z->setTickmarks( QSlider::Left );
     QObject::connect( z, SIGNAL(valueChanged(int)),c,SLOT(setZRotation(int)) );
 
-
     // Now that we have all the widgets, put them into a nice layout
 
+    // Top level layout, puts the sliders to the left of the frame/GL widget
+    QHBoxLayout* hlayout = new QHBoxLayout(this);
+
     // Put the sliders on top of each other
-    QVBoxLayout* vlayout = new QVBoxLayout( 20, "vlayout");
+    QVBoxLayout* vlayout = new QVBoxLayout();
     vlayout->addWidget( x );
     vlayout->addWidget( y );
     vlayout->addWidget( z );
 
     // Put the GL widget inside the frame
-    QHBoxLayout* flayout = new QHBoxLayout( f, 2, 2, "flayout");
+    QHBoxLayout* flayout = new QHBoxLayout(f);
+    flayout->setMargin(0);
     flayout->addWidget( c, 1 );
 
-    // Top level layout, puts the sliders to the left of the frame/GL widget
-    QHBoxLayout* hlayout = new QHBoxLayout( this, 20, 20, "hlayout");
     hlayout->setMenuBar( m );
     hlayout->addLayout( vlayout );
     hlayout->addWidget( f, 1 );

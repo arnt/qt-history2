@@ -80,7 +80,7 @@ void GLBox::paintGL()
 
 void GLBox::initializeGL()
 {
-    qglClearColor( black ); 		// Let OpenGL clear to black
+    qglClearColor(Qt::black); 		// Let OpenGL clear to black
     object = makeObject();		// Generate an OpenGL display list
     glShadeModel( GL_FLAT );
 }
@@ -113,7 +113,7 @@ GLuint GLBox::makeObject()
 
     glNewList( list, GL_COMPILE );
 
-    qglColor( white );		      // Shorthand for glColor3f or glIndex
+    qglColor(Qt::white);		      // Shorthand for glColor3f or glIndex
 
     glLineWidth( 2.0 );
 
