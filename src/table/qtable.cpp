@@ -256,30 +256,47 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
 // class contains about twenty members and this doesn't mention enough
 // of them to be considered exhaustive.
 
-/*!
-  \class QTableItem qtable.h
+/*! \class QTableItem qtable.h
 
   \brief The QTableItem class provides content for one cell in a QTable.
 
   \module table
 
-  A QTableItem contains the data of a table cell, specifies its edit
-  type and the editor used to change its content. Furthermore, it
-  defines its size, the alignment of the data to display, whether the
-  data can be replaced, and provides the API needed for sorting table
-  items.
+  A QTableItem contains the data of a table cell and provides
+  means to change them. It specifies whether
+  and under which circumstances the cell might be edited by the user 
+  (see EditType) and the kind of editor that is used for changing its 
+  content. 
 
-  Items may contain text and pixmaps and offer a QLineEdit for
-  editing.  By reimplementing paint(), key(), createEditor() and
-  setContentFromEditor() you can change these default settings.
+  Items may contain a text string and one pixmap each. By default 
+  a QLineEdit is provided for editing. 
+
+  Furthermore, a QTableItem defines the cell size and the alignment of 
+  the displayed data. The item defines whether the respective cell 
+  data can be replaced, and whether word wrapping is desired when
+  cell contents exceed the width of the cell. 
+  In addition the QTableItem class provides the API 
+  needed for sorting table items.
+
+  To define another editor you have to reimplement createEditor() and
+  setContentFromEditor(). By reimplementing paint() and adding
+  the relevant set- and "get"-functions custom subclasses of QTableItem
+  may overcome the restriction of one text string and one pixmap per cell.  
+  If sorting is required reimplementing the 
+  key() function might be neccessary.
 
   To get rid of an item, simply delete it. By doing so, all required
-  actions for removing it from the table will be taken.
+  actions for removing it from the table are taken.
 */
 
 /*! \fn QTable *QTableItem::table() const
 
   Returns the QTable the item belongs to.
+
+  Note that this is the parent table object of the item even if
+  the item fills a cell of another table.
+
+  \sa QTable::setItem()
 */
 
 /*! \enum QTableItem::EditType
@@ -542,7 +559,7 @@ QString QTableItem::key() const
     return text();
 }
 
-/*!  This virtual function returns the size a cell needs to show its
+/*! This virtual function returns the size a cell needs to show its
   entire content.
 
   Many custom table items will need to reimplement this function.
@@ -565,7 +582,7 @@ QSize QTableItem::sizeHint() const
     return QSize( s.width() + r.width(), QMAX( s.height(), r.height() ) );
 }
 
-/*!  Creates a multi-cell QTableItem covering \a rs rows and \a cs columns.
+/*! Creates a multi-cell QTableItem covering \a rs rows and \a cs columns.
   The top left corner of the item is at the item's former position.
 */
 
@@ -1921,6 +1938,12 @@ QTableItem *QTable::item( int row, int col ) const
 
   Note that the first row/column is the one with \a row resp. \a col
   being 0.
+
+  A QTableItem might be set to serve as cell content in a table which is
+  not its parent but it can't be set in two or more QTables at the same time. 
+  If it is unavoidable to use the same item in more than one tables remember 
+  to take the item out of the old table using takeItem() before setting it
+  into the new one.
 
   \sa item()
 */
@@ -4066,7 +4089,8 @@ bool QTable::dragEnabled() const
 
 #ifndef QT_NO_DRAGANDDROP
 
-/* Inserts an empty row at the index \a row */
+/*! Inserts an empty row at the index \a row. 
+*/
 
 void QTable::insertRow( int row )
 {
@@ -4081,7 +4105,8 @@ void QTable::insertRow( int row )
     repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight() );
 }
 
-/* Inserts an empty column at the index \a col */
+/*! Inserts an empty column at the index \a col. 
+*/
 
 void QTable::insertColumn( int col )
 {
@@ -4096,7 +4121,8 @@ void QTable::insertColumn( int col )
     repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight() );
 }
 
-/* Removes the row \a row */
+/*! Removes the row \a row. 
+*/
 
 void QTable::removeRow( int row )
 {
@@ -4109,7 +4135,8 @@ void QTable::removeRow( int row )
     setNumRows( numRows() - 1 );
 }
 
-/* Removes the column \a col */
+/*! Removes the column \a col. 
+*/
 
 void QTable::removeColumn( int col )
 {
