@@ -61,6 +61,14 @@
 #include <qpixmapcache.h>
 #include <qbitmap.h>
 
+// FormWindow should be able to work to some limited degree
+// (existance, loading) without a MainWindow. Functions which require
+// a MainWindow in theory should never be called if no MainWindow
+// exists. These macros are used to let us know if that happens anyway
+// and to ensure that we don't crash
+#define CHECK_MAINWINDOW Q_ASSERT( mainWindow() ); if ( !mainWindow() ) return
+#define CHECK_MAINWINDOW_VALUE( v ) Q_ASSERT( mainWindow() ); if ( !mainWindow() ) return v
+
 static void setCursorToAll( const QCursor &c, QWidget *start )
 {
     start->setCursor( c );
@@ -197,6 +205,9 @@ void FormWindow::initSlots()
 {
     if ( isFake() )
 	return;
+    Q_ASSERT( !project() && !MainWindow::self );
+    if ( !project() && !MainWindow::self )
+	return;
     Project *p = project() ? project() : MainWindow::self->currProject();
     if ( p && p->isCpp() ) {
 	QString code = formFile()->code();
@@ -216,7 +227,7 @@ void FormWindow::initSlots()
 
 FormWindow::~FormWindow()
 {
-    if ( MainWindow::self->objectHierarchy()->formWindow() == this )
+    if ( MainWindow::self && MainWindow::self->objectHierarchy()->formWindow() == this )
 	MainWindow::self->objectHierarchy()->setFormWindow( 0, 0 );
 
     MetaDataBase::clear( this );
@@ -227,7 +238,7 @@ FormWindow::~FormWindow()
 
 void FormWindow::closeEvent( QCloseEvent *e )
 {
-    if ( ff->closeEvent() && mainwindow->unregisterClient( this ) )
+    if ( ff->closeEvent() && mainwindow && mainwindow->unregisterClient( this ) )
 	e->accept();
     else
 	e->ignore();
@@ -235,7 +246,7 @@ void FormWindow::closeEvent( QCloseEvent *e )
 
 void FormWindow::paintGrid( QWidget *w, QPaintEvent *e )
 {
-    if ( !mainWindow()->showGrid() )
+    if ( !mainWindow() && !mainWindow()->showGrid() )
 	return;
     QPixmap grid;
     QString grid_name;
@@ -327,6 +338,7 @@ void FormWindow::drawSizePreview( const QPoint &pos, const QString& text )
 
 void FormWindow::insertWidget()
 {
+    CHECK_MAINWINDOW;
     if ( !insertParent )
 	return;
 
@@ -494,6 +506,7 @@ void FormWindow::removeWidget( QWidget *w )
 
 void FormWindow::handleContextMenu( QContextMenuEvent *e, QWidget *w )
 {
+    CHECK_MAINWINDOW;
     switch ( currTool ) {
     case POINTER_TOOL: {
 	if ( !isMainContainer( w ) && qstrcmp( w->name(), "central widget" ) != 0 ) { // press on a child widget
@@ -526,6 +539,7 @@ void FormWindow::handleContextMenu( QContextMenuEvent *e, QWidget *w )
 
 void FormWindow::handleMousePress( QMouseEvent *e, QWidget *w )
 {
+    CHECK_MAINWINDOW;
     checkedSelectionsForMove = FALSE;
     checkSelectionsTimer->stop();
     if ( !sizePreviewLabel ) {
@@ -667,6 +681,7 @@ void FormWindow::handleMousePress( QMouseEvent *e, QWidget *w )
 
 void FormWindow::handleMouseDblClick( QMouseEvent *, QWidget *w )
 {
+    CHECK_MAINWINDOW;
     switch ( currTool ) {
     case ORDER_TOOL:
 	if ( !isMainContainer( w ) ) { // press on a child widget
@@ -695,6 +710,7 @@ void FormWindow::handleMouseDblClick( QMouseEvent *, QWidget *w )
 
 void FormWindow::handleMouseMove( QMouseEvent *e, QWidget *w )
 {
+    CHECK_MAINWINDOW;
     if ( ( e->state() & LeftButton ) != LeftButton )
 	return;
 
@@ -841,6 +857,7 @@ void FormWindow::handleMouseMove( QMouseEvent *e, QWidget *w )
 
 void FormWindow::handleMouseRelease( QMouseEvent *e, QWidget *w )
 {
+    CHECK_MAINWINDOW;
     if ( e->button() != LeftButton )
 	return;
 
@@ -993,6 +1010,7 @@ void FormWindow::handleMouseRelease( QMouseEvent *e, QWidget *w )
 
 void FormWindow::handleKeyPress( QKeyEvent *e, QWidget *w )
 {
+    CHECK_MAINWINDOW;
     e->ignore();
     checkSelectionsTimer->stop();
     if ( !checkedSelectionsForMove &&
@@ -1075,6 +1093,7 @@ void FormWindow::handleKeyRelease( QKeyEvent *e, QWidget * )
 
 void FormWindow::selectWidget( QObject *o, bool select )
 {
+    CHECK_MAINWINDOW;
     if ( !o->isWidgetType() ) {
 	// ########### do QObject stuff
 	return;
@@ -1149,7 +1168,7 @@ void FormWindow::selectWidget( QObject *o, bool select )
 
 QPoint FormWindow::grid() const
 {
-    if ( !mainWindow()->snapGrid() )
+    if ( !mainWindow() || !mainWindow()->snapGrid() )
 	return QPoint( 1, 1 );
     return mainWindow()->grid();
 }
@@ -1376,6 +1395,7 @@ void FormWindow::checkSelectionsForMove( QWidget *w )
 
 void FormWindow::deleteWidgets()
 {
+    CHECK_MAINWINDOW;
     QWidgetList widgets;
     QPtrDictIterator<WidgetSelection> it( usedSelections );
     for ( ; it.current(); ++it ) {
@@ -1560,12 +1580,14 @@ void FormWindow::emitSelectionChanged()
 
 void FormWindow::updatePropertiesTimerDone()
 {
+    CHECK_MAINWINDOW;
     if ( propertyWidget && mainWindow()->formWindow() == this )
 	emit updateProperties( propertyWidget );
 }
 
 void FormWindow::showPropertiesTimerDone()
 {
+    CHECK_MAINWINDOW;
     if ( propertyWidget && mainWindow()->formWindow() == this )
 	emit showProperties( propertyWidget );
 }
@@ -1577,6 +1599,7 @@ void FormWindow::selectionChangedTimerDone()
 
 void FormWindow::currentToolChanged()
 {
+    CHECK_MAINWINDOW;
     toolFixed = FALSE;
     int t = mainwindow->currentTool();
     if ( currTool == t && t != ORDER_TOOL )
@@ -1747,6 +1770,7 @@ int FormWindow::numSelectedWidgets() const
 
 QString FormWindow::copy()
 {
+    CHECK_MAINWINDOW_VALUE( QString::null );
     Resource resource( mainWindow() );
     resource.setWidget( this );
     return resource.copy();
@@ -1786,6 +1810,7 @@ static void find_accel( const QString &txt, QMap<QChar, QWidgetList > &accels, Q
 
 void FormWindow::checkAccels()
 {
+    CHECK_MAINWINDOW;
     QMap<QChar, QWidgetList > accels;
     QObjectList *l = mainContainer()->queryList( "QWidget" );
     if ( l ) {
@@ -1850,6 +1875,7 @@ void FormWindow::raiseWidgets()
 
 void FormWindow::paste( const QString &cb, QWidget *parent )
 {
+    CHECK_MAINWINDOW;
     Resource resource( mainWindow() );
     resource.setWidget( this );
     resource.paste( cb, parent );
@@ -2028,6 +2054,7 @@ void FormWindow::breakLayout( QWidget *w )
 
 BreakLayoutCommand *FormWindow::breakLayoutCommand( QWidget *w )
 {
+    CHECK_MAINWINDOW_VALUE( 0 );
     QObjectList *l = (QObjectList*)w->children();
     if ( !l )
 	return 0;
@@ -2094,6 +2121,7 @@ bool FormWindow::allowMove( QWidget *w )
 
 void FormWindow::editConnections()
 {
+    CHECK_MAINWINDOW;
     buffer = 0;
     if ( !connectSender || !connectReceiver )
 	return;

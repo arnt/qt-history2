@@ -1246,21 +1246,26 @@ void Project::addObject( QObject *o )
     objs.append( o );
     FormFile *ff = new FormFile( "", FALSE, this, "qt_fakewindow" );
     ff->setFileName( "__APPOBJ" + QString( o->name() ) + ".ui" );
-    // ###### QSA-cleanup: formwindow has to work without a MainWindow, fix that here when that works
-    FormWindow *fw = new FormWindow( ff, MainWindow::self,
-				     MainWindow::self->qWorkspace(), "qt_fakewindow" );
+    // if we have no mainwindow, it has to be set later on and the
+    // formwindow needs to get reparented later on into the workspace
+    // too!
+    QWidget *parent = MainWindow::self ? MainWindow::self->qWorkspace() : 0;
+    FormWindow *fw = new FormWindow( ff, MainWindow::self, parent, "qt_fakewindow" );
     fw->setProject( this );
     fakeForms.insert( (void*)o, fw );
     MetaDataBase::addEntry( o );
     if ( QFile::exists( ff->absFileName() ) )
 	Resource::loadExtraSource( fw, ff->absFileName(),
 				   MetaDataBase::languageInterface( language() ), FALSE );
-    // ###### QSA-cleanup: formwindow has to work without a MainWindow, fix that here when that works
-    fw->setMainWindow( MainWindow::self );
+    // if we have no mainwindow, we have to set it when one gets
+    // created!
+    if ( MainWindow::self )
+	fw->setMainWindow( MainWindow::self );
     fw->setProject( this );
     if ( MainWindow::self ) {
 	QApplication::sendPostedEvents( MainWindow::self->qWorkspace(), QEvent::ChildInserted );
-	// #### QSA-cleanup: if we have no MainWindow, we have to make this connection at some later point, when it gets created
+	// if we have no MainWindow, we have to make this connection
+	// at some later point, when it gets created
 	connect( fw, SIGNAL( undoRedoChanged( bool, bool, const QString &, const QString & ) ),
 		 MainWindow::self, SLOT( updateUndoRedo( bool, bool, const QString &, const QString & ) ) );
     }
