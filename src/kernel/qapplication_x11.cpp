@@ -4884,6 +4884,22 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 	}
     }
 
+    // Watch for keypresses and if its a key belonging to the Ctrl-Shift
+    // direction-changing accel, remember it.
+    // We keep track of those keys instead of using the event's state
+    // (to figure out whether the Ctrl modifier is held while Shift is pressed,
+    // or Shift is held while Ctrl is pressed) since the 'state' doesn't tell
+    // us whether the modifier held is Left or Right.
+    if (qt_use_rtl_extensions && type  == QEvent::KeyPress)
+        if (key == XK_Control_L || key == XK_Control_R || key == XK_Shift_L || key == XK_Shift_R) {
+           if (!directionKeyEvent)
+	      directionKeyEvent = key;
+        } else {
+           // this can no longer be a direction-changing accel.
+	   // if any other key was pressed.
+           directionKeyEvent = Key_Space;
+        }
+
     // Commentary in X11/keysymdef says that X codes match ASCII, so it
     // is safe to use the locale functions to process X codes in ISO8859-1.
     //
@@ -4893,14 +4909,11 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
     //
     if ( key < 128 || (key < 256 && (!input_mapper || input_mapper->mibEnum()==4)) ) {
 	code = isprint((int)key) ? toupper((int)key) : 0; // upper-case key, if known
-	directionKeyEvent = Key_Space;
     } else if ( key >= XK_F1 && key <= XK_F35 ) {
 	code = Key_F1 + ((int)key - XK_F1);	// function keys
-	directionKeyEvent = Key_Space;
     } else if ( key >= XK_KP_0 && key <= XK_KP_9) {
 	code = Key_0 + ((int)key - XK_KP_0);	// numeric keypad keys
 	state |= Keypad;
-	directionKeyEvent = Key_Space;
     } else {
 	int i = 0;				// any other keys
 	while ( KeyTbl[i] ) {
@@ -4954,8 +4967,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 			    key == XK_Control_R && directionKeyEvent == XK_Shift_R ) {
 		    directionKeyEvent = Key_Direction_R;
 		}
-	    } else if ( !directionKeyEvent )
-		directionKeyEvent = key;
+	    }
 	    else if ( directionKeyEvent == Key_Direction_L || directionKeyEvent == Key_Direction_R ) {
 		directionKeyEvent = Key_Space; // invalid
 	    }
