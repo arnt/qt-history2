@@ -182,6 +182,27 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
+/*
+  Macro to be used at the beginning of main(), e.g.
+
+   #include <qapplication.h>
+   #include <qmessagebox.h>
+   int main( int argc, char**argv )
+   {
+     QT_REQUIRE_VERSION( argc, argv, "3.0.5" )
+     ...
+   }
+ */
+#define QT_REQUIRE_VERSION( argc, argv, str ) { QString s=QString::fromLatin1(str);\
+QString sq=QString::fromLatin1(qVersion()); if ( (sq.section('.',0,0).toInt()<<16)+\
+(sq.section('.',1,1).toInt()<<8)+sq.section('.',2,2).toInt()<(s.section('.',0,0).toInt()<<16)+\
+(s.section('.',1,1).toInt()<<8)+s.section('.',2,2).toInt() ){if ( !qApp){ int c=0; new \
+QApplication(argc,argv);} QMessageBox::critical( 0, QString::fromLatin1(\
+"Incompatible Qt Library Error" ), QApplication::tr("Executable '%1' requires Qt "\
+ "%2, found Qt %3").arg(QString::fromLatin1(qAppName())).arg(QString::fromLatin1(\
+str)).arg(QString::fromLatin1(qVersion()) ), QMessageBox::Abort,0 ); exit(1); }}
+
+
 #endif // QT_NO_MESSAGEBOX
 
 #endif // QMESSAGEBOX_H
