@@ -25,11 +25,11 @@ fi
 echo -n "Finding code.."
 rm -f $OUTPWD/exports
 CXXFLAGS=
-if [ -f "$DIR/Makefile" ]; then
-  for var in CFLAGS INCPATH; do
-     CXXFLAGS="$CXXFLAGS $(grep "^$var *=" $DIR/Makefile | cut -d'=' -f2-)"
-  done
-fi
+#if [ -f "$DIR/Makefile" ]; then
+#  for var in CFLAGS INCPATH; do
+#     CXXFLAGS="$CXXFLAGS $(grep "^$var *=" $DIR/Makefile | cut -d'=' -f2-)"
+#  done
+#fi
 for export in $EXPORT; do
    EXTRA_CXXFLAGS="$CXXFLAGS -D${EXPORT}=${EXPORT}"
 done
