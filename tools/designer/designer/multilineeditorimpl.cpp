@@ -201,7 +201,7 @@ MultiLineEditor::MultiLineEditor( bool call_static, bool richtextMode, QWidget *
 	textEdit->document()->setUseFormatCollection( FALSE );
 	textEdit->document()->setPreProcessor( new SyntaxHighlighter_HTML );
 
-	if ( !callStatic && editWidget->inherits( "QTextEdit" ) ) {
+	if ( !callStatic && editWidget && editWidget->inherits( "QTextEdit" ) ) {
 	    mlined = (QTextEdit*)editWidget;
 	    mlined->setReadOnly( TRUE );
 	    textEdit->setAlignment( mlined->alignment() );
