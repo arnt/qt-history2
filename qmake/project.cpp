@@ -308,6 +308,7 @@ QMakeProject::read(QString project, QString pwd)
 		    }
 		}
 	    }
+	    Option::cachefile = cachefile;
 	    if(!cachefile.isEmpty()) {
 		read(cachefile, cache);
 		if(Option::qmakepath.isEmpty() && !cache["QMAKEPATH"].isEmpty())

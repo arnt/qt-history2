@@ -952,8 +952,10 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
     if(qmake_path.isEmpty())
 	qmake_path = "qmake"; //hope its in your path
     if(!ofile.isEmpty()) {
-	t << ofile << ": " << pfile << " "
-	  << project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"].join(" \\\n\t\t") << "\n\t"
+	t << ofile << ": " << pfile << " ";
+	if(Option::do_cache)
+	    t << Option::cachefile << " ";
+	t << project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"].join(" \\\n\t\t") << "\n\t"
 	  << qmake_path << " " << args << " " << pfile <<  " -o " << ofile << endl;
     }
 
