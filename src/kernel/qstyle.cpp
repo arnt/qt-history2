@@ -95,9 +95,8 @@ public:
   widget.  Use visualRect() when necessary to translate logical
   coordinates into screen coordinates for drawing.
 
-  ### How about telling people how to use it!
-
 */
+//  ### How about telling people how to use it!
 
 /*!
   \enum Qt::GUIStyle
@@ -1379,19 +1378,6 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
   \sa QApplication::reverseLayout()
 */
-
-/*!
-    \overload
-  \fn QRect QStyle::visualRect( const QRect &logical, const QRect &bounding );
-
-  Returns the rect \a logical in screen coordinates.  The rect \a bounding
-  is used to perform the translation.  This function is provided to aid style
-  implementors in supporting right-to-left mode.
-
-  \sa QApplication::reverseLayout()
-*/
-
-
 QRect QStyle::visualRect( const QRect &logical, const QWidget *w )
 {
     QRect boundingRect = w->rect();
@@ -1402,6 +1388,15 @@ QRect QStyle::visualRect( const QRect &logical, const QWidget *w )
     return r;
 }
 
+/*!
+  \overload QRect QStyle::visualRect( const QRect &logical, const QRect &bounding );
+
+  Returns the rect \a logical in screen coordinates.  The rect \a bounding
+  is used to perform the translation.  This function is provided to aid style
+  implementors in supporting right-to-left mode.
+
+  \sa QApplication::reverseLayout()
+*/
 QRect QStyle::visualRect( const QRect &logical, const QRect &boundingRect )
 {
     QRect r = logical;
@@ -1411,5 +1406,19 @@ QRect QStyle::visualRect( const QRect &logical, const QRect &boundingRect )
     return r;
 }
 
+/*!
+  \fn QStyle::operator GUIStyle() const
+  \obsolete
+*/
+
+/*! 
+  \fn bool QStyle::operator==(GUIStyle s) const
+  \obsolete
+*/
+
+/*!
+  \fn bool QStyle::operator!=(GUIStyle s) const
+  \obsolete
+*/
 
 #endif // QT_NO_STYLE

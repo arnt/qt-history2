@@ -9,8 +9,9 @@
   \ingroup componentmodel
 
   A common usage of components is to extend the existing functionality in an application using plugins. The application
-  defines interfaces that abstracts a certain group of functionality, and a plugin provides a specialized implementation
-  of these interfaces.
+  defines interfaces that abstract a certain group of functionality, and a plugin provides a specialized implementation
+  of one or more of those interfaces.
+
   The QPluginManager template has to be instantiated with an interface definition and the IID for this interface. 
 
   \code
@@ -23,7 +24,7 @@
   of
 
   \code
-  QString QFeatureListInterface::featureList() const
+  QStringList QFeatureListInterface::featureList() const
   \endcode
 
   or
@@ -88,7 +89,8 @@
   there is already a QLibrary object for \a file, this object will be returned.
   The library will stay in memory if the default policy is Immediately, otherwise 
   it gets unloaded again.
-  Note that \a file must not include the platform dependent file extension.
+
+  Note that \a file does not have to include the platform dependent file extension.
 
   \sa removeLibrary(), addLibraryPath()
 */
@@ -98,7 +100,6 @@
 
   Removes the library \a file from the managed list and returns TRUE if the library could
   be unloaded, otherwise returns FALSE.
-  Note that \a file must not include the platform dependend file extension.
 
   \warning
   The QLibrary object for this file will be destroyed.
@@ -109,7 +110,7 @@
 /*!
   \fn void QPluginManager::setDefaultPolicy( QLibrary::Policy pol )
 
-  Sets the default policy for this library manager to \a pol. The default policy is
+  Sets the default policy for this plugin manager to \a pol. The default policy is
   propagated to all newly created QLibrary objects.
 
   \sa defaultPolicy()

@@ -22,24 +22,27 @@
 /*!
   \fn QRESULT  QUnknownInterface::queryInterface( const QUuid &request, QUnknownInterface** iface )
 
-  Returns a pointer to an interface specified with \a request, or NULL
-  if this interface can't provide the requested interface. An
-  implementation of this function must call addRef() on the pointer it
-  returns.
+  Sets \a iface to point to an interface specified with \a request, or 0 if this 
+  interface can't provide the requested interface. An implementation of this function 
+  must call addRef() on the pointer it returns.
+  Possible return values for this function are QS_OK when the call succeeds, or QE_NOINTERFACE
+  if the requested interface cannot be provided.
 
   Example:
   \code
   QRESULT MyComponent::queryInterface( const QUuid &request, QUnknownInterface** iface )
   {
+      *iface = 0;
       if ( request == IID_QUnknownInterface )
           *iface = this;
       else if ( request == IID_... )
           *iface = (...*)this;
       ...
+      else
+          return QE_NOINTERFACE
 
-      if ( *iface )
-          (*iface)->addRef();
-     return;
+     (*iface)->addRef();
+     return QS_OK;
   }
   \endcode
 
@@ -115,9 +118,9 @@
   \preliminary
   \ingroup componentmodel
 
-    The functions provided by QComponentInterface are name(),
-    description(), author() and version(), all of which return a string
-    containing the relevant information.
+  This interface defines the functions name(), description(), 
+  author() and version(), all of which return a string containing 
+  the relevant information.
 */
 
 /*!
@@ -155,7 +158,7 @@
 /*!
   \fn QComponentFactoryInterface::createInstance( const QUuid &cid, const QUuid &iid, QUnknownInterface **iface, QUnknownInterface *outer )
 
-  Creates the component specified by \a cid and sets \a iface to the pointer to the interface \a iid implemented by this component. 
+  Creates the component specified by \a cid and sets \a iface to the point to the interface \a iid implemented by that component. 
   The component can use the \a outer interface for containment and aggregation.
 */
 
@@ -208,8 +211,7 @@
   \preliminary
   \ingroup componentmodel
 
-  This class provides two functions, registerComponents() and
-  unregisterComponents().
+  This interface defines two functions, registerComponents() and unregisterComponents().
 
   \sa QComponentFactory
 */
@@ -236,7 +238,7 @@
   Removes the components in this server from the system registry and returns
   TRUE if successful, otherwise returns FALSE.
 
-  Implementations of this function should use the \link QComponentFactory::registerComponent()
+  Implementations of this function should use the \link QComponentFactory::unregisterComponent()
   static functions \endlink in QComponentFactory
 
   \code
