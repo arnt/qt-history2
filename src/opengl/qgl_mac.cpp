@@ -511,6 +511,7 @@ void QGLWidget::macInternalRecreateContext(const QGLFormat& format, const QGLCon
 		PixMapHandle mac_pm = GetGWorldPixMap((GWorldPtr)gl_pix->handle());
 		aglSetOffScreen((AGLContext)glcx->cx, gl_pix->width(), gl_pix->height(), 
 				GetPixRowBytes(mac_pm), GetPixBaseAddr(mac_pm));
+		oldcx = NULL; //don't bother deleting it
 	    }
 	} else {
 	    if(gl_pix && glcx && glcx->cx) {
