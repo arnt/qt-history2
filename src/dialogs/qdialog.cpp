@@ -57,133 +57,134 @@
 #endif
 
 /*!
-  \class QDialog
-  \brief The QDialog class is the base class of dialog windows.
+    \class QDialog
+    \brief The QDialog class is the base class of dialog windows.
 
-  \ingroup dialogs
-  \ingroup abstractwidgets
-  \mainclass
+    \ingroup dialogs
+    \ingroup abstractwidgets
+    \mainclass
 
-  A dialog window is a top-level window mostly used for short-term
-  tasks and brief communications with the user. QDialogs may be modal
-  or modeless. QDialogs support \link #extensibility
-  extensibility\endlink and can provide a \link #return return
-  value\endlink. They can have \link #default default buttons\endlink.
-  QDialogs can also have a QSizeGrip in their lower-right corner,
-  using setSizeGripEnabled().
+    A dialog window is a top-level window mostly used for short-term
+    tasks and brief communications with the user. QDialogs may be
+    modal or modeless. QDialogs support \link #extensibility
+    extensibility\endlink and can provide a \link #return return
+    value\endlink. They can have \link #default default
+    buttons\endlink. QDialogs can also have a QSizeGrip in their
+    lower-right corner, using setSizeGripEnabled().
 
-  Note that QDialog uses the parent widget slightly differently from
-  other classes in Qt. A dialog is always a top-level widget, but if
-  it has a parent, its default location is centered on top of the
-  parent's top-level widget (if it is not top-level itself). It will 
-  also share the parent's taskbar entry.
+    Note that QDialog uses the parent widget slightly differently from
+    other classes in Qt. A dialog is always a top-level widget, but if
+    it has a parent, its default location is centered on top of the
+    parent's top-level widget (if it is not top-level itself). It will
+    also share the parent's taskbar entry.
 
-  The difference between a modal dialog and a modeless dialog is
-  this:
+    \target modal
+    \section1 Modal Dialogs
+    A <b>modal</b> dialog is a dialog that blocks input to other
+    visible windows in the same application. Users must finish
+    interacting with the dialog and close it before they can access
+    any other window in the application. Dialogs that are used to
+    request a file name from the user or that are used to set
+    application preferences are usually modal.
 
-  \list 1
-  \target modal
-  \i A <b>modal</b> dialog is a dialog that blocks input to other
-  visible windows in the same application. Users must finish
-  interacting with the dialog and close it before they can access any
-  other window in the application. Dialogs that are used to request a
-  file name from the user or that are used to set application
-  preferences are usually modal.
+    The most common way to display a modal dialog is to call its
+    exec() function. When the user closes the dialog, exec() will
+    provide a useful \link #return return value\endlink. Typically we
+    connect a default button, e.g. "OK", to the accept() slot and a
+    "Cancel" button to the reject() slot, to get the dialog to close
+    and return the appropriate value. Alternatively you can connect to
+    the done() slot, passing it \c Accepted or \c Rejected.
 
-  The most common way to display a modal dialog is to call its exec()
-  function. When the user closes the dialog, exec() will provide a
-  useful \link #return return value\endlink. Typically we
-  connect a default button, e.g. "OK", to the accept() slot and a
-  "Cancel" button to the reject() slot, to get the dialog to close
-  and return the appropriate value. Alternatively you can connect to
-  the done() slot, passing it \c Accepted or \c Rejected.
+    An alternative is to call setModal(TRUE), then show(). Unlike
+    exec(), show() returns control to the caller immediately. Calling
+    setModal(TRUE) is especially useful for progress dialogs, where
+    the user must have the ability to interact with the dialog, e.g.
+    to cancel a long running operation. If you use show() and
+    setModal(TRUE) together you must call
+    QApplication::processEvents() periodically during processing to
+    enable the user to interact with the dialog. (See \l
+    QProgressDialog.)
 
-  An alternative is to call setModal(TRUE), then show().
-  Unlike exec(), show() returns control to the caller immediately.
-  Calling setModal(TRUE) is especially useful for progress dialogs,
-  where the user must have the ability to interact with the dialog,
-  e.g. to cancel a long running operation. During the processing, it
-  is necessary to call QApplication::processEvents() periodically to
-  enable the user to interact with the dialog. (See \l QProgressDialog.)
+    \target modeless
+    \section1 Modeless Dialogs
+    A <b>modeless</b> dialog is a dialog that operates
+    independently of other windows in the same application. Find and
+    replace dialogs in word-processors are often modeless to allow the
+    user to interact with both the application's main window and with
+    the dialog.
 
- \target modeless
- \i A <b>modeless</b> dialog is a dialog that operates independently of
-  other windows in the same application. Find and replace dialogs in
-  word-processors are often modeless to allow the user to interact with
-  both the application's main window and the dialog.
+    Modeless dialogs are displayed using show(), which returns control
+    to the caller immediately.
 
-  Modeless dialogs are displayed using show(), which returns control
-  to the caller immediately.
-  \endlist
+    \target default
+    \section1 Default button
 
-  \target default
-  \section1 Default button
+    A dialog's \e default button is the button that's pressed when the
+    user presses Enter (Return). This button is used to signify that
+    the user accepts the dialog's settings and wants to close the
+    dialog. Use QPushButton::setDefault(), QPushButton::isDefault()
+    and QPushButton::autoDefault() to set and control the dialog's
+    default button.
 
-  A dialog's \e default button is the button that's pressed when the user
-  presses Enter (Return). This button is used to signify that the user
-  accepts the dialog's settings and wants to close the dialog. Use
-  QPushButton::setDefault(), QPushButton::isDefault() and
-  QPushButton::autoDefault() to set and control the dialog's default
-  button.
+    \target escapekey
+    \section1 Escape Key
 
-  \target escapekey
-  \section1 Escape Key
+    If the user presses the Esc key in a dialog, QDialog::reject()
+    will be called. This will cause the window to close: the \link
+    QCloseEvent closeEvent \endlink cannot be \link
+    QCloseEvent::ignore() ignored \endlink.
 
-  If the user presses the Esc key in a dialog, QDialog::reject() will
-  be called. This will cause the window to close: the \link
-  QCloseEvent closeEvent \endlink cannot be \link
-  QCloseEvent::ignore() ignored \endlink.
+    \target extensibility
+    \section1 Extensibility
 
-  \target extensibility
-  \section1 Extensibility
+    Extensibility is the ability to show the dialog in two ways: a
+    partial dialog that shows the most commonly used options, and a
+    full dialog that shows all the options. Typically an extensible
+    dialog will initially appear as a partial dialog, but with a
+    "More" toggle button. If the user presses the "More" button down,
+    the full dialog will appear. The extension widget will be resized
+    to its sizeHint(). If orientation is \c Horizontal the extension
+    widget's height() will be expanded to the height() of the dialog.
+    If the orientation is \c Vertical the extension widget's width()
+    will be expanded to the width() of the dialog. Extensibility is
+    controlled with setExtension(), setOrientation() and
+    showExtension().
 
-  Extensibility is the ability to show the dialog in two ways: a
-  partial dialog that shows the most commonly used options, and a full
-  dialog that shows all the options. Typically an extensible dialog
-  will initially appear as a partial dialog, but with a "More" toggle
-  button. If the user presses the "More" button down, the full dialog
-  will appear. The extension widget will be resized to its sizeHint().
-  If orientation is \c Horizontal the extension widget's height() will
-  be expanded to the height() of the dialog. If the orientation is \c
-  Vertical the extension widget's width() will be expanded to the
-  width() of the dialog. Extensibility is controlled with
-  setExtension(), setOrientation() and showExtension().
+    \target return
+    \section1 Return value (modal dialogs)
 
-  \target return
-  \section1 Return value (modal dialogs)
+    Modal dialogs are often used in situations where a return value is
+    required, e.g. to indicate whether the user pressed "OK" or
+    "Cancel". A dialog can be closed by calling the accept() or the
+    reject() slots, and exec() will return \c Accepted or \c Rejected
+    as appropriate. The exec() call returns the result of the dialog.
+    The result is also available from result() if the dialog has not
+    been destroyed. If the \c WDestructiveClose flag is set, the
+    dialog is deleted after exec() returns.
 
-  Modal dialogs are often used in situations where a return value is
-  required, e.g. to indicate whether the user pressed "OK" or
-  "Cancel". A dialog can be closed by calling the accept() or the
-  reject() slots, and exec() will return \c Accepted or \c Rejected as
-  appropriate. The exec() call returns the result of the dialog. The
-  result is also available from result() if the dialog has not been
-  destroyed. If the \c WDestructiveClose flag is set, then when exec()
-  returns the dialog is deleted.
+    \target examples
+    \section1 Examples
 
-  \target examples
-  \section1 Examples
+    A modal dialog.
 
-  A modal dialog.
+    \quotefile network/networkprotocol/view.cpp
+    \skipto QFileDialog *dlg
+    \printuntil return
 
-  \quotefile network/networkprotocol/view.cpp
-  \skipto QFileDialog *dlg
-  \printuntil return
+    A modeless dialog. After the show() call, control returns to the main
+    event loop.
+    \quotefile life/main.cpp
+    \skipto argv
+    \printuntil QApplication
+    \skipto scale
+    \printline
+    \skipto LifeDialog
+    \printuntil show
+    \skipto exec
+    \printuntil }
 
-  A modeless dialog. After the show() call, control returns to the main
-  event loop.
-  \quotefile life/main.cpp
-  \skipto argv
-  \printuntil QApplication
-  \skipto scale
-  \printline
-  \skipto LifeDialog
-  \printuntil show
-  \skipto exec
-  \printuntil }
-
-  \sa QTabDialog QWidget QProgressDialog
-  \link guibooks.html#fowler GUI Design Handbook: Dialogs, Standard\endlink
+    \sa QTabDialog QWidget QProgressDialog
+    \link guibooks.html#fowler GUI Design Handbook: Dialogs, Standard\endlink
 */
 
 /*! \enum QDialog::DialogCode
