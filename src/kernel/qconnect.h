@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qconnect.h#5 $
+** $Id: //depot/qt/main/src/kernel/qconnect.h#6 $
 **
 ** Definition of QConnection class
 **
@@ -37,13 +37,8 @@ private:
     const char *mbr_name;
 };
 
-inline QMember *QConnection::member() const {
-#if defined(_CC_SUN_)
-    QConnection *c=(QConnection*)this;		// avoid warning
-    return &c->mbr;
-#else
-    return (QMember*)&mbr;
-#endif
-}
+inline QMember *QConnection::member() const
+{ return (QMember*)&mbr; }
+
 
 #endif // QCONNECT_H
