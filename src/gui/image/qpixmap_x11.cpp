@@ -813,11 +813,11 @@ QImage QPixmap::toImage() const
         } else {
             image.setNumColors(ncols);        // create color table
         }
-        QColormap cmap = QColormap::instance(data->xinfo.screen());
+        QVector<QColor> colors = QColormap::instance(data->xinfo.screen()).colormap();
         int j = 0;
-        for (i=0; i<256; i++) {                // translate pixels
+        for (i=0; i<colors.size(); i++) {                // translate pixels
             if (use[i])
-                image.setColor(j++, (msk ? 0xff000000 : 0) | (cmap.colorAt(i).rgb() & 0x00ffffff));
+                image.setColor(j++, (msk ? 0xff000000 : 0) | (colors.at(i).rgb() & 0x00ffffff));
         }
     }
     if (data->optim != BestOptim) {                // throw away image data
