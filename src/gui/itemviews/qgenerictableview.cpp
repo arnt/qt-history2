@@ -262,13 +262,21 @@ QModelIndex QGenericTableView::moveCursor(QAbstractItemView::CursorAction cursor
     QModelIndex bottomRight = model()->bottomRight(root());
     switch (cursorAction) {
         case QAbstractItemView::MoveUp:
-            return model()->index(current.row() - 1, current.column(), root());
+            if (current.row() > 0)
+                return model()->index(current.row() - 1, current.column(), root());
+            break;
         case QAbstractItemView::MoveDown:
-            return model()->index(current.row() + 1, current.column(), root());
+            if (current.row() < bottomRight.row())
+                return model()->index(current.row() + 1, current.column(), root());
+            break;
         case QAbstractItemView::MoveLeft:
-            return model()->index(current.row(), current.column() - 1, root());
+            if (current.column() > 0)
+                return model()->index(current.row(), current.column() - 1, root());
+            break;
         case QAbstractItemView::MoveRight:
-            return model()->index(current.row(), current.column() + 1, root());
+            if (current.column() < bottomRight.column())
+                return model()->index(current.row(), current.column() + 1, root());
+            break;
         case QAbstractItemView::MoveHome:
             return model()->index(0, current.column(), root());
         case QAbstractItemView::MoveEnd:

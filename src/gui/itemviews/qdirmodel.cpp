@@ -245,6 +245,7 @@ public:
 
     QFileIconProvider *iconProvider;
     QFileIconProvider defaultProvider;
+
 };
 
 #define d d_func()
@@ -285,6 +286,8 @@ void QDirModel::init(const QDir &directory)
 QModelIndex QDirModel::index(int row, int column, const QModelIndex &parent, QModelIndex::Type type) const
 {
     QDirModelPrivate::QDirNode *p = static_cast<QDirModelPrivate::QDirNode*>(parent.data());
+    if (column < 0 || column >= 4)
+        return QModelIndex();
     if (p && p->children.isEmpty())
 	p->children = d->children(p);
     QDirModelPrivate::QDirNode *n = d->node(row, p);
