@@ -147,7 +147,8 @@ int QDesktopWidget::screenNumber( QWidget *widget ) const
     if ( !widget )
 	return d->defaultScreen;
     QRect frame = widget->frameGeometry();
-    frame.moveTopLeft( widget->mapToGlobal( frame.topLeft() ) );
+    if ( !widget->isTopLevel() )
+	frame.moveTopLeft( widget->mapToGlobal( frame.topLeft() ) );
 
     int maxSize = -1;
     int maxScreen = d->defaultScreen;
