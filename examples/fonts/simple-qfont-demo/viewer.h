@@ -27,7 +27,7 @@ private:
     void layout();
     void showFontInfo( QFont & );
 
-    QTextView * textView; 
+    QTextView * greetings; 
     QTextView * fontInfo;
 
     QPushButton * defaultButton;

@@ -8,7 +8,7 @@
 #include <qlayout.h>
  
 Viewer::Viewer()
-       :QWidget()  
+       :QWidget()
 {
     setFontSubstitutions();
 
@@ -16,9 +16,9 @@ Viewer::Viewer()
     QString greeting_ru = QString::fromUtf8( "Здравствуйте" ); 
     QString greeting_en( "Hello" );      
 
-    textView = new QTextView( this, "textview" );
+    greetings = new QTextView( this, "textview" );
 
-    textView->setText( greeting_en + "\n" + 
+    greetings->setText( greeting_en + "\n" + 
                        greeting_ru + "\n" +
                        greeting_heb );
 
@@ -55,7 +55,7 @@ void Viewer::setDefault()
     font.setWeight( QFont::Bold );
     font.setUnderline( TRUE );
 
-    textView->setFont( font );    
+    greetings->setFont( font );    
 
     showFontInfo( font );
 }
@@ -64,7 +64,7 @@ void Viewer::setSansSerif()
 {
     QFont font( "Newyork", 18 );    
     font.setStyleHint( QFont::SansSerif ); 
-    textView->setFont( font );    
+    greetings->setFont( font );    
 
     showFontInfo( font );
 }
@@ -76,7 +76,7 @@ void Viewer::setItalics()
     font.setWeight( QFont::Bold );
     font.setItalic( TRUE );    
 
-    textView->setFont( font );    
+    greetings->setFont( font );    
 
     showFontInfo( font );
 }
@@ -133,7 +133,7 @@ void Viewer::setFontSubstitutions()
 void Viewer::layout()
 {
     QHBoxLayout * textViewContainer = new QHBoxLayout(); 
-    textViewContainer->addWidget( textView );
+    textViewContainer->addWidget( greetings );
     textViewContainer->addWidget( fontInfo );
 
     QHBoxLayout * buttonContainer = new QHBoxLayout(); 

@@ -8,31 +8,36 @@ $Id$
 
 \title Walkthrough: A simple QFont demonstration
 
-The following \link simple-font-demo-example.html example \endlink
-shows how to make use of the font setting and manipulation techniques  
+The following walkthrough
+will show you how to make use of the font setting and manipulation techniques  
 provided by QFont.
 
-In addition it shows some aspects of widget layout -- if you prefer leaving
-this job to Qt Designer simply skip the relevant paragraphs. Moreover, if you
+In addition it will show some aspects of widget layout -- if you prefer leaving
+this job to Qt Designer simply skip the \link #layout() relevant paragraphs.\endlink 
+Moreover, if you
 have asked yourself how to add strings to a QStringList and how to
-step through its members, you will know after reading this walkthrough.
+step through its members, you will know after reading this walkthrough,
+or skipping to the relevant explanations in \link #showFontInfo()_QStringList 
+Viewer::showFontInfo() \endlink and \link #setFontSubstitutions() 
+Viewer::setFontSubstitutions(). \endlink
 
-To get most out of the example you should at least be familiar with
+To get the most out of the walkthrough you should at least be familiar with
 \link signalsandslots.html signals and slots. \endlink
 
-The example program consists of a main window split into two \l{QTextView}s.
-The one to the left shows greetings in English, Russian, and Hebrew.
-To the right we reveal some information about the fonts used to
+The \link simple-font-demo-example.html example program \endlink 
+consists of a widget containing two \l{QTextView}s side by side.
+The one on the left shows greetings in English, Russian, and Hebrew.
+The one on the right shows some information about the fonts used to
 draw these greetings. Three push buttons in the bottom of the main window
 change the font used to display the greetings.
 
-Note that the fonts and font characteristics in the example have been choosen
-for demonstration purposes only -- in a real life application they
+Note that the fonts and font characteristics in the example have been chosen
+for demonstration purposes only -- in a real world application they
 would rather count for bad design. 
 
-<h3><a name="viewer.h">The API of the main window</a></h3>
+<h3><a name="viewer.h">The API of the custom widget</a></h3>
 
-The main window used in this example is an object of a custom class named
+The widget used in this example is a custom widget named
 \e Viewer.
 
 \walkthrough fonts/simple-qfont-demo/viewer.h
@@ -42,7 +47,7 @@ The main window used in this example is an object of a custom class named
 
 As we derive it from QWidget we include the relevant header file.
 Additionally we use a QFont object as a function argument, and
-therefore include the QFont API.
+therefore include the QFont class.
 
 \printline QTextView
 \printline QPushButton
@@ -54,13 +59,13 @@ include them at this stage yet because we only use pointers to these classes).
 \printline Viewer
 \printuntil Q_OBJECT
 
-The \e Viewer class will have slots, so don't forget to add the
+The \e Viewer widget will have slots, so don't forget to add the
 \e Q_OBJECT macro.
 
 \printuntil Viewer()
 
-As we won't use more than one object of this class 
-there is no need for complex constructors, a simple one without
+As we won't use more than one instance of this class 
+there is no need for any complex constructors, a simple one without
 any arguments should be sufficient.
 
 \printuntil setDefault
@@ -81,26 +86,25 @@ and ...
 
 \printuntil setFontSubstitutions
 
-The greetings we write use different alphabets. For users who don't
+Will will write the greetings using different alphabets. For users who don't
 have Unicode fonts installed we want to tell the application to try
 to exchange missing characters in one font with appropriate characters
 from other fonts. QFont does such font substitutions on its own but
 with \link #setFontSubstitutions() this helper function \endlink
-we define our preferred substitution pattern.
+we can define our preferred substitution pattern.
 
 \printline layout
 
-The task of putting the buttons and text views together we source out into 
+The task of putting the buttons and text views together we will put into 
 a separate \link #layout() layout() \endlink function. 
-Not only it makes the code cleaner -- you can simply 
-skip this bit if you usually create your layouts with Qt Designer.
+This will make the code easier to understand and read.
 
 \printline showFontInfo
 
 \link #showFontInfo() The last private function \endlink reveals 
-font information in the text view to the right.
+font information in the text view on the right.
 
-\printline textView
+\printline greetings
 \printuntil italicsButton
 \printline };
 
@@ -109,18 +113,18 @@ class variables.
 
 
 
-<h3><a name="viewer.cpp">The main window implemented</a></h3>
+<h3><a name="viewer.cpp">The implementation of the Viewer widget</a></h3>
 
-Now let's implement the \e Viewer class.
+Now we will implement the \e Viewer class.
 
 \walkthrough fonts/simple-qfont-demo/viewer.cpp
 \skipto include
 \printuntil qlayout
 
 First we include the relevant header files -- obviously the 
-\link #viewer.h API of the Viewer class \endlink itself,
+\link #viewer.h header of the Viewer class \endlink itself,
 of the QPushButton and QTextView widgets, and of the QString
-and QStringList helper classes. \e qlayout.h provides
+and QStringList classes. \e qlayout.h provides
 classes for horizontal and vertical layout and will be used
 in the \link #layout() layout() \endlink function.
 
@@ -147,42 +151,41 @@ To use them in a QString we "import" them with QString::fromUtf8().
 
 \printline greeting_en
 
-Much less trouble we have with the English greeting... 
+Dor the English greeting we use a simple QString. 
 
-\printline textView
+\printline greetings
 
-Now we create the first widget as a child of \e this main window, 
-the QTextView with the identity string \e textview that shows the greetings. 
+Now we create the first widget as a child of \e this widget, 
+the QTextView with the identity name \e textview that shows the greetings. 
 
 \printline setText
 \printuntil greeting_heb
 
-Now we merge the three greetings with line breaks in between and make
-them the text to be shown by \e textView.
+Now we set the text shown by \e greetings to the three greetings.
 
 \printline fontInfo
 
-The second text view to the right we call \e fontinfo and create
-it as a child of \e this \e Viewer object.
+The second text view we call \e fontinfo and create
+it as a child of \e this \e Viewer widget.
 
 \printline setDefault
 
 Using the \link #setDefault() setDefault() \endlink function we
-apply the initial font to the \e textView greetings and 
-fill the \e{textView}er window with information about  
-the used font.
+apply the initial font to the greetings \e greetings and 
+fill the \e{fontInfo} textview with information about  
+the font used.
 
 \printline defaultButton
 \printline pushbutton1
 
 Now we create the first of the three push buttons -- the one
-that leads back to the initial fonts -- with the label \e Default.
+that changes the font to the initial one -- with the label \e Default.
 
 \printline times
 
 The label should be printed in a member font of the Times family.
 In the unlikely case that the user does not have installed a
-matching font, QFont is responsible to find a replacement.
+matching font, QFont is responsible in finding a replacement.
 Note that case-sensitivity is no issue when specifying the font family.
 
 As we don't explicitly request a font size or weight, QFont tries to
@@ -194,20 +197,20 @@ find a default 12 pt font with normal boldness.
 In order to make something happening when the user clicks the
 \e defaultButton, we connect the QPushButton::clicked() signals
 issued from it to the \e{Viewer}'s \link #setDefault() setDefault() \endlink
-function.
+slot.
 
 \printline sansSerifButton
 \printuntil Helvetica 
 
 The newly created second button is labelled \e{Sans Serif}
-in a 12 pt Helvetica font. Again: if this is not possible because
+in a 12 pt Helvetica font. Again if this is not possible because
 the requested font is not available on the system, QFont deals
 with it and finds a replacement.
 
 \printline connect
 \printline setSansSerif
 
-The clicked() signal of the \e sansSerifButton we connect
+We connect the clicked() signal of the \e sansSerifButton 
 to the \link #setSansSerif() setSansSerif() \endlink slot.
 
 \printline italicsButton
@@ -215,15 +218,15 @@ to the \link #setSansSerif() setSansSerif() \endlink slot.
 
 \e italicsButton, the last push button, is labelled \e{Italics}.
 This time we specify even more characteristics of the
-label font: We wish it to be a 12 pt bold member of the Lucida family.
-Furthermore it should be italic, indicated by the fourth QFont argument
+label font. We wish it to be a 12 pt bold member of the Lucida family.
+Also it should be in italics, indicated by the fourth QFont argument
 being TRUE.
 
 \printline connect
 \printline setItalics
 
 Again, the \e{italicsButton}'s clicked() signal is connected to
-a slot of \e this \e Viewer object: \link #setItalics() setItalics().\endlink
+a slot of \e this \e Viewer object \link #setItalics() setItalics().\endlink
 
 \printline layout
 \printline }
@@ -237,7 +240,7 @@ nicely using \link #layout() layout(). \endlink
 \printuntil font
 
 For demonstration purposes on how the QFont substitution works
-we use a phantasy font family, Bavaria, as the default font for
+we use a non-existant font family, Bavaria, as the default font for
 the greetings.
 
 \printline 24
@@ -250,24 +253,24 @@ This font should have a size of 24 points, ...
 
 \printline TRUE
 
-... and the text written with it should be underlined.
+... and the text written should be underlined.
 
-\printline textView
+\printline greetings
 
-Now we ask the \e textView widget to use this \e font.
+Now we ask the \e greetings widget to use the font \e font.
 
 As a member of the Bavaria font family is unlikely to
 be installed on your machine, run the program and observe
-how QFont finds a substitute. Note that we define
-custom substitutions for Bavaria in \link #setFontSubstitutions()
-setFontSubstitutions(). \endlink
+how QFont finds a substitute. Later on we will define
+custom substitutions for Bavaria in the \link #setFontSubstitutions()
+setFontSubstitutions() \endlink function.
 
 \printline showFontInfo
 \printline }
 
-Finally we use the custom function \link #showFontInfo()
+Finally we use the function \link #showFontInfo()
 showFontInfo() \endlink to display appropriate information
-about the fonts used and required for drawing the greetings.
+about the current font and how it maybe differs from the one requested.
 
 
 <a name="setSansSerif()"></a>
@@ -276,8 +279,8 @@ about the fonts used and required for drawing the greetings.
 \printuntil Newyork
 
 The slot to change the greeting font to sans serif
-works quite similar to \link #setDefault() setDefault(). \endlink
-Here we save a line of code and define the (phantasy) font family (NewYork)
+is quite similar to \link #setDefault() setDefault(). \endlink
+Here we save a line of code and define the (non-existant) font family (NewYork)
 and size (18 points) at once.
 
 \printline font.setStyleHint
@@ -287,17 +290,17 @@ We use a style hint to ask QFont for a sans serif font
 
 As a member of the NewYork family is quite unlikely to be installed
 on your computer, QFont will try to follow the style hint and the font size
-and use these information to find a replacement font.
+and use this information to find a replacement font.
 
 \printline setFont
 
 Finally we apply the requested font to the content of the
-\e textView window ...
+\e greetings textview ...
 
 \printline showFontInfo
 \printline }
 
-... and display the appropriate font information. 
+... and display the appropriate font information in the \e fontInfo textview. 
 
 
 <a name="setItalics()"></a>
@@ -309,18 +312,18 @@ Finally we apply the requested font to the content of the
 \printline TRUE
 
 The \link #setItalics() setItalics() \endlink slot changes the greetings'
-font to a 32 pt bold and italic member of the (again phantasy)
+font to a 32 pt bold and italic member of the (again non-existant)
 Tokyo family. Note that \link #setFontSubstitutions()
 setFontSubstitutions() \endlink defines a substitution family for Tokyo. 
 
 \printline setFont
 
-We ask \e textView to deploy \e font, and ...
+We set the font of the \e greetings textview to \e font, and ...
 
 \printline showFontInfo( font ); 
 \printline }
 
-... again display the appropriate font information.
+... display the appropriate font information in the \e fontInfo textview.
 
 
 <a name="showFontInfo()"></a>
@@ -328,18 +331,19 @@ We ask \e textView to deploy \e font, and ...
 \printline Viewer::showFontInfo
 \printline {
 
-Now, how do we do this?
+Now, how do we show the font information?
 
 \printline info
 
 First we obtain information about the font that is actually used 
-when \e font is required, and store it in \e info.
+when the font \e font is required, and store it in \e info.
 
 \printline messageText
 \printuntil font.family
 
-Then we start compiling the message we wish to show to the world:
-first we print out the \e requested font family. As we want to
+Then we start compiling the message that we want to show in the \e fontInfo
+textview.
+First, we print out the \e requested font family name. As we want to
 frame the family name with quotation marks, we have to escape the \e "
 character so that it is not confused with the C++ quotation marks
 used to terminate strings.
@@ -347,13 +351,13 @@ used to terminate strings.
 \printline font.pointSize
 
 We obtain the \e requested font size in points and convert it to
-a QString using QString::number(). With \e &lt;BR&gt; we add a rich-text
+a QString using QString::number(). Using \e &lt;BR&gt; we add a rich-text
 linebreak to the \e messageText string.
 
 \printline used
 
 After we have displayed information about the \e required font
-we want to contrast it with the \e actually used one.
+we want to contrast it with the one \e actually used.
 This is stored in the QFontInfo \e info variable. 
 
 \printline info.family()
@@ -362,13 +366,14 @@ First we display the font family, ...
 
 \printuntil info.pointSize()
 
-... and then we add the actual font size, converted to a QString,  
+... and then we append the actual font size, converted to a QString,  
 to the message string. The unit abbreviation and a rich-text
 paragraph (\e{&lt;P&gt;}) follow.
 
 If custom substitutions are available for the requested \e font,
-we're going to disclose them as well:
+we're going to show them as well:
 
+<a name="showFontInfo()_QStringList"></a>
 \printline substitutions
 
 First we store the entire list of substitutes in a string list.
@@ -404,18 +409,19 @@ of the substitute), ...
 
 \printline </UL>
 
-Finally we add the end-of-bullet-list rich-text tag to the \e messageText.
+Finally we add the end-of-bullet-list rich-text tag to the \e messageText
+string.
 
 \printuntil font.family
 \printline }
 
-If the substitution list was empty, we instead make a note about
-it in the \e messageText.
+If the substitution list was empty, we make a note about
+it in the \e messageText string.
 
 \printuntil }
 
-Now that we have the \e messageText ready we enter it into
-the \e fontInfo QTextView.
+Now that we have the \e messageText string ready we enter it into
+the \e fontInfo textview.
 
 
 \printline setFontSubstitutions()  
@@ -431,7 +437,7 @@ All we need is a string list.
 \printline substitutes.append 
 \printuntil <<
 
-In a real life program you will probably stick to one of the above
+In a real world application you will probably stick to one of the above
 methods to add strings to a string list. Here all possible ones are outlined
 to give you an overview. 
 
@@ -457,7 +463,7 @@ QFont::insertSubstitution() instead of QFont::insertSubstitutions().
 If you usually create your GUIs using Qt Designer this walkthrough
 has already come to an end. If this is one of your first encounters
 with Qt you might however continue with the explanation
-of the -- very simple -- \link #simple-qfont-demo.cpp main() program. \endlink
+of the very simple \link #simple-qfont-demo.cpp main() function. \endlink
 
 
 <a name="layout()"></a>
@@ -472,30 +478,30 @@ layout for the three push buttons and the two text views.
 
 The best solution for this task is to have the two \l{QTextView}s
 lined up horizontally. The same applies to the \l{QPushButton}s.
-Finally both of these layouts are placed together in a vertical
+Finally both of these layouts are placed together into a vertical
 layout container. Qt takes care of the proportions so that everything
-looks harmoniously.
+looks nice.
 
 \printline QHBoxLayout
 
-Let's create a first container that aligns its members horizontally, ...
+Let's create the first layout that aligns its members horizontally, ...
 
-\printline textView
+\printline greetings
 
 ... and add the QTextView with the greetings, ...
 
 \printline fontInfo
 
 ... as well as the text view with the font information. \e fontInfo appears
-to the left of \e textView because it was added later.
+to the right of \e greetings because it was added later.
 
 \printline buttonContainer
 
-Now we create the second container for the push buttons.
+Now we create the second layout for the push buttons.
 
 \printline defaultButton
 
-\e defaultButton is placed on the left hand site of the container, ...
+\e defaultButton is placed on the left hand side of the layout, ...
 
 \printline sansSerifButton
 
@@ -503,12 +509,12 @@ Now we create the second container for the push buttons.
 
 \printline italicsButton
 
-... and \e italicsButton on the right hand site.
+... and \e italicsButton on the right hand side.
 
-Unfortunately we face a tiny problem: remember that -- a highly unusual
-thing to do in a real life application -- the labels of the three
+Unfortunately we face a tiny problem: remember that (a highly unusual
+thing to do in a real world application) the labels of the three
 buttons are drawn in different fonts. Whilst the automatic layout
-cares for that all three buttons have the same width, the uncommon
+accounts for the fact all three buttons have the same width, the uncommon
 occurence of different character heights leads to different button heights.
 
 To make the application window look nice we have to help it a little.
@@ -530,11 +536,11 @@ left:
 
 \printline container
 
-We create a container that arranges its members vertically.
+We create a layout that arranges its members vertically.
 
 \printline textViewContainer
 
-This \e container contains the text views on top, ...
+This \e container layout contains the text views on top, ...
 
 \printline buttonContainer
 
@@ -543,20 +549,20 @@ This \e container contains the text views on top, ...
 \printline resize
 \printline }
 
-Finally we set the size of the entire main window to a width of 700 points
-and a height of 250 points.
+Finally we set the size of the entire main window to a width of 700 pixels
+and a height of 250 pixels.
 
 
 <h3><a name="simple-qfont-demo.cpp">The main program</a></h3>
 
-The main program is not much to say about.
+There is not much to say about the main program.
 
 \walkthrough fonts/simple-qfont-demo/simple-qfont-demo.cpp
 \skipto include
 \printline include
 \printuntil textViewer
 
-We create an object of the \link #viewer.cpp Viewer \endlink
+We create an instance of the \link #viewer.cpp Viewer \endlink
 class, ...
 
 \printline MainWidget
@@ -570,7 +576,7 @@ class, ...
 \printline exec
 \printline }
 
-... and enter the application loop.
+... and enter the application loop. Well done, that was all for today ...
 
 
 */
