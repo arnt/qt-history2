@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#239 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#240 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -308,6 +308,50 @@ QImage::QImage( const QImage &image )
     data->ref();
 }
 
+/*!
+  Constructs an image that uses an existing memory buffer.
+  The buffer must remain valid for the life of the QImage.  The image
+  will not delete the buffer at destruction.
+
+  If colortable is 0, a color table sufficient for \a numColors will be
+  allocated (and destructed later).
+*/
+QImage::QImage( uchar* yourdata, int w, int h, int depth,
+		QRgb* colortable, int numColors,
+		Endian bitOrder )
+{
+    data = new QImageData;
+    init();
+    data->w = w;
+    data->h = h;
+    data->d = depth;
+    data->ncols = numColors;
+    switch ( depth ) {
+      case 1:
+	data->nbytes = (w+7)/8*h;
+	break;
+      case 8:
+	data->nbytes = w*h;
+	break;
+      case 32:
+	data->nbytes = w*h*4;
+	break;
+    }
+    if ( colortable || !numColors ) {
+	data->ctbl = colortable;
+	data->ctbl_mine = FALSE;
+    } else {
+        data->ctbl = new QRgb[numColors];
+	data->ctbl_mine = TRUE;
+    }
+    uchar** jt = (uchar**)malloc(h*sizeof(uchar*));
+    int bpl = data->nbytes/h;
+    for (int j=0; j<h; j++) {
+	jt[j] = yourdata+j*bpl;
+    }
+    data->bits = jt;
+    data->bitordr = bitOrder;
+}
 
 /*!
   Destroys the image and cleans up.
@@ -714,13 +758,16 @@ void QImage::setNumColors( int numColors )
 	return;
     if ( numColors == 0 ) {			// use no color table
 	if ( data->ctbl ) {
-	    free( data->ctbl );
+	    if ( data->ctbl_mine )
+		free( data->ctbl );
+	    else
+		data->ctbl_mine = TRUE;
 	    data->ctbl = 0;
 	}
 	data->ncols = 0;
 	return;
     }
-    if ( data->ctbl ) {				// already has color table
+    if ( data->ctbl && data->ctbl_mine ) {	// already has color table
 	data->ctbl = (QRgb*)realloc( data->ctbl, numColors*sizeof(QRgb) );
 	if ( data->ctbl && numColors > data->ncols )
 	    memset( (char *)&data->ctbl[data->ncols], 0,
@@ -886,6 +933,7 @@ void QImage::freeBits()
     if ( data->bits ) {				// dealloc image bits
 	free( data->bits );
 	data->bits = 0;
+	data->bits_mine = TRUE;
     }
 }
 

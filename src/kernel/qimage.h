@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#80 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#81 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -63,6 +63,9 @@ public:
     QImage( const QString &fileName, const char* format=0 );
     QImage( const char *xpm[] );
     QImage( const QByteArray &data );
+    QImage( uchar* data, int w, int h, int depth,
+		QRgb* colortable, int numColors,
+		Endian bitOrder );
     QImage( const QImage & );
    ~QImage();
 
@@ -174,6 +177,8 @@ private:
 	int	dpmy;				// dots per meter Y (or 0)
 	QPoint	offset;				// offset in pixels
 	QImageDataMisc* misc;			// less common stuff
+	bool    bits_mine;			// this allocated bits
+	bool    ctbl_mine;			// this allocated ctbl
     } *data;
 
     QImageDataMisc& misc() const;
