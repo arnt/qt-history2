@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#46 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#47 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#46 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#47 $")
 
 
 /*----------------------------------------------------------------------------
@@ -341,7 +341,6 @@ void QPushButton::drawButton( QPainter *paint )
 	p->drawRoundRect( x1, y1, x2-x1+1, y2-y1+1, 20, 20 );
     }
     else if ( gs == WindowsStyle ) {		// Windows push button
-	QPointArray a;
 	if ( isDown() ) {
 	    if ( defButton ) {
 		p->setPen( black );
@@ -349,17 +348,8 @@ void QPushButton::drawButton( QPainter *paint )
 		p->setPen( g.dark() );
 		p->drawRect( x1+1, y1+1, x2-x1-1, y2-y1-1 );
 	    }
-	    else {
-		a.setPoints( 3, x1,y2-1, x1,y1, x2-1,y1 );
-		p->setPen( g.dark() );
-		p->drawPolyline( a );
-		a.setPoints( 3, x1+1,y2-2, x1+1,y1+1, x2-2,y1+1 );
-		p->setPen( black );
-		p->drawPolyline( a );
-		a.setPoints( 3, x1,y2, x2,y2, x2,y1 );
-		p->setPen( g.light() );
-		p->drawPolyline( a );
-	    }
+	    else
+		drawWinButton( p, x1, y1, w, h, g, TRUE );
 	}
 	else {
 	    if ( defButton ) {
@@ -368,18 +358,7 @@ void QPushButton::drawButton( QPainter *paint )
 		x1++; y1++;
 		x2--; y2--;
 	    }
-	    a.setPoints( 3, x1,y2-1, x1,y1, x2-1,y1 );
-	    p->setPen( g.light() );
-	    p->drawPolyline( a );
-	    a.setPoints( 3, x1+1,y2-2, x1+1,y1+1, x2-2,y1+1 );
-	    p->setPen( g.background() );
-	    p->drawPolyline( a );
-	    a.setPoints( 3, x1+1,y2-1, x2-1,y2-1, x2-1,y1+1 );
-	    p->setPen( g.dark() );
-	    p->drawPolyline( a );
-	    a.setPoints( 3, x1,y2, x2,y2, x2,y1 );
-	    p->setPen( black );
-	    p->drawPolyline( a );
+	    drawWinButton( p, x1, y1, x2-x1+1, y2-y1+1, g, FALSE );
 	}
 	if ( updated )
 	    p->fillRect( x1+2, y1+2, x2-x1-3, y2-y1-3, g.background() );
