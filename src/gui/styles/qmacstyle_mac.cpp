@@ -1486,9 +1486,7 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
     switch (pe) {
     case QStyle::PE_Q3CheckListExclusiveIndicator:
     case QStyle::PE_Q3CheckListIndicator:
-    case QStyle::PE_IndicatorRadioButtonMask:
     case QStyle::PE_IndicatorRadioButton:
-    case QStyle::PE_IndicatorCheckBoxMask:
     case QStyle::PE_IndicatorCheckBox: {
     bool hasClickThrough = (!(opt->state & QStyle::State_Active))
                                     && opt->palette.currentColorGroup() == QPalette::Active;
@@ -1502,7 +1500,6 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
                 && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
             bdi.adornment |= kThemeAdornmentFocus;
         bool isRadioButton = (pe == QStyle::PE_Q3CheckListExclusiveIndicator
-                              || pe == QStyle::PE_IndicatorRadioButtonMask
                               || pe == QStyle::PE_IndicatorRadioButton);
         switch (qt_aqua_size_constrain(w)) {
         case QAquaSizeUnknown:
@@ -1536,19 +1533,10 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
         else
             bdi.value = kThemeButtonOff;
         HIRect macRect = qt_hirectForQRect(opt->rect, p);
-        if (pe == QStyle::PE_IndicatorCheckBoxMask || pe == QStyle::PE_IndicatorRadioButtonMask) {
-            QRegion saveRegion = p->clipRegion();
-            QCFType<HIShapeRef> macRegion;
-            HIThemeGetButtonShape(&macRect, &bdi, &macRegion);
-            p->setClipRegion(qt_mac_convert_mac_region(macRegion));
-            p->fillRect(opt->rect, Qt::color1);
-            p->setClipRegion(saveRegion);
-        } else {
-            if (!hasClickThrough)
-                HIThemeDrawButton(&macRect, &bdi, cg, kHIThemeOrientationNormal, 0);
-            else
-                HIThemeDrawClickThroughButton(macRect, bdi, p, opt);
-        }
+        if (!hasClickThrough)
+            HIThemeDrawButton(&macRect, &bdi, cg, kHIThemeOrientationNormal, 0);
+        else
+            HIThemeDrawClickThroughButton(macRect, bdi, p, opt);
         break; }
     case QStyle::PE_IndicatorArrowUp:
     case QStyle::PE_IndicatorArrowDown:
@@ -3092,13 +3080,10 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
     switch (pe) {
     case QStyle::PE_Q3CheckListExclusiveIndicator:
     case QStyle::PE_Q3CheckListIndicator:
-    case QStyle::PE_IndicatorRadioButtonMask:
     case QStyle::PE_IndicatorRadioButton:
-    case QStyle::PE_IndicatorCheckBoxMask:
     case QStyle::PE_IndicatorCheckBox: {
         bool isRadioButton = (pe == QStyle::PE_Q3CheckListIndicator
-                || pe == QStyle::PE_IndicatorRadioButton
-                || pe == QStyle::PE_IndicatorRadioButtonMask);
+                || pe == QStyle::PE_IndicatorRadioButton);
         ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentDrawIndicatorOnly };
         bool isClickThrough = (!(opt->state & QStyle::State_Active))
                                     && opt->palette.currentColorGroup() == QPalette::Active;
@@ -3138,21 +3123,11 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
                     bkind = kThemeSmallCheckBox;
                 break;
         }
-        if (pe == QStyle::PE_IndicatorRadioButtonMask || pe == QStyle::PE_IndicatorCheckBoxMask) {
-            p->save();
-            RgnHandle rgn = qt_mac_get_rgn();
-            GetThemeButtonRegion(qt_glb_mac_rect(opt->rect, p, false), bkind, &info, rgn);
-            p->setClipRegion(qt_mac_convert_mac_region(rgn));
-            qt_mac_dispose_rgn(rgn);
-            p->fillRect(opt->rect, Qt::color1);
-            p->restore();
+        if (!isClickThrough) {
+            qt_mac_set_port(p);
+            DrawThemeButton(qt_glb_mac_rect(opt->rect, p, false), bkind, &info, 0, 0, 0, 0);
         } else {
-            if (!isClickThrough) {
-                qt_mac_set_port(p);
-                DrawThemeButton(qt_glb_mac_rect(opt->rect, p, false), bkind, &info, 0, 0, 0, 0);
-            } else {
-                AppManDrawClickThroughButton(*qt_glb_mac_rect(opt->rect, p, false), bkind, info, p, opt);
-            }
+            AppManDrawClickThroughButton(*qt_glb_mac_rect(opt->rect, p, false), bkind, info, p, opt);
         }
         break; }
     case QStyle::PE_FrameFocusRect:
