@@ -651,7 +651,7 @@ void QTabBar::setCurrentTab( QTab * tab )
 	emit selected( tab->id );
     }
 
-#ifndef QT_NO_ACCESSIBILITY
+#if defined(QT_ACCESSIBILITY_SUPPORT)
     setAccessibilityHint( stateDescription() );
 #endif
 }

@@ -1566,7 +1566,7 @@ void QListBox::setCurrentItem( QListBoxItem * i )
     emit highlighted( tmp2 );
     emit currentChanged( i );
 
-#ifndef QT_NO_ACCESSIBILITY
+#if defined(QT_ACCESSIBILITY_SUPPORT)
     setAccessibilityHint( stateDescription() );
 #endif
 }

@@ -2967,7 +2967,7 @@ void QIconView::setCurrentItem( QIconViewItem *item )
 	repaintItem( old );
     repaintItem( d->currentItem );
 
-#ifndef QT_NO_ACCESSIBILITY
+#if defined(QT_ACCESSIBILITY_SUPPORT)
     setAccessibilityHint( stateDescription() );
 #endif
 }

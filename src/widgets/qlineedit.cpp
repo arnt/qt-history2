@@ -334,7 +334,7 @@ void QLineEdit::setText( const QString &text )
     deselect();
     update();
     if ( oldText != text ) {
-#ifndef QT_NO_ACCESSIBILITY
+#if defined(QT_ACCESSIBILITY_SUPPORT)
 	setAccessibilityHint( text );
 #endif
 	emit textChanged( text );

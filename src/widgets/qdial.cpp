@@ -490,7 +490,7 @@ void QDial::valueChange()
     if ( d->tracking || !d->doNotEmit )
 	emit valueChanged( value() );
 
-#ifndef QT_NO_ACCESSIBILITY
+#if defined(QT_ACCESSIBILITY_SUPPORT)
     setAccessibilityHint( stateDescription() );
 #endif
 }

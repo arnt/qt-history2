@@ -2451,7 +2451,7 @@ void QTable::setCurrentCell( int row, int col )
 	}
     }
 
-#ifndef QT_NO_ACCESSIBILITY
+#if defined(QT_ACCESSIBILITY_SUPPORT)
     setAccessibilityHint( stateDescription() );
 #endif
 }
