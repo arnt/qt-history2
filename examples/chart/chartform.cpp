@@ -366,17 +366,6 @@ void ChartForm::fileQuit()
 }
 
 
-void ChartForm::closeEvent( QCloseEvent *ce )
-{
-    if ( okToClear() ) {
-	saveOptions();
-	ce->accept();
-    }
-    else
-	ce->ignore();
-}
-
-
 bool ChartForm::okToClear()
 {
     if ( m_changed ) {

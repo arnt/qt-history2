@@ -34,9 +34,6 @@ public:
 
     QPopupMenu *optionsMenu; // Why public? See canvasview.cpp
 
-protected:
-    void closeEvent( QCloseEvent *ce );
-
 private slots:
     void fileNew();
     void fileOpen();
