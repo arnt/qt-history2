@@ -13,13 +13,15 @@
 
 #include "tree_widget.h"
 
-#include <QApplication>
-#include <QHeaderView>
-#include <QStack>
-#include <QScrollBar>
-#include <QItemDelegate>
-#include <QPair>
-#include <QPainter>
+#include <QtCore/QPair>
+#include <QtCore/QStack>
+
+#include <QtGui/QApplication>
+#include <QtGui/QHeaderView>
+#include <QtGui/QScrollBar>
+#include <QtGui/QItemDelegate>
+#include <QtGui/QPainter>
+#include <QtGui/QStyle>
 
 class TreeWidgetDelegate: public QItemDelegate
 {
@@ -85,14 +87,11 @@ void TreeWidget::drawBranches(QPainter *painter, const QRect &rect, const QModel
 
     if (model()->hasChildren(index)) {
         static const int size = 9;
-        int left = rect.width() - (indentation() + size) / 2 ;
-        int top = rect.y() + (rect.height() - size) / 2;
-        painter->drawLine(left + 2, top + 4, left + 6, top + 4);
-        if (!isExpanded(index))
-            painter->drawLine(left + 4, top + 2, left + 4, top + 6);
-        QPen oldPen = painter->pen();
-        painter->setPen(opt.palette.dark().color());
-        painter->drawRect(left, top, size - 1, size - 1);
-        painter->setPen(oldPen);
+        opt.state |= QStyle::State_Children;
+        opt.rect.setRect(rect.width() - (indentation() + size) / 2,
+                         rect.y() + (rect.height() - size) / 2, size, size);
+        if (isExpanded(index))
+            opt.state |= QStyle::State_Open;
+        style()->drawPrimitive(QStyle::PE_IndicatorBranch, &opt, painter, this);
     }
 }
