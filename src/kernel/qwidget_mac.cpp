@@ -59,7 +59,6 @@
 /*****************************************************************************
   QWidget member functions
  *****************************************************************************/
-bool fuckery = FALSE;
 
 const unsigned char * p_str(const char * c)
 {
@@ -98,7 +97,7 @@ static void paint_children(QWidget * p,const QRegion& r, bool now=FALSE)
     if(!p || r.isEmpty())
 	return;
 
-    if(now || (fuckery && !strcmp(p->name(), "qt_viewport")))
+    if(now)
 	p->repaint(r, !p->testWFlags(QWidget::WRepaintNoErase));
     else
 	QApplication::postEvent(p, new QPaintEvent(r, !p->testWFlags(QWidget::WRepaintNoErase) ) );
