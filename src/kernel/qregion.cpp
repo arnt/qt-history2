@@ -83,9 +83,6 @@
 
     QRegion is an \link shclass.html implicitly shared\endlink class.
 
-    Due to window system limitations, the width and height of a region
-    is limited to 65535 on Unix/X11.
-
     \sa QPainter::setClipRegion(), QPainter::setClipRect()
 */
 

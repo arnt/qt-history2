@@ -112,7 +112,8 @@ public:
     QRect&  operator&=(const QRect &r);
 
     bool   contains( const QPoint &p, bool proper=FALSE ) const;
-    bool   contains( int x, int y, bool proper=FALSE ) const;
+    bool   contains( int x, int y ) const;
+    bool   contains( int x, int y, bool proper ) const;
     bool   contains( const QRect &r, bool proper=FALSE ) const;
     QRect  unite( const QRect &r ) const;
     QRect  intersect( const QRect &r ) const;
@@ -248,6 +249,12 @@ inline bool QRect::contains( int x, int y, bool proper ) const
     else
         return x >= x1 && x <= x2 &&
                y >= y1 && y <= y2;
+}
+
+inline bool QRect::contains( int x, int y ) const
+{
+    return x >= x1 && x <= x2 &&
+	   y >= y1 && y <= y2;
 }
 
 #endif // QRECT_H

@@ -130,7 +130,40 @@ void qt_erase_rect( QWidget* w, const QRect& r)
 
 }
 
+#ifdef QT_NO_XRENDER
+typedef unsigned long Picture
+static const unsigned long rendhd = 0;
+#endif
 
+// hack, so we don't have to make QRegion::clipRectangles() public or include
+// X11 headers in qregion.h
+inline void *qt_getClipRects( const QRegion &r, int &num )
+{
+    return r.clipRectangles( num );
+}
+
+static inline void x11SetClipRegion( Display *dpy, GC gc, Picture rendhd, const QRegion &r )
+{
+#ifndef QT_NO_XRENDER
+    int num;
+    XRectangle *rects = (XRectangle *)qt_getClipRects( r, num );
+    if (rendhd)
+	XRenderSetPictureClipRectangles(dpy, rendhd, 0, 0, rects, num );
+#endif // QT_NO_XRENDER
+    XSetClipRectangles( dpy, gc, 0, 0, rects, num, YXBanded );
+}
+
+static inline void x11SetClipRegion( Display *dpy, GC gc, Picture rendhd, const QRegion &r, GC gc2 )
+{
+#ifndef QT_NO_XRENDER
+    int num;
+    XRectangle *rects = (XRectangle *)qt_getClipRects( r, num );
+    if (rendhd)
+	XRenderSetPictureClipRectangles(dpy, rendhd, 0, 0, rects, num );
+#endif // QT_NO_XRENDER
+    XSetClipRectangles( dpy, gc, 0, 0, rects, num, YXBanded );
+    XSetClipRectangles( dpy, gc2, 0, 0, rects, num, YXBanded );
+}
 
 
 /*****************************************************************************
@@ -697,18 +730,10 @@ void QPainter::updatePen()
     if ( !internclipok ) {
         if ( pdev == paintEventDevice && paintEventClipRegion ) {
             if ( penRef &&((QGCC*)penRef)->clip_serial < gc_cache_clip_serial ) {
-#ifndef QT_NO_XRENDER
-		if (rendhd)
-		    XRenderSetPictureClipRegion(dpy, rendhd, paintEventClipRegion->handle());
-#endif // QT_NO_XRENDER
-                XSetRegion( dpy, gc, paintEventClipRegion->handle() );
+		x11SetClipRegion( dpy, gc, rendhd, *paintEventClipRegion );
                 ((QGCC*)penRef)->clip_serial = gc_cache_clip_serial;
             } else if ( !penRef ) {
-#ifndef QT_NO_XRENDER
-		if (rendhd)
-		    XRenderSetPictureClipRegion(dpy, rendhd, paintEventClipRegion->handle());
-#endif // QT_NO_XRENDER
-                XSetRegion( dpy, gc, paintEventClipRegion->handle() );
+		x11SetClipRegion( dpy, gc, rendhd, *paintEventClipRegion );
             }
         } else if (penRef && ((QGCC*)penRef)->clip_serial ) {
 #ifndef QT_NO_XRENDER
@@ -909,18 +934,10 @@ static const uchar * const pat_tbl[] = {
     if ( !internclipok ) {
         if ( pdev == paintEventDevice && paintEventClipRegion ) {
             if ( brushRef &&((QGCC*)brushRef)->clip_serial < gc_cache_clip_serial ) {
-#ifndef QT_NO_XRENDER
-            if (rendhd)
-                XRenderSetPictureClipRegion(dpy, rendhd, paintEventClipRegion->handle());
-#endif // QT_NO_XRENDER
-                XSetRegion( dpy, gc_brush, paintEventClipRegion->handle() );
+		x11SetClipRegion( dpy, gc_brush, rendhd, *paintEventClipRegion );
                 ((QGCC*)brushRef)->clip_serial = gc_cache_clip_serial;
             } else if ( !brushRef ){
-#ifndef QT_NO_XRENDER
-            if (rendhd)
-                XRenderSetPictureClipRegion(dpy, rendhd, paintEventClipRegion->handle());
-#endif // QT_NO_XRENDER
-                XSetRegion( dpy, gc_brush, paintEventClipRegion->handle() );
+		x11SetClipRegion( dpy, gc_brush, rendhd, *paintEventClipRegion );
             }
         } else if (brushRef && ((QGCC*)brushRef)->clip_serial ) {
 #ifndef QT_NO_XRENDER
@@ -1489,26 +1506,12 @@ void QPainter::setClipping( bool enable )
             rgn = rgn.intersect( *paintEventClipRegion );
         if ( penRef )
             updatePen();
-        XSetRegion( dpy, gc, rgn.handle() );
         if ( brushRef )
             updateBrush();
-        XSetRegion( dpy, gc_brush, rgn.handle() );
-
-#ifndef QT_NO_XRENDER
-        if (rendhd)
-            XRenderSetPictureClipRegion(dpy, rendhd, rgn.handle());
-#endif // QT_NO_XRENDER
-
+	x11SetClipRegion( dpy, gc, rendhd, rgn, gc_brush );
     } else {
         if ( pdev == paintEventDevice && paintEventClipRegion ) {
-            XSetRegion( dpy, gc, paintEventClipRegion->handle() );
-            XSetRegion( dpy, gc_brush, paintEventClipRegion->handle() );
-
-#ifndef QT_NO_XRENDER
-            if (rendhd)
-                XRenderSetPictureClipRegion(dpy, rendhd, paintEventClipRegion->handle());
-#endif // QT_NO_XRENDER
-
+	    x11SetClipRegion( dpy, gc, rendhd, *paintEventClipRegion, gc_brush );
         } else {
             XSetClipMask( dpy, gc, None );
             XSetClipMask( dpy, gc_brush, None );
@@ -2661,9 +2664,9 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
             XSetTSOrigin( dpy, gc, 0, 0 );
             XSetFillStyle( dpy, gc, FillSolid );
             if ( !selfmask ) {
-                XSetClipOrigin( dpy, gc, 0, 0 );
                 if ( pdev == paintEventDevice && paintEventClipRegion ) {
-                    XSetRegion( dpy, gc, paintEventClipRegion->handle() );
+		    // ### shouldn't there be a rendhd != 0 here?
+                    x11SetClipRegion( dpy, gc, 0, *paintEventClipRegion );
 		} else {
                     XSetClipMask( dpy, gc, None );
 		}
@@ -2694,15 +2697,15 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
         XFillRectangle( dpy, comb->handle(), cgc, 0, 0, sw, sh );
         XSetBackground( dpy, cgc, 0 );
         XSetForeground( dpy, cgc, 1 );
-        XSetRegion( dpy, cgc, rgn.handle() );
-        XSetClipOrigin( dpy, cgc, -x, -y );
+	int num;
+	XRectangle *rects = (XRectangle *)qt_getClipRects( rgn, num );
+        XSetClipRectangles( dpy, cgc, -x, -y, rects, num, YXBanded );
         XSetFillStyle( dpy, cgc, FillOpaqueStippled );
         XSetStipple( dpy, cgc, mask->handle() );
         XSetTSOrigin( dpy, cgc, -sx, -sy );
         XFillRectangle( dpy, comb->handle(), cgc, 0, 0, sw, sh );
         XSetTSOrigin( dpy, cgc, 0, 0 );         // restore cgc
         XSetFillStyle( dpy, cgc, FillSolid );
-        XSetClipOrigin( dpy, cgc, 0, 0 );
         XSetClipMask( dpy, cgc, None );
         mask = comb;                            // it's deleted below
 

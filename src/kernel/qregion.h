@@ -43,6 +43,9 @@
 #include "qrect.h"
 #endif // QT_H
 
+#ifdef Q_WS_X11
+struct QRegionPrivate;
+#endif
 
 class Q_EXPORT QRegion
 {
@@ -93,7 +96,7 @@ public:
 #if defined(Q_WS_WIN)
     HRGN    handle() const { return data->rgn; }
 #elif defined(Q_WS_X11)
-    Region  handle() const { return data->rgn; }
+    Region handle() const { if(!data->rgn) updateX11Region(); return data->rgn; }
 #elif defined(Q_WS_MAC)
     RgnHandle handle(bool require_rgn=FALSE) const;
 #elif defined(Q_WS_QWS)
@@ -112,13 +115,19 @@ private:
 #if defined(Q_WS_WIN)
     QRegion winCombine( const QRegion &, int ) const;
 #endif
+#if defined(Q_WS_X11)
+    void updateX11Region() const;
+    void *clipRectangles( int &num ) const;
+    friend void *qt_getClipRects( const QRegion &, int & );
+#endif
     void    exec( const QByteArray &, int ver = 0 );
     struct QRegionData : public QShared {
 #if defined(Q_WS_WIN)
 	HRGN   rgn;
 #elif defined(Q_WS_X11)
-	QRect rect;
 	Region rgn;
+	void *xrectangles;
+	QRegionPrivate *region;
 #elif defined(Q_WS_MAC)
 	uint is_rect:1;
 	QRect rect;
