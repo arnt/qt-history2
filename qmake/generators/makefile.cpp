@@ -168,6 +168,8 @@ MakefileGenerator::init()
                     path += Option::dir_sep;
 
                 QString build;
+		if(path.left(1) == Option::dir_sep)
+		    build = Option::dir_sep;
                 QStringList subs = QStringList::split(Option::dir_sep, path);
                 for(QStringList::Iterator subit = subs.begin(); subit != subs.end(); ++subit) {
                     build += (*subit) + QDir::separator();
