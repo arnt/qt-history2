@@ -755,6 +755,7 @@ void QPainter::setClipping(bool enable)
     d->state->clipEnabled = enable;
     if (d->engine)
         d->engine->setDirty(QPaintEngine::DirtyClip);
+    d->engine->updateState(d->state);
 }
 
 
