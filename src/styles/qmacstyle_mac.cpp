@@ -54,13 +54,22 @@
 #include <qmenubar.h>
 #include <qcombobox.h>
 #include <qdrawutil.h>
+#include "qwidgetlist.h"
+#include "private/qaquastyle_p.h"
 
+//externals
+RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
+void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
+extern QPaintDevice *qt_mac_safe_pdev; //qapplication_mac.cpp
+
+//static utility variables
 static QColor qt_mac_highlight_color = QColor( 0xC2, 0xC2, 0xC2 ); //color of highlighted text
 static const int macItemFrame         = 2;    // menu item frame width
 static const int macItemHMargin       = 3;    // menu item hor text margin
 static const int macItemVMargin       = 2;    // menu item ver text margin
 static const int macRightBorder       = 12;   // right border on mac
 
+//hack, but usefull
 #include <qpainter.h>
 class QMacPainter : public QPainter
 {
@@ -70,9 +79,6 @@ public:
 private:
     QMacPainter();
 };
-RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
-void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
-
 static inline const Rect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice *pd=NULL, 
 					  bool off=TRUE, const QRect &rect=QRect())
 {
@@ -95,6 +101,55 @@ static inline const Rect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice *p
     return &r;
 }
 
+//private
+class QMacStylePrivate : public QAquaAnimate
+{
+    ControlRef button, progressbar;
+public:
+    QMacStylePrivate() : QAquaAnimate(), button(0), progressbar(0) { }
+    ~QMacStylePrivate();
+    ControlRef control(QAquaAnimate::Animates);
+protected:
+    void doAnimate(QAquaAnimate::Animates);
+};
+ControlRef 
+QMacStylePrivate::control(QAquaAnimate::Animates as)
+{	
+    if(as == QAquaAnimate::AquaPushButton) {
+	if(!button) {
+	    if( CreatePushButtonControl((WindowPtr)qt_mac_safe_pdev->handle(), 
+					qt_glb_mac_rect(QRect(0, 0, 40, 40), 0, FALSE),
+					0, &button)) {
+		qDebug("Unexpected error: %s:%d", __FILE__, __LINE__);
+	    } else {
+		ShowControl(button);
+		SetWindowDefaultButton((WindowPtr)qt_mac_safe_pdev->handle(), button);
+	    }
+	}
+	return button;
+    } else if(as == QAquaAnimate::AquaProgressBar) {
+	if(progressbar)
+	    return progressbar;
+    }
+    return 0;
+}
+QMacStylePrivate::~QMacStylePrivate()
+{
+    if(button)
+	DisposeControl(button);
+    if(progressbar)
+	DisposeControl(progressbar);
+}
+void QMacStylePrivate::doAnimate(QAquaAnimate::Animates)
+{
+    if(QWidgetList *list = qApp->topLevelWidgets()) {
+	for ( QWidget *widget = list->first(); widget; widget = list->next() ) {
+	    if(widget->isActiveWindow()) 
+		IdleControls((WindowPtr)widget->handle());
+	}
+    }
+}
+
 #define private public //ugh, what I'll do..
 #include <qslider.h>
 #undef private
@@ -102,6 +157,7 @@ static inline const Rect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice *p
 static int mac_count = 0;
 QMacStyle::QMacStyle(  )  : QWindowsStyle()
 {
+    d = new QMacStylePrivate;
     if(!mac_count++)
 	RegisterAppearanceClient();
 }
@@ -141,6 +197,7 @@ void QMacStyle::polish( QApplication* app )
 
 void QMacStyle::polish( QWidget* w )
 {
+    d->addWidget(w);
     if( w->inherits("QToolButton") ){
         QToolButton * btn = (QToolButton *) w;
         btn->setAutoRaise( FALSE );
@@ -158,6 +215,7 @@ void QMacStyle::polish( QWidget* w )
 
 void QMacStyle::unPolish( QWidget* w )
 {
+    d->removeWidget(w);
     if( w->inherits("QToolButton") ){
         QToolButton * btn = (QToolButton *) w;
         btn->setAutoRaise( TRUE );
@@ -215,6 +273,15 @@ void QMacStyle::drawPrimitive( PrimitiveElement pe,
 	p->drawPolygon( a );
 	p->setBrush( NoBrush );
 	p->restore();
+	break; }
+    case PE_GroupBoxFrame: {
+	if ( opt.isDefault() )
+	    break;
+	if(opt.frameShape() == QFrame::Box && opt.frameShadow() == QFrame::Sunken) {
+	    DrawThemePrimaryGroup(qt_glb_mac_rect(r, p->device()), kThemeStateActive);
+	} else {
+	    QWindowsStyle::drawPrimitive(pe, p, r, cg, flags, opt);
+	}
 	break; }
     case PE_FocusRect:
 	break;     //###
@@ -523,10 +590,17 @@ void QMacStyle::drawControl( ControlElement element,
      DrawThemeTab(qt_glb_mac_rect(r, p->device(), FALSE), tts, ttd, NULL, 0);
      break; }
  case CE_PushButton: {
-     ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
-     ((QMacPainter *)p)->noop();
-     DrawThemeButton(qt_glb_mac_rect(r, p->device(), TRUE, QRect(3, 3, 6, 6)), 
+     if(d->animatable(QAquaAnimate::AquaPushButton, (QWidget *)widget)) {
+	 ControlRef btn = d->control(QAquaAnimate::AquaPushButton);
+	 SetControlBounds(btn, qt_glb_mac_rect(r, p->device(), TRUE, QRect(3, 3, 6, 6)));
+	 ((QMacPainter *)p)->noop();
+	 DrawControlInCurrentPort(btn);
+     } else {
+	 ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
+	 ((QMacPainter *)p)->noop();
+	 DrawThemeButton(qt_glb_mac_rect(r, p->device(), TRUE, QRect(3, 3, 6, 6)), 
 		     kThemePushButton, &info, NULL, NULL, NULL, 0);
+     }
      break; }
  default:
      QWindowsStyle::drawControl(element, p, widget, r, cg, how, opt);

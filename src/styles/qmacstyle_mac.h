@@ -52,6 +52,7 @@ class QPalette;
 #define Q_EXPORT_STYLE_MAC Q_EXPORT
 #endif
 
+class QMacStylePrivate;
 
 class Q_EXPORT_STYLE_MAC QMacStyle : public QWindowsStyle
 {
@@ -124,6 +125,9 @@ private:        // Disabled copy constructor and operator=
     QMacStyle( const QMacStyle & );
     QMacStyle& operator=( const QMacStyle & );
 #endif
+
+protected:
+    QMacStylePrivate *d;
 };
 
 #endif // Q_WS_MAC

@@ -66,30 +66,27 @@ private:
     QWidget *d;
 };
 
-class QAquaStylePrivate : public QObject
+class QAquaAnimatePrivate;
+class QAquaAnimate : public QObject
 {
     Q_OBJECT
+    QAquaAnimatePrivate *d;
 public:
-    //blinking buttons
-    struct buttonState {
-    public:
-        buttonState() : stop_pulse(0), frame(0), dir(1) {}
-	QPushButton *stop_pulse;
-        int frame;
-        int dir;
-    };
-    QPushButton * defaultButton;
-    buttonState   buttonState;
-    int buttonTimerId;
-    //animated progress bars
-    QPtrList<QProgressBar> progressBars;
-    int progressTimerId;
-    int progressOff;
-    //big focus rects
-    QGuardedPtr<QAquaFocusWidget> focusWidget;
+    enum Animates { AquaPushButton, AquaProgressBar };
+    QAquaAnimate();
+    ~QAquaAnimate();
 
-public slots:
-    void objDestroyed(QObject *);
+    bool addWidget(QWidget *);
+    void removeWidget(QWidget *);
+    bool animatable(Animates, QWidget *);
+
+protected:
+    virtual void doAnimate(Animates) = 0;
+    bool eventFilter(QObject *, QEvent *);
+    void timerEvent( QTimerEvent * );
+
+private slots:
+    void objDestroyed(QObject *o);
 };
 
 /*

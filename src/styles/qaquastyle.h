@@ -116,7 +116,6 @@ public:
 
 protected:
     bool eventFilter( QObject *, QEvent * );
-    void timerEvent( QTimerEvent * );
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
