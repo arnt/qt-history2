@@ -376,10 +376,9 @@ void TrWindow::openFile( const QString& name )
 void TrWindow::open()
 {
     if ( maybeSave() ) {
-        QString newFilename = QFileDialog::getOpenFileName( filename,
+        QString newFilename = QFileDialog::getOpenFileName( this, QString(), filename,
                 tr("Qt translation source (*.ts)\n"
-                   "All files (*)"),
-                this, "open" );
+                   "All files (*)"));
         openFile( newFilename );
     }
 }
@@ -401,10 +400,9 @@ void TrWindow::save()
 
 void TrWindow::saveAs()
 {
-    QString newFilename = QFileDialog::getSaveFileName( filename,
+    QString newFilename = QFileDialog::getSaveFileName( this, QString(), filename,
             tr( "Qt translation source (*.ts)\n"
-                "All files (*)"),
-            this, "save_as" );
+                "All files (*)"));
     if ( !newFilename.isEmpty() ) {
         filename = newFilename;
         save();
@@ -418,11 +416,9 @@ void TrWindow::release()
     newFilename.replace( QRegExp(".ts$"), "" );
     newFilename += QString( ".qm" );
 
-    newFilename = QFileDialog::getSaveFileName( newFilename,
+    newFilename = QFileDialog::getSaveFileName( this, tr("Release"), newFilename,
             tr("Qt message files for released applications (*.qm)\n"
-               "All files (*)"),
-            this, "release",
-            tr("Release") );
+               "All files (*)"));
     if ( !newFilename.isEmpty() ) {
         if ( tor.release(newFilename) )
             statusBar()->message( tr("File created."), MessageMS );
@@ -652,7 +648,7 @@ bool TrWindow::searchItem( const QString & searchWhat, QListViewItem * j,
                            QListViewItem * k )
 {
     if ( (findWhere & foundWhere) != 0 ) {
-        foundOffset = searchWhat.find( findText, foundOffset, findMatchCase );
+        foundOffset = searchWhat.indexOf( findText, foundOffset, findMatchCase ? QString::CaseSensitive : QString::CaseInsensitive);
         if ( foundOffset >= 0 ) {
             foundItem = itemToIndex( slv, k );
             foundScope = j;
@@ -670,11 +666,9 @@ void TrWindow::newPhraseBook()
 {
     QString name;
     for (;;) {
-        name = QFileDialog::getSaveFileName( QString::null,
+        name = QFileDialog::getSaveFileName( this, tr("Create New Phrase Book"), QString::null,
             tr("Qt phrase books (*.qph)\n"
-               "All files (*)"),
-            this, "new_phrasebook",
-            tr("Create New Phrase Book") );
+               "All files (*)"));
         if ( !QFile::exists(name) )
             break;
         QMessageBox::warning( this, tr("Qt Linguist"),
@@ -693,11 +687,9 @@ void TrWindow::newPhraseBook()
 void TrWindow::openPhraseBook()
 {
     QString phrasebooks( qInstallPathData() );
-    QString name = QFileDialog::getOpenFileName( phrasebooks + "/phrasebooks",
+    QString name = QFileDialog::getOpenFileName( this, tr("Open Phrase Book"), phrasebooks + "/phrasebooks",
         tr("Qt phrase books (*.qph)\n"
-           "All files (*)"),
-        this, "open_phrasebook",
-        tr("Open Phrase Book") );
+           "All files (*)") );
     if ( !name.isEmpty() && !phraseBookNames.contains(name) ) {
         if ( openPhraseBook(name) ) {
             int n = phraseBooks.at( phraseBooks.count() - 1 ).count();
@@ -1414,7 +1406,7 @@ void TrWindow::setupMenuBar()
                                  QKeySequence("Ctrl+Enter") );
     doneAndNextAlt = new QAction( this );
     doneAndNextAlt->setShortcut( QKeySequence("Ctrl+Return") );
-    connect( doneAndNextAlt, SIGNAL(activated()), this, SLOT(doneAndNext()) );
+    connect( doneAndNextAlt, SIGNAL(triggered()), this, SLOT(doneAndNext()) );
     beginFromSourceAct = translationp->addAction(tr("&Begin from Source"),
                                      me, SLOT(beginFromSource()),
                                      QKeySequence("Ctrl+B") );
@@ -1610,13 +1602,14 @@ bool TrWindow::openPhraseBook( const QString& name )
     int index = phraseBooks.count();
     phraseBooks.append( pb );
     phraseBookNames.append( name );
-    int id = closePhraseBookp->insertItem( friendlyPhraseBookName(index) );
-    closePhraseBookp->setWhatsThis( id, tr("Close this phrase book.") );
-    id = editPhraseBookp->insertItem( friendlyPhraseBookName(index) );
-    editPhraseBookp->setWhatsThis( id, tr("Allow you to add, modify, or delete"
+
+    QAction *a = closePhraseBookp->addAction( friendlyPhraseBookName(index) );
+    a->setWhatsThis(tr("Close this phrase book.") );
+    a = editPhraseBookp->addAction( friendlyPhraseBookName(index) );
+    a->setWhatsThis(tr("Allow you to add, modify, or delete"
                                           " phrases of this phrase book.") );
-    id = printPhraseBookp->insertItem( friendlyPhraseBookName(index) );
-    printPhraseBookp->setWhatsThis( id, tr("Print the entries of the phrase"
+    a = printPhraseBookp->addAction( friendlyPhraseBookName(index) );
+    a->setWhatsThis( tr("Print the entries of the phrase"
                                            " book.") );
     updatePhraseDict();
     return TRUE;
