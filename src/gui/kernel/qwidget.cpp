@@ -2968,9 +2968,8 @@ void QWidget::setWindowRole(const QString &role)
     can set the line edit to be its focus proxy.
 
     setFocusProxy() sets the widget which will actually get focus when
-    "this widget" gets it. If there is a focus proxy, focusPolicy(),
-    setFocusPolicy(), setFocus() and hasFocus() all operate on the
-    focus proxy.
+    "this widget" gets it. If there is a focus proxy, setFocus() and
+    hasFocus() operate on the focus proxy.
 
     \sa focusProxy()
 */
