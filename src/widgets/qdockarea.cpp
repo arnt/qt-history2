@@ -242,7 +242,7 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
     int linestrut = 0;
     QValueList<DockData> lastLine;
     int tbstrut = -1;
-    
+
     // go through all widgets in the dock
     while ( ( dw = it.current() ) != 0 ) {
  	++it;
@@ -478,13 +478,20 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
 	    int lastPos = 0;
 	    if ( !insertLine ) { // if we only insert the docking widget in the existing line
 		// find the index for the widget
+		bool inc = TRUE;
 		for ( dw = dockWidgets->current(); dw; dw = dockWidgets->next() ) {
+		    if ( orientation() == Horizontal )
+			dw->setFixedExtendWidth( -1 );
+		    else
+			dw->setFixedExtendHeight( -1 );
 		    if ( point_pos( dw->pos(), orientation() ) < lastPos ) // we are in next line, so break
 			break;
 		    if ( point_pos( pos, orientation() ) <
-			 point_pos( dw->pos(), orientation() ) + size_extend( dw->size(), orientation() ) / 2 )
-			break;
-		    index++;
+			 point_pos( dw->pos(), orientation() ) + size_extend( dw->size(), orientation() ) / 2 ) {
+			inc = FALSE;
+		    }
+		    if ( inc )
+			index++;
 		    lastPos = point_pos( dw->pos(), orientation() );
 		}
 #if defined(QDOCKAREA_DEBUG)

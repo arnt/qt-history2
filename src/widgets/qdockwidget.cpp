@@ -774,13 +774,6 @@ void QDockWidget::setFixedExtendHeight( int h )
     fExtend.setHeight( h );
 }
 
-bool QDockWidget::hasFixedExtend() const
-{
-    if ( orientation() == Horizontal )
-	return fExtend.width() != -1;
-    return fExtend.height() != -1;
-}
-
 void QDockWidget::setNewLine( bool b )
 {
     nl = b;

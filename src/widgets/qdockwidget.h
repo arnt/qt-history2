@@ -56,7 +56,6 @@ public:
     void setFixedExtendWidth( int w );
     void setFixedExtendHeight( int h );
     QSize fixedExtend() const;
-    bool hasFixedExtend() const;
 
     void setNewLine( bool b );
     bool newLine() const;
