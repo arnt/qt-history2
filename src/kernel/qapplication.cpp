@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#253 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#254 $
 **
 ** Implementation of QApplication class
 **
@@ -1176,7 +1176,7 @@ void QApplication::closeAllWindows()
   The signal is very useful when your application has many top level
   widgets but no main widget. You can then connect it to the quit() slot.
 
-  \sa mainWidget(), topLevelWidgets(), QWidget::isTopLevel()
+  \sa mainWidget(), topLevelWidgets(), QWidget::isTopLevel(), QWidget::close()
 */
 
 /*!

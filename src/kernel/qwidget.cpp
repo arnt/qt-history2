@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#427 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#428 $
 **
 ** Implementation of QWidget class
 **
@@ -608,7 +608,9 @@ QWidget::~QWidget()
 	QApplication::focus_widget = 0;
 
     if ( isTopLevel() && isVisible() && winId() )
-	hide();					// emit lastWindowClosed?
+	hide();
+    // ###shall we really emit lastWindowClosed? here as well?  It's
+    // ###not closed but destroyed....
 
     // A parent widget must destroy all its children before destroying itself
     if ( childObjects ) {			// delete children objects
@@ -2963,14 +2965,11 @@ void QWidget::show()
 /*!
   Hides the widget.
 
-  The QApplication::lastWindowClosed() signal is emitted when the last
-  visible top level widget is hidden.
-
   You almost never have to reimplement this function. If you need to
   do something after a widget is hidden, use \link hideEvent()
   instead.
 
-  \sa \hideEvent(), show(), showMinimized(), isVisible()
+  \sa \hideEvent(), show(), showMinimized(), isVisible(), close()
 */
 
 void QWidget::hide()
@@ -2992,12 +2991,6 @@ void QWidget::hide()
     // hidden.
     if ( qApp && qApp->focusWidget() == this )
 	focusNextPrevChild( TRUE );
-
-    if ( isTopLevel() ) {			// last TLW hidden?
-	qDebug("hide toplevel");
-	if ( qApp->receivers(SIGNAL(lastWindowClosed())) && noVisibleTLW() )
-	    emit qApp->lastWindowClosed();
-    }
 
     QHideEvent e(FALSE);
     QApplication::sendEvent( this, &e );
@@ -3041,6 +3034,9 @@ void QWidget::polish()
   prevent itself from being closed by rejecting the QCloseEvent it
   gets.
 
+  The QApplication::lastWindowClosed() signal is emitted when the last
+  visible top level widget is closed.
+  
   Note that closing the \l QApplication::mainWidget() terminates the
   application.
 
@@ -3052,22 +3048,30 @@ bool QWidget::close( bool alsoDelete )
 {
     WId	 id	= winId();
     bool isMain = qApp->mainWidget() == this;
+    bool wasTopLevel = isTopLevel();
     QCloseEvent e;
     bool accept = QApplication::sendEvent( this, &e );
     if ( !QWidget::find(id) ) {			// widget was deleted
-	if ( isMain )
-	    qApp->quit();
-	return TRUE;
-    }
-    if ( alsoDelete || testWFlags(WDestructiveClose) )
 	accept = TRUE;
-    if ( accept ) {
-	hide();
-	if ( isMain )
-	    qApp->quit();
-	else if ( alsoDelete || testWFlags(WDestructiveClose) )
-	    delete this;
     }
+    else {
+	if ( alsoDelete || testWFlags(WDestructiveClose) )
+	    accept = TRUE;
+	if ( accept ) {
+	    hide();
+	    if ( alsoDelete || testWFlags(WDestructiveClose) )
+		delete this;
+	}
+    }
+    
+    if ( isMain )
+	qApp->quit();
+    
+    if ( accept && wasTopLevel ) {			// last TLW closed?
+	if ( qApp->receivers(SIGNAL(lastWindowClosed())) && noVisibleTLW() )
+	    emit qApp->lastWindowClosed();
+    }
+    
     return accept;
 }
 
@@ -3081,6 +3085,9 @@ bool QWidget::close( bool alsoDelete )
   hidden\endlink if it \link QCloseEvent::accept() accepts\endlink the
   close event. The default implementation of QWidget::closeEvent()
   accepts the close event.
+
+  The QApplication::lastWindowClosed() signal is emitted when the last
+  visible top level widget is closed.
 
   \sa close(bool)
 */
