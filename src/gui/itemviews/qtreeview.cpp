@@ -93,12 +93,15 @@
 QTreeView::QTreeView(QWidget *parent)
     : QAbstractItemView(*new QTreeViewPrivate, parent)
 {
-    setHeader(new QHeaderView(Qt::Horizontal, this));
-    d->header->setModel(model());
-    d->header->setSelectionModel(selectionModel());
-    d->header->setMovable(true);
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setSelectionMode(QAbstractItemView::SingleSelection);
+    setDraggableItems(false);
+
+    QHeaderView *header = new QHeaderView(Qt::Horizontal, this);
+    header->setModel(model());
+    header->setSelectionModel(selectionModel());
+    header->setMovable(true);
+    setHeader(header);
 }
 
 /*!
@@ -109,6 +112,7 @@ QTreeView::QTreeView(QTreeViewPrivate &dd, QWidget *parent)
 {
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setSelectionMode(QAbstractItemView::SingleSelection);
+    setDraggableItems(false);
 
     QHeaderView *header = new QHeaderView(Qt::Horizontal, this);
     header->setModel(model());

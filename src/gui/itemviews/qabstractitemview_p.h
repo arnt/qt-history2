@@ -102,6 +102,8 @@ public:
     bool alternatingColors;
     QColor oddColor;
     QColor evenColor;
+
+    bool draggableItems;
 };
 
 /*

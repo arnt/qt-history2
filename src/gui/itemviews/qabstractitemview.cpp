@@ -64,7 +64,8 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         layoutPosted(false),
         alternatingColors(false),
         oddColor(Qt::lightGray),
-        evenColor(Qt::white)
+        evenColor(Qt::white),
+        draggableItems(true)
 {
 }
 
@@ -810,6 +811,20 @@ void QAbstractItemView::setEvenRowColor(const QColor &even)
 }
 
 /*!
+  \property QAbstractItemView::draggableItems
+  \brief whether the items in the view are draggable
+*/
+bool QAbstractItemView::draggableItems() const
+{
+    return d->draggableItems;
+}
+
+void QAbstractItemView::setDraggableItems(bool draggable)
+{
+    d->draggableItems = draggable;
+}
+
+/*!
     \fn bool QAbstractItemView::event(QEvent *event)
 
     This function is used to handle tool tips, status tips, and What's
@@ -911,12 +926,9 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
 {
     QPoint topLeft;
     QPoint bottomRight = e->pos();
-    if (d->selectionMode != SingleSelection)
-        topLeft = d->pressedPosition - QPoint(horizontalOffset(), verticalOffset());
-    else
-        topLeft = bottomRight;
 
     if (state() == DraggingState) {
+        topLeft = d->pressedPosition - QPoint(horizontalOffset(), verticalOffset());
         if ((topLeft - bottomRight).manhattanLength() > QApplication::startDragDistance()) {
             startDrag();
             setState(NoState); // the startDrag will return when the dnd operation is done
@@ -924,6 +936,12 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
         }
         return;
     }
+
+    if (d->selectionMode != SingleSelection)
+        topLeft = d->pressedPosition - QPoint(horizontalOffset(), verticalOffset());
+    else
+        topLeft = bottomRight;
+
 
     QModelIndex index = itemAt(bottomRight);
     if (state() == EditingState && d->editors.contains(index))
@@ -944,10 +962,9 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
 
     if (index.isValid()) {
         if (state() != SelectingState) {
-            bool dnd = (model()->flags(index) & QAbstractItemModel::ItemIsDragEnabled)
-                       && isDragEnabled(index);
+            bool dragging = model()->flags(index) & QAbstractItemModel::ItemIsDragEnabled;
             bool selected = selectionModel()->isSelected(index);
-            if (dnd && selected) {
+            if (dragging && selected && d->draggableItems) {
                 setState(DraggingState);
                 return;
             }
@@ -1717,37 +1734,35 @@ void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelI
 }
 
 /*!
-    Returns a new drag  that contains the model indexes of all
-    the model's selected items.
-
-    \sa startDrag()
-*/
-QDrag *QAbstractItemView::drag()
-{
-    QModelIndexList indexes = selectionModel()->selectedIndexes();
-    QDrag *drag = new QDrag(this);
-    drag->setMimeData(model()->mimeData(indexes));
-    return drag;
-}
-
-/*!
     Starts a drag by calling drag->start().
 */
 void QAbstractItemView::startDrag()
 {
-    QDrag *drg = drag();
-    if (!drg)
-        return;
-    drg->start();
-}
-
-/*!
-    Returns true if the item view allows the item at position \a index
-    to be dragged; otherwise returns false.
-*/
-bool QAbstractItemView::isDragEnabled(const QModelIndex &) const
-{
-    return false;
+    QModelIndexList indexes = selectionModel()->selectedIndexes();
+    if (indexes.count() > 0) {
+        // setup pixmap
+        QRect rect = itemViewportRect(indexes.at(0));
+        QList<QRect> rects;
+        for (int i = 0; i < indexes.count(); ++i) {
+            rects.append(itemViewportRect(indexes.at(i)));
+            rect |= rects.at(i);
+        }
+        rect = rect.intersect(d->viewport->rect());
+        QPixmap pixmap(rect.size());
+        pixmap.fill(palette().base());
+        QPainter painter(&pixmap);
+        QStyleOptionViewItem option = viewOptions();
+        for (int j = 0; j < indexes.count(); ++j) {
+            option.rect = QRect(rects.at(j).topLeft() - rect.topLeft(), rects.at(j).size());
+            itemDelegate()->paint(&painter, option, indexes.at(j));
+        }
+        painter.end();
+        // create drag object
+        QDrag *drag = new QDrag(this);
+        drag->setPixmap(pixmap);
+        drag->setMimeData(model()->mimeData(indexes));
+        drag->start();
+    }
 }
 
 /*!

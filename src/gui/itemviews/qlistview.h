@@ -109,10 +109,7 @@ protected:
     void dragMoveEvent(QDragMoveEvent *e);
     void dragLeaveEvent(QDragLeaveEvent *e);
     void dropEvent(QDropEvent *e);
-
-    QDrag *drag();
     void startDrag();
-    bool isDragEnabled(const QModelIndex &index) const;
 
     QStyleOptionViewItem viewOptions() const;
     void paintEvent(QPaintEvent *e);

@@ -766,48 +766,24 @@ void QListView::dropEvent(QDropEvent *e)
 /*!
   \reimp
 */
-QDrag *QListView::drag()
-{
-    // This function does the same thing as in QAbstractItemView,
-    // plus adding viewitems to the draggedItems list.
-    // We need these items to draw the drag items
-    QModelIndexList indexes = selectionModel()->selectedIndexes();
-    QModelIndexList::ConstIterator it = indexes.begin();
-
-//     QStyleOptionViewItem option = viewOptions();
-//     option.rect = QRect(QPoint(0, 0), itemRect(*it).size());
-//     QPixmap pixmap(option.rect.size());
-    //pixmap.setMask(pixmap.createHeuristicMask());
-//     static QColor background(255, 255, 255, 127);
-//     pixmap.fill(background);
-//     QPainter painter(&pixmap);
-//     itemDelegate()->paint(&painter, option, model(), *it);
-//     painter.end();
-
-    for (; it != indexes.end(); ++it)
-        if (model()->flags(*it) & QAbstractItemModel::ItemIsDragEnabled)
-            d->draggedItems.push_back(*it);
-    QDrag *drg = new QDrag(this);
-    drg->setMimeData(model()->mimeData(indexes));
-    return drg;
-}
-
-/*!
-  \reimp
-*/
 void QListView::startDrag()
 {
-    QAbstractItemView::startDrag();
-    d->draggedItems.clear();
-}
-
-/*!
-  \reimp
-*/
-bool QListView::isDragEnabled(const QModelIndex &index) const
-{
-    bool dragEnabled = model()->flags(index) & QAbstractItemModel::ItemIsDragEnabled;
-    return d->movement == Free || dragEnabled;
+    if (d->movement == Free) {
+        // This function does the same thing as in QAbstractItemView,
+        // plus adding viewitems to the draggedItems list.
+        // We need these items to draw the drag items
+        QModelIndexList indexes = selectionModel()->selectedIndexes();
+        QModelIndexList::ConstIterator it = indexes.begin();
+        for (; it != indexes.end(); ++it)
+            if (model()->flags(*it) & QAbstractItemModel::ItemIsDragEnabled)
+                d->draggedItems.push_back(*it);
+        if (d->draggedItems.count() > 0) {
+            QDrag *drag = new QDrag(this);
+            drag->setMimeData(model()->mimeData(indexes));
+            drag->start();
+            d->draggedItems.clear();
+        }
+    }
 }
 
 /*!
