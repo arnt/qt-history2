@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qprocess.cpp#33 $
 **
 ** Implementation of QProcess class
 **
@@ -362,8 +362,9 @@ QString QProcess::readLineStderr()
 }
 
 /*!
-  This private function scans for any occurrence of \n in the buffer \a buf.
-  Stores the text in the byte array \a store if it is non-null.
+  This private function scans for any occurrence of \n or \r\n in the
+  buffer \a buf. It stores the text in the byte array \a store if it is
+  non-null.
 */
 bool QProcess::scanNewline( bool stdOut, QByteArray *store )
 {
@@ -373,31 +374,25 @@ bool QProcess::scanNewline( bool stdOut, QByteArray *store )
     else
 	buf = bufStderr();
     uint n = buf->size();
-    uint lineLength = 0;
     uint i;
-    bool found = FALSE;
     for ( i=0; i<n; i++ ) {
-	if ( buf->at(i)=='\n' || buf->at(i)=='\r' ) {
-	    if ( !found ) {
-		lineLength = i;
-		found = TRUE;
-	    }
-	} else {
-	    if ( found ) {
-		break;
-	    }
+	if ( buf->at(i) == '\n' ) {
+	    break;
 	}
     }
-    if ( !found )
+    if ( i >= n )
 	return FALSE;
 
     if ( store ) {
+	uint lineLength = i;
+	if ( lineLength>0 && buf->at(lineLength-1) == '\r' )
+	    lineLength--; // (if there are two \r, let one stay)
 	store->resize( lineLength );
 	memcpy( store->data(), buf->data(), lineLength );
 	if ( stdOut )
-	    consumeBufStdout( i );
+	    consumeBufStdout( i+1 );
 	else
-	    consumeBufStderr( i );
+	    consumeBufStderr( i+1 );
     }
     return TRUE;
 }
