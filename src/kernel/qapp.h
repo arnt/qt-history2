@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.h#26 $
+** $Id: //depot/qt/main/src/kernel/qapp.h#27 $
 **
 ** Definition of QApplication class
 **
@@ -19,14 +19,17 @@
 extern QApplication *qApp;			// global application object
 
 
-class QApplication				// application class
+class QApplication : public QObject		// application class
 {
-friend class QWidget;
+    Q_OBJECT
 public:
     QApplication( int &argc, char **argv );
     virtual ~QApplication();
 
-    static GUIStyle style();
+    int		    argc()	const;
+    char	  **argv()	const;
+
+    static GUIStyle style();			// get/set GUI style
     static void	    setStyle( GUIStyle );
 
     static QCursor *cursor();			// get/set application cursor
@@ -39,16 +42,18 @@ public:
     static QFont   *font();			// get/set application font
     static void	    setFont( const QFont &, bool updateAllWidgets=FALSE );
 
+    QWidget	   *mainWidget()  const;
+    void	    setMainWidget( QWidget * );
+
     static QWidget *desktop();			// get desktop widget
+    QWidget	   *focusWidget() const;
 
     int		    exec( QWidget *mainWidget );// start event handing
+    int		    exec();
     int		    enter_loop();
     void	    exit_loop();
     static void	    quit( int retcode = 0 );	// quit application
-
-    QWidget	   *mainWidget()    const { return main_widget; }
-    QWidget	   *focusWidget()   const { return focus_widget; }
-
+    
     static bool	    sendEvent( QObject *receiver, QEvent *event )
 	{ return qApp->notify( receiver, event ); }
     static void	    postEvent( QObject *receiver, QEvent *event );
@@ -61,21 +66,6 @@ public:
     static void	    flushX();			// flush X output buffer
     static void	    syncX();			// syncronize with X server
 
-protected:
-    static QWidget *main_widget;		// main application widget
-
-private:
-    bool	    quit_now;			// quit flags
-    int		    quit_code;
-    static GUIStyle appStyle;			// application GUI style
-    static QPalette *appPal;			// application palette
-    static QFont   *appFont;			// application font
-    static QCursor *appCursor;			// application cursor
-    static bool	    starting_up;
-    static bool	    closing_down;
-    static QWidget *focus_widget;		// keyboard input focus
-
-public:
 #if defined(_WS_MAC_)
     virtual bool macEventFilter( MSG * );	// Macintosh event filter
 #elif defined(_WS_WIN_)
@@ -85,22 +75,58 @@ public:
 #elif defined(_WS_X11_)
     virtual bool x11EventFilter( XEvent * );	// X11 event filter
 #endif
+
+private:
+    int		    app_argc;
+    char	  **app_argv;
+    bool	    quit_now;
+    int		    quit_code;
+    static GUIStyle app_style;
+    static QPalette *app_pal;
+    static QFont   *app_font;
+    static QCursor *app_cursor;
+    static bool	    starting_up;
+    static bool	    closing_down;
+    static QWidget *main_widget;
+    static QWidget *focus_widget;
+
+    friend class QWidget;
 };
 
 
+inline int QApplication::argc() const
+{
+    return app_argc;
+}
+
+inline char **QApplication::argv() const
+{
+    return app_argv;
+}
+
 inline GUIStyle QApplication::style()
 {
-    return appStyle;
+    return app_style;
 }
 
 inline QCursor *QApplication::cursor()
 {
-    return appCursor;
+    return app_cursor;
 }
 
 inline QFont *QApplication::font()
 {
-    return appFont;
+    return app_font;
+}
+
+inline QWidget *QApplication::mainWidget() const
+{
+    return main_widget;
+}
+
+inline QWidget *QApplication::focusWidget() const
+{
+    return focus_widget;
 }
 
 
