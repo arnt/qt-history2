@@ -2507,6 +2507,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
     }
 
     if ( qApp->inPopupMode() ) {			// in popup mode
+	replayPopupMouseEvent = FALSE;
 	QWidget* activePopupWidget = qApp->activePopupWidget();
 	QWidget *popup = activePopupWidget;
 
