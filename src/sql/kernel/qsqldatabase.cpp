@@ -1247,10 +1247,11 @@ QSqlRecord QSqlDatabase::recordInfo(const QSqlQuery& query) const
 
 /*!
    Clones the database connection \a other and and stores it as \a
-   connectionName. Does nothing if \a other is an invalid database.
-   Returns the newly created database connection. Note that the
-   connection is not opened, to use it, it is neccessary to call
-   open() first.
+   connectionName. All the settings from the original database, e.g.
+   databaseName(), hostName(), etc., are copied across. Does nothing
+   if \a other is an invalid database. Returns the newly created
+   database connection. Note that the connection is not opened, to use
+   it, it is neccessary to call open() first.
  */
 QSqlDatabase QSqlDatabase::cloneDatabase(const QSqlDatabase &other, const QString &connectionName)
 {
