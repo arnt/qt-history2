@@ -62,6 +62,9 @@ public:
     QRect actionGeometry(QAction *) const;
     QAction *actionAtPos(const QPoint &) const;
 
+    void setCornerWidget(QWidget *w, Qt::Corner corner = Qt::TopRightCorner);
+    QWidget *cornerWidget(Qt::Corner corner = Qt::TopRightCorner) const;
+
 #ifdef Q_WS_MAC
     MenuRef macMenu();
 #endif
@@ -85,10 +88,6 @@ protected:
     void focusInEvent(QFocusEvent *);
     bool eventFilter(QObject *, QEvent *);
     bool event(QEvent *);
-
-protected:
-    void setLeftWidget(QWidget *);
-    void setRightWidget(QWidget *);
 
 #ifdef QT_COMPAT
 public:
