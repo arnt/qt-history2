@@ -774,6 +774,9 @@ void GridLayout::setup()
 
 void GridLayout::buildGrid()
 {
+    if ( !widgets.count() )
+	return;
+
     // Pixel to cell conversion:
     // By keeping a list of start'n'stop values (x & y) for each widget,
     // it is possible to create a very small grid of cells to represent
