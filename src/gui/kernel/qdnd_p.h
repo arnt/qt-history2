@@ -83,8 +83,6 @@ public:
     void setCurrentTarget(QWidget *target);
     static QDragManager *self();
     QDrag::DropAction defaultAction(QDrag::DropActions possibleActions) const;
-private:
-    Q_DISABLE_COPY(QDragManager)
 
     QDrag *object;
     QWidget *currentTarget;
@@ -102,9 +100,11 @@ private:
 
     QPixmap *pm_cursor;
     int n_cursor;
-    static QDragManager *instance;
-public:
+
     QDropData *dropData;
+private:
+    static QDragManager *instance;
+    Q_DISABLE_COPY(QDragManager)
 };
 
 #endif

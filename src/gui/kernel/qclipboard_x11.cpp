@@ -273,7 +273,7 @@ QClipboardINCRTransaction::QClipboardINCRTransaction(Window w, Atom p, Atom t, i
 {
     DEBUG("QClipboard: sending %d bytes (INCR transaction %p)", d.size(), this);
 
-    XSelectInput(QX11Info::display(), window, PropertyChangeMask);
+    XSelectInput(X11->display, window, PropertyChangeMask);
 
     if (! transactions) {
         VDEBUG("QClipboard: created INCR transaction map");
@@ -289,7 +289,7 @@ QClipboardINCRTransaction::~QClipboardINCRTransaction(void)
 {
     VDEBUG("QClipboard: destroyed INCR transacton %p", this);
 
-    XSelectInput(QX11Info::display(), window, NoEventMask);
+    XSelectInput(X11->display, window, NoEventMask);
 
     transactions->remove(window);
     if (transactions->isEmpty()) {
@@ -322,12 +322,12 @@ int QClipboardINCRTransaction::x11Event(XEvent *event)
         VDEBUG("QClipboard: sending %d bytes, %d remaining (INCR transaction %p)",
                xfer, bytes_left - xfer, this);
 
-        XChangeProperty(QX11Info::display(), window, property, target, format,
+        XChangeProperty(X11->display, window, property, target, format,
                         PropModeReplace, (uchar *) data.data() + offset, xfer);
         offset += xfer;
     } else {
         // INCR transaction finished...
-        XChangeProperty(QX11Info::display(), window, property, target, format,
+        XChangeProperty(X11->display, window, property, target, format,
                         PropModeReplace, (uchar *) data.data(), 0);
         delete this;
     }
@@ -387,8 +387,7 @@ static int qt_xclb_event_filter(XEvent *event)
     return 0;
 }
 
-bool qt_xclb_wait_for_event(Display *dpy, Window win, int type, XEvent *event,
-                            int timeout)
+bool QX11Data::clipboardWaitForEvent(Window win, int type, XEvent *event, int timeout)
 {
     if (waiting_for_data)
         qFatal("QClipboard: internal error, qt_xclb_wait_for_event recursed");
@@ -405,7 +404,7 @@ bool qt_xclb_wait_for_event(Display *dpy, Window win, int type, XEvent *event,
     QX11EventFilter old_event_filter = qt_set_x11_event_filter(qt_xclb_event_filter);
 
     do {
-        if (XCheckTypedWindowEvent(dpy,win,type,event)) {
+        if (XCheckTypedWindowEvent(display, win, type, event)) {
             waiting_for_data = false;
             qt_set_x11_event_filter(old_event_filter);
             return true;
@@ -443,12 +442,10 @@ static inline int maxSelectionIncr(Display *dpy)
 
 // uglyhack: externed into qt_xdnd.cpp. qt is really not designed for
 // single-platform, multi-purpose blocks of code...
-bool qt_xclb_read_property(Display *dpy, Window win, Atom property,
-                           bool deleteProperty,
-                           QByteArray *buffer, int *size, Atom *type,
-                           int *format, bool nullterm)
+bool QX11Data::clipboardReadProperty(Window win, Atom property, bool deleteProperty,
+                                     QByteArray *buffer, int *size, Atom *type, int *format, bool nullterm)
 {
-    int           maxsize = maxSelectionIncr(dpy);
+    int           maxsize = maxSelectionIncr(display);
     ulong  bytes_left; // bytes_after
     ulong  length;     // nitems
     uchar *data;
@@ -462,7 +459,7 @@ bool qt_xclb_read_property(Display *dpy, Window win, Atom property,
         format = &dummy_format;
 
     // Don't read anything, just get the size of the property data
-    r = XGetWindowProperty(dpy, win, property, 0, 0, False,
+    r = XGetWindowProperty(display, win, property, 0, 0, False,
                             AnyPropertyType, type, format,
                             &length, &bytes_left, &data);
     if (r != Success || (type && *type == XNone)) {
@@ -504,9 +501,9 @@ bool qt_xclb_read_property(Display *dpy, Window win, Atom property,
         while (bytes_left) {
             // more to read...
 
-            r = XGetWindowProperty(dpy, win, property, offset, maxsize/4,
-                                    False, AnyPropertyType, type, format,
-                                    &length, &bytes_left, &data);
+            r = XGetWindowProperty(display, win, property, offset, maxsize/4,
+                                   False, AnyPropertyType, type, format,
+                                   &length, &bytes_left, &data);
             if (r != Success || (type && *type == XNone))
                 break;
 
@@ -539,7 +536,7 @@ bool qt_xclb_read_property(Display *dpy, Window win, Atom property,
 
             char **list_ret = 0;
             int count;
-            if (XmbTextPropertyToTextList(dpy, &textprop, &list_ret,
+            if (XmbTextPropertyToTextList(display, &textprop, &list_ret,
                                             &count) == Success &&
                  count && list_ret) {
                 offset = strlen(list_ret[0]);
@@ -562,18 +559,16 @@ bool qt_xclb_read_property(Display *dpy, Window win, Atom property,
            buffer->size(), buffer_offset, offset);
 
     if (deleteProperty)
-        XDeleteProperty(dpy, win, property);
+        XDeleteProperty(display, win, property);
 
-    XFlush(dpy);
+    XFlush(display);
 
     return ok;
 }
 
 
 // this is externed into qt_xdnd.cpp too.
-QByteArray qt_xclb_read_incremental_property(Display *dpy, Window win,
-                                              Atom property, int nbytes,
-                                              bool nullterm)
+QByteArray QX11Data::clipboardReadIncrementalProperty(Window win, Atom property, int nbytes, bool nullterm)
 {
     XEvent event;
 
@@ -592,14 +587,13 @@ QByteArray qt_xclb_read_incremental_property(Display *dpy, Window win,
     }
 
     for (;;) {
-        XFlush(dpy);
-        if (!qt_xclb_wait_for_event(dpy,win,PropertyNotify,&event,clipboard_timeout))
+        XFlush(display);
+        if (!clipboardWaitForEvent(win,PropertyNotify,&event,clipboard_timeout))
             break;
         if (event.xproperty.atom != property ||
              event.xproperty.state != PropertyNewValue)
             continue;
-        if (qt_xclb_read_property(dpy, win, property, true, &tmp_buf,
-                                   &length,0, 0, false)) {
+        if (X11->clipboardReadProperty(win, property, true, &tmp_buf, &length, 0, 0, false)) {
             if (length == 0) {                // no more data, we're done
                 if (nullterm) {
                     buf.resize(offset+1);
@@ -680,7 +674,7 @@ static Atom send_targets_selection(QClipboardData *d, Window window, Atom proper
     }
 #endif
 
-    XChangeProperty(QX11Info::display(), window, property, XA_ATOM, 32,
+    XChangeProperty(X11->display, window, property, XA_ATOM, 32,
                     PropModeReplace, (uchar *) data.data(), n);
     return property;
 }
@@ -703,7 +697,7 @@ static Atom send_string_selection(QClipboardData *d, Atom target, Window window,
             (target == ATOM(COMPOUND_TEXT)) ? XCompoundTextStyle : XStdICCTextStyle;
         XTextProperty textprop;
         if (list[0] != NULL
-            && XmbTextListToTextProperty(QX11Info::display(),
+            && XmbTextListToTextProperty(X11->display,
                                          list, 1, style, &textprop) == Success) {
             DEBUG("    textprop type %lx\n"
                   "    textprop name '%s'\n"
@@ -740,7 +734,7 @@ static Atom send_string_selection(QClipboardData *d, Atom target, Window window,
 
     DEBUG("    format 8\n    %d bytes", data.size());
 
-    XChangeProperty(QX11Info::display(), window, property, xtarget, 8,
+    XChangeProperty(X11->display, window, property, xtarget, 8,
                     PropModeReplace, (uchar *) data.data(), data.size());
     return property;
 }
@@ -764,7 +758,7 @@ static Atom send_pixmap_selection(QClipboardData *d, Atom target, Window window,
         return XNone;
 
     Pixmap handle = pm.handle();
-    XChangeProperty(QX11Info::display(), window, property,
+    XChangeProperty(X11->display, window, property,
                     target, 32, PropModeReplace, (uchar *) &handle, 1);
     d->addTransferredPixmap(pm);
     return property;
@@ -797,11 +791,11 @@ static Atom send_selection(QClipboardData *d, Atom target, Window window, Atom p
     bool allow_incr = property != motif_clip_temporary;
 
     const int increment =
-        (XMaxRequestSize(QX11Info::display()) >= 65536 ?
-         65536 : XMaxRequestSize(QX11Info::display()));
+        (XMaxRequestSize(X11->display) >= 65536 ?
+         65536 : XMaxRequestSize(X11->display));
     if (data.size() > increment && allow_incr) {
         long bytes = data.size();
-        XChangeProperty(QX11Info::display(), window, property,
+        XChangeProperty(X11->display, window, property,
                         ATOM(INCR), 32, PropModeReplace, (uchar *) &bytes, 1);
 
         (void)new QClipboardINCRTransaction(window, property, target, format, data, increment);
@@ -809,11 +803,11 @@ static Atom send_selection(QClipboardData *d, Atom target, Window window, Atom p
     }
 
     // make sure we can perform the XChangeProperty in a single request
-    if ((int)data.size() >= XMaxRequestSize(QX11Info::display()) - 100)
+    if ((int)data.size() >= XMaxRequestSize(X11->display) - 100)
         return XNone; // ### perhaps use several XChangeProperty calls w/ PropModeAppend?
 
     // use a single request to transfer data
-    XChangeProperty(QX11Info::display(), window, property, target,
+    XChangeProperty(X11->display, window, property, target,
                     format, PropModeReplace, (uchar *) data.data(),
                     data.size() / sizeof_format(format));
     return property;
@@ -887,7 +881,7 @@ bool QClipboard::event(QEvent *e)
     }
 
     XEvent *xevent = (XEvent *)(((QCustomEvent *)e)->data());
-    Display *dpy = QX11Info::display();
+    Display *dpy = X11->display;
 
     if (!xevent)
         return true;
@@ -1015,7 +1009,8 @@ bool QClipboard::event(QEvent *e)
             if (req->target == xa_multiple) {
                 QByteArray multi_data;
                 if (req->property == XNone
-                    || !qt_xclb_read_property(dpy, req->requestor, req->property, false, &multi_data, 0, &multi_type, &multi_format, 0)
+                    || !X11->clipboardReadProperty(req->requestor, req->property, false, &multi_data,
+                                                   0, &multi_type, &multi_format, 0)
                     || multi_format != 32) {
                     // MULTIPLE property not formatted correctly
                     XSendEvent(dpy, req->requestor, False, NoEventMask, &event);
@@ -1248,7 +1243,7 @@ QVariant QClipboardWatcher::retrieveData(const QString &fmt, QVariant::Type type
         QByteArray pmd = getDataInFormat(fmtatom);
         if (pmd.size() == sizeof(Pixmap)) {
             Pixmap xpm = *((Pixmap*)pmd.data());
-            Display *dpy = QX11Info::display();
+            Display *dpy = X11->display;
             Window r;
             int x,y;
             uint w,h,bw,d;
@@ -1308,7 +1303,7 @@ QByteArray QClipboardWatcher::getDataInFormat(Atom fmtatom) const
     VDEBUG("QClipboardWatcher::getDataInFormat: waiting for SelectionNotify event");
 
     XEvent xevent;
-    if (!qt_xclb_wait_for_event(dpy,win,SelectionNotify,&xevent,clipboard_timeout) ||
+    if (!X11->clipboardWaitForEvent(win,SelectionNotify,&xevent,clipboard_timeout) ||
          xevent.xselection.property == XNone) {
         DEBUG("QClipboardWatcher::getDataInFormat: format not available");
         return buf;
@@ -1319,11 +1314,10 @@ QByteArray QClipboardWatcher::getDataInFormat(Atom fmtatom) const
     Atom   type;
     XSelectInput(dpy, win, PropertyChangeMask);
 
-    if (qt_xclb_read_property(dpy,win,ATOM(_QT_SELECTION),true,
-                               &buf,0,&type,0,false)) {
+    if (X11->clipboardReadProperty(win, ATOM(_QT_SELECTION), true, &buf, 0, &type, 0, false)) {
         if (type == ATOM(INCR)) {
             int nbytes = buf.size() >= 4 ? *((int*)buf.data()) : 0;
-            buf = qt_xclb_read_incremental_property(dpy, win, ATOM(_QT_SELECTION), nbytes, false);
+            buf = X11->clipboardReadIncrementalProperty(win, ATOM(_QT_SELECTION), nbytes, false);
         }
     }
 
@@ -1395,7 +1389,7 @@ void QClipboard::setMimeData(QMimeData* src, Mode mode)
         return;
     }
 
-    Display *dpy = QX11Info::display();
+    Display *dpy = X11->display;
     Window newOwner;
 
     if (! src) { // no data, clear clipboard contents
@@ -1464,7 +1458,7 @@ bool qt_check_selection_sentinel()
         ulong nitems;
         ulong bytesLeft;
 
-        if (XGetWindowProperty(QX11Info::display(),
+        if (XGetWindowProperty(X11->display,
                                QApplication::desktop()->screen(0)->winId(),
                                ATOM(_QT_SELECTION_SENTINEL), 0, 2, False, XA_WINDOW,
                                &actualType, &actualFormat, &nitems,
@@ -1503,7 +1497,7 @@ bool qt_check_clipboard_sentinel()
         int actualFormat;
         unsigned long nitems, bytesLeft;
 
-        if (XGetWindowProperty(QX11Info::display(),
+        if (XGetWindowProperty(X11->display,
                                QApplication::desktop()->screen(0)->winId(),
                                ATOM(_QT_CLIPBOARD_SENTINEL), 0, 2, False, XA_WINDOW,
                                &actualType, &actualFormat, &nitems, &bytesLeft,

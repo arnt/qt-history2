@@ -254,6 +254,13 @@ extern QX11Data *qt_x11Data;
 
 struct QX11Data
 {
+    Window findClientWindow(Window, Atom, bool);
+    // this stuff is implemented in qclb_x11.cpp
+    bool clipboardWaitForEvent(Window win, int type, XEvent *event, int timeout);
+    bool clipboardReadProperty(Window win, Atom property, bool deleteProperty,
+                            QByteArray *buffer, int *size, Atom *type, int *format, bool nullterm);
+    QByteArray clipboardReadIncrementalProperty(Window win, Atom property, int nbytes, bool nullterm);
+
     Display *display;
     char *displayName;
     bool foreignDisplay;
