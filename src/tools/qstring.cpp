@@ -13048,7 +13048,7 @@ QT_STATIC_CONST_IMPL QChar QChar::nbsp((ushort)0x00a0);
 QStringData* QString::makeSharedNull()
 {
     QString::shared_null = new QStringData;
-#ifdef Q_OS_MAC9
+#if defined( Q_OS_MAC ) 
     QString *that = const_cast<QString *>(&QString::null);
     that->d = QString::shared_null;
 #endif
