@@ -57,17 +57,22 @@ private:
 public:
     void	clear();
 
-#if defined(_WS_X11_)
+    bool supportsSelection() const;
     bool ownsSelection() const;
+    bool ownsClipboard() const;
+
+    void setSelectionMode(bool enable);
+    bool selectionModeEnabled() const;
+
+#ifndef QT_NO_MIMECLIPBOARD
+    QMimeSource *data() const;
+    void setData( QMimeSource* );
 #endif
     
-#ifndef QT_NO_MIMECLIPBOARD
-    QMimeSource* data() const;
-    void  setData( QMimeSource* );
-#endif
     QString     text()	 const;
     QString     text(QCString& subtype) const;
     void	setText( const QString &);
+    
 #ifndef QT_NO_MIMECLIPBOARD
     QImage	image() const;
     QPixmap	pixmap() const;
@@ -75,11 +80,14 @@ public:
     void	setPixmap( const QPixmap & );
 #endif
 signals:
+    void        selectionChanged();
     void	dataChanged();
 
+    
 private slots:
-void	ownerDestroyed();
-
+    void	ownerDestroyed();
+    
+    
 protected:
     void	connectNotify( const char * );
     bool	event( QEvent * );

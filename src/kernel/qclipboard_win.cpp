@@ -68,6 +68,36 @@ typedef uint ClipboardFormat;
   QClipboard member functions for Win32.
  *****************************************************************************/
 
+bool QClipboard::supportsSelection() const
+{
+    return FALSE;
+}
+
+
+bool QClipboard::ownsSelection() const
+{
+    return FALSE;
+}
+
+
+bool QClipboard::ownsClipboard() const
+{
+    qWarning("QClipboard::ownsClipboard: UNIMPLEMENTED!");
+    return FALSE;
+}
+
+
+void QClipboard::setSelectionMode(bool)
+{
+}
+
+
+bool QClipboard::selectionModeEnabled()
+{
+    return FALSE;
+}
+
+
 void QClipboard::ownerDestroyed()
 {
     if ( inClipboardChain ) {

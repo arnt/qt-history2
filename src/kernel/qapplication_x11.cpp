@@ -276,7 +276,9 @@ static Atom	qt_qt_scrolldone 	= 0;	// scroll synchronization
 Atom		qt_net_wm_context_help	= 0;	// context help
 
 static Atom	qt_xsetroot_id		= 0;
+Atom            qt_xa_clipboard         = 0;
 Atom		qt_selection_property	= 0;
+Atom            qt_clipboard_sentinel   = 0;
 Atom		qt_selection_sentinel	= 0;
 Atom		qt_wm_state		= 0;
 static Atom 	qt_desktop_properties	= 0;	// Qt desktop properties
@@ -384,7 +386,8 @@ static QTextCodec * input_mapper = 0;
 
 QObject	       *qt_clipboard = 0;
 Time		qt_x_time = CurrentTime;
-extern bool	qt_check_selection_sentinel( XEvent* ); //def in qclipboard_x11
+extern bool     qt_check_clipboard_sentinel( XEvent* ); //def in qclipboard_x11.cpp
+extern bool	qt_check_selection_sentinel( XEvent* ); //def in qclipboard_x11.cpp
 
 static void	qt_save_rootinfo();
 static bool	qt_try_modal( QWidget *, XEvent * );
@@ -1211,7 +1214,9 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	qt_x11_intern_atom( "WM_DELETE_WINDOW", &qt_wm_delete_window );
 	qt_x11_intern_atom( "_XSETROOT_ID", &qt_xsetroot_id );
 	qt_x11_intern_atom( "_QT_SCROLL_DONE", &qt_qt_scrolldone );
+	qt_x11_intern_atom( "CLIPBOARD", &qt_xa_clipboard );
 	qt_x11_intern_atom( "_QT_SELECTION", &qt_selection_property );
+	qt_x11_intern_atom( "_QT_CLIPBOARD_SENTINEL", &qt_clipboard_sentinel );
 	qt_x11_intern_atom( "_QT_SELECTION_SENTINEL", &qt_selection_sentinel );
 	qt_x11_intern_atom( "WM_STATE", &qt_wm_state );
 	qt_x11_intern_atom( "WM_TAKE_FOCUS", &qt_wm_take_focus );
@@ -2643,7 +2648,10 @@ int QApplication::x11ProcessEvent( XEvent* event )
     if ( event->type == PropertyNotify ) {	// some properties changed
 	qt_x_time = event->xproperty.time;
 	if ( event->xproperty.window == appRootWin ) { // root properties
-	    if ( event->xproperty.atom == qt_selection_sentinel ) {
+	    if ( event->xproperty.atom == qt_clipboard_sentinel ) {
+		if (qt_check_clipboard_sentinel( event ) )
+		    emit clipboard()->selectionChanged();
+	    } else if ( event->xproperty.atom == qt_selection_sentinel ) {
 		if (qt_check_selection_sentinel( event ) )
 		    emit clipboard()->dataChanged();
 	    } else if ( obey_desktop_settings ) {
@@ -2802,8 +2810,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		break;
 	    }
 	    if (  ev.xcrossing.mode != NotifyNormal ||
-		 ev.xcrossing.detail == NotifyVirtual  ||
-		 ev.xcrossing.detail == NotifyNonlinearVirtual )
+		  ev.xcrossing.detail == NotifyVirtual  ||
+		  ev.xcrossing.detail == NotifyNonlinearVirtual )
 		continue;
 	    enter = QWidget::find( ev.xcrossing.window );
 	    break;
@@ -4479,7 +4487,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 
 	if ( isVisible() )
 	    QApplication::syncX();
-	
+
 	XEvent otherEvent;
 	while ( XCheckTypedWindowEvent( x11Display(),winId(),ConfigureNotify,&otherEvent ) ) {
 	    if ( qt_x11EventFilter( &otherEvent ) )

@@ -703,7 +703,7 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 	int markEnd = maxMark();
 
 	p.fillRect( 0, 0, width(), height(), bg );
-	
+
 	QString display = displayText();
 	QString before = display.mid( 0, markBegin );
 	QString marked = display.mid( markBegin, markEnd - markBegin );
@@ -871,7 +871,7 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 	int allSelected = minMark() == 0 && maxMark() == (int)text().length();
 	popup->setItemEnabled( id[ IdSelectAll ],
 				  (bool)text().length() && !allSelected );
-	
+
 	int r = popup->exec( e->globalPos() );
 	delete popup;
 
@@ -954,7 +954,7 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 	return;
     }
 #endif
-	
+
     if ( !(e->state() & LeftButton) )
 	return;
 
@@ -1001,17 +1001,22 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
     d->mousePressed = FALSE;
 
 #ifndef QT_NO_CLIPBOARD
-#if defined(_WS_X11_)
-    copy();
-#endif
-
+    if (QApplication::clipboard()->supportsSelection()) {
+     	QApplication::clipboard()->setSelectionMode(TRUE);
+	copy();
+	QApplication::clipboard()->setSelectionMode(FALSE);
+    }
+    
     if ( !d->readonly && e->button() == MidButton ) {
-#if defined(_WS_X11_)
-	insert( QApplication::clipboard()->text() );
-#else
-	if ( style() == MotifStyle )
+	if (QApplication::clipboard()->supportsSelection()) {
+	    QApplication::clipboard()->setSelectionMode(TRUE);
 	    insert( QApplication::clipboard()->text() );
-#endif
+	    QApplication::clipboard()->setSelectionMode(TRUE);
+	    
+	    // if ( style() == MotifStyle )
+	    // insert( QApplication::clipboard()->text() );
+	}
+	
 	return;
     }
 #endif
@@ -1155,10 +1160,11 @@ void QLineEdit::newMark( int pos, bool c )
     markDrag = pos;
     setCursorPosition( pos );
 #ifndef QT_NO_CLIPBOARD
-#if defined(_WS_X11_)
-    if ( c )
+    if ( c && QApplication::clipboard()->supportsSelection()) {
+	QApplication::clipboard()->setSelectionMode(TRUE);
 	copy();
-#endif
+	QApplication::clipboard()->setSelectionMode(FALSE);
+    }
 #endif
 }
 
@@ -1183,9 +1189,11 @@ void QLineEdit::markWord( int pos )
     setSelection( newAnchor, newDrag - newAnchor );
 
 #ifndef QT_NO_CLIPBOARD
-#if defined(_WS_X11_)
-    copy();
-#endif
+    if (QApplication::clipboard()->supportsSelection()) {
+	QApplication::clipboard()->setSelectionMode(TRUE);
+	copy();
+	QApplication::clipboard()->setSelectionMode(FALSE);
+    }
 #endif
 }
 
@@ -1202,8 +1210,11 @@ void QLineEdit::copy() const
     QString t = markedText();
     if ( !t.isEmpty() && echoMode() == Normal ) {
 	disconnect( QApplication::clipboard(), SIGNAL(dataChanged()), this, 0);
+	disconnect( QApplication::clipboard(), SIGNAL(selectionChanged()), this, 0);
 	QApplication::clipboard()->setText( t );
 	connect( QApplication::clipboard(), SIGNAL(dataChanged()),
+		 this, SLOT(clipboardChanged()) );
+	connect( QApplication::clipboard(), SIGNAL(selectionChanged()),
 		 this, SLOT(clipboardChanged()) );
     }
 }
@@ -1252,7 +1263,7 @@ void QLineEdit::cut()
 void QLineEdit::setAlignment( int flag ){
     if ( flag == alignmentFlag )
 	return;
-    if ( !(flag & Qt::AlignVertical ) ) { 
+    if ( !(flag & Qt::AlignVertical ) ) {
 	alignmentFlag = flag;
 	updateOffset();
 	update();
@@ -1280,6 +1291,8 @@ void QLineEdit::clipboardChanged()
 {
 #if defined(_WS_X11_)
     disconnect( QApplication::clipboard(), SIGNAL(dataChanged()),
+		this, SLOT(clipboardChanged()) );
+    disconnect( QApplication::clipboard(), SIGNAL(selectionChanged()),
 		this, SLOT(clipboardChanged()) );
     deselect();
 #endif
@@ -1605,7 +1618,7 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 
 	if ( cursorPos < (int)text().length() && maxP < (int)text().length() )
 	    maxP = text().length();
-	
+
 	repaintArea( minP, maxP );
     }
     if ( tc ) {
@@ -1793,8 +1806,8 @@ void QLineEdit::setEdited( bool on )
 
 /*!  Returns the edited flag of the line edit.  If this returns FALSE,
 the line edit's contents have not been changed since the construction
-of the QLineEdit (or the last call to either setText() or setEdited( FALSE ), 
-if any).  If it returns true, the contents have been edited, or 
+of the QLineEdit (or the last call to either setText() or setEdited( FALSE ),
+if any).  If it returns true, the contents have been edited, or
 setEdited( TRUE ) has been called.
 
 \sa setEdited()

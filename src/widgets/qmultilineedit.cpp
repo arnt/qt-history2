@@ -2240,19 +2240,20 @@ void QMultiLineEdit::mouseReleaseEvent( QMouseEvent *e )
 	turnMark( FALSE );
 
 #ifndef QT_NO_CLIPBOARD
-#if defined(_WS_X11_)
-    else if ( echoMode() == Normal )
+    else if (echoMode() == Normal &&
+	     QApplication::clipboard()->supportsSelection() ) {
+	QApplication::clipboard()->setSelectionMode(TRUE);
 	copy();
-#endif
-
-    if ( e->button() == MidButton && !readOnly ) {
-#if defined(_WS_X11_)
-	paste();		// Will repaint the cursor line.
-#else
-	if ( style() == MotifStyle )
-	    paste();
-#endif
+	QApplication::clipboard()->setSelectionMode(FALSE);
     }
+    
+    if ( e->button() == MidButton && !readOnly &&
+	 QApplication::clipboard()->supportsSelection() ) {
+	QApplication::clipboard()->setSelectionMode(TRUE);
+	paste();		// Will repaint the cursor line.
+	QApplication::clipboard()->setSelectionMode(FALSE);
+    }
+    
 #endif
 
     d->isHandlingEvent = FALSE;
@@ -2704,10 +2705,11 @@ void QMultiLineEdit::markWord( int posx, int posy )
     turnMark( markDragX != markAnchorX || markDragY != markAnchorY );
 
 #ifndef QT_NO_CLIPBOARD
-#if defined(_WS_X11_)
-    if ( echoMode() == Normal )
+    if ( echoMode() == Normal && QApplication::clipboard()->supportsSelection()) {
+	QApplication::clipboard()->setSelectionMode(TRUE);
 	copy();
-#endif
+	QApplication::clipboard()->setSelectionMode(FALSE);
+    }
 #endif
 }
 
@@ -2735,19 +2737,29 @@ void QMultiLineEdit::copy() const
 {
     QString t = markedText();
     if ( !t.isEmpty() && echoMode() == Normal ) {
+	
 #if defined(_WS_X11_)
 	disconnect( QApplication::clipboard(), SIGNAL(dataChanged()), this, 0);
+	disconnect( QApplication::clipboard(), SIGNAL(selectionChanged()), this, 0);
 #endif
+	
 #if defined(_OS_WIN32_)
 	// Need to convert NL to CRLF
 	QRegExp nl( QString::fromLatin1("\n") );
 	t.replace( nl, QString::fromLatin1("\r\n") );
 #endif
+	
+	qDebug("QMultiLineEdit::copy: setting clipboard text (selection mode? %d)",
+	       QApplication::clipboard()->selectionModeEnabled());
 	QApplication::clipboard()->setText( t );
+	
 #if defined(_WS_X11_)
 	connect( QApplication::clipboard(), SIGNAL(dataChanged()),
 		 this, SLOT(clipboardChanged()) );
+	connect (QApplication::clipboard(), SIGNAL(selectionChanged()),
+		 this, SLOT(clipboardChanged()) );
 #endif
+	
     }
 }
 
@@ -2784,6 +2796,7 @@ void QMultiLineEdit::cut()
 
 void QMultiLineEdit::clipboardChanged()
 {
+    qDebug("QMultiLineEdit::clipboardChanged");
 #if defined(_WS_X11_)
     disconnect( QApplication::clipboard(), SIGNAL(dataChanged()),
 		this, SLOT(clipboardChanged()) );
@@ -2791,7 +2804,6 @@ void QMultiLineEdit::clipboardChanged()
     update();
 #endif
 }
-
 
 /*!
    Sets maxLineWidth() and maybe cellWidth() to \a w without updating the entire widget.

@@ -673,16 +673,17 @@ void QTextView::viewportMouseReleaseEvent( QMouseEvent* e )
 	d->scrollTimer->stop();
 #ifndef QT_NO_CLIPBOARD
 	if ( d->dragselection ) {
-#if !defined(_WS_X11_)
-	    if ( style() == MotifStyle )
+	    if ( qApp->clipboard()->supportsSelection() ) {
+		qApp->clipboard()->setSelectionMode(TRUE);
 		copy();
-#endif
+		qApp->clipboard()->setSelectionMode(FALSE);
+	    }
 	    d->dragselection = FALSE;
 	} else
 #endif
-	{
-	    clearSelection();
-	}
+	    {
+		clearSelection();
+	    }
     }
 }
 
@@ -711,7 +712,7 @@ QString QTextView::selectedText() const
 
     if ( d->selstart.a == d->selend.a && d->selstart.b == d->selend.b )
 	return it.text().mid( d->selstart.c, d->selend.c - d->selstart.c );
-    
+
     int column = 0;
     QString txt;
     QString s = it.text().mid( d->selstart.c );
@@ -837,9 +838,9 @@ QString QTextView::selectedRichTextInternal() const
 */
 void QTextView::copy()
 {
-#if defined(_WS_X11_)
     disconnect( QApplication::clipboard(), SIGNAL(dataChanged()), this, 0);
-#endif
+    disconnect( QApplication::clipboard(), SIGNAL(selectionChanged()), this, 0);
+    
     QString t = selectedText();
     QRegExp nbsp( QChar(0x00a0) );
     t.replace( nbsp, QChar(' ') );
@@ -849,10 +850,11 @@ void QTextView::copy()
     t.replace( nl, QString::fromLatin1("\r\n") );
 #endif
     QApplication::clipboard()->setText( t );
-#if defined(_WS_X11_)
+    
     connect( QApplication::clipboard(), SIGNAL(dataChanged()),
 	     this, SLOT(clipboardChanged()) );
-#endif
+    connect( QApplication::clipboard(), SIGNAL(selectionChanged()),
+	     this, SLOT(clipboardChanged()) );
 }
 #endif
 
@@ -867,9 +869,12 @@ void QTextView::selectAll()
     d->selend = it.position();
     viewport()->update();
     d->selection = TRUE;
-#if defined(_WS_X11_)
-    copy();
-#endif
+
+    if (qApp->clipboard()->supportsSelection()) {
+	qApp->clipboard()->setSelectionMode(TRUE);
+	copy();
+	qApp->clipboard()->setSelectionMode(FALSE);
+    }
 }
 
 /*!
@@ -1104,6 +1109,8 @@ void QTextView::clipboardChanged()
 {
 #if defined(_WS_X11_)
     disconnect( QApplication::clipboard(), SIGNAL(dataChanged()),
+		this, SLOT(clipboardChanged()) );
+    disconnect( QApplication::clipboard(), SIGNAL(selectionChanged()),
 		this, SLOT(clipboardChanged()) );
     clearSelection();
 #endif
