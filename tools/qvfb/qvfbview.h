@@ -31,6 +31,7 @@ public:
     int displayHeight() const;
     int displayDepth() const;
 
+    bool touchScreenEmulation() const { return emulateTouchscreen; }
     int rate() { return refreshRate; }
     bool animating() const { return !!animation; }
     QImage image() const;
@@ -46,6 +47,8 @@ public:
     double zoom() const { return zm; }
 
 public slots:
+    void setTouchscreenEmulation( bool );
+
     void setRate( int );
     void setZoom( double );
     void startAnimation( const QString& );
@@ -73,6 +76,7 @@ protected:
     virtual void keyReleaseEvent( QKeyEvent *e );
 
 private:
+    bool emulateTouchscreen;
     void setDirty( const QRect& );
     int shmId;
     unsigned char *data;

@@ -518,7 +518,8 @@ void QVFbView::contentsMouseReleaseEvent( QMouseEvent *e )
 
 void QVFbView::contentsMouseMoveEvent( QMouseEvent *e )
 {
-    sendMouseData( e->pos()/zm, e->state() );
+    if ( !emulateTouchscreen || (e->state() & MouseButtonMask ) )
+	sendMouseData( e->pos()/zm, e->state() );
 }
 
 
@@ -563,3 +564,7 @@ void QVFbView::stopAnimation()
     animation = 0;
 }
 
+void QVFbView::setTouchscreenEmulation( bool b )
+{
+    emulateTouchscreen = b;
+}

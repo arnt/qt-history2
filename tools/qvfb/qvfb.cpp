@@ -30,7 +30,7 @@
 #include <qpixmap.h>
 #include <qcursor.h>
 #include <qdragobject.h>
-
+#include <qcheckbox.h>
 
 QVFb::QVFb( int display_id, int w, int h, int d, const QString &skin, QWidget *parent,
 	    const char *name, uint flags )
@@ -257,6 +257,7 @@ void QVFb::configure()
 	config->size_skin->setChecked(TRUE);
 	config->skin->setEditText(currentSkin);
     }
+    config->touchScreen->setChecked(view->touchScreenEmulation());
     config->depth_1->setChecked(view->displayDepth()==1);
     config->depth_4gray->setChecked(view->displayDepth()==4);
     config->depth_8->setChecked(view->displayDepth()==8);
@@ -284,6 +285,7 @@ void QVFb::configure()
 
     if ( config->exec() ) {
 	int id = view->displayId(); // not settable yet
+	view->setTouchscreenEmulation( config->touchScreen->isChecked() );
 	if ( config->size_240_320->isChecked() ) {
 	    w=240; h=320;
 	} else if ( config->size_320_240->isChecked() ) {

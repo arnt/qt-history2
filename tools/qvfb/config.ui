@@ -154,7 +154,7 @@
                 </property>
             </widget>
         </widget>
-        <widget class="QLayoutWidget" row="3" column="0" rowspan="1" colspan="2">
+        <widget class="QLayoutWidget" row="4" column="0" rowspan="1" colspan="2">
             <property name="name">
                 <cstring>Layout1</cstring>
             </property>
@@ -212,7 +212,15 @@
                 </widget>
             </hbox>
         </widget>
-        <widget class="QGroupBox" row="2" column="0" rowspan="1" colspan="2">
+        <widget class="QCheckBox" row="2" column="0" rowspan="1" colspan="2">
+            <property name="name">
+                <cstring>touchScreen</cstring>
+            </property>
+            <property name="text">
+                <string>Emulate touch screen (no mouse move).</string>
+            </property>
+        </widget>
+        <widget class="QGroupBox" row="3" column="0" rowspan="1" colspan="2">
             <property name="name">
                 <cstring>GroupBox1</cstring>
             </property>
