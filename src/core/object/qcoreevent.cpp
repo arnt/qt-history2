@@ -70,7 +70,10 @@
     \value Accel  Key press in child for shortcut key handling, \l{QKeyEvent}.
     \value AccelAvailable internal.
     \value AccelOverride  Key press in child, for overriding shortcut key handling, \l{QKeyEvent}.
-    \value Accessibility  Accessibility information is requested
+    \value Accessibility  Accessibility information is requested.
+    \value ActionChanged An action has been changed.
+    \value ActionAdded A new action has been added.
+    \value ActionRemoved An actio has been removed.
     \value ActivateControl  Internal event used by Qt on some platforms.
     \value ActivationChange Widget's top level window activation state has changed
     \value ApplicationFontChange  Default application font changed.
@@ -94,6 +97,7 @@
     \value EmitSignal
     \value EnabledChange Widget's enabled state has changed
     \value Enter  Mouse enters widget's boundaries.
+    \value FileOpen File open request.
     \value FocusIn  Widget gains keyboard focus, \l{QFocusEvent}.
     \value FocusOut  Widget loses keyboard focus, \l{QFocusEvent}.
     \value FontChange Widget's font has changed

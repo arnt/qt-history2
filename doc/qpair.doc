@@ -95,6 +95,8 @@
 /*!
     \fn QPair qMakePair(T1 t1, T2 t2)
 
+    \overload
+
     \relates QPair
 
     This is a template convenience function. It is used to create a

@@ -3486,6 +3486,8 @@ void QSessionManager::cancel()
 {
     sm_cancel = TRUE;
 }
+
+#if defined(Q_OS_WIN) && defined(QT_COMPAT)
 /*!
     \enum Qt::WindowsVersion
 
@@ -3505,3 +3507,4 @@ void QSessionManager::cancel()
     \value WV_CENET
     \value WV_CE_based
 */
+#endif

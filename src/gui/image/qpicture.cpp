@@ -135,6 +135,7 @@ QPicture::QPicture( const QPicture &pic )
     d->ref();
 }
 
+/*! \internal */
 QPicture::QPicture(QPicturePrivate &dptr)
     : QPaintDevice(QInternal::Picture | QInternal::ExternalDevice),
       d_ptr(&dptr)

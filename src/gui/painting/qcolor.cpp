@@ -609,11 +609,21 @@ void QColor::setRgb( int r, int g, int b )
 }
 
 /*!
-    Sets the RGBA value to \a r, \a g, \a b, \a a. The arguments, \a r, \a g, \a b
-     and \a a must all be in the range 0..255. If any of them are
-    outside the legal range, the color is not changed.
+    \fn void QColor::getRgba(int *r, int *g, int *b, int *a) const
 
-    \sa rgba(), setRgb(), setHsv()
+    Populates \a r, \a g, and \a b with the color's RGB values,
+    and, \a a with the color's alpha channel (opacity) value. All the
+    values are in the range 0..255.
+
+    \sa setRgba() setRgb() setHsv()
+*/
+
+/*!
+    Sets the RGBA value to \a r, \a g, \a b, \a a. The arguments, \a
+    r, \a g, \a b and \a a must all be in the range 0..255. If any of
+    them are outside the legal range, the color is not changed.
+
+    \sa getRgba(), setRgb(), setHsv()
 */
 
 void QColor::setRgba( int r, int g, int b, int a )

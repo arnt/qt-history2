@@ -3076,6 +3076,7 @@ bool QApplication::qt_mac_apply_settings()
     return true;
 }
 
+#if defined(Q_OS_MAC) && defined(QT_COMPAT)
 /*!
     \enum Qt::MacintoshVersion
 
@@ -3091,4 +3092,5 @@ bool QApplication::qt_mac_apply_settings()
     \value MV_JAGUAR  10.2 Codename
     \value MV_PANTHER 10.3 Codename
 */
+#endif
 
