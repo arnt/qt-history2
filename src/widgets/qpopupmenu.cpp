@@ -230,7 +230,7 @@ QPopupMenu::~QPopupMenu()
 	syncMenu = 0;
     }
 
-    //delete (QWidget*) QMenuData::d->aWidget;  // tear-off menu
+    delete (QWidget*) QMenuData::d->aWidget;  // tear-off menu
 
     if ( parentMenu )
 	parentMenu->removePopup( this );	// remove from parent menu

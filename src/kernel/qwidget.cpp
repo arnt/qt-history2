@@ -2681,7 +2681,7 @@ void QWidget::reparentFocusWidgets( QWidget * parent )
 
 	do {
 	    QWidget * pw = from->focusWidgets.current();
-	    while( pw && pw != this )
+	    while( pw && pw != this && !pw->isTopLevel() )
 		pw = pw->parentWidget();
 	    if ( pw == this ) {
 		QWidget * w = from->focusWidgets.take();
@@ -2689,7 +2689,8 @@ void QWidget::reparentFocusWidgets( QWidget * parent )
 		    // probably best to clear keyboard focus, or
 		    // the user might become rather confused
 		    w->clearFocus();
-		to->focusWidgets.append( w );
+		if ( !isTopLevel() )
+		    to->focusWidgets.append( w );
 	    } else {
 		from->focusWidgets.next();
 	    }
