@@ -19,8 +19,6 @@
 #include <qevent.h>
 
 #include <private/qwidget_p.h>
-#undef d
-#undef q
 
 #include <X11/StringDefs.h>
 #include <X11/IntrinsicP.h>
@@ -39,6 +37,7 @@ const int XKeyRelease = KeyRelease;
 
 // TopLevelShell subclass to wrap toplevel motif widgets into QWidgets
 
+static void qmotif_widget_shell_destroy(Widget w);
 void qmotif_widget_shell_realize( Widget w, XtValueMask *mask,
 				  XSetWindowAttributes *attr );
 void qmotif_widget_shell_change_managed( Widget w );
@@ -102,7 +101,7 @@ externaldef(qmotifwidgetshellclassrec)
 	    XtExposeCompressSeries,			/* compressed exposure */
 	    FALSE,					/* do compress enter-leave */
 	    FALSE,					/* do have visible_interest */
-	    NULL,					/* destroy widget proc */
+	    qmotif_widget_shell_destroy,		/* destroy widget proc */
 	    XtInheritResize,				/* resize widget proc */
 	    NULL,					/* expose proc */
 	    NULL,					/* set_values proc */
@@ -236,7 +235,7 @@ QMotifWidget::QMotifWidget( QWidget *parent, WidgetClass widgetclass,
 	}
 
 	d->shell = XtAppCreateShell( name, name, qmotifWidgetShellWidgetClass,
-				     QPaintDevice::x11AppDisplay(), realargs, nargs );
+				     QMotif::x11Display(), realargs, nargs );
 	( (QMotifWidgetShellWidget) d->shell )->qmotifwidgetshell.widget = this;
 	motifparent = d->shell;
 
@@ -269,6 +268,9 @@ QMotifWidget::~QMotifWidget()
     }
     delete d;
 
+    // make sure we don't have any pending requests for the window we
+    // are about to destroy
+    XSync(x11Display(), FALSE);
     destroy( FALSE );
 }
 
@@ -295,6 +297,11 @@ void QMotifWidget::show()
 			  motifshell->composite.num_children );
 	if ( ! XtIsRealized( d->shell ) )
 	    XtRealizeWidget( d->shell );
+
+	XSync(x11Display(), FALSE);
+	XSync(QMotif::x11Display(), FALSE);
+
+	XtMapWidget(d->shell);
     }
 
     QWidget::show();
@@ -327,6 +334,8 @@ void QMotifWidget::realize( Widget w )
     // use the winid of the dialog shell, reparent any children we
     // have
     if ( XtWindow( w ) != winId() ) {
+	XSync(QMotif::x11Display(), FALSE);
+
 	// save the geometry of the motif widget, since it has the
 	// geometry we want
 	QRect save( w->core.x, w->core.y, w->core.width, w->core.height );
@@ -339,7 +348,7 @@ void QMotifWidget::realize( Widget w )
 	} else {
 	    setCaption( QString::null );
 	    XTextProperty text_prop;
-	    if (XGetWMName( QPaintDevice::x11AppDisplay(), winId(), &text_prop)) {
+	    if (XGetWMName(x11Display(), winId(), &text_prop)) {
 		if (text_prop.value && text_prop.nitems > 0) {
 		    if (text_prop.encoding == XA_STRING) {
 			cap = QString::fromLocal8Bit( (char *) text_prop.value );
@@ -348,8 +357,7 @@ void QMotifWidget::realize( Widget w )
 
 			char **list;
 			int num;
-			if (XmbTextPropertyToTextList(QPaintDevice::x11AppDisplay(),
-						      &text_prop,
+			if (XmbTextPropertyToTextList(x11Display(), &text_prop,
 						      &list, &num) == Success &&
 			    num > 0 && *list) {
 			    cap = QString::fromLocal8Bit( *list );
@@ -366,10 +374,8 @@ void QMotifWidget::realize( Widget w )
 	    QWidget *widget = qt_cast<QWidget*>(list.at(i));
 	    if (!widget) continue;
 
-	    XReparentWindow(widget->x11Display(), widget->winId(), newid,
+	    XReparentWindow(x11Display(), widget->winId(), newid,
 			    widget->x(), widget->y());
-	    if (!widget->isHidden())
-		XMapWindow(widget->x11Display(), widget->winId());
 	}
 	QApplication::syncX();
 
@@ -382,7 +388,7 @@ void QMotifWidget::realize( Widget w )
 	setCaption( cap );
 
 	// restore geometry of the shell
-	XMoveResizeWindow( QPaintDevice::x11AppDisplay(), winId(),
+	XMoveResizeWindow( x11Display(), winId(),
 			   save.x(), save.y(), save.width(), save.height() );
 
 	// if this QMotifWidget has a parent widget, we should
@@ -393,6 +399,23 @@ void QMotifWidget::realize( Widget w )
 	}
     }
     QMotif::registerWidget( this );
+}
+
+/*! \internal
+    Motif callback to send a close event to a QMotifWidget
+*/
+void qmotif_widget_shell_destroy(Widget widget)
+{
+    XtWidgetProc destroy =
+	((CoreWidgetClass)topLevelShellClassRec.core_class.
+	 superclass)->core_class.destroy;
+    (*destroy)(widget);
+
+    QMotifWidget *mw =
+	((QMotifWidgetShellWidget) widget)->qmotifwidgetshell.widget;
+    if ( ! mw )
+	return;
+    mw->close();
 }
 
 /*! \internal
@@ -487,15 +510,15 @@ bool QMotifWidget::dispatchQEvent( QEvent* e, QWidget* w)
 	break;
     case QEvent::FocusIn:
     {
-	XFocusInEvent ev = { XFocusIn, 0, TRUE, w->x11Display(), w->winId(),
-			       NotifyNormal, NotifyPointer  };
+	XFocusInEvent ev = { XFocusIn, 0, TRUE, QMotif::x11Display(), w->winId(),
+			     NotifyNormal, NotifyPointer  };
 	QMotif::redeliverEvent( (XEvent*)&ev );
 	break;
     }
     case QEvent::FocusOut:
     {
-	XFocusOutEvent ev = { XFocusOut, 0, TRUE, w->x11Display(), w->winId(),
-			       NotifyNormal, NotifyPointer  };
+	XFocusOutEvent ev = { XFocusOut, 0, TRUE, QMotif::x11Display(), w->winId(),
+			      NotifyNormal, NotifyPointer  };
 	QMotif::redeliverEvent( (XEvent*)&ev );
 	break;
     }

@@ -37,6 +37,8 @@ public:
     static void registerWidget( QWidget* );
     static void unregisterWidget( QWidget* );
     static bool redeliverEvent( XEvent *event );
+
+    static Display *x11Display();
     static XEvent* lastEvent();
 
 protected:
@@ -46,9 +48,6 @@ private:
     void appStartingUp();
     void appClosingDown();
     QMotifPrivate *d;
-
 };
-
-
 
 #endif // QMOTIF_H

@@ -12,12 +12,28 @@
 **
 ****************************************************************************/
 
+// #define GRAB_DEBUG
+#ifdef GRAB_DEBUG
+#  define GDEBUG qDebug
+#else
+#  define GDEBUG if(false)qDebug
+#endif
+
+// #define EVENT_DEBUG
+#ifdef EVENT_DEBUG
+#  define EDEBUG qDebug
+#else
+#  define EDEBUG if(false)qDebug
+#endif
+
 #include "qmotif.h"
 
 #include <qapplication.h>
 #include <qhash.h>
 #include <qwidget.h>
 #include <qvector.h>
+
+#include <stdlib.h>
 
 // resolve the conflict between X11's FocusIn and QEvent::FocusIn
 const int XFocusOut = FocusOut;
@@ -44,8 +60,11 @@ public:
     void hookMeUp();
     void unhook();
 
+    Display *display;
     XtAppContext appContext, ownContext;
-    QVector<XtEventDispatchProc> dispatchers;
+
+    typedef QVector<XtEventDispatchProc> DispatcherArray;
+    QHash<Display*,DispatcherArray> dispatchers;
     QWidgetMapper mapper;
 
     SockNotMapper sock_not_mapper;
@@ -73,11 +92,7 @@ static XEvent* last_xevent = 0;
 bool QMotif::redeliverEvent( XEvent *event )
 {
     // redeliver the event to Xt, NOT through Qt
-    if ( static_d->dispatchers[ event->type ]( event ) ) {
-	// qDebug( "Xt: redelivered event" );
-	return TRUE;
-    }
-    return FALSE;
+    return (static_d->dispatchers[event->xany.display][event->type](event));
 };
 
 
@@ -101,13 +116,22 @@ void QMotifPrivate::hookMeUp()
     // and Xt into Qt (QMotifEventLoop)
 
     // ### TODO extensions?
-    dispatchers.resize( LASTEvent );
-    dispatchers.fill( 0 );
+    DispatcherArray &qt_dispatchers = dispatchers[QPaintDevice::x11AppDisplay()];
+    DispatcherArray &qm_dispatchers = dispatchers[display];
+
+    qt_dispatchers.resize( LASTEvent );
+    qt_dispatchers.fill( 0 );
+
+    qm_dispatchers.resize( LASTEvent );
+    qm_dispatchers.fill( 0 );
+
     int et;
-    for ( et = 2; et < LASTEvent; et++ )
-	dispatchers[ et ] =
-	    XtSetEventDispatcher( QPaintDevice::x11AppDisplay(),
-				  et, ::qmotif_event_dispatcher );
+    for ( et = 2; et < LASTEvent; et++ ) {
+	qt_dispatchers[et] =
+	    XtSetEventDispatcher(QPaintDevice::x11AppDisplay(), et, ::qmotif_event_dispatcher);
+	qm_dispatchers[et] =
+	    XtSetEventDispatcher(display, et, ::qmotif_event_dispatcher);
+    }
 }
 
 void QMotifPrivate::unhook()
@@ -116,11 +140,13 @@ void QMotifPrivate::unhook()
     // unhook Xt from Qt? (QMotifEventLoop)
 
     // ### TODO extensions?
-    int et;
-    for ( et = 2; et < LASTEvent; et++ )
-	(void) XtSetEventDispatcher( QPaintDevice::x11AppDisplay(),
-				     et, dispatchers[ et ] );
-    dispatchers.resize( 0 );
+    DispatcherArray &qt_dispatchers = dispatchers[QPaintDevice::x11AppDisplay()];
+    DispatcherArray &qm_dispatchers = dispatchers[display];
+
+    for (int et = 2; et < LASTEvent; ++et) {
+	(void) XtSetEventDispatcher(QPaintDevice::x11AppDisplay(), et, qt_dispatchers[et]);
+	(void) XtSetEventDispatcher(display, et, qm_dispatchers[et]);
+    }
 
     /*
       We cannot destroy the app context here because it closes the X
@@ -138,20 +164,22 @@ static Window xt_grab_focus_window = None;
 
 Boolean qmotif_event_dispatcher( XEvent *event )
 {
+    qmotif_keep_alive();
+
     QApplication::sendPostedEvents();
 
     if (xt_grab) {
 	if (event->type == XFocusIn && event->xfocus.mode == NotifyWhileGrabbed) {
-	    // qDebug("Xt: grab moved to window 0x%lx", event->xany.window);
+	    GDEBUG("Xt: grab moved to window 0x%lx", event->xany.window);
 	    xt_grab_focus_window = event->xany.window;
 	} else {
 	    if (event->type == XFocusOut && event->xfocus.mode == NotifyUngrab) {
-		// qDebug( "Xt: grab ended for 0x%lx", event->xany.window );
+		GDEBUG("Xt: grab ended for 0x%lx", event->xany.window);
 		xt_grab = FALSE;
 		xt_grab_focus_window = None;
 	    } else if (event->type == DestroyNotify
 		       && event->xany.window == xt_grab_focus_window) {
-		// qDebug("Xt: grab window destroyed (0x%lx)", xt_grab_focus_window);
+		GDEBUG("Xt: grab window destroyed (0x%lx)", xt_grab_focus_window);
 		xt_grab = FALSE;
 		xt_grab_focus_window = None;
 	    }
@@ -160,78 +188,74 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 
     QWidgetMapper *mapper = &static_d->mapper;
     QWidgetMapper::Iterator it = mapper->find(event->xany.window);
-    QWidget* qMotif = it == mapper->end() ? 0 : *it;
-    if ( !qMotif && QWidget::find( event->xany.window) == 0 ) {
-	if (! xt_grab
-	    && (event->type == XFocusIn && event->xfocus.mode == NotifyGrab)) {
-	    // qDebug("Xt: grab started for 0x%lx", event->xany.window);
+    QWidget *widget = it == mapper->end() ? 0 : *it;
+    if ( !widget && QWidget::find( event->xany.window) == 0 ) {
+	if (!xt_grab && (event->type == XFocusIn && event->xfocus.mode == NotifyGrab)) {
+	    GDEBUG("Xt: grab started for 0x%lx", event->xany.window);
 	    xt_grab = TRUE;
 	    xt_grab_focus_window = event->xany.window;
 	}
 
 	// event is not for Qt, try Xt
-	Widget w = XtWindowToWidget( QPaintDevice::x11AppDisplay(), event->xany.window );
+	Widget w = XtWindowToWidget(QMotif::x11Display(), event->xany.window);
 
-	while (w && (it = mapper->find(XtWindow(w))) != mapper->end()) {
-	    qMotif = *it;
-
+	while (w && (it = mapper->find(XtWindow(w))) == mapper->end()) {
 	    if ( XtIsShell( w ) ) {
 		break;
 	    }
 	    w = XtParent( w );
 	}
+	widget = it != mapper->end() ? *it : 0;
 
- 	if ( qMotif && ( event->type == XKeyPress ||
+ 	if ( widget && ( event->type == XKeyPress ||
 			 event->type == XKeyRelease ) )  {
 	    // remap key events to keep accelerators working
- 	    event->xany.window = qMotif->winId();
+ 	    event->xany.window = widget->winId();
  	}
     }
 
-    /*
-      If the mouse has been grabbed for a window that we don't know
-      about, we shouldn't deliver any pointer events, since this will
-      intercept the event that ends the mouse grab that Xt/Motif
-      started.
-    */
-    bool do_deliver = TRUE;
-    if ( xt_grab && ( event->type == ButtonPress   ||
-		      event->type == ButtonRelease ||
-		      event->type == MotionNotify  ||
-		      event->type == EnterNotify   ||
-		      event->type == LeaveNotify ) )
-	do_deliver = FALSE;
+    bool delivered = FALSE;
+    if (widget || event->xany.display == QPaintDevice::x11AppDisplay()) {
+	/*
+	  If the mouse has been grabbed for a window that we don't know
+	  about, we shouldn't deliver any pointer events, since this will
+	  intercept the event that ends the mouse grab that Xt/Motif
+	  started.
+	*/
+	bool do_deliver = TRUE;
+	if ( xt_grab && ( event->type == ButtonPress   ||
+			  event->type == ButtonRelease ||
+			  event->type == MotionNotify  ||
+			  event->type == EnterNotify   ||
+			  event->type == LeaveNotify ) )
+	    do_deliver = FALSE;
 
-    last_xevent = event;
-    bool delivered = do_deliver && ( qApp->x11ProcessEvent( event ) != -1 );
-    last_xevent = 0;
-    if ( qMotif ) {
-	switch ( event->type ) {
-	case EnterNotify:
-	case LeaveNotify:
-	    event->xcrossing.focus = False;
-	    delivered = FALSE;
-	    break;
-	case XKeyPress:
-	case XKeyRelease:
-	    delivered = TRUE;
-	    break;
-	case XFocusIn:
-	case XFocusOut:
-	    delivered = FALSE;
-	    break;
-	default:
-	    delivered = FALSE;
-	    break;
+	last_xevent = event;
+	delivered = do_deliver && ( qApp->x11ProcessEvent( event ) != -1 );
+	last_xevent = 0;
+	if ( widget ) {
+	    switch ( event->type ) {
+	    case EnterNotify:
+	    case LeaveNotify:
+		event->xcrossing.focus = False;
+		delivered = FALSE;
+		break;
+	    case XKeyPress:
+	    case XKeyRelease:
+		delivered = TRUE;
+		break;
+	    case XFocusIn:
+	    case XFocusOut:
+		delivered = FALSE;
+		break;
+	    default:
+		delivered = FALSE;
+		break;
+	    }
 	}
     }
 
-    qmotif_keep_alive();
-
-    if ( delivered ) {
-	// qDebug( "Qt: delivered event" );
-	return True;
-    }
+    if (delivered) return True;
 
     // discard user input events when we have an active popup widget
     if ( QApplication::activePopupWidget() ) {
@@ -244,7 +268,7 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 	case EnterNotify:
 	case LeaveNotify:
 	case ClientMessage:
-            // qDebug( "Qt: active popup - discarding event" );
+	    EDEBUG("Qt: active popup discarded event, type %d", event->type);
 	    return True;
 
 	default:
@@ -253,22 +277,19 @@ Boolean qmotif_event_dispatcher( XEvent *event )
     }
 
     if ( ! xt_grab && QApplication::activeModalWidget() ) {
-	if ( qMotif ) {
+	if ( widget ) {
 	    // send event through Qt modality handling...
-	    if ( !qt_try_modal( qMotif, event ) ) {
-                // qDebug( "Qt: active modal widget discarded event" );
+	    if ( !qt_try_modal( widget, event ) ) {
+		EDEBUG("Qt: active modal widget discarded event, type %d", event->type);
 		return True;
 	    }
 	} else {
-	    // we could have a pure Xt shell as a child of the active
-	    // modal widget
-	    QWidget *qw = 0;
-	    Widget xw = XtWindowToWidget(QPaintDevice::x11AppDisplay(), event->xany.window);
-	    while (xw && (it = mapper->find(XtWindow(xw))) != mapper->end()) {
-		qw = *it;
+	    // we could have a pure Xt shell as a child of the active modal widget
+	    Widget xw = XtWindowToWidget(QMotif::x11Display(), event->xany.window);
+	    while (xw && (it = mapper->find(XtWindow(xw))) == mapper->end())
 		xw = XtParent(xw);
-	    }
 
+	    QWidget *qw = it != mapper->end() ? *it : 0;
 	    while (qw && qw != QApplication::activeModalWidget())
 		qw = qw->parentWidget();
 
@@ -284,7 +305,7 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 		case EnterNotify:
 		case LeaveNotify:
 		case ClientMessage:
-                    // qDebug( "Qt: active modal widget discarded unknown event" );
+		    EDEBUG("Qt: active modal widget discarded event, type %d", event->type);
 		    return True;
 		default:
 		    break;
@@ -294,20 +315,20 @@ Boolean qmotif_event_dispatcher( XEvent *event )
     }
 
     // make click-to-focus work with QMotifWidget children
-    if ( !xt_grab && event->type == ButtonPress ) {
+    if (!xt_grab && event->type == ButtonPress) {
 	QWidget *qw = 0;
-	Widget xw = XtWindowToWidget( QPaintDevice::x11AppDisplay(),
-				      event->xany.window );
+	Widget xw = XtWindowToWidget(QMotif::x11Display(), event->xany.window);
 	while (xw && (it = mapper->find(XtWindow(xw))) != mapper->end()) {
 	    qw = *it;
-	    xw = XtParent( xw );
+	    xw = XtParent(xw);
 	}
 
 	if (qw && !qw->hasFocus() && (qw->focusPolicy() & QWidget::ClickFocus))
 	    qw->setFocus();
     }
 
-    return static_d->dispatchers[event->type](event);
+    Q_ASSERT(static_d->dispatchers.find(event->xany.display) != static_d->dispatchers.end());
+    return static_d->dispatchers[event->xany.display][event->type](event);
 }
 
 
@@ -388,6 +409,14 @@ QMotif::~QMotif()
 }
 
 /*!
+    Returns the X11 display connection used by the Qt Motif Extension.
+*/
+Display *QMotif::x11Display()
+{
+    return static_d->display;
+}
+
+/*!
     Returns the application context.
 */
 XtAppContext QMotif::applicationContext() const
@@ -395,7 +424,8 @@ XtAppContext QMotif::applicationContext() const
     return d->appContext;
 }
 
-
+/*! \reimp
+ */
 void QMotif::appStartingUp()
 {
     /*
@@ -403,7 +433,6 @@ void QMotif::appStartingUp()
       we should only initialize the display if the current application
       context does not contain the QApplication display
     */
-
     bool display_found = FALSE;
     Display **displays;
     Cardinal x, count;
@@ -415,8 +444,9 @@ void QMotif::appStartingUp()
     if ( displays )
 	XtFree( (char *) displays );
 
+    int argc;
     if ( ! display_found ) {
-	int argc = qApp->argc();
+	argc = qApp->argc();
 	XtDisplayInitialize( d->appContext,
 			     QPaintDevice::x11AppDisplay(),
 			     qApp->name(),
@@ -427,12 +457,36 @@ void QMotif::appStartingUp()
 			     qApp->argv() );
     }
 
+    // open a second connection to the X server... QMotifWidget and
+    // QMotifDialog will use this connection to create their wrapper
+    // shells, which will allow for Motif<->Qt clipboard operations
+    d->display = XOpenDisplay(DisplayString(QPaintDevice::x11AppDisplay()));
+    if (!d->display) {
+	qWarning("%s: (QMotif) cannot create second connection to X server '%s'",
+		 qApp->argv()[0], DisplayString(QPaintDevice::x11AppDisplay()));
+	::exit( 1 );
+    }
+
+    argc = qApp->argc();
+    XtDisplayInitialize(d->appContext,
+			d->display,
+			qApp->name(),
+			d->applicationClass,
+			d->options,
+			d->numOptions,
+			&argc,
+			qApp->argv());
+    XSync(d->display, False);
+
+    // setup event dispatchers
     d->hookMeUp();
 
     // start a zero-timer to get the timer keep-alive working
     d->timerid = XtAppAddTimeOut( d->appContext, 0, qmotif_timeout_handler, 0 );
 }
 
+/*! \reimp
+ */
 void QMotif::appClosingDown()
 {
     if ( d->timerid != ~0u )
@@ -440,8 +494,10 @@ void QMotif::appClosingDown()
     d->timerid = ~0u;
 
     d->unhook();
-}
 
+    XtCloseDisplay(d->display);
+    d->display = 0;
+}
 
 /*!\internal
  */

@@ -412,7 +412,7 @@ void QMotifDialog::init( Widget parent, ArgList args, Cardinal argcount )
 				       realargs, argcount );
     } else {
 	d->shell = XtAppCreateShell( name(), name(), qmotifDialogWidgetClass,
-				     x11Display(), realargs, argcount );
+				     QMotif::x11Display(), realargs, argcount );
     }
 
     ( (QMotifDialogWidget) d->shell )->qmotifdialog.dialog = this;
@@ -432,6 +432,9 @@ QMotifDialog::~QMotifDialog()
 
     delete d;
 
+    // make sure we don't have any pending requests for the window we
+    // are about to destroy
+    XSync(x11Display(), FALSE);
     destroy( FALSE );
 }
 
@@ -483,9 +486,12 @@ void QMotifDialog::show()
 
     XtSetMappedWhenManaged( d->shell, False );
 
-    if ( d->dialog )
+    if ( d->dialog ) {
 	XtManageChild( d->dialog );
-    else if ( !parentWidget() ) {
+
+	XSync(x11Display(), FALSE);
+	XSync(QMotif::x11Display(), FALSE);
+    } else if ( !parentWidget() ) {
 	adjustSize();
 	QApplication::sendPostedEvents(this, QEvent::LayoutHint);
 	QApplication::sendPostedEvents(this, QEvent::Resize);
@@ -549,6 +555,8 @@ void QMotifDialog::realize( Widget w )
 {
     // use the winid of the dialog shell, reparent any children we have
     if ( XtWindow( w ) != winId() ) {
+	XSync(QMotif::x11Display(), FALSE);
+
 	XtSetMappedWhenManaged( d->shell, False );
 
 	// save the caption
@@ -559,7 +567,7 @@ void QMotifDialog::realize( Widget w )
 	} else {
 	    setCaption( QString::null );
 	    XTextProperty text_prop;
-	    if (XGetWMName( QPaintDevice::x11AppDisplay(), winId(), &text_prop)) {
+	    if (XGetWMName(x11Display(), winId(), &text_prop)) {
 		if (text_prop.value && text_prop.nitems > 0) {
 		    if (text_prop.encoding == XA_STRING) {
 			cap = QString::fromLocal8Bit( (char *) text_prop.value );
@@ -568,8 +576,7 @@ void QMotifDialog::realize( Widget w )
 
 			char **list;
 			int num;
-			if (XmbTextPropertyToTextList(QPaintDevice::x11AppDisplay(),
-						      &text_prop,
+			if (XmbTextPropertyToTextList(x11Display(), &text_prop,
 						      &list, &num) == Success &&
 			    num > 0 && *list) {
 			    cap = QString::fromLocal8Bit( *list );
@@ -588,8 +595,6 @@ void QMotifDialog::realize( Widget w )
 
 	    XReparentWindow(widget->x11Display(), widget->winId(), newid,
 			    widget->x(), widget->y());
-	    if ( !widget->isHidden() )
-		XMapWindow(widget->x11Display(), widget->winId());
 	}
 	QApplication::syncX();
 
@@ -602,8 +607,7 @@ void QMotifDialog::realize( Widget w )
 	// for will be set to the root window, which is not acceptable.
 	// instead, set it to the window id of the shell's parent
 	if ( ! parent() && XtParent( d->shell ) )
-	    XSetTransientForHint( QPaintDevice::x11AppDisplay(), newid,
-				  XtWindow( XtParent( d->shell ) ) );
+	    XSetTransientForHint(x11Display(), newid, XtWindow(XtParent(d->shell)));
     }
     QMotif::registerWidget( this );
 }
