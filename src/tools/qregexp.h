@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.h#3 $
+** $Id: //depot/qt/main/src/tools/qregexp.h#4 $
 **
 ** Definition of QRegExp class
 **
@@ -26,8 +26,10 @@ public:
     QRegExp    &operator=( const QRegExp & );
     QRegExp    &operator=( const char *pattern );
 
-    bool	isEmpty() const	     { return rxdata != 0; }
-    bool	isValid() const	     { return valid; }
+    bool	isEmpty() const	     { return rxdata == 0; }
+    bool	isValid() const	     { return error == 0; }
+
+    const char *pattern() const	     { return (const char *)rxstring; }
 
     int		match( const char *str, int index=0, int *len=0 ) const;
 
@@ -39,7 +41,7 @@ protected:
 private:
     QString	rxstring;			// regular expression pattern
     ushort     *rxdata;				// compiled regexp pattern
-    bool	valid;
+    int		error;				// error status
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#4 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#5 $
 **
 ** Implementation of QRegExp class
 **
@@ -19,7 +19,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#5 $";
 #endif
 
 
@@ -36,7 +36,17 @@ const ushort EOW	= 0x8004;		// end of word		\>
 const ushort ANY	= 0x8005;		// any character	.
 const ushort CCL	= 0x8006;		// character class	[]
 const ushort CLO	= 0x8007;		// Kleene closure	*
+const ushort OPT	= 0x8008;		// Optional closure	?
 const ushort END	= 0x0000;
+
+//
+// QRegExp::error codes (internal)
+//
+
+const PatOk		= 0;			// pattern ok
+const PatNull		= 1;			// no pattern defined
+const PatSyntax		= 2;			// pattern syntax error
+const PatOverflow	= 4;			// pattern too long
 
 // ---------------------------------------------------------------------------
 // QRegExp member functions
@@ -45,7 +55,7 @@ const ushort END	= 0x0000;
 QRegExp::QRegExp()
 {
     rxdata = 0;
-    valid = FALSE;
+    error = PatOk;
 }
 
 QRegExp::QRegExp( const char *pattern, bool wildcard )
@@ -83,7 +93,7 @@ QRegExp &QRegExp::operator=( const char *pattern )
 
 int QRegExp::match( const char *str, int index, int *len ) const
 {
-    if ( !valid || !rxdata || !*rxdata )	// nothing to match
+    if ( error )				// not fit for fight
 	return -1;
     register char *p = (char *)str + index;
     ushort *d  = rxdata;
@@ -159,7 +169,7 @@ char *QRegExp::matchstr( ushort *rxd, char *str, char *bol ) const
 		if ( iswordchar(*p) || p == bol || !iswordchar(*(p-1)) )
 		    return 0;
 		break;
-	    case CLO:				// closure
+	    case CLO:				// Kleene closure
 		{
 		char *first_p = p;
 		if ( (*d & 0x8000) == 0 ) {	// match char
@@ -188,7 +198,39 @@ char *QRegExp::matchstr( ushort *rxd, char *str, char *bol ) const
 			return end;
 		    --p;
 		}
-		}				// fall through!
+		}
+		return 0;
+	    case OPT:				// optional closure
+		{
+		char *first_p = p;
+		if ( (*d & 0x8000) == 0 ) {	// match char
+		    if ( *p && *p == (char)*d )
+			p++;
+		}
+		else switch ( *d ) {
+		    case ANY:
+			if ( *p )
+			    p++;
+			break;
+		    case CCL:
+			d++;
+			if ( *p && d[*p >> 4] & (1 << (*p & 0xf)) )
+			    p++;
+			d += 15;
+			break;
+		    default:			// error
+			return 0;
+		}
+		d++;
+		d++;
+		char *end;
+		while ( p >= first_p ) {	// go backwards
+		    if ( (end = matchstr(d,p,bol)) )
+			return end;
+		    --p;
+		}
+		}
+		return 0;
 	    default:				// error
 		return 0;
 	}
@@ -337,6 +379,10 @@ ushort *dump( ushort *p )			// DEBUG !!!
 		debug( "\tCLO" );
 		p = dump( p );
 		break;
+	    case OPT:
+		debug( "\tOPT" );
+		p = dump( p );
+		break;
 	    default:
 		ASSERT( (*(p-1) & 0x8000) == 0 );
 		debug( "\tCHR\t%c (%d)", *(p-1), *(p-1) );
@@ -351,25 +397,27 @@ ushort *dump( ushort *p )			// DEBUG !!!
 
 //
 // Compile the regexp pattern and store the result in rxdata.
-// The 'valid' flag is set to FALSE if an error is detected.
-//
+// The 'error' flag is set to non-zero if an error is detected.
+// NOTE: The compile function is not reentrant!!!
+
+const maxlen = 1024;				// max length of regexp array
+static ushort rxarray[ maxlen ];		// tmp regexp array
 
 void QRegExp::compile()
 {
+    if ( rxdata ) {				// delete old data
+	delete rxdata;
+	rxdata = 0;
+    }
     if ( rxstring.isEmpty() ) {			// no regexp pattern set
-	valid = FALSE;
+	error = PatNull;
 	return;
     }
 
-    const maxlen = 1024;			// huge array
-    if ( !rxdata ) {
-	rxdata = new ushort[ maxlen ];
-	CHECK_PTR( rxdata );
-    }
-    valid  = TRUE;				// assume valid pattern
+    error = PatOk;				// assume pattern is ok
 
     char   *p = rxstring;			// pattern pointer
-    ushort *d = rxdata;				// data pointer
+    ushort *d = rxarray;			// data pointer
     ushort *prev_d = 0;
 
 #define GEN(x)	*d++ = (x)
@@ -433,11 +481,11 @@ void QRegExp::compile()
 			cc[(prev_c=char_val(&p))] = 1;
 		}
 		if ( *p != ']' ) {		// missing close bracket
-		    valid = FALSE;
+		    error = PatSyntax;
 		    return;
 		}
-		if ( d + 16 >= rxdata + maxlen ) {
-		    valid = FALSE;		// buffer overflow
+		if ( d + 16 >= rxarray + maxlen ) {
+		    error = PatOverflow;	// pattern too long
 		    return;
 		}
 		memset( d, 0, 16*sizeof(ushort) );
@@ -450,25 +498,27 @@ void QRegExp::compile()
 		}
 		break;
 
-	    case '*':				// Kleene closure
-	    case '+':				// positive closure
+	    case '*':				// Kleene closure, or
+	    case '+':				// positive closure, or
+	    case '?':				// optional closure
 		{
 		if ( prev_d == 0 ) {		// no previous expression
-		    valid = FALSE;		// empty closure
+		    error = PatSyntax;		// empty closure
 		    return;
 		}
-		switch ( *prev_d ) {
+		switch ( *prev_d ) {		// test if invalid closure
 		    case BOL:
 		    case BOW:
 		    case EOW:
 		    case CLO:
-			valid = FALSE;
+		    case OPT:
+			error = PatSyntax;
 			return;
 		}
 		int ddiff = d - prev_d;
-		if ( *p == '+' ) {		// duplicate expression
-		    if ( d + ddiff >= rxdata + maxlen ) {
-			valid = FALSE;		// overflow
+		if ( *p == '+' ) {		// convert to Kleene closure
+		    if ( d + ddiff >= rxarray + maxlen ) {
+			error = PatOverflow;	// pattern too long
 			return;
 		    }
 		    memcpy( d, prev_d, ddiff*sizeof(ushort) );
@@ -476,7 +526,7 @@ void QRegExp::compile()
 		    prev_d += ddiff;
 		}
 		memmove( prev_d+1, prev_d, ddiff*sizeof(ushort) );
-		*prev_d = CLO;
+		*prev_d = *p == '?' ? OPT : CLO;
 		d++;
 		GEN( END );
 		p++;
@@ -492,13 +542,17 @@ void QRegExp::compile()
 		else
 		    GEN( char_val(&p) );
 	}
-	if ( d >= rxdata + maxlen ) {		// oops!
-	    valid = FALSE;			// buffer overflow
+	if ( d >= rxarray + maxlen ) {		// oops!
+	    error = PatOverflow;		// pattern too long	    
 	    return;
 	}
     }
     GEN( END );
-//  dump( rxdata );	// comment this out for debugging!!!
+    int len = d - rxarray;
+    rxdata = new ushort[ len ];			// copy from rxarray to rxdata
+    CHECK_PTR( rxdata );
+    memcpy( rxdata, rxarray, len*sizeof(ushort) );
+//  dump( rxdata );	// uncomment this line for debugging!!!
 }
 
 
