@@ -241,6 +241,7 @@ QSqlCursor::QSqlCursor( const QSqlCursor & other )
     d->srt = other.d->srt;
     d->ftr = other.d->ftr;
     d->priIndx = other.d->priIndx;
+    d->editBuffer = other.d->editBuffer;
     d->infoBuffer = other.d->infoBuffer;
     d->q = 0; // do not share queries
     setMode( other.mode() );
@@ -270,6 +271,7 @@ QSqlCursor& QSqlCursor::operator=( const QSqlCursor& other )
     d->srt = other.d->srt;
     d->ftr = other.d->ftr;
     d->priIndx = other.d->priIndx;
+    d->editBuffer = other.d->editBuffer;
     d->infoBuffer = other.d->infoBuffer;
     d->q = 0; // do not share queries
     setMode( other.mode() );
