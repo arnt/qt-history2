@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdstream.cpp#28 $
+** $Id: //depot/qt/main/src/tools/qdstream.cpp#29 $
 **
 ** Implementation of QDataStream class
 **
@@ -20,7 +20,7 @@
 #include <netinet/in.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdstream.cpp#28 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdstream.cpp#29 $");
 
 
 /*!
@@ -450,7 +450,8 @@ QDataStream &QDataStream::operator>>( char *&s )
   stream.
 
   The buffer \e s is allocated using \c new. Destroy it with the \c delete
-  operator.  If \e s cannot be allocated, \e s is set to 0.
+  operator.  If the length is zero or \e s cannot be allocated, \e s is
+  set to 0.
 
   The \e l parameter will be set to the length of the buffer.
 
@@ -466,11 +467,16 @@ QDataStream &QDataStream::readBytes( char *&s, uint &l )
     UINT32 len;
     *this >> len;				// first read length spec
     l = (uint)len;
-    s = new char[len];				// create char array
-    CHECK_PTR( s );
-    if ( !s )					// no memory
+    if ( len == 0 ) {
+	s = 0;
 	return *this;
-    return readRawBytes( s, (uint)len );
+    } else {
+	s = new char[len];			// create char array
+	CHECK_PTR( s );
+	if ( !s )				// no memory
+	    return *this;
+	return readRawBytes( s, (uint)len );
+    }
 }
 
 
@@ -678,6 +684,10 @@ QDataStream &QDataStream::operator<<( double f )
 
 QDataStream &QDataStream::operator<<( const char *s )
 {
+    if ( !s ) {
+	*this << (UINT32)0;
+	return *this;
+    }
     uint len = strlen( s ) + 1;			// also write null terminator
     *this << (UINT32)len;			// write length specifier
     return writeRawBytes( s, len );
