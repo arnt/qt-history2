@@ -634,7 +634,7 @@ typedef Q_UINT64                Q_ULLONG;        // unsigned long long
 typedef int QNoImplicitIntegralCast;
 
 //
-// Warnings and errors when sing deprecated methods
+// Warnings and errors when using deprecated methods
 //
 #ifdef QT_COMPAT  // make sure QT_COMPAT is defined to be void
 #  undef QT_COMPAT
