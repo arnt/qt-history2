@@ -436,9 +436,10 @@ QWSServer::QWSServer( int flags,
     focusw = 0;
     mouseGrabber = 0;
     mouseGrabbing = FALSE;
+#ifndef QT_NO_QWS_CURSOR
     cursorNeedsUpdate=FALSE;
-    cursorPos = QPoint(-1,-1); //no software cursor
     nextCursor = 0;
+#endif
 
     if ( !geteuid() ) {
 	if(mount(0,"/var/shm","shm",0,0)) {
@@ -685,12 +686,14 @@ void QWSServer::doClient( QWSClient *client )
 	    invokeSetAltitude( (QWSChangeAltitudeCommand*)cs->command,
 			       cs->client );
 	    break;
+#ifndef QT_NO_QWS_CURSOR
 	case QWSCommand::DefineCursor:
 	    invokeDefineCursor( (QWSDefineCursorCommand*)cs->command, cs->client );
 	    break;
 	case QWSCommand::SelectCursor:
 	    invokeSelectCursor( (QWSSelectCursorCommand*)cs->command, cs->client );
 	    break;
+#endif
 	case QWSCommand::GrabMouse:
 	    invokeGrabMouse( (QWSGrabMouseCommand*)cs->command, cs->client );
 	    break;
@@ -701,8 +704,10 @@ void QWSServer::doClient( QWSClient *client )
 	}
 	delete cs->command;
 	delete cs;
+#ifndef QT_NO_QWS_CURSOR
 	if (cursorNeedsUpdate)
 	    showCursor();
+#endif
     }
 }
 
@@ -1083,9 +1088,9 @@ void QWSServer::invokeConvertSelection( QWSConvertSelectionCommand *cmd )
     }
 }
 
+#ifndef QT_NO_QWS_CURSOR
 void QWSServer::invokeDefineCursor( QWSDefineCursorCommand *cmd, QWSClient *client )
 {
-#ifndef QT_NO_QWS_CURSOR
     if (cmd->simpleData.height > 64 || cmd->simpleData.width > 64) {
 	qDebug("Cannot define cursor size > 64x64");
 	return;
@@ -1098,12 +1103,10 @@ void QWSServer::invokeDefineCursor( QWSDefineCursorCommand *cmd, QWSClient *clie
 				cmd->simpleData.hotX, cmd->simpleData.hotY);
 
     client->cursors.insert(cmd->simpleData.id, curs);
-#endif
 }
 
 void QWSServer::invokeSelectCursor( QWSSelectCursorCommand *cmd, QWSClient *client )
 {
-#ifndef QT_NO_QWS_CURSOR
     int id = cmd->simpleData.id;
     QWSCursor *curs = 0;
     if (id <= LastCursor) {
@@ -1134,8 +1137,8 @@ void QWSServer::invokeSelectCursor( QWSSelectCursorCommand *cmd, QWSClient *clie
 	setCursor(curs);
 
     cursorNeedsUpdate = true;
-#endif
 }
+#endif
 
 void QWSServer::invokeGrabMouse( QWSGrabMouseCommand *cmd, QWSClient *client )
 {

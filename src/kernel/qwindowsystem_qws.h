@@ -215,8 +215,10 @@ private:
 
     void initIO();
     void setFocus( QWSWindow*, bool gain );
+#ifndef QT_NO_QWS_CURSOR
     void invokeDefineCursor( QWSDefineCursorCommand *cmd, QWSClient *client );
     void invokeSelectCursor( QWSSelectCursorCommand *cmd, QWSClient *client );
+#endif
     void invokeGrabMouse( QWSGrabMouseCommand *cmd, QWSClient *client );
     void invokePlaySound( QWSPlaySoundCommand *cmd, QWSClient *client );
 
@@ -265,10 +267,11 @@ private:
     QWSWindow *mouseGrabber;
     bool mouseGrabbing;
     int swidth, sheight, sdepth;
-    QPoint cursorPos;
+#ifndef QT_NO_QWS_CURSOR
     bool cursorNeedsUpdate;
     QWSCursor *cursor;	    // cursor currently shown
     QWSCursor *nextCursor;  // cursor to show once grabbing is off
+#endif
     QRegion screenRegion;   // the entire display region
     QRegion serverRegion;
     QRegion dirtyBackground;
