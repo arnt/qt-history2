@@ -48,7 +48,9 @@ ConfigureQtDialogImpl::ConfigureQtDialogImpl( QWidget* parent, const char* name,
 		 fi->fileName() != "3rdparty" &&
 		 fi->fileName() != "Debug" && // MSVC directory
 		 fi->fileName() != "Release" && // MSVC directory
-		 fi->fileName() != "moc" ) {
+		 fi->fileName() != "moc" &&
+		 fi->fileName() != "depot" &&
+		 fi->fileName() != "attic" ) {
 		item = new QCheckListItem( modules, fi->fileName(), QCheckListItem::CheckBox );
 		item->setOn( TRUE );
 	    }
@@ -88,14 +90,16 @@ ConfigureQtDialogImpl::ConfigureQtDialogImpl( QWidget* parent, const char* name,
 	}
 
 	mkspec = new QCheckListItem ( listViewAdvanced, "Platform-Compiler" );
-	QDir mkspecDir( mkspecsdir, QString::null, QDir::Name | QDir::IgnoreCase, QDir::Files );
+	QDir mkspecDir( mkspecsdir, QString::null, QDir::Name | QDir::IgnoreCase, QDir::Dirs );
 	const QFileInfoList* mkspecs = mkspecDir.entryInfoList();
 	QFileInfoListIterator mkspecIterator( *mkspecs );
 	mkspecIterator.toLast();
 	while ( ( fi = mkspecIterator.current() ) ) {
-	    item = new QCheckListItem ( mkspec, fi->fileName(), QCheckListItem::RadioButton );
-	    if ( mkspecsenvdirinfo.baseName() ==  fi->fileName() )
-		item->setOn( TRUE );
+	    if( fi->fileName()[ 0 ] != '.' ) {
+		item = new QCheckListItem ( mkspec, fi->fileName(), QCheckListItem::RadioButton );
+		if ( mkspecsenvdirinfo.baseName() ==  fi->fileName() )
+		    item->setOn( TRUE );
+	    }
 	    --mkspecIterator;
 	}
 
@@ -108,37 +112,6 @@ ConfigureQtDialogImpl::ConfigureQtDialogImpl( QWidget* parent, const char* name,
 
 ConfigureQtDialogImpl::~ConfigureQtDialogImpl()
 {
-}
-
-void ConfigureQtDialogImpl::loadSettings()
-{
-    QSettings settings;
-
-    QString resetDefaults = settings.readEntry("/.configure_qt_build/ResetDefaults").upper();
-    if (  resetDefaults == "TRUE" || resetDefaults.isEmpty() )   // resetting or never set before
-	return;
-
-    QString entry;
-    QStringList entries;
-
-    entry = settings.readEntry( "/.configure_qt_build/Mode" );
-    set( debugMode, entry );
-
-    entry = settings.readEntry( "/.configure_qt_build/Build" );
-    set( buildType, entry );
-
-    entry = settings.readEntry( "/.configure_qt_build/Threading" );
-    set( threadModel, entry );
-
-    entries = settings.readListEntry( "/.configure_qt_build/Modules", ',' );
-    set( modules, entries );
-
-    entries = settings.readListEntry( "/.configure_qt_build/SQL Drivers", ',' );
-    set( sqldrivers, entries );
-
-    entry = settings.readEntry( "/.configure_qt_build/Platform-Compiler" );
-    set( mkspec, entry );
-
 }
 
 void ConfigureQtDialogImpl::set( QCheckListItem* parent, const QString& setting )
@@ -159,6 +132,8 @@ void ConfigureQtDialogImpl::set( QCheckListItem* parent, const QStringList& sett
 {
     QCheckListItem* item = (QCheckListItem*)parent->firstChild();
     while( item != 0 ) {
+	QString tmp = item->text();
+	QString tmp2 = settings.join( " " );
 	if ( settings.contains( item->text() ) ) {
 	    item->setOn( TRUE );
 	} else {
@@ -190,34 +165,34 @@ void ConfigureQtDialogImpl::execute()
     QStringList::Iterator it;
 
 #ifdef Q_WS_WIN
-    args << QString( getenv( "QTDIR" ) ) + "\\configure.exe";
+    args << QString( getenv( "QTDIR" ) ) + "\\bin\\configure.exe";
 #endif
 #ifdef Q_WS_X11
     args << QString( getenv( "QTDIR" ) ) + "/configure";
 #endif
-    entry = settings.readEntry( "/.configure_qt_build/Mode" );
+    entry = settings.readEntry( "/Trolltech/Qt/Mode" );
     if ( entry == "Debug" )
 	args += "-debug";
     else
 	args += "-release";
 
-    entry = settings.readEntry( "/.configure_qt_build/Build" );
+    entry = settings.readEntry( "/Trolltech/Qt/Build" );
     if ( entry == "Static" )
 	args += "-static";
     else
 	args += "-shared";
 
-    entry = settings.readEntry( "/.configure_qt_build/Threading" );
+    entry = settings.readEntry( "/Trolltech/Qt/Threading" );
     if ( entry == "Threaded" )
 	args += "-thread";
 
-    entries = settings.readListEntry( "/.configure_qt_build/Modules", ',' );
+    entries = settings.readListEntry( "/Trolltech/Qt/Modules", ',' );
     for( it = entries.begin(); it != entries.end(); ++it ) {
 	entry = *it;
 	args += QString( "-enable-" ) + entry;
     }
 
-    entries = settings.readListEntry( "/.configure_qt_build/SQL Drivers", ',' );
+    entries = settings.readListEntry( "/Trolltech/Qt/SQL Drivers", ',' );
 #ifdef Q_WS_WIN
     for( it = entries.begin(); it != entries.end(); ++it ) {
 	entry = *it;
@@ -227,6 +202,10 @@ void ConfigureQtDialogImpl::execute()
 #ifdef Q_WS_X11
     args += QString( "-D " ) + entries.join( " " );
 #endif
+
+    entry = settings.readEntry( "/Trolltech/Qt/Platform-Compiler" );
+    args += "-spec";
+    args += entry;
 
     configure.setWorkingDirectory( QString( getenv( "QTDIR" ) ) );
     configure.setArguments( args );
@@ -239,6 +218,8 @@ void ConfigureQtDialogImpl::execute()
 void ConfigureQtDialogImpl::saveSettings()
 {
     QApplication::setOverrideCursor( Qt::waitCursor );
+    QSettings settings;
+
     saveSet( listViewOptions );
     saveSet( listViewAdvanced );
     QApplication::restoreOverrideCursor();
@@ -247,15 +228,17 @@ void ConfigureQtDialogImpl::saveSettings()
 void ConfigureQtDialogImpl::saveSet( QListView* list )
 {
     QSettings settings;
-     settings.writeEntry( "/.configure_qt_build/ResetDefaults", "FALSE" );
+    settings.writeEntry( "/Trolltech/Qt/ResetDefaults", "FALSE" );
     // radios
     QListViewItem* config = list->firstChild();
     while ( config ) {
+	QString tmp = config->text( 0 );
 	QCheckListItem* item = (QCheckListItem*)config->firstChild();
 	while( item != 0 ) {
+	    tmp = item->text();
 	    if ( item->type() == QCheckListItem::RadioButton ) {
 		if ( item->isOn() ) {
-		    settings.writeEntry( "/.configure_qt_build/" + config->text(0), item->text() );
+		    settings.writeEntry( "/Trolltech/Qt/" + config->text(0), item->text() );
 		    break;
 		}
 	    }
@@ -269,8 +252,10 @@ void ConfigureQtDialogImpl::saveSet( QListView* list )
     QStringList lst;
     while ( config ) {
 	bool foundChecks = FALSE;
+	QString tmp = config->text( 0 );
 	QCheckListItem* item = (QCheckListItem*)config->firstChild();
 	while( item != 0 ) {
+	    tmp = item->text();
 	    if ( item->type() == QCheckListItem::CheckBox ) {
 		if ( item->isOn() )
 		    lst += item->text();
@@ -279,10 +264,41 @@ void ConfigureQtDialogImpl::saveSet( QListView* list )
 	    item = (QCheckListItem*)item->nextSibling();
 	}
 	if ( foundChecks )
-	    settings.writeEntry( "/.configure_qt_build/" + config->text(0), lst, ',' );
+	    settings.writeEntry( "/Trolltech/Qt/" + config->text(0), lst, ',' );
 	config = config->nextSibling();
 	lst.clear();
     }
+}
+
+void ConfigureQtDialogImpl::loadSettings()
+{
+    QSettings settings;
+
+    QString resetDefaults = settings.readEntry("/Trolltech/Qt/ResetDefaults").upper();
+    if (  resetDefaults == "TRUE" || resetDefaults.isEmpty() )   // resetting or never set before
+	return;
+
+    QString entry;
+    QStringList entries;
+    QStringList tmp = entries.join( " " );
+
+    entry = settings.readEntry( "/Trolltech/Qt/Mode" );
+    set( debugMode, entry );
+
+    entry = settings.readEntry( "/Trolltech/Qt/Build" );
+    set( buildType, entry );
+
+    entry = settings.readEntry( "/Trolltech/Qt/Threading" );
+    set( threadModel, entry );
+
+    entries = settings.readListEntry( "/Trolltech/Qt/Modules", ',' );
+    set( modules, entries );
+
+    entries = settings.readListEntry( "/Trolltech/Qt/SQL Drivers", ',' );
+    set( sqldrivers, entries );
+
+    entry = settings.readEntry( "/Trolltech/Qt/Platform-Compiler" );
+    set( mkspec, entry );
 }
 
 void ConfigureQtDialogImpl::readConfigureOutput()
