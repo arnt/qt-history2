@@ -657,7 +657,7 @@ QGfx *QTransformedScreen::createGfx(unsigned char * bytes,int w,int h,int d, int
 
 
 extern "C" QScreen * qt_get_screen_transformed(int display_id, const char *spec,
-					   char *slot,unsigned char *config)
+					   char * /*slot*/,unsigned char * /*config*/)
 {
     if ( !qt_screen ) {
 	qt_screen=new QTransformedScreen( display_id );
