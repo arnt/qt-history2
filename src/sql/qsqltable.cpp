@@ -1408,6 +1408,8 @@ void QSqlTable::setCursor( QSqlCursor* cursor, bool autoPopulate )
 	d->cursor = cursor;
 	if ( autoPopulate )
 	    addColumns( *d->cursor );
+	if ( !d->cursor->isActive() )
+	    d->cursor->select();
 	setSize( d->cursor );
 	setReadOnly( d->cursor->isReadOnly() );
 	setNullText(d->cursor->driver()->nullText() );
