@@ -190,7 +190,7 @@ public:
         PE_RubberBand,
         PE_RubberBandMask,
 
-        PE_ToolBarFrame,
+        PE_PanelToolBar,
         PE_ToolBarHandle,
         PE_ToolBarSeparator,
 

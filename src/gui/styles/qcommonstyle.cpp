@@ -255,6 +255,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         break;
     case PE_MenuBarFrame:
     case PE_PanelMenuBar:
+    case PE_PanelToolBar:
         if (const QStyleOptionFrame *frame = qt_cast<const QStyleOptionFrame *>(opt))
             qDrawShadePanel(p, frame->rect, frame->palette, false, frame->lineWidth,
                             &frame->palette.brush(QPalette::Button));
@@ -530,43 +531,41 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
             qDrawShadePanel(p, frame->rect, frame->palette, false, lw);
         }
         break;
-    case PE_DockWindowHandle:
-        if (const QStyleOptionDockWindow *dw = qt_cast<const QStyleOptionDockWindow *>(opt)) {
-            bool highlight = dw->state & Style_On;
-
-            p->save();
-            p->translate(dw->rect.x(), dw->rect.y());
-            if (dw->state & Style_Horizontal) {
-                int x = dw->rect.width() / 3;
-                if (dw->rect.height() > 4) {
-                    qDrawShadePanel(p, x, 2, 3, dw->rect.height() - 4,
-                                    dw->palette, highlight, 1, 0);
-                    qDrawShadePanel(p, x+3, 2, 3, dw->rect.height() - 4,
-                                    dw->palette, highlight, 1, 0);
-                }
-            } else {
-                if (dw->rect.width() > 4) {
-                    int y = dw->rect.height() / 3;
-                    qDrawShadePanel(p, 2, y, dw->rect.width() - 4, 3,
-                                    dw->palette, highlight, 1, 0);
-                    qDrawShadePanel(p, 2, y+3, dw->rect.width() - 4, 3,
-                                    dw->palette, highlight, 1, 0);
-                }
-            }
-            p->restore();
-        }
-        break;
-    case PE_DockWindowSeparator: {
-        QPoint p1, p2;
+    case PE_ToolBarHandle:
+        p->save();
+        p->translate(opt->rect.x(), opt->rect.y());
         if (opt->state & Style_Horizontal) {
-            p1 = QPoint(opt->rect.width()/2, 0);
-            p2 = QPoint(p1.x(), opt->rect.height());
+            int x = opt->rect.width() / 3;
+            if (opt->rect.height() > 4) {
+                qDrawShadePanel(p, x, 2, 3, opt->rect.height() - 4,
+                                opt->palette, false, 1, 0);
+                qDrawShadePanel(p, x+3, 2, 3, opt->rect.height() - 4,
+                                opt->palette, false, 1, 0);
+            }
         } else {
-            p1 = QPoint(0, opt->rect.height()/2);
-            p2 = QPoint(opt->rect.width(), p1.y());
+            if (opt->rect.width() > 4) {
+                int y = opt->rect.height() / 3;
+                qDrawShadePanel(p, 2, y, opt->rect.width() - 4, 3,
+                                opt->palette, false, 1, 0);
+                qDrawShadePanel(p, 2, y+3, opt->rect.width() - 4, 3,
+                                opt->palette, false, 1, 0);
+            }
         }
-        qDrawShadeLine(p, p1, p2, opt->palette, 1, 1, 0);
-        break; }
+        p->restore();
+        break;
+    case PE_ToolBarSeparator:
+        {
+            QPoint p1, p2;
+            if (opt->state & Style_Horizontal) {
+                p1 = QPoint(opt->rect.width()/2, 0);
+                p2 = QPoint(p1.x(), opt->rect.height());
+            } else {
+                p1 = QPoint(0, opt->rect.height()/2);
+                p2 = QPoint(opt->rect.width(), p1.y());
+            }
+            qDrawShadeLine(p, p1, p2, opt->palette, 1, 1, 0);
+            break;
+        }
     case PE_SpinBoxPlus:
     case PE_SpinBoxMinus:
         if (const QStyleOptionSpinBox *sb = qt_cast<const QStyleOptionSpinBox *>(opt)) {
@@ -2335,8 +2334,20 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         ret = 8;
         break;
 
+    case PM_ToolBarFrameWidth:
+        ret = 1;
+        break;
+
     case PM_ToolBarItemSpacing:
         ret = 4;
+        break;
+
+    case PM_ToolBarHandleExtent:
+        ret = 8;
+        break;
+
+    case PM_ToolBarSeparatorExtent:
+        ret = 6;
         break;
 
     case PM_TabBarTabOverlap:
