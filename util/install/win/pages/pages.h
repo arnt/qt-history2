@@ -29,7 +29,7 @@ public:
     ~BuildPageImpl() {}
     QString title() const
     {
-#if defined(EVAL) || defined(EDU)
+#if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
 	return "Building Qt Examples and Tutorial";
 #else
 	return "Building Qt";
@@ -37,7 +37,7 @@ public:
     }
     QString shortTitle() const
     {
-#if defined(EVAL) || defined(EDU)
+#if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
 	return "Build Qt Examples";
 #else
 	return "Build Qt";

@@ -97,6 +97,10 @@ SideDecorationImpl::SideDecorationImpl( QWidget* parent, const char* name, WFlag
 	QString versionStr = globalInformation.qtVersionStr();
 	versionStr.replace( QRegExp(" Evaluation"), "" );
 	versionLabel->setText( versionLabel->text() + " " + versionStr );
+#elif defined(NON_COMMERCIAL)
+	QString versionStr = globalInformation.qtVersionStr();
+	versionStr.replace( QRegExp(" Non-Commercial"), "" );
+	versionLabel->setText( versionLabel->text() + " " + versionStr );
 #elif defined(EDU)
 	QString versionStr = globalInformation.qtVersionStr();
 	versionStr.replace( QRegExp(" Educational"), "" );
@@ -107,6 +111,8 @@ SideDecorationImpl::SideDecorationImpl( QWidget* parent, const char* name, WFlag
     }
 #if defined(EVAL)
     editionLabel->setText( "Evaluation Version" );
+#elif defined(NON_COMMERCIAL)
+    editionLabel->setText( "Non-Commercial Edition" );
 #elif defined(EDU)
     editionLabel->setText( "Educational Edition" );
 #else

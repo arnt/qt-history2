@@ -25,7 +25,7 @@
 
 void SetupWizardImpl::cleanDone()
 {
-#if defined(EVAL) || defined(EDU)
+#if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
     prepareEnvironment();
 #  if defined(Q_OS_WIN32)
     QStringList mkSpecs = QStringList::split( ' ', "win32-msvc win32-borland win32-g++ macx-g++ win32-msvc.net win32-g++ win32-watcom" );
@@ -589,7 +589,7 @@ void SetupWizardImpl::prepareEnvironment()
 
 void SetupWizardImpl::showPageConfig()
 {
-#if defined(EVAL) || defined(EDU)
+#if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
     setBackEnabled( buildPage, false );
 
     static bool alreadyInitialized = FALSE;
@@ -1073,7 +1073,7 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
     if ( i->rtti() != QCheckListItem::RTTI )
 	return;
 
-#if defined(EVAL) || defined(EDU)
+#if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
     if ( i == mysqlPluginInstall ) {
 	configPage->explainOption->setText( tr(
 		    "Installs the MySQL 3.x database driver."
@@ -1379,7 +1379,7 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
 bool SetupWizardImpl::verifyConfig()
 {
     bool result = TRUE;
-#if !defined(EVAL) && !defined(EDU)
+#if !defined(EVAL) && !defined(EDU) && !defined(NON_COMMERCIAL)
     if( mysqlOff && !mysqlOff->isOn() && !(findFile( "libmysql.lib" ) && findFile( "mysql.h" ) ) ) {
 	mysqlOff->parent()->setText( 0, mysqlOff->parent()->text(0).append( " <--" ) );
 	result = FALSE;

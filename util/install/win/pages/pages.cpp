@@ -51,7 +51,7 @@ ConfigPageImpl::ConfigPageImpl( QWidget* parent, const char* name, WFlags fl )
 	currentInstallation->hide();
 	rebuildInstallation->hide();
     }
-#if defined(EVAL) || defined(EDU)
+#if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
     // ### these pages should probably be included but all options should be
     // disabled so that the evaluation customer can see how he can configure Qt
     configTabs->removePage( generalTab );

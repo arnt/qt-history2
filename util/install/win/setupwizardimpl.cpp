@@ -31,7 +31,7 @@
 #include <process.h>
 #endif
 
-#if defined(EVAL) || defined(EDU)
+#if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
 #include <check-and-patch.h>
 #endif
 
@@ -39,6 +39,8 @@
 #  define LICENSE_DEST "LICENSE.EVAL"
 #elif defined(EDU)
 #  define LICENSE_DEST "LICENSE.EDU"
+#elif defined(NON_COMMERCIAL)
+#  define LICENSE_DEST "LICENSE.NON_COMMERCIAL"
 #else
 #  define LICENSE_DEST "LICENSE"
 #endif
@@ -414,7 +416,7 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 	    archiveHeader = ar.readArchiveHeader();
 	}
     }
-#if defined(EVAL) || defined(EDU)
+#if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
     int sysGroupButton = MSVC_BUTTON;
 #else
     int sysGroupButton = BORLAND_BUTTON;
@@ -438,7 +440,7 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 	if ( !qt_version_str.isEmpty() )
 	    globalInformation.setQtVersionStr( qt_version_str );
 
-#if defined(EVAL) || defined(EDU)
+#if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
 	if ( archiveHeader->findExtraData( "compiler" ) == "borland" ) {
 	    sysGroupButton = BORLAND_BUTTON;
 	}
@@ -560,7 +562,7 @@ void SetupWizardImpl::initPages()
 #if defined(Q_OS_WIN32)
 	ADD_PAGE( winIntroPage,		WinIntroPageImpl	)
 #endif
-#if !defined(EVAL_CD)
+#if !defined(EVAL_CD) && !defined(NON_COMMERCIAL)
 	ADD_PAGE( licensePage,		LicensePageImpl		)
 #endif
 	ADD_PAGE( licenseAgreementPage, LicenseAgreementPageImpl)
@@ -653,7 +655,7 @@ void SetupWizardImpl::initConnections()
 	connect( configPage->advancedList, SIGNAL(spacePressed(QListViewItem*)), SLOT(optionClicked(QListViewItem*)));
 	connect( configPage->advancedList, SIGNAL(selectionChanged(QListViewItem*)), SLOT(optionSelected(QListViewItem*)));
 
-#if defined(EVAL) || defined(EDU)
+#if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
 	connect( configPage->installList, SIGNAL(selectionChanged(QListViewItem*)), SLOT(optionSelected(QListViewItem*)));
 #endif
 
@@ -1036,7 +1038,7 @@ void SetupWizardImpl::doFinalIntegration()
     */
     dirName = shell.createFolder( foldersPage->folderPath->text(), common );
     shell.createShortcut( dirName, common, "Qt Designer", qtDir + "\\bin\\designer.exe", "GUI designer", "", qtDir );
-#if !defined(EVAL) && !defined(EDU)
+#if !defined(EVAL) && !defined(EDU) && !defined(NON_COMMERCIAL)
     shell.createShortcut( dirName, common, "Reconfigure Qt",
 	    qtDir + "\\bin\\install.exe",
 	    "Reconfigure the Qt library",
@@ -1067,7 +1069,7 @@ void SetupWizardImpl::doFinalIntegration()
 	 || ( globalInformation.reconfig() && !configPage->rebuildInstallation->isChecked() ) )
 	|| qWinVersion() & WV_DOS_based ) {
 	QString description;
-#if defined(EVAL) || defined(EDU)
+#if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
 	buildQtShortcutText = "Build Qt Examples and Tutorials";
 	description = "Build the Qt Examples and Tutorials";
 #else
@@ -1189,7 +1191,7 @@ void SetupWizardImpl::configDone()
     if( globalInformation.reconfig() && !configPage->rebuildInstallation->isChecked() )
 	showPage( finishPage );
 
-#if !defined(EVAL) && !defined(EDU)
+#if !defined(EVAL) && !defined(EDU) && !defined(NON_COMMERCIAL)
     if( !configure.normalExit() || ( configure.normalExit() && configure.exitStatus() ) ) {
 	logOutput( "The configure process failed.\n" );
 	emit wizardPageFailed( indexOf(currentPage()) );
@@ -1198,7 +1200,7 @@ void SetupWizardImpl::configDone()
 #endif
     {
 	args << makeCmds[ globalInformation.sysId() ];
-#if !defined(EVAL) && !defined(EDU)
+#if !defined(EVAL) && !defined(EDU) && !defined(NON_COMMERCIAL)
 	args << "sub-src";
 	args << "sub-plugins";
 	if ( optionsPage ) {
@@ -1280,7 +1282,7 @@ void SetupWizardImpl::restartBuild()
 
 void SetupWizardImpl::saveSettings()
 {
-#if !defined(EVAL) && !defined(EDU)
+#if !defined(EVAL) && !defined(EDU) && !defined(NON_COMMERCIAL)
     QApplication::setOverrideCursor( Qt::waitCursor );
     saveSet( configPage->configList );
     saveSet( configPage->advancedList );
@@ -1388,7 +1390,7 @@ void SetupWizardImpl::showPageOptions()
     optionsPage->installExtensions->setChecked( enterprise );
     optionsPage->installExtensions->setEnabled( enterprise );
 
-#if defined(EVAL) || defined(EDU)
+#if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
     optionsPage->installDocs->setEnabled( FALSE );
     optionsPage->skipBuild->setEnabled( FALSE );
 #  if defined(Q_OS_WIN32)
@@ -1499,7 +1501,7 @@ void SetupWizardImpl::showPageProgress()
 	QFile licenseFile( installDir.filePath( LICENSE_DEST ) );
 	if ( licenseFile.open( IO_WriteOnly ) ) {
 	    ResourceLoader *rcLoader;
-#if defined(EVAL) || defined(EDU)
+#if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
 	    rcLoader = new ResourceLoader( "LICENSE" );
 #else
 	    if ( usLicense ) {
@@ -1543,7 +1545,7 @@ void SetupWizardImpl::showPageProgress()
 	// Install the files -- use different fallbacks if one method failed.
 	QArchive ar;
 	QString licenseKey;
-#if !defined(EVAL_CD)
+#if !defined(EVAL_CD) && !defined(NON_COMMERCIAL)
 	licenseKey = licensePage->key->text();
 #endif
 	ar.setVerbosity( QArchive::Destination | QArchive::Verbose | QArchive::Progress );
@@ -1612,7 +1614,7 @@ void SetupWizardImpl::showPageProgress()
 	    QDir installDir( optionsPage->installPath->text() );
 #if defined(Q_OS_WIN32)
 	    QDir windowsFolderDir( shell.windowsFolderName );
-#  if !defined(EVAL) && !defined(EDU)
+#  if !defined(EVAL) && !defined(EDU) && !defined(NON_COMMERCIAL)
 	    {
 		// move $QTDIR/install.exe to $QTDIR/bin/install.exe
 		// This is done because install.exe is also used to reconfigure Qt
@@ -1654,7 +1656,7 @@ void SetupWizardImpl::showPageProgress()
 		}
 	    }
 #endif
-#if defined(EVAL) || defined(EDU)
+#if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
 	    QStringList::Iterator it;
 	    QDir lib( optionsPage->installPath->text() );
 	    lib.cd( "lib" );
@@ -1672,9 +1674,12 @@ void SetupWizardImpl::showPageProgress()
 #    if defined(EVAL)
 			tr( "Could not patch the Qt library with the evaluation\n"
 			    "license information - no Qt DLL was found." )
-#    else
+#    elif defined(EDU)
 			tr( "Could not patch the Qt library with the educational\n"
 			    "edition license information - no Qt DLL was found." )
+#    else
+			tr( "Could not patch the Qt library the installation\n"
+			    "path information - no Qt DLL was found." )
 #    endif
 			);
 	    }
@@ -1685,7 +1690,7 @@ void SetupWizardImpl::showPageProgress()
 			licensePage->evalName->text().latin1(),
 			licensePage->evalCompany->text().latin1(),
 			licensePage->serialNumber->text().latin1(),
-#    else
+#    elif defined(EDU)
 			"",
 			licensePage->university->text().latin1(),
 			licensePage->serialNumber->text().latin1(),
@@ -1700,10 +1705,14 @@ void SetupWizardImpl::showPageProgress()
 			    tr( "Could not patch the Qt library with the evaluation\n"
 				"license information. You will not be able to execute\n"
 				"any program linked against %1." ).arg( *it )
-#    else
+#    elif defined(EDU)
 			    tr( "Could not patch the Qt library with the educational\n"
 				"edition license information. You will not be able to\n"
 				"execute any program linked against %1." ).arg( *it )
+#    else
+			    tr( "Could not patch the Qt library with the installation\n"
+				"path information. You will not be able to execute\n"
+				"some programs linked against %1." ).arg( *it )
 #    endif
 			    );
 		}
@@ -1834,7 +1843,7 @@ void SetupWizardImpl::showPageFinish()
 		finishMsg += "The environment variables needed to use Qt have been recorded into your AUTOEXEC.BAT file.\n";
 		finishMsg += "Please review this file, and take action as appropriate depending on your operating system to get them into the persistent environment. (Windows Me users, run MsConfig)\n\n";
 	    }
-#  if defined(EVAL) || defined(EDU)
+#  if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
 	    finishMsg += QString( "To build the examples and tutorials, use the "
 				  "\"Build the Qt Examples and Tutorials\""
 				  " icon which has been installed into your Start-Menu." );
@@ -2075,7 +2084,7 @@ void SetupWizardImpl::configPageChanged()
 	configPage->advancedList->setSelected( configPage->advancedList->currentItem(), true );
 	optionSelected( configPage->advancedList->currentItem() );
     }
-#if defined(EVAL) || defined(EDU)
+#if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
     else if ( configPage->installList->isVisible() ) {
 	configPage->installList->setSelected( configPage->installList->currentItem(), true );
 	optionSelected( configPage->installList->currentItem() );
@@ -2085,16 +2094,20 @@ void SetupWizardImpl::configPageChanged()
 
 void SetupWizardImpl::licenseChanged()
 {
-#if defined(EVAL) || defined(EDU)
+#if defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
     int ret = trCheckIt(
 #  if defined(EVAL)
 	    licensePage->evalName->text().latin1(),
 	    licensePage->evalCompany->text().latin1(),
 	    licensePage->serialNumber->text().latin1()
-#  else
+#  elif defined(EDU)
 	    "",
 	    licensePage->university->text().latin1(),
 	    licensePage->serialNumber->text().latin1()
+#  else
+	    "",
+	    "",
+	    ""
 #  endif
 	    );
 
@@ -2347,6 +2360,8 @@ void SetupWizardImpl::setInstallStep( int step )
     captionTxt = tr("Qt Evaluation Version Installation Wizard");
 #elif defined(EDU)
     captionTxt = tr("Qt Educational Edition Installation Wizard");
+#elif defined(NON_COMMERCIAL)
+    captionTxt = tr("Qt Non-Commercial Edition Installation Wizard");
 #else
     if( globalInformation.reconfig() )
 	captionTxt = tr("Qt Configuration Wizard");
@@ -2373,7 +2388,7 @@ void SetupWizardImpl::timerFired()
 
 void SetupWizardImpl::readLicense( QString filePath)
 {
-#if !defined(EVAL) && !defined(EDU)
+#if !defined(EVAL) && !defined(EDU) && !defined(NON_COMMERCIAL)
     QFile licenseFile( filePath );
 
     if( licenseFile.open( IO_ReadOnly ) ) {
@@ -2411,7 +2426,7 @@ void SetupWizardImpl::readLicense( QString filePath)
 
 void SetupWizardImpl::writeLicense( QString filePath )
 {
-#if !defined(EVAL) && !defined(EDU)
+#if !defined(EVAL) && !defined(EDU) && !defined(NON_COMMERCIAL)
     QFile licenseFile( filePath );
 
     if( licenseFile.open( IO_WriteOnly | IO_Translate ) ) {
@@ -2506,7 +2521,7 @@ void SetupWizardImpl::readLicenseAgreement()
 	lap = licenseAgreementPage;
 	rcLoader = new ResourceLoader( "LICENSE" );
     }
-#elif defined(EVAL) || defined(EDU)
+#elif defined(EVAL) || defined(EDU) || defined(NON_COMMERCIAL)
     LicenseAgreementPageImpl *lap = licenseAgreementPage;
     rcLoader = new ResourceLoader( "LICENSE" );
 #else
