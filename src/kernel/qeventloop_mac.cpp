@@ -228,8 +228,12 @@ void qt_mac_internal_select_callbk(int, int, QGuiEventLoop *eloop)
 }
 static void qt_mac_select_read_callbk(CFReadStreamRef stream, CFStreamEventType type, void *me)
 {
-    if(type != kCFStreamEventHasBytesAvailable)
-	return;
+    if(type == kCFStreamEventOpenCompleted) {
+	CFStreamClientContext ctx;
+	memset(&ctx, '\0', sizeof(ctx));
+	ctx.info = me;
+	CFReadStreamSetClient(stream, kCFStreamEventHasBytesAvailable, qt_mac_select_read_callbk, &ctx);
+    } 
     int in_sock;
     const CFDataRef data = (const CFDataRef)CFReadStreamCopyProperty(stream, kCFStreamPropertySocketNativeHandle);
     CFDataGetBytes(data, CFRangeMake(0, sizeof(in_sock)), (UInt8 *)&in_sock);
@@ -237,12 +241,16 @@ static void qt_mac_select_read_callbk(CFReadStreamRef stream, CFStreamEventType 
 }
 static void qt_mac_select_write_callbk(CFWriteStreamRef stream, CFStreamEventType type, void *me)
 {
-    if(type != kCFStreamEventCanAcceptBytes)
-	return;
+    if(type == kCFStreamEventOpenCompleted) {
+	CFStreamClientContext ctx;
+	memset(&ctx, '\0', sizeof(ctx));
+	ctx.info = me;
+	CFWriteStreamSetClient(stream, kCFStreamEventCanAcceptBytes, qt_mac_select_write_callbk, &ctx);
+    } 
     int in_sock;
     const CFDataRef data = (const CFDataRef)CFWriteStreamCopyProperty(stream, kCFStreamPropertySocketNativeHandle);
     CFDataGetBytes(data, CFRangeMake(0, sizeof(in_sock)), (UInt8 *)&in_sock);
-    qt_mac_internal_select_callbk(in_sock, QSocketNotifier::Read, (QGuiEventLoop*)me);
+    qt_mac_internal_select_callbk(in_sock, QSocketNotifier::Write, (QGuiEventLoop*)me);
 }
 
 void QGuiEventLoop::registerSocketNotifier(QSocketNotifier *notifier)
@@ -256,8 +264,7 @@ void QGuiEventLoop::registerSocketNotifier(QSocketNotifier *notifier)
 	CFStreamClientContext ctx;
 	memset(&ctx, '\0', sizeof(ctx));
 	ctx.info = this;
-	CFReadStreamSetClient(mac_notifier->read_not, kCFStreamEventOpenCompleted|kCFStreamEventHasBytesAvailable, 
-			      qt_mac_select_read_callbk, &ctx);
+	CFReadStreamSetClient(mac_notifier->read_not, kCFStreamEventOpenCompleted, qt_mac_select_read_callbk, &ctx);
 	CFReadStreamScheduleWithRunLoop(mac_notifier->read_not, CFRunLoopGetCurrent(), kCFRunLoopCommonModes);
 	CFReadStreamOpen(mac_notifier->read_not);
     } else if(notifier->type() == QSocketNotifier::Write) {
@@ -266,8 +273,7 @@ void QGuiEventLoop::registerSocketNotifier(QSocketNotifier *notifier)
 	CFStreamClientContext ctx;
 	memset(&ctx, '\0', sizeof(ctx));
 	ctx.info = this;
-	CFWriteStreamSetClient(mac_notifier->write_not, kCFStreamEventOpenCompleted|kCFStreamEventCanAcceptBytes, 
-			       qt_mac_select_write_callbk, &ctx);
+	CFWriteStreamSetClient(mac_notifier->write_not, kCFStreamEventOpenCompleted, qt_mac_select_write_callbk, &ctx);
 	CFWriteStreamScheduleWithRunLoop(mac_notifier->write_not, CFRunLoopGetCurrent(), kCFRunLoopCommonModes);
 	CFWriteStreamOpen(mac_notifier->write_not);
     }
@@ -290,14 +296,10 @@ void QGuiEventLoop::unregisterSocketNotifier(QSocketNotifier *notifier)
     if(d->macSockets) {
 	if(MacSocketInfo *mac_notifier = d->macSockets->value(notifier)) {
 	    d->macSockets->remove(notifier);
-	    if(notifier->type() == QSocketNotifier::Read) {
+	    if(notifier->type() == QSocketNotifier::Read) 
 		CFReadStreamUnscheduleFromRunLoop(mac_notifier->read_not, CFRunLoopGetCurrent(), kCFRunLoopCommonModes);
-		CFRelease(mac_notifier->read_not);
-	    }
-	    else if(notifier->type() == QSocketNotifier::Write) {
+	    else if(notifier->type() == QSocketNotifier::Write)
 		CFWriteStreamUnscheduleFromRunLoop(mac_notifier->write_not, CFRunLoopGetCurrent(), kCFRunLoopCommonModes);
-		CFRelease(mac_notifier->write_not);
- 	    }
 	    delete mac_notifier;
 	}
     }
