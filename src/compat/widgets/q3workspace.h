@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWORKSPACE_H
-#define QWORKSPACE_H
+#ifndef Q3WORKSPACE_H
+#define Q3WORKSPACE_H
 
 #include "qwidget.h"
 
@@ -21,20 +21,20 @@
 class QAction;
 class QWorkspaceChild;
 class QShowEvent;
-class QWorkspacePrivate;
+class Q3WorkspacePrivate;
 
-class Q_GUI_EXPORT QWorkspace : public QWidget
+class Q_COMPAT_EXPORT Q3Workspace : public QWidget
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QWorkspace)
+    Q_DECLARE_PRIVATE(Q3Workspace)
     Q_PROPERTY(bool scrollBarsEnabled READ scrollBarsEnabled WRITE setScrollBarsEnabled)
 
 public:
-    QWorkspace(QWidget* parent=0);
+    Q3Workspace(QWidget* parent=0);
 #ifdef QT_COMPAT
-    QWorkspace(QWidget* parent, const char* name);
+    Q3Workspace(QWidget* parent, const char* name);
 #endif
-    ~QWorkspace();
+    ~Q3Workspace();
 
     enum WindowOrder { CreationOrder, StackingOrder };
 
@@ -75,7 +75,7 @@ protected:
 #endif
 
 private:
-    Q_DISABLE_COPY(QWorkspace)
+    Q_DISABLE_COPY(Q3Workspace)
     Q_PRIVATE_SLOT(d, void normalizeActiveWindow())
     Q_PRIVATE_SLOT(d, void minimizeActiveWindow())
     Q_PRIVATE_SLOT(d, void showOperationMenu())
@@ -84,9 +84,9 @@ private:
     Q_PRIVATE_SLOT(d, void updateActions())
     Q_PRIVATE_SLOT(d, void scrollBarChanged())
 
-    friend class QWorkspaceChild;
+    friend class Q3WorkspaceChild;
 };
 
 #endif // QT_NO_WORKSPACE
 
-#endif // QWORKSPACE_H
+#endif // Q3WORKSPACE_H
