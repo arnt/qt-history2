@@ -1575,13 +1575,13 @@ QString QLocalePrivate::nan() const
 }
 
 #ifndef QT_NO_DATASTREAM
-Q_CORE_EXPORT QDataStream &operator<<(QDataStream &ds, const QLocale &l)
+QDataStream &operator<<(QDataStream &ds, const QLocale &l)
 {
     ds << l.name();
     return ds;
 }
 
-Q_CORE_EXPORT QDataStream &operator>>(QDataStream &ds, QLocale &l)
+QDataStream &operator>>(QDataStream &ds, QLocale &l)
 {
     QString s;
     ds >> s;
