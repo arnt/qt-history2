@@ -267,7 +267,7 @@ public:
 private:
     void setProperty( const QVariant &v, const QString &currentItemText, bool select = TRUE );
 
-    QObject *widget;
+    QGuardedPtr<QObject> widget;
     PropertyEditor *editor;
     QString propName;
     QVariant oldValue, newValue;

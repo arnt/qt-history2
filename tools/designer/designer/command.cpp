@@ -447,8 +447,8 @@ void SetPropertyCommand::execute()
     if ( isResetCommand ) {
 	MetaDataBase::setPropertyChanged( widget, propName, FALSE );
 	if ( WidgetFactory::resetProperty( widget, propName ) ) {
-	    if ( !formWindow()->isWidgetSelected( widget ) && widget != formWindow() )
-		formWindow()->selectWidget( widget );
+	    if ( !formWindow()->isWidgetSelected( widget ) && formWindow() != widget )
+		formWindow()->selectWidget( (QObject *)widget );
 	    if ( editor->widget() != widget )
 		editor->setWidget( widget, formWindow() );
 	    editor->propertyList()->setCurrentProperty( propName );
@@ -477,13 +477,15 @@ void SetPropertyCommand::unexecute()
 bool SetPropertyCommand::canMerge( Command *c )
 {
     SetPropertyCommand *cmd = (SetPropertyCommand*)c;
+    if ( !widget )
+	return FALSE;
     const QMetaProperty *p =
 	widget->metaObject()->property( widget->metaObject()->findProperty( propName, TRUE ), TRUE );
     if ( !p ) {
 	if ( propName == "toolTip" || propName == "whatsThis" )
 	    return TRUE;
 	if ( widget->inherits( "CustomWidget" ) ) {
-	    MetaDataBase::CustomWidget *cw = ( (CustomWidget*)widget )->customWidget();
+	    MetaDataBase::CustomWidget *cw = ((CustomWidget*)(QObject*)widget)->customWidget();
 	    if ( !cw )
 		return FALSE;
 	    for ( QValueList<MetaDataBase::Property>::Iterator it = cw->lstProperties.begin(); it != cw->lstProperties.end(); ++it ) {
@@ -534,7 +536,7 @@ bool SetPropertyCommand::checkProperty()
 	}
 
 	if ( widget->parent() && widget->parent()->inherits( "FormWindow" ) )
-	    formWindow()->mainWindow()->formNameChanged( (FormWindow*)( (QWidget*)widget )->parentWidget() );
+	    formWindow()->mainWindow()->formNameChanged( (FormWindow*)((QWidget*)(QObject*)widget)->parentWidget() );
     }
     return TRUE;
 }
@@ -583,7 +585,7 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
 	} else if ( propName == "toolTip" || propName == "whatsThis" || propName == "database" || propName == "frameworkCode" ) {
 	    MetaDataBase::setFakeProperty( editor->widget(), propName, v );
 	} else if ( editor->widget()->inherits( "CustomWidget" ) ) {
-	    MetaDataBase::CustomWidget *cw = ( (CustomWidget*)widget )->customWidget();
+	    MetaDataBase::CustomWidget *cw = ((CustomWidget *)(QObject *)widget)->customWidget();
 	    if ( cw ) {
 		MetaDataBase::setFakeProperty( editor->widget(), propName, v );
 	    }
@@ -592,8 +594,9 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
 	editor->emitWidgetChanged();
 	( ( PropertyItem* )editor->propertyList()->currentItem() )->setChanged( MetaDataBase::isPropertyChanged( widget, propName ) );
 #ifndef QT_NO_SQL
-	if ( propName == "database" )
-	    formWindow()->mainWindow()->objectHierarchy()->databasePropertyChanged( (QWidget*)widget, MetaDataBase::fakeProperty( widget, "database" ).toStringList() );
+	if ( propName == "database" ) {
+	    formWindow()->mainWindow()->objectHierarchy()->databasePropertyChanged( (QWidget*)((QObject *)widget), MetaDataBase::fakeProperty( widget, "database" ).toStringList() );
+	}
 #endif
 	return;
     }
@@ -621,22 +624,23 @@ void SetPropertyCommand::setProperty( const QVariant &v, const QString &currentI
 	    MetaDataBase::setPixmapKey( formWindow(),
 					widget->property( propName ).toPixmap().serialNumber(),
 					MetaDataBase::pixmapKey( formWindow(), oldSerNum ) );
-	if ( propName == "cursor" )
-	    MetaDataBase::setCursor( (QWidget*)widget, v.toCursor() );
+	if ( propName == "cursor" ) {
+	    MetaDataBase::setCursor( (QWidget*)((QObject *)widget), v.toCursor() );
+	}
 	if ( propName == "name" && widget->isWidgetType() ) {
-	    formWindow()->mainWindow()->objectHierarchy()->namePropertyChanged( (QWidget*)widget, ov );
+	    formWindow()->mainWindow()->objectHierarchy()->namePropertyChanged( ((QWidget*)(QObject *)widget), ov );
 	    if ( formWindow()->isMainContainer( widget ) )
 		formWindow()->setName( v.toCString() );
 	}
 	if ( propName == "name" && widget->inherits( "QAction" ) &&
 	     formWindow()->mainContainer() &&
 	     formWindow()->mainContainer()->inherits( "QMainWindow" ) ) {
-	    formWindow()->mainWindow()->actioneditor()->updateActionName( (QAction*)widget );
+	    formWindow()->mainWindow()->actioneditor()->updateActionName( ((QAction*)(QObject *)widget) );
 	}
 	if ( propName == "iconSet" && widget->inherits( "QAction" ) &&
 	     formWindow()->mainContainer() &&
 	     formWindow()->mainContainer()->inherits( "QMainWindow" ) ) {
-	    formWindow()->mainWindow()->actioneditor()->updateActionIcon( (QAction*)widget );
+	    formWindow()->mainWindow()->actioneditor()->updateActionIcon( ((QAction*)(QObject *)widget) );
 	}
 	if ( propName == "caption" ) {
 	    if ( formWindow()->isMainContainer( widget ) )
