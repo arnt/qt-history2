@@ -28,16 +28,6 @@
 
 #include "qwindowdefs.h"
 
-//
-//  W A R N I N G
-//  -------------
-//
-//  This class is under development and all members are private.
-//
-//  The API will probably be opened up in Qt 2.1 In the meantime it is
-//  used by QFontDialog only.
-//
-
 #ifndef QT_H
 #include "qstring.h"
 #include "qstringlist.h"
@@ -66,6 +56,9 @@ public:
 			  bool onlyForLocale = TRUE ) const;
 
 private:
+    // -------------------------------
+    // ### This stuff wil become public somewhen
+    //--------------------------------
     QFont font( const QString familyName, const QString &style,
 		int pointSize, const QString charSetName = QString::null );
 
