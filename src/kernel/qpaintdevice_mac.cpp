@@ -291,10 +291,9 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
       return;
 
 
-  GWorldPtr savedworld;
-  GDHandle savedhandle;
-  GetGWorld(&savedworld, &savedhandle);
-  
+  //at the end of this function this will go out of scope and the destructor will restore the state
+  QMacSavedPortInfo saveportstate; 
+    
   int srcoffx = 0, srcoffy = 0;
   BitMap *srcbitmap=NULL;
   const QBitmap *srcbitmask=NULL;
@@ -388,12 +387,19 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
       CopyBits(srcbitmap, dstbitmap, &r,&r2,copymode, 0);
   }
 
-  SetGWorld(savedworld,savedhandle);
-
   if(dst->devType() == QInternal::Pixmap) {
       QPixmap *pm = (QPixmap *)dst;
       UnlockPixels(GetGWorldPixMap((GWorldPtr)pm->handle()));    
+  } 
+#if 0 //this is good for debugging and not much else, do not leave this in production
+else if(dst->devType() == QInternal::Widget) {
+      GWorldPtr cgworld;
+      GDHandle cghandle;
+      GetGWorld(&cgworld, &cghandle);
+      QRegion rup(dx+dstoffx,dy+dstoffy,dx+sw+dstoffx,dy+sh+dstoffy);
+      QDFlushPortBuffer(cgworld, (RgnHandle)rup.handle());
   }
+#endif
 }
 
 

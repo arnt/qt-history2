@@ -98,7 +98,6 @@ static QGuardedPtr<QWidget>* activeBeforePopup = 0; // focus handling with popup
 static QWidget     *popupButtonFocus = 0;
 static QWidget     *popupOfPopupButtonFocus = 0;
 static bool	    popupCloseDownMode = FALSE;
-static bool	    popupGrabOk;
 
 typedef void (*VFPTR)();
 typedef QValueList<VFPTR> QVFuncList;
@@ -1081,9 +1080,9 @@ bool QApplication::processNextEvent( bool canWait )
 
 	GetNextEvent(everyEvent, &event);
 	nevents++;
-
 	if(macProcessEvent( (MSG *)(&event) ) == 1)
 	  return TRUE;
+
       } while(EventAvail(everyEvent, &event));
      } while(EventAvail(everyEvent, &event));
     sendPostedEvents(); //let them accumulate
@@ -1320,57 +1319,6 @@ int QApplication::macProcessEvent(MSG * m)
 	    qt_clear_paintevent_clipping();
 	    EndUpdate((WindowPtr)widget->handle());
 	}
-    } else if( er->what == mouseDown ) {
-	short part = FindWindow( er->where, &wp );
-	if( part == inContent ) {
-	    if( mac_mouse_grabber ) {
-		SetPortWindowPort((WindowPtr)mac_mouse_grabber->handle());
-		Point p = er->where;
-		GlobalToLocal( &p ); //now map it to the window
-		widget = recursive_match(mac_mouse_grabber, p.h, p.v);
-	    } else {
-		widget = QApplication::widgetAt( er->where.h, er->where.v, true );
-	    }
-	    qt_button_down = widget;
-	    if ( widget ) {
-		QWidget* w = widget;
-		while ( w->focusProxy() )
-		    w = w->focusProxy();
-		if ( w->focusPolicy() & QWidget::ClickFocus ) {
-		    QFocusEvent::setReason( QFocusEvent::Mouse);
-		    w->setFocus();
-		    QFocusEvent::resetReason();
-		}
-
-		QPoint p( er->where.h, er->where.v );
-		QPoint plocal(widget->mapFromGlobal( p ));
-		mouse_button_state = QMouseEvent::LeftButton; //FIXME
-		QMouseEvent qme( QEvent::MouseButtonPress, plocal, p, mouse_button_state, 0);
-		QApplication::sendEvent( widget, &qme );
-//		qDebug("Would send event to %s %s", widget->name(), widget->className());
-	    }
-	}
-	else do_mouse_down( er ); //do resize/move stuff
-    } else if( er->what == mouseUp ) {
-	short part = FindWindow( er->where, &wp );
-	if( part == inContent ) {
-	    if( mac_mouse_grabber ) {
-		SetPortWindowPort((WindowPtr)mac_mouse_grabber->handle());
-		Point p = er->where;
-		GlobalToLocal( &p ); //now map it to the window
-		widget = recursive_match(mac_mouse_grabber, p.h, p.v);
-	    } else {
-		widget = QApplication::widgetAt( er->where.h, er->where.v, true );
-	    }
-	    qt_button_down = NULL;
-	    if ( widget ) {
-		QPoint p( er->where.h, er->where.v );
-		QPoint plocal(widget->mapFromGlobal( p ));
-		QMouseEvent qme( QEvent::MouseButtonRelease, plocal, p, QMouseEvent::LeftButton, QMouseEvent::LeftButton);
-		QApplication::sendEvent( widget, &qme );
-	    }
-	}
-	mouse_button_state = Qt::NoButton;
     } else if(er->what == keyDown) {
 	if( mac_keyboard_grabber ) 
 	    widget = mac_keyboard_grabber;
@@ -1403,20 +1351,98 @@ int QApplication::macProcessEvent(MSG * m)
 	widget = QWidget::find( (WId)er->message );	
 	if(widget && (er->modifiers & 0x01)) 
 	    setActiveWindow(widget);
+    } else if( er->what == mouseDown ) {
+	short part = FindWindow( er->where, &wp );
+	if( part == inContent ) {
+	    mouse_button_state = QMouseEvent::LeftButton; //FIXME
+
+	    QWidget *popupwidget = NULL;
+	    if( inPopupMode() ) {
+		popupwidget = activePopupWidget();
+		SetPortWindowPort((WindowPtr)widget->handle());
+		Point gp = er->where;
+		GlobalToLocal( &gp ); //now map it to the window
+		popupwidget = recursive_match(popupwidget, gp.h, gp.v);
+
+		QPoint p( er->where.h, er->where.v );
+		QPoint plocal(popupwidget->mapFromGlobal( p ));
+		QMouseEvent qme( QEvent::MouseButtonPress, plocal, p, mouse_button_state, 0);
+		QApplication::sendEvent( popupwidget, &qme );
+	    } 
+	    
+            if( mac_mouse_grabber )
+		widget = mac_mouse_grabber;
+	    else 
+		widget = QApplication::widgetAt( er->where.h, er->where.v, true );
+	    qt_button_down = widget;
+	    if ( widget && widget != popupwidget ) {
+		QWidget* w = widget;
+		while ( w->focusProxy() )
+		    w = w->focusProxy();
+		if ( w->focusPolicy() & QWidget::ClickFocus ) {
+		    QFocusEvent::setReason( QFocusEvent::Mouse);
+		    w->setFocus();
+		    QFocusEvent::resetReason();
+		}
+
+		QPoint p( er->where.h, er->where.v );
+		QPoint plocal(widget->mapFromGlobal( p ));
+		QMouseEvent qme( QEvent::MouseButtonPress, plocal, p, mouse_button_state, 0);
+		QApplication::sendEvent( widget, &qme );
+//		qDebug("Would send event to %s %s", widget->name(), widget->className());
+	    }
+	}
+	else do_mouse_down( er ); //do resize/move stuff
+    } else if( er->what == mouseUp ) {
+	short part = FindWindow( er->where, &wp );
+	if( part == inContent ) {
+	    QWidget *popupwidget = NULL;
+	    if( inPopupMode() ) {
+		popupwidget = activePopupWidget();
+		SetPortWindowPort((WindowPtr)widget->handle());
+		Point gp = er->where;
+		GlobalToLocal( &gp ); //now map it to the window
+		popupwidget = recursive_match(popupwidget, gp.h, gp.v);
+
+		QPoint p( er->where.h, er->where.v );
+		QPoint plocal(popupwidget->mapFromGlobal( p ));
+		QMouseEvent qme( QEvent::MouseButtonRelease, plocal, p, 
+				 mouse_button_state, mouse_button_state);
+		QApplication::sendEvent( popupwidget, &qme );
+	    } 
+	    
+	    if( qt_button_down )
+	     	widget = qt_button_down;
+            else if( mac_mouse_grabber )
+		widget = mac_mouse_grabber;
+	    else 
+		widget = QApplication::widgetAt( er->where.h, er->where.v, true );
+	    if ( widget && widget != popupwidget ) {
+		QPoint p( er->where.h, er->where.v );
+		QPoint plocal(widget->mapFromGlobal( p ));
+		QMouseEvent qme( QEvent::MouseButtonRelease, plocal, p, 
+				 mouse_button_state, mouse_button_state);
+		QApplication::sendEvent( widget, &qme );
+	    }
+	}
+	qt_button_down = NULL;
+	mouse_button_state = Qt::NoButton;
     } else if(er->what == osEvt) {
 	if(((er->message >> 24) & 0xFF) == mouseMovedMessage) {
 	    short part = FindWindow( er->where, &wp );
 	    if( part == inContent ) {
-		if(qt_button_down) {
-		    widget = qt_button_down;
-		} else if( mac_mouse_grabber ) {
-		    SetPortWindowPort((WindowPtr)mac_mouse_grabber->handle());
+		if( inPopupMode() ) {
+		    widget = activePopupWidget();
+		    SetPortWindowPort((WindowPtr)widget->handle());
 		    Point p = er->where;
 		    GlobalToLocal( &p ); //now map it to the window
-		    widget = recursive_match(mac_mouse_grabber, p.h, p.v);
+		    widget = recursive_match(widget, p.h, p.v);
+		} else if( qt_button_down ) {
+		    widget = qt_button_down;
+		} else if( mac_mouse_grabber ) {
+		    widget = mac_mouse_grabber;
 		} else {
-		    Point pp2 = er->where;
-		    widget = QApplication::widgetAt( pp2.h, pp2.v, true );
+		    widget = QApplication::widgetAt( er->where.h, er->where.v, true );
 		}
 		if ( widget ) {
 		    //set the cursor up
@@ -1429,20 +1455,14 @@ int QApplication::macProcessEvent(MSG * m)
 			n = (Cursor *)arrowCursor.handle(); //I give up..
 		    if(currentCursor != n) 
 			SetCursor(currentCursor = n);
-
+		
 		    //ship the event
 		    QPoint p( er->where.h, er->where.v );
 		    QPoint plocal(widget->mapFromGlobal( p ));
 		    QMouseEvent qme( QEvent::MouseMove, plocal, p, 
 				     QMouseEvent::NoButton, mouse_button_state);
 		    QApplication::sendEvent( widget, &qme );
-
-#if 0
-		    if(getenv("GIMME_MOVES"))  //debugs, this will go away
-			qDebug("Mouse has Moved %s %s %d %d (%d, %d)", widget->name(), widget->className(), 
-			       plocal.x(), plocal.y(), p.x(), p.y());
-#endif
-		} 
+		}
 	    }
 	}
 	else 
@@ -1535,11 +1555,6 @@ void QApplication::openPopup( QWidget *popup )
 	(*activeBeforePopup) = active_window;
     }
     popupWidgets->append( popup );		// add to end of list
-    if (popupWidgets->count() == 1 ){ // grab mouse/keyboard
-	popup->topLevelWidget()->grabMouse();
-	popupGrabOk = TRUE;
-	// XXX grab keyboard
-    }
 
     // popups are not focus-handled by the window system (the first
     // popup grabbed the keyboard), so we have to do that manually: A
@@ -1565,10 +1580,6 @@ void QApplication::closePopup( QWidget *popup )
 	popupCloseDownMode = TRUE;		// control mouse events
 	delete popupWidgets;
 	popupWidgets = 0;
-	if ( popupGrabOk ) {	// grabbing not disabled
-	    popup->topLevelWidget()->releaseMouse();
-	    // XXX ungrab keyboard
-	}
 	active_window = (*activeBeforePopup);
 	// restore the former active window immediately, although
 	// we'll get a focusIn later
@@ -1577,8 +1588,7 @@ void QApplication::closePopup( QWidget *popup )
 		active_window->focusWidget()->setFocus();
 	    else
 		active_window->setFocus();
-    }
-     else {
+    } else {
 	// popups are not focus-handled by the window system (the
 	// first popup grabbed the keyboard), so we have to do that
 	// manually: A popup was closed, so the previous popup gets

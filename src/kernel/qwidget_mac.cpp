@@ -316,7 +316,9 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     QSize    s	    = size();
     QString capt= caption();
     widget_flags = f;
-    clearWState( WState_Created | WState_Visible );
+    clearWState( WState_Created | WState_Visible | WState_ForceHide );
+    if ( isTopLevel() || (!parent || parent->isVisibleTo( 0 ) ) )
+	setWState( WState_ForceHide );	// new widgets do not show up in already visible parents 
     create();
     setGeometry( p.x(), p.y(), s.width(), s.height() );
     setEnabled( enable );
@@ -857,14 +859,44 @@ void QWidget::showWindow()
   Platform-specific part of QWidget::hide().
 */
 
+static void paint_children(QWidget * p,const QRegion& r)
+{
+    if(!p)
+	return;
+    QObjectList * childObjects=(QObjectList*)p->children();
+    if(childObjects) {
+	QObject * o;
+	for(o=childObjects->first();o!=0;o=childObjects->next()) {
+	    if( o->isWidgetType() ) {
+		QWidget *w = (QWidget *)o;
+		if ( w->testWState(Qt::WState_Visible) ) {
+		    QRegion wr = QRegion(w->geometry()) & r;
+		    if ( !wr.isEmpty() ) {
+			wr.translate(-w->x(),-w->y());
+			QApplication::postEvent(w,new QPaintEvent(wr, 
+				   !w->testWFlags(QWidget::WRepaintNoErase) ) );
+			paint_children(w,wr);
+		    }
+		}
+	    }
+	}
+    }
+}
+
 void QWidget::hideWindow()
 {
-    if(isTopLevel())
+    deactivateWidgetCleanup();
+
+    if ( isTopLevel() ) {
 	ShowHide((WindowPtr)winid,0);
-    clearWState(WState_Visible);
-    setWState( WState_ForceHide );
-    if(parentWidget())
-	parentWidget()->update();
+    } else {
+	bool v = testWState(WState_Visible);
+	clearWState(WState_Visible);
+	parentWidget()->repaint(geometry());
+	paint_children( parentWidget(),geometry() );
+	if ( v )
+	    setWState(WState_Visible);
+    }
 }
 
 
@@ -1026,14 +1058,14 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     QSize  olds = size();
 
     QRect  r( x, y, w, h );
-    if ( r.size() == olds && oldp == r.topLeft() && (isTopLevel() == FALSE ) )
-	return;
     setCRect( r );
+    if (!isTopLevel() &&  size() == olds && oldp == pos() )
+	return;
 
     if ( isTopLevel() && isMove && winid )
 	MoveWindow( (WindowPtr)winid, x, y, 1);
 
-    bool isResize = olds != size();
+    bool isResize = (olds != size());
     if ( isTopLevel() && winid )
 	SizeWindow( (WindowPtr)winid, w, h, 1);
 
@@ -1044,13 +1076,13 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    QApplication::postEvent( this, new QPaintEvent(rect(), TRUE) );
 	}
 	if ( isResize ) {
-	    QResizeEvent e( r.size(), olds );
+	    QResizeEvent e( size(), olds );
 	    QApplication::sendEvent( this, &e );
 	    QApplication::postEvent( this, new QPaintEvent(rect(), !testWFlags(QWidget::WResizeNoErase)) );
 	}
 
     } else {
-	if ( isMove )
+	if ( isMove ) 
 	    QApplication::postEvent( this, new QMoveEvent( pos(), oldp ) );
 	if ( isResize )
 	    QApplication::postEvent( this, new QResizeEvent( size(), olds ) );
@@ -1210,8 +1242,6 @@ void QWidget::setBaseSize( int, int )
 
 void QWidget::erase( int x, int y, int w, int h )
 {
-    if ( backgroundMode() == NoBackground )
-	return;
     erase( QRegion( x, y, w, h ) );
 }
 
@@ -1224,6 +1254,9 @@ void QWidget::erase( int x, int y, int w, int h )
 
 void QWidget::erase( const QRegion& reg )
 {
+    if ( backgroundMode() == NoBackground )
+	return;
+
     QRect rr(reg.boundingRect());
 
     int xoff = 0;
@@ -1243,7 +1276,7 @@ void QWidget::erase( const QRegion& reg )
 	if ( !extra->bg_pix->isNull() ) {
 	    QPoint point((rr.x()+xoff)%extra->bg_pix->width(), (rr.y()+yoff)%extra->bg_pix->height());
 	    p.drawTiledPixmap(rr,*extra->bg_pix, point);
-	}
+	} 
     } else {
 	p.fillRect(rr,bg_col);
     }
@@ -1463,9 +1496,11 @@ void QWidget::setAcceptDrops( bool )
 void QWidget::setMask( const QRegion &region )
 {
     createExtra();
+    if ( region.isNull() && extra->mask.isNull() )
+	return;
     extra->mask = region;
     if ( isVisible() && !isTopLevel() )
-	update( geometry() );
+	update();
 }
 
 /*!
@@ -1532,30 +1567,45 @@ void QWidget::propagateUpdates(int , int , int w, int h)
     }
 }
 
-
 QRegion QWidget::clippedRegion()
 {
-    QPoint tmp;
-    createExtra();
-    QRegion clippedRgn = extra->mask;
+    bool do_debug = FALSE;
+#if 0
+    static QString foo;
+    if(foo != name()) {
+	do_debug = TRUE;
+	foo = name();
+    }
+#endif
+
+    if(do_debug) qDebug("ClippedRegion()..%s %s", name(), className());
 
     QPoint mp = posInWindow(this);
     QRegion mr(mp.x(), mp.y(), width(), height());
 
+    QRegion clippedRgn;
+
+    QPoint tmp;
     //clip out my children
     if(const QObjectList *chldnlst=children()) {
 	for(QObjectListIt it(*chldnlst); it.current(); ++it) {
 	    if((*it)->isWidgetType()) {
 		QWidget *cw = (QWidget *)(*it);
-		tmp = posInWindow(cw);
-		QRect cr(tmp.x(), tmp.y(), cw->width(), cw->height());
-		if(cw->isVisible() && mr.contains(cr))
-		    clippedRgn += cr;
+		if( cw->isVisible() ) {
+		    QRegion childrgn(mp.x()+cw->x(), mp.y()+cw->y(), cw->width(), cw->height());;
+		    if(cw->extra && !cw->extra->mask.isNull()) {
+			QRegion mask = cw->extra->mask;
+			mask.translate(mp.x()+cw->x(), mp.y()+cw->y());
+			childrgn &= mask;
+		    }
+		    clippedRgn += childrgn;
+		}
 	    }
 	}
     }
 
     //clip away my siblings
+
     if(!isTopLevel() && parentWidget()) {
 	if(const QObjectList *siblst = parentWidget()->children()) {
 	    //loop to this because its in zorder, and i don't care about people behind me
@@ -1565,14 +1615,27 @@ QRegion QWidget::clippedRegion()
 		    QWidget *sw = (QWidget *)(*it);
 		    tmp = posInWindow(sw);
 		    QRect sr(tmp.x(), tmp.y(), sw->width(), sw->height());
-		    if(sw->isVisible() && mr.contains(sr))
-			clippedRgn += sr;
+		    if(sw->isVisible() && mr.contains(sr)) {
+			QRegion sibrgn(sr);
+			if(sw->extra && !sw->extra->mask.isNull()) {
+			    QRegion mask = sw->extra->mask;
+			    mask.translate(tmp.x(), tmp.y());
+			    sibrgn &= mask;
+			}
+			clippedRgn += sibrgn;
+		    }
 		}
 	    }
 	}
     }
 
-    return mr ^ clippedRgn;
+    clippedRgn = (mr & clippedRgn) ^ mr;
+    if(extra && !extra->mask.isNull()) {
+	QRegion mask = extra->mask;
+	mask.translate(mp.x(), mp.y());
+	clippedRgn &= mask;
+    }
+    return clippedRgn;
 }
 
 

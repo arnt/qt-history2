@@ -14,6 +14,31 @@
 #    define DEBUG
 #endif
 
+class QMacSavedPortInfo
+{
+    RgnHandle clip;
+    GWorldPtr world;
+    GDHandle handle;
+public:
+    QMacSavedPortInfo();
+    ~QMacSavedPortInfo();
+};
+
+
+inline QMacSavedPortInfo::QMacSavedPortInfo()
+{
+    GetGWorld(&world, &handle);
+    clip = NewRgn();
+    GetClip(clip);
+}
+
+inline QMacSavedPortInfo::~QMacSavedPortInfo()
+{
+    SetGWorld(world,handle);
+    SetClip(clip);
+    DisposeRgn(clip);
+}
+
 #endif
 
 

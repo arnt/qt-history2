@@ -54,6 +54,9 @@ class QGfx;
 class QTextCodec;
 class QTextParag;
 class QPaintDevice;
+#ifdef Q_WS_MAC
+class QMacSavedPortInfo;
+#endif
 
 
 class Q_EXPORT QPainter : public Qt
@@ -354,10 +357,9 @@ protected:
     GC		gc_brush;			// graphics contect for brush
     QPoint	curPt;				// current point
 #elif defined(Q_WS_MAC)
-    QRegion savedclip;
-    GWorldPtr savedworld;
-    GDHandle savedhandle;
-
+    QRegion clippedreg;
+    QMacSavedPortInfo *saved;
+    
     int offx, offy;
     int penx, peny;
     void * hd;
