@@ -45,6 +45,7 @@ protected:
     virtual QString fileExtension();
 
 private:
+    const QPair<QString,QString> anchorForNode(const Node *node);
     const Node *findNodeForTarget(const QString &target, const Node *relative,
                                   CodeMarker *marker, const Atom *atom = 0);
     void generateHeader(const QString& title, const Node *node = 0,

@@ -413,14 +413,9 @@ void Generator::generateModuleName(const ClassNode *classe, CodeMarker *marker)
 {
     if (!classe->moduleName().isEmpty()) {
         Text text;
-	text << Atom::ParaLeft
-             << "Part of the "
-             << Atom(Atom::Link, classe->moduleName().toLower()+".html")
-             << Atom(Atom::FormattingLeft, ATOM_FORMATTING_LINK)
-             << Atom(Atom::String, classe->moduleName())
-             << Atom(Atom::FormattingRight, ATOM_FORMATTING_LINK)
-             << " module."
-             << Atom::ParaRight;
+	text << Atom::ParaLeft << "Part of the "
+             << Atom(Atom::AutoLink, classe->moduleName())
+             << " module." << Atom::ParaRight;
         generateText(text, classe, marker);
     }
 }

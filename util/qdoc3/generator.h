@@ -56,8 +56,6 @@ protected:
 				   CodeMarker *marker );
     virtual void generateInheritedBy( const ClassNode *classe,
 				      CodeMarker *marker );
-    virtual void generateModuleName( const ClassNode *classe,
-                                     CodeMarker *marker);
 
     void generateThreadSafeness( const Node *node, CodeMarker *marker );
     void generateStatus( const Node *node, CodeMarker *marker );
@@ -65,6 +63,7 @@ protected:
 				  CodeMarker *marker, bool generate,
 				  int& numGeneratedAtoms );
     void generateExampleFiles(const FakeNode *fake, CodeMarker *marker);
+    void generateModuleName( const ClassNode *classe, CodeMarker *marker);
 
     const QString& outputDir() { return outDir; }
     QString indent( int level, const QString& markedCode );

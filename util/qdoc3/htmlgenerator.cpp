@@ -878,43 +878,82 @@ void HtmlGenerator::generateHeader(const QString& title, const Node *node,
 
     if (node && !node->links().empty()) {
         QPair<QString,QString> linkPair;
+        QPair<QString,QString> anchorPair;
         const Node *linkNode;
 
         if (node->links().contains(Node::PreviousLink)) {
             linkPair = node->links()[Node::PreviousLink];
             linkNode = findNodeForTarget(linkPair.first, node, marker);
+            if (linkNode == node)
+                anchorPair = linkPair;
+            else
+                anchorPair = anchorForNode(linkNode);
+
             out() << "    <link rel=\"prev\" href=\""
-                  << linkNode->name() << "\" />\n";
-            navigationLinks += "[Previous: <a href=\"" + protect(linkNode->name()) + "\">"
-                            + protect(linkPair.second) + "</a>]\n";
+                  << anchorPair.first << "\" />\n";
+
+            navigationLinks += "[Previous: <a href=\"" + anchorPair.first + "\">";
+            if (linkPair.first == linkPair.second && !anchorPair.second.isEmpty())
+                navigationLinks += protect(anchorPair.second);
+            else
+                navigationLinks += protect(linkPair.second);
+            navigationLinks += "</a>]\n";
         }
         if (node->links().contains(Node::ContentsLink)) {
             linkPair = node->links()[Node::ContentsLink];
             linkNode = findNodeForTarget(linkPair.first, node, marker);
+            if (linkNode == node)
+                anchorPair = linkPair;
+            else
+                anchorPair = anchorForNode(linkNode);
+
             out() << "    <link rel=\"contents\" href=\""
-                  << linkNode->name() << "\" />\n";
-            navigationLinks += "[<a href=\"" + protect(linkNode->name()) + "\">"
-                            + protect(linkPair.second) + "</a>]\n";
+                  << anchorPair.first << "\" />\n";
+
+            navigationLinks += "[<a href=\"" + anchorPair.first + "\">";
+            if (linkPair.first == linkPair.second && !anchorPair.second.isEmpty())
+                navigationLinks += protect(anchorPair.second);
+            else
+                navigationLinks += protect(linkPair.second);
+            navigationLinks += "</a>]\n";
         }
         if (node->links().contains(Node::NextLink)) {
             linkPair = node->links()[Node::NextLink];
             linkNode = findNodeForTarget(linkPair.first, node, marker);
+            if (linkNode == node)
+                anchorPair = linkPair;
+            else
+                anchorPair = anchorForNode(linkNode);
+
             out() << "    <link rel=\"next\" href=\""
-                  << linkNode->name() << "\" />\n";
-            navigationLinks += "[Next: <a href=\"" + protect(linkNode->name()) + "\">"
-                            + protect(linkPair.second) + "</a>]\n";
+                  << anchorPair.first << "\" />\n";
+
+            navigationLinks += "[Next: <a href=\"" + anchorPair.first + "\">";
+            if (linkPair.first == linkPair.second && !anchorPair.second.isEmpty())
+                navigationLinks += protect(anchorPair.second);
+            else
+                navigationLinks += protect(linkPair.second);
+            navigationLinks += "</a>]\n";
         }
         if (node->links().contains(Node::IndexLink)) {
             linkPair = node->links()[Node::IndexLink];
             linkNode = findNodeForTarget(linkPair.first, node, marker);
+            if (linkNode == node)
+                anchorPair = linkPair;
+            else
+                anchorPair = anchorForNode(linkNode);
             out() << "    <link rel=\"index\" href=\""
-                  << linkNode->name() << "\" />\n";
+                  << anchorPair.first << "\" />\n";
         }
         if (node->links().contains(Node::StartLink)) {
             linkPair = node->links()[Node::StartLink];
             linkNode = findNodeForTarget(linkPair.first, node, marker);
+            if (linkNode == node)
+                anchorPair = linkPair;
+            else
+                anchorPair = anchorForNode(linkNode);
             out() << "    <link rel=\"start\" href=\""
-                  << linkNode->name() << "\" />\n";
+                  << anchorPair.first << "\" />\n";
         }
     }
     out() << "</head>\n"
@@ -1977,4 +2016,16 @@ const Node *HtmlGenerator::findNodeForTarget(const QString &target,
     }
 
     return node;
+}
+
+const QPair<QString,QString> HtmlGenerator::anchorForNode(const Node *node)
+{
+    QPair<QString,QString> anchorPair;
+    const FakeNode *fakeNode = static_cast<const FakeNode*>(node);
+
+    anchorPair.first = PageGenerator::fileName(node);
+    if (fakeNode)
+        anchorPair.second = fakeNode->title();
+
+    return anchorPair;
 }
