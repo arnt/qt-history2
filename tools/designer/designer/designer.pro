@@ -58,6 +58,7 @@ SOURCES	= command.cpp \
 		  layout.cpp \
 		  main.cpp \
 		  mainwindow.cpp \
+		  mainwindowactions.cpp \
 		  metadatabase.cpp \
 		  pixmapchooser.cpp \
 		  propertyeditor.cpp \
