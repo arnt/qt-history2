@@ -83,7 +83,8 @@ iconview:SUBDIRS += fileiconview \
 		    iconview/simple_dd
 
 
-network:SUBDIRS +=  network/clientserver/client \
+network:SUBDIRS +=  network/archivesearch \
+		    network/clientserver/client \
 		    network/clientserver/server \
 		    network/ftpclient \
 		    network/httpd \
