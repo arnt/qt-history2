@@ -49,8 +49,6 @@
 #include "qstring.h"
 #include "qstyle.h"
 
-#include "math.h" // floor()
-
 #if defined(Q_WS_WIN)
 #include "qt_windows.h"
 #endif
@@ -1567,25 +1565,22 @@ bool QDateEdit::setFocusSection( int s )
 void QDateEdit::fix()
 {
     bool changed = FALSE;
-    QDate currentDate = QDate::currentDate();
+    int currentYear = QDate::currentDate().year();
     int year = d->y;
     if ( year < 100 ) {
-	int currentCentury = (int) floor( (double)currentDate.year()/100 );
-	int loFullYear = currentDate.year() - 70;
-	int loCentury = (int) ( floor((double)loFullYear/100) < currentCentury ) ?
-			(int) floor((double)loFullYear/100) : currentCentury;
-	int loYear = loFullYear - ( loCentury * 100 );
-	int hiCentury = currentCentury;
-	if ( loCentury == currentCentury )
-	    ++hiCentury;
-	if ( year >= loYear )
-	    year = ( loCentury*100 ) + year;
-	else
-	    year = ( hiCentury*100 ) + year;
+	int currentCentury = currentYear / 100;
+	year += currentCentury * 100;
+	if ( currentYear > year ) {
+	    if ( currentYear > year + 70 )
+		year += 100;
+	} else {
+	    if ( year >= currentYear + 30 )
+		year -= 100;
+	}
 	changed = TRUE;
-    } else if ( year <= 999 ) {
-	int currentCentury = (int) floor( (double)currentDate.year()/100 );
-	year = ( currentCentury*100 ) + year;
+    } else if ( year < 1000 ) {
+	int currentMillennium = currentYear / 10;
+	year += currentMillennium * 10;
 	changed = TRUE;
     }
     if ( changed && outOfRange( year, d->m, d->d ) ) {
