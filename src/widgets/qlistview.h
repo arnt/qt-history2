@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#43 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#44 $
 **
 ** Definition of QListView widget class
 **
@@ -258,6 +258,7 @@ public:
     bool isOn() const { return on; }
     Type type() const { return myType; }
     const char *text() const { return QListViewItem::text( 0 ); }
+    const char *text( int n ) const { return QListViewItem::text( n ); }
 
 protected:
     void paintBranches( QPainter * p, const QColorGroup & cg,
