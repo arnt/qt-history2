@@ -23,7 +23,6 @@
 #include "qstring.h"
 #include "qstringlist.h"
 #include "qbuffer.h"
-#include "qurloperator.h"
 #include "qtimer.h"
 #include "private/qinternal_p.h"
 #include "qevent.h"

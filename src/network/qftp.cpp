@@ -19,7 +19,6 @@
 #include "qcoreapplication.h"
 #include "qsocket.h"
 #include "qurlinfo.h"
-#include "qurloperator.h"
 #include "qstringlist.h"
 #include "qregexp.h"
 #include "qtimer.h"
