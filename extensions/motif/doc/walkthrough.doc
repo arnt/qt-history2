@@ -1,11 +1,9 @@
 /* Walkthrough for the Motif Extension */
+/*!
+\page motif-walkthrough.html
+\title Qt Motif Extension - A Migration Walkthrough
 
-/*! \page motif-walkthrough.html
-    \title Qt Motif Extension - A Migration Walkthrough
-
-\tableofcontents
-
-\section1 Introduction
+[ \link motif-walkthrough-2.html Next: Getting Started\endlink ]
 
 This walkthrough covers a complete migration of a Motif based program
 to the Qt toolkit using the \e {Qt Motif Extension}.
@@ -30,13 +28,27 @@ how-to-learn-qt.html How to Learn Qt\endlink; or to go on a Qt
 training course. (See \link http://www.trolltech.com\endlink for
 details of training courses.)
 
-\section2 Goals for the Walkthrough
+\section1 Goals for the Walkthrough
 
 The goal of this walkthrough is to provide the reader with enough
 knowledge to migrate Motif applications to the Qt toolkit. We will do
 this by example: We will convert a real-world Motif based program
 step-by-step. This walkthrough will discuss both techniques and their
-rationales throughout the process.
+rationales throughout the process.  This walkthrough is broken down
+into individual chapters which cover a specific topic:
+
+\list
+\i Chapter 1: \link motif-walkthrough-1.html Getting Started\endlink
+\i Chapter 2: \link motif-walkthrough-2.html Preparing to Migrate the User Interface\endlink
+\i Chapter 3: \link motif-walkthrough-3.html Using Qt Standard Dialogs\endlink
+\i Chapter 4: \link motif-walkthrough-4.html Using Custom QDialogs\endlink
+\i Chapter 5: \link motif-walkthrough-5.html  Using Existing Dialogs with QMotifDialog\endlink
+\i Chapter 6: \link motif-walkthrough-6.html Using Qt Main Window Classes\endlink
+\i Chapter 7: \link motif-walkthrough-7.html Refactoring Existing Code\endlink
+\i Chapter 8: \link motif-walkthrough-8.html Replacing the View Widget\endlink
+\i Chapter 9: \link motif-walkthrough-9.html Replacing the Print Dialog\endlink
+\i Chapter 10: \link motif-walkthrough-10.html Continuing Development\endlink
+\endlist
 
 We will use the \e todo demo program included with the Motif 2.x
 distribution as our migration project. This walkthrough contains
@@ -122,9 +134,25 @@ the application runs as expected.
 
 We are now ready to start using the \e {Qt Motif Extension}.
 
-\section1 Getting Started
+[ \link motif-walkthrough-2.html Next: Getting Started\endlink ]
 
-\section2 Starting with QMotif and QApplication
+*/
+
+
+
+
+
+
+
+
+/*!
+\page motif-walkthrough-1.html
+\title Getting Started
+
+[ \link motif-walkthrough.html Home\endlink ]
+[ \link motif-walkthrough-2.html Next: Preparing to Migrate the User Interface\endlink ]
+
+\section1 Starting with QMotif and QApplication
 
 To be able to use Qt, we need to create a QApplication object. The
 QApplication class controls all the event delivery and display
@@ -165,7 +193,7 @@ Since we renamed \c {todo.c} to \c {todo.cpp}, we must change the
 project file and rerun \e qmake to regenerate our \c Makefile. When we
 build our project, there are compile and link errors.
 
-\section2 Migrating to C++
+\section1 Migrating to C++
 
 We need to convert the code in this file to proper C++ code.
 Fortunately, the changes are not too large. Most files included from
@@ -201,7 +229,25 @@ The other invalid cast is in the \c Open() function.
 After these changes, the project compiles and links, and the
 application runs and operates correctly.
 
-\section1 Preparing to Migrate the User Interface
+[ \link motif-walkthrough.html Home\endlink ]
+[ \link motif-walkthrough-2.html Next: Preparing to Migrate the User Interface\endlink ]
+
+*/
+
+
+
+
+
+
+
+
+/*!
+\page motif-walkthrough-2.html
+\title Preparing to Migrate the User Interface
+
+[ \link motif-walkthrough-1.html Previous: Getting Started\endlink ]
+[ \link motif-walkthrough.html Home\endlink ]
+[ \link motif-walkthrough-3.html Next: Using Qt Standard Dialogs\endlink ]
 
 We are ready to start migrating the user interface for our project.
 As mentioned in the introduction, we do this in steps, ensuring that
@@ -238,7 +284,7 @@ replaced until after we have replaced the \e View widget. Qt provides
 a complete printing mechanism with QPrinter, but we cannot start using
 it until we have replaced the \e View widget.
 
-\section2 Removing the \e Help Dialog
+\section1 Removing the \e Help Dialog
 
 The \e Help dialog is also special.  Instead of replacing the \e Help
 dialog with a custom QDialog, we will use the \link helpsystem.html Qt
@@ -272,7 +318,26 @@ QToolTip and QWhatsThis help at the moment, since we are still using
 migrated the \e {Main Window} and the popup-menu hierarchy, we can
 begin using QToolTip and QWhatsThis for online help.
 
-\section1 Using Qt Standard Dialogs
+[ \link motif-walkthrough-1.html Previous: Getting Started\endlink ]
+[ \link motif-walkthrough.html Home\endlink ]
+[ \link motif-walkthrough-3.html Next: Using Qt Standard Dialogs\endlink ]
+
+*/
+
+
+
+
+
+
+
+
+/*!
+\page motif-walkthrough-3.html
+\title Using Qt Standard Dialogs
+
+[ \link motif-walkthrough-2.html Previous: Preparing to Migrate the User Interface\endlink ]
+[ \link motif-walkthrough.html Home\endlink ]
+[ \link motif-walkthrough-4.html Next: Using Custom QDialogs\endlink ]
 
 We start by using two of the \link dialogs.html Qt Standard
 Dialogs\endlink: QFileDialog and QMessageBox. Both of these classes
@@ -314,7 +379,7 @@ as the parent for the Qt Standard Dialogs.
 \skipto QMotif integrator
 \printuntil XtManageChild
 
-\section2 Replacing the \e {Open} and \e {Save As} Dialogs
+\section1 Replacing the \e {Open} and \e {Save As} Dialogs
 
 First, we completely remove all use of the existing Motif file
 selection dialog. We remove the \c Xm/FileSB.h include, the global \c
@@ -363,7 +428,7 @@ After we build the project, the application runs and operates as
 expected. The difference is that the \e Open and \e {Save As} dialogs
 now use QFileDialog.
 
-\section2 Replacing the \e {Page Delete} and \e {IO Error} Dialogs
+\section1 Replacing the \e {Page Delete} and \e {IO Error} Dialogs
 
 The \e {Page Delete} dialog is created and used in \c {actions.c}. We
 need to migrate this file to C++. We rename it to \c {actions.cpp},
@@ -483,7 +548,26 @@ After we build the project, the application runs and operates as
 expected. The difference is that the \e {Page Delete} and \e {IO
 Error} dialogs now use QMessageBox.
 
-\section1 Using Custom QDialogs
+[ \link motif-walkthrough-2.html Previous: Preparing to Migrate the User Interface\endlink ]
+[ \link motif-walkthrough.html Home\endlink ]
+[ \link motif-walkthrough-4.html Next: Using Custom QDialogs\endlink ]
+
+*/
+
+
+
+
+
+
+
+
+/*!
+\page motif-walkthrough-4.html
+\title Using Custom QDialogs
+
+[ \link motif-walkthrough-3.html Previous: Using Qt Standard Dialogs\endlink ]
+[ \link motif-walkthrough.html Home\endlink ]
+[ \link motif-walkthrough-5.html Next: Using Existing Dialogs with QMotifDialog\endlink ]
 
 After we have replaced the standard dialogs, we move onto the custom
 dialogs.  This project has a single custom dialog: the \e {Page Edit}
@@ -496,7 +580,7 @@ this walkthrough and will not be discussed here.  The \link
 designer-manual.book Qt Designer Manual\endlink is a complete
 reference on the use of \e {Qt Designer}.
 
-\section2 Replacing the \e {Page Edit} Dialog
+\section1 Replacing the \e {Page Edit} Dialog
 
 The custom QDialog description for the \e {Page Edit} dialog is saved
 as \c pageeditdialog.ui.  We add this file to the project file and
@@ -559,7 +643,26 @@ The same process must be done for the minorTab text:
 \skipto // temp = XmTextGetString(majorTabW);
 \printuntil temp = qstrdup( qstr.local8Bit().data() );
 
-\section1 Using Existing Dialogs with QMotifDialog
+[ \link motif-walkthrough-3.html Previous: Using Qt Standard Dialogs\endlink ]
+[ \link motif-walkthrough.html Home\endlink ]
+[ \link motif-walkthrough-5.html Next: Using Existing Dialogs with QMotifDialog\endlink ]
+
+*/
+
+
+
+
+
+
+
+
+/*!
+\page motif-walkthrough-5.html
+\title Using Existing Dialogs with QMotifDialog
+
+[ \link motif-walkthrough-4.html Previous: Using Custom QDialogs\endlink ]
+[ \link motif-walkthrough.html Home\endlink ]
+[ \link motif-walkthrough-6.html Next: Using Qt Main Window Classes\endlink ]
 
 As mentioned above, the \e Print dialog cannot be replaced until we
 have converted the \e View widget.  The \e Print dialog will be
@@ -569,7 +672,7 @@ replacing the \e Print dialog with a custom QDialog replacement.
 Instead, we will keep the Motif based dialog and use QMotifDialog to
 integrate the dialog with the application.
 
-\section2 Modality Requirements
+\section1 Modality Requirements
 
 Modality with QDialog is different from Motif.  The QDialog::exec()
 function does not return until the dialog is finished.  In Motif,
@@ -615,7 +718,7 @@ function:
 \printuntil XtUnmanageChild
 \printline
 
-\section2 Integrating the \e Print Dialog
+\section1 Integrating the \e Print Dialog
 
 Now that the \e Print dialog has the appropriate \e accept and \e
 reject callbacks, we can use QMotifDialog.  First we need to include
@@ -655,7 +758,26 @@ After we build the project, the application runs and operates as
 expected.  There is no visual or behavioral difference, even though
 the \e Print dialog is using QMotifDialog.
 
-\section1 Using Qt Main Window Classes
+[ \link motif-walkthrough-4.html Previous: Using Custom QDialogs\endlink ]
+[ \link motif-walkthrough.html Home\endlink ]
+[ \link motif-walkthrough-6.html Next: Using Qt Main Window Classes\endlink ]
+
+*/
+
+
+
+
+
+
+
+
+/*!
+\page motif-walkthrough-6.html
+\title Using Qt Main Window Classes
+
+[ \link motif-walkthrough-5.html Previous: Using Existing Dialogs with QMotifDialog\endlink ]
+[ \link motif-walkthrough.html Home\endlink ]
+[ \link motif-walkthrough-7.html Next: Refactoring Existing Code\endlink ]
 
 After we have replaced all dialogs, we are ready to begin replacing
 the \e {Main Window}.  \link motif-walkthrough.html#4 As mentioned
@@ -669,7 +791,7 @@ Window} widget are beyond the scope of this walkthrough and will not
 be discussed here.  The \link designer-manual.book Qt Designer
 Manual\endlink is a complete reference on the use of \e {Qt Designer}.
 
-\section2 Implementing the \e {Main Window}
+\section1 Implementing the \e {Main Window}
 
 The description for the \e {Main Window} is saved as \c mainwindow.ui.
 We add this file to the project file and regenerate the \c Makefile.
@@ -735,7 +857,7 @@ toplevel QWidget as argument 2 (the \e client_data argument).  For
 these 4 functions, we pass \e this as argument 2, which is a toplevel
 \c MainWindow derived from QMainWindow.
 
-\section2 Replacing the \e {Main Window}
+\section1 Replacing the \e {Main Window}
 
 The next step is to use the new \e {Main Window} in our application.
 The changes needed in \c todo.cpp are large due to the large amount of
@@ -782,7 +904,26 @@ Our application is now using QMainWindow instead of \c XmMainWindow.
 After we build the project, the application runs and operates as
 expected.
 
-\section1 Refactoring Existing Code
+[ \link motif-walkthrough-5.html Previous: Using Existing Dialogs with QMotifDialog\endlink ]
+[ \link motif-walkthrough.html Home\endlink ]
+[ \link motif-walkthrough-7.html Next: Refactoring Existing Code\endlink ]
+
+*/
+
+
+
+
+
+
+
+
+/*!
+\page motif-walkthrough-7.html
+\title Refactoring Existing Code
+
+[ \link motif-walkthrough-6.html Previous: Using Qt Main Window Classes\endlink ]
+[ \link motif-walkthrough.html Home\endlink ]
+[ \link motif-walkthrough-8.html Next: Replacing the View Widget\endlink ]
 
 In the opinion of the author, the existing code is slightly
 disorganized.  Even though the code \e does work, some cleanups and
@@ -790,7 +931,7 @@ reorganization can only help with readability and maintainability.
 The steps described below are not necessary during the migration
 process but are included for completeness.
 
-\section2 Migrating Data Structures to C++
+\section1 Migrating Data Structures to C++
 
 The \c Page data structure is an opaque data type.  The real data
 structure is called \c PageRec; \c Page defined to be a pointer to a
@@ -849,7 +990,7 @@ Code that accesses the global \c options variable does not need to be
 modified since the data members of the \c Options struct did not
 change.  The existing code will continue to work.
 
-\section2 Using \e new and \e delete
+\section1 Using \e new and \e delete
 
 The destructors of the \c Page and \c Options structs use \e delete
 instead of \c XtFree() to deallocate all \c char* members.  This is a
@@ -940,7 +1081,7 @@ main() function in \c todo.cpp.
 \printuntil options.todoFile = qstrdup( options.todoFile );
 \printline
 
-\section2 Moving Existing Code
+\section1 Moving Existing Code
 
 The rest of the refactoring process involves moving existing code into
 new places.  Currently, each function in the \c mainwindow.ui.h file
@@ -992,8 +1133,6 @@ are no longer needed.  The \c #include statements from each file are
 listed below, instead of describing which includes are removed and
 added to each file.  
 
-\link #skip-include-fixes Skip\endlink to the next section.
-
 Includes for \c actions.cpp:
 
 \quotefile walkthrough/refactor/actions.cpp
@@ -1024,9 +1163,26 @@ Includes for \c mainwindow.ui.h:
 \printuntil #include <Xmd/Print.h>
 \printline
 
-\target skip-include-fixes
+[ \link motif-walkthrough-6.html Previous: Using Qt Main Window Classes\endlink ]
+[ \link motif-walkthrough.html Home\endlink ]
+[ \link motif-walkthrough-8.html Next: Replacing the View Widget\endlink ]
 
-\section1 Replacing the \e {View} Widget
+*/
+
+
+
+
+
+
+
+
+/*!
+\page motif-walkthrough-8.html
+\title Replacing the View Widget
+
+[ \link motif-walkthrough-7.html Previous: Refactoring Existing Code\endlink ]
+[ \link motif-walkthrough.html Home\endlink ]
+[ \link motif-walkthrough-9.html Next: Replacing the Print Dialog\endlink ]
 
 We are ready to start replacing the \e {View} widget.  However, our
 example program uses the \c XmNotebook widget class.  Qt does not
@@ -1091,7 +1247,7 @@ the scope of this walkthrough and will not be discussed here.  The
 \link designer-manual.book Qt Designer Manual\endlink is a complete
 reference on the use of \e {Qt Designer}.
 
-\section2 Data Structure Modifications
+\section1 Data Structure Modifications
 
 The \c Page struct contains \c majorPB and \c minorPB members which
 need to be removed.  These members correspond to the tabs displayed in
@@ -1103,7 +1259,7 @@ remove them.
 \printuntil int lastcursorpos;
 \printline
 
-\section2 Code Modifications
+\section1 Code Modifications
 
 Most of the existing functions in our application need to be modified
 to work with the new \e View widget.  The \c MainWindow class has 5
@@ -1295,7 +1451,26 @@ using our \c mainwindow instance.
 The \e View widget has now been replaced.  After building our project,
 we confirm that the application works correctly.
 
-\section1 Replacing the \e {Print} Dialog
+[ \link motif-walkthrough-7.html Previous: Refactoring Existing Code\endlink ]
+[ \link motif-walkthrough.html Home\endlink ]
+[ \link motif-walkthrough-9.html Next: Replacing the Print Dialog\endlink ]
+
+*/
+
+
+
+
+
+
+
+
+/*!
+\page motif-walkthrough-9.html
+\title Replacing the Print Dialog
+
+[ \link motif-walkthrough-8.html Previous: Replacing the View Widget\endlink ]
+[ \link motif-walkthrough.html Home\endlink ]
+[ \link motif-walkthrough-10.html Next: Continuing Development\endlink ]
 
 The \e {Print} dialog is the last component in our application that
 uses Motif.  The current \c Print() function does nothing more than
@@ -1318,7 +1493,7 @@ For completeness, the code to initialize a QPrinter object is included below.
 \skipto void MainWindow::filePrint()
 \printto qApp->setOverrideCursor( QCursor( Qt::WaitCursor ) );
 
-\section2 Using Rich Text for Printing
+\section1 Using Rich Text for Printing
 
 Qt provides rich text using a subset of HTML.  The QSimpleRichText
 class makes rich-text printing simple.  All we need to do is create a
@@ -1347,7 +1522,7 @@ object using QPainter.
 \printuntil qApp->restoreOverrideCursor();
 \printline
 
-\section2 Removing the Dependency on Xt/Motif
+\section1 Removing the Dependency on Xt/Motif
 
 Our application no longer uses any Xt or Motif widgets.  We can now
 finish removing the dependencies on Xt and Motif.
@@ -1376,7 +1551,25 @@ used in our application.  We remove these as well.
 After regenerating the \c Makefile and building our project, we
 confirm that the application works correctly.
 
-\section1 Continuing Development
+[ \link motif-walkthrough-8.html Previous: Replacing the View Widget\endlink ]
+[ \link motif-walkthrough.html Home\endlink ]
+[ \link motif-walkthrough-10.html Next: Continuing Development\endlink ]
+
+*/
+
+
+
+
+
+
+
+
+/*!
+\page motif-walkthrough-10.html
+\title Continuing Development
+
+[ \link motif-walkthrough-9.html Previous: Replacing the Print Dialog\endlink ]
+[ \link motif-walkthrough.html Home\endlink ]
 
 We are not yet done with the migration to Qt, even though our project
 does not use Motif anymore.  Qt provides many useful features that we
@@ -1384,7 +1577,7 @@ can begin using immediately.  Some some of the interesting ones are
 presented below as a guide for where to start extending your existing
 projects.
 
-\section2 Using Unicode
+\section1 Using Unicode
 
 Support for \link i18n.html internationalization\endlink is very easy
 with Qt.  Using QString instead of \c {char*} for storing text gives
@@ -1430,7 +1623,7 @@ change.  In most cases, we end up removing more code than we are
 adding.  Due to space considerations, we include only a small portion
 of the required changes, since these changes are very similar to the above.
 
-\section2 Writing Platform-Independent Code
+\section1 Writing Platform-Independent Code
 
 Qt provides many \link io.html input and output\endlink classes.  We
 can use these in \c MainWindow::readDB() and \c MainWindow::saveDB().
@@ -1442,7 +1635,7 @@ Apple MacOS X.
 The platform-independent versions of the \c MainWindow::readDB() and
 \c MainWindow::saveDB() functions can be found in the \c io.cpp file.
 
-\section2 Designing a Modern User Interface
+\section1 Designing a Modern User Interface
 
 Since we used the \e {Qt Designer} to design the \e {Main Window}
 widget, we can extend the interface easily.  We can use some of the
@@ -1458,5 +1651,8 @@ short period of time.  As our project expands to other platforms, we
 could add menus and dialogs that allow us synchronize todo lists
 between a normal desktop computer and a handheld device running with
 Qt/Embedded.
+
+[ \link motif-walkthrough-9.html Previous: Replacing the Print Dialog\endlink ]
+[ \link motif-walkthrough.html Home\endlink ]
 
 */
