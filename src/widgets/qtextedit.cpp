@@ -714,11 +714,11 @@ QTextEdit::~QTextEdit()
     undoRedoInfo.d = 0;
     delete cursor;
     delete doc;
-    delete d;
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if ( d->optimMode )
 	delete d->od;
 #endif
+    delete d;
 }
 
 void QTextEdit::init()
