@@ -237,6 +237,7 @@ public:
     QString uname;
     QString pword;
     QString hname;
+    QString drvName;
 };
 
 /*!
@@ -361,6 +362,7 @@ void QSqlDatabase::init( const QString& type, const QString&  )
 {
 
     d = new QSqlDatabasePrivate();
+    d->drvName = type;
 
     if ( !d->driver ) {
 
@@ -570,8 +572,6 @@ void QSqlDatabase::setHostName( const QString& host )
     d->hname = host;
 }
 
-
-
 /*! Returns the name of the database, or QString::null if a name has not been set.
 
 */
@@ -606,6 +606,14 @@ QString QSqlDatabase::password() const
 QString QSqlDatabase::hostName() const
 {
     return d->hname;
+}
+
+/*! Returns the name of the driver used by the database.
+
+*/
+QString QSqlDatabase::driverName() const
+{
+    return d->drvName;
 }
 
 /*! Returns a pointer to the database driver used to access the database.

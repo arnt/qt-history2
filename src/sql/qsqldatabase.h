@@ -87,6 +87,7 @@ public:
     QString	 userName() const;
     QString	 password() const;
     QString	 hostName() const;
+    QString      driverName() const;
 
     QSqlDriver*  driver() const;
 
