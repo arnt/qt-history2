@@ -8,6 +8,7 @@ CONFIG		+= png zlib
 # unix:LIBS	+= -lpng -lz
 
 unix:CONFIG	+= x11inc
+unix:TMAKE_CXXFLAGS   += -DQT_FATAL_ASSERT
 
 win32:TMAKE_CFLAGS     += -DUNICODE
 win32:TMAKE_CXXFLAGS   += -DUNICODE
@@ -123,6 +124,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$TOOLS_H/qeucjpcodec.h \
 		  $$TOOLS_H/qeuckrcodec.h \
 		  $$TOOLS_H/qjiscodec.h \
+		  $$TOOLS_H/qjpunicode.h \
 		  $$TOOLS_H/qsjiscodec.h \
 		  $$TOOLS_H/qfile.h \
 		  $$TOOLS_H/qfiledefs.h \
@@ -247,6 +249,7 @@ SOURCES	       += tools/qbitarray.cpp \
 		  tools/qeucjpcodec.cpp \
 		  tools/qeuckrcodec.cpp \
 		  tools/qjiscodec.cpp \
+		  tools/qjpunicode.cpp \
 		  tools/qsjiscodec.cpp \
 		  tools/qfile.cpp \
 		  tools/qfileinfo.cpp \
