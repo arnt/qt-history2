@@ -2279,14 +2279,14 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     pos -= start;
 
     QTextLayout layout( cstr.string(), this );
-    layout.beginLayout();
+    layout.beginLayout( QTextLayout::SingleLine );
 
     layout.setBoundary( pos );
     layout.setBoundary( pos + len );
 
     QTextEngine *engine = layout.d;
     if ( dir != Auto ) {
-	int level = dir == RTL ? 1 : 0;
+	int level = (dir == RTL) ? 1 : 0;
 	for ( int i = engine->items.size(); i >= 0; i-- )
 	    engine->items[i].analysis.bidiLevel = level;
     }
