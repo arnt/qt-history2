@@ -1615,7 +1615,7 @@ void qt_init_internal( int *argcptr, char **argv,
 	    }
 
 	    if ( appSync )				// if "-sync" argument
-		XSynchronize( appDpy, True );
+		XSynchronize( appDpy, TRUE );
 	}
     }
     // Common code, regardless of whether display is foreign.
@@ -4081,10 +4081,10 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 
 	// throw away mouse move events that are sent multiple times to the same
 	// position
-	bool throw_away = false;
+	bool throw_away = FALSE;
 	if ( x_root_save == globalPos.x() &&
 	     y_root_save == globalPos.y() )
-	    throw_away = true;
+	    throw_away = TRUE;
 	x_root_save = globalPos.x();
 	y_root_save = globalPos.y();
 	if ( throw_away )
