@@ -313,7 +313,7 @@ bool QAccelManager::tryAccelEvent( QWidget* w, QKeyEvent* e )
 	e->ignore();
 	QApplication::sendSpontaneousEvent( w, e );
 	if ( e->isAccepted() )
-	    return TRUE;
+	    return FALSE;
     }
     e->t = QEvent::Accel;
     e->ignore();
