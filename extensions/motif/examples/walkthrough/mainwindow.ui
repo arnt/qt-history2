@@ -53,6 +53,9 @@
         <property name="menuText">
             <string>&amp;New</string>
         </property>
+        <property name="toolTip">
+            <string>Creates a new file.</string>
+        </property>
         <property name="accel">
             <string>Ctrl+N</string>
         </property>
@@ -69,6 +72,9 @@
         </property>
         <property name="menuText">
             <string>&amp;Open...</string>
+        </property>
+        <property name="toolTip">
+            <string>Opens an existing file.</string>
         </property>
         <property name="accel">
             <string>Ctrl+O</string>
@@ -87,6 +93,9 @@
         <property name="menuText">
             <string>&amp;Save</string>
         </property>
+        <property name="toolTip">
+            <string>Saves all modifications to the current file.</string>
+        </property>
         <property name="accel">
             <string>Ctrl+S</string>
         </property>
@@ -100,6 +109,9 @@
         </property>
         <property name="menuText">
             <string>Save &amp;As...</string>
+        </property>
+        <property name="toolTip">
+            <string>Save the file with a new name.</string>
         </property>
         <property name="accel">
             <string></string>
@@ -118,6 +130,9 @@
         <property name="menuText">
             <string>&amp;Print...</string>
         </property>
+        <property name="toolTip">
+            <string>Prints all pages in the current file.</string>
+        </property>
         <property name="accel">
             <string>Ctrl+P</string>
         </property>
@@ -131,6 +146,9 @@
         </property>
         <property name="menuText">
             <string>E&amp;xit</string>
+        </property>
+        <property name="toolTip">
+            <string>Exits the application.</string>
         </property>
         <property name="accel">
             <string></string>
@@ -146,6 +164,9 @@
         <property name="menuText">
             <string>&amp;Properties</string>
         </property>
+        <property name="toolTip">
+            <string>Change the properties of the current page.</string>
+        </property>
     </action>
     <action>
         <property name="name">
@@ -157,6 +178,9 @@
         <property name="menuText">
             <string>&amp;New Page</string>
         </property>
+        <property name="toolTip">
+            <string>Creates a new page.</string>
+        </property>
     </action>
     <action>
         <property name="name">
@@ -167,6 +191,9 @@
         </property>
         <property name="menuText">
             <string>&amp;Delete to Trash</string>
+        </property>
+        <property name="toolTip">
+            <string>Deletes the current page.</string>
         </property>
     </action>
 </actions>
