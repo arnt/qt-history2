@@ -451,7 +451,8 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 		MaskBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, mask->hbm(),
 			sx, sy, MAKEROP4(0x00aa0000,ropCodes[ qt_map_rop_for_bitmaps(rop) ]) );
 #ifdef Q_OS_TEMP
-	    } else if ( ts==QInternal::Pixmap && ((QPixmap *)src)->isQBitmap() ) {
+	    } else if ( (GetTextColor( dst_dc ) & 0xffffff) != 0 && 
+			ts==QInternal::Pixmap && ((QPixmap *)src)->isQBitmap() ) {
 		HDC bsrc_dc = CreateCompatibleDC( src_dc );
 		HBITMAP bsrc = CreateBitmap( sw, sh, 1, 1, NULL );
 		HGDIOBJ oldsrc = SelectObject( bsrc_dc, bsrc );
@@ -459,7 +460,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 		MaskBlt( dst_dc, dx, dy, sw, sh, bsrc_dc, sx, sy, mask->hbm(),
 			 sx, sy, MAKEROP4(0x00aa0000,ropCodes[rop]) );
 		DeleteObject( SelectObject( bsrc_dc, oldsrc ) );
-		DeleteObject( bsrc_dc );
+		DeleteDC( bsrc_dc );
 #endif
 	    } else {
 		MaskBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, mask->hbm(),
@@ -467,10 +468,22 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    }
 	}
     } else {
-	if ( td==QInternal::Pixmap && ((QPixmap *)dst)->isQBitmap() )
+	if ( td==QInternal::Pixmap && ((QPixmap *)dst)->isQBitmap() ) {
 	    BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[ qt_map_rop_for_bitmaps(rop) ] );
-	else
+#ifdef Q_OS_TEMP
+	} else if ( (GetTextColor( dst_dc ) & 0xffffff) != 0 && 
+		    ts==QInternal::Pixmap && ((QPixmap *)src)->isQBitmap() ) {
+	    HDC bsrc_dc = CreateCompatibleDC( src_dc );
+	    HBITMAP bsrc = CreateBitmap( sw, sh, 1, 1, NULL );
+	    HGDIOBJ oldsrc = SelectObject( bsrc_dc, bsrc );
+	    BitBlt( bsrc_dc, 0, 0, sw, sh, src_dc, 0, 0, SRCCOPY );
+	    BitBlt( dst_dc, dx, dy, sw, sh, bsrc_dc, sx, sy, ropCodes[rop] );
+	    DeleteObject( SelectObject( bsrc_dc, oldsrc ) );
+	    DeleteObject( bsrc_dc );
+#endif
+	} else {
 	    BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
+	}
     }
     if ( src_tmp )
 	ReleaseDC( ((QWidget*)src)->winId(), src_dc );
