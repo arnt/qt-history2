@@ -63,7 +63,8 @@ int TableModel::columnCount() const
     Returns an appropriate value for the requested data.
     If the view requests an invalid index, an invalid variant is returned.
     Any valid index that corresponds to a string in the list causes that
-    string to be returned.
+    string to be returned for the display role; otherwise an invalid variant
+    is returned.
 */
 
 QVariant TableModel::data(const QModelIndex &index, int role) const
@@ -75,19 +76,6 @@ QVariant TableModel::data(const QModelIndex &index, int role) const
         return rowList[index.row()][index.column()];
     else
         return QVariant();
-}
-
-/*!
-    Returns an appropriate value for the item's flags. Valid items are
-    enabled, selectable, and editable.
-*/
-
-QAbstractItemModel::ItemFlags TableModel::flags(const QModelIndex &index) const
-{
-    if (!index.isValid())
-        return ItemIsEnabled;
-
-    return ItemIsEnabled | ItemIsSelectable | ItemIsEditable;
 }
 
 /*!
@@ -109,12 +97,16 @@ QVariant TableModel::headerData(int section, Qt::Orientation orientation,
 }
 
 /*!
-    Returns true so that all items in the model can be edited.
+    Returns an appropriate value for the item's flags. Valid items are
+    enabled, selectable, and editable.
 */
 
-bool TableModel::isEditable(const QModelIndex &/*index*/) const
+QAbstractItemModel::ItemFlags TableModel::flags(const QModelIndex &index) const
 {
-    return true; // all items in the model are editable
+    if (!index.isValid())
+        return ItemIsEnabled;
+
+    return ItemIsEnabled | ItemIsSelectable | ItemIsEditable;
 }
 
 /*!

@@ -27,11 +27,10 @@ public:
     int rowCount() const;
     int columnCount() const;
     QVariant data(const QModelIndex &index, int role) const;
-    ItemFlags flags(const QModelIndex &index) const;
     QVariant headerData(int section, Qt::Orientation orientation,
                         int role = DisplayRole) const;
 
-    bool isEditable(const QModelIndex &index) const;
+    ItemFlags flags(const QModelIndex &index) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
 
     bool insertRows(int position, const QModelIndex &parent, int rows);

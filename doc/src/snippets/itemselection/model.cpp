@@ -63,7 +63,8 @@ int TableModel::columnCount() const
     Returns an appropriate value for the requested data.
     If the view requests an invalid index, an invalid variant is returned.
     Any valid index that corresponds to a string in the list causes that
-    string to be returned.
+    string to be returned for the display role; otherwise an invalid variant
+    is returned.
 */
 
 QVariant TableModel::data(const QModelIndex &index, int role) const

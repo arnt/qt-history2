@@ -16,6 +16,8 @@
     Provides a table model for use in various examples.
 */
 
+#include <QtGui>
+
 #include "model.h"
 
 /*!
@@ -55,34 +57,21 @@ int TableModel::columnCount() const
 
 /*!
     Returns an appropriate value for the requested data.
-
     If the view requests an invalid index, an invalid variant is returned.
-    If a header is requested then we just return the column or row number,
-    depending on the orientation of the header.
-
-    Any valid index that corresponds to an item in the model causes its
-    data to be returned.
+    Any valid index that corresponds to a string in the list causes that
+    string to be returned for the display role; otherwise an invalid variant
+    is returned.
 */
 
-QVariant TableModel::data(const QModelIndex &index, int /* role */) const
+QVariant TableModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
         return QVariant();
 
-    return rowList[index.row()][index.column()];
-}
-
-/*!
-    Returns an appropriate value for the item's flags. Valid items are
-    enabled, selectable, and editable.
-*/
-
-QAbstractItemModel::ItemFlags TableModel::flags(const QModelIndex &index) const
-{
-    if (!index.isValid())
-        return ItemIsEnabled;
-
-    return ItemIsEnabled | ItemIsSelectable | ItemIsEditable;
+    if (role == DisplayRole)
+        return rowList[index.row()][index.column()];
+    else
+        return QVariant();
 }
 
 /*!
@@ -104,12 +93,16 @@ QVariant TableModel::headerData(int section, Qt::Orientation orientation,
 }
 
 /*!
-    Returns true so that all items in the model can be edited.
+    Returns an appropriate value for the item's flags. Valid items are
+    enabled, selectable, and editable.
 */
 
-bool TableModel::isEditable(const QModelIndex &/*index*/) const
+QAbstractItemModel::ItemFlags TableModel::flags(const QModelIndex &index) const
 {
-    return true; // all items in the model are editable
+    if (!index.isValid())
+        return ItemIsEnabled;
+
+    return ItemIsEnabled | ItemIsSelectable | ItemIsEditable;
 }
 
 /*!
@@ -117,7 +110,6 @@ bool TableModel::isEditable(const QModelIndex &/*index*/) const
     are met:
 
     * The index supplied is valid.
-    * The index corresponds to an item to be shown in a view.
     * The role associated with editing text is specified.
 
     The dataChanged() signal is emitted if the item is changed.

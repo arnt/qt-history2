@@ -30,17 +30,6 @@ SpinBoxDelegate::SpinBoxDelegate(QObject *parent)
 }
 
 /*!
-    Returns the same editor type (a widget) for every model and index
-    specified.
-*/
-
-QItemDelegate::EditorType SpinBoxDelegate::editorType(const QAbstractItemModel * /* model */,
-    const QModelIndex & /* index */) const
-{
-    return QItemDelegate::Widget;
-}
-
-/*!
     Returns an editor widget (a spin box) that restricts values from the
     model to integers in the range [0, 100]. We call the standard interface
     functions for this class to ensure that the editor is updated in a
@@ -61,7 +50,7 @@ QWidget *SpinBoxDelegate::editor(QWidget *parent,
     spinBox = new QSpinBox(parent);
     spinBox->setMinimum(0);
     spinBox->setMaximum(100);
-    //spinBox->installEventFilter(this);
+    spinBox->installEventFilter(this);
 
     return spinBox;
 }
