@@ -1178,11 +1178,7 @@ void ConnectionEdit::updateLines()
 
 void ConnectionEdit::resizeEvent(QResizeEvent *e)
 {
-    if (m_bg_widget) {
-        m_bg_widget->resize(e->size());
-        updateBackground();
-    }
-
+    updateBackground();
     QWidget::resizeEvent(e);
 }
 

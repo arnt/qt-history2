@@ -232,3 +232,10 @@ void TabOrderEditor::mouseDoubleClickEvent(QMouseEvent *e)
     m_current_index = 0;
     mousePressEvent(e);
 }
+
+void TabOrderEditor::resizeEvent(QResizeEvent *e)
+{
+    updateBackground();
+    QWidget::resizeEvent(e);
+}
+

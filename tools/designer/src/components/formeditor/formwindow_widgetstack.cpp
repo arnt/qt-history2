@@ -38,9 +38,7 @@ int FormWindowWidgetStack::count() const
 
 AbstractFormWindowTool *FormWindowWidgetStack::currentTool() const
 {
-    if (m_current_index == -1)
-        return 0;
-    return m_tools.at(m_current_index);
+    return tool(m_current_index);
 }
 
 void FormWindowWidgetStack::setCurrentTool(int index)
@@ -130,11 +128,19 @@ void FormWindowWidgetStack::resizeEvent(QResizeEvent *event)
 {
     QWidget::resizeEvent(event);
 
-    foreach (AbstractFormWindowTool *tool, m_tools) {
-        QWidget *w = tool->editor();
-        if (w != 0)
-            w->setGeometry(0, 0, event->size().width(), event->size().height());
-    }
+    QRect r = QRect(0, 0, event->size().width(), event->size().height());
+
+    // We always resize the widget tool
+    AbstractFormWindowTool *widget_tool = tool(0);
+    if (widget_tool != 0 && widget_tool->editor() != 0)
+        widget_tool->editor()->setGeometry(r);
+
+    AbstractFormWindowTool *cur_tool = currentTool();
+    if (cur_tool == widget_tool)
+        return;
+            
+    if (cur_tool != 0 && cur_tool->editor() != 0)
+        cur_tool->editor()->setGeometry(r);
 }
 
 AbstractFormWindowTool *FormWindowWidgetStack::tool(int index) const
