@@ -16,6 +16,7 @@
 
 #ifndef QT_NO_PRINTER
 
+#include "qprintengine_mac.h"
 #include <private/qpaintengine_mac_p.h>
 
 class QPrinterPrivate;
