@@ -570,6 +570,19 @@ static int qt_native_select(fd_set *fdread, fd_set *fdwrite, int timeout)
     return select(FD_SETSIZE, fdread, fdwrite, 0, timeout < 0 ? 0 : &tv);
 }
 
+/*
+   Returns the difference between msecs and elapsed. If msecs is -1,
+   however, -1 is returned.
+*/
+static int qt_timeout_value(int msecs, int elapsed)
+{
+    if (msecs == -1)
+        return -1;
+
+    int timeout = msecs - elapsed;
+    return timeout < 0 ? 0 : timeout;
+}
+
 bool QProcessPrivate::waitForStarted(int msecs)
 {
     Q_Q(QProcess);
@@ -632,7 +645,7 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
         if (!writeBuffer.isEmpty() && writePipe[1] != -1)
             FD_SET(writePipe[1], &fdwrite);
 
-        int timeout = msecs - stopWatch.elapsed();
+        int timeout = qt_timeout_value(msecs, stopWatch.elapsed());
         int ret = qt_native_select(&fdread, &fdwrite, timeout);
         if (ret < 0) {
             if (errno == EINTR)
@@ -705,7 +718,7 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
         if (!writeBuffer.isEmpty() && writePipe[1] != -1)
             FD_SET(writePipe[1], &fdwrite);
 
-	int timeout = msecs - stopWatch.elapsed();
+	int timeout = qt_timeout_value(msecs, stopWatch.elapsed());
 	int ret = qt_native_select(&fdread, &fdwrite, timeout);
         if (ret < 0) {
             if (errno == EINTR)
@@ -772,7 +785,7 @@ bool QProcessPrivate::waitForFinished(int msecs)
         if (!writeBuffer.isEmpty() && writePipe[1] != -1)
             FD_SET(writePipe[1], &fdwrite);
 
-	int timeout = msecs - stopWatch.elapsed();
+	int timeout = qt_timeout_value(msecs, stopWatch.elapsed());
 	int ret = qt_native_select(&fdread, &fdwrite, timeout);
         if (ret < 0) {
             if (errno == EINTR)
