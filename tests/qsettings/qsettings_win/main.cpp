@@ -6,6 +6,7 @@ static void writeTest( QSettings &settings )
     settings.writeEntry( "/values/int", 0xffff );
     settings.writeEntry( "/values/bool", true );
     settings.writeEntry( "/values/double", 3.1415927 );
+    settings.writeEntry( "/values/blah/double", 3.1415927 );
     QStringList list;
     list << "a" << "b" << "c";
     settings.writeEntry( "/values/list", list );
@@ -26,6 +27,7 @@ static void readTest( QSettings &settings )
     qDebug( "%d", settings.readNumEntry( "/values/int" ) );
     qDebug( "%d", settings.readBoolEntry( "/values/bool" ) );
     qDebug( "%g", settings.readDoubleEntry( "/values/double" ) );
+    qDebug( "%g", settings.readDoubleEntry( "/values/blah/double" ) );
     QStringList list = settings.readListEntry( "/values/list" );
     qDebug( "%s", list.join(" ").latin1() );
     bool ok;
@@ -34,11 +36,11 @@ static void readTest( QSettings &settings )
 	qDebug( "%s", str );
     
     settings.removeEntry( "/values/string" );
+    settings.removeEntry( "/values/int" );
     settings.removeEntry( "/values/bool" );
     settings.removeEntry( "/values/double" );
-    settings.removeEntry( "/values/int" );
+    settings.removeEntry( "/values/blah/double" );
     settings.removeEntry( "/values/list" );
-    settings.removeEntry( "/." );
 }
 
 int main ( int argc, char **argv )
