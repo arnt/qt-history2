@@ -922,9 +922,9 @@ void QMotifStyle::drawControl( ControlElement element,
 		p_v /= u;
 		t_s /= u;
 	    }
-	    int nu = ( u * p_v + t_s/2 ) / t_s;
-	    int x = unit_width * nu;
 	    if ( pb->percentageVisible() && pb->totalSteps() ) {
+		int nu = ( u * p_v + t_s/2 ) / t_s;
+		int x = unit_width * nu;
 		if (pb->indicatorFollowsStyle() || pb->centerIndicator()) {
 		    p->setPen( cg.highlightedText() );
 		    p->setClipRect( r.x(), r.y(), x, r.height() );
