@@ -698,7 +698,7 @@ void QWidget::repaint( const QRegion& rgn )
 	else
 	    p.fillRect(rr, bg.color());
 
-	if (!!parents) {
+	if (!parents.isEmpty()) {
 	    w = parents.pop();
 	    for (;;) {
 		if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
@@ -713,7 +713,7 @@ void QWidget::repaint( const QRegion& rgn )
 			w->clearWState(WState_InPaintEvent);
 		    QPainter::restoreRedirected(w);
 		}
-		if (!parents)
+		if (parents.isEmpty())
 		    break;
 		w = parents.pop();
 		offset -= w->pos();
@@ -1251,7 +1251,7 @@ void QWidget::scroll( int dx, int dy )
 
 void QWidget::scroll( int dx, int dy, const QRect& r )
 {
-    if ( testWState( WState_BlockUpdates ) && !children() )
+    if ( testWState( WState_BlockUpdates ) && children().isEmpty() )
 	return;
     bool valid_rect = r.isValid();
     QRect sr = valid_rect?r:rect();
