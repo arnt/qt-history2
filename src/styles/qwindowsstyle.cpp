@@ -353,10 +353,16 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 	    int lw = opt.isDefault() ? pixelMetric(PM_DefaultFrameWidth)
 			: opt.lineWidth();
 
-	    if (lw == 2)
-		qDrawWinPanel(p, r, cg, flags & Style_Sunken);
-	    else
+	    if (lw == 2) {
+		QColorGroup popupCG = cg;
+		if ( pe == PE_PanelPopup ) {
+		    popupCG.setColor( QColorGroup::Light, cg.background() );
+		    popupCG.setColor( QColorGroup::Midlight, cg.light() );
+		}
+		qDrawWinPanel(p, r, popupCG, flags & Style_Sunken);
+	    } else {
 		QCommonStyle::drawPrimitive(pe, p, r, cg, flags, opt);
+	    }
 	    break;
 	}
 
@@ -1530,7 +1536,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    if ( widget->isEnabled() )
 		flags |= Style_Enabled;
 
-	    if ( subActive & Style_Sunken ) {
+	    if ( subActive == SC_ComboBoxArrow ) {
 		flags |= Style_Sunken;
 	    }
 	    drawPrimitive( PE_ArrowDown, p, ar, cg, flags );
