@@ -23,6 +23,7 @@
 #include "qmime.h"
 #include "qpair.h"
 #include "qstring.h"
+#include "qkeysequence.h"
 #include "qcoreevent.h"
 #endif // QT_H
 
@@ -38,6 +39,7 @@ public:
 private:
     bool accpt;
 };
+
 
 class Q_GUI_EXPORT QMouseEvent : public QInputEvent
 {
@@ -90,6 +92,7 @@ protected:
 };
 #endif
 
+
 class Q_GUI_EXPORT QTabletEvent : public QInputEvent
 {
 public:
@@ -128,6 +131,7 @@ protected:
     bool mbAcc;
 
 };
+
 
 class Q_GUI_EXPORT QKeyEvent : public QInputEvent
 {
@@ -217,6 +221,7 @@ protected:
     QRegion reg;
 };
 
+
 #ifdef Q_WS_QWS
 class QWSUpdateEvent : public QPaintEvent
 {
@@ -229,6 +234,7 @@ public:
         { t = QWSUpdate; }
 };
 #endif
+
 
 class Q_GUI_EXPORT QMoveEvent : public QEvent
 {
@@ -265,6 +271,7 @@ public:
         : QInputEvent(Close) {}
 };
 
+
 class Q_GUI_EXPORT QIconDragEvent : public QEvent
 {
 public:
@@ -277,6 +284,7 @@ public:
 protected:
     bool accpt;
 };
+
 
 class Q_GUI_EXPORT QShowEvent : public QEvent
 {
@@ -292,6 +300,7 @@ public:
     QHideEvent()
         : QEvent(Hide) {}
 };
+
 
 class Q_GUI_EXPORT QContextMenuEvent : public QInputEvent
 {
@@ -336,12 +345,11 @@ private:
     int selLen;
 };
 
-#ifndef QT_NO_DRAGANDDROP
 
+#ifndef QT_NO_DRAGANDDROP
 // This class is rather closed at the moment.  If you need to create your
 // own DND event objects, write to qt-bugs@trolltech.com and we'll try to
 // find a way to extend it so it covers your needs.
-
 class Q_GUI_EXPORT QDropEvent : public QEvent, public QMimeSource
 {
 public:
@@ -378,7 +386,6 @@ protected:
     uint resv     : 5;
     void * d;
 };
-
 
 
 class Q_GUI_EXPORT QDragMoveEvent : public QDropEvent
@@ -424,7 +431,6 @@ public:
     QDragLeaveEvent()
         : QEvent(DragLeave) {}
 };
-
 #endif // QT_NO_DRAGANDDROP
 
 
@@ -447,6 +453,7 @@ private:
     QPoint gp;
 };
 
+
 class Q_GUI_EXPORT QStatusTipEvent : public QEvent
 {
 public:
@@ -455,6 +462,7 @@ public:
 private:
     QString s;
 };
+
 
 class Q_GUI_EXPORT QActionEvent : public QEvent
 {
@@ -467,6 +475,7 @@ public:
     QAction *before()           const { return bef; }
 };
 
+
 class Q_GUI_EXPORT QFileOpenEvent : public QEvent
 {
 public:
@@ -474,6 +483,21 @@ public:
     QString file()               const { return f; }
 private:
     QString f;
+};
+
+
+class Q_GUI_EXPORT QShortcutEvent : public QEvent
+{
+public:
+    QShortcutEvent(const QKeySequence &key, int id, bool ambiguous = false)
+	: QEvent(Shortcut), sequence(key), sid(id), ambig(ambiguous) { }
+    const QKeySequence &key()	{ return sequence; }
+    int   shortcutId()		{ return sid; }
+    bool  isAmbiguous()		{ return ambig; }
+protected:
+    QKeySequence sequence;
+    bool ambig;
+    int  sid;
 };
 
 #ifndef QT_NO_DEBUG

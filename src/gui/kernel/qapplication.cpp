@@ -2521,11 +2521,16 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
     case QEvent::KeyRelease:
     case QEvent::AccelOverride:
     {
-        QWidget* w = (QWidget*)receiver;
-        QKeyEvent* key = (QKeyEvent*) e;
+        QWidget* w = static_cast<QWidget*>(receiver);
+        QKeyEvent* key = static_cast<QKeyEvent*>(e);
 #ifndef QT_NO_ACCEL
         if (qt_tryComposeUnicode(w, key))
             break;
+
+        // Try looking for a Shortcut before sending key events
+        if (key->type()==QEvent::KeyPress)
+            if (res = qApp->d->shortcutMap.tryShortcutEvent(w, key))
+                return res;
 #endif
         bool def = key->isAccepted();
         while (w) {

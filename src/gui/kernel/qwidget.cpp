@@ -828,6 +828,12 @@ QWidget::~QWidget()
         qWarning("%s (%s): deleted while being painted", className(), name());
 #endif
 
+    // Remove all shortcuts grabbed by this
+    // widget, unless application is closing
+    if (!qApp->is_app_closing
+        && testAttribute(WA_GrabbedShortcut))
+        qApp->d->shortcutMap.removeShortcut(this, QKeySequence());
+
     // delete layout while we still are a valid widget
 #ifndef QT_NO_LAYOUT
     delete d->layout;
@@ -6128,4 +6134,32 @@ void QWidget::setWhatsThis(const QString &s)
 QString QWidget::whatsThis() const
 {
     return d->whatsThis;
+}
+
+/*!
+  \brief
+*/
+int QWidget::grabShortcut(const QKeySequence &key)
+{
+    Q_ASSERT(qApp);
+    setAttribute(WA_GrabbedShortcut);
+    return qApp->d->shortcutMap.addShortcut(this, key);
+}
+
+/*!
+  \brief
+*/
+int QWidget::releaseShortcut(const QKeySequence &key, int id)
+{
+    Q_ASSERT(qApp);
+    return qApp->d->shortcutMap.removeShortcut(this, key, id);
+}
+
+/*!
+  \brief
+*/
+bool QWidget::enableShortcut(bool enable, const QKeySequence &key, int id)
+{
+    Q_ASSERT(qApp);
+    return qApp->d->shortcutMap.setShortcutEnabled(enable, this, key, id);
 }

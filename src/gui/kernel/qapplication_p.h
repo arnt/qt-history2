@@ -33,6 +33,7 @@
 #include "qcursor.h"
 #include "qmutex.h"
 #include "qtranslator.h"
+#include "qshortcutmap_p.h"
 
 #include <private/qcoreapplication_p.h>
 #include "qapplication.h"
@@ -94,6 +95,7 @@ public:
     QBasicTimer toolTipWakeUp, toolTipFallAsleep;
     QPoint toolTipPos, toolTipGlobalPos;
     QPointer<QWidget> toolTipWidget;
+    QShortcutMap shortcutMap;
 };
 
 

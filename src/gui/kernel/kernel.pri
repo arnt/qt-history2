@@ -24,6 +24,8 @@ HEADERS += \
 	kernel/qlayout.h \
 	kernel/qmime.h \
 	kernel/qsessionmanager.h \
+	kernel/qshortcut.h \
+	kernel/qshortcutmap_p.h \
 	kernel/qsizepolicy.h \
 	kernel/qsound.h \	
 	kernel/qtooltip.h \
@@ -47,6 +49,8 @@ SOURCES += \
 	kernel/qlayoutengine.cpp \
 	kernel/qmime.cpp \
 	kernel/qpalette.cpp \
+	kernel/qshortcut.cpp \
+	kernel/qshortcutmap.cpp \
 	kernel/qsound.cpp \
 	kernel/qtooltip.cpp \
 	kernel/qvariant.cpp \

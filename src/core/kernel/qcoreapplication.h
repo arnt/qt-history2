@@ -139,6 +139,7 @@ private:
     friend class QApplication;
     friend class QETWidget;
     friend class QAccelManager;
+    friend class QShortcutMap;
     friend class QWidget;
     friend class QWidgetPrivate;
 #if defined(Q_WS_WIN) || defined (Q_WS_MAC) || defined (Q_WS_QWS)

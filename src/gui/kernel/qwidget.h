@@ -28,6 +28,7 @@
 #include "qregion.h"
 #include "qbrush.h"
 #include "qcursor.h"
+#include "qkeysequence.h"
 #endif // QT_H
 
 #ifdef QT_INCLUDE_COMPAT
@@ -328,6 +329,9 @@ public:
     void releaseMouse();
     void grabKeyboard();
     void releaseKeyboard();
+    int grabShortcut(const QKeySequence &key);
+    int releaseShortcut(const QKeySequence &key, int id = 0);
+    bool enableShortcut(bool enable, const QKeySequence &key, int id = 0);
     static QWidget *mouseGrabber();
     static QWidget *keyboardGrabber();
 
@@ -486,7 +490,8 @@ public:
         WA_CompositeChild,
         WA_CustomWhatsThis,
         WA_LayoutOnEntireRect,
-        WA_OutsideWSRange
+        WA_OutsideWSRange,
+        WA_GrabbedShortcut
     };
     void setAttribute(WidgetAttribute, bool = true);
     inline bool testAttribute(WidgetAttribute) const;
