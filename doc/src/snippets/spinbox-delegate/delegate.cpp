@@ -129,6 +129,7 @@ bool SpinBoxDelegate::eventFilter(QObject *object, QEvent *event)
                 case Qt::Key_Return:
                     spinBox->setValue(spinBox->cleanText().toInt());
                     acceptEditing(spinBox);
+                    emit closeEditor(spinBox, QAbstractItemDelegate::EditNextItem);
                     return true;
 
                 case Qt::Key_Escape:
