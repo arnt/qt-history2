@@ -13,31 +13,48 @@
 ****************************************************************************/
 
 #include "qaccessible.h"
+#include "qaccessiblebridge.h"
 
 #ifndef QT_NO_ACCESSIBILITY
 
-#include "qlibrary.h"
+#include "qcoreapplication.h"
+#include "qmutex.h"
+#include "qvector.h"
+#include "private/qfactoryloader_p.h"
 
 #include <stdlib.h>
 
-typedef void(*QSetRootObject)(QAccessibleInterface *);
-static QSetRootObject qSetRootObject = 0;
-typedef void(*QNotifyAccessibilityUpdate)(QAccessible::Event, QAccessibleInterface*, int);
-static QNotifyAccessibilityUpdate qNotifyAccessibilityUpdate = 0;
+Q_GLOBAL_STATIC_LOCKED_WITH_ARGS(QFactoryLoader, loader,
+   (QAccessibleBridgeFactoryInterface_iid, QCoreApplication::libraryPaths(), "/accessiblebridge"))
+
+Q_GLOBAL_STATIC(QVector<QAccessibleBridge *>, bridges)
+static bool isInit = false;
 
 void QAccessible::initialize()
 {
+    if (isInit)
+        return;
+    isInit = true;
+
     if (qstrcmp(getenv("QT_ACCESSIBILITY"), "1") != 0)
         return;
 
-    if (!qSetRootObject)
-        qSetRootObject = (QSetRootObject)QLibrary::resolve("qaccclient", "qSetRootObject");
-    if (!qNotifyAccessibilityUpdate)
-        qNotifyAccessibilityUpdate = (QNotifyAccessibilityUpdate)QLibrary::resolve("qaccclient", "qNotifyAccessibilityUpdate");
+    const QStringList l = loader()->keys();
+    for (int i = 0; i < l.count(); ++i) {
+        qDebug("GOT: %s, %p", l.at(i).ascii(), loader()->instance(l.at(i)));
+        if (QAccessibleBridgeFactoryInterface *factory =
+                qt_cast<QAccessibleBridgeFactoryInterface*>(loader()->instance(l.at(i)))) {
+            qDebug("JO");
+            QAccessibleBridge * bridge = factory->create(l.at(i));
+            if (bridge)
+                bridges()->append(bridge);
+        }
+    }
 }
 
 void QAccessible::cleanup()
 {
+    qDeleteAll(*bridges());
 }
 
 void QAccessible::updateAccessibility(QObject *o, int who, Event reason)
@@ -50,12 +67,15 @@ void QAccessible::updateAccessibility(QObject *o, int who, Event reason)
     }
 
     initialize();
-    if (!qNotifyAccessibilityUpdate)
+    if (bridges()->isEmpty())
         return;
 
     QAccessibleInterface *iface = QAccessible::queryAccessibleInterface(o);
-    if (iface)
-        qNotifyAccessibilityUpdate(reason, iface, who);
+    if (!iface)
+        return;
+
+    for (int i = 0; i < bridges()->count(); ++i)
+        bridges()->at(i)->notifyAccessibilityUpdate(reason, iface, who);
     delete iface;
 }
 
@@ -67,13 +87,14 @@ void QAccessible::setRootObject(QObject *o)
     }
 
     initialize();
-    if (!qSetRootObject)
+    if (bridges()->isEmpty())
         return;
 
     if (!o)
         return;
     QAccessibleInterface *iface = QAccessible::queryAccessibleInterface(o);
-    qSetRootObject(iface);
+    for (int i = 0; i < bridges()->count(); ++i)
+        bridges()->at(i)->setRootObject(iface);
     delete iface;
 }
 
