@@ -290,7 +290,7 @@ QGenericListView::~QGenericListView()
 }
 
 /*!
-  \property movement
+  \property QGenericListView::movement
   \brief whether the items can be moved freely, snaps to a grid or not at all.
 
   This property holds how the user can move the items in the view.
@@ -317,7 +317,7 @@ QGenericListView::Movement QGenericListView::movement() const
 }
 
 /*!
-  \property flow
+  \property QGenericListView::flow
   \brief which direction the items layout should flow.
 
   If this property is LeftToRight, the items will be layed out
@@ -345,7 +345,7 @@ QGenericListView::Flow QGenericListView::flow() const
 }
 
 /*!
-  \property isWrapping
+  \property QGenericListView::isWrapping
   \brief whether the items layout should wrap.
 
   This property holds whether the layout should wrap when
@@ -370,7 +370,7 @@ bool QGenericListView::isWrapping() const
 }
 
 /*!
-  \property iconMode
+  \property QGenericListView::iconMode
   \brief whether the items should be rendered as large or small items.
 
   If this property is Small (default), the default delegate will render the items
@@ -398,7 +398,7 @@ QGenericListView::IconMode QGenericListView::iconMode() const
 }
 
 /*!
-  \property resizeMode
+  \property QGenericListView::resizeMode
   \brief whether or not the items are layed out again when the view is resized.
 
   If this property is Adjust, the items will be layed out again when the view is
@@ -417,7 +417,7 @@ QGenericListView::ResizeMode QGenericListView::resizeMode() const
 }
 
 /*!
-  \property layoutMode
+  \property QGenericListView::layoutMode
   \brief whether the layout of items should be instant or delayed.
 
   This property holds the layout mode for the items.
@@ -439,7 +439,7 @@ QGenericListView::LayoutMode QGenericListView::layoutMode() const
 }
 
 /*!
-  \property spacing
+  \property QGenericListView::spacing
   \brief the space between items in the layout
 
   This property is the size of the empty space between items
