@@ -2817,7 +2817,9 @@ void QWidget::setFocus()
     if ( isActiveWindow() ) {
 	QWidget * prev = qApp->focus_widget;
 	qApp->focus_widget = this;
+#if defined(Q_WS_X11)
 	focusInputContext();
+#endif
 
 	if ( prev != this ) {
 	    if ( prev ) {
@@ -4075,7 +4077,9 @@ bool QWidget::event( QEvent *e )
 	    break;
 
 	case QEvent::MouseButtonPress:
+#if defined(Q_WS_X11)
 	    resetInputContext();
+#endif
 	    mousePressEvent( (QMouseEvent*)e );
 	    if ( ! ((QMouseEvent*)e)->isAccepted() )
 		return FALSE;
@@ -4128,7 +4132,9 @@ bool QWidget::event( QEvent *e )
 	case QEvent::FocusIn:
 	    focusInEvent( (QFocusEvent*)e );
 	    setFontSys();
+#if defined(Q_WS_X11)
 	    resetInputContext();
+#endif
 	    break;
 
 	case QEvent::FocusOut:
