@@ -24,6 +24,7 @@
 #include <qtextstream.h>
 #include <qprocess.h>
 #include <qtimer.h>
+#include <qfileinfo.h>
 
 class QAssistantClientPrivate
 {
@@ -117,8 +118,13 @@ QAssistantClient::QAssistantClient( const QString &path, QObject *parent, const 
 {
     if ( path.isEmpty() )
 	assistantCommand = "assistant";
-    else
-	assistantCommand = path + "/assistant";
+    else {
+	QFileInfo fi( path );
+	if ( fi.isDir() )
+	    assistantCommand = path + "/assistant";
+	else
+	    assistantCommand = path;
+    }
 
 #if defined(Q_OS_MACX)
     assistantCommand += ".app/Contents/MacOS/assistant";
@@ -129,6 +135,8 @@ QAssistantClient::QAssistantClient( const QString &path, QObject *parent, const 
 	    SLOT( socketConnected() ) );
     connect( socket, SIGNAL( connectionClosed() ),
 	    SLOT( socketConnectionClosed() ) );
+    connect( socket, SIGNAL( error( int ) ),
+	    SLOT( socketError( int ) ) );
     opened = FALSE;
     proc = 0;
     port = 0;
@@ -187,7 +195,8 @@ void QAssistantClient::openAssistant()
     if ( !proc->launch( QString::null ) ) {
 	delete proc;
 	proc = 0;
-	emit error( tr( "Cannot start Qt Assistant" ) );
+	emit error( tr( "Cannot start Qt Assistant '%1'" )
+		    .arg( proc->arguments().join( " " ) ) );
 	return;
     }
     connect( proc, SIGNAL( readyReadStdout() ),
@@ -265,6 +274,16 @@ void QAssistantClient::socketConnectionClosed()
     proc = 0;
     opened = FALSE;
     emit assistantClosed();
+}
+
+void QAssistantClient::socketError( int i )
+{
+    if ( i == QSocket::ErrConnectionRefused )
+	emit error( tr( "Could not connect to Assistant: Connection refused" ) );
+    else if ( i == QSocket::ErrHostNotFound )
+	emit error( tr( "Could not connect to Assistant: Host not found" ) );
+    else
+	emit error( tr( "Communication error" ) );
 }
 
 /*!
