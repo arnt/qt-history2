@@ -1,5 +1,5 @@
-CONFIG   = console release flat precompile_header
-DEFINES  = QT_NODLL QT_NO_CODECS QT_NO_TEXTCODEC QT_NO_UNICODETABLES QT_LITE_COMPONENT QT_NO_STL QT_NO_COMPRESS QT_BUILD_QMAKE QT_COMPAT QT_NO_THREAD QT4_TECH_PREVIEW QT_NO_QOBJECT
+CONFIG   = console release flat no_batch
+DEFINES  = QT_NODLL QT_NO_CODECS QT_NO_TEXTCODEC QT_NO_UNICODETABLES QT_LITE_COMPONENT QT_NO_STL QT_NO_COMPRESS QT_BUILD_QMAKE QT_NO_THREAD QT_NO_QOBJECT
 
 PRECOMPILED_HEADER = configure_pch.h
 
@@ -29,7 +29,8 @@ HEADERS	 = configureapp.h \
            $$QT_SOURCE_TREE/src/core/tools/qstring.h \
            $$QT_SOURCE_TREE/src/core/tools/qstringlist.h \
            $$QT_SOURCE_TREE/src/core/tools/qstringmatcher.h \
-           $$QT_SOURCE_TREE/src/core/tools/qunicodetables_p.h
+           $$QT_SOURCE_TREE/src/core/tools/qunicodetables_p.h 
+ 	   
 
 SOURCES	 = main.cpp configureapp.cpp \
 	   $$QT_SOURCE_TREE/src/core/tools/qbytearray.cpp \
@@ -58,13 +59,15 @@ SOURCES	 = main.cpp configureapp.cpp \
            $$QT_SOURCE_TREE/src/core/tools/qstring.cpp \
            $$QT_SOURCE_TREE/src/core/tools/qstringlist.cpp \
            $$QT_SOURCE_TREE/src/core/tools/qstringmatcher.cpp \
-           $$QT_SOURCE_TREE/src/core/tools/qunicodetables.cpp
+           $$QT_SOURCE_TREE/src/core/tools/qunicodetables.cpp \
+           $$QT_SOURCE_TREE/src/core/tools/qvsnprintf.cpp
 
 SOURCES += $$QT_SOURCE_TREE/util/install/keygen/keyinfo.cpp
 
 INCLUDEPATH += $$QT_SOURCE_TREE/src/core/arch/generic \
 	       $$QT_SOURCE_TREE/include/QtCore \
 	       $$QT_SOURCE_TREE/util/install/keygen
+
 
 INTERFACES=
 TARGET=configure

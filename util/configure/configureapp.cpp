@@ -4,17 +4,14 @@
 #include <qtextstream.h>
 #include <qregexp.h>
 #include <qhash.h>
-
-#if defined (QT4_TECH_PREVIEW)
 #include "keyinfo.h"
-#endif
 
 #include <iostream>
 #include <windows.h>
 #include <conio.h>
 
 std::ostream &operator<<( std::ostream &s, const QString &val ) {
-    s << val.local8Bit();
+    s << val.toLocal8Bit().data();
     return s;
 }
 
@@ -29,14 +26,15 @@ bool writeToFile(const char* text, const QString &filename)
 {
     QByteArray symFile(text);
     QFile file(filename);
-    QDir dir(QFileInfo(file).dir(true));
+    QDir dir(QFileInfo(file).absoluteDir());
     if (!dir.exists())
-        dir.mkdir(dir.absPath());
-    if (!file.open(IO_WriteOnly)) {
-        cout << "Couldn't write to " << filename.latin1() << ": " << file.errorString().latin1() << endl;
+        dir.mkdir(dir.absolutePath());
+    if (!file.open(QFile::WriteOnly)) {
+        cout << "Couldn't write to " << qPrintable(filename) << ": " << qPrintable(file.errorString())
+             << endl;
         return false;
     }
-    file.writeBlock(symFile);
+    file.write(symFile);
     return true;
 }
 
@@ -80,14 +78,14 @@ Configure::Configure( int& argc, char** argv )
 
     QString version;
     QFile profile(QString(getenv("QTDIR")) + "/src/qbase.pri");
-    if (profile.open(IO_ReadOnly)) {
+    if (profile.open(QFile::ReadOnly)) {
 	QTextStream read(&profile);
 	QString line;
-	while (!read.eof()) {
+	while (!read.atEnd()) {
 	    line = read.readLine();
 	    if (line.contains("VERSION")) {
-		version = line.mid(line.find('=') + 1);
-		version = version.stripWhiteSpace();
+		version = line.mid(line.indexOf('=') + 1);
+		version = version.trimmed();
 		if (!version.isEmpty())
 		    break;
 	    }
@@ -147,12 +145,12 @@ Configure::Configure( int& argc, char** argv )
     if (QFileInfo(cwd) != QFileInfo(qtDir))
         QDir::setCurrent(qtDir);
 
-    dictionary[ "QT_SOURCE_TREE" ]  = QDir::convertSeparators( QDir::currentDirPath() );
+    dictionary[ "QT_SOURCE_TREE" ]  = QDir::convertSeparators( QDir::currentPath() );
     dictionary[ "QT_INSTALL_PREFIX" ] = QDir::convertSeparators( dictionary[ "QT_SOURCE_TREE" ] );
     dictionary[ "QT_INSTALL_TRANSLATIONS" ] = dictionary[ "QT_INSTALL_PREFIX" ] + "\\translations";
 
     QString tmp = dictionary[ "QMAKESPEC" ];
-    tmp = tmp.mid( tmp.findRev( "\\" ) + 1 );
+    tmp = tmp.mid( tmp.lastIndexOf( "\\" ) + 1 );
     dictionary[ "QMAKESPEC" ] = tmp;
     qmakeConfig += "nocrosscompiler";
 
@@ -222,15 +220,27 @@ void Configure::buildModulesList()
 	return;
 
 
-    licensedModules = QStringList::split( ' ', "compat styles tools core gui dialogs iconview workspace" );
+    licensedModules = QStringList() << "compat"
+                                    << "styles"
+                                    << "tools"
+                                    << "core"
+                                    << "gui"
+                                    << "dialogs"
+                                    << "iconview"
+                                    << "workspace";
 
     QString products = licenseInfo[ "PRODUCTS" ];
     if( ( products == "qt-enterprise" || products == "qt-internal" ) && ( dictionary[ "FORCE_PROFESSIONAL" ] != "yes" ) )
-	licensedModules += QStringList::split( ' ', "network canvas table xml opengl sql" );
+	licensedModules += QStringList() << "network"
+                                         << "canvas"
+                                         << "table"
+                                         << "xml"
+                                         << "opengl"
+                                         << "sql";
 
     for(int i = 0; i < fiList.size(); ++i) {
 	const QFileInfo &fi = fiList.at(i);
-	if( licensedModules.findIndex( fi.fileName() ) != -1 )
+	if( licensedModules.indexOf( fi.fileName() ) != -1 )
 	    modules += fi.fileName();
     }
 }
@@ -595,7 +605,7 @@ void Configure::parseCmdLine()
 	    dictionary[ "QT_INSTALL_TRANSLATIONS" ] = configCmdLine.at(i);
 	}
 
-	else if( configCmdLine.at(i).find( QRegExp( "^-(en|dis)able-" ) ) != -1 ) {
+	else if( configCmdLine.at(i).indexOf( QRegExp( "^-(en|dis)able-" ) ) != -1 ) {
 	    // Scan to see if any specific modules and drivers are enabled or disabled
 	    for( QStringList::Iterator module = modules.begin(); module != modules.end(); ++module ) {
 		if( configCmdLine.at(i) == QString( "-enable-" ) + (*module) ) {
@@ -633,16 +643,16 @@ void Configure::parseCmdLine()
 
 #if !defined(EVAL)
     for( QStringList::Iterator dis = disabledModules.begin(); dis != disabledModules.end(); ++dis ) {
-	modules.remove( (*dis) );
+	modules.removeAll( (*dis) );
     }
     for( QStringList::Iterator ena = enabledModules.begin(); ena != enabledModules.end(); ++ena ) {
-	if( modules.findIndex( (*ena) ) == -1 )
+	if( modules.indexOf( (*ena) ) == -1 )
 	    modules += (*ena);
     }
     qtConfig += modules;
 
     for( QStringList::Iterator it = disabledModules.begin(); it != disabledModules.end(); ++it )
-	qtConfig.remove( (*it) );
+	qtConfig.removeAll(*it);
 
     if( !qtConfig.contains("opengl") )
 	dictionary[ "OPENGL" ] = "no";
@@ -658,7 +668,7 @@ void Configure::validateArgs()
     QStringList configs;
     // Validate the specified config
 
-    allConfigs = QStringList::split( ' ', "minimal small medium large full" );
+    allConfigs = QStringList() << "minimal" << "small" <<  "medium" << "large" << "full";
 
     QStringList::Iterator config;
     for( config = allConfigs.begin(); config != allConfigs.end(); ++config ) {
@@ -668,7 +678,7 @@ void Configure::validateArgs()
     }
     if( config == allConfigs.end() ) {
 	dictionary[ "HELP" ] = "yes";
-	cout << "No such configuration \"" << dictionary[ "QCONFIG" ].latin1() << "\"" << endl ;
+	cout << "No such configuration \"" << qPrintable(dictionary[ "QCONFIG" ]) << "\"" << endl ;
     }
     else
 	qmakeConfig += configs;
@@ -696,8 +706,8 @@ bool Configure::displayHelp()
         cout << "                         " << MARK_OPTION(ARCHITECTURE,boundschecker) << " boundschecker" << endl << endl;
 #if !defined(EVAL)
 	cout << "-qconfig             Specify config, available configs:" << endl;
-	for( QStringList::Iterator config = allConfigs.begin(); config != allConfigs.end(); ++config )
-	    cout << "                         " << (*config).latin1() << endl;
+	for (int i=0; i<allConfigs.size(); ++i)
+	    cout << "                         " << qPrintable(allConfigs.at(i)) << endl;
 
 	cout << endl;
 	cout << "-qt-gif            " << MARK_OPTION(GIF,yes)	    << " Enable GIF support." << endl;
@@ -763,8 +773,8 @@ WCE( {	cout << "-vcp               " << MARK_OPTION(VCPFILES,yes)   << " Enable 
 	cout << "-enable-*            Enable the specified module" << endl;
 	cout << "-disable-*           Disable the specified module" << endl;
 	cout << "                     where module is one of" << endl;
-	for( QStringList::Iterator module = modules.begin(); module != modules.end(); ++module )
-	    cout << "                         " << (*module).latin1() << endl;
+	for (int i=0; i<modules.size(); ++i)
+	    cout << "                         " << qPrintable(modules.at(i)) << endl;
 	cout << endl;
 
 	cout << "-qt-sql-*            Build the specified Sql driver into Qt" << endl;
@@ -970,7 +980,7 @@ void Configure::generateOutputVars()
 
     if ( dictionary[ "SHARED" ] == "yes" ) {
 	QString version = dictionary[ "VERSION" ];
-	version.remove('.');
+	version.remove(QLatin1Char('.'));
 	qmakeVars += "QMAKE_QT_VERSION_OVERRIDE=" + version;
     }
 
@@ -1017,7 +1027,7 @@ void Configure::generateOutputVars()
 		winPlatforms += fi.fileName();
 	    }
 	}
-	cout << "Available platforms are: " << winPlatforms.join( ", " ).latin1() << endl;
+	cout << "Available platforms are: " << qPrintable(winPlatforms.join( ", " )) << endl;
     }
 }
 
@@ -1026,7 +1036,7 @@ void Configure::generateCachefile()
 {
     // Generate .qmake.cache
     QFile cacheFile( dictionary[ "QT_SOURCE_TREE" ] + "\\.qmake.cache" );
-    if( cacheFile.open( IO_WriteOnly | IO_Translate ) ) { // Truncates any existing file.
+    if( cacheFile.open( QFile::WriteOnly | QFile::Text ) ) { // Truncates any existing file.
 	QTextStream cacheStream( &cacheFile );
         for( QStringList::Iterator var = qmakeVars.begin(); var != qmakeVars.end(); ++var ) {
 	    cacheStream << (*var) << endl;
@@ -1049,7 +1059,7 @@ void Configure::generateCachefile()
 	cacheFile.close();
     }
     QFile configFile( dictionary[ "QT_SOURCE_TREE" ] + "\\mkspecs\\.qt.config" );
-    if( configFile.open( IO_WriteOnly | IO_Translate ) ) { // Truncates any existing file.
+    if( configFile.open( QFile::WriteOnly | QFile::Text ) ) { // Truncates any existing file.
 	QTextStream configStream( &configFile );
 	configStream << "CONFIG+=";
 	if( dictionary[ "SHARED" ] == "yes" )
@@ -1112,11 +1122,11 @@ void Configure::generateConfigfiles()
     QString outDir(dictionary[ "QT_SOURCE_TREE" ] + "/src/core/global");
     QString outName( outDir + "/qconfig.h" );
 
-    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_NORMAL );
+    ::SetFileAttributesA( outName.toLocal8Bit(), FILE_ATTRIBUTE_NORMAL );
     QFile::remove( outName );
     QFile outFile( outName );
 
-    if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
+    if( outFile.open( QFile::WriteOnly | QFile::Text ) ) {
 	outStream.setDevice(&outFile);
 
 	if( dictionary[ "QCONFIG" ] == "full" ) {
@@ -1131,9 +1141,9 @@ void Configure::generateConfigfiles()
 	    outStream << "// Copied from " << configName << endl;
 
 	    QFile inFile( dictionary[ "QT_SOURCE_TREE" ] + "/src/core/global/" + configName );
-	    if( inFile.open( IO_ReadOnly ) ) {
+	    if( inFile.open( QFile::ReadOnly ) ) {
 		QByteArray buffer = inFile.readAll();
-		outFile.writeBlock( buffer.data(), buffer.size() );
+		outFile.write( buffer.constData(), buffer.size() );
 		inFile.close();
 	    }
 	}
@@ -1208,77 +1218,92 @@ void Configure::generateConfigfiles()
     QString archFile = dictionary[ "QT_SOURCE_TREE" ] + "/src/core/arch/" + dictionary[ "ARCHITECTURE" ] + "/arch/qatomic.h";
     QFileInfo archInfo(archFile);
     if (!archInfo.exists()) {
-	qDebug("Architecture file %s does not exist!", archFile.latin1() );
+	qDebug("Architecture file %s does not exist!", qPrintable(archFile) );
         dictionary[ "DONE" ] = "error";
         return;
     }
     QDir archhelper;
     archhelper.mkdir(dictionary[ "QT_INSTALL_HEADERS" ] + "/QtCore/arch");
-    if (!CopyFileA(archFile, dictionary[ "QT_INSTALL_HEADERS" ] + "/QtCore/arch/qatomic.h", FALSE))
-	qDebug("Couldn't copy %s to include/arch", archFile.latin1() );
-    if (!SetFileAttributesA(dictionary[ "QT_INSTALL_HEADERS" ] + "/QtCore/arch/qatomic.h",
+    if (!CopyFileA(archFile.toLocal8Bit(),
+                   QString(dictionary[ "QT_INSTALL_HEADERS" ] + "/QtCore/arch/qatomic.h").toLocal8Bit(), FALSE))
+	qDebug("Couldn't copy %s to include/arch", qPrintable(archFile) );
+    if (!SetFileAttributesA(QString(dictionary[ "QT_INSTALL_HEADERS" ]
+                                    + "/QtCore/arch/qatomic.h").toLocal8Bit(),
 			    FILE_ATTRIBUTE_NORMAL))
 	qDebug("Couldn't reset writable file attribute for qatomic.h");
 
     // Create qatomic.h "symlinks"
     QString atomicContents = QString("#include \"../../src/core/arch/" + dictionary[ "ARCHITECTURE" ] + "/arch/qatomic.h\"\n");
-    if (!writeToFile(atomicContents, dictionary[ "QT_INSTALL_HEADERS" ] + "/QtCore/arch/qatomic.h")
-        || !writeToFile(atomicContents, dictionary[ "QT_INSTALL_HEADERS" ] + "/Qt/arch/qatomic.h")) {
+    if (!writeToFile(atomicContents.toLocal8Bit(),
+                     dictionary[ "QT_INSTALL_HEADERS" ] + "/QtCore/arch/qatomic.h")
+        || !writeToFile(atomicContents.toLocal8Bit(),
+                        dictionary[ "QT_INSTALL_HEADERS" ] + "/Qt/arch/qatomic.h")) {
         dictionary[ "DONE" ] = "error";
         return;
     }
 
     outDir = dictionary[ "QT_SOURCE_TREE" ];
+
+    // Generate the new qconfig.cpp file
     outName = outDir + "/src/core/global/qconfig.cpp";
-    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_NORMAL );
+    ::SetFileAttributesA(outName.toLocal8Bit(), FILE_ATTRIBUTE_NORMAL );
+    outFile.setFileName(outName);
+    if (outFile.open(QFile::WriteOnly | QFile::Text)) {
+        outStream.setDevice(&outFile);
+
+        outStream << "/* Licensed */" << endl
+                  << "static const char qt_configure_licensee_str           [256] = \""
+                  << licenseInfo["LICENSEE"] << "\";" << endl
+                  << "static const char qt_configure_licensed_products_str  [256] = \""
+                  << licenseInfo["PRODUCTS"] << "\";" << endl
+                  << "/* strlen( \"qt_lcnsxxxx\" ) == 12 */" << endl
+                  << "#define QT_CONFIGURE_LICENSEE qt_configure_licensee_str + 12;" << endl
+                  << "#define QT_CONFIGURE_LICENSED_PRODUCTS qt_configure_licensed_products_str + 12;"
+                  << endl;
+
+
+        outFile.close();
+    }
+
+
+
+
+    // Generate the qt.conf settings file used to get a hold of qt's directories at
+    // runtime.
+    outName = outDir + "/qt.conf";
+    ::SetFileAttributesA(outName.toLocal8Bit(), FILE_ATTRIBUTE_NORMAL );
     QFile::remove( outName );
-    outFile.setName( outName );
+    outFile.setFileName( outName );
 
-    if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
+    if( outFile.open( QFile::WriteOnly | QFile::Text ) ) {
 	outStream.setDevice(&outFile);
-	outStream << "#include <qglobal.h>" << endl << endl;
-
-	outStream << "/* Install paths from configure */" << endl;
-
-	outStream << "static const char QT_INSTALL_PREFIX [267] = \"qt_nstpath="
-		  << QString(dictionary["QT_INSTALL_PREFIX"]).replace( "\\", "\\\\" ) << "\";" << endl;
-	outStream << "static const char QT_INSTALL_BINS   [267] = \"qt_binpath="
+	outStream << "QT_INSTALL_PREFIX = "
+                  << QString(dictionary["QT_INSTALL_PREFIX"]).replace( "\\", "\\\\" ) << "\";" << endl;
+	outStream << "QT_INSTALL_BINS = "
 		  << QString(dictionary["QT_INSTALL_BINS"]).replace( "\\", "\\\\" )  << "\";" << endl;
-	outStream << "static const char QT_INSTALL_DOCS   [267] = \"qt_docpath="
+	outStream << "QT_INSTALL_DOCS = "
 		  << QString(dictionary["QT_INSTALL_DOCS"]).replace( "\\", "\\\\" )  << "\";" << endl;
-	outStream << "static const char QT_INSTALL_HEADERS[267] = \"qt_hdrpath="
+	outStream << "QT_INSTALL_HEADERS = "
 		  << QString(dictionary["QT_INSTALL_HEADERS"]).replace( "\\", "\\\\" )  << "\";" << endl;
-	outStream << "static const char QT_INSTALL_LIBS   [267] = \"qt_libpath="
+	outStream << "QT_INSTALL_LIBS = "
 		  << QString(dictionary["QT_INSTALL_LIBS"]).replace( "\\", "\\\\" )  << "\";" << endl;
-	outStream << "static const char QT_INSTALL_PLUGINS[267] = \"qt_plgpath="
+	outStream << "QT_INSTALL_PLUGINS[267] = "
 		  << QString(dictionary["QT_INSTALL_PLUGINS"]).replace( "\\", "\\\\" )  << "\";" << endl;
-	outStream << "static const char QT_INSTALL_DATA   [267] = \"qt_datpath="
+	outStream << "QT_INSTALL_DATA = "
 		  << QString(dictionary["QT_INSTALL_DATA"]).replace( "\\", "\\\\" )  << "\";" << endl;
-	outStream << "static const char QT_INSTALL_TRANSLATIONS [267] = \"qt_trnpath="
+	outStream << "QT_INSTALL_TRANSLATIONS = "
 		  << QString(dictionary["QT_INSTALL_TRANSLATIONS"]).replace( "\\", "\\\\" )  << "\";" << endl;
-
-	outStream << endl;
-	outStream << "/* strlen( \"qt_xxxpath=\" ) == 11 */" << endl;
-	outStream << "const char *qInstallPath()        { return QT_INSTALL_PREFIX  + 11; }" << endl;
-	outStream << "const char *qInstallPathDocs()    { return QT_INSTALL_DOCS    + 11; }" << endl;
-	outStream << "const char *qInstallPathHeaders() { return QT_INSTALL_HEADERS + 11; }" << endl;
-	outStream << "const char *qInstallPathLibs()    { return QT_INSTALL_LIBS    + 11; }" << endl;
-	outStream << "const char *qInstallPathBins()    { return QT_INSTALL_BINS    + 11;    }" << endl;
-	outStream << "const char *qInstallPathPlugins() { return QT_INSTALL_PLUGINS + 11; }" << endl;
-	outStream << "const char *qInstallPathData()    { return QT_INSTALL_DATA    + 11;    }" << endl;
-	outStream << "const char *qInstallPathTranslations() { return QT_INSTALL_TRANSLATIONS + 11; }" << endl;
-	outStream << "const char *qInstallPathSysconf() { return 0; }" << endl;
 
 	outFile.close();
     }
 
     outDir = dictionary[ "QT_SOURCE_TREE" ];
     outName = outDir + "/src/qt.rc";
-    ::SetFileAttributesA( outName, FILE_ATTRIBUTE_NORMAL );
+    ::SetFileAttributesA( outName.toLocal8Bit(), FILE_ATTRIBUTE_NORMAL );
     QFile::remove( outName );
-    outFile.setName( outName );
+    outFile.setFileName( outName );
 
-    if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
+    if( outFile.open( QFile::WriteOnly | QFile::Text ) ) {
 	outStream.setDevice(&outFile);
 
 	QString version = dictionary["VERSION"];
@@ -1356,15 +1381,15 @@ void Configure::displayConfig()
     cout << "Maketool...................." << dictionary[ "MAKE" ] << endl << endl;
 
     cout << "Environment:" << endl;
-    QString env = QStringList::split(QRegExp("[;,]"), QString::fromLocal8Bit(getenv("INCLUDE"))).join("\r\n      ");
+    QString env = QString::fromLocal8Bit(getenv("INCLUDE")).replace(QRegExp("[;,]"), "\r\n      ");
     if (env.isEmpty())
 	env = "Unset";
     cout << "    INCLUDE=\r\n      " << env << endl;
-    env = QStringList::split(QRegExp("[;,]"), QString::fromLocal8Bit(getenv("LIB"))).join("\r\n      ");
+    env = QString::fromLocal8Bit(getenv("LIB")).replace(QRegExp("[;,]"), "\r\n      ");
     if (env.isEmpty())
 	env = "Unset";
     cout << "    LIB=\r\n      " << env << endl;
-    env = QStringList::split(QRegExp("[;,]"), QString::fromLocal8Bit(getenv("PATH"))).join("\r\n      ");
+    env = QString::fromLocal8Bit(getenv("PATH")).replace(QRegExp("[;,]"), "\r\n      ");
     if (env.isEmpty())
 	env = "Unset";
     cout << "    PATH=\r\n      " << env << endl;
@@ -1461,18 +1486,18 @@ void Configure::buildQmake()
 
 	// Build qmake
 	cout << "Creating qmake..." << endl;
-	QString pwd = QDir::currentDirPath();
+	QString pwd = QDir::currentPath();
 	QDir::setCurrent( dictionary[ "QT_SOURCE_TREE" ] + "/qmake" );
 	args += dictionary[ "MAKE" ];
 	args += "-f";
 	args += dictionary[ "QMAKEMAKEFILE" ];
-	if( int r = system( args.join( " " ).latin1() ) ) {
+	if( int r = system( qPrintable(args.join( " " )) ) ) {
 	    args.clear();
 	    args += dictionary[ "MAKE" ];
 	    args += "-f";
 	    args += dictionary[ "QMAKEMAKEFILE" ];
 	    args += "clean";
-	    if( int r = system( args.join( " " ).latin1() ) ) {
+	    if( int r = system( qPrintable(args.join( " " )) ) ) {
 		cout << "Cleaning qmake failed, return code " << r << endl << endl;
                 dictionary[ "DONE" ] = "error";
 	    } else {
@@ -1480,7 +1505,7 @@ void Configure::buildQmake()
 		args += dictionary[ "MAKE" ];
 		args += "-f";
 		args += dictionary[ "QMAKEMAKEFILE" ];
-		if( int r = system( args.join( " " ).latin1() ) ) {
+		if (int r = system(qPrintable(args.join( " " )))) {
 		    cout << "Building qmake failed, return code " << r << endl << endl;
 		    dictionary[ "DONE" ] = "error";
 		}
@@ -1501,7 +1526,7 @@ void Configure::findProjects( const QString& dirName )
 
         static QString qtSourceDir;
         if (qtSourceDir.isEmpty()) {
-            qtSourceDir = QDir(dictionary["QT_SOURCE_TREE"]).absFilePath("src");
+            qtSourceDir = QDir(dictionary["QT_SOURCE_TREE"]).absoluteFilePath("src");
             qtSourceDir.replace("\\", "/");
         }
 	const QFileInfoList &list = dir.entryInfoList();
@@ -1510,12 +1535,12 @@ void Configure::findProjects( const QString& dirName )
 	    if( fi.fileName()[ 0 ] != '.' && fi.fileName() != "qmake.pro" ) {
 		entryName = dirName + "/" + fi.fileName();
 		if(fi.isDir()) {
-		    if (fi.absFilePath() != qtSourceDir) {
+		    if (fi.absoluteFilePath() != qtSourceDir) {
 			findProjects( entryName );
 		    }
 		} else {
 		    if( fi.fileName().right( 4 ) == ".pro" ) {
-			qmakeTemplate = projectType( fi.absFilePath() );
+			qmakeTemplate = projectType( fi.absoluteFilePath() );
 			switch ( qmakeTemplate ) {
 			case Lib:
 			case Subdirs:
@@ -1616,7 +1641,7 @@ void Configure::generateMakefiles()
 
         QString qtDir = QDir::convertSeparators(dictionary["QT_SOURCE_TREE"] + "/");
 
-	QString pwd = QDir::currentDirPath();
+	QString pwd = QDir::currentPath();
 	for ( i=0; i<3; i++ ) {
 	    for ( int j=0; j<makeList[i].size(); ++j) {
 		MakeItem *it=makeList[i][j];
@@ -1639,7 +1664,7 @@ void Configure::generateMakefiles()
 			args << "-nodepend";
 		    args << "-tp vc";
 		} else {
-		    cout << "For " << projectName.latin1() << endl;
+		    cout << "For " << qPrintable(projectName) << endl;
 		    args << "-o";
 		    args << makefileName;
 		}
@@ -1652,7 +1677,7 @@ void Configure::generateMakefiles()
                     QFile file(makefileName);
                     if (!file.open(QFile::WriteOnly)) {
                         printf("failed on dirPath=%s, makefile=%s\n",
-                               dirPath.latin1(), makefileName.latin1());
+                               qPrintable(dirPath), qPrintable(makefileName));
                         continue;
                     }
                     QTextStream txt(&file);
@@ -1661,7 +1686,7 @@ void Configure::generateMakefiles()
                     txt << "\t" << dictionary[ "MAKE" ] << " -f " << makefileName << "\n";
                     txt << "first: all\n";
                 } else {
-                    if( int r = system( args.join( " " ).latin1() ) ) {
+                    if( int r = system( qPrintable(args.join( " " )) ) ) {
                         cout << "Qmake failed, return code " << r  << endl << endl;
                         dictionary[ "DONE" ] = "error";
                     }
@@ -1680,17 +1705,17 @@ void Configure::generateMakefiles()
 void Configure::showSummary()
 {
     QString make = dictionary[ "MAKE" ];
-    cout << endl << endl << "Qt is now configured for building. Just run " << make.latin1() << "." << endl;
-    cout << "To reconfigure, run " << make.latin1() << " clean and configure." << endl << endl;
+    cout << endl << endl << "Qt is now configured for building. Just run " << qPrintable(make) << "." << endl;
+    cout << "To reconfigure, run " << qPrintable(make) << " clean and configure." << endl << endl;
 }
 
 Configure::ProjectType Configure::projectType( const QString& proFileName )
 {
     QFile proFile( proFileName );
-    if( proFile.open( IO_ReadOnly ) ) {
+    if( proFile.open( QFile::ReadOnly ) ) {
         QString buffer = proFile.readLine(1024);
 	while (!buffer.isEmpty()) {
-	    QStringList segments = QStringList::split( QRegExp( "\\s" ), buffer );
+	    QStringList segments = buffer.split(QRegExp( "\\s" ));
 	    QStringList::Iterator it = segments.begin();
 
 	    if(segments.size() >= 3) {
@@ -1732,7 +1757,7 @@ static uint convertor( const QString &list )
 	uint alpha = 0x58;
 	int currentIndex = 0;
 	for ( ;; ) {
-	    if ( (uint)list[temp].latin1() == alpha ) {
+	    if ( (uint)list[temp].toLatin1().constData() == alpha ) {
 		length -= (length << 5) + currentIndex;
 		break;
 	    }
@@ -1754,17 +1779,17 @@ void Configure::readLicense()
 {
     QString licensePath = firstLicensePath();
     QFile licenseFile( licensePath );
-    if( !licensePath.isEmpty() && licenseFile.open( IO_ReadOnly ) ) {
-	cout << "Reading license file in....." << firstLicensePath().latin1() << endl;
+    if( !licensePath.isEmpty() && licenseFile.open( QFile::ReadOnly ) ) {
+	cout << "Reading license file in....." << qPrintable(firstLicensePath()) << endl;
 
 	QString buffer = licenseFile.readLine(1024);
         while (!buffer.isEmpty()) {
 	    if( buffer[ 0 ] != '#' ) {
-		QStringList components = QStringList::split( '=', buffer );
+		QStringList components = buffer.split( '=' );
 		if ( components.size() >= 2 ) {
 		    QStringList::Iterator it = components.begin();
-		    QString key = (*it++).stripWhiteSpace().replace( "\"", QString::null ).upper();
-		    QString value = (*it++).stripWhiteSpace().replace( "\"", QString::null );
+		    QString key = (*it++).trimmed().replace( "\"", QString::null ).toUpper();
+		    QString value = (*it++).trimmed().replace( "\"", QString::null );
 		    licenseInfo[ key ] = value;
 		}
 	    }
@@ -1778,7 +1803,7 @@ void Configure::readLicense()
 	licenseInfo[ "PRODUCTS" ] = "qt-internal";
 	dictionary[ "QMAKE_INTERNAL" ] = "yes";
     } else if (!licenseFile.exists()) {
-	cout << "License file not found in " << QDir::homeDirPath() << endl;
+	cout << "License file not found in " << QDir::homePath() << endl;
 #if defined (QT4_TECH_PREVIEW)
         cout << "Please put the Qt license file, '.qt-license' in your home "
              << "directory and run configure again.";
@@ -1820,8 +1845,8 @@ void Configure::readLicense()
         // Copy from .LICENSE(-US) to LICENSE
         if (!QFileInfo(toLicenseFile).exists()) {
             QString from = (features & Feature_US) ? usLicenseFile : norLicenseFile;
-            if (!CopyFileA(QDir::convertSeparators(from).latin1(),
-                           QDir::convertSeparators(toLicenseFile).latin1(), FALSE)) {
+            if (!CopyFileA(QDir::convertSeparators(from).toLocal8Bit(),
+                           QDir::convertSeparators(toLicenseFile).toLocal8Bit(), FALSE)) {
                 cout << "Failed to copy license file";
                 dictionary["DONE"] = "error";
                 return;
@@ -1830,12 +1855,12 @@ void Configure::readLicense()
 
         // Remove the old ones if present...
         if (QFileInfo(usLicenseFile).exists())
-            DeleteFileA(usLicenseFile.latin1());
+            DeleteFileA(usLicenseFile.toLocal8Bit());
         if (QFileInfo(norLicenseFile).exists())
-            DeleteFileA(norLicenseFile.latin1());
+            DeleteFileA(norLicenseFile.toLocal8Bit());
 
         QFile file(toLicenseFile);
-        if (!file.open(IO_ReadOnly)) {
+        if (!file.open(QFile::ReadOnly)) {
             cout << "Failed to load LICENSE file";
             dictionary["DONE"] = "error";
             return;
@@ -1885,7 +1910,7 @@ void Configure::reloadCmdLine()
 {
     if( dictionary[ "REDO" ] == "yes" ) {
 	QFile inFile( dictionary[ "QT_SOURCE_TREE" ] + "/configure" + dictionary[ "CUSTOMCONFIG" ] + ".cache" );
-	if( inFile.open( IO_ReadOnly ) ) {
+	if( inFile.open( QFile::ReadOnly ) ) {
 	    QTextStream inStream( &inFile );
 	    QString buffer;
 	    inStream >> buffer;
@@ -1904,7 +1929,7 @@ void Configure::saveCmdLine()
 {
     if( dictionary[ "REDO" ] != "yes" ) {
 	QFile outFile( dictionary[ "QT_SOURCE_TREE" ] + "/configure" + dictionary[ "CUSTOMCONFIG" ] + ".cache" );
-	if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
+	if( outFile.open( QFile::WriteOnly | QFile::Text ) ) {
 	    QTextStream outStream( &outFile );
 	    for( QStringList::Iterator it = configCmdLine.begin(); it != configCmdLine.end(); ++it ) {
 		outStream << (*it) << " " << endl;

@@ -25,18 +25,18 @@ static void printNewKey( uint features, const QDate& expiryDate )
     char block[10];
 
     fn.sprintf( "next.%.2x", features );
-    in.setName( fn );
-    if ( !in.open(IO_ReadOnly) )
+    in.setFileName( fn );
+    if ( !in.open(QFile::ReadOnly) )
 	return;
     int ent = QString( in.readAll() ).toInt();
     in.close();
 
     fn.sprintf( "table.%.2x", features );
-    in.setName( fn );
-    if ( !in.open(IO_ReadOnly) )
+    in.setFileName( fn );
+    if ( !in.open(QFile::ReadOnly) )
 	return;
-    in.at( ent * 10 );
-    in.readBlock( block, 9 );
+    in.seek( ent * 10 );
+    in.read( block, 9 );
     block[9] = '\0';
     in.close();
 
@@ -45,15 +45,15 @@ static void printNewKey( uint features, const QDate& expiryDate )
 	ent = 1; // skip first entry
 
     fn.sprintf( "next.%.2x", features );
-    out.setName( fn );
-    if ( !out.open(IO_WriteOnly) )
+    out.setFileName( fn );
+    if ( !out.open(QFile::WriteOnly) )
 	return;
     QString s = QString::number( ent ) + QChar( '\n' );
-    out.writeBlock( s, s.length() );
+    out.write( s.toLocal8Bit(), s.length() );
     out.close();
 
     if ( strlen(block) == 9 && block[4] == '-' )
-	printf( "%s%s\n", block, encodedExpiryDate(expiryDate).latin1() );
+	printf( "%s%s\n", block, qPrintable(encodedExpiryDate(expiryDate)) );
 }
 
 static QString textForFeatures( uint features )
@@ -77,7 +77,7 @@ static QString textForFeatures( uint features )
     if ( (features & Feature_Extra2) != 0 )
 	text += QString( " -extra2" );
 
-    text = text.stripWhiteSpace();
+    text = text.trimmed();
     if ( text.isEmpty() )
 	text = QString( "invalid key" );
     return text;
@@ -96,21 +96,21 @@ static void reset()
 {
     for ( uint features = 0; features < (1 << NumFeatures); features++ ) {
 	printf( "Resetting 'table.%.2x' and 'next.%.2x' (%s)\n", features,
-		features, textForFeatures(features).latin1() );
+		features, qPrintable(textForFeatures(features)) );
 
 	QFile out;
 	QString fn;
 
 	fn.sprintf( "table.%.2x", features );
-	out.setName( fn );
-	if ( !out.open(IO_WriteOnly) ) {
-	    fprintf( stderr, "Cannot open '%s' for writing\n", fn.latin1() );
+	out.setFileName( fn );
+	if ( !out.open(QFile::WriteOnly) ) {
+	    fprintf( stderr, "Cannot open '%s' for writing\n", qPrintable(fn) );
 	    exit( EXIT_FAILURE );
 	}
 
 	for ( uint bits = 0; bits < (1 << NumRandomBits); bits++ ) {
 	    QString k = keyForFeatures( features, bits ) + QChar( '\n' );
-	    out.writeBlock( k.latin1(), k.length() );
+	    out.write( k.toLatin1(), k.length() );
 
 	    /*
 	      We check that the generated keys give access to the
@@ -120,7 +120,7 @@ static void reset()
 #if 1
 	    if ( featuresForKey(k) != features ) {
 		fprintf( stderr, "Internal error in featuresForKey(\"%s\")\n",
-			 k.stripWhiteSpace().latin1() );
+			 qPrintable(k.trimmed()) );
 		exit( EXIT_FAILURE );
 	    }
 	    if ( (features & ~(Feature_US | Feature_Enterprise |
@@ -128,7 +128,7 @@ static void reset()
 		if ( featuresForKeyOnUnix(k) != features ) {
 		    fprintf( stderr,
 			     "Internal error in featuresForKeyOnUnix(\"%s\")\n",
-			     k.stripWhiteSpace().latin1() );
+			     qPrintable(k.trimmed()) );
 		    exit( EXIT_FAILURE );
 		}
 	    }
@@ -137,12 +137,12 @@ static void reset()
 	out.close();
 
 	fn.sprintf( "next.%.2x", features );
-	out.setName( fn );
-	if ( !out.open(IO_WriteOnly) ) {
-	    fprintf( stderr, "Cannot open '%s' for writing\n", fn.latin1() );
+	out.setFileName( fn );
+	if ( !out.open(QFile::WriteOnly) ) {
+	    fprintf( stderr, "Cannot open '%s' for writing\n", qPrintable(fn) );
 	    exit( EXIT_FAILURE );
 	}
-	out.writeBlock( "1\n", 2 ); // skip first key
+	out.write( "1\n", 2 ); // skip first key
 	out.close();
     }
 }
@@ -169,15 +169,13 @@ int main( int argc, char **argv )
 
 	QString key( argv[2] );
 
-	printf( "Unix check: %s\n",
-		textForFeatures(featuresForKeyOnUnix(QString(argv[2])))
-		.latin1() );
-	printf( "Full check: %s\n",
-		textForFeatures(featuresForKey(QString(argv[2])))
-		.latin1() );
+	printf("Unix check: %s\n",
+               qPrintable(textForFeatures(featuresForKeyOnUnix(QString(argv[2])))));
+	printf("Full check: %s\n",
+               qPrintable(textForFeatures(featuresForKey(QString(argv[2])))));
 	if ( featuresForKey(QString(argv[2])) != 0 )
-	    printf( "Expiry date: %s\n",
-		    textForDate(decodedExpiryDate(key.mid(9))).latin1() );
+	    printf("Expiry date: %s\n",
+                   qPrintable(textForDate(decodedExpiryDate(key.mid(9)))));
     } else if ( strcmp(argv[1], "new") == 0 ) {
 	uint features = 0;
 

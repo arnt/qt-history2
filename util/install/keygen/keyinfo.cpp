@@ -105,7 +105,7 @@ static uint codeForKey( const QString& key )
 {
     QRegExp fmt( QString(
 	    "[A-Z0-9]([A-Z0-9]{3})-([A-Z0-9]{4})(?:-[A-Z0-9]{4})?") );
-    QString t = key.stripWhiteSpace().upper();
+    QString t = key.trimmed().toUpper();
 
     if ( fmt.exactMatch(t) ) {
 	QString u = fmt.cap( 1 ) + fmt.cap( 2 );
@@ -146,19 +146,19 @@ uint featuresForKey( const QString& key )
 
 uint featuresForKeyOnUnix( const QString& key )
 {
-    QString t = key.simplifyWhiteSpace().upper();
+    QString t = key.trimmed().toUpper();
     if ( t.isEmpty() )
 	return 0;
 
     uint ch = t[0].unicode();
     uint features = 0;
-    if ( QString("ABCDEFGH").find(QChar(ch)) != -1 )
+    if ( QString("ABCDEFGH").indexOf(QChar(ch)) != -1 )
 	features |= Feature_Embedded;
-    if ( QString("6789EFGH").find(QChar(ch)) != -1 )
+    if ( QString("6789EFGH").indexOf(QChar(ch)) != -1 )
 	features |= Feature_Unix;
-    if ( QString("4589CDGH").find(QChar(ch)) != -1 )
+    if ( QString("4589CDGH").indexOf(QChar(ch)) != -1 )
 	features |= Feature_Enterprise;
-    if ( QString("3579BDFH").find(QChar(ch)) != -1 )
+    if ( QString("3579BDFH").indexOf(QChar(ch)) != -1 )
 	features |= Feature_US;
     return features;
 }
@@ -180,7 +180,7 @@ QString encodedExpiryDate( const QDate& date )
 QDate decodedExpiryDate( const QString& encodedDate )
 {
     QRegExp fmt( QString("-([A-Z0-9]{4})") );
-    QString t = encodedDate.stripWhiteSpace().upper();
+    QString t = encodedDate.trimmed().toUpper();
     QDate date;
 
     if ( fmt.exactMatch(t) ) {
