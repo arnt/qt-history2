@@ -1209,7 +1209,7 @@ QFont QTextCharFormat::font() const
         font.setFamily(fontFamily());
 
     if (hasProperty(FontPointSize))
-	font.setPointSizeFloat(fontPointSize());
+	font.setPointSizeF(fontPointSize());
 
     if (hasProperty(FontWeight))
         font.setWeight(fontWeight());

@@ -30,6 +30,7 @@ public:
     QString family() const;
     int pixelSize() const;
     int pointSize() const;
+    float pointSizeF() const;
     bool italic() const;
     int weight() const;
     inline bool bold() const { return weight() > QFont::Normal; }

@@ -77,13 +77,12 @@ public:
     void setFamily(const QString &);
 
     int pointSize() const;
-    float pointSizeFloat() const;
     void setPointSize(int);
-    void setPointSizeFloat(float);
+    float pointSizeF() const;
+    void setPointSizeF(float);
 
     int pixelSize() const;
     void setPixelSize(int);
-    void setPixelSizeFloat(float);
 
     int weight() const;
     void setWeight(int);
@@ -258,14 +257,17 @@ public:
     QString lastResortFamily() const;
     QString lastResortFont() const;
 
-#ifdef QT_COMPAT
-    static QT_COMPAT QFont defaultFont();
-    static QT_COMPAT void setDefaultFont(const QFont &);
-#endif // QT_COMPAT
-
     QFont resolve(const QFont &) const;
     inline uint resolve() const { return resolve_mask; }
     inline void resolve(uint mask) { resolve_mask = mask; }
+
+#ifdef QT_COMPAT
+    static QT_COMPAT QFont defaultFont();
+    static QT_COMPAT void setDefaultFont(const QFont &);
+    QT_COMPAT void setPixelSizeFloat(float);
+    QT_COMPAT float pointSizeFloat() const { return pointSizeF(); }
+    QT_COMPAT void setPointSizeFloat(float size) { setPointSizeF(size); }
+#endif
 
 private:
     QFont(QFontPrivate *);

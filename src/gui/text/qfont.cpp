@@ -748,7 +748,7 @@ void QFont::setPointSize(int pointSize)
 
     \sa pointSizeFloat() setPointSize() setPixelSize()
 */
-void QFont::setPointSizeFloat(float pointSize)
+void QFont::setPointSizeF(float pointSize)
 {
     Q_ASSERT_X(pointSize > 0.0, "QFont::setPointSizeFloat", "point size must be greater than 0");
 
@@ -766,7 +766,7 @@ void QFont::setPointSizeFloat(float pointSize)
 
     \sa pointSize() setPointSizeFloat() pixelSize() QFontInfo::pointSize() QFontInfo::pixelSize()
 */
-float QFont::pointSizeFloat() const
+float QFont::pointSizeF() const
 {
     return float(d->request.pointSize == -1 ? -10 : d->request.pointSize) / 10.0;
 }
@@ -1655,7 +1655,7 @@ QString QFont::toString() const
 {
     const QChar comma(',');
     return family() + comma +
-        QString::number( pointSizeFloat()) + comma +
+        QString::number(     pointSizeF()) + comma +
         QString::number(      pixelSize()) + comma +
         QString::number((int) styleHint()) + comma +
         QString::number(         weight()) + comma +
@@ -1686,7 +1686,7 @@ bool QFont::fromString(const QString &descrip)
 
     setFamily(l[0]);
     if (count > 1 && l[1].toDouble() > 0.0)
-        setPointSizeFloat(l[1].toDouble());
+        setPointSizeF(l[1].toDouble());
     if (count == 9) {
         setStyleHint((StyleHint) l[2].toInt());
         setWeight(qMax(qMin(99, l[3].toInt()), 0));
@@ -2670,13 +2670,25 @@ QString QFontInfo::family() const
 /*!
     Returns the point size of the matched window system font.
 
-    \sa QFont::pointSize()
+    \sa pointSizeF() QFont::pointSize()
 */
 int QFontInfo::pointSize() const
 {
     QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
     Q_ASSERT(engine != 0);
     return (engine->fontDef.pointSize + 5) / 10;
+}
+
+/*!
+    Returns the point size of the matched window system font.
+
+    \sa QFont::pointSizeF()
+*/
+float QFontInfo::pointSizeF() const
+{
+    QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
+    Q_ASSERT(engine != 0);
+    return float(engine->fontDef.pointSize) / 10.0;
 }
 
 /*!
