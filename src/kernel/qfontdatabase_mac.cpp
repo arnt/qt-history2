@@ -32,14 +32,13 @@
 
 void QFontDatabase::createDatabase()
 {
-    if(db) return;
+    if(db) 
+	return;
     db = new QFontDatabasePrivate;
     qfontdatabase_cleanup.set(&db);
 
-
-    QString foundry_name = "Mac";
-
     FMFontFamilyIterator it;
+    QString foundry_name = "Mac";
     if(!FMCreateFontFamilyIterator(NULL, NULL, kFMUseGlobalScopeOption, &it)) {
 	FMFontFamily fam;
 	QString fam_name;
@@ -71,6 +70,8 @@ void QFontDatabase::createDatabase()
 	    DisposeTextToUnicodeInfo(&uni_info);
 
 	    QtFontFamily *family = db->family( fam_name, TRUE );
+	    for(int script = 0; script < QFont::LastPrivateScript; ++script)
+		family->scripts[script] = QtFontFamily::Supported;
 	    QtFontFoundry *foundry = family->foundry( foundry_name, TRUE );
 
 	    FMFontFamilyInstanceIterator fit;
@@ -89,8 +90,6 @@ void QFontDatabase::createDatabase()
 
 		    QtFontStyle *style = foundry->style( styleKey, TRUE );
 		    style->smoothScalable = TRUE;
-
-
 		    if( !italic ) {
 			styleKey.oblique = TRUE;
 			style = foundry->style( styleKey, TRUE );
