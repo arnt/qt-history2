@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#74 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#75 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#74 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#75 $";
 #endif
 
 
@@ -2850,7 +2850,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	yp = 0;
     if ( (tf & AlignRight) == AlignRight )
 	xp = w - maxwidth;			// right aligned
-    else if ( (tf & AlignCenter) == AlignCenter )
+    else if ( (tf & AlignHCenter) == AlignHCenter )
 	xp = w/2 - maxwidth/2;			// centered text
     else
 	xp = 0;					// left aligned
@@ -2933,7 +2933,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 
 	if ( (tf & AlignRight) == AlignRight )
 	    xp = w - tw;			// right aligned
-	else if ( (tf & AlignCenter) == AlignCenter )
+	else if ( (tf & AlignHCenter) == AlignHCenter )
 	    xp = w/2 - tw/2;			// centered text
 	else
 	    xp = 0;				// left aligned
