@@ -62,6 +62,7 @@
 #include "../widgets/qtitlebar_p.h"
 #include "qpopupmenu.h"
 #include "qaquastyle_p.h"
+#include "qguardedptr.h"
 #ifdef Q_WS_MAC
 #  include <string.h>
 #  include <qt_mac.h>
@@ -217,7 +218,7 @@ public:
     int progressTimerId;
     int progressOff;
     //big focus rects
-    QAquaFocusWidget *focusWidget;
+    QGuardedPtr<QAquaFocusWidget> focusWidget;
 
 public slots:
     void objDestroyed(QObject *);
