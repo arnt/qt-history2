@@ -129,7 +129,7 @@ void MainWindow::setup()
     connect(helpDock, SIGNAL(showSearchLink(const QString&, const QStringList&)),
              this, SLOT(showSearchLink(const QString&, const QStringList&)));
 
-    connect(ui.bookmarkMenu, SIGNAL(activated(QAction*)),
+    connect(ui.bookmarkMenu, SIGNAL(triggered(QAction*)),
              this, SLOT(showBookmark(QAction*)));
     connect(ui.actionZoomIn, SIGNAL(triggered()), tabs, SLOT(zoomIn()));
     connect(ui.actionZoomOut, SIGNAL(triggered()), tabs, SLOT(zoomOut()));
