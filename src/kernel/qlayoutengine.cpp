@@ -35,7 +35,6 @@
 **
 **********************************************************************/
 
-#include <limits.h> // ### remove in 3.1
 #include "private/qlayoutengine_p.h"
 
 #ifndef QT_NO_LAYOUT
@@ -89,7 +88,6 @@ Q_EXPORT void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count,
     if ( spacerCount )
 	spacerCount--; // only spacers between things
     if ( space < cMin + spacerCount * spacer ) {
-	//	qDebug("not enough space");
 	for ( i = start; i < start+count; i++ ) {
 	    chain[i].size = chain[i].minimumSize;
 	    chain[i].done = TRUE;
@@ -101,7 +99,7 @@ Q_EXPORT void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count,
 	int n = count;
 	int space_left = space - spacerCount*spacer;
 	int overdraft = cHint - space_left;
-	//first give to the fixed ones:
+	// first give to the fixed ones:
 	for ( i = start; i < start+count; i++ ) {
 	    if ( !chain[i].done && chain[i].minimumSize >= chain[i].sizeHint) {
 		chain[i].size = chain[i].sizeHint;
@@ -126,7 +124,7 @@ Q_EXPORT void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count,
 		//    fp_w += (fp_over * chain[i].stretch) / sumStretch;
 		int w = fRound( fp_w );
 		chain[i].size = chain[i].sizeHint - w;
-		fp_w -= toFixed( w ); //give the difference to the next
+		fp_w -= toFixed( w ); // give the difference to the next
 		if ( chain[i].size < chain[i].minimumSize ) {
 		    chain[i].done = TRUE;
 		    chain[i].size = chain[i].minimumSize;
@@ -138,7 +136,7 @@ Q_EXPORT void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count,
 		}
 	    }
 	}
-    } else { //extra space
+    } else { // extra space
 	int n = count;
 	int space_left = space - spacerCount*spacer;
 	// first give to the fixed ones, and handle non-expansiveness
@@ -153,15 +151,16 @@ Q_EXPORT void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count,
 	    }
 	}
 	extraspace = space_left;
+
 	/*
 	  Do a trial distribution and calculate how much it is off.
 	  If there are more deficit pixels than surplus pixels, give
 	  the minimum size items what they need, and repeat.
 	  Otherwise give to the maximum size items, and repeat.
 
-	  I have a wonderful mathematical proof for the correctness
-	  of this principle, but unfortunately this comment is too
-	  small to contain it.
+	  Paul Olav Tvete has a wonderful mathematical proof of the
+	  correctness of this principle, but unfortunately this
+	  comment is too small to contain it.
 	*/
 	int surplus, deficit;
 	do {
@@ -216,10 +215,12 @@ Q_EXPORT void qGeomCalc( QMemArray<QLayoutStruct> &chain, int start, int count,
 	    extraspace = space_left;
     }
 
-    // as a last resort, we distribute the unwanted space equally
-    // among the spacers (counting the start and end of the chain).
-
-    //### should do a sub-pixel allocation of extra space
+    /*
+      As a last resort, we distribute the unwanted space equally
+      among the spacers (counting the start and end of the chain). We
+      could, but don't, attempt a sub-pixel allocation of the extra
+      space.
+    */
     int extra = extraspace / ( spacerCount + 2 );
     int p = pos + extra;
     for ( i = start; i < start+count; i++ ) {
@@ -278,7 +279,6 @@ Q_EXPORT QSize qSmartMinSize( QWidget *w )
     return qSmartMinSize( &item );
 }
 
-// Returns the max size of a box containing \a w with alignment \a align.
 Q_EXPORT QSize qSmartMaxSize( const QWidgetItem *i, int align )
 {
     QWidget *w = ( (QWidgetItem*)i )->widget();
