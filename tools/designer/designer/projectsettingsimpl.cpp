@@ -24,6 +24,7 @@
 #include "metadatabase.h"
 #include "mainwindow.h"
 #include "asciivalidator.h"
+#include "mainwindow.h"
 
 #include <qlineedit.h>
 #include <qtextedit.h>
@@ -61,29 +62,7 @@ ProjectSettings::ProjectSettings( Project *pro, QWidget* parent,  const char* na
 	editProjectFile->setText( "" );
     }
 
-    QStringList lst = project->uiFiles();
-    for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
-	QListViewItem *item = new QListViewItem( listInterfaces, tr( "<unknown>" ), *it, 0 );
-	QString className = project->formName( item->text( 1 ) );
-	if ( !className.isEmpty() )
-	    item->setText( 0, className );
-    }
-
-    QObjectList *l = parent->queryList( "FormWindow", 0, FALSE, TRUE );
-    for ( QObject *o = l->first(); o; o = l->next() ) {
-	if ( ( (FormWindow*)o )->project() != project )
-	    continue;
-	QListViewItemIterator it( listInterfaces );
-	while ( it.current() ) {
-	    if ( project->makeAbsolute( ( it.current() )->text( 1 ) ) ==
-		 project->makeAbsolute( ( (FormWindow*)o )->fileName() ) ) {
-		it.current()->setText( 0, o->name() );
-		formMap.insert( it.current(), (FormWindow*)o );
-	    }
-	    ++it;
-	}
-    }
-
+    fillFormList();
 
     listInterfaces->header()->setStretchEnabled( TRUE );
 
@@ -191,4 +170,37 @@ void ProjectSettings::projectNameChanged( const QString &name )
 void ProjectSettings::languageChanged( const QString &lang )
 {
     checkCreateSource->setEnabled( lang == "C++" );
+}
+
+void ProjectSettings::addProject()
+{
+    MainWindow::self->fileOpen( "Qt User-Interface Files (*.ui)", "ui" );
+    fillFormList();
+}
+
+void ProjectSettings::fillFormList()
+{
+    listInterfaces->clear();
+    QStringList lst = project->uiFiles();
+    for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
+	QListViewItem *item = new QListViewItem( listInterfaces, tr( "<unknown>" ), *it, 0 );
+	QString className = project->formName( item->text( 1 ) );
+	if ( !className.isEmpty() )
+	    item->setText( 0, className );
+    }
+
+    QObjectList *l = parent()->queryList( "FormWindow", 0, FALSE, TRUE );
+    for ( QObject *o = l->first(); o; o = l->next() ) {
+	if ( ( (FormWindow*)o )->project() != project )
+	    continue;
+	QListViewItemIterator it( listInterfaces );
+	while ( it.current() ) {
+	    if ( project->makeAbsolute( ( it.current() )->text( 1 ) ) ==
+		 project->makeAbsolute( ( (FormWindow*)o )->fileName() ) ) {
+		it.current()->setText( 0, o->name() );
+		formMap.insert( it.current(), (FormWindow*)o );
+	    }
+	    ++it;
+	}
+    }
 }

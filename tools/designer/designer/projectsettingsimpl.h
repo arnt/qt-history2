@@ -43,8 +43,12 @@ protected slots:
     void helpClicked();
     void okClicked();
     void removeProject();
+    void addProject();
     void projectNameChanged( const QString &name );
     void languageChanged( const QString &lang );
+
+private:
+    void fillFormList();
 
 private:
     Project *project;
