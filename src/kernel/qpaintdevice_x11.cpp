@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#16 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#16 $";
 #endif
 
 
@@ -36,23 +36,44 @@ QPaintDevice::~QPaintDevice()
 }
 
 
-void QPaintDevice::bitBlt( int sx, int sy, int sw, int sh, QPaintDevice *dest,
-			   int dx, int dy, RasterOp rop )
+bool QPaintDevice::cmd( int, QPDevCmdParam * )
 {
-    int ts = devType();				// from device type
-    int td = dest->devType();			// to device type
+#if defined(CHECK_STATE)
+    warning( "QPaintDevice::cmd: Device has no command interface" );
+#endif
+    return FALSE;
+}
 
-    if ( paintingActive() && (dest->devFlags & PDF_EXTDEV) ) {
+long QPaintDevice::metric( int ) const
+{
+#if defined(CHECK_STATE)
+    warning( "QPaintDevice::metrics: Device has no metric information" );
+#endif
+    return 0;
+}
+
+
+void bitBlt( QPaintDevice *dst, int dx, int dy,
+	     const QPaintDevice *src, int sx, int sy, int sw, int sh,
+	     RasterOp rop )
+{
+    int ts = src->devType();			// from device type
+    int td = dst->devType();			// to device type
+    Display *dpy = src->display();
+
+    if ( sw <= 0 )				// use device width
+	sw = src->metric( PDM_WIDTH );
+    if ( sh <= 0 )				// use device height
+	sh = src->metric( PDM_HEIGHT );
+
+    if ( src->paintingActive() && dst->isExtDev() ) {
 	QPixMap *pm;				// output to picture/printer
-	QWidget *w;
 	if ( ts == PDT_PIXMAP )
-	    pm = (QPixMap*)this;
-	else if ( ts == PDT_WIDGET ) {
-	    w = (QWidget*)this;			// bitBlt to temp pixmap
-	    pm = new QPixMap( w->clientWidth(), w->clientHeight() );
+	    pm = (QPixMap*)src;
+	else if ( ts == PDT_WIDGET ) {		// bitBlt to temp pixmap
+	    pm = new QPixMap( sw, sh );
 	    CHECK_PTR( pm );
-	    w->bitBlt( 0, 0, w->clientWidth(), w->clientHeight(), pm, 0, 0,
-		       CopyROP );
+	    bitBlt( pm, 0, 0, src, sx, sy, sw, sh, CopyROP );
 	}
 	else {
 #if defined(CHECK_RANGE)
@@ -66,7 +87,7 @@ void QPaintDevice::bitBlt( int sx, int sy, int sw, int sh, QPaintDevice *dest,
 	param[0].rect   = &r;
 	param[1].point  = &p;
 	param[2].pixmap = pm;
-	cmd( PDC_DRAWPIXMAP, param );
+	dst->cmd( PDC_DRAWPIXMAP, param );
 	if ( ts == PDT_WIDGET )
 	    delete pm;
 	return;
@@ -92,9 +113,9 @@ void QPaintDevice::bitBlt( int sx, int sy, int sw, int sh, QPaintDevice *dest,
     bool mono = FALSE;
 
     if ( ts == PDT_PIXMAP )
-	copy_plane = ((QPixMap*)this)->depth() == 1;
+	copy_plane = ((QPixMap*)src)->depth() == 1;
     if ( td == PDT_PIXMAP ) {
-	bool single_plane = ((QPixMap*)dest)->depth() == 1;
+	bool single_plane = ((QPixMap*)dst)->depth() == 1;
 	if ( single_plane && !copy_plane ) {	
 #if defined(CHECK_RANGE)
 		warning( "QPaintDevice::bitBlt: Incompatible destination pixmap" );
@@ -113,7 +134,7 @@ void QPaintDevice::bitBlt( int sx, int sy, int sw, int sh, QPaintDevice *dest,
 	gcvals.function = ropCodes[rop];
     }
     if ( td == PDT_WIDGET ) {			// set GC colors
-	QWidget *w = (QWidget *)dest;
+	QWidget *w = (QWidget *)dst;
 	gcvals.background = w->backgroundColor().pixel();
 	gcvals.foreground = w->foregroundColor().pixel();
     }
@@ -124,26 +145,11 @@ void QPaintDevice::bitBlt( int sx, int sy, int sw, int sh, QPaintDevice *dest,
     XChangeGC( dpy, gc, gcflags, &gcvals );
 
     if ( copy_plane )
-	XCopyPlane( dpy, hd, dest->hd, gc, sx, sy, sw, sh, dx, dy, 1 );
+	XCopyPlane( dpy, src->handle(), dst->handle(), gc, sx, sy, sw, sh,
+		    dx, dy, 1 );
     else
-	XCopyArea( dpy, hd, dest->hd, gc, sx, sy, sw, sh, dx, dy );
+	XCopyArea( dpy, src->handle(), dst->handle(), gc, sx, sy, sw, sh,
+		   dx, dy );
     if ( rop != CopyROP )			// reset gc function
 	XSetFunction( dpy, gc, GXcopy );
-}
-
-
-bool QPaintDevice::cmd( int, QPDevCmdParam * )
-{
-#if defined(CHECK_STATE)
-    warning( "QPaintDevice::cmd: Device has no command interface" );
-#endif
-    return FALSE;
-}
-
-long QPaintDevice::metric( int ) const
-{
-#if defined(CHECK_STATE)
-    warning( "QPaintDevice::metrics: Device has no metric information" );
-#endif
-    return 0;
 }
