@@ -71,6 +71,8 @@ When compiling for this platform, the macro <tt>_WS_QWS_</tt> is defined
 
 <ul>
  <li><a href=install-qws.html>Installation</a>
+ <li><a href=running-qws.html>Running Qt/Embedded applications</a>
+ <li><a href=porting-qws.html>Porting your applications to Qt/Embedded</a>
  <li><a href=fonts-qws.html>Font formats and definitions</a>
  <li><a href=charinput-qws.html>Character input (keyboard, pen, ...)</a>
  <li><a href=pointer-qws.html>Pointer handling (mouse, pen, ...)</a>

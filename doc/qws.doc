@@ -253,7 +253,7 @@ and non-smooth fonts is illustrated below.
 <center>
 <table>
 <tr align=center>
-<td><img src=smooth.png><td><img src=nonsmooth.png>
+<td><img src=smooth.png><td><img src=unsmooth.png>
 <tr align=center>
 <td>Smooth<td>Non-smooth
 </table>
@@ -342,3 +342,26 @@ When enabled, Qt/Embedded uses the powerful FreeType2 library to implement
 TrueType and Type1 support.
 
 */
+
+/*! \page running-qws.html
+<title>Running Qt/Embedded applications<title>
+</head><body bgcolor="#ffffff">
+
+\postheader
+
+<h1>Running Qt/Embedded applications</h1>
+
+(not documented yet)
+*/
+
+/*! \page porting-qws.html
+<title>Porting your applications to Qt/Embedded</title>
+</head><body bgcolor="#ffffff">
+
+\postheader
+
+<h1>Porting your applications to Qt/Embedded</h1>
+
+(not documented yet)
+*/
+
