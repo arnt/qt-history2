@@ -511,7 +511,7 @@ void QDockWindow::setFloatable(bool floatable)
 }
 
 bool QDockWindow::isFloatable() const
-{ return d->floatable; }
+{ return d->movable && d->floatable; }
 
 void QDockWindow::setFloated(bool floated, const QPoint &pos)
 {
