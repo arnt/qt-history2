@@ -854,9 +854,10 @@ QMenuBar::eventFilter(QObject *object, QEvent *event)
 {
     if (object == parent() && object
 #ifndef QT_NO_TOOLBAR
-         && !qt_cast<QToolBar*>(object)
+        && !qt_cast<QToolBar*>(object)
+        && !object->inherits("Q3ToolBar")
 #endif
-         && event->type() == QEvent::Resize) {
+        && event->type() == QEvent::Resize) {
         QResizeEvent *e = (QResizeEvent *)event;
         int w = e->size().width();
         setGeometry(0, y(), w, heightForWidth(w));
