@@ -130,8 +130,7 @@ void LifeWidget::paintEvent( QPaintEvent * e )
 		qDrawShadePanel( &paint, index2pos( i ), index2pos( j ),
 				 SCALE - 1, SCALE - 1, colorGroup() );
 	    else if ( cells[!current][i][j] )
-		paint.eraseRect( index2pos( i ), index2pos( j ),
-				 SCALE - 1, SCALE - 1);
+		erase(index2pos( i ), index2pos( j ), SCALE - 1, SCALE - 1);
 	}
     }
     drawFrame( &paint );
