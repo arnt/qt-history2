@@ -124,7 +124,7 @@ static void perhapsAddPrinter( QListView * printers, const QString &name,
     if ( i )
         return;
     if ( host.isEmpty() )
-        host = qApp->translate( "QPrintDialog", "locally connected" );
+        host = QPrintDialog::tr( "locally connected" );
     (void)new QListViewItem( printers,
                              name.simplifyWhiteSpace(),
                              host.simplifyWhiteSpace(),
@@ -168,9 +168,8 @@ static void parsePrintcap( QListView * printers )
                 printerName = printerDesc.left( j > 0 ? j : i );
                 if ( j > 0 ) {
                     // try extracting a comment from the aliases...
-                    printerComment = qApp->translate( "QPrintDialog",
-                                                      "Aliases: " );
-                    printerComment += printerDesc.mid( j+1, i-j-1 );
+                    printerComment = QPrintDialog::tr( "Aliases: %1" )
+				     .arg( printerDesc.mid(j + 1, i - j - 1) );
                     j=printerComment.length();
                     while( j > 0 ) {
                         j--;
@@ -343,9 +342,8 @@ static char * parsePrintersConf( QListView * printers )
 
                 if ( j > 0 ) {
                     // try extracting a comment from the aliases...
-                    printerComment = qApp->translate( "QPrintDialog",
-                                                      "Aliases: " );
-                    printerComment += printerDesc.mid( j+1, i-j-1 );
+                    printerComment = QPrintDialog::tr( "Aliases: %1" )
+				     .arg( printerDesc.mid(j + 1, i - j - 1) );
                     for( j=printerComment.length(); j>-1; j-- )
                         if ( printerComment[j] == '|' )
                             printerComment[j] = ',';
@@ -421,8 +419,8 @@ static void parseEtcLpMember( QListView * printers )
         // decent way to locate aliases and remote printers.
         if ( printer->isFile() )
             perhapsAddPrinter( printers, printer->fileName(),
-                               qApp->translate( "QPrintDialog","unknown"),
-                                QString::fromLatin1("") );
+                               QPrintDialog::tr("unknown"),
+                               QString::fromLatin1("") );
     }
 }
 
@@ -572,8 +570,7 @@ static char * parseCupsOutput( QListView * printers )
     int n = 0;
     while( n < nd ) {
         perhapsAddPrinter( printers, d[n].name,
-                           qApp->translate( "QPrintDialog",
-                                            "Unknown Location" ), 0 );
+			   QPrintDialog::tr("Unknown Location"), 0 );
         if ( d[n].is_default && !defaultPrinter )
             defaultPrinter = qstrdup( d[n].instance );
         n++;
@@ -1249,7 +1246,7 @@ void QPrintDialog::setNumCopies( int copies )
 void QPrintDialog::browseClicked()
 {
 #ifndef QT_NO_FILEDIALOG
-    QString fn = QFileDialog::getSaveFileName( QString::null, tr( "Postscript Files (*.ps);;All Files (*)" ), this );
+    QString fn = QFileDialog::getSaveFileName( QString::null, tr( "PostScript Files (*.ps);;All Files (*)" ), this );
     if ( !fn.isNull() )
         d->fileName->setText( fn );
 #endif
