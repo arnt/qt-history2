@@ -25,7 +25,7 @@
 
 class QVariant;
 
-class QMetaMember
+class Q_EXPORT QMetaMember
 {
 public:
     inline QMetaMember():mobj(0),handle(0){}
@@ -42,7 +42,7 @@ private:
     friend struct QMetaObject;
 };
 
-class QMetaEnum
+class Q_EXPORT QMetaEnum
 {
 public:
     inline QMetaEnum():mobj(0),handle(0){}
@@ -65,7 +65,7 @@ private:
     friend struct QMetaObject;
 };
 
-class QMetaProperty
+class Q_EXPORT QMetaProperty
 {
 public:
     QMetaProperty();
@@ -98,7 +98,7 @@ private:
     friend struct QMetaObject;
 };
 
-class QMetaClassInfo
+class Q_EXPORT QMetaClassInfo
 {
 public:
     inline QMetaClassInfo():mobj(0),handle(0){}
