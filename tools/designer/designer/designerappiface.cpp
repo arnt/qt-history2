@@ -300,7 +300,7 @@ DesignerFormWindowImpl::DesignerFormWindowImpl( FormWindow *fw )
 
 QString DesignerFormWindowImpl::fileName() const
 {
-    return QString::null;
+    return formWindow->fileName();
 }
 
 void DesignerFormWindowImpl::setFileName( const QString & )
@@ -637,7 +637,7 @@ void DesignerFormWindowImpl::setVariables( const QStringList &lst )
 
 void DesignerFormWindowImpl::onModificationChange( QObject *receiver, const char *slot )
 {
-    QObject::connect( formWindow, SIGNAL( modificationChanged( bool m, FormWindow * ) ), receiver, slot );
+    QObject::connect( formWindow, SIGNAL( modificationChanged( bool, FormWindow * ) ), receiver, slot );
 }
 
 
