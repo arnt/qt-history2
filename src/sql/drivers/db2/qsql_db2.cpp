@@ -333,7 +333,7 @@ static double qGetDoubleData( SQLHANDLE hStmt, int column, bool& isNull )
 
 static SQLBIGINT qGetBigIntData( SQLHANDLE hStmt, int column, bool& isNull )
 {
-    SQLBIGINT lngbuf;
+    SQLBIGINT lngbuf = Q_INT64_C( 0 );
     isNull = FALSE;
     SQLINTEGER lengthIndicator = 0;
     SQLRETURN r = SQLGetData( hStmt,
@@ -342,10 +342,8 @@ static SQLBIGINT qGetBigIntData( SQLHANDLE hStmt, int column, bool& isNull )
 			      (SQLPOINTER) &lngbuf,
 			      0,
 			      &lengthIndicator );
-    if ( ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) || lengthIndicator == SQL_NULL_DATA ) {
+    if ( ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) || lengthIndicator == SQL_NULL_DATA )
 	isNull = TRUE;
-	return 0;
-    }
 
     return lngbuf;
 }
