@@ -135,6 +135,9 @@ protected:
     bool eventFilter(QObject *, QEvent *);
 
 public slots:
+#ifdef QT_COMPAT
+    inline QT_MOC_COMPAT void toggle() { setChecked(!isChecked()); }
+#endif
     void setChecked(bool);
     void setEnabled(bool);
     inline void setDisabled(bool b) { setEnabled(!b); }
