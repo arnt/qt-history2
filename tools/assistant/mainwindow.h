@@ -25,8 +25,6 @@ public:
 
     void setupPopupMenu(QMenu *menu);
 
-    virtual bool close();
-
 public slots:
     MainWindow *newWindow();
 
@@ -65,6 +63,7 @@ private slots:
     void forwardAvailable(bool);
 
 protected:
+    void closeEvent(QCloseEvent *);
     void timerEvent(QTimerEvent *);
 
 private:

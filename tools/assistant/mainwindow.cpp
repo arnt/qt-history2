@@ -209,10 +209,10 @@ bool MainWindow::insertActionSeparator()
     return true;
 }
 
-bool MainWindow::close()
+void MainWindow::closeEvent(QCloseEvent *e)
 {
     saveSettings();
-    return QMainWindow::close();
+    e->accept();
 }
 
 void MainWindow::about()
