@@ -927,8 +927,6 @@
   QPtrStrList documentation
  *****************************************************************************/
 
-typedef QPtrList<char> QPtrStrList
-
 /*!
   \class QPtrStrList qptrstrlist.h
   \brief The QPtrStrList class provides a doubly-linked list of \c char*.
