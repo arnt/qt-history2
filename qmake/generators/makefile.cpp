@@ -68,9 +68,9 @@ static bool createDir(const QString& fullPath)
 }
 
 
-MakefileGenerator::MakefileGenerator(QMakeProject *p) : QMakeSourceFileInfo(p), init_opath_already(false),
+MakefileGenerator::MakefileGenerator(QMakeProject *p) : init_opath_already(false),
                                                         init_already(false), moc_aware(false),
-                                                        no_io(false)
+                                                        no_io(false), project(p)
 {
 }
 
@@ -187,43 +187,6 @@ MakefileGenerator::init()
         return;
     init_already = true;
 
-    QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
-    for(QStringList::Iterator it = quc.begin(); it != quc.end(); ++it) {
-        QString tmp_out = project->variables()[(*it) + ".output"].first();
-        if(tmp_out.isEmpty())
-            continue;
-        if(project->variables()[(*it) + ".CONFIG"].indexOf("combine") != -1) {
-            // Don't generate compiler output if it doesn't have input.
-            QStringList &compilerInputs = project->variables()[(*it) + ".input"];
-            if (compilerInputs.isEmpty() || project->variables()[compilerInputs.first()].isEmpty())
-                continue;
-            if(tmp_out.indexOf("$") == -1) {
-                if(project->variables().contains((*it) + ".variable_out"))
-                    project->variables()[project->variables().value((*it) + ".variable_out").first()] += tmp_out;
-                else if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1)
-                    project->variables()["OBJECTS"] += tmp_out; //auto link it in
-            }
-            continue;
-        }
-        QStringList &tmp = project->variables()[(*it) + ".input"];
-        for(QStringList::Iterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
-            QStringList &inputs = project->variables()[(*it2)];
-            for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
-                if((*input).isEmpty())
-                    continue;
-                if(QFile::exists((*input)))
-                    (*input) = fileFixify((*input));
-                QFileInfo fi(Option::fixPathToLocalOS((*input)));
-                QString in = fileFixify(Option::fixPathToTargetOS((*input), false));
-                QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString::null);
-                if(project->variables().contains((*it) + ".variable_out"))
-                    project->variables()[project->variables().value((*it) + ".variable_out").first()] += out;
-                else if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1)
-                    project->variables()["OBJECTS"] += out; //auto link it in
-            }
-        }
-    }
-
     QMap<QString, QStringList> &v = project->variables();
     QString paths[] = { QString("SOURCES"), QString("FORMS"), QString("YACCSOURCES"), QString("INCLUDEPATH"),
                         QString("HEADERS"), QString("HEADERS_ORIG"), QString("LEXSOURCES"),
@@ -301,7 +264,7 @@ MakefileGenerator::init()
                                     debug_msg(1, "%s:%d Failure to find %s in vpath (%s)",
                                               __FILE__, __LINE__,
                                               (*val_it).latin1(), vpath.join("::").latin1());
-                                    //warn_msg(WarnLogic, "Failure to find: %s", (*val_it).latin1());
+                                    warn_msg(WarnLogic, "Failure to find: %s", (*val_it).latin1());
                                     continue;
                                 } else {
                                     for(int i = 0; i < (int)d.count(); i++) {
@@ -336,6 +299,43 @@ MakefileGenerator::init()
         }
     }
 
+    //extra compilers (done here so it ends up in the variables post-fixified)
+    QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
+    for(QStringList::Iterator it = quc.begin(); it != quc.end(); ++it) {
+        QString tmp_out = project->variables()[(*it) + ".output"].first();
+        if(tmp_out.isEmpty())
+            continue;
+        if(project->variables()[(*it) + ".CONFIG"].indexOf("combine") != -1) {
+            // Don't generate compiler output if it doesn't have input.
+            QStringList &compilerInputs = project->variables()[(*it) + ".input"];
+            if (compilerInputs.isEmpty() || project->variables()[compilerInputs.first()].isEmpty())
+                continue;
+            if(tmp_out.indexOf("$") == -1) {
+                if(project->variables().contains((*it) + ".variable_out"))
+                    project->variables()[project->variables().value((*it) + ".variable_out").first()] += tmp_out;
+                else if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1)
+                    project->variables()["OBJECTS"] += tmp_out; //auto link it in
+            }
+            continue;
+        }
+        QStringList &tmp = project->variables()[(*it) + ".input"];
+        for(QStringList::Iterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
+            QStringList &inputs = project->variables()[(*it2)];
+            for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
+                if((*input).isEmpty())
+                    continue;
+                if(QFile::exists((*input)))
+                    (*input) = fileFixify((*input));
+                QFileInfo fi(Option::fixPathToLocalOS((*input)));
+                QString in = fileFixify(Option::fixPathToTargetOS((*input), false));
+                QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString::null);
+                if(project->variables().contains((*it) + ".variable_out"))
+                    project->variables()[project->variables().value((*it) + ".variable_out").first()] += out;
+                else if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1)
+                    project->variables()["OBJECTS"] += out; //auto link it in
+            }
+        }
+    }
 
     //SOURCES (as objects) get built first!
     v["OBJECTS"] = createObjectList("SOURCES") + v["OBJECTS"]; // init variables
@@ -767,20 +767,6 @@ MakefileGenerator::usePlatformDir()
 }
 
 void
-MakefileGenerator::writeHdr(QTextStream &t, const QString &hdr)
-{
-    QStringList &hdrl = project->variables()[hdr];
-    QStringList::Iterator oit = hdrl.begin();
-    for (; oit != hdrl.end(); ++oit) {
-        QStringList deps = findDependencies((*oit));
-        if (deps.isEmpty())
-            continue;
-
-        t << (*oit) << ": " << deps.join(" \\\n\t\t") << "\n";
-    }
-}
-
-void
 MakefileGenerator::writeObj(QTextStream &t, const QString &obj, const QString &src)
 {
     QStringList &objl = project->variables()[obj];
@@ -881,6 +867,8 @@ MakefileGenerator::writeMocSrc(QTextStream &t, const QString &src)
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
         QString m = QMakeSourceFileInfo::mocFile(*it);
         if(!m.isEmpty()) {
+            if(!m.endsWith(Option::cpp_moc_ext)) 
+                t << (*it) << ": " << valList(findDependencies((*it))) << endl;
             QString deps;
             if(!project->isActiveConfig("no_mocdepend"))
                 deps += "$(MOC) ";
@@ -1299,9 +1287,9 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                 t << "\n\t" << tmp_clean_cmds;
                 wrote_clean_cmds = true;
             }
-            if(tmp_clean.isEmpty()) {
+            if(tmp_clean.isEmpty())
                 tmp_clean = tmp_out;
-            } else if(tmp_clean.indexOf("${QMAKE_") == -1) {
+            if(tmp_clean.indexOf("${QMAKE_") == -1) {
                 t << "\n\t" << "-$(DEL_FILE) " << tmp_clean;
                 wrote_clean = true;
             }
@@ -1329,15 +1317,17 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                          (*it).latin1());
                 continue;
             }
-            QString inputs;
+            QString inputs, deps;
             for(QStringList::ConstIterator it2 = tmp_inputs.begin(); it2 != tmp_inputs.end(); ++it2) {
                 const QStringList &tmp = project->variables()[(*it2)];
-                for(QStringList::ConstIterator input = tmp.begin(); input != tmp.end(); ++input)
+                for(QStringList::ConstIterator input = tmp.begin(); input != tmp.end(); ++input) {
+                    deps += " " + findDependencies((*input)).join(" ");
                     inputs += " " + Option::fixPathToTargetOS((*input), false);
+                }
             }
             if (inputs.isEmpty())
                 continue;
-            QString cmd = replaceExtraCompilerVariables(tmp_cmd, QString::null, tmp_out), deps;
+            QString cmd = replaceExtraCompilerVariables(tmp_cmd, QString::null, tmp_out);
             if(!tmp_dep.isEmpty())
                 deps = " " + tmp_dep;
             if(!tmp_dep_cmd.isEmpty() && doDepends()) {
@@ -1367,7 +1357,8 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
         for(QStringList::ConstIterator it2 = tmp_inputs.begin(); it2 != tmp_inputs.end(); ++it2) {
             const QStringList &tmp = project->variables()[(*it2)];
             for(QStringList::ConstIterator input = tmp.begin(); input != tmp.end(); ++input) {
-                QString in = Option::fixPathToTargetOS((*input), false), deps;
+                QString in = Option::fixPathToTargetOS((*input), false), 
+                      deps = " " + findDependencies((*input)).join(" ");
                 if(!tmp_dep.isEmpty())
                     deps = " " + tmp_dep;
                 QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString::null);
@@ -1450,7 +1441,6 @@ MakefileGenerator::writeMakefile(QTextStream &t)
     t << "####### Compile" << endl << endl;
     writeObj(t, "OBJECTS", "SOURCES");
     writeMocObj(t, "OBJMOC", "SRCMOC");
-    writeHdr(t, "HEADERS");
     writeMocSrc(t, "HEADERS");
     writeMocSrc(t, "SOURCES");
     writeYaccSrc(t, "YACCSOURCES");
@@ -2012,7 +2002,7 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &f
                     QStringList &inputs = project->variables()[(*it2)];
                     for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
                         QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString::null);
-                        if(out.endsWith(file.real())) {
+                        if(out == file.real() || out.endsWith("/" + file.real())) {
                             ret = QMakeLocalFileName(out);
                             goto found_dep_from_heuristic;
                         }
