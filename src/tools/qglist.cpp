@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#3 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#4 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qglist.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qglist.cpp#4 $";
 #endif
 
 
@@ -167,7 +167,7 @@ bool QGList::inSort( GCI d )			// add sorted in list
 	n = n->next;
 	index++;
     }
-    return insertAt( d, index );
+    return insertAt( index, d );
 }
 
 bool QGList::append( GCI d )			// add at list tail
@@ -188,7 +188,7 @@ bool QGList::append( GCI d )			// add at list tail
     return TRUE;
 }
 
-bool QGList::insertAt( GCI d, uint index )	// add at i'th position
+bool QGList::insertAt( uint index, GCI d )	// add at i'th position
 {
     if ( index == 0 )				// insert at head of list
 	return insert( d );
@@ -271,11 +271,33 @@ bool QGList::remove( GCI d )			// remove one item
     return TRUE;
 }
 
+bool QGList::removeAt( uint index )		// remove at i'th position
+{
+    if ( !locate(index) )
+	return FALSE;
+    Qdnode *n = unlink();			// unlink node
+    if ( !n )
+	return FALSE;
+    deleteItem( n->getData() );			// deallocate this node
+    delete n;
+    return TRUE;
+}
+
 GCI QGList::take()				// take current item out
 {
     Qdnode *n = unlink();			// unlink node
     GCI d = n ? n->getData() : 0;
-    delete n;
+    delete n;					// delete node, keep contents
+    return d;
+}
+
+GCI QGList::takeAt( uint index )		// take at i'th item
+{
+    if ( !locate(index) )
+	return 0;
+    Qdnode *n = unlink();			// unlink node
+    GCI d = n ? n->getData() : 0;
+    delete n;					// delete node, keep contents
     return d;
 }
 

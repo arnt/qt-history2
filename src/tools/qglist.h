@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.h#4 $
+** $Id: //depot/qt/main/src/tools/qglist.h#5 $
 **
 ** Definition of QGList and QGListIterator classes
 **
@@ -58,11 +58,13 @@ protected:
     bool  insert( GCI );			// add item at start of list
     bool  inSort( GCI );			// add item sorted in list
     bool  append( GCI );			// add item at end of list
-    bool  insertAt( GCI, uint index );		// add item at i'th position
+    bool  insertAt( uint index, GCI );		// add item at i'th position
     bool  remove( GCI = 0 );			// remove one item (0=current)
     bool  removeFirst();			// remove first item
     bool  removeLast();				// remove last item
+    bool  removeAt( uint index );		// remove item at i'th position
     GCI	  take();				// take out current item
+    GCI	  takeAt( uint index );			// take out item at i'th pos
     GCI	  takeFirst();				// take out first item
     GCI	  takeLast();				// take out last item
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlist.h#4 $
+** $Id: //depot/qt/main/src/tools/qlist.h#5 $
 **
 ** Definition of QList template/macro class
 **
@@ -42,22 +42,24 @@ public:									      \
 			{ return (QListM(type)&)QGList::operator=(l); }	      \
     uint  count()   const		{ return QGList::count(); }	      \
     bool  isEmpty() const		{ return QGList::count() == 0; }      \
-    bool  insert( const type *d )	{ return QGList::insert(GCI(d)); }    \
-    bool  inSort( const type *d )	{ return QGList::inSort(GCI(d)); }    \
-    bool  append( const type *d )	{ return QGList::append(GCI(d)); }    \
-    bool  insertAt( const type *d, uint i )				      \
-					{ return QGList::insertAt((GCI)d,i);} \
-    bool  remove( const type *d=0 )	{ return QGList::remove(GCI(d)); }    \
+    bool  insert( uint i, const type *d){ return QGList::insertAt(i,(GCI)d); }\
+    bool  insert( const type *d )	{ return QGList::insert((GCI)d); }    \
+    bool  inSort( const type *d )	{ return QGList::inSort((GCI)d); }    \
+    bool  append( const type *d )	{ return QGList::append((GCI)d); }    \
+    bool  remove( uint i )		{ return QGList::removeAt(i); }	      \
+    bool  remove()			{ return QGList::remove((GCI)0); }    \
+    bool  remove( const type *d )	{ return QGList::remove((GCI)d); }    \
     bool  removeFirst()			{ return QGList::removeFirst(); }     \
     bool  removeLast()			{ return QGList::removeLast(); }      \
+    type *take( uint i )		{ return (type *)QGList::takeAt(i); } \
     type *take()			{ return (type *)QGList::take(); }    \
     void  clear()			{ QGList::clear(); }		      \
-    int	  find( const type *d )		{ return QGList::find(GCI(d)); }      \
+    int	  find( const type *d )		{ return QGList::find((GCI)d); }      \
     int	  findNext( const type *d )	{ return QGList::find((GCI)d,FALSE);} \
-    int	  findRef( const type *d )	{ return QGList::findRef(GCI(d)); }   \
+    int	  findRef( const type *d )	{ return QGList::findRef((GCI)d); }   \
     int	  findNextRef( const type *d ){ return QGList::findRef((GCI)d,FALSE);}\
-    uint  contains( const type *d )	{ return QGList::contains(GCI(d)); }  \
-    uint  containsRef( const type *d )	{ return QGList::containsRef(GCI(d));}\
+    uint  contains( const type *d )	{ return QGList::contains((GCI)d); }  \
+    uint  containsRef( const type *d )	{ return QGList::containsRef((GCI)d);}\
     type *at( uint i )			{ return (type *)QGList::at(i); }     \
     uint  at() const			{ return QGList::at(); }	      \
 	  operator type *() const	{ return (type *)QGList::get(); }     \
@@ -121,22 +123,24 @@ public:
 			{ return (QListT<type>&)QGList::operator=(l); }
     uint  count()   const		{ return QGList::count(); }
     bool  isEmpty() const		{ return QGList::count() == 0; }
-    bool  insert( const type *d )	{ return QGList::insert(GCI(d)); }
-    bool  inSort( const type *d )	{ return QGList::inSort(GCI(d)); }
-    bool  append( const type *d )	{ return QGList::append(GCI(d)); }
-    bool  insertAt( const type *d, uint i )
-					{ return QGList::insertAt((GCI)d,i); }
-    bool  remove( const type *d=0 )	{ return QGList::remove(GCI(d)); }
+    bool  insert( uint i, const type *d){ return QGList::insertAt(i,(GCI)d); }
+    bool  insert( const type *d )	{ return QGList::insert((GCI)d); }
+    bool  inSort( const type *d )	{ return QGList::inSort((GCI)d); }
+    bool  append( const type *d )	{ return QGList::append((GCI)d); }
+    bool  remove( uint i )		{ return QGList::removeAt(i); }
+    bool  remove()			{ return QGList::remove((GCI)0); }
+    bool  remove( const type *d )	{ return QGList::remove((GCI)d); }
     bool  removeFirst()			{ return QGList::removeFirst(); }
     bool  removeLast()			{ return QGList::removeLast(); }
+    type *take( uint i )		{ return (type *)QGList::takeAt(i); }
     type *take()			{ return (type *)QGList::take(); }
     void  clear()			{ QGList::clear(); }
-    int	  find( const type *d )		{ return QGList::find(GCI(d)); }
+    int	  find( const type *d )		{ return QGList::find((GCI)d); }
     int	  findNext( const type *d )	{ return QGList::find((GCI)d,FALSE); }
-    int	  findRef( const type *d )	{ return QGList::findRef(GCI(d)); }
+    int	  findRef( const type *d )	{ return QGList::findRef((GCI)d); }
     int	  findNextRef( const type *d ){ return QGList::findRef((GCI)d,FALSE); }
-    uint  contains( const type *d )	{ return QGList::contains(GCI(d)); }
-    uint  containsRef( const type *d )	{ return QGList::containsRef(GCI(d)); }
+    uint  contains( const type *d )	{ return QGList::contains((GCI)d); }
+    uint  containsRef( const type *d )	{ return QGList::containsRef((GCI)d); }
     type *at( uint i )			{ return (type *)QGList::at(i); }
     uint  at() const			{ return QGList::at(); }
 	  operator type *() const	{ return (type *)QGList::get(); }
