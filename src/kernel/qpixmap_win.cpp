@@ -122,7 +122,6 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     data->bitmap = bitmap;
     data->ser_no = ++serial;
     data->optim	 = optim;
-    data->hasRealAlpha = FALSE;
     data->realAlphaBits = 0;
 
     bool make_null = w == 0 || h == 0;		// create null pixmap
@@ -377,7 +376,7 @@ QImage QPixmap::convertToImage() const
     int	h = height();
     int	d = depth();
     int	ncols = 2;
-    const QBitmap *m = data->hasRealAlpha ? 0 : mask();
+    const QBitmap *m = data->realAlphaBits ? 0 : mask();
 
     if ( d > 1 && d <= 8 || d == 1 && m ) {	// set to nearest valid depth
 	d = 8;					//   2..7 ==> 8
@@ -388,6 +387,27 @@ QImage QPixmap::convertToImage() const
     }
 
     QImage image( w, h, d, ncols, QImage::BigEndian );
+#ifndef Q_OS_TEMP
+    if ( data->realAlphaBits ) {
+	GdiFlush();
+	memcpy( image.bits(), data->realAlphaBits, image.numBytes() );
+
+	// Windows has premultiplied alpha, so revert it
+	image.setAlphaBuffer( TRUE );
+	int l = image.numBytes();
+	uchar *b = image.bits();
+	// ### is it right to assume that we have 32bpp?
+	for ( int i=0; i+3<l; i+=4 ) {
+	    if ( b[i+3] != 0 ) {
+		b[i]   = ((int)b[i]  *255)/b[i+3];
+		b[i+1] = ((int)b[i+1]*255)/b[i+3];
+		b[i+2] = ((int)b[i+2]*255)/b[i+3];
+	    }
+	}
+	return image;
+    }
+#endif
+
     int	  bmi_data_len = sizeof(BITMAPINFO)+sizeof(RGBQUAD)*ncols;
     char *bmi_data = new char[bmi_data_len];
     memset( bmi_data, 0, bmi_data_len );
@@ -408,27 +428,8 @@ QImage QPixmap::convertToImage() const
     if ( mcp )					// disable multi cell
 	((QPixmap*)this)->freeCell();
 #ifndef Q_OS_TEMP
-    if ( data->hasRealAlpha ) {
-	GdiFlush();
-	memcpy( image.bits(), data->realAlphaBits, image.numBytes() );
-    } else {
-	GetDIBits( qt_display_dc(), DATA_HBM, 0, h, image.bits(), bmi, DIB_RGB_COLORS );
-    }
+    GetDIBits( qt_display_dc(), DATA_HBM, 0, h, image.bits(), bmi, DIB_RGB_COLORS );
 #endif
-    if ( data->hasRealAlpha ) {
-	// Windows has premultiplied alpha, so revert it
-	image.setAlphaBuffer( TRUE );
-	int l = image.numBytes();
-	uchar *b = image.bits();
-	// ### is it right to assume that we have 32bpp?
-	for ( int i=0; i+3<l; i+=4 ) {
-	    if ( b[i+3] != 0 ) {
-		b[i]   = ((int)b[i]  *255)/b[i+3];
-		b[i+1] = ((int)b[i+1]*255)/b[i+3];
-		b[i+2] = ((int)b[i+2]*255)/b[i+3];
-	    }
-	}
-    }
 
     if ( mcp )
 	((QPixmap*)this)->allocCell();
@@ -621,16 +622,13 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 #ifndef Q_OS_TEMP
 #  if 0
     // ### use this if you encounter problems related alpha blending:
-    data->hasRealAlpha = FALSE;
+    if ( FALSE ) {
 #  else
-    data->hasRealAlpha =
-	img.hasAlphaBuffer() &&
-	d==32 && // ### can we have alpha channel with depth<32bpp?
-	( QApplication::winVersion() != Qt::WV_95 &&
-	  QApplication::winVersion() != Qt::WV_NT );
+    if ( img.hasAlphaBuffer() &&
+	    d==32 && // ### can we have alpha channel with depth<32bpp?
+	    ( QApplication::winVersion() != Qt::WV_95 &&
+	      QApplication::winVersion() != Qt::WV_NT ) ) {
 #  endif
-
-    if ( data->hasRealAlpha ) {
 	// Windows expects premultiplied alpha
 	int l = image.numBytes();
 	uchar *b;
@@ -654,17 +652,15 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    DATA_HBM = (HBITMAP)SelectObject( dc, hBitmap );
 	    data->realAlphaBits = b;
 	} else {
-	    data->hasRealAlpha = FALSE;
 	    data->realAlphaBits = 0;
 	}
 	DeleteObject( hBitmap );
     }
 #else
-    data->hasRealAlpha = FALSE;
     data->realAlphaBits = 0;
 #endif
 
-    if ( !data->hasRealAlpha ) {
+    if ( data->realAlphaBits == 0 ) {
 #ifndef Q_OS_TEMP
 	if ( dc )
 	    StretchDIBits( dc, 0, sy, w, h, 0, 0, w, h,
@@ -838,7 +834,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	((QPixmap*)this)->freeCell();
 #ifndef Q_OS_TEMP
     int result;
-    if ( data->hasRealAlpha ) {
+    if ( data->realAlphaBits ) {
 	GdiFlush();
 	memcpy( sptr, data->realAlphaBits, sbpl*hs );
 	result = 1;
@@ -881,6 +877,9 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	qWarning( "QPixmap::xForm: display not supported (bpp=%d)",bpp);
 #endif
 	QPixmap pm;
+	delete [] sptr;
+	delete [] bmi_data;
+	delete [] dptr;
 	return pm;
     }
 
@@ -901,8 +900,11 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     bmh->biHeight = -h;
     bmh->biSizeImage = dbytes;
 #ifndef Q_OS_TEMP
-    SetDIBitsToDevice( pm_dc, 0, pm_sy, w, h, 0, 0, 0, h,
-		       dptr, bmi, DIB_RGB_COLORS );
+    if ( data->realAlphaBits ) {
+	// ### implement me
+    } else {
+	SetDIBitsToDevice( pm_dc, 0, pm_sy, w, h, 0, 0, 0, h, dptr, bmi, DIB_RGB_COLORS );
+    }
 #else
     void *ppvBits;
     HDC hdcSrc = CreateCompatibleDC( pm.handle() );
@@ -1236,6 +1238,6 @@ Q_EXPORT void qt_mcp_debugger()
 
 bool QPixmap::hasAlpha() const
 {
-    return data->hasRealAlpha || data->mask;
+    return data->realAlphaBits || data->mask;
 }
 

@@ -384,7 +384,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     Q_ASSERT( src_dc && dst_dc );
 #endif
 
-    if ( src_pm && src_pm->data->hasRealAlpha ) {
+    if ( src_pm && src_pm->data->realAlphaBits ) {
 	qt_AlphaBlend( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
     } else if ( mask ) {
 	if ( src_pm->data->selfmask ) {
