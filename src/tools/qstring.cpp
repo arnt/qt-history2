@@ -4452,7 +4452,6 @@ QString QString::multiArg(int numArgs, const QString& a1, const QString& a2,
     const QString *args[4];
     const int len = d->size;
     const int end = len - 1;
-    int digits[4];
     int lastDigit = -1;
     int i;
 
@@ -4482,7 +4481,6 @@ QString QString::multiArg(int numArgs, const QString& a1, const QString& a2,
 	    lastDigit = 9;
 	    break;
 	}
-	digits[i] = lastDigit;
 	argForDigit[lastDigit] = i;
     }
 
