@@ -2186,7 +2186,7 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
 //
 
 static QString gen_text_bitmap_key( const QWMatrix &m, const QFont &font,
-				    const QString &str, int len )
+				    const QString &str, int pos, int len )
 {
     QString fk = font.key();
     int sz = 4*2 + len*2 + fk.length()*2 + sizeof(double)*6;
@@ -2206,7 +2206,7 @@ static QString gen_text_bitmap_key( const QWMatrix &m, const QFont &font,
     *((QChar*)p)=h2;  p+=2;
     *((QChar*)p)=h3;  p+=2;
     *((QChar*)p)=h4;  p+=2;
-    memcpy( (char*)p, (char*)str.unicode(), len*2 );  p += len*2;
+    memcpy( (char*)p, (char*)(str.unicode()+pos), len*2 );  p += len*2;
     memcpy( (char*)p, (char*)fk.unicode(), fk.length()*2 ); p += fk.length()*2;
     return QString( (QChar*)buf.data(), buf.size()/2 );
 }
@@ -2282,8 +2282,10 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	}
 	if ( force_bitmap || (txop >= TxScale && !nat_xf) ) {
 	    // Draw rotated and sheared text on Windows 95, 98
+	    QConstString csubstr( str.unicode()+pos, len );
+	    QString substr = csubstr.string();
 	    const QFontMetrics &fm = fontMetrics();
-	    QRect bbox = fm.boundingRect( str, len );
+	    QRect bbox = fm.boundingRect( substr, len );
 	    int w=bbox.width(), h=bbox.height();
 	    int aw, ah;
 	    int tx=-bbox.x(),  ty=-bbox.y();    // text position
@@ -2296,7 +2298,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	    newSize = QMAX( 6, QMIN( newSize, 256 ) ); // empirical values
 	    dfont.setPixelSize( newSize );
 	    QFontMetrics fm2( dfont );
-	    QRect abbox = fm2.boundingRect( str, len );
+	    QRect abbox = fm2.boundingRect( substr, len );
 	    aw = abbox.width();
 	    ah = abbox.height();
 	    tx = -abbox.x();
@@ -2306,7 +2308,7 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	    double rx = (double)w / (double)aw;
 	    double ry = (double)h / (double)ah;
 	    QWMatrix mat2 = QPixmap::trueMatrix( QWMatrix( rx, 0, 0, ry, 0, 0 )*mat1, aw, ah );
-	    QString bm_key = gen_text_bitmap_key( mat2, dfont, str, len );
+	    QString bm_key = gen_text_bitmap_key( mat2, dfont, str, pos, len );
 	    QBitmap *wx_bm = get_text_bitmap( bm_key );
 	    bool create_new_bm = wx_bm == 0;
 	    if ( create_new_bm ) { 	        // no such cached bitmap
