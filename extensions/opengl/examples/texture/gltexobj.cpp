@@ -123,14 +123,14 @@ void GLTexobj::initializeGL()
 	img2 = img2.convertDepth( 32 ).mirror().swapRGB();	// as above
     }
 
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-    glEnable(GL_TEXTURE_2D);
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+    glEnable( GL_TEXTURE_2D );
 
     // Set up various other stuff
 
     glClearColor( 0.0, 0.0, 0.0, 0.0 ); // Let OpenGL clear to black
-    glEnable(GL_CULL_FACE);  	// don't need Z testing for convex objects
+    glEnable( GL_CULL_FACE );  	// don't need Z testing for convex objects
     glHint( GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST );
 
     // Make the object display list
@@ -164,32 +164,30 @@ GLuint GLTexobj::makeObject( const QImage& tex1, const QImage& tex2 )
 {
     GLUquadricObj* q = gluNewQuadric();
     GLuint cylinderObj = glGenLists(1);
-    glNewList(cylinderObj, GL_COMPILE);
+    glNewList( cylinderObj, GL_COMPILE );
 
-    glTranslatef(0.0, 0.0, -1.0);
+    glTranslatef( 0.0, 0.0, -1.0 );
 
     // cylinder
-
     glTexImage2D( GL_TEXTURE_2D, 0, 3, tex1.width(), tex1.height(), 0,
 		  GL_RGBA, GL_UNSIGNED_BYTE, tex1.bits() );
-    gluQuadricNormals(q, GL_SMOOTH);
-    gluQuadricTexture(q, GL_TRUE);
+    gluQuadricNormals( q, GLU_SMOOTH );
+    gluQuadricTexture( q, GL_TRUE );
     gluCylinder(q, 0.6, 0.6, 2.0, 24, 1);
 
     // end cap
-
     glTexImage2D( GL_TEXTURE_2D, 0, 3, tex2.width(), tex2.height(), 0,
 		  GL_RGBA, GL_UNSIGNED_BYTE, tex2.bits() );
-    glTranslatef(0.0, 0.0, 2.0);
-    gluDisk(q, 0.0, 0.6, 24, 1);
+    glTranslatef( 0.0, 0.0, 2.0 );
+    gluDisk( q, 0.0, 0.6, 24, 1 );
 
     // other end cap
-    glTranslatef(0.0, 0.0, -2.0);
-    gluQuadricOrientation(q, (GLenum)GLU_INSIDE);
-    gluDisk(q, 0.0, 0.6, 24, 1);
+    glTranslatef( 0.0, 0.0, -2.0 );
+    gluQuadricOrientation( q, (GLenum)GLU_INSIDE );
+    gluDisk( q, 0.0, 0.6, 24, 1 );
 
     glEndList();
-    gluDeleteQuadric(q);
+    gluDeleteQuadric( q );
 
     return cylinderObj;
 }
