@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#83 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#84 $
 **
 ** Implementation of QPixmap class
 **
@@ -619,7 +619,7 @@ bool QPixmap::loadFromData( QByteArray data,
 			      const char *format,
 			      int conversion_flags )
 {
-    loadFromData( (const uchar *)(data.data()), data.size(),
+    return loadFromData( (const uchar *)(data.data()), data.size(),
 	format, conversion_flags );
 }
 
