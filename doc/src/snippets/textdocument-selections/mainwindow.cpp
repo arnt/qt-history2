@@ -57,7 +57,7 @@ void MainWindow::openFile()
             QFile file(fileName);
             
             if (file.open(QFile::ReadOnly)) {
-                editor->setHtml(file.readAll());
+                editor->setHtml(QString(file.readAll()));
                 file.close();
                 currentFile = fileName;
             }
