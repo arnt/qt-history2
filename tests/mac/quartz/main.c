@@ -1,92 +1,76 @@
 #include <Carbon.h>
-#include <stdlib.h>				// defines rand() function
-#define ITERATIONS 10000
-#define RECT_WIDTH 20 //(rand() % (r.right - r.left))
-#define RECT_HEIGHT 20 //(rand() % (r.bottom - r.top))
 
-//#define DO_CLIP
-#define DO_LINES_TEST
-//#define DO_RECT_TEST
+Boolean DoEvent(EventRecord *event)
+{
+    short part;
+    Boolean hit;
+    Rect tempRect;
+    WindowRef whichWindow;
 
+    switch(event->what)
+    {
+    case mouseDown:
+	part = FindWindow(event->where, &whichWindow);
+	switch(part)
+	{
+	case inContent:
+	    if(whichWindow != FrontWindow())
+		SelectWindow(whichWindow);
+	    break;
+	case inDrag:
+	    GetRegionBounds(GetGrayRgn(), &tempRect);
+	    DragWindow(whichWindow, event->where, &tempRect);
+	    break;
+	case inGoAway:
+	    DisposeWindow(whichWindow);
+	    ExitToShell();
+	    return true;
+	case inZoomIn:
+	case inZoomOut:
+	    hit = TrackBox(whichWindow, event->where, part);
+	    if(hit) {
+		SetPort(GetWindowPort(whichWindow));
+		EraseRect(GetWindowPortBounds(whichWindow, &tempRect));
+		ZoomWindow(whichWindow, part, true);
+		InvalWindowRect(whichWindow, GetWindowPortBounds(whichWindow, &tempRect));
+	    }
+	    break;
+	}
+	break;
+    }
+    return false;
+}
+
+void EventLoop()
+{
+    Boolean	gotEvent, done=false;
+    EventRecord event;
+    do {
+	gotEvent = WaitNextEvent(everyEvent,&event,32767,nil);
+	if (gotEvent)
+	    done = DoEvent(&event);
+    } while (!done);
+    ExitToShell();
+}
 
 int
-main(int argc, char **argv)
+main()
 {
-    CGContextRef ctx = NULL;
-    int x, y, i, t, w, h;
-    RGBColor c = { 0, 0, 0 };
     WindowRef window;
-    Rect r, r3;
+    Rect r;
+    CGContextRef ctx = NULL;
     CGRect r2;
-#ifdef DO_CLIP    
-    RgnHandle rgn = NewRgn();
-
-    OpenRgn();
-    SetRect(&r, 20, 20, 300, 300);
-    FrameOval(&r);
-    CloseRgn(rgn);
-#endif    
-
-    SetRect(&r, 50, 50, 900, 900);
+    
+    SetRect(&r, 50, 50, 400, 400);
     CreateNewWindow(kDocumentWindowClass, kWindowStandardDocumentAttributes, &r, &window);
     ShowWindow(window);
 
-    if(argc == 2) {     //slower?
-	SetPortWindowPort(window);
-#ifdef DO_CLIP	
-	SetClip( rgn );
-#endif	
-	RGBForeColor( &c );
+    CreateCGContextForPort(GetWindowPort(window), &ctx);
+    r2 = CGRectMake(0, 0, 50, 50);
+    CGContextClearRect(ctx, r2);
+    CGContextFlush(ctx);
 
-	t = time(NULL);
-	for(i = 0; i < ITERATIONS; i++) {
-	    x = rand() % (r.right - r.left);
-	    y = rand() % (r.bottom - r.top);
-#ifdef DO_RECT_TEST	    
-	    SetRect(&r3, x, y, x+(RECT_WIDTH), y+RECT_HEIGHT);
-	    PaintRect(&r3);
-#elif defined(DO_LINES_TEST)
-	    w = rand() % (r.right - r.left);
-	    h = rand() % (r.bottom - r.top);
-	    MoveTo(x, y);
-	    LineTo(w, h);
-#endif	    
-	}
-	printf("Took %d\n", time(NULL) - t);
-
-    } else {  //faster?!
-	CreateCGContextForPort(GetWindowPort(window), &ctx);
-//	CGContextSetShouldAntialias(ctx, 0 );
-#ifdef DO_CLIP		
-	ClipCGContextToRegion( ctx, &r, rgn );
-#endif	
-	
-	t = time(NULL);
-	for(i = 0; i < ITERATIONS; i++) {
-	    x = rand() % (r.right - r.left);
-	    y = rand() % (r.bottom - r.top);
-#ifdef DO_RECT_TEST	    
-	    r2 = CGRectMake(x, y, (RECT_WIDTH), (RECT_HEIGHT));
-	    CGContextBeginPath(ctx);
-	    CGContextAddRect( ctx, r2 );
-	    CGContextFillPath( ctx );
-#elif defined(DO_LINES_TEST)
-	    w = rand() % (r.right - r.left);
-	    h = rand() % (r.bottom - r.top);
-	    CGContextBeginPath(ctx);
-	    CGContextMoveToPoint(ctx, x, y);
-	    CGContextAddLineToPoint(ctx, w, h);
-	    CGContextStrokePath(ctx);
-#endif	    
-	}
-	printf("Took %d\n", time(NULL) - t);
-	CGContextFlush(ctx);
-	CGContextRelease(ctx);
-    }
-
-    QDFlushPortBuffer(GetWindowPort(window), NULL);
-    while(1); //let me see..
+    EventLoop(); //let me see..
     return 1;
 }
 	
-
