@@ -381,7 +381,8 @@ master application by constructing the QApplication object with the
 This document assumes you have the Linux framebuffer configured correctly
 and no master process is running.  If you do not have a working Linux
 framebuffer you can use the
-<a href="qvfb-qws.html">Qt/Embedded virtual framebuffer</a>.
+<a href="qvfb-qws.html">Qt/Embedded virtual framebuffer</a>, or you can
+run Qt/Embedded as a <a href="vnc-qws.html">VNC server</a>.
 <p>
 Change to a Linux console and select an example to run, e.g. examples/widgets.
 Make sure $QTDIR is set to the directory where you installed Qt/Embedded
@@ -629,4 +630,28 @@ void operator delete(void* p, size_t size)
     free(p);
 }
 \endcode
+*/
+
+/*! \page vnc-qws.html
+\title Qt/Embedded as a VNC Server
+
+The <a href=http://www.uk.research.att.com/vnc/>VNC</a> protocol allows you to view
+and interact with the computer's display from anywhere on the network.
+
+To use Qt/Embedded in this way, <tt>configure</tt> Qt with the <tt>-vnc</tt> option,
+and ensure you also enable 16-bit display support. Run your application via:
+\code
+  application -display VNC:0
+\endcode
+then, run a VNC client pointed at the machine that is running your application. For
+example, using the X11 VNC client to view the application from the same machine:
+\code
+  vncviewer localhost:0
+\endcode
+
+VNC clients are available for a vast array of display systems - X11, Windows, Amiga,
+DOS, VMS, and dozens of others.
+
+You should also be aware of the <a href=qvfb-qws.html>Qt Virtual Framebuffer</a> as
+an alternative technique.
 */
