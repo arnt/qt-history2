@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#84 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#85 $
 **
 ** Global type declarations and definitions
 **
@@ -135,6 +135,10 @@
 #define _CC_HP_
 #else
 #error "Qt has not been tested with this compiler - talk to qt-bugs@troll.no"
+#endif
+
+#if defined(_CC_COMEAU_)
+#define Q_C_CALLBACKS
 #endif
 
 
