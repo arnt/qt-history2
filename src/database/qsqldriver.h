@@ -18,7 +18,7 @@ class QSqlDriver : public QObject
     Q_OBJECT
 public:
     QSqlDriver( QObject * parent=0, const char * name=0 );
-    virtual ~QSqlDriver();
+    ~QSqlDriver();
     virtual QSql    query( const QString & sqlquery ) const;
     bool 	    isOpen() const;
     bool 	    isOpenError() const;

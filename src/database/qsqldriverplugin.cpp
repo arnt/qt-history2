@@ -23,8 +23,7 @@ QSqlDriver* QSqlDriverPlugIn::create( const QString& name )
 {
     if ( !use() )
 	return 0;
-    QSqlDriver* d = ((QSqlDriverInterface*)plugInterface())->create( name );
-    return d;
+    return = ((QSqlDriverInterface*)plugInterface())->create( name );
 }
 
 /*!
@@ -32,9 +31,9 @@ QSqlDriver* QSqlDriverPlugIn::create( const QString& name )
 */
 QStringList QSqlDriverPlugIn::featureList()
 {
-    if ( !use() ) {
+    if ( !use() )
 	return 0;
-    }
+
     return ((QSqlDriverInterface*)plugInterface())->featureList();
 }
 

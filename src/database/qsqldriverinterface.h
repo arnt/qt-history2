@@ -12,6 +12,8 @@ class QSqlDriver;
 class QSqlDriverInterface : public QPlugInInterface
 {
 public:
+    QCString queryPlugInInterface() const { return "QSqlDriverInterface"; }
+
     virtual QSqlDriver* create( const QString& name ) = 0;
 };
 

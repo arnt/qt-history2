@@ -3,20 +3,11 @@
 #include <qstringlist.h>
 #include <qapplication.h>
 
-#ifdef _WS_WIN_
-#undef LIBEXPORT
-#define LIBEXPORT __declspec(dllexport)
-#else
-#define LIBEXPORT
-#endif
-
 class QODBCDriverInterface : public QSqlDriverInterface
 {
 public:
     QODBCDriverInterface(){}
     ~QODBCDriverInterface(){}
-
-    QCString queryPlugInInterface() const { return "QSqlDriverInterface"; }
 
     QSqlDriver* create( const QString &name );
     QStringList featureList();
@@ -38,17 +29,4 @@ QStringList QODBCDriverInterface::featureList()
     return l;
 }
 
-#if defined(__cplusplus )
-extern "C"
-{
-#endif
-
-LIBEXPORT QSqlDriverInterface* loadInterface()
-{
-    return new QODBCDriverInterface();
-}
-
-#if defined(__cplusplus)
-}
-#endif // __cplusplus
-
+Q_EXPORT_INTERFACE(QSqlDriverInterface, QODBCDriverInterface)
