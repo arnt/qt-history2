@@ -908,10 +908,9 @@ bool QDataTable::insertCurrent()
 	} else {
 	    endInsert();
 	    refresh();
-	    QSqlIndex idx = sqlCursor()->primaryIndex( TRUE );
+	    QSqlIndex idx = sqlCursor()->primaryIndex();
 	    findBuffer( idx, d->lastAt );
 	    emit cursorChanged( QSql::Insert );
-	    setCurrentCell( currentRow(), currentColumn() );
 	}
 	break;
     }
@@ -987,8 +986,8 @@ bool QDataTable::updateCurrent()
 		setEditMode( Editing, d->editRow, d->editCol );
 	} else {
 	    emit cursorChanged( QSql::Update );
-	    QSqlIndex idx = sqlCursor()->primaryIndex( TRUE );
 	    refresh();
+	    QSqlIndex idx = sqlCursor()->primaryIndex();
 	    findBuffer( idx, d->lastAt );
 	    endUpdate();
 	}
