@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#33 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#34 $
 **
 ** Implementation of QDir class
 **
@@ -28,7 +28,7 @@
 #define chdir _chdir2
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#33 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#34 $");
 
 
 #if defined(_OS_FATFS_)
@@ -1294,7 +1294,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
     bool doHidden   = (filterSpec & Hidden)	!= 0;
 #if !defined(UNIX)
     // show hidden files if the user asks explicitly for e.g. .*
-    if ( !doHidden && nameFilter[0] == '.' )
+    if ( !doHidden && !nameFilter.isEmpty() && nameFilter[0] == '.' )
 	doHidden = TRUE;
     bool doModified = (filterSpec & Modified)	!= 0;
     bool doSystem   = (filterSpec & System)	!= 0;
@@ -1473,9 +1473,6 @@ bool QDir::readDirEntries( const QString &nameFilter,
 #endif
 	return FALSE;
     }
-
-    if ( !nameFilter.isEmpty() && nameFilter[0] == '.' )
-	filterSpec |= Hidden;
 
     while ( (file = readdir(dir)) ) {
 	fi.setFile( *this, file->d_name );
