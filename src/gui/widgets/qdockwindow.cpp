@@ -391,6 +391,9 @@ void QDockWindowTitle::updateButtons()
             connect(floatButton, SIGNAL(clicked()), SLOT(toggleFloated()));
 
             box->insertWidget(1, floatButton);
+
+            if (dockwindow->isShown())
+                floatButton->show();
         }
     } else {
         delete floatButton;
@@ -404,6 +407,9 @@ void QDockWindowTitle::updateButtons()
             connect(closeButton, SIGNAL(clicked()), dockwindow, SLOT(close()));
 
             box->insertWidget(2, closeButton);
+
+            if (dockwindow->isShown())
+                closeButton->show();
         }
     } else {
         delete closeButton;
@@ -662,6 +668,7 @@ void QDockWindow::setMovable(bool movable)
 {
     d->movable = movable;
     d->title->updateButtons();
+    d->title->update();
 }
 
 bool QDockWindow::isMovable() const
