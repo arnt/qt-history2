@@ -82,5 +82,10 @@ extern "C" int usleep(useconds_t);
 #define QT_SOCKLEN_T		int
 #endif
 
+#if defined(_XOPEN_SOURCE) && (_XOPEN_SOURCE-0 >= 400)
+#define QT_SNPRINTF		::snprintf
+#define QT_VSNPRINTF		::vsnprintf
+#endif
+
 
 #endif // QPLATFORMDEFS_H
