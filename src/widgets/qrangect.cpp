@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangect.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qrangect.cpp#11 $
 **
 ** Implementation of QRangeControl class
 **
@@ -13,7 +13,7 @@
 #include "qrangect.h"
 #include "qglobal.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qrangect.cpp#10 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qrangect.cpp#11 $")
 
 
 /*----------------------------------------------------------------------------
@@ -259,29 +259,41 @@ void QRangeControl::adjustValue()
 }
 
 
-/*----------------------------------------------------------------------------
-  This virtual function is called whenever the range control value changes.
+/*! This virtual function is called whenever the range control value
+  changes.
+
+  Do not call it yourself; if is \c protected rather than \c private
+  only because \c private functions are not part of the public
+  interface in our documentation generator.
+
   \sa setValue(), addPage(), subtractPage(), addLine(), subtractLine()
- ----------------------------------------------------------------------------*/
+  rangeChange() stepChange() */
 
 void QRangeControl::valueChange()
 {
 }
 
-/*----------------------------------------------------------------------------
-  This virtual function is called whenever the range control range changes.
-  \sa setRange()
- ----------------------------------------------------------------------------*/
+/*! This virtual function is called whenever the range control range
+  changes.
+
+  Do not call it yourself; if is \c protected rather than \c private
+  only because \c private functions are not part of the public
+  interface in our documentation generator.
+
+  \sa setRange() valueChange() stepChange() */
 
 void QRangeControl::rangeChange()
 {
 }
 
-/*----------------------------------------------------------------------------
-  This virtual function is called whenever the range control step value
+/*! This virtual function is called whenever the range control step value
   changes.
-  \sa setSteps()
- ----------------------------------------------------------------------------*/
+
+  Do not call it yourself; if is \c protected rather than \c private
+  only because \c private functions are not part of the public
+  interface in our documentation generator.
+
+  \sa setSteps() rangeChange() valueChange() */
 
 void QRangeControl::stepChange()
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangect.h#7 $
+** $Id: //depot/qt/main/src/widgets/qrangect.h#8 $
 **
 ** Definition of QRangeControl class
 **
@@ -40,11 +40,12 @@ protected:
     void	directSetValue( int val );
     int		prevValue()	const;
 
-private:
-    void	adjustValue();
     virtual void valueChange();
     virtual void rangeChange();
     virtual void stepChange();
+
+private:
+    void	adjustValue();
 
     int		minVal, maxVal;
     int		line, page;
