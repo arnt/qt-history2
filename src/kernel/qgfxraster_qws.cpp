@@ -3823,7 +3823,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 #else
 	PackType put;
 # ifndef QWS_PACKING_4BYTE
-	unsigned short int *fun = (unsigned short int*)&put;
+	//unsigned short int *fun = (unsigned short int*)&put;
 # endif
 	myptr=(unsigned short int *)l;
 
@@ -5464,9 +5464,9 @@ bool QScreen::onCard(unsigned char * p, ulong& offset) const
 # include "qgfxvga16_qws.cpp"
 #endif
 
-#if !defined(QT_NO_QWS_SVGALIB)
-# include "qgfxsvgalib_qws.cpp"
-#endif
+//#if !defined(QT_NO_QWS_SVGALIB)
+//# include "qgfxsvgalib_qws.cpp"
+//#endif
 
 #if defined(QT_QWS_EE)
 # include "qgfxee_qws.cpp"
@@ -5505,9 +5505,9 @@ struct DriverTable
 #if defined(QT_QWS_EE)
     { "EE", qt_get_screen_ee, 0 },
 #endif
-#if !defined(QT_NO_QWS_SVGALIB)
-    { "SVGALIB", qt_get_screen_svgalib, 1 },
-#endif
+//#if !defined(QT_NO_QWS_SVGALIB)
+//    { "SVGALIB", qt_get_screen_svgalib, 1 },
+//#endif
 #if !defined(QT_NO_QWS_VNC)
     { "VNC", qt_get_screen_vnc, 0 },
 #endif
