@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#31 $
 **
 ** Implementation of QPixmap class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#30 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#31 $";
 #endif
 
 
@@ -54,8 +54,10 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#30 $";
   system.  Pixels can only be accessed through QImage, QPainter functions
   and the bitBlt().
 
-  You can \link load() load\endlink and \link save() save\endlink pixmaps
-  using several image formats.
+  You can \link load() load\endlink and \link save() save\endlink
+  pixmaps using several image formats.  You can display a QPixmap on
+  the screen easily using QLabel::setPixmap(), and all the \link
+  QButton button classes \endlink support pixmap use.
 
   A pixmap can be converted to a QImage to get direct access to the pixels.
   A QImage can also be converted back to a pixmap.
@@ -63,12 +65,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#30 $";
   The QPixmap class is optimized by the use of implicit sharing, so it
   is quite practical to pass QPixmap objects as arguments.
 
-  On the other hand, some window system operations can be slow (for
-  example pixmap construction, resizing and destruction when the user
-  is on a remote X terminal).  We have not investigated this
-  thoroughly yet.
-
-  \sa QBitmap, QImage, QImageIO, QPaintDevice */
+  \sa QBitmap, QImage, QImageIO, QPaintDevice, QLabel, QButton */
 
 
 /*----------------------------------------------------------------------------
