@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#66 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#67 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -28,7 +28,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#66 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#67 $")
 
 
 /*****************************************************************************
@@ -1251,7 +1251,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	}
     }
     if ( !xi )
-	xi = XGetImage( display(), handle(), 0, 0, ws, hs, AllPlanes,
+	xi = XGetImage( dpy, handle(), 0, 0, ws, hs, AllPlanes,
 			depth1 ? XYPixmap : ZPixmap );
 
     if ( !xi ) {				// error, return null pixmap
