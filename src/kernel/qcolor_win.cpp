@@ -86,18 +86,11 @@ void QColor::initialize()
 
     HDC dc = qt_display_dc();			// get global DC
 
-    if ( QApplication::colorSpec() == QApplication::ManyColor )
-	numPalEntries = 20 + 6*6*6;		// System + cube
-    else
-	numPalEntries = 0;			// allocate in alloc()
-    numPalEntries = 0;				// ### ManyColor is broken right now
+    LOGPALETTE* pal = 0;
+    if ( QApplication::colorSpec() == QApplication::ManyColor ) {
+	numPalEntries = 20 + 6*6*6; // System + cube
 
-    LOGPALETTE* pal = (LOGPALETTE*)malloc( sizeof(LOGPALETTE)
-				     + numPalEntries * sizeof(PALETTEENTRY) );
-    pal->palVersion = 0x300;
-    pal->palNumEntries = numPalEntries;
-
-    if ( numPalEntries ) {
+	pal = (LOGPALETTE*)malloc( sizeof(LOGPALETTE) + numPalEntries * sizeof(PALETTEENTRY) );
 	// Fill with system colors
 	GetSystemPaletteEntries( dc, 0, 10, pal->palPalEntry );
 	GetSystemPaletteEntries( dc, 246, 10, pal->palPalEntry + 10 );
@@ -114,6 +107,20 @@ void QColor::initialize()
 		}
 	    }
 	}
+    } else {
+	numPalEntries = 2; // black&white + allocate in alloc()
+
+	pal = (LOGPALETTE*)malloc( sizeof(LOGPALETTE) + numPalEntries * sizeof(PALETTEENTRY) );
+
+	pal->palPalEntry[0].peRed = 0;
+	pal->palPalEntry[0].peGreen = 0;
+	pal->palPalEntry[0].peBlue = 0;
+	pal->palPalEntry[0].peFlags = 0;
+
+	pal->palPalEntry[1].peRed = 255;
+	pal->palPalEntry[1].peGreen = 255;
+	pal->palPalEntry[1].peBlue = 255;
+	pal->palPalEntry[1].peFlags = 0;
     }
 
     // Store palette in our own array
@@ -125,14 +132,25 @@ void QColor::initialize()
 	    colArray[i] = qRgb( pal->palPalEntry[i].peRed,
 				pal->palPalEntry[i].peGreen,
 				pal->palPalEntry[i].peBlue ) & RGB_MASK;
-	    ctxArray[i] = 0;
+	    ctxArray[i] = current_alloc_context;
 	} else {
 	    colArray[i] = 0;
 	    ctxArray[i] = -1;
 	}
     }
+
+    pal->palVersion = 0x300;
+    pal->palNumEntries = numPalEntries;
+
     hpal = CreatePalette( pal );
+#if defined(QT_CHECK_STATE)
+    if ( !hpal )
+	qSystemWarning( "QColor: Failed to create logical palette!" );
+#endif
     free ( pal );
+
+    // make sure "black" and "white" are initialized
+    initGlobalColors();
 
     ((QColor*)(&Qt::black))->alloc();
     ((QColor*)(&Qt::white))->alloc();
@@ -243,12 +261,11 @@ uint QColor::alloc()
     if ( !color_init ) {
 	return d.d32.pix = 0;
     } else {
+	int pix = qrgb2colorref( d.argb );
 	if ( hpal ) {
-	    int pix = qrgb2colorref( d.argb );
-	    int idx = GetNearestPaletteIndex( hpal, pix );
+	    uchar idx = GetNearestPaletteIndex( hpal, pix );
 	    pix = PALETTEINDEX( idx );
 	    if ( QApplication::colorSpec() == QApplication::CustomColor ) {
-		// # Should speed up this using a dict into palArray
 		PALETTEENTRY fe;
 		GetPaletteEntries( hpal, idx, 1, &fe );
 		QRgb fc = qRgb( fe.peRed, fe.peGreen, fe.peBlue );
@@ -296,9 +313,11 @@ uint QColor::alloc()
 			ctxArray[idx] = 0;	// Set it to default ctx
 		}
 	    }
-	    return d.d8.pix = pix;
+	    d.d8.pix = idx;
+	    d.d8.dirty = FALSE;
+	    return pix;
 	} else {
-	    return d.d32.pix = qrgb2colorref( d.argb );
+	    return d.d32.pix = pix;
 	}
     }
 }
