@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qtreewidget.h"
+#include <qpainter.h>
+#include <qitemdelegate.h>
+#include <qapplication.h>
 #include <private/qtreeview_p.h>
 
 class QTreeModel : public QAbstractItemModel
@@ -441,6 +444,61 @@ void QTreeModel::emitRowsInserted(QTreeWidgetItem *item)
     emit rowsInserted(parentIndex, idx.row(), idx.row());
 }
 
+// QTreeWidgetDelegate
+
+class QTreeItemDelegate : public QItemDelegate
+{
+public:
+    QTreeItemDelegate(QTreeModel *model, QTreeView *view);
+    ~QTreeItemDelegate();
+
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+               const QAbstractItemModel *model, const QModelIndex &index) const;
+    QSize sizeHint(const QFontMetrics &fontMetrics, const QStyleOptionViewItem &option,
+                   const QAbstractItemModel *model, const QModelIndex &index) const;
+
+protected:
+    QTreeModel *treeModel;
+    QTreeView *treeView;
+};
+
+QTreeItemDelegate::QTreeItemDelegate(QTreeModel *model, QTreeView *view)
+    : QItemDelegate(view), treeModel(model), treeView(view)
+{
+}
+
+QTreeItemDelegate::~QTreeItemDelegate()
+{
+}
+
+void QTreeItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
+                              const QAbstractItemModel *model, const QModelIndex &index) const
+{
+    int column = index.column();
+    QTreeWidgetItem *item = treeModel->item(index);
+    QFont oldFont = painter->font();
+    painter->setFont(item->font(column));
+    QColor backgroundColor = item->backgroundColor(column);
+    if (backgroundColor.isValid())
+        painter->fillRect(option.rect, backgroundColor);
+    QColor textColor = item->textColor(column);
+    QStyleOptionViewItem opt = option;
+    if (textColor.isValid())
+        opt.palette.setColor(QPalette::Text, textColor);
+    QItemDelegate::paint(painter, opt, model, index);
+    painter->setFont(oldFont);
+}
+
+QSize QTreeItemDelegate::sizeHint(const QFontMetrics &fontMetrics,
+                                  const QStyleOptionViewItem &option,
+                                  const QAbstractItemModel *model,
+                                  const QModelIndex &index) const
+{
+    QTreeWidgetItem *item = treeModel->item(index);
+    QFontMetrics fm(item->font(index.column()));
+    return QItemDelegate::sizeHint(fm, option, model, index);
+}
+
 // QTreeWidgetItem
 
 /*!
@@ -666,26 +724,7 @@ void QTreeWidgetItem::setColumnCount(int count)
 
 QString QTreeWidgetItem::text(int column) const
 {
-    const QVector<Data> column_values = values.at(column);
-    for (int i = 0; i < column_values.count(); ++i)
-        if (column_values.at(i).role == QAbstractItemModel::DisplayRole)
-            return column_values.at(i).value.toString();
-    return QString::null;
-}
-
-/*!
-    Returns the icon stored in the \a column.
-
-  \sa data() QAbstractItemModel::Role
-*/
-
-QIconSet QTreeWidgetItem::icon(int column) const
-{
-    const QVector<Data> column_values = values.at(column);
-    for (int i = 0; i < column_values.count(); ++i)
-        if (column_values.at(i).role == QAbstractItemModel::DecorationRole)
-            return column_values.at(i).value.toIcon();
-    return QIconSet();
+    return retrieve(column, QAbstractItemModel::DisplayRole).toString();
 }
 
 /*!
@@ -696,15 +735,18 @@ QIconSet QTreeWidgetItem::icon(int column) const
 
 void QTreeWidgetItem::setText(int column, const QString &text)
 {
-    if (column >= columns)
-        setColumnCount(column + 1);
-    QVector<Data> column_values = values.at(column);
-    for (int i = 0; i < column_values.count(); ++i)
-        if (column_values.at(i).role == QAbstractItemModel::DisplayRole) {
-            values[column][i].value = text;
-            return;
-        }
-    values[column].append(Data(QAbstractItemModel::DisplayRole, text));
+    store(column, QAbstractItemModel::DisplayRole, text);
+}
+
+/*!
+    Returns the icon stored in the \a column.
+
+  \sa data() QAbstractItemModel::Role
+*/
+
+QIconSet QTreeWidgetItem::icon(int column) const
+{
+    return retrieve(column, QAbstractItemModel::DecorationRole).toIcon();
 }
 
 /*!
@@ -715,17 +757,72 @@ void QTreeWidgetItem::setText(int column, const QString &text)
 
 void QTreeWidgetItem::setIcon(int column, const QIconSet &icon)
 {
-    if (column >= columns)
-        setColumnCount(column + 1);
-    QVector<Data> column_values = values.at(column);
-    for (int i = 0; i < column_values.count(); ++i)
-        if (column_values.at(i).role == QAbstractItemModel::DecorationRole) {
-            values[column][i].value = icon;
-            return;
-        }
-    values[column].append(Data(QAbstractItemModel::DecorationRole, icon));
+    store(column, QAbstractItemModel::DecorationRole, icon);
 }
 
+
+QString QTreeWidgetItem::statusTip(int column) const
+{
+    return retrieve(column, QAbstractItemModel::StatusTipRole).toString();
+}
+
+void QTreeWidgetItem::setStatusTip(int column, const QString &statusTip)
+{
+    store(column, QAbstractItemModel::StatusTipRole, statusTip);
+}
+
+QString QTreeWidgetItem::toolTip(int column) const
+{
+    return retrieve(column, QAbstractItemModel::ToolTipRole).toString();
+}
+
+void QTreeWidgetItem::setToolTip(int column, const QString &toolTip)
+{
+    store(column, QAbstractItemModel::ToolTipRole, toolTip);
+}
+
+QString QTreeWidgetItem::whatsThis(int column) const
+{
+    return retrieve(column, QAbstractItemModel::WhatsThisRole).toString();
+}
+
+void QTreeWidgetItem::setWhatsThis(int column, const QString &whatsThis)
+{
+    store(column, QAbstractItemModel::WhatsThisRole, whatsThis);
+}
+
+QFont QTreeWidgetItem::font(int column) const
+{
+    QVariant value = retrieve(column, FontRole);
+    return value.isValid() ? value.toFont() : QApplication::font();
+}
+
+void QTreeWidgetItem::setFont(int column, const QFont &font)
+{
+    store(column, FontRole, font);
+}
+
+QColor QTreeWidgetItem::backgroundColor(int column) const
+{
+    QVariant value = retrieve(column, BackgroundColorRole);
+    return value.isValid() ? value.toColor() : QColor();
+}
+
+void QTreeWidgetItem::setBackgroundColor(int column, const QColor &color)
+{
+    store(column, BackgroundColorRole, color);
+}
+
+QColor QTreeWidgetItem::textColor(int column) const
+{
+    QVariant value = retrieve(column, TextColorRole);
+    return value.isValid() ? value.toColor() : QColor();
+}
+
+void QTreeWidgetItem::setTextColor(int column, const QColor &color)
+{
+    store(column, TextColorRole, color);
+}
 
 /*!
     Returns the data stored in the \a column with the given \a role.
@@ -743,6 +840,18 @@ QVariant QTreeWidgetItem::data(int column, int role) const
         return text(column);
     case QAbstractItemModel::DecorationRole:
         return icon(column);
+    case QAbstractItemModel::StatusTipRole:
+        return statusTip(column);
+    case QAbstractItemModel::ToolTipRole:
+        return toolTip(column);
+    case QAbstractItemModel::WhatsThisRole:
+        return whatsThis(column);
+    case FontRole:
+        return font(column);
+    case BackgroundColorRole:
+        return backgroundColor(column);
+    case TextColorRole:
+        return textColor(column);
     }
     return QVariant();
 }
@@ -762,7 +871,48 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
     case QAbstractItemModel::DecorationRole:
         setIcon(column, value.toIconSet());
         break;
+    case QAbstractItemModel::StatusTipRole:
+        setStatusTip(column, value.toString());
+        break;
+    case QAbstractItemModel::ToolTipRole:
+        setToolTip(column, value.toString());
+        break;
+    case QAbstractItemModel::WhatsThisRole:
+        setWhatsThis(column, value.toString());
+        break;
+    case FontRole:
+        setFont(column, value.toFont());
+        break;
+    case BackgroundColorRole:
+        setBackgroundColor(column, value.toColor());
+        break;
+    case TextColorRole:
+        setTextColor(column, value.toColor());
+        break;
     }
+}
+
+void QTreeWidgetItem::store(int column, int role, const QVariant &value)
+{
+    if (column >= columns)
+        setColumnCount(column + 1);
+    QVector<Data> column_values = values.at(column);
+    for (int i = 0; i < column_values.count(); ++i) {
+        if (column_values.at(i).role == role) {
+            values[column][i].value = value;
+            return;
+        }
+    }
+    values[column].append(Data(role, value));
+}
+
+QVariant QTreeWidgetItem::retrieve(int column, int role) const
+{
+    const QVector<Data> column_values = values.at(column);
+    for (int i = 0; i < column_values.count(); ++i)
+        if (column_values.at(i).role == role)
+            return column_values.at(i).value;
+    return QVariant();
 }
 
 class QTreeWidgetPrivate : public QTreeViewPrivate
@@ -813,7 +963,10 @@ public:
 QTreeWidget::QTreeWidget(QWidget *parent)
     : QTreeView(*new QTreeViewPrivate(), parent)
 {
-    setModel(new QTreeModel(0, this));
+    QTreeModel *treeModel = new QTreeModel(0, this);
+    QTreeItemDelegate *treeDelegate = new QTreeItemDelegate(treeModel, this);
+    setModel(treeModel);
+    setItemDelegate(treeDelegate);
 }
 
 /*!

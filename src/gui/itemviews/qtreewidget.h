@@ -50,18 +50,47 @@ public:
         { return par == other.par && children == other.children; }
     inline bool operator !=(const QTreeWidgetItem &other) const { return !operator==(other); }
 
+    enum Role {
+        FontRole = 33,
+        BackgroundColorRole = 34,
+        TextColorRole = 35
+    };
+
     // these functions are intended to be reimplemented
     virtual QString text(int column) const;
-    virtual QIconSet icon(int column) const;
     virtual void setText(int column, const QString &text);
+    
+    virtual QIconSet icon(int column) const;
     virtual void setIcon(int column, const QIconSet &icon);
+
+    virtual QString statusTip(int column) const;
+    virtual void setStatusTip(int column, const QString &statusTip);
+
+    virtual QString toolTip(int column) const;
+    virtual void setToolTip(int column, const QString &toolTip);
+
+    virtual QString whatsThis(int column) const;
+    virtual void setWhatsThis(int column, const QString &whatsThis);
+
+    virtual QFont font(int column) const;
+    virtual void setFont(int column, const QFont &font);
+
+    virtual QColor backgroundColor(int column) const;
+    virtual void setBackgroundColor(int column, const QColor &color);
+
+    virtual QColor textColor(int column) const;
+    virtual void setTextColor(int column, const QColor &color);
     
     virtual QVariant data(int column, int role) const;
     virtual void setData(int column, int role, const QVariant &value);
 
-private:
+protected:
     QTreeWidgetItem();
 
+    void store(int column, int role, const QVariant &value);
+    QVariant retrieve(int column, int role) const;
+
+private:
     QTreeWidgetItem *par;
     QList<QTreeWidgetItem*> children;
 
@@ -71,8 +100,8 @@ private:
         int role;
         QVariant value;
     };
+    QVector< QVector<Data> > values; // each column has a vector of role values
 
-    QVector< QVector<Data> > values;
     QTreeWidget *view;
     int columns;
     uint editable : 1;
